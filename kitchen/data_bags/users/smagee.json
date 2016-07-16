@@ -1,0 +1,39 @@
+{
+  "id": "smagee",
+  "uid": {
+    "encrypted_data": "rdPUja0MMxfG1zw7G0ZQbl0Cw6a4L7Liyo+ovhKcnrc=\n",
+    "iv": "B8GzxmKsJTaZ/vm3rn54nA==\n",
+    "version": 1,
+    "cipher": "aes-256-cbc"
+  },
+  "gid": {
+    "encrypted_data": "oJ610MA9mzVk6FqTdMAjBk9a9/v+UGTh+juboQXXsOk=\n",
+    "iv": "NbaeBylFaLdnRJ6JwID7dg==\n",
+    "version": 1,
+    "cipher": "aes-256-cbc"
+  },
+  "comment": {
+    "encrypted_data": "DzyMjUqSeCawBxbjWkb3TXpvkK3Bn/z97SYkYZ+aJ5k=\n",
+    "iv": "uQnhp3UGCGUujl2W39luUg==\n",
+    "version": 1,
+    "cipher": "aes-256-cbc"
+  },
+  "groups": {
+    "encrypted_data": "sxvQqdoOmczPiPRogMMTLUsw964QGq9OajQ2lb4j0FhZTy2n/jW9LJrCtQz9\nKXSj\n",
+    "iv": "NaVgjK19MHs3LX9xxiS0PQ==\n",
+    "version": 1,
+    "cipher": "aes-256-cbc"
+  },
+  "shell": {
+    "encrypted_data": "7K6MwCTiv1CiF7RoSrJdAMlef0uVHfSNPmmL7GB77+4=\n",
+    "iv": "1QJWVeHoX8zFUTg3AoBnEw==\n",
+    "version": 1,
+    "cipher": "aes-256-cbc"
+  },
+  "ssh_keys": {
+    "encrypted_data": "vfRBvahhPdpik62lMlhmPc07fdnzcuIQfMNYEvhlRnF6QslCKOl5yJu26lHn\nELyZhEQjtOx3gjkBlE0VGTflWPlwp3mro4NQIo+rdEDjF35+bIrNrGwUfq8p\n6HY/fEBSYMKHnxMzl6MKUsOUe40TjWiOF9WfFwnvRrU+P6SzDb0GDA/Q4bFg\nXi3M2kqoa9fZLac2+dDHOD2PLPqF73TjqkWcm8dBfbri3ZoilRCpdUfzDThr\n03GY19SWwdPezEBygPSjrtX+dD3tYCqLu8UYmt9WwvKRRjws9mqvzT6GSaHH\noWj2J+j/iwj79kcIDbvagcKQBMC9AoTe06XsM3CQtCPTkvWURsL+JDJZiB+2\nWEOkgizUpcO/d6wqD8920MYcNJ1zWxSbsu0cSGTSUw/M1xVWU0NWeoC8/XQY\nPYotGzjzAEFxjVUof+7EoDaLkjGcW7u/HvWQDLscHcaV678homTMkvbhPZdI\n67PcIU/tpe+7fvxXDfoMVrmhxaFeFJniBnggfsWdhX0Xyl+UCZApx1/CHkr4\ny1/5udUTsRHnujWxsfaRE9LuFXVaWs/juA5V\n",
+    "iv": "rzk+RcBK94dW4nLkqKmceg==\n",
+    "version": 1,
+    "cipher": "aes-256-cbc"
+  }
+}

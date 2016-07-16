@@ -1,0 +1,34 @@
+#user  nobody;
+worker_processes  5;
+error_log  <%= @log_path %>/error.log;
+pid <%= @pidfile %>;
+
+events {
+  worker_connections  <%= @passenger[:worker_connections] %>;
+}
+
+include conf.d/*.conf;
+
+http {
+  passenger_root <%= @passenger_root %>;
+  passenger_ruby <%= @ruby_path %>;
+  passenger_max_pool_size <%= @passenger[:max_pool_size] %>;
+  passenger_min_instances <%= @passenger[:min_instances] %>;
+  passenger_pool_idle_time <%= @passenger[:pool_idle_time] %>;
+  passenger_max_instances_per_app <%= @passenger[:max_instances_per_app] %>;
+
+  include mime.types;
+  default_type application/octet-stream;
+
+  sendfile <%= @passenger[:sendfile] ? 'on' : 'off' %>;
+  tcp_nopush <%= @passenger[:tcp_nopush] ? 'on' : 'off' %>;
+  keepalive_timeout <%= @passenger[:keepalive_timeout] %>;
+  gzip <%= @passenger[:gzip] ? 'on' : 'off' %>;
+
+  include sites.d/*.conf;
+
+}
+
+<% @passenger[:pre_start].each do |url| %>
+  passenger_pre_start <%= url %>;
+<% end %>

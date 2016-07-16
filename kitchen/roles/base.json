@@ -1,0 +1,48 @@
+{
+  "name": "base",
+  "description": "",
+  "json_class": "Chef::Role",
+  "default_attributes": {
+    "authorization": {
+      "sudo": {
+        "groups": [
+          "adm"
+        ],
+        "users": [
+          "ubuntu"
+        ],
+        "passwordless": true
+      }
+    },
+    "set_fqdn": "dev-tf.login.gov",
+    "ssh_keys": {
+      "ubuntu": [
+        "jgrevich",
+        "astone",
+        "mbelyamani",
+        "smagee",
+        "mzia",
+        "bsudol"
+      ]
+    }
+  },
+  "override_attributes": {
+
+  },
+  "chef_type": "role",
+  "run_list": [
+    "recipe[apt]",
+    "recipe[bash-completion]",
+    "recipe[build-essential]",
+    "recipe[cacert]",
+    "recipe[git]",
+    "recipe[hostname]",
+    "recipe[motd]",
+    "recipe[nano]",
+    "recipe[ssh-keys]",
+    "recipe[sudo]"
+  ],
+  "env_run_lists": {
+
+  }
+}

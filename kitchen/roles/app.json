@@ -1,0 +1,26 @@
+{
+  "name": "app",
+  "description": "",
+  "json_class": "Chef::Role",
+  "default_attributes": {
+    "poise-ruby": {
+      "install_ruby": "false",
+      "provider": "ruby_build"
+    }
+  },
+  "override_attributes": {
+
+  },
+  "chef_type": "role",
+  "run_list": [
+    "recipe[ruby_build]",
+    "recipe[login_dot_gov::ruby]",
+    "recipe[passenger::install]",
+    "recipe[passenger::daemon]",
+    "recipe[login_dot_gov::certs]",
+    "recipe[login_dot_gov::app]"
+  ],
+  "env_run_lists": {
+
+  }
+}

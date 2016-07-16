@@ -1,0 +1,45 @@
+{
+  "name": "login_dot_gov",
+  "description": "Cookbook for login.gov host provisioning",
+  "maintainer": "Justin Grevich",
+  "maintainer_email": "justin.grevich@gsa.gov",
+  "platforms": {
+    "ubuntu": ">= 14.04",
+    "debian": ">= 0.0.1",
+    "freebsd": ">= 0.0.1",
+    "redhat": ">= 0.0.1",
+    "centos": ">= 0.0.1",
+    "fedora": ">= 0.0.1",
+    "amazon": ">= 0.0.1"
+  },
+  "dependencies": {
+    "application_ruby": ">= 0.0.1",
+    "poise-ruby": ">= 0.0.1",
+    "poise-ruby-build": ">= 0.0.1",
+    "ruby_build": ">= 0.0.1",
+    "ssh-keys": "> 0.0.1",
+    "sudo": ">= 0.0.1",
+    "users": ">= 0.0.1"
+  },
+  "recommendations": {
+  },
+  "suggestions": {
+  },
+  "conflicting": {
+  },
+  "providing": {
+  },
+  "replacing": {
+  },
+  "attributes": {
+  },
+  "groupings": {
+  },
+  "recipes": {
+    "login_dot_gov::app": "login.gov core apps idp, idv, sp",
+    "login_dot_gov::certs": "login.gov certs via letsencrypt",
+    "login_dot_gov::ruby": "login.gov ruby runtime management",
+    "login_dot_gov::users": "login.gov user management"
+  },
+  "version": "0.0.1"
+}

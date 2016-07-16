@@ -1,3 +1,12 @@
+.chef/*.pem
+.chef/data_bag.key
+.chef/knife.rb
+.chef/syntaxcache
+.vagrant
+.kitchen/
+.kitchen.local.yml
 env.sh
+kitchen/vendor
 terraform.tfstate
 terraform.tfstate.backup
+Vagrantfile
