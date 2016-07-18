@@ -14,6 +14,8 @@
   },
   "dependencies": {
     "application_ruby": ">= 0.0.1",
+    "newrelic": ">= 0.0.1",
+    "passenger": ">= 0.0.1",
     "poise-ruby": ">= 0.0.1",
     "poise-ruby-build": ">= 0.0.1",
     "ruby_build": ">= 0.0.1",
@@ -36,10 +38,19 @@
   "groupings": {
   },
   "recipes": {
-    "login_dot_gov::app": "login.gov core apps idp, idv, sp",
-    "login_dot_gov::certs": "login.gov certs via letsencrypt",
-    "login_dot_gov::ruby": "login.gov ruby runtime management",
-    "login_dot_gov::users": "login.gov user management"
+    "login_dot_gov::certs": "Certs via letsencrypt",
+    "login_dot_gov::dashboard": "Dashboard setup and deploy",
+    "login_dot_gov::default": "Default recipe (no action)",
+    "login_dot_gov::idp": "IdP setup and deploy",
+    "login_dot_gov::newrelic": "New Relic config",
+    "login_dot_gov::ruby": "Ruby runtime",
+    "login_dot_gov::sp-java": "Java example SP",
+    "login_dot_gov::sp-node": "NodeJS example SP",
+    "login_dot_gov::sp-python": "Python example SP",
+    "login_dot_gov::sp-rails": "Rails example SP",
+    "login_dot_gov::sp-sinatra": "Sinatra example SP",
+    "login_dot_gov::users": "User management",
+    "login_dot_gov::worker": "Worker instance setup and deploy"
   },
   "version": "0.0.1"
 }

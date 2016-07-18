@@ -59,7 +59,7 @@ template "#{nginx_path}/conf/nginx.conf" do
   mode 0644
   variables(
     :log_path => log_path,
-    :passenger_root => "/opt/ruby_build/builds/2.3.1/lib/ruby/gems/2.3.0/gems/passenger-5.0.29",
+    :passenger_root => "/opt/ruby_build/builds/2.3.1/lib/ruby/gems/2.3.0/gems/passenger-#{node[:passenger][:production][:version]}",
     :ruby_path => "/opt/ruby_build/builds/2.3.1/bin/ruby",
     :passenger => node[:passenger][:production],
     :pidfile => "/var/run/nginx.pid"

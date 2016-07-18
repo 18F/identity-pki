@@ -1,3 +1,5 @@
-include_recipe 'login_dot_gov::ruby'
-include_recipe 'login_dot_gov::certs'
-include_recipe 'login_dot_gov::app'
+include_recipe "passenger::daemon"
+include_recipe "login_dot_gov::dashboard"
+include_recipe "login_dot_gov::idp"
+include_recipe "login_dot_gov::sp-rails"
+include_recipe "login_dot_gov::sp-sinatra"

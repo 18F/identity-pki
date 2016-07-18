@@ -14,15 +14,13 @@
         "passwordless": true
       }
     },
-    "set_fqdn": "dev-tf.login.gov",
+    "poise-ruby": {
+      "install_ruby": "false",
+      "provider": "ruby_build"
+    },
     "ssh_keys": {
       "ubuntu": [
-        "jgrevich",
-        "astone",
-        "mbelyamani",
-        "smagee",
-        "mzia",
-        "bsudol"
+        "jgrevich"
       ]
     }
   },
@@ -39,8 +37,10 @@
     "recipe[hostname]",
     "recipe[motd]",
     "recipe[nano]",
+    "recipe[ruby_build]",
     "recipe[ssh-keys]",
-    "recipe[sudo]"
+    "recipe[sudo]",
+    "recipe[login_dot_gov::ruby]"
   ],
   "env_run_lists": {
 

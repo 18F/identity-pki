@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+REGION=${TF_VAR_region:-'us-west-2'}
+BUCKET=login_dot_gov_terraform_state-${REGION}
+STATE=${2}/terraform-${TF_VAR_env_name}.tfstate
+
+# Do not use a region specific state file for the chef remote config
+if [ "$2" == "terraform-chef" ]
+  then
+  STATE=${2}/terraform.tfstate
+fi
+
+# function to exit process with error message
+die() { echo "$@" 1>&2 ; exit 1; }
+
+# require one of our terrform plans
+# NOTE: JJG remove trailing slash from $2 if it exists to ease use with auto completion
+if ( [ "$2" != "terraform-app" ] && [ "$2" != "terraform-chef" ] && [ "$2" != "terraform-dns" ] && [ "$2" != "terraform-peering" ] )
+  then
+  die "you must specify a terraform project folder"
+fi
+
+# create a s3 bucket based on env_name if one does not exist
+aws s3 mb s3://${BUCKET}
+
+# enable versioning on the s3 bucket
+aws s3api put-bucket-versioning \
+  --bucket ${BUCKET} \
+  --versioning-configuration Status=Enabled
+
+# use terraform remote state server
+cd ${2}
+rm -rf .terraform
+terraform remote config -backend=s3 \
+  -backend-config="bucket=${BUCKET}" \
+  -backend-config="key=${STATE}" \
+  -backend-config="region=us-east-1" \
+  -state="${STATE}"
+
+# apply terraform command ($1) to env
+terraform ${1} \
+  -var env_name=${TF_VAR_env_name}
