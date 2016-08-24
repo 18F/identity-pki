@@ -1,41 +1,15 @@
+resource "aws_elasticache_subnet_group" "app" {
+  name = "${var.name}-cache-${var.env_name}"
+  description = "Redis Subnet Group"
+  subnet_ids = ["${aws_subnet.app.id}"]
+}
+
 resource "aws_internet_gateway" "default" {
   tags {
     client = "${var.client}"
-    Name = "${var.name}"
+    Name = "${var.name}-gateway-${var.env_name}"
   }
   vpc_id = "${aws_vpc.default.id}"
-}
-
-resource "aws_route53_record" "a_dev" {
-  name = "dev-tf.login.gov"
-  records = ["${aws_instance.web.public_ip}"]
-  ttl = "300"
-  type = "A"
-  zone_id = "${var.zone_id}"
-}
-
-resource "aws_route53_record" "c_idp" {
-  name = "idp-dev-tf.login.gov"
-  records = ["${aws_route53_record.a_dev.name}"]
-  ttl = "300"
-  type = "CNAME"
-  zone_id = "${var.zone_id}"
-}
-
-resource "aws_route53_record" "c_idv" {
-  name = "idv-dev-tf.login.gov"
-  records = ["${aws_route53_record.a_dev.name}"]
-  ttl = "300"
-  type = "CNAME"
-  zone_id = "${var.zone_id}"
-}
-
-resource "aws_route53_record" "c_sp" {
-  name = "sp-dev-tf.login.gov"
-  records = ["${aws_route53_record.a_dev.name}"]
-  ttl = "300"
-  type = "CNAME"
-  zone_id = "${var.zone_id}"
 }
 
 resource "aws_route" "default" {
@@ -75,18 +49,45 @@ resource "aws_security_group" "default" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  name = "identity_security_group"
+  name = "${var.name}-app-${var.env_name}"
 
   tags {
     client = "${var.client}"
-    Name = "${var.name}"
+    Name = "${var.name}-security_group-${var.env_name}"
+  }
+
+  vpc_id = "${aws_vpc.default.id}"
+}
+
+resource "aws_security_group" "cache" {
+  description = "Allow inbound and outbound redis traffic with app subnet in vpc"
+
+  egress {
+    from_port = 6379
+    to_port = 6379
+    protocol = "tcp"
+    cidr_blocks = ["${var.app_subnet_cidr_block}"]
+  }
+
+  ingress {
+    from_port = 6379
+    to_port = 6379
+    protocol = "tcp"
+    cidr_blocks = ["${var.app_subnet_cidr_block}"]
+  }
+
+  name = "${var.name}-cache-${var.env_name}"
+
+  tags {
+    client = "${var.client}"
+    Name = "${var.name}-security_group_cache-${var.env_name}"
   }
 
   vpc_id = "${aws_vpc.default.id}"
 }
 
 resource "aws_security_group" "db" {
-  description = "Allow inbound and outbound postgresql traffic to app subnet in vpc"
+  description = "Allow inbound and outbound postgresql traffic with app subnet in vpc"
 
   egress {
     from_port = 5432
@@ -102,50 +103,50 @@ resource "aws_security_group" "db" {
     cidr_blocks = ["${var.app_subnet_cidr_block}"]
   }
 
-  name = "identity_db_security_group"
+  name = "${var.name}-db-${var.env_name}"
 
   tags {
     client = "${var.client}"
-    Name = "${var.name}"
+    Name = "${var.name}-security_group_db-${var.env_name}"
   }
 
   vpc_id = "${aws_vpc.default.id}"
 }
 
 resource "aws_subnet" "app" {
-  availability_zone = "us-east-1a"
+  availability_zone = "${var.region}a"
   cidr_block = "${var.app_subnet_cidr_block}"
   map_public_ip_on_launch = true
 
   tags {
     client = "${var.client}"
-    Name = "${var.name}"
+    Name = "${var.name}-subnet-${var.env_name}"
   }
 
   vpc_id = "${aws_vpc.default.id}"
 }
 
 resource "aws_subnet" "db1" {
-  availability_zone = "us-east-1d"
+  availability_zone = "${var.region}b"
   cidr_block = "${var.db1_subnet_cidr_block}"
   map_public_ip_on_launch = false
 
   tags {
     client = "${var.client}"
-    Name = "${var.name}"
+    Name = "${var.name}-subnet_db-${var.env_name}"
   }
 
   vpc_id = "${aws_vpc.default.id}"
 }
 
 resource "aws_subnet" "db2" {
-  availability_zone = "us-east-1b"
+  availability_zone = "${var.region}c"
   cidr_block = "${var.db2_subnet_cidr_block}"
   map_public_ip_on_launch = false
 
   tags {
     client = "${var.client}"
-    Name = "${var.name}"
+    Name = "${var.name}-subnet_db2-${var.env_name}"
   }
 
   vpc_id = "${aws_vpc.default.id}"
@@ -157,6 +158,6 @@ resource "aws_vpc" "default" {
 
   tags {
    client = "${var.client}"
-   Name = "${var.name}"
+   Name = "${var.name}-vpc-${var.env_name}"
   }
 }

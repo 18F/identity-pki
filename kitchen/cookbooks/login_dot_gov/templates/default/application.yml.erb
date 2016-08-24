@@ -10,19 +10,23 @@
 
 production:
   allow_third_party_auth: '<%= @allow_third_party_auth %>'
-  domain_name: <%= @domain_name %>
-  google_analytics_key: <%= @google_analytics_key %>
-  idp_sso_target_url: <%= @idp_sso_target_url %>
+  domain_name: '<%= @domain_name %>'
+  google_analytics_key: '<%= @google_analytics_key %>'
+  idp_sso_target_url: '<%= @idp_sso_target_url %>'
   logins_per_ip_limit: '<%= @logins_per_ip_limit %>'
   logins_per_ip_period: '<%= @logins_per_ip_period %>'
-  mailer_domain_name: <%= @mailer_domain_name %>
-  newrelic_license_key: <%= @newrelic_license_key %>
-  pt_mode: <%= @pt_mode %>
-  proofing_vendors: <%= @proofing_vendors %>
+  mailer_domain_name: '<%= @mailer_domain_name %>'
+  newrelic_license_key: '<%= @newrelic_license_key %>'
+  otp_delivery_blocklist_bantime: '<%= @otp_delivery_blocklist_bantime %>'
+  otp_delivery_blocklist_findtime: '<%= @otp_delivery_blocklist_findtime %>'
+  otp_delivery_blocklist_maxretry: '<%= @otp_delivery_blocklist_maxretry %>'
+  pt_mode: '<%= @pt_mode %>'
+  proofing_vendors: '<%= @proofing_vendors %>'
+  redis_url: '<%= @redis_url %>'
   requests_per_ip_limit: '<%= @requests_per_ip_limit %>'
   requests_per_ip_period: '<%= @requests_per_ip_period %>'
-  saml_passphrase: <%= @saml_passphrase %>
-  secret_key_base: <%= @secret_key_base %>
+  saml_passphrase: '<%= @saml_passphrase %>'
+  secret_key_base: '<%= @secret_key_base %>'
   smtp_settings: '<%= @smtp_settings %>'
-  support_url: <%= @domain_name %>
+  support_url: '<%= @domain_name %>'
   twilio_accounts: '<%= @twilio_accounts %>'

@@ -1,0 +1,23 @@
+{
+  "name": "worker",
+  "description": "",
+  "json_class": "Chef::Role",
+  "default_attributes": {
+    "poise-ruby": {
+      "install_ruby": "false",
+      "provider": "ruby_build"
+    }
+  },
+  "override_attributes": {
+
+  },
+  "chef_type": "role",
+  "run_list": [
+    "recipe[ruby_build]",
+    "recipe[login_dot_gov::ruby]",
+    "recipe[login_dot_gov::worker]"
+  ],
+  "env_run_lists": {
+
+  }
+}

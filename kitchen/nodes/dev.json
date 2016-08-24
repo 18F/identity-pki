@@ -1,0 +1,18 @@
+{
+  "name": "qa",
+  "chef_environment": "_default",
+  "run_list": [
+  "role[base]",
+  "role[app]"
+]
+,
+  "normal": {
+    "login_dot_gov": {
+      "domain_name": "dev.login.gov"
+    },
+    "set_fqdn": "dev.login.gov",
+    "tags": [
+
+    ]
+  }
+}

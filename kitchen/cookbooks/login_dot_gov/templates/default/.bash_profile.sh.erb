@@ -1,0 +1,14 @@
+# Dropped off by chef
+export RAILS_ENV=production
+
+export MONIT_LOG="/var/log/monit.log"
+export NGINX_LOGS="/opt/nginx/logs/access.log /var/log/passenger/error.log"
+export DASHBOARD_LOG="/srv/dashboard/log/shared/production.log"
+export IDP_LOG="/srv/idp/log/shared/production.log"
+export SPRAILS_LOG="/srv/sp-rails/log/shared/production.log"
+export SPSINATRA_LOG="/srv/sp-sinatra/log/shared/production.log"
+export RAILS_LOGS="$DASHBOARD_LOG $IDP_LOG $SPRAILS_LOG $SPSINATRA_LOG"
+export SIDEKIQ_LOG="/srv/idp/shared/log/sidekiq.log"
+export LOGS="$RAILS_LOG $NGINX_LOGS $MONIT_LOG $SIDEKIQ_LOG"
+
+export TMPDIR='/usr/local/src'
