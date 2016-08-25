@@ -46,10 +46,10 @@ resource "aws_security_group" "default" {
     protocol = "tcp"
     cidr_blocks = [
       "${var.app_sg_ssh_cidr_blocks}",
-      "${data.terraform_remote_state.app-dev.aws_instance_app_public_ip}/32",
+      "${data.terraform_remote_state.app-dev.aws_eip_app_public_ip}/32",
       "${data.terraform_remote_state.app-dev.aws_instance_worker_public_ip}/32",
-      "${data.terraform_remote_state.app-tf.aws_instance_app_public_ip}/32",
-      "${data.terraform_remote_state.app-tf.aws_instance_worker_public_ip}/32"
+      "${data.terraform_remote_state.app-pt.aws_eip_app_public_ip}/32",
+      "${data.terraform_remote_state.app-pt.aws_instance_worker_public_ip}/32"
     ]
   }
 

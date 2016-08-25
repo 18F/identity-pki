@@ -1,0 +1,8 @@
+# Dropped off by chef
+# Monit configuration for Sidekiq :  idp
+
+check process sidekiq_idp_production0
+  with pidfile "/srv/idp/shared/tmp/pids/sidekiq-0.pid"
+  start program = "/bin/bash -c 'cd /srv/idp/current && /opt/ruby_build/builds/2.3.1/bin/bundle exec sidekiq  --index 0 --pidfile /srv/idp/shared/tmp/pids/sidekiq-0.pid --environment production  --logfile /srv/idp/shared/log/sidekiq.log --queue analytics --queue mailers --queue sms -queue voice -d'" as uid ubuntu and gid ubuntu with timeout 30 seconds
+  stop program = "/bin/bash -c 'cd /srv/idp/current && /opt/ruby_build/builds/2.3.1/bin/bundle exec sidekiqctl stop /srv/idp/shared/tmp/pids/sidekiq-0.pid'" as uid ubuntu and gid ubuntu with timeout 20 seconds
+  group idp-sidekiq

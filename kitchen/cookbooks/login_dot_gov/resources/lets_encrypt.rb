@@ -52,12 +52,12 @@ action :create do
     creates '/etc/ssl/certs/dhparam.pem' 
     cwd '/etc/ssl/certs'
     notifies :stop, "service[passenger]", :before
-    not_if dhparam
+    only_if { dhparam == nil }
   end
 
   file '/etc/ssl/certs/dhparam.pem' do
     content dhparam
-    only_if dhparam
+    not_if { dhparam == nil }
   end
 
   service "passenger" do

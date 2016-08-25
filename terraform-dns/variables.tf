@@ -1,6 +1,5 @@
 variable "access_key" {}
 variable "access_key_18f_ent" {}
-variable "env_name" { default = "sandbox" }
 variable "region" { default = "us-west-2" }
 variable "secret_key" {}
 variable "secret_key_18f_ent" {}
@@ -20,6 +19,15 @@ data "terraform_remote_state" "app-dev" {
   config {
     bucket = "login_dot_gov_terraform_state-${var.region}"
     key = "terraform-app/terraform-dev.tfstate"
+    region = "us-east-1"
+  }
+}
+
+data "terraform_remote_state" "app-pt" {
+  backend = "s3"
+  config {
+    bucket = "login_dot_gov_terraform_state-${var.region}"
+    key = "terraform-app/terraform-pt.tfstate"
     region = "us-east-1"
   }
 }
