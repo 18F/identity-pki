@@ -26,6 +26,8 @@ action :create do
         "--email #{node['login_dot_gov']['admin_email']} "\
         "-d #{fqdn}"
 
+  cmd += ' --server https://acme-staging.api.letsencrypt.org/directory' unless node['login_dot_gov']['live_certs']
+
   # generate certs with LetsEncrypt on first run
   # set XDG_DATA_HOME env var since /tmp is a noexec mount
   # TODO: JJG move to official LE cookbook
