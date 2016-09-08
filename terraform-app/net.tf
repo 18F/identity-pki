@@ -126,8 +126,21 @@ resource "aws_subnet" "app" {
   vpc_id = "${aws_vpc.default.id}"
 }
 
-resource "aws_subnet" "db1" {
+resource "aws_subnet" "app2" {
   availability_zone = "${var.region}b"
+  cidr_block = "${var.app2_subnet_cidr_block}"
+  map_public_ip_on_launch = true
+
+  tags {
+    client = "${var.client}"
+    Name = "${var.name}-subnet-${var.env_name}"
+  }
+
+  vpc_id = "${aws_vpc.default.id}"
+}
+
+resource "aws_subnet" "db1" {
+  availability_zone = "${var.region}a"
   cidr_block = "${var.db1_subnet_cidr_block}"
   map_public_ip_on_launch = false
 
@@ -140,7 +153,7 @@ resource "aws_subnet" "db1" {
 }
 
 resource "aws_subnet" "db2" {
-  availability_zone = "${var.region}c"
+  availability_zone = "${var.region}b"
   cidr_block = "${var.db2_subnet_cidr_block}"
   map_public_ip_on_launch = false
 
