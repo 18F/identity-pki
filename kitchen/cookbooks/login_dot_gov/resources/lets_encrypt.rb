@@ -26,6 +26,8 @@ action :create do
         "--email #{node['login_dot_gov']['admin_email']} "\
         "-d #{fqdn}"
 
+  cmd += ' --server https://acme-staging.api.letsencrypt.org/directory' unless node['login_dot_gov']['live_certs']
+
   # generate certs with LetsEncrypt on first run
   # set XDG_DATA_HOME env var since /tmp is a noexec mount
   # TODO: JJG move to official LE cookbook
@@ -52,12 +54,12 @@ action :create do
     creates '/etc/ssl/certs/dhparam.pem' 
     cwd '/etc/ssl/certs'
     notifies :stop, "service[passenger]", :before
-    not_if dhparam
+    only_if { dhparam == nil }
   end
 
   file '/etc/ssl/certs/dhparam.pem' do
     content dhparam
-    only_if dhparam
+    not_if { dhparam == nil }
   end
 
   service "passenger" do

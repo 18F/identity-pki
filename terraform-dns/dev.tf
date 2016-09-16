@@ -1,6 +1,6 @@
 resource "aws_route53_record" "a_dev" {
   name = "dev.login.gov"
-  records = ["${data.terraform_remote_state.app-dev.aws_instance_app_public_ip}"]
+  records = ["${data.terraform_remote_state.app-dev.aws_eip_app_public_ip}"]
   ttl = "300"
   type = "A"
   zone_id = "${var.zone_id}"
@@ -38,16 +38,33 @@ resource "aws_route53_record" "c_idv_dev" {
   zone_id = "${var.zone_id}"
 }
 
-resource "aws_route53_record" "c_rp_dev" {
-  name = "rp.dev.login.gov"
+
+resource "aws_route53_record" "c_sp_dev" {
+  name = "sp.dev.login.gov"
   records = ["${aws_route53_record.a_dev.name}"]
   ttl = "300"
   type = "CNAME"
   zone_id = "${var.zone_id}"
 }
 
-resource "aws_route53_record" "c_sp_dev" {
-  name = "sp.dev.login.gov"
+resource "aws_route53_record" "c_sp_python_dev" {
+  name = "sp-python.dev.login.gov"
+  records = ["${aws_route53_record.a_dev.name}"]
+  ttl = "300"
+  type = "CNAME"
+  zone_id = "${var.zone_id}"
+}
+
+resource "aws_route53_record" "c_sp_rails_dev" {
+  name = "sp-rails.dev.login.gov"
+  records = ["${aws_route53_record.a_dev.name}"]
+  ttl = "300"
+  type = "CNAME"
+  zone_id = "${var.zone_id}"
+}
+
+resource "aws_route53_record" "c_sp_sinatra_dev" {
+  name = "sp-sinatra.dev.login.gov"
   records = ["${aws_route53_record.a_dev.name}"]
   ttl = "300"
   type = "CNAME"
