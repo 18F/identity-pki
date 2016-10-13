@@ -93,7 +93,7 @@ application release_path do
       password: encrypted_config['db_password']
     })
     rails_env node['login_dot_gov']['rails_env']
-    secret_token node['login_dot_gov']['secret_token']
+    secret_token node['login_dot_gov']['secret_key_base']
   end
 
   execute '/opt/ruby_build/builds/2.3.1/bin/bundle exec rake db:create db:migrate db:seed --trace' do
