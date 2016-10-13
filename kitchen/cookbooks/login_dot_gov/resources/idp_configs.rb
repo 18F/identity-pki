@@ -33,7 +33,6 @@ action :create do
       otp_delivery_blocklist_maxretry: node['login_dot_gov']['otp_delivery_blocklist_maxretry'],
       participate_in_dap: node['login_dot_gov']['participate_in_dap'],
       proofing_vendors: node['login_dot_gov']['proofing_vendors'],
-      pt_mode: node['login_dot_gov']['pt_mode'],
       recovery_code_length: node['login_dot_gov']['recovery_code_length'],
       redis_url: encrypted_config['redis_url'],
       requests_per_ip_limit: node['login_dot_gov']['requests_per_ip_limit'],

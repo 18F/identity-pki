@@ -17,7 +17,6 @@
       "logins_per_ip_limit": "20",
       "logins_per_ip_period": "8",
       "proofing_vendors": "mock",
-      "pt_mode": "off",
       "requests_per_ip_limit": "300",
       "requests_per_ip_period": "300"
     },
