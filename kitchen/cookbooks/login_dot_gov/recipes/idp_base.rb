@@ -96,7 +96,7 @@ application release_path do
     secret_token node['login_dot_gov']['secret_token']
   end
 
-  execute '/opt/ruby_build/builds/2.3.1/bin/bundle exec rake db:create --trace' do
+  execute '/opt/ruby_build/builds/2.3.1/bin/bundle exec rake db:create db:migrate db:seed --trace' do
     cwd '/srv/idp/releases/chef'
     environment({
       'RAILS_ENV' => "production"
