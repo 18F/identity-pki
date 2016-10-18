@@ -1,0 +1,10 @@
+language: ruby
+rvm:
+  - ruby-2.3.1
+script:
+matrix:
+  fast_finish: true
+notifications:
+  email: false
+sudo: false
+script: bundle exec rake test

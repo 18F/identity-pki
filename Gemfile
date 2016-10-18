@@ -6,3 +6,8 @@ group :deploy do
   gem 'capistrano-rbenv', require: false
   gem 'capistrano-resque', require: false
 end
+
+group :development do
+  gem 'colorize'
+  gem 'pry'
+end

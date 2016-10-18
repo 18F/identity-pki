@@ -87,6 +87,15 @@ Synchronize local (repo) cookbooks with server:
 knife cookbook upload -a login_dot_gov passenger
 ```
 
+## Rake
+
+`rake help` - shows available help
+
+`rake test` - runs entire test suite
+
+`rake login:check_app_yml_keys` - validates current application.yml configuration templates against the IdP
+
+
 ## Notes
 
 Generate a long string to use as a data bag passprhase (note this is just used as a passprhase to
