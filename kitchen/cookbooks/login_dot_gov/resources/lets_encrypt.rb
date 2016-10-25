@@ -3,6 +3,13 @@ property :name, String, default: 'idp'
 action :create do
   execute "mount -o remount,nosuid,nodev /tmp"
 
+  # install apt dependencies
+  ['libexpat1-dev',
+   'libpython-dev',
+   'libpython2.7-dev',
+   'python-setuptools',
+   'python2.7-dev'].each { |pkg| package pkg }
+
   # download letsencrypt CLI
   # TODO: JJG it may be a good idea to lock this down to a version number for
   # better compatibility/stability across provisions
