@@ -23,6 +23,7 @@ action :create do
       email_from: node['login_dot_gov']['email_from'],
       enable_i18n_mode: node['login_dot_gov']['enable_i18n_mode'],
       google_analytics_key: encrypted_config['google_analytics_key'],
+      hmac_fingerprinter_key: encrypted_config['hmac_fingerprinter_key'],
       idp_sso_target_url: node['login_dot_gov']['idp_sso_target_url'],
       idv_attempt_window_in_hours: node['login_dot_gov']['idv_attempt_window_in_hours'],
       idv_max_attempts: node['login_dot_gov']['idv_max_attempts'],
@@ -57,6 +58,7 @@ action :create do
       support_email: node['login_dot_gov']['support_email'],
       support_url: node['login_dot_gov']['support_url'],
       twilio_accounts: encrypted_config['twilio_accounts'],
+      use_kms: node['login_dot_gov']['use_kms'],
       valid_authn_contexts: node['login_dot_gov']['valid_authn_contexts'],
       valid_service_providers: encrypted_config['valid_service_providers']
     })
