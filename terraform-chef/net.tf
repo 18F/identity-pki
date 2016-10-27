@@ -27,11 +27,11 @@ resource "aws_security_group" "default" {
     from_port = 22
     to_port = 22
     protocol = "tcp"
-    cidr_blocks = [
-      "${var.app_sg_ssh_cidr_blocks}",
-      "${var.app_subnet_cidr_block}",
-      "${var.app2_subnet_cidr_block}"
-    ]
+    cidr_blocks = ["${concat(
+      var.app_sg_ssh_cidr_blocks,
+      list(var.app_subnet_cidr_block),
+      list(var.app2_subnet_cidr_block)
+    )}"]
   }
 
   ingress {
@@ -39,15 +39,16 @@ resource "aws_security_group" "default" {
     to_port = 443
     protocol = "tcp"
     cidr_blocks = [
-      "${var.app_sg_ssh_cidr_blocks}",
-      "${data.terraform_remote_state.app-dev.aws_eip_app_public_ip}/32",
-      "${data.terraform_remote_state.app-dev.aws_instance_worker_public_ip}/32",
-      "${data.terraform_remote_state.app-pt.aws_eip_app_public_ip}/32",
-      "${data.terraform_remote_state.app-pt.aws_instance_worker_public_ip}/32",
-      "${data.terraform_remote_state.app-qa.aws_eip_app_public_ip}/32",
-      "${data.terraform_remote_state.app-qa.aws_instance_worker_public_ip}/32",
-      "${data.terraform_remote_state.app-tf.aws_eip_app_public_ip}/32",
-      "${data.terraform_remote_state.app-tf.aws_instance_worker_public_ip}/32"
+      "${concat(var.app_sg_ssh_cidr_blocks,
+        list(format("%s/32",data.terraform_remote_state.app-dev.aws_eip_app_public_ip)),
+        list(format("%s/32",data.terraform_remote_state.app-dev.aws_instance_worker_public_ip)),
+        list(format("%s/32",data.terraform_remote_state.app-pt.aws_eip_app_public_ip)),
+        list(format("%s/32",data.terraform_remote_state.app-pt.aws_instance_worker_public_ip)),
+        list(format("%s/32",data.terraform_remote_state.app-qa.aws_eip_app_public_ip)),
+        list(format("%s/32",data.terraform_remote_state.app-qa.aws_instance_worker_public_ip)),
+        list(format("%s/32",data.terraform_remote_state.app-tf.aws_eip_app_public_ip)),
+        list(format("%s/32",data.terraform_remote_state.app-tf.aws_instance_worker_public_ip))
+      )}"
     ]
   }
 

@@ -1,7 +1,7 @@
 variable "access_key" {}
 variable "account_id" {}
 variable "ami_id" {}
-variable "app_sg_ssh_cidr_blocks" {}
+variable "app_sg_ssh_cidr_blocks" {type="list"}
 variable "app_subnet_cidr_block" {}
 variable "chef_ami_id" {}
 variable "client" {}
