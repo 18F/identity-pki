@@ -5,7 +5,7 @@
 .vagrant
 .kitchen/
 .kitchen.local.yml
-env.sh
+env.*
 kitchen/vendor
 terraform.tfstate
 terraform.tfstate.backup

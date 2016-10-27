@@ -38,7 +38,6 @@ resource "aws_route53_record" "c_idv_dev" {
   zone_id = "${var.zone_id}"
 }
 
-
 resource "aws_route53_record" "c_sp_dev" {
   name = "sp.dev.login.gov"
   records = ["${aws_route53_record.a_dev.name}"]

@@ -1,7 +1,4 @@
 #!/usr/bin/env bash
-
-REGION=${TF_VAR_region:-'us-west-2'}
-BUCKET=login_dot_gov_terraform_state-${REGION}
 STATE=${2}/terraform-${TF_VAR_env_name}.tfstate
 
 # Do not use a region specific state file for the chef remote config
@@ -21,18 +18,18 @@ if ( [ "$2" != "terraform-app" ] && [ "$2" != "terraform-chef" ] && [ "$2" != "t
 fi
 
 # create a s3 bucket based on env_name if one does not exist
-aws s3 mb s3://${BUCKET}
+aws s3 mb s3://${TF_VAR_bucket}
 
 # enable versioning on the s3 bucket
 aws s3api put-bucket-versioning \
-  --bucket ${BUCKET} \
+  --bucket ${TF_VAR_bucket} \
   --versioning-configuration Status=Enabled
 
 # use terraform remote state server
 cd ${2}
 rm -rf .terraform
 terraform remote config -backend=s3 \
-  -backend-config="bucket=${BUCKET}" \
+  -backend-config="bucket=${TF_VAR_bucket}" \
   -backend-config="key=${STATE}" \
   -backend-config="region=us-east-1" \
   -state="${STATE}"
