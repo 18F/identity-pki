@@ -8,13 +8,32 @@ other means (/etc/env, etc.)
 Install aws cli tools and ChefDK
 
 ```
-brew install awscli Caskroom/cask/chefdk
+brew install awscli
+brew install Caskroom/cask/chefdk
+brew install terraform
 ```
 
 Configure (set the region to us-east-1 if you're using the 18f-sandbox account)
 
 ```
 aws configure
+```
+
+Create secure AMIs from https://github.com/fisma-ready/ubuntu-lts/tree/jjg/feature/ubuntu-1604-support
+
+```
+git clone https://github.com/fisma-ready/ubuntu-lts
+cd ubuntu-lts/
+git checkout jjg/feature/ubuntu-1604-support
+```
+follow instructions from https://github.com/fisma-ready/ubuntu-lts/tree/jjg/feature/ubuntu-1604-support, use the AMI generated in the next step.
+
+Set up env.sh
+
+```
+cp env.sh.example env.sh
+<edit env.sh>
+. ./env.sh
 ```
 
 ### Basic Execution
