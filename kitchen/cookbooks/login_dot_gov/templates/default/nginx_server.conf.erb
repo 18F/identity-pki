@@ -25,7 +25,7 @@ server {
     resolver_timeout 5s;
 
     # Allow specific HTTP methods
-    if ($request_method !~ ^(DELETE|GET|HEAD|POST|PUT)$ ) {
+    if ($request_method !~ ^(DELETE|GET|HEAD|OPTIONS|POST|PUT)$ ) {
        return 405;
     }
 
