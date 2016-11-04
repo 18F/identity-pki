@@ -36,6 +36,12 @@ cp env.sh.example env.sh
 . ./env.sh
 ```
 
+Create login.gov base AMI from the FISMA AMI.  Make sure you have the packer variables set in env.sh
+```
+packer build  packer/base-image.json
+```
+Take the AMI that resulted from that build and plug it into the TF_VAR_ami_id variable in env.sh
+
 ### Basic Execution
 
 Check the `terraform-app` plan against the current state of that environment. 

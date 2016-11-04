@@ -1,0 +1,72 @@
+{
+  "variables": {
+    "databagkeypath": "{{env `DATABAG_KEY_PATH`}}",
+    "base_ami": "{{env `FISMA_BASE_AMI_ID`}}",
+    "chef_url": "{{env `CHEF_URL`}}",
+    "chef_env": "{{env `CHEF_ENV`}}",
+    "validation_key_path": "{{env `VALIDATION_KEY_PATH`}}",
+    "validation_client_name": "{{env `VALIDATION_CLIENT_NAME`}}",
+    "security_group_id": "{{env `SECURITY_GROUP_ID`}}",
+    "vpc_id": "{{env `VPC_ID`}}",
+    "subnet_id": "{{env `SUBNET_ID`}}",
+    "region": "{{env `TF_VAR_region`}}"
+  },
+
+  "builders": [
+    {
+      "type": "amazon-ebs",
+      "region": "{{user `region`}}",
+      "security_group_id": "{{user `security_group_id`}}",
+      "source_ami": "{{user `base_ami`}}",
+      "vpc_id": "{{user `vpc_id`}}",
+      "subnet_id": "{{user `subnet_id`}}",
+      "instance_type": "m4.large",
+      "ssh_username": "ubuntu",
+      "ami_name": "login.gov base ({{timestamp}} - Packer)",
+      "ami_description": "A FISMA-ready baseline Ubuntu 14.04 image based on Canoncical Ubuntu Trusty 14.04 LTS (ami-8fe79998) plus all of the baseline code for login.gov. For more info: https://github.com/fisma-ready/ubuntu-lts",
+      "launch_block_device_mappings": [
+        {
+          "device_name": "/dev/xvdf",
+          "delete_on_termination": true,
+          "volume_type": "gp2",
+          "volume_size": "60"
+        }
+      ],
+      "tags": {
+        "client": "MB18FIX019988",
+        "name": "login-base-image",
+        "source_ami": "{{user `base_ami`}}"
+      }
+    }
+  ],
+
+  "provisioners": [
+    {
+      "type" : "shell",
+      "execute_command": "{{ .Vars }} sudo -E  /bin/bash '{{ .Path }}'",
+      "inline": ["apt-get -y update",
+                 "chage -d $(date +'%Y-%m-%d') root",
+                 "chage -E $(date -d 'next month' +'%Y-%m-%d') root",
+                 "chage -l root"]
+    },
+    {
+      "type": "chef-client",
+      "server_url": "{{user `chef_url`}}",
+      "ssl_verify_mode": "verify_none",
+      "chef_environment": "{{user `chef_env`}}",
+      "validation_key_path": "{{user `validation_key_path`}}",
+      "validation_client_name": "{{user `validation_client_name`}}",
+      "encrypted_data_bag_secret_path": "{{user `databagkeypath`}}",
+      "run_list":[
+        "role[base]",
+	"recipe[login_dot_gov::idp_base]"
+      ],
+      "json": {
+        "login_dot_gov": {
+          "setup_only": true
+        }
+      }
+    }
+  ]
+}
+

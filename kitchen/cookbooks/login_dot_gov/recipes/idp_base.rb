@@ -73,7 +73,9 @@ application release_path do
   end
 
   # custom resource to install the IdP config files (app.yml, saml.crt, saml.key)
-  login_dot_gov_idp_configs release_path
+  login_dot_gov_idp_configs release_path do
+    not_if { node['login_dot_gov']['setup_only'] }
+  end
 
   # install node dependencies
   execute 'npm install' do
@@ -94,7 +96,10 @@ application release_path do
     })
     rails_env node['login_dot_gov']['rails_env']
     secret_token node['login_dot_gov']['secret_key_base']
+    not_if { node['login_dot_gov']['setup_only'] }
   end
+
+  execute 'chown -R ubuntu: /home/ubuntu/.bundle /usr/local/src'
 
   execute '/opt/ruby_build/builds/2.3.1/bin/bundle exec rake db:create db:migrate db:seed --trace' do
     cwd '/srv/idp/releases/chef'
@@ -102,16 +107,18 @@ application release_path do
       'RAILS_ENV' => "production"
     })
     live_stream true
+    not_if { node['login_dot_gov']['setup_only'] }
   end
 
   if File.exist?("/etc/init.d/passenger")
     notifies(:restart, "service[passenger]")
+    not_if { node['login_dot_gov']['setup_only'] }
   end
 end
 
 # cp generated configs from chef to the shared dir on first run
 app_config = '/srv/idp/releases/chef/config/application.yml'
-unless File.exist?(app_config) && File.symlink?(app_config)
+unless File.exist?(app_config) && File.symlink?(app_config) || node['login_dot_gov']['setup_only']
   execute 'cp /srv/idp/releases/chef/config/application.yml /srv/idp/shared/config/'
   execute 'cp /srv/idp/releases/chef/config/database.yml /srv/idp/shared/config/'
   execute 'cp /srv/idp/releases/chef/certs/saml.crt /srv/idp/shared/certs/'
@@ -130,7 +137,7 @@ execute 'ln -fns /srv/idp/releases/chef/ /srv/idp/current'
 end
 
 (shared_dirs-['certs', 'config', 'keys']).each do |dir|
-  execute "ln -fns /srv/idp/shared/#{dir} /srv/idp/releases/chef/#{dir}"
+  execute "ln -fns /srv/idp/shared/#{dir} /srv/idp/releases/chef/#{dir}" unless node['login_dot_gov']['setup_only']
 end
 
 # symlink shared files to current dir
@@ -142,7 +149,7 @@ shared_files = [
 ]
 
 shared_files.each do |file|
-  execute "ln -fns /srv/idp/shared/#{file} /srv/idp/releases/chef/#{file}"
+  execute "ln -fns /srv/idp/shared/#{file} /srv/idp/releases/chef/#{file}" unless node['login_dot_gov']['setup_only']
 end
 
 execute "chown -R #{node['login_dot_gov']['system_user']}: /srv"

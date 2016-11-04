@@ -9,6 +9,10 @@ default['login_dot_gov']['rails_env']                       = 'production'
 default['login_dot_gov']['ruby_version']                    = '2.3.1'
 default['login_dot_gov']['system_user']                     = 'ubuntu'
 
+# used to turn off app startup and migrations and other things so that we can
+# run idp_base to generate a mostly-populated AMI with packer
+default['login_dot_gov']['setup_only']                      = false
+
 # idp config
 default['login_dot_gov']['allow_third_party_auth']          = 'false'
 default['login_dot_gov']['domain_name']                     = 'login.gov'

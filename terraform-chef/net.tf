@@ -38,6 +38,7 @@ resource "aws_security_group" "default" {
     from_port = 443
     to_port = 443
     protocol = "tcp"
+    self = true
     cidr_blocks = [
       "${concat(var.app_sg_ssh_cidr_blocks,
         list(format("%s/32",data.terraform_remote_state.app-dev.aws_eip_app_public_ip)),
