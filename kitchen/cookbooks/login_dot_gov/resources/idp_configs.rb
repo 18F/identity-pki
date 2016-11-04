@@ -42,6 +42,8 @@ action :create do
       proofing_vendors: node['login_dot_gov']['proofing_vendors'],
       proxy_addr: node['login_dot_gov']['proxy_addr'],
       proxy_port: node['login_dot_gov']['proxy_port'],
+      queue_health_check_dead_interval_seconds: node['login_dot_gov']['queue_health_check_dead_interval_seconds'],
+      queue_health_check_frequency_seconds: node['login_dot_gov']['queue_health_check_frequency_seconds'],
       reauthn_window: node['login_dot_gov']['reauthn_window'],
       recovery_code_length: node['login_dot_gov']['recovery_code_length'],
       redis_url: encrypted_config['redis_url'],
