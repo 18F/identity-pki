@@ -53,6 +53,7 @@ action :create do
       secret_key_base: encrypted_config['secret_key_base'],
       session_check_delay: node['login_dot_gov']['session_check_delay'],
       session_check_frequency: node['login_dot_gov']['session_check_frequency'],
+      session_encryption_key: encrypted_config['session_encryption_key'],
       session_timeout_in_minutes: node['login_dot_gov']['session_timeout_in_minutes'],
       session_timeout_warning_seconds: node['login_dot_gov']['session_timeout_warning_seconds'],
       smtp_settings: encrypted_config['smtp_settings'],
