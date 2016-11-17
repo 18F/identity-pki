@@ -33,6 +33,8 @@ action :create do
       logins_per_ip_period: node['login_dot_gov']['logins_per_ip_period'],
       mailer_domain_name: node['login_dot_gov']['mailer_domain_name'],
       min_password_score: node['login_dot_gov']['min_password_score'],
+      newrelic_browser_app_id: encrypted_config['newrelic_browser_app_id'],
+      newrelic_browser_key: encrypted_config['newrelic_browser_key'],
       newrelic_license_key: encrypted_config['newrelic_license_key'],
       otp_delivery_blocklist_bantime: node['login_dot_gov']['otp_delivery_blocklist_bantime'],
       otp_delivery_blocklist_findtime: node['login_dot_gov']['otp_delivery_blocklist_findtime'],
