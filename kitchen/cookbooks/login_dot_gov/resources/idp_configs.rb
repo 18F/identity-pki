@@ -18,6 +18,8 @@ action :create do
     user node['login_dot_gov']['system_user']
     variables({
       allow_third_party_auth: node['login_dot_gov']['allow_third_party_auth'],
+      aws_kms_key_id: node['login_dot_gov']['aws_kms_key_id'],
+      aws_region: node['login_dot_gov']['aws_region'],
       domain_name: "idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
       enable_test_routes: node['login_dot_gov']['enable_test_routes'],
       email_from: node['login_dot_gov']['email_from'],

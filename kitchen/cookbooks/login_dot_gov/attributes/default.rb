@@ -15,6 +15,8 @@ default['login_dot_gov']['setup_only']                      = false
 
 # idp config
 default['login_dot_gov']['allow_third_party_auth']          = 'false'
+default['login_dot_gov']['aws_kms_key_id']                  = 'not-used-yet'
+default['login_dot_gov']['aws_region']                      = 'not-used-yet'
 default['login_dot_gov']['domain_name']                     = 'login.gov'
 default['login_dot_gov']['enable_test_routes']              = 'false'
 default['login_dot_gov']['email_from']                      = 'no-reply@login.gov'
