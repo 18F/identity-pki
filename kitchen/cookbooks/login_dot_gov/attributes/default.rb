@@ -2,7 +2,7 @@
 # Cookbook Name:: login_dot_gov
 # Attributes:: default
 #
-default['login_dot_gov']['admin_email']                               = 'justin.grevich@gsa.gov'
+default['login_dot_gov']['admin_email']                               = 'developer@login.gov'
 default['login_dot_gov']['app_names']                                 = []
 default['login_dot_gov']['dev_users']                                 = []
 default['login_dot_gov']['rails_env']                                 = 'production'
