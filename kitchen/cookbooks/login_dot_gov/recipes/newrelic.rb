@@ -1,3 +1,4 @@
+node.default['newrelic']['server_monitoring']['hostname'] = node['set_fqdn']
 include_recipe "newrelic"
 
 license = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['newrelic_license_key']
