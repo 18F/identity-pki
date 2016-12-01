@@ -14,6 +14,24 @@ base_dir = '/srv/sp-rails'
   end
 end
 
+template "#{base_dir}/shared/config/secrets.yml" do
+  action :create
+  source 'secrets.yml.erb'
+  manage_symlink_source true
+  subscribes :create, 'resource[git]', :immediately
+  user node['login_dot_gov']['system_user']
+
+  variables({
+    secret_key_base: encrypted_config['secret_key_base_rails'],
+    saml_issuer: node['login_dot_gov']['sp_rails']['saml_issuer'],
+    idp_sso_url: node['login_dot_gov']['sp_rails']['idp_sso_url'],
+    idp_slo_url: node['login_dot_gov']['sp_rails']['idp_slo_url'],
+    http_auth_username: node['login_dot_gov']['sp_rails']['http_auth_username'],
+    http_auth_password: node['login_dot_gov']['sp_rails']['http_auth_password'],
+    idp_cert_fingerprint: node['login_dot_gov']['sp_rails']['idp_cert_fingerprint']
+  })
+end
+
 execute "chown -R #{node['login_dot_gov']['system_user']}: #{base_dir}"
 execute "chown -R #{node['login_dot_gov']['system_user']}: /opt/ruby_build"
 execute "chown -R #{node['login_dot_gov']['system_user']}: /var/chef/cache"
@@ -49,6 +67,7 @@ deploy '/srv/sp-rails' do
   symlinks ({
     'vendor/bundle' => 'vendor/bundle',
     'config/database.yml' => 'config/database.yml',
+    'config/secrets.yml' => 'config/secrets.yml',
     "log" => "log",
     "public/system" => "public/system",
     "tmp/pids" => "tmp/pids"

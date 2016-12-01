@@ -10,6 +10,7 @@ class YamlKeyChecker
   
   APPLICATION_YML_TEMPLATE = './kitchen/cookbooks/login_dot_gov/templates/' \
     'default/application.yml.erb'.freeze
+
   DEFAULTS_TEMPLATE = './kitchen/cookbooks/login_dot_gov/attributes/default.rb'
 
   def initialize
@@ -49,6 +50,7 @@ class YamlKeyChecker
   def validate_default_values
     default = Hash.new
     default['login_dot_gov'] = Hash.new
+    default['login_dot_gov']['sp_rails'] = Hash.new
     eval(File.open(@defaults_template).read)
 
     idp_yml = load_yml_from_url(@idp_yml_file)

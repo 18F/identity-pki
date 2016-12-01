@@ -69,3 +69,12 @@ default['login_dot_gov']['twilio_record_voice']                       = 'false'
 default['login_dot_gov']['use_kms']                                   = 'false'
 default['login_dot_gov']['valid_authn_contexts']                      = '["http://idmanagement.gov/ns/assurance/loa/1", "http://idmanagement.gov/ns/assurance/loa/3"]'
 default['login_dot_gov']['valid_service_providers']                   = '[]'
+
+# sp-rails
+default['login_dot_gov']['sp_rails']['http_auth_username'] = '<%= ENV["SP_NAME"] %>'
+default['login_dot_gov']['sp_rails']['http_auth_password'] = '<%= ENV["SP_PASS"] %>'
+default['login_dot_gov']['sp_rails']['idp_cert_fingerprint']= '8B:D5:C2:E8:9A:2B:CE:B7:4B:95:50:BA:16:79:05:27:17:D1:D3:67'
+default['login_dot_gov']['sp_rails']['idp_slo_url'] = 'https://idp.<%= ENV["SAML_ENV"] %>.login.gov/api/saml/logout'
+default['login_dot_gov']['sp_rails']['idp_sso_url'] = 'https://idp.<%= ENV["SAML_ENV"] %>.login.gov/api/saml/auth'
+default['login_dot_gov']['sp_rails']['saml_issuer'] = 'urn:gov:gsa:SAML:2.0.profiles:sp:sso:rails-<%= ENV["SAML_ENV"] %>'
+default['login_dot_gov']['sp_rails']['secret_key_base'] = '<%= ENV["SECRET_KEY_BASE"] %>'
