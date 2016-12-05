@@ -52,5 +52,5 @@
     "login_dot_gov::users": "User management",
     "login_dot_gov::worker": "Worker instance setup and deploy"
   },
-  "version": "0.0.2"
+  "version": "0.0.3"
 }
