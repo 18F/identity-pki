@@ -101,7 +101,7 @@ application release_path do
 
   execute 'chown -R ubuntu: /home/ubuntu/.bundle /usr/local/src'
 
-  execute '/opt/ruby_build/builds/2.3.1/bin/bundle exec rake db:create db:migrate db:seed --trace' do
+  execute '/opt/ruby_build/builds/2.3.3/bin/bundle exec rake db:create db:migrate db:seed --trace' do
     cwd '/srv/idp/releases/chef'
     environment({
       'RAILS_ENV' => "production"

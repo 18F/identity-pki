@@ -16,7 +16,7 @@ nginx_path = node[:passenger][:production][:path]
 bash "install passenger/nginx" do
   user "root"
   code <<-EOH
-  /opt/ruby_build/builds/2.3.1/bin/passenger-install-nginx-module --auto --auto-download --prefix="#{nginx_path}" --extra-configure-flags="#{node[:passenger][:production][:configure_flags]}"
+  /opt/ruby_build/builds/2.3.3/bin/passenger-install-nginx-module --auto --auto-download --prefix="#{nginx_path}" --extra-configure-flags="#{node[:passenger][:production][:configure_flags]}"
   EOH
   not_if "test -e #{nginx_path}"
   not_if "test -e /usr/local/rvm"
@@ -59,8 +59,8 @@ template "#{nginx_path}/conf/nginx.conf" do
   mode 0644
   variables(
     :log_path => log_path,
-    :passenger_root => "/opt/ruby_build/builds/2.3.1/lib/ruby/gems/2.3.0/gems/passenger-#{node[:passenger][:production][:version]}",
-    :ruby_path => "/opt/ruby_build/builds/2.3.1/bin/ruby",
+    :passenger_root => "/opt/ruby_build/builds/2.3.3/lib/ruby/gems/2.3.0/gems/passenger-#{node[:passenger][:production][:version]}",
+    :ruby_path => "/opt/ruby_build/builds/2.3.3/bin/ruby",
     :passenger => node[:passenger][:production],
     :pidfile => "/var/run/nginx.pid"
   )

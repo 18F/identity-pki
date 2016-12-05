@@ -6,7 +6,7 @@ default['login_dot_gov']['admin_email']                               = 'develop
 default['login_dot_gov']['app_names']                                 = []
 default['login_dot_gov']['dev_users']                                 = []
 default['login_dot_gov']['rails_env']                                 = 'production'
-default['login_dot_gov']['ruby_version']                              = '2.3.1'
+default['login_dot_gov']['ruby_version']                              = '2.3.3'
 default['login_dot_gov']['system_user']                               = 'ubuntu'
 
 # used to turn off app startup and migrations and other things so that we can

@@ -44,8 +44,8 @@ deploy '/srv/sp-rails' do
   action :deploy
 
   before_symlink do
-    bundle = "/opt/ruby_build/builds/2.3.1/bin/bundle install --deployment --jobs 3 --path #{base_dir}/shared/bundle --without deploy development test"
-    assets = '/opt/ruby_build/builds/2.3.1/bin/bundle exec rake assets:precompile'
+    bundle = "/opt/ruby_build/builds/2.3.3/bin/bundle install --deployment --jobs 3 --path #{base_dir}/shared/bundle --without deploy development test"
+    assets = '/opt/ruby_build/builds/2.3.3/bin/bundle exec rake assets:precompile'
 
     [bundle, assets].each do |cmd|
       execute cmd do
@@ -68,7 +68,7 @@ deploy '/srv/sp-rails' do
   user 'ubuntu'
 end
 
-execute '/opt/ruby_build/builds/2.3.1/bin/bundle exec rake db:create --trace' do
+execute '/opt/ruby_build/builds/2.3.3/bin/bundle exec rake db:create --trace' do
   cwd "#{base_dir}/current"
   environment({
     'RAILS_ENV' => "production"
