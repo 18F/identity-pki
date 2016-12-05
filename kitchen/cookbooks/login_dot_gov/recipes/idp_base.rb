@@ -1,25 +1,6 @@
 execute "mount -o remount,exec,nosuid,nodev /tmp"
 
 # setup idp app
-
-# install dependencies
-# TODO: JJG convert to platform agnostic way of installing packages to avoid case statement(s)
-case
-when platform_family?('rhel')
-  ['cyrus-sasl-devel',
-   'libtool-ltdl-devel',
-   'postgresql-devel',
-   'ruby-devel',
-   'nodejs',
-   'npm'].each { |pkg| package pkg }
-when platform_family?('debian')
-  ['libpq-dev',
-   'libsasl2-dev',
-   'ruby-dev',
-   'nodejs',
-   'npm'].each { |pkg| package pkg }
-end
-
 execute 'update-alternatives --install /usr/bin/node nodejs /usr/bin/nodejs 100' do
   not_if { ::File.exists? '/usr/bin/node' }
 end
@@ -27,6 +8,18 @@ end
 release_path = '/srv/idp/releases/chef'
 
 directory release_path do
+  recursive true
+end
+
+directory '/srv/idp/shared' do
+  owner node['login_dot_gov']['system_user']
+  group node['login_dot_gov']['system_user']
+  recursive true
+end
+
+directory '/home/ubuntu/.bundle' do
+  owner node['login_dot_gov']['system_user']
+  group node['login_dot_gov']['system_user']
   recursive true
 end
 
@@ -46,6 +39,7 @@ shared_dirs = [
 
 shared_dirs.each do |dir|
   directory "/srv/idp/shared/#{dir}" do
+    owner node['login_dot_gov']['system_user']
     recursive true
   end
 end
@@ -64,11 +58,13 @@ application release_path do
     user node['login_dot_gov']['system_user']
   end
 
+  execute "chown -R #{node['login_dot_gov']['system_user']}: /var/chef/cache"
+
   bundle_install do
     binstubs '/srv/idp/shared/bin'
-    user node['login_dot_gov']['system_user']
     deployment true
     jobs 3
+    user node['login_dot_gov']['system_user']
     vendor '/srv/idp/shared/bundle'
     without %w{deploy development doc test}
   end
@@ -153,6 +149,6 @@ shared_files.each do |file|
   execute "ln -fns /srv/idp/shared/#{file} /srv/idp/releases/chef/#{file}" unless node['login_dot_gov']['setup_only']
 end
 
-execute "chown -R #{node['login_dot_gov']['system_user']}: /srv"
+execute "chown -R #{node['login_dot_gov']['system_user']}: /srv/idp"
 
 execute "mount -o remount,noexec,nosuid,nodev /tmp"

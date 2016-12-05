@@ -14,20 +14,9 @@ base_dir = '/srv/sp-rails'
   end
 end
 
-template "/home/ubuntu/.bash_profile" do
-  owner node['login_dot_gov']['system_user']
- # source 'nginx_server.conf.erb'
-  variables({
-    secret_key_base: encrypted_config['secret_key_base'],
-    sp_name: '18f',
-    sp_pass: encrypted_config['db_password'],
-    new_relic_license_key: encrypted_config['newrelic_license_key']
-  })
-end
-
 execute "chown -R #{node['login_dot_gov']['system_user']}: #{base_dir}"
 execute "chown -R #{node['login_dot_gov']['system_user']}: /opt/ruby_build"
-execute "chown -R #{node['login_dot_gov']['system_user']}: /usr/local/src"
+execute "chown -R #{node['login_dot_gov']['system_user']}: /var/chef/cache"
 
 template "#{base_dir}/shared/config/database.yml" do
   owner node['login_dot_gov']['system_user']
