@@ -66,6 +66,7 @@ application release_path do
 
   bundle_install do
     binstubs '/srv/idp/shared/bin'
+    user node['login_dot_gov']['system_user']
     deployment true
     jobs 3
     vendor '/srv/idp/shared/bundle'
