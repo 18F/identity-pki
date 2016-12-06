@@ -17,5 +17,5 @@ template '/etc/monit/monitrc' do
 end
 
 template '/etc/monit/conf.d/sidekiq_idp_production.conf' do
-  notifies :restart, 'service[monit]'
+  notifies :restart, 'service[sidekiq]'
 end
