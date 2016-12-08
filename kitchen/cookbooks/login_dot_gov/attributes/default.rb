@@ -66,5 +66,5 @@ default['login_dot_gov']['support_email']                             = 'hello@l
 default['login_dot_gov']['support_url']                               = '/contact'
 default['login_dot_gov']['twilio_accounts']                           = '[{"sid":"sid", "auth_token":"token", "number":"9999999999"}]'
 default['login_dot_gov']['use_kms']                                   = 'false'
-default['login_dot_gov']['valid_authn_contexts']                      = '["http://idmanagement.gov/ns/assurance/loa/1", "http://idmanagement.gov/ns/assurance/loa/3”]'
+default['login_dot_gov']['valid_authn_contexts']                      = '["http://idmanagement.gov/ns/assurance/loa/1", "http://idmanagement.gov/ns/assurance/loa/3"]'
 default['login_dot_gov']['valid_service_providers']                   = '[]'
