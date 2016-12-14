@@ -68,6 +68,7 @@ action :create do
       support_email: node['login_dot_gov']['support_email'],
       support_url: node['login_dot_gov']['support_url'],
       twilio_accounts: encrypted_config['twilio_accounts'],
+      twilio_record_voice: node['login_dot_gov']['twilio_record_voice'],
       use_kms: node['login_dot_gov']['use_kms'],
       valid_authn_contexts: node['login_dot_gov']['valid_authn_contexts'],
       valid_service_providers: encrypted_config['valid_service_providers']
