@@ -35,6 +35,7 @@ action :create do
       logins_per_ip_period: node['login_dot_gov']['logins_per_ip_period'],
       mailer_domain_name: node['login_dot_gov']['mailer_domain_name'],
       min_password_score: node['login_dot_gov']['min_password_score'],
+      password_max_attempts: node['login_dot_gov']['password_max_attempts'],
       newrelic_browser_app_id: encrypted_config['newrelic_browser_app_id'],
       newrelic_browser_key: encrypted_config['newrelic_browser_key'],
       newrelic_license_key: encrypted_config['newrelic_license_key'],
@@ -71,7 +72,9 @@ action :create do
       twilio_record_voice: node['login_dot_gov']['twilio_record_voice'],
       use_kms: node['login_dot_gov']['use_kms'],
       valid_authn_contexts: node['login_dot_gov']['valid_authn_contexts'],
-      valid_service_providers: encrypted_config['valid_service_providers']
+      valid_service_providers: encrypted_config['valid_service_providers'],
+      email_encryption_key_queue: node['login_dot_gov']['email_encryption_key_queue'],
+      hmac_fingerprinter_key_queue: node['login_dot_gov']['hmac_fingerprinter_key_queue']
     })
   end
 

@@ -27,6 +27,7 @@ production:
   logins_per_ip_period: '<%= @logins_per_ip_period %>'
   mailer_domain_name: '<%= @mailer_domain_name %>'
   min_password_score: '<%= @min_password_score %>'
+  password_max_attempts: '<%= @password_max_attempts %>'
   newrelic_browser_app_id: '<%= @newrelic_browser_app_id %>'
   newrelic_browser_key: '<%= @newrelic_browser_key %>'
   newrelic_license_key: '<%= @newrelic_license_key %>'
@@ -64,3 +65,5 @@ production:
   use_kms: '<%= @use_kms %>'
   valid_authn_contexts: '<%= @valid_authn_contexts %>'
   valid_service_providers: '<%= @valid_service_providers %>'
+  email_encryption_key_queue: '<%= @email_encryption_key_queue %>'
+  hmac_fingerprinter_key_queue: '<%= @hmac_fingerprinter_key_queue %>'
