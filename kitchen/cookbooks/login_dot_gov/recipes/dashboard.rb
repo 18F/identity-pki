@@ -5,6 +5,11 @@ login_dot_gov_lets_encrypt 'dashboard'
 encrypted_config = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]
 
 base_dir = '/srv/dashboard'
+deploy_dir = "#{base_dir}/current/public"
+
+# branch is 'master'(default) when env is dev, otherwise use stages/env 
+branch_name = (node.chef_environment == 'dev' ? node['login_dot_gov']['branch_name'] : "stages/#{node.chef_environment}")
+sha_env = (node.chef_environment == 'dev' ? node['login_dot_gov']['branch_name'] : "deploy")
 
 %w{config log}.each do |dir|
   directory "#{base_dir}/shared/#{dir}" do
@@ -48,13 +53,15 @@ deploy "#{base_dir}" do
           'SMTP_USERNAME' => encrypted_config['smtp_settings']['user_name'],
         })
         user node['login_dot_gov']['system_user']
-        live_stream true
       end
     end
   end
 
   repo 'https://github.com/18F/identity-dashboard.git'
-
+  branch branch_name
+  shallow_clone true
+  keep_releases 1
+  
   symlinks ({
     'vendor/bundle' => 'vendor/bundle',
     'config/database.yml' => 'config/database.yml',
@@ -71,7 +78,6 @@ execute '/opt/ruby_build/builds/2.3.3/bin/bundle exec rake db:create --trace' do
   environment({
     'RAILS_ENV' => "production"
   })
-  live_stream true
 end
 
 file '/opt/nginx/conf/htpasswd' do
@@ -92,6 +98,37 @@ template "/opt/nginx/conf/sites.d/dashboard.login.gov.conf" do
     elb_cidr: node['login_dot_gov']['elb_cidr'],
     security_group_exceptions: encrypted_config['security_group_exceptions']
   })
+end
+
+ruby_block 'extract_sha_of_revision' do
+  block do
+    Chef::Resource::RubyBlock.send(:include, Chef::Mixin::ShellOut)
+    release_dir = ::Dir.glob("#{base_dir}/releases/" + '201*')[0]
+
+    # Dynamically set the file resource's attribute
+    # Obtain the desired resource from resource_collection
+    template_r = run_context.resource_collection.find(template: "#{node['login_dot_gov']['release_dir']}/api/deploy.json")
+    # Update the content attribute
+    template_r.variables ({
+      env: node.chef_environment,
+      branch: branch_name,
+      user: 'chef',
+      sha: ::File.read("#{::Dir.glob("#{base_dir}/releases/" + '201*')[0]}/.git/refs/heads/#{sha_env}").chomp,
+      timestamp: release_dir.split('/').last
+    })
+  end
+  action :run
+end
+
+directory "#{node['login_dot_gov']['release_dir']}/api" do
+  owner node['login_dot_gov']['user']
+  recursive true
+  action :create
+end
+
+template "#{node['login_dot_gov']['release_dir']}/api/deploy.json" do
+  owner node['login_dot_gov']['user']
+  source 'deploy.json.erb'
 end
 
 execute "mount -o remount,noexec,nosuid,nodev /tmp"

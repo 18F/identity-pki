@@ -78,7 +78,6 @@ application release_path do
   execute 'npm install' do
     # creates node_path
     cwd '/srv/idp/releases/chef'
-    live_stream true
   end
 
   rails do
@@ -103,7 +102,6 @@ application release_path do
     environment({
       'RAILS_ENV' => "production"
     })
-    live_stream true
     not_if { node['login_dot_gov']['setup_only'] }
   end
 
