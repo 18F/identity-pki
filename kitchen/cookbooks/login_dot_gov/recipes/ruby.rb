@@ -5,6 +5,7 @@ template '/home/ubuntu/.bash_profile' do
   mode '0644'
   variables({
     new_relic_license_key: encrypted_config['newrelic_license_key'],
+    secret_key_base_dashboard: encrypted_config['secret_key_base_dashboard'],
     secret_key_base: encrypted_config['secret_key_base_rails'],
     smtp_domain:  node['set_fqdn'],
     smtp_password: encrypted_config['smtp_settings']['password'],

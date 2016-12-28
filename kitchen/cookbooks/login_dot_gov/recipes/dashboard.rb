@@ -46,7 +46,7 @@ deploy "#{base_dir}" do
         cwd release_path
         environment ({
           'RAILS_ENV' => 'production',
-          'SECRET_KEY_BASE'=> encrypted_config['secret_key_base_dashboard'],
+          'DASHBOARD_SECRET_KEY_BASE'=> encrypted_config['secret_key_base_dashboard'],
           'SMTP_ADDRESS' => encrypted_config['smtp_settings']['address'],
           'SMTP_DOMAIN' => node['set_fqdn'],
           'SMTP_PASSWORD' => encrypted_config['smtp_settings']['password'],

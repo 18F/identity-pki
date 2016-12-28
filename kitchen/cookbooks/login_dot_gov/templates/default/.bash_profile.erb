@@ -11,6 +11,7 @@ export APP_LOGS="$DASHBOARD_LOG $IDP_LOG $SP_RAILS_LOG $SP_SINATRA_LOG"
 export SIDEKIQ_LOG="/srv/idp/shared/log/sidekiq.log"
 export LOGS="$RAILS_LOG $NGINX_LOGS $MONIT_LOG $SIDEKIQ_LOG"
 
+export DASHBOARD_SECRET_KEY_BASE='<%= @secret_key_base_dashboard %>'
 export RAILS_ENV='production'
 export SAML_ENV='<%= node.chef_environment %>'
 export SECRET_KEY_BASE='<%= @secret_key_base %>'
