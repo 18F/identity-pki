@@ -44,3 +44,17 @@ ruby_runtime node['login_dot_gov']['ruby_version'] do
 end
 
 execute "chown -R #{node['login_dot_gov']['system_user']}:adm /opt/ruby_build"
+
+directory '/home/ubuntu/.postgresql' do
+  owner node['login_dot_gov']['system_user']
+  group node['login_dot_gov']['system_user']
+  recursive true
+end
+
+remote_file '/home/ubuntu/.postgresql/root.crt' do
+  mode 0600
+  source 'https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem'
+  owner node['login_dot_gov']['system_user']
+  group node['login_dot_gov']['system_user']
+  action :create
+end

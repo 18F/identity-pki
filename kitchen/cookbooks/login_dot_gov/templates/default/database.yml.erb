@@ -4,8 +4,10 @@ production:
   encoding: utf8
   reconnect: true
   pool: 5
+  sslmode: verify-full
   adapter: postgresql
   database: <%= @database %>
   username: <%= @username %>
   host: <%= @host %>
   password: <%= @password %>
+  
