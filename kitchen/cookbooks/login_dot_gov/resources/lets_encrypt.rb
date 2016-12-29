@@ -15,6 +15,7 @@ action :create do
   # better compatibility/stability across provisions
   remote_file '/usr/local/src/certbot-auto' do
     mode 600
+    sensitive true # nothing sensitive but using to remove unnecessary output
     source 'https://dl.eff.org/certbot-auto'
   end
 
@@ -62,11 +63,13 @@ action :create do
     cwd '/etc/ssl/certs'
     notifies :stop, "service[passenger]", :before
     only_if { dhparam == nil }
+    sensitive true
   end
 
   file '/etc/ssl/certs/dhparam.pem' do
     content dhparam
     not_if { dhparam == nil }
+    sensitive true
   end
 
   service "passenger" do

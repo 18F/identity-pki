@@ -23,6 +23,7 @@ template "#{base_dir}/shared/config/secrets.yml" do
   action :create
   source 'secrets.yml.erb'
   manage_symlink_source true
+  sensitive true
   subscribes :create, 'resource[git]', :immediately
   user node['login_dot_gov']['system_user']
 
@@ -43,7 +44,7 @@ execute "chown -R #{node['login_dot_gov']['system_user']}: /var/chef/cache"
 
 template "#{base_dir}/shared/config/database.yml" do
   owner node['login_dot_gov']['system_user']
- # source 'nginx_server.conf.erb'
+  sensitive true
   variables({
       database: 'sp_rails',
       username: encrypted_config['db_username'],

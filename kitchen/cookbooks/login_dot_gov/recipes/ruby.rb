@@ -3,6 +3,7 @@ encrypted_config = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef
 template '/home/ubuntu/.bash_profile' do
   owner node['login_dot_gov']['system_user']
   mode '0644'
+  sensitive true
   variables({
     new_relic_license_key: encrypted_config['newrelic_license_key'],
     secret_key_base_dashboard: encrypted_config['secret_key_base_dashboard'],
@@ -47,15 +48,16 @@ end
 execute "chown -R #{node['login_dot_gov']['system_user']}:adm /opt/ruby_build"
 
 directory '/home/ubuntu/.postgresql' do
-  owner node['login_dot_gov']['system_user']
   group node['login_dot_gov']['system_user']
+  owner node['login_dot_gov']['system_user']
   recursive true
 end
 
 remote_file '/home/ubuntu/.postgresql/root.crt' do
-  mode 0600
-  source 'https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem'
-  owner node['login_dot_gov']['system_user']
   group node['login_dot_gov']['system_user']
+  mode 0600
+  owner node['login_dot_gov']['system_user']
+  sensitive true # nothing sensitive but using to remove unnecessary output
+  source 'https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem'
   action :create
 end

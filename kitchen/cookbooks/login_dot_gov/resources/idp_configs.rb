@@ -16,6 +16,7 @@ action :create do
     manage_symlink_source true
     subscribes :create, 'resource[git]', :immediately
     user node['login_dot_gov']['system_user']
+    sensitive true
     variables({
       allow_third_party_auth: node['login_dot_gov']['allow_third_party_auth'],
       attribute_cost: node['login_dot_gov']['attribute_cost'],

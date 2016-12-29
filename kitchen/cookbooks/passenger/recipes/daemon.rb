@@ -57,6 +57,7 @@ template "#{nginx_path}/conf/nginx.conf" do
   owner "root"
   group "root"
   mode 0644
+  sensitive true
   variables(
     :log_path => log_path,
     :passenger_root => "/opt/ruby_build/builds/2.3.3/lib/ruby/gems/2.3.0/gems/passenger-#{node[:passenger][:production][:version]}",
@@ -88,6 +89,7 @@ template "/etc/init.d/passenger" do
   owner "root"
   group "root"
   mode 0755
+  sensitive true
   variables(
     :pidfile => "#{nginx_path}/nginx.pid",
     :nginx_path => nginx_path

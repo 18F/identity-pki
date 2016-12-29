@@ -25,7 +25,7 @@ execute "chown -R #{node['login_dot_gov']['system_user']}: /var/chef/cache"
 
 template "#{base_dir}/shared/config/database.yml" do
   owner node['login_dot_gov']['system_user']
- # source 'nginx_server.conf.erb'
+  sensitive true
   variables({
       database: 'dashboard',
       username: encrypted_config['db_username'],

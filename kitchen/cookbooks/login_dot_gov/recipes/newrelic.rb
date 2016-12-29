@@ -5,6 +5,7 @@ license = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environm
 
 execute 'nrsysmond-config --set license_key=' do
   action :nothing
+  sensitive true
   command "nrsysmond-config --set license_key=#{license}"
   subscribes :run,  'template[/etc/newrelic/nrsysmond.cfg]', :immediately
 end
