@@ -21,6 +21,7 @@ resource "aws_db_instance" "app" {
   identifier = "${var.name}-${var.env_name}-app"
   instance_class = "${var.rds_instance_class}"
   parameter_group_name = "${var.name}-force-ssl-${var.env_name}"
+  storage_encrypted = true
   password = "${var.rds_password}"
   username = "${var.rds_username}"
 
