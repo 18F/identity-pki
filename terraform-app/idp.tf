@@ -7,7 +7,7 @@ resource "aws_instance" "idp" {
 
   tags {
     client = "${var.client}"
-    Name = "${var.name}-app-${var.env_name}"
+    Name = "${var.name}-idp-${var.env_name}"
   }
 
   vpc_security_group_ids = [ "${aws_security_group.default.id}" ]
