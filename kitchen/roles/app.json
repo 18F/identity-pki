@@ -4,7 +4,6 @@
   "json_class": "Chef::Role",
   "default_attributes": {
     "login_dot_gov": {
-      "allow_third_party_auth": "yes",
       "app_names": [
         "dashboard",
         "idp",
@@ -12,13 +11,7 @@
         "rp",
         "sp"
       ],
-      "domain_name": "login.gov",
-      "elb_cidr": "172.16.33.0/24",
-      "logins_per_ip_limit": "20",
-      "logins_per_ip_period": "8",
-      "proofing_vendors": "mock",
-      "requests_per_ip_limit": "300",
-      "requests_per_ip_period": "300"
+      "elb_cidr": "172.16.33.0/24"
     },
     "passenger": {
       "production": {
@@ -27,15 +20,15 @@
     }
   },
   "override_attributes": {
-
   },
   "chef_type": "role",
   "run_list": [
     "recipe[passenger::install]",
     "recipe[passenger::daemon]",
+    "recipe[identity-jenkins::deploy-key]",
+    "recipe[login_dot_gov::newrelic]",
     "recipe[login_dot_gov]"
   ],
   "env_run_lists": {
-
   }
 }

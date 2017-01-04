@@ -1,0 +1,9 @@
+output {
+   s3 {
+     region => "<%= @aws_region %>"
+     bucket => "<%= @aws_logging_bucket %>"
+     time_file => 5
+     server_side_encryption => true
+   }
+}
+

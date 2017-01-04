@@ -1,6 +1,4 @@
 provider "aws" {
-  access_key = "${var.access_key}"
-  secret_key = "${var.secret_key}"
   region = "${var.region}"
 }
 
@@ -25,3 +23,28 @@ resource "aws_db_parameter_group" "force_ssl" {
     apply_method = "pending-reboot"
   }
 }
+
+resource "aws_route53_record" "redis" {
+  zone_id = "${aws_route53_zone.internal.zone_id}"
+  name = "redis"
+
+  type = "CNAME"
+  ttl = "300"
+  records = ["${aws_elasticache_cluster.app.cache_nodes.0.address}"]
+}
+
+# This policy can be used to allow anybody to join the role
+data "aws_iam_policy_document" "assume_role_from_vpc" {
+  statement {
+    sid = "allowVPC"
+    actions = [
+      "sts:AssumeRole"
+    ]
+    principals = {
+      type = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+  }
+}
+
+data "aws_caller_identity" "current" {}

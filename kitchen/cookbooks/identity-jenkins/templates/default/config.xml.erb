@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<hudson>
+  <disabledAdministrativeMonitors>
+    <string>hudson.diagnosis.ReverseProxySetupMonitor</string>
+    <string>jenkins.diagnostics.SecurityIsOffMonitor</string>
+  </disabledAdministrativeMonitors>
+  <version>1.0</version>
+  <numExecutors>4</numExecutors>
+  <mode>NORMAL</mode>
+  <useSecurity>true</useSecurity>
+  <authorizationStrategy class="hudson.security.GlobalMatrixAuthorizationStrategy">
+    <permission>hudson.model.Hudson.Administer:anonymous</permission>
+<% @admins.each do |admin| %>
+    <permission>hudson.model.Hudson.Administer:<%= admin %></permission>
+<% end %>
+<% @users.each do |user| %>
+    <permission>hudson.model.Hudson.Read:<%= user %></permission>
+    <permission>hudson.model.Item.Build:<%= user %></permission>
+    <permission>hudson.model.Item.Discover:<%= user %></permission>
+    <permission>hudson.model.View.Read:<%= user %></permission>
+    <permission>hudson.model.Item.Read:<%= user %></permission>
+<% end %>
+  </authorizationStrategy>
+  <securityRealm class="org.jenkinsci.plugins.reverse_proxy_auth.ReverseProxySecurityRealm" plugin="reverse-proxy-auth-plugin@1.5">
+    <proxyTemplate/>
+    <authContext/>
+    <authorityUpdateCache/>
+    <inhibitInferRootDN>false</inhibitInferRootDN>
+    <userSearchBase></userSearchBase>
+    <userSearch>uid={0}</userSearch>
+    <updateInterval>15</updateInterval>
+    <forwardedUser>X-Forwarded-User</forwardedUser>
+    <headerGroups>X-Forwarded-Groups</headerGroups>
+    <headerGroupsDelimiter>|</headerGroupsDelimiter>
+    <disableLdapEmailResolver>false</disableLdapEmailResolver>
+    <displayNameLdapAttribute></displayNameLdapAttribute>
+    <emailAddressLdapAttribute></emailAddressLdapAttribute>
+  </securityRealm>
+  <disableRememberMe>false</disableRememberMe>
+  <projectNamingStrategy class="jenkins.model.ProjectNamingStrategy$DefaultProjectNamingStrategy"/>
+  <workspaceDir>${JENKINS_HOME}/workspace/${ITEM_FULLNAME}</workspaceDir>
+  <buildsDir>${ITEM_ROOTDIR}/builds</buildsDir>
+  <markupFormatter class="hudson.markup.EscapedMarkupFormatter"/>
+  <jdks/>
+  <viewsTabBar class="hudson.views.DefaultViewsTabBar"/>
+  <myViewsTabBar class="hudson.views.DefaultMyViewsTabBar"/>
+  <clouds/>
+  <scmCheckoutRetryCount>0</scmCheckoutRetryCount>
+  <views>
+    <hudson.model.AllView>
+      <owner class="hudson" reference="../../.."/>
+      <name>All</name>
+      <filterExecutors>false</filterExecutors>
+      <filterQueue>false</filterQueue>
+      <properties class="hudson.model.View$PropertyList"/>
+    </hudson.model.AllView>
+  </views>
+  <primaryView>All</primaryView>
+  <slaveAgentPort>-1</slaveAgentPort>
+  <label></label>
+  <crumbIssuer class="hudson.security.csrf.DefaultCrumbIssuer">
+    <excludeClientIPFromCrumb>false</excludeClientIPFromCrumb>
+  </crumbIssuer>
+  <nodeProperties/>
+  <globalNodeProperties/>
+</hudson>

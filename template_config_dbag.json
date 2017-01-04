@@ -1,0 +1,96 @@
+{
+  "id": "app",
+  "XXXenv": {
+    "build_env": {
+      "TF_VAR_env_name": {
+        "comment": "the environment to deploy to (tf/test/dev/etc)",
+        "value": "XXXenv"
+      },
+      "TF_VAR_region": {
+        "comment": "region to deploy to",
+        "value": "XXX"
+      },
+      "TF_VAR_client": {
+        "comment": "client billing code, needed for 18f-ent account",
+        "value": "XXX"
+      },
+      "TF_VAR_key_name": {
+        "comment": "ssh key used (actually overridden in the AMI)",
+        "value": "XXX"
+      },
+      "TF_VAR_ami_id": {
+        "comment": "base AMI for webapp/worker",
+        "value": "ami-XXX"
+      },
+      "TF_VAR_default_ami_id": {
+        "comment": "chef AMI",
+        "value": "ami-XXX"
+      },
+      "TF_VAR_app_sg_ssh_cidr_blocks": {
+        "comment": "whitelist of CIDR blocks for ssh access to app host",
+        "value": "'[\"XXX.XXX.XXX.XXX/XXX\", \"XXX.XXX.XXX.XXX/XXX\"]'"
+      },
+      "TF_VAR_rds_password": {
+        "comment": "self explanatory",
+        "value": "XXX"
+      },
+      "TF_VAR_rds_username": {
+        "comment": "self explanatory",
+        "value": "XXX"
+      },
+      "TF_VAR_chef_id_key_path": {
+        "comment": "is not used by jenkins, so can ignore here",
+        "value": "/etc/hosts"
+      },
+      "TF_VAR_chef_url": {
+        "comment": "is not used by jenkins, so can ignore here",
+        "value": "YYY"
+      },
+      "TF_VAR_chef_id": {
+        "comment": "is not used by jenkins, so can ignore here",
+        "value": "YYY"
+      },
+      "TF_VAR_live_certs": {
+        "comment": "is not used by jenkins, so can ignore here",
+        "value": "YYY"
+      },
+      "TF_VAR_chef_databag_key_path": {
+        "comment": "is not used by jenkins, so can ignore here",
+        "value": "/etc/hosts"
+      },
+      "TF_VAR_chef_info": {
+        "comment": "is not used by jenkins, so can ignore here",
+        "value": "YYY"
+      },
+      "TF_VAR_git_deploy_key_path": {
+        "comment": "is not used by jenkins, so can ignore here",
+        "value": "YYY"
+      }
+    },
+    "jenkins_ssh_pubkey": "ssh-rsa XXX keyid",
+    "jenkins_ssh_privkey": "-----BEGIN RSA PRIVATE KEY-----XXX",
+    "db_database": "idp",
+    "db_username": "XXX",
+    "db_host": "postgres.login.gov.internal",
+    "db_password": "XXX",
+    "dhparam": "XXX",
+    "email_encryption_key": "XXX",
+    "google_analytics_key": "UA-XXX",
+    "hmac_fingerprinter_key": "XXX",
+    "http_basic_auth": "18f:$XXXX$XXXXX$XXXXXXXXXXXX",
+    "newrelic_license_key": "XXX",
+    "password_pepper": "XXX",
+    "redis_url": "redis://redis.login.gov.internal:6379",
+    "saml.key.enc": "-----BEGIN RSA PRIVATE KEY-----\nXXX",
+    "saml_passphrase": "XXX",
+    "secret_key_base_dashboard": "XXX",
+    "secret_key_base_rails": "XXX",
+    "security_group_exceptions": [
+      "XXX.XXX.XXX.XXX/XXX"
+    ],
+    "session_encryption_key": "change-this-immediately-with-rake-secret-XXX",
+    "smtp_settings": "{\"address\":\"smtp.mandrillapp.com\", \"port\":587, \"authentication\":\"plain\", \"enable_starttls_auto\":true, \"user_name\":\"XXX@gsa.gov\", \"password\":\"XXX\"}",
+    "twilio_accounts": "[{\"sid\":\"XXX\", \"auth_token\":\"XXX\", \"number\":\"XXX\"}]",
+    "valid_service_providers": "[\"https://upaya-dev.18f.gov\", \"urn:gov:gsa:SAML:2.0.profiles:sp:sso:localhost\", \"urn:gov:gsa:SAML:2.0.profiles:sp:sso:dev\", \"urn:gov:gsa:SAML:2.0.profiles:sp:sso:tf\", \"urn:gov:gsa:SAML:2.0.profiles:sp:sso:rails-dev\", \"urn:gov:gsa:SAML:2.0.profiles:sp:sso:rails-tf\", \"https://dashboard.tf.login.gov\", \"https://dashboard.qa.login.gov\", \"https://dashboard.dev.login.gov\"]"
+  }
+}

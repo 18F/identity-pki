@@ -9,6 +9,9 @@ default['login_dot_gov']['rails_env']                                 = 'product
 default['login_dot_gov']['ruby_version']                              = '2.3.3'
 default['login_dot_gov']['system_user']                               = 'ubuntu'
 
+# The gitref that we check out when deploying
+default['login_dot_gov']['gitref']                          = 'master'
+
 # used to turn off app startup and migrations and other things so that we can
 # run idp_base to generate a mostly-populated AMI with packer
 default['login_dot_gov']['setup_only']                                = false

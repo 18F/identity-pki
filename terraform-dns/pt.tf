@@ -14,6 +14,30 @@ resource "aws_route53_record" "a_worker_pt" {
   zone_id = "${var.zone_id}"
 }
 
+resource "aws_route53_record" "a_chef_pt" {
+  name = "chef.pt.login.gov"
+  records = ["${data.terraform_remote_state.app-pt.aws_eip_chef_public_ip}"]
+  ttl = "300"
+  type = "A"
+  zone_id = "${var.zone_id}"
+}
+
+resource "aws_route53_record" "a_elk_pt" {
+  name = "chef.pt.login.gov"
+  records = ["${data.terraform_remote_state.app-pt.aws_instance_elk_public_ip}"]
+  ttl = "300"
+  type = "A"
+  zone_id = "${var.zone_id}"
+}
+
+resource "aws_route53_record" "a_jenkins_pt" {
+  name = "chef.pt.login.gov"
+  records = ["${data.terraform_remote_state.app-pt.aws_instance_jenkins_public_ip}"]
+  ttl = "300"
+  type = "A"
+  zone_id = "${var.zone_id}"
+}
+
 resource "aws_route53_record" "c_dash_pt" {
   name = "dashboard.pt.login.gov"
   records = ["${aws_route53_record.a_pt.name}"]

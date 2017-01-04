@@ -14,18 +14,33 @@
         "passwordless": true
       }
     },
-    "poise-ruby": {
-      "install_ruby": "false",
-      "provider": "ruby_build"
+    "openssl_fips": {
+      "fips": {
+        "checksum": "3ff723f93901f750779a2e67ff15985c357f1a15c892c9504446fbc85c6f77da",
+        "url": "http://www.openssl.org/source/openssl-fips-2.0.13.tar.gz",
+        "version": "2.0.13"
+      },
+      "openssl": {
+        "checksum": "e7aff292be21c259c6af26469c7a9b3ba26e9abaaffd325e3dccc9785256c431",
+        "url": "http://www.openssl.org/source/openssl-1.0.2j.tar.gz",
+        "version": "1.0.2j"
+      }
     },
     "ssh_keys": {
       "ubuntu": [
-        "jgrevich"
+        "deploy",
+        "jgrevich",
+        "monfresh",
+        "amos",
+        "jpmugizi",
+        "tspencer",
+        "pkarman",
+        "zmargolis",
+        "mzia"
       ]
     }
   },
   "override_attributes": {
-
   },
   "chef_type": "role",
   "run_list": [
@@ -40,9 +55,9 @@
     "recipe[ruby_build]",
     "recipe[ssh-keys]",
     "recipe[sudo]",
+    "recipe[identity-elk::filebeat]",
     "recipe[login_dot_gov::ruby]"
   ],
   "env_run_lists": {
-
   }
 }

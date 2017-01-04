@@ -1,0 +1,11 @@
+#!/bin/sh
+# 
+# This holds all the environment variables needed to install stuff
+#
+
+<% @build_env.keys.each do |key| %>
+# <%= @build_env[key]['comment'] %>
+export <%= key %>=<%= @build_env[key]['value'] %>
+
+<% end %>
+

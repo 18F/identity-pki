@@ -1,0 +1,72 @@
+{
+  "name": "dev",
+  "description": "",
+  "cookbook_versions": {
+    "7-zip": "= 1.0.2",
+    "application": "= 5.1.0",
+    "application_ruby": "= 4.0.1",
+    "apt": "= 4.0.1",
+    "bash-completion": "= 0.1.0",
+    "build-essential": "= 2.4.0",
+    "cacert": "= 0.3.1",
+    "chef-sugar": "= 3.4.0",
+    "chef_handler": "= 1.4.0",
+    "compat_resource": "= 12.10.7",
+    "curl": "= 2.0.1",
+    "dmg": "= 2.4.0",
+    "git": "= 4.6.0",
+    "homebrew": "= 2.1.0",
+    "hostname": "= 0.3.0",
+    "hostsfile": "= 2.4.5",
+    "java": "= 1.41.0",
+    "letsencrypt": "= 1.0.2",
+    "monit": "= 1.0.0",
+    "motd": "= 0.6.4",
+    "nano": "= 1.0.3",
+    "newrelic": "= 2.9.1",
+    "newrelic_meetme_plugin": "= 0.4.0",
+    "ntp": "= 2.0.0",
+    "ohai": "= 4.2.0",
+    "openssl": "= 4.4.0",
+    "poise": "= 2.7.1",
+    "poise-archive": "= 1.2.0",
+    "poise-languages": "= 1.4.0",
+    "poise-monit": "= 1.5.2",
+    "poise-ruby": "= 2.1.1",
+    "poise-service": "= 1.4.0",
+    "python": "= 1.4.6",
+    "ruby_build": "= 1.0.0",
+    "ruby_rbenv": "= 1.1.0",
+    "ssh-keys": "= 1.2.7",
+    "sudo": "= 2.9.0",
+    "users": "= 2.0.3",
+    "windows": "= 1.44.1",
+    "yum": "= 3.11.0",
+    "yum-epel": "= 0.7.0",
+    "login_dot_gov": "= 0.0.3"
+  },
+  "json_class": "Chef::Environment",
+  "chef_type": "environment",
+  "default_attributes": {
+    "elk": {
+      "users": [
+        "tspencer",
+        "amos",
+        "jgrevich",
+        "monfresh"
+      ]
+    },
+    "identity-jenkins": {
+      "users": [
+        "monfresh"
+      ],
+      "admins": [
+        "tspencer",
+        "amos",
+        "jgrevich"
+      ]
+    }
+  },
+  "override_attributes": {
+  }
+}

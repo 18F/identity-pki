@@ -1,0 +1,85 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>Deploy code to the <%= node.chef_environment %> environment!</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <jenkins.model.BuildDiscarderProperty>
+      <strategy class="hudson.tasks.LogRotator">
+        <daysToKeep>-1</daysToKeep>
+        <numToKeep>10</numToKeep>
+        <artifactDaysToKeep>-1</artifactDaysToKeep>
+        <artifactNumToKeep>-1</artifactNumToKeep>
+      </strategy>
+    </jenkins.model.BuildDiscarderProperty>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>GITREF</name>
+          <description>This is a tag or a branch that will be used to check out the code and deploy from it.</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@3.0.1">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>https://github.com/18F/identity-idp</url>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>*/master</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions/>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>
+. /etc/environment
+
+# set the gitref in the environment
+if [ -z &quot;$GITREF&quot; ] ; then
+        echo &quot;GITREF is not set, aborting&quot;
+        exit 10
+fi
+git checkout $GITREF
+knife ssl fetch
+knife exec &lt;&lt;EOF
+e = search(:environment, &quot;name:<%= node.chef_environment %>&quot;).first
+if e.default_attributes[&apos;login_dot_gov&apos;].nil?
+  e.default_attributes[&apos;login_dot_gov&apos;] = {&apos;gitref&apos; =&gt; &quot;$GITREF&quot;}
+else
+  e.default_attributes[&apos;login_dot_gov&apos;].merge({&apos;gitref&apos; =&gt; &quot;$GITREF&quot;})
+end
+e.save
+EOF
+
+cap <%= node.chef_environment %> deploy:migrate
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers>
+    <io.chef.jenkins.ChefIdentityBuildWrapper plugin="chef-identity@1.0.0">
+      <jobIdentity>jenkins</jobIdentity>
+    </io.chef.jenkins.ChefIdentityBuildWrapper>
+    <com.cloudbees.jenkins.plugins.sshagent.SSHAgentBuildWrapper plugin="ssh-agent@1.13">
+      <credentialIds>
+        <string>deploy</string>
+      </credentialIds>
+      <ignoreMissing>false</ignoreMissing>
+    </com.cloudbees.jenkins.plugins.sshagent.SSHAgentBuildWrapper>
+  </buildWrappers>
+</project>

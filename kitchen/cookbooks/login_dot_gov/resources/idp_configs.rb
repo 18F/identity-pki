@@ -26,6 +26,8 @@ action :create do
       aws_region: node['login_dot_gov']['aws_region'],
       domain_name: "idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
       enable_test_routes: node['login_dot_gov']['enable_test_routes'],
+      email_encryption_cost: node['login_dot_gov']['email_encryption_cost'],
+      email_encryption_key: (encrypted_config['email_encryption_key'] || node['login_dot_gov']['email_encryption_key']),
       email_from: node['login_dot_gov']['email_from'],
       enable_i18n_mode: node['login_dot_gov']['enable_i18n_mode'],
       google_analytics_key: encrypted_config['google_analytics_key'],

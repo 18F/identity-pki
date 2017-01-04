@@ -1,0 +1,56 @@
+<VirtualHost *:8443>
+
+    SSLEngine On
+    RequestHeader set X-Forwarded-Proto "https"
+    RequestHeader set X-Forwarded-Port  "8443"
+
+    # Set the path to SSL certificate
+    SSLCertificateFile    "/etc/ssl/elk.login.gov.crt"
+    SSLCertificateKeyFile "/etc/ssl/elk.login.gov.key"
+
+    # Servers to proxy the connection, or;
+    # List of application servers:
+    # Usage:
+    # ProxyPass / http://[IP Addr.]:[port]/
+    # ProxyPassReverse / http://[IP Addr.]:[port]/
+    # Example:
+    ProxyPass / http://127.0.0.1:5601/
+    ProxyPassReverse / http://127.0.0.1:5601/
+
+    <Location />
+        AuthType Basic
+        AuthName "<%= node.chef_environment %> Kibana"
+        AuthBasicProvider file
+        AuthUserFile "/etc/apache2/htpasswd"
+        Require valid-user
+    </Location>
+    <Location /assets>
+        Order allow,deny
+        Allow from all
+    </Location>
+    <Location /cli>
+        Order allow,deny
+        Allow from all
+    </Location>
+    <Location /git>
+        Order allow,deny
+        Allow from all
+    </Location>
+    <Location /instance-identity>
+        Order allow,deny
+        Allow from all
+    </Location>
+    <Location /jnlpJars>
+        Order allow,deny
+        Allow from all
+    </Location>
+    <Location /whoAmI>
+        Order allow,deny
+        Allow from all
+    </Location>
+
+    RequestHeader unset Authorization
+    RequestHeader set X-Forwarded-User %{REMOTE_USER}s
+
+</VirtualHost>
+

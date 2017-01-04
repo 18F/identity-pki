@@ -41,6 +41,7 @@ shared_dirs.each do |dir|
   directory "/srv/idp/shared/#{dir}" do
     owner node['login_dot_gov']['system_user']
     recursive true
+    owner node['login_dot_gov']['system_user']
   end
 end
 
@@ -56,6 +57,7 @@ application release_path do
   git do
     repository 'https://github.com/18F/identity-idp.git'
     user node['login_dot_gov']['system_user']
+    revision node['login_dot_gov']['gitref']
   end
 
   execute "chown -R #{node['login_dot_gov']['system_user']}: /var/chef/cache"
@@ -95,7 +97,7 @@ application release_path do
     not_if { node['login_dot_gov']['setup_only'] }
   end
 
-  execute 'chown -R ubuntu: /home/ubuntu/.bundle /usr/local/src'
+  execute 'chown -R ubuntu /home/ubuntu/.bundle /usr/local/src'
 
   execute '/opt/ruby_build/builds/2.3.3/bin/bundle exec rake db:create db:migrate db:seed --trace' do
     cwd '/srv/idp/releases/chef'

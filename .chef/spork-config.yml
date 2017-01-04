@@ -1,0 +1,12 @@
+environment_groups:
+  nonprod:
+    - dev
+    - dm
+    - pt
+    - qa
+    - staging
+    - tf
+  prod:
+    - demo
+    - production
+

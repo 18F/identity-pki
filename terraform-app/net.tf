@@ -18,6 +18,41 @@ resource "aws_route" "default" {
     gateway_id = "${aws_internet_gateway.default.id}"
 }
 
+resource "aws_security_group" "chef" {
+  description = "Allow inbound chef traffic and whitelisted IPs for SSH"
+
+  egress {
+    from_port = 0
+    to_port = 65535
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["${var.app_sg_ssh_cidr_blocks}"]
+  }
+
+  ingress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    self = true
+    cidr_blocks = [ "${concat(var.app_sg_ssh_cidr_blocks,list(aws_vpc.default.cidr_block))}" ]
+  }
+
+  name = "${var.name}-chef"
+
+  tags {
+    client = "${var.client}"
+    Name = "${var.name}-chef"
+  }
+
+  vpc_id = "${aws_vpc.default.id}"
+}
+
 resource "aws_security_group" "default" {
   description = "Allow inbound web traffic and whitelisted IPs for SSH"
 
@@ -31,6 +66,14 @@ resource "aws_security_group" "default" {
   ingress {
     from_port = 22
     to_port = 22
+    protocol = "tcp"
+    self = true
+    cidr_blocks = ["${var.app_sg_ssh_cidr_blocks}"]
+  }
+
+  ingress {
+    from_port = 8443
+    to_port = 8443
     protocol = "tcp"
     cidr_blocks = ["${var.app_sg_ssh_cidr_blocks}"]
   }
@@ -54,6 +97,59 @@ resource "aws_security_group" "default" {
   tags {
     client = "${var.client}"
     Name = "${var.name}-security_group-${var.env_name}"
+  }
+
+  vpc_id = "${aws_vpc.default.id}"
+}
+
+resource "aws_security_group" "elk" {
+  description = "Allow inbound traffic to ELK from whitelisted IPs for SSH and app security group"
+
+  egress {
+    from_port = 0
+    to_port = 65535
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    self = true
+    cidr_blocks = ["${var.app_sg_ssh_cidr_blocks}"]
+  }
+
+  ingress {
+    from_port = 8443
+    to_port = 8443
+    protocol = "tcp"
+    self = true
+    cidr_blocks = ["${var.app_sg_ssh_cidr_blocks}"]
+  }
+
+  ingress {
+    from_port = 9200
+    to_port = 9300
+    protocol = "tcp"
+    self = true
+    cidr_blocks = ["${var.app_sg_ssh_cidr_blocks}"]
+  }
+
+  ingress {
+    from_port = 5044
+    to_port = 5044
+    protocol = "tcp"
+    self = true
+    cidr_blocks = ["${var.app_sg_ssh_cidr_blocks}"]
+    security_groups = [ "${aws_security_group.default.id}" ]
+  }
+
+  name = "${var.name}-elk-${var.env_name}"
+
+  tags {
+    client = "${var.client}"
+    Name = "${var.name}-elk_security_group-${var.env_name}"
   }
 
   vpc_id = "${aws_vpc.default.id}"
@@ -126,19 +222,6 @@ resource "aws_subnet" "app" {
   vpc_id = "${aws_vpc.default.id}"
 }
 
-resource "aws_subnet" "app2" {
-  availability_zone = "${var.region}b"
-  cidr_block = "${var.app2_subnet_cidr_block}"
-  map_public_ip_on_launch = true
-
-  tags {
-    client = "${var.client}"
-    Name = "${var.name}-subnet-${var.env_name}"
-  }
-
-  vpc_id = "${aws_vpc.default.id}"
-}
-
 resource "aws_subnet" "db1" {
   availability_zone = "${var.region}a"
   cidr_block = "${var.db1_subnet_cidr_block}"
@@ -165,9 +248,30 @@ resource "aws_subnet" "db2" {
   vpc_id = "${aws_vpc.default.id}"
 }
 
+resource "aws_subnet" "chef" {
+  availability_zone = "${var.region}b"
+  cidr_block = "${var.chef_subnet_cidr_block}"
+  map_public_ip_on_launch = true
+
+  tags {
+    client = "${var.client}"
+    Name = "${var.name}-subnet_chef-${var.env_name}"
+  }
+
+  vpc_id = "${aws_vpc.default.id}"
+}
+
+resource "aws_vpc_endpoint" "private-s3" {
+    vpc_id = "${aws_vpc.default.id}"
+    service_name = "com.amazonaws.${var.region}.s3"
+    route_table_ids = ["${aws_vpc.default.main_route_table_id}"]
+}
+
 resource "aws_vpc" "default" {
   cidr_block = "${var.vpc_cidr_block}"
  # main_route_table_id = "${aws_route_table.default.id}"
+  enable_dns_support = true
+  enable_dns_hostnames = true
 
   tags {
    client = "${var.client}"

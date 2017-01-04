@@ -113,4 +113,3 @@ service "passenger" do
   action [ :enable, :start ]
   pattern "nginx: master"
 end
-

@@ -1,6 +1,6 @@
 variable "access_key" {}
 variable "access_key_18f_ent" {}
-variable "bucket" { default = "login_dot_gov_terraform_state" }
+variable "bucket" { default = "login_dot_gov_tf_state" }
 variable "region" { default = "us-west-2" }
 variable "secret_key" {}
 variable "secret_key_18f_ent" {}

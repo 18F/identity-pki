@@ -12,24 +12,40 @@ die() { echo "$@" 1>&2 ; exit 1; }
 
 # require one of our terrform plans
 # NOTE: JJG remove trailing slash from $2 if it exists to ease use with auto completion
-if ( [ "$2" != "terraform-app" ] && [ "$2" != "terraform-chef" ] && [ "$2" != "terraform-dns" ] && [ "$2" != "terraform-peering" ] )
-  then
+if [ ! -f "$2/main.tf" ] ; then
   die "you must specify a terraform project folder"
 fi
 
 # create a s3 bucket based on env_name if one does not exist
-aws s3 mb s3://${TF_VAR_bucket}
+aws s3 mb s3://login_dot_gov_tf_state
 
 # enable versioning on the s3 bucket
 aws s3api put-bucket-versioning \
-  --bucket ${TF_VAR_bucket} \
+  --bucket login_dot_gov_tf_state \
   --versioning-configuration Status=Enabled
+
+# make sure that stuff is there that is required
+touch ~/.chef/${TF_VAR_env_name}-databag.key
+if [ ! -f ~/.chef/${TF_VAR_chef_id}-${TF_VAR_env_name}.pem ] ; then
+	cat <<EOF > ~/.chef/${TF_VAR_chef_id}-${TF_VAR_env_name}.pem
+-----BEGIN RSA PRIVATE KEY-----
+MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+-----END RSA PRIVATE KEY-----
+EOF
+fi
+touch ~/.chef/${TF_VAR_env_name}-login-dev-validator.pem
 
 # use terraform remote state server
 cd ${2}
 rm -rf .terraform
 terraform remote config -backend=s3 \
-  -backend-config="bucket=${TF_VAR_bucket}" \
+  -backend-config="bucket=login_dot_gov_tf_state" \
   -backend-config="key=${STATE}" \
   -backend-config="region=us-east-1" \
   -state="${STATE}"

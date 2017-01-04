@@ -144,4 +144,3 @@ template "#{deploy_dir}/api/deploy.json" do
 end
 
 execute "mount -o remount,noexec,nosuid,nodev /tmp"
-
