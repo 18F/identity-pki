@@ -30,7 +30,7 @@ resource "aws_route53_record" "redis" {
 
   type = "CNAME"
   ttl = "300"
-  records = ["${aws_elasticache_cluster.app.cache_nodes.0.address}"]
+  records = ["${aws_elasticache_cluster.idp.cache_nodes.0.address}"]
 }
 
 # This policy can be used to allow anybody to join the role

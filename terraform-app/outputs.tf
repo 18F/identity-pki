@@ -38,10 +38,6 @@ output "elk_ip" {
   value = "${aws_instance.elk.public_ip}"
 }
 
-output "jenkins" {
-  value = "https://${aws_instance.jenkins.public_ip}:8443/"
-}
-
 output "aws_instance_idp_worker_public_ip" {
   value = "${aws_instance.idp_worker.public_ip}"
 }
