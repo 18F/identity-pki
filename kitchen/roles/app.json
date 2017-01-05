@@ -3,16 +3,6 @@
   "description": "",
   "json_class": "Chef::Role",
   "default_attributes": {
-    "login_dot_gov": {
-      "app_names": [
-        "dashboard",
-        "idp",
-        "idv",
-        "rp",
-        "sp"
-      ],
-      "elb_cidr": "172.16.33.0/24"
-    },
     "passenger": {
       "production": {
         "configure_flags": "--with-http_realip_module"
@@ -23,11 +13,11 @@
   },
   "chef_type": "role",
   "run_list": [
-    "recipe[passenger::install]",
     "recipe[passenger::daemon]",
     "recipe[identity-jenkins::deploy-key]",
-    "recipe[login_dot_gov::newrelic]",
-    "recipe[login_dot_gov]"
+    "recipe[login_dot_gov::dashboard]",
+    "recipe[login_dot_gov::sp_rails]",
+    "recipe[login_dot_gov::sp_sinatra]"
   ],
   "env_run_lists": {
   }

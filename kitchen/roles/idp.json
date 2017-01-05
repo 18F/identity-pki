@@ -1,5 +1,5 @@
 {
-  "name": "worker",
+  "name": "idp",
   "description": "",
   "json_class": "Chef::Role",
   "default_attributes": {
@@ -9,9 +9,9 @@
   "chef_type": "role",
   "run_list": [
     "recipe[identity-jenkins::deploy-key]",
+    "recipe[passenger::daemon]",
     "recipe[login_dot_gov::idp_base]",
-    "recipe[login_dot_gov::newrelic]",
-    "recipe[login_dot_gov::idp_worker]"
+    "recipe[login_dot_gov::idp_web]"
   ],
   "env_run_lists": {
   }

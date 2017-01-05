@@ -1,7 +1,5 @@
 login_dot_gov_lets_encrypt 'idp'
 
-include_recipe "passenger::daemon"
-
 encrypted_config = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]
 
 file '/opt/nginx/conf/htpasswd' do

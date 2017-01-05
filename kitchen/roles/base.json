@@ -57,6 +57,7 @@
     "recipe[sudo]",
     "recipe[identity-elk::filebeat]",
     "recipe[login_dot_gov::ruby]"
+    "recipe[login_dot_gov::newrelic]"
   ],
   "env_run_lists": {
   }
