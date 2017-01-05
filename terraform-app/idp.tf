@@ -13,6 +13,17 @@ resource "aws_instance" "idp" {
   vpc_security_group_ids = [ "${aws_security_group.default.id}" ]
 }
 
+resource "aws_db_parameter_group" "force_ssl" {
+  name = "${var.name}-idp-force-ssl-${var.env_name}"
+  family = "postgres9.5"
+
+  parameter {
+    name = "rds.force_ssl"
+    value = "1"
+    apply_method = "pending-reboot"
+  }
+}
+
 resource "aws_instance" "idp_worker" {
   ami = "${var.ami_id}"
   depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk"]
@@ -65,7 +76,7 @@ resource "aws_db_instance" "idp" {
   engine = "${var.rds_engine}"
   identifier = "${var.name}-${var.env_name}-idp"
   instance_class = "${var.rds_instance_class}"
-  parameter_group_name = "${var.name}-force-ssl-${var.env_name}"
+  parameter_group_name = "${var.name}-idp-force-ssl-${var.env_name}"
   storage_encrypted = true
   password = "${var.rds_password}"
   username = "${var.rds_username}"
@@ -84,7 +95,7 @@ resource "aws_eip" "idp" {
 }
 
 resource "aws_elasticache_cluster" "idp" {
-  cluster_id = "login-ecache-${var.env_name}"
+  cluster_id = "login-idp-ecache-${var.env_name}"
   engine = "redis"
   node_type = "cache.t2.micro"
   num_cache_nodes = 1
@@ -98,3 +109,13 @@ resource "aws_elasticache_cluster" "idp" {
     Name = "${var.name}-elasticache_cluster-${var.env_name}"
   }
 }
+
+resource "aws_route53_record" "idp-postgres" {
+  zone_id = "${aws_route53_zone.internal.zone_id}"
+  name = "idp-postgres"
+
+  type = "CNAME"
+  ttl = "300"
+  records = ["${replace(aws_db_instance.idp.endpoint,":5432","")}"]
+}
+

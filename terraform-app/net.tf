@@ -1,4 +1,10 @@
 resource "aws_elasticache_subnet_group" "idp" {
+  name = "${var.name}-idp-cache-${var.env_name}"
+  description = "Redis Subnet Group"
+  subnet_ids = ["${aws_subnet.app.id}"]
+}
+
+resource "aws_elasticache_subnet_group" "app" {
   name = "${var.name}-cache-${var.env_name}"
   description = "Redis Subnet Group"
   subnet_ids = ["${aws_subnet.app.id}"]

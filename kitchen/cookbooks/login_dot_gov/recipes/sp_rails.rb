@@ -38,9 +38,9 @@ template "#{base_dir}/shared/config/secrets.yml" do
   })
 end
 
-execute "chown -R #{node['login_dot_gov']['system_user']}: #{base_dir}"
-execute "chown -R #{node['login_dot_gov']['system_user']}: /opt/ruby_build"
-execute "chown -R #{node['login_dot_gov']['system_user']}: /var/chef/cache"
+execute "chown -R #{node['login_dot_gov']['system_user']} #{base_dir}"
+execute "chown -R #{node['login_dot_gov']['system_user']} /opt/ruby_build"
+execute "chown -R #{node['login_dot_gov']['system_user']} /usr/local/src"
 
 template "#{base_dir}/shared/config/database.yml" do
   owner node['login_dot_gov']['system_user']
@@ -144,3 +144,4 @@ template "#{deploy_dir}/api/deploy.json" do
 end
 
 execute "mount -o remount,noexec,nosuid,nodev /tmp"
+

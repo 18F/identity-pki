@@ -2,6 +2,7 @@
 
     SSLEngine On
     RequestHeader set X-Forwarded-Proto "https"
+    RequestHeader set X-Forwarded-Port  "8443"
 
     # Set the path to SSL certificate
     SSLCertificateFile    "/etc/ssl/jenkins.<%= node.chef_environment %>.login.gov.crt"
@@ -52,3 +53,4 @@
     RequestHeader set X-Forwarded-User %{REMOTE_USER}s
 
 </VirtualHost>
+

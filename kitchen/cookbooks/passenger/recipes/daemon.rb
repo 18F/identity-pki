@@ -16,7 +16,7 @@ nginx_path = node[:passenger][:production][:path]
 bash "install passenger/nginx" do
   user "root"
   code <<-EOH
-  /opt/ruby_build/builds/2.3.3/bin/passenger-install-nginx-module --auto --auto-download --prefix="#{nginx_path}" --extra-configure-flags="#{node[:passenger][:production][:configure_flags]}"
+  /opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/passenger-install-nginx-module --auto --auto-download --prefix="#{nginx_path}" --extra-configure-flags="#{node[:passenger][:production][:configure_flags]}"
   EOH
   not_if "test -e #{nginx_path}"
   not_if "test -e /usr/local/rvm"
@@ -113,3 +113,4 @@ service "passenger" do
   action [ :enable, :start ]
   pattern "nginx: master"
 end
+

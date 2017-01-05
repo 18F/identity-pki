@@ -2,8 +2,10 @@
   "variables": {
     "databagkeypath": "{{env `DATABAG_KEY_PATH`}}",
     "base_ami": "{{env `FISMA_BASE_AMI_ID`}}",
+    "chef_url": "{{env `CHEF_URL`}}",
     "chef_env": "{{env `CHEF_ENV`}}",
     "validation_key_path": "{{env `VALIDATION_KEY_PATH`}}",
+    "validation_client_name": "{{env `VALIDATION_CLIENT_NAME`}}",
     "security_group_id": "{{env `SECURITY_GROUP_ID`}}",
     "vpc_id": "{{env `VPC_ID`}}",
     "subnet_id": "{{env `SUBNET_ID`}}",
@@ -49,11 +51,11 @@
     },
     {
       "type": "chef-client",
-      "server_url": "https://chef.login.gov.internal/organizations/login-dev",
+      "server_url": "{{user `chef_url`}}",
       "ssl_verify_mode": "verify_none",
       "chef_environment": "{{user `chef_env`}}",
       "validation_key_path": "{{user `validation_key_path`}}",
-      "validation_client_name": "login-dev-validator",
+      "validation_client_name": "{{user `validation_client_name`}}",
       "encrypted_data_bag_secret_path": "{{user `databagkeypath`}}",
       "run_list":[
         "role[base]",

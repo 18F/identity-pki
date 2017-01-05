@@ -41,7 +41,6 @@ shared_dirs.each do |dir|
   directory "/srv/idp/shared/#{dir}" do
     owner node['login_dot_gov']['system_user']
     recursive true
-    owner node['login_dot_gov']['system_user']
   end
 end
 
@@ -60,13 +59,10 @@ application release_path do
     revision node['login_dot_gov']['gitref']
   end
 
-  execute "chown -R #{node['login_dot_gov']['system_user']}: /var/chef/cache"
-
   bundle_install do
     binstubs '/srv/idp/shared/bin'
     deployment true
     jobs 3
-    user node['login_dot_gov']['system_user']
     vendor '/srv/idp/shared/bundle'
     without %w{deploy development doc test}
   end
@@ -149,6 +145,6 @@ shared_files.each do |file|
   execute "ln -fns /srv/idp/shared/#{file} /srv/idp/releases/chef/#{file}" unless node['login_dot_gov']['setup_only']
 end
 
-execute "chown -R #{node['login_dot_gov']['system_user']}: /srv/idp"
+execute "chown -R #{node['login_dot_gov']['system_user']} /srv"
 
 execute "mount -o remount,noexec,nosuid,nodev /tmp"
