@@ -47,9 +47,9 @@ template "#{base_dir}/shared/config/database.yml" do
   sensitive true
   variables({
       database: 'sp_rails',
-      username: encrypted_config['db_username'],
-      host: encrypted_config['db_host'],
-      password: encrypted_config['db_password']
+      username: encrypted_config['db_username_app'],
+      host: encrypted_config['db_host_app'],
+      password: encrypted_config['db_password_app']
   })
 end
 

@@ -87,10 +87,10 @@ application release_path do
     # something to do with having the same name as the resource to which the block belongs.
     database({
       adapter: 'postgresql',
-      database: encrypted_config['db_database'],
-      username: encrypted_config['db_username'],
-      host: encrypted_config['db_host'],
-      password: encrypted_config['db_password']
+      database: encrypted_config['db_database_idp'],
+      username: encrypted_config['db_username_idp'],
+      host: encrypted_config['db_host_idp'],
+      password: encrypted_config['db_password_idp']
     })
     rails_env node['login_dot_gov']['rails_env']
     secret_token node['login_dot_gov']['secret_key_base']
