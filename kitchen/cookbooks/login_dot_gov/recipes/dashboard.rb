@@ -19,9 +19,10 @@ sha_env = (node.chef_environment == 'dev' ? node['login_dot_gov']['branch_name']
   end
 end
 
-execute "chown -R #{node['login_dot_gov']['system_user']}: #{base_dir}"
-execute "chown -R #{node['login_dot_gov']['system_user']}: /opt/ruby_build"
-execute "chown -R #{node['login_dot_gov']['system_user']}: /var/chef/cache"
+execute "chown -R #{node['login_dot_gov']['system_user']} #{base_dir}"
+execute "chown -R #{node['login_dot_gov']['system_user']} /opt/ruby_build"
+execute "chown -R #{node['login_dot_gov']['system_user']} /var/chef/cache"
+execute "chown -R #{node['login_dot_gov']['system_user']} /home/ubuntu/.bundle /usr/local/src"
 
 template "#{base_dir}/shared/config/database.yml" do
   owner node['login_dot_gov']['system_user']
