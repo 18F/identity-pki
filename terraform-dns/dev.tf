@@ -1,41 +1,41 @@
-resource "aws_route53_record" "a_dev" {
-  name = "dev.login.gov"
-  records = ["${data.terraform_remote_state.app-dev.aws_eip_app_public_ip}"]
+resource "aws_route53_record" "a_chef_dev" {
+  name = "chef.dev.login.gov"
+  records = ["${data.terraform_remote_state.app-dev.chef-eip}"]
   ttl = "300"
   type = "A"
-  zone_id = "${var.zone_id}"
+  zone_id = "${aws_route53_zone.primary.zone_id}"
+}
+
+resource "aws_route53_record" "a_jenkins_dev" {
+  name = "jenkins.dev.login.gov"
+  records = ["${data.terraform_remote_state.app-dev.jenkins_ip}"]
+  ttl = "300"
+  type = "A"
+  zone_id = "${aws_route53_zone.primary.zone_id}"
+}
+
+resource "aws_route53_record" "a_elk_dev" {
+  name = "elk.dev.login.gov"
+  records = ["${data.terraform_remote_state.app-dev.elk_ip}"]
+  ttl = "300"
+  type = "A"
+  zone_id = "${aws_route53_zone.primary.zone_id}"
+}
+
+resource "aws_route53_record" "a_dev" {
+  name = "dev.login.gov"
+  records = ["${data.terraform_remote_state.app-dev.app_eip}"]
+  ttl = "300"
+  type = "A"
+  zone_id = "${aws_route53_zone.primary.zone_id}"
 }
 
 resource "aws_route53_record" "a_worker_dev" {
   name = "worker.dev.login.gov"
-  records = ["${data.terraform_remote_state.app-dev.aws_instance_worker_public_ip}"]
+  records = ["${data.terraform_remote_state.app-dev.worker_ip}"]
   ttl = "300"
   type = "A"
-  zone_id = "${var.zone_id}"
-}
-
-resource "aws_route53_record" "a_chef_dev" {
-  name = "chef.dev.login.gov"
-  records = ["${data.terraform_remote_state.app-dev.aws_eip_chef_public_ip}"]
-  ttl = "300"
-  type = "A"
-  zone_id = "${var.zone_id}"
-}
-
-resource "aws_route53_record" "a_elk_dev" {
-  name = "chef.dev.login.gov"
-  records = ["${data.terraform_remote_state.app-dev.aws_instance_elk_public_ip}"]
-  ttl = "300"
-  type = "A"
-  zone_id = "${var.zone_id}"
-}
-
-resource "aws_route53_record" "a_jenkins_dev" {
-  name = "chef.dev.login.gov"
-  records = ["${data.terraform_remote_state.app-dev.aws_instance_jenkins_public_ip}"]
-  ttl = "300"
-  type = "A"
-  zone_id = "${var.zone_id}"
+  zone_id = "${aws_route53_zone.primary.zone_id}"
 }
 
 resource "aws_route53_record" "c_dash_dev" {
@@ -43,7 +43,7 @@ resource "aws_route53_record" "c_dash_dev" {
   records = ["${aws_route53_record.a_dev.name}"]
   ttl = "300"
   type = "CNAME"
-  zone_id = "${var.zone_id}"
+  zone_id = "${aws_route53_zone.primary.zone_id}"
 }
 
 resource "aws_route53_record" "c_idp_dev" {
@@ -51,7 +51,7 @@ resource "aws_route53_record" "c_idp_dev" {
   records = ["${aws_route53_record.a_dev.name}"]
   ttl = "300"
   type = "CNAME"
-  zone_id = "${var.zone_id}"
+  zone_id = "${aws_route53_zone.primary.zone_id}"
 }
 
 resource "aws_route53_record" "c_idv_dev" {
@@ -59,7 +59,7 @@ resource "aws_route53_record" "c_idv_dev" {
   records = ["${aws_route53_record.a_dev.name}"]
   ttl = "300"
   type = "CNAME"
-  zone_id = "${var.zone_id}"
+  zone_id = "${aws_route53_zone.primary.zone_id}"
 }
 
 resource "aws_route53_record" "c_sp_dev" {
@@ -67,7 +67,7 @@ resource "aws_route53_record" "c_sp_dev" {
   records = ["${aws_route53_record.a_dev.name}"]
   ttl = "300"
   type = "CNAME"
-  zone_id = "${var.zone_id}"
+  zone_id = "${aws_route53_zone.primary.zone_id}"
 }
 
 resource "aws_route53_record" "c_sp_python_dev" {
@@ -75,7 +75,7 @@ resource "aws_route53_record" "c_sp_python_dev" {
   records = ["${aws_route53_record.a_dev.name}"]
   ttl = "300"
   type = "CNAME"
-  zone_id = "${var.zone_id}"
+  zone_id = "${aws_route53_zone.primary.zone_id}"
 }
 
 resource "aws_route53_record" "c_sp_rails_dev" {
@@ -83,7 +83,7 @@ resource "aws_route53_record" "c_sp_rails_dev" {
   records = ["${aws_route53_record.a_dev.name}"]
   ttl = "300"
   type = "CNAME"
-  zone_id = "${var.zone_id}"
+  zone_id = "${aws_route53_zone.primary.zone_id}"
 }
 
 resource "aws_route53_record" "c_sp_sinatra_dev" {
@@ -91,5 +91,6 @@ resource "aws_route53_record" "c_sp_sinatra_dev" {
   records = ["${aws_route53_record.a_dev.name}"]
   ttl = "300"
   type = "CNAME"
-  zone_id = "${var.zone_id}"
+  zone_id = "${aws_route53_zone.primary.zone_id}"
 }
+

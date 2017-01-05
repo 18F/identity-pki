@@ -1,10 +1,5 @@
-variable "access_key" {}
-variable "access_key_18f_ent" {}
 variable "bucket" { default = "login_dot_gov_tf_state" }
 variable "region" { default = "us-west-2" }
-variable "secret_key" {}
-variable "secret_key_18f_ent" {}
-variable "zone_id" {}
 
 data "terraform_remote_state" "app-tf" {
   backend = "s3"
@@ -42,12 +37,3 @@ data "terraform_remote_state" "app-qa" {
   }
 }
 
-data "terraform_remote_state" "chef" {
-  backend = "s3"
-  config {
-    access_key = "${var.access_key}"
-    bucket = "${var.bucket}"
-    key = "terraform-chef/terraform.tfstate"
-    region = "us-east-1"
-  }
-}

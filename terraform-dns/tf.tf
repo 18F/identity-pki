@@ -1,41 +1,41 @@
-resource "aws_route53_record" "a_tf" {
-  name = "tf.login.gov"
-  records = ["${data.terraform_remote_state.app-tf.aws_eip_app_public_ip}"]
+resource "aws_route53_record" "a_chef_tf" {
+  name = "chef.tf.login.gov"
+  records = ["${data.terraform_remote_state.app-tf.chef-eip}"]
   ttl = "300"
   type = "A"
-  zone_id = "${var.zone_id}"
+  zone_id = "${aws_route53_zone.primary.zone_id}"
+}
+
+resource "aws_route53_record" "a_jenkins_tf" {
+  name = "jenkins.tf.login.gov"
+  records = ["${data.terraform_remote_state.app-tf.jenkins_ip}"]
+  ttl = "300"
+  type = "A"
+  zone_id = "${aws_route53_zone.primary.zone_id}"
+}
+
+resource "aws_route53_record" "a_elk_tf" {
+  name = "elk.tf.login.gov"
+  records = ["${data.terraform_remote_state.app-tf.elk_ip}"]
+  ttl = "300"
+  type = "A"
+  zone_id = "${aws_route53_zone.primary.zone_id}"
+}
+
+resource "aws_route53_record" "a_tf" {
+  name = "tf.login.gov"
+  records = ["${data.terraform_remote_state.app-tf.app_eip}"]
+  ttl = "300"
+  type = "A"
+  zone_id = "${aws_route53_zone.primary.zone_id}"
 }
 
 resource "aws_route53_record" "a_worker_tf" {
   name = "worker.tf.login.gov"
-  records = ["${data.terraform_remote_state.app-tf.aws_instance_worker_public_ip}"]
+  records = ["${data.terraform_remote_state.app-tf.worker_ip}"]
   ttl = "300"
   type = "A"
-  zone_id = "${var.zone_id}"
-}
-
-resource "aws_route53_record" "a_chef_tf" {
-  name = "chef.tf.login.gov"
-  records = ["${data.terraform_remote_state.app-tf.aws_eip_chef_public_ip}"]
-  ttl = "300"
-  type = "A"
-  zone_id = "${var.zone_id}"
-}
-
-resource "aws_route53_record" "a_elk_tf" {
-  name = "chef.tf.login.gov"
-  records = ["${data.terraform_remote_state.app-tf.aws_instance_elk_public_ip}"]
-  ttl = "300"
-  type = "A"
-  zone_id = "${var.zone_id}"
-}
-
-resource "aws_route53_record" "a_jenkins_tf" {
-  name = "chef.tf.login.gov"
-  records = ["${data.terraform_remote_state.app-tf.aws_instance_jenkins_public_ip}"]
-  ttl = "300"
-  type = "A"
-  zone_id = "${var.zone_id}"
+  zone_id = "${aws_route53_zone.primary.zone_id}"
 }
 
 resource "aws_route53_record" "c_dash_tf" {
@@ -43,7 +43,7 @@ resource "aws_route53_record" "c_dash_tf" {
   records = ["${aws_route53_record.a_tf.name}"]
   ttl = "300"
   type = "CNAME"
-  zone_id = "${var.zone_id}"
+  zone_id = "${aws_route53_zone.primary.zone_id}"
 }
 
 resource "aws_route53_record" "c_idp_tf" {
@@ -51,7 +51,7 @@ resource "aws_route53_record" "c_idp_tf" {
   records = ["${aws_route53_record.a_tf.name}"]
   ttl = "300"
   type = "CNAME"
-  zone_id = "${var.zone_id}"
+  zone_id = "${aws_route53_zone.primary.zone_id}"
 }
 
 resource "aws_route53_record" "c_idv_tf" {
@@ -59,7 +59,7 @@ resource "aws_route53_record" "c_idv_tf" {
   records = ["${aws_route53_record.a_tf.name}"]
   ttl = "300"
   type = "CNAME"
-  zone_id = "${var.zone_id}"
+  zone_id = "${aws_route53_zone.primary.zone_id}"
 }
 
 resource "aws_route53_record" "c_sp_tf" {
@@ -67,7 +67,7 @@ resource "aws_route53_record" "c_sp_tf" {
   records = ["${aws_route53_record.a_tf.name}"]
   ttl = "300"
   type = "CNAME"
-  zone_id = "${var.zone_id}"
+  zone_id = "${aws_route53_zone.primary.zone_id}"
 }
 
 resource "aws_route53_record" "c_sp_python_tf" {
@@ -75,7 +75,7 @@ resource "aws_route53_record" "c_sp_python_tf" {
   records = ["${aws_route53_record.a_tf.name}"]
   ttl = "300"
   type = "CNAME"
-  zone_id = "${var.zone_id}"
+  zone_id = "${aws_route53_zone.primary.zone_id}"
 }
 
 resource "aws_route53_record" "c_sp_rails_tf" {
@@ -83,7 +83,7 @@ resource "aws_route53_record" "c_sp_rails_tf" {
   records = ["${aws_route53_record.a_tf.name}"]
   ttl = "300"
   type = "CNAME"
-  zone_id = "${var.zone_id}"
+  zone_id = "${aws_route53_zone.primary.zone_id}"
 }
 
 resource "aws_route53_record" "c_sp_sinatra_tf" {
@@ -91,5 +91,5 @@ resource "aws_route53_record" "c_sp_sinatra_tf" {
   records = ["${aws_route53_record.a_tf.name}"]
   ttl = "300"
   type = "CNAME"
-  zone_id = "${var.zone_id}"
+  zone_id = "${aws_route53_zone.primary.zone_id}"
 }

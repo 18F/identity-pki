@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 STATE=${2}/terraform-${TF_VAR_env_name}.tfstate
 
-# Do not use a region specific state file for the chef remote config
-if [ "$2" == "terraform-chef" ]
+# Do not use a region specific state file for the dns remote config
+if [ "$2" == "terraform-dns" ]
   then
   STATE=${2}/terraform.tfstate
 fi
