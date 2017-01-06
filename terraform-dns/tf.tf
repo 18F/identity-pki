@@ -32,7 +32,7 @@ resource "aws_route53_record" "a_tf" {
 
 resource "aws_route53_record" "a_worker_tf" {
   name = "worker.tf.login.gov"
-  records = ["${data.terraform_remote_state.app-tf.worker_ip}"]
+  records = ["${data.terraform_remote_state.app-tf.idp_worker_ip}"]
   ttl = "300"
   type = "A"
   zone_id = "${aws_route53_zone.primary.zone_id}"
