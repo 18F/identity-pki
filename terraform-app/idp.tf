@@ -1,6 +1,6 @@
 resource "aws_instance" "idp" {
   ami = "${var.ami_id}"
-  depends_on = ["aws_internet_gateway.default"]
+  depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk", "aws_elasticache_cluster.idp", "aws_db_instance.idp"]
   instance_type = "t2.medium"
   key_name = "${var.key_name}"
   subnet_id = "${aws_subnet.app.id}"
@@ -10,7 +10,36 @@ resource "aws_instance" "idp" {
     Name = "${var.name}-idp-${var.env_name}"
   }
 
+  connection {
+    type = "ssh"
+    user = "ubuntu"
+  }
+
   vpc_security_group_ids = [ "${aws_security_group.default.id}" ]
+
+  provisioner "chef"  {
+    attributes_json = <<-EOF
+    {
+      "set_fqdn": "idp.${var.env_name}.login.gov",
+      "login_dot_gov": {
+        "live_certs": "${var.live_certs}"
+      }
+    }
+    EOF
+    environment = "${var.env_name}"
+    run_list = [
+      "role[base]",
+      "recipe[login_dot_gov::install_app_role]"
+    ]
+    node_name = "idp.${var.env_name}"
+    secret_key = "${file("${var.chef_databag_key_path}")}"
+    server_url = "${var.chef_url}"
+    recreate_client = true
+    user_name = "${var.chef_id}"
+    user_key = "${file("${var.chef_id_key_path}")}"
+    version = "${var.chef_version}"
+    fetch_chef_certificates = true
+  }
 }
 
 resource "aws_db_parameter_group" "force_ssl" {
@@ -26,7 +55,7 @@ resource "aws_db_parameter_group" "force_ssl" {
 
 resource "aws_instance" "idp_worker" {
   ami = "${var.ami_id}"
-  depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk"]
+  depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk", "aws_elasticache_cluster.idp", "aws_db_instance.idp"]
   instance_type = "t2.medium"
   key_name = "${var.key_name}"
   subnet_id = "${aws_subnet.app.id}"
@@ -108,6 +137,15 @@ resource "aws_elasticache_cluster" "idp" {
     client = "${var.client}"
     Name = "${var.name}-elasticache_cluster-${var.env_name}"
   }
+}
+
+resource "aws_route53_record" "redis" {
+  zone_id = "${aws_route53_zone.internal.zone_id}"
+  name = "redis"
+
+  type = "CNAME"
+  ttl = "300"
+  records = ["${aws_elasticache_cluster.idp.cache_nodes.0.address}"]
 }
 
 resource "aws_route53_record" "idp-postgres" {

@@ -4,12 +4,6 @@ resource "aws_elasticache_subnet_group" "idp" {
   subnet_ids = ["${aws_subnet.app.id}"]
 }
 
-resource "aws_elasticache_subnet_group" "app" {
-  name = "${var.name}-cache-${var.env_name}"
-  description = "Redis Subnet Group"
-  subnet_ids = ["${aws_subnet.app.id}"]
-}
-
 resource "aws_internet_gateway" "default" {
   tags {
     client = "${var.client}"

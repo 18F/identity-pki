@@ -8,7 +8,7 @@
 ruby_block 'add_worker_role' do
   block do
     node.run_list.delete('recipe[login_dot_gov::install_worker_role]')
-    node.run_list << 'role[worker]'
+    node.run_list << 'role[idp_worker]'
   end
   only_if { node[:recipes].include?('login_dot_gov::install_worker_role') }
 end
