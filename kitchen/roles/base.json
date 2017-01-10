@@ -44,6 +44,7 @@
   },
   "chef_type": "role",
   "run_list": [
+    "recipe[login_dot_gov::chage]",
     "recipe[apt]",
     "recipe[bash-completion]",
     "recipe[build-essential]",
