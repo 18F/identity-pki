@@ -1,0 +1,25 @@
+input {
+   s3 {
+     region => "<%= @aws_region %>"
+     bucket => "<%= @cloudtrail_logging_bucket %>"
+     type => "cloudtrail"
+     codec => "cloudtrail"
+   }
+}
+
+filter {
+  if [type] == "cloudtrail" {
+    mutate {
+      gsub => [ "eventSource", "\.amazonaws\.com$", "" ]
+      add_field => {
+        "document_id" => "%{eventID}"
+      }
+    }
+    if ! [ingest_time] {
+      ruby {
+        code => "event['ingest_time'] = Time.now.utc.strftime '%FT%TZ'"
+      }
+    }
+  }
+}
+

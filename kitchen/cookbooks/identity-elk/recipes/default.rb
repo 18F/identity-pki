@@ -30,6 +30,14 @@ template '/root/30-s3output.conf' do
   })
 end
 
+template '/root/30-cloudtrailin.conf' do
+  source '30-cloudtrailin.conf.erb'
+  variables ({
+    :aws_region => Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['build_env']['TF_VAR_region']['value'],
+    :cloudtrail_logging_bucket => "login-gov-#{node.chef_environment}-cloudtrail"
+  })
+end
+
 # create cert
 acme_selfsigned "elk.login.gov.internal" do
   crt     "/etc/ssl/elk.login.gov.crt"
@@ -84,12 +92,23 @@ ruby_block 'store pubkey' do
   end
 end
 
+# run the container
 docker_container 'elk' do
   repo 'sebp/elk'
   tag  'es501_l501_k501'
   port ['9200:9200','9300:9300','5044:5044','5601:5601']
-  volumes ['/root/30-s3output.conf:/etc/logstash/conf.d/30-s3output.conf',"/etc/ssl/elk.login.gov.crt:/etc/pki/tls/certs/logstash-beats.crt","/etc/ssl/filebeat.login.gov.key:/etc/pki/tls/private/logstash-beats.key"]
+  volumes [
+    '/root/30-s3output.conf:/etc/logstash/conf.d/30-s3output.conf',
+    '/etc/ssl/elk.login.gov.crt:/etc/pki/tls/certs/logstash-beats.crt',
+    '/etc/ssl/filebeat.login.gov.key:/etc/pki/tls/private/logstash-beats.key',
+    '/root/30-cloudtrailin.conf:/etc/logstash/conf.d/30-cloudtrailin.conf'
+  ]
   tty true
+end
+
+docker_exec 'add plugins' do
+  container 'elk'
+  command ['/opt/logstash/bin/logstash-plugin', 'install', 'logstash-codec-cloudtrail']
 end
 
 

@@ -91,7 +91,7 @@ GRAPH
   hostname (0.4.0)
     hostsfile (>= 0.0.0)
   hostsfile (2.4.5)
-  identity-elk (0.1.0)
+  identity-elk (0.1.1)
     acme (>= 0.0.0)
     apache2 (>= 0.0.0)
     docker (>= 0.0.0)
