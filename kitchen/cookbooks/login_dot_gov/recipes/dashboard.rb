@@ -81,9 +81,9 @@ execute '/opt/ruby_build/builds/2.3.3/bin/bundle exec rake db:create --trace' do
   })
 end
 
-file '/opt/nginx/conf/htpasswd' do
-  content encrypted_config['http_basic_auth']
-  notifies :restart, "service[passenger]"
+basic_auth_config 'generate basic auth config' do
+  password encrypted_config['basic_auth_password']
+  user_name encrypted_config["basic_auth_user_name"]
 end
 
 # add nginx conf for app server

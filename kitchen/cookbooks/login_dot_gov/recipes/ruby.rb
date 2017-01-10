@@ -11,8 +11,8 @@ template '/home/ubuntu/.bash_profile' do
     smtp_domain:  node['set_fqdn'],
     smtp_password: encrypted_config['smtp_settings']['password'],
     smtp_user: encrypted_config['smtp_settings']['user_name'],
-    sp_name: '18f',
-    sp_pass: encrypted_config['db_password']
+    sp_name: encrypted_config['basic_auth_user_name'],
+    sp_pass: encrypted_config['basic_auth_password']
   })
   subscribes :run, 'execute[ruby-build install]', :delayed
 end

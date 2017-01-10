@@ -2,9 +2,9 @@ login_dot_gov_lets_encrypt 'idp'
 
 encrypted_config = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]
 
-file '/opt/nginx/conf/htpasswd' do
-  content encrypted_config['http_basic_auth']
-  notifies :restart, "service[passenger]"
+basic_auth_config 'generate basic auth config' do
+  password encrypted_config['basic_auth_password']
+  user_name encrypted_config["basic_auth_user_name"]
 end
 
 # branch is 'master'(default) when env is dev, otherwise use stages/env 

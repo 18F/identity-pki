@@ -12,4 +12,3 @@ ruby_block 'add_worker_role' do
   end
   only_if { node[:recipes].include?('login_dot_gov::install_worker_role') }
 end
-

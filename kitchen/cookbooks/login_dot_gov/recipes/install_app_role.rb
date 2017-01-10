@@ -12,4 +12,3 @@ ruby_block 'add_app_role' do
   end
   only_if { node[:recipes].include?('login_dot_gov::install_app_role') }
 end
-
