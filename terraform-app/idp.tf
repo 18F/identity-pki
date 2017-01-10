@@ -29,7 +29,7 @@ resource "aws_instance" "idp" {
     environment = "${var.env_name}"
     run_list = [
       "role[base]",
-      "recipe[login_dot_gov::install_app_role]"
+      "recipe[login_dot_gov::install_idp_role]"
     ]
     node_name = "idp.${var.env_name}"
     secret_key = "${file("${var.chef_databag_key_path}")}"
