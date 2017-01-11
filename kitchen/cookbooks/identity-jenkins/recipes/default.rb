@@ -187,7 +187,9 @@ jenkins_job "terraform" do
   config xml
 end
 
-gem_package 'berkshelf'
+gem_package 'berkshelf' do
+  gem_binary "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/gem"
+end
 
 xml = File.join(Chef::Config[:file_cache_path], 'chefclient-config.xml')
 template xml do
@@ -201,14 +203,14 @@ package 'postgresql-client-9.3'
 package 'postgresql-server-dev-9.3'
 gem_package 'pg' do
   options('-- --with-pg-config=/usr/bin/pg_config --with-pg-lib=/usr/lib/')
-  gem_binary '/opt/ruby_build/builds/2.3.3/bin/gem'
+  gem_binary "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/gem"
 end
 
 idp_path = File.join(Chef::Config[:file_cache_path], 'identity-idp')
 git idp_path do
   repository 'https://github.com/18F/identity-idp'
 end
-execute '/opt/ruby_build/builds/2.3.3/bin/bundle install' do
+execute "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle install" do
   cwd idp_path
 end
 
