@@ -64,10 +64,11 @@
   "default_attributes": {
     "elk": {
       "users": [
-        "tspencer",
-        "amos",
+        "astone",
         "jgrevich",
-        "monfresh"
+        "jpmugizi",
+        "monfresh",
+        "tspencer"
       ]
     },
     "identity-jenkins": {
@@ -75,9 +76,10 @@
         "monfresh"
       ],
       "admins": [
-        "tspencer",
-        "amos",
-        "jgrevich"
+        "astone",
+        "jgrevich",
+        "jpmugizi",
+        "tspencer"
       ]
     },
     "login_dot_gov": {

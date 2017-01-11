@@ -60,11 +60,11 @@
   "default_attributes": {
     "elk": {
       "users": [
-        "tspencer",
-        "amos",
+        "astone",
         "jgrevich",
+        "jpmugizi",
         "monfresh",
-        "jpmugizi"
+        "tspencer"
       ]
     },
     "identity-jenkins": {
@@ -72,10 +72,10 @@
         "monfresh"
       ],
       "admins": [
-        "tspencer",
-        "amos",
+        "astone",
         "jgrevich",
-        "jpmugizi"
+        "jpmugizi",
+        "tspencer"
       ]
     }
   },
