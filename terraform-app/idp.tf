@@ -124,7 +124,7 @@ resource "aws_eip" "idp" {
 }
 
 resource "aws_elasticache_cluster" "idp" {
-  cluster_id = "login-idp-ecache-${var.env_name}"
+  cluster_id = "login-idp-${var.env_name}"
   engine = "redis"
   node_type = "cache.t2.micro"
   num_cache_nodes = 1
