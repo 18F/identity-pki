@@ -63,7 +63,8 @@
         "tspencer",
         "amos",
         "jgrevich",
-        "monfresh"
+        "monfresh",
+        "jpmugizi"
       ]
     },
     "identity-jenkins": {
@@ -73,7 +74,8 @@
       "admins": [
         "tspencer",
         "amos",
-        "jgrevich"
+        "jgrevich",
+        "jpmugizi"
       ]
     }
   },
