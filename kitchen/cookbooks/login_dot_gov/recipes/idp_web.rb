@@ -15,15 +15,19 @@ deploy_dir = "#{base_dir}/current/public"
 # add nginx conf for app server
 # TODO: JJG convert security_group_exceptions to hash so we can keep a note in both chef and nginx
 #       configs as to why we added the exception.
-template "/opt/nginx/conf/sites.d/idp.login.gov.conf" do
+app_name = 'idp'
+
+template "/opt/nginx/conf/sites.d/login.gov.conf" do
   owner node['login_dot_gov']['system_user']
   notifies :restart, "service[passenger]"
   source 'nginx_server.conf.erb'
   variables({
-    app: 'idp',
+    app: app_name,
     domain: "#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
     elb_cidr: node['login_dot_gov']['elb_cidr'],
-    security_group_exceptions: encrypted_config['security_group_exceptions']
+    security_group_exceptions: encrypted_config['security_group_exceptions'],
+    server_aliases: "#{app_name}.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
+    server_name: "#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
   })
 end
 

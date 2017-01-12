@@ -1,15 +1,15 @@
 server {
     listen       80;
-    server_name  <%= "#{@app}.#{@domain}" %>;
+    server_name  <%= @server_name %> <%= @server_aliases -%>;
     return       301  https://$server_name$request_uri;
 }
 
 server {
     listen       443 ssl;
-    server_name  <%= "#{@app}.#{@domain}" %>;
+    server_name  <%= @server_name %> <%= @server_aliases -%>;
 
-    ssl_certificate /etc/letsencrypt/live/<%= "#{@app}.#{@domain}" %>/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/<%= "#{@app}.#{@domain}" %>/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/<%= @server_name %>/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/<%= @server_name %>/privkey.pem;
     ssl_ciphers 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH';
     ssl_dhparam /etc/ssl/certs/dhparam.pem;
     ssl_prefer_server_ciphers on;

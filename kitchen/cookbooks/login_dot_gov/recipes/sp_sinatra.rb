@@ -55,15 +55,18 @@ end
 # add nginx conf for app server
 # TODO: JJG convert security_group_exceptions to hash so we can keep a note in both chef and nginx
 #       configs as to why we added the exception.
+app_name = 'sp-sinatra'
+
 template "/opt/nginx/conf/sites.d/sp-sinatra.login.gov.conf" do
   owner node['login_dot_gov']['system_user']
   notifies :restart, "service[passenger]"
   source 'nginx_server.conf.erb'
   variables({
-    app: 'sp-sinatra',
+    app: app_name,
     domain: "#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
     elb_cidr: node['login_dot_gov']['elb_cidr'],
-    security_group_exceptions: encrypted_config['security_group_exceptions']
+    security_group_exceptions: encrypted_config['security_group_exceptions'],
+    server_name: "#{app_name}.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
   })
 end
 
