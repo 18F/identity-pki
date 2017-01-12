@@ -54,7 +54,7 @@ berks apply <%= node.chef_environment %> --ssl-verify=false
 berks install
 berks upload --ssl-verify=false
 /usr/bin/knife ssl fetch
-/usr/bin/knife ssh &quot;chef_environment:<%= node.chef_environment %> AND (role:worker OR role:app)&quot; &quot;sudo chef-client&quot; -x ubuntu -a ipaddress
+/usr/bin/knife ssh &quot;chef_environment:<%= node.chef_environment %> NOT name:jenkins.<%= node.chef_environment %>&quot; &quot;sudo chef-client&quot; -x ubuntu -a ipaddress
 </command>
     </hudson.tasks.Shell>
   </builders>
