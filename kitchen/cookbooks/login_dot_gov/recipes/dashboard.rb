@@ -97,7 +97,8 @@ template "/opt/nginx/conf/sites.d/dashboard.login.gov.conf" do
     app: 'dashboard',
     domain: "#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
     elb_cidr: node['login_dot_gov']['elb_cidr'],
-    security_group_exceptions: encrypted_config['security_group_exceptions']
+    security_group_exceptions: encrypted_config['security_group_exceptions'],
+    server_name: "#{app_name}.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
   })
 end
 
