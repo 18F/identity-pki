@@ -1,3 +1,11 @@
+resource "aws_route53_record" "a_jumphost_dev" {
+  name = "jumphost.dev.login.gov"
+  records = ["${data.terraform_remote_state.app-dev.jumphost-eip}"]
+  ttl = "300"
+  type = "A"
+  zone_id = "${aws_route53_zone.primary.zone_id}"
+}
+
 resource "aws_route53_record" "a_dev" {
   name = "dev.login.gov"
   records = ["${data.terraform_remote_state.app-dev.idp_eip}"]

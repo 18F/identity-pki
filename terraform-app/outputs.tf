@@ -58,3 +58,7 @@ output "aws_app_subnet_id" {
   value = "SUBNET_ID=${aws_subnet.app.id}"
 }
 
+output "jumphost-eip" {
+  value = "${aws_eip.jumphost.public_ip}"
+}
+

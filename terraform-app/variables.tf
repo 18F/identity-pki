@@ -4,6 +4,7 @@ variable "db1_subnet_cidr_block"  { default = "172.16.0.0/28" }
 variable "db2_subnet_cidr_block"  { default = "172.16.0.16/28"}
 variable "chef_subnet_cidr_block" { default = "172.16.0.32/28"}
 variable "app_subnet_cidr_block"  { default = "172.16.1.0/24" }
+variable "jumphost_subnet_cidr_block" { default = "172.16.0.48/28"}
 variable "env_name" { default = "tf" }
 variable "key_name" {}
 variable "name" { default = "login" }

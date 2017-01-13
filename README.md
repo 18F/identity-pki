@@ -130,7 +130,6 @@ knife block use <env>
 knife data bag create config --secret-file ~/.chef/<env>-databag.key
 knife data bag from file config ./template_config_dbag.json --secret-file ~/.chef/<env>-databag.key
 knife data bag edit config app --secret-file ~/.chef/<env>-databag.key
-knife data bag create users --secret-file ~/.chef/<env>-databag.key
 ./usermove.sh old <env>
 ```
 

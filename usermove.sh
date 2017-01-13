@@ -3,8 +3,6 @@
 # This script copies the encrypted user databag items from an old env
 # to a new one.  It's used when you create a new chef-server.
 #
-# It assumes that 
-#
 
 oldenv=$1
 newenv=$2
@@ -34,13 +32,22 @@ for i in $oldenv $newenv ; do
 	echo $i is a valid knife block environment
 done
 
+# make sure databag is set up (need no encryption)
+knife block use $newenv
+if knife data bag show users >/dev/null 2>&1 ; then
+	echo target databag already set up
+else
+	knife data bag create users
+fi
+
+# move the users
 knife block use $oldenv
 
 for i in `knife data bag show users` ; do
 	echo moving $i
 	knife data bag show users $i -Fj > /tmp/$$.json
 	knife block use $newenv
-	knife data bag from file users /tmp/$$.json --secret-file ~/.chef/$newenv-databag.key 
+	knife data bag from file users /tmp/$$.json
 	knife block use $oldenv
 done
 

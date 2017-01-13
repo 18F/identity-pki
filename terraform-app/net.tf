@@ -18,6 +18,33 @@ resource "aws_route" "default" {
     gateway_id = "${aws_internet_gateway.default.id}"
 }
 
+resource "aws_security_group" "jumphost" {
+  description = "Allow inbound jumphost traffic: whitelisted IPs for SSH"
+
+  egress {
+    from_port = 0
+    to_port = 65535
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["${var.app_sg_ssh_cidr_blocks}"]
+  }
+
+  name = "${var.name}-jumphost"
+
+  tags {
+    client = "${var.client}"
+    Name = "${var.name}-jumphost"
+  }
+
+  vpc_id = "${aws_vpc.default.id}"
+}
+
 resource "aws_security_group" "chef" {
   description = "Allow inbound chef traffic and whitelisted IPs for SSH"
 
@@ -41,6 +68,13 @@ resource "aws_security_group" "chef" {
     protocol = "tcp"
     self = true
     cidr_blocks = [ "${concat(var.app_sg_ssh_cidr_blocks,list(aws_vpc.default.cidr_block))}" ]
+  }
+
+  ingress {
+    from_port = 0
+    to_port = 65535
+    protocol = "tcp"
+    security_groups = [ "${aws_security_group.jumphost.id}" ]
   }
 
   name = "${var.name}-chef"
@@ -92,6 +126,14 @@ resource "aws_security_group" "default" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    from_port = 0
+    to_port = 65535
+    protocol = "tcp"
+    security_groups = [ "${aws_security_group.jumphost.id}" ]
+  }
+
+  name = "${var.name}-chef"
   name = "${var.name}-app-${var.env_name}"
 
   tags {
@@ -145,6 +187,14 @@ resource "aws_security_group" "elk" {
     security_groups = [ "${aws_security_group.default.id}" ]
   }
 
+  ingress {
+    from_port = 0
+    to_port = 65535
+    protocol = "tcp"
+    security_groups = [ "${aws_security_group.jumphost.id}" ]
+  }
+
+  name = "${var.name}-chef"
   name = "${var.name}-elk-${var.env_name}"
 
   tags {
@@ -172,6 +222,14 @@ resource "aws_security_group" "cache" {
     cidr_blocks = ["${var.app_subnet_cidr_block}"]
   }
 
+  ingress {
+    from_port = 0
+    to_port = 65535
+    protocol = "tcp"
+    security_groups = [ "${aws_security_group.jumphost.id}" ]
+  }
+
+  name = "${var.name}-chef"
   name = "${var.name}-cache-${var.env_name}"
 
   tags {
@@ -199,6 +257,14 @@ resource "aws_security_group" "db" {
     cidr_blocks = ["${var.app_subnet_cidr_block}"]
   }
 
+  ingress {
+    from_port = 0
+    to_port = 65535
+    protocol = "tcp"
+    security_groups = [ "${aws_security_group.jumphost.id}" ]
+  }
+
+  name = "${var.name}-chef"
   name = "${var.name}-db-${var.env_name}"
 
   tags {
@@ -256,6 +322,19 @@ resource "aws_subnet" "chef" {
   tags {
     client = "${var.client}"
     Name = "${var.name}-subnet_chef-${var.env_name}"
+  }
+
+  vpc_id = "${aws_vpc.default.id}"
+}
+
+resource "aws_subnet" "jumphost" {
+  availability_zone = "${var.region}b"
+  cidr_block = "${var.jumphost_subnet_cidr_block}"
+  map_public_ip_on_launch = true
+
+  tags {
+    client = "${var.client}"
+    Name = "${var.name}-subnet_jumphost-${var.env_name}"
   }
 
   vpc_id = "${aws_vpc.default.id}"

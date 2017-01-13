@@ -37,4 +37,5 @@ cookbook 'passenger', path: 'kitchen/cookbooks/passenger'
 cookbook 'poise-ruby-build', path: 'kitchen/cookbooks/poise-ruby-build'
 cookbook 'identity-jenkins', path: 'kitchen/cookbooks/identity-jenkins'
 cookbook 'identity-elk', path: 'kitchen/cookbooks/identity-elk'
+cookbook 'identity-jumphost', path: 'kitchen/cookbooks/identity-jumphost'
 
