@@ -101,6 +101,7 @@ end
 # TODO: JJG convert security_group_exceptions to hash so we can keep a note in both chef and nginx
 #       configs as to why we added the exception.
 app_name = 'sp-rails'
+
 template "/opt/nginx/conf/sites.d/sp-rails.login.gov.conf" do
   owner node['login_dot_gov']['system_user']
   notifies :restart, "service[passenger]"

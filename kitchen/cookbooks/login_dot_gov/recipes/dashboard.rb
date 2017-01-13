@@ -111,7 +111,7 @@ ruby_block 'extract_sha_of_revision' do
 
     # Dynamically set the file resource's attribute
     # Obtain the desired resource from resource_collection
-    template_r = run_context.resource_collection.find(template: "#{node['login_dot_gov']['release_dir']}/api/deploy.json")
+    template_r = run_context.resource_collection.find(template: "#{deploy_dir}/api/deploy.json")
     # Update the content attribute
     template_r.variables ({
       env: node.chef_environment,
@@ -124,15 +124,16 @@ ruby_block 'extract_sha_of_revision' do
   action :run
 end
 
-directory "#{node['login_dot_gov']['release_dir']}/api" do
+directory "#{deploy_dir}/api" do
   owner node['login_dot_gov']['user']
   recursive true
   action :create
 end
 
-template "#{node['login_dot_gov']['release_dir']}/api/deploy.json" do
+template "#{deploy_dir}/api/deploy.json" do
   owner node['login_dot_gov']['user']
   source 'deploy.json.erb'
 end
 
 execute "mount -o remount,noexec,nosuid,nodev /tmp"
+
