@@ -30,11 +30,13 @@ template '/root/30-s3output.conf' do
   })
 end
 
+aws_account_id = `curl -s http://169.254.169.254/latest/dynamic/instance-identity/document | grep -oP '(?<="accountId" : ")[^"]*(?=")'`.chomp
+
 template '/root/30-cloudtrailin.conf' do
   source '30-cloudtrailin.conf.erb'
   variables ({
     :aws_region => Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['build_env']['TF_VAR_region']['value'],
-    :cloudtrail_logging_bucket => "login-gov-#{node.chef_environment}-cloudtrail"
+    :cloudtrail_logging_bucket => "login-gov-cloudtrail-#{aws_account_id}"
   })
 end
 

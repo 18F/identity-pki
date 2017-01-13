@@ -164,6 +164,32 @@ chef to launch.
 If you get a successful run, you should get a few URLs which you can use to access
 the various services.  Yay!
 
+#### Cloudtrail
+
+If this is the first environment you are spinning up, you will need to turn spin
+up the centralized cloudtrail bucket.  Here is how:
+```
+./deploy apply terraform-cloudtrail
+```
+
+You may need to edit the terraform-cloudtrail/main.tf file to add in additional
+elk roles as you add environments so that they can access the bucket too.
+
+#### DNS setup
+
+If you have not set up DNS, or you need to make changes, then you will need to run this:
+```
+./deploy apply terraform-dns
+```
+
+Right now, it reads data from all of the tfstate files and updates dns for them.
+So the various environments are hardcoded (or not) in the terraform-dns dir.
+If you add more environments, you will need to copy and change one of those files
+for your new environment, probably the variables.tf file too.
+
+Eventually, I would like to make it so that jenkins can update the route53 zone,
+and just make it so that the individual environments update this themselves, rather
+than centralizing it, but we aren't quite there yet.
 
 #### jenkins users and admins
 Jenkins will need to be set up too!
@@ -235,10 +261,6 @@ someday.
   * If infrastructure needs to change, that build will fail.  Contact a devops person to ensure that gets pushed out before deploy.  Someday we hope to make the AWS keys non-readonly so that jenkins can push infrastructure too, but that requires a lot of scrutiny, so we are avoiding that for now.
   * If the infrastructure doesn't need changing, it will push out the code too. 
 * Enjoy!
-=======
-XXX
-=======
-  * If the infrastructure doesn't need changing, it will push out the chef stuff and code too. 
 
 ## Release Process
 

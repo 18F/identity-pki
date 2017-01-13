@@ -2,7 +2,7 @@
 STATE=${2}/terraform-${TF_VAR_env_name}.tfstate
 
 # Do not use a region specific state file for the dns remote config
-if [ "$2" == "terraform-dns" ]
+if [ "$2" == "terraform-dns" -o "$2" == "terraform-cloudtrail" ]
   then
   STATE=${2}/terraform.tfstate
 fi
