@@ -61,7 +61,10 @@ deb in the terraform-chefdata apply may take a while.
 ```
 
 The deploy should create a chef-server, but will fail to deploy all the other services,
-because they require chef to be fully set up.  This is fine, proceed to the next step.
+because they require chef to be fully set up. If you receive 
+[this expected output](https://gist.github.com/amoose/79c407c37969544e4e89f378f340e9a1) 
+proceed to the next step.
+
 
 #### Set up knife block
 
