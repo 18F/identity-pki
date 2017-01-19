@@ -24,6 +24,7 @@ action :create do
       attribute_encryption_key_queue: node['login_dot_gov']['attribute_encryption_key_queue'],
       aws_kms_key_id: node['login_dot_gov']['aws_kms_key_id'],
       aws_region: node['login_dot_gov']['aws_region'],
+      dashboard_url: node['login_dot_gov']['dashboard_url'],
       domain_name: "idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
       enable_test_routes: node['login_dot_gov']['enable_test_routes'],
       email_encryption_cost: node['login_dot_gov']['email_encryption_cost'],
@@ -75,6 +76,7 @@ action :create do
       support_url: node['login_dot_gov']['support_url'],
       twilio_accounts: encrypted_config['twilio_accounts'],
       twilio_record_voice: node['login_dot_gov']['twilio_record_voice'],
+      use_dashboard_service_providers: node['login_dot_gov']['use_dashboard_service_providers'],
       use_kms: node['login_dot_gov']['use_kms'],
       valid_authn_contexts: node['login_dot_gov']['valid_authn_contexts'],
       valid_service_providers: encrypted_config['valid_service_providers']
