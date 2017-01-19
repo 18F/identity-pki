@@ -8,5 +8,4 @@ version          '0.1.0'
 depends          'terraform'
 depends          'users'
 depends          'login_dot_gov'
-depends          'squid'
-
+depends          'squid', '~> 3.0'
