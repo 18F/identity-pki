@@ -19,6 +19,15 @@ data "terraform_remote_state" "app-dev" {
   }
 }
 
+data "terraform_remote_state" "app-int" {
+  backend = "s3"
+  config {
+    bucket = "${var.bucket}"
+    key = "terraform-app/terraform-int.tfstate"
+    region = "us-east-1"
+  }
+}
+
 data "terraform_remote_state" "app-pt" {
   backend = "s3"
   config {
