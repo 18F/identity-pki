@@ -145,6 +145,6 @@ shared_files.each do |file|
   execute "ln -fns /srv/idp/shared/#{file} /srv/idp/releases/chef/#{file}" unless node['login_dot_gov']['setup_only']
 end
 
-execute "chown -R #{node['login_dot_gov']['system_user']} /srv"
+execute "chown -R #{node['login_dot_gov']['system_user']}:nobody /srv"
 
 execute "mount -o remount,noexec,nosuid,nodev /tmp"
