@@ -52,6 +52,7 @@ action :create do
     cwd '/usr/local/src'
     environment ({ 'XDG_DATA_HOME' => '/usr/local/src' })
     not_if { ::Dir.exist?("/etc/letsencrypt/live/#{server_name}") }
+    not_if { ::Dir.exist?("/etc/letsencrypt/live/#{server_alias}") }
     notifies :stop, "service[passenger]", :before
   end
 
@@ -60,6 +61,7 @@ action :create do
     cwd '/usr/local/src'
     environment ({ 'XDG_DATA_HOME' => '/usr/local/src' })
     only_if { ::Dir.exist?("/etc/letsencrypt/live/#{server_name}") }
+    only_if { ::Dir.exist?("/etc/letsencrypt/live/#{server_alias}") }
     notifies :stop, "service[passenger]", :before
     retries 3
   end
