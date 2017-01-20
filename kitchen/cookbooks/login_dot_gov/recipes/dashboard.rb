@@ -20,9 +20,14 @@ sha_env = (node.chef_environment == 'dev' ? node['login_dot_gov']['branch_name']
 end
 
 execute "chown -R #{node['login_dot_gov']['system_user']}:nobody #{base_dir}"
+execute "chown -R #{node['login_dot_gov']['system_user']} /home/ubuntu/.bundle" do
+  subscribes :run, "execute[/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle install --deployment --jobs 3 --path /srv/dashboard/shared/bundle --without deploy development test]", :immediately
+  subscribes :run, "execute[/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle install --deployment --jobs 3 --path /srv/sp-rails/shared/bundle --without deploy development test]", :immediately
+  subscribes :run, "execute[/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle install --deployment --jobs 3 --path /srv/sp-sinatra/shared/bundle --without deploy development test]", :immediately
+end
+execute "chown -R #{node['login_dot_gov']['system_user']} /usr/local/src"
 execute "chown -R #{node['login_dot_gov']['system_user']} /opt/ruby_build"
 execute "chown -R #{node['login_dot_gov']['system_user']} /var/chef/cache"
-execute "chown -R #{node['login_dot_gov']['system_user']} /home/ubuntu/.bundle /usr/local/src"
 
 template "#{base_dir}/shared/config/database.yml" do
   owner node['login_dot_gov']['system_user']
@@ -39,8 +44,8 @@ deploy "#{base_dir}" do
   action :deploy
 
   before_symlink do
-    bundle = "/opt/ruby_build/builds/2.3.3/bin/bundle install --deployment --jobs 3 --path #{base_dir}/shared/bundle --without deploy development test"
-    assets = '/opt/ruby_build/builds/2.3.3/bin/bundle exec rake assets:precompile'
+    bundle = "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle install --deployment --jobs 3 --path #{base_dir}/shared/bundle --without deploy development test"
+    assets = "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle exec rake assets:precompile"
 
     [bundle, assets].each do |cmd|
       execute cmd do
@@ -74,7 +79,7 @@ deploy "#{base_dir}" do
   user 'ubuntu'
 end
 
-execute '/opt/ruby_build/builds/2.3.3/bin/bundle exec rake db:create --trace' do
+execute "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle exec rake db:create --trace" do
   cwd "#{base_dir}/current"
   environment({
     'RAILS_ENV' => "production"
