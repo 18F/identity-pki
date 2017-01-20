@@ -26,7 +26,7 @@ execute "chown -R #{node['login_dot_gov']['system_user']} /usr/local/src"
 deploy '/srv/sp-sinatra' do
   action :deploy
   before_symlink do
-    cmd = "/opt/ruby_build/builds/2.3.3/bin/bundle install --deployment --jobs 3 --path /srv/sp-sinatra/shared/bundle --without deploy development test"
+    cmd = "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle install --deployment --jobs 3 --path /srv/sp-sinatra/shared/bundle --without deploy development test"
     execute cmd do
       cwd release_path
       user 'ubuntu'

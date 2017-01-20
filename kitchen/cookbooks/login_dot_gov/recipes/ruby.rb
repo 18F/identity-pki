@@ -18,7 +18,11 @@ template '/home/ubuntu/.bash_profile' do
 end
 
 # add to users path
-template '/etc/environment'
+template '/etc/environment' do
+  variables({
+    ruby_version: node['login_dot_gov']['ruby_version']
+  })
+end
 
 # install dependencies
 # TODO: JJG convert to platform agnostic way of installing packages to avoid case statement(s)

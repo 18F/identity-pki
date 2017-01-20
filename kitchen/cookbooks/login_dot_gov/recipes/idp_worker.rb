@@ -28,4 +28,7 @@ end
 
 template '/etc/monit/conf.d/sidekiq_idp_production.conf' do
   notifies :restart, 'service[sidekiq]'
+  variables({
+    ruby_version: node['login_dot_gov']['ruby_version']
+  })
 end

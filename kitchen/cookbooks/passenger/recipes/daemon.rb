@@ -60,8 +60,8 @@ template "#{nginx_path}/conf/nginx.conf" do
   sensitive true
   variables(
     :log_path => log_path,
-    :passenger_root => "/opt/ruby_build/builds/2.3.3/lib/ruby/gems/2.3.0/gems/passenger-#{node[:passenger][:production][:version]}",
-    :ruby_path => "/opt/ruby_build/builds/2.3.3/bin/ruby",
+    :passenger_root => "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/lib/ruby/gems/2.3.0/gems/passenger-#{node[:passenger][:production][:version]}",
+    :ruby_path => "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/ruby",
     :passenger => node[:passenger][:production],
     :pidfile => "/var/run/nginx.pid"
   )
