@@ -15,7 +15,7 @@ resource "aws_route53_record" "a_qa" {
 }
 
 resource "aws_route53_record" "a_app_qa" {
-  name = "qa.login.gov"
+  name = "app.qa.login.gov"
   records = ["${data.terraform_remote_state.app-qa.app_eip}"]
   ttl = "300"
   type = "A"
