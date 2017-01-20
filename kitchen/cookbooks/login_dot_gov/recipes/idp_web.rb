@@ -44,7 +44,7 @@ template "#{deploy_dir}/api/deploy.json" do
     env: node.chef_environment,
     branch: branch_name,
     user: 'chef',
-    sha: ::File.read("#{base_dir}/releases/chef/.git/refs/heads/#{branch_name}").chomp,
+    sha: lazy { ::File.read("#{base_dir}/releases/chef/.git/refs/heads/#{branch_name}").chomp } ,
     timestamp: ::Time.new.strftime("%Y%m%d%H%M%S")
   })
 end

@@ -64,7 +64,7 @@ action :create do
       requests_per_ip_period: node['login_dot_gov']['requests_per_ip_period'],
       saml_passphrase: encrypted_config['saml_passphrase'],
       scrypt_cost: node['login_dot_gov']['scrypt_cost'],
-      secret_key_base: encrypted_config['secret_key_base'],
+      secret_key_base: encrypted_config['secret_key_base_idp'],
       session_check_delay: node['login_dot_gov']['session_check_delay'],
       session_check_frequency: node['login_dot_gov']['session_check_frequency'],
       session_encryption_key: encrypted_config['session_encryption_key'],

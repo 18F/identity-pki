@@ -89,7 +89,7 @@ application release_path do
       password: encrypted_config['db_password_idp']
     })
     rails_env node['login_dot_gov']['rails_env']
-    secret_token node['login_dot_gov']['secret_key_base']
+    secret_token node['login_dot_gov']['secret_key_base_idp']
     not_if { node['login_dot_gov']['setup_only'] }
   end
 
