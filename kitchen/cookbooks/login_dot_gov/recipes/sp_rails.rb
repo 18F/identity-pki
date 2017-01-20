@@ -38,7 +38,7 @@ template "#{base_dir}/shared/config/secrets.yml" do
   })
 end
 
-execute "chown -R #{node['login_dot_gov']['system_user']}:nobody #{base_dir}"
+execute "chown -R #{node['login_dot_gov']['system_user']}:nogroup #{base_dir}"
 execute "chown -R #{node['login_dot_gov']['system_user']} /opt/ruby_build"
 execute "chown -R #{node['login_dot_gov']['system_user']} /usr/local/src"
 

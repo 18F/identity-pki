@@ -19,7 +19,7 @@ sha_env = (node.chef_environment == 'dev' ? node['login_dot_gov']['branch_name']
   end
 end
 
-execute "chown -R #{node['login_dot_gov']['system_user']}:nobody #{base_dir}"
+execute "chown -R #{node['login_dot_gov']['system_user']}:nogroup #{base_dir}"
 execute "chown -R #{node['login_dot_gov']['system_user']} /home/ubuntu/.bundle" do
   subscribes :run, "execute[/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle install --deployment --jobs 3 --path /srv/dashboard/shared/bundle --without deploy development test]", :immediately
   subscribes :run, "execute[/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle install --deployment --jobs 3 --path /srv/sp-rails/shared/bundle --without deploy development test]", :immediately
