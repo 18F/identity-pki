@@ -1,3 +1,20 @@
+# login.gov Dev/Ops repository
+
+<!-- MarkdownTOC -->
+
+- Terraform
+  - Initial Setup
+- Release Process
+  - Infrastructure
+  - App control/config with Rake tasks
+  - cookbook changes
+  - encrypted databag changes
+  - Code changes
+- Notes
+
+<!-- /MarkdownTOC -->
+
+
 ## Terraform
 
 ### Initial Setup
@@ -165,7 +182,9 @@ This should launch all of the ELK/jenkins/app/worker hosts which were needing
 chef to launch.
 
 If you get a successful run, you should get a few URLs which you can use to access
-the various services.  Yay!
+the various services.
+[The output should look like this](https://gist.github.com/amoose/eb473b09994329d5b19f8cb0cee0589c)
+Yay!
 
 #### Cloudtrail
 
@@ -359,3 +378,6 @@ UI and run the code job with the gitref that you want to deploy.
 ## Notes
 
 Have fun!!
+
+Use the MarkdownTOC plugin for Atom or Sublime Text to automatically update the
+ToC in this doc. 
