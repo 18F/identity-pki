@@ -69,7 +69,26 @@
   "json_class": "Chef::Environment",
   "chef_type": "environment",
   "default_attributes": {
-
+    "elk": {
+      "users": [
+        "astone",
+        "jgrevich",
+        "jpmugizi",
+        "monfresh",
+        "tspencer"
+      ]
+    },
+    "identity-jenkins": {
+      "users": [
+        "monfresh"
+      ],
+      "admins": [
+        "astone",
+        "jgrevich",
+        "jpmugizi",
+        "tspencer"
+      ]
+    }
   },
   "override_attributes": {
 

@@ -88,9 +88,6 @@
         "jpmugizi",
         "tspencer"
       ]
-    },
-    "login_dot_gov": {
-      "gitref": "master"
     }
   },
   "override_attributes": {
