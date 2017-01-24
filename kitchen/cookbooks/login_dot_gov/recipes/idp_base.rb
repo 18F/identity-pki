@@ -95,7 +95,7 @@ application release_path do
 
   execute 'chown -R ubuntu /home/ubuntu/.bundle /usr/local/src'
 
-  execute "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle exec rake db:create db:schema:load db:seed --trac" do
+  execute "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle exec rake db:create db:migrate db:seed --trac" do
     cwd '/srv/idp/releases/chef'
     environment({
       'RAILS_ENV' => "production"
