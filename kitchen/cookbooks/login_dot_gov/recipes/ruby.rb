@@ -5,6 +5,7 @@ template '/home/ubuntu/.bash_profile' do
   mode '0644'
   sensitive true
   variables({
+    idp_sp_url: "https://idp.#{node.chef_environment}.login.gov/api/service_provider",
     new_relic_license_key: encrypted_config['newrelic_license_key'],
     secret_key_base_dashboard: encrypted_config['secret_key_base_dashboard'],
     secret_key_base: encrypted_config['secret_key_base_rails'],
