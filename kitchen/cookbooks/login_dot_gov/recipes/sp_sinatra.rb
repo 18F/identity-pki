@@ -102,3 +102,7 @@ template "#{deploy_dir}/api/deploy.json" do
 end
 
 execute "mount -o remount,noexec,nosuid,nodev /tmp"
+
+# allow other execute permissions on all directories within the application folder
+# https://www.phusionpassenger.com/library/admin/nginx/troubleshooting/ruby/#upon-accessing-the-web-app-nginx-reports-a-permission-denied-error
+execute "chmod o+x -R /srv"

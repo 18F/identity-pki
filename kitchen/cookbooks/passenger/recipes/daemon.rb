@@ -103,6 +103,14 @@ if node[:passenger][:production][:status_server]
   end
 end
 
+# allow other execute permissions on all directories within the application folder
+# https://www.phusionpassenger.com/library/admin/nginx/troubleshooting/ruby/#upon-accessing-the-web-app-nginx-reports-a-permission-denied-error
+directory "#{nginx_path}/client_body_temp" do
+  mode 0701
+  owner 'nobody'
+  action :create
+end
+
 service "passenger" do
   service_name "passenger"
   reload_command "#{nginx_path}/sbin/nginx -s reload"
@@ -113,4 +121,3 @@ service "passenger" do
   action [ :enable, :start ]
   pattern "nginx: master"
 end
-

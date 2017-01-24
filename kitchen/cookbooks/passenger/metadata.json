@@ -28,5 +28,5 @@
     "passenger::daemon": "Install passenger/nginx as a service.",
     "passenger::standalone": "Install passenger/nginx and start it as standalone."
   },
-  "version": "0.0.2"
+  "version": "0.0.3"
 }
