@@ -1,0 +1,22 @@
+production:
+  agent_enabled:                      <%= @agent_enabled %>
+  app_name:                           <%= @app_name %>
+  audit_log:
+    enabled:                          <%= @audit_log_enabled %>
+  browser_monitoring:
+    auto_instrument:                  <%= @auto_instrument %>
+  capture_params:                     <%= @capture_params %>
+  developer_mode:                     <%= @developer_mode %>
+  error_collector:
+    capture_source:                   <%= @capture_error_source %>
+    enabled:                          <%= @error_collector_enabled %>
+  license_key:                        <%= @license_key %>
+  log_level:                          <%= @log_level %>
+  monitor_mode:                       <%= @monitor_mode %>
+  transaction_tracer:
+    enabled:                          <%= @transaction_tracer_enabled %>
+    record_sql:                       <%= @record_sql %>
+    stack_trace_threshold:            <%= @stack_trace_threshold %>
+    transaction_threshold:            <%= @transaction_threshold %>
+  proxy_host:                         <%= @proxy_host %>
+  proxy_port:                         <%= @proxy_port %>

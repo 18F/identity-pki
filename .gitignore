@@ -10,3 +10,5 @@ kitchen/vendor
 terraform.tfstate
 terraform.tfstate.backup
 Vagrantfile
+.DS_Store
+

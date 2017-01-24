@@ -75,6 +75,11 @@ application release_path do
     not_if { node['login_dot_gov']['setup_only'] }
   end
 
+  # custom resource to configure new relic (newrelic.yml)
+  login_dot_gov_newrelic_config release_path do
+    not_if { node['login_dot_gov']['setup_only'] }
+  end
+
   # install node dependencies
   execute 'npm install' do
     # creates node_path
@@ -117,6 +122,7 @@ app_config = '/srv/idp/releases/chef/config/application.yml'
 unless File.exist?(app_config) && File.symlink?(app_config) || node['login_dot_gov']['setup_only']
   execute 'cp /srv/idp/releases/chef/config/application.yml /srv/idp/shared/config/'
   execute 'cp /srv/idp/releases/chef/config/database.yml /srv/idp/shared/config/'
+  execute 'cp /srv/idp/releases/chef/config/newrelic.yml /srv/idp/shared/config/'
   execute 'cp /srv/idp/releases/chef/certs/saml.crt /srv/idp/shared/certs/'
   execute 'cp /srv/idp/releases/chef/keys/saml.key.enc /srv/idp/shared/keys/'
 end
@@ -141,6 +147,7 @@ shared_files = [
   'certs/saml.crt',
   'config/application.yml',
   'config/database.yml',
+  'config/newrelic.yml',
   'keys/saml.key.enc'
 ]
 

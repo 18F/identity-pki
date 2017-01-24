@@ -29,6 +29,7 @@ end
 execute "chown -R #{node['login_dot_gov']['system_user']} /usr/local/src"
 execute "chown -R #{node['login_dot_gov']['system_user']} /opt/ruby_build"
 execute "chown -R #{node['login_dot_gov']['system_user']} /var/chef/cache"
+execute "chown -R #{node['login_dot_gov']['system_user']} #{base_dir}/shared/bundle"
 
 template "#{base_dir}/shared/config/database.yml" do
   owner node['login_dot_gov']['system_user']
