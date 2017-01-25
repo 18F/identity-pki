@@ -9,7 +9,7 @@ action :create do
     recursive true
   end
 
-  template "#{name}/shared/config/newrelic.yml" do
+  template "#{name}/config/newrelic.yml" do
     action :create
     manage_symlink_source true
     subscribes :create, 'resource[git]', :immediately
