@@ -22,18 +22,20 @@ include_recipe 'apache2::mod_authn_file'
 include_recipe 'apache2::mod_authz_core'
 include_recipe 'apache2::mod_authz_user'
 include_recipe 'apache2::mod_auth_basic'
+
 template '/etc/apache2/sites-available/jenkinsproxy.conf' do
   source 'jenkinsproxy.conf.erb'
   notifies :restart, 'service[apache2]'
 end
+
 template '/etc/apache2/htpasswd' do
   source 'htpasswd.erb'
   variables ({
     :users => node['identity-jenkins']['users'] | node['identity-jenkins']['admins']
   })
 end
-apache_site 'jenkinsproxy'
 
+apache_site 'jenkinsproxy'
 
 # install jenkins
 jenkinstmp = '/var/lib/jenkinstmp'
@@ -52,8 +54,6 @@ file '/var/lib/jenkins/jenkins.install.InstallUtil.lastExecVersion' do
   group 'jenkins'
   action :create_if_missing
 end
-
-
 
 # add plugins that we need to run our jobs
 node['identity-jenkins']['jenkns-plugins'].each do |plugin|
@@ -82,7 +82,6 @@ end
 jenkins_command "install-plugin #{node['identity-jenkins']['jenkns-plugins'].join(' ')}"
 jenkins_command "safe-restart"
 
-
 # set ssh key up for git access
 directory '/var/lib/jenkins/.ssh' do
   user  'jenkins'
@@ -104,6 +103,22 @@ file '/var/lib/jenkins/.ssh/id_rsa' do
   mode  '0700'
 end
 
+file '/root/.ssh/id_rsa.pub' do
+  content Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['jenkins_equifax_gem_pubkey']
+  user  'root'
+  group 'root'
+  mode  '0600'
+  subscribes :create, "execute[/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle install]", :before
+end
+
+file '/root/.ssh/id_rsa' do
+  content Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['jenkins_equifax_gem_privkey']
+  user  'root'
+  group 'root'
+  mode  '0600'
+  subscribes :create, "execute[/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle install]", :before
+end
+
 # Jenkins seems to need a restart here, or the creds won't apply
 execute 'echo restarting jenkins' do
   notifies :restart, 'service[jenkins]', :immediately
@@ -116,7 +131,6 @@ jenkins_private_key_credentials 'github-deploy' do
 end
 
 ssh_known_hosts_entry 'github.com'
-
 
 # set up ssh key up for being able to do 'cap deploy'
 deploykey_path = File.join(Chef::Config[:file_cache_path], 'id_rsa_deploy')
@@ -137,8 +151,6 @@ jenkins_private_key_credentials 'deploy' do
   private_key Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['jenkins_ssh_privkey']
 end
 
-
-
 # set up terraform on the host
 include_recipe 'terraform'
 
@@ -147,13 +159,10 @@ directory '/usr/local/src' do
   mode '1777'
 end
 
-
 # set up AWS cli
 package 'python2.7'
 package 'python-pip'
 execute 'pip install awscli'
-
-
 
 # configure jenkins
 template '/var/lib/jenkins/config.xml' do
@@ -167,7 +176,6 @@ template '/var/lib/jenkins/config.xml' do
   notifies :restart, 'service[jenkins]'
 end
 
-
 # jenkins jobs here
 # set up env
 template File.join(Chef::Config[:file_cache_path], 'login-env.sh') do
@@ -177,7 +185,6 @@ template File.join(Chef::Config[:file_cache_path], 'login-env.sh') do
   })
   mode '0755'
 end
-
 
 xml = File.join(Chef::Config[:file_cache_path], 'infrastructure-config.xml')
 template xml do
@@ -206,10 +213,16 @@ gem_package 'pg' do
   gem_binary "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/gem"
 end
 
+# branch is 'master'(default) when env is dev, otherwise use stages/env 
+branch_name = (node.chef_environment == 'dev' ? node['login_dot_gov']['branch_name'] : "stages/#{node.chef_environment}")
 idp_path = File.join(Chef::Config[:file_cache_path], 'identity-idp')
 git idp_path do
   repository 'https://github.com/18F/identity-idp'
+  revision branch_name
 end
+
+execute 'ssh-keyscan -H github.com > /etc/ssh/ssh_known_hosts'
+
 execute "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle install" do
   cwd idp_path
 end
