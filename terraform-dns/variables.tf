@@ -46,3 +46,11 @@ data "terraform_remote_state" "app-qa" {
   }
 }
 
+data "terraform_remote_state" "app-staging" {
+  backend = "s3"
+  config {
+    bucket = "${var.bucket}"
+    key = "terraform-app/terraform-staging.tfstate"
+    region = "us-east-1"
+  }
+}
