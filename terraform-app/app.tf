@@ -1,7 +1,7 @@
 resource "aws_instance" "app" {
   ami = "${var.ami_id}"
   depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk"]
-  instance_type = "t2.medium"
+  instance_type = "${var.instance_type_app}"
   key_name = "${var.key_name}"
   subnet_id = "${aws_subnet.app.id}"
 

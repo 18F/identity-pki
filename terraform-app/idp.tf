@@ -1,7 +1,7 @@
 resource "aws_instance" "idp" {
   ami = "${var.ami_id}"
   depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk", "aws_elasticache_cluster.idp", "aws_db_instance.idp"]
-  instance_type = "t2.medium"
+  instance_type = "${var.instance_type_idp}"
   key_name = "${var.key_name}"
   subnet_id = "${aws_subnet.app.id}"
 
@@ -56,7 +56,7 @@ resource "aws_db_parameter_group" "force_ssl" {
 resource "aws_instance" "idp_worker" {
   ami = "${var.ami_id}"
   depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk", "aws_elasticache_cluster.idp", "aws_db_instance.idp"]
-  instance_type = "t2.medium"
+  instance_type = "${var.instance_type_worker}"
   key_name = "${var.key_name}"
   subnet_id = "${aws_subnet.app.id}"
 

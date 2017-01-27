@@ -1,7 +1,7 @@
 resource "aws_instance" "jumphost" {
   ami = "${var.default_ami_id}"
   depends_on = ["aws_internet_gateway.default", "aws_route53_zone.internal","aws_instance.chef","aws_instance.elk"]
-  instance_type = "t2.medium"
+  instance_type = "${var.instance_type_jumphost}"
   key_name = "${var.key_name}"
   subnet_id = "${aws_subnet.chef.id}"
 

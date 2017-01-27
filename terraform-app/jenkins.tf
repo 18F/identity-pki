@@ -31,7 +31,7 @@ resource "aws_iam_instance_profile" "jenkins" {
 resource "aws_instance" "jenkins" {
   ami = "${var.ami_id}"
   depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk"]
-  instance_type = "t2.medium"
+  instance_type = "${var.instance_type_jenkins}"
   key_name = "${var.key_name}"
   subnet_id = "${aws_subnet.app.id}"
   iam_instance_profile = "${aws_iam_instance_profile.jenkins.name}"
