@@ -13,4 +13,3 @@ end
 echo "ssh -o StrictHostKeyChecking=no $1 sudo chef-server-ctl user-create $TF_VAR_chef_id $TF_VAR_chef_info > $TF_VAR_chef_id_key_path"
 echo "ssh -o StrictHostKeyChecking=no $1 sudo chef-server-ctl org-user-add login-dev $TF_VAR_chef_id --admin"
 echo "ssh -o StrictHostKeyChecking=no $1 sudo cat /root/login-dev-validator.pem > $VALIDATION_KEY_PATH"
-
