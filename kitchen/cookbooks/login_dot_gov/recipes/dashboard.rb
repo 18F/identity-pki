@@ -1,6 +1,7 @@
 execute "mount -o remount,exec,nosuid,nodev /tmp"
 
-login_dot_gov_lets_encrypt 'dashboard'
+app_name = 'dashboard'
+login_dot_gov_lets_encrypt app_name
 
 encrypted_config = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]
 
@@ -19,7 +20,6 @@ sha_env = (node.chef_environment == 'dev' ? node['login_dot_gov']['branch_name']
   end
 end
 
-execute "chown -R #{node['login_dot_gov']['system_user']}:nogroup #{base_dir}"
 execute "chown -R #{node['login_dot_gov']['system_user']} /home/#{node['login_dot_gov']['system_user']}/.bundle" do
   only_if { ::Dir.exist?("/home/#{node['login_dot_gov']['system_user']}/.bundle") }
   subscribes :run, "execute[/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle install --deployment --jobs 3 --path /srv/dashboard/shared/bundle --without deploy development test]", :immediately
@@ -45,6 +45,14 @@ deploy "#{base_dir}" do
   action :deploy
 
   before_symlink do
+    # cp generated configs from chef to the shared dir on first run
+    app_config = "#{base_dir}/shared/config/secrets.yml"
+    unless File.exist?(app_config) && File.symlink?(app_config) || node['login_dot_gov']['setup_only']
+      execute "cp #{release_path}/config/newrelic.yml #{base_dir}/shared/config"
+      execute "cp #{release_path}/config/saml.yml #{base_dir}/shared/config"
+      execute "cp #{release_path}/config/secrets.yml #{base_dir}/shared/config"
+    end
+    
     bundle = "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle install --deployment --jobs 3 --path #{base_dir}/shared/bundle --without deploy development test"
     assets = "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle exec rake assets:precompile"
 
@@ -72,6 +80,8 @@ deploy "#{base_dir}" do
   symlinks ({
     'vendor/bundle' => 'vendor/bundle',
     'config/database.yml' => 'config/database.yml',
+    'config/newrelic.yml' => 'config/newrelic.yml',
+    'config/saml.yml' => 'config/saml.yml',
     "log" => "log",
     "public/system" => "public/system",
     "tmp/pids" => "tmp/pids"
@@ -91,8 +101,6 @@ basic_auth_config 'generate basic auth config' do
   password encrypted_config['basic_auth_password']
   user_name encrypted_config["basic_auth_user_name"]
 end
-
-app_name = 'dashboard'
 
 # add nginx conf for app server
 # TODO: JJG convert security_group_exceptions to hash so we can keep a note in both chef and nginx
@@ -140,6 +148,9 @@ template "#{deploy_dir}/api/deploy.json" do
   owner node['login_dot_gov']['user']
   source 'deploy.json.erb'
 end
+
+# set ownership back to ubuntu:nogroup
+execute "chown -R #{node['login_dot_gov']['system_user']}:nogroup #{base_dir}"
 
 execute "mount -o remount,noexec,nosuid,nodev /tmp"
 

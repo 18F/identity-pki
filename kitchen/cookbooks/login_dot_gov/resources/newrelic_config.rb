@@ -3,7 +3,7 @@ property :name, String, default: '/srv/idp' # defaults to IdP path
 action :create do
   license_key = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['newrelic_license_key']
 
-  directory "#{name}/shared/config" do
+  directory "#{name}/config" do
     group node['login_dot_gov']['system_user']
     owner node['login_dot_gov']['system_user']
     recursive true
