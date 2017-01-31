@@ -58,6 +58,19 @@ resource "aws_alb_target_group_attachment" "idp-ssl" {
   target_id = "${aws_instance.idp.id}"
 }
 
+resource "aws_alb_target_group_attachment" "idp2" {
+  depends_on = ["aws_alb.idp"]
+  port = 80
+  target_group_arn = "${aws_alb_target_group.idp.arn}"
+  target_id = "${aws_instance.idp2.id}"
+}
+
+resource "aws_alb_target_group_attachment" "idp2-ssl" {
+  port = 443
+  target_group_arn = "${aws_alb_target_group.idp-ssl.arn}"
+  target_id = "${aws_instance.idp2.id}"
+}
+
 resource "aws_iam_server_certificate" "idp" {
   certificate_body = "${file("${path.cwd}/../certs/${var.env_name}-cert.pem")}"
   certificate_chain = "${file("${path.cwd}/../certs/${var.env_name}-chain.pem")}"

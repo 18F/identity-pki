@@ -42,6 +42,50 @@ resource "aws_instance" "idp" {
   }
 }
 
+resource "aws_instance" "idp2" {
+  ami = "${var.ami_id}"
+  depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk", "aws_elasticache_cluster.idp", "aws_db_instance.idp"]
+  instance_type = "${var.instance_type_idp}"
+  key_name = "${var.key_name}"
+  subnet_id = "${aws_subnet.idp2.id}"
+
+  tags {
+    client = "${var.client}"
+    Name = "${var.name}-idp-${var.env_name}"
+  }
+
+  connection {
+    type = "ssh"
+    user = "ubuntu"
+  }
+
+  vpc_security_group_ids = [ "${aws_security_group.default.id}" ]
+
+  provisioner "chef"  {
+    attributes_json = <<-EOF
+    {
+      "set_fqdn": "idp.${var.env_name}.login.gov",
+      "login_dot_gov": {
+        "live_certs": "${var.live_certs}"
+      }
+    }
+    EOF
+    environment = "${var.env_name}"
+    run_list = [
+      "role[base]",
+      "recipe[login_dot_gov::install_idp_role]"
+    ]
+    node_name = "idp.${var.env_name}"
+    secret_key = "${file("${var.chef_databag_key_path}")}"
+    server_url = "${var.chef_url}"
+    recreate_client = true
+    user_name = "${var.chef_id}"
+    user_key = "${file("${var.chef_id_key_path}")}"
+    version = "${var.chef_version}"
+    fetch_chef_certificates = true
+  }
+}
+
 resource "aws_db_parameter_group" "force_ssl" {
   name = "${var.name}-idp-force-ssl-${var.env_name}"
   family = "postgres9.5"
@@ -105,6 +149,7 @@ resource "aws_db_instance" "idp" {
   engine = "${var.rds_engine}"
   identifier = "${var.name}-${var.env_name}-idp"
   instance_class = "${var.rds_instance_class}"
+  multi_az = true
   parameter_group_name = "${var.name}-idp-force-ssl-${var.env_name}"
   storage_encrypted = true
   password = "${var.rds_password}"
