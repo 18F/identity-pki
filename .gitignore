@@ -5,7 +5,9 @@
 .vagrant
 .kitchen/
 .kitchen.local.yml
-env/*
+env.*
+kitchen/data_bags/*.json
+kitchen/data_bags/**/*.json
 kitchen/vendor
 terraform.tfstate
 terraform.tfstate.backup
