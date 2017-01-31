@@ -1,19 +1,3 @@
-resource "aws_route53_record" "a_jumphost_int" {
-  name = "jumphost.int.login.gov"
-  records = ["${data.terraform_remote_state.app-int.jumphost-eip}"]
-  ttl = "300"
-  type = "A"
-  zone_id = "${aws_route53_zone.primary.zone_id}"
-}
-
-resource "aws_route53_record" "a_int" {
-  name = "int.login.gov"
-  records = ["${data.terraform_remote_state.app-int.idp_eip}"]
-  ttl = "300"
-  type = "A"
-  zone_id = "${aws_route53_zone.primary.zone_id}"
-}
-
 resource "aws_route53_record" "a_app_int" {
   name = "app.int.login.gov"
   records = ["${data.terraform_remote_state.app-int.app_eip}"]
@@ -38,9 +22,25 @@ resource "aws_route53_record" "a_elk_int" {
   zone_id = "${aws_route53_zone.primary.zone_id}"
 }
 
+resource "aws_route53_record" "a_idp_int" {
+  name = "idp.int.login.gov"
+  records = ["${data.terraform_remote_state.app-int.idp_eip}"]
+  ttl = "300"
+  type = "A"
+  zone_id = "${aws_route53_zone.primary.zone_id}"
+}
+
 resource "aws_route53_record" "a_jenkins_int" {
   name = "jenkins.int.login.gov"
   records = ["${data.terraform_remote_state.app-int.jenkins_ip}"]
+  ttl = "300"
+  type = "A"
+  zone_id = "${aws_route53_zone.primary.zone_id}"
+}
+
+resource "aws_route53_record" "a_jumphost_int" {
+  name = "jumphost.int.login.gov"
+  records = ["${data.terraform_remote_state.app-int.jumphost-eip}"]
   ttl = "300"
   type = "A"
   zone_id = "${aws_route53_zone.primary.zone_id}"
@@ -54,17 +54,17 @@ resource "aws_route53_record" "a_worker_int" {
   zone_id = "${aws_route53_zone.primary.zone_id}"
 }
 
-resource "aws_route53_record" "c_dash_int" {
-  name = "dashboard.int.login.gov"
-  records = ["${aws_route53_record.a_app_int.name}"]
+resource "aws_route53_record" "c_alb_int" {
+  name = "int.login.gov"
+  records = ["${data.terraform_remote_state.app-int.alb_hostname}"]
   ttl = "300"
   type = "CNAME"
   zone_id = "${aws_route53_zone.primary.zone_id}"
 }
 
-resource "aws_route53_record" "c_idp_int" {
-  name = "idp.int.login.gov"
-  records = ["${aws_route53_record.a_int.name}"]
+resource "aws_route53_record" "c_dash_int" {
+  name = "dashboard.int.login.gov"
+  records = ["${aws_route53_record.a_app_int.name}"]
   ttl = "300"
   type = "CNAME"
   zone_id = "${aws_route53_zone.primary.zone_id}"

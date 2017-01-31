@@ -1,19 +1,3 @@
-resource "aws_route53_record" "a_jumphost_staging" {
-  name = "jumphost.staging.login.gov"
-  records = ["${data.terraform_remote_state.app-staging.jumphost-eip}"]
-  ttl = "300"
-  type = "A"
-  zone_id = "${aws_route53_zone.primary.zone_id}"
-}
-
-resource "aws_route53_record" "a_staging" {
-  name = "staging.login.gov"
-  records = ["${data.terraform_remote_state.app-staging.idp_eip}"]
-  ttl = "300"
-  type = "A"
-  zone_id = "${aws_route53_zone.primary.zone_id}"
-}
-
 resource "aws_route53_record" "a_app_staging" {
   name = "app.staging.login.gov"
   records = ["${data.terraform_remote_state.app-staging.app_eip}"]
@@ -38,9 +22,25 @@ resource "aws_route53_record" "a_elk_staging" {
   zone_id = "${aws_route53_zone.primary.zone_id}"
 }
 
+resource "aws_route53_record" "a_idp_staging" {
+  name = "idp.staging.login.gov"
+  records = ["${data.terraform_remote_state.app-staging.idp_eip}"]
+  ttl = "300"
+  type = "A"
+  zone_id = "${aws_route53_zone.primary.zone_id}"
+}
+
 resource "aws_route53_record" "a_jenkins_staging" {
   name = "jenkins.staging.login.gov"
   records = ["${data.terraform_remote_state.app-staging.jenkins_ip}"]
+  ttl = "300"
+  type = "A"
+  zone_id = "${aws_route53_zone.primary.zone_id}"
+}
+
+resource "aws_route53_record" "a_jumphost_staging" {
+  name = "jumphost.staging.login.gov"
+  records = ["${data.terraform_remote_state.app-staging.jumphost-eip}"]
   ttl = "300"
   type = "A"
   zone_id = "${aws_route53_zone.primary.zone_id}"
@@ -54,17 +54,17 @@ resource "aws_route53_record" "a_worker_staging" {
   zone_id = "${aws_route53_zone.primary.zone_id}"
 }
 
-resource "aws_route53_record" "c_dash_staging" {
-  name = "dashboard.staging.login.gov"
-  records = ["${aws_route53_record.a_app_staging.name}"]
+resource "aws_route53_record" "c_alb_staging" {
+  name = "staging.login.gov"
+  records = ["${data.terraform_remote_state.app-staging.alb_hostname}"]
   ttl = "300"
   type = "CNAME"
   zone_id = "${aws_route53_zone.primary.zone_id}"
 }
 
-resource "aws_route53_record" "c_idp_staging" {
-  name = "idp.staging.login.gov"
-  records = ["${aws_route53_record.a_staging.name}"]
+resource "aws_route53_record" "c_dash_staging" {
+  name = "dashboard.staging.login.gov"
+  records = ["${aws_route53_record.a_app_staging.name}"]
   ttl = "300"
   type = "CNAME"
   zone_id = "${aws_route53_zone.primary.zone_id}"

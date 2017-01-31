@@ -1,19 +1,3 @@
-resource "aws_route53_record" "a_jumphost_qa" {
-  name = "jumphost.qa.login.gov"
-  records = ["${data.terraform_remote_state.app-qa.jumphost-eip}"]
-  ttl = "300"
-  type = "A"
-  zone_id = "${aws_route53_zone.primary.zone_id}"
-}
-
-resource "aws_route53_record" "a_qa" {
-  name = "qa.login.gov"
-  records = ["${data.terraform_remote_state.app-qa.idp_eip}"]
-  ttl = "300"
-  type = "A"
-  zone_id = "${aws_route53_zone.primary.zone_id}"
-}
-
 resource "aws_route53_record" "a_app_qa" {
   name = "app.qa.login.gov"
   records = ["${data.terraform_remote_state.app-qa.app_eip}"]
@@ -38,9 +22,25 @@ resource "aws_route53_record" "a_elk_qa" {
   zone_id = "${aws_route53_zone.primary.zone_id}"
 }
 
+resource "aws_route53_record" "a_idp_qa" {
+  name = "idp.qa.login.gov"
+  records = ["${data.terraform_remote_state.app-qa.idp_eip}"]
+  ttl = "300"
+  type = "A"
+  zone_id = "${aws_route53_zone.primary.zone_id}"
+}
+
 resource "aws_route53_record" "a_jenkins_qa" {
   name = "jenkins.qa.login.gov"
   records = ["${data.terraform_remote_state.app-qa.jenkins_ip}"]
+  ttl = "300"
+  type = "A"
+  zone_id = "${aws_route53_zone.primary.zone_id}"
+}
+
+resource "aws_route53_record" "a_jumphost_qa" {
+  name = "jumphost.qa.login.gov"
+  records = ["${data.terraform_remote_state.app-qa.jumphost-eip}"]
   ttl = "300"
   type = "A"
   zone_id = "${aws_route53_zone.primary.zone_id}"
@@ -54,17 +54,17 @@ resource "aws_route53_record" "a_worker_qa" {
   zone_id = "${aws_route53_zone.primary.zone_id}"
 }
 
-resource "aws_route53_record" "c_dash_qa" {
-  name = "dashboard.qa.login.gov"
-  records = ["${aws_route53_record.a_app_qa.name}"]
+resource "aws_route53_record" "c_alb_qa" {
+  name = "qa.login.gov"
+  records = ["${data.terraform_remote_state.app-qa.alb_hostname}"]
   ttl = "300"
   type = "CNAME"
   zone_id = "${aws_route53_zone.primary.zone_id}"
 }
 
-resource "aws_route53_record" "c_idp_qa" {
-  name = "idp.qa.login.gov"
-  records = ["${aws_route53_record.a_qa.name}"]
+resource "aws_route53_record" "c_dash_qa" {
+  name = "dashboard.qa.login.gov"
+  records = ["${aws_route53_record.a_app_qa.name}"]
   ttl = "300"
   type = "CNAME"
   zone_id = "${aws_route53_zone.primary.zone_id}"

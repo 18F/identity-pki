@@ -51,17 +51,15 @@ action :create do
   execute cmd do
     cwd '/usr/local/src'
     environment ({ 'XDG_DATA_HOME' => '/usr/local/src' })
-    not_if { ::Dir.exist?("/etc/letsencrypt/live/#{server_name}") }
-    not_if { ::Dir.exist?("/etc/letsencrypt/live/#{server_alias}") }
+    not_if { ::Dir.exist?("/etc/letsencrypt/live/#{server_name}") || ::Dir.exist?("/etc/letsencrypt/live/#{server_alias}") }
     notifies :stop, "service[passenger]", :before
   end
 
   # check if cert needs to be renewed if cert folder exists
-  execute "./certbot-auto renew" do
+  execute "./certbot-auto renew -n" do
     cwd '/usr/local/src'
     environment ({ 'XDG_DATA_HOME' => '/usr/local/src' })
-    only_if { ::Dir.exist?("/etc/letsencrypt/live/#{server_name}") }
-    only_if { ::Dir.exist?("/etc/letsencrypt/live/#{server_alias}") }
+    only_if { ::Dir.exist?("/etc/letsencrypt/live/#{server_name}") || ::Dir.exist?("/etc/letsencrypt/live/#{server_alias}") }
     notifies :stop, "service[passenger]", :before
     retries 3
   end

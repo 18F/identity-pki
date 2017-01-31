@@ -3,7 +3,7 @@ resource "aws_instance" "idp" {
   depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk", "aws_elasticache_cluster.idp", "aws_db_instance.idp"]
   instance_type = "${var.instance_type_idp}"
   key_name = "${var.key_name}"
-  subnet_id = "${aws_subnet.app.id}"
+  subnet_id = "${aws_subnet.idp1.id}"
 
   tags {
     client = "${var.client}"
@@ -58,7 +58,7 @@ resource "aws_instance" "idp_worker" {
   depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk", "aws_elasticache_cluster.idp", "aws_db_instance.idp"]
   instance_type = "${var.instance_type_worker}"
   key_name = "${var.key_name}"
-  subnet_id = "${aws_subnet.app.id}"
+  subnet_id = "${aws_subnet.idp1.id}"
 
   tags {
     client = "${var.client}"
@@ -156,4 +156,3 @@ resource "aws_route53_record" "idp-postgres" {
   ttl = "300"
   records = ["${replace(aws_db_instance.idp.endpoint,":5432","")}"]
 }
-

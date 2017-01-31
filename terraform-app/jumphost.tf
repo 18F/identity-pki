@@ -3,7 +3,7 @@ resource "aws_instance" "jumphost" {
   depends_on = ["aws_internet_gateway.default", "aws_route53_zone.internal","aws_instance.chef","aws_instance.elk"]
   instance_type = "${var.instance_type_jumphost}"
   key_name = "${var.key_name}"
-  subnet_id = "${aws_subnet.chef.id}"
+  subnet_id = "${aws_subnet.jumphost.id}"
 
   tags {
     client = "${var.client}"
@@ -65,4 +65,3 @@ resource "aws_eip" "jumphost" {
   instance = "${aws_instance.jumphost.id}"
   vpc      = true
 }
-

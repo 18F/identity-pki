@@ -24,7 +24,7 @@ resource "aws_instance" "chef" {
   depends_on = ["aws_internet_gateway.default", "aws_route53_zone.internal"]
   instance_type = "${var.instance_type_chef}"
   key_name = "${var.key_name}"
-  subnet_id = "${aws_subnet.chef.id}"
+  subnet_id = "${aws_subnet.admin.id}"
   iam_instance_profile = "${aws_iam_instance_profile.chef.id}"
 
   tags {
@@ -90,4 +90,3 @@ resource "aws_eip" "chef" {
   instance = "${aws_instance.chef.id}"
   vpc      = true
 }
-

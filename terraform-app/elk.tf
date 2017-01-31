@@ -62,7 +62,7 @@ resource "aws_instance" "elk" {
   depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef"]
   instance_type = "${var.instance_type_elk}"
   key_name = "${var.key_name}"
-  subnet_id = "${aws_subnet.app.id}"
+  subnet_id = "${aws_subnet.admin.id}"
   iam_instance_profile = "${aws_iam_instance_profile.elk_instance_profile.id}"
 
   tags {
@@ -109,4 +109,3 @@ resource "aws_route53_record" "elk" {
    ttl = "300"
    records = ["${aws_instance.elk.private_ip}"]
 }
-

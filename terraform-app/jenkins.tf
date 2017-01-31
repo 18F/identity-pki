@@ -33,7 +33,7 @@ resource "aws_instance" "jenkins" {
   depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk"]
   instance_type = "${var.instance_type_jenkins}"
   key_name = "${var.key_name}"
-  subnet_id = "${aws_subnet.app.id}"
+  subnet_id = "${aws_subnet.admin.id}"
   iam_instance_profile = "${aws_iam_instance_profile.jenkins.name}"
 
   tags {
@@ -86,8 +86,7 @@ resource "aws_route53_record" "jenkins" {
    records = ["${aws_instance.jenkins.private_ip}"]
 }
 
-#resource "aws_eip" "jenkins" {
-#  instance = "${aws_instance.jenkins.id}"
-#  vpc      = true
-#}
-
+resource "aws_eip" "jenkins" {
+  instance = "${aws_instance.jenkins.id}"
+  vpc      = true
+}

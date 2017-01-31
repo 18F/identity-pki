@@ -35,4 +35,3 @@ resource "aws_route53_record" "postgres" {
   ttl = "300"
   records = ["${replace(aws_db_instance.default.endpoint,":5432","")}"]
 }
-
