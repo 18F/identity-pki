@@ -42,12 +42,16 @@ output "elk_ip" {
   value = "${aws_instance.elk.public_ip}"
 }
 
-output "idp_db_address" {
-  value = "idp-postgres.login.gov.internal"
+output "idp1_eips" {
+  value = ["${aws_instance.idp1.*.public_ip}"]
 }
 
-output "idp_eip" {
-  value = "${aws_eip.idp.public_ip}"
+output "idp2_eips" {
+  value = ["${aws_instance.idp2.*.public_ip}"]
+}
+
+output "idp_db_address" {
+  value = "idp-postgres.login.gov.internal"
 }
 
 output "idp_worker_ip" {

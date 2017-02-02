@@ -25,6 +25,7 @@ variable "chef_repo_gitref" { default = "master" }
 variable "client" {}
 variable "env_name" { default = "tf" }
 variable "git_deploy_key_path" {}
+variable "idp_node_count" { default = 1 }
 variable "instance_type_app" { default = "t2.medium" }
 variable "instance_type_chef" { default = "t2.medium" }
 variable "instance_type_elk" { default = "t2.medium" }

@@ -1,5 +1,6 @@
-resource "aws_instance" "idp" {
+resource "aws_instance" "idp1" {
   ami = "${var.ami_id}"
+  count = "${var.idp_node_count}"
   depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk", "aws_elasticache_cluster.idp", "aws_db_instance.idp"]
   instance_type = "${var.instance_type_idp}"
   key_name = "${var.key_name}"
@@ -31,7 +32,7 @@ resource "aws_instance" "idp" {
       "role[base]",
       "recipe[login_dot_gov::install_idp_role]"
     ]
-    node_name = "idp.${var.env_name}"
+    node_name = "idp1.${count.index}.${var.env_name}"
     secret_key = "${file("${var.chef_databag_key_path}")}"
     server_url = "${var.chef_url}"
     recreate_client = true
@@ -42,8 +43,15 @@ resource "aws_instance" "idp" {
   }
 }
 
+resource "aws_eip" "idp1" {
+  count = "${var.idp_node_count}"
+  instance = "${element(aws_instance.idp1.*.id, count.index)}"
+  vpc      = true
+}
+
 resource "aws_instance" "idp2" {
   ami = "${var.ami_id}"
+  count = "${var.idp_node_count}"
   depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk", "aws_elasticache_cluster.idp", "aws_db_instance.idp"]
   instance_type = "${var.instance_type_idp}"
   key_name = "${var.key_name}"
@@ -75,7 +83,7 @@ resource "aws_instance" "idp2" {
       "role[base]",
       "recipe[login_dot_gov::install_idp_role]"
     ]
-    node_name = "idp.${var.env_name}"
+    node_name = "idp2.${count.index}.${var.env_name}"
     secret_key = "${file("${var.chef_databag_key_path}")}"
     server_url = "${var.chef_url}"
     recreate_client = true
@@ -84,6 +92,12 @@ resource "aws_instance" "idp2" {
     version = "${var.chef_version}"
     fetch_chef_certificates = true
   }
+}
+
+resource "aws_eip" "idp2" {
+  count = "${var.idp_node_count}"
+  instance = "${element(aws_instance.idp2.*.id, count.index)}"
+  vpc      = true
 }
 
 resource "aws_db_parameter_group" "force_ssl" {
@@ -161,11 +175,6 @@ resource "aws_db_instance" "idp" {
   }
 
   vpc_security_group_ids = ["${aws_security_group.db.id}"]
-}
-
-resource "aws_eip" "idp" {
-  instance = "${aws_instance.idp.id}"
-  vpc      = true
 }
 
 resource "aws_elasticache_cluster" "idp" {
