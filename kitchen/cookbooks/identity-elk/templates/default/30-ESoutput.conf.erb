@@ -1,0 +1,11 @@
+output {
+  elasticsearch {
+    hosts => [<%= @hostips %>]
+    ssl => true
+    ssl_certificate_verification => false
+    manage_template => false
+    index => "logstash-%{+YYYY.MM.dd}"
+    document_type => "%{[@metadata][type]}"
+  }
+}
+

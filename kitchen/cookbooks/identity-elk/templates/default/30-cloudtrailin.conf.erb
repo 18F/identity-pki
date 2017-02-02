@@ -15,9 +15,14 @@ filter {
         "document_id" => "%{eventID}"
       }
     }
+    mutate {
+      add_field => {
+        "document_type" => "%{type}"
+      }
+    }
     if ! [ingest_time] {
-      ruby {
-        code => "event['ingest_time'] = Time.now.utc.strftime '%FT%TZ'"
+      mutate {
+        add_field => [ "ingest_time", "%{@timestamp}" ]
       }
     }
   }

@@ -30,6 +30,7 @@ cookbook 'terraform'
 cookbook 'docker'
 cookbook 'filebeat', '~> 0.4.2'
 cookbook 'elasticsearch-curator', '~> 0.1.3'
+cookbook 'elasticsearch', '~> 3.0.2'
 
 
 cookbook 'login_dot_gov', path: 'kitchen/cookbooks/login_dot_gov'

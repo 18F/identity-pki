@@ -15,6 +15,7 @@ variable "vpc_cidr_block"         { default = "172.16.33.0/24" } # 172.16.33.0 -
 
 variable "ami_id" {}
 variable "default_ami_id" {}
+
 variable "chef_version" { default = "12.15.19" }
 variable "chef_url" { default = "https://chef.login.gov.internal/organizations/login-dev" }
 variable "chef_databag_key_path" {}
@@ -24,6 +25,7 @@ variable "chef_id_key_path" {}
 variable "chef_repo_gitref" { default = "master" }
 variable "client" {}
 variable "env_name" { default = "tf" }
+variable "esnodes" { default = 2 }
 variable "git_deploy_key_path" {}
 variable "idp_node_count" { default = 1 }
 variable "instance_type_app" { default = "t2.medium" }

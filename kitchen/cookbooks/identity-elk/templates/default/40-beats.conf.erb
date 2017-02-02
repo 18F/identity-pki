@@ -1,0 +1,9 @@
+input {
+  beats {
+    port => 5044
+    ssl => true
+    ssl_certificate => "<%= @mycrt %>"
+    ssl_key => "<%= @mykey %>"
+  }
+}
+

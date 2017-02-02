@@ -1,9 +1,3 @@
-# needed to make sure that elasticsearch can start up
-default['elk']['vm_max_map_count'] = 524288
-
-# config since filebeat seems not to handle ports directly
-default['elk']['filebeat']['port'] = 5044
-
 # logfiles to watch
 default['elk']['filebeat']['logfiles'] = [
   {'log' => '/srv/*/shared/log/*.log', 'type' => 'log'},
@@ -11,6 +5,7 @@ default['elk']['filebeat']['logfiles'] = [
   {'log' => '/var/log/syslog', 'type' => 'syslog'},
   {'log' => '/var/log/auth.log', 'type' => 'syslog'},
   {'log' => '/var/lib/docker/aufs/mnt/*/var/log/*/*.log', 'type' => 'syslog'},
+  {'log' => '/var/log/*/current', 'type' => 'log'},
   {'log' => '/var/log/*/*.log', 'type' => 'syslog'}
 ]
 
@@ -30,9 +25,25 @@ default['elk']['indextypes'] = [
   'filebeat'
 ]
 
+# get a modern version of java
+default['java']['jdk_version'] = '8'
+
+# remote files
+default['elk']['kibanatarball'] = 'https://artifacts.elastic.co/downloads/kibana/kibana-5.1.2-linux-x86_64.tar.gz'
+default['elk']['logstashdeb'] = 'https://artifacts.elastic.co/downloads/logstash/logstash-5.1.2.deb'
+
+# users to allow into elk
+default['elk']['users'] = [
+  'tspencer',
+  'jpmugizi',
+  'astone',
+  'monfresh',
+  'mzia',
+  'pkarman',
+  'zmargolis',
+  'jgrevich'
+]
+
 # set this so that we listen on 8443
 default['apache']['listen'] = [8443]
-
-# list of users that we allow in
-#default['elk']['users'] = ['user1']
 

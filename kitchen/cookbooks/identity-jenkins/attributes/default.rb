@@ -2,7 +2,7 @@
 default['apache']['listen'] = [8443]
 
 # get a more modern version of terraform
-default['terraform']['version'] = '0.8.2'
+default['terraform']['version'] = '0.8.5'
 
 # need this for jenkins to be able to get access to chef creds
 default['authorization']['sudo']['include_sudoers_d'] = true

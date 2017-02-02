@@ -1,0 +1,6 @@
+#!/bin/sh
+
+cd /usr/share/kibana
+exec 2>&1
+exec chpst -u kibana:kibana bin/kibana
+

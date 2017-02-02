@@ -5,8 +5,8 @@
     RequestHeader set X-Forwarded-Port  "8443"
 
     # Set the path to SSL certificate
-    SSLCertificateFile    "/etc/ssl/elk.login.gov.crt"
-    SSLCertificateKeyFile "/etc/ssl/elk.login.gov.key"
+    SSLCertificateFile    "/etc/logstash/elk.login.gov.cacrt"
+    SSLCertificateKeyFile "/etc/logstash/elk.login.gov.key"
 
     # Servers to proxy the connection, or;
     # List of application servers:

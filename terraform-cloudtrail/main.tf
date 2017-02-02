@@ -83,7 +83,6 @@ resource "aws_s3_bucket" "cloudtrail" {
   bucket = "login-gov-cloudtrail-${data.aws_caller_identity.current.account_id}"
   force_destroy = true
   policy = "${data.aws_iam_policy_document.cloudtrail.json}"
-  server_side_encryption = true
 
   lifecycle_rule {
     id = "logexpire"

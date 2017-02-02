@@ -59,7 +59,7 @@ resource "aws_s3_bucket" "logbucket" {
 
 resource "aws_instance" "elk" {
   ami = "${var.default_ami_id}"
-  depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef"]
+  depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.es"]
   instance_type = "${var.instance_type_elk}"
   key_name = "${var.key_name}"
   subnet_id = "${aws_subnet.admin.id}"
@@ -109,3 +109,77 @@ resource "aws_route53_record" "elk" {
    ttl = "300"
    records = ["${aws_instance.elk.private_ip}"]
 }
+
+resource "aws_instance" "es" {
+  count = "${var.esnodes}"
+  ami = "${var.default_ami_id}"
+  depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef"]
+  instance_type = "t2.medium"
+  key_name = "${var.key_name}"
+  subnet_id = "${aws_subnet.app.id}"
+  iam_instance_profile = "${aws_iam_instance_profile.elk_instance_profile.id}"
+
+  tags {
+    client = "${var.client}"
+    Name = "${var.name}-es-${var.env_name}"
+  }
+
+  connection {
+    type = "ssh"
+    user = "ubuntu"
+  }
+
+  # We will mount this on /var/lib/elasticsearch when we notice that we are running out of space on stuff
+  #ebs_block_device {
+  #  device_name = "/dev/sdg"
+  #  volume_size = 40
+  #  volume_type = "gp2"
+  #  encrypted = true
+  #  delete_on_termination = true
+  #}
+
+  lifecycle {
+    ignore_changes = ["ebs_block_device"]
+  }
+
+  vpc_security_group_ids = [ "${aws_security_group.elk.id}" ]
+
+  provisioner "chef"  {
+    attributes_json = <<-EOF
+    {
+      "set_fqdn": "es${count.index}.${var.env_name}.login.gov"
+    }
+    EOF
+    environment = "${var.env_name}"
+    run_list = [
+      "role[base]",
+      "recipe[identity-elk::es]"
+    ]
+    node_name = "es${count.index}.${var.env_name}"
+    secret_key = "${file("${var.chef_databag_key_path}")}"
+    server_url = "${var.chef_url}"
+    recreate_client = true
+    user_name = "${var.chef_id}"
+    user_key = "${file("${var.chef_id_key_path}")}"
+    version = "${var.chef_version}"
+    fetch_chef_certificates = true
+  }
+}
+
+resource "aws_route53_record" "eshost" {
+  count = "${var.esnodes}"
+  zone_id = "${aws_route53_zone.internal.zone_id}"
+  name = "es${count.index}.login.gov.internal"
+  type = "A"
+  ttl = "300"
+  records = ["${element(aws_instance.es.*.private_ip, count.index)}"]
+}
+
+resource "aws_route53_record" "es" {
+  zone_id = "${aws_route53_zone.internal.zone_id}"
+  name = "es.login.gov.internal"
+  type = "A"
+  ttl = "300"
+  records = ["${aws_instance.es.*.private_ip}"]
+}
+
