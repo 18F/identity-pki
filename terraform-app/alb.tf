@@ -31,6 +31,11 @@ resource "aws_alb_listener" "idp-ssl" {
 
 resource "aws_alb_target_group" "idp" {
   depends_on = ["aws_alb.idp"]
+
+  health_check {
+    matcher =  "${var.env_name == "prod" ? 200 : 401}"
+  }
+
   name = "${var.env_name}-target-group"
   port = 80
   protocol = "HTTP"
@@ -39,6 +44,12 @@ resource "aws_alb_target_group" "idp" {
 
 resource "aws_alb_target_group" "idp-ssl" {
   depends_on = ["aws_alb.idp"]
+
+  health_check {
+    matcher =  "${var.env_name == "prod" ? 200 : 401}"
+    protocol = "HTTPS"  
+  }
+
   name = "${var.env_name}-ssl-target-group"
   port     = 443
   protocol = "HTTPS"
