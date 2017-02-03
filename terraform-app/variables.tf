@@ -15,7 +15,7 @@ variable "vpc_cidr_block"         { default = "172.16.33.0/24" } # 172.16.33.0 -
 
 variable "ami_id" {}
 variable "default_ami_id" {}
-
+variable "route53_id" {}
 variable "apps_enabled" { default = false }
 variable "chef_version" { default = "12.15.19" }
 variable "chef_url" { default = "https://chef.login.gov.internal/organizations/login-dev" }

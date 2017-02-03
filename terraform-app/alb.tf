@@ -92,3 +92,12 @@ resource "aws_iam_server_certificate" "idp" {
   name = "${var.name}-idp-cert-${var.env_name}"
   private_key = "${file("${path.cwd}/../certs/${var.env_name}-key.pem")}"
 }
+
+resource "aws_route53_record" "c_alb" {
+  name = "${var.env_name}.login.gov"
+  records = ["${aws_alb.idp.dns_name}"]
+  ttl = "300"
+  type = "CNAME"
+  zone_id = "${var.route53_id}"
+}
+

@@ -65,3 +65,12 @@ resource "aws_eip" "jumphost" {
   instance = "${aws_instance.jumphost.id}"
   vpc      = true
 }
+
+resource "aws_route53_record" "a_jumphost" {
+  name = "jumphost.${var.env_name}.login.gov"
+  records = ["${aws_eip.jumphost.public_ip}"]
+  ttl = "300"
+  type = "A"
+  zone_id = "${var.route53_id}"
+}
+
