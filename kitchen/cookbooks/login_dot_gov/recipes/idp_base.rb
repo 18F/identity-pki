@@ -1,11 +1,29 @@
 execute "mount -o remount,exec,nosuid,nodev /tmp"
 
 # setup idp app
+release_path = '/srv/idp/releases/chef'
+
+file '/root/.ssh/id_rsa.pub' do
+  content Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['jenkins_equifax_gem_pubkey']
+  user  'root'
+  group 'root'
+  mode  '0600'
+  subscribes :create, "application[#{release_path}]", :before
+end
+
+file '/root/.ssh/id_rsa' do
+  content Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['jenkins_equifax_gem_privkey']
+  user  'root'
+  group 'root'
+  mode  '0600'
+  subscribes :create, "application[#{release_path}]", :before
+end
+
+execute 'ssh-keyscan -H github.com > /etc/ssh/ssh_known_hosts'
+
 execute 'update-alternatives --install /usr/bin/node nodejs /usr/bin/nodejs 100' do
   not_if { ::File.exists? '/usr/bin/node' }
 end
-
-release_path = '/srv/idp/releases/chef'
 
 directory release_path do
   recursive true
