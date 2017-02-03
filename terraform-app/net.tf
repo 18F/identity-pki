@@ -324,6 +324,7 @@ resource "aws_security_group" "web" {
 resource "aws_subnet" "app" {
   availability_zone = "${var.region}a"
   cidr_block = "${var.app1_subnet_cidr_block}"
+  count = "${var.apps_enabled == true ? 1 : 0}"
   map_public_ip_on_launch = true
 
   tags {

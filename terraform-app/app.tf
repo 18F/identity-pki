@@ -1,5 +1,6 @@
 resource "aws_instance" "app" {
   ami = "${var.ami_id}"
+  count = "${var.apps_enabled == true ? 1 : 0}"
   depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk"]
   instance_type = "${var.instance_type_app}"
   key_name = "${var.key_name}"
@@ -43,6 +44,7 @@ resource "aws_instance" "app" {
 }
 
 resource "aws_eip" "app" {
+  count = "${var.apps_enabled == true ? 1 : 0}"
   instance = "${aws_instance.app.id}"
   vpc      = true
 }
