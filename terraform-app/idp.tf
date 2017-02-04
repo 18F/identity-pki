@@ -45,10 +45,13 @@ resource "aws_instance" "idp1" {
   }
 }
 
-resource "aws_eip" "idp1" {
+resource "aws_route53_record" "idp1" {
   count = "${var.idp_node_count}"
-  instance = "${element(aws_instance.idp1.*.id, count.index)}"
-  vpc      = true
+  zone_id = "${aws_route53_zone.internal.zone_id}"
+  name = "idp1-${count.index}.login.gov.internal"
+  type = "A"
+  ttl = "300"
+  records = ["${element(aws_instance.idp1.*.private_ip, count.index)}"]
 }
 
 resource "aws_instance" "idp2" {
@@ -98,10 +101,13 @@ resource "aws_instance" "idp2" {
   }
 }
 
-resource "aws_eip" "idp2" {
+resource "aws_route53_record" "idp2" {
   count = "${var.idp_node_count}"
-  instance = "${element(aws_instance.idp2.*.id, count.index)}"
-  vpc      = true
+  zone_id = "${aws_route53_zone.internal.zone_id}"
+  name = "idp2-${count.index}.login.gov.internal"
+  type = "A"
+  ttl = "300"
+  records = ["${element(aws_instance.idp2.*.private_ip, count.index)}"]
 }
 
 resource "aws_db_parameter_group" "force_ssl" {
