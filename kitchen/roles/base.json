@@ -58,6 +58,7 @@
     "recipe[ssh-keys]",
     "recipe[sudo]",
     "recipe[identity-elk::filebeat]",
+    "recipe[identity-nessus::agent]",
     "recipe[identity-ossec]",
     "recipe[login_dot_gov::ruby]",
     "recipe[login_dot_gov::newrelic]"

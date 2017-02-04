@@ -39,4 +39,5 @@ variable "instance_type_worker" { default = "t2.small" }
 variable "key_name" {}
 variable "live_certs" {}
 variable "name" { default = "login" }
+variable "nessus_server_path" { default = "../Nessus-6.10.0-ubuntu1110_amd64.deb" }
 variable "region" { default = "us-west-2" }

@@ -67,11 +67,39 @@ Make sure to add the key set in `TF_VAR_key_name` to your ssh-agent:
 ssh-add /path/to/TF_VAR_key_name
 ```
 
+#### Add required local files ####
+
+Before you run terraform you will need to have the TLS certificate, chain, and private key used for
+that env. Additionally you will also need a copy of the latest Nessus/Nessus Manager dpkg installer.
+This can be downloaded from https://support.tenable.com/ or copied from another teammate.
+
+The certificates need to be named using the following scheme:
+
+```
+-rw-r-----  1 jjg  staff   1834 Jan 27 18:25 staging-cert.pem
+-rw-r-----  1 jjg  staff   1647 Jan 27 18:25 staging-chain.pem
+-rw-r-----  1 jjg  staff   1704 Jan 27 18:25 staging-key.pem
+-rw-r-----  1 jjg  staff  22611 Jan 30 21:49 staging_app_etc_letsencrypt.tbz
+-rw-r-----  1 jjg  staff  10562 Jan 29 13:34 staging_etc_letsencrypt.tbz
+```
+
+Note the presence of the tar archives. Those can be used so that the lets_encrypt resource in the
+login_dot_gov cookbook doesn't try to generate new certs. We can eventually remove that code since
+the cert is uploaded to the ALB and we can use self-signed certs on the app hosts. Furthermore, we
+can use the ACME terraform provider to more easily generate and renew certs going forward.
+
+The Nessus/Nessus Manager dpkg is expected to be located in the root of the project folder:
+
+```
+/Nessus-6.10.0-ubuntu1110_amd64.deb
+```
+
 #### Initial terraform run
 
 This will build the chef-server and prepare it for you loading environment
 config onto it.  Be aware that the first-time uploading of the chef-server
 deb in the terraform-chefdata apply may take a while.
+
 
 ```
 ./deploy apply terraform-app
