@@ -73,6 +73,8 @@ resource "aws_instance" "elk" {
   connection {
     type = "ssh"
     user = "ubuntu"
+    host = "${self.private_ip}"
+    bastion_host = "${aws_eip.jumphost.public_ip}"
   }
 
   vpc_security_group_ids = [ "${aws_security_group.elk.id}" ]
@@ -127,6 +129,8 @@ resource "aws_instance" "es" {
   connection {
     type = "ssh"
     user = "ubuntu"
+    host = "${self.private_ip}"
+    bastion_host = "${aws_eip.jumphost.public_ip}"
   }
 
   # We will mount this on /var/lib/elasticsearch when we notice that we are running out of space on stuff

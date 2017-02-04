@@ -14,6 +14,8 @@ resource "aws_instance" "idp1" {
   connection {
     type = "ssh"
     user = "ubuntu"
+    host = "${self.private_ip}"
+    bastion_host = "${aws_eip.jumphost.public_ip}"
   }
 
   vpc_security_group_ids = [ "${aws_security_group.default.id}" ]
@@ -65,6 +67,8 @@ resource "aws_instance" "idp2" {
   connection {
     type = "ssh"
     user = "ubuntu"
+    host = "${self.private_ip}"
+    bastion_host = "${aws_eip.jumphost.public_ip}"
   }
 
   vpc_security_group_ids = [ "${aws_security_group.default.id}" ]
@@ -126,6 +130,8 @@ resource "aws_instance" "idp_worker" {
   connection {
     type = "ssh"
     user = "ubuntu"
+    host = "${self.private_ip}"
+    bastion_host = "${aws_eip.jumphost.public_ip}"
   }
 
   vpc_security_group_ids = [ "${aws_security_group.default.id}" ]

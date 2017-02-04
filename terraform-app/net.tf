@@ -82,7 +82,7 @@ resource "aws_security_group" "chef" {
     to_port = 443
     protocol = "tcp"
     self = true
-    cidr_blocks = [ "${concat(var.app_sg_ssh_cidr_blocks,list(aws_vpc.default.cidr_block))}" ]
+    cidr_blocks = [ "${aws_vpc.default.cidr_block}", "${var.app_sg_ssh_cidr_blocks}" ]
   }
 
   ingress {
@@ -155,21 +155,6 @@ resource "aws_security_group" "default" {
   }
 
   ingress {
-    from_port = 22
-    to_port = 22
-    protocol = "tcp"
-    self = true
-    cidr_blocks = ["${var.app_sg_ssh_cidr_blocks}"]
-  }
-
-  ingress {
-    from_port = 8443
-    to_port = 8443
-    protocol = "tcp"
-    cidr_blocks = ["${var.app_sg_ssh_cidr_blocks}"]
-  }
-
-  ingress {
     from_port = 80
     to_port = 80
     protocol = "tcp"
@@ -211,27 +196,10 @@ resource "aws_security_group" "elk" {
   }
 
   ingress {
-    from_port = 22
-    to_port = 22
-    protocol = "tcp"
-    self = true
-    cidr_blocks = ["${var.app_sg_ssh_cidr_blocks}"]
-  }
-
-  ingress {
-    from_port = 8443
-    to_port = 8443
-    protocol = "tcp"
-    self = true
-    cidr_blocks = ["${var.app_sg_ssh_cidr_blocks}"]
-  }
-
-  ingress {
     from_port = 9200
     to_port = 9300
     protocol = "tcp"
     self = true
-    cidr_blocks = ["${var.app_sg_ssh_cidr_blocks}"]
   }
 
   ingress {
@@ -239,7 +207,6 @@ resource "aws_security_group" "elk" {
     to_port = 5044
     protocol = "tcp"
     self = true
-    cidr_blocks = ["${var.app_sg_ssh_cidr_blocks}"]
     security_groups = [ "${aws_security_group.default.id}" ]
   }
 

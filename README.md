@@ -185,7 +185,112 @@ If you get a successful run, you should get a few URLs which you can use to acce
 the various services.
 [The output should look like this](https://gist.github.com/amoose/eb473b09994329d5b19f8cb0cee0589c)
 Yay!
-=======
+
+#### Manual Lockdown
+
+The first time you deploy everything, you'll have to go manually lock down a couple of things:
+  * Port 22 on the chef-server.  Do the last couple of steps that are commented out in the chef-server instance launch:
+```
+#  # lock the fw down so that we can only ssh in via the jumphost
+#  provisioner "file" {
+#    source = "chef-iptables.rules"
+#    destination = "/etc/iptables/rules.v4"
+#  }
+#  provisioner "file" {
+#    source = "chef-iptables6.rules"
+#    destination = "/etc/iptables/rules.v6"
+#  }
+#  provisioner "local-exec" {
+#    command = "ssh -o StrictHostKeyChecking=no ubuntu@${aws_instance.chef.public_ip} 'sudo aptitude install iptables-persistent'"
+#  }
+```
+  * Disallow ubuntu user from non-localhost locations on the jumphost.  To do this, you will need to set
+    the ```default['login_dot_gov']['lockdown']``` attribute to be true, and then chef-client on the bastion host.
+
+#### Elasticsearch initial bootstrap fiddling
+
+Currently, bootstrap of ES is not perfect.  If you are starting up a new cluster, you
+may need to log into the ES nodes and do this:
+  * On all ES nodes, log in and do a chef-client run to make sure that everybody has everybody else's certs.
+  * On all nodes that are not es0 (es1, es2, etc), log in and do this:
+```
+service elasticsearch stop
+cd /var/lib/elasticsearch/
+rm -rf nodes
+chef-client
+```
+
+This will make sure that all the ES nodes are in sync.  To test to make sure that
+ES is happy, this command should have output like this (2 node cluster in this example, note number_of_nodes and status):
+```
+root@es1:/var/lib/elasticsearch# curl -k https://es1.login.gov.internal:9200/_cluster/health?pretty=true
+{
+  "cluster_name" : "elasticsearch",
+  "status" : "green",
+  "timed_out" : false,
+  "number_of_nodes" : 2,
+  "number_of_data_nodes" : 2,
+  "active_primary_shards" : 2,
+  "active_shards" : 4,
+  "relocating_shards" : 0,
+  "initializing_shards" : 0,
+  "unassigned_shards" : 0,
+  "delayed_unassigned_shards" : 0,
+  "number_of_pending_tasks" : 0,
+  "number_of_in_flight_fetch" : 0,
+  "task_max_waiting_in_queue_millis" : 0,
+  "active_shards_percent_as_number" : 100.0
+}
+root@es1:/var/lib/elasticsearch# 
+```
+
+Orchestration is tricky,
+and this is just a one-time thing for a new environment, so for now, we will just do this by hand.
+
+#### Jumphost usage!  IMPORTANT!
+
+There is an ssh jumphost set up now that we must use for all things.  No direct ssh access is
+allowed to anything but the jumphost, and all internal services (ELK/Jenkins for now) must be
+accessed through the jumphost.
+
+To use the jumpbox services, you will probably want to do two things:
+  * Forward your ssh-agent to the jumphost when you ssh in so you can ssh around inside.
+  * Forward a proxy port to the jumphost when you ssh in so you can use a web browser on internal services.
+
+You can do this with one command:
+```
+ssh -L3128:localhost:3128 -A jumphost.<env>.login.gov
+```
+
+Then, while that ssh session is active, any ssh keys that you are using in your ssh-agent
+(check with 'ssh-add -l') should be available
+on the jumphost, and you can set your browser up to route requests to *login.gov.internal to the proxy
+port.  I will leave that as an exercise for the reader, as every browser has it's own way of doing that.
+
+For me, I just downloaded Firefox and had it route all protocols over that proxied port.  So when I
+want to get inside the environment, I just use that browser.
+
+Here are some common usage patterns:
+
+##### chef stuff
+You will need to copy your knife config and keys to the jumphost, check out the identity-devops
+repo,  and execute all your chef/knife/berkshelf commands there.  It is hoped that this use
+case will slowly go away as we get more stuff moved into jenkins.
+
+##### capistrano stuff
+You will need to check out your source code on the jumphost boxes and do your deploys from
+there.  This definitely needs your ssh-agent forwarded in to work.
+
+##### terraform stuff
+After the initial terraform run and lockdown, you will need to run terraform from the jumphost.
+This means you'll need to get all your env vars set over there on the jumphost properly too.
+You should copy your env file over there and perhaps make it a part of your .bash_profile,
+and you should put this in your .ssh/config so that your AWS keys are never copied over there,
+yet you can use them:
+```
+Host jumphost.<env>.login.gov
+	SendEnv AWS_*
+```
 
 #### Elasticsearch initial bootstrap fiddling
 
@@ -317,7 +422,7 @@ someday.
 #### Jenkins Use
 
 * Make sure you are either in the GSA network (VPN or office), or are otherwise in the allowed IP whitelist.
-* Go to https://ip.add.re.ss:8443/
+* Go to the jenkins URL you got form terraform.
 * Log in using your username/password from the users databag.
 * Run the deploy stack job. 
   * Input the gitref that you want to use to deploy the code.  This can be a tag or a branch.
@@ -422,3 +527,4 @@ Have fun!!
 
 Use the MarkdownTOC plugin for Atom or Sublime Text to automatically update the
 ToC in this doc.
+

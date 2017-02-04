@@ -26,16 +26,12 @@ output "aws_sg_id" {
   value = "SECURITY_GROUP_ID=${aws_security_group.default.id}"
 }
 
-output "aws_vpc_id" {
-  value = "VPC_ID=${aws_vpc.default.id}"
-}
-
-output "chef-eip" {
-  value = "${aws_eip.chef.public_ip}"
+output "jenkins" {
+  value = "https://jenkins.login.gov.internal:8443/"
 }
 
 output "elk" {
-  value = "https://${aws_instance.elk.public_ip}:8443/"
+  value = "https://elk.login.gov.internal:8443/"
 }
 
 output "elk_ip" {
@@ -58,14 +54,10 @@ output "idp_worker_ip" {
   value = "${aws_instance.idp_worker.public_ip}"
 }
 
-output "jenkins" {
-  value = "https://${aws_instance.jenkins.public_ip}:8443/"
-}
-
-output "jenkins_ip" {
-  value = "${aws_instance.jenkins.public_ip}"
-}
-
 output "jumphost-eip" {
   value = "${aws_eip.jumphost.public_ip}"
+}
+
+output "jumphost-command" {
+  value = "ssh -L3128:localhost:3128 -A ${aws_eip.jumphost.public_ip}"
 }

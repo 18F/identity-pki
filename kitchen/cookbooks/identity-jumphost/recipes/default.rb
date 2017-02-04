@@ -33,3 +33,28 @@ execute 'pip install awscli'
 # set up proxy
 include_recipe 'squid'
 
+# turn off AllowUsers
+template '/etc/ssh/sshd_config' do
+  source 'sshd_config.erb'
+  mode '0600'
+  notifies :run, 'execute[restart_sshd]'
+  variables({
+    :lockdown => node['login_dot_gov']['lockdown'],
+    :eip => node['cloud']['public_ipv4']
+  })
+end
+
+execute 'restart_sshd' do
+  command 'service ssh reload'
+  action :nothing
+end
+
+template '/etc/network/interfaces.d/lo:1.cfg' do
+  source 'lo:1.cfg.erb'
+  variables({
+    :eip => node['cloud']['public_ipv4']
+  })
+end
+
+execute 'ifdown lo:1 ; ifup lo:1'
+

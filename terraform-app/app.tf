@@ -14,6 +14,8 @@ resource "aws_instance" "app" {
   connection {
     type = "ssh"
     user = "ubuntu"
+    host = "${self.private_ip}"
+    bastion_host = "${aws_eip.jumphost.public_ip}"
   }
 
   vpc_security_group_ids = [ "${aws_security_group.default.id}" ]

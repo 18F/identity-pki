@@ -12,6 +12,7 @@ elk_nodes.each do |n|
     content n['pubkey']
     mode '0644'
     notifies :run, 'execute[/usr/sbin/update-ca-certificates]', :immediately
+    notifies :restart, 'service[filebeat]'
   end
 end
 

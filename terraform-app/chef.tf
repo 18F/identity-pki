@@ -65,6 +65,19 @@ resource "aws_instance" "chef" {
   provisioner "local-exec" {
     command = "ssh -o StrictHostKeyChecking=no ubuntu@${aws_instance.chef.public_ip} sudo cat /root/login-dev-validator.pem > ~/.chef/${var.env_name}-login-dev-validator.pem"
   }
+
+#  # lock the fw down so that we can only ssh in via the jumphost
+#  provisioner "file" {
+#    source = "chef-iptables.rules"
+#    destination = "/etc/iptables/rules.v4"
+#  }
+#  provisioner "file" {
+#    source = "chef-iptables6.rules"
+#    destination = "/etc/iptables/rules.v6"
+#  }
+#  provisioner "local-exec" {
+#    command = "ssh -o StrictHostKeyChecking=no ubuntu@${aws_instance.chef.public_ip} 'sudo aptitude install iptables-persistent'"
+#  }
 }
 
 resource "aws_route53_record" "chef" {
