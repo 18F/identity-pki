@@ -1,0 +1,4 @@
+# We use this so that ossec can log to syslog
+module(load="imudp") # needs to be done just once
+input(type="imudp" port="514" address="127.0.0.1")
+

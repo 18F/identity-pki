@@ -78,6 +78,9 @@
         "tspencer"
       ]
     },
+     "filebeat": {
+      "version": "5.2.0"
+    },
     "identity-jenkins": {
       "users": [
         "monfresh"

@@ -30,7 +30,7 @@ cookbook 'terraform'
 cookbook 'filebeat', '~> 0.4.2'
 cookbook 'elasticsearch-curator', '~> 0.1.3'
 cookbook 'elasticsearch', '~> 3.0.2'
-
+cookbook 'ossec', '~> 1.0.5', git: 'https://github.com/sous-chefs/ossec'
 
 cookbook 'login_dot_gov', path: 'kitchen/cookbooks/login_dot_gov'
 cookbook 'passenger', path: 'kitchen/cookbooks/passenger'
@@ -38,4 +38,4 @@ cookbook 'poise-ruby-build', path: 'kitchen/cookbooks/poise-ruby-build'
 cookbook 'identity-jenkins', path: 'kitchen/cookbooks/identity-jenkins'
 cookbook 'identity-elk', path: 'kitchen/cookbooks/identity-elk'
 cookbook 'identity-jumphost', path: 'kitchen/cookbooks/identity-jumphost'
-
+cookbook 'identity-ossec', path: 'kitchen/cookbooks/identity-ossec'
