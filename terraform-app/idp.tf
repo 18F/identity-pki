@@ -168,6 +168,14 @@ resource "aws_instance" "idp_worker" {
 
 }
 
+resource "aws_route53_record" "worker" {
+  zone_id = "${aws_route53_zone.internal.zone_id}"
+  name = "worker.login.gov.internal"
+  type = "A"
+  ttl = "300"
+  records = ["${aws_instance.idp_worker.private_ip}"]
+}
+
 resource "aws_db_instance" "idp" {
   allocated_storage = "${var.rds_storage}"
   db_subnet_group_name = "${aws_db_subnet_group.default.id}"
