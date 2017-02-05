@@ -101,3 +101,11 @@ resource "aws_route53_record" "c_alb" {
   zone_id = "${var.route53_id}"
 }
 
+resource "aws_route53_record" "c_alb_idp" {
+  name = "idp.${var.env_name}.login.gov"
+  records = ["${aws_alb.idp.dns_name}"]
+  ttl = "300"
+  type = "CNAME"
+  zone_id = "${var.route53_id}"
+}
+
