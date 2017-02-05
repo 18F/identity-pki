@@ -19,7 +19,7 @@ resource "aws_instance" "jumphost" {
 
   provisioner "file" {
     source = "${var.nessus_server_path}"
-    destination = "/tmp/Nessus_amd64.deb"
+    destination = "/root/Nessus_amd64.deb"
   }
 
   provisioner "chef"  {

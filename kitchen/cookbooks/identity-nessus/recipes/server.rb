@@ -11,6 +11,6 @@ end
 # install dpkg
 dpkg_package 'Nessus' do
   action :install
-  source "/tmp/Nessus_amd64.deb"
+  source "/root/Nessus_amd64.deb"
   notifies :start, 'service[nessusd]'
 end

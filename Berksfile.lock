@@ -122,7 +122,7 @@ GRAPH
     squid (~> 3.0)
     terraform (>= 0.0.0)
     users (>= 0.0.0)
-  identity-nessus (0.0.1)
+  identity-nessus (0.0.2)
   identity-ossec (0.1.0)
     ossec (>= 0.0.0)
   java (1.46.0)
