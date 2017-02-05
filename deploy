@@ -1,10 +1,17 @@
 #!/usr/bin/env bash
-STATE=${2}/terraform-${TF_VAR_env_name}.tfstate
+TF_DIR=${2}
+
+if [ -z $TF_DIR ]
+  then
+  TF_DIR='terraform-app'
+fi
+
+STATE=${TF_DIR}/terraform-${TF_VAR_env_name}.tfstate
 
 # Do not use a region specific state file for the dns remote config
-if [ "$2" == "terraform-dns" -o "$2" == "terraform-cloudtrail" ]
+if [ "${TF_DIR}" == "terraform-dns" -o "${TF_DIR}" == "terraform-cloudtrail" ]
   then
-  STATE=${2}/terraform.tfstate
+  STATE=${TF_DIR}/terraform.tfstate
 fi
 
 # function to exit process with error message
@@ -12,7 +19,7 @@ die() { echo "$@" 1>&2 ; exit 1; }
 
 # require one of our terrform plans
 # NOTE: JJG remove trailing slash from $2 if it exists to ease use with auto completion
-if [ ! -f "$2/main.tf" ] ; then
+if [ ! -f "${TF_DIR}/main.tf" ] ; then
   die "you must specify a terraform project folder"
 fi
 
@@ -42,7 +49,7 @@ fi
 touch ~/.chef/${TF_VAR_env_name}-login-dev-validator.pem
 
 # use terraform remote state server
-cd ${2}
+cd ${TF_DIR}
 rm -rf .terraform
 terraform remote config -backend=s3 \
   -backend-config="bucket=login_dot_gov_tf_state" \
