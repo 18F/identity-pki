@@ -61,6 +61,7 @@
     "recipe[identity-nessus::agent]",
     "recipe[identity-ossec]",
     "recipe[login_dot_gov::openssl]",
+    "recipe[login_dot_gov::resolve]",
     "recipe[login_dot_gov::ruby]",
     "recipe[login_dot_gov::newrelic]"
   ],
