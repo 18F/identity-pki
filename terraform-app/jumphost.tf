@@ -19,7 +19,7 @@ resource "aws_instance" "jumphost" {
 
   provisioner "file" {
     source = "${var.nessus_server_path}"
-    destination = "/root/Nessus_amd64.deb"
+    destination = "/home/ubuntu/Nessus_amd64.deb"
   }
 
   provisioner "chef"  {
@@ -79,4 +79,3 @@ resource "aws_route53_record" "a_jumphost" {
   type = "A"
   zone_id = "${var.route53_id}"
 }
-
