@@ -74,13 +74,6 @@
   "json_class": "Chef::Environment",
   "chef_type": "environment",
   "default_attributes": {
-    "filebeat": {
-      "version": "5.2.0"
-    },
-    "terraform": {
-      "version": "0.8.5",
-      "zipfile": "terraform_0.8.5_linux_amd64.zip"
-    },
     "elk": {
       "users": [
         "astone",
@@ -89,6 +82,9 @@
         "monfresh",
         "tspencer"
       ]
+    },
+    "filebeat": {
+      "version": "5.2.0"
     },
     "identity-jenkins": {
       "users": [
@@ -100,6 +96,10 @@
         "jpmugizi",
         "tspencer"
       ]
+    },
+    "terraform": {
+      "version": "0.8.5",
+      "zipfile": "terraform_0.8.5_linux_amd64.zip"
     }
   },
   "override_attributes": {

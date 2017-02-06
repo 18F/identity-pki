@@ -83,6 +83,9 @@
         "tspencer"
       ]
     },
+    "filebeat": {
+      "version": "5.2.0"
+    },
     "identity-jenkins": {
       "users": [
         "monfresh"
@@ -93,6 +96,10 @@
         "jpmugizi",
         "tspencer"
       ]
+    },
+    "terraform": {
+      "version": "0.8.5",
+      "zipfile": "terraform_0.8.5_linux_amd64.zip"
     }
   },
   "override_attributes": {
