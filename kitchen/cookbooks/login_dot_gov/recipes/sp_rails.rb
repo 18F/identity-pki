@@ -11,11 +11,12 @@ deploy_dir = "#{base_dir}/current/public"
 branch_name = (node.chef_environment == 'dev' ? node['login_dot_gov']['branch_name'] : "stages/#{node.chef_environment}")
 sha_env = (node.chef_environment == 'dev' ? node['login_dot_gov']['branch_name'] : "deploy")
 
-%w{config log}.each do |dir|
+%w{cached-copy config log}.each do |dir|
   directory "#{base_dir}/shared/#{dir}" do
     group node['login_dot_gov']['system_user']
     owner node['login_dot_gov']['system_user']
     recursive true
+    subscribes :create, "deploy[/srv/dashboard]", :before
   end
 end
 
