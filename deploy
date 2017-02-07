@@ -58,5 +58,10 @@ terraform remote config -backend=s3 \
   -state="${STATE}"
 
 # apply terraform command ($1) to env
-terraform ${1} \
-  -var env_name=${TF_VAR_env_name}
+TF_CMD=${1}
+if [ -z $TF_CMD ]
+  then
+  TF_CMD='plan'
+fi
+
+terraform ${TF_CMD} -var env_name=${TF_VAR_env_name}
