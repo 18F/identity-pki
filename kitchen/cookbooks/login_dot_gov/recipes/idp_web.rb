@@ -49,6 +49,14 @@ template "#{deploy_dir}/api/deploy.json" do
   })
 end
 
+execute "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle exec whenever --update-crontab" do
+  cwd "#{base_dir}/current"
+  environment({
+    'RAILS_ENV' => "production"
+  })
+  only_if { node.name == "idp1.0.#{node.chef_environment}" } # first idp host
+end
+
 # allow other execute permissions on all directories within the application folder
 # https://www.phusionpassenger.com/library/admin/nginx/troubleshooting/ruby/#upon-accessing-the-web-app-nginx-reports-a-permission-denied-error
 execute "chmod o+x -R /srv"
