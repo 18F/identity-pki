@@ -1,7 +1,14 @@
 #!/usr/bin/env bash
+
+# function to exit process with error message
+die() { echo "$@" 1>&2 ; exit 1; }
+
+: "${TF_VAR_chef_id:?you must specify the TF_VAR_chef_id}"
+: "${TF_VAR_env_name:?you must specify the TF_VAR_env_name}"
+
 TF_DIR=${2}
 
-if [ -z $TF_DIR ]
+if [ -z ${TF_DIR} ]
   then
   TF_DIR='terraform-app'
 fi
@@ -13,9 +20,6 @@ if [ "${TF_DIR}" == "terraform-dns" -o "${TF_DIR}" == "terraform-cloudtrail" ]
   then
   STATE=${TF_DIR}/terraform.tfstate
 fi
-
-# function to exit process with error message
-die() { echo "$@" 1>&2 ; exit 1; }
 
 # require one of our terrform plans
 # NOTE: JJG remove trailing slash from $2 if it exists to ease use with auto completion
