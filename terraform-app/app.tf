@@ -45,6 +45,16 @@ resource "aws_instance" "app" {
   }
 }
 
+
+resource "aws_route53_record" "a_app_internal" {
+  count = "${var.apps_enabled == true ? 1 : 0}"
+  zone_id = "${aws_route53_zone.internal.zone_id}"
+  name = "apps_host.login.gov.internal"
+  type = "A"
+  ttl = "300"
+  records = ["${aws_instance.app.private_ip}"]
+}
+
 resource "aws_eip" "app" {
   count = "${var.apps_enabled == true ? 1 : 0}"
   instance = "${aws_instance.app.id}"
