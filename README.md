@@ -248,7 +248,7 @@ To use the jumpbox services, you will probably want to do two things:
 
 You can do this with one command:
 ```
-ssh -L3128:localhost:3128 -A jumphost.<env>.login.gov
+ssh -L3128:localhost:3128 -A <username>@jumphost.<env>.login.gov
 ```
 
 Then, while that ssh session is active, any ssh keys that you are using in your ssh-agent
@@ -256,10 +256,19 @@ Then, while that ssh session is active, any ssh keys that you are using in your 
 on the jumphost, and you can set your browser up to route requests to *login.gov.internal to the proxy
 port.  I will leave that as an exercise for the reader, as every browser has it's own way of doing that.
 
-For me, I just downloaded Firefox and had it route all protocols over that proxied port.  So when I
-want to get inside the environment, I just use that browser.
+You can download Firefox and have it route all protocols over that proxied port.  So when you
+want to get inside the environment, you can just use Firefox.
 
-Here are some common usage patterns:
+To set up Firefox:               
+ 1. Open your browser and click **Preferences** on the top left corner.              
+ 2. Go to **Advanced**, then  the **Network** tab, then click **settings...** next to **Connections**            
+ 3. Click **Manual Proxy Configuration** then fill _localhost_ next to **HTTP Proxy** and _3128_ next to **Port**          
+ 4. Check **Use this proxy server for all protocols**                    
+
+Click OK and restart your browser.
+
+
+#### Common Jumphost Usage Patterns:   
 
 ##### chef stuff
 You will need to copy your knife config and keys to the jumphost, check out the identity-devops
