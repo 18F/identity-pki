@@ -28,15 +28,16 @@
     },
     "ssh_keys": {
       "ubuntu": [
+        "astone",
         "deploy",
         "jgrevich",
-        "monfresh",
-        "astone",
         "jpmugizi",
-        "tspencer",
+        "monfresh",
+        "mzia",
         "pkarman",
-        "zmargolis",
-        "mzia"
+        "tblack",
+        "tspencer",
+        "zmargolis"
       ]
     }
   },

@@ -34,14 +34,15 @@ default['elk']['logstashdeb'] = 'https://artifacts.elastic.co/downloads/logstash
 
 # users to allow into elk
 default['elk']['users'] = [
-  'tspencer',
-  'jpmugizi',
   'astone',
+  'jgrevich',
+  'jpmugizi',
   'monfresh',
   'mzia',
   'pkarman',
-  'zmargolis',
-  'jgrevich'
+  'tblack',
+  'tspencer',
+  'zmargolis'
 ]
 
 # set this so that we listen on 8443
