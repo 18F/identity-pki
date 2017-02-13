@@ -103,7 +103,7 @@ GRAPH
   hostname (0.4.0)
     hostsfile (>= 0.0.0)
   hostsfile (2.4.5)
-  identity-elk (0.1.3)
+  identity-elk (0.1.6)
     acme (>= 0.0.0)
     apache2 (>= 0.0.0)
     elasticsearch (>= 0.0.0)

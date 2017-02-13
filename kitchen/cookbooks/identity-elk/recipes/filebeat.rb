@@ -1,7 +1,6 @@
 # This cookbook installs filebeat to send stuff to logstash
 
 node.default['filebeat']['config']['output']['logstash']['hosts'] = ["elk.login.gov.internal:5044"]
-#node.default['filebeat']['config']['output']['logstash']['ssl']['certificate_authorities'] = ["/usr/local/share/ca-certificates/elk.tf.crt"]
 node.default['filebeat']['config']['output']['logstash']['ssl']['certificate_authorities'] = ["/etc/ssl/certs/ca-certificates.crt"]
 
 
@@ -31,6 +30,8 @@ node['elk']['filebeat']['logfiles'].each do |logitem|
     scan_frequency '15s'
     harvester_buffer_size 16384
     fields 'type' => logfile
+    # XXX make sure to nuke this once the auditctl stuff is in the base image
+    exclude_lines [ 'name=./var/lib/filebeat', 'exe=./usr/share/filebeat/bin/filebeat' ]
   end
 end
 

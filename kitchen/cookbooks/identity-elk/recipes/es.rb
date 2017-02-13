@@ -160,6 +160,7 @@ end
 # (this totally spams the logs)
 # XXX remove this as soon as we get this into our base AMI and it is deployed everywhere!
 #auditctl -A exit,never -F dir=/var/lib/elasticsearch/nodes -F uid=elasticsearch
+#auditctl -A exit,never -F dir=/var/lib/filebeat
 ruby_block 'removeESauditlogs' do
   block do
     fe = Chef::Util::FileEdit.new('/etc/audit/audit.rules')
