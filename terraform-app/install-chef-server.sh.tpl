@@ -25,7 +25,7 @@ echo "127.0.0.1 chef.login.gov.internal" >> /etc/hosts
 apt-get update
 apt-get -y install curl
 
-curl -s "https://packages.chef.io/files/stable/chef-server/12.11.1/ubuntu/14.04/chef-server-core_12.11.1-1_amd64.deb" -o "/tmp/chef-server.deb"
+curl -s "https://packages.chef.io/files/stable/chef-server/12.12.0/ubuntu/14.04/chef-server-core_12.12.0-1_amd64.deb" -o "/tmp/chef-server.deb"
 
 # install the chef-server deb
 dpkg -i /tmp/chef-server.deb || exit 1
