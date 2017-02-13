@@ -69,6 +69,7 @@
     },
     "jenkins_ssh_pubkey": "ssh-rsa XXX keyid",
     "jenkins_ssh_privkey": "-----BEGIN RSA PRIVATE KEY-----XXX",
+    "dashboard_url": "https://username:password@fqdn.com",
     "db_database_idp": "idp",
     "db_username_idp": "XXX",
     "db_host_idp": "idp-postgres.login.gov.internal",
@@ -94,6 +95,7 @@
     "session_encryption_key": "change-this-immediately-with-rake-secret-XXX",
     "smtp_settings": "{\"address\":\"smtp.mandrillapp.com\", \"port\":587, \"authentication\":\"plain\", \"enable_starttls_auto\":true, \"user_name\":\"XXX@gsa.gov\", \"password\":\"XXX\"}",
     "twilio_accounts": "[{\"sid\":\"XXX\", \"auth_token\":\"XXX\", \"number\":\"XXX\"}]",
+      "use_dashboard_service_providers": "false",
     "valid_service_providers": "[\"https://upaya-dev.18f.gov\", \"urn:gov:gsa:SAML:2.0.profiles:sp:sso:localhost\", \"urn:gov:gsa:SAML:2.0.profiles:sp:sso:dev\", \"urn:gov:gsa:SAML:2.0.profiles:sp:sso:tf\", \"urn:gov:gsa:SAML:2.0.profiles:sp:sso:rails-dev\", \"urn:gov:gsa:SAML:2.0.profiles:sp:sso:rails-tf\", \"https://dashboard.tf.login.gov\", \"https://dashboard.qa.login.gov\", \"https://dashboard.dev.login.gov\", \"urn:gov:gsa:SAML:2.0.profiles:sp:sso:localhost-micropurchase\", \"urn:gov:gsa:SAML:2.0.profiles:sp:sso:micropurchase-staging\", \"urn:gov:gsa:SAML:2.0.profiles:sp:sso:micropurchase-production\"]"
   }
 }
