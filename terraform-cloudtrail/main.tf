@@ -13,8 +13,10 @@ data "aws_iam_policy_document" "cloudtrail" {
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/int_elk_iam_role",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/dev_elk_iam_role",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/pt_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/astone_elk_iam_role",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/qa_elk_iam_role",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/dm_elk_iam_role",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/staging_elk_iam_role",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/prod_elk_iam_role",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/tf_elk_iam_role"
       ]
     }
@@ -33,8 +35,10 @@ data "aws_iam_policy_document" "cloudtrail" {
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/int_elk_iam_role",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/dev_elk_iam_role",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/pt_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/astone_elk_iam_role",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/qa_elk_iam_role",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/dm_elk_iam_role",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/staging_elk_iam_role",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/prod_elk_iam_role",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/tf_elk_iam_role"
       ]
     }

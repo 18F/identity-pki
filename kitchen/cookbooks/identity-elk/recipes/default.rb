@@ -83,6 +83,12 @@ execute 'bin/logstash-plugin install logstash-codec-cloudtrail' do
   not_if "bin/logstash-plugin list | grep logstash-codec-cloudtrail"
 end
 
+# XXX There seems to be no way to update to a specific version, so I hope this keeps working.  :-(
+# XXX As of this moment (Mon Feb  6 16:41:46 PST 2017) , 3.1.1 is broken, and 3.1.2 is working.
+execute 'bin/logstash-plugin update logstash-input-s3' do
+  cwd '/usr/share/logstash'
+end
+
 
 # create a copy of the key/crt that filebeat can read
 execute "openssl pkcs8 -topk8 -nocrypt -in #{mykey} -out #{mypkcs8}"

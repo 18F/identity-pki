@@ -48,3 +48,19 @@ default['elk']['users'] = [
 # set this so that we listen on 8443
 default['apache']['listen'] = [8443]
 
+# curator config
+default['elasticsearch-curator']['config'] = {
+  'client' => {
+    'hosts' => ['es.login.gov.internal'],
+    'port' => 9200,
+    'use_ssl' => true,
+    'ssl_no_validate' => true,
+    'timeout' => 30,
+    'master_only' => false
+  },
+  'logging' => {
+    'loglevel' => 'INFO',
+    'logformat' => 'default'
+  }
+}
+
