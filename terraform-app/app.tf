@@ -18,7 +18,7 @@ resource "aws_instance" "app" {
     bastion_host = "${aws_eip.jumphost.public_ip}"
   }
 
-  vpc_security_group_ids = [ "${aws_security_group.default.id}" ]
+  vpc_security_group_ids = [ "${aws_security_group.app.id}" ]
 
   provisioner "chef"  {
     attributes_json = <<-EOF
@@ -44,7 +44,6 @@ resource "aws_instance" "app" {
     fetch_chef_certificates = true
   }
 }
-
 
 resource "aws_route53_record" "a_app_internal" {
   count = "${var.apps_enabled == true ? 1 : 0}"

@@ -22,8 +22,8 @@ output "aws_elasticache_cluster_address" {
   value = "redis.login.gov.internal"
 }
 
-output "aws_sg_id" {
-  value = "SECURITY_GROUP_ID=${aws_security_group.default.id}"
+output "aws_idp_sg_id" {
+  value = "SECURITY_GROUP_ID=${aws_security_group.idp.id}"
 }
 
 output "jenkins" {

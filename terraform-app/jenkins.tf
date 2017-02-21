@@ -48,7 +48,7 @@ resource "aws_instance" "jenkins" {
     bastion_host = "${aws_eip.jumphost.public_ip}"
   }
 
-  vpc_security_group_ids = [ "${aws_security_group.default.id}" ]
+  vpc_security_group_ids = [ "${aws_security_group.jenkins.id}" ]
 
   provisioner "chef"  {
     attributes_json = <<-EOF

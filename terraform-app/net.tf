@@ -18,6 +18,47 @@ resource "aws_route" "default" {
     gateway_id = "${aws_internet_gateway.default.id}"
 }
 
+resource "aws_security_group" "app" {
+  description = "Allow inbound web traffic and whitelisted IP(s) for SSH"
+
+  egress {
+    from_port = 0
+    to_port = 65535
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    security_groups = [ "${aws_security_group.jumphost.id}" ]
+  }
+
+  name = "${var.name}-app-${var.env_name}"
+
+  tags {
+    client = "${var.client}"
+    Name = "${var.name}-app_security_group-${var.env_name}"
+  }
+
+  vpc_id = "${aws_vpc.default.id}"
+}
+
 resource "aws_security_group" "cache" {
   description = "Allow inbound and outbound redis traffic with app subnet in vpc"
 
@@ -25,10 +66,9 @@ resource "aws_security_group" "cache" {
     from_port = 6379
     to_port = 6379
     protocol = "tcp"
-    cidr_blocks = [
-      "${var.app1_subnet_cidr_block}",
-      "${var.idp1_subnet_cidr_block}",
-      "${var.idp2_subnet_cidr_block}"
+    security_groups = [
+      "${aws_security_group.app.id}",
+      "${aws_security_group.idp.id}"
     ]
   }
 
@@ -36,18 +76,10 @@ resource "aws_security_group" "cache" {
     from_port = 6379
     to_port = 6379
     protocol = "tcp"
-    cidr_blocks = [
-      "${var.app1_subnet_cidr_block}",
-      "${var.idp1_subnet_cidr_block}",
-      "${var.idp2_subnet_cidr_block}"
+    security_groups = [
+      "${aws_security_group.app.id}",
+      "${aws_security_group.idp.id}"
     ]
-  }
-
-  ingress {
-    from_port = 0
-    to_port = 65535
-    protocol = "tcp"
-    security_groups = [ "${aws_security_group.jumphost.id}" ]
   }
 
   name = "${var.name}-cache-${var.env_name}"
@@ -71,6 +103,19 @@ resource "aws_security_group" "chef" {
   }
 
   ingress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    security_groups = [
+      "${aws_security_group.app.id}",
+      "${aws_security_group.elk.id}",
+      "${aws_security_group.jenkins.id}",
+      "${aws_security_group.jumphost.id}",
+      "${aws_security_group.idp.id}"
+    ]
+  }
+
+  ingress {
     from_port = 22
     to_port = 22
     protocol = "tcp"
@@ -78,16 +123,8 @@ resource "aws_security_group" "chef" {
   }
 
   ingress {
-    from_port = 443
-    to_port = 443
-    protocol = "tcp"
-    self = true
-    cidr_blocks = [ "${aws_vpc.default.cidr_block}", "${var.app_sg_ssh_cidr_blocks}" ]
-  }
-
-  ingress {
-    from_port = 0
-    to_port = 65535
+    from_port = 22
+    to_port = 22
     protocol = "tcp"
     security_groups = [ "${aws_security_group.jumphost.id}" ]
   }
@@ -127,13 +164,6 @@ resource "aws_security_group" "db" {
     ]
   }
 
-  ingress {
-    from_port = 0
-    to_port = 65535
-    protocol = "tcp"
-    security_groups = [ "${aws_security_group.jumphost.id}" ]
-  }
-
   name = "${var.name}-db-${var.env_name}"
 
   tags {
@@ -144,48 +174,8 @@ resource "aws_security_group" "db" {
   vpc_id = "${aws_vpc.default.id}"
 }
 
-resource "aws_security_group" "default" {
-  description = "Allow inbound web traffic and whitelisted IPs for SSH"
-
-  egress {
-    from_port = 0
-    to_port = 65535
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port = 80
-    to_port = 80
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port = 443
-    to_port = 443
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port = 0
-    to_port = 65535
-    protocol = "tcp"
-    security_groups = [ "${aws_security_group.jumphost.id}" ]
-  }
-
-  name = "${var.name}-default-${var.env_name}"
-
-  tags {
-    client = "${var.client}"
-    Name = "${var.name}-default_security_group-${var.env_name}"
-  }
-
-  vpc_id = "${aws_vpc.default.id}"
-}
-
 resource "aws_security_group" "elk" {
+  depends_on = ["aws_internet_gateway.default"]
   description = "Allow inbound traffic to ELK from whitelisted IPs for SSH and app security group"
 
   egress {
@@ -196,10 +186,10 @@ resource "aws_security_group" "elk" {
   }
 
   ingress {
-    from_port = 9200
-    to_port = 9300
+    from_port = 22
+    to_port = 22
     protocol = "tcp"
-    self = true
+    security_groups = [ "${aws_security_group.jumphost.id}" ]
   }
 
   ingress {
@@ -207,14 +197,30 @@ resource "aws_security_group" "elk" {
     to_port = 5044
     protocol = "tcp"
     self = true
-    security_groups = [ "${aws_security_group.default.id}" ]
+    cidr_blocks = [ 
+      "${var.admin_subnet_cidr_block}",
+      "${var.app1_subnet_cidr_block}",
+      "${var.app2_subnet_cidr_block}",
+      "${var.idp1_subnet_cidr_block}",
+      "${var.idp2_subnet_cidr_block}",
+      "${var.idp3_subnet_cidr_block}",
+      "${var.idp4_subnet_cidr_block}",
+      "${var.jumphost_subnet_cidr_block}"
+    ]
   }
 
   ingress {
-    from_port = 0
-    to_port = 65535
+    from_port = 8443
+    to_port = 8443
     protocol = "tcp"
     security_groups = [ "${aws_security_group.jumphost.id}" ]
+  }
+
+  ingress {
+    from_port = 9200
+    to_port = 9300
+    protocol = "tcp"
+    self = true
   }
 
   name = "${var.name}-elk-${var.env_name}"
@@ -222,6 +228,40 @@ resource "aws_security_group" "elk" {
   tags {
     client = "${var.client}"
     Name = "${var.name}-elk_security_group-${var.env_name}"
+  }
+
+  vpc_id = "${aws_vpc.default.id}"
+}
+
+resource "aws_security_group" "jenkins" {
+  description = "Allow inbound traffic to ELK from whitelisted IPs for SSH and app security group"
+
+  egress {
+    from_port = 0
+    to_port = 65535
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    security_groups = [ "${aws_security_group.jumphost.id}" ]
+  }
+
+  ingress {
+    from_port = 8443
+    to_port = 8443
+    protocol = "tcp"
+    security_groups = [ "${aws_security_group.jumphost.id}" ]
+  }
+
+  name = "${var.name}-jenkins-${var.env_name}"
+
+  tags {
+    client = "${var.client}"
+    Name = "${var.name}-jenkins_security_group-${var.env_name}"
   }
 
   vpc_id = "${aws_vpc.default.id}"
@@ -249,6 +289,57 @@ resource "aws_security_group" "jumphost" {
   tags {
     client = "${var.client}"
     Name = "${var.name}-jumphost_security_group-${var.env_name}"
+  }
+
+  vpc_id = "${aws_vpc.default.id}"
+}
+
+resource "aws_security_group" "idp" {
+  description = "Allow inbound web traffic and whitelisted IP(s) for SSH"
+
+  egress {
+    from_port = 0
+    to_port = 65535
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
+    cidr_blocks = [
+      "${var.idp1_subnet_cidr_block}",
+      "${var.idp2_subnet_cidr_block}",
+      "${var.idp3_subnet_cidr_block}",
+      "${var.idp4_subnet_cidr_block}",
+    ]
+  }
+
+  ingress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = [
+      "${var.idp1_subnet_cidr_block}",
+      "${var.idp2_subnet_cidr_block}",
+      "${var.idp3_subnet_cidr_block}",
+      "${var.idp4_subnet_cidr_block}",
+    ]
+  }
+
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    security_groups = [ "${aws_security_group.jumphost.id}" ]
+  }
+
+  name = "${var.name}-idp-${var.env_name}"
+
+  tags {
+    client = "${var.client}"
+    Name = "${var.name}-idp_security_group-${var.env_name}"
   }
 
   vpc_id = "${aws_vpc.default.id}"

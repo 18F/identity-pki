@@ -18,7 +18,7 @@ resource "aws_instance" "idp1" {
     bastion_host = "${aws_eip.jumphost.public_ip}"
   }
 
-  vpc_security_group_ids = [ "${aws_security_group.default.id}" ]
+  vpc_security_group_ids = [ "${aws_security_group.idp.id}" ]
 
   provisioner "chef"  {
     attributes_json = <<-EOF
@@ -74,7 +74,7 @@ resource "aws_instance" "idp2" {
     bastion_host = "${aws_eip.jumphost.public_ip}"
   }
 
-  vpc_security_group_ids = [ "${aws_security_group.default.id}" ]
+  vpc_security_group_ids = [ "${aws_security_group.idp.id}" ]
 
   provisioner "chef"  {
     attributes_json = <<-EOF
@@ -140,7 +140,7 @@ resource "aws_instance" "idp_worker" {
     bastion_host = "${aws_eip.jumphost.public_ip}"
   }
 
-  vpc_security_group_ids = [ "${aws_security_group.default.id}" ]
+  vpc_security_group_ids = [ "${aws_security_group.idp.id}" ]
 
   provisioner "chef"  {
     attributes_json = <<-EOF
