@@ -69,6 +69,7 @@
     },
     "jenkins_ssh_pubkey": "ssh-rsa XXX keyid",
     "jenkins_ssh_privkey": "-----BEGIN RSA PRIVATE KEY-----XXX",
+    "dashboard_api_key": "XXX",
     "dashboard_url": "https://username:password@fqdn.com",
     "db_database_idp": "idp",
     "db_username_idp": "XXX",

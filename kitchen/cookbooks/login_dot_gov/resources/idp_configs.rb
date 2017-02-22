@@ -24,6 +24,7 @@ action :create do
       attribute_encryption_key_queue: node['login_dot_gov']['attribute_encryption_key_queue'],
       aws_kms_key_id: node['login_dot_gov']['aws_kms_key_id'],
       aws_region: node['login_dot_gov']['aws_region'],
+      dashboard_api_key: encrypted_config['dashboard_api_key'],
       dashboard_url: encrypted_config['dashboard_url'],
       domain_name: "idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
       enable_test_routes: node['login_dot_gov']['enable_test_routes'],
