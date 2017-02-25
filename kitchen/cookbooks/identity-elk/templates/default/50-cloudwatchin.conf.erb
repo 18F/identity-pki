@@ -1,0 +1,35 @@
+input {
+  cloudwatch_logs {
+    log_group => "<%= @env %>_flow_log_group"
+    region => "<%= @aws_region %>"
+    type => "flowlog"
+  }
+}
+
+#filter {
+#  grok {
+#    match => { "message" => "%{TIMESTAMP_ISO8601}\t%{UUID:[lambda][request_id]}\t%{GREEDYDATA:message}" }
+#    overwrite => [ "message" ]
+#    tag_on_failure => []
+#  }
+#
+#  grok {
+#    match => { "message" => "(?:START|END) RequestId: %{UUID:[lambda][request_id]}" }
+#    tag_on_failure => []
+#  }
+#
+#  grok {
+#    match => { "message" => "REPORT RequestId: %{UUID:[lambda][request_id]}\tDuration: %{BASE16FLOAT:[lambda][duration]} ms\tBilled Duration: %{BASE16FLOAT:[lambda][billed_duration]} ms \tMemory Size: %{BASE10NUM:[lambda][memory_size]} MB\tMax Memory Used: %{BASE10NUM:[lambda][memory_used]} MB" }
+#    tag_on_failure => []
+#  }
+#
+#  mutate {
+#    convert => {
+#      "[lambda][duration]" => "integer"
+#      "[lambda][billed_duration]" => "integer"
+#      "[lambda][memory_size]" => "integer"
+#      "[lambda][memory_used]" => "integer"
+#    }
+#  }
+#}
+

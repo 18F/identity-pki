@@ -11,6 +11,15 @@ resource "aws_iam_instance_profile" "elk_instance_profile" {
 data "aws_iam_policy_document" "logbucketpolicy" {
   statement {
     actions = [
+      "logs:Describe*",
+      "logs:Get*",
+      "logs:TestMetricFilter",
+      "logs:FilterLogEvents"
+    ]
+    resources = [ "*" ]
+  }
+  statement {
+    actions = [
       "s3:ListBucket"
     ]
     resources = [

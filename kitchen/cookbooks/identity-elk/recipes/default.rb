@@ -125,6 +125,11 @@ end
 # dynamically slurp in all the ES nodes
 esnodes = search(:node, "recipes:elasticsearch*es AND chef_environment:#{node.chef_environment}", :filter_result => { 'ipaddress' => [ 'ipaddress' ]})
 
+template '/etc/logstash/logstash-template.json' do
+  source 'logstash-template.json.erb'
+  notifies :restart, 'runit_service[logstash]'
+end
+
 template '/etc/logstash/conf.d/30-ESoutput.conf' do
   source '30-ESoutput.conf.erb'
   variables ({
@@ -263,4 +268,30 @@ end
 apache_site 'kibanaproxy'
 
 include_recipe 'identity-elk::filebeat'
+
+
+# set up the stuff that slurps in the vpc flow logs
+git '/usr/share/logstash-input-cloudwatch_logs' do
+  repository 'https://github.com/lukewaite/logstash-input-cloudwatch-logs.git'
+  revision "v#{node['elk']['logstash-input-cloudwatch-logs-version']}"
+end
+
+execute "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/gem build logstash-input-cloudwatch_logs.gemspec" do
+  cwd '/usr/share/logstash-input-cloudwatch_logs'
+end
+
+execute "bin/logstash-plugin install /usr/share/logstash-input-cloudwatch_logs/logstash-input-cloudwatch_logs-#{node['elk']['logstash-input-cloudwatch-logs-version']}.gem" do
+  cwd '/usr/share/logstash'
+  notifies :restart, 'runit_service[logstash]'
+  not_if "bin/logstash-plugin list | grep logstash-input-cloudwatch_logs"
+end
+
+template "/etc/logstash/conf.d/50-cloudwatchin.conf" do
+  source '50-cloudwatchin.conf.erb'
+  variables ({
+    :aws_region => Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['build_env']['TF_VAR_region']['value'],
+    :env => node.chef_environment
+  })
+  notifies :restart, 'runit_service[logstash]'
+end
 

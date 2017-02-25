@@ -31,6 +31,8 @@ default['java']['jdk_version'] = '8'
 # remote files
 default['elk']['kibanatarball'] = 'https://artifacts.elastic.co/downloads/kibana/kibana-5.1.2-linux-x86_64.tar.gz'
 default['elk']['logstashdeb'] = 'https://artifacts.elastic.co/downloads/logstash/logstash-5.1.2.deb'
+default['elk']['logstash-input-cloudwatch-logs-version'] = '0.9.3'
+
 
 # users to allow into elk
 default['elk']['users'] = [

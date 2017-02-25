@@ -6,6 +6,8 @@ output {
     manage_template => false
     index => "logstash-%{+YYYY.MM.dd}"
     document_type => "%{[@metadata][type]}"
+    template => "/etc/logstash/logstash-template.json"
+    template_overwrite => true
   }
 }
 
