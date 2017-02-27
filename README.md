@@ -270,10 +270,56 @@ Click OK and restart your browser.
 
 #### Common Jumphost Usage Patterns:   
 
-##### chef stuff
+##### Chef      
+###### **Moving Chef Credentials(knife, databag keys etc.) to The Jumphost** 
 You will need to copy your knife config and keys to the jumphost, check out the identity-devops
-repo,  and execute all your chef/knife/berkshelf commands there.  It is hoped that this use
-case will slowly go away as we get more stuff moved into jenkins.
+repo,  and execute all your chef/knife/berkshelf commands there.               
+
+You can use the `bin/chefmove.sh` script to move your _.chef_ and  checkout *identity-devops* from GitHub into the jumphost. It takes two arguments: _<env>_ and the correspond jumphost   
+fqdn. E.g.: For the  `dev` environment, you would run `./chefmove.sh dev jumphost.dev.login.gov`.                       
+
+It is hoped that this use case will slowly go away as we get more stuff moved into jenkins.         
+
+###### **Creating your User in the Chef Server.**    
+
+First, verify that your username and its associated access rights(sudo,adm, <env> etc) and public PIV key exist in the _users databag_. You can get someone in the DevOps team to verify this
+for you.           
+
+After your _users databag_ item exists:           
+
+* **Option 1(Using a script):**            
+
+Run the `createchefclient.sh` located in the `bin` directory of this repo. It takes the Chef server's Private IP address or hostname as an argument.        
+
+`./createchefclient.sh login-chef-<env>`       
+
+Make sure to update the paths to correspond to where you uploaded your _.chef_ directory.     
+
+* **Option 2(Manually):**   
+  
+1.  ssh into the Chef server from the jumphost using the Chef server's private IP. Then, run:      
+
+  ```
+  sudo chef-server-ctl user-create <username> <FirstName> <LastName> <FirstName>.<LastName>@gsa.gov <Password>
+  ```   
+
+
+2.  copy the generated private key into your `<username>-<env>.pem` located under the `/.chef` dir in the jumphost.    
+
+3.  Add yourself to the admin group.
+ ```
+  sudo chef-server-ctl org-user-add login-dev <username> --admin
+  ```          
+
+        
+
+4. Make sure everything ran correctly.  
+ ```       
+  sudo chef-server-ctl user-show <username> 
+  
+  ```
+       
+
 
 ##### capistrano stuff
 You will need to check out your source code on the jumphost boxes and do your deploys from
