@@ -80,7 +80,6 @@ action :create do
       use_dashboard_service_providers: encrypted_config['use_dashboard_service_providers'],
       use_kms: node['login_dot_gov']['use_kms'],
       valid_authn_contexts: node['login_dot_gov']['valid_authn_contexts'],
-      valid_service_providers: encrypted_config['valid_service_providers']
     })
   end
 
