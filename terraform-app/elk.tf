@@ -20,6 +20,16 @@ data "aws_iam_policy_document" "logbucketpolicy" {
   }
   statement {
     actions = [
+      "rds:DescribeDBLogFiles",
+      "rds:DownloadDBLogFilePortion"
+    ]
+    resources = [
+#      "arn:aws:rds:::login-${var.env_name}-idp"
+      "${aws_db_instance.idp.arn}"
+    ]
+  }
+  statement {
+    actions = [
       "s3:ListBucket"
     ]
     resources = [

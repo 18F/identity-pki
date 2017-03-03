@@ -6,6 +6,7 @@ default['elk']['filebeat']['logfiles'] = [
   {'log' => '/var/log/auth.log', 'type' => 'syslog'},
   {'log' => '/var/lib/docker/aufs/mnt/*/var/log/*/*.log', 'type' => 'syslog'},
   {'log' => '/var/log/*/current', 'type' => 'log'},
+  {'log' => '/var/log/postgres/*', 'type' => 'pglog'},
   {'log' => '/var/log/*/*.log', 'type' => 'syslog'}
 ]
 
@@ -72,4 +73,7 @@ default['elasticsearch-curator']['config'] = {
     'logformat' => 'default'
   }
 }
+
+# dir to put postgres logs in
+default['elk']['pglogsdir'] = '/var/log/postgres'
 

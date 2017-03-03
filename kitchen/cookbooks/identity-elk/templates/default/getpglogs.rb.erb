@@ -1,0 +1,48 @@
+#!/usr/bin/env ruby
+#
+# This script pulls down postgres logs from this environment's RDP instance
+#
+# By:  timothy.spencer@gsa.gov
+# Mon Feb 27 15:24:59 PST 2017
+#
+
+logdir = '<%= @pglogdir %>'
+region = '<%= @region %>'
+env = '<%= @env %>'
+instance = "login-#{env}-idp"
+
+require 'fileutils'
+require 'aws-sdk'
+
+Aws.config.update({
+  region: region
+})
+
+rds = Aws::RDS::Client.new
+logfiles = rds.describe_db_log_files({ db_instance_identifier: instance })
+FileUtils.mkdir_p logdir
+
+# discard the last file because it's the one that is being written to still
+logfiles.describe_db_log_files.pop
+logfiles.describe_db_log_files.each do |l|
+  # make a filename that doesn't have a path in it.
+  file = l.log_file_name.gsub(/\//,'_')
+
+  # we only download whole files after they are done being written to.
+  if ! File.exists?("#{logdir}/#{file}")
+    additional_data_pending = true
+    f = File.open("#{logdir}/#{file}",'w')
+
+    while additional_data_pending do
+      logportion = rds.download_db_log_file_portion({
+        db_instance_identifier: instance,
+        log_file_name: l.log_file_name
+      })
+      f.write(logportion.log_file_data)
+      additional_data_pending = logportion.additional_data_pending
+    end
+
+    f.close
+  end
+end
+
