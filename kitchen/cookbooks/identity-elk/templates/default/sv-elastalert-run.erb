@@ -1,0 +1,6 @@
+#!/bin/sh
+
+cd /usr/share/elastalert
+exec 2>&1
+exec chpst -u elastalert:elastalert /usr/local/bin/elastalert
+

@@ -50,6 +50,13 @@ default['elk']['users'] = [
 # set this so that we listen on 8443
 default['apache']['listen'] = [8443]
 
+default['elk']['elastalert']['version'] = 'master'
+# If the list of emails is empty, then do not email.
+default['elk']['elastalert']['emails'] = []
+# If the webhook is set to nil, then do not do slack alerting.
+default['elk']['elastalert']['slackwebhook'] = nil
+default['elk']['elastalert']['slackchannel'] = '#identity-events'
+
 # curator config
 default['elasticsearch-curator']['config'] = {
   'client' => {

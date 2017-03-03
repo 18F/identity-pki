@@ -1,0 +1,33 @@
+name: No Logs
+type: flatline
+index: logstash-*
+alert_text: logs seem to have stopped entirely!
+owner: <%= @env %>
+threshold: 10
+doc_type: syslog
+timeframe:
+    minutes: 10
+use_count_query: true
+filter:
+- query:
+    query_string:
+      query: "*"
+alert:
+<% if ! @emails.empty? %>
+- "email"
+<% end %>
+<% if ! @webhook.nil? %>
+- "slack"
+<% end %>
+<% if ! @emails.empty? %>
+email:
+<%   @emails.each do |e| %>
+- "<%= e %>"
+<%   end %>
+<% end %>
+<% if ! @webhook.nil? %>
+slack_webhook_url: <%= @webhook %>
+slack_username_override: <%= "#{@env} alerts" %>
+slack_channel_override: <%= @slackchannel %>
+<% end %>
+

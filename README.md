@@ -214,7 +214,7 @@ the various services.
 [The output should look like this](https://gist.github.com/amoose/eb473b09994329d5b19f8cb0cee0589c)
 Yay!
 
-#### Manual Lockdown
+#### Manual Lockdown/config
 
 The first time you deploy everything, you'll have to go manually lock down a couple of things:
   * Port 22 on the chef-server.  Do the last couple of steps that are commented out in the chef-server instance launch:
@@ -234,6 +234,7 @@ The first time you deploy everything, you'll have to go manually lock down a cou
 ```
   * Disallow ubuntu user from non-localhost locations on the jumphost.  To do this, you will need to set
     the ```default['login_dot_gov']['lockdown']``` attribute to be true, and then chef-client on the bastion host.   
+  * Enable ELK:  ```knife node run_list add elk.<env> 'recipe[identity-elk]' ; knife ssh elk sudo chef-client```
     
 
 #### Jumphost usage!  IMPORTANT!

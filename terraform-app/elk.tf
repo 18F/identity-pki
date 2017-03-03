@@ -99,8 +99,9 @@ resource "aws_instance" "elk" {
     EOF
     environment = "${var.env_name}"
     run_list = [
-      "role[base]",
-      "recipe[identity-elk]"
+      "role[base]"
+# XXX somehow this isn't working for amos???  Will try adding it in after launch.
+#      "recipe[identity-elk]"
     ]
     node_name = "elk.${var.env_name}"
     secret_key = "${file("${var.chef_databag_key_path}")}"

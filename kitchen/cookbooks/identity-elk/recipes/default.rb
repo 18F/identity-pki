@@ -156,6 +156,7 @@ end
 include_recipe 'runit'
 runit_service 'logstash' do
   default_logger true
+  sv_timeout 20
   options ({
     :home => '/usr/share/logstash',
     :max_heap => "#{(node['memory']['total'].to_i * 0.5).floor / 1024}M",
@@ -269,7 +270,61 @@ apache_site 'kibanaproxy'
 
 include_recipe 'identity-elk::filebeat'
 
+# set up elastalert
+package 'python-dev'
+package 'python-pip'
 
+elastalertdir = '/usr/share/elastalert'
+git elastalertdir do
+  repository 'https://github.com/Yelp/elastalert.git'
+  revision node['elk']['elastalertversion']
+  action :sync
+end
+directory "#{elastalertdir}/rules.d"
+
+execute 'pip install --upgrade six' do
+  cwd elastalertdir
+  # XXX This seems a bit fragile, but it'll probably work
+  only_if 'pip list | grep "six .1.5"'
+end
+execute 'python setup.py install' do
+  cwd elastalertdir
+  creates '/usr/local/bin/elastalert'
+end
+execute 'pip install -r requirements.txt' do
+  cwd elastalertdir
+  not_if 'pip list | grep funcsigs'
+end
+execute 'pip install "elasticsearch>=5.0.0"' do
+  cwd elastalertdir
+  not_if 'pip list | egrep "^elasticsearch .5"'
+end
+
+template "#{elastalertdir}/config.yaml" do
+  source 'elastalert_config.yaml.erb'
+end
+
+%w{invaliduser.yaml newsudo.yaml nologs.yaml failedlogins.yaml}.each do |t|
+  template "#{elastalertdir}/rules.d/#{t}" do
+    source "elastalert_#{t}.erb"
+    variables ({
+      :env => node.chef_environment,
+      :emails => node['elk']['elastalert']['emails'],
+      :webhook => node['elk']['elastalert']['slackwebhook'],
+      :slackchannel => node['elk']['elastalert']['slackchannel']
+    })
+  end
+end
+
+user 'elastalert' do
+  system true
+end
+
+runit_service 'elastalert' do
+  default_logger true
+end
+
+  
 # set up the stuff that slurps in the vpc flow logs
 git '/usr/share/logstash-input-cloudwatch_logs' do
   repository 'https://github.com/lukewaite/logstash-input-cloudwatch-logs.git'
