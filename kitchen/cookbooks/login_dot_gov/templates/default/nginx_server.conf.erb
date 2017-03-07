@@ -24,6 +24,11 @@ server {
     resolver 8.8.8.8 8.8.4.4 valid=300s;
     resolver_timeout 5s;
 
+    root /srv/<%= @app %>/current/public;
+    passenger_enabled on;
+    passenger_min_instances 5;
+    rails_env production;
+
     # Allow specific HTTP methods
     if ($request_method !~ ^(DELETE|GET|HEAD|OPTIONS|POST|PUT)$ ) {
        return 405;
@@ -37,10 +42,31 @@ server {
         <%- end %>
         auth_basic "Restricted";
         auth_basic_user_file /opt/nginx/conf/htpasswd;
+    }
 
-        root /srv/<%= @app %>/current/public;
-        passenger_enabled on;
-        passenger_min_instances 5;
-        rails_env production;
+    # Content expiry rules
+    # Content pages set to no-cache
+    location ~* \.(?:manifest|appcache|html?|xml|json)$ {
+        expires -1;
+    }
+
+    # Media: images, icons, video, audio, HTC
+    location ~* \.(?:jpg|jpeg|gif|png|ico|cur|gz|svg|svgz|mp4|ogg|ogv|webm|htc)$ {
+        expires 1M;
+        access_log off;
+        add_header Cache-Control "public";
+    }
+
+    # CSS and Javascript
+    location ~* \.(?:css|js)$ {
+        expires 1M;
+        access_log off;
+        add_header Cache-Control "public";
+    }
+
+    # WebFonts
+    location ~* \.(?:ttf|ttc|otf|eot|woff|woff2)$ {
+        expires 1M;
+        access_log off;
     }
 }
