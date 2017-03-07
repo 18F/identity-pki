@@ -32,6 +32,7 @@ action :create do
       email_encryption_key: (encrypted_config['email_encryption_key'] || node['login_dot_gov']['email_encryption_key']),
       email_from: node['login_dot_gov']['email_from'],
       enable_i18n_mode: node['login_dot_gov']['enable_i18n_mode'],
+      equifax_ssh_passphrase: encrypted_config['equifax_ssh_passphrase'],
       google_analytics_key: encrypted_config['google_analytics_key'],
       hmac_fingerprinter_key: encrypted_config['hmac_fingerprinter_key'],
       hmac_fingerprinter_key_queue: node['login_dot_gov']['hmac_fingerprinter_key_queue'],
@@ -93,6 +94,14 @@ action :create do
   file "#{name}/keys/saml.key.enc" do
     action :create
     content encrypted_config['saml.key.enc']
+    manage_symlink_source true
+    subscribes :create, 'resource[git]', :immediately
+    user node['login_dot_gov']['system_user']
+  end
+
+  file "#{name}/keys/equifax_rsa" do
+    action :create
+    content encrypted_config['equifax_ssh_privkey']
     manage_symlink_source true
     subscribes :create, 'resource[git]', :immediately
     user node['login_dot_gov']['system_user']

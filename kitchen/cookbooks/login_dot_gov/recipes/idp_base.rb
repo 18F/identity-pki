@@ -143,6 +143,7 @@ unless File.exist?(app_config) && File.symlink?(app_config) || node['login_dot_g
   execute 'cp /srv/idp/releases/chef/config/newrelic.yml /srv/idp/shared/config/'
   execute 'cp /srv/idp/releases/chef/certs/saml.crt /srv/idp/shared/certs/'
   execute 'cp /srv/idp/releases/chef/keys/saml.key.enc /srv/idp/shared/keys/'
+  execute 'cp /srv/idp/releases/chef/keys/equifax_rsa /srv/idp/shared/keys/'
 end
 
 # symlink chef release to current dir
@@ -166,7 +167,8 @@ shared_files = [
   'config/application.yml',
   'config/database.yml',
   'config/newrelic.yml',
-  'keys/saml.key.enc'
+  'keys/saml.key.enc',
+  'keys/equifax_rsa',
 ]
 
 shared_files.each do |file|
