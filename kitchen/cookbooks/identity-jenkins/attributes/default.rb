@@ -14,14 +14,12 @@ default['authorization']['sudo']['include_sudoers_d'] = true
 # list of plugns that we need to install
 default['identity-jenkins']['jenkns-plugins'] = [
   'git',
-  'ssh',
   'promoted-builds',
   'envinject',
   'credentials',
   'credentials-binding',
   'plain-credentials',
   'ssh-agent',
-  'matrix-auth',
   'parameterized-trigger',
   'chef-identity',
   'reverse-proxy-auth-plugin',

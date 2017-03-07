@@ -56,11 +56,11 @@ file '/var/lib/jenkins/jenkins.install.InstallUtil.lastExecVersion' do
 end
 
 # add plugins that we need to run our jobs
-node['identity-jenkins']['jenkns-plugins'].each do |plugin|
-  jenkins_plugin plugin do
-    notifies :restart, 'service[jenkins]'
-  end
-end
+#node['identity-jenkins']['jenkns-plugins'].each do |plugin|
+#  jenkins_plugin plugin do
+#    notifies :restart, 'service[jenkins]'
+#  end
+#end
 
 # XXX do it again to get upgrades?
 execute 'echo restarting jenkins' do
