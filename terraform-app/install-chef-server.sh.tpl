@@ -23,9 +23,9 @@ echo "127.0.0.1 chef.login.gov.internal" >> /etc/hosts
 
 # make sure we have curl
 apt-get update
-apt-get -y install curl
+apt-get -y install build-essential curl libffi-dev
 
-curl -s "https://packages.chef.io/files/stable/chef-server/12.12.0/ubuntu/14.04/chef-server-core_12.12.0-1_amd64.deb" -o "/tmp/chef-server.deb"
+curl -s "https://packages.chef.io/files/stable/chef-server/12.13.0/ubuntu/14.04/chef-server-core_12.13.0-1_amd64.deb" -o "/tmp/chef-server.deb"
 
 # install the chef-server deb
 dpkg -i /tmp/chef-server.deb || exit 1
