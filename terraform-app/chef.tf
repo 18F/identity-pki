@@ -66,6 +66,28 @@ resource "aws_instance" "chef" {
     command = "ssh -o StrictHostKeyChecking=no ubuntu@${aws_instance.chef.public_ip} sudo cat /root/login-dev-validator.pem > ~/.chef/${var.env_name}-login-dev-validator.pem"
   }
 
+  provisioner "chef"  {
+    attributes_json = <<-EOF
+    {
+      "set_fqdn": "chef.${var.env_name}.login.gov",
+      "login_dot_gov": {
+        "live_certs": "${var.live_certs}"
+      }
+    }
+    EOF
+    environment = "${var.env_name}"
+    run_list = [
+    ]
+    node_name = "chef.${var.env_name}"
+    secret_key = "${file("${var.chef_databag_key_path}")}"
+    server_url = "${var.chef_url}"
+    recreate_client = true
+    user_name = "${var.chef_id}"
+    user_key = "${file("${var.chef_id_key_path}")}"
+    version = "${var.chef_version}"
+    fetch_chef_certificates = true
+  }
+
 #  # lock the fw down so that we can only ssh in via the jumphost
 #  provisioner "file" {
 #    source = "chef-iptables.rules"

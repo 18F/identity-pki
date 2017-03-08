@@ -255,6 +255,12 @@ include_recipe 'apache2::mod_authn_file'
 include_recipe 'apache2::mod_authz_core'
 include_recipe 'apache2::mod_authz_user'
 include_recipe 'apache2::mod_auth_basic'
+%w{ status autoindex userdir info dav dav_fs }.each do |m|
+  apache_module m do
+    enable false
+  end
+end
+
 template '/etc/apache2/sites-available/kibanaproxy.conf' do
   source 'kibanaproxy.conf.erb'
   notifies :restart, 'service[apache2]'

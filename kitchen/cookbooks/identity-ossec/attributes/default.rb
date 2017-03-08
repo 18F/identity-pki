@@ -92,6 +92,10 @@ default['ossec']['conf']['all']['syscheck']['ignore'] = [
 
 default['ossec']['conf']['all']['localfile'] = [
   {'log_format' => 'syslog', 'location' => '/var/log/syslog'},
+  {'log_format' => 'syslog', 'location' => '/var/log/apache/error.log'},
+  {'log_format' => 'syslog', 'location' => '/var/log/apache/access.log'},
+  {'log_format' => 'syslog', 'location' => '/opt/nginx/logs/error.log'},
+  {'log_format' => 'syslog', 'location' => '/opt/nginx/logs/access.log'},
   {'log_format' => 'syslog', 'location' => '/var/log/auth.log'},
 ]
 

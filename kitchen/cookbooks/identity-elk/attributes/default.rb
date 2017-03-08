@@ -6,6 +6,8 @@ default['elk']['filebeat']['logfiles'] = [
   {'log' => '/var/log/auth.log', 'type' => 'syslog'},
   {'log' => '/var/lib/docker/aufs/mnt/*/var/log/*/*.log', 'type' => 'syslog'},
   {'log' => '/var/log/*/current', 'type' => 'log'},
+  {'log' => '/var/log/opscode/*/current', 'type' => 'cheflog'},
+  {'log' => '/var/log/opscode/*/*.log', 'type' => 'cheflog'},
   {'log' => '/var/log/postgres/*', 'type' => 'pglog'},
   {'log' => '/var/log/*/*.log', 'type' => 'syslog'}
 ]
