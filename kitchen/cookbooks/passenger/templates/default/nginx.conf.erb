@@ -38,13 +38,13 @@ http {
   limit_conn_zone       $binary_remote_addr zone=addr:5m;
   limit_conn addr       5;
   # Disable sending server versions
-  server_tokens off;
+  server_tokens '';
   # Prevent clickJacking attack
   add_header X-Frame-Options SAMEORIGIN;
   # Disable content-type sniffing
   add_header X-Content-Type-Options nosniff;
   # Enable XSS filter
-  add_header X-XSS-Protection "1; mode=block";
+  add_header X-XSS-Protection '1; mode=block';
 
   include sites.d/*.conf;
 
