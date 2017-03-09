@@ -310,7 +310,7 @@ template "#{elastalertdir}/config.yaml" do
   source 'elastalert_config.yaml.erb'
 end
 
-%w{invaliduser.yaml newsudo.yaml nologs.yaml failedlogins.yaml}.each do |t|
+%w{invaliduser.yaml newsudo.yaml nologs.yaml failedlogins.yaml unknownip.yaml}.each do |t|
   template "#{elastalertdir}/rules.d/#{t}" do
     source "elastalert_#{t}.erb"
     variables ({
@@ -329,7 +329,6 @@ end
 runit_service 'elastalert' do
   default_logger true
 end
-
   
 # set up the stuff that slurps in the vpc flow logs
 git '/usr/share/logstash-input-cloudwatch_logs' do

@@ -1,0 +1,27 @@
+name: SSH From Unknown IP
+type: any
+index: logstash-*
+alert_text: Somebody successfully authenticated from an IP address outside of the GSA cidr Block.
+owner: <%= @env %>
+filter:
+- query:
+    query_string:
+      query: 'source: "/var/log/auth.log"  AND ( "Accepted publickey for *"  OR "input_userauth_request: invalid user" ) "from"  NOT 159.142.* NOT 172.16.3*  NOT 127.0.0.1'
+alert:
+<% if ! @emails.empty? %>
+- "email"
+<% end %>
+<% if ! @webhook.nil? %>
+- "slack"
+<% end %>
+<% if ! @emails.empty? %>
+email:
+<%   @emails.each do |e| %>
+- "<%= e %>"
+<%   end %>
+<% end %>
+<% if ! @webhook.nil? %>
+slack_webhook_url: <%= @webhook %>
+slack_username_override: <%= "#{@env} alerts" %>
+slack_channel_override: <%= @slackchannel %>
+<% end %>
