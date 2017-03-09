@@ -10,12 +10,14 @@ events {
 include conf.d/*.conf;
 
 http {
+  passenger_min_instances <%= @passenger[:min_instances] %>;
+  passenger_max_instances_per_app <%= @passenger[:max_instances_per_app] %>;
+  passenger_max_pool_size <%= @passenger[:max_pool_size] %>;
+  passenger_pool_idle_time <%= @passenger[:pool_idle_time] %>;
   passenger_root <%= @passenger_root %>;
   passenger_ruby <%= @ruby_path %>;
-  passenger_max_pool_size <%= @passenger[:max_pool_size] %>;
-  passenger_min_instances <%= @passenger[:min_instances] %>;
-  passenger_pool_idle_time <%= @passenger[:pool_idle_time] %>;
-  passenger_max_instances_per_app <%= @passenger[:max_instances_per_app] %>;
+  passenger_show_version_in_header off;
+  passenger_user <%= @passenger_user %>;
 
   include mime.types;
   default_type application/octet-stream;
@@ -47,7 +49,6 @@ http {
   add_header X-XSS-Protection '1; mode=block';
 
   include sites.d/*.conf;
-
 }
 
 <% @passenger[:pre_start].each do |url| %>

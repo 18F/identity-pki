@@ -23,3 +23,4 @@ default[:passenger][:production][:worker_connections] = 1024
 default[:passenger][:production][:status_server] = true
 
 default[:passenger][:production][:version] = '5.0.30'
+default[:passenger][:production][:user] = 'nobody'

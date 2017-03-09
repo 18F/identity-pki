@@ -63,7 +63,8 @@ template "#{nginx_path}/conf/nginx.conf" do
     :passenger_root => "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/lib/ruby/gems/2.3.0/gems/passenger-#{node[:passenger][:production][:version]}",
     :ruby_path => "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/ruby",
     :passenger => node[:passenger][:production],
-    :pidfile => "/var/run/nginx.pid"
+    :pidfile => "/var/run/nginx.pid",
+    :passenger_user => node[:passenger][:production][:user]
   )
   notifies :run, 'bash[config_patch]'
 end
