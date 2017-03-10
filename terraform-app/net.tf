@@ -1,7 +1,7 @@
 resource "aws_elasticache_subnet_group" "idp" {
   name = "${var.name}-idp-cache-${var.env_name}"
   description = "Redis Subnet Group"
-  subnet_ids = ["${aws_subnet.db1.id}"]
+  subnet_ids = ["${aws_subnet.db1.id}","${aws_subnet.db2.id}"]
 }
 
 resource "aws_internet_gateway" "default" {
@@ -200,11 +200,9 @@ resource "aws_security_group" "elk" {
     cidr_blocks = [ 
       "${var.admin_subnet_cidr_block}",
       "${var.app1_subnet_cidr_block}",
-      "${var.app2_subnet_cidr_block}",
       "${var.idp1_subnet_cidr_block}",
       "${var.idp2_subnet_cidr_block}",
       "${var.idp3_subnet_cidr_block}",
-      "${var.idp4_subnet_cidr_block}",
       "${var.jumphost_subnet_cidr_block}"
     ]
   }
@@ -309,10 +307,8 @@ resource "aws_security_group" "idp" {
     to_port = 80
     protocol = "tcp"
     cidr_blocks = [
-      "${var.idp1_subnet_cidr_block}",
-      "${var.idp2_subnet_cidr_block}",
-      "${var.idp3_subnet_cidr_block}",
-      "${var.idp4_subnet_cidr_block}",
+      "${var.alb1_subnet_cidr_block}",
+      "${var.alb2_subnet_cidr_block}"
     ]
   }
 
@@ -321,10 +317,8 @@ resource "aws_security_group" "idp" {
     to_port = 443
     protocol = "tcp"
     cidr_blocks = [
-      "${var.idp1_subnet_cidr_block}",
-      "${var.idp2_subnet_cidr_block}",
-      "${var.idp3_subnet_cidr_block}",
-      "${var.idp4_subnet_cidr_block}",
+      "${var.alb1_subnet_cidr_block}",
+      "${var.alb2_subnet_cidr_block}"
     ]
   }
 
@@ -468,6 +462,48 @@ resource "aws_subnet" "idp2" {
   tags {
     client = "${var.client}"
     Name = "${var.name}-idp2_subnet-${var.env_name}"
+  }
+
+  vpc_id = "${aws_vpc.default.id}"
+}
+
+resource "aws_subnet" "chef" {
+  availability_zone = "${var.region}b"
+  cidr_block        = "${var.chef_subnet_cidr_block}"
+  depends_on = ["aws_internet_gateway.default"]
+  map_public_ip_on_launch = true
+
+  tags {
+    client = "${var.client}"
+    Name = "${var.name}-chef_subnet-${var.env_name}"
+  }
+
+  vpc_id = "${aws_vpc.default.id}"
+}
+
+resource "aws_subnet" "alb1" {
+  availability_zone = "${var.region}a"
+  cidr_block        = "${var.alb1_subnet_cidr_block}"
+  depends_on = ["aws_internet_gateway.default"]
+  map_public_ip_on_launch = true
+
+  tags {
+    client = "${var.client}"
+    Name = "${var.name}-alb1_subnet-${var.env_name}"
+  }
+
+  vpc_id = "${aws_vpc.default.id}"
+}
+
+resource "aws_subnet" "alb2" {
+  availability_zone = "${var.region}b"
+  cidr_block        = "${var.alb2_subnet_cidr_block}"
+  depends_on = ["aws_internet_gateway.default"]
+  map_public_ip_on_launch = true
+
+  tags {
+    client = "${var.client}"
+    Name = "${var.name}-alb2_subnet-${var.env_name}"
   }
 
   vpc_id = "${aws_vpc.default.id}"

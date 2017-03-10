@@ -1,7 +1,7 @@
 resource "aws_alb" "idp" {
   name = "${var.name}-idp-alb-${var.env_name}"
   security_groups = ["${aws_security_group.web.id}"]
-  subnets = ["${aws_subnet.idp1.id}", "${aws_subnet.idp2.id}"]
+  subnets = ["${aws_subnet.alb1.id}", "${aws_subnet.alb2.id}"]
 }
 
 resource "aws_alb_listener" "idp" {
