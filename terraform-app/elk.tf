@@ -56,6 +56,9 @@ resource "aws_iam_role_policy" "elk_iam_role_policy" {
 
 resource "aws_s3_bucket" "logbucket" {
   bucket = "login-gov-${var.env_name}-logs"
+  versioning {
+    enabled = true
+  }
 
   lifecycle_rule {
     id = "logexpire"

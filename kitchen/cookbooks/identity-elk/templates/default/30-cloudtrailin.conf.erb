@@ -4,11 +4,15 @@ input {
      bucket => "<%= @cloudtrail_logging_bucket %>"
      type => "cloudtrail"
      codec => "cloudtrail"
+     exclude_pattern => ".*\/CloudTrail\-Digest\/.*"
    }
 }
 
 filter {
   if [type] == "cloudtrail" {
+    mutate {
+      convert => { "additionalEventData" => "string" }
+    }
     mutate {
       gsub => [ "eventSource", "\.amazonaws\.com$", "" ]
       add_field => {

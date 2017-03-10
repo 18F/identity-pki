@@ -31,6 +31,7 @@ cookbook 'filebeat', '~> 0.4.2'
 cookbook 'elasticsearch-curator', '~> 0.1.3'
 cookbook 'elasticsearch', '~> 3.0.2'
 cookbook 'ossec', '~> 1.0.5', git: 'https://github.com/sous-chefs/ossec'
+cookbook 'squid', '~> 3.1', git: 'https://github.com/chef-cookbooks/squid'
 
 cookbook 'login_dot_gov', path: 'kitchen/cookbooks/login_dot_gov'
 cookbook 'passenger', path: 'kitchen/cookbooks/passenger'
