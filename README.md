@@ -403,6 +403,10 @@ to become more apparent so that we can devise a real fix.  Here is how to do tha
 curl -k -X DELETE https://es.login.gov.internal:9200/logstash-*
 ```
 
+You may also have to go into kibana and tell it to refresh it's index pattern if it has
+the old one.  ```https://elk.login.gov.internal:8443/app/kibana#/management/kibana/indices/logstash-*```
+Then click on the orange button that has the two arrows circling around to Refresh the Field List.
+
 #### DNS setup
 
 If you have not set up DNS, or you need to make changes, then you will need to run this:
