@@ -54,6 +54,11 @@ resource "aws_alb_target_group" "idp-ssl" {
   port     = 443
   protocol = "HTTPS"
   vpc_id   = "${aws_vpc.default.id}"
+
+  stickiness = {
+    type = "lb_cookie"
+    enabled = "true"
+  }
 }
 
 resource "aws_alb_target_group_attachment" "idp" {
@@ -108,4 +113,3 @@ resource "aws_route53_record" "c_alb_idp" {
   type = "CNAME"
   zone_id = "${var.route53_id}"
 }
-
