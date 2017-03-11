@@ -10,6 +10,10 @@ action :create do
       recursive true
     end
   end
+  
+  # Set app's domain name: (idp.<env>.login.gov)
+  domain_name = "idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
+  participate_in_dap = encrypted_config['google_analytics_key'].nil? ? 'false' : 'true'
 
   template "#{name}/config/application.yml" do
     action :create
@@ -26,9 +30,8 @@ action :create do
       aws_region: node['login_dot_gov']['aws_region'],
       dashboard_api_key: encrypted_config['dashboard_api_key'],
       dashboard_url: encrypted_config['dashboard_url'],
-      domain_name: "idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
+      domain_name: domain_name,
       enable_test_routes: node['login_dot_gov']['enable_test_routes'],
-      email_encryption_cost: node['login_dot_gov']['email_encryption_cost'],
       email_encryption_key: (encrypted_config['email_encryption_key'] || node['login_dot_gov']['email_encryption_key']),
       email_from: node['login_dot_gov']['email_from'],
       enable_i18n_mode: node['login_dot_gov']['enable_i18n_mode'],
@@ -41,7 +44,7 @@ action :create do
       idv_max_attempts: node['login_dot_gov']['idv_max_attempts'],
       logins_per_ip_limit: node['login_dot_gov']['logins_per_ip_limit'],
       logins_per_ip_period: node['login_dot_gov']['logins_per_ip_period'],
-      mailer_domain_name: node['login_dot_gov']['mailer_domain_name'],
+      mailer_domain_name: "https://#{domain_name}",
       min_password_score: node['login_dot_gov']['min_password_score'],
       password_max_attempts: node['login_dot_gov']['password_max_attempts'],
       newrelic_browser_app_id: encrypted_config['newrelic_browser_app_id'],
@@ -51,7 +54,7 @@ action :create do
       otp_delivery_blocklist_findtime: node['login_dot_gov']['otp_delivery_blocklist_findtime'],
       otp_delivery_blocklist_maxretry: node['login_dot_gov']['otp_delivery_blocklist_maxretry'],
       otp_valid_for: node['login_dot_gov']['otp_valid_for'],
-      participate_in_dap: node['login_dot_gov']['participate_in_dap'],
+      participate_in_dap: participate_in_dap,
       password_pepper: encrypted_config['password_pepper'],
       password_strength_enabled: node['login_dot_gov']['password_strength_enabled'],
       proofing_vendors: node['login_dot_gov']['proofing_vendors'],
