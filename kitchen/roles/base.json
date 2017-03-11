@@ -26,23 +26,6 @@
         "version": "1.0.2j"
       }
     },
-    "ssh_keys": {
-      "ubuntu": [
-        "astone",
-        "deploy",
-        "jgrevich",
-        "jpmugizi",
-        "monfresh",
-        "mzia",
-        "pkarman",
-        "tblack",
-        "tspencer",
-        "zmargolis"
-      ]
-    }
-  },
-  "override_attributes": {
-  },
   "chef_type": "role",
   "run_list": [
     "recipe[login_dot_gov::chage]",
@@ -68,4 +51,6 @@
   ],
   "env_run_lists": {
   }
+ }
 }
+

@@ -74,6 +74,21 @@
   "json_class": "Chef::Environment",
   "chef_type": "environment",
   "default_attributes": {
+    "ssh_keys": {
+      "ubuntu": [
+        "astone",
+        "deploy",
+        "jgrevich",
+        "jpmugizi",
+        "monfresh",
+        "mzia",
+        "pkarman",
+        "tblack",
+        "tspencer",
+        "zmargolis",
+        "jessie"
+      ]
+    }, 
     "elk": {
       "users": [
         "astone",
