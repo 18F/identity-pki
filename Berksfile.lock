@@ -138,7 +138,7 @@ GRAPH
     compat_resource (>= 12.16.3)
     runit (>= 1.7)
   letsencrypt (1.0.3)
-  login_dot_gov (0.0.17)
+  login_dot_gov (0.0.18)
     application_ruby (>= 0.0.1)
     newrelic (>= 0.0.1)
     passenger (>= 0.0.1)

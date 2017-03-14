@@ -41,6 +41,8 @@ end
 
 # install dependencies
 # TODO: JJG convert to platform agnostic way of installing packages to avoid case statement(s)
+execute "apt-get update"
+
 case
 when platform_family?('rhel')
   ['cyrus-sasl-devel',
