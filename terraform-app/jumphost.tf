@@ -17,11 +17,6 @@ resource "aws_instance" "jumphost" {
 
   vpc_security_group_ids = [ "${aws_security_group.jumphost.id}" ]
 
-  provisioner "file" {
-    source = "${var.nessus_server_path}"
-    destination = "/home/ubuntu/Nessus_amd64.deb"
-  }
-
   provisioner "chef"  {
     attributes_json = <<-EOF
     {
@@ -34,8 +29,7 @@ resource "aws_instance" "jumphost" {
     environment = "${var.env_name}"
     run_list = [
       "role[base]",
-      "recipe[identity-jumphost]",
-      "recipe[identity-nessus::server]"
+      "recipe[identity-jumphost]"
     ]
     node_name = "jumphost.${var.env_name}"
     secret_key = "${file("${var.chef_databag_key_path}")}"
