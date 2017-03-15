@@ -25,7 +25,8 @@
         "url": "http://www.openssl.org/source/openssl-1.0.2j.tar.gz",
         "version": "1.0.2j"
       }
-    },
+    }
+  },
   "chef_type": "role",
   "run_list": [
     "recipe[login_dot_gov::chage]",
@@ -51,6 +52,5 @@
   ],
   "env_run_lists": {
   }
- }
 }
 
