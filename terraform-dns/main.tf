@@ -63,85 +63,10 @@ resource "aws_route53_record" "a_chef" {
   zone_id = "${aws_route53_zone.primary.zone_id}"
 }
 
-
-# hardcode in old demo 
-resource "aws_route53_record" "a_demo" {
-  name = "demo.login.gov"
-  records = ["52.43.99.154"]
-  ttl = "300"
-  type = "A"
-  zone_id = "${aws_route53_zone.primary.zone_id}"
-}
-
-resource "aws_route53_record" "a_worker_demo" {
-  name = "demo-worker.login.gov"
-  records = ["52.43.126.82"]
-  ttl = "300"
-  type = "A"
-  zone_id = "${aws_route53_zone.primary.zone_id}"
-}
-
-resource "aws_route53_record" "c_dash_demo" {
-  name = "dashboard.demo.login.gov"
-  records = ["${aws_route53_record.a_demo.name}"]
+resource "aws_route53_record" "c_marketing_preview" {
+  name = "preview.login.gov"
+  records = ["d1xv3mp8jrwxno.cloudfront.net"]
   ttl = "300"
   type = "CNAME"
   zone_id = "${aws_route53_zone.primary.zone_id}"
 }
-
-resource "aws_route53_record" "c_idp_demo" {
-  name = "idp.demo.login.gov"
-  records = ["${aws_route53_record.a_demo.name}"]
-  ttl = "300"
-  type = "CNAME"
-  zone_id = "${aws_route53_zone.primary.zone_id}"
-}
-
-resource "aws_route53_record" "c_idv_demo" {
-  name = "idv.demo.login.gov"
-  records = ["${aws_route53_record.a_demo.name}"]
-  ttl = "300"
-  type = "CNAME"
-  zone_id = "${aws_route53_zone.primary.zone_id}"
-}
-
-resource "aws_route53_record" "c_rp_demo" {
-  name = "rp.demo.login.gov"
-  records = ["${aws_route53_record.a_demo.name}"]
-  ttl = "300"
-  type = "CNAME"
-  zone_id = "${aws_route53_zone.primary.zone_id}"
-}
-
-resource "aws_route53_record" "c_sppython_demo" {
-  name = "sp-python.demo.login.gov"
-  records = ["${aws_route53_record.a_demo.name}"]
-  ttl = "300"
-  type = "CNAME"
-  zone_id = "${aws_route53_zone.primary.zone_id}"
-}
-
-resource "aws_route53_record" "c_sprails_demo" {
-  name = "sp-rails.demo.login.gov"
-  records = ["${aws_route53_record.a_demo.name}"]
-  ttl = "300"
-  type = "CNAME"
-  zone_id = "${aws_route53_zone.primary.zone_id}"
-}
-
-resource "aws_route53_record" "c_spsinatra_demo" {
-  name = "sp-sinatra.demo.login.gov"
-  records = ["${aws_route53_record.a_demo.name}"]
-  ttl = "300"
-  type = "CNAME"
-  zone_id = "${aws_route53_zone.primary.zone_id}"
-}
-
-resource "aws_route53_record" "c_sp_demo" {
-  name = "sp.demo.login.gov"
-  records = ["${aws_route53_record.a_demo.name}"]
-  ttl = "300"
-  type = "CNAME"
-  zone_id = "${aws_route53_zone.primary.zone_id}"
-}
-
