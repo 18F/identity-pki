@@ -6,30 +6,9 @@ input {
   }
 }
 
-#filter {
-#  grok {
-#    match => { "message" => "%{TIMESTAMP_ISO8601}\t%{UUID:[lambda][request_id]}\t%{GREEDYDATA:message}" }
-#    overwrite => [ "message" ]
-#    tag_on_failure => []
-#  }
-#
-#  grok {
-#    match => { "message" => "(?:START|END) RequestId: %{UUID:[lambda][request_id]}" }
-#    tag_on_failure => []
-#  }
-#
-#  grok {
-#    match => { "message" => "REPORT RequestId: %{UUID:[lambda][request_id]}\tDuration: %{BASE16FLOAT:[lambda][duration]} ms\tBilled Duration: %{BASE16FLOAT:[lambda][billed_duration]} ms \tMemory Size: %{BASE10NUM:[lambda][memory_size]} MB\tMax Memory Used: %{BASE10NUM:[lambda][memory_used]} MB" }
-#    tag_on_failure => []
-#  }
-#
-#  mutate {
-#    convert => {
-#      "[lambda][duration]" => "integer"
-#      "[lambda][billed_duration]" => "integer"
-#      "[lambda][memory_size]" => "integer"
-#      "[lambda][memory_used]" => "integer"
-#    }
-#  }
-#}
+filter {
+  grok {
+    match => { "message" => "%{NUMBER:version} %{NUMBER:account-id} %{NOTSPACE:interface-id} %{NOTSPACE:srcaddr} %{NOTSPACE:dstaddr} %{NOTSPACE:srcport} %{NOTSPACE:dstport} %{NOTSPACE:protocol} %{NOTSPACE:packets} %{NOTSPACE:bytes} %{NUMBER:start} %{NUMBER:end} %{NOTSPACE:action} %{NOTSPACE:log-status}" }
+  }
+}
 
