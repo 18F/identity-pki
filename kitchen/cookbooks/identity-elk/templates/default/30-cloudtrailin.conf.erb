@@ -10,8 +10,8 @@ input {
 
 filter {
   if [type] == "cloudtrail" {
-    mutate {
-      convert => { "additionalEventData" => "string" }
+    ruby {
+      code => "event.set('additionalEventData', event.get('additionalEventData').inspect)"
     }
     mutate {
       gsub => [ "eventSource", "\.amazonaws\.com$", "" ]

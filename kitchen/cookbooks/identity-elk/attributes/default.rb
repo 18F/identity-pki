@@ -1,15 +1,17 @@
 # logfiles to watch
 default['elk']['filebeat']['logfiles'] = [
-  {'log' => '/srv/*/shared/log/*.log', 'type' => 'log'},
-  {'log' => '/opt/nginx/logs/*.log', 'type' => 'nginx-access'},
-  {'log' => '/var/log/syslog', 'type' => 'syslog'},
-  {'log' => '/var/log/auth.log', 'type' => 'syslog'},
-  {'log' => '/var/lib/docker/aufs/mnt/*/var/log/*/*.log', 'type' => 'syslog'},
-  {'log' => '/var/log/*/current', 'type' => 'log'},
-  {'log' => '/var/log/opscode/*/current', 'type' => 'cheflog'},
-  {'log' => '/var/log/opscode/*/*.log', 'type' => 'cheflog'},
-  {'log' => '/var/log/postgres/*', 'type' => 'pglog'},
-  {'log' => '/var/log/*/*.log', 'type' => 'syslog'}
+  {'log' => '/srv/*/shared/log/*.log', 'type' => 'log', 'format' => 'text'},
+  {'log' => '/srv/*/shared/log/events.log', 'type' => 'log', 'format' => 'json'},
+  {'log' => '/srv/*/shared/log/production.log', 'type' => 'log', 'format' => 'text'},
+  {'log' => '/opt/nginx/logs/*.log', 'type' => 'nginx-access', 'format' => 'text'},
+  {'log' => '/var/log/syslog', 'type' => 'syslog', 'format' => 'text'},
+  {'log' => '/var/log/auth.log', 'type' => 'syslog', 'format' => 'text'},
+  {'log' => '/var/lib/docker/aufs/mnt/*/var/log/*/*.log', 'type' => 'syslog', 'format' => 'text'},
+  {'log' => '/var/log/*/current', 'type' => 'log', 'format' => 'text'},
+  {'log' => '/var/log/opscode/*/current', 'type' => 'cheflog', 'format' => 'text'},
+  {'log' => '/var/log/opscode/*/*.log', 'type' => 'cheflog', 'format' => 'text'},
+  {'log' => '/var/log/postgres/*', 'type' => 'pglog', 'format' => 'text'},
+  {'log' => '/var/log/*/*.log', 'type' => 'syslog', 'format' => 'text'}
 ]
 
 # set filebeat to do logstash output

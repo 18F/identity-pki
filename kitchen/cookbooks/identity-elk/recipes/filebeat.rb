@@ -30,6 +30,11 @@ node['elk']['filebeat']['logfiles'].each do |logitem|
     scan_frequency '15s'
     harvester_buffer_size 16384
     fields 'type' => logfile
+    if logitem['format'] == 'json'
+      json_keys_under_root true
+      json_add_error_key true
+      json_message_key 'id'
+    end
     # XXX make sure to nuke this once the auditctl stuff is in the base image
     exclude_lines [ 'name=./var/lib/filebeat', 'exe=./usr/share/filebeat/bin/filebeat' ]
   end
