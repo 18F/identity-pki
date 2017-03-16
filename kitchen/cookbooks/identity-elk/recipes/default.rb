@@ -153,6 +153,10 @@ directory '/etc/logstash/tmp' do
   mode '0700'
 end
 
+# turn off the non-sv service
+execute 'service logstash stop || true'
+execute 'update-rc.d -f logstash remove'
+
 include_recipe 'runit'
 runit_service 'logstash' do
   default_logger true

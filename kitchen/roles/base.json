@@ -42,6 +42,7 @@
     "recipe[ruby_build]",
     "recipe[ssh-keys]",
     "recipe[sudo]",
+    "recipe[identity-elk::logcleanup]",
     "recipe[identity-elk::filebeat]",
     "recipe[identity-nessus::agent]",
     "recipe[identity-ossec]",
