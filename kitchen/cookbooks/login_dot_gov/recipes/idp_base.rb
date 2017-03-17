@@ -140,6 +140,7 @@ app_config = '/srv/idp/releases/chef/config/application.yml'
 unless File.exist?(app_config) && File.symlink?(app_config) || node['login_dot_gov']['setup_only']
   execute 'cp /srv/idp/releases/chef/config/application.yml /srv/idp/shared/config/'
   execute 'cp /srv/idp/releases/chef/config/database.yml /srv/idp/shared/config/'
+  execute 'cp /srv/idp/releases/chef/config/experiments.yml /srv/idp/shared/config/'
   execute 'cp /srv/idp/releases/chef/config/newrelic.yml /srv/idp/shared/config/'
   execute 'cp /srv/idp/releases/chef/certs/saml.crt /srv/idp/shared/certs/'
   execute 'cp /srv/idp/releases/chef/keys/saml.key.enc /srv/idp/shared/keys/'
@@ -166,9 +167,10 @@ shared_files = [
   'certs/saml.crt',
   'config/application.yml',
   'config/database.yml',
+  'config/experiments.yml',
   'config/newrelic.yml',
-  'keys/saml.key.enc',
   'keys/equifax_rsa',
+  'keys/saml.key.enc'
 ]
 
 shared_files.each do |file|

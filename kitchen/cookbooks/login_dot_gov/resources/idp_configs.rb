@@ -87,6 +87,13 @@ action :create do
     })
   end
 
+  template "#{name}/config/experiments.yml" do
+    action :create
+    manage_symlink_source true
+    subscribes :create, 'resource[git]', :immediately
+    user node['login_dot_gov']['system_user']
+  end
+
   cookbook_file "#{name}/certs/saml.crt" do
     action :create
     manage_symlink_source true
@@ -100,6 +107,7 @@ action :create do
     manage_symlink_source true
     subscribes :create, 'resource[git]', :immediately
     user node['login_dot_gov']['system_user']
+    sensitive true
   end
 
   file "#{name}/keys/equifax_rsa" do
@@ -108,5 +116,6 @@ action :create do
     manage_symlink_source true
     subscribes :create, 'resource[git]', :immediately
     user node['login_dot_gov']['system_user']
+    sensitive true
   end
 end
