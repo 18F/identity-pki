@@ -35,6 +35,7 @@ default['login_dot_gov']['domain_name']                               = 'login.g
 default['login_dot_gov']['dashboard_api_key']                         = ''
 default['login_dot_gov']['email_from']                                = 'no-reply@login.gov'
 default['login_dot_gov']['enable_i18n_mode']                          = 'false'
+default['login_dot_gov']['enable_identity_verification']              = 'false'
 default['login_dot_gov']['enable_test_routes']                        = 'false'
 default['login_dot_gov']['equifax_ssh_passphrase']                    = ''
 default['login_dot_gov']['google_analytics_key']                      = 'UA-XXXXXX'

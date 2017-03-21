@@ -10,7 +10,7 @@ action :create do
       recursive true
     end
   end
-  
+
   # Set app's domain name: (idp.<env>.login.gov)
   domain_name = "idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
   participate_in_dap = encrypted_config['google_analytics_key'].nil? ? 'false' : 'true'
@@ -35,6 +35,7 @@ action :create do
       email_encryption_key: (encrypted_config['email_encryption_key'] || node['login_dot_gov']['email_encryption_key']),
       email_from: node['login_dot_gov']['email_from'],
       enable_i18n_mode: node['login_dot_gov']['enable_i18n_mode'],
+      enable_identity_verification: node['login_dot_gov']['enable_identity_verification'],
       equifax_ssh_passphrase: encrypted_config['equifax_ssh_passphrase'],
       google_analytics_key: encrypted_config['google_analytics_key'],
       hmac_fingerprinter_key: encrypted_config['hmac_fingerprinter_key'],
