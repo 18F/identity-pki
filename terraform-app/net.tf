@@ -21,11 +21,36 @@ resource "aws_route" "default" {
 resource "aws_security_group" "app" {
   description = "Allow inbound web traffic and whitelisted IP(s) for SSH"
 
+  # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
   egress {
     from_port = 0
     to_port = 65535
     protocol = "tcp"
+    cidr_blocks = ["${var.vpc_cidr_block}"]
+  }
+
+  # need 80/443 to get packages/gems/etc
+  egress {
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # need 80/443 to get packages/gems/etc
+  egress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # github
+  egress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["192.30.252.0/22"]
   }
 
   ingress {
@@ -95,11 +120,36 @@ resource "aws_security_group" "cache" {
 resource "aws_security_group" "chef" {
   description = "Allow inbound chef traffic and whitelisted IPs for SSH"
 
+  # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
   egress {
     from_port = 0
     to_port = 65535
     protocol = "tcp"
+    cidr_blocks = ["${var.vpc_cidr_block}"]
+  }
+
+  # need 80/443 to get packages/gems/etc
+  egress {
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # need 80/443 to get packages/gems/etc
+  egress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # github
+  egress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["192.30.252.0/22"]
   }
 
   ingress {
@@ -178,11 +228,36 @@ resource "aws_security_group" "elk" {
   depends_on = ["aws_internet_gateway.default"]
   description = "Allow inbound traffic to ELK from whitelisted IPs for SSH and app security group"
 
+  # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
   egress {
     from_port = 0
     to_port = 65535
     protocol = "tcp"
+    cidr_blocks = ["${var.vpc_cidr_block}"]
+  }
+
+  # need 80/443 to get packages/gems/etc
+  egress {
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # need 80/443 to get packages/gems/etc
+  egress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # github
+  egress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["192.30.252.0/22"]
   }
 
   ingress {
@@ -234,11 +309,36 @@ resource "aws_security_group" "elk" {
 resource "aws_security_group" "jenkins" {
   description = "Allow inbound traffic to ELK from whitelisted IPs for SSH and app security group"
 
+  # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
   egress {
     from_port = 0
     to_port = 65535
     protocol = "tcp"
+    cidr_blocks = ["${var.vpc_cidr_block}"]
+  }
+
+  # need 80/443 to get packages/gems/etc
+  egress {
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # need 80/443 to get packages/gems/etc
+  egress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # github
+  egress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["192.30.252.0/22"]
   }
 
   ingress {
@@ -268,11 +368,36 @@ resource "aws_security_group" "jenkins" {
 resource "aws_security_group" "jumphost" {
   description = "Allow inbound jumphost traffic: whitelisted IPs for SSH"
 
+  # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
   egress {
     from_port = 0
     to_port = 65535
     protocol = "tcp"
+    cidr_blocks = ["${var.vpc_cidr_block}"]
+  }
+
+  # need 80/443 to get packages/gems/etc
+  egress {
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # need 80/443 to get packages/gems/etc
+  egress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # github
+  egress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["192.30.252.0/22"]
   }
 
   ingress {
@@ -295,9 +420,42 @@ resource "aws_security_group" "jumphost" {
 resource "aws_security_group" "idp" {
   description = "Allow inbound web traffic and whitelisted IP(s) for SSH"
 
+  # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
   egress {
     from_port = 0
     to_port = 65535
+    protocol = "tcp"
+    cidr_blocks = ["${var.vpc_cidr_block}"]
+  }
+
+  # need 80/443 to get packages/gems/etc
+  egress {
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # need 80/443 to get packages/gems/etc
+  egress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # github
+  egress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["192.30.252.0/22"]
+  }
+
+  # email (smtp.mandrillapp.com seems not to have a fixed IP range)
+  egress {
+    from_port = 587
+    to_port = 587
     protocol = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -343,11 +501,36 @@ resource "aws_security_group" "web" {
   description = "Security group for web that allows web traffic from internet"
   vpc_id = "${aws_vpc.default.id}"
 
+  # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
   egress {
     from_port = 0
     to_port = 65535
     protocol = "tcp"
+    cidr_blocks = ["${var.vpc_cidr_block}"]
+  }
+
+  # need 80/443 to get packages/gems/etc
+  egress {
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # need 80/443 to get packages/gems/etc
+  egress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # github
+  egress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["192.30.252.0/22"]
   }
 
   ingress {
