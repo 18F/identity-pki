@@ -75,7 +75,9 @@
   "chef_type": "environment",
   "default_attributes": {
     "login_dot_gov": {
-      "enable_identity_verification": "true"
+      "branch_name": "stages/rc-2017-03-29",
+      "enable_identity_verification": "true",
+      "use_kms": "true"
     },
     "ssh_keys": {
       "ubuntu": [

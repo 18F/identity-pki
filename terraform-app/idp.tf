@@ -1,3 +1,13 @@
+resource "aws_iam_role" "idp" {
+  name = "${var.env_name}_idp_iam_role"
+  assume_role_policy = "${data.aws_iam_policy_document.assume_role_from_vpc.json}"
+}
+
+resource "aws_iam_instance_profile" "idp" {
+  name = "${var.env_name}_idp_instance_profile"
+  roles = ["${aws_iam_role.idp.name}"]
+}
+
 resource "aws_instance" "idp1" {
   ami = "${var.ami_id}"
   count = "${var.idp_node_count}"
@@ -5,6 +15,7 @@ resource "aws_instance" "idp1" {
   instance_type = "${var.instance_type_idp}"
   key_name = "${var.key_name}"
   subnet_id = "${aws_subnet.idp1.id}"
+  iam_instance_profile = "${aws_iam_instance_profile.idp.id}"
 
   tags {
     client = "${var.client}"
@@ -61,6 +72,7 @@ resource "aws_instance" "idp2" {
   instance_type = "${var.instance_type_idp}"
   key_name = "${var.key_name}"
   subnet_id = "${aws_subnet.idp2.id}"
+  iam_instance_profile = "${aws_iam_instance_profile.idp.id}"
 
   tags {
     client = "${var.client}"
@@ -127,6 +139,7 @@ resource "aws_instance" "idp_worker" {
   instance_type = "${var.instance_type_worker}"
   key_name = "${var.key_name}"
   subnet_id = "${aws_subnet.idp1.id}"
+  iam_instance_profile = "${aws_iam_instance_profile.idp.id}"
 
   tags {
     client = "${var.client}"
@@ -206,11 +219,6 @@ resource "aws_elasticache_cluster" "idp" {
   port = 6379
   security_group_ids = ["${aws_security_group.cache.id}"]
   subnet_group_name = "${aws_elasticache_subnet_group.idp.name}"
-
-  tags {
-    client = "${var.client}"
-    Name = "${var.name}-elasticache_cluster-${var.env_name}"
-  }
 }
 
 resource "aws_route53_record" "redis" {

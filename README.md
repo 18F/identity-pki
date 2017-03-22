@@ -235,7 +235,7 @@ The first time you deploy everything, you'll have to go manually lock down a cou
   * Disallow ubuntu user from non-localhost locations on the jumphost.  To do this, you will need to set
     the ```default['login_dot_gov']['lockdown']``` attribute to be true, and then chef-client on the bastion host.   
   * Do a chef-client on the chef-server to get it logging: ```chef-client -r 'role[base]'```
-  * Enable ELK:  ```knife node run_list add elk.<env> 'recipe[identity-elk]' ; knife ssh elk sudo chef-client```
+  * Enable ELK:  ```knife node run_list add elk.<env> 'recipe[identity-elk]' ; ssh elk sudo chef-client```
 
 #### Jumphost usage!  IMPORTANT!
 

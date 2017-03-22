@@ -87,34 +87,38 @@
         "tspencer",
         "zmargolis"
       ]
+    },
+    "filebeat": {
+      "version": "5.2.0"
+    },
+    "login_dot_gov": {
+      "aws_kms_key_id": "alias/dm-login-dot-gov-keymaker",
+      "aws_region": "us-west-2"
+    },
+    "identity-jenkins": {
+      "users": [
+        "monfresh"
+      ],
+      "admins": [
+        "astone",
+        "jgrevich",
+        "jpmugizi",
+        "tspencer"
+      ]
+    },
+    "terraform": {
+      "version": "0.8.8",
+      "zipfile": "terraform_0.8.8_linux_amd64.zip"
+    },
+    "elk": {
+      "users": [
+        "astone",
+        "jgrevich",
+        "jpmugizi",
+        "monfresh",
+        "tspencer"
+      ]
     }
-  },
-  "elk": {
-    "users": [
-      "astone",
-      "jgrevich",
-      "jpmugizi",
-      "monfresh",
-      "tspencer"
-    ]
-  },
-  "filebeat": {
-    "version": "5.2.0"
-  },
-  "identity-jenkins": {
-    "users": [
-      "monfresh"
-    ],
-    "admins": [
-      "astone",
-      "jgrevich",
-      "jpmugizi",
-      "tspencer"
-    ]
-  },
-  "terraform": {
-    "version": "0.8.5",
-    "zipfile": "terraform_0.8.5_linux_amd64.zip"
   },
   "override_attributes": {
 

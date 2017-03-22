@@ -1,4 +1,5 @@
 variable "app_sg_ssh_cidr_blocks" { type="list" }
+variable "power_users" { type="list" }
 variable "admin_subnet_cidr_block" { default = "172.16.33.16/28"} # 172.16.33.16 - 172.16.33.31
 variable "app1_subnet_cidr_block"  { default = "172.16.33.96/28" } # 172.16.33.96 - 172.16.33.111
 variable "spare_subnet_cidr_block"  { default = "172.16.33.112/28" } # 172.16.33.112 - 172.16.33.115
@@ -44,3 +45,4 @@ variable "live_certs" {}
 variable "name" { default = "login" }
 variable "nessus_server_path" { default = "../Nessus-6.10.0-ubuntu1110_amd64.deb" }
 variable "region" { default = "us-west-2" }
+

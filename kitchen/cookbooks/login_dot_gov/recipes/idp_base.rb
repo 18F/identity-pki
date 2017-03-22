@@ -71,8 +71,8 @@ application release_path do
   group node['login_dot_gov']['system_user']
   ruby node['login_dot_gov']['ruby_version']
 
-  # branch is 'master'(default) when env is dev, otherwise use stages/env
-  branch_name = (node.chef_environment == 'dev' ? node['login_dot_gov']['branch_name'] : "stages/#{node.chef_environment}")
+  # branch is defined as an attribute or defaults to stages/<env>
+  branch_name = node['login_dot_gov']['branch_name'] || "stages/#{node.chef_environment}"
 
   git do
     repository 'https://github.com/18F/identity-idp.git'
