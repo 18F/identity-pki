@@ -75,6 +75,8 @@
   "chef_type": "environment",
   "default_attributes": {
     "login_dot_gov": {
+      "aws_kms_key_id": "alias/dev-login-dot-gov-keymaker",
+      "aws_region": "us-west-2",
       "branch_name": "master",
       "enable_identity_verification": "true",
       "use_kms": "true"
