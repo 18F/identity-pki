@@ -40,13 +40,13 @@ end
 template "#{deploy_dir}/api/deploy.json" do
   owner node['login_dot_gov']['user']
   source 'deploy.json.erb'
-  variables ({
+  variables lazy { ({
     env: node.chef_environment,
     branch: branch_name,
     user: 'chef',
-    sha: lazy { ::File.read("#{base_dir}/releases/chef/.git/refs/heads/#{branch_name}").chomp } ,
+    sha: ::File.read("#{base_dir}/releases/chef/.git/refs/remotes/origin/#{branch_name}").chomp,
     timestamp: ::Time.new.strftime("%Y%m%d%H%M%S")
-  })
+  })}
 end
 
 execute "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle exec whenever --update-crontab" do
