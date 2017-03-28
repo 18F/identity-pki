@@ -8,6 +8,8 @@ resource "aws_db_instance" "default" {
   instance_class = "${var.rds_instance_class}"
   password = "${var.rds_password}"
   username = "${var.rds_username}"
+  backup_retention_period = "${var.rds_backup_retention_period}"
+  backup_window = "${var.rds_backup_window}"
 
   tags {
     client = "${var.client}"
