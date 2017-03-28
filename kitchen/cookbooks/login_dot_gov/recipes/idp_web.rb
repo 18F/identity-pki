@@ -8,7 +8,7 @@ basic_auth_config 'generate basic auth config' do
 end
 
 # branch is 'master'(default) when env is dev, otherwise use stages/env 
-branch_name = (node.chef_environment == 'dev' ? node['login_dot_gov']['branch_name'] : "stages/#{node.chef_environment}")
+branch_name = node['login_dot_gov']['branch_name'] || "stages/#{node.chef_environment}"
 base_dir = '/srv/idp'
 deploy_dir = "#{base_dir}/current/public"
 
