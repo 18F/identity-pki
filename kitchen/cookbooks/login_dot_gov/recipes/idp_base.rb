@@ -135,16 +135,20 @@ application release_path do
   end
 end
 
-# cp generated configs from chef to the shared dir on first run
-app_config = '/srv/idp/releases/chef/config/application.yml'
-unless File.exist?(app_config) && File.symlink?(app_config) || node['login_dot_gov']['setup_only']
-  execute 'cp /srv/idp/releases/chef/config/application.yml /srv/idp/shared/config/'
-  execute 'cp /srv/idp/releases/chef/config/database.yml /srv/idp/shared/config/'
-  execute 'cp /srv/idp/releases/chef/config/experiments.yml /srv/idp/shared/config/'
-  execute 'cp /srv/idp/releases/chef/config/newrelic.yml /srv/idp/shared/config/'
-  execute 'cp /srv/idp/releases/chef/certs/saml.crt /srv/idp/shared/certs/'
-  execute 'cp /srv/idp/releases/chef/keys/saml.key.enc /srv/idp/shared/keys/'
-  execute 'cp /srv/idp/releases/chef/keys/equifax_rsa /srv/idp/shared/keys/'
+# cp generated configs from chef to the shared dir
+app_config = {
+  '/srv/idp/releases/chef/config/application.yml' => '/srv/idp/shared/config/',
+  '/srv/idp/releases/chef/config/database.yml' => '/srv/idp/shared/config/',
+  '/srv/idp/releases/chef/config/experiments.yml' => '/srv/idp/shared/config/',
+  '/srv/idp/releases/chef/config/newrelic.yml' => '/srv/idp/shared/config/',
+  '/srv/idp/releases/chef/certs/saml.crt' => '/srv/idp/shared/certs/',
+  '/srv/idp/releases/chef/keys/saml.key.enc' => '/srv/idp/shared/keys/',
+  '/srv/idp/releases/chef/keys/equifax_rsa' => '/srv/idp/shared/keys/'
+}
+app_config.keys.each do |config|
+  unless File.exist?(config) && File.symlink?(config) || node['login_dot_gov']['setup_only']
+    execute "cp #{config} #{app_config[config]}"
+  end
 end
 
 # symlink chef release to current dir
