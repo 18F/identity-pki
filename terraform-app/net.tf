@@ -45,6 +45,14 @@ resource "aws_security_group" "app" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # need ntp outbound
+  egress {
+    from_port = 123
+    to_port = 123
+    protocol = "udp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   # github
   egress {
     from_port = 22
@@ -150,6 +158,14 @@ resource "aws_security_group" "chef" {
     to_port = 22
     protocol = "tcp"
     cidr_blocks = ["192.30.252.0/22"]
+  }
+
+  # need ntp outbound
+  egress {
+    from_port = 123
+    to_port = 123
+    protocol = "udp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
@@ -260,6 +276,14 @@ resource "aws_security_group" "elk" {
     cidr_blocks = ["192.30.252.0/22"]
   }
 
+  # need ntp outbound
+  egress {
+    from_port = 123
+    to_port = 123
+    protocol = "udp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   ingress {
     from_port = 22
     to_port = 22
@@ -341,6 +365,14 @@ resource "aws_security_group" "jenkins" {
     cidr_blocks = ["192.30.252.0/22"]
   }
 
+  # need ntp outbound
+  egress {
+    from_port = 123
+    to_port = 123
+    protocol = "udp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   ingress {
     from_port = 22
     to_port = 22
@@ -400,6 +432,14 @@ resource "aws_security_group" "jumphost" {
     cidr_blocks = ["192.30.252.0/22"]
   }
 
+  # need ntp outbound
+  egress {
+    from_port = 123
+    to_port = 123
+    protocol = "udp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   ingress {
     from_port = 22
     to_port = 22
@@ -457,6 +497,14 @@ resource "aws_security_group" "idp" {
     from_port = 587
     to_port = 587
     protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # need ntp outbound
+  egress {
+    from_port = 123
+    to_port = 123
+    protocol = "udp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -531,6 +579,14 @@ resource "aws_security_group" "web" {
     to_port = 22
     protocol = "tcp"
     cidr_blocks = ["192.30.252.0/22"]
+  }
+
+  # need ntp outbound
+  egress {
+    from_port = 123
+    to_port = 123
+    protocol = "udp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {

@@ -11,6 +11,24 @@ resource "aws_network_acl" "app" {
     action = "allow"
   }
 
+  # allow ntp (if only NACLs let us specify source ports)
+  egress {
+    from_port = 123
+    to_port = 123
+    protocol = "udp"
+    cidr_block = "0.0.0.0/0"
+    rule_no = 20
+    action = "allow"
+  }
+  ingress {
+    from_port = 0
+    to_port = 65535
+    protocol = "udp"
+    rule_no = 5
+    action = "allow"
+    cidr_block = "0.0.0.0/0"
+  }
+
   # allow traffic back in from when hosts here initiate connections
   # to the internet for packages and so on (ephemeral ports)
   ingress {
@@ -112,6 +130,24 @@ resource "aws_network_acl" "admin" {
     cidr_block = "0.0.0.0/0"
   }
 
+  # allow ntp (if only NACLs let us specify source ports)
+  egress {
+    from_port = 123
+    to_port = 123
+    protocol = "udp"
+    cidr_block = "0.0.0.0/0"
+    rule_no = 20
+    action = "allow"
+  }
+  ingress {
+    from_port = 0
+    to_port = 65535
+    protocol = "udp"
+    rule_no = 5
+    action = "allow"
+    cidr_block = "0.0.0.0/0"
+  }
+
   # allow traffic back in from when hosts here initiate connections
   # to the internet for packages and so on (ephemeral ports)
   ingress {
@@ -184,6 +220,24 @@ resource "aws_network_acl" "chef" {
     cidr_block = "0.0.0.0/0"
   }
 
+  # allow ntp (if only NACLs let us specify source ports)
+  egress {
+    from_port = 123
+    to_port = 123
+    protocol = "udp"
+    cidr_block = "0.0.0.0/0"
+    rule_no = 20
+    action = "allow"
+  }
+  ingress {
+    from_port = 0
+    to_port = 65535
+    protocol = "udp"
+    rule_no = 5
+    action = "allow"
+    cidr_block = "0.0.0.0/0"
+  }
+
   # allow traffic back in from when hosts here initiate connections
   # to the internet for packages and so on (ephemeral ports)
   ingress {
@@ -250,6 +304,24 @@ resource "aws_network_acl" "jumphost" {
     cidr_block = "0.0.0.0/0"
   }
 
+  # allow ntp (if only NACLs let us specify source ports)
+  egress {
+    from_port = 123
+    to_port = 123
+    protocol = "udp"
+    cidr_block = "0.0.0.0/0"
+    rule_no = 20
+    action = "allow"
+  }
+  ingress {
+    from_port = 0
+    to_port = 65535
+    protocol = "udp"
+    rule_no = 5
+    action = "allow"
+    cidr_block = "0.0.0.0/0"
+  }
+
   # allow traffic back in from when hosts here initiate connections
   # to the internet for packages and so on (ephemeral ports)
   ingress {
@@ -288,6 +360,24 @@ resource "aws_network_acl" "idp" {
     to_port = 65535
     protocol = "tcp"
     rule_no = 10
+    action = "allow"
+    cidr_block = "0.0.0.0/0"
+  }
+
+  # allow ntp (if only NACLs let us specify source ports)
+  egress {
+    from_port = 123
+    to_port = 123
+    protocol = "udp"
+    cidr_block = "0.0.0.0/0"
+    rule_no = 20
+    action = "allow"
+  }
+  ingress {
+    from_port = 0
+    to_port = 65535
+    protocol = "udp"
+    rule_no = 5
     action = "allow"
     cidr_block = "0.0.0.0/0"
   }
