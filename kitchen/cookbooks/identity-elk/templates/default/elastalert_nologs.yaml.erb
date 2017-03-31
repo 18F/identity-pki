@@ -4,6 +4,8 @@ index: logstash-*
 alert_text: logs seem to have stopped entirely!
 owner: <%= @env %>
 threshold: 10
+realert:
+    hours: 2
 doc_type: syslog
 timeframe:
     minutes: 10
