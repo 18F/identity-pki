@@ -320,8 +320,8 @@ end
     variables ({
       :env => node.chef_environment,
       :emails => node['elk']['elastalert']['emails'],
-      :webhook => node['elk']['elastalert']['slackwebhook'],
-      :slackchannel => node['elk']['elastalert']['slackchannel']
+      :webhook => Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['slackwebhook'],
+      :slackchannel => Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['slackchannel']
     })
   end
 end

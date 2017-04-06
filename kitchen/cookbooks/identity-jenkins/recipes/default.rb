@@ -60,14 +60,7 @@ file '/var/lib/jenkins/jenkins.install.InstallUtil.lastExecVersion' do
   action :create_if_missing
 end
 
-# add plugins that we need to run our jobs
-#node['identity-jenkins']['jenkns-plugins'].each do |plugin|
-#  jenkins_plugin plugin do
-#    notifies :restart, 'service[jenkins]'
-#  end
-#end
-
-# XXX do it again to get upgrades?
+# XXX restart again to get upgrades?
 execute 'echo restarting jenkins' do
   notifies :restart, 'service[jenkins]', :immediately
 end
@@ -133,6 +126,20 @@ jenkins_private_key_credentials 'github-deploy' do
   id          'github-deploy'
   description 'Deploy key for pulling from git'
   private_key Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['jenkins_ssh_privkey']
+  # remove this once https://github.com/chef-cookbooks/jenkins/issues/561 is fixed upstream
+  ignore_failure true
+end
+
+
+webhook = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['slackwebhook']
+webhookbase = webhook.split(/services\//)[0] + 'services/'
+webhookkey  = webhook.split(/services\//)[1]
+slackchannel = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['slackchannel']
+slackdomain = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['slackdomain']
+jenkins_secret_text_credentials 'slack' do
+  id          'slack'
+  description 'Slack webhook key'
+  secret      webhookkey
 end
 
 ssh_known_hosts_entry 'github.com'
@@ -153,7 +160,9 @@ end
 jenkins_private_key_credentials 'deploy' do
   id          'deploy'
   description 'Deploy key for capistrano'
-  private_key Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['jenkins_ssh_privkey']
+  private_key lazy { File.read(deploykey_path).chomp }
+  # remove this once https://github.com/chef-cookbooks/jenkins/issues/561 is fixed upstream
+  ignore_failure true
 end
 
 # set up terraform on the host
@@ -191,24 +200,8 @@ template File.join(Chef::Config[:file_cache_path], 'login-env.sh') do
   mode '0755'
 end
 
-xml = File.join(Chef::Config[:file_cache_path], 'infrastructure-config.xml')
-template xml do
-  source 'infrastructure-config.xml.erb'
-end
-jenkins_job "terraform" do
-  config xml
-end
-
 gem_package 'berkshelf' do
   gem_binary "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/gem"
-end
-
-xml = File.join(Chef::Config[:file_cache_path], 'chefclient-config.xml')
-template xml do
-  source 'chefclient-config.xml.erb'
-end
-jenkins_job "chef" do
-  config xml
 end
 
 package 'postgresql-client-9.3'
@@ -232,18 +225,46 @@ execute "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bun
   cwd idp_path
 end
 
-codexml = File.join(Chef::Config[:file_cache_path], 'code-config.xml')
-template codexml do
-  source 'code-config.xml.erb'
+xml = File.join(Chef::Config[:file_cache_path], 'infrastructure-config.xml')
+template xml do
+  source 'infrastructure-config.xml.erb'
+  variables ({
+    :env => node.chef_environment,
+    :branch => node['identity-devops']['branch_name'] || "stages/#{node.chef_environment}"
+  })
 end
-jenkins_job "code" do
+#jenkins_job "terraform" do
+#  config xml
+#end
+
+package 'jq'
+codexml = File.join(Chef::Config[:file_cache_path], 'idp-config.xml')
+template codexml do
+  source 'idp-config.xml.erb'
+  variables ({
+    :env => node.chef_environment,
+    :branch => node['login_dot_gov']['branch_name'] || "stages/#{node.chef_environment}",
+    :baseurl => webhookbase,
+    :teamdomain => slackdomain,
+    :slackchannel => slackchannel
+  })
+end
+jenkins_job "Deploy identity-idp to #{node.chef_environment}" do
   config codexml
 end
 
-codexml = File.join(Chef::Config[:file_cache_path], 'stack-config.xml')
+codexml = File.join(Chef::Config[:file_cache_path], 'devops-config.xml')
 template codexml do
-  source 'stack-config.xml.erb'
+  source 'devops-config.xml.erb'
+  variables ({
+    :env => node.chef_environment,
+    :branch => node['identity-devops']['branch_name'] || "stages/#{node.chef_environment}",
+    :baseurl => webhookbase,
+    :teamdomain => slackdomain,
+    :slackchannel => slackchannel
+  })
 end
-jenkins_job "Deploy stack to #{node.chef_environment}" do
+jenkins_job "Deploy identity-devops to #{node.chef_environment}" do
   config codexml
 end
+

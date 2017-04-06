@@ -70,6 +70,16 @@ resource "aws_network_acl" "app" {
     action = "allow"
   }
 
+  # ssh in from jenkins
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_block = "${var.admin_subnet_cidr_block}"
+    rule_no = 50
+    action = "allow"
+  }
+
   tags {
     client = "${var.client}"
     Name = "${var.name}-app_network_acl-${var.env_name}"
@@ -167,6 +177,16 @@ resource "aws_network_acl" "admin" {
     rule_no = 20
     action = "allow"
     cidr_block = "${var.jumphost_subnet_cidr_block}"
+  }
+
+  # ssh in from jenkins
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_block = "${var.admin_subnet_cidr_block}"
+    rule_no = 25
+    action = "allow"
   }
 
   # need to allow filebeat to get to logstash
@@ -273,6 +293,16 @@ resource "aws_network_acl" "chef" {
     cidr_block = "${var.jumphost_subnet_cidr_block}"
   }
 
+  # ssh in from jenkins
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_block = "${var.admin_subnet_cidr_block}"
+    rule_no = 35
+    action = "allow"
+  }
+
   # allow everybody in the VPC to chef
   ingress {
     from_port = 443
@@ -343,6 +373,16 @@ resource "aws_network_acl" "jumphost" {
     # XXX this is kinda a hack.  These rules don't allow multiple nets.
     # 0 _should_ be the GSA cidr block.
     cidr_block = "${element(var.app_sg_ssh_cidr_blocks,0)}"
+  }
+
+  # ssh in from jenkins
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_block = "${var.admin_subnet_cidr_block}"
+    rule_no = 30
+    action = "allow"
   }
 
   tags {
@@ -418,6 +458,16 @@ resource "aws_network_acl" "idp" {
     rule_no = 40
     action = "allow"
     cidr_block = "${var.jumphost_subnet_cidr_block}"
+  }
+
+  # ssh in from jenkins
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_block = "${var.admin_subnet_cidr_block}"
+    rule_no = 50
+    action = "allow"
   }
 
   tags {

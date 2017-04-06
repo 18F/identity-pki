@@ -3,6 +3,8 @@ execute "mount -o remount,exec,nosuid,nodev /tmp"
 # setup idp app
 release_path = '/srv/idp/releases/chef'
 
+package 'jq'
+
 file '/root/.ssh/id_rsa.pub' do
   content Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['jenkins_equifax_gem_pubkey']
   user  'root'

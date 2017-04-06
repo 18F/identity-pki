@@ -23,5 +23,10 @@ default['identity-jenkins']['jenkns-plugins'] = [
   'parameterized-trigger',
   'chef-identity',
   'reverse-proxy-auth-plugin',
-  'rebuild'
+  'rebuild',
+  'slack'
 ]
+
+# Default branch to build identity-devops off of
+default['identity-devops']['branch_name'] = 'master'
+

@@ -1,5 +1,5 @@
 {
-  "name": "tf",
+  "name": "jp",
   "description": "",
   "cookbook_versions": {
     "7-zip": "= 1.0.2",
@@ -81,6 +81,15 @@
     "login_dot_gov": {
       "branch_name": "stages/rc-2017-03-29"
     },
+    "elk": {
+      "users": [
+        "astone",
+        "jgrevich",
+        "jpmugizi",
+        "monfresh",
+        "tspencer"
+      ]
+    },
     "filebeat": {
       "version": "5.2.0"
     },
@@ -96,25 +105,8 @@
       ]
     },
     "terraform": {
-      "version": "0.8.8",
-      "zipfile": "terraform_0.8.8_linux_amd64.zip"
-    },
-    "elk": {
-      "users": [
-        "astone",
-        "jgrevich",
-        "jpmugizi",
-        "monfresh",
-        "sverch",
-        "tspencer",
-        "mzia",
-        "pkarman",
-        "sverch",
-        "dnesting",
-        "tblack",
-        "zmargolis",
-        "jessie"
-      ]
+      "version": "0.8.5",
+      "zipfile": "terraform_0.8.5_linux_amd64.zip"
     }
   },
   "override_attributes": {

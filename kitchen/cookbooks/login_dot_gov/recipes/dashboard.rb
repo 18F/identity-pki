@@ -46,6 +46,7 @@ deploy "#{base_dir}" do
   action :deploy
 
   before_symlink do
+    execute "cp #{base_dir}/shared/config/application.yml #{release_path}/config/application.yml"
     # cp generated configs from chef to the shared dir on first run
     app_config = "#{base_dir}/shared/config/secrets.yml"
     unless File.exist?(app_config) && File.symlink?(app_config) || node['login_dot_gov']['setup_only']
@@ -83,6 +84,7 @@ deploy "#{base_dir}" do
     'config/database.yml' => 'config/database.yml',
     'config/newrelic.yml' => 'config/newrelic.yml',
     'config/saml.yml' => 'config/saml.yml',
+    'config/application.yml' => 'config/application.yml',
     "log" => "log",
     "public/system" => "public/system",
     "tmp/pids" => "tmp/pids"

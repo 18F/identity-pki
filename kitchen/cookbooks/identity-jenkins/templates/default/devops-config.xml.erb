@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Build/push terraform code when <%= @branch %> branch changes.</description>
+  <description>Build/push devops code when <%= @branch %> branch changes.</description>
   <keepDependencies>false</keepDependencies>
   <properties>
     <com.sonyericsson.rebuild.RebuildSettings plugin="rebuild@1.25">
@@ -30,18 +30,65 @@
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers>
+    <hudson.triggers.SCMTrigger>
+      <spec># every fifteen minutes
+H/15 * * * *
+</spec>
+      <ignorePostCommitHooks>false</ignorePostCommitHooks>
+    </hudson.triggers.SCMTrigger>
+  </triggers>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
       <command>#!/bin/sh
 
-. <%= File.join(Chef::Config[:file_cache_path], 'login-env.sh') %>
-./deploy plan terraform-app
+. /etc/environment
+knife ssl fetch
+
+# update environments/roles
+for i in kitchen/environments/* ; do
+	knife environment from file $i
+done
+for i in kitchen/roles/* ; do
+	knife role from file $i
+done
+
+# update cookbooks
+berks
+berks upload
+berks apply <%= @env %>
+
+# push changes out
+knife ssh &quot;name:* NOT name:jenkins*&quot; -x ubuntu -a ipaddress &quot;sudo chef-client&quot;
 
 </command>
     </hudson.tasks.Shell>
   </builders>
-  <publishers/>
+  <publishers>
+    <jenkins.plugins.slack.SlackNotifier plugin="slack@2.2">
+      <baseUrl><%= @baseurl %></baseUrl>
+      <teamDomain><%= @teamdomain %></teamDomain>
+      <authToken></authToken>
+      <authTokenCredentialId>slack</authTokenCredentialId>
+      <botUser>false</botUser>
+      <room><%= @slackchannel %></room>
+      <startNotification>true</startNotification>
+      <notifySuccess>true</notifySuccess>
+      <notifyAborted>true</notifyAborted>
+      <notifyNotBuilt>true</notifyNotBuilt>
+      <notifyUnstable>true</notifyUnstable>
+      <notifyRegression>true</notifyRegression>
+      <notifyFailure>true</notifyFailure>
+      <notifyBackToNormal>true</notifyBackToNormal>
+      <notifyRepeatedFailure>false</notifyRepeatedFailure>
+      <includeTestSummary>false</includeTestSummary>
+      <includeFailedTests>false</includeFailedTests>
+      <commitInfoChoice>AUTHORS_AND_TITLES</commitInfoChoice>
+      <includeCustomMessage>false</includeCustomMessage>
+      <customMessage></customMessage>
+    </jenkins.plugins.slack.SlackNotifier>
+  </publishers>
   <buildWrappers>
     <io.chef.jenkins.ChefIdentityBuildWrapper plugin="chef-identity@1.0.0">
       <jobIdentity>jenkins</jobIdentity>

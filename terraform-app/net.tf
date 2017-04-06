@@ -79,7 +79,7 @@ resource "aws_security_group" "app" {
     from_port = 22
     to_port = 22
     protocol = "tcp"
-    security_groups = [ "${aws_security_group.jumphost.id}" ]
+    security_groups = [ "${aws_security_group.jumphost.id}", "${aws_security_group.jenkins.id}" ]
   }
 
   name = "${var.name}-app-${var.env_name}"
@@ -192,7 +192,7 @@ resource "aws_security_group" "chef" {
     from_port = 22
     to_port = 22
     protocol = "tcp"
-    security_groups = [ "${aws_security_group.jumphost.id}" ]
+    security_groups = [ "${aws_security_group.jumphost.id}", "${aws_security_group.jenkins.id}" ]
   }
 
   name = "${var.name}-chef-${var.env_name}"
@@ -288,7 +288,7 @@ resource "aws_security_group" "elk" {
     from_port = 22
     to_port = 22
     protocol = "tcp"
-    security_groups = [ "${aws_security_group.jumphost.id}" ]
+    security_groups = [ "${aws_security_group.jumphost.id}", "${aws_security_group.jenkins.id}" ]
   }
 
   ingress {
@@ -447,6 +447,14 @@ resource "aws_security_group" "jumphost" {
     cidr_blocks = ["${var.app_sg_ssh_cidr_blocks}"]
   }
 
+  # need this to let jenkins in
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["${var.admin_subnet_cidr_block}"]
+  }
+
   name = "${var.name}-jumphost-${var.env_name}"
 
   tags {
@@ -532,7 +540,7 @@ resource "aws_security_group" "idp" {
     from_port = 22
     to_port = 22
     protocol = "tcp"
-    security_groups = [ "${aws_security_group.jumphost.id}" ]
+    security_groups = [ "${aws_security_group.jumphost.id}", "${aws_security_group.jenkins.id}" ]
   }
 
   name = "${var.name}-idp-${var.env_name}"

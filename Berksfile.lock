@@ -21,7 +21,7 @@ DEPENDENCIES
     path: kitchen/cookbooks/identity-nessus
   identity-ossec
     path: kitchen/cookbooks/identity-ossec
-  jenkins (~> 4.2.1)
+  jenkins (~> 5.0.0)
   letsencrypt (~> 1.0.0)
   login_dot_gov
     path: kitchen/cookbooks/login_dot_gov
@@ -81,6 +81,7 @@ GRAPH
   cron (3.0.0)
   curl (2.0.3)
   dmg (3.1.0)
+  dpkg_autostart (0.2.0)
   elasticsearch (3.0.2)
     apt (>= 0.0.0)
     ark (>= 0.0.0)
@@ -116,10 +117,11 @@ GRAPH
     java (>= 0.0.0)
     login_dot_gov (>= 0.0.0)
     runit (>= 0.0.0)
-  identity-jenkins (0.1.6)
+  identity-jenkins (0.1.7)
     acme (>= 0.0.0)
     apache2 (>= 0.0.0)
     jenkins (>= 0.0.0)
+    login_dot_gov (>= 0.0.0)
     ssh_known_hosts (>= 0.0.0)
     terraform (>= 0.0.0)
   identity-jumphost (0.1.0)
@@ -134,8 +136,9 @@ GRAPH
     apt (>= 0.0.0)
     homebrew (>= 0.0.0)
     windows (>= 0.0.0)
-  jenkins (4.2.1)
+  jenkins (5.0.0)
     compat_resource (>= 12.16.3)
+    dpkg_autostart (>= 0.0.0)
     runit (>= 1.7)
   letsencrypt (1.0.3)
   login_dot_gov (0.0.23)
