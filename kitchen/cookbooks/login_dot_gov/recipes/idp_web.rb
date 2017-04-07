@@ -7,7 +7,7 @@ basic_auth_config 'generate basic auth config' do
   user_name encrypted_config["basic_auth_user_name"]
 end
 
-# branch is 'master'(default) when env is dev, otherwise use stages/env 
+# branch is set by environment/node, otherwise use stages/env
 branch_name = node['login_dot_gov']['branch_name'] || "stages/#{node.chef_environment}"
 base_dir = '/srv/idp'
 deploy_dir = "#{base_dir}/current/public"
@@ -16,6 +16,7 @@ deploy_dir = "#{base_dir}/current/public"
 # TODO: JJG convert security_group_exceptions to hash so we can keep a note in both chef and nginx
 #       configs as to why we added the exception.
 app_name = 'idp'
+domain_name = node.chef_environment == 'prod' ? 'secure.login.gov' : "idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
 
 template "/opt/nginx/conf/sites.d/login.gov.conf" do
   owner node['login_dot_gov']['system_user']
@@ -23,11 +24,10 @@ template "/opt/nginx/conf/sites.d/login.gov.conf" do
   source 'nginx_server.conf.erb'
   variables({
     app: app_name,
-    domain: "#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
     elb_cidr: node['login_dot_gov']['elb_cidr'],
     security_group_exceptions: encrypted_config['security_group_exceptions'],
-    server_aliases: "#{app_name}.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
-    server_name: "#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
+    server_aliases: "#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
+    server_name: domain_name
   })
 end
 

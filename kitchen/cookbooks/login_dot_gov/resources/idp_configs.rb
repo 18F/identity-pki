@@ -11,8 +11,8 @@ action :create do
     end
   end
 
-  # Set app's domain name: (idp.<env>.login.gov)
-  domain_name = "idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
+  # Set app's domain name: (secure.login.gov in prod, otherwise idp.<env>.login.gov)
+  domain_name = node.chef_environment == 'prod' ? 'secure.login.gov' : "idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
   participate_in_dap = encrypted_config['google_analytics_key'].nil? ? 'false' : 'true'
 
   template "#{name}/config/application.yml" do

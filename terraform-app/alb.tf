@@ -47,7 +47,7 @@ resource "aws_alb_target_group" "idp-ssl" {
 
   health_check {
     matcher =  "${var.env_name == "prod" ? 200 : 401}"
-    protocol = "HTTPS"  
+    protocol = "HTTPS"
   }
 
   name = "${var.env_name}-ssl-target-group"
@@ -96,6 +96,16 @@ resource "aws_iam_server_certificate" "idp" {
   certificate_chain = "${file("${path.cwd}/../certs/${var.env_name}-chain.pem")}"
   name = "${var.name}-idp-cert-${var.env_name}"
   private_key = "${file("${path.cwd}/../certs/${var.env_name}-key.pem")}"
+}
+
+# secure.login.gov is the production-only name for the IDP app
+resource "aws_route53_record" "c_alb_production" {
+  count = "${var.env_name == "prod" ? 1 : 0}"
+  name = "secure.login.gov"
+  records = ["${aws_alb.idp.dns_name}"]
+  ttl = "300"
+  type = "CNAME"
+  zone_id = "${var.route53_id}"
 }
 
 resource "aws_route53_record" "c_alb" {

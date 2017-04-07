@@ -22,7 +22,7 @@ action :create do
   case name
   when 'idp'
     server_name = "#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
-    server_alias = "#{name}.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
+    server_alias = node.chef_environment == 'prod' ? 'secure.login.gov' : "idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
   when 'sp-rails'
     server_name = "sp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
     server_alias = "#{name}.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
