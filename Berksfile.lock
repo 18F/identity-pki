@@ -19,6 +19,8 @@ DEPENDENCIES
     path: kitchen/cookbooks/identity-jumphost
   identity-nessus
     path: kitchen/cookbooks/identity-nessus
+  identity-ntp
+    path: kitchen/cookbooks/identity-ntp
   identity-ossec
     path: kitchen/cookbooks/identity-ossec
   jenkins (~> 5.0.0)
@@ -130,6 +132,7 @@ GRAPH
     terraform (>= 0.0.0)
     users (>= 0.0.0)
   identity-nessus (0.0.2)
+  identity-ntp (0.1.0)
   identity-ossec (0.1.1)
     ossec (>= 0.0.0)
   java (1.46.0)

@@ -46,6 +46,7 @@
     "recipe[identity-elk::filebeat]",
     "recipe[identity-nessus::agent]",
     "recipe[identity-ossec]",
+    "recipe[identity-ntp]",
     "recipe[login_dot_gov::openssl]",
     "recipe[login_dot_gov::resolve]",
     "recipe[login_dot_gov::ruby]",
