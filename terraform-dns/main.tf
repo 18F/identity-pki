@@ -8,21 +8,10 @@ resource "aws_route53_record" "a_root" {
   zone_id = "${aws_route53_zone.primary.zone_id}"
   alias {
     evaluate_target_health = false
-    name = "dz4hcx2jg1w8s.cloudfront.net"
+    name = "d36urf17pnwof2.cloudfront.net"
     zone_id = "Z2FDTNDATAQYW2"
   }
 }
-
-#resource "aws_route53_record" "a_marketing_preview" {
-#  name = "preview.login.gov"
-#  type = "CNAME"
-#  zone_id = "${aws_route53_zone.primary.zone_id}"
-#  alias {
-#    evaluate_target_health = false
-#    name = "d1xv3mp8jrwxno.cloudfront.net"
-#    zone_id = "Z2FDTNDATAQYW2"
-#  }
-#}
 
 resource "aws_route53_record" "a_www" {
   name = "www.login.gov"
@@ -30,7 +19,7 @@ resource "aws_route53_record" "a_www" {
   zone_id = "${aws_route53_zone.primary.zone_id}"
   alias {
     evaluate_target_health = false
-    name = "dz4hcx2jg1w8s.cloudfront.net"
+    name = "d36urf17pnwof2.cloudfront.net"
     zone_id = "Z2FDTNDATAQYW2"
   }
 }
@@ -53,7 +42,7 @@ resource "aws_route53_record" "mx_google" {
 
 resource "aws_route53_record" "txt" {
   name = "login.gov"
-  records = ["google-site-verification=x8WM0Sy9Q4EmkHypuULXjTibNOJmPEoOxDGUmBppws8", "v=spf1 a mx include:gsa.gov ~all", "v=spf1 include:spf.mandrillapp.com ?all"]
+  records = ["google-site-verification=x8WM0Sy9Q4EmkHypuULXjTibNOJmPEoOxDGUmBppws8", "v=spf1 a mx include:spf_sa.gsa.gov include:spf.mandrillapp.com ~all"]
   ttl = "300"
   type = "TXT"
   zone_id = "${aws_route53_zone.primary.zone_id}"
