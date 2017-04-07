@@ -8,6 +8,8 @@ encrypted_config = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef
 base_dir = '/srv/dashboard'
 deploy_dir = "#{base_dir}/current/public"
 
+idp_url = "https://idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
+
 # branch is 'master'(default) when env is dev, otherwise use stages/env 
 branch_name = (node.chef_environment == 'dev' ? node['login_dot_gov']['branch_name'] : "stages/#{node.chef_environment}")
 sha_env = (node.chef_environment == 'dev' ? node['login_dot_gov']['branch_name'] : "deploy")
@@ -42,6 +44,27 @@ template "#{base_dir}/shared/config/database.yml" do
   })
 end
 
+# custom resource to configure new relic (newrelic.yml)
+login_dot_gov_newrelic_config "#{base_dir}/shared" do
+  not_if { node['login_dot_gov']['setup_only'] }
+  node.set['login_dot_gov']['app_friendly_name'] = "dashboard.#{node.chef_environment}.#{node['login_dot_gov']['app_name']}"
+end
+
+# SAML configuration
+template "#{base_dir}/shared/config/saml.yml" do
+  owner node['login_dot_gov']['system_user']
+  sensitive true
+  variables({
+    idp_cert_fingerprint: encrypted_config['idp_cert_fingerprint'] || node['login_dot_gov']['dashboard']['idp_cert_fingerprint'],
+    idp_slo_url: "#{idp_url}/api/saml/logout",
+    idp_sso_url: "#{idp_url}/api/saml/auth",
+    sp_certificate: encrypted_config['dashboard_sp_certificate'] || node['login_dot_gov']['dashboard']['sp_certificate'],
+    sp_issuer: "https://dashboard.#{node.chef_environment}.login.gov",
+    sp_private_key: encrypted_config['dashboard_sp_private_key'] || node['login_dot_gov']['dashboard']['sp_private_key'],
+    sp_private_key_password: encrypted_config['dashboard_sp_private_key_password'] || node['login_dot_gov']['dashboard']['sp_private_key_password']
+  })
+end
+
 deploy "#{base_dir}" do
   action :deploy
 
@@ -50,8 +73,6 @@ deploy "#{base_dir}" do
     # cp generated configs from chef to the shared dir on first run
     app_config = "#{base_dir}/shared/config/secrets.yml"
     unless File.exist?(app_config) && File.symlink?(app_config) || node['login_dot_gov']['setup_only']
-      execute "cp #{release_path}/config/newrelic.yml #{base_dir}/shared/config"
-      execute "cp #{release_path}/config/saml.yml #{base_dir}/shared/config"
       execute "cp #{release_path}/config/secrets.yml #{base_dir}/shared/config"
     end
     

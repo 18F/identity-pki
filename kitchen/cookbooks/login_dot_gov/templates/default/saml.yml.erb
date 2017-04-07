@@ -1,0 +1,10 @@
+production:
+  name_id_format: 'urn:oasis:names:tc:SAML:1.1:nameid-format:persistent'
+  idp_fingerprint: '<%= @idp_cert_fingerprint %>'
+  sp_issuer: '<%= @sp_issuer %>'
+  sp_certificate: '<%= @sp_certificate %>'
+  sp_private_key: '<%= @sp_private_key %>'
+  sp_private_key_password: '<%= @sp_private_key_password %>'
+  sso_url: '<%= @idp_sso_url %>'
+  slo_url: '<%= @idp_slo_url %>'
+

@@ -17,7 +17,7 @@ action :create do
     sensitive true
     variables({
       agent_enabled: node['login_dot_gov']['agent_enabled'],
-      app_name: "#{node.chef_environment}.#{node['login_dot_gov']['app_name']}",
+      app_name: node['login_dot_gov']['app_friendly_name'],
       audit_log_enabled: node['login_dot_gov']['audit_log_enabled'],
       auto_instrument: node['login_dot_gov']['auto_instrument'],
       capture_error_source: node['login_dot_gov']['capture_error_source'],

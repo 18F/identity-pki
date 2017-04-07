@@ -1,7 +1,7 @@
 execute "mount -o remount,exec,nosuid,nodev /tmp"
 
-# setup idp app
-release_path = '/srv/idp/releases/chef'
+release_path    = '/srv/idp/releases/chef'
+shared_path     = '/srv/idp/shared'
 
 package 'jq'
 
@@ -31,7 +31,7 @@ directory release_path do
   recursive true
 end
 
-directory '/srv/idp/shared' do
+directory shared_path do
   owner node['login_dot_gov']['system_user']
   group node['login_dot_gov']['system_user']
   recursive true
@@ -58,7 +58,7 @@ shared_dirs = [
 ]
 
 shared_dirs.each do |dir|
-  directory "/srv/idp/shared/#{dir}" do
+  directory "#{shared_path}/#{dir}" do
     owner node['login_dot_gov']['system_user']
     recursive true
   end
@@ -91,13 +91,14 @@ application release_path do
   end
 
   # custom resource to install the IdP config files (app.yml, saml.crt, saml.key)
-  login_dot_gov_idp_configs release_path do
+  login_dot_gov_idp_configs shared_path do
     not_if { node['login_dot_gov']['setup_only'] }
   end
 
   # custom resource to configure new relic (newrelic.yml)
   login_dot_gov_newrelic_config release_path do
     not_if { node['login_dot_gov']['setup_only'] }
+    node.set['login_dot_gov']['app_friendly_name'] = "#{node.chef_environment}.#{node['login_dot_gov']['app_name']}"
   end
 
   # install node dependencies
