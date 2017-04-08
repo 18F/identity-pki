@@ -99,7 +99,6 @@
     "email_encryption_key": "XXX",
     "google_analytics_key": "UA-XXX",
     "hmac_fingerprinter_key": "XXX",
-    "http_basic_auth": "18f:$XXXX$XXXXX$XXXXXXXXXXXX",
     "idp_cert_fingerprint": "",
     "newrelic_license_key": "XXX",
     "password_pepper": "XXX",

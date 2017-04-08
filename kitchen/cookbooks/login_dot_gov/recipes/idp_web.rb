@@ -2,9 +2,23 @@ login_dot_gov_lets_encrypt 'idp'
 
 encrypted_config = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]
 
-basic_auth_config 'generate basic auth config' do
-  password encrypted_config['basic_auth_password']
-  user_name encrypted_config["basic_auth_user_name"]
+basic_auth_enabled = !encrypted_config['basic_auth_password'].nil?
+
+if basic_auth_enabled
+  basic_auth_config 'generate basic auth config' do
+    password encrypted_config['basic_auth_password']
+    user_name encrypted_config['basic_auth_user_name']
+  end
+else
+  if %w(prod staging).include?(node.chef_environment)
+    # When in prod or staging, issue warning that basic auth is disabled
+    Chef::Log.warn 'Basic auth disabled'
+  else
+    # Raise exception if basic auth credentials are missing in other envs
+    Chef::Log.fatal 'No basic auth credentials found'
+    Chef::Log.fatal 'Only prod and staging may operate without basic auth'
+    raise
+  end
 end
 
 # branch is set by environment/node, otherwise use stages/env
@@ -16,7 +30,7 @@ deploy_dir = "#{base_dir}/current/public"
 # TODO: JJG convert security_group_exceptions to hash so we can keep a note in both chef and nginx
 #       configs as to why we added the exception.
 app_name = 'idp'
-domain_name = node.chef_environment == 'prod' ? 'secure.login.gov' : "idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
+domain_name = node.chef_environment == 'prod' ? 'secure.login.gov' : "#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
 
 template "/opt/nginx/conf/sites.d/login.gov.conf" do
   owner node['login_dot_gov']['system_user']
@@ -24,9 +38,10 @@ template "/opt/nginx/conf/sites.d/login.gov.conf" do
   source 'nginx_server.conf.erb'
   variables({
     app: app_name,
+    basic_auth: basic_auth_enabled,
     elb_cidr: node['login_dot_gov']['elb_cidr'],
     security_group_exceptions: encrypted_config['security_group_exceptions'],
-    server_aliases: "#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
+    server_aliases: "idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
     server_name: domain_name
   })
 end
@@ -63,4 +78,3 @@ execute "chmod o+x -R /srv"
 
 # need this now that passenger runs as nobody
 execute "chown -R #{node[:passenger][:production][:user]} /srv/idp/shared/log"
-

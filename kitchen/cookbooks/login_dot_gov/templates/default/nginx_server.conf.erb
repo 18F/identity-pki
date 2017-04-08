@@ -34,6 +34,7 @@ server {
        return 405;
     }
 
+    <% if @basic_auth %>
     location / {
         # Basic Auth Config
         satisfy any;
@@ -43,6 +44,7 @@ server {
         auth_basic "Restricted";
         auth_basic_user_file /opt/nginx/conf/htpasswd;
     }
+    <% end %>
 
     # Content expiry rules
     # Content pages set to no-cache
