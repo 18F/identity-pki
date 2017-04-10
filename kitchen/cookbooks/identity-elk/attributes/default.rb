@@ -37,6 +37,7 @@ default['java']['jdk_version'] = '8'
 default['elk']['kibanatarball'] = 'https://artifacts.elastic.co/downloads/kibana/kibana-5.1.2-linux-x86_64.tar.gz'
 default['elk']['logstashdeb'] = 'https://artifacts.elastic.co/downloads/logstash/logstash-5.1.2.deb'
 default['elk']['logstash-input-cloudwatch-logs-version'] = '0.9.3'
+default['elk']['kibanalogtrailplugin'] = 'https://github.com/sivasamyk/logtrail/releases/download/0.1.7/logtrail-5.x-0.1.7.zip'
 
 
 # users to allow into elk

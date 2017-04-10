@@ -205,6 +205,16 @@ template '/usr/share/kibana/config/kibana.yml' do
   notifies :restart, 'runit_service[kibana]'
 end
 
+execute "bin/kibana-plugin install #{node['elk']['kibanalogtrailplugin']}" do
+  cwd '/usr/share/kibana'
+  creates '/usr/share/kibana/plugins/logtrail/index.js'
+end
+
+template '/usr/share/kibana/plugins/logtrail/logtrail.json' do
+  source 'logtrail.json.erb'
+  notifies :restart, 'runit_service[kibana]'
+end
+
 runit_service 'kibana' do
   default_logger true
 end
