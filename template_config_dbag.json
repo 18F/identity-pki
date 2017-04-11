@@ -103,6 +103,7 @@
     "newrelic_license_key": "XXX",
     "password_pepper": "XXX",
     "redis_url": "redis://redis.login.gov.internal:6379",
+    "saml.crt": "-----BEGIN CERTIFICATE-----\nXXXX",
     "saml.key.enc": "-----BEGIN RSA PRIVATE KEY-----\nXXX",
     "saml_passphrase": "XXX",
     "secret_key_base_dashboard": "XXX",

@@ -95,11 +95,34 @@ action :create do
     user node['login_dot_gov']['system_user']
   end
 
-  cookbook_file "#{name}/certs/saml.crt" do
-    action :create
-    manage_symlink_source true
-    subscribes :create, 'resource[git]', :immediately
-    user node['login_dot_gov']['system_user']
+  if encrypted_config['saml.crt']
+    file "#{name}/certs/saml.crt" do
+      action :create
+      content encrypted_config['saml.crt']
+      manage_symlink_source true
+      subscribes :create, 'resource[git]', :immediately
+      user node['login_dot_gov']['system_user']
+    end
+  else
+    # Do not allow the hardcoded certificate when in prod
+    if node.chef_environment == 'prod'
+      Chef::Log.fatal 'ERROR: Must specify SAML/OIDC public certificate in data bag (saml.crt)'
+      raise
+    end
+
+    # Help push developers to use the data bag for this configuration since the private
+    # key is already configured using the databag. (see saml.key.enc)
+    log 'idp_configs' do
+      message 'No SAML/OIDC public certificate found in data bag, using default'
+      level :warn
+    end
+
+    cookbook_file "#{name}/certs/saml.crt" do
+      action :create
+      manage_symlink_source true
+      subscribes :create, 'resource[git]', :immediately
+      user node['login_dot_gov']['system_user']
+    end
   end
 
   file "#{name}/keys/saml.key.enc" do
