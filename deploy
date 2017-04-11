@@ -3,39 +3,60 @@
 # function to exit process with error message
 die() { echo "$@" 1>&2 ; exit 1; }
 
-: "${TF_VAR_chef_id:?you must specify the TF_VAR_chef_id}"
-: "${TF_VAR_env_name:?you must specify the TF_VAR_env_name}"
+# http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -euo pipefail
 
-TF_DIR=${2}
+if [ $# -lt 3 ] ; then
+	echo "Usage: $0 <environment name> <username> <terraform_dir> [<terraform_commands>]"
+	exit 1
+fi
 
-if [ -z ${TF_DIR} ]
-  then
-  TF_DIR='terraform-app'
+ENVIRONMENT=$1; shift
+GSA_USERNAME=$1; shift
+TF_DIR=$1; shift
+TF_CMD="$@"
+ENVIRONMENT_CONFIG=env/env.sh
+
+echo "DEPLOY: Loading environment variables...."
+. bin/load-env.sh $ENVIRONMENT $GSA_USERNAME $ENVIRONMENT_CONFIG
+
+echo "DEPLOY: Checking for required files...."
+./bin/check-required-files.sh $ENVIRONMENT
+
+if [ -z "${TF_VAR_chef_id:=}" ] ; then
+    die "You must specify an initial chef user.  \
+Make sure $ENVIRONMENT_CONFIG contains all the necessary configuration."
+fi
+
+if [ -z "${TF_VAR_chef_id:=}" ] ; then
+    die "You must specify an environment to terraform.  \
+Make sure $ENVIRONMENT_CONFIG contains all the necessary configuration."
 fi
 
 STATE=${TF_DIR}/terraform-${TF_VAR_env_name}.tfstate
-
-# Do not use a region specific state file for the dns remote config
-if [ "${TF_DIR}" == "terraform-dns" -o "${TF_DIR}" == "terraform-cloudtrail" ]
-  then
-  STATE=${TF_DIR}/terraform.tfstate
+if [ "${TF_DIR}" == "terraform-dns" -o "${TF_DIR}" == "terraform-cloudtrail" ]; then
+    echo "Not using a region specific state file for dns remote config"
+    STATE=${TF_DIR}/terraform.tfstate
 fi
+echo "Using state file $STATE"
 
-# require one of our terrform plans
+echo "Ensuring ${TF_DIR} is a terraform directory"
 # NOTE: JJG remove trailing slash from $2 if it exists to ease use with auto completion
 if [ ! -f "${TF_DIR}/main.tf" ] ; then
   die "you must specify a terraform project folder"
 fi
 
-# create a s3 bucket based on env_name if one does not exist
-aws s3 mb s3://login_dot_gov_tf_state
+echo "Creating an s3 bucket for terraform state"
+# This command currently fails.
+# See https://github.com/18F/identity-private/issues/1835
+#aws s3 mb s3://login_dot_gov_tf_state
 
-# enable versioning on the s3 bucket
+echo "Enabling versioning on the s3 bucket"
 aws s3api put-bucket-versioning \
   --bucket login_dot_gov_tf_state \
   --versioning-configuration Status=Enabled
 
-# use terraform remote state server
+echo "Using terraform remote state server"
 cd ${TF_DIR}
 rm -rf .terraform
 terraform remote config -backend=s3 \
@@ -44,11 +65,13 @@ terraform remote config -backend=s3 \
   -backend-config="region=us-east-1" \
   -state="${STATE}"
 
-# apply terraform command ($1) to env
-TF_CMD=${1}
-if [ -z $TF_CMD ]
-  then
-  TF_CMD='plan'
-fi
+cat <<EOF
+########################################
+#
+# Working in environment:
+# $TF_VAR_env_name
+#
+########################################
+EOF
 
-terraform ${TF_CMD} -var env_name=${TF_VAR_env_name}
+terraform ${TF_CMD}

@@ -114,6 +114,6 @@
     "session_encryption_key": "change-this-immediately-with-rake-secret-XXX",
     "smtp_settings": "{\"address\":\"smtp.mandrillapp.com\", \"port\":587, \"authentication\":\"plain\", \"enable_starttls_auto\":true, \"user_name\":\"XXX@gsa.gov\", \"password\":\"XXX\"}",
     "twilio_accounts": "[{\"sid\":\"XXX\", \"auth_token\":\"XXX\", \"number\":\"XXX\"}]",
-      "use_dashboard_service_providers": "false",
+      "use_dashboard_service_providers": "false"
   }
 }

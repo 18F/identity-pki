@@ -10,6 +10,7 @@ an environment/Virtual Private Cloud(VPC) using [Terraform](https://www.terrafor
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 
+- [0.  Quickstart](#0--quickstart)
 - [1.  Required Tools Setup and Initial Terraform Run](#1--required-tools-setup-and-initial-terraform-run)
   - [1.1 Setup Prerequisite Tools](#11-setup-prerequisite-tools)
   - [1.2 Create FISMA AMI(Optional)](#12-create-fisma-amioptional)
@@ -53,6 +54,16 @@ an environment/Virtual Private Cloud(VPC) using [Terraform](https://www.terrafor
     - [5.3.4 Code Changes](#534-code-changes)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+## 0.  Quickstart
+
+If you're trying to spin up a new environment, run:
+
+```
+./bootstrap.sh
+```
+
+That should prompt you for anything that the setup needs and help you through the process.  If you get stuck, refer back to the rest of this README for more details.
 
 ## 1.  Required Tools Setup and Initial Terraform Run
 

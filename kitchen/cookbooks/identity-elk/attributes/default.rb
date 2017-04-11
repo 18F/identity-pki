@@ -41,17 +41,7 @@ default['elk']['kibanalogtrailplugin'] = 'https://github.com/sivasamyk/logtrail/
 
 
 # users to allow into elk
-default['elk']['users'] = [
-  'astone',
-  'jgrevich',
-  'jpmugizi',
-  'monfresh',
-  'mzia',
-  'pkarman',
-  'tblack',
-  'tspencer',
-  'zmargolis'
-]
+default['elk']['users'] = [ ]
 
 # set this so that we listen on 8443
 default['apache']['listen'] = [8443]
