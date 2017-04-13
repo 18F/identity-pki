@@ -4,21 +4,33 @@
 # http://redsymbol.net/articles/unofficial-bash-strict-mode/
 set -euo pipefail
 
-if [ $# -ne 2 ] ; then
-	echo "Usage: $0 <environment name> <username>"
+exit_with_usage() {
+	echo "Usage: $0 <environment_name> <username> <plan/apply>"
+    echo "   Creates a new <environment_name> environment in AWS."
+    echo "   Pass in \"plan\" as the third argument to do a dry run."
 	exit 1
+}
+
+if [ $# -ne 3 ] ; then
+    exit_with_usage
 fi
 
 ENVIRONMENT=$1
 GSA_USERNAME=$2
+TF_CMD=$3
 
-echo "This script will create the $ENVIRONMENT environment."
-echo "If that environment already exists, this script may cause issues."
-read -p "Are you sure you want to continue? " -n 1 -r
-echo
-if [[ ! $REPLY =~ ^[Yy]$ ]]
-then
-	exit 1
+if [[ $TF_CMD = "plan" ]]; then
+    echo "Doing terraform plan of the $ENVIRONMENT environment."
+elif [[ $TF_CMD = "apply" ]]; then
+    echo "This script will create the $ENVIRONMENT environment."
+    echo "If that environment already exists, this script may cause issues."
+    read -p "Are you sure you want to continue? (only \"yes\" will be accepted): "
+    echo
+    if [[ ! $REPLY = "yes" ]]; then
+        exit 1
+    fi
+else
+    exit_with_usage
 fi
 
 echo "BOOTSTRAP: Loading environment variables...."
@@ -41,8 +53,14 @@ fi
 
 echo "BOOTSTRAP: Running first terraform run to get the initial chef and jumphost instances...."
 set +e # This is expected to fail the first run on missing databags
-./deploy $ENVIRONMENT $GSA_USERNAME terraform-app apply
+./deploy $ENVIRONMENT $GSA_USERNAME terraform-app $TF_CMD
 set -e
+
+if [[ $TF_CMD = "plan" ]]; then
+    echo "Stopping bootstrap before destructive changes as the \"plan\" option was specified."
+    exit 1
+fi
+exit 1
 
 echo "BOOTSTRAP: Running initial bootstrap configuration of chef server...."
 ./bin/chef-configuration-first-run.sh $GSA_USERNAME $ENVIRONMENT
