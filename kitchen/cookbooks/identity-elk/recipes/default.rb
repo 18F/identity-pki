@@ -322,6 +322,7 @@ end
 
 template "#{elastalertdir}/config.yaml" do
   source 'elastalert_config.yaml.erb'
+  notifies :restart, 'runit_service[elastalert]'
 end
 
 %w{invaliduser.yaml newsudo.yaml nologs.yaml failedlogins.yaml unknownip.yaml}.each do |t|
@@ -333,6 +334,7 @@ end
       :webhook => Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['slackwebhook'],
       :slackchannel => Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['slackchannel']
     })
+    notifies :restart, 'runit_service[elastalert]'
   end
 end
 

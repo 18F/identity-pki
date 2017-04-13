@@ -109,7 +109,7 @@ GRAPH
   hostname (0.4.0)
     hostsfile (>= 0.0.0)
   hostsfile (2.4.5)
-  identity-elk (0.1.16)
+  identity-elk (0.1.18)
     acme (>= 0.0.0)
     apache2 (>= 0.0.0)
     cron (>= 0.0.0)
