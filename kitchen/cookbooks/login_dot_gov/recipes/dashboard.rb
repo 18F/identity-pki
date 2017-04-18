@@ -9,6 +9,7 @@ base_dir = '/srv/dashboard'
 deploy_dir = "#{base_dir}/current/public"
 
 idp_url = "https://idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
+dashboard_url = "https://dashboard.#{node.chef_environment}.login.gov"
 
 # branch is 'master'(default) when env is dev, otherwise use stages/env 
 branch_name = (node.chef_environment == 'dev' ? node['login_dot_gov']['branch_name'] : "stages/#{node.chef_environment}")
@@ -50,18 +51,30 @@ login_dot_gov_newrelic_config "#{base_dir}/shared" do
   node.set['login_dot_gov']['app_friendly_name'] = "dashboard.#{node.chef_environment}.#{node['login_dot_gov']['app_name']}"
 end
 
-# SAML configuration
-template "#{base_dir}/shared/config/saml.yml" do
+# Application configuration (application.yml)
+template "#{base_dir}/shared/config/application.yml" do
+  source "dashboard_application.yml.erb"
   owner node['login_dot_gov']['system_user']
   sensitive true
   variables({
-    idp_cert_fingerprint: encrypted_config['idp_cert_fingerprint'] || node['login_dot_gov']['dashboard']['idp_cert_fingerprint'],
-    idp_slo_url: "#{idp_url}/api/saml/logout",
-    idp_sso_url: "#{idp_url}/api/saml/auth",
-    sp_certificate: encrypted_config['dashboard_sp_certificate'] || node['login_dot_gov']['dashboard']['sp_certificate'],
-    sp_issuer: "https://dashboard.#{node.chef_environment}.login.gov",
-    sp_private_key: encrypted_config['dashboard_sp_private_key'] || node['login_dot_gov']['dashboard']['sp_private_key'],
-    sp_private_key_password: encrypted_config['dashboard_sp_private_key_password'] || node['login_dot_gov']['dashboard']['sp_private_key_password']
+    admin_email: 'partners@login.gov',
+    basic_auth_password: encrypted_config['basic_auth_password'],
+    basic_auth_username: encrypted_config['basic_auth_user_name'],
+    dashboard_api_token: encrypted_config['dashboard_api_token'],
+    idp_sp_url: "#{idp_url}/api/service_provider",
+    mailer_domain: dashboard_url,
+    saml_idp_fingerprint: encrypted_config['idp_cert_fingerprint'] || node['login_dot_gov']['dashboard']['idp_cert_fingerprint'],
+    saml_idp_slo_url: "#{idp_url}/api/saml/logout",
+    saml_idp_sso_url: "#{idp_url}/api/saml/auth",
+    saml_sp_certificate: encrypted_config['dashboard_sp_certificate'] || node['login_dot_gov']['dashboard']['sp_certificate'],
+    saml_sp_issuer: dashboard_url,
+    saml_sp_private_key: encrypted_config['dashboard_sp_private_key'] || node['login_dot_gov']['dashboard']['sp_private_key'],
+    saml_sp_private_key_password: encrypted_config['dashboard_sp_private_key_password'] || node['login_dot_gov']['dashboard']['sp_private_key_password'],
+    secret_key_base: encrypted_config['secret_key_base_dashboard'],
+    smtp_address: 'smtp.mandrillapp.com',
+    smtp_domain: dashboard_url,
+    smtp_password: 'sekret',
+    smtp_username: 'user'
   })
 end
 
