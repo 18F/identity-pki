@@ -91,7 +91,7 @@ application release_path do
   end
 
   # custom resource to install the IdP config files (app.yml, saml.crt, saml.key)
-  login_dot_gov_idp_configs shared_path do
+  login_dot_gov_idp_configs release_path do
     not_if { node['login_dot_gov']['setup_only'] }
   end
 
