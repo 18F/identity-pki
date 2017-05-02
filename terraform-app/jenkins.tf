@@ -29,7 +29,7 @@ resource "aws_iam_instance_profile" "jenkins" {
 #}
 
 resource "aws_instance" "jenkins" {
-  ami = "${var.ami_id}"
+  ami = "${var.jenkins_ami_id}"
   depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk"]
   instance_type = "${var.instance_type_jenkins}"
   key_name = "${var.key_name}"

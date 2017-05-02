@@ -14,9 +14,18 @@ variable "alb1_subnet_cidr_block"  { default = "172.16.33.224/28" } # 172.16.33.
 variable "alb2_subnet_cidr_block"  { default = "172.16.33.240/28" } # 172.16.33.240 - 172.16.33.255
 variable "jumphost_subnet_cidr_block" { default = "172.16.33.0/28"} # 172.16.33.1 - 172.16.33.15
 variable "vpc_cidr_block"         { default = "172.16.32.0/22" } # 172.16.32.0 - 172.16.35.255
+#variable "vpc_cidr_block"         { default = "172.16.33.0/24" } # 172.16.32.0 - 172.16.35.255
+
 
 variable "ami_id" {}
 variable "default_ami_id" {}
+variable "jenkins_ami_id" {}
+variable "chef_ami_id" {}
+variable "jumphost_ami_id" {}
+variable "idp1_ami_id" {}
+variable "idp2_ami_id" {}
+variable "worker1_ami_id" {}
+variable "worker2_ami_id" {}
 variable "route53_id" {}
 variable "apps_enabled" { default = false }
 variable "chef_version" { default = "12.15.19" }

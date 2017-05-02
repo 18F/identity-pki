@@ -20,7 +20,7 @@ resource "aws_iam_instance_profile" "chef" {
 }
 
 resource "aws_instance" "chef" {
-  ami = "${var.default_ami_id}"
+  ami = "${var.chef_ami_id}"
   depends_on = ["aws_internet_gateway.default", "aws_route53_zone.internal"]
   instance_type = "${var.instance_type_chef}"
   key_name = "${var.key_name}"

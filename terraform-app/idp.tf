@@ -56,7 +56,7 @@ resource "aws_iam_instance_profile" "idp" {
 }
 
 resource "aws_instance" "idp1" {
-  ami = "${var.ami_id}"
+  ami = "${var.idp1_ami_id}"
   count = "${var.idp_node_count}"
   depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk", "aws_elasticache_cluster.idp", "aws_db_instance.idp"]
   instance_type = "${var.instance_type_idp}"
@@ -104,7 +104,7 @@ resource "aws_instance" "idp1" {
 }
 
 resource "aws_instance" "idp2" {
-  ami = "${var.ami_id}"
+  ami = "${var.idp2_ami_id}"
   count = "${var.idp_node_count}"
   depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk", "aws_elasticache_cluster.idp", "aws_db_instance.idp"]
   instance_type = "${var.instance_type_idp}"
@@ -152,7 +152,7 @@ resource "aws_instance" "idp2" {
 }
 
 resource "aws_instance" "idp_worker" {
-  ami = "${var.ami_id}"
+  ami = "${var.worker1_ami_id}"
   depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk", "aws_elasticache_cluster.idp", "aws_db_instance.idp"]
   instance_type = "${var.instance_type_worker}"
   key_name = "${var.key_name}"
