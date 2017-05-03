@@ -23,7 +23,7 @@ DEPENDENCIES
     path: kitchen/cookbooks/identity-ntp
   identity-ossec
     path: kitchen/cookbooks/identity-ossec
-  jenkins (~> 5.0.0)
+  jenkins (~> 5.0.1)
   letsencrypt (~> 1.0.0)
   login_dot_gov
     path: kitchen/cookbooks/login_dot_gov
@@ -139,7 +139,7 @@ GRAPH
     apt (>= 0.0.0)
     homebrew (>= 0.0.0)
     windows (>= 0.0.0)
-  jenkins (5.0.0)
+  jenkins (5.0.1)
     compat_resource (>= 12.16.3)
     dpkg_autostart (>= 0.0.0)
     runit (>= 1.7)
