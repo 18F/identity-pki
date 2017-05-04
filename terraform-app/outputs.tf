@@ -50,6 +50,10 @@ output "idp_db_address" {
   value = "idp-postgres.login.gov.internal"
 }
 
+output "idp_tls_common_name" {
+  value = "${acme_certificate.idp.certificate_domain}"
+}
+
 output "idp_worker_ip" {
   value = "${aws_instance.idp_worker.public_ip}"
 }

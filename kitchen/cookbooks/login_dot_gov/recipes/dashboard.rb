@@ -1,11 +1,28 @@
 execute "mount -o remount,exec,nosuid,nodev /tmp"
 
 app_name = 'dashboard'
-login_dot_gov_lets_encrypt app_name
+
+dhparam = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]["dhparam"]
+
+# generate a stronger DHE parameter on first run
+# see: https://raymii.org/s/tutorials/Strong_SSL_Security_On_nginx.html#Forward_Secrecy_&_Diffie_Hellman_Ephemeral_Parameters
+execute "openssl dhparam -out dhparam.pem 4096" do
+  creates '/etc/ssl/certs/dhparam.pem'
+  cwd '/etc/ssl/certs'
+  notifies :stop, "service[passenger]", :before
+  only_if { dhparam == nil }
+  sensitive true
+end
+
+file '/etc/ssl/certs/dhparam.pem' do
+  content dhparam
+  not_if { dhparam == nil }
+  sensitive true
+end
 
 encrypted_config = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]
 
-base_dir = '/srv/dashboard'
+base_dir = "/srv/#{app_name}"
 deploy_dir = "#{base_dir}/current/public"
 
 idp_url = "https://idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
@@ -76,6 +93,7 @@ template "#{base_dir}/shared/config/application.yml" do
     smtp_password: 'sekret',
     smtp_username: 'user'
   })
+  subscribes :create, 'deploy[/srv/dashboard]', :immediately
 end
 
 deploy "#{base_dir}" do

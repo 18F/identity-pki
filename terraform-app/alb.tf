@@ -92,10 +92,10 @@ resource "aws_alb_target_group_attachment" "idp2-ssl" {
 }
 
 resource "aws_iam_server_certificate" "idp" {
-  certificate_body = "${file("${path.cwd}/../certs/${var.env_name}-cert.pem")}"
-  certificate_chain = "${file("${path.cwd}/../certs/${var.env_name}-chain.pem")}"
+  certificate_body = "${acme_certificate.idp.certificate_pem}"
+  certificate_chain = "${file("${path.cwd}/../certs/lets-encrypt-x3-cross-signed.pem")}"
   name = "${var.name}-idp-cert-${var.env_name}"
-  private_key = "${file("${path.cwd}/../certs/${var.env_name}-key.pem")}"
+  private_key = "${acme_certificate.idp.private_key_pem}"
 }
 
 # secure.login.gov is the production-only name for the IDP app

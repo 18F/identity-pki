@@ -8,8 +8,8 @@ server {
     listen       443 ssl;
     server_name  <%= @server_name %> <%= @server_aliases -%>;
 
-    ssl_certificate /etc/letsencrypt/live/<%= @server_name %>/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/<%= @server_name %>/privkey.pem;
+    ssl_certificate /etc/ssl/certs/<%= @app %>-cert.pem;
+    ssl_certificate_key /etc/ssl/private/<%= @app %>-key.pem;
     ssl_ciphers 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH';
     ssl_dhparam /etc/ssl/certs/dhparam.pem;
     ssl_prefer_server_ciphers on;

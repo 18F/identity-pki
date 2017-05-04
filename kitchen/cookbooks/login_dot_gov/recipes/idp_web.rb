@@ -1,5 +1,3 @@
-login_dot_gov_lets_encrypt 'idp'
-
 encrypted_config = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]
 
 basic_auth_enabled = !encrypted_config['basic_auth_password'].nil?
@@ -30,7 +28,26 @@ deploy_dir = "#{base_dir}/current/public"
 # TODO: JJG convert security_group_exceptions to hash so we can keep a note in both chef and nginx
 #       configs as to why we added the exception.
 app_name = 'idp'
+
 domain_name = node.chef_environment == 'prod' ? 'secure.login.gov' : "#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
+
+dhparam = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]["dhparam"]
+
+# generate a stronger DHE parameter on first run
+# see: https://raymii.org/s/tutorials/Strong_SSL_Security_On_nginx.html#Forward_Secrecy_&_Diffie_Hellman_Ephemeral_Parameters
+execute "openssl dhparam -out dhparam.pem 4096" do
+  creates "/etc/ssl/certs/#{app_name}-dhparam.pem"
+  cwd '/etc/ssl/certs'
+  notifies :stop, "service[passenger]", :before
+  only_if { dhparam == nil }
+  sensitive true
+end
+
+file '/etc/ssl/certs/dhparam.pem' do
+  content dhparam
+  not_if { dhparam == nil }
+  sensitive true
+end
 
 template "/opt/nginx/conf/sites.d/login.gov.conf" do
   owner node['login_dot_gov']['system_user']

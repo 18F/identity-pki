@@ -16,9 +16,62 @@ resource "aws_instance" "app" {
     user = "ubuntu"
     host = "${self.private_ip}"
     bastion_host = "${aws_eip.jumphost.public_ip}"
+    script_path = "/home/ubuntu/tf_remote_exec.sh"
   }
 
   vpc_security_group_ids = [ "${aws_security_group.app.id}" ]
+
+  # add dashboard cert and key
+  provisioner "file" {
+    content     = "${acme_certificate.dashboard.private_key_pem}"
+    destination = "~/dashboard-key.pem"
+  }
+
+  provisioner "file" {
+    content     = "${acme_certificate.dashboard.certificate_pem}"
+    destination = "~/dashboard-cert.pem"
+  }
+
+  # add sp-oidc-sinatra cert and key
+  provisioner "file" {
+    content     = "${acme_certificate.sp-oidc-sinatra.private_key_pem}"
+    destination = "~/sp-oidc-sinatra-key.pem"
+  }
+
+  provisioner "file" {
+    content     = "${acme_certificate.sp-oidc-sinatra.certificate_pem}"
+    destination = "~/sp-oidc-sinatra-cert.pem"
+  }
+
+  # add sp-rails cert and key
+  provisioner "file" {
+    content     = "${acme_certificate.sp-rails.private_key_pem}"
+    destination = "~/sp-rails-key.pem"
+  }
+
+  provisioner "file" {
+    content     = "${acme_certificate.sp-rails.certificate_pem}"
+    destination = "~/sp-rails-cert.pem"
+  }
+
+  # add sp-sinatra cert and key
+  provisioner "file" {
+    content     = "${acme_certificate.sp-sinatra.private_key_pem}"
+    destination = "~/sp-sinatra-key.pem"
+  }
+
+  provisioner "file" {
+    content     = "${acme_certificate.sp-sinatra.certificate_pem}"
+    destination = "~/sp-sinatra-cert.pem"
+  }
+
+  # move cert and keys to /etc/ssl and remove tf_remote_exec.sh provisioner script
+  provisioner "remote-exec" {
+    inline = [
+      "sudo mv /home/ubuntu/*cert.pem /etc/ssl/certs/",
+      "sudo mv /home/ubuntu/*key.pem /etc/ssl/private/"
+    ]
+  }
 
   provisioner "chef"  {
     attributes_json = <<-EOF
@@ -81,6 +134,15 @@ resource "aws_eip" "app" {
   vpc      = true
 }
 
+
+resource "aws_route53_record" "app" {
+  zone_id = "${aws_route53_zone.internal.zone_id}"
+  name = "app.login.gov.internal"
+  type = "A"
+  ttl = "300"
+  records = ["${aws_instance.app.private_ip}"]
+}
+
 resource "aws_route53_record" "a_app" {
   count = "${var.apps_enabled == true ? 1 : 0}"
   name = "app.${var.env_name}.login.gov"
@@ -111,6 +173,15 @@ resource "aws_route53_record" "c_dash" {
 resource "aws_route53_record" "c_sp" {
   count = "${var.apps_enabled == true ? 1 : 0}"
   name = "sp.${var.env_name}.login.gov"
+  records = ["app.${var.env_name}.login.gov"]
+  ttl = "300"
+  type = "CNAME"
+  zone_id = "${var.route53_id}"
+}
+
+resource "aws_route53_record" "c_sp_oidc_sinatra" {
+  count = "${var.apps_enabled == true ? 1 : 0}"
+  name = "sp-oidc-sinatra.${var.env_name}.login.gov"
   records = ["app.${var.env_name}.login.gov"]
   ttl = "300"
   type = "CNAME"

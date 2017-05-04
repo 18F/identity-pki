@@ -30,30 +30,6 @@ cat <<EOF
 
 EOF
 
-echo "CHECK: Required ALB certificates..."
-# The tar archives are required because their presence ensures that the
-# cookbook at
-# https://github.com/18F/identity-devops/blob/22d5d5a3df3eae813f130bb1fc693e6f1c188df5/kitchen/cookbooks/login_dot_gov/resources/lets_encrypt.rb
-# doesn't try to generate new certs.  This should go away soon.  See
-# https://github.com/18F/identity-devops/pull/159.
-REQUIRED_LETSENCRYPT_FILES=(
-    "certs/${1}-cert.pem"
-    "certs/${1}-chain.pem"
-    "certs/${1}-key.pem"
-    "certs/${1}_app_etc_letsencrypt.tbz"
-    "certs/${1}_etc_letsencrypt.tbz"
-)
-echo "Checking for required letsencrypt certificates used in the ALB..."
-for FILE in ${REQUIRED_LETSENCRYPT_FILES[@]}; do
-    echo "Checking for required letsencrypt file: $FILE"
-    if [ ! -e $FILE ]; then
-        echo "ERROR: Missing required letsencrypt file: $FILE"
-        echo "    See: https://github.com/18F/identity-private/issues/863"
-        echo "    and https://github.com/18F/identity-devops/wiki/Letsencrypt-Certificates"
-        exit 1
-    fi
-done
-
 echo "CHECK: Required Nessus package..."
 NESSUS_DOWNLOAD_URL="http://downloads.nessus.org/nessus3dl.php?file=Nessus-6.10.0-ubuntu1110_amd64.deb&licence_accept=yes&t=c89a8794496b26a61d8a09e9af89cb97"
 NESSUS_FILENAME="Nessus-6.10.0-ubuntu1110_amd64.deb"

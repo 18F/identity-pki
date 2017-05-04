@@ -1,10 +1,28 @@
 execute "mount -o remount,exec,nosuid,nodev /tmp"
 
-login_dot_gov_lets_encrypt 'sp-rails'
+app_name = 'sp-rails'
+
+dhparam = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]["dhparam"]
+
+# generate a stronger DHE parameter on first run
+# see: https://raymii.org/s/tutorials/Strong_SSL_Security_On_nginx.html#Forward_Secrecy_&_Diffie_Hellman_Ephemeral_Parameters
+execute "openssl dhparam -out dhparam.pem 4096" do
+  creates '/etc/ssl/certs/dhparam.pem'
+  cwd '/etc/ssl/certs'
+  notifies :stop, "service[passenger]", :before
+  only_if { dhparam == nil }
+  sensitive true
+end
+
+file '/etc/ssl/certs/dhparam.pem' do
+  content dhparam
+  not_if { dhparam == nil }
+  sensitive true
+end
 
 encrypted_config = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]
 
-base_dir = '/srv/sp-rails'
+base_dir = "/srv/#{app_name}"
 deploy_dir = "#{base_dir}/current/public"
 
 # branch is 'master'(default) when env is dev, otherwise use stages/env 
@@ -53,7 +71,7 @@ template "#{base_dir}/shared/config/database.yml" do
   })
 end
 
-deploy '/srv/sp-rails' do
+deploy "/srv/#{app_name}" do
   action :deploy
 
   before_symlink do
@@ -68,7 +86,7 @@ deploy '/srv/sp-rails' do
     end
   end
 
-  repo 'https://github.com/18F/identity-sp-rails.git'
+  repo "https://github.com/18F/identity-#{app_name}.git"
   branch_name
   shallow_clone true
   keep_releases 1
@@ -100,9 +118,7 @@ end
 # add nginx conf for app server
 # TODO: JJG convert security_group_exceptions to hash so we can keep a note in both chef and nginx
 #       configs as to why we added the exception.
-app_name = 'sp-rails'
-
-template "/opt/nginx/conf/sites.d/sp-rails.login.gov.conf" do
+template "/opt/nginx/conf/sites.d/#{app_name}.login.gov.conf" do
   owner node['login_dot_gov']['system_user']
   notifies :restart, "service[passenger]"
   source 'nginx_server.conf.erb'
