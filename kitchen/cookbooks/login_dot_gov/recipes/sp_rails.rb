@@ -34,7 +34,7 @@ sha_env = (node.chef_environment == 'dev' ? node['login_dot_gov']['branch_name']
     group node['login_dot_gov']['system_user']
     owner node['login_dot_gov']['system_user']
     recursive true
-    subscribes :create, "deploy[/srv/dashboard]", :before
+    subscribes :create, "deploy[/srv/#{app_name}]", :before
   end
 end
 
