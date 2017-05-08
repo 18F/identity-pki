@@ -136,6 +136,8 @@ resource "aws_eip" "app" {
 
 
 resource "aws_route53_record" "app" {
+  count = "${var.apps_enabled == true ? 1 : 0}"
+  depends_on = ["aws_instance.app"]
   zone_id = "${aws_route53_zone.internal.zone_id}"
   name = "app.login.gov.internal"
   type = "A"
