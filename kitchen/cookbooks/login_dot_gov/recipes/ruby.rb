@@ -67,18 +67,3 @@ ruby_runtime node['login_dot_gov']['ruby_version'] do
 end
 
 execute "chown -R #{node['login_dot_gov']['system_user']}:adm /opt/ruby_build"
-
-directory '/home/ubuntu/.postgresql' do
-  group node['login_dot_gov']['system_user']
-  owner node['login_dot_gov']['system_user']
-  recursive true
-end
-
-remote_file '/home/ubuntu/.postgresql/root.crt' do
-  group node['login_dot_gov']['system_user']
-  mode 0600
-  owner node['login_dot_gov']['system_user']
-  sensitive true # nothing sensitive but using to remove unnecessary output
-  source 'https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem'
-  action :create
-end

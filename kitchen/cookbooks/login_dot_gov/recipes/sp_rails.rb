@@ -1,5 +1,23 @@
 execute "mount -o remount,exec,nosuid,nodev /tmp"
 
+# create dir for AWS PostgreSQL combined CA cert bundle
+directory '/usr/local/share/aws' do
+  owner 'root'
+  group 'root'
+  mode 0755
+  recursive true
+end
+
+# add AWS PostgreSQL combined CA cert bundle
+remote_file '/usr/local/share/aws/rds-combined-ca-bundle.pem' do
+  action :create
+  group 'root'
+  mode 0755
+  owner 'root'
+  sensitive true # nothing sensitive but using to remove unnecessary output
+  source 'https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem'
+end
+
 app_name = 'sp-rails'
 
 dhparam = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]["dhparam"]

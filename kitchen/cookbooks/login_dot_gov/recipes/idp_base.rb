@@ -21,6 +21,24 @@ file '/root/.ssh/id_rsa' do
   subscribes :create, "application[#{release_path}]", :before
 end
 
+# create dir for AWS PostgreSQL combined CA cert bundle
+directory '/usr/local/share/aws' do
+  owner 'root'
+  group 'root'
+  mode 0755
+  recursive true
+end
+
+# add AWS PostgreSQL combined CA cert bundle
+remote_file '/usr/local/share/aws/rds-combined-ca-bundle.pem' do
+  action :create
+  group 'root'
+  mode 0755
+  owner 'root'
+  sensitive true # nothing sensitive but using to remove unnecessary output
+  source 'https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem'
+end
+
 execute 'ssh-keyscan -H github.com > /etc/ssh/ssh_known_hosts'
 
 execute 'update-alternatives --install /usr/bin/node nodejs /usr/bin/nodejs 100' do
@@ -115,7 +133,9 @@ application release_path do
       database: encrypted_config['db_database_idp'],
       username: encrypted_config['db_username_idp'],
       host: encrypted_config['db_host_idp'],
-      password: encrypted_config['db_password_idp']
+      password: encrypted_config['db_password_idp'],
+      sslmode: 'verify-full',
+      sslrootcert: '/usr/local/share/aws/rds-combined-ca-bundle.pem'
     })
     rails_env node['login_dot_gov']['rails_env']
     secret_token node['login_dot_gov']['secret_key_base_idp']
