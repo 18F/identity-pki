@@ -26,6 +26,19 @@ server {
 
     root /srv/<%= @app %>/current/public;
     passenger_enabled on;
+    <% if @saml_env -%>
+    passenger_env_var SAML_ENV <%= @saml_env %>;
+    <% end -%>
+    <% if @secret_key_base -%>
+    passenger_env_var SECRET_KEY_BASE <%= @secret_key_base %>;
+    <% end -%>
+    <% if @sp_pass -%>
+    passenger_env_var SP_PASS <%= @sp_pass %>;
+    <% end -%>
+    <% if @sp_name -%>
+    passenger_env_var SP_NAME <%= @sp_name %>;
+    <% end -%>
+
     passenger_min_instances 5;
     rails_env production;
 
