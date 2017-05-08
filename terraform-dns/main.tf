@@ -56,6 +56,17 @@ resource "aws_route53_record" "txt_mandrill_dkim" {
   zone_id = "${aws_route53_zone.primary.zone_id}"
 }
 
+resource "aws_route53_record" "a_developers" {
+  name = "developers.login.gov"
+  type = "A"
+  zone_id = "${aws_route53_zone.primary.zone_id}"
+  alias {
+    evaluate_target_health = false
+    name = "d26qb7on2m22yd.cloudfront.net"
+    zone_id = "Z2FDTNDATAQYW2"  # Standard zone ID for all CloudFront targets
+  }
+}
+
 resource "aws_route53_zone" "primary" {
   name = "login.gov"
 }
