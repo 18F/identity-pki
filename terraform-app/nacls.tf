@@ -343,6 +343,15 @@ resource "aws_network_acl" "jumphost" {
     rule_no = 20
     action = "allow"
   }
+  # allow dns to stuff (needed for ACME cert gen)
+  egress {
+    from_port = 53
+    to_port = 53
+    protocol = "udp"
+    cidr_block = "0.0.0.0/0"
+    rule_no = 25
+    action = "allow"
+  }
   ingress {
     from_port = 0
     to_port = 65535

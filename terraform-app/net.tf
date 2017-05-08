@@ -1,3 +1,9 @@
+data "aws_ip_ranges" "route53" {
+  regions  = ["global"]
+  services = ["route53"]
+}
+
+
 resource "aws_elasticache_subnet_group" "idp" {
   name = "${var.name}-idp-cache-${var.env_name}"
   description = "Redis Subnet Group"
@@ -438,6 +444,14 @@ resource "aws_security_group" "jumphost" {
     to_port = 123
     protocol = "udp"
     cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # need dns outbound for ACME cert generation stuff
+  egress {
+    from_port = 53
+    to_port = 53
+    protocol = "udp"
+    cidr_blocks = ["${data.aws_ip_ranges.route53.cidr_blocks}","8.8.8.8/32"]
   }
 
   ingress {
