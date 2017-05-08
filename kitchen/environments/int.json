@@ -18,22 +18,24 @@
     "cron": "= 3.0.0",
     "curl": "= 2.0.3",
     "dmg": "= 3.1.0",
+    "dpkg_autostart": "= 0.2.0",
     "elasticsearch": "= 3.0.2",
-    "elasticsearch-curator": "= 0.1.4",
+    "elasticsearch-curator": "= 0.1.5",
     "filebeat": "= 0.4.6",
     "git": "= 4.6.0",
     "homebrew": "= 3.0.0",
     "hostname": "= 0.4.0",
     "hostsfile": "= 2.4.5",
-    "identity-elk": "= 0.1.3",
-    "identity-jenkins": "= 0.1.5",
+    "identity-elk": "= 0.1.18",
+    "identity-jenkins": "= 0.1.7",
     "identity-jumphost": "= 0.1.0",
-    "identity-nessus": "= 0.0.1",
-    "identity-ossec": "= 0.1.0",
+    "identity-nessus": "= 0.0.2",
+    "identity-ntp": "= 0.1.0",
+    "identity-ossec": "= 0.1.1",
     "java": "= 1.46.0",
-    "jenkins": "= 4.1.2",
+    "jenkins": "= 5.0.1",
     "letsencrypt": "= 1.0.3",
-    "login_dot_gov": "= 0.0.13",
+    "login_dot_gov": "= 0.0.30",
     "monit": "= 1.0.0",
     "motd": "= 0.6.4",
     "nano": "= 1.0.3",
@@ -59,7 +61,7 @@
     "runit": "= 3.0.5",
     "selinux_policy": "= 1.0.0",
     "seven_zip": "= 2.0.2",
-    "squid": "= 3.0.0",
+    "squid": "= 3.1.0",
     "ssh-keys": "= 1.2.7",
     "ssh_known_hosts": "= 4.1.1",
     "sudo": "= 3.3.1",
@@ -77,9 +79,9 @@
     "login_dot_gov": {
       "aws_kms_key_id": "alias/int-login-dot-gov-keymaker",
       "aws_region": "us-west-2",
-      "branch_name": "stages/rc-2017-03-29",
+      "branch_name": "2017-05-01T173654",
       "enable_identity_verification": "true",
-      "use_kms": "true"
+      "use_kms": "false"
     },
     "ssh_keys": {
       "ubuntu": [
@@ -89,45 +91,43 @@
         "jpmugizi",
         "monfresh",
         "mzia",
-        "pkarman",
         "sverch",
         "dnesting",
         "tblack",
         "tspencer",
-        "zmargolis",
-        "jessie"
+        "zmargolis"
       ]
+    },
+    "elk": {
+      "users": [
+        "astone",
+        "jgrevich",
+        "jpmugizi",
+        "monfresh",
+        "sverch",
+        "dnesting",
+        "tblack",
+        "tspencer"
+      ]
+    },
+    "filebeat": {
+      "version": "5.2.0"
+    },
+    "identity-jenkins": {
+      "users": [
+        "monfresh"
+      ],
+      "admins": [
+        "astone",
+        "jgrevich",
+        "jpmugizi",
+        "tspencer"
+      ]
+    },
+    "terraform": {
+      "version": "0.8.8",
+      "zipfile": "terraform_0.8.8_linux_amd64.zip"
     }
-  },
-  "elk": {
-    "users": [
-      "astone",
-      "jgrevich",
-      "jpmugizi",
-      "monfresh",
-      "sverch",
-      "dnesting",
-      "tblack",
-      "tspencer"
-    ]
-  },
-  "filebeat": {
-    "version": "5.2.0"
-  },
-  "identity-jenkins": {
-    "users": [
-      "monfresh"
-    ],
-    "admins": [
-      "astone",
-      "jgrevich",
-      "jpmugizi",
-      "tspencer"
-    ]
-  },
-  "terraform": {
-    "version": "0.8.5",
-    "zipfile": "terraform_0.8.5_linux_amd64.zip"
   },
   "override_attributes": {
 
