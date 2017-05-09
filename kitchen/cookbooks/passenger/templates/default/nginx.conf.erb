@@ -26,6 +26,7 @@ http {
   tcp_nopush <%= @passenger[:tcp_nopush] ? 'on' : 'off' %>;
   keepalive_timeout <%= @passenger[:keepalive_timeout] %>;
   gzip <%= @passenger[:gzip] ? 'on' : 'off' %>;
+  gzip_types text/plain text/html text/css application/xml application/javascript application/json image/jpg image/jpeg image/png image/gif image/svg+xml font/woff2 woff2;
 
   # Timeouts definition
   client_body_timeout   10;
