@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# The terraform version this was tested with
+TERRAFORM_VERSION="0.8.8"
+
 # function to exit process with error message
 die() { echo "$@" 1>&2 ; exit 1; }
 
@@ -9,6 +12,10 @@ set -euo pipefail
 if [ $# -lt 3 ] ; then
 	echo "Usage: $0 <environment name> <username> <terraform_dir> [<terraform_commands>]"
 	exit 1
+fi
+
+if [[ "$(terraform --version)" != *"v$TERRAFORM_VERSION"* ]]; then
+    die "Version $TERRAFORM_VERSION of terraform currently required"
 fi
 
 ENVIRONMENT=$1; shift
