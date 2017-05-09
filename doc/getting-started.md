@@ -112,6 +112,20 @@ Install [Terraform CLI](https://www.terraform.io/docs/commands/)
 brew install terraform
 ```
 
+Install [Terraform ACME Provider](https://www.terraform.io/docs/commands/)
+
+``` shell
+mkdir $HOME/.terraform-plugins
+home=$HOME cat <<EOT > $HOME/.terraformrc
+providers {
+  acme = "$home/.terraform.plugins/terraform-provider-acme"
+}
+EOT
+curl -LO https://github.com/paybyphone/terraform-provider-acme/releases/download/v0.2.1/terraform-provider-acme_v0.2.1_darwin_amd64.zip
+unzip -o terraform-provider-acme_v0.2.1_darwin_amd64.zip -d $HOME/.terraform-plugins
+rm terraform-provider-acme_v0.2.1_darwin_amd64.zip
+```
+
 ### 1.2 Create FISMA AMI(Optional) 
 
 ** **Skip this step if there is an already built [AMI](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html) (ask or look at pinned items in the [#identity-devops](https://gsa-tts.slack.com/) channel )** **
