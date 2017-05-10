@@ -55,7 +55,7 @@ if [ ! -e  $USERS_DATABAGS ]; then
     echo "    in chef.  See https://github.com/18F/identity-devops/wiki/Chef-Databags"
     exit 1
 fi
-CONFIG_DATABAG="kitchen/data_bags/config/config.json"
+CONFIG_DATABAG="kitchen/data_bags/config/${1}.json"
 if [ ! -e  $CONFIG_DATABAG ]; then
     echo "ERROR: No user databags at: $CONFIG_DATABAG"
     echo "    You need to have a config databag for chef."

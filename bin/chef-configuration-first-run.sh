@@ -30,12 +30,12 @@ echo "Setting up knife on the jumphost..."
 $(dirname $0)/setup-knife.sh $USERNAME $ENVIRONMENT ubuntu@$JUMPHOST_PUBLIC_IP
 
 echo "Uploading the chef config databag..."
-scp -o StrictHostKeyChecking=no kitchen/data_bags/config/config.json ubuntu@$JUMPHOST_PUBLIC_IP:~
+scp -o StrictHostKeyChecking=no kitchen/data_bags/config/$ENVIRONMENT.json ubuntu@$JUMPHOST_PUBLIC_IP:~
 
 echo "Adding the encrypted config databag to chef..."
 ssh -o StrictHostKeyChecking=no ubuntu@$JUMPHOST_PUBLIC_IP "openssl rand -base64 2048 | tr -d '\r\n' > ~/.chef/$ENVIRONMENT-databag.key"
 ssh -o StrictHostKeyChecking=no ubuntu@$JUMPHOST_PUBLIC_IP "knife data bag create config --secret-file ~/.chef/$ENVIRONMENT-databag.key"
-ssh -o StrictHostKeyChecking=no ubuntu@$JUMPHOST_PUBLIC_IP "knife data bag from file config ./config.json --secret-file ~/.chef/$ENVIRONMENT-databag.key"
+ssh -o StrictHostKeyChecking=no ubuntu@$JUMPHOST_PUBLIC_IP "knife data bag from file config ./$ENVIRONMENT.json --secret-file ~/.chef/$ENVIRONMENT-databag.key"
 
 echo "Downloading secret key for encrypted databag..."
 scp -o StrictHostKeyChecking=no ubuntu@$JUMPHOST_PUBLIC_IP:~/.chef/$ENVIRONMENT-databag.key ~/.chef/$ENVIRONMENT-databag.key
