@@ -17,6 +17,7 @@ data "aws_iam_policy_document" "cloudtrail" {
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/dm_elk_iam_role",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/staging_elk_iam_role",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/prod_elk_iam_role",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/jp_elk_iam_role",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/tf_elk_iam_role"
       ]
     }
@@ -39,6 +40,7 @@ data "aws_iam_policy_document" "cloudtrail" {
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/dm_elk_iam_role",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/staging_elk_iam_role",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/prod_elk_iam_role",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/jp_elk_iam_role",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/tf_elk_iam_role"
       ]
     }
