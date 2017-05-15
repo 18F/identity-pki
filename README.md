@@ -7,4 +7,5 @@ for use by the devops team to deploy and support login.gov.
 Navigators of this repo may be most interested in:
 
 - [`doc`](doc) - Our design, implementation, and operational documentation
-  - [`doc/getting-started.md`](doc/getting-started.md)
+  - [`doc/getting-started.md`](doc/getting-started.md): Getting Started Guide
+  - [`doc/contributing.md`](doc/contributing.md): Our Process for Contributing Changes
