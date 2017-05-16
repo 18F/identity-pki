@@ -48,18 +48,21 @@ if [ ! -e $TF_VAR_git_deploy_key_path ]; then
 fi
 
 echo "CHECK: Required chef databags..."
-USERS_DATABAGS="kitchen/data_bags/users/"
-if [ ! -e  $USERS_DATABAGS ]; then
-    echo "ERROR: No config databag at: $USERS_DATABAGS"
+USERS_DATABAGS="kitchen/data_bags/users"
+NUM_USERS=$(ls -1d "$USERS_DATABAGS"/*.json 2>/dev/null | wc -l || true)
+if [[ $NUM_USERS -eq 0 ]]; then
+    echo "ERROR: No user databags found at: $USERS_DATABAGS/*.json"
     echo "    You need at least one user account to configure"
     echo "    in chef.  See https://github.com/18F/identity-devops/wiki/Chef-Databags"
+    echo "    You can create one with:  bin/make-user-databag.sh \$USERNAME"
     exit 1
 fi
 CONFIG_DATABAG="kitchen/data_bags/config/${1}.json"
 if [ ! -e  $CONFIG_DATABAG ]; then
-    echo "ERROR: No user databags at: $CONFIG_DATABAG"
+    echo "ERROR: No env config databag at: $CONFIG_DATABAG"
     echo "    You need to have a config databag for chef."
     echo "    See https://github.com/18F/identity-devops/wiki/Chef-Databags"
+    echo "    You can create one with:  bin/make-config-databag.sh \$ENVIRONMENT"
     exit 1
 fi
 
