@@ -11,6 +11,9 @@ fi
 
 ENVIRONMENT=$1
 
+# cd to repo root
+cd "$(dirname "$0")/.."
+
 cat <<EOF
 
 Creating chef config data bag for $ENVIRONMENT
@@ -20,10 +23,12 @@ open because we share many infrastructure secrets out of band.  See
 https://github.com/18F/identity-private/wiki/Operations:-Chef-Databags
 
 EOF
+
 mkdir -p kitchen/data_bags/config/
-if [ -e kitchen/data_bags/config/$ENVIRONMENT.json ]; then
+if [ -e "kitchen/data_bags/config/$ENVIRONMENT.json" ]; then
     echo "File: kitchen/data_bags/config/$ENVIRONMENT.json already exists!  Not creating."
     exit 1
 fi
-sed "s/XXXenv/$ENVIRONMENT/g" template_config_dbag.json > kitchen/data_bags/config/$ENVIRONMENT.json
+
+sed "s/XXXenv/$ENVIRONMENT/g" template_config_dbag.json >" kitchen/data_bags/config/$ENVIRONMENT.json"
 echo "Successfully created: kitchen/data_bags/config/$ENVIRONMENT.json"

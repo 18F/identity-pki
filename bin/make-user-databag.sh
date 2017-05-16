@@ -11,19 +11,22 @@ fi
 
 USERNAME=$1
 
+# cd to repo root
+cd "$(dirname "$0")/.."
+
 echo "Creating chef user data bag for $USERNAME"
 mkdir -p kitchen/data_bags/users/
-if [ -e kitchen/data_bags/users/$USERNAME.json ]; then
+if [ -e "kitchen/data_bags/users/$USERNAME.json" ]; then
     echo "File: kitchen/data_bags/users/$USERNAME.json already exists!  Not creating."
     exit 1
 fi
 
 read -p "Full name: " FULL_NAME
 read -p "Username: " USERNAME
-PASSWORD_HASH=$(htpasswd -n $USERNAME)
+PASSWORD_HASH=$(htpasswd -n "$USERNAME")
 read -p "SSH public key: " PUBLIC_KEY
 read -p "Unique UID: " USER_UID
-cat > kitchen/data_bags/users/$USERNAME.json <<EOF
+cat > "kitchen/data_bags/users/$USERNAME.json" <<EOF
 {
  "id": "$USERNAME",
  "password": "$PASSWORD_HASH",
