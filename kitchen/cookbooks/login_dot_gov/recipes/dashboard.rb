@@ -44,6 +44,7 @@ base_dir = "/srv/#{app_name}"
 deploy_dir = "#{base_dir}/current/public"
 
 idp_url = "https://idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
+idp_sp_url = "https://#{encrypted_config['basic_auth_user_name']}:#{encrypted_config['basic_auth_password']}@idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}/api/service_provider"
 dashboard_url = "https://dashboard.#{node.chef_environment}.login.gov"
 
 # branch is 'master'(default) when env is dev, otherwise use stages/env 
@@ -96,7 +97,7 @@ template "#{base_dir}/shared/config/application.yml" do
     basic_auth_password: encrypted_config['basic_auth_password'],
     basic_auth_username: encrypted_config['basic_auth_user_name'],
     dashboard_api_token: encrypted_config['dashboard_api_token'],
-    idp_sp_url: "#{idp_url}/api/service_provider",
+    idp_sp_url: idp_sp_url,
     mailer_domain: dashboard_url,
     saml_idp_fingerprint: encrypted_config['idp_cert_fingerprint'] || node['login_dot_gov']['dashboard']['idp_cert_fingerprint'],
     saml_idp_slo_url: "#{idp_url}/api/saml/logout",
