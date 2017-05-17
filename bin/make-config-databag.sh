@@ -30,5 +30,5 @@ if [ -e "kitchen/data_bags/config/$ENVIRONMENT.json" ]; then
     exit 1
 fi
 
-sed "s/XXXenv/$ENVIRONMENT/g" template_config_dbag.json >" kitchen/data_bags/config/$ENVIRONMENT.json"
+sed "s/XXXenv/$ENVIRONMENT/g" template_config_dbag.json > "kitchen/data_bags/config/$ENVIRONMENT.json"
 echo "Successfully created: kitchen/data_bags/config/$ENVIRONMENT.json"
