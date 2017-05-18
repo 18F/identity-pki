@@ -6,6 +6,7 @@ resource "aws_db_instance" "idp" {
   db_subnet_group_name = "${aws_db_subnet_group.default.id}"
   depends_on = ["aws_security_group.db", "aws_subnet.db1", "aws_subnet.db2", "aws_db_parameter_group.force_ssl"]
   engine = "${var.rds_engine}"
+  engine_version = "${var.rds_engine_version}"
   identifier = "${var.name}-${var.env_name}-idp"
   instance_class = "${var.rds_instance_class}"
   maintenance_window = "${var.rds_maintenance_window}"
@@ -25,6 +26,9 @@ resource "aws_db_instance" "idp" {
 
 resource "aws_db_parameter_group" "force_ssl" {
   name = "${var.name}-idp-force-ssl-${var.env_name}"
+  # Before changing this value, make sure the parameters are correct for the
+  # version you are upgrading to.  See
+  # http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_WorkingWithParamGroups.html.
   family = "postgres9.5"
 
   parameter {

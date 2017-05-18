@@ -156,6 +156,7 @@ resource "aws_db_instance" "default" {
   db_subnet_group_name = "${aws_db_subnet_group.default.id}"
   depends_on = ["aws_security_group.db", "aws_subnet.db1", "aws_subnet.db2"]
   engine = "${var.rds_engine}"
+  engine_version = "${var.rds_engine_version}"
   identifier = "${var.name}-${var.env_name}"
   instance_class = "${var.rds_instance_class}"
   password = "${var.rds_password}"
