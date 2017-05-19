@@ -35,7 +35,7 @@
     "java": "= 1.46.0",
     "jenkins": "= 5.0.1",
     "letsencrypt": "= 1.0.3",
-    "login_dot_gov": "= 0.0.31",
+    "login_dot_gov": "= 0.0.29",
     "monit": "= 1.0.0",
     "motd": "= 0.6.4",
     "nano": "= 1.0.3",
