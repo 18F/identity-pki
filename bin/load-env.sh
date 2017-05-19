@@ -20,11 +20,6 @@ if [ -z "${GSA_FULLNAME:=}" -o -z "${GSA_EMAIL:=}" ] ; then
     exit 1
 fi
 
-if [ -z "${AWS_ACCESS_KEY_ID:=}" -o -z "${AWS_SECRET_ACCESS_KEY:=}" ] ; then
-    echo "Must set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY in your environment"
-    exit 1
-fi
-
 if [ $# -ne 3 ] ; then
     echo "Usage: $0 <environment_name> <username> <env_file>"
     echo "  Loads <env_file> with the given arguments, but does some error"
