@@ -16,6 +16,7 @@
     "recipe[passenger::daemon]",
     "recipe[identity-jenkins::deploy-key]",
     "recipe[login_dot_gov::dashboard]",
+    "recipe[login_dot_gov::oidc_sinatra]",
     "recipe[login_dot_gov::sp_rails]",
     "recipe[login_dot_gov::sp_sinatra]"
   ],
