@@ -108,7 +108,10 @@ resource "aws_route53_record" "c_alb_production" {
   zone_id = "${var.route53_id}"
 }
 
+# non-prod envs are currently configured to both idp.<env>.login.gov
+# and <env>.login.gov
 resource "aws_route53_record" "c_alb" {
+  count = "${var.env_name == "prod" ? 0 : 1}"
   name = "${var.env_name}.login.gov"
   records = ["${aws_alb.idp.dns_name}"]
   ttl = "300"
@@ -117,6 +120,7 @@ resource "aws_route53_record" "c_alb" {
 }
 
 resource "aws_route53_record" "c_alb_idp" {
+  count = "${var.env_name == "prod" ? 0 : 1}"
   name = "idp.${var.env_name}.login.gov"
   records = ["${aws_alb.idp.dns_name}"]
   ttl = "300"
