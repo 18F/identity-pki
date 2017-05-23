@@ -98,7 +98,8 @@
     },
     "identity-jenkins": {
       "users": [
-        "monfresh"
+        "monfresh",
+        "zmargolis"
       ],
       "admins": [
         "astone",
@@ -106,7 +107,8 @@
         "jpmugizi",
         "sverch",
         "dnesting",
-        "tspencer"
+        "tspencer",
+        "zmargolis"
       ]
     },
     "terraform": {
@@ -119,7 +121,8 @@
         "jgrevich",
         "jpmugizi",
         "monfresh",
-        "tspencer"
+        "tspencer",
+        "zmargolis"
       ]
     }
   },

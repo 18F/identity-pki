@@ -104,7 +104,8 @@
         "monfresh",
         "sverch",
         "dnesting",
-        "tspencer"
+        "tspencer",
+        "zmargolis"
       ]
     },
     "filebeat": {
@@ -112,13 +113,15 @@
     },
     "identity-jenkins": {
       "users": [
-        "monfresh"
+        "monfresh",
+        "zmargolis"
       ],
       "admins": [
         "astone",
         "jgrevich",
         "jpmugizi",
-        "tspencer"
+        "tspencer",
+        "zmargolis"
       ]
     },
     "terraform": {
