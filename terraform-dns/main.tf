@@ -8,7 +8,7 @@ resource "aws_route53_record" "a_root" {
   zone_id = "${aws_route53_zone.primary.zone_id}"
   alias {
     evaluate_target_health = false
-    name = "d36urf17pnwof2.cloudfront.net"
+    name = "db1mat7gaslfp.cloudfront.net"
     zone_id = "Z2FDTNDATAQYW2"
   }
 }
@@ -19,7 +19,7 @@ resource "aws_route53_record" "a_www" {
   zone_id = "${aws_route53_zone.primary.zone_id}"
   alias {
     evaluate_target_health = false
-    name = "d36urf17pnwof2.cloudfront.net"
+    name = "db1mat7gaslfp.cloudfront.net"
     zone_id = "Z2FDTNDATAQYW2"
   }
 }
