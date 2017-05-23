@@ -53,24 +53,8 @@ if [ ! -f "${TF_DIR}/main.tf" ] ; then
   die "you must specify a terraform project folder"
 fi
 
-echo "Creating an s3 bucket for terraform state"
-# This command currently fails.
-# See https://github.com/18F/identity-private/issues/1835
-#aws s3 mb s3://login_dot_gov_tf_state
-
-echo "Enabling versioning on the s3 bucket"
-aws s3api put-bucket-versioning \
-  --bucket login_dot_gov_tf_state \
-  --versioning-configuration Status=Enabled
-
-echo "Using terraform remote state server"
-cd ${TF_DIR}
-rm -rf .terraform
-terraform remote config -backend=s3 \
-  -backend-config="bucket=login_dot_gov_tf_state" \
-  -backend-config="key=${STATE}" \
-  -backend-config="region=us-east-1" \
-  -state="${STATE}"
+echo "Configuring state bucket login_dot_gov_tf_state with state path ${STATE}"
+bin/configure_state_bucket.sh login_dot_gov_tf_state ${STATE}
 
 cat <<EOF
 ########################################
@@ -81,4 +65,5 @@ cat <<EOF
 ########################################
 EOF
 
+cd ${TF_DIR}
 terraform ${TF_CMD}
