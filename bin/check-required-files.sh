@@ -41,9 +41,17 @@ fi
 
 echo "CHECK: Required jenkins key: $TF_VAR_git_deploy_key_path"
 if [ ! -e $TF_VAR_git_deploy_key_path ]; then
-    echo "ERROR: Missing jenkins key.  Get this from one of the team members"
-    echo "    This step should go away with https://github.com/18F/identity-private/issues/863"
-    echo "    See: https://github.com/18F/identity-private/issues/1769#issuecomment-290834999"
+    cat 1>&2 <<EOF
+
+ERROR: Missing jenkins key at $TF_VAR_git_deploy_key_path.
+    This key is what Jenkins uses to download from Github.  If you aren't
+    working with Jenkins, any private key will let the deploy continue,
+    otherwise ask someone on the team for the key that has Github access.
+
+    This step should go away with https://github.com/18F/identity-private/issues/863
+    See: https://github.com/18F/identity-private/issues/1769#issuecomment-290834999
+
+EOF
     exit 1
 fi
 
