@@ -5,7 +5,7 @@ production:
   reconnect: true
   pool: 5
   sslmode: verify-full
-  sslrootcert: '/usr/local/share/aws/rds-combined-ca-bundle.pem'
+  sslrootcert: <%= @sslrootcert %>
   adapter: postgresql
   database: <%= @database %>
   username: <%= @username %>
