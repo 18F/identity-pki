@@ -112,8 +112,7 @@ resource "aws_instance" "idp1" {
     EOF
     environment = "${var.env_name}"
     run_list = [
-      "role[base]",
-      "recipe[login_dot_gov::install_idp_role]"
+      "role[base]"
     ]
     node_name = "idp1.${count.index}.${var.env_name}"
     secret_key = "${file("${var.chef_databag_key_path}")}"
@@ -179,8 +178,7 @@ resource "aws_instance" "idp2" {
     EOF
     environment = "${var.env_name}"
     run_list = [
-      "role[base]",
-      "recipe[login_dot_gov::install_idp_role]"
+      "role[base]"
     ]
     node_name = "idp2.${count.index}.${var.env_name}"
     secret_key = "${file("${var.chef_databag_key_path}")}"
@@ -226,8 +224,7 @@ resource "aws_instance" "idp_worker" {
     EOF
     environment = "${var.env_name}"
     run_list = [
-      "role[base]",
-      "recipe[login_dot_gov::install_worker_role]"
+      "role[base]"
     ]
     node_name = "worker.${var.env_name}"
     secret_key = "${file("${var.chef_databag_key_path}")}"

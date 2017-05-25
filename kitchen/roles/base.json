@@ -31,6 +31,7 @@
   "run_list": [
     "recipe[login_dot_gov::chage]",
     "recipe[login_dot_gov::users]",
+    "recipe[identity-jenkins::deploy-key]",
     "recipe[apt]",
     "recipe[bash-completion]",
     "recipe[build-essential]",

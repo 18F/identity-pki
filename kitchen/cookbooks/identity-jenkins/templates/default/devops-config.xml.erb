@@ -60,7 +60,7 @@ berks upload
 berks apply <%= @env %>
 
 # push changes out
-knife ssh &quot;name:* NOT name:jenkins*&quot; -x ubuntu -a ipaddress &quot;sudo chef-client&quot;
+knife ssh &quot;name:* NOT name:jenkins*&quot; -x ubuntu -a ipaddress &quot;sudo /opt/chef/bin/chef-client&quot;
 
 </command>
     </hudson.tasks.Shell>

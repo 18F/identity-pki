@@ -27,7 +27,7 @@
     "hostname": "= 0.4.0",
     "hostsfile": "= 2.4.5",
     "identity-elk": "= 0.1.18",
-    "identity-jenkins": "= 0.1.7",
+    "identity-jenkins": "= 0.1.8",
     "identity-jumphost": "= 0.1.0",
     "identity-nessus": "= 0.0.2",
     "identity-ntp": "= 0.1.0",
@@ -104,6 +104,7 @@
       "users": [
         "astone",
         "jgrevich",
+        "zmargolis",
         "jpmugizi",
         "monfresh",
         "sverch",

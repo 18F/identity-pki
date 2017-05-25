@@ -87,6 +87,12 @@ directory '/var/lib/jenkins/.ssh' do
   mode  '0700'
 end
 
+template '/var/lib/jenkins/.ssh/config' do
+  source 'ssh_config.erb'
+  user  'jenkins'
+  group 'jenkins'
+end
+
 file '/var/lib/jenkins/.ssh/id_rsa.pub' do
   content Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['jenkins_ssh_pubkey']
   user  'jenkins'

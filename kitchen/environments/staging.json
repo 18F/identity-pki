@@ -94,6 +94,7 @@
     "users": [
       "astone",
       "jgrevich",
+      "zmargolis",
       "jpmugizi",
       "monfresh",
       "sverch",
@@ -106,6 +107,7 @@
   },
   "identity-jenkins": {
     "users": [
+      "zmargolis",
       "monfresh"
     ],
     "admins": [

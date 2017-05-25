@@ -49,7 +49,12 @@ knife ssl fetch
 # Get the current version
 GITVERSION=`git rev-parse HEAD`
 
-knife ssh &quot;name:idp1*&quot; -x ubuntu -a ipaddress &quot;sudo chef-client -o role[idp]&quot;
+knife ssh &quot;name:idp1*&quot; -x ubuntu -a ipaddress &quot;sudo /opt/chef/bin/chef-client -r role[idp]&quot;
+# reset runlist to base
+knife search node name:idp1* -i | egrep ^idp1 | while read line ; do
+        knife node run_list set $line &apos;role[base]&apos;
+done
+
 
 # Loop until we time out, or everything is up on a new version
 TRIES=10
@@ -68,8 +73,12 @@ if [ $TRIES -lt 1 -o &quot;$NEWVERSIONS&quot; != &quot;$GITVERSION&quot; ] ; the
 fi
 
 # since idp1 worked, do the rest.
-knife ssh &quot;name:idp2*&quot; -x ubuntu -a ipaddress &quot;sudo chef-client -o role[idp]&quot;
-knife ssh &quot;name:worker*&quot; -x ubuntu -a ipaddress &quot;sudo chef-client -o role[idp_worker]&quot;
+knife ssh &quot;name:idp2*&quot; -x ubuntu -a ipaddress &quot;sudo /opt/chef/bin/chef-client -r role[idp]&quot;
+knife ssh &quot;name:worker*&quot; -x ubuntu -a ipaddress &quot;sudo /opt/chef/bin/chef-client -r role[idp_worker]&quot;
+# reset runlist to base
+knife search node &quot;name:idp2* OR name:worker*&quot; -i | egrep &apos;^idp|^worker&apos; | while read line ; do
+        knife node run_list set $line &apos;role[base]&apos;
+done
 
 
 # give report on the state of the deploy if it didn&apos;t work
