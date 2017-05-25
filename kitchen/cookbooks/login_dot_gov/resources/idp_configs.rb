@@ -39,6 +39,7 @@ action :create do
       equifax_avs_username: encrypted_config['equifax_avs_username'],
       equifax_eid_username: encrypted_config['equifax_eid_username'],
       equifax_endpoint: encrypted_config['equifax_endpoint'],
+      equifax_gpg_email: node['login_dot_gov']['equifax_gpg_email'],
       equifax_password: encrypted_config['equifax_password'],
       equifax_phone_username: encrypted_config['equifax_phone_username'],
       equifax_ssh_passphrase: encrypted_config['equifax_ssh_passphrase'],
