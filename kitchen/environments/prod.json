@@ -88,6 +88,9 @@
         "tspencer",
         "zmargolis"
       ]
+    },
+    "login_dot_gov": {
+      "equifax_sftp_directory": "/fis/prd/incoming/"
     }
   },
   "elk": {
