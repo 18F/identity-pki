@@ -83,7 +83,7 @@
     "equifax_avs_username": "sekrit XXX",
     "equifax_eid_username": "sekrit XXX",
     "equifax_endpoint": "sekrit XXX",
-    "equifax_gpg_key": "donny.whitten@fisglobal.com",
+    "equifax_gpg_email": "donny.whitten@fisglobal.com",
     "equifax_password": "sekrit XXX",
     "equifax_phone_username": "sekrit XXX",
     "equifax_ssh_pubkey": "ssh-rsa XXX keyid",
