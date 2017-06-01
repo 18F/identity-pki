@@ -154,4 +154,13 @@ action :create do
     user node['login_dot_gov']['system_user']
     sensitive true
   end
+
+  file "#{name}/keys/equifax_gpg.pub" do
+    action :create
+    content encrypted_config['equifax_gpg_public_key']
+    manage_symlink_source true
+    subscribes :create, 'resource[git]', :immediately
+    user node['login_dot_gov']['system_user']
+    sensitive true
+  end
 end

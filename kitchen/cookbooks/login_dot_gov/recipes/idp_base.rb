@@ -172,13 +172,17 @@ app_config = {
   '/srv/idp/releases/chef/config/newrelic.yml' => '/srv/idp/shared/config/',
   '/srv/idp/releases/chef/certs/saml.crt' => '/srv/idp/shared/certs/',
   '/srv/idp/releases/chef/keys/saml.key.enc' => '/srv/idp/shared/keys/',
-  '/srv/idp/releases/chef/keys/equifax_rsa' => '/srv/idp/shared/keys/'
+  '/srv/idp/releases/chef/keys/equifax_rsa' => '/srv/idp/shared/keys/',
+  '/srv/idp/releases/chef/keys/equifax_gpg.pub' => '/srv/idp/shared/keys/'
 }
 app_config.keys.each do |config|
   unless File.exist?(config) && File.symlink?(config) || node['login_dot_gov']['setup_only']
     execute "cp #{config} #{app_config[config]}"
   end
 end
+
+# create GPG binary key for use w/o importing
+execute "gpg --dearmor < /srv/idp/shared/keys/equifax_gpg.pub > /srv/idp/shared/keys/equifax_gpg.pub.bin"
 
 # symlink chef release to current dir
 execute 'ln -fns /srv/idp/releases/chef/ /srv/idp/current'
@@ -203,6 +207,7 @@ shared_files = [
   'config/experiments.yml',
   'config/newrelic.yml',
   'keys/equifax_rsa',
+  'keys/equifax_gpg.pub.bin',
   'keys/saml.key.enc'
 ]
 
