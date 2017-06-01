@@ -54,7 +54,7 @@ if [ ! -f "${TF_DIR}/main.tf" ] ; then
 fi
 
 echo "Configuring state bucket login_dot_gov_tf_state with state path ${STATE}"
-bin/configure_state_bucket.sh login_dot_gov_tf_state ${STATE}
+bin/configure_state_bucket.sh login_dot_gov_tf_state ${STATE} ${TF_DIR}
 
 cat <<EOF
 ########################################

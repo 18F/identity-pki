@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 
-if [ $# -ne 2 ] ; then
-    echo "Usage: $0 <bucket_name> <state_file_path>"
+if [ $# -ne 3 ] ; then
+    echo "Usage: $0 <bucket_name> <state_file_path> <terraform_dir>"
     echo "  Configure terraform to store state in s3."
     exit 1
 fi
 
 BUCKET=$1
 STATE=$2
+TF_DIR=$3
 
 echo "Using state file $STATE"
 
