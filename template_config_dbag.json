@@ -109,6 +109,8 @@
     "google_analytics_key": "UA-XXX",
     "hmac_fingerprinter_key": "XXX",
     "idp_cert_fingerprint": "",
+    "max_mail_events": "X",
+    "max_mail_events_window_in_days": "XX",
     "newrelic_license_key": "XXX",
     "password_pepper": "XXX",
     "redis_url": "redis://redis.login.gov.internal:6379",

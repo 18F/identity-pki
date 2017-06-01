@@ -55,6 +55,8 @@ action :create do
       logins_per_ip_limit: node['login_dot_gov']['logins_per_ip_limit'],
       logins_per_ip_period: node['login_dot_gov']['logins_per_ip_period'],
       mailer_domain_name: "https://#{domain_name}",
+      max_mail_events: node['login_dot_gov']['max_mail_events'],
+      max_mail_events_window_in_days: node['login_dot_gov']['max_mail_events_window_in_days'],
       min_password_score: node['login_dot_gov']['min_password_score'],
       password_max_attempts: node['login_dot_gov']['password_max_attempts'],
       newrelic_browser_app_id: encrypted_config['newrelic_browser_app_id'],
