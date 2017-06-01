@@ -84,6 +84,7 @@
       "aws_region": "us-west-2",
       "branch_name": "stages/qa",
       "enable_identity_verification": "true",
+      "enable_usps_verification": "true",
       "use_kms": "true"
     },
     "ssh_keys": {

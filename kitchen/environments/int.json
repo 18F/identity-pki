@@ -82,6 +82,7 @@
       "aws_region": "us-west-2",
       "branch_name": "stages/rc-2017-05-30",
       "enable_identity_verification": "true",
+      "enable_usps_verification": "true",
       "proofing_vendors": "equifax",
       "use_kms": "false"
     },

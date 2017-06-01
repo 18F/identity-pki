@@ -36,6 +36,7 @@ action :create do
       email_from: node['login_dot_gov']['email_from'],
       enable_i18n_mode: node['login_dot_gov']['enable_i18n_mode'],
       enable_identity_verification: node['login_dot_gov']['enable_identity_verification'],
+      enable_usps_verification: node['login_dot_gov']['enable_usps_verification'],
       equifax_avs_username: encrypted_config['equifax_avs_username'],
       equifax_eid_username: encrypted_config['equifax_eid_username'],
       equifax_endpoint: encrypted_config['equifax_endpoint'],
