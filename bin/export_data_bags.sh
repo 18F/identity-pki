@@ -1,3 +1,6 @@
+#!/bin/sh
+set -eu
+
 knife block $TF_VAR_env_name
 
 for config in `knife data bag show config`; do
