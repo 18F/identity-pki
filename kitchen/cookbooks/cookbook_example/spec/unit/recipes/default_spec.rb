@@ -8,7 +8,7 @@ require 'spec_helper'
 require 'json'
 
 describe 'cookbook_example' do
-  context 'When all attributes are default, on an Ubuntu 16.04' do
+  context 'When all attributes are default, on an Ubuntu 14.04' do
 
     let(:chef_environment) { "unittest" }
 
@@ -37,7 +37,7 @@ describe 'cookbook_example' do
       runner = ChefSpec::ServerRunner.new(
         step_into: ['users_manage'],
         platform: 'ubuntu',
-        version: '16.04'
+        version: '14.04'
       ) do |node, server|
         # https://github.com/sethvargo/chefspec#mocking-out-environments
         server.create_environment(chef_environment, environment_configuration)
