@@ -10,8 +10,12 @@ die() { echo "$@" 1>&2 ; exit 1; }
 set -euo pipefail
 
 if [ $# -lt 3 ] ; then
-	echo "Usage: $0 <environment name> <username> <terraform_dir> [<terraform_commands>]"
-	exit 1
+    echo "Usage: $0 <environment_name> <username> <terraform_dir> [<terraform_commands>]"
+    echo "   Runs <terraform_commands> against <environment_name> using the"
+    echo "   configuration in <terraform_dir>."
+    echo "   <username> should be the username of an existing chef user that"
+    echo "   Terraform can use to provision chef-client on new nodes."
+    exit 1
 fi
 
 if [[ "$(terraform --version)" != *"v$TERRAFORM_VERSION"* ]]; then

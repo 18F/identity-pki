@@ -1,77 +1,64 @@
 # Login.gov Infrastructure Repository Getting Started
 
-This repository contains infrastructure configurations for the [identity-*](https://github.com/18F/identity-private) projects as well as instructions on how to build  
-
-an environment/Virtual Private Cloud(VPC) using [Terraform](https://www.terraform.io/). It is recommended that you  
-
-  familiarize yourself with the [Terraform CLI](https://www.terraform.io/docs/commands/), especially `plan` , `apply`, and `destroy` commands. 
-
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 
-- [0.  Quickstart](#0--quickstart)
-- [1.  Required Tools Setup and Initial Terraform Run](#1--required-tools-setup-and-initial-terraform-run)
-  - [1.1 Setup Prerequisite Tools](#11-setup-prerequisite-tools)
-  - [1.2 Create FISMA AMI(Optional)](#12-create-fisma-amioptional)
-  - [1.3 Create Environmental Variables File](#13-create-environmental-variables-file)
-  - [1.4 Add Key to SSH-Agent](#14-add-key-to-ssh-agent)
-  - [1.5 Add Required Local Files](#15-add-required-local-files)
-  - [1.6 Initial Terraform Run](#16-initial-terraform-run)
-- [2.  Chef Server Setup and Final Terraform Run](#2--chef-server-setup-and-final-terraform-run)
-  - [2.1 Find Jumphost's Public IP](#21-find-jumphosts-public-ip)
-  - [2.2 Setup Knife](#22-setup-knife)
-    - [2.2.1 Verify Provisioner-created Files](#221-verify-provisioner-created-files)
-    - [2.2.2 Upload .Chef and .Env to Jumphost](#222-upload-chef-and-env-to-jumphost)
-    - [2.2.3 Create knife.rb](#223-create-kniferb)
-    - [2.2.4 Clone Identity-Devops Repo  and Upload Databags(In Progress)](#224-clone-identity-devops-repo--and-upload-databagsin-progress)
-    - [2.2.5 Create Databags](#225-create-databags)
-  - [2.3 Create a login.gov base AMI(Optional)](#23-create-a-logingov-base-amioptional)
-  - [2.4 Final Terraform Run](#24-final-terraform-run)
-- [3. Jumphost Configuration and Common Usage Patterns](#3-jumphost-configuration-and-common-usage-patterns)
-  - [3.1 Manual Lockdown](#31-manual-lockdown)
-  - [3.2. Jumphost SSH-Agent and Proxy Forwarding](#32-jumphost-ssh-agent-and-proxy-forwarding)
-  - [3.3 Using Chef](#33-using-chef)
-    - [3.3.1 Moving Chef Credentials(knife, databag keys etc.) to The Jumphost](#331-moving-chef-credentialsknife-databag-keys-etc-to-the-jumphost)
-    - [3.3.2 Creating Your User in the Chef Server(Optional)](#332-creating-your-user-in-the-chef-serveroptional)
-  - [3.4 Using Capistrano](#34-using-capistrano)
-  - [3.5 Using Terraform(Optional)](#35-using-terraformoptional)
-- [4. Other Miscellaneous Configurations](#4-other-miscellaneous-configurations)
-  - [4.1 Elastic Search](#41-elastic-search)
-  - [4.2 CloudTrail](#42-cloudtrail)
-  - [4.3 Jenkins](#43-jenkins)
-    - [4.3.1 Jenkins Users and Admins](#431-jenkins-users-and-admins)
-    - [4.3.2 Chef Jenkins Key](#432-chef-jenkins-key)
-    - [4.3.3 Jenkins/ELK Password Hash](#433-jenkinselk-password-hash)
-    - [4.3.4 Jenkins Usage](#434-jenkins-usage)
-- [5. Release Process](#5-release-process)
-  - [5.1 Infrastructure](#51-infrastructure)
-  - [5.2 App Control/Config with Rake Tasks](#52-app-controlconfig-with-rake-tasks)
-  - [5.3 Cookbook Changes](#53-cookbook-changes)
-    - [5.3.1 Real Releases](#531-real-releases)
-    - [5.3.2 Cookbook Development](#532-cookbook-development)
-    - [5.3.3. (Un)Encrypted Databag Changes](#533-unencrypted-databag-changes)
-    - [5.3.4 Code Changes](#534-code-changes)
+- [1. Introduction](#1-introduction)
+- [2. Dependencies](#2-dependencies)
+  - [2.1. Mac OSX](#21-mac-osx)
+- [3. Environment Variables File](#3-environment-variables-file)
+- [4. Add Bootstrap Key to SSH-Agent](#4-add-bootstrap-key-to-ssh-agent)
+- [5. Create a new environment](#5-create-a-new-environment)
+  - [5.1. Troubleshooting](#51-troubleshooting)
+  - [5.2. Provisioner-created Files](#52-provisioner-created-files)
+- [6. Work with an existing environment](#6-work-with-an-existing-environment)
+  - [6.1. Terraform](#61-terraform)
+  - [6.2. Chef](#62-chef)
+    - [6.2.1. Adding a Chef User](#621-adding-a-chef-user)
+    - [6.2.2. Knife Setup](#622-knife-setup)
+    - [6.2.3. Data Bags](#623-data-bags)
+    - [6.2.4. Run Chef Client](#624-run-chef-client)
+    - [6.2.5. Berkshelf](#625-berkshelf)
+    - [6.2.6. Cookbook Changes](#626-cookbook-changes)
+- [7. Create FISMA AMI](#7-create-fisma-ami)
+- [8. Create a login.gov base AMI](#8-create-a-logingov-base-ami)
+- [9. Manual Lockdown](#9-manual-lockdown)
+- [10. Jumphost SSH-Agent and Proxy Forwarding](#10-jumphost-ssh-agent-and-proxy-forwarding)
+- [11. Other Miscellaneous Configurations](#11-other-miscellaneous-configurations)
+  - [11.1 Elastic Search](#111-elastic-search)
+  - [11.2 CloudTrail](#112-cloudtrail)
+  - [11.3 Jenkins](#113-jenkins)
+    - [11.3.1 Jenkins Users and Admins](#1131-jenkins-users-and-admins)
+    - [11.3.2 Chef Jenkins Key](#1132-chef-jenkins-key)
+    - [11.3.3 Jenkins/ELK Password Hash](#1133-jenkinselk-password-hash)
+    - [11.3.4 Jenkins Usage](#1134-jenkins-usage)
+  - [11.5. Deploying the application](#115-deploying-the-application)
+    - [11.5.1. App Control/Config with Rake Tasks](#1151-app-controlconfig-with-rake-tasks)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-## 0.  Quickstart
+## 1. Introduction
 
-If you're trying to spin up a new environment, run:
+The [`identity-devops`](https://github.com/18F/identity-private) repository
+contains infrastructure configurations for the
+[identity-*](https://github.com/18F/identity-private) projects.  This includes
+the [Terraform](https://www.terraform.io/docs/commands/) configuration for
+provisioning a new [AWS VPC](https://aws.amazon.com/vpc/) and other AWS
+elements as well as the [Chef](https://docs.chef.io/chef_overview.html)
+cookbooks for configuring instances after they are provisioned.
 
-```
-./bootstrap.sh
-```
+This document is an introduction for how to work with this repository,
+including spinning up a new environment and working with an existing
+environment.
 
-That should prompt you for anything that the setup needs and help you through the process.  If you get stuck, refer back to the rest of this README for more details.
+## 2. Dependencies
 
-## 1.  Required Tools Setup and Initial Terraform Run
+### 2.1. Mac OSX
 
-### 1.1 Setup Prerequisite Tools
+Install [Homebrew](https://brew.sh) (Ignore this step if you have already run the  [laptop script](https://github.com/18F/laptop)).
 
-Install [Homebrew](https://brew.sh) (Ignore this step if you have already run the  [laptop script](https://github.com/18F/laptop) ).
-
-```she
+```shell
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 ```
 
@@ -81,38 +68,27 @@ Install  [AWS CLI](https://aws.amazon.com/cli/)  in order to manage services fro
 brew install awscli
 ```
 
-Then, configure AWS by running `aws configure`. For `Default region name` use `us-east-1` if you are in 18f-sandbox, otherwise use `us-west-2`.
+[Configure the AWS
+CLI](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html)
+with the AWS region (currently us-west-2) and credentials you want to use.  The
+18f-identity specific signin link is here:
+https://18f-identity.signin.aws.amazon.com/console.  Test your configuration by
+running `aws s3 ls`.
 
-```shell
-% aws configure
-AWS Access Key ID [****************]: 
-AWS Secret Access Key [****************]: 
-Default region name [us-west-2]:
-```
-
-Finally, try getting a list of all available S3 buckets by running `aws s3 ls` You should be able to see something like this, in return:
-
-```shell
-% aws s3 ls
-2017-03-07 12:26:08 login-<env>-secrets
-2017-03-16 11:04:48 login-gov-cloudtrail-xxxx
-2017-03-17 15:02:03 login-gov-<env>-logs
-2017-03-17 15:02:01 login-gov-<env>-secrets
-```
-
-Install [ChefDK](https://downloads.chef.io/chefdk)
+Install [ChefDK](https://downloads.chef.io/chefdk).
 
 ```shell
 brew install Caskroom/cask/chefdk
 ```
 
-Install [Terraform CLI](https://www.terraform.io/docs/commands/) 
+Install [Terraform CLI](https://www.terraform.io/docs/commands/).
 
-``` shell
-brew install terraform
-```
+- Download Terraform 0.8.8 from https://releases.hashicorp.com/terraform/.
+    - We are in the process of upgrading from 0.8.8, check back
+      [here](https://github.com/18F/identity-private/issues/1877) for the status of that upgrade.
+- Extract it somewhere, like `/usr/local/bin` or `~/bin` and make sure it's in your PATH.
 
-Install [Terraform ACME Provider](https://www.terraform.io/docs/commands/)
+Install [Terraform ACME Provider](https://www.terraform.io/docs/commands/).
 
 ``` shell
 mkdir $HOME/.terraform-plugins
@@ -121,16 +97,209 @@ providers {
   acme = "$home/.terraform.plugins/terraform-provider-acme"
 }
 EOT
-curl -LO https://github.com/paybyphone/terraform-provider-acme/releases/download/v0.2.1/terraform-provider-acme_v0.2.1_darwin_amd64.zip
-unzip -o terraform-provider-acme_v0.2.1_darwin_amd64.zip -d $HOME/.terraform-plugins
+curl -LO
+ttps://github.com/paybyphone/terraform-provider-acme/releases/download/v0.2.1/terraform-provider-acme_v0.2.1_darwin_amd64.zip
+unzip -o terraform-provider-acme_v0.2.1_darwin_amd64.zip -d
+HOME/.terraform-plugins
 rm terraform-provider-acme_v0.2.1_darwin_amd64.zip
 ```
 
-### 1.2 Create FISMA AMI(Optional) 
+## 3. Environment Variables File
 
-** **Skip this step if there is an already built [AMI](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html) (ask or look at pinned items in the [#identity-devops](https://gsa-tts.slack.com/) channel )** **
+We currently use a lot of environment variables for configuration.  Copy
+`env/env.sh.example` to `env/env.sh`.  Do not source this directly, it is used
+by the `deploy` and `bootstrap.sh` scripts described below.
 
-Create Secure [FISMA AMIs](https://github.com/fisma-ready/ubuntu-lts/tree/jjg/feature/ubuntu-1604-support)
+One thing you may have to change is TF_VAR_app_sg_ssh_cidr_blocks if you're not
+on the internal GSA network.  See
+https://github.com/18F/identity-private/issues/1769#issuecomment-290822192.
+You will have to add your CIDR as the first CIDR in the array until
+https://github.com/18F/identity-devops/pull/245 is resolved.
+
+## 4. Add Bootstrap Key to SSH-Agent
+
+We currently use a shared SSH key as part of our bootstrap process, see the
+discussion in https://github.com/18F/identity-private/issues/1730.  For now you
+need to get that key from someone else on the team, or create your own keypair
+in AWS.
+
+You need to add the value of `TF_VAR_key_name` to your ssh-agent, otherwise ssh
+handshake will fail. For `identity-devops`, it is `login-dev-us-west-2.pem`.
+
+```shell
+ssh-add ~/.ssh/login-dev-us-west-2.pem
+```
+
+This will allow you to log in as the `ubuntu` user for any instances that are
+provisioned using this keypair.
+
+## 5. Create a new environment
+
+If you're trying to spin up a new environment, run:
+
+```
+./bootstrap.sh
+```
+
+From the root of the `identity-devops` repo.  That should prompt you for
+anything that the setup needs and help you through the process.  If you get
+stuck, refer back to the rest of this README for more details.
+
+The main terraform configuration directory is `terraform-app`.
+
+After you've created a new environment, refer to the manual lockdown steps
+below.
+
+### 5.1. Troubleshooting
+
+If your initial setup fails, file an issue in `identity-private` to get the
+issue fixed in the bootstrap script.
+
+Depending on where the failure happened, your jumphost may not yet have a DNS
+name, so you will have to ssh in using the public IP address which can find in
+the AWS console.  If you want to get the IP from the command line see
+https://github.com/18F/identity-devops/blob/master/bin/chef-configuration-first-run.sh#L17
+for an example.
+
+If the issue was in the terraform provisioning step, you can attempt to fix the
+issue and continue the deployment using the `deploy` script described below.
+
+### 5.2. Provisioner-created Files
+
+The [Chef
+Provisioner](https://github.com/18F/identity-devops/blob/master/terraform-app/chef.tf#L69)
+creates several files in your `~/.chef` directory.  After
+https://github.com/18F/identity-private/issues/863 is done, this might not
+happen any more, but for now, these are some files that may be created:
+
+* `yourusername-<env>.pem`
+* `<env>-login-dev-validator.pem`
+* `knife-<env>.rb`
+* `<env>-databag.key`
+
+## 6. Work with an existing environment
+
+### 6.1. Terraform
+
+To run terraform on an existing environment, use the `deploy` script in the
+`identity-devops` repository.  This loads the necessary environment
+configuration and runs terraform with whatever options you pass in.
+
+It is recommended that your run `plan` before you run `apply`.  For example:
+
+```
+# Should show what terraform would do if you ran apply
+./deploy testenv myuser terraform-app plan
+# Should apply the plan that the plan command showed
+./deploy testenv myuser terraform-app apply
+```
+
+The terraform configuration directory for most things in our infrastructure is
+`terraform-app`.
+
+### 6.2. Chef
+
+We use Chef to manage machine configuration and user accounts.
+
+#### 6.2.1. Adding a Chef User
+
+If you set up the environment, you should already have a chef user.  If someone
+else set up the environment you are trying to work with, you may need to get
+the [config databag key](https://github.com/18F/identity-private/issues/1825)
+from them, and create a new chef user for yourself.
+
+[This
+script](https://github.com/18F/identity-devops/blob/master/bin/createchefclient.sh)
+is one way to create a chef user, but you can also use
+[knife](https://docs.chef.io/knife_user.html).
+
+#### 6.2.2. Knife Setup
+
+After your environment is already setup, you can run `bin/setup-knife.sh` and
+point it at the jumphost.  If someone else set up the environment you are
+trying to work with, you may need to get the [config databag
+key](https://github.com/18F/identity-private/issues/1825) from them, and create
+a new chef user for yourself.
+
+If knife is set up correctly, `knife node list` on the jumphost should list the
+nodes in your env/VPC.
+
+#### 6.2.3. Data Bags
+
+We have data bags for our configuration and our user accounts.  See:
+https://github.com/18F/identity-private/wiki/Operations:-Chef-Databags.
+
+During the bootstrap process, these should be added automatically by
+https://github.com/18F/identity-devops/blob/master/bin/chef-configuration-first-run.sh.
+
+After you have an environment set up and knife configured correctly, you should
+be able to modify the user and config data bags using the `knife data bag`
+commands.
+
+For example, to edit the config databag:
+
+```shell
+knife data bag edit config app # knife[:secret-file] should be set in your knife.rb
+```
+
+#### 6.2.4. Run Chef Client
+
+To run the `chef-client` you may not need a chef account as long as you have an
+account on the box that can sudo.  Just run `sudo chef-client`.
+
+If you want to use `knife ssh` you can use that to run on multiple nodes that
+match a pattern without having to manually ssh in.  For example, `knife ssh
+'name:*' 'sudo chef-client'` will run chef-client on all nodes.
+
+#### 6.2.5. Berkshelf
+
+We use [Berkshelf](https://berkshelf.com/v2.0/) to manage our cookbooks, so you
+may also need to clone `identity-devops` on the jumphost and install Berkshelf.
+See
+https://github.com/18F/identity-devops/blob/c7927570c7bcd4ceae4cda0d8f1acf2ce84fb43e/terraform-app/install-chef-server.sh.tpl
+for how terraform sets this up on the chef server.
+
+#### 6.2.6. Cookbook Changes
+
+Probably most of the time, you'll just be pushing one cookbook up, so you can
+bump the cookbook version number and then do this:
+
+```shell
+berks
+berks upload identity-jenkins
+berks apply <env>
+```
+
+If you get a "cookbook already there" error, then somebody is probably already
+doing dev on that cookbook in that version. You will want to coordinate with
+whoever is doing that to prevent yourself from stepping on the other person's
+toes. From that point on, you will need to force updates to your cookbook under
+development:
+
+```shell
+knife block use <env>
+berks upload identity-jenkins --force
+```
+
+Then you'll want to run chef-client on the hosts where the cookbook will take
+effect:
+
+```shell
+knife block use <env>
+knife ssh "name:*tf" "sudo chef-client" -x ubuntu -a ipaddress
+```
+
+In theory jenkins can do this.  See
+https://github.com/18F/identity-private/issues/1317 for discussion.
+
+## 7. Create FISMA AMI
+
+We deploy a specifically created FISMA compliant AMI.  You can find the current
+AMI
+[here](https://github.com/18F/identity-devops/blob/90077bac679c2f0936260c5368cea95d1b38011f/env/env.sh.example#L28),
+or pinned in the [#identity-devops](https://gsa-tts.slack.com/) channel.
+
+To create secure [FISMA AMIs](https://github.com/fisma-ready/ubuntu-lts/tree/jjg/feature/ubuntu-1604-support), run:
 
 ```shell
 git clone https://github.com/fisma-ready/ubuntu-lts
@@ -138,330 +307,26 @@ cd ubuntu-lts/
 git checkout jjg/feature/ubuntu-1604-support
 ```
 
-Follow [these instructions](https://github.com/fisma-ready/ubuntu-lts/tree/jjg/feature/ubuntu-1604-support) and use the generated AMI in the next step.
+Follow [these
+instructions](https://github.com/fisma-ready/ubuntu-lts/tree/jjg/feature/ubuntu-1604-support)
+and update the AMI ID in slack and in the environment configuration.
 
-### 1.3 Create Environmental Variables File
+## 8. Create a login.gov base AMI
 
-`<env>.sh` will be used by Terraform to source environmental variables during `apply`/`plan`/`destroy` .
+This is not currently done for our deployments as far as I know, but is a first
+step towards https://github.com/18F/identity-private/issues/1942.
 
-First, make a copy of `env.sh.example` and fill in the missing details for your specific env:
-
-`<env>` is `dev/test/prod/demo/etc` 
-
-``` shell
-# cd into the identity-devops/env directory
-cd path/to/identity-devops/env
-
-# then create your env variables file  
-cp env.sh.example <env>.sh
-```
-
-Edit `<env.sh>` by filling in all the required values.Then, source it
-
-``` shell
-source <env>.sh
-```
-
-There will be some details  that you will not be able to fill out, like subnet/AMI id, chef server,  etc. Those values will be supplied by terraform later and used in [Chef Server Setup and Final Terraform Run](#2--chef-server-setup-and-final-terraform-run).  
-
-Common errors:
-
-* **Verify that you have sourced the right environment**  before you `apply` . It is recommended that you quit and restart your shell so that the old env variables aren't there. You should *only* have the TF vars set that are in that env.sh (in this case `dev.sh`), not any others.
-
-  ```shell
-  echo $TF_VAR_env_name
-  ```
-
-* **Verify that all your paths are correct**   for keys such as `login-dev-us-west.pem` (should be under `~/.ssh`) 
-
-### 1.4 Add Key to SSH-Agent
-
-You need to add the value of `TF_VAR_key_name` to your ssh-agent, otherwise ssh handshake will fail. For `identity-devops` , it is `login-dev-us-west-2.pem`.
-
-```shell
-ssh-add ~/.ssh/login-dev-us-west-2.pem
-```
-
-
-
-### 1.5 Add Required Local Files
-
-Before you run terraform you will need to have the TLS certificate, chain, and private key used for that env. Additionally you will also need a copy of the latest Nessus/Nessus Manager dpkg installer. This can be downloaded from [https://support.tenable.com/](https://support.tenable.com/) or copied from another teammate.
-
-The certificates need to be named using the following scheme:
-
-```
--rw-r-----  1 jjg  staff   1834 Jan 27 18:25 staging-cert.pem
--rw-r-----  1 jjg  staff   1647 Jan 27 18:25 staging-chain.pem
--rw-r-----  1 jjg  staff   1704 Jan 27 18:25 staging-key.pem
--rw-r-----  1 jjg  staff  22611 Jan 30 21:49 staging_app_etc_letsencrypt.tbz
--rw-r-----  1 jjg  staff  10562 Jan 29 13:34 staging_etc_letsencrypt.tbz
-```
-
-
-
-Note the presence of the tar archives. Those can be used so that the lets_encrypt resource in the login_dot_gov cookbook doesn't try to generate new certs. We can eventually remove that code since the cert is uploaded to the ALB and we can use self-signed certs on the app hosts. Furthermore, we can use the ACME terraform provider to more easily generate and renew certs going forward.
-
-The Nessus/Nessus Manager dpkg is expected to be located in the root of the project folder:
-
-```
-/Nessus-6.10.0-ubuntu1110_amd64.deb
-```
-
-
-
-### 1.6 Initial Terraform Run
-
-First, Plan your execution by running
-
-``` shell
-./deploy plan terraform-app
-```
-
-Scan the plan output to see if everything looks as intended.
-
-Then apply it
-
-```shell
-./deploy apply terraform-app
-```
-
-`Terraform apply` should create a chef-server, but will fail to deploy all the other services, because they require chef to be fully set up.Terraform will say that it couldn't find your user in the users databag  and give you the output below. 
-
-```shell
-Error applying plan:
-
-1 error(s) occurred:
-
-* Command "sudo chef-client -j \"/etc/chef/first-boot.json\" -E \"qa\"" exited with non-zero exit status: 1
-
-Terraform does not automatically rollback in the face of errors.
-Instead, your Terraform state file has been partially updated with
-any resources that successfully completed. Please address the error
-above and apply again to incrementally change your infrastructure.
-```
-
-Otherwise, here are some other common errors:
-
-* `SSH handshake failure` : make sure you added `login-dev-us-west-2.pem` to your ssh-agent
-* `TCP handshake failure`: make sure you are on the GSA VPN or Network/Cidr block.
-
-
-
-
-## 2.  Chef Server Setup and Final Terraform Run
-
-### 2.1 Find Jumphost's Public IP
-
-So far, the only thing  that was completely built is the chef-server. The jumphost dns name(i.e. `jumphost.<env>.login.gov`)  will be applied towards the end of this final Terraform apply.
-
-Due to the restrictions of our [Security Groups]() and [Network Access Control Lists](), you need to ssh into the jumphost to be able to  interact with other machines in the same cluster/env (such as the chef-server, idp/app hosts, elk etc. ).
-
-You can obtain the `Public IP` address of the jumphost by either:
-
-* Navigating to the [AWS Management Console]() and searching for `jumphost-<env>` under Services/EC2
-
-  or
-
-* Using the AWS CLI
-
-  ```shell
-  # replace <env> 
-  aws ec2 describe-instances --region us-west-2 | grep -A 20 -B 90 -i <env>_jumphost | grep PublicIp  
-  ```
-
-Write it somewhere(since we will be using it in the next sections).
-
-### 2.2 Setup Knife
-
-#### 2.2.1 Verify Provisioner-created Files
-
-[Knife](https://docs.chef.io/knife.html) is  a command-line tool that provides an interface between a local chef-repo and the Chef server. 
-
-The [Chef Provisioner](https://github.com/18F/identity-devops/blob/master/terraform-app/chef.tf#L69) should have created several files in your `~/.chef` directory. Check and make sure you have these three files:
-
-* `yourusername-<env>.pem`
-* `<env>-login-dev-validator.pem`
-* `knife-<env>.rb` 
-* `<env>-databag.key`
-
-#### 2.2.2 Upload .Chef and .Env to Jumphost
-
-You will need to copy your knife config and keys to the jumphost, check out the identity-devops repo, and execute all your chef/knife/berkshelf commands there.
-
-There's a handy script `chefmove.sh` in the `bin` directory. 
-
-It takes two arguments: your username and the jumphost Public DNS name. For the `dev` environment, you would run `./chefmove.sh dev jumphost.dev.login.gov` 
-
-First, try `ssh  <yourusername>@jumphost.<env>.login.gov` . if you can ssh just fine, then yay! 
-
-If you get an error that `jumphost.<env>.login.gov` isn't a valid Public DNS name, then that means the jumphost hasn't been fully built and you will need to use its Public IP instead.
-
-At this stage, **you will need to use `ubuntu` as your username for now** , since your user hasn't been updated in the `users` databag yet. 
-
-Then,
-
-```shell
-ssh ubuntu@<jumphost_public_ip_address> 
-```
-
-If you ssh successfully then, come back to your local machine and  upload your `~/.chef`  and `~/.env` 
-
-```shell
-# cd into identity-devops
-# run the following command
-./chefmove.sh ubuntu <jumphost_ip>
-```
-
-Make sure to read through `chefmove.sh` and verify that all the paths and names are correct. 
-
-#### 2.2.3 Create knife.rb
-
-ssh into the jumphost then rename `knife-<env>.rb` to `knife.rb` 
-
-```shel
-mv knife-<env>.rb knife.rb
-```
-
-edit your `knife.rb` to look like this(or create it if it doesn't exist):
-
-```ruby
-log_level                :info
-log_location             STDOUT
-node_name                '<yourusername>'
-client_key               '/Path/to/.chef/yourusername-<env>.pem'
-validation_client_name   '<env>-login-dev-validator'
-validation_key           '/Path/to/.chef/<env>-login-dev-validator.pem'
-chef_server_url          'https://chef.login.gov.internal/organizations/login-dev'
-syntax_check_cache_path  '/Path/to/.chef/syntax_check_cache'
-cookbook_path [ './kitchen/cookbooks' ]
-ssl_verify_mode          :verify_none
-
-```
-
-
-
-If all the files in section **2.2.1** exists and have proper paths, then you should be able to `knife` to the chef-server from your jumphost.
-
-try `knife node list` and then you should be able to get a list back of all the nodes in your env/VPC:
-
-```shell
-ubuntu@jumphost:~$ knife node list
-app.jp
-chef.jp
-elk.jp
-es0.jp
-es1.jp
-idp1.0.jp
-idp2.0.jp
-jenkins.jp
-jumphost.jp
-worker.jp
-```
-
-
-
-#### 2.2.4 Clone Identity-Devops Repo  and Upload Databags(In Progress)
-
-#### 2.2.5 Create Databags 
-
-This will create the databags that our other cookbooks need to run. You will probably want to go through all the XXXes in the knife data bag edit step.
-
-First, create the **encrypted**  `config` databag used by the app/idp hosts.
-
-```
-openssl rand -base64 2048 | tr -d '\r\n' > ~/.chef/<env>-databag.key
-knife block use <env>
-knife data bag create config --secret-file ~/.chef/<env>-databag.key
-knife data bag from file config ./template_config_dbag.json --secret-file ~/.chef/<env>-databag.key
-knife data bag edit config app --secret-file ~/.chef/<env>-databag.key
-```
-
-Once it's all set up, add this line to your knife block setup:
-
-```
-echo "knife[:secret_file] =    '/Users/yourusername/.chef/<env>-databag.key'" >> /Users/<yourusername>/.chef/knife-<env>.rb
-```
-
-
-
-Then, create the **unencrypted** `users` databag to add your users(and other in identity-devops) to the chef-server.
-
-```shell
-knife data bag create users
-cd kitchen/data_bags
-for user in users; do knife data from file users $user; done
-
-```
-
-Finally, verify that your user was uploaded 
-
-`knife data bag show users <yourusername>`
-
-### 2.3 Create a login.gov base AMI(Optional)
-
-This step is not required, but it will save you some time because your app/worker hosts will not need to build ruby and install gems, etc.
+XXX(sverch): I don't know if this actually works.
 
 Make sure you have the packer variables set in env.sh
 
 ```
-packer build  packer/base-image.json
-
+packer build packer/base-image.json
 ```
 
 Take the AMI that resulted from that build and plug it into the TF_VAR_ami_id variable in env.sh
 
-I may have forgotten something here. You may also need to get some variables from terraform and plug them in to get this to work.
-
-### 2.4 Final Terraform Run
-
-From your local machine/laptop run 
-
-```
-./deploy apply terraform-app
-
-```
-
-This should launch all of the ELK/jenkins/app/worker hosts which were needing chef to launch.
-
-If you get a successful run, you should get a few URLs which you can use to access the various services
-
-```shell
-Apply complete! Resources: 13 added, 0 changed, 1 destroyed.
-
-The state of your infrastructure has been saved to the path
-below. This state is required to modify and destroy your
-2017/01/20 11:52:23 [DEBUG] plugin: waiting for all plugin processes to complete...
-infrastructure, so keep it safe. To inspect the complete state
-use the `terraform show` command.
-
-State path: .terraform/terraform.tfstate
-
-Outputs:
-
-app_eip = xx.xx.xx.xx
-aws_app_subnet_id = SUBNET_ID=subnet-xxxxxxxxxx
-aws_db_address = postgres.login.gov.internal
-aws_elasticache_cluster_address = redis.login.gov.internal
-aws_sg_id = SECURITY_GROUP_ID=sg-xxxxxx
-aws_vpc_id = VPC_ID=vpc-xxxxxxx
-chef-eip = xx.xx.xx.xx
-elk = https://xx.xx.xx.xx:8443/
-elk_ip = xx.xx.xx.xx
-env_name = qa
-idp_db_address = idp-postgres.login.gov.internal
-idp_eip = xx.xx.xx.xx
-idp_worker_ip = xx.xx.xx.xx
-jenkins = https://xx.xx.xx.xx:8443/
-jenkins_ip = xx.xx.xx.xx
-jumphost-eip = xx.xx.xx.xx
-```
-
-
-
-## 3. Jumphost Configuration and Common Usage Patterns
-
-### 3.1 Manual Lockdown
+## 9. Manual Lockdown
 
 The first time you deploy everything, you'll have to go manually lock down a couple of things:
 
@@ -487,7 +352,7 @@ The first time you deploy everything, you'll have to go manually lock down a cou
 * Do a chef-client on the chef-server to get it logging: `chef-client -r 'role[base]'`
 * Enable ELK: `knife node run_list add elk.<env> 'recipe[identity-elk]' ; ssh elk sudo chef-client`
 
-### 3.2. Jumphost SSH-Agent and Proxy Forwarding
+## 10. Jumphost SSH-Agent and Proxy Forwarding
 
 There is an ssh jumphost set up now that we must use for all things. No direct ssh access is allowed to anything but the jumphost, and all internal services (ELK/Jenkins for now) must be accessed through the jumphost.
 
@@ -516,72 +381,9 @@ To set up Firefox:
 
 Click OK and restart your browser.
 
-### 3.3 Using Chef 
+## 11. Other Miscellaneous Configurations
 
-#### 3.3.1 Moving Chef Credentials(knife, databag keys etc.) to The Jumphost 
-
-You will need to copy your knife config and keys to the jumphost, check out the identity-devops repo, and execute all your chef/knife/berkshelf commands there. See section **2.2.3**
-
-It is hoped that this use case will slowly go away as we get more stuff moved into jenkins. 
-
-#### 3.3.2 Creating Your User in the Chef Server(Optional)
-
-This should have been done automatically by Terraform. If not:
-
-First, verify that your username and its associated access rights(sudo,adm, etc) and public PIV key exist in the *users databag*. You can get someone in the DevOps team to verify this for you.
-
-After your *users databag* item exists:
-
-* **Option 1(Using a script):**
-
-Run the `createchefclient.sh` located in the `bin` directory of this repo. It takes the Chef server's Private IP address or hostname as an argument.
-
-`./createchefclient.sh login-chef-<env>`
-
-Make sure to update the paths to correspond to where you uploaded your *.chef* directory.
-
-* **Option 2(Manually):**
-
-1. ssh into the Chef server from the jumphost using the Chef server's private IP. Then, run:
-
-```shell
-sudo chef-server-ctl user-create <username> <FirstName> <LastName> <FirstName>.<LastName>@gsa.gov <Password>
-```
-
-2. copy the generated private key into your `<username>-<env>.pem` located under the `/.chef` dir in the jumphost.
-3. Add yourself to the admin group.
-
-```shell
- sudo chef-server-ctl org-user-add login-dev <username> --admin
-```
-
-4. Make sure everything ran correctly.
-
-```shell
- sudo chef-server-ctl user-show <username> 
- 
-```
-
- ### 3.4 Using Capistrano 
-
-You will need to check out your source code on the jumphost boxes and do your deploys from there. This definitely needs your ssh-agent forwarded in to work.
-
-### 3.5 Using Terraform(Optional) 
-
-Just use Terraform from your local machine to save time. 
-
-If you still want to use it in the jumphost, you'll need to get all your env vars set over there on the jumphost properly too. You should copy your env file over there and perhaps make it a part of your .bash_profile, and you should put this in your .ssh/config so that your AWS keys are never copied over there, yet you can use them:
-
-```shell\
-Host jumphost.<env>.login.gov
-	SendEnv AWS_*
-```
-
-
-
-## 4. Other Miscellaneous Configurations
-
-### 4.1 Elastic Search
+### 11.1 Elastic Search
 
 Currently, bootstrap of ES is not perfect. If you are starting up a new cluster, you may need to log into the ES nodes and do this:
 
@@ -623,7 +425,7 @@ root@es1:/var/lib/elasticsearch#
 
 Orchestration is tricky, and this is just a one-time thing for a new environment, so for now, we will just do this by hand.
 
-### 4.2 CloudTrail
+### 11.2 CloudTrail
 
 If this is the first environment you are spinning up, you will need to turn spin up the centralized cloudtrail bucket. Here is how:
 
@@ -650,9 +452,9 @@ curl -k -X DELETE https://es.login.gov.internal:9200/logstash-*
 
 You may also have to go into kibana and tell it to refresh it's index pattern if it has the old one.`https://elk.login.gov.internal:8443/app/kibana#/management/kibana/indices/logstash-*` Then click on the orange button that has the two arrows circling around to Refresh the Field List.
 
-### 4.3 Jenkins
+### 11.3 Jenkins
 
-#### 4.3.1 Jenkins Users and Admins
+#### 11.3.1 Jenkins Users and Admins
 
 Jenkins will need to be set up too!
 
@@ -666,7 +468,7 @@ default['identity-jenkins']['admins'] = ['admin1','admin2']
 
 A chef-client run will make sure that all of those things get applied.
 
-#### 4.3.2 Chef Jenkins Key
+#### 11.3.2 Chef Jenkins Key
 
 On the chef-server, get the /root/jenkins.pem key. This is used for 'berks apply' and other berkshelf stuff. You will need to create a chef identity with this in it.
 
@@ -685,7 +487,7 @@ cookbook_path            ["#{current_dir}/../kitchen/cookbooks"]
 
 I would love to make this automatically configured too, but it stores these things as secrets, which means that they are encrypted on a host-by-host basis, so there's no good way to template-ize them that I know of.
 
-#### 4.3.3 Jenkins/ELK Password Hash
+#### 11.3.3 Jenkins/ELK Password Hash
 
 You will also need to set up password hashes in the users databag if they haven't already been set up:
 
@@ -717,7 +519,7 @@ It should have other attributes in it, but it should look like this:
 
 This password is what users will use to get into jenkins/ELK. This basic auth stuff can get replaced with SAML or LDAP or something someday.
 
-#### 4.3.4 Jenkins Usage
+#### 11.3.4 Jenkins Usage
 
 * Make sure you are either in the GSA network (VPN or office), or are otherwise in the allowed IP whitelist.
 * Go to the jenkins URL you got form terraform.
@@ -728,84 +530,23 @@ This password is what users will use to get into jenkins/ELK. This basic auth st
   * If the infrastructure doesn't need changing, it will push out the code too.
 * Enjoy!
 
-## 5. Release Process
+### 11.5. Deploying the application
 
-### 5.1 Infrastructure
+In the past, Capistrano could be used for deployments, but I believe we are moving past that.
 
-If the 'terraform' jenkins job indicates that infrastructure changes need to happen, then you will need to push them out by hand for now, because we don't really want the jenkins node to be able to destroy all our nodes. :-)
+Here are the new ways to deploy code:
 
-Check the `terraform-app` plan against the current state of that environment.
+- [Using Chef (partially manual)](https://github.com/18F/identity-private/wiki/Operations:-Deploy-Application-Code)
+- [Using Jenkins](https://github.com/18F/identity-private/wiki/Operations:--Deploy-Application-Code-with-Jenkins)
 
-```
-./deploy plan terraform-app
+#### 11.5.1. App Control/Config with Rake Tasks
 
-```
-
-The environment defaults to `tf` which is a highly volatile env meant for testing out new terraform configs. We can remove that env and change the default to `dev` once the churn slows down.
-
-Apply any changes to the `tf` env using the terraform-app plan
-
-```
-./deploy apply terraform-app
-
-```
-
-Destroy all resources in an env
-
-```
-./deploy destroy terraform-app
-
-```
-
-Modify the `TF_VAR_env_name` to work with the other environments (`dev`, `qa`, `pt`, `staging`, `dm`, `production`)
-
-### 5.2 App Control/Config with Rake Tasks
+The `identity-devops` repo includes a
+[Rakefile](https://github.com/18F/identity-devops/blob/44e86285ba1ffed2cc063fea5397c779ab2d2e62/Rakefile)
+with some smoke tests for the application.
 
 `rake help` - shows available help
 
 `rake test` - runs entire test suite
 
 `rake login:check_app_yml_keys` - validates current application.yml configuration templates against the IdP
-
-### 5.3 Cookbook Changes
-
-#### 5.3.1 Real Releases
-
-For real releases, you will make sure your code is all checked in, and then create an identical gitref in the identity-devops and identity-idp repos.  We just need to be able to 'git checkout gitref' for it to work. Then, go to the jenkins server for the environment you want it to be deployed to and run the deploy stack job. Give it the gitref as a parameter, and it'll check everything out and make sure that it's pushed out there.
-
-#### 5.3.2 Cookbook Development 
-
-You could just do chef deploys using jenkins, but you can also iterate a bit faster if you push it out there by hand:
-
-Probably most of the time, you'll just be pushing one cookbook up, so you can bump the cookbook version number and then do this:
-
-```shell
-berks
-berks upload identity-jenkins 
-berks apply <env>
-```
-
-If you get a "cookbook already there" error, then somebody is probably already doing dev on that cookbook in that version. You will want to coordinate with whoever is doing that to prevent yourself from stepping on the other person's toes. From that point on, you will need to force updates to your cookbook under development:
-
-```shell
-knife block use <env>
-berks upload identity-jenkins --force 
-```
-
-Then you'll want to run chef-client on the hosts where the cookbook will take effect:
-
-```shell
-knife block use <env>
-knife ssh "name:*tf" "sudo chef-client" -x ubuntu -a ipaddress
-```
-
-#### 5.3.3. (Un)Encrypted Databag Changes
-
-```shell
-knife data bag edit config app # knife[:secret-file] should be set in your knife.rb
-```
-
-#### 5.3.4 Code Changes
-
-You probably should do deployments using jenkins, or you can probably still use capistrano. Capistrano may just go away in the future, though. For jenkins, just go to the jenkins UI and run the code job with the gitref that you want to deploy.
-

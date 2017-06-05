@@ -5,10 +5,12 @@
 set -euo pipefail
 
 exit_with_usage() {
-	echo "Usage: $0 <environment_name> <username> <plan/apply>"
+    echo "Usage: $0 <environment_name> <username> <plan/apply>"
     echo "   Creates a new <environment_name> environment in AWS."
     echo "   Pass in \"plan\" as the third argument to do a dry run."
-	exit 1
+    echo "   <username> should be the username of the first chef user that"
+    echo "   you want to create.  Terraform uses this to install chef-clients."
+    exit 1
 }
 
 if [ $# -ne 3 ] ; then
