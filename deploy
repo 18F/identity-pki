@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# The terraform version this was tested with
-TERRAFORM_VERSION="0.8.8"
-
 # function to exit process with error message
 die() { echo "$@" 1>&2 ; exit 1; }
 
@@ -18,21 +15,27 @@ if [ $# -lt 3 ] ; then
     exit 1
 fi
 
-if [[ "$(terraform --version)" != *"v$TERRAFORM_VERSION"* ]]; then
-    die "Version $TERRAFORM_VERSION of terraform currently required"
-fi
+# shellcheck source=./bin/lib/common.sh
+. "$(dirname "$0")/bin/lib/common.sh"
 
 ENVIRONMENT=$1; shift
 GSA_USERNAME=$1; shift
 TF_DIR=$1; shift
-TF_CMD="$@"
+TF_CMD=("$@")
 ENVIRONMENT_CONFIG=env/env.sh
 
+# We need to be in the root of the repo for all this to work.
+cd "$(dirname "$0")"
+
 echo "DEPLOY: Loading environment variables...."
-. bin/load-env.sh $ENVIRONMENT $GSA_USERNAME $ENVIRONMENT_CONFIG
+. bin/load-env.sh "$ENVIRONMENT" "$GSA_USERNAME" "$ENVIRONMENT_CONFIG"
+
+# Check that current version of terraform is supported by our environment. This
+# array should be set in the environment-specific variables.
+check_terraform_version "${ID_SUPPORTED_TERRAFORM_VERSIONS[@]}"
 
 echo "DEPLOY: Checking for required files...."
-./bin/check-required-files.sh $ENVIRONMENT
+run bin/check-required-files.sh "$ENVIRONMENT"
 
 if [ -z "${TF_VAR_chef_id:=}" ] ; then
     die "You must specify an initial chef user.  \
@@ -58,7 +61,10 @@ if [ ! -f "${TF_DIR}/main.tf" ] ; then
 fi
 
 echo "Configuring state bucket login_dot_gov_tf_state with state path ${STATE}"
-bin/configure_state_bucket.sh login_dot_gov_tf_state ${STATE} ${TF_DIR}
+run bin/configure_state_bucket.sh login_dot_gov_tf_state "$STATE" "$TF_DIR"
+
+echo >&2 "+ cd $TF_DIR"
+cd "$TF_DIR"
 
 cat <<EOF
 ########################################
@@ -69,5 +75,4 @@ cat <<EOF
 ########################################
 EOF
 
-cd ${TF_DIR}
-terraform ${TF_CMD}
+run terraform "${TF_CMD[@]}"

@@ -47,8 +47,10 @@
 ## 1. Introduction
 
 The [`identity-devops`](https://github.com/18F/identity-private) repository
-contains infrastructure configurations for the
-[identity-*](https://github.com/18F/identity-private) projects.  This includes
+contains infrastructure configurations for the `identity-*`
+([identity-idp](https://github.com/18F/identity-idp),
+[identity-private](https://github.com/18F/identity-private), etc.),  projects.
+This includes
 the [Terraform](https://www.terraform.io/docs/commands/) configuration for
 provisioning a new [AWS VPC](https://aws.amazon.com/vpc/) and other AWS
 elements as well as the [Chef](https://docs.chef.io/chef_overview.html)
@@ -87,28 +89,39 @@ Install [ChefDK](https://downloads.chef.io/chefdk).
 brew install Caskroom/cask/chefdk
 ```
 
-Install [Terraform CLI](https://www.terraform.io/docs/commands/).
+Install [Terraform CLI](https://www.terraform.io/docs/commands/) and
+[Terraform ACME Provider Plugin](https://github.com/paybyphone/terraform-provider-acme).
 
-- Download Terraform 0.8.8 from https://releases.hashicorp.com/terraform/.
+Most of our environments use terraform 0.8.8.
     - We are in the process of upgrading from 0.8.8, check back
       [here](https://github.com/18F/identity-private/issues/1877) for the status of that upgrade.
-- Extract it somewhere, like `/usr/local/bin` or `~/bin` and make sure it's in your PATH.
 
-Install [Terraform ACME Provider](https://www.terraform.io/docs/commands/).
+You can use `bin/brew-switch-terraform.sh` to manage installed versions of
+Terraform and the Terraform ACME plugin. (This script relies on Homebrew and
+only works on macOS.) There will be multiple versions of Terraform installed,
+but only one will be symlinked onto your PATH at any given time. Run
+`terraform --version` to see which one.
 
-``` shell
-mkdir $HOME/.terraform-plugins
-home=$HOME cat <<EOT > $HOME/.terraformrc
-providers {
-  acme = "$home/.terraform.plugins/terraform-provider-acme"
-}
-EOT
-curl -LO
-ttps://github.com/paybyphone/terraform-provider-acme/releases/download/v0.2.1/terraform-provider-acme_v0.2.1_darwin_amd64.zip
-unzip -o terraform-provider-acme_v0.2.1_darwin_amd64.zip -d
-HOME/.terraform-plugins
-rm terraform-provider-acme_v0.2.1_darwin_amd64.zip
+We use a Terraform plugin that adds an ACME provider used to generate our Let's
+Encrypt TLS certificates. This will be installed automatically when you run
+`bin/brew-switch-terraform.sh`.
+
+Run the script to install and switch to Terraform 0.9.6. Follow the prompts
+when it asks to create a `~/.terraformrc` to manage your ACME plugin:
+
+```shell
+bin/brew-switch-terraform.sh 0.9.6
 ```
+
+Run the script to install and switch to Terraform 0.8.8:
+
+```
+bin/brew-switch-terraform.sh 0.8.8
+```
+
+The `deploy` script will enforce for each environment which versions of
+Terraform have been tested on that environment. (See environment variables
+discussion below.)
 
 ## 3. Environment Variables File
 
@@ -116,11 +129,26 @@ We currently use a lot of environment variables for configuration.  Copy
 `env/env.sh.example` to `env/env.sh`.  Do not source this directly, it is used
 by the `deploy` and `bootstrap.sh` scripts described below.
 
-One thing you may have to change is TF_VAR_app_sg_ssh_cidr_blocks if you're not
+One thing you may have to change is `TF_VAR_app_sg_ssh_cidr_blocks` if you're not
 on the internal GSA network.  See
 https://github.com/18F/identity-private/issues/1769#issuecomment-290822192.
-You will have to add your CIDR as the first CIDR in the array until
-https://github.com/18F/identity-devops/pull/245 is resolved.
+
+When you run `deploy` or `bootstrap`, it should clone
+[identity-devops-private](https://github.com/18F/identity-devops-private) if
+you haven't done so already. There are files in `identity-devops-private` that
+automatically override these variables with environment-specific values.
+
+At the moment we don't have an automated way of keeping this up to date, so you
+will want to `git pull` in that repository periodically. This is at least an
+improvement over `env.sh`, which is not tracked by version control. You may
+want to periodically `diff env.sh.example env.sh` to ensure that there aren't
+variables you're missing.
+
+See [process-issue-tracking.md](./process-issue-tracking.md) for more
+background on the repo layout.
+
+See https://github.com/18F/identity-devops-private/issues/1 for more long-term
+vision on how environment configuration should be handled.
 
 ## 4. Add Bootstrap Key to SSH-Agent
 
@@ -150,6 +178,10 @@ If you're trying to spin up a new environment, run:
 From the root of the `identity-devops` repo.  That should prompt you for
 anything that the setup needs and help you through the process.  If you get
 stuck, refer back to the rest of this README for more details.
+
+When it calls the `deploy` script, it will also clone
+`identity-devops-private`, which you can use to set variables that are unique
+to your environment.
 
 The main terraform configuration directory is `terraform-app`.
 

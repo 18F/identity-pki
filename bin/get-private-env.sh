@@ -1,0 +1,136 @@
+#!/usr/bin/env bash
+
+set -eu
+
+# Try really hard not to let anything accidentally write to stdout.
+# Point stdout at stderr and open FD 3 to point to the original stdout.
+# Use echo >&3 to write to stdout hereafter.
+exec 3>&1 1>&2
+
+BASENAME="$(basename "$0")"
+
+if [ $# -lt 1 ]; then
+    cat >&2 <<EOM
+usage: $BASENAME ENV_NAME
+
+Print the location of the environment-specific variables for ENV_NAME. Git
+clone the private repo containing these variables if it doesn't exist. If no
+env-specific variables are defined, use the default variables instead.
+
+LOCATION OF PRIVATE REPO:
+
+This script expects to find the private configuration checked out in a separate
+repository located (from the root of this repo) at ../{repo-name}-private/.
+Customize this path with \$IDENTITY_DEVOPS_PRIVATE_PATH.
+
+If the checkout does not exist, it will offer to clone the repo for you. Set
+environment variable \$IDENTITY_DEVOPS_PRIVATE_URL to configure the URL for
+identity-devops-private, otherwise 'git remote get-url origin' will be used
+with an appended '-private'.
+
+Set ID_SKIP_GIT_CLONE=1 in your environment to skip the prompt for the git
+clone.
+EOM
+    exit 1
+fi
+
+# shellcheck source=./lib/common.sh
+. "$(dirname "$0")/lib/common.sh"
+
+# Determine the likely URL for identity-devops-private based on the "origin"
+# git remote of the current repository (just by appending -private).
+# Expects that the CWD is under the current git checkout.
+get_private_url_from_origin() {
+    local origin_url private_url
+
+    origin_url="$(run git remote get-url origin)"
+
+    # splice off trailing .git if present
+    origin_url="${origin_url%.git}"
+
+    # splice off trailing / if present
+    origin_url="${origin_url%/}"
+
+    private_url="$origin_url-private"
+
+    echo >&2 "Inferred default identity-devops-private URL: $private_url"
+    echo "$private_url"
+}
+
+get_private_path() {
+    local toplevel basename
+
+    # We assume git rev-parse --show-toplevel returns an absolute path with no
+    # trailing slash.
+    toplevel="$(run git rev-parse --show-toplevel)"
+    basename="$(basename "$toplevel")"
+
+    # ../{basename}-private
+    echo "$(dirname "$toplevel")/$basename-private"
+}
+
+# usage: clone_private_repo PARENT_DIR
+#
+# Git clone the identity-devops-private repo under PARENT_DIR locally.
+clone_private_repo() {
+    local parent_dir clone_url
+    parent_dir="$1"
+
+    clone_url="${IDENTITY_DEVOPS_PRIVATE_URL-$(get_private_url_from_origin)}"
+
+    pushd "$parent_dir"
+
+    run git clone "$clone_url"
+
+    popd
+}
+
+check_maybe_clone_private_repo() {
+    local path
+
+    path="$1"
+
+    if [ ! -d "$path" ]; then
+        echo >&2 "warning: Private repo is not checked out at $path"
+
+        if prompt_yn "Do you want to git clone the private repo?"; then
+            echo >&2 "OK, cloning..."
+            clone_private_repo "$(dirname "$path")"
+
+            if [ -d "$path" ]; then
+                echo >&2 "Clone done"
+            else
+                echo >&2 "Something went wrong cloning."
+                return 2
+            fi
+        else
+            echo >&2 "OK, aborting."
+            return 1
+        fi
+    fi
+
+}
+
+env_name="$1"
+
+echo_blue >&2 "Looking for env-specific variables for environment '$env_name'"
+
+private_path="${IDENTITY_DEVOPS_PRIVATE_PATH-$(get_private_path)}"
+
+check_maybe_clone_private_repo "$private_path"
+
+if [ ! -e "$private_path/env/default.sh" ]; then
+    echo >&2 "Somehow $private_path/env/default.sh is missing!"
+    exit 3
+fi
+
+env_path="$private_path/env/$env_name.sh"
+if [ -e "$env_path" ]; then
+    log "Found variables for $env_name at $env_path"
+    echo >&3 "$env_path"
+else
+    log "No env-specific variables exist at $env_path"
+    default_path="$private_path/env/default.sh"
+    log "Using default variables at $default_path"
+    echo >&3 "$default_path"
+fi
