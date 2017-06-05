@@ -129,25 +129,23 @@ application release_path do
     cwd '/srv/idp/releases/chef'
   end
 
-
-template "#{shared_path}/config/database.yml" do
-  source    'database.yml.erb'
-  sensitive true
-  action    :create
-  variables({
-    adapter: database_adapter,
-    database: encrypted_config['db_database_idp'],
-    username: encrypted_config['db_username_idp'],
-    host: encrypted_config['db_host_idp'],
-    password: encrypted_config['db_password_idp'],
-    sslmode: 'verify-full',
-    sslrootcert: node['login_dot_gov']['sslrootcert']
-  })
-  not_if { node['login_dot_gov']['setup_only'] }
-end
-
+  rails do
+    # for some reason you can't set the database name when using ruby block format. Perhaps it has
+    # something to do with having the same name as the resource to which the block belongs.
+    database({
+      adapter: 'postgresql',
+      database: encrypted_config['db_database_idp'],
+      username: encrypted_config['db_username_idp'],
+      host: encrypted_config['db_host_idp'],
+      password: encrypted_config['db_password_idp'],
+      sslmode: 'verify-full',
+      sslrootcert: '/usr/local/share/aws/rds-combined-ca-bundle.pem'
+    })
+    rails_env node['login_dot_gov']['rails_env']
+    secret_token node['login_dot_gov']['secret_key_base_idp']
+    not_if { node['login_dot_gov']['setup_only'] }
+  end
   
-
   execute 'chown -R ubuntu /home/ubuntu/.bundle /usr/local/src'
 
   execute "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle exec rake db:create db:migrate db:seed --trace" do
