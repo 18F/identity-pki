@@ -25,6 +25,12 @@
 - [8. Create a login.gov base AMI](#8-create-a-logingov-base-ami)
 - [9. Manual Lockdown](#9-manual-lockdown)
 - [10. Jumphost SSH-Agent and Proxy Forwarding](#10-jumphost-ssh-agent-and-proxy-forwarding)
+  - [10.1. Helper Scripts for Common Workflows](#101-helper-scripts-for-common-workflows)
+    - [10.1.1 `./bin/ssh.sh`](#1011-binsshsh)
+    - [10.1.2 `./bin/elk.sh`](#1012-binelksh)
+    - [10.1.2 `./bin/jenkins.sh`](#1012-binjenkinssh)
+    - [10.1.3 `./bin/rails-console.sh`](#1013-binrails-consolesh)
+  - [10.2. Manual SSH Jumping](#102-manual-ssh-jumping)
 - [11. Other Miscellaneous Configurations](#11-other-miscellaneous-configurations)
   - [11.1 Elastic Search](#111-elastic-search)
   - [11.2 CloudTrail](#112-cloudtrail)
@@ -361,6 +367,60 @@ To use the jumpbox services, you will probably want to do two things:
 * Forward your ssh-agent to the jumphost when you ssh in so you can ssh around inside.
 * Forward a proxy port to the jumphost when you ssh in so you can use a web browser on internal services.
 
+### 10.1. Helper Scripts for Common Workflows
+
+These scripts rely on having your username set up as a default in `~/.ssh/config` for *all* jumphosts, like so:
+
+```
+# ~/.ssh/config
+Host jumphost.prod.login.gov
+       User zmargolis
+       PKCS11Provider /usr/local/lib/pkcs11/opensc-pkcs11.so
+
+Host jumphost.int.login.gov
+       User zmargolis
+
+# etc etc
+```
+
+#### 10.1.1 `./bin/ssh.sh`
+
+Opens an SSH session on a particular host, defaults to `idp1-0`
+
+```
+$ ./bin/ssh.sh int
+# ...
+ubuntu@idp:~$
+```
+
+#### 10.1.2 `./bin/elk.sh`
+
+Opens an SSH tunnel and forwards a port to proxy Kibana/ElasticSearch, it will open a web browser to the port it proxies.
+
+```
+$ ./bin/elk.sh int
+```
+
+#### 10.1.2 `./bin/jenkins.sh`
+
+Ditto the `elk.sh` script but for Jenkins
+
+```
+$ ./bin/jenkins.sh int
+```
+
+#### 10.1.3 `./bin/rails-console.sh`
+
+Opens an Rails console
+
+```
+$ ./bin/ssh.sh int
+# ...
+irb(main):001:0>
+```
+
+### 10.2. Manual SSH Jumping
+
 You can do this with one command:
 
 ```
@@ -419,7 +479,7 @@ root@es1:/var/lib/elasticsearch# curl -k https://es1.login.gov.internal:9200/_cl
   "task_max_waiting_in_queue_millis" : 0,
   "active_shards_percent_as_number" : 100.0
 }
-root@es1:/var/lib/elasticsearch# 
+root@es1:/var/lib/elasticsearch#
 
 ```
 
@@ -493,10 +553,10 @@ You will also need to set up password hashes in the users databag if they haven'
 
 ```
 $ htpasswd -c /tmp/htpasswd username
-New password: 
-Re-type new password: 
+New password:
+Re-type new password:
 Adding password for user username
-$ 
+$
 
 ```
 
