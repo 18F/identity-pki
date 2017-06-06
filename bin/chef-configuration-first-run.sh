@@ -5,13 +5,14 @@
 # http://redsymbol.net/articles/unofficial-bash-strict-mode/
 set -euo pipefail
 
-if [ $# -ne 2 ] ; then
-        echo "usage:  $0 <username> <environment name>"
+if [ $# -ne 3 ] ; then
+        echo "usage:  $0 <username> <environment_name> <chef_config_dir>"
         exit 1
 fi
 
 USERNAME=$1
 ENVIRONMENT=$2
+CHEF_CONFIG_DIR=$3
 
 run() {
     echo >&2 "+ $*"
@@ -32,28 +33,32 @@ fi
 echo "Found jumphost: $JUMPHOST_PUBLIC_IP"
 
 echo "Setting up knife on the jumphost..."
-$(dirname $0)/setup-knife.sh $USERNAME $ENVIRONMENT ubuntu@$JUMPHOST_PUBLIC_IP
+"$(dirname "$0")"/setup-knife.sh "$USERNAME" "$ENVIRONMENT" "ubuntu@$JUMPHOST_PUBLIC_IP" "$CHEF_CONFIG_DIR"
 
 echo "Uploading the chef config databag..."
-scp -o StrictHostKeyChecking=no kitchen/data_bags/config/$ENVIRONMENT.json ubuntu@$JUMPHOST_PUBLIC_IP:~
+scp -o StrictHostKeyChecking=no "kitchen/data_bags/config/$ENVIRONMENT.json" "ubuntu@$JUMPHOST_PUBLIC_IP:~"
 
 echo "Adding the encrypted config databag to chef..."
-ssh -o StrictHostKeyChecking=no ubuntu@$JUMPHOST_PUBLIC_IP "openssl rand -base64 2048 | tr -d '\r\n' > ~/.chef/$ENVIRONMENT-databag.key"
-ssh -o StrictHostKeyChecking=no ubuntu@$JUMPHOST_PUBLIC_IP "knife data bag create config --secret-file ~/.chef/$ENVIRONMENT-databag.key"
-ssh -o StrictHostKeyChecking=no ubuntu@$JUMPHOST_PUBLIC_IP "knife data bag from file config ./$ENVIRONMENT.json --secret-file ~/.chef/$ENVIRONMENT-databag.key"
+# shellcheck disable=SC2029
+ssh -o StrictHostKeyChecking=no "ubuntu@$JUMPHOST_PUBLIC_IP" "openssl rand -base64 2048 | tr -d '\r\n' > ~/.chef/$ENVIRONMENT-databag.key"
+# shellcheck disable=SC2029
+ssh -o StrictHostKeyChecking=no "ubuntu@$JUMPHOST_PUBLIC_IP" "knife data bag create config --secret-file ~/.chef/$ENVIRONMENT-databag.key"
+# shellcheck disable=SC2029
+ssh -o StrictHostKeyChecking=no "ubuntu@$JUMPHOST_PUBLIC_IP" "knife data bag from file config ./$ENVIRONMENT.json --secret-file ~/.chef/$ENVIRONMENT-databag.key"
 
 echo "Downloading secret key for encrypted databag..."
-scp -o StrictHostKeyChecking=no ubuntu@$JUMPHOST_PUBLIC_IP:~/.chef/$ENVIRONMENT-databag.key ~/.chef/$ENVIRONMENT-databag.key
+scp -o StrictHostKeyChecking=no "ubuntu@$JUMPHOST_PUBLIC_IP:~/.chef/$ENVIRONMENT-databag.key" "$CHEF_CONFIG_DIR/$ENVIRONMENT-databag.key"
 
 echo "Creating the unencrypted users databag to add your users(and other in identity-devops) to the chef-server..."
-ssh -o StrictHostKeyChecking=no ubuntu@$JUMPHOST_PUBLIC_IP "knife data bag create users"
+ssh -o StrictHostKeyChecking=no "ubuntu@$JUMPHOST_PUBLIC_IP" "knife data bag create users"
 
 echo "Copying local user databags from kitchen/data_bags/users to jumphost..."
-scp -o StrictHostKeyChecking=no -r kitchen/data_bags/users ubuntu@$JUMPHOST_PUBLIC_IP:users
-ssh -o StrictHostKeyChecking=no ubuntu@$JUMPHOST_PUBLIC_IP 'for user in users/*.json; do knife data bag from file users $user; done'
+scp -o StrictHostKeyChecking=no -r "kitchen/data_bags/users" "ubuntu@$JUMPHOST_PUBLIC_IP:users"
+ssh -o StrictHostKeyChecking=no "ubuntu@$JUMPHOST_PUBLIC_IP" 'for user in users/*.json; do knife data bag from file users $user; done'
 
 echo "Verifying user: $USERNAME has been uploaded to the chef server"
-ssh -o StrictHostKeyChecking=no ubuntu@$JUMPHOST_PUBLIC_IP "knife data bag show users $USERNAME -F json"
+# shellcheck disable=SC2029
+ssh -o StrictHostKeyChecking=no "ubuntu@$JUMPHOST_PUBLIC_IP" "knife data bag show users $USERNAME -F json"
 
 echo "Verifying configuration has been uploaded to the chef server and is readable"
-ssh -o StrictHostKeyChecking=no ubuntu@$JUMPHOST_PUBLIC_IP "knife data bag show config app -F json"
+ssh -o StrictHostKeyChecking=no "ubuntu@$JUMPHOST_PUBLIC_IP" "knife data bag show config app -F json"

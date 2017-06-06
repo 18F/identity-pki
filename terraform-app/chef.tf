@@ -57,13 +57,13 @@ resource "aws_instance" "chef" {
   }
 
   provisioner "local-exec" {
-    command = "ssh -o StrictHostKeyChecking=no ubuntu@${aws_instance.chef.public_ip} sudo chef-server-ctl user-create ${var.chef_id} ${var.chef_info} > ~/.chef/${var.chef_id}-${var.env_name}.pem"
+    command = "ssh -o StrictHostKeyChecking=no ubuntu@${aws_instance.chef.public_ip} sudo chef-server-ctl user-create ${var.chef_id} ${var.chef_info} > \"${var.chef_home}/${var.chef_id}-${var.env_name}.pem\""
   }
   provisioner "local-exec" {
     command = "ssh -o StrictHostKeyChecking=no ubuntu@${aws_instance.chef.public_ip} sudo chef-server-ctl org-user-add login-dev ${var.chef_id} --admin"
   }
   provisioner "local-exec" {
-    command = "ssh -o StrictHostKeyChecking=no ubuntu@${aws_instance.chef.public_ip} sudo cat /root/login-dev-validator.pem > ~/.chef/${var.env_name}-login-dev-validator.pem"
+    command = "ssh -o StrictHostKeyChecking=no ubuntu@${aws_instance.chef.public_ip} sudo cat /root/login-dev-validator.pem > \"${var.chef_home}/${var.env_name}-login-dev-validator.pem\""
   }
 
   provisioner "chef"  {

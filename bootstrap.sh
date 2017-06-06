@@ -78,7 +78,7 @@ if [[ $TF_CMD = "plan" ]]; then
 fi
 
 echo "BOOTSTRAP: Running initial bootstrap configuration of chef server...."
-./bin/chef-configuration-first-run.sh $GSA_USERNAME $ENVIRONMENT
+./bin/chef-configuration-first-run.sh "$GSA_USERNAME" "$ENVIRONMENT" "$TF_VAR_chef_home"
 
 echo "BOOTSTRAP: Running final terraform run to complete environment setup...."
 ./deploy $ENVIRONMENT $GSA_USERNAME terraform-app apply

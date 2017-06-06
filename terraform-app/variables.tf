@@ -21,6 +21,7 @@ variable "ami_id" {}
 variable "default_ami_id" {}
 variable "jenkins_ami_id" {}
 variable "chef_ami_id" {}
+variable "chef_home" {}
 variable "jumphost_ami_id" {}
 variable "idp1_ami_id" {}
 variable "idp2_ami_id" {}
