@@ -13,4 +13,4 @@ fi
 
 PROXY_COMMAND="ssh jumphost.${ENVIRON}.login.gov -W %h:%p"
 
-ssh -A -t -o ProxyCommand="${PROXY_COMMAND}" ubuntu@idp1-0.login.gov.internal -- 'cd /srv/idp/current; bundle exec rails c'
+ssh -t -o ProxyCommand="${PROXY_COMMAND}" ubuntu@idp1-0.login.gov.internal -- 'cd /srv/idp/current; bundle exec rails c'

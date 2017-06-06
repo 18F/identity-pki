@@ -16,4 +16,4 @@ fi
 
 PROXY_COMMAND="ssh jumphost.${ENVIRON}.login.gov -W %h:%p"
 
-ssh -A -t -o ProxyCommand="${PROXY_COMMAND}" "ubuntu@$HOST"
+ssh -t -o ProxyCommand="${PROXY_COMMAND}" "ubuntu@$HOST"
