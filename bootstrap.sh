@@ -74,9 +74,8 @@ set -e
 
 if [[ $TF_CMD = "plan" ]]; then
     echo "Stopping bootstrap before destructive changes as the \"plan\" option was specified."
-    exit 1
+    exit
 fi
-exit 1
 
 echo "BOOTSTRAP: Running initial bootstrap configuration of chef server...."
 ./bin/chef-configuration-first-run.sh $GSA_USERNAME $ENVIRONMENT
