@@ -106,7 +106,7 @@ deploy "/srv/#{app_name}" do
   user 'ubuntu'
 end
 
-execute "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle exec rake db:create --trace" do
+execute "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle exec rake db:create db:migrate db:seed --trace" do
   cwd "#{base_dir}/current"
   environment({
     'RAILS_ENV' => "production"
