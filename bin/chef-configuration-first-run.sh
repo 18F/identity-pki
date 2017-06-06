@@ -13,14 +13,19 @@ fi
 USERNAME=$1
 ENVIRONMENT=$2
 
-echo "Getting the public IP of the jumphost instance..."
-JUMPHOST_PUBLIC_IP=$(aws ec2 describe-instances --region us-west-2 \
-                         --filter Name=tag:Name,Values=login-jumphost-$ENVIRONMENT \
-                                  Name=instance-state-name,Values=running | \
-                     grep PublicIp | head -n 1 | sed 's/.*".*": "\(.*\)".*/\1/' \
-                     || echo "NOT FOUND")
+run() {
+    echo >&2 "+ $*"
+    "$@"
+}
 
-if [ "$JUMPHOST_PUBLIC_IP" == "NOT FOUND" ]; then
+echo "Getting the public IP of the jumphost instance..."
+JUMPHOST_PUBLIC_IP="$(run aws ec2 describe-instances --region us-west-2 \
+                         --filter "Name=tag:Name,Values=login-jumphost-$ENVIRONMENT" \
+                                  "Name=instance-state-name,Values=running" \
+                         --output text \
+                         --query 'Reservations[*].Instances[*].PublicIpAddress')"
+
+if [ -z "$JUMPHOST_PUBLIC_IP" ]; then
     echo "ERROR: Could not find jumphost for environment: $ENVIRONMENT"
     exit 1
 fi
