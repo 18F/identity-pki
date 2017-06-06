@@ -5,7 +5,7 @@
 set -euo pipefail
 
 exit_with_usage() {
-    echo "Usage: $0 <environment_name> <username> <plan/apply>"
+    echo "Usage: $0 <environment_name> <username> <plan/apply/force-apply>"
     echo "   Creates a new <environment_name> environment in AWS."
     echo "   Pass in \"plan\" as the third argument to do a dry run."
     echo "   <username> should be the username of the first chef user that"
@@ -31,6 +31,20 @@ elif [[ $TF_CMD = "apply" ]]; then
     if [[ ! $REPLY = "yes" ]]; then
         exit 1
     fi
+elif [[ $TF_CMD = "force-apply" ]]; then
+    echo "BOOTSTRAP: Doing force-apply safety check...."
+    if [[ "$ENVIRONMENT" == "prod" ||
+        "$ENVIRONMENT" == "staging" ||
+        "$ENVIRONMENT" == "int" ||
+        "$ENVIRONMENT" == "dm" ||
+        "$ENVIRONMENT" == "qa" ||
+        "$ENVIRONMENT" == "pt" ||
+        "$ENVIRONMENT" == "dev" ]]; then
+        echo "ERROR: force-apply is dangerous and cannot be used on the $ENVIRONMENT environment!"
+        exit 1
+    fi
+    echo "WARNING: Doing forced terraform apply of the $ENVIRONMENT environment."
+    TF_CMD="apply"
 else
     exit_with_usage
 fi
