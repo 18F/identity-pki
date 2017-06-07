@@ -59,10 +59,12 @@ template "#{base_dir}/shared/config/database.yml" do
   owner node['login_dot_gov']['system_user']
   sensitive true
   variables({
-      database: 'dashboard',
-      username: encrypted_config['db_username_app'],
-      host: encrypted_config['db_host_app'],
-      password: encrypted_config['db_password_app']
+    database: 'dashboard',
+    username: encrypted_config['db_username_app'],
+    host: encrypted_config['db_host_app'],
+    password: encrypted_config['db_password_app'],
+    sslmode: 'verify-full',
+    sslrootcert: '/usr/local/share/aws/rds-combined-ca-bundle.pem'
   })
 end
 
