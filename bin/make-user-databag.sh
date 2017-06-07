@@ -21,11 +21,14 @@ if [ -e "kitchen/data_bags/users/$USERNAME.json" ]; then
     exit 1
 fi
 
-read -p "Full name: " FULL_NAME
-read -p "Username: " USERNAME
-PASSWORD_HASH=$(htpasswd -n "$USERNAME")
-read -p "SSH public key: " PUBLIC_KEY
-read -p "Unique UID: " USER_UID
+read -r -p "Full name: " FULL_NAME
+# Note that the bcrypt password hash is supported by Apache but not by
+# glibc crypt(). We use the hash for HTTP Basic Auth, not for unix user
+# authentication (even though it does end up in /etc/shadow because Computer).
+PASSWORD_HASH="$(htpasswd -n -B -C12 "$USERNAME")"
+PASSWORD_HASH="$(cut -d: -f 2- <<< "$PASSWORD_HASH")"
+read -r -p "SSH public key: " PUBLIC_KEY
+read -r -p "Unique UID: " USER_UID
 cat > "kitchen/data_bags/users/$USERNAME.json" <<EOF
 {
  "id": "$USERNAME",
