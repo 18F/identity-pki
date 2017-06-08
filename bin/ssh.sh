@@ -1,19 +1,72 @@
 #!/bin/bash
 set -euo pipefail
 
-ENVIRON=${1:-''}
-HOST=${2:-'idp1-0'}
+run() {
+    echo >&2 "+ $*"
+    "$@"
+}
 
-if [ -z "$ENVIRON" ]; then
-  cat <<EOS
-Usage: $0 [environment] (host, default = idp1-0)
-SSHes into a box, proxing through the jumphost. It defaults to idp1-0.
-EOS
-  exit 1
+usage() {
+    cat >&2 <<EOM
+usage: $(basename "$0") HOST [ENVIRONMENT] [SSH_OPTS]
+
+SSH into HOST in ENVIRONMENT. For hosts other than the jumphost, proxy through
+the jumphost.
+
+For example:
+    $(basename "$0") idp1-0 dev
+
+    $(basename "$0") chef qa
+
+    $(basename "$0") idp1-0.dev
+
+    $(basename "$0") idp1-0 dev -v -l ubuntu
+
+If your local username differs from the server's username, you can add
+something like this to your ~/.ssh/config:
+
+    host *.login.gov
+    user myusername
+EOM
+}
+
+if [ $# -lt 1 ]; then
+    usage
+    exit 1
 fi
 
-"$(dirname "$0")"/clear-keygen.sh
+host="$1"
 
-PROXY_COMMAND="ssh jumphost.${ENVIRON}.login.gov -W %h:%p"
+if [ $# -ge 2 ]; then
+    environ="$2"
+else
+    if [[ $host == *.* ]]; then
+        environ="$(cut -d. -f2- <<< "$host")"
+        host="$(cut -d. -f1 <<< "$host")"
+    else
+        usage
+        exit 1
+    fi
+fi
 
-ssh -t -o ProxyCommand="${PROXY_COMMAND}" "ubuntu@$HOST"
+opts=()
+
+# handle SSH_OPTS
+shift 2
+opts+=("$@")
+
+# Don't bother with hostkeys in nonprod since we don't yet have a good
+# management strategy for this. TODO: remove this!
+case "$environ" in
+    prod)
+        ;;
+    *)
+        opts+=("-o" "StrictHostKeyChecking=no")
+        ;;
+esac
+
+if [ "$host" != "jumphost" ]; then
+    opts+=("-o" "ProxyCommand=ssh ${opts[@]-} jumphost.$environ.login.gov -W $host:22")
+fi
+
+run ssh "${opts[@]-}" "$host.$environ.login.gov"

@@ -417,12 +417,12 @@ Host jumphost.int.login.gov
 
 #### 10.1.1 `./bin/ssh.sh`
 
-Opens an SSH session on a particular host, defaults to `idp1-0`
+Opens an SSH session on a particular host
 
 ```
-$ ./bin/ssh.sh int
+$ ./bin/ssh.sh idp1-0 int
 # ...
-ubuntu@idp:~$
+user@idp:~$
 ```
 
 #### 10.1.2 `./bin/elk.sh`
@@ -446,7 +446,7 @@ $ ./bin/jenkins.sh int
 Opens an Rails console
 
 ```
-$ ./bin/ssh.sh int
+$ ./bin/ssh.sh idp1-0 int
 # ...
 irb(main):001:0>
 ```

@@ -2,6 +2,11 @@
 
 ENVIRON=${1:-''}
 
+run() {
+    echo >&2 "+ $*"
+    "$@"
+}
+
 if [ -z "$ENVIRON" ]; then
   cat <<EOS
 Usage: $0 [environment]
@@ -11,10 +16,8 @@ EOS
   exit 1
 fi
 
-"$(dirname "$0")"/clear-keygen.sh
-
 open https://localhost:8443/
 
-PROXY_COMMAND="ssh jumphost.${ENVIRON}.login.gov -W %h:%p"
+script="$(dirname "$0")/ssh.sh"
 
-ssh -t -o ProxyCommand="${PROXY_COMMAND}" ubuntu@jenkins -L 8443:localhost:8443 -N
+run "$script" jenkins "$ENVIRON" -t -L 8443:localhost:8443 -N
