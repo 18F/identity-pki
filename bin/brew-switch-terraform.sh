@@ -28,7 +28,7 @@ version of terraform. It can also manage versions of the terraform ACME plugin,
 which tends to be incompatible across releases.
 
 For example:
-    $(basename "$0") 0.9.6
+    $(basename "$0") 0.9.8
 
 This script has a built-in set of known homebrew versions that it can install
 by checking out old versions of homebrew:
@@ -42,9 +42,15 @@ EOM
 # Column 1 - terraform version number
 # Column 2 - homebrew git revision that can be used to install this version
 # Column 3 - terraform-provider-acme plugin version for this TF version
+#
+# Upstream references for the releases:
+#   - https://github.com/Homebrew/homebrew-core/commits/master/Formula/terraform.rb
+#   - https://github.com/paybyphone/terraform-provider-acme/releases
+#
 KNOWN_TF_VERSIONS='
 0.8.8 5745f2f232e3f6b3e3058b3e6ac6e3166822dc7c v0.2.1
 0.9.6 92420144a10dc84a9847249be0845f06b2c3161b v0.3.0
+0.9.8 0f5bdb69965cedf2d868cea36d77e93fb0a91b3e v0.3.0
 '
 
 # Look up row in KNOWN_TF_VERSIONS for given terraform version.
