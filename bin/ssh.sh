@@ -18,9 +18,14 @@ For example:
 
     $(basename "$0") chef qa
 
-    $(basename "$0") idp1-0.dev
+    Use host.environment:
+        $(basename "$0") idp1-0.dev
 
-    $(basename "$0") idp1-0 dev -v -l ubuntu
+    Pass options to SSH:
+        $(basename "$0") idp1-0 dev -v -l ubuntu
+
+    Pass a remote command:
+        $(basename "$0") idp1-0 dev -- somecommand
 
 If your local username differs from the server's username, you can add
 something like this to your ~/.ssh/config:
@@ -53,7 +58,17 @@ opts=()
 
 # handle SSH_OPTS
 shift 2
-opts+=("$@")
+
+cmd=()
+while [ $# -gt 1 ]; do
+    if [ "$1" == "--" ]; then
+        shift
+        cmd=("$@")
+        break
+    fi
+    opts+=("$1")
+    shift
+done
 
 # Don't bother with hostkeys in nonprod since we don't yet have a good
 # management strategy for this. TODO: remove this!
@@ -69,4 +84,8 @@ if [ "$host" != "jumphost" ]; then
     opts+=("-o" "ProxyCommand=ssh ${opts[@]-} jumphost.$environ.login.gov -W $host:22")
 fi
 
-run ssh "${opts[@]-}" "$host.$environ.login.gov"
+if [ "${#cmd[@]}" -gt 0 ]; then
+    run ssh "${opts[@]-}" "$host.$environ.login.gov" "${cmd[@]}"
+else
+    run ssh "${opts[@]-}" "$host.$environ.login.gov"
+fi
