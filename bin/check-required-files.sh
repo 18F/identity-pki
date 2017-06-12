@@ -34,13 +34,14 @@ echo "CHECK: Required Nessus package..."
 NESSUS_DOWNLOAD_URL="http://downloads.nessus.org/nessus3dl.php?file=Nessus-6.10.0-ubuntu1110_amd64.deb&licence_accept=yes&t=c89a8794496b26a61d8a09e9af89cb97"
 NESSUS_FILENAME="Nessus-6.10.0-ubuntu1110_amd64.deb"
 echo "Checking if Nessus Manager exists at $NESSUS_FILENAME"
-if [ ! -e $NESSUS_FILENAME ]; then
+if [ ! -e "$NESSUS_FILENAME" ]; then
     echo "Downloading Nessus Manager to $NESSUS_FILENAME"
-    curl -L $NESSUS_DOWNLOAD_URL -o $NESSUS_FILENAME
+    curl -f -L "$NESSUS_DOWNLOAD_URL" -o "$NESSUS_FILENAME"
 fi
 
+# shellcheck disable=2154
 echo "CHECK: Required jenkins key: $TF_VAR_git_deploy_key_path"
-if [ ! -e $TF_VAR_git_deploy_key_path ]; then
+if [ ! -e "$TF_VAR_git_deploy_key_path" ]; then
     cat 1>&2 <<EOF
 
 ERROR: Missing jenkins key at $TF_VAR_git_deploy_key_path.
@@ -57,7 +58,7 @@ fi
 
 echo "CHECK: Required chef databags..."
 USERS_DATABAGS="kitchen/data_bags/users"
-NUM_USERS=$(ls -1d "$USERS_DATABAGS"/*.json 2>/dev/null | wc -l || true)
+NUM_USERS=$(find "$USERS_DATABAGS" -name '*.json' -type f | wc -l)
 if [[ $NUM_USERS -eq 0 ]]; then
     echo "ERROR: No user databags found at: $USERS_DATABAGS/*.json"
     echo "    You need at least one user account to configure"
@@ -66,7 +67,7 @@ if [[ $NUM_USERS -eq 0 ]]; then
     exit 1
 fi
 CONFIG_DATABAG="kitchen/data_bags/config/${1}.json"
-if [ ! -e  $CONFIG_DATABAG ]; then
+if [ ! -e "$CONFIG_DATABAG" ]; then
     echo "ERROR: No env config databag at: $CONFIG_DATABAG"
     echo "    You need to have a config databag for chef."
     echo "    See https://github.com/18F/identity-devops/wiki/Chef-Databags"
@@ -76,7 +77,7 @@ fi
 
 echo "CHECK: Required environment config..."
 CHEF_ENVIRONMENT_CONFIG="kitchen/environments/${1}.json"
-if [ ! -e  $CHEF_ENVIRONMENT_CONFIG ]; then
+if [ ! -e "$CHEF_ENVIRONMENT_CONFIG" ]; then
     echo "ERROR: No configuration found at: $CHEF_ENVIRONMENT_CONFIG"
     echo "    You need to create and push a configuration to"
     echo "    the branch you are deploying from.  Copy this from"

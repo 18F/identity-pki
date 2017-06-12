@@ -50,7 +50,7 @@ else
 fi
 
 echo "BOOTSTRAP: Loading environment variables...."
-. bin/load-env.sh $ENVIRONMENT $GSA_USERNAME env/env.sh
+. bin/load-env.sh "$ENVIRONMENT" "$GSA_USERNAME"
 
 echo "BOOTSTRAP: Checking for required files that currently cannot be retrieved automatically...."
 ./bin/check-required-files.sh $ENVIRONMENT

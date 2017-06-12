@@ -44,9 +44,26 @@ prompt_yn() {
     done
 }
 
-echo_blue() {
+echo_color() {
+    local color code
+    color="$1"
+    shift
+
+    case "$color" in
+        red)    code=31 ;;
+        green)  code=32 ;;
+        yellow) code=33 ;;
+        blue)   code=34 ;;
+        purple) code=35 ;;
+        cyan)   code=36 ;;
+        *)
+            echo >&2 "echo_color: unknown color $color"
+            return 1
+            ;;
+    esac
+
     if [ -t 1 ]; then
-        echo -ne "\033[1;34m"
+        echo -ne "\033[1;${code}m"
     fi
 
     echo -n "$*"
@@ -54,24 +71,29 @@ echo_blue() {
     if [ -t 1 ]; then
         echo -ne "\033[m"
     fi
+
     echo
 }
+
+echo_blue() {
+    echo_color blue "$@"
+}
 echo_red() {
-    if [ -t 1 ]; then
-        echo -ne "\033[1;31m"
-    fi
-
-    echo -n "$*"
-
-    if [ -t 1 ]; then
-        echo -ne "\033[m"
-    fi
-    echo
+    echo_color red "$@"
+}
+echo_yellow() {
+    echo_color yellow "$@"
 }
 
 log() {
-    if [ -n "${BASENAME-}" ]; then
-        echo >&2 -n "$BASENAME: "
+    # print our caller if possible as the basename
+    if [ "${#BASH_SOURCE[@]}" -ge 2 ]; then
+        local basename
+        basename="${BASH_SOURCE[1]}"
+        if [[ $basename = */* ]]; then
+            basename="$(basename "$basename")"
+        fi
+        echo >&2 -n "$basename: "
     fi
     echo >&2 "$*"
 }
@@ -113,4 +135,30 @@ check_terraform_version() {
     echo >&2 "a target installed version of terraform with homebrew."
 
     return 1
+}
+
+# Similar to Ruby's Array#join
+# usage: join_by DELIMITER ELEM...
+join_by() {
+    local delimiter="$1"
+    shift
+    if [ $# -eq 0 ]; then
+        echo
+        return
+    fi
+    # print first elem with no delimiter
+    echo -n "$1"
+    shift
+
+    for elem in "$@"; do
+        echo -n "$delimiter$elem"
+    done
+
+    echo
+}
+
+# Output shell array as a terraform-compatible string
+# (1 2 3) => '["1", "2", "3"]'
+array_to_string() {
+    echo "[\"$(join_by '", "' "$@")\"]"
 }

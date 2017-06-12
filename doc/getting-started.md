@@ -125,27 +125,31 @@ discussion below.)
 
 ## 3. Environment Variables File
 
-We currently use a lot of environment variables for configuration.  Copy
-`env/env.sh.example` to `env/env.sh`.  Do not source this directly, it is used
-by the `deploy` and `bootstrap.sh` scripts described below.
+We currently use a lot of environment variables for configuration. These are
+managed by scripts in
+[identity-devops-private:/env/](https://github.com/18F/identity-devops-private/tree/master/env).
+Do not source these scripts directly; they are used by the `deploy` and
+`bootstrap.sh` scripts described below.
 
 One thing you may have to change is `TF_VAR_app_sg_ssh_cidr_blocks` if you're not
-on the internal GSA network.  See
+on the internal GSA network.  You can set these in the environment-specific
+file for your environment so it doesn't apply everywhere. See
 https://github.com/18F/identity-private/issues/1769#issuecomment-290822192.
 
 When you run `deploy` or `bootstrap`, it should clone
 [identity-devops-private](https://github.com/18F/identity-devops-private) if
 you haven't done so already. There are files in `identity-devops-private` that
-automatically override these variables with environment-specific values.
+automatically override the `base.sh` variables with environment-specific
+values.
 
-At the moment we don't have an automated way of keeping this up to date, so you
-will want to `git pull` in that repository periodically. This is at least an
-improvement over `env.sh`, which is not tracked by version control. You may
-want to periodically `diff env.sh.example env.sh` to ensure that there aren't
-variables you're missing.
+The `deploy` script will automatically `git pull` in `identity-devops-private`
+to keep it up-to-date, since it's important to have the latest environment
+configuration.
 
 See [process-issue-tracking.md](./process-issue-tracking.md) for more
-background on the repo layout.
+background on the repo layout. The [Environment variable
+configuration](./process-issue-tracking.md#environment-variable-configuration)
+section discusses this in detail.
 
 See https://github.com/18F/identity-devops-private/issues/1 for more long-term
 vision on how environment configuration should be handled.

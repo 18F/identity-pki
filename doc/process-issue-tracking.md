@@ -36,3 +36,60 @@ rationale in greater detail.
 
 For moving GitHub issues between repositories, we used a oneoff script:
 [/bin/oneoffs/github-copy-issues.rb](../bin/oneoffs/github-copy-issues.rb)
+
+## Environment variable configuration
+
+The deploy scripts (`deploy`, `bootstrap.sh`) use environment variables to pass
+a number of configuration parameters to terraform. An environment variable
+named `TF_VAR_foo` will be treated by Terraform as variable `foo`.
+
+This allows us to specify configuration values that are specific to our
+deployment of the login.gov infrastructure, such as account ID, AWS region, AMI
+IDs, etc.
+
+Some of these values may differ between environments. The `bin/load-env.sh`
+script loads values from identity-devops-private. It will load an
+environment-specific file (e.g. `dev.sh`) if one exists for the current
+environment. This file will itself typically source `base.sh` to get common
+settings. If no file exists for this environment, then `load-env.sh` will load
+`default.sh` instead.
+
+Certain values may differ permanently, for example the `TF_VAR_account_id`
+because there may be separate AWS accounts for production and testing.
+
+Other values may differ only temporarily, for example while rolling out a new
+version of an AMI or upgrading between versions of Postgres. Our proposed (yet
+to be tested in practice) workflow is to issue pull requests and merge as the
+changes are rolled out to individual environments or sets of environments.
+
+See the env directory in identity-devops-private for more details:
+https://github.com/18F/identity-devops-private/tree/master/env
+
+### Breaking environment changes
+
+Sometimes it's useful to enforce that users are running a recent enough version
+of the environment configuration. Because we have decoupled `identity-devops`
+from `identity-devops-private`, these versions can change independently. The
+`deploy` script will run a `git pull --ff-only` in `identity-devops-private` to
+try to get the latest version.
+
+The `bin/load-env.sh` script uses the environment variable
+`ID_ENV_COMPAT_VERSION` as a sentinel for the compatibility version. If the
+value of this variable is less than the `ENFORCED_ENV_COMPAT_VERSION` set in
+`bin/load-env.sh`, it will error out. So if you need to make a breaking change
+to the environment scripts and enforce that users are running with a newer
+environment, increment `ID_ENV_COMPAT_VERSION` in the environment files in
+`identity-devops-private` and increment `ENFORCED_ENV_COMPAT_VERSION` in
+`bin/load-env.sh` to require it.
+
+### Long term future of this configuration
+
+In the future, our use of environment variables will ideally be supplanted by
+the use of terraform `.tfvars` files and terraform modules. Instead of sourcing
+Bash scripts with shell variables, we will put variables in `.tfvars` files
+that are specific to each environment. Eventually we plan to make the
+`identity-devops` Terraform configuration a module, so then each environment
+would get a `main.tf` in identity-devops-private hat references the module with
+any necessary parameters.
+
+
