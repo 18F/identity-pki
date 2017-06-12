@@ -31,11 +31,15 @@ with an appended '-private'.
 
 Set SKIP_GIT_CLONE=1 in your environment to skip the prompt for the git
 clone.
+Set SKIP_GIT_PULL=1 in your environment to skip the automatic git pull.
 EOM
     exit 1
 fi
 
-# shellcheck source=./lib/common.sh
+SKIP_GIT_CLONE="${SKIP_GIT_CLONE-}"
+SKIP_GIT_PULL="${SKIP_GIT_PULL-}"
+
+# shellcheck source=/dev/null
 . "$(dirname "$0")/lib/common.sh"
 
 # Determine the likely URL for identity-devops-private based on the "origin"
@@ -94,7 +98,7 @@ check_maybe_clone_private_repo() {
     if [ ! -d "$path" ]; then
         echo >&2 "warning: Private repo is not checked out at $path"
 
-        if [ -n "${SKIP_GIT_CLONE-}" ]; then
+        if [ -n "$SKIP_GIT_CLONE" ]; then
             echo >&2 "SKIP_GIT_CLONE is set, aborting."
             return 1
         fi
@@ -114,7 +118,29 @@ check_maybe_clone_private_repo() {
             return 1
         fi
     fi
+}
 
+git_pull() {
+    if [ -n "$SKIP_GIT_PULL" ]; then
+        echo >&2 "SKIP_GIT_PULL is set, skipping git pull of private repo"
+        return
+    fi
+
+    local dir basename
+    dir="$1"
+
+    basename="$(basename "$dir")"
+
+    echo >&2 "Updating $basename, set env var SKIP_GIT_PULL=1 to skip"
+
+    local cur_branch
+    cur_branch="$(run git -C "$dir" symbolic-ref --short HEAD)"
+    if [ "$cur_branch" != "master" ]; then
+        echo_yellow >&2 \
+            "Warning: current $basename branch is $cur_branch, not master"
+    fi
+
+    run git -C "$dir" pull --ff-only
 }
 
 echo_blue >&2 "Looking for env-specific variables"
@@ -122,6 +148,8 @@ echo_blue >&2 "Looking for env-specific variables"
 private_path="${IDENTITY_DEVOPS_PRIVATE_PATH-$(get_private_path)}"
 
 check_maybe_clone_private_repo "$private_path"
+
+git_pull "$private_path"
 
 if [ ! -e "$private_path/env/default.sh" ]; then
     echo >&2 "Somehow $private_path/env/default.sh is missing!"

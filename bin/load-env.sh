@@ -38,11 +38,12 @@ USERNAME: Required if \$GSA_USERNAME is not set.
 ENV_FILE: Override the normal environment loader and use a single env file. Not
           recommended unless you have particular reason to do so.
 
-NOTE: This script will exit your shell if you source it and don't have all the
+NOTE: This script might exit your shell if you source it and don't have all the
 right stuff set up. It's a good idea to only source it from another script, or
 just to be really sure you've set all the necessary variables.
 
 Set \$ENV_DEBUG=1 to print environment variables once we finish.
+Set \$SKIP_GIT_PULL=1 to skip automatic git pull of identity-devops-private.
 EOM
 }
 
