@@ -26,7 +26,7 @@
     "homebrew": "= 3.0.0",
     "hostname": "= 0.4.0",
     "hostsfile": "= 2.4.5",
-    "identity-elk": "= 0.1.18",
+    "identity-elk": "= 0.1.19",
     "identity-jenkins": "= 0.1.8",
     "identity-jumphost": "= 0.1.0",
     "identity-nessus": "= 0.0.2",
@@ -34,8 +34,9 @@
     "identity-ossec": "= 0.1.1",
     "java": "= 1.46.0",
     "jenkins": "= 5.0.1",
+    "keytool": "= 0.8.1",
     "letsencrypt": "= 1.0.3",
-    "login_dot_gov": "= 0.0.31",
+    "login_dot_gov": "= 0.0.39",
     "monit": "= 1.0.0",
     "motd": "= 0.6.4",
     "nano": "= 1.0.3",
@@ -85,6 +86,7 @@
       "branch_name": "stages/qa",
       "enable_identity_verification": "true",
       "enable_usps_verification": "true",
+      "proofing_vendors": "equifax",
       "use_kms": "true"
     },
     "ssh_keys": {
@@ -109,6 +111,7 @@
         "jpmugizi",
         "monfresh",
         "sverch",
+        "dnesting",
         "tspencer",
         "zmargolis"
       ]
@@ -124,6 +127,7 @@
       "admins": [
         "astone",
         "jgrevich",
+        "dnesting",
         "jpmugizi",
         "tspencer",
         "zmargolis"
