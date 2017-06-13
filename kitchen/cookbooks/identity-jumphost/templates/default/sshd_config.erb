@@ -86,7 +86,7 @@ Subsystem sftp /usr/lib/openssh/sftp-server
 # PAM authentication, then enable this but set PasswordAuthentication
 # and ChallengeResponseAuthentication to 'no'.
 UsePAM yes
-MaxAuthTries 4
+MaxAuthTries 8
 PermitUserEnvironment no
 Ciphers aes128-ctr,aes192-ctr,aes256-ctr
 ClientAliveInterval 300
