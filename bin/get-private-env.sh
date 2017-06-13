@@ -140,7 +140,11 @@ git_pull() {
             "Warning: current $basename branch is $cur_branch, not master"
     fi
 
-    run git -C "$dir" pull --ff-only
+    if run git -C "$dir" pull --ff-only --no-rebase; then
+        return
+    else
+        echo_red >&2 "Error: git pull failed"
+    fi
 }
 
 echo_blue >&2 "Looking for env-specific variables"
