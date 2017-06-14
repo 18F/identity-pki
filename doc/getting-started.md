@@ -588,7 +588,7 @@ I would love to make this automatically configured too, but it stores these thin
 You will also need to set up password hashes in the users databag if they haven't already been set up:
 
 ```
-$ htpasswd -c /tmp/htpasswd username
+$ htpasswd -B -C 12 -c /tmp/htpasswd <username>
 New password:
 Re-type new password:
 Adding password for user username
