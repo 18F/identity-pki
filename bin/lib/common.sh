@@ -99,8 +99,20 @@ log() {
 }
 
 get_terraform_version() {
+    local ret
+
     # checkpoint is the hashicorp thing that phones home to check versions
-    CHECKPOINT_DISABLE=1 run terraform --version | head -1 | cut -d' ' -f2
+    CHECKPOINT_DISABLE=1 run terraform --version | head -1 | cut -d' ' -f2 \
+        && ret=$? || ret=$?
+
+    # Transform SIGPIPE into exit status 0.
+    # When set -o pipefail is set, we expect head -1 to cause
+    # terraform --version to receive a SIGPIPE.
+    if [ "$ret" -eq 141 ]; then
+        return 0
+    fi
+
+    return "$ret"
 }
 
 # usage: check_terraform_version SUPPORTED_VERSION...
