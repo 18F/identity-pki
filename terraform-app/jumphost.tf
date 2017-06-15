@@ -13,6 +13,7 @@ resource "aws_instance" "jumphost" {
   connection {
     type = "ssh"
     user = "ubuntu"
+    timeout = "1m"
   }
 
   vpc_security_group_ids = [ "${aws_security_group.jumphost.id}" ]

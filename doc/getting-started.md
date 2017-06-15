@@ -548,6 +548,10 @@ curl -k -X DELETE https://es.login.gov.internal:9200/logstash-*
 
 You may also have to go into kibana and tell it to refresh it's index pattern if it has the old one.`https://elk.login.gov.internal:8443/app/kibana#/management/kibana/indices/logstash-*` Then click on the orange button that has the two arrows circling around to Refresh the Field List.
 
+#### Kibana default index pattern
+
+If you're setting up a new ELK server for the first time, you will be prompted to create a default index pattern. Use `logstash-*` (the default) as the name, and `@timestamp` for the "Time-field name".
+
 ### 11.3 Jenkins
 
 #### 11.3.1 Jenkins Users and Admins
