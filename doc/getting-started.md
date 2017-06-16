@@ -570,11 +570,20 @@ A chef-client run will make sure that all of those things get applied.
 
 #### 11.3.2 Chef Jenkins Key
 
-On the chef-server, get the /root/jenkins.pem key. This is used for 'berks apply' and other berkshelf stuff. You will need to create a chef identity with this in it.
+On the `chef` server, locate the `/root/jenkins.pem` key. This is used for
+Jenkins to be able to connect to chef. You will need to import this into the
+Jenkins web interface.
 
-As a jenkins admin user, from the top level of the jenkins UI, go to "Manage Jenkins", then click on "Configure System", then set up "Chef Identity Management". Add the key in for the "jenkins" user from chef. This should work for the knife.rb:
+As a jenkins admin user, from the top level of the jenkins UI, go to "Manage
+Jenkins", then click on "Configure System", then set up "Chef Identity
+Management". Add the key in for the "jenkins" user from chef.
 
-```
+The Jenkins form has a few fields that you should supply under "Chef Identities":
+
+- **Identity Name:** `jenkins`
+- **user.pem key:** Use the value you got from `/root/jenkins.pem` on the `chef` server.
+- **knife.rb file:** Use this as the input:
+```ruby
 current_dir = File.dirname(__FILE__)
 log_level                :info
 log_location             STDOUT
@@ -582,10 +591,18 @@ node_name                "jenkins"
 client_key               "#{current_dir}/user.pem"
 chef_server_url          "https://chef.login.gov.internal/organizations/login-dev"
 cookbook_path            ["#{current_dir}/../kitchen/cookbooks"]
-
 ```
 
-I would love to make this automatically configured too, but it stores these things as secrets, which means that they are encrypted on a host-by-host basis, so there's no good way to template-ize them that I know of.
+**WARNING:** The Chef Identity Management plugin seems to be not very robust.
+It has a bug where if you need to modify these values in the web interface,
+this will have **no effect**, and your changes will be silently ignored. If you
+do need to edit `knife.rb` or the other parameters, be sure to clear out the
+values from the Jenkins workspace before running jobs again, with something
+like this:
+
+    rm -rf /var/lib/jenkins/workspace/Deploy*/.chef
+
+I (tspencer) would love to make this automatically configured too, but it stores these things as secrets, which means that they are encrypted on a host-by-host basis, so there's no good way to template-ize them that I know of.
 
 #### 11.3.3 Jenkins/ELK Password Hash
 
