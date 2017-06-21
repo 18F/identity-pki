@@ -16,3 +16,4 @@ gem 'knife-spork'
 gem 'knife-backup'
 gem 'knife-block'
 
+gem 'semantic'
