@@ -162,12 +162,23 @@ resource "aws_db_instance" "default" {
   password = "${var.rds_password}"
   username = "${var.rds_username}"
 
+  # change this to true to allow upgrading engine versions
+  allow_major_version_upgrade = false
+
   tags {
     client = "${var.client}"
     Name = "${var.name}-${var.env_name}"
   }
 
   vpc_security_group_ids = ["${aws_security_group.db.id}"]
+
+  # If you want to destroy your database, comment this block out
+  lifecycle {
+    prevent_destroy = true
+
+    # we set the password by hand so it doesn't end up in the state file
+    ignore_changes = ["password"]
+  }
 }
 
 resource "aws_db_subnet_group" "default" {

@@ -4,6 +4,7 @@ resource "aws_db_instance" "idp" {
   backup_retention_period = "${var.rds_backup_retention_period}"
   backup_window = "${var.rds_backup_window}"
   db_subnet_group_name = "${aws_db_subnet_group.default.id}"
+  # TODO: these deps prevent cleanly destroying an RDS instance, and they should probably be removed
   depends_on = ["aws_security_group.db", "aws_subnet.db1", "aws_subnet.db2", "aws_db_parameter_group.force_ssl"]
   engine = "${var.rds_engine}"
   engine_version = "${var.rds_engine_version}"
@@ -11,10 +12,13 @@ resource "aws_db_instance" "idp" {
   instance_class = "${var.rds_instance_class}"
   maintenance_window = "${var.rds_maintenance_window}"
   multi_az = true
-  parameter_group_name = "${var.name}-idp-force-ssl-${var.env_name}"
+  parameter_group_name = "${aws_db_parameter_group.force_ssl.name}"
   password = "${var.rds_password}"
   storage_encrypted = true
   username = "${var.rds_username}"
+
+  # change this to true to allow upgrading engine versions
+  allow_major_version_upgrade = false
 
   tags {
     client = "${var.client}"
@@ -22,19 +26,31 @@ resource "aws_db_instance" "idp" {
   }
 
   vpc_security_group_ids = ["${aws_security_group.db.id}"]
+
+  # If you want to destroy your database, comment this block out
+  lifecycle {
+    prevent_destroy = true
+
+    # we set the password by hand so it doesn't end up in the state file
+    ignore_changes = ["password"]
+  }
 }
 
 resource "aws_db_parameter_group" "force_ssl" {
-  name = "${var.name}-idp-force-ssl-${var.env_name}"
+  name = "${var.name}-idp-force-ssl-${var.env_name}-${var.rds_engine}${replace(var.rds_engine_version_short, ".", "")}"
   # Before changing this value, make sure the parameters are correct for the
   # version you are upgrading to.  See
   # http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_WorkingWithParamGroups.html.
-  family = "postgres9.5"
+  family = "${var.rds_engine}${var.rds_engine_version_short}"
 
   parameter {
     name = "rds.force_ssl"
     value = "1"
     apply_method = "pending-reboot"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 

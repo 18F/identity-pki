@@ -5,6 +5,7 @@ variable "rds_backup_window" { default = "08:00-08:34" }
 # parameter to the engine and version.
 variable "rds_engine" { default = "postgres" }
 variable "rds_engine_version" { default = "9.5.6" }
+variable "rds_engine_version_short" { default = "9.5" }
 variable "rds_instance_class" { default = "db.t2.large" }
 variable "rds_password" { }
 variable "rds_storage" { default = "8" }
