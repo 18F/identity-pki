@@ -44,4 +44,5 @@ cookbook 'identity-jumphost', path: 'kitchen/cookbooks/identity-jumphost'
 cookbook 'identity-nessus', path: 'kitchen/cookbooks/identity-nessus'
 cookbook 'identity-ossec', path: 'kitchen/cookbooks/identity-ossec'
 cookbook 'identity-ntp', path: 'kitchen/cookbooks/identity-ntp'
+cookbook 'apt_update', path: 'kitchen/cookbooks/apt_update'
 

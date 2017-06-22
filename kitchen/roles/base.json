@@ -33,6 +33,8 @@
     "recipe[login_dot_gov::users]",
     "recipe[identity-jenkins::deploy-key]",
     "recipe[apt]",
+    "recipe[apt_update::upgrade]",
+    "recipe[apt_update::update]",
     "recipe[bash-completion]",
     "recipe[build-essential]",
     "recipe[cacert]",
