@@ -20,6 +20,11 @@ resource "acme_certificate" "dashboard" {
   dns_challenge {
     provider = "route53"
   }
+
+  # We need a new certificate before trying to delete the old one
+  lifecycle {
+      create_before_destroy = true
+  }
 }
 
 resource "acme_certificate" "idp" {
@@ -30,8 +35,16 @@ resource "acme_certificate" "idp" {
   subject_alternative_names = ["idp.${var.env_name}.login.gov"]
   server_url                = "https://acme-v01.api.letsencrypt.org/directory"
 
+  # Modifying this at all forces a renwal due to https://github.com/paybyphone/terraform-provider-acme/issues/13
+  min_days_remaining        = 14
+
   dns_challenge {
     provider = "route53"
+  }
+
+  # We need a new certificate before trying to delete the old one
+  lifecycle {
+      create_before_destroy = true
   }
 }
 
@@ -44,6 +57,11 @@ resource "acme_certificate" "sp-oidc-sinatra" {
 
   dns_challenge {
     provider = "route53"
+  }
+
+  # We need a new certificate before trying to delete the old one
+  lifecycle {
+      create_before_destroy = true
   }
 }
 
@@ -58,6 +76,11 @@ resource "acme_certificate" "sp-rails" {
   dns_challenge {
     provider = "route53"
   }
+
+  # We need a new certificate before trying to delete the old one
+  lifecycle {
+      create_before_destroy = true
+  }
 }
 
 resource "acme_certificate" "sp-sinatra" {
@@ -69,5 +92,10 @@ resource "acme_certificate" "sp-sinatra" {
 
   dns_challenge {
     provider = "route53"
+  }
+
+  # We need a new certificate before trying to delete the old one
+  lifecycle {
+      create_before_destroy = true
   }
 }
