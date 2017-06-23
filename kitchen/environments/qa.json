@@ -81,6 +81,7 @@
       "branch_name": "stages/qa"
     },
     "login_dot_gov": {
+      "available_locales": "en es",
       "aws_kms_key_id": "alias/qa-login-dot-gov-keymaker",
       "aws_region": "us-west-2",
       "branch_name": "stages/qa",
@@ -106,12 +107,12 @@
     "elk": {
       "users": [
         "astone",
+        "dnesting",
         "jgrevich",
         "zmargolis",
         "jpmugizi",
         "monfresh",
         "sverch",
-        "dnesting",
         "tspencer",
         "zmargolis"
       ]
@@ -126,8 +127,8 @@
       ],
       "admins": [
         "astone",
-        "jgrevich",
         "dnesting",
+        "jgrevich",
         "jpmugizi",
         "tspencer",
         "zmargolis"

@@ -27,7 +27,7 @@
     "hostname": "= 0.4.0",
     "hostsfile": "= 2.4.5",
     "identity-elk": "= 0.1.19",
-    "identity-jenkins": "= 0.1.7",
+    "identity-jenkins": "= 0.1.8",
     "identity-jumphost": "= 0.1.0",
     "identity-nessus": "= 0.0.2",
     "identity-ntp": "= 0.1.0",
@@ -36,7 +36,7 @@
     "jenkins": "= 5.0.1",
     "keytool": "= 0.8.1",
     "letsencrypt": "= 1.0.3",
-    "login_dot_gov": "= 0.0.31",
+    "login_dot_gov": "= 0.0.39",
     "monit": "= 1.0.0",
     "motd": "= 0.6.4",
     "nano": "= 1.0.3",
@@ -77,13 +77,15 @@
   "json_class": "Chef::Environment",
   "chef_type": "environment",
   "default_attributes": {
+    "identity-devops": {
+      "branch_name": "stages/int"
+    },
     "login_dot_gov": {
+      "available_locales": "en es",
       "aws_kms_key_id": "alias/int-login-dot-gov-keymaker",
       "aws_region": "us-west-2",
-      "branch_name": "stages/rc-2017-05-30",
+      "branch_name": "stages/int",
       "enable_identity_verification": "true",
-      "enable_usps_verification": "true",
-      "proofing_vendors": "equifax",
       "use_kms": "false"
     },
     "ssh_keys": {
@@ -104,12 +106,11 @@
     "elk": {
       "users": [
         "astone",
+        "dnesting",
         "jgrevich",
-        "zmargolis",
         "jpmugizi",
         "monfresh",
         "sverch",
-        "dnesting",
         "tblack",
         "tspencer",
         "zmargolis"

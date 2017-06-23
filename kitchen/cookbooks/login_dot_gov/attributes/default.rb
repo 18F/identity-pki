@@ -29,6 +29,7 @@ default['login_dot_gov']['allow_third_party_auth']                    = 'false'
 default['login_dot_gov']['attribute_cost']                            = '4000$8$4$' # SCrypt::Engine.calibrate(max_time: 0.5)
 default['login_dot_gov']['attribute_encryption_key']                  = 'change-this-immediately-with-rake-secret-2086dfbd15f5b0c584f3664422a1d3409a0d2aa6084f65b6ba57d64d4257431c124158670c7655e45cabe64194f7f7b6c7970153c285bdb8287ec0c4f7553e25'
 default['login_dot_gov']['attribute_encryption_key_queue']            = '["old-key-one", "old-key-two"]'
+default['login_dot_gov']['available_locales']                         = 'en'
 default['login_dot_gov']['aws_kms_key_id']                            = 'not-used-yet'
 default['login_dot_gov']['aws_region']                                = 'not-used-yet'
 default['login_dot_gov']['domain_name']                               = 'login.gov'

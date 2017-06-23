@@ -26,6 +26,7 @@ action :create do
       attribute_cost: node['login_dot_gov']['attribute_cost'],
       attribute_encryption_key: (encrypted_config['attribute_encryption_key'] || node['login_dot_gov']['attribute_encryption_key']),
       attribute_encryption_key_queue: node['login_dot_gov']['attribute_encryption_key_queue'],
+      available_locales: node['login_dot_gov']['available_locales'],
       aws_kms_key_id: node['login_dot_gov']['aws_kms_key_id'],
       aws_region: node['login_dot_gov']['aws_region'],
       dashboard_api_token: encrypted_config['dashboard_api_token'],
