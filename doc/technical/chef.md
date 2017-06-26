@@ -14,12 +14,17 @@ trying to work with, you may need to get the [config databag
 key](https://github.com/18F/identity-private/issues/1825) from them, and create
 a new chef user for yourself.
 
-[This
-script](https://github.com/18F/identity-devops/blob/master/bin/createchefclient.sh)
-is one way to create a chef user, but you can also use
-[knife](https://docs.chef.io/knife_user.html).
+There is a script that automates the process of creating a chef user for
+yourself and downloading all of the appropriate databags and keys provided that
+you have SSH access to the chef server (whether through your own unix user or a
+shared user).
 
-<!-- # TODO XXX -->
+Run `bin/chef-create-user.sh` with no arguments to see usage and help text.
+
+https://github.com/18F/identity-devops/blob/master/bin/chef-create-user.sh
+
+You can also use knife directly [knife](https://docs.chef.io/knife_user.html).
+
 
 #### 0.2. Knife/Berkshelf Setup
 
