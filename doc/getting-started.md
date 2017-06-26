@@ -18,23 +18,17 @@
 - [7. Create FISMA AMI](#7-create-fisma-ami)
 - [8. Create a login.gov base AMI](#8-create-a-logingov-base-ami)
 - [9. Manual Lockdown](#9-manual-lockdown)
-- [10. Jumphost SSH-Agent and Proxy Forwarding](#10-jumphost-ssh-agent-and-proxy-forwarding)
-  - [10.1. Helper Scripts for Common Workflows](#101-helper-scripts-for-common-workflows)
-    - [10.1.1 `./bin/ssh.sh`](#1011-binsshsh)
-    - [10.1.2 `./bin/elk.sh`](#1012-binelksh)
-    - [10.1.2 `./bin/jenkins.sh`](#1012-binjenkinssh)
-    - [10.1.3 `./bin/rails-console.sh`](#1013-binrails-consolesh)
-  - [10.2. Manual SSH Jumping](#102-manual-ssh-jumping)
-- [11. Other Miscellaneous Configurations](#11-other-miscellaneous-configurations)
-  - [11.1 Elastic Search](#111-elastic-search)
-  - [11.2 CloudTrail](#112-cloudtrail)
-  - [11.3 Jenkins](#113-jenkins)
-    - [11.3.1 Jenkins Users and Admins](#1131-jenkins-users-and-admins)
-    - [11.3.2 Chef Jenkins Key](#1132-chef-jenkins-key)
-    - [11.3.3 Jenkins/ELK Password Hash](#1133-jenkinselk-password-hash)
-    - [11.3.4 Jenkins Usage](#1134-jenkins-usage)
-  - [11.5. Deploying the application](#115-deploying-the-application)
-    - [11.5.1. App Control/Config with Rake Tasks](#1151-app-controlconfig-with-rake-tasks)
+- [10. Other Miscellaneous Configurations](#10-other-miscellaneous-configurations)
+  - [10.1 Elastic Search](#101-elastic-search)
+  - [10.2 CloudTrail](#102-cloudtrail)
+    - [Kibana default index pattern](#kibana-default-index-pattern)
+  - [10.3 Jenkins](#103-jenkins)
+    - [10.3.1 Jenkins Users and Admins](#1031-jenkins-users-and-admins)
+    - [10.3.2 Chef Jenkins Key](#1032-chef-jenkins-key)
+    - [10.3.3 Jenkins/ELK Password Hash](#1033-jenkinselk-password-hash)
+    - [10.3.4 Jenkins Usage](#1034-jenkins-usage)
+  - [10.5. Deploying the application](#105-deploying-the-application)
+    - [10.5.1. App Control/Config with Rake Tasks](#1051-app-controlconfig-with-rake-tasks)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -297,92 +291,9 @@ The first time you deploy everything, you'll have to go manually lock down a cou
 * Do a chef-client on the chef-server to get it logging: `chef-client -r 'role[base]'`
 * Enable ELK: `knife node run_list add elk.<env> 'recipe[identity-elk]' ; ssh elk sudo chef-client`
 
-## 10. Jumphost SSH-Agent and Proxy Forwarding
+## 10. Other Miscellaneous Configurations
 
-There is an ssh jumphost set up now that we must use for all things. No direct ssh access is allowed to anything but the jumphost, and all internal services (ELK/Jenkins for now) must be accessed through the jumphost.
-
-To use the jumpbox services, you will probably want to do two things:
-
-* Forward your ssh-agent to the jumphost when you ssh in so you can ssh around inside.
-* Forward a proxy port to the jumphost when you ssh in so you can use a web browser on internal services.
-
-### 10.1. Helper Scripts for Common Workflows
-
-These scripts rely on having your username set up as a default in `~/.ssh/config` for *all* jumphosts, like so:
-
-```
-# ~/.ssh/config
-Host jumphost.prod.login.gov
-       User zmargolis
-       PKCS11Provider /usr/local/lib/pkcs11/opensc-pkcs11.so
-
-Host jumphost.int.login.gov
-       User zmargolis
-
-# etc etc
-```
-
-#### 10.1.1 `./bin/ssh.sh`
-
-Opens an SSH session on a particular host
-
-```
-$ ./bin/ssh.sh idp1-0 int
-# ...
-user@idp:~$
-```
-
-#### 10.1.2 `./bin/elk.sh`
-
-Opens an SSH tunnel and forwards a port to proxy Kibana/ElasticSearch, it will open a web browser to the port it proxies.
-
-```
-$ ./bin/elk.sh int
-```
-
-#### 10.1.2 `./bin/jenkins.sh`
-
-Ditto the `elk.sh` script but for Jenkins
-
-```
-$ ./bin/jenkins.sh int
-```
-
-#### 10.1.3 `./bin/rails-console.sh`
-
-Opens an Rails console
-
-```
-$ ./bin/ssh.sh idp1-0 int
-# ...
-irb(main):001:0>
-```
-
-### 10.2. Manual SSH Jumping
-
-You can do this with one command:
-
-```
-ssh -L3128:localhost:3128 -A <username>@jumphost.<env>.login.gov
-
-```
-
-Then, while that ssh session is active, any ssh keys that you are using in your ssh-agent (check with 'ssh-add -l') should be available on the jumphost, and you can set your browser up to route requests to *login.gov.internal to the proxy port. I will leave that as an exercise for the reader, as every browser has it's own way of doing that.
-
-You can download Firefox and have it route all protocols over that proxied port. So when you want to get inside the environment, you can just use Firefox.
-
-To set up Firefox:
-
-1. Open your browser and click **Preferences** on the top left corner.
-2. Go to **Advanced**, then the **Network** tab, then click **settings...** next to **Connections**
-3. Click **Manual Proxy Configuration** then fill *localhost* next to **HTTP Proxy** and *3128* next to **Port**
-4. Check **Use this proxy server for all protocols**
-
-Click OK and restart your browser.
-
-## 11. Other Miscellaneous Configurations
-
-### 11.1 Elastic Search
+### 10.1 Elastic Search
 
 Currently, bootstrap of ES is not perfect. If you are starting up a new cluster, you may need to log into the ES nodes and do this:
 
@@ -424,7 +335,7 @@ root@es1:/var/lib/elasticsearch#
 
 Orchestration is tricky, and this is just a one-time thing for a new environment, so for now, we will just do this by hand.
 
-### 11.2 CloudTrail
+### 10.2 CloudTrail
 
 If this is the first environment you are spinning up, you will need to turn spin up the centralized cloudtrail bucket. Here is how:
 
@@ -455,9 +366,9 @@ You may also have to go into kibana and tell it to refresh it's index pattern if
 
 If you're setting up a new ELK server for the first time, you will be prompted to create a default index pattern. Use `logstash-*` (the default) as the name, and `@timestamp` for the "Time-field name".
 
-### 11.3 Jenkins
+### 10.3 Jenkins
 
-#### 11.3.1 Jenkins Users and Admins
+#### 10.3.1 Jenkins Users and Admins
 
 Jenkins will need to be set up too!
 
@@ -471,7 +382,7 @@ default['identity-jenkins']['admins'] = ['admin1','admin2']
 
 A chef-client run will make sure that all of those things get applied.
 
-#### 11.3.2 Chef Jenkins Key
+#### 10.3.2 Chef Jenkins Key
 
 On the `chef` server, locate the `/root/jenkins.pem` key. This is used for
 Jenkins to be able to connect to chef. You will need to import this into the
@@ -507,7 +418,7 @@ like this:
 
 I (tspencer) would love to make this automatically configured too, but it stores these things as secrets, which means that they are encrypted on a host-by-host basis, so there's no good way to template-ize them that I know of.
 
-#### 11.3.3 Jenkins/ELK Password Hash
+#### 10.3.3 Jenkins/ELK Password Hash
 
 You will also need to set up password hashes in the users databag if they haven't already been set up:
 
@@ -539,7 +450,7 @@ It should have other attributes in it, but it should look like this:
 
 This password is what users will use to get into jenkins/ELK. This basic auth stuff can get replaced with SAML or LDAP or something someday.
 
-#### 11.3.4 Jenkins Usage
+#### 10.3.4 Jenkins Usage
 
 * Make sure you are either in the GSA network (VPN or office), or are otherwise in the allowed IP whitelist.
 * Go to the jenkins URL you got form terraform.
@@ -550,7 +461,7 @@ This password is what users will use to get into jenkins/ELK. This basic auth st
   * If the infrastructure doesn't need changing, it will push out the code too.
 * Enjoy!
 
-### 11.5. Deploying the application
+### 10.5. Deploying the application
 
 In the past, Capistrano could be used for deployments, but I believe we are moving past that.
 
@@ -559,7 +470,7 @@ Here are the new ways to deploy code:
 - [Using Chef (partially manual)](https://github.com/18F/identity-private/wiki/Operations:-Deploy-Application-Code)
 - [Using Jenkins](https://github.com/18F/identity-private/wiki/Operations:--Deploy-Application-Code-with-Jenkins)
 
-#### 11.5.1. App Control/Config with Rake Tasks
+#### 10.5.1. App Control/Config with Rake Tasks
 
 The `identity-devops` repo includes a
 [Rakefile](https://github.com/18F/identity-devops/blob/44e86285ba1ffed2cc063fea5397c779ab2d2e62/Rakefile)
