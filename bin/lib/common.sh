@@ -78,6 +78,9 @@ echo_color() {
 echo_blue() {
     echo_color blue "$@"
 }
+echo_green() {
+    echo_color green "$@"
+}
 echo_red() {
     echo_color red "$@"
 }
@@ -113,6 +116,13 @@ get_terraform_version() {
     fi
 
     return "$ret"
+}
+
+assert_file_not_exists() {
+    if [ -e "$1" ]; then
+        echo_red >&2 "error: \`$1' already exists!"
+        return 1
+    fi
 }
 
 # usage: check_terraform_version SUPPORTED_VERSION...

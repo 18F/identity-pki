@@ -19,6 +19,8 @@ script](https://github.com/18F/identity-devops/blob/master/bin/createchefclient.
 is one way to create a chef user, but you can also use
 [knife](https://docs.chef.io/knife_user.html).
 
+<!-- # TODO XXX -->
+
 #### 0.2. Knife/Berkshelf Setup
 
 After your environment is already setup, you can run `bin/setup-knife.sh` and

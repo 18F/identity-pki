@@ -3,9 +3,20 @@
 # http://redsymbol.net/articles/unofficial-bash-strict-mode/
 set -euo pipefail
 
-if [ $# -ne 4 ] ; then
+while [ $# -gt 0 ] && [[ $1 == -* ]]; do
+    case "$1" in
+        *)
+            usage
+            exit 1
+            ;;
+    esac
+    shift
+done
+
+if [ $# -lt 3 ] ; then
     cat <<EOF
-usage:  $0 <username> <environment> <remote_host> <chef_config_dir>
+usage: $(basename "$0") USERNAME ENVIRONMENT REMOTE_HOST [CHEF_CONFIG_DIR]
+
   Sets up knife for <username> and <environment> on <remote_host>.
 
   <remote_host> is passed directly to ssh so include the username.
@@ -22,7 +33,12 @@ fi
 USERNAME=$1
 ENVIRONMENT=$2
 REMOTE_SSH=$3
-CHEF_CONFIG_DIR=$4
+
+if [ $# -ge 4 ]; then
+    CHEF_CONFIG_DIR=$4
+else
+    CHEF_CONFIG_DIR="$HOME/.chef"
+fi
 
 echo "Creating knife-$ENVIRONMENT.rb configuration file for $REMOTE_SSH..."
 REMOTE_HOME="$(ssh -o StrictHostKeyChecking=no "$REMOTE_SSH" 'echo "$HOME"')"
@@ -31,14 +47,14 @@ cat <<EOF | tee "$CHEF_CONFIG_DIR/knife-$ENVIRONMENT.rb"
 log_level                :info
 log_location             STDOUT
 node_name                '$USERNAME'
-client_key               '$REMOTE_CHEF_HOME/$USERNAME-$ENVIRONMENT.pem'
+client_key               File.expand_path('~/.chef/$USERNAME-$ENVIRONMENT.pem')
 validation_client_name   '$ENVIRONMENT-login-dev-validator'
-validation_key           '$REMOTE_CHEF_HOME/$ENVIRONMENT-login-dev-validator.pem'
+validation_key           File.expand_path('~/.chef/$ENVIRONMENT-login-dev-validator.pem')
 chef_server_url          'https://chef.login.gov.internal/organizations/login-dev'
-syntax_check_cache_path  '$REMOTE_CHEF_HOME/syntax_check_cache'
+syntax_check_cache_path  File.expand_path('~/.chef/syntax_check_cache')
 cookbook_path            [ './kitchen/cookbooks' ]
 ssl_verify_mode          :verify_none
-knife[:secret_file] =    '$REMOTE_CHEF_HOME/$ENVIRONMENT-databag.key'
+knife[:secret_file] =    File.expand_path('~/.chef/$ENVIRONMENT-databag.key')
 EOF
 
 echo "Uploading required files for knife..."
