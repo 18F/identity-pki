@@ -83,11 +83,8 @@ echo "BOOTSTRAP: Running initial bootstrap configuration of chef server...."
 echo "BOOTSTRAP: Running final terraform run to complete environment setup...."
 ./deploy $ENVIRONMENT $GSA_USERNAME terraform-app apply
 
-echo "The following steps don't work yet without manual pre-setup."
-echo "See https://github.com/18F/identity-devops/wiki/Letsencrypt-Certificates"
-
 echo "BOOTSTRAP: Setting up knife on the jumphost for your user...."
-echo "./bin/setup-knife.sh $GSA_USERNAME $ENVIRONMENT ubuntu@jumphost.$ENVIRONMENT.login.gov"
+./bin/setup-knife.sh "$GSA_USERNAME" "$ENVIRONMENT" "ubuntu@jumphost.$ENVIRONMENT.login.gov" "$TF_VAR_chef_home"
 
 echo "BOOTSTRAP: Running chef on all nodes...."
-echo "ssh ubuntu@jumphost.$ENVIRONMENT.login.gov knife ssh 'name:*' 'sudo chef-client'"
+ssh -o StrictHostKeyChecking=no "ubuntu@jumphost.$ENVIRONMENT.login.gov" "knife ssh 'name:*' 'sudo chef-client'"
