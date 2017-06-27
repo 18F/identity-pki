@@ -79,6 +79,24 @@ if [ -z "${TF_VAR_chef_id:=}" ] ; then
 Make sure $ID_ENV_DIR/$ENVIRONMENT.sh contains all the necessary configuration."
 fi
 
+# Terraform will try all SSH identities, even if an earlier one would succeed.
+# This hits the max auth attempts limit pretty reliably, so warn about this
+# case.  We can probably remove this once we have the max auth limit raised
+# higher than any anticipated number of SSH keys in our ssh-agent, or when
+# the fix described in identity-devops-private#191 makes its way into a
+# Terraform client release.
+if [ $(ssh-add -l | wc -l) -gt 4 ]; then
+    echo_yellow >&2 '
+WARNING: You have more than 4 SSH identities in your ssh-agent.  If
+you experience problems setting up Chef (with "Too many authentication
+failures for ubuntu"), try reducing the number of identities using
+"ssh-add -d ..." until you get this number below 4.  For details,
+see https://github.com/18F/identity-devops-private/issues/191.
+'
+    run ssh-add -l >&2
+    echo >&2
+fi
+
 STATE=${TF_DIR}/terraform-${TF_VAR_env_name}.tfstate
 case "$TF_DIR" in
     terraform-dns|terraform-cloudtrail)

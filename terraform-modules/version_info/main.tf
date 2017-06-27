@@ -1,5 +1,5 @@
 data "external" "version_info" {
-    program = ["python", "${path.module}/version_info.py"]
+    program = ["python2.7", "${path.module}/version_info.py"]
 }
 
 output "version_info" {

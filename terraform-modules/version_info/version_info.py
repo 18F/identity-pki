@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.7
 """
 A script to get information about the current repository that's meant to be used
 as a Terraform external data source.
@@ -25,7 +25,7 @@ def run_cmd(cmd):
     LOG.debug("Running command: %s", cmd)
     try:
         return subprocess.check_output(cmd)
-    except subprocess.CalledProcessError, exception:
+    except subprocess.CalledProcessError as exception:
         LOG.error("Command failed: %s", exception.output)
         sys.exit(1)
 
