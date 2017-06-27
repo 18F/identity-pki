@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'berkshelf'
+gem 'berkshelf', '~> 6.1.1'
 
 # For Chefspec: https://github.com/sethvargo/chefspec
 gem 'chefspec'
@@ -9,3 +9,5 @@ gem 'chefspec'
 gem 'test-kitchen'
 gem 'kitchen-vagrant'
 gem 'kitchen-inspec'
+
+gem 'chef', '= 12.15.19'
