@@ -290,9 +290,13 @@ apache_site 'kibanaproxy'
 
 include_recipe 'identity-elk::filebeat'
 
-# set up elastalert
-package 'python-dev'
+# === set up elastalert ===
 package 'python-pip'
+
+# python cryptography build dependencies
+package 'python-dev'
+package 'libssl-dev'
+package 'libffi-dev'
 
 elastalertdir = '/usr/share/elastalert'
 git elastalertdir do
@@ -345,7 +349,7 @@ end
 runit_service 'elastalert' do
   default_logger true
 end
-  
+
 # set up the stuff that slurps in the vpc flow logs
 git '/usr/share/logstash-input-cloudwatch_logs' do
   repository 'https://github.com/lukewaite/logstash-input-cloudwatch-logs.git'
