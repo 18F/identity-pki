@@ -28,19 +28,25 @@ Examples:
     # create chef user in qa connecting via ubuntu user
     $0 $USER qa ubuntu@chef.qa.login.gov
 
+EOM
+
+    cat >&2 <<'EOM'
+
+This script assumes that you have already set up your ~/.ssh/config to be able
+to ssh directly to the chef server, like `ssh chef.dev.login.gov`.
 
 Sample ~/.ssh/config that may be helpful, which sets up automatic jumphost use
 for direct SSH without needing ssh -A:
 
     Host jumphost.*.login.gov
     #User ubuntu
-    User myusername
+    User <myusername>
     LocalForward 3128 localhost:3128
     #SendEnv AWS_*
 
-    host *.*.login.gov !jumphost.*
-    User myusername
-    proxycommand bash -c 'set -x;  ssh "%r@jumphost.\$(cut -f2 -d. <<< "%h").login.gov" -W "\$(cut -f1 -d. <<< "%h"):%p"'
+    Host *.*.login.gov !jumphost.*
+    User <myusername>
+    ProxyCommand bash -c 'set -x;  ssh "%r@jumphost.$(cut -f2 -d. <<< "%h").login.gov" -W "$(cut -f1 -d. <<< "%h"):%p"'
 EOM
 }
 
