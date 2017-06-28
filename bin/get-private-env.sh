@@ -68,6 +68,10 @@ get_private_path() {
     # We assume git rev-parse --show-toplevel returns an absolute path with no
     # trailing slash.
     toplevel="$(run git rev-parse --show-toplevel)"
+    if [ -z "$toplevel" ]; then
+        echo "This script needs to be run within a valid git repo." >&2
+        return 1
+    fi
     basename="$(basename "$toplevel")"
 
     # ../{basename}-private
