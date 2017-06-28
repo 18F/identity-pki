@@ -77,6 +77,16 @@ host *
   HashKnownHosts no
 ```
 
+When ssh reuses an existing controlmaster connection, it won't print the banner
+/ MOTD. Whereas when it makes a new connection it will print the full banner and
+MOTD.
+
+If you are having some strange behavior when using connection sharing, where it
+seems like ssh is ignoring your options (like `-A` for example), you may need to
+use the `-M` option when you ssh.  This will tell ssh to create a new "master"
+connection, which will use the options you pass in rather than reuse an old
+connection that may have been created with different options.
+
 ### Helper Scripts for Common Workflows
 
 These scripts rely on having your username set up as a default in `~/.ssh/config` for *all* jumphosts, like so:
