@@ -25,8 +25,7 @@ variable "chef_home" {}
 variable "jumphost_ami_id" {}
 variable "idp1_ami_id" {}
 variable "idp2_ami_id" {}
-variable "worker1_ami_id" {}
-variable "worker2_ami_id" {}
+variable "worker_ami_list" { type="list" }
 variable "route53_id" {}
 variable "apps_enabled" { default = false }
 variable "chef_version" { default = "12.15.19" }
@@ -41,6 +40,7 @@ variable "env_name" { default = "tf" }
 variable "esnodes" { default = 2 }
 variable "git_deploy_key_path" {}
 variable "idp_node_count" { default = 1 }
+variable "idp_worker_count" { default = 2 }
 variable "instance_type_app" { default = "t2.medium" }
 variable "instance_type_chef" { default = "t2.medium" }
 variable "instance_type_elk" { default = "t2.medium" }

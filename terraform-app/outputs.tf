@@ -54,8 +54,8 @@ output "idp_tls_common_name" {
   value = "${acme_certificate.idp.certificate_domain}"
 }
 
-output "idp_worker_ip" {
-  value = "${aws_instance.idp_worker.public_ip}"
+output "idp_worker_ips" {
+  value = ["${aws_instance.idp_worker.*.public_ip}"]
 }
 
 output "jumphost-eip" {

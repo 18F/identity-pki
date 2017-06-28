@@ -216,7 +216,7 @@ resource "aws_instance" "idp2" {
 }
 
 resource "aws_instance" "idp_worker" {
-  ami = "${var.worker1_ami_id}"
+  ami = "${element(var.worker_ami_list, count.index % length(var.worker_ami_list))}"
   depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk", "aws_elasticache_cluster.idp", "aws_db_instance.idp"]
   instance_type = "${var.instance_type_worker}"
   key_name = "${var.key_name}"
@@ -225,8 +225,10 @@ resource "aws_instance" "idp_worker" {
 
   tags {
     client = "${var.client}"
-    Name = "${var.name}-worker-${var.env_name}"
+    Name = "${var.name}-worker${count.index}-${var.env_name}"
   }
+
+  count = "${var.idp_worker_count}"
 
   connection {
     type = "ssh"
@@ -240,7 +242,7 @@ resource "aws_instance" "idp_worker" {
   provisioner "chef"  {
     attributes_json = <<-EOF
     {
-      "set_fqdn": "worker.${var.env_name}.login.gov",
+      "set_fqdn": "worker${count.index}.${var.env_name}.login.gov",
       "login_dot_gov": {
         "live_certs": "${var.live_certs}"
       }
@@ -250,7 +252,7 @@ resource "aws_instance" "idp_worker" {
     run_list = [
       "role[base]"
     ]
-    node_name = "worker.${var.env_name}"
+    node_name = "worker-${count.index}.${var.env_name}"
     secret_key = "${file("${var.chef_databag_key_path}")}"
     server_url = "${var.chef_url}"
     recreate_client = true
@@ -297,12 +299,22 @@ resource "aws_route53_record" "redis" {
   records = ["${aws_elasticache_cluster.idp.cache_nodes.0.address}"]
 }
 
+# TODO: this record is deprecated and should be removed
 resource "aws_route53_record" "worker" {
   zone_id = "${aws_route53_zone.internal.zone_id}"
   name = "worker.login.gov.internal"
   type = "A"
   ttl = "300"
-  records = ["${aws_instance.idp_worker.private_ip}"]
+  records = ["${aws_instance.idp_worker.0.private_ip}"]
+}
+
+resource "aws_route53_record" "workers" {
+  count = "${var.idp_worker_count}"
+  zone_id = "${aws_route53_zone.internal.zone_id}"
+  name = "worker-${count.index}.login.gov.internal"
+  type = "A"
+  ttl = "300"
+  records = ["${element(aws_instance.idp_worker.*.private_ip, count.index)}"]
 }
 
 resource "tls_private_key" "idp_tls_private_key" {
