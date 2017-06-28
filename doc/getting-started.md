@@ -63,6 +63,10 @@ Install  [AWS CLI](https://aws.amazon.com/cli/)  in order to manage services fro
 ``` shell
 brew install awscli
 ```
+or
+``` shell
+brew upgrade awscli
+```
 
 [Configure the AWS
 CLI](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html)
