@@ -9,6 +9,11 @@ if [ $# -ne 1 ] ; then
     exit 1
 fi
 
+function run() {
+  echo "+ $*" >&2
+  "$@"
+}
+
 USERNAME=$1
 
 # cd to repo root
@@ -21,15 +26,29 @@ if [ -e "kitchen/data_bags/users/$USERNAME.json" ]; then
     exit 1
 fi
 
-read -r -p "Full name: " FULL_NAME
+DEFAULT_FULL_NAME="$(id -F)"
+read -r -p "Full name [$DEFAULT_FULL_NAME]: " FULL_NAME
+if [ -z "$FULL_NAME" ]; then
+  FULL_NAME="$DEFAULT_FULL_NAME"
+fi
+
 # Note that the bcrypt password hash is supported by Apache but not by
 # glibc crypt(). We use the hash for HTTP Basic Auth, not for unix user
 # authentication (even though it does end up in /etc/shadow because Computer).
 PASSWORD_HASH="$(htpasswd -n -B -C12 "$USERNAME")"
 PASSWORD_HASH="$(cut -d: -f 2- <<< "$PASSWORD_HASH")"
-read -r -p "SSH public key: " PUBLIC_KEY
-read -r -p "Unique UID: " USER_UID
-cat > "kitchen/data_bags/users/$USERNAME.json" <<EOF
+
+read -r -p "Unique UID (hit Enter to use next available): " USER_UID
+if [ -z "$USER_UID" ]; then
+  USER_UID="$(run bin/next-uid.sh)"
+fi
+
+read -r -p "SSH public key (hit Enter to attempt your PIV card): " PUBLIC_KEY
+if [ -z "$PUBLIC_KEY" ]; then
+  PUBLIC_KEY="$(run pkcs15-tool --read-ssh-key 1) for $USER"
+fi
+
+tee "kitchen/data_bags/users/$USERNAME.json" <<EOF
 {
  "id": "$USERNAME",
  "password": "$PASSWORD_HASH",
@@ -52,4 +71,6 @@ cat > "kitchen/data_bags/users/$USERNAME.json" <<EOF
  "comment": "$FULL_NAME"
 }
 EOF
+
+echo
 echo "Successfully created: kitchen/data_bags/users/$USERNAME.json"
