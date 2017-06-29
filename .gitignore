@@ -10,7 +10,6 @@ env/*
 kitchen/data_bags/*.json
 kitchen/data_bags/**/*.json
 kitchen/vendor
-Nessus*.deb
 terraform.tfstate
 terraform.tfstate.backup
 .vagrant

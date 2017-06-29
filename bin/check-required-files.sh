@@ -30,15 +30,6 @@ cat <<EOF
 
 EOF
 
-echo "CHECK: Required Nessus package..."
-NESSUS_DOWNLOAD_URL="http://downloads.nessus.org/nessus3dl.php?file=Nessus-6.10.0-ubuntu1110_amd64.deb&licence_accept=yes&t=c89a8794496b26a61d8a09e9af89cb97"
-NESSUS_FILENAME="Nessus-6.10.0-ubuntu1110_amd64.deb"
-echo "Checking if Nessus Manager exists at $NESSUS_FILENAME"
-if [ ! -e "$NESSUS_FILENAME" ]; then
-    echo "Downloading Nessus Manager to $NESSUS_FILENAME"
-    curl -f -L "$NESSUS_DOWNLOAD_URL" -o "$NESSUS_FILENAME"
-fi
-
 # shellcheck disable=2154
 echo "CHECK: Required jenkins key: $TF_VAR_git_deploy_key_path"
 if [ ! -e "$TF_VAR_git_deploy_key_path" ]; then
