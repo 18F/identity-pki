@@ -35,20 +35,31 @@ aws() {
 
 echo "Using state file $STATE"
 
-echo "Creating an s3 bucket for terraform state"
-# Do not create the bucket if it contains underscores. See
-# https://github.com/18F/identity-private/issues/1835
-if [[ $BUCKET != *_* ]]
-then
-  # TODO: don't try to create the bucket if it already exists
-  aws s3 mb "s3://$BUCKET"
-  echo "It contains one of those"
-fi
+echo >&2 "+ aws s3api head-bucket --bucket $BUCKET"
+output="$(command aws s3api head-bucket --bucket "$BUCKET" 2>&1)" \
+    && ret=$? || ret=$?
 
-echo "Enabling versioning on the s3 bucket"
-aws s3api put-bucket-versioning \
-  --bucket "$BUCKET" \
-  --versioning-configuration Status=Enabled
+echo >&2 "$output"
+if grep -F "Not Found" <<< "$output" >/dev/null; then
+    echo "Bucket $BUCKET does not exist, creating..."
+    echo "Creating an s3 bucket for terraform state"
+
+    # Do not create the bucket if it contains underscores. See
+    # https://github.com/18F/identity-private/issues/1835
+    if [[ $BUCKET = *_* ]]; then
+        echo "Can't create $BUCKET because it contains underscores"
+        exit 1
+    else
+        aws s3 mb "s3://$BUCKET"
+
+        echo "Enabling versioning on the s3 bucket"
+        aws s3api put-bucket-versioning \
+          --bucket "$BUCKET" \
+          --versioning-configuration Status=Enabled
+    fi
+elif [ "$ret" -ne 0 ]; then
+    exit "$ret"
+fi
 
 echo "Using terraform remote state server"
 echo "Deleting ${TF_DIR}/.terraform"
