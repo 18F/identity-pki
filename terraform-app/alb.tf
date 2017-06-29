@@ -33,7 +33,7 @@ resource "aws_alb_target_group" "idp" {
   depends_on = ["aws_alb.idp"]
 
   health_check {
-    matcher =  "${var.env_name == "prod" ? 200 : 401}"
+    matcher =  "301"
   }
 
   name = "${var.env_name}-target-group"
