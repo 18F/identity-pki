@@ -5,7 +5,7 @@ service 'monit' do
 end
 
 service 'sidekiq' do
-  action :nothing
+  action :restart
   restart_command '/usr/bin/monit restart sidekiq_idp_production0'
   start_command '/usr/bin/monit start sidekiq_idp_production0'
   status_command '/usr/bin/monit status'
