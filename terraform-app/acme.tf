@@ -30,7 +30,11 @@ resource "acme_certificate" "dashboard" {
 resource "acme_certificate" "idp" {
   account_key_pem           = "${tls_private_key.acme_registration_private_key.private_key_pem}"
   common_name               = "${var.env_name == "prod" ? "secure.login.gov" : format("%v.login.gov", var.env_name)}"
-  must_staple               = true
+
+  # Disabled temporarily because our servers are not currently serving the stapled OCSP response as
+  # part of the TLS handshake and this causes errors in Firefox
+  must_staple               = false
+
   registration_url          = "${acme_registration.registration.id}"
   subject_alternative_names = ["idp.${var.env_name}.login.gov"]
   server_url                = "https://acme-v01.api.letsencrypt.org/directory"
