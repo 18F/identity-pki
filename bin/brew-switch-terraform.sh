@@ -50,7 +50,7 @@ EOM
 KNOWN_TF_VERSIONS='
 0.8.8 5745f2f232e3f6b3e3058b3e6ac6e3166822dc7c v0.2.1
 0.9.6 92420144a10dc84a9847249be0845f06b2c3161b v0.3.0
-0.9.8 0f5bdb69965cedf2d868cea36d77e93fb0a91b3e v0.3.0
+0.9.10 b53e6fdb2f8b8703d3256a2183a9e1a529435dca v0.3.0
 '
 
 # Look up row in KNOWN_TF_VERSIONS for given terraform version.
