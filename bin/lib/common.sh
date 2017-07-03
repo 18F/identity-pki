@@ -14,8 +14,8 @@ run() {
 # Prompt the user for a yes/no response.
 # Exit codes:
 #   0: user entered yes
-#   1: user entered no
 #   2: STDIN is not a TTY
+#   10: user entered no
 #
 prompt_yn() {
     local prompt ans
@@ -38,10 +38,66 @@ prompt_yn() {
                 return
                 ;;
             N|n|no|NO|No)
-                return 1
+                return 10
                 ;;
         esac
     done
+}
+
+# usage: backup_if_exists FILE/DIR MODE
+#
+# If FILE/DIR exists, prompt to back it up.
+# MODE can be --overwrite or --abort. This is used to hint the user for what
+# will happen upon a "no" answer.
+#
+# Upon yes, move it to a timestamped backup name.
+# Upon no, return 1 if --abort is given, 0 if --abort is given.
+#
+backup_if_exists() {
+    local target backup_name overwrite
+    target="$1"
+    mode="$2"
+
+    case "$mode" in
+        --overwrite)
+            overwrite=1
+            prompt="Would you like to back it up? Y=backup N=overwrite"
+            ;;
+        --abort)
+            overwrite=
+            prompt="Would you like to back it up? Y=backup N=abort"
+            ;;
+        *)
+            echo_red >&2 "Unexpected backup mode $mode"
+            return 2
+            ;;
+    esac
+
+    if [ -e "$target" ]; then
+        echo_yellow >&2 "warning: '$target' already exists"
+
+        prompt_yn "$prompt" && ret=$? || ret=$?
+
+        case "$ret" in
+            0)
+                backup_name="$target.backup~$(date "+%F.%H-%M-%S")"
+                run mv -iv "$target" "$backup_name"
+                ;;
+            10)
+                if [ -n "$overwrite" ]; then
+                    echo_yellow >&2 "OK, not backing up"
+                    return
+                else
+                    echo_yellow >&2 "OK, returning error $ret"
+                    return "$ret"
+                fi
+                ;;
+            *)
+                echo_red >&2 "Unexpected return value $ret from prompt_yn"
+                return "$ret"
+                ;;
+        esac
+    fi
 }
 
 echo_color() {
@@ -121,6 +177,13 @@ get_terraform_version() {
 assert_file_not_exists() {
     if [ -e "$1" ]; then
         echo_red >&2 "error: \`$1' already exists!"
+        return 1
+    fi
+}
+
+assert_file_exists() {
+    if [ ! -e "$1" ]; then
+        echo_red >&2 "error: \`$1' does not exist!"
         return 1
     fi
 }

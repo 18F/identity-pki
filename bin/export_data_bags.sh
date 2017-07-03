@@ -1,6 +1,9 @@
 #!/bin/sh
 set -eu
 
+echo >&2 "WARNING: this script is deprecated."
+echo >&2 "Use $(dirname "$0")/chef-databag instead"
+
 knife block $TF_VAR_env_name
 
 for config in `knife data bag show config`; do

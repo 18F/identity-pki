@@ -9,6 +9,7 @@ env/*
 .kitchen.local.yml
 kitchen/data_bags/*.json
 kitchen/data_bags/**/*.json
+kitchen/data_bags/config/*.json.backup~*
 kitchen/vendor
 terraform.tfstate
 terraform.tfstate.backup
