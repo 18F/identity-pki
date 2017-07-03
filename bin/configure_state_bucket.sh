@@ -2,9 +2,9 @@
 
 set -eu
 
-if [ $# -ne 3 ] ; then
+if [ $# -ne 4 ] ; then
   cat >&2 <<EOM
-Usage: $0 <bucket_name> <state_file_path> <terraform_dir>
+Usage: $0 <bucket_name> <state_file_path> <terraform_dir> <region>
 
 Configure terraform to store state in s3.
 
@@ -19,6 +19,7 @@ fi
 BUCKET=$1
 STATE=$2
 TF_DIR=$3
+REGION=$4
 
 run() {
     echo >&2 "+ $*"
@@ -72,13 +73,13 @@ case "$(CHECKPOINT_DISABLE=1 terraform --version)" in
     terraform init \
       -backend-config="bucket=${BUCKET}" \
       -backend-config="key=${STATE}" \
-      -backend-config="region=us-east-1"
+      -backend-config="region=${REGION}"
     ;;
   *v0.8.*)
     terraform remote config -backend=s3 \
       -backend-config="bucket=${BUCKET}" \
       -backend-config="key=${STATE}" \
-      -backend-config="region=us-east-1" \
+      -backend-config="region=${REGION}" \
       -state="${STATE}"
     ;;
   *)
