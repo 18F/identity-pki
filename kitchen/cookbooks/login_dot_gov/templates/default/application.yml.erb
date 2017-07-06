@@ -45,6 +45,7 @@ production:
   logins_per_ip_limit: '<%= @logins_per_ip_limit %>'
   logins_per_ip_period: '<%= @logins_per_ip_period %>'
   mailer_domain_name: '<%= @mailer_domain_name %>'
+  mandrill_api_token: '<%= @mandrill_api_token %>'
   max_mail_events: '<%= @max_mail_events %>'
   max_mail_events_window_in_days: '<%= @max_mail_events_window_in_days %>'
   min_password_score: '<%= @min_password_score %>'
@@ -76,7 +77,7 @@ production:
   session_encryption_key: '<%= @session_encryption_key %>'
   session_timeout_in_minutes: '<%= @session_timeout_in_minutes %>'
   session_timeout_warning_seconds: '<%= @session_timeout_warning_seconds %>'
-  smtp_settings: '<%= @smtp_settings %>'
+  smtp_settings: '<%= @smtp_settings %>' # DEPRECATED (https://github.com/18F/identity-idp/pull/1506)
   stale_session_window: '<%= @stale_session_window %>'
   support_email: '<%= @support_email %>'
   support_url: '<%= @support_url %>'

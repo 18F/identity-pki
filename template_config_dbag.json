@@ -109,6 +109,7 @@
     "google_analytics_key": "UA-XXX",
     "hmac_fingerprinter_key": "XXX",
     "idp_cert_fingerprint": "",
+    "mandrill_api_token": "XXXX",
     "max_mail_events": "X",
     "max_mail_events_window_in_days": "XX",
     "newrelic_license_key": "XXX",

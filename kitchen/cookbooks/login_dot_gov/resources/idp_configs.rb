@@ -58,6 +58,7 @@ action :create do
       logins_per_ip_limit: node['login_dot_gov']['logins_per_ip_limit'],
       logins_per_ip_period: node['login_dot_gov']['logins_per_ip_period'],
       mailer_domain_name: "https://#{domain_name}",
+      mandrill_api_token: encrypted_config['mandrill_api_token'],
       max_mail_events: node['login_dot_gov']['max_mail_events'],
       max_mail_events_window_in_days: node['login_dot_gov']['max_mail_events_window_in_days'],
       min_password_score: node['login_dot_gov']['min_password_score'],
@@ -89,7 +90,7 @@ action :create do
       session_encryption_key: encrypted_config['session_encryption_key'],
       session_timeout_in_minutes: node['login_dot_gov']['session_timeout_in_minutes'],
       session_timeout_warning_seconds: node['login_dot_gov']['session_timeout_warning_seconds'],
-      smtp_settings: encrypted_config['smtp_settings'],
+      smtp_settings: encrypted_config['smtp_settings'], # DEPRECATED (https://github.com/18F/identity-idp/pull/1506)
       stale_session_window: node['login_dot_gov']['stale_session_window'],
       support_email: node['login_dot_gov']['support_email'],
       support_url: node['login_dot_gov']['support_url'],
