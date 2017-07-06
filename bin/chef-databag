@@ -187,7 +187,8 @@ cmd_download_config() {
 
     backup_if_exists "$bag_path" --overwrite
 
-    ssh_chef_knife data bag show -F json config app > "$bag_path"
+    ssh_chef_knife data bag show -F json config app \
+        --secret-file "/etc/chef/encrypted_data_bag_secret" > "$bag_path"
     chmod 600 "$bag_path"
 
     echo_blue "Saved decrypted config data bag to $bag_path"
@@ -291,7 +292,8 @@ cmd_upload_config() {
     ssh_chef_sudo "tee '$remote_tmpdir/config.json' >/dev/null" < "$bag_path"
 
     # add to chef
-    ssh_chef_knife data bag from file config "$remote_tmpdir/config.json" --encrypt
+    ssh_chef_knife data bag from file config "$remote_tmpdir/config.json" \
+        --secret-file "/etc/chef/encrypted_data_bag_secret"
 
     # cleanup
     ssh_chef_sudo rm -rfv "$remote_tmpdir"
