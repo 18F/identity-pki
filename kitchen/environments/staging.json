@@ -85,6 +85,7 @@
       "aws_region": "us-west-2",
       "branch_name": "stages/staging",
       "enable_identity_verification": "true",
+      "proofing_vendors": "equifax",
       "use_kms": "false"
     },
     "ssh_keys": {
