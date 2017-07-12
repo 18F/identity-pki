@@ -1,0 +1,72 @@
+#!/usr/bin/env ruby
+
+require 'bundler/setup'
+
+require 'aws-sdk'
+require 'subprocess'
+
+Aws.config.update({
+  region: ENV.fetch('AWS_REGION', 'us-west-2'),
+})
+
+class Error < StandardError; end
+class ManyFound < Error; end
+class NotFound < Error; end
+
+def find_jumphost_for_instance(instance_obj)
+  raise NotImplementedError.new
+end
+
+
+def ssh_instance(instance_obj, username, port=22)
+  name_tag = instance_obj.tags.find {|t| t.key == 'Name'}.value
+
+  if name_tag.include?('jumphost')
+    use_jumphost = false
+  else
+    use_jumphost = true
+  end
+
+  if use_jumphost
+    jumphost = find_jumphost_for_instance(instance_obj)
+  else
+    remote_ip = instance_obj.public_ip_address
+  end
+
+  args = ['-l', username]
+  args += ['-o', 'stricthostkeychecking=no'] # TODO
+  args += ['-p', port.to_s]
+
+  args << remote_ip
+
+  puts "EXEC: ssh " + args.join(' ')
+  exec('ssh', *args)
+end
+
+def lookup_instance_by_id(instance_id)
+  i = Aws::EC2::Instance.new(id: instance_id)
+  i.image_id # ensure exists, memoize
+  i
+end
+
+def lookup_instance_by_name(name_tag)
+  ec2 = Aws::EC2::Resource.new
+  filters = [{name: 'tag:Name', values: [name_tag]}]
+  instances = ec2.instances(filters: filters).to_a
+  if instances.length > 1
+    raise ManyFound.new(instances.inspect)
+  end
+  if instances.length == 0
+    raise NotFound.new("No instance with name tag #{name_tag.inspect} found")
+  end
+
+  instances.first
+end
+
+def main
+  raise NotImplementedError
+end
+
+if __FILE__ == $0
+  main(ARGV)
+end
