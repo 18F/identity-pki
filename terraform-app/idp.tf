@@ -128,7 +128,7 @@ resource "aws_instance" "idp1" {
   provisioner "chef"  {
     attributes_json = <<-EOF
     {
-      "set_fqdn": "idp.${var.env_name}.login.gov",
+      "set_fqdn": "idp1-${count.index}.${var.env_name}.login.gov",
       "login_dot_gov": {
         "live_certs": "${var.live_certs}"
       }
@@ -138,7 +138,7 @@ resource "aws_instance" "idp1" {
     run_list = [
       "role[base]"
     ]
-    node_name = "idp1.${count.index}.${var.env_name}"
+    node_name = "idp1-${count.index}.${var.env_name}"
     secret_key = "${file("${var.chef_databag_key_path}")}"
     server_url = "${var.chef_url}"
     recreate_client = true
@@ -194,7 +194,7 @@ resource "aws_instance" "idp2" {
   provisioner "chef"  {
     attributes_json = <<-EOF
     {
-      "set_fqdn": "idp.${var.env_name}.login.gov",
+      "set_fqdn": "idp2-${count.index}.${var.env_name}.login.gov",
       "login_dot_gov": {
         "live_certs": "${var.live_certs}"
       }
@@ -204,7 +204,7 @@ resource "aws_instance" "idp2" {
     run_list = [
       "role[base]"
     ]
-    node_name = "idp2.${count.index}.${var.env_name}"
+    node_name = "idp2-${count.index}.${var.env_name}"
     secret_key = "${file("${var.chef_databag_key_path}")}"
     server_url = "${var.chef_url}"
     recreate_client = true
