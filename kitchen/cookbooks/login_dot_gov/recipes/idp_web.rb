@@ -1,11 +1,9 @@
-encrypted_config = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]
-
-basic_auth_enabled = !encrypted_config['basic_auth_password'].nil?
+basic_auth_enabled = !ConfigLoader.load_config(node, "basic_auth_password").nil?
 
 if basic_auth_enabled
   basic_auth_config 'generate basic auth config' do
-    password encrypted_config['basic_auth_password']
-    user_name encrypted_config['basic_auth_user_name']
+    password ConfigLoader.load_config(node, "basic_auth_password")
+    user_name ConfigLoader.load_config(node, "basic_auth_user_name")
   end
 else
   if %w(prod staging).include?(node.chef_environment)
@@ -31,7 +29,7 @@ app_name = 'idp'
 
 domain_name = node.chef_environment == 'prod' ? 'secure.login.gov' : "#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
 
-dhparam = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]["dhparam"]
+dhparam = ConfigLoader.load_config(node, "dhparam")
 
 # generate a stronger DHE parameter on first run
 # see: https://raymii.org/s/tutorials/Strong_SSL_Security_On_nginx.html#Forward_Secrecy_&_Diffie_Hellman_Ephemeral_Parameters
@@ -57,7 +55,7 @@ template "/opt/nginx/conf/sites.d/login.gov.conf" do
     app: app_name,
     basic_auth: basic_auth_enabled,
     elb_cidr: node['login_dot_gov']['elb_cidr'],
-    security_group_exceptions: encrypted_config['security_group_exceptions'],
+    security_group_exceptions: JSON.parse(ConfigLoader.load_config(node, "security_group_exceptions")),
     server_aliases: "idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
     server_name: domain_name
   })

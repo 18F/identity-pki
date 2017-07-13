@@ -5,7 +5,7 @@ psql_config 'configure postgres root cert'
 
 app_name = 'sp-rails'
 
-dhparam = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]["dhparam"]
+dhparam = ConfigLoader.load_config(node, "dhparam")
 
 # generate a stronger DHE parameter on first run
 # see: https://raymii.org/s/tutorials/Strong_SSL_Security_On_nginx.html#Forward_Secrecy_&_Diffie_Hellman_Ephemeral_Parameters
@@ -22,8 +22,6 @@ file '/etc/ssl/certs/dhparam.pem' do
   not_if { dhparam == nil }
   sensitive true
 end
-
-encrypted_config = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]
 
 base_dir = "/srv/#{app_name}"
 deploy_dir = "#{base_dir}/current/public"
@@ -50,7 +48,7 @@ template "#{base_dir}/shared/config/secrets.yml" do
   user node['login_dot_gov']['system_user']
 
   variables({
-    secret_key_base: encrypted_config['secret_key_base_rails'],
+    secret_key_base: ConfigLoader.load_config(node, "secret_key_base_rails"),
     saml_issuer: node['login_dot_gov']['sp_rails']['saml_issuer'],
     idp_sso_url: node['login_dot_gov']['sp_rails']['idp_sso_url'],
     idp_slo_url: node['login_dot_gov']['sp_rails']['idp_slo_url'],
@@ -68,11 +66,9 @@ template "#{base_dir}/shared/config/database.yml" do
   sensitive true
   variables({
     database: 'sp_rails',
-    username: encrypted_config['db_username_app'],
-    host: encrypted_config['db_host_app'],
-    password: encrypted_config['db_password_app'],
-    sslmode: 'verify-full',
-    sslrootcert: '/usr/local/share/aws/rds-combined-ca-bundle.pem'
+    username: ConfigLoader.load_config(node, "db_username_app"),
+    host: ConfigLoader.load_config(node, "db_host_app"),
+    password: ConfigLoader.load_config(node, "db_password_app")
   })
 end
 
@@ -116,8 +112,8 @@ execute "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bun
 end
 
 basic_auth_config 'generate basic auth config' do
-  password encrypted_config['basic_auth_password']
-  user_name encrypted_config["basic_auth_user_name"]
+  password ConfigLoader.load_config(node, "basic_auth_password")
+  user_name ConfigLoader.load_config(node, "basic_auth_user_name")
 end
 
 # add nginx conf for app server
@@ -132,12 +128,12 @@ template "/opt/nginx/conf/sites.d/#{app_name}.login.gov.conf" do
     domain: "#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
     elb_cidr: node['login_dot_gov']['elb_cidr'],
     saml_env: node.chef_environment,
-    secret_key_base: encrypted_config['secret_key_base'],
-    security_group_exceptions: encrypted_config['security_group_exceptions'],
+    secret_key_base: ConfigLoader.load_config(node, "secret_key_base"),
+    security_group_exceptions: ConfigLoader.load_config(node, "security_group_exceptions"),
     server_aliases: "#{app_name}.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
     server_name: "sp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
-    sp_pass: encrypted_config['basic_auth_password'],
-    sp_name: encrypted_config["basic_auth_user_name"]
+    sp_pass: ConfigLoader.load_config(node, "basic_auth_password"),
+    sp_name: ConfigLoader.load_config(node, "basic_auth_user_name")
   })
 end
 

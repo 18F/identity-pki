@@ -105,7 +105,7 @@ end
 template "/etc/logstash/conf.d/30-s3output.conf" do
   source '30-s3output.conf.erb'
   variables ({
-    :aws_region => Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['build_env']['TF_VAR_region']['value'],
+    :aws_region => ConfigLoader.load_config(node, "build_env")["TF_VAR_region"],
     :aws_logging_bucket => "login-gov-#{node.chef_environment}-logs"
   })
   notifies :restart, 'runit_service[logstash]'
@@ -116,7 +116,7 @@ aws_account_id = `curl -s http://169.254.169.254/latest/dynamic/instance-identit
 template "/etc/logstash/conf.d/30-cloudtrailin.conf" do
   source '30-cloudtrailin.conf.erb'
   variables ({
-    :aws_region => Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['build_env']['TF_VAR_region']['value'],
+    :aws_region => ConfigLoader.load_config(node, "build_env")["TF_VAR_region"],
     :cloudtrail_logging_bucket => "login-gov-cloudtrail-#{aws_account_id}"
   })
   notifies :restart, 'runit_service[logstash]'
@@ -335,8 +335,8 @@ end
     variables ({
       :env => node.chef_environment,
       :emails => node['elk']['elastalert']['emails'],
-      :webhook => Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['slackwebhook'],
-      :slackchannel => Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['slackchannel']
+      :webhook => ConfigLoader.load_config(node, "slackwebhook"),
+      :slackchannel => ConfigLoader.load_config(node, "slackchannel")
     })
     notifies :restart, 'runit_service[elastalert]'
   end
@@ -369,9 +369,8 @@ end
 template "/etc/logstash/conf.d/50-cloudwatchin.conf" do
   source '50-cloudwatchin.conf.erb'
   variables ({
-    :aws_region => Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['build_env']['TF_VAR_region']['value'],
+    :aws_region => ConfigLoader.load_config(node, "build_env")["TF_VAR_region"],
     :env => node.chef_environment
   })
   notifies :restart, 'runit_service[logstash]'
 end
-

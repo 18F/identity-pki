@@ -1,3 +1,19 @@
+resource "aws_iam_role" "app" {
+  name = "${var.env_name}_app"
+  assume_role_policy = "${data.aws_iam_policy_document.assume_role_from_vpc.json}"
+}
+
+resource "aws_iam_role_policy" "app" {
+  name = "${var.env_name}_app"
+  role = "${aws_iam_role.app.id}"
+  policy = "${data.aws_iam_policy_document.secrets_role_policy.json}"
+}
+
+resource "aws_iam_instance_profile" "app" {
+  name = "${var.env_name}_app"
+  roles = ["${aws_iam_role.app.name}"]
+}
+
 resource "aws_instance" "app" {
   ami = "${var.ami_id}"
   count = "${var.apps_enabled == true ? 1 : 0}"
@@ -5,6 +21,7 @@ resource "aws_instance" "app" {
   instance_type = "${var.instance_type_app}"
   key_name = "${var.key_name}"
   subnet_id = "${aws_subnet.app.id}"
+  iam_instance_profile = "${aws_iam_instance_profile.app.name}"
 
   tags {
     client = "${var.client}"
@@ -197,7 +214,6 @@ resource "aws_eip" "app" {
   instance = "${aws_instance.app.id}"
   vpc      = true
 }
-
 
 resource "aws_route53_record" "app" {
   count = "${var.apps_enabled == true ? 1 : 0}"

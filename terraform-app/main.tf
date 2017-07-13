@@ -43,4 +43,19 @@ data "aws_iam_policy_document" "secrets_role_policy" {
   }
 }
 
-data "aws_caller_identity" "current" {}
+# this policy can allow any node/host to access the s3 secrets bucket
+data "aws_iam_policy_document" "secrets_role_policy" {
+  statement {
+   # sid = "AllowSecretsBucket"
+    effect = "Allow"
+    actions = [
+      "s3:*"
+    ]
+    resources = [
+       "arn:aws:s3:::login-gov-secrets-test/${var.env_name}/",
+       "arn:aws:s3:::login-gov-secrets-test/${var.env_name}/*",
+       "arn:aws:s3:::login-gov-secrets/${var.env_name}/",
+       "arn:aws:s3:::login-gov-secrets/${var.env_name}/*"
+    ]
+  }
+}

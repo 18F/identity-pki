@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "application_ruby": ">= 0.0.1",
+    "config_loader": ">= 0.0.1",
     "newrelic": ">= 0.0.1",
     "passenger": ">= 0.0.1",
     "poise-ruby": ">= 0.0.1",

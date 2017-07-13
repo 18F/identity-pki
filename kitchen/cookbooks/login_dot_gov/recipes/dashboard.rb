@@ -5,7 +5,7 @@ psql_config 'configure postgres root cert'
 
 app_name = 'dashboard'
 
-dhparam = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]["dhparam"]
+dhparam = ConfigLoader.load_config(node, "dhparam")
 
 # generate a stronger DHE parameter on first run
 # see: https://raymii.org/s/tutorials/Strong_SSL_Security_On_nginx.html#Forward_Secrecy_&_Diffie_Hellman_Ephemeral_Parameters
@@ -23,13 +23,13 @@ file '/etc/ssl/certs/dhparam.pem' do
   sensitive true
 end
 
-encrypted_config = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]
-
 base_dir = "/srv/#{app_name}"
 deploy_dir = "#{base_dir}/current/public"
+basic_auth_username = ConfigLoader.load_config(node, "basic_auth_user_name")
+basic_auth_password = ConfigLoader.load_config(node, "basic_auth_password")
 
 idp_url = "https://idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
-idp_sp_url = "https://#{encrypted_config['basic_auth_user_name']}:#{encrypted_config['basic_auth_password']}@idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}/api/service_provider"
+idp_sp_url = "https://#{basic_auth_username}:#{basic_auth_password}@idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}/api/service_provider"
 dashboard_url = "https://dashboard.#{node.chef_environment}.login.gov"
 
 # branch is 'master'(default) when env is dev, otherwise use stages/env 
@@ -60,9 +60,9 @@ template "#{base_dir}/shared/config/database.yml" do
   sensitive true
   variables({
     database: 'dashboard',
-    username: encrypted_config['db_username_app'],
-    host: encrypted_config['db_host_app'],
-    password: encrypted_config['db_password_app'],
+    username: ConfigLoader.load_config(node, "db_username_app"),
+    host: ConfigLoader.load_config(node, "db_host_app"),
+    password: ConfigLoader.load_config(node, "db_password_app"),
     sslmode: 'verify-full',
     sslrootcert: '/usr/local/share/aws/rds-combined-ca-bundle.pem'
   })
@@ -81,19 +81,19 @@ template "#{base_dir}/shared/config/application.yml" do
   sensitive true
   variables({
     admin_email: 'partners@login.gov',
-    basic_auth_password: encrypted_config['basic_auth_password'],
-    basic_auth_username: encrypted_config['basic_auth_user_name'],
-    dashboard_api_token: encrypted_config['dashboard_api_token'],
+    basic_auth_password: "#{basic_auth_password}",
+    basic_auth_username: "#{basic_auth_username}",
+    dashboard_api_token: ConfigLoader.load_config(node, "dashboard_api_token"),
     idp_sp_url: idp_sp_url,
     mailer_domain: dashboard_url,
-    saml_idp_fingerprint: encrypted_config['idp_cert_fingerprint'] || node['login_dot_gov']['dashboard']['idp_cert_fingerprint'],
+    saml_idp_fingerprint: ConfigLoader.load_config(node, "idp_cert_fingerprint") || node['login_dot_gov']['dashboard']['idp_cert_fingerprint'],
     saml_idp_slo_url: "#{idp_url}/api/saml/logout",
     saml_idp_sso_url: "#{idp_url}/api/saml/auth",
-    saml_sp_certificate: encrypted_config['dashboard_sp_certificate'] || node['login_dot_gov']['dashboard']['sp_certificate'],
+    saml_sp_certificate: ConfigLoader.load_config(node, "dashboard_sp_certificate") || node['login_dot_gov']['dashboard']['sp_certificate'],
     saml_sp_issuer: dashboard_url,
-    saml_sp_private_key: encrypted_config['dashboard_sp_private_key'] || node['login_dot_gov']['dashboard']['sp_private_key'],
-    saml_sp_private_key_password: encrypted_config['dashboard_sp_private_key_password'] || node['login_dot_gov']['dashboard']['sp_private_key_password'],
-    secret_key_base: encrypted_config['secret_key_base_dashboard'],
+    saml_sp_private_key: ConfigLoader.load_config(node, "dashboard_sp_private_key") || node['login_dot_gov']['dashboard']['sp_private_key'],
+    saml_sp_private_key_password: ConfigLoader.load_config(node, "dashboard_sp_private_key_password") || node['login_dot_gov']['dashboard']['sp_private_key_password'],
+    secret_key_base: ConfigLoader.load_config(node, "secret_key_base_dashboard"),
     smtp_address: 'smtp.mandrillapp.com',
     smtp_domain: dashboard_url,
     smtp_password: 'sekret',
@@ -121,11 +121,11 @@ deploy "#{base_dir}" do
         cwd release_path
         environment ({
           'RAILS_ENV' => 'production',
-          'DASHBOARD_SECRET_KEY_BASE'=> encrypted_config['secret_key_base_dashboard'],
-          'SMTP_ADDRESS' => encrypted_config['smtp_settings']['address'],
+          'DASHBOARD_SECRET_KEY_BASE'=> ConfigLoader.load_config(node, "secret_key_base_dashboard"),
+          'SMTP_ADDRESS' => ConfigLoader.load_config(node, "smtp_settings")['address'],
           'SMTP_DOMAIN' => node['set_fqdn'],
-          'SMTP_PASSWORD' => encrypted_config['smtp_settings']['password'],
-          'SMTP_USERNAME' => encrypted_config['smtp_settings']['user_name'],
+          'SMTP_PASSWORD' => ConfigLoader.load_config(node, "smtp_settings")['password'],
+          'SMTP_USERNAME' => ConfigLoader.load_config(node, "smtp_settings")['user_name'],
         })
         user node['login_dot_gov']['system_user']
       end
@@ -159,8 +159,8 @@ execute "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bun
 end
 
 basic_auth_config 'generate basic auth config' do
-  password encrypted_config['basic_auth_password']
-  user_name encrypted_config["basic_auth_user_name"]
+  password  "#{basic_auth_password}"
+  user_name "#{basic_auth_username}"
 end
 
 # add nginx conf for app server
@@ -175,8 +175,8 @@ template "/opt/nginx/conf/sites.d/dashboard.login.gov.conf" do
     domain: "#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
     elb_cidr: node['login_dot_gov']['elb_cidr'],
     saml_env: node.chef_environment,
-    secret_key_base: encrypted_config['secret_key_base'],
-    security_group_exceptions: encrypted_config['security_group_exceptions'],
+    secret_key_base: ConfigLoader.load_config(node, "secret_key_base"),
+    security_group_exceptions: ConfigLoader.load_config(node, "security_group_exceptions"),
     server_name: "#{app_name}.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
     
   })

@@ -30,7 +30,7 @@ end
 # cmd = 'agent link'
 # groups = 'All'
 # host = 'jumphost.internal.login.gov'
-# key = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]["nessus_key"]
+# key = ConfigLoader.load_config(node, "nessus_key")
 # node_name = node.name
 # port = 8834
 #

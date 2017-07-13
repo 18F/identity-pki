@@ -20,7 +20,7 @@ end
 
 app_name = 'sp-oidc-sinatra'
 
-dhparam = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]["dhparam"]
+dhparam = ConfigLoader.load_config(node, "dhparam")
 
 # generate a stronger DHE parameter on first run
 # see: https://raymii.org/s/tutorials/Strong_SSL_Security_On_nginx.html#Forward_Secrecy_&_Diffie_Hellman_Ephemeral_Parameters
@@ -84,11 +84,9 @@ deploy "/srv/#{app_name}" do
   user 'ubuntu'
 end
 
-encrypted_config = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]
-
 basic_auth_config 'generate basic auth config' do
-  password encrypted_config['basic_auth_password']
-  user_name encrypted_config["basic_auth_user_name"]
+  password ConfigLoader.load_config(node, "basic_auth_password")
+  user_name ConfigLoader.load_config(node, "basic_auth_user_name")
 end
 
 # add nginx conf for app server
@@ -102,7 +100,7 @@ template "/opt/nginx/conf/sites.d/#{app_name}.login.gov.conf" do
     app: app_name,
     domain: "#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
     elb_cidr: node['login_dot_gov']['elb_cidr'],
-    security_group_exceptions: encrypted_config['security_group_exceptions'],
+    security_group_exceptions: ConfigLoader.load_config(node, "security_group_exceptions"),
     server_name: "#{app_name}.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
   })
 end
