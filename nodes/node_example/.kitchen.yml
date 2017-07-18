@@ -27,6 +27,6 @@ suites:
       - recipe[cookbook_example::default]
     verifier:
       inspec_tests:
-        - test/smoke/default
+        - test/smoke/vagrant
     attributes:
       integration_test_mode: true

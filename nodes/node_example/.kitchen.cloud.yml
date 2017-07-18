@@ -10,6 +10,7 @@ driver:
     tag: Name
     value: login-jumphost_security_group-dev
   instance_type: t2.medium
+  user_data: user_data/script.sh
 
 transport:
   username: ubuntu

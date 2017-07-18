@@ -16,7 +16,3 @@ end
 describe file('/etc/slackwebhook') do
   its('content') { should match 'https://hooks.slack.com/services/XXX' }
 end
-
-describe file('/etc/user_data_script') do
-  its('content') { should match 'testing user data' }
-end
