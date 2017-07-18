@@ -189,6 +189,7 @@ chef_download_sha256=
 git_ref=
 kitchen_subdir="chef"
 berks_subdir="berks-cookbooks"
+berksfile_toplevel=
 
 while [ $# -gt 0 ] && [[ $1 = -* ]]; do
     case "$1" in
@@ -207,6 +208,9 @@ while [ $# -gt 0 ] && [[ $1 = -* ]]; do
         --kitchen-subdir)
             kitchen_subdir="$2"
             shift
+            ;;
+        --berksfile-toplevel)
+            berksfile_toplevel=1
             ;;
         -h|--help)
             usage
@@ -299,11 +303,20 @@ run chef-client --version
 
 check_install_berkshelf
 
+# If Berksfile is at repo toplevel, run outside the kitchen_subdir
+if [ -n "$berksfile_toplevel" ]; then
+    echo >&2 "Running berks at toplevel"
+    run berks vendor "$kitchen_subdir/$berks_subdir"
+fi
+
 echo "cd '$kitchen_subdir'"
 cd "$kitchen_subdir"
 
-echo >&2 "Running berks"
-run berks vendor "$berks_subdir"
+# If Berksfile is not at repo toplevel, run inside the kitchen_subdir
+if [ -z "$berksfile_toplevel" ]; then
+    echo >&2 "Running berks"
+    run berks vendor "$berks_subdir"
+fi
 
 echo >&2 "Starting chef run!"
 
