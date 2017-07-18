@@ -98,6 +98,7 @@ action :create do
       twilio_record_voice: node['login_dot_gov']['twilio_record_voice'],
       use_dashboard_service_providers: encrypted_config['use_dashboard_service_providers'],
       use_kms: node['login_dot_gov']['use_kms'],
+      usps_mail_batch_hours: node['login_dot_gov']['usps_mail_batch_hours'],
       valid_authn_contexts: node['login_dot_gov']['valid_authn_contexts'],
     })
   end
