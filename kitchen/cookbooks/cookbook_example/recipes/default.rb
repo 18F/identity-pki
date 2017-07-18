@@ -10,13 +10,10 @@ file '/etc/terraform-version' do
   content node['terraform']['version']
 end
 
-# https://github.com/sethvargo/chefspec#data-bag--data-bag-item
 # Encrypted data bag item
-# This doesn't work yet with integration tests.  See
-# http://atomic-penguin.github.io/blog/2013/06/07/HOWTO-test-kitchen-and-encrypted-data-bags/.
-#file '/etc/slackwebhook' do
-  #content Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['slackwebhook']
-#end
+file '/etc/slackwebhook' do
+  content ConfigLoader.load_config(node)['slackwebhook']
+end
 
 # Normal data bag item
 file '/etc/usercomment' do

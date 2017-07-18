@@ -42,3 +42,4 @@ suites:
       inspec_tests:
         - test/smoke/default
     attributes:
+      integration_test_mode: true

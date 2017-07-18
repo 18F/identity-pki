@@ -12,3 +12,7 @@ end
 describe file('/etc/usercomment') do
   its('content') { should match 'Test User' }
 end
+
+describe file('/etc/slackwebhook') do
+  its('content') { should match 'https://hooks.slack.com/services/XXX' }
+end

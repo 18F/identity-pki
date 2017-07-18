@@ -14,12 +14,12 @@ describe 'cookbook_example' do
 
     let(:environment_configuration) {
       environment_json = File.read(File.join(File.dirname(__FILE__), "../environments/#{chef_environment}.json"))
-      environment = JSON.parse(environment_json)
+      JSON.parse(environment_json)
     }
 
     let(:config_databag) {
       config_databag_json = File.read(File.join(File.dirname(__FILE__), "../data_bags/config/app.json"))
-      config_databag = JSON.parse(config_databag_json)
+      JSON.parse(config_databag_json)
     }
 
     let(:user_databags) {
@@ -59,11 +59,9 @@ describe 'cookbook_example' do
       expect(chef_run).to render_file('/etc/terraform-version').with_content('0.8.8')
     end
 
-    # This doesn't work yet with integration tests.  See
-    # http://atomic-penguin.github.io/blog/2013/06/07/HOWTO-test-kitchen-and-encrypted-data-bags/.
-    #it 'creates file with slackwebhook from config databag' do
-      #expect(chef_run).to render_file('/etc/slackwebhook').with_content('https://hooks.slack.com/services/XXX')
-    #end
+    it 'creates file with slackwebhook from config databag' do
+      expect(chef_run).to render_file('/etc/slackwebhook').with_content('https://hooks.slack.com/services/XXX')
+    end
 
     it 'creates file with user comment from user databag' do
       expect(chef_run).to render_file('/etc/usercomment').with_content('Test User')
