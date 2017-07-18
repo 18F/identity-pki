@@ -230,7 +230,13 @@ if [ $# -lt 2 ]; then
     exit 1
 fi
 
-trap "echo ERROR" EXIT
+print_error() {
+    echo >&2 "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    echo >&2 "provision.sh: ERROR -- exiting after failure"
+    echo >&2 "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+}
+
+trap print_error EXIT
 
 load_config
 
@@ -244,10 +250,16 @@ assert_root
 # berks needs $HOME to be set for some reason
 export HOME=/root
 
+echo "==========================================================="
+echo "provision.sh: installing dependencies"
+
 apt-get update
 
 install_awscli
 install_git
+
+echo "==========================================================="
+echo "provision.sh: downloading SSH key and cloning repo"
 
 if [[ "$s3_ssh_key_url" != s3://* ]]; then
     echo >&2 "Warning: $s3_ssh_key_url does not start with s3://"
@@ -293,6 +305,9 @@ if [ -n "$git_ref" ]; then
     run git checkout "$git_ref"
 fi
 
+echo "==========================================================="
+echo "provision.sh: installing chef and berkshelf"
+
 if [ -n "$chef_download_url" ]; then
     install_chef "$chef_download_url" "$chef_download_sha256"
 else
@@ -302,6 +317,9 @@ fi
 run chef-client --version
 
 check_install_berkshelf
+
+echo "==========================================================="
+echo "provision.sh: running berks to vendor cookbooks"
 
 # If Berksfile is at repo toplevel, run outside the kitchen_subdir
 if [ -n "$berksfile_toplevel" ]; then
@@ -318,7 +336,8 @@ if [ -z "$berksfile_toplevel" ]; then
     run berks vendor "$berks_subdir"
 fi
 
-echo >&2 "Starting chef run!"
+echo "==========================================================="
+echo "provision.sh: Starting chef run of $repo_basename!"
 
 run pwd
 
@@ -335,5 +354,7 @@ fi
 # TODO
 run chef-client --local-mode -c "./chef-client.rb" --environment "$ENV" --runlist "role[$ROLE]"
 
+echo "==========================================================="
 echo "All done! provision.sh finished for $repo_basename"
+echo ''
 trap - EXIT
