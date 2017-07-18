@@ -29,4 +29,4 @@ run() {
 
 run scp -o StrictHostKeyChecking=no bin/update-chef.sh "$JUMPHOST:~"
 # shellcheck disable=SC2029
-run ssh -o StrictHostKeyChecking=no "$JUMPHOST" "./update-chef.sh $ENVIRONMENT $GITREF"
+run ssh -o StrictHostKeyChecking=no -A -M "$JUMPHOST" "./update-chef.sh $ENVIRONMENT $GITREF"
