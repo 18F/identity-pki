@@ -1,0 +1,13 @@
+{
+  "name": "base",
+  "description": "",
+  "json_class": "Chef::Role",
+  "default_attributes": {},
+  "chef_type": "role",
+  "run_list": [
+    "recipe[cookbook_example]"
+  ],
+  "env_run_lists": {
+  }
+}
+

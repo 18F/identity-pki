@@ -6,9 +6,12 @@ task :default => [:help]
 
 desc 'Run entire test suite'
 task :test do
-  Rake::Task['unit'].invoke
-  Rake::Task['integration:vagrant'].invoke
-  Rake::Task['integration:ec2'].invoke
+  Rake::Task['unit:cookbooks'].invoke
+  Rake::Task['unit:nodes'].invoke
+  Rake::Task['integration:vagrant_cookbooks'].invoke
+  Rake::Task['integration:ec2_cookbooks'].invoke
+  Rake::Task['integration:vagrant_nodes'].invoke
+  Rake::Task['integration:ec2_nodes'].invoke
 end
 
 task :help do
@@ -69,39 +72,75 @@ EOF
 end
 
 desc 'Runs ChefSpec tests on all cookbooks with unit tests'
-task :unit do |t, args|
-  puts "Running chefspec unittests for all cookbooks..."
-  Dir.glob('kitchen/cookbooks/*/spec') do |cookbook_spec|
-    cookbook = File.dirname(cookbook_spec)
-    puts "Running chefspec unittests for #{cookbook}..."
-    # Use "with_clean_env" to isolate dependencies.
-    # See: https://stackoverflow.com/a/16407512.
-    Bundler.with_clean_env { system "cd #{cookbook} && bundle install" }
-    Bundler.with_clean_env { system "cd #{cookbook} && bundle exec rspec" }
+namespace :unit do
+  def run_chefspec_all(base_path)
+    Dir.foreach(base_path) do |test_dir|
+      next if test_dir == '.' or test_dir == '..'
+      full_test_dir = File.join(base_path, test_dir)
+      if File.exists?(File.join(full_test_dir, "spec"))
+        puts "Running chefspec unittests for #{full_test_dir}..."
+        # Use "with_clean_env" to isolate dependencies.
+        # See: https://stackoverflow.com/a/16407512.
+        Bundler.with_clean_env { system "cd #{full_test_dir} && bundle install" }
+        Bundler.with_clean_env { system "cd #{full_test_dir} && bundle exec rspec" }
+      else
+        puts "Skipping chefspec test for directory #{test_dir}.  No spec directory found"
+      end
+    end
   end
-  puts "All unittests passed!"
+
+  task :cookbooks do |t, args|
+    puts "Running chefspec tests for all cookbooks..."
+    run_chefspec_all("kitchen/cookbooks")
+    puts "All chefspec tests passed!"
+  end
+  task :nodes do |t, args|
+    puts "Running chefspec tests for all nodes..."
+    run_chefspec_all("nodes")
+    puts "All chefspec tests passed!"
+  end
 end
 
 desc 'Runs Test Kitchen tests on all cookbooks with integration tests'
 namespace :integration do
-  def run_test_kitchen(config_filename)
-    Dir.glob("kitchen/cookbooks/*/#{config_filename}") do |cookbook_kitchen_config|
-      cookbook = File.dirname(cookbook_kitchen_config)
-      puts "Running test kitchen integration test for #{cookbook}..."
-      # Use "with_clean_env" to isolate dependencies.
-      # See: https://stackoverflow.com/a/16407512.
-      Bundler.with_clean_env { system "cd #{cookbook} && bundle install" }
-      Bundler.with_clean_env { system "cd #{cookbook} && bundle exec env KITCHEN_YAML=#{config_filename} kitchen test" }
+  def run_test_kitchen(path, config_filename)
+    puts "Running test kitchen integration test for #{path}..."
+    # Use "with_clean_env" to isolate dependencies.
+    # See: https://stackoverflow.com/a/16407512.
+    Bundler.with_clean_env { system "cd #{path} && bundle install" }
+    Bundler.with_clean_env { system "cd #{path} && bundle exec env KITCHEN_YAML=#{config_filename} kitchen test" }
+  end
+
+  def run_test_kitchen_all(base_path, config_filename)
+    Dir.foreach(base_path) do |test_dir|
+      next if test_dir == '.' or test_dir == '..'
+      full_test_dir = File.join(base_path, test_dir)
+      if File.exists?(File.join(full_test_dir, config_filename))
+        run_test_kitchen(full_test_dir, config_filename)
+      else
+        puts "Skipping integration test for directory #{test_dir}.  No #{config_filename} found"
+      end
     end
   end
-  task :vagrant do |t, args|
+
+  task :vagrant_cookbooks do |t, args|
     puts "Running test kitchen vagrant integration tests for all cookbooks..."
-    run_test_kitchen(".kitchen.yml")
+    run_test_kitchen_all("kitchen/cookbooks", ".kitchen.yml")
     puts "All vagrant integration tests passed!"
   end
-  task :ec2 do |t, args|
+  task :ec2_cookbooks do |t, args|
     puts "Running test kitchen ec2 integration tests for all cookbooks..."
-    run_test_kitchen(".kitchen.cloud.yml")
+    run_test_kitchen_all("kitchen/cookbooks", ".kitchen.cloud.yml")
+    puts "All ec2 integration tests passed!"
+  end
+  task :vagrant_nodes do |t, args|
+    puts "Running test kitchen vagrant integration tests for all nodes..."
+    run_test_kitchen_all("nodes", ".kitchen.yml")
+    puts "All vagrant integration tests passed!"
+  end
+  task :ec2_nodes do |t, args|
+    puts "Running test kitchen ec2 integration tests for all nodes..."
+    run_test_kitchen_all("nodes", ".kitchen.cloud.yml")
     puts "All ec2 integration tests passed!"
   end
 end
