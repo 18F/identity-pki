@@ -8,9 +8,15 @@ module "jumphost_launch_config" {
     chef_download_url = "${var.chef_download_url}"
     chef_download_sha256 = "${var.chef_download_sha256}"
 
-    s3_ssh_key_url = "${var.bootstrap_private_s3_ssh_key_url}"
-    git_clone_url = "${var.bootstrap_private_git_clone_url}"
-    git_ref = "${var.bootstrap_private_git_ref}"
+    # identity-devops-private variables
+    private_s3_ssh_key_url = "${var.bootstrap_private_s3_ssh_key_url}"
+    private_git_clone_url = "${var.bootstrap_private_git_clone_url}"
+    private_git_ref = "${var.bootstrap_private_git_ref}"
+
+    # identity-devops variables
+    main_s3_ssh_key_url = "${var.bootstrap_main_s3_ssh_key_url}"
+    main_git_clone_url = "${var.bootstrap_main_git_clone_url}"
+    main_git_ref = "${var.bootstrap_main_git_ref}"
 }
 
 # TODO it would be nicer to have this in the module, but the

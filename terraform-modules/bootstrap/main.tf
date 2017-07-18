@@ -6,14 +6,26 @@ variable "chef_download_sha256" {
     description = "Expected SHA256 checksum of chef debian package"
     default = ""
 }
-variable "s3_ssh_key_url" {
-    description = "S3 URL to use to download SSH key used to clone the git_clone_url"
+
+variable "private_s3_ssh_key_url" {
+    description = "S3 URL to use to download SSH key used to clone the private_git_clone_url"
 }
-variable "git_clone_url" {
+variable "private_git_clone_url" {
     description = "Git SSH URL used to clone identity-devops-private"
 }
-variable "git_ref" {
-    description = "Git ref to check out after cloning git_clone_url"
+variable "private_git_ref" {
+    description = "Git ref to check out after cloning private_git_clone_url"
+    default = "HEAD"
+}
+
+variable "main_s3_ssh_key_url" {
+    description = "S3 URL to use to download SSH key used to clone the main_git_clone_url"
+}
+variable "main_git_clone_url" {
+    description = "Git SSH URL used to clone identity-devops"
+}
+variable "main_git_ref" {
+    description = "Git ref to check out after cloning main_git_clone_url"
     default = "HEAD"
 }
 
@@ -48,9 +60,13 @@ data "template_file" "cloud-init-main" {
         env = "${var.env}"
         role = "${var.role}"
 
-        git_clone_url = "${var.git_clone_url}"
-        git_ref = "${var.git_ref}"
-        s3_ssh_key_url = "${var.s3_ssh_key_url}"
+        private_git_clone_url = "${var.private_git_clone_url}"
+        private_git_ref = "${var.private_git_ref}"
+        private_s3_ssh_key_url = "${var.private_s3_ssh_key_url}"
+
+        main_git_clone_url = "${var.main_git_clone_url}"
+        main_git_ref = "${var.main_git_ref}"
+        main_s3_ssh_key_url = "${var.main_s3_ssh_key_url}"
     }
 }
 

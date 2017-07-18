@@ -23,7 +23,8 @@ write_files:
 
 
 runcmd:
- - /var/lib/cloud/instance/scripts/provision.sh --chef-download-url "${chef_download_url}" --chef-download-sha256 "${chef_download_sha256}" --git-ref "${git_ref}" "${s3_ssh_key_url}" "${git_clone_url}"
+ - /var/lib/cloud/instance/scripts/provision.sh --kitchen-subdir kitchen --chef-download-url "${chef_download_url}" --chef-download-sha256 "${chef_download_sha256}" --git-ref "${main_git_ref}" "${main_s3_ssh_key_url}" "${main_git_clone_url}" || echo 'MAIN CHEF RUN FAILED'
+ - /var/lib/cloud/instance/scripts/provision.sh --chef-download-url "${chef_download_url}" --chef-download-sha256 "${chef_download_sha256}" --git-ref "${private_git_ref}" "${private_s3_ssh_key_url}" "${private_git_clone_url}"
  - touch /run/cloudinit-finished
 
 
