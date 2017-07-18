@@ -7,7 +7,8 @@ task :default => [:help]
 desc 'Run entire test suite'
 task :test do
   Rake::Task['unit'].invoke
-  Rake::Task['integration'].invoke
+  Rake::Task['integration:vagrant'].invoke
+  Rake::Task['integration:ec2'].invoke
 end
 
 task :help do
@@ -72,9 +73,6 @@ task :unit do |t, args|
   puts "Running chefspec unittests for all cookbooks..."
   Dir.glob('kitchen/cookbooks/*/spec') do |cookbook_spec|
     cookbook = File.dirname(cookbook_spec)
-    if File.basename(cookbook) == 'cookbook_example'
-      next
-    end
     puts "Running chefspec unittests for #{cookbook}..."
     # Use "with_clean_env" to isolate dependencies.
     # See: https://stackoverflow.com/a/16407512.
@@ -85,18 +83,25 @@ task :unit do |t, args|
 end
 
 desc 'Runs Test Kitchen tests on all cookbooks with integration tests'
-task :integration do |t, args|
-  puts "Running test kitchen integration tests for all cookbooks..."
-  Dir.glob('kitchen/cookbooks/*/.kitchen.yml') do |cookbook_kitchen_config|
-    cookbook = File.dirname(cookbook_kitchen_config)
-    if File.basename(cookbook) == 'cookbook_example'
-      next
+namespace :integration do
+  def run_test_kitchen(config_filename)
+    Dir.glob("kitchen/cookbooks/*/#{config_filename}") do |cookbook_kitchen_config|
+      cookbook = File.dirname(cookbook_kitchen_config)
+      puts "Running test kitchen integration test for #{cookbook}..."
+      # Use "with_clean_env" to isolate dependencies.
+      # See: https://stackoverflow.com/a/16407512.
+      Bundler.with_clean_env { system "cd #{cookbook} && bundle install" }
+      Bundler.with_clean_env { system "cd #{cookbook} && bundle exec env KITCHEN_YAML=#{config_filename} kitchen test" }
     end
-    puts "Running test kitchen integration test for #{cookbook}..."
-    # Use "with_clean_env" to isolate dependencies.
-    # See: https://stackoverflow.com/a/16407512.
-    Bundler.with_clean_env { system "cd #{cookbook} && bundle install" }
-    Bundler.with_clean_env { system "cd #{cookbook} && bundle exec kitchen test" }
   end
-  puts "All integration tests passed!"
+  task :vagrant do |t, args|
+    puts "Running test kitchen vagrant integration tests for all cookbooks..."
+    run_test_kitchen(".kitchen.yml")
+    puts "All vagrant integration tests passed!"
+  end
+  task :ec2 do |t, args|
+    puts "Running test kitchen ec2 integration tests for all cookbooks..."
+    run_test_kitchen(".kitchen.cloud.yml")
+    puts "All ec2 integration tests passed!"
+  end
 end

@@ -1,6 +1,6 @@
 # How to test `identity-devops` code.
 
-See [our contributor guide](contributing.md) if you want to submit changes to
+See [our contributor guide](../contributing.md) if you want to submit changes to
 this repository.
 
 ## Dependencies
@@ -25,7 +25,8 @@ See
 https://github.com/18F/identity-devops/tree/master/kitchen/cookbooks/cookbook_example
 for an example of a Chef Cookbook that includes both
 [Chefspec](https://github.com/sethvargo/chefspec) and [Test
-Kitchen](https://github.com/test-kitchen/test-kitchen) tests.
+Kitchen](https://github.com/test-kitchen/test-kitchen) tests.  The cookbook
+includes examples of using test kitchen with vagrant and ec2 as provisioners.
 
 Code coverage coming soon... https://sethvargo.com/chef-recipe-code-coverage/
 
