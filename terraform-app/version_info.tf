@@ -16,6 +16,5 @@ commit=${module.version_info.version_info["commit"]}
 branch=${module.version_info.version_info["branch"]}
 tags=${module.version_info.version_info["tags"]}
 version=${trimspace(file("${path.module}/../VERSION.txt"))}
-timestamp=${timestamp()}
 EOF
 }

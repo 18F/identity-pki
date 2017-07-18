@@ -28,7 +28,16 @@ variable "idp2_ami_id" {}
 variable "worker_ami_list" { type="list" }
 variable "route53_id" {}
 variable "apps_enabled" { default = false }
+
+# https://downloads.chef.io/chef/stable/12.15.19#ubuntu
 variable "chef_version" { default = "12.15.19" }
+variable "chef_download_url" {
+    default = "https://packages.chef.io/files/stable/chef/12.15.19/ubuntu/16.04/chef_12.15.19-1_amd64.deb"
+}
+variable "chef_download_sha256" {
+    default = "7073541beb4294c994d4035a49afcf06ab45b3b3933b98a65b8059b7591df6b8"
+}
+
 variable "chef_url" { default = "https://chef.login.gov.internal/organizations/login-dev" }
 variable "chef_databag_key_path" {}
 variable "chef_id" {}
@@ -54,3 +63,33 @@ variable "name" { default = "login" }
 variable "region" { default = "us-west-2" }
 variable "version_info_bucket" { default = "login_dot_gov_tf_state" }
 variable "version_info_region" { default = "us-east-1" }
+
+variable "asg_jumphost_desired" { default = 0 }
+
+# Several variables used by the terraform-modules/bootstrap/ module for running
+# provision.sh to clone git repos and run chef.
+variable "bootstrap_main_git_ref" {
+    default = "HEAD"
+    description = "Git ref in identity-devops for provision.sh to check out"
+}
+variable "bootstrap_main_s3_ssh_key_url" {
+    # TODO: create this deploy key and put it in S3
+    default = "s3://login-gov-secrets-test/common/TODO"
+    description = "S3 path to find an SSH key for cloning identity-devops"
+}
+variable "bootstrap_main_git_clone_url" {
+    default = "git@github.com:18F/identity-devops"
+    description = "URL for provision.sh to use to clone identity-devops"
+}
+variable "bootstrap_private_git_ref" {
+    default = "HEAD"
+    description = "Git ref in identity-devops for provision.sh to check out"
+}
+variable "bootstrap_private_s3_ssh_key_url" {
+    default = "s3://login-gov-secrets-test/common/id_ecdsa.id-do-private.deploy"
+    description = "S3 path to find an SSH key for cloning identity-devops-private"
+}
+variable "bootstrap_private_git_clone_url" {
+    default = "git@github.com:18F/identity-devops-private"
+    description = "URL for provision.sh to use to clone identity-devops-private"
+}
