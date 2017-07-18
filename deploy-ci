@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+# function to exit process with error message
+die() { echo_red "$*" >&2 ; exit 1; }
+
+# http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -euo pipefail
+
+# shellcheck source=./bin/lib/common.sh
+. "$(dirname "$0")/bin/lib/common.sh"
+
+if [ $# -lt 1 ] ; then
+cat <<EOF
+Usage: $0 <terraform_commands>
+  Runs <terraform_commands> against terraform-ci.
+EOF
+    exit 1
+fi
+
+TF_CMD=("$@")
+
+echo "Configuring state bucket login_dot_gov_tf_state with state path terraform-ci"
+run bin/configure_state_bucket.sh login_dot_gov_tf_state terraform-ci/terraform.tfstate terraform-ci us-east-1
+
+echo >&2 "+ cd terraform-ci"
+cd "terraform-ci"
+
+run terraform get
+run terraform "${TF_CMD[@]}"

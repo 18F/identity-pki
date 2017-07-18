@@ -1,3 +1,5 @@
 source 'https://supermarket.chef.io'
 
 metadata
+
+cookbook 'config_loader', path: '../config_loader'

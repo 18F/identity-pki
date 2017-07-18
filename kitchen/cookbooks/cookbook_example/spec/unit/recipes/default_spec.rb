@@ -14,12 +14,17 @@ describe 'cookbook_example' do
 
     let(:environment_configuration) {
       environment_json = File.read(File.join(File.dirname(__FILE__), "../environments/#{chef_environment}.json"))
-      JSON.parse(environment_json)
+      environment_json = JSON.parse(environment_json)
+      environment_json["default_attributes"]["unittest_mode"] = true
+      environment_json
     }
 
-    let(:config_databag) {
+    let(:config_databags) {
       config_databag_json = File.read(File.join(File.dirname(__FILE__), "../data_bags/config/app.json"))
-      JSON.parse(config_databag_json)
+      config_databag_json = JSON.parse(config_databag_json)
+      config_databags = {}
+      config_databags['app'] = config_databag_json
+      config_databags
     }
 
     let(:user_databags) {
@@ -42,13 +47,10 @@ describe 'cookbook_example' do
         # https://github.com/sethvargo/chefspec#mocking-out-environments
         server.create_environment(chef_environment, environment_configuration)
         server.create_data_bag('users', user_databags)
+        server.create_data_bag('config', config_databags)
         node.chef_environment = chef_environment
       end
       runner.converge(described_recipe)
-    end
-
-    before do
-      allow(Chef::EncryptedDataBagItem).to receive(:load).with('config', 'app').and_return(config_databag)
     end
 
     it 'converges successfully' do

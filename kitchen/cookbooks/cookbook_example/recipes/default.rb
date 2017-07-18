@@ -12,7 +12,7 @@ end
 
 # Encrypted data bag item
 file '/etc/slackwebhook' do
-  content ConfigLoader.load_config(node)['slackwebhook']
+  content ConfigLoader.load_config(node, 'slackwebhook')
 end
 
 # Normal data bag item

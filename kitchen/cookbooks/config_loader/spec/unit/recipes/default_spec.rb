@@ -1,5 +1,5 @@
 #
-# Cookbook:: cookbook_example
+# Cookbook:: config_loader
 # Spec:: default
 #
 # Copyright:: 2017, The Authors, All Rights Reserved.
@@ -7,20 +7,20 @@
 require 'spec_helper'
 require 'json'
 
-describe 'cookbook_example' do
+describe 'config_loader' do
   context 'When all attributes are default, on an Ubuntu 14.04' do
 
-    let(:chef_environment) { "integration" }
+    let(:chef_environment) { "unittest" }
 
     let(:environment_configuration) {
-      environment_json = File.read(File.join(File.dirname(__FILE__), "../../../kitchen/environments/#{chef_environment}.json"))
+      environment_json = File.read(File.join(File.dirname(__FILE__), "../environments/#{chef_environment}.json"))
       environment_json = JSON.parse(environment_json)
       environment_json["default_attributes"]["unittest_mode"] = true
       environment_json
     }
 
     let(:config_databags) {
-      config_databag_json = File.read(File.join(File.dirname(__FILE__), "../../../kitchen/data_bags/config/app.json"))
+      config_databag_json = File.read(File.join(File.dirname(__FILE__), "../data_bags/config/app.json"))
       config_databag_json = JSON.parse(config_databag_json)
       config_databags = {}
       config_databags['app'] = config_databag_json
@@ -28,7 +28,7 @@ describe 'cookbook_example' do
     }
 
     let(:user_databags) {
-      user_databag_paths = Dir[File.join(File.dirname(__FILE__), '../../../kitchen/data_bags/users/*')]
+      user_databag_paths = Dir[File.join(File.dirname(__FILE__), '../data_bags/users/*')]
       user_databags = {}
       user_databag_paths.each do |user_databag_path|
         user_databag_json = File.read(user_databag_path)
@@ -57,18 +57,8 @@ describe 'cookbook_example' do
       expect { chef_run }.to_not raise_error
     end
 
-    it 'creates file with terraform version from environment' do
-      expect(chef_run).to render_file('/etc/terraform-version').with_content('0.8.8')
-    end
-
-    # This doesn't work yet with integration tests.  See
-    # http://atomic-penguin.github.io/blog/2013/06/07/HOWTO-test-kitchen-and-encrypted-data-bags/.
-    #it 'creates file with slackwebhook from config databag' do
-      #expect(chef_run).to render_file('/etc/slackwebhook').with_content('https://hooks.slack.com/services/XXX')
-    #end
-
-    it 'creates file with user comment from user databag' do
-      expect(chef_run).to render_file('/etc/usercomment').with_content('Test User')
+    it 'creates file with slackwebhook from config databag' do
+      expect(chef_run).to render_file('/etc/slackwebhook').with_content('https://hooks.slack.com/services/XXX')
     end
   end
 end

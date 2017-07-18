@@ -1,10 +1,10 @@
 {
   "id": "app",
-  "integration": {
+  "unittest": {
     "build_env": {
       "TF_VAR_env_name": {
         "comment": "the environment to deploy to (tf/test/dev/etc)",
-        "value": "integration"
+        "value": "unittest"
       },
       "TF_VAR_region": {
         "comment": "region to deploy to",

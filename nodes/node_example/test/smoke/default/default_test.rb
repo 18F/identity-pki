@@ -14,7 +14,7 @@ describe file('/etc/usercomment') do
 end
 
 describe file('/etc/slackwebhook') do
-  its('content') { should match 'https://hooks.slack.com/services/XXX' }
+  its('content') { should match 'https://hooks.slack.com/services/' }
 end
 
 describe file('/etc/user_data_script') do
