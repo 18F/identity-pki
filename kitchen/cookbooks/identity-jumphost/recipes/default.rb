@@ -11,7 +11,9 @@
 # XXX need to decrypt the users databag for this to work
 # XXX should remove ssh_keys from runlist too once this works, maybe make it a jumphost role
 include_recipe 'users'
-users_manage node.chef_environment
+users_manage node.chef_environment do
+  not_if { ::File.exist?('/etc/login.gov/info/auto-scaled') }
+end
 
 # add berkshelf and terraform
 include_recipe 'login_dot_gov::ruby'
