@@ -320,9 +320,17 @@ fi
 
 echo >&2 "Starting chef run!"
 
+run pwd
+
 # We expect there to be a chef-client.rb in the `chef` directory of the repo
 # that tells us where to find cookbooks etc. We should potentially move more of
 # the confing from this script (e.g. env, runlist) into the chef-client.rb.
+
+# Chef doesn't error out if config not found, so we check ourselves
+if ! [ -e "./chef-client.rb" ]; then
+    echo >&2 "Error: no chef-client.rb found in $PWD"
+    exit 3
+fi
 
 # TODO
 run chef-client --local-mode -c "./chef-client.rb" --environment "$ENV" --runlist "role[$ROLE]"
