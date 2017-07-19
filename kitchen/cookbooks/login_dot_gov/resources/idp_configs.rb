@@ -23,6 +23,8 @@ action :create do
     sensitive true
     variables({
       allow_third_party_auth: node['login_dot_gov']['allow_third_party_auth'],
+      async_job_refresh_interval_seconds: node['login_dot_gov']['async_job_refresh_interval_seconds'],
+      async_job_refresh_max_wait_seconds: node['login_dot_gov']['async_job_refresh_max_wait_seconds'],
       attribute_cost: node['login_dot_gov']['attribute_cost'],
       attribute_encryption_key: (encrypted_config['attribute_encryption_key'] || node['login_dot_gov']['attribute_encryption_key']),
       attribute_encryption_key_queue: node['login_dot_gov']['attribute_encryption_key_queue'],

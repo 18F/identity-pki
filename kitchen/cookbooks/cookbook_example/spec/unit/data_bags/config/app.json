@@ -80,6 +80,8 @@
     "slackchannel": "#XXX",
     "jenkins_ssh_pubkey": "ssh-rsa XXX keyid",
     "jenkins_ssh_privkey": "-----BEGIN RSA PRIVATE KEY-----XXX",
+    "async_job_refresh_interval_seconds": "5",
+    "async_job_refresh_max_wait_seconds": "15",
     "equifax_avs_username": "sekrit XXX",
     "equifax_eid_username": "sekrit XXX",
     "equifax_endpoint": "sekrit XXX",
