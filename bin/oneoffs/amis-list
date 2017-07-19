@@ -1,0 +1,162 @@
+#!/usr/bin/env ruby
+
+require 'bundler/setup'
+
+require 'aws-sdk'
+
+Aws.config.update({
+  region: ENV.fetch('AWS_REGION', 'us-west-2'),
+})
+
+class Error < StandardError; end
+class ManyFound < Error; end
+class NotFound < Error; end
+
+VPC_PREFIX = 'login-vpc-'
+
+def name_tag_for_instance(instance, allow_nil: false)
+  tag = instance.tags.find {|t| t.key == 'Name'}
+  if tag
+    tag.value
+  else
+    if allow_nil
+      nil
+    else
+      raise KeyError.new("No 'Name' tag found on #{instance.inspect}")
+    end
+  end
+end
+
+def log_info(message)
+  STDERR.puts message
+end
+
+def lookup_instance_by_id(instance_id)
+  i = Aws::EC2::Instance.new(id: instance_id)
+  i.image_id # ensure exists, memoize
+  i
+end
+
+def lookup_vpc_by_name(name_tag)
+  filters = [
+    {name: 'tag:Name', values: [name_tag]},
+  ]
+  find_unique_vpc(filters)
+end
+
+def find_unique_vpc(filters)
+  ec2 = Aws::EC2::Resource.new
+  data = ec2.vpcs(filters: filters).to_a
+  if data.length > 1
+    raise ManyFound.new("Found multiple vpcs: " + data.inspect)
+  end
+  if data.length == 0
+    raise NotFound.new("No vpcs found for filters: #{filters.inspect}")
+  end
+
+  data.first
+end
+
+def find_unique_instance(filters)
+  ec2 = Aws::EC2::Resource.new
+  instances = ec2.instances(filters: filters).to_a
+  if instances.length > 1
+    raise ManyFound.new("Found multiple instances: " + instances.inspect)
+  end
+  if instances.length == 0
+    raise NotFound.new("No instances found for filters: #{filters.inspect}")
+  end
+
+  instances.first
+end
+
+def find_any_instance(filters)
+  ec2 = Aws::EC2::Resource.new
+  instance = ec2.instances(filters: filters).first
+  if instance.nil?
+    raise NotFound.new("No instances found for filters: #{filters.inspect}")
+  end
+
+  instance
+end
+
+def find_instances(filters)
+  ec2 = Aws::EC2::Resource.new
+  instances = ec2.instances(filters: filters).to_a
+  if instances.empty?
+    raise NotFound.new("No instances found for filters: #{filters.inspect}")
+  end
+
+  instances
+end
+
+def lookup_instance_by_name(name_tag)
+  filters = [
+    {name: 'tag:Name', values: [name_tag]},
+    {name: 'instance-state-name', values: ['running']},
+  ]
+  find_unique_instance(filters)
+end
+
+def find_instances_by_name(name_tag)
+  filters = [
+    {name: 'tag:Name', values: [name_tag]},
+    {name: 'instance-state-name', values: ['running']},
+  ]
+  find_instances(filters)
+end
+
+def lookup_amis_for_env(env)
+  log_info("Listing running AMIs for #{env.inspect} environment")
+
+  vpc_name_tag = VPC_PREFIX + env
+
+  log_info("Looking for VPC named #{vpc_name_tag.inspect}")
+  vpc = lookup_vpc_by_name(vpc_name_tag)
+
+  log_info("Found VPC #{vpc.vpc_id}")
+
+  instances = find_instances([
+    {name: 'vpc-id', values: [vpc.vpc_id]},
+    {name: 'instance-state-name', values: ['running']},
+  ])
+
+  #require 'pry'
+  #binding.pry
+
+  instances.map {|i|
+    [
+      i.instance_id,
+      i.image_id,
+      name_tag_for_instance(i, allow_nil: true) || '',
+      #i.launch_time.to_s,
+    ]
+  }.sort_by {|row| row.fetch(2) }
+end
+
+def usage
+  puts <<-EOM
+usage: #{File.basename($0)} ENVIRONMENT
+
+List instances in ENVIRONMENT, printing their Instance ID, Name, and AMI.
+  EOM
+end
+
+def main(args)
+  # TODO this whole main function is a hacky placeholder for testing
+
+  if args.empty?
+    usage
+    exit 1
+  end
+
+  data = lookup_amis_for_env(args.fetch(0))
+  STDERR.puts ['instance-id      ', 'image-id', 'name'].join("\t")
+  data.each do |row|
+    puts row.join("\t")
+  end
+end
+
+if __FILE__ == $0
+  main(ARGV)
+end

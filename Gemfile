@@ -12,6 +12,8 @@ group :development do
   gem 'pry'
 end
 
+gem 'aws-sdk'
+
 gem 'knife-spork'
 gem 'knife-backup'
 gem 'knife-block'
