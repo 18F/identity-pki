@@ -9,23 +9,13 @@ data "template_file" "install-chef-server" {
   }
 }
 
-resource "aws_iam_role" "chef" {
-  name = "${var.env_name}_chef"
-  assume_role_policy = "${data.aws_iam_policy_document.assume_role_from_vpc.json}"
-}
-
-resource "aws_iam_instance_profile" "chef" {
-  name = "${var.env_name}_chef"
-  roles = ["${aws_iam_role.chef.name}"]
-}
-
 resource "aws_instance" "chef" {
   ami = "${var.chef_ami_id}"
   depends_on = ["aws_internet_gateway.default", "aws_route53_zone.internal"]
   instance_type = "${var.instance_type_chef}"
   key_name = "${var.key_name}"
   subnet_id = "${aws_subnet.chef.id}"
-  iam_instance_profile = "${aws_iam_instance_profile.chef.id}"
+  iam_instance_profile = "${aws_iam_instance_profile.citadel-client.name}"
 
   tags {
     client = "${var.client}"

@@ -31,7 +31,7 @@ resource "aws_launch_configuration" "jumphost" {
 
     user_data = "${module.jumphost_launch_config.rendered_cloudinit_config}"
 
-    iam_instance_profile = "${aws_iam_instance_profile.jumphost.name}"
+    iam_instance_profile = "${aws_iam_instance_profile.citadel-client.name}"
 }
 
 resource "aws_autoscaling_group" "jumphost" {
@@ -73,22 +73,6 @@ resource "aws_autoscaling_group" "jumphost" {
     }
 }
 
-# TODO this should be in a module really
-resource "aws_iam_role" "jumphost" {
-  name = "${var.env_name}_jumphost"
-  assume_role_policy = "${data.aws_iam_policy_document.assume_role_from_vpc.json}"
-}
-resource "aws_iam_role_policy" "jumphost" {
-  name = "${var.env_name}_jumphost"
-  role = "${aws_iam_role.jumphost.id}"
-  policy = "${data.aws_iam_policy_document.secrets_role_policy.json}"
-}
-resource "aws_iam_instance_profile" "jumphost" {
-  name = "${var.env_name}_jumphost"
-  roles = ["${aws_iam_role.jumphost.name}"]
-}
-
-
 resource "aws_instance" "jumphost" {
   ami = "${var.jumphost_ami_id}"
   depends_on = ["aws_internet_gateway.default", "aws_route53_zone.internal","aws_instance.chef"]
@@ -108,6 +92,8 @@ resource "aws_instance" "jumphost" {
   }
 
   vpc_security_group_ids = [ "${aws_security_group.jumphost.id}" ]
+
+  iam_instance_profile = "${aws_iam_instance_profile.citadel-client.name}"
 
   provisioner "chef"  {
     attributes_json = <<-EOF
