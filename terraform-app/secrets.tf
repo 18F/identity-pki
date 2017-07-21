@@ -58,10 +58,11 @@
 # this policy can allow any node/host to access the s3 secrets bucket
 data "aws_iam_policy_document" "secrets_role_policy" {
   statement {
-    # sid = "AllowSecretsBucket"
+    sid = "AllowBucketAndObjects"
     effect = "Allow"
     actions = [
-      "s3:*"
+      "s3:Get*",
+      "s3:List*"
     ]
     resources = [
       "arn:aws:s3:::login-gov-secrets-test/common/",
@@ -72,6 +73,47 @@ data "aws_iam_policy_document" "secrets_role_policy" {
       "arn:aws:s3:::login-gov-secrets-test/${var.env_name}/*",
       "arn:aws:s3:::login-gov-secrets/${var.env_name}/",
       "arn:aws:s3:::login-gov-secrets/${var.env_name}/*"
+    ]
+  }
+
+  # allow ls to work
+  statement {
+    sid = "AllowRootAndTopListing"
+    effect = "Allow"
+    actions = [
+      "s3:ListBucket"
+    ]
+    condition {
+      test = "StringEquals"
+      variable = "s3:prefix"
+      values = ["", "common/", "${var.env_name}/"]
+    }
+    condition {
+      test = "StringEquals"
+      variable = "s3:delimiter"
+      values = ["/"]
+    }
+    resources = [
+      "arn:aws:s3:::login-gov-secrets-test",
+      "arn:aws:s3:::login-gov-secrets",
+    ]
+  }
+
+  # allow subdirectory ls
+  statement {
+    sid = "AllowSubListing"
+    effect = "Allow"
+    actions = [
+      "s3:ListBucket"
+    ]
+    condition {
+      test = "StringLike"
+      variable = "s3:prefix"
+      values = ["common/", "${var.env_name}/*"]
+    }
+    resources = [
+      "arn:aws:s3:::login-gov-secrets-test",
+      "arn:aws:s3:::login-gov-secrets",
     ]
   }
 }
