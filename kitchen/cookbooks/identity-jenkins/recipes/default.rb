@@ -219,12 +219,14 @@ template '/var/lib/jenkins/config.xml' do
   notifies :restart, 'service[jenkins]'
 end
 
+build_env = ConfigLoader.load_json(node, "build_env")
+
 # jenkins jobs here
 # set up env
 template File.join(Chef::Config[:file_cache_path], 'login-env.sh') do
   source 'login-env.sh.erb'
   variables ({
-    :build_env => ConfigLoader.load_config(node, "build_env")
+    :build_env => build_env
   })
   mode '0755'
 end
