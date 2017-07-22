@@ -1,5 +1,7 @@
 property :name, String, default: '/srv/idp/shared'
 
+ConfigLoader = Chef::Recipe::ConfigLoader
+
 action :create do
   %w{certs keys config}.each do |dir|
     directory "/srv/idp/shared/#{dir}" do
@@ -60,7 +62,7 @@ action :create do
       logins_per_ip_limit: node['login_dot_gov']['logins_per_ip_limit'],
       logins_per_ip_period: node['login_dot_gov']['logins_per_ip_period'],
       mailer_domain_name: "https://#{domain_name}",
-      mandrill_api_token: encrypted_config['mandrill_api_token'],
+      mandrill_api_token: ConfigLoader.load_config(node, 'mandrill_api_token'),
       max_mail_events: node['login_dot_gov']['max_mail_events'],
       max_mail_events_window_in_days: node['login_dot_gov']['max_mail_events_window_in_days'],
       min_password_score: node['login_dot_gov']['min_password_score'],
