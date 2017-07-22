@@ -122,10 +122,6 @@ deploy "#{base_dir}" do
         environment ({
           'RAILS_ENV' => 'production',
           'DASHBOARD_SECRET_KEY_BASE'=> ConfigLoader.load_config(node, "secret_key_base_dashboard"),
-          'SMTP_ADDRESS' => ConfigLoader.load_config(node, "smtp_settings")['address'],
-          'SMTP_DOMAIN' => node['set_fqdn'],
-          'SMTP_PASSWORD' => ConfigLoader.load_config(node, "smtp_settings")['password'],
-          'SMTP_USERNAME' => ConfigLoader.load_config(node, "smtp_settings")['user_name'],
         })
         user node['login_dot_gov']['system_user']
       end
