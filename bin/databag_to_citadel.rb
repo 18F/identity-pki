@@ -13,7 +13,12 @@ if ARGV.length == 3
   tmpdir = Dir.mktmpdir
 
   config[env].each do |k,v|
-    File.open("#{tmpdir}/#{k}",'w') {|f| f.write(v) }
+    if v.is_a?(String)
+      content = v
+    else
+      content = JSON.pretty_generate(v)
+    end
+    File.open("#{tmpdir}/#{k}",'w') {|f| f.write(content) }
   end
 
   exec("aws s3 sync #{tmpdir} s3://#{bucket}/#{env}/")
