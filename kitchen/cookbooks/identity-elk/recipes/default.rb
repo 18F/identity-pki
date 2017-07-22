@@ -102,10 +102,12 @@ file mycert do
   owner 'logstash'
 end
 
+aws_region = node.fetch('ec2').fetch('placement_availability_zone')[0..-2]
+
 template "/etc/logstash/conf.d/30-s3output.conf" do
   source '30-s3output.conf.erb'
   variables ({
-    :aws_region => ConfigLoader.load_config(node, "build_env")["TF_VAR_region"],
+    :aws_region => aws_region,
     :aws_logging_bucket => "login-gov-#{node.chef_environment}-logs"
   })
   notifies :restart, 'runit_service[logstash]'
@@ -116,7 +118,7 @@ aws_account_id = `curl -s http://169.254.169.254/latest/dynamic/instance-identit
 template "/etc/logstash/conf.d/30-cloudtrailin.conf" do
   source '30-cloudtrailin.conf.erb'
   variables ({
-    :aws_region => ConfigLoader.load_config(node, "build_env")["TF_VAR_region"],
+    :aws_region => aws_region,
     :cloudtrail_logging_bucket => "login-gov-cloudtrail-#{aws_account_id}"
   })
   notifies :restart, 'runit_service[logstash]'
@@ -369,7 +371,7 @@ end
 template "/etc/logstash/conf.d/50-cloudwatchin.conf" do
   source '50-cloudwatchin.conf.erb'
   variables ({
-    :aws_region => ConfigLoader.load_config(node, "build_env")["TF_VAR_region"],
+    :aws_region => aws_region,
     :env => node.chef_environment
   })
   notifies :restart, 'runit_service[logstash]'
