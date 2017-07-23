@@ -1,4 +1,8 @@
-basic_auth_enabled = !ConfigLoader.load_config(node, "basic_auth_password").nil?
+if ConfigLoader.load_config_or_nil(node, "basic_auth_password") && node.chef_environment != "prod"
+  basic_auth_enabled = true
+else
+  basic_auth_enabled = false
+end
 
 if basic_auth_enabled
   basic_auth_config 'generate basic auth config' do

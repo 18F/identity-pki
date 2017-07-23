@@ -13,7 +13,11 @@ action :create do
 
   # Set app's domain name: (secure.login.gov in prod, otherwise idp.<env>.login.gov)
   domain_name = node.chef_environment == 'prod' ? 'secure.login.gov' : "idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
-  participate_in_dap = ConfigLoader.load_config(node, "google_analytics_key").nil? ? 'false' : 'true'
+  if ConfigLoader.load_config_or_nil(node, "google_analytics_key").nil?
+    participate_in_dap = false
+  else
+    participate_in_dap = true
+  end
 
   template "#{name}/config/application.yml" do
     action :create
@@ -36,7 +40,7 @@ action :create do
       disable_email_sending: node['login_dot_gov']['disable_email_sending'],
       domain_name: domain_name,
       enable_test_routes: node['login_dot_gov']['enable_test_routes'],
-      email_encryption_key: (ConfigLoader.load_config(node, "email_encryption_key") || node['login_dot_gov']['email_encryption_key']),
+      email_encryption_key: (ConfigLoader.load_config_or_nil(node, "email_encryption_key") || node['login_dot_gov']['email_encryption_key']),
       email_from: node['login_dot_gov']['email_from'],
       enable_i18n_mode: node['login_dot_gov']['enable_i18n_mode'],
       enable_identity_verification: node['login_dot_gov']['enable_identity_verification'],
