@@ -26,7 +26,7 @@ action :create do
       async_job_refresh_interval_seconds: node['login_dot_gov']['async_job_refresh_interval_seconds'],
       async_job_refresh_max_wait_seconds: node['login_dot_gov']['async_job_refresh_max_wait_seconds'],
       attribute_cost: node['login_dot_gov']['attribute_cost'],
-      attribute_encryption_key: (ConfigLoader.load_config(node, "attribute_encryption_key") || node['login_dot_gov']['attribute_encryption_key']),
+      attribute_encryption_key: (ConfigLoader.load_config_or_nil(node, "attribute_encryption_key") || node['login_dot_gov']['attribute_encryption_key']),
       attribute_encryption_key_queue: node['login_dot_gov']['attribute_encryption_key_queue'],
       available_locales: node['login_dot_gov']['available_locales'],
       aws_kms_key_id: node['login_dot_gov']['aws_kms_key_id'],
