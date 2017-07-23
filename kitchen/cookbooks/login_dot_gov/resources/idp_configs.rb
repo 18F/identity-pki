@@ -116,7 +116,7 @@ action :create do
     user node['login_dot_gov']['system_user']
   end
 
-  if ConfigLoader.load_config(node, "saml.crt")
+  if ConfigLoader.load_config_or_nil(node, "saml.crt")
     file "#{name}/certs/saml.crt" do
       action :create
       content ConfigLoader.load_config(node, "saml.crt")
