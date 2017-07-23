@@ -68,7 +68,9 @@ template "#{base_dir}/shared/config/database.yml" do
     database: 'sp_rails',
     username: ConfigLoader.load_config(node, "db_username_app"),
     host: ConfigLoader.load_config(node, "db_host_app"),
-    password: ConfigLoader.load_config(node, "db_password_app")
+    password: ConfigLoader.load_config(node, "db_password_app"),
+    sslmode: 'verify-full',
+    sslrootcert: '/usr/local/share/aws/rds-combined-ca-bundle.pem',
   })
 end
 
