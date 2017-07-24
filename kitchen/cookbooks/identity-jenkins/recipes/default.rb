@@ -148,8 +148,6 @@ jenkins_secret_text_credentials 'slack' do
   secret      webhookkey
 end
 
-ssh_known_hosts_entry 'github.com'
-
 # set up ssh key up for being able to do 'cap deploy'
 deploykey_path = File.join(Chef::Config[:file_cache_path], 'id_rsa_deploy')
 execute 'generate deploy ssh key' do
