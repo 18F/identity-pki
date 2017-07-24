@@ -225,8 +225,6 @@ git idp_path do
   revision branch_name
 end
 
-execute 'ssh-keyscan -H github.com > /etc/ssh/ssh_known_hosts'
-
 execute "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle install" do
   cwd idp_path
 end

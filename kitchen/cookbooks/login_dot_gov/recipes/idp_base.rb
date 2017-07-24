@@ -43,8 +43,6 @@ remote_file '/usr/local/share/aws/rds-combined-ca-bundle.pem' do
   source 'https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem'
 end
 
-execute 'ssh-keyscan -H github.com > /etc/ssh/ssh_known_hosts'
-
 execute 'update-alternatives --install /usr/bin/node nodejs /usr/bin/nodejs 100' do
   not_if { ::File.exists? '/usr/bin/node' }
 end

@@ -30,6 +30,7 @@
   "chef_type": "role",
   "run_list": [
     "recipe[login_dot_gov::chage]",
+    "recipe[login_dot_gov::ssh]",
     "recipe[login_dot_gov::users]",
     "recipe[identity-jenkins::deploy-key]",
     "recipe[apt]",
