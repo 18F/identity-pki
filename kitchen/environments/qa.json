@@ -93,6 +93,7 @@
     "ssh_keys": {
       "ubuntu": [
         "astone",
+        "brody",
         "deploy",
         "jgrevich",
         "jpmugizi",
@@ -107,6 +108,7 @@
     "elk": {
       "users": [
         "astone",
+        "brody",
         "dnesting",
         "jgrevich",
         "zmargolis",
@@ -127,6 +129,7 @@
       ],
       "admins": [
         "astone",
+        "brody",
         "dnesting",
         "jgrevich",
         "jpmugizi",

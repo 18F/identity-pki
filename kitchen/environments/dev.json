@@ -89,6 +89,7 @@
     "elk": {
       "users": [
         "astone",
+        "brody",
         "jgrevich",
         "zmargolis",
         "jpmugizi",
@@ -111,6 +112,7 @@
       ],
       "admins": [
         "astone",
+        "brody",
         "jgrevich",
         "jpmugizi",
         "tspencer",
