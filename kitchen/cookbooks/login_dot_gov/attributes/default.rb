@@ -124,7 +124,10 @@ default['login_dot_gov']['transaction_threshold']                     = 'apdex_f
 # sp-rails
 default['login_dot_gov']['sp_rails']['http_auth_username'] = '<%= ENV["SP_NAME"] %>'
 default['login_dot_gov']['sp_rails']['http_auth_password'] = '<%= ENV["SP_PASS"] %>'
-default['login_dot_gov']['sp_rails']['idp_cert_fingerprint']= '8B:D5:C2:E8:9A:2B:CE:B7:4B:95:50:BA:16:79:05:27:17:D1:D3:67'
+# 68:19:... is the fingerprint of the SAML IDP cert CN=int.login.gov
+# Serial: 0xf41d6ee2e4675981, Issued: July 11 2017, Expires: July 11 2018
+# TODO: don't hardcode this
+default['login_dot_gov']['sp_rails']['idp_cert_fingerprint'] = '68:19:E0:CB:D2:44:A0:CD:B7:D1:80:8A:E2:34:E4:22:90:41:DF:10'
 default['login_dot_gov']['sp_rails']['idp_slo_url'] = 'https://idp.<%= ENV["SAML_ENV"] %>.login.gov/api/saml/logout'
 default['login_dot_gov']['sp_rails']['idp_sso_url'] = 'https://idp.<%= ENV["SAML_ENV"] %>.login.gov/api/saml/auth'
 default['login_dot_gov']['sp_rails']['saml_issuer'] = 'urn:gov:gsa:SAML:2.0.profiles:sp:sso:rails-<%= ENV["SAML_ENV"] %>'
@@ -137,4 +140,5 @@ default['login_dot_gov']['dashboard']['sp_private_key_password']      = 'foobar'
 
 # 68:19:... is the fingerprint of the SAML IDP cert CN=int.login.gov
 # Serial: 0xf41d6ee2e4675981, Issued: July 11 2017, Expires: July 11 2018
+# TODO: don't hardcode this
 default['login_dot_gov']['dashboard']['idp_cert_fingerprint']         = '68:19:E0:CB:D2:44:A0:CD:B7:D1:80:8A:E2:34:E4:22:90:41:DF:10'
