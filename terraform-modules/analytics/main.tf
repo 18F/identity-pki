@@ -1,5 +1,7 @@
 resource "aws_vpc" "analytics_vpc" {
   cidr_block = "${var.vpc_cidr_block}"
+  enable_dns_support = true
+  enable_dns_hostnames = true
 
   tags {
     Name = "analytics-${var.env_name}-vpc"
@@ -22,7 +24,7 @@ resource "aws_redshift_cluster" "redshift" {
   node_type                 = "dc1.large"
   cluster_type              = "single-node"
   cluster_subnet_group_name = "${aws_redshift_subnet_group.redshift_subnet_group.name}"
-  publicly_accessible       = false
+  publicly_accessible       = true
   iam_roles                 = ["${aws_iam_role.redshift_role.arn}"]
 
   vpc_security_group_ids = [
