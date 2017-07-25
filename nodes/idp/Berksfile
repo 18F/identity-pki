@@ -1,0 +1,26 @@
+source 'https://api.berkshelf.com'
+
+# Needed for `role[base]`
+
+cookbook 'apt'
+cookbook 'bash-completion'
+cookbook 'build-essential'
+cookbook 'cacert'
+cookbook 'git'
+cookbook 'hostname'
+cookbook 'motd'
+cookbook 'nano'
+cookbook 'ruby_build'
+cookbook 'ssh-keys'
+cookbook 'sudo'
+
+cookbook 'apt_update', path: '../../kitchen/cookbooks/apt_update'
+cookbook 'identity-elk', path: '../../kitchen/cookbooks/identity-elk'
+cookbook 'identity-jenkins', path: '../../kitchen/cookbooks/identity-jenkins'
+cookbook 'identity-nessus', path: '../../kitchen/cookbooks/identity-nessus'
+cookbook 'identity-ntp', path: '../../kitchen/cookbooks/identity-ntp'
+cookbook 'identity-ossec', path: '../../kitchen/cookbooks/identity-ossec'
+cookbook 'login_dot_gov', path: '../../kitchen/cookbooks/login_dot_gov'
+cookbook 'config_loader', path: '../../kitchen/cookbooks/config_loader'
+
+# Needed only for idp
