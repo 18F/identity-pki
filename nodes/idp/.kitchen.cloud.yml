@@ -1,7 +1,7 @@
 ---
 driver:
   name: ec2
-  aws_ssh_key_id: login-dev-us-west-2
+  aws_ssh_key_id: "<%= ENV['KITCHEN_EC2_SSH_KEYPAIR_ID'] || login-dev-us-west-2 %>"
   region: us-west-2
   subnet_filter:
     tag: Name
