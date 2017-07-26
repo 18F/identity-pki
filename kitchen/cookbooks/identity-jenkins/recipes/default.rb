@@ -45,25 +45,36 @@ apache_site 'jenkinsproxy'
 # install jenkins
 jenkinstmp = '/var/lib/jenkinstmp'
 node.default['jenkins']['master']['jvm_options'] = "-Djava.io.tmpdir=#{jenkinstmp}"
-#node.default['jenkins']['master']['version'] = "2.35"
+node.default['jenkins']['master']['version'] = "2.46.3"
 directory jenkinstmp do
   owner 'root'
   group 'root'
   mode '1777'
 end
-package 'openjdk-7-jre-headless'
 include_recipe 'jenkins::master'
 file '/var/lib/jenkins/jenkins.install.InstallUtil.lastExecVersion' do
-  content '2.3'
+  content '2.46'
   owner 'jenkins'
   group 'jenkins'
   action :create_if_missing
 end
 
-# XXX restart again to get upgrades?
-execute 'echo restarting jenkins' do
-  notifies :restart, 'service[jenkins]', :immediately
+
+# initially configure jenkins so that it works without plugins
+template '/var/lib/jenkins/config.xml' do
+  owner 'jenkins'
+  group 'jenkins'
+  source 'setupconfig.xml.erb'
+  variables ({
+    :admins => node['identity-jenkins']['admins'],
+    :users => node['identity-jenkins']['users']
+  })
+  notifies :restart, 'service[jenkins]'
+  # don't do this if we already installed the plugins!
+  not_if 'test -f /var/lib/jenkins/.ssh/config'
 end
+
+# set up updatecenter
 directory "#{node[:jenkins][:master][:home]}/updates" do
   owner "#{node[:jenkins][:master][:user]}"
   group "#{node[:jenkins][:master][:user]}"
@@ -76,7 +87,17 @@ execute "update jenkins update center" do
   creates "#{node[:jenkins][:master][:home]}/updates/default.json"
 end
 
-# Install all plugins and restart once
+# enable the cli
+template '/var/lib/jenkins/jenkins.CLI.xml' do
+  owner 'jenkins'
+  group 'jenkins'
+  source 'jenkinscli.xml.erb'
+end
+
+# Install all plugins and restart
+execute 'echo restarting jenkins' do
+  notifies :restart, 'service[jenkins]', :immediately
+end
 jenkins_command "install-plugin #{node['identity-jenkins']['jenkns-plugins'].join(' ')}"
 jenkins_command "safe-restart"
 
@@ -132,7 +153,7 @@ jenkins_private_key_credentials 'github-deploy' do
   id          'github-deploy'
   description 'Deploy key for pulling from git'
   private_key Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['jenkins_ssh_privkey']
-  # remove this once https://github.com/chef-cookbooks/jenkins/issues/561 is fixed upstream
+  # remove this once https://github.com/chef-cookbooks/jenkins/issues/561 and 591 is fixed upstream
   ignore_failure true
 end
 
@@ -146,9 +167,13 @@ jenkins_secret_text_credentials 'slack' do
   id          'slack'
   description 'Slack webhook key'
   secret      webhookkey
+  # remove this once https://github.com/chef-cookbooks/jenkins/issues/561 and 591 is fixed upstream
+  ignore_failure true
 end
 
-# set up ssh key up for being able to do 'cap deploy'
+ssh_known_hosts_entry 'github.com'
+
+# set up ssh key up for being able to do 'chef-client'
 deploykey_path = File.join(Chef::Config[:file_cache_path], 'id_rsa_deploy')
 execute 'generate deploy ssh key' do
   creates deploykey_path
@@ -163,9 +188,9 @@ end
 
 jenkins_private_key_credentials 'deploy' do
   id          'deploy'
-  description 'Deploy key for capistrano'
+  description 'Deploy key for chef-client'
   private_key lazy { File.read(deploykey_path).chomp }
-  # remove this once https://github.com/chef-cookbooks/jenkins/issues/561 is fixed upstream
+  # remove this once https://github.com/chef-cookbooks/jenkins/issues/561 and 591 is fixed upstream
   ignore_failure true
 end
 
@@ -182,7 +207,7 @@ package 'python2.7'
 package 'python-pip'
 execute 'pip install awscli'
 
-# configure jenkins
+# configure jenkins for realz
 template '/var/lib/jenkins/config.xml' do
   owner 'jenkins'
   group 'jenkins'
@@ -207,37 +232,6 @@ end
 gem_package 'berkshelf' do
   gem_binary "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/gem"
 end
-
-package 'postgresql-client-9.3'
-package 'postgresql-server-dev-9.3'
-gem_package 'pg' do
-  options('-- --with-pg-config=/usr/bin/pg_config --with-pg-lib=/usr/lib/')
-  gem_binary "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/gem"
-end
-
-# branch is 'master'(default) when env is dev, otherwise use stages/env 
-branch_name = (node.chef_environment == 'dev' ? node['login_dot_gov']['branch_name'] : "stages/#{node.chef_environment}")
-idp_path = File.join(Chef::Config[:file_cache_path], 'identity-idp')
-git idp_path do
-  repository 'https://github.com/18F/identity-idp'
-  revision branch_name
-end
-
-execute "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle install" do
-  cwd idp_path
-end
-
-xml = File.join(Chef::Config[:file_cache_path], 'infrastructure-config.xml')
-template xml do
-  source 'infrastructure-config.xml.erb'
-  variables ({
-    :env => node.chef_environment,
-    :branch => node['identity-devops']['branch_name'] || "stages/#{node.chef_environment}"
-  })
-end
-#jenkins_job "terraform" do
-#  config xml
-#end
 
 package 'jq'
 codexml = File.join(Chef::Config[:file_cache_path], 'idp-config.xml')
