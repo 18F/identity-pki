@@ -38,6 +38,7 @@
   "groupings": {
   },
   "recipes": {
+    "login_dot_gov::base_config": "Common base packages",
     "login_dot_gov::certs": "Certs via letsencrypt",
     "login_dot_gov::dashboard": "Dashboard setup and deploy",
     "login_dot_gov::default": "Default recipe (no action)",
@@ -52,5 +53,5 @@
     "login_dot_gov::users": "User management",
     "login_dot_gov::worker": "Worker instance setup and deploy"
   },
-  "version": "0.0.44"
+  "version": "0.0.45"
 }
