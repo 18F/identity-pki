@@ -6,7 +6,8 @@
     "authorization": {
       "sudo": {
         "groups": [
-          "adm"
+          "adm",
+          "sudo"
         ],
         "users": [
           "ubuntu"
