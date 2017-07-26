@@ -1,5 +1,7 @@
 property :name, String, default: '/srv/idp' # defaults to IdP path
 
+property :app_name, String, default: '<default_app_name>'
+
 action :create do
   license_key = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['newrelic_license_key']
 
@@ -17,7 +19,7 @@ action :create do
     sensitive true
     variables({
       agent_enabled: node['login_dot_gov']['agent_enabled'],
-      app_name: node['login_dot_gov']['app_friendly_name'],
+      app_name: app_name,
       audit_log_enabled: node['login_dot_gov']['audit_log_enabled'],
       auto_instrument: node['login_dot_gov']['auto_instrument'],
       capture_error_source: node['login_dot_gov']['capture_error_source'],

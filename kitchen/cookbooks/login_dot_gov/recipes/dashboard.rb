@@ -71,7 +71,7 @@ end
 # custom resource to configure new relic (newrelic.yml)
 login_dot_gov_newrelic_config "#{base_dir}/shared" do
   not_if { node['login_dot_gov']['setup_only'] }
-  node.set['login_dot_gov']['app_friendly_name'] = "dashboard.#{node.chef_environment}.#{node['login_dot_gov']['app_name']}"
+  app_name "dashboard.#{node.chef_environment}.#{node['login_dot_gov']['app_name']}"
 end
 
 # Application configuration (application.yml)
