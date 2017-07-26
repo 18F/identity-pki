@@ -102,6 +102,13 @@ file mycert do
   owner 'logstash'
 end
 
+# Use the built-in Ohai EC2 plugin to talk to EC2 metadata. In newer versions
+# there is a 'region' attribute, but not in the one we have.
+#
+# Run `ohai ec2` on a server to see what values are available.
+#
+# placement_availability_zone always looks like "us-west-2b", so strip off the
+# last character to get the region
 aws_region = node.fetch('ec2').fetch('placement_availability_zone')[0..-2]
 
 template "/etc/logstash/conf.d/30-s3output.conf" do
