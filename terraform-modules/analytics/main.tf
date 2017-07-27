@@ -292,18 +292,6 @@ resource "aws_iam_policy_attachment" "lambda_policy_attachment" {
   ]
 }
 
-resource "aws_lambda_permission" "allow_bucket" {
-  statement_id  = "AllowExecutionFromS3Bucket"
-  action        = "lambda:InvokeFunction"
-  function_name = "${aws_lambda_function.analytics_lambda.arn}"
-  principal     = "s3.amazonaws.com"
-  source_arn    = "arn:aws:s3:::login-gov-${var.env_name}-logs"
-}
-
-/* for notes on how lambda functions are deployed to s3 bucket please visit:
-   https://github.com/18F/identity-analytics-etl/blob/master/README.md
-*/
-
 resource "aws_lambda_function" "analytics_lambda" {
   s3_bucket        = "tf-redshift-bucket-${var.env_name}-deployments"
   s3_key           = "lambda_${var.analytics_version}_deploy.zip"
@@ -327,12 +315,22 @@ vpc_config {
  }
 }
 
-resource "aws_s3_bucket_notification" "bucket_notification" {
-  bucket = "login-gov-${var.env_name}-logs"
+resource "aws_cloudwatch_event_rule" "every_30_minutes" {
+    name = "every-thirty-minutes"
+    description = "Fires every thirty minutes"
+    schedule_expression = "rate(30 minutes)"
+}
 
-  lambda_function {
-    lambda_function_arn = "${aws_lambda_function.analytics_lambda.arn}"
-    events              = ["s3:ObjectCreated:*"]
-    filter_suffix       = ".txt"
-  }
+resource "aws_cloudwatch_event_target" "cloudwatch_notification" {
+    rule = "${aws_cloudwatch_event_rule.every_thirty_minutes.name}"
+    target_id = "analytics_lambda"
+    arn = "${aws_lambda_function.analytics_lambda.arn}"
+}
+
+resource "aws_lambda_permission" "allow_cexecution_from_cloudwatch" {
+    statement_id = "AllowExecutionFromCloudWatch"
+    action = "lambda:InvokeFunction"
+    function_name = "${aws_lambda_function.analytics_lambda.function_name}"
+    principal = "events.amazonaws.com"
+    source_arn = "${aws_cloudwatch_event_rule.every_thirty_minutes.arn}"
 }
