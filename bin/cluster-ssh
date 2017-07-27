@@ -1,0 +1,165 @@
+#!/usr/bin/env ruby
+
+require 'bundler/setup'
+
+require 'aws-sdk'
+require 'subprocess'
+
+Aws.config.update({
+  region: ENV.fetch('AWS_REGION', 'us-west-2'),
+})
+
+class Error < StandardError; end
+class ManyFound < Error; end
+class NotFound < Error; end
+
+VPC_PREFIX = 'login-vpc-'
+
+def usage
+  STDERR.puts <<-EOM
+usage: #{File.basename($0)} ENVIRONMENT
+
+Open SSH windows to all individual (not auto scaled) instances in ENVIRONMENT,
+using csshX (must be brew installed).
+  EOM
+end
+
+def name_tag_for_instance(instance, allow_nil: false)
+  tag = instance.tags.find {|t| t.key == 'Name'}
+  if tag
+    tag.value
+  else
+    if allow_nil
+      nil
+    else
+      raise KeyError.new("No 'Name' tag found on #{instance.inspect}")
+    end
+  end
+end
+
+def log_info(message)
+  STDERR.puts message
+end
+
+def lookup_vpc_by_name(name_tag)
+  filters = [
+    {name: 'tag:Name', values: [name_tag]},
+  ]
+  find_unique_vpc(filters)
+end
+
+def find_unique_vpc(filters)
+  ec2 = Aws::EC2::Resource.new
+  data = ec2.vpcs(filters: filters).to_a
+  if data.length > 1
+    raise ManyFound.new("Found multiple vpcs: " + data.inspect)
+  end
+  if data.length == 0
+    raise NotFound.new("No vpcs found for filters: #{filters.inspect}")
+  end
+
+  data.first
+end
+
+def find_instances(filters)
+  ec2 = Aws::EC2::Resource.new
+  instances = ec2.instances(filters: filters).to_a
+  if instances.empty?
+    raise NotFound.new("No instances found for filters: #{filters.inspect}")
+  end
+
+  instances
+end
+
+def hostname_from_name_tag(name_tag)
+  pat = /\Alogin-([a-z0-9-]+)-([a-z]+)\z/
+  match = pat.match(name_tag)
+
+  unless match
+    raise "Unexpected name tag: #{name_tag.inspect}"
+  end
+
+  host_part = match[1]
+  env = match[2]
+
+  case host_part
+  when 'app', 'chef', 'elk', 'jenkins', 'jumphost'
+    return [host_part, env, 'login.gov'].join('.')
+  when /\Aes\d+\z/, /\Aidp\d+-\d+\z/
+    return [host_part, env, 'login.gov'].join('.')
+  when /\Aworker(\d+)\z/
+    host_part.gsub('worker', 'worker-')
+    return [host_part, env, 'login.gov'].join('.')
+  when 'es'
+    raise "This environment does not have uniquely tagged es servers"
+  when 'idp'
+    raise "This environment does not have uniquely tagged idp servers"
+  when 'worker'
+    raise "This environment does not have uniquely tagged worker servers"
+  else
+    raise "Unexpected host part #{host_part.inspect} in #{name_tag.inspect}"
+  end
+end
+
+def clusterssh(hostnames)
+  cmd = ['csshX', '--'] + hostnames
+  log_info("+ " + cmd.join(' '))
+  Subprocess.check_call(cmd)
+end
+
+def find_instances_for_env(env)
+  log_info("Listing running instances for #{env.inspect} environment")
+
+  vpc_name_tag = VPC_PREFIX + env
+
+  log_info("Looking for VPC named #{vpc_name_tag.inspect}")
+  vpc = lookup_vpc_by_name(vpc_name_tag)
+
+  log_info("Found VPC #{vpc.vpc_id}")
+
+  instances = find_instances([
+    {name: 'vpc-id', values: [vpc.vpc_id]},
+    {name: 'instance-state-name', values: ['running']},
+  ])
+
+  log_info("Found instances: " + instances.map(&:instance_id).join(' '))
+
+  names = instances.map {|i| name_tag_for_instance(i) }
+
+  names = names.reject {|n|
+    if n.start_with?('test-kitchen')
+      log_info("Ignoring test-kitchen instance: #{n.inspect}")
+      true
+    elsif n.start_with?('asg-')
+      log_info("Ignoring asg- instance: #{n.inspect}")
+      true
+    else
+      false
+    end
+  }
+
+  hostnames = names.map {|n| hostname_from_name_tag(n) }.sort
+
+  log_info("Found hostnames: " + hostnames.join(' '))
+
+  # TODO: use id-ssh to get IP address and such directly from AWS rather than
+  # relying on ~/.ssh/config and DNS
+
+  hostnames
+end
+
+def main(env)
+  hostnames = find_instances_for_env(env)
+  clusterssh(hostnames)
+end
+
+if $0 == __FILE__
+  begin
+    env = ARGV.fetch(0)
+  rescue IndexError
+    usage
+    exit 1
+  end
+
+  main(env)
+end

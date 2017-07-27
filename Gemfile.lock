@@ -200,6 +200,7 @@ GEM
     sshkit (1.11.1)
       net-scp (>= 1.1.2)
       net-ssh (>= 2.8.0)
+    subprocess (1.3.2)
     syslog-logger (1.6.8)
     systemu (2.6.5)
     test-unit (2.5.5)
@@ -224,6 +225,7 @@ DEPENDENCIES
   knife-spork
   pry
   semantic
+  subprocess
 
 BUNDLED WITH
    1.14.6

@@ -19,3 +19,4 @@ gem 'knife-backup'
 gem 'knife-block'
 
 gem 'semantic'
+gem 'subprocess'
