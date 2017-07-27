@@ -146,7 +146,7 @@ resource "aws_instance" "es" {
 
   tags {
     client = "${var.client}"
-    Name = "${var.name}-es-${var.env_name}"
+    Name = "${var.name}-es${count.index}-${var.env_name}"
   }
 
   connection {
