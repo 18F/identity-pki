@@ -1,0 +1,10 @@
+source 'https://rubygems.org'
+
+gem 'berkshelf', '~> 6.1.1'
+
+# For Test Kitchen: https://github.com/test-kitchen/test-kitchen
+gem 'test-kitchen'
+gem 'kitchen-ec2'
+gem 'kitchen-inspec'
+
+gem 'chef', '= 12.15.19'
