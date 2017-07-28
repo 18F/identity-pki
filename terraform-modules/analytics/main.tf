@@ -16,16 +16,39 @@ resource "aws_internet_gateway" "analytics_vpc" {
   }
 }
 
+resource "aws_kms_key" "redshift_encryption_key" {
+  description = "encryption_key_for_redshift"
+}
+
+resource "aws_redshift_parameter_group" "redshift_configuration" {
+  name   = "analytics-redshift-configuration"
+  family = "redshift-1.0"
+
+  parameter {
+    name  = "require_ssl"
+    value = "true"
+  }
+
+  parameter {
+    name  = "enable_user_activity_logging"
+    value = "true"
+  }
+}
+
 resource "aws_redshift_cluster" "redshift" {
-  cluster_identifier        = "tf-${var.env_name}-redshift-cluster"
-  database_name             = "analytics"
-  master_username           = "awsuser"
-  master_password           = "${var.redshift_master_password}"
-  node_type                 = "dc1.large"
-  cluster_type              = "single-node"
-  cluster_subnet_group_name = "${aws_redshift_subnet_group.redshift_subnet_group.name}"
-  publicly_accessible       = true
-  iam_roles                 = ["${aws_iam_role.redshift_role.arn}"]
+  cluster_identifier           = "tf-${var.env_name}-redshift-cluster"
+  database_name                = "analytics"
+  master_username              = "awsuser"
+  master_password              = "${var.redshift_master_password}"
+  node_type                    = "dc1.large"
+  cluster_type                 = "single-node"
+  cluster_subnet_group_name    = "${aws_redshift_subnet_group.redshift_subnet_group.name}"
+  publicly_accessible          = true
+  iam_roles                    = ["${aws_iam_role.redshift_role.arn}"]
+  enable_logging               = true
+  encrypted                    = true
+  kms_key_id                   = "${aws_kms_key.redshift_encryption_key.arn}"
+  cluster_parameter_group_name = "${aws_redshift_parameter_group.redshift_configuration.name}"
 
   vpc_security_group_ids = [
     "${aws_security_group.redshift_security_group.id}"
