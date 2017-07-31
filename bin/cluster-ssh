@@ -88,8 +88,8 @@ def hostname_from_name_tag(name_tag)
   when /\Aes\d+\z/, /\Aidp\d+-\d+\z/
     return [host_part, env, 'login.gov'].join('.')
   when /\Aworker(\d+)\z/
-    host_part.gsub('worker', 'worker-')
-    return [host_part, env, 'login.gov'].join('.')
+    host = host_part.gsub('worker', 'worker-')
+    return [host, env, 'login.gov'].join('.')
   when 'es'
     raise "This environment does not have uniquely tagged es servers"
   when 'idp'
