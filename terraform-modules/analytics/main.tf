@@ -47,8 +47,8 @@ resource "aws_redshift_cluster" "redshift" {
   iam_roles                    = ["${aws_iam_role.redshift_role.arn}"]
   enable_logging               = true
   encrypted                    = true
-  kms_key_id                   = "${aws_kms_key.redshift_encryption_key.arn}"
   cluster_parameter_group_name = "${aws_redshift_parameter_group.redshift_configuration.name}"
+  bucket_name                  = "login-gov-${var.env_name}-logs"
 
   vpc_security_group_ids = [
     "${aws_security_group.redshift_security_group.id}"
@@ -338,7 +338,7 @@ vpc_config {
  }
 }
 
-resource "aws_cloudwatch_event_rule" "every_30_minutes" {
+resource "aws_cloudwatch_event_rule" "every_thirty_minutes" {
     name = "every-thirty-minutes"
     description = "Fires every thirty minutes"
     schedule_expression = "rate(30 minutes)"
