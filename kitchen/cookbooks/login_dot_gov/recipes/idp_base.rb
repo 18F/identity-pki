@@ -10,7 +10,7 @@ database_adapter = 'postgresql'
 package 'jq'
 
 file '/root/.ssh/id_rsa.pub' do
-  content Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['jenkins_equifax_gem_pubkey']
+  content ConfigLoader.load_config(node, "jenkins_equifax_gem_pubkey")
   user  'root'
   group 'root'
   mode  '0600'
@@ -18,7 +18,7 @@ file '/root/.ssh/id_rsa.pub' do
 end
 
 file '/root/.ssh/id_rsa' do
-  content Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['jenkins_equifax_gem_privkey']
+  content ConfigLoader.load_config(node, "jenkins_equifax_gem_privkey")
   user  'root'
   group 'root'
   mode  '0600'
@@ -84,8 +84,6 @@ shared_dirs.each do |dir|
   end
 end
 
-encrypted_config = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]
-
 # TODO: JJG consider migrating to chef deploy resource to stay in line with capistrano style:
 # https://docs.chef.io/resource_deploy.html
 application release_path do
@@ -132,10 +130,10 @@ application release_path do
     # something to do with having the same name as the resource to which the block belongs.
     database({
       adapter: 'postgresql',
-      database: encrypted_config['db_database_idp'],
-      username: encrypted_config['db_username_idp'],
-      host: encrypted_config['db_host_idp'],
-      password: encrypted_config['db_password_idp'],
+      database: ConfigLoader.load_config(node, "db_database_idp"),
+      username: ConfigLoader.load_config(node, "db_username_idp"),
+      host: ConfigLoader.load_config(node, "db_host_idp"),
+      password: ConfigLoader.load_config(node, "db_password_idp"),
       sslmode: 'verify-full',
       sslrootcert: '/usr/local/share/aws/rds-combined-ca-bundle.pem'
     })

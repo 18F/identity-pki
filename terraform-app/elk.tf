@@ -54,6 +54,12 @@ resource "aws_iam_role_policy" "elk_iam_role_policy" {
   policy = "${data.aws_iam_policy_document.logbucketpolicy.json}"
 }
 
+resource "aws_iam_role_policy" "elk_secrets" {
+  name = "${var.env_name}_elk_secrets"
+  role = "${aws_iam_role.elk_iam_role.id}"
+  policy = "${data.aws_iam_policy_document.secrets_role_policy.json}"
+}
+
 resource "aws_s3_bucket" "logbucket" {
   bucket = "login-gov-${var.env_name}-logs"
   versioning {

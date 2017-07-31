@@ -74,6 +74,10 @@
   "json_class": "Chef::Environment",
   "chef_type": "environment",
   "default_attributes": {
+    "citadel": {
+      "bucket": "login-gov-secrets",
+      "region": "us-west-2"
+    },
     "ssh_keys": {
       "ubuntu": [
         "astone",
@@ -91,7 +95,8 @@
       ]
     },
     "login_dot_gov": {
-      "equifax_sftp_directory": "/fis/prd/incoming/"
+      "equifax_sftp_directory": "/fis/prd/incoming/",
+      "use_dashboard_service_providers": "false"
     }
   },
   "elk": {

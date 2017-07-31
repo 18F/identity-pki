@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "application_ruby": ">= 0.0.1",
+    "config_loader": ">= 0.0.1",
     "newrelic": ">= 0.0.1",
     "passenger": ">= 0.0.1",
     "poise-ruby": ">= 0.0.1",
@@ -53,5 +54,5 @@
     "login_dot_gov::users": "User management",
     "login_dot_gov::worker": "Worker instance setup and deploy"
   },
-  "version": "0.0.46"
+  "version": "0.0.47"
 }

@@ -115,21 +115,21 @@ template '/var/lib/jenkins/.ssh/config' do
 end
 
 file '/var/lib/jenkins/.ssh/id_rsa.pub' do
-  content Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['jenkins_ssh_pubkey']
+  content ConfigLoader.load_config(node, "jenkins_ssh_pubkey")
   user  'jenkins'
   group 'jenkins'
   mode  '0700'
 end
 
 file '/var/lib/jenkins/.ssh/id_rsa' do
-  content Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['jenkins_ssh_privkey']
+  content ConfigLoader.load_config(node, "jenkins_ssh_privkey")
   user  'jenkins'
   group 'jenkins'
   mode  '0700'
 end
 
 file '/root/.ssh/id_rsa.pub' do
-  content Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['jenkins_equifax_gem_pubkey']
+  content ConfigLoader.load_config(node, "jenkins_equifax_gem_pubkey")
   user  'root'
   group 'root'
   mode  '0600'
@@ -137,7 +137,7 @@ file '/root/.ssh/id_rsa.pub' do
 end
 
 file '/root/.ssh/id_rsa' do
-  content Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['jenkins_equifax_gem_privkey']
+  content ConfigLoader.load_config(node, "jenkins_equifax_gem_privkey")
   user  'root'
   group 'root'
   mode  '0600'
@@ -152,17 +152,17 @@ end
 jenkins_private_key_credentials 'github-deploy' do
   id          'github-deploy'
   description 'Deploy key for pulling from git'
-  private_key Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['jenkins_ssh_privkey']
+  private_key ConfigLoader.load_config(node, "jenkins_ssh_privkey")
   # remove this once https://github.com/chef-cookbooks/jenkins/issues/561 and 591 is fixed upstream
   ignore_failure true
 end
 
 
-webhook = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['slackwebhook']
+webhook = ConfigLoader.load_config(node, "slackwebhook")
 webhookbase = webhook.split(/services\//)[0] + 'services/'
 webhookkey  = webhook.split(/services\//)[1]
-slackchannel = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['slackchannel']
-slackdomain = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['slackdomain']
+slackchannel = ConfigLoader.load_config(node, "slackchannel")
+slackdomain = ConfigLoader.load_config(node, "slackdomain")
 jenkins_secret_text_credentials 'slack' do
   id          'slack'
   description 'Slack webhook key'
@@ -170,8 +170,6 @@ jenkins_secret_text_credentials 'slack' do
   # remove this once https://github.com/chef-cookbooks/jenkins/issues/561 and 591 is fixed upstream
   ignore_failure true
 end
-
-ssh_known_hosts_entry 'github.com'
 
 # set up ssh key up for being able to do 'chef-client'
 deploykey_path = File.join(Chef::Config[:file_cache_path], 'id_rsa_deploy')
@@ -219,12 +217,14 @@ template '/var/lib/jenkins/config.xml' do
   notifies :restart, 'service[jenkins]'
 end
 
+build_env = ConfigLoader.load_json(node, "build_env")
+
 # jenkins jobs here
 # set up env
 template File.join(Chef::Config[:file_cache_path], 'login-env.sh') do
   source 'login-env.sh.erb'
   variables ({
-    :build_env => Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['build_env']
+    :build_env => build_env
   })
   mode '0755'
 end

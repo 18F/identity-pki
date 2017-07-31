@@ -3,12 +3,12 @@ execute "mount -o remount,exec,nosuid,nodev /tmp"
 # setup postgres root config resource
 psql_config 'configure postgres root cert'
 
-encrypted_config = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]
 
 app_name = 'sp-sinatra'
 
-dhparam = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]["dhparam"]
-
+dhparam = ConfigLoader.load_config(node, "dhparam")
+basic_auth_username = ConfigLoader.load_config(node, "basic_auth_user_name")
+basic_auth_password = ConfigLoader.load_config(node, "basic_auth_password")
 # generate a stronger DHE parameter on first run
 # see: https://raymii.org/s/tutorials/Strong_SSL_Security_On_nginx.html#Forward_Secrecy_&_Diffie_Hellman_Ephemeral_Parameters
 execute "openssl dhparam -out dhparam.pem 4096" do
@@ -69,11 +69,9 @@ deploy "/srv/#{app_name}" do
   user 'ubuntu'
 end
 
-encrypted_config = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]
-
 basic_auth_config 'generate basic auth config' do
-  password encrypted_config['basic_auth_password']
-  user_name encrypted_config["basic_auth_user_name"]
+  password  "#{basic_auth_password}"
+  user_name "#{basic_auth_username}"
 end
 
 # add nginx conf for app server
@@ -88,11 +86,11 @@ template "/opt/nginx/conf/sites.d/#{app_name}.login.gov.conf" do
     domain: "#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
     elb_cidr: node['login_dot_gov']['elb_cidr'],
     saml_env: node.chef_environment,
-    secret_key_base: encrypted_config['secret_key_base'],
-    security_group_exceptions: encrypted_config['security_group_exceptions'],
+    secret_key_base: ConfigLoader.load_config(node, "secret_key_base_rails"),
+    security_group_exceptions: ConfigLoader.load_config(node, "security_group_exceptions"),
     server_name: "#{app_name}.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
-    sp_pass: encrypted_config['basic_auth_password'],
-    sp_name: encrypted_config["basic_auth_user_name"]
+    sp_pass: "#{basic_auth_username}",
+    sp_name: "#{basic_auth_password}"
   })
 end
 

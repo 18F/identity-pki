@@ -88,6 +88,7 @@
       "enable_identity_verification": "true",
       "enable_usps_verification": "true",
       "proofing_vendors": "equifax",
+      "use_dashboard_service_providers": "true",
       "use_kms": "true"
     },
     "ssh_keys": {

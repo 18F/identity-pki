@@ -1,8 +1,8 @@
 property :name, String, default: '/srv/idp/shared'
 
-action :create do
-  encrypted_config = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]
+ConfigLoader = Chef::Recipe::ConfigLoader
 
+action :create do
   %w{certs keys config}.each do |dir|
     directory "/srv/idp/shared/#{dir}" do
       group node['login_dot_gov']['system_user']
@@ -13,7 +13,11 @@ action :create do
 
   # Set app's domain name: (secure.login.gov in prod, otherwise idp.<env>.login.gov)
   domain_name = node.chef_environment == 'prod' ? 'secure.login.gov' : "idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
-  participate_in_dap = encrypted_config['google_analytics_key'].nil? ? 'false' : 'true'
+  if ConfigLoader.load_config_or_nil(node, "google_analytics_key").nil?
+    participate_in_dap = false
+  else
+    participate_in_dap = true
+  end
 
   template "#{name}/config/application.yml" do
     action :create
@@ -26,34 +30,34 @@ action :create do
       async_job_refresh_interval_seconds: node['login_dot_gov']['async_job_refresh_interval_seconds'],
       async_job_refresh_max_wait_seconds: node['login_dot_gov']['async_job_refresh_max_wait_seconds'],
       attribute_cost: node['login_dot_gov']['attribute_cost'],
-      attribute_encryption_key: (encrypted_config['attribute_encryption_key'] || node['login_dot_gov']['attribute_encryption_key']),
+      attribute_encryption_key: (ConfigLoader.load_config_or_nil(node, "attribute_encryption_key") || node['login_dot_gov']['attribute_encryption_key']),
       attribute_encryption_key_queue: node['login_dot_gov']['attribute_encryption_key_queue'],
       available_locales: node['login_dot_gov']['available_locales'],
       aws_kms_key_id: node['login_dot_gov']['aws_kms_key_id'],
       aws_region: node['login_dot_gov']['aws_region'],
-      dashboard_api_token: encrypted_config['dashboard_api_token'],
-      dashboard_url: encrypted_config['dashboard_url'],
+      dashboard_api_token: ConfigLoader.load_config(node, "dashboard_api_token"),
+      dashboard_url: ConfigLoader.load_config(node, "dashboard_url"),
       disable_email_sending: node['login_dot_gov']['disable_email_sending'],
       domain_name: domain_name,
       enable_test_routes: node['login_dot_gov']['enable_test_routes'],
-      email_encryption_key: (encrypted_config['email_encryption_key'] || node['login_dot_gov']['email_encryption_key']),
+      email_encryption_key: (ConfigLoader.load_config_or_nil(node, "email_encryption_key") || node['login_dot_gov']['email_encryption_key']),
       email_from: node['login_dot_gov']['email_from'],
       enable_i18n_mode: node['login_dot_gov']['enable_i18n_mode'],
       enable_identity_verification: node['login_dot_gov']['enable_identity_verification'],
       enable_load_testing_mode: node['login_dot_gov']['enable_load_testing_mode'],
       enable_usps_verification: node['login_dot_gov']['enable_usps_verification'],
-      equifax_avs_username: encrypted_config['equifax_avs_username'],
-      equifax_eid_username: encrypted_config['equifax_eid_username'],
-      equifax_endpoint: encrypted_config['equifax_endpoint'],
+      equifax_avs_username: ConfigLoader.load_config(node, "equifax_avs_username"),
+      equifax_eid_username: ConfigLoader.load_config(node, "equifax_eid_username"),
+      equifax_endpoint: ConfigLoader.load_config(node, "equifax_endpoint"),
       equifax_gpg_email: node['login_dot_gov']['equifax_gpg_email'],
-      equifax_password: encrypted_config['equifax_password'],
-      equifax_phone_username: encrypted_config['equifax_phone_username'],
+      equifax_password: ConfigLoader.load_config(node, "equifax_password"),
+      equifax_phone_username: ConfigLoader.load_config(node, "equifax_phone_username"),
       equifax_sftp_directory: node['login_dot_gov']['equifax_sftp_directory'],
       equifax_sftp_host: node['login_dot_gov']['equifax_sftp_host'],
       equifax_sftp_username: node['login_dot_gov']['equifax_sftp_username'],
-      equifax_ssh_passphrase: encrypted_config['equifax_ssh_passphrase'],
-      google_analytics_key: encrypted_config['google_analytics_key'],
-      hmac_fingerprinter_key: encrypted_config['hmac_fingerprinter_key'],
+      equifax_ssh_passphrase: ConfigLoader.load_config(node, "equifax_ssh_passphrase"),
+      google_analytics_key: ConfigLoader.load_config(node, "google_analytics_key"),
+      hmac_fingerprinter_key: ConfigLoader.load_config(node, "hmac_fingerprinter_key"),
       hmac_fingerprinter_key_queue: node['login_dot_gov']['hmac_fingerprinter_key_queue'],
       idp_sso_target_url: node['login_dot_gov']['idp_sso_target_url'],
       idv_attempt_window_in_hours: node['login_dot_gov']['idv_attempt_window_in_hours'],
@@ -62,19 +66,20 @@ action :create do
       logins_per_ip_limit: node['login_dot_gov']['logins_per_ip_limit'],
       logins_per_ip_period: node['login_dot_gov']['logins_per_ip_period'],
       mailer_domain_name: "https://#{domain_name}",
-      mandrill_api_token: encrypted_config['mandrill_api_token'],
+      mandrill_api_token: ConfigLoader.load_config(node, 'mandrill_api_token'),
       max_mail_events: node['login_dot_gov']['max_mail_events'],
       max_mail_events_window_in_days: node['login_dot_gov']['max_mail_events_window_in_days'],
       min_password_score: node['login_dot_gov']['min_password_score'],
       password_max_attempts: node['login_dot_gov']['password_max_attempts'],
-      newrelic_browser_app_id: encrypted_config['newrelic_browser_app_id'],
-      newrelic_browser_key: encrypted_config['newrelic_browser_key'],
-      newrelic_license_key: encrypted_config['newrelic_license_key'],
+      newrelic_browser_app_id: ConfigLoader.load_config(node, "newrelic_browser_app_id"),
+      newrelic_browser_key: ConfigLoader.load_config(node, "newrelic_browser_key"),
+      newrelic_license_key: ConfigLoader.load_config(node, "newrelic_license_key"),
+      otp_delivery_blocklist_bantime: node['login_dot_gov']['otp_delivery_blocklist_bantime'],
       otp_delivery_blocklist_findtime: node['login_dot_gov']['otp_delivery_blocklist_findtime'],
       otp_delivery_blocklist_maxretry: node['login_dot_gov']['otp_delivery_blocklist_maxretry'],
       otp_valid_for: node['login_dot_gov']['otp_valid_for'],
       participate_in_dap: participate_in_dap,
-      password_pepper: encrypted_config['password_pepper'],
+      password_pepper: ConfigLoader.load_config(node, "password_pepper"),
       password_strength_enabled: node['login_dot_gov']['password_strength_enabled'],
       proofing_vendors: node['login_dot_gov']['proofing_vendors'],
       proxy_addr: node['login_dot_gov']['proxy_addr'],
@@ -83,25 +88,25 @@ action :create do
       queue_health_check_frequency_seconds: node['login_dot_gov']['queue_health_check_frequency_seconds'],
       reauthn_window: node['login_dot_gov']['reauthn_window'],
       recovery_code_length: node['login_dot_gov']['recovery_code_length'],
-      redis_url: encrypted_config['redis_url'],
+      redis_url: ConfigLoader.load_config(node, "redis_url"),
       requests_per_ip_limit: node['login_dot_gov']['requests_per_ip_limit'],
       requests_per_ip_period: node['login_dot_gov']['requests_per_ip_period'],
-      saml_passphrase: encrypted_config['saml_passphrase'],
+      saml_passphrase: ConfigLoader.load_config(node, "saml_passphrase"),
       scrypt_cost: node['login_dot_gov']['scrypt_cost'],
-      secret_key_base_idp: encrypted_config['secret_key_base_idp'],
+      secret_key_base_idp: ConfigLoader.load_config(node, "secret_key_base_idp"),
       session_check_delay: node['login_dot_gov']['session_check_delay'],
       session_check_frequency: node['login_dot_gov']['session_check_frequency'],
-      session_encryption_key: encrypted_config['session_encryption_key'],
+      session_encryption_key: ConfigLoader.load_config(node, "session_encryption_key"),
       session_timeout_in_minutes: node['login_dot_gov']['session_timeout_in_minutes'],
       session_timeout_warning_seconds: node['login_dot_gov']['session_timeout_warning_seconds'],
-      smtp_settings: encrypted_config['smtp_settings'], # DEPRECATED (https://github.com/18F/identity-idp/pull/1506)
+      smtp_settings: ConfigLoader.load_config(node, "smtp_settings"), # DEPRECATED (https://github.com/18F/identity-idp/pull/1506)
       stale_session_window: node['login_dot_gov']['stale_session_window'],
       support_email: node['login_dot_gov']['support_email'],
       support_url: node['login_dot_gov']['support_url'],
       telephony_disabled: node['login_dot_gov']['telephony_disabled'],
-      twilio_accounts: encrypted_config['twilio_accounts'],
+      twilio_accounts: ConfigLoader.load_config(node, "twilio_accounts"),
       twilio_record_voice: node['login_dot_gov']['twilio_record_voice'],
-      use_dashboard_service_providers: encrypted_config['use_dashboard_service_providers'],
+      use_dashboard_service_providers: node['login_dot_gov']['use_dashboard_service_providers'],
       use_kms: node['login_dot_gov']['use_kms'],
       usps_mail_batch_hours: node['login_dot_gov']['usps_mail_batch_hours'],
       valid_authn_contexts: node['login_dot_gov']['valid_authn_contexts'],
@@ -115,10 +120,10 @@ action :create do
     user node['login_dot_gov']['system_user']
   end
 
-  if encrypted_config['saml.crt']
+  if ConfigLoader.load_config_or_nil(node, "saml.crt")
     file "#{name}/certs/saml.crt" do
       action :create
-      content encrypted_config['saml.crt']
+      content ConfigLoader.load_config(node, "saml.crt")
       manage_symlink_source true
       subscribes :create, 'resource[git]', :immediately
       user node['login_dot_gov']['system_user']
@@ -147,7 +152,7 @@ action :create do
 
   file "#{name}/keys/saml.key.enc" do
     action :create
-    content encrypted_config['saml.key.enc']
+    content ConfigLoader.load_config(node, "saml.key.enc")
     manage_symlink_source true
     subscribes :create, 'resource[git]', :immediately
     user node['login_dot_gov']['system_user']
@@ -156,7 +161,7 @@ action :create do
 
   file "#{name}/keys/equifax_rsa" do
     action :create
-    content encrypted_config['equifax_ssh_privkey']
+    content ConfigLoader.load_config(node, "equifax_ssh_privkey")
     manage_symlink_source true
     subscribes :create, 'resource[git]', :immediately
     user node['login_dot_gov']['system_user']
@@ -165,7 +170,7 @@ action :create do
 
   file "#{name}/keys/equifax_gpg.pub" do
     action :create
-    content encrypted_config['equifax_gpg_public_key']
+    content ConfigLoader.load_config(node, "equifax_gpg_public_key")
     manage_symlink_source true
     subscribes :create, 'resource[git]', :immediately
     user node['login_dot_gov']['system_user']

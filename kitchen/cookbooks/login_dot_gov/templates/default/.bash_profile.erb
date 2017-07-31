@@ -11,17 +11,10 @@ export APP_LOGS="$DASHBOARD_LOG $IDP_LOG $SP_RAILS_LOG $SP_SINATRA_LOG"
 export SIDEKIQ_LOG="/srv/idp/shared/log/sidekiq.log"
 export LOGS="$RAILS_LOG $NGINX_LOGS $MONIT_LOG $SIDEKIQ_LOG"
 
-export DASHBOARD_SECRET_KEY_BASE='<%= @secret_key_base_dashboard %>'
 export IDP_SLO_URL='<%= @idp_slo_url %>'
 export IDP_SP_URL='<%= @idp_sp_url %>'
 export IDP_SSO_URL='<%= @idp_sso_url %>'
-export NEW_RELIC_LICENSE_KEY='<%= @new_relic_license_key %>'
 export RAILS_ENV='production'
 export SAML_ENV='<%= node.chef_environment %>'
-export SECRET_KEY_BASE='<%= @secret_key_base %>'
-export SMTP_ADDRESS='smtp.mandrillapp.com'
-export SMTP_DOMAIN='<%= @smtp_domain %>'
-export SMTP_PASSWORD='<%= @smtp_password %>'
-export SMTP_USERNAME='<%= @smtp_user %>'
 export SP_NAME='<%= @sp_name %>'
 export SP_PASS='<%= @sp_pass %>'

@@ -5,6 +5,7 @@ resource "aws_instance" "app" {
   instance_type = "${var.instance_type_app}"
   key_name = "${var.key_name}"
   subnet_id = "${aws_subnet.app.id}"
+  iam_instance_profile = "${aws_iam_instance_profile.citadel-client.name}"
 
   tags {
     client = "${var.client}"
@@ -197,7 +198,6 @@ resource "aws_eip" "app" {
   instance = "${aws_instance.app.id}"
   vpc      = true
 }
-
 
 resource "aws_route53_record" "app" {
   count = "${var.apps_enabled == true ? 1 : 0}"

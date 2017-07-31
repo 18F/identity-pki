@@ -3,7 +3,7 @@ property :name, String, default: '/srv/idp' # defaults to IdP path
 property :app_name, String, default: '<default_app_name>'
 
 action :create do
-  license_key = Chef::EncryptedDataBagItem.load('config', 'app')["#{node.chef_environment}"]['newrelic_license_key']
+  license_key = Chef::Recipe::ConfigLoader.load_config(node, "newrelic_license_key")
 
   directory "#{name}/config" do
     group node['login_dot_gov']['system_user']

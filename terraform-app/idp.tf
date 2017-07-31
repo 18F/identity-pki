@@ -73,14 +73,20 @@ resource "aws_elasticache_cluster" "idp" {
   subnet_group_name = "${aws_elasticache_subnet_group.idp.name}"
 }
 
+resource "aws_iam_instance_profile" "idp" {
+  name = "${var.env_name}_idp_instance_profile"
+  roles = ["${aws_iam_role.idp.name}"]
+}
+
 resource "aws_iam_role" "idp" {
   name = "${var.env_name}_idp_iam_role"
   assume_role_policy = "${data.aws_iam_policy_document.assume_role_from_vpc.json}"
 }
 
-resource "aws_iam_instance_profile" "idp" {
-  name = "${var.env_name}_idp_instance_profile"
-  roles = ["${aws_iam_role.idp.name}"]
+resource "aws_iam_role_policy" "idp-citadel" {
+  name = "${var.env_name}-idp-citadel"
+  role = "${aws_iam_role.idp.id}"
+  policy = "${data.aws_iam_policy_document.secrets_role_policy.json}"
 }
 
 resource "aws_instance" "idp1" {
