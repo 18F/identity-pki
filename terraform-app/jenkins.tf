@@ -39,6 +39,8 @@ resource "aws_instance" "jenkins" {
   tags {
     client = "${var.client}"
     Name = "${var.name}-jenkins-${var.env_name}"
+    prefix = "jenkins"
+    domain = "${var.env_name}.login.gov"
   }
 
   connection {

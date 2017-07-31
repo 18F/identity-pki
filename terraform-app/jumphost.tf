@@ -99,6 +99,8 @@ resource "aws_instance" "jumphost" {
   tags {
     client = "${var.client}"
     Name = "${var.name}-jumphost-${var.env_name}"
+    prefix = "jumphost"
+    domain = "${var.env_name}.login.gov"
   }
 
   connection {

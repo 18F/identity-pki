@@ -20,6 +20,8 @@ resource "aws_instance" "chef" {
   tags {
     client = "${var.client}"
     Name = "${var.name}-chef-${var.env_name}"
+    prefix = "chef"
+    domain = "${var.env_name}.login.gov"
   }
 
   connection {

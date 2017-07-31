@@ -96,6 +96,8 @@ resource "aws_instance" "elk" {
   tags {
     client = "${var.client}"
     Name = "${var.name}-elk-${var.env_name}"
+    prefix = "elk"
+    domain = "${var.env_name}.login.gov"
   }
 
   connection {
@@ -153,6 +155,8 @@ resource "aws_instance" "es" {
   tags {
     client = "${var.client}"
     Name = "${var.name}-es${count.index}-${var.env_name}"
+    prefix = "es"
+    domain = "${var.env_name}.login.gov"
   }
 
   connection {

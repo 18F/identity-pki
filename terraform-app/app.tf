@@ -10,6 +10,8 @@ resource "aws_instance" "app" {
   tags {
     client = "${var.client}"
     Name = "${var.name}-app-${var.env_name}"
+    prefix = "app"
+    domain = "${var.env_name}.login.gov"
   }
 
   connection {
