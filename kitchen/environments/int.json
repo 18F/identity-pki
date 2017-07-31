@@ -77,6 +77,10 @@
   "json_class": "Chef::Environment",
   "chef_type": "environment",
   "default_attributes": {
+    "citadel": {
+      "bucket": "login-gov-secrets",
+      "region": "us-west-2"
+    },
     "identity-devops": {
       "branch_name": "stages/int"
     },
