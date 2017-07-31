@@ -130,7 +130,7 @@ template "/opt/nginx/conf/sites.d/#{app_name}.login.gov.conf" do
     domain: "#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
     elb_cidr: node['login_dot_gov']['elb_cidr'],
     saml_env: node.chef_environment,
-    secret_key_base: ConfigLoader.load_config(node, "secret_key_base"),
+    secret_key_base: ConfigLoader.load_config(node, "secret_key_base_rails"),
     security_group_exceptions: ConfigLoader.load_config(node, "security_group_exceptions"),
     server_aliases: "#{app_name}.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
     server_name: "sp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
