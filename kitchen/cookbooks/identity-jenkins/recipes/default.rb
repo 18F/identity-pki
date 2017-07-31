@@ -171,8 +171,6 @@ jenkins_secret_text_credentials 'slack' do
   ignore_failure true
 end
 
-ssh_known_hosts_entry 'github.com'
-
 # set up ssh key up for being able to do 'chef-client'
 deploykey_path = File.join(Chef::Config[:file_cache_path], 'id_rsa_deploy')
 execute 'generate deploy ssh key' do
