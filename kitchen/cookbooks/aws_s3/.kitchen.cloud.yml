@@ -1,0 +1,60 @@
+---
+driver:
+  name: ec2
+  aws_ssh_key_id: "<%= ENV['KITCHEN_EC2_SSH_KEYPAIR_ID'] || 'login-dev-us-west-2' %>"
+  region: us-west-2
+  subnet_filter:
+    tag: Name
+    value: login-jumphost_subnet-dev
+  security_group_filter:
+    tag: Name
+    value: login-jumphost_security_group-dev
+  instance_type: t2.medium
+  iam_profile_name: integration_test_instance_profile
+  tags:
+    created-by: "test-kitchen"
+    user: "<%= ENV['GSA_USERNAME'] || ENV['USER'] %>"
+    terminate-after: "<%= (Time.now + 604800).strftime('%F') %>"
+    Name: "test-kitchen-aws-s3-cookbook"
+
+<%-
+# Set SSH key from environment or use default
+ssh_key_file = ENV.fetch('KITCHEN_EC2_SSH_KEY', '~/.ssh/login-dev-us-west-2.pem')
+ssh_key_file = File.expand_path(ssh_key_file)
+# ensure file exists because kitchen won't error when it doesn't
+if !File.exist?(ssh_key_file)
+  raise "SSH key file not found: #{ssh_key_file.inspect}. Override with $KITCHEN_EC2_SSH_KEY"
+end
+%>
+
+transport:
+  username: ubuntu
+  ssh_key: "<%= ssh_key_file %>"
+
+provisioner:
+  name: chef_zero
+  # You may wish to disable always updating cookbooks in CI or other testing environments.
+  # For example:
+  #   always_update_cookbooks: <%= !ENV['CI'] %>
+  always_update_cookbooks: true
+  environments_path: environments
+  client_rb:
+    environment: integration
+  require_chef_omnibus: 12.15
+
+verifier:
+  name: inspec
+
+platforms:
+  - name: ubuntu-14.04
+
+suites:
+  - name: default
+    run_list:
+      - recipe[aws_s3::test_upload]
+      - recipe[aws_s3::test_download]
+    verifier:
+      inspec_tests:
+        - test/smoke/default
+    attributes:
+      integration_test_mode: true
