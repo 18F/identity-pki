@@ -5,12 +5,18 @@ exec > >(tee >(logger -t provision.sh -s 2>/dev/console)) 2>&1
 
 set -euo pipefail
 
-CONFIG_ENV="/etc/login.gov/info/env"
-CONFIG_ROLE="/etc/login.gov/info/role"
-
 usage() {
     cat >&2 <<EOM
 usage: $(basename "$0") [options] S3_SSH_KEY_URL GIT_CLONE_URL
+
+This script helps provision an instance using chef. Steps it runs:
+
+- Install chef, git, and other key dependencies
+- Download an SSH key from S3
+- Clone the specified git repo
+- Inside the git repo there must be a chef repo:
+  - Run berkshelf to download and vendor any needed cookbooks
+  - Run chef-client in local mode
 
 S3_SSH_KEY_URL:    Should be an S3 URL where the SSH key used for bootstrapping
                    can be found. This should be an SSH key that has read
@@ -25,10 +31,17 @@ options:
     --git-ref REF               Check out REF in id-do-private after cloning.
     --kitchen-subdir DIR        The subdirectory to cd to for running chef.
 
-Needed config files: this script assumes the existence of a few config files:
+Needed config files:
 
-    $CONFIG_ENV -- the current environment (e.g. prod/qa)
-    $CONFIG_ROLE -- the main chef role (e.g. jumphost/idp)
+    Inside the git repo, this script expects to find a chef repository in a
+    subdirectory defined by --kitchen-subdir, or 'chef' by default.
+
+    This directory must contain a 'chef-client.rb' file that contains
+    everything needed to successfully run chef in local mode, including
+    - environment
+    - run list (typically via json_attribs file)
+    - cookbook_path
+    - chef_repo_path (will be the parent directory of the script)
 
 EOM
 }
@@ -60,11 +73,6 @@ install_git() {
         echo "Installing git"
         run apt-get install -y git
     fi
-}
-
-load_config() {
-    ENV="$(cat "$CONFIG_ENV")"
-    ROLE="$(cat "$CONFIG_ROLE")"
 }
 
 # usage: install_chef URL [CHECKSUM]
@@ -238,8 +246,6 @@ print_error() {
 
 trap print_error EXIT
 
-load_config
-
 s3_ssh_key_url="$1"
 git_clone_url="$2"
 secrets_dir=/etc/login.gov/keys
@@ -342,8 +348,9 @@ echo "provision.sh: Starting chef run of $repo_basename!"
 run pwd
 
 # We expect there to be a chef-client.rb in the `chef` directory of the repo
-# that tells us where to find cookbooks etc. We should potentially move more of
-# the confing from this script (e.g. env, runlist) into the chef-client.rb.
+# that tells us where to find cookbooks and also sets the environment and run
+# list. (The run list probably needs to be set via a json_attribs file put in
+# place by cloud-init or other provisioner).
 
 # Chef doesn't error out if config not found, so we check ourselves
 if ! [ -e "./chef-client.rb" ]; then
@@ -351,8 +358,7 @@ if ! [ -e "./chef-client.rb" ]; then
     exit 3
 fi
 
-# TODO
-run chef-client --local-mode -c "./chef-client.rb" --environment "$ENV" --runlist "role[$ROLE]"
+run chef-client --local-mode -c "./chef-client.rb"
 
 echo "==========================================================="
 echo "All done! provision.sh finished for $repo_basename"

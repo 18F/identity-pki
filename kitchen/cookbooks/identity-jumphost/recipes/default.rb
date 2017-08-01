@@ -12,7 +12,8 @@
 # XXX should remove ssh_keys from runlist too once this works, maybe make it a jumphost role
 include_recipe 'users'
 users_manage node.chef_environment do
-  not_if { ::File.exist?('/etc/login.gov/info/auto-scaled') }
+  # identity-devops-private creates unix users on auto-scaled instances
+  not_if { node['provisioner']['auto-scaled'] }
 end
 
 # add berkshelf and terraform

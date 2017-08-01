@@ -19,6 +19,16 @@ write_files:
  - path: /etc/login.gov/info/auto-scaled
    content: "true\n"
 
+ - path: /etc/login.gov/info/chef-attributes.json
+   content: |
+     {
+       "run_list": ["role[${role}]"],
+       "provisioner": {
+         "name": "cloud-init",
+         "auto-scaled": true
+       }
+     }
+
  - path: /etc/ssh/ssh_known_hosts
    content: |
      # https://help.github.com/articles/github-s-ssh-key-fingerprints/

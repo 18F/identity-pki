@@ -24,7 +24,7 @@ module "jumphost_launch_config" {
 # due to https://github.com/terraform-providers/terraform-provider-aws/issues/681
 # See discussion in ../terraform-modules/bootstrap/vestigial.tf.txt
 resource "aws_launch_configuration" "jumphost" {
-    name_prefix = "${var.env_name}-jumphost-"
+    name_prefix = "${var.env_name}.jumphost.${var.bootstrap_main_git_ref}."
 
     lifecycle {
         create_before_destroy = true
@@ -39,6 +39,11 @@ resource "aws_launch_configuration" "jumphost" {
 
     iam_instance_profile = "${aws_iam_instance_profile.citadel-client.name}"
 }
+
+# For debugging cloud-init
+#output "rendered_cloudinit_config" {
+#    value = "${module.jumphost_launch_config.rendered_cloudinit_config}"
+#}
 
 resource "aws_autoscaling_group" "jumphost" {
     name = "${var.env_name}-jumphost"
