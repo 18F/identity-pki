@@ -16,8 +16,8 @@ resource "aws_internet_gateway" "analytics_vpc" {
   }
 }
 
-resource "aws_kms_key" "redshift_encryption_key" {
-  description = "encryption_key_for_redshift"
+resource "aws_kms_key" "s3_encryption_key" {
+  description = "encryption_key_for_analytics_s3"
 }
 
 resource "aws_redshift_parameter_group" "redshift_configuration" {
@@ -334,6 +334,7 @@ vpc_config {
    variables = {
      env = "${var.env_name}"
      redshift_host = "${aws_redshift_cluster.redshift.endpoint}"
+     encryption_key = "${aws_kms_key.s3_encryption_key.key_id}"
    }
  }
 }
