@@ -6,7 +6,7 @@ set -euo pipefail
 if [ $# -ne 2 ] ; then
     cat <<EOF
 usage:  $0 <environment> <gitref>
-  
+
   Updates the state of the roles, <environment> environment, and cookbooks on
   the chef server to <gitref>.
 
@@ -26,11 +26,23 @@ run() {
     "$@"
 }
 
+if [ -z "${UPDATE_CHEF_LOCAL-}" ]; then
+    if [[ $(hostname -f) != *.$ENVIRONMENT.login.gov* ]]; then
+        cat >&2 <<EOM
+Warning: local hostname $(hostname -f) doesn't look like a server!
+This script is meant to be run somewhere that knife is set up.
+(Set UPDATE_CHEF_LOCAL=1 to suppress this warning.)
+Did you mean to run remote-update-chef.sh ?
+EOM
+        read -r -p "Press enter to continue anyway... "
+    fi
+fi
+
 echo "Cloning identity-devops and checking out gitref: $GITREF..."
 run rm -rf identity-devops-berks-uploader-tmp
 run git clone git@github.com:18F/identity-devops.git identity-devops-berks-uploader-tmp
 echo "+ cd identity-devops-berks-uploader-tmp"
-cd identity-devops-berks-uploader-tmp
+pushd identity-devops-berks-uploader-tmp
 run git checkout "$GITREF"
 
 echo "Installing necessary gems..."
@@ -42,17 +54,17 @@ run berks upload --force --ssl-verify=false
 
 echo "Using knife to sync environment configuration..."
 for i in kitchen/environments/* ; do
-	run bundle exec knife environment from file "$i"
+	run knife environment from file "$i"
 done
 
 echo "Using knife to sync role configuration..."
 for i in kitchen/roles/* ; do
-	run bundle exec knife role from file "$i"
+	run knife role from file "$i"
 done
 
 echo "Using Berkshelf to apply the environment..."
 run berks apply "$ENVIRONMENT" --ssl-verify=false
 
 echo "Cleaning up identity-devops clone..."
-cd ..
+popd
 run rm -rf identity-devops-berks-uploader-tmp
