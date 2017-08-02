@@ -10,6 +10,7 @@ data "template_file" "install-chef-server" {
 }
 
 resource "aws_instance" "chef" {
+  count = "${var.chef_server_enabled}"
   ami = "${var.chef_ami_id}"
   depends_on = ["aws_internet_gateway.default", "aws_route53_zone.internal"]
   instance_type = "${var.instance_type_chef}"
@@ -95,6 +96,7 @@ resource "aws_instance" "chef" {
 }
 
 resource "aws_route53_record" "chef" {
+  count = "${var.chef_server_enabled}"
   depends_on = ["aws_instance.chef"]
   zone_id = "${aws_route53_zone.internal.zone_id}"
   name = "chef.login.gov.internal"
@@ -104,6 +106,7 @@ resource "aws_route53_record" "chef" {
 }
 
 resource "aws_route53_record" "chef-reverse" {
+  count = "${var.chef_server_enabled}"
   depends_on = ["aws_instance.chef"]
   zone_id = "${aws_route53_zone.internal-reverse.zone_id}"
   name = "${format("%s.%s.16.172.in-addr.arpa", element(split(".", aws_instance.chef.private_ip), 3), element(split(".", aws_instance.chef.private_ip), 2) )}"
@@ -114,6 +117,7 @@ resource "aws_route53_record" "chef-reverse" {
 }
 
 resource "aws_eip" "chef" {
+  count = "${var.chef_server_enabled}"
   instance = "${aws_instance.chef.id}"
   vpc      = true
 }

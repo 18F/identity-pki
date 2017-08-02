@@ -95,6 +95,7 @@ resource "aws_autoscaling_group" "jumphost" {
 }
 
 resource "aws_instance" "jumphost" {
+  count = "${var.non_asg_jumphost_enabled}"
   ami = "${var.jumphost_ami_id}"
   depends_on = ["aws_internet_gateway.default", "aws_route53_zone.internal","aws_instance.chef"]
   instance_type = "${var.instance_type_jumphost}"
@@ -144,6 +145,7 @@ resource "aws_instance" "jumphost" {
 }
 
 resource "aws_route53_record" "jumphost" {
+  count = "${var.non_asg_jumphost_enabled}"
   depends_on = ["aws_instance.jumphost"]
   zone_id = "${aws_route53_zone.internal.zone_id}"
   name = "jumphost.login.gov.internal"
@@ -153,6 +155,7 @@ resource "aws_route53_record" "jumphost" {
 }
 
 resource "aws_route53_record" "jumphost-reverse" {
+  count = "${var.non_asg_jumphost_enabled}"
   depends_on = ["aws_instance.jumphost"]
   zone_id = "${aws_route53_zone.internal-reverse.zone_id}"
   name = "${format("%s.%s.16.172.in-addr.arpa", element(split(".", aws_instance.jumphost.private_ip), 3), element(split(".", aws_instance.jumphost.private_ip), 2) )}"
@@ -163,11 +166,13 @@ resource "aws_route53_record" "jumphost-reverse" {
 }
 
 resource "aws_eip" "jumphost" {
+  count = "${var.non_asg_jumphost_enabled}"
   instance = "${aws_instance.jumphost.id}"
   vpc      = true
 }
 
 resource "aws_route53_record" "a_jumphost" {
+  count = "${var.non_asg_jumphost_enabled}"
   name = "jumphost.${var.env_name}.login.gov"
   records = ["${aws_eip.jumphost.public_ip}"]
   ttl = "300"

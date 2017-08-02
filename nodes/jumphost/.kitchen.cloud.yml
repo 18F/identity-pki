@@ -5,10 +5,10 @@ driver:
   region: us-west-2
   subnet_filter:
     tag: Name
-    value: login-jumphost_subnet-dev
+    value: login-jumphost_subnet-ci
   security_group_filter:
     tag: Name
-    value: login-jumphost_security_group-dev
+    value: login-jumphost_security_group-ci
   instance_type: t2.medium
   # XXX: This AMI has some known issues!  See identity-devops-private.
   image_id: ami-ac5335cc

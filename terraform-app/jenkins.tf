@@ -1,4 +1,5 @@
 data "aws_iam_policy_document" "allow_jenkins" {
+  count = "${var.non_asg_jenkins_enabled}"
   statement {
     sid = "allowJenkins"
     actions = [
@@ -29,6 +30,7 @@ resource "aws_iam_instance_profile" "jenkins" {
 #}
 
 resource "aws_instance" "jenkins" {
+  count = "${var.non_asg_jenkins_enabled}"
   ami = "${var.jenkins_ami_id}"
   depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk"]
   instance_type = "${var.instance_type_jenkins}"
@@ -83,6 +85,7 @@ resource "aws_instance" "jenkins" {
 }
 
 resource "aws_route53_record" "jenkins" {
+   count = "${var.non_asg_jenkins_enabled}"
    zone_id = "${aws_route53_zone.internal.zone_id}"
    name = "jenkins.login.gov.internal"
    type = "A"
@@ -91,6 +94,7 @@ resource "aws_route53_record" "jenkins" {
 }
 
 resource "aws_eip" "jenkins" {
+  count = "${var.non_asg_jenkins_enabled}"
   instance = "${aws_instance.jenkins.id}"
   vpc      = true
 }

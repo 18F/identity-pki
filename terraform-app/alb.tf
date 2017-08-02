@@ -1,10 +1,12 @@
 resource "aws_alb" "idp" {
+  count = "${var.alb_enabled}"
   name = "${var.name}-idp-alb-${var.env_name}"
   security_groups = ["${aws_security_group.web.id}"]
   subnets = ["${aws_subnet.alb1.id}", "${aws_subnet.alb2.id}"]
 }
 
 resource "aws_alb_listener" "idp" {
+  count = "${var.alb_enabled}"
   depends_on = ["aws_alb.idp"]
   load_balancer_arn = "${aws_alb.idp.id}"
   port = "80"
@@ -17,6 +19,7 @@ resource "aws_alb_listener" "idp" {
 }
 
 resource "aws_alb_listener" "idp-ssl" {
+  count = "${var.alb_enabled}"
   certificate_arn = "${aws_iam_server_certificate.idp.arn}"
   load_balancer_arn = "${aws_alb.idp.id}"
   port = "443"
@@ -30,6 +33,7 @@ resource "aws_alb_listener" "idp-ssl" {
 }
 
 resource "aws_alb_target_group" "idp" {
+  count = "${var.alb_enabled}"
   depends_on = ["aws_alb.idp"]
 
   health_check {
@@ -43,6 +47,7 @@ resource "aws_alb_target_group" "idp" {
 }
 
 resource "aws_alb_target_group" "idp-ssl" {
+  count = "${var.alb_enabled}"
   depends_on = ["aws_alb.idp"]
 
   health_check {
@@ -62,7 +67,7 @@ resource "aws_alb_target_group" "idp-ssl" {
 }
 
 resource "aws_alb_target_group_attachment" "idp" {
-  count = "${var.idp_node_count}"
+  count = "${var.alb_enabled * var.idp_node_count}"
   depends_on = ["aws_alb.idp"]
   port = 80
   target_group_arn = "${aws_alb_target_group.idp.arn}"
@@ -70,14 +75,14 @@ resource "aws_alb_target_group_attachment" "idp" {
 }
 
 resource "aws_alb_target_group_attachment" "idp-ssl" {
-  count = "${var.idp_node_count}"
+  count = "${var.alb_enabled * var.idp_node_count}"
   port = 443
   target_group_arn = "${aws_alb_target_group.idp-ssl.arn}"
   target_id = "${element(aws_instance.idp1.*.id, count.index)}"
 }
 
 resource "aws_alb_target_group_attachment" "idp2" {
-  count = "${var.idp_node_count}"
+  count = "${var.alb_enabled * var.idp_node_count}"
   depends_on = ["aws_alb.idp"]
   port = 80
   target_group_arn = "${aws_alb_target_group.idp.arn}"
@@ -85,13 +90,14 @@ resource "aws_alb_target_group_attachment" "idp2" {
 }
 
 resource "aws_alb_target_group_attachment" "idp2-ssl" {
-  count = "${var.idp_node_count}"
+  count = "${var.alb_enabled * var.idp_node_count}"
   port = 443
   target_group_arn = "${aws_alb_target_group.idp-ssl.arn}"
   target_id = "${element(aws_instance.idp2.*.id, count.index)}"
 }
 
 resource "aws_iam_server_certificate" "idp" {
+  count = "${var.alb_enabled}"
   certificate_body = "${acme_certificate.idp.certificate_pem}"
   certificate_chain = "${file("${path.cwd}/../certs/lets-encrypt-x3-cross-signed.pem")}"
   name_prefix = "${var.name}-idp-cert-${var.env_name}."
@@ -104,7 +110,7 @@ resource "aws_iam_server_certificate" "idp" {
 
 # secure.login.gov is the production-only name for the IDP app
 resource "aws_route53_record" "c_alb_production" {
-  count = "${var.env_name == "prod" ? 1 : 0}"
+  count = "${var.env_name == "prod" ? var.alb_enabled : 0}"
   name = "secure.login.gov"
   records = ["${aws_alb.idp.dns_name}"]
   ttl = "300"
@@ -115,7 +121,7 @@ resource "aws_route53_record" "c_alb_production" {
 # non-prod envs are currently configured to both idp.<env>.login.gov
 # and <env>.login.gov
 resource "aws_route53_record" "c_alb" {
-  count = "${var.env_name == "prod" ? 0 : 1}"
+  count = "${var.env_name == "prod" ? 0 : var.alb_enabled}"
   name = "${var.env_name}.login.gov"
   records = ["${aws_alb.idp.dns_name}"]
   ttl = "300"
@@ -124,7 +130,7 @@ resource "aws_route53_record" "c_alb" {
 }
 
 resource "aws_route53_record" "c_alb_idp" {
-  count = "${var.env_name == "prod" ? 0 : 1}"
+  count = "${var.env_name == "prod" ? 0 : var.alb_enabled}"
   name = "idp.${var.env_name}.login.gov"
   records = ["${aws_alb.idp.dns_name}"]
   ttl = "300"

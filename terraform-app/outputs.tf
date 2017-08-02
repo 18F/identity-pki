@@ -35,15 +35,15 @@ output "elk" {
 }
 
 output "elk_ip" {
-  value = "${aws_instance.elk.public_ip}"
+  value = "${var.non_asg_elk_enabled == 1 ? aws_instance.elk.public_ip : 0}"
 }
 
 output "idp1_eips" {
-  value = ["${aws_instance.idp1.*.public_ip}"]
+  value = ["${var.non_asg_idp_enabled == 1 ? aws_instance.idp1.*.public_ip : 0}"]
 }
 
 output "idp2_eips" {
-  value = ["${aws_instance.idp2.*.public_ip}"]
+  value = ["${var.non_asg_idp_enabled == 1 ? aws_instance.idp2.*.public_ip : 0}"]
 }
 
 output "idp_db_address" {
@@ -55,13 +55,13 @@ output "idp_tls_common_name" {
 }
 
 output "idp_worker_ips" {
-  value = ["${aws_instance.idp_worker.*.public_ip}"]
+  value = ["${var.non_asg_idp_worker_enabled == 1 ? aws_instance.idp_worker.*.public_ip : 0}"]
 }
 
 output "jumphost-eip" {
-  value = "${aws_eip.jumphost.public_ip}"
+  value = "${var.non_asg_jumphost_enabled == 1 ? aws_eip.jumphost.public_ip : 0}"
 }
 
 output "jumphost-command" {
-  value = "ssh -L3128:localhost:3128 -A ${aws_eip.jumphost.public_ip}"
+  value = "ssh -L3128:localhost:3128 -A ${var.non_asg_jumphost_enabled == 1 ? aws_eip.jumphost.public_ip : 0}"
 }

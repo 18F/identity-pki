@@ -92,3 +92,53 @@ variable "bootstrap_private_git_clone_url" {
     default = "git@github.com:18F/identity-devops-private"
     description = "URL for provision.sh to use to clone identity-devops-private"
 }
+
+# These variables are used both to create the continuous integration VPC (a
+# VPC with only base services like the Postgres and Redis, so that nodes can be
+# integration tested), and to help with migration one node at a time to
+# autoscaled nodes that do not need a chef server to bootstrap.
+#
+# NOTE: These must be numbers, as terraform does not support boolean values,
+# only numbers and strings.
+#
+# See: https://blog.gruntwork.io/terraform-tips-tricks-loops-if-statements-and-gotchas-f739bbae55f9
+
+variable "non_asg_jumphost_enabled" {
+    default = 1
+    description = "Enable non autoscaled jumphost node"
+}
+
+variable "non_asg_jenkins_enabled" {
+    default = 1
+    description = "Enable non autoscaled jenkins node"
+}
+
+variable "non_asg_idp_enabled" {
+    default = 1
+    description = "Enable non autoscaled idp node"
+}
+
+variable "non_asg_idp_worker_enabled" {
+    default = 1
+    description = "Enable non autoscaled idp worker node"
+}
+
+variable "non_asg_es_enabled" {
+    default = 1
+    description = "Enable non autoscaled elasticsearch nodes"
+}
+
+variable "non_asg_elk_enabled" {
+    default = 1
+    description = "Enable non autoscaled elk node"
+}
+
+variable "chef_server_enabled" {
+    default = 1
+    description = "Enable Chef Server node"
+}
+
+variable "alb_enabled" {
+    default = 1
+    description = "Enable ALB for idp hosts"
+}

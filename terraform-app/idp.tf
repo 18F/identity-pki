@@ -90,8 +90,8 @@ resource "aws_iam_role_policy" "idp-citadel" {
 }
 
 resource "aws_instance" "idp1" {
+  count = "${var.non_asg_idp_enabled * var.idp_node_count}"
   ami = "${var.idp1_ami_id}"
-  count = "${var.idp_node_count}"
   depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk", "aws_elasticache_cluster.idp", "aws_db_instance.idp"]
   instance_type = "${var.instance_type_idp}"
   key_name = "${var.key_name}"
@@ -158,8 +158,8 @@ resource "aws_instance" "idp1" {
 }
 
 resource "aws_instance" "idp2" {
+  count = "${var.non_asg_idp_enabled * var.idp_node_count}"
   ami = "${var.idp2_ami_id}"
-  count = "${var.idp_node_count}"
   depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk", "aws_elasticache_cluster.idp", "aws_db_instance.idp"]
   instance_type = "${var.instance_type_idp}"
   key_name = "${var.key_name}"
@@ -226,6 +226,7 @@ resource "aws_instance" "idp2" {
 }
 
 resource "aws_instance" "idp_worker" {
+  count = "${var.non_asg_idp_worker_enabled * var.idp_worker_count}"
   ami = "${element(var.worker_ami_list, count.index % length(var.worker_ami_list))}"
   depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk", "aws_elasticache_cluster.idp", "aws_db_instance.idp"]
   instance_type = "${var.instance_type_worker}"
@@ -239,8 +240,6 @@ resource "aws_instance" "idp_worker" {
     prefix = "worker"
     domain = "${var.env_name}.login.gov"
   }
-
-  count = "${var.idp_worker_count}"
 
   connection {
     type = "ssh"
@@ -276,7 +275,7 @@ resource "aws_instance" "idp_worker" {
 }
 
 resource "aws_route53_record" "idp1" {
-  count = "${var.idp_node_count}"
+  count = "${var.non_asg_idp_enabled * var.idp_node_count}"
   zone_id = "${aws_route53_zone.internal.zone_id}"
   name = "idp1-${count.index}.login.gov.internal"
   type = "A"
@@ -285,7 +284,7 @@ resource "aws_route53_record" "idp1" {
 }
 
 resource "aws_route53_record" "idp2" {
-  count = "${var.idp_node_count}"
+  count = "${var.non_asg_idp_enabled * var.idp_node_count}"
   zone_id = "${aws_route53_zone.internal.zone_id}"
   name = "idp2-${count.index}.login.gov.internal"
   type = "A"
@@ -313,6 +312,7 @@ resource "aws_route53_record" "redis" {
 
 # TODO: this record is deprecated and should be removed
 resource "aws_route53_record" "worker" {
+  count = "${var.non_asg_idp_worker_enabled}"
   zone_id = "${aws_route53_zone.internal.zone_id}"
   name = "worker.login.gov.internal"
   type = "A"
@@ -321,7 +321,7 @@ resource "aws_route53_record" "worker" {
 }
 
 resource "aws_route53_record" "workers" {
-  count = "${var.idp_worker_count}"
+  count = "${var.non_asg_idp_worker_enabled * var.idp_worker_count}"
   zone_id = "${aws_route53_zone.internal.zone_id}"
   name = "worker-${count.index}.login.gov.internal"
   type = "A"

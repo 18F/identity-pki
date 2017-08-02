@@ -30,10 +30,11 @@ cat <<EOF
 
 EOF
 
-# shellcheck disable=2154
-echo "CHECK: Required jenkins key: $TF_VAR_git_deploy_key_path"
-if [ ! -e "$TF_VAR_git_deploy_key_path" ]; then
-    cat 1>&2 <<EOF
+if [ "${TF_VAR_non_asg_jenkins_enabled-}" != "0" ]; then
+    # shellcheck disable=2154
+    echo "CHECK: Required jenkins key: $TF_VAR_git_deploy_key_path"
+    if [ ! -e "$TF_VAR_git_deploy_key_path" ]; then
+        cat 1>&2 <<EOF
 
 ERROR: Missing jenkins key at $TF_VAR_git_deploy_key_path.
     This key is what Jenkins uses to download from Github.  If you aren't
@@ -44,35 +45,38 @@ ERROR: Missing jenkins key at $TF_VAR_git_deploy_key_path.
     See: https://github.com/18F/identity-private/issues/1769#issuecomment-290834999
 
 EOF
-    exit 1
+        exit 1
+    fi
 fi
 
-echo "CHECK: Required chef databags..."
-USERS_DATABAGS="kitchen/data_bags/users"
-NUM_USERS=$(find "$USERS_DATABAGS" -name '*.json' -type f | wc -l)
-if [[ $NUM_USERS -eq 0 ]]; then
-    echo "ERROR: No user databags found at: $USERS_DATABAGS/*.json"
-    echo "    You need at least one user account to configure"
-    echo "    in chef.  See https://github.com/18F/identity-devops/wiki/Chef-Databags"
-    echo "    You can create one with:  bin/make-user-databag.sh \$USERNAME"
-    exit 1
-fi
-CONFIG_DATABAG="kitchen/data_bags/config/${1}.json"
-if [ ! -e "$CONFIG_DATABAG" ]; then
-    echo "ERROR: No env config databag at: $CONFIG_DATABAG"
-    echo "    You need to have a config databag for chef."
-    echo "    See https://github.com/18F/identity-devops/wiki/Chef-Databags"
-    echo "    You can create one with:  bin/make-config-databag.sh \$ENVIRONMENT"
-    exit 1
-fi
+if [ "${TF_VAR_chef_server_enabled-}" != "0" ]; then
+    echo "CHECK: Required chef databags..."
+    USERS_DATABAGS="kitchen/data_bags/users"
+    NUM_USERS=$(find "$USERS_DATABAGS" -name '*.json' -type f | wc -l)
+    if [[ $NUM_USERS -eq 0 ]]; then
+        echo "ERROR: No user databags found at: $USERS_DATABAGS/*.json"
+        echo "    You need at least one user account to configure"
+        echo "    in chef.  See https://github.com/18F/identity-devops/wiki/Chef-Databags"
+        echo "    You can create one with:  bin/make-user-databag.sh \$USERNAME"
+        exit 1
+    fi
+    CONFIG_DATABAG="kitchen/data_bags/config/${1}.json"
+    if [ ! -e "$CONFIG_DATABAG" ]; then
+        echo "ERROR: No env config databag at: $CONFIG_DATABAG"
+        echo "    You need to have a config databag for chef."
+        echo "    See https://github.com/18F/identity-devops/wiki/Chef-Databags"
+        echo "    You can create one with:  bin/make-config-databag.sh \$ENVIRONMENT"
+        exit 1
+    fi
 
-echo "CHECK: Required environment config..."
-CHEF_ENVIRONMENT_CONFIG="kitchen/environments/${1}.json"
-if [ ! -e "$CHEF_ENVIRONMENT_CONFIG" ]; then
-    echo "ERROR: No configuration found at: $CHEF_ENVIRONMENT_CONFIG"
-    echo "    You need to create and push a configuration to"
-    echo "    the branch you are deploying from.  Copy this from"
-    echo "    an existing configuration in that directory."
-    echo "    See: https://github.com/18F/identity-private/issues/1769#issuecomment-291249605"
-    exit 1
+    echo "CHECK: Required environment config..."
+    CHEF_ENVIRONMENT_CONFIG="kitchen/environments/${1}.json"
+    if [ ! -e "$CHEF_ENVIRONMENT_CONFIG" ]; then
+        echo "ERROR: No configuration found at: $CHEF_ENVIRONMENT_CONFIG"
+        echo "    You need to create and push a configuration to"
+        echo "    the branch you are deploying from.  Copy this from"
+        echo "    an existing configuration in that directory."
+        echo "    See: https://github.com/18F/identity-private/issues/1769#issuecomment-291249605"
+        exit 1
+    fi
 fi

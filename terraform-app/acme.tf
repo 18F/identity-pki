@@ -1,10 +1,12 @@
 # Create the private key for the registration (not the certificate)
 resource "tls_private_key" "acme_registration_private_key" {
+  count = "${var.alb_enabled}"
   algorithm = "RSA"
 }
 
 # Set up a registration using a private key from tls_private_key
 resource "acme_registration" "registration" {
+  count = "${var.alb_enabled}"
   account_key_pem = "${tls_private_key.acme_registration_private_key.private_key_pem}"
   email_address   = "developer@login.gov"
   server_url      = "https://acme-v01.api.letsencrypt.org/directory"
@@ -28,6 +30,7 @@ resource "acme_certificate" "dashboard" {
 }
 
 resource "acme_certificate" "idp" {
+  count = "${var.alb_enabled}"
   account_key_pem           = "${tls_private_key.acme_registration_private_key.private_key_pem}"
   common_name               = "${var.env_name == "prod" ? "secure.login.gov" : format("%v.login.gov", var.env_name)}"
 

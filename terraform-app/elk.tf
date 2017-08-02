@@ -86,6 +86,7 @@ resource "aws_s3_bucket" "logbucket" {
 }
 
 resource "aws_instance" "elk" {
+  count = "${var.non_asg_elk_enabled}"
   ami = "${var.default_ami_id}"
   depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.es"]
   instance_type = "${var.instance_type_elk}"
@@ -136,6 +137,7 @@ resource "aws_instance" "elk" {
 }
 
 resource "aws_route53_record" "elk" {
+   count = "${var.non_asg_elk_enabled}"
    zone_id = "${aws_route53_zone.internal.zone_id}"
    name = "elk.login.gov.internal"
    type = "A"
@@ -144,7 +146,7 @@ resource "aws_route53_record" "elk" {
 }
 
 resource "aws_instance" "es" {
-  count = "${var.esnodes}"
+  count = "${var.non_asg_es_enabled * var.esnodes}"
   ami = "${var.default_ami_id}"
   depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef"]
   instance_type = "t2.medium"
@@ -204,7 +206,7 @@ resource "aws_instance" "es" {
 }
 
 resource "aws_route53_record" "eshost" {
-  count = "${var.esnodes}"
+  count = "${var.non_asg_es_enabled * var.esnodes}"
   zone_id = "${aws_route53_zone.internal.zone_id}"
   name = "es${count.index}.login.gov.internal"
   type = "A"
@@ -213,6 +215,7 @@ resource "aws_route53_record" "eshost" {
 }
 
 resource "aws_route53_record" "es" {
+  count = "${var.non_asg_es_enabled}"
   zone_id = "${aws_route53_zone.internal.zone_id}"
   name = "es.login.gov.internal"
   type = "A"
