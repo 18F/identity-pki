@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'berkshelf', '~> 6.1'
+gem 'berkshelf', '~> 4.3'
 
 # For Chefspec: https://github.com/sethvargo/chefspec
 gem 'chefspec'
@@ -10,5 +10,6 @@ gem 'test-kitchen'
 gem 'kitchen-ec2'
 gem 'kitchen-vagrant'
 gem 'kitchen-inspec'
+gem 'kitchen-sync', '~> 2.2' # speed up transfers
 
 gem 'chef', '= 12.15.19'
