@@ -32,6 +32,7 @@ end
 transport:
   username: ubuntu
   ssh_key: "<%= ssh_key_file %>"
+  name: sftp
 
 provisioner:
   name: chef_zero
