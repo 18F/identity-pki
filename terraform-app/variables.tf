@@ -73,8 +73,7 @@ variable "bootstrap_main_git_ref" {
     description = "Git ref in identity-devops for provision.sh to check out"
 }
 variable "bootstrap_main_s3_ssh_key_url" {
-    # TODO: create this deploy key and put it in S3
-    default = "s3://login-gov-secrets-test/common/TODO"
+    default = "s3://login-gov-secrets-test/common/id_ecdsa.identity-devops.deploy"
     description = "S3 path to find an SSH key for cloning identity-devops"
 }
 variable "bootstrap_main_git_clone_url" {

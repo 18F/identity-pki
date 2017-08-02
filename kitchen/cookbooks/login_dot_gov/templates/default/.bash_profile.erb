@@ -1,4 +1,9 @@
 # Dropped off by chef
+
+if [ -f "$HOME/.profile" ]; then
+    . "$HOME/.profile"
+fi
+
 export RAILS_ENV=production
 
 export DASHBOARD_LOG="/srv/dashboard/log/shared/production.log"

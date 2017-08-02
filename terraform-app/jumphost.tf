@@ -8,9 +8,15 @@ module "jumphost_launch_config" {
     chef_download_url = "${var.chef_download_url}"
     chef_download_sha256 = "${var.chef_download_sha256}"
 
-    s3_ssh_key_url = "${var.bootstrap_private_s3_ssh_key_url}"
-    git_clone_url = "${var.bootstrap_private_git_clone_url}"
-    git_ref = "${var.bootstrap_private_git_ref}"
+    # identity-devops-private variables
+    private_s3_ssh_key_url = "${var.bootstrap_private_s3_ssh_key_url}"
+    private_git_clone_url = "${var.bootstrap_private_git_clone_url}"
+    private_git_ref = "${var.bootstrap_private_git_ref}"
+
+    # identity-devops variables
+    main_s3_ssh_key_url = "${var.bootstrap_main_s3_ssh_key_url}"
+    main_git_clone_url = "${var.bootstrap_main_git_clone_url}"
+    main_git_ref = "${var.bootstrap_main_git_ref}"
 }
 
 # TODO it would be nicer to have this in the module, but the
@@ -18,7 +24,7 @@ module "jumphost_launch_config" {
 # due to https://github.com/terraform-providers/terraform-provider-aws/issues/681
 # See discussion in ../terraform-modules/bootstrap/vestigial.tf.txt
 resource "aws_launch_configuration" "jumphost" {
-    name_prefix = "${var.env_name}-jumphost-"
+    name_prefix = "${var.env_name}.jumphost.${var.bootstrap_main_git_ref}."
 
     lifecycle {
         create_before_destroy = true
@@ -33,6 +39,11 @@ resource "aws_launch_configuration" "jumphost" {
 
     iam_instance_profile = "${aws_iam_instance_profile.citadel-client.name}"
 }
+
+# For debugging cloud-init
+#output "rendered_cloudinit_config" {
+#    value = "${module.jumphost_launch_config.rendered_cloudinit_config}"
+#}
 
 resource "aws_autoscaling_group" "jumphost" {
     name = "${var.env_name}-jumphost"
@@ -71,6 +82,16 @@ resource "aws_autoscaling_group" "jumphost" {
         value = "${var.client}"
         propagate_at_launch = true
     }
+    tag {
+        key = "prefix"
+        value = "jumphost"
+        propagate_at_launch = true
+    }
+    tag {
+        key = "domain"
+        value = "${var.env_name}.login.gov"
+        propagate_at_launch = true
+    }
 }
 
 resource "aws_instance" "jumphost" {
@@ -83,6 +104,8 @@ resource "aws_instance" "jumphost" {
   tags {
     client = "${var.client}"
     Name = "${var.name}-jumphost-${var.env_name}"
+    prefix = "jumphost"
+    domain = "${var.env_name}.login.gov"
   }
 
   connection {

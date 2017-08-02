@@ -101,6 +101,8 @@ resource "aws_instance" "idp1" {
   tags {
     client = "${var.client}"
     Name = "${var.name}-idp1-${count.index}-${var.env_name}"
+    prefix = "idp"
+    domain = "${var.env_name}.login.gov"
   }
 
   connection {
@@ -167,6 +169,8 @@ resource "aws_instance" "idp2" {
   tags {
     client = "${var.client}"
     Name = "${var.name}-idp2-${count.index}-${var.env_name}"
+    prefix = "idp"
+    domain = "${var.env_name}.login.gov"
   }
 
   connection {
@@ -232,6 +236,8 @@ resource "aws_instance" "idp_worker" {
   tags {
     client = "${var.client}"
     Name = "${var.name}-worker${count.index}-${var.env_name}"
+    prefix = "worker"
+    domain = "${var.env_name}.login.gov"
   }
 
   count = "${var.idp_worker_count}"
