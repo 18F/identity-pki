@@ -13,7 +13,7 @@
 include_recipe 'users'
 users_manage node.chef_environment do
   # identity-devops-private creates unix users on auto-scaled instances
-  not_if { node['provisioner']['auto-scaled'] }
+  not_if { node.fetch('provisioner', {'auto-scaled' => false}).fetch('auto-scaled') }
 end
 
 # add berkshelf and terraform
