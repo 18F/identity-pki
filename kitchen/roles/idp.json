@@ -8,10 +8,8 @@
   },
   "chef_type": "role",
   "run_list": [
-    "recipe[identity-jenkins::deploy-key]",
-    "recipe[passenger::daemon]",
-    "recipe[login_dot_gov::idp_base]",
-    "recipe[login_dot_gov::idp_web]"
+    "role[base]",
+    "role[idp_only]"
   ],
   "env_run_lists": {
   }

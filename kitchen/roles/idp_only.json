@@ -1,0 +1,18 @@
+{
+  "name": "idp_only",
+  "description": "Deploy the IDP itself",
+  "json_class": "Chef::Role",
+  "default_attributes": {
+  },
+  "override_attributes": {
+  },
+  "chef_type": "role",
+  "run_list": [
+    "recipe[identity-jenkins::deploy-key]",
+    "recipe[passenger::daemon]",
+    "recipe[login_dot_gov::idp_base]",
+    "recipe[login_dot_gov::idp_web]"
+  ],
+  "env_run_lists": {
+  }
+}
