@@ -57,6 +57,7 @@ platforms:
 suites:
   - name: default
     run_list:
+      - role[base]
       - role[idp]
     verifier:
       inspec_tests:
