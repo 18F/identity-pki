@@ -100,6 +100,104 @@ resource "aws_iam_role_policy" "idp-describe_instances" {
   role = "${aws_iam_role.idp.id}"
   policy = "${data.aws_iam_policy_document.describe_instances_role_policy.json}"
 }
+
+module "idp_launch_config" {
+  source = "../terraform-modules/bootstrap/"
+
+  role = "idp"
+  env = "${var.env_name}"
+  domain = "login.gov"
+
+  chef_download_url = "${var.chef_download_url}"
+  chef_download_sha256 = "${var.chef_download_sha256}"
+
+  # identity-devops-private variables
+  private_s3_ssh_key_url = "${var.bootstrap_private_s3_ssh_key_url}"
+  private_git_clone_url = "${var.bootstrap_private_git_clone_url}"
+  private_git_ref = "${var.bootstrap_private_git_ref}"
+
+  # identity-devops variables
+  main_s3_ssh_key_url = "${var.bootstrap_main_s3_ssh_key_url}"
+  main_git_clone_url = "${var.bootstrap_main_git_clone_url}"
+  main_git_ref = "${var.bootstrap_main_git_ref}"
+}
+
+# TODO it would be nicer to have this in the module, but the
+# aws_launch_configuration and aws_autoscaling_group must be in the same module
+# due to https://github.com/terraform-providers/terraform-provider-aws/issues/681
+# See discussion in ../terraform-modules/bootstrap/vestigial.tf.txt
+resource "aws_launch_configuration" "idp" {
+  name_prefix = "${var.env_name}.idp.${var.bootstrap_main_git_ref}."
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  image_id = "${var.idp1_ami_id}" # TODO switch to idp_ami_id
+  instance_type = "${var.instance_type_idp}"
+  key_name = "${var.key_name}"
+  security_groups = ["${aws_security_group.idp.id}"]
+
+  user_data = "${module.idp_launch_config.rendered_cloudinit_config}"
+
+  iam_instance_profile = "${aws_iam_instance_profile.idp.id}"
+}
+
+# For debugging cloud-init
+#output "rendered_cloudinit_config" {
+#  value = "${module.idp_launch_config.rendered_cloudinit_config}"
+#}
+
+resource "aws_autoscaling_group" "idp" {
+    name = "${var.env_name}-idp"
+
+    launch_configuration = "${aws_launch_configuration.idp.name}"
+
+    min_size = 0
+    max_size = 4
+    desired_capacity = "${var.asg_idp_desired}"
+
+    # TODO XXX DEBUG
+    # load_balancers = []
+    target_group_arns = [
+      "${aws_alb_target_group.idp.arn}",
+      "${aws_alb_target_group.idp-ssl.arn}"
+    ]
+
+    vpc_zone_identifier = [
+      "${aws_subnet.idp1.id}",
+      "${aws_subnet.idp2.id}"
+    ]
+
+    # possible choices: EC2, ELB
+    #health_check_type = "EC2"
+    health_check_type = "ELB"
+
+    termination_policies = ["OldestInstance"]
+
+    tag {
+        key = "Name"
+        value = "asg-${var.env_name}-idp"
+        propagate_at_launch = true
+    }
+    tag {
+        key = "client"
+        value = "${var.client}"
+        propagate_at_launch = true
+    }
+    tag {
+        key = "prefix"
+        value = "idp"
+        propagate_at_launch = true
+    }
+    tag {
+        key = "domain"
+        value = "${var.env_name}.login.gov"
+        propagate_at_launch = true
+    }
+}
+
+
 resource "aws_instance" "idp1" {
   count = "${var.non_asg_idp_enabled * var.idp_node_count}"
   ami = "${var.idp1_ami_id}"
