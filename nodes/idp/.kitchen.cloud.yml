@@ -10,8 +10,7 @@ driver:
     tag: Name
     value: login-jumphost_security_group-dev
   instance_type: t2.medium
-  # XXX: This AMI has some known issues!  See identity-devops-private.
-  image_id: ami-ac5335cc
+  image_id: ami-7e22c506
   user_data: user_data/pre_setup.sh
   iam_profile_name: integration_test_instance_profile
   tags:
