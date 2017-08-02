@@ -61,7 +61,7 @@ DEPENDENCIES
     revision: fa26391d58f729d39551c566f2140a5b95804f50
   ssh-keys
   sudo
-  terraform
+  terraform (~ 0.5)
   users
 
 GRAPH
@@ -80,7 +80,7 @@ GRAPH
     poise-service (~> 1.0)
   apt (6.1.3)
   apt_update (0.1.0)
-  ark (3.1.0)
+  ark (1.1.0)
     build-essential (>= 0.0.0)
     seven_zip (>= 0.0.0)
     windows (>= 0.0.0)
@@ -238,8 +238,8 @@ GRAPH
     selinux_policy (>= 1.0.0)
   ssh-keys (1.2.7)
   sudo (3.5.3)
-  terraform (0.2.1)
-    ark (>= 0.0.0)
+  terraform (0.5.3)
+    ark (~> 1.1.0)
   users (5.1.0)
   windows (3.1.1)
     ohai (>= 4.0.0)
