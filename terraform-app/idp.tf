@@ -221,30 +221,11 @@ resource "aws_instance" "idp1" {
   connection {
     bastion_host = "${aws_eip.jumphost.public_ip}"
     host = "${self.private_ip}"
-    script_path = "/home/ubuntu/tf_remote_exec.sh"
     type = "ssh"
     user = "ubuntu"
   }
 
   vpc_security_group_ids = [ "${aws_security_group.idp.id}" ]
-
-  provisioner "file" {
-    content     = "${tls_private_key.idp_tls_private_key.private_key_pem}"
-    destination = "~/idp-key.pem"
-  }
-
-  provisioner "file" {
-    content     = "${tls_self_signed_cert.idp_tls_cert.cert_pem}"
-    destination = "~/idp-cert.pem"
-  }
-
-  # move cert and keys to /etc/ssl and remove tf_remote_exec.sh provisioner script
-  provisioner "remote-exec" {
-    inline = [
-      "sudo mv /home/ubuntu/*cert.pem /etc/ssl/certs/",
-      "sudo mv /home/ubuntu/*key.pem /etc/ssl/private/"
-    ]
-  }
 
   provisioner "chef"  {
     attributes_json = <<-EOF
@@ -293,30 +274,11 @@ resource "aws_instance" "idp2" {
   connection {
     bastion_host = "${aws_eip.jumphost.public_ip}"
     host = "${self.private_ip}"
-    script_path = "/home/ubuntu/tf_remote_exec.sh"
     type = "ssh"
     user = "ubuntu"
   }
 
   vpc_security_group_ids = [ "${aws_security_group.idp.id}" ]
-
-  provisioner "file" {
-    content     = "${tls_private_key.idp_tls_private_key.private_key_pem}"
-    destination = "~/idp-key.pem"
-  }
-
-  provisioner "file" {
-    content     = "${tls_self_signed_cert.idp_tls_cert.cert_pem}"
-    destination = "~/idp-cert.pem"
-  }
-
-  # move cert and keys to /etc/ssl and remove tf_remote_exec.sh provisioner script
-  provisioner "remote-exec" {
-    inline = [
-      "sudo mv /home/ubuntu/*cert.pem /etc/ssl/certs/",
-      "sudo mv /home/ubuntu/*key.pem /etc/ssl/private/"
-    ]
-  }
 
   provisioner "chef"  {
     attributes_json = <<-EOF
@@ -448,26 +410,4 @@ resource "aws_route53_record" "workers" {
   type = "A"
   ttl = "300"
   records = ["${element(aws_instance.idp_worker.*.private_ip, count.index)}"]
-}
-
-resource "tls_private_key" "idp_tls_private_key" {
-  algorithm = "RSA"
-}
-
-resource "tls_self_signed_cert" "idp_tls_cert" {
-    key_algorithm = "RSA"
-    private_key_pem = "${tls_private_key.idp_tls_private_key.private_key_pem}"
-
-    subject {
-        common_name = "idp.login.gov"
-        organization = "18f"
-    }
-
-    validity_period_hours = 1440
-
-    allowed_uses = [
-        "key_encipherment",
-        "digital_signature",
-        "server_auth"
-    ]
 }
