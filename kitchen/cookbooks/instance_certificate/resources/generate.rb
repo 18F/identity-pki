@@ -5,6 +5,8 @@ property :cert_path, String
 property :key_path, String
 property :valid_days, Integer
 property :subject, String
+property :owner, String, default: 'root'
+property :group, String, default: 'root'
 
 default_action :generate
 
@@ -46,10 +48,16 @@ action :generate do
 
     file key_path do
       content key.to_pem
+      mode '0700'
+      owner(owner)
+      group(group)
     end
 
     file cert_path do
       content cert.to_pem
+      mode '0644'
+      owner(owner)
+      group(group)
     end
   end
 end

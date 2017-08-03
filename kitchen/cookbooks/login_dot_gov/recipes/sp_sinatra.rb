@@ -41,6 +41,7 @@ sha_env = (node.chef_environment == 'dev' ? node['login_dot_gov']['branch_name']
   end
 end
 
+# TODO: don't chown
 execute "chown -R #{node['login_dot_gov']['system_user']}:nogroup #{base_dir}"
 execute "chown -R #{node['login_dot_gov']['system_user']} /opt/ruby_build"
 execute "chown -R #{node['login_dot_gov']['system_user']} /usr/local/src"

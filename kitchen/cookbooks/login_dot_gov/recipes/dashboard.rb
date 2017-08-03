@@ -51,6 +51,7 @@ execute "chown -R #{node['login_dot_gov']['system_user']} /home/#{node['login_do
   subscribes :run, "execute[/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle install --deployment --jobs 3 --path /srv/sp-rails/shared/bundle --without deploy development test]", :immediately
   subscribes :run, "execute[/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle install --deployment --jobs 3 --path /srv/sp-sinatra/shared/bundle --without deploy development test]", :immediately
 end
+# TODO: don't do these chowns
 execute "chown -R #{node['login_dot_gov']['system_user']} /usr/local/src"
 execute "chown -R #{node['login_dot_gov']['system_user']} /opt/ruby_build"
 execute "chown -R #{node['login_dot_gov']['system_user']} /var/chef/cache"
@@ -209,6 +210,7 @@ template "#{deploy_dir}/api/deploy.json" do
   source 'deploy.json.erb'
 end
 
+# TODO: don't do this chown
 # set ownership back to ubuntu:nogroup
 execute "chown -R #{node['login_dot_gov']['system_user']}:nogroup #{base_dir}"
 

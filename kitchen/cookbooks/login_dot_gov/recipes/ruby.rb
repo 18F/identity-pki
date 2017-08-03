@@ -51,4 +51,5 @@ ruby_runtime node['login_dot_gov']['ruby_version'] do
   provider :ruby_build
 end
 
+# TODO: don't do this chown
 execute "chown -R #{node['login_dot_gov']['system_user']}:adm /opt/ruby_build"

@@ -4,9 +4,6 @@ set -euo pipefail
 # shellcheck source=/dev/null
 . "$(dirname "$0")/lib/common.sh"
 
-# delay before spinning down to original capacity, in minutes from now
-default_spindown_mins=9
-
 # Given an auto-scaling group, schedule a recycle of that group.
 usage () {
     cat >&2 <<EOM
@@ -16,7 +13,13 @@ Create AWS ASG scheduled actions to recycle instances in an ASG by spinning up
 twice as many instances and then spinning back down to the usual number.
 
 By default, spins up 2x instances immediately and spins down to the normal
-number after $default_spindown_mins minutes from the current time.
+number after 2x the ASG's health check grace period. The grace period on an ASG
+defaults to 5 minutes, so if it hasn't been changed, we will spin down to the
+normal number after 10 minutes.
+
+(It is dangerous to spin down instances before the grace period has elapsed
+because the ASG ignores health check results during the grace period and could
+spin down healthy instances with no replacements available.)
 
 If NORMAL_CAPACITY is set, then treat that as the resting desired capacity
 rather than inferring the desired capacity from the current value in AWS.
@@ -59,12 +62,11 @@ get_asg_info() {
         | grep "^AUTOSCALINGGROUPS"
 }
 
-# schedule_recycle ASG_NAME SPINDOWN_DELAY [DESIRED_CAPACITY]
+# schedule_recycle ASG_NAME [DESIRED_CAPACITY]
 schedule_recycle() {
     local asg_name="$1"
-    local spindown_delay="$2"
     local desired_capacity="${3-}"
-    local asg_info current_size max_size min_size new_size
+    local asg_info current_size max_size min_size new_size spindown_delay health_grace_period
 
     echo_blue "Scheduling ASG recycle of $asg_name"
 
@@ -73,16 +75,28 @@ schedule_recycle() {
     current_size="$(cut -f 6 <<< "$asg_info")"
     max_size="$(cut -f 10 <<< "$asg_info")"
     min_size="$(cut -f 11 <<< "$asg_info")"
+    health_grace_period="$(cut -f 7 <<< "$asg_info")"
 
     echo_blue "Current ASG capacity:"
     echo_blue "  desired: $current_size"
     echo_blue "  min:     $min_size"
     echo_blue "  max:     $max_size"
+    echo_blue "Health check grace period: ${health_grace_period}s"
 
     if ((current_size == 0)); then
         echo_red "Error: current desired size is 0, nothing to recycle"
         return 1
     fi
+
+    # The health_grace_period reflects the current ASG's health check grace
+    # period, which is the interval for new instances during which the ASG will
+    # ignore health check results and consider the instance InService even if
+    # it is failing ELB health checks.
+    #
+    # We set our spin-down delay to be 2x the grace period to be extra sure
+    # that newly provisioned instances have time to start receiving health
+    # checks before we terminate any existing instances.
+    spindown_delay=$((health_grace_period * 2))
 
     if [ -n "$desired_capacity" ]; then
         echo_yellow "Overriding $current_size with desired $desired_capacity"
@@ -133,5 +147,4 @@ fi
 
 ASG_NAME="$ENV-$ROLE"
 
-schedule_recycle "$ASG_NAME" $((default_spindown_mins * 60)) \
-    "$desired_capacity"
+schedule_recycle "$ASG_NAME" "$desired_capacity"

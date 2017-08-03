@@ -5,9 +5,15 @@ DEPENDENCIES
   apt
   apt_update
     path: kitchen/cookbooks/apt_update
+  aws_metadata
+    path: kitchen/cookbooks/aws_metadata
+  aws_s3
+    path: kitchen/cookbooks/aws_s3
   bash-completion
   build-essential
   cacert
+  canonical_hostname
+    path: kitchen/cookbooks/canonical_hostname
   citadel_fork
     git: https://github.com/18f/citadel-build.git
     revision: 7007851c91e1404a43f1c914471a2d6c817eea8e
@@ -30,6 +36,8 @@ DEPENDENCIES
     path: kitchen/cookbooks/identity-ntp
   identity-ossec
     path: kitchen/cookbooks/identity-ossec
+  instance_certificate
+    path: kitchen/cookbooks/instance_certificate
   jenkins (~> 5.0.3)
   keytool
     git: https://github.com/timothy-spencer/chef-keytool
@@ -56,6 +64,8 @@ DEPENDENCIES
     path: kitchen/cookbooks/poise-ruby-build
   ruby_build
   ruby_rbenv
+  service_discovery
+    path: kitchen/cookbooks/service_discovery
   squid
     git: https://github.com/chef-cookbooks/squid
     revision: fc2aed116c0077cb31939d47aae3a61fe392c1de
@@ -84,10 +94,15 @@ GRAPH
     build-essential (>= 0.0.0)
     seven_zip (>= 0.0.0)
     windows (>= 0.0.0)
+  aws_metadata (0.1.0)
+  aws_s3 (0.1.0)
+    aws_metadata (>= 0.0.0)
   bash-completion (0.1.0)
   build-essential (2.4.0)
     7-zip (>= 0.0.0)
   cacert (0.4.0)
+  canonical_hostname (0.1.0)
+    aws_metadata (>= 0.0.0)
   chef-sugar (3.4.0)
   chef_handler (2.1.0)
   citadel_fork (9.1.1)
@@ -152,6 +167,8 @@ GRAPH
   identity-ntp (0.1.0)
   identity-ossec (0.1.1)
     ossec (>= 0.0.0)
+  instance_certificate (0.1.0)
+    canonical_hostname (>= 0.0.0)
   java (1.46.0)
     apt (>= 0.0.0)
     homebrew (>= 0.0.0)
@@ -233,6 +250,10 @@ GRAPH
     yum-epel (>= 0.0.0)
   selinux_policy (1.0.0)
     yum (~> 3.9)
+  service_discovery (0.1.0)
+    aws_metadata (>= 0.0.0)
+    aws_s3 (>= 0.0.0)
+    canonical_hostname (>= 0.0.0)
   seven_zip (2.0.2)
     windows (>= 1.2.2)
   squid (3.1.0)

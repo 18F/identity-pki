@@ -53,6 +53,11 @@ resource "aws_alb_target_group" "idp-ssl" {
   health_check {
     matcher =  "${var.env_name == "prod" ? 200 : 401}"
     protocol = "HTTPS"
+
+    interval = 10
+    timeout = 5
+    healthy_threshold = 9 # up for 90 seconds
+    unhealthy_threshold = 2 # down for 20 seconds
   }
 
   name = "${var.env_name}-ssl-target-group"
@@ -60,9 +65,11 @@ resource "aws_alb_target_group" "idp-ssl" {
   protocol = "HTTPS"
   vpc_id   = "${aws_vpc.default.id}"
 
+  # TODO: Do we really want sticky sessions? Not recommended.
   stickiness = {
     type = "lb_cookie"
     enabled = "true"
+    cookie_duration = 3600 # 1 hour
   }
 }
 
