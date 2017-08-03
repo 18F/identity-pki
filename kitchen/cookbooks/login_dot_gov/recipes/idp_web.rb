@@ -51,59 +51,18 @@ file '/etc/ssl/certs/dhparam.pem' do
   sensitive true
 end
 
-# TODO: Remove this when instance_certificate cookbook is merged
-def generate_selfsigned_keypair(subject, valid_days)
-  key = OpenSSL::PKey::RSA.new(2048)
-  public_key = key.public_key
-
-  cert = OpenSSL::X509::Certificate.new
-  cert.subject = cert.issuer = OpenSSL::X509::Name.parse(subject)
-  cert.not_before = Time.now - 3600
-  cert.not_after = Time.now + 24 * 60 * 60 * valid_days
-  cert.public_key = public_key
-  cert.serial = Random.rand(2**32-1) + 1
-  cert.version = 2
-
-  ef = OpenSSL::X509::ExtensionFactory.new
-  ef.subject_certificate = cert
-  ef.issuer_certificate = cert
-  cert.extensions = [
-    ef.create_extension("basicConstraints","CA:FALSE", true),
-    ef.create_extension("subjectKeyIdentifier", "hash"),
-    ef.create_extension("keyUsage", "keyEncipherment,digitalSignature", true),
-  ]
-  cert.add_extension ef.create_extension("authorityKeyIdentifier",
-                                        "keyid:always,issuer:always")
-
-  cert.sign key, OpenSSL::Digest::SHA256.new
-
-  [key, cert]
-end
-
 # Create a self-signed certificate for ALB to talk to. ALB does not verify
 # hostnames or care about certificate expiration.
-# TODO: Replace this with the instance_certificate cookbook once that's merged.
 key_path = "/etc/ssl/private/#{app_name}-key.pem"
 cert_path = "/etc/ssl/certs/#{app_name}-cert.pem"
 
-# awkward construction so we don't drain the random pool by constantly
-# generating certs
-if !File.exist?(key_path) || !File.exist?(cert_path)
-  key, cert = generate_selfsigned_keypair("/CN=#{node.name}/O=18F/C=US/", 365)
-
-  file key_path do
-    owner 'root'
-    group 'root'
-    mode '0600'
-    content key.to_pem
-  end
-
-  file cert_path do
-    owner 'root'
-    group 'root'
-    mode '0644'
-    content cert.to_pem
-  end
+# rely on instance_certificate cookbook being present to generate a self-signed
+# keypair
+link key_path do
+  to node.fetch('instance_certificate').fetch('key_path')
+end
+link cert_path do
+  to node.fetch('instance_certificate').fetch('cert_path')
 end
 
 template "/opt/nginx/conf/sites.d/login.gov.conf" do
