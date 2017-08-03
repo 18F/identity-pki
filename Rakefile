@@ -19,7 +19,6 @@ end
 
 desc 'Run node tests'
 task :test_nodes, [:node] do |t, args|
-  Rake::Task['unit:nodes'].invoke(args.node)
   Rake::Task['integration:vagrant_nodes'].invoke(args.node)
   Rake::Task['integration:ec2_nodes'].invoke(args.node)
 end
@@ -81,27 +80,27 @@ EOF
   bump_version(post_release_version, "Post release version #{post_release_version}")
 end
 
+def run_chefspec(path)
+  if File.exists?(File.join(path, "spec"))
+    puts "Running chefspec unittests for #{path}..."
+    # Use "with_clean_env" to isolate dependencies.
+    # See: https://stackoverflow.com/a/16407512.
+    Bundler.with_clean_env { sh "cd #{path} && bundle install" }
+    Bundler.with_clean_env { sh "cd #{path} && bundle exec rspec" }
+  else
+    puts "Skipping chefspec test for directory #{path}.  No spec directory found"
+  end
+end
+def run_chefspec_all(base_path)
+  Dir.foreach(base_path) do |test_dir|
+    next if test_dir == '.' || test_dir == '..'
+    full_test_dir = File.join(base_path, test_dir)
+    run_chefspec(full_test_dir)
+  end
+end
+
 desc 'Runs ChefSpec tests on all cookbooks with unit tests'
 namespace :unit do
-  def run_chefspec(path)
-    if File.exists?(File.join(path, "spec"))
-      puts "Running chefspec unittests for #{path}..."
-      # Use "with_clean_env" to isolate dependencies.
-      # See: https://stackoverflow.com/a/16407512.
-      Bundler.with_clean_env { sh "cd #{path} && bundle install" }
-      Bundler.with_clean_env { sh "cd #{path} && bundle exec rspec" }
-    else
-      puts "Skipping chefspec test for directory #{path}.  No spec directory found"
-    end
-  end
-  def run_chefspec_all(base_path)
-    Dir.foreach(base_path) do |test_dir|
-      next if test_dir == '.' || test_dir == '..'
-      full_test_dir = File.join(base_path, test_dir)
-      run_chefspec(full_test_dir)
-    end
-  end
-
   task :cookbooks, [:cookbook] do |t, args|
     if args.cookbook
       puts "Running chefspec tests for #{args.cookbook} cookbook..."
@@ -112,40 +111,30 @@ namespace :unit do
     end
     puts "All chefspec tests passed!"
   end
-  task :nodes, [:node] do |t, args|
-    if args.node
-      puts "Running chefspec tests for #{args.node} node..."
-      run_chefspec(File.join("nodes", args.node))
+end
+
+def run_test_kitchen(path, config_filename)
+  puts "Running test kitchen integration test for #{path}..."
+  # Use "with_clean_env" to isolate dependencies.
+  # See: https://stackoverflow.com/a/16407512.
+  Bundler.with_clean_env { sh "cd #{path} && bundle install" }
+  Bundler.with_clean_env { sh "cd #{path} && bundle exec env KITCHEN_YAML=#{config_filename} kitchen test" }
+end
+
+def run_test_kitchen_all(base_path, config_filename)
+  Dir.foreach(base_path) do |test_dir|
+    next if test_dir == '.' || test_dir == '..'
+    full_test_dir = File.join(base_path, test_dir)
+    if File.exists?(File.join(full_test_dir, config_filename))
+      run_test_kitchen(full_test_dir, config_filename)
     else
-      puts "Running chefspec tests for all nodes..."
-      run_chefspec_all("nodes")
+      puts "Skipping integration test for directory #{test_dir}.  No #{config_filename} found"
     end
-    puts "All chefspec tests passed!"
   end
 end
 
-desc 'Runs Test Kitchen tests on all cookbooks with integration tests'
+desc 'Runs Test Kitchen vagrant tests on all cookbooks with that configuration'
 namespace :integration do
-  def run_test_kitchen(path, config_filename)
-    puts "Running test kitchen integration test for #{path}..."
-    # Use "with_clean_env" to isolate dependencies.
-    # See: https://stackoverflow.com/a/16407512.
-    Bundler.with_clean_env { sh "cd #{path} && bundle install" }
-    Bundler.with_clean_env { sh "cd #{path} && bundle exec env KITCHEN_YAML=#{config_filename} kitchen test" }
-  end
-
-  def run_test_kitchen_all(base_path, config_filename)
-    Dir.foreach(base_path) do |test_dir|
-      next if test_dir == '.' || test_dir == '..'
-      full_test_dir = File.join(base_path, test_dir)
-      if File.exists?(File.join(full_test_dir, config_filename))
-        run_test_kitchen(full_test_dir, config_filename)
-      else
-        puts "Skipping integration test for directory #{test_dir}.  No #{config_filename} found"
-      end
-    end
-  end
-
   task :vagrant_cookbooks, [:cookbook] do |t, args|
     puts "Running test kitchen vagrant integration tests for all cookbooks..."
     if args.cookbook
@@ -157,6 +146,10 @@ namespace :integration do
     end
     puts "All vagrant integration tests passed!"
   end
+end
+
+desc 'Runs Test Kitchen ec2 tests on all cookbooks with that configuration'
+namespace :integration do
   task :ec2_cookbooks, [:cookbook] do |t, args|
     if args.cookbook
       puts "Running test kitchen ec2 integration tests for #{args.cookbook} cookbook..."
@@ -167,6 +160,10 @@ namespace :integration do
     end
     puts "All ec2 integration tests passed!"
   end
+end
+
+desc 'Runs Test Kitchen vagrant tests on all nodes with integration tests'
+namespace :integration do
   task :vagrant_nodes, [:node] do |t, args|
     if args.node
       puts "Running test kitchen vagrant integration tests for #{args.node} node..."
@@ -177,6 +174,10 @@ namespace :integration do
     end
     puts "All vagrant integration tests passed!"
   end
+end
+
+desc 'Runs Test Kitchen ec2 tests on all nodes with integration tests'
+namespace :integration do
   task :ec2_nodes, [:node] do |t, args|
     if args.node
       puts "Running test kitchen ec2 integration tests for #{args.node} node..."
