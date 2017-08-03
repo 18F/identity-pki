@@ -49,6 +49,7 @@ action :generate do
     file key_path do
       content key.to_pem
       mode '0700'
+      sensitive true
       owner(owner)
       group(group)
     end
