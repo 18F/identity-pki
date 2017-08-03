@@ -112,3 +112,12 @@ execute "chmod o+X -R /srv"
 
 # need this now that passenger runs as nobody
 execute "chown -R #{node[:passenger][:production][:user]} /srv/idp/shared/log"
+
+# After doing the full deploy, we need to fully restart passenger in order for
+# it to actually be running. This seems like a bug in our chef config. The main
+# service[passenger] restart seems to attempt a graceful restart that doesn't
+# actually work.
+# TODO don't do this, figure out how to get passenger/nginx to be happy
+execute "service passenger restart" do
+  only_if 'curl -sS http://localhost | grep -F "<title>Welcome to nginx!</title>"'
+end
