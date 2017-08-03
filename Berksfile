@@ -45,6 +45,11 @@ cookbook 'identity-ossec', path: 'kitchen/cookbooks/identity-ossec'
 cookbook 'identity-ntp', path: 'kitchen/cookbooks/identity-ntp'
 cookbook 'apt_update', path: 'kitchen/cookbooks/apt_update'
 cookbook 'config_loader', path: 'kitchen/cookbooks/config_loader'
+cookbook 'aws_metadata', path: 'kitchen/cookbooks/aws_metadata'
+cookbook 'aws_s3', path: 'kitchen/cookbooks/aws_s3'
+cookbook 'canonical_hostname', path: 'kitchen/cookbooks/canonical_hostname'
+cookbook 'instance_certificate', path: 'kitchen/cookbooks/instance_certificate'
+cookbook 'service_discovery', path: 'kitchen/cookbooks/service_discovery'
 
 # We have to reference this special citadel-build repository for two reasons:
 #
