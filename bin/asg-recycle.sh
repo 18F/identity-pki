@@ -64,7 +64,7 @@ schedule_recycle() {
     local asg_name="$1"
     local spindown_delay="$2"
     local desired_capacity="${3-}"
-    local asg_info current_size max_size min_size new_size
+    local asg_info current_size max_size min_size new_size health_grace_period
 
     echo_blue "Scheduling ASG recycle of $asg_name"
 
@@ -73,15 +73,22 @@ schedule_recycle() {
     current_size="$(cut -f 6 <<< "$asg_info")"
     max_size="$(cut -f 10 <<< "$asg_info")"
     min_size="$(cut -f 11 <<< "$asg_info")"
+    health_grace_period="$(cut -f 7 <<< "$asg_info")"
 
     echo_blue "Current ASG capacity:"
     echo_blue "  desired: $current_size"
     echo_blue "  min:     $min_size"
     echo_blue "  max:     $max_size"
+    echo_blue "Health check grace period: ${health_grace_period}s"
 
     if ((current_size == 0)); then
         echo_red "Error: current desired size is 0, nothing to recycle"
         return 1
+    fi
+
+    if (( health_grace_period > spindown_delay )); then
+        echo_blue "  Grace period is > recycle delay, overriding as grace + 5m"
+        spindown_delay=$((health_grace_period + 300))
     fi
 
     if [ -n "$desired_capacity" ]; then
