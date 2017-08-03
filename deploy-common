@@ -12,18 +12,18 @@ set -euo pipefail
 if [ $# -lt 1 ] ; then
 cat <<EOF
 Usage: $0 <terraform_commands>
-  Runs <terraform_commands> against terraform-ci.
+  Runs <terraform_commands> against terraform-common.
 EOF
     exit 1
 fi
 
 TF_CMD=("$@")
 
-echo "Configuring state bucket login_dot_gov_tf_state with state path terraform-ci"
-run bin/configure_state_bucket.sh login_dot_gov_tf_state terraform-ci/terraform.tfstate terraform-ci us-east-1
+echo "Configuring state bucket login_dot_gov_tf_state with state path terraform-common"
+run bin/configure_state_bucket.sh login_dot_gov_tf_state terraform-common/terraform.tfstate terraform-common us-east-1
 
-echo >&2 "+ cd terraform-ci"
-cd "terraform-ci"
+echo >&2 "+ cd terraform-common"
+cd "terraform-common"
 
 run terraform get
 run terraform "${TF_CMD[@]}"

@@ -35,7 +35,7 @@ resource "aws_s3_bucket" "secrets" {
   logging {
     target_bucket = "${aws_s3_bucket.logs.id}"
     # This is effectively the bucket name, but I can't self reference
-    target_prefix = "${var.bucket_name_prefix}-${var.region}-${data.aws_caller_identity.current.account_id}"
+    target_prefix = "${var.bucket_name_prefix}-${var.region}-${data.aws_caller_identity.current.account_id}/"
   }
 }
 

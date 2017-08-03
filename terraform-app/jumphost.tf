@@ -37,7 +37,7 @@ resource "aws_launch_configuration" "jumphost" {
 
     user_data = "${module.jumphost_launch_config.rendered_cloudinit_config}"
 
-    iam_instance_profile = "${aws_iam_instance_profile.citadel-client.name}"
+    iam_instance_profile = "${aws_iam_instance_profile.base-permissions.name}"
 }
 
 # For debugging cloud-init
@@ -121,7 +121,7 @@ resource "aws_instance" "jumphost" {
 
   vpc_security_group_ids = [ "${aws_security_group.jumphost.id}" ]
 
-  iam_instance_profile = "${aws_iam_instance_profile.citadel-client.name}"
+  iam_instance_profile = "${aws_iam_instance_profile.base-permissions.name}"
 
   provisioner "chef"  {
     attributes_json = <<-EOF

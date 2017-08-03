@@ -17,6 +17,24 @@ resource "aws_iam_role" "jenkins" {
   assume_role_policy = "${data.aws_iam_policy_document.assume_role_from_vpc.json}"
 }
 
+resource "aws_iam_role_policy" "jenkins-secrets" {
+  name = "${var.env_name}-jenkins-secrets"
+  role = "${aws_iam_role.jenkins.id}"
+  policy = "${data.aws_iam_policy_document.secrets_role_policy.json}"
+}
+
+resource "aws_iam_role_policy" "jenkins-certificates" {
+  name = "${var.env_name}-jenkins-certificates"
+  role = "${aws_iam_role.jenkins.id}"
+  policy = "${data.aws_iam_policy_document.certificates_role_policy.json}"
+}
+
+resource "aws_iam_role_policy" "jenkins-describe_instances" {
+  name = "${var.env_name}-jenkins-describe_instances"
+  role = "${aws_iam_role.jenkins.id}"
+  policy = "${data.aws_iam_policy_document.describe_instances_role_policy.json}"
+}
+
 resource "aws_iam_instance_profile" "jenkins" {
   name = "${var.env_name}_jenkins"
   roles = ["${aws_iam_role.jenkins.name}"]

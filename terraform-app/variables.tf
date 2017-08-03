@@ -142,3 +142,10 @@ variable "alb_enabled" {
     default = 1
     description = "Enable ALB for idp hosts"
 }
+
+# This variable is needed for service discovery
+
+variable "certificates_bucket_name_prefix" {
+    description = "Base name for the self signed certificates bucket used for service discovery"
+    default = "login-gov-internal-certs-test"
+}

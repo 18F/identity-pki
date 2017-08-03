@@ -60,6 +60,18 @@ resource "aws_iam_role_policy" "elk_secrets" {
   policy = "${data.aws_iam_policy_document.secrets_role_policy.json}"
 }
 
+resource "aws_iam_role_policy" "elk_certificates" {
+  name = "${var.env_name}_elk_certificates"
+  role = "${aws_iam_role.elk_iam_role.id}"
+  policy = "${data.aws_iam_policy_document.certificates_role_policy.json}"
+}
+
+resource "aws_iam_role_policy" "elk_describe_instances" {
+  name = "${var.env_name}_elk_describe_instances"
+  role = "${aws_iam_role.elk_iam_role.id}"
+  policy = "${data.aws_iam_policy_document.describe_instances_role_policy.json}"
+}
+
 resource "aws_s3_bucket" "logbucket" {
   bucket = "login-gov-${var.env_name}-logs"
   versioning {

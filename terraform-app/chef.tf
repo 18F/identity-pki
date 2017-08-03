@@ -16,7 +16,7 @@ resource "aws_instance" "chef" {
   instance_type = "${var.instance_type_chef}"
   key_name = "${var.key_name}"
   subnet_id = "${aws_subnet.chef.id}"
-  iam_instance_profile = "${aws_iam_instance_profile.citadel-client.name}"
+  iam_instance_profile = "${aws_iam_instance_profile.base-permissions.name}"
 
   tags {
     client = "${var.client}"

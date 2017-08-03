@@ -5,7 +5,7 @@ resource "aws_instance" "app" {
   instance_type = "${var.instance_type_app}"
   key_name = "${var.key_name}"
   subnet_id = "${aws_subnet.app.id}"
-  iam_instance_profile = "${aws_iam_instance_profile.citadel-client.name}"
+  iam_instance_profile = "${aws_iam_instance_profile.base-permissions.name}"
 
   tags {
     client = "${var.client}"

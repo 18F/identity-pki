@@ -1,0 +1,10 @@
+source 'https://supermarket.chef.io'
+
+metadata
+
+cookbook 'aws_metadata', path: '../aws_metadata'
+cookbook 'aws_s3', path: '../aws_s3'
+cookbook 'canonical_hostname', path: '../canonical_hostname'
+
+# For integration test (need a certificate to upload)
+cookbook 'instance_certificate', path: '../instance_certificate'

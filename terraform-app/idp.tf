@@ -83,12 +83,23 @@ resource "aws_iam_role" "idp" {
   assume_role_policy = "${data.aws_iam_policy_document.assume_role_from_vpc.json}"
 }
 
-resource "aws_iam_role_policy" "idp-citadel" {
-  name = "${var.env_name}-idp-citadel"
+resource "aws_iam_role_policy" "idp-secrets" {
+  name = "${var.env_name}-idp-secrets"
   role = "${aws_iam_role.idp.id}"
   policy = "${data.aws_iam_policy_document.secrets_role_policy.json}"
 }
 
+resource "aws_iam_role_policy" "idp-certificates" {
+  name = "${var.env_name}-idp-certificates"
+  role = "${aws_iam_role.idp.id}"
+  policy = "${data.aws_iam_policy_document.certificates_role_policy.json}"
+}
+
+resource "aws_iam_role_policy" "idp-describe_instances" {
+  name = "${var.env_name}-idp-describe_instances"
+  role = "${aws_iam_role.idp.id}"
+  policy = "${data.aws_iam_policy_document.describe_instances_role_policy.json}"
+}
 resource "aws_instance" "idp1" {
   count = "${var.non_asg_idp_enabled * var.idp_node_count}"
   ami = "${var.idp1_ami_id}"

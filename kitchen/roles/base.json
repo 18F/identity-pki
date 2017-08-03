@@ -30,6 +30,8 @@
   },
   "chef_type": "role",
   "run_list": [
+    "recipe[instance_certificate::generate]",
+    "recipe[service_discovery::register]",
     "recipe[login_dot_gov::chage]",
     "recipe[login_dot_gov::ssh]",
     "recipe[login_dot_gov::users]",
