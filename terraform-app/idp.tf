@@ -105,6 +105,10 @@ resource "aws_instance" "idp1" {
     domain = "${var.env_name}.login.gov"
   }
 
+  lifecycle {
+    ignore_changes = ["ami"]
+  }
+
   connection {
     bastion_host = "${aws_eip.jumphost.public_ip}"
     host = "${self.private_ip}"
@@ -173,6 +177,10 @@ resource "aws_instance" "idp2" {
     domain = "${var.env_name}.login.gov"
   }
 
+  lifecycle {
+    ignore_changes = ["ami"]
+  }
+
   connection {
     bastion_host = "${aws_eip.jumphost.public_ip}"
     host = "${self.private_ip}"
@@ -239,6 +247,10 @@ resource "aws_instance" "idp_worker" {
     Name = "${var.name}-worker${count.index}-${var.env_name}"
     prefix = "worker"
     domain = "${var.env_name}.login.gov"
+  }
+
+  lifecycle {
+    ignore_changes = ["ami"]
   }
 
   connection {

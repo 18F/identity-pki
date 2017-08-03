@@ -25,6 +25,10 @@ resource "aws_instance" "chef" {
     domain = "${var.env_name}.login.gov"
   }
 
+  lifecycle {
+    ignore_changes = ["ami"]
+  }
+
   connection {
     type = "ssh"
     user = "ubuntu"

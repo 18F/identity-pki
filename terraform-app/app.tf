@@ -14,6 +14,10 @@ resource "aws_instance" "app" {
     domain = "${var.env_name}.login.gov"
   }
 
+  lifecycle {
+    ignore_changes = ["ami"]
+  }
+
   connection {
     type = "ssh"
     user = "ubuntu"

@@ -101,6 +101,10 @@ resource "aws_instance" "elk" {
     domain = "${var.env_name}.login.gov"
   }
 
+  lifecycle {
+    ignore_changes = ["ami"]
+  }
+
   connection {
     type = "ssh"
     user = "ubuntu"
@@ -161,6 +165,10 @@ resource "aws_instance" "es" {
     domain = "${var.env_name}.login.gov"
   }
 
+  lifecycle {
+    ignore_changes = ["ami", "ebs_block_device"]
+  }
+
   connection {
     type = "ssh"
     user = "ubuntu"
@@ -176,10 +184,6 @@ resource "aws_instance" "es" {
   #  encrypted = true
   #  delete_on_termination = true
   #}
-
-  lifecycle {
-    ignore_changes = ["ebs_block_device"]
-  }
 
   vpc_security_group_ids = [ "${aws_security_group.elk.id}" ]
 
