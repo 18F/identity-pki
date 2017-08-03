@@ -12,7 +12,7 @@ driver:
   instance_type: t2.medium
   image_id: ami-7e22c506
   user_data: user_data/pre_setup.sh
-  iam_profile_name: ci-citadel-client
+  iam_profile_name: ci-base-permissions
   tags:
     created-by: "test-kitchen"
     user: "<%= ENV['GSA_USERNAME'] || ENV['USER'] %>"
