@@ -29,7 +29,7 @@ action :generate do
 
     # Get the new subject in an X509 form
     if new_resource.subject.nil?
-        new_cert_subject = nil
+        new_cert_subject = cert.subject
     else
         new_cert_subject = OpenSSL::X509::Name.parse(new_resource.subject)
     end
