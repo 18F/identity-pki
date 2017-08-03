@@ -12,7 +12,7 @@ driver:
   instance_type: m3.large
   image_id: ami-7e22c506
   user_data: user_data/pre_setup.sh
-  iam_profile_name: ci-base-permissions
+  iam_profile_name: ci_idp_instance_profile # TODO: should probably rename with hyphens
   tags:
     created-by: "test-kitchen"
     user: "<%= ENV['GSA_USERNAME'] || ENV['USER'] %>"
