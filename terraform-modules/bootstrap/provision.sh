@@ -362,5 +362,6 @@ run chef-client --local-mode -c "./chef-client.rb"
 
 echo "==========================================================="
 echo "All done! provision.sh finished for $repo_basename"
+echo "==========================================================="
 echo ''
 trap - EXIT
