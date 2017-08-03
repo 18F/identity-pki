@@ -34,23 +34,40 @@ cookbook 'squid', '~> 3.1', git: 'https://github.com/chef-cookbooks/squid'
 #cookbook 'keytool', '~> 0.7.1'
 cookbook 'keytool', '~> 0.8.1', git: 'https://github.com/timothy-spencer/chef-keytool', branch: 'tspencer/fix/additionalcreatestor'
 
+# This is a super wacky hack to allow us to symlink this Berksfile into the
+# various nodes/*/ directories. It feels like there ought to be a better way to
+# do this, e.g. by running `berks -b ../../Berksfile` from test-kitchen, but I
+# wasn't able to figure one out.
+def prefixed(path)
+  unless @prefix
+    if File.symlink?(__FILE__)
+      # if we're a symlink, figure out the path diff to get to the target
+      @prefix = File.dirname(File.readlink(__FILE__))
+    else
+      @prefix = '.'
+    end
+  end
+
+  @prefix + '/' + path
+end
+
 # Vendored cookbooks. This should include everything in kitchen/cookbooks except for cookbook_example
-cookbook 'apt_update', path: 'kitchen/cookbooks/apt_update'
-cookbook 'aws_metadata', path: 'kitchen/cookbooks/aws_metadata'
-cookbook 'aws_s3', path: 'kitchen/cookbooks/aws_s3'
-cookbook 'canonical_hostname', path: 'kitchen/cookbooks/canonical_hostname'
-cookbook 'config_loader', path: 'kitchen/cookbooks/config_loader'
-cookbook 'identity-elk', path: 'kitchen/cookbooks/identity-elk'
-cookbook 'identity-jenkins', path: 'kitchen/cookbooks/identity-jenkins'
-cookbook 'identity-jumphost', path: 'kitchen/cookbooks/identity-jumphost'
-cookbook 'identity-nessus', path: 'kitchen/cookbooks/identity-nessus'
-cookbook 'identity-ntp', path: 'kitchen/cookbooks/identity-ntp'
-cookbook 'identity-ossec', path: 'kitchen/cookbooks/identity-ossec'
-cookbook 'instance_certificate', path: 'kitchen/cookbooks/instance_certificate'
-cookbook 'login_dot_gov', path: 'kitchen/cookbooks/login_dot_gov'
-cookbook 'passenger', path: 'kitchen/cookbooks/passenger'
-cookbook 'poise-ruby-build', path: 'kitchen/cookbooks/poise-ruby-build'
-cookbook 'service_discovery', path: 'kitchen/cookbooks/service_discovery'
+cookbook 'apt_update', path: prefixed('kitchen/cookbooks/apt_update')
+cookbook 'aws_metadata', path: prefixed('kitchen/cookbooks/aws_metadata')
+cookbook 'aws_s3', path: prefixed('kitchen/cookbooks/aws_s3')
+cookbook 'canonical_hostname', path: prefixed('kitchen/cookbooks/canonical_hostname')
+cookbook 'config_loader', path: prefixed('kitchen/cookbooks/config_loader')
+cookbook 'identity-elk', path: prefixed('kitchen/cookbooks/identity-elk')
+cookbook 'identity-jenkins', path: prefixed('kitchen/cookbooks/identity-jenkins')
+cookbook 'identity-jumphost', path: prefixed('kitchen/cookbooks/identity-jumphost')
+cookbook 'identity-nessus', path: prefixed('kitchen/cookbooks/identity-nessus')
+cookbook 'identity-ntp', path: prefixed('kitchen/cookbooks/identity-ntp')
+cookbook 'identity-ossec', path: prefixed('kitchen/cookbooks/identity-ossec')
+cookbook 'instance_certificate', path: prefixed('kitchen/cookbooks/instance_certificate')
+cookbook 'login_dot_gov', path: prefixed('kitchen/cookbooks/login_dot_gov')
+cookbook 'passenger', path: prefixed('kitchen/cookbooks/passenger')
+cookbook 'poise-ruby-build', path: prefixed('kitchen/cookbooks/poise-ruby-build')
+cookbook 'service_discovery', path: prefixed('kitchen/cookbooks/service_discovery')
 
 # We have to reference this special citadel-build repository for two reasons:
 #
