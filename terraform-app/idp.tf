@@ -154,11 +154,9 @@ resource "aws_autoscaling_group" "idp" {
     launch_configuration = "${aws_launch_configuration.idp.name}"
 
     min_size = 0
-    max_size = 4
+    max_size = 8
     desired_capacity = "${var.asg_idp_desired}"
 
-    # TODO XXX DEBUG
-    # load_balancers = []
     target_group_arns = [
       "${aws_alb_target_group.idp.arn}",
       "${aws_alb_target_group.idp-ssl.arn}"
@@ -171,7 +169,9 @@ resource "aws_autoscaling_group" "idp" {
 
     # possible choices: EC2, ELB
     health_check_type = "ELB"
-    health_check_grace_period = 1500 # give instances 25 minutes to finish bootstrapping
+    # Give instances 25 minutes to finish bootstrapping
+    # Currently it seems to take 21 minutes
+    health_check_grace_period = 1500
 
     termination_policies = ["OldestInstance"]
 
