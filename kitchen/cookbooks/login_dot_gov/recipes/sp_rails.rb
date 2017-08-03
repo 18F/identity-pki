@@ -58,6 +58,7 @@ template "#{base_dir}/shared/config/secrets.yml" do
   })
 end
 
+# TODO: don't do this chown
 execute "chown -R #{node['login_dot_gov']['system_user']} /opt/ruby_build"
 execute "chown -R #{node['login_dot_gov']['system_user']} /usr/local/src"
 
@@ -170,6 +171,7 @@ template "#{deploy_dir}/api/deploy.json" do
   source 'deploy.json.erb'
 end
 
+# TODO: don't do this chown
 # set ownership back to ubuntu:nogroup
 execute "chown -R #{node['login_dot_gov']['system_user']}:nogroup #{base_dir}"
 

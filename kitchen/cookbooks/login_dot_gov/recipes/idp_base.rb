@@ -141,7 +141,8 @@ application release_path do
     secret_token node['login_dot_gov']['secret_key_base_idp']
     not_if { node['login_dot_gov']['setup_only'] }
   end
-  
+
+  # TODO: don't chown /usr/local/src
   execute 'chown -R ubuntu /home/ubuntu/.bundle /usr/local/src'
 
   execute "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle exec rake db:create db:migrate db:seed --trace" do
@@ -209,6 +210,7 @@ shared_files.each do |file|
   execute "ln -fns /srv/idp/shared/#{file} /srv/idp/releases/chef/#{file}" unless node['login_dot_gov']['setup_only']
 end
 
+# TODO: don't do this chown
 execute "chown -R #{node['login_dot_gov']['system_user']}:nogroup /srv"
 
 execute "mount -o remount,noexec,nosuid,nodev /tmp"

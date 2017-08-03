@@ -147,8 +147,9 @@ execute "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bun
 end
 
 # allow other execute permissions on all directories within the application folder
+# TODO: check that this is needed
 # https://www.phusionpassenger.com/library/admin/nginx/troubleshooting/ruby/#upon-accessing-the-web-app-nginx-reports-a-permission-denied-error
-execute "chmod o+x -R /srv"
+execute "chmod o+X -R /srv"
 
 # need this now that passenger runs as nobody
 execute "chown -R #{node[:passenger][:production][:user]} /srv/idp/shared/log"
