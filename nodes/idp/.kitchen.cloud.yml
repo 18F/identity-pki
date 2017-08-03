@@ -9,7 +9,7 @@ driver:
   security_group_filter:
     tag: Name
     value: login-idp_security_group-ci
-  instance_type: t2.medium
+  instance_type: m3.large
   image_id: ami-7e22c506
   user_data: user_data/pre_setup.sh
   iam_profile_name: ci-base-permissions
