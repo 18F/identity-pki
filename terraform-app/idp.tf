@@ -169,9 +169,8 @@ resource "aws_autoscaling_group" "idp" {
 
     # possible choices: EC2, ELB
     health_check_type = "ELB"
-    # Give instances 25 minutes to finish bootstrapping
-    # Currently it seems to take 21 minutes
-    health_check_grace_period = 1500
+    # Currently bootstrapping seems to take 21-35 minutes
+    health_check_grace_period = 1800 # 30 minutes
 
     termination_policies = ["OldestInstance"]
 
