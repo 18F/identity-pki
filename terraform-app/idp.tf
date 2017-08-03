@@ -157,6 +157,10 @@ resource "aws_autoscaling_group" "idp" {
     max_size = 8
     desired_capacity = "${var.asg_idp_desired}"
 
+    # Don't create an IDP ASG if we don't have an ALB.
+    # We can't refer to aws_alb_target_group.idp unless it exists.
+    count = "${var.alb_enabled}"
+
     target_group_arns = [
       "${aws_alb_target_group.idp.arn}",
       "${aws_alb_target_group.idp-ssl.arn}"
