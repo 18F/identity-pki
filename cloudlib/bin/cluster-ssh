@@ -1,0 +1,63 @@
+#!/usr/bin/env ruby
+
+require 'bundler/setup'
+
+require_relative '../lib/cloudlib'
+
+require 'subprocess'
+
+def usage
+  STDERR.puts <<-EOM
+usage: #{File.basename($0)} ENVIRONMENT
+
+Open SSH windows to all individual (not auto scaled) instances in ENVIRONMENT,
+using csshX (must be brew installed).
+  EOM
+end
+
+def log
+  return @log if @log
+  @log = Logger.new(STDERR)
+  @log.progname = File.basename($0)
+  @log
+end
+
+def clusterssh(hostnames)
+  cmd = ['csshX', '--'] + hostnames
+  log.info("+ " + cmd.join(' '))
+  Subprocess.check_call(cmd)
+end
+
+def find_instances_for_env(env)
+  log.info("Listing running instances for #{env.inspect} environment")
+
+  cl = Cloudlib::EC2.new(env: env)
+  instances = cl.nonasg_instances_in_vpc(states: ['running'])
+
+  log.info("Found instances: " + instances.map(&:instance_id).join(' '))
+
+  hostnames = instances.map {|i| cl.classic_hostname_for_instance(i) }.sort
+
+  log.info("Found hostnames: " + hostnames.join(' '))
+
+  # TODO: use id-ssh to get IP address and such directly from AWS rather than
+  # relying on ~/.ssh/config and DNS
+
+  hostnames
+end
+
+def main(env)
+  hostnames = find_instances_for_env(env)
+  clusterssh(hostnames)
+end
+
+if $0 == __FILE__
+  begin
+    env = ARGV.fetch(0)
+  rescue IndexError
+    usage
+    exit 1
+  end
+
+  main(env)
+end

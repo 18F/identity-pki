@@ -69,6 +69,26 @@ module Cloudlib
       list_things(:instances, filters)
     end
 
+    def nonasg_instances_in_vpc(states: ['running', 'stopped'])
+      instances_in_vpc(states: states).find_all { |i|
+        name = name_tag(i, allow_nil: true)
+        label = "#{name.inspect} (#{i.instance_id})"
+        case name
+        when /\Atest-kitchen/
+          log.debug("Ignoring test-kitchen instance: #{label}")
+          false
+        when /\Aasg-/
+          log.debug("Ignoring asg- instance: #{label}")
+          false
+        when nil
+          log.warn("No name tag found on #{i.instance_id}")
+          false
+        else
+          true
+        end
+      }
+    end
+
     # @param [String] name_tag A name tag pattern
     # @return [Array<Aws::EC2::Instance>]
     def list_instances_by_name(name_tag, in_vpc: true, states: ['running'])
@@ -127,17 +147,51 @@ module Cloudlib
       found
     end
 
-    def name_tag_for_instance(instance, allow_nil: false)
-      tag = instance.tags.find {|t| t.key == 'Name'}
+    def name_tag(obj, allow_nil: false)
+      fetch_tag(obj, 'Name', allow_nil: allow_nil)
+    end
+
+    def fetch_tag(obj, key, allow_nil: false)
+      tag = obj.tags.find {|t| t.key == key }
       if tag
         tag.value
       else
         if allow_nil
           nil
         else
-          raise KeyError.new("No 'Name' tag found on #{instance.inspect}")
+          log.warn("No #{key.inspect} tag found among #{obj.tags.inspect}")
+          raise KeyError.new("No #{key.inspect} tag found on #{obj.inspect}")
         end
       end
+    end
+
+    def classic_hostname_for_instance(instance)
+      name = name_tag(instance)
+
+      prefix = fetch_tag(instance, 'prefix')
+      domain = fetch_tag(instance, 'domain')
+
+      match = name.match(/\Alogin-([a-z0-9-]+)-([a-z]+)\z/)
+      unless match
+        raise "Failed to parse #{name.inspect} as login-TYPE-ENV"
+      end
+
+      base = match.captures.fetch(0)
+      env = match.captures.fetch(1)
+
+      unless domain.start_with?(env + '.')
+        raise "domain and Name conflict: #{domain.inspect}, #{name.inspect}"
+      end
+      unless base.start_with?(prefix)
+        raise "prefix and Name conflict: #{prefix.inspect}, #{name.inspect}"
+      end
+
+      # FIXME hack to handle worker nonsense
+      if prefix == 'worker'
+        base = base.gsub('worker', 'worker-')
+      end
+
+      return base + '.' + domain
     end
   end
 end

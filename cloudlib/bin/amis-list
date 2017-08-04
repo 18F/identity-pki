@@ -18,7 +18,7 @@ def lookup_amis_for_env(env)
     [
       i.instance_id,
       i.image_id,
-      ec2.name_tag_for_instance(i, allow_nil: true) || '',
+      ec2.name_tag(i, allow_nil: true) || '',
       #i.launch_time.to_s,
     ]
   }.sort_by {|row| row.fetch(2) }
