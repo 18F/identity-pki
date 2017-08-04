@@ -25,6 +25,7 @@ variable "chef_home" {}
 variable "jumphost_ami_id" {}
 variable "idp1_ami_id" {}
 variable "idp2_ami_id" {}
+variable "worker_ami_id" {}
 variable "worker_ami_list" { type="list" }
 variable "route53_id" {}
 variable "apps_enabled" { default = false }
@@ -64,8 +65,10 @@ variable "region" { default = "us-west-2" }
 variable "version_info_bucket" { default = "login_dot_gov_tf_state" }
 variable "version_info_region" { default = "us-east-1" }
 
+# Auto scaling group desired counts
 variable "asg_jumphost_desired" { default = 0 }
 variable "asg_idp_desired" { default = 0 }
+variable "asg_worker_desired" { default = 0 }
 
 # Several variables used by the terraform-modules/bootstrap/ module for running
 # provision.sh to clone git repos and run chef.
