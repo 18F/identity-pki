@@ -1,0 +1,16 @@
+{
+  "name": "worker",
+  "description": "Top level role for worker instances",
+  "json_class": "Chef::Role",
+  "default_attributes": {
+  },
+  "override_attributes": {
+  },
+  "chef_type": "role",
+  "run_list": [
+    "role[base]",
+    "role[idp_worker]"
+  ],
+  "env_run_lists": {
+  }
+}
