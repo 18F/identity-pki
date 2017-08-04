@@ -5,20 +5,19 @@ driver:
   region: us-west-2
   subnet_filter:
     tag: Name
-    value: login-jumphost_subnet-dev
+    value: login-idp2_subnet-ci
   security_group_filter:
     tag: Name
-    value: login-jumphost_security_group-dev
-  instance_type: t2.medium
-  # XXX: This AMI has some known issues!  See identity-devops-private.
-  image_id: ami-ac5335cc
+    value: login-idp_security_group-ci
+  instance_type: c3.large
+  image_id: ami-7e22c506
   user_data: user_data/pre_setup.sh
-  iam_profile_name: integration_test_instance_profile
+  iam_profile_name: ci_idp_instance_profile
   tags:
     created-by: "test-kitchen"
     user: "<%= ENV['GSA_USERNAME'] || ENV['USER'] %>"
     terminate-after: "<%= (Time.now + 604800).strftime('%F') %>"
-    Name: "test-kitchen-idp_worker"
+    Name: "test-kitchen-worker"
 
 <%-
 # Set SSH key from environment or use default
@@ -33,6 +32,7 @@ end
 transport:
   username: ubuntu
   ssh_key: "<%= ssh_key_file %>"
+  name: sftp
 
 provisioner:
   name: chef_zero
@@ -57,7 +57,7 @@ platforms:
 suites:
   - name: default
     run_list:
-      - role[idp_worker]
+      - role[worker]
     verifier:
       inspec_tests:
         - test/smoke/default

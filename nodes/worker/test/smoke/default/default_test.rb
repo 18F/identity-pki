@@ -1,6 +1,6 @@
 # # encoding: utf-8
 
-# Inspec tests for idp_worker node
+# Inspec tests for worker node
 
 # The Inspec reference, with examples and extensive documentation, can be
 # found at http://inspec.io/docs/reference/resources/
