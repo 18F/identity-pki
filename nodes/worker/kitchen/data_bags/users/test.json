@@ -1,0 +1,22 @@
+{
+ "id": "test",
+ "password": "dummy_hash",
+ "ssh_keys": [
+   "dummy_pubkey"
+ ],
+ "groups": [
+   "test",
+   "adm",
+   "dev",
+   "qa",
+   "tf",
+   "dm",
+   "pt",
+   "demo",
+   "ci",
+   "sudo"
+ ],
+ "uid": 2610,
+ "shell": "/bin/bash",
+ "comment": "Test User"
+}

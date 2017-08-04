@@ -5,19 +5,19 @@ driver:
   region: us-west-2
   subnet_filter:
     tag: Name
-    value: login-idp1_subnet-ci
+    value: login-idp2_subnet-ci
   security_group_filter:
     tag: Name
     value: login-idp_security_group-ci
-  instance_type: m3.large
+  instance_type: c3.large
   image_id: ami-7e22c506
   user_data: user_data/pre_setup.sh
-  iam_profile_name: ci_idp_instance_profile # TODO: should probably rename with hyphens
+  iam_profile_name: ci_idp_instance_profile
   tags:
     created-by: "test-kitchen"
     user: "<%= ENV['GSA_USERNAME'] || ENV['USER'] %>"
     terminate-after: "<%= (Time.now + 604800).strftime('%F') %>"
-    Name: "test-kitchen-idp"
+    Name: "test-kitchen-worker"
 
 <%-
 # Set SSH key from environment or use default
@@ -57,7 +57,7 @@ platforms:
 suites:
   - name: default
     run_list:
-      - role[idp]
+      - role[worker]
     verifier:
       inspec_tests:
         - test/smoke/default
