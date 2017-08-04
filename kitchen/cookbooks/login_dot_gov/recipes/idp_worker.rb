@@ -1,7 +1,7 @@
 package 'monit'
 
 service 'monit' do
-  action :nothing
+  action :start
 end
 
 template '/etc/monit/monitrc' do
@@ -9,11 +9,13 @@ template '/etc/monit/monitrc' do
 end
 
 template '/etc/monit/conf.d/sidekiq_idp_production.conf' do
-  notifies :restart, 'service[sidekiq]'
+  notifies :restart, 'service[monit]', :immediately
   variables({
     ruby_version: node['login_dot_gov']['ruby_version']
   })
 end
+
+execute 'sleep 1'
 
 service 'sidekiq' do
   action :restart

@@ -25,6 +25,7 @@ variable "chef_home" {}
 variable "jumphost_ami_id" {}
 variable "idp1_ami_id" {}
 variable "idp2_ami_id" {}
+variable "worker_ami_id" {}
 variable "worker_ami_list" { type="list" }
 variable "route53_id" {}
 variable "apps_enabled" { default = false }
@@ -45,7 +46,7 @@ variable "chef_info" {}
 variable "chef_id_key_path" {}
 variable "chef_repo_gitref" { default = "master" }
 variable "client" {}
-variable "env_name" { default = "tf" }
+variable "env_name" { }
 variable "esnodes" { default = 2 }
 variable "git_deploy_key_path" {}
 variable "idp_node_count" { default = 1 }
@@ -53,10 +54,10 @@ variable "idp_worker_count" { default = 2 }
 variable "instance_type_app" { default = "t2.medium" }
 variable "instance_type_chef" { default = "t2.medium" }
 variable "instance_type_elk" { default = "t2.medium" }
-variable "instance_type_idp" { default = "t2.medium" }
+variable "instance_type_idp" { default = "t2.medium" } # TODO too small
 variable "instance_type_jenkins" { default = "t2.medium" }
 variable "instance_type_jumphost" { default = "t2.small" }
-variable "instance_type_worker" { default = "t2.small" }
+variable "instance_type_worker" { default = "t2.small" } # TODO way too small
 variable "key_name" {}
 variable "live_certs" {}
 variable "name" { default = "login" }
@@ -64,8 +65,10 @@ variable "region" { default = "us-west-2" }
 variable "version_info_bucket" { default = "login_dot_gov_tf_state" }
 variable "version_info_region" { default = "us-east-1" }
 
+# Auto scaling group desired counts
 variable "asg_jumphost_desired" { default = 0 }
 variable "asg_idp_desired" { default = 0 }
+variable "asg_worker_desired" { default = 0 }
 
 # Several variables used by the terraform-modules/bootstrap/ module for running
 # provision.sh to clone git repos and run chef.

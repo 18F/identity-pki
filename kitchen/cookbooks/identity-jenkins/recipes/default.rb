@@ -126,6 +126,7 @@ file '/var/lib/jenkins/.ssh/id_rsa' do
   user  'jenkins'
   group 'jenkins'
   mode  '0700'
+  sensitive true
 end
 
 file '/root/.ssh/id_rsa.pub' do
@@ -141,6 +142,7 @@ file '/root/.ssh/id_rsa' do
   user  'root'
   group 'root'
   mode  '0600'
+  sensitive true
   subscribes :create, "execute[/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle install]", :before
 end
 

@@ -22,6 +22,7 @@ file '/root/.ssh/id_rsa' do
   user  'root'
   group 'root'
   mode  '0600'
+  sensitive true
   subscribes :create, "application[#{release_path}]", :before
 end
 
