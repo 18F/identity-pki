@@ -1,14 +1,14 @@
 {
-  "name": "integration",
+  "name": "ci",
   "description": "",
   "cookbook_versions": {},
   "json_class": "Chef::Environment",
   "chef_type": "environment",
   "default_attributes": {
     "login_dot_gov": {
-      "aws_kms_key_id": "alias/integration-login-dot-gov-keymaker",
+      "aws_kms_key_id": "alias/ci-login-dot-gov-keymaker",
       "aws_region": "us-west-2",
-      "branch_name": "stages/rc-2017-03-29",
+      "branch_name": "master",
       "enable_identity_verification": "true",
       "use_kms": "true"
     },

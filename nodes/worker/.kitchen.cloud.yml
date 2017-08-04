@@ -44,7 +44,7 @@ provisioner:
   roles_path: ../../kitchen/roles
   data_bags_path: kitchen/data_bags
   client_rb:
-    environment: integration
+    environment: ci
   require_chef_omnibus: 12.15
   root_path: '/var/lib/kitchen'
 
