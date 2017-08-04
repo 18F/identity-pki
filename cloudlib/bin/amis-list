@@ -1,0 +1,52 @@
+#!/usr/bin/env ruby
+
+require 'bundler/setup'
+
+require_relative '../lib/cloudlib'
+
+def lookup_amis_for_env(env)
+  ec2 = Cloudlib::EC2.new(env: env)
+
+  ec2.log.info("Listing running AMIs for #{env.inspect} environment")
+
+  instances = ec2.instances_in_vpc
+
+  #require 'pry'
+  #binding.pry
+
+  instances.map {|i|
+    [
+      i.instance_id,
+      i.image_id,
+      ec2.name_tag_for_instance(i, allow_nil: true) || '',
+      #i.launch_time.to_s,
+    ]
+  }.sort_by {|row| row.fetch(2) }
+end
+
+def usage
+  puts <<-EOM
+usage: #{File.basename($0)} ENVIRONMENT
+
+List instances in ENVIRONMENT, printing their Instance ID, Name, and AMI.
+  EOM
+end
+
+def main(args)
+  # TODO this whole main function is a hacky placeholder for testing
+
+  if args.empty?
+    usage
+    exit 1
+  end
+
+  data = lookup_amis_for_env(args.fetch(0))
+  STDERR.puts ['instance-id      ', 'image-id', 'name'].join("\t")
+  data.each do |row|
+    puts row.join("\t")
+  end
+end
+
+if __FILE__ == $0
+  main(ARGV)
+end

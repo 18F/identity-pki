@@ -12,7 +12,7 @@ group :development do
   gem 'pry'
 end
 
-gem 'aws-sdk'
+gem 'aws-sdk', '~> 2.0'
 
 gem 'knife-spork'
 gem 'knife-backup'
