@@ -105,6 +105,7 @@ if node[:passenger][:production][:status_server]
 end
 
 # set permissions on nginx folder to the same as nginx user:group
+# TODO: don't chown this whole path
 directory "#{nginx_path}" do
   owner 'nobody'
   group 'nogroup'
@@ -114,8 +115,9 @@ end
 
 # allow other execute permissions on all directories within the application folder
 # https://www.phusionpassenger.com/library/admin/nginx/troubleshooting/ruby/#upon-accessing-the-web-app-nginx-reports-a-permission-denied-error
-execute "chmod -R o+x #{nginx_path}"
-execute "chmod -R o+rx #{nginx_path}/conf"
+# TODO: actually fix the issue rather than relying on this chmod hammer
+execute "chmod -R a+X #{nginx_path}"
+execute "chmod -R a+rX #{nginx_path}/conf"
 
 service "passenger" do
   service_name "passenger"

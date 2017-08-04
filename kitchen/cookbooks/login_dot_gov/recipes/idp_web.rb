@@ -118,6 +118,18 @@ execute "chown -R #{node[:passenger][:production][:user]} /srv/idp/shared/log"
 # service[passenger] restart seems to attempt a graceful restart that doesn't
 # actually work.
 # TODO don't do this, figure out how to get passenger/nginx to be happy
-execute "service passenger restart" do
-  only_if 'curl -sS http://localhost | grep -F "<title>Welcome to nginx!</title>"'
+Chef.event_handler do
+  on :run_completed do
+    Chef::Log.info('Starting handler for passenger restart hack')
+    if system('pgrep -a "^Passenger"')
+      Chef::Log.info('Found running Passenger process')
+    else
+      Chef::Log.warn('Restarting passenger as hack to finish startup')
+      if system('service passenger restart')
+        Chef::Log.warn('OK, restarting passenger succeeded')
+      else
+        Chef::Log.warn('FAIL, restarting passenger failed')
+      end
+    end
+  end
 end
