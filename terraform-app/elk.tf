@@ -114,7 +114,7 @@ resource "aws_instance" "elk" {
   }
 
   lifecycle {
-    ignore_changes = ["ami"]
+    ignore_changes = ["ami", "instance_type"]
   }
 
   connection {
@@ -178,7 +178,7 @@ resource "aws_instance" "es" {
   }
 
   lifecycle {
-    ignore_changes = ["ami", "ebs_block_device"]
+    ignore_changes = ["ami", "ebs_block_device", "instance_type"]
   }
 
   connection {

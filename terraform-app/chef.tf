@@ -26,7 +26,7 @@ resource "aws_instance" "chef" {
   }
 
   lifecycle {
-    ignore_changes = ["ami"]
+    ignore_changes = ["ami", "instance_type"]
   }
 
   connection {

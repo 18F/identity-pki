@@ -64,7 +64,7 @@ resource "aws_instance" "jenkins" {
   }
 
   lifecycle {
-    ignore_changes = ["ami"]
+    ignore_changes = ["ami", "instance_type"]
   }
 
   connection {

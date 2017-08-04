@@ -110,7 +110,7 @@ resource "aws_instance" "jumphost" {
   }
 
   lifecycle {
-    ignore_changes = ["ami"]
+    ignore_changes = ["ami", "instance_type"]
   }
 
   connection {

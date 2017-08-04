@@ -218,7 +218,7 @@ resource "aws_instance" "idp1" {
   }
 
   lifecycle {
-    ignore_changes = ["ami"]
+    ignore_changes = ["ami", "instance_type"]
   }
 
   connection {
@@ -271,7 +271,7 @@ resource "aws_instance" "idp2" {
   }
 
   lifecycle {
-    ignore_changes = ["ami"]
+    ignore_changes = ["ami", "instance_type"]
   }
 
   connection {
@@ -324,7 +324,7 @@ resource "aws_instance" "idp_worker" {
   }
 
   lifecycle {
-    ignore_changes = ["ami"]
+    ignore_changes = ["ami", "instance_type"]
   }
 
   connection {
