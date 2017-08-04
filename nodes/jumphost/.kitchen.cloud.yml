@@ -9,11 +9,10 @@ driver:
   security_group_filter:
     tag: Name
     value: login-jumphost_security_group-ci
-  instance_type: t2.medium
-  # XXX: This AMI has some known issues!  See identity-devops-private.
-  image_id: ami-ac5335cc
+  instance_type: c4.xlarge
+  image_id: ami-7e22c506
   user_data: user_data/pre_setup.sh
-  iam_profile_name: integration_test_instance_profile
+  iam_profile_name: ci-base-permissions
   tags:
     created-by: "test-kitchen"
     user: "<%= ENV['GSA_USERNAME'] || ENV['USER'] %>"
@@ -45,7 +44,7 @@ provisioner:
   roles_path: ../../kitchen/roles
   data_bags_path: kitchen/data_bags
   client_rb:
-    environment: integration
+    environment: ci
   require_chef_omnibus: 12.15
   root_path: '/var/lib/kitchen'
 

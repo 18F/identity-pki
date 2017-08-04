@@ -1,5 +1,5 @@
 {
-  "name": "integration",
+  "name": "ci",
   "description": "",
   "cookbook_versions": {},
   "json_class": "Chef::Environment",
