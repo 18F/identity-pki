@@ -14,3 +14,25 @@ describe service('ssh') do
   it { should be_enabled }
   it { should be_running }
 end
+
+describe service('monit') do
+  it { should be_installed }
+  it { should be_enabled }
+  it { should be_running }
+end
+
+describe processes('sidekiq') do
+  it { should exist }
+end
+
+describe port(80) do
+  it { should_not be_listening }
+end
+
+describe port(443) do
+  it { should_not be_listening }
+end
+
+describe processes('rails') do
+  it { should_not exist }
+end
