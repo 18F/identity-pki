@@ -6,6 +6,7 @@ module Cloudlib
 
   class EC2
     attr_reader :ec2
+    attr_reader :env
 
     # Create a new AWS EC2 connection object
     #
@@ -22,10 +23,22 @@ module Cloudlib
 
     VPC_NAME_PREFIX = 'login-vpc-'
 
-    def initialize(env:)
+    def initialize(env: nil, vpc_id: nil, from_obj_in_vpc: nil)
       @ec2 = self.class.new_resource
 
-      @env = env
+      @env = env if env
+
+      if from_obj_in_vpc
+        if vpc_id
+          raise ArgumentError.new("Cannot pass from_obj_in_vpc and vpc_id")
+        end
+        vpc_id = from_obj_in_vpc.vpc_id
+      end
+
+      if vpc_id
+        @vpc = @ec2.vpc(vpc_id)
+        @env ||= name_tag(@vpc).gsub(VPC_NAME_PREFIX, '')
+      end
     end
 
     def vpc
@@ -89,7 +102,15 @@ module Cloudlib
       }
     end
 
+    def find_jumphost
+      # find ASG and non-asg jumphosts
+      jumphosts = list_instances_by_name('*jumphost-*', in_vpc: true)
+      jumphosts.first
+    end
+
     # @param [String] name_tag A name tag pattern
+    # @param [Boolean] in_vpc Whether to restrict search to within this VPC
+    # @param [Array<string>] states A filter for the instance states
     # @return [Array<Aws::EC2::Instance>]
     def list_instances_by_name(name_tag, in_vpc: true, states: ['running'])
       filters = [

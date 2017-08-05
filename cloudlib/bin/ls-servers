@@ -1,0 +1,120 @@
+#!/usr/bin/env ruby
+
+require 'bundler/setup'
+
+require_relative '../lib/cloudlib'
+
+def lookup_servers_for_env(env)
+  ec2 = Cloudlib::EC2.new(env: env)
+
+  Cloudlib.log.info("Listing servers in #{env.inspect} environment")
+
+  instances = ec2.instances_in_vpc(states: DefaultStatesFilter)
+
+  data_for_instances(instances)
+end
+
+def lookup_servers_by_pat(name_pattern)
+  ec2 = Cloudlib::EC2.new
+  instances = ec2.list_instances_by_name(name_pattern,
+    in_vpc: false, states: DefaultStatesFilter)
+
+  data_for_instances(instances)
+end
+
+# Everything except terminated
+DefaultStatesFilter = %w{
+  pending
+  running
+  rebooting
+  stopping
+  stopped
+  shutting-down
+}
+
+# TODO do proper headers and proper table output so we don't pad with spaces
+Header = [
+  'instance-id      ',
+  'image-id',
+  'name        ',
+  'instance-type',
+  'private-ip',
+  'public-ip',
+  'state',
+  'launch-time',
+]
+
+def data_for_instances(instances)
+  ec2 = Cloudlib::EC2.new
+
+  # require 'pry'
+  # binding.pry
+
+  data = instances.map {|i|
+    [
+      i.instance_id,
+      i.image_id,
+      ec2.name_tag(i, allow_nil: true) || '',
+      i.instance_type,
+      i.private_ip_address,
+      i.public_ip_address || '',
+      i.state.name,
+      i.launch_time.to_s,
+    ]
+  }
+
+  data.sort_by {|row| row.fetch(2) }
+end
+
+def usage
+  puts <<-EOM
+usage: #{File.basename($0)} [OPTIONS] [NAME_PATTERN]
+
+List servers by NAME_PATTERN or by other filters.
+
+OPTIONS:
+
+  -e ENVIRONMENT     List all servers in ENVIRONMENT
+  -s STATE           Not yet implemented
+  -f filter:value    Not yet implemented
+
+For example:
+
+  # list all servers in QA
+  #{File.basename($0)} -e qa
+
+  # list all non-asg servers in dev
+  #{File.basename($0)} 'login-*-dev'
+
+  # list all dev ASG IDP servers
+  #{File.basename($0)} 'asg-dev-idp'
+
+  # list all es servers in dev
+  #{File.basename($0)} 'login-es*-dev'
+
+  EOM
+end
+
+def main(args)
+  # TODO actually use optparse
+
+  if args.empty?
+    usage
+    exit 1
+  end
+
+  if args.first == '-e'
+    data = lookup_servers_for_env(args.fetch(1))
+  else
+    data = lookup_servers_by_pat(args.fetch(0))
+  end
+
+  STDERR.puts Header.join("\t")
+  data.each do |row|
+    puts row.join("\t")
+  end
+end
+
+if __FILE__ == $0
+  main(ARGV)
+end
