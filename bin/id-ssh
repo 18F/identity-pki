@@ -42,7 +42,7 @@ def get_ssh_instance_cmdline(instance_obj, username, command: nil, port: 22, pkc
   end
 
   cmd = ['ssh', '-l', username]
-  cmd += ['-o', 'stricthostkeychecking=no'] # TODO
+  cmd += ['-o', 'stricthostkeychecking=yes'] # TOFU
   cmd += ['-p', port.to_s]
 
   if pkcs11_lib
