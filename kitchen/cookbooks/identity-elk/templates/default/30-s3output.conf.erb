@@ -4,5 +4,6 @@ output {
      bucket => "<%= @aws_logging_bucket %>"
      time_file => 5
      server_side_encryption => true
+     tags => <%= @tags %>
    }
 }

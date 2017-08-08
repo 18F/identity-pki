@@ -102,27 +102,65 @@ file mycert do
   owner 'logstash'
 end
 
-# Use the built-in Ohai EC2 plugin to talk to EC2 metadata. In newer versions
-# there is a 'region' attribute, but not in the one we have.
-#
-# Run `ohai ec2` on a server to see what values are available.
-#
-# placement_availability_zone always looks like "us-west-2b", so strip off the
-# last character to get the region
-aws_region = node.fetch('ec2').fetch('placement_availability_zone')[0..-2]
+# turn off the non-sv service
+execute 'service logstash stop || true'
+execute 'update-rc.d -f logstash remove'
 
-template "/etc/logstash/conf.d/30-s3output.conf" do
-  source '30-s3output.conf.erb'
-  variables ({
-    :aws_region => aws_region,
-    :aws_logging_bucket => "login-gov-#{node.chef_environment}-logs"
-  })
-  notifies :restart, 'runit_service[logstash]'
+
+# create the common outputs and services for all logstash instances
+include_recipe 'runit'
+%w{ logstash cloudtraillogstash cloudwatchlogstash }.each do |lsname|
+  directory "/etc/logstash/#{lsname}conf.d"
+  directory "/var/tmp/#{lsname}" do
+    owner 'logstash'
+    group 'logstash'
+  end
+
+  template "/etc/logstash/#{lsname}conf.d/30-s3output.conf" do
+    source '30-s3output.conf.erb'
+    variables ({
+      :aws_region => node['ec2']['placement_availability_zone'][0..-2],
+      :aws_logging_bucket => "login-gov-#{node.chef_environment}-logs",
+      :tags => [lsname]
+    })
+    notifies :restart, "runit_service[#{lsname}]"
+  end
+
+  template "/etc/logstash/#{lsname}conf.d/30-ESoutput.conf" do
+    source '30-ESoutput.conf.erb'
+    variables ({
+      :hostips => "\"es.login.gov.internal\""
+    })
+    notifies :restart, "runit_service[#{lsname}]"
+  end
+
+  runit_service lsname do
+    default_logger true
+    sv_timeout 20
+    options ({
+      :home => '/usr/share/logstash',
+      :max_heap => "#{(node['memory']['total'].to_i * 0.5).floor / 1024}M",
+      :min_heap => "#{(node['memory']['total'].to_i * 0.2).floor / 1024}M",
+      :gc_opts => '-XX:+UseParallelOldGC',
+      :java_opts => '-Dio.netty.native.workdir=/etc/logstash/tmp',
+      :tmpdir => "/var/tmp/#{lsname}",
+      :ipv4_only => false,
+      :workers => 2,
+      :debug => false,
+      :user => 'logstash',
+      :group => 'logstash'
+    }.merge(params))
+  end
 end
 
+# clean up old logstash config that might be confusing
+execute 'rm -rf /etc/logstash/conf.d'
+
+
+# set up cloudtrail logstash config
 aws_account_id = `curl -s http://169.254.169.254/latest/dynamic/instance-identity/document | grep -oP '(?<="accountId" : ")[^"]*(?=")'`.chomp
 
-template "/etc/logstash/conf.d/30-cloudtrailin.conf" do
+template "/etc/logstash/cloudtraillogstashconf.d/30-cloudtrailin.conf" do
   source '30-cloudtrailin.conf.erb'
   variables ({
     :aws_region => aws_region,
@@ -139,16 +177,8 @@ template '/etc/logstash/logstash-template.json' do
   notifies :restart, 'runit_service[logstash]'
 end
 
-template '/etc/logstash/conf.d/30-ESoutput.conf' do
-  source '30-ESoutput.conf.erb'
-  variables ({
-    #:hostips => esnodes.map{|h| "\"#{h['ipaddress']}\""}.sort.uniq.join(', ')
-    :hostips => "\"es.login.gov.internal\""
-  })
-  notifies :restart, 'runit_service[logstash]'
-end
-
-template '/etc/logstash/conf.d/40-beats.conf' do
+# set up filebeat (default) logstash config
+template '/etc/logstash/logstashconf.d/40-beats.conf' do
   source '40-beats.conf.erb'
   variables ({
     :mycrt => "#{mycacrt}",
@@ -160,29 +190,6 @@ end
 directory '/etc/logstash/tmp' do
   owner 'logstash'
   mode '0700'
-end
-
-# turn off the non-sv service
-execute 'service logstash stop || true'
-execute 'update-rc.d -f logstash remove'
-
-include_recipe 'runit'
-runit_service 'logstash' do
-  default_logger true
-  sv_timeout 20
-  options ({
-    :home => '/usr/share/logstash',
-    :max_heap => "#{(node['memory']['total'].to_i * 0.5).floor / 1024}M",
-    :min_heap => "#{(node['memory']['total'].to_i * 0.2).floor / 1024}M",
-    :gc_opts => '-XX:+UseParallelOldGC',
-    :java_opts => '-Dio.netty.native.workdir=/etc/logstash/tmp',
-    :tmpdir => '/var/tmp',
-    :ipv4_only => false,
-    :workers => 2,
-    :debug => false,
-    :user => 'logstash',
-    :group => 'logstash'
-  }.merge(params))
 end
 
 
@@ -359,7 +366,7 @@ runit_service 'elastalert' do
   default_logger true
 end
 
-# set up the stuff that slurps in the vpc flow logs
+# set up the stuff that slurps in the vpc flow logs via cloudwatch
 git '/usr/share/logstash-input-cloudwatch_logs' do
   repository 'https://github.com/lukewaite/logstash-input-cloudwatch-logs.git'
   revision "v#{node['elk']['logstash-input-cloudwatch-logs-version']}"
@@ -375,7 +382,7 @@ execute "bin/logstash-plugin install /usr/share/logstash-input-cloudwatch_logs/l
   not_if "bin/logstash-plugin list | grep logstash-input-cloudwatch_logs"
 end
 
-template "/etc/logstash/conf.d/50-cloudwatchin.conf" do
+template "/etc/logstash/cloudwatchlogstashconf.d/50-cloudwatchin.conf" do
   source '50-cloudwatchin.conf.erb'
   variables ({
     :aws_region => aws_region,
