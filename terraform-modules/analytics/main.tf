@@ -21,7 +21,7 @@ resource "aws_kms_key" "s3_encryption_key" {
 }
 
 resource "aws_redshift_parameter_group" "redshift_configuration" {
-  name   = "analytics-redshift-configuration"
+  name   = "analytics-${var.env_name}-redshift-configuration"
   family = "redshift-1.0"
 
   parameter {
@@ -283,7 +283,8 @@ resource "aws_iam_policy" "redshift_s3_policy" {
       "Action": [
         "s3:Get*",
         "s3:List*",
-        "s3:Put*"
+        "s3:Put*",
+        "s3:*"
       ],
       "Resource": "*"
     }
@@ -340,7 +341,7 @@ vpc_config {
 }
 
 resource "aws_cloudwatch_event_rule" "every_thirty_minutes" {
-    name = "every-thirty-minutes"
+    name = "${var.env_name}-every-thirty-minutes"
     description = "Fires every thirty minutes"
     schedule_expression = "rate(30 minutes)"
 }
