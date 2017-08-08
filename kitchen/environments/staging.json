@@ -8,6 +8,7 @@
     "application": "= 5.1.0",
     "application_ruby": "= 4.0.1",
     "apt": "= 5.0.1",
+    "apt_update": "= 0.1.0",
     "ark": "= 1.1.0",
     "bash-completion": "= 0.1.0",
     "build-essential": "= 2.4.0",
@@ -26,8 +27,8 @@
     "homebrew": "= 3.0.0",
     "hostname": "= 0.4.0",
     "hostsfile": "= 2.4.5",
-    "identity-elk": "= 0.1.19",
-    "identity-jenkins": "= 0.1.8",
+    "identity-elk": "= 0.1.20",
+    "identity-jenkins": "= 0.1.10",
     "identity-jumphost": "= 0.1.0",
     "identity-nessus": "= 0.0.2",
     "identity-ntp": "= 0.1.0",
@@ -36,7 +37,7 @@
     "jenkins": "= 5.0.1",
     "keytool": "= 0.8.1",
     "letsencrypt": "= 1.0.3",
-    "login_dot_gov": "= 0.0.39",
+    "login_dot_gov": "= 0.0.45",
     "monit": "= 1.0.0",
     "motd": "= 0.6.4",
     "nano": "= 1.0.3",
@@ -64,7 +65,6 @@
     "seven_zip": "= 2.0.2",
     "squid": "= 3.1.0",
     "ssh-keys": "= 1.2.7",
-    "ssh_known_hosts": "= 4.1.1",
     "sudo": "= 3.3.1",
     "terraform": "= 0.5.3",
     "users": "= 4.0.3",
@@ -85,12 +85,12 @@
       "branch_name": "stages/staging"
     },
     "login_dot_gov": {
+      "available_locales": "en es fr",
       "aws_kms_key_id": "alias/staging-login-dot-gov-keymaker",
       "aws_region": "us-west-2",
       "branch_name": "stages/staging",
       "enable_identity_verification": "true",
-      "proofing_vendors": "equifax",
-      "use_kms": "true"
+      "use_kms": "false"
     },
     "ssh_keys": {
       "ubuntu": [
@@ -112,13 +112,14 @@
       "users": [
         "astone",
         "brody",
+        "dnesting",
         "jgrevich",
         "jpmugizi",
         "monfresh",
         "sverch",
-        "dnesting",
         "tblack",
-        "tspencer"
+        "tspencer",
+        "zmargolis"
       ]
     },
     "filebeat": {
@@ -126,7 +127,8 @@
     },
     "identity-jenkins": {
       "users": [
-        "monfresh"
+        "monfresh",
+        "zmargolis"
       ],
       "admins": [
         "astone",
@@ -134,9 +136,7 @@
         "jgrevich",
         "jpmugizi",
         "tspencer",
-        "sverch",
-        "dnesting",
-        "mzia"
+        "zmargolis"
       ]
     },
     "terraform": {
