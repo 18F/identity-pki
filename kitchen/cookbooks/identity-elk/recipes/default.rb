@@ -163,7 +163,7 @@ aws_account_id = `curl -s http://169.254.169.254/latest/dynamic/instance-identit
 template "/etc/logstash/cloudtraillogstashconf.d/30-cloudtrailin.conf" do
   source '30-cloudtrailin.conf.erb'
   variables ({
-    :aws_region => aws_region,
+    :aws_region => node['ec2']['placement_availability_zone'][0..-2],
     :cloudtrail_logging_bucket => "login-gov-cloudtrail-#{aws_account_id}"
   })
   notifies :restart, 'runit_service[logstash]'
@@ -385,7 +385,7 @@ end
 template "/etc/logstash/cloudwatchlogstashconf.d/50-cloudwatchin.conf" do
   source '50-cloudwatchin.conf.erb'
   variables ({
-    :aws_region => aws_region,
+    :aws_region => node['ec2']['placement_availability_zone'][0..-2],
     :env => node.chef_environment
   })
   notifies :restart, 'runit_service[logstash]'
