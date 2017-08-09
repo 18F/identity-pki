@@ -18,17 +18,17 @@ Look [here](testing.md) for more details on our testing infrastructure.
 ## Chef Cookbook Changes
 
 All Chef Cookbook changes must include the necessary chefspec and/or
-integration tests.  See
-https://github.com/18F/identity-devops/tree/master/kitchen/cookbooks/cookbook_example
-for an example of a Chef Cookbook that includes both
-[Chefspec](https://github.com/sethvargo/chefspec) and [Test
-Kitchen](https://github.com/test-kitchen/test-kitchen) tests.
+integration tests.  See [our testing docs](testing.md) for the current status of
+testing.
 
 ## Terraform Changes
 
 We do not currently have much testing support, but here are things to consider
 testing when making Terraform changes:
 
-- Can still start an environment from scratch after your changes (see the [Getting Started
-Guide](doc/getting-started.md)).
-- Can upgrade from the previous version of the environment without downtime.
+- Can you still build an environment from scratch after your changes?
+- Can you upgrade an existing environment without downtime?
+
+Eventually, we can add [awsspec](https://github.com/k1LoW/awspec) to test AWS
+environment configuration, but we don't yet have a framework for it.  This would
+be a welcome contribution!

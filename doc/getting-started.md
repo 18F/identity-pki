@@ -34,19 +34,18 @@
 
 ## 1. Introduction
 
-The [`identity-devops`](https://github.com/18F/identity-private) repository
-contains infrastructure configurations for the `identity-*`
-([identity-idp](https://github.com/18F/identity-idp),
-[identity-private](https://github.com/18F/identity-private), etc.),  projects.
-This includes
-the [Terraform](https://www.terraform.io/docs/commands/) configuration for
-provisioning a new [AWS VPC](https://aws.amazon.com/vpc/) and other AWS
-elements as well as the [Chef](https://docs.chef.io/chef_overview.html)
-cookbooks for configuring instances after they are provisioned.
+This repository contains the base infrastructure for login.gov.
 
-This document is an introduction for how to work with this repository,
-including spinning up a new environment and working with an existing
-environment.
+If you are new to this project, start here:
+
+- [Contributing to identity-devops](contributing.md)
+- [Structure of this Repository](structure-of-this-repository.md).
+- [Infrastructure Architecture](technical/architecture.md).
+- [Lifecycle of Custom Instances](technical/life-of-an-instance.md).
+
+The rest of this page should document the process of setting up a new
+environment from scratch, although the pages above have been updated more
+recently than this one.
 
 ## 2. Dependencies
 
