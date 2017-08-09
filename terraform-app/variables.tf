@@ -1,4 +1,9 @@
 variable "app_sg_ssh_cidr_blocks" { type="list" }
+variable "ci_sg_ssh_cidr_blocks"  {
+    type="list"
+    default = []
+    description = "List of CIDR blocks to allow into all NACLs/SGs.  Only use in the CI VPC."
+}
 variable "power_users" { type="list" }
 variable "admin_subnet_cidr_block" { default = "172.16.33.16/28"} # 172.16.33.16 - 172.16.33.31
 variable "app1_subnet_cidr_block"  { default = "172.16.33.96/28" } # 172.16.33.96 - 172.16.33.111
