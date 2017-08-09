@@ -154,6 +154,10 @@ resource "aws_instance" "app" {
     user_key = "${file("${var.chef_id_key_path}")}"
     version = "${var.chef_version}"
     fetch_chef_certificates = true
+    # XXX comment out until we are ready to actually deploy
+    #http_proxy = "http://obproxy.login.gov.internal:3128"
+    #https_proxy = "http://obproxy.login.gov.internal:3128"
+    #no_proxy = [ "localhost","127.0.0.1" ]
   }
 }
 

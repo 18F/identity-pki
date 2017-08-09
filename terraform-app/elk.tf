@@ -9,6 +9,26 @@ resource "aws_iam_instance_profile" "elk_instance_profile" {
 }
 
 data "aws_iam_policy_document" "logbucketpolicy" {
+  # allow elk host to read from the proxylogs bucket
+  statement {
+    actions = [
+      "s3:ListBucket",
+      "s3:ListObjects"
+    ]
+    resources = [
+      "arn:aws:s3:::login-gov-${var.env_name}-proxylogs"
+    ]
+  }
+  statement {
+    actions = [
+      "s3:GetObject",
+      "s3:ListObjects"
+    ]
+    resources = [
+      "arn:aws:s3:::login-gov-${var.env_name}-proxylogs/*"
+    ]
+  }
+
   statement {
     actions = [
       "logs:Describe*",
@@ -100,7 +120,7 @@ resource "aws_s3_bucket" "logbucket" {
 resource "aws_instance" "elk" {
   count = "${var.non_asg_elk_enabled}"
   ami = "${var.default_ami_id}"
-  depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.es"]
+  depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.es","aws_route53_record.obproxy"]
   instance_type = "${var.instance_type_elk}"
   key_name = "${var.key_name}"
   subnet_id = "${aws_subnet.admin.id}"
@@ -137,9 +157,9 @@ resource "aws_instance" "elk" {
     EOF
     environment = "${var.env_name}"
     run_list = [
-      "role[base]"
-# XXX somehow this isn't working for amos???  Will try adding it in after launch.
-#      "recipe[identity-elk]"
+      "recipe[identity-outboundproxy::hostsetup]",
+      "role[base]",
+      "recipe[identity-elk]"
     ]
     node_name = "elk.${var.env_name}"
     secret_key = "${file("${var.chef_databag_key_path}")}"
@@ -149,6 +169,10 @@ resource "aws_instance" "elk" {
     user_key = "${file("${var.chef_id_key_path}")}"
     version = "${var.chef_version}"
     fetch_chef_certificates = true
+    # XXX comment out until we are ready to actually deploy
+    #http_proxy = "http://obproxy.login.gov.internal:3128"
+    #https_proxy = "http://obproxy.login.gov.internal:3128"
+    #no_proxy = ["localhost","127.0.0.1"]
   }
 }
 
@@ -164,8 +188,8 @@ resource "aws_route53_record" "elk" {
 resource "aws_instance" "es" {
   count = "${var.non_asg_es_enabled * var.esnodes}"
   ami = "${var.default_ami_id}"
-  depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef"]
-  instance_type = "t2.medium"
+  depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.obproxy"]
+  instance_type = "${var.instance_type_es}"
   key_name = "${var.key_name}"
   subnet_id = "${aws_subnet.admin.id}"
   iam_instance_profile = "${aws_iam_instance_profile.elk_instance_profile.id}"
@@ -207,6 +231,7 @@ resource "aws_instance" "es" {
     EOF
     environment = "${var.env_name}"
     run_list = [
+      "recipe[identity-outboundproxy::hostsetup]",
       "role[base]",
       "recipe[identity-elk::es]"
     ]
@@ -218,6 +243,10 @@ resource "aws_instance" "es" {
     user_key = "${file("${var.chef_id_key_path}")}"
     version = "${var.chef_version}"
     fetch_chef_certificates = true
+    # XXX comment out until we are ready to actually deploy
+    #http_proxy = "http://obproxy.login.gov.internal:3128"
+    #https_proxy = "http://obproxy.login.gov.internal:3128"
+    #no_proxy = ["localhost","127.0.0.1"]
   }
 }
 

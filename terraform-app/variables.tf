@@ -5,6 +5,7 @@ variable "ci_sg_ssh_cidr_blocks"  {
     description = "List of CIDR blocks to allow into all NACLs/SGs.  Only use in the CI VPC."
 }
 variable "power_users" { type="list" }
+variable "amazon_netblocks" { type="list" }
 variable "admin_subnet_cidr_block" { default = "172.16.33.16/28"} # 172.16.33.16 - 172.16.33.31
 variable "app1_subnet_cidr_block"  { default = "172.16.33.96/28" } # 172.16.33.96 - 172.16.33.111
 variable "spare_subnet_cidr_block"  { default = "172.16.33.112/28" } # 172.16.33.112 - 172.16.33.115
@@ -18,6 +19,8 @@ variable "idp3_subnet_cidr_block"  { default = "172.16.33.192/27" } # 172.16.33.
 variable "alb1_subnet_cidr_block"  { default = "172.16.33.224/28" } # 172.16.33.224 - 172.16.33.239
 variable "alb2_subnet_cidr_block"  { default = "172.16.33.240/28" } # 172.16.33.240 - 172.16.33.255
 variable "jumphost_subnet_cidr_block" { default = "172.16.33.0/28"} # 172.16.33.1 - 172.16.33.15
+variable "obproxy1_subnet_cidr_block" { default = "172.16.32.0/28"} # 172.16.32.1 - 172.16.32.15
+variable "obproxy2_subnet_cidr_block" { default = "172.16.32.16/28"} # 172.16.32.17 - 172.16.32.31
 variable "vpc_cidr_block"         { default = "172.16.32.0/22" } # 172.16.32.0 - 172.16.35.255
 #variable "vpc_cidr_block"         { default = "172.16.33.0/24" } # 172.16.32.0 - 172.16.35.255
 
@@ -59,7 +62,8 @@ variable "idp_worker_count" { default = 2 }
 variable "instance_type_app" { default = "t2.medium" }
 variable "instance_type_chef" { default = "t2.medium" }
 variable "instance_type_elk" { default = "t2.medium" }
-variable "instance_type_idp" { default = "t2.medium" } # TODO too small
+variable "instance_type_es" { default = "t2.medium" }
+variable "instance_type_idp" { default = "t2.medium" }
 variable "instance_type_jenkins" { default = "t2.medium" }
 variable "instance_type_jumphost" { default = "t2.small" }
 variable "instance_type_worker" { default = "t2.small" } # TODO way too small
@@ -67,6 +71,10 @@ variable "key_name" {}
 variable "live_certs" {}
 variable "name" { default = "login" }
 variable "region" { default = "us-west-2" }
+variable "outboundproxy_node_count" { default = "1" }
+variable "instance_type_outboundproxy" { default = "t2.small" }
+variable "outboundproxy1_ami_id" {}
+variable "outboundproxy2_ami_id" {}
 variable "version_info_bucket" { default = "login_dot_gov_tf_state" }
 variable "version_info_region" { default = "us-east-1" }
 
@@ -158,3 +166,11 @@ variable "certificates_bucket_name_prefix" {
     description = "Base name for the self signed certificates bucket used for service discovery"
     default = "login-gov-internal-certs-test"
 }
+
+# This variable is used to allow access to 80/443 on the general internet
+# Set it to [] to turn access off, "0.0.0.0/0" to allow it.
+variable "outbound_subnets" {
+  default = ["0.0.0.0/0"]
+  type="list"
+}
+

@@ -204,7 +204,7 @@ resource "aws_autoscaling_group" "idp" {
 resource "aws_instance" "idp1" {
   count = "${var.non_asg_idp_enabled * var.idp_node_count}"
   ami = "${var.idp1_ami_id}"
-  depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk", "aws_elasticache_cluster.idp", "aws_db_instance.idp"]
+  depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk", "aws_elasticache_cluster.idp", "aws_db_instance.idp", "aws_route53_record.obproxy"]
   instance_type = "${var.instance_type_idp}"
   key_name = "${var.key_name}"
   subnet_id = "${aws_subnet.idp1.id}"
@@ -251,13 +251,16 @@ resource "aws_instance" "idp1" {
     user_key = "${file("${var.chef_id_key_path}")}"
     version = "${var.chef_version}"
     fetch_chef_certificates = true
+    # XXX comment out until we are ready to actually deploy
+    #http_proxy = "http://obproxy.login.gov.internal:3128"
+    #https_proxy = "http://obproxy.login.gov.internal:3128"
   }
 }
 
 resource "aws_instance" "idp2" {
   count = "${var.non_asg_idp_enabled * var.idp_node_count}"
   ami = "${var.idp2_ami_id}"
-  depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk", "aws_elasticache_cluster.idp", "aws_db_instance.idp"]
+  depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk", "aws_elasticache_cluster.idp", "aws_db_instance.idp", "aws_route53_record.obproxy"]
   instance_type = "${var.instance_type_idp}"
   key_name = "${var.key_name}"
   subnet_id = "${aws_subnet.idp2.id}"
@@ -304,13 +307,16 @@ resource "aws_instance" "idp2" {
     user_key = "${file("${var.chef_id_key_path}")}"
     version = "${var.chef_version}"
     fetch_chef_certificates = true
+    # XXX comment out until we are ready to actually deploy
+    #http_proxy = "http://obproxy.login.gov.internal:3128"
+    #https_proxy = "http://obproxy.login.gov.internal:3128"
   }
 }
 
 resource "aws_instance" "idp_worker" {
   count = "${var.non_asg_idp_worker_enabled * var.idp_worker_count}"
   ami = "${element(var.worker_ami_list, count.index % length(var.worker_ami_list))}"
-  depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk", "aws_elasticache_cluster.idp", "aws_db_instance.idp"]
+  depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk", "aws_elasticache_cluster.idp", "aws_db_instance.idp", "aws_route53_record.obproxy"]
   instance_type = "${var.instance_type_worker}"
   key_name = "${var.key_name}"
   subnet_id = "${aws_subnet.idp1.id}"
@@ -357,6 +363,9 @@ resource "aws_instance" "idp_worker" {
     user_key = "${file("${var.chef_id_key_path}")}"
     version = "${var.chef_version}"
     fetch_chef_certificates = true
+    # XXX comment out until we are ready to actually deploy
+    #http_proxy = "http://obproxy.login.gov.internal:3128"
+    #https_proxy = "http://obproxy.login.gov.internal:3128"
   }
 }
 

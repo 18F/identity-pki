@@ -99,7 +99,7 @@ fi
 
 STATE=${TF_DIR}/terraform-${TF_VAR_env_name}.tfstate
 case "$TF_DIR" in
-    terraform-dns|terraform-cloudtrail)
+    terraform-dns|terraform-cloudtrail|terraform-common)
         echo "Not using a region specific state file for dns remote config"
         STATE=${TF_DIR}/terraform.tfstate
         ;;

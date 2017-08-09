@@ -50,7 +50,7 @@ resource "aws_iam_instance_profile" "jenkins" {
 resource "aws_instance" "jenkins" {
   count = "${var.non_asg_jenkins_enabled}"
   ami = "${var.jenkins_ami_id}"
-  depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk"]
+  depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk", "aws_route53_record.obproxy"]
   instance_type = "${var.instance_type_jenkins}"
   key_name = "${var.key_name}"
   subnet_id = "${aws_subnet.admin.id}"
@@ -87,6 +87,7 @@ resource "aws_instance" "jenkins" {
     EOF
     environment = "${var.env_name}"
     run_list = [
+      "recipe[identity-outboundproxy::hostsetup]",
       "role[base]",
       "recipe[identity-jenkins]"
     ]
@@ -98,6 +99,10 @@ resource "aws_instance" "jenkins" {
     user_key = "${file("${var.chef_id_key_path}")}"
     version = "${var.chef_version}"
     fetch_chef_certificates = true
+    # XXX comment out until we are ready to actually deploy
+    #http_proxy = "http://obproxy.login.gov.internal:3128"
+    #https_proxy = "http://obproxy.login.gov.internal:3128"
+    #no_proxy = ["localhost","127.0.0.1"]
   }
 
   # XXX when https://github.com/hashicorp/terraform/issues/10500 gets fixed, remove this

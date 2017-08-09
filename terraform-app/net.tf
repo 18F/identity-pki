@@ -3,7 +3,6 @@ data "aws_ip_ranges" "route53" {
   services = ["route53"]
 }
 
-
 resource "aws_elasticache_subnet_group" "idp" {
   name = "${var.name}-idp-cache-${var.env_name}"
   description = "Redis Subnet Group"
@@ -35,28 +34,29 @@ resource "aws_security_group" "app" {
     cidr_blocks = ["${var.vpc_cidr_block}"]
   }
 
-  # need 80/443 to get packages/gems/etc
-  egress {
-    from_port = 80
-    to_port = 80
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # need 80/443 to get packages/gems/etc
-  egress {
-    from_port = 443
-    to_port = 443
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # need ntp outbound
+  # need ntp to our ntp servers
   egress {
     from_port = 123
     to_port = 123
     protocol = "udp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["${var.obproxy1_subnet_cidr_block}","${var.obproxy2_subnet_cidr_block}","${var.outbound_subnets}"]
+  }
+
+  # need to get packages and stuff (conditionally)
+  # outbound_subnets can be set to "0.0.0.0/0" to allow access to the internet
+  egress {
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
+    cidr_blocks = ["${var.outbound_subnets}"]
+  }
+  # need to get packages and stuff (conditionally)
+  # outbound_subnets can be set to "0.0.0.0/0" to allow access to the internet
+  egress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = ["${var.outbound_subnets}"]
   }
 
   # github
@@ -187,7 +187,7 @@ resource "aws_security_group" "chef" {
     from_port = 123
     to_port = 123
     protocol = "udp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["${var.obproxy1_subnet_cidr_block}","${var.obproxy2_subnet_cidr_block}","${var.outbound_subnets}"]
   }
 
   ingress {
@@ -199,6 +199,7 @@ resource "aws_security_group" "chef" {
       "${aws_security_group.elk.id}",
       "${aws_security_group.jenkins.id}",
       "${aws_security_group.jumphost.id}",
+      "${aws_security_group.obproxy.id}",
       "${aws_security_group.idp.id}"
     ]
   }
@@ -290,22 +291,6 @@ resource "aws_security_group" "elk" {
     cidr_blocks = ["${var.vpc_cidr_block}"]
   }
 
-  # need 80/443 to get packages/gems/etc
-  egress {
-    from_port = 80
-    to_port = 80
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # need 80/443 to get packages/gems/etc
-  egress {
-    from_port = 443
-    to_port = 443
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
   # github
   egress {
     from_port = 22
@@ -319,7 +304,34 @@ resource "aws_security_group" "elk" {
     from_port = 123
     to_port = 123
     protocol = "udp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["${var.obproxy1_subnet_cidr_block}","${var.obproxy2_subnet_cidr_block}","${var.outbound_subnets}"]
+  }
+
+  # need to get packages and stuff (conditionally)
+  # outbound_subnets can be set to "0.0.0.0/0" to allow access to the internet
+  egress {
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
+    cidr_blocks = ["${var.outbound_subnets}"]
+  }
+  # need to get packages and stuff (conditionally)
+  # outbound_subnets can be set to "0.0.0.0/0" to allow access to the internet
+  egress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = ["${var.outbound_subnets}"]
+  }
+
+  # need 80,443 to get to s3 and cloudtrail
+  # XXX this is suboptimal with 80-443, but if we make separate rules,
+  #     it runs out of space in the policy because there are two lists of AWS netblocks.
+  egress {
+    from_port = 80
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = ["${var.amazon_netblocks}"]
   }
 
   ingress {
@@ -340,7 +352,9 @@ resource "aws_security_group" "elk" {
       "${var.idp1_subnet_cidr_block}",
       "${var.idp2_subnet_cidr_block}",
       "${var.idp3_subnet_cidr_block}",
-      "${var.jumphost_subnet_cidr_block}"
+      "${var.jumphost_subnet_cidr_block}",
+      "${var.obproxy1_subnet_cidr_block}",
+      "${var.obproxy2_subnet_cidr_block}"
     ]
   }
 
@@ -387,20 +401,21 @@ resource "aws_security_group" "jenkins" {
     cidr_blocks = ["${var.vpc_cidr_block}"]
   }
 
-  # need 80/443 to get packages/gems/etc
+  # need to get packages and stuff (conditionally)
+  # outbound_subnets can be set to "0.0.0.0/0" to allow access to the internet
   egress {
     from_port = 80
     to_port = 80
     protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["${var.outbound_subnets}"]
   }
-
-  # need 80/443 to get packages/gems/etc
+  # need to get packages and stuff (conditionally)
+  # outbound_subnets can be set to "0.0.0.0/0" to allow access to the internet
   egress {
     from_port = 443
     to_port = 443
     protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["${var.outbound_subnets}"]
   }
 
   # github
@@ -416,7 +431,7 @@ resource "aws_security_group" "jenkins" {
     from_port = 123
     to_port = 123
     protocol = "udp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["${var.obproxy1_subnet_cidr_block}","${var.obproxy2_subnet_cidr_block}","${var.outbound_subnets}"]
   }
 
   ingress {
@@ -491,7 +506,7 @@ resource "aws_security_group" "jumphost" {
     from_port = 123
     to_port = 123
     protocol = "udp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["${var.obproxy1_subnet_cidr_block}","${var.obproxy2_subnet_cidr_block}","${var.outbound_subnets}"]
   }
 
   # need dns outbound for ACME cert generation stuff
@@ -546,20 +561,29 @@ resource "aws_security_group" "idp" {
     cidr_blocks = ["${var.vpc_cidr_block}"]
   }
 
-  # need 80/443 to get packages/gems/etc
-  egress {
-    from_port = 80
-    to_port = 80
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # need 80/443 to get packages/gems/etc
+  # need 443 to get to amazon services (kms, etc)
   egress {
     from_port = 443
     to_port = 443
     protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["${var.amazon_netblocks}"]
+  }
+
+  # need to get packages and stuff (conditionally)
+  # outbound_subnets can be set to "0.0.0.0/0" to allow access to the internet
+  egress {
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
+    cidr_blocks = ["${var.outbound_subnets}"]
+  }
+  # need to get packages and stuff (conditionally)
+  # outbound_subnets can be set to "0.0.0.0/0" to allow access to the internet
+  egress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = ["${var.outbound_subnets}"]
   }
 
   # github
@@ -571,6 +595,7 @@ resource "aws_security_group" "idp" {
   }
 
   # email (smtp.mandrillapp.com seems not to have a fixed IP range)
+  # XXX need to change idp to use mandrill API for this to be removed
   egress {
     from_port = 587
     to_port = 587
@@ -583,7 +608,7 @@ resource "aws_security_group" "idp" {
     from_port = 123
     to_port = 123
     protocol = "udp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["${var.obproxy1_subnet_cidr_block}","${var.obproxy2_subnet_cidr_block}","${var.outbound_subnets}"]
   }
 
   ingress {
@@ -635,44 +660,12 @@ resource "aws_security_group" "web" {
   description = "Security group for web that allows web traffic from internet"
   vpc_id = "${aws_vpc.default.id}"
 
-  # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
+  # allow outbound to the VPC so that we can get to the idp hosts
   egress {
     from_port = 0
     to_port = 65535
     protocol = "tcp"
     cidr_blocks = ["${var.vpc_cidr_block}"]
-  }
-
-  # need 80/443 to get packages/gems/etc
-  egress {
-    from_port = 80
-    to_port = 80
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # need 80/443 to get packages/gems/etc
-  egress {
-    from_port = 443
-    to_port = 443
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # github
-  egress {
-    from_port = 22
-    to_port = 22
-    protocol = "tcp"
-    cidr_blocks = ["192.30.252.0/22"]
-  }
-
-  # need ntp outbound
-  egress {
-    from_port = 123
-    to_port = 123
-    protocol = "udp"
-    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
@@ -687,14 +680,6 @@ resource "aws_security_group" "web" {
     to_port   = 443
     protocol  = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # allow CI VPC for integration tests
-  ingress {
-    from_port = 22
-    to_port = 22
-    protocol = "tcp"
-    cidr_blocks = ["${var.ci_sg_ssh_cidr_blocks}"]
   }
 
   name = "${var.name}-web-${var.env_name}"
