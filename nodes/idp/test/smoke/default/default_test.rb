@@ -28,7 +28,9 @@ describe command('sudo whoami') do
 end
 
 # check passenger status
-describe command('sudo passenger-status') do
+# TODO: Actually move the instance registry dir to something more reasonable.
+# See: https://stackoverflow.com/questions/31761542/phusion-passenger-status-what-value-for-passenger-instance-registry-dir#31769807
+describe command('sudo env PASSENGER_INSTANCE_REGISTRY_DIR=/var/lib/kitchen/cache/ passenger-status') do
   its('exit_status') { should eq 0 }
   its('stdout') { should include 'General information' }
 end
