@@ -5,4 +5,5 @@ module "analytics" {
   vpc_cidr_block =  "${var.vpc_cidr_block}"
   analytics_version = "${var.analytics_version}"
   region = "${var.region}"
+  kms_key_id = "${var.kms_key_id}"
 }
