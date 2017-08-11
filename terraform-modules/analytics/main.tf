@@ -44,7 +44,7 @@ resource "aws_redshift_cluster" "redshift" {
   enable_logging               = true
   encrypted                    = true
   cluster_parameter_group_name = "${aws_redshift_parameter_group.redshift_configuration.name}"
-  bucket_name                  = "login-gov-${var.env_name}-logs"
+  bucket_name                  = "${aws_s3_bucket.redshift_logs_bucket.id}"
 
   vpc_security_group_ids = [
     "${aws_security_group.redshift_security_group.id}"
@@ -112,7 +112,7 @@ resource "aws_redshift_subnet_group" "redshift_subnet_group" {
 }
 
 resource "aws_security_group" "redshift_security_group" {
-  name = "redshift-${var.env_name}-sg"
+  name = "login-redshift-security_group-${var.env_name}"
   description = "allow GSA to get to redshift"
   vpc_id = "${aws_vpc.analytics_vpc.id}"
 
@@ -153,10 +153,15 @@ resource "aws_security_group" "redshift_security_group" {
       "54.70.204.128/27"
     ]
   }
+
+  tags {
+    name   = "login-redshift-security_group-${var.env_name}",
+    client = "MB18FIX019988"
+  }
 }
 
 resource "aws_security_group" "lambda_security_group" {
-  name = "lambda-${var.env_name}-sg"
+  name = "login-lambda-security_group-${var.env_name}"
   description = "allow GSA to get to lambda"
   vpc_id = "${aws_vpc.analytics_vpc.id}"
 
@@ -177,6 +182,11 @@ resource "aws_security_group" "lambda_security_group" {
       "0.0.0.0/0"
     ]
   }
+
+  tags {
+    name   = "login-lambda-security_group-${var.env_name}",
+    client = "MB18FIX019988"
+  }
 }
 
 resource "aws_s3_bucket" "redshift_export_bucket" {
@@ -185,6 +195,53 @@ resource "aws_s3_bucket" "redshift_export_bucket" {
   tags {
     Name = "login-gov-${var.env_name}-analytics"
   }
+
+  logging {
+    target_bucket = "${aws_s3_bucket.redshift_logs_bucket.id}"
+    target_prefix = "s3-analytics-${var.env_name}-"
+  }
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+resource "aws_s3_bucket" "redshift_logs_bucket" {
+  bucket = "login-gov-${var.env_name}-analytics-logs"
+
+  tags {
+    Name = "login-gov-${var.env_name}-analytics-logs"
+  }
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+data "aws_iam_policy_document" "bucket_policy_json" {
+  statement {
+    actions = [
+      "s3:*"
+    ]
+
+    resources = [
+      "arn:aws:s3:::login-gov-${var.env_name}-analytics-logs/*",
+      "arn:aws:s3:::login-gov-${var.env_name}-analytics-logs"
+    ]
+
+    principals {
+      type = "AWS"
+      identifiers = [
+                      "${aws_iam_user.redshift_user.arn}",
+                      "arn:aws:iam::902366379725:user/logs"
+                    ]
+    }
+  }
+}
+
+resource "aws_s3_bucket_policy" "redshift_logs_policy" {
+  bucket = "${aws_s3_bucket.redshift_logs_bucket.id}"
+  policy = "${data.aws_iam_policy_document.bucket_policy_json.json}"
 }
 
 data "aws_iam_policy_document" "redshift_policy_document" {
@@ -193,7 +250,11 @@ data "aws_iam_policy_document" "redshift_policy_document" {
 
     principals {
       type        = "Service"
-      identifiers = ["ec2.amazonaws.com"]
+      identifiers = [
+                      "ec2.amazonaws.com",
+                      "${aws_iam_user.redshift_user.arn}",
+                      "arn:aws:iam::902366379725:user/logs"
+                    ]
     }
   }
 }
@@ -256,7 +317,10 @@ resource "aws_iam_policy" "lambda_policy" {
         "ec2:Create*",
         "ec2:Delete*",
         "ec2:Update*",
-        "ec2:Describe*"
+        "ec2:Describe*",
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
       ],
       "Resource": "*"
     }
@@ -283,7 +347,17 @@ resource "aws_iam_policy" "redshift_s3_policy" {
         "s3:*"
       ],
       "Resource": "*"
-    }
+    },
+    {
+    "Effect": "Allow",
+    "Action": "s3:PutObject",
+    "Resource": "arn:aws:s3:::login-gov-${var.env_name}-analytics-logs/*"
+    },
+    {
+    "Effect": "Allow",
+    "Action": "s3:GetBucketAcl",
+    "Resource": "arn:aws:s3:::login-gov-${var.env_name}-analytics-logs"
+  }
   ]
 }
 EOF
@@ -348,7 +422,7 @@ resource "aws_cloudwatch_event_target" "cloudwatch_notification" {
     arn = "${aws_lambda_function.analytics_lambda.arn}"
 }
 
-resource "aws_lambda_permission" "allow_cexecution_from_cloudwatch" {
+resource "aws_lambda_permission" "allow_execution_from_cloudwatch" {
     statement_id = "AllowExecutionFromCloudWatch"
     action = "lambda:InvokeFunction"
     function_name = "${aws_lambda_function.analytics_lambda.function_name}"
