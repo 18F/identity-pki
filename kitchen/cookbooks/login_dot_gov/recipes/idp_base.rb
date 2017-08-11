@@ -120,11 +120,13 @@ application release_path do
     app_name "#{node.chef_environment}.#{node['login_dot_gov']['app_name']}"
   end
 
-  # install node dependencies
-  execute 'npm install' do
+# install and build node dependencies
+ ['npm install', 'npm run build'].each do |cmd|
+    execute "#{cmd}" do
     # creates node_path
-    cwd '/srv/idp/releases/chef'
-  end
+      cwd '/srv/idp/releases/chef'
+    end
+end
 
   rails do
     # for some reason you can't set the database name when using ruby block format. Perhaps it has
