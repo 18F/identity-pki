@@ -19,6 +19,10 @@ resource "acme_certificate" "dashboard" {
   registration_url          = "${acme_registration.registration.id}"
   server_url                = "https://acme-v01.api.letsencrypt.org/directory"
 
+  # Modifying this at all forces a renewal due to
+  # https://github.com/paybyphone/terraform-provider-acme/issues/13
+  min_days_remaining        = 14
+
   dns_challenge {
     provider = "route53"
   }
@@ -42,7 +46,8 @@ resource "acme_certificate" "idp" {
   subject_alternative_names = ["idp.${var.env_name}.login.gov"]
   server_url                = "https://acme-v01.api.letsencrypt.org/directory"
 
-  # Modifying this at all forces a renwal due to https://github.com/paybyphone/terraform-provider-acme/issues/13
+  # Modifying this at all forces a renewal due to
+  # https://github.com/paybyphone/terraform-provider-acme/issues/13
   min_days_remaining        = 14
 
   dns_challenge {
@@ -62,6 +67,10 @@ resource "acme_certificate" "sp-oidc-sinatra" {
   registration_url          = "${acme_registration.registration.id}"
   server_url                = "https://acme-v01.api.letsencrypt.org/directory"
 
+  # Modifying this at all forces a renewal due to
+  # https://github.com/paybyphone/terraform-provider-acme/issues/13
+  min_days_remaining        = 14
+
   dns_challenge {
     provider = "route53"
   }
@@ -80,6 +89,10 @@ resource "acme_certificate" "sp-rails" {
   server_url                = "https://acme-v01.api.letsencrypt.org/directory"
   subject_alternative_names = ["sp-rails.${var.env_name}.login.gov"]
 
+  # Modifying this at all forces a renewal due to
+  # https://github.com/paybyphone/terraform-provider-acme/issues/13
+  min_days_remaining        = 14
+
   dns_challenge {
     provider = "route53"
   }
@@ -96,6 +109,10 @@ resource "acme_certificate" "sp-sinatra" {
   count                     = "${var.apps_enabled == true ? 1 : 0}"
   registration_url          = "${acme_registration.registration.id}"
   server_url                = "https://acme-v01.api.letsencrypt.org/directory"
+
+  # Modifying this at all forces a renewal due to
+  # https://github.com/paybyphone/terraform-provider-acme/issues/13
+  min_days_remaining        = 14
 
   dns_challenge {
     provider = "route53"
