@@ -14,6 +14,24 @@ resource "aws_iam_role_policy" "obproxy" {
   policy = "${data.aws_iam_policy_document.sharedbucket.json}"
 }
 
+resource "aws_iam_role_policy" "obproxy-secrets" {
+  name = "${var.env_name}-obproxy-secrets"
+  role = "${aws_iam_role.obproxy.id}"
+  policy = "${data.aws_iam_policy_document.secrets_role_policy.json}"
+}
+
+resource "aws_iam_role_policy" "obproxy-certificates" {
+  name = "${var.env_name}-obproxy-certificates"
+  role = "${aws_iam_role.obproxy.id}"
+  policy = "${data.aws_iam_policy_document.certificates_role_policy.json}"
+}
+
+resource "aws_iam_role_policy" "obproxy-describe_instances" {
+  name = "${var.env_name}-obproxy-describe_instances"
+  role = "${aws_iam_role.obproxy.id}"
+  policy = "${data.aws_iam_policy_document.describe_instances_role_policy.json}"
+}
+
 resource "aws_security_group" "obproxy" {
   description = "Allow inbound web traffic and whitelisted IP(s) for SSH"
 
@@ -69,6 +87,13 @@ resource "aws_security_group" "obproxy" {
     to_port = 22
     protocol = "tcp"
     security_groups = [ "${aws_security_group.jumphost.id}", "${aws_security_group.jenkins.id}" ]
+  }
+
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = [ "${var.ci_sg_ssh_cidr_blocks}" ]
   }
 
   name = "${var.name}-obproxy-${var.env_name}"
