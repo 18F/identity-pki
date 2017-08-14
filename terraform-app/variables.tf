@@ -72,7 +72,6 @@ variable "live_certs" {}
 variable "name" { default = "login" }
 variable "region" { default = "us-west-2" }
 variable "outboundproxy_node_count" { default = "1" }
-variable "instance_type_outboundproxy" { default = "t2.small" }
 variable "outboundproxy1_ami_id" {}
 variable "outboundproxy2_ami_id" {}
 variable "version_info_bucket" { default = "login_dot_gov_tf_state" }
@@ -173,4 +172,8 @@ variable "outbound_subnets" {
   default = ["0.0.0.0/0"]
   type="list"
 }
+
+variable "outboundproxy_ami_id" {}
+variable "instance_type_outboundproxy" { default = "t2.small" }
+variable "asg_outboundproxy_desired" { default = 0 }
 
