@@ -5,10 +5,6 @@
 # The Inspec reference, with examples and extensive documentation, can be
 # found at http://inspec.io/docs/reference/resources/
 
-describe user('test') do
-  it { should exist }
-end
-
 describe file('/usr/local/bin/terraform') do
   it { should exist }
   it { should be_executable }
