@@ -60,8 +60,9 @@ module Cloudlib
       # @param [Boolean, nil] use_jumphost Whether to try to find a jumphost to
       #   SSH through. If set to nil, auto determine based on instance name.
       def ssh_cmdline(username: nil, command: nil, port: 22, pkcs11_lib: nil,
-                      strict_host_key_checking: nil,
-                      use_jumphost: nil, verbose: false, ssh_opts: [])
+                      strict_host_key_checking: nil, use_jumphost: nil,
+                      verbose: false, quiet: false,
+                      ssh_opts: [])
 
         username ||= ENV['GSA_USERNAME']
         unless username
@@ -81,6 +82,7 @@ module Cloudlib
 
         cmd = ['ssh', '-l', username]
         cmd += ['-v'] if verbose
+        cmd += ['-q'] if quiet
         cmd += ['-p', port.to_s]
 
         if pkcs11_lib
@@ -121,7 +123,7 @@ module Cloudlib
 
           proxycommand = jumphost_ssh_single.ssh_cmdline(
             username: username, port: port, pkcs11_lib: pkcs11_lib,
-            use_jumphost: false, verbose: verbose,
+            use_jumphost: false, verbose: verbose, quiet: quiet,
             ssh_opts: ['-W', netcat_host] + ssh_opts
           )
 

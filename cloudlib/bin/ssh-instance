@@ -49,7 +49,7 @@ def main(args)
 usage: #{basename} [OPTIONS] [USER@]HOST [COMMAND]
 
 SSH to an individual EC2 instance. HOST may be specified by EC2 Instance ID or
-by FQDN (EC2 instance name tag).
+by EC2 instance "Name" tag.
 
 If USER is not specified, it defaults to $GSA_USERNAME.
 
@@ -67,12 +67,24 @@ Examples:
     # SSH to a randomly selected matching auto scaled IDP instance
     #{basename} -1 asg-dev-idp
 
+    # Quietly SSH to a randomly selected matching es server, run hostname
+    #{basename} -1 -q login-es*-qa hostname -f
+
 Options:
     EOM
 
     opts.on('-h', '--help', 'Display this message') do
       STDERR.puts opts
       exit
+    end
+
+    opts.on('-v', '--verbose', 'Be more verbose') do
+      options[:verbose] = true
+    end
+
+    opts.on('-q', '--quiet', 'Be quieter') do
+      options[:verbose] = false
+      options[:quiet] = true
     end
 
     opts.on('-l', '--login', 'SSH login username') do |val|
@@ -86,16 +98,22 @@ Options:
     opts.on('-j', '--[no-]jumphost', 'Whether to use a jumphost') do |val|
       options[:use_jumphost] = val
     end
+
+    opts.on('-o', '--ssh-opt OPT',
+            'Set SSH option (may be passed multiple times)') do |val|
+      options[:ssh_opts] ||= []
+      options[:ssh_opts] += ['-o', val]
+    end
   end
 
-  optparse.parse!(args)
+  host_and_cmd = optparse.order(args)
 
-  if args.empty?
+  if host_and_cmd.empty?
     STDERR.puts optparse
     exit 1
   end
 
-  host_spec = args.shift
+  host_spec = host_and_cmd.shift
 
   if host_spec.include?('@')
     options[:username], host_spec = host_spec.split('@', 2)
@@ -109,8 +127,8 @@ Options:
     instance = get_instance_by_name(host_spec, pick_random: options.delete(:pick_random))
   end
 
-  if !args.empty?
-    options[:command] = args
+  if !host_and_cmd.empty?
+    options[:command] = host_and_cmd
   end
 
   ssh_instance(instance: instance, options: options)
