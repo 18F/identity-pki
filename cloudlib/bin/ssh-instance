@@ -1,0 +1,121 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+
+require 'bundler/setup'
+
+require_relative '../lib/cloudlib'
+
+def log
+  return @log if @log
+  @log = Logger.new(STDERR)
+  @log.progname = File.basename($0)
+  @log
+end
+
+def ssh_instance(instance:, options:)
+  log.info("SSH to #{Cloudlib::EC2.instance_label(instance)}")
+  single = Cloudlib::SSH::Single.new(instance: instance)
+  single.ssh_exec(**options)
+end
+
+def get_instance_by_id(instance_id)
+  log.debug("Looking up instance ID #{instance_id.inspect}")
+  Cloudlib::EC2.new.lookup_instance_by_id(instance_id)
+end
+
+def get_instance_by_name(name_tag, states:['running'], pick_random: false)
+  filters = [
+    {name: 'tag:Name', values: [name_tag]},
+    {name: 'instance-state-name', values: states}
+  ]
+  if pick_random
+    log.debug("Looking up random instance named #{name_tag.inspect}")
+    Cloudlib::EC2.new.get_random_thing(:instances, filters)
+  else
+    log.debug("Looking up instance named #{name_tag.inspect}")
+    Cloudlib::EC2.new.get_unique_thing(:instances, filters)
+  end
+end
+
+def main(args)
+
+  options = {}
+
+  basename = File.basename($0)
+
+  optparse = OptionParser.new do |opts|
+    opts.banner = <<-EOM
+usage: #{basename} [OPTIONS] [USER@]HOST [COMMAND]
+
+SSH to an individual EC2 instance. HOST may be specified by EC2 Instance ID or
+by FQDN (EC2 instance name tag).
+
+If USER is not specified, it defaults to $GSA_USERNAME.
+
+Examples:
+
+    # SSH to a specific instance
+    #{basename} i-abcd1234
+
+    # SSH with a username
+    #{basename} ubuntu@i-abcd1234
+
+    # SSH to a uniquely named instance
+    #{basename} login-worker0-dev
+
+    # SSH to a randomly selected matching auto scaled IDP instance
+    #{basename} -1 asg-dev-idp
+
+Options:
+    EOM
+
+    opts.on('-h', '--help', 'Display this message') do
+      STDERR.puts opts
+      exit
+    end
+
+    opts.on('-l', '--login', 'SSH login username') do |val|
+      options[:username] = val
+    end
+
+    opts.on('-1', '--any', 'SSH to random server matching name') do
+      options[:pick_random] = true
+    end
+
+    opts.on('-j', '--[no-]jumphost', 'Whether to use a jumphost') do |val|
+      options[:use_jumphost] = val
+    end
+  end
+
+  optparse.parse!(args)
+
+  if args.empty?
+    STDERR.puts optparse
+    exit 1
+  end
+
+  host_spec = args.shift
+
+  if host_spec.include?('@')
+    options[:username], host_spec = host_spec.split('@', 2)
+  end
+
+  host_spec = host_spec.strip.downcase
+
+  if host_spec =~ /\Ai-[a-f0-9]+\z/
+    instance = get_instance_by_id(host_spec)
+  else
+    instance = get_instance_by_name(host_spec, pick_random: options.delete(:pick_random))
+  end
+
+  if !args.empty?
+    options[:command] = args
+  end
+
+  ssh_instance(instance: instance, options: options)
+end
+
+if __FILE__ == $0
+  main(ARGV)
+end

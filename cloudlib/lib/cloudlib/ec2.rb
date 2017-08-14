@@ -53,6 +53,14 @@ module Cloudlib
       @log
     end
 
+    def self.log
+      return @log if @log
+
+      @log = Logger.new(STDERR)
+      @log.progname = self.name
+      @log
+    end
+
     # @param [String] environment
     # @return [Aws::EC2::Vpc]
     def lookup_vpc_for_env(environment)
@@ -102,6 +110,7 @@ module Cloudlib
       }
     end
 
+    # TODO: pick jumphost within an AZ or pick an ELB jumphost
     def find_jumphost
       # find ASG and non-asg jumphosts
       jumphosts = list_instances_by_name('*jumphost-*', in_vpc: true)
@@ -128,6 +137,8 @@ module Cloudlib
     # Look up a unique object in EC2. Raise ManyFound if multiple objects match
     # the filters.
     #
+    # @raise NotFound if no objects are found.
+    #
     # @param [Symbol] thing The object to find, such as :instances, :vpcs, etc.
     # @param [Array<Hash>] filters
     #
@@ -143,14 +154,33 @@ module Cloudlib
       found.first
     end
 
+    # Look up an object in EC2. If multiple objects match the filters, return
+    # one of them at random.
+    #
+    # @raise NotFound if no objects are found.
+    #
     # @param [Symbol] thing The object to find, such as :instances, :vpcs, etc.
     # @param [Array<Hash>] filters
-    # @return [Array]
     #
-    def list_things(thing, filters)
-      log.debug{"Listing #{thing} with #{filters.inspect}"}
+    def get_random_thing(thing, filters)
       found = ec2.public_send(thing, filters: filters).to_a
       if found.empty?
+        raise NotFound.new("No #{thing} found for filters: #{filters.inspect}")
+      end
+
+      # return random thing
+      found.sample
+    end
+
+    # @param [Symbol] thing The object to find, such as :instances, :vpcs, etc.
+    # @param [Array<Hash>] filters
+    # @param [Boolean] raise_not_found Whether to raise if no instances found
+    # @return [Array]
+    #
+    def list_things(thing, filters, raise_not_found: true)
+      log.debug{"Listing #{thing} with #{filters.inspect}"}
+      found = ec2.public_send(thing, filters: filters).to_a
+      if found.empty? && raise_not_found
         raise NotFound.new("No #{thing} found for filters: #{filters.inspect}")
       end
 
@@ -169,21 +199,15 @@ module Cloudlib
     end
 
     def name_tag(obj, allow_nil: false)
-      fetch_tag(obj, 'Name', allow_nil: allow_nil)
+      self.class.name_tag(obj, allow_nil: allow_nil)
     end
 
     def fetch_tag(obj, key, allow_nil: false)
-      tag = obj.tags.find {|t| t.key == key }
-      if tag
-        tag.value
-      else
-        if allow_nil
-          nil
-        else
-          log.warn("No #{key.inspect} tag found among #{obj.tags.inspect}")
-          raise KeyError.new("No #{key.inspect} tag found on #{obj.inspect}")
-        end
-      end
+      self.class.fetch_tag(obj, key, allow_nil: allow_nil)
+    end
+
+    def instance_label(instance)
+      self.class.instance_label(instance)
     end
 
     def classic_hostname_for_instance(instance)
@@ -213,6 +237,28 @@ module Cloudlib
       end
 
       return base + '.' + domain
+    end
+
+    def self.name_tag(obj, allow_nil: false)
+      fetch_tag(obj, 'Name', allow_nil: allow_nil)
+    end
+
+    def self.fetch_tag(obj, key, allow_nil: false)
+      tag = obj.tags.find {|t| t.key == key }
+      if tag
+        tag.value
+      else
+        if allow_nil
+          nil
+        else
+          log.warn("No #{key.inspect} tag found among #{obj.tags.inspect}")
+          raise KeyError.new("No #{key.inspect} tag found on #{obj.inspect}")
+        end
+      end
+    end
+
+    def self.instance_label(instance)
+      name_tag(instance, allow_nil: true).inspect + ' (' + instance.instance_id + ')'
     end
   end
 end

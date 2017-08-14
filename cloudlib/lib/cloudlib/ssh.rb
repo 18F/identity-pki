@@ -44,8 +44,24 @@ module Cloudlib
         @log
       end
 
+      # Find the host key entry in {KnownHostsPath}, assuming that the known
+      # hosts file was created with -o HashKnownHosts=no.
+      #
+      # @return [String, nil] A known hosts line, or nil.
+      #
+      def get_known_hosts_entry(hostkeyalias)
+        File.read(KnownHostsPath).split("\n").find { |line|
+          line.start_with?(hostkeyalias + ' ')
+        }
+      rescue Errno::ENOENT
+        return nil
+      end
+
+      # @param [Boolean, nil] use_jumphost Whether to try to find a jumphost to
+      #   SSH through. If set to nil, auto determine based on instance name.
       def ssh_cmdline(username: nil, command: nil, port: 22, pkcs11_lib: nil,
-                      verbose: true, ssh_opts: [])
+                      strict_host_key_checking: nil,
+                      use_jumphost: nil, verbose: false, ssh_opts: [])
 
         username ||= ENV['GSA_USERNAME']
         unless username
@@ -53,36 +69,60 @@ module Cloudlib
         end
 
         name_tag = cl.name_tag(instance)
-        if name_tag.include?(JumphostName)
-          use_jumphost = false
-        else
-          use_jumphost = true
+
+        if use_jumphost.nil?
+          if name_tag.include?(JumphostName)
+            use_jumphost = false
+          else
+            log.debug('Automatically using jumphost')
+            use_jumphost = true
+          end
         end
 
         cmd = ['ssh', '-l', username]
         cmd += ['-v'] if verbose
-        cmd += ['-o', 'StrictHostKeyChecking=yes'] # Trust On First Use
-        cmd += ['-o', 'HashKnownHosts=no']
         cmd += ['-p', port.to_s]
 
         if pkcs11_lib
           cmd += ['-I', pkcs11_lib]
         end
 
-        hostkey_alias = instance.instance_id + ':' + port.to_s
-        cmd += ['-o', "HostKeyAlias=#{hostkey_alias}",
-                '-o', "UserKnownHostsFile=#{KnownHostsPath}"]
+        hostkey_alias = "[#{instance.instance_id}]:#{port}"
+
+        if strict_host_key_checking.nil?
+          # Use strict host key checking if the alias is already found in the
+          # file, otherwise automatically accept the host key. It's a shame
+          # that SSH doesn't have any built-in way to specify this behavior,
+          # but our only options are "yes", "no", and "ask".
+
+          if get_known_hosts_entry(hostkey_alias)
+            strict_host_key_checking = true
+          else
+            strict_host_key_checking = false
+          end
+        end
+
+        cmd += [
+          '-o', "HostKeyAlias=#{hostkey_alias}",
+          '-o', "UserKnownHostsFile=#{KnownHostsPath}",
+          '-o', "StrictHostKeyChecking=#{strict_host_key_checking}",
+          '-o', 'HashKnownHosts=no'
+        ]
 
         if use_jumphost
           log.debug('Finding a jumphost to use')
           jumphost = @cl.find_jumphost
+
+          log.debug("Found #{@cl.instance_label(jumphost)}")
+
           jumphost_ssh_single = self.class.new(instance: jumphost)
 
           netcat_host = instance.private_ip_address + ':' + port.to_s
 
           proxycommand = jumphost_ssh_single.ssh_cmdline(
             username: username, port: port, pkcs11_lib: pkcs11_lib,
-            verbose: verbose, ssh_opts: ['-W', netcat_host] + ssh_opts
+            use_jumphost: false, verbose: verbose,
+            ssh_opts: ['-W', netcat_host] + ssh_opts
           )
 
           cmd += ['-o', 'ProxyCommand=' + proxycommand.join(' ')]
@@ -92,7 +132,18 @@ module Cloudlib
           cmd << instance.public_ip_address
         end
 
-        cmd << command if command
+        cmd += ssh_opts
+
+        if command
+          if command.is_a?(Array)
+            # SSH doesn't respect quoting from arrays anyway
+            # TODO do some magic to handle quoted arrays in a less surprising
+            # way
+            cmd << command.join(' ')
+          else
+            cmd << command
+          end
+        end
 
         cmd
       end
@@ -104,16 +155,16 @@ module Cloudlib
       #
       # @see #ssh_cmdline
       #
-      def ssh_exec
-        cmd = ssh_cmdline
-        log.debug('exec: ' + cmd.join(' '))
+      def ssh_exec(*args)
+        cmd = ssh_cmdline(*args)
+        log.debug('exec: ' + cmd.inspect)
         exec(*cmd)
       end
 
       # Generate an SSH command line and run it in a subprocess.
       # @return [Process::Status]
-      def ssh_subprocess
-        cmd = ssh_cmdline
+      def ssh_subprocess(*args)
+        cmd = ssh_cmdline(*args)
         log.debug('+ ' + cmd.join(' '))
         Subprocess.check_call(cmd)
       end
