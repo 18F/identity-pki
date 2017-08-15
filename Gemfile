@@ -20,3 +20,4 @@ gem 'knife-block'
 
 gem 'semantic'
 gem 'subprocess'
+gem 'terminal-table', '~> 1.8'

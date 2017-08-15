@@ -1,23 +1,26 @@
 #!/usr/bin/env ruby
 
-require 'bundler/setup'
+require 'optparse'
 
+require 'bundler/setup'
 require_relative '../lib/cloudlib'
 
-def lookup_servers_for_env(env)
+require 'terminal-table'
+
+def lookup_servers_for_env(env, states: nil)
   ec2 = Cloudlib::EC2.new(env: env)
 
   Cloudlib.log.info("Listing servers in #{env.inspect} environment")
 
-  instances = ec2.instances_in_vpc(states: DefaultStatesFilter)
+  instances = ec2.instances_in_vpc(states: states)
 
   data_for_instances(instances)
 end
 
-def lookup_servers_by_pat(name_pattern)
+def lookup_servers_by_pat(name_pattern, states: nil)
   ec2 = Cloudlib::EC2.new
   instances = ec2.list_instances_by_name(name_pattern,
-    in_vpc: false, states: DefaultStatesFilter)
+    in_vpc: false, states: states)
 
   data_for_instances(instances)
 end
@@ -30,31 +33,30 @@ DefaultStatesFilter = %w{
   stopping
   stopped
   shutting-down
-}
-
-# TODO do proper headers and proper table output so we don't pad with spaces
-Header = [
-  'instance-id      ',
-  'image-id',
-  'name        ',
-  'instance-type',
-  'private-ip',
-  'public-ip',
-  'state',
-  'launch-time',
-]
+}.map(&:freeze).freeze
 
 def data_for_instances(instances)
-  ec2 = Cloudlib::EC2.new
+  cl = Cloudlib::EC2.new
 
   # require 'pry'
   # binding.pry
+
+  header = [
+    'instance-id',
+    'image-id',
+    'name',
+    'instance-type',
+    'private-ip',
+    'public-ip',
+    'state',
+    'launch-time',
+  ]
 
   data = instances.map {|i|
     [
       i.instance_id,
       i.image_id,
-      ec2.name_tag(i, allow_nil: true) || '',
+      cl.name_tag(i, allow_nil: true) || '',
       i.instance_type,
       i.private_ip_address,
       i.public_ip_address || '',
@@ -63,55 +65,114 @@ def data_for_instances(instances)
     ]
   }
 
-  data.sort_by {|row| row.fetch(2) }
+  # sort by name tag
+  data = data.sort_by {|row| row.fetch(2) }
+
+  return {
+    header: header,
+    rows: data.sort_by {|row| row.fetch(2) },
+  }
 end
 
-def usage
-  puts <<-EOM
-usage: #{File.basename($0)} [OPTIONS] [NAME_PATTERN]
+def print_data_batch(data, skip_header: false)
+  puts data.fetch(:header).join("\t") unless skip_header
+  data.fetch(:rows).each do |row|
+    puts row.join("\t")
+  end
+end
+
+def print_data_table(data, skip_header: false)
+  if skip_header
+    table = Terminal::Table.new(rows: data.fetch(:rows))
+  else
+    table = Terminal::Table.new(headings: data.fetch(:header),
+                                rows: data.fetch(:rows))
+  end
+  puts table
+end
+
+def main(args)
+
+  options = {states: DefaultStatesFilter}
+  basename = File.basename($0)
+
+  optparse = OptionParser.new do |opts|
+    opts.banner = <<-EOM
+usage: #{basename} [OPTIONS] [NAME_PATTERN]
 
 List servers by NAME_PATTERN or by other filters.
-
-OPTIONS:
-
-  -e ENVIRONMENT     List all servers in ENVIRONMENT
-  -s STATE           Not yet implemented
-  -f filter:value    Not yet implemented
 
 For example:
 
   # list all servers in QA
-  #{File.basename($0)} -e qa
+  #{basename} -e qa
 
   # list all non-asg servers in dev
-  #{File.basename($0)} 'login-*-dev'
+  #{basename} 'login-*-dev'
 
   # list all dev ASG IDP servers
-  #{File.basename($0)} 'asg-dev-idp'
+  #{basename} 'asg-dev-idp'
 
   # list all es servers in dev
-  #{File.basename($0)} 'login-es*-dev'
+  #{basename} 'login-es*-dev'
 
-  EOM
-end
+Options:
+    EOM
 
-def main(args)
-  # TODO actually use optparse
+    opts.on('-h', '--help', 'Display this message') do
+      STDERR.puts opts
+      exit
+    end
 
-  if args.empty?
-    usage
-    exit 1
+    opts.on('-v', '--verbose', 'Be more verbose') do
+      raise NotImplementedError.new
+      options[:verbose] = true
+    end
+
+    opts.on('-e', '--env ENVIRONMENT',
+            'List all servers in ENVIRONMENT') do |val|
+      options[:env] = val
+    end
+
+    opts.on('-s', '--states STATES', 'Comma/space sep. list of states') do |val|
+      options[:states] = val.split(/[\s,]/)
+    end
+
+    opts.on('-b', '--batch', 'Use machine friendly tab output') do
+      options[:batch] = true
+    end
+
+    opts.on('-H', '--no-header', 'Skip header output') do
+      options[:skip_header] = true
+    end
+
+    opts.on('-f', '--filter FILTER', 'Not yet implemented') do |val|
+      raise NotImplementedError.new
+    end
   end
 
-  if args.first == '-e'
-    data = lookup_servers_for_env(args.fetch(1))
+  optparse.parse!
+
+  if options[:env]
+    if !args.empty?
+      STDERR.puts optparse
+      STDERR.puts "Error: unexpected args: " + args.inspect
+      exit 1
+    end
+
+    data = lookup_servers_for_env(options.fetch(:env), states: options.fetch(:states))
   else
-    data = lookup_servers_by_pat(args.fetch(0))
+    if args.length != 1
+      STDERR.puts optparse
+      exit 1
+    end
+    data = lookup_servers_by_pat(args.fetch(0), states: options.fetch(:states))
   end
 
-  STDERR.puts Header.join("\t")
-  data.each do |row|
-    puts row.join("\t")
+  if options[:batch]
+    print_data_batch(data, skip_header: options[:skip_header])
+  else
+    print_data_table(data, skip_header: options[:skip_header])
   end
 end
 
