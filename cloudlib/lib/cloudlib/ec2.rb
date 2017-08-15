@@ -41,6 +41,20 @@ module Cloudlib
       end
     end
 
+    def self.new_from_vpc_id(vpc_id)
+      unless vpc_id
+        raise ArgumentError.new("Must pass vpc_id")
+      end
+      self.new(vpc_id: vpc_id)
+    end
+
+    def self.new_from_env(env)
+      unless env
+        raise ArgumentError.new("Must pass env")
+      end
+      self.new(env: env)
+    end
+
     def vpc
       @vpc ||= lookup_vpc_for_env(@env)
     end
@@ -64,6 +78,9 @@ module Cloudlib
     # @param [String] environment
     # @return [Aws::EC2::Vpc]
     def lookup_vpc_for_env(environment)
+      unless environment
+        raise ArgumentError.new("Must pass environment, got #{environment.inspect}")
+      end
       name_tag = VPC_NAME_PREFIX + environment
       log.info("Looking for #{name_tag} VPC")
       vpc = get_unique_thing(:vpcs, [{name: 'tag:Name', values: [name_tag]}])

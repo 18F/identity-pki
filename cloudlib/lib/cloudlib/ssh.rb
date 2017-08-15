@@ -7,11 +7,13 @@ module Cloudlib
     StrictHostKeyChecking = 'yes' # trust on first use
     JumphostName = 'jumphost'
 
+    class SSHError < Cloudlib::Error; end
+
     def self.ec2lib_for_vpc(vpc_id)
       # mapping from vpc_id => Cloudlib::EC2 object
       @ec2libs ||= {}
 
-      @ec2libs[vpc_id] ||= Cloudlib::EC2.new(vpc_id: vpc_id)
+      @ec2libs[vpc_id] ||= Cloudlib::EC2.new_from_vpc_id(vpc_id)
     end
 
     class Single
@@ -33,6 +35,13 @@ module Cloudlib
         end
 
         @instance = instance
+
+        if instance.state.name != 'running'
+          msg = "Instance #{instance.instance_id} is in state " +
+                instance.state.name.inspect
+          log.error(msg)
+          raise SSHError.new(msg)
+        end
 
         @cl = SSH.ec2lib_for_vpc(@instance.vpc_id)
       end
@@ -113,7 +122,13 @@ module Cloudlib
 
         if use_jumphost
           log.debug('Finding a jumphost to use')
-          jumphost = @cl.find_jumphost
+
+          begin
+            jumphost = @cl.find_jumphost
+          rescue NotFound
+            log.error("Failed to find jumphost! Try with --no-jumphost ?")
+            raise
+          end
 
           log.debug("Found #{@cl.instance_label(jumphost)}")
 
