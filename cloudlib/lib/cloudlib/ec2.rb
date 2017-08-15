@@ -12,13 +12,10 @@ module Cloudlib
     #
     # @return [Aws::EC2::Resource]
     def self.new_resource
-      Aws::EC2::Resource.new(ec2_options)
-    end
-
-    def self.ec2_options
-      {
-        region: ENV.fetch('AWS_REGION', 'us-west-2'),
-      }
+      if Aws.config.empty? && !ENV['AWS_PROFILE'] && !ENV['AWS_SECRET_ACCESS_KEY']
+        log.warn("No AWS credentials appear set, try `aws configure`?")
+      end
+      Aws::EC2::Resource.new
     end
 
     VPC_NAME_PREFIX = 'login-vpc-'
@@ -276,6 +273,33 @@ module Cloudlib
 
     def self.instance_label(instance)
       name_tag(instance, allow_nil: true).inspect + ' (' + instance.instance_id + ')'
+    end
+
+    # Filter servers by a CLI friendly set of filters
+    # @param env [String] Filter servers by env, part of the VPC name
+    # @param name_glob [String] Filter servers by Name tag glob
+    # @param states [Array<String>] Filter by an array of instance state names
+    #
+    # @return [Array<Aws::EC2::Instance>]
+    #
+    def self.cli_find_servers(env: nil, name_glob: nil, states: nil)
+      if env
+        log.info("Listing servers in #{env.inspect} environment")
+        cl = self.new(env: env)
+        if name_glob
+          log.info("Listing within env by name: #{name_glob.inspect}")
+          cl.list_instances_by_name(name_glob, in_vpc: true, states: states)
+        else
+          cl.instances_in_vpc(states: states)
+        end
+      else
+        unless name_glob
+          raise ArgumentError.new("Must pass env or name_glob")
+        end
+        log.info("Listing servers by name: #{name_glob.inspect}")
+        cl = self.new
+        cl.list_instances_by_name(name_glob, in_vpc: false, states: states)
+      end
     end
   end
 end

@@ -7,16 +7,13 @@ require 'bundler/setup'
 require_relative '../lib/cloudlib'
 
 def log
-  return @log if @log
-  @log = Logger.new(STDERR)
-  @log.progname = File.basename($0)
-  @log
+  Cloudlib.cli_log
 end
 
 def ssh_instance(instance:, options:)
   log.info("SSH to #{Cloudlib::EC2.instance_label(instance)}")
   single = Cloudlib::SSH::Single.new(instance: instance)
-  single.ssh_exec(**options)
+  single.ssh_exec(ssh_cmdline_opts: options)
 end
 
 def get_instance_by_id(instance_id)
@@ -87,7 +84,7 @@ Options:
       options[:quiet] = true
     end
 
-    opts.on('-l', '--login', 'SSH login username') do |val|
+    opts.on('-l', '--login USER', 'SSH login username') do |val|
       options[:username] = val
     end
 
@@ -104,6 +101,11 @@ Options:
       options[:ssh_opts] ||= []
       options[:ssh_opts] += ['-o', val]
     end
+
+    opts.on('--aws-profile PROFILE', 'Set AWS_PROFILE env variable') do |val|
+      ENV['AWS_PROFILE'] = val
+      STDERR.puts "AWS_PROFILE: #{val.inspect}"
+    end
   end
 
   host_and_cmd = optparse.order(args)
@@ -114,6 +116,9 @@ Options:
   end
 
   host_spec = host_and_cmd.shift
+  if !host_and_cmd.empty?
+    options[:command] = host_and_cmd
+  end
 
   if host_spec.include?('@')
     options[:username], host_spec = host_spec.split('@', 2)

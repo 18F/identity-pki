@@ -7,24 +7,6 @@ require_relative '../lib/cloudlib'
 
 require 'terminal-table'
 
-def lookup_servers_for_env(env, states: nil)
-  ec2 = Cloudlib::EC2.new(env: env)
-
-  Cloudlib.log.info("Listing servers in #{env.inspect} environment")
-
-  instances = ec2.instances_in_vpc(states: states)
-
-  data_for_instances(instances)
-end
-
-def lookup_servers_by_pat(name_pattern, states: nil)
-  ec2 = Cloudlib::EC2.new
-  instances = ec2.list_instances_by_name(name_pattern,
-    in_vpc: false, states: states)
-
-  data_for_instances(instances)
-end
-
 # Everything except terminated
 DefaultStatesFilter = %w{
   pending
@@ -34,6 +16,10 @@ DefaultStatesFilter = %w{
   stopped
   shutting-down
 }.map(&:freeze).freeze
+
+def log
+  Cloudlib.cli_log
+end
 
 def data_for_instances(instances)
   cl = Cloudlib::EC2.new
@@ -93,14 +79,16 @@ end
 
 def main(args)
 
-  options = {states: DefaultStatesFilter}
+  options = {}
+  find_opts = {states: DefaultStatesFilter}
+
   basename = File.basename($0)
 
   optparse = OptionParser.new do |opts|
     opts.banner = <<-EOM
-usage: #{basename} [OPTIONS] [NAME_PATTERN]
+usage: #{basename} [OPTIONS]
 
-List servers by NAME_PATTERN or by other filters.
+List servers by filters.
 
 For example:
 
@@ -108,13 +96,13 @@ For example:
   #{basename} -e qa
 
   # list all non-asg servers in dev
-  #{basename} 'login-*-dev'
+  #{basename} -n 'login-*-dev'
 
   # list all dev ASG IDP servers
-  #{basename} 'asg-dev-idp'
+  #{basename} -n 'asg-dev-idp'
 
   # list all es servers in dev
-  #{basename} 'login-es*-dev'
+  #{basename} -n 'login-es*-dev'
 
 Options:
     EOM
@@ -131,11 +119,15 @@ Options:
 
     opts.on('-e', '--env ENVIRONMENT',
             'List all servers in ENVIRONMENT') do |val|
-      options[:env] = val
+      find_opts[:env] = val
+    end
+
+    opts.on('-n', '--name GLOB', 'Find servers Name matching GLOB') do |val|
+      find_opts[:name_glob] = val
     end
 
     opts.on('-s', '--states STATES', 'Comma/space sep. list of states') do |val|
-      options[:states] = val.split(/[\s,]/)
+      find_opts[:states] = val.split(/[\s,]/)
     end
 
     opts.on('-b', '--batch', 'Use machine friendly tab output') do
@@ -153,21 +145,16 @@ Options:
 
   optparse.parse!
 
-  if options[:env]
-    if !args.empty?
-      STDERR.puts optparse
-      STDERR.puts "Error: unexpected args: " + args.inspect
-      exit 1
-    end
-
-    data = lookup_servers_for_env(options.fetch(:env), states: options.fetch(:states))
-  else
-    if args.length != 1
-      STDERR.puts optparse
-      exit 1
-    end
-    data = lookup_servers_by_pat(args.fetch(0), states: options.fetch(:states))
+  # print error if we have no find_opts other than :states
+  if find_opts.reject{|k, v| k == :states}.empty?
+    STDERR.puts optparse
+    STDERR.puts "\n#{basename}: must pass at least one filter (-e, -n, etc.)"
+    exit 1
   end
+
+  instances = Cloudlib::EC2.cli_find_servers(find_opts)
+
+  data = data_for_instances(instances)
 
   if options[:batch]
     print_data_batch(data, skip_header: options[:skip_header])

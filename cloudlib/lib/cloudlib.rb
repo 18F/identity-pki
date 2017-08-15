@@ -10,6 +10,24 @@ module Cloudlib
     @log.progname = self.name
     @log
   end
+
+  def self.cli_log
+    return @cli_log if @cli_log
+    @cli_log = Logger.new(STDERR)
+    @cli_log.progname = File.basename($0)
+    @cli_log
+  end
+
+  def self.log_level
+    return @log_level if @log_level
+
+    if ENV['CL_LOG_LEVEL']
+      @log_level = Integer(ENV['CL_LOG_LEVEL'])
+      return
+    end
+
+    @log_level = Logger::DEBUG
+  end
 end
 
 require_relative './cloudlib/version'

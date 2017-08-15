@@ -66,6 +66,10 @@ module Cloudlib
         return nil
       end
 
+      def instance_label
+        cl.instance_label(instance)
+      end
+
       # @param [Boolean, nil] use_jumphost Whether to try to find a jumphost to
       #   SSH through. If set to nil, auto determine based on instance name.
       def ssh_cmdline(username: nil, command: nil, port: 22, pkcs11_lib: nil,
@@ -154,8 +158,9 @@ module Cloudlib
         if command
           if command.is_a?(Array)
             # SSH doesn't respect quoting from arrays anyway
-            # TODO do some magic to handle quoted arrays in a less surprising
-            # way
+            # TODO do some stuff to handle quoted arrays by shell quoting them
+            # automagically
+            log.debug("SSH array quoting not implemented, treating as single string")
             cmd << command.join(' ')
           else
             cmd << command
@@ -170,30 +175,38 @@ module Cloudlib
       #
       # @return DOES NOT RETURN
       #
+      # @param [Hash] ssh_cmdline_opts Options passed to {#ssh_cmdline}
+      #
       # @see #ssh_cmdline
       #
-      def ssh_exec(*args)
-        cmd = ssh_cmdline(*args)
+      def ssh_exec(ssh_cmdline_opts: {})
+        cmd = ssh_cmdline(**ssh_cmdline_opts)
         log.debug('exec: ' + cmd.inspect)
         exec(*cmd)
       end
 
       # Generate an SSH command line and run it in a subprocess.
+      # @param [Hash] ssh_cmdline_opts Options passed to {#ssh_cmdline}
+      # @see #ssh_cmdline
       # @return [Process::Status]
-      def ssh_subprocess(*args)
-        cmd = ssh_cmdline(*args)
+      def ssh_subprocess(check_call: true, ssh_cmdline_opts: {})
+        cmd = ssh_cmdline(**ssh_cmdline_opts)
         log.debug('+ ' + cmd.join(' '))
-        Subprocess.check_call(cmd)
+        if check_call
+          Subprocess.check_call(cmd)
+        else
+          Subprocess.call(cmd)
+        end
       end
     end
 
     class Multi
       attr_reader :instances
 
-      def initialize(name_pattern:)
-        cl = Cloudlib::EC2.new
-        @instances = cl.list_instances_by_name(name_pattern, in_vpc: false,
-                                               states: ['running'])
+      # @param instances [Array<Aws::EC2::Instance>]
+      #
+      def initialize(instances:)
+        @instances = instances
       end
 
       def log
@@ -203,47 +216,70 @@ module Cloudlib
         @log
       end
 
-      def ssh_threads
+      # @param command [String] SSH command to execute
+      # @param ssh_cmdline_opts [Hash] Options to pass to
+      #   {Single#ssh_subprocess}
+      #
+      def ssh_threads(command:, ssh_cmdline_opts: {})
+        ssh_cmdline_opts[:command] = command
+
         log.info('SSH::Multi.ssh_threads with: ' +
                  instances.map(&:instance_id).inspect)
-        singles = instances.map { |i| SSH::Single.new(instance: i) } # TODO: opts
-        singles.map { |s|
-          Thread.new { s.ssh_subprocess }
-        }.map(&:join)
+        singles = instances.map { |i| SSH::Single.new(instance: i) }
+        threads = singles.map { |s|
+          Thread.new {
+            Thread.current[:single] = s
+            s.ssh_subprocess(check_call: false,
+                             ssh_cmdline_opts: ssh_cmdline_opts)
+          }
+        }
+
+        threads.map(&:join)
+
+        succeeded = print_report(threads)
+
+        {success: succeeded, threads: threads}
       end
 
-    end
+      def print_report(threads)
+        all_succeeded = true
 
-    # @param [String] instance_id Connect to a server by instance ID
-    # @param [String] name_pattern Find servers by a name pattern
-    #
-    def initialize(instance_id: nil, name_pattern: nil)
-      if instance_id && name_pattern
-        raise ArgumentError.new('Cannot pass instance_id and name_pattern')
-      end
+        threads.each do |t|
+          # get SSH::Single instance from thread variable
+          single = t[:single]
 
-      # Mapping from vpc_id => Cloudlib::EC2 object
-      @ec2libs = {}
+          unless single.is_a?(SSH::Single)
+            raise "Somehow #{t.inspect} doesn't have correct :single var"
+          end
 
-      if instance_id
-        ec2 = Cloudlib::EC2.new_resource
-        @instance = ec2.instance(instance_id)
-        @multi = false
-      end
+          # thread return value
+          retval = t.value
 
-      if name_pattern
-        cl = Cloudlib::EC2.new
-        @instances = cl.list_instances_by_name(name_pattern, in_vpc: false,
-                                               states: ['running'])
+          unless retval.is_a?(Process::Status)
+            raise "Somehow #{single.inspect} thread returned #{retval.inspect}"
+          end
 
-        if @instances.length == 1
-          @instance = @instances.first
-          @multi = false
-        else
-          @multi = true
+          if retval.exited?
+            if retval.success?
+              log.info("#{single.instance_label} returned exit status #{retval.exitstatus}")
+            else
+              log.error("#{single.instance_label} returned exit status #{retval.exitstatus}")
+              all_succeeded = false
+            end
+          else
+            log.error("#{single.instance_label} failed with #{retval.inspect}")
+            all_succeeded = false
+          end
         end
+
+        if all_succeeded
+          log.info('All hosts succeeded')
+        else
+          log.error('Had some failures')
+        end
+
+        all_succeeded
       end
     end
-
   end
 end
