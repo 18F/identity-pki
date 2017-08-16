@@ -1,0 +1,120 @@
+---
+#
+# This file is the Test Kitchen configuration file for the per node integration
+# tests.  See
+# https://github.com/18F/identity-devops/blob/master/doc/technical/testing.md
+# for more details.
+#
+# When you make a new integration test, you should make it in a directory named
+# after this node's role, and then add the proper subnet, security_group and
+# iam_profile below.
+#
+<%-
+role = File.basename(Dir.pwd)
+# TODO: Make a standard instance profile name for each instance so we don't need
+# this hash.
+iam_profiles = {
+    "jumphost" => "ci-base-permissions",
+    "idp" => "ci_idp_instance_profile",
+    "worker" => "ci_idp_instance_profile"
+}
+if !iam_profiles.key?(role)
+  raise "IAM profile for role: #{role} not found in test kitchen boilerplate.  Please add it in #{__FILE__}."
+end
+iam_profile = iam_profiles.fetch(role)
+# TODO: Make a standard "subnet type" tag so we don't need this.
+subnets = {
+    "jumphost" => "login-jumphost_subnet-ci",
+    "idp" => "login-idp1_subnet-ci",
+    "worker" => "login-idp1_subnet-ci"
+}
+if !subnets.key?(role)
+  raise "Subnet for role: #{role} not found in test kitchen boilerplate.  Please add it in #{__FILE__}."
+end
+subnet = subnets.fetch(role)
+# TODO: Standardize security group names so we don't need this.
+security_groups = {
+    "jumphost" => "login-jumphost_security_group-ci",
+    "idp" => "login-idp_security_group-ci",
+    "worker" => "login-idp_security_group-ci"
+}
+if !security_groups.key?(role)
+  raise "Security group for role: #{role} not found in test kitchen boilerplate.  Please add it in #{__FILE__}."
+end
+security_group = security_groups.fetch(role)
+%>
+
+driver:
+  name: ec2
+  aws_ssh_key_id: "<%= ENV['KITCHEN_EC2_SSH_KEYPAIR_ID'] || 'login-dev-us-west-2' %>"
+  region: us-west-2
+  subnet_filter:
+    tag: Name
+    value: "<%= subnet %>"
+  security_group_filter:
+    tag: Name
+    value: "<%= security_group %>"
+  instance_type: c4.xlarge
+  image_id: ami-7e22c506
+  user_data: ../common/user_data/pre_setup.sh
+  iam_profile_name: "<%= iam_profile %>"
+  tags:
+    created-by: "test-kitchen"
+    user: "<%= ENV['GSA_USERNAME'] || ENV['USER'] %>"
+    terminate-after: "<%= (Time.now + 604800).strftime('%F') %>"
+    Name: "<%= 'test-kitchen-' + role %>"
+    prefix: "<%= 'test-kitchen-' + role %>"
+    domain: "ci.login.gov"
+
+<%-
+# Set SSH key from environment or use default
+ssh_key_file = ENV.fetch('KITCHEN_EC2_SSH_KEY', '~/.ssh/login-dev-us-west-2.pem')
+ssh_key_file = File.expand_path(ssh_key_file)
+# ensure file exists because kitchen won't error when it doesn't
+if !File.exist?(ssh_key_file)
+  raise "SSH key file not found: #{ssh_key_file.inspect}. Override with $KITCHEN_EC2_SSH_KEY"
+end
+%>
+
+transport:
+  username: ubuntu
+  ssh_key: "<%= ssh_key_file %>"
+  name: sshtar
+  compression: zlib
+  compression_level: 9
+
+provisioner:
+  name: chef_zero
+  # You may wish to disable always updating cookbooks in CI or other testing environments.
+  # For example:
+  #   always_update_cookbooks: <%= !ENV['CI'] %>
+  always_update_cookbooks: true
+  environments_path: ../../kitchen/environments
+  roles_path: ../../kitchen/roles
+  client_rb:
+    environment: ci
+  require_chef_omnibus: 12.15
+  root_path: '/var/lib/kitchen'
+
+verifier:
+  name: inspec
+
+platforms:
+  - name: ubuntu-14.04
+
+suites:
+  - name: default
+    run_list:
+      - "<%= 'role[' + role + ']' %>"
+    verifier:
+      inspec_tests:
+        - test/smoke/default
+    attributes:
+      build-essential:
+        compile_time: true
+      apt:
+        compile_time_update: true
+      provisioner:
+        auto-scaled: true
+
+# vim: set ft=eruby :

@@ -1,4 +1,0 @@
-source 'https://api.berkshelf.com'
-
-cookbook 'cookbook_example', path: '../../kitchen/cookbooks/cookbook_example'
-cookbook 'config_loader', path: '../../kitchen/cookbooks/config_loader'

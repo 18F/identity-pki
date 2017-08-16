@@ -10,6 +10,6 @@ gem 'test-kitchen'
 gem 'kitchen-ec2'
 gem 'kitchen-vagrant'
 gem 'kitchen-inspec'
-gem 'kitchen-sync', '~> 2.2' # speed up transfers
+gem 'kitchen-transport-sshtar'
 
 gem 'chef', '= 12.15.19'
