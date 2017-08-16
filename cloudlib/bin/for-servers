@@ -1,0 +1,124 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+
+require 'bundler/setup'
+
+require_relative '../lib/cloudlib'
+
+def log
+  Cloudlib.cli_log
+end
+
+def do_ssh_command(instances, command, ssh_cmdline_opts:{})
+  multi = Cloudlib::SSH::Multi.new(instances: instances)
+  result = multi.ssh_threads(command: command,
+                             ssh_cmdline_opts: ssh_cmdline_opts)
+  if result.fetch(:success)
+    return 0
+  else
+    return 5
+  end
+end
+
+def main(args)
+
+  find_opts = {states: ['running']}
+  cl_ssh_options = {}
+
+  basename = File.basename($0)
+
+  optparse = OptionParser.new do |opts|
+    opts.banner = <<-EOM
+usage: #{basename} [OPTIONS] COMMAND...
+
+SSH to many EC2 instances and run COMMAND.
+
+At least one filter option (-e, -n, etc.) must be specified. The filters
+operate similarly to ls-servers.
+
+If user is not specified, it defaults to $GSA_USERNAME.
+
+Examples:
+
+    # SSH to servers in QA VPC, run hostname
+    #{basename} -e qa hostname
+
+    # SSH to jumphost servers in all environments, run uname -a
+    #{basename} -n '*jumphost*' uname -a
+
+    # SSH to all dev ASG IDP servers, run hostname -f
+    #{basename} -e dev -n 'asg-*-idp' hostname -f
+
+    # SSH to all dev ASG IDP servers, take two
+    #{basename} -n 'asg-dev-idp' hostname -f
+
+Options:
+    EOM
+
+    opts.on('-h', '--help', 'Display this message') do
+      STDERR.puts opts
+      exit
+    end
+
+    opts.on('-v', '--verbose', 'Be more verbose') do
+      cl_ssh_options[:verbose] = true
+      Cloudlib.log_level -= 1 if Cloudlib.log_level > 0
+    end
+
+    opts.on('-q', '--quiet', 'Be quieter (can pass multiple times)') do
+      cl_ssh_options[:verbose] = false
+      cl_ssh_options[:quiet] = true
+      Cloudlib.log_level += 1
+    end
+
+    opts.on('-l', '--login USER', 'SSH login username') do |val|
+      cl_ssh_options[:username] = val
+    end
+
+    opts.on('-e', '--env ENVIRONMENT',
+            'Filter servers by ENVIRONMENT') do |val|
+      find_opts[:env] = val
+    end
+
+    opts.on('-n', '--name GLOB', 'Find servers Name matching GLOB') do |val|
+      find_opts[:name_glob] = val
+    end
+
+    opts.on('-j', '--[no-]jumphost', 'Whether to use a jumphost') do |val|
+      cl_ssh_options[:use_jumphost] = val
+    end
+
+    opts.on('-o', '--ssh-opt OPT',
+            'Set SSH option (may be passed multiple times)') do |val|
+      cl_ssh_options[:ssh_opts] ||= []
+      cl_ssh_options[:ssh_opts] += ['-o', val]
+    end
+
+    opts.on('--aws-profile PROFILE', 'Set AWS_PROFILE env variable') do |val|
+      ENV['AWS_PROFILE'] = val
+    end
+  end
+
+  command = optparse.order(args)
+
+  if command.empty?
+    STDERR.puts optparse
+    exit 1
+  end
+
+  # print error if we have no find_opts other than :states
+  if find_opts.reject{|k, v| k == :states}.empty?
+    STDERR.puts optparse
+    STDERR.puts "\n#{basename}: must pass at least one filter (-e, -n, etc.)"
+    exit 1
+  end
+
+  instances = Cloudlib::EC2.cli_find_servers(find_opts)
+
+  do_ssh_command(instances, command, ssh_cmdline_opts: cl_ssh_options)
+end
+
+if __FILE__ == $0
+  main(ARGV)
+end

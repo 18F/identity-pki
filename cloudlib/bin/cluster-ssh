@@ -1,0 +1,80 @@
+#!/usr/bin/env ruby
+
+require 'rbconfig'
+
+require 'bundler/setup'
+require_relative '../lib/cloudlib'
+require 'subprocess'
+
+def usage
+  STDERR.puts <<-EOM
+usage: #{File.basename($0)} ENVIRONMENT
+
+Open SSH windows to all instances in ENVIRONMENT, using cssh/csshX
+(must be apt/brew installed).
+  EOM
+end
+
+def log
+  Cloudlib.cli_log
+end
+
+def cssh_command
+  if RbConfig::CONFIG.fetch('host_os').start_with?('darwin')
+    if ENV['TERM_PROGRAM'] != 'Apple_Terminal'
+      log.warn('Terminal program is not Apple Terminal.app')
+      log.warn('Probably things will be weird')
+      log.warn("$TERM_PROGRAM: " + ENV['TERM_PROGRAM'].inspect)
+    end
+    'csshX'
+  else
+    'cssh'
+  end
+end
+
+def clusterssh(instances)
+  ssh_cmd = File.absolute_path(File.join(File.dirname(__FILE__), 'ssh-instance'))
+
+  cmd = [
+    cssh_command,
+    '--ssh', ssh_cmd,
+  ]
+
+  # pass through AWS_PROFILE since csshX doesn't pass through env variables
+  if ENV['AWS_PROFILE']
+    cmd += ['--ssh_args', "--aws-profile #{ENV['AWS_PROFILE']}"]
+  end
+
+  cmd += ['--'] + instances.map(&:instance_id)
+
+  log.info("+ " + cmd.join(' '))
+  Subprocess.check_call(cmd)
+end
+
+def find_instances_for_env(env)
+  log.info("Listing running instances for #{env.inspect} environment")
+
+  cl = Cloudlib::EC2.new(env: env)
+  instances = cl.instances_in_vpc(states: ['running'])
+
+  log.info("Found instances: " + instances.map(&:instance_id).join(' '))
+
+  log.info("Hosts: \n  - " + instances.map {|i| cl.instance_label(i) }.join("\n  - "))
+
+  instances
+end
+
+def main(env)
+  clusterssh(find_instances_for_env(env))
+end
+
+if $0 == __FILE__
+  begin
+    env = ARGV.fetch(0)
+  rescue IndexError
+    usage
+    exit 1
+  end
+
+  main(env)
+end

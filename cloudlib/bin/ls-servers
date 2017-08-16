@@ -1,0 +1,171 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+
+require 'bundler/setup'
+require_relative '../lib/cloudlib'
+
+require 'terminal-table'
+
+# Everything except terminated
+DefaultStatesFilter = %w{
+  pending
+  running
+  rebooting
+  stopping
+  stopped
+  shutting-down
+}.map(&:freeze).freeze
+
+def log
+  Cloudlib.cli_log
+end
+
+def data_for_instances(instances)
+  cl = Cloudlib::EC2.new
+
+  # require 'pry'
+  # binding.pry
+
+  header = [
+    'instance-id',
+    'image-id',
+    'name',
+    'instance-type',
+    'private-ip',
+    'public-ip',
+    'state',
+    'launch-time',
+  ]
+
+  data = instances.map {|i|
+    [
+      i.instance_id,
+      i.image_id,
+      cl.name_tag(i, allow_nil: true) || '',
+      i.instance_type,
+      i.private_ip_address,
+      i.public_ip_address || '',
+      i.state.name,
+      i.launch_time.to_s,
+    ]
+  }
+
+  # sort by name tag
+  data = data.sort_by {|row| row.fetch(2) }
+
+  return {
+    header: header,
+    rows: data.sort_by {|row| row.fetch(2) },
+  }
+end
+
+def print_data_batch(data, skip_header: false)
+  puts data.fetch(:header).join("\t") unless skip_header
+  data.fetch(:rows).each do |row|
+    puts row.join("\t")
+  end
+end
+
+def print_data_table(data, skip_header: false)
+  if skip_header
+    table = Terminal::Table.new(rows: data.fetch(:rows))
+  else
+    table = Terminal::Table.new(headings: data.fetch(:header),
+                                rows: data.fetch(:rows))
+  end
+  puts table
+end
+
+def main(args)
+
+  options = {}
+  find_opts = {states: DefaultStatesFilter}
+
+  basename = File.basename($0)
+
+  optparse = OptionParser.new do |opts|
+    opts.banner = <<-EOM
+usage: #{basename} [OPTIONS]
+
+List servers by filters.
+
+For example:
+
+  # list all servers in QA
+  #{basename} -e qa
+
+  # list all non-asg servers in dev
+  #{basename} -n 'login-*-dev'
+
+  # list all dev ASG IDP servers
+  #{basename} -n 'asg-dev-idp'
+
+  # list all es servers in dev
+  #{basename} -n 'login-es*-dev'
+
+Options:
+    EOM
+
+    opts.on('-h', '--help', 'Display this message') do
+      STDERR.puts opts
+      exit
+    end
+
+    opts.on('-v', '--verbose', 'Be more verbose') do
+      Cloudlib.log_level -= 1 if Cloudlib.log_level > 0
+    end
+
+    opts.on('-q', '--quiet', 'Be quieter (can pass multiple times)') do
+      Cloudlib.log_level += 1
+    end
+
+    opts.on('-e', '--env ENVIRONMENT',
+            'List all servers in ENVIRONMENT') do |val|
+      find_opts[:env] = val
+    end
+
+    opts.on('-n', '--name GLOB', 'Find servers Name matching GLOB') do |val|
+      find_opts[:name_glob] = val
+    end
+
+    opts.on('-s', '--states STATES', 'Comma/space sep. list of states') do |val|
+      find_opts[:states] = val.split(/[\s,]/)
+    end
+
+    opts.on('-b', '--batch', 'Use machine friendly tab output') do
+      options[:batch] = true
+    end
+
+    opts.on('-H', '--no-header', 'Skip header output') do
+      options[:skip_header] = true
+    end
+
+    opts.on('-f', '--filter FILTER', 'Not yet implemented') do |val|
+      raise NotImplementedError.new
+    end
+  end
+
+  optparse.parse!
+
+  # print error if we have no find_opts other than :states
+  if find_opts.reject{|k, v| k == :states}.empty?
+    STDERR.puts optparse
+    STDERR.puts "\n#{basename}: must pass at least one filter (-e, -n, etc.)"
+    exit 1
+  end
+
+  instances = Cloudlib::EC2.cli_find_servers(find_opts)
+
+  data = data_for_instances(instances)
+
+  if options[:batch]
+    print_data_batch(data, skip_header: options[:skip_header])
+  else
+    print_data_table(data, skip_header: options[:skip_header])
+  end
+end
+
+if __FILE__ == $0
+  main(ARGV)
+end
