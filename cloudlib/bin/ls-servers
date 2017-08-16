@@ -113,8 +113,11 @@ Options:
     end
 
     opts.on('-v', '--verbose', 'Be more verbose') do
-      raise NotImplementedError.new
-      options[:verbose] = true
+      Cloudlib.log_level -= 1 if Cloudlib.log_level > 0
+    end
+
+    opts.on('-q', '--quiet', 'Be quieter (can pass multiple times)') do
+      Cloudlib.log_level += 1
     end
 
     opts.on('-e', '--env ENVIRONMENT',

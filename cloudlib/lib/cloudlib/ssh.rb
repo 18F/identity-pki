@@ -47,10 +47,7 @@ module Cloudlib
       end
 
       def log
-        return @log if @log
-        @log = Logger.new(STDERR)
-        @log.progname = self.class.name
-        @log
+        @log ||= Cloudlib.class_log(self.class, STDERR)
       end
 
       # Find the host key entry in {KnownHostsPath}, assuming that the known
@@ -210,10 +207,7 @@ module Cloudlib
       end
 
       def log
-        return @log if @log
-        @log = Logger.new(STDERR)
-        @log.progname = self.class.name
-        @log
+        @log ||= Cloudlib.class_log(self.class, STDERR)
       end
 
       # @param command [String] SSH command to execute

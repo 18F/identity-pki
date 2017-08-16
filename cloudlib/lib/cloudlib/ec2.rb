@@ -57,19 +57,11 @@ module Cloudlib
     end
 
     def log
-      return @log if @log
-
-      @log = Logger.new(STDERR)
-      @log.progname = self.class.to_s
-      @log
+      @log ||= Cloudlib.class_log(self.class, STDERR)
     end
 
     def self.log
-      return @log if @log
-
-      @log = Logger.new(STDERR)
-      @log.progname = self.name
-      @log
+      @log ||= Cloudlib.class_log(self, STDERR)
     end
 
     # @param [String] environment

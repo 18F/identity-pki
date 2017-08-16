@@ -8,6 +8,7 @@ module Cloudlib
     return @log if @log
     @log = Logger.new(STDERR)
     @log.progname = self.name
+    @log.level = log_level
     @log
   end
 
@@ -15,7 +16,15 @@ module Cloudlib
     return @cli_log if @cli_log
     @cli_log = Logger.new(STDERR)
     @cli_log.progname = File.basename($0)
+    @cli_log.level = log_level
     @cli_log
+  end
+
+  def self.class_log(klass, stream)
+    log = Logger.new(stream)
+    log.progname = name
+    log.level = log_level
+    log
   end
 
   def self.log_level
@@ -27,6 +36,10 @@ module Cloudlib
     end
 
     @log_level = Logger::DEBUG
+  end
+
+  def self.log_level=(val)
+    @log_level = val
   end
 end
 

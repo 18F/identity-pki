@@ -10,10 +10,10 @@ def log
   Cloudlib.cli_log
 end
 
-def ssh_instance(instance:, options:)
+def ssh_instance(instance:, ssh_cmdline_opts:)
   log.info("SSH to #{Cloudlib::EC2.instance_label(instance)}")
   single = Cloudlib::SSH::Single.new(instance: instance)
-  single.ssh_exec(ssh_cmdline_opts: options)
+  single.ssh_exec(ssh_cmdline_opts: ssh_cmdline_opts)
 end
 
 def get_instance_by_id(instance_id)
@@ -38,6 +38,7 @@ end
 def main(args)
 
   options = {}
+  cl_ssh_options = {}
 
   basename = File.basename($0)
 
@@ -76,16 +77,18 @@ Options:
     end
 
     opts.on('-v', '--verbose', 'Be more verbose') do
-      options[:verbose] = true
+      cl_ssh_options[:verbose] = true
+      Cloudlib.log_level -= 1 if Cloudlib.log_level > 0
     end
 
-    opts.on('-q', '--quiet', 'Be quieter') do
-      options[:verbose] = false
-      options[:quiet] = true
+    opts.on('-q', '--quiet', 'Be quieter (can pass multiple times)') do
+      cl_ssh_options[:verbose] = false
+      cl_ssh_options[:quiet] = true
+      Cloudlib.log_level += 1
     end
 
     opts.on('-l', '--login USER', 'SSH login username') do |val|
-      options[:username] = val
+      cl_ssh_options[:username] = val
     end
 
     opts.on('-1', '--any', 'SSH to random server matching name') do
@@ -93,13 +96,13 @@ Options:
     end
 
     opts.on('-j', '--[no-]jumphost', 'Whether to use a jumphost') do |val|
-      options[:use_jumphost] = val
+      cl_ssh_options[:use_jumphost] = val
     end
 
     opts.on('-o', '--ssh-opt OPT',
             'Set SSH option (may be passed multiple times)') do |val|
-      options[:ssh_opts] ||= []
-      options[:ssh_opts] += ['-o', val]
+      cl_ssh_options[:ssh_opts] ||= []
+      cl_ssh_options[:ssh_opts] += ['-o', val]
     end
 
     opts.on('--aws-profile PROFILE', 'Set AWS_PROFILE env variable') do |val|
@@ -117,11 +120,11 @@ Options:
 
   host_spec = host_and_cmd.shift
   if !host_and_cmd.empty?
-    options[:command] = host_and_cmd
+    cl_ssh_options[:command] = host_and_cmd
   end
 
   if host_spec.include?('@')
-    options[:username], host_spec = host_spec.split('@', 2)
+    cl_ssh_options[:username], host_spec = host_spec.split('@', 2)
   end
 
   host_spec = host_spec.strip.downcase
@@ -129,14 +132,14 @@ Options:
   if host_spec =~ /\Ai-[a-f0-9]+\z/
     instance = get_instance_by_id(host_spec)
   else
-    instance = get_instance_by_name(host_spec, pick_random: options.delete(:pick_random))
+    instance = get_instance_by_name(host_spec, pick_random: options.fetch(:pick_random))
   end
 
   if !host_and_cmd.empty?
-    options[:command] = host_and_cmd
+    cl_ssh_options[:command] = host_and_cmd
   end
 
-  ssh_instance(instance: instance, options: options)
+  ssh_instance(instance: instance, ssh_cmdline_opts: cl_ssh_options)
 end
 
 if __FILE__ == $0

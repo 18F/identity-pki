@@ -23,7 +23,6 @@ end
 
 def main(args)
 
-  options = {}
   find_opts = {states: ['running']}
   cl_ssh_options = {}
 
@@ -63,15 +62,14 @@ Options:
     end
 
     opts.on('-v', '--verbose', 'Be more verbose') do
-      options[:verbose] = true
       cl_ssh_options[:verbose] = true
+      Cloudlib.log_level -= 1 if Cloudlib.log_level > 0
     end
 
-    opts.on('-q', '--quiet', 'Be quieter') do
-      options[:verbose] = false
-      options[:quiet] = true
+    opts.on('-q', '--quiet', 'Be quieter (can pass multiple times)') do
       cl_ssh_options[:verbose] = false
       cl_ssh_options[:quiet] = true
+      Cloudlib.log_level += 1
     end
 
     opts.on('-l', '--login USER', 'SSH login username') do |val|
