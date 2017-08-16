@@ -85,12 +85,14 @@
       "branch_name": "stages/staging"
     },
     "login_dot_gov": {
-      "available_locales": "en es fr",
+      "available_locales": "en es",
       "aws_kms_key_id": "alias/staging-login-dot-gov-keymaker",
       "aws_region": "us-west-2",
       "branch_name": "stages/staging",
       "enable_identity_verification": "true",
-      "use_kms": "false"
+      "enable_usps_verification": "false",
+      "proofing_vendors": "equifax",
+      "use_kms": "true"
     },
     "ssh_keys": {
       "ubuntu": [
@@ -112,14 +114,13 @@
       "users": [
         "astone",
         "brody",
-        "dnesting",
         "jgrevich",
         "jpmugizi",
         "monfresh",
         "sverch",
+        "dnesting",
         "tblack",
-        "tspencer",
-        "zmargolis"
+        "tspencer"
       ]
     },
     "filebeat": {
@@ -127,8 +128,7 @@
     },
     "identity-jenkins": {
       "users": [
-        "monfresh",
-        "zmargolis"
+        "monfresh"
       ],
       "admins": [
         "astone",
@@ -136,7 +136,9 @@
         "jgrevich",
         "jpmugizi",
         "tspencer",
-        "zmargolis"
+        "sverch",
+        "dnesting",
+        "mzia"
       ]
     },
     "terraform": {
