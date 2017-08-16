@@ -21,6 +21,11 @@ end
 
 def cssh_command
   if RbConfig::CONFIG.fetch('host_os').start_with?('darwin')
+    if ENV['TERM_PROGRAM'] != 'Apple_Terminal'
+      log.warn('Terminal program is not Apple Terminal.app')
+      log.warn('Probably things will be weird')
+      log.warn("$TERM_PROGRAM: " + ENV['TERM_PROGRAM'].inspect)
+    end
     'csshX'
   else
     'cssh'
