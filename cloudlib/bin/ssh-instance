@@ -37,7 +37,7 @@ end
 
 def main(args)
 
-  options = {}
+  options = {pick_random: false}
   cl_ssh_options = {}
 
   basename = File.basename($0)
