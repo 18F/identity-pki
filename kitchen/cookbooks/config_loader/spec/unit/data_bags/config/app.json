@@ -92,6 +92,7 @@
     "equifax_ssh_pubkey": "ssh-rsa XXX keyid",
     "equifax_ssh_privkey": "-----BEGIN RSA PRIVATE KEY-----XXX",
     "equifax_ssh_passphrase": "sekrit XXX",
+    "equifax_wsdl": "sekrit XXX",
     "dashboard_api_token": "XXX",
     "dashboard_url": "https://username:password@fqdn.com",
     "dashboard_sp_certificate": "",

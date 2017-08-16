@@ -56,6 +56,7 @@ action :create do
       equifax_sftp_host: node['login_dot_gov']['equifax_sftp_host'],
       equifax_sftp_username: node['login_dot_gov']['equifax_sftp_username'],
       equifax_ssh_passphrase: ConfigLoader.load_config(node, "equifax_ssh_passphrase"),
+      equifax_wsdl: ConfigLoader.load_config(node, "equifax_wsdl"),
       google_analytics_key: ConfigLoader.load_config(node, "google_analytics_key"),
       hmac_fingerprinter_key: ConfigLoader.load_config(node, "hmac_fingerprinter_key"),
       hmac_fingerprinter_key_queue: node['login_dot_gov']['hmac_fingerprinter_key_queue'],
