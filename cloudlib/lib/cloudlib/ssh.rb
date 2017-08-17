@@ -149,7 +149,7 @@ module Cloudlib
 
           cmd += ['-o', 'ProxyCommand=' + proxycommand.join(' ')]
 
-          cmd << name_tag
+          cmd << instance.instance_id
         else
           cmd << instance.public_ip_address
         end
