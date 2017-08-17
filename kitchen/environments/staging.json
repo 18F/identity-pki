@@ -2,77 +2,6 @@
   "name": "staging",
   "description": "",
   "cookbook_versions": {
-    "7-zip": "= 1.0.2",
-    "acme": "= 2.0.0",
-    "apache2": "= 3.2.2",
-    "application": "= 5.1.0",
-    "application_ruby": "= 4.0.1",
-    "apt": "= 5.0.1",
-    "apt_update": "= 0.1.0",
-    "ark": "= 1.1.0",
-    "bash-completion": "= 0.1.0",
-    "build-essential": "= 2.4.0",
-    "cacert": "= 0.4.0",
-    "chef-sugar": "= 3.4.0",
-    "chef_handler": "= 2.1.0",
-    "compat_resource": "= 12.16.3",
-    "cron": "= 3.0.0",
-    "curl": "= 2.0.3",
-    "dmg": "= 3.1.0",
-    "dpkg_autostart": "= 0.2.0",
-    "elasticsearch": "= 3.0.2",
-    "elasticsearch-curator": "= 0.1.5",
-    "filebeat": "= 0.4.6",
-    "git": "= 4.6.0",
-    "homebrew": "= 3.0.0",
-    "hostname": "= 0.4.0",
-    "hostsfile": "= 2.4.5",
-    "identity-elk": "= 0.1.20",
-    "identity-jenkins": "= 0.1.10",
-    "identity-jumphost": "= 0.1.0",
-    "identity-nessus": "= 0.0.2",
-    "identity-ntp": "= 0.1.0",
-    "identity-ossec": "= 0.1.1",
-    "java": "= 1.46.0",
-    "jenkins": "= 5.0.1",
-    "keytool": "= 0.8.1",
-    "letsencrypt": "= 1.0.3",
-    "login_dot_gov": "= 0.0.45",
-    "monit": "= 1.0.0",
-    "motd": "= 0.6.4",
-    "nano": "= 1.0.3",
-    "newrelic": "= 2.25.0",
-    "newrelic_meetme_plugin": "= 0.5.0",
-    "ntp": "= 3.3.1",
-    "ohai": "= 4.2.3",
-    "openssl": "= 6.1.1",
-    "ossec": "= 1.0.5",
-    "packagecloud": "= 0.2.5",
-    "passenger": "= 0.0.5",
-    "poise": "= 2.7.1",
-    "poise-archive": "= 1.3.0",
-    "poise-languages": "= 2.0.4",
-    "poise-monit": "= 1.6.0",
-    "poise-python": "= 1.5.1",
-    "poise-ruby": "= 2.2.0",
-    "poise-ruby-build": "= 1.0.2",
-    "poise-service": "= 1.4.2",
-    "python": "= 1.4.6",
-    "ruby_build": "= 1.0.0",
-    "ruby_rbenv": "= 1.1.0",
-    "runit": "= 3.0.5",
-    "selinux_policy": "= 1.0.0",
-    "seven_zip": "= 2.0.2",
-    "squid": "= 3.1.0",
-    "ssh-keys": "= 1.2.7",
-    "sudo": "= 3.3.1",
-    "terraform": "= 0.5.3",
-    "users": "= 4.0.3",
-    "windows": "= 2.1.1",
-    "yum": "= 3.13.0",
-    "yum-atomic": "= 0.1.2",
-    "yum-epel": "= 2.1.1",
-    "yum-plugin-versionlock": "= 0.1.2"
   },
   "json_class": "Chef::Environment",
   "chef_type": "environment",
@@ -85,12 +14,14 @@
       "branch_name": "stages/staging"
     },
     "login_dot_gov": {
-      "available_locales": "en es fr",
+      "available_locales": "en es",
       "aws_kms_key_id": "alias/staging-login-dot-gov-keymaker",
       "aws_region": "us-west-2",
       "branch_name": "stages/staging",
       "enable_identity_verification": "true",
-      "use_kms": "false"
+      "enable_usps_verification": "false",
+      "proofing_vendors": "equifax",
+      "use_kms": "true"
     },
     "ssh_keys": {
       "ubuntu": [
@@ -112,14 +43,13 @@
       "users": [
         "astone",
         "brody",
-        "dnesting",
         "jgrevich",
         "jpmugizi",
         "monfresh",
         "sverch",
+        "dnesting",
         "tblack",
-        "tspencer",
-        "zmargolis"
+        "tspencer"
       ]
     },
     "filebeat": {
@@ -127,8 +57,7 @@
     },
     "identity-jenkins": {
       "users": [
-        "monfresh",
-        "zmargolis"
+        "monfresh"
       ],
       "admins": [
         "astone",
@@ -136,7 +65,9 @@
         "jgrevich",
         "jpmugizi",
         "tspencer",
-        "zmargolis"
+        "sverch",
+        "dnesting",
+        "mzia"
       ]
     },
     "terraform": {
