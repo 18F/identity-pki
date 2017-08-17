@@ -105,6 +105,12 @@ Options:
       cl_ssh_options[:ssh_opts] += ['-o', val]
     end
 
+    opts.on('-I', '--pkcs11 LIB',
+            'Use LIB for SSH with a PCKS#11 library') do |val|
+      cl_ssh_options[:ssh_opts] ||= []
+      cl_ssh_options[:ssh_opts] += ['-I', val]
+    end
+
     opts.on('--aws-profile PROFILE', 'Set AWS_PROFILE env variable') do |val|
       ENV['AWS_PROFILE'] = val
       STDERR.puts "AWS_PROFILE: #{val.inspect}"
@@ -127,7 +133,7 @@ Options:
     cl_ssh_options[:username], host_spec = host_spec.split('@', 2)
   end
 
-  host_spec = host_spec.strip.downcase
+  host_spec = host_spec.strip
 
   if host_spec =~ /\Ai-[a-f0-9]+\z/
     instance = get_instance_by_id(host_spec)

@@ -95,6 +95,12 @@ Options:
       cl_ssh_options[:ssh_opts] += ['-o', val]
     end
 
+    opts.on('-I', '--pkcs11 LIB',
+            'Use LIB for SSH with a PCKS#11 library') do |val|
+      cl_ssh_options[:ssh_opts] ||= []
+      cl_ssh_options[:ssh_opts] += ['-I', val]
+    end
+
     opts.on('--aws-profile PROFILE', 'Set AWS_PROFILE env variable') do |val|
       ENV['AWS_PROFILE'] = val
     end
