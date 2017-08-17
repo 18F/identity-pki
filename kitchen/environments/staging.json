@@ -24,20 +24,6 @@
       "use_kms": "true"
     },
     "ssh_keys": {
-      "ubuntu": [
-        "astone",
-        "brody",
-        "deploy",
-        "jgrevich",
-        "jpmugizi",
-        "monfresh",
-        "mzia",
-        "sverch",
-        "dnesting",
-        "tblack",
-        "tspencer",
-        "zmargolis"
-      ]
     },
     "elk": {
       "users": [
