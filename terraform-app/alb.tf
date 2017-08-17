@@ -51,7 +51,9 @@ resource "aws_alb_target_group" "idp-ssl" {
   depends_on = ["aws_alb.idp"]
 
   health_check {
-    matcher =  "${var.env_name == "prod" ? 200 : 401}"
+    # ideally this would be a map variable lookup, but for now just do this hack
+    # we have HTTP basic auth enabled everywhere except prod and staging
+    matcher =  "${(var.env_name == "prod" || var.env_name == "staging") ? 200 : 401}"
     protocol = "HTTPS"
 
     interval = 10
