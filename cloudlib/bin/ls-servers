@@ -38,6 +38,14 @@ def data_for_instances(instances)
     'launch-time',
   ]
 
+  # sort instances by name tag, then launch time
+  instances = instances.sort_by {|i|
+    [
+      cl.name_tag(i, allow_nil: true) || '',
+      i.launch_time,
+    ]
+  }
+
   data = instances.map {|i|
     [
       i.instance_id,
@@ -51,12 +59,9 @@ def data_for_instances(instances)
     ]
   }
 
-  # sort by name tag
-  data = data.sort_by {|row| row.fetch(2) }
-
   return {
     header: header,
-    rows: data.sort_by {|row| row.fetch(2) },
+    rows: data,
   }
 end
 

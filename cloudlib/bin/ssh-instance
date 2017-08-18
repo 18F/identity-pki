@@ -113,7 +113,7 @@ Options:
 
     opts.on('--aws-profile PROFILE', 'Set AWS_PROFILE env variable') do |val|
       ENV['AWS_PROFILE'] = val
-      STDERR.puts "AWS_PROFILE: #{val.inspect}"
+      log.debug("AWS_PROFILE=#{val.inspect}")
     end
   end
 

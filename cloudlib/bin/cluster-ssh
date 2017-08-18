@@ -1,19 +1,12 @@
 #!/usr/bin/env ruby
 
+require 'optparse'
 require 'rbconfig'
 
 require 'bundler/setup'
 require_relative '../lib/cloudlib'
 require 'subprocess'
 
-def usage
-  STDERR.puts <<-EOM
-usage: #{File.basename($0)} ENVIRONMENT
-
-Open SSH windows to all instances in ENVIRONMENT, using cssh/csshX
-(must be apt/brew installed).
-  EOM
-end
 
 def log
   Cloudlib.cli_log
@@ -64,17 +57,67 @@ def find_instances_for_env(env)
   instances
 end
 
-def main(env)
-  clusterssh(find_instances_for_env(env))
-end
+def main(args)
+  find_opts = {states: ['running']}
 
-if $0 == __FILE__
-  begin
-    env = ARGV.fetch(0)
-  rescue IndexError
-    usage
+  basename = File.basename($0)
+
+  optparse = OptionParser.new do |opts|
+    opts.banner = <<-EOM
+usage: #{File.basename($0)} [OPTIONS]
+
+Open interactive SSH windows to all instances according to ls-servers like
+filters using cssh/csshX (must be apt/brew installed). The ssh connections are
+established using ssh-instance.
+
+At least one filter option (-e, -n, etc.) must be specified. The filters
+operate similarly to ls-servers.
+
+Examples:
+
+    # SSH to servers in QA VPC
+    #{basename} -e qa
+
+    # SSH to jumphost servers in all environments
+    #{basename} -n '*jumphost*'
+
+    # SSH to all dev ASG IDP servers
+    #{basename} -e dev -n 'asg-*-idp'
+
+Options:
+    EOM
+
+    opts.on('-h', '--help', 'Print this message') do
+      STDERR.puts opts
+      exit
+    end
+
+    opts.on('-e', '--env ENVIRONMENT',
+            'Filter servers by ENVIRONMENT') do |val|
+      find_opts[:env] = val
+    end
+
+    opts.on('-n', '--name GLOB', 'Find servers Name matching GLOB') do |val|
+      find_opts[:name_glob] = val
+    end
+  end
+
+  args = optparse.parse(args)
+
+  # print error if we have no find_opts other than :states
+  if find_opts.reject{|k, v| k == :states}.empty?
+    STDERR.puts optparse
+    STDERR.puts "\n#{basename}: must pass at least one filter (-e, -n, etc.)"
     exit 1
   end
 
-  main(env)
+  instances = Cloudlib::EC2.cli_find_servers(find_opts)
+
+  # TODO: add ability to pass through options to ssh-instance, or prepopulate
+  # the SSH command line and don't use ssh-instance
+  clusterssh(instances)
+end
+
+if $0 == __FILE__
+  main(ARGV)
 end
