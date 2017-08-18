@@ -1,0 +1,79 @@
+#!/bin/bash
+set -eu
+
+REPO_DIR=/etc/login.gov/repos
+ASG_SENTINEL=/etc/login.gov/info/auto-scaled
+
+usage() {
+    cat >&2 <<EOM
+usage: $(basename "$0") MODE [CHEF_OPTS]
+
+MODE can be one of:
+
+    private / identity-devops-private   Run private chef cookbooks (ASG only)
+    main / identity-devops              Run main chef cookbooks
+
+Examples:
+
+    $(basename "$0") private --why-run
+
+EOM
+}
+
+chef_run_client() {
+    client_rb="$1"
+    shift
+
+    # ensure client.rb exists because chef doesn't, and will happily carry on
+    # with no configuration even if it's not there
+    cat "$client_rb" >/dev/null
+
+    set -x
+    exec chef-client -c "$client_rb" "$@"
+}
+
+chef_run_private() {
+    if ! [ -d "$REPO_DIR" ]; then
+        echo >&2 "error: $REPO_DIR does not exist"
+        echo >&2 "is this an auto scaled instance?"
+        return 1
+    fi
+
+    chef_run_client "$REPO_DIR/identity-devops-private/chef/chef-client.rb" "$@"
+}
+
+chef_run_main() {
+    if [ -e "$ASG_SENTINEL" ]; then
+        chef_run_client "$REPO_DIR/identity-devops/kitchen/chef-client.rb" "$@"
+    else
+        echo >&2 "Instance not auto scaled, running against chef server"
+        set -x
+        exec chef-client "$@"
+    fi
+}
+
+if [ $# -lt 1 ]; then
+    usage
+    exit 1
+fi
+
+if [ "$(id -u)" -ne 0 ]; then
+    set -x
+    exec sudo "$0" "$@"
+fi
+
+mode="$1"
+shift
+
+case "$mode" in
+    private|identity-devops-private)
+        chef_run_private "$@"
+        ;;
+    main|identity-devops)
+        chef_run_main "$@"
+        ;;
+    *)
+        usage
+        exit 1
+        ;;
+esac

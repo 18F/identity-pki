@@ -15,3 +15,8 @@ describe service('ssh') do
   it { should be_enabled }
   it { should be_running }
 end
+
+describe file('/usr/local/bin/id-chef-client') do
+  it { should exist }
+  it { should be_executable }
+end
