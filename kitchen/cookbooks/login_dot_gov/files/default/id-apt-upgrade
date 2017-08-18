@@ -1,0 +1,20 @@
+#!/bin/sh
+set -eu
+
+if [ "$(id -u)" -ne 0 ]; then
+    set -x
+    exec sudo "$0" "$@"
+fi
+
+run() {
+    echo >&2 "+ $*"
+    "$@"
+}
+
+trap 'echo "$(hostname -f) FAILED apt upgrade"' EXIT
+
+run apt-get update
+run apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y
+
+trap - EXIT
+echo 'All done'
