@@ -13,3 +13,6 @@ gem 'kitchen-inspec'
 gem 'kitchen-transport-sshtar'
 
 gem 'chef', '= 12.15.19'
+
+# This is needed to build multipart cloud init data for test kitchen
+gem 'mime'

@@ -1,4 +1,4 @@
----
+<%-
 #
 # This file is the Test Kitchen configuration file for the per node integration
 # tests.  See
@@ -9,7 +9,15 @@
 # after this node's role, and then add the proper subnet, security_group and
 # iam_profile below.
 #
-<%-
+
+# XXX: It's a syntax error to require this directly.  Including libraries in an
+# ERB is not recommended apparently.
+yaml_lib = "yaml"
+require yaml_lib
+
+common_dir = File.dirname(File.expand_path(File.readlink(__FILE__)))
+require File.join(common_dir, "cloud_init_utils", "cloud_init_builder")
+
 role = File.basename(Dir.pwd)
 # TODO: Make a standard instance profile name for each instance so we don't need
 # this hash.
@@ -42,31 +50,62 @@ if !security_groups.key?(role)
   raise "Security group for role: #{role} not found in test kitchen boilerplate.  Please add it in #{__FILE__}."
 end
 security_group = security_groups.fetch(role)
-%>
 
-driver:
-  name: ec2
-  aws_ssh_key_id: "<%= ENV['KITCHEN_EC2_SSH_KEYPAIR_ID'] || 'login-dev-us-west-2' %>"
-  region: us-west-2
-  subnet_filter:
-    tag: Name
-    value: "<%= subnet %>"
-  security_group_filter:
-    tag: Name
-    value: "<%= security_group %>"
-  instance_type: c4.xlarge
-  image_id: ami-7e22c506
-  user_data: ../common/user_data/pre_setup.sh
-  iam_profile_name: "<%= iam_profile %>"
-  tags:
-    created-by: "test-kitchen"
-    user: "<%= ENV['GSA_USERNAME'] || ENV['USER'] %>"
-    terminate-after: "<%= (Time.now + 604800).strftime('%F') %>"
-    Name: "<%= 'test-kitchen-' + role %>"
-    prefix: "<%= 'test-kitchen-' + role %>"
-    domain: "ci.login.gov"
+cloud_init_info = [
+  # TODO: Figure out why this is still necessary here but works in production.
+  {
+    "filename" => "fix_volume_permissions.yaml",
+    "template" => "../common/user_data/fix_volume_permissions.yaml.erb",
+    "content_type" => "text/cloud-config",
+    "vars" => {}
+  },
+  {
+    "filename" => "set-hostname.yaml",
+    "template" => "../../terraform-modules/bootstrap/cloud-init.hostname.yaml.erb",
+    "content_type" => "text/cloud-config",
+    "vars" => {
+      "hostname_prefix" => role,
+      "domain" => "ci.login.gov"
+    }
+  },
+  {
+    "filename" => "provision.sh",
+    "template" => "../../terraform-modules/bootstrap/provision.sh",
+    "content_type" => "text/x-shellscript",
+    "vars" => {}
+  },
+  {
+    "filename" => "base.yaml",
+    "template" => "../../terraform-modules/bootstrap/cloud-init.base.yaml.erb",
+    "content_type" => "text/cloud-config",
+    "vars" => {
+      "domain" => "login.gov",
+      "env" => "ci",
+      "role" => role
+    }
+  },
+  # TODO: Run the identity-devops-private provisioning.  Currently this causes
+  # the test to fail because it tries to reinstall chef.  We need a way to tell
+  # test kitchen to wait for cloud-init to finish.
+  #{
+  #  "filename" => "provision-private.yaml",
+  #  "template" => "../../terraform-modules/bootstrap/cloud-init.provision.yaml.erb",
+  #  "content_type" => "text/cloud-config",
+  #  "vars" => {
+  #    "chef_download_sha256" => "7073541beb4294c994d4035a49afcf06ab45b3b3933b98a65b8059b7591df6b8",
+  #    "chef_download_url" => "https://packages.chef.io/files/stable/chef/12.15.19/ubuntu/16.04/chef_12.15.19-1_amd64.deb",
 
-<%-
+  #    "provision_phase_name" => "test-kitchen-private-provisioning",
+
+  #    "git_clone_url" => "git@github.com:18F/identity-devops-private",
+  #    "git_ref" => "master",
+  #    "s3_ssh_key_url" => "s3://login-gov-secrets-test/common/id_ecdsa.id-do-private.deploy"
+  #  }
+  #}
+]
+
+user_data = build_cloud_init(cloud_init_info)
+
 # Set SSH key from environment or use default
 ssh_key_file = ENV.fetch('KITCHEN_EC2_SSH_KEY', '~/.ssh/login-dev-us-west-2.pem')
 ssh_key_file = File.expand_path(ssh_key_file)
@@ -76,45 +115,77 @@ if !File.exist?(ssh_key_file)
 end
 %>
 
-transport:
-  username: ubuntu
-  ssh_key: "<%= ssh_key_file %>"
-  name: sshtar
-  compression: zlib
-  compression_level: 9
-
-provisioner:
-  name: chef_zero
-  # You may wish to disable always updating cookbooks in CI or other testing environments.
-  # For example:
-  #   always_update_cookbooks: <%= !ENV['CI'] %>
-  always_update_cookbooks: true
-  environments_path: ../../kitchen/environments
-  roles_path: ../../kitchen/roles
-  client_rb:
-    environment: ci
-  require_chef_omnibus: 12.15
-  root_path: '/var/lib/kitchen'
-
-verifier:
-  name: inspec
-
-platforms:
-  - name: ubuntu-14.04
-
-suites:
-  - name: default
-    run_list:
-      - "<%= 'role[' + role + ']' %>"
-    verifier:
-      inspec_tests:
-        - test/smoke/default
-    attributes:
-      build-essential:
-        compile_time: true
-      apt:
-        compile_time_update: true
-      provisioner:
-        auto-scaled: true
+<%=
+{
+    "driver" => {
+        "name" => "ec2",
+        "aws_ssh_key_id" => ENV['KITCHEN_EC2_SSH_KEYPAIR_ID'] || 'login-dev-us-west-2',
+        "region" => "us-west-2",
+        "subnet_filter" => {
+            "tag" => "Name",
+            "value" => subnet
+        },
+        "security_group_filter" => {
+            "tag" => "Name",
+            "value" => security_group
+        },
+        "instance_type" => "c4.xlarge",
+        "image_id" => "ami-7e22c506",
+        "user_data" => user_data,
+        "iam_profile_name" => iam_profile,
+        "tags" => {
+            "created-by" => "test-kitchen",
+            "user" => ENV['GSA_USERNAME'] || ENV['USER'],
+            "terminate-after" => (Time.now + 604800).strftime('%F'),
+            "Name" => "test-kitchen-#{role}",
+            "prefix" => "test-kitchen-#{role}",
+            "domain" => "ci.login.gov"
+        }
+    },
+    "transport" => {
+        "username" => "ubuntu",
+        "ssh_key" => ssh_key_file,
+        "name" => "sshtar",
+        "compression" => "zlib",
+        "compression_level" => 9
+    },
+    "provisioner" => {
+        "name"  =>"chef_zero",
+        "always_update_cookbooks" => "true",
+        "environments_path" => "../../kitchen/environments",
+        "roles_path" => "../../kitchen/roles",
+        "client_rb" => {
+            "environment" => "ci",
+        },
+        # TODO: Don't install this, let the provision script do it
+        "require_chef_omnibus" => "12.15",
+        "root_path" => "/var/lib/kitchen"
+    },
+    "verifier" => {
+        "name" => "inspec"
+    },
+    "platforms" => [{
+        "name" => "ubuntu-14.04"
+    }],
+    "suites" => [{
+        "name" => "default",
+        "run_list" => ["role[#{role}]"],
+        "verifier" => {
+            "inspec_tests" => ["test/smoke/default"]
+        },
+        "attributes" => {
+            "build-essential" => {
+                "compile_time" => true
+            },
+            "apt" => {
+                "compile_time_update" => true
+            },
+            "provisioner" => {
+                "auto-scaled" => true
+            }
+        }
+    }]
+}.to_yaml
+%>
 
 # vim: set ft=eruby :

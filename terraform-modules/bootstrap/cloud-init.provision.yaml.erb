@@ -1,0 +1,13 @@
+# cloud-config
+
+# This file is an ERB template.
+
+# This is boilerplate cloud init config to run provision.sh with the specified
+# arguments.  provision.sh handles cloning a git repository and running
+# chef-client on it locally.
+runcmd:
+- /var/lib/cloud/instance/scripts/provision.sh <%= "--kitchen-subdir #{kitchen_subdir}" if defined?(kitchen_subdir) %> <%= "--berksfile-toplevel" if defined?(berksfile_toplevel) %> --chef-download-url "<%= chef_download_url %>" --chef-download-sha256 "<%= chef_download_sha256 %>" --git-ref "<%= git_ref %>" "<%= s3_ssh_key_url %>" "<%= git_clone_url %>"
+ - touch "/run/<%= provision_phase_name %>"
+
+# merge multipart cloud-init files in a sane way
+merge_type: 'list(append)+dict(recurse_array)+str()'

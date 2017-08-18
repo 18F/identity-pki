@@ -26,3 +26,6 @@ bootcmd:
 # XXX: We should understand why this actually works in our real environment
 # since we apparently don't have to do this.
  - mount -o remount,exec,nosuid,nodev /tmp
+
+# merge stuff in a sane way with other multipart files
+merge_type: 'list(append)+dict(recurse_array)+str()'
