@@ -39,6 +39,8 @@ This repository contains the base infrastructure for login.gov.
 If you are new to this project, start here:
 
 - [Contributing to identity-devops](contributing.md)
+- [Testing identity-devops code](technical/testing.md)
+- [Deploying identity-devops code](technical/deployment.md)
 - [Structure of this Repository](structure-of-this-repository.md).
 - [Infrastructure Architecture](technical/architecture.md).
 - [Lifecycle of Custom Instances](technical/life-of-an-instance.md).

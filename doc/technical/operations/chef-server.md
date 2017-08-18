@@ -1,8 +1,9 @@
-# Working with Chef
+# Working with the Chef Server
 
-Currently we deploy a Chef Server in our environment, which all nodes use to
-keep their configuration up to date.  This page describes the various management
-tasks you might need to do with chef.
+This page describes how to do some common chef server administrative tasks.
+This page doesn't apply to any instances that are autoscaled, so see [the Life
+of an Instance](../life-of-an-instance.md) documentation for how to manage auto
+scaled instances.
 
 ### 0. Prerequisites
 
