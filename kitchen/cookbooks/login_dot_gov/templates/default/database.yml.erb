@@ -11,4 +11,11 @@ production:
   username: <%= @username %>
   host: <%= @host %>
   password: <%= @password %>
-  
+  timeout: 5000
+  reconnect: true
+  connect_timeout: 2
+  keepalives_idle: 30
+  keepalives_interval: 10
+  keepalives_count: 2
+  checkout_timeout: 5
+  reaping_frequency: 10
