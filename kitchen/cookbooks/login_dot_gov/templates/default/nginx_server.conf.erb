@@ -57,6 +57,12 @@ server {
         auth_basic "Restricted";
         auth_basic_user_file /opt/nginx/conf/htpasswd;
     }
+
+    # Skip basic auth for /healthcheck* and /api/health*
+    location /healthcheck {
+    }
+    location /api/health {
+    }
     <% end %>
 
     # Content expiry rules
