@@ -92,6 +92,9 @@ resource "aws_autoscaling_group" "jumphost" {
         value = "${var.env_name}.login.gov"
         propagate_at_launch = true
     }
+
+    # We manually terminate instances in prod
+    protect_from_scale_in = "${var.asg_prevent_auto_terminate}"
 }
 
 resource "aws_instance" "jumphost" {

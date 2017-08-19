@@ -71,6 +71,9 @@ resource "aws_autoscaling_group" "worker" {
 
     termination_policies = ["OldestInstance"]
 
+    # Because bootstrapping takes so long, we terminate manually in prod
+    protect_from_scale_in = "${var.asg_prevent_auto_terminate}"
+
     tag {
         key = "Name"
         value = "asg-${var.env_name}-worker"
