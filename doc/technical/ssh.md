@@ -75,6 +75,11 @@ host *
   ServerAliveCountMax 4
 
   HashKnownHosts no
+
+# Long AWS hostnames can get a "too long for Unix domain socket" error with the
+# default control path above, so use this one instead.
+Host ec2-*.compute.amazonaws.com
+  ControlPath ~/.ssh/sockets/%r@ec2-%C
 ```
 
 When ssh reuses an existing controlmaster connection, it won't print the banner
