@@ -70,6 +70,9 @@ resource "aws_autoscaling_group" "outboundproxy" {
 
     termination_policies = ["OldestInstance"]
 
+    # We manually terminate instances in prod
+    protect_from_scale_in = "${var.asg_prevent_auto_terminate}"
+
     tag {
         key = "Name"
         value = "asg-${var.env_name}-outboundproxy"

@@ -38,6 +38,14 @@ variable "worker_ami_list" { type="list" }
 variable "route53_id" {}
 variable "apps_enabled" { default = false }
 
+# prod/test environment flags
+variable "basic_auth_enabled" {
+    description = "Whether HTTP basic auth is enabled (controls ELB expected HTTP status code"
+}
+variable "asg_prevent_auto_terminate" {
+    description = "Whether to protect auto scaled instances from automatic termination"
+}
+
 # https://downloads.chef.io/chef/stable/12.15.19#ubuntu
 variable "chef_version" { default = "12.15.19" }
 variable "chef_download_url" {
