@@ -103,7 +103,7 @@ module Cloudlib
         end
 
 
-        hostkey_alias = "[#{instance.instance_id}]:#{port}"
+        hostkey_alias = "#{instance.instance_id}:#{port}"
 
         if strict_host_key_checking.nil?
           # Use strict host key checking if the alias is already found in the
