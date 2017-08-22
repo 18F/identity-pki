@@ -63,7 +63,9 @@ resource "aws_autoscaling_group" "worker" {
       "${aws_subnet.idp2.id}"
     ]
 
-    # TODO: create an ELB/ALB for health checks?
+    # TODO: We should potentially create an ELB/ALB for health checks. With the
+    # EC2 health checks, the ASG can't tell if the instance is actually
+    # working, only that the bare instance appears to be turned on.
     # target_group_arns = []
     # possible choices: EC2, ELB
     health_check_type = "EC2"
@@ -72,6 +74,10 @@ resource "aws_autoscaling_group" "worker" {
     termination_policies = ["OldestInstance"]
 
     # Because bootstrapping takes so long, we terminate manually in prod
+    # We also would want to switch to an ELB health check before allowing AWS
+    # to automatically terminate instances. Right now the ASG can't tell if
+    # instance bootstrapping completed successfully.
+    # https://github.com/18F/identity-devops-private/issues/337
     protect_from_scale_in = "${var.asg_prevent_auto_terminate}"
 
     tag {

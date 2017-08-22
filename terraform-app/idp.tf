@@ -173,12 +173,17 @@ resource "aws_autoscaling_group" "idp" {
 
     # possible choices: EC2, ELB
     health_check_type = "ELB"
-    # Currently bootstrapping seems to take 21-35 minutes
-    health_check_grace_period = 1800 # 30 minutes
+
+    # Currently bootstrapping seems to take 21-35 minutes, so we set the grace
+    # period to 30 minutes. Ideally this would be *much* shorter.
+    # https://github.com/18F/identity-devops-private/issues/337
+    health_check_grace_period = 1800
 
     termination_policies = ["OldestInstance"]
 
     # Because bootstrapping takes so long, we terminate manually in prod
+    # More context on ASG deploys and safety:
+    # https://github.com/18F/identity-devops-private/issues/337
     protect_from_scale_in = "${var.asg_prevent_auto_terminate}"
 
     tag {
