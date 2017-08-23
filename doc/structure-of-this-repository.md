@@ -152,7 +152,7 @@ https://github.com/18F/identity-analytics-etl for more details.
 ## `terraform-app` directory
 
 Contains the terraform configuration for the main login.gov environment.  See
-the [getting started guide](/getting-started.md) for more details.
+the [getting started guide](getting-started.md) for more details.
 
 ```
 ├── terraform-app
@@ -178,16 +178,6 @@ TODO: Better documentation for how to use this.
 
 ```
 ├── terraform-dns
-```
-
-## `terraform-idp` directory
-
-I believe this is unused and should be deleted.  Contains only secrets bucket
-configuration which doesn't match what we actually ended up using for our
-secrets storage.
-
-```
-├── terraform-idp
 ```
 
 ## `terraform-modules` directory

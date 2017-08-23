@@ -146,21 +146,16 @@ Currently, we have load balancers for the IDP servers, so AWS can do this, but
 we don’t have this for other instance types, so these must be checked manually
 to make sure they’re working before scaling back down.
 
+see the [Recycling Instances Documentation](deployment/recycling-instances.md)
+for more details.
+
 ### Appendix A: Administration/Troubleshooting
-
-```
-# Work in progress.  See https://github.com/18F/identity-devops/pull/492.
-bin/ls-servers -e qa
-bin/cluster-ssh -e qa -h idp
-```
-
-The instances should not need to be administered individually, but inevitably
-there will be problems that need to be diagnosed.  There are some tools in
-progress here to attempt to replace some of the Chef administrative tools, such
-as “knife ssh”.
 
 Secrets in s3 can be administered using the aws cli s3 functionality, and all
 other configuration is managed using git.
+
+We also have [administrative tools](tools.md) to directly interact with our AWS
+instances should there be a need.
 
 ### Appendix B: Branch/AMI Configuration
 

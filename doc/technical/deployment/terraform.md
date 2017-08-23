@@ -21,5 +21,40 @@ This should work for both new and existing environments.
 
 ## With Non Autoscaled Instances
 
-If you have non autoscaled instances in your environment, refer back to the
-[Getting Started Guide](../../getting-started.md).
+### Bootstrap Key
+
+The non auto scaled instances are configured by Terraform, and Terraform relies
+on early SSH access.  So you need to ask a member of the devops team for the
+shared bootstrap key and add it to your `ssh-agent`:
+
+```shell
+ssh-add ~/.ssh/login-dev-us-west-2.pem
+```
+
+This will allow you to log in as the `ubuntu` user for any instances that are
+provisioned using this keypair.
+
+### New Environment
+
+If you're trying to spin up a new environment, run:
+
+```
+./bootstrap.sh
+```
+
+If this doesn't complete successfully, you'll have to fall back to using the
+`deploy` script and manual troubleshooting.
+
+### Special Files
+
+The [Terraform Chef
+Provisioner](https://github.com/18F/identity-devops/blob/master/terraform-app/chef.tf#L69)
+also creates several files in your `~/.chef` directory:
+
+* `yourusername-<env>.pem`
+* `<env>-login-dev-validator.pem`
+* `knife-<env>.rb`
+* `<env>-databag.key`
+
+These are used to interact with the chef server.  See the [Chef Server
+Operations Guide](../operations/chef-server.md) for more details.
