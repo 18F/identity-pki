@@ -6,4 +6,5 @@ module "analytics" {
   analytics_version = "${var.analytics_version}"
   region = "${var.region}"
   kms_key_id = "${var.kms_key_id}"
+  num_nodes = "${var.num_redshift_nodes}"
 }
