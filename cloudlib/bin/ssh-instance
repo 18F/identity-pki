@@ -111,6 +111,9 @@ Options:
       cl_ssh_options[:ssh_opts] += ['-I', val]
     end
 
+    opts.on('-x', 'Ignored for use as SSH wrapper') do
+    end
+
     opts.on('--aws-profile PROFILE', 'Set AWS_PROFILE env variable') do |val|
       ENV['AWS_PROFILE'] = val
       log.debug("AWS_PROFILE=#{val.inspect}")

@@ -1,0 +1,23 @@
+#!/bin/bash
+set -eu
+
+usage() {
+    cat >&2 <<EOM
+usage: $(basename "$0") [SCP_OPTIONS] [[user@]host1:]file1 [[user@]host2:]file2
+
+Wrapper around scp to pass -S ssh-instance so that it uses ssh-instance as the
+SSH command, useful for scp'ing files to servers by EC2 instance ID.
+
+For example:
+
+    $(basename "$0") i-012345a6b7c8d9e0f:/etc/hostname /tmp/
+EOM
+}
+
+if [ $# -lt 1 ]; then
+    usage
+    exit 1
+fi
+
+set -x
+exec scp -S "$(dirname "$0")/ssh-instance" "$@"
