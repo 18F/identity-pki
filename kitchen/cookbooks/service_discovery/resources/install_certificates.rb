@@ -6,7 +6,7 @@ property :service_tag_value, String
 property :cert_user, String, default: 'root'
 property :cert_group, String, default: 'root'
 property :install_directory, String
-property :suffix, String, default: nil
+property :suffix, [String, nil], default: nil
 
 default_action :install
 

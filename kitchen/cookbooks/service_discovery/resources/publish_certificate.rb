@@ -2,7 +2,7 @@ resource_name :publish_certificate
 
 property :name, String, default: 'Publish a local certificate to s3'
 property :cert_path, String
-property :suffix, String, default: nil
+property :suffix, [String, nil], default: nil
 
 default_action :publish
 
