@@ -36,9 +36,9 @@ ruby_block 'generate_ca_cert' do
     cert.not_before = Time.now
     cert.not_after = Time.now + 60 * 600 * 24 * node['acme']['renew']
     cert.public_key = key.public_key
-    cert.serial = 0x0
+    cert.serial = Random.rand(2**64-1) + 1
     cert.version = 2
-    
+
     ef = OpenSSL::X509::ExtensionFactory.new
     ef.subject_certificate = cert
     ef.issuer_certificate = cert
