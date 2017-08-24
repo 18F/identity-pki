@@ -14,6 +14,10 @@ run() {
 trap 'echo "$(hostname -f) FAILED apt upgrade"' EXIT
 
 run apt-get update
+
+# Run apt-get upgrade in non-interactive mode, keeping existing conf files when
+# there are conflicts
+# https://raphaelhertzog.com/2010/09/21/debian-conffile-configuration-file-managed-by-dpkg/
 run apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y
 
 trap - EXIT
