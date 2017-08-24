@@ -17,9 +17,46 @@ mypkcs8 = '/etc/logstash/elk.login.gov.key.pkcs8'
 
 directory '/etc/logstash'
 
-acme_selfsigned "elk.login.gov.internal" do
-  crt     mycert
-  key     mykey
+execute 'generate_elk_key' do
+  command "openssl genrsa -out '#{mykey}' 2048"
+  umask '0066'
+  creates mykey
+
+  notifies :run, 'ruby_block[generate_elk_cert]', :immediately
+end
+
+ruby_block 'generate_elk_cert' do
+  block do
+    require 'openssl'
+    subject = OpenSSL::X509::Name.new([
+      ['CN', 'elk.login.gov.internal', OpenSSL::ASN1::UTF8STRING],
+      ['OU', node.chef_environment, OpenSSL::ASN1::UTF8STRING],
+    ])
+    key = OpenSSL::PKey::read(File.read(mykey))
+    cert = OpenSSL::X509::Certificate.new
+    cert.subject = cert.issuer = subject
+    cert.not_before = Time.now
+    cert.not_after = Time.now + 60 * 600 * 24 * node['acme']['renew']
+    cert.public_key = key.public_key
+    cert.serial = Random.rand(2**64-1) + 1
+    cert.version = 2
+
+    ef = OpenSSL::X509::ExtensionFactory.new
+    ef.subject_certificate = cert
+    ef.issuer_certificate = cert
+    cert.extensions = [
+      ef.create_extension('basicConstraints', 'CA:FALSE', true),
+      ef.create_extension('subjectKeyIdentifier', 'hash'),
+    ]
+    cert.add_extension ef.create_extension("subjectAltName", "DNS: #{node.hostname}.login.gov.internal, DNS: #{node.fqdn}")
+    cert.sign key, OpenSSL::Digest::SHA256.new
+    f = File.new("#{mycert}",'w')
+    f.write(cert.to_pem)
+    f.close()
+  end
+
+  not_if { File.exist?(mycert) && File.stat(mycert).mtime >= File.stat(mykey).mtime }
+
   notifies :restart, 'service[apache2]'
   notifies :run, 'ruby_block[generate_ca_cert]', :immediately
 end
