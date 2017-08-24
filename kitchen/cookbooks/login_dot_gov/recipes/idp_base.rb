@@ -131,6 +131,8 @@ end
   rails do
     # for some reason you can't set the database name when using ruby block format. Perhaps it has
     # something to do with having the same name as the resource to which the block belongs.
+    # TODO: use our own database template since this exposes the password in
+    # logs
     database({
       adapter: 'postgresql',
       database: ConfigLoader.load_config(node, "db_database_idp"),
@@ -138,7 +140,17 @@ end
       host: ConfigLoader.load_config(node, "db_host_idp"),
       password: ConfigLoader.load_config(node, "db_password_idp"),
       sslmode: 'verify-full',
-      sslrootcert: '/usr/local/share/aws/rds-combined-ca-bundle.pem'
+      sslrootcert: '/usr/local/share/aws/rds-combined-ca-bundle.pem',
+
+      # timeout settings
+      timeout: 5000,
+      reconnect: true,
+      connect_timeout: 2,
+      keepalives_idle: 30,
+      keepalives_interval: 10,
+      keepalives_count: 2,
+      checkout_timeout: 5,
+      reaping_frequency: 10,
     })
     rails_env node['login_dot_gov']['rails_env']
     secret_token node['login_dot_gov']['secret_key_base_idp']
