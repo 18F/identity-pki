@@ -127,16 +127,17 @@ default['login_dot_gov']['stack_trace_threshold']                     = '0.500'
 default['login_dot_gov']['transaction_threshold']                     = 'apdex_f'
 
 # sp-rails
-default['login_dot_gov']['sp_rails']['http_auth_username'] = '<%= ENV["SP_NAME"] %>'
-default['login_dot_gov']['sp_rails']['http_auth_password'] = '<%= ENV["SP_PASS"] %>'
+default['login_dot_gov']['sp_rails']['http_auth_username'] = '<%= ENV.fetch("SP_NAME") %>'
+default['login_dot_gov']['sp_rails']['http_auth_password'] = '<%= ENV.fetch("SP_PASS") %>'
 # 68:19:... is the fingerprint of the SAML IDP cert CN=int.login.gov
 # Serial: 0xf41d6ee2e4675981, Issued: July 11 2017, Expires: July 11 2018
 # TODO: don't hardcode this
 default['login_dot_gov']['sp_rails']['idp_cert_fingerprint'] = '68:19:E0:CB:D2:44:A0:CD:B7:D1:80:8A:E2:34:E4:22:90:41:DF:10'
-default['login_dot_gov']['sp_rails']['idp_slo_url'] = 'https://idp.<%= ENV["SAML_ENV"] %>.login.gov/api/saml/logout'
-default['login_dot_gov']['sp_rails']['idp_sso_url'] = 'https://idp.<%= ENV["SAML_ENV"] %>.login.gov/api/saml/auth'
-default['login_dot_gov']['sp_rails']['saml_issuer'] = 'urn:gov:gsa:SAML:2.0.profiles:sp:sso:rails-<%= ENV["SAML_ENV"] %>'
-default['login_dot_gov']['sp_rails']['secret_key_base'] = '<%= ENV["SECRET_KEY_BASE"] %>'
+default['login_dot_gov']['sp_rails']['idp_slo_url'] = 'https://idp.<%= ENV.fetch("SAML_ENV") %>.login.gov/api/saml/logout'
+default['login_dot_gov']['sp_rails']['idp_sso_url'] = 'https://idp.<%= ENV.fetch("SAML_ENV") %>.login.gov/api/saml/auth'
+default['login_dot_gov']['sp_rails']['saml_issuer'] = 'urn:gov:gsa:SAML:2.0.profiles:sp:sso:rails-<%= ENV.fetch("SAML_ENV") %>'
+default['login_dot_gov']['sp_rails']['secret_key_base'] = '<%= ENV.fetch("SECRET_KEY_BASE") %>'
+default['login_dot_gov']['sp_rails']['acs_url'] = 'https://sp.<%= ENV.fetch("SAML_ENV") %>.login.gov/auth/saml/callback'
 
 # dashboard
 default['login_dot_gov']['dashboard']['sp_certificate']               = '-----BEGIN CERTIFICATE-----\nMIIFLjCCAxYCCQD/dXjTvpnD0jANBgkqhkiG9w0BAQsFADBZMQswCQYDVQQGEwJV\nUzETMBEGA1UECBMKV2FzaGluZ3RvbjELMAkGA1UEBxMCREMxDDAKBgNVBAoTAzE4\nRjEaMBgGA1UEAxMRdGVzdC5jZXJ0LjE4Zi5nb3YwHhcNMTYwNTEzMTUyNTE3WhcN\nMjYwNTExMTUyNTE3WjBZMQswCQYDVQQGEwJVUzETMBEGA1UECBMKV2FzaGluZ3Rv\nbjELMAkGA1UEBxMCREMxDDAKBgNVBAoTAzE4RjEaMBgGA1UEAxMRdGVzdC5jZXJ0\nLjE4Zi5nb3YwggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQC+mkS5cTDx\nVgt36ad8/ssFvpO8KJhIlfc73pNdr4WDdnLp7935clx3RfRwjfENanTrotg/i4Oz\nDvLQvODj7GwD1nTozCPAw6wX4JOEbkN8IhnhdvxjePxxYWjZCbmsaLW2US9zBNcY\n+93qbBsSLN99Xw/wIKLGXxxgAGg0QO/706/M7dxGFENK+6a74pGkTEI/Zv82KBbr\nvTDfnkvVfR7TtoKGf9RKrtM/90BaLKpoV0SXMAc6Krw9ltk3DvJ5WKF5Q9KgkG2q\nQ2iGYmZEp1m/0LUd8a1DJUuqWqtm9j+8B69mHfcmf0FftdnlX+qfnQ1aPrBQTpFG\n+N1mj8at+ZCXy+IbyMf8BR+1k9YJeEAUVn/dg7jjVKTepM+IaC7C4rME+L2R+7X0\n1QvMDeJGHMJAmatV8FICKpPBq6F/3Ub86wLqzJNsK4fcpEf3jRwp9FclOGORtpVo\nE0VmGs+fIqP230FT1aRkNvNEfRFWi/9U8hUMvQAXI6jZKt++ScMMeLpqvjR5HrRC\n+d7w9MvJ7XZDu3IRV8gdH7KYwX6xIdqKboCw9wcXn3kREDL6cNqs5l/VN74Qx4yg\ni/aRabwd/d4CTSkq9kpngb5AaVESkd+fCu40+FznkxCE59qKMrjYDFYnuYUmPceH\n9kgYgaD/8ARPkmHnPoXT3bLzlOtTtqqJswIDAQABMA0GCSqGSIb3DQEBCwUAA4IC\nAQCfLLqCR2jQFbvK/KxNbDeDh0EkGC96+/3i6XWFS9EeJcU3/pDYBi5aLTkRcAsN\n31heZ8ThRWN6/ZwsIrhQi0rqp1FB0OvTjMI5u1MTxFL/88ftk7fkll6wTN9HZZcr\n7wVVSa37ULN9HmBaxXFKzBxo+RRDrucD+hk8dUBOlMf3FI+HlDLBYt5bn+TA5rvB\ny5KbEn+ryhCAUf+byghkR/r20bh6WNRw27TvO0ocyMTLXqXpr0YKnT3E2KVjABmE\nWLHFbJRv7WD3MhB+dgJhpIZuDkijsDT7ns/lO7jXdzcpVFZ9C09HlVam8G0L6//0\n5qexSv2xW2/oeJULok2FFOsYdIWgWlhscg5GKHkZ5EZo50AMWTuVFT7vw/SLzus1\n7HgmM03IjSxCr6Kl1rp022x+SBrMLTvHLSRqeM26HvNGGKX7N0R0/xAXJ6oqQPLg\n6YbAQvI7oxdCKZFNUE9ZMhT34F84ZRMwQluzeukiMne1Z/ZZX317cKOEflZiU3mc\n7nZHi2STJiL0mD8A3laPPgegeNmuEnDPYOo+sMgyan8scJR8vUIQEKACnkHNoa8G\n3xQBe08Bt1P/kcAGC3awQUqEnFVx6ORD0QWpPpaWe/0SO4mb2DwyGeBcCI027qVA\n6czR3hR8eGhocSy2VSoSymE2DlBF/Jt5Pwa8SzSHw/5/8g==\n-----END CERTIFICATE-----'
