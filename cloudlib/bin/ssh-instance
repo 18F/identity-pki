@@ -111,6 +111,10 @@ Options:
       cl_ssh_options[:ssh_opts] += ['-I', val]
     end
 
+    opts.on('--no-pkcs11', 'Disable use of PKCS#11 library') do
+      cl_ssh_options[:pkcs11_lib] = false
+    end
+
     opts.on('-x', 'Ignored for use as SSH wrapper') do
     end
 
