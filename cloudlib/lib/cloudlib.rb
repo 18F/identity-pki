@@ -32,7 +32,7 @@ module Cloudlib
 
     if ENV['CL_LOG_LEVEL']
       @log_level = Integer(ENV['CL_LOG_LEVEL'])
-      return
+      return @log_level
     end
 
     @log_level = Logger::DEBUG
