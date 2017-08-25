@@ -119,7 +119,7 @@ module Cloudlib
     # TODO: pick jumphost within an AZ or pick an ELB jumphost
     def find_jumphost
       # find ASG and non-asg jumphosts
-      jumphosts = list_instances_by_name('*jumphost-*', in_vpc: true)
+      jumphosts = list_instances_by_name('*jumphost*', in_vpc: true)
       jumphosts.first
     end
 
