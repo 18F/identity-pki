@@ -1,7 +1,7 @@
 variable "app_sg_ssh_cidr_blocks" { type="list" }
 variable "ci_sg_ssh_cidr_blocks"  {
     type="list"
-    default = []
+    default = ["127.0.0.1"]
     description = "List of CIDR blocks to allow into all NACLs/SGs.  Only use in the CI VPC."
 }
 variable "power_users" { type="list" }
