@@ -10,6 +10,6 @@ dpkg_options = "apt-get  -o Dpkg::Options::=\"--force-confdef\" -o Dpkg::Options
 [ "upgrade -y","dist-upgrade -y"].each do |cmd|
   execute cmd do
     command "#{dpkg_options} " + cmd
-    environment {'DEBIAN_FRONTEND' => 'noninteractive'}
+    environment({'DEBIAN_FRONTEND' => 'noninteractive'})
   end
 end
