@@ -3,11 +3,6 @@
   "description": "",
   "json_class": "Chef::Role",
   "default_attributes": {
-    "passenger": {
-      "production": {
-        "configure_flags": "--with-http_realip_module"
-      }
-    }
   },
   "override_attributes": {
   },
