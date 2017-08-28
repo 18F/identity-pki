@@ -13,11 +13,6 @@ default_action :install
 action :install do
   services = ::Chef::Recipe::ServiceDiscovery.discover(node, service_tag_key, [service_tag_value])
 
-  log 'discovered nodes' do
-    message "Discovered nodes: #{services}"
-    level :info
-  end
-
   services.each do |service|
 
     # This suffix allows consumers to register with and discover non default

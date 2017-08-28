@@ -18,6 +18,8 @@ class Chef::Recipe::ServiceDiscovery
   # @param values [String] the values of the service type tag to query for.
   # @return [List] list of service objects.
   def self.discover(node, tag, values)
+    msg = "Searching for services with tag: #{tag} and values: #{values}"
+    Chef::Log.info(msg)
     ec2 = Aws::EC2::Resource.new(region: Chef::Recipe::AwsMetadata.get_aws_region)
     instances = ec2.instances(filters:[{ name: "tag:#{tag}",
                                          values: values },
@@ -25,7 +27,10 @@ class Chef::Recipe::ServiceDiscovery
                                          values: ['running'] },
                                        { name: "vpc-id",
                                          values: [Chef::Recipe::AwsMetadata.get_aws_vpc_id] } ]).to_a
-    return instances.map {|instance| make_service_object(node, instance)}
+    services = instances.map {|instance| make_service_object(node, instance)}
+    msg = "Discovered services: #{services.inspect}"
+    Chef::Log.info(msg)
+    return services
   end
 
   # Do any registration needed for the given service.  Currently this is just
