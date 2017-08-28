@@ -19,12 +19,13 @@ common_dir = File.dirname(File.expand_path(File.readlink(__FILE__)))
 require File.join(common_dir, "cloud_init_utils", "cloud_init_builder")
 
 role = File.basename(Dir.pwd)
+environment = ENV.fetch('KITCHEN_EC2_INTEGRATION_ENVIRONMENT', 'ci')
 # TODO: Make a standard instance profile name for each instance so we don't need
 # this hash.
 iam_profiles = {
-    "jumphost" => "ci-base-permissions",
-    "idp" => "ci_idp_instance_profile",
-    "worker" => "ci_idp_instance_profile"
+    "jumphost" => "#{environment}-base-permissions",
+    "idp" => "#{environment}_idp_instance_profile",
+    "worker" => "#{environment}_idp_instance_profile"
 }
 if !iam_profiles.key?(role)
   raise "IAM profile for role: #{role} not found in test kitchen boilerplate.  Please add it in #{__FILE__}."
@@ -32,9 +33,9 @@ end
 iam_profile = iam_profiles.fetch(role)
 # TODO: Make a standard "subnet type" tag so we don't need this.
 subnets = {
-    "jumphost" => "login-jumphost_subnet-ci",
-    "idp" => "login-idp1_subnet-ci",
-    "worker" => "login-idp1_subnet-ci"
+    "jumphost" => "login-jumphost_subnet-#{environment}",
+    "idp" => "login-idp1_subnet-#{environment}",
+    "worker" => "login-idp1_subnet-#{environment}"
 }
 if !subnets.key?(role)
   raise "Subnet for role: #{role} not found in test kitchen boilerplate.  Please add it in #{__FILE__}."
@@ -42,9 +43,9 @@ end
 subnet = subnets.fetch(role)
 # TODO: Standardize security group names so we don't need this.
 security_groups = {
-    "jumphost" => "login-jumphost_security_group-ci",
-    "idp" => "login-idp_security_group-ci",
-    "worker" => "login-idp_security_group-ci"
+    "jumphost" => "login-jumphost_security_group-#{environment}",
+    "idp" => "login-idp_security_group-#{environment}",
+    "worker" => "login-idp_security_group-#{environment}"
 }
 if !security_groups.key?(role)
   raise "Security group for role: #{role} not found in test kitchen boilerplate.  Please add it in #{__FILE__}."
@@ -65,7 +66,7 @@ cloud_init_info = [
     "content_type" => "text/cloud-config",
     "vars" => {
       "hostname_prefix" => role,
-      "domain" => "ci.login.gov"
+      "domain" => "#{environment}.login.gov"
     }
   },
   {
@@ -80,7 +81,7 @@ cloud_init_info = [
     "content_type" => "text/cloud-config",
     "vars" => {
       "domain" => "login.gov",
-      "env" => "ci",
+      "env" => "#{environment}",
       "role" => role
     }
   },
@@ -139,7 +140,7 @@ end
             "terminate-after" => (Time.now + 604800).strftime('%F'),
             "Name" => "test-kitchen-#{role}",
             "prefix" => "test-kitchen-#{role}",
-            "domain" => "ci.login.gov"
+            "domain" => "#{environment}.login.gov"
         }
     },
     "transport" => {
@@ -155,7 +156,7 @@ end
         "environments_path" => "../../kitchen/environments",
         "roles_path" => "../../kitchen/roles",
         "client_rb" => {
-            "environment" => "ci",
+            "environment" => "#{environment}",
         },
         # TODO: Don't install this, let the provision script do it
         "require_chef_omnibus" => "12.15",

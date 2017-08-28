@@ -41,11 +41,10 @@ export KITCHEN_EC2_SSH_KEYPAIR_ID=MYNAME-SOME-KEY
 export KITCHEN_EC2_SSH_KEY=~/.ssh/id_rsa
 ```
 
-Additionally, these basic ruby tools are good to install:
+## Test Kitchen EC2 Integration Environment
 
-- Install [ruby-install](https://github.com/postmodern/ruby-install#install)
-- Install [chruby](https://github.com/postmodern/chruby#install)
-- Install [bundler](http://bundler.io/)
+By default, test kitchen runs in the [CI VPC](ci-vpc.md), but you can override
+this by setting the `KITCHEN_EC2_INTEGRATION_ENVIRONMENT` variable.
 
 ## Test Kitchen Troubleshooting
 
