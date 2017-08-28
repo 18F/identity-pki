@@ -21,6 +21,7 @@ server {
     # Avoid ssl stripping attack
     add_header Strict-Transport-Security "max-age=31536000; includeSubdomains; preload";
 
+    # TODO: why do we use Google name servers directly?
     resolver 8.8.8.8 8.8.4.4 valid=300s;
     resolver_timeout 5s;
 
@@ -74,20 +75,17 @@ server {
     # Media: images, icons, video, audio, HTC
     location ~* \.(?:jpg|jpeg|gif|png|ico|cur|gz|svg|svgz|mp4|ogg|ogv|webm|htc)$ {
         expires 1M;
-        access_log off;
         add_header Cache-Control "public";
     }
 
     # CSS and Javascript
     location ~* \.(?:css|js)$ {
         expires 1M;
-        access_log off;
         add_header Cache-Control "public";
     }
 
     # WebFonts
     location ~* \.(?:ttf|ttc|otf|eot|woff|woff2)$ {
         expires 1M;
-        access_log off;
     }
 }
