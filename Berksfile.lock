@@ -89,7 +89,7 @@ GRAPH
     poise-service (~> 1.0)
   apt (5.0.1)
     compat_resource (>= 12.16.3)
-  apt_update (0.1.0)
+  apt_update (0.1.1)
   ark (1.1.0)
     build-essential (>= 0.0.0)
     seven_zip (>= 0.0.0)

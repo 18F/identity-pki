@@ -259,7 +259,11 @@ export HOME=/root
 echo "==========================================================="
 echo "provision.sh: installing dependencies"
 
-apt-get update
+run apt-get update
+
+DEBIAN_FRONTEND=noninteractive run apt-get \
+    -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
+    dist-upgrade -y
 
 install_awscli
 install_git

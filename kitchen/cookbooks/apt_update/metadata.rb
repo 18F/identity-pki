@@ -4,7 +4,7 @@ maintainer_email 'jeanpaulcrescent.mugizi@gsa.gov'
 license 'all_rights'
 description 'updates and upgrades apt packages'
 long_description 'updates and upgrades apt packages'
-version '0.1.0'
+version '0.1.1'
 
 # If you upload to Supermarket you should set this so your cookbook
 # gets a `View Issues` link
