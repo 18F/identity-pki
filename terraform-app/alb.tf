@@ -75,7 +75,7 @@ resource "aws_alb_target_group" "idp-ssl" {
 }
 
 resource "aws_alb_target_group_attachment" "idp" {
-  count = "${var.alb_enabled * var.idp_node_count}"
+  count = "${var.non_asg_idp_enabled * var.alb_enabled * var.idp_node_count}"
   depends_on = ["aws_alb.idp"]
   port = 80
   target_group_arn = "${aws_alb_target_group.idp.arn}"
@@ -83,14 +83,14 @@ resource "aws_alb_target_group_attachment" "idp" {
 }
 
 resource "aws_alb_target_group_attachment" "idp-ssl" {
-  count = "${var.alb_enabled * var.idp_node_count}"
+  count = "${var.non_asg_idp_enabled * var.alb_enabled * var.idp_node_count}"
   port = 443
   target_group_arn = "${aws_alb_target_group.idp-ssl.arn}"
   target_id = "${element(aws_instance.idp1.*.id, count.index)}"
 }
 
 resource "aws_alb_target_group_attachment" "idp2" {
-  count = "${var.alb_enabled * var.idp_node_count}"
+  count = "${var.non_asg_idp_enabled * var.alb_enabled * var.idp_node_count}"
   depends_on = ["aws_alb.idp"]
   port = 80
   target_group_arn = "${aws_alb_target_group.idp.arn}"
@@ -98,7 +98,7 @@ resource "aws_alb_target_group_attachment" "idp2" {
 }
 
 resource "aws_alb_target_group_attachment" "idp2-ssl" {
-  count = "${var.alb_enabled * var.idp_node_count}"
+  count = "${var.non_asg_idp_enabled * var.alb_enabled * var.idp_node_count}"
   port = 443
   target_group_arn = "${aws_alb_target_group.idp-ssl.arn}"
   target_id = "${element(aws_instance.idp2.*.id, count.index)}"
