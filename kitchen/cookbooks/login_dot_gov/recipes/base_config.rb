@@ -17,3 +17,19 @@ package [
   'pydf',
   'tree',
 ]
+
+# common scripts and aliases
+
+cookbook_file '/usr/local/bin/id-chef-client' do
+  source 'id-chef-client'
+  owner 'root'
+  group 'root'
+  mode '0755'
+end
+
+cookbook_file '/usr/local/bin/id-apt-upgrade' do
+  source 'id-apt-upgrade'
+  owner 'root'
+  group 'root'
+  mode '0755'
+end
