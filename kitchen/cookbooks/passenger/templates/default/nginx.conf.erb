@@ -22,6 +22,9 @@ http {
   include mime.types;
   default_type application/octet-stream;
 
+  set_real_ip_from <%= @passenger.fetch(:realip_from_cidr) %>;
+  real_ip_header X-Forwarded-For;
+
   sendfile <%= @passenger[:sendfile] ? 'on' : 'off' %>;
   tcp_nopush <%= @passenger[:tcp_nopush] ? 'on' : 'off' %>;
   keepalive_timeout <%= @passenger[:keepalive_timeout] %>;
