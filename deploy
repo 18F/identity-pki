@@ -23,6 +23,17 @@ GSA_USERNAME=$1; shift
 TF_DIR=$1; shift
 TF_CMD=("$@")
 
+case "$TF_DIR" in
+    terraform-dns|terraform-cloudtrail|terraform-common)
+        # These configurations apply account wide, so set the environment to the
+        # account ID.
+        #
+        # https://stackoverflow.com/a/33791322
+        ENVIRONMENT="account_global_$(aws sts get-caller-identity --output text --query 'Account')"
+        echo "Forcing environment name to be $ENVIRONMENT since $TF_DIR is account wide configuration"
+        ;;
+esac
+
 # We need to be in the root of the repo for all this to work.
 cd "$(dirname "$0")"
 
@@ -66,18 +77,22 @@ echo "DEPLOY: Loading environment variables...."
 # array should be set in the environment-specific variables.
 check_terraform_version "${ID_SUPPORTED_TERRAFORM_VERSIONS[@]}"
 
-echo "DEPLOY: Checking for required files...."
-run bin/check-required-files.sh "$ENVIRONMENT"
+case "$TF_DIR" in
+    terraform-app)
+        echo "DEPLOY: Checking for required files...."
+        run bin/check-required-files.sh "$ENVIRONMENT"
 
-if [ -z "${TF_VAR_chef_id:=}" ] ; then
-    die "You must specify an initial chef user.  \
-Make sure $ID_ENV_DIR/$ENVIRONMENT.sh contains all the necessary configuration."
-fi
+        if [ -z "${TF_VAR_chef_id:=}" ] ; then
+            die "You must specify an initial chef user.  \
+        Make sure $ID_ENV_DIR/$ENVIRONMENT.sh contains all the necessary configuration."
+        fi
 
-if [ -z "${TF_VAR_chef_id:=}" ] ; then
-    die "You must specify an environment to terraform.  \
-Make sure $ID_ENV_DIR/$ENVIRONMENT.sh contains all the necessary configuration."
-fi
+        if [ -z "${TF_VAR_chef_id:=}" ] ; then
+            die "You must specify an environment to terraform.  \
+        Make sure $ID_ENV_DIR/$ENVIRONMENT.sh contains all the necessary configuration."
+        fi
+        ;;
+esac
 
 # Terraform will try all SSH identities, even if an earlier one would succeed.
 # This hits the max auth attempts limit pretty reliably, so warn about this
@@ -116,7 +131,16 @@ if [ ! -f "${TF_DIR}/main.tf" ] ; then
 fi
 
 echo "Configuring state bucket login_dot_gov_tf_state with state path ${STATE}"
-run bin/configure_state_bucket.sh login_dot_gov_tf_state "$STATE" "$TF_DIR" us-east-1
+if [ -z "${TERRAFORM_STATE_BUCKET:=}" ] ; then
+    die "You must set the TERRAFORM_STATE_BUCKET environment variable.  \
+This should contain the name of the s3 bucket used to store terraform state for this run."
+fi
+
+if [ -z "${TERRAFORM_STATE_BUCKET_REGION:=}" ] ; then
+    die "You must set the TERRAFORM_STATE_BUCKET_REGION environment variable.  \
+This should contain the region of the s3 bucket used to store terraform state for this run."
+fi
+run bin/configure_state_bucket.sh "$TERRAFORM_STATE_BUCKET" "$STATE" "$TF_DIR" "$TERRAFORM_STATE_BUCKET_REGION"
 
 echo >&2 "+ cd $TF_DIR"
 cd "$TF_DIR"

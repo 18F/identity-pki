@@ -17,7 +17,7 @@
 # load-env.sh script will bail out if the environment does not set a variable
 # $ID_ENV_COMPAT_VERSION >= this value, which provides a way to ensure that new
 # scripts get run with a new enough environment config.
-ENFORCED_ENV_COMPAT_VERSION=3
+ENFORCED_ENV_COMPAT_VERSION=4
 
 BASENAME="$(basename "${BASH_SOURCE[0]}")"
 DIRNAME="$(dirname "${BASH_SOURCE[0]}")"
