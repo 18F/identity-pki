@@ -1,7 +1,7 @@
 variable "app_sg_ssh_cidr_blocks" { type="list" }
 variable "ci_sg_ssh_cidr_blocks"  {
     type="list"
-    default = ["127.0.0.1"]
+    default = ["127.0.0.1/32"] # hack to allow an empty list, which terraform can't handle
     description = "List of CIDR blocks to allow into all NACLs/SGs.  Only use in the CI VPC."
 }
 variable "power_users" { type="list" }
@@ -44,6 +44,9 @@ variable "basic_auth_enabled" {
 }
 variable "asg_prevent_auto_terminate" {
     description = "Whether to protect auto scaled instances from automatic termination"
+}
+variable "enable_deletion_protection" {
+    description = "Whether to protect against API deletion of certain resources"
 }
 
 # https://downloads.chef.io/chef/stable/12.15.19#ubuntu

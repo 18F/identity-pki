@@ -33,7 +33,7 @@ variable "elb_account_ids" {
 }
 
 resource "aws_s3_bucket" "logs" {
-  bucket = "${var.bucket_name_prefix}-${var.region}-${data.aws_caller_identity.current.account_id}-logs"
+  bucket = "${var.bucket_name_prefix}.elb-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
   acl    = "log-delivery-write"
   force_destroy = "${var.force_destroy}"
   policy = <<EOF
@@ -48,14 +48,13 @@ resource "aws_s3_bucket" "logs" {
         "AWS": "arn:aws:iam::${lookup(var.elb_account_ids, var.region)}:root"
       },
       "Action": "s3:PutObject",
-      "Resource": "arn:aws:s3:::${var.bucket_name_prefix}-${var.region}-${data.aws_caller_identity.current.account_id}-logs/${var.use_prefix_for_permissions ? join("/",list(var.log_prefix,"AWSLogs",data.aws_caller_identity.current.account_id,"*")) : "*"}"
+      "Resource": "arn:aws:s3:::${var.bucket_name_prefix}.elb-logs.${data.aws_caller_identity.current.account_id}-${var.region}/${var.use_prefix_for_permissions ? join("/",list(var.log_prefix,"AWSLogs",data.aws_caller_identity.current.account_id,"*")) : "*"}"
     }
   ]
 }
 EOF
 
   tags {
-    Name        = "${var.bucket_name_prefix}-logs"
     Environment = "All"
   }
 

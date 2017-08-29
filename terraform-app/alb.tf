@@ -3,6 +3,13 @@ resource "aws_alb" "idp" {
   name = "${var.name}-idp-alb-${var.env_name}"
   security_groups = ["${aws_security_group.web.id}"]
   subnets = ["${aws_subnet.alb1.id}", "${aws_subnet.alb2.id}"]
+
+  access_logs = {
+    bucket = "login-gov.elb-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+    prefix = "${var.env_name}/idp"
+  }
+
+  enable_deletion_protection = "${var.enable_deletion_protection}"
 }
 
 resource "aws_alb_listener" "idp" {
