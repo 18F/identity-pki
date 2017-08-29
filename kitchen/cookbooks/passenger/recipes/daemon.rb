@@ -66,6 +66,11 @@ directory "#{nginx_path}/conf/sites.d" do
   notifies :reload, 'service[passenger]'
 end
 
+cookbook_file "#{nginx_path}/conf/status-map.conf" do
+  source "status-map.conf"
+  mode "0644"
+end
+
 template "#{nginx_path}/conf/nginx.conf" do
   source "nginx.conf.erb"
   owner "root"
@@ -81,11 +86,6 @@ template "#{nginx_path}/conf/nginx.conf" do
     :passenger_user => node[:passenger][:production][:user]
   )
   notifies :run, 'bash[config_patch]'
-end
-
-cookbook_file "#{nginx_path}/status-map.conf" do
-  source "status-map.conf"
-  mode "0644"
 end
 
 cookbook_file "#{nginx_path}/sbin/config_patch.sh" do
