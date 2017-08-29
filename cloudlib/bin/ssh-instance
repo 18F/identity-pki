@@ -21,23 +21,35 @@ def get_instance_by_id(instance_id)
   Cloudlib::EC2.new.lookup_instance_by_id(instance_id)
 end
 
-def get_instance_by_name(name_tag, states:['running'], pick_random: false)
+def get_instance_by_name(name_tag, states:['running'], pick_strategy: :unique)
   filters = [
     {name: 'tag:Name', values: [name_tag]},
     {name: 'instance-state-name', values: states}
   ]
-  if pick_random
+
+  case pick_strategy
+  when :random
     log.debug("Looking up random instance named #{name_tag.inspect}")
     Cloudlib::EC2.new.get_random_thing(:instances, filters)
-  else
+  when :oldest
+    log.debug("Looking up oldest instance named #{name_tag.inspect}")
+    instances = Cloudlib::EC2.new.list_things(:instances, filters)
+    instances.sort_by(&:launch_time).first
+  when :newest
+    log.debug("Looking up newest instance named #{name_tag.inspect}")
+    instances = Cloudlib::EC2.new.list_things(:instances, filters)
+    instances.sort_by(&:launch_time).last
+  when :unique
     log.debug("Looking up instance named #{name_tag.inspect}")
     Cloudlib::EC2.new.get_unique_thing(:instances, filters)
+  else
+    raise ArgumentError.new("Unknown pick_strategy: #{pick_strategy.inspect}")
   end
 end
 
 def main(args)
 
-  options = {pick_random: false}
+  options = {pick_strategy: :unique}
   cl_ssh_options = {}
 
   basename = File.basename($0)
@@ -92,7 +104,15 @@ Options:
     end
 
     opts.on('-1', '--any', 'SSH to random server matching name') do
-      options[:pick_random] = true
+      options[:pick_strategy] = :random
+    end
+
+    opts.on('--newest', 'Pick server with most recent boot time') do
+      options[:pick_strategy] = :newest
+    end
+
+    opts.on('--oldest', 'Pick server with oldest boot time') do
+      options[:pick_strategy] = :oldest
     end
 
     opts.on('-j', '--[no-]jumphost', 'Whether to use a jumphost') do |val|
@@ -145,7 +165,7 @@ Options:
   if host_spec =~ /\Ai-[a-f0-9]+\z/
     instance = get_instance_by_id(host_spec)
   else
-    instance = get_instance_by_name(host_spec, pick_random: options.fetch(:pick_random))
+    instance = get_instance_by_name(host_spec, pick_strategy: options.fetch(:pick_strategy))
   end
 
   if !host_and_cmd.empty?
