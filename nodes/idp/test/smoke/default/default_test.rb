@@ -30,3 +30,7 @@ describe command('sudo env PASSENGER_INSTANCE_REGISTRY_DIR=/var/lib/kitchen/cach
   its('exit_status') { should eq 0 }
   its('stdout') { should include 'General information' }
 end
+
+describe file('/opt/nginx/logs') do
+  it { should be_linked_to '/var/log/nginx' }
+end
