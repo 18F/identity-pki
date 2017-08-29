@@ -34,8 +34,22 @@ end
 log_path = node[:passenger][:production][:log_path]
 
 directory log_path do
-  mode 0755
+  mode 0750
   action :create
+  owner 'root'
+  group 'adm'
+end
+
+nginx_path_logs = nginx_path + '/logs'
+
+execute 'backup existing nginx logs' do
+  command %W{mv -vT #{nginx_path_logs} #{nginx_path_logs + '.backup'}}
+  only_if { File.directory?(nginx_path_logs) && !File.symlink?(nginx_path_logs) }
+end
+
+# make a symlink from nginx/logs/ to our desired log_path
+link nginx_path_logs do
+  to log_path
 end
 
 directory "#{nginx_path}/conf/conf.d" do
@@ -50,6 +64,11 @@ directory "#{nginx_path}/conf/sites.d" do
   action :create
   recursive true
   notifies :reload, 'service[passenger]'
+end
+
+cookbook_file "#{nginx_path}/conf/status-map.conf" do
+  source "status-map.conf"
+  mode "0644"
 end
 
 template "#{nginx_path}/conf/nginx.conf" do

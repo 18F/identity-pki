@@ -1,6 +1,6 @@
 default[:passenger][:production][:path] = '/opt/nginx'
-default[:passenger][:production][:configure_flags] = '--with-ipv6 --with-http_stub_status_module --with-http_ssl_module'
-default[:passenger][:production][:log_path] = '/var/log/passenger'
+default[:passenger][:production][:configure_flags] = '--with-ipv6 --with-http_stub_status_module --with-http_ssl_module --with-http_realip_module'
+default[:passenger][:production][:log_path] = '/var/log/nginx'
 
 # Tune these for your environment, see:
 # http://www.modrails.com/documentation/Users%20guide%20Nginx.html#_resource_control_and_optimization_options
@@ -24,3 +24,9 @@ default[:passenger][:production][:status_server] = true
 
 default[:passenger][:production][:version] = '5.0.30'
 default[:passenger][:production][:user] = 'nobody'
+
+# Allow our local /16 to proxy setting X-Forwarded-For
+# This is a little broad, but because we expect security group rules to prevent
+# anyone except our trusted ALB from connecting anyway, we don't really care
+# who is able to set X-Forwarded-For headers.
+default[:passenger][:production][:realip_from_cidr] = node.fetch(:cloud).fetch('local_ipv4').split('.')[0..1].join('.') + '.0.0/16'

@@ -4,6 +4,13 @@ server {
     return       301  https://$server_name$request_uri;
 }
 
+# Set HSTS header only if not already set by app. Some clients get unhappy if
+# you set multiple Strict-Transport-Security headers.
+# https://serverfault.com/a/598106
+map $upstream_http_strict_transport_security $sts_value {
+    '' "max-age=31536000; includeSubdomains; preload";
+}
+
 server {
     listen       443 ssl;
     server_name  <%= @server_name %> <%= @server_aliases -%>;
@@ -18,9 +25,8 @@ server {
     ssl_session_timeout 5m;
     ssl_stapling on;
     ssl_stapling_verify on;
-    # Avoid ssl stripping attack
-    add_header Strict-Transport-Security "max-age=31536000; includeSubdomains; preload";
 
+    # TODO: why do we use Google name servers directly?
     resolver 8.8.8.8 8.8.4.4 valid=300s;
     resolver_timeout 5s;
 
@@ -47,8 +53,11 @@ server {
        return 405;
     }
 
-    <% if @basic_auth %>
     location / {
+        # Avoid ssl stripping attack
+        add_header Strict-Transport-Security $sts_value;
+
+        <%- if @basic_auth %>
         # Basic Auth Config
         satisfy any;
         <%- @security_group_exceptions.each do |sge| %>
@@ -56,14 +65,16 @@ server {
         <%- end %>
         auth_basic "Restricted";
         auth_basic_user_file /opt/nginx/conf/htpasswd;
+        <%- end %>
     }
 
+    <%- if @basic_auth %>
     # Skip basic auth for /healthcheck* and /api/health*
     location /healthcheck {
     }
     location /api/health {
     }
-    <% end %>
+    <%- end %>
 
     # Content expiry rules
     # Content pages set to no-cache
@@ -74,20 +85,17 @@ server {
     # Media: images, icons, video, audio, HTC
     location ~* \.(?:jpg|jpeg|gif|png|ico|cur|gz|svg|svgz|mp4|ogg|ogv|webm|htc)$ {
         expires 1M;
-        access_log off;
         add_header Cache-Control "public";
     }
 
     # CSS and Javascript
     location ~* \.(?:css|js)$ {
         expires 1M;
-        access_log off;
         add_header Cache-Control "public";
     }
 
     # WebFonts
     location ~* \.(?:ttf|ttc|otf|eot|woff|woff2)$ {
         expires 1M;
-        access_log off;
     }
 }
