@@ -69,6 +69,11 @@ template "#{nginx_path}/conf/nginx.conf" do
   notifies :run, 'bash[config_patch]'
 end
 
+cookbook_file "#{nginx_path}/status-map.conf" do
+  source "status-map.conf"
+  mode "0644"
+end
+
 cookbook_file "#{nginx_path}/sbin/config_patch.sh" do
   owner "root"
   group "root"
