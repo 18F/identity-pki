@@ -34,3 +34,7 @@ end
 describe file('/opt/nginx/logs') do
   it { should be_linked_to '/var/log/nginx' }
 end
+
+describe file('/var/log/nginx/access.log') do
+  it { should exist }
+end
