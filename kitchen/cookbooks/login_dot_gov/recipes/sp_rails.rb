@@ -55,7 +55,7 @@ template "#{base_dir}/shared/config/secrets.yml" do
     http_auth_username: node['login_dot_gov']['sp_rails']['http_auth_username'],
     http_auth_password: node['login_dot_gov']['sp_rails']['http_auth_password'],
     idp_cert_fingerprint: node['login_dot_gov']['sp_rails']['idp_cert_fingerprint'],
-    idp_cert_fingerprint: node['login_dot_gov']['sp_rails']['acs_url']
+    acs_url: node['login_dot_gov']['sp_rails']['acs_url']
   })
 end
 
