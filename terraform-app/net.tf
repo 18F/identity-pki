@@ -81,12 +81,19 @@ resource "aws_security_group" "app" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Allow jumphost, jenkins, and access in the CI VPC for integration tests
   ingress {
     from_port = 22
     to_port = 22
     protocol = "tcp"
-    security_groups = ["${aws_security_group.jumphost.id}","${aws_security_group.jenkins.id}","${var.ci_sg_ssh_cidr_blocks}"]
+    security_groups = [ "${aws_security_group.jumphost.id}", "${aws_security_group.jenkins.id}" ]
+  }
+  
+  # allow CI VPC for integration tests
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["${var.ci_sg_ssh_cidr_blocks}"]
   }
 
   name = "${var.name}-app-${var.env_name}"
@@ -120,6 +127,14 @@ resource "aws_security_group" "cache" {
       "${aws_security_group.app.id}",
       "${aws_security_group.idp.id}"
     ]
+  }
+
+  # allow CI VPC for integration tests
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["${var.ci_sg_ssh_cidr_blocks}"]
   }
 
   name = "${var.name}-cache-${var.env_name}"
@@ -196,12 +211,19 @@ resource "aws_security_group" "chef" {
     cidr_blocks = ["${var.app_sg_ssh_cidr_blocks}"]
   }
 
-  # Allow jumphost, jenkins, and access in the CI VPC for integration tests
   ingress {
     from_port = 22
     to_port = 22
     protocol = "tcp"
-    security_groups = ["${aws_security_group.jumphost.id}","${aws_security_group.jenkins.id}","${var.ci_sg_ssh_cidr_blocks}"]
+    security_groups = [ "${aws_security_group.jumphost.id}", "${aws_security_group.jenkins.id}" ]
+  }
+
+  # allow CI VPC for integration tests
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["${var.ci_sg_ssh_cidr_blocks}"]
   }
 
   name = "${var.name}-chef-${var.env_name}"
@@ -237,6 +259,14 @@ resource "aws_security_group" "db" {
       "${var.idp1_subnet_cidr_block}",
       "${var.idp2_subnet_cidr_block}"
     ]
+  }
+
+    # allow CI VPC for integration tests
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["${var.ci_sg_ssh_cidr_blocks}"]
   }
 
   name = "${var.name}-db-${var.env_name}"
@@ -304,12 +334,11 @@ resource "aws_security_group" "elk" {
     cidr_blocks = ["${var.amazon_netblocks}"]
   }
 
-  # Allow jumphost, jenkins, and access in the CI VPC for integration tests
   ingress {
     from_port = 22
     to_port = 22
     protocol = "tcp"
-    security_groups = ["${aws_security_group.jumphost.id}","${aws_security_group.jenkins.id}","${var.ci_sg_ssh_cidr_blocks}"]
+    security_groups = [ "${aws_security_group.jumphost.id}", "${aws_security_group.jenkins.id}" ]
   }
 
   ingress {
@@ -341,6 +370,14 @@ resource "aws_security_group" "elk" {
     to_port = 9300
     protocol = "tcp"
     self = true
+  }
+
+  # allow CI VPC for integration tests
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["${var.ci_sg_ssh_cidr_blocks}"]
   }
 
   name = "${var.name}-elk-${var.env_name}"
@@ -398,18 +435,25 @@ resource "aws_security_group" "jenkins" {
   }
 
   ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    security_groups = [ "${aws_security_group.jumphost.id}" ]
+  }
+
+  ingress {
     from_port = 8443
     to_port = 8443
     protocol = "tcp"
     security_groups = [ "${aws_security_group.jumphost.id}" ]
   }
 
-  # Allow jumphost and access in the CI VPC for integration tests
+    # allow CI VPC for integration tests
   ingress {
     from_port = 22
     to_port = 22
     protocol = "tcp"
-    security_groups = ["${aws_security_group.jumphost.id}","${var.ci_sg_ssh_cidr_blocks}"]
+    cidr_blocks = ["${var.ci_sg_ssh_cidr_blocks}"]
   }
 
   name = "${var.name}-jenkins-${var.env_name}"
@@ -473,12 +517,27 @@ resource "aws_security_group" "jumphost" {
     cidr_blocks = ["${data.aws_ip_ranges.route53.cidr_blocks}","8.8.8.8/32"]
   }
 
-  # SSH For admins, jenkins, and access in the CI VPC for integration tests
   ingress {
     from_port = 22
     to_port = 22
     protocol = "tcp"
-    cidr_blocks = ["${var.app_sg_ssh_cidr_blocks}","${var.admin_subnet_cidr_block}","${var.ci_sg_ssh_cidr_blocks}"]
+    cidr_blocks = ["${var.app_sg_ssh_cidr_blocks}"]
+  }
+
+  # need this to let jenkins in
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["${var.admin_subnet_cidr_block}"]
+  }
+
+  # allow CI VPC for integration tests
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["${var.ci_sg_ssh_cidr_blocks}"]
   }
 
   name = "${var.name}-jumphost-${var.env_name}"
@@ -572,12 +631,19 @@ resource "aws_security_group" "idp" {
     ]
   }
 
-  # Allow jumphost, jenkins, and access in the CI VPC for integration tests
   ingress {
     from_port = 22
     to_port = 22
     protocol = "tcp"
-    security_groups = ["${aws_security_group.jumphost.id}","${aws_security_group.jenkins.id}","${var.ci_sg_ssh_cidr_blocks}"]
+    security_groups = [ "${aws_security_group.jumphost.id}", "${aws_security_group.jenkins.id}" ]
+  }
+
+  # allow CI VPC for integration tests
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["${var.ci_sg_ssh_cidr_blocks}"]
   }
 
   name = "${var.name}-idp-${var.env_name}"
