@@ -26,14 +26,11 @@ end
 
 # @param network_acl [Aws::EC2::NetworkAcl]
 # @param egress [Boolean]
-def find_allow_all(network_acl, egress, protocol: '-1', rule_number: nil)
+def find_allow_all(network_acl, egress, rule_number: nil)
   network_acl.entries.find_all {|e|
     [
       e.egress == egress,
-      e.protocol == protocol,
-      e.port_range && e.port_range.from == 0,
-      e.port_range && e.port_range.to == 65535,
-      e.protocol == protocol,
+      e.protocol == '-1', # ANY
       e.rule_action == 'allow',
       rule_number.nil? || e.rule_number == rule_number,
     ].all?
@@ -58,7 +55,6 @@ def maybe_create_allow_all(network_acl, is_egress)
     egress: is_egress,
     cidr_block: '0.0.0.0/0',
     dry_run: false,
-    port_range: { from: 0, to: 65535 },
     protocol: '-1', # ANY
     rule_action: 'allow',
     rule_number: 1,
