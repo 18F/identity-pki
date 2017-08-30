@@ -182,6 +182,7 @@ end
                 "compile_time_update" => true
             },
             "provisioner" => {
+                "name" => "kitchen-ec2",
                 "auto-scaled" => true
             }
         }

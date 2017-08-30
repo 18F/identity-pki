@@ -2,6 +2,15 @@
 # Cookbook Name:: login_dot_gov
 # Attributes:: default
 #
+
+# Set default provisioner to unknown.
+#   On auto-scaled instances, this will be overridden by chef-attributes.json
+#   from cloud-init.
+#   On kitchen-ec2 test instances, this will be overridden by "attributes" in
+#   kitchen.cloud.yaml.
+default['provisioner']['name'] = 'unknown'
+default['provisioner']['auto-scaled'] = false
+
 default['login_dot_gov']['admin_email']                               = 'developer@login.gov'
 default['login_dot_gov']['app_names']                                 = []
 default['login_dot_gov']['dev_users']                                 = []

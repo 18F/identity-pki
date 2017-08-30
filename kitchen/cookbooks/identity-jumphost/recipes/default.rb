@@ -36,13 +36,19 @@ execute 'pip install awscli'
 # set up proxy
 include_recipe 'squid'
 
+# always lock down auto scaled instances
+lockdown = node.fetch('login_dot_gov').fetch('lockdown')
+if node.fetch('provisioner').fetch('name') == 'cloud-init' && node.chef_environment == 'prod'
+  lockdown = true
+end
+
 # turn off AllowUsers
 template '/etc/ssh/sshd_config' do
   source 'sshd_config.erb'
   mode '0600'
   notifies :run, 'execute[restart_sshd]'
   variables({
-    :lockdown => node['login_dot_gov']['lockdown'],
+    :lockdown => lockdown,
     :eip => node['cloud']['public_ipv4']
   })
 end
