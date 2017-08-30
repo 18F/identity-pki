@@ -44,6 +44,10 @@ resource "aws_db_instance" "idp" {
   }
 }
 
+output "idp_db_endpoint" {
+  value = "${aws_db_instance.idp.endpoint}"
+}
+
 resource "aws_db_parameter_group" "force_ssl" {
   name = "${var.name}-idp-force-ssl-${var.env_name}-${var.rds_engine}${replace(var.rds_engine_version_short, ".", "")}"
   # Before changing this value, make sure the parameters are correct for the

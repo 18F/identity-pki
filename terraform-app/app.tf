@@ -178,7 +178,7 @@ resource "aws_db_instance" "default" {
 
   tags {
     client = "${var.client}"
-    Name = "${var.name}-${var.env_name}"
+    Name = "${var.name}-${var.env_name}-app"
   }
 
   vpc_security_group_ids = ["${aws_security_group.db.id}"]
@@ -191,6 +191,11 @@ resource "aws_db_instance" "default" {
     ignore_changes = ["password"]
   }
 }
+
+output "app_db_endpoint" {
+  value = "${aws_db_instance.default.endpoint}"
+}
+
 
 resource "aws_db_subnet_group" "default" {
   description = "${var.env_name} env subnet group for login.gov"
