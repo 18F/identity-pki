@@ -1,16 +1,18 @@
 # TODO: this file probably shouldn't be here at all
-template '/home/ubuntu/.bash_profile' do
-  owner node['login_dot_gov']['system_user']
-  mode '0644'
-  sensitive true
-  variables({
-    idp_slo_url: "https://idp.#{node.chef_environment}.login.gov/api/saml/logout",
-    idp_sp_url: "https://#{ConfigLoader.load_config_or_nil(node, "basic_auth_user_name")}:#{ConfigLoader.load_config_or_nil(node, "basic_auth_password")}@idp.#{node.chef_environment}.login.gov/api/service_provider",
-    idp_sso_url: "https://idp.#{node.chef_environment}.login.gov/api/saml/auth",
-    sp_name: ConfigLoader.load_config_or_nil(node, "basic_auth_user_name"),
-    sp_pass: ConfigLoader.load_config_or_nil(node, "basic_auth_password")
-  })
-  subscribes :run, 'execute[ruby-build install]', :delayed
+if node.chef_environment != 'prod'
+  template '/home/ubuntu/.bash_profile' do
+    owner node['login_dot_gov']['system_user']
+    mode '0644'
+    sensitive true
+    variables({
+      idp_slo_url: "https://idp.#{node.chef_environment}.login.gov/api/saml/logout",
+      idp_sp_url: "https://#{ConfigLoader.load_config_or_nil(node, "basic_auth_user_name")}:#{ConfigLoader.load_config_or_nil(node, "basic_auth_password")}@idp.#{node.chef_environment}.login.gov/api/service_provider",
+      idp_sso_url: "https://idp.#{node.chef_environment}.login.gov/api/saml/auth",
+      sp_name: ConfigLoader.load_config_or_nil(node, "basic_auth_user_name"),
+      sp_pass: ConfigLoader.load_config_or_nil(node, "basic_auth_password")
+    })
+    subscribes :run, 'execute[ruby-build install]', :delayed
+  end
 end
 
 # TODO: probably shouldn't be setting anything in /etc/environment
