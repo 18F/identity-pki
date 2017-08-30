@@ -27,9 +27,15 @@ data "aws_iam_policy_document" "certificates_role_policy" {
     actions = [
       "s3:*"
     ]
+    # The first two entries here are legacy and only here for backwards
+    # compatibility.  They can be removed when the chef changes in
+    # https://github.com/18F/identity-devops/pull/574 are rolled out to all
+    # environments.
     resources = [
        "arn:aws:s3:::${var.certificates_bucket_name_prefix}-${var.region}-${data.aws_caller_identity.current.account_id}/${var.env_name}/",
        "arn:aws:s3:::${var.certificates_bucket_name_prefix}-${var.region}-${data.aws_caller_identity.current.account_id}/${var.env_name}/*",
+       "arn:aws:s3:::login-gov.internal-certs.${data.aws_caller_identity.current.account_id}-${var.region}/${var.env_name}/",
+       "arn:aws:s3:::login-gov.internal-certs.${data.aws_caller_identity.current.account_id}-${var.region}/${var.env_name}/*",
     ]
   }
 }

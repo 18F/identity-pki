@@ -5,17 +5,19 @@ driver:
   region: us-west-2
   subnet_filter:
     tag: Name
-    value: login-jumphost_subnet-dev
+    value: login-jumphost_subnet-ci
   security_group_filter:
     tag: Name
-    value: login-jumphost_security_group-dev
+    value: login-jumphost_security_group-ci
   instance_type: t2.medium
-  iam_profile_name: integration_test_instance_profile
+  iam_profile_name: ci-base-permissions
   tags:
     created-by: "test-kitchen"
     user: "<%= ENV['GSA_USERNAME'] || ENV['USER'] %>"
     terminate-after: "<%= (Time.now + 604800).strftime('%F') %>"
     Name: "test-kitchen-aws-s3-cookbook"
+    prefix: "aws-s3-test"
+    domain: "ci.login.gov.internal"
 
 <%-
 # Set SSH key from environment or use default
@@ -39,7 +41,7 @@ provisioner:
   always_update_cookbooks: true
   environments_path: environments
   client_rb:
-    environment: integration
+    environment: ci
   require_chef_omnibus: 12.15
 
 verifier:

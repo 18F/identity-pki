@@ -90,7 +90,7 @@ class Chef::Recipe::ServiceDiscovery
     cert_bucket_prefix = get_attribute(node, 'cert_bucket_prefix')
     aws_region = Chef::Recipe::AwsMetadata.get_aws_region
     aws_account_id = Chef::Recipe::AwsMetadata.get_aws_account_id
-    return "#{cert_bucket_prefix}-#{aws_region}-#{aws_account_id}"
+    return "#{cert_bucket_prefix}.internal-certs.#{aws_account_id}-#{aws_region}"
   end
 
   # Make the canonical service object that represents this instance for return

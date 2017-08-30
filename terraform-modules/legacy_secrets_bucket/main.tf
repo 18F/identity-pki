@@ -1,7 +1,25 @@
 data "aws_caller_identity" "current" {}
 
+resource "aws_s3_bucket" "logs" {
+  bucket = "${var.bucket_name_prefix}-${var.region}-${data.aws_caller_identity.current.account_id}-logs"
+  acl    = "log-delivery-write"
+  force_destroy = "${var.force_destroy}"
+
+  tags {
+    Name        = "${var.bucket_name_prefix}-logs"
+    Environment = "All"
+  }
+
+  # In theory we should only put one copy of every file, so I don't think this
+  # will increase space, just give us history in case we accidentally
+  # delete/modify something.
+  versioning {
+    enabled = true
+  }
+}
+
 resource "aws_s3_bucket" "secrets" {
-  bucket = "${var.bucket_name_prefix}.${var.secrets_bucket_type}.${data.aws_caller_identity.current.account_id}-${var.region}"
+  bucket = "${var.bucket_name_prefix}-${var.region}-${data.aws_caller_identity.current.account_id}"
   acl    = "private"
   force_destroy = "${var.force_destroy}"
 
@@ -15,9 +33,9 @@ resource "aws_s3_bucket" "secrets" {
   }
 
   logging {
-    target_bucket = "${var.logs_bucket}"
+    target_bucket = "${aws_s3_bucket.logs.id}"
     # This is effectively the bucket name, but I can't self reference
-    target_prefix = "${var.bucket_name_prefix}.${var.secrets_bucket_type}.${data.aws_caller_identity.current.account_id}-${var.region}"
+    target_prefix = "${var.bucket_name_prefix}-${var.region}-${data.aws_caller_identity.current.account_id}/"
   }
 }
 
