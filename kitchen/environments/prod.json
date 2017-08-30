@@ -10,47 +10,60 @@
       "bucket": "login-gov-secrets",
       "region": "us-west-2"
     },
-    "ssh_keys": {
+    "identity-devops": {
+      "branch_name": "stages/prod"
     },
     "login_dot_gov": {
+      "available_locales": "en es",
+      "aws_kms_key_id": "alias/prod-login-dot-gov-keymaker",
+      "aws_region": "us-west-2",
+      "branch_name": "stages/rc-2017-08-21",
+      "enable_identity_verification": "false",
       "equifax_sftp_directory": "/fis/prd/incoming/",
-      "use_dashboard_service_providers": "false"
+      "use_kms": "true",
+      "live_certs": "false",
+      "requests_per_ip_limit": "999999999",
+      "lockdown": "true"
+    },
+    "ssh_keys": {
+    },
+    "elk": {
+      "users": [
+        "astone",
+        "brody",
+        "jgrevich",
+        "jpmugizi",
+        "monfresh",
+        "sverch",
+        "dnesting",
+        "tblack",
+        "tspencer",
+        "zmargolis"
+      ]
+    },
+    "filebeat": {
+      "version": "5.2.0"
+    },
+    "identity-jenkins": {
+      "users": [
+        "monfresh",
+        "zmargolis"
+      ],
+      "admins": [
+        "astone",
+        "brody",
+        "jgrevich",
+        "jpmugizi",
+        "tspencer",
+        "sverch",
+        "dnesting",
+        "mzia"
+      ]
+    },
+    "terraform": {
+      "version": "0.8.8",
+      "zipfile": "terraform_0.8.8_linux_amd64.zip"
     }
-  },
-  "elk": {
-    "users": [
-      "astone",
-      "brody",
-      "jgrevich",
-      "zmargolis",
-      "jpmugizi",
-      "monfresh",
-      "sverch",
-      "dnesting",
-      "tspencer",
-      "zmargolis"
-    ]
-  },
-  "filebeat": {
-    "version": "5.2.0"
-  },
-  "identity-jenkins": {
-    "users": [
-      "monfresh",
-      "zmargolis"
-    ],
-    "admins": [
-      "astone",
-      "brody",
-      "jgrevich",
-      "jpmugizi",
-      "tspencer",
-      "zmargolis"
-    ]
-  },
-  "terraform": {
-    "version": "0.8.5",
-    "zipfile": "terraform_0.8.5_linux_amd64.zip"
   },
   "override_attributes": {
 
