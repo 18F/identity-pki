@@ -69,3 +69,8 @@ default['elasticsearch-curator']['config'] = {
 # dir to put postgres logs in
 default['elk']['pglogsdir'] = '/var/log/postgres'
 
+# Service discovery
+default['elk']['es_tag_key'] = "prefix"
+default['elk']['es_tag_value'] = "elasticsearch"
+default['elk']['elk_tag_key'] = "prefix"
+default['elk']['elk_tag_value'] = "elk"
