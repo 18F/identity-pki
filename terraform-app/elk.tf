@@ -202,7 +202,7 @@ resource "aws_instance" "es" {
   }
 
   lifecycle {
-    ignore_changes = ["ami", "ebs_block_device", "instance_type"]
+    ignore_changes = ["ami", "ebs_block_device", "instance_type", "user_data"]
   }
 
   connection {
