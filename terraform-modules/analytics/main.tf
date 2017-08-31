@@ -75,7 +75,11 @@ resource "aws_route_table" "analytics_route_table" {
   vpc_id = "${aws_vpc.analytics_vpc.id}"
 
   route {
-    cidr_block = "0.0.0.0/0"
+    cidr_block = "52.23.63.224/27"
+    gateway_id = "${aws_internet_gateway.analytics_vpc.id}"
+  }
+  route {
+    cidr_block = "54.70.204.128/27"
     gateway_id = "${aws_internet_gateway.analytics_vpc.id}"
   }
 
@@ -118,23 +122,25 @@ resource "aws_security_group" "redshift_security_group" {
   vpc_id = "${aws_vpc.analytics_vpc.id}"
 
   ingress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = [
-      "${aws_subnet.lambda_subnet.cidr_block}",
-    ]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
+    from_port   = 5439
+    to_port     = 5439
+    protocol    = "tcp"
     cidr_blocks = [
       "${aws_subnet.lambda_subnet.cidr_block}"
     ]
   }
 
+  egress {
+    from_port   = 5439
+    to_port     = 5439
+    protocol    = "tcp"
+    cidr_blocks = [
+      "${aws_subnet.lambda_subnet.cidr_block}"
+    ]
+  }
+
+# allow quicksight in via its regional public IPs
+# ref http://docs.aws.amazon.com/quicksight/latest/user/regions.html
   ingress {
     from_port   = 5439
     to_port     = 5439
@@ -145,6 +151,8 @@ resource "aws_security_group" "redshift_security_group" {
     ]
   }
 
+# allow quicksight out via it's regional public IPs
+# ref http://docs.aws.amazon.com/quicksight/latest/user/regions.html
   egress {
     from_port   = 5439
     to_port     = 5439
@@ -157,7 +165,6 @@ resource "aws_security_group" "redshift_security_group" {
 
   tags {
     name   = "login-redshift-security-group-${var.env_name}",
-    client = "MB18FIX019988"
   }
 }
 
@@ -167,44 +174,36 @@ resource "aws_security_group" "lambda_security_group" {
   vpc_id = "${aws_vpc.analytics_vpc.id}"
 
   ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = [
-      "0.0.0.0/0"
-    ]
-  }
-
-  egress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = [
-      "0.0.0.0/0"
-    ]
-  }
-
-  ingress {
     from_port   = 5439
     to_port     = 5439
     protocol    = "tcp"
     cidr_blocks = [
-      "0.0.0.0/0"
+      "${aws_subnet.redshift_subnet.cidr_block}"
     ]
   }
 
+# Allow VPC endpoint to reach S3
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    prefix_list_ids = [
+      "${aws_vpc_endpoint.private-s3.prefix_list_id}"
+    ]
+  }
+
+# Allow to reach Redshift
   egress {
     from_port   = 5439
     to_port     = 5439
     protocol    = "tcp"
     cidr_blocks = [
-      "0.0.0.0/0"
+      "${aws_subnet.redshift_subnet.cidr_block}"
     ]
   }
 
   tags {
     name   = "login-lambda-security-group-${var.env_name}",
-    client = "MB18FIX019988"
   }
 }
 
@@ -447,4 +446,72 @@ resource "aws_lambda_permission" "allow_execution_from_cloudwatch" {
     function_name = "${aws_lambda_function.analytics_lambda.function_name}"
     principal = "events.amazonaws.com"
     source_arn = "${aws_cloudwatch_event_rule.every_thirty_minutes.arn}"
+}
+
+# ---------------- NACLs ------------------
+resource "aws_network_acl" "analytics_redshift" {
+  vpc_id = "${aws_vpc.analytics_vpc.id}"
+  subnet_ids = ["${aws_subnet.redshift_subnet.id}", "${aws_subnet.lambda_subnet.id}"]
+
+  # allow ephemeral ports out of VPC
+  egress {
+    from_port = 32768
+    to_port = 61000
+    protocol = "tcp"
+    rule_no = 100
+    action = "allow"
+    cidr_block = "0.0.0.0/0"
+  }
+
+  ingress {
+    from_port = 32768
+    to_port = 61000
+    protocol = "tcp"
+    rule_no = 200
+    action = "allow"
+    cidr_block = "0.0.0.0/0"
+  }
+
+  # allow 443 out of VPC S3 endpoint
+
+  egress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    rule_no = 300
+    action = "allow"
+    cidr_block = "0.0.0.0/0"
+  }
+
+  ingress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    rule_no = 400
+    action = "allow"
+    cidr_block = "0.0.0.0/0"
+  }
+
+  # let redshift postgres in and out
+  ingress {
+    from_port = 5439
+    to_port = 5439
+    protocol = "tcp"
+    rule_no = 500
+    action = "allow"
+    cidr_block = "${var.vpc_cidr_block}"
+  }
+
+  egress {
+    from_port = 5439
+    to_port = 5439
+    protocol = "tcp"
+    rule_no = 600
+    action = "allow"
+    cidr_block = "${var.vpc_cidr_block}"
+  }
+
+  tags {
+    Name = "${var.name}-analytics_network_acl-${var.env_name}"
+  }
 }
