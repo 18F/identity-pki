@@ -23,17 +23,34 @@ elasticsearch_install 'elasticsearch' do
   version "5.1.2"
 end
 
+# URL to reach the elasticsearch cluster.  In the pre-auto-scaled world this was
+# a DNS record with one entry per elasticsearch host.  In the auto scaled world
+# this is an ELB.
+elasticsearch_domain = node.fetch("es").fetch("domain")
 
 # create keystore/truststore
 include_recipe 'keytool'
 storepass = 'EipbelbyamyotsOjHod2'
-san = "san=dns:es.login.gov.internal,dns:#{node.name},dns:localhost,ip:#{node.ipaddress},ip:127.0.0.1,oid:1.2.3.4.5.5"
+san = "san=dns:#{elasticsearch_domain},dns:#{node.name},dns:localhost,ip:#{node.ipaddress},ip:127.0.0.1,oid:1.2.3.4.5.5"
 
 keytool_manage 'create keystore' do
   action :createstore
   keystore '/etc/elasticsearch/keystore.jks'
   keystore_alias node.ipaddress
-  common_name 'es.login.gov.internal'
+  common_name "#{elasticsearch_domain}"
+  org_unit node.chef_environment
+  org 'login.gov'
+  location 'Washington DC'
+  country 'US'
+  storepass storepass
+  additional "-ext #{san}"
+end
+
+keytool_manage 'create truststore' do
+  action :createstore
+  keystore '/etc/elasticsearch/truststore.jks'
+  keystore_alias node.ipaddress
+  common_name "#{elasticsearch_domain}"
   org_unit node.chef_environment
   org 'login.gov'
   location 'Washington DC'
@@ -55,7 +72,7 @@ execute "#{pkidir}/gen_root_ca.sh #{storepass} #{storepass}" do
 end
 
 # export, sign, import cert
-execute "keytool -certreq -alias #{node.ipaddress} -keystore /etc/elasticsearch/keystore.jks -file #{pkidir}/cacrt.csr -keypass #{storepass} -storepass #{storepass} -dname 'CN=es.login.gov.internal, OU=#{node.chef_environment}, O=login.gov, L=Washington DC, C=US' -ext #{san}" do
+execute "keytool -certreq -alias #{node.ipaddress} -keystore /etc/elasticsearch/keystore.jks -file #{pkidir}/cacrt.csr -keypass #{storepass} -storepass #{storepass} -dname 'CN=#{elasticsearch_domain}, OU=#{node.chef_environment}, O=login.gov, L=Washington DC, C=US' -ext #{san}" do
   creates pkidir + '/cacrt.csr'
 end
 
@@ -74,49 +91,132 @@ keytool_manage "import my signed cert into keystore" do
   storepass storepass
 end
 
-# write cert and chain into node
-ruby_block 'store cacrt' do
-  block do
-    node.default['elk']['espubkey'] = File.read('/etc/elasticsearch/es.login.gov.crt') + File.read("#{pkidir}/ca/chain-ca.pem")
+#############################
+# Chef Server Compatibility #
+#############################
+#
+# If we are running with a chef server, we can use the chef server's attributes
+# to register this node's certificate.
+#
+# However, if we are running chef-zero locally as we do in test kitchen unit
+# tests and bootstrapping ASGs, we need to rely on some other mechanism.  Our
+# service_discovery cookbook abstracts out this service registration, and has
+# libaries to publish certificates, so we can use that.
+#
+# We have to use it in a custom resource "publish_cert_and_chain" because of the
+# chef compile versus converge time issue.  Things outside any resource run at
+# compile time, and things in a resource run at converge time.  This is
+# something we want to run at converge time wrapped in a resource because we
+# have ruby code as well as other resources we need to run and the cert won't
+# exist on disk until then.
+if node.fetch("provisioner", {"auto-scaled" => false}).fetch("auto-scaled")
+  # Publish this node's certificate
+  publish_cert_and_chain 'Publish the cert and chain of this ES node to s3.' do
+    cert '/etc/elasticsearch/es.login.gov.crt'
+    chain "#{pkidir}/ca/chain-ca.pem"
+    cert_and_chain_path "/etc/elasticsearch/es.login.gov.pem"
+    suffix "legacy-elasticsearch"
+    owner "elasticsearch"
+  end
+else
+  # write cert and chain into node
+  ruby_block 'store cacrt' do
+    block do
+      node.default['elk']['espubkey'] = File.read('/etc/elasticsearch/es.login.gov.crt') + File.read("#{pkidir}/ca/chain-ca.pem")
+    end
   end
 end
 
-# dynamically slurp in all the other ES nodes and make sure we get ourselves in for sure.
-esnodes = search(:node, "elk_espubkey:* AND chef_environment:#{node.chef_environment}", :filter_result => { 'ipaddress' => [ 'ipaddress' ], 'crt' => ['elk','espubkey'], 'name' => ['name']})
-esips = esnodes.map{|h| h['ipaddress']}.sort.uniq.join(', ')
 
 # trust the other ES nodes
-include_recipe 'identity-elk::trustesnodes'
+if node.fetch("provisioner", {"auto-scaled" => false}).fetch("auto-scaled")
+  install_certificates 'Installing ES certificates to ca-certificates' do
+    service_tag_key node['elk']['es_tag_key']
+    service_tag_value node['elk']['es_tag_value']
+    cert_user 'elasticsearch'
+    cert_group 'elasticsearch'
+    install_directory '/usr/local/share/ca-certificates'
+    suffix 'legacy-elasticsearch'
+    notifies :run, 'execute[/usr/sbin/update-ca-certificates]', :immediately
+  end
+
+  install_certificates 'Installing ES certificates to /etc/elasticsearch' do
+    service_tag_key node['elk']['es_tag_key']
+    service_tag_value node['elk']['es_tag_value']
+    cert_user 'elasticsearch'
+    cert_group 'elasticsearch'
+    install_directory '/etc/elasticsearch'
+    suffix 'legacy-elasticsearch'
+    notifies :restart, 'elasticsearch_service[elasticsearch]', :delayed
+  end
+  execute '/usr/sbin/update-ca-certificates' do
+    action :nothing
+  end
+else
+  include_recipe 'identity-elk::trustesnodes'
+end
+
+#############################
+# Chef Server Compatibility #
+#############################
+#
+# If we are running with a chef server, we can use the chef server's node search
+# functionality to find other services.
+#
+# However, if we are running chef-zero locally as we do in test kitchen unit
+# tests and bootstrapping ASGs, we need to rely on some other mechanism.  Our
+# service_discovery cookbook abstracts out this service discovery and has
+# libraries to fetch a list of services, so we can call that and then massage it
+# to look like the old node list.
+if node.fetch("provisioner", {"auto-scaled" => false}).fetch("auto-scaled")
+  services = ::Chef::Recipe::ServiceDiscovery.discover(node,
+                                                       node.fetch('elk').fetch('es_tag_key'),
+                                                       [node.fetch('elk').fetch('es_tag_value')])
+  esnodes = services.map{|service| { "ipaddress" => service.fetch('instance').private_ip_address,
+                                     "crt" => service.fetch("certificate"),
+                                     "name" => service.fetch("hostname") } }
+  esips = services.map{|service| service.fetch('instance').private_ip_address}.sort.uniq.join(', ')
+else
+  # dynamically slurp in all the other ES nodes and make sure we get ourselves in for sure.
+  esnodes = search(:node, "elk_espubkey:* AND chef_environment:#{node.chef_environment}",
+                   :filter_result => { 'ipaddress' => [ 'ipaddress' ], 'crt' => ['elk','espubkey'], 'name' => ['name']})
+  esips = esnodes.map{|h| h['ipaddress']}.sort.uniq.join(', ')
+end
 
 esnodes.each do |h|
   keytool_manage "import #{h['ipaddress']} into truststore" do
     cert_alias h['ipaddress']
     action :importcert
-    file "/etc/elasticsearch/es_#{h['name']}.crt"
+    file "/etc/elasticsearch/#{h['name']}-legacy-elasticsearch.crt"
     keystore '/etc/elasticsearch/truststore.jks'
     storepass storepass
     additional '-trustcacerts'
-    only_if "test -s /etc/elasticsearch/es_#{h['name']}.crt"
+    only_if "test -s /etc/elasticsearch/#{h['name']}-legacy-elasticsearch.crt"
   end
   keytool_manage "import #{h['name']} into truststore" do
     cert_alias h['name']
     action :importcert
-    file "/etc/elasticsearch/es_#{h['name']}.crt"
+    file "/etc/elasticsearch/#{h['name']}-legacy-elasticsearch.crt"
     keystore '/etc/elasticsearch/truststore.jks'
     storepass storepass
     additional '-trustcacerts'
-    only_if "test -s /etc/elasticsearch/es_#{h['name']}.crt"
-  end
-  keytool_manage "import my cert into truststore" do
-    cert_alias "es.login.gov.internal"
-    action :importcert
-    file '/etc/elasticsearch/es.login.gov.crt'
-    keystore "/etc/elasticsearch/truststore.jks"
-    storepass storepass
-    additional '-trustcacerts'
+    only_if "test -s /etc/elasticsearch/#{h['name']}-legacy-elasticsearch.crt"
   end
 end
 
+# I think this is necessary for searchguard, but I'm not completely sure since
+# this node should discover itself and install its own certificate that way.
+# Searchguard needs to have the certificate specified in
+# 'searchguard.authcz.admin_dn' trusted, but I don't know how it maps that dn to
+# the truststore alias internally.
+keytool_manage "import my cert into truststore" do
+  cert_alias "#{elasticsearch_domain}"
+  action :importcert
+  file '/etc/elasticsearch/es.login.gov.crt'
+  keystore "/etc/elasticsearch/truststore.jks"
+  storepass storepass
+  additional '-trustcacerts'
+end
 
 elasticsearch_configure "elasticsearch" do
   configuration ({
@@ -134,9 +234,22 @@ elasticsearch_configure "elasticsearch" do
     'searchguard.ssl.http.keystore_password' => storepass,
     'searchguard.ssl.http.truststore_filepath' => '/etc/elasticsearch/truststore.jks',
     'searchguard.ssl.http.truststore_password' => storepass,
-    'searchguard.authcz.admin_dn' => ["CN=es.login.gov.internal","CN=es.login.gov.internal, OU=#{node.chef_environment}, O=login.gov, L=Washington DC, C=US"]
+    'searchguard.authcz.admin_dn' => ["CN=#{elasticsearch_domain}","CN=#{elasticsearch_domain}, OU=#{node.chef_environment}, O=login.gov, L=Washington DC, C=US"]
   })
   notifies :restart, 'elasticsearch_service[elasticsearch]', :delayed
+end
+
+execute "wait for elasticsearch to start up without searchguard" do
+  action :nothing
+  command "curl --insecure https://localhost:9200"
+  # TODO: The above command returns successfully even if search guard isn't
+  # fully initialized.  Figure out how to make both the bootstrap and the
+  # restart work with this check (because on bootstrap there is not search guard
+  # at all).
+  #command "curl --insecure https://localhost:9200 | grep \"cluster_name\""
+  retries 10
+  retry_delay 10
+  subscribes :run, 'elasticsearch_service[elasticsearch]', :immediately
 end
 
 execute '/var/lib/dpkg/info/ca-certificates-java.postinst configure'
@@ -169,7 +282,6 @@ end
   template "/etc/elasticsearch/sgadmin/#{f}"
 end
 execute "/usr/share/elasticsearch/plugins/search-guard-5/tools/sgadmin.sh -ts /etc/elasticsearch/truststore.jks -tspass '#{storepass}' -ks /etc/elasticsearch/keystore.jks -kspass '#{storepass}' -cd /etc/elasticsearch/sgadmin/ -icl -nhnv" do
-  ignore_failure true
 end
 
 
@@ -209,3 +321,11 @@ node['elk']['indextypes'].each do |index|
   end
 end
 
+# This will be true if the instance is auto scaled.
+if node.fetch("provisioner", {"auto-scaled" => false}).fetch("auto-scaled")
+  cron 'rerun elasticsearch setup every 15 minutes' do
+    action :create
+    minute '0,15,30,45'
+    command "cat #{node.fetch('elk').fetch('chef_zero_client_configuration')} && chef-client --local-mode -c #{node.fetch('elk').fetch('chef_zero_client_configuration')} -o 'role[elasticsearch_discovery]' 2>&1 >> /var/log/elasticsearch/discovery.log"
+  end
+end

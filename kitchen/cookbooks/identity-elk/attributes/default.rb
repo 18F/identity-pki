@@ -1,3 +1,14 @@
+# Elasticsearch Domain.  By default it is "es.login.gov.internal" for non auto
+# scaled instances, and "elasticsearch.login.gov.internal" for auto scaled
+# instances.  This is because the auto scaled instances are behind an ELB so
+# that they can be dynamically created and destroyed, while the non auto scaled
+# instances get explicitly added to a DNS record by terraform.
+if node.fetch("provisioner", {"auto-scaled" => false}).fetch("auto-scaled")
+  default['es']['domain'] = "elasticsearch.login.gov.internal"
+else
+  default['es']['domain'] = "es.login.gov.internal"
+end
+
 # logfiles to watch
 default['elk']['filebeat']['logfiles'] = [
   {'log' => '/srv/*/shared/log/*.log', 'type' => 'log', 'format' => 'text'},
@@ -53,7 +64,7 @@ default['elk']['elastalert']['emails'] = []
 # curator config
 default['elasticsearch-curator']['config'] = {
   'client' => {
-    'hosts' => ['es.login.gov.internal'],
+    'hosts' => [node.fetch("es").fetch("domain")],
     'port' => 9200,
     'use_ssl' => true,
     'ssl_no_validate' => true,
@@ -74,3 +85,6 @@ default['elk']['es_tag_key'] = "prefix"
 default['elk']['es_tag_value'] = "elasticsearch"
 default['elk']['elk_tag_key'] = "prefix"
 default['elk']['elk_tag_value'] = "elk"
+
+# For adding chef discovery cron job
+default['elk']['chef_zero_client_configuration'] = '/etc/login.gov/repos/identity-devops/kitchen/chef-client.rb'

@@ -1,0 +1,17 @@
+{
+  "name": "elasticsearch_discovery",
+  "description": "Role to run periodically to refresh service discovery",
+  "json_class": "Chef::Role",
+  "default_attributes": {
+  },
+  "override_attributes": {
+  },
+  "chef_type": "role",
+  "run_list": [
+    "recipe[instance_certificate::generate]",
+    "recipe[service_discovery::register]",
+    "recipe[identity-elk::es]"
+  ],
+  "env_run_lists": {
+  }
+}
