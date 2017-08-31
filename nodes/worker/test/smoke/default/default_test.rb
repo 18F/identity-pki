@@ -19,6 +19,12 @@ end
 
 describe processes('sidekiq') do
   it { should exist }
+
+  # there should be exactly one sidekiq process
+  its('entries.length') { should eq 1 }
+
+  # should be running as ubuntu user (TODO)
+  its('users') { should eq ['ubuntu'] }
 end
 
 describe port(80) do
