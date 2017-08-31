@@ -6,5 +6,9 @@
 # found at http://inspec.io/docs/reference/resources/
 
 describe file('/etc/slackwebhook') do
-  its('content') { should match 'https://hooks.slack.com/services/XXX' }
+  its('content') { should match 'https://hooks.slack.com/services/' }
+end
+
+describe file('/etc/elk_users') do
+  it { should exist }
 end
