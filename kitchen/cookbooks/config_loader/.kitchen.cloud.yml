@@ -1,19 +1,37 @@
 ---
 driver:
   name: ec2
-  aws_ssh_key_id: login-dev-us-west-2
+  aws_ssh_key_id: "<%= ENV['KITCHEN_EC2_SSH_KEYPAIR_ID'] || 'login-dev-us-west-2' %>"
   region: us-west-2
   subnet_filter:
     tag: Name
-    value: login-jumphost_subnet-dev
+    value: login-jumphost_subnet-ci
   security_group_filter:
     tag: Name
-    value: login-jumphost_security_group-dev
+    value: login-jumphost_security_group-ci
   instance_type: t2.medium
+  iam_profile_name: ci-base-permissions
+  tags:
+    created-by: "test-kitchen"
+    user: "<%= ENV['GSA_USERNAME'] || ENV['USER'] %>"
+    terminate-after: "<%= (Time.now + 604800).strftime('%F') %>"
+    Name: "test-kitchen-config-loader-cookbook"
+    prefix: "config-loader-test"
+    domain: "ci.login.gov.internal"
+
+<%-
+# Set SSH key from environment or use default
+ssh_key_file = ENV.fetch('KITCHEN_EC2_SSH_KEY', '~/.ssh/login-dev-us-west-2.pem')
+ssh_key_file = File.expand_path(ssh_key_file)
+# ensure file exists because kitchen won't error when it doesn't
+if !File.exist?(ssh_key_file)
+  raise "SSH key file not found: #{ssh_key_file.inspect}. Override with $KITCHEN_EC2_SSH_KEY"
+end
+%>
 
 transport:
   username: ubuntu
-  ssh_key: ~/.ssh/login-dev-us-west-2.pem
+  ssh_key: "<%= ssh_key_file %>"
 
 provisioner:
   name: chef_zero
