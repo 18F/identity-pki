@@ -24,6 +24,10 @@ variable "obproxy2_subnet_cidr_block" { default = "172.16.32.16/28"} # 172.16.32
 variable "vpc_cidr_block"         { default = "172.16.32.0/22" } # 172.16.32.0 - 172.16.35.255
 #variable "vpc_cidr_block"         { default = "172.16.33.0/24" } # 172.16.32.0 - 172.16.35.255
 
+# CIDR block that is carved up for both the ASG elasticsearch instances and the
+# elasticsearch ELBs.
+# Range: 172.16.32.128 -> 172.16.32.191
+variable "elasticsearch_cidr_block" { default = "172.16.34.128/26" }
 
 variable "ami_id" {}
 variable "default_ami_id" {}
@@ -35,6 +39,7 @@ variable "idp1_ami_id" {}
 variable "idp2_ami_id" {}
 variable "worker_ami_id" {}
 variable "worker_ami_list" { type="list" }
+variable "elasticsearch_ami_id" {}
 variable "route53_id" {}
 variable "apps_enabled" { default = false }
 
@@ -82,6 +87,7 @@ variable "key_name" {}
 variable "live_certs" {}
 variable "name" { default = "login" }
 variable "region" { default = "us-west-2" }
+variable "availability_zones" { default = ["us-west-2a","us-west-2b","us-west-2c"] }
 variable "outboundproxy_node_count" { default = "1" }
 variable "outboundproxy1_ami_id" {}
 variable "outboundproxy2_ami_id" {}
@@ -92,6 +98,7 @@ variable "version_info_region" { default = "us-east-1" }
 variable "asg_jumphost_desired" { default = 0 }
 variable "asg_idp_desired" { default = 0 }
 variable "asg_worker_desired" { default = 0 }
+variable "asg_elasticsearch_desired" { default = 0 }
 
 # Several variables used by the terraform-modules/bootstrap/ module for running
 # provision.sh to clone git repos and run chef.
@@ -188,3 +195,13 @@ variable "outboundproxy_ami_id" {}
 variable "instance_type_outboundproxy" { default = "t2.small" }
 variable "asg_outboundproxy_desired" { default = 0 }
 
+# Per instance git refs, useful for testing different branches in the same
+# environment on different nodes.
+variable "bootstrap_main_git_ref_elasticsearch" {
+    default = "HEAD"
+    description = "Git ref in identity-devops for provision.sh to check out for elasticsearch"
+}
+variable "bootstrap_private_git_ref_elasticsearch" {
+    default = "HEAD"
+    description = "Git ref in identity-devops for provision.sh to check out for elasticsearch"
+}

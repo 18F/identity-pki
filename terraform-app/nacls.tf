@@ -160,6 +160,19 @@ resource "aws_network_acl_rule" "admin-ingress-tcp-elasticsearch" {
   cidr_block = "${var.admin_subnet_cidr_block}"
 }
 
+# Need this to talk to elasticsearch subnets
+resource "aws_network_acl_rule" "admin-ingress-tcp-elasticsearch-subnets" {
+  count = "${length(var.availability_zones)}"
+  network_acl_id = "${aws_network_acl.admin.id}"
+  egress = false
+  from_port = 9200
+  to_port = 9300
+  protocol = "tcp"
+  rule_number = "${55 + count.index}"
+  rule_action = "allow"
+  cidr_block = "${element(aws_subnet.elasticsearch.*.cidr_block, count.index)}"
+}
+
 resource "aws_network_acl" "chef" {
   tags {
     client = "${var.client}"
