@@ -105,6 +105,12 @@ resource "aws_iam_role_policy" "idp-describe_instances" {
   policy = "${data.aws_iam_policy_document.describe_instances_role_policy.json}"
 }
 
+resource "aws_iam_role_policy" "idp-application-secrets" {
+    name = "${var.env_name}-idp-application-secrets"
+    role = "${aws_iam_role.idp.id}"
+    policy = "${data.aws_iam_policy_document.application_secrets_role_policy.json}"
+}
+
 module "idp_launch_config" {
   source = "../terraform-modules/bootstrap/"
 

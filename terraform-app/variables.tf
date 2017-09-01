@@ -190,6 +190,13 @@ variable "certificates_bucket_name_prefix" {
     default = "login-gov-internal-certs-test"
 }
 
+# This is needed so the application can download its secrets
+
+variable "app_secrets_bucket_name_prefix" {
+    description = "Base name for the bucket that contains application secrets"
+    default = "login-gov-app-secrets"
+}
+
 # This variable is used to allow access to 80/443 on the general internet
 # Set it to [] to turn access off, "0.0.0.0/0" to allow it.
 variable "outbound_subnets" {

@@ -1,8 +1,3 @@
-variable "certificates_bucket_prefix" {
-    description = "Prefix to use when creating the self signed certificates bucket"
-    default = "login-gov-internal-certs-test"
-}
-
 # NOTE: This is an old bucket, only here to preserve backwards compatibility as
 # we roll out the use of the new secrets bucket below to all environments.
 # Specifically, as soon as the chef changes in

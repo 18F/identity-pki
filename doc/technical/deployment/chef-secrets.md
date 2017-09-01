@@ -1,8 +1,9 @@
-# Secrets
+# Chef Secrets
 
 ## Changing Secrets
 
-All our secrets are stored in S3 and encrypted using KMS.
+All our secrets are stored in S3 and encrypted using KMS the secrets are
+downloaded when chef is run using Citadel.
 
 The bucket that is used is configured as the `citadel.bucket` chef attribute.
 For example, as of this writing, [the default is

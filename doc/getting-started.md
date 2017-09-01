@@ -16,7 +16,7 @@ so that we can improve our documentation.
 
 - [Integration testing application code](technical/testing/application.md)
 - [Deploying application code](technical/deployment/application.md)
-- [Deploying secrets changes](technical/deployment/secrets.md)
+- [Deploying Application Secrets changes](technical/deployment/application-secrets.md)
 
 ## For DevOps
 
@@ -24,3 +24,4 @@ so that we can improve our documentation.
 - [Setup your machine](technical/dependencies.md)
 - [Testing identity-devops code](technical/testing.md)
 - [Deploying identity-devops code](technical/deployment.md)
+- [Deploying Infrastructure changes](technical/deployment/infrastructure-secrets.md)

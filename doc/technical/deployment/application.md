@@ -8,6 +8,7 @@ new instances with the updated code.
 
 ## Secrets Changes
 
-To make secrets changes, you must [Change the Secrets in S3](secrets.md) for
-your environment and then [Recycle The Instances](recycling-instances.md) to get
-new instances with the updated secrets.
+To make secrets changes, you must [Change the Application Secrets in
+S3](application-secrets.md) for your environment and then [Recycle The
+Instances](recycling-instances.md) to get new instances with the updated
+secrets.
