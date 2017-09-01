@@ -146,6 +146,9 @@ if node.fetch("provisioner", {"auto-scaled" => false}).fetch("auto-scaled")
     notifies :run, 'execute[/usr/sbin/update-ca-certificates]', :immediately
   end
 
+  # TODO: Remove this once we get this passing and can confirm this doesn't
+  # change anything.
+  directory '/etc/elasticsearch'
   install_certificates 'Installing ES certificates to /etc/elasticsearch' do
     service_tag_key node['elk']['es_tag_key']
     service_tag_value node['elk']['es_tag_value']
@@ -511,5 +514,14 @@ template "/etc/logstash/cloudwatchlogstashconf.d/50-cloudwatchin.conf" do
     :env => node.chef_environment
   })
   notifies :run, 'execute[restart_cloudwatchlogstash]', :delayed
+end
+
+# This will be true if the instance is auto scaled.
+if node.fetch("provisioner", {"auto-scaled" => false}).fetch("auto-scaled")
+  cron 'rerun elk discovery every 15 minutes' do
+    action :create
+    minute '0,15,30,45'
+    command "cat #{node.fetch('elk').fetch('chef_zero_client_configuration')} && chef-client --local-mode -c #{node.fetch('elk').fetch('chef_zero_client_configuration')} -o 'role[elk_discovery]' 2>&1 >> /var/log/elk-discovery.log"
+  end
 end
 

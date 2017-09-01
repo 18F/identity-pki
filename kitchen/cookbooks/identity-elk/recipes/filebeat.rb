@@ -17,6 +17,7 @@ node.default['filebeat']['config']['output']['logstash']['ssl']['certificate_aut
 # helper resource to install the certificates of the discovered nodes locally,
 # so we can call that.
 if node.fetch("provisioner", {"auto-scaled" => false}).fetch("auto-scaled")
+  # TODO: Don't use this suffix, just use the base host certificate
   install_certificates 'Installing ELK certificates to ca-certificates' do
     service_tag_key node['elk']['elk_tag_key']
     service_tag_value node['elk']['elk_tag_value']

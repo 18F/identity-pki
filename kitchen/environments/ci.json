@@ -14,7 +14,16 @@
     },
     "elk": {
       "users": [
-        "test"
+        "astone",
+        "brody",
+        "jgrevich",
+        "jpmugizi",
+        "monfresh",
+        "sverch",
+        "dnesting",
+        "tblack",
+        "tspencer",
+        "zmargolis"
       ]
     },
     "filebeat": {
