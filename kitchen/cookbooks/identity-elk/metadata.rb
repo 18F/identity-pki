@@ -5,7 +5,7 @@ license          'All rights reserved'
 description      'Installs/Configures identity-elk'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 
-version          '0.1.22'
+version          '0.1.23'
 
 depends          'java'
 depends          'elasticsearch'

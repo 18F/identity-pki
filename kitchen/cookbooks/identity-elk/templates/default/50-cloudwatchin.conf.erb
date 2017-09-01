@@ -3,6 +3,8 @@ input {
     log_group => "<%= @env %>_flow_log_group"
     region => "<%= @aws_region %>"
     type => "flowlog"
+    sincedb_path => "/usr/share/logstash/.sincedb_cloudwatch"
+    start_position => "end"
   }
 }
 

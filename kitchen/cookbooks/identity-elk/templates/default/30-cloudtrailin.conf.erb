@@ -5,6 +5,7 @@ input {
      type => "cloudtrail"
      codec => "cloudtrail"
      exclude_pattern => ".*\/CloudTrail\-Digest\/.*"
+     sincedb_path => "/usr/share/logstash/.sincedb_cloudtraillogstash"
    }
 }
 
@@ -17,11 +18,6 @@ filter {
       gsub => [ "eventSource", "\.amazonaws\.com$", "" ]
       add_field => {
         "document_id" => "%{eventID}"
-      }
-    }
-    mutate {
-      add_field => {
-        "document_type" => "%{type}"
       }
     }
     if ! [ingest_time] {

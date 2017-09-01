@@ -168,10 +168,20 @@ dpkg_package 'logstash' do
 end
 
 execute 'update-ca-certificates -f'
-execute 'bin/logstash-plugin install logstash-codec-cloudtrail' do
+
+# install cloudwatch plugin
+git '/usr/share/logstash-codec-cloudtrail' do
+  repository 'https://github.com/timothy-spencer/logstash-codec-cloudtrail.git'
+  revision "v#{node['elk']['logstash-codec-cloudtrail-version']}"
+end
+
+execute "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/gem build logstash-codec-cloudtrail.gemspec" do
+  cwd '/usr/share/logstash-codec-cloudtrail'
+end
+
+execute "bin/logstash-plugin install /usr/share/logstash-codec-cloudtrail/logstash-codec-cloudtrail-#{node['elk']['logstash-codec-cloudtrail-version']}.gem" do
   cwd '/usr/share/logstash'
-  notifies :restart, 'runit_service[logstash]'
-  not_if "bin/logstash-plugin list | grep logstash-codec-cloudtrail"
+  notifies :run, 'execute[restart_cloudtraillogstash]', :delayed
 end
 
 # XXX There seems to be no way to update to a specific version, so I hope this keeps working.  :-(
@@ -186,7 +196,7 @@ execute "openssl pkcs8 -topk8 -nocrypt -in #{mykey} -out #{mypkcs8}"
 file "#{mypkcs8}" do
   owner 'logstash'
   mode '0600'
-  notifies :restart, 'runit_service[logstash]'
+  notifies :run, 'execute[restart_logstash]', :delayed
 end
 
 file mycert do
@@ -201,6 +211,19 @@ execute 'update-rc.d -f logstash remove'
 # create the common outputs and services for all logstash instances
 include_recipe 'runit'
 %w{ logstash cloudtraillogstash cloudwatchlogstash }.each do |lsname|
+  # set up sincedb entries so we don't rescan everything from the beginning of time
+  template "/usr/share/logstash/.sincedb_#{lsname}" do
+    source 'sincedb.erb'
+    owner 'logstash'
+    group 'logstash'
+  end
+
+  # set up data dirs for the other logstash instances
+  directory '/usr/share/logstash/data_#{lsname}' do
+    owner 'logstash'
+    group 'logstash'
+  end
+
   directory "/etc/logstash/#{lsname}conf.d"
   directory "/var/tmp/#{lsname}" do
     owner 'logstash'
@@ -214,7 +237,7 @@ include_recipe 'runit'
       :aws_logging_bucket => "login-gov-#{node.chef_environment}-logs",
       :tags => [lsname]
     })
-    notifies :restart, "runit_service[#{lsname}]"
+    notifies :run, "execute[restart_#{lsname}]", :delayed
   end
 
   template "/etc/logstash/#{lsname}conf.d/30-ESoutput.conf" do
@@ -222,7 +245,7 @@ include_recipe 'runit'
     variables ({
       :hostips => "\"#{elasticsearch_domain}\""
     })
-    notifies :restart, "runit_service[#{lsname}]"
+    notifies :run, "execute[restart_#{lsname}]", :delayed
   end
 
   runit_service lsname do
@@ -233,14 +256,20 @@ include_recipe 'runit'
       :max_heap => "#{(node['memory']['total'].to_i * 0.5).floor / 1024}M",
       :min_heap => "#{(node['memory']['total'].to_i * 0.2).floor / 1024}M",
       :gc_opts => '-XX:+UseParallelOldGC',
-      :java_opts => '-Dio.netty.native.workdir=/etc/logstash/tmp',
+      :java_opts => '-Dio.netty.native.workdir=/etc/logstash/tmp -XX:HeapDumpPath=/dev/null',
       :tmpdir => "/var/tmp/#{lsname}",
       :ipv4_only => false,
       :workers => 2,
       :debug => false,
       :user => 'logstash',
-      :group => 'logstash'
+      :group => 'logstash',
+      :start_down => true
     }.merge(params))
+  end
+
+  execute "restart_#{lsname}" do
+    command "sv force-restart #{lsname} || true"
+    action :nothing
   end
 end
 
@@ -257,12 +286,12 @@ template "/etc/logstash/cloudtraillogstashconf.d/30-cloudtrailin.conf" do
     :aws_region => node['ec2']['placement_availability_zone'][0..-2],
     :cloudtrail_logging_bucket => "login-gov-cloudtrail-#{aws_account_id}"
   })
-  notifies :restart, 'runit_service[logstash]'
+  notifies :run, 'execute[restart_cloudtraillogstash]', :delayed
 end
 
 template '/etc/logstash/logstash-template.json' do
   source 'logstash-template.json.erb'
-  notifies :restart, 'runit_service[logstash]'
+  notifies :run, 'execute[restart_logstash]', :delayed
 end
 
 # set up filebeat (default) logstash config
@@ -272,7 +301,7 @@ template '/etc/logstash/logstashconf.d/40-beats.conf' do
     :mycrt => "#{mycacrt}",
     :mykey => "#{mypkcs8}"
   })
-  notifies :restart, 'runit_service[logstash]'
+  notifies :run, 'execute[restart_logstash]', :delayed
 end
 
 directory '/etc/logstash/tmp' do
@@ -472,8 +501,7 @@ end
 
 execute "bin/logstash-plugin install /usr/share/logstash-input-cloudwatch_logs/logstash-input-cloudwatch_logs-#{node['elk']['logstash-input-cloudwatch-logs-version']}.gem" do
   cwd '/usr/share/logstash'
-  notifies :restart, 'runit_service[logstash]'
-  not_if "bin/logstash-plugin list | grep logstash-input-cloudwatch_logs"
+  notifies :run, 'execute[restart_cloudwatchlogstash]', :delayed
 end
 
 template "/etc/logstash/cloudwatchlogstashconf.d/50-cloudwatchin.conf" do
@@ -482,5 +510,6 @@ template "/etc/logstash/cloudwatchlogstashconf.d/50-cloudwatchin.conf" do
     :aws_region => node['ec2']['placement_availability_zone'][0..-2],
     :env => node.chef_environment
   })
-  notifies :restart, 'runit_service[logstash]'
+  notifies :run, 'execute[restart_cloudwatchlogstash]', :delayed
 end
+

@@ -157,7 +157,6 @@ resource "aws_instance" "elk" {
     EOF
     environment = "${var.env_name}"
     run_list = [
-      "recipe[identity-outboundproxy::hostsetup]",
       "role[base]",
       "recipe[identity-elk]"
     ]
@@ -231,7 +230,6 @@ resource "aws_instance" "es" {
     EOF
     environment = "${var.env_name}"
     run_list = [
-      "recipe[identity-outboundproxy::hostsetup]",
       "role[base]",
       "recipe[identity-elk::es]"
     ]

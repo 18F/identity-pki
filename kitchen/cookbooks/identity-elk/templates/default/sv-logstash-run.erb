@@ -12,6 +12,7 @@ export GC_OPTS="<%= @options[:gc_opts] %>"
 export JAVA_OPTS="-server -Xms<%= @options[:min_heap] %> -Xmx<%= @options[:max_heap] %> -Djava.io.tmpdir=<%= @options[:tmpdir] %> <%= @options[:java_opts] %> <%= '-Djava.net.preferIPv4Stack=true' if @options[:ipv4_only] %>"
 export LOGSTASH_OPTS="-f /etc/logstash/logstashconf.d"
 export LOGSTASH_OPTS="$LOGSTASH_OPTS -w <%= @options[:workers] %>"
+export LOGSTASH_OPTS="$LOGSTASH_OPTS --path.data $LOGSTASH_HOME/data_logstash"
 <% if @options[:debug] -%>
 export LOGSTASH_OPTS="$LOGSTASH_OPTS --log.level=debug"
 <% end -%>
