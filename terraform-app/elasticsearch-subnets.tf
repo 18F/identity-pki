@@ -62,3 +62,16 @@ resource "aws_network_acl_rule" "elasticsearch-ingress-tcp-elasticsearch" {
   rule_action = "allow"
   cidr_block = "${element(aws_subnet.elasticsearch.*.cidr_block, count.index)}"
 }
+
+# Need this so asg elk can get to elasticsearch
+resource "aws_network_acl_rule" "elasticsearch-ingress-tcp-elk" {
+  count = "${length(var.availability_zones)}"
+  network_acl_id = "${aws_network_acl.elasticsearch.id}"
+  egress = false
+  from_port = 9200
+  to_port = 9300
+  protocol = "tcp"
+  rule_number = "${60 + count.index}"
+  rule_action = "allow"
+  cidr_block = "${element(aws_subnet.elk.*.cidr_block, count.index)}"
+}

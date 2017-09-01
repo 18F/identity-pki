@@ -29,6 +29,10 @@ variable "vpc_cidr_block"         { default = "172.16.32.0/22" } # 172.16.32.0 -
 # Range: 172.16.32.128 -> 172.16.32.191
 variable "elasticsearch_cidr_block" { default = "172.16.34.128/26" }
 
+# CIDR block that is carved up for both the ASG elk instances and the elk ELBs.
+# Range: 172.16.34.192 -> 172.16.34.255
+variable "elk_cidr_block" { default = "172.16.34.192/26" }
+
 variable "ami_id" {}
 variable "default_ami_id" {}
 variable "jenkins_ami_id" {}
@@ -40,6 +44,7 @@ variable "idp2_ami_id" {}
 variable "worker_ami_id" {}
 variable "worker_ami_list" { type="list" }
 variable "elasticsearch_ami_id" {}
+variable "elk_ami_id" {}
 variable "route53_id" {}
 variable "apps_enabled" { default = false }
 
@@ -99,6 +104,7 @@ variable "asg_jumphost_desired" { default = 0 }
 variable "asg_idp_desired" { default = 0 }
 variable "asg_worker_desired" { default = 0 }
 variable "asg_elasticsearch_desired" { default = 0 }
+variable "asg_elk_desired" { default = 0 }
 
 # Several variables used by the terraform-modules/bootstrap/ module for running
 # provision.sh to clone git repos and run chef.
@@ -204,4 +210,12 @@ variable "bootstrap_main_git_ref_elasticsearch" {
 variable "bootstrap_private_git_ref_elasticsearch" {
     default = "HEAD"
     description = "Git ref in identity-devops for provision.sh to check out for elasticsearch"
+}
+variable "bootstrap_main_git_ref_elk" {
+    default = "HEAD"
+    description = "Git ref in identity-devops for provision.sh to check out for elk"
+}
+variable "bootstrap_private_git_ref_elk" {
+    default = "HEAD"
+    description = "Git ref in identity-devops for provision.sh to check out for elk"
 }
