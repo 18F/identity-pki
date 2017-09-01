@@ -12,7 +12,6 @@ resource "aws_network_acl" "app" {
 # Uses up to rule number 25 + number of ssh_cidr_blocks
 module "app-base-nacl-rules" {
   source = "../terraform-modules/base_nacl_rules"
-  enabled = "${var.apps_enabled == true ? 1 : 0}"
   network_acl_id = "${aws_network_acl.app.id}"
   ssh_cidr_blocks = [
       # Jumphost
@@ -26,7 +25,6 @@ module "app-base-nacl-rules" {
 
 # this is only used in lower environments, and it needs to be open to partners
 resource "aws_network_acl_rule" "app-ingress-http" {
-  count = "${var.apps_enabled == true ? 1 : 0}"
   network_acl_id = "${aws_network_acl.app.id}"
   egress = false
   from_port = 80
@@ -39,7 +37,6 @@ resource "aws_network_acl_rule" "app-ingress-http" {
 
 # this is only used in lower environments, and it needs to be open to partners
 resource "aws_network_acl_rule" "app-ingress-https" {
-  count = "${var.apps_enabled == true ? 1 : 0}"
   network_acl_id = "${aws_network_acl.app.id}"
   egress = false
   from_port = 443
