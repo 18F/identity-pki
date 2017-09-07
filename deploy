@@ -29,7 +29,7 @@ case "$TF_DIR" in
         # account ID.
         #
         # https://stackoverflow.com/a/33791322
-        ENVIRONMENT="account_global_$(aws sts get-caller-identity --output text --query 'Account')"
+        ENVIRONMENT="account_global_$(run aws sts get-caller-identity --output text --query 'Account')"
         echo "Forcing environment name to be $ENVIRONMENT since $TF_DIR is account wide configuration"
         ;;
 esac
@@ -77,6 +77,17 @@ echo "DEPLOY: Loading environment variables...."
 # array should be set in the environment-specific variables.
 check_terraform_version "${ID_SUPPORTED_TERRAFORM_VERSIONS[@]}"
 
+# Check that the account ID is correct
+real_account_id="$(run aws sts get-caller-identity --output text --query 'Account')"
+# shellcheck disable=SC2154
+if [ "$real_account_id" != "$TF_VAR_account_id" ]; then
+    echo_red "Account ID from environment does not match actual account"
+    echo_red "TF_VAR_account_id: $TF_VAR_account_id"
+    echo_red "Actual account ID: $real_account_id"
+    echo_red "Are you sure you set AWS_PROFILE / secret key right?"
+    die "error: Account ID mismatch"
+fi
+
 case "$TF_DIR" in
     terraform-app)
         echo "DEPLOY: Checking for required files...."
@@ -100,7 +111,7 @@ esac
 # higher than any anticipated number of SSH keys in our ssh-agent, or when
 # the fix described in identity-devops-private#191 makes its way into a
 # Terraform client release.
-if [ $(ssh-add -l | wc -l) -gt 4 ]; then
+if [ "$(ssh-add -l | wc -l)" -gt 4 ]; then
     echo_yellow >&2 '
 WARNING: You have more than 4 SSH identities in your ssh-agent.  If
 you experience problems setting up Chef (with "Too many authentication
