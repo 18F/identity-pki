@@ -184,6 +184,7 @@ else
 end
 
 esnodes.each do |h|
+  # import certs in from the new way
   keytool_manage "import #{h['ipaddress']} into truststore" do
     cert_alias h['ipaddress']
     action :importcert
@@ -201,6 +202,26 @@ esnodes.each do |h|
     storepass storepass
     additional '-trustcacerts'
     only_if "test -s /etc/elasticsearch/#{h['name']}-legacy-elasticsearch.crt"
+  end
+
+  # import certs the chef way
+  keytool_manage "import #{h['ipaddress']} into truststore" do
+    cert_alias h['ipaddress']
+    action :importcert
+    file "/etc/elasticsearch/es_#{h['name']}.crt"
+    keystore '/etc/elasticsearch/truststore.jks'
+    storepass storepass
+    additional '-trustcacerts'
+    only_if "test -s /etc/elasticsearch/es_#{h['name']}.crt"
+  end
+  keytool_manage "import #{h['name']} into truststore" do
+    cert_alias h['name']
+    action :importcert
+    file "/etc/elasticsearch/es_#{h['name']}.crt"
+    keystore '/etc/elasticsearch/truststore.jks'
+    storepass storepass
+    additional '-trustcacerts'
+    only_if "test -s /etc/elasticsearch/es_#{h['name']}.crt"
   end
 end
 
