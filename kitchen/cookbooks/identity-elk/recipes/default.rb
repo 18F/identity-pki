@@ -185,6 +185,7 @@ end
 execute "bin/logstash-plugin install /usr/share/logstash-codec-cloudtrail/logstash-codec-cloudtrail-#{node['elk']['logstash-codec-cloudtrail-version']}.gem" do
   cwd '/usr/share/logstash'
   notifies :run, 'execute[restart_cloudtraillogstash]', :delayed
+  creates "/usr/share/logstash/vendor/cache/logstash-codec-cloudtrail-#{node['elk']['logstash-codec-cloudtrail-version']}.gem"
 end
 
 # XXX There seems to be no way to update to a specific version, so I hope this keeps working.  :-(
@@ -219,10 +220,11 @@ include_recipe 'runit'
     source 'sincedb.erb'
     owner 'logstash'
     group 'logstash'
+    not_if { File.exists?("/usr/share/logstash/.sincedb_#{lsname}") }
   end
 
   # set up data dirs for the other logstash instances
-  directory '/usr/share/logstash/data_#{lsname}' do
+  directory "/usr/share/logstash/data_#{lsname}" do
     owner 'logstash'
     group 'logstash'
   end
@@ -290,6 +292,50 @@ template "/etc/logstash/cloudtraillogstashconf.d/30-cloudtrailin.conf" do
     :cloudtrail_logging_bucket => "login-gov-cloudtrail-#{aws_account_id}"
   })
   notifies :run, 'execute[restart_cloudtraillogstash]', :delayed
+end
+
+template "/etc/logstash/cloudtraillogstashconf.d/70-elblogsin.conf" do
+  source '70-elblogsin.conf.erb'
+  variables ({
+    :aws_region => node['ec2']['placement_availability_zone'][0..-2],
+    :proxy_logging_bucket => "login-gov-#{node.chef_environment}-proxylogs",
+    :elb_prefix => node.chef_environment,
+    :elb_logging_bucket => "login-gov.elb-logs.#{aws_account_id}-#{node['ec2']['placement_availability_zone'][0..-2]}"
+  })
+  notifies :run, 'execute[restart_cloudtraillogstash]', :delayed
+end
+
+template '/usr/share/logstash/.sincedb_proxyelb' do
+  source 'sincedb.erb'
+  owner 'logstash'
+  group 'logstash'
+  not_if { File.exists?("/usr/share/logstash/.sincedb_proxyelb") }
+end
+template "/usr/share/logstash/.sincedb_elb" do
+  source 'sincedb.erb'
+  owner 'logstash'
+  group 'logstash'
+  not_if { File.exists?("/usr/share/logstash/.sincedb_elb") }
+end
+
+
+template "/etc/logstash/cloudtraillogstashconf.d/60-analyticsin.conf" do
+  source '60-analyticsin.conf.erb'
+  variables ({
+    :env => node.chef_environment,
+    :aws_region => node['ec2']['placement_availability_zone'][0..-2],
+    :analytics_logging_bucket => "login-gov-#{node.chef_environment}-analytics-logs"
+  })
+  notifies :run, 'execute[restart_cloudtraillogstash]', :delayed
+end
+
+(1..3).each do |i|
+  template "/usr/share/logstash/.sincedb_analyticslogstash#{i}" do
+    source 'sincedb.erb'
+    owner 'logstash'
+    group 'logstash'
+    not_if { File.exists?("/usr/share/logstash/.sincedb_analyticslogstash#{i}") }
+  end
 end
 
 template '/etc/logstash/logstash-template.json' do
@@ -486,6 +532,11 @@ end
 
 user 'elastalert' do
   system true
+  home "#{elastalertdir}/home"
+end
+directory "#{elastalertdir}/home" do
+  owner 'elastalert'
+  group 'elastalert'
 end
 
 runit_service 'elastalert' do
@@ -505,6 +556,7 @@ end
 execute "bin/logstash-plugin install /usr/share/logstash-input-cloudwatch_logs/logstash-input-cloudwatch_logs-#{node['elk']['logstash-input-cloudwatch-logs-version']}.gem" do
   cwd '/usr/share/logstash'
   notifies :run, 'execute[restart_cloudwatchlogstash]', :delayed
+  creates "/usr/share/logstash/vendor/cache/logstash-input-cloudwatch_logs-#{node['elk']['logstash-input-cloudwatch-logs-version']}.gem"
 end
 
 template "/etc/logstash/cloudwatchlogstashconf.d/50-cloudwatchin.conf" do

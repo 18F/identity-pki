@@ -9,14 +9,15 @@ resource "aws_iam_instance_profile" "elk_instance_profile" {
 }
 
 data "aws_iam_policy_document" "logbucketpolicy" {
-  # allow elk host to read from the proxylogs bucket
+  # allow elk host to read from ELB log buckets
   statement {
     actions = [
       "s3:ListBucket",
       "s3:ListObjects"
     ]
     resources = [
-      "arn:aws:s3:::login-gov-${var.env_name}-proxylogs"
+      "arn:aws:s3:::login-gov-${var.env_name}-proxylogs",
+      "arn:aws:s3:::login-gov.elb-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
     ]
   }
   statement {
@@ -25,7 +26,8 @@ data "aws_iam_policy_document" "logbucketpolicy" {
       "s3:ListObjects"
     ]
     resources = [
-      "arn:aws:s3:::login-gov-${var.env_name}-proxylogs/*"
+      "arn:aws:s3:::login-gov-${var.env_name}-proxylogs/*",
+      "arn:aws:s3:::login-gov.elb-logs.${data.aws_caller_identity.current.account_id}-${var.region}/${var.env_name}/*"
     ]
   }
 
@@ -64,6 +66,16 @@ data "aws_iam_policy_document" "logbucketpolicy" {
     ]
     resources = [
       "arn:aws:s3:::login-gov-${var.env_name}-logs/*"
+    ]
+  }
+  statement {
+    actions = [
+      "s3:List*",
+      "s3:GetObject",
+    ]
+    resources = [
+      "arn:aws:s3:::login-gov-${var.env_name}-analytics-logs/*",
+      "arn:aws:s3:::login-gov-${var.env_name}-analytics-logs"
     ]
   }
 }

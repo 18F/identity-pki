@@ -1,0 +1,50 @@
+input {
+   s3 {
+     region => "<%= @aws_region %>"
+     bucket => "<%= @analytics_logging_bucket %>"
+     type => "redshift"
+     exclude_pattern => ".*\/CloudTrail\-Digest\/.*"
+     sincedb_path => "/usr/share/logstash/.sincedb_analyticslogstash1"
+     prefix => "AWSLogs"
+   }
+   s3 {
+     region => "<%= @aws_region %>"
+     bucket => "<%= @analytics_logging_bucket %>"
+     type => "analyticssecretaccess"
+     sincedb_path => "/usr/share/logstash/.sincedb_analyticslogstash2"
+     prefix => "login-gov-<%= @env %>-analytics-secrets"
+   }
+   s3 {
+     region => "<%= @aws_region %>"
+     bucket => "<%= @analytics_logging_bucket %>"
+     type => "analyticsother"
+     sincedb_path => "/usr/share/logstash/.sincedb_analyticslogstash3"
+     exclude_pattern => "^login-gov.*|^AWSLogs.*"
+   }
+}
+
+filter {
+  if [type] == "analyticssecretaccess" {
+    grok {
+      match => { "message" => "%{S3_ACCESS_LOG}" }
+    }
+  }
+}
+
+filter {
+  if [type] == "redshift" {
+    grok {
+      match => { "message" => "'%{TIMESTAMP_ISO8601:timestamp} %{TZ} \[ db=%{NOTSPACE:db} user=%{NOTSPACE:user} pid=%{NUMBER:pid} userid=%{NUMBER:userid} xid=%{NUMBER:xid} \]' %{NOTSPACE:linetype}: %{GREEDYDATA:query}" }
+      add_field => {
+        "type" => "redshiftuseractivity"
+      }
+    }
+    grok {
+      match => { "message" => "%{DATA:redshiftconnectevent} \|%{DAY}, %{MONTHDAY} %{MONTH} %{YEAR} %{TIME}\|%{IP:remotehost} \|%{NUMBER:remoteport} \|%{NUMBER:pid}\|%{NOTSPACE:dbname} \|%{NOTSPACE:username} \|%{DATA:authmethod} \|%{NUMBER:duration}\|%{DATA:sslversion} \|%{DATA:sslcipher} \|%{NUMBER:mtu}\|%{DATA:sslcompression}\|%{DATA:sslexpansion}\|%{GREEDYDATA:restofline}" }
+      add_field => {
+        "type" => "redshiftconnectionlog"
+      }
+    }
+  }
+}
+

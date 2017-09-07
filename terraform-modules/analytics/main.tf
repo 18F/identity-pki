@@ -231,19 +231,53 @@ resource "aws_s3_bucket" "redshift_logs_bucket" {
     Name = "login-gov-${var.env_name}-analytics-logs"
   }
 
+  versioning {
+    enabled = true
+  }
+
   lifecycle {
     prevent_destroy = true
+  }
+
+  lifecycle_rule {
+    id = "analyticslogexpire"
+    prefix = ""
+    enabled = true
+
+    expiration {
+      days = 60
+    }
   }
 }
 
 data "aws_iam_policy_document" "bucket_policy_json" {
   statement {
     actions = [
-      "s3:*"
+      "s3:PutObject"
     ]
 
     resources = [
       "arn:aws:s3:::login-gov-${var.env_name}-analytics-logs/*",
+    ]
+
+    principals {
+      type = "AWS"
+      identifiers = [
+                      "${aws_iam_user.redshift_user.arn}",
+                      "arn:aws:iam::193672423079:user/logs",
+                      "arn:aws:iam::391106570357:user/logs",
+                      "arn:aws:iam::262260360010:user/logs",
+                      "arn:aws:iam::902366379725:user/logs"
+                    ]
+    }
+  }
+
+  statement {
+    actions = [
+      "s3:GetBucketAcl"
+    ]
+
+    resources = [
       "arn:aws:s3:::login-gov-${var.env_name}-analytics-logs"
     ]
 
@@ -251,6 +285,9 @@ data "aws_iam_policy_document" "bucket_policy_json" {
       type = "AWS"
       identifiers = [
                       "${aws_iam_user.redshift_user.arn}",
+                      "arn:aws:iam::193672423079:user/logs",
+                      "arn:aws:iam::391106570357:user/logs",
+                      "arn:aws:iam::262260360010:user/logs",
                       "arn:aws:iam::902366379725:user/logs"
                     ]
     }
