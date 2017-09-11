@@ -81,7 +81,6 @@
     },
     "login_dot_gov": {
       "aws_kms_key_id": "alias/pt-login-dot-gov-keymaker",
-      "aws_region": "us-west-2",
       "branch_name": "stages/pt",
       "enable_identity_verification": "true",
       "enable_usps_verification": "true",
