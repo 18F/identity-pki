@@ -34,7 +34,7 @@ action :create do
       attribute_encryption_key_queue: node['login_dot_gov']['attribute_encryption_key_queue'],
       available_locales: node['login_dot_gov']['available_locales'],
       aws_kms_key_id: node['login_dot_gov']['aws_kms_key_id'],
-      aws_region: node['login_dot_gov']['aws_region'],
+      aws_region: Chef::Recipe::AwsMetadata.get_aws_region,
       dashboard_api_token: ConfigLoader.load_config(node, "dashboard_api_token"),
       dashboard_url: ConfigLoader.load_config(node, "dashboard_url"),
       disable_email_sending: node['login_dot_gov']['disable_email_sending'],
