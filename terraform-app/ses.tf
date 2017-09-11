@@ -16,7 +16,7 @@ data "aws_iam_policy_document" "ses_email_role_policy" {
       "ses:SendEmail"
     ]
     resources = [
-      "arn:aws:ec2:::*"
+      "*"
     ]
   }
 }
