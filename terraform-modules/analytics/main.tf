@@ -78,6 +78,7 @@ resource "aws_route_table" "analytics_route_table" {
     cidr_block = "52.23.63.224/27"
     gateway_id = "${aws_internet_gateway.analytics_vpc.id}"
   }
+
   route {
     cidr_block = "54.70.204.128/27"
     gateway_id = "${aws_internet_gateway.analytics_vpc.id}"
@@ -546,6 +547,43 @@ resource "aws_network_acl" "analytics_redshift" {
     rule_no = 600
     action = "allow"
     cidr_block = "${var.vpc_cidr_block}"
+  }
+
+  // Allow Quicksight to access Redshift
+  ingress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    rule_no = 700
+    action = "allow"
+    cidr_block = "52.23.63.224/27"
+  }
+
+  egress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    rule_no = 800
+    action = "allow"
+    cidr_block = "52.23.63.224/27"
+  }
+
+  ingress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    rule_no = 900
+    action = "allow"
+    cidr_block = "54.70.204.128/27"
+  }
+
+  egress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    rule_no = 1000
+    action = "allow"
+    cidr_block = "54.70.204.128/27"
   }
 
   tags {
