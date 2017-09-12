@@ -12,7 +12,6 @@
     "login_dot_gov": {
       "available_locales": "en es fr",
       "aws_kms_key_id": "alias/qa-login-dot-gov-keymaker",
-      "aws_region": "us-west-2",
       "branch_name": "stages/qa",
       "enable_identity_verification": "true",
       "enable_usps_verification": "true",
