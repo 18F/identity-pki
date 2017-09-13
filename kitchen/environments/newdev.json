@@ -1,0 +1,35 @@
+{
+  "name": "newdev",
+  "description": "",
+  "cookbook_versions": {
+  },
+  "json_class": "Chef::Environment",
+  "chef_type": "environment",
+  "default_attributes": {
+    "identity-devops": {
+      "branch_name": "stages/newdev"
+    },
+    "login_dot_gov": {
+      "available_locales": "en es fr",
+      "enable_identity_verification": "true",
+      "enable_usps_verification": "true",
+      "branch_name": "master",
+      "use_dashboard_service_providers": "true"
+    },
+    "elk": {
+      "users": [
+        "astone",
+        "brody",
+        "jgrevich",
+        "zmargolis",
+        "jpmugizi",
+        "monfresh",
+        "tspencer",
+        "zmargolis"
+      ]
+    }
+  },
+  "override_attributes": {
+
+  }
+}
