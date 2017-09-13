@@ -41,6 +41,18 @@ export KITCHEN_EC2_SSH_KEYPAIR_ID=MYNAME-SOME-KEY
 export KITCHEN_EC2_SSH_KEY=~/.ssh/id_rsa
 ```
 
+Add this to your `~/.ssh/config`:  
+
+```
+# make sure controlpath doesn't get too long for macos
+Host ec2-*.compute.amazonaws.com
+ControlPath ~/.ssh/sockets/%r@%C-%p
+```
+ Otherwise `ssh` into the Test-Kitchen instance will fail if the Unix  domain socket is longer than 104 characters for MacOS or 108 characters for Linux. Refer to this [issue](https://github.com/18F/identity-devops-private/issues/497) for more details.
+
+
+
+
 ## Test Kitchen EC2 Integration Environment
 
 By default, test kitchen runs in the [CI VPC](ci-vpc.md), but you can override
