@@ -114,6 +114,7 @@ default['login_dot_gov']['twilio_accounts']                           = '[{"sid"
 default['login_dot_gov']['twilio_record_voice']                       = 'false'
 default['login_dot_gov']['use_dashboard_service_providers']           = 'false'
 default['login_dot_gov']['use_kms']                                   = 'false'
+default['login_dot_gov']['usps_confirmation_max_days']                = '30'
 default['login_dot_gov']['usps_mail_batch_hours']                     = '24'
 default['login_dot_gov']['valid_authn_contexts']                      = '["http://idmanagement.gov/ns/assurance/loa/1", "http://idmanagement.gov/ns/assurance/loa/3"]'
 default['login_dot_gov']['release_dir']                               = ''

@@ -129,6 +129,7 @@
     "smtp_settings": "{\"address\":\"smtp.mandrillapp.com\", \"port\":587, \"authentication\":\"plain\", \"enable_starttls_auto\":true, \"user_name\":\"XXX@gsa.gov\", \"password\":\"XXX\"}",
     "twilio_accounts": "[{\"sid\":\"XXX\", \"auth_token\":\"XXX\", \"number\":\"XXX\"}]",
     "use_dashboard_service_providers": "false",
+    "usps_confirmation_max_days": "30",
     "usps_mail_batch_hours": "24"
   }
 }
