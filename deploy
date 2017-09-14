@@ -29,8 +29,14 @@ case "$TF_DIR" in
         # account ID.
         #
         # https://stackoverflow.com/a/33791322
+        if [ "$ENVIRONMENT" != "global" ]; then
+            echo_red >&2 "$TF_DIR applies to the whole AWS account!"
+            echo_red >&2 "For safety, pass 'global' as the environment name"
+            die "You provided '$ENVIRONMENT'"
+        fi
+
         ENVIRONMENT="account_global_$(run aws sts get-caller-identity --output text --query 'Account')"
-        echo "Forcing environment name to be $ENVIRONMENT since $TF_DIR is account wide configuration"
+        echo >&2 "Forcing environment name to be $ENVIRONMENT since $TF_DIR is account wide configuration"
         ;;
 esac
 
