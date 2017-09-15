@@ -1,6 +1,6 @@
 module "app_secrets_bucket" {
     source = "../terraform-modules/secrets_bucket"
-    logs_bucket = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+    logs_bucket = "${aws_s3_bucket.s3-logs.id}"
     secrets_bucket_type = "app-secrets"
     bucket_name_prefix = "login-gov"
     force_destroy = true

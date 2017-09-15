@@ -52,10 +52,38 @@ output "elb_log_bucket" {
 
 # TODO: this was created by hand but should be imported into terraform state
 # Bucket used for storing S3 access logs
-# At the moment, this should have the S3 log delivery group added by hand
-#resource "aws_s3_bucket" "s3-logs" {
-#  bucket = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
-#  region = "${var.region}"
-#  policy = "${data.aws_iam_policy_document.logs.json}"
-#  acl = "log-delivery-write"
-#}
+resource "aws_s3_bucket" "s3-logs" {
+  bucket = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+  region = "${var.region}"
+  acl = "log-delivery-write"
+
+  versioning {
+    enabled = true
+  }
+
+  lifecycle_rule {
+    id = "expirelogs"
+    enabled = true
+
+    prefix  = "/"
+
+    transition {
+      days = 30
+      storage_class = "STANDARD_IA"
+    }
+
+    transition {
+      days = 365
+      storage_class = "GLACIER"
+    }
+
+    expiration {
+      # 5 years
+      days = 1825
+    }
+  }
+}
+
+output "s3_log_bucket" {
+  value = "${aws_s3_bucket.s3-logs.id}"
+}
