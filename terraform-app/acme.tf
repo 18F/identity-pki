@@ -15,7 +15,7 @@ resource "acme_registration" "registration" {
 resource "acme_certificate" "dashboard" {
   account_key_pem           = "${tls_private_key.acme_registration_private_key.private_key_pem}"
   common_name               = "dashboard.${var.env_name}.${var.root_domain}"
-  count                     = "${var.apps_enabled == true ? 1 : 0}"
+  count                     = "${var.apps_enabled ? 1 : 0}"
   registration_url          = "${acme_registration.registration.id}"
   server_url                = "https://acme-v01.api.letsencrypt.org/directory"
 
@@ -63,7 +63,7 @@ resource "acme_certificate" "idp" {
 resource "acme_certificate" "sp-oidc-sinatra" {
   account_key_pem           = "${tls_private_key.acme_registration_private_key.private_key_pem}"
   common_name               = "sp-oidc-sinatra.${var.env_name}.${var.root_domain}"
-  count                     = "${var.apps_enabled == true ? 1 : 0}"
+  count                     = "${var.apps_enabled ? 1 : 0}"
   registration_url          = "${acme_registration.registration.id}"
   server_url                = "https://acme-v01.api.letsencrypt.org/directory"
 
@@ -84,7 +84,7 @@ resource "acme_certificate" "sp-oidc-sinatra" {
 resource "acme_certificate" "sp-rails" {
   account_key_pem           = "${tls_private_key.acme_registration_private_key.private_key_pem}"
   common_name               = "sp.${var.env_name}.${var.root_domain}"
-  count                     = "${var.apps_enabled == true ? 1 : 0}"
+  count                     = "${var.apps_enabled ? 1 : 0}"
   registration_url          = "${acme_registration.registration.id}"
   server_url                = "https://acme-v01.api.letsencrypt.org/directory"
   subject_alternative_names = ["sp-rails.${var.env_name}.${var.root_domain}"]
@@ -106,7 +106,7 @@ resource "acme_certificate" "sp-rails" {
 resource "acme_certificate" "sp-sinatra" {
   account_key_pem           = "${tls_private_key.acme_registration_private_key.private_key_pem}"
   common_name               = "sp-sinatra.${var.env_name}.${var.root_domain}"
-  count                     = "${var.apps_enabled == true ? 1 : 0}"
+  count                     = "${var.apps_enabled ? 1 : 0}"
   registration_url          = "${acme_registration.registration.id}"
   server_url                = "https://acme-v01.api.letsencrypt.org/directory"
 

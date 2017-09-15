@@ -46,7 +46,7 @@ variable "worker_ami_list" { type="list" }
 variable "elasticsearch_ami_id" {}
 variable "elk_ami_id" {}
 variable "route53_id" {}
-variable "apps_enabled" { default = false }
+variable "apps_enabled" { default = 0 }
 
 # prod/test environment flags
 variable "basic_auth_enabled" {

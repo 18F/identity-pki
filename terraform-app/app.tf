@@ -1,6 +1,6 @@
 resource "aws_instance" "app" {
   ami = "${var.ami_id}"
-  count = "${var.apps_enabled == true ? 1 : 0}"
+  count = "${var.apps_enabled ? 1 : 0}"
   depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk"]
   instance_type = "${var.instance_type_app}"
   key_name = "${var.key_name}"
@@ -163,7 +163,7 @@ resource "aws_instance" "app" {
 
 resource "aws_db_instance" "default" {
   allocated_storage = "${var.rds_storage}"
-  count = "${var.apps_enabled == true ? 1 : 0}"
+  count = "${var.apps_enabled ? 1 : 0}"
   db_subnet_group_name = "${aws_db_subnet_group.default.id}"
   depends_on = ["aws_security_group.db", "aws_subnet.db1", "aws_subnet.db2"]
   engine = "${var.rds_engine}"
@@ -209,13 +209,13 @@ resource "aws_db_subnet_group" "default" {
 }
 
 resource "aws_eip" "app" {
-  count = "${var.apps_enabled == true ? 1 : 0}"
+  count = "${var.apps_enabled ? 1 : 0}"
   instance = "${aws_instance.app.id}"
   vpc      = true
 }
 
 resource "aws_route53_record" "app" {
-  count = "${var.apps_enabled == true ? 1 : 0}"
+  count = "${var.apps_enabled ? 1 : 0}"
   depends_on = ["aws_instance.app"]
   zone_id = "${aws_route53_zone.internal.zone_id}"
   name = "app.login.gov.internal"
@@ -225,7 +225,7 @@ resource "aws_route53_record" "app" {
 }
 
 resource "aws_route53_record" "a_app" {
-  count = "${var.apps_enabled == true ? 1 : 0}"
+  count = "${var.apps_enabled ? 1 : 0}"
   name = "app.${var.env_name}.${var.root_domain}"
   records = ["${aws_eip.app.public_ip}"]
   ttl = "300"
@@ -234,7 +234,7 @@ resource "aws_route53_record" "a_app" {
 }
 
 resource "aws_route53_record" "a_app_internal" {
-  count = "${var.apps_enabled == true ? 1 : 0}"
+  count = "${var.apps_enabled ? 1 : 0}"
   zone_id = "${aws_route53_zone.internal.zone_id}"
   name = "apps_host.login.gov.internal"
   type = "A"
@@ -243,7 +243,7 @@ resource "aws_route53_record" "a_app_internal" {
 }
 
 resource "aws_route53_record" "c_dash" {
-  count = "${var.apps_enabled == true ? 1 : 0}"
+  count = "${var.apps_enabled ? 1 : 0}"
   name = "dashboard.${var.env_name}.${var.root_domain}"
   records = ["app.${var.env_name}.${var.root_domain}"]
   ttl = "300"
@@ -252,7 +252,7 @@ resource "aws_route53_record" "c_dash" {
 }
 
 resource "aws_route53_record" "c_sp" {
-  count = "${var.apps_enabled == true ? 1 : 0}"
+  count = "${var.apps_enabled ? 1 : 0}"
   name = "sp.${var.env_name}.${var.root_domain}"
   records = ["app.${var.env_name}.${var.root_domain}"]
   ttl = "300"
@@ -261,7 +261,7 @@ resource "aws_route53_record" "c_sp" {
 }
 
 resource "aws_route53_record" "c_sp_oidc_sinatra" {
-  count = "${var.apps_enabled == true ? 1 : 0}"
+  count = "${var.apps_enabled ? 1 : 0}"
   name = "sp-oidc-sinatra.${var.env_name}.${var.root_domain}"
   records = ["app.${var.env_name}.${var.root_domain}"]
   ttl = "300"
@@ -270,7 +270,7 @@ resource "aws_route53_record" "c_sp_oidc_sinatra" {
 }
 
 resource "aws_route53_record" "c_sp_python" {
-  count = "${var.apps_enabled == true ? 1 : 0}"
+  count = "${var.apps_enabled ? 1 : 0}"
   name = "sp-python.${var.env_name}.${var.root_domain}"
   records = ["app.${var.env_name}.${var.root_domain}"]
   ttl = "300"
@@ -279,7 +279,7 @@ resource "aws_route53_record" "c_sp_python" {
 }
 
 resource "aws_route53_record" "c_sp_rails" {
-  count = "${var.apps_enabled == true ? 1 : 0}"
+  count = "${var.apps_enabled ? 1 : 0}"
   name = "sp-rails.${var.env_name}.${var.root_domain}"
   records = ["app.${var.env_name}.${var.root_domain}"]
   ttl = "300"
@@ -288,7 +288,7 @@ resource "aws_route53_record" "c_sp_rails" {
 }
 
 resource "aws_route53_record" "c_sp_sinatra" {
-  count = "${var.apps_enabled == true ? 1 : 0}"
+  count = "${var.apps_enabled ? 1 : 0}"
   name = "sp-sinatra.${var.env_name}.${var.root_domain}"
   records = ["app.${var.env_name}.${var.root_domain}"]
   ttl = "300"
@@ -297,7 +297,7 @@ resource "aws_route53_record" "c_sp_sinatra" {
 }
 
 resource "aws_route53_record" "postgres" {
-  count = "${var.apps_enabled == true ? 1 : 0}"
+  count = "${var.apps_enabled ? 1 : 0}"
   name = "postgres"
   records = ["${replace(aws_db_instance.default.endpoint,":5432","")}"]
   ttl = "300"
