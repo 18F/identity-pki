@@ -32,7 +32,6 @@ resource "aws_launch_configuration" "worker" {
 
   image_id = "${var.worker_ami_id}"
   instance_type = "${var.instance_type_worker}"
-  key_name = "${var.key_name}"
   security_groups = ["${aws_security_group.idp.id}"] # TODO use a separate sg
 
   user_data = "${module.worker_launch_config.rendered_cloudinit_config}"

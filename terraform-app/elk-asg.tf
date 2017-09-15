@@ -32,7 +32,6 @@ resource "aws_launch_configuration" "elk" {
 
   image_id = "${var.elk_ami_id}"
   instance_type = "${var.instance_type_elk}"
-  key_name = "${var.key_name}"
   security_groups = ["${aws_security_group.elk.id}"]
 
   user_data = "${module.elk_launch_config.rendered_cloudinit_config}"

@@ -32,7 +32,6 @@ resource "aws_launch_configuration" "jumphost" {
 
     image_id = "${var.jumphost_ami_id}"
     instance_type = "${var.instance_type_jumphost}"
-    key_name = "${var.key_name}"
     security_groups = ["${aws_security_group.jumphost.id}"]
 
     user_data = "${module.jumphost_launch_config.rendered_cloudinit_config}"

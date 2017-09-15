@@ -32,7 +32,6 @@ resource "aws_launch_configuration" "outboundproxy" {
 
   image_id = "${var.outboundproxy_ami_id}"
   instance_type = "${var.instance_type_outboundproxy}"
-  key_name = "${var.key_name}"
   security_groups = ["${aws_security_group.obproxy.id}"] # TODO use a separate sg
 
   user_data = "${module.outboundproxy_launch_config.rendered_cloudinit_config}"

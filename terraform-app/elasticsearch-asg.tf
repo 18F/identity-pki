@@ -32,7 +32,6 @@ resource "aws_launch_configuration" "elasticsearch" {
 
   image_id = "${var.elasticsearch_ami_id}"
   instance_type = "${var.instance_type_es}"
-  key_name = "${var.key_name}"
   security_groups = ["${aws_security_group.elk.id}"]
 
   user_data = "${module.elasticsearch_launch_config.rendered_cloudinit_config}"

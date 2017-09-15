@@ -151,7 +151,6 @@ resource "aws_launch_configuration" "idp" {
 
   image_id = "${var.idp1_ami_id}" # TODO switch to idp_ami_id
   instance_type = "${var.instance_type_idp}"
-  key_name = "${var.key_name}"
   security_groups = ["${aws_security_group.idp.id}"]
 
   user_data = "${module.idp_launch_config.rendered_cloudinit_config}"
