@@ -11,7 +11,7 @@ resource "aws_instance" "app" {
     client = "${var.client}"
     Name = "${var.name}-app-${var.env_name}"
     prefix = "app"
-    domain = "${var.env_name}.login.gov"
+    domain = "${var.env_name}.${var.root_domain}"
   }
 
   lifecycle {
@@ -135,7 +135,7 @@ resource "aws_instance" "app" {
   provisioner "chef"  {
     attributes_json = <<-EOF
     {
-      "set_fqdn": "app.${var.env_name}.login.gov",
+      "set_fqdn": "app.${var.env_name}.${var.root_domain}",
       "login_dot_gov": {
         "live_certs": "${var.live_certs}"
       }
@@ -226,7 +226,7 @@ resource "aws_route53_record" "app" {
 
 resource "aws_route53_record" "a_app" {
   count = "${var.apps_enabled == true ? 1 : 0}"
-  name = "app.${var.env_name}.login.gov"
+  name = "app.${var.env_name}.${var.root_domain}"
   records = ["${aws_eip.app.public_ip}"]
   ttl = "300"
   type = "A"
@@ -244,8 +244,8 @@ resource "aws_route53_record" "a_app_internal" {
 
 resource "aws_route53_record" "c_dash" {
   count = "${var.apps_enabled == true ? 1 : 0}"
-  name = "dashboard.${var.env_name}.login.gov"
-  records = ["app.${var.env_name}.login.gov"]
+  name = "dashboard.${var.env_name}.${var.root_domain}"
+  records = ["app.${var.env_name}.${var.root_domain}"]
   ttl = "300"
   type = "CNAME"
   zone_id = "${var.route53_id}"
@@ -253,8 +253,8 @@ resource "aws_route53_record" "c_dash" {
 
 resource "aws_route53_record" "c_sp" {
   count = "${var.apps_enabled == true ? 1 : 0}"
-  name = "sp.${var.env_name}.login.gov"
-  records = ["app.${var.env_name}.login.gov"]
+  name = "sp.${var.env_name}.${var.root_domain}"
+  records = ["app.${var.env_name}.${var.root_domain}"]
   ttl = "300"
   type = "CNAME"
   zone_id = "${var.route53_id}"
@@ -262,8 +262,8 @@ resource "aws_route53_record" "c_sp" {
 
 resource "aws_route53_record" "c_sp_oidc_sinatra" {
   count = "${var.apps_enabled == true ? 1 : 0}"
-  name = "sp-oidc-sinatra.${var.env_name}.login.gov"
-  records = ["app.${var.env_name}.login.gov"]
+  name = "sp-oidc-sinatra.${var.env_name}.${var.root_domain}"
+  records = ["app.${var.env_name}.${var.root_domain}"]
   ttl = "300"
   type = "CNAME"
   zone_id = "${var.route53_id}"
@@ -271,8 +271,8 @@ resource "aws_route53_record" "c_sp_oidc_sinatra" {
 
 resource "aws_route53_record" "c_sp_python" {
   count = "${var.apps_enabled == true ? 1 : 0}"
-  name = "sp-python.${var.env_name}.login.gov"
-  records = ["app.${var.env_name}.login.gov"]
+  name = "sp-python.${var.env_name}.${var.root_domain}"
+  records = ["app.${var.env_name}.${var.root_domain}"]
   ttl = "300"
   type = "CNAME"
   zone_id = "${var.route53_id}"
@@ -280,8 +280,8 @@ resource "aws_route53_record" "c_sp_python" {
 
 resource "aws_route53_record" "c_sp_rails" {
   count = "${var.apps_enabled == true ? 1 : 0}"
-  name = "sp-rails.${var.env_name}.login.gov"
-  records = ["app.${var.env_name}.login.gov"]
+  name = "sp-rails.${var.env_name}.${var.root_domain}"
+  records = ["app.${var.env_name}.${var.root_domain}"]
   ttl = "300"
   type = "CNAME"
   zone_id = "${var.route53_id}"
@@ -289,8 +289,8 @@ resource "aws_route53_record" "c_sp_rails" {
 
 resource "aws_route53_record" "c_sp_sinatra" {
   count = "${var.apps_enabled == true ? 1 : 0}"
-  name = "sp-sinatra.${var.env_name}.login.gov"
-  records = ["app.${var.env_name}.login.gov"]
+  name = "sp-sinatra.${var.env_name}.${var.root_domain}"
+  records = ["app.${var.env_name}.${var.root_domain}"]
   ttl = "300"
   type = "CNAME"
   zone_id = "${var.route53_id}"

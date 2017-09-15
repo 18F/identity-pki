@@ -96,8 +96,12 @@ variable "availability_zones" { default = ["us-west-2a","us-west-2b","us-west-2c
 variable "outboundproxy_node_count" { default = "1" }
 variable "outboundproxy1_ami_id" {}
 variable "outboundproxy2_ami_id" {}
-variable "version_info_bucket" { default = "login_dot_gov_tf_state" }
-variable "version_info_region" { default = "us-east-1" }
+variable "version_info_bucket" {}
+variable "version_info_region" {}
+
+variable "root_domain" {
+    description = "DNS domain to use as the root domain, e.g. login.gov"
+}
 
 # Auto scaling group desired counts
 variable "asg_jumphost_desired" { default = 0 }

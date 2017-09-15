@@ -137,7 +137,7 @@ resource "aws_route53_record" "c_alb_production" {
 # and <env>.login.gov
 resource "aws_route53_record" "c_alb" {
   count = "${var.env_name == "prod" ? 0 : var.alb_enabled}"
-  name = "${var.env_name}.login.gov"
+  name = "${var.env_name}.${var.root_domain}"
   records = ["${aws_alb.idp.dns_name}"]
   ttl = "300"
   type = "CNAME"
@@ -146,7 +146,7 @@ resource "aws_route53_record" "c_alb" {
 
 resource "aws_route53_record" "c_alb_idp" {
   count = "${var.env_name == "prod" ? 0 : var.alb_enabled}"
-  name = "idp.${var.env_name}.login.gov"
+  name = "idp.${var.env_name}.${var.root_domain}"
   records = ["${aws_alb.idp.dns_name}"]
   ttl = "300"
   type = "CNAME"

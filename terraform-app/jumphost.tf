@@ -3,7 +3,7 @@ module "jumphost_launch_config" {
 
     role = "jumphost"
     env = "${var.env_name}"
-    domain = "login.gov"
+    domain = "${var.root_domain}"
 
     chef_download_url = "${var.chef_download_url}"
     chef_download_sha256 = "${var.chef_download_sha256}"
@@ -89,7 +89,7 @@ resource "aws_autoscaling_group" "jumphost" {
     }
     tag {
         key = "domain"
-        value = "${var.env_name}.login.gov"
+        value = "${var.env_name}.${var.root_domain}"
         propagate_at_launch = true
     }
 
@@ -109,7 +109,7 @@ resource "aws_instance" "jumphost" {
     client = "${var.client}"
     Name = "${var.name}-jumphost-${var.env_name}"
     prefix = "jumphost"
-    domain = "${var.env_name}.login.gov"
+    domain = "${var.env_name}.${var.root_domain}"
   }
 
   lifecycle {
@@ -129,7 +129,7 @@ resource "aws_instance" "jumphost" {
   provisioner "chef"  {
     attributes_json = <<-EOF
     {
-      "set_fqdn": "jumphost.${var.env_name}.login.gov",
+      "set_fqdn": "jumphost.${var.env_name}.${var.root_domain}",
       "login_dot_gov": {
         "live_certs": "${var.live_certs}"
       }
@@ -180,7 +180,7 @@ resource "aws_eip" "jumphost" {
 
 resource "aws_route53_record" "a_jumphost" {
   count = "${var.non_asg_jumphost_enabled}"
-  name = "jumphost.${var.env_name}.login.gov"
+  name = "jumphost.${var.env_name}.${var.root_domain}"
   records = ["${aws_eip.jumphost.public_ip}"]
   ttl = "300"
   type = "A"

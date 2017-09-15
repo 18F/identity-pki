@@ -160,7 +160,7 @@ resource "aws_instance" "outboundproxy1" {
   provisioner "chef"  {
     attributes_json = <<-EOF
     {
-      "set_fqdn": "outboundproxy1-${count.index}.${var.env_name}.login.gov",
+      "set_fqdn": "outboundproxy1-${count.index}.${var.env_name}.${var.root_domain}",
       "login_dot_gov": {
         "live_certs": "${var.live_certs}"
       }
@@ -208,7 +208,7 @@ resource "aws_instance" "outboundproxy2" {
   provisioner "chef"  {
     attributes_json = <<-EOF
     {
-      "set_fqdn": "outboundproxy2-${count.index}.${var.env_name}.login.gov",
+      "set_fqdn": "outboundproxy2-${count.index}.${var.env_name}.${var.root_domain}",
       "login_dot_gov": {
         "live_certs": "${var.live_certs}"
       }

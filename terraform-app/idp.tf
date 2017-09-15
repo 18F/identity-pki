@@ -122,7 +122,7 @@ module "idp_launch_config" {
 
   role = "idp"
   env = "${var.env_name}"
-  domain = "login.gov"
+  domain = "${var.root_domain}"
 
   chef_download_url = "${var.chef_download_url}"
   chef_download_sha256 = "${var.chef_download_sha256}"
@@ -219,7 +219,7 @@ resource "aws_autoscaling_group" "idp" {
     }
     tag {
         key = "domain"
-        value = "${var.env_name}.login.gov"
+        value = "${var.env_name}.${var.root_domain}"
         propagate_at_launch = true
     }
 }
@@ -238,7 +238,7 @@ resource "aws_instance" "idp1" {
     client = "${var.client}"
     Name = "${var.name}-idp1-${count.index}-${var.env_name}"
     prefix = "idp"
-    domain = "${var.env_name}.login.gov"
+    domain = "${var.env_name}.${var.root_domain}"
   }
 
   lifecycle {
@@ -257,7 +257,7 @@ resource "aws_instance" "idp1" {
   provisioner "chef"  {
     attributes_json = <<-EOF
     {
-      "set_fqdn": "idp1-${count.index}.${var.env_name}.login.gov",
+      "set_fqdn": "idp1-${count.index}.${var.env_name}.${var.root_domain}",
       "login_dot_gov": {
         "live_certs": "${var.live_certs}"
       }
@@ -294,7 +294,7 @@ resource "aws_instance" "idp2" {
     client = "${var.client}"
     Name = "${var.name}-idp2-${count.index}-${var.env_name}"
     prefix = "idp"
-    domain = "${var.env_name}.login.gov"
+    domain = "${var.env_name}.${var.root_domain}"
   }
 
   lifecycle {
@@ -313,7 +313,7 @@ resource "aws_instance" "idp2" {
   provisioner "chef"  {
     attributes_json = <<-EOF
     {
-      "set_fqdn": "idp2-${count.index}.${var.env_name}.login.gov",
+      "set_fqdn": "idp2-${count.index}.${var.env_name}.${var.root_domain}",
       "login_dot_gov": {
         "live_certs": "${var.live_certs}"
       }
@@ -350,7 +350,7 @@ resource "aws_instance" "idp_worker" {
     client = "${var.client}"
     Name = "${var.name}-worker${count.index}-${var.env_name}"
     prefix = "worker"
-    domain = "${var.env_name}.login.gov"
+    domain = "${var.env_name}.${var.root_domain}"
   }
 
   lifecycle {
@@ -369,7 +369,7 @@ resource "aws_instance" "idp_worker" {
   provisioner "chef"  {
     attributes_json = <<-EOF
     {
-      "set_fqdn": "worker${count.index}.${var.env_name}.login.gov",
+      "set_fqdn": "worker${count.index}.${var.env_name}.${var.root_domain}",
       "login_dot_gov": {
         "live_certs": "${var.live_certs}"
       }

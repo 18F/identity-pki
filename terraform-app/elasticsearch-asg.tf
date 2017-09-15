@@ -3,7 +3,7 @@ module "elasticsearch_launch_config" {
 
   role = "elasticsearch"
   env = "${var.env_name}"
-  domain = "login.gov"
+  domain = "${var.root_domain}"
 
   chef_download_url = "${var.chef_download_url}"
   chef_download_sha256 = "${var.chef_download_sha256}"
@@ -83,7 +83,7 @@ resource "aws_autoscaling_group" "elasticsearch" {
     }
     tag {
         key = "domain"
-        value = "${var.env_name}.login.gov"
+        value = "${var.env_name}.${var.root_domain}"
         propagate_at_launch = true
     }
     tag {

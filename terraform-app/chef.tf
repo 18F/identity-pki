@@ -22,7 +22,7 @@ resource "aws_instance" "chef" {
     client = "${var.client}"
     Name = "${var.name}-chef-${var.env_name}"
     prefix = "chef"
-    domain = "${var.env_name}.login.gov"
+    domain = "${var.env_name}.${var.root_domain}"
   }
 
   lifecycle {
@@ -66,7 +66,7 @@ resource "aws_instance" "chef" {
   provisioner "chef"  {
     attributes_json = <<-EOF
     {
-      "set_fqdn": "chef.${var.env_name}.login.gov",
+      "set_fqdn": "chef.${var.env_name}.${var.root_domain}",
       "login_dot_gov": {
         "live_certs": "${var.live_certs}"
       }

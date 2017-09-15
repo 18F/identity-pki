@@ -142,7 +142,7 @@ resource "aws_instance" "elk" {
     client = "${var.client}"
     Name = "${var.name}-elk-${var.env_name}"
     prefix = "elk"
-    domain = "${var.env_name}.login.gov"
+    domain = "${var.env_name}.${var.root_domain}"
   }
 
   lifecycle {
@@ -161,7 +161,7 @@ resource "aws_instance" "elk" {
   provisioner "chef"  {
     attributes_json = <<-EOF
     {
-      "set_fqdn": "elk.${var.env_name}.login.gov",
+      "set_fqdn": "elk.${var.env_name}.${var.root_domain}",
       "login_dot_gov": {
         "live_certs": "${var.live_certs}"
       }
@@ -209,7 +209,7 @@ resource "aws_instance" "es" {
     client = "${var.client}"
     Name = "${var.name}-es${count.index}-${var.env_name}"
     prefix = "es"
-    domain = "${var.env_name}.login.gov"
+    domain = "${var.env_name}.${var.root_domain}"
   }
 
   lifecycle {
@@ -237,7 +237,7 @@ resource "aws_instance" "es" {
   provisioner "chef"  {
     attributes_json = <<-EOF
     {
-      "set_fqdn": "es${count.index}.${var.env_name}.login.gov"
+      "set_fqdn": "es${count.index}.${var.env_name}.${var.root_domain}"
     }
     EOF
     environment = "${var.env_name}"
