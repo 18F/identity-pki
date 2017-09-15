@@ -65,7 +65,7 @@ get_asg_info() {
 # schedule_recycle ASG_NAME [DESIRED_CAPACITY]
 schedule_recycle() {
     local asg_name="$1"
-    local desired_capacity="${3-}"
+    local desired_capacity="${2-}"
     local asg_info current_size max_size min_size new_size spindown_delay health_grace_period
 
     echo_blue "Scheduling ASG recycle of $asg_name"
