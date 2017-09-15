@@ -64,11 +64,17 @@ data "aws_iam_policy_document" "secrets_role_policy" {
       "s3:Get*",
       "s3:List*"
     ]
+
+    # TODO: login-gov-secrets-test and login-gov-secrets are deprecated
     resources = [
+      "arn:aws:s3:::login-gov.secrets.${data.aws_caller_identity.current.account_id}-*/common/",
+      "arn:aws:s3:::login-gov.secrets.${data.aws_caller_identity.current.account_id}-*/common/*",
       "arn:aws:s3:::login-gov-secrets-test/common/",
       "arn:aws:s3:::login-gov-secrets-test/common/*",
       "arn:aws:s3:::login-gov-secrets/common/",
       "arn:aws:s3:::login-gov-secrets/common/*",
+      "arn:aws:s3:::login-gov.secrets.${data.aws_caller_identity.current.account_id}-*/${var.env_name}/",
+      "arn:aws:s3:::login-gov.secrets.${data.aws_caller_identity.current.account_id}-*/${var.env_name}/*",
       "arn:aws:s3:::login-gov-secrets-test/${var.env_name}/",
       "arn:aws:s3:::login-gov-secrets-test/${var.env_name}/*",
       "arn:aws:s3:::login-gov-secrets/${var.env_name}/",
@@ -96,6 +102,7 @@ data "aws_iam_policy_document" "secrets_role_policy" {
     resources = [
       "arn:aws:s3:::login-gov-secrets-test",
       "arn:aws:s3:::login-gov-secrets",
+      "arn:aws:s3:::login-gov.secrets.${data.aws_caller_identity.current.account_id}-*",
     ]
   }
 
@@ -114,6 +121,7 @@ data "aws_iam_policy_document" "secrets_role_policy" {
     resources = [
       "arn:aws:s3:::login-gov-secrets-test",
       "arn:aws:s3:::login-gov-secrets",
+      "arn:aws:s3:::login-gov.secrets.${data.aws_caller_identity.current.account_id}-*",
     ]
   }
 }

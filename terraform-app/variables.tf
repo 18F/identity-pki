@@ -117,7 +117,7 @@ variable "bootstrap_main_git_ref" {
     description = "Git ref in identity-devops for provision.sh to check out"
 }
 variable "bootstrap_main_s3_ssh_key_url" {
-    default = "s3://login-gov-secrets-test/common/id_ecdsa.identity-devops.deploy"
+    # TODO use terraform locals to compute this once we upgrade to 0.10.*
     description = "S3 path to find an SSH key for cloning identity-devops"
 }
 variable "bootstrap_main_git_clone_url" {
@@ -129,7 +129,6 @@ variable "bootstrap_private_git_ref" {
     description = "Git ref in identity-devops for provision.sh to check out"
 }
 variable "bootstrap_private_s3_ssh_key_url" {
-    default = "s3://login-gov-secrets-test/common/id_ecdsa.id-do-private.deploy"
     description = "S3 path to find an SSH key for cloning identity-devops-private"
 }
 variable "bootstrap_private_git_clone_url" {
