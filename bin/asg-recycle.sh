@@ -83,7 +83,7 @@ schedule_recycle() {
     echo_blue "  max:     $max_size"
     echo_blue "Health check grace period: ${health_grace_period}s"
 
-    if ((current_size == 0)); then
+    if ((current_size == 0)) && [ -z "$desired_capacity" ]; then
         echo_red "Error: current desired size is 0, nothing to recycle"
         return 1
     fi
