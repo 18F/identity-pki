@@ -15,6 +15,7 @@
     },
     "login_dot_gov": {
       "available_locales": "en es fr",
+      "domain_name": "identitysandbox.gov",
       "enable_identity_verification": "true",
       "enable_usps_verification": "true",
       "branch_name": "master",
