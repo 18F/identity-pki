@@ -18,7 +18,7 @@
       "domain_name": "identitysandbox.gov",
       "enable_identity_verification": "true",
       "enable_usps_verification": "true",
-      "branch_name": "master",
+      "branch_name": "stages/newdev",
       "use_dashboard_service_providers": "true"
     },
     "elk": {
