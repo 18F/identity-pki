@@ -26,7 +26,7 @@ input {
 filter {
   if [type] == "analyticssecretaccess" {
     grok {
-      match => { "message" => "%{S3_ACCESS_LOG}" }
+      match => { "message" => "%{NOTSPACE:owner} %{NOTSPACE:bucket} \[%{MONTHDAY}/%{MONTH}/%{YEAR}:%{TIME} %{ISO8601_TIMEZONE}\] %{IP:clientip} %{NOTSPACE:requester} %{NOTSPACE:request_id} %{NOTSPACE:operation} %{NOTSPACE:key} %{QS:request_uri} %{INT:response} %{NOTSPACE:error_code} %{NOTSPACE:bytes} %{NOTSPACE:object_size} %{NOTSPACE:request_time_ms} %{NOTSPACE:turnaround_time_ms} %{QS:referrer} %{QS:agent} %{NOTSPACE:version_id}" }
     }
   }
 }
