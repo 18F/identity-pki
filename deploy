@@ -18,6 +18,10 @@ fi
 # shellcheck source=./bin/lib/common.sh
 . "$(dirname "$0")/bin/lib/common.sh"
 
+# Be sure ruby is working and bundler is setup since some terraform modules
+# rely on erb templates and ruby to be working.
+run bundle check
+
 ENVIRONMENT=$1; shift
 GSA_USERNAME=$1; shift
 TF_DIR=$1; shift
