@@ -223,6 +223,18 @@ resource "aws_autoscaling_group" "idp" {
     }
 }
 
+module "idp_recycle" {
+    source = "../terraform-modules/asg_recycle/"
+
+    enabled = "${var.asg_auto_daily_recycle}"
+
+    asg_name = "${aws_autoscaling_group.idp.name}"
+    normal_desired_capacity = "${aws_autoscaling_group.idp.desired_capacity}"
+
+    # TODO once we're on TF 0.10 remove these
+    min_size = "${aws_autoscaling_group.idp.min_size}"
+    max_size = "${aws_autoscaling_group.idp.max_size}"
+}
 
 resource "aws_instance" "idp1" {
   count = "${var.non_asg_idp_enabled * var.idp_node_count}"
