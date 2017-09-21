@@ -1,3 +1,5 @@
+# Remove this variable when modules support count
+# https://github.com/hashicorp/terraform/issues/953
 variable "enabled" {
     default = 1
     description = "Whether this module is enabled (hack around modules not supporting count)"

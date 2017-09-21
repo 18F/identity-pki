@@ -226,6 +226,8 @@ resource "aws_autoscaling_group" "idp" {
 module "idp_recycle" {
     source = "../terraform-modules/asg_recycle/"
 
+    # switch to count when that's a thing that we can do
+    # https://github.com/hashicorp/terraform/issues/953
     enabled = "${var.asg_auto_daily_recycle}"
 
     asg_name = "${aws_autoscaling_group.idp.name}"
