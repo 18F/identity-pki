@@ -104,7 +104,7 @@ variable "root_domain" {
 }
 
 # Auto scaling flags
-variable "asg_auto_daily_recycle" {
+variable "asg_auto_6h_recycle" {
     default = 0
     description = "Whether to automatically recycle IdP/worker/app servers every 6 hours"
 }

@@ -228,7 +228,7 @@ module "idp_recycle" {
 
     # switch to count when that's a thing that we can do
     # https://github.com/hashicorp/terraform/issues/953
-    enabled = "${var.asg_auto_daily_recycle}"
+    enabled = "${var.asg_auto_6h_recycle}"
 
     asg_name = "${aws_autoscaling_group.idp.name}"
     normal_desired_capacity = "${aws_autoscaling_group.idp.desired_capacity}"
