@@ -14,10 +14,6 @@ variable "google_site_verification_txt" {
     default = ""
 }
 
-# TODO remove this after SES migration
-variable "mandrill_dkim_record" {
-    description = "Mandrill DKIM TXT record content"
-}
 
 module "common_dns" {
     source = "../terraform-modules/common_dns/"
@@ -26,7 +22,6 @@ module "common_dns" {
     static_cloudfront_name = "${var.static_cloudfront_name}"
     developers_cloudfront_name = "${var.developers_cloudfront_name}"
     google_site_verification_txt = "${var.google_site_verification_txt}"
-    mandrill_dkim_record = "${var.mandrill_dkim_record}"
 }
 
 output "primary_zone_id" {

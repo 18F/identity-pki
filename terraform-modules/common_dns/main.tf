@@ -18,12 +18,6 @@ variable "google_site_verification_txt" {
     default = ""
 }
 
-# TODO remove this after SES migration
-variable "mandrill_dkim_record" {
-    description = "Mandrill DKIM TXT record content"
-}
-
-
 resource "aws_route53_zone" "primary" {
     # domain, ensuring it has a trailing "."
     name = "${replace(var.domain, "/\\.?$/", ".")}"
@@ -97,18 +91,10 @@ resource "aws_route53_record" "mx_google" {
 
 resource "aws_route53_record" "txt" {
     name = "${var.domain}"
-    # TODO: remove mandrill once it's no longer used
-    records = ["google-site-verification=${var.google_site_verification_txt}", "v=spf1 mx include:spf_sa.gsa.gov include:spf.mandrillapp.com ~all"]
+    records = ["google-site-verification=${var.google_site_verification_txt}", "v=spf1 mx include:spf_sa.gsa.gov ~all"]
     ttl = "900"
     type = "TXT"
     zone_id = "${aws_route53_zone.primary.zone_id}"
 }
 
-resource "aws_route53_record" "txt_mandrill_dkim" {
-    name = "mandrill._domainkey.${var.domain}"
-    records = ["${var.mandrill_dkim_record}"]
-    ttl = "900"
-    type = "TXT"
-    zone_id = "${aws_route53_zone.primary.zone_id}"
-}
 
