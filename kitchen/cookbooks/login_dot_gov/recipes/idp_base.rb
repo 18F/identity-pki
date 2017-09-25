@@ -128,6 +128,13 @@ application release_path do
     end
 end
 
+  # Run the activate script from the repo
+  execute 'deploy activate step' do
+    cwd '/srv/idp/releases/chef'
+    command './deploy/activate'
+    user node['login_dot_gov']['system_user']
+  end
+
   rails do
     # for some reason you can't set the database name when using ruby block format. Perhaps it has
     # something to do with having the same name as the resource to which the block belongs.
