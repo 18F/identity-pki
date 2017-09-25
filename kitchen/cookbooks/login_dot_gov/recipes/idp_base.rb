@@ -133,6 +133,10 @@ end
     cwd '/srv/idp/releases/chef'
     command './deploy/activate'
     user node['login_dot_gov']['system_user']
+
+    # TODO: remove this only_if, which is a temporary thing so that we can roll
+    # out the identity-devops change ahead of the identity-idp change.
+    only_if { File.exist?('/srv/idp/releases/chef/deploy/activate') }
   end
 
   rails do
