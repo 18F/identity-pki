@@ -10,6 +10,7 @@ production:
   error_collector:
     capture_source:                   <%= @capture_error_source %>
     enabled:                          <%= @error_collector_enabled %>
+    ignore_errors:                    "ActionController::RoutingError,ActionController::BadRequest"
   license_key:                        <%= @license_key %>
   log_level:                          <%= @log_level %>
   monitor_mode:                       <%= @monitor_mode %>
