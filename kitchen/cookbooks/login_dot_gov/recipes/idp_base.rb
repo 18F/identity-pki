@@ -120,6 +120,10 @@ application release_path do
     app_name "#{node.chef_environment}.#{node['login_dot_gov']['app_name']}"
   end
 
+  # TODO: add a deploy/build script and pull in the bundle install, npm build,
+  # etc. so that the identity-devops repo doesn't need to be aware of the steps
+  # involved to build any repo.
+
 # install and build node dependencies
  ['npm install', 'npm run build'].each do |cmd|
     execute "#{cmd}" do
@@ -128,7 +132,8 @@ application release_path do
     end
 end
 
-  # Run the activate script from the repo
+  # Run the activate script from the repo, which is used to download app
+  # configs and set things up for the app to run.
   execute 'deploy activate step' do
     cwd '/srv/idp/releases/chef'
     command './deploy/activate'
