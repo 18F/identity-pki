@@ -85,6 +85,11 @@ shared_dirs.each do |dir|
   end
 end
 
+ruby_build_path = [
+  "/opt/ruby_build/builds/#{node.fetch('login_dot_gov').fetch('ruby_version')}/bin",
+  ENV.fetch('PATH'),
+].join(':')
+
 # TODO: JJG consider migrating to chef deploy resource to stay in line with capistrano style:
 # https://docs.chef.io/resource_deploy.html
 application release_path do
@@ -138,6 +143,8 @@ end
     cwd '/srv/idp/releases/chef'
     command './deploy/activate'
     user node['login_dot_gov']['system_user']
+
+    environment({ 'PATH' => ruby_build_path })
 
     # TODO: remove this only_if, which is a temporary thing so that we can roll
     # out the identity-devops change ahead of the identity-idp change.
