@@ -53,6 +53,9 @@ Examples:
     # SSH to all dev ASG IDP servers, take two
     #{basename} -n 'asg-dev-idp' hostname -f
 
+    # SSH to all worker and IDP servers
+    #{basename} -n '*-worker' -n '*-idp' hostname -f
+
 Options:
     EOM
 
@@ -82,7 +85,8 @@ Options:
     end
 
     opts.on('-n', '--name GLOB', 'Find servers Name matching GLOB') do |val|
-      find_opts[:name_glob] = val
+      find_opts[:name_globs] ||= []
+      find_opts[:name_globs] << val
     end
 
     opts.on('-j', '--[no-]jumphost', 'Whether to use a jumphost') do |val|

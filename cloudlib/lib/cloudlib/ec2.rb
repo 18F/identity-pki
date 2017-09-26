@@ -123,13 +123,17 @@ module Cloudlib
       jumphosts.first
     end
 
-    # @param [String] name_tag A name tag pattern
+    # @param [String,Array<String>] name_tag A name tag pattern, or array of
+    #   patterns
     # @param [Boolean] in_vpc Whether to restrict search to within this VPC
     # @param [Array<string>] states A filter for the instance states
     # @return [Array<Aws::EC2::Instance>]
     def list_instances_by_name(name_tag, in_vpc: true, states: ['running'])
+      # handle single or Array name_tag
+      name_tags_arr = Array(name_tag)
+
       filters = [
-        {name: 'tag:Name', values: [name_tag]},
+        {name: 'tag:Name', values: name_tags_arr},
         {name: 'instance-state-name', values: states},
       ]
 
@@ -269,28 +273,28 @@ module Cloudlib
 
     # Filter servers by a CLI friendly set of filters
     # @param env [String] Filter servers by env, part of the VPC name
-    # @param name_glob [String] Filter servers by Name tag glob
+    # @param name_globs [Array<String>] Filter servers by >= 1 Name tag glob
     # @param states [Array<String>] Filter by an array of instance state names
     #
     # @return [Array<Aws::EC2::Instance>]
     #
-    def self.cli_find_servers(env: nil, name_glob: nil, states: nil)
+    def self.cli_find_servers(env: nil, name_globs: nil, states: nil)
       if env
         log.info("Listing servers in #{env.inspect} environment")
         cl = self.new(env: env)
-        if name_glob
-          log.info("Listing within env by name: #{name_glob.inspect}")
-          cl.list_instances_by_name(name_glob, in_vpc: true, states: states)
+        if name_globs
+          log.info("Listing within env by name: #{name_globs.inspect}")
+          cl.list_instances_by_name(name_globs, in_vpc: true, states: states)
         else
           cl.instances_in_vpc(states: states)
         end
       else
-        unless name_glob
-          raise ArgumentError.new("Must pass env or name_glob")
+        unless name_globs
+          raise ArgumentError.new("Must pass env or name_globs")
         end
-        log.info("Listing servers by name: #{name_glob.inspect}")
+        log.info("Listing servers by name: #{name_globs.inspect}")
         cl = self.new
-        cl.list_instances_by_name(name_glob, in_vpc: false, states: states)
+        cl.list_instances_by_name(name_globs, in_vpc: false, states: states)
       end
     end
   end

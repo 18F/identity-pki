@@ -98,7 +98,8 @@ Options:
     end
 
     opts.on('-n', '--name GLOB', 'Find servers Name matching GLOB') do |val|
-      find_opts[:name_glob] = val
+      find_opts[:name_globs] ||= []
+      find_opts[:name_globs] << val
     end
   end
 

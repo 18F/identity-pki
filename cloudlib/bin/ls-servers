@@ -109,6 +109,9 @@ For example:
   # list all es servers in dev
   #{basename} -n 'login-es*-dev'
 
+  # list all idp and worker servers in dev
+  #{basename} -e dev -n '*-idp' -n '*-worker'
+
 Options:
     EOM
 
@@ -131,7 +134,8 @@ Options:
     end
 
     opts.on('-n', '--name GLOB', 'Find servers Name matching GLOB') do |val|
-      find_opts[:name_glob] = val
+      find_opts[:name_globs] ||= []
+      find_opts[:name_globs] << val
     end
 
     opts.on('-s', '--states STATES', 'Comma/space sep. list of states') do |val|
