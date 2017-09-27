@@ -42,6 +42,10 @@ case "$TF_DIR" in
         ENVIRONMENT="account_global_$(run aws sts get-caller-identity --output text --query 'Account')"
         echo >&2 "Forcing environment name to be $ENVIRONMENT since $TF_DIR is account wide configuration"
         ;;
+    */?*)
+        echo_red >&2 "\$TF_DIR cannot contain slashes, must be at top level"
+        die "You provided '$TF_DIR'"
+        ;;
 esac
 
 # We need to be in the root of the repo for all this to work.
