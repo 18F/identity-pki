@@ -1,5 +1,3 @@
-# # encoding: utf-8
-
 # Inspec tests for idp node
 
 # The Inspec reference, with examples and extensive documentation, can be
@@ -37,4 +35,26 @@ end
 
 describe file('/var/log/nginx/access.log') do
   it { should exist }
+end
+
+describe file('/srv/idp/shared/config/application.yml') do
+  it { should_not exist }
+end
+describe file('/srv/idp/shared/config/database.yml') do
+  it { should_not exist }
+end
+
+describe file('/srv/idp/current/config/application.yml') do
+  it { should exist }
+  it { should be_file }
+  it { should_not be_symlink }
+  it { should_not be_readable.by('others') }
+  its('content') { should include('production:') }
+  its('content') { should include('database_host') }
+end
+
+describe file('/srv/idp/current/config/database.yml') do
+  it { should exist }
+  it { should be_file }
+  it { should_not be_symlink }
 end
