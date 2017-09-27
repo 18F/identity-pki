@@ -5,7 +5,6 @@ psql_config 'configure postgres CA bundle root cert'
 
 release_path    = '/srv/idp/releases/chef'
 shared_path     = '/srv/idp/shared'
-database_adapter = 'postgresql'
 
 package 'jq'
 
@@ -144,11 +143,7 @@ end
     command './deploy/activate'
     user node['login_dot_gov']['system_user']
 
-    environment({ 'PATH' => ruby_build_path })
-
-    # TODO: remove this only_if, which is a temporary thing so that we can roll
-    # out the identity-devops change ahead of the identity-idp change.
-    only_if { File.exist?('/srv/idp/releases/chef/deploy/activate') }
+    environment({ 'PATH' => ruby_build_path, 'RAILS_ENV' => 'production' })
   end
 
   rails do
