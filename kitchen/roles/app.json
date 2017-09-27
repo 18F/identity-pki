@@ -8,6 +8,7 @@
   },
   "chef_type": "role",
   "run_list": [
+    "role[base]",
     "recipe[passenger::daemon]",
     "recipe[identity-jenkins::deploy-key]",
     "recipe[login_dot_gov::dashboard]",

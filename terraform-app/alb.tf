@@ -47,10 +47,13 @@ resource "aws_alb_target_group" "idp" {
     matcher =  "301"
   }
 
+  # TODO: rename to "...-idp-http"
   name = "${var.env_name}-target-group"
   port = 80
   protocol = "HTTP"
   vpc_id = "${aws_vpc.default.id}"
+
+  deregistration_delay = 120
 }
 
 resource "aws_alb_target_group" "idp-ssl" {
@@ -68,6 +71,7 @@ resource "aws_alb_target_group" "idp-ssl" {
     unhealthy_threshold = 2 # down for 20 seconds
   }
 
+  # TODO: rename to "...-idp-ssl"
   name = "${var.env_name}-ssl-target-group"
   port     = 443
   protocol = "HTTPS"
@@ -79,6 +83,8 @@ resource "aws_alb_target_group" "idp-ssl" {
     enabled = "true"
     cookie_duration = 3600 # 1 hour
   }
+
+  deregistration_delay = 120
 }
 
 resource "aws_alb_target_group_attachment" "idp" {

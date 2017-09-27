@@ -6,6 +6,7 @@ output "alb_hostname" {
   value = "${aws_alb.idp.dns_name}"
 }
 
+# TODO: remove when non-ASG app is decommissioned
 output "app_eip" {
   value = "${aws_eip.app.public_ip}"
 }

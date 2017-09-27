@@ -39,22 +39,11 @@ sha_env = (node.chef_environment == 'dev' ? node['login_dot_gov']['branch_name']
 %w{cached-copy config log}.each do |dir|
   directory "#{base_dir}/shared/#{dir}" do
     group node['login_dot_gov']['system_user']
-    owner node['login_dot_gov']['system_user']
+    owner node.fetch(:passenger).fetch(:production).fetch(:user)
     recursive true
     subscribes :create, "deploy[/srv/dashboard]", :before
   end
 end
-
-execute "chown -R #{node['login_dot_gov']['system_user']} /home/#{node['login_dot_gov']['system_user']}/.bundle" do
-  only_if { ::Dir.exist?("/home/#{node['login_dot_gov']['system_user']}/.bundle") }
-  subscribes :run, "execute[/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle install --deployment --jobs 3 --path /srv/dashboard/shared/bundle --without deploy development test]", :immediately
-  subscribes :run, "execute[/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle install --deployment --jobs 3 --path /srv/sp-rails/shared/bundle --without deploy development test]", :immediately
-  subscribes :run, "execute[/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle install --deployment --jobs 3 --path /srv/sp-sinatra/shared/bundle --without deploy development test]", :immediately
-end
-# TODO: don't do these chowns
-execute "chown -R #{node['login_dot_gov']['system_user']} /usr/local/src"
-execute "chown -R #{node['login_dot_gov']['system_user']} /opt/ruby_build"
-execute "chown -R #{node['login_dot_gov']['system_user']} /var/chef/cache"
 
 template "#{base_dir}/shared/config/database.yml" do
   owner node['login_dot_gov']['system_user']
@@ -113,18 +102,20 @@ deploy "#{base_dir}" do
     unless File.exist?(app_config) && File.symlink?(app_config) || node['login_dot_gov']['setup_only']
       execute "cp #{release_path}/config/secrets.yml #{base_dir}/shared/config"
     end
-    
-    bundle = "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle install --deployment --jobs 3 --path #{base_dir}/shared/bundle --without deploy development test"
-    assets = "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle exec rake assets:precompile"
 
-    [bundle, assets].each do |cmd|
+    cmds = [
+      "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle config build.nokogiri --use-system-libraries",
+      "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle install --deployment --jobs 3 --path #{base_dir}/shared/bundle --without deploy development test",
+      "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle exec rake assets:precompile",
+    ]
+
+    cmds.each do |cmd|
       execute cmd do
         cwd release_path
         environment ({
           'RAILS_ENV' => 'production',
           'DASHBOARD_SECRET_KEY_BASE'=> ConfigLoader.load_config(node, "secret_key_base_dashboard"),
         })
-        user node['login_dot_gov']['system_user']
       end
     end
   end
@@ -145,7 +136,7 @@ deploy "#{base_dir}" do
     "tmp/pids" => "tmp/pids"
   })
 
-  user 'ubuntu'
+  #user 'ubuntu'
 end
 
 execute "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle exec rake db:create --trace" do
@@ -153,11 +144,26 @@ execute "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bun
   environment({
     'RAILS_ENV' => "production"
   })
+  user node['login_dot_gov']['system_user']
 end
 
 basic_auth_config 'generate basic auth config' do
   password  "#{basic_auth_password}"
   user_name "#{basic_auth_username}"
+end
+
+# Create a self-signed certificate for ALB to talk to. ALB does not verify
+# hostnames or care about certificate expiration.
+key_path = "/etc/ssl/private/#{app_name}-key.pem"
+cert_path = "/etc/ssl/certs/#{app_name}-cert.pem"
+
+# rely on instance_certificate cookbook being present to generate a self-signed
+# keypair
+link key_path do
+  to node.fetch('instance_certificate').fetch('key_path')
+end
+link cert_path do
+  to node.fetch('instance_certificate').fetch('cert_path')
 end
 
 # add nginx conf for app server
@@ -175,7 +181,6 @@ template "/opt/nginx/conf/sites.d/dashboard.login.gov.conf" do
     secret_key_base: ConfigLoader.load_config(node, "secret_key_base_dashboard"),
     security_group_exceptions: ConfigLoader.load_config(node, "security_group_exceptions"),
     server_name: "#{app_name}.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
-    
   })
 end
 
@@ -210,12 +215,25 @@ template "#{deploy_dir}/api/deploy.json" do
   source 'deploy.json.erb'
 end
 
-# TODO: don't do this chown
-# set ownership back to ubuntu:nogroup
-execute "chown -R #{node['login_dot_gov']['system_user']}:nogroup #{base_dir}"
-
 execute "mount -o remount,noexec,nosuid,nodev /tmp"
 
-# allow other execute permissions on all directories within the application folder
-# https://www.phusionpassenger.com/library/admin/nginx/troubleshooting/ruby/#upon-accessing-the-web-app-nginx-reports-a-permission-denied-error
-execute "chmod o+x -R /srv"
+# After doing the full deploy, we need to fully restart passenger in order for
+# it to actually be running. This seems like a bug in our chef config. The main
+# service[passenger] restart seems to attempt a graceful restart that doesn't
+# actually work.
+# TODO don't do this, figure out how to get passenger/nginx to be happy
+Chef.event_handler do
+  on :run_completed do
+    Chef::Log.info('Starting handler for passenger restart hack')
+    if system('pgrep -a "^Passenger"')
+      Chef::Log.info('Found running Passenger process')
+    else
+      Chef::Log.warn('Restarting passenger as hack to finish startup')
+      if system('service passenger restart')
+        Chef::Log.warn('OK, restarting passenger succeeded')
+      else
+        Chef::Log.warn('FAIL, restarting passenger failed')
+      end
+    end
+  end
+end

@@ -109,6 +109,7 @@ variable "asg_idp_desired" { default = 0 }
 variable "asg_worker_desired" { default = 0 }
 variable "asg_elasticsearch_desired" { default = 0 }
 variable "asg_elk_desired" { default = 0 }
+variable "asg_app_desired" { default = 0 }
 
 # Several variables used by the terraform-modules/bootstrap/ module for running
 # provision.sh to clone git repos and run chef.
@@ -174,6 +175,11 @@ variable "non_asg_es_enabled" {
 variable "non_asg_elk_enabled" {
     default = 1
     description = "Enable non autoscaled elk node"
+}
+
+variable "non_asg_app_enabled" {
+    default = 1
+    description = "Enable non autoscaled app node"
 }
 
 variable "chef_server_enabled" {

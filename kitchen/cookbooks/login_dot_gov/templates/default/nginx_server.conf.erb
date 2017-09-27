@@ -15,8 +15,12 @@ server {
     listen       443 ssl;
     server_name  <%= @server_name %> <%= @server_aliases -%>;
 
-    ssl_certificate /etc/ssl/certs/<%= @app %>-cert.pem;
-    ssl_certificate_key /etc/ssl/private/<%= @app %>-key.pem;
+    # Use the certificate and key placed by the instance_certificate cookbook
+    # TODO: pull this from a template variable via
+    # node.fetch('instance_certificate').fetch('key_path')
+    ssl_certificate /etc/ssl/certs/server.crt;
+    ssl_certificate_key /etc/ssl/private/server.key;
+
     ssl_ciphers 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH';
     ssl_dhparam /etc/ssl/certs/dhparam.pem;
     ssl_prefer_server_ciphers on;

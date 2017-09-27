@@ -35,16 +35,11 @@ sha_env = (node.chef_environment == 'dev' ? node['login_dot_gov']['branch_name']
 %w{cached-copy config log}.each do |dir|
   directory "#{base_dir}/shared/#{dir}" do
     group node['login_dot_gov']['system_user']
-    owner node['login_dot_gov']['system_user']
+    owner node.fetch(:passenger).fetch(:production).fetch(:user)
     recursive true
     subscribes :create, "deploy[/srv/#{app_name}]", :before
   end
 end
-
-# TODO: don't chown
-execute "chown -R #{node['login_dot_gov']['system_user']}:nogroup #{base_dir}"
-execute "chown -R #{node['login_dot_gov']['system_user']} /opt/ruby_build"
-execute "chown -R #{node['login_dot_gov']['system_user']} /usr/local/src"
 
 deploy "/srv/#{app_name}" do
   action :deploy
@@ -52,7 +47,7 @@ deploy "/srv/#{app_name}" do
     cmd = "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle install --deployment --jobs 3 --path /srv/#{app_name}/shared/bundle --without deploy development test"
     execute cmd do
       cwd release_path
-      user 'ubuntu'
+      #user 'ubuntu'
     end
   end
   
@@ -67,7 +62,7 @@ deploy "/srv/#{app_name}" do
     "log" => "log",
     'bundle' => '.bundle'
   })
-  user 'ubuntu'
+  #user 'ubuntu'
 end
 
 basic_auth_config 'generate basic auth config' do
@@ -127,7 +122,3 @@ template "#{deploy_dir}/api/deploy.json" do
 end
 
 execute "mount -o remount,noexec,nosuid,nodev /tmp"
-
-# allow other execute permissions on all directories within the application folder
-# https://www.phusionpassenger.com/library/admin/nginx/troubleshooting/ruby/#upon-accessing-the-web-app-nginx-reports-a-permission-denied-error
-execute "chmod o+x -R /srv"

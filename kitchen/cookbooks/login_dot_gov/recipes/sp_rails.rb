@@ -33,7 +33,7 @@ sha_env = (node.chef_environment == 'dev' ? node['login_dot_gov']['branch_name']
 %w{cached-copy config log}.each do |dir|
   directory "#{base_dir}/shared/#{dir}" do
     group node['login_dot_gov']['system_user']
-    owner node['login_dot_gov']['system_user']
+    owner node.fetch(:passenger).fetch(:production).fetch(:user)
     recursive true
     subscribes :create, "deploy[/srv/#{app_name}]", :before
   end
@@ -59,10 +59,6 @@ template "#{base_dir}/shared/config/secrets.yml" do
   })
 end
 
-# TODO: don't do this chown
-execute "chown -R #{node['login_dot_gov']['system_user']} /opt/ruby_build"
-execute "chown -R #{node['login_dot_gov']['system_user']} /usr/local/src"
-
 template "#{base_dir}/shared/config/database.yml" do
   owner node['login_dot_gov']['system_user']
   sensitive true
@@ -86,7 +82,7 @@ deploy "/srv/#{app_name}" do
     [bundle, assets].each do |cmd|
       execute cmd do
         cwd release_path
-        user 'ubuntu'
+        #user 'ubuntu'
       end
     end
   end
@@ -105,7 +101,7 @@ deploy "/srv/#{app_name}" do
     "tmp/pids" => "tmp/pids"
   })
 
-  user 'ubuntu'
+  #user 'ubuntu'
 end
 
 execute "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle exec rake db:create db:migrate db:seed --trace" do
@@ -172,12 +168,4 @@ template "#{deploy_dir}/api/deploy.json" do
   source 'deploy.json.erb'
 end
 
-# TODO: don't do this chown
-# set ownership back to ubuntu:nogroup
-execute "chown -R #{node['login_dot_gov']['system_user']}:nogroup #{base_dir}"
-
 execute "mount -o remount,noexec,nosuid,nodev /tmp"
-
-# allow other execute permissions on all directories within the application folder
-# https://www.phusionpassenger.com/library/admin/nginx/troubleshooting/ruby/#upon-accessing-the-web-app-nginx-reports-a-permission-denied-error
-execute "chmod o+x -R /srv"

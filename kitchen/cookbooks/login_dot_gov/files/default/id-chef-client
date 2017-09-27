@@ -20,6 +20,50 @@ Examples:
 EOM
 }
 
+run() {
+    echo >&2 "+ $*"
+    "$@"
+}
+
+# usage: berks_vendor_as_needed REPO_ROOT KITCHEN_SUBDIR
+berks_vendor_as_needed() {
+    local repo_root kitchen_subdir vendor_path
+    repo_root="$1"
+    kitchen_subdir="$2"
+
+    if [ -n "${SKIP_BERKS_VENDOR-}" ]; then
+        echo >&2 "SKIP_BERKS_VENDOR is set, skipping berks vendor check"
+        return
+    fi
+
+    echo >&2 "Checking whether vendored berks-cookbooks are up-to-date"
+    echo >&2 "Set SKIP_BERKS_VENDOR=1 to skip"
+
+    echo >&2 "+ cd '$repo_root'"
+    cd "$repo_root"
+
+    if [ -n "$(run find "./$kitchen_subdir/cookbooks" \
+                        -newer "$kitchen_subdir/berks-cookbooks" \
+                        -print -quit
+    )" ]; then
+        echo >&2 "Found new cookbooks, re-running berks vendor"
+    else
+        echo >&2 "berks-cookbooks appears up-to-date"
+        return
+    fi
+
+    if [ -e "$repo_root/Berksfile" ]; then
+        vendor_path="$kitchen_subdir/berks-cookbooks"
+    else
+        cd "$kitchen_subdir"
+        vendor_path="berks-cookbooks"
+    fi
+
+    run berks vendor "$vendor_path"
+
+    run touch "$vendor_path"
+}
+
 chef_run_client() {
     client_rb="$1"
     shift
@@ -39,11 +83,19 @@ chef_run_private() {
         return 1
     fi
 
+    (
+    berks_vendor_as_needed "$REPO_DIR/identity-devops-private" "chef"
+    )
+
     chef_run_client "$REPO_DIR/identity-devops-private/chef/chef-client.rb" "$@"
 }
 
 chef_run_main() {
     if [ -e "$ASG_SENTINEL" ]; then
+        (
+        berks_vendor_as_needed "$REPO_DIR/identity-devops" "kitchen"
+        )
+
         chef_run_client "$REPO_DIR/identity-devops/kitchen/chef-client.rb" "$@"
     else
         echo >&2 "Instance not auto scaled, running against chef server"
