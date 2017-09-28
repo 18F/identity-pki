@@ -84,6 +84,11 @@ resource "aws_route_table" "analytics_route_table" {
     gateway_id = "${aws_internet_gateway.analytics_vpc.id}"
   }
 
+  route {
+    cidr_block = "${lookup(var.jumphost_cidr_block, var.env_name)}"
+    gateway_id = "${aws_internet_gateway.analytics_vpc.id}"
+  }
+
   tags {
     Name = "analytics-${var.env_name}-route-table"
   }
@@ -161,6 +166,25 @@ resource "aws_security_group" "redshift_security_group" {
     cidr_blocks = [
       "52.23.63.224/27",
       "54.70.204.128/27"
+    ]
+  }
+
+  # allows jumphost to access redshift
+  ingress {
+    from_port   = 5439
+    to_port     = 5439
+    protocol    = "tcp"
+    cidr_blocks = [
+      "${lookup(var.jumphost_cidr_block, var.env_name)}"
+    ]
+  }
+
+  egress {
+    from_port   = 5439
+    to_port     = 5439
+    protocol    = "tcp"
+    cidr_blocks = [
+      "${lookup(var.jumphost_cidr_block, var.env_name)}"
     ]
   }
 
@@ -584,6 +608,24 @@ resource "aws_network_acl" "analytics_redshift" {
     rule_no = 1000
     action = "allow"
     cidr_block = "54.70.204.128/27"
+  }
+
+  ingress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    rule_no = 1100
+    action = "allow"
+    cidr_block = "${lookup(var.jumphost_cidr_block, var.env_name)}"
+  }
+
+  egress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    rule_no = 1200
+    action = "allow"
+    cidr_block = "${lookup(var.jumphost_cidr_block, var.env_name)}"
   }
 
   tags {

@@ -250,6 +250,18 @@ resource "aws_network_acl_rule" "jumphost-egress-dns" {
   rule_action = "allow"
 }
 
+resource "aws_network_acl_rule" "jumphost-egress-redshift" {
+  network_acl_id = "${aws_network_acl.jumphost.id}"
+
+  egress = true
+  from_port = 5439
+  to_port = 5439
+  protocol = "tcp"
+  cidr_block = "0.0.0.0/0"
+  rule_number = 7777
+  rule_action = "allow"
+}
+
 resource "aws_network_acl" "idp" {
 
   tags {
@@ -296,7 +308,7 @@ resource "aws_network_acl_rule" "idp-ingress-https" {
   cidr_block = "${var.vpc_cidr_block}"
 }
 
-# ------------- end idp rules -------------------- 
+# ------------- end idp rules --------------------
 
 resource "aws_network_acl" "alb" {
   vpc_id = "${aws_vpc.default.id}"

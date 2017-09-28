@@ -87,7 +87,7 @@ resource "aws_security_group" "app" {
     protocol = "tcp"
     security_groups = [ "${aws_security_group.jumphost.id}", "${aws_security_group.jenkins.id}" ]
   }
-  
+
   # allow CI VPC for integration tests
   ingress {
     from_port = 22
@@ -346,7 +346,7 @@ resource "aws_security_group" "elk" {
     to_port = 5044
     protocol = "tcp"
     self = true
-    cidr_blocks = [ 
+    cidr_blocks = [
       "${var.admin_subnet_cidr_block}",
       "${var.app1_subnet_cidr_block}",
       "${var.idp1_subnet_cidr_block}",
@@ -475,6 +475,14 @@ resource "aws_security_group" "jumphost" {
     to_port = 65535
     protocol = "tcp"
     cidr_blocks = ["${var.vpc_cidr_block}"]
+  }
+
+  # allow analytics redshift cluster to get into jumphost.
+  egress {
+    from_port = 5439
+    to_port = 5439
+    protocol = "tcp"
+    cidr_blocks = ["${lookup(var.redshift_cidr_block, var.env_name)}"]
   }
 
   # need 80/443 to get packages/gems/etc

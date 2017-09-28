@@ -1,4 +1,15 @@
 variable "env_name" {}
+variable "jumphost_cidr_block" {
+  type = "map"
+  default = {
+    dev = "52.33.21.52/32"
+    qa = "34.208.151.117/32"
+    int = "52.38.156.57/32"
+    dm = "52.37.18.62/32"
+    staging = "52.26.32.80/32"
+    prod = "34.208.176.143/32"
+  }
+}
 variable "redshift_master_password" {}
 variable "vpc_cidr_block" { default = "10.1.0.0/16" }
 variable "analytics_version" {}

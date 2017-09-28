@@ -24,6 +24,29 @@ variable "obproxy2_subnet_cidr_block" { default = "172.16.32.16/28"} # 172.16.32
 variable "vpc_cidr_block"         { default = "172.16.32.0/22" } # 172.16.32.0 - 172.16.35.255
 #variable "vpc_cidr_block"         { default = "172.16.33.0/24" } # 172.16.32.0 - 172.16.35.255
 
+variable "redshift_sg_id" {
+  type = "map"
+  default = {
+    dev = "sg-6a8d8710"
+    qa = "sg-0a584d70"
+    int = "sg-aef2a8d4"
+    dm = "sg-4c156f36"
+    staging = "sg-cf5416b5"
+    prod = "sg-12807b6f"
+  }
+}
+
+variable "redshift_cidr_block" {
+  type = "map"
+  default = {
+    dev = "34.214.42.173/32"
+    qa = "35.160.215.243/32"
+    int = "34.211.57.255/32"
+    dm = "54.148.147.138/32"
+    staging = "35.162.154.172/32"
+    prod = "34.214.226.68/32"
+  }
+}
 # CIDR block that is carved up for both the ASG elasticsearch instances and the
 # elasticsearch ELBs.
 # Range: 172.16.32.128 -> 172.16.32.191

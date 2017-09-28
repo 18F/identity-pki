@@ -1,6 +1,7 @@
 module "analytics" {
   source = "../terraform-modules/analytics/"
   env_name = "${var.env_name}"
+  jumphost_cidr_block = "${var.jumphost_cidr_block}"
   redshift_master_password = "${var.redshift_master_password}"
   vpc_cidr_block =  "${var.vpc_cidr_block}"
   analytics_version = "${var.analytics_version}"
