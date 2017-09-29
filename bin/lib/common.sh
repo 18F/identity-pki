@@ -216,8 +216,8 @@ check_terraform_version() {
     echo_red >&2 "Terraform version $current_tf_version is not supported"
     echo_red >&2 "Expected versions: $*"
 
-    echo >&2 "Tip: you can use \`brew switch terraform VERSION\` to switch to"
-    echo >&2 "a target installed version of terraform with homebrew."
+    echo >&2 "Try using \`bin/brew-switch-terraform.sh\` to install / switch"
+    echo >&2 "to a target installed version of terraform with homebrew."
 
     return 1
 }

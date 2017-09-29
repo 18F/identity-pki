@@ -100,3 +100,16 @@ resource "aws_autoscaling_group" "worker" {
         propagate_at_launch = true
     }
 }
+
+module "worker_recycle" {
+    source = "../terraform-modules/asg_recycle/"
+
+    enabled = "${var.asg_auto_6h_recycle}"
+
+    asg_name = "${aws_autoscaling_group.worker.name}"
+    normal_desired_capacity = "${aws_autoscaling_group.worker.desired_capacity}"
+
+    # TODO once we're on TF 0.10 remove these
+    min_size = "${aws_autoscaling_group.worker.min_size}"
+    max_size = "${aws_autoscaling_group.worker.max_size}"
+}

@@ -164,3 +164,8 @@ enforce_environment_compat_version || return 4 2>/dev/null || exit 4
 if [ -n "${ENV_DEBUG-}" ]; then
     env
 fi
+
+if env | grep ^TV_VAR_; then
+    echo_red "Found variables named TV_VAR_, but you probably meant TF_VAR_!"
+    echo_red "$(env | grep ^TV_VAR_)"
+fi

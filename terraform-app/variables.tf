@@ -126,6 +126,12 @@ variable "root_domain" {
     description = "DNS domain to use as the root domain, e.g. login.gov"
 }
 
+# Auto scaling flags
+variable "asg_auto_6h_recycle" {
+    default = 0
+    description = "Whether to automatically recycle IdP/worker/app servers every 6 hours"
+}
+
 # Auto scaling group desired counts
 variable "asg_jumphost_desired" { default = 0 }
 variable "asg_idp_desired" { default = 0 }
