@@ -14,3 +14,7 @@ There are two main parts to the `identity-devops` codebase.
 - Second, there is Chef configuration that defines how individual AWS Instances
   are configured.  To test changes to Chef configuration, see [Testing
   Chef](testing/chef.md).
+
+We also have some initial bootstrap scripts that do some initial configuration
+and run chef on an instance using cloud-init.  To test this see [Testing Cloud
+Init](../testing/cloud-init.md).
