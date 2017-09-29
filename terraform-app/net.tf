@@ -478,11 +478,13 @@ resource "aws_security_group" "jumphost" {
   }
 
   # allow analytics redshift cluster to get into jumphost.
+  # 127.0.0.1/32 is used as a meaningless default CIDR block in case
+  # var.env_name is not a valid key to the redshift_cidr_block map.
   egress {
     from_port = 5439
     to_port = 5439
     protocol = "tcp"
-    cidr_blocks = ["${lookup(var.redshift_cidr_block, var.env_name)}"]
+    cidr_blocks = ["${lookup(var.redshift_cidr_block, var.env_name, "127.0.0.1/32")}"]
   }
 
   # need 80/443 to get packages/gems/etc
