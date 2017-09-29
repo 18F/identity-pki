@@ -1,0 +1,76 @@
+#!/bin/bash
+
+set -eu
+
+run() {
+    echo >&2 "+ $*"
+    "$@"
+}
+
+# Use a tmpdir on / in order to avoid noexec "hardening" that results in /tmp/
+# not being executable. Sorry.
+TMPDIR='/usr/local/tmp'
+
+usage() {
+    cat >&2 <<EOM
+usage: $(basename "$0") SSH_KEY GIT_ARGS...
+
+Run git with GIT_ARGS, using SSH_KEY for ssh.
+
+SSH_KEY should be the path to an SSH private key.
+
+In git 2.3+, this will use GIT_SSH_COMMAND.
+In git 1.9.1, this will use GIT_SSH with a temporary wrapper script.
+EOM
+}
+
+git_with_wrapper() {
+    local ssh_key_path
+    ssh_key_path="$1"
+    shift
+
+    mkdir -vp "$TMPDIR"
+    git_ssh_wrapper="$(mktemp "$TMPDIR/git-with-key.XXXXXX")"
+
+    # shellcheck disable=SC2064
+    trap "rm -f '$git_ssh_wrapper'" EXIT
+
+    cat > "$git_ssh_wrapper" <<EOM
+#!/bin/sh
+set -eux
+exec ssh -i '$ssh_key_path' "\$@"
+EOM
+    chmod +x "$git_ssh_wrapper"
+
+    run env GIT_SSH="$git_ssh_wrapper" git "$@"
+}
+
+git_with_ssh_command() {
+    local ssh_key_path
+    ssh_key_path="$1"
+    shift
+
+    run env GIT_SSH_COMMAND="ssh -i '$ssh_key_path'" git "$@"
+}
+
+if [ $# -eq 0 ]; then
+    usage
+    exit 1
+fi
+
+case "$(git --version)" in
+    "git version 1."* \
+    | "git version 2.0."* \
+    | "git version 2.1."* \
+    | "git version 2.2."*)
+        git_with_wrapper "$@"
+        ;;
+    "git version 2."*)
+        git_with_ssh_command "$@"
+        ;;
+    *)
+        echo >&2 "Unexpected git version"
+        git --version >&2
+        exit 1
+        ;;
+esac
