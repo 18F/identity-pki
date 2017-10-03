@@ -490,14 +490,14 @@ vpc_config {
  }
 }
 
-resource "aws_cloudwatch_event_rule" "every_thirty_minutes" {
-    name = "${var.env_name}-every-thirty-minutes"
-    description = "Fires every thirty minutes"
-    schedule_expression = "rate(30 minutes)"
+resource "aws_cloudwatch_event_rule" "every_ten_minutes" {
+    name = "${var.env_name}-every-ten-minutes"
+    description = "Fires every ten minutes"
+    schedule_expression = "rate(10 minutes)"
 }
 
 resource "aws_cloudwatch_event_target" "cloudwatch_notification" {
-    rule = "${aws_cloudwatch_event_rule.every_thirty_minutes.name}"
+    rule = "${aws_cloudwatch_event_rule.every_ten_minutes.name}"
     target_id = "analytics_lambda"
     arn = "${aws_lambda_function.analytics_lambda.arn}"
 }
@@ -507,7 +507,7 @@ resource "aws_lambda_permission" "allow_execution_from_cloudwatch" {
     action = "lambda:InvokeFunction"
     function_name = "${aws_lambda_function.analytics_lambda.function_name}"
     principal = "events.amazonaws.com"
-    source_arn = "${aws_cloudwatch_event_rule.every_thirty_minutes.arn}"
+    source_arn = "${aws_cloudwatch_event_rule.every_ten_minutes.arn}"
 }
 
 # ---------------- NACLs ------------------
