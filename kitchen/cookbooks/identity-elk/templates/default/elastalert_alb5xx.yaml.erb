@@ -1,0 +1,31 @@
+name: Too many ALB 5xx errors
+type: frequency
+index: logstash-*
+alert_text: Got more than 150 5xx error codes in 5 minutes on the idp ALB in <%= @env %>.  There may be a problem here.
+owner: <%= @env %>
+num_events: 150
+timeframe:
+    minutes: 5
+filter:
+- query:
+    query_string:
+      query: 'elb_status_code:5* AND elb:"app/login-idp-alb*"'
+alert:
+<% if ! @emails.empty? %>
+- "email"
+<% end %>
+<% if ! @webhook.nil? %>
+- "slack"
+<% end %>
+<% if ! @emails.empty? %>
+email:
+<%   @emails.each do |e| %>
+- "<%= e %>"
+<%   end %>
+<% end %>
+<% if ! @webhook.nil? %>
+slack_webhook_url: <%= @webhook %>
+slack_username_override: <%= "#{@env} alerts" %>
+slack_channel_override: <%= @slackchannel %>
+<% end %>
+

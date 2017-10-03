@@ -517,7 +517,7 @@ template "#{elastalertdir}/config.yaml" do
   notifies :restart, 'runit_service[elastalert]'
 end
 
-%w{invaliduser.yaml newsudo.yaml nologs.yaml failedlogins.yaml unknownip.yaml}.each do |t|
+%w{alb5xx.yaml invaliduser.yaml newsudo.yaml nologs.yaml failedlogins.yaml unknownip.yaml}.each do |t|
   template "#{elastalertdir}/rules.d/#{t}" do
     source "elastalert_#{t}.erb"
     variables ({
