@@ -168,8 +168,8 @@ resource "aws_autoscaling_group" "idp" {
 
     launch_configuration = "${aws_launch_configuration.idp.name}"
 
-    min_size = 0
-    max_size = 8
+    min_size = "${var.asg_idp_min}"
+    max_size = "${var.asg_idp_max}"
     desired_capacity = "${var.asg_idp_desired}"
 
     # Don't create an IDP ASG if we don't have an ALB.

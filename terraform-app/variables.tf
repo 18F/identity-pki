@@ -134,8 +134,12 @@ variable "asg_auto_6h_recycle" {
 
 # Auto scaling group desired counts
 variable "asg_jumphost_desired" { default = 0 }
+variable "asg_idp_min" { default = 0 }
 variable "asg_idp_desired" { default = 0 }
+variable "asg_idp_max" { default = 8 }
+variable "asg_worker_min" { default = 0 }
 variable "asg_worker_desired" { default = 0 }
+variable "asg_worker_max" { default = 8 }
 variable "asg_elasticsearch_desired" { default = 0 }
 variable "asg_elk_desired" { default = 0 }
 variable "asg_app_desired" { default = 0 }
