@@ -142,7 +142,9 @@ variable "asg_worker_desired" { default = 0 }
 variable "asg_worker_max" { default = 8 }
 variable "asg_elasticsearch_desired" { default = 0 }
 variable "asg_elk_desired" { default = 0 }
+variable "asg_app_min" { default = 0 }
 variable "asg_app_desired" { default = 0 }
+variable "asg_app_max" { default = 8 }
 
 # Several variables used by the terraform-modules/bootstrap/ module for running
 # provision.sh to clone git repos and run chef.
