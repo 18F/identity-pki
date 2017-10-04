@@ -97,4 +97,18 @@ resource "aws_route53_record" "txt" {
     zone_id = "${aws_route53_zone.primary.zone_id}"
 }
 
+resource "aws_route53_record" "mail_in_txt" {
+    name = "mail.${var.domain}"
+    zone_id = "${aws_route53_zone.primary.zone_id}"
+    ttl = "900"
+    type = "TXT"
+    records = ["v=spf1 include:amazonses.com -all"]
+}
 
+resource "aws_route53_record" "mail_in_mx" {
+    name = "mail.${var.domain}"
+    zone_id = "${aws_route53_zone.primary.zone_id}"
+    ttl = "900"
+    type = "MX"
+    records = ["10 feedback-smtp.us-west-2.amazonses.com"] # NB us-west-2 only
+}
