@@ -187,7 +187,10 @@ resource "aws_autoscaling_group" "idp" {
     ]
 
     # possible choices: EC2, ELB
-    health_check_type = "ELB"
+    #health_check_type = "ELB"
+    # For now, use an EC2 health check since bootstrapping takes so long and we
+    # don't really want the ASG to terminate instances at all. (TODO)
+    health_check_type = "EC2"
 
     # Currently bootstrapping seems to take 21-35 minutes, so we set the grace
     # period to 30 minutes. Ideally this would be *much* shorter.
