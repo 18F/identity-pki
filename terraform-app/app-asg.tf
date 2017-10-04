@@ -49,13 +49,13 @@ resource "aws_autoscaling_group" "app" {
 
     launch_configuration = "${aws_launch_configuration.app.name}"
 
-    min_size = 0
-    max_size = 8
+    min_size = "${var.asg_app_min}"
+    max_size = "${var.asg_app_max}"
     desired_capacity = "${var.asg_app_desired}"
 
     # Don't create an IDP ASG if we don't have an ALB.
     # We can't refer to aws_alb_target_group.idp unless it exists.
-    count = "${var.alb_enabled}"
+    count = "${var.alb_enabled * var.apps_enabled}"
 
     target_group_arns = [
       "${aws_alb_target_group.app.arn}",
@@ -99,15 +99,20 @@ resource "aws_autoscaling_group" "app" {
     }
 }
 
-module "app_recycle" {
-    source = "../terraform-modules/asg_recycle/"
-
-    enabled = "${var.asg_auto_6h_recycle}"
-
-    asg_name = "${aws_autoscaling_group.app.name}"
-    normal_desired_capacity = "${aws_autoscaling_group.app.desired_capacity}"
-
-    # TODO once we're on TF 0.10 remove these
-    min_size = "${aws_autoscaling_group.app.min_size}"
-    max_size = "${aws_autoscaling_group.app.max_size}"
-}
+# TODO uncomment this when the app ASG always exists
+# We can't refer to variables like aws_autoscaling_group.app.name unless the
+# resource exists, and we can't use count on modules because terraform doesn't
+# support it.
+#
+#module "app_recycle" {
+#    source = "../terraform-modules/asg_recycle/"
+#
+#    enabled = "${var.asg_auto_6h_recycle * var.alb_enabled * var.apps_enabled}"
+#
+#    asg_name = "${aws_autoscaling_group.app.name}"
+#    normal_desired_capacity = "${aws_autoscaling_group.app.desired_capacity}"
+#
+#    # TODO once we're on TF 0.10 remove these
+#    min_size = "${aws_autoscaling_group.app.min_size}"
+#    max_size = "${aws_autoscaling_group.app.max_size}"
+#}

@@ -168,8 +168,8 @@ resource "aws_autoscaling_group" "idp" {
 
     launch_configuration = "${aws_launch_configuration.idp.name}"
 
-    min_size = 0
-    max_size = 8
+    min_size = "${var.asg_idp_min}"
+    max_size = "${var.asg_idp_max}"
     desired_capacity = "${var.asg_idp_desired}"
 
     # Don't create an IDP ASG if we don't have an ALB.
@@ -187,7 +187,10 @@ resource "aws_autoscaling_group" "idp" {
     ]
 
     # possible choices: EC2, ELB
-    health_check_type = "ELB"
+    #health_check_type = "ELB"
+    # For now, use an EC2 health check since bootstrapping takes so long and we
+    # don't really want the ASG to terminate instances at all. (TODO)
+    health_check_type = "EC2"
 
     # Currently bootstrapping seems to take 21-35 minutes, so we set the grace
     # period to 30 minutes. Ideally this would be *much* shorter.
