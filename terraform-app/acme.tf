@@ -12,57 +12,6 @@ resource "acme_registration" "registration" {
   server_url      = "https://acme-v01.api.letsencrypt.org/directory"
 }
 
-resource "acme_certificate" "apps-combined" {
-  account_key_pem           = "${tls_private_key.acme_registration_private_key.private_key_pem}"
-  common_name               = "apps.${var.env_name}.${var.root_domain}"
-  count                     = "${var.apps_enabled ? 1 : 0}"
-  registration_url          = "${acme_registration.registration.id}"
-  server_url                = "https://acme-v01.api.letsencrypt.org/directory"
-  subject_alternative_names = [
-    "app.${var.env_name}.${var.root_domain}",
-    "dashboard.${var.env_name}.${var.root_domain}",
-    "sp-oidc-sinatra.${var.env_name}.${var.root_domain}",
-    "sp-rails.${var.env_name}.${var.root_domain}",
-    "sp-sinatra.${var.env_name}.${var.root_domain}",
-    "sp.${var.env_name}.${var.root_domain}",
-  ]
-
-  # Modifying this at all forces a renewal due to
-  # https://github.com/paybyphone/terraform-provider-acme/issues/13
-  min_days_remaining        = 14
-
-  dns_challenge {
-    provider = "route53"
-  }
-
-  # We need a new certificate before trying to delete the old one
-  lifecycle {
-      create_before_destroy = true
-  }
-}
-
-#TODO: remove when finished moving to app ALB
-resource "acme_certificate" "dashboard" {
-  account_key_pem           = "${tls_private_key.acme_registration_private_key.private_key_pem}"
-  common_name               = "dashboard.${var.env_name}.${var.root_domain}"
-  count                     = "${var.apps_enabled * var.non_asg_app_enabled}"
-  registration_url          = "${acme_registration.registration.id}"
-  server_url                = "https://acme-v01.api.letsencrypt.org/directory"
-
-  # Modifying this at all forces a renewal due to
-  # https://github.com/paybyphone/terraform-provider-acme/issues/13
-  min_days_remaining        = 14
-
-  dns_challenge {
-    provider = "route53"
-  }
-
-  # We need a new certificate before trying to delete the old one
-  lifecycle {
-      create_before_destroy = true
-  }
-}
-
 resource "acme_certificate" "idp" {
   count = "${var.alb_enabled}"
   account_key_pem           = "${tls_private_key.acme_registration_private_key.private_key_pem}"
@@ -74,73 +23,6 @@ resource "acme_certificate" "idp" {
 
   registration_url          = "${acme_registration.registration.id}"
   subject_alternative_names = ["idp.${var.env_name}.${var.root_domain}"]
-  server_url                = "https://acme-v01.api.letsencrypt.org/directory"
-
-  # Modifying this at all forces a renewal due to
-  # https://github.com/paybyphone/terraform-provider-acme/issues/13
-  min_days_remaining        = 14
-
-  dns_challenge {
-    provider = "route53"
-  }
-
-  # We need a new certificate before trying to delete the old one
-  lifecycle {
-      create_before_destroy = true
-  }
-}
-
-#TODO: remove when finished moving to app ALB
-resource "acme_certificate" "sp-oidc-sinatra" {
-  account_key_pem           = "${tls_private_key.acme_registration_private_key.private_key_pem}"
-  common_name               = "sp-oidc-sinatra.${var.env_name}.${var.root_domain}"
-  count                     = "${var.apps_enabled * var.non_asg_app_enabled}"
-  registration_url          = "${acme_registration.registration.id}"
-  server_url                = "https://acme-v01.api.letsencrypt.org/directory"
-
-  # Modifying this at all forces a renewal due to
-  # https://github.com/paybyphone/terraform-provider-acme/issues/13
-  min_days_remaining        = 14
-
-  dns_challenge {
-    provider = "route53"
-  }
-
-  # We need a new certificate before trying to delete the old one
-  lifecycle {
-      create_before_destroy = true
-  }
-}
-
-#TODO: remove when finished moving to app ALB
-resource "acme_certificate" "sp-rails" {
-  account_key_pem           = "${tls_private_key.acme_registration_private_key.private_key_pem}"
-  common_name               = "sp.${var.env_name}.${var.root_domain}"
-  count                     = "${var.apps_enabled * var.non_asg_app_enabled}"
-  registration_url          = "${acme_registration.registration.id}"
-  server_url                = "https://acme-v01.api.letsencrypt.org/directory"
-  subject_alternative_names = ["sp-rails.${var.env_name}.${var.root_domain}"]
-
-  # Modifying this at all forces a renewal due to
-  # https://github.com/paybyphone/terraform-provider-acme/issues/13
-  min_days_remaining        = 14
-
-  dns_challenge {
-    provider = "route53"
-  }
-
-  # We need a new certificate before trying to delete the old one
-  lifecycle {
-      create_before_destroy = true
-  }
-}
-
-#TODO: remove when finished moving to app ALB
-resource "acme_certificate" "sp-sinatra" {
-  account_key_pem           = "${tls_private_key.acme_registration_private_key.private_key_pem}"
-  common_name               = "sp-sinatra.${var.env_name}.${var.root_domain}"
-  count                     = "${var.apps_enabled * var.non_asg_app_enabled}"
-  registration_url          = "${acme_registration.registration.id}"
   server_url                = "https://acme-v01.api.letsencrypt.org/directory"
 
   # Modifying this at all forces a renewal due to

@@ -24,9 +24,14 @@ resource "aws_alb_listener" "app" {
   }
 }
 
+data "aws_acm_certificate" "apps-combined" {
+    domain = "sp.${var.env_name}.login.gov"
+    statuses = ["ISSUED"]
+}
+
 resource "aws_alb_listener" "app-ssl" {
   count = "${var.alb_enabled * var.apps_enabled}"
-  certificate_arn = "${aws_iam_server_certificate.apps-combined.arn}"
+  certificate_arn = "${data.aws_acm_certificate.apps-combined.arn}"
   load_balancer_arn = "${aws_alb.app.id}"
   port = "443"
   protocol = "HTTPS"
@@ -76,17 +81,4 @@ resource "aws_alb_target_group" "app-ssl" {
   vpc_id   = "${aws_vpc.default.id}"
 
   deregistration_delay = 120
-}
-
-# dashboard and example SPs are combined into one certificate
-resource "aws_iam_server_certificate" "apps-combined" {
-  count = "${var.alb_enabled * var.apps_enabled}"
-  certificate_body = "${acme_certificate.apps-combined.certificate_pem}"
-  certificate_chain = "${file("${path.cwd}/../certs/lets-encrypt-x3-cross-signed.pem")}"
-  name_prefix = "${var.name}-app-cert-${var.env_name}."
-  private_key = "${acme_certificate.apps-combined.private_key_pem}"
-
-  lifecycle {
-      create_before_destroy = true
-  }
 }
