@@ -25,7 +25,7 @@ resource "aws_alb_listener" "app" {
 }
 
 data "aws_acm_certificate" "apps-combined" {
-    domain = "sp.${var.env_name}.login.gov"
+    domain = "sp.${var.env_name}.${var.root_domain}"
     statuses = ["ISSUED"]
 }
 
