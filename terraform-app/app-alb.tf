@@ -24,6 +24,17 @@ resource "aws_alb_listener" "app" {
   }
 }
 
+# This cert should be created by hand with these names:
+# sp.env.login.gov
+# dashboard.env.login.gov
+# sp-oidc-sinatra.env.login.gov
+# sp-rails.env.login.gov
+# sp-sinatra.env.login.gov
+# app.env.login.gov
+# apps.env.login.gov
+#
+# https://us-west-2.console.aws.amazon.com/acm/home?region=us-west-2#/
+#
 data "aws_acm_certificate" "apps-combined" {
     domain = "sp.${var.env_name}.${var.root_domain}"
     statuses = ["ISSUED"]
