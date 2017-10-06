@@ -77,13 +77,6 @@ resource "aws_alb_target_group" "idp-ssl" {
   protocol = "HTTPS"
   vpc_id   = "${aws_vpc.default.id}"
 
-  # TODO: Do we really want sticky sessions? Not recommended.
-  stickiness = {
-    type = "lb_cookie"
-    enabled = "true"
-    cookie_duration = 3600 # 1 hour
-  }
-
   deregistration_delay = 120
 }
 
