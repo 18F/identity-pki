@@ -35,7 +35,11 @@ resource "aws_alb_listener" "app" {
 #
 # https://us-west-2.console.aws.amazon.com/acm/home?region=us-west-2#/
 #
+# Once the cert has been created by hand, this terraform data resource will
+# discover it so that we can associate the cert with the ALB.
+#
 data "aws_acm_certificate" "apps-combined" {
+    count = "${var.apps_enabled}"
     domain = "sp.${var.env_name}.${var.root_domain}"
     statuses = ["ISSUED"]
 }
