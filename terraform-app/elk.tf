@@ -132,7 +132,7 @@ resource "aws_s3_bucket" "logbucket" {
 resource "aws_instance" "elk" {
   count = "${var.non_asg_elk_enabled}"
   ami = "${var.default_ami_id}"
-  depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.es","aws_route53_record.obproxy"]
+  depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.es","aws_route53_record.obproxy","aws_security_group.amazon_netblocks_ssl", "aws_security_group.amazon_netblocks_http"]
   instance_type = "${var.instance_type_elk}"
   key_name = "${var.key_name}"
   subnet_id = "${aws_subnet.admin.id}"
@@ -156,7 +156,7 @@ resource "aws_instance" "elk" {
     bastion_host = "${aws_eip.jumphost.public_ip}"
   }
 
-  vpc_security_group_ids = [ "${aws_security_group.elk.id}" ]
+  vpc_security_group_ids = [ "${aws_security_group.elk.id}", "${aws_security_group.amazon_netblocks_ssl.id}", "${aws_security_group.amazon_netblocks_http.id}" ]
 
   provisioner "chef"  {
     attributes_json = <<-EOF
@@ -199,7 +199,7 @@ resource "aws_route53_record" "elk" {
 resource "aws_instance" "es" {
   count = "${var.non_asg_es_enabled * var.esnodes}"
   ami = "${var.default_ami_id}"
-  depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.obproxy"]
+  depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.obproxy", "aws_security_group.amazon_netblocks_ssl", "aws_security_group.amazon_netblocks_http"]
   instance_type = "${var.instance_type_es}"
   key_name = "${var.key_name}"
   subnet_id = "${aws_subnet.admin.id}"
@@ -232,7 +232,7 @@ resource "aws_instance" "es" {
   #  delete_on_termination = true
   #}
 
-  vpc_security_group_ids = [ "${aws_security_group.elk.id}" ]
+  vpc_security_group_ids = [ "${aws_security_group.elk.id}", "${aws_security_group.amazon_netblocks_ssl.id}", "${aws_security_group.amazon_netblocks_http.id}" ]
 
   provisioner "chef"  {
     attributes_json = <<-EOF

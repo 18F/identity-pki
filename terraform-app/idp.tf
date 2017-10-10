@@ -143,6 +143,7 @@ module "idp_launch_config" {
 # due to https://github.com/terraform-providers/terraform-provider-aws/issues/681
 # See discussion in ../terraform-modules/bootstrap/vestigial.tf.txt
 resource "aws_launch_configuration" "idp" {
+  depends_on = ["aws_security_group.amazon_netblocks_ssl"]
   name_prefix = "${var.env_name}.idp.${var.bootstrap_main_git_ref}."
 
   lifecycle {
@@ -151,7 +152,7 @@ resource "aws_launch_configuration" "idp" {
 
   image_id = "${var.idp1_ami_id}" # TODO switch to idp_ami_id
   instance_type = "${var.instance_type_idp}"
-  security_groups = ["${aws_security_group.idp.id}"]
+  security_groups = ["${aws_security_group.idp.id}","${aws_security_group.amazon_netblocks_ssl.id}"]
 
   user_data = "${module.idp_launch_config.rendered_cloudinit_config}"
 
@@ -244,7 +245,7 @@ module "idp_recycle" {
 resource "aws_instance" "idp1" {
   count = "${var.non_asg_idp_enabled * var.idp_node_count}"
   ami = "${var.idp1_ami_id}"
-  depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk", "aws_elasticache_cluster.idp", "aws_db_instance.idp", "aws_route53_record.obproxy"]
+  depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk", "aws_elasticache_cluster.idp", "aws_db_instance.idp", "aws_route53_record.obproxy","aws_security_group.amazon_netblocks_ssl"]
   instance_type = "${var.instance_type_idp}"
   key_name = "${var.key_name}"
   subnet_id = "${aws_subnet.idp1.id}"
@@ -268,7 +269,7 @@ resource "aws_instance" "idp1" {
     user = "ubuntu"
   }
 
-  vpc_security_group_ids = [ "${aws_security_group.idp.id}" ]
+  vpc_security_group_ids = [ "${aws_security_group.idp.id}","${aws_security_group.amazon_netblocks_ssl.id}" ]
 
   provisioner "chef"  {
     attributes_json = <<-EOF
@@ -300,7 +301,7 @@ resource "aws_instance" "idp1" {
 resource "aws_instance" "idp2" {
   count = "${var.non_asg_idp_enabled * var.idp_node_count}"
   ami = "${var.idp2_ami_id}"
-  depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk", "aws_elasticache_cluster.idp", "aws_db_instance.idp", "aws_route53_record.obproxy"]
+  depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk", "aws_elasticache_cluster.idp", "aws_db_instance.idp", "aws_route53_record.obproxy", "aws_security_group.amazon_netblocks_ssl"]
   instance_type = "${var.instance_type_idp}"
   key_name = "${var.key_name}"
   subnet_id = "${aws_subnet.idp2.id}"
@@ -324,7 +325,7 @@ resource "aws_instance" "idp2" {
     user = "ubuntu"
   }
 
-  vpc_security_group_ids = [ "${aws_security_group.idp.id}" ]
+  vpc_security_group_ids = [ "${aws_security_group.idp.id}","${aws_security_group.amazon_netblocks_ssl.id}" ]
 
   provisioner "chef"  {
     attributes_json = <<-EOF
@@ -356,7 +357,7 @@ resource "aws_instance" "idp2" {
 resource "aws_instance" "idp_worker" {
   count = "${var.non_asg_idp_worker_enabled * var.idp_worker_count}"
   ami = "${element(var.worker_ami_list, count.index % length(var.worker_ami_list))}"
-  depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk", "aws_elasticache_cluster.idp", "aws_db_instance.idp", "aws_route53_record.obproxy"]
+  depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk", "aws_elasticache_cluster.idp", "aws_db_instance.idp", "aws_route53_record.obproxy", "aws_security_group.amazon_netblocks_ssl"]
   instance_type = "${var.instance_type_worker}"
   key_name = "${var.key_name}"
   subnet_id = "${aws_subnet.idp1.id}"
@@ -380,7 +381,7 @@ resource "aws_instance" "idp_worker" {
     bastion_host = "${aws_eip.jumphost.public_ip}"
   }
 
-  vpc_security_group_ids = [ "${aws_security_group.idp.id}" ]
+  vpc_security_group_ids = [ "${aws_security_group.idp.id}","${aws_security_group.amazon_netblocks_ssl.id}" ]
 
   provisioner "chef"  {
     attributes_json = <<-EOF
