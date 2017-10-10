@@ -1,0 +1,40 @@
+{
+  "name": "crissupb",
+  "description": "",
+  "cookbook_versions": {
+  },
+  "json_class": "Chef::Environment",
+  "chef_type": "environment",
+  "default_attributes": {
+    "citadel": {
+      "bucket": "login-gov.secrets.894947205914-us-west-2",
+      "region": "us-west-2"
+    },
+    "identity-devops": {
+      "branch_name": "stages/crissupb"
+    },
+    "login_dot_gov": {
+      "available_locales": "en es fr",
+      "domain_name": "identitysandbox.gov",
+      "enable_identity_verification": "true",
+      "enable_usps_verification": "true",
+      "branch_name": "master",
+      "use_dashboard_service_providers": "true"
+    },
+    "elk": {
+      "users": [
+        "astone",
+        "brody",
+        "jgrevich",
+        "zmargolis",
+        "jpmugizi",
+        "monfresh",
+        "tspencer",
+        "crissupb"
+      ]
+    }
+  },
+  "override_attributes": {
+
+  }
+}
