@@ -144,6 +144,22 @@ module Cloudlib
       list_things(:instances, filters)
     end
 
+    # @param [Array<String>] ids A list of instance IDs
+    # @param [Boolean] in_vpc Whether to restrict search to within this VPC
+    # @return [Array<Aws::EC2::Instance>]
+    def list_instances_by_ids(ids, in_vpc: true, states: ['running'])
+      filters = [
+        {name: 'instance-id', values: ids},
+        {name: 'instance-state-name', values: states},
+      ]
+
+      if in_vpc
+        filters << {name: 'vpc-id', values: [vpc.vpc_id]}
+      end
+
+      list_things(:instances, filters)
+    end
+
     # Look up a unique object in EC2. Raise ManyFound if multiple objects match
     # the filters.
     #
@@ -275,26 +291,40 @@ module Cloudlib
     # @param env [String] Filter servers by env, part of the VPC name
     # @param name_globs [Array<String>] Filter servers by >= 1 Name tag glob
     # @param states [Array<String>] Filter by an array of instance state names
+    # @param instance_ids [Array<String>] Include an explicit list of instance
+    #   IDs
     #
     # @return [Array<Aws::EC2::Instance>]
     #
-    def self.cli_find_servers(env: nil, name_globs: nil, states: nil)
+    def self.cli_find_servers(env: nil, name_globs: nil, states: nil, instance_ids: nil)
+      if name_globs && instance_ids
+        raise ArgumentError.new("Cannot pass name_globs and instance_ids")
+      end
+
       if env
         log.info("Listing servers in #{env.inspect} environment")
         cl = self.new(env: env)
         if name_globs
           log.info("Listing within env by name: #{name_globs.inspect}")
           cl.list_instances_by_name(name_globs, in_vpc: true, states: states)
+        elsif instance_ids
+          log.info("Listing within env by instance id: #{instance_ids.inspect}")
+          cl.list_instances_by_ids(instance_ids, in_vpc: true, states: states)
         else
           cl.instances_in_vpc(states: states)
         end
       else
-        unless name_globs
-          raise ArgumentError.new("Must pass env or name_globs")
-        end
-        log.info("Listing servers by name: #{name_globs.inspect}")
+        # listing outside of an env
         cl = self.new
-        cl.list_instances_by_name(name_globs, in_vpc: false, states: states)
+        if name_globs
+          log.info("Listing servers by name: #{name_globs.inspect}")
+          cl.list_instances_by_name(name_globs, in_vpc: false, states: states)
+        elsif instance_ids
+          log.info("Listing servers by instance id: #{instance_ids.inspect}")
+          cl.list_instances_by_ids(instance_ids, in_vpc: false, states: states)
+        else
+          raise ArgumentError.new("Must pass env or name_globs or instance_ids")
+        end
       end
     end
   end
