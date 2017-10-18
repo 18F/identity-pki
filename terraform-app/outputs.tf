@@ -6,11 +6,6 @@ output "alb_hostname" {
   value = "${aws_alb.idp.dns_name}"
 }
 
-# TODO: remove when non-ASG app is decommissioned
-output "app_eip" {
-  value = "${aws_eip.app.public_ip}"
-}
-
 output "aws_app_subnet_id" {
   value = "SUBNET_ID=${aws_subnet.app.id}"
 }
@@ -39,24 +34,12 @@ output "elk_ip" {
   value = "${var.non_asg_elk_enabled == 1 ? aws_instance.elk.public_ip : 0}"
 }
 
-output "idp1_eips" {
-  value = ["${var.non_asg_idp_enabled == 1 ? aws_instance.idp1.*.public_ip : 0}"]
-}
-
-output "idp2_eips" {
-  value = ["${var.non_asg_idp_enabled == 1 ? aws_instance.idp2.*.public_ip : 0}"]
-}
-
 output "idp_db_address" {
   value = "idp-postgres.login.gov.internal"
 }
 
 output "idp_tls_common_name" {
   value = "${acme_certificate.idp.certificate_domain}"
-}
-
-output "idp_worker_ips" {
-  value = ["${var.non_asg_idp_worker_enabled == 1 ? aws_instance.idp_worker.*.public_ip : 0}"]
 }
 
 output "jumphost-eip" {

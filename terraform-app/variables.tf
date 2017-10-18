@@ -204,16 +204,6 @@ variable "non_asg_jenkins_enabled" {
     description = "Enable non autoscaled jenkins node"
 }
 
-variable "non_asg_idp_enabled" {
-    default = 1
-    description = "Enable non autoscaled idp node"
-}
-
-variable "non_asg_idp_worker_enabled" {
-    default = 1
-    description = "Enable non autoscaled idp worker node"
-}
-
 variable "non_asg_es_enabled" {
     default = 1
     description = "Enable non autoscaled elasticsearch nodes"
@@ -222,11 +212,6 @@ variable "non_asg_es_enabled" {
 variable "non_asg_elk_enabled" {
     default = 1
     description = "Enable non autoscaled elk node"
-}
-
-variable "non_asg_app_enabled" {
-    default = 1
-    description = "Enable non autoscaled app node"
 }
 
 variable "chef_server_enabled" {
