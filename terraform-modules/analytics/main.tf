@@ -490,25 +490,24 @@ vpc_config {
  }
 }
 
-resource "aws_cloudwatch_event_rule" "every_ten_minutes" {
-    name = "${var.env_name}-every-ten-minutes"
-    description = "Fires every ten minutes"
-    schedule_expression = "rate(10 minutes)"
+resource "aws_lambda_permission" "allow_bucket" {
+  statement_id  = "AllowExecutionFromS3Bucket"
+  action        = "lambda:InvokeFunction"
+  function_name = "${aws_lambda_function.analytics_lambda.arn}"
+  principal     = "s3.amazonaws.com"
+  source_arn    = "arn:aws:s3:::login-gov-${var.env_name}-logs"
 }
 
-resource "aws_cloudwatch_event_target" "cloudwatch_notification" {
-    rule = "${aws_cloudwatch_event_rule.every_ten_minutes.name}"
-    target_id = "analytics_lambda"
-    arn = "${aws_lambda_function.analytics_lambda.arn}"
+resource "aws_s3_bucket_notification" "bucket_notification" {
+  bucket = "login-gov-${var.env_name}-logs"
+
+  lambda_function {
+    lambda_function_arn = "${aws_lambda_function.analytics_lambda.arn}"
+    events              = ["s3:ObjectCreated:*"]
+    filter_suffix       = ".txt"
+  }
 }
 
-resource "aws_lambda_permission" "allow_execution_from_cloudwatch" {
-    statement_id = "AllowExecutionFromCloudWatch"
-    action = "lambda:InvokeFunction"
-    function_name = "${aws_lambda_function.analytics_lambda.function_name}"
-    principal = "events.amazonaws.com"
-    source_arn = "${aws_cloudwatch_event_rule.every_ten_minutes.arn}"
-}
 
 # ---------------- NACLs ------------------
 resource "aws_network_acl" "analytics_redshift" {
