@@ -30,7 +30,7 @@ basic_auth_password = ConfigLoader.load_config(node, "basic_auth_password")
 
 idp_url = "https://idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
 idp_sp_url = "https://#{basic_auth_username}:#{basic_auth_password}@idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}/api/service_provider"
-dashboard_url = "https://dashboard.#{node.chef_environment}.login.gov"
+dashboard_url = "https://dashboard.#{node.chef_environment}.#{node.fetch('login_dot_gov').fetch('domain_name')}"
 
 # branch is 'master'(default) when env is dev, otherwise use stages/env 
 branch_name = (node.chef_environment == 'dev' ? node['login_dot_gov']['branch_name'] : "stages/#{node.chef_environment}")
