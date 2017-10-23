@@ -41,7 +41,7 @@ action :create do
       domain_name: domain_name,
       enable_test_routes: node['login_dot_gov']['enable_test_routes'],
       email_encryption_key: (ConfigLoader.load_config_or_nil(node, "email_encryption_key") || node['login_dot_gov']['email_encryption_key']),
-      email_from: node['login_dot_gov']['email_from'],
+      email_from: node.fetch('login_dot_gov').fetch('email_from_prefix') + node.fetch('login_dot_gov').fetch('domain_name'),
       enable_i18n_mode: node['login_dot_gov']['enable_i18n_mode'],
       enable_identity_verification: node['login_dot_gov']['enable_identity_verification'],
       enable_load_testing_mode: node['login_dot_gov']['enable_load_testing_mode'],
