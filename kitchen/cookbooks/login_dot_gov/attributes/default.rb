@@ -62,6 +62,7 @@ default['login_dot_gov']['equifax_sftp_host']                         = 'securet
 default['login_dot_gov']['equifax_sftp_username']                     = 'gsa-st'
 default['login_dot_gov']['equifax_ssh_passphrase']                    = ''
 default['login_dot_gov']['equifax_wsdl']                              = ''
+default['login_dot_gov']['exception_recipients']                      = ''
 default['login_dot_gov']['google_analytics_key']                      = 'UA-XXXXXX'
 default['login_dot_gov']['hmac_fingerprinter_key']                    = 'change-this-immediately-with-rake-secret'
 default['login_dot_gov']['hmac_fingerprinter_key_queue']              = '["old-key-one", "old-key-two"]'
