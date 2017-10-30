@@ -69,6 +69,7 @@ default['login_dot_gov']['hmac_fingerprinter_key_queue']              = '["old-k
 default['login_dot_gov']['idp_sso_target_url']                        = ''
 default['login_dot_gov']['idv_attempt_window_in_hours']               = '24'
 default['login_dot_gov']['idv_max_attempts']                          = '3'
+default['login_dot_gov']['issuers_with_email_nameid_format']          = ''
 default['login_dot_gov']['lockout_period_in_minutes']                 = '10'
 default['login_dot_gov']['logins_per_ip_limit']                       = '20'
 default['login_dot_gov']['logins_per_ip_period']                      = '8'

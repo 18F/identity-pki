@@ -64,6 +64,7 @@ action :create do
       idp_sso_target_url: node['login_dot_gov']['idp_sso_target_url'],
       idv_attempt_window_in_hours: node['login_dot_gov']['idv_attempt_window_in_hours'],
       idv_max_attempts: node['login_dot_gov']['idv_max_attempts'],
+      issuers_with_email_nameid_format: node['login_dot_gov']['issuers_with_email_nameid_format'],
       lockout_period_in_minutes: node['login_dot_gov']['lockout_period_in_minutes'],
       logins_per_ip_limit: node['login_dot_gov']['logins_per_ip_limit'],
       logins_per_ip_period: node['login_dot_gov']['logins_per_ip_period'],
