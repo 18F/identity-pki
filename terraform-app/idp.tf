@@ -1,5 +1,5 @@
 resource "aws_db_instance" "idp" {
-  allocated_storage = "${var.rds_storage}"
+  allocated_storage = "${var.rds_storage_idp}"
   apply_immediately = true
   backup_retention_period = "${var.rds_backup_retention_period}"
   backup_window = "${var.rds_backup_window}"
