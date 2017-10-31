@@ -22,7 +22,7 @@ resource "aws_redshift_parameter_group" "redshift_configuration" {
 
   parameter {
     name  = "require_ssl"
-    value = "true"
+    value = "false"
   }
 
   parameter {
