@@ -297,7 +297,7 @@ if [ "$(git --version)" = "git version 1.9.1" ]; then
     cat > "$git_ssh_wrapper" <<'EOM'
 #!/bin/sh
 set -eux
-exec ssh -i '$SSH_KEY_PATH' "$@"
+exec ssh -i "$SSH_KEY_PATH" "$@"
 EOM
     chmod -c +x "$git_ssh_wrapper"
     run env GIT_SSH="$git_ssh_wrapper" SSH_KEY_PATH="$ssh_key_path" \
