@@ -205,6 +205,8 @@ resource "aws_autoscaling_group" "idp" {
     # https://github.com/18F/identity-devops-private/issues/337
     protect_from_scale_in = "${var.asg_prevent_auto_terminate}"
 
+    enabled_metrics = "${var.asg_enabled_metrics}"
+
     tag {
         key = "Name"
         value = "asg-${var.env_name}-idp"
