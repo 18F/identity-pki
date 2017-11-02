@@ -60,14 +60,6 @@ if [ "${TF_VAR_chef_server_enabled-}" != "0" ]; then
         echo "    You can create one with:  bin/make-user-databag.sh \$USERNAME"
         exit 1
     fi
-    CONFIG_DATABAG="kitchen/data_bags/config/${1}.json"
-    if [ ! -e "$CONFIG_DATABAG" ]; then
-        echo "ERROR: No env config databag at: $CONFIG_DATABAG"
-        echo "    You need to have a config databag for chef."
-        echo "    See https://github.com/18F/identity-devops/wiki/Chef-Databags"
-        echo "    You can create one with:  bin/make-config-databag.sh \$ENVIRONMENT"
-        exit 1
-    fi
 
     echo "CHECK: Required environment config..."
     CHEF_ENVIRONMENT_CONFIG="kitchen/environments/${1}.json"
