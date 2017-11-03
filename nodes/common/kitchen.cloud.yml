@@ -128,20 +128,30 @@ cloud_init_info = [
 
 user_data = build_cloud_init(cloud_init_info)
 
-# Set SSH key from environment or use default
-ssh_key_file = ENV.fetch('KITCHEN_EC2_SSH_KEY', '~/.ssh/login-dev-us-west-2.pem')
+unless ENV['KITCHEN_EC2_SSH_KEY'] && ENV['KITCHEN_EC2_SSH_KEYPAIR_ID']
+  puts "ERROR: Environment variable KITCHEN_EC2_SSH_KEY not set"
+  puts "You should upload an SSH public key to AWS, then set these env vars:"
+  puts "KITCHEN_EC2_SSH_KEY: path to the local private key"
+  puts "KITCHEN_EC2_SSH_KEYPAIR_ID: label/name of the key in AWS"
+  puts "The bin/import-ssh-key script can help do this."
+  raise "KITCHEN_EC2_SSH_KEY/KITCHEN_EC2_SSH_KEYPAIR_ID not set, run bin/import-ssh-key to import a key to AWS, then set env variables in your ~/.bashrc or similar"
+end
+
+ssh_key_file = ENV.fetch('KITCHEN_EC2_SSH_KEY')
 ssh_key_file = File.expand_path(ssh_key_file)
 # ensure file exists because kitchen won't error when it doesn't
 if !File.exist?(ssh_key_file)
   raise "SSH key file not found: #{ssh_key_file.inspect}. Override with $KITCHEN_EC2_SSH_KEY"
 end
+
+ssh_key_pair_name = ENV.fetch('KITCHEN_EC2_SSH_KEYPAIR_ID')
 %>
 
 <%=
 {
     "driver" => {
         "name" => "ec2",
-        "aws_ssh_key_id" => ENV['KITCHEN_EC2_SSH_KEYPAIR_ID'] || 'login-dev-us-west-2',
+        "aws_ssh_key_id" => ssh_key_pair_name,
         "region" => "us-west-2",
         "subnet_filter" => {
             "tag" => "Name",
