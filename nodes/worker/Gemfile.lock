@@ -152,9 +152,8 @@ GEM
       hashie (~> 3.4)
       inspec (>= 0.34.0, < 2.0.0)
       test-kitchen (~> 1.6)
-    kitchen-sync (2.2.0)
-      net-sftp
-      test-kitchen (>= 1.0.0)
+    kitchen-transport-sshtar (0.1.2)
+      test-kitchen (~> 1.4)
     kitchen-vagrant (1.1.1)
       test-kitchen (~> 1.4)
     libyajl2 (1.2.0)
@@ -163,6 +162,7 @@ GEM
       little-plugger (~> 1.1)
       multi_json (~> 1.10)
     method_source (0.8.2)
+    mime (0.4.4)
     minitar (0.6.1)
     mixlib-archive (0.4.1)
       mixlib-log
@@ -335,9 +335,10 @@ DEPENDENCIES
   chefspec
   kitchen-ec2
   kitchen-inspec
-  kitchen-sync (~> 2.2)
+  kitchen-transport-sshtar
   kitchen-vagrant
+  mime
   test-kitchen
 
 BUNDLED WITH
-   1.14.6
+   1.15.4
