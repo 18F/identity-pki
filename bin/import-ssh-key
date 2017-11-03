@@ -1,0 +1,60 @@
+#!/bin/bash
+set -euo pipefail
+
+# shellcheck disable=SC1090
+. "$(dirname "$0")/lib/common.sh"
+
+usage() {
+    cat >&2 <<EOM
+usage: $(basename "$0") [RSA_PUBKEY_PATH]
+
+Upload a public SSH key to AWS. Only RSA keys are supported.
+
+It will be uploaded with the name "\$AWS_USER:\$KEY_BASENAME"
+
+Once this is done, it will return the environment variables to use to tell test
+kitchen what your SSH key is:
+
+    export KITCHEN_EC2_SSH_KEYPAIR_ID='<key-pair-name>'
+    export KITCHEN_EC2_SSH_KEY='<~/path-to-private-key>'
+
+For example:
+    $(basename "$0") ~/.ssh/id_rsa.pub
+
+EOM
+}
+
+main() {
+    local ssh_pubkey_path
+    ssh_pubkey_path="$1"
+
+    # ensure pubkey exists
+    cat "$ssh_pubkey_path" >/dev/null || {
+        usage
+        return 1
+    }
+
+    aws_username="$(run aws iam get-user --output text --query User.UserName)"
+
+    ssh_key_basename="$(basename "$ssh_pubkey_path" .pub)"
+    ssh_private_key_path="$(dirname "$ssh_pubkey_path")/$ssh_key_basename"
+
+    key_pair_name="$aws_username:$ssh_key_basename"
+
+    echo_blue "Will import SSH key from $ssh_pubkey_path as $key_pair_name"
+
+    run aws ec2 import-key-pair --key-name "$key_pair_name" \
+        --public-key-material "file://$ssh_pubkey_path"
+
+    echo_blue "Success!"
+    echo_blue "Environment variables for test kitchen:"
+    echo_blue "export KITCHEN_EC2_SSH_KEYPAIR_ID='$key_pair_name'"
+    echo_blue "export KITCHEN_EC2_SSH_KEY='$ssh_private_key_path'"
+}
+
+if [ $# -lt 1 ]; then
+    usage
+    exit 1
+fi
+
+main "$1"
