@@ -27,7 +27,8 @@ iam_profiles = {
     "idp" => "#{environment}_idp_instance_profile",
     "worker" => "#{environment}_idp_instance_profile",
     "elasticsearch" => "#{environment}-base-permissions",
-    "elk" => "#{environment}_elk_instance_profile"
+    "elk" => "#{environment}_elk_instance_profile",
+    "app" => "#{environment}-base-permissions",
 }
 if !iam_profiles.key?(role)
   raise "IAM profile for role: #{role} not found in test kitchen boilerplate.  Please add it in #{__FILE__}."
@@ -39,7 +40,8 @@ subnets = {
     "idp" => "login-idp1_subnet-#{environment}",
     "worker" => "login-idp1_subnet-#{environment}",
     "elasticsearch" => "login-admin_subnet-#{environment}",
-    "elk" => "login-admin_subnet-#{environment}"
+    "elk" => "login-admin_subnet-#{environment}",
+    "app" => "login-app_subnet-#{environment}",
 }
 if !subnets.key?(role)
   raise "Subnet for role: #{role} not found in test kitchen boilerplate.  Please add it in #{__FILE__}."
@@ -51,7 +53,8 @@ security_groups = {
     "idp" => "login-idp_security_group-#{environment}",
     "worker" => "login-idp_security_group-#{environment}",
     "elasticsearch" => "login-elk_security_group-#{environment}",
-    "elk" => "login-elk_security_group-#{environment}"
+    "elk" => "login-elk_security_group-#{environment}",
+    "app" => "login-app_security_group-#{environment}",
 }
 if !security_groups.key?(role)
   raise "Security group for role: #{role} not found in test kitchen boilerplate.  Please add it in #{__FILE__}."
