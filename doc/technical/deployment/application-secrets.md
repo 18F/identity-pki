@@ -16,13 +16,18 @@ The name of this bucket is `login-gov.app-secrets.#{account_id}-#{region}`.
 
 You can use the AWS CLI to work with this bucket, but you may need to pass
 `--sse aws:kms` since we do server side encryption.  Here are some examples,
-assuming the secrets are stored at `secrets.yml`.
+using the `application.yml` and that identity-idp expects to see.
 
 ```
-# view the secrets in S3
-aws s3 cp --sse aws:kms s3://login-gov.app-secrets.555555555555-us-west-2/qa/secrets.yml - ; echo
-# copy the secrets from qa to dev
-aws s3 cp --sse aws:kms s3://login-gov.app-secrets.555555555555-us-west-2/{qa,dev}/secrets.yml
+# list secrets
+aws s3 ls s3://login-gov.app-secrets.555555555555-us-west-2/qa/idp/v1/
+2017-09-22 17:25:36       4851 application.yml
+
+# download an individual secret file
+aws s3 cp s3://login-gov.app-secrets.555555555555-us-west-2/qa/idp/v1/application.yml -
+
+# upload a secrets file
+aws s3 cp --sse aws:kms ./application.yml s3://login-gov.app-secrets.555555555555-us-west-2/qa/idp/v1/
 ```
 
 ## Deploying Secrets Changes

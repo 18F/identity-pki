@@ -75,10 +75,7 @@
   "chef_type": "environment",
   "default_attributes": {
     "login_dot_gov": {
-      "aws_kms_key_id": "alias/newbootstrappr-login-dot-gov-keymaker",
-      "branch_name": "stages/rc-2017-03-29",
-      "enable_identity_verification": "true",
-      "use_kms": "true"
+      "branch_name": "stages/rc-2017-03-29"
     },
     "ssh_keys": {
       "ubuntu": [

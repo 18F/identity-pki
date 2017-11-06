@@ -13,7 +13,6 @@
     },
     "login_dot_gov": {
       "domain_name": "identitysandbox.gov",
-      "enable_identity_verification": "true",
       "branch_name": "stages/brody"
     },
     "elk": {
