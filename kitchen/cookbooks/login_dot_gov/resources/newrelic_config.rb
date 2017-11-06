@@ -11,6 +11,7 @@ action :create do
     recursive true
   end
 
+  # TODO: don't generate YAML with erb, that's an antipattern
   template "#{name}/config/newrelic.yml" do
     action :create
     manage_symlink_source true

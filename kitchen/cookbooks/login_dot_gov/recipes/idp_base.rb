@@ -170,7 +170,6 @@ end
 
 # cp generated configs from chef to the shared dir
 app_config = {
-  '/srv/idp/releases/chef/config/application.yml' => '/srv/idp/shared/config/',
   '/srv/idp/releases/chef/config/experiments.yml' => '/srv/idp/shared/config/',
   '/srv/idp/releases/chef/config/newrelic.yml' => '/srv/idp/shared/config/',
   '/srv/idp/releases/chef/certs/saml.crt' => '/srv/idp/shared/certs/',
@@ -205,7 +204,6 @@ end
 # symlink shared files to current dir
 shared_files = [
   'certs/saml.crt',
-  'config/application.yml',
   'config/experiments.yml',
   'config/newrelic.yml',
   'keys/equifax_rsa',

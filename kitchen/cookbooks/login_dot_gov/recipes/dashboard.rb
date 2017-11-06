@@ -45,6 +45,7 @@ sha_env = (node.chef_environment == 'dev' ? node['login_dot_gov']['branch_name']
   end
 end
 
+# TODO: don't generate YAML with erb, that's an antipattern
 template "#{base_dir}/shared/config/database.yml" do
   owner node['login_dot_gov']['system_user']
   sensitive true
@@ -65,6 +66,7 @@ login_dot_gov_newrelic_config "#{base_dir}/shared" do
 end
 
 # Application configuration (application.yml)
+# TODO: don't generate YAML with erb, that's an antipattern
 template "#{base_dir}/shared/config/application.yml" do
   source "dashboard_application.yml.erb"
   owner node['login_dot_gov']['system_user']
@@ -210,6 +212,7 @@ directory "#{deploy_dir}/api" do
   action :create
 end
 
+# TODO: don't generate JSON with erb, that's an antipattern
 template "#{deploy_dir}/api/deploy.json" do
   owner node['login_dot_gov']['user']
   source 'deploy.json.erb'

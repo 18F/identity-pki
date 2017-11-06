@@ -39,6 +39,7 @@ sha_env = (node.chef_environment == 'dev' ? node['login_dot_gov']['branch_name']
   end
 end
 
+# TODO: don't generate YAML with erb, that's an antipattern
 template "#{base_dir}/shared/config/secrets.yml" do
   action :create
   source 'secrets.yml.erb'
@@ -59,6 +60,7 @@ template "#{base_dir}/shared/config/secrets.yml" do
   })
 end
 
+# TODO: don't generate YAML with erb, that's an antipattern
 template "#{base_dir}/shared/config/database.yml" do
   owner node['login_dot_gov']['system_user']
   sensitive true
