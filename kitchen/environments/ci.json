@@ -6,10 +6,7 @@
   "chef_type": "environment",
   "default_attributes": {
     "login_dot_gov": {
-      "aws_kms_key_id": "alias/ci-login-dot-gov-keymaker",
-      "branch_name": "master",
-      "enable_identity_verification": "true",
-      "use_kms": "true"
+      "branch_name": "master"
     },
     "elk": {
       "users": [

@@ -10,14 +10,7 @@
       "branch_name": "stages/qa"
     },
     "login_dot_gov": {
-      "available_locales": "en es fr",
-      "aws_kms_key_id": "alias/qa-login-dot-gov-keymaker",
-      "branch_name": "stages/qa",
-      "enable_identity_verification": "true",
-      "enable_usps_verification": "true",
-      "proofing_vendors": "equifax",
-      "use_dashboard_service_providers": "true",
-      "use_kms": "true"
+      "branch_name": "stages/qa"
     },
     "ssh_keys": {
     },

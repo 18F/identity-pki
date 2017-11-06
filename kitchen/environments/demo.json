@@ -75,7 +75,6 @@
   "chef_type": "environment",
   "default_attributes": {
     "login_dot_gov": {
-      "enable_identity_verification": "true"
     },
     "ssh_keys": {
       "ubuntu": [

@@ -14,13 +14,7 @@
       "branch_name": "stages/staging"
     },
     "login_dot_gov": {
-      "available_locales": "en es fr",
-      "aws_kms_key_id": "alias/staging-login-dot-gov-keymaker",
-      "branch_name": "stages/staging",
-      "enable_identity_verification": "true",
-      "enable_usps_verification": "false",
-      "proofing_vendors": "equifax",
-      "use_kms": "true"
+      "branch_name": "stages/staging"
     },
     "ssh_keys": {
     },

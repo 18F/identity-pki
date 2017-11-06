@@ -80,7 +80,6 @@
       "branch_name": "master"
     },
     "login_dot_gov": {
-      "enable_identity_verification": "true",
       "branch_name": "master"
     },
     "elk": {
