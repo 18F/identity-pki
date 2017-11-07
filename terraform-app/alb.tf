@@ -12,6 +12,24 @@ resource "aws_alb" "idp" {
   enable_deletion_protection = "${var.enable_deletion_protection}"
 }
 
+# This cert should be created by hand with these names:
+# idp.env.login.gov
+# env.login.gov
+#
+# (Or in prod, that's secure.login.gov and idp.env.login.gov)
+#
+# https://us-west-2.console.aws.amazon.com/acm/home?region=us-west-2#/
+#
+# Once the cert has been created by hand, this terraform data resource will
+# discover it so that we can associate the cert with the ALB.
+#
+data "aws_acm_certificate" "idp" {
+    count = "${var.alb_enabled}"
+    # secure.login.gov in prod, idp.$env.login.gov in other environments
+    domain = "${var.env_name == "prod" ? "secure.${var.root_domain}" : "idp.${var.env_name}.${var.root_domain}"}"
+    statuses = ["ISSUED"]
+}
+
 resource "aws_alb_listener" "idp" {
   count = "${var.alb_enabled}"
   depends_on = ["aws_alb.idp"]
@@ -27,7 +45,7 @@ resource "aws_alb_listener" "idp" {
 
 resource "aws_alb_listener" "idp-ssl" {
   count = "${var.alb_enabled}"
-  certificate_arn = "${aws_iam_server_certificate.idp.arn}"
+  certificate_arn = "${data.aws_acm_certificate.idp.arn}"
   load_balancer_arn = "${aws_alb.idp.id}"
   port = "443"
   protocol = "HTTPS"
