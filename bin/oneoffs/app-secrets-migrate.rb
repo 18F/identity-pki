@@ -69,12 +69,7 @@ def upload_app_secrets(content, s3_url)
   end
 end
 
-def main(env)
-  puts "Starting up, env #{env.inspect}"
-  application_data, database_data = get_existing_secret_files(env)
-
-  puts 'Downloaded application.yml and database.yml'
-
+def convert_and_upload_yaml_files(env:, application_data:, database_data:)
   puts "Found #{application_data.fetch('production').keys.length} production keys"
 
   DatabaseAttrs.each do |db_key, app_key|
@@ -99,6 +94,19 @@ def main(env)
   puts 'Run these commands to inspect your handiwork:'
   puts "aws s3 ls #{s3_url}"
   puts "aws s3 cp #{s3_url} -"
+
+  s3_url
+end
+
+def main(env)
+  puts "Starting up, env #{env.inspect}"
+  application_data, database_data = get_existing_secret_files(env)
+
+  puts 'Downloaded application.yml and database.yml'
+
+  convert_and_upload_yaml_files(env: env,
+                                application_data: application_data,
+                                database_data: database_data)
 end
 
 if $0 == __FILE__

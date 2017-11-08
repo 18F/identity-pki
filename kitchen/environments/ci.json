@@ -1,39 +1,32 @@
 {
   "name": "ci",
   "description": "",
-  "cookbook_versions": {},
   "json_class": "Chef::Environment",
   "chef_type": "environment",
   "default_attributes": {
+    "citadel": {
+      "bucket": "login-gov.secrets.894947205914-us-west-2",
+      "region": "us-west-2"
+    },
     "login_dot_gov": {
+      "domain_name": "identitysandbox.gov",
       "branch_name": "master"
     },
     "elk": {
       "users": [
-        "astone",
         "brody",
         "jgrevich",
         "jpmugizi",
         "monfresh",
-        "sverch",
-        "dnesting",
         "tblack",
-        "tspencer",
-        "zmargolis"
+        "tspencer"
       ]
-    },
-    "filebeat": {
-      "version": "5.2.0"
     },
     "identity-jenkins": {
       "users": [ ],
       "admins": [
         "test"
       ]
-    },
-    "terraform": {
-      "version": "0.8.8",
-      "zipfile": "terraform_0.8.8_linux_amd64.zip"
     }
   },
   "override_attributes": {
