@@ -132,9 +132,9 @@ unless ENV['KITCHEN_EC2_SSH_KEY'] && ENV['KITCHEN_EC2_SSH_KEYPAIR_ID']
   puts "ERROR: Environment variable KITCHEN_EC2_SSH_KEY not set"
   puts "You should upload an SSH public key to AWS, then set these env vars:"
   puts "KITCHEN_EC2_SSH_KEY: path to the local private key"
-  puts "KITCHEN_EC2_SSH_KEYPAIR_ID: label/name of the key in AWS"
+  puts "KITCHEN_EC2_SSH_KEYPAIR_ID: label/name of the key in AWS console"
   puts "The bin/import-ssh-key script can help do this."
-  raise "KITCHEN_EC2_SSH_KEY/KITCHEN_EC2_SSH_KEYPAIR_ID not set, run bin/import-ssh-key to import a key to AWS, then set env variables in your ~/.bashrc or similar"
+  raise "KITCHEN_EC2_SSH_KEY (path to key) and KITCHEN_EC2_SSH_KEYPAIR_ID (name in AWS) not set, run bin/import-ssh-key to import a key to AWS, then set env variables in your ~/.bashrc or similar"
 end
 
 ssh_key_file = ENV.fetch('KITCHEN_EC2_SSH_KEY')
