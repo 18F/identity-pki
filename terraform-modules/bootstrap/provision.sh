@@ -278,8 +278,8 @@ fi
 run mkdir -vp "$secrets_dir"
 run chmod -c 700 "$secrets_dir"
 
-run aws s3 cp "$s3_ssh_key_url" "$secrets_dir/"
-run aws s3 cp "$s3_ssh_key_url.pub" "$secrets_dir/"
+run aws s3 cp --sse aws:kms "$s3_ssh_key_url" "$secrets_dir/"
+run aws s3 cp --sse aws:kms "$s3_ssh_key_url.pub" "$secrets_dir/"
 
 ssh_key_path="$secrets_dir/$(basename "$s3_ssh_key_url")"
 run chmod -c 600 "$ssh_key_path"
