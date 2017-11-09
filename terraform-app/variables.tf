@@ -82,6 +82,12 @@ variable "enable_deletion_protection" {
     description = "Whether to protect against API deletion of certain resources"
 }
 
+variable "asg_enabled_metrics" {
+    type = "list"
+    description = "A list of cloudwatch metrics to collect on ASGs https://www.terraform.io/docs/providers/aws/r/autoscaling_group.html#enabled_metrics"
+    default = []
+}
+
 # https://downloads.chef.io/chef/stable/12.15.19#ubuntu
 variable "chef_version" { default = "12.15.19" }
 variable "chef_download_url" {
