@@ -20,6 +20,13 @@ package [
 
 # common scripts and aliases
 
+cookbook_file '/usr/local/bin/id-apt-upgrade' do
+  source 'id-apt-upgrade'
+  owner 'root'
+  group 'root'
+  mode '0755'
+end
+
 cookbook_file '/usr/local/bin/id-chef-client' do
   source 'id-chef-client'
   owner 'root'
@@ -27,8 +34,15 @@ cookbook_file '/usr/local/bin/id-chef-client' do
   mode '0755'
 end
 
-cookbook_file '/usr/local/bin/id-apt-upgrade' do
-  source 'id-apt-upgrade'
+cookbook_file '/usr/local/bin/id-git' do
+  source 'id-git'
+  owner 'root'
+  group 'root'
+  mode '0755'
+end
+
+cookbook_file '/usr/local/bin/git-with-key' do
+  source 'git-with-key'
   owner 'root'
   group 'root'
   mode '0755'

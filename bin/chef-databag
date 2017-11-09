@@ -100,7 +100,8 @@ cmd_download() {
             ;;
         all)
             cmd_download_users
-            cmd_download_config
+            echo_blue "Skipping config databag download (migrated to Citadel)"
+            #cmd_download_config
             cmd_download_keys
             ;;
         *)

@@ -5,7 +5,6 @@ psql_config 'configure postgres CA bundle root cert'
 
 release_path    = '/srv/idp/releases/chef'
 shared_path     = '/srv/idp/shared'
-database_adapter = 'postgresql'
 
 package 'jq'
 
@@ -85,6 +84,11 @@ shared_dirs.each do |dir|
   end
 end
 
+ruby_build_path = [
+  "/opt/ruby_build/builds/#{node.fetch('login_dot_gov').fetch('ruby_version')}/bin",
+  ENV.fetch('PATH'),
+].join(':')
+
 # TODO: JJG consider migrating to chef deploy resource to stay in line with capistrano style:
 # https://docs.chef.io/resource_deploy.html
 application release_path do
@@ -120,6 +124,10 @@ application release_path do
     app_name "#{node.chef_environment}.#{node['login_dot_gov']['app_name']}"
   end
 
+  # TODO: add a deploy/build script and pull in the bundle install, npm build,
+  # etc. so that the identity-devops repo doesn't need to be aware of the steps
+  # involved to build any repo.
+
 # install and build node dependencies
  ['npm install', 'npm run build'].each do |cmd|
     execute "#{cmd}" do
@@ -128,32 +136,18 @@ application release_path do
     end
 end
 
-  rails do
-    # for some reason you can't set the database name when using ruby block format. Perhaps it has
-    # something to do with having the same name as the resource to which the block belongs.
-    # TODO: use our own database template since this exposes the password in
-    # logs
-    database({
-      adapter: 'postgresql',
-      database: ConfigLoader.load_config(node, "db_database_idp"),
-      username: ConfigLoader.load_config(node, "db_username_idp"),
-      host: ConfigLoader.load_config(node, "db_host_idp"),
-      password: ConfigLoader.load_config(node, "db_password_idp"),
-      sslmode: 'verify-full',
-      sslrootcert: '/usr/local/share/aws/rds-combined-ca-bundle.pem',
+  # Run the activate script from the repo, which is used to download app
+  # configs and set things up for the app to run.
+  execute 'deploy activate step' do
+    cwd '/srv/idp/releases/chef'
+    command './deploy/activate'
+    user node['login_dot_gov']['system_user']
 
-      # timeout settings
-      timeout: 5000,
-      reconnect: true,
-      connect_timeout: 2,
-      keepalives_idle: 30,
-      keepalives_interval: 10,
-      keepalives_count: 2,
-      checkout_timeout: 5,
-      reaping_frequency: 10,
-    })
+    environment({ 'PATH' => ruby_build_path, 'RAILS_ENV' => 'production' })
+  end
+
+  rails do
     rails_env node['login_dot_gov']['rails_env']
-    secret_token node['login_dot_gov']['secret_key_base_idp']
     not_if { node['login_dot_gov']['setup_only'] }
   end
 
@@ -176,8 +170,6 @@ end
 
 # cp generated configs from chef to the shared dir
 app_config = {
-  '/srv/idp/releases/chef/config/application.yml' => '/srv/idp/shared/config/',
-  '/srv/idp/releases/chef/config/database.yml' => '/srv/idp/shared/config/',
   '/srv/idp/releases/chef/config/experiments.yml' => '/srv/idp/shared/config/',
   '/srv/idp/releases/chef/config/newrelic.yml' => '/srv/idp/shared/config/',
   '/srv/idp/releases/chef/certs/saml.crt' => '/srv/idp/shared/certs/',
@@ -212,8 +204,6 @@ end
 # symlink shared files to current dir
 shared_files = [
   'certs/saml.crt',
-  'config/application.yml',
-  'config/database.yml',
   'config/experiments.yml',
   'config/newrelic.yml',
   'keys/equifax_rsa',

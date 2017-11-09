@@ -1,0 +1,71 @@
+#!/bin/bash
+set -eu
+
+REPO_DIR=/etc/login.gov/repos
+KEY_DIR=/etc/login.gov/keys
+
+usage() {
+    cat >&2 <<EOM
+usage: $(basename "$0") MODE GIT_OPTS...
+
+Helper script to run git for identity-devops(-private) repos in the appropriate
+directory with the right SSH keys to be able to connect to github.
+
+MODE can be one of:
+
+    private / identity-devops-private   Run private chef cookbooks (ASG only)
+    main / identity-devops              Run main chef cookbooks
+
+Examples:
+
+    $(basename "$0") private fetch
+
+    $(basename "$0") main pull --ff-only
+
+EOM
+}
+
+run() {
+    echo >&2 "+ $*"
+    "$@"
+}
+
+
+# usage: main REPO_NAME SSH_KEY_BASENAME
+main() {
+    repo_name="$1"
+    ssh_key_name="$2"
+    shift 2
+
+    echo "+ cd '$REPO_DIR/$repo_name'"
+    cd "$REPO_DIR/$repo_name"
+
+    run exec git-with-key "$KEY_DIR/$ssh_key_name" "$@"
+}
+
+
+if [ $# -lt 1 ]; then
+    usage
+    exit 1
+fi
+
+if [ "$(id -u)" -ne 0 ]; then
+    set -x
+    exec sudo "$0" "$@"
+fi
+
+mode="$1"
+shift
+
+case "$mode" in
+    private|identity-devops-private)
+        main "identity-devops-private" "id_ecdsa.id-do-private.deploy" "$@"
+        ;;
+    main|identity-devops)
+        main "identity-devops" "id_ecdsa.identity-devops.deploy" "$@"
+        ;;
+    *)
+        usage
+        exit 1
+        ;;
+esac

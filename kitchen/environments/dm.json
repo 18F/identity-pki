@@ -94,9 +94,7 @@
       "version": "5.2.0"
     },
     "login_dot_gov": {
-      "aws_kms_key_id": "alias/dm-login-dot-gov-keymaker",
-      "branch_name": "stages/dm",
-      "use_kms": "true"
+      "branch_name": "stages/dm"
     },
     "identity-jenkins": {
       "users": [

@@ -8,6 +8,7 @@ variable "rds_engine_version" { default = "9.5.6" }
 variable "rds_engine_version_short" { default = "9.5" }
 variable "rds_instance_class" { default = "db.t2.large" }
 variable "rds_password" { }
-variable "rds_storage" { default = "8" }
+variable "rds_storage_app" { default = "8" }
+variable "rds_storage_idp" { default = "8" }
 variable "rds_username" { }
 variable "rds_maintenance_window" { default = "Sun:08:34-Sun:09:08" }

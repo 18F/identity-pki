@@ -4,12 +4,16 @@
   "json_class": "Chef::Environment",
   "chef_type": "environment",
   "default_attributes": {
+    "citadel": {
+      "bucket": "login-gov.secrets.894947205914-us-west-2",
+      "region": "us-west-2"
+    },
     "identity-devops": {
       "branch_name": "master"
     },
     "login_dot_gov": {
-      "enable_identity_verification": "true",
-      "branch_name": "master"
+      "domain_name": "identitysandbox.gov",
+      "branch_name": "stages/brody"
     },
     "elk": {
       "users": [
@@ -18,10 +22,6 @@
     },
     "filebeat": {
       "version": "5.2.0"
-    },
-    "terraform": {
-      "version": "0.8.8",
-      "zipfile": "terraform_0.8.8_linux_amd64.zip"
     },
     "identity-jenkins": {
       "users": [

@@ -278,8 +278,8 @@ fi
 run mkdir -vp "$secrets_dir"
 run chmod -c 700 "$secrets_dir"
 
-run aws s3 cp "$s3_ssh_key_url" "$secrets_dir/"
-run aws s3 cp "$s3_ssh_key_url.pub" "$secrets_dir/"
+run aws s3 cp --sse aws:kms "$s3_ssh_key_url" "$secrets_dir/"
+run aws s3 cp --sse aws:kms "$s3_ssh_key_url.pub" "$secrets_dir/"
 
 ssh_key_path="$secrets_dir/$(basename "$s3_ssh_key_url")"
 run chmod -c 600 "$ssh_key_path"
@@ -292,15 +292,16 @@ cd "$repos_dir"
 # GIT_SSH_COMMAND is only supported in git 2.3+
 # We can switch to only using it once we are on Ubuntu >= 16.04
 if [ "$(git --version)" = "git version 1.9.1" ]; then
-    echo >&2 "Creating git-with-deploy-key-private as git SSH wrapper"
-    git_ssh_wrapper="/usr/local/bin/git-with-deploy-key-private"
-    cat > "$git_ssh_wrapper" <<EOM
+    echo >&2 "Creating ssh-with-key as git SSH wrapper"
+    git_ssh_wrapper="/usr/local/bin/ssh-with-key"
+    cat > "$git_ssh_wrapper" <<'EOM'
 #!/bin/sh
 set -eux
-exec ssh -i '$ssh_key_path' "\$@"
+exec ssh -i "$SSH_KEY_PATH" "$@"
 EOM
     chmod -c +x "$git_ssh_wrapper"
-    run env GIT_SSH="$git_ssh_wrapper" git clone "$git_clone_url"
+    run env GIT_SSH="$git_ssh_wrapper" SSH_KEY_PATH="$ssh_key_path" \
+        git clone "$git_clone_url"
 else
     run env GIT_SSH_COMMAND="ssh -i '$ssh_key_path'" git clone "$git_clone_url"
 fi
