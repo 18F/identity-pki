@@ -18,6 +18,8 @@ require yaml_lib
 common_dir = File.dirname(File.expand_path(File.readlink(__FILE__)))
 require File.join(common_dir, "cloud_init_utils", "cloud_init_builder")
 
+Region = 'us-west-2'
+
 role = File.basename(Dir.pwd)
 environment = ENV.fetch('KITCHEN_EC2_INTEGRATION_ENVIRONMENT', 'ci')
 # TODO: Make a standard instance profile name for each instance so we don't need
@@ -145,6 +147,25 @@ if !File.exist?(ssh_key_file)
 end
 
 ssh_key_pair_name = ENV.fetch('KITCHEN_EC2_SSH_KEYPAIR_ID')
+
+require 'aws-sdk'
+ec2 = Aws::EC2::Resource.new(region: Region)
+
+# Run a number of checks that expected resources exist, because kitchen-ec2
+# itself bombs out it horrible ways without giving any helpful error messages.
+
+# Ensure ssh_key_pair_name exists
+ec2.key_pair(ssh_key_pair_name).key_fingerprint
+
+# Ensure subnet exists
+if ec2.subnets(filters: [{name: 'tag:Name', values: [subnet]}]).count.zero?
+  raise "No subnet named #{subnet.inspect} found"
+end
+
+# Ensure security group exists
+if ec2.security_groups(filters: [{name: 'tag:Name', values: [security_group]}]).count.zero?
+  raise "No security group named #{security_group.inspect} found"
+end
 %>
 
 <%=
@@ -152,7 +173,7 @@ ssh_key_pair_name = ENV.fetch('KITCHEN_EC2_SSH_KEYPAIR_ID')
     "driver" => {
         "name" => "ec2",
         "aws_ssh_key_id" => ssh_key_pair_name,
-        "region" => "us-west-2",
+        "region" => Region,
         "subnet_filter" => {
             "tag" => "Name",
             "value" => subnet
