@@ -22,7 +22,7 @@ resource "aws_redshift_parameter_group" "redshift_configuration" {
 
   parameter {
     name  = "require_ssl"
-    value = "false"
+    value = "true"
   }
 
   parameter {
@@ -467,7 +467,7 @@ resource "aws_iam_policy_attachment" "lambda_policy_attachment" {
 }
 
 resource "aws_lambda_function" "analytics_lambda" {
-  s3_bucket        = "tf-redshift-bucket-${var.env_name}-deployments"
+  s3_bucket        = "tf-redshift-bucket-deployments"
   s3_key           = "lambda_${var.analytics_version}_deploy.zip"
   function_name    = "analytics-etl-${var.env_name}"
   role             = "${aws_iam_role.lambda_role.arn}"
