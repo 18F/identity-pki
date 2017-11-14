@@ -156,8 +156,9 @@ install_tf_version() {
 
     echo_blue "Installing terraform version $target"
 
-    download_prefix="$TF_DOWNLOAD_URL/$target/terraform_$target"
+    download_prefix="$TF_DOWNLOAD_URL/$target"
     download_basename="terraform_${target}_${TF_OS}_${TF_ARCH}.zip"
+    checksum_file="terraform_${target}_SHA256SUMS"
 
     tmpdir="$(mktemp -d)"
 
@@ -165,19 +166,24 @@ install_tf_version() {
     echo >&2 "+ cd '$tmpdir'"
     cd "$tmpdir"
 
-    run wget \
-        "${download_prefix}_"{SHA256SUMS,SHA256SUMS.sig} \
-        "${download_prefix}_${TF_OS}_${TF_ARCH}.zip"
-
-    checksum_file="terraform_${target}_SHA256SUMS"
+    run curl -Sf --remote-name-all \
+        "${download_prefix}/${checksum_file}"{,.sig} \
+        "${download_prefix}/${download_basename}"
 
     if [ -n "$ID_TF_SKIP_GPG" ]; then
         echo "\$ID_TF_SKIP_GPG is set, skipping GPG verification"
     else
         echo >&2 "Checking GPG signature"
+
+        if ! run gpg --batch --list-keys "$TF_GPG_KEY_FINGERPRINT"; then
+            echo >&2 "Fetching Hashicorp GPG key"
+            run gpg --recv-keys "$TF_GPG_KEY_FINGERPRINT"
+        fi
+
         run gpg --batch --status-fd 1 --verify "$checksum_file"{.sig,} \
             | grep '^\[GNUPG:\] VALIDSIG '"$TF_GPG_KEY_FINGERPRINT"
-        echo >&2 "OK"
+
+        echo >&2 "OK, finished verifying"
     fi
 
     echo >&2 "Checking SHA256 checksum"
@@ -320,11 +326,21 @@ main() {
 
     target_version="$1"
 
-    current_version="$(run terraform --version | head -1 | cut -d' ' -f2)"
+    if which terraform >/dev/null; then
+        current_version="$(run terraform --version | head -1 | cut -d' ' -f2)"
+    else
+        current_version=
+    fi
 
     if [ "v$target_version" = "$current_version" ]; then
         echo "Already running terraform $target_version"
-        exit
+        return
+    fi
+
+    if ! which gpg >/dev/null; then
+        echo >&2 "$(basename "$0"): error, gpg not found"
+        echo >&2 "Set ID_TF_SKIP_GPG=1 if you want to skip the signature check"
+        return 1
     fi
 
     terraform_exe="$TERRAFORM_PLUGIN_DIR/terraform_${target_version}$EXE_SUFFIX"
