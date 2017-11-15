@@ -234,7 +234,7 @@ switch_acme_version() {
     echo "ACME provider symlink now points to version $acme_version"
 }
 
-echo_red >&2 "This script is deprecated. Please use $(dirname "$0")/terraform-install.sh instead."
+echo_red >&2 "This script is deprecated. Please use $(dirname "$0")/terraform-switch.sh instead."
 
 if [ $# -lt 1 ]; then
     usage
