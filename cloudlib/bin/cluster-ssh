@@ -44,19 +44,6 @@ def clusterssh(instances)
   Subprocess.check_call(cmd)
 end
 
-def find_instances_for_env(env)
-  log.info("Listing running instances for #{env.inspect} environment")
-
-  cl = Cloudlib::EC2.new(env: env)
-  instances = cl.instances_in_vpc(states: ['running'])
-
-  log.info("Found instances: " + instances.map(&:instance_id).join(' '))
-
-  log.info("Hosts: \n  - " + instances.map {|i| cl.instance_label(i) }.join("\n  - "))
-
-  instances
-end
-
 def main(args)
   find_opts = {states: ['running']}
 
@@ -95,6 +82,11 @@ Options:
     opts.on('-e', '--env ENVIRONMENT',
             'Filter servers by ENVIRONMENT') do |val|
       find_opts[:env] = val
+    end
+
+    opts.on('--instance-ids IDS', 'Include explicit instance IDS') do |ids|
+      find_opts[:instance_ids] ||= []
+      find_opts[:instance_ids] += ids.split
     end
 
     opts.on('-n', '--name GLOB', 'Find servers Name matching GLOB') do |val|
