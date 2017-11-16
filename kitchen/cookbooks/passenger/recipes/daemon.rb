@@ -138,13 +138,6 @@ end
 execute "chmod -R a+X #{nginx_path}"
 execute "chmod -R a+rX #{nginx_path}/conf"
 
-service "passenger" do
-  service_name "passenger"
-  reload_command "#{nginx_path}/sbin/nginx -s reload"
-  start_command "#{nginx_path}/sbin/nginx"
-  stop_command "#{nginx_path}/sbin/nginx -s stop"
-  status_command "curl http://localhost/nginx_status"
-  supports [ :start, :stop, :reload, :status, :enable ]
-  action [ :enable, :start ]
-  pattern "nginx: master"
+service 'passenger' do
+  action [:enable, :start]
 end
