@@ -1,62 +1,3 @@
-resource "aws_instance" "app" {
-  ami = "${var.ami_id}"
-  count = "${var.apps_enabled * var.non_asg_app_enabled}"
-  depends_on = ["aws_internet_gateway.default", "aws_route53_record.chef", "aws_route53_record.elk"]
-  instance_type = "${var.instance_type_app}"
-  key_name = "${var.key_name}"
-  subnet_id = "${aws_subnet.app.id}"
-  iam_instance_profile = "${aws_iam_instance_profile.base-permissions.name}"
-
-  tags {
-    client = "${var.client}"
-    Name = "${var.name}-app-${var.env_name}"
-    prefix = "app"
-    domain = "${var.env_name}.${var.root_domain}"
-  }
-
-  lifecycle {
-    ignore_changes = ["ami", "instance_type"]
-  }
-
-  connection {
-    type = "ssh"
-    user = "ubuntu"
-    host = "${self.private_ip}"
-    bastion_host = "${aws_eip.jumphost.public_ip}"
-    script_path = "/home/ubuntu/tf_remote_exec.sh"
-  }
-
-  vpc_security_group_ids = [ "${aws_security_group.app.id}" ]
-
-  provisioner "chef"  {
-    attributes_json = <<-EOF
-    {
-      "set_fqdn": "app.${var.env_name}.${var.root_domain}",
-      "login_dot_gov": {
-        "live_certs": "${var.live_certs}"
-      }
-    }
-    EOF
-    environment = "${var.env_name}"
-    run_list = [
-      "role[base]",
-      "recipe[login_dot_gov::install_app_role]"
-    ]
-    node_name = "app.${var.env_name}"
-    secret_key = "${file("${var.chef_databag_key_path}")}"
-    server_url = "${var.chef_url}"
-    recreate_client = true
-    user_name = "${var.chef_id}"
-    user_key = "${file("${var.chef_id_key_path}")}"
-    version = "${var.chef_version}"
-    fetch_chef_certificates = true
-    # XXX comment out until we are ready to actually deploy
-    #http_proxy = "http://obproxy.login.gov.internal:3128"
-    #https_proxy = "http://obproxy.login.gov.internal:3128"
-    #no_proxy = [ "localhost","127.0.0.1" ]
-  }
-}
-
 resource "aws_db_instance" "default" {
   allocated_storage = "${var.rds_storage_app}"
   count = "${var.apps_enabled}"
@@ -92,7 +33,6 @@ output "app_db_endpoint" {
   value = "${aws_db_instance.default.endpoint}"
 }
 
-
 resource "aws_db_subnet_group" "default" {
   description = "${var.env_name} env subnet group for login.gov"
   name = "${var.name}-db-${var.env_name}"
@@ -102,12 +42,6 @@ resource "aws_db_subnet_group" "default" {
     client = "${var.client}"
     Name = "${var.name}-${var.env_name}"
   }
-}
-
-resource "aws_eip" "app" {
-  count = "${var.apps_enabled * var.non_asg_app_enabled}"
-  instance = "${aws_instance.app.id}"
-  vpc      = true
 }
 
 resource "aws_route53_record" "app_internal" {
