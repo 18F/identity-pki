@@ -42,9 +42,17 @@ describe command('sudo whoami') do
 end
 
 # check passenger status
-# TODO: Actually move the instance registry dir to something more reasonable.
+#
+# For unclear reasons, the passenger registry dir shows up in
+# /var/lib/kitchen/cache/, but only on Ubuntu 14.04. This can be removed once
+# we're fully on ubuntu 16.04.
 # See: https://stackoverflow.com/questions/31761542/phusion-passenger-status-what-value-for-passenger-instance-registry-dir#31769807
-describe command('sudo env PASSENGER_INSTANCE_REGISTRY_DIR=/tmp/ passenger-status') do
+if os[:release] == '14.04'
+  passenger_registry_dir='/var/lib/kitchen/cache/'
+else
+  passenger_registry_dir='/tmp/'
+end
+describe command("sudo env PASSENGER_INSTANCE_REGISTRY_DIR=#{passenger_registry_dir} passenger-status") do
   its('exit_status') { should eq 0 }
   its('stdout') { should include 'General information' }
 end
