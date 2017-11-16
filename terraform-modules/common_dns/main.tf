@@ -18,6 +18,19 @@ variable "google_site_verification_txt" {
     default = ""
 }
 
+variable "mx_provider" {
+    description = "Which provider to use for MX records (see mx_record_map)"
+}
+
+variable "mx_record_map" {
+    description = "Mapping of provider name to comma-separated MX records"
+    type = "map"
+    default = {
+        "google-g-suite" = "10 aspmx.l.google.com.,20 alt1.aspmx.l.google.com.,20 alt2.aspmx.l.google.com.,30 aspmx2.googlemail.com.,30 aspmx3.googlemail.com.,30 aspmx4.googlemail.com.,30 aspmx5.googlemail.com."
+        "amazon-ses-inbound.us-west-2" = "10 inbound-smtp.us-west-2.amazonaws.com."
+    }
+}
+
 resource "aws_route53_zone" "primary" {
     # domain, ensuring it has a trailing "."
     name = "${replace(var.domain, "/\\.?$/", ".")}"
@@ -75,27 +88,45 @@ resource "aws_route53_record" "a_developers" {
 
 resource "aws_route53_record" "mx_google" {
     name = "${var.domain}"
-    records = [
-        "10 aspmx.l.google.com.",
-        "20 alt1.aspmx.l.google.com.",
-        "20 alt2.aspmx.l.google.com.",
-        "30 aspmx2.googlemail.com.",
-        "30 aspmx3.googlemail.com.",
-        "30 aspmx4.googlemail.com.",
-        "30 aspmx5.googlemail.com."
-    ]
+    records = ["${split(",", lookup(var.mx_record_map, var.mx_provider))}"]
     ttl = "3600"
     type = "MX"
     zone_id = "${aws_route53_zone.primary.zone_id}"
 }
 
+# Root TXT records, including SPF.
+# TODO: remove GSA? All mail should be from SES or Google.
 resource "aws_route53_record" "txt" {
     name = "${var.domain}"
-    records = ["google-site-verification=${var.google_site_verification_txt}", "v=spf1 mx include:spf_sa.gsa.gov ~all"]
+    records = ["google-site-verification=${var.google_site_verification_txt}", "v=spf1 mx include:_spf.google.com include:spf_sa.gsa.gov ~all"]
     ttl = "900"
     type = "TXT"
     zone_id = "${aws_route53_zone.primary.zone_id}"
 }
+
+# Add a record under login.gov saying it's OK to send reports for
+# identitysandbox.gov to login.gov.
+# https://space.dmarcian.com/what-is-external-destination-verification/
+resource "aws_route53_record" "txt_dmarc_authorization" {
+    count = "${var.domain == "login.gov" ? 1 : 0}"
+    name = "identitysandbox.gov._report._dmarc.${var.domain}"
+    records = ["v=DMARC1"]
+    ttl = "3600"
+    type = "TXT"
+    zone_id = "${aws_route53_zone.primary.zone_id}"
+}
+
+# TODO: Add this record once we upgrade to a version of terraform that can
+# handle TXT records > 255 characters long, whether split with escaped quotes
+# or not.
+# This record is only used for the prod login.gov G Suite DKIM signing.
+#resource "aws_route53_record" "google_dkim_txt" {
+#    name = "google._domainkey.${var.domain}"
+#    records = ["v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkcuOOdgaWfHIKM1ILlzPOHBPJKLxU9+1+ufIprNdjrD+QQ6/uJtc/tP5s1MUwYU/fld2Y1QwXC5JHdE6JXP31XwCtvbfIwn/Dr/EaRB3PomOp0SNbTtFMmvuxPF87HidvzDH3cWXcmyjMx6XU1i9O3nBs66Z+8i4gfh/PZdjJs6wcNp9urJjCo23KYzbiNAn7FJjbD4g3NucMvkBXHIsOMLvb7WzIekpxL2bjz6XlDfK1t4VTLv4IqIlLMfhYGwwaWPhgyra7qezYkp6a2XSoLWxPWRbfb1bNmVUJ7vBeB6NdFnr9n/7TqbhDVEo9/XyO1MIsuNTTZuhurlZqoXx0QIDAQAB"]
+#    ttl = "900"
+#    type = "TXT"
+#    zone_id = "${aws_route53_zone.primary.zone_id}"
+#}
 
 resource "aws_route53_record" "mail_in_txt" {
     name = "mail.${var.domain}"
@@ -111,4 +142,12 @@ resource "aws_route53_record" "mail_in_mx" {
     ttl = "900"
     type = "MX"
     records = ["10 feedback-smtp.us-west-2.amazonses.com"] # NB us-west-2 only
+}
+
+resource "aws_route53_record" "main_dmarc" {
+    name = "_dmarc.${var.domain}"
+    zone_id = "${aws_route53_zone.primary.zone_id}"
+    ttl = "900"
+    type = "TXT"
+    records = ["v=DMARC1; p=quarantine; pct=100; fo=1; ri=3600; rua=mailto:gsalogin@rua.agari.com,mailto:dmarc-reports@login.gov; ruf=mailto:dmarc-forensics@login.gov"]
 }
