@@ -1,7 +1,11 @@
 #!/bin/bash
 
-# Send all output to syslog and serial console.
-exec > >(tee >(logger -t provision.sh -s 2>/dev/console)) 2>&1
+# Send all output to syslog and serial console unless we're being run by
+# systemd, in which case assume that systemd is handling output logging.
+# shellcheck disable=SC2009
+if ! ps -o cgroup= $$ | grep ".service" >/dev/null ; then
+    exec > >(tee >(logger -t provision.sh -s 2>/dev/console)) 2>&1
+fi
 
 set -euo pipefail
 
