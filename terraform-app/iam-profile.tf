@@ -49,3 +49,18 @@ resource "aws_iam_instance_profile" "base-permissions" {
     roles = ["${aws_iam_role.base-permissions.name}"]
 }
 
+# Policy allowing EC2 instances to describe and associate EIPs. This allows
+# instances in an ASG to automatically grab an existing static IP address.
+data "aws_iam_policy_document" "auto_eip_role_policy" {
+    statement {
+        sid = "AllowEIPDescribeAndAssociate"
+        effect = "Allow"
+        actions = [
+            "ec2:DescribeAddresses",
+            "ec2:AssociateAddress"
+        ]
+        resources = [
+            "*"
+        ]
+    }
+}

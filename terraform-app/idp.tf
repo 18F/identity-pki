@@ -123,6 +123,12 @@ resource "aws_iam_role_policy" "idp-cloudwatch-logs" {
   policy = "${data.aws_iam_policy_document.cloudwatch-logs.json}"
 }
 
+resource "aws_iam_role_policy" "idp-auto-eip" {
+  name = "${var.env_name}-idp-auto-eip"
+  role = "${aws_iam_role.idp.id}"
+  policy = "${data.aws_iam_policy_document.auto_eip_role_policy.json}"
+}
+
 module "idp_launch_config" {
   source = "../terraform-modules/bootstrap/"
 
