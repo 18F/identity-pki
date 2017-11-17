@@ -13,7 +13,8 @@
     },
     "login_dot_gov": {
       "domain_name": "identitysandbox.gov",
-      "branch_name": "stages/brody"
+      "branch_name": "stages/brody",
+      "auto_eip_enabled": true
     },
     "elk": {
       "users": [
