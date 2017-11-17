@@ -16,10 +16,13 @@ if node.fetch('login_dot_gov').fetch('auto_eip_enabled')
   valid_ips = auto_eip_config.fetch('valid_ips')
   invalid_ips = auto_eip_config.fetch('invalid_ips')
 
+  # pip needs /tmp/ to be exec
+  execute 'mount -o remount,exec /tmp'
   execute 'pip install aws-ec2-assign-elastic-ip' do
     umask '0022' # ensure
     not_if 'pip show aws-ec2-assign-elastic-ip'
   end
+  execute 'mount -o remount,noexec /tmp'
 
   if !valid_ips && !invalid_ips
     raise 'At least valid_ips or invalid_ips must be set in auto_eip_config'
@@ -44,4 +47,5 @@ if node.fetch('login_dot_gov').fetch('auto_eip_enabled')
     command "touch '#{sentinel_file}' && sleep 30"
     action :nothing
   end
+
 end
