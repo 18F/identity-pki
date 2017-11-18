@@ -31,8 +31,7 @@
 #   Example:
 #     resource "aws_iam_instance_profile" "custom" {
 #       name = "${var.env_name}_customprofile
-#       # TF 0.9+: role = "${aws_iam_role.custom.name}"
-#       # TF 0.8: roles = ["${aws_iam_role.custom.name}"]
+#       role = "${aws_iam_role.custom.name}"
 #     }
 #
 #     resource "aws_iam_role" "custom" {
@@ -149,6 +148,5 @@ resource "aws_iam_role_policy" "citadel-client" {
 # IAM instance profile using the citadel client role
 resource "aws_iam_instance_profile" "citadel-client" {
     name = "${var.env_name}-citadel-client"
-    # TODO: rename to "role" after upgrading to TF 0.9
-    roles = ["${aws_iam_role.citadel-client.name}"]
+    role = "${aws_iam_role.citadel-client.name}"
 }

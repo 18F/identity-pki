@@ -52,8 +52,7 @@ resource "aws_iam_role_policy" "base-permissions-auto-eip" {
 # IAM instance profile using the citadel client role
 resource "aws_iam_instance_profile" "base-permissions" {
     name = "${var.env_name}-base-permissions"
-    # TODO: rename to "role" after upgrading to TF 0.9
-    roles = ["${aws_iam_role.base-permissions.name}"]
+    role = "${aws_iam_role.base-permissions.name}"
 }
 
 # Policy allowing EC2 instances to describe and associate EIPs. This allows

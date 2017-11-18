@@ -100,7 +100,7 @@ resource "aws_elasticache_replication_group" "idp" {
 
 resource "aws_iam_instance_profile" "idp" {
   name = "${var.env_name}_idp_instance_profile"
-  roles = ["${aws_iam_role.idp.name}"]
+  role = "${aws_iam_role.idp.name}"
 }
 
 resource "aws_iam_role" "idp" {

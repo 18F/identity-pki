@@ -73,6 +73,5 @@ resource "aws_iam_role_policy" "service-discovery-describe_instances" {
 # IAM instance profile using the citadel client role
 resource "aws_iam_instance_profile" "service-discovery" {
     name = "${var.env_name}-service-discovery"
-    # TODO: rename to "role" after upgrading to TF 0.9
-    roles = ["${aws_iam_role.service-discovery.name}"]
+    role = "${aws_iam_role.service-discovery.name}"
 }

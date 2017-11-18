@@ -5,7 +5,7 @@ resource "aws_iam_role" "obproxy" {
 
 resource "aws_iam_instance_profile" "obproxy" {
   name = "${var.env_name}_obproxy_instance_profile"
-  roles = ["${aws_iam_role.obproxy.name}"]
+  role = "${aws_iam_role.obproxy.name}"
 }
 
 resource "aws_iam_role_policy" "obproxy" {
