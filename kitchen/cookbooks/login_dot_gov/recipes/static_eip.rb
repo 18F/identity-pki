@@ -39,6 +39,7 @@ if node.fetch('login_dot_gov').fetch('auto_eip_enabled')
     command ['aws-ec2-assign-elastic-ip'] + assign_opts
     notifies :run, 'execute[sleep after eip assignment]', :immediately
     not_if { File.exist?(sentinel_file) }
+    live_stream true
   end
 
   # sleep after assigning an EIP so that we don't attempt to do stuff involving
