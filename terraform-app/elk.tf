@@ -105,6 +105,8 @@ resource "aws_iam_role_policy" "elk_describe_instances" {
 }
 
 resource "aws_s3_bucket" "logbucket" {
+  # need to gently cut over later
+  #bucket = "login-gov-logs-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
   bucket = "login-gov-${var.env_name}-logs"
   versioning {
     enabled = true

@@ -298,7 +298,7 @@ template "/etc/logstash/cloudtraillogstashconf.d/70-elblogsin.conf" do
   source '70-elblogsin.conf.erb'
   variables ({
     :aws_region => node['ec2']['placement_availability_zone'][0..-2],
-    :proxy_logging_bucket => "login-gov-#{node.chef_environment}-proxylogs",
+    :proxy_logging_bucket => "login-gov-proxylogs-#{node.chef_environment}.#{aws_account_id}-#{node['ec2']['placement_availability_zone'][0..-2]}",
     :elb_prefix => node.chef_environment,
     :elb_logging_bucket => "login-gov.elb-logs.#{aws_account_id}-#{node['ec2']['placement_availability_zone'][0..-2]}"
   })

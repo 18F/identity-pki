@@ -30,9 +30,9 @@ template '/home/ubuntu/.bash_profile' do
   mode '0644'
   sensitive true
   variables({
-    idp_slo_url: "https://idp.#{node.chef_environment}.login.gov/api/saml/logout",
-    idp_sp_url: "https://#{basic_auth_user_name}:#{basic_auth_password}@idp.#{node.chef_environment}.login.gov/api/service_provider",
-    idp_sso_url: "https://idp.#{node.chef_environment}.login.gov/api/saml/auth",
+    idp_slo_url: "https://idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}/api/saml/logout",
+    idp_sp_url: "https://#{basic_auth_user_name}:#{basic_auth_password}@idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}/api/service_provider",
+    idp_sso_url: "https://idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}/api/saml/auth",
     sp_name: basic_auth_user_name,
     sp_pass: basic_auth_password
   })

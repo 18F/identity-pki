@@ -307,7 +307,7 @@ resource "aws_route53_record" "obproxy" {
 data "aws_elb_service_account" "main" {}
 
 resource "aws_s3_bucket" "proxylogbucket" {
-  bucket = "login-gov-${var.env_name}-proxylogs"
+  bucket = "login-gov-proxylogs-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
   versioning {
     enabled = true
   }
@@ -322,7 +322,7 @@ resource "aws_s3_bucket" "proxylogbucket" {
         "AWS": "${data.aws_elb_service_account.main.arn}"
       },
       "Action": "s3:PutObject",
-      "Resource": "arn:aws:s3:::login-gov-${var.env_name}-proxylogs/AWSLogs/*"
+      "Resource": "arn:aws:s3:::login-gov-proxylogs-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}/AWSLogs/*"
     }
   ]
 }
