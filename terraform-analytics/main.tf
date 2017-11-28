@@ -9,4 +9,5 @@ module "analytics" {
   kms_key_id = "${var.kms_key_id}"
   num_redshift_nodes = "${var.num_redshift_nodes}"
   name = "${var.name}"
+  wlm_json_configuration = "${var.wlm_json_configuration}"
 }

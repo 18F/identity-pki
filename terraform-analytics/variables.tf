@@ -19,3 +19,6 @@ variable "num_redshift_nodes" { default = 3 }
 variable "version_info_bucket" { default = "login-dot-gov-analytics-terraform-state" }
 variable "version_info_region" { default = "us-west-2" }
 variable "name" { default = "login" }
+variable "wlm_json_configuration" {
+  default = "[{\"query_concurrency\": 50}]"
+}

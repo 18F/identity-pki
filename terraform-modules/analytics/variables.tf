@@ -17,3 +17,6 @@ variable "region" { default = "us-west-2"}
 variable "kms_key_id" { default = "dc12706b-50ea-40b7-8d0e-206962aaa8f7" }
 variable "num_redshift_nodes" { default = 3 }
 variable "name" { default = "login" }
+variable "wlm_json_configuration" {
+  default = "[{\"query_concurrency\": 50}]"
+}

@@ -29,6 +29,11 @@ resource "aws_redshift_parameter_group" "redshift_configuration" {
     name  = "enable_user_activity_logging"
     value = "true"
   }
+
+  parameter {
+    name = "wlm_json_configuration"
+    value = "${var.wlm_json_configuration}"
+  }
 }
 
 resource "aws_redshift_cluster" "redshift" {
