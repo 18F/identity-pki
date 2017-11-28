@@ -30,16 +30,30 @@ if node.fetch('login_dot_gov').fetch('auto_eip_enabled')
 
   sentinel_file = '/etc/login.gov/assigned-eip'
 
+  # temporary script due to aws-ec2-assign-elastic-ip race condition (#24)
+  cookbook_file '/usr/local/bin/get-current-eips' do
+    source 'get-current-eips'
+    owner 'root'
+    group 'root'
+    mode '0755'
+  end
+
   assign_opts = []
 
   assign_opts += ['--valid-ips', valid_ips] if valid_ips
   assign_opts += ['--invalid-ips', invalid_ips] if invalid_ips
 
+  assign_cmd = ['aws-ec2-assign-elastic-ip'] + assign_opts
+
   execute 'assign eips' do
-    command ['aws-ec2-assign-elastic-ip'] + assign_opts
+    command assign_cmd.join(' ') + ' && get-current-eips'
     notifies :run, 'execute[sleep after eip assignment]', :immediately
     not_if { File.exist?(sentinel_file) }
     live_stream true
+
+    # retry due to aws-ec2-assign-elastic-ip race condition (#24)
+    retries 3
+    retry_delay 5
   end
 
   # sleep after assigning an EIP so that we don't attempt to do stuff involving
