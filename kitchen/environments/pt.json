@@ -50,6 +50,11 @@
         "zmargolis"
       ]
     },
+    "passenger": {
+      "production": {
+        "limit_connections": false
+      }
+    },
     "terraform": {
       "version": "0.8.8",
       "zipfile": "terraform_0.8.8_linux_amd64.zip"

@@ -8,6 +8,7 @@ default[:passenger][:production][:max_pool_size] = 6
 default[:passenger][:production][:min_instances] = 1
 default[:passenger][:production][:pool_idle_time] = 0
 default[:passenger][:production][:max_instances_per_app] = 0
+default[:passenger][:production][:limit_connections] = true
 
 # a list of URL's to pre-start.
 default[:passenger][:production][:pre_start] = []
