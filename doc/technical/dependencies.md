@@ -21,11 +21,13 @@ brew upgrade awscli
 ```
 
 [Configure the AWS
-CLI](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html)
-with the AWS region (currently us-west-2) and credentials you want to use.  The
-18f-identity specific signin link is here:
-https://18f-identity.signin.aws.amazon.com/console.  Test your configuration by
-running `aws s3 ls`.
+CLI](https://github.com/18F/identity-private/wiki/Operations:-AWS-CLI-Config)
+with your credentials.
+
+## AWS Web Console
+
+18f-identity / login.gov: https://18f-identity.signin.aws.amazon.com/console
+18f-identity-dev / identitysandbox.gov: https://18f-identity.signin.aws.amazon.com/console
 
 ### Terraform
 
