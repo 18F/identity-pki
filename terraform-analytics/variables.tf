@@ -8,6 +8,7 @@ variable "jumphost_cidr_block" {
     dm = "52.37.18.62/32"
     staging = "52.26.32.80/32"
     prod = "34.208.176.143/32"
+    pt = "92.242.140.21/32"
   }
 }
 variable "redshift_master_password" {}
