@@ -68,6 +68,7 @@ cookbook 'login_dot_gov', path: prefixed('kitchen/cookbooks/login_dot_gov')
 cookbook 'passenger', path: prefixed('kitchen/cookbooks/passenger')
 cookbook 'poise-ruby-build', path: prefixed('kitchen/cookbooks/poise-ruby-build')
 cookbook 'service_discovery', path: prefixed('kitchen/cookbooks/service_discovery')
+cookbook 'identity-monitoring', path: prefixed('kitchen/cookbooks/identity-monitoring')
 
 # We have to reference this special citadel-build repository for two reasons:
 #

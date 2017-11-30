@@ -1,0 +1,25 @@
+#!<%= @ruby %>
+
+require 'elasticsearch'
+require 'json'
+
+client = Elasticsearch::Client.new \
+  url: 'https://localhost:9200',
+  transport_options: { ssl: { verify: false } }
+
+healthdata = {}
+rawhealthdata = client.cluster.health
+rawhealthdata.keys.each do |k|
+  healthdata['es_' + k] = rawhealthdata[k]
+end
+healthdata['event_type'] = 'ElasticSearchHealthSample'
+
+data = {
+  name: 'elasticsearch_health',
+  protocol_version: '1',
+  integration_version: '1.0.0',
+  metrics: [ healthdata ]
+}
+
+puts JSON.generate(data)
+
