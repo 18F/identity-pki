@@ -148,7 +148,7 @@ resource "aws_instance" "elk" {
   }
 
   lifecycle {
-    ignore_changes = ["ami", "instance_type"]
+    ignore_changes = ["ami", "instance_type", "ebs_optimized"]
   }
 
   connection {
