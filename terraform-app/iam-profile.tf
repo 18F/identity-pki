@@ -36,10 +36,10 @@ resource "aws_iam_role_policy" "base-permissions-describe_instances" {
     policy = "${data.aws_iam_policy_document.describe_instances_role_policy.json}"
 }
 
-resource "aws_iam_role_policy" "base-permissions-cloudwatch" {
-    name = "${var.env_name}-base-permissions-cloudwatch"
+resource "aws_iam_role_policy" "base-permissions-cloudwatch-logs" {
+    name = "${var.env_name}-base-permissions-cloudwatch-logs"
     role = "${aws_iam_role.base-permissions.id}"
-    policy = "${data.aws_iam_policy_document.cloudwatch.json}"
+    policy = "${data.aws_iam_policy_document.cloudwatch-logs.json}"
 }
 
 # IAM instance profile using the citadel client role
