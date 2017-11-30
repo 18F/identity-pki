@@ -117,6 +117,12 @@ resource "aws_iam_role_policy" "idp-ses-email" {
   policy = "${data.aws_iam_policy_document.ses_email_role_policy.json}"
 }
 
+resource "aws_iam_role_policy" "idp-cloudwatch-logs" {
+  name = "${var.env_name}-idp-cloudwatch-logs"
+  role = "${aws_iam_role.idp.id}"
+  policy = "${data.aws_iam_policy_document.cloudwatch-logs.json}"
+}
+
 module "idp_launch_config" {
   source = "../terraform-modules/bootstrap/"
 

@@ -21,3 +21,19 @@ data "aws_iam_policy_document" "assume_role_from_vpc" {
     }
   }
 }
+
+#This policy is for writing log files to CloudWatch
+data "aws_iam_policy_document" "cloudwatch-logs" {
+  statement {
+    sid = "allowCloudWatch"
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+      "logs:DescribeLogStreams"
+    ]
+    resources = [
+      "arn:aws:logs:*:*:*"
+    ]
+  }
+}
