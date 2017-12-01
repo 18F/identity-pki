@@ -15,12 +15,7 @@
     },
     "login_dot_gov": {
       "domain_name": "identitysandbox.gov",
-      "branch_name": "stages/pt",
-      "sp_rails": {
-        "idp_slo_url": "https://idp.<%= ENV[\"SAML_ENV\"] || warn(\"missing SAML_ENV in ENV\") %>.identitysandbox.gov/api/saml/logout",
-        "idp_sso_url": "https://idp.<%= ENV[\"SAML_ENV\"] || warn(\"missing SAML_ENV in ENV\") %>.identitysandbox.gov/api/saml/auth",
-        "acs_url": "https://idp.<%= ENV[\"SAML_ENV\"] || warn(\"missing SAML_ENV in ENV\") %>.identitysandbox.gov/auth/saml/callback"
-      }
+      "branch_name": "stages/pt"
     },
     "elk": {
       "users": [

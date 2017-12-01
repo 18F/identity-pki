@@ -39,6 +39,8 @@ sha_env = (node.chef_environment == 'dev' ? node['login_dot_gov']['branch_name']
   end
 end
 
+idp_url = "https://idp.#{node.chef_environment}.#{node.fetch('login_dot_gov').fetch('domain_name')}"
+
 # TODO: don't generate YAML with erb, that's an antipattern
 template "#{base_dir}/shared/config/secrets.yml" do
   action :create
@@ -51,12 +53,12 @@ template "#{base_dir}/shared/config/secrets.yml" do
   variables({
     secret_key_base: ConfigLoader.load_config(node, "secret_key_base_rails"),
     saml_issuer: node['login_dot_gov']['sp_rails']['saml_issuer'],
-    idp_sso_url: node['login_dot_gov']['sp_rails']['idp_sso_url'],
-    idp_slo_url: node['login_dot_gov']['sp_rails']['idp_slo_url'],
+    idp_sso_url: "#{idp_url}/api/saml/auth",
+    idp_slo_url: "#{idp_url}/api/saml/logout",
     http_auth_username: node['login_dot_gov']['sp_rails']['http_auth_username'],
     http_auth_password: node['login_dot_gov']['sp_rails']['http_auth_password'],
     idp_cert_fingerprint: node['login_dot_gov']['sp_rails']['idp_cert_fingerprint'],
-    acs_url: node['login_dot_gov']['sp_rails']['acs_url']
+    acs_url: "https://sp.#{node.chef_environment}.#{node.fetch('login_dot_gov').fetch('domain_name')}/auth/saml/callback",
   })
 end
 
