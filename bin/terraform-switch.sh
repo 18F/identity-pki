@@ -285,7 +285,7 @@ switch_acme_version() {
 
     echo "Switching symlink to point to ACME provider version $acme_version"
 
-    acme_target="$TERRAFORM_PLUGIN_DIR/terraform-provider-acme_${acme_version}_darwin_amd64"
+    acme_target="$TERRAFORM_PLUGIN_DIR/terraform-provider-acme_${acme_version}_${TF_OS}_amd64"
     if [ ! -e "$acme_target" ]; then
         install_acme_version "$acme_version" "$acme_target"
     fi
