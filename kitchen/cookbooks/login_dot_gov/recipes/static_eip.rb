@@ -11,7 +11,7 @@ if node['provisioner'] && node.fetch('provisioner').fetch('auto-scaled')
 
   # we need to know our primary role in order to look up role-specific
   # valid_ips config
-  role = File.read('/etc/login/info/role').chomp
+  role = File.read('/etc/login.gov/info/role').chomp
 
   # check whether static EIPs are enabled for this role
   if node.fetch('login_dot_gov').fetch('auto_eip_enabled_roles').include?(role)
