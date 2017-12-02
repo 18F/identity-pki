@@ -32,7 +32,7 @@ if auto_eip_enabled
   end
   execute 'mount -o remount,noexec /tmp'
 
-  # auto_eip_config is a JSON blob in citadel. Expected example structure:
+  # auto_eip_config.json is a JSON blob in citadel. Expected example structure:
   #
   # {
   #   "worker": {
@@ -47,7 +47,10 @@ if auto_eip_enabled
   #
   # The valid_ips and invalid_ips strings will be passed directly to
   # aws-ec2-assign-elastic-ip.
-  auto_eip_config = ConfigLoader.load_json(node, 'auto_eip_config')
+  #
+  # After you allocate an EIP, be sure to add it to the tracking Google doc in
+  # addition to the S3 config.
+  auto_eip_config = ConfigLoader.load_json(node, 'auto_eip_config.json')
 
   role_config = auto_eip_config.fetch(role)
 
@@ -56,7 +59,7 @@ if auto_eip_enabled
   invalid_ips = role_config['invalid_ips']
 
   if !valid_ips && !invalid_ips
-    raise 'At least valid_ips or invalid_ips must be set in auto_eip_config'
+    raise 'valid_ips or invalid_ips must be set in auto_eip_config.json'
   end
 
   sentinel_file = '/etc/login.gov/assigned-eip'
