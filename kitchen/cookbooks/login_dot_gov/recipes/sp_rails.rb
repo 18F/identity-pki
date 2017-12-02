@@ -26,9 +26,8 @@ end
 base_dir = "/srv/#{app_name}"
 deploy_dir = "#{base_dir}/current/public"
 
-# branch is 'master'(default) when env is dev, otherwise use stages/env 
-branch_name = (node.chef_environment == 'dev' ? node['login_dot_gov']['branch_name'] : "stages/#{node.chef_environment}")
-sha_env = (node.chef_environment == 'dev' ? node['login_dot_gov']['branch_name'] : "deploy")
+branch_name = node.fetch('login_dot_gov').fetch('branch_name', "stages/#{node.chef_environment}")
+sha_env = "deploy"
 
 %w{cached-copy config log}.each do |dir|
   directory "#{base_dir}/shared/#{dir}" do
