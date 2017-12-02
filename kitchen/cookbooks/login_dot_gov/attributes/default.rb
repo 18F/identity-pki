@@ -27,8 +27,8 @@ default['login_dot_gov']['openssl']['checksum']                       = '932b4ee
 default['login_dot_gov']['openssl']['configure_flags']                = %W[ shared ]
 
 # Allocate a static EIP on startup for auto scaled instances that have one of
-# these as their primary role (e.g. 'worker', 'jumphost'). Used in the
-# static_eip recipe.
+# these as their primary role (e.g. 'worker', 'jumphost').
+# The instance run list must also include the login_dot_gov::static_eip recipe.
 default['login_dot_gov']['auto_eip_enabled_roles'] = []
 
 # The gitref that we check out when deploying
