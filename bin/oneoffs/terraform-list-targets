@@ -38,7 +38,14 @@ case $# in
         ;;
 esac
 
-cat -- "$file" | grep '^[+~-]' | cut -f2 -d' ' | while read -r line; do
+# Strip terminal escape sequences
+strip_ansi_color() {
+    # Use ruby instead of sed since GNU/BSD sed are inconsistent with \e
+    # shellcheck disable=SC2016
+    ruby -n -e 'puts $_.gsub(/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]/, "")'
+}
+
+cat -- "$file" | strip_ansi_color | grep '^[+~-]' | cut -f2 -d' ' | while read -r line; do
     echo -n "-target $line "
 done
 
