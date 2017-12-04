@@ -57,13 +57,10 @@ default['login_dot_gov']['proxy_addr']                                = ''
 default['login_dot_gov']['proxy_port']                                = ''
 
 # sp-rails
-default['login_dot_gov']['sp_rails']['http_auth_username'] = '<%= ENV["SP_NAME"] || warn("missing SP_NAME in ENV") %>'
-default['login_dot_gov']['sp_rails']['http_auth_password'] = '<%= ENV["SP_PASS"] || warn("missing SP_PASS in ENV") %>'
 # 68:19:... is the fingerprint of the SAML IDP cert CN=int.login.gov
 # Serial: 0xf41d6ee2e4675981, Issued: July 11 2017, Expires: July 11 2018
 # TODO: don't hardcode this
 default['login_dot_gov']['sp_rails']['idp_cert_fingerprint'] = '68:19:E0:CB:D2:44:A0:CD:B7:D1:80:8A:E2:34:E4:22:90:41:DF:10'
-default['login_dot_gov']['sp_rails']['secret_key_base'] = '<%= ENV["SECRET_KEY_BASE"] || warn("missing SECRET_KEY_BASE in ENV") %>'
 default['login_dot_gov']['sp_rails']['saml_issuer'] = "urn:gov:gsa:SAML:2.0.profiles:sp:sso:rails-#{node.chef_environment}"
 
 # dashboard
