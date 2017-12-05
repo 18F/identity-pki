@@ -69,7 +69,7 @@ resource "aws_db_parameter_group" "force_ssl" {
 resource "aws_elasticache_cluster" "idp" {
   cluster_id = "login-idp-${var.env_name}"
   engine = "redis"
-  node_type = "cache.t2.micro"
+  node_type = "${var.elasticache_redis_node_type}"
   num_cache_nodes = 1
   parameter_group_name = "default.redis3.2"
   port = 6379

@@ -71,6 +71,11 @@ variable "elk_ami_id" {}
 variable "route53_id" {}
 variable "apps_enabled" { default = 0 }
 
+variable "elasticache_redis_node_type" {
+    description = "Instance type used for redis elasticache. Changes incur downtime."
+    default = "cache.t2.micro"
+}
+
 # prod/test environment flags
 variable "basic_auth_enabled" {
     description = "Whether HTTP basic auth is enabled (controls ELB expected HTTP status code"
