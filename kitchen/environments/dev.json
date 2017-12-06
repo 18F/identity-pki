@@ -7,14 +7,14 @@
   "chef_type": "environment",
   "default_attributes": {
     "citadel": {
-      "bucket": "login-gov.secrets.894947205914-us-west-2",
+      "bucket": "login-gov-secrets-test",
       "region": "us-west-2"
     },
     "identity-devops": {
       "branch_name": "stages/dev"
     },
     "login_dot_gov": {
-      "domain_name": "identitysandbox.gov",
+      "domain_name": "login.gov",
       "branch_name": "stages/dev"
     },
     "elk": {
