@@ -115,6 +115,17 @@ resource "aws_route53_record" "txt_dmarc_authorization" {
     type = "TXT"
     zone_id = "${aws_route53_zone.primary.zone_id}"
 }
+# Add a record under login.gov saying it's OK to send reports for
+# connect.gov to login.gov.
+# https://space.dmarcian.com/what-is-external-destination-verification/
+resource "aws_route53_record" "txt_dmarc_authorization_connect_gov" {
+    count = "${var.domain == "login.gov" ? 1 : 0}"
+    name = "connect.gov._report._dmarc.${var.domain}"
+    records = ["v=DMARC1"]
+    ttl = "3600"
+    type = "TXT"
+    zone_id = "${aws_route53_zone.primary.zone_id}"
+}
 
 # TODO: Add this record once we upgrade to a version of terraform that can
 # handle TXT records > 255 characters long, whether split with escaped quotes
