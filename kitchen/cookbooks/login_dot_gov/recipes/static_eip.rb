@@ -22,15 +22,29 @@ end
 if auto_eip_enabled
   Chef::Log.info('Static EIP assignment is enabled')
 
-  package 'python-pip'
+  package 'python'
+  package 'awscli'
+  package 'python-netaddr'
 
-  # pip needs /tmp/ to be exec
-  execute 'mount -o remount,exec /tmp'
-  execute 'pip install aws-ec2-assign-elastic-ip' do
-    umask '0022' # ensure we have an OK umask
-    not_if 'pip show aws-ec2-assign-elastic-ip'
+  sentinel_file = '/etc/login.gov/assigned-eip'
+
+  # This script helps show the current EIP. It's not super useful otherwise.
+  cookbook_file '/usr/local/bin/get-current-eips' do
+    source 'get-current-eips'
+    owner 'root'
+    group 'root'
+    mode '0755'
   end
-  execute 'mount -o remount,noexec /tmp'
+
+  # This script is pretty much a drop-in replacement for
+  # aws-ec2-assign-elastic-ip due to the EIP race condition assignment boto bug
+  # https://github.com/skymill/aws-ec2-assign-elastic-ip/pull/25
+  cookbook_file '/usr/local/bin/aws-grab-static-eip' do
+    source 'aws-grab-static-eip'
+    owner 'root'
+    group 'root'
+    mode '0755'
+  end
 
   # auto_eip_config.json is a JSON blob in citadel. Expected example structure:
   #
@@ -58,38 +72,21 @@ if auto_eip_enabled
   valid_ips = role_config.fetch('valid_ips')
   invalid_ips = role_config['invalid_ips']
 
-  if !valid_ips && !invalid_ips
-    raise 'valid_ips or invalid_ips must be set in auto_eip_config.json'
-  end
+  raise 'valid_ips must be set in auto_eip_config.json' unless valid_ips
 
-  sentinel_file = '/etc/login.gov/assigned-eip'
-
-  # temporary script due to aws-ec2-assign-elastic-ip race condition, can be
-  # removed once this PR is merged:
-  # https://github.com/skymill/aws-ec2-assign-elastic-ip/pull/25
-  cookbook_file '/usr/local/bin/get-current-eips' do
-    source 'get-current-eips'
-    owner 'root'
-    group 'root'
-    mode '0755'
-  end
-
-  assign_opts = []
-
-  assign_opts += ['--valid-ips', valid_ips] if valid_ips
+  assign_opts = ['--valid-ips', valid_ips]
   assign_opts += ['--invalid-ips', invalid_ips] if invalid_ips
 
-  assign_cmd = ['aws-ec2-assign-elastic-ip'] + assign_opts
-
   execute 'assign eips' do
-    command assign_cmd.join(' ') + ' && get-current-eips'
+    command ['aws-grab-static-eip'] + assign_opts
     notifies :run, 'execute[sleep after eip assignment]', :immediately
     not_if { File.exist?(sentinel_file) }
     live_stream true
 
-    # retry due to aws-ec2-assign-elastic-ip race condition
-    # https://github.com/skymill/aws-ec2-assign-elastic-ip/pull/25
-    retries 3
+    # Retry assignment a few times. We can fail the first time if we hit the
+    # race condition where another instance grabs the same EIP we are
+    # attempting to grab.
+    retries 4
     retry_delay 5
   end
 
