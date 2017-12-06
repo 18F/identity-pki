@@ -55,7 +55,9 @@ data "aws_iam_policy_document" "logbucketpolicy" {
       "s3:ListBucket"
     ]
     resources = [
-      "arn:aws:s3:::login-gov-${var.env_name}-logs"
+      "arn:aws:s3:::login-gov-${var.env_name}-logs",
+      "arn:aws:s3:::login-gov-logs-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
+
     ]
   }
   statement {
@@ -65,7 +67,8 @@ data "aws_iam_policy_document" "logbucketpolicy" {
       "s3:PutObjectAcl"
     ]
     resources = [
-      "arn:aws:s3:::login-gov-${var.env_name}-logs/*"
+      "arn:aws:s3:::login-gov-${var.env_name}-logs/*",
+      "arn:aws:s3:::login-gov-logs-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}/*"
     ]
   }
   statement {
