@@ -13,7 +13,7 @@ module Cloudlib
     # @return [Aws::EC2::Resource]
     def self.new_resource
       if Aws.config.empty? && !ENV['AWS_PROFILE'] && !ENV['AWS_SECRET_ACCESS_KEY']
-        log.warn("No AWS credentials appear set, try `aws configure`?")
+        log.warn("No AWS credentials appear set, try `aws configure` or set AWS_PROFILE?")
       end
       Aws::EC2::Resource.new
     end
