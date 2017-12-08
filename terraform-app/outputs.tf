@@ -38,10 +38,6 @@ output "idp_db_address" {
   value = "idp-postgres.login.gov.internal"
 }
 
-output "idp_tls_common_name" {
-  value = "${acme_certificate.idp.certificate_domain}"
-}
-
 output "jumphost-eip" {
   value = "${var.non_asg_jumphost_enabled == 1 ? aws_eip.jumphost.public_ip : 0}"
 }

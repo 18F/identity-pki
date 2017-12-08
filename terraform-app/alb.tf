@@ -98,18 +98,6 @@ resource "aws_alb_target_group" "idp-ssl" {
   deregistration_delay = 120
 }
 
-resource "aws_iam_server_certificate" "idp" {
-  count = "${var.alb_enabled}"
-  certificate_body = "${acme_certificate.idp.certificate_pem}"
-  certificate_chain = "${file("${path.cwd}/../certs/lets-encrypt-x3-cross-signed.pem")}"
-  name_prefix = "${var.name}-idp-cert-${var.env_name}."
-  private_key = "${acme_certificate.idp.private_key_pem}"
-
-  lifecycle {
-      create_before_destroy = true
-  }
-}
-
 # secure.login.gov is the production-only name for the IDP app
 resource "aws_route53_record" "c_alb_production" {
   count = "${var.env_name == "prod" ? var.alb_enabled : 0}"
