@@ -367,7 +367,7 @@ if ! [ -e "./chef-client.rb" ]; then
     exit 3
 fi
 
-run chef-client --local-mode -c "./chef-client.rb"
+run chef-client --local-mode -c "./chef-client.rb" --no-color
 
 echo "==========================================================="
 echo "All done! provision.sh finished for $repo_basename"
