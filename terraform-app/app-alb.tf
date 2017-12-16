@@ -80,7 +80,6 @@ resource "aws_alb_target_group" "app-ssl" {
 
   health_check {
     # we don't actually have basic auth enabled on app
-    #matcher =  "${var.basic_auth_enabled ? 401 : 200}"
     matcher =  "200"
     protocol = "HTTPS"
 
