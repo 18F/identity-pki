@@ -7,8 +7,10 @@ psql_config 'configure postgres root cert'
 app_name = 'sp-sinatra'
 
 dhparam = ConfigLoader.load_config(node, "dhparam")
-basic_auth_username = ConfigLoader.load_config(node, "basic_auth_user_name")
-basic_auth_password = ConfigLoader.load_config(node, "basic_auth_password")
+
+basic_auth_username = ConfigLoader.load_config_or_nil(node, "basic_auth_user_name")
+basic_auth_password = ConfigLoader.load_config_or_nil(node, "basic_auth_password")
+
 # generate a stronger DHE parameter on first run
 # see: https://raymii.org/s/tutorials/Strong_SSL_Security_On_nginx.html#Forward_Secrecy_&_Diffie_Hellman_Ephemeral_Parameters
 execute "openssl dhparam -out dhparam.pem 4096" do
@@ -64,9 +66,11 @@ deploy "/srv/#{app_name}" do
   #user 'ubuntu'
 end
 
-basic_auth_config 'generate basic auth config' do
-  password  "#{basic_auth_password}"
-  user_name "#{basic_auth_username}"
+if basic_auth_username
+  basic_auth_config 'generate basic auth config' do
+    password  basic_auth_password
+    user_name basic_auth_username
+  end
 end
 
 # add nginx conf for app server
@@ -84,8 +88,6 @@ template "/opt/nginx/conf/sites.d/#{app_name}.login.gov.conf" do
     secret_key_base: ConfigLoader.load_config(node, "secret_key_base_rails"),
     security_group_exceptions: ConfigLoader.load_config(node, "security_group_exceptions"),
     server_name: "#{app_name}.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
-    sp_pass: "#{basic_auth_username}",
-    sp_name: "#{basic_auth_password}"
   })
 end
 

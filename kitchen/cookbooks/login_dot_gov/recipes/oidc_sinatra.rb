@@ -78,9 +78,13 @@ deploy "/srv/#{app_name}" do
   #user 'ubuntu'
 end
 
-basic_auth_config 'generate basic auth config' do
-  password ConfigLoader.load_config(node, "basic_auth_password")
-  user_name ConfigLoader.load_config(node, "basic_auth_user_name")
+basic_auth_enabled = !!ConfigLoader.load_config_or_nil(node, "basic_auth_user_name")
+
+if basic_auth_enabled
+  basic_auth_config 'generate basic auth config' do
+    password ConfigLoader.load_config(node, "basic_auth_password")
+    user_name ConfigLoader.load_config(node, "basic_auth_user_name")
+  end
 end
 
 # add nginx conf for app server
