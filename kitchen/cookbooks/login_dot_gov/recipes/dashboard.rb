@@ -25,16 +25,21 @@ end
 
 base_dir = "/srv/#{app_name}"
 deploy_dir = "#{base_dir}/current/public"
-basic_auth_username = ConfigLoader.load_config(node, "basic_auth_user_name")
-basic_auth_password = ConfigLoader.load_config(node, "basic_auth_password")
+
+basic_auth_enabled = !!ConfigLoader.load_config_or_nil(node, "basic_auth_user_name")
 
 idp_url = "https://idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
-idp_sp_url = "https://#{basic_auth_username}:#{basic_auth_password}@idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}/api/service_provider"
+if basic_auth_enabled
+  basic_auth_username = ConfigLoader.load_config(node, "basic_auth_user_name")
+  basic_auth_password = ConfigLoader.load_config(node, "basic_auth_password")
+  idp_sp_url = "https://#{basic_auth_username}:#{basic_auth_password}@idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}/api/service_provider"
+else
+  idp_sp_url = "https://idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}/api/service_provider"
+end
 dashboard_url = "https://dashboard.#{node.chef_environment}.#{node.fetch('login_dot_gov').fetch('domain_name')}"
 
-# branch is 'master'(default) when env is dev, otherwise use stages/env 
-branch_name = (node.chef_environment == 'dev' ? node['login_dot_gov']['branch_name'] : "stages/#{node.chef_environment}")
-sha_env = (node.chef_environment == 'dev' ? node['login_dot_gov']['branch_name'] : "deploy")
+branch_name = node.fetch('login_dot_gov').fetch('branch_name', "stages/#{node.chef_environment}")
+sha_env = "deploy"
 
 %w{cached-copy config log}.each do |dir|
   directory "#{base_dir}/shared/#{dir}" do
@@ -65,32 +70,37 @@ login_dot_gov_newrelic_config "#{base_dir}/shared" do
   app_name "dashboard.#{node.chef_environment}.#{node['login_dot_gov']['app_name']}"
 end
 
+dashboard_config = {
+  'admin_email' => 'partners@login.gov',
+  'saml_name_id_format' => 'urn:oasis:names:tc:SAML:1.1:nameid-format:persistent',
+  'dashboard_api_token' => ConfigLoader.load_config(node, "dashboard_api_token"),
+  'idp_sp_url' => idp_sp_url,
+  'saml_idp_fingerprint' => ConfigLoader.load_config_or_nil(node, "idp_cert_fingerprint") || node['login_dot_gov']['dashboard']['idp_cert_fingerprint'],
+  'saml_idp_slo_url' => "#{idp_url}/api/saml/logout",
+  'saml_idp_sso_url' => "#{idp_url}/api/saml/auth",
+  'saml_sp_certificate' => ConfigLoader.load_config_or_nil(node, "dashboard_sp_certificate") || node['login_dot_gov']['dashboard']['sp_certificate'],
+  'saml_sp_issuer' => dashboard_url,
+  'saml_sp_private_key' => ConfigLoader.load_config_or_nil(node, "dashboard_sp_private_key") || node['login_dot_gov']['dashboard']['sp_private_key'],
+  'saml_sp_private_key_password' => ConfigLoader.load_config_or_nil(node, "dashboard_sp_private_key_password") || node['login_dot_gov']['dashboard']['sp_private_key_password'],
+  'secret_key_base' => ConfigLoader.load_config(node, "secret_key_base_dashboard"),
+  'smtp_address' => 'smtp.mandrillapp.com', # TODO unused
+  'smtp_domain' => dashboard_url, # TODO unused
+  'smtp_password' => 'sekret', # TODO unused
+  'smtp_username' => 'user', # TODO unused
+  'mailer_domain' => dashboard_url,
+}
+
+if basic_auth_enabled
+  dashboard_config['basic_auth_username'] = basic_auth_username
+  dashboard_config['basic_auth_password'] = basic_auth_password
+end
+
 # Application configuration (application.yml)
 # TODO: don't generate YAML with erb, that's an antipattern
-template "#{base_dir}/shared/config/application.yml" do
-  source "dashboard_application.yml.erb"
+file "#{base_dir}/shared/config/application.yml" do
   owner node['login_dot_gov']['system_user']
   sensitive true
-  variables({
-    admin_email: 'partners@login.gov',
-    basic_auth_password: "#{basic_auth_password}",
-    basic_auth_username: "#{basic_auth_username}",
-    dashboard_api_token: ConfigLoader.load_config(node, "dashboard_api_token"),
-    idp_sp_url: idp_sp_url,
-    mailer_domain: dashboard_url,
-    saml_idp_fingerprint: ConfigLoader.load_config_or_nil(node, "idp_cert_fingerprint") || node['login_dot_gov']['dashboard']['idp_cert_fingerprint'],
-    saml_idp_slo_url: "#{idp_url}/api/saml/logout",
-    saml_idp_sso_url: "#{idp_url}/api/saml/auth",
-    saml_sp_certificate: ConfigLoader.load_config_or_nil(node, "dashboard_sp_certificate") || node['login_dot_gov']['dashboard']['sp_certificate'],
-    saml_sp_issuer: dashboard_url,
-    saml_sp_private_key: ConfigLoader.load_config_or_nil(node, "dashboard_sp_private_key") || node['login_dot_gov']['dashboard']['sp_private_key'],
-    saml_sp_private_key_password: ConfigLoader.load_config_or_nil(node, "dashboard_sp_private_key_password") || node['login_dot_gov']['dashboard']['sp_private_key_password'],
-    secret_key_base: ConfigLoader.load_config(node, "secret_key_base_dashboard"),
-    smtp_address: 'smtp.mandrillapp.com',
-    smtp_domain: dashboard_url,
-    smtp_password: 'sekret',
-    smtp_username: 'user'
-  })
+  content({'production' => dashboard_config}.to_yaml)
   subscribes :create, 'deploy[/srv/dashboard]', :immediately
 end
 
@@ -149,9 +159,11 @@ execute "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bun
   user node['login_dot_gov']['system_user']
 end
 
-basic_auth_config 'generate basic auth config' do
-  password  "#{basic_auth_password}"
-  user_name "#{basic_auth_username}"
+if basic_auth_enabled
+  basic_auth_config 'generate basic auth config' do
+    password  "#{basic_auth_password}"
+    user_name "#{basic_auth_username}"
+  end
 end
 
 # Create a self-signed certificate for ALB to talk to. ALB does not verify

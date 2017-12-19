@@ -11,13 +11,14 @@ if basic_auth_enabled
   end
 else
   if %w(prod staging).include?(node.chef_environment)
-    # When in prod or staging, issue warning that basic auth is disabled
-    Chef::Log.warn 'Basic auth disabled'
+    Chef::Log.info 'Basic auth disabled'
+  elsif node.fetch('login_dot_gov').fetch('domain_name') == 'identitysandbox.gov'
+    Chef::Log.info 'Basic auth disabled and domain is sandbox'
   else
     # Raise exception if basic auth credentials are missing in other envs
     Chef::Log.fatal 'No basic auth credentials found'
     Chef::Log.fatal 'Only prod and staging may operate without basic auth'
-    raise
+    raise 'Only prod and staging may operate without basic auth outside identitysandbox.gov'
   end
 end
 

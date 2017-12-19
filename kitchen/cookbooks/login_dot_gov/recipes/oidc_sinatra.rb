@@ -41,9 +41,8 @@ end
 base_dir = "/srv/#{app_name}"
 deploy_dir = "#{base_dir}/current/public"
 
-# branch is 'master'(default) when env is dev, otherwise use stages/env 
-branch_name = (node.chef_environment == 'dev' ? node['login_dot_gov']['branch_name'] : "stages/#{node.chef_environment}")
-sha_env = (node.chef_environment == 'dev' ? node['login_dot_gov']['branch_name'] : "deploy")
+branch_name = node.fetch('login_dot_gov').fetch('branch_name', "stages/#{node.chef_environment}")
+sha_env = "deploy"
 
 # setup required directories with system_user as the owner/group
 %w{cached-copy config log}.each do |dir|
@@ -79,9 +78,13 @@ deploy "/srv/#{app_name}" do
   #user 'ubuntu'
 end
 
-basic_auth_config 'generate basic auth config' do
-  password ConfigLoader.load_config(node, "basic_auth_password")
-  user_name ConfigLoader.load_config(node, "basic_auth_user_name")
+basic_auth_enabled = !!ConfigLoader.load_config_or_nil(node, "basic_auth_user_name")
+
+if basic_auth_enabled
+  basic_auth_config 'generate basic auth config' do
+    password ConfigLoader.load_config(node, "basic_auth_password")
+    user_name ConfigLoader.load_config(node, "basic_auth_user_name")
+  end
 end
 
 # add nginx conf for app server

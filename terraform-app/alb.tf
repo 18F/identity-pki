@@ -79,8 +79,8 @@ resource "aws_alb_target_group" "idp-ssl" {
   depends_on = ["aws_alb.idp"]
 
   health_check {
-    # we have HTTP basic auth enabled everywhere except prod and staging
-    matcher =  "${var.basic_auth_enabled ? 401 : 200}"
+    # we have HTTP basic auth enabled in nonprod envs in the prod AWS account
+    matcher =  "${var.basic_auth_enabled ? "401,200" : "200"}"
     protocol = "HTTPS"
 
     interval = 10

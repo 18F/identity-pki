@@ -26,9 +26,8 @@ end
 base_dir = "/srv/#{app_name}"
 deploy_dir = "#{base_dir}/current/public"
 
-# branch is 'master'(default) when env is dev, otherwise use stages/env 
-branch_name = (node.chef_environment == 'dev' ? node['login_dot_gov']['branch_name'] : "stages/#{node.chef_environment}")
-sha_env = (node.chef_environment == 'dev' ? node['login_dot_gov']['branch_name'] : "deploy")
+branch_name = node.fetch('login_dot_gov').fetch('branch_name', "stages/#{node.chef_environment}")
+sha_env = "deploy"
 
 %w{cached-copy config log}.each do |dir|
   directory "#{base_dir}/shared/#{dir}" do
@@ -39,27 +38,33 @@ sha_env = (node.chef_environment == 'dev' ? node['login_dot_gov']['branch_name']
   end
 end
 
-idp_url = "https://idp.#{node.chef_environment}.#{node.fetch('login_dot_gov').fetch('domain_name')}"
+full_domain = "#{node.chef_environment}.#{node.fetch('login_dot_gov').fetch('domain_name')}"
 
-# TODO: don't generate YAML with erb, that's an antipattern
-template "#{base_dir}/shared/config/secrets.yml" do
+basic_auth_user_name = ConfigLoader.load_config_or_nil(node, "basic_auth_user_name")
+basic_auth_password = ConfigLoader.load_config_or_nil(node, "basic_auth_password")
+
+sp_rails_config = {
+  'secret_key_base' => ConfigLoader.load_config(node, "secret_key_base_rails"),
+  'saml_issuer' => node.fetch('login_dot_gov').fetch('sp_rails').fetch('saml_issuer'),
+  'idp_sso_url' => "https://idp.#{full_domain}/api/saml/auth",
+  'idp_slo_url' => "https://idp.#{full_domain}/api/saml/logout",
+  'idp_cert_fingerprint' => node.fetch('login_dot_gov').fetch('sp_rails').fetch('idp_cert_fingerprint'),
+  'acs_url' => "https://sp.#{full_domain}/auth/saml/callback",
+}
+
+if basic_auth_password
+  sp_rails_config['http_auth_username'] = basic_auth_user_name
+  sp_rails_config['http_auth_password'] = basic_auth_password
+end
+
+file "#{base_dir}/shared/config/secrets.yml" do
   action :create
-  source 'secrets.yml.erb'
   manage_symlink_source true
   sensitive true
   subscribes :create, 'resource[git]', :immediately
   user node['login_dot_gov']['system_user']
 
-  variables({
-    secret_key_base: ConfigLoader.load_config(node, "secret_key_base_rails"),
-    saml_issuer: node['login_dot_gov']['sp_rails']['saml_issuer'],
-    idp_sso_url: "#{idp_url}/api/saml/auth",
-    idp_slo_url: "#{idp_url}/api/saml/logout",
-    http_auth_username: node['login_dot_gov']['sp_rails']['http_auth_username'],
-    http_auth_password: node['login_dot_gov']['sp_rails']['http_auth_password'],
-    idp_cert_fingerprint: node['login_dot_gov']['sp_rails']['idp_cert_fingerprint'],
-    acs_url: "https://sp.#{node.chef_environment}.#{node.fetch('login_dot_gov').fetch('domain_name')}/auth/saml/callback",
-  })
+  content({'production' => sp_rails_config}.to_yaml)
 end
 
 # TODO: don't generate YAML with erb, that's an antipattern
@@ -115,9 +120,11 @@ execute "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bun
   })
 end
 
-basic_auth_config 'generate basic auth config' do
-  password ConfigLoader.load_config(node, "basic_auth_password")
-  user_name ConfigLoader.load_config(node, "basic_auth_user_name")
+if basic_auth_password
+  basic_auth_config 'generate basic auth config' do
+    password basic_auth_password
+    user_name basic_auth_user_name
+  end
 end
 
 # add nginx conf for app server
@@ -132,12 +139,9 @@ template "/opt/nginx/conf/sites.d/#{app_name}.login.gov.conf" do
     domain: "#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
     elb_cidr: node['login_dot_gov']['elb_cidr'],
     saml_env: node.chef_environment,
-    secret_key_base: ConfigLoader.load_config(node, "secret_key_base_rails"),
     security_group_exceptions: ConfigLoader.load_config(node, "security_group_exceptions"),
     server_aliases: "#{app_name}.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
     server_name: "sp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
-    sp_pass: ConfigLoader.load_config(node, "basic_auth_password"),
-    sp_name: ConfigLoader.load_config(node, "basic_auth_user_name")
   })
 end
 
