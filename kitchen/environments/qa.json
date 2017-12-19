@@ -10,7 +10,8 @@
       "branch_name": "stages/qa"
     },
     "login_dot_gov": {
-      "branch_name": "stages/qa"
+      "branch_name": "stages/qa",
+      "auto_eip_enabled_roles": ["jumphost", "worker"]
     },
     "ssh_keys": {
     },

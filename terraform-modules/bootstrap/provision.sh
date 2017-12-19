@@ -1,7 +1,11 @@
 #!/bin/bash
 
-# Send all output to syslog and serial console.
-exec > >(tee >(logger -t provision.sh -s 2>/dev/console)) 2>&1
+# Send all output to syslog and serial console unless we're being run by
+# systemd, in which case assume that systemd is handling output logging.
+# shellcheck disable=SC2009
+if ! ps -o cgroup= $$ | grep ".service" >/dev/null ; then
+    exec > >(tee >(logger -t provision.sh -s 2>/dev/console)) 2>&1
+fi
 
 set -euo pipefail
 
@@ -363,7 +367,7 @@ if ! [ -e "./chef-client.rb" ]; then
     exit 3
 fi
 
-run chef-client --local-mode -c "./chef-client.rb"
+run chef-client --local-mode -c "./chef-client.rb" --no-color
 
 echo "==========================================================="
 echo "All done! provision.sh finished for $repo_basename"

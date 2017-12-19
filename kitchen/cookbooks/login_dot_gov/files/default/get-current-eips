@@ -1,0 +1,18 @@
+#!/bin/bash
+set -euo pipefail
+
+run() {
+    echo >&2 "+ $*"
+    "$@"
+}
+
+az="$(run ec2metadata --availability-zone)"
+region="${az::-1}"
+
+export AWS_DEFAULT_REGION="$region"
+
+instance_id="$(run ec2metadata --instance-id)"
+
+run aws ec2 describe-addresses \
+    --filters "Name=instance-id,Values=$instance_id" --output text \
+    | grep ^ADDRESSES
