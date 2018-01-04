@@ -260,7 +260,7 @@ resource "aws_elb" "outboundproxy" {
   internal         = true
 
   access_logs {
-    bucket = "login-gov-${var.env_name}-proxylogs"
+    bucket = "login-gov-proxylogs-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
     interval = 5
   }
 
