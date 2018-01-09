@@ -149,5 +149,5 @@ resource "aws_route53_record" "main_dmarc" {
     zone_id = "${aws_route53_zone.primary.zone_id}"
     ttl = "900"
     type = "TXT"
-    records = ["v=DMARC1; p=reject; pct=100; fo=1; ri=3600; rua=mailto:gsalogin@rua.agari.com,mailto:dmarc-reports@login.gov; ruf=mailto:dmarc-forensics@login.gov"]
+    records = ["v=DMARC1; p=reject; pct=100; fo=1; ri=3600; rua=mailto:gsalogin@rua.agari.com,mailto:dmarc-reports@login.gov,mailto:reports@dmarc.cyber.dhs.gov; ruf=mailto:dmarc-forensics@login.gov"]
 }
