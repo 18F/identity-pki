@@ -80,6 +80,9 @@ Examples:
     # Quietly SSH to a randomly selected matching es server, run hostname
     #{basename} -1 -q login-es*-qa hostname -f
 
+    # SSH, forwarding a local port to a remote destination
+    #{basename} -L 5061:localhost:5061 i-abcd1234
+
 Options:
     EOM
 
@@ -117,6 +120,12 @@ Options:
 
     opts.on('-j', '--[no-]jumphost', 'Whether to use a jumphost') do |val|
       cl_ssh_options[:use_jumphost] = val
+    end
+
+    opts.on('-L', '--local-forward OPT',
+            'forward local ports over SSH (can pass multiple times)') do |val|
+      cl_ssh_options[:local_forwards] ||= []
+      cl_ssh_options[:local_forwards] += ['-L', val]
     end
 
     opts.on('-o', '--ssh-opt OPT',

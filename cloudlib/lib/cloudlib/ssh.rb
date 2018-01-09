@@ -70,10 +70,14 @@ module Cloudlib
 
       # @param [Boolean, nil] use_jumphost Whether to try to find a jumphost to
       #   SSH through. If set to nil, auto determine based on instance name.
+      # @param [Array<String>] ssh_opts SSH options passed at the command line
+      #   with "-o". The "-o" is included in the list for each option.
+      # @param [Array<String>] local_forwards SSH options related to forwarding
+      #   local ports. The "-L" is included in the list for each forward.
       def ssh_cmdline(username: nil, command: nil, port: 22, pkcs11_lib: nil,
                       strict_host_key_checking: nil, use_jumphost: nil,
                       verbose: false, quiet: false,
-                      ssh_opts: [])
+                      ssh_opts: [], local_forwards: [])
 
         username ||= ENV['GSA_USERNAME']
         unless username
@@ -144,7 +148,7 @@ module Cloudlib
           proxycommand = jumphost_ssh_single.ssh_cmdline(
             username: username, port: port, pkcs11_lib: pkcs11_lib,
             use_jumphost: false, verbose: verbose, quiet: quiet,
-            ssh_opts: ['-W', netcat_host] + ssh_opts
+            ssh_opts: ['-W', netcat_host] + ssh_opts, local_forwards: []
           )
 
           cmd += ['-o', 'ProxyCommand=' + proxycommand.join(' ')]
@@ -154,6 +158,7 @@ module Cloudlib
           cmd << instance.public_ip_address
         end
 
+        cmd += local_forwards
         cmd += ssh_opts
 
         if command
