@@ -78,6 +78,10 @@ by EC2 instance "Name" tag.
 
 If USER is not specified, it defaults to $GSA_USERNAME.
 
+When there are multiple instances found with the same name tag (like
+asg-dev-jumphost), an interactive prompt will appear by default. There are
+several options to choose systematically: --newest, --oldest, --any.
+
 Examples:
 
     # SSH to a specific instance
@@ -97,6 +101,9 @@ Examples:
 
     # SSH, forwarding a local port to a remote destination
     #{basename} -L 5061:localhost:5061 i-abcd1234
+
+    # SSH to an interactively selected server in dev
+    #{basename} -P 'asg-dev-*'
 
 Options:
     EOM
