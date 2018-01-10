@@ -121,7 +121,7 @@ application release_path do
   # custom resource to configure new relic (newrelic.yml)
   login_dot_gov_newrelic_config release_path do
     not_if { node['login_dot_gov']['setup_only'] }
-    app_name "#{node.chef_environment}.#{node['login_dot_gov']['app_name']}"
+    app_name "#{node.chef_environment}.#{node.fetch('login_dot_gov').fetch('domain_name')}"
   end
 
   # TODO: add a deploy/build script and pull in the bundle install, npm build,
