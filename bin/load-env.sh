@@ -169,3 +169,6 @@ if env | grep ^TV_VAR_; then
     echo_red "Found variables named TV_VAR_, but you probably meant TF_VAR_!"
     echo_red "$(env | grep ^TV_VAR_)"
 fi
+
+# shellcheck disable=SC2163,SC2086
+export ${!TF_VAR_*}
