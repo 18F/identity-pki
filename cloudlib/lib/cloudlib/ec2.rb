@@ -1,3 +1,5 @@
+require 'tty-prompt'
+
 module Cloudlib
   # @see EC2.new_resource
   def self.ec2
@@ -7,6 +9,7 @@ module Cloudlib
   class EC2
     attr_reader :ec2
     attr_reader :env
+    attr_reader :prompt
 
     # Create a new AWS EC2 connection object
     #
@@ -36,6 +39,8 @@ module Cloudlib
         @vpc = @ec2.vpc(vpc_id)
         @env ||= name_tag(@vpc).gsub(VPC_NAME_PREFIX, '')
       end
+
+      @prompt = TTY::Prompt.new(output: STDERR)
     end
 
     def self.new_from_vpc_id(vpc_id)
@@ -158,6 +163,29 @@ module Cloudlib
       end
 
       list_things(:instances, filters)
+    end
+
+    def find_instance_interactive(filters:,
+                                  prompt_text: 'Multiple instances found:')
+      instances = list_things(:instances, filters)
+
+      # don't prompt if only one choice
+      return instances.first if instances.length == 1
+
+      log.debug("Asking to choose instance from #{instances.length} choices")
+      prompt.select(prompt_text) do |menu|
+        menu.enum('.') # allow selecting by number
+        instances.sort_by(&:launch_time).each do |i|
+          uptime_hours = ((Time.now - i.launch_time) / 3600.0).round(1)
+          description = [
+            i.instance_id,
+            i.placement.availability_zone,
+            #i.image_id,
+            "#{i.launch_time.strftime('%Y-%m-%d %H:%M %Z')} (#{uptime_hours} hrs ago)"
+          ].join(', ')
+          menu.choice(description, i)
+        end
+      end
     end
 
     # Look up a unique object in EC2. Raise ManyFound if multiple objects match

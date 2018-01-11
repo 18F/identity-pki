@@ -21,11 +21,20 @@ def get_instance_by_id(instance_id)
   Cloudlib::EC2.new.lookup_instance_by_id(instance_id)
 end
 
-def get_instance_by_name(name_tag, states:['running'], pick_strategy: :unique)
+def get_instance_by_name(name_tag, states:['running'], pick_strategy: nil)
   filters = [
     {name: 'tag:Name', values: [name_tag]},
     {name: 'instance-state-name', values: states}
   ]
+
+  # Interactively prompt by default iff we're connected to a TTY.
+  if pick_strategy.nil?
+    if STDIN.tty? && STDERR.tty?
+      pick_strategy = :prompt
+    else
+      pick_strategy = :unique
+    end
+  end
 
   case pick_strategy
   when :random
@@ -42,6 +51,12 @@ def get_instance_by_name(name_tag, states:['running'], pick_strategy: :unique)
   when :unique
     log.debug("Looking up instance named #{name_tag.inspect}")
     Cloudlib::EC2.new.get_unique_thing(:instances, filters)
+  when :prompt
+    log.debug("Looking up instances named #{name_tag.inspect}")
+    Cloudlib::EC2.new.find_instance_interactive(
+      filters: filters,
+      prompt_text: "Found multiple instances named #{name_tag.inspect}:"
+    )
   else
     raise ArgumentError.new("Unknown pick_strategy: #{pick_strategy.inspect}")
   end
@@ -49,7 +64,7 @@ end
 
 def main(args)
 
-  options = {pick_strategy: :unique}
+  options = {pick_strategy: nil}
   cl_ssh_options = {}
 
   basename = File.basename($0)
@@ -62,6 +77,10 @@ SSH to an individual EC2 instance. HOST may be specified by EC2 Instance ID or
 by EC2 instance "Name" tag.
 
 If USER is not specified, it defaults to $GSA_USERNAME.
+
+When there are multiple instances found with the same name tag (like
+asg-dev-jumphost), an interactive prompt will appear by default. There are
+several options to choose systematically: --newest, --oldest, --any.
 
 Examples:
 
@@ -82,6 +101,9 @@ Examples:
 
     # SSH, forwarding a local port to a remote destination
     #{basename} -L 5061:localhost:5061 i-abcd1234
+
+    # SSH to an interactively selected server in dev
+    #{basename} -P 'asg-dev-*'
 
 Options:
     EOM
@@ -116,6 +138,10 @@ Options:
 
     opts.on('--oldest', 'Pick server with oldest boot time') do
       options[:pick_strategy] = :oldest
+    end
+
+    opts.on('-P', '--prompt', 'Pick server interactively if ambiguous') do
+      options[:pick_strategy] = :prompt
     end
 
     opts.on('-j', '--[no-]jumphost', 'Whether to use a jumphost') do |val|
