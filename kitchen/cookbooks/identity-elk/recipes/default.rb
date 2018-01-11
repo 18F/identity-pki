@@ -230,9 +230,14 @@ include_recipe 'runit'
   end
 
   directory "/etc/logstash/#{lsname}conf.d"
-  directory "/var/tmp/#{lsname}" do
+
+  directory '/srv/tmp' do
+    mode '0755'
+  end
+  directory "/srv/tmp/#{lsname}" do
     owner 'logstash'
     group 'logstash'
+    mode '0700'
   end
 
   template "/etc/logstash/#{lsname}conf.d/30-s3output.conf" do
@@ -262,7 +267,7 @@ include_recipe 'runit'
       :min_heap => "#{(node['memory']['total'].to_i * 0.2).floor / 1024}M",
       :gc_opts => '-XX:+UseParallelOldGC',
       :java_opts => '-Dio.netty.native.workdir=/etc/logstash/tmp -XX:HeapDumpPath=/dev/null',
-      :tmpdir => "/var/tmp/#{lsname}",
+      :tmpdir => "/srv/tmp/#{lsname}",
       :ipv4_only => false,
       :workers => 2,
       :debug => false,
