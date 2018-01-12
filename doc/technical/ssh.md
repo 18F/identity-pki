@@ -173,3 +173,23 @@ To set up Firefox:
 4. Check **Use this proxy server for all protocols**
 
 Click OK and restart your browser.
+
+## SSH to Github from servers
+
+We have a machine github user, `identity-servers`
+(https://github.com/identity-servers) that we use to allow our servers to clone
+private github repos. There are also a number of repository-specific deploy
+keys, but it gets to be a headache to manage a lot of them since they can only
+be used on a single repo.
+
+The SSH keys are delivered by chef to
+`/etc/login.gov/keys/id_ecdsa.identity-servers` from the common directory in
+the citadel S3 secrets bucket. All users who are in the `github` unix group are
+able to access the keys.
+
+Then we set SSH config in `/etc/ssh/ssh_config` to make SSH connections to
+github.com use that key by default. Try it out by running `ssh git@github.com`
+on a server.
+
+The password and MFA key to fully log in to the identity-servers user are
+stored in the prod AWS account in the `login-gov.shared-secrets` bucket.

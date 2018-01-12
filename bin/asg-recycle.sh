@@ -62,8 +62,56 @@ get_asg_info() {
         | grep "^AUTOSCALINGGROUPS"
 }
 
+# usage: recycle_all_asgs_in_env ENV [RECYCLE_OPTS...]
+#
+# Call schedule_recycle once for each autoscaling group in ENV. RECYCLE_OPTS
+# will be passed directly to schedule_recycle.
+#
+recycle_all_asgs_in_env() {
+    local env asg_name asg_list
+    env="$1"
+
+    shift
+
+    echo_green "Will recycle all autoscaling groups in $env:"
+
+    asg_list="$(list_asgs_with_prefix "$env-")"
+    echo_green "$(sed 's/^/  /' <<< "$asg_list")"
+
+    if [ -t 1 ] && [ -t 0 ]; then
+        read -r -p "Press enter to continue..."
+    fi
+
+    for asg_name in $asg_list; do
+        echo
+        echo_green "Starting $asg_name"
+        schedule_recycle --skip-zero "$asg_name" "$@"
+        echo_green "Done with $asg_name"
+    done
+}
+
+# list_asgs_with_prefix PREFIX
+list_asgs_with_prefix() {
+    # There isn't any way to filter ASGs by VPC (since they aren't directly
+    # associated with the VPC). So we rely upon our convention that ASG names
+    # are supposed to start with the environment name.
+    # The autoscaling API also doesn't support filters, so we have do the
+    # filtering client side using JMESPath (--query).
+
+    local prefix
+    prefix="$1"
+
+    run aws autoscaling describe-auto-scaling-groups --output text \
+        --query "AutoScalingGroups[?starts_with(AutoScalingGroupName, \`$prefix\`)].[AutoScalingGroupName]"
+}
+
 # schedule_recycle ASG_NAME [DESIRED_CAPACITY]
 schedule_recycle() {
+    local skip_zero=
+    if [ "$1" = "--skip-zero" ]; then
+        skip_zero=1
+        shift
+    fi
     local asg_name="$1"
     local desired_capacity="${2-}"
     local asg_info current_size max_size min_size new_size spindown_delay health_grace_period
@@ -83,9 +131,20 @@ schedule_recycle() {
     echo_blue "  max:     $max_size"
     echo_blue "Health check grace period: ${health_grace_period}s"
 
-    if ((current_size == 0)) && [ -z "$desired_capacity" ]; then
-        echo_red "Error: current desired size is 0, nothing to recycle"
-        return 1
+    if ((current_size == 0)); then
+        local message="current desired size is 0, nothing to recycle"
+
+        # always do nothing if --skip-zero is set and desired count is 0
+        if [ -n "$skip_zero" ]; then
+            echo_yellow "Warning: skipping $asg_name, $message"
+            return
+        fi
+
+        # otherwise return error unless we have a new target desired capacity
+        if [ -z "$desired_capacity" ]; then
+            echo_red "Error: $message"
+            return 3
+        fi
     fi
 
     # The health_grace_period reflects the current ASG's health check grace
@@ -147,4 +206,8 @@ fi
 
 ASG_NAME="$ENV-$ROLE"
 
-schedule_recycle "$ASG_NAME" "$desired_capacity"
+if [ "$ROLE" = "ALL" ]; then
+    recycle_all_asgs_in_env "$ENV" "$desired_capacity"
+else
+    schedule_recycle "$ASG_NAME" "$desired_capacity"
+fi

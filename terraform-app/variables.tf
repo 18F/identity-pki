@@ -65,7 +65,6 @@ variable "jumphost_ami_id" {}
 variable "idp1_ami_id" {}
 variable "idp2_ami_id" {}
 variable "worker_ami_id" {}
-variable "worker_ami_list" { type="list" }
 variable "elasticsearch_ami_id" {}
 variable "elk_ami_id" {}
 variable "route53_id" {}
