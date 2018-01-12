@@ -10,3 +10,39 @@ file '/etc/ssh/ssh_known_hosts' do
   mode '0644'
   content known_hosts.join("\n") + "\n"
 end
+
+cookbook_file '/etc/ssh/ssh_config' do
+  owner 'root'
+  group 'root'
+  source 'etc_ssh_config'
+end
+
+# group able to use github SSH keys
+group 'github' do
+  members ['root', node.fetch('login_dot_gov').fetch('system_user')]
+end
+
+directory '/etc/login.gov/keys' do
+  owner 'root'
+  group 'root'
+  mode '0751'
+end
+
+file '/etc/login.gov/keys/id_ecdsa.identity-servers' do
+  # SSH complains if key is group readable only when you are the owner
+  # so we set the owner to sys since that's a unused user that will never need
+  # to actually use the key.
+  # Add users to the 'github' group in order to read the key.
+  owner 'sys'
+  group 'github'
+  mode '0640'
+  content ConfigLoader.load_config(node, 'id_ecdsa.identity-servers', common: true)
+  sensitive true
+end
+
+file '/etc/login.gov/keys/id_ecdsa.identity-servers.pub' do
+  owner 'root'
+  group 'root'
+  mode '0644'
+  content ConfigLoader.load_config(node, 'id_ecdsa.identity-servers.pub', common: true)
+end

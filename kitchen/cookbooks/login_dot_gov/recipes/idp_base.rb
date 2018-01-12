@@ -8,23 +8,6 @@ shared_path     = '/srv/idp/shared'
 
 package 'jq'
 
-file '/root/.ssh/id_rsa.pub' do
-  content ConfigLoader.load_config(node, "jenkins_equifax_gem_pubkey")
-  user  'root'
-  group 'root'
-  mode  '0600'
-  subscribes :create, "application[#{release_path}]", :before
-end
-
-file '/root/.ssh/id_rsa' do
-  content ConfigLoader.load_config(node, "jenkins_equifax_gem_privkey")
-  user  'root'
-  group 'root'
-  mode  '0600'
-  sensitive true
-  subscribes :create, "application[#{release_path}]", :before
-end
-
 # create dir for AWS PostgreSQL combined CA cert bundle
 directory '/usr/local/share/aws' do
   owner 'root'
