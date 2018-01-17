@@ -13,7 +13,7 @@ end
 remote_file node['identity-nessus']['deb_name'] do
   checksum node['identity-nessus']['sha256sum']
   path "/tmp/#{node['identity-nessus']['deb_name']}"
-  source lazy { "http://downloads.nessus.org/nessus3dl.php?file=#{node['identity-nessus']['deb_name']}&licence_accept=yes&t=#{::File.read(dl_key_path).chomp}" }
+  source lazy { "https://tenable-downloads-production.s3.amazonaws.com/uploads/download/file/7507/#{node['identity-nessus']['deb_name']}?yes#{::File.read(dl_key_path).chomp}" }
   not_if { ::File.exists? '/etc/init.d/nessusagent' }
 end
 
