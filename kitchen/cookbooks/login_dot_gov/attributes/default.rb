@@ -46,20 +46,20 @@ default['login_dot_gov']['sslrootcert']                               = '/usr/lo
 default['login_dot_gov']['branch_name']                               = 'master'
 
 # new relic
-default['login_dot_gov']['agent_enabled']                             = 'true'
+default['login_dot_gov']['agent_enabled']                             = true
 default['login_dot_gov']['app_name']                                  = 'login.gov'
-default['login_dot_gov']['audit_log_enabled']                         = 'false'
-default['login_dot_gov']['auto_instrument']                           = 'false'
-default['login_dot_gov']['capture_error_source']                      = 'true'
-default['login_dot_gov']['error_collector_enabled']                   = 'true'
+default['login_dot_gov']['audit_log_enabled']                         = false
+default['login_dot_gov']['auto_instrument']                           = false
+default['login_dot_gov']['capture_error_source']                      = true
+default['login_dot_gov']['error_collector_enabled']                   = true
 default['login_dot_gov']['log_level']                                 = 'info'
-default['login_dot_gov']['monitor_mode']                              = 'true'
-default['login_dot_gov']['transaction_tracer_enabled']                = 'true'
+default['login_dot_gov']['monitor_mode']                              = true
+default['login_dot_gov']['transaction_tracer_enabled']                = true
 default['login_dot_gov']['record_sql']                                = 'obfuscated'
-default['login_dot_gov']['stack_trace_threshold']                     = '0.500'
+default['login_dot_gov']['stack_trace_threshold']                     = 0.500
 default['login_dot_gov']['transaction_threshold']                     = 'apdex_f'
-default['login_dot_gov']['proxy_addr']                                = ''
-default['login_dot_gov']['proxy_port']                                = ''
+default['login_dot_gov']['proxy_addr']                                = nil
+default['login_dot_gov']['proxy_port']                                = nil
 
 # sp-rails
 # 68:19:... is the fingerprint of the SAML IDP cert CN=int.login.gov
