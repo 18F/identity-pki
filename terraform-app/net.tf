@@ -618,21 +618,20 @@ resource "aws_security_group" "idp" {
     cidr_blocks = ["${var.outbound_subnets}"]
   }
 
+  # AAMVA DLDV API, used by worker servers
+  egress {
+    from_port = 18449
+    to_port = 18449
+    protocol = "tcp"
+    cidr_blocks = ["66.227.17.192/26"]
+  }
+
   # github
   egress {
     from_port = 22
     to_port = 22
     protocol = "tcp"
     cidr_blocks = ["192.30.252.0/22"]
-  }
-
-  # email (smtp.mandrillapp.com seems not to have a fixed IP range)
-  # XXX need to change idp to use mandrill API for this to be removed
-  egress {
-    from_port = 587
-    to_port = 587
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
   }
 
   # need ntp outbound
