@@ -13,7 +13,7 @@ resource "aws_db_instance" "idp" {
   maintenance_window = "${var.rds_maintenance_window}"
   multi_az = true
   parameter_group_name = "${aws_db_parameter_group.force_ssl.name}"
-  password = "${var.rds_password}"
+  password = "${var.rds_password}" # change this by hand after creation
   storage_encrypted = true
   username = "${var.rds_username}"
 
@@ -24,6 +24,10 @@ resource "aws_db_instance" "idp" {
     client = "${var.client}"
     Name = "${var.name}-${var.env_name}"
   }
+
+  # enhanced monitoring
+  monitoring_interval = "${var.rds_enhanced_monitoring_enabled ? 60 : 0}"
+  monitoring_role_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.rds_monitoring_role_name}"
 
   vpc_security_group_ids = ["${aws_security_group.db.id}"]
 

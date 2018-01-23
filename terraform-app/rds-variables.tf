@@ -12,3 +12,5 @@ variable "rds_storage_app" { default = "8" }
 variable "rds_storage_idp" { default = "8" }
 variable "rds_username" { }
 variable "rds_maintenance_window" { default = "Sun:08:34-Sun:09:08" }
+variable "rds_enhanced_monitoring_enabled" { default = 1 }
+variable "rds_monitoring_role_name" { default = "rds-monitoring-role" }
