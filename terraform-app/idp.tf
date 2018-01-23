@@ -16,6 +16,8 @@ resource "aws_db_instance" "idp" {
   password = "${var.rds_password}" # change this by hand after creation
   storage_encrypted = true
   username = "${var.rds_username}"
+  storage_type = "${var.rds_storage_type_idp}"
+  iops = "${var.rds_iops_idp}"
 
   # change this to true to allow upgrading engine versions
   allow_major_version_upgrade = false
