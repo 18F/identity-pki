@@ -7,6 +7,19 @@ variable "rds_engine" { default = "postgres" }
 variable "rds_engine_version" { default = "9.5.6" }
 variable "rds_engine_version_short" { default = "9.5" }
 variable "rds_instance_class" { default = "db.t2.large" }
+variable "rds_storage_type_idp" {
+    # possible storage types:
+    # standard (magnetic)
+    # gp2 (general SSD)
+    # io1 (provisioned IOPS SSD)
+    description = "The type of EBS storage (magnetic, SSD, PIOPS) used by the IdP database"
+    default = "standard"
+}
+variable "rds_iops_idp" {
+    description = "If PIOPS storage is used, the number of IOPS provisioned"
+    # Terraform doesn't distinguish between 0 and unset
+    default = 0
+}
 variable "rds_password" { }
 variable "rds_storage_app" { default = "8" }
 variable "rds_storage_idp" { default = "8" }
