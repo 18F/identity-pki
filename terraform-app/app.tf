@@ -18,6 +18,9 @@ resource "aws_db_instance" "default" {
     Name = "${var.name}-${var.env_name}-app"
   }
 
+  # enhanced monitoring
+  monitoring_interval = "${var.rds_enhanced_monitoring_enabled ? 60 : 0}"
+
   vpc_security_group_ids = ["${aws_security_group.db.id}"]
 
   # If you want to destroy your database, comment this block out
