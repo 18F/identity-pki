@@ -20,6 +20,7 @@ resource "aws_db_instance" "default" {
 
   # enhanced monitoring
   monitoring_interval = "${var.rds_enhanced_monitoring_enabled ? 60 : 0}"
+  monitoring_role_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.rds_monitoring_role_name}"
 
   vpc_security_group_ids = ["${aws_security_group.db.id}"]
 
