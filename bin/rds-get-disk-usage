@@ -1,0 +1,87 @@
+#!/usr/bin/env ruby
+
+require 'bundler/setup'
+
+require 'aws-sdk'
+
+# Look up RDS free space for the given database, return free space in Bytes, as
+# the Maximum over the last hour.
+#
+# You can do a similar operation using the AWS CLI:
+# aws cloudwatch get-metric-statistics --start-time $(gdate -u -d '-1 hour' +%FT%T) \
+#   --end-time $(gdate -u +%FT%T) --period 3600 --namespace AWS/RDS --statistics Maximum \
+#   --metric-name FreeStorageSpace --query 'Datapoints[*].Maximum' --output text --dimensions Name=DBInstanceIdentifier,Value=$MY_DB_NAME
+#
+def get_rds_free_space(db_name, debug: false)
+  logger = Logger.new(STDERR)
+  if debug
+    logger.level = Logger::INFO
+  else
+    logger.level = Logger::WARN
+  end
+
+  cw = Aws::CloudWatch::Client.new(logger: logger)
+  stats = cw.get_metric_statistics(
+    namespace: 'AWS/RDS',
+    metric_name: 'FreeStorageSpace',
+    dimensions: [
+      {
+        name: 'DBInstanceIdentifier',
+        value: db_name
+      }
+    ],
+    start_time: Time.now - 3600,
+    end_time: Time.now,
+    period: 3600,
+    statistics: ['Minimum', 'Maximum', 'Average']
+  )
+
+  if stats.datapoints.length != 1
+    raise 'Uh oh, got unexpected stats: ' + stats.inspect
+  end
+
+  stats.datapoints.fetch(0).maximum
+end
+
+# Return allocated storage for a database, in GiB.
+def get_rds_total_space(db_name)
+  Aws::RDS::Resource.new.db_instance(db_name).allocated_storage
+end
+
+def b_to_gb(bytes)
+  bytes / 1024.0 / 1024 / 1024
+end
+
+def get_data(db_name)
+  total_gb = get_rds_total_space(db_name)
+  free_b = get_rds_free_space(db_name)
+
+  free_gb = b_to_gb(free_b)
+
+  used_gb = total_gb - free_gb
+
+  {
+    total: total_gb,
+    used: used_gb,
+    free: free_gb
+  }
+end
+
+def main(db_name)
+  data = get_data(db_name)
+  total = data.fetch(:total)
+  used = data.fetch(:used)
+  free = data.fetch(:free)
+
+  puts "total: #{total.round} GiB"
+  puts "used:  #{used.round(2)} GiB (#{(used / total * 100).round}%)"
+  puts "free:  #{free.round(2)} GiB (#{(free / total * 100).round}%)"
+end
+
+if $0 == __FILE__
+  if ARGV.empty?
+    STDERR.puts "usage: #{File.basename($0)} DB_NAME"
+    exit 1
+  end
+  main(ARGV.fetch(0))
+end
