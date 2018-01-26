@@ -74,6 +74,10 @@ variable "elasticache_redis_node_type" {
     description = "Instance type used for redis elasticache. Changes incur downtime."
     default = "cache.t2.micro"
 }
+variable "use_multi_az_redis" {
+    description = "Whether to use the new multi-AZ elasticache redis cluster. (Repoints DNS CNAME)"
+    default = 0
+}
 
 # prod/test environment flags
 variable "basic_auth_enabled" {

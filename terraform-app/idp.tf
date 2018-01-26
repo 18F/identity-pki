@@ -72,6 +72,7 @@ resource "aws_db_parameter_group" "force_ssl" {
   }
 }
 
+# deprecated single AZ redis instance
 resource "aws_elasticache_cluster" "idp" {
   cluster_id = "login-idp-${var.env_name}"
   engine = "redis"
@@ -81,6 +82,20 @@ resource "aws_elasticache_cluster" "idp" {
   port = 6379
   security_group_ids = ["${aws_security_group.cache.id}"]
   subnet_group_name = "${aws_elasticache_subnet_group.idp.name}"
+}
+
+# replacement multi-AZ redis cluster
+resource "aws_elasticache_replication_group" "idp" {
+  replication_group_id          = "${var.env_name}-idp"
+  replication_group_description = "Multi AZ redis cluster for the IdP in ${var.env_name}"
+  engine                        = "redis"
+  node_type                     = "${var.elasticache_redis_node_type}"
+  number_cache_clusters         = 2
+  parameter_group_name          = "default.redis3.2"
+  security_group_ids            = ["${aws_security_group.cache.id}"]
+  subnet_group_name             = "${aws_elasticache_subnet_group.idp.name}"
+  port                          = 6379
+  automatic_failover_enabled    = true
 }
 
 resource "aws_iam_instance_profile" "idp" {
@@ -281,5 +296,5 @@ resource "aws_route53_record" "redis" {
 
   type = "CNAME"
   ttl = "300"
-  records = ["${aws_elasticache_cluster.idp.cache_nodes.0.address}"]
+  records = ["${var.use_multi_az_redis ? aws_elasticache_replication_group.idp.primary_endpoint_address : aws_elasticache_cluster.idp.cache_nodes.0.address}"]
 }
