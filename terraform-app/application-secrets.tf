@@ -34,6 +34,5 @@ resource "aws_iam_role_policy" "application-secrets" {
 # IAM instance profile using the application secrets role
 resource "aws_iam_instance_profile" "application-secrets" {
     name = "${var.env_name}-application-secrets"
-    # TODO: rename to "role" after upgrading to TF 0.9
-    roles = ["${aws_iam_role.application-secrets.name}"]
+    role = "${aws_iam_role.application-secrets.name}"
 }

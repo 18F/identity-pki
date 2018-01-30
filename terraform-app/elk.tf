@@ -5,7 +5,7 @@ resource "aws_iam_role" "elk_iam_role" {
 
 resource "aws_iam_instance_profile" "elk_instance_profile" {
   name = "${var.env_name}_elk_instance_profile"
-  roles = ["${aws_iam_role.elk_iam_role.name}"]
+  role = "${aws_iam_role.elk_iam_role.name}"
 }
 
 data "aws_iam_policy_document" "logbucketpolicy" {

@@ -37,13 +37,13 @@ resource "aws_iam_role_policy" "jenkins-describe_instances" {
 
 resource "aws_iam_instance_profile" "jenkins" {
   name = "${var.env_name}_jenkins"
-  roles = ["${aws_iam_role.jenkins.name}"]
+  role = "${aws_iam_role.jenkins.name}"
 }
 
 # XXX turned off because of https://github.com/hashicorp/terraform/issues/10500
 #resource "aws_iam_policy_attachment" "jenkins" {
 #  name = "${var.env_name}_jenkins"
-#  roles = ["${aws_iam_role.jenkins.name}"]
+#  role = "${aws_iam_role.jenkins.name}"
 #  policy_arn = "arn:aws:iam::aws:policy/ReadOnlyAccess"
 #}
 
