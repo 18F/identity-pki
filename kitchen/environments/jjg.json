@@ -6,18 +6,14 @@
   "json_class": "Chef::Environment",
   "chef_type": "environment",
   "default_attributes": {
-    "citadel": {
-      "bucket": "login-gov.secrets.894947205914-us-west-2",
-      "region": "us-west-2"
-    },
     "elk": {
       "users": [
         "brody",
         "mzia",
-        "jgrevich"
+        "jgrevich",
         "jpmugizi",
         "monfresh",
-        "tspencer",
+        "tspencer"
       ]
     },
     "filebeat": {
@@ -28,14 +24,14 @@
     },
     "identity-jenkins": {
       "users": [
-        "monfresh",
+        "monfresh"
       ],
       "admins": [
         "brody",
         "jgrevich",
         "jpmugizi",
         "mzia",
-        "tspencer",
+        "tspencer"
       ]
     },
     "login_dot_gov": {

@@ -93,6 +93,10 @@
     "filebeat": {
       "version": "5.2.0"
     },
+    "citadel": {
+      "bucket": "login-gov-secrets-test",
+      "region": "us-west-2"
+    },
     "login_dot_gov": {
       "branch_name": "stages/dm"
     },
