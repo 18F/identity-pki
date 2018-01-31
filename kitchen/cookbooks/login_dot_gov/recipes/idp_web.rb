@@ -4,6 +4,8 @@ else
   basic_auth_enabled = false
 end
 
+domain_name = node.fetch('login_dot_gov').fetch('domain_name')
+
 if basic_auth_enabled
   basic_auth_config 'generate basic auth config' do
     password ConfigLoader.load_config(node, "basic_auth_password")
@@ -12,7 +14,12 @@ if basic_auth_enabled
 else
   if %w(prod staging).include?(node.chef_environment)
     Chef::Log.info 'Basic auth disabled'
-  elsif node.fetch('login_dot_gov').fetch('domain_name') == 'identitysandbox.gov'
+    # ensure that prod/staging are always run with login.gov as domain name
+    unless domain_name == 'login.gov'
+      Chef::Log.fatal 'prod/staging are supposed to be under login.gov'
+      raise "Unexpected login_dot_gov domain_name attribute: #{domain_name.inspect}"
+    end
+  elsif domain_name == 'identitysandbox.gov'
     Chef::Log.info 'Basic auth disabled and domain is sandbox'
   else
     # Raise exception if basic auth credentials are missing in other envs
@@ -32,7 +39,7 @@ deploy_dir = "#{base_dir}/current/public"
 #       configs as to why we added the exception.
 app_name = 'idp'
 
-domain_name = node.chef_environment == 'prod' ? 'secure.login.gov' : "#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
+server_name = node.chef_environment == 'prod' ? 'secure.login.gov' : "#{node.chef_environment}.#{domain_name}"
 
 dhparam = ConfigLoader.load_config(node, "dhparam")
 
@@ -75,8 +82,8 @@ template "/opt/nginx/conf/sites.d/login.gov.conf" do
     basic_auth: basic_auth_enabled,
     elb_cidr: node['login_dot_gov']['elb_cidr'],
     security_group_exceptions: JSON.parse(ConfigLoader.load_config(node, "security_group_exceptions")),
-    server_aliases: "idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
-    server_name: domain_name
+    server_aliases: "idp.#{node.chef_environment}.#{domain_name}",
+    server_name: server_name
   })
 end
 
