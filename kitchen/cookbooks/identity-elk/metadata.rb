@@ -18,3 +18,6 @@ depends          'login_dot_gov'
 depends          'cron'
 depends          'keytool'
 depends          'config_loader'
+depends          'aws_metadata'
+depends          'service_discovery'
+

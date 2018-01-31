@@ -1,6 +1,12 @@
 # This cookbook installs filebeat to send stuff to logstash
 
-node.default['filebeat']['config']['output']['logstash']['hosts'] = ["elk.login.gov.internal:5044"]
+require 'resolv'
+begin
+  addr = Resolv.getaddress 'elk.login.gov.internal'
+  node.default['filebeat']['config']['output']['logstash']['hosts'] = ["elk.login.gov.internal:5044"]
+rescue
+  node.default['filebeat']['config']['output']['logstash']['hosts'] = ["logstash.login.gov.internal:5044"]
+end
 node.default['filebeat']['config']['output']['logstash']['ssl']['certificate_authorities'] = ["/etc/ssl/certs/ca-certificates.crt"]
 
 
@@ -61,6 +67,15 @@ node['elk']['filebeat']['logfiles'].each do |logitem|
     end
     # XXX make sure to nuke this once the auditctl stuff is in the base image
     exclude_lines [ 'name=./var/lib/filebeat', 'exe=./usr/share/filebeat/bin/filebeat' ]
+  end
+end
+
+# This will be true if the instance is auto scaled.
+if node.fetch("provisioner", {"auto-scaled" => false}).fetch("auto-scaled")
+  cron 'rerun elk discovery every 15 minutes' do
+    action :create
+    minute '0,15,30,45'
+    command "cat #{node['elk']['chef_zero_client_configuration']} && chef-client --local-mode -c #{node['elk']['chef_zero_client_configuration']} -o 'role[filebeat_discovery]' 2>&1 >> /var/log/filebeat-discovery.log"
   end
 end
 

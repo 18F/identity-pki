@@ -53,7 +53,7 @@ ruby_block 'generate_elk_cert' do
       ef.create_extension('basicConstraints', 'CA:FALSE', true),
       ef.create_extension('subjectKeyIdentifier', 'hash'),
     ]
-    cert.add_extension ef.create_extension("subjectAltName", "DNS: #{node.hostname}.login.gov.internal, DNS: #{node.fqdn}")
+    cert.add_extension ef.create_extension("subjectAltName", "DNS: logstash.login.gov.internal, DNS: #{node.hostname}.login.gov.internal, DNS: #{node.fqdn}")
     cert.sign key, OpenSSL::Digest::SHA256.new
     f = File.new("#{mycert}",'w')
     f.write(cert.to_pem)
@@ -88,7 +88,7 @@ ruby_block 'generate_ca_cert' do
       ef.create_extension('basicConstraints', 'CA:TRUE', true),
       ef.create_extension('subjectKeyIdentifier', 'hash'),
     ]
-    cert.add_extension ef.create_extension("subjectAltName", "DNS: #{node.hostname}.login.gov.internal, DNS: elk.tf.login.gov, DNS: elk.login.gov.internal, IP: #{node.cloud.public_ipv4}, IP: #{node.ipaddress}")
+    cert.add_extension ef.create_extension("subjectAltName", "DNS: #{node.hostname}.login.gov.internal, DNS: logstash.login.gov.internal, DNS: elk.tf.login.gov, DNS: elk.login.gov.internal, IP: #{node.cloud.public_ipv4}, IP: #{node.ipaddress}")
     cert.sign key, OpenSSL::Digest::SHA256.new
     f = File.new("#{mycacrt}",'w')
     f.write(cert.to_pem)
@@ -244,7 +244,7 @@ include_recipe 'runit'
     source '30-s3output.conf.erb'
     variables ({
       :aws_region => node['ec2']['placement_availability_zone'][0..-2],
-      :aws_logging_bucket => "login-gov-#{node.chef_environment}-logs",
+      :aws_logging_bucket => node['elk']['aws_logging_bucket'],
       :tags => [lsname]
     })
     notifies :run, "execute[restart_#{lsname}]", :delayed
@@ -288,7 +288,7 @@ execute 'rm -rf /etc/logstash/conf.d'
 
 
 # set up cloudtrail logstash config
-aws_account_id = `curl -s http://169.254.169.254/latest/dynamic/instance-identity/document | grep -oP '(?<="accountId" : ")[^"]*(?=")'`.chomp
+aws_account_id = Chef::Recipe::AwsMetadata.get_aws_account_id
 
 template "/etc/logstash/cloudtraillogstashconf.d/30-cloudtrailin.conf" do
   source '30-cloudtrailin.conf.erb'
@@ -303,9 +303,9 @@ template "/etc/logstash/cloudtraillogstashconf.d/70-elblogsin.conf" do
   source '70-elblogsin.conf.erb'
   variables ({
     :aws_region => node['ec2']['placement_availability_zone'][0..-2],
-    :proxy_logging_bucket => "login-gov-proxylogs-#{node.chef_environment}.#{aws_account_id}-#{node['ec2']['placement_availability_zone'][0..-2]}",
+    :proxy_logging_bucket => node['elk']['proxy_logging_bucket'],
     :elb_prefix => node.chef_environment,
-    :elb_logging_bucket => "login-gov.elb-logs.#{aws_account_id}-#{node['ec2']['placement_availability_zone'][0..-2]}"
+    :elb_logging_bucket => node['elk']['elb_logging_bucket']
   })
   notifies :run, 'execute[restart_cloudtraillogstash]', :delayed
 end
@@ -329,9 +329,10 @@ template "/etc/logstash/cloudtraillogstashconf.d/60-analyticsin.conf" do
   variables ({
     :env => node.chef_environment,
     :aws_region => node['ec2']['placement_availability_zone'][0..-2],
-    :analytics_logging_bucket => "login-gov-#{node.chef_environment}-analytics-logs"
+    :analytics_logging_bucket => node['elk']['analytics_logging_bucket']
   })
   notifies :run, 'execute[restart_cloudtraillogstash]', :delayed
+  only_if { node['elk']['analytics_logs'] }
 end
 
 (1..3).each do |i|
@@ -481,6 +482,7 @@ apache_site 'kibanaproxy'
 include_recipe 'identity-elk::filebeat'
 
 # === set up elastalert ===
+execute "mount -o remount,exec,nosuid,nodev /tmp"
 package 'python-pip'
 
 # python cryptography build dependencies
@@ -496,6 +498,9 @@ git elastalertdir do
 end
 directory "#{elastalertdir}/rules.d"
 
+execute 'pip install setuptools --upgrade' do
+  cwd elastalertdir
+end
 execute 'pip install --upgrade six' do
   cwd elastalertdir
   # XXX This seems a bit fragile, but it'll probably work
@@ -513,6 +518,8 @@ execute 'pip install "elasticsearch>=5.0.0"' do
   cwd elastalertdir
   not_if 'pip list | egrep "^elasticsearch .5"'
 end
+
+execute "mount -o remount,noexec,nosuid,nodev /tmp"
 
 template "#{elastalertdir}/config.yaml" do
   source 'elastalert_config.yaml.erb'

@@ -1,0 +1,15 @@
+{
+  "name": "filebeat_discovery",
+  "description": "Role to run periodically to refresh filebeat certs",
+  "json_class": "Chef::Role",
+  "default_attributes": {
+  },
+  "override_attributes": {
+  },
+  "chef_type": "role",
+  "run_list": [
+    "recipe[identity-elk::filebeat]"
+  ],
+  "env_run_lists": {
+  }
+}

@@ -30,7 +30,7 @@ resource "aws_elb" "elk" {
     healthy_threshold   = 2
     unhealthy_threshold = 2
     timeout             = 3
-    target              = "TCP:8443"
+    target              = "TCP:5044"
     interval            = 5
   }
 

@@ -11,9 +11,12 @@ include_recipe 'java'
 
 directory '/etc/elasticsearch'
 
-# XXX mount disk up
-# /dev/sdg
-#    path_data    "/var/lib/elasticsearch"
+# mount extra disk up if it's there
+execute 'extend_disk' do
+  command 'vgextend securefolders /dev/xvdg ; lvextend -l+100%FREE /dev/securefolders/variable ; resize2fs /dev/mapper/securefolders-variable'
+  only_if 'lsblk /dev/xvdg'
+  not_if  'pvdisplay | grep .dev.xvdg >/dev/null'
+end
 
 
 # install elasticsearch

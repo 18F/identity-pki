@@ -89,3 +89,14 @@ default['elk']['elk_tag_value'] = "elk"
 
 # For adding chef discovery cron job
 default['elk']['chef_zero_client_configuration'] = '/etc/login.gov/repos/identity-devops/kitchen/chef-client.rb'
+
+# change this per env to transition over to the account-specific logbuckets
+#default['elk']['aws_logging_bucket'] = "login-gov-logs-${node.chef_environment}.${aws_account_id}-${node['ec2']['placement_availability_zone'][0..-2]}"
+default['elk']['aws_logging_bucket'] = "login-gov-#{node.chef_environment}-logs"
+default['elk']['analytics_logging_bucket'] = "login-gov-#{node.chef_environment}-analytics-logs"
+default['elk']['proxy_logging_bucket'] = "login-gov-proxylogs-#{node.chef_environment}.#{Chef::Recipe::AwsMetadata.get_aws_account_id}-#{node['ec2']['placement_availability_zone'][0..-2]}"
+default['elk']['elb_logging_bucket'] = "login-gov.elb-logs.#{Chef::Recipe::AwsMetadata.get_aws_account_id}-#{node['ec2']['placement_availability_zone'][0..-2]}"
+
+# use this to turn off analytics logging support
+default['elk']['analytics_logs'] = true
+

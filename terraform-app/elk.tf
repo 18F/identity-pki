@@ -17,6 +17,7 @@ data "aws_iam_policy_document" "logbucketpolicy" {
     ]
     resources = [
       "arn:aws:s3:::login-gov-${var.env_name}-proxylogs",
+      "arn:aws:s3:::login-gov-proxylogs-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}",
       "arn:aws:s3:::login-gov.elb-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
     ]
   }
@@ -27,6 +28,7 @@ data "aws_iam_policy_document" "logbucketpolicy" {
     ]
     resources = [
       "arn:aws:s3:::login-gov-${var.env_name}-proxylogs/*",
+      "arn:aws:s3:::login-gov-proxylogs-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}/*",
       "arn:aws:s3:::login-gov.elb-logs.${data.aws_caller_identity.current.account_id}-${var.region}/${var.env_name}/*"
     ]
   }

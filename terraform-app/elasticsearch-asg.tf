@@ -34,6 +34,15 @@ resource "aws_launch_configuration" "elasticsearch" {
   instance_type = "${var.instance_type_es}"
   security_groups = ["${aws_security_group.elk.id}"]
 
+  # We will add this to the var VG
+  ebs_block_device {
+    device_name = "/dev/sdg"
+    volume_size = 300
+    volume_type = "gp2"
+    encrypted = true
+    delete_on_termination = true
+  }
+
   user_data = "${module.elasticsearch_launch_config.rendered_cloudinit_config}"
 
   iam_instance_profile = "${aws_iam_instance_profile.idp.id}"
@@ -55,8 +64,9 @@ resource "aws_autoscaling_group" "elasticsearch" {
 
     vpc_zone_identifier = ["${aws_subnet.elasticsearch.*.id}"]
 
-    health_check_type = "ELB"
-    health_check_grace_period = 1800 # 30 minutes
+    # https://github.com/18F/identity-devops-private/issues/631
+    health_check_type = "EC2"
+    health_check_grace_period = 3600 # 60 minutes
 
     termination_policies = ["OldestInstance"]
 

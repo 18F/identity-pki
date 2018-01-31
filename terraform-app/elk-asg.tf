@@ -36,7 +36,7 @@ resource "aws_launch_configuration" "elk" {
 
   user_data = "${module.elk_launch_config.rendered_cloudinit_config}"
 
-  iam_instance_profile = "${aws_iam_instance_profile.idp.id}"
+  iam_instance_profile = "${aws_iam_instance_profile.elk_instance_profile.id}"
 }
 
 # For debugging cloud-init
@@ -55,8 +55,9 @@ resource "aws_autoscaling_group" "elk" {
 
     vpc_zone_identifier = ["${aws_subnet.elk.*.id}"]
 
-    health_check_type = "ELB"
-    health_check_grace_period = 1800 # 30 minutes
+    # https://github.com/18F/identity-devops-private/issues/631
+    health_check_type = "EC2"
+    health_check_grace_period = 3600 # 60 minutes
 
     termination_policies = ["OldestInstance"]
 
