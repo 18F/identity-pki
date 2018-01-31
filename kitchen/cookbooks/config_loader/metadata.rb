@@ -4,10 +4,11 @@ maintainer_email 'you@example.com'
 license 'All Rights Reserved'
 description 'Installs/Configures config_loader'
 long_description 'Installs/Configures config_loader'
-version '0.2.1'
+version '0.2.2'
 chef_version '>= 12.15.19' if respond_to?(:chef_version)
 
 depends 'citadel_fork'
+depends 'aws_metadata'
 
 # The `issues_url` points to the location where issues for this cookbook are
 # tracked.  A `View Issues` link will be displayed on this cookbook's page when
