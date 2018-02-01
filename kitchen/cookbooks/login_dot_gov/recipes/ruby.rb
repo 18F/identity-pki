@@ -53,24 +53,9 @@ template '/etc/environment' do
 end
 
 # install dependencies
-# TODO: JJG convert to platform agnostic way of installing packages to avoid case statement(s)
-execute "apt-get update"
-
-case
-when platform_family?('rhel')
-  ['cyrus-sasl-devel',
-   'libtool-ltdl-devel',
-   'postgresql-devel',
-   'ruby-devel',
-   'nodejs',
-   'npm'].each { |pkg| package pkg }
-when platform_family?('debian')
-  ['libpq-dev',
-   'libsasl2-dev',
-   'ruby-dev',
-   'nodejs',
-   'npm'].each { |pkg| package pkg }
-end
+package 'libpq-dev'
+package 'libsasl2-dev'
+package 'ruby-dev'
 
 #execute 'source /etc/environment'
 

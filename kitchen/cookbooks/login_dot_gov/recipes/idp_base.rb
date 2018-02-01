@@ -1,3 +1,5 @@
+include_recipe 'login_dot_gov::nodejs'
+
 execute "mount -o remount,exec,nosuid,nodev /tmp"
 
 # setup postgres root config resource
