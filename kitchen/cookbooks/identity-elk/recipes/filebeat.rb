@@ -2,9 +2,12 @@
 
 require 'resolv'
 begin
+  # Look up "elk" first, because that's the old pre-ASG hostname for where we
+  # run logstash. If it exists, use it. If not, fail back to "logstash", which
+  # is the CNAME for the load-balanced ELK group.
   addr = Resolv.getaddress 'elk.login.gov.internal'
   node.default['filebeat']['config']['output']['logstash']['hosts'] = ["elk.login.gov.internal:5044"]
-rescue
+rescue Resolv::ResolvError
   node.default['filebeat']['config']['output']['logstash']['hosts'] = ["logstash.login.gov.internal:5044"]
 end
 node.default['filebeat']['config']['output']['logstash']['ssl']['certificate_authorities'] = ["/etc/ssl/certs/ca-certificates.crt"]
