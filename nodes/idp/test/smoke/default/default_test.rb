@@ -9,7 +9,13 @@ describe service('ssh') do
   it { should be_running }
 end
 
-# check taht passenger is installed and running
+# ensure that node.js v8.* is installed
+describe command('node --version') do
+  its('exit_status') { should eq 0 }
+  its('stdout') { should start_with('v8.') }
+end
+
+# check that passenger is installed and running
 if os[:release] == '14.04'
   describe service('passenger') do
     it { should be_installed }
