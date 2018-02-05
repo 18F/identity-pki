@@ -88,6 +88,7 @@ end
 
 login_dot_gov_deploy_info "#{deploy_dir}/api/deploy.json" do
   owner node['login_dot_gov']['user']
+  branch branch_name
 end
 
 # Create a cron job to enqueue dummy jobs on all IDP servers

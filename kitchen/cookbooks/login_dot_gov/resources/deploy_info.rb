@@ -7,7 +7,7 @@ property :path, String, name_property: true
 property :owner, String, default: node['login_dot_gov']['system_user']
 property :group, String, default: node['login_dot_gov']['system_user']
 
-property :branch, String, default: nil
+property :branch, [String, NilClass], default: nil
 
 property :devops_dir, String, default: '/etc/login.gov/repos/identity-devops'
 
