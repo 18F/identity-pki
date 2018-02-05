@@ -205,7 +205,7 @@ GRAPH
   motd (0.6.4)
     chef_handler (>= 0.0.0)
   nano (1.0.3)
-  newrelic (2.32.0)
+  newrelic (2.33.0)
     apt (>= 0.0.0)
     curl (>= 0.0.0)
     poise-python (>= 0.0.0)

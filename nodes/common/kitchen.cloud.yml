@@ -183,7 +183,7 @@ end
             "value" => security_group
         },
         "instance_type" => "c4.xlarge",
-        "image_id" => "ami-9b8b7ce3",
+        "image_id" => "ami-217ffb59",
         "user_data" => user_data,
         "iam_profile_name" => iam_profile,
         "tags" => {
