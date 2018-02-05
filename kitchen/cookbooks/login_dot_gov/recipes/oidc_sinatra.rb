@@ -42,7 +42,6 @@ base_dir = "/srv/#{app_name}"
 deploy_dir = "#{base_dir}/current/public"
 
 branch_name = node.fetch('login_dot_gov').fetch('branch_name', "stages/#{node.chef_environment}")
-sha_env = "deploy"
 
 # setup required directories with system_user as the owner/group
 %w{cached-copy config log}.each do |dir|
@@ -103,35 +102,14 @@ template "/opt/nginx/conf/sites.d/#{app_name}.login.gov.conf" do
   })
 end
 
-ruby_block 'extract_sha_of_revision' do
-  block do
-    Chef::Resource::RubyBlock.send(:include, Chef::Mixin::ShellOut)
-    release_dir = ::Dir.glob("#{base_dir}/releases/" + '201*')[0]
-    
-    # Dynamically set the file resource's attribute
-    # Obtain the desired resource from resource_collection
-    template_r = run_context.resource_collection.find(template: "#{deploy_dir}/api/deploy.json")
-    # Update the content attribute
-    template_r.variables ({
-      env: node.chef_environment,
-      branch: branch_name,
-      user: 'chef',
-      sha: ::File.read("#{::Dir.glob("#{base_dir}/releases/" + '201*')[0]}/.git/refs/heads/#{sha_env}").chomp,
-      timestamp: release_dir.split('/').last
-    })
-  end
-  action :run
-end
-
 directory "#{deploy_dir}/api" do
   owner node['login_dot_gov']['user']
   recursive true
   action :create
 end
 
-template "#{deploy_dir}/api/deploy.json" do
+login_dot_gov_deploy_info "#{deploy_dir}/api/deploy.json" do
   owner node['login_dot_gov']['user']
-  source 'deploy.json.erb'
 end
 
 execute "mount -o remount,noexec,nosuid,nodev /tmp"

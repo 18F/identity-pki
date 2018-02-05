@@ -86,16 +86,8 @@ directory "#{deploy_dir}/api" do
   action :create
 end
 
-template "#{deploy_dir}/api/deploy.json" do
+login_dot_gov_deploy_info "#{deploy_dir}/api/deploy.json" do
   owner node['login_dot_gov']['user']
-  source 'deploy.json.erb'
-  variables lazy { ({
-    env: node.chef_environment,
-    branch: branch_name,
-    user: 'chef',
-    sha: `cd #{base_dir}/releases/chef ; git rev-parse HEAD`.chomp,
-    timestamp: ::Time.new.strftime("%Y%m%d%H%M%S")
-  })}
 end
 
 # Create a cron job to enqueue dummy jobs on all IDP servers
