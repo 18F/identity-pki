@@ -238,6 +238,11 @@ variable "alb_enabled" {
     description = "Enable ALB for idp hosts"
 }
 
+variable "acm_certs_enabled" {
+    default = 1
+    description = "Whether to look for AWS ACM certificates. Set this to 0 to ignore ACM certs, which is useful for terraform destroy."
+}
+
 # This variable is needed for service discovery
 
 variable "certificates_bucket_name_prefix" {
