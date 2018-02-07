@@ -14,20 +14,15 @@ DEPENDENCIES
   cacert
   canonical_hostname
     path: ../../kitchen/cookbooks/canonical_hostname
-  chef-sugar
   citadel_fork
     git: https://github.com/18f/citadel-build.git
     revision: 7007851c91e1404a43f1c914471a2d6c817eea8e
   config_loader
     path: ../../kitchen/cookbooks/config_loader
-  cron
-  curl
-  dmg
   elasticsearch (~> 3.0.2)
   elasticsearch-curator (~> 0.1.3)
   filebeat (~> 0.4.2)
   git
-  homebrew
   hostname
   identity-elk
     path: ../../kitchen/cookbooks/identity-elk
@@ -45,7 +40,6 @@ DEPENDENCIES
     path: ../../kitchen/cookbooks/identity-ossec
   instance_certificate
     path: ../../kitchen/cookbooks/instance_certificate
-  java
   jenkins (~> 5.0.1)
   keytool
     git: https://github.com/timothy-spencer/chef-keytool
@@ -65,7 +59,6 @@ DEPENDENCIES
   ossec
     git: https://github.com/sous-chefs/ossec
     revision: 80f6934227c6dc89e0c6f7b3edf1a0d0ea120060
-  packagecloud
   passenger
     path: ../../kitchen/cookbooks/passenger
   poise-ruby
@@ -113,14 +106,14 @@ GRAPH
   cacert (0.5.0)
   canonical_hostname (0.1.0)
     aws_metadata (>= 0.0.0)
-  chef-sugar (3.6.0)
+  chef-sugar (4.0.0)
   chef_handler (3.0.2)
   citadel_fork (9.1.1)
-  compat_resource (12.19.0)
+  compat_resource (12.19.1)
   config_loader (0.2.1)
     citadel_fork (>= 0.0.0)
   cron (5.0.1)
-  curl (2.0.3)
+  curl (2.0.4)
   dmg (4.1.0)
   dpkg_autostart (0.2.0)
   elasticsearch (3.0.5)
@@ -144,13 +137,14 @@ GRAPH
     dmg (>= 0.0.0)
     windows (>= 0.0.0)
     yum-epel (>= 0.0.0)
-  homebrew (4.2.0)
+  homebrew (4.3.0)
   hostname (0.4.2)
     hostsfile (>= 0.0.0)
   hostsfile (3.0.1)
-  identity-elk (0.1.28)
+  identity-elk (0.1.29)
     acme (>= 0.0.0)
     apache2 (>= 0.0.0)
+    aws_metadata (>= 0.0.0)
     config_loader (>= 0.0.0)
     cron (>= 0.0.0)
     elasticsearch (>= 0.0.0)
@@ -160,6 +154,7 @@ GRAPH
     keytool (>= 0.0.0)
     login_dot_gov (>= 0.0.0)
     runit (>= 0.0.0)
+    service_discovery (>= 0.0.0)
   identity-jenkins (0.1.11)
     acme (>= 0.0.0)
     apache2 (>= 0.0.0)
@@ -187,13 +182,13 @@ GRAPH
     apt (>= 0.0.0)
     homebrew (>= 0.0.0)
     windows (>= 0.0.0)
-  jenkins (5.0.5)
+  jenkins (5.0.6)
     compat_resource (>= 12.16.3)
     dpkg_autostart (>= 0.0.0)
     runit (>= 1.7)
   keytool (0.8.1)
   letsencrypt (1.0.3)
-  login_dot_gov (0.0.50)
+  login_dot_gov (0.0.52)
     application_ruby (>= 0.0.1)
     config_loader (>= 0.0.1)
     newrelic (>= 0.0.1)
@@ -210,21 +205,21 @@ GRAPH
   motd (0.6.4)
     chef_handler (>= 0.0.0)
   nano (1.0.3)
-  newrelic (2.31.1)
+  newrelic (2.33.0)
     apt (>= 0.0.0)
     curl (>= 0.0.0)
     poise-python (>= 0.0.0)
     yum (>= 0.0.0)
-  newrelic-infra (0.4.0)
+  newrelic-infra (0.5.0)
     poise-archive (~> 1.5)
     poise-service (~> 1.5)
   newrelic_meetme_plugin (0.5.0)
     apt (>= 0.0.0)
     python (>= 0.0.0)
     yum (>= 0.0.0)
-  ntp (3.5.2)
-  ohai (5.2.0)
-  openssl (7.1.0)
+  ntp (3.5.6)
+  ohai (5.2.1)
+  openssl (8.1.0)
   ossec (1.0.5)
     apt (>= 0.0.0)
     yum-atomic (>= 0.0.0)
@@ -259,8 +254,8 @@ GRAPH
   ruby_build (1.1.0)
     git (>= 0.0.0)
     yum-epel (>= 0.0.0)
-  ruby_rbenv (2.0.5)
-  runit (4.0.0)
+  ruby_rbenv (2.0.6)
+  runit (4.0.4)
     packagecloud (>= 0.0.0)
     yum-epel (>= 0.0.0)
   selinux_policy (2.0.1)
@@ -274,11 +269,11 @@ GRAPH
   squid (3.1.2)
     selinux_policy (>= 1.0.0)
   ssh-keys (1.2.7)
-  sudo (3.5.3)
+  sudo (4.0.0)
   terraform (0.5.3)
     ark (~> 1.1.0)
-  users (5.2.1)
-  windows (3.4.0)
+  users (5.3.1)
+  windows (3.4.4)
     ohai (>= 4.0.0)
   yum (5.1.0)
   yum-atomic (0.2.0)
