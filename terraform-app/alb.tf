@@ -24,7 +24,7 @@ resource "aws_alb" "idp" {
 # discover it so that we can associate the cert with the ALB.
 #
 data "aws_acm_certificate" "idp" {
-    count = "${var.alb_enabled}"
+    count = "${var.alb_enabled * var.acm_certs_enabled}"
     # secure.login.gov in prod, idp.$env.login.gov in other environments
     domain = "${var.env_name == "prod" ? "secure.${var.root_domain}" : "idp.${var.env_name}.${var.root_domain}"}"
     statuses = ["ISSUED"]

@@ -16,6 +16,8 @@ users_manage node.chef_environment do
   not_if { node.fetch('provisioner', {'auto-scaled' => false}).fetch('auto-scaled') }
 end
 
+package 'libffi-dev'
+
 # add berkshelf and terraform
 include_recipe 'login_dot_gov::ruby'
 gem_package 'berkshelf' do

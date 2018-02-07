@@ -65,6 +65,15 @@ describe file('/var/log/nginx/access.log') do
   it { should exist }
 end
 
+# check deploy info file
+describe file('/srv/idp/current/public/api/deploy.json') do
+  it { should be_file }
+  its('content') { should match(/"user": "chef"/) }
+  its('content') { should match(/^\s*"sha": "[0-9a-f]{40}"/) }
+  its('content') { should match(/^\s*"git_sha": "[0-9a-f]{40}"/) }
+end
+
+
 describe file('/srv/idp/shared/config/application.yml') do
   it { should_not exist }
 end

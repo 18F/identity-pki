@@ -39,7 +39,6 @@ end
 dashboard_url = "https://dashboard.#{node.chef_environment}.#{node.fetch('login_dot_gov').fetch('domain_name')}"
 
 branch_name = node.fetch('login_dot_gov').fetch('branch_name', "stages/#{node.chef_environment}")
-sha_env = "deploy"
 
 %w{cached-copy config log}.each do |dir|
   directory "#{base_dir}/shared/#{dir}" do
@@ -198,36 +197,15 @@ template "/opt/nginx/conf/sites.d/dashboard.login.gov.conf" do
   })
 end
 
-ruby_block 'extract_sha_of_revision' do
-  block do
-    Chef::Resource::RubyBlock.send(:include, Chef::Mixin::ShellOut)
-    release_dir = ::Dir.glob("#{base_dir}/releases/" + '201*')[0]
-
-    # Dynamically set the file resource's attribute
-    # Obtain the desired resource from resource_collection
-    template_r = run_context.resource_collection.find(template: "#{deploy_dir}/api/deploy.json")
-    # Update the content attribute
-    template_r.variables ({
-      env: node.chef_environment,
-      branch: branch_name,
-      user: 'chef',
-      sha: ::File.read("#{::Dir.glob("#{base_dir}/releases/" + '201*')[0]}/.git/refs/heads/#{sha_env}").chomp,
-      timestamp: release_dir.split('/').last
-    })
-  end
-  action :run
-end
-
 directory "#{deploy_dir}/api" do
   owner node['login_dot_gov']['user']
   recursive true
   action :create
 end
 
-# TODO: don't generate JSON with erb, that's an antipattern
-template "#{deploy_dir}/api/deploy.json" do
+login_dot_gov_deploy_info "#{deploy_dir}/api/deploy.json" do
   owner node['login_dot_gov']['user']
-  source 'deploy.json.erb'
+  branch branch_name
 end
 
 execute "mount -o remount,noexec,nosuid,nodev /tmp"

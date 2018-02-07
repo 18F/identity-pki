@@ -22,6 +22,8 @@ Region = 'us-west-2'
 
 role = File.basename(Dir.pwd)
 environment = ENV.fetch('KITCHEN_EC2_INTEGRATION_ENVIRONMENT', 'ci')
+ami_id = ENV.fetch('KITCHEN_EC2_AMI', 'ami-217ffb59') # TODO look up dynamically
+
 # TODO: Make a standard instance profile name for each instance so we don't need
 # this hash.
 iam_profiles = {
@@ -183,7 +185,7 @@ end
             "value" => security_group
         },
         "instance_type" => "c4.xlarge",
-        "image_id" => "ami-9b8b7ce3",
+        "image_id" => ami_id,
         "user_data" => user_data,
         "iam_profile_name" => iam_profile,
         "tags" => {
