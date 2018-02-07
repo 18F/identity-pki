@@ -4,15 +4,10 @@
   "json_class": "Chef::Environment",
   "chef_type": "environment",
   "default_attributes": {
-    "citadel": {
-      "bucket": "login-gov.secrets.894947205914-us-west-2",
-      "region": "us-west-2"
-    },
     "identity-devops": {
       "branch_name": "master"
     },
     "login_dot_gov": {
-      "domain_name": "identitysandbox.gov",
       "branch_name": "stages/brody",
       "auto_eip_enabled_roles": ["jumphost", "worker"]
     },

@@ -105,4 +105,11 @@ resource "aws_autoscaling_group" "elasticsearch" {
         value = "${var.bootstrap_private_git_ref_elasticsearch}"
         propagate_at_launch = true
     }
+
+    # elasticsearch instances are stateful, shouldn't be recycled willy nilly
+    tag {
+        key = "stateful"
+        value = "true"
+        propagate_at_launch = true
+    }
 }

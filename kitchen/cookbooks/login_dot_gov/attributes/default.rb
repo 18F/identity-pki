@@ -39,7 +39,14 @@ default['login_dot_gov']['gitref']                          = 'master'
 default['login_dot_gov']['setup_only']                                = false
 
 # idp config
-default['login_dot_gov']['domain_name']                               = 'login.gov'
+case Chef::Recipe::AwsMetadata.get_aws_account_id
+when /\A55554/
+  default['login_dot_gov']['domain_name'] = 'login.gov'
+when /\A89494/
+  default['login_dot_gov']['domain_name'] = 'identitysandbox.gov'
+else
+  raise "Unexpected AWS account ID: #{Chef::Recipe::AwsMetadata.get_aws_account_id.inspect}"
+end
 default['login_dot_gov']['release_dir']                               = ''
 default['login_dot_gov']['sha_revision']                              = ''
 default['login_dot_gov']['sslrootcert']                               = '/usr/local/share/aws/rds-combined-ca-bundle.pem'

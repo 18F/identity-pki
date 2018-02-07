@@ -4,6 +4,8 @@ set -euo pipefail
 # shellcheck source=/dev/null
 . "$(dirname "$0")/lib/common.sh"
 
+# TODO port this whole thing to ruby, it's far too much shell script
+
 # Given an auto-scaling group, schedule a recycle of that group.
 usage () {
     cat >&2 <<EOM
@@ -62,28 +64,48 @@ get_asg_info() {
         | grep "^AUTOSCALINGGROUPS"
 }
 
+# list_stateful_asgs
+list_stateful_asgs() {
+    run aws autoscaling describe-auto-scaling-groups --output text \
+        | { grep '^TAGS	stateful' || true ; } \
+        | cut -f 4
+}
+
 # usage: recycle_all_asgs_in_env ENV [RECYCLE_OPTS...]
 #
 # Call schedule_recycle once for each autoscaling group in ENV. RECYCLE_OPTS
 # will be passed directly to schedule_recycle.
 #
 recycle_all_asgs_in_env() {
-    local env asg_name asg_list
+    local env asg_name asg_list stateful_asg_list asg_arr
     env="$1"
 
     shift
 
-    echo_green "Will recycle all autoscaling groups in $env:"
-
+    asg_arr=()
     asg_list="$(list_asgs_with_prefix "$env-")"
-    echo_green "$(sed 's/^/  /' <<< "$asg_list")"
+    stateful_asg_list="$(list_stateful_asgs)"
+
+    for asg_name in $asg_list; do
+        if grep -x "$asg_name" <<< "$stateful_asg_list" >/dev/null; then
+            echo_yellow "Skipped $asg_name because stateful tag is set"
+            continue
+        fi
+        asg_arr+=("$asg_name")
+    done
+
+    echo_green "Will recycle all autoscaling groups in $env:"
+    for asg_name in "${asg_arr[@]}"; do
+        echo_green "  $asg_name"
+    done
 
     if [ -t 1 ] && [ -t 0 ]; then
         read -r -p "Press enter to continue..."
     fi
 
-    for asg_name in $asg_list; do
+    for asg_name in "${asg_arr[@]}"; do
         echo
+
         echo_green "Starting $asg_name"
         schedule_recycle --skip-zero "$asg_name" "$@"
         echo_green "Done with $asg_name"

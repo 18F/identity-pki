@@ -110,9 +110,8 @@ resource "aws_iam_role_policy" "elk_describe_instances" {
 }
 
 resource "aws_s3_bucket" "logbucket" {
-  # need to gently cut over later
-  #bucket = "login-gov-logs-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
-  bucket = "login-gov-${var.env_name}-logs"
+  # We are moving log buckets to the schema containing account ID
+  bucket = "${ var.legacy_log_bucket_name ? "login-gov-${var.env_name}-logs" : "login-gov-logs-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}" }"
   versioning {
     enabled = true
   }
