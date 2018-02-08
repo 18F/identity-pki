@@ -31,7 +31,7 @@ data "aws_acm_certificate" "idp" {
 }
 
 resource "aws_alb_listener" "idp" {
-  count = "${var.alb_enabled}"
+  count = "${var.alb_enabled * var.alb_http_port_80_enabled}"
   depends_on = ["aws_alb.idp"]
   load_balancer_arn = "${aws_alb.idp.id}"
   port = "80"
@@ -58,7 +58,7 @@ resource "aws_alb_listener" "idp-ssl" {
 }
 
 resource "aws_alb_target_group" "idp" {
-  count = "${var.alb_enabled}"
+  count = "${var.alb_enabled * var.alb_http_port_80_enabled}"
   depends_on = ["aws_alb.idp"]
 
   health_check {
