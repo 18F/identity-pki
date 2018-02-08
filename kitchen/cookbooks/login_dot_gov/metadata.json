@@ -48,7 +48,6 @@
     "login_dot_gov::ruby": "Ruby runtime",
     "login_dot_gov::sp-java": "Java example SP",
     "login_dot_gov::sp-node": "NodeJS example SP",
-    "login_dot_gov::sp-python": "Python example SP",
     "login_dot_gov::sp-rails": "Rails example SP",
     "login_dot_gov::sp-sinatra": "Sinatra example SP",
     "login_dot_gov::users": "User management",
