@@ -271,7 +271,7 @@ end
 
 execute "wait for elasticsearch to start up without searchguard" do
   action :nothing
-  command "curl --insecure https://localhost:9200"
+  command "echo \"GET /\" | openssl s_client -connect localhost:9200 -ign_eof"
   # TODO: The above command returns successfully even if search guard isn't
   # fully initialized.  Figure out how to make both the bootstrap and the
   # restart work with this check (because on bootstrap there is not search guard
