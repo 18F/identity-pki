@@ -242,6 +242,12 @@ keytool_manage "import my cert into truststore" do
   additional '-trustcacerts'
 end
 
+# Elasticsearch now requires this value at a minimum
+include_recipe 'sysctl::default'
+sysctl_param 'vm.max_map_count' do
+  value 262144
+end
+
 elasticsearch_configure "elasticsearch" do
   configuration ({
     'discovery.zen.ping.unicast.hosts' => esips,
