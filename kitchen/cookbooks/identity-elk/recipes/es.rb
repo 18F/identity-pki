@@ -13,7 +13,7 @@ directory '/etc/elasticsearch'
 
 # mount extra disk up if it's there
 execute 'extend_disk' do
-  command 'vgextend securefolders /dev/xvdg ; lvextend -l+100%FREE /dev/securefolders/variable ; resize2fs /dev/mapper/securefolders-variable'
+  command 'vgextend securefolders /dev/xvdg ; lvextend -l+100%FREE /dev/securefolders/variables ; resize2fs /dev/mapper/securefolders-variables'
   only_if 'lsblk /dev/xvdg'
   not_if  'pvdisplay | grep .dev.xvdg >/dev/null'
 end
