@@ -369,6 +369,9 @@ end
 user 'kibana' do
   system true
 end
+group 'kibana' do
+  system true
+end
 
 remote_file '/usr/share/kibana.tar.gz' do
   source node['elk']['kibanatarball']
@@ -545,6 +548,9 @@ end
 user 'elastalert' do
   system true
   home "#{elastalertdir}/home"
+end
+group 'elastalert' do
+  system true
 end
 directory "#{elastalertdir}/home" do
   owner 'elastalert'
