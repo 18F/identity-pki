@@ -21,5 +21,6 @@ gem 'knife-block'
 gem 'semantic'
 gem 'subprocess'
 gem 'terminal-table', '~> 1.8'
-
 gem 'tty-prompt', '~> 0.14'
+
+gem 'terraform_landscape', '~> 0.1'

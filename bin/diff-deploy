@@ -1,0 +1,96 @@
+#!/bin/bash
+
+set -euo pipefail
+
+# shellcheck source=/dev/null
+. "$(dirname "$0")/lib/common.sh"
+
+usage() {
+    cat >&2 <<EOM
+usage: $(basename "$0") ENVIRONMENT TERRAFORM_DIR [PLAN_OPTIONS...]
+
+Run deploy to show a terraform plan. Interactively prompt the user whether this
+plan looks good, and if it does, run the plan exactly as shown.
+
+Any PLAN_OPTIONS will be passed directly to terraform plan.
+EOM
+}
+
+echo_basename() {
+    echo_blue >&2 "$BASENAME: $*"
+}
+
+for opt in "$@"; do
+    if [[ $opt == "-h" || $opt == "--help" ]]; then
+        usage
+        exit
+    fi
+done
+
+if [ $# -lt 2 ]; then
+    usage
+    exit 1
+fi
+
+environment="$1"
+terraform_dir="$2"
+
+shift 2
+
+if [ -z "${GSA_USERNAME-}" ]; then
+    echo_red >&2 "error: GSA_USERNAME must be set in environment"
+    exit 1
+fi
+
+BASENAME="$(basename "$0")"
+
+cd "$(dirname "$0")"
+
+run bundle check
+
+cleanup() {
+    run rm -r -- "$tmpdir"
+}
+
+tmpdir="$(mktemp -d)"
+trap cleanup EXIT
+
+run_deploy() {
+    run ../deploy "$environment" "$GSA_USERNAME" "$terraform_dir" "$@"
+}
+
+run bundle check
+
+echo_basename "Running terraform plan"
+
+plan_path="$tmpdir/$environment.tfplan"
+run_deploy plan -out "$plan_path" "$@"
+
+echo >&2
+
+plan_text="$(run terraform show "$plan_path")"
+if [[ "$plan_text" == "This plan does nothing." ]]; then
+    echo "$plan_text"
+    echo_basename "Nothing to do!"
+    exit
+fi
+
+echo_blue >&2 "Pretty diff with terraform_landscape:"
+echo >&2
+
+run bundle exec landscape <<< "$plan_text"
+
+echo >&2
+echo_blue >&2 "Terraform plan complete. Check whether the above plan looks good."
+
+if ! prompt_yn "Proceed to run terraform apply?"; then
+    echo_blue "OK, aborting"
+    exit 1
+fi
+
+echo_basename "Running terraform apply"
+
+run_deploy apply "$plan_path"
+
+echo >&2
+echo_basename "All done!"
