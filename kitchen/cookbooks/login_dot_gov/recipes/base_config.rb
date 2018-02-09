@@ -1,6 +1,7 @@
 # Common packages and config used by all hosts
 
 package [
+  'aptitude',
   'bmon',
   'bwm-ng',
   'colordiff',

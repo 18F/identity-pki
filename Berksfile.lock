@@ -189,7 +189,7 @@ GRAPH
     runit (>= 1.7)
   keytool (0.8.1)
   letsencrypt (1.0.3)
-  login_dot_gov (0.0.52)
+  login_dot_gov (0.0.53)
     application_ruby (>= 0.0.1)
     config_loader (>= 0.0.1)
     newrelic (>= 0.0.1)
