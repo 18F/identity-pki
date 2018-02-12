@@ -242,6 +242,12 @@ keytool_manage "import my cert into truststore" do
   additional '-trustcacerts'
 end
 
+# Elasticsearch now requires this value at a minimum
+include_recipe 'sysctl::default'
+sysctl_param 'vm.max_map_count' do
+  value 262144
+end
+
 elasticsearch_configure "elasticsearch" do
   configuration ({
     'discovery.zen.ping.unicast.hosts' => esips,
@@ -265,7 +271,7 @@ end
 
 execute "wait for elasticsearch to start up without searchguard" do
   action :nothing
-  command "curl --insecure https://localhost:9200"
+  command "wget -O - --no-check-certificate --server-response https://localhost:9200/ 2>&1 | egrep \"HTTP/1.1 (200|503)\""
   # TODO: The above command returns successfully even if search guard isn't
   # fully initialized.  Figure out how to make both the bootstrap and the
   # restart work with this check (because on bootstrap there is not search guard
