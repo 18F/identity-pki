@@ -26,6 +26,8 @@ default['login_dot_gov']['openssl']['url']                            = "https:/
 default['login_dot_gov']['openssl']['checksum']                       = '932b4ee4def2b434f85435d9e3e19ca8ba99ce9a065a61524b429a9d5e9b2e9c'
 default['login_dot_gov']['openssl']['configure_flags']                = %W[ shared ]
 
+default['login_dot_gov']['cache_dir']                                 = '/var/cache/chef'
+
 # Allocate a static EIP on startup for auto scaled instances that have one of
 # these as their primary role (e.g. 'worker', 'jumphost').
 # The instance run list must also include the login_dot_gov::static_eip recipe.
