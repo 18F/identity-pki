@@ -1,6 +1,11 @@
 # thanks to https://github.com/asynchrony/chef-openssl-fips for the blunt of the work
 
-src_dirpath  = "#{Chef::Config['file_cache_path'] || '/tmp'}/openssl-fips-#{node['login_dot_gov']['fips']['version']}"
+cache_dir = node.fetch('login_dot_gov').fetch('cache_dir')
+directory cache_dir do
+  action :create
+end
+
+src_dirpath  = "#{cache_dir}/openssl-fips-#{node['login_dot_gov']['fips']['version']}"
 src_filepath  = "#{src_dirpath}.tar.gz"
 
 remote_file node['login_dot_gov']['fips']['url'] do
@@ -18,7 +23,7 @@ execute 'unarchive_fips' do
   not_if { ::File.directory?(src_dirpath) }
 end
 
-fips_dirpath = "#{Chef::Config['file_cache_path'] || '/tmp'}/openssl-fipsmodule-#{node['login_dot_gov']['fips']['version']}"
+fips_dirpath = "#{cache_dir}/openssl-fipsmodule-#{node['login_dot_gov']['fips']['version']}"
 
 execute 'compile_fips_source' do
   cwd src_dirpath
@@ -28,7 +33,7 @@ execute 'compile_fips_source' do
   not_if { ::File.directory?(fips_dirpath) }
 end
 
-src_dirpath = "#{Chef::Config['file_cache_path'] || '/tmp'}/openssl-#{node['login_dot_gov']['openssl']['version']}"
+src_dirpath = "#{cache_dir}/openssl-#{node['login_dot_gov']['openssl']['version']}"
 src_filepath = "#{src_dirpath}.tar.gz"
 remote_file node['login_dot_gov']['openssl']['url'] do
   source node['login_dot_gov']['openssl']['url']
