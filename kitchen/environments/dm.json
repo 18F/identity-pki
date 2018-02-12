@@ -7,13 +7,6 @@
     "identity-devops": {
       "branch_name": "stages/dm"
     },
-    "elk": {
-      "users": [
-        "brody",
-        "jgrevich",
-        "monfresh"
-      ]
-    },
     "citadel": {
       "bucket": "login-gov-secrets-test",
       "region": "us-west-2"
@@ -36,7 +29,8 @@
         "brody",
         "jgrevich",
         "jpmugizi",
-        "monfresh"
+        "monfresh",
+        "mzia"
       ]
     }
   },
