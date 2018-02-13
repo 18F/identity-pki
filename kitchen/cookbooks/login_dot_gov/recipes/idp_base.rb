@@ -92,12 +92,14 @@ application release_path do
     revision branch_name
   end
 
+  # TODO move this into deploy/build
   bundle_install do
     binstubs '/srv/idp/shared/bin'
     deployment true
     jobs 3
     vendor '/srv/idp/shared/bundle'
     without %w{deploy development doc test}
+    not_if { File.exist?('/srv/idp/releases/chef/deploy/build') }
   end
 
   # custom resource to install the IdP config files (app.yml, saml.crt, saml.key)
@@ -115,13 +117,26 @@ application release_path do
   # etc. so that the identity-devops repo doesn't need to be aware of the steps
   # involved to build any repo.
 
+  execute 'deploy build step' do
+    cwd '/srv/idp/releases/chef'
+    command './deploy/build'
+    user node['login_dot_gov']['system_user']
+
+    environment({ 'PATH' => ruby_build_path, 'RAILS_ENV' => 'production' })
+
+    # TODO delete condition once deploy/build exists
+    only_if { File.exist?('/srv/idp/releases/chef/deploy/build') }
+  end
+
   # install and build javascript dependencies
+  # TODO move this into deploy/build
   ['yarn install', 'yarn build'].each do |cmd|
     execute "#{cmd}" do
       # creates node_path
       cwd '/srv/idp/releases/chef'
-      # TODO run as 'system_user'
     end
+
+    not_if { File.exist?('/srv/idp/releases/chef/deploy/build') }
   end
 
   # Run the activate script from the repo, which is used to download app
@@ -140,9 +155,12 @@ application release_path do
     precompile_assets false
   end
 
+  # TODO: move this into deploy/build
   execute %W{#{ruby_bin_dir}/bundle exec rake assets:precompile} do
     cwd '/srv/idp/releases/chef'
     environment({ 'PATH' => ruby_build_path, 'RAILS_ENV' => 'production' })
+
+    not_if { File.exist?('/srv/idp/releases/chef/deploy/build') }
   end
 
   # TODO: don't chown /usr/local/src
