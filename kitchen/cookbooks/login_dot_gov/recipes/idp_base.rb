@@ -70,8 +70,9 @@ shared_dirs.each do |dir|
   end
 end
 
+ruby_bin_dir = "/opt/ruby_build/builds/#{node.fetch('login_dot_gov').fetch('ruby_version')}/bin"
 ruby_build_path = [
-  "/opt/ruby_build/builds/#{node.fetch('login_dot_gov').fetch('ruby_version')}/bin",
+  ruby_bin_dir,
   ENV.fetch('PATH'),
 ].join(':')
 
@@ -136,12 +137,19 @@ application release_path do
   rails do
     rails_env node['login_dot_gov']['rails_env']
     not_if { node['login_dot_gov']['setup_only'] }
+    precompile_assets false
+  end
+
+  execute %W{#{ruby_bin_dir}/bundle exec rake assets:precompile} do
+    cwd '/srv/idp/releases/chef'
+    environment({ 'PATH' => ruby_build_path, 'RAILS_ENV' => 'production' })
   end
 
   # TODO: don't chown /usr/local/src
   execute 'chown -R ubuntu /home/ubuntu/.bundle /usr/local/src'
 
-  execute "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle exec rake db:create db:migrate db:seed --trace" do
+  # TODO move this logic into idp in deploy/activate or deploy/migrate
+  execute %W{#{ruby_bin_dir}/bundle exec rake db:create db:migrate db:seed --trace} do
     cwd '/srv/idp/releases/chef'
     environment({
       'RAILS_ENV' => "production"
