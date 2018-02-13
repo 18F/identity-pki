@@ -74,6 +74,7 @@ DEPENDENCIES
     tag: v3.1.2
   ssh-keys
   sudo
+  sysctl
   terraform (~ 0.5)
   users
 
@@ -156,6 +157,7 @@ GRAPH
     login_dot_gov (>= 0.0.0)
     runit (>= 0.0.0)
     service_discovery (>= 0.0.0)
+    sysctl (>= 0.0.0)
   identity-jenkins (0.1.11)
     acme (>= 0.0.0)
     apache2 (>= 0.0.0)
@@ -189,7 +191,7 @@ GRAPH
     runit (>= 1.7)
   keytool (0.8.1)
   letsencrypt (1.0.3)
-  login_dot_gov (0.0.53)
+  login_dot_gov (0.0.54)
     application_ruby (>= 0.0.1)
     config_loader (>= 0.0.1)
     newrelic (>= 0.0.1)
@@ -271,6 +273,8 @@ GRAPH
     selinux_policy (>= 1.0.0)
   ssh-keys (1.2.7)
   sudo (3.5.3)
+  sysctl (0.10.2)
+    ohai (>= 4.0)
   terraform (0.5.3)
     ark (~> 1.1.0)
   users (5.2.1)
