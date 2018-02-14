@@ -14,6 +14,7 @@
       "branch_name": "stages/newdev"
     },
     "elk": {
+      "legacy_log_bucket_name": false,
       "users": [
         "astone",
         "brody",

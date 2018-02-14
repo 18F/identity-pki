@@ -11,6 +11,7 @@
       "branch_name": "stages/pt"
     },
     "elk": {
+      "legacy_log_bucket_name": false,
       "users": [
         "brody",
         "jgrevich",

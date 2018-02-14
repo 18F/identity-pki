@@ -9,6 +9,7 @@
       "branch_name": "master"
     },
     "elk": {
+      "legacy_log_bucket_name": false,
       "users": [
         "brody",
         "jgrevich",

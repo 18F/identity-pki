@@ -12,6 +12,7 @@
       "branch_name": "stages/markryan"
     },
     "elk": {
+      "legacy_log_bucket_name": false,
       "users": [
         "markryan"
       ]
