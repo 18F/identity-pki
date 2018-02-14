@@ -79,8 +79,8 @@ data "aws_iam_policy_document" "logbucketpolicy" {
       "s3:GetObject",
     ]
     resources = [
-      "arn:aws:s3:::login-gov-${var.env_name}-analytics-logs/*",
-      "arn:aws:s3:::login-gov-${var.env_name}-analytics-logs"
+      "${ var.legacy_log_bucket_name ? "arn:aws:s3:::login-gov-${var.env_name}-analytics-logs" : "arn:aws:s3:::login-gov-analytics-logs-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}" }/*",
+      "${ var.legacy_log_bucket_name ? "arn:aws:s3:::login-gov-${var.env_name}-analytics-logs" : "arn:aws:s3:::login-gov-analytics-logs-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}" }"
     ]
   }
 }
