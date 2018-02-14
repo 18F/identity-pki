@@ -99,8 +99,8 @@ if node['elk']['legacy_log_bucket_name']
   default['elk']['aws_logging_bucket'] = "login-gov-#{node.chef_environment}-logs"
   default['elk']['analytics_logging_bucket'] = "login-gov-#{node.chef_environment}-analytics-logs"
 else
-  default['elk']['aws_logging_bucket'] = "login-gov-logs-${node.chef_environment}.${aws_account_id}-${node['ec2']['placement_availability_zone'][0..-2]}"
-  default['elk']['analytics_logging_bucket'] = "login-gov-analytics-logs-${node.chef_environment}.${aws_account_id}-${node['ec2']['placement_availability_zone'][0..-2]}"
+  default['elk']['aws_logging_bucket'] = "login-gov-logs-#{node.chef_environment}.#{Chef::Recipe::AwsMetadata.get_aws_account_id}-#{node['ec2']['placement_availability_zone'][0..-2]}"
+  default['elk']['analytics_logging_bucket'] = "login-gov-analytics-logs-#{node.chef_environment}.#{Chef::Recipe::AwsMetadata.get_aws_account_id}-#{node['ec2']['placement_availability_zone'][0..-2]}"
 end
 default['elk']['proxy_logging_bucket'] = "login-gov-proxylogs-#{node.chef_environment}.#{Chef::Recipe::AwsMetadata.get_aws_account_id}-#{node['ec2']['placement_availability_zone'][0..-2]}"
 default['elk']['elb_logging_bucket'] = "login-gov.elb-logs.#{Chef::Recipe::AwsMetadata.get_aws_account_id}-#{node['ec2']['placement_availability_zone'][0..-2]}"
