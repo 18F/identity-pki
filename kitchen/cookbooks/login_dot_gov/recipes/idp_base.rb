@@ -130,7 +130,7 @@ application release_path do
 
   # install and build javascript dependencies
   # TODO move this into deploy/build
-  ['yarn install', 'yarn build'].each do |cmd|
+  ['npm install', 'npm run build'].each do |cmd|
     execute "#{cmd}" do
       # creates node_path
       cwd '/srv/idp/releases/chef'
