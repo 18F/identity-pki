@@ -127,9 +127,16 @@ application release_path do
   # etc.
   execute 'deploy build step' do
     cwd '/srv/idp/releases/chef'
-    command './deploy/build'
-    user node['login_dot_gov']['system_user']
-    group node['login_dot_gov']['system_user']
+
+    # We need to have a secondary group of "github" in order to read the github
+    # SSH key, but chef doesn't set secondary sgids when executing processes,
+    # so we use sudo instead to get all the login secondary groups.
+    # https://github.com/chef/chef/issues/6162
+    command [
+      'sudo', '-E', '-H', '-u', node.fetch('login_dot_gov').fetch('system_user'),
+      './deploy/build'
+    ]
+    user 'root'
     environment(deploy_script_environment)
 
     # TODO delete condition once deploy/build exists
