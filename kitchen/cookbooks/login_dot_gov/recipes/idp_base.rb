@@ -76,6 +76,12 @@ ruby_build_path = [
   ENV.fetch('PATH'),
 ].join(':')
 
+deploy_script_environment = {
+  'PATH' => ruby_build_path,
+  'RAILS_ENV' => 'production',
+  'HOME' => nil,
+}
+
 # TODO: JJG consider migrating to chef deploy resource to stay in line with capistrano style:
 # https://docs.chef.io/resource_deploy.html
 application release_path do
@@ -113,16 +119,18 @@ application release_path do
     app_name "#{node.chef_environment}.#{node.fetch('login_dot_gov').fetch('domain_name')}"
   end
 
-  # TODO: add a deploy/build script and pull in the bundle install, yarn build,
-  # etc. so that the identity-devops repo doesn't need to be aware of the steps
-  # involved to build any repo.
+  # TODO: remove all the build steps that have moved into deploy/build so that
+  # the identity-devops repo doesn't need to be aware of the steps involved to
+  # build any repo.
 
+  # The build step runs bundle install, yarn install, rake assets:precompile,
+  # etc.
   execute 'deploy build step' do
     cwd '/srv/idp/releases/chef'
     command './deploy/build'
     user node['login_dot_gov']['system_user']
-
-    environment({ 'PATH' => ruby_build_path, 'RAILS_ENV' => 'production' })
+    group node['login_dot_gov']['system_user']
+    environment(deploy_script_environment)
 
     # TODO delete condition once deploy/build exists
     only_if { File.exist?('/srv/idp/releases/chef/deploy/build') }
@@ -140,13 +148,15 @@ application release_path do
   end
 
   # Run the activate script from the repo, which is used to download app
-  # configs and set things up for the app to run.
+  # configs and set things up for the app to run. This has to run before
+  # deploy/build because rake assets:precompile needs the full database configs
+  # to be present.
   execute 'deploy activate step' do
     cwd '/srv/idp/releases/chef'
     command './deploy/activate'
     user node['login_dot_gov']['system_user']
-
-    environment({ 'PATH' => ruby_build_path, 'RAILS_ENV' => 'production' })
+    group node['login_dot_gov']['system_user']
+    environment(deploy_script_environment)
   end
 
   rails do
@@ -160,7 +170,18 @@ application release_path do
     cwd '/srv/idp/releases/chef'
     environment({ 'PATH' => ruby_build_path, 'RAILS_ENV' => 'production' })
 
-    not_if { File.exist?('/srv/idp/releases/chef/deploy/build') }
+    not_if { File.exist?('/srv/idp/releases/chef/deploy/build-post-config') }
+  end
+
+  execute 'deploy build-post-config step' do
+    cwd '/srv/idp/releases/chef'
+    command './deploy/build-post-config'
+    user node['login_dot_gov']['system_user']
+    group node['login_dot_gov']['system_user']
+    environment(deploy_script_environment)
+
+    # TODO delete condition once deploy/build-post-config exists
+    only_if { File.exist?('/srv/idp/releases/chef/deploy/build-post-config') }
   end
 
   # TODO: don't chown /usr/local/src
