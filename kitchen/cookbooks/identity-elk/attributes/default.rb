@@ -41,6 +41,9 @@ default['elk']['indextypes'] = [
   'filebeat'
 ]
 
+# Set this to false in environments that use new-style bucket names.
+default['elk']['legacy_log_bucket_name'] = true
+
 # get a modern version of java
 default['java']['jdk_version'] = '8'
 
@@ -92,8 +95,13 @@ default['elk']['chef_zero_client_configuration'] = '/etc/login.gov/repos/identit
 
 # change this per env to transition over to the account-specific logbuckets
 #default['elk']['aws_logging_bucket'] = "login-gov-logs-${node.chef_environment}.${aws_account_id}-${node['ec2']['placement_availability_zone'][0..-2]}"
-default['elk']['aws_logging_bucket'] = "login-gov-#{node.chef_environment}-logs"
-default['elk']['analytics_logging_bucket'] = "login-gov-#{node.chef_environment}-analytics-logs"
+if node['elk']['legacy_log_bucket_name']
+  default['elk']['aws_logging_bucket'] = "login-gov-#{node.chef_environment}-logs"
+  default['elk']['analytics_logging_bucket'] = "login-gov-#{node.chef_environment}-analytics-logs"
+else
+  default['elk']['aws_logging_bucket'] = "login-gov-logs-${node.chef_environment}.${aws_account_id}-${node['ec2']['placement_availability_zone'][0..-2]}"
+  default['elk']['analytics_logging_bucket'] = "login-gov-analytics-logs-${node.chef_environment}.${aws_account_id}-${node['ec2']['placement_availability_zone'][0..-2]}"
+end
 default['elk']['proxy_logging_bucket'] = "login-gov-proxylogs-#{node.chef_environment}.#{Chef::Recipe::AwsMetadata.get_aws_account_id}-#{node['ec2']['placement_availability_zone'][0..-2]}"
 default['elk']['elb_logging_bucket'] = "login-gov.elb-logs.#{Chef::Recipe::AwsMetadata.get_aws_account_id}-#{node['ec2']['placement_availability_zone'][0..-2]}"
 
