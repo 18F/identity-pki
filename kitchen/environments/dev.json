@@ -13,7 +13,7 @@
       "branch_name": "master"
     },
     "elk": {
-      "legacy_logging_bucket_name": false,
+      "legacy_log_bucket_name": false,
       "users": [
         "astone",
         "brody",
