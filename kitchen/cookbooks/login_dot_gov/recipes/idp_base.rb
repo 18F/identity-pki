@@ -149,9 +149,9 @@ application release_path do
     execute "#{cmd}" do
       # creates node_path
       cwd '/srv/idp/releases/chef'
-    end
 
-    not_if { File.exist?('/srv/idp/releases/chef/deploy/build') }
+      not_if { File.exist?('/srv/idp/releases/chef/deploy/build') }
+    end
   end
 
   # Run the activate script from the repo, which is used to download app
