@@ -70,10 +70,17 @@ shared_dirs.each do |dir|
   end
 end
 
+ruby_bin_dir = "/opt/ruby_build/builds/#{node.fetch('login_dot_gov').fetch('ruby_version')}/bin"
 ruby_build_path = [
-  "/opt/ruby_build/builds/#{node.fetch('login_dot_gov').fetch('ruby_version')}/bin",
+  ruby_bin_dir,
   ENV.fetch('PATH'),
 ].join(':')
+
+deploy_script_environment = {
+  'PATH' => ruby_build_path,
+  'RAILS_ENV' => 'production',
+  'HOME' => nil,
+}
 
 # TODO: JJG consider migrating to chef deploy resource to stay in line with capistrano style:
 # https://docs.chef.io/resource_deploy.html
@@ -91,12 +98,14 @@ application release_path do
     revision branch_name
   end
 
+  # TODO move this into deploy/build
   bundle_install do
     binstubs '/srv/idp/shared/bin'
     deployment true
     jobs 3
     vendor '/srv/idp/shared/bundle'
     without %w{deploy development doc test}
+    not_if { File.exist?('/srv/idp/releases/chef/deploy/build') }
   end
 
   # custom resource to install the IdP config files (app.yml, saml.crt, saml.key)
@@ -110,37 +119,83 @@ application release_path do
     app_name "#{node.chef_environment}.#{node.fetch('login_dot_gov').fetch('domain_name')}"
   end
 
-  # TODO: add a deploy/build script and pull in the bundle install, npm build,
-  # etc. so that the identity-devops repo doesn't need to be aware of the steps
-  # involved to build any repo.
+  # TODO: remove all the build steps that have moved into deploy/build so that
+  # the identity-devops repo doesn't need to be aware of the steps involved to
+  # build any repo.
 
-# install and build node dependencies
- ['npm install', 'npm run build'].each do |cmd|
+  # The build step runs bundle install, yarn install, rake assets:precompile,
+  # etc.
+  execute 'deploy build step' do
+    cwd '/srv/idp/releases/chef'
+
+    # We need to have a secondary group of "github" in order to read the github
+    # SSH key, but chef doesn't set secondary sgids when executing processes,
+    # so we use sudo instead to get all the login secondary groups.
+    # https://github.com/chef/chef/issues/6162
+    command [
+      'sudo', '-E', '-H', '-u', node.fetch('login_dot_gov').fetch('system_user'),
+      './deploy/build'
+    ]
+    user 'root'
+    environment(deploy_script_environment)
+
+    # TODO delete condition once deploy/build exists
+    only_if { File.exist?('/srv/idp/releases/chef/deploy/build') }
+  end
+
+  # install and build javascript dependencies
+  # TODO move this into deploy/build
+  ['npm install', 'npm run build'].each do |cmd|
     execute "#{cmd}" do
-    # creates node_path
+      # creates node_path
       cwd '/srv/idp/releases/chef'
+
+      not_if { File.exist?('/srv/idp/releases/chef/deploy/build') }
     end
-end
+  end
 
   # Run the activate script from the repo, which is used to download app
-  # configs and set things up for the app to run.
+  # configs and set things up for the app to run. This has to run before
+  # deploy/build because rake assets:precompile needs the full database configs
+  # to be present.
   execute 'deploy activate step' do
     cwd '/srv/idp/releases/chef'
     command './deploy/activate'
     user node['login_dot_gov']['system_user']
-
-    environment({ 'PATH' => ruby_build_path, 'RAILS_ENV' => 'production' })
+    group node['login_dot_gov']['system_user']
+    environment(deploy_script_environment)
   end
 
   rails do
     rails_env node['login_dot_gov']['rails_env']
     not_if { node['login_dot_gov']['setup_only'] }
+    precompile_assets false
+  end
+
+  # TODO: move this into deploy/build
+  execute %W{#{ruby_bin_dir}/bundle exec rake assets:precompile} do
+    cwd '/srv/idp/releases/chef'
+    environment({ 'PATH' => ruby_build_path, 'RAILS_ENV' => 'production' })
+
+    not_if { File.exist?('/srv/idp/releases/chef/deploy/build-post-config') }
+  end
+
+  execute 'deploy build-post-config step' do
+    cwd '/srv/idp/releases/chef'
+    command './deploy/build-post-config'
+    user node['login_dot_gov']['system_user']
+    group node['login_dot_gov']['system_user']
+    environment(deploy_script_environment)
+
+    # TODO delete condition once deploy/build-post-config exists
+    only_if { File.exist?('/srv/idp/releases/chef/deploy/build-post-config') }
   end
 
   # TODO: don't chown /usr/local/src
   execute 'chown -R ubuntu /home/ubuntu/.bundle /usr/local/src'
 
-  execute "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle exec rake db:create db:migrate db:seed --trace" do
+  # TODO move this logic into idp in deploy/activate or deploy/migrate
+  execute %W{#{ruby_bin_dir}/bundle exec rake db:create db:migrate db:seed --trace} do
     cwd '/srv/idp/releases/chef'
     environment({
       'RAILS_ENV' => "production"

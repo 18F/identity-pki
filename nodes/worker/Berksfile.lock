@@ -58,7 +58,7 @@ DEPENDENCIES
   openssl
   ossec
     git: https://github.com/sous-chefs/ossec
-    revision: 80f6934227c6dc89e0c6f7b3edf1a0d0ea120060
+    revision: 8e72ecb01d218fb773f337770f61b14116484690
   passenger
     path: ../../kitchen/cookbooks/passenger
   poise-ruby
@@ -74,6 +74,7 @@ DEPENDENCIES
     tag: v3.1.2
   ssh-keys
   sudo
+  sysctl
   terraform (~ 0.5)
   users
 
@@ -110,7 +111,8 @@ GRAPH
   chef_handler (3.0.2)
   citadel_fork (9.1.1)
   compat_resource (12.19.1)
-  config_loader (0.2.1)
+  config_loader (0.2.2)
+    aws_metadata (>= 0.0.0)
     citadel_fork (>= 0.0.0)
   cron (5.0.1)
   curl (2.0.4)
@@ -155,6 +157,7 @@ GRAPH
     login_dot_gov (>= 0.0.0)
     runit (>= 0.0.0)
     service_discovery (>= 0.0.0)
+    sysctl (>= 0.0.0)
   identity-jenkins (0.1.11)
     acme (>= 0.0.0)
     apache2 (>= 0.0.0)
@@ -188,7 +191,7 @@ GRAPH
     runit (>= 1.7)
   keytool (0.8.1)
   letsencrypt (1.0.3)
-  login_dot_gov (0.0.52)
+  login_dot_gov (0.0.54)
     application_ruby (>= 0.0.1)
     config_loader (>= 0.0.1)
     newrelic (>= 0.0.1)
@@ -205,7 +208,7 @@ GRAPH
   motd (0.6.4)
     chef_handler (>= 0.0.0)
   nano (1.0.3)
-  newrelic (2.33.0)
+  newrelic (2.34.0)
     apt (>= 0.0.0)
     curl (>= 0.0.0)
     poise-python (>= 0.0.0)
@@ -219,9 +222,9 @@ GRAPH
     yum (>= 0.0.0)
   ntp (3.5.6)
   ohai (5.2.1)
-  openssl (8.1.0)
+  openssl (8.1.2)
   ossec (1.0.5)
-    apt (>= 0.0.0)
+    compat_resource (>= 12.14.6)
     yum-atomic (>= 0.0.0)
   packagecloud (0.3.0)
   passenger (0.0.5)
@@ -270,6 +273,8 @@ GRAPH
     selinux_policy (>= 1.0.0)
   ssh-keys (1.2.7)
   sudo (4.0.0)
+  sysctl (0.10.2)
+    ohai (>= 4.0)
   terraform (0.5.3)
     ark (~> 1.1.0)
   users (5.3.1)
