@@ -80,7 +80,9 @@ data "aws_iam_policy_document" "logbucketpolicy" {
     ]
     resources = [
       "arn:aws:s3:::login-gov-${var.env_name}-analytics-logs/*",
-      "arn:aws:s3:::login-gov-${var.env_name}-analytics-logs"
+      "arn:aws:s3:::login-gov-${var.env_name}-analytics-logs",
+      "arn:aws:s3:::login-gov-analytics-logs-${var.env_name}.*/*",
+      "arn:aws:s3:::login-gov-analytics-logs-${var.env_name}.*"
     ]
   }
 }
@@ -110,7 +112,7 @@ resource "aws_iam_role_policy" "elk_describe_instances" {
 }
 
 resource "aws_s3_bucket" "logbucket" {
-  # We are moving log buckets to the schema containing account ID
+  # TODO use terraform locals to compute this once we upgrade to 0.10.*
   bucket = "${ var.legacy_log_bucket_name ? "login-gov-${var.env_name}-logs" : "login-gov-logs-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}" }"
   versioning {
     enabled = true

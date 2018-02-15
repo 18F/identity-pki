@@ -255,7 +255,7 @@ resource "aws_s3_bucket" "redshift_export_bucket" {
 }
 
 resource "aws_s3_bucket" "redshift_logs_bucket" {
-  bucket = "login-gov-${var.env_name}-analytics-logs"
+  bucket = "${var.analytics_log_bucket_name}"
 
   tags {
     Name = "login-gov-${var.env_name}-analytics-logs"
@@ -287,7 +287,7 @@ data "aws_iam_policy_document" "bucket_policy_json" {
     ]
 
     resources = [
-      "arn:aws:s3:::login-gov-${var.env_name}-analytics-logs/*",
+      "arn:aws:s3:::${var.analytics_log_bucket_name}/*",
     ]
 
     principals {
@@ -308,7 +308,7 @@ data "aws_iam_policy_document" "bucket_policy_json" {
     ]
 
     resources = [
-      "arn:aws:s3:::login-gov-${var.env_name}-analytics-logs"
+      "arn:aws:s3:::${var.analytics_log_bucket_name}"
     ]
 
     principals {
@@ -436,12 +436,12 @@ resource "aws_iam_policy" "redshift_s3_policy" {
     {
     "Effect": "Allow",
     "Action": "s3:PutObject",
-    "Resource": "arn:aws:s3:::login-gov-${var.env_name}-analytics-logs/*"
+    "Resource": "arn:aws:s3:::${var.analytics_log_bucket_name}/*"
     },
     {
     "Effect": "Allow",
     "Action": "s3:GetBucketAcl",
-    "Resource": "arn:aws:s3:::login-gov-${var.env_name}-analytics-logs"
+    "Resource": "arn:aws:s3:::${var.analytics_log_bucket_name}"
   }
   ]
 }
