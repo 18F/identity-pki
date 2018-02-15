@@ -14,7 +14,6 @@
       "branch_name": "stages/jp"
     },
     "elk": {
-      "legacy_log_bucket_name": false,
       "users": [
         "astone",
         "brody",
