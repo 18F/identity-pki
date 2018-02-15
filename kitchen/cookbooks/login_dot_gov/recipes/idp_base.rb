@@ -194,6 +194,14 @@ application release_path do
   # TODO: don't chown /usr/local/src
   execute 'chown -R ubuntu /home/ubuntu/.bundle /usr/local/src'
 
+  execute 'newrelic log deploy' do
+    cwd '/srv/idp/releases/chef'
+    command 'bundle exec newrelic deployments -r "$(git rev-parse HEAD)"'
+    user node['login_dot_gov']['system_user']
+    group node['login_dot_gov']['system_user']
+    environment(deploy_script_environment)
+  end
+
   # TODO move this logic into idp in deploy/activate or deploy/migrate
   execute %W{#{ruby_bin_dir}/bundle exec rake db:create db:migrate db:seed --trace} do
     cwd '/srv/idp/releases/chef'
