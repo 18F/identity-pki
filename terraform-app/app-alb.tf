@@ -13,7 +13,7 @@ resource "aws_alb" "app" {
 }
 
 resource "aws_alb_listener" "app" {
-  count = "${var.alb_enabled * var.apps_enabled}"
+  count = "${var.alb_enabled * var.apps_enabled * var.alb_http_port_80_enabled}"
   load_balancer_arn = "${aws_alb.app.id}"
   port = "80"
   protocol = "HTTP"
@@ -59,7 +59,7 @@ resource "aws_alb_listener" "app-ssl" {
 }
 
 resource "aws_alb_target_group" "app" {
-  count = "${var.alb_enabled * var.apps_enabled}"
+  count = "${var.alb_enabled * var.apps_enabled * var.alb_http_port_80_enabled}"
   depends_on = ["aws_alb.app"]
 
   health_check {

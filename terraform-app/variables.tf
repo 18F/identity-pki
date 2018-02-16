@@ -243,6 +243,11 @@ variable "alb_enabled" {
     description = "Enable ALB for idp hosts"
 }
 
+variable "alb_http_port_80_enabled" {
+    default = 1
+    description = "Whether to have ALB listen on HTTP port 80 (not just HTTPS 443)"
+}
+
 variable "acm_certs_enabled" {
     default = 1
     description = "Whether to look for AWS ACM certificates. Set this to 0 to ignore ACM certs, which is useful for terraform destroy."
