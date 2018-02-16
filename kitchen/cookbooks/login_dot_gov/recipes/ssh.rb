@@ -22,6 +22,9 @@ group 'github' do
   members ['root', node.fetch('login_dot_gov').fetch('system_user')]
 end
 
+# This is needed to create this directory on non-ASG servers
+directory '/etc/login.gov'
+
 directory '/etc/login.gov/keys' do
   owner 'root'
   group 'root'
