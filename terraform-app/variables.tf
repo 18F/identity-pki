@@ -77,7 +77,7 @@ variable "legacy_log_bucket_name" {
 
 variable "elasticache_redis_node_type" {
     description = "Instance type used for redis elasticache. Changes incur downtime."
-    default = "cache.t2.micro"
+    default = "cache.m3.medium"
 }
 variable "use_multi_az_redis" {
     description = "Whether to use the new multi-AZ elasticache redis cluster. (Repoints DNS CNAME)"
