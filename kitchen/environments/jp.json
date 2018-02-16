@@ -15,14 +15,10 @@
     },
     "elk": {
       "users": [
-        "astone",
         "brody",
         "jgrevich",
-        "zmargolis",
         "jpmugizi",
-        "monfresh",
-        "tspencer",
-        "zmargolis"
+        "monfresh"
       ]
     }
   },

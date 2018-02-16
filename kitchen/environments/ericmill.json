@@ -28,7 +28,6 @@
     },
     "identity-jenkins": {
       "users": [
-        "sverch"
       ],
       "admins": [
         "ericmill"
