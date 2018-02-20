@@ -190,6 +190,14 @@ resource "aws_security_group" "chef" {
     cidr_blocks = ["${var.obproxy1_subnet_cidr_block}","${var.obproxy2_subnet_cidr_block}","${var.outbound_subnets}"]
   }
 
+  # need 8834 to comm with Nessus Server
+  egress {
+    from_port = 8834
+    to_port = 8834
+    protocol = "tcp"
+    cidr_blocks = ["${var.nessusserver_ip}"]
+  }
+
   ingress {
     from_port = 443
     to_port = 443
@@ -224,6 +232,14 @@ resource "aws_security_group" "chef" {
     to_port = 22
     protocol = "tcp"
     cidr_blocks = ["${var.ci_sg_ssh_cidr_blocks}"]
+  }
+
+  # need 8834 to comm with Nessus Server
+  ingress {
+    from_port = 8834
+    to_port = 8834
+    protocol = "tcp"
+    cidr_blocks = ["${var.nessusserver_ip}"]
   }
 
   name = "${var.name}-chef-${var.env_name}"
@@ -331,6 +347,14 @@ resource "aws_security_group" "elk" {
     security_groups = [ "${aws_security_group.jumphost.id}", "${aws_security_group.jenkins.id}" ]
   }
 
+  # need 8834 to comm with Nessus Server
+  egress {
+    from_port = 8834
+    to_port = 8834
+    protocol = "tcp"
+    cidr_blocks = ["${var.nessusserver_ip}"]
+  }
+
   ingress {
     from_port = 5044
     to_port = 5044
@@ -368,6 +392,14 @@ resource "aws_security_group" "elk" {
     to_port = 22
     protocol = "tcp"
     cidr_blocks = ["${var.ci_sg_ssh_cidr_blocks}"]
+  }
+
+  # need 8834 to comm with Nessus Server
+  ingress {
+    from_port = 8834
+    to_port = 8834
+    protocol = "tcp"
+    cidr_blocks = ["${var.nessusserver_ip}"]
   }
 
   name = "${var.name}-elk-${var.env_name}"
@@ -424,6 +456,14 @@ resource "aws_security_group" "jenkins" {
     cidr_blocks = ["${var.obproxy1_subnet_cidr_block}","${var.obproxy2_subnet_cidr_block}","${var.outbound_subnets}"]
   }
 
+  # need 8834 to comm with Nessus Server
+  egress {
+    from_port = 8834
+    to_port = 8834
+    protocol = "tcp"
+    cidr_blocks = ["${var.nessusserver_ip}"]
+  }
+
   ingress {
     from_port = 22
     to_port = 22
@@ -444,6 +484,14 @@ resource "aws_security_group" "jenkins" {
     to_port = 22
     protocol = "tcp"
     cidr_blocks = ["${var.ci_sg_ssh_cidr_blocks}"]
+  }
+
+  # need 8834 to comm with Nessus Server
+  ingress {
+    from_port = 8834
+    to_port = 8834
+    protocol = "tcp"
+    cidr_blocks = ["${var.nessusserver_ip}"]
   }
 
   name = "${var.name}-jenkins-${var.env_name}"
@@ -493,6 +541,14 @@ resource "aws_security_group" "jumphost" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # need 8834 to comm with Nessus Server
+  egress {
+    from_port = 8834
+    to_port = 8834
+    protocol = "tcp"
+    cidr_blocks = ["${var.nessusserver_ip}"]
+  }
+
   # github
   egress {
     from_port = 22
@@ -517,6 +573,15 @@ resource "aws_security_group" "jumphost" {
     cidr_blocks = ["${data.aws_ip_ranges.route53.cidr_blocks}","8.8.8.8/32"]
   }
 
+  # need 8834 to comm with Nessus Server
+  egress {
+    from_port = 8834
+    to_port = 8834
+    protocol = "tcp"
+    cidr_blocks = ["${var.nessusserver_ip}"]
+  }
+
+
   ingress {
     from_port = 22
     to_port = 22
@@ -538,6 +603,22 @@ resource "aws_security_group" "jumphost" {
     to_port = 22
     protocol = "tcp"
     cidr_blocks = ["${var.ci_sg_ssh_cidr_blocks}"]
+  }
+
+  # need 8834 to comm with Nessus Server
+  ingress {
+    from_port = 8834
+    to_port = 8834
+    protocol = "tcp"
+    cidr_blocks = ["${var.nessusserver_ip}"]
+  }
+
+  # need 8834 to comm with Nessus Server
+  ingress {
+    from_port = 8834
+    to_port = 8834
+    protocol = "tcp"
+    cidr_blocks = ["${var.nessusserver_ip}"]
   }
 
   name = "${var.name}-jumphost-${var.env_name}"
@@ -581,12 +662,12 @@ resource "aws_security_group" "amazon_netblocks_http" {
     cidr_blocks = ["${var.amazon_netblocks}"]
   }
   name = "${var.name}-amazonnetblockshttp-${var.env_name}"
-  
+
   tags {
     client = "${var.client}"
     Name = "${var.name}-awsnetblockshttp_security_group-${var.env_name}"
   }
-  
+
   vpc_id = "${aws_vpc.default.id}"
 }
 
@@ -642,6 +723,14 @@ resource "aws_security_group" "idp" {
     cidr_blocks = ["${var.obproxy1_subnet_cidr_block}","${var.obproxy2_subnet_cidr_block}","${var.outbound_subnets}"]
   }
 
+  # need 8834 to comm with Nessus Server
+  egress {
+    from_port = 8834
+    to_port = 8834
+    protocol = "tcp"
+    cidr_blocks = ["${var.nessusserver_ip}"]
+  }
+
   ingress {
     from_port = 80
     to_port = 80
@@ -675,6 +764,14 @@ resource "aws_security_group" "idp" {
     to_port = 22
     protocol = "tcp"
     cidr_blocks = ["${var.ci_sg_ssh_cidr_blocks}"]
+  }
+
+  # need 8834 to comm with Nessus Server
+  ingress {
+    from_port = 8834
+    to_port = 8834
+    protocol = "tcp"
+    cidr_blocks = ["${var.nessusserver_ip}"]
   }
 
   name = "${var.name}-idp-${var.env_name}"

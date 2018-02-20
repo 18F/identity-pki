@@ -297,8 +297,13 @@ variable "bootstrap_private_git_ref_elk" {
     description = "Git ref in identity-devops for provision.sh to check out for elk"
 }
 
+variable "nessusserver_ip" {
+  description = "Nessus server's public IP"
+}
+
 # This is useful for granting a foreign environment's idp role access to this environment's KMS key
 variable "db_restore_role_arns" {
     default = []
     description = "Name of role used to restore db data to another env (e.g. arn:aws:iam::555546682965:role/dm_idp_iam_role)"
 }
+
