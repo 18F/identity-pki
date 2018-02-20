@@ -15,15 +15,11 @@
     "elk": {
       "legacy_log_bucket_name": false,
       "users": [
-        "astone",
         "brody",
         "jgrevich",
-        "zmargolis",
         "jpmugizi",
         "monfresh",
-        "tspencer",
-        "mzia",
-        "zmargolis"
+        "mzia"
       ]
     },
     "filebeat": {
@@ -35,16 +31,12 @@
     },
     "identity-jenkins": {
       "users": [
-        "monfresh",
-        "zmargolis"
+        "monfresh"
       ],
       "admins": [
-        "astone",
         "brody",
         "jgrevich",
-        "jpmugizi",
-        "tspencer",
-        "zmargolis"
+        "jpmugizi"
       ]
     }
   },

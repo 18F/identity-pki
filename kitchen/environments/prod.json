@@ -21,17 +21,12 @@
     },
     "elk": {
       "users": [
-        "astone",
         "brody",
         "jgrevich",
         "jpmugizi",
         "monfresh",
-        "sverch",
-        "dnesting",
         "tblack",
-        "tspencer",
-        "mzia",
-        "zmargolis"
+        "mzia"
       ]
     },
     "filebeat": {
@@ -39,17 +34,12 @@
     },
     "identity-jenkins": {
       "users": [
-        "monfresh",
-        "zmargolis"
+        "monfresh"
       ],
       "admins": [
-        "astone",
         "brody",
         "jgrevich",
         "jpmugizi",
-        "tspencer",
-        "sverch",
-        "dnesting",
         "mzia"
       ]
     },

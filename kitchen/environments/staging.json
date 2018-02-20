@@ -20,16 +20,12 @@
     },
     "elk": {
       "users": [
-        "astone",
         "brody",
         "jgrevich",
         "jpmugizi",
         "monfresh",
-        "sverch",
-        "dnesting",
         "tblack",
-        "mzia",
-        "tspencer"
+        "mzia"
       ]
     },
     "filebeat": {
@@ -40,13 +36,9 @@
         "monfresh"
       ],
       "admins": [
-        "astone",
         "brody",
         "jgrevich",
         "jpmugizi",
-        "tspencer",
-        "sverch",
-        "dnesting",
         "mzia"
       ]
     },

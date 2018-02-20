@@ -14,12 +14,8 @@
       "users": [
         "brody",
         "jgrevich",
-        "zmargolis",
         "jpmugizi",
-        "monfresh",
-        "dnesting",
-        "tspencer",
-        "zmargolis"
+        "monfresh"
       ]
     },
     "filebeat": {
@@ -27,15 +23,12 @@
     },
     "identity-jenkins": {
       "users": [
-        "monfresh",
-        "zmargolis"
+        "monfresh"
       ],
       "admins": [
         "brody",
         "jgrevich",
-        "jpmugizi",
-        "tspencer",
-        "zmargolis"
+        "jpmugizi"
       ]
     },
     "passenger": {
