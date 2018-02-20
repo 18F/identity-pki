@@ -38,7 +38,7 @@ Most of our environments use terraform 0.8.8.
     - We are in the process of upgrading from 0.8.8, check back
       [here](https://github.com/18F/identity-private/issues/1877) for the status of that upgrade.
 
-You can use `bin/brew-switch-terraform.sh` to manage installed versions of
+You can use `bin/terraform-switch.sh` to manage installed versions of
 Terraform and the Terraform ACME plugin. (This script relies on Homebrew and
 only works on macOS.) There will be multiple versions of Terraform installed,
 but only one will be symlinked onto your PATH at any given time. Run
@@ -46,19 +46,19 @@ but only one will be symlinked onto your PATH at any given time. Run
 
 We use a Terraform plugin that adds an ACME provider used to generate our Let's
 Encrypt TLS certificates. This will be installed automatically when you run
-`bin/brew-switch-terraform.sh`.
+`bin/terraform-switch.sh`.
 
 Run the script to install and switch to Terraform 0.9.6. Follow the prompts
 when it asks to create a `~/.terraformrc` to manage your ACME plugin:
 
 ```shell
-bin/brew-switch-terraform.sh 0.9.6
+bin/terraform-switch.sh 0.9.6
 ```
 
 Run the script to install and switch to Terraform 0.8.8:
 
 ```
-bin/brew-switch-terraform.sh 0.8.8
+bin/terraform-switch.sh 0.8.8
 ```
 
 The `deploy` script will enforce for each environment which versions of
