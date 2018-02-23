@@ -53,6 +53,18 @@ branch_name = node.fetch('login_dot_gov').fetch('branch_name', "stages/#{node.ch
   end
 end
 
+ruby_bin_dir = "/opt/ruby_build/builds/#{node.fetch('login_dot_gov').fetch('ruby_version')}/bin"
+ruby_build_path = [
+  ruby_bin_dir,
+  ENV.fetch('PATH'),
+].join(':')
+
+deploy_script_environment = {
+  'PATH' => ruby_build_path,
+  'RACK_ENV' => 'production',
+  'HOME' => nil,
+}
+
 deploy "/srv/#{app_name}" do
   action :deploy
   before_symlink do
@@ -60,6 +72,14 @@ deploy "/srv/#{app_name}" do
     execute cmd do
       cwd release_path
       #user 'ubuntu'
+    end
+
+    execute 'deploy activate step' do
+      cwd release_path
+      command './deploy/activate'
+      user 'root'
+      group 'root'
+      environment(deploy_script_environment)
     end
   end
 
