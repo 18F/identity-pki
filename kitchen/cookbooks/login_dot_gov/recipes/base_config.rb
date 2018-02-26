@@ -19,6 +19,12 @@ package [
   'tree',
 ]
 
+# linux perf
+package [
+  'linux-tools-common',
+  'linux-tools-aws',
+]
+
 # common scripts and aliases
 
 cookbook_file '/usr/local/bin/id-apt-upgrade' do
