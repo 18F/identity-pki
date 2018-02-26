@@ -10,6 +10,4 @@ module "analytics" {
   num_redshift_nodes = "${var.num_redshift_nodes}"
   name = "${var.name}"
   wlm_json_configuration = "${var.wlm_json_configuration}"
-  # TODO use terraform locals to compute this once we upgrade to 0.10.*
-  analytics_log_bucket_name = "${ var.legacy_log_bucket_name ? "login-gov-${var.env_name}-analytics-logs" : "login-gov-analytics-logs-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}" }"
 }
