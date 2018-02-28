@@ -16,8 +16,6 @@ EOS
   exit 1
 fi
 
-open https://localhost:8443/app/kibana
-
 script="$(dirname "$0")/ssh.sh"
 
 run "$script" elk "$ENVIRON" -t -L 8443:localhost:8443 -N
