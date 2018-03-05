@@ -1,7 +1,9 @@
 # This installs the stuff we need to monitor elasticsearch.
 # Run this recipe on ES nodes.
 
-gem_package 'elasticsearch'
+gem_package "elasticsearch" do
+  gem_binary "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/gem"
+end
 
 es_health_path = "/#{Chef::Config['file_cache_path']}/es_health"
 
