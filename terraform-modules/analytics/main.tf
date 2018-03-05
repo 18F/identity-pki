@@ -254,6 +254,18 @@ resource "aws_s3_bucket" "redshift_export_bucket" {
   }
 }
 
+resource "aws_s3_bucket" "parquet_export_bucket" {
+  bucket = "login-gov-${var.env_name}-analytics-parquet"
+
+  tags {
+    Name = "login-gov-${var.env_name}-analytics-parquet"
+  }
+  
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
 resource "aws_s3_bucket" "redshift_logs_bucket" {
   bucket = "login-gov-${var.env_name}-analytics-logs"
 
