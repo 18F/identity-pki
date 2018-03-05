@@ -9,6 +9,7 @@ dpkg_options = "DEBIAN_FRONTEND=noninteractive apt-get  -o Dpkg::Options::=\"--f
 
 [ "upgrade -y","dist-upgrade -y"].each do |cmd|
   execute cmd do
+    retries 2
     command "#{dpkg_options} " + cmd
   end
 end
