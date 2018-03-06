@@ -74,3 +74,8 @@ end
 describe crontab('root').commands("cat /etc/login.gov/repos/identity-devops/kitchen/chef-client.rb && chef-client --local-mode -c /etc/login.gov/repos/identity-devops/kitchen/chef-client.rb -o 'role[elasticsearch_discovery]' 2>&1 >> /var/log/elasticsearch/discovery.log") do
   its('minutes') { should cmp '0,15,30,45' }
 end
+
+# Ensure we can export ES metrics to New Relic.
+describe command('/opt/newrelic-infra/elasticsearch_health/es_health') do
+  its(:exit_status) { should eq 0 }
+end
