@@ -260,7 +260,7 @@ shared_files = [
   'config/newrelic.yml',
   'keys/equifax_rsa',
   'keys/equifax_gpg.pub.bin',
-  'keys/saml.key.enc'
+  'keys/saml.key.enc',
   'keys/saml2018.key.enc'
 ]
 
