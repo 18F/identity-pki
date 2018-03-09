@@ -223,6 +223,8 @@ app_config = {
   '/srv/idp/releases/chef/config/newrelic.yml' => '/srv/idp/shared/config/',
   '/srv/idp/releases/chef/certs/saml.crt' => '/srv/idp/shared/certs/',
   '/srv/idp/releases/chef/keys/saml.key.enc' => '/srv/idp/shared/keys/',
+  '/srv/idp/releases/chef/certs/saml2018.crt' => '/srv/idp/shared/certs/',
+  '/srv/idp/releases/chef/keys/saml2018.key.enc' => '/srv/idp/shared/keys/',
   '/srv/idp/releases/chef/keys/equifax_rsa' => '/srv/idp/shared/keys/',
   '/srv/idp/releases/chef/keys/equifax_gpg.pub' => '/srv/idp/shared/keys/'
 }
@@ -253,11 +255,13 @@ end
 # symlink shared files to current dir
 shared_files = [
   'certs/saml.crt',
+  'certs/saml2018.crt',
   'config/experiments.yml',
   'config/newrelic.yml',
   'keys/equifax_rsa',
   'keys/equifax_gpg.pub.bin',
-  'keys/saml.key.enc'
+  'keys/saml.key.enc',
+  'keys/saml2018.key.enc'
 ]
 
 shared_files.each do |file|

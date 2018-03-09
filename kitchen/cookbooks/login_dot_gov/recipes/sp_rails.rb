@@ -45,8 +45,8 @@ basic_auth_password = ConfigLoader.load_config_or_nil(node, "basic_auth_password
 sp_rails_config = {
   'secret_key_base' => ConfigLoader.load_config(node, "secret_key_base_rails"),
   'saml_issuer' => node.fetch('login_dot_gov').fetch('sp_rails').fetch('saml_issuer'),
-  'idp_sso_url' => "https://idp.#{full_domain}/api/saml/auth",
-  'idp_slo_url' => "https://idp.#{full_domain}/api/saml/logout",
+  'idp_sso_url' => "https://idp.#{full_domain}/api/saml/auth2018",
+  'idp_slo_url' => "https://idp.#{full_domain}/api/saml/logout2018",
   'idp_cert_fingerprint' => node.fetch('login_dot_gov').fetch('sp_rails').fetch('idp_cert_fingerprint'),
   'acs_url' => "https://sp.#{full_domain}/auth/saml/callback",
 }
