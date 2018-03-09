@@ -52,13 +52,14 @@ action :create do
   end
 
   %w{saml.key.enc saml2018.key.enc}.each do |keyfile|
-  file "#{name}/keys/#{keyfile}" do
-    action :create
-    content ConfigLoader.load_config(node, keyfile)
-    manage_symlink_source true
-    subscribes :create, 'resource[git]', :immediately
-    user node['login_dot_gov']['system_user']
-    sensitive true
+    file "#{name}/keys/#{keyfile}" do
+      action :create
+      content ConfigLoader.load_config(node, keyfile)
+      manage_symlink_source true
+      subscribes :create, 'resource[git]', :immediately
+      user node['login_dot_gov']['system_user']
+      sensitive true
+    end
   end
 
   file "#{name}/keys/equifax_rsa" do
