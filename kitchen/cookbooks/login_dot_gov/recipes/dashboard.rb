@@ -137,7 +137,6 @@ deploy "#{base_dir}" do
   keep_releases 1
   
   symlinks ({
-    'vendor/bundle' => 'vendor/bundle',
     'config/database.yml' => 'config/database.yml',
     'config/newrelic.yml' => 'config/newrelic.yml',
     'config/saml.yml' => 'config/saml.yml',
