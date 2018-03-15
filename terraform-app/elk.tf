@@ -137,6 +137,36 @@ resource "aws_s3_bucket" "logbucket" {
   }
 }
 
+resource "aws_s3_bucket" "elasticsearch_snapshot_bucket" {
+  bucket = "login-gov-elasticsearch-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
+
+  tags {
+    Name = "login-gov-elasticsearch-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
+  }
+  policy = "${data.aws_iam_policy_document.elasticsearch_bucket_policy.json}"
+}
+
+data "aws_iam_policy_document" "elasticsearch_bucket_policy" {
+  # allow elasticsearch hosts to write to ES snapshot bucket
+  statement {
+    actions = [
+      "s3:*"
+    ]
+    principals = {
+      type ="AWS"
+      identifiers = [
+        "${aws_iam_role.idp.arn}", # asg-*-elasticsearch uses this
+        "${aws_iam_role.elk_iam_role.arn}"
+      ]
+    }
+
+    resources = [
+      "arn:aws:s3:::login-gov-elasticsearch-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}",
+      "arn:aws:s3:::login-gov-elasticsearch-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}/*"
+    ]
+  }
+}
+
 resource "aws_instance" "elk" {
   count = "${var.non_asg_elk_enabled}"
   ami = "${var.default_ami_id}"
