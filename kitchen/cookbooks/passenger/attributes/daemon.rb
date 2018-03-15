@@ -4,8 +4,14 @@ default[:passenger][:production][:log_path] = '/var/log/nginx'
 
 # Tune these for your environment, see:
 # http://www.modrails.com/documentation/Users%20guide%20Nginx.html#_resource_control_and_optimization_options
-default[:passenger][:production][:max_pool_size] = node.default.fetch('cpu').fetch('total')
-default[:passenger][:production][:min_instances] = node.default.fetch('cpu').fetch('total')
+if node.has_key?('cpu') 
+  default[:passenger][:production][:max_pool_size] = node.default.fetch('cpu').fetch('total')
+  default[:passenger][:production][:min_instances] = node.default.fetch('cpu').fetch('total')
+else
+  default[:passenger][:production][:max_pool_size] = 6
+  default[:passenger][:production][:min_instances] = 1
+end
+
 default[:passenger][:production][:pool_idle_time] = 0
 default[:passenger][:production][:max_instances_per_app] = 0
 default[:passenger][:production][:limit_connections] = true
