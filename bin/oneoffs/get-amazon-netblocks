@@ -1,0 +1,34 @@
+#!/usr/bin/env ruby
+
+require 'bundler/setup'
+
+require 'rest-client'
+require 'json'
+
+RestClient.log = STDOUT
+
+def main(region)
+  STDERR.puts "Downloading IP ranges for amazon services in GLOBAL and #{region.inspect}"
+  resp = RestClient.get('https://ip-ranges.amazonaws.com/ip-ranges.json')
+
+  data = JSON.parse(resp.body)
+
+  a = []
+  e = []
+  data.fetch('prefixes').each do |p|
+    next unless p.fetch('region') == region || p.fetch('region') == 'GLOBAL'
+
+    case p.fetch('service')
+    when 'AMAZON'
+      a.push(p.fetch('ip_prefix'))
+    when 'EC2'
+      e.push(p.fetch('ip_prefix'))
+    end
+  end
+
+  JSON.dump(a - e)
+end
+
+if __FILE__ == $0
+  puts main(ARGV.fetch(0, 'us-west-2'))
+end

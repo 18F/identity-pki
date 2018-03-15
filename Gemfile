@@ -18,6 +18,8 @@ gem 'knife-spork'
 gem 'knife-backup'
 gem 'knife-block'
 
+gem 'rest-client', '~> 2.0'
+
 gem 'semantic'
 gem 'subprocess'
 gem 'terminal-table', '~> 1.8'
