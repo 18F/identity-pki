@@ -143,6 +143,7 @@ buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/var/log/syslog
+time_zone = UTC
 
 [authlog]
 datetime_format = %b %d %H:%M:%S
@@ -151,6 +152,7 @@ buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/var/log/auth.log
+time_zone = UTC
 
 [auditlog]
 datetime_format = %b %d %H:%M:%S
@@ -159,6 +161,7 @@ buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/var/log/audit/audit.log
+time_zone = UTC
 
 [maillog] 
 datetime_format = %b %d %H:%M:%S
@@ -167,6 +170,7 @@ buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/var/log/mail.log
+time_zone = UTC
 
 [kernlog] 
 datetime_format = %b %d %H:%M:%S
@@ -175,6 +179,7 @@ buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/var/log/kern.log
+time_zone = UTC
 
 [nginx_access] 
 datetime_format = %d/%b/%Y:%H:%M:%S %z
@@ -183,6 +188,7 @@ buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/var/log/nginx/access.log
+time_zone = UTC
 
 [nginx_error] 
 datetime_format = %Y/%m/%d %H:%M:%S
@@ -191,6 +197,7 @@ buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/var/log/nginx/error.log
+time_zone = UTC
 
 [nginx_machine_access] 
 datetime_format = %d/%b/%Y:%H:%M:%S %z
@@ -199,6 +206,7 @@ buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/var/log/nginx/machine.access.log
+time_zone = UTC
 
 [idp_events] 
 datetime_format = %Y-%m-%dT%H:%M:%S.%fZ
@@ -207,6 +215,7 @@ buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/srv/idp/shared/log/events.log
+time_zone = UTC
 
 [idp_newrelic_agent] 
 datetime_format = %Y-%m-%d %H:%M:%S %z
@@ -215,6 +224,7 @@ buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/srv/idp/shared/log/newrelic_agent.log
+time_zone = UTC
 
 [idp_production] 
 datetime_format = %Y-%m-%dT%H:%M:%S.%fZ
@@ -223,6 +233,7 @@ buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/srv/idp/shared/log/production.log
+time_zone = UTC
 
 [dashboard_events] 
 datetime_format = %Y-%m-%dT%H:%M:%S.%fZ
@@ -231,6 +242,7 @@ buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/srv/idp/shared/log/events.log
+time_zone = UTC
 
 [dashboard_newrelic_agent] 
 datetime_format = %Y-%m-%d %H:%M:%S %z
@@ -239,6 +251,7 @@ buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/srv/idp/shared/log/newrelic_agent.log
+time_zone = UTC
 
 [dashboard_production] 
 datetime_format = %Y-%m-%dT%H:%M:%S.%fZ
@@ -247,6 +260,7 @@ buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/srv/idp/shared/log/production.log
+time_zone = UTC
 
 [sp-oidc-sinatra_events] 
 datetime_format = %Y-%m-%dT%H:%M:%S.%fZ
@@ -255,6 +269,7 @@ buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/srv/sp-oidc-sinatra/shared/log/events.log
+time_zone = UTC
 
 [sp-oidc-sinatra_production] 
 datetime_format = %Y-%m-%dT%H:%M:%S.%fZ
@@ -263,6 +278,7 @@ buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/srv/sp-oidc-sinatra/shared/log/production.log
+time_zone = UTC
 
 [sp-rails_events] 
 datetime_format = %Y-%m-%dT%H:%M:%S.%fZ
@@ -271,6 +287,7 @@ buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/srv/sp-oidc-sinatra/shared/log/events.log
+time_zone = UTC
 
 [sp-rails_production] 
 datetime_format = %Y-%m-%dT%H:%M:%S.%fZ
@@ -279,6 +296,7 @@ buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/srv/sp-rails/shared/log/production.log
+time_zone = UTC
 
 [sp-sinatra_events] 
 datetime_format = %Y-%m-%dT%H:%M:%S.%fZ
@@ -287,6 +305,7 @@ buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/srv/sp-sinatra/shared/log/events.log
+time_zone = UTC
 
 [sp-sinatra_production] 
 datetime_format = %Y-%m-%dT%H:%M:%S.%fZ
@@ -295,3 +314,4 @@ buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/srv/sp-sinatra/shared/log/production.log
+time_zone = UTC
