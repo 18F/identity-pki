@@ -142,7 +142,7 @@ file = /var/log/syslog
 buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
-log_group_name = <%= @environmentName %>-/var/log/syslog
+log_group_name = <%= @environmentName %>_/var/log/syslog
 
 [authlog]
 datetime_format = %b %d %H:%M:%S
@@ -150,7 +150,7 @@ file = /var/log/auth.log
 buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
-log_group_name = <%= @environmentName %>-/var/log/auth.log
+log_group_name = <%= @environmentName %>_/var/log/auth.log
 
 [auditlog]
 datetime_format = %b %d %H:%M:%S
@@ -158,7 +158,7 @@ file = /var/log/audit/audit.log
 buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
-log_group_name = <%= @environmentName %>-/var/log/audit/audit.log
+log_group_name = <%= @environmentName %>_/var/log/audit/audit.log
 
 [maillog] 
 datetime_format = %b %d %H:%M:%S
@@ -166,7 +166,7 @@ file = /var/log/mail.log
 buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
-log_group_name = <%= @environmentName %>-/var/log/mail.log
+log_group_name = <%= @environmentName %>_/var/log/mail.log
 
 [kernlog] 
 datetime_format = %b %d %H:%M:%S
@@ -174,7 +174,7 @@ file = /var/log/kern.log
 buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
-log_group_name = <%= @environmentName %>-/var/log/kern.log
+log_group_name = <%= @environmentName %>_/var/log/kern.log
 
 [nginx_access] 
 datetime_format = %d/%b/%Y:%H:%M:%S %z
@@ -182,7 +182,7 @@ file = /var/log/nginx/access.log
 buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
-log_group_name = <%= @environmentName %>-/var/log/nginx/access.log
+log_group_name = <%= @environmentName %>_/var/log/nginx/access.log
 
 [nginx_error] 
 datetime_format = %Y/%m/%d %H:%M:%S
@@ -190,7 +190,7 @@ file = /var/log/nginx/access.log
 buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
-log_group_name = <%= @environmentName %>-/var/log/nginx/error.log
+log_group_name = <%= @environmentName %>_/var/log/nginx/error.log
 
 [nginx_machine_access] 
 datetime_format = %d/%b/%Y:%H:%M:%S %z
@@ -198,7 +198,7 @@ file = /var/log/nginx/access.log
 buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
-log_group_name = <%= @environmentName %>-/var/log/nginx/machine.access.log
+log_group_name = <%= @environmentName %>_/var/log/nginx/machine.access.log
 
 [idp_events] 
 datetime_format = %Y-%m-%dT%H:%M:%S.%fZ
@@ -206,7 +206,7 @@ file = /srv/idp/shared/log/events.log
 buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
-log_group_name = <%= @environmentName %>-/srv/idp/shared/log/events.log
+log_group_name = <%= @environmentName %>_/srv/idp/shared/log/events.log
 
 [idp_newrelic_agent] 
 datetime_format = %Y-%m-%d %H:%M:%S %z
@@ -214,7 +214,7 @@ file = /srv/idp/shared/log/newrelic_agent.log
 buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
-log_group_name = <%= @environmentName %>-/srv/idp/shared/log/newrelic_agent.log
+log_group_name = <%= @environmentName %>_/srv/idp/shared/log/newrelic_agent.log
 
 [idp_production] 
 datetime_format = %Y-%m-%dT%H:%M:%S.%fZ
@@ -222,7 +222,7 @@ file = /srv/dashboard/shared/log/production.log
 buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
-log_group_name = <%= @environmentName %>-/srv/idp/shared/log/production.log
+log_group_name = <%= @environmentName %>_/srv/idp/shared/log/production.log
 
 [dashboard_events] 
 datetime_format = %Y-%m-%dT%H:%M:%S.%fZ
@@ -230,7 +230,7 @@ file = /srv/dashboard/shared/log/events.log
 buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
-log_group_name = <%= @environmentName %>-/srv/idp/shared/log/events.log
+log_group_name = <%= @environmentName %>_/srv/idp/shared/log/events.log
 
 [dashboard_newrelic_agent] 
 datetime_format = %Y-%m-%d %H:%M:%S %z
@@ -238,7 +238,7 @@ file = /srv/dashboard/shared/log/newrelic_agent.log
 buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
-log_group_name = <%= @environmentName %>-/srv/idp/shared/log/newrelic_agent.log
+log_group_name = <%= @environmentName %>_/srv/idp/shared/log/newrelic_agent.log
 
 [dashboard_production] 
 datetime_format = %Y-%m-%dT%H:%M:%S.%fZ
@@ -246,7 +246,7 @@ file = /srv/dashboard/shared/log/production.log
 buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
-log_group_name = <%= @environmentName %>-/srv/idp/shared/log/production.log
+log_group_name = <%= @environmentName %>_/srv/idp/shared/log/production.log
 
 [sp-oidc-sinatra_events] 
 datetime_format = %Y-%m-%dT%H:%M:%S.%fZ
@@ -254,7 +254,7 @@ file = /srv/sp-oidc-sinatra/shared/log/events.log
 buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
-log_group_name = <%= @environmentName %>-/srv/sp-oidc-sinatra/shared/log/events.log
+log_group_name = <%= @environmentName %>_/srv/sp-oidc-sinatra/shared/log/events.log
 
 [sp-oidc-sinatra_production] 
 datetime_format = %Y-%m-%dT%H:%M:%S.%fZ
@@ -262,7 +262,7 @@ file = /srv/sp-oidc-sinatra/shared/log/production.log
 buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
-log_group_name = <%= @environmentName %>-/srv/sp-oidc-sinatra/shared/log/production.log
+log_group_name = <%= @environmentName %>_/srv/sp-oidc-sinatra/shared/log/production.log
 
 [sp-rails_events] 
 datetime_format = %Y-%m-%dT%H:%M:%S.%fZ
@@ -270,7 +270,7 @@ file = /srv/sp-rails/shared/log/events.log
 buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
-log_group_name = <%= @environmentName %>-/srv/sp-oidc-sinatra/shared/log/events.log
+log_group_name = <%= @environmentName %>_/srv/sp-oidc-sinatra/shared/log/events.log
 
 [sp-rails_production] 
 datetime_format = %Y-%m-%dT%H:%M:%S.%fZ
@@ -278,7 +278,7 @@ file = /srv/sp-rails/shared/log/production.log
 buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
-log_group_name = <%= @environmentName %>-/srv/sp-rails/shared/log/production.log
+log_group_name = <%= @environmentName %>_/srv/sp-rails/shared/log/production.log
 
 [sp-sinatra_events] 
 datetime_format = %Y-%m-%dT%H:%M:%S.%fZ
@@ -286,7 +286,7 @@ file = /srv/sp-sinatra/shared/log/events.log
 buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
-log_group_name = <%= @environmentName %>-/srv/sp-sinatra/shared/log/events.log
+log_group_name = <%= @environmentName %>_/srv/sp-sinatra/shared/log/events.log
 
 [sp-sinatra_production] 
 datetime_format = %Y-%m-%dT%H:%M:%S.%fZ
@@ -294,4 +294,4 @@ file = /srv/sp-rails/shared/log/production.log
 buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
-log_group_name = <%= @environmentName %>-/srv/sp-sinatra/shared/log/production.log
+log_group_name = <%= @environmentName %>_/srv/sp-sinatra/shared/log/production.log
