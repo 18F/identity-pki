@@ -441,7 +441,8 @@ resource "aws_iam_policy" "redshift_s3_policy" {
         "s3:Get*",
         "s3:List*",
         "s3:Put*",
-        "s3:*"
+        "s3:*",
+        "glue:*"
       ],
       "Resource": "*"
     },
