@@ -5,8 +5,8 @@ default[:passenger][:production][:log_path] = '/var/log/nginx'
 # Tune these for your environment, see:
 # http://www.modrails.com/documentation/Users%20guide%20Nginx.html#_resource_control_and_optimization_options
 if node.default.has_key?('cpu') 
-  default[:passenger][:production][:max_pool_size] = node.default.fetch('cpu').fetch('total')
-  default[:passenger][:production][:min_instances] = node.default.fetch('cpu').fetch('total')
+  default[:passenger][:production][:max_pool_size] = node.fetch('cpu').fetch('total') * 2
+  default[:passenger][:production][:min_instances] = node.fetch('cpu').fetch('total')
 else
   default[:passenger][:production][:max_pool_size] = 6
   default[:passenger][:production][:min_instances] = 1
