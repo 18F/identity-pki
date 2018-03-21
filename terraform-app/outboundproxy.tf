@@ -59,26 +59,10 @@ resource "aws_security_group" "obproxy" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # need ntp outbound
-  egress {
-    from_port = 123
-    to_port = 123
-    protocol = "udp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
   ingress {
     from_port = 3128
     to_port = 3128
     protocol = "tcp"
-    cidr_blocks = ["${var.vpc_cidr_block}"]
-  }
-
-  # allow ntp in from the VPC
-  ingress {
-    from_port = 123
-    to_port = 123
-    protocol = "udp"
     cidr_blocks = ["${var.vpc_cidr_block}"]
   }
 

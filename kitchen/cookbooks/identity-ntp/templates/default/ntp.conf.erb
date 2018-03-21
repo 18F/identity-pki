@@ -9,31 +9,10 @@ filegen peerstats file peerstats type day enable
 filegen clockstats file clockstats type day enable
 
 # Specify one or more NTP servers.
-# Use servers from the NTP Pool Project. Approved by Ubuntu Technical Board
-# on 2011-02-08 (LP: #104525). See http://www.pool.ntp.org/join.html 
-# and http://tf.nist.gov/tf-cgi/servers.cgi
-# for more information.
 
-server 0.ubuntu.pool.ntp.org
-server time-a.nist.gov
-server time-a-wwv.nist.gov
-server time-a-b.nist.gov
-server 1.ubuntu.pool.ntp.org
-server time-b.nist.gov
-server time-b-wwv.nist.gov
-server time-b-b.nist.gov
-server 2.ubuntu.pool.ntp.org
-server time-c.nist.gov
-server time-c-wwv.nist.gov
-server time-c-b.nist.gov
-server 3.ubuntu.pool.ntp.org
-server time-d.nist.gov
-server time-d-wwv.nist.gov
-server time-d-b.nist.gov
-server nist-time-server.eoni.com
-
-# Use NIST global's ntp server as a fallback.
-server time.nist.gov
+# Use the EC2 NTP service
+# https://aws.amazon.com/blogs/aws/keeping-time-with-amazon-time-sync-service/
+server 169.254.169.123 prefer iburst
 
 # Access control configuration; see /usr/share/doc/ntp-doc/html/accopt.html for
 # details.  The web page <http://support.ntp.org/bin/view/Support/AccessRestrictions>
