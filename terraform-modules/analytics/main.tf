@@ -260,7 +260,19 @@ resource "aws_s3_bucket" "parquet_export_bucket" {
   tags {
     Name = "login-gov-${var.env_name}-analytics-parquet"
   }
-  
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+resource "aws_s3_bucket" "analytics_export_bucket" {
+  bucket = "login-gov-${var.env_name}-analytics-hot"
+
+  tags {
+    Name = "login-gov-${var.env_name}-analytics-hot"
+  }
+
   lifecycle {
     prevent_destroy = true
   }
@@ -411,6 +423,7 @@ resource "aws_iam_policy" "lambda_policy" {
         "s3:Get*",
         "s3:List*",
         "s3:Put*",
+        "s3:Delete*",
         "ec2:Create*",
         "ec2:Delete*",
         "ec2:Update*",
@@ -508,6 +521,30 @@ vpc_config {
  }
 }
 
+resource "aws_lambda_function" "analytics_lambda_hot" {
+  s3_bucket        = "tf-redshift-bucket-deployments-hot"
+  s3_key           = "lambda_${var.analytics_version}_deploy_hot.zip"
+  function_name    = "analytics-etl-${var.env_name}-hot"
+  role             = "${aws_iam_role.lambda_role.arn}"
+  handler          = "function_2.lambda_handler"
+  runtime          = "python3.6"
+  timeout          = 300
+  memory_size      = 1536
+
+vpc_config {
+  subnet_ids = ["${aws_subnet.lambda_subnet.id}"]
+  security_group_ids = ["${aws_security_group.lambda_security_group.id}"]
+}
+
+ environment {
+   variables = {
+     env = "${var.env_name}"
+     redshift_host = "${aws_redshift_cluster.redshift.endpoint}"
+     encryption_key = "${var.kms_key_id}"
+   }
+ }
+}
+
 resource "aws_lambda_permission" "allow_bucket" {
   statement_id  = "AllowExecutionFromS3Bucket"
   action        = "lambda:InvokeFunction"
@@ -524,6 +561,26 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
     events              = ["s3:ObjectCreated:*"]
     filter_suffix       = ".txt"
   }
+}
+
+resource "aws_cloudwatch_event_rule" "every_five_minutes" {
+    name = "${var.env_name}-every-5-minutes"
+    description = "Fires every five minutes"
+    schedule_expression = "rate(5 minutes)"
+}
+
+resource "aws_cloudwatch_event_target" "cloudwatch_notification" {
+    rule = "${aws_cloudwatch_event_rule.every_five_minutes.name}"
+    target_id = "analytics_lambda_hot"
+    arn = "${aws_lambda_function.analytics_lambda_hot.arn}"
+}
+
+resource "aws_lambda_permission" "allow_execution_from_cloudwatch" {
+    statement_id = "AllowExecutionFromCloudWatch"
+    action = "lambda:InvokeFunction"
+    function_name = "${aws_lambda_function.analytics_lambda_hot.function_name}"
+    principal = "events.amazonaws.com"
+    source_arn = "${aws_cloudwatch_event_rule.every_five_minutes.arn}"
 }
 
 
