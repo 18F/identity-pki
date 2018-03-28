@@ -511,11 +511,6 @@ execute 'pip install --upgrade six' do
   # XXX This seems a bit fragile, but it'll probably work
   only_if 'pip list | grep "six .1.5"'
 end
-# python-dateutil has to be pinned until
-# https://github.com/Yelp/elastalert/issues/1602 is fixed.
-execute 'pip install "python-dateutil<2.7.0,>=2.1"' do
-  cwd elastalertdir
-end
 execute 'python setup.py install' do
   cwd elastalertdir
   creates '/usr/local/bin/elastalert'
