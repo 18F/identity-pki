@@ -17,13 +17,13 @@ default['login_dot_gov']['dev_users']                                 = []
 default['login_dot_gov']['rails_env']                                 = 'production'
 default['login_dot_gov']['ruby_version']                              = '2.3.6'
 default['login_dot_gov']['system_user']                               = 'ubuntu'
-default['login_dot_gov']['fips']['version']                           = '2.0.13'
+default['login_dot_gov']['fips']['version']                           = '2.0.16'
 default['login_dot_gov']['fips']['url']                               = "https://www.openssl.org/source/openssl-fips-#{default['login_dot_gov']['fips']['version']}.tar.gz"
-default['login_dot_gov']['fips']['checksum']                          = '3ff723f93901f750779a2e67ff15985c357f1a15c892c9504446fbc85c6f77da'
-default['login_dot_gov']['openssl']['version']                        = '1.0.2f'
+default['login_dot_gov']['fips']['checksum']                          = 'a3cd13d0521d22dd939063d3b4a0d4ce24494374b91408a05bdaca8b681c63d4'
+default['login_dot_gov']['openssl']['version']                        = '1.0.2o'
 default['login_dot_gov']['openssl']['prefix']                         = "/opt/openssl-#{default['login_dot_gov']['openssl']['version']}"
 default['login_dot_gov']['openssl']['url']                            = "https://www.openssl.org/source/openssl-#{default['login_dot_gov']['openssl']['version']}.tar.gz"
-default['login_dot_gov']['openssl']['checksum']                       = '932b4ee4def2b434f85435d9e3e19ca8ba99ce9a065a61524b429a9d5e9b2e9c'
+default['login_dot_gov']['openssl']['checksum']                       = 'ec3f5c9714ba0fd45cb4e087301eb1336c317e0d20b575a125050470e8089e4d'
 default['login_dot_gov']['openssl']['configure_flags']                = %W[ shared ]
 
 default['login_dot_gov']['cache_dir']                                 = '/var/cache/chef'
