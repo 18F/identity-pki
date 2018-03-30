@@ -17,14 +17,14 @@
     },
     "openssl_fips": {
       "fips": {
-        "checksum": "3ff723f93901f750779a2e67ff15985c357f1a15c892c9504446fbc85c6f77da",
-        "url": "http://www.openssl.org/source/openssl-fips-2.0.13.tar.gz",
-        "version": "2.0.13"
+        "checksum": "a3cd13d0521d22dd939063d3b4a0d4ce24494374b91408a05bdaca8b681c63d4",
+        "url": "http://www.openssl.org/source/openssl-fips-2.0.16.tar.gz",
+        "version": "2.0.16"
       },
       "openssl": {
-        "checksum": "e7aff292be21c259c6af26469c7a9b3ba26e9abaaffd325e3dccc9785256c431",
-        "url": "http://www.openssl.org/source/openssl-1.0.2j.tar.gz",
-        "version": "1.0.2j"
+        "checksum": "ec3f5c9714ba0fd45cb4e087301eb1336c317e0d20b575a125050470e8089e4d",
+        "url": "http://www.openssl.org/source/openssl-1.0.2o.tar.gz",
+        "version": "1.0.2o"
       }
     }
   },
