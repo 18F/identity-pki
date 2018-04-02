@@ -58,7 +58,7 @@ resource "aws_alb_listener" "idp-ssl" {
 }
 
 resource "aws_alb_target_group" "idp" {
-  count = "${var.alb_enabled * var.alb_http_port_80_enabled}"
+  count = "${var.alb_enabled}"
   depends_on = ["aws_alb.idp"]
 
   health_check {
