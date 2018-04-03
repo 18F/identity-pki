@@ -4,7 +4,7 @@ execute "mount -o remount,exec,nosuid,nodev /tmp"
 psql_config 'configure postgres root cert'
 
 
-app_name = 'saml-sinatra'
+app_name = 'sp-sinatra'
 
 dhparam = ConfigLoader.load_config(node, "dhparam")
 
@@ -50,7 +50,7 @@ deploy "/srv/#{app_name}" do
       #user 'ubuntu'
     end
   end
-
+  
   repo "https://github.com/18F/identity-#{app_name}.git"
   branch branch_name
   shallow_clone true
@@ -86,7 +86,7 @@ template "/opt/nginx/conf/sites.d/#{app_name}.login.gov.conf" do
     saml_env: node.chef_environment,
     secret_key_base: ConfigLoader.load_config(node, "secret_key_base_rails"),
     security_group_exceptions: ConfigLoader.load_config(node, "security_group_exceptions"),
-    server_name: "#{app_name}.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
+    server_name: "#{app_name}.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
   })
 end
 

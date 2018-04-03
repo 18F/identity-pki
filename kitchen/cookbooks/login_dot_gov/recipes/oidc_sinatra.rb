@@ -18,7 +18,7 @@ remote_file '/usr/local/share/aws/rds-combined-ca-bundle.pem' do
   source 'https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem'
 end
 
-app_name = 'oidc-sinatra'
+app_name = 'sp-oidc-sinatra'
 
 dhparam = ConfigLoader.load_config(node, "dhparam")
 
@@ -83,7 +83,7 @@ deploy "/srv/#{app_name}" do
     end
   end
 
-  repo 'https://github.com/18F/identity-oidc-sinatra.git'
+  repo 'https://github.com/18F/identity-openidconnect-sinatra.git'
   branch branch_name
   shallow_clone true
   keep_releases 1
