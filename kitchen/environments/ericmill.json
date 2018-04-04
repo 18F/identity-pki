@@ -4,10 +4,6 @@
   "json_class": "Chef::Environment",
   "chef_type": "environment",
   "default_attributes": {
-    "citadel": {
-      "bucket": "login-gov-secrets-test",
-      "region": "us-west-2"
-    },
     "identity-devops": {
       "branch_name": "master"
     },
