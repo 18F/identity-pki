@@ -7,18 +7,20 @@
   "chef_type": "environment",
   "default_attributes": {
     "citadel": {
-      "bucket": "login-gov-secrets",
+      "bucket": "login-gov.secrets.894947205914-us-west-2",
       "region": "us-west-2"
     },
     "identity-devops": {
       "branch_name": "stages/int"
     },
     "login_dot_gov": {
+      "domain_name": "identitysandbox.gov",
       "branch_name": "stages/int"
     },
     "ssh_keys": {
     },
     "elk": {
+      "legacy_log_bucket_name": false,
       "users": [
         "brody",
         "jgrevich",
