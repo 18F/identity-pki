@@ -34,14 +34,6 @@ resource "aws_security_group" "app" {
     cidr_blocks = ["${var.vpc_cidr_block}"]
   }
 
-  # need ntp to our ntp servers
-  egress {
-    from_port = 123
-    to_port = 123
-    protocol = "udp"
-    cidr_blocks = ["${var.obproxy1_subnet_cidr_block}","${var.obproxy2_subnet_cidr_block}","${var.outbound_subnets}"]
-  }
-
   # need to get packages and stuff (conditionally)
   # outbound_subnets can be set to "0.0.0.0/0" to allow access to the internet
   egress {
@@ -182,14 +174,6 @@ resource "aws_security_group" "chef" {
     cidr_blocks = ["192.30.252.0/22"]
   }
 
-  # need ntp outbound
-  egress {
-    from_port = 123
-    to_port = 123
-    protocol = "udp"
-    cidr_blocks = ["${var.obproxy1_subnet_cidr_block}","${var.obproxy2_subnet_cidr_block}","${var.outbound_subnets}"]
-  }
-
   # need 8834 to comm with Nessus Server
   egress {
     from_port = 8834
@@ -313,14 +297,6 @@ resource "aws_security_group" "elk" {
     to_port = 22
     protocol = "tcp"
     cidr_blocks = ["192.30.252.0/22"]
-  }
-
-  # need ntp outbound
-  egress {
-    from_port = 123
-    to_port = 123
-    protocol = "udp"
-    cidr_blocks = ["${var.obproxy1_subnet_cidr_block}","${var.obproxy2_subnet_cidr_block}","${var.outbound_subnets}"]
   }
 
   # need to get packages and stuff (conditionally)
@@ -448,14 +424,6 @@ resource "aws_security_group" "jenkins" {
     cidr_blocks = ["192.30.252.0/22"]
   }
 
-  # need ntp outbound
-  egress {
-    from_port = 123
-    to_port = 123
-    protocol = "udp"
-    cidr_blocks = ["${var.obproxy1_subnet_cidr_block}","${var.obproxy2_subnet_cidr_block}","${var.outbound_subnets}"]
-  }
-
   # need 8834 to comm with Nessus Server
   egress {
     from_port = 8834
@@ -555,14 +523,6 @@ resource "aws_security_group" "jumphost" {
     to_port = 22
     protocol = "tcp"
     cidr_blocks = ["192.30.252.0/22"]
-  }
-
-  # need ntp outbound
-  egress {
-    from_port = 123
-    to_port = 123
-    protocol = "udp"
-    cidr_blocks = ["${var.obproxy1_subnet_cidr_block}","${var.obproxy2_subnet_cidr_block}","${var.outbound_subnets}"]
   }
 
   # need dns outbound for ACME cert generation stuff
@@ -713,14 +673,6 @@ resource "aws_security_group" "idp" {
     to_port = 22
     protocol = "tcp"
     cidr_blocks = ["192.30.252.0/22"]
-  }
-
-  # need ntp outbound
-  egress {
-    from_port = 123
-    to_port = 123
-    protocol = "udp"
-    cidr_blocks = ["${var.obproxy1_subnet_cidr_block}","${var.obproxy2_subnet_cidr_block}","${var.outbound_subnets}"]
   }
 
   # need 8834 to comm with Nessus Server
