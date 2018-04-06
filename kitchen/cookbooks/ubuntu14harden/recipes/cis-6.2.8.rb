@@ -29,5 +29,15 @@ script 'remove rwx directories' do
         chmod o= /var/lib/colord || true
         chmod o= /usr/share/elastalert/home || true
         chmod o= /usr/share/logstash || true
+        chmod o= /var/lib/postgresql || true
+    EOH
+end
+
+script 'set group perms directories' do
+    interpreter "bash"
+    code <<-EOH
+        chmod g-w /opt/opscode/embedded || true
+        chmod g-w /var/lib/postgresql || true
+        chmod g-w /usr/share/logstash || true
     EOH
 end

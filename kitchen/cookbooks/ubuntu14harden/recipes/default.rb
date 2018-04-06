@@ -20,8 +20,11 @@ include_recipe "ubuntu14harden::cis-5.2.13"
 include_recipe "ubuntu14harden::cis-5.3.1"
 include_recipe "ubuntu14harden::cis-5.3.2"
 include_recipe "ubuntu14harden::cis-5.4.1.2"
+include_recipe "ubuntu14harden::cis-6.1.3"
 include_recipe "ubuntu14harden::cis-6.1.10"
 include_recipe "ubuntu14harden::cis-6.1.11"
 include_recipe "ubuntu14harden::cis-6.2.8"
 include_recipe "ubuntu14harden::cis-6.2.9"
+include_recipe "ubuntu14harden::cis-6.2.10"
+
 
