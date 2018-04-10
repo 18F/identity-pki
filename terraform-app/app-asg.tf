@@ -70,10 +70,10 @@ resource "aws_autoscaling_group" "app" {
     # possible choices: EC2, ELB
     health_check_type = "ELB"
 
-    # Currently bootstrapping seems to take 21-35 minutes, so we set the grace
-    # period to 30 minutes. Ideally this would be *much* shorter.
+    # Currently bootstrapping seems to take ~10 minutes on c4.xlarge instances,
+    # so we set the grace period to 20 minutes. Ideally this would be shorter.
     # https://github.com/18F/identity-devops-private/issues/337
-    health_check_grace_period = 1800
+    health_check_grace_period = 1200 # 20 minutes
 
     termination_policies = ["OldestInstance"]
 

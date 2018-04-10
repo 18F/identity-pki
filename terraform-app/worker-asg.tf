@@ -68,7 +68,7 @@ resource "aws_autoscaling_group" "worker" {
     # target_group_arns = []
     # possible choices: EC2, ELB
     health_check_type = "EC2"
-    health_check_grace_period = 1800 # 30 minutes
+    health_check_grace_period = 1200 # 20 minutes
 
     termination_policies = ["OldestInstance"]
 
