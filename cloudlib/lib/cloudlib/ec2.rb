@@ -77,7 +77,15 @@ module Cloudlib
       end
       name_tag = VPC_NAME_PREFIX + environment
       log.info("Looking for #{name_tag} VPC")
-      vpc = get_unique_thing(:vpcs, [{name: 'tag:Name', values: [name_tag]}])
+
+      begin
+        vpc = get_unique_thing(:vpcs, [{name: 'tag:Name', values: [name_tag]}])
+      rescue NotFound
+        log.error("Failed to find VPC #{name_tag.inspect}. " +
+                  "Are you sure you're in the right AWS account?")
+        raise
+      end
+
       log.info("Found #{vpc.vpc_id}")
       vpc
     end
