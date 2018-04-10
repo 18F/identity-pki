@@ -1,0 +1,14 @@
+# This file is used by the Figaro gem: https://github.com/laserlemon/figaro
+
+# Be sure to restart your server when you modify this file.
+
+# trusted roots are not verified as part of the certificate store
+# all other certificates in the certificate store will have to trace
+# back to one of these roots
+trusted_ca_root_identifiers: "AD:0C:7A:75:5C:E5:F3:98:C4:79:98:0E:AC:28:FD:97:F4:E7:02:FC"
+
+development:
+
+production:
+
+test:
