@@ -8,7 +8,7 @@
 trusted_ca_root_identifiers: "AD:0C:7A:75:5C:E5:F3:98:C4:79:98:0E:AC:28:FD:97:F4:E7:02:FC"
 
 development:
-
-production:
+  database_name: 'identity_pki_dev'
 
 test:
+  database_name: 'identity_pki_test'
