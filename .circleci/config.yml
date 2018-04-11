@@ -1,0 +1,65 @@
+# Ruby CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-ruby/ for more details
+#
+version: 2
+jobs:
+  build:
+    docker:
+      # Specify the Ruby version you desire here
+      - image: circleci/ruby:2.3-node-browsers
+        environment:
+          RAILS_ENV: test
+          # CC_TEST_REPORTER_ID: faecd27e9aed532634b3f4d3e251542d7de9457cfca96a94208a63270ef9b42e
+          COVERAGE: true
+          # PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      - image: circleci/postgres:9.5-alpine
+        environment:
+          POSTGRES_USER: circleci
+
+    working_directory: ~/identity-pki
+
+    steps:
+      - checkout
+
+      - restore-cache:
+          keys:
+            - identity-pki-bundle-{{ checksum "Gemfile.lock" }}
+            - identity-pki-bundle-
+      - run:
+          name: Install dependencies
+          command: |
+            gem install bundler
+            bundle check || bundle install --deployment --jobs=4 --retry=3 --without deploy development doc production --path vendor/bundle
+      - save-cache:
+          key: identity-pki-bundle-{{ checksum "Gemfile.lock" }}
+          paths:
+            - vendor/bundle
+
+      - run:
+          name: Wait for DB
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+
+      - run:
+          name: Test Setup
+          command: |
+            cp config/application.yml.example config/application.yml
+            bundle exec rake db:setup --trace
+
+      - run:
+          name: Run Tests
+          command: |
+            mkdir /tmp/test-results
+
+            bundle exec rake spec
+
+      # collect reports
+      - store_test_results:
+          path: /tmp/test-results
+      - store_artifacts:
+          path: /tmp/test-results
+          destination: test-results
