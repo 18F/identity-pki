@@ -124,4 +124,7 @@ resource "aws_eip" "chef" {
   count = "${var.chef_server_enabled}"
   instance = "${aws_instance.chef.id}"
   vpc      = true
+  tags = {
+    Name = "chef.${var.env_name}"
+  }
 }
