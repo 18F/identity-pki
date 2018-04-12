@@ -1,9 +1,9 @@
 source 'https://api.berkshelf.com'
 
 cookbook 'application_ruby', '~> 4.0.1'
-cookbook 'apt', '~> 6.1'
+cookbook 'apt', '~> 6.1' # can upgrade when we upgrade to chef 13
 cookbook 'bash-completion'
-cookbook 'build-essential'
+cookbook 'build-essential', '~> 7.0'
 cookbook 'cacert'
 cookbook 'git'
 cookbook 'hostname'
