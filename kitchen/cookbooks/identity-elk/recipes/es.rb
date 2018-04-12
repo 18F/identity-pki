@@ -34,12 +34,12 @@ elasticsearch_domain = node.fetch("es").fetch("domain")
 # create keystore/truststore
 include_recipe 'keytool'
 storepass = 'EipbelbyamyotsOjHod2'
-san = "san=dns:#{elasticsearch_domain},dns:#{node.name},dns:localhost,ip:#{node.ipaddress},ip:127.0.0.1,oid:1.2.3.4.5.5"
+san = "san=dns:#{elasticsearch_domain},dns:#{node.name},dns:localhost,ip:#{node.fetch('ipaddress')},ip:127.0.0.1,oid:1.2.3.4.5.5"
 
 keytool_manage 'create keystore' do
   action :createstore
   keystore '/etc/elasticsearch/keystore.jks'
-  keystore_alias node.ipaddress
+  keystore_alias node.fetch('ipaddress')
   common_name "#{elasticsearch_domain}"
   org_unit node.chef_environment
   org 'login.gov'
@@ -52,7 +52,7 @@ end
 keytool_manage 'create truststore' do
   action :createstore
   keystore '/etc/elasticsearch/truststore.jks'
-  keystore_alias node.ipaddress
+  keystore_alias node.fetch('ipaddress')
   common_name "#{elasticsearch_domain}"
   org_unit node.chef_environment
   org 'login.gov'
@@ -75,7 +75,7 @@ execute "#{pkidir}/gen_root_ca.sh #{storepass} #{storepass}" do
 end
 
 # export, sign, import cert
-execute "keytool -certreq -alias #{node.ipaddress} -keystore /etc/elasticsearch/keystore.jks -file #{pkidir}/cacrt.csr -keypass #{storepass} -storepass #{storepass} -dname 'CN=#{elasticsearch_domain}, OU=#{node.chef_environment}, O=login.gov, L=Washington DC, C=US' -ext #{san}" do
+execute "keytool -certreq -alias #{node.fetch('ipaddress')} -keystore /etc/elasticsearch/keystore.jks -file #{pkidir}/cacrt.csr -keypass #{storepass} -storepass #{storepass} -dname 'CN=#{elasticsearch_domain}, OU=#{node.chef_environment}, O=login.gov, L=Washington DC, C=US' -ext #{san}" do
   creates pkidir + '/cacrt.csr'
 end
 
@@ -87,7 +87,7 @@ end
 execute "sed -i 's/\r//' /etc/elasticsearch/es.login.gov.crt"
 
 keytool_manage "import my signed cert into keystore" do
-  cert_alias node.ipaddress
+  cert_alias node.fetch('ipaddress')
   action :importcert
   file '/etc/elasticsearch/es.login.gov.crt'
   keystore "/etc/elasticsearch/keystore.jks"
@@ -188,7 +188,7 @@ end
 
 esnodes.each do |h|
   # import certs in from the new way
-  keytool_manage "import #{h['ipaddress']} into truststore" do
+  keytool_manage "import #{h['ipaddress']} into truststore from legacy file" do
     cert_alias h['ipaddress']
     action :importcert
     file "/etc/elasticsearch/#{h['name']}-legacy-elasticsearch.crt"
@@ -197,7 +197,7 @@ esnodes.each do |h|
     additional '-trustcacerts'
     only_if "test -s /etc/elasticsearch/#{h['name']}-legacy-elasticsearch.crt"
   end
-  keytool_manage "import #{h['name']} into truststore" do
+  keytool_manage "import #{h['name']} into truststore from legacy file" do
     cert_alias h['name']
     action :importcert
     file "/etc/elasticsearch/#{h['name']}-legacy-elasticsearch.crt"
@@ -257,7 +257,7 @@ elasticsearch_configure "elasticsearch" do
   configuration ({
     'discovery.zen.ping.unicast.hosts' => esips,
     'network.bind_host' => '0.0.0.0',
-    'network.publish_host' => node[:ipaddress],
+    'network.publish_host' => node.fetch('ipaddress'),
     'searchguard.ssl.transport.keystore_filepath' => '/etc/elasticsearch/keystore.jks',
     'searchguard.ssl.transport.keystore_password' => storepass,
     'searchguard.ssl.transport.truststore_filepath' => '/etc/elasticsearch/truststore.jks',
