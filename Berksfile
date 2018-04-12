@@ -18,6 +18,7 @@ cookbook 'ohai'
 cookbook 'openssl'
 cookbook 'ruby_rbenv'
 cookbook 'poise-ruby'
+cookbook 'poise-ruby-build'
 cookbook 'ruby_build'
 cookbook 'ssh-keys'
 cookbook 'sudo'
@@ -66,7 +67,6 @@ cookbook 'identity-ossec', path: prefixed('kitchen/cookbooks/identity-ossec')
 cookbook 'instance_certificate', path: prefixed('kitchen/cookbooks/instance_certificate')
 cookbook 'login_dot_gov', path: prefixed('kitchen/cookbooks/login_dot_gov')
 cookbook 'passenger', path: prefixed('kitchen/cookbooks/passenger')
-cookbook 'poise-ruby-build', path: prefixed('kitchen/cookbooks/poise-ruby-build')
 cookbook 'service_discovery', path: prefixed('kitchen/cookbooks/service_discovery')
 cookbook 'identity-monitoring', path: prefixed('kitchen/cookbooks/identity-monitoring')
 
