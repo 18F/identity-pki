@@ -26,19 +26,10 @@ RSpec.configure do |config|
 
   config.before(:each) do
     I18n.locale = :en
-  end
-
-  config.before(:each, js: true) do
     allow(Figaro.env).to receive(:domain_name).and_return('127.0.0.1')
   end
 
   config.before(:each, type: :controller) do
     @request.host = Figaro.env.domain_name
-  end
-
-  config.around(:each, user_flow: true) do |example|
-    Capybara.current_driver = :rack_test
-    example.run
-    Capybara.use_default_driver
   end
 end
