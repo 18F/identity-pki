@@ -9,7 +9,7 @@ property :filename, String, default: 'htpasswd'
 action :create do
   execute "generate basic auth config" do
     # see: https://httpd.apache.org/docs/2.4/misc/password_encryptions.html
-    command "echo \"#{user_name}:\"`openssl passwd -apr1 #{password}` > #{location}/htpasswd"
+    command "echo \"#{user_name}:\"`#{node['login_dot_gov']['openssl']['binary']} passwd -apr1 #{password}` > #{location}/htpasswd"
     subscribes :start, "service[passenger]", :before
     subscribes :restart, "service[passenger]", :before
     subscribes :reload, "service[passenger]", :before

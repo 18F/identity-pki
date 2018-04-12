@@ -13,7 +13,7 @@ basic_auth_password = ConfigLoader.load_config_or_nil(node, "basic_auth_password
 
 # generate a stronger DHE parameter on first run
 # see: https://raymii.org/s/tutorials/Strong_SSL_Security_On_nginx.html#Forward_Secrecy_&_Diffie_Hellman_Ephemeral_Parameters
-execute "openssl dhparam -out dhparam.pem 4096" do
+execute "#{node['login_dot_gov']['openssl']['binary']} dhparam -out dhparam.pem 4096" do
   creates '/etc/ssl/certs/dhparam.pem'
   cwd '/etc/ssl/certs'
   notifies :stop, "service[passenger]", :before

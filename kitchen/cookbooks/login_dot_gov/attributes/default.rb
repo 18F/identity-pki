@@ -22,6 +22,7 @@ default['login_dot_gov']['fips']['url']                               = "https:/
 default['login_dot_gov']['fips']['checksum']                          = 'a3cd13d0521d22dd939063d3b4a0d4ce24494374b91408a05bdaca8b681c63d4'
 default['login_dot_gov']['openssl']['version']                        = '1.0.2o'
 default['login_dot_gov']['openssl']['prefix']                         = "/opt/openssl-#{default['login_dot_gov']['openssl']['version']}"
+default['login_dot_gov']['openssl']['binary']                         = "#{default['login_dot_gov']['openssl']['prefix']}/bin/openssl"
 default['login_dot_gov']['openssl']['url']                            = "https://www.openssl.org/source/openssl-#{default['login_dot_gov']['openssl']['version']}.tar.gz"
 default['login_dot_gov']['openssl']['checksum']                       = 'ec3f5c9714ba0fd45cb4e087301eb1336c317e0d20b575a125050470e8089e4d'
 default['login_dot_gov']['openssl']['configure_flags']                = %W[ shared ]
