@@ -253,15 +253,21 @@ execute "gpg --dearmor < /srv/idp/shared/keys/equifax_gpg.pub > /srv/idp/shared/
 # symlink chef release to current dir
 execute 'ln -fns /srv/idp/releases/chef/ /srv/idp/current'
 
+# TODO rethink or remove these shared directory symlinks. This method of
+# sharing is brittle and has rather unclear value. It would be better for the
+# app to explicitly look for any shared files in the shared directories rather
+# than implicitly relying on symlinks. Some of these symlinks don't even get
+# created correctly because we don't pass -T to ln, so we end up with a symlink
+# at tmp/cache/cache instead of the intended symlink at tmp/cache.
+#
 # symlink shared folders to current dir
-['bin', 'log'].each do |dir|
+['log'].each do |dir|
   directory "/srv/idp/current/#{dir}" do
     action :delete
     recursive true
   end
 end
-
-(shared_dirs-['certs', 'config', 'keys']).each do |dir|
+(shared_dirs-['bin', 'certs', 'config', 'keys']).each do |dir|
   execute "ln -fns /srv/idp/shared/#{dir} /srv/idp/releases/chef/#{dir}" unless node['login_dot_gov']['setup_only']
 end
 
