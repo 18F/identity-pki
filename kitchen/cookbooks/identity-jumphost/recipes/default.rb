@@ -7,15 +7,6 @@
 # All rights reserved - Do Not Redistribute
 #
 
-# add users.  Users should have the environment as a group in their groups list
-# XXX need to decrypt the users databag for this to work
-# XXX should remove ssh_keys from runlist too once this works, maybe make it a jumphost role
-include_recipe 'users'
-users_manage node.chef_environment do
-  # identity-devops-private creates unix users on auto-scaled instances
-  not_if { node.fetch('provisioner', {'auto-scaled' => false}).fetch('auto-scaled') }
-end
-
 # Install AWS cli (duplicates 'provision.sh')
 package 'python2.7'
 package 'python-pip'
