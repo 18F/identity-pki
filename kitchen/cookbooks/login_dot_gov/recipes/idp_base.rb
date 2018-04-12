@@ -87,7 +87,7 @@ deploy_script_environment = {
 application release_path do
   owner node['login_dot_gov']['system_user']
   group node['login_dot_gov']['system_user']
-  ruby node['login_dot_gov']['ruby_version']
+  #ruby node['login_dot_gov']['ruby_version']
 
   # branch is defined as an attribute or defaults to stages/<env>
   branch_name = node['login_dot_gov']['branch_name'] || "stages/#{node.chef_environment}"
