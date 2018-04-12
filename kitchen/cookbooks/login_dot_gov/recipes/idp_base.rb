@@ -123,6 +123,19 @@ application release_path do
   # the identity-devops repo doesn't need to be aware of the steps involved to
   # build any repo.
 
+  # TODO: figure out why this hack is needed and remove it.
+  # For some reason we are ending up with a root-owned directory
+  # ~ubuntu/.bundle/cache but only when running kitchen-ec2. This causes the
+  # bundle install in ./deploy/build to fail because it can't create new items
+  # in the directory. Probably there are some bundle installs happening as root
+  # with HOME still set to ~ubuntu.
+  if ENV['TEST_KITCHEN']
+    directory '/home/ubuntu/.bundle/cache' do
+      action :delete
+      recursive true
+    end
+  end
+
   # The build step runs bundle install, yarn install, rake assets:precompile,
   # etc.
   execute 'deploy build step' do
