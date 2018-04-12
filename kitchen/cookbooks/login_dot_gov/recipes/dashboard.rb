@@ -199,13 +199,13 @@ template "/opt/nginx/conf/sites.d/dashboard.login.gov.conf" do
 end
 
 directory "#{deploy_dir}/api" do
-  owner node['login_dot_gov']['user']
+  owner node.fetch('login_dot_gov').fetch('system_user')
   recursive true
   action :create
 end
 
 login_dot_gov_deploy_info "#{deploy_dir}/api/deploy.json" do
-  owner node['login_dot_gov']['user']
+  owner node.fetch('login_dot_gov').fetch('system_user')
   branch branch_name
 end
 
