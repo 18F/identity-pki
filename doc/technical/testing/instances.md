@@ -17,7 +17,7 @@ To run an integration test for a specific instance, cd into the instance's
 directory and run:
 
 ```
-bundle install && bundle exec env KITCHEN_YAML=.kitchen.cloud.yml kitchen test
+bundle install && bundle exec kitchen test
 ```
 
 This should run the ec2 integration tests for that instance.

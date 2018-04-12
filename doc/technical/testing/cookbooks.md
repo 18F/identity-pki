@@ -25,14 +25,6 @@ If the cookbook includes a `.kitchen.yml` file, you can run:
 bundle install && bundle exec kitchen test
 ```
 
-This should run the vagrant integration tests.
-
-If the cookbook includes a `.kitchen.cloud.yml` file, you can run:
-
-```
-bundle install && bundle exec env KITCHEN_YAML=.kitchen.cloud.yml kitchen test
-```
-
 This should run the ec2 integration tests.
 
 ## Code Coverage

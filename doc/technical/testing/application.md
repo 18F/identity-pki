@@ -11,8 +11,8 @@ For quick reference, here's how to run the test (run from the root of
 identity-devops):
 
 ```
-cd nodes/idp && bundle install && bundle exec env KITCHEN_YAML=.kitchen.cloud.yml kitchen test
-cd nodes/worker && bundle install && bundle exec env KITCHEN_YAML=.kitchen.cloud.yml kitchen test
+cd nodes/idp && bundle install && bundle exec kitchen test
+cd nodes/worker && bundle install && bundle exec kitchen test
 ```
 
 These will run the integration tests using the currently checked out

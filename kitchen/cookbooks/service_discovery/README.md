@@ -47,7 +47,7 @@ documentation.
     └── smoke
         └── default
             └── install_certificates_test.rb
-    .kitchen.cloud.yml
+    .kitchen.yml
 ├── attributes
 │   └── default.rb
 ├── metadata.rb

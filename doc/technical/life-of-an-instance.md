@@ -32,7 +32,6 @@ corresponding role.
 ```
 # In identity-devops
 cp -r nodes/jumphost/ nodes/myfavoritecow/
-sed -i'' -e 's/jumphost/myfavoritecow/g' nodes/myfavoritecow/.kitchen.cloud.yml
 vim README.md
 ```
 

@@ -39,19 +39,18 @@ Contains the gems needed to run the unit and integration tests.  Run `bundle
 install` in this directory before running the tests to install these locally.
 
 ```
-├── .kitchen.cloud.yml
 ├── .kitchen.yml
 ```
 
 [Test Kitchen](https://github.com/test-kitchen/test-kitchen) configuration
 files.  The `.kitchen.yml` file is configured to use
-[vagrant](https://github.com/test-kitchen/kitchen-vagrant) as a provisioner,
-while the `.kitchen.cloud.yml` is configured to use
 [ec2](https://github.com/test-kitchen/kitchen-vagrant) as a provisioner.
 
-Run `bundle install && bundle exec env KITCHEN_YAML=.kitchen.cloud.yml kitchen
-test` to run the ec2 tests, and do not inclued `KITCHEN_YAML` to run the vagrant
-tests.
+We could potentially create a separate kitchen.yml file to use
+[vagrant](https://github.com/test-kitchen/kitchen-vagrant) as a provisioner,
+and set `KITCHEN_YAML=other-kitchen.yml` to choose which one is used.
+
+Run `bundle install && bundle exec kitchen test` to run the ec2 tests.
 
 ```
 ├── metadata.rb

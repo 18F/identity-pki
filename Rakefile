@@ -139,10 +139,10 @@ namespace :integration do
     puts "Running test kitchen vagrant integration tests for all cookbooks..."
     if args.cookbook
       puts "Running test kitchen vagrant integration tests for #{args.cookbook} cookbook..."
-      run_test_kitchen(File.join("kitchen/cookbooks", args.cookbook), ".kitchen.yml")
+      run_test_kitchen(File.join("kitchen/cookbooks", args.cookbook), ".kitchen.vagrant.yml")
     else
       puts "Running test kitchen vagrant integration tests for all cookbooks..."
-      run_test_kitchen_all("kitchen/cookbooks", ".kitchen.yml")
+      run_test_kitchen_all("kitchen/cookbooks", ".kitchen.vagrant.yml")
     end
     puts "All vagrant integration tests passed!"
   end
@@ -153,10 +153,10 @@ namespace :integration do
   task :ec2_cookbooks, [:cookbook] do |t, args|
     if args.cookbook
       puts "Running test kitchen ec2 integration tests for #{args.cookbook} cookbook..."
-      run_test_kitchen(File.join("kitchen/cookbooks", args.cookbook), ".kitchen.cloud.yml")
+      run_test_kitchen(File.join("kitchen/cookbooks", args.cookbook), ".kitchen.yml")
     else
       puts "Running test kitchen ec2 integration tests for all cookbooks..."
-      run_test_kitchen_all("kitchen/cookbooks", ".kitchen.cloud.yml")
+      run_test_kitchen_all("kitchen/cookbooks", ".kitchen.yml")
     end
     puts "All ec2 integration tests passed!"
   end
@@ -167,10 +167,10 @@ namespace :integration do
   task :vagrant_nodes, [:node] do |t, args|
     if args.node
       puts "Running test kitchen vagrant integration tests for #{args.node} node..."
-      run_test_kitchen(File.join("nodes", args.node), ".kitchen.yml")
+      run_test_kitchen(File.join("nodes", args.node), ".kitchen.vagrant.yml")
     else
       puts "Running test kitchen vagrant integration tests for all nodes..."
-      run_test_kitchen_all("nodes", ".kitchen.yml")
+      run_test_kitchen_all("nodes", ".kitchen.vagrant.yml")
     end
     puts "All vagrant integration tests passed!"
   end
@@ -181,10 +181,10 @@ namespace :integration do
   task :ec2_nodes, [:node] do |t, args|
     if args.node
       puts "Running test kitchen ec2 integration tests for #{args.node} node..."
-      run_test_kitchen(File.join("nodes", args.node), ".kitchen.cloud.yml")
+      run_test_kitchen(File.join("nodes", args.node), ".kitchen.yml")
     else
       puts "Running test kitchen ec2 integration tests for all nodes..."
-      run_test_kitchen_all("nodes", ".kitchen.cloud.yml")
+      run_test_kitchen_all("nodes", ".kitchen.yml")
     end
     puts "All ec2 integration tests passed!"
   end
