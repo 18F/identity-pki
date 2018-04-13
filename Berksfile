@@ -1,9 +1,9 @@
 source 'https://api.berkshelf.com'
 
 cookbook 'application_ruby', '~> 4.0.1'
-cookbook 'apt', '~> 6.1' # can upgrade when we upgrade to chef 13
+cookbook 'apt', '~> 7.0' # can upgrade when we upgrade to chef 13
 cookbook 'bash-completion'
-cookbook 'build-essential', '~> 7.0'
+cookbook 'build-essential', '~> 8.0'
 cookbook 'cacert'
 cookbook 'git'
 cookbook 'hostname'
@@ -32,7 +32,9 @@ cookbook 'filebeat', '~> 0.4.9', git: 'https://github.com/18F/chef-filebeat', br
 cookbook 'elasticsearch-curator', '~> 0.2.8'
 cookbook 'elasticsearch', '~> 3.0.2'
 cookbook 'ossec', '~> 1.0.5', git: 'https://github.com/sous-chefs/ossec'
-cookbook 'squid', '~> 3.1', git: 'https://github.com/chef-cookbooks/squid', tag: 'v3.1.2'
+#cookbook 'squid', '~> 3.1', git: 'https://github.com/chef-cookbooks/squid', tag: 'v3.1.2'
+# wait for squid cookbook to accept PR fixing bug https://github.com/chef-cookbooks/squid/pull/87
+cookbook 'squid', git: 'https://github.com/brodygov/squid', ref: '0a8bd9a4d77e22d19587a87ce8f1ae76524b7c2b'
 #cookbook 'keytool', '~> 0.7.1'
 cookbook 'keytool', '~> 0.8.1', git: 'https://github.com/timothy-spencer/chef-keytool', branch: 'tspencer/fix/additionalcreatestor'
 

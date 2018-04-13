@@ -214,11 +214,11 @@ end
         "roles_path" => "../../kitchen/roles",
         "client_rb" => {
             "environment" => "#{environment}",
-            "treat_deprecation_warnings_as_errors" => true,
-            "resource_cloning" => false,
+            #"treat_deprecation_warnings_as_errors" => true,
+            #"resource_cloning" => false,
         },
         # TODO: Don't install this, let the provision script do it
-        "require_chef_omnibus" => "12.15",
+        "require_chef_omnibus" => "13.8.5",
         "root_path" => "/var/lib/kitchen"
     },
     "verifier" => {
