@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180419202740) do
+ActiveRecord::Schema.define(version: 2018_04_19_202740) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -32,6 +32,13 @@ ActiveRecord::Schema.define(version: 20180419202740) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["certificate_authority_id", "serial"], name: "index_certificate_revocations_on_cert_auth_id_and_serial", unique: true
+  end
+
+  create_table "piv_cacs", force: :cascade do |t|
+    t.string "uuid", null: false
+    t.string "dn_signature", null: false
+    t.index ["dn_signature"], name: "index_piv_cacs_on_dn_signature", unique: true
+    t.index ["uuid"], name: "index_piv_cacs_on_uuid", unique: true
   end
 
   add_foreign_key "certificate_revocations", "certificate_authorities"

@@ -3,7 +3,7 @@ git_source(:github) { |repo_name| "https://github.com/#{repo_name}.git" }
 
 ruby '~> 2.3.5'
 
-gem 'rails', '~> 5.1.5'
+gem 'rails', '~> 5.2'
 
 gem 'figaro'
 gem 'pg'
@@ -39,6 +39,7 @@ group :test do
   gem 'factory_bot_rails'
   gem 'rails-controller-testing'
   gem 'shoulda-matchers', '~> 3.0', require: false
+  gem 'simplecov'
   gem 'timecop'
   gem 'webmock'
   gem 'zonebie'
