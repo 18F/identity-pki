@@ -108,13 +108,13 @@ variable "asg_enabled_metrics" {
     default = []
 }
 
-# https://downloads.chef.io/chef/stable/12.15.19#ubuntu
-variable "chef_version" { default = "12.15.19" }
+# https://downloads.chef.io/chef/stable/13.8.5#ubuntu
+variable "chef_version" { default = "13.8.5" }
 variable "chef_download_url" {
-    default = "https://packages.chef.io/files/stable/chef/12.15.19/ubuntu/16.04/chef_12.15.19-1_amd64.deb"
+  default = "https://packages.chef.io/files/stable/chef/13.8.5/ubuntu/16.04/chef_13.8.5-1_amd64.deb"
 }
 variable "chef_download_sha256" {
-    default = "7073541beb4294c994d4035a49afcf06ab45b3b3933b98a65b8059b7591df6b8"
+    default = "ce0ff3baf39c8c13ed474104928e7e4568a4997a1d5797cae2b2ba3ee001e3a8"
 }
 
 variable "chef_url" { default = "https://chef.login.gov.internal/organizations/login-dev" }
