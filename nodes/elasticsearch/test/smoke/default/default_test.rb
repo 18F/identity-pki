@@ -61,7 +61,7 @@ control 'check-certs-trusted' do
   truststore_contents = command("sudo keytool -list -keystore /etc/elasticsearch/truststore.jks -storepass #{storepass}")
   describe truststore_contents do
     its('exit_status') { should eq 0 }
-    its('stdout') { should match 'Your keystore contains 3 entries' }
+    its('stdout') { should match 'Your keystore contains [3-9] entries' }
     its('stdout') { should match 'elasticsearch.login.gov.internal,.*trustedCertEntry' }
     its('stdout') { should match "#{hostname.stdout.chomp},.*trustedCertEntry" }
   end

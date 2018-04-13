@@ -243,9 +243,14 @@ keytool_manage "import my cert into truststore" do
 end
 
 # Elasticsearch now requires this value at a minimum
-include_recipe 'sysctl::default'
-sysctl_param 'vm.max_map_count' do
-  value 262144
+template "/etc/sysctl.d/99-chef-vm.max_map_count.conf" do
+  source 'sysctl_d_elk_conf.erb'
+  variables ({
+    :vm_max_map_count => 262144
+  })
+end
+execute "Set vm_max_map_count to 262144 in sysctl" do
+  command "sysctl -p /etc/sysctl.d/99-chef-vm.max_map_count.conf"
 end
 
 elasticsearch_configure "elasticsearch" do
