@@ -166,12 +166,13 @@ resource "aws_security_group" "chef" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # github
   egress {
     from_port = 22
     to_port = 22
     protocol = "tcp"
+    # github
     cidr_blocks = ["192.30.252.0/22"]
+    self = true
   }
 
   # need 8834 to comm with Nessus Server
@@ -343,6 +344,8 @@ resource "aws_security_group" "elk" {
       "${var.idp2_subnet_cidr_block}",
       "${var.idp3_subnet_cidr_block}",
       "${var.jumphost_subnet_cidr_block}",
+      "${var.jumphost1_subnet_cidr_block}",
+      "${var.jumphost2_subnet_cidr_block}",
       "${var.obproxy1_subnet_cidr_block}",
       "${var.obproxy2_subnet_cidr_block}"
     ]
@@ -522,55 +525,34 @@ resource "aws_security_group" "jumphost" {
     from_port = 22
     to_port = 22
     protocol = "tcp"
+    # github
     cidr_blocks = ["192.30.252.0/22"]
   }
 
-  # need dns outbound for ACME cert generation stuff
-  egress {
-    from_port = 53
-    to_port = 53
-    protocol = "udp"
-    cidr_blocks = ["${data.aws_ip_ranges.route53.cidr_blocks}","8.8.8.8/32"]
-  }
-
-  # need 8834 to comm with Nessus Server
-  egress {
-    from_port = 8834
-    to_port = 8834
+  egress {	# ELB and healthcheck
+    from_port = 22
+    to_port = 26
     protocol = "tcp"
-    cidr_blocks = ["${var.nessusserver_ip}"]
+    self = true
   }
 
+  ingress {	# ELB and healthcheck
+    from_port = 22
+    to_port = 26
+    protocol = "tcp"
+    self = true
+  }
 
   ingress {
     from_port = 22
     to_port = 22
     protocol = "tcp"
-    cidr_blocks = ["${var.app_sg_ssh_cidr_blocks}"]
-  }
-
-  # need this to let jenkins in
-  ingress {
-    from_port = 22
-    to_port = 22
-    protocol = "tcp"
-    cidr_blocks = ["${var.admin_subnet_cidr_block}"]
-  }
-
-  # allow CI VPC for integration tests
-  ingress {
-    from_port = 22
-    to_port = 22
-    protocol = "tcp"
-    cidr_blocks = ["${var.ci_sg_ssh_cidr_blocks}"]
-  }
-
-  # need 8834 to comm with Nessus Server
-  ingress {
-    from_port = 8834
-    to_port = 8834
-    protocol = "tcp"
-    cidr_blocks = ["${var.nessusserver_ip}"]
+    # jenkins, Continuous Integration, Remote Access (FIXME rename variable to 'external_ssh_cidr_blocks'?)
+    cidr_blocks = [
+        "${var.admin_subnet_cidr_block}",
+        "${var.ci_sg_ssh_cidr_blocks}",
+        "${var.app_sg_ssh_cidr_blocks}"
+    ]
   }
 
   # need 8834 to comm with Nessus Server
@@ -825,11 +807,38 @@ resource "aws_subnet" "db2" {
 resource "aws_subnet" "jumphost" {
   availability_zone = "${var.region}b"
   cidr_block = "${var.jumphost_subnet_cidr_block}"
-  map_public_ip_on_launch = true
+  # public IP attached using EIP
+  map_public_ip_on_launch = false
 
   tags {
     client = "${var.client}"
     Name = "${var.name}-jumphost_subnet-${var.env_name}"
+  }
+
+  vpc_id = "${aws_vpc.default.id}"
+}
+
+resource "aws_subnet" "jumphost1" {
+  availability_zone = "${var.region}a"
+  cidr_block = "${var.jumphost1_subnet_cidr_block}"
+  map_public_ip_on_launch = true
+
+  tags {
+    client = "${var.client}"
+    Name = "${var.name}-jumphost1_subnet-${var.env_name}"
+  }
+
+  vpc_id = "${aws_vpc.default.id}"
+}
+
+resource "aws_subnet" "jumphost2" {
+  availability_zone = "${var.region}b"
+  cidr_block = "${var.jumphost2_subnet_cidr_block}"
+  map_public_ip_on_launch = true
+
+  tags {
+    client = "${var.client}"
+    Name = "${var.name}-jumphost2_subnet-${var.env_name}"
   }
 
   vpc_id = "${aws_vpc.default.id}"

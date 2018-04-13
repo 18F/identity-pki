@@ -3,11 +3,6 @@
 # The Inspec reference, with examples and extensive documentation, can be
 # found at http://inspec.io/docs/reference/resources/
 
-describe file('/usr/local/bin/terraform') do
-  it { should exist }
-  it { should be_executable }
-end
-
 describe service('ssh') do
   it { should be_installed }
   it { should be_enabled }
@@ -37,4 +32,12 @@ describe file('/usr/local/bin/auto-set-ec2-hostname') do
 end
 describe sys_info do
   its('hostname') { should match(/\.(login|identitysandbox)\.gov\z/) }
+end
+
+[22, 26].each do |ssh_port|
+  describe port(ssh_port) do
+    its('processes') { should include 'sshd' }
+    its('protocols') { should include 'tcp' }
+    its('addresses') { should include '0.0.0.0' }
+  end
 end

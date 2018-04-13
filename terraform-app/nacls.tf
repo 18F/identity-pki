@@ -16,6 +16,8 @@ module "app-base-nacl-rules" {
   ssh_cidr_blocks = [
       # Jumphost
       "${var.jumphost_subnet_cidr_block}",
+      "${var.jumphost1_subnet_cidr_block}",
+      "${var.jumphost2_subnet_cidr_block}",
       # Jenkins
       "${var.admin_subnet_cidr_block}",
       # CI VPC
@@ -114,6 +116,8 @@ module "admin-base-nacl-rules" {
   ssh_cidr_blocks = [
       # Jumphost
       "${var.jumphost_subnet_cidr_block}",
+      "${var.jumphost1_subnet_cidr_block}",
+      "${var.jumphost2_subnet_cidr_block}",
       # Jenkins
       "${var.admin_subnet_cidr_block}",
       # CI VPC
@@ -143,6 +147,26 @@ resource "aws_network_acl_rule" "admin-ingress-tcp-elk-jenkins-web" {
   rule_number = 45
   rule_action = "allow"
   cidr_block = "${var.jumphost_subnet_cidr_block}"
+}
+resource "aws_network_acl_rule" "admin-ingress-tcp-elk-jenkins-web1" {
+  network_acl_id = "${aws_network_acl.admin.id}"
+  egress = false
+  from_port = 8443
+  to_port = 8443
+  protocol = "tcp"
+  rule_number = 46
+  rule_action = "allow"
+  cidr_block = "${var.jumphost1_subnet_cidr_block}"
+}
+resource "aws_network_acl_rule" "admin-ingress-tcp-elk-jenkins-web2" {
+  network_acl_id = "${aws_network_acl.admin.id}"
+  egress = false
+  from_port = 8443
+  to_port = 8443
+  protocol = "tcp"
+  rule_number = 47
+  rule_action = "allow"
+  cidr_block = "${var.jumphost2_subnet_cidr_block}"
 }
 
 # Might need this so elk can get to elasticsearch.
@@ -187,6 +211,8 @@ module "chef-base-nacl-rules" {
   ssh_cidr_blocks = [
       # Jumphost
       "${var.jumphost_subnet_cidr_block}",
+      "${var.jumphost1_subnet_cidr_block}",
+      "${var.jumphost2_subnet_cidr_block}",
       # Jenkins
       "${var.admin_subnet_cidr_block}",
       # CI VPC
@@ -220,7 +246,11 @@ resource "aws_network_acl" "jumphost" {
   }
 
   vpc_id = "${aws_vpc.default.id}"
-  subnet_ids = ["${aws_subnet.jumphost.id}"]
+  subnet_ids = [
+    "${aws_subnet.jumphost.id}",
+    "${aws_subnet.jumphost1.id}",
+    "${aws_subnet.jumphost2.id}"
+  ]
 }
 
 # Uses up to rule number 25 + number of ssh_cidr_blocks
@@ -228,6 +258,10 @@ module "jumphost-base-nacl-rules" {
   source = "../terraform-modules/base_nacl_rules"
   network_acl_id = "${aws_network_acl.jumphost.id}"
   ssh_cidr_blocks = [
+      # Jumphost (self) ELB
+      "${var.jumphost_subnet_cidr_block}",
+      "${var.jumphost1_subnet_cidr_block}",
+      "${var.jumphost2_subnet_cidr_block}",
       # External Admins
       "${var.app_sg_ssh_cidr_blocks}",
       # Jenkins
@@ -237,28 +271,25 @@ module "jumphost-base-nacl-rules" {
   ]
 }
 
-resource "aws_network_acl_rule" "jumphost-egress-dns" {
+resource "aws_network_acl_rule" "jumphost-elb-healthcheck1" {
   network_acl_id = "${aws_network_acl.jumphost.id}"
-
-  # allow dns to stuff (needed for ACME cert gen)
-  egress = true
-  from_port = 53
-  to_port = 53
-  protocol = "udp"
-  cidr_block = "0.0.0.0/0"
-  rule_number = 40
+  egress = false
+  from_port = 26
+  to_port = 26
+  protocol = "tcp"
+  cidr_block = "${var.jumphost1_subnet_cidr_block}"
+  rule_number = 50
   rule_action = "allow"
 }
 
-resource "aws_network_acl_rule" "jumphost-egress-redshift" {
+resource "aws_network_acl_rule" "jumphost-elb-healthcheck2" {
   network_acl_id = "${aws_network_acl.jumphost.id}"
-
-  egress = true
-  from_port = 5439
-  to_port = 5439
+  egress = false
+  from_port = 26
+  to_port = 26
   protocol = "tcp"
-  cidr_block = "0.0.0.0/0"
-  rule_number = 7777
+  cidr_block = "${var.jumphost2_subnet_cidr_block}"
+  rule_number = 51
   rule_action = "allow"
 }
 
@@ -280,6 +311,8 @@ module "idp-base-nacl-rules" {
   ssh_cidr_blocks = [
       # Jumphost
       "${var.jumphost_subnet_cidr_block}",
+      "${var.jumphost1_subnet_cidr_block}",
+      "${var.jumphost2_subnet_cidr_block}",
       # Jenkins
       "${var.admin_subnet_cidr_block}",
       # CI VPC

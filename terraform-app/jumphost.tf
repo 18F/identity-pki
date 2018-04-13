@@ -50,25 +50,22 @@ resource "aws_autoscaling_group" "jumphost" {
     launch_configuration = "${aws_launch_configuration.jumphost.name}"
 
     min_size = 0
-    max_size = 4
+    max_size = 4 # TODO count subnets or Region's AZ width
     desired_capacity = "${var.asg_jumphost_desired}"
+    wait_for_capacity_timeout = 0	# 0 == ignore
 
-    # TODO: It would be nice to have a TCP load balancer for the jumphosts so
-    # that clients can SSH through a jumphost without having to query the AWS
-    # API to find jumphosts. This will also require either a common SSH host
-    # key distributed by Citadel, or using SSH certificates issued by some SSH
-    # certificate authority.
-    # load_balancers = []
+    # TODO use certificates instead of host keys
+    # see http://man.openbsd.org/ssh-keygen#CERTIFICATES and Issue #621
+    load_balancers = ["${aws_elb.jumphost.name}"]
 
-    # TODO: use multiple subnets so we actually get highly available jumphosts
-    # in multiple AZs. Right now jumphosts will all be spun up in a single
-    # subnet and AZ.
     # https://github.com/18F/identity-devops-private/issues/259
-    vpc_zone_identifier = ["${aws_subnet.jumphost.id}"]
+    vpc_zone_identifier = [
+      "${aws_subnet.jumphost1.id}",
+      "${aws_subnet.jumphost2.id}"
+    ]
 
-    # possible choices: EC2, ELB
-    health_check_type = "EC2"
-
+    health_check_type = "ELB"
+    health_check_grace_period = 1200    # flavored AMI can omit (default=300)
     termination_policies = ["OldestInstance"]
 
     tag {
@@ -96,10 +93,11 @@ resource "aws_autoscaling_group" "jumphost" {
     protect_from_scale_in = "${var.asg_prevent_auto_terminate}"
 }
 
+# legacy
 resource "aws_instance" "jumphost" {
   count = "${var.non_asg_jumphost_enabled}"
   ami = "${var.jumphost_ami_id}"
-  depends_on = ["aws_internet_gateway.default", "aws_route53_zone.internal","aws_instance.chef"]
+  depends_on = ["aws_internet_gateway.default", "aws_route53_zone.internal", "aws_instance.chef"]
   instance_type = "${var.instance_type_jumphost}"
   key_name = "${var.key_name}"
   subnet_id = "${aws_subnet.jumphost.id}"
@@ -117,13 +115,16 @@ resource "aws_instance" "jumphost" {
 
   connection {
     type = "ssh"
+    # TF BUG! can't parse variables for 'user' (eg. "${var.jumphost_ami_userid}")
     user = "ubuntu"
-    timeout = "1m"
   }
 
   vpc_security_group_ids = [ "${aws_security_group.jumphost.id}" ]
 
   iam_instance_profile = "${aws_iam_instance_profile.base-permissions.name}"
+
+  # WARNING CIS approved image prohibits executable /tmp
+  # change the AMI to a less restrictive one: ami-bca32edc
 
   provisioner "chef"  {
     attributes_json = <<-EOF
@@ -151,29 +152,33 @@ resource "aws_instance" "jumphost" {
 }
 
 resource "aws_route53_record" "jumphost" {
-  count = "${var.non_asg_jumphost_enabled}"
+  count   = "${var.non_asg_jumphost_enabled}"
   depends_on = ["aws_instance.jumphost"]
   zone_id = "${aws_route53_zone.internal.zone_id}"
-  name = "jumphost.login.gov.internal"
-  type = "A"
-  ttl = "300"
-  records = ["${aws_instance.jumphost.private_ip}"]
+  name    = "jumphost.login.gov.internal"
+  type    = "A"
+  ttl     = "300"
+  records = ["${aws_instance.jumphost.*.private_ip}"]
 }
 
 resource "aws_route53_record" "jumphost-reverse" {
   count = "${var.non_asg_jumphost_enabled}"
   depends_on = ["aws_instance.jumphost"]
   zone_id = "${aws_route53_zone.internal-reverse.zone_id}"
-  name = "${format("%s.%s.16.172.in-addr.arpa", element(split(".", aws_instance.jumphost.private_ip), 3), element(split(".", aws_instance.jumphost.private_ip), 2) )}"
-
+  name = "${format("%s.%s.%s.%s.in-addr.arpa",
+            element(split(".", element(aws_instance.jumphost.*.private_ip, count.index)), 3),
+            element(split(".", element(aws_instance.jumphost.*.private_ip, count.index)), 2),
+            element(split(".", element(aws_instance.jumphost.*.private_ip, count.index)), 1),
+            element(split(".", element(aws_instance.jumphost.*.private_ip, count.index)), 0)
+        )}"
   type = "PTR"
   ttl = "300"
   records = ["jumphost.login.gov.internal"]
 }
 
 resource "aws_eip" "jumphost" {
-  count = "${var.non_asg_jumphost_enabled}"
-  instance = "${aws_instance.jumphost.id}"
+  count    = "${var.non_asg_jumphost_enabled}"
+  instance = "${element(aws_instance.jumphost.*.id, count.index)}"
   vpc      = true
   tags = {
     Name = "jumphost.${var.env_name}"
@@ -181,10 +186,10 @@ resource "aws_eip" "jumphost" {
 }
 
 resource "aws_route53_record" "a_jumphost" {
-  count = "${var.non_asg_jumphost_enabled}"
-  name = "jumphost.${var.env_name}.${var.root_domain}"
-  records = ["${aws_eip.jumphost.public_ip}"]
-  ttl = "300"
-  type = "A"
-  zone_id = "${var.route53_id}"
+  count     = "${var.non_asg_jumphost_enabled}"
+  zone_id   = "${aws_route53_zone.internal.zone_id}"
+  name      = "jumphost.${var.env_name}.${var.root_domain}"
+  type      = "A"
+  ttl       = "300"
+  records   = ["${aws_eip.jumphost.*.public_ip}"]
 }

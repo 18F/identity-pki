@@ -31,6 +31,8 @@ module "elk-base-nacl-rules" {
   ssh_cidr_blocks = [
       # Jumphost
       "${var.jumphost_subnet_cidr_block}",
+      "${var.jumphost1_subnet_cidr_block}",
+      "${var.jumphost2_subnet_cidr_block}",
       # Jenkins
       "${var.admin_subnet_cidr_block}",
       # CI VPC
@@ -60,4 +62,24 @@ resource "aws_network_acl_rule" "elk-ingress-tcp-elk-jenkins-web" {
   rule_number = 45
   rule_action = "allow"
   cidr_block = "${var.jumphost_subnet_cidr_block}"
+}
+resource "aws_network_acl_rule" "elk-ingress-tcp-elk-jenkins-web1" {
+  network_acl_id = "${aws_network_acl.elk.id}"
+  egress = false
+  from_port = 8443
+  to_port = 8443
+  protocol = "tcp"
+  rule_number = 46
+  rule_action = "allow"
+  cidr_block = "${var.jumphost1_subnet_cidr_block}"
+}
+resource "aws_network_acl_rule" "elk-ingress-tcp-elk-jenkins-web2" {
+  network_acl_id = "${aws_network_acl.elk.id}"
+  egress = false
+  from_port = 8443
+  to_port = 8443
+  protocol = "tcp"
+  rule_number = 47
+  rule_action = "allow"
+  cidr_block = "${var.jumphost2_subnet_cidr_block}"
 }

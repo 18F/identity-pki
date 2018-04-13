@@ -31,6 +31,8 @@ module "elasticsearch-base-nacl-rules" {
   ssh_cidr_blocks = [
       # Jumphost
       "${var.jumphost_subnet_cidr_block}",
+      "${var.jumphost1_subnet_cidr_block}",
+      "${var.jumphost2_subnet_cidr_block}",
       # Jenkins
       "${var.admin_subnet_cidr_block}",
       # CI VPC

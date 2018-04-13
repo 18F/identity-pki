@@ -95,6 +95,7 @@ resource "aws_elasticache_replication_group" "idp" {
   security_group_ids            = ["${aws_security_group.cache.id}"]
   subnet_group_name             = "${aws_elasticache_subnet_group.idp.name}"
   port                          = 6379
+  # note that t2.* instances don't support automatic failover
   automatic_failover_enabled    = true
 }
 

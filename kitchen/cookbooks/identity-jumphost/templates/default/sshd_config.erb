@@ -3,13 +3,16 @@
 
 # What ports, IPs and protocols we listen for
 Port 22
+Port <%= @monitor_port or raise 'no @monitor_port' %>
+
 # Use these options to restrict which interfaces/protocols sshd will bind to
 #ListenAddress ::
 #ListenAddress 0.0.0.0
 Protocol 2
 # HostKeys for protocol version 2
 HostKey /etc/ssh/ssh_host_rsa_key
-HostKey /etc/ssh/ssh_host_dsa_key
+# NOTICE: dsa removed per ssh-audit (https://github.com/arthepsy/ssh-audit)
+#  HostKey /etc/ssh/ssh_host_dsa_key
 HostKey /etc/ssh/ssh_host_ecdsa_key
 HostKey /etc/ssh/ssh_host_ed25519_key
 #Privilege Separation is turned on for security
@@ -52,13 +55,13 @@ ChallengeResponseAuthentication no
 PasswordAuthentication no
 
 # Kerberos options
-#KerberosAuthentication no
+KerberosAuthentication no
 #KerberosGetAFSToken no
 #KerberosOrLocalPasswd yes
 #KerberosTicketCleanup yes
 
 # GSSAPI options
-#GSSAPIAuthentication no
+GSSAPIAuthentication no
 #GSSAPICleanupCredentials yes
 
 X11Forwarding no
@@ -66,6 +69,7 @@ X11DisplayOffset 10
 PrintMotd no
 PrintLastLog yes
 TCPKeepAlive yes
+AllowTcpForwarding yes
 #UseLogin no
 
 #MaxStartups 10:30:60
@@ -86,22 +90,32 @@ Subsystem sftp /usr/lib/openssh/sftp-server
 # PAM authentication, then enable this but set PasswordAuthentication
 # and ChallengeResponseAuthentication to 'no'.
 UsePAM yes
+# allow ssh-agent to try more keys (git:identity-devops-private/issues/107)
 MaxAuthTries 8
 PermitUserEnvironment no
-Ciphers aes128-ctr,aes192-ctr,aes256-ctr
-MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,umac-128@openssh.com
-ClientAliveInterval 300
-ClientAliveCountMax 0
-
 UseDNS no
-GSSAPIAuthentication no
 
 # So we don't have to store AWS keys on disk on the jumphost
+<% if ! @lockdown %>
 AcceptEnv AWS_*
-
-<% if @lockdown %>
-# Allow in ubuntu if we are on localhost
-Match address *,!<%= @eip %>
-	DenyUsers ubuntu
 <% end %>
 
+Ciphers aes128-ctr,aes192-ctr,aes256-ctr
+MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,umac-128@openssh.com
+
+ClientAliveInterval 30
+ClientAliveCountMax 5
+
+<% if @lockdown %>
+DenyUsers root ubuntu ec2-user
+<% end %>
+
+# FUTURE further hardening to prevent interactive access
+#Match User !ubuntu,!ec2-user,*
+#    AuthorizedKeysFile /etc/ssh/authorized_keys/%u
+#    AllowTcpForwarding yes
+#    AllowAgentForwarding no
+#    PermitTTY no
+## NOTE change user's shell to rbash or better yet rssh
+#    ForceCommand sleep 300
+##    ForceCommand /bin/rbash $SSH_ORIGINAL_COMMAND

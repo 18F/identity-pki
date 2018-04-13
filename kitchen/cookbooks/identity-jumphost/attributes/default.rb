@@ -11,4 +11,4 @@ default['squid']['ipaddress'] = '127.0.0.1'
 
 default['login_dot_gov']['lockdown'] = false
 
-
+default['identity-jumphost']['ssh-health-check-port'] = 26

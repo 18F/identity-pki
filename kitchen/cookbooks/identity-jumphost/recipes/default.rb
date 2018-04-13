@@ -16,26 +16,19 @@ users_manage node.chef_environment do
   not_if { node.fetch('provisioner', {'auto-scaled' => false}).fetch('auto-scaled') }
 end
 
-package 'libffi-dev'
-
-# add berkshelf and terraform
-include_recipe 'login_dot_gov::ruby'
-gem_package 'berkshelf' do
-  gem_binary "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/gem"
-end
-include_recipe 'terraform'
-
-# terraform needs this dir to be writable
-directory '/usr/local/src' do
-  mode '1777'
-end
-
-# set up AWS cli
+# Install AWS cli (duplicates 'provision.sh')
 package 'python2.7'
 package 'python-pip'
 execute 'pip install awscli'
 
-# set up proxy
+# TODO needs more hardening
+package 'landscape-common' do
+  action :purge
+end
+
+# facilitate interactive testing by originating connections from jumphost.
+#  you will need to port-forward via SSH to reach the proxy and
+#  define databags for host and url ACLs
 include_recipe 'squid'
 
 # always lock down auto scaled instances
@@ -44,15 +37,54 @@ if node.fetch('provisioner').fetch('name') == 'cloud-init' && node.chef_environm
   lockdown = true
 end
 
-# turn off AllowUsers
+# 'lockdown' variable controls SSHD security settings like 'DenyUsers'
 template '/etc/ssh/sshd_config' do
   source 'sshd_config.erb'
-  mode '0600'
+  mode  '0600'
   notifies :run, 'execute[restart_sshd]'
   variables({
     :lockdown => lockdown,
-    :eip => node['cloud']['public_ipv4']
+    :eip => node['cloud']['public_ipv4'],
+    :monitor_port => node.fetch('identity-jumphost').fetch('ssh-health-check-port')
   })
+end
+
+# standardize host_keys across all instances
+#  NOTICE: dsa removed per ssh-audit (https://github.com/arthepsy/ssh-audit)
+#file '/etc/ssh/ssh_host_dsa_key' do
+#
+file '/etc/ssh/ssh_host_ecdsa_key' do
+  owner	'root'
+  group 'root'
+  mode	'600'
+  content ConfigLoader.load_config(node, 'jumphost/ssh_host_ecdsa_key')
+  notifies :run, 'execute[restart_sshd]'
+  sensitive true
+end
+file '/etc/ssh/ssh_host_rsa_key' do
+  owner	'root'
+  group 'root'
+  mode	'600'
+  content ConfigLoader.load_config(node, 'jumphost/ssh_host_rsa_key')
+  notifies :run, 'execute[restart_sshd]'
+  sensitive true
+end
+file '/etc/ssh/ssh_host_ed25519_key' do
+  owner 'root'
+  group 'root'
+  mode  '600'
+  content ConfigLoader.load_config(node, 'jumphost/ssh_host_ed25519_key')
+  notifies :run, 'execute[restart_sshd]'
+  sensitive true
+end
+
+# clean out obsolete public keys
+# if need to regen:
+#   ssh-keygen -yf <private_file> > <pub_file>
+Dir["/etc/ssh/{ssh_host_*_key.pub}"].each do |path|
+  file ::File.expand_path(path) do
+    action :delete
+  end
 end
 
 execute 'restart_sshd' do
@@ -68,4 +100,3 @@ template '/etc/network/interfaces.d/lo:1.cfg' do
 end
 
 execute 'ifdown lo:1 ; ifup lo:1'
-

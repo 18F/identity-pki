@@ -18,12 +18,15 @@ variable "idp2_subnet_cidr_block"  { default = "172.16.33.160/27" } # 172.16.33.
 variable "idp3_subnet_cidr_block"  { default = "172.16.33.192/27" } # 172.16.33.192 - 172.16.33.223
 variable "alb1_subnet_cidr_block"  { default = "172.16.33.224/28" } # 172.16.33.224 - 172.16.33.239
 variable "alb2_subnet_cidr_block"  { default = "172.16.33.240/28" } # 172.16.33.240 - 172.16.33.255
-variable "jumphost_subnet_cidr_block" { default = "172.16.33.0/28"} # 172.16.33.1 - 172.16.33.15
-variable "obproxy1_subnet_cidr_block" { default = "172.16.32.0/28"} # 172.16.32.1 - 172.16.32.15
-variable "obproxy2_subnet_cidr_block" { default = "172.16.32.16/28"} # 172.16.32.17 - 172.16.32.31
-variable "vpc_cidr_block"         { default = "172.16.32.0/22" } # 172.16.32.0 - 172.16.35.255
-#variable "vpc_cidr_block"         { default = "172.16.33.0/24" } # 172.16.32.0 - 172.16.35.255
+# TODO jumphost_subnet is legacy to be removed once issue-551 is rolled out across environments
+variable "jumphost_subnet_cidr_block"   { default = "172.16.33.0/28" }  # 172.16.33.0   - 172.16.33.15
+variable "obproxy1_subnet_cidr_block"   { default = "172.16.32.0/28" }  # 172.16.32.1   - 172.16.34.15
+variable "obproxy2_subnet_cidr_block"   { default = "172.16.32.16/28" } # 172.16.32.16  - 172.16.34.31
+variable "jumphost1_subnet_cidr_block"  { default = "172.16.32.32/28" } # 172.16.32.32  - 172.16.34.47
+variable "jumphost2_subnet_cidr_block"  { default = "172.16.32.48/28" } # 172.16.32.48  - 172.16.34.63
+variable "vpc_cidr_block"               { default = "172.16.32.0/22" }  # 172.16.32.0   - 172.16.35.255
 
+#FIXME referrer must define+use SG resource reference
 variable "redshift_sg_id" {
   type = "map"
   default = {
@@ -36,6 +39,7 @@ variable "redshift_sg_id" {
   }
 }
 
+#FIXME referrer must use EIP resource reference
 variable "redshift_cidr_block" {
   type = "map"
   default = {
@@ -77,8 +81,11 @@ variable "legacy_log_bucket_name" {
 
 variable "elasticache_redis_node_type" {
     description = "Instance type used for redis elasticache. Changes incur downtime."
+    # allowed values: t2.micro-medium, m3.medium-2xlarge, m4|r3|r4.large-
     default = "cache.m3.medium"
+    # allowed values: t2.micro-medium, m3.medium-2xlarge, m4|r3|r4.large-
 }
+
 variable "use_multi_az_redis" {
     description = "Whether to use the new multi-AZ elasticache redis cluster. (Repoints DNS CNAME)"
     default = 0
