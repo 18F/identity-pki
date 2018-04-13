@@ -2,7 +2,7 @@ DEPENDENCIES
   acme
   apache2
   application_ruby (~> 4.0.1)
-  apt (~> 6.1)
+  apt (~> 7.0)
   apt_update
     path: kitchen/cookbooks/apt_update
   aws_metadata
@@ -10,7 +10,7 @@ DEPENDENCIES
   aws_s3
     path: kitchen/cookbooks/aws_s3
   bash-completion
-  build-essential
+  build-essential (~> 8.0)
   cacert
   canonical_hostname
     path: kitchen/cookbooks/canonical_hostname
@@ -20,8 +20,8 @@ DEPENDENCIES
   config_loader
     path: kitchen/cookbooks/config_loader
   elasticsearch (~> 3.0.2)
-  elasticsearch-curator (~> 0.1.3)
-  filebeat (~> 0.4.2)
+  elasticsearch-curator (~> 0.2.8)
+  filebeat (~> 0.4.9)
   git
   hostname
   identity-elk
@@ -63,23 +63,19 @@ DEPENDENCIES
     path: kitchen/cookbooks/passenger
   poise-ruby
   poise-ruby-build
-    path: kitchen/cookbooks/poise-ruby-build
   ruby_build
   ruby_rbenv
   service_discovery
     path: kitchen/cookbooks/service_discovery
   squid
-    git: https://github.com/chef-cookbooks/squid
-    revision: c93e0aaa0942d6de3ff04acffacb4844ad11973a
-    tag: v3.1.2
+    git: https://github.com/brodygov/squid
+    revision: 0a8bd9a4d77e22d19587a87ce8f1ae76524b7c2b
+    ref: 0a8bd9a
   ssh-keys
   sudo
-  terraform (~ 0.5)
   users
 
 GRAPH
-  7-zip (1.0.2)
-    windows (>= 1.2.2)
   acme (4.0.0)
     compat_resource (>= 12.19)
   apache2 (5.0.1)
@@ -91,9 +87,9 @@ GRAPH
     poise (~> 2.0)
     poise-ruby (~> 2.1)
     poise-service (~> 1.0)
-  apt (6.1.4)
+  apt (7.0.0)
   apt_update (0.1.2)
-  ark (1.1.0)
+  ark (3.1.0)
     build-essential (>= 0.0.0)
     seven_zip (>= 0.0.0)
     windows (>= 0.0.0)
@@ -101,8 +97,9 @@ GRAPH
   aws_s3 (0.1.0)
     aws_metadata (>= 0.0.0)
   bash-completion (0.1.0)
-  build-essential (2.4.0)
-    7-zip (>= 0.0.0)
+  build-essential (8.1.1)
+    mingw (>= 1.1)
+    seven_zip (>= 0.0.0)
   cacert (0.5.0)
   canonical_hostname (0.1.0)
     aws_metadata (>= 0.0.0)
@@ -115,29 +112,27 @@ GRAPH
     citadel_fork (>= 0.0.0)
   cron (5.1.0)
   curl (2.0.4)
-  dmg (4.1.1)
   dpkg_autostart (0.2.0)
   elasticsearch (3.0.5)
     apt (>= 0.0.0)
     ark (>= 0.0.0)
     chef-sugar (>= 0.0.0)
     yum (>= 0.0.0)
-  elasticsearch-curator (0.1.5)
+  elasticsearch-curator (0.2.8)
     apt (>= 0.0.0)
     compat_resource (>= 0.0.0)
     cron (>= 0.0.0)
     poise-python (>= 0.0.0)
+    yum (>= 0.0.0)
+    yum-epel (>= 0.0.0)
   filebeat (0.4.9)
     apt (>= 0.0.0)
     runit (>= 0.0.0)
     windows (>= 0.0.0)
     yum (>= 0.0.0)
     yum-plugin-versionlock (>= 0.1.2)
-  git (4.6.0)
-    build-essential (>= 0.0.0)
-    dmg (>= 0.0.0)
-    windows (>= 0.0.0)
-    yum-epel (>= 0.0.0)
+  git (9.0.0)
+    build-essential (>= 5.0.0)
   homebrew (5.0.4)
   hostname (0.4.2)
     hostsfile (>= 0.0.0)
@@ -165,8 +160,7 @@ GRAPH
     terraform (>= 0.0.0)
   identity-jumphost (0.1.1)
     login_dot_gov (>= 0.0.0)
-    squid (~> 3.0)
-    terraform (>= 0.0.0)
+    squid (>= 3.0.0)
     users (>= 0.0.0)
   identity-monitoring (0.1.1)
     config_loader (>= 0.0.0)
@@ -200,6 +194,8 @@ GRAPH
     ssh-keys (> 0.0.1)
     sudo (>= 0.0.1)
     users (>= 0.0.1)
+  mingw (2.0.2)
+    seven_zip (>= 0.0.0)
   monit (1.0.0)
     poise (~> 2.0)
     poise-monit (~> 1.0)
@@ -229,6 +225,11 @@ GRAPH
   poise (2.8.1)
   poise-archive (1.5.0)
     poise (~> 2.6)
+  poise-build-essential (1.0.0)
+    poise (~> 2.6)
+  poise-git (1.0.0)
+    poise (~> 2.6)
+    poise-languages (~> 2.1)
   poise-languages (2.1.1)
     poise (~> 2.5)
     poise-archive (~> 1.0)
@@ -242,10 +243,10 @@ GRAPH
   poise-ruby (2.4.0)
     poise (~> 2.0)
     poise-languages (~> 2.0)
-  poise-ruby-build (1.0.2)
-    build-essential (~> 2.2)
-    git (~> 4.2)
+  poise-ruby-build (1.1.0)
     poise (~> 2.0)
+    poise-build-essential (~> 1.0)
+    poise-git (~> 1.0)
     poise-ruby (~> 2.1)
   poise-service (1.5.2)
     poise (~> 2.0)
@@ -259,19 +260,17 @@ GRAPH
   runit (4.0.4)
     packagecloud (>= 0.0.0)
     yum-epel (>= 0.0.0)
-  selinux_policy (2.1.0)
   service_discovery (0.1.0)
     aws_metadata (>= 0.0.0)
     aws_s3 (>= 0.0.0)
     canonical_hostname (>= 0.0.0)
   seven_zip (2.0.2)
     windows (>= 1.2.2)
-  squid (3.1.2)
-    selinux_policy (>= 1.0.0)
+  squid (4.0.2)
   ssh-keys (1.2.7)
   sudo (5.3.3)
-  terraform (0.5.3)
-    ark (~> 1.1.0)
+  terraform (0.2.1)
+    ark (>= 0.0.0)
   users (5.3.1)
   windows (4.1.4)
   yum (5.1.0)
