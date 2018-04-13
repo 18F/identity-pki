@@ -56,14 +56,14 @@ directory "#{nginx_path}/conf/conf.d" do
   mode 0755
   action :create
   recursive true
-  notifies :reload, 'service[passenger]'
+  notifies :restart, 'service[passenger]'
 end
 
 directory "#{nginx_path}/conf/sites.d" do
   mode 0755
   action :create
   recursive true
-  notifies :reload, 'service[passenger]'
+  notifies :restart, 'service[passenger]'
 end
 
 cookbook_file "#{nginx_path}/conf/status-map.conf" do
@@ -101,7 +101,7 @@ bash "config_patch" do
 #  only_if "grep '##PASSENGER_ROOT##' #{nginx_path}/conf/nginx.conf"
   user "root"
   code "#{nginx_path}/sbin/config_patch.sh #{nginx_path}/conf/nginx.conf"
-  notifies :reload, 'service[passenger]'
+  notifies :restart, 'service[passenger]'
 end
 
 template "/etc/init.d/passenger" do
