@@ -34,7 +34,6 @@ GEM
       faraday (~> 0.9.1)
       httpclient (~> 2.7.0)
       ridley (~> 4.5)
-    blankslate (2.1.2.4)
     buff-config (1.0.1)
       buff-extensions (~> 1.0)
       varia_model (~> 0.4)
@@ -94,11 +93,11 @@ GEM
       fauxhai (>= 4, < 6)
       rspec (~> 3.0)
     cleanroom (1.0.0)
-    coderay (1.1.1)
+    coderay (1.1.2)
     diff-lcs (1.3)
-    docker-api (1.33.6)
-      excon (>= 0.38.0)
-      json
+    docker-api (1.34.2)
+      excon (>= 0.47.0)
+      multi_json
     erubis (2.7.0)
     excon (0.58.0)
     faraday (0.9.2)
@@ -119,7 +118,7 @@ GEM
     htmlentities (4.3.4)
     httpclient (2.7.2)
     iniparse (1.4.4)
-    inspec (1.32.1)
+    inspec (1.51.21)
       addressable (~> 2.4)
       faraday (>= 0.9.0)
       hashie (~> 3.4)
@@ -130,15 +129,14 @@ GEM
       parallel (~> 1.9)
       parslet (~> 1.5)
       pry (~> 0)
-      rainbow (~> 2)
       rspec (~> 3)
       rspec-its (~> 1.2)
       rubyzip (~> 1.1)
       semverse
       sslshake (~> 1.2)
       thor (~> 0.19)
-      toml (~> 0.1)
-      train (>= 0.24.0, < 1.0)
+      tomlrb (~> 1.2)
+      train (~> 0.32)
     ipaddress (0.8.3)
     jmespath (1.3.1)
     json (2.1.0)
@@ -148,7 +146,7 @@ GEM
       multi_json
       retryable (~> 2.0)
       test-kitchen (~> 1.4, >= 1.4.1)
-    kitchen-inspec (0.19.0)
+    kitchen-inspec (0.20.0)
       hashie (~> 3.4)
       inspec (>= 0.34.0, < 2.0.0)
       test-kitchen (~> 1.6)
@@ -161,7 +159,7 @@ GEM
     logging (2.2.2)
       little-plugger (~> 1.1)
       multi_json (~> 1.10)
-    method_source (0.8.2)
+    method_source (0.9.0)
     mime (0.4.4)
     minitar (0.6.1)
     mixlib-archive (0.4.1)
@@ -208,20 +206,15 @@ GEM
       plist (~> 3.1)
       systemu (~> 2.6.4)
       wmi-lite (~> 1.0)
-    parallel (1.12.0)
-    parslet (1.5.0)
-      blankslate (~> 2.0)
+    parallel (1.12.1)
+    parslet (1.8.2)
     plist (3.3.0)
     proxifier (1.0.3)
-    pry (0.10.4)
+    pry (0.11.3)
       coderay (~> 1.1.0)
-      method_source (~> 0.8.1)
-      slop (~> 3.4)
+      method_source (~> 0.9.0)
     public_suffix (2.0.5)
     rack (2.0.3)
-    rainbow (2.2.2)
-      rake
-    rake (12.0.0)
     retryable (2.0.4)
     ridley (4.6.1)
       addressable
@@ -273,7 +266,6 @@ GEM
       rspec-its
       specinfra (~> 2.68)
     sfl (2.3)
-    slop (3.6.0)
     solve (2.0.3)
       molinillo (~> 0.4.2)
       semverse (~> 1.1)
@@ -296,9 +288,8 @@ GEM
     thor (0.19.1)
     timers (4.0.4)
       hitimes
-    toml (0.1.2)
-      parslet (~> 1.5.0)
-    train (0.25.0)
+    tomlrb (1.2.6)
+    train (0.32.0)
       docker-api (~> 1.26)
       json (>= 1.8, < 3.0)
       mixlib-shellout (~> 2.0)
@@ -319,7 +310,7 @@ GEM
       logging (>= 1.6.1, < 3.0)
       nori (~> 2.0)
       rubyntlm (~> 0.6.0, >= 0.6.1)
-    winrm-fs (1.0.1)
+    winrm-fs (1.1.1)
       erubis (~> 2.7)
       logging (>= 1.6.1, < 3.0)
       rubyzip (~> 1.1)
@@ -334,11 +325,11 @@ DEPENDENCIES
   chef (= 12.15.19)
   chefspec
   kitchen-ec2
-  kitchen-inspec
+  kitchen-inspec (= 0.20)
   kitchen-transport-sshtar
   kitchen-vagrant
   mime
   test-kitchen
 
 BUNDLED WITH
-   1.15.4
+   1.16.1
