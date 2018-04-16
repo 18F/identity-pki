@@ -19,7 +19,7 @@ DEPENDENCIES
     revision: 7007851c91e1404a43f1c914471a2d6c817eea8e
   config_loader
     path: kitchen/cookbooks/config_loader
-  elasticsearch (~> 3.0.2)
+  elasticsearch (~> 3.1.1)
   elasticsearch-curator (~> 0.2.8)
   filebeat (~> 0.4.9)
   git
@@ -113,7 +113,7 @@ GRAPH
   cron (5.1.0)
   curl (2.0.4)
   dpkg_autostart (0.2.0)
-  elasticsearch (3.0.5)
+  elasticsearch (3.1.1)
     apt (>= 0.0.0)
     ark (>= 0.0.0)
     chef-sugar (>= 0.0.0)

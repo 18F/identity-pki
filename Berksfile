@@ -28,7 +28,7 @@ cookbook 'apache2'
 cookbook 'acme'
 cookbook 'filebeat', '~> 0.4.9'
 cookbook 'elasticsearch-curator', '~> 0.2.8'
-cookbook 'elasticsearch', '~> 3.0.2'
+cookbook 'elasticsearch', '~> 3.1.1'
 cookbook 'ossec', '~> 1.0.5', git: 'https://github.com/sous-chefs/ossec'
 #cookbook 'squid', '~> 3.1', git: 'https://github.com/chef-cookbooks/squid', tag: 'v3.1.2'
 # wait for squid cookbook to accept PR fixing bug https://github.com/chef-cookbooks/squid/pull/87
