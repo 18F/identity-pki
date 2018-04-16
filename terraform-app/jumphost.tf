@@ -180,9 +180,6 @@ resource "aws_eip" "jumphost" {
   count    = "${var.non_asg_jumphost_enabled}"
   instance = "${element(aws_instance.jumphost.*.id, count.index)}"
   vpc      = true
-  tags = {
-    Name = "jumphost.${var.env_name}"
-  }
 }
 
 resource "aws_route53_record" "a_jumphost" {

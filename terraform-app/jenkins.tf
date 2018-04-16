@@ -124,7 +124,4 @@ resource "aws_eip" "jenkins" {
   count = "${var.non_asg_jenkins_enabled}"
   instance = "${aws_instance.jenkins.id}"
   vpc      = true
-  tags = {
-    Name = "jenkins.${var.env_name}"
-  }
 }
