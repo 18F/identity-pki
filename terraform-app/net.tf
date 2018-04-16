@@ -529,15 +529,28 @@ resource "aws_security_group" "jumphost" {
     cidr_blocks = ["192.30.252.0/22"]
   }
 
-  egress {	# ELB and healthcheck
+  # TODO split out ELB security group from jumphost SG
+  egress { # ELB
     from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    self = true
+  }
+  egress { # ELB healthcheck
+    from_port = 26
     to_port = 26
     protocol = "tcp"
     self = true
   }
 
-  ingress {	# ELB and healthcheck
+  ingress {	# ELB
     from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    self = true
+  }
+  ingress {	# ELB healthcheck
+    from_port = 26
     to_port = 26
     protocol = "tcp"
     self = true
