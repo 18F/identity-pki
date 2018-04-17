@@ -25,6 +25,10 @@ package [
   'linux-tools-aws',
 ]
 
+# recent version of aws cli
+package 'python-pip'
+execute 'pip install awscli'
+
 # common scripts and aliases
 
 cookbook_file '/usr/local/bin/id-apt-upgrade' do
