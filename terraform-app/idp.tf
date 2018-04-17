@@ -115,6 +115,36 @@ resource "aws_iam_role_policy" "idp-secrets" {
   policy = "${data.aws_iam_policy_document.secrets_role_policy.json}"
 }
 
+resource "aws_iam_role_policy" "idp-secrets-manager" {
+  name = "${var.env_name}-idp-secrets-manager"
+  role = "${aws_iam_role.idp.id}"
+  policy = <<EOM
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "secretsmanager:DescribeSecret",
+                "secretsmanager:List*"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": "secretsmanager:Get*",
+            "Resource": [
+                "arn:aws:secretsmanager:::secret:global/common/*",
+                "arn:aws:secretsmanager:::secret:global/idp/*",
+                "arn:aws:secretsmanager:::secret:${var.env_name}/common/*",
+                "arn:aws:secretsmanager:::secret:${var.env_name}/idp/*"
+            ]
+        }
+    ]
+}
+EOM
+}
+
 resource "aws_iam_role_policy" "idp-certificates" {
   name = "${var.env_name}-idp-certificates"
   role = "${aws_iam_role.idp.id}"
