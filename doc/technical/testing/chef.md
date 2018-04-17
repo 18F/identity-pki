@@ -71,7 +71,7 @@ get more debugging output.  I also recommend saving the output to a file, since
 it can be very verbose:
 
 ```
-bundle install && bundle exec env KITCHEN_YAML=.kitchen.cloud.yml kitchen test -l debug | tee debug.log
+bundle install && bundle exec kitchen test -l debug | tee debug.log
 ```
 
 If you would like to reproduce the failure on the test kitchen instance itself,

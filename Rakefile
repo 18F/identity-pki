@@ -19,7 +19,7 @@ end
 
 desc 'Run node tests'
 task :test_nodes, [:node] do |t, args|
-  Rake::Task['integration:vagrant_nodes'].invoke(args.node)
+  #Rake::Task['integration:vagrant_nodes'].invoke(args.cookbook)
   Rake::Task['integration:ec2_nodes'].invoke(args.node)
 end
 
@@ -167,10 +167,10 @@ namespace :integration do
   task :vagrant_nodes, [:node] do |t, args|
     if args.node
       puts "Running test kitchen vagrant integration tests for #{args.node} node..."
-      run_test_kitchen(File.join("nodes", args.node), ".kitchen.yml")
+      run_test_kitchen(File.join("nodes", args.node), ".kitchen.vagrant.yml")
     else
       puts "Running test kitchen vagrant integration tests for all nodes..."
-      run_test_kitchen_all("nodes", ".kitchen.yml")
+      run_test_kitchen_all("nodes", ".kitchen.vagrant.yml")
     end
     puts "All vagrant integration tests passed!"
   end
@@ -181,10 +181,10 @@ namespace :integration do
   task :ec2_nodes, [:node] do |t, args|
     if args.node
       puts "Running test kitchen ec2 integration tests for #{args.node} node..."
-      run_test_kitchen(File.join("nodes", args.node), ".kitchen.cloud.yml")
+      run_test_kitchen(File.join("nodes", args.node), ".kitchen.yml")
     else
       puts "Running test kitchen ec2 integration tests for all nodes..."
-      run_test_kitchen_all("nodes", ".kitchen.cloud.yml")
+      run_test_kitchen_all("nodes", ".kitchen.yml")
     end
     puts "All ec2 integration tests passed!"
   end
