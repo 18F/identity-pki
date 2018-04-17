@@ -75,6 +75,9 @@ if [[ "$plan_text" == "This plan does nothing." ]]; then
     exit
 fi
 
+echo >&2
+echo_color_horizontal_rule blue >&2
+echo >&2
 echo_blue >&2 "Pretty diff with terraform_landscape:"
 echo >&2
 

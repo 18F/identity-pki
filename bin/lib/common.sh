@@ -144,6 +144,25 @@ echo_yellow() {
     echo_color yellow "$@"
 }
 
+# Print underscores as wide as the terminal screen
+echo_color_horizontal_rule() {
+    declare -i width # local integer
+    width="$(tput cols 2>/dev/null || echo 80)"
+
+    local color
+
+    case $# in
+        0) color=blue ;;
+        1) color="$1" ;;
+        *)
+            echo >&2 "usage: echo_color_horizontal_rule [COLOR]"
+            return 1
+            ;;
+    esac
+
+    echo_color "$color" "$(printf "%0.s_" $(seq 1 "$width"))"
+}
+
 log() {
     # print our caller if possible as the basename
     if [ "${#BASH_SOURCE[@]}" -ge 2 ]; then
