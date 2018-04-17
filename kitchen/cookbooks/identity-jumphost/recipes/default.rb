@@ -21,6 +21,9 @@ package 'python2.7'
 package 'python-pip'
 execute 'pip install awscli'
 
+# Install postgresql-client so that Redshift may be reached from the jumphost
+package 'postgresql-client'
+
 # TODO needs more hardening
 package 'landscape-common' do
   action :purge
