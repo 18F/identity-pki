@@ -26,8 +26,19 @@ package [
 ]
 
 # recent version of aws cli
+# TODO move into base image
 package 'python-pip'
-execute 'pip install awscli'
+execute 'install pip as needed' do
+  command 'pip install awscli'
+  not_if { File.exist?('/usr/local/bin/aws') }
+end
+# TODO only needed because of /tmp noexec
+file '/usr/local/bin/aws' do
+  owner 'root'
+  group 'root'
+  mode '0755'
+  only_if { File.exist?('/usr/local/bin/aws') }
+end
 
 # common scripts and aliases
 
