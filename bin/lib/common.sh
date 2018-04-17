@@ -147,7 +147,7 @@ echo_yellow() {
 # Print underscores as wide as the terminal screen
 echo_color_horizontal_rule() {
     declare -i width # local integer
-    width="$(tput cols 2>/dev/null || echo 80)"
+    width="${COLUMNS-80}"
 
     local color
 
