@@ -5,23 +5,7 @@ psql_config 'configure postgres root cert'
 
 app_name = 'dashboard'
 
-dhparam = ConfigLoader.load_config(node, "dhparam")
-
-# generate a stronger DHE parameter on first run
-# see: https://raymii.org/s/tutorials/Strong_SSL_Security_On_nginx.html#Forward_Secrecy_&_Diffie_Hellman_Ephemeral_Parameters
-execute "${node['login_dot_gov']['openssl']['binary']} dhparam -out dhparam.pem 4096" do
-  creates '/etc/ssl/certs/dhparam.pem'
-  cwd '/etc/ssl/certs'
-  notifies :stop, "service[passenger]", :before
-  only_if { dhparam == nil }
-  sensitive true
-end
-
-file '/etc/ssl/certs/dhparam.pem' do
-  content dhparam
-  not_if { dhparam == nil }
-  sensitive true
-end
+include_recipe 'login_dot_gov::dhparam'
 
 base_dir = "/srv/#{app_name}"
 deploy_dir = "#{base_dir}/current/public"
@@ -199,13 +183,13 @@ template "/opt/nginx/conf/sites.d/dashboard.login.gov.conf" do
 end
 
 directory "#{deploy_dir}/api" do
-  owner node['login_dot_gov']['user']
+  owner node.fetch('login_dot_gov').fetch('system_user')
   recursive true
   action :create
 end
 
 login_dot_gov_deploy_info "#{deploy_dir}/api/deploy.json" do
-  owner node['login_dot_gov']['user']
+  owner node.fetch('login_dot_gov').fetch('system_user')
   branch branch_name
 end
 

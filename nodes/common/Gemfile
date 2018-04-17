@@ -9,7 +9,7 @@ gem 'chefspec'
 gem 'test-kitchen'
 gem 'kitchen-ec2'
 gem 'kitchen-vagrant'
-gem 'kitchen-inspec'
+gem 'kitchen-inspec', '= 0.20' # https://github.com/chef/kitchen-inspec/issues/160
 gem 'kitchen-transport-sshtar'
 
 gem 'chef', '= 12.15.19'

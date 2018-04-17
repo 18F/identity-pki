@@ -5,7 +5,7 @@ begin
   # Look up "elk" first, because that's the old pre-ASG hostname for where we
   # run logstash. If it exists, use it. If not, fail back to "logstash", which
   # is the CNAME for the load-balanced ELK group.
-  addr = Resolv.getaddress 'elk.login.gov.internal'
+  _addr = Resolv.getaddress 'elk.login.gov.internal'
   node.default['filebeat']['config']['output']['logstash']['hosts'] = ["elk.login.gov.internal:5044"]
 rescue Resolv::ResolvError
   node.default['filebeat']['config']['output']['logstash']['hosts'] = ["logstash.login.gov.internal:5044"]
@@ -55,10 +55,10 @@ end
 include_recipe 'filebeat'
 
 node['elk']['filebeat']['logfiles'].each do |logitem|
-  logfile = logitem['log']
+  logfile = logitem.fetch('log')
   filebeat_prospector logfile.gsub(/[\/\*]/,'_') do
     paths [logfile]
-    document_type "#{logitem.type}"
+    document_type "#{logitem.fetch('type')}"
     ignore_older '24h'
     scan_frequency '15s'
     harvester_buffer_size 16384
@@ -75,7 +75,7 @@ end
 
 # This will be true if the instance is auto scaled.
 if node.fetch("provisioner", {"auto-scaled" => false}).fetch("auto-scaled")
-  cron 'rerun elk discovery every 15 minutes' do
+  cron 'rerun elk filebeat discovery every 15 minutes' do
     action :create
     minute '0,15,30,45'
     command "cat #{node['elk']['chef_zero_client_configuration']} && chef-client --local-mode -c #{node['elk']['chef_zero_client_configuration']} -o 'role[filebeat_discovery]' 2>&1 >> /var/log/filebeat-discovery.log"

@@ -53,7 +53,7 @@ ruby_block 'generate_elk_cert' do
       ef.create_extension('basicConstraints', 'CA:FALSE', true),
       ef.create_extension('subjectKeyIdentifier', 'hash'),
     ]
-    cert.add_extension ef.create_extension("subjectAltName", "DNS: logstash.login.gov.internal, DNS: #{node.hostname}.login.gov.internal, DNS: #{node.fqdn}")
+    cert.add_extension ef.create_extension("subjectAltName", "DNS: logstash.login.gov.internal, DNS: #{node.fetch('hostname')}.login.gov.internal, DNS: #{node.fetch('fqdn')}")
     cert.sign key, OpenSSL::Digest::SHA256.new
     f = File.new("#{mycert}",'w')
     f.write(cert.to_pem)
@@ -88,7 +88,7 @@ ruby_block 'generate_ca_cert' do
       ef.create_extension('basicConstraints', 'CA:TRUE', true),
       ef.create_extension('subjectKeyIdentifier', 'hash'),
     ]
-    cert.add_extension ef.create_extension("subjectAltName", "DNS: #{node.hostname}.login.gov.internal, DNS: logstash.login.gov.internal, DNS: elk.tf.login.gov, DNS: elk.login.gov.internal, IP: #{node.cloud.public_ipv4}, IP: #{node.ipaddress}")
+    cert.add_extension ef.create_extension("subjectAltName", "DNS: #{node.fetch('hostname')}.login.gov.internal, DNS: logstash.login.gov.internal, DNS: elk.tf.login.gov, DNS: elk.login.gov.internal, IP: #{node.fetch('cloud').fetch('public_ipv4')}, IP: #{node.fetch('ipaddress')}")
     cert.sign key, OpenSSL::Digest::SHA256.new
     f = File.new("#{mycacrt}",'w')
     f.write(cert.to_pem)
@@ -231,7 +231,10 @@ include_recipe 'runit'
 
   directory "/etc/logstash/#{lsname}conf.d"
 
-  directory '/srv/tmp' do
+  # We use /srv/tmp because we need a scratch directory that won't disappear on
+  # reboot.
+  directory "/srv/tmp for #{lsname}" do
+    path '/srv/tmp'
     mode '0755'
   end
   directory "/srv/tmp/#{lsname}" do

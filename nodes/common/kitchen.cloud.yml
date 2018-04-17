@@ -24,6 +24,9 @@ role = File.basename(Dir.pwd)
 environment = ENV.fetch('KITCHEN_EC2_INTEGRATION_ENVIRONMENT', 'ci')
 ami_id = ENV.fetch('KITCHEN_EC2_AMI', 'ami-5ad3b322') # TODO look up dynamically
 
+# set default AWS profile to sandbox account
+ENV['AWS_PROFILE'] ||= 'identitysandbox.gov'
+
 # TODO: Make a standard instance profile name for each instance so we don't need
 # this hash.
 iam_profiles = {
@@ -118,8 +121,8 @@ cloud_init_info = [
   #  "template" => "../../terraform-modules/bootstrap/cloud-init.provision.yaml.erb",
   #  "content_type" => "text/cloud-config",
   #  "vars" => {
-  #    "chef_download_sha256" => "7073541beb4294c994d4035a49afcf06ab45b3b3933b98a65b8059b7591df6b8",
-  #    "chef_download_url" => "https://packages.chef.io/files/stable/chef/12.15.19/ubuntu/16.04/chef_12.15.19-1_amd64.deb",
+  #    "chef_download_sha256" => "ce0ff3baf39c8c13ed474104928e7e4568a4997a1d5797cae2b2ba3ee001e3a8",
+  #    "chef_download_url" => "https://packages.chef.io/files/stable/chef/13.8.5/ubuntu/16.04/chef_13.8.5-1_amd64.deb",
 
   #    "provision_phase_name" => "test-kitchen-private-provisioning",
 
@@ -211,9 +214,11 @@ end
         "roles_path" => "../../kitchen/roles",
         "client_rb" => {
             "environment" => "#{environment}",
+            #"treat_deprecation_warnings_as_errors" => true,
+            #"resource_cloning" => false,
         },
         # TODO: Don't install this, let the provision script do it
-        "require_chef_omnibus" => "12.15",
+        "require_chef_omnibus" => "13.8.5",
         "root_path" => "/var/lib/kitchen"
     },
     "verifier" => {

@@ -1,9 +1,9 @@
 source 'https://api.berkshelf.com'
 
 cookbook 'application_ruby', '~> 4.0.1'
-cookbook 'apt', '~> 6.1'
+cookbook 'apt', '~> 7.0'
 cookbook 'bash-completion'
-cookbook 'build-essential'
+cookbook 'build-essential', '~> 8.0'
 cookbook 'cacert'
 cookbook 'git'
 cookbook 'hostname'
@@ -18,6 +18,7 @@ cookbook 'ohai'
 cookbook 'openssl'
 cookbook 'ruby_rbenv'
 cookbook 'poise-ruby'
+cookbook 'poise-ruby-build'
 cookbook 'ruby_build'
 cookbook 'ssh-keys'
 cookbook 'sudo'
@@ -25,12 +26,11 @@ cookbook 'users'
 cookbook 'jenkins', '~> 5.0.1'
 cookbook 'apache2'
 cookbook 'acme'
-cookbook 'terraform', '~ 0.5'
-cookbook 'filebeat', '~> 0.4.2'
-cookbook 'elasticsearch-curator', '~> 0.1.3'
-cookbook 'elasticsearch', '~> 3.0.2'
+cookbook 'filebeat', '~> 0.4.9'
+cookbook 'elasticsearch-curator', '~> 0.2.8'
+cookbook 'elasticsearch', '~> 3.1.1'
 cookbook 'ossec', '~> 1.0.5', git: 'https://github.com/sous-chefs/ossec'
-cookbook 'squid', '~> 3.1', git: 'https://github.com/chef-cookbooks/squid', tag: 'v3.1.2'
+cookbook 'squid', '~> 4.0.3'
 #cookbook 'keytool', '~> 0.7.1'
 cookbook 'keytool', '~> 0.8.1', git: 'https://github.com/timothy-spencer/chef-keytool', branch: 'tspencer/fix/additionalcreatestor'
 
@@ -66,7 +66,6 @@ cookbook 'identity-ossec', path: prefixed('kitchen/cookbooks/identity-ossec')
 cookbook 'instance_certificate', path: prefixed('kitchen/cookbooks/instance_certificate')
 cookbook 'login_dot_gov', path: prefixed('kitchen/cookbooks/login_dot_gov')
 cookbook 'passenger', path: prefixed('kitchen/cookbooks/passenger')
-cookbook 'poise-ruby-build', path: prefixed('kitchen/cookbooks/poise-ruby-build')
 cookbook 'service_discovery', path: prefixed('kitchen/cookbooks/service_discovery')
 cookbook 'identity-monitoring', path: prefixed('kitchen/cookbooks/identity-monitoring')
 

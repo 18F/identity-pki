@@ -41,23 +41,7 @@ app_name = 'idp'
 
 server_name = node.chef_environment == 'prod' ? 'secure.login.gov' : "#{node.chef_environment}.#{domain_name}"
 
-dhparam = ConfigLoader.load_config(node, "dhparam")
-
-# generate a stronger DHE parameter on first run
-# see: https://raymii.org/s/tutorials/Strong_SSL_Security_On_nginx.html#Forward_Secrecy_&_Diffie_Hellman_Ephemeral_Parameters
-execute "#{node['login_dot_gov']['openssl']['binary']} dhparam -out dhparam.pem 4096" do
-  creates "/etc/ssl/certs/#{app_name}-dhparam.pem"
-  cwd '/etc/ssl/certs'
-  notifies :stop, "service[passenger]", :before
-  only_if { dhparam == nil }
-  sensitive true
-end
-
-file '/etc/ssl/certs/dhparam.pem' do
-  content dhparam
-  not_if { dhparam == nil }
-  sensitive true
-end
+include_recipe 'login_dot_gov::dhparam'
 
 # Create a self-signed certificate for ALB to talk to. ALB does not verify
 # hostnames or care about certificate expiration.
@@ -88,13 +72,13 @@ template "/opt/nginx/conf/sites.d/login.gov.conf" do
 end
 
 directory "#{deploy_dir}/api" do
-  owner node['login_dot_gov']['user']
+  owner node.fetch('login_dot_gov').fetch('system_user')
   recursive true
   action :create
 end
 
 login_dot_gov_deploy_info "#{deploy_dir}/api/deploy.json" do
-  owner node['login_dot_gov']['user']
+  owner node.fetch('login_dot_gov').fetch('system_user')
   branch branch_name
 end
 

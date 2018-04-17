@@ -369,7 +369,7 @@ fi
 
 run chef-client --local-mode -c "./chef-client.rb" --no-color
 
-run sudo rm -rf /tmp/bundler
+run rm -rf /tmp/bundler
 
 echo "==========================================================="
 echo "All done! provision.sh finished for $repo_basename"
