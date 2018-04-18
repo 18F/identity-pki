@@ -1,4 +1,5 @@
 include_recipe 'login_dot_gov::nodejs'
+include_recipe 'login_dot_gov::cloudhsm'
 
 # setup postgres root config resource
 psql_config 'configure postgres CA bundle root cert'

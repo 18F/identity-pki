@@ -1,0 +1,50 @@
+installers_dir = '/opt/aws/installers'
+
+directory '/opt/aws'
+directory installers_dir
+
+remote_file "#{installers_dir}/cloudhsm-client-pkcs11_latest_amd64.deb" do
+  source 'https://s3.amazonaws.com/cloudhsmv2-software/cloudhsm-client-pkcs11_latest_amd64.deb'
+end
+
+remote_file "#{installers_dir}/cloudhsm-client_latest_amd64.deb" do
+  source 'https://s3.amazonaws.com/cloudhsmv2-software/cloudhsm-client_latest_amd64.deb'
+end
+
+dpkg_package 'cloudhsm-client' do
+  source "#{installers_dir}/cloudhsm-client_latest_amd64.deb"
+end
+
+dpkg_package 'cloudhsm-client-pkcs11' do
+  source "#{installers_dir}/cloudhsm-client-pkcs11_latest_amd64.deb"
+end
+
+file '/opt/cloudhsm/etc/customerCA.crt' do
+  content <<-EOM
+-----BEGIN CERTIFICATE-----
+MIIEGzCCAwOgAwIBAgIJAJFXvd1+7s33MA0GCSqGSIb3DQEBCwUAMIGjMQswCQYD
+VQQGEwJVUzEdMBsGA1UECAwURGlzdHJpY3Qgb2YgQ29sdW1iaWExEzARBgNVBAcM
+Cldhc2hpbmd0b24xGjAYBgNVBAoMEUxvZ2luLmdvdiBUZXN0aW5nMR8wHQYDVQQD
+DBZCcm9keSB0ZXN0IENsb3VkSFNNIENBMSMwIQYJKoZIhvcNAQkBFhRhbmRyZXcu
+YnJvZHlAZ3NhLmdvdjAeFw0xODA0MDkyMjQ1MDVaFw0yODA0MDgyMjQ1MDVaMIGj
+MQswCQYDVQQGEwJVUzEdMBsGA1UECAwURGlzdHJpY3Qgb2YgQ29sdW1iaWExEzAR
+BgNVBAcMCldhc2hpbmd0b24xGjAYBgNVBAoMEUxvZ2luLmdvdiBUZXN0aW5nMR8w
+HQYDVQQDDBZCcm9keSB0ZXN0IENsb3VkSFNNIENBMSMwIQYJKoZIhvcNAQkBFhRh
+bmRyZXcuYnJvZHlAZ3NhLmdvdjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoC
+ggEBAMZHNFbrCdaUpQUktse1EfDBhlg3E53ATiL4sDxyffhVeuGDvFbIZIdkwStK
+FFgF2EkD8oPgZVPjKD2QaVXg5FHHmkJCwsMx/OwCM2UQ6wwZUsySUgxFobCqnKPW
+GwTVnUdWCaTd9VAr+cmyPB2zCX8O07BW2CTQVGJtEUKDwV+2uvQi5AG8EN1ZVSk0
+QTEMz+IodzG2pbfrwlKS/epbfGOT/e5hZw6dl3h5yXRHG30yYlbQX8fwh+HdatQM
+riLhxy7OrDMNv81s8LoikGWlBsrMWHnm6V4uzEhXr2oU+FTLgOvuXb2XhQ+icYZp
+fPc54UILEMRVAGhrNPCgM8QNSZcCAwEAAaNQME4wHQYDVR0OBBYEFIfBVv1SBiIu
+gh+gHhRrI112/vPiMB8GA1UdIwQYMBaAFIfBVv1SBiIugh+gHhRrI112/vPiMAwG
+A1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJwYVbRo2lKwJ+JDtyLpC0aR
+qzIKOsOsPLknvuYkbI3wzPVo9UiL/94EbOA9oUMy2owMAsDeuQsCBUjJBSGa0b6h
+dbRlHtbQMkbthFuZRjbpEVIYT14M8AiUECCAbKJylVw10r6Q1IP+0G4WIReor7Yg
+czps+EZ1thUDiQV+0XTXiDXFY4d8rtXxwl9P4d9oNbQ31Tf1LfHKZvnQ9BTLr54k
+EIKPPp55ewwnYwxkIBeTg4hKtM9rq/RAYcqBrA+wSMZRTjykrul3rtIyn/LqbLoo
+kZsoucfxNIZ9WxsFtabr9usUu7L5OctBkEzZV6Vxb/odoNYEJXurY+rtJkpiU1E=
+-----END CERTIFICATE-----
+  EOM
+end
+
