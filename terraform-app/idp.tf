@@ -134,10 +134,10 @@ resource "aws_iam_role_policy" "idp-secrets-manager" {
             "Effect": "Allow",
             "Action": "secretsmanager:Get*",
             "Resource": [
-                "arn:aws:secretsmanager:::secret:global/common/*",
-                "arn:aws:secretsmanager:::secret:global/idp/*",
-                "arn:aws:secretsmanager:::secret:${var.env_name}/common/*",
-                "arn:aws:secretsmanager:::secret:${var.env_name}/idp/*"
+                "arn:aws:secretsmanager:*:*:secret:global/common/*",
+                "arn:aws:secretsmanager:*:*:secret:global/idp/*",
+                "arn:aws:secretsmanager:*:*:secret:${var.env_name}/common/*",
+                "arn:aws:secretsmanager:*:*:secret:${var.env_name}/idp/*"
             ]
         }
     ]
