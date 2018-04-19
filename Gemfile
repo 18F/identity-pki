@@ -31,4 +31,16 @@ group :development do
   gem 'rubocop', require: false
 end
 
+group :test do
+  gem 'axe-matchers', '~> 1.3.4'
+  gem 'codeclimate-test-reporter', require: false
+  gem 'database_cleaner'
+  gem 'factory_bot_rails'
+  gem 'rails-controller-testing'
+  gem 'shoulda-matchers', '~> 3.0', require: false
+  gem 'timecop'
+  gem 'webmock'
+  gem 'zonebie'
+end
+
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
