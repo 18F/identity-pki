@@ -49,6 +49,9 @@ default['identity-ruby']['rbenv_root']                                = '/opt/ru
 default['login_dot_gov']['rbenv_shims_ruby'] = default.fetch('identity-ruby').fetch('rbenv_root') + '/shims/ruby'
 default['login_dot_gov']['rbenv_shims_gem'] = default.fetch('identity-ruby').fetch('rbenv_root') + '/shims/gem'
 
+# don't enable CloudHSM by default
+default['login_dot_gov']['cloudhsm_enabled']                          = false
+
 # Allocate a static EIP on startup for auto scaled instances that have one of
 # these as their primary role (e.g. 'worker', 'jumphost').
 # The instance run list must also include the login_dot_gov::static_eip recipe.
