@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe CertificateStore do
-  let(:certificate_store) { described_class.new }
+  let(:certificate_store) { described_class.instance }
 
   let(:cert_collection) do
     create_certificate_set(
@@ -80,19 +80,7 @@ RSpec.describe CertificateStore do
         end
       end
 
-      it 'considers a root cert valid' do
-        expect(certificate_store.valid?(root_certs.first)).to be_truthy
-      end
-
       describe 'with all of the root/intermediate certs' do
-        it 'considers the added intermediates to be trusted' do
-          expect(certificate_store.valid?(intermediate_certs.first)).to be_truthy
-        end
-
-        it 'considers the leaf trusted' do
-          expect(certificate_store.valid?(leaf_certs.first)).to be_truthy
-        end
-
         it 'has the right chain of certs' do
           chain_ids = certificate_store.x509_certificate_chain(leaf_certs.first).map(&:key_id)
 
@@ -110,7 +98,7 @@ RSpec.describe CertificateStore do
           let(:root_cert) { root_certs.first }
 
           it 'is trusted' do
-            expect(certificate_store.valid?(root_cert)).to be_truthy
+            expect(root_cert.valid?).to be_truthy
           end
         end
 
@@ -118,7 +106,7 @@ RSpec.describe CertificateStore do
           let(:intermediate_cert) { intermediate_certs.first }
 
           it 'is trusted' do
-            expect(certificate_store.valid?(intermediate_cert)).to be_truthy
+            expect(intermediate_cert.valid?).to be_truthy
           end
         end
 
@@ -126,7 +114,7 @@ RSpec.describe CertificateStore do
           let(:leaf_cert) { leaf_certs.first }
 
           it 'is untrusted' do
-            expect(certificate_store.valid?(leaf_cert)).to be_falsey
+            expect(leaf_cert.valid?).to be_falsey
           end
         end
       end

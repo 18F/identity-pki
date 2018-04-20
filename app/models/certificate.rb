@@ -24,16 +24,14 @@ class Certificate
     signing_key_id == key_id
   end
 
-  def valid?(certificate_store)
-    !expired? && (
-      trusted_root? ||
-      !self_signed? && !revoked? && signature_verified?(certificate_store)
-    )
+  def valid?
+    !expired? &&
+      (trusted_root? || !self_signed? && !revoked? && signature_verified?)
   end
 
   # :reek:UtilityFunction
-  def signature_verified?(certificate_store)
-    signing_cert = certificate_store[signing_key_id]
+  def signature_verified?
+    signing_cert = CertificateStore.instance[signing_key_id]
     signing_cert && verify(signing_cert.public_key)
   end
 
@@ -51,9 +49,45 @@ class Certificate
     get_extension('authorityKeyIdentifier')&.sub(/^keyid:/, '')&.chomp&.upcase
   end
 
+  def token
+    if valid?
+      token_for_valid_certificate
+    else
+      token_for_invalid_certificate
+    end
+  end
+
   # :reek:UtilityFunction
   def get_extension(oid)
     extension = @x509_cert.extensions.detect { |record| record.oid == oid }
     extension&.value
+  end
+
+  private
+
+  # :reek:UtilityFunction
+  def token_for_valid_certificate
+    subject_s = subject.to_s(OpenSSL::X509::Name::RFC2253)
+    piv = PivCac.find_or_create_by(dn: subject_s)
+    TokenService.box(
+      subject: subject_s,
+      uuid: piv.uuid
+    )
+  end
+
+  # :reek:UtilityFunction
+  def token_for_invalid_certificate
+    # figure out the reason for being invalid
+    reason = if !signature_verified?
+               'unverified'
+             elsif revoked?
+               'revoked'
+             elsif expired?
+               'expired'
+             else
+               'invalid'
+             end
+
+    TokenService.box(error: "certificate.#{reason}")
   end
 end

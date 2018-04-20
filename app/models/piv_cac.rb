@@ -15,6 +15,15 @@ class PivCac < ApplicationRecord
   end
 
   class << self
+    def find_or_create_by(opts = {})
+      dn = opts[:dn]
+      if dn
+        super(opts.except(:dn).merge(dn_signature: make_dn_signature(dn)))
+      else
+        super
+      end
+    end
+
     def find_by(opts = {})
       dn = opts[:dn]
       if dn
