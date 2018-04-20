@@ -5,6 +5,13 @@ RSpec.describe CertificateRevocation, type: :model do
 
   subject { revocation }
 
-  it { is_expected.to validate_uniqueness_of(:serial).scoped_to(:certificate_id).case_insensitive }
-  it { is_expected.to validate_presence_of(:certificate) }
+  it do
+    is_expected.to(
+      validate_uniqueness_of(:serial).
+      scoped_to(:certificate_authority_id).
+      case_insensitive
+    )
+  end
+
+  it { is_expected.to validate_presence_of(:certificate_authority) }
 end

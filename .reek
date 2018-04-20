@@ -3,10 +3,14 @@ Attribute:
   enabled: false
 IrresponsibleModule:
   enabled: false
+NilCheck:
+  enabled: false
 'spec':
   DuplicateMethodCall:
     enabled: false
   FeatureEnvy:
+    enabled: false
+  NestedIterators:
     enabled: false
   TooManyInstanceVariables:
     enabled: false

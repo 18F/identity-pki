@@ -5,9 +5,10 @@ ruby '~> 2.3.5'
 
 gem 'rails', '~> 5.1.5'
 
+gem 'figaro'
 gem 'pg'
-
 gem 'puma', '~> 3.7'
+gem 'rgl'
 
 group :development, :test do
   gem 'bullet'
