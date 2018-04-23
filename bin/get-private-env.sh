@@ -15,8 +15,7 @@ usage: $BASENAME
 
 Print the directory containing environment-specific variables. Clone the
 private repo containing these variables if it doesn't exist. Within this
-directory, the caller should source '\$ENV.sh' if it exists, or potentially
-fall back to 'default.sh' if it doesn't.
+directory, the caller should source '\$ENV.sh'.
 
 LOCATION OF PRIVATE REPO:
 
@@ -35,6 +34,8 @@ Set SKIP_GIT_PULL=1 in your environment to skip the automatic git pull.
 EOM
     exit 1
 fi
+
+SENTINEL_ENV_NAME=prod
 
 SKIP_GIT_CLONE="${SKIP_GIT_CLONE-}"
 SKIP_GIT_PULL="${SKIP_GIT_PULL-}"
@@ -159,8 +160,9 @@ check_maybe_clone_private_repo "$private_path"
 
 git_pull "$private_path"
 
-if [ ! -e "$private_path/env/default.sh" ]; then
-    echo >&2 "Somehow $private_path/env/default.sh is missing!"
+# assume there should be an env called prod or else bail out
+if [ ! -e "$private_path/env/$SENTINEL_ENV_NAME.sh" ]; then
+    echo >&2 "Somehow $private_path/env/$SENTINEL_ENV_NAME.sh is missing!"
     exit 3
 fi
 

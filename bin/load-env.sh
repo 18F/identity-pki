@@ -150,13 +150,9 @@ if [ -e "$env_specific_path" ]; then
     . "$env_specific_path"
 else
     log "No env-specific vars file found: ($TF_VAR_env_name.sh)"
-    echo_yellow >&2 "Using default variables from default.sh"
-    echo_yellow >&2 "You may wish to create $TF_VAR_env_name.sh in $ID_ENV_DIR"
-
-    log "Sourcing default private env vars."
-    log "Path: '$ID_ENV_DIR/default.sh'"
-    # shellcheck source=/dev/null
-    . "$ID_ENV_DIR/default.sh"
+    echo_red >&2 "Unknown environment: '$TF_VAR_env_name'"
+    echo_red >&2 "Please create env file $TF_VAR_env_name.sh in $ID_ENV_DIR"
+    return 4 2>/dev/null || exit 4
 fi
 
 enforce_environment_compat_version || return 4 2>/dev/null || exit 4
