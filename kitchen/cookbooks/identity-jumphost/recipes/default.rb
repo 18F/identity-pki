@@ -7,11 +7,6 @@
 # All rights reserved - Do Not Redistribute
 #
 
-# Install AWS cli (duplicates 'provision.sh')
-package 'python2.7'
-package 'python-pip'
-execute 'pip install awscli'
-
 # Install postgresql-client so that Redshift may be reached from the jumphost
 package 'postgresql-client-9.5'
 
