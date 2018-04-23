@@ -40,8 +40,7 @@ resource "aws_elb" "jumphost" {
 
 resource "aws_route53_record" "jumphost-elb-internal" {
   zone_id = "${aws_route53_zone.internal.zone_id}"
-  # temporary, avoid name collision with non-asg till fully deprecated
-  name    = "jumphost-elb"
+  name    = "jumphost"
   type  = "A"
   alias = {
     name    = "${aws_elb.jumphost.dns_name}"
@@ -52,8 +51,7 @@ resource "aws_route53_record" "jumphost-elb-internal" {
 
 resource "aws_route53_record" "jumphost-elb-public" {
   zone_id = "${var.route53_id}"
-  # temporary, avoid name collision with non-asg till fully deprecated
-  name  = "jumphost-elb.${var.env_name}"
+  name  = "jumphost.${var.env_name}"
   type  = "A"
   alias = {
     name    = "${aws_elb.jumphost.dns_name}"
