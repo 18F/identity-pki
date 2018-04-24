@@ -41,7 +41,3 @@ output "idp_db_address" {
 output "jumphost-eip" {
   value = "${var.non_asg_jumphost_enabled == 1 ? aws_eip.jumphost.public_ip : 0}"
 }
-
-output "jumphost-command" {
-  value = "ssh -L3128:localhost:3128 -A ${var.non_asg_jumphost_enabled == 1 ? aws_eip.jumphost.public_ip : 0}"
-}
