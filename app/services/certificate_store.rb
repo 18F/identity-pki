@@ -3,6 +3,8 @@ require 'rgl/dijkstra'
 require 'rgl/adjacency'
 
 class CertificateStore
+  include Singleton
+
   END_CERTIFICATE = "\n-----END CERTIFICATE-----\n".freeze
 
   extend Forwardable
@@ -10,6 +12,15 @@ class CertificateStore
   def initialize
     @certificates = {}
     @graph = RGL::DirectedAdjacencyGraph.new
+  end
+
+  def reset
+    @certificates = {}
+    @graph = RGL::DirectedAdjacencyGraph.new
+  end
+
+  def self.reset
+    instance.reset
   end
 
   def_delegators :@certificates, :[], :count, :empty?
@@ -53,10 +64,6 @@ class CertificateStore
     )
   end
 
-  def valid?(cert)
-    cert&.valid?(self)
-  end
-
   def delete(key)
     @graph.remove_vertex(key)
     @certificates.delete(key)
@@ -69,7 +76,7 @@ class CertificateStore
   end
 
   def all_certificates_valid?
-    @certificates.values.all?(&method(:valid?))
+    @certificates.values.all?(&:valid?)
   end
 
   class << self
@@ -92,9 +99,8 @@ class CertificateStore
     #   we map each key to the result of deleting it, if we delete it
     #   `delete` returns non-nil, which we then use `any?` to detect
     # The goal is to return a truthy value if we deleted anything.
-    (@certificates.keys - trusted_ca_root_identifiers).map do |key|
-      delete(key) unless valid?(@certificates[key])
-    end.any?
+    swept = @certificates.values.reject(&:trusted_root?).reject(&:valid?)
+    swept.map(&:key_id).map(&method(:delete)).any?
   end
 
   def extract_certs(raw)
