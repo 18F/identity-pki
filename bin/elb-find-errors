@@ -1,0 +1,195 @@
+#!/usr/bin/env ruby
+
+require 'csv'
+require 'optparse'
+
+# ALB log format:
+# https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-access-logs.html
+ALB_FIELDS = %w[
+  type
+  timestamp
+  elb
+  client:port
+  target:port
+  request_processing_time
+  target_processing_time
+  response_processing_time
+  elb_status_code
+  target_status_code
+  received_bytes
+  sent_bytes
+  request
+  user_agent
+  ssl_cipher
+  ssl_protocol
+  target_group_arn
+  trace_id
+  domain_name
+  chosen_cert_arn
+  matched_rule_priority
+].freeze
+
+ALB_INDEX_MAP = {}
+ALB_FIELDS.each_with_index do |field, index|
+  ALB_INDEX_MAP[field] = index
+end
+ALB_FIELDS.freeze
+
+RE_ALL_5XX = /\A5/
+RE_500 = /\A500/
+
+def find_errors(filename, only_elb_errors: false, only_target_errors: false,
+                status_code_re: RE_ALL_5XX)
+
+  if only_elb_errors && only_target_errors
+    raise ArgumentError.new('Cannot pass both only_elb_errors and only_target_errors')
+  end
+
+  # find both types by default
+  elb_errors = true
+  target_errors = true
+
+  target_errors = false if only_elb_errors
+  elb_errors = false if only_target_errors
+
+  STDERR.puts('Processing ' + filename.inspect)
+
+  found_count = 0
+  total_count = 0
+
+  # Treat file as a CSV but with " " instead of ","
+  # This allows us to handle the double quoted fields correctly.
+  CSV.open(filename, 'r', col_sep: ' ').each do |row|
+    total_count += 1
+
+    if elb_errors
+      elb_status_code = row.fetch(ALB_INDEX_MAP.fetch('elb_status_code'))
+      if status_code_re.match(elb_status_code)
+        found_count += 1
+        yield row
+        next
+      end
+    end
+    if target_errors
+      target_status_code = row.fetch(
+        ALB_INDEX_MAP.fetch('target_status_code')
+      )
+      if status_code_re.match(target_status_code)
+        found_count += 1
+        yield row
+        next
+      end
+    end
+  end
+
+  [found_count, total_count]
+end
+
+def process_files(filenames, find_errors_opts: {})
+  files_with_errors = []
+  files_without_errors = []
+
+  sum_found_count = 0
+  sum_total_count = 0
+
+  filenames.each do |file|
+    found_count, total_count = find_errors(file, **find_errors_opts) do |row|
+      puts row.join(' ')
+    end
+
+    sum_found_count += found_count
+    sum_total_count += total_count
+
+    if found_count > 0
+      files_with_errors << file
+    else
+      files_without_errors << file
+    end
+  end
+
+  if sum_total_count > 0
+    found_pct = (100.0 * sum_found_count / sum_total_count).round
+  else
+    found_pct = 0
+  end
+
+  STDERR.puts('Summary:')
+  STDERR.puts("#{sum_found_count} errors among #{sum_total_count} requests (#{found_pct}%)")
+  STDERR.puts('Files with no errors:')
+  files_without_errors.each { |f| STDERR.puts '  ' + f }
+  STDERR.puts('Files with errors:')
+  files_with_errors.each { |f| STDERR.puts '  ' + f }
+end
+
+def main(args)
+  options = {find_errors_opts: {}}
+
+  basename = File.basename($0)
+
+  optparse = OptionParser.new do |opts|
+    opts.banner = <<-EOM
+usage: #{basename} [OPTIONS] LOG_FILE...
+
+Look for HTTP 5xx errors in specified uncompressed ALB LOG_FILEs.
+
+By default, look for 5xx errors in either elb_status_code or
+target_status_code. Use options to filter this more narrowly.
+
+Stream each error log line found to stdout.
+
+When finished, print a summary to stderr showing which files contain errors and
+the overall error rate.
+
+https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-access-logs.html
+Parsed log file fields:
+  #{ALB_FIELDS.join(' ')}
+
+This script only handles uncompressed log files, so you will probably need to
+run gunzip *.log.gz first.
+
+For example:
+
+  # Find HTTP 5xx errors from any source
+  #{basename} *.log
+
+  # Find HTTP 500 errors served by ALB only (like WAF issues)
+  #{basename} --elb-errors --500 *.log
+
+  # Find HTTP 5xx errors served by backend Target Group only
+  #{basename} --target-errors *.log
+
+Options:
+EOM
+
+    opts.on('-h', '--help', 'Display this message') do
+      STDERR.puts opts
+      exit
+    end
+
+    opts.on('-e', '--elb-errors', 'Find only errors in elb_status_code') do
+      options[:find_errors_opts][:only_elb_errors] = true
+    end
+
+    opts.on('-t', '--target-errors',
+            'Find only errors in target_status_code') do
+      options[:find_errors_opts][:only_target_errors] = true
+    end
+
+    opts.on('--500', 'Find only HTTP 500 errors, not 5xx') do
+      options[:find_errors_opts][:status_code_re] = RE_500
+    end
+  end
+
+  args = optparse.parse!
+
+  if args.empty?
+    STDERR.puts optparse
+    exit 1
+  end
+
+  process_files(args, find_errors_opts: options.fetch(:find_errors_opts))
+end
+
+if $0 == __FILE__
+  main(ARGV)
+end
