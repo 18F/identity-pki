@@ -59,7 +59,7 @@ resource "aws_autoscaling_group" "elasticsearch" {
     launch_configuration = "${aws_launch_configuration.elasticsearch.name}"
 
     min_size = 0
-    max_size = 8
+    max_size = 32
     desired_capacity = "${var.asg_elasticsearch_desired}"
 
     vpc_zone_identifier = ["${aws_subnet.elasticsearch.*.id}"]
