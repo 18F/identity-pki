@@ -151,20 +151,6 @@ application release_path do
     ]
     user 'root'
     environment(deploy_script_environment)
-
-    # TODO delete condition once deploy/build exists
-    only_if { File.exist?('/srv/idp/releases/chef/deploy/build') }
-  end
-
-  # install and build javascript dependencies
-  # TODO move this into deploy/build
-  ['npm install', 'npm run build'].each do |cmd|
-    execute "#{cmd}" do
-      # creates node_path
-      cwd '/srv/idp/releases/chef'
-
-      not_if { File.exist?('/srv/idp/releases/chef/deploy/build') }
-    end
   end
 
   # Run the activate script from the repo, which is used to download app
@@ -185,23 +171,12 @@ application release_path do
     precompile_assets false
   end
 
-  # TODO: move this into deploy/build
-  execute %W{#{ruby_bin_dir}/bundle exec rake assets:precompile} do
-    cwd '/srv/idp/releases/chef'
-    environment({ 'PATH' => ruby_build_path, 'RAILS_ENV' => 'production' })
-
-    not_if { File.exist?('/srv/idp/releases/chef/deploy/build-post-config') }
-  end
-
   execute 'deploy build-post-config step' do
     cwd '/srv/idp/releases/chef'
     command './deploy/build-post-config'
     user node['login_dot_gov']['system_user']
     group node['login_dot_gov']['system_user']
     environment(deploy_script_environment)
-
-    # TODO delete condition once deploy/build-post-config exists
-    only_if { File.exist?('/srv/idp/releases/chef/deploy/build-post-config') }
   end
 
   # TODO: don't chown /usr/local/src
@@ -215,13 +190,27 @@ application release_path do
     environment(deploy_script_environment)
   end
 
-  # TODO move this logic into idp in deploy/activate or deploy/migrate
+  execute 'deploy migrate step' do
+    cwd '/srv/idp/releases/chef'
+    command './deploy/migrate'
+    user node['login_dot_gov']['system_user']
+    group node['login_dot_gov']['system_user']
+    environment(deploy_script_environment)
+
+    # TODO delete condition once deploy/migrate exists
+    only_if { File.exist?('/srv/idp/releases/chef/deploy/migrate') }
+  end
+
+  # TODO remove this once the deploy/migrate script has been merged in
+  # the identity-idp repo
   execute %W{#{ruby_bin_dir}/bundle exec rake db:create db:migrate db:seed --trace} do
     cwd '/srv/idp/releases/chef'
     environment({
       'RAILS_ENV' => "production"
     })
     not_if { node['login_dot_gov']['setup_only'] }
+
+    not_if { File.exist?('/srv/idp/releases/chef/deploy/migrate') }
   end
 
   if File.exist?("/etc/init.d/passenger")
