@@ -1,0 +1,71 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+
+require 'bundler/setup'
+require_relative '../lib/cloudlib'
+
+require 'terminal-table'
+
+def log
+  Cloudlib.cli_log
+end
+
+def main(args)
+
+  scale_in_options = {}
+
+  basename = File.basename($0)
+
+  optparse = OptionParser.new do |opts|
+    opts.banner = <<-EOM
+usage: #{basename} [OPTIONS] ENV ROLE
+
+Remove scale-in protection from older servers in the Auto Scaling Group named
+<ENV>-<ROLE> sufficient to reduce server count to the ASG's desired capacity.
+
+For example:
+
+  # Remove scale-in protection from old staging jumphosts
+  #{basename} staging jumphost
+
+Options:
+    EOM
+
+    opts.on('-h', '--help', 'Display this message') do
+      STDERR.puts opts
+      exit
+    end
+
+    opts.on('-v', '--verbose', 'Be more verbose') do
+      Cloudlib.log_level -= 1 if Cloudlib.log_level > 0
+    end
+
+    opts.on('-q', '--quiet', 'Be quieter (can pass multiple times)') do
+      Cloudlib.log_level += 1
+    end
+
+    opts.on('-f', '--force', "Don't interactively prompt for confirmation") do
+      scale_in_options[:prompt_continue] = false
+    end
+  end
+
+  args = optparse.parse!
+
+  if args.length != 2
+    STDERR.puts optparse
+    exit 1
+  end
+
+  asg_name = "#{args.fetch(0)}-#{args.fetch(1)}"
+
+  log.info("Finding older servers in #{asg_name} to remove scale-in protection")
+
+  Cloudlib::AutoScaling.new.scale_in_old_instances(asg_name, **scale_in_options)
+
+  log.info('All done')
+end
+
+if __FILE__ == $0
+  main(ARGV)
+end

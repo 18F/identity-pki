@@ -3,4 +3,5 @@ module Cloudlib
   class Error < ::StandardError; end
   class ManyFound < Error; end
   class NotFound < Error; end
+  class UnsafeError < Error; end
 end
