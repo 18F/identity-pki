@@ -315,3 +315,21 @@ log_stream_name = {hostname}
 initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/srv/sp-sinatra/shared/log/production.log
 time_zone = UTC
+
+[clamavlog]
+datetime_format = %b %d %H:%M:%S %Y
+file = /var/log/clamav/clamav.log
+buffer_duration = 5000
+log_stream_name = {hostname}
+initial_position = start_of_file
+log_group_name = <%= @environmentName %>_/var/log/clamav/clamav.log
+time_zone = UTC
+
+[freshclamlog]
+datetime_format = %b %d %H:%M:%S %Y
+file = /var/log/clamav/freshclam.log
+buffer_duration = 5000
+log_stream_name = {hostname}
+initial_position = start_of_file
+log_group_name = <%= @environmentName %>_/var/log/clamav/freshclam.log
+time_zone = UTC
