@@ -261,6 +261,11 @@ resource "aws_s3_bucket" "parquet_export_bucket" {
     Name = "login-gov-${var.env_name}-analytics-parquet"
   }
 
+  logging {
+    target_bucket = "login-gov-s3bucket-access-logging"
+    target_prefix = "login-gov-${var.env_name}-analytics-parquet/"
+  }
+
   lifecycle {
     prevent_destroy = true
   }
@@ -271,6 +276,11 @@ resource "aws_s3_bucket" "analytics_export_bucket" {
 
   tags {
     Name = "login-gov-${var.env_name}-analytics-hot"
+  }
+  
+  logging {
+    target_bucket = "login-gov-s3bucket-access-logging"
+    target_prefix = "login-gov-${var.env_name}-analytics-hot/"
   }
 
   lifecycle {
@@ -291,6 +301,11 @@ resource "aws_s3_bucket" "redshift_logs_bucket" {
 
   lifecycle {
     prevent_destroy = true
+  }
+
+  logging {
+    target_bucket = "login-gov-s3bucket-access-logging"
+    target_prefix = "login-gov-${var.env_name}-analytics-logs/"
   }
 
   lifecycle_rule {
