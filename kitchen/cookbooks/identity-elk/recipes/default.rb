@@ -178,7 +178,7 @@ git '/usr/share/logstash-codec-cloudtrail' do
   revision "v#{node['elk']['logstash-codec-cloudtrail-version']}"
 end
 
-execute "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/gem build logstash-codec-cloudtrail.gemspec" do
+execute "#{node.fetch('login_dot_gov').fetch('default_ruby_path')}/bin/gem build logstash-codec-cloudtrail.gemspec" do
   cwd '/usr/share/logstash-codec-cloudtrail'
 end
 
@@ -575,7 +575,7 @@ git '/usr/share/logstash-input-cloudwatch_logs' do
   revision "v#{node['elk']['logstash-input-cloudwatch-logs-version']}"
 end
 
-execute "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/gem build logstash-input-cloudwatch_logs.gemspec" do
+execute "#{node.fetch('login_dot_gov').fetch('default_ruby_path')}/bin/gem build logstash-input-cloudwatch_logs.gemspec" do
   cwd '/usr/share/logstash-input-cloudwatch_logs'
 end
 

@@ -16,7 +16,7 @@ nginx_path = node[:passenger][:production][:path]
 bash "install passenger/nginx" do
   user "root"
   code <<-EOH
-  /opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/passenger-install-nginx-module --auto --auto-download --prefix="#{nginx_path}" --extra-configure-flags="#{node[:passenger][:production][:configure_flags]}"
+  #{node.fetch('login_dot_gov').fetch('default_ruby_path')}/bin/passenger-install-nginx-module --auto --auto-download --prefix="#{nginx_path}" --extra-configure-flags="#{node[:passenger][:production][:configure_flags]}"
   EOH
   not_if "test -e #{nginx_path}"
   not_if "test -e /usr/local/rvm"
@@ -79,8 +79,8 @@ template "#{nginx_path}/conf/nginx.conf" do
   sensitive true
   variables(
     :log_path => log_path,
-    :passenger_root => "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/lib/ruby/gems/2.3.0/gems/passenger-#{node[:passenger][:production][:version]}",
-    :ruby_path => "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/ruby",
+    :passenger_root => "#{node.fetch('login_dot_gov').fetch('default_ruby_path')}/lib/ruby/gems/2.3.0/gems/passenger-#{node[:passenger][:production][:version]}",
+    :ruby_path => "#{node.fetch('login_dot_gov').fetch('default_ruby_path')}/bin/ruby",
     :passenger => node[:passenger][:production],
     :pidfile => "/var/run/nginx.pid",
     :passenger_user => node[:passenger][:production][:user]

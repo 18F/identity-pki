@@ -37,7 +37,7 @@ branch_name = node.fetch('login_dot_gov').fetch('branch_name', "stages/#{node.ch
   end
 end
 
-ruby_bin_dir = "/opt/ruby_build/builds/#{node.fetch('login_dot_gov').fetch('ruby_version')}/bin"
+ruby_bin_dir = "#{node.fetch('login_dot_gov').fetch('default_ruby_path')}/bin"
 ruby_build_path = [
   ruby_bin_dir,
   ENV.fetch('PATH'),
@@ -52,7 +52,7 @@ deploy_script_environment = {
 deploy "/srv/#{app_name}" do
   action :deploy
   before_symlink do
-    cmd = "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle install --deployment --jobs 3 --path /srv/#{app_name}/shared/bundle --without deploy development test"
+    cmd = "#{node.fetch('login_dot_gov').fetch('default_ruby_path')}/bin/bundle install --deployment --jobs 3 --path /srv/#{app_name}/shared/bundle --without deploy development test"
     execute cmd do
       cwd release_path
       #user 'ubuntu'

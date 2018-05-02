@@ -15,7 +15,6 @@ default['login_dot_gov']['admin_email']                               = 'develop
 default['login_dot_gov']['app_names']                                 = []
 default['login_dot_gov']['dev_users']                                 = []
 default['login_dot_gov']['rails_env']                                 = 'production'
-default['login_dot_gov']['ruby_version']                              = '2.3.7'
 default['login_dot_gov']['system_user']                               = 'ubuntu'
 default['login_dot_gov']['fips']['version']                           = '2.0.16'
 default['login_dot_gov']['fips']['url']                               = "https://www.openssl.org/source/openssl-fips-#{default['login_dot_gov']['fips']['version']}.tar.gz"
@@ -28,6 +27,17 @@ default['login_dot_gov']['openssl']['checksum']                       = 'ec3f5c9
 default['login_dot_gov']['openssl']['configure_flags']                = %W[ shared ]
 
 default['login_dot_gov']['cache_dir']                                 = '/var/cache/chef'
+
+# rbenv settings, must reflect values set in identity-base-image for the
+# identity-ruby cookbook. (TODO remove all uses of default_ruby_version /
+# default_ruby_path and rely instead on rbenv exec)
+default['identity-ruby']['rbenv_root']                                = '/opt/ruby_build'
+default['login_dot_gov']['default_ruby_version']                      = '2.3.7'
+default['login_dot_gov']['default_ruby_path'] = [
+  default.fetch('identity-ruby').fetch('rbenv_root'),
+  'builds',
+  default.fetch('login_dot_gov').fetch('default_ruby_version')
+].join('/')
 
 # Allocate a static EIP on startup for auto scaled instances that have one of
 # these as their primary role (e.g. 'worker', 'jumphost').

@@ -28,7 +28,7 @@ end
 deploy "/srv/#{app_name}" do
   action :deploy
   before_symlink do
-    cmd = "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle install --deployment --jobs 3 --path /srv/#{app_name}/shared/bundle --without deploy development test"
+    cmd = "#{node.fetch('login_dot_gov').fetch('default_ruby_path')}/bin/bundle install --deployment --jobs 3 --path /srv/#{app_name}/shared/bundle --without deploy development test"
     execute cmd do
       cwd release_path
       #user 'ubuntu'

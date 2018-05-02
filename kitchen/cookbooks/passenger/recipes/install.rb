@@ -3,7 +3,7 @@
 # Recipe:: install
 
 gem_package "passenger/system" do
-  gem_binary "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/gem"
+  gem_binary "#{node.fetch('login_dot_gov').fetch('default_ruby_path')}/bin/gem"
   not_if "test -e /usr/local/bin/rvm-gem.sh"
   package_name 'passenger'
   version node[:passenger][:production][:version]

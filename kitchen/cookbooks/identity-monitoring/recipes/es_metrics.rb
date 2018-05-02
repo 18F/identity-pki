@@ -2,7 +2,7 @@
 # Run this recipe on ES nodes.
 
 gem_package "elasticsearch" do
-  gem_binary "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/gem"
+  gem_binary "#{node.fetch('login_dot_gov').fetch('default_ruby_path')}/bin/gem"
 end
 
 es_health_path = "/#{Chef::Config['file_cache_path']}/es_health"
@@ -10,7 +10,7 @@ es_health_path = "/#{Chef::Config['file_cache_path']}/es_health"
 template es_health_path do
   mode '0755'
   variables ({
-    :ruby => "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/ruby"
+    :ruby => "#{node.fetch('login_dot_gov').fetch('default_ruby_path')}/bin/ruby"
   })
 end
 

@@ -101,9 +101,10 @@ deploy "#{base_dir}" do
     end
 
     cmds = [
-      "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle config build.nokogiri --use-system-libraries",
-      "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle install --deployment --jobs 3 --path #{base_dir}/shared/bundle --without deploy development test",
-      "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle exec rake assets:precompile",
+      # TODO switch to rbenv
+      "#{node.fetch('login_dot_gov').fetch('default_ruby_path')}/bin/bundle config build.nokogiri --use-system-libraries",
+      "#{node.fetch('login_dot_gov').fetch('default_ruby_path')}/bin/bundle install --deployment --jobs 3 --path #{base_dir}/shared/bundle --without deploy development test",
+      "#{node.fetch('login_dot_gov').fetch('default_ruby_path')}/bin/bundle exec rake assets:precompile",
     ]
 
     cmds.each do |cmd|
@@ -135,7 +136,7 @@ deploy "#{base_dir}" do
   #user 'ubuntu'
 end
 
-execute "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle exec rake db:create db:migrate --trace" do
+execute "#{node.fetch('login_dot_gov').fetch('default_ruby_path')}/bin/bundle exec rake db:create db:migrate --trace" do
   cwd "#{base_dir}/current"
   environment({
     'RAILS_ENV' => "production"

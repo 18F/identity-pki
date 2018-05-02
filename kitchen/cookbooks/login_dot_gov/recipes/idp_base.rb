@@ -70,7 +70,8 @@ shared_dirs.each do |dir|
   end
 end
 
-ruby_bin_dir = "/opt/ruby_build/builds/#{node.fetch('login_dot_gov').fetch('ruby_version')}/bin"
+# TODO: switch to rbenv
+ruby_bin_dir = "#{node.fetch('login_dot_gov').fetch('default_ruby_path')}/bin"
 ruby_build_path = [
   ruby_bin_dir,
   ENV.fetch('PATH'),
@@ -87,7 +88,6 @@ deploy_script_environment = {
 application release_path do
   owner node['login_dot_gov']['system_user']
   group node['login_dot_gov']['system_user']
-  #ruby node['login_dot_gov']['ruby_version']
 
   # branch is defined as an attribute or defaults to stages/<env>
   branch_name = node['login_dot_gov']['branch_name'] || "stages/#{node.chef_environment}"
@@ -178,9 +178,6 @@ application release_path do
     group node['login_dot_gov']['system_user']
     environment(deploy_script_environment)
   end
-
-  # TODO: don't chown /usr/local/src
-  execute 'chown -R ubuntu /home/ubuntu/.bundle /usr/local/src'
 
   execute 'newrelic log deploy' do
     cwd '/srv/idp/releases/chef'
@@ -275,8 +272,5 @@ shared_files = [
 shared_files.each do |file|
   execute "ln -fns /srv/idp/shared/#{file} /srv/idp/releases/chef/#{file}" unless node['login_dot_gov']['setup_only']
 end
-
-# TODO: don't do this chown
-execute "chown -R #{node['login_dot_gov']['system_user']}:nogroup /srv"
 
 execute "mount -o remount,noexec,nosuid,nodev /tmp"
