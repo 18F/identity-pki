@@ -15,7 +15,13 @@ default['login_dot_gov']['admin_email']                               = 'develop
 default['login_dot_gov']['app_names']                                 = []
 default['login_dot_gov']['dev_users']                                 = []
 default['login_dot_gov']['rails_env']                                 = 'production'
-default['login_dot_gov']['system_user']                               = 'ubuntu'
+
+# User for installing various application data
+default['login_dot_gov']['system_user']                               = 'appdata'
+
+# User for serving actual HTTP requests
+default['login_dot_gov']['web_system_user']                           = 'websrv'
+
 default['login_dot_gov']['fips']['version']                           = '2.0.16'
 default['login_dot_gov']['fips']['url']                               = "https://www.openssl.org/source/openssl-fips-#{default['login_dot_gov']['fips']['version']}.tar.gz"
 default['login_dot_gov']['fips']['checksum']                          = 'a3cd13d0521d22dd939063d3b4a0d4ce24494374b91408a05bdaca8b681c63d4'
