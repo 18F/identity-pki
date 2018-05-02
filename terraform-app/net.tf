@@ -489,11 +489,20 @@ resource "aws_security_group" "jumphost" {
   # allow analytics redshift cluster to get into jumphost.
   # 127.0.0.1/32 is used as a meaningless default CIDR block in case
   # var.env_name is not a valid key to the redshift_cidr_block map.
+  # TODO: remove this once peering connection is fully set up
   egress {
     from_port = 5439
     to_port = 5439
     protocol = "tcp"
     cidr_blocks = ["${lookup(var.redshift_cidr_block, var.env_name, "127.0.0.1/32")}"]
+  }
+
+  # Allow egress to redshift in analytics VPC through peering connection
+  egress {
+    from_port = 5439
+    to_port = 5439
+    protocol = "tcp"
+    security_groups = ["${var.analytics_redshift_security_group_id}"]
   }
 
   # need 80/443 to get packages/gems/etc
@@ -940,7 +949,8 @@ resource "aws_vpc" "default" {
   enable_dns_hostnames = true
 
   tags {
-   client = "${var.client}"
-   Name = "${var.name}-vpc-${var.env_name}"
+    client = "${var.client}"
+    Name = "${var.name}-vpc-${var.env_name}"
   }
 }
+

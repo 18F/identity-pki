@@ -51,6 +51,24 @@ variable "redshift_cidr_block" {
     prod = "34.214.226.68/32"
   }
 }
+
+variable "analytics_vpc_peering_enabled" {
+    description = "Whether to enable VPC peering with the analytics VPC. Set this to 1 once it exists."
+    default = 0
+}
+variable "analytics_cidr_block" {
+    description = "Analytics VPC CIDR block"
+    default = ""
+}
+variable "analytics_vpc_id" {
+    description = "Analytics VPC ID for peer side of connection"
+    default = ""
+}
+variable "analytics_redshift_security_group_id" {
+    description = "Security group ID of redshift in the peered analytics VPC"
+    default = ""
+}
+
 # CIDR block that is carved up for both the ASG elasticsearch instances and the
 # elasticsearch ELBs.
 # Range: 172.16.32.128 -> 172.16.32.191
