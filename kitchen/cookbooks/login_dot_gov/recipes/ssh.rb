@@ -1,3 +1,5 @@
+include_recipe 'login_dot_gov::system_users'
+
 known_hosts = [
   '# dropped off by chef',
   '# https://help.github.com/articles/github-s-ssh-key-fingerprints/',

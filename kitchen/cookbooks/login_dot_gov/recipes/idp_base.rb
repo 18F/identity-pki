@@ -44,8 +44,8 @@ directory shared_path do
 end
 
 directory '/home/ubuntu/.bundle' do
-  owner node['login_dot_gov']['system_user']
-  group node['login_dot_gov']['system_user']
+  owner 'ubuntu'
+  group 'ubuntu'
   recursive true
 end
 

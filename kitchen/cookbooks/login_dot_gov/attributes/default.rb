@@ -17,7 +17,7 @@ default['login_dot_gov']['dev_users']                                 = []
 default['login_dot_gov']['rails_env']                                 = 'production'
 
 # User for installing various application data
-default['login_dot_gov']['system_user']                               = 'appdata'
+default['login_dot_gov']['system_user']                               = 'appinstall'
 
 # User for serving actual HTTP requests
 default['login_dot_gov']['web_system_user']                           = 'websrv'
