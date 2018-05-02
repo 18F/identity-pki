@@ -5,9 +5,13 @@ ConfigLoader = Chef::Recipe::ConfigLoader
 action :create do
   %w{certs keys config}.each do |dir|
     directory "/srv/idp/shared/#{dir}" do
-      group node['login_dot_gov']['system_user']
-      owner node['login_dot_gov']['system_user']
-      recursive true
+      owner node.fetch('login_dot_gov').fetch('system_user')
+      group node.fetch('login_dot_gov').fetch('web_system_user')
+
+      recursive false
+
+      # set group sticky bit so configs are readable by web_system_user group
+      mode '2755'
     end
   end
 
@@ -57,7 +61,8 @@ action :create do
       content ConfigLoader.load_config(node, keyfile)
       manage_symlink_source true
       subscribes :create, 'resource[git]', :immediately
-      user node['login_dot_gov']['system_user']
+      owner node.fetch('login_dot_gov').fetch('system_user')
+      group node.fetch('login_dot_gov').fetch('web_system_user')
       sensitive true
     end
   end
@@ -67,7 +72,8 @@ action :create do
     content ConfigLoader.load_config(node, "equifax_ssh_privkey")
     manage_symlink_source true
     subscribes :create, 'resource[git]', :immediately
-    user node['login_dot_gov']['system_user']
+    owner node.fetch('login_dot_gov').fetch('system_user')
+    group node.fetch('login_dot_gov').fetch('web_system_user')
     sensitive true
   end
 
@@ -76,7 +82,8 @@ action :create do
     content ConfigLoader.load_config(node, "equifax_gpg_public_key")
     manage_symlink_source true
     subscribes :create, 'resource[git]', :immediately
-    user node['login_dot_gov']['system_user']
+    owner node.fetch('login_dot_gov').fetch('system_user')
+    group node.fetch('login_dot_gov').fetch('web_system_user')
     sensitive true
   end
 end

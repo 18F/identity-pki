@@ -92,6 +92,7 @@ describe file('/srv/idp/current/config/application.yml') do
   it { should be_file }
   it { should_not be_symlink }
   it { should_not be_readable.by('others') }
+  it { should be_readable.by_user('websrv') }
   its('content') { should include('production:') }
   its('content') { should include('database_host') }
 end
