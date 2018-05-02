@@ -54,17 +54,15 @@ unless File.exist?(default_ruby_path + '/bin/ruby')
   raise "Cannot find default ruby executable at #{default_ruby_path + '/bin/ruby'} -- was it created in the base AMI?"
 end
 
-# TODO: probably shouldn't be setting anything except RBENV_ROOT in /etc/environment
-# add to users path
+# TODO: remove default_ruby_path and just rely on rbenv
 file '/etc/environment' do
   content <<-EOM
 # Dropped off by chef
-RBENV_ROOT='#{rbenv_root}'
-PATH="/opt/chef/bin:$RBENV_ROOT/shims:#{default_ruby_path}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
+# This is a static file (not script) used by PAM to set env variables.
+RBENV_ROOT=#{rbenv_root}
+PATH="/opt/chef/bin:#{rbenv_root}/shims:#{default_ruby_path}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
 
-DASHBOARD_LOG='/srv/dashboard/log/shared/production.log'
 RAILS_ENV=production
-SAML_ENV='#{node.chef_environment}' # TODO remove
   EOM
 end
 
