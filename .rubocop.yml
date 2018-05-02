@@ -1,0 +1,4 @@
+Style/NumericPredicate:
+  Exclude:
+    # incorrect recommendation for inspec files
+    - 'nodes/**/*.rb'
