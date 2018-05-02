@@ -83,7 +83,9 @@ end
 # Application configuration (application.yml)
 # TODO: don't generate YAML with erb, that's an antipattern
 file "#{base_dir}/shared/config/application.yml" do
-  owner node['login_dot_gov']['system_user']
+  owner node.fetch('login_dot_gov').fetch('system_user')
+  group node.fetch('login_dot_gov').fetch('web_system_user')
+  mode '0640'
   sensitive true
   content({'production' => dashboard_config}.to_yaml)
   subscribes :create, 'deploy[/srv/dashboard]', :immediately

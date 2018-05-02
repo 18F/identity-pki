@@ -65,8 +65,14 @@ shared_dirs = [
 
 shared_dirs.each do |dir|
   directory "#{shared_path}/#{dir}" do
-    owner node['login_dot_gov']['system_user']
-    recursive true
+    owner node.fetch('login_dot_gov').fetch('system_user')
+    recursive true # TODO: remove?
+
+    # Make log directory group writeable by web user
+    if dir == 'log'
+      group node.fetch('login_dot_gov').fetch('web_system_user')
+      mode '0775'
+    end
   end
 end
 
@@ -109,14 +115,16 @@ application release_path do
   end
 
   # custom resource to install the IdP config files (app.yml, saml.crt, saml.key)
-  login_dot_gov_idp_configs release_path do
+  login_dot_gov_idp_configs shared_path do
     not_if { node['login_dot_gov']['setup_only'] }
+    symlink_from release_path
   end
 
   # custom resource to configure new relic (newrelic.yml)
-  login_dot_gov_newrelic_config release_path do
+  login_dot_gov_newrelic_config shared_path do
     not_if { node['login_dot_gov']['setup_only'] }
     app_name "#{node.chef_environment}.#{node.fetch('login_dot_gov').fetch('domain_name')}"
+    symlink_from release_path
   end
 
   # TODO: remove all the build steps that have moved into deploy/build so that
@@ -171,6 +179,11 @@ application release_path do
     precompile_assets false
   end
 
+  # ensure application.yml is readable by web user
+  file '/srv/idp/releases/chef/config/application.yml' do
+    group node.fetch('login_dot_gov').fetch('web_system_user')
+  end
+
   execute 'deploy build-post-config step' do
     cwd '/srv/idp/releases/chef'
     command './deploy/build-post-config'
@@ -216,28 +229,18 @@ application release_path do
   end
 end
 
-# cp generated configs from chef to the shared dir
-app_config = {
-  '/srv/idp/releases/chef/config/experiments.yml' => '/srv/idp/shared/config/',
-  '/srv/idp/releases/chef/config/newrelic.yml' => '/srv/idp/shared/config/',
-  '/srv/idp/releases/chef/certs/saml.crt' => '/srv/idp/shared/certs/',
-  '/srv/idp/releases/chef/keys/saml.key.enc' => '/srv/idp/shared/keys/',
-  '/srv/idp/releases/chef/certs/saml2018.crt' => '/srv/idp/shared/certs/',
-  '/srv/idp/releases/chef/keys/saml2018.key.enc' => '/srv/idp/shared/keys/',
-  '/srv/idp/releases/chef/keys/equifax_rsa' => '/srv/idp/shared/keys/',
-  '/srv/idp/releases/chef/keys/equifax_gpg.pub' => '/srv/idp/shared/keys/'
-}
-app_config.keys.each do |config|
-  unless File.exist?(config) && File.symlink?(config) || node['login_dot_gov']['setup_only']
-    execute "cp #{config} #{app_config[config]}"
-  end
-end
-
 # create GPG binary key for use w/o importing
 execute "gpg --dearmor < /srv/idp/shared/keys/equifax_gpg.pub > /srv/idp/shared/keys/equifax_gpg.pub.bin"
+link "#{release_path}/keys/equifax_gpg.pub.bin" do
+  to "#{shared_path}/keys/equifax_gpg.pub.bin"
+  owner node.fetch('login_dot_gov').fetch('system_user')
+  group node.fetch('login_dot_gov').fetch('system_user')
+end
 
 # symlink chef release to current dir
-execute 'ln -fns /srv/idp/releases/chef/ /srv/idp/current'
+link '/srv/idp/current' do
+  to '/srv/idp/releases/chef'
+end
 
 # TODO rethink or remove these shared directory symlinks. This method of
 # sharing is brittle and has rather unclear value. It would be better for the
@@ -256,21 +259,3 @@ end
 (shared_dirs-['bin', 'certs', 'config', 'keys']).each do |dir|
   execute "ln -fns /srv/idp/shared/#{dir} /srv/idp/releases/chef/#{dir}" unless node['login_dot_gov']['setup_only']
 end
-
-# symlink shared files to current dir
-shared_files = [
-  'certs/saml.crt',
-  'certs/saml2018.crt',
-  'config/experiments.yml',
-  'config/newrelic.yml',
-  'keys/equifax_rsa',
-  'keys/equifax_gpg.pub.bin',
-  'keys/saml.key.enc',
-  'keys/saml2018.key.enc'
-]
-
-shared_files.each do |file|
-  execute "ln -fns /srv/idp/shared/#{file} /srv/idp/releases/chef/#{file}" unless node['login_dot_gov']['setup_only']
-end
-
-execute "mount -o remount,noexec,nosuid,nodev /tmp"

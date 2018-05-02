@@ -67,10 +67,6 @@ describe file('/opt/nginx/logs') do
   it { should be_linked_to '/var/log/nginx' }
 end
 
-describe file('/var/log/nginx/access.log') do
-  it { should exist }
-end
-
 # check deploy info file
 describe file('/srv/idp/current/public/api/deploy.json') do
   it { should be_file }
@@ -78,7 +74,6 @@ describe file('/srv/idp/current/public/api/deploy.json') do
   its('content') { should match(/^\s*"sha": "[0-9a-f]{40}"/) }
   its('content') { should match(/^\s*"git_sha": "[0-9a-f]{40}"/) }
 end
-
 
 describe file('/srv/idp/shared/config/application.yml') do
   it { should_not exist }
@@ -107,7 +102,20 @@ end
 # Ideally we would use the http() inspec resource, but it doesn't seem to work
 describe command('curl -Sfk -i https://localhost/api/health/database') do
   its('exit_status') { should eq 0 }
-  its('stdout') { should start_with("HTTP/1.1 200 OK") }
+  its('stdout') { should start_with('HTTP/1.1 200 OK') }
   its('stdout') { should include 'Content-Type: application/json' }
   its('stdout') { should include '"healthy":true' }
+end
+
+# make sure we're writing to production log
+describe file('/srv/idp/shared/log/production.log') do
+  it { should exist }
+  it { should be_file }
+  it { should_not be_symlink }
+  its(:size) { should > 0 }
+end
+
+describe file('/var/log/nginx/access.log') do
+  it { should exist }
+  its(:size) { should > 0 }
 end

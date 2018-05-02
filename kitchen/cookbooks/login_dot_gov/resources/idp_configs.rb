@@ -1,17 +1,14 @@
-property :name, String, default: '/srv/idp/shared'
+property :name, String
+
+property :symlink_from, String
 
 ConfigLoader = Chef::Recipe::ConfigLoader
 
 action :create do
   %w{certs keys config}.each do |dir|
-    directory "/srv/idp/shared/#{dir}" do
+    directory "#{name}/#{dir}" do
       owner node.fetch('login_dot_gov').fetch('system_user')
       group node.fetch('login_dot_gov').fetch('web_system_user')
-
-      recursive false
-
-      # set group sticky bit so configs are readable by web_system_user group
-      mode '2755'
     end
   end
 
@@ -63,6 +60,7 @@ action :create do
       subscribes :create, 'resource[git]', :immediately
       owner node.fetch('login_dot_gov').fetch('system_user')
       group node.fetch('login_dot_gov').fetch('web_system_user')
+      mode '0640'
       sensitive true
     end
   end
@@ -74,6 +72,7 @@ action :create do
     subscribes :create, 'resource[git]', :immediately
     owner node.fetch('login_dot_gov').fetch('system_user')
     group node.fetch('login_dot_gov').fetch('web_system_user')
+    mode '0640'
     sensitive true
   end
 
@@ -85,5 +84,24 @@ action :create do
     owner node.fetch('login_dot_gov').fetch('system_user')
     group node.fetch('login_dot_gov').fetch('web_system_user')
     sensitive true
+  end
+
+  # create symlinks if requested
+  if new_resource.symlink_from
+    [
+      'config/experiments.yml',
+      'certs/saml.crt',
+      'certs/saml2018.crt',
+      'keys/saml.key.enc',
+      'keys/saml2018.key.enc',
+      'keys/equifax_rsa',
+      'keys/equifax_gpg.pub',
+    ].each do |filename|
+      link "#{new_resource.symlink_from}/#{filename}" do
+        to "#{new_resource.name}/#{filename}"
+        owner node.fetch('login_dot_gov').fetch('system_user')
+        group node.fetch('login_dot_gov').fetch('system_user')
+      end
+    end
   end
 end

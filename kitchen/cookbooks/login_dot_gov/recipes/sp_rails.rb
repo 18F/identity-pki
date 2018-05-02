@@ -45,14 +45,18 @@ file "#{base_dir}/shared/config/secrets.yml" do
   manage_symlink_source true
   sensitive true
   subscribes :create, 'resource[git]', :immediately
-  user node['login_dot_gov']['system_user']
+  owner node.fetch('login_dot_gov').fetch('system_user')
+  group node.fetch('login_dot_gov').fetch('web_system_user')
+  mode '0640'
 
   content({'production' => sp_rails_config}.to_yaml)
 end
 
 # TODO: don't generate YAML with erb, that's an antipattern
 template "#{base_dir}/shared/config/database.yml" do
-  owner node['login_dot_gov']['system_user']
+  owner node.fetch('login_dot_gov').fetch('system_user')
+  group node.fetch('login_dot_gov').fetch('web_system_user')
+  mode '0640'
   sensitive true
   variables({
     database: 'sp_rails',

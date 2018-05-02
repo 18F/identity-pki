@@ -1,4 +1,6 @@
-property :name, String, default: '/srv/idp' # defaults to IdP path
+property :name, String
+
+property :symlink_from, String
 
 property :app_name, String, default: '<default_app_name>'
 
@@ -48,5 +50,14 @@ action :create do
         'proxy_port' => node['login_dot_gov']['proxy_port'],
       }
     }.to_yaml)
+  end
+
+  # create symlink if requested
+  if new_resource.symlink_from
+    link "#{new_resource.symlink_from}/config/newrelic.yml" do
+      to "#{new_resource.name}/config/newrelic.yml"
+      owner node.fetch('login_dot_gov').fetch('system_user')
+      group node.fetch('login_dot_gov').fetch('system_user')
+    end
   end
 end
