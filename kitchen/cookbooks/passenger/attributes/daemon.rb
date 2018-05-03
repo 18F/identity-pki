@@ -24,7 +24,7 @@ default[:passenger][:production][:worker_connections] = 1024
 default[:passenger][:production][:status_server] = true
 
 default[:passenger][:production][:version] = '5.0.30'
-default[:passenger][:production][:user] = 'nobody'
+default[:passenger][:production][:user] = 'websrv' # must match default['login_dot_gov']['web_system_user']
 
 # Allow our local /16 to proxy setting X-Forwarded-For
 # This is a little broad, but because we expect security group rules to prevent

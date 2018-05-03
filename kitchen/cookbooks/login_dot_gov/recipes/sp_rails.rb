@@ -1,4 +1,4 @@
-execute "mount -o remount,exec,nosuid,nodev /tmp"
+execute "mount -o remount,exec,nosuid,nodev /tmp" # TODO: remove post AMI rollout
 
 # setup postgres root config resource
 psql_config 'configure postgres root cert'
@@ -45,14 +45,18 @@ file "#{base_dir}/shared/config/secrets.yml" do
   manage_symlink_source true
   sensitive true
   subscribes :create, 'resource[git]', :immediately
-  user node['login_dot_gov']['system_user']
+  owner node.fetch('login_dot_gov').fetch('system_user')
+  group node.fetch('login_dot_gov').fetch('web_system_user')
+  mode '0640'
 
   content({'production' => sp_rails_config}.to_yaml)
 end
 
 # TODO: don't generate YAML with erb, that's an antipattern
 template "#{base_dir}/shared/config/database.yml" do
-  owner node['login_dot_gov']['system_user']
+  owner node.fetch('login_dot_gov').fetch('system_user')
+  group node.fetch('login_dot_gov').fetch('web_system_user')
+  mode '0640'
   sensitive true
   variables({
     database: 'sp_rails',
@@ -68,8 +72,8 @@ deploy "/srv/#{app_name}" do
   action :deploy
 
   before_symlink do
-    bundle = "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle install --deployment --jobs 3 --path #{base_dir}/shared/bundle --without deploy development test"
-    assets = "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle exec rake assets:precompile"
+    bundle = "#{node.fetch('login_dot_gov').fetch('default_ruby_path')}/bin/bundle install --deployment --jobs 3 --path #{base_dir}/shared/bundle --without deploy development test"
+    assets = "#{node.fetch('login_dot_gov').fetch('default_ruby_path')}/bin/bundle exec rake assets:precompile"
 
     [bundle, assets].each do |cmd|
       execute cmd do
@@ -96,7 +100,7 @@ deploy "/srv/#{app_name}" do
   #user 'ubuntu'
 end
 
-execute "/opt/ruby_build/builds/#{node['login_dot_gov']['ruby_version']}/bin/bundle exec rake db:create db:migrate db:seed --trace" do
+execute "#{node.fetch('login_dot_gov').fetch('default_ruby_path')}/bin/bundle exec rake db:create db:migrate db:seed --trace" do
   cwd "#{base_dir}/current"
   environment({
     'RAILS_ENV' => "production"
@@ -139,4 +143,4 @@ login_dot_gov_deploy_info "#{deploy_dir}/api/deploy.json" do
   branch branch_name
 end
 
-execute "mount -o remount,noexec,nosuid,nodev /tmp"
+execute "mount -o remount,noexec,nosuid,nodev /tmp" # TODO: remove post AMI rollout

@@ -1,13 +1,14 @@
-property :name, String, default: '/srv/idp/shared'
+property :name, String
+
+property :symlink_from, String
 
 ConfigLoader = Chef::Recipe::ConfigLoader
 
 action :create do
   %w{certs keys config}.each do |dir|
-    directory "/srv/idp/shared/#{dir}" do
-      group node['login_dot_gov']['system_user']
-      owner node['login_dot_gov']['system_user']
-      recursive true
+    directory "#{name}/#{dir}" do
+      owner node.fetch('login_dot_gov').fetch('system_user')
+      group node.fetch('login_dot_gov').fetch('web_system_user')
     end
   end
 
@@ -57,7 +58,9 @@ action :create do
       content ConfigLoader.load_config(node, keyfile)
       manage_symlink_source true
       subscribes :create, 'resource[git]', :immediately
-      user node['login_dot_gov']['system_user']
+      owner node.fetch('login_dot_gov').fetch('system_user')
+      group node.fetch('login_dot_gov').fetch('web_system_user')
+      mode '0640'
       sensitive true
     end
   end
@@ -67,7 +70,9 @@ action :create do
     content ConfigLoader.load_config(node, "equifax_ssh_privkey")
     manage_symlink_source true
     subscribes :create, 'resource[git]', :immediately
-    user node['login_dot_gov']['system_user']
+    owner node.fetch('login_dot_gov').fetch('system_user')
+    group node.fetch('login_dot_gov').fetch('web_system_user')
+    mode '0640'
     sensitive true
   end
 
@@ -76,7 +81,27 @@ action :create do
     content ConfigLoader.load_config(node, "equifax_gpg_public_key")
     manage_symlink_source true
     subscribes :create, 'resource[git]', :immediately
-    user node['login_dot_gov']['system_user']
+    owner node.fetch('login_dot_gov').fetch('system_user')
+    group node.fetch('login_dot_gov').fetch('web_system_user')
     sensitive true
+  end
+
+  # create symlinks if requested
+  if new_resource.symlink_from
+    [
+      'config/experiments.yml',
+      'certs/saml.crt',
+      'certs/saml2018.crt',
+      'keys/saml.key.enc',
+      'keys/saml2018.key.enc',
+      'keys/equifax_rsa',
+      'keys/equifax_gpg.pub',
+    ].each do |filename|
+      link "#{new_resource.symlink_from}/#{filename}" do
+        to "#{new_resource.name}/#{filename}"
+        owner node.fetch('login_dot_gov').fetch('system_user')
+        group node.fetch('login_dot_gov').fetch('system_user')
+      end
+    end
   end
 end

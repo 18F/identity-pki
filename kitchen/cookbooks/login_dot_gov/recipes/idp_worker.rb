@@ -11,7 +11,8 @@ end
 template '/etc/monit/conf.d/sidekiq_idp_production.conf' do
   notifies :restart, 'service[monit]', :immediately
   variables({
-    ruby_version: node['login_dot_gov']['ruby_version']
+    bundle_cmd_path: node.fetch('login_dot_gov').fetch('default_ruby_path') + '/bin/bundle',
+    system_user: node.fetch('login_dot_gov').fetch('web_system_user'),
   })
 end
 

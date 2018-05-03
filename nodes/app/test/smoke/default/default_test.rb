@@ -43,12 +43,23 @@ else
   end
 end
 
+# Make sure at least something is being served over HTTP
+# Ideally we would use the http() inspec resource, but it doesn't seem to work
+describe command('curl -Sfk -i https://localhost/') do
+  its('exit_status') { should eq 0 }
+  its('stdout') { should start_with('HTTP/1.1 200 OK') }
+  its('stdout') { should include 'Content-Type: text/html' }
+  its('stdout') { should include '<title>login.gov Dashboard</title>' }
+end
+
 describe file('/opt/nginx/logs') do
   it { should be_linked_to '/var/log/nginx' }
 end
 
+# Check that nginx access logs are working
 describe file('/var/log/nginx/access.log') do
   it { should exist }
+  its(:size) { should > 0 }
 end
 
 # TODO: actually test that sp-rails, dashboard, sp-sinatra, etc. are working

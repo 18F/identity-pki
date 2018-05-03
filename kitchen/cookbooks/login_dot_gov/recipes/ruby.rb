@@ -25,6 +25,7 @@ else
   basic_auth_user_name = ConfigLoader.load_config_or_nil(node, "basic_auth_user_name")
   basic_auth_password = ConfigLoader.load_config_or_nil(node, "basic_auth_password")
 end
+# TODO: don't set anything in ~ubuntu/.bash_profile
 template '/home/ubuntu/.bash_profile' do
   owner node['login_dot_gov']['system_user']
   mode '0644'
@@ -39,30 +40,33 @@ template '/home/ubuntu/.bash_profile' do
   subscribes :run, 'execute[ruby-build install]', :delayed
 end
 
-# TODO: probably shouldn't be setting anything in /etc/environment
-# add to users path
-template '/etc/environment' do
-  source 'environment.erb'
-  sensitive true
-  variables({
-    dashboard_log: "/srv/dashboard/log/shared/production.log",
-    ruby_version: node['login_dot_gov']['ruby_version'],
-    saml_env: node.chef_environment,
-  })
-  subscribes :run, 'execute[ruby-build install]', :delayed
+rbenv_root = node.fetch('identity-ruby').fetch('rbenv_root')
+default_ruby_path = node.fetch('login_dot_gov').fetch('default_ruby_path')
+
+# sanity checks that identity-ruby correctly installed ruby in the base AMI
+unless File.exist?(rbenv_root)
+  raise "Cannot find rbenv_root at #{rbenv_root.inspect} -- was it created in the base AMI?"
+end
+unless File.exist?(default_ruby_path)
+  raise "Cannot find default ruby build at #{default_ruby_path.inspect} -- was it created in the base AMI?"
+end
+unless File.exist?(default_ruby_path + '/bin/ruby')
+  raise "Cannot find default ruby executable at #{default_ruby_path + '/bin/ruby'} -- was it created in the base AMI?"
+end
+
+# TODO: remove default_ruby_path and just rely on rbenv
+file '/etc/environment' do
+  content <<-EOM
+# Dropped off by chef
+# This is a static file (not script) used by PAM to set env variables.
+RBENV_ROOT=#{rbenv_root}
+PATH="/opt/chef/bin:#{rbenv_root}/shims:#{default_ruby_path}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
+
+RAILS_ENV=production
+  EOM
 end
 
 # install dependencies
 package 'libpq-dev'
 package 'libsasl2-dev'
 package 'ruby-dev'
-
-#execute 'source /etc/environment'
-
-# install ruby
-ruby_runtime node['login_dot_gov']['ruby_version'] do
-  provider :ruby_build
-end
-
-# TODO: don't do this chown
-execute "chown -R #{node['login_dot_gov']['system_user']}:adm /opt/ruby_build"
