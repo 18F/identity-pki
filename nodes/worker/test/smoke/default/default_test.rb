@@ -23,8 +23,8 @@ describe processes('sidekiq') do
   # there should be exactly one sidekiq process
   its('entries.length') { should eq 1 }
 
-  # should be running as ubuntu user (TODO)
-  its('users') { should eq ['ubuntu'] }
+  # should be running as websrv
+  its('users') { should eq ['websrv'] }
 end
 
 describe port(80) do

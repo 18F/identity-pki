@@ -68,8 +68,8 @@ shared_dirs.each do |dir|
     owner node.fetch('login_dot_gov').fetch('system_user')
     recursive true # TODO: remove?
 
-    # Make log directory group writeable by web user
-    if dir == 'log'
+    # Make log and pids directories group writeable by web user
+    if ['log', 'tmp/pids'].include?(dir)
       group node.fetch('login_dot_gov').fetch('web_system_user')
       mode '0775'
     end
