@@ -101,7 +101,12 @@ variable "elasticache_redis_node_type" {
     description = "Instance type used for redis elasticache. Changes incur downtime."
     # allowed values: t2.micro-medium, m3.medium-2xlarge, m4|r3|r4.large-
     default = "cache.m3.medium"
-    # allowed values: t2.micro-medium, m3.medium-2xlarge, m4|r3|r4.large-
+}
+
+variable "elasticsearch_volume_size" {
+    description = "EBS volume size for elasticsearch hosts"
+    # allowed values: 300 - 1000
+    default = 300
 }
 
 variable "use_multi_az_redis" {

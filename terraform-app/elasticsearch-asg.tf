@@ -37,7 +37,7 @@ resource "aws_launch_configuration" "elasticsearch" {
   # We will add this to the var VG
   ebs_block_device {
     device_name = "/dev/sdg"
-    volume_size = 300
+    volume_size = "${var.elasticsearch_volume_size}"
     volume_type = "gp2"
     encrypted = true
     delete_on_termination = true
