@@ -14,6 +14,7 @@
       "branch_name": "stages/jp"
     },
     "elk": {
+      "retentiondays": 14,
       "users": [
         "brody",
         "jgrevich",

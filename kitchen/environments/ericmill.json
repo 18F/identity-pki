@@ -11,6 +11,7 @@
       "branch_name": "master"
     },
     "elk": {
+      "retentiondays": 14,
       "users": [
         "ericmill"
       ]

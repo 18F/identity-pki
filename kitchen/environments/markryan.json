@@ -12,6 +12,7 @@
       "branch_name": "stages/markryan"
     },
     "elk": {
+      "retentiondays": 14,
       "users": [
         "markryan"
       ]
