@@ -475,6 +475,22 @@ resource "aws_security_group" "jenkins" {
   vpc_id = "${aws_vpc.default.id}"
 }
 
+# Create a security group with nothing in it that we can use to work around
+# Terraform warts and break bootstrapping loops. For example, since Terraform
+# can't handle a security group rule not having a group ID, we can put in this
+# null group ID as a placeholder to break bootstrapping loops.
+resource "aws_security_group" "null" {
+  name = "${var.env_name}-null"
+  description = "Null security group for terraform hacks, do NOT put instances in it"
+  vpc_id = "${aws_vpc.default.id}"
+  tags {
+    Name = "${var.env_name}-null"
+  }
+
+  ingress = []
+  egress = []
+}
+
 resource "aws_security_group" "jumphost" {
   description = "Allow inbound jumphost traffic: whitelisted IPs for SSH"
 
@@ -502,7 +518,11 @@ resource "aws_security_group" "jumphost" {
     from_port = 5439
     to_port = 5439
     protocol = "tcp"
-    security_groups = ["${var.analytics_redshift_security_group_id}"]
+    # We'd like to refer to the analytics redshift security group ID, but it
+    # might not exist yet. Terraform is not able to handle conditionals in a
+    # good way (we have to set some security group ID here), so use the null
+    # security group ID if the analytics group is empty string.
+    security_groups = ["${var.analytics_redshift_security_group_id != "" ? var.analytics_redshift_security_group_id : aws_security_group.null.id}"]
   }
 
   # need 80/443 to get packages/gems/etc
