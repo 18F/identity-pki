@@ -1,4 +1,4 @@
-execute "mount -o remount,exec,nosuid,nodev /tmp"
+execute "mount -o remount,exec,nosuid,nodev /tmp" # TODO: remove post AMI rollout
 
 # create dir for AWS PostgreSQL combined CA cert bundle
 directory '/usr/local/share/aws' do
@@ -117,4 +117,4 @@ login_dot_gov_deploy_info "#{deploy_dir}/api/deploy.json" do
   branch branch_name
 end
 
-execute "mount -o remount,noexec,nosuid,nodev /tmp"
+execute "mount -o remount,noexec,nosuid,nodev /tmp" # TODO: remove post AMI rollout

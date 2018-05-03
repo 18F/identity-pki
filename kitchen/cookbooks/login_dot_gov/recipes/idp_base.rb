@@ -1,6 +1,6 @@
 include_recipe 'login_dot_gov::nodejs'
 
-execute "mount -o remount,exec,nosuid,nodev /tmp"
+execute "mount -o remount,exec,nosuid,nodev /tmp" # TODO: remove post AMI rollout
 
 # setup postgres root config resource
 psql_config 'configure postgres CA bundle root cert'

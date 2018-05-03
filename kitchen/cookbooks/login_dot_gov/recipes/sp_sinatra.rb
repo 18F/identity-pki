@@ -1,4 +1,4 @@
-execute "mount -o remount,exec,nosuid,nodev /tmp"
+execute "mount -o remount,exec,nosuid,nodev /tmp" # TODO: remove post AMI rollout
 
 # setup postgres root config resource
 psql_config 'configure postgres root cert'
@@ -85,4 +85,4 @@ login_dot_gov_deploy_info "#{deploy_dir}/api/deploy.json" do
   branch branch_name
 end
 
-execute "mount -o remount,noexec,nosuid,nodev /tmp"
+execute "mount -o remount,noexec,nosuid,nodev /tmp" # TODO: remove post AMI rollout

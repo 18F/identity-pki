@@ -488,7 +488,7 @@ apache_site 'kibanaproxy'
 include_recipe 'identity-elk::filebeat'
 
 # === set up elastalert ===
-execute "mount -o remount,exec,nosuid,nodev /tmp"
+execute "mount -o remount,exec,nosuid,nodev /tmp" # TODO: remove post AMI rollout
 package 'python-pip'
 
 # python cryptography build dependencies
@@ -530,7 +530,7 @@ execute 'pip install "elasticsearch>=5.0.0"' do
   not_if 'pip list | egrep "^elasticsearch .5"'
 end
 
-execute "mount -o remount,noexec,nosuid,nodev /tmp"
+execute "mount -o remount,noexec,nosuid,nodev /tmp" # TODO: remove post AMI rollout
 
 template "#{elastalertdir}/config.yaml" do
   source 'elastalert_config.yaml.erb'
