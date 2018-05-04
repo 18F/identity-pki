@@ -18,7 +18,8 @@ ACME_DOWNLOAD_URL="https://github.com/paybyphone/terraform-provider-acme/release
 TF_DOWNLOAD_URL="https://releases.hashicorp.com/terraform"
 
 # Set this to skip ACME plugin management
-ID_TF_SKIP_ACME="${ID_TF_SKIP_ACME-}"
+# Skipping is now enabled by default since we no longer use the ACME plugin.
+ID_TF_INSTALL_ACME="${ID_TF_INSTALL_ACME-}"
 
 # Set this to skip installing TF symlink to TERRAFORM_SYMLINK
 ID_TF_SKIP_SYMLINK="${ID_TF_SKIP_SYMLINK-}"
@@ -79,8 +80,8 @@ Also manage the versions of the terraform ACME plugin, which tends to be
 incompatible across releases.
 
 Much of this script's behavior is configurable by environment variables, such
-as TERRAFORM_SYMLINK to set the symlink install location, or ID_TF_SKIP_ACME to
-skip the ACME plugin installation.
+as TERRAFORM_SYMLINK to set the symlink install location, or ID_TF_INSTALL_ACME
+to enable installation of the ACME plugin (currently unused).
 
 For example:
     $(basename "$0") 0.9.11
@@ -104,6 +105,8 @@ KNOWN_TF_VERSIONS='
 0.8.8 v0.2.1
 0.9.6 v0.3.0
 0.9.11 v0.3.0
+0.10.8 v0.5.0
+0.11.7 v0.5.0
 '
 
 # Look up row in KNOWN_TF_VERSIONS for given terraform version.
@@ -356,8 +359,8 @@ main() {
 
     install_tf_symlink "$terraform_exe"
 
-    if [ -n "$ID_TF_SKIP_ACME" ]; then
-        echo "ID_TF_SKIP_ACME is set, not managing ACME plugin"
+    if [ -z "$ID_TF_INSTALL_ACME" ]; then
+        echo "ID_TF_INSTALL_ACME is not set, not managing ACME plugin"
     else
         echo_blue "Setting up terraform ACME plugin"
         if setup_acme_plugin_management; then
@@ -366,7 +369,6 @@ main() {
             switch_acme_version "$target_acme"
         else
             echo >&2 "Something went wrong in setting up ACME plugin management"
-            echo >&2 "Set ID_TF_SKIP_ACME=1 if you want to always skip this."
             exit 3
         fi
     fi
