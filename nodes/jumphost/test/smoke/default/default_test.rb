@@ -3,6 +3,11 @@
 # The Inspec reference, with examples and extensive documentation, can be
 # found at http://inspec.io/docs/reference/resources/
 
+# make sure that identity-devops-private provisioning completed
+describe file('/run/private-provisioning') do
+  it { should exist }
+end
+
 describe service('ssh') do
   it { should be_installed }
   it { should be_enabled }

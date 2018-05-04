@@ -177,6 +177,7 @@ end
         "name" => "ec2",
         "aws_ssh_key_id" => ssh_key_pair_name,
         "region" => Region,
+        "associate_public_ip" => true, # necessary to access from outside VPC
         "subnet_filter" => {
             "tag" => "Name",
             "value" => subnet
