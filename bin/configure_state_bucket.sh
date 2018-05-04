@@ -69,6 +69,12 @@ run rm -rfv .terraform
 
 # https://github.com/hashicorp/terraform/issues/12762
 case "$(CHECKPOINT_DISABLE=1 terraform --version)" in
+  *v0.10.*)
+    terraform init \
+      -backend-config="bucket=${BUCKET}" \
+      -backend-config="key=${STATE}" \
+      -backend-config="region=${REGION}"
+    ;;
   *v0.9.*)
     terraform init \
       -backend-config="bucket=${BUCKET}" \
