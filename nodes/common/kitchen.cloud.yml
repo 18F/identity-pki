@@ -126,7 +126,7 @@ cloud_init_info = [
 
       "git_clone_url" => "git@github.com:18F/identity-devops-private",
       "git_ref" => "master",
-      "s3_ssh_key_url" => "s3://login-gov-secrets-test/common/id_ecdsa.id-do-private.deploy"
+      "s3_ssh_key_url" => "s3://login-gov.secrets.894947205914-us-west-2/common/id_ecdsa.id-do-private.deploy"
     }
   }
 ]
