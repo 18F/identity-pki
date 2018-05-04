@@ -5,7 +5,8 @@ class Certificate
     @x509_cert = x509_cert
   end
 
-  def_delegators :@x509_cert, :not_before, :not_after, :subject, :verify, :public_key, :serial
+  def_delegators :@x509_cert, :not_before, :not_after, :subject, :issuer, :verify,
+                 :public_key, :serial
 
   def trusted_root?
     CertificateStore.trusted_ca_root_identifiers.include?(key_id)
@@ -27,6 +28,14 @@ class Certificate
   def valid?
     !expired? &&
       (trusted_root? || !self_signed? && !revoked? && signature_verified?)
+  end
+
+  def to_pem
+    <<~PEM
+      Subject: #{subject}
+      Issuer: #{issuer}
+      #{@x509_cert.to_pem}
+    PEM
   end
 
   # :reek:UtilityFunction

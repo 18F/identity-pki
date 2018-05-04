@@ -2,6 +2,7 @@ require 'openssl'
 require 'rgl/dijkstra'
 require 'rgl/adjacency'
 
+# :reek:TooManyMethods
 class CertificateStore
   include Singleton
 
@@ -23,7 +24,7 @@ class CertificateStore
     instance.reset
   end
 
-  def_delegators :@certificates, :[], :count, :empty?
+  def_delegators :@certificates, :[], :count, :empty?, :map
   def_delegators CertificateStore, :trusted_ca_root_identifiers, :clear_trusted_ca_root_identifiers
 
   def add_pem_file(filename)
@@ -36,6 +37,14 @@ class CertificateStore
     @graph.add_vertex(from) if from
     @graph.add_vertex(to) if to
     @graph.add_edge(from, to) if from && to
+  end
+
+  def each(&block)
+    @certificates.values.each(&block)
+  end
+
+  def select(&block)
+    @certificates.values.select(&block)
   end
 
   def add_certificate(cert)
@@ -70,9 +79,7 @@ class CertificateStore
   end
 
   def remove_untrusted_certificates
-    loop do
-      break unless sweep_untrusted_certificates
-    end
+    (@certificates.keys - trusted_certificate_ids).each(&method(:delete))
   end
 
   def all_certificates_valid?
@@ -94,13 +101,23 @@ class CertificateStore
 
   private
 
-  def sweep_untrusted_certificates
-    # linters like this bit of golf:
-    #   we map each key to the result of deleting it, if we delete it
-    #   `delete` returns non-nil, which we then use `any?` to detect
-    # The goal is to return a truthy value if we deleted anything.
-    swept = @certificates.values.reject(&:trusted_root?).reject(&:valid?)
-    swept.map(&:key_id).map(&method(:delete)).any?
+  # :reek:DuplicateMethodCall
+  def trusted_certificate_ids
+    # start with the trusted roots and work down
+    trusted = trusted_ca_root_identifiers
+    next_round = key_ids_signed_by(trusted)
+    while next_round.any?
+      trusted += next_round.map(&:key_id)
+      next_round = key_ids_signed_by(trusted)
+    end
+    trusted
+  end
+
+  # :reek:FeatureEnvy
+  def key_ids_signed_by(trusted)
+    select do |cert|
+      !trusted.include?(cert.key_id) && trusted.include?(cert.signing_key_id) && cert.valid?
+    end
   end
 
   def extract_certs(raw)
