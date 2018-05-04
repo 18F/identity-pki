@@ -24,15 +24,6 @@ class PivCac < ApplicationRecord
       end
     end
 
-    def find_by(opts = {})
-      dn = opts[:dn]
-      if dn
-        super(opts.except(:dn).merge(dn_signature: make_dn_signature(dn)))
-      else
-        super
-      end
-    end
-
     def make_dn_signature(raw)
       Base64.encode64(OpenSSL::Digest.digest(DN_SIGNATURE_HASH, raw)).chomp if raw
     end
