@@ -592,7 +592,6 @@ resource "aws_security_group" "jumphost" {
     # jenkins, Continuous Integration, Remote Access (FIXME rename variable to 'external_ssh_cidr_blocks'?)
     cidr_blocks = [
         "${var.admin_subnet_cidr_block}",
-        "${var.ci_sg_ssh_cidr_blocks}",
         "${var.app_sg_ssh_cidr_blocks}"
     ]
   }
