@@ -177,20 +177,14 @@ log() {
 }
 
 get_terraform_version() {
-    local ret
+    local output
 
     # checkpoint is the hashicorp thing that phones home to check versions
-    CHECKPOINT_DISABLE=1 run terraform --version | head -1 | cut -d' ' -f2 \
-        && ret=$? || ret=$?
+    output="$(CHECKPOINT_DISABLE=1 run terraform --version)" || return $?
 
-    # Transform SIGPIPE into exit status 0.
-    # When set -o pipefail is set, we expect head -1 to cause
-    # terraform --version to receive a SIGPIPE.
-    if [ "$ret" -eq 141 ]; then
-        return 0
-    fi
-
-    return "$ret"
+    # we do this in two phases to avoid sending SIGPIPE to terraform, which
+    # would cause it to exit with status 141
+    echo "$output" | head -1 | cut -d' ' -f2
 }
 
 assert_file_not_exists() {
