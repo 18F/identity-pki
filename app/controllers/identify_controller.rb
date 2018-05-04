@@ -26,7 +26,7 @@ class IdentifyController < ApplicationController
     token = if cert_pem
               process_cert(CGI.unescape(cert_pem))
             else
-              TokenService.box(error: 'certificate.none')
+              TokenService.box(error: 'certificate.none', nonce: nonce)
             end
     CGI.escape(token)
   end
@@ -35,9 +35,13 @@ class IdentifyController < ApplicationController
   def process_cert(raw_cert)
     cert = Certificate.new(OpenSSL::X509::Certificate.new(raw_cert))
 
-    cert.token
+    cert.token(nonce: nonce)
   rescue OpenSSL::X509::CertificateError
-    TokenService.box(error: 'certificate.bad')
+    TokenService.box(error: 'certificate.bad', nonce: nonce)
+  end
+
+  def nonce
+    params[:nonce]
   end
 
   def referrer
