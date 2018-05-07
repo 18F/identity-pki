@@ -58,11 +58,11 @@ class Certificate
     get_extension('authorityKeyIdentifier')&.sub(/^keyid:/, '')&.chomp&.upcase
   end
 
-  def token
+  def token(extra)
     if valid?
-      token_for_valid_certificate
+      token_for_valid_certificate(extra)
     else
-      token_for_invalid_certificate
+      token_for_invalid_certificate(extra)
     end
   end
 
@@ -75,17 +75,19 @@ class Certificate
   private
 
   # :reek:UtilityFunction
-  def token_for_valid_certificate
+  def token_for_valid_certificate(extra)
     subject_s = subject.to_s(OpenSSL::X509::Name::RFC2253)
     piv = PivCac.find_or_create_by(dn: subject_s)
     TokenService.box(
-      subject: subject_s,
-      uuid: piv.uuid
+      extra.merge(
+        subject: subject_s,
+        uuid: piv.uuid
+      )
     )
   end
 
   # :reek:UtilityFunction
-  def token_for_invalid_certificate
+  def token_for_invalid_certificate(extra)
     # figure out the reason for being invalid
     reason = if !signature_verified?
                'unverified'
@@ -97,6 +99,6 @@ class Certificate
                'invalid'
              end
 
-    TokenService.box(error: "certificate.#{reason}")
+    TokenService.box(extra.merge(error: "certificate.#{reason}"))
   end
 end

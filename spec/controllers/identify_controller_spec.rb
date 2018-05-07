@@ -22,21 +22,23 @@ RSpec.describe IdentifyController, type: :controller do
       end
 
       it 'with no certificate returns a redirect with a token' do
-        get :create
+        get :create, params: { nonce: '123' }
         expect(response).to have_http_status(:found)
         expect(response.has_header?('Location')).to be_truthy
         expect(token).to be_truthy
         expect(token_contents['error']).to eq 'certificate.none'
+        expect(token_contents['nonce']).to eq '123'
       end
 
       it 'with bad certificate content' do
         # sufficient for the OpenSSL library to throw an error when parsing the content
         @request.headers['X-Client-Cert'] = 'BAD CERT CONTENT'
-        get :create
+        get :create, params: { nonce: '123' }
         expect(response).to have_http_status(:found)
         expect(response.has_header?('Location')).to be_truthy
         expect(token).to be_truthy
         expect(token_contents['error']).to eq 'certificate.bad'
+        expect(token_contents['nonce']).to eq '123'
       end
 
       describe 'with a good certificate' do
@@ -91,10 +93,12 @@ RSpec.describe IdentifyController, type: :controller do
 
         it 'returns a token with a uuid and subject' do
           @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
-          get :create
+          get :create, params: { nonce: '123' }
           expect(response).to have_http_status(:found)
           expect(response.has_header?('Location')).to be_truthy
           expect(token).to be_truthy
+
+          expect(token_contents['nonce']).to eq '123'
 
           # N.B.: we do this split/sort because DNs match without respect to
           # ordering of components. OpenSSL::X509::Name doesn't match correctly.
@@ -108,12 +112,13 @@ RSpec.describe IdentifyController, type: :controller do
 
           it 'returns a token as expired' do
             @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
-            get :create
+            get :create, params: { nonce: '123' }
             expect(response).to have_http_status(:found)
             expect(response.has_header?('Location')).to be_truthy
             expect(token).to be_truthy
 
             expect(token_contents['error']).to eq 'certificate.expired'
+            expect(token_contents['nonce']).to eq '123'
           end
         end
 
@@ -125,12 +130,13 @@ RSpec.describe IdentifyController, type: :controller do
             ca.certificate_revocations.create(serial: '1')
 
             @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
-            get :create
+            get :create, params: { nonce: '123' }
             expect(response).to have_http_status(:found)
             expect(response.has_header?('Location')).to be_truthy
             expect(token).to be_truthy
 
             expect(token_contents['error']).to eq 'certificate.revoked'
+            expect(token_contents['nonce']).to eq '123'
           end
         end
 
@@ -160,12 +166,13 @@ RSpec.describe IdentifyController, type: :controller do
 
           it 'returns a token as unverified' do
             @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
-            get :create
+            get :create, params: { nonce: '123' }
             expect(response).to have_http_status(:found)
             expect(response.has_header?('Location')).to be_truthy
             expect(token).to be_truthy
 
             expect(token_contents['error']).to eq 'certificate.unverified'
+            expect(token_contents['nonce']).to eq '123'
           end
         end
       end
