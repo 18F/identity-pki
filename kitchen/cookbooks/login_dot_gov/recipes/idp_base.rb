@@ -43,12 +43,6 @@ directory shared_path do
   recursive true
 end
 
-directory '/home/ubuntu/.bundle' do
-  owner 'ubuntu'
-  group 'ubuntu'
-  recursive true
-end
-
 shared_dirs = [
   'bin',
   'certs',
