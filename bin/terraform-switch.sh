@@ -6,28 +6,29 @@ set -euo pipefail
 . "$(dirname "$0")/lib/common.sh"
 
 # Directory where we will install terraform
-TERRAFORM_PLUGIN_DIR="${TERRAFORM_PLUGIN_DIR-}"
-if [ -z "$TERRAFORM_PLUGIN_DIR" ]; then
-    TERRAFORM_PLUGIN_DIR="$HOME/.terraform-plugins"
-    if [ ! -d "$TERRAFORM_PLUGIN_DIR" ]; then
-        run mkdir -vp "$TERRAFORM_PLUGIN_DIR"
+TERRAFORM_DOT_D="${TERRAFORM_DOT_D-}"
+if [ -z "$TERRAFORM_DOT_D" ]; then
+    TERRAFORM_DOT_D="$HOME/.terraform.d"
+    if [ ! -d "$TERRAFORM_DOT_D" ]; then
+        run mkdir -vp "$TERRAFORM_DOT_D"
     fi
 fi
 
-ACME_DOWNLOAD_URL="https://github.com/paybyphone/terraform-provider-acme/releases/download"
-TF_DOWNLOAD_URL="https://releases.hashicorp.com/terraform"
+TF_DEPRECATED_DIR="${TF_DEPRECATED_DIR-"$HOME/.terraform-plugins"}"
 
-# Set this to skip ACME plugin management
-ID_TF_SKIP_ACME="${ID_TF_SKIP_ACME-}"
+TERRAFORM_EXE_DIR="$TERRAFORM_DOT_D/tf-switch"
+TERRAFORM_PLUGIN_DIR="$TERRAFORM_DOT_D/plugin-cache"
+
+TF_DOWNLOAD_URL="https://releases.hashicorp.com/terraform"
 
 # Set this to skip installing TF symlink to TERRAFORM_SYMLINK
 ID_TF_SKIP_SYMLINK="${ID_TF_SKIP_SYMLINK-}"
 
 # Set this to skip GPG verification
-ID_TF_SKIP_GPG=
+ID_TF_SKIP_GPG="${ID_TF_SKIP_GPG-}"
 
-# Location of terraform acme plugin symlink
-ACME_SYMLINK="${TERRAFORM_PLUGIN_DIR}/terraform-provider-acme_current"
+# Set this to skip the terraform plugin cache check
+ID_TF_SKIP_PLUGIN_CACHE="${ID_TF_SKIP_PLUGIN_CACHE-}"
 
 # Location of installed TF symlink
 TERRAFORM_SYMLINK="${TERRAFORM_SYMLINK-/usr/local/bin/terraform}"
@@ -35,9 +36,37 @@ SUDO_LN=
 
 # Hashicorp GPG key fingerprint
 TF_GPG_KEY_FINGERPRINT=91A6E7F85D05C65630BEF18951852D87348FFC4C
+TF_GPG_KEY_CONTENT='
+-----BEGIN PGP PUBLIC KEY BLOCK-----
 
-# Disable terraform auto update nonsense
-export CHECKPOINT_DISABLE=1
+mQENBFMORM0BCADBRyKO1MhCirazOSVwcfTr1xUxjPvfxD3hjUwHtjsOy/bT6p9f
+W2mRPfwnq2JB5As+paL3UGDsSRDnK9KAxQb0NNF4+eVhr/EJ18s3wwXXDMjpIifq
+fIm2WyH3G+aRLTLPIpscUNKDyxFOUbsmgXAmJ46Re1fn8uKxKRHbfa39aeuEYWFA
+3drdL1WoUngvED7f+RnKBK2G6ZEpO+LDovQk19xGjiMTtPJrjMjZJ3QXqPvx5wca
+KSZLr4lMTuoTI/ZXyZy5bD4tShiZz6KcyX27cD70q2iRcEZ0poLKHyEIDAi3TM5k
+SwbbWBFd5RNPOR0qzrb/0p9ksKK48IIfH2FvABEBAAG0K0hhc2hpQ29ycCBTZWN1
+cml0eSA8c2VjdXJpdHlAaGFzaGljb3JwLmNvbT6JATgEEwECACIFAlMORM0CGwMG
+CwkIBwMCBhUIAgkKCwQWAgMBAh4BAheAAAoJEFGFLYc0j/xMyWIIAIPhcVqiQ59n
+Jc07gjUX0SWBJAxEG1lKxfzS4Xp+57h2xxTpdotGQ1fZwsihaIqow337YHQI3q0i
+SqV534Ms+j/tU7X8sq11xFJIeEVG8PASRCwmryUwghFKPlHETQ8jJ+Y8+1asRydi
+psP3B/5Mjhqv/uOK+Vy3zAyIpyDOMtIpOVfjSpCplVRdtSTFWBu9Em7j5I2HMn1w
+sJZnJgXKpybpibGiiTtmnFLOwibmprSu04rsnP4ncdC2XRD4wIjoyA+4PKgX3sCO
+klEzKryWYBmLkJOMDdo52LttP3279s7XrkLEE7ia0fXa2c12EQ0f0DQ1tGUvyVEW
+WmJVccm5bq25AQ0EUw5EzQEIANaPUY04/g7AmYkOMjaCZ6iTp9hB5Rsj/4ee/ln9
+wArzRO9+3eejLWh53FoN1rO+su7tiXJA5YAzVy6tuolrqjM8DBztPxdLBbEi4V+j
+2tK0dATdBQBHEh3OJApO2UBtcjaZBT31zrG9K55D+CrcgIVEHAKY8Cb4kLBkb5wM
+skn+DrASKU0BNIV1qRsxfiUdQHZfSqtp004nrql1lbFMLFEuiY8FZrkkQ9qduixo
+mTT6f34/oiY+Jam3zCK7RDN/OjuWheIPGj/Qbx9JuNiwgX6yRj7OE1tjUx6d8g9y
+0H1fmLJbb3WZZbuuGFnK6qrE3bGeY8+AWaJAZ37wpWh1p0cAEQEAAYkBHwQYAQIA
+CQUCUw5EzQIbDAAKCRBRhS2HNI/8TJntCAClU7TOO/X053eKF1jqNW4A1qpxctVc
+z8eTcY8Om5O4f6a/rfxfNFKn9Qyja/OG1xWNobETy7MiMXYjaa8uUx5iFy6kMVaP
+0BXJ59NLZjMARGw6lVTYDTIvzqqqwLxgliSDfSnqUhubGwvykANPO+93BBx89MRG
+unNoYGXtPlhNFrAsB1VR8+EyKLv2HQtGCPSFBhrjuzH3gxGibNDDdFQLxxuJWepJ
+EK1UbTS4ms0NgZ2Uknqn1WRU1Ki7rE4sTy68iZtWpKQXZEJa0IGnuI2sSINGcXCJ
+oEIgXTMyCILo34Fa/C6VCm2WBgz9zZO8/rHIiQm1J5zqz0DrDwKBUM9C
+=LYpS
+-----END PGP PUBLIC KEY BLOCK-----
+'
 
 EXE_SUFFIX=
 case "$OSTYPE" in
@@ -72,15 +101,12 @@ usage() {
 usage: $(basename "$0") TERRAFORM_VERSION
 
 Download and install precompiled terraform binaries from Github.
-Keep multiple versions installed under $TERRAFORM_PLUGIN_DIR and
+Keep multiple versions installed under $TERRAFORM_EXE_DIR and
 symlink the chosen active binary at $TERRAFORM_SYMLINK.
 
-Also manage the versions of the terraform ACME plugin, which tends to be
-incompatible across releases.
-
 Much of this script's behavior is configurable by environment variables, such
-as TERRAFORM_SYMLINK to set the symlink install location, or ID_TF_SKIP_ACME to
-skip the ACME plugin installation.
+as TERRAFORM_SYMLINK to set the symlink install location, or TERRAFORM_DOT_D to
+override the location used instead of ~/.terraform.d/.
 
 For example:
     $(basename "$0") 0.9.11
@@ -92,49 +118,26 @@ EOM
 
 # If macOS shipped with a modern version of bash (i.e. Bash 4.0), we would have
 # associative arrays and wouldn't need this hack.
-# Format: space separated columns.
-# Column 1 - terraform version number
-# Column 2 - terraform-provider-acme plugin version for this TF version
 #
 # Upstream references for the releases:
 #   - https://releases.hashicorp.com/terraform/
-#   - https://github.com/paybyphone/terraform-provider-acme/releases
 #
 KNOWN_TF_VERSIONS='
-0.8.8 v0.2.1
-0.9.6 v0.3.0
-0.9.11 v0.3.0
+0.9.11
+0.10.8
+0.11.7
 '
 
-# Look up row in KNOWN_TF_VERSIONS for given terraform version.
-get_line_for_tf_version() {
-    line="$(grep -w "^$1" <<< "$KNOWN_TF_VERSIONS")" && ret=$? || ret=$?
-
-    if [ "$ret" -ne 0 ]; then
+check_tf_version() {
+    if ! grep -w "^$1$" <<< "$KNOWN_TF_VERSIONS" >/dev/null; then
         echo_red >&2 "Error: Sorry, I don't have info on terraform version $1"
         cat >&2 <<EOM
 
 You should add a new line for $1 to KNOWN_TF_VERSIONS in this script.
 This script: $0
-
-You'll need two columns to add the line:
-
-1. The terraform version: $1
-
-2. The appropriate version of the terraform-provider-acme plugin to use.
-   Visit the upstream site to see available versions:
-     https://github.com/paybyphone/terraform-provider-acme/releases
 EOM
         return 2
     fi
-
-    echo "$line"
-}
-
-get_acme_version_for_tf_version() {
-    line="$(get_line_for_tf_version "$1")"
-
-    echo "$line" | cut -d' ' -f2
 }
 
 sha256_cmd() {
@@ -176,8 +179,10 @@ install_tf_version() {
         echo >&2 "Checking GPG signature"
 
         if ! run gpg --batch --list-keys "$TF_GPG_KEY_FINGERPRINT"; then
-            echo >&2 "Fetching Hashicorp GPG key"
-            run gpg --recv-keys "$TF_GPG_KEY_FINGERPRINT"
+            #echo >&2 "Fetching Hashicorp GPG key"
+            #run gpg --recv-keys "$TF_GPG_KEY_FINGERPRINT"
+            echo >&2 "Importing Hashicorp GPG key"
+            run gpg --import <<< "$TF_GPG_KEY_CONTENT"
         fi
 
         run gpg --batch --status-fd 1 --verify "$checksum_file"{.sig,} \
@@ -203,28 +208,29 @@ install_tf_version() {
 }
 
 
-setup_acme_plugin_management() {
+setup_terraform_plugin_cache() {
+    if [ -n "$ID_TF_SKIP_PLUGIN_CACHE" ]; then
+        echo >&2 "Skipping terraform plugin cache management as requested"
+        return
+    fi
+
     if [ ! -d "$TERRAFORM_PLUGIN_DIR" ]; then
-        echo "TERRAFORM_PLUGIN_DIR does not exist: $TERRAFORM_PLUGIN_DIR"
-        if prompt_yn "Should I create it for you?"; then
-            run mkdir -v "$TERRAFORM_PLUGIN_DIR"
-        else
-            return 1
-        fi
+        run mkdir -v "$TERRAFORM_PLUGIN_DIR"
     fi
 
     if [ -e "$HOME/.terraformrc" ]; then
-        if grep "$TERRAFORM_PLUGIN_DIR" "$HOME/.terraformrc" >/dev/null; then
-            echo >&2 ".terraformrc appears to reference managed plugin dir"
-        else
+        if ! grep "^plugin_cache_dir " "$HOME/.terraformrc" >/dev/null; then
             cat >&2 <<EOM
 Please modify ~/.terraformrc to include something like:
-providers {
-    acme = "$ACME_SYMLINK"
-}
+
+plugin_cache_dir = "\$HOME/.terraform.d/plugin-cache"
+
+If you want to skip this check and not cache plugins, set
+ID_TF_SKIP_PLUGIN_CACHE=1 when running this script.
+
 EOM
             if prompt_yn "Answer Yes when this is done"; then
-                setup_acme_plugin_management
+                setup_terraform_plugin_cache
             else
                 return 1
             fi
@@ -233,9 +239,7 @@ EOM
         echo "$HOME/.terraformrc does not exist."
         if prompt_yn "Should I create it for you?"; then
             cat > "$HOME/.terraformrc" <<EOM
-providers {
-    acme = "$ACME_SYMLINK"
-}
+plugin_cache_dir = "\$HOME/.terraform.d/plugin-cache"
 EOM
             echo "Created:"
             cat "$HOME/.terraformrc"
@@ -243,56 +247,6 @@ EOM
             return 1
         fi
     fi
-}
-
-# usage: install_acme_version VERSION INSTALL_PATH
-#
-# Download ACME provider version VERSION from ACME_DOWNLOAD_URL and install it
-# at INSTALL_PATH.
-install_acme_version() {
-    local tmpdir acme_version install_path arch download_basename
-    acme_version="$1"
-    install_path="$2"
-
-    echo >&2 "Downloading Terraform ACME provider $acme_version"
-
-    tmpdir="$(mktemp -d)"
-
-    arch="${TF_OS}_${TF_ARCH}"
-
-    download_basename="terraform-provider-acme_${acme_version}_${arch}.zip"
-
-    run curl -SfL "$ACME_DOWNLOAD_URL/$acme_version/$download_basename" -o "$tmpdir/$download_basename"
-
-    run unzip -d "$tmpdir" "$tmpdir/$download_basename"
-
-    local expected_filename
-    expected_filename="terraform-provider-acme"
-    mv -v "$tmpdir/$expected_filename" "$install_path"
-
-    echo >&2 "Installed terraform ACME provider $acme_version"
-
-    rm -r "$tmpdir"
-}
-
-switch_acme_version() {
-    local acme_version
-    acme_version="$1"
-
-    if [ -z "$acme_version" ]; then
-        return 1
-    fi
-
-    echo "Switching symlink to point to ACME provider version $acme_version"
-
-    acme_target="$TERRAFORM_PLUGIN_DIR/terraform-provider-acme_${acme_version}_${TF_OS}_amd64"
-    if [ ! -e "$acme_target" ]; then
-        install_acme_version "$acme_version" "$acme_target"
-    fi
-
-    run ln -sfv "$acme_target" "$ACME_SYMLINK"
-
-    echo "ACME provider symlink now points to version $acme_version"
 }
 
 install_tf_symlink() {
@@ -319,18 +273,35 @@ install_tf_symlink() {
     else
         run ln -sfv "$terraform_exe" "$TERRAFORM_SYMLINK"
     fi
+
+}
+
+deprecation_check() {
+    if grep "$TF_DEPRECATED_DIR" "$HOME/.terraformrc" >/dev/null; then
+        echo_yellow >&2 "Warning: found reference to $TF_DEPRECATED_DIR in $HOME/.terraformrc"
+        echo_yellow >&2 "You may want to remove the acme plugin entirely from your ~/.terraformrc"
+    fi
+
+    if [ -d "$TF_DEPRECATED_DIR" ]; then
+        echo_yellow >&2 "Warning: found directory from older terraform-switch.sh"
+        echo_yellow >&2 "You may want to run: rm -r $TF_DEPRECATED_DIR"
+    fi
 }
 
 main() {
-    local target_version current_version terraform_exe target_acme
+    local target_version current_version terraform_exe
 
     target_version="$1"
 
     if which terraform >/dev/null; then
-        current_version="$(run terraform --version | head -1 | cut -d' ' -f2)"
+        current_version="$(get_terraform_version)"
     else
         current_version=
     fi
+
+    setup_terraform_plugin_cache
+
+    deprecation_check
 
     if [ "v$target_version" = "$current_version" ]; then
         echo "Already running terraform $target_version"
@@ -343,11 +314,16 @@ main() {
         return 1
     fi
 
-    terraform_exe="$TERRAFORM_PLUGIN_DIR/terraform_${target_version}$EXE_SUFFIX"
+    if [ ! -e "$TERRAFORM_EXE_DIR" ]; then
+        run mkdir -v "$TERRAFORM_EXE_DIR"
+    fi
+
+    terraform_exe="$TERRAFORM_EXE_DIR/terraform_${target_version}$EXE_SUFFIX"
 
     if [ -e "$terraform_exe" ]; then
         echo_blue "Terraform $target_version already installed at $terraform_exe"
     else
+        check_tf_version "$target_version"
         echo "Terraform $target_version does not appear to be installed."
         if prompt_yn "Install it?"; then
             install_tf_version "$target_version" "$terraform_exe"
@@ -355,21 +331,6 @@ main() {
     fi
 
     install_tf_symlink "$terraform_exe"
-
-    if [ -n "$ID_TF_SKIP_ACME" ]; then
-        echo "ID_TF_SKIP_ACME is set, not managing ACME plugin"
-    else
-        echo_blue "Setting up terraform ACME plugin"
-        if setup_acme_plugin_management; then
-            target_acme="$(get_acme_version_for_tf_version "$target_version")"
-
-            switch_acme_version "$target_acme"
-        else
-            echo >&2 "Something went wrong in setting up ACME plugin management"
-            echo >&2 "Set ID_TF_SKIP_ACME=1 if you want to always skip this."
-            exit 3
-        fi
-    fi
 
     echo_blue 'All done!'
 }
