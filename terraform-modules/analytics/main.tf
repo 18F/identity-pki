@@ -245,8 +245,8 @@ resource "aws_s3_bucket" "redshift_export_bucket" {
   }
 
   logging {
-    target_bucket = "${aws_s3_bucket.redshift_logs_bucket.id}"
-    target_prefix = "s3-analytics-${var.env_name}-"
+    target_bucket = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+    target_prefix = "login-gov-${var.env_name}-analytics/"
   }
 
   lifecycle {
@@ -262,7 +262,7 @@ resource "aws_s3_bucket" "parquet_export_bucket" {
   }
 
   logging {
-    target_bucket = "login-gov-s3bucket-access-logging"
+    target_bucket = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
     target_prefix = "login-gov-${var.env_name}-analytics-parquet/"
   }
 
@@ -277,9 +277,9 @@ resource "aws_s3_bucket" "analytics_export_bucket" {
   tags {
     Name = "login-gov-${var.env_name}-analytics-hot"
   }
-  
+
   logging {
-    target_bucket = "login-gov-s3bucket-access-logging"
+    target_bucket = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
     target_prefix = "login-gov-${var.env_name}-analytics-hot/"
   }
 
@@ -290,6 +290,7 @@ resource "aws_s3_bucket" "analytics_export_bucket" {
 
 resource "aws_s3_bucket" "redshift_logs_bucket" {
   bucket = "login-gov-${var.env_name}-analytics-logs"
+  acl = "log-delivery-write"
 
   tags {
     Name = "login-gov-${var.env_name}-analytics-logs"
