@@ -151,6 +151,7 @@ resource "aws_s3_bucket" "s3-email" {
 #     terraform import aws_s3_bucket.tf-state login-gov.tf-state.<ACCT_ID>-<REGION>
 #
 resource "aws_s3_bucket" "tf-state" {
+  count = "${var.manage_state_bucket ? 1 : 0}"
   bucket = "login-gov.tf-state.${data.aws_caller_identity.current.account_id}-${var.region}"
   region = "${var.region}"
   acl = "private"
@@ -198,6 +199,7 @@ resource "aws_s3_bucket" "tf-state" {
 #     terraform import aws_dynamodb_table.tf-lock-table terraform_locks
 #
 resource "aws_dynamodb_table" "tf-lock-table" {
+  count          = "${var.manage_state_bucket ? 1 : 0}"
   name           = "${var.state_lock_table}"
   read_capacity  = 2
   write_capacity = 1
@@ -212,6 +214,10 @@ resource "aws_dynamodb_table" "tf-lock-table" {
   #server_side_encryption {
   #  enabled = true
   #}
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 
