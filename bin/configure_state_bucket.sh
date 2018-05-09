@@ -65,7 +65,9 @@ fi
 
 echo "Using lock table $LOCK_TABLE"
 
-if ! aws dynamodb describe-table --table-name "$LOCK_TABLE" >/dev/null; then
+if ! aws dynamodb describe-table --table-name "$LOCK_TABLE" \
+        --region "$REGION" >/dev/null
+then
     echo "Lock table does not exist, creating..."
     echo "Creating a dynamodb table for terraform lock files"
 
@@ -79,7 +81,8 @@ if ! aws dynamodb describe-table --table-name "$LOCK_TABLE" >/dev/null; then
 
     echo "Waiting for table to appear"
 
-    aws dynamodb wait table-exists --table-name "$LOCK_TABLE"
+    aws dynamodb wait table-exists --table-name "$LOCK_TABLE" \
+        --region "$REGION"
 
     echo "Finished creating dynamodb table $LOCK_TABLE"
 fi
