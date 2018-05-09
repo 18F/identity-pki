@@ -149,7 +149,13 @@ if [ -z "${TERRAFORM_STATE_BUCKET_REGION:=}" ] ; then
     die "You must set the TERRAFORM_STATE_BUCKET_REGION environment variable.  \
 This should contain the region of the s3 bucket used to store terraform state for this run."
 fi
-run bin/configure_state_bucket.sh "$TERRAFORM_STATE_BUCKET" "$STATE" "$TF_DIR" "$TERRAFORM_STATE_BUCKET_REGION"
+
+if [ -z "${TF_VAR_state_lock_table-}" ]; then
+    die "Must set TF_VAR_state_lock_table to dynamodb terraform state locking table"
+fi
+
+run bin/configure_state_bucket.sh "$TERRAFORM_STATE_BUCKET" "$STATE" \
+    "$TF_DIR" "$TERRAFORM_STATE_BUCKET_REGION" "$TF_VAR_state_lock_table"
 
 echo >&2 "+ cd $TF_DIR"
 cd "$TF_DIR"
