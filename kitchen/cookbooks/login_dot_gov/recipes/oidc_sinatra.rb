@@ -1,5 +1,3 @@
-execute "mount -o remount,exec,nosuid,nodev /tmp" # TODO: remove post AMI rollout
-
 # create dir for AWS PostgreSQL combined CA cert bundle
 directory '/usr/local/share/aws' do
   owner 'root'
@@ -37,22 +35,10 @@ branch_name = node.fetch('login_dot_gov').fetch('branch_name', "stages/#{node.ch
   end
 end
 
-ruby_bin_dir = "#{node.fetch('login_dot_gov').fetch('default_ruby_path')}/bin"
-ruby_build_path = [
-  ruby_bin_dir,
-  ENV.fetch('PATH'),
-].join(':')
-
-deploy_script_environment = {
-  'PATH' => ruby_build_path,
-  'RACK_ENV' => 'production',
-  'HOME' => nil,
-}
-
 deploy "/srv/#{app_name}" do
   action :deploy
   before_symlink do
-    cmd = "#{node.fetch('login_dot_gov').fetch('default_ruby_path')}/bin/bundle install --deployment --jobs 3 --path /srv/#{app_name}/shared/bundle --without deploy development test"
+    cmd = "rbenv exec bundle install --deployment --jobs 3 --path /srv/#{app_name}/shared/bundle --without deploy development test"
     execute cmd do
       cwd release_path
       #user 'ubuntu'
@@ -63,7 +49,10 @@ deploy "/srv/#{app_name}" do
       command './deploy/activate'
       user 'root'
       group 'root'
-      environment(deploy_script_environment)
+      environment({
+        'RACK_ENV' => 'production',
+        'HOME' => nil
+      })
     end
   end
 
@@ -116,5 +105,3 @@ login_dot_gov_deploy_info "#{deploy_dir}/api/deploy.json" do
   owner node.fetch('login_dot_gov').fetch('system_user')
   branch branch_name
 end
-
-execute "mount -o remount,noexec,nosuid,nodev /tmp" # TODO: remove post AMI rollout

@@ -17,15 +17,10 @@ bootcmd:
 #      in a different place.
 #   2. Test kitchen cannot create the directory because of
 #      https://github.com/test-kitchen/test-kitchen/issues/576
+# EDIT: we actually now mount /tmp/ exec, so it's possible we don't need to use
+# a custom directory path anymore.
  - mkdir /var/lib/kitchen
  - chmod a+w /var/lib/kitchen
-
-# Just mount /tmp exec.  Ran into
-# https://github.com/poise/poise-ruby-build/issues/7 during the integration
-# test.
-# XXX: We should understand why this actually works in our real environment
-# since we apparently don't have to do this.
- - mount -o remount,exec,nosuid,nodev /tmp # TODO: remove post AMI rollout
 
 # merge stuff in a sane way with other multipart files
 merge_type: 'list(append)+dict(recurse_array)+str()'

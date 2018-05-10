@@ -35,15 +35,10 @@ default['login_dot_gov']['openssl']['configure_flags']                = %W[ shar
 default['login_dot_gov']['cache_dir']                                 = '/var/cache/chef'
 
 # rbenv settings, must reflect values set in identity-base-image for the
-# identity-ruby cookbook. (TODO remove all uses of default_ruby_version /
-# default_ruby_path and rely instead on rbenv exec)
+# identity-ruby cookbook.
 default['identity-ruby']['rbenv_root']                                = '/opt/ruby_build'
-default['login_dot_gov']['default_ruby_version']                      = '2.3.7'
-default['login_dot_gov']['default_ruby_path'] = [
-  default.fetch('identity-ruby').fetch('rbenv_root'),
-  'builds',
-  default.fetch('login_dot_gov').fetch('default_ruby_version')
-].join('/')
+default['login_dot_gov']['rbenv_shims_ruby'] = default.fetch('identity-ruby').fetch('rbenv_root') + '/shims/ruby'
+default['login_dot_gov']['rbenv_shims_gem'] = default.fetch('identity-ruby').fetch('rbenv_root') + '/shims/gem'
 
 # Allocate a static EIP on startup for auto scaled instances that have one of
 # these as their primary role (e.g. 'worker', 'jumphost').

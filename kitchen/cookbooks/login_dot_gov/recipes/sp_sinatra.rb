@@ -1,5 +1,3 @@
-execute "mount -o remount,exec,nosuid,nodev /tmp" # TODO: remove post AMI rollout
-
 # setup postgres root config resource
 psql_config 'configure postgres root cert'
 
@@ -28,7 +26,7 @@ end
 deploy "/srv/#{app_name}" do
   action :deploy
   before_symlink do
-    cmd = "#{node.fetch('login_dot_gov').fetch('default_ruby_path')}/bin/bundle install --deployment --jobs 3 --path /srv/#{app_name}/shared/bundle --without deploy development test"
+    cmd = "rbenv exec bundle install --deployment --jobs 3 --path /srv/#{app_name}/shared/bundle --without deploy development test"
     execute cmd do
       cwd release_path
       #user 'ubuntu'
@@ -84,5 +82,3 @@ login_dot_gov_deploy_info "#{deploy_dir}/api/deploy.json" do
   owner node.fetch('login_dot_gov').fetch('system_user')
   branch branch_name
 end
-
-execute "mount -o remount,noexec,nosuid,nodev /tmp" # TODO: remove post AMI rollout
