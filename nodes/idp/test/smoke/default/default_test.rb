@@ -16,29 +16,19 @@ describe command('node --version') do
 end
 
 # check that passenger is installed and running
-if os[:release] == '14.04'
-  describe service('passenger') do
-    it { should be_installed }
-    it { should be_enabled }
-    it { should be_running }
-  end
-else
-  # Ubuntu >= 16.04 runs systemd
+describe service('passenger') do
+  it { should be_installed }
+  # enabled check appears broken on systemd with inspec 1.43
+  #it { should be_enabled }
+  it { should be_running }
+end
 
-  describe service('passenger') do
-    it { should be_installed }
-    # enabled check appears broken on systemd with inspec 1.43
-    #it { should be_enabled }
-    it { should be_running }
-  end
+describe command('sudo systemctl show passenger -p SubState') do
+  its('stdout') { should eq "SubState=running\n" }
+end
 
-  describe command('sudo systemctl show passenger -p SubState') do
-    its('stdout') { should eq "SubState=running\n" }
-  end
-
-  describe command('sudo systemctl is-enabled passenger') do
-    its('exit_status') { should eq 0 }
-  end
+describe command('sudo systemctl is-enabled passenger') do
+  its('exit_status') { should eq 0 }
 end
 
 # make sure we can sudo
@@ -48,17 +38,7 @@ describe command('sudo whoami') do
 end
 
 # check passenger status
-#
-# For unclear reasons, the passenger registry dir shows up in
-# /var/lib/kitchen/cache/, but only on Ubuntu 14.04. This can be removed once
-# we're fully on ubuntu 16.04.
-# See: https://stackoverflow.com/questions/31761542/phusion-passenger-status-what-value-for-passenger-instance-registry-dir#31769807
-if os[:release] == '14.04'
-  passenger_registry_dir='/var/lib/kitchen/cache/'
-else
-  passenger_registry_dir='/tmp/'
-end
-describe command("sudo env PASSENGER_INSTANCE_REGISTRY_DIR=#{passenger_registry_dir} passenger-status") do
+describe command('sudo passenger-status') do
   its('exit_status') { should eq 0 }
   its('stdout') { should include 'General information' }
 end

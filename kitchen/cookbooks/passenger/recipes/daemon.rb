@@ -12,11 +12,12 @@ end
 nginx_path = node.fetch(:passenger).fetch(:production).fetch(:path)
 
 bash "install passenger/nginx" do
-  user "root"
   code <<-EOH
+  set -eux
   rbenv exec passenger-install-nginx-module --auto --auto-download --prefix="#{nginx_path}" --extra-configure-flags="#{node[:passenger][:production][:configure_flags]}"
+  rbenv rehash
   EOH
-  not_if "test -e #{nginx_path}"
+  not_if "test -e #{nginx_path}/sbin/nginx"
 end
 
 log_path = node[:passenger][:production][:log_path]
@@ -62,11 +63,8 @@ end
 extend Chef::Mixin::ShellOut
 
 template "#{nginx_path}/conf/nginx.conf" do
-  source "nginx.conf.erb"
-  owner "root"
-  group "root"
-  mode 0644
-  sensitive true
+  source 'nginx.conf.erb'
+  mode '644'
   variables(
     :log_path => log_path,
     passenger_root: lazy {

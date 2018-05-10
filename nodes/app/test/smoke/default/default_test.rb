@@ -18,29 +18,25 @@ describe command('sudo whoami') do
 end
 
 # check that passenger is installed and running
-if os[:release] == '14.04'
-  describe service('passenger') do
-    it { should be_installed }
-    it { should be_enabled }
-    it { should be_running }
-  end
-else
-  # Ubuntu >= 16.04 runs systemd
+describe service('passenger') do
+  it { should be_installed }
+  # enabled check appears broken on systemd with inspec 1.43
+  #it { should be_enabled }
+  it { should be_running }
+end
 
-  describe service('passenger') do
-    it { should be_installed }
-    # enabled check appears broken on systemd with inspec 1.43
-    #it { should be_enabled }
-    it { should be_running }
-  end
+describe command('sudo systemctl show passenger -p SubState') do
+  its('stdout') { should eq "SubState=running\n" }
+end
 
-  describe command('sudo systemctl show passenger -p SubState') do
-    its('stdout') { should eq "SubState=running\n" }
-  end
+describe command('sudo systemctl is-enabled passenger') do
+  its('exit_status') { should eq 0 }
+end
 
-  describe command('sudo systemctl is-enabled passenger') do
-    its('exit_status') { should eq 0 }
-  end
+# check passenger status
+describe command('sudo passenger-status') do
+  its('exit_status') { should eq 0 }
+  its('stdout') { should include 'General information' }
 end
 
 # Make sure at least something is being served over HTTP
