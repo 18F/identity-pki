@@ -25,30 +25,31 @@ deploy_dir = "#{base_dir}/current/public"
 
 branch_name = node.fetch('login_dot_gov').fetch('branch_name', "stages/#{node.chef_environment}")
 
-# setup required directories with system_user as the owner/group
-%w{cached-copy config log}.each do |dir|
-  directory "#{base_dir}/shared/#{dir}" do
-    group node['login_dot_gov']['system_user']
-    owner node.fetch(:passenger).fetch(:production).fetch(:user)
-    recursive true
-    subscribes :create, "deploy[/srv/#{app_name}]", :before
-  end
-end
 
 deploy "/srv/#{app_name}" do
   action :deploy
+
+  user node.fetch('login_dot_gov').fetch('system_user')
+  group node.fetch('login_dot_gov').fetch('system_user')
+
   before_symlink do
-    cmd = "rbenv exec bundle install --deployment --jobs 3 --path /srv/#{app_name}/shared/bundle --without deploy development test"
-    execute cmd do
+    execute "#{app_name} bundle install" do
+      command "rbenv exec bundle install --deployment --jobs 3 --path /srv/#{app_name}/shared/bundle --without deploy development test"
       cwd release_path
-      #user 'ubuntu'
+    end
+
+    # setup required directories with system_user as the owner/group
+    %w{cached-copy config log}.each do |dir|
+      directory "#{base_dir}/shared/#{dir}" do
+        owner node.fetch(:passenger).fetch(:production).fetch(:user)
+        group node.fetch('login_dot_gov').fetch('system_user')
+        recursive true
+      end
     end
 
     execute 'deploy activate step' do
       cwd release_path
       command './deploy/activate'
-      user 'root'
-      group 'root'
       environment({
         'RACK_ENV' => 'production',
         'HOME' => nil
@@ -67,7 +68,6 @@ deploy "/srv/#{app_name}" do
     "log" => "log",
     'bundle' => '.bundle'
   })
-  #user 'ubuntu'
 end
 
 basic_auth_enabled = !!ConfigLoader.load_config_or_nil(node, "basic_auth_user_name")

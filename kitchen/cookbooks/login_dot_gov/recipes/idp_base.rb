@@ -119,7 +119,7 @@ application release_path do
     # so we use sudo instead to get all the login secondary groups.
     # https://github.com/chef/chef/issues/6162
     command [
-      'sudo', '-E', '-H', '-u', node.fetch('login_dot_gov').fetch('system_user'),
+      'sudo', '-H', '-u', node.fetch('login_dot_gov').fetch('system_user'),
       './deploy/build'
     ]
     user 'root'
