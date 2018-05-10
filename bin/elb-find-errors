@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 require 'csv'
 require 'optparse'
@@ -33,10 +34,11 @@ ALB_INDEX_MAP = {}
 ALB_FIELDS.each_with_index do |field, index|
   ALB_INDEX_MAP[field] = index
 end
-ALB_FIELDS.freeze
+ALB_INDEX_MAP.freeze
 
 RE_ALL_5XX = /\A5/
 RE_500 = /\A500/
+NULL_FIELD = '-'
 
 def find_errors(filename, only_elb_errors: false, only_target_errors: false,
                 status_code_re: RE_ALL_5XX)
@@ -62,18 +64,22 @@ def find_errors(filename, only_elb_errors: false, only_target_errors: false,
   CSV.open(filename, 'r', col_sep: ' ').each do |row|
     total_count += 1
 
+    elb_status_code = row.fetch(ALB_INDEX_MAP.fetch('elb_status_code'))
+    target_status_code = row.fetch(
+      ALB_INDEX_MAP.fetch('target_status_code')
+    )
+
     if elb_errors
-      elb_status_code = row.fetch(ALB_INDEX_MAP.fetch('elb_status_code'))
       if status_code_re.match(elb_status_code)
-        found_count += 1
-        yield row
-        next
+        # check that we got - for target status if only_elb_errors is set
+        if only_elb_errors && target_status_code == NULL_FIELD
+          found_count += 1
+          yield row
+          next
+        end
       end
     end
     if target_errors
-      target_status_code = row.fetch(
-        ALB_INDEX_MAP.fetch('target_status_code')
-      )
       if status_code_re.match(target_status_code)
         found_count += 1
         yield row
