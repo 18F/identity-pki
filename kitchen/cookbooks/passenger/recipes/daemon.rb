@@ -59,6 +59,8 @@ cookbook_file "#{nginx_path}/conf/status-map.conf" do
   mode "0644"
 end
 
+extend Chef::Mixin::ShellOut
+
 template "#{nginx_path}/conf/nginx.conf" do
   source "nginx.conf.erb"
   owner "root"
@@ -69,9 +71,7 @@ template "#{nginx_path}/conf/nginx.conf" do
     :log_path => log_path,
     passenger_root: lazy {
       # dynamically compute passenger root at converge using rbenv
-      Chef::Mixin::ShellOut.shell_out!(
-        %w{rbenv exec passenger-config --root}
-      ).stdout
+      shell_out!(%w{rbenv exec passenger-config --root}).stdout
     },
     ruby_path: node.fetch('login_dot_gov').fetch('rbenv_shims_ruby'),
     :passenger => node[:passenger][:production],
