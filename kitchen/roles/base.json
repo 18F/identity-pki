@@ -6,11 +6,7 @@
     "authorization": {
       "sudo": {
         "groups": [
-          "adm",
           "sudo"
-        ],
-        "users": [
-          "ubuntu"
         ],
         "passwordless": true
       }
