@@ -13,12 +13,16 @@ unless File.exist?(rbenv_root + '/shims/gem')
   raise "Cannot find gem shim in rbenv_root under #{rbenv_root.inspect} -- was it created in the base AMI?"
 end
 
+# hack to set PATH and RAILS_ENV for all subprocesses during this chef run
+ENV['PATH'] = "/opt/chef/bin:#{rbenv_root}/shims:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
+ENV['RAILS_ENV'] = 'production'
+
 file '/etc/environment' do
   content <<-EOM
 # Dropped off by chef
 # This is a static file (not script) used by PAM to set env variables.
 RBENV_ROOT=#{rbenv_root}
-PATH="/opt/chef/bin:#{rbenv_root}/shims:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
+PATH="#{ENV.fetch('PATH')}"
 
 RAILS_ENV=production
 RACK_ENV=production
