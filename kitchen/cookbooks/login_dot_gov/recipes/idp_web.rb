@@ -57,18 +57,21 @@ link cert_path do
   to node.fetch('instance_certificate').fetch('cert_path')
 end
 
-template "/opt/nginx/conf/sites.d/login.gov.conf" do
-  owner node['login_dot_gov']['system_user']
+template '/opt/nginx/conf/sites.d/idp_web.conf' do
   notifies :restart, "service[passenger]"
   source 'nginx_server.conf.erb'
   variables({
     app: app_name,
     basic_auth: basic_auth_enabled,
-    elb_cidr: node['login_dot_gov']['elb_cidr'],
+    passenger_ruby: lazy { Dir.chdir(deploy_dir) { shell_out!(%w{rbenv which ruby}).stdout.chomp } },
     security_group_exceptions: JSON.parse(ConfigLoader.load_config(node, "security_group_exceptions")),
     server_aliases: "idp.#{node.chef_environment}.#{domain_name}",
     server_name: server_name
   })
+end
+
+file '/opt/nginx/conf/sites.d/login.gov.conf' do
+  action :delete
 end
 
 directory "#{deploy_dir}/api" do

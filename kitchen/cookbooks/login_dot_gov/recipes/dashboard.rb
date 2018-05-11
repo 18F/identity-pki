@@ -169,10 +169,15 @@ template "/opt/nginx/conf/sites.d/dashboard.login.gov.conf" do
   owner node['login_dot_gov']['system_user']
   notifies :restart, "service[passenger]"
   source 'nginx_server.conf.erb'
+
+  # TODO: remove secret_key_base and saml_env and put them in separate config
+  # files, which will make the nginx config no longer sensitive
+  sensitive true
+
   variables({
     app: app_name,
     domain: "#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
-    elb_cidr: node['login_dot_gov']['elb_cidr'],
+    passenger_ruby: lazy { Dir.chdir(deploy_dir) { shell_out!(%w{rbenv which ruby}).stdout.chomp } },
     saml_env: node.chef_environment,
     secret_key_base: ConfigLoader.load_config(node, "secret_key_base_dashboard"),
     security_group_exceptions: ConfigLoader.load_config(node, "security_group_exceptions"),

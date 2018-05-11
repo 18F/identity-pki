@@ -29,13 +29,12 @@ branch_name = node.fetch('login_dot_gov').fetch('branch_name', "stages/#{node.ch
 deploy "/srv/#{app_name}" do
   action :deploy
 
-  user node.fetch('login_dot_gov').fetch('system_user')
-  group node.fetch('login_dot_gov').fetch('system_user')
-
   before_symlink do
     execute "#{app_name} bundle install" do
       command "rbenv exec bundle install --deployment --jobs 3 --path /srv/#{app_name}/shared/bundle --without deploy development test"
       cwd release_path
+      user node.fetch('login_dot_gov').fetch('system_user')
+      group node.fetch('login_dot_gov').fetch('system_user')
     end
 
     # setup required directories with system_user as the owner/group
@@ -49,11 +48,13 @@ deploy "/srv/#{app_name}" do
 
     execute 'deploy activate step' do
       cwd release_path
-      command './deploy/activate'
+      command 'id && env && ./deploy/activate'
       environment({
         'RACK_ENV' => 'production',
         'HOME' => nil
       })
+      user node.fetch('login_dot_gov').fetch('system_user')
+      group node.fetch('login_dot_gov').fetch('system_user')
     end
   end
 
@@ -68,6 +69,9 @@ deploy "/srv/#{app_name}" do
     "log" => "log",
     'bundle' => '.bundle'
   })
+
+  user node.fetch('login_dot_gov').fetch('system_user')
+  group node.fetch('login_dot_gov').fetch('system_user')
 end
 
 basic_auth_enabled = !!ConfigLoader.load_config_or_nil(node, "basic_auth_user_name")
@@ -89,7 +93,7 @@ template "/opt/nginx/conf/sites.d/#{app_name}.login.gov.conf" do
   variables({
     app: app_name,
     domain: "#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
-    elb_cidr: node['login_dot_gov']['elb_cidr'],
+    passenger_ruby: lazy { Dir.chdir(deploy_dir) { shell_out!(%w{rbenv which ruby}).stdout.chomp } },
     security_group_exceptions: ConfigLoader.load_config(node, "security_group_exceptions"),
     server_name: "#{app_name}.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
   })
