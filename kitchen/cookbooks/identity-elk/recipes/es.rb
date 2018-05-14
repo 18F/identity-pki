@@ -253,8 +253,13 @@ execute "Set vm_max_map_count to 262144 in sysctl" do
   command "sysctl -p /etc/sysctl.d/99-chef-vm.max_map_count.conf"
 end
 
+# set the minimum number of master-eligible nodes to prevent data loss, see:
+# https://www.elastic.co/guide/en/elasticsearch/reference/6.2/discovery-settings.html#minimum_master_nodes
+min_masters_count = (esnodes.count / 2.to_f).floor + 1
+
 elasticsearch_configure "elasticsearch" do
   configuration ({
+    'discovery.zen.minimum_master_nodes' => min_masters_count,
     'discovery.zen.ping.unicast.hosts' => esips,
     'network.bind_host' => '0.0.0.0',
     'network.publish_host' => node.fetch('ipaddress'),
