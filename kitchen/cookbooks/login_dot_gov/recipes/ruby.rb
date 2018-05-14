@@ -13,20 +13,28 @@ unless File.exist?(rbenv_root + '/shims/gem')
   raise "Cannot find gem shim in rbenv_root under #{rbenv_root.inspect} -- was it created in the base AMI?"
 end
 
-# hack to set PATH and RAILS_ENV for all subprocesses during this chef run
-ENV['PATH'] = "/opt/chef/bin:#{rbenv_root}/shims:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
-ENV['RAILS_ENV'] = 'production'
+global_env_vars = {
+  'RBENV_ROOT' => rbenv_root,
+  'PATH' => "/opt/chef/bin:#{rbenv_root}/shims:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games",
+  'RAILS_ENV' => 'production',
+  'RACK_ENV' => 'production',
+}
+
+# hack to set all the env variables from /etc/environment such as PATH and
+# RAILS_ENV for all subprocesses during this chef run
+global_env_vars.each_pair do |key, val|
+  ENV[key] = val
+end
 
 file '/etc/environment' do
-  content <<-EOM
-# Dropped off by chef
-# This is a static file (not script) used by PAM to set env variables.
-RBENV_ROOT=#{rbenv_root}
-PATH="#{ENV.fetch('PATH')}"
-
-RAILS_ENV=production
-RACK_ENV=production
+  header = <<-EOM
+    # Dropped off by chef
+    # This is a static file (not script) used by PAM to set env variables.
   EOM
+  content(
+    header + global_env_vars.map { |key, val| "#{key}='#{val}'" }.join("\n") \
+    + "\n"
+  )
 end
 
 # install dependencies
