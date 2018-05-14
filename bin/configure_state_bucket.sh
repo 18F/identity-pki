@@ -28,17 +28,17 @@ run() {
 }
 terraform() {
   echo >&2 "+ terraform $*"
-  command terraform "$@"
+  env terraform "$@"
 }
 aws() {
   echo >&2 "+ aws $*"
-  command aws "$@"
+  env aws "$@"
 }
 
 echo "Using state file $STATE"
 
 echo >&2 "+ aws s3api head-bucket --bucket $BUCKET"
-output="$(command aws s3api head-bucket --bucket "$BUCKET" 2>&1)" \
+output="$(env aws s3api head-bucket --bucket "$BUCKET" 2>&1)" \
     && ret=$? || ret=$?
 
 echo >&2 "$output"
@@ -46,19 +46,12 @@ if grep -F "Not Found" <<< "$output" >/dev/null; then
     echo "Bucket $BUCKET does not exist, creating..."
     echo "Creating an s3 bucket for terraform state"
 
-    # Do not create the bucket if it contains underscores. See
-    # https://github.com/18F/identity-private/issues/1835
-    if [[ $BUCKET = *_* ]]; then
-        echo "Can't create $BUCKET because it contains underscores"
-        exit 1
-    else
-        aws s3 mb "s3://$BUCKET"
+    aws s3 mb "s3://$BUCKET"
 
-        echo "Enabling versioning on the s3 bucket"
-        aws s3api put-bucket-versioning \
-          --bucket "$BUCKET" \
-          --versioning-configuration Status=Enabled
-    fi
+    echo "Enabling versioning on the s3 bucket"
+    aws s3api put-bucket-versioning --bucket "$BUCKET" \
+        --versioning-configuration Status=Enabled
+
 elif [ "$ret" -ne 0 ]; then
     exit "$ret"
 fi
