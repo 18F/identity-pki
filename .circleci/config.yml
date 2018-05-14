@@ -10,7 +10,7 @@ jobs:
       - image: circleci/ruby:2.3-node-browsers
         environment:
           RAILS_ENV: test
-          # CC_TEST_REPORTER_ID: faecd27e9aed532634b3f4d3e251542d7de9457cfca96a94208a63270ef9b42e
+          CC_TEST_REPORTER_ID: c88a6f4af1fbf80e0fc9a5593ebff124b2f940645b1eacb5adb681522bbf650e
           COVERAGE: true
           # PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
@@ -41,6 +41,11 @@ jobs:
             - vendor/bundle
 
       - run:
+          name: Install Code Climate Test Reporter
+          command: |
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
+      - run:
           name: Wait for DB
           command: dockerize -wait tcp://localhost:5432 -timeout 1m
 
@@ -54,8 +59,12 @@ jobs:
           name: Run Tests
           command: |
             mkdir /tmp/test-results
-
+            ./cc-test-reporter before-build
             bundle exec rake spec
+      - run:
+          name: Code Climate Test Coverage
+          command: |
+            ./cc-test-reporter format-coverage -t simplecov -o "coverage/codeclimate.$CIRCLE_NODE_INDEX.json"
 
       # collect reports
       - store_test_results:
@@ -63,3 +72,6 @@ jobs:
       - store_artifacts:
           path: /tmp/test-results
           destination: test-results
+      - deploy:
+          command: |
+            ./cc-test-reporter sum-coverage --output - --parts $CIRCLE_NODE_TOTAL coverage/codeclimate.*.json | ./cc-test-reporter upload-coverage --debug --input -

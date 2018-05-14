@@ -1,0 +1,10 @@
+plugins:
+  brakeman:
+    enabled: true
+  reek:
+    enabled: true
+  rubocop:
+    enabled: true
+    channel: rubocop-0-54
+    config:
+      file: .rubocop.yml

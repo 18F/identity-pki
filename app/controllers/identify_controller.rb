@@ -41,7 +41,7 @@ class IdentifyController < ApplicationController
   end
 
   def nonce
-    params[:nonce]
+    @nonce ||= params.require(:nonce)
   end
 
   def referrer
