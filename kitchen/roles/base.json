@@ -42,7 +42,7 @@
     "recipe[git]",
     "recipe[hostname]",
     "recipe[motd]",
-    "recipe[login_dot_gov::base_config]",
+    "recipe[identity_base_config]",
     "recipe[nano]",
     "recipe[ruby_build]",
     "recipe[ssh-keys]",

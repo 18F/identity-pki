@@ -69,6 +69,10 @@ cookbook 'passenger', path: prefixed('kitchen/cookbooks/passenger')
 cookbook 'service_discovery', path: prefixed('kitchen/cookbooks/service_discovery')
 cookbook 'identity-monitoring', path: prefixed('kitchen/cookbooks/identity-monitoring')
 
+# Cookbooks from our open source github repo
+IdentityCookbooksRef = 'dacc22d9d64d1f911c5275b0e1999d9b7253f504'
+cookbook 'identity_base_config', git: 'https://github.com/18F/identity-cookbooks', rel: 'identity_base_config', ref: IdentityCookbooksRef
+
 # We have to reference this special citadel-build repository for two reasons:
 #
 # 1. We have a custom fork of https://github.com/poise/citadel at
