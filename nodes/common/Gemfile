@@ -1,18 +1,19 @@
 source 'https://rubygems.org'
 
-gem 'berkshelf', '~> 4.3'
+gem 'berkshelf', '~> 6.0'
 
 # For Chefspec: https://github.com/sethvargo/chefspec
 gem 'chefspec'
 
 # For Test Kitchen: https://github.com/test-kitchen/test-kitchen
 gem 'test-kitchen'
+gem 'kitchen-provisioner-pre-install', git: 'https://github.com/18F/kitchen-provisioner-pre-install'
 gem 'kitchen-ec2'
 gem 'kitchen-vagrant'
 gem 'kitchen-inspec', '= 0.20' # https://github.com/chef/kitchen-inspec/issues/160
 gem 'kitchen-transport-sshtar'
 
-gem 'chef', '= 12.15.19'
+gem 'chef', '~> 13.8'
 
 # This is needed to build multipart cloud init data for test kitchen
 gem 'mime'

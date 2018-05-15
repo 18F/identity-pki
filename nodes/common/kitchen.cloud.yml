@@ -22,7 +22,7 @@ Region = 'us-west-2'
 
 role = File.basename(Dir.pwd)
 environment = ENV.fetch('KITCHEN_EC2_INTEGRATION_ENVIRONMENT', 'ci')
-ami_id = ENV.fetch('KITCHEN_EC2_AMI', 'ami-5ad3b322') # TODO look up dynamically
+ami_id = ENV.fetch('KITCHEN_EC2_AMI', 'ami-b72453cf') # TODO look up dynamically
 
 # set default AWS profile to sandbox account
 ENV['AWS_PROFILE'] ||= 'identitysandbox.gov'
@@ -113,24 +113,22 @@ cloud_init_info = [
       "role" => role
     }
   },
-  # TODO: Run the identity-devops-private provisioning.  Currently this causes
-  # the test to fail because it tries to reinstall chef.  We need a way to tell
-  # test kitchen to wait for cloud-init to finish.
-  #{
-  #  "filename" => "provision-private.yaml",
-  #  "template" => "../../terraform-modules/bootstrap/cloud-init.provision.yaml.erb",
-  #  "content_type" => "text/cloud-config",
-  #  "vars" => {
-  #    "chef_download_sha256" => "ce0ff3baf39c8c13ed474104928e7e4568a4997a1d5797cae2b2ba3ee001e3a8",
-  #    "chef_download_url" => "https://packages.chef.io/files/stable/chef/13.8.5/ubuntu/16.04/chef_13.8.5-1_amd64.deb",
+  # run identity-devops-private provisioning using provision.sh
+  {
+    "filename" => "provision-private.yaml",
+    "template" => "../../terraform-modules/bootstrap/cloud-init.provision.yaml.erb",
+    "content_type" => "text/cloud-config",
+    "vars" => {
+      "chef_download_sha256" => "ce0ff3baf39c8c13ed474104928e7e4568a4997a1d5797cae2b2ba3ee001e3a8",
+      "chef_download_url" => "https://packages.chef.io/files/stable/chef/13.8.5/ubuntu/16.04/chef_13.8.5-1_amd64.deb",
 
-  #    "provision_phase_name" => "test-kitchen-private-provisioning",
+      "provision_phase_name" => "private-provisioning",
 
-  #    "git_clone_url" => "git@github.com:18F/identity-devops-private",
-  #    "git_ref" => "master",
-  #    "s3_ssh_key_url" => "s3://login-gov-secrets-test/common/id_ecdsa.id-do-private.deploy"
-  #  }
-  #}
+      "git_clone_url" => "git@github.com:18F/identity-devops-private",
+      "git_ref" => "master",
+      "s3_ssh_key_url" => "s3://login-gov.secrets.894947205914-us-west-2/common/id_ecdsa.id-do-private.deploy"
+    }
+  }
 ]
 
 user_data = build_cloud_init(cloud_init_info)
@@ -179,6 +177,7 @@ end
         "name" => "ec2",
         "aws_ssh_key_id" => ssh_key_pair_name,
         "region" => Region,
+        "associate_public_ip" => true, # necessary to access from outside VPC
         "subnet_filter" => {
             "tag" => "Name",
             "value" => subnet
@@ -208,7 +207,7 @@ end
         "compression_level" => 9
     },
     "provisioner" => {
-        "name"  =>"chef_zero",
+        "name" => "chef_zero_preinstall",
         "always_update_cookbooks" => "true",
         "environments_path" => "../../kitchen/environments",
         "roles_path" => "../../kitchen/roles",
@@ -217,8 +216,10 @@ end
             #"treat_deprecation_warnings_as_errors" => true,
             #"resource_cloning" => false,
         },
-        # TODO: Don't install this, let the provision script do it
-        "require_chef_omnibus" => "13.8.5",
+        # pre_install_command requires our monkey patched *_preinstall
+        # provisioners
+        "pre_install_command" => "while ! systemctl is-system-running; do echo Waiting for systemd / cloud-init boot to finish; sleep 15; done",
+        "install_strategy" => "skip", # Let provision.sh has installed chef
         "root_path" => "/var/lib/kitchen"
     },
     "verifier" => {
