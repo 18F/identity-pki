@@ -40,4 +40,3 @@ end
 # install dependencies
 package 'libpq-dev'
 package 'libsasl2-dev'
-package 'ruby-dev'
