@@ -119,8 +119,13 @@ cloud_init_info = [
     "template" => "../../terraform-modules/bootstrap/cloud-init.provision.yaml.erb",
     "content_type" => "text/cloud-config",
     "vars" => {
-      "chef_download_sha256" => "ce0ff3baf39c8c13ed474104928e7e4568a4997a1d5797cae2b2ba3ee001e3a8",
-      "chef_download_url" => "https://packages.chef.io/files/stable/chef/13.8.5/ubuntu/16.04/chef_13.8.5-1_amd64.deb",
+      # assume chef is already installed in the AMI
+      "chef_download_sha256" => "",
+      "chef_download_url" => "",
+
+      # uncomment and customize in order to test new chef versions
+      #"chef_download_sha256" => "ce0ff3baf39c8c13ed474104928e7e4568a4997a1d5797cae2b2ba3ee001e3a8",
+      #"chef_download_url" => "https://packages.chef.io/files/stable/chef/13.8.5/ubuntu/16.04/chef_13.8.5-1_amd64.deb",
 
       "provision_phase_name" => "private-provisioning",
 

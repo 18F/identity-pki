@@ -131,13 +131,24 @@ variable "asg_enabled_metrics" {
     default = []
 }
 
+# TODO remove chef_version once we no longer have any aws_instance resources
+variable "chef_version" {
+    default = "13.8.5"
+    description = "Chef version used by non-ASG instances"
+}
+
 # https://downloads.chef.io/chef/stable/13.8.5#ubuntu
-variable "chef_version" { default = "13.8.5" }
 variable "chef_download_url" {
-  default = "https://packages.chef.io/files/stable/chef/13.8.5/ubuntu/16.04/chef_13.8.5-1_amd64.deb"
+    description = "URL for provision.sh to download chef debian package"
+    #default = "https://packages.chef.io/files/stable/chef/13.8.5/ubuntu/16.04/chef_13.8.5-1_amd64.deb"
+    # Assume chef will be installed already in the AMI
+    default = ""
 }
 variable "chef_download_sha256" {
-    default = "ce0ff3baf39c8c13ed474104928e7e4568a4997a1d5797cae2b2ba3ee001e3a8"
+    description = "Checksum for provision.sh of chef.deb download"
+    #default = "ce0ff3baf39c8c13ed474104928e7e4568a4997a1d5797cae2b2ba3ee001e3a8"
+    # Assume chef will be installed already in the AMI
+    default = ""
 }
 
 variable "chef_url" { default = "https://chef.login.gov.internal/organizations/login-dev" }
