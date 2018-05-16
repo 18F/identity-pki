@@ -1,17 +1,10 @@
 # This cookbook installs filebeat to send stuff to logstash
 
-require 'resolv'
-begin
-  # Look up "elk" first, because that's the old pre-ASG hostname for where we
-  # run logstash. If it exists, use it. If not, fail back to "logstash", which
-  # is the CNAME for the load-balanced ELK group.
-  _addr = Resolv.getaddress 'elk.login.gov.internal'
-  node.default['filebeat']['config']['output']['logstash']['hosts'] = ["elk.login.gov.internal:5044"]
-rescue Resolv::ResolvError
-  node.default['filebeat']['config']['output']['logstash']['hosts'] = ["logstash.login.gov.internal:5044"]
-end
+# finds and sets active logstash endpoint for the environment
+# TODO remove this code and statically set logstash host to logstash.login.gov.inernal:5044 once the
+# production upgrade is complete.
+node.default['filebeat']['config']['output']['logstash']['hosts'] = find_active_logstash
 node.default['filebeat']['config']['output']['logstash']['ssl']['certificate_authorities'] = ["/etc/ssl/certs/ca-certificates.crt"]
-
 
 #############################
 # Chef Server Compatibility #
