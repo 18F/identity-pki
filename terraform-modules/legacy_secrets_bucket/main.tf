@@ -1,3 +1,5 @@
+# TODO delete this whole file as I'm pretty sure it's unused.
+
 data "aws_caller_identity" "current" {}
 
 resource "aws_s3_bucket" "logs" {

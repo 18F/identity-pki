@@ -33,6 +33,14 @@ resource "aws_s3_bucket" "shared" {
   bucket = "login-gov-shared-data-${data.aws_caller_identity.current.account_id}"
   force_destroy = true
   policy = "${data.aws_iam_policy_document.shared.json}"
+
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "aws:kms"
+      }
+    }
+  }
 }
 
 # Create a common bucket for storing ELB/ALB access logs
@@ -79,6 +87,14 @@ resource "aws_s3_bucket" "s3-logs" {
     expiration {
       # 5 years
       days = 1825
+    }
+  }
+
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "aws:kms"
+      }
     }
   }
 }
@@ -129,6 +145,14 @@ resource "aws_s3_bucket" "s3-email" {
       days = 365
     }
   }
+
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "aws:kms"
+      }
+    }
+  }
 }
 
 # This is the terraform state bucket used by terraform including by this
@@ -165,15 +189,13 @@ resource "aws_s3_bucket" "tf-state" {
     target_prefix = "login-gov.tf-state.${data.aws_caller_identity.current.account_id}-${var.region}/"
   }
 
-  # TODO newer AWS provider only
-  #server_side_encryption_configuration {
-  #  rule {
-  #    apply_server_side_encryption_by_default {
-  #      kms_master_key_id = "aws/s3"
-  #      sse_algorithm     = "aws:kms"
-  #    }
-  #  }
-  #}
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "aws:kms"
+      }
+    }
+  }
 
   lifecycle {
     prevent_destroy = true
