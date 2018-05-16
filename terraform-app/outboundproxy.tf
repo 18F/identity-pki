@@ -321,6 +321,14 @@ EOF
       days = 90
     }
   }
+
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
 }
 
 data "aws_iam_policy_document" "sharedbucket" {
