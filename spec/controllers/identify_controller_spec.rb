@@ -91,20 +91,43 @@ RSpec.describe IdentifyController, type: :controller do
           certificate_store.add_pem_file(ca_file_path)
         end
 
-        it 'returns a token with a uuid and subject' do
-          @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
-          get :create, params: { nonce: '123' }
-          expect(response).to have_http_status(:found)
-          expect(response.has_header?('Location')).to be_truthy
-          expect(token).to be_truthy
+        context 'when the web server sends the escaped cert' do
+          it 'returns a token with a uuid and subject' do
+            allow(Figaro.env).to receive(:client_cert_escaped).and_return('true')
+            @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
+            get :create, params: { nonce: '123' }
+            expect(response).to have_http_status(:found)
+            expect(response.has_header?('Location')).to be_truthy
+            expect(token).to be_truthy
 
-          expect(token_contents['nonce']).to eq '123'
+            expect(token_contents['nonce']).to eq '123'
 
-          # N.B.: we do this split/sort because DNs match without respect to
-          # ordering of components. OpenSSL::X509::Name doesn't match correctly.
-          given_subject = token_contents['subject'].split(/\s*,\s*/).sort
-          expected_subject = client_subject.split(/\s*,\s*/).sort
-          expect(given_subject).to eq expected_subject
+            # N.B.: we do this split/sort because DNs match without respect to
+            # ordering of components. OpenSSL::X509::Name doesn't match correctly.
+            given_subject = token_contents['subject'].split(/\s*,\s*/).sort
+            expected_subject = client_subject.split(/\s*,\s*/).sort
+            expect(given_subject).to eq expected_subject
+          end
+        end
+
+        context 'when the web server sends an unescaped cert' do
+          it 'returns a token with a uuid and subject' do
+            allow(Figaro.env).to receive(:client_cert_escaped).and_return('false')
+            @request.headers['X-Client-Cert'] = client_cert_pem.split(/\n/).join("\n\t")
+            get :create, params: { nonce: '123' }
+            expect(response).to have_http_status(:found)
+            expect(response.has_header?('Location')).to be_truthy
+            expect(token).to be_truthy
+
+            expect(token_contents['nonce']).to eq '123'
+
+            # N.B.: we do this split/sort because DNs match without respect to
+            # ordering of components. OpenSSL::X509::Name doesn't match correctly.
+            expect(token_contents['subject']).to_not be_nil
+            given_subject = token_contents['subject'].split(/\s*,\s*/).sort
+            expected_subject = client_subject.split(/\s*,\s*/).sort
+            expect(given_subject).to eq expected_subject
+          end
         end
 
         describe 'with an expired certificate' do
