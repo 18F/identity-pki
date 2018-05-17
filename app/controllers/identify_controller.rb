@@ -64,9 +64,14 @@ class IdentifyController < ApplicationController
         value = URI(value)
         value.query = ''
         value.fragment = ''
-        # TODO: LG-183 - make sure referrer is whitelisted
       end
-      value
+      value if value && allowed_referrer?(value)
     end
+  end
+
+  # :reek:UtilityFunction
+  def allowed_referrer?(uri)
+    allowed_host = Figaro.env.identity_idp_host
+    !allowed_host || uri.host == allowed_host
   end
 end
