@@ -35,12 +35,11 @@ class IdentifyController < ApplicationController
 
   # :reek:UtilityFunction
   def process_cert(raw_cert)
-    Rails.logger.info("Processing raw certificate #{raw_cert}")
     cert = Certificate.new(OpenSSL::X509::Certificate.new(raw_cert))
-    Rails.logger.info("OpenSSL X509 certificate: #{cert.inspect}")
 
     cert.token(nonce: nonce)
-  rescue OpenSSL::X509::CertificateError
+  rescue OpenSSL::X509::CertificateError => error
+    Rails.logger.warn("CertificateError: #{error.message}")
     TokenService.box(error: 'certificate.bad', nonce: nonce)
   end
 
