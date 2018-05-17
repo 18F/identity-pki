@@ -14,7 +14,7 @@ class IdentifyController < ApplicationController
       # redirect to referer OR redirect to a preconfigured URL template
       redirect_to referrer.to_s
     else
-      Rails.logger.warn("No referrer, returning Bad Request.")
+      Rails.logger.warn('No referrer, returning Bad Request.')
       render plain: 'Invalid request', status: :bad_request
     end
   end
@@ -27,7 +27,7 @@ class IdentifyController < ApplicationController
     token = if cert_pem
               process_cert(CGI.unescape(cert_pem))
             else
-              Rails.logger.warn("No certificate found in headers.")
+              Rails.logger.warn('No certificate found in headers.')
               TokenService.box(error: 'certificate.none', nonce: nonce)
             end
     CGI.escape(token)
