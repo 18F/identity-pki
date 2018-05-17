@@ -3,6 +3,12 @@ require 'rails_helper'
 RSpec.describe Certificate do
   let(:certificate) { described_class.new(x509_cert) }
 
+  let(:certificate_error) do
+    TokenService.open(
+      certificate.send(:token_for_invalid_certificate, {})
+    )['error']
+  end
+
   let(:cert_collection) do
     create_certificate_set(
       root_count: 1,
@@ -62,12 +68,34 @@ RSpec.describe Certificate do
 
     it { expect(certificate.ca_capable?).to be_truthy }
     it { expect(certificate.self_signed?).to be_truthy }
+    it { expect(certificate.valid?).to be_falsey }
+    it { expect(certificate_error).to eq 'certificate.unverified' }
   end
 
   describe 'a leaf cert' do
     let(:x509_cert) { leaf_cert }
-
     it { expect(certificate.ca_capable?).to be_falsey }
     it { expect(certificate.self_signed?).to be_falsey }
+
+    it 'has authorityInfoAccess information' do
+      expect(certificate.aia).to_not be_nil
+      expect(certificate.aia).to have_key 'CA Issuers'
+      expect(certificate.aia['CA Issuers'].count).to eq 1
+      expect(certificate.aia).to have_key 'OCSP'
+      expect(certificate.aia['OCSP'].count).to eq 1
+    end
+  end
+
+  describe 'a cert with no trusted cert in cert store' do
+    let(:x509_cert) { leaf_cert }
+    let(:unrecognized_certificate_authority) do
+      UnrecognizedCertificateAuthority.find_by(key: certificate.signing_key_id)
+    end
+
+    it 'logs the cert in the unknown certificate authority table' do
+      expect(certificate.signature_verified?).to be_falsey
+      expect(unrecognized_certificate_authority).to_not be_nil
+      expect(unrecognized_certificate_authority.dn).to eq certificate.issuer.to_s
+    end
   end
 end

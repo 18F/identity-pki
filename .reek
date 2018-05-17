@@ -5,6 +5,9 @@ IrresponsibleModule:
   enabled: false
 NilCheck:
   enabled: false
+TooManyMethods:
+  exclude:
+    - Certificate
 'spec':
   DuplicateMethodCall:
     enabled: false

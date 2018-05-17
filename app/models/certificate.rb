@@ -26,21 +26,17 @@ class Certificate
   end
 
   def valid?
-    !expired? &&
-      (trusted_root? || !self_signed? && !revoked? && signature_verified?)
+    !expired? && (trusted_root? || !self_signed? && signature_verified? && !revoked?)
   end
 
   def to_pem
-    <<~PEM
-      Subject: #{subject}
-      Issuer: #{issuer}
-      #{@x509_cert.to_pem}
-    PEM
+    "Subject: #{subject}\nIssuer: #{issuer}\n#{@x509_cert.to_pem}"
   end
 
   # :reek:UtilityFunction
   def signature_verified?
     signing_cert = CertificateStore.instance[signing_key_id]
+    UnrecognizedCertificateAuthority.find_or_create_for_certificate(self) unless signing_cert
     signing_cert && verify(signing_cert.public_key)
   end
 
@@ -58,21 +54,52 @@ class Certificate
     get_extension('authorityKeyIdentifier')&.sub(/^keyid:/, '')&.chomp&.upcase
   end
 
-  def token(extra)
-    if valid?
-      token_for_valid_certificate(extra)
-    else
-      token_for_invalid_certificate(extra)
-    end
+  def crl_http_url
+    extract_http_url(get_extension('crlDistributionPoints')&.split(/\n/))
   end
 
-  # :reek:UtilityFunction
-  def get_extension(oid)
-    extension = @x509_cert.extensions.detect { |record| record.oid == oid }
-    extension&.value
+  def aia
+    get_extension('authorityInfoAccess')&.
+      split(/\n/)&.
+      map { |line| line.split(/\s*-\s*/, 2) }&.
+      each_with_object(Hash.new { |hash, key| hash[key] = [] }) do |(key, value), memo|
+        memo[key] << value
+      end
+  end
+
+  def token(extra)
+    return token_for_valid_certificate(extra) if valid?
+    token_for_invalid_certificate(extra)
+  end
+
+  def issuer_metadata
+    ca_issuer_url, ocsp_url = authority_information
+
+    {
+      dn: issuer,
+      crl_http_url: crl_http_url,
+      ca_issuer_url: ca_issuer_url,
+      ocsp_url: ocsp_url,
+    }
   end
 
   private
+
+  # :reek:UtilityFunction
+  def get_extension(oid)
+    @x509_cert.extensions.detect { |record| record.oid == oid }&.value
+  end
+
+  def authority_information
+    info = aia
+
+    [extract_http_url(aia['CA Issuers']), extract_http_url(aia['OCSP'])] if info
+  end
+
+  # :reek:UtilityFunction
+  def extract_http_url(list)
+    list&.detect { |line| line.start_with?('URI:http') }&.sub(/^URI:/, '')
+  end
 
   # :reek:UtilityFunction
   def token_for_valid_certificate(extra)
