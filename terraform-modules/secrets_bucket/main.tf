@@ -5,6 +5,8 @@ resource "aws_s3_bucket" "secrets" {
   acl    = "private"
   force_destroy = "${var.force_destroy}"
 
+  policy = ""
+
   tags {
     Name        = "${var.bucket_name_prefix}"
     Environment = "All"
@@ -19,27 +21,12 @@ resource "aws_s3_bucket" "secrets" {
     # This is effectively the bucket name, but I can't self reference
     target_prefix = "${var.bucket_name_prefix}.${var.secrets_bucket_type}.${data.aws_caller_identity.current.account_id}-${var.region}/"
   }
-}
 
-resource "aws_s3_bucket_policy" "kms_encryption_policy" {
-  count = "${var.use_kms == true ? 1 : 0}"
-  bucket = "${aws_s3_bucket.secrets.id}"
-  policy = <<EOF
-{
-  "Version":"2012-10-17",
-  "Id":"PutObjPolicy-${aws_s3_bucket.secrets.id}",
-  "Statement":[{
-    "Sid":"DenyUnEncryptedObjectUploads",
-    "Effect":"Deny",
-    "Principal":"*",
-    "Action":"s3:PutObject",
-    "Resource":"arn:aws:s3:::${aws_s3_bucket.secrets.id}/*",
-    "Condition":{
-      "StringNotEquals":{
-        "s3:x-amz-server-side-encryption":"aws:kms",
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "aws:kms"
       }
     }
-  }]
-}
-  EOF
+  }
 }

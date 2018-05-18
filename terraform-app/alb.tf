@@ -7,6 +7,7 @@ resource "aws_alb" "idp" {
   access_logs = {
     bucket = "login-gov.elb-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
     prefix = "${var.env_name}/idp"
+    enabled = true
   }
 
   enable_deletion_protection = "${var.enable_deletion_protection}"

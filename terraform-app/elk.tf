@@ -129,10 +129,18 @@ resource "aws_s3_bucket" "logbucket" {
     }
     transition {
       days = 365
-        storage_class = "GLACIER"
+      storage_class = "GLACIER"
     }
     expiration {
       days = 1095
+    }
+  }
+
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "AES256"
+      }
     }
   }
 }
@@ -144,6 +152,14 @@ resource "aws_s3_bucket" "elasticsearch_snapshot_bucket" {
     Name = "login-gov-elasticsearch-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
   }
   policy = "${data.aws_iam_policy_document.elasticsearch_bucket_policy.json}"
+
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
 }
 
 data "aws_iam_policy_document" "elasticsearch_bucket_policy" {
