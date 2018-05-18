@@ -1,3 +1,5 @@
+data "aws_caller_identity" "current" {}
+
 resource "aws_vpc" "analytics_vpc" {
   cidr_block = "${var.vpc_cidr_block}"
   enable_dns_support = true
@@ -238,15 +240,15 @@ resource "aws_security_group" "lambda_security_group" {
 }
 
 resource "aws_s3_bucket" "redshift_export_bucket" {
-  bucket = "login-gov-${var.env_name}-analytics"
+  bucket = "login-gov-${var.env_name}-${data.aws_caller_identity.current.account_id}-${var.region}-analytics"
 
   tags {
-    Name = "login-gov-${var.env_name}-analytics"
+    Name = "login-gov-${var.env_name}-${data.aws_caller_identity.current.account_id}-${var.region}-analytics"
   }
 
   logging {
-    target_bucket = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
-    target_prefix = "login-gov-${var.env_name}-analytics/"
+    target_bucket = "${aws_s3_bucket.analytics_logging_bucket.id}"
+    target_prefix = "login-gov-${var.env_name}-${data.aws_caller_identity.current.account_id}-${var.region}-analytics/"
   }
 
   lifecycle {
@@ -255,15 +257,15 @@ resource "aws_s3_bucket" "redshift_export_bucket" {
 }
 
 resource "aws_s3_bucket" "parquet_export_bucket" {
-  bucket = "login-gov-${var.env_name}-analytics-parquet"
+  bucket = "login-gov-${var.env_name}-${data.aws_caller_identity.current.account_id}-analytics-parquet"
 
   tags {
-    Name = "login-gov-${var.env_name}-analytics-parquet"
+    Name = "login-gov-${var.env_name}-${data.aws_caller_identity.current.account_id}-analytics-parquet"
   }
 
   logging {
-    target_bucket = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
-    target_prefix = "login-gov-${var.env_name}-analytics-parquet/"
+    target_bucket = "${aws_s3_bucket.analytics_logging_bucket.id}"
+    target_prefix = "login-gov-${var.env_name}-${data.aws_caller_identity.current.account_id}-${var.region}-analytics-parquet/"
   }
 
   lifecycle {
@@ -272,15 +274,15 @@ resource "aws_s3_bucket" "parquet_export_bucket" {
 }
 
 resource "aws_s3_bucket" "analytics_export_bucket" {
-  bucket = "login-gov-${var.env_name}-analytics-hot"
+  bucket = "login-gov-${var.env_name}-${data.aws_caller_identity.current.account_id}-${var.region}-analytics-hot"
 
   tags {
-    Name = "login-gov-${var.env_name}-analytics-hot"
+    Name = "login-gov-${var.env_name}-${data.aws_caller_identity.current.account_id}-analytics-hot"
   }
 
   logging {
-    target_bucket = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
-    target_prefix = "login-gov-${var.env_name}-analytics-hot/"
+    target_bucket = "${aws_s3_bucket.analytics_logging_bucket.id}"
+    target_prefix = "login-gov-${var.env_name}-${data.aws_caller_identity.current.account_id}-${var.region}-analytics-hot/"
   }
 
   lifecycle {
@@ -288,25 +290,16 @@ resource "aws_s3_bucket" "analytics_export_bucket" {
   }
 }
 
-resource "aws_s3_bucket" "redshift_logs_bucket" {
-  bucket = "login-gov-${var.env_name}-analytics-logs"
+resource "aws_s3_bucket" "analytics_logging_bucket" {
+  bucket = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
   acl = "log-delivery-write"
 
   tags {
-    Name = "login-gov-${var.env_name}-analytics-logs"
-  }
-
-  versioning {
-    enabled = true
+    Name = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
   }
 
   lifecycle {
     prevent_destroy = true
-  }
-
-  logging {
-    target_bucket = "login-gov-s3bucket-access-logging"
-    target_prefix = "login-gov-${var.env_name}-analytics-logs/"
   }
 
   lifecycle_rule {
@@ -318,6 +311,83 @@ resource "aws_s3_bucket" "redshift_logs_bucket" {
       days = 60
     }
   }
+
+  logging {
+    target_bucket = "${aws_s3_bucket.access_logging_bucket.id}"
+    target_prefix = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}/"
+  }
+}
+
+resource "aws_s3_bucket" "redshift_logs_bucket" {
+  bucket = "login-gov-${var.env_name}-${data.aws_caller_identity.current.account_id}-${var.region}-analytics-logs"
+  acl = "log-delivery-write"
+
+  tags {
+    Name = "login-gov-${var.env_name}-${data.aws_caller_identity.current.account_id}-${var.region}-analytics-logs"
+  }
+
+  versioning {
+    enabled = true
+  }
+
+  lifecycle {
+    prevent_destroy = true
+  }
+
+  logging {
+    target_bucket = "${aws_s3_bucket.access_logging_bucket.id}"
+    target_prefix = "login-gov-${var.env_name}-${data.aws_caller_identity.current.account_id}-${var.region}-analytics-logs/"
+  }
+
+  lifecycle_rule {
+    id = "redshiftlogexpire"
+    prefix = ""
+    enabled = true
+
+    expiration {
+      days = 60
+    }
+  }
+}
+
+# Bucket used for storing S3 access logs in Analytics account
+resource "aws_s3_bucket" "access_logging_bucket" {
+  bucket = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+  acl = "log-delivery-write"
+
+  tags {
+    Name = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+  }
+  
+  versioning {
+    enabled = true
+  }
+
+  lifecycle {
+    prevent_destroy = true
+  }
+  
+
+  lifecycle_rule {
+    id = "expirelogs"
+    enabled = true
+    prefix = "/"
+
+    transition {
+      days = 30
+      storage_class = "STANDARD_IA"
+    }
+
+    transition {
+      days = 365
+      storage_class = "GLACIER"
+    }
+
+    expiration {
+      # 5 years
+      days = 1825
+    }
+  }
 }
 
 data "aws_iam_policy_document" "bucket_policy_json" {
@@ -327,7 +397,7 @@ data "aws_iam_policy_document" "bucket_policy_json" {
     ]
 
     resources = [
-      "arn:aws:s3:::login-gov-${var.env_name}-analytics-logs/*",
+      "arn:aws:s3:::login-gov-${var.env_name}-${data.aws_caller_identity.current.account_id}-${var.region}-analytics-logs/*",
     ]
 
     principals {
@@ -348,7 +418,7 @@ data "aws_iam_policy_document" "bucket_policy_json" {
     ]
 
     resources = [
-      "arn:aws:s3:::login-gov-${var.env_name}-analytics-logs"
+      "arn:aws:s3:::login-gov-${var.env_name}-${data.aws_caller_identity.current.account_id}-${var.region}-analytics-logs"
     ]
 
     principals {
@@ -533,6 +603,11 @@ vpc_config {
      env = "${var.env_name}"
      redshift_host = "${aws_redshift_cluster.redshift.endpoint}"
      encryption_key = "${var.kms_key_id}"
+     acct_id = "${data.aws_caller_identity.current.account_id}"
+     source_bucket = "login-gov-${var.env_name}-logs"
+     dest_bucket = "${aws_s3_bucket.redshift_export_bucket.id}"
+     parquet_bucket = "${aws_s3_bucket.parquet_export_bucket.id}"
+     hot_bucket = "${aws_s3_bucket.analytics_export_bucket.id}"
    }
  }
 }
@@ -555,8 +630,14 @@ vpc_config {
  environment {
    variables = {
      env = "${var.env_name}"
+     region = "${var.region}"
      redshift_host = "${aws_redshift_cluster.redshift.endpoint}"
      encryption_key = "${var.kms_key_id}"
+     acct_id = "${data.aws_caller_identity.current.account_id}"
+     source_bucket = "login-gov-${var.env_name}-logs"
+     dest_bucket = "${aws_s3_bucket.redshift_export_bucket.id}"
+     parquet_bucket = "${aws_s3_bucket.parquet_export_bucket.id}"
+     hot_bucket = "${aws_s3_bucket.analytics_export_bucket.id}"
    }
  }
 }
