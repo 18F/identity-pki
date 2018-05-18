@@ -13,7 +13,7 @@ map $upstream_http_strict_transport_security $sts_value {
 
 server {
     listen       443 ssl;
-    server_name  <%= @server_name %> <%= @server_aliases -%>;
+    server_name  <%= @server_name or raise 'no @server_name' %> <%= @server_aliases -%>;
 
     # Use the certificate and key placed by the instance_certificate cookbook
     # TODO: pull this from a template variable via
@@ -32,12 +32,16 @@ server {
 
     resolver_timeout 5s;
 
-    root /srv/<%= @app %>/current/public;
+    root "/srv/<%= @app or raise 'no @app' %>/current/public";
     passenger_enabled on;
+    passenger_ruby "<%= @passenger_ruby or raise 'no @passenger_ruby' %>";
+
     <% if @saml_env -%>
+    # TODO: move this to a separate app-specific config file
     passenger_env_var SAML_ENV <%= @saml_env %>;
     <% end -%>
     <% if @secret_key_base -%>
+    # TODO: move this to a separate app-specific config file
     passenger_env_var SECRET_KEY_BASE <%= @secret_key_base %>;
     <% end -%>
 

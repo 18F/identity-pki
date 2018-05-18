@@ -1,7 +1,5 @@
 include_recipe 'login_dot_gov::nodejs'
 
-execute "mount -o remount,exec,nosuid,nodev /tmp" # TODO: remove post AMI rollout
-
 # setup postgres root config resource
 psql_config 'configure postgres CA bundle root cert'
 
@@ -70,19 +68,6 @@ shared_dirs.each do |dir|
   end
 end
 
-# TODO: switch to rbenv
-ruby_bin_dir = "#{node.fetch('login_dot_gov').fetch('default_ruby_path')}/bin"
-ruby_build_path = [
-  ruby_bin_dir,
-  ENV.fetch('PATH'),
-].join(':')
-
-deploy_script_environment = {
-  'PATH' => ruby_build_path,
-  'RAILS_ENV' => 'production',
-  'HOME' => nil,
-}
-
 # TODO: JJG consider migrating to chef deploy resource to stay in line with capistrano style:
 # https://docs.chef.io/resource_deploy.html
 application release_path do
@@ -98,16 +83,6 @@ application release_path do
     revision branch_name
   end
 
-  # TODO move this into deploy/build
-  bundle_install do
-    binstubs '/srv/idp/shared/bin'
-    deployment true
-    jobs 3
-    vendor '/srv/idp/shared/bundle'
-    without %w{deploy development doc test}
-    not_if { File.exist?('/srv/idp/releases/chef/deploy/build') }
-  end
-
   # custom resource to install the IdP config files (app.yml, saml.crt, saml.key)
   login_dot_gov_idp_configs shared_path do
     not_if { node['login_dot_gov']['setup_only'] }
@@ -120,10 +95,6 @@ application release_path do
     app_name "#{node.chef_environment}.#{node.fetch('login_dot_gov').fetch('domain_name')}"
     symlink_from release_path
   end
-
-  # TODO: remove all the build steps that have moved into deploy/build so that
-  # the identity-devops repo doesn't need to be aware of the steps involved to
-  # build any repo.
 
   # TODO: figure out why this hack is needed and remove it.
   # For some reason we are ending up with a root-owned directory
@@ -148,11 +119,10 @@ application release_path do
     # so we use sudo instead to get all the login secondary groups.
     # https://github.com/chef/chef/issues/6162
     command [
-      'sudo', '-E', '-H', '-u', node.fetch('login_dot_gov').fetch('system_user'),
+      'sudo', '-H', '-u', node.fetch('login_dot_gov').fetch('system_user'),
       './deploy/build'
     ]
     user 'root'
-    environment(deploy_script_environment)
   end
 
   # Run the activate script from the repo, which is used to download app
@@ -164,7 +134,6 @@ application release_path do
     command './deploy/activate'
     user node['login_dot_gov']['system_user']
     group node['login_dot_gov']['system_user']
-    environment(deploy_script_environment)
   end
 
   rails do
@@ -183,7 +152,6 @@ application release_path do
     command './deploy/build-post-config'
     user node['login_dot_gov']['system_user']
     group node['login_dot_gov']['system_user']
-    environment(deploy_script_environment)
   end
 
   execute 'newrelic log deploy' do
@@ -191,7 +159,6 @@ application release_path do
     command 'bundle exec newrelic deployments -r "$(git rev-parse HEAD)"'
     user node['login_dot_gov']['system_user']
     group node['login_dot_gov']['system_user']
-    environment(deploy_script_environment)
   end
 
   execute 'deploy migrate step' do
@@ -199,22 +166,6 @@ application release_path do
     command './deploy/migrate'
     user node['login_dot_gov']['system_user']
     group node['login_dot_gov']['system_user']
-    environment(deploy_script_environment)
-
-    # TODO delete condition once deploy/migrate exists
-    only_if { File.exist?('/srv/idp/releases/chef/deploy/migrate') }
-  end
-
-  # TODO remove this once the deploy/migrate script has been merged in
-  # the identity-idp repo
-  execute %W{#{ruby_bin_dir}/bundle exec rake db:create db:migrate db:seed --trace} do
-    cwd '/srv/idp/releases/chef'
-    environment({
-      'RAILS_ENV' => "production"
-    })
-    not_if { node['login_dot_gov']['setup_only'] }
-
-    not_if { File.exist?('/srv/idp/releases/chef/deploy/migrate') }
   end
 
   if File.exist?("/etc/init.d/passenger")

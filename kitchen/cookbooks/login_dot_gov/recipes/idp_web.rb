@@ -57,18 +57,21 @@ link cert_path do
   to node.fetch('instance_certificate').fetch('cert_path')
 end
 
-template "/opt/nginx/conf/sites.d/login.gov.conf" do
-  owner node['login_dot_gov']['system_user']
+template '/opt/nginx/conf/sites.d/idp_web.conf' do
   notifies :restart, "service[passenger]"
   source 'nginx_server.conf.erb'
   variables({
     app: app_name,
     basic_auth: basic_auth_enabled,
-    elb_cidr: node['login_dot_gov']['elb_cidr'],
+    passenger_ruby: lazy { Dir.chdir(deploy_dir) { shell_out!(%w{rbenv which ruby}).stdout.chomp } },
     security_group_exceptions: JSON.parse(ConfigLoader.load_config(node, "security_group_exceptions")),
     server_aliases: "idp.#{node.chef_environment}.#{domain_name}",
     server_name: server_name
   })
+end
+
+file '/opt/nginx/conf/sites.d/login.gov.conf' do
+  action :delete
 end
 
 directory "#{deploy_dir}/api" do
@@ -86,18 +89,9 @@ end
 file "/etc/cron.d/idp-enqueue-dummy-job" do
   mode '0644'
   content <<-EOM
-PATH=#{node.fetch('login_dot_gov').fetch('default_ruby_path')}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-* * * * * #{node.fetch(:passenger).fetch(:production).fetch(:user)} /bin/bash -l -c 'cd /srv/idp/releases/chef && bundle exec bin/rails runner -e production WorkerHealthChecker.enqueue_dummy_jobs >> /srv/idp/shared/log/cron.log 2>&1'
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+* * * * * #{node.fetch(:passenger).fetch(:production).fetch(:user)} /bin/bash -l -c 'cd /srv/idp/releases/chef && rbenv exec bundle exec bin/rails runner -e production WorkerHealthChecker.enqueue_dummy_jobs >> /srv/idp/shared/log/cron.log 2>&1'
   EOM
-end
-
-# This is not used on environments that use Autoscaled IDP servers
-execute "#{node.fetch('login_dot_gov').fetch('default_ruby_path')}/bin/bundle exec whenever --update-crontab" do
-  cwd "#{base_dir}/current"
-  environment({
-    'RAILS_ENV' => "production"
-  })
-  only_if { node.name == "idp1-0.#{node.chef_environment}" } # first idp host
 end
 
 # allow other execute permissions on all directories within the application folder

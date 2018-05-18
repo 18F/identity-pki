@@ -1,5 +1,3 @@
-execute "mount -o remount,exec,nosuid,nodev /tmp" # TODO: remove post AMI rollout
-
 # setup postgres root config resource
 psql_config 'configure postgres root cert'
 
@@ -28,7 +26,7 @@ end
 deploy "/srv/#{app_name}" do
   action :deploy
   before_symlink do
-    cmd = "#{node.fetch('login_dot_gov').fetch('default_ruby_path')}/bin/bundle install --deployment --jobs 3 --path /srv/#{app_name}/shared/bundle --without deploy development test"
+    cmd = "rbenv exec bundle install --deployment --jobs 3 --path /srv/#{app_name}/shared/bundle --without deploy development test"
     execute cmd do
       cwd release_path
       #user 'ubuntu'
@@ -63,10 +61,12 @@ template "/opt/nginx/conf/sites.d/#{app_name}.login.gov.conf" do
   owner node['login_dot_gov']['system_user']
   notifies :restart, "service[passenger]"
   source 'nginx_server.conf.erb'
+  # TODO: remove secret_key_base and make non-sensitive
+  sensitive true
   variables({
     app: app_name,
     domain: "#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
-    elb_cidr: node['login_dot_gov']['elb_cidr'],
+    passenger_ruby: lazy { Dir.chdir(deploy_dir) { shell_out!(%w{rbenv which ruby}).stdout.chomp } },
     saml_env: node.chef_environment,
     secret_key_base: ConfigLoader.load_config(node, "secret_key_base_rails"),
     security_group_exceptions: ConfigLoader.load_config(node, "security_group_exceptions"),
@@ -84,5 +84,3 @@ login_dot_gov_deploy_info "#{deploy_dir}/api/deploy.json" do
   owner node.fetch('login_dot_gov').fetch('system_user')
   branch branch_name
 end
-
-execute "mount -o remount,noexec,nosuid,nodev /tmp" # TODO: remove post AMI rollout

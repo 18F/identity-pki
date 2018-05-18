@@ -1,5 +1,3 @@
-execute "mount -o remount,exec,nosuid,nodev /tmp" # TODO: remove post AMI rollout
-
 # setup postgres root config resource
 psql_config 'configure postgres root cert'
 
@@ -103,10 +101,9 @@ deploy "#{base_dir}" do
     end
 
     cmds = [
-      # TODO switch to rbenv
-      "#{node.fetch('login_dot_gov').fetch('default_ruby_path')}/bin/bundle config build.nokogiri --use-system-libraries",
-      "#{node.fetch('login_dot_gov').fetch('default_ruby_path')}/bin/bundle install --deployment --jobs 3 --path #{base_dir}/shared/bundle --without deploy development test",
-      "#{node.fetch('login_dot_gov').fetch('default_ruby_path')}/bin/bundle exec rake assets:precompile",
+      "rbenv exec bundle config build.nokogiri --use-system-libraries",
+      "rbenv exec bundle install --deployment --jobs 3 --path #{base_dir}/shared/bundle --without deploy development test",
+      "rbenv exec bundle exec rake assets:precompile",
     ]
 
     cmds.each do |cmd|
@@ -134,11 +131,9 @@ deploy "#{base_dir}" do
     "public/system" => "public/system",
     "tmp/pids" => "tmp/pids"
   })
-
-  #user 'ubuntu'
 end
 
-execute "#{node.fetch('login_dot_gov').fetch('default_ruby_path')}/bin/bundle exec rake db:create db:migrate --trace" do
+execute "rbenv exec bundle exec rake db:create db:migrate --trace" do
   cwd "#{base_dir}/current"
   environment({
     'RAILS_ENV' => "production"
@@ -174,10 +169,15 @@ template "/opt/nginx/conf/sites.d/dashboard.login.gov.conf" do
   owner node['login_dot_gov']['system_user']
   notifies :restart, "service[passenger]"
   source 'nginx_server.conf.erb'
+
+  # TODO: remove secret_key_base and saml_env and put them in separate config
+  # files, which will make the nginx config no longer sensitive
+  sensitive true
+
   variables({
     app: app_name,
     domain: "#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
-    elb_cidr: node['login_dot_gov']['elb_cidr'],
+    passenger_ruby: lazy { Dir.chdir(deploy_dir) { shell_out!(%w{rbenv which ruby}).stdout.chomp } },
     saml_env: node.chef_environment,
     secret_key_base: ConfigLoader.load_config(node, "secret_key_base_dashboard"),
     security_group_exceptions: ConfigLoader.load_config(node, "security_group_exceptions"),
@@ -195,8 +195,6 @@ login_dot_gov_deploy_info "#{deploy_dir}/api/deploy.json" do
   owner node.fetch('login_dot_gov').fetch('system_user')
   branch branch_name
 end
-
-execute "mount -o remount,noexec,nosuid,nodev /tmp" # TODO: remove post AMI rollout
 
 # After doing the full deploy, we need to fully restart passenger in order for
 # it to actually be running. This seems like a bug in our chef config. The main

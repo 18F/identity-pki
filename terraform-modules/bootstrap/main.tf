@@ -1,7 +1,11 @@
 variable "env" { description = "Environment (prod/qa/dev)" }
 variable "role" { description = "Host role (idp/jumphost/etc)" }
 variable "domain" { description = "Second level domain, e.g. login.gov" }
-variable "chef_download_url" { description = "URL to download chef debian package" }
+
+variable "chef_download_url" {
+    description = "URL to download chef debian package. If set to empty string, skip chef download."
+    default = ""
+}
 variable "chef_download_sha256" {
     description = "Expected SHA256 checksum of chef debian package"
     default = ""

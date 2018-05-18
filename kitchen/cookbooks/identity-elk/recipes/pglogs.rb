@@ -9,7 +9,7 @@ template '/usr/local/bin/getpglogs.rb' do
     :region => node['ec2']['placement_availability_zone'].gsub(/[a-z]$/,''),
     :pglogdir => node['elk']['pglogsdir'],
     :env => node.chef_environment,
-    :ruby => "#{node.fetch('login_dot_gov').fetch('default_ruby_path')}/bin/ruby"
+    :ruby => node.fetch('login_dot_gov').fetch('rbenv_shims_ruby')
   })
 end
 

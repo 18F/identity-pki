@@ -5,30 +5,19 @@
 include_recipe "passenger::install"
 
 package "curl"
-if ['ubuntu', 'debian'].member? node[:platform]
-  ['libcurl4-openssl-dev','libpcre3-dev'].each do |pkg|
-    package pkg
-  end
+['libcurl4-openssl-dev', 'libpcre3-dev'].each do |pkg|
+  package pkg
 end
 
-nginx_path = node[:passenger][:production][:path]
+nginx_path = node.fetch(:passenger).fetch(:production).fetch(:path)
 
 bash "install passenger/nginx" do
-  user "root"
   code <<-EOH
-  #{node.fetch('login_dot_gov').fetch('default_ruby_path')}/bin/passenger-install-nginx-module --auto --auto-download --prefix="#{nginx_path}" --extra-configure-flags="#{node[:passenger][:production][:configure_flags]}"
+  set -eux
+  rbenv exec passenger-install-nginx-module --auto --auto-download --prefix="#{nginx_path}" --extra-configure-flags="#{node[:passenger][:production][:configure_flags]}"
+  rbenv rehash
   EOH
-  not_if "test -e #{nginx_path}"
-  not_if "test -e /usr/local/rvm"
-end
-
-bash "install passenger/nginx from rvm" do
-  user "root"
-  code <<-EOH
-  /usr/local/bin/rvm exec passenger-install-nginx-module --auto --auto-download --prefix="#{nginx_path}" --extra-configure-flags="#{node[:passenger][:production][:configure_flags]}"
-  EOH
-  not_if "test -e #{nginx_path}"
-  only_if "test -e /usr/local/rvm"
+  not_if "test -e #{nginx_path}/sbin/nginx"
 end
 
 log_path = node[:passenger][:production][:log_path]
@@ -71,37 +60,22 @@ cookbook_file "#{nginx_path}/conf/status-map.conf" do
   mode "0644"
 end
 
+extend Chef::Mixin::ShellOut
+
 template "#{nginx_path}/conf/nginx.conf" do
-  source "nginx.conf.erb"
-  owner "root"
-  group "root"
-  mode 0644
-  sensitive true
+  source 'nginx.conf.erb'
+  mode '644'
   variables(
     :log_path => log_path,
-    :passenger_root => "#{node.fetch('login_dot_gov').fetch('default_ruby_path')}/lib/ruby/gems/2.3.0/gems/passenger-#{node[:passenger][:production][:version]}",
-    :ruby_path => "#{node.fetch('login_dot_gov').fetch('default_ruby_path')}/bin/ruby",
+    passenger_root: lazy {
+      # dynamically compute passenger root at converge using rbenv
+      shell_out!(%w{rbenv exec passenger-config --root}).stdout
+    },
+    ruby_path: node.fetch('login_dot_gov').fetch('rbenv_shims_ruby'),
     :passenger => node[:passenger][:production],
     :pidfile => "/var/run/nginx.pid",
     :passenger_user => node[:passenger][:production][:user]
   )
-  notifies :run, 'bash[config_patch]'
-end
-
-cookbook_file "#{nginx_path}/sbin/config_patch.sh" do
-  owner "root"
-  group "root"
-  mode 0755
-end
-
-bash "config_patch" do
-  # The big problem is that we can't compute the gem install path
-  # because we don't know what ruby version we're being installed
-  # on if RVM is present.
-#  only_if "grep '##PASSENGER_ROOT##' #{nginx_path}/conf/nginx.conf"
-  user "root"
-  code "#{nginx_path}/sbin/config_patch.sh #{nginx_path}/conf/nginx.conf"
-  notifies :restart, 'service[passenger]'
 end
 
 template "/etc/init.d/passenger" do
@@ -122,21 +96,6 @@ if node[:passenger][:production][:status_server]
     mode "0644"
   end
 end
-
-# set permissions on nginx folder to the same as nginx user:group
-# TODO: don't chown this whole path
-directory "#{nginx_path}" do
-  owner 'nobody'
-  group 'nogroup'
-  recursive true
-  action :create
-end
-
-# allow other execute permissions on all directories within the application folder
-# https://www.phusionpassenger.com/library/admin/nginx/troubleshooting/ruby/#upon-accessing-the-web-app-nginx-reports-a-permission-denied-error
-# TODO: actually fix the issue rather than relying on this chmod hammer
-execute "chmod -R a+X #{nginx_path}"
-execute "chmod -R a+rX #{nginx_path}/conf"
 
 service 'passenger' do
   action [:enable, :start]

@@ -3,15 +3,12 @@
 # Recipe:: install
 
 gem_package "passenger/system" do
-  gem_binary "#{node.fetch('login_dot_gov').fetch('default_ruby_path')}/bin/gem"
-  not_if "test -e /usr/local/bin/rvm-gem.sh"
+  gem_binary node.fetch('login_dot_gov').fetch('rbenv_shims_gem')
   package_name 'passenger'
   version node[:passenger][:production][:version]
+  notifies :run, 'execute[rbenv rehash]', :immediately
 end
 
-gem_package "passenger/rvm" do
-  gem_binary "/usr/local/bin/rvm-gem.sh"
-  only_if "test -e /usr/local/bin/rvm-gem.sh"
-  package_name 'passenger'
-  version node[:passenger][:production][:version]
+execute 'rbenv rehash' do
+  action :nothing # notify only
 end

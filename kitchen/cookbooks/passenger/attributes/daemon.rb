@@ -16,14 +16,14 @@ default[:passenger][:production][:sendfile] = true
 default[:passenger][:production][:tcp_nopush] = false
 
 # Nginx's default is 0, but we don't want that.
-default[:passenger][:production][:keepalive_timeout] = '5 5'
+default[:passenger][:production][:keepalive_timeout] = '60 50'
 default[:passenger][:production][:gzip] = true
 default[:passenger][:production][:worker_connections] = 1024
 
 # Enable the status server on 127.0.0.1
 default[:passenger][:production][:status_server] = true
 
-default[:passenger][:production][:version] = '5.0.30'
+default[:passenger][:production][:version] = '5.2.3'
 default[:passenger][:production][:user] = 'websrv' # must match default['login_dot_gov']['web_system_user']
 
 # Allow our local /16 to proxy setting X-Forwarded-For

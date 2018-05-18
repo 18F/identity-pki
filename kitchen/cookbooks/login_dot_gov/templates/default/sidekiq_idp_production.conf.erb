@@ -3,6 +3,6 @@
 
 check process sidekiq_idp_production0
   with pidfile "/srv/idp/shared/tmp/pids/sidekiq-0.pid"
-  start program = "/bin/bash -c 'export RAILS_ENV=production && cd /srv/idp/current && <%= @bundle_cmd_path %> exec sidekiq  --index 0 --pidfile /srv/idp/shared/tmp/pids/sidekiq-0.pid --environment production --config config/sidekiq.yml -d'" as uid <%= @system_user or raise 'no @system_user' %> and gid <%= @system_user %> with timeout 30 seconds
-  stop program = "/bin/bash -c 'cd /srv/idp/current && <%= @bundle_cmd_path %> exec sidekiqctl stop /srv/idp/shared/tmp/pids/sidekiq-0.pid'" as uid <%= @system_user %> and gid <%= @system_user %> with timeout 20 seconds
+  start program = "/bin/bash -c 'set -a && source /etc/environment && cd /srv/idp/current && rbenv exec bundle exec sidekiq  --index 0 --pidfile /srv/idp/shared/tmp/pids/sidekiq-0.pid --environment production --config config/sidekiq.yml -d'" as uid <%= @system_user or raise 'no @system_user' %> and gid <%= @system_user %> with timeout 30 seconds
+  stop program = "/bin/bash -c 'set -a && source /etc/environment && cd /srv/idp/current && rbenv exec bundle exec sidekiqctl stop /srv/idp/shared/tmp/pids/sidekiq-0.pid'" as uid <%= @system_user %> and gid <%= @system_user %> with timeout 20 seconds
   group idp-sidekiq
