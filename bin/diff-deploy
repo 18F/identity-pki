@@ -43,7 +43,6 @@ if [ -z "${GSA_USERNAME-}" ]; then
 fi
 
 BASENAME="$(basename "$0")"
-
 cd "$(dirname "$0")"
 
 run bundle check
@@ -58,8 +57,6 @@ trap cleanup EXIT
 run_deploy() {
     run ../deploy "$environment" "$GSA_USERNAME" "$terraform_dir" "$@"
 }
-
-run bundle check
 
 echo_basename "Running terraform plan"
 

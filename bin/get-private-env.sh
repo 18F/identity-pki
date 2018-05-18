@@ -152,7 +152,7 @@ git_pull() {
     fi
 }
 
-echo_blue >&2 "Looking for env-specific variables"
+log "Looking for env-specific variables"
 
 private_path="${IDENTITY_DEVOPS_PRIVATE_PATH-$(get_private_path)}"
 

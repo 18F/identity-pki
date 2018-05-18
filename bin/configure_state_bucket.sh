@@ -2,6 +2,9 @@
 
 set -eu
 
+# shellcheck source=/dev/null
+. "$(dirname "$0")/lib/common.sh"
+
 if [ $# -ne 5 ] ; then
   cat >&2 <<EOM
 Usage: $0 <bucket_name> <state_file_path> <terraform_dir> <region> <dynamodb_table>
@@ -12,9 +15,14 @@ The <terraform_dir> should contain terraform files, (e.g. main.tf).
 
 WARNING: this script will \`rm -rf' any .terraform directory present under the
 terraform_dir, so be careful about where you run this from!
+
+TODO: create separate directories for each environment so we don't have to
+delete the .terraform directory and run terraform init with each run.
 EOM
 exit 1
 fi
+
+log --blue "Setting up TF state and deleting .terraform"
 
 BUCKET=$1
 STATE=$2
@@ -22,10 +30,7 @@ TF_DIR=$3
 REGION=$4
 LOCK_TABLE=$5
 
-run() {
-    echo >&2 "+ $*"
-    "$@"
-}
+# Log all terraform and aws commands in this script
 terraform() {
   echo >&2 "+ terraform $*"
   env terraform "$@"
@@ -35,14 +40,16 @@ aws() {
   env aws "$@"
 }
 
-echo "Using state file $STATE"
+echo "State file: $STATE"
+echo "State bucket: $BUCKET"
 
 echo >&2 "+ aws s3api head-bucket --bucket $BUCKET"
 output="$(env aws s3api head-bucket --bucket "$BUCKET" 2>&1)" \
     && ret=$? || ret=$?
 
-echo >&2 "$output"
 if grep -F "Not Found" <<< "$output" >/dev/null; then
+    echo "$output"
+
     echo "Bucket $BUCKET does not exist, creating..."
     echo "Creating an s3 bucket for terraform state"
 
@@ -56,7 +63,7 @@ elif [ "$ret" -ne 0 ]; then
     exit "$ret"
 fi
 
-echo "Using lock table $LOCK_TABLE"
+echo "State lock table: $LOCK_TABLE"
 
 if ! aws dynamodb describe-table --table-name "$LOCK_TABLE" \
         --region "$REGION" >/dev/null
@@ -80,10 +87,11 @@ then
     echo "Finished creating dynamodb table $LOCK_TABLE"
 fi
 
-echo "Using terraform remote state server"
 echo "Deleting ${TF_DIR}/.terraform"
 cd "${TF_DIR}"
 run rm -rfv .terraform
+
+log --blue "Calling terraform init"
 
 # https://github.com/hashicorp/terraform/issues/12762
 case "$(CHECKPOINT_DISABLE=1 terraform --version)" in
