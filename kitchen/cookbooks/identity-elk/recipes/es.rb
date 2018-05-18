@@ -366,6 +366,6 @@ if node.fetch("provisioner", {"auto-scaled" => false}).fetch("auto-scaled")
   cron 'rerun elasticsearch setup every 15 minutes' do
     action :create
     minute '0,15,30,45'
-    command "cat #{node.fetch('elk').fetch('chef_zero_client_configuration')} && chef-client --local-mode -c #{node.fetch('elk').fetch('chef_zero_client_configuration')} -o 'role[elasticsearch_discovery]' 2>&1 >> /var/log/elasticsearch/discovery.log"
+    command "cat #{node.fetch('elk').fetch('chef_zero_client_configuration')} >/dev/null && chef-client --local-mode -c #{node.fetch('elk').fetch('chef_zero_client_configuration')} -o 'role[elasticsearch_discovery]' 2>&1 >> /var/log/elasticsearch/discovery.log"
   end
 end
