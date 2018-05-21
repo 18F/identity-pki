@@ -759,6 +759,76 @@ resource "aws_security_group" "idp" {
   vpc_id = "${aws_vpc.default.id}"
 }
 
+resource "aws_security_group" "pivcac" {
+  description = "Allow inbound web traffic and whitelisted IP(s) for SSH"
+
+  # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
+  egress {
+    from_port = 0
+    to_port = 65535
+    protocol = "tcp"
+    cidr_blocks = ["${var.vpc_cidr_block}"]
+  }
+
+  # need to get packages and stuff (conditionally)
+  # outbound_subnets can be set to "0.0.0.0/0" to allow access to the internet
+  egress {
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
+    cidr_blocks = ["${var.outbound_subnets}"]
+  }
+  # need to get packages and stuff (conditionally)
+  # outbound_subnets can be set to "0.0.0.0/0" to allow access to the internet
+  egress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = ["${var.outbound_subnets}"]
+  }
+
+  # github
+  egress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["192.30.252.0/22"]
+  }
+
+  # We should never need port 80 for PIVCAC ingress, because users should only
+  # arrive via links/redirects from the IDP.
+  ingress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    security_groups = [ "${aws_security_group.jumphost.id}" ]
+  }
+
+  # allow CI VPC for integration tests
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["${var.ci_sg_ssh_cidr_blocks}"]
+  }
+
+  name = "${var.name}-pivcac-${var.env_name}"
+
+  tags {
+    client = "${var.client}"
+    Name = "${var.name}-pivcac_security_group-${var.env_name}"
+  }
+
+  vpc_id = "${aws_vpc.default.id}"
+}
+
 resource "aws_security_group" "web" {
   description = "Security group for web that allows web traffic from internet"
   vpc_id = "${aws_vpc.default.id}"

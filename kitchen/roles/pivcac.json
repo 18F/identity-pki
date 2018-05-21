@@ -1,0 +1,15 @@
+{
+  "name": "pivcac",
+  "description": "Top level role for PIV/CAC instances",
+  "json_class": "Chef::Role",
+  "default_attributes": {
+  },
+  "override_attributes": {
+  },
+  "chef_type": "role",
+  "run_list": [
+    "role[base]"
+  ],
+  "env_run_lists": {
+  }
+}

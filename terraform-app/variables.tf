@@ -86,6 +86,7 @@ variable "chef_home" {}
 variable "jumphost_ami_id" {}
 variable "idp1_ami_id" {}
 variable "idp2_ami_id" {}
+variable "pivcac_ami_id" {}
 variable "worker_ami_id" {}
 variable "elasticsearch_ami_id" {}
 variable "elk_ami_id" {}
@@ -170,6 +171,7 @@ variable "instance_type_es" { default = "t2.medium" }
 variable "instance_type_idp" { default = "t2.medium" }
 variable "instance_type_jenkins" { default = "t2.medium" }
 variable "instance_type_jumphost" { default = "t2.small" }
+variable "instance_type_pivcac" { default = "t2.small" }
 variable "instance_type_worker" { default = "t2.small" } # TODO way too small
 variable "key_name" {}
 variable "live_certs" {}
@@ -205,6 +207,7 @@ variable "asg_elk_desired" { default = 0 }
 variable "asg_app_min" { default = 0 }
 variable "asg_app_desired" { default = 0 }
 variable "asg_app_max" { default = 8 }
+variable "pivcac_nodes" { default = 2 }
 
 variable "idp_web_acl_id" {
     default = "eb5d2b12-a361-4fa0-88f2-8f632f6a9819"
@@ -292,6 +295,11 @@ variable "alb_http_port_80_enabled" {
 variable "acm_certs_enabled" {
     default = 1
     description = "Whether to look for AWS ACM certificates. Set this to 0 to ignore ACM certs, which is useful for terraform destroy."
+}
+
+variable "pivcac_service_enabled" {
+    default = 0
+    description = "Whether to run the microservice for PIV/CAC authentication"
 }
 
 # This variable is needed for service discovery
