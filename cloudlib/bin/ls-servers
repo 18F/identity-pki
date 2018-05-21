@@ -65,6 +65,26 @@ def data_for_instances(instances)
   }
 end
 
+# Take the output of data_for_instances and join it with an array of
+# TargetHealthDescription objects, so that each instance gets its health added
+# as a member. Instances not listed by describe_target_health are excluded
+def collate_instances_with_target(instance_data, target_data)
+  health_by_instance = Hash[(target_data).map { |t| [t.target.id,
+                                                     t.target_health.state] }]
+  output_header = instance_data[:header].push('health')
+  output_rows = []
+  instance_data[:rows].each do |instance_row|
+    instance_id = instance_row[0]
+    if health_by_instance.key?(instance_id)
+      output_rows.push(instance_row.push(health_by_instance[instance_id]))
+    end
+  end
+  return {
+    header: output_header,
+    rows: output_rows
+  }
+end
+
 def print_data_batch(data, skip_header: false)
   puts data.fetch(:header).join("\t") unless skip_header
   data.fetch(:rows).each do |row|
@@ -112,6 +132,9 @@ For example:
   # list all idp and worker servers in dev
   #{basename} -e dev -n '*-idp' -n '*-worker'
 
+  # list all idp servers in dev, with target health status
+  #{basename} -e dev -r idp
+
 Options:
     EOM
 
@@ -131,6 +154,11 @@ Options:
     opts.on('-e', '--env ENVIRONMENT',
             'List all servers in ENVIRONMENT') do |val|
       find_opts[:env] = val
+    end
+
+    opts.on('-r', '--health_role ROLE',
+            'Include health data for autoscaled servers of type ROLE') do |val|
+      options[:health_role] = val
     end
 
     opts.on('-n', '--name GLOB', 'Find servers Name matching GLOB') do |val|
@@ -157,6 +185,16 @@ Options:
 
   optparse.parse!
 
+  # print error if health_role used incorrectly
+  if options[:health_role]
+    if find_opts[:env].nil? || find_opts[:name_globs]
+      STDERR.puts optparse
+      STDERR.puts ("\n#{basename}: -r and --health_role require specifying an " +
+                   "environment and no name filter.")
+      exit 1
+    end
+  end
+
   # print error if we have no find_opts other than :states
   if find_opts.reject{|k, v| k == :states}.empty?
     STDERR.puts optparse
@@ -166,7 +204,14 @@ Options:
 
   instances = Cloudlib::EC2.cli_find_servers(find_opts)
 
-  data = data_for_instances(instances)
+  instance_data = data_for_instances(instances)
+  if options[:health_role]
+    target_data = Cloudlib::ElasticLoadBalancingV2.new.find_target_health_data(find_opts[:env], options[:health_role])
+    data = collate_instances_with_target(instance_data, target_data)
+  else
+    # If health_role is not specified, behave exactly as before.
+    data = instance_data
+  end
 
   if options[:batch]
     print_data_batch(data, skip_header: options[:skip_header])
