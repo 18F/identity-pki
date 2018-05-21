@@ -32,7 +32,7 @@ resource "aws_launch_configuration" "app" {
 
   image_id = "${var.ami_id}"
   instance_type = "${var.instance_type_idp}"
-  security_groups = ["${aws_security_group.idp.id}"]
+  security_groups = ["${aws_security_group.app.id}"]
 
   user_data = "${module.app_launch_config.rendered_cloudinit_config}"
 

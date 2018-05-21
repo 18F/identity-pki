@@ -23,7 +23,7 @@ resource "aws_route" "default" {
 }
 
 resource "aws_security_group" "app" {
-  description = "Allow inbound web traffic and whitelisted IP(s) for SSH"
+  description = "Security group for sample app servers"
 
   # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
   egress {
@@ -62,14 +62,14 @@ resource "aws_security_group" "app" {
     from_port = 80
     to_port = 80
     protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    security_groups = ["${aws_security_group.app-alb.id}"]
   }
 
   ingress {
     from_port = 443
     to_port = 443
     protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    security_groups = ["${aws_security_group.app-alb.id}"]
   }
 
   ingress {
@@ -87,10 +87,11 @@ resource "aws_security_group" "app" {
     cidr_blocks = ["${var.ci_sg_ssh_cidr_blocks}"]
   }
 
-  name = "${var.name}-app-${var.env_name}"
+  name = "${var.env_name}-app"
 
   tags {
     Name = "${var.name}-app_security_group-${var.env_name}"
+    role = "app"
   }
 
   vpc_id = "${aws_vpc.default.id}"
@@ -380,6 +381,8 @@ resource "aws_security_group" "elk" {
 
   tags {
     Name = "${var.name}-elk_security_group-${var.env_name}"
+    role = "elk"
+    to_deprecate_role = "elasticsearch"
   }
 
   vpc_id = "${aws_vpc.default.id}"
@@ -601,6 +604,7 @@ resource "aws_security_group" "jumphost" {
 
   tags {
     Name = "${var.name}-jumphost_security_group-${var.env_name}"
+    role = "jumphost"
   }
 
   vpc_id = "${aws_vpc.default.id}"
@@ -700,20 +704,23 @@ resource "aws_security_group" "idp" {
     from_port = 80
     to_port = 80
     protocol = "tcp"
+    # TODO remove cidr_blocks once security_groups is applied
     cidr_blocks = [
       "${var.alb1_subnet_cidr_block}",
       "${var.alb2_subnet_cidr_block}"
     ]
+    security_groups = ["${aws_security_group.web.id}"]
   }
-
   ingress {
     from_port = 443
     to_port = 443
     protocol = "tcp"
+    # TODO remove cidr_blocks once security_groups is applied
     cidr_blocks = [
       "${var.alb1_subnet_cidr_block}",
       "${var.alb2_subnet_cidr_block}"
     ]
+    security_groups = ["${aws_security_group.web.id}"]
   }
 
   ingress {
@@ -743,6 +750,8 @@ resource "aws_security_group" "idp" {
 
   tags {
     Name = "${var.name}-idp_security_group-${var.env_name}"
+    role = "idp"
+    to_deprecate_role = "worker"
   }
 
   vpc_id = "${aws_vpc.default.id}"
@@ -811,23 +820,53 @@ resource "aws_security_group" "pivcac" {
   name = "${var.name}-pivcac-${var.env_name}"
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-pivcac_security_group-${var.env_name}"
+    role = "pivcac"
   }
 
   vpc_id = "${aws_vpc.default.id}"
 }
 
+# TODO rename to idp-alb
 resource "aws_security_group" "web" {
+  # TODO: description = "idp-alb security group allowing web traffic"
   description = "Security group for web that allows web traffic from internet"
   vpc_id = "${aws_vpc.default.id}"
 
   # allow outbound to the VPC so that we can get to the idp hosts
+  # TODO remove this rule once the more finely grained egress rules below are
+  # rolled out
   egress {
     from_port = 0
     to_port = 65535
     protocol = "tcp"
     cidr_blocks = ["${var.vpc_cidr_block}"]
+  }
+
+  # Allow outbound to the IDP subnets on 80/443.
+  #
+  # We use cidr_blocks rather than security_groups here so that we avoid a
+  # bootstrapping cycle and will still remove unmanaged rules.
+  # https://github.com/terraform-providers/terraform-provider-aws/issues/3095
+  egress {
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
+    cidr_blocks = [
+      "${var.idp1_subnet_cidr_block}",
+      "${var.idp2_subnet_cidr_block}",
+      "${var.idp3_subnet_cidr_block}"
+    ]
+  }
+  egress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = [
+      "${var.idp1_subnet_cidr_block}",
+      "${var.idp2_subnet_cidr_block}",
+      "${var.idp3_subnet_cidr_block}"
+    ]
   }
 
   ingress {
@@ -847,7 +886,49 @@ resource "aws_security_group" "web" {
   name = "${var.name}-web-${var.env_name}"
 
   tags {
-    Name = "${var.name}-web_security_group-${var.env_name}"
+    Name = "${var.env_name}-idp-alb"
+  }
+}
+
+resource "aws_security_group" "app-alb" {
+  description = "App ALB group allowing Internet traffic"
+  vpc_id = "${aws_vpc.default.id}"
+
+  # Allow outbound to the VPC so that we can get to the app hosts.
+  # We use cidr_blocks rather than security_groups here so that we avoid a
+  # bootstrapping cycle and will still remove unmanaged rules.
+  # https://github.com/terraform-providers/terraform-provider-aws/issues/3095
+  egress {
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
+    cidr_blocks = ["${var.app1_subnet_cidr_block}"] # TODO make multi-AZ
+  }
+  egress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = ["${var.app1_subnet_cidr_block}"] # TODO make multi-AZ
+  }
+
+  ingress {
+    from_port = 80
+    to_port   = 80
+    protocol  = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 443
+    to_port   = 443
+    protocol  = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  name = "${var.env_name}-app-alb"
+
+  tags {
+    Name = "${var.env_name}-app-alb"
   }
 }
 
