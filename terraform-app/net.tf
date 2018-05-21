@@ -11,7 +11,6 @@ resource "aws_elasticache_subnet_group" "idp" {
 
 resource "aws_internet_gateway" "default" {
   tags {
-    client = "${var.client}"
     Name = "${var.name}-gateway-${var.env_name}"
   }
   vpc_id = "${aws_vpc.default.id}"
@@ -91,7 +90,6 @@ resource "aws_security_group" "app" {
   name = "${var.name}-app-${var.env_name}"
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-app_security_group-${var.env_name}"
   }
 
@@ -132,7 +130,6 @@ resource "aws_security_group" "cache" {
   name = "${var.name}-cache-${var.env_name}"
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-cache_security_group-${var.env_name}"
   }
 
@@ -230,7 +227,6 @@ resource "aws_security_group" "chef" {
   name = "${var.name}-chef-${var.env_name}"
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-chef_security_group-${var.env_name}"
   }
 
@@ -273,7 +269,6 @@ resource "aws_security_group" "db" {
   name = "${var.name}-db-${var.env_name}"
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-db_security_group-${var.env_name}"
   }
 
@@ -384,7 +379,6 @@ resource "aws_security_group" "elk" {
   name = "${var.name}-elk-${var.env_name}"
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-elk_security_group-${var.env_name}"
   }
 
@@ -468,7 +462,6 @@ resource "aws_security_group" "jenkins" {
   name = "${var.name}-jenkins-${var.env_name}"
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-jenkins_security_group-${var.env_name}"
   }
 
@@ -607,7 +600,6 @@ resource "aws_security_group" "jumphost" {
   name = "${var.name}-jumphost-${var.env_name}"
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-jumphost_security_group-${var.env_name}"
   }
 
@@ -627,7 +619,6 @@ resource "aws_security_group" "amazon_netblocks_ssl" {
   name = "${var.name}-amazonnetblocksssl-${var.env_name}"
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-awsnetblocksssl_security_group-${var.env_name}"
   }
 
@@ -647,7 +638,6 @@ resource "aws_security_group" "amazon_netblocks_http" {
   name = "${var.name}-amazonnetblockshttp-${var.env_name}"
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-awsnetblockshttp_security_group-${var.env_name}"
   }
 
@@ -752,7 +742,6 @@ resource "aws_security_group" "idp" {
   name = "${var.name}-idp-${var.env_name}"
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-idp_security_group-${var.env_name}"
   }
 
@@ -858,7 +847,6 @@ resource "aws_security_group" "web" {
   name = "${var.name}-web-${var.env_name}"
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-web_security_group-${var.env_name}"
   }
 }
@@ -869,7 +857,6 @@ resource "aws_subnet" "app" {
   map_public_ip_on_launch = true
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-app_subnet-${var.env_name}"
   }
 
@@ -882,7 +869,6 @@ resource "aws_subnet" "admin" {
   map_public_ip_on_launch = true
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-admin_subnet-${var.env_name}"
   }
 
@@ -895,7 +881,6 @@ resource "aws_subnet" "db1" {
   map_public_ip_on_launch = false
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-db1_subnet-${var.env_name}"
   }
 
@@ -908,7 +893,6 @@ resource "aws_subnet" "db2" {
   map_public_ip_on_launch = false
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-db2_subnet-${var.env_name}"
   }
 
@@ -922,7 +906,6 @@ resource "aws_subnet" "jumphost" {
   map_public_ip_on_launch = false
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-jumphost_subnet-${var.env_name}"
   }
 
@@ -935,7 +918,6 @@ resource "aws_subnet" "jumphost1" {
   map_public_ip_on_launch = true
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-jumphost1_subnet-${var.env_name}"
   }
 
@@ -948,7 +930,6 @@ resource "aws_subnet" "jumphost2" {
   map_public_ip_on_launch = true
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-jumphost2_subnet-${var.env_name}"
   }
 
@@ -962,7 +943,6 @@ resource "aws_subnet" "idp1" {
   map_public_ip_on_launch = true
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-idp1_subnet-${var.env_name}"
   }
 
@@ -976,7 +956,6 @@ resource "aws_subnet" "idp2" {
   map_public_ip_on_launch = true
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-idp2_subnet-${var.env_name}"
   }
 
@@ -990,7 +969,6 @@ resource "aws_subnet" "chef" {
   map_public_ip_on_launch = true
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-chef_subnet-${var.env_name}"
   }
 
@@ -1004,7 +982,6 @@ resource "aws_subnet" "alb1" {
   map_public_ip_on_launch = true
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-alb1_subnet-${var.env_name}"
   }
 
@@ -1018,7 +995,6 @@ resource "aws_subnet" "alb2" {
   map_public_ip_on_launch = true
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-alb2_subnet-${var.env_name}"
   }
 
@@ -1038,7 +1014,6 @@ resource "aws_vpc" "default" {
   enable_dns_hostnames = true
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-vpc-${var.env_name}"
   }
 }
