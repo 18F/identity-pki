@@ -23,12 +23,14 @@ class CertificateAuthority < ApplicationRecord
   # Will raise on errors.
   #
   def update_revocations
-    serials = CertificateRevocationListService.retrieve_serials_from_url(crl_http_url)
+    serials = CertificateRevocationListService.retrieve_serials_from_url(crl_http_url, key)
 
-    already_revoked = certificate_revocations.pluck(:serial)
-    (serials - already_revoked).each do |serial|
-      certificate_revocations.create(serial: serial)
-    end
+    revocations = new_revocations(serials)
+    Rails.logger.info "  Adding #{revocations.size} revocations"
+    CertificateRevocation.import(revocations,
+                                 batch_size: 5000,
+                                 validate: false,
+                                 on_duplicate_key: :ignore)
   end
 
   def revoked?(serial)
@@ -39,5 +41,15 @@ class CertificateAuthority < ApplicationRecord
     cert = find_by(key: key_id)
     # Cert should exist and not be revoked.
     cert&.revoked?(serial)
+  end
+
+  private
+
+  def new_revocations(serials)
+    already_revoked = certificate_revocations.pluck(:serial)
+    self_id = id
+    (serials - already_revoked).map do |serial|
+      { serial: serial, certificate_authority_id: self_id }
+    end
   end
 end

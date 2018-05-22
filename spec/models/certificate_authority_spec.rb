@@ -1,8 +1,32 @@
 require 'rails_helper'
 
 RSpec.describe CertificateAuthority, type: :model do
-  let(:authority) { create(:certificate_authority, crl_http_url: crl_http_url) }
+  let!(:authority) do
+    create(:certificate_authority,
+           key: Certificate.new(signing_cert).key_id,
+           dn: signing_cert.subject.to_s,
+           crl_http_url: crl_http_url)
+  end
+
   let(:crl_http_url) {}
+
+  let(:signing_cert_info) do
+    create_root_certificate(dn: 'DC=com, DC=example, CN=root', serial: 1)
+  end
+
+  let(:signing_cert) { signing_cert_info.first }
+  let(:signing_key) { signing_cert_info.last }
+
+  let(:crl_content) do
+    create_crl(
+      ca: signing_cert,
+      ca_key: signing_key,
+      serials: revoked_serials_list
+    ).to_der
+  end
+
+  let(:expected_revoked_serials_count) { revoked_serials_list.count }
+  let(:expected_revoked_serials_list) { revoked_serials_list.map(&:to_s).sort }
 
   subject { authority }
   it { is_expected.to validate_uniqueness_of(:key) }
@@ -41,16 +65,12 @@ RSpec.describe CertificateAuthority, type: :model do
     describe 'with a crl http url' do
       let(:crl_http_url) { 'http://example.com/crl' }
 
-      let(:revoked_serials) { [] }
+      let(:revoked_serials_list) { [] }
       let(:serials_list) { authority.reload.certificate_revocations.pluck(:serial) }
 
       before(:each) do
-        stub_request(:get, crl_http_url).to_return(body: 'crl_list')
-        allow(OpenSSL::X509::CRL).to receive(:new).with('crl_list') do
-          OpenStruct.new(
-            revoked: revoked_serials.map { |s| OpenStruct.new(serial: s) }
-          )
-        end
+        CertificateStore.instance.add_certificate(Certificate.new(signing_cert))
+        stub_request(:get, crl_http_url).to_return(body: crl_content)
       end
 
       it 'pulls the content via a GET' do
@@ -60,10 +80,7 @@ RSpec.describe CertificateAuthority, type: :model do
       end
 
       describe 'with revoked serials' do
-        let(:revoked_serials) { [1, 2, 3, 5, 7, 11] }
-
-        let(:expected_revoked_serials_count) { revoked_serials.count }
-        let(:expected_revoked_serials_list) { revoked_serials.map(&:to_s).sort }
+        let(:revoked_serials_list) { [1, 2, 3, 5, 7, 11] }
 
         it 'adds them to the database' do
           authority.update_revocations
@@ -86,21 +103,6 @@ RSpec.describe CertificateAuthority, type: :model do
     describe 'with a crl file' do
       let(:crl_http_url) { 'http://example.com/crl' }
 
-      let(:signing_cert_info) do
-        create_root_certificate(dn: '/DC=com/DC=example/CN=root', serial: 1)
-      end
-
-      let(:signing_cert) { signing_cert_info.first }
-      let(:signing_key) { signing_cert_info.last }
-
-      let(:crl_content) do
-        create_crl(
-          ca: signing_cert,
-          ca_key: signing_key,
-          serials: revoked_serials_list
-        ).to_der
-      end
-
       let(:revoked_serials_list) do
         [
           0x3ff6, 0x18b4, 0x4244, 0x02c1, 0x3dee, 0x3fec, 0x2ef8, 0x327d,
@@ -109,6 +111,7 @@ RSpec.describe CertificateAuthority, type: :model do
       end
 
       before(:each) do
+        CertificateStore.instance.add_certificate(Certificate.new(signing_cert))
         stub_request(:get, crl_http_url).to_return(body: crl_content)
       end
 
