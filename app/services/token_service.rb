@@ -31,7 +31,7 @@ class TokenService
     data.except('r1', 'r2')
   rescue ActiveSupport::MessageEncryptor::InvalidMessage
     {
-      'error' => 'token.invalid'
+      'error' => 'token.invalid',
     }
   end
 
