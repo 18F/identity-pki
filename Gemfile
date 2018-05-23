@@ -6,10 +6,10 @@ ruby '~> 2.3.5'
 gem 'rails', '~> 5.2'
 
 gem 'figaro'
+gem 'health_check'
 gem 'pg'
 gem 'puma', '~> 3.7'
 gem 'rgl'
-gem "health_check"
 
 group :development, :test do
   gem 'bullet'
