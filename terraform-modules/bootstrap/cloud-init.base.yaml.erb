@@ -25,7 +25,8 @@ write_files:
        "run_list": ["role[<%= role %>]"],
        "provisioner": {
          "name": "cloud-init",
-         "auto-scaled": true
+         "auto-scaled": true,
+         "role": "<%= role %>"
        }
      }
 
