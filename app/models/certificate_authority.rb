@@ -1,6 +1,4 @@
 class CertificateAuthority < ApplicationRecord
-  # include CertificateData
-
   validates :key, presence: true, uniqueness: true, case_sensitive: false,
                   format: { with: /\A(\h{2})(:\h{2})+\Z/ }
   validates :dn, :valid_not_before, :valid_not_after, presence: true

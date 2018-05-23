@@ -62,6 +62,24 @@ RSpec.describe CertificateStore do
       end
     end
 
+    describe 'each' do
+      let(:visited_ids) do
+        ids = []
+        certificate_store.each do |cert|
+          ids << cert.key_id
+        end
+        ids
+      end
+
+      let(:stored_ids) do
+        cert_collection.flatten.map { |c| Certificate.new(c) }.select(&:ca_capable?).map(&:key_id)
+      end
+
+      it 'visits each certificate' do
+        expect(visited_ids.sort).to eq stored_ids.sort
+      end
+    end
+
     describe 'loading certificates' do
       it 'loads from the file and retains signing certs' do
         expect(cert_collection.flatten.count).to eq 14
