@@ -9,6 +9,7 @@ gem 'figaro'
 gem 'pg'
 gem 'puma', '~> 3.7'
 gem 'rgl'
+gem "health_check"
 
 group :development, :test do
   gem 'bullet'
