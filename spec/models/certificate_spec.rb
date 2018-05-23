@@ -44,6 +44,19 @@ RSpec.describe Certificate do
     end
   end
 
+  describe 'to_pem' do
+    let(:pem) { certificate.to_pem.split(/\n/) }
+    let(:x509_cert) { leaf_cert }
+
+    it 'has a subject line' do
+      expect(pem).to include(/^Subject:/)
+    end
+
+    it 'has an issuer line' do
+      expect(pem).to include(/^Issuer:/)
+    end
+  end
+
   describe 'a root cert' do
     let(:x509_cert) { root_cert }
 

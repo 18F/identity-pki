@@ -23,14 +23,24 @@ class IdentifyController < ApplicationController
 
   # :reek:UtilityFunction
   def token_for_referrer
-    cert_pem = request.headers[CERT_HEADER]
+    cert_pem = client_cert
     token = if cert_pem
-              process_cert(CGI.unescape(cert_pem))
+              process_cert(cert_pem)
             else
               Rails.logger.warn('No certificate found in headers.')
               TokenService.box(error: 'certificate.none', nonce: nonce)
             end
     CGI.escape(token)
+  end
+
+  def client_cert
+    cert_pem = request.headers[CERT_HEADER]
+    return unless cert_pem
+    if Figaro.env.client_cert_escaped == 'true'
+      CGI.unescape(cert_pem)
+    else
+      cert_pem.delete("\t")
+    end
   end
 
   # :reek:UtilityFunction
@@ -44,7 +54,7 @@ class IdentifyController < ApplicationController
   end
 
   def nonce
-    params[:nonce]
+    @nonce ||= params.require(:nonce)
   end
 
   def referrer
