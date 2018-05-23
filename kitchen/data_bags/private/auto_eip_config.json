@@ -1,0 +1,104 @@
+{
+  "environments": {
+    "prod": {
+      "idp": {
+        "valid_ips": "34.216.215.64/26"
+      },
+      "worker": {
+        "valid_ips": "34.216.215.64/26"
+      },
+      "jumphost": {
+        "valid_ips": "34.216.215.64/26"
+      }
+    },
+    "staging": {
+      "idp": {
+        "valid_ips": "34.216.215.0/26"
+      },
+      "worker": {
+        "valid_ips": "34.216.215.0/26"
+      },
+      "jumphost": {
+        "valid_ips": "34.216.215.0/26"
+      }
+    },
+    "dm": {
+      "idp": {
+        "valid_ips": "34.216.215.0/26"
+      },
+      "worker": {
+        "valid_ips": "34.216.215.0/26"
+      },
+      "jumphost": {
+        "valid_ips": "34.216.215.0/26"
+      }
+    },
+    "dev": {
+      "idp": {
+        "valid_ips": "34.216.215.128/26"
+      },
+      "worker": {
+        "valid_ips": "34.216.215.128/26"
+      },
+      "jumphost": {
+        "valid_ips": "34.216.215.128/26"
+      }
+    },
+    "qa": {
+      "idp": {
+        "valid_ips": "34.216.215.128/26"
+      },
+      "worker": {
+        "valid_ips": "34.216.215.128/26"
+      },
+      "jumphost": {
+        "valid_ips": "34.216.215.128/26"
+      }
+    },
+    "int": {
+      "idp": {
+        "valid_ips": "34.216.215.128/26"
+      },
+      "worker": {
+        "valid_ips": "34.216.215.128/26"
+      },
+      "jumphost": {
+        "valid_ips": "34.216.215.128/26"
+      }
+    },
+    "pt": {
+      "idp": {
+        "valid_ips": "34.216.215.128/26"
+      },
+      "worker": {
+        "valid_ips": "34.216.215.128/26"
+      },
+      "jumphost": {
+        "valid_ips": "34.216.215.128/26"
+      }
+    },
+    "brody": {
+      "idp": {
+        "valid_ips": "34.216.215.128/26"
+      },
+      "worker": {
+        "valid_ips": "34.216.215.128/26"
+      },
+      "jumphost": {
+        "valid_ips": "34.216.215.128/26",
+        "invalid_ips": null
+      }
+    },
+    "jjg": {
+      "idp": {
+        "valid_ips": "34.216.215.128/26"
+      },
+      "worker": {
+        "valid_ips": "34.216.215.128/26"
+      },
+      "jumphost": {
+        "valid_ips": "34.216.215.128/26"
+      }
+    }
+  }
+}

@@ -7,9 +7,8 @@ certs/*
 /env/*
 .kitchen/
 .kitchen.local.yml
-kitchen/data_bags/*.json
-kitchen/data_bags/**/*.json
 /kitchen/data_bags/config/
+/kitchen/data_bags/users/
 /kitchen/vendor
 /kitchen/berks-cookbooks
 terraform.tfstate

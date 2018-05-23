@@ -70,8 +70,9 @@ cookbook 'service_discovery', path: prefixed('kitchen/cookbooks/service_discover
 cookbook 'identity-monitoring', path: prefixed('kitchen/cookbooks/identity-monitoring')
 
 # Cookbooks from our open source github repo
-IdentityCookbooksRef = 'dacc22d9d64d1f911c5275b0e1999d9b7253f504'
+IdentityCookbooksRef = '298ec44adf9e03219ecf11ced4da31606b2b7ccf'
 cookbook 'identity_base_config', git: 'https://github.com/18F/identity-cookbooks', rel: 'identity_base_config', ref: IdentityCookbooksRef
+cookbook 'static_eip', '~> 0.1.1', git: 'https://github.com/18F/identity-cookbooks', rel: 'static_eip', ref: IdentityCookbooksRef
 
 # We have to reference this special citadel-build repository for two reasons:
 #
