@@ -143,20 +143,24 @@ something other than 'origin'.
         then
             echo_yellow >&2 "
 
-
 ###############################################################################
-#                             !!!WARNING!!!                                   #
+#                              INFORMATIONAL                                  #
 ###############################################################################
 
-The $ENVIRONMENT environment should not be deployed from anything besides a
-tagged, non prerelease version because it is one of the environments officially
-supported by the devops team, either for clients or for other teams.
+We would like to start using tagged release versions that we carry through
+environments for user-facing environments.
+
+The $ENVIRONMENT environment ideally should be deployed from a tagged,
+non-prerelease version because it is one of the environments officially
+supported by the devops team for client use.
+
+Please consider running \`rake release\` to edit VERSION.txt and create a
+tagged release.
 
 See https://github.com/18F/identity-devops/tree/master/doc/process/releases.md
 for more details about our release tools.
 
 The current version in VERSION.txt is: $(cat VERSION.txt)
-
 
 "
         fi
