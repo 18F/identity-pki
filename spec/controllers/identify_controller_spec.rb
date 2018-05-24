@@ -12,12 +12,25 @@ RSpec.describe IdentifyController, type: :controller do
 
   describe 'GET /' do
     it 'without a referrer returns http bad request' do
-      get :create
+      get :create, params: { nonce: '123' }
       expect(response).to have_http_status(:bad_request)
     end
 
-    describe 'with a referrer' do
+    describe 'with a bad referrer' do
       before(:each) do
+        allow(Figaro.env).to receive(:identity_idp_host).and_return('example.org')
+        @request.headers['Referer'] = 'http://example.com/'
+      end
+
+      it 'returns http bad request' do
+        get :create, params: { nonce: '123' }
+        expect(response).to have_http_status(:bad_request)
+      end
+    end
+
+    describe 'with a good referrer' do
+      before(:each) do
+        allow(Figaro.env).to receive(:identity_idp_host).and_return('example.com')
         @request.headers['Referer'] = 'http://example.com/'
       end
 
