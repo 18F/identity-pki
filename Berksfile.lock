@@ -74,6 +74,11 @@ DEPENDENCIES
     path: kitchen/cookbooks/service_discovery
   squid (~> 4.0.3)
   ssh-keys
+  static_eip
+    git: https://github.com/18F/identity-cookbooks
+    revision: 298ec44adf9e03219ecf11ced4da31606b2b7ccf
+    ref: 298ec44
+    rel: static_eip
   sudo
   users
 
@@ -186,7 +191,7 @@ GRAPH
     runit (>= 1.7)
   keytool (0.8.1)
   letsencrypt (1.0.3)
-  login_dot_gov (0.0.56)
+  login_dot_gov (0.0.57)
     application_ruby (>= 0.0.1)
     config_loader (>= 0.0.1)
     newrelic (>= 0.0.1)
@@ -271,6 +276,7 @@ GRAPH
     windows (>= 1.2.2)
   squid (4.0.3)
   ssh-keys (1.2.7)
+  static_eip (0.1.1)
   sudo (5.3.3)
   terraform (0.2.1)
     ark (>= 0.0.0)
