@@ -7,6 +7,8 @@ end
 
 gem 'aws-sdk', '~> 2.0'
 
+gem 'rake'
+
 gem 'rest-client', '~> 2.0'
 
 gem 'semantic'

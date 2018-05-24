@@ -36,6 +36,7 @@ GEM
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
       slop (~> 3.4)
+    rake (12.3.1)
     rest-client (2.0.2)
       http-cookie (>= 1.0.2, < 2.0)
       mime-types (>= 1.16, < 4.0)
@@ -80,6 +81,7 @@ DEPENDENCIES
   aws-sdk (~> 2.0)
   colorize
   pry
+  rake
   rest-client (~> 2.0)
   semantic
   subprocess
