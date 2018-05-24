@@ -27,7 +27,7 @@ variable "region" {
 }
 
 variable "kms_key_id" {
-  default = "5d2d42ec-6b7f-4705-a1bb-7f4021a0df4d"
+  default = "b10a84ce-1f80-44bc-8d0f-7a547b45ce53"
 }
 
 variable "num_redshift_nodes" {
