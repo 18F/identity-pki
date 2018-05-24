@@ -16,4 +16,5 @@ terraform.tfstate.backup
 .vagrant
 Vagrantfile
 /terraform-*/.terraform/modules/
+/terraform-*/.terraform/plugins/
 /nodes/*/Gemfile.lock

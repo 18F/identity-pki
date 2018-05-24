@@ -22,6 +22,8 @@ fi
 # rely on erb templates and ruby to be working.
 run bundle check
 
+ORIGIN_REMOTE_NAME="${ORIGIN_REMOTE_NAME-origin}"
+
 ENVIRONMENT=$1; shift
 GSA_USERNAME=$1; shift
 TF_DIR=$1; shift
@@ -53,38 +55,121 @@ esac
 # We need to be in the root of the repo for all this to work.
 cd "$(dirname "$0")"
 
-echo "DEPLOY: Checking whether environment versioning is recommended...."
-case "$ENVIRONMENT" in
-    prod|staging|int|dm|qa|pt|dev)
+check_release_versioning() {
+    local strict_check rev_name
+    echo "DEPLOY: Checking whether environment versioning is recommended"
+
     case "$TF_DIR" in
         terraform-app)
+            # versioning enabled
+            ;;
+        *)
+            # versioning not enabled
+            return
+            ;;
+    esac
+
+    case "$ENVIRONMENT" in
+        # strict checks in these user-facing environments
+        prod|staging|int)
+            strict_check=1
+            ;;
+
+        # limited checks in these testing environments
+        dev|qa|pt|dm)
+            strict_check=
+            ;;
+
+        # no checking in other environments
+        *)
+            return
+            ;;
+    esac
+
+    rev_name="$(git rev-parse --abbrev-ref HEAD)"
+    # make sure we're on stages/$ENVIRONMENT
+    if [ "$rev_name" != "stages/$ENVIRONMENT" ]; then
+        echo_yellow >&2 "
+warning: Current git branch is not the expected stages/$ENVIRONMENT
+
+Environment: $ENVIRONMENT
+Expected branch: stages/$ENVIRONMENT
+Actual branch:   $rev_name
+"
+
+        # check is fatal for strict environments
+        if [ -n "$strict_check" ] && [ -z "${DEPLOY_WEIRD_BRANCH-}" ]; then
+            echo_red >&2 "error: branch name must be stages/$ENVIRONMENT"
+            echo_red >&2 "set DEPLOY_WEIRD_BRANCH=1 to skip this check"
+            return 2
+        fi
+    else
+        # make sure local stages/<env> is the same as origin/stages/<env>
+
+        # fetch latest from remote
+        if ! run git fetch "$ORIGIN_REMOTE_NAME"; then
+            echo_yellow >&2 "git fetch failed"
+        fi
+
+        local local_ref origin_ref
+        local_ref="$(git rev-parse "stages/$ENVIRONMENT")"
+        origin_ref="$(git rev-parse "$ORIGIN_REMOTE_NAME/stages/$ENVIRONMENT")"
+        if [ "$local_ref" != "$origin_ref" ]; then
+
+            echo_yellow >&2 "
+Warning: Local stages branch differs from origin stages branch!
+Maybe you need to git push?
+
+stages/$ENVIRONMENT:        $local_ref
+$ORIGIN_REMOTE_NAME/stages/$ENVIRONMENT: $origin_ref
+
+You can also set ORIGIN_REMOTE_NAME if your primary git remote is named
+something other than 'origin'.
+"
+
+            # check is fatal for strict environments
+            if [ -n "$strict_check" ] && [ -z "${DEPLOY_WEIRD_BRANCH-}" ]; then
+                echo_red >&2 "error: local and remote stages branches differ"
+                echo_red >&2 "set DEPLOY_WEIRD_BRANCH=1 to skip this check"
+                return 3
+            fi
+        fi
+    fi
+
+
+    if [ -n "$strict_check" ]; then
         if [[ ( "$(cat VERSION.txt)" =~ -pre ||
-                ! "$(git log -n 1 --pretty=format:'%d')" =~ tag: ) ]]; then
-                echo_yellow >&2 "
-
-
+                ! "$(git log -n 1 --pretty=format:'%d')" =~ tag: ) ]]
+        then
+            echo_yellow >&2 "
 
 ###############################################################################
-#                             !!!WARNING!!!                                   #
+#                              INFORMATIONAL                                  #
 ###############################################################################
 
-The $ENVIRONMENT environment should not be deployed from anything besides a
-tagged, non prerelease version because it is one of the environments officially
-supported by the devops team, either for clients or for other teams.
+We would like to start using tagged release versions that we carry through
+environments for user-facing environments.
+
+The $ENVIRONMENT environment ideally should be deployed from a tagged,
+non-prerelease version because it is one of the environments officially
+supported by the devops team for client use.
+
+Please consider running \`rake release\` to edit VERSION.txt and create a
+tagged release.
 
 See https://github.com/18F/identity-devops/tree/master/doc/process/releases.md
 for more details about our release tools.
 
-
+The current version in VERSION.txt is: $(cat VERSION.txt)
 
 "
         fi
-        ;;
-    esac
-    ;;
-esac
+    fi
+}
 
 echo_blue "deploy environment: $ENVIRONMENT"
+
+check_release_versioning
 
 echo "DEPLOY: Loading environment variables...."
 . bin/load-env.sh "$ENVIRONMENT" "$GSA_USERNAME"
@@ -167,6 +252,7 @@ cat <<EOF
 # $TF_VAR_env_name
 #
 ########################################
+
 EOF
 
 echo_blue "Running terraform..."

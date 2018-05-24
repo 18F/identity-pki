@@ -119,13 +119,13 @@ echo_color() {
     esac
 
     if [ -t 1 ]; then
-        echo -ne "\033[1;${code}m"
+        echo -ne "\\033[1;${code}m"
     fi
 
     echo -n "$*"
 
     if [ -t 1 ]; then
-        echo -ne "\033[m"
+        echo -ne '\033[m'
     fi
 
     echo
@@ -164,6 +164,12 @@ echo_color_horizontal_rule() {
 }
 
 log() {
+    local color=
+    if [ "${1-}" = "--blue" ]; then
+        color=34
+        shift
+    fi
+
     # print our caller if possible as the basename
     if [ "${#BASH_SOURCE[@]}" -ge 2 ]; then
         local basename
@@ -171,9 +177,19 @@ log() {
         if [[ $basename = */* ]]; then
             basename="$(basename "$basename")"
         fi
+        if [ -n "$color" ] && [ -t 2 ]; then
+            echo >&2 -ne "\\033[1;${color}m"
+        fi
         echo >&2 -n "$basename: "
     fi
-    echo >&2 "$*"
+
+    echo >&2 -n "$*"
+
+    if [ -n "$color" ] && [ -t 2 ]; then
+        echo >&2 -ne '\033[m'
+    fi
+
+    echo >&2
 }
 
 get_terraform_version() {
