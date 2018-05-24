@@ -69,7 +69,7 @@ RSpec.describe Certificate do
     it { expect(certificate.ca_capable?).to be_truthy }
     it { expect(certificate.self_signed?).to be_truthy }
     it { expect(certificate.valid?).to be_falsey }
-    it { expect(certificate_error).to eq 'certificate.unverified' }
+    it { expect(certificate_error).to eq 'certificate.self-signed cert' }
   end
 
   describe 'a leaf cert' do

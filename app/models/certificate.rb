@@ -25,8 +25,31 @@ class Certificate
     signing_key_id == key_id
   end
 
+  def validate_cert
+    if expired?
+      'expired'
+    elsif trusted_root?
+      # The other checks are all irrelevant if we trust the root.
+      'valid'
+    else
+      validate_untrusted_root
+    end
+  end
+
+  def validate_untrusted_root
+    if self_signed?
+      'self-signed cert'
+    elsif revoked?
+      'revoked'
+    elsif !signature_verified?
+      'unverified'
+    else
+      'valid'
+    end
+  end
+
   def valid?
-    !expired? && (trusted_root? || !self_signed? && signature_verified? && !revoked?)
+    validate_cert == 'valid'
   end
 
   def to_pem
@@ -105,6 +128,7 @@ class Certificate
   def token_for_valid_certificate(extra)
     subject_s = subject.to_s(OpenSSL::X509::Name::RFC2253)
     piv = PivCac.find_or_create_by(dn: subject_s)
+    Rails.logger.info('Returning a token for a valid certificate.')
     TokenService.box(
       extra.merge(
         subject: subject_s,
@@ -116,16 +140,9 @@ class Certificate
   # :reek:UtilityFunction
   def token_for_invalid_certificate(extra)
     # figure out the reason for being invalid
-    reason = if !signature_verified?
-               'unverified'
-             elsif revoked?
-               'revoked'
-             elsif expired?
-               'expired'
-             else
-               'invalid'
-             end
+    reason = validate_cert
 
+    Rails.logger.warn("Certificate invalid: #{reason}")
     TokenService.box(extra.merge(error: "certificate.#{reason}"))
   end
 end
