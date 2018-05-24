@@ -1,7 +1,7 @@
 resource "aws_alb" "app" {
   count = "${var.alb_enabled * var.apps_enabled}"
   name = "${var.name}-app-alb-${var.env_name}"
-  security_groups = ["${aws_security_group.web.id}"]
+  security_groups = ["${aws_security_group.app-alb.id}"]
   subnets = ["${aws_subnet.alb1.id}", "${aws_subnet.alb2.id}"]
 
   access_logs = {

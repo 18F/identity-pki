@@ -11,7 +11,6 @@ resource "aws_elasticache_subnet_group" "idp" {
 
 resource "aws_internet_gateway" "default" {
   tags {
-    client = "${var.client}"
     Name = "${var.name}-gateway-${var.env_name}"
   }
   vpc_id = "${aws_vpc.default.id}"
@@ -24,7 +23,7 @@ resource "aws_route" "default" {
 }
 
 resource "aws_security_group" "app" {
-  description = "Allow inbound web traffic and whitelisted IP(s) for SSH"
+  description = "Security group for sample app servers"
 
   # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
   egress {
@@ -63,14 +62,14 @@ resource "aws_security_group" "app" {
     from_port = 80
     to_port = 80
     protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    security_groups = ["${aws_security_group.app-alb.id}"]
   }
 
   ingress {
     from_port = 443
     to_port = 443
     protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    security_groups = ["${aws_security_group.app-alb.id}"]
   }
 
   ingress {
@@ -88,11 +87,11 @@ resource "aws_security_group" "app" {
     cidr_blocks = ["${var.ci_sg_ssh_cidr_blocks}"]
   }
 
-  name = "${var.name}-app-${var.env_name}"
+  name = "${var.env_name}-app"
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-app_security_group-${var.env_name}"
+    role = "app"
   }
 
   vpc_id = "${aws_vpc.default.id}"
@@ -132,7 +131,6 @@ resource "aws_security_group" "cache" {
   name = "${var.name}-cache-${var.env_name}"
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-cache_security_group-${var.env_name}"
   }
 
@@ -230,7 +228,6 @@ resource "aws_security_group" "chef" {
   name = "${var.name}-chef-${var.env_name}"
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-chef_security_group-${var.env_name}"
   }
 
@@ -273,7 +270,6 @@ resource "aws_security_group" "db" {
   name = "${var.name}-db-${var.env_name}"
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-db_security_group-${var.env_name}"
   }
 
@@ -384,8 +380,9 @@ resource "aws_security_group" "elk" {
   name = "${var.name}-elk-${var.env_name}"
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-elk_security_group-${var.env_name}"
+    role = "elk"
+    to_deprecate_role = "elasticsearch"
   }
 
   vpc_id = "${aws_vpc.default.id}"
@@ -468,7 +465,6 @@ resource "aws_security_group" "jenkins" {
   name = "${var.name}-jenkins-${var.env_name}"
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-jenkins_security_group-${var.env_name}"
   }
 
@@ -607,8 +603,8 @@ resource "aws_security_group" "jumphost" {
   name = "${var.name}-jumphost-${var.env_name}"
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-jumphost_security_group-${var.env_name}"
+    role = "jumphost"
   }
 
   vpc_id = "${aws_vpc.default.id}"
@@ -627,7 +623,6 @@ resource "aws_security_group" "amazon_netblocks_ssl" {
   name = "${var.name}-amazonnetblocksssl-${var.env_name}"
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-awsnetblocksssl_security_group-${var.env_name}"
   }
 
@@ -647,7 +642,6 @@ resource "aws_security_group" "amazon_netblocks_http" {
   name = "${var.name}-amazonnetblockshttp-${var.env_name}"
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-awsnetblockshttp_security_group-${var.env_name}"
   }
 
@@ -710,20 +704,23 @@ resource "aws_security_group" "idp" {
     from_port = 80
     to_port = 80
     protocol = "tcp"
+    # TODO remove cidr_blocks once security_groups is applied
     cidr_blocks = [
       "${var.alb1_subnet_cidr_block}",
       "${var.alb2_subnet_cidr_block}"
     ]
+    security_groups = ["${aws_security_group.web.id}"]
   }
-
   ingress {
     from_port = 443
     to_port = 443
     protocol = "tcp"
+    # TODO remove cidr_blocks once security_groups is applied
     cidr_blocks = [
       "${var.alb1_subnet_cidr_block}",
       "${var.alb2_subnet_cidr_block}"
     ]
+    security_groups = ["${aws_security_group.web.id}"]
   }
 
   ingress {
@@ -752,8 +749,9 @@ resource "aws_security_group" "idp" {
   name = "${var.name}-idp-${var.env_name}"
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-idp_security_group-${var.env_name}"
+    role = "idp"
+    to_deprecate_role = "worker"
   }
 
   vpc_id = "${aws_vpc.default.id}"
@@ -822,23 +820,53 @@ resource "aws_security_group" "pivcac" {
   name = "${var.name}-pivcac-${var.env_name}"
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-pivcac_security_group-${var.env_name}"
+    role = "pivcac"
   }
 
   vpc_id = "${aws_vpc.default.id}"
 }
 
+# TODO rename to idp-alb
 resource "aws_security_group" "web" {
+  # TODO: description = "idp-alb security group allowing web traffic"
   description = "Security group for web that allows web traffic from internet"
   vpc_id = "${aws_vpc.default.id}"
 
   # allow outbound to the VPC so that we can get to the idp hosts
+  # TODO remove this rule once the more finely grained egress rules below are
+  # rolled out
   egress {
     from_port = 0
     to_port = 65535
     protocol = "tcp"
     cidr_blocks = ["${var.vpc_cidr_block}"]
+  }
+
+  # Allow outbound to the IDP subnets on 80/443.
+  #
+  # We use cidr_blocks rather than security_groups here so that we avoid a
+  # bootstrapping cycle and will still remove unmanaged rules.
+  # https://github.com/terraform-providers/terraform-provider-aws/issues/3095
+  egress {
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
+    cidr_blocks = [
+      "${var.idp1_subnet_cidr_block}",
+      "${var.idp2_subnet_cidr_block}",
+      "${var.idp3_subnet_cidr_block}"
+    ]
+  }
+  egress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = [
+      "${var.idp1_subnet_cidr_block}",
+      "${var.idp2_subnet_cidr_block}",
+      "${var.idp3_subnet_cidr_block}"
+    ]
   }
 
   ingress {
@@ -858,8 +886,49 @@ resource "aws_security_group" "web" {
   name = "${var.name}-web-${var.env_name}"
 
   tags {
-    client = "${var.client}"
-    Name = "${var.name}-web_security_group-${var.env_name}"
+    Name = "${var.env_name}-idp-alb"
+  }
+}
+
+resource "aws_security_group" "app-alb" {
+  description = "App ALB group allowing Internet traffic"
+  vpc_id = "${aws_vpc.default.id}"
+
+  # Allow outbound to the VPC so that we can get to the app hosts.
+  # We use cidr_blocks rather than security_groups here so that we avoid a
+  # bootstrapping cycle and will still remove unmanaged rules.
+  # https://github.com/terraform-providers/terraform-provider-aws/issues/3095
+  egress {
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
+    cidr_blocks = ["${var.app1_subnet_cidr_block}"] # TODO make multi-AZ
+  }
+  egress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = ["${var.app1_subnet_cidr_block}"] # TODO make multi-AZ
+  }
+
+  ingress {
+    from_port = 80
+    to_port   = 80
+    protocol  = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 443
+    to_port   = 443
+    protocol  = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  name = "${var.env_name}-app-alb"
+
+  tags {
+    Name = "${var.env_name}-app-alb"
   }
 }
 
@@ -869,7 +938,6 @@ resource "aws_subnet" "app" {
   map_public_ip_on_launch = true
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-app_subnet-${var.env_name}"
   }
 
@@ -882,7 +950,6 @@ resource "aws_subnet" "admin" {
   map_public_ip_on_launch = true
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-admin_subnet-${var.env_name}"
   }
 
@@ -895,7 +962,6 @@ resource "aws_subnet" "db1" {
   map_public_ip_on_launch = false
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-db1_subnet-${var.env_name}"
   }
 
@@ -908,7 +974,6 @@ resource "aws_subnet" "db2" {
   map_public_ip_on_launch = false
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-db2_subnet-${var.env_name}"
   }
 
@@ -922,7 +987,6 @@ resource "aws_subnet" "jumphost" {
   map_public_ip_on_launch = false
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-jumphost_subnet-${var.env_name}"
   }
 
@@ -935,7 +999,6 @@ resource "aws_subnet" "jumphost1" {
   map_public_ip_on_launch = true
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-jumphost1_subnet-${var.env_name}"
   }
 
@@ -948,7 +1011,6 @@ resource "aws_subnet" "jumphost2" {
   map_public_ip_on_launch = true
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-jumphost2_subnet-${var.env_name}"
   }
 
@@ -962,7 +1024,6 @@ resource "aws_subnet" "idp1" {
   map_public_ip_on_launch = true
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-idp1_subnet-${var.env_name}"
   }
 
@@ -976,7 +1037,6 @@ resource "aws_subnet" "idp2" {
   map_public_ip_on_launch = true
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-idp2_subnet-${var.env_name}"
   }
 
@@ -990,7 +1050,6 @@ resource "aws_subnet" "chef" {
   map_public_ip_on_launch = true
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-chef_subnet-${var.env_name}"
   }
 
@@ -1004,7 +1063,6 @@ resource "aws_subnet" "alb1" {
   map_public_ip_on_launch = true
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-alb1_subnet-${var.env_name}"
   }
 
@@ -1018,7 +1076,6 @@ resource "aws_subnet" "alb2" {
   map_public_ip_on_launch = true
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-alb2_subnet-${var.env_name}"
   }
 
@@ -1038,7 +1095,6 @@ resource "aws_vpc" "default" {
   enable_dns_hostnames = true
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-vpc-${var.env_name}"
   }
 }
