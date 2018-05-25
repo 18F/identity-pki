@@ -18,6 +18,12 @@ execute 'extend_disk' do
   not_if  'pvdisplay | grep .dev.xvdg >/dev/null'
 end
 
+# format and mount the local nvme drive if available
+execute 'format and mount nvme drive' do
+  command 'mkfs.ext4 /dev/nvme0n1; mkdir -p /var/lib/elasticsearch ; mount /dev/nvme0n1 /var/lib/elasticsearch/'
+  only_if 'lsblk /dev/nvme0n1'
+  not_if  'mount -l | grep .dev.nvme0n1 >/dev/null'
+end
 
 # install elasticsearch
 elasticsearch_user 'elasticsearch'
