@@ -11,12 +11,12 @@ module "pivcac_launch_config" {
   # identity-devops-private variables
   private_s3_ssh_key_url = "${var.bootstrap_private_s3_ssh_key_url}"
   private_git_clone_url = "${var.bootstrap_private_git_clone_url}"
-  private_git_ref = "${var.bootstrap_private_git_ref}"
+  private_git_ref = "${var.bootstrap_private_git_ref_pivcac}"
 
   # identity-devops variables
   main_s3_ssh_key_url = "${var.bootstrap_main_s3_ssh_key_url}"
   main_git_clone_url = "${var.bootstrap_main_git_clone_url}"
-  main_git_ref = "${var.bootstrap_main_git_ref}"
+  main_git_ref = "${var.bootstrap_main_git_ref_pivcac}"
 }
 
 # TODO it would be nicer to have this in the module, but the
@@ -60,6 +60,24 @@ resource "aws_iam_role_policy" "pivcac-secrets" {
   policy = "${data.aws_iam_policy_document.secrets_role_policy.json}"
 }
 
+resource "aws_iam_role_policy" "pivcac-certificates" {
+  name = "${var.env_name}-pivcac-certificates"
+  role = "${aws_iam_role.pivcac.id}"
+  policy = "${data.aws_iam_policy_document.certificates_role_policy.json}"
+}
+
+resource "aws_iam_role_policy" "pivcac-describe_instances" {
+  name = "${var.env_name}-pivcac-describe_instances"
+  role = "${aws_iam_role.pivcac.id}"
+  policy = "${data.aws_iam_policy_document.describe_instances_role_policy.json}"
+}
+
+resource "aws_iam_role_policy" "pivcac-cloudwatch-logs" {
+  name = "${var.env_name}-pivcac-cloudwatch-logs"
+  role = "${aws_iam_role.pivcac.id}"
+  policy = "${data.aws_iam_policy_document.cloudwatch-logs.json}"
+}
+
 resource "aws_autoscaling_group" "pivcac" {
     name = "${var.env_name}-pivcac"
 
@@ -77,6 +95,8 @@ resource "aws_autoscaling_group" "pivcac" {
       "${aws_subnet.idp1.id}",
       "${aws_subnet.idp2.id}"
     ]
+
+    load_balancers = ["${aws_elb.pivcac.id}"]
 
     # TODO: Once these things start listening on 443, we should at least use that.
     health_check_type = "EC2"
@@ -119,6 +139,7 @@ resource "aws_elb" "pivcac" {
   name = "${var.env_name}-pivcac"
   security_groups = ["${aws_security_group.web.id}"]
   subnets = ["${aws_subnet.alb1.id}", "${aws_subnet.alb2.id}"]
+  count = "${var.pivcac_service_enabled}"
 
   access_logs = {
     bucket = "login-gov.elb-logs.${data.aws_caller_identity.current.account_id}-${var.region}"

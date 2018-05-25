@@ -171,7 +171,7 @@ variable "instance_type_es" { default = "t2.medium" }
 variable "instance_type_idp" { default = "t2.medium" }
 variable "instance_type_jenkins" { default = "t2.medium" }
 variable "instance_type_jumphost" { default = "t2.small" }
-variable "instance_type_pivcac" { default = "t2.small" }
+variable "instance_type_pivcac" { default = "t2.medium" }
 variable "instance_type_worker" { default = "t2.small" } # TODO way too small
 variable "key_name" {}
 variable "live_certs" {}
@@ -344,6 +344,14 @@ variable "bootstrap_main_git_ref_elk" {
 variable "bootstrap_private_git_ref_elk" {
     default = "HEAD"
     description = "Git ref in identity-devops for provision.sh to check out for elk"
+}
+variable "bootstrap_main_git_ref_pivcac" {
+    default = "HEAD"
+    description = "Git ref in identity-devops for provision.sh to check out for pivcac"
+}
+variable "bootstrap_private_git_ref_pivcac" {
+    default = "HEAD"
+    description = "Git ref in identity-devops for provision.sh to check out for pivcac"
 }
 
 variable "nessusserver_ip" {
