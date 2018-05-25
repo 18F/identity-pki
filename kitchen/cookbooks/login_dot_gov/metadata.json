@@ -21,6 +21,7 @@
     "poise-ruby-build": ">= 0.0.1",
     "ruby_build": ">= 0.0.1",
     "ssh-keys": "> 0.0.1",
+    "static_eip": ">= 0.2.0",
     "sudo": ">= 0.0.1",
     "users": ">= 0.0.1"
   },

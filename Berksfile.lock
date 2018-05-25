@@ -76,8 +76,8 @@ DEPENDENCIES
   ssh-keys
   static_eip
     git: https://github.com/18F/identity-cookbooks
-    revision: 298ec44adf9e03219ecf11ced4da31606b2b7ccf
-    ref: 298ec44
+    revision: 690df2c0422c7b4bd2ec02ca64abfdc40f7fd0cb
+    ref: 690df2c
     rel: static_eip
   sudo
   users
@@ -200,6 +200,7 @@ GRAPH
     poise-ruby-build (>= 0.0.1)
     ruby_build (>= 0.0.1)
     ssh-keys (> 0.0.1)
+    static_eip (>= 0.2.0)
     sudo (>= 0.0.1)
     users (>= 0.0.1)
   mingw (2.0.2)
@@ -276,7 +277,7 @@ GRAPH
     windows (>= 1.2.2)
   squid (4.0.3)
   ssh-keys (1.2.7)
-  static_eip (0.1.1)
+  static_eip (0.2.0)
   sudo (5.3.3)
   terraform (0.2.1)
     ark (>= 0.0.0)
