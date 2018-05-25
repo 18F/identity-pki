@@ -681,7 +681,23 @@ resource "aws_security_group" "idp" {
     from_port = 18449
     to_port = 18449
     protocol = "tcp"
-    cidr_blocks = ["66.227.17.192/26"]
+    cidr_blocks = [
+      "66.227.17.192/26",
+      "66.16.0.0/16" # This IP range includes AAMVA's failover, but is not exclusively controlled by AAMVA
+    ]
+  }
+
+  # LexisNexis RDP API, used by worker servers
+  egress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = [
+      "209.243.48.0/24",
+      "69.84.186.0/24",
+      "66.241.42.0/23",
+      "209.243.50.0/24"
+    ]
   }
 
   # github
@@ -1098,4 +1114,3 @@ resource "aws_vpc" "default" {
     Name = "${var.name}-vpc-${var.env_name}"
   }
 }
-
