@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_04_19_202740) do
+ActiveRecord::Schema.define(version: 2018_05_17_192853) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -39,6 +39,17 @@ ActiveRecord::Schema.define(version: 2018_04_19_202740) do
     t.string "dn_signature", null: false
     t.index ["dn_signature"], name: "index_piv_cacs_on_dn_signature", unique: true
     t.index ["uuid"], name: "index_piv_cacs_on_uuid", unique: true
+  end
+
+  create_table "unrecognized_certificate_authorities", force: :cascade do |t|
+    t.string "key", null: false
+    t.string "dn", null: false
+    t.string "crl_http_url"
+    t.string "ocsp_url"
+    t.string "ca_issuer_url"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["key"], name: "index_unrecognized_certificate_authorities_on_key", unique: true
   end
 
   add_foreign_key "certificate_revocations", "certificate_authorities"

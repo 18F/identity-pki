@@ -5,6 +5,12 @@ module X509Helpers
   # We aren't making real certificates, just realistic ones.
   RSA_KEY_SIZE = 512
 
+  AUTHORITY_INFO_ACCESS_EXTENSION = [
+    'authorityInfoAccess',
+    'caIssuers;URI:http://example.com/,OCSP;URI:http://ocsp.example.com/',
+    false,
+  ].freeze
+
   ##
   # Requires:
   # ca: the issuing cert
@@ -78,6 +84,7 @@ module X509Helpers
     add_certificate_extensions(cert, root_ca,
                                ['basicConstraints', 'CA:TRUE', true],
                                ['keyUsage', 'keyCertSign, cRLSign', true],
+                               AUTHORITY_INFO_ACCESS_EXTENSION,
                                ['subjectKeyIdentifier', 'hash', false],
                                ['authorityKeyIdentifier', 'keyid:always', false])
     cert.sign(root_key, OpenSSL::Digest::SHA256.new)
@@ -106,6 +113,7 @@ module X509Helpers
     add_certificate_extensions(cert, root_ca,
                                ['keyUsage', 'digitalSignature', true],
                                ['subjectKeyIdentifier', 'hash', false],
+                               AUTHORITY_INFO_ACCESS_EXTENSION,
                                ['authorityKeyIdentifier', 'keyid:always', false])
     cert.sign(root_key, OpenSSL::Digest::SHA256.new)
     cert
