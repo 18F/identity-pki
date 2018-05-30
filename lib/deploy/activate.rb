@@ -14,7 +14,7 @@ module Deploy
 
     def run
       LoginGov::Hostdata.s3(logger: logger, s3_client: s3_client).download_configs(
-        '/%<env>s/application.pivcac.yml' => env_yaml_path
+        '/%<env>s/pivcac/v1/application.yml' => env_yaml_path
       )
 
       File.open(result_yaml_path, 'w') { |file| file.puts YAML.dump(application_config) }
