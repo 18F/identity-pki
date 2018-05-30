@@ -20,7 +20,7 @@ end
 elasticsearch_user 'elasticsearch'
 elasticsearch_install 'elasticsearch' do
   type 'tarball' # type of install
-  version "5.1.2"
+  version "5.6.9"
 end
 
 # URL to reach the elasticsearch cluster.  In the pre-auto-scaled world this was
@@ -89,8 +89,8 @@ directory '/etc/elasticsearch/sgadmin' do
   owner 'elasticsearch'
 end
 
-elasticsearch_plugin 'com.floragunn:search-guard-5:5.1.2-15' do
-  plugin_name 'com.floragunn:search-guard-5:5.1.2-15'
+elasticsearch_plugin 'com.floragunn:search-guard-5:5.6.9-19' do
+  plugin_name 'com.floragunn:search-guard-5:5.6.9-19'
   not_if "/usr/share/elasticsearch/bin/elasticsearch-plugin list | grep search-guard-5"
   notifies :restart, 'elasticsearch_service[elasticsearch]', :delayed
 end
