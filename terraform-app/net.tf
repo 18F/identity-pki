@@ -260,6 +260,14 @@ resource "aws_security_group" "elk" {
     self = true
   }
 
+  ingress {
+    from_port = 9200
+    to_port = 9300
+    protocol = "tcp"
+    cidr_blocks = ["${var.elasticsearch_cidr_block}"]
+    description = "Needed for NLB since it does not support referring to sg ids"
+  }
+
   # allow CI VPC for integration tests
   ingress {
     from_port = 22
