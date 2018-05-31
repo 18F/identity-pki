@@ -37,6 +37,7 @@ class CertificateAuthority < ApplicationRecord
 
   def self.revoked?(key_id, serial)
     cert = find_by(key: key_id)
-    !cert || cert.revoked?(serial)
+    # Cert should exist and not be revoked.
+    cert&.revoked?(serial)
   end
 end
