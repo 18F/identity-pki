@@ -21,50 +21,6 @@ def log
   Cloudlib.cli_log
 end
 
-def data_for_instances(instances)
-  cl = Cloudlib::EC2.new
-
-  # require 'pry'
-  # binding.pry
-
-  header = [
-    'instance-id',
-    'image-id',
-    'name',
-    'instance-type',
-    'private-ip',
-    'public-ip',
-    'state',
-    'launch-time',
-  ]
-
-  # sort instances by name tag, then launch time
-  instances = instances.sort_by {|i|
-    [
-      cl.name_tag(i, allow_nil: true) || '',
-      i.launch_time,
-    ]
-  }
-
-  data = instances.map {|i|
-    [
-      i.instance_id,
-      i.image_id,
-      cl.name_tag(i, allow_nil: true) || '',
-      i.instance_type,
-      i.private_ip_address,
-      i.public_ip_address || '',
-      i.state.name,
-      i.launch_time.to_s,
-    ]
-  }
-
-  return {
-    header: header,
-    rows: data,
-  }
-end
-
 # Take the output of data_for_instances and join it with an array of
 # TargetHealthDescription objects, so that each instance gets its health added
 # as a member. Instances not listed by describe_target_health are excluded
@@ -106,6 +62,7 @@ def main(args)
 
   options = {}
   find_opts = {states: DefaultStatesFilter}
+  data_for_instances_opts = {}
 
   basename = File.basename($0)
 
@@ -156,6 +113,10 @@ Options:
       find_opts[:env] = val
     end
 
+    opts.on('-l', '--long', 'Use long header listing') do
+      data_for_instances_opts[:long_headers] = true
+    end
+
     opts.on('-r', '--health_role ROLE',
             'Include health data for autoscaled servers of type ROLE') do |val|
       options[:health_role] = val
@@ -204,7 +165,10 @@ Options:
 
   instances = Cloudlib::EC2.cli_find_servers(find_opts)
 
-  instance_data = data_for_instances(instances)
+  instance_data = Cloudlib::ListServers.data_for_instances(
+    instances, **data_for_instances_opts
+  )
+
   if options[:health_role]
     target_data = Cloudlib::ElasticLoadBalancingV2.new.find_target_health_data(find_opts[:env], options[:health_role])
     data = collate_instances_with_target(instance_data, target_data)
