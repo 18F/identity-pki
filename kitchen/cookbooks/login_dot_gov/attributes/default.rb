@@ -52,6 +52,11 @@ default['login_dot_gov']['gitref']                          = 'master'
 # run idp_base to generate a mostly-populated AMI with packer
 default['login_dot_gov']['setup_only']                                = false
 
+# Whether to enable the cron job that enqueues no-op rails ActiveJob jobs for
+# the purpose of health checks in the queue infrastructure. This is not needed
+# if we are using the "inline" activejob queue adapter.
+default['login_dot_gov']['dummy_jobs_cron_enabled']                   = false
+
 # idp config
 case Chef::Recipe::AwsMetadata.get_aws_account_id
 when /\A55554/
