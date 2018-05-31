@@ -240,7 +240,7 @@ module Cloudlib
     # @return [Array]
     #
     def list_things(thing, filters, raise_not_found: true)
-      log.debug{"Listing #{thing} with #{filters.inspect}"}
+      log.debug { "Listing #{thing} with #{filters.inspect}" }
       found = ec2.public_send(thing, filters: filters).to_a
       if found.empty? && raise_not_found
         raise NotFound.new("No #{thing} found for filters: #{filters.inspect}")
@@ -306,7 +306,7 @@ module Cloudlib
     end
 
     def self.fetch_tag(obj, key, allow_nil: false)
-      tag = obj.tags.find {|t| t.key == key }
+      tag = obj.tags.find { |t| t.key == key }
       if tag
         tag.value
       else

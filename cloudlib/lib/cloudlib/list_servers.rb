@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Cloudlib
   # module containing some useful functions for slicing and dicing a server
   # listing, like ls-servers
@@ -60,9 +62,10 @@ module Cloudlib
           headers = DEFAULT_HEADERS
         end
       end
+      headers = headers.dup
 
       # sort instances by name tag, then launch time
-      instances = instances.sort_by {|i|
+      instances = instances.sort_by { |i|
         [
           Cloudlib::EC2.name_tag(i, allow_nil: true) || '',
           i.launch_time,
@@ -84,7 +87,7 @@ module Cloudlib
     def self.pretty_time(total_seconds)
       total_hrs, secs = total_seconds.divmod(3600)
       days, hrs = total_hrs.divmod(24)
-      mins = '%02d' % (secs / 60)
+      mins = format('%02d', secs / 60)
 
       if days > 0
         "#{days}d #{hrs}h#{mins}m"
