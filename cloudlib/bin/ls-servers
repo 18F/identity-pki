@@ -117,7 +117,7 @@ Options:
       data_for_instances_opts[:long_headers] = true
     end
 
-    opts.on('-r', '--health_role ROLE',
+    opts.on('-r', '--health-role ROLE',
             'Include health data for autoscaled servers of type ROLE') do |val|
       options[:health_role] = val
     end
