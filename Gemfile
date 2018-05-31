@@ -46,4 +46,8 @@ group :test do
   gem 'zonebie'
 end
 
+group :production do
+  gem 'identity-hostdata', github: '18F/identity-hostdata', branch: 'master'
+end
+
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
