@@ -98,8 +98,7 @@ resource "aws_autoscaling_group" "pivcac" {
 
     load_balancers = ["${aws_elb.pivcac.id}"]
 
-    # TODO: Once these things start listening on 443, we should at least use that.
-    health_check_type = "EC2"
+    health_check_type = "ELB"
     health_check_grace_period = 1200 # 20 minutes
 
     termination_policies = ["OldestInstance"]
@@ -146,11 +145,18 @@ resource "aws_elb" "pivcac" {
     bucket_prefix = "${var.env_name}/pivcac"
   }
 
-  # TODO: Make a health check for this.
   listener {
     instance_port     = 443
     instance_protocol = "tcp"
     lb_port           = 443
     lb_protocol       = "tcp"
+  }
+
+  health_check {
+    target = "HTTPS:443/health_check"
+    healthy_threshold = 3
+    unhealthy_threshold = 3
+    interval = 10
+    timeout = 3
   }
 }
