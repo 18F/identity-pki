@@ -8,6 +8,9 @@ NilCheck:
 TooManyMethods:
   exclude:
     - Certificate
+UtilityFunction:
+  exclude:
+    - lib/deploy
 'spec':
   DuplicateMethodCall:
     enabled: false
