@@ -1,7 +1,7 @@
 postgresql: &postgresql
   adapter: postgresql
   encoding: utf8
-  database: identity_pki
+  database: identity_pki_<%= Rails.env %>
   port: 5432
   username: <%= ENV['DOCKER_DB_USER'] %>
 
