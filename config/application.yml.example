@@ -34,3 +34,6 @@ test:
   database_password: ''
   database_username: ''
   secret_key_base: ''
+
+production:
+  client_cert_escaped: 'true'

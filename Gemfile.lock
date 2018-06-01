@@ -135,6 +135,7 @@ GEM
     factory_bot_rails (4.8.2)
       factory_bot (~> 4.8.2)
       railties (>= 3.0.0)
+    fakefs (0.14.2)
     fasterer (0.4.1)
       colorize (~> 0.7)
       ruby_parser (~> 3.11.0)
@@ -352,6 +353,7 @@ DEPENDENCIES
   database_cleaner
   derailed
   factory_bot_rails
+  fakefs
   fasterer
   figaro
   guard-rspec
