@@ -13,6 +13,7 @@ AllCops:
     - 'db/schema.rb'
     - 'bin/**/*'
     - 'db/migrate/*'
+    - 'lib/deploy/*'
     - 'node_modules/**/*'
     - 'vendor/**/*'
   TargetRubyVersion: 2.3
