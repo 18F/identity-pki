@@ -35,7 +35,7 @@ module Deploy
     end
 
     def root
-      File.expand_path('../../../', __DIR__)
+      File.expand_path('../../../', __FILE__)
     end
 
     def application_config
