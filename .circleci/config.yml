@@ -28,15 +28,14 @@ jobs:
 
       - restore-cache:
           keys:
-            - identity-pki-bundle-{{ checksum "Gemfile.lock" }}
-            - identity-pki-bundle-
+            - v2-identity-pki-bundle-{{ checksum "Gemfile.lock" }}
       - run:
           name: Install dependencies
           command: |
             gem install bundler
             bundle check || bundle install --deployment --jobs=4 --retry=3 --without deploy development doc production --path vendor/bundle
       - save-cache:
-          key: identity-pki-bundle-{{ checksum "Gemfile.lock" }}
+          key: v2-identity-pki-bundle-{{ checksum "Gemfile.lock" }}
           paths:
             - vendor/bundle
 
