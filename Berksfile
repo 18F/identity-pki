@@ -63,6 +63,7 @@ cookbook 'identity-jumphost', path: prefixed('kitchen/cookbooks/identity-jumphos
 cookbook 'identity-nessus', path: prefixed('kitchen/cookbooks/identity-nessus')
 cookbook 'identity-ntp', path: prefixed('kitchen/cookbooks/identity-ntp')
 cookbook 'identity-ossec', path: prefixed('kitchen/cookbooks/identity-ossec')
+cookbook 'identity-pivcac', path: prefixed('kitchen/cookbooks/identity-pivcac')
 cookbook 'instance_certificate', path: prefixed('kitchen/cookbooks/instance_certificate')
 cookbook 'login_dot_gov', path: prefixed('kitchen/cookbooks/login_dot_gov')
 cookbook 'passenger', path: prefixed('kitchen/cookbooks/passenger')

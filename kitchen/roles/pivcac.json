@@ -8,7 +8,9 @@
   },
   "chef_type": "role",
   "run_list": [
-    "role[base]"
+    "role[base]",
+    "recipe[passenger::daemon]",
+    "recipe[identity-pivcac]"
   ],
   "env_run_lists": {
   }

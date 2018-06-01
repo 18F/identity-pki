@@ -23,7 +23,7 @@ default[:passenger][:production][:worker_connections] = 1024
 # Enable the status server on 127.0.0.1
 default[:passenger][:production][:status_server] = true
 
-default[:passenger][:production][:version] = '5.2.3'
+default[:passenger][:production][:version] = '5.3.1'
 default[:passenger][:production][:user] = 'websrv' # must match default['login_dot_gov']['web_system_user']
 
 # Allow our local /16 to proxy setting X-Forwarded-For
