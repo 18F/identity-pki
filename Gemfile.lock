@@ -33,6 +33,8 @@ GEM
       activemodel (= 5.2.0)
       activesupport (= 5.2.0)
       arel (>= 9.0)
+    activerecord-import (0.23.0)
+      activerecord (>= 3.2)
     activestorage (5.2.0)
       actionpack (= 5.2.0)
       activerecord (= 5.2.0)
@@ -315,6 +317,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  activerecord-import
   axe-matchers (~> 1.3.4)
   better_errors
   binding_of_caller
@@ -353,4 +356,4 @@ RUBY VERSION
    ruby 2.3.7p456
 
 BUNDLED WITH
-   1.16.1
+   1.16.2

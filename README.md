@@ -77,3 +77,50 @@ restart the server. See the [rack_mini_profiler] gem for more details.
 
 Once it is up and running, the app will be accessible at
 `http://localhost:3001/` by default.
+
+### Certificate Authority Management
+
+The PIV/CAC service relies on having all of the certificate authorities (issuing
+certificates). If a certificate authority is missing, then any client certificates
+signed by that authority will not be recognized as valid.
+
+All certificates have to link back to a trusted root. Trusted roots are implicitly
+trusted as long as they aren't expired. Any certificate authority that can't be
+traced back to a trusted root will be ignored.
+
+Certificate authorities are made trusted roots by listing their key id in the
+`config/application.yml`. The `trusted_ca_root_identifiers` configuration attribute
+is a comma-delimited list of key ids.
+
+#### Managing Certificate Revocation Lists (CRLs)
+
+The application does not download CRLs. Instead, it expects revoked serial numbers to
+be listed in the `certificate_revocations` table.
+
+##### Loading CRL Metadata
+
+Use the `rake crls:load` command to load a CSV of CRL metadata into the database. This
+command takes an optional filename argument if you aren't providing the CSV on STDIN.
+
+The CSV has the following columns:
+1. certificate authority key id
+2. valid not before date/time
+3. valid not after date/time
+4. certificate authority subject
+5. CRL HTTP URL
+
+##### Dumping CRL Metadata
+
+Use the `rake crls:dump` command to dump a CSV of CRL metadata from the database. This
+command takes an optional filename argument if you aren't wanting the CSV on STDOUT.
+
+The CSV has the same columns as for `crls:load`.
+
+##### Updating CRLs
+
+Use the `rake crls:update` command to fetch the CRLs of configured certificate authorities
+and add any serial numbers to the database.
+
+N.B.: Because of the CRL security model, the command will not fetch or update CRLs for
+certificate authorities that aren't linked to a trusted root. Make sure your trusted roots
+are configured if you aren't seeing CRLs fetched as you expect.

@@ -5,6 +5,7 @@ ruby '~> 2.3.5'
 
 gem 'rails', '~> 5.2'
 
+gem 'activerecord-import'
 gem 'figaro'
 gem 'health_check'
 gem 'pg'
