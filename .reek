@@ -8,9 +8,6 @@ NilCheck:
 TooManyMethods:
   exclude:
     - Certificate
-UtilityFunction:
-  exclude:
-    - lib/deploy
 'spec':
   DuplicateMethodCall:
     enabled: false
@@ -28,3 +25,4 @@ UtilityFunction:
     enabled: false
 exclude_paths:
   - db/migrate
+  - lib/deploy
