@@ -5,7 +5,6 @@ variable "ci_sg_ssh_cidr_blocks"  {
     description = "List of CIDR blocks to allow into all NACLs/SGs.  Only use in the CI VPC."
 }
 variable "power_users" { type="list" }
-variable "amazon_netblocks" { type="list" }
 variable "admin_subnet_cidr_block" { default = "172.16.33.16/28"} # 172.16.33.16 - 172.16.33.31
 variable "app1_subnet_cidr_block"  { default = "172.16.33.96/28" } # 172.16.33.96 - 172.16.33.111
 variable "spare_subnet_cidr_block"  { default = "172.16.33.112/28" } # 172.16.33.112 - 172.16.33.115
@@ -20,8 +19,6 @@ variable "alb1_subnet_cidr_block"  { default = "172.16.33.224/28" } # 172.16.33.
 variable "alb2_subnet_cidr_block"  { default = "172.16.33.240/28" } # 172.16.33.240 - 172.16.33.255
 # TODO jumphost_subnet is legacy to be removed once issue-551 is rolled out across environments
 variable "jumphost_subnet_cidr_block"   { default = "172.16.33.0/28" }  # 172.16.33.0   - 172.16.33.15
-variable "obproxy1_subnet_cidr_block"   { default = "172.16.32.0/28" }  # 172.16.32.1   - 172.16.34.15
-variable "obproxy2_subnet_cidr_block"   { default = "172.16.32.16/28" } # 172.16.32.16  - 172.16.34.31
 variable "jumphost1_subnet_cidr_block"  { default = "172.16.32.32/28" } # 172.16.32.32  - 172.16.34.47
 variable "jumphost2_subnet_cidr_block"  { default = "172.16.32.48/28" } # 172.16.32.48  - 172.16.34.63
 variable "vpc_cidr_block"               { default = "172.16.32.0/22" }  # 172.16.32.0   - 172.16.35.255

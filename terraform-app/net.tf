@@ -190,7 +190,6 @@ resource "aws_security_group" "chef" {
       "${aws_security_group.elk.id}",
       "${aws_security_group.jenkins.id}",
       "${aws_security_group.jumphost.id}",
-      "${aws_security_group.obproxy.id}",
       "${aws_security_group.idp.id}"
     ]
   }
@@ -342,8 +341,6 @@ resource "aws_security_group" "elk" {
       "${var.jumphost_subnet_cidr_block}",
       "${var.jumphost1_subnet_cidr_block}",
       "${var.jumphost2_subnet_cidr_block}",
-      "${var.obproxy1_subnet_cidr_block}",
-      "${var.obproxy2_subnet_cidr_block}"
     ]
   }
 
@@ -605,44 +602,6 @@ resource "aws_security_group" "jumphost" {
   tags {
     Name = "${var.name}-jumphost_security_group-${var.env_name}"
     role = "jumphost"
-  }
-
-  vpc_id = "${aws_vpc.default.id}"
-}
-
-resource "aws_security_group" "amazon_netblocks_ssl" {
-  description = "Allow outbound traffic to AWS services (non-ec2 hosts) on 443"
-
-  # need to get to s3 and cloudtrail
-  egress {
-    from_port = 443
-    to_port = 443
-    protocol = "tcp"
-    cidr_blocks = ["${var.amazon_netblocks}"]
-  }
-  name = "${var.name}-amazonnetblocksssl-${var.env_name}"
-
-  tags {
-    Name = "${var.name}-awsnetblocksssl_security_group-${var.env_name}"
-  }
-
-  vpc_id = "${aws_vpc.default.id}"
-}
-
-resource "aws_security_group" "amazon_netblocks_http" {
-  description = "Allow outbound traffic to AWS services (non-ec2 hosts) on 80"
-
-  # need to get to s3 and cloudtrail
-  egress {
-    from_port = 80
-    to_port = 80
-    protocol = "tcp"
-    cidr_blocks = ["${var.amazon_netblocks}"]
-  }
-  name = "${var.name}-amazonnetblockshttp-${var.env_name}"
-
-  tags {
-    Name = "${var.name}-awsnetblockshttp_security_group-${var.env_name}"
   }
 
   vpc_id = "${aws_vpc.default.id}"

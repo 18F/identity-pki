@@ -211,7 +211,6 @@ module "idp_launch_config" {
 # due to https://github.com/terraform-providers/terraform-provider-aws/issues/681
 # See discussion in ../terraform-modules/bootstrap/vestigial.tf.txt
 resource "aws_launch_configuration" "idp" {
-  depends_on = ["aws_security_group.amazon_netblocks_ssl"]
   name_prefix = "${var.env_name}.idp.${var.bootstrap_main_git_ref}."
 
   lifecycle {
@@ -220,7 +219,7 @@ resource "aws_launch_configuration" "idp" {
 
   image_id = "${var.idp1_ami_id}" # TODO switch to idp_ami_id
   instance_type = "${var.instance_type_idp}"
-  security_groups = ["${aws_security_group.idp.id}","${aws_security_group.amazon_netblocks_ssl.id}"]
+  security_groups = ["${aws_security_group.idp.id}"]
 
   user_data = "${module.idp_launch_config.rendered_cloudinit_config}"
 
