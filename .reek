@@ -25,3 +25,4 @@ TooManyMethods:
     enabled: false
 exclude_paths:
   - db/migrate
+  - lib/deploy

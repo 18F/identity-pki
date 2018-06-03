@@ -8,6 +8,7 @@ gem 'rails', '~> 5.2'
 gem 'activerecord-import'
 gem 'figaro'
 gem 'health_check'
+gem 'identity-hostdata', github: '18F/identity-hostdata', branch: 'master'
 gem 'pg'
 gem 'puma', '~> 3.7'
 gem 'rgl'
@@ -39,6 +40,7 @@ group :test do
   gem 'codeclimate-test-reporter', require: false
   gem 'database_cleaner'
   gem 'factory_bot_rails'
+  gem 'fakefs', require: 'fakefs/safe'
   gem 'rails-controller-testing'
   gem 'shoulda-matchers', '~> 3.0', require: false
   gem 'simplecov'
