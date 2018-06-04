@@ -295,6 +295,11 @@ resource "aws_autoscaling_group" "idp" {
     }
 }
 
+module "idp_lifecycle_hooks" {
+  source = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=77a9039b20a9ac4a028710a0b50228c9c169d61c"
+  asg_name = "${var.env_name}-idp"
+}
+
 module "idp_recycle" {
     source = "../terraform-modules/asg_recycle/"
 

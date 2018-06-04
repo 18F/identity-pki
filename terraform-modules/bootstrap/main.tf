@@ -21,6 +21,10 @@ variable "private_git_ref" {
     description = "Git ref to check out after cloning private_git_clone_url"
     default = "HEAD"
 }
+variable "private_lifecycle_hook_name" {
+    description = "Name of the ASG lifecycle hook to notify upon private provision.sh completion"
+    default = "provision-private"
+}
 
 variable "main_s3_ssh_key_url" {
     description = "S3 URL to use to download SSH key used to clone the main_git_clone_url"
@@ -31,6 +35,28 @@ variable "main_git_clone_url" {
 variable "main_git_ref" {
     description = "Git ref to check out after cloning main_git_clone_url"
     default = "HEAD"
+}
+variable "main_lifecycle_hook_name" {
+    description = "Name of the ASG lifecycle hook to notify upon main provision.sh completion"
+    default = "provision-main"
+}
+
+variable "override_asg_name" {
+    description = "Auto scaling group name. If not set, defaults to $env-$role"
+    default = ""
+}
+
+variable "asg_lifecycle_hook_abandon_delay" {
+    description = <<EOM
+Seconds to wait before notifying the lifecycle hook to ABANDON when
+provision.sh fails. This is useful if you want to keep an instance running for
+manual debugging on failures.
+EOM
+    default = 30
+}
+
+locals {
+    "asg_name" = "${var.override_asg_name != "" ? var.override_asg_name : "${var.env}-${var.role}"}"
 }
 
 # Ideally this module would have contained the aws_launch_configuration since
@@ -103,6 +129,10 @@ data "external" "cloud-init-provision-private-template" {
         git_clone_url = "${var.private_git_clone_url}"
         git_ref = "${var.private_git_ref}"
         s3_ssh_key_url = "${var.private_s3_ssh_key_url}"
+
+        asg_name = "${local.asg_name}"
+        lifecycle_hook_name = "${var.private_lifecycle_hook_name}"
+        lifecycle_hook_abandon_delay = "${var.asg_lifecycle_hook_abandon_delay}"
     }
 }
 
@@ -125,13 +155,17 @@ data "external" "cloud-init-provision-main-template" {
         git_clone_url = "${var.main_git_clone_url}"
         git_ref = "${var.main_git_ref}"
         s3_ssh_key_url = "${var.main_s3_ssh_key_url}"
+
+        asg_name = "${local.asg_name}"
+        lifecycle_hook_name = "${var.main_lifecycle_hook_name}"
+        lifecycle_hook_abandon_delay = "${var.asg_lifecycle_hook_abandon_delay}"
     }
 }
 
 data "template_cloudinit_config" "bootstrap" {
     # may need to change these to true if we hit 16K in size
-    gzip = false
-    base64_encode = false
+    gzip = true
+    base64_encode = true
 
     part {
         filename = "set-hostname.yaml"
