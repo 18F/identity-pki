@@ -10,13 +10,12 @@
 # iam_profile below.
 #
 
-# XXX: It's a syntax error to require this directly.  Including libraries in an
-# ERB is not recommended apparently.
-yaml_lib = "yaml"
-require yaml_lib
-
+# The first statement in erb isn't allowed to be "require"
 common_dir = File.dirname(File.expand_path(File.readlink(__FILE__)))
 require File.join(common_dir, "cloud_init_utils", "cloud_init_builder")
+
+require 'yaml'
+require 'zlib'
 
 Region = 'us-west-2'
 
@@ -174,6 +173,27 @@ end
 if ec2.security_groups(filters: [{name: 'tag:Name', values: [security_group]}]).count.zero?
   raise "No security group named #{security_group.inspect} found"
 end
+
+def gzip(string)
+  begin
+    # ruby 2.4+
+    return Zlib.gzip(string)
+  rescue NoMethodError
+  end
+
+  sio = StringIO.new
+  sio.binmode
+  gz = Zlib::GzipWriter.new(sio)
+  gz.write(string)
+  gz.close
+  sio.string
+end
+
+# Compress user data if it's over 16K limit
+if user_data.length > 16_384
+  user_data = gzip(user_data)
+end
+
 %>
 
 <%=
@@ -223,7 +243,7 @@ end
         },
         # pre_install_command requires our monkey patched *_preinstall
         # provisioners
-        "pre_install_command" => "while ! systemctl is-system-running; do echo Waiting for systemd / cloud-init boot to finish; sleep 15; done",
+        "pre_install_command" => "while ! [ -e /var/lib/cloud/instance/boot-finished ]; do systemctl is-system-running; echo Waiting for systemd / cloud-init boot to finish; sleep 15; done",
         "install_strategy" => "skip", # Let provision.sh has installed chef
         "root_path" => "/var/lib/kitchen"
     },
