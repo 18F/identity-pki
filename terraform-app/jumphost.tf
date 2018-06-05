@@ -92,10 +92,3 @@ resource "aws_autoscaling_group" "jumphost" {
     # We manually terminate instances in prod
     protect_from_scale_in = "${var.asg_prevent_auto_terminate}"
 }
-
-# TODO: delete this once all dependent resources are gone
-resource "aws_eip" "jumphost" {
-  count    = "${var.non_asg_jumphost_enabled}"
-  #instance = "${element(aws_instance.jumphost.*.id, count.index)}"
-  vpc      = true
-}

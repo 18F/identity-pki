@@ -34,7 +34,7 @@ ensure we have all the necessary variables.
 
 This script loads environment variables from identity-devops-private.
 
-USERNAME: Required if \$GSA_USERNAME is not set.
+USERNAME: Required if \$GSA_USERNAME is not set. This is no longer used. (TODO)
 ENV_FILE: Override the normal environment loader and use a single env file. Not
           recommended unless you have particular reason to do so.
 
@@ -85,6 +85,7 @@ echo_blue >&2 "$BASENAME $*"
 
 export TF_VAR_env_name="$1"
 
+# TODO: GSA_USERNAME is no longer used and should be removed
 if [ -z "${GSA_USERNAME-}" ] && [ $# -lt 2 ]; then
     usage
     echo_red >&2 "$BASENAME: error: \$GSA_USERNAME must be set or USERNAME provided as arg"

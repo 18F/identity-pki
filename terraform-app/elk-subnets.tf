@@ -30,11 +30,8 @@ module "elk-base-nacl-rules" {
   network_acl_id = "${aws_network_acl.elk.id}"
   ssh_cidr_blocks = [
       # Jumphost
-      "${var.jumphost_subnet_cidr_block}",
       "${var.jumphost1_subnet_cidr_block}",
       "${var.jumphost2_subnet_cidr_block}",
-      # Jenkins
-      "${var.admin_subnet_cidr_block}",
       # CI VPC
       "${var.ci_sg_ssh_cidr_blocks}"
   ]
@@ -53,17 +50,7 @@ resource "aws_network_acl_rule" "elk-ingress-tcp-logstash" {
 }
 
 # need so that jumphost can get to elk
-resource "aws_network_acl_rule" "elk-ingress-tcp-elk-jenkins-web" {
-  network_acl_id = "${aws_network_acl.elk.id}"
-  egress = false
-  from_port = 8443
-  to_port = 8443
-  protocol = "tcp"
-  rule_number = 45
-  rule_action = "allow"
-  cidr_block = "${var.jumphost_subnet_cidr_block}"
-}
-resource "aws_network_acl_rule" "elk-ingress-tcp-elk-jenkins-web1" {
+resource "aws_network_acl_rule" "elk-ingress-tcp-elk-web1" {
   network_acl_id = "${aws_network_acl.elk.id}"
   egress = false
   from_port = 8443
@@ -73,7 +60,7 @@ resource "aws_network_acl_rule" "elk-ingress-tcp-elk-jenkins-web1" {
   rule_action = "allow"
   cidr_block = "${var.jumphost1_subnet_cidr_block}"
 }
-resource "aws_network_acl_rule" "elk-ingress-tcp-elk-jenkins-web2" {
+resource "aws_network_acl_rule" "elk-ingress-tcp-elk-web2" {
   network_acl_id = "${aws_network_acl.elk.id}"
   egress = false
   from_port = 8443

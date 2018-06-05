@@ -76,7 +76,7 @@ resource "aws_security_group" "app" {
     from_port = 22
     to_port = 22
     protocol = "tcp"
-    security_groups = [ "${aws_security_group.jumphost.id}", "${aws_security_group.jenkins.id}" ]
+    security_groups = [ "${aws_security_group.jumphost.id}" ]
   }
 
   # allow CI VPC for integration tests
@@ -132,102 +132,6 @@ resource "aws_security_group" "cache" {
 
   tags {
     Name = "${var.name}-cache_security_group-${var.env_name}"
-  }
-
-  vpc_id = "${aws_vpc.default.id}"
-}
-
-resource "aws_security_group" "chef" {
-  description = "Allow inbound chef traffic and whitelisted IPs for SSH"
-
-  # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
-  egress {
-    from_port = 0
-    to_port = 65535
-    protocol = "tcp"
-    cidr_blocks = ["${var.vpc_cidr_block}"]
-  }
-
-  # need 80/443 to get packages/gems/etc
-  egress {
-    from_port = 80
-    to_port = 80
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # need 80/443 to get packages/gems/etc
-  egress {
-    from_port = 443
-    to_port = 443
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port = 22
-    to_port = 22
-    protocol = "tcp"
-    # github
-    cidr_blocks = ["192.30.252.0/22"]
-    self = true
-  }
-
-  # need 8834 to comm with Nessus Server
-  egress {
-    from_port = 8834
-    to_port = 8834
-    protocol = "tcp"
-    cidr_blocks = ["${var.nessusserver_ip}"]
-  }
-
-  ingress {
-    from_port = 443
-    to_port = 443
-    protocol = "tcp"
-    security_groups = [
-      "${aws_security_group.app.id}",
-      "${aws_security_group.elk.id}",
-      "${aws_security_group.jenkins.id}",
-      "${aws_security_group.jumphost.id}",
-      "${aws_security_group.idp.id}"
-    ]
-  }
-
-  ingress {
-    from_port = 22
-    to_port = 22
-    protocol = "tcp"
-    cidr_blocks = ["${var.app_sg_ssh_cidr_blocks}"]
-  }
-
-  ingress {
-    from_port = 22
-    to_port = 22
-    protocol = "tcp"
-    security_groups = [ "${aws_security_group.jumphost.id}", "${aws_security_group.jenkins.id}" ]
-  }
-
-  # allow CI VPC for integration tests
-  ingress {
-    from_port = 22
-    to_port = 22
-    protocol = "tcp"
-    cidr_blocks = ["${var.ci_sg_ssh_cidr_blocks}"]
-  }
-
-  # need 8834 to comm with Nessus Server
-  ingress {
-    from_port = 8834
-    to_port = 8834
-    protocol = "tcp"
-    cidr_blocks = ["${var.nessusserver_ip}"]
-  }
-
-  name = "${var.name}-chef-${var.env_name}"
-
-  tags {
-    Name = "${var.name}-chef_security_group-${var.env_name}"
   }
 
   vpc_id = "${aws_vpc.default.id}"
@@ -316,7 +220,7 @@ resource "aws_security_group" "elk" {
     from_port = 22
     to_port = 22
     protocol = "tcp"
-    security_groups = [ "${aws_security_group.jumphost.id}", "${aws_security_group.jenkins.id}" ]
+    security_groups = [ "${aws_security_group.jumphost.id}" ]
   }
 
   # need 8834 to comm with Nessus Server
@@ -333,12 +237,10 @@ resource "aws_security_group" "elk" {
     protocol = "tcp"
     self = true
     cidr_blocks = [
-      "${var.admin_subnet_cidr_block}",
       "${var.app1_subnet_cidr_block}",
       "${var.idp1_subnet_cidr_block}",
       "${var.idp2_subnet_cidr_block}",
       "${var.idp3_subnet_cidr_block}",
-      "${var.jumphost_subnet_cidr_block}",
       "${var.jumphost1_subnet_cidr_block}",
       "${var.jumphost2_subnet_cidr_block}",
     ]
@@ -380,89 +282,6 @@ resource "aws_security_group" "elk" {
     Name = "${var.name}-elk_security_group-${var.env_name}"
     role = "elk"
     to_deprecate_role = "elasticsearch"
-  }
-
-  vpc_id = "${aws_vpc.default.id}"
-}
-
-resource "aws_security_group" "jenkins" {
-  description = "Allow inbound traffic to ELK from whitelisted IPs for SSH and app security group"
-
-  # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
-  egress {
-    from_port = 0
-    to_port = 65535
-    protocol = "tcp"
-    cidr_blocks = ["${var.vpc_cidr_block}"]
-  }
-
-  # need to get packages and stuff (conditionally)
-  # outbound_subnets can be set to "0.0.0.0/0" to allow access to the internet
-  egress {
-    from_port = 80
-    to_port = 80
-    protocol = "tcp"
-    cidr_blocks = ["${var.outbound_subnets}"]
-  }
-  # need to get packages and stuff (conditionally)
-  # outbound_subnets can be set to "0.0.0.0/0" to allow access to the internet
-  egress {
-    from_port = 443
-    to_port = 443
-    protocol = "tcp"
-    cidr_blocks = ["${var.outbound_subnets}"]
-  }
-
-  # github
-  egress {
-    from_port = 22
-    to_port = 22
-    protocol = "tcp"
-    cidr_blocks = ["192.30.252.0/22"]
-  }
-
-  # need 8834 to comm with Nessus Server
-  egress {
-    from_port = 8834
-    to_port = 8834
-    protocol = "tcp"
-    cidr_blocks = ["${var.nessusserver_ip}"]
-  }
-
-  ingress {
-    from_port = 22
-    to_port = 22
-    protocol = "tcp"
-    security_groups = [ "${aws_security_group.jumphost.id}" ]
-  }
-
-  ingress {
-    from_port = 8443
-    to_port = 8443
-    protocol = "tcp"
-    security_groups = [ "${aws_security_group.jumphost.id}" ]
-  }
-
-    # allow CI VPC for integration tests
-  ingress {
-    from_port = 22
-    to_port = 22
-    protocol = "tcp"
-    cidr_blocks = ["${var.ci_sg_ssh_cidr_blocks}"]
-  }
-
-  # need 8834 to comm with Nessus Server
-  ingress {
-    from_port = 8834
-    to_port = 8834
-    protocol = "tcp"
-    cidr_blocks = ["${var.nessusserver_ip}"]
-  }
-
-  name = "${var.name}-jenkins-${var.env_name}"
-
-  tags {
-    Name = "${var.name}-jenkins_security_group-${var.env_name}"
   }
 
   vpc_id = "${aws_vpc.default.id}"
@@ -582,9 +401,8 @@ resource "aws_security_group" "jumphost" {
     from_port = 22
     to_port = 22
     protocol = "tcp"
-    # jenkins, Continuous Integration, Remote Access (FIXME rename variable to 'external_ssh_cidr_blocks'?)
+    # Remote Access (FIXME rename variable to 'external_ssh_cidr_blocks'?)
     cidr_blocks = [
-        "${var.admin_subnet_cidr_block}",
         "${var.app_sg_ssh_cidr_blocks}"
     ]
   }
@@ -702,7 +520,7 @@ resource "aws_security_group" "idp" {
     from_port = 22
     to_port = 22
     protocol = "tcp"
-    security_groups = [ "${aws_security_group.jumphost.id}", "${aws_security_group.jenkins.id}" ]
+    security_groups = [ "${aws_security_group.jumphost.id}" ]
   }
 
   # allow CI VPC for integration tests
@@ -919,18 +737,6 @@ resource "aws_subnet" "app" {
   vpc_id = "${aws_vpc.default.id}"
 }
 
-resource "aws_subnet" "admin" {
-  availability_zone = "${var.region}b"
-  cidr_block = "${var.admin_subnet_cidr_block}"
-  map_public_ip_on_launch = true
-
-  tags {
-    Name = "${var.name}-admin_subnet-${var.env_name}"
-  }
-
-  vpc_id = "${aws_vpc.default.id}"
-}
-
 resource "aws_subnet" "db1" {
   availability_zone = "${var.region}a"
   cidr_block = "${var.db1_subnet_cidr_block}"
@@ -950,19 +756,6 @@ resource "aws_subnet" "db2" {
 
   tags {
     Name = "${var.name}-db2_subnet-${var.env_name}"
-  }
-
-  vpc_id = "${aws_vpc.default.id}"
-}
-
-resource "aws_subnet" "jumphost" {
-  availability_zone = "${var.region}b"
-  cidr_block = "${var.jumphost_subnet_cidr_block}"
-  # public IP attached using EIP
-  map_public_ip_on_launch = false
-
-  tags {
-    Name = "${var.name}-jumphost_subnet-${var.env_name}"
   }
 
   vpc_id = "${aws_vpc.default.id}"
@@ -1013,19 +806,6 @@ resource "aws_subnet" "idp2" {
 
   tags {
     Name = "${var.name}-idp2_subnet-${var.env_name}"
-  }
-
-  vpc_id = "${aws_vpc.default.id}"
-}
-
-resource "aws_subnet" "chef" {
-  availability_zone = "${var.region}b"
-  cidr_block        = "${var.chef_subnet_cidr_block}"
-  depends_on = ["aws_internet_gateway.default"]
-  map_public_ip_on_launch = true
-
-  tags {
-    Name = "${var.name}-chef_subnet-${var.env_name}"
   }
 
   vpc_id = "${aws_vpc.default.id}"

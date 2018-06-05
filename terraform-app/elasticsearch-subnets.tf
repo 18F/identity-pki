@@ -30,26 +30,11 @@ module "elasticsearch-base-nacl-rules" {
   network_acl_id = "${aws_network_acl.elasticsearch.id}"
   ssh_cidr_blocks = [
       # Jumphost
-      "${var.jumphost_subnet_cidr_block}",
       "${var.jumphost1_subnet_cidr_block}",
       "${var.jumphost2_subnet_cidr_block}",
-      # Jenkins
-      "${var.admin_subnet_cidr_block}",
       # CI VPC
       "${var.ci_sg_ssh_cidr_blocks}"
   ]
-}
-
-# Might need this so elk can get to elasticsearch.
-resource "aws_network_acl_rule" "elasticsearch-ingress-tcp-admin" {
-  network_acl_id = "${aws_network_acl.elasticsearch.id}"
-  egress = false
-  from_port = 9200
-  to_port = 9300
-  protocol = "tcp"
-  rule_number = 50
-  rule_action = "allow"
-  cidr_block = "${var.admin_subnet_cidr_block}"
 }
 
 # Need this so elasticsearch can talk across subnets
