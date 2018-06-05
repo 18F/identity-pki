@@ -39,6 +39,11 @@ resource "aws_launch_configuration" "elk" {
   iam_instance_profile = "${aws_iam_instance_profile.elk_instance_profile.id}"
 }
 
+module "elk_lifecycle_hooks" {
+  source = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=e491567564505dfa2f944da5c065cc2bfa4f800e"
+  asg_name = "${aws_autoscaling_group.elk.name}"
+}
+
 # For debugging cloud-init
 #output "rendered_cloudinit_config" {
 #  value = "${module.elk_launch_config.rendered_cloudinit_config}"
@@ -57,7 +62,7 @@ resource "aws_autoscaling_group" "elk" {
 
     # https://github.com/18F/identity-devops-private/issues/631
     health_check_type = "EC2"
-    health_check_grace_period = 3600 # 60 minutes
+    health_check_grace_period = 0
 
     termination_policies = ["OldestInstance"]
 

@@ -34,6 +34,17 @@ options:
     --chef-download-sha256 SUM  The expected sha256 checksum of the chef file.
     --git-ref REF               Check out REF in id-do-private after cloning.
     --kitchen-subdir DIR        The subdirectory to cd to for running chef.
+    --asg-name ASG_NAME         Name of the current autoscaling group, used in
+                                conjunction with --lifecycle-hook-name.
+    --lifecycle-hook-name NAME  The name of the lifecycle hook to notify when
+                                provisioning succeeds or fails. We'll complete
+                                the lifecycle hook with a CONTINUE result on
+                                success, or an ABANDON result on failure.
+    --lifecycle-hook-abandon-delay SECONDS
+                                On failure, wait SECONDS before notifying the
+                                lifecycle hook. This is useful when testing to
+                                keep failed instances alive without terminating
+                                them to allow for interactive debugging.
 
 Needed config files:
 
@@ -189,6 +200,42 @@ check_install_berkshelf() {
     echo >&2 "Berkshelf version $berks_version is good to go!"
 }
 
+maybe_complete_lifecycle_hook() {
+    local result="$1"
+
+    if [ -n "$asg_name" ] && [ -n "$asg_lifecycle_hook_name" ]; then
+        echo >&2 "Completing ASG lifecycle hook with result: $result"
+        complete_lifecycle_hook "$asg_name" "$asg_lifecycle_hook_name" \
+            "$result"
+    else
+        echo >&2 "No lifecycle hook was specified, nothing to notify."
+    fi
+}
+
+# usage: complete_lifecycle_hook ASG_NAME ASG_LIFECYCLE_HOOK_NAME RESULT
+#
+# Notify the specified lifecycle hook with RESULT.
+#
+complete_lifecycle_hook() {
+    local asg_name asg_lifecycle_hook_name result
+    asg_name="$1"
+    asg_lifecycle_hook_name="$2"
+    result="$3"
+
+    local instance_id az
+    instance_id="$(ec2metadata --instance-id)"
+    az="$(ec2metadata --availability-zone)"
+
+    run aws autoscaling complete-lifecycle-action \
+        --region "${az::-1}" \
+        --auto-scaling-group-name "$asg_name" \
+        --lifecycle-hook-name "$asg_lifecycle_hook_name" \
+        --instance-id "$instance_id" \
+        --lifecycle-action-result "$result"
+}
+
+# --
+
 # If we appear to be a cloud-init user-data script running as root, exit zero.
 if [[ $0 == /var/lib/cloud/instance/scripts/* ]] && \
     [ $# -eq 0 ] && [ "$(id -u)" -eq 0 ]; then
@@ -205,6 +252,9 @@ git_ref=
 kitchen_subdir="chef"
 berks_subdir="berks-cookbooks"
 berksfile_toplevel=
+asg_name=
+asg_lifecycle_hook_name=
+lifecycle_hook_abandon_delay=
 
 while [ $# -gt 0 ] && [[ $1 = -* ]]; do
     case "$1" in
@@ -227,6 +277,18 @@ while [ $# -gt 0 ] && [[ $1 = -* ]]; do
         --berksfile-toplevel)
             berksfile_toplevel=1
             ;;
+        --asg-name)
+            asg_name="$2"
+            shift
+            ;;
+        --lifecycle-hook-name)
+            asg_lifecycle_hook_name="$2"
+            shift
+            ;;
+        --lifecycle-hook-abandon-delay)
+            lifecycle_hook_abandon_delay="$2"
+            shift
+            ;;
         -h|--help)
             usage
             exit 0
@@ -245,13 +307,21 @@ if [ $# -lt 2 ]; then
     exit 1
 fi
 
-print_error() {
+handle_error() {
     echo >&2 "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
     echo >&2 "provision.sh: ERROR -- exiting after failure"
     echo >&2 "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+
+    if [ -n "$lifecycle_hook_abandon_delay" ]; then
+        echo >&2 "Sleeping $lifecycle_hook_abandon_delay seconds due to" \
+            " --lifecycle-hook-abandon-delay"
+        sleep "$lifecycle_hook_abandon_delay"
+    fi
+
+    maybe_complete_lifecycle_hook ABANDON
 }
 
-trap print_error EXIT
+trap handle_error EXIT
 
 s3_ssh_key_url="$1"
 git_clone_url="$2"
@@ -373,6 +443,8 @@ fi
 run chef-client --local-mode -c "./chef-client.rb" --no-color
 
 run rm -rf /tmp/bundler
+
+maybe_complete_lifecycle_hook CONTINUE
 
 echo "==========================================================="
 echo "All done! provision.sh finished for $repo_basename"

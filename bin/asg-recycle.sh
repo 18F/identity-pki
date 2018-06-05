@@ -177,7 +177,15 @@ schedule_recycle() {
     # We set our spin-down delay to be 2x the grace period to be extra sure
     # that newly provisioned instances have time to start receiving health
     # checks before we terminate any existing instances.
+    #
+    # TODO: update docs to reflect recommendations around Lifecycle hooks,
+    # which seem to address this safety issue.
     spindown_delay=$((health_grace_period * 2))
+
+    # We use a minimum spin-down delay of 10 minutes
+    if ((spindown_delay < 600)); then
+        spindown_delay=600
+    fi
 
     if [ -n "$desired_capacity" ]; then
         echo_yellow "Overriding $current_size with desired $desired_capacity"

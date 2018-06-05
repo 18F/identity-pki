@@ -127,6 +127,21 @@ data "aws_iam_policy_document" "secrets_role_policy" {
       "arn:aws:s3:::login-gov.app-secrets.${data.aws_caller_identity.current.account_id}-*",
     ]
   }
+
+  # Allow notifying ASG lifecycle hooks. This isn't a great place for this
+  # permission since not actually related, but it's useful to put here because
+  # all of our ASG instances need it.
+  statement {
+    sid = "AllowCompleteLifecycleHook"
+    effect = "Allow"
+    actions = [
+      "autoscaling:CompleteLifecycleAction",
+      "autoscaling:RecordLifecycleActionHeartbeat"
+    ]
+    resources = [
+      "arn:aws:autoscaling:*:*:autoScalingGroup:*:autoScalingGroupName/${var.env_name}-*"
+    ]
+  }
 }
 
 # Role that instances can use to access stuff in citadel. Add this as the role
