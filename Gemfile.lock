@@ -190,6 +190,7 @@ GEM
     mini_portile2 (2.3.0)
     minitest (5.11.3)
     nenv (0.3.0)
+    newrelic_rpm (5.2.0.345)
     nio4r (2.3.0)
     nokogiri (1.8.2)
       mini_portile2 (~> 2.3.0)
@@ -359,6 +360,7 @@ DEPENDENCIES
   guard-rspec
   health_check
   identity-hostdata!
+  newrelic_rpm
   overcommit
   pg
   pry-byebug
