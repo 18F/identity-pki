@@ -39,6 +39,11 @@ resource "aws_launch_configuration" "worker" {
   iam_instance_profile = "${aws_iam_instance_profile.idp.id}"
 }
 
+module "worker_lifecycle_hooks" {
+  source = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=e491567564505dfa2f944da5c065cc2bfa4f800e"
+  asg_name = "${aws_autoscaling_group.worker.name}"
+}
+
 # For debugging cloud-init
 #output "rendered_cloudinit_config" {
 #  value = "${module.worker_launch_config.rendered_cloudinit_config}"
@@ -68,7 +73,7 @@ resource "aws_autoscaling_group" "worker" {
     # target_group_arns = []
     # possible choices: EC2, ELB
     health_check_type = "EC2"
-    health_check_grace_period = 1200 # 20 minutes
+    health_check_grace_period = 0
 
     termination_policies = ["OldestInstance"]
 

@@ -39,6 +39,11 @@ resource "aws_launch_configuration" "jumphost" {
     iam_instance_profile = "${aws_iam_instance_profile.base-permissions.name}"
 }
 
+module "jumphost_lifecycle_hooks" {
+  source = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=e491567564505dfa2f944da5c065cc2bfa4f800e"
+  asg_name = "${aws_autoscaling_group.jumphost.name}"
+}
+
 # For debugging cloud-init
 #output "rendered_cloudinit_config" {
 #    value = "${module.jumphost_launch_config.rendered_cloudinit_config}"
@@ -65,7 +70,7 @@ resource "aws_autoscaling_group" "jumphost" {
     ]
 
     health_check_type = "ELB"
-    health_check_grace_period = 1200    # flavored AMI can omit (default=300)
+    health_check_grace_period = 0
     termination_policies = ["OldestInstance"]
 
     tag {

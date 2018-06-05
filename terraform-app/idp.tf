@@ -255,14 +255,11 @@ resource "aws_autoscaling_group" "idp" {
     ]
 
     # possible choices: EC2, ELB
-    #health_check_type = "EC2"
-    # Use ELB health checks since bootstrapping is now acceptably fast.
     health_check_type = "ELB"
-
-    # Currently bootstrapping seems to take ~10 minutes on c4.xlarge instances,
-    # so we set the grace period to 20 minutes. Ideally this would be shorter.
-    # https://github.com/18F/identity-devops-private/issues/337
-    health_check_grace_period = 1200 # 20 minutes
+    # The grace period starts after lifecycle hooks are done and the instance
+    # is InService. Having a grace period is dangerous because the ASG
+    # considers instances in the grace period to be healthy.
+    health_check_grace_period = 0
 
     termination_policies = ["OldestInstance"]
 
@@ -296,8 +293,8 @@ resource "aws_autoscaling_group" "idp" {
 }
 
 module "idp_lifecycle_hooks" {
-  source = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=77a9039b20a9ac4a028710a0b50228c9c169d61c"
-  asg_name = "${var.env_name}-idp"
+  source = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=e491567564505dfa2f944da5c065cc2bfa4f800e"
+  asg_name = "${aws_autoscaling_group.idp.name}"
 }
 
 module "idp_recycle" {

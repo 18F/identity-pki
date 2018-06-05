@@ -39,6 +39,12 @@ resource "aws_launch_configuration" "pivcac" {
   iam_instance_profile = "${aws_iam_instance_profile.pivcac.id}"
 }
 
+module "pivcac_lifecycle_hooks" {
+  source = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=e491567564505dfa2f944da5c065cc2bfa4f800e"
+  asg_name = "${var.env_name}-pivcac"
+  enabled = "${var.pivcac_service_enabled}"
+}
+
 # For debugging cloud-init
 #output "rendered_cloudinit_config" {
 #  value = "${module.pivcac_launch_config.rendered_cloudinit_config}"
@@ -99,7 +105,7 @@ resource "aws_autoscaling_group" "pivcac" {
     load_balancers = ["${aws_elb.pivcac.id}"]
 
     health_check_type = "ELB"
-    health_check_grace_period = 1200 # 20 minutes
+    health_check_grace_period = 0
 
     termination_policies = ["OldestInstance"]
 

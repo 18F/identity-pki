@@ -39,6 +39,12 @@ resource "aws_launch_configuration" "app" {
   iam_instance_profile = "${aws_iam_instance_profile.base-permissions.id}"
 }
 
+module "app_lifecycle_hooks" {
+  source = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=e491567564505dfa2f944da5c065cc2bfa4f800e"
+  asg_name = "${var.env_name}-app"
+  enabled = "${var.alb_enabled * var.apps_enabled}"
+}
+
 # For debugging cloud-init
 #output "rendered_cloudinit_config" {
 #  value = "${module.idp_launch_config.rendered_cloudinit_config}"
@@ -70,10 +76,10 @@ resource "aws_autoscaling_group" "app" {
     # possible choices: EC2, ELB
     health_check_type = "ELB"
 
-    # Currently bootstrapping seems to take ~10 minutes on c4.xlarge instances,
-    # so we set the grace period to 20 minutes. Ideally this would be shorter.
-    # https://github.com/18F/identity-devops-private/issues/337
-    health_check_grace_period = 1200 # 20 minutes
+    # The grace period starts after lifecycle hooks are done and the instance
+    # is InService. Having a grace period is dangerous because the ASG
+    # considers instances in the grace period to be healthy.
+    health_check_grace_period = 0
 
     termination_policies = ["OldestInstance"]
 
@@ -103,6 +109,8 @@ resource "aws_autoscaling_group" "app" {
 # We can't refer to variables like aws_autoscaling_group.app.name unless the
 # resource exists, and we can't use count on modules because terraform doesn't
 # support it.
+# https://github.com/hashicorp/terraform/issues/953
+# https://github.com/hashicorp/terraform/issues/11566
 #
 #module "app_recycle" {
 #    source = "../terraform-modules/asg_recycle/"
