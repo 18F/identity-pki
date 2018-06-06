@@ -1,4 +1,71 @@
+# There's nothing wrong with `if x > 0`
 Style/NumericPredicate:
-  Exclude:
-    # incorrect recommendation for inspec files
-    - 'nodes/**/*.rb'
+  Enabled: false
+
+Style/RaiseArgs:
+  EnforcedStyle: compact
+
+# empty lines are fine
+Layout/EmptyLinesAroundModuleBody:
+  Enabled: false
+
+# trailing commas improve diff clarity at no cost to readability
+Style/TrailingCommaInHashLiteral:
+  EnforcedStyleForMultiline: consistent_comma
+Style/TrailingCommaInArrayLiteral:
+  EnforcedStyleForMultiline: consistent_comma
+
+# All of these Metrics/* cops are extremely subjective and border on useless.
+# When in doubt, use judgment for what actually makes for more readable code.
+
+# Lots of methods will be longer than 10 lines
+Metrics/MethodLength:
+  Max: 50
+
+# It's not clear that this metric is useful at all
+Metrics/AbcSize:
+  Enabled: false
+
+# Not clear whether this is useful at all
+Metrics/CyclomaticComplexity:
+  Max: 15
+
+Metrics/PerceivedComplexity:
+  Enabled: false
+
+# $PROGRAM_NAME is not less surprising than $0
+Style/SpecialGlobalVars:
+  Enabled: false
+
+Style/BlockDelimiters:
+  Enabled: false
+  # Prefer do...end for procedural blocks, {...} for functional
+  #EnforcedStyle: semantic
+
+# This default recommendation is bananas
+Style/ConditionalAssignment:
+  Enabled: false
+
+# Sometimes a `return` enhances clarity
+Style/RedundantReturn:
+  Enabled: false
+
+# Very frequently if/unless as modifier reduces clarity
+Style/IfUnlessModifier:
+  Enabled: false
+
+# %w[] is a convenience thing, not a clarity thing
+Style/WordArray:
+  Enabled: false
+
+# not useful
+SpaceInsideHashLiteralBraces:
+  Enabled: false
+
+# not useful
+Style/IfInsideElse:
+  Enabled: false
+
+# sometimes using self enhances clarity
+Style/RedundantSelf:
+  Enabled: false

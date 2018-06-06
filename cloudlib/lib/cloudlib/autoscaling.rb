@@ -74,8 +74,12 @@ module Cloudlib
         if Time.now - i.launch_time < asg.health_check_grace_period
           log.error("Health check grace period #{asg.health_check_grace_period} has not elapsed yet for #{i.instance_id}")
           log.error("Instance was launched only #{(Time.now - i.launch_time).to_i} seconds ago")
-          raise UnsafeError.new("Too early to tell if instance is healthy: " +
-                                i.instance_id.inspect)
+          if ENV['UNSAFE_ALLOW_INSTANCE_IN_GRACE_PERIOD']
+            log.warn('Continuing anyway because UNSAFE_ALLOW_INSTANCE_IN_GRACE_PERIOD is set')
+          else
+            raise UnsafeError.new("Too early to tell if instance is healthy: " +
+                                  i.instance_id.inspect)
+          end
         end
       end
 
