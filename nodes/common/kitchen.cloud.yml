@@ -21,7 +21,7 @@ Region = 'us-west-2'
 
 role = File.basename(Dir.pwd)
 environment = ENV.fetch('KITCHEN_EC2_INTEGRATION_ENVIRONMENT', 'ci')
-ami_id = ENV.fetch('KITCHEN_EC2_AMI', 'ami-b72453cf') # TODO look up dynamically
+ami_id = ENV.fetch('KITCHEN_EC2_AMI', 'ami-82387cfa') # TODO look up dynamically
 
 # set default AWS profile to sandbox account
 ENV['AWS_PROFILE'] ||= 'identitysandbox.gov'
@@ -49,7 +49,7 @@ subnets = {
     "elasticsearch" => "login-admin_subnet-#{environment}",
     "elk" => "login-admin_subnet-#{environment}",
     "app" => "login-app_subnet-#{environment}",
-    "outboundproxy" => "#{environment}_obproxy_instance_profile",
+    "outboundproxy" => "login-public1_subnet-#{environment}",
 }
 if !subnets.key?(role)
   raise "Subnet for role: #{role} not found in test kitchen boilerplate.  Please add it in #{__FILE__}."
@@ -63,7 +63,7 @@ security_groups = {
     "elasticsearch" => "login-elk_security_group-#{environment}",
     "elk" => "login-elk_security_group-#{environment}",
     "app" => "login-app_security_group-#{environment}",
-    "outboundproxy" => "#{environment}_obproxy_instance_profile",
+    "outboundproxy" => "login-obproxy_security_group-#{environment}",
 }
 if !security_groups.key?(role)
   raise "Security group for role: #{role} not found in test kitchen boilerplate.  Please add it in #{__FILE__}."
