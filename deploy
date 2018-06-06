@@ -10,8 +10,7 @@ if [ $# -lt 3 ] ; then
     echo "Usage: $0 <environment_name> <username> <terraform_dir> [<terraform_commands>]"
     echo "   Runs <terraform_commands> against <environment_name> using the"
     echo "   configuration in <terraform_dir>."
-    echo "   <username> should be the username of an existing chef user that"
-    echo "   Terraform can use to provision chef-client on new nodes."
+    echo "   <username> is no longer used and can be any text."
     exit 1
 fi
 
@@ -25,7 +24,7 @@ run bundle check
 ORIGIN_REMOTE_NAME="${ORIGIN_REMOTE_NAME-origin}"
 
 ENVIRONMENT=$1; shift
-GSA_USERNAME=$1; shift
+_SA_USERNAME=$1; shift # TODO: remove this -- it is unused
 TF_DIR=$1; shift
 TF_CMD=("$@")
 
@@ -188,23 +187,6 @@ if [ "$real_account_id" != "$TF_VAR_account_id" ]; then
     echo_red "Are you sure you set AWS_PROFILE / secret key right?"
     die "error: Account ID mismatch"
 fi
-
-case "$TF_DIR" in
-    terraform-app)
-        echo "DEPLOY: Checking for required files...."
-        run bin/check-required-files.sh "$ENVIRONMENT"
-
-        if [ -z "${TF_VAR_chef_id:=}" ] ; then
-            die "You must specify an initial chef user.  \
-        Make sure $ID_ENV_DIR/$ENVIRONMENT.sh contains all the necessary configuration."
-        fi
-
-        if [ -z "${TF_VAR_chef_id:=}" ] ; then
-            die "You must specify an environment to terraform.  \
-        Make sure $ID_ENV_DIR/$ENVIRONMENT.sh contains all the necessary configuration."
-        fi
-        ;;
-esac
 
 STATE=${TF_DIR}/terraform-${TF_VAR_env_name}.tfstate
 case "$TF_DIR" in

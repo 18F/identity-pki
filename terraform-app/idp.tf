@@ -217,7 +217,7 @@ resource "aws_launch_configuration" "idp" {
     create_before_destroy = true
   }
 
-  image_id = "${var.idp1_ami_id}" # TODO switch to idp_ami_id
+  image_id = "${var.idp_ami_id}"
   instance_type = "${var.instance_type_idp}"
   security_groups = ["${aws_security_group.idp.id}"]
 

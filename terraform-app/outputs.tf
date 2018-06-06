@@ -22,22 +22,14 @@ output "aws_idp_sg_id" {
   value = "SECURITY_GROUP_ID=${aws_security_group.idp.id}"
 }
 
-output "jenkins" {
-  value = "https://jenkins.login.gov.internal:8443/"
-}
-
 output "elk" {
   value = "https://elk.login.gov.internal:8443/"
-}
-
-output "elk_ip" {
-  value = "${var.non_asg_elk_enabled == 1 ? aws_instance.elk.public_ip : 0}"
 }
 
 output "idp_db_address" {
   value = "idp-postgres.login.gov.internal"
 }
 
-output "jumphost-eip" {
-  value = "${var.non_asg_jumphost_enabled == 1 ? aws_eip.jumphost.public_ip : 0}"
+output "jumphost-lb" {
+  value = "${aws_route53_record.jumphost-elb-public.name}"
 }
