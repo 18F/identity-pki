@@ -1,0 +1,87 @@
+#!/bin/bash
+set -euo pipefail
+
+BASENAME="$(basename "${BASH_SOURCE[0]}")"
+DIRNAME="$(dirname "${BASH_SOURCE[0]}")"
+
+# shellcheck source=/dev/null
+. "$DIRNAME/lib/common.sh"
+
+usage() {
+    cat >&2 <<EOM
+usage: $BASENAME ACCOUNT_ID ENV_NAME
+
+List the .tfvars files for ENV_NAME in AWS account ACCOUNT_ID.
+
+This script uses get-private.env.sh to locate the appropriate
+identity-devops-private checkout. Instead of looking for .sh files in env/, it
+will look for .tfvars files in vars/.
+
+Print .tfvars files that we find in this directory, searching for:
+
+- base.tfvars
+- account_global_<ACCOUNT_ID>.tfvars
+- <ENV_NAME>.tfvars
+
+If any of these files are not found, return 1.
+With special env name "global", we don't look for an env-specific file.
+
+The returned list of files is appropriate for passing to terraform using
+the -var-file option.
+EOM
+}
+
+# usage: print_var_file FILE
+#
+# Check for the existence of FILE relative to the current directory, echoing
+# its absolute path to stdout. If not found, print an error.
+print_var_file() {
+    local path
+    path="$PWD/$1"
+
+    if [ -f "$path" ]; then
+        echo "$path"
+    else
+        echo_red >&2 "error: '$path' does not exist!"
+        echo_red >&2 "Couldn't find .tfvars files for $env_name/$account_id"
+        return 1
+    fi
+}
+
+if [ $# -lt 2 ]; then
+    usage
+    exit 2
+fi
+
+account_id="$1"
+env_name="$2"
+
+ID_ENV_DIR="$(run "$DIRNAME/get-private-env.sh")"
+
+if [ -z "$ID_ENV_DIR" ]; then
+    echo_red "get-private-env.sh failed"
+    exit 3
+fi
+
+if [ "$(wc -l <<< "$ID_ENV_DIR")" -ne 1 ]; then
+    echo_red "get-private-env.sh bug: file path shouldn't be multiple lines"
+    echo_red "Path: '$ID_ENV_DIR'"
+    exit 3
+fi
+
+vars_dir="$ID_ENV_DIR/../vars"
+
+cd "$vars_dir"
+
+# load the base file
+print_var_file "base.tfvars"
+
+# load the account global file
+print_var_file "account_global_$account_id.tfvars"
+
+# environments called global don't get an env-specific file
+if [ "$env_name" = "global" ]; then
+    exit
+fi
+
+print_var_file "$env_name.tfvars"
