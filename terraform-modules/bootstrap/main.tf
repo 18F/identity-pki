@@ -41,6 +41,15 @@ variable "main_git_ref_default" {
     description = "Default git ref to check out after cloning main_git_clone_url if no value set for role in main_git_ref_map"
     default = "HEAD"
 }
+variable "proxy_server" {
+    description = "URL to outbound proxy server"
+}
+variable "proxy_port" {
+    description = "Port for outbound proxy server"
+}
+variable "no_proxy_hosts" {
+    description = "Comma delimited list of hostnames, ip's and domains that should not use outbound proxy"
+}
 variable "main_lifecycle_hook_name" {
     description = "Name of the ASG lifecycle hook to notify upon main provision.sh completion"
     default = "provision-main"
@@ -146,6 +155,10 @@ data "external" "cloud-init-provision-private-template" {
         git_ref = "${var.private_git_ref}"
         s3_ssh_key_url = "${var.private_s3_ssh_key_url}"
 
+        proxy_server = "${var.proxy_server}"
+        proxy_port = "${var.proxy_port}"
+        no_proxy_hosts = "${var.no_proxy_hosts}"
+
         asg_name = "${local.asg_name}"
         lifecycle_hook_name = "${var.private_lifecycle_hook_name}"
         lifecycle_hook_abandon_delay = "${var.asg_lifecycle_hook_abandon_delay}"
@@ -171,6 +184,10 @@ data "external" "cloud-init-provision-main-template" {
         git_clone_url = "${var.main_git_clone_url}"
         git_ref = "${local.main_git_ref}"
         s3_ssh_key_url = "${var.main_s3_ssh_key_url}"
+
+        proxy_server = "${var.proxy_server}"
+        proxy_port = "${var.proxy_port}"
+        no_proxy_hosts = "${var.no_proxy_hosts}"
 
         asg_name = "${local.asg_name}"
         lifecycle_hook_name = "${var.main_lifecycle_hook_name}"

@@ -243,6 +243,13 @@ resource "aws_security_group" "elk" {
       "${var.idp3_subnet_cidr_block}",
       "${var.jumphost1_subnet_cidr_block}",
       "${var.jumphost2_subnet_cidr_block}",
+      "${var.public1_subnet_cidr_block}",
+      "${var.public2_subnet_cidr_block}",
+      "${var.public3_subnet_cidr_block}",
+      "${var.private1_subnet_cidr_block}",
+      "${var.private2_subnet_cidr_block}",
+      "${var.private3_subnet_cidr_block}",
+
     ]
   }
 
@@ -395,6 +402,14 @@ resource "aws_security_group" "jumphost" {
     self = true
   }
 
+  #s3 gateway
+  egress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    prefix_list_ids = ["${aws_vpc_endpoint.private-s3.prefix_list_id}"]
+  }
+
   ingress {	# ELB
     from_port = 22
     to_port = 22
@@ -464,7 +479,7 @@ resource "aws_security_group" "idp" {
     cidr_blocks = ["${var.outbound_subnets}"]
   }
 
-  # AAMVA DLDV API, used by worker servers
+  # AAMVA DLDV API, used by servers
   egress {
     from_port = 18449
     to_port = 18449
@@ -475,7 +490,7 @@ resource "aws_security_group" "idp" {
     ]
   }
 
-  # LexisNexis RDP API, used by worker servers
+  # LexisNexis RDP API, used by servers
   egress {
     from_port = 443
     to_port = 443
@@ -502,6 +517,14 @@ resource "aws_security_group" "idp" {
     to_port = 8834
     protocol = "tcp"
     cidr_blocks = ["${var.nessusserver_ip}"]
+  }
+
+  #s3 gateway
+  egress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    prefix_list_ids = ["${aws_vpc_endpoint.private-s3.prefix_list_id}"]
   }
 
   ingress {
@@ -595,6 +618,14 @@ resource "aws_security_group" "pivcac" {
     to_port = 22
     protocol = "tcp"
     cidr_blocks = ["192.30.252.0/22"]
+  }
+
+  #s3 gateway
+  egress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    prefix_list_ids = ["${aws_vpc_endpoint.private-s3.prefix_list_id}"]
   }
 
   # We should never need port 80 for PIVCAC ingress, because users should only
@@ -864,3 +895,147 @@ resource "aws_vpc" "default" {
     Name = "${var.name}-vpc-${var.env_name}"
   }
 }
+
+#create public and private subnets 
+resource "aws_subnet" "publicsubnet1" {
+  availability_zone = "${var.region}a"
+  cidr_block = "${var.public1_subnet_cidr_block}"
+  map_public_ip_on_launch = true
+
+  tags {
+    Name = "${var.name}-public1_subnet-${var.env_name}"
+  }
+
+  vpc_id = "${aws_vpc.default.id}"
+}
+
+resource "aws_subnet" "publicsubnet2" {
+  availability_zone = "${var.region}b"
+  cidr_block = "${var.public2_subnet_cidr_block}"
+  map_public_ip_on_launch = true
+
+  tags {
+    Name = "${var.name}-public2_subnet-${var.env_name}"
+  }
+
+  vpc_id = "${aws_vpc.default.id}"
+}
+
+resource "aws_subnet" "publicsubnet3" {
+  availability_zone = "${var.region}c"
+  cidr_block = "${var.public3_subnet_cidr_block}"
+  map_public_ip_on_launch = true
+
+  tags {
+    Name = "${var.name}-public3_subnet-${var.env_name}"
+  }
+
+  vpc_id = "${aws_vpc.default.id}"
+}
+
+resource "aws_subnet" "privatesubnet1" {
+  availability_zone = "${var.region}a"
+  cidr_block = "${var.private1_subnet_cidr_block}"
+
+  tags {
+    Name = "${var.name}-private1_subnet-${var.env_name}"
+  }
+
+  vpc_id = "${aws_vpc.default.id}"
+}
+
+resource "aws_subnet" "privatesubnet2" {
+  availability_zone = "${var.region}b"
+  cidr_block = "${var.private2_subnet_cidr_block}"
+
+  tags {
+    Name = "${var.name}-private2_subnet-${var.env_name}"
+  }
+
+  vpc_id = "${aws_vpc.default.id}"
+}
+
+resource "aws_subnet" "privatesubnet3" {
+  availability_zone = "${var.region}c"
+  cidr_block = "${var.private3_subnet_cidr_block}"
+
+  tags {
+    Name = "${var.name}-private3_subnet-${var.env_name}"
+  }
+
+  vpc_id = "${aws_vpc.default.id}"
+}
+
+resource "aws_security_group" "obproxy" {
+  description = "Allow inbound web traffic and whitelisted IP(s) for SSH"
+
+  # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
+  egress {
+    from_port = 0
+    to_port = 65535
+    protocol = "tcp"
+    cidr_blocks = ["${var.vpc_cidr_block}"]
+  }
+
+  # need 80/443 to get packages/gems/etc
+  egress {
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # need 80/443 to get packages/gems/etc
+  egress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # allow github access to their static cidr block
+  egress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["192.30.252.0/22"]
+  }
+
+  #s3 gateway
+  egress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    prefix_list_ids = ["${aws_vpc_endpoint.private-s3.prefix_list_id}"]
+  }
+
+  ingress {
+    from_port = 3128
+    to_port = 3128
+    protocol = "tcp"
+    cidr_blocks = ["${var.vpc_cidr_block}"]
+  }
+
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    security_groups = ["${aws_security_group.jumphost.id}"]
+  }
+
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["${var.ci_sg_ssh_cidr_blocks}"]
+  }
+
+  name = "${var.name}-obproxy-${var.env_name}"
+
+  tags {
+    Name = "${var.name}-obproxy-${var.env_name}"
+  }
+
+  vpc_id = "${aws_vpc.default.id}"
+}
+

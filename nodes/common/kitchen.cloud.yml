@@ -35,6 +35,7 @@ iam_profiles = {
     "elasticsearch" => "#{environment}-base-permissions",
     "elk" => "#{environment}_elk_instance_profile",
     "app" => "#{environment}-base-permissions",
+    "outboundproxy" => "#{environment}_obproxy_instance_profile",
 }
 if !iam_profiles.key?(role)
   raise "IAM profile for role: #{role} not found in test kitchen boilerplate.  Please add it in #{__FILE__}."
@@ -48,6 +49,7 @@ subnets = {
     "elasticsearch" => "login-admin_subnet-#{environment}",
     "elk" => "login-admin_subnet-#{environment}",
     "app" => "login-app_subnet-#{environment}",
+    "outboundproxy" => "#{environment}_obproxy_instance_profile",
 }
 if !subnets.key?(role)
   raise "Subnet for role: #{role} not found in test kitchen boilerplate.  Please add it in #{__FILE__}."
@@ -61,6 +63,7 @@ security_groups = {
     "elasticsearch" => "login-elk_security_group-#{environment}",
     "elk" => "login-elk_security_group-#{environment}",
     "app" => "login-app_security_group-#{environment}",
+    "outboundproxy" => "#{environment}_obproxy_instance_profile",
 }
 if !security_groups.key?(role)
   raise "Security group for role: #{role} not found in test kitchen boilerplate.  Please add it in #{__FILE__}."

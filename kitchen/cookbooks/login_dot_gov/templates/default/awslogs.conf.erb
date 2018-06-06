@@ -333,3 +333,20 @@ log_stream_name = {hostname}
 initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/var/log/clamav/freshclam.log
 time_zone = UTC
+
+[squidaccesslog]
+file = /var/log/squid/access.log
+buffer_duration = 5000
+log_stream_name = {hostname}
+initial_position = start_of_file
+log_group_name = <%= @environmentName %>_/var/log/squid/access.log
+time_zone = UTC
+
+[squidcachelog]
+datetime_format = %Y/%m/%d %H:%M:%S
+file = /var/log/squid/cache.log
+buffer_duration = 5000
+log_stream_name = {hostname}
+initial_position = start_of_file
+log_group_name = <%= @environmentName %>_/var/log/squid/cache.log
+time_zone = UTC

@@ -17,7 +17,18 @@ variable "alb1_subnet_cidr_block"  { default = "172.16.33.224/28" } # 172.16.33.
 variable "alb2_subnet_cidr_block"  { default = "172.16.33.240/28" } # 172.16.33.240 - 172.16.33.255
 variable "jumphost1_subnet_cidr_block"  { default = "172.16.32.32/28" } # 172.16.32.32  - 172.16.34.47
 variable "jumphost2_subnet_cidr_block"  { default = "172.16.32.48/28" } # 172.16.32.48  - 172.16.34.63
+variable "public1_subnet_cidr_block" { default = "172.16.32.64/26" } # 172.16.34.64 - 172.16.34.127
+variable "public2_subnet_cidr_block" { default = "172.16.32.128/26" } # 172.16.34.128 - 172.16.34.191
+variable "public3_subnet_cidr_block" { default = "172.16.32.192/26" } # 172.16.34.192 - 172.16.34.255
+variable "private1_subnet_cidr_block" { default = "172.16.35.0/26" } # 172.16.35.0 - 172.16.35.63
+variable "private2_subnet_cidr_block" { default = "172.16.35.64/26" } # 172.16.35.64 - 172.16.35.127
+variable "private3_subnet_cidr_block" { default = "172.16.35.128/26" } # 172.16.35.128 - 172.16.35.191
 variable "vpc_cidr_block"               { default = "172.16.32.0/22" }  # 172.16.32.0   - 172.16.35.255
+
+#proxy settings
+variable "proxy_server" { default = "obproxy.login.gov.internal" }
+variable "proxy_port" { default = "3128" }
+variable "no_proxy_hosts" { default = "localhost,127.0.0.1,169.254.169.254,169.254.169.123,.login.gov.internal,s3-us-west-2.amazonaws.com,s3.us-west-2.amazonaws.com,ec2.us-west-2.amazonaws.com,kms.us-west-2.amazonaws.com" }
 
 #FIXME referrer must define+use SG resource reference
 variable "redshift_sg_id" {
@@ -146,6 +157,7 @@ variable "instance_type_idp" { default = "t2.medium" }
 variable "instance_type_jumphost" { default = "t2.small" }
 variable "instance_type_pivcac" { default = "t2.medium" }
 variable "instance_type_worker" { default = "t2.small" } # TODO way too small
+variable "instance_type_outboundproxy" { default = "t2.medium" }
 variable "name" { default = "login" }
 variable "region" { default = "us-west-2" }
 variable "availability_zones" { default = ["us-west-2a","us-west-2b","us-west-2c"] }
@@ -176,6 +188,7 @@ variable "asg_app_min" { default = 0 }
 variable "asg_app_desired" { default = 0 }
 variable "asg_app_max" { default = 8 }
 variable "pivcac_nodes" { default = 2 }
+variable "asg_outboundproxy_desired" { default = 2 }
 
 variable "idp_web_acl_id" {
     default = "eb5d2b12-a361-4fa0-88f2-8f632f6a9819"
@@ -279,9 +292,6 @@ variable "outbound_subnets" {
   default = ["0.0.0.0/0"]
   type="list"
 }
-
-variable "instance_type_outboundproxy" { default = "t2.small" }
-variable "asg_outboundproxy_desired" { default = 0 }
 
 variable "nessusserver_ip" {
   description = "Nessus server's public IP"
