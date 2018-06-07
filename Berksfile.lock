@@ -38,13 +38,13 @@ DEPENDENCIES
     path: kitchen/cookbooks/identity-ntp
   identity-ossec
     path: kitchen/cookbooks/identity-ossec
-  identity_base_config
-    git: https://github.com/18F/identity-cookbooks
-    revision: dacc22d9d64d1f911c5275b0e1999d9b7253f504
-    ref: dacc22d
-    rel: identity_base_config
   identity-pivcac
     path: kitchen/cookbooks/identity-pivcac
+  identity_base_config
+    git: https://github.com/18F/identity-cookbooks
+    revision: e2f31b1d67d520ce54ed3ab5deaad5260394eaae
+    ref: e2f31b1
+    rel: identity_base_config
   instance_certificate
     path: kitchen/cookbooks/instance_certificate
   jenkins (~> 5.0.1)
@@ -78,8 +78,8 @@ DEPENDENCIES
   ssh-keys
   static_eip
     git: https://github.com/18F/identity-cookbooks
-    revision: 690df2c0422c7b4bd2ec02ca64abfdc40f7fd0cb
-    ref: 690df2c
+    revision: e2f31b1d67d520ce54ed3ab5deaad5260394eaae
+    ref: e2f31b1
     rel: static_eip
   sudo
   users
@@ -180,8 +180,8 @@ GRAPH
   identity-ntp (0.2.0)
   identity-ossec (0.1.1)
     ossec (>= 0.0.0)
-  identity_base_config (0.1.0)
   identity-pivcac (0.1.0)
+  identity_base_config (0.1.1)
   instance_certificate (0.1.0)
     canonical_hostname (>= 0.0.0)
   java (2.0.1)
@@ -279,6 +279,7 @@ GRAPH
     windows (>= 1.2.2)
   squid (4.0.3)
   ssh-keys (1.2.7)
+  static_eip (0.2.0)
   sudo (5.4.0)
   terraform (1.0.2)
     ark (~> 2.0)
