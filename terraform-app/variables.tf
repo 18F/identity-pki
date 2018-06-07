@@ -28,7 +28,7 @@ variable "vpc_cidr_block"               { default = "172.16.32.0/22" }  # 172.16
 #proxy settings
 variable "proxy_server" { default = "obproxy.login.gov.internal" }
 variable "proxy_port" { default = "3128" }
-variable "no_proxy_hosts" { default = "localhost,127.0.0.1,169.254.169.254,169.254.169.123,.login.gov.internal,s3-us-west-2.amazonaws.com,s3.us-west-2.amazonaws.com,ec2.us-west-2.amazonaws.com,kms.us-west-2.amazonaws.com" }
+variable "no_proxy_hosts" { default = "localhost,127.0.0.1,169.254.169.254,169.254.169.123,.login.gov.internal,s3-us-west-2.amazonaws.com,s3.us-west-2.amazonaws.com,ec2.us-west-2.amazonaws.com,kms.us-west-2.amazonaws.com,autoscaling.us-west-2.amazonaws.com" }
 
 #FIXME referrer must define+use SG resource reference
 variable "redshift_sg_id" {
