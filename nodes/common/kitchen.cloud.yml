@@ -49,7 +49,7 @@ subnets = {
     "elasticsearch" => "login-admin_subnet-#{environment}",
     "elk" => "login-admin_subnet-#{environment}",
     "app" => "login-app_subnet-#{environment}",
-    "outboundproxy" => "login-public1_subnet-#{environment}",
+    "outboundproxy" => "login-idp1_subnet-#{environment}",
 }
 if !subnets.key?(role)
   raise "Subnet for role: #{role} not found in test kitchen boilerplate.  Please add it in #{__FILE__}."
