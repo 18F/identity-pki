@@ -42,8 +42,26 @@ if [ -z "${GSA_USERNAME-}" ]; then
     exit 1
 fi
 
+repo_root_before_cd="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+
 BASENAME="$(basename "$0")"
 cd "$(dirname "$0")"
+
+# Since we just changed directory to where diff-deploy is, the user can be
+# surprised when diff-deploy from their path is different from the
+# identity-devops checkout from their cwd. Prompt to confirm if the git repo
+# after cd is different because this is probably not what they intended.
+repo_root_after_cd="$(git rev-parse --show-toplevel)"
+if [ -n "$repo_root_before_cd" ] \
+    && [ -e "$repo_root_before_cd/bin/$BASENAME" ] \
+    && [ "$repo_root_before_cd" != "$repo_root_after_cd" ]
+then
+    echo_yellow >&2 "WARNING: your cwd is in a different directory than $BASENAME.
+Are you sure you didn't mean to run ./bin/$BASENAME instead?
+Repo root from your cwd:   $repo_root_before_cd
+Repo root for $BASENAME: $repo_root_after_cd"
+    prompt_yn
+fi
 
 run bundle check
 
