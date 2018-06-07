@@ -189,6 +189,8 @@ variable "asg_app_desired" { default = 0 }
 variable "asg_app_max" { default = 8 }
 variable "pivcac_nodes" { default = 2 }
 variable "asg_outboundproxy_desired" { default = 2 }
+variable "asg_outboundproxy_min" { default = 1 }
+variable "asg_outboundproxy_max" { default = 9 }
 
 variable "idp_web_acl_id" {
     default = "eb5d2b12-a361-4fa0-88f2-8f632f6a9819"

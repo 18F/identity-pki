@@ -58,24 +58,44 @@ resource "aws_iam_role_policy" "obproxy-cloudwatch-logs" {
   policy = "${data.aws_iam_policy_document.cloudwatch-logs.json}"
 }
 
-# TODO it would be nicer to have this in the module, but the
-# aws_launch_configuration and aws_autoscaling_group must be in the same module
-# due to https://github.com/terraform-providers/terraform-provider-aws/issues/681
-# See discussion in ../terraform-modules/bootstrap/vestigial.tf.txt
-resource "aws_launch_configuration" "outboundproxy" {
-  name_prefix = "${var.env_name}.outboundproxy.${var.bootstrap_main_git_ref}."
+resource "aws_launch_template" "outboundproxy" {
+  name = "${var.name}-outboundproxy-template-${var.env_name}"
 
-  lifecycle {
-    create_before_destroy = true
+  iam_instance_profile {
+    name = "${aws_iam_instance_profile.obproxy.name}"
   }
 
   image_id = "${lookup(var.ami_id_map, "outboundproxy", var.default_ami_id)}"
+
+  instance_initiated_shutdown_behavior = "terminate"
+
   instance_type = "${var.instance_type_outboundproxy}"
-  security_groups = ["${aws_security_group.obproxy.id}"] 
 
   user_data = "${module.outboundproxy_launch_config.rendered_cloudinit_config}"
 
-  iam_instance_profile = "${aws_iam_instance_profile.obproxy.id}"
+  monitoring {
+    enabled = true
+  }
+
+  vpc_security_group_ids = ["${aws_security_group.obproxy.id}"] 
+
+  tag_specifications {
+    resource_type = "instance"
+    tags {
+      Name = "asg-${var.env_name}-outboundproxy",
+      prefix = "outboundproxy",
+      domain = "${var.env_name}.${var.root_domain}"
+    }
+  }
+
+  tag_specifications {
+    resource_type = "volume"
+    tags {
+      Name = "asg-${var.env_name}-outboundproxy",
+      prefix = "outboundproxy",
+      domain = "${var.env_name}.${var.root_domain}"
+    }
+  }
 }
 
 # For debugging cloud-init
@@ -83,52 +103,26 @@ resource "aws_launch_configuration" "outboundproxy" {
 #  value = "${module.outboundproxy_launch_config.rendered_cloudinit_config}"
 #}
 
-# ELB here
-resource "aws_elb" "outboundproxy" {
-  name                = "${var.name}-outboundproxy-elb-${var.env_name}"
-  security_groups     = ["${aws_security_group.obproxy.id}"]
-  subnets             = ["${aws_subnet.publicsubnet1.id}", "${aws_subnet.publicsubnet2.id}", "${aws_subnet.publicsubnet3.id}"]
-  connection_draining = true
-  internal            = true
-  cross_zone_load_balancing   = true
-
-  access_logs {
-    bucket        = "login-gov.elb-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
-    bucket_prefix = "${var.env_name}/outboundproxy"
-    interval      = 5
-  }
-
-  listener {
-    instance_port     = "3128"
-    instance_protocol = "TCP"
-    lb_port           = "3128"
-    lb_protocol       = "TCP"
-  }
-
-  health_check {
-    target              = "TCP:3128"
-    healthy_threshold   = 2
-    unhealthy_threshold = 2
-    timeout             = 3
-    interval            = 30
-  }
+module "obproxy_lifecycle_hooks" {
+  source = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=e491567564505dfa2f944da5c065cc2bfa4f800e"
+  asg_name = "${var.env_name}-outboundproxy"
 }
 
 resource "aws_route53_record" "obproxy" {
-  depends_on = ["aws_elb.outboundproxy"]
+  depends_on = ["aws_lb.outboundproxy"]
   zone_id    = "${aws_route53_zone.internal.zone_id}"
   name       = "obproxy.login.gov.internal"
   type       = "CNAME"
   ttl        = "300"
-  records    = ["${aws_elb.outboundproxy.dns_name}"]
+  records    = ["${aws_lb.outboundproxy.dns_name}"]
 }
 
 resource "aws_autoscaling_group" "outboundproxy" {
+  depends_on = ["aws_lb.outboundproxy"]
   name = "${var.env_name}-outboundproxy"
-  launch_configuration = "${aws_launch_configuration.outboundproxy.name}"
-
-  min_size         = 1
-  max_size         = 8
+  
+  min_size         = "${var.asg_outboundproxy_min}"
+  max_size         = "${var.asg_outboundproxy_max}"
   desired_capacity = "${var.asg_outboundproxy_desired}"
 
   lifecycle {
@@ -141,32 +135,36 @@ resource "aws_autoscaling_group" "outboundproxy" {
     "${aws_subnet.publicsubnet3.id}",
   ]
 
-  load_balancers = ["${aws_elb.outboundproxy.id}"]
+  target_group_arns = [
+    "${aws_lb_target_group.outboundproxy.arn}"
+  ]
 
-  # possible choices: EC2, ELB
   health_check_type         = "EC2"
-  health_check_grace_period = 900   # 15 minutes
+  health_check_grace_period = 0
 
   termination_policies = ["OldestInstance"]
 
   # We manually terminate instances in prod
   protect_from_scale_in = "${var.asg_prevent_auto_terminate}"
 
-  tag {
-    key                 = "Name"
-    value               = "asg-${var.env_name}-outboundproxy"
-    propagate_at_launch = true
+  launch_template = {
+    id = "${aws_launch_template.outboundproxy.id}"
+    version = "$$Latest"
   }
 
   tag {
-    key                 = "prefix"
-    value               = "outboundproxy"
-    propagate_at_launch = true
+    key = "Name"
+    value = "asg-${var.env_name}-outboundproxy"
+    propagate_at_launch = false
   }
-
   tag {
-    key                 = "domain"
-    value               = "${var.env_name}.${var.root_domain}"
-    propagate_at_launch = true
+    key = "prefix"
+    value = "outboundproxy"
+    propagate_at_launch = false
+  }
+  tag {
+    key = "domain"
+    value = "${var.env_name}.${var.root_domain}"
+    propagate_at_launch = false
   }
 }
