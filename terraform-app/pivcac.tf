@@ -166,3 +166,42 @@ resource "aws_elb" "pivcac" {
     timeout = 3
   }
 }
+
+resource "aws_s3_bucket" "pivcac_cert_bucket" {
+  bucket = "login-gov-pivcac-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
+
+  tags {
+    Name = "login-gov-pivcac-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
+  }
+  policy = "${data.aws_iam_policy_document.pivcac_bucket_policy.json}"
+
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
+}
+
+data "aws_iam_policy_document" "pivcac_bucket_policy" {
+  # allow pivcac hosts to read and write their SSL certs
+  statement {
+    actions = [
+      "s3:GetObject",
+      "s3:PutObject",
+      "s3:PutObjectAcl"
+    ]
+    principals = {
+      type ="AWS"
+      identifiers = [
+        "${aws_iam_role.pivcac.arn}"
+      ]
+    }
+
+    resources = [
+      "arn:aws:s3:::login-gov-pivcac-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}",
+      "arn:aws:s3:::login-gov-pivcac-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}/*"
+    ]
+  }
+}

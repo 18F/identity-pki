@@ -1,0 +1,18 @@
+#!/bin/sh
+# 
+# Push letsencrypt certs to S3
+#
+set -eu
+
+if [ -e <%= @letsencrypt_bundle %> ]; then
+  rm <%= @letsencrypt_bundle %>
+fi
+
+cd <%= @letsencrypt_parent_dir %>
+tar czvf <%= @letsencrypt_bundle %> <%= @letsencrypt_base_dir %>
+if [ -e <%= @letsencrypt_bundle %> ]; then
+  aws s3 cp <%= @letsencrypt_bundle %> s3://<%= @letsencrypt_bucket %>/
+else
+  echo ERROR: Failed to create cert bundle <%= @letsencrypt_bundle %> 1>&2
+  exit 1
+fi

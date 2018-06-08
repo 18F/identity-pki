@@ -4,8 +4,8 @@ server {
     server_name  <%= @server_name or raise 'no @server_name' %>;
 
 
-    ssl_certificate      /etc/ssl/certs/pivcac-cert.pem;
-    ssl_certificate_key  /etc/ssl/private/pivcac-key.pem;
+    ssl_certificate      /etc/letsencrypt/live/<%= @ssl_domain or raise 'no @ssl_domain' %>/fullchain.pem;
+    ssl_certificate_key  /etc/letsencrypt/live/<%= @ssl_domain or raise 'no @ssl_domain' %>/privkey.pem;
     ssl_verify_client optional_no_ca; # on;
     ssl_verify_depth 10;
 

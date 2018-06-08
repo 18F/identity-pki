@@ -4,6 +4,8 @@ execute 'install certbot via pip' do
   not_if 'pip show certbot && pip show certbot_dns_route53'
 end
 
+include_recipe 'identity-pivcac::update_letsencrypt_certs'
+
 base_dir	= "/srv/pki-rails"
 deploy_dir	= "#{base_dir}/current/public"
 shared_path	= "#{base_dir}/shared"
@@ -90,7 +92,8 @@ template "/opt/nginx/conf/sites.d/pivcac.conf" do
   source 'nginx_server.conf.erb'
   variables({
     passenger_ruby: lazy { Dir.chdir(deploy_dir) { shell_out!(%w{rbenv which ruby}).stdout.chomp } },
-    server_name: "*.pivcac.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
+    server_name: node.fetch('pivcac').fetch('wildcard'),
+    ssl_domain: node.fetch('pivcac').fetch('domain')
   })
 
 end
@@ -134,15 +137,6 @@ file '/srv/pki-rails/current/config/application.yml' do
 end
 
 execute "chown -R #{node[:passenger][:production][:user]} #{shared_path}/log"
-
-# TODO: Generate and renew these certs automatically.
-file '/etc/ssl/certs/pivcac-cert.pem' do
-  content ConfigLoader.load_config(node, 'pivcac-cert.pem')
-end
-
-file '/etc/ssl/private/pivcac-key.pem' do
-  content ConfigLoader.load_config(node, 'pivcac-key.pem')
-end
 
 cron_d 'update_cert_revocations' do
   hour '*/4'
