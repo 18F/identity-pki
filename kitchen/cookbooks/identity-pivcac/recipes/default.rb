@@ -143,3 +143,10 @@ end
 file '/etc/ssl/private/pivcac-key.pem' do
   content ConfigLoader.load_config(node, 'pivcac-key.pem')
 end
+
+cron_d 'update_cert_revocations' do
+  hour '*/4'
+  user node.fetch('login_dot_gov').fetch('web_system_user')
+  # if random_delay is ever implemented properly we can lose the "sleep"
+  command "sleep $[ ( $RANDOM % 3600 ) + 1 ]s && cd #{base_dir}/current && rake crls:update 2>&1 >> #{shared_path}/log/cron.log"
+end
