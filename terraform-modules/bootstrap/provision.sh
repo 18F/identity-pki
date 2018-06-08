@@ -202,8 +202,10 @@ configure_proxy() {
     export HTTPS_PROXY=$http_proxy
     export no_proxy="$no_proxy_hosts"
     export NO_PROXY=$no_proxy
-    export NEW_RELIC_PROXY_HOST=http://"$proxy_server"
+    export NEW_RELIC_PROXY_HOST="$proxy_server"
     export NEW_RELIC_PROXY_PORT="$proxy_port"
+    export PROXY_SERVER="$proxy_server"
+    export PROXY_PORT="$proxy_port"
     echo >&2 "https_proxy: $https_proxy"
     echo >&2 "no_proxy: $no_proxy"
     cat > /etc/profile.d/proxy-config.sh <<EOF

@@ -79,8 +79,14 @@ default['login_dot_gov']['transaction_tracer_enabled']                = true
 default['login_dot_gov']['record_sql']                                = 'obfuscated'
 default['login_dot_gov']['stack_trace_threshold']                     = 0.500
 default['login_dot_gov']['transaction_threshold']                     = 'apdex_f'
-default['login_dot_gov']['proxy_addr']                                = nil
-default['login_dot_gov']['proxy_port']                                = nil
+
+if ENV['HTTP_PROXY']
+  default['login_dot_gov']['proxy_server']                              = ENV['PROXY_SERVER']
+  default['login_dot_gov']['proxy_port']                                = ENV['PROXY_PORT']
+else
+  default['login_dot_gov']['proxy_server']                              = nil
+  default['login_dot_gov']['proxy_port']                                = nil
+end
 
 # sp-rails
 # 0b:83... is the fingerprint of the SAML IDP cert CN=int.login.gov
