@@ -46,7 +46,7 @@ action :create do
           'stack_trace_threshold' => node['login_dot_gov']['stack_trace_threshold'],
           'transaction_threshold' => node['login_dot_gov']['transaction_threshold'],
         },
-        'proxy_host' => node['login_dot_gov']['proxy_addr'],
+        'proxy_host' => node['login_dot_gov']['proxy_server'],
         'proxy_port' => node['login_dot_gov']['proxy_port'],
       }
     }.to_yaml)
