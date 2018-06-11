@@ -27,7 +27,7 @@ resource "aws_lb_listener" "elasticsearch" {
 }
 
 resource "aws_lb_target_group" "elasticsearch" {
-  name               = "${var.env_name}-elasticsearch-target-group"
+  name               = "${var.env_name}-es-target-group"
   port = 9200
   protocol = "TCP"
   target_type = "instance"
