@@ -8,6 +8,7 @@ if [ $# -lt 1 ] ; then
     exit 1
 fi
 
+export AWS_DEFAULT_REGION=us-west-2
 export TF_VAR_env_name=$1; shift
 TF_CMD="$@"
 TF_DIR="terraform-analytics"
@@ -27,4 +28,5 @@ EOF
 
 cd ${TF_DIR}
 terraform get
+terraform init "${TF_DIR}"
 terraform ${TF_CMD}

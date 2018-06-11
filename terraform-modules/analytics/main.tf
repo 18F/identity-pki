@@ -247,7 +247,7 @@ resource "aws_s3_bucket" "redshift_export_bucket" {
   }
 
   logging {
-    target_bucket = "${aws_s3_bucket.analytics_logging_bucket.id}"
+    target_bucket = "${aws_s3_bucket.access_logging_bucket.id}"
     target_prefix = "login-gov-${var.env_name}-${data.aws_caller_identity.current.account_id}-${var.region}-analytics/"
   }
 
@@ -264,7 +264,7 @@ resource "aws_s3_bucket" "parquet_export_bucket" {
   }
 
   logging {
-    target_bucket = "${aws_s3_bucket.analytics_logging_bucket.id}"
+    target_bucket = "${aws_s3_bucket.access_logging_bucket.id}"
     target_prefix = "login-gov-${var.env_name}-${data.aws_caller_identity.current.account_id}-${var.region}-analytics-parquet/"
   }
 
@@ -281,7 +281,7 @@ resource "aws_s3_bucket" "analytics_export_bucket" {
   }
 
   logging {
-    target_bucket = "${aws_s3_bucket.analytics_logging_bucket.id}"
+    target_bucket = "${aws_s3_bucket.access_logging_bucket.id}"
     target_prefix = "login-gov-${var.env_name}-${data.aws_caller_identity.current.account_id}-${var.region}-analytics-hot/"
   }
 
@@ -290,7 +290,8 @@ resource "aws_s3_bucket" "analytics_export_bucket" {
   }
 }
 
-resource "aws_s3_bucket" "analytics_logging_bucket" {
+# Bucket used for storing S3 access logs in Analytics account
+resource "aws_s3_bucket" "access_logging_bucket" {
   bucket = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
   acl = "log-delivery-write"
 
@@ -298,23 +299,33 @@ resource "aws_s3_bucket" "analytics_logging_bucket" {
     Name = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
   }
 
+  versioning {
+    enabled = true
+  }
+
   lifecycle {
     prevent_destroy = true
   }
 
   lifecycle_rule {
-    id = "analyticslogexpire"
-    prefix = ""
+    id = "expirelogs"
     enabled = true
+    prefix = "/"
+
+    transition {
+      days = 30
+      storage_class = "STANDARD_IA"
+    }
+
+    transition {
+      days = 365
+      storage_class = "GLACIER"
+    }
 
     expiration {
-      days = 60
+      # 5 years
+      days = 1825
     }
-  }
-
-  logging {
-    target_bucket = "${aws_s3_bucket.access_logging_bucket.id}"
-    target_prefix = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}/"
   }
 }
 
@@ -346,46 +357,6 @@ resource "aws_s3_bucket" "redshift_logs_bucket" {
 
     expiration {
       days = 60
-    }
-  }
-}
-
-# Bucket used for storing S3 access logs in Analytics account
-resource "aws_s3_bucket" "access_logging_bucket" {
-  bucket = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
-  acl = "log-delivery-write"
-
-  tags {
-    Name = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
-  }
-  
-  versioning {
-    enabled = true
-  }
-
-  lifecycle {
-    prevent_destroy = true
-  }
-  
-
-  lifecycle_rule {
-    id = "expirelogs"
-    enabled = true
-    prefix = "/"
-
-    transition {
-      days = 30
-      storage_class = "STANDARD_IA"
-    }
-
-    transition {
-      days = 365
-      storage_class = "GLACIER"
-    }
-
-    expiration {
-      # 5 years
-      days = 1825
     }
   }
 }
