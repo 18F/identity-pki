@@ -7,10 +7,9 @@ die() { echo_red "$*" >&2 ; exit 1; }
 set -euo pipefail
 
 if [ $# -lt 3 ] ; then
-    echo "Usage: $0 <environment_name> <username> <terraform_dir> [<terraform_commands>]"
+    echo "Usage: $0 <environment_name> <terraform_dir> [<terraform_commands>]"
     echo "   Runs <terraform_commands> against <environment_name> using the"
     echo "   configuration in <terraform_dir>."
-    echo "   <username> is no longer used and can be any text."
     exit 1
 fi
 
@@ -24,7 +23,6 @@ run bundle check
 ORIGIN_REMOTE_NAME="${ORIGIN_REMOTE_NAME-origin}"
 
 ENVIRONMENT=$1; shift
-_SA_USERNAME=$1; shift # TODO: remove this -- it is unused
 TF_DIR=$1; shift
 TF_CMD=("$@")
 
@@ -171,7 +169,26 @@ echo_blue "deploy environment: $ENVIRONMENT"
 check_release_versioning
 
 echo "DEPLOY: Loading environment variables...."
-. bin/load-env.sh "$ENVIRONMENT" "$GSA_USERNAME"
+. bin/load-env.sh "$ENVIRONMENT"
+
+if [ -z "${TF_VAR_account_id-}" ]; then
+    echo_red >&2 "Expected to find TF_VAR_account_id in private env"
+    exit 1
+fi
+
+if [ -n "$MOVED_TO_TFVARS" ]; then
+    echo >&2 "Looks like this environment has switched to using .tfvars files"
+
+    # read a list of .tfvars files printed by get-tfvars-for-env
+    tfvars_names="$(bin/get-tfvars-for-env "$TF_VAR_account_id" "$ENVIRONMENT")"
+
+    # render an array prefixing each filename with -var-file
+    # in bash 4 we could use mapfile instead
+    tf_vars_opts=()
+    while IFS= read -r line; do
+        tf_vars_opts+=( "-var-file" "$line" )
+    done <<< "$tfvars_names"
+fi
 
 # Check that current version of terraform is supported by our environment. This
 # array should be set in the environment-specific variables.
@@ -198,7 +215,6 @@ esac
 echo "Using state file $STATE"
 
 echo "Ensuring ${TF_DIR} is a terraform directory"
-# NOTE: JJG remove trailing slash from $2 if it exists to ease use with auto completion
 if [ ! -f "${TF_DIR}/main.tf" ] ; then
     echo_red "deploy: not found: '${TF_DIR}/main.tf'"
     echo_red "Are you sure '${TF_DIR}' is a terraform project folder?"
@@ -217,12 +233,12 @@ if [ -z "${TERRAFORM_STATE_BUCKET_REGION:=}" ] ; then
 This should contain the region of the s3 bucket used to store terraform state for this run."
 fi
 
-if [ -z "${TF_VAR_state_lock_table-}" ]; then
-    die "Must set TF_VAR_state_lock_table to dynamodb terraform state locking table"
+if [ -z "${ID_state_lock_table-}" ]; then
+    die "Must set ID_state_lock_table to dynamodb terraform state locking table"
 fi
 
 run bin/configure_state_bucket.sh "$TERRAFORM_STATE_BUCKET" "$STATE" \
-    "$TF_DIR" "$TERRAFORM_STATE_BUCKET_REGION" "$TF_VAR_state_lock_table"
+    "$TF_DIR" "$TERRAFORM_STATE_BUCKET_REGION" "$ID_state_lock_table"
 
 echo >&2 "+ cd $TF_DIR"
 cd "$TF_DIR"
@@ -239,6 +255,24 @@ EOF
 
 echo_blue "Running terraform..."
 echo
+
+# If we are using variables from .tfvars files, splice in the -var-file options
+# after the first element in TF_CMD, which will be the terraform command like
+# plan/apply etc. (Only do this for terraform subcommands that accept
+# -var-file. For terraform apply you can't pass vars if you also pass a plan
+# file, so allow the caller to disable loading vars with ID_SKIP_LOADING_VARS.)
+if [ -n "$MOVED_TO_TFVARS" ] && [ -z "${ID_SKIP_LOADING_VARS-}" ]; then
+    tf_subcommand="${TF_CMD[0]-}"
+
+    # these are the subcommands that accept -var-file
+    case "$tf_subcommand" in
+        apply|destroy|import|plan|refresh|validate)
+            TF_CMD=(
+                "$tf_subcommand" "${tf_vars_opts[@]}" "${TF_CMD[@]:1}"
+            )
+            ;;
+    esac
+fi
 
 run terraform get
 run terraform "${TF_CMD[@]}"

@@ -71,14 +71,16 @@ variable "elasticsearch_cidr_block" { default = "172.16.34.128/26" }
 # Range: 172.16.34.192 -> 172.16.34.255
 variable "elk_cidr_block" { default = "172.16.34.192/26" }
 
-variable "ami_id" {}
-variable "default_ami_id" {}
-variable "jumphost_ami_id" {}
-variable "idp_ami_id" {}
-variable "pivcac_ami_id" {}
-variable "worker_ami_id" {}
-variable "elasticsearch_ami_id" {}
-variable "elk_ami_id" {}
+variable "default_ami_id" {
+  description = "Default AMI ID to use if no role-specific value is set in the map"
+}
+variable "ami_id_map" {
+  type = "map"
+  description = "Mapping from server role to an AMI ID, overrides the default_ami_id if key present"
+  default = {
+  }
+}
+
 variable "route53_id" {}
 variable "apps_enabled" { default = 0 }
 
@@ -182,35 +184,52 @@ variable "idp_web_acl_id" {
     # or `aws waf-regional list-web-acls`
 }
 variable "enable_waf" {
-    default = false
+    default = false # TODO FIXME this is treated as "false" since terraform doesn't have booleans
     description = "Enable WAF to filter ingress traffic."
     # See ../../doc/technical/waf.md
 }
 
 # Several variables used by the terraform-modules/bootstrap/ module for running
 # provision.sh to clone git repos and run chef.
-variable "bootstrap_main_git_ref" {
-    default = "HEAD"
-    description = "Git ref in identity-devops for provision.sh to check out"
+variable "bootstrap_main_git_ref_default" {
+    default = ""
+    description = <<EOM
+Git ref in identity-devops for provision.sh to check out. If set, this
+overrides the default "stages/<env>" value in locals. This var will be
+overridden by any role-specific value set in bootstrap_main_git_ref_map.
+EOM
+}
+variable "bootstrap_main_git_ref_map" {
+  type = "map"
+  description = "Mapping from server role to the git ref in identity-devops for provision.sh to check out."
+  default = {
+  }
 }
 variable "bootstrap_main_s3_ssh_key_url" {
-    # TODO use terraform locals to compute this once we upgrade to 0.10.*
-    description = "S3 path to find an SSH key for cloning identity-devops"
+    default = ""
+    description = "S3 path to find an SSH key for cloning identity-devops, overrides the default value in locals if set."
 }
 variable "bootstrap_main_git_clone_url" {
     default = "git@github.com:18F/identity-devops"
     description = "URL for provision.sh to use to clone identity-devops"
 }
 variable "bootstrap_private_git_ref" {
-    default = "HEAD"
-    description = "Git ref in identity-devops for provision.sh to check out"
+    default = "master"
+    description = "Git ref in identity-devops-private for provision.sh to check out."
 }
 variable "bootstrap_private_s3_ssh_key_url" {
-    description = "S3 path to find an SSH key for cloning identity-devops-private"
+    default = ""
+    description = "S3 path to find an SSH key for cloning identity-devops-private, overrides the default value in locals if set."
 }
 variable "bootstrap_private_git_clone_url" {
     default = "git@github.com:18F/identity-devops-private"
     description = "URL for provision.sh to use to clone identity-devops-private"
+}
+
+locals {
+  bootstrap_main_s3_ssh_key_url = "${var.bootstrap_main_s3_ssh_key_url != "" ? var.bootstrap_main_s3_ssh_key_url : "s3://login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}/common/id_ecdsa.identity-devops.deploy"}"
+  bootstrap_private_s3_ssh_key_url = "${var.bootstrap_private_s3_ssh_key_url != "" ? var.bootstrap_private_s3_ssh_key_url : "s3://login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}/common/id_ecdsa.id-do-private.deploy"}"
+  bootstrap_main_git_ref_default = "${var.bootstrap_main_git_ref_default != "" ? var.bootstrap_main_git_ref_default : "stages/${var.env_name}"}"
 }
 
 # These variables are used to toggle whether certain services are enabled.
@@ -261,37 +280,8 @@ variable "outbound_subnets" {
   type="list"
 }
 
-variable "outboundproxy_ami_id" {}
 variable "instance_type_outboundproxy" { default = "t2.small" }
 variable "asg_outboundproxy_desired" { default = 0 }
-
-# Per instance git refs, useful for testing different branches in the same
-# environment on different nodes.
-# TODO: replace all these with a map or with locals so that they are easier to override.
-variable "bootstrap_main_git_ref_elasticsearch" {
-    default = "HEAD"
-    description = "Git ref in identity-devops for provision.sh to check out for elasticsearch"
-}
-variable "bootstrap_private_git_ref_elasticsearch" {
-    default = "HEAD"
-    description = "Git ref in identity-devops for provision.sh to check out for elasticsearch"
-}
-variable "bootstrap_main_git_ref_elk" {
-    default = "HEAD"
-    description = "Git ref in identity-devops for provision.sh to check out for elk"
-}
-variable "bootstrap_private_git_ref_elk" {
-    default = "HEAD"
-    description = "Git ref in identity-devops for provision.sh to check out for elk"
-}
-variable "bootstrap_main_git_ref_pivcac" {
-    default = "HEAD"
-    description = "Git ref in identity-devops for provision.sh to check out for pivcac"
-}
-variable "bootstrap_private_git_ref_pivcac" {
-    default = "HEAD"
-    description = "Git ref in identity-devops for provision.sh to check out for pivcac"
-}
 
 variable "nessusserver_ip" {
   description = "Nessus server's public IP"

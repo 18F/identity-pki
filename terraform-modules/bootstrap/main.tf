@@ -32,8 +32,13 @@ variable "main_s3_ssh_key_url" {
 variable "main_git_clone_url" {
     description = "Git SSH URL used to clone identity-devops"
 }
-variable "main_git_ref" {
-    description = "Git ref to check out after cloning main_git_clone_url"
+variable "main_git_ref_map" {
+    description = "Mapping from role to the git ref to check out after cloning main_git_clone_url"
+    type = "map"
+    default = {}
+}
+variable "main_git_ref_default" {
+    description = "Default git ref to check out after cloning main_git_clone_url if no value set for role in main_git_ref_map"
     default = "HEAD"
 }
 variable "main_lifecycle_hook_name" {
@@ -57,6 +62,17 @@ EOM
 
 locals {
     "asg_name" = "${var.override_asg_name != "" ? var.override_asg_name : "${var.env}-${var.role}"}"
+}
+
+locals {
+  main_git_ref = "${lookup(var.main_git_ref_map, var.role, var.main_git_ref_default)}"
+}
+
+output "main_git_ref" {
+  value = "${local.main_git_ref}"
+}
+output "private_git_ref" {
+  value = "${var.private_git_ref}"
 }
 
 # Ideally this module would have contained the aws_launch_configuration since
@@ -153,7 +169,7 @@ data "external" "cloud-init-provision-main-template" {
         chef_download_url = "${var.chef_download_url}"
 
         git_clone_url = "${var.main_git_clone_url}"
-        git_ref = "${var.main_git_ref}"
+        git_ref = "${local.main_git_ref}"
         s3_ssh_key_url = "${var.main_s3_ssh_key_url}"
 
         asg_name = "${local.asg_name}"
