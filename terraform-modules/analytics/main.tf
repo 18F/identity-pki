@@ -628,6 +628,11 @@ resource "aws_lambda_permission" "allow_bucket" {
 }
 
 resource "aws_s3_bucket_notification" "bucket_notification" {
+  # S3 bucket can only have one lambda trigger/notification at a time. Disable this in  
+  # all other environment,except prod. The workaround for now is to sync staging 
+  # and prod S3 csv storage buckets every 30 mins 
+  # see https://github.com/terraform-providers/terraform-provider-aws/issues/1715
+  count = "${var.env_name == "prod" ? 1: 0}"
   bucket = "login-gov-${var.env_name}-logs"
 
   lambda_function {
