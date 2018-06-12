@@ -7,10 +7,9 @@ die() { echo_red "$*" >&2 ; exit 1; }
 set -euo pipefail
 
 if [ $# -lt 3 ] ; then
-    echo "Usage: $0 <environment_name> <username> <terraform_dir> [<terraform_commands>]"
+    echo "Usage: $0 <environment_name> <terraform_dir> [<terraform_commands>]"
     echo "   Runs <terraform_commands> against <environment_name> using the"
     echo "   configuration in <terraform_dir>."
-    echo "   <username> is no longer used and can be any text."
     exit 1
 fi
 
@@ -24,7 +23,6 @@ run bundle check
 ORIGIN_REMOTE_NAME="${ORIGIN_REMOTE_NAME-origin}"
 
 ENVIRONMENT=$1; shift
-GSA_USERNAME=$1; shift # TODO: remove this -- it is unused
 TF_DIR=$1; shift
 TF_CMD=("$@")
 
@@ -171,7 +169,7 @@ echo_blue "deploy environment: $ENVIRONMENT"
 check_release_versioning
 
 echo "DEPLOY: Loading environment variables...."
-. bin/load-env.sh "$ENVIRONMENT" "$GSA_USERNAME"
+. bin/load-env.sh "$ENVIRONMENT"
 
 if [ -z "${TF_VAR_account_id-}" ]; then
     echo_red >&2 "Expected to find TF_VAR_account_id in private env"

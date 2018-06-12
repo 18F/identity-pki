@@ -27,16 +27,12 @@ DIRNAME="$(dirname "${BASH_SOURCE[0]}")"
 
 usage() {
     cat >&2 <<EOM
-Usage: $BASENAME ENVIRONMENT_NAME [USERNAME] [ENV_FILE]
+Usage: $BASENAME ENVIRONMENT_NAME
 
 Load environment files for ENVIRONMENT_NAME, and do some sanity checking to
 ensure we have all the necessary variables.
 
 This script loads environment variables from identity-devops-private.
-
-USERNAME: Required if \$GSA_USERNAME is not set. This is no longer used. (TODO)
-ENV_FILE: Override the normal environment loader and use a single env file. Not
-          recommended unless you have particular reason to do so.
 
 NOTE: This script might exit your shell if you source it and don't have all the
 right stuff set up. It's a good idea to only source it from another script, or
@@ -44,6 +40,11 @@ just to be really sure you've set all the necessary variables.
 
 Set \$ENV_DEBUG=1 to print environment variables once we finish.
 Set \$SKIP_GIT_PULL=1 to skip automatic git pull of identity-devops-private.
+
+(Expert mode only) Set \$ID_ENV_FILE to override the normal environment loader
+and use a single env file. Not recommended unless you have particular reason to
+do so.
+
 EOM
 }
 
@@ -73,7 +74,7 @@ if [ -z "${GSA_FULLNAME:=}" ] || [ -z "${GSA_EMAIL:=}" ]; then
     return 1 2>/dev/null || exit 1
 fi
 
-if [ $# -lt 1 ] || [ $# -gt 3 ]; then
+if [ $# -ne 1 ]; then
     usage
 
     # The `return 1 || exit 1` pattern allows us to return non-zero exit codes
@@ -85,22 +86,13 @@ echo_blue >&2 "$BASENAME $*"
 
 export TF_VAR_env_name="$1"
 
-# TODO: GSA_USERNAME is no longer used and should be removed
-if [ -z "${GSA_USERNAME-}" ] && [ $# -lt 2 ]; then
-    usage
-    echo_red >&2 "$BASENAME: error: \$GSA_USERNAME must be set or USERNAME provided as arg"
-    return 2 2>/dev/null || exit 2
-fi
-
-GSA_USERNAME="${GSA_USERNAME-$2}"
-
-if [ $# -ge 3 ]; then
-    ENV_FILE="$3"
+ID_ENV_FILE="${ID_ENV_FILE-}"
+if [ -n "$ID_ENV_FILE" ]; then
     echo_red "Warning: not using normal variables from identity-devops-private"
-    echo_red "Loading variables as requested from '$ENV_FILE'"
+    echo_red "Loading variables as requested from '$ID_ENV_FILE'"
 
     # shellcheck source=/dev/null
-    . "$ENV_FILE"
+    . "$ID_ENV_FILE"
 
     enforce_environment_compat_version || return 4 2>/dev/null || exit 4
 
