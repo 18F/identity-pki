@@ -11,12 +11,13 @@ module "jumphost_launch_config" {
     # identity-devops-private variables
     private_s3_ssh_key_url = "${local.bootstrap_private_s3_ssh_key_url}"
     private_git_clone_url = "${var.bootstrap_private_git_clone_url}"
-    private_git_ref = "${local.bootstrap_private_git_ref}"
+    private_git_ref = "${var.bootstrap_private_git_ref}"
 
     # identity-devops variables
     main_s3_ssh_key_url = "${local.bootstrap_main_s3_ssh_key_url}"
     main_git_clone_url = "${var.bootstrap_main_git_clone_url}"
-    main_git_ref = "${local.bootstrap_main_git_ref}"
+    main_git_ref_map = "${var.bootstrap_main_git_ref_map}"
+    main_git_ref_default = "${local.bootstrap_main_git_ref_default}"
 }
 
 # TODO it would be nicer to have this in the module, but the
@@ -24,7 +25,7 @@ module "jumphost_launch_config" {
 # due to https://github.com/terraform-providers/terraform-provider-aws/issues/681
 # See discussion in ../terraform-modules/bootstrap/vestigial.tf.txt
 resource "aws_launch_configuration" "jumphost" {
-    name_prefix = "${var.env_name}.jumphost.${local.bootstrap_main_git_ref}."
+    name_prefix = "${var.env_name}.jumphost.${module.jumphost_launch_config.main_git_ref}."
 
     lifecycle {
         create_before_destroy = true

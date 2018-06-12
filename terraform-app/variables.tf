@@ -191,9 +191,19 @@ variable "enable_waf" {
 
 # Several variables used by the terraform-modules/bootstrap/ module for running
 # provision.sh to clone git repos and run chef.
-variable "bootstrap_main_git_ref" {
+variable "bootstrap_main_git_ref_default" {
     default = ""
-    description = "Git ref in identity-devops for provision.sh to check out, overrides the default stages/<env> value in locals if set."
+    description = <<EOM
+Git ref in identity-devops for provision.sh to check out. If set, this
+overrides the default "stages/<env>" value in locals. This var will be
+overridden by any role-specific value set in bootstrap_main_git_ref_map.
+EOM
+}
+variable "bootstrap_main_git_ref_map" {
+  type = "map"
+  description = "Mapping from server role to the git ref in identity-devops for provision.sh to check out."
+  default = {
+  }
 }
 variable "bootstrap_main_s3_ssh_key_url" {
     default = ""
@@ -205,7 +215,7 @@ variable "bootstrap_main_git_clone_url" {
 }
 variable "bootstrap_private_git_ref" {
     default = "master"
-    description = "Git ref in identity-devops for provision.sh to check out"
+    description = "Git ref in identity-devops-private for provision.sh to check out."
 }
 variable "bootstrap_private_s3_ssh_key_url" {
     default = ""
@@ -219,8 +229,7 @@ variable "bootstrap_private_git_clone_url" {
 locals {
   bootstrap_main_s3_ssh_key_url = "${var.bootstrap_main_s3_ssh_key_url != "" ? var.bootstrap_main_s3_ssh_key_url : "s3://login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}/common/id_ecdsa.identity-devops.deploy"}"
   bootstrap_private_s3_ssh_key_url = "${var.bootstrap_private_s3_ssh_key_url != "" ? var.bootstrap_private_s3_ssh_key_url : "s3://login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}/common/id_ecdsa.id-do-private.deploy"}"
-  bootstrap_main_git_ref = "${var.bootstrap_main_git_ref != "" ? var.bootstrap_main_git_ref : "stages/${var.env_name}"}"
-  bootstrap_private_git_ref = "${var.bootstrap_private_git_ref}"
+  bootstrap_main_git_ref_default = "${var.bootstrap_main_git_ref_default != "" ? var.bootstrap_main_git_ref_default : "stages/${var.env_name}"}"
 }
 
 # These variables are used to toggle whether certain services are enabled.
