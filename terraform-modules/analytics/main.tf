@@ -1,5 +1,11 @@
 data "aws_caller_identity" "current" {}
 
+# Stub remote config needed for terraform 0.9.*
+terraform {
+  backend "s3" {
+  }
+}
+
 resource "aws_vpc" "analytics_vpc" {
   cidr_block = "${var.vpc_cidr_block}"
   enable_dns_support = true
@@ -292,11 +298,11 @@ resource "aws_s3_bucket" "analytics_export_bucket" {
 
 # Bucket used for storing S3 access logs in Analytics account
 resource "aws_s3_bucket" "access_logging_bucket" {
-  bucket = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+  bucket = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.env_name}-${var.region}"
   acl = "log-delivery-write"
 
   tags {
-    Name = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+    Name = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.env_name}-${var.region}"
   }
 
   versioning {
