@@ -60,8 +60,7 @@ calculate_future_time() {
 # get_asg_info ASG_NAME
 get_asg_info() {
     run aws autoscaling describe-auto-scaling-groups \
-        --auto-scaling-group-names "$1" --output text \
-        | grep "^AUTOSCALINGGROUPS"
+        --auto-scaling-group-names "$1" 
 }
 
 # list_stateful_asgs
@@ -142,10 +141,15 @@ schedule_recycle() {
 
     asg_info="$(get_asg_info "$asg_name")"
 
-    current_size="$(cut -f 6 <<< "$asg_info")"
-    max_size="$(cut -f 10 <<< "$asg_info")"
-    min_size="$(cut -f 11 <<< "$asg_info")"
-    health_grace_period="$(cut -f 7 <<< "$asg_info")"
+    pyDesiredCapacity="import sys, json;print json.load(sys.stdin)['AutoScalingGroups'][0]['DesiredCapacity']"
+    pyMinSize="import sys, json;print json.load(sys.stdin)['AutoScalingGroups'][0]['MinSize']"
+    pyMaxSize="import sys, json;print json.load(sys.stdin)['AutoScalingGroups'][0]['MaxSize']"
+    pyHealthCheckGracePeriod="import sys, json;print json.load(sys.stdin)['AutoScalingGroups'][0]['HealthCheckGracePeriod']"
+    
+    current_size=$(echo $asg_info | python -c "$pyDesiredCapacity")
+    max_size=$(echo $asg_info | python -c "$pyMaxSize")
+    min_size=$(echo $asg_info | python -c "$pyMinSize")
+    health_grace_period=$(echo $asg_info | python -c "$pyHealthCheckGracePeriod")
 
     echo_blue "Current ASG capacity:"
     echo_blue "  desired: $current_size"
@@ -182,9 +186,9 @@ schedule_recycle() {
     # which seem to address this safety issue.
     spindown_delay=$((health_grace_period * 2))
 
-    # We use a minimum spin-down delay of 10 minutes
-    if ((spindown_delay < 600)); then
-        spindown_delay=600
+    # We use a minimum spin-down delay of 15 minutes
+    if ((spindown_delay < 900)); then
+        spindown_delay=900
     fi
 
     if [ -n "$desired_capacity" ]; then
