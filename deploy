@@ -259,8 +259,9 @@ echo
 # If we are using variables from .tfvars files, splice in the -var-file options
 # after the first element in TF_CMD, which will be the terraform command like
 # plan/apply etc. (Only do this for terraform subcommands that accept
-# -var-file.)
-if [ -n "$MOVED_TO_TFVARS" ]; then
+# -var-file. For terraform apply you can't pass vars if you also pass a plan
+# file, so allow the caller to disable loading vars with ID_SKIP_LOADING_VARS.)
+if [ -n "$MOVED_TO_TFVARS" ] && [ -z "${ID_SKIP_LOADING_VARS-}" ]; then
     tf_subcommand="${TF_CMD[0]-}"
 
     # these are the subcommands that accept -var-file

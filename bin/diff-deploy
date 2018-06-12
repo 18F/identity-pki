@@ -103,7 +103,7 @@ fi
 
 echo_basename "Running terraform apply"
 
-run_deploy apply "$plan_path"
+ID_SKIP_LOADING_VARS=1 run_deploy apply "$plan_path"
 
 echo >&2
 echo_basename "All done!"
