@@ -22,7 +22,7 @@ template '/var/awslogs/etc/awslogs.conf' do
   mode 0644
   variables ({
     :proxyUrl => ENV['http_proxy'],
-    :noProxy => '169.254.169.254'
+    :noProxy => ENV['no_proxy']'
  })
   notifies :restart, 'service[awsagent]', :immediate
 end
