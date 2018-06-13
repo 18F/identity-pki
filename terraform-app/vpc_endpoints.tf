@@ -1,7 +1,7 @@
 resource "aws_security_group" "kms_endpoint" {
   description = "Allow inbound from idp servers"
 
-  # allow outbound to the VPC 
+  # allow outbound to the VPC
   egress {
     from_port = 0
     to_port = 65535
@@ -30,7 +30,7 @@ resource "aws_security_group" "kms_endpoint" {
 resource "aws_security_group" "ssm_endpoint" {
   description = "Allow inbound from all servers"
 
-  # allow outbound to the VPC 
+  # allow outbound to the VPC
   egress {
     from_port = 0
     to_port = 65535
@@ -58,7 +58,7 @@ resource "aws_security_group" "ssm_endpoint" {
 resource "aws_security_group" "ec2_endpoint" {
   description = "Allow inbound from all servers"
 
-  # allow outbound to the VPC 
+  # allow outbound to the VPC
   egress {
     from_port = 0
     to_port = 65535
@@ -92,7 +92,7 @@ resource "aws_security_group" "ec2_endpoint" {
 resource "aws_security_group" "ec2messages_endpoint" {
   description = "Allow inbound from all servers"
 
-  # allow outbound to the VPC 
+  # allow outbound to the VPC
   egress {
     from_port = 0
     to_port = 65535
@@ -126,7 +126,7 @@ resource "aws_security_group" "ec2messages_endpoint" {
 resource "aws_security_group" "logs_endpoint" {
   description = "Allow inbound from all servers"
 
-  # allow outbound to the VPC 
+  # allow outbound to the VPC
   egress {
     from_port = 0
     to_port = 65535

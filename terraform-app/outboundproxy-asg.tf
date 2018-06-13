@@ -83,7 +83,7 @@ resource "aws_launch_template" "outboundproxy" {
     enabled = true
   }
 
-  vpc_security_group_ids = ["${aws_security_group.obproxy.id}"] 
+  vpc_security_group_ids = ["${aws_security_group.obproxy.id}"]
 
   tag_specifications {
     resource_type = "instance"
@@ -126,7 +126,7 @@ resource "aws_route53_record" "obproxy" {
 resource "aws_autoscaling_group" "outboundproxy" {
   depends_on = ["aws_lb.outboundproxy"]
   name = "${var.env_name}-outboundproxy"
-  
+
   min_size         = "${var.asg_outboundproxy_min}"
   max_size         = "${var.asg_outboundproxy_max}"
   desired_capacity = "${var.asg_outboundproxy_desired}"

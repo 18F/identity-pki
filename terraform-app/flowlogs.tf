@@ -27,7 +27,7 @@ resource "aws_iam_role" "flow_role" {
       "Action": "sts:AssumeRole"
     }
   ]
-} 
+}
 EOF
 }
 
@@ -50,7 +50,7 @@ resource "aws_iam_role_policy" "flow_policy" {
       "Resource": "*"
     }
   ]
-}   
+}
 EOF
 }
 

@@ -410,13 +410,13 @@ resource "aws_security_group" "jumphost" {
     prefix_list_ids = ["${aws_vpc_endpoint.private-s3.prefix_list_id}"]
   }
 
-  ingress {	# ELB
+  ingress {  # ELB
     from_port = 22
     to_port = 22
     protocol = "tcp"
     self = true
   }
-  ingress {	# ELB healthcheck
+  ingress {  # ELB healthcheck
     from_port = 26
     to_port = 26
     protocol = "tcp"
@@ -896,7 +896,7 @@ resource "aws_vpc" "default" {
   }
 }
 
-#create public and private subnets 
+# create public and private subnets
 resource "aws_subnet" "publicsubnet1" {
   availability_zone = "${var.region}a"
   cidr_block = "${var.public1_subnet_cidr_block}"
