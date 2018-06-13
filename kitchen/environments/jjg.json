@@ -16,7 +16,7 @@
       "branch_name": "stages/jjg"
     },
     "login_dot_gov": {
-      "auto_eip_enabled_roles": ["jumphost", "idp", "worker"],
+      "auto_eip_enabled_roles": ["jumphost", "idp", "worker", "outboundproxy"],
       "branch_name": "stages/jjg"
     }
   },
