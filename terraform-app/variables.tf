@@ -25,10 +25,24 @@ variable "private2_subnet_cidr_block" { default = "172.16.35.64/26" } # 172.16.3
 variable "private3_subnet_cidr_block" { default = "172.16.35.128/26" } # 172.16.35.128 - 172.16.35.191
 variable "vpc_cidr_block"               { default = "172.16.32.0/22" }  # 172.16.32.0   - 172.16.35.255
 
-#proxy settings
+# proxy settings
 variable "proxy_server" { default = "obproxy.login.gov.internal" }
 variable "proxy_port" { default = "3128" }
 variable "no_proxy_hosts" { default = "localhost,127.0.0.1,169.254.169.254,169.254.169.123,.login.gov.internal,s3-us-west-2.amazonaws.com,s3.us-west-2.amazonaws.com,ec2.us-west-2.amazonaws.com,kms.us-west-2.amazonaws.com" }
+
+variable "proxy_enabled_roles" {
+  type = "map"
+  description = "Mapping from role names to integer {0,1} for whether the outbound proxy server is enabled during bootstrapping."
+  default = {
+    unknown = 0
+
+    idp = 0
+    jumphost = 0
+    outboundproxy = 0
+    pivcac = 0
+    worker = 0
+  }
+}
 
 #FIXME referrer must define+use SG resource reference
 variable "redshift_sg_id" {

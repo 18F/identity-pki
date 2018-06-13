@@ -50,6 +50,11 @@ variable "proxy_port" {
 variable "no_proxy_hosts" {
     description = "Comma delimited list of hostnames, ip's and domains that should not use outbound proxy"
 }
+variable "proxy_enabled_roles" {
+    type = "map"
+    description = "Mapping from role names to integer {0,1} for whether the outbound proxy server is enabled during bootstrapping."
+}
+
 variable "main_lifecycle_hook_name" {
     description = "Name of the ASG lifecycle hook to notify upon main provision.sh completion"
     default = "provision-main"
@@ -74,14 +79,19 @@ locals {
 }
 
 locals {
-  main_git_ref = "${lookup(var.main_git_ref_map, var.role, var.main_git_ref_default)}"
+    main_git_ref = "${lookup(var.main_git_ref_map, var.role, var.main_git_ref_default)}"
+
+    # set proxy locals to "" unless there is a 1 for our role (or default unknown) in proxy_enabled_roles
+    proxy_server   = "${lookup(var.proxy_enabled_roles, var.role, lookup(var.proxy_enabled_roles, "unknown")) == 1 ? var.proxy_server : ""}"
+    proxy_port     = "${lookup(var.proxy_enabled_roles, var.role, lookup(var.proxy_enabled_roles, "unknown")) == 1 ? var.proxy_port : ""}"
+    no_proxy_hosts = "${lookup(var.proxy_enabled_roles, var.role, lookup(var.proxy_enabled_roles, "unknown")) == 1 ? var.no_proxy_hosts : ""}"
 }
 
 output "main_git_ref" {
-  value = "${local.main_git_ref}"
+    value = "${local.main_git_ref}"
 }
 output "private_git_ref" {
-  value = "${var.private_git_ref}"
+    value = "${var.private_git_ref}"
 }
 
 # Ideally this module would have contained the aws_launch_configuration since
@@ -155,9 +165,9 @@ data "external" "cloud-init-provision-private-template" {
         git_ref = "${var.private_git_ref}"
         s3_ssh_key_url = "${var.private_s3_ssh_key_url}"
 
-        proxy_server = "${var.proxy_server}"
-        proxy_port = "${var.proxy_port}"
-        no_proxy_hosts = "${var.no_proxy_hosts}"
+        proxy_server = "${local.proxy_server}"
+        proxy_port = "${local.proxy_port}"
+        no_proxy_hosts = "${local.no_proxy_hosts}"
 
         asg_name = "${local.asg_name}"
         lifecycle_hook_name = "${var.private_lifecycle_hook_name}"
@@ -185,9 +195,9 @@ data "external" "cloud-init-provision-main-template" {
         git_ref = "${local.main_git_ref}"
         s3_ssh_key_url = "${var.main_s3_ssh_key_url}"
 
-        proxy_server = "${var.proxy_server}"
-        proxy_port = "${var.proxy_port}"
-        no_proxy_hosts = "${var.no_proxy_hosts}"
+        proxy_server = "${local.proxy_server}"
+        proxy_port = "${local.proxy_port}"
+        no_proxy_hosts = "${local.no_proxy_hosts}"
 
         asg_name = "${local.asg_name}"
         lifecycle_hook_name = "${var.main_lifecycle_hook_name}"

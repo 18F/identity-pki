@@ -16,12 +16,14 @@ module "outboundproxy_launch_config" {
   # identity-devops variables
   main_s3_ssh_key_url = "${var.bootstrap_main_s3_ssh_key_url}"
   main_git_clone_url = "${var.bootstrap_main_git_clone_url}"
-  main_git_ref = "${var.bootstrap_main_git_ref}"
+  main_git_ref_map = "${var.bootstrap_main_git_ref_map}"
+  main_git_ref_default = "${local.bootstrap_main_git_ref_default}"
 
-  # proxy variables
+  # the outboundproxy should never use a proxy
   proxy_server = ""
   proxy_port = ""
   no_proxy_hosts = ""
+  proxy_enabled_roles = "${var.proxy_enabled_roles}"
 }
 
 resource "aws_iam_role" "obproxy" {
