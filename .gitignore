@@ -18,3 +18,4 @@ Vagrantfile
 /terraform-*/.terraform/modules/
 /terraform-*/.terraform/plugins/
 /nodes/*/Gemfile.lock
+/nodes/*/Berksfile.lock
