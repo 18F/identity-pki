@@ -21,7 +21,7 @@ Region = 'us-west-2'
 
 role = File.basename(Dir.pwd)
 environment = ENV.fetch('KITCHEN_EC2_INTEGRATION_ENVIRONMENT', 'ci')
-ami_id = ENV.fetch('KITCHEN_EC2_AMI', 'ami-82387cfa') # TODO look up dynamically
+ami_id = ENV.fetch('KITCHEN_EC2_AMI', 'ami-826122fa') # TODO look up dynamically
 
 # set default AWS profile to sandbox account
 ENV['AWS_PROFILE'] ||= 'identitysandbox.gov'
