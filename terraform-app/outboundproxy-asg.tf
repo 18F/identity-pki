@@ -58,6 +58,12 @@ resource "aws_iam_role_policy" "obproxy-cloudwatch-logs" {
   policy = "${data.aws_iam_policy_document.cloudwatch-logs.json}"
 }
 
+resource "aws_iam_role_policy" "obproxy-auto-eip" {
+  name = "${var.env_name}-obproxy-auto-eip"
+  role = "${aws_iam_role.obproxy.id}"
+  policy = "${data.aws_iam_policy_document.auto_eip_policy.json}"
+}
+
 resource "aws_launch_template" "outboundproxy" {
   name = "${var.name}-outboundproxy-template-${var.env_name}"
 
