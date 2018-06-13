@@ -67,7 +67,7 @@ resource "aws_iam_role_policy" "obproxy-auto-eip" {
 }
 
 resource "aws_launch_template" "outboundproxy" {
-  name = "${var.name}-outboundproxy-template-${var.env_name}"
+  name = "${var.env_name}-outboundproxy"
 
   iam_instance_profile {
     name = "${aws_iam_instance_profile.obproxy.name}"
