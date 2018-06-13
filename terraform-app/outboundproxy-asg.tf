@@ -111,7 +111,7 @@ resource "aws_launch_template" "outboundproxy" {
 
 module "obproxy_lifecycle_hooks" {
   source = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=e491567564505dfa2f944da5c065cc2bfa4f800e"
-  asg_name = "${var.env_name}-outboundproxy"
+  asg_name = "${aws_autoscaling_group.outboundproxy.name}"
 }
 
 resource "aws_route53_record" "obproxy" {
