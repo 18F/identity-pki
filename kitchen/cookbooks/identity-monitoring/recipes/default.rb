@@ -9,8 +9,8 @@
 
 node.default['newrelic_infra']['config']['license_key'] = ConfigLoader.load_config(node, "newrelic_infra_license_key", common: true)
 
-if ENV['HTTP_PROXY']
-  node.default['newrelic_infra']['config']['proxy'] = ENV['HTTP_PROXY']
+if node.fetch('login_dot_gov').fetch('http_proxy')
+  node.default['newrelic_infra']['config']['proxy'] = node.fetch('login_dot_gov').fetch('http_proxy')
 end
 
 node.default['newrelic_infra']['config']['custom_attributes'] = {

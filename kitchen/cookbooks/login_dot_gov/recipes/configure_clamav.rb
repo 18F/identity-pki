@@ -9,9 +9,9 @@ template '/etc/clamav/freshclam.conf' do
     group 'root'
     mode 0444
     variables ({
-      :proxyServer => node['login_dot_gov']['proxy_server'],
-      :proxyPort => node['login_dot_gov']['proxy_port']
-   })
+      proxy_server: node.fetch('login_dot_gov').fetch('proxy_server'),
+      proxy_port: node.fetch('login_dot_gov').fetch('proxy_port'),
+    })
     notifies :restart, 'service[clamav-freshclam]', :delayed
  end
 

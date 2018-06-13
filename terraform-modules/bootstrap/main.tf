@@ -126,6 +126,10 @@ data "external" "cloud-init-base-template" {
         domain = "${var.domain}"
         env = "${var.env}"
         role = "${var.role}"
+
+        proxy_server = "${local.proxy_server}"
+        proxy_port = "${local.proxy_port}"
+        no_proxy_hosts = "${local.no_proxy_hosts}"
     }
 }
 
@@ -165,10 +169,6 @@ data "external" "cloud-init-provision-private-template" {
         git_ref = "${var.private_git_ref}"
         s3_ssh_key_url = "${var.private_s3_ssh_key_url}"
 
-        proxy_server = "${local.proxy_server}"
-        proxy_port = "${local.proxy_port}"
-        no_proxy_hosts = "${local.no_proxy_hosts}"
-
         asg_name = "${local.asg_name}"
         lifecycle_hook_name = "${var.private_lifecycle_hook_name}"
         lifecycle_hook_abandon_delay = "${var.asg_lifecycle_hook_abandon_delay}"
@@ -194,10 +194,6 @@ data "external" "cloud-init-provision-main-template" {
         git_clone_url = "${var.main_git_clone_url}"
         git_ref = "${local.main_git_ref}"
         s3_ssh_key_url = "${var.main_s3_ssh_key_url}"
-
-        proxy_server = "${local.proxy_server}"
-        proxy_port = "${local.proxy_port}"
-        no_proxy_hosts = "${local.no_proxy_hosts}"
 
         asg_name = "${local.asg_name}"
         lifecycle_hook_name = "${var.main_lifecycle_hook_name}"

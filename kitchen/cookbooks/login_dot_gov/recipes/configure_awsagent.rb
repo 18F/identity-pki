@@ -21,8 +21,8 @@ template '/var/awslogs/etc/awslogs.conf' do
   group 'root'
   mode 0644
   variables ({
-    proxy_url: ENV['http_proxy'],
-    no_proxy: ENV['no_proxy'],
+    proxy_url: node.fetch('login_dot_gov').fetch('http_proxy'),
+    no_proxy: node.fetch('login_dot_gov').fetch('no_proxy_hosts'),
   })
   notifies :restart, 'service[awsagent]', :immediate
 end

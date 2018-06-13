@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC2230
 
 # Send all output to syslog and serial console unless we're being run by
 # systemd, in which case assume that systemd is handling output logging.
@@ -9,9 +10,11 @@ fi
 
 set -euo pipefail
 
+INFO_DIR=/etc/login.gov/info
+
 usage() {
     cat >&2 <<EOM
-usage: $(basename "$0") [options] S3_SSH_KEY_URL GIT_CLONE_URL PROXY_SERVER PROXY_PORT NO_PROXY_HOSTS
+usage: $(basename "$0") [options] S3_SSH_KEY_URL GIT_CLONE_URL
 
 This script helps provision an instance using chef. Steps it runs:
 
@@ -28,11 +31,6 @@ S3_SSH_KEY_URL:    Should be an S3 URL where the SSH key used for bootstrapping
 
 GIT_CLONE_URL:     The URL to use for cloning identity-devops-private. This URL
                    should be an SSH git URL.
-
-PROXY_SERVER:      The dns name for the outbound proxy server
-PROXY_PORT:        The port that is accepting traffic on the outbound proxy server
-NO_PROXY_HOSTS:    The no_proxy string that contains a comma delimited list of domains, ip's and hosts
-                   that will not use the outbound proxy server
 
 options:
     --chef-download-url URL     URL to download the chef client debian package.
@@ -62,6 +60,16 @@ Needed config files:
     - run list (typically via json_attribs file)
     - cookbook_path
     - chef_repo_path (will be the parent directory of the script)
+
+Proxy configuration:
+
+    These files in $INFO_DIR/ will be used to set proxy environment
+    variables (\$http_proxy, \$https_proxy, \$no_proxy, ...)
+
+    $INFO_DIR/proxy_server    Name of the outbound proxy server
+    $INFO_DIR/proxy_port      TCP port of the outbound proxy server
+    $INFO_DIR/no_proxy_hosts  The no_proxy string containing a comma-separated
+                              list of names that should not use the proxy.
 
 EOM
 }
@@ -196,28 +204,17 @@ check_install_berkshelf() {
 }
 
 configure_proxy() {
-    export http_proxy=http://"$proxy_server":"$proxy_port"
-    export https_proxy=$http_proxy
-    export HTTP_PROXY=$http_proxy
-    export HTTPS_PROXY=$http_proxy
-    export no_proxy="$no_proxy_hosts"
-    export NO_PROXY=$no_proxy
-    export NEW_RELIC_PROXY_HOST="$proxy_server"
-    export NEW_RELIC_PROXY_PORT="$proxy_port"
-    export PROXY_SERVER="$proxy_server"
-    export PROXY_PORT="$proxy_port"
-    echo >&2 "https_proxy: $https_proxy"
-    echo >&2 "no_proxy: $no_proxy"
-    cat > /etc/profile.d/proxy-config.sh <<EOF
-export http_proxy=$http_proxy
-export https_proxy=$http_proxy
-export HTTP_PROXY=$http_proxy
-export HTTPS_PROXY=http_proxy
-export no_proxy=$no_proxy
-export NO_PROXY=$no_proxy
-export NEW_RELIC_PROXY_HOST=$NEW_RELIC_PROXY_HOST
-export NEW_RELIC_PROXY_PORT=$NEW_RELIC_PROXY_PORT
+    http_proxy="http://$proxy_server:$proxy_port"
+    https_proxy="$http_proxy"
+    run tee /etc/profile.d/proxy-config.sh >&2 <<EOF
+export http_proxy='$http_proxy'
+export https_proxy='$https_proxy'
+export no_proxy='$no_proxy_hosts'
+export NEW_RELIC_PROXY_HOST='$proxy_server'
+export NEW_RELIC_PROXY_PORT='$proxy_port'
 EOF
+    # shellcheck disable=SC1091
+    source /etc/profile.d/proxy-config.sh
 }
 
 maybe_complete_lifecycle_hook() {
@@ -322,7 +319,7 @@ while [ $# -gt 0 ] && [[ $1 = -* ]]; do
     shift
 done
 
-if [ $# -lt 5 ]; then
+if [ $# -ne 2 ]; then
     usage
     exit 1
 fi
@@ -345,9 +342,6 @@ trap handle_error EXIT
 
 s3_ssh_key_url="$1"
 git_clone_url="$2"
-proxy_server="$3"
-proxy_port="$4"
-no_proxy_hosts="$5"
 secrets_dir=/etc/login.gov/keys
 repos_dir=/etc/login.gov/repos
 
@@ -355,11 +349,17 @@ assert_root
 
 # berks needs $HOME to be set for some reason
 export HOME=/root
+
+# Read proxy variables from /etc/login.gov/info
+proxy_server="$(cat "$INFO_DIR/proxy_server" || true)"
+proxy_port="$(cat "$INFO_DIR/proxy_port" || true)"
+no_proxy_hosts="$(cat "$INFO_DIR/no_proxy_hosts" || true)"
+
 #set proxy if provided
 if [ -n "$proxy_server" ]; then
     configure_proxy
 else
-    echo >&2 "No --proxy-url given, skipping proxy configuration"
+    echo >&2 "No proxy set in $INFO_DIR/proxy_server"
 fi
 
 echo "==========================================================="

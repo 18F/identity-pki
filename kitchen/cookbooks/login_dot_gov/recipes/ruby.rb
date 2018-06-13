@@ -20,6 +20,15 @@ global_env_vars = {
   'RACK_ENV' => 'production',
 }
 
+# Set proxy environment variables if present in attributes
+if node.fetch('login_dot_gov').fetch('proxy_server')
+  global_env_vars['http_proxy']           = node.fetch('login_dot_gov').fetch('http_proxy')
+  global_env_vars['https_proxy']          = node.fetch('login_dot_gov').fetch('https_proxy')
+  global_env_vars['no_proxy']             = node.fetch('login_dot_gov').fetch('no_proxy_hosts')
+  global_env_vars['NEW_RELIC_PROXY_HOST'] = node.fetch('login_dot_gov').fetch('proxy_server')
+  global_env_vars['NEW_RELIC_PROXY_PORT'] = node.fetch('login_dot_gov').fetch('proxy_port')
+end
+
 # hack to set all the env variables from /etc/environment such as PATH and
 # RAILS_ENV for all subprocesses during this chef run
 global_env_vars.each_pair do |key, val|

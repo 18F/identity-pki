@@ -112,7 +112,10 @@ cloud_init_info = [
     "vars" => {
       "domain" => "login.gov",
       "env" => "#{environment}",
-      "role" => role
+      "role" => role,
+      "proxy_server" => nil,
+      "proxy_port" => nil,
+      "no_proxy_hosts" => nil,
     }
   },
   # run identity-devops-private provisioning using provision.sh
