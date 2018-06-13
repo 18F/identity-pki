@@ -55,7 +55,7 @@ resource "aws_iam_role_policy" "obproxy-describe_instances" {
 }
 
 resource "aws_iam_role_policy" "obproxy-cloudwatch-logs" {
-  name = "${var.env_name}-idp-cloudwatch-logs"
+  name = "${var.env_name}-obproxy-cloudwatch-logs"
   role = "${aws_iam_role.obproxy.id}"
   policy = "${data.aws_iam_policy_document.cloudwatch-logs.json}"
 }
