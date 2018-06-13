@@ -36,6 +36,7 @@ variable "proxy_enabled_roles" {
   default = {
     unknown = 0
 
+    app = 0
     idp = 0
     jumphost = 0
     outboundproxy = 0

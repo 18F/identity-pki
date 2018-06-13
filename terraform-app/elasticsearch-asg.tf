@@ -74,6 +74,8 @@ resource "aws_autoscaling_group" "elasticsearch" {
     max_size = 32
     desired_capacity = "${var.asg_elasticsearch_desired}"
 
+    wait_for_capacity_timeout = 0
+
     vpc_zone_identifier = ["${aws_subnet.elasticsearch.*.id}"]
 
     # https://github.com/18F/identity-devops-private/issues/631

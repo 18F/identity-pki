@@ -64,6 +64,7 @@ resource "aws_autoscaling_group" "jumphost" {
     min_size = 0
     max_size = 4 # TODO count subnets or Region's AZ width
     desired_capacity = "${var.asg_jumphost_desired}"
+
     wait_for_capacity_timeout = 0    # 0 == ignore
 
     # TODO use certificates instead of host keys

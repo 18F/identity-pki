@@ -100,6 +100,8 @@ resource "aws_autoscaling_group" "pivcac" {
     max_size = "${var.pivcac_nodes * 2}"
     desired_capacity = "${var.pivcac_nodes}"
 
+    wait_for_capacity_timeout = 0
+
     # Don't create the ASG if we don't have an ELB.
     count = "${var.pivcac_service_enabled}"
 

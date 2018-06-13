@@ -65,6 +65,8 @@ resource "aws_autoscaling_group" "worker" {
     max_size = "${var.asg_worker_max}"
     desired_capacity = "${var.asg_worker_desired}"
 
+    wait_for_capacity_timeout = 0
+
     # Don't create an IDP ASG if we don't have an ALB.
     # We can't refer to aws_alb_target_group.idp unless it exists.
     count = "${var.alb_enabled}"

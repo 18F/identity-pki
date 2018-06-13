@@ -65,6 +65,8 @@ resource "aws_autoscaling_group" "elk" {
     max_size = 8
     desired_capacity = "${var.asg_elk_desired}"
 
+    wait_for_capacity_timeout = 0
+
     vpc_zone_identifier = ["${aws_subnet.elk.*.id}"]
 
     # https://github.com/18F/identity-devops-private/issues/631

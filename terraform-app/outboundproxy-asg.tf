@@ -133,6 +133,8 @@ resource "aws_autoscaling_group" "outboundproxy" {
   max_size         = "${var.asg_outboundproxy_max}"
   desired_capacity = "${var.asg_outboundproxy_desired}"
 
+  wait_for_capacity_timeout = 0
+
   lifecycle {
     create_before_destroy = true
   }
