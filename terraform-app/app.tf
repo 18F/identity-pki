@@ -34,7 +34,7 @@ resource "aws_db_instance" "default" {
 }
 
 output "app_db_endpoint" {
-  value = "${aws_db_instance.default.endpoint}"
+  value = "${element(concat(aws_db_instance.default.*.endpoint, list("")), 0)}"
 }
 
 resource "aws_db_subnet_group" "default" {

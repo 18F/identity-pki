@@ -7,12 +7,16 @@ set -euo pipefail
 
 usage() {
     cat >&2 <<EOM
-usage: $(basename "$0") ENVIRONMENT TERRAFORM_DIR [PLAN_OPTIONS...]
+usage: $(basename "$0") [OPTIONS] ENVIRONMENT TERRAFORM_DIR [PLAN_OPTIONS...]
 
 Run deploy to show a terraform plan. Interactively prompt the user whether this
 plan looks good, and if it does, run the plan exactly as shown.
 
 Any PLAN_OPTIONS will be passed directly to terraform plan.
+
+OPTIONS:
+    -h, --help        Print this help message
+    -l, --landscape   Use the landscape gem to print a pretty diff
 EOM
 }
 
@@ -20,11 +24,23 @@ echo_basename() {
     echo_blue >&2 "$BASENAME: $*"
 }
 
-for opt in "$@"; do
-    if [[ $opt == "-h" || $opt == "--help" ]]; then
-        usage
-        exit
-    fi
+landscape_plan=
+
+while [ $# -gt 0 ] && [[ $1 == -* ]]; do
+    case "$1" in
+        -h|--help)
+            usage
+            exit
+            ;;
+        -l|--landscape)
+            landscape_plan=1
+            ;;
+        *)
+            echo_red "error: unknown option '$1'"
+            exit 1
+            ;;
+    esac
+    shift
 done
 
 if [ $# -lt 2 ]; then
@@ -64,46 +80,60 @@ cleanup() {
     run rm -r -- "$tmpdir"
 }
 
-tmpdir="$(mktemp -d)"
-trap cleanup EXIT
-
 run_deploy() {
     run ../deploy "$environment" "$terraform_dir" "$@"
 }
 
-echo_basename "Running terraform plan"
+diff_deploy_with_landscape() {
+    tmpdir="$(mktemp -d)"
+    trap cleanup EXIT
 
-plan_path="$tmpdir/$environment.tfplan"
-run_deploy plan -out "$plan_path" "$@"
+    echo_basename "Running terraform plan"
 
-echo >&2
+    plan_path="$tmpdir/$environment.tfplan"
+    run_deploy plan -out "$plan_path" "$@"
 
-plan_text="$(run terraform show "$plan_path")"
-if [[ "$plan_text" == "This plan does nothing." ]]; then
-    echo "$plan_text"
-    echo_basename "Nothing to do!"
-    exit
+    echo >&2
+
+    plan_text="$(run terraform show "$plan_path")"
+    if [[ "$plan_text" == "This plan does nothing." ]]; then
+        echo "$plan_text"
+        echo_basename "Nothing to do!"
+        exit
+    fi
+
+    echo >&2
+    echo_color_horizontal_rule blue >&2
+    echo >&2
+    echo_blue >&2 "Pretty diff with terraform_landscape:"
+    echo >&2
+
+    run bundle exec landscape <<< "$plan_text"
+
+    echo >&2
+    echo_blue >&2 "Terraform plan complete. Check whether the above plan looks good."
+
+    if ! prompt_yn "Proceed to run terraform apply?"; then
+        echo_blue "OK, aborting"
+        exit 1
+    fi
+
+    echo_basename "Running terraform apply"
+
+    ID_SKIP_LOADING_VARS=1 run_deploy apply "$plan_path"
+}
+
+diff_deploy_with_interactive_apply() {
+    echo_basename "Running interactive terraform apply"
+
+    run_deploy apply -auto-approve=false "$@"
+}
+
+if [ -n "$landscape_plan" ]; then
+    diff_deploy_with_landscape "$@"
+else
+    diff_deploy_with_interactive_apply "$@"
 fi
-
-echo >&2
-echo_color_horizontal_rule blue >&2
-echo >&2
-echo_blue >&2 "Pretty diff with terraform_landscape:"
-echo >&2
-
-run bundle exec landscape <<< "$plan_text"
-
-echo >&2
-echo_blue >&2 "Terraform plan complete. Check whether the above plan looks good."
-
-if ! prompt_yn "Proceed to run terraform apply?"; then
-    echo_blue "OK, aborting"
-    exit 1
-fi
-
-echo_basename "Running terraform apply"
-
-ID_SKIP_LOADING_VARS=1 run_deploy apply "$plan_path"
 
 echo >&2
 echo_basename "All done!"
