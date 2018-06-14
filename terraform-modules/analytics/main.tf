@@ -329,6 +329,16 @@ resource "aws_s3_bucket_notification" "bucket_notification_stagging" {
     filter_suffix       = ".txt"
   }
 }
+ # TODO : remove when load-testing is running in staging and user logs are flowing into 
+ # login-gov-staging-logs bucket
+resource "aws_lambda_permission" "allow_bucket_staging" {
+  count = "${var.env_name == "staging" ? 1 : 0}"
+  statement_id  = "AllowExecutionFromS3BucketInStaging"
+  action        = "lambda:InvokeFunction"
+  function_name = "${aws_lambda_function.analytics_lambda.arn}"
+  principal     = "s3.amazonaws.com"
+  source_arn    = "arn:aws:s3:::login-gov-${var.env_name}-${data.aws_caller_identity.current.account_id}-export-logs"
+}
 
 # Bucket used for storing S3 access logs in Analytics account
 resource "aws_s3_bucket" "access_logging_bucket" {
