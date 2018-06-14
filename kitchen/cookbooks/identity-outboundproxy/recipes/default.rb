@@ -10,12 +10,17 @@
 #install squid
 package 'squid'
 
+aws_vpc_cidr = Chef::Recipe::AwsMetadata.get_aws_vpc_cidr
+
 #configure squid
 template '/etc/squid/squid.conf' do
     source 'squid.conf.erb'
     owner 'root'
     group 'root'
     mode '0644'
+    variables ({
+        vpc_cidr: "#{aws_vpc_cidr}"
+    })
     notifies :restart, 'service[squid]', :delayed
 end
 
