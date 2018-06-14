@@ -3,7 +3,7 @@ output "env_name" {
 }
 
 output "alb_hostname" {
-  value = "${aws_alb.idp.dns_name}"
+  value = "${element(concat(aws_alb.idp.*.dns_name, list("")), 0)}"
 }
 
 output "aws_app_subnet_id" {

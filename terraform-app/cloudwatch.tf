@@ -1,7 +1,7 @@
 
 # cloudwatch dashboard for IDP
 module "idp_dashboard" {
-    source = "github.com/18F/identity-terraform//cloudwatch_dashboard_alb?ref=021ba1813c0c5f888bd439591618e10308098475"
+    source = "github.com/18F/identity-terraform//cloudwatch_dashboard_alb?ref=62385b497f5b8dba2478be5759d53c1fb2353185"
 
     enabled = "${var.alb_enabled}"
 
