@@ -296,6 +296,40 @@ resource "aws_s3_bucket" "analytics_export_bucket" {
   }
 }
 
+# S3 bucket used to process 10% of production logs. It was created to workaround the issue of S3 not allowing more than one
+# lambda trigger see https://github.com/18F/identity-analytics-etl/pull/95
+# and https://github.com/terraform-providers/terraform-provider-aws/issues/1715
+# TODO: remove when load-testing is running in staging
+resource "aws_s3_bucket" "staging_export_bucket" {
+  bucket = "login-gov-${var.env_name}-${data.aws_caller_identity.current.account_id}-export-logs"
+  count = "${var.env_name == "staging" ? 1 : 0}"
+  tags {
+    Name = "login-gov-${var.env_name}-${data.aws_caller_identity.current.account_id}-export-logs"
+  }
+
+  logging {
+    target_bucket = "${aws_s3_bucket.access_logging_bucket.id}"
+    target_prefix = "login-gov-${var.env_name}-${data.aws_caller_identity.current.account_id}-export-logs/"
+  }
+
+}
+
+resource "aws_s3_bucket_notification" "bucket_notification_stagging" {
+  # S3 bucket can only have one lambda trigger/notification at a time. 
+  # prod and staging need to have separate notifications as the bucket property is not the same
+  # see https://github.com/terraform-providers/terraform-provider-aws/issues/1715
+  # TODO : remove when load-testing is running in staging and user logs are flowing into 
+  # login-gov-staging-logs bucket
+  count = "${var.env_name == "staging" ? 1 : 0}"
+  bucket = "login-gov-${var.env_name}-${data.aws_caller_identity.current.account_id}-export-logs"
+
+  lambda_function {
+    lambda_function_arn = "${aws_lambda_function.analytics_lambda.arn}"
+    events              = ["s3:ObjectCreated:*"]
+    filter_suffix       = ".txt"
+  }
+}
+
 # Bucket used for storing S3 access logs in Analytics account
 resource "aws_s3_bucket" "access_logging_bucket" {
   bucket = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.env_name}-${var.region}"
@@ -585,6 +619,8 @@ vpc_config {
      dest_bucket = "${aws_s3_bucket.redshift_export_bucket.id}"
      parquet_bucket = "${aws_s3_bucket.parquet_export_bucket.id}"
      hot_bucket = "${aws_s3_bucket.analytics_export_bucket.id}"
+     #TO-DO: remove when we have load-testing in staging
+     staging_bucket = "login-gov-${var.env_name}-${data.aws_caller_identity.current.account_id}-export-logs"
    }
  }
 }
@@ -629,8 +665,7 @@ resource "aws_lambda_permission" "allow_bucket" {
 
 resource "aws_s3_bucket_notification" "bucket_notification" {
   # S3 bucket can only have one lambda trigger/notification at a time. Disable this in  
-  # all other environment,except prod. The workaround for now is to sync staging 
-  # and prod S3 csv storage buckets every 30 mins 
+  # all other environment,except prod. 
   # see https://github.com/terraform-providers/terraform-provider-aws/issues/1715
   count = "${var.env_name == "prod" ? 1: 0}"
   bucket = "login-gov-${var.env_name}-logs"
