@@ -21,3 +21,8 @@ end
 file '/etc/aws_metadata/aws_vpc_id' do
   content AwsMetadata.get_aws_vpc_id
 end
+
+file '/etc/aws_metadata/aws_vpc_cidr' do
+  content AwsMetadata.get_aws_vpc_cidr
+end
+

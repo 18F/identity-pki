@@ -1,0 +1,77 @@
+# This file generated from a Chef template.
+# identity-outboundproxy/templates/default.squid.conf.erb
+
+acl SSL_ports port 443
+#AAMVA
+acl SSL_ports port 18449
+#nntp
+#acl SSL_ports port 563
+#rsync
+#acl SSL_ports port 873
+acl Safe_ports port 80
+acl Safe_ports port 21
+#gopher
+acl Safe_ports port 70
+#
+acl Safe_ports port 210
+#
+acl Safe_ports port 280
+#
+acl Safe_ports port 488
+#
+acl Safe_ports port 591
+#printing
+#acl Safe_ports port 631
+#
+acl Safe_ports port 777
+#rsync
+#acl Safe_ports port 873
+#
+acl Safe_ports port 901
+#aws smtp
+acl Safe_ports port 587
+acl Safe_ports port 465
+acl Safe_ports port 1025-65535
+acl purge method PURGE
+acl CONNECT method CONNECT
+
+acl vpc src <%= @vpc_cidr %>
+
+acl urls dstdomain "/etc/squid/domain-whitelist.conf"
+acl ips dst "/etc/squid/ip-whitelist.conf"
+
+http_access allow vpc urls
+http_access allow vpc ips
+http_access deny vpc all
+
+http_access deny !Safe_ports
+http_access deny CONNECT !SSL_ports
+
+http_access allow manager localhost
+http_access deny manager
+http_access allow purge localhost
+http_access deny purge
+
+http_access allow urls localhost
+http_access deny all
+
+icp_access allow vpc
+icp_access deny all
+
+http_port 3128
+
+access_log /var/log/squid/access.log squid
+refresh_pattern     ^ftp:                       1440    20%     10080
+refresh_pattern     ^gopher:                    1440    0%      1440
+refresh_pattern     -i (/cgi-bin/|\?)           0       0%      0
+refresh_pattern     (Release|Package(.gz)*)$    0       20%     2880
+# refresh_pattern           \.deb$                      1440    20%     10080
+# refresh_pattern           \.rpm$                      1440    20%     10080
+# refresh_pattern           \.iso$                      1440    20%     10080
+# refresh_pattern           \.$                 1440    20%     10080
+# refresh_pattern           .                           0       20%     4320
+hosts_file /etc/hosts
+maximum_object_size 1024 MB
+cache_dir ufs /var/spool/squid 10000 16 256
+coredump_dir /var/spool/squid
+cache_mem 2048 MB

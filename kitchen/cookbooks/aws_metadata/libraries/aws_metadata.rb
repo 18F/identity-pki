@@ -30,4 +30,11 @@ class Chef::Recipe::AwsMetadata
     interfaces = interfaces.split("\n").map { |interface| interface.chomp("/") }
     c.get("/2016-09-02/meta-data/network/interfaces/macs/#{interfaces.fetch(0)}/vpc-id")
   end
+
+  def self.get_aws_vpc_cidr
+    c = Chef::HTTP.new('http://169.254.169.254')
+    interfaces = c.get('/2016-09-02/meta-data/network/interfaces/macs/')
+    interfaces = interfaces.split("\n").map { |interface| interface.chomp("/") }
+    c.get("/2016-09-02/meta-data/network/interfaces/macs/#{interfaces.fetch(0)}/vpc-ipv4-cidr-block")
+  end
 end

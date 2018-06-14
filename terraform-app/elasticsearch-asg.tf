@@ -18,6 +18,12 @@ module "elasticsearch_launch_config" {
   main_git_clone_url = "${var.bootstrap_main_git_clone_url}"
   main_git_ref_map = "${var.bootstrap_main_git_ref_map}"
   main_git_ref_default = "${local.bootstrap_main_git_ref_default}"
+
+  # proxy variables
+  proxy_server = "${var.proxy_server}"
+  proxy_port = "${var.proxy_port}"
+  no_proxy_hosts = "${var.no_proxy_hosts}"
+  proxy_enabled_roles = "${var.proxy_enabled_roles}"
 }
 
 # TODO it would be nicer to have this in the module, but the
@@ -67,6 +73,8 @@ resource "aws_autoscaling_group" "elasticsearch" {
     min_size = 0
     max_size = 32
     desired_capacity = "${var.asg_elasticsearch_desired}"
+
+    wait_for_capacity_timeout = 0
 
     vpc_zone_identifier = ["${aws_subnet.elasticsearch.*.id}"]
 

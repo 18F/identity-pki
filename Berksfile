@@ -30,9 +30,6 @@ cookbook 'filebeat', '~> 0.4.9'
 cookbook 'elasticsearch-curator', '~> 0.2.8'
 cookbook 'elasticsearch', '~> 3.1.1'
 cookbook 'ossec', '~> 1.0.5', git: 'https://github.com/sous-chefs/ossec'
-cookbook 'squid', '~> 4.0.3'
-#cookbook 'keytool', '~> 0.7.1'
-cookbook 'keytool', '~> 0.8.1', git: 'https://github.com/timothy-spencer/chef-keytool', branch: 'tspencer/fix/additionalcreatestor'
 
 # This is a super wacky hack to allow us to symlink this Berksfile into the
 # various nodes/*/ directories. It feels like there ought to be a better way to
@@ -52,6 +49,7 @@ def prefixed(path)
 end
 
 # Vendored cookbooks. This should include everything in kitchen/cookbooks except for cookbook_example
+cookbook 'identity-outboundproxy', path: prefixed('kitchen/cookbooks/identity-outboundproxy')
 cookbook 'apt_update', path: prefixed('kitchen/cookbooks/apt_update')
 cookbook 'aws_metadata', path: prefixed('kitchen/cookbooks/aws_metadata')
 cookbook 'aws_s3', path: prefixed('kitchen/cookbooks/aws_s3')

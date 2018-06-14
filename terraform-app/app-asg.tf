@@ -18,6 +18,12 @@ module "app_launch_config" {
   main_git_clone_url = "${var.bootstrap_main_git_clone_url}"
   main_git_ref_map = "${var.bootstrap_main_git_ref_map}"
   main_git_ref_default = "${local.bootstrap_main_git_ref_default}"
+
+  # proxy variables
+  proxy_server = "${var.proxy_server}"
+  proxy_port = "${var.proxy_port}"
+  no_proxy_hosts = "${var.no_proxy_hosts}"
+  proxy_enabled_roles = "${var.proxy_enabled_roles}"
 }
 
 # TODO it would be nicer to have this in the module, but the
@@ -59,6 +65,8 @@ resource "aws_autoscaling_group" "app" {
     min_size = "${var.asg_app_min}"
     max_size = "${var.asg_app_max}"
     desired_capacity = "${var.asg_app_desired}"
+
+    wait_for_capacity_timeout = 0
 
     # Don't create an IDP ASG if we don't have an ALB.
     # We can't refer to aws_alb_target_group.idp unless it exists.

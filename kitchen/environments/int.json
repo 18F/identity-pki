@@ -16,7 +16,7 @@
     "login_dot_gov": {
       "domain_name": "identitysandbox.gov",
       "branch_name": "stages/int",
-      "auto_eip_enabled_roles": ["jumphost", "idp", "worker"]
+      "auto_eip_enabled_roles": ["jumphost", "idp", "worker", "outboundproxy"]
     },
     "ssh_keys": {
     },

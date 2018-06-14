@@ -6,6 +6,14 @@
 repo_update: true
 repo_upgrade: all
 
+<%
+def append_if_nonempty(string, suffix)
+  return nil unless string
+  return '' if string.empty?
+  string + suffix
+end
+%>
+
 write_files:
  - path: /etc/login.gov/info/env
    content: "<%= env %>\n"
@@ -29,6 +37,13 @@ write_files:
          "role": "<%= role %>"
        }
      }
+
+ - path: /etc/login.gov/info/proxy_server
+   content: "<%= append_if_nonempty(proxy_server, '\n') %>"
+ - path: /etc/login.gov/info/proxy_port
+   content: "<%= append_if_nonempty(proxy_port, '\n') %>"
+ - path: /etc/login.gov/info/no_proxy_hosts
+   content: "<%= append_if_nonempty(no_proxy_hosts, '\n') %>"
 
  - path: /etc/ssh/ssh_known_hosts
    content: |

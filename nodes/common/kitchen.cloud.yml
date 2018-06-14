@@ -21,7 +21,7 @@ Region = 'us-west-2'
 
 role = File.basename(Dir.pwd)
 environment = ENV.fetch('KITCHEN_EC2_INTEGRATION_ENVIRONMENT', 'ci')
-ami_id = ENV.fetch('KITCHEN_EC2_AMI', 'ami-b72453cf') # TODO look up dynamically
+ami_id = ENV.fetch('KITCHEN_EC2_AMI', 'ami-826122fa') # TODO look up dynamically
 
 # set default AWS profile to sandbox account
 ENV['AWS_PROFILE'] ||= 'identitysandbox.gov'
@@ -35,6 +35,7 @@ iam_profiles = {
     "elasticsearch" => "#{environment}-base-permissions",
     "elk" => "#{environment}_elk_instance_profile",
     "app" => "#{environment}-base-permissions",
+    "outboundproxy" => "#{environment}_obproxy_instance_profile",
 }
 if !iam_profiles.key?(role)
   raise "IAM profile for role: #{role} not found in test kitchen boilerplate.  Please add it in #{__FILE__}."
@@ -48,6 +49,7 @@ subnets = {
     "elasticsearch" => "login-admin_subnet-#{environment}",
     "elk" => "login-admin_subnet-#{environment}",
     "app" => "login-app_subnet-#{environment}",
+    "outboundproxy" => "login-idp1_subnet-#{environment}",
 }
 if !subnets.key?(role)
   raise "Subnet for role: #{role} not found in test kitchen boilerplate.  Please add it in #{__FILE__}."
@@ -61,6 +63,7 @@ security_groups = {
     "elasticsearch" => "login-elk_security_group-#{environment}",
     "elk" => "login-elk_security_group-#{environment}",
     "app" => "login-app_security_group-#{environment}",
+    "outboundproxy" => "login-obproxy_security_group-#{environment}",
 }
 if !security_groups.key?(role)
   raise "Security group for role: #{role} not found in test kitchen boilerplate.  Please add it in #{__FILE__}."
@@ -109,7 +112,10 @@ cloud_init_info = [
     "vars" => {
       "domain" => "login.gov",
       "env" => "#{environment}",
-      "role" => role
+      "role" => role,
+      "proxy_server" => nil,
+      "proxy_port" => nil,
+      "no_proxy_hosts" => nil,
     }
   },
   # run identity-devops-private provisioning using provision.sh

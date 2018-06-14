@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC2230
 
 # Send all output to syslog and serial console unless we're being run by
 # systemd, in which case assume that systemd is handling output logging.
@@ -8,6 +9,8 @@ if ! ps -o cgroup= $$ | grep ".service" >/dev/null ; then
 fi
 
 set -euo pipefail
+
+INFO_DIR=/etc/login.gov/info
 
 usage() {
     cat >&2 <<EOM
@@ -58,6 +61,16 @@ Needed config files:
     - cookbook_path
     - chef_repo_path (will be the parent directory of the script)
 
+Proxy configuration:
+
+    These files in $INFO_DIR/ will be used to set proxy environment
+    variables (\$http_proxy, \$https_proxy, \$no_proxy, ...)
+
+    $INFO_DIR/proxy_server    Name of the outbound proxy server
+    $INFO_DIR/proxy_port      TCP port of the outbound proxy server
+    $INFO_DIR/no_proxy_hosts  The no_proxy string containing a comma-separated
+                              list of names that should not use the proxy.
+
 EOM
 }
 
@@ -70,16 +83,6 @@ assert_root() {
     if [ "$(id -u)" -ne 0 ]; then
         echo >&2 "error: this script must be run as root"
         return 2
-    fi
-}
-
-install_awscli() {
-    if ! which aws >/dev/null; then
-        echo "Installing awscli"
-        if ! which pip >/dev/null; then
-            run apt-get install -y python-pip
-        fi
-        run pip install awscli
     fi
 }
 
@@ -200,6 +203,20 @@ check_install_berkshelf() {
     echo >&2 "Berkshelf version $berks_version is good to go!"
 }
 
+configure_proxy() {
+    http_proxy="http://$proxy_server:$proxy_port"
+    https_proxy="$http_proxy"
+    run tee /etc/profile.d/proxy-config.sh >&2 <<EOF
+export http_proxy='$http_proxy'
+export https_proxy='$https_proxy'
+export no_proxy='$no_proxy_hosts'
+export NEW_RELIC_PROXY_HOST='$proxy_server'
+export NEW_RELIC_PROXY_PORT='$proxy_port'
+EOF
+    # shellcheck disable=SC1091
+    source /etc/profile.d/proxy-config.sh
+}
+
 maybe_complete_lifecycle_hook() {
     local result="$1"
 
@@ -302,7 +319,7 @@ while [ $# -gt 0 ] && [[ $1 = -* ]]; do
     shift
 done
 
-if [ $# -lt 2 ]; then
+if [ $# -ne 2 ]; then
     usage
     exit 1
 fi
@@ -333,6 +350,18 @@ assert_root
 # berks needs $HOME to be set for some reason
 export HOME=/root
 
+# Read proxy variables from /etc/login.gov/info
+proxy_server="$(cat "$INFO_DIR/proxy_server" || true)"
+proxy_port="$(cat "$INFO_DIR/proxy_port" || true)"
+no_proxy_hosts="$(cat "$INFO_DIR/no_proxy_hosts" || true)"
+
+#set proxy if provided
+if [ -n "$proxy_server" ]; then
+    configure_proxy
+else
+    echo >&2 "No proxy set in $INFO_DIR/proxy_server"
+fi
+
 echo "==========================================================="
 echo "provision.sh: installing dependencies"
 
@@ -342,7 +371,6 @@ DEBIAN_FRONTEND=noninteractive run apt-get \
     -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
     dist-upgrade -y
 
-install_awscli
 install_git
 
 echo "==========================================================="
