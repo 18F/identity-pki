@@ -652,6 +652,14 @@ resource "aws_security_group" "pivcac" {
     cidr_blocks = ["${var.ci_sg_ssh_cidr_blocks}"]
   }
 
+  # need 8834 to comm with Nessus Server
+  egress {
+    from_port = 8834
+    to_port = 8834
+    protocol = "tcp"
+    cidr_blocks = ["${var.nessusserver_ip}"]
+  }
+
   name = "${var.name}-pivcac-${var.env_name}"
 
   tags {
