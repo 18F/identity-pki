@@ -11,10 +11,10 @@ certs/*
 /kitchen/data_bags/users/
 /kitchen/vendor
 /kitchen/berks-cookbooks
-terraform.tfstate
 terraform.tfstate.backup
 .vagrant
 Vagrantfile
+/terraform-*/.terraform/terraform.tfstate
 /terraform-*/.terraform/modules/
 /terraform-*/.terraform/plugins/
 /nodes/*/Gemfile.lock
