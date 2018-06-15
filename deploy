@@ -135,7 +135,7 @@ something other than 'origin'.
 
 
     if [ -n "$strict_check" ]; then
-        if [[ ( "$(cat VERSION.txt)" =~ -pre ||
+        if [[ ( $(cat VERSION.txt) == *pre* ||
                 ! "$(git log -n 1 --pretty=format:'%d')" =~ tag: ) ]]
         then
             echo_yellow >&2 "
