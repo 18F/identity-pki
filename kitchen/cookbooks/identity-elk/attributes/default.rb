@@ -61,7 +61,7 @@ default['elk']['users'] = [ ]
 # set this so that we listen on 8443
 default['apache']['listen'] = [8443]
 
-default['elk']['elastalert']['version'] = 'v0.1.31'
+default['elk']['elastalert']['version'] = 'v0.1.32'
 # If the list of emails is empty, then do not email.
 default['elk']['elastalert']['emails'] = []
 
