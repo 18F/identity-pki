@@ -219,6 +219,8 @@ if [ ! -f "${TF_DIR}/main.tf" ] ; then
     echo_red "deploy: not found: '${TF_DIR}/main.tf'"
     echo_red "Are you sure '${TF_DIR}' is a terraform project folder?"
     echo_red "Known examples include terraform-app, etc."
+    echo_red "Did you specify your username? This script no longer takes a "
+    echo_red "username argument."
     die "error: Could not find terraform files"
 fi
 
