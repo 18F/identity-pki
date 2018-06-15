@@ -37,47 +37,41 @@ namespace :login do
   end
 end
 
-desc 'Runs regression tests and bump the version by the specified increment'
-task :release, [:type] do |t, args|
-  release_types = ["major", "minor", "patch"]
-  unless release_types.include?(args.type)
-    puts <<EOF
-
-Release type must be one of #{release_types}
-Example: "rake release[minor]"
-
-This project uses semantic versioning.  See http://semver.org/.
-
-EOF
+desc 'Cut a release and bump the release version in VERSION.txt'
+task :release do
+  version_re = /\A((?<pre>\w+)-)?(?<major>\d+)\z/
+  current_raw = File.read('VERSION.txt').strip
+  match = version_re.match(current_raw)
+  unless match
+    puts "Version #{current_raw.inspect} does not match expected version regex"
     exit 1
   end
-  current_version = Semantic::Version.new(File.read('VERSION.txt'))
 
-  # If this is a pre release and we are only doing a patch, don't bump anything
-  # since bumping the patch version is the default for a pre release.
-  if args.type == "patch" && current_version.pre
-    release_version = current_version.clone
-    release_version.pre = nil
-    release_version.build = nil
+  pre = match[:pre]
+  major = Integer(match[:major])
+
+  if pre
+    release_version = major
   else
-    release_version = current_version.increment!(args.type)
-  end
-  puts "Cutting #{args.type} release:\"#{current_version}\" -> \"#{release_version}\".\n"
-
-  def bump_version(version, message)
-    File.open('VERSION.txt', 'w') { |file| file.write(version.to_s + "\n") }
-    sh "git add VERSION.txt"
-    sh "git commit -m \"#{message}\""
+    release_version = major + 1
   end
 
-  puts "Cutting \"#{release_version}\" release."
-  bump_version(release_version, "Release version #{release_version}")
-  sh "git tag v#{release_version}"
+  puts "Cutting release: #{current_raw.inspect} -> #{release_version.to_s.inspect}.\n"
 
-  post_release_version = release_version.increment!("patch")
-  post_release_version.pre = "pre"
-  puts "Setting version to \"#{post_release_version}\" post release."
-  bump_version(post_release_version, "Post release version #{post_release_version}")
+  def set_version(version, message)
+    File.write('VERSION.txt', "#{version}\n")
+    sh 'git add VERSION.txt'
+    sh "git commit -m '#{message}'"
+  end
+
+  puts "Cutting #{release_version.inspect} release."
+  set_version(release_version, "Release version #{release_version}")
+  sh "git tag 'v#{release_version}'"
+
+  post_release_version = "pre-#{release_version + 1}"
+  puts "Setting version to #{post_release_version.inspect} post release."
+  set_version(post_release_version,
+              "Post release version #{post_release_version}")
 end
 
 def run_chefspec(path)
