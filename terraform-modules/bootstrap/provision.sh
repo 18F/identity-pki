@@ -210,6 +210,9 @@ configure_proxy() {
 export http_proxy='$http_proxy'
 export https_proxy='$https_proxy'
 export no_proxy='$no_proxy_hosts'
+export HTTP_PROXY='$http_proxy'
+export HTTPS_PROXY='$https_proxy'
+export NO_PROXY='$no_proxy_hosts'
 export NEW_RELIC_PROXY_HOST='$proxy_server'
 export NEW_RELIC_PROXY_PORT='$proxy_port'
 EOF
