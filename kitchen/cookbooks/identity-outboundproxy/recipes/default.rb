@@ -12,6 +12,8 @@ package 'squid'
 
 aws_vpc_cidr = Chef::Recipe::AwsMetadata.get_aws_vpc_cidr
 
+domain_name = node.fetch('login_dot_gov').fetch('domain_name')
+
 #configure squid
 template '/etc/squid/squid.conf' do
     source 'squid.conf.erb'
