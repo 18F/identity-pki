@@ -498,7 +498,7 @@ package 'libffi-dev'
 elastalertdir = '/usr/share/elastalert'
 git elastalertdir do
   repository 'https://github.com/Yelp/elastalert.git'
-  revision node['elk']['elastalertversion']
+  revision node['elk']['elastalert']['version']
   action :sync
 end
 directory "#{elastalertdir}/rules.d"
