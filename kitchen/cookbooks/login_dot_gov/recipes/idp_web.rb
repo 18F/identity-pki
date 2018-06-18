@@ -70,6 +70,16 @@ template '/opt/nginx/conf/sites.d/idp_web.conf' do
   })
 end
 
+template '/etc/default/passenger' do
+  source'passenger.erb'
+  owner 'root'
+  group 'root'
+  mode '0644'
+  variables ({
+    proxy_url: node.fetch('login_dot_gov').fetch('http_proxy')
+  })
+end
+
 file '/opt/nginx/conf/sites.d/login.gov.conf' do
   action :delete
 end
