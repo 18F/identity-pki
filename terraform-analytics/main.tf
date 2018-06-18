@@ -1,3 +1,9 @@
+# Stub remote config needed for terraform 0.9.*
+terraform {
+  backend "s3" {
+  }
+}
+
 module "analytics" {
   source = "../terraform-modules/analytics/"
   env_name = "${var.env_name}"

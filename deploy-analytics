@@ -29,5 +29,4 @@ EOF
 
 cd ${TF_DIR}
 terraform get
-terraform init "${TF_DIR}"
 terraform ${TF_CMD}

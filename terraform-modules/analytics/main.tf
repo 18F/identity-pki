@@ -1,10 +1,6 @@
 data "aws_caller_identity" "current" {}
 
-# Stub remote config needed for terraform 0.9.*
-terraform {
-  backend "s3" {
-  }
-}
+
 
 resource "aws_vpc" "analytics_vpc" {
   cidr_block = "${var.vpc_cidr_block}"
