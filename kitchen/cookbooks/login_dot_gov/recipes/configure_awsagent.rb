@@ -27,6 +27,17 @@ template '/var/awslogs/etc/awslogs.conf' do
   notifies :restart, 'service[awsagent]', :immediate
 end
 
+#inspector agent update cron job add uppercase NO_PROXY
+template '/etc/cron.d/awsagent-update' do
+  source 'awsagent-update.erb'
+  owner 'root'
+  group 'root'
+  mode 0644
+  variables ({
+    no_proxy: node.fetch('login_dot_gov').fetch('no_proxy_hosts'),
+  })
+end
+
 service 'awsagent' do
   action [:enable, :start]
   supports :restart => true, :start => true, :stop => true
