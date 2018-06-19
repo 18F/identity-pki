@@ -1,7 +1,7 @@
 # Cron that starts randomly, once every hour or on reboot, which updates the agent.
 SHELL=/bin/bash
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-NO_PROXY=<% @no_proxy %>
+NO_PROXY=<% @no_proxies %>
 # Update randomly every hour, just make sure we don't overlap (3 minutes downtime)
 3 * * * * root /bin/sleep $[ ( $RANDOM \% 3000 ) + 1 ]s; /opt/aws/awsagent/bin/update > /var/log/awsagent-update.log 2>&1
 @reboot root /bin/sleep 600; /opt/aws/awsagent/bin/update > /var/log/awsagent-update.log 2>&1
