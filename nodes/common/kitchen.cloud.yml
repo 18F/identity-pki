@@ -36,6 +36,7 @@ iam_profiles = {
     "elk" => "#{environment}_elk_instance_profile",
     "app" => "#{environment}-base-permissions",
     "outboundproxy" => "#{environment}_obproxy_instance_profile",
+    "pivcac" => "#{environment}_pivcac_instance_profile",
 }
 if !iam_profiles.key?(role)
   raise "IAM profile for role: #{role} not found in test kitchen boilerplate.  Please add it in #{__FILE__}."
@@ -46,6 +47,7 @@ subnets = {
     "jumphost" => "login-jumphost_subnet-#{environment}",
     "idp" => "login-idp1_subnet-#{environment}",
     "worker" => "login-idp1_subnet-#{environment}",
+    "pivcac" => "login-idp1_subnet-#{environment}",
     "elasticsearch" => "login-admin_subnet-#{environment}",
     "elk" => "login-admin_subnet-#{environment}",
     "app" => "login-app_subnet-#{environment}",
@@ -64,6 +66,7 @@ security_groups = {
     "elk" => "login-elk_security_group-#{environment}",
     "app" => "login-app_security_group-#{environment}",
     "outboundproxy" => "login-obproxy_security_group-#{environment}",
+    "pivcac" => "login-pivcac_security_group-#{environment}",
 }
 if !security_groups.key?(role)
   raise "Security group for role: #{role} not found in test kitchen boilerplate.  Please add it in #{__FILE__}."

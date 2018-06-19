@@ -23,6 +23,9 @@
       "admins": [
         "test"
       ]
+    },
+    "pivcac": {
+      "letsencrypt_use_staging": true
     }
   },
   "override_attributes": {

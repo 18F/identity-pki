@@ -36,6 +36,14 @@ execute "tar zxvf #{pivcac_node.fetch('temporary_bundle_path')}" do
   notifies :restart, "service[passenger]"
 end
 
+# I wanted to do this all in attributes but it wasn't handling the $ENV.json
+# overrides correctly. v02 servers are necessary for wildcard certs.
+if pivcac_node.fetch('letsencrypt_use_staging')
+  letsencrypt_server = 'https://acme-staging-v02.api.letsencrypt.org/directory'
+else
+  letsencrypt_server = 'https://acme-v02.api.letsencrypt.org/directory'
+end
+
 # if we have no valid content from S3, which should only happen when we turn
 # up this service in a new environment, we do a full certbot run, then use
 # deploy_hook to push the new certs to S3.
@@ -43,7 +51,7 @@ execute "run certbot for the first time" do
   not_if {::File.exists?(renewal_config)}
   only_if {::File.zero?(pivcac_node.fetch('temporary_bundle_path'))}
   
-  command "certbot certonly --agree-tos -n --dns-route53 -d #{pivcac_node.fetch('wildcard')} --email #{pivcac_node.fetch('letsencrypt_email')} --server #{pivcac_node.fetch('letsencrypt_server')} --deploy-hook #{deploy_hook}"
+  command "certbot certonly --agree-tos -n --dns-route53 -d #{pivcac_node.fetch('wildcard')} --email #{pivcac_node.fetch('letsencrypt_email')} --server #{letsencrypt_server} --deploy-hook #{deploy_hook}"
   creates renewal_config
 end
 
