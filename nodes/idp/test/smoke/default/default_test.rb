@@ -18,8 +18,7 @@ end
 # check that passenger is installed and running
 describe service('passenger') do
   it { should be_installed }
-  # enabled check appears broken on systemd with inspec 1.43
-  #it { should be_enabled }
+  it { should be_enabled }
   it { should be_running }
 end
 
