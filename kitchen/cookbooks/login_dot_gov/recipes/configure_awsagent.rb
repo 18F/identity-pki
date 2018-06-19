@@ -22,7 +22,7 @@ template '/var/awslogs/etc/awslogs.conf' do
   mode 0644
   variables ({
     proxy_url: node.fetch('login_dot_gov').fetch('http_proxy'),
-    no_proxies: node.fetch('login_dot_gov').fetch('no_proxy'),
+    no_proxy: node.fetch('login_dot_gov').fetch('no_proxy'),
   })
   notifies :restart, 'service[awsagent]', :immediate
 end
@@ -34,7 +34,7 @@ template '/etc/cron.d/awsagent-update' do
   group 'root'
   mode 0644
   variables ({
-    no_proxies: node.fetch('login_dot_gov').fetch('no_proxy'),
+    no_proxy: node.fetch('login_dot_gov').fetch('no_proxy'),
   })
 end
 
