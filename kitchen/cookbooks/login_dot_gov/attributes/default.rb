@@ -99,17 +99,19 @@ end
 # files are empty or not present, set the variables to nil.
 proxy_server = read_env_file('/etc/login.gov/info/proxy_server')
 proxy_port   = read_env_file('/etc/login.gov/info/proxy_port')
-no_proxy     = read_env_file('/etc/login.gov/info/no_proxy_hosts')
+no_proxy_hosts = read_env_file('/etc/login.gov/info/no_proxy_hosts')
 
 default['login_dot_gov']['proxy_server']    = proxy_server
 default['login_dot_gov']['proxy_port']      = proxy_port
-default['login_dot_gov']['no_proxy_hosts']  = no_proxy
+default['login_dot_gov']['no_proxy_hosts']  = no_proxy_hosts
 if proxy_server
   default['login_dot_gov']['http_proxy']    = "http://#{proxy_server}:#{proxy_port}"
   default['login_dot_gov']['https_proxy']   = "http://#{proxy_server}:#{proxy_port}"
+  default['login_dot_gov']['no_proxy']      = "#{no_proxy_hosts}"
 else
   default['login_dot_gov']['http_proxy']    = nil
   default['login_dot_gov']['https_proxy']   = nil
+  default['login_dot_gov']['no_proxy']      = nil
 end
 
 # sp-rails
