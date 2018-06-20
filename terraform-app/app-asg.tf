@@ -48,7 +48,7 @@ resource "aws_launch_configuration" "app" {
 
 module "app_lifecycle_hooks" {
   source = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=62385b497f5b8dba2478be5759d53c1fb2353185"
-  asg_name = "${var.env_name}-app"
+  asg_name = "${aws_autoscaling_group.app.name}"
   enabled = "${var.alb_enabled * var.apps_enabled}"
 }
 
