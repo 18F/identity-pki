@@ -496,22 +496,12 @@ package 'libssl-dev'
 package 'libffi-dev'
 
 elastalertdir = '/usr/share/elastalert'
-git elastalertdir do
-  repository 'https://github.com/Yelp/elastalert.git'
-  revision node['elk']['elastalert']['version']
-  action :sync
+directory "#{elastalertdir}/rules.d" do
+  recursive true
 end
-directory "#{elastalertdir}/rules.d"
 
-execute 'pip install setuptools --upgrade' do
-  cwd elastalertdir
-end
-execute 'pip install --upgrade six' do
-  cwd elastalertdir
-  # XXX This seems a bit fragile, but it'll probably work
-  only_if 'pip list | grep "six .1.5"'
-end
-execute 'python setup.py install' do
+execute 'pip install setuptools --upgrade'
+execute "pip install elastalert==#{node.fetch('elk').fetch('elastalert').fetch('version')}" do
   cwd elastalertdir
   creates '/usr/local/bin/elastalert'
 end
