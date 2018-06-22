@@ -108,6 +108,9 @@ RSpec.describe IdentifyController, type: :controller do
           it 'returns a token with a uuid and subject' do
             allow(Figaro.env).to receive(:client_cert_escaped).and_return('true')
             @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
+
+            expect(CertificateLoggerService).to_not receive(:log_certificate)
+
             get :create, params: { nonce: '123' }
             expect(response).to have_http_status(:found)
             expect(response.has_header?('Location')).to be_truthy
@@ -127,6 +130,8 @@ RSpec.describe IdentifyController, type: :controller do
           it 'returns a token with a uuid and subject' do
             allow(Figaro.env).to receive(:client_cert_escaped).and_return('false')
             @request.headers['X-Client-Cert'] = client_cert_pem.split(/\n/).join("\n\t")
+            expect(CertificateLoggerService).to_not receive(:log_certificate)
+
             get :create, params: { nonce: '123' }
             expect(response).to have_http_status(:found)
             expect(response.has_header?('Location')).to be_truthy
@@ -148,6 +153,7 @@ RSpec.describe IdentifyController, type: :controller do
 
           it 'returns a token as expired' do
             @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
+            expect(CertificateLoggerService).to receive(:log_certificate)
             get :create, params: { nonce: '123' }
             expect(response).to have_http_status(:found)
             expect(response.has_header?('Location')).to be_truthy
@@ -166,6 +172,8 @@ RSpec.describe IdentifyController, type: :controller do
             ca.certificate_revocations.create(serial: '1')
 
             @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
+            expect(CertificateLoggerService).to receive(:log_certificate)
+
             get :create, params: { nonce: '123' }
             expect(response).to have_http_status(:found)
             expect(response.has_header?('Location')).to be_truthy
@@ -202,6 +210,8 @@ RSpec.describe IdentifyController, type: :controller do
 
           it 'returns a token as unverified' do
             @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
+            expect(CertificateLoggerService).to receive(:log_certificate)
+
             get :create, params: { nonce: '123' }
             expect(response).to have_http_status(:found)
             expect(response.has_header?('Location')).to be_truthy

@@ -6,6 +6,7 @@ ruby '~> 2.3.5'
 gem 'rails', '~> 5.2', '>= 5.2.0'
 
 gem 'activerecord-import'
+gem 'aws-sdk', require: false
 gem 'figaro'
 gem 'health_check'
 gem 'identity-hostdata', github: '18F/identity-hostdata', branch: 'master'
