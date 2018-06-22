@@ -21,6 +21,8 @@ jobs:
         environment:
           POSTGRES_USER: circleci
 
+      - image: redis:4.0.1
+
     working_directory: ~/identity-pki
 
     steps:

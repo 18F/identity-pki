@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe TokenService do
-  let(:token_service) { described_class.instance }
+  let(:token_service) { described_class }
 
   let(:data) { { 'a' => 'b' } }
 
