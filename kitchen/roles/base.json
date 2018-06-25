@@ -10,18 +10,6 @@
         ],
         "passwordless": true
       }
-    },
-    "openssl_fips": {
-      "fips": {
-        "checksum": "a3cd13d0521d22dd939063d3b4a0d4ce24494374b91408a05bdaca8b681c63d4",
-        "url": "http://www.openssl.org/source/openssl-fips-2.0.16.tar.gz",
-        "version": "2.0.16"
-      },
-      "openssl": {
-        "checksum": "ec3f5c9714ba0fd45cb4e087301eb1336c317e0d20b575a125050470e8089e4d",
-        "url": "http://www.openssl.org/source/openssl-1.0.2o.tar.gz",
-        "version": "1.0.2o"
-      }
     }
   },
   "chef_type": "role",
@@ -53,7 +41,6 @@
     "recipe[identity-nessus::agent]",
     "recipe[identity-ossec]",
     "recipe[identity-ntp]",
-    "recipe[login_dot_gov::openssl]",
     "recipe[login_dot_gov::resolve]",
     "recipe[login_dot_gov::ruby]",
     "recipe[login_dot_gov::newrelic]",
