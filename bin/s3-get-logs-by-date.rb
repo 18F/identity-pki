@@ -47,6 +47,9 @@ class LogDownloader
     log.debug("Downloading #{url.inspect} to #{basename.inspect}")
 
     s3.get_object(bucket: bucket, key: key, response_target: basename)
+  rescue Aws::S3::Errors::NoSuchKey
+    log.error("No such key: #{url.inspect}")
+    raise
   end
 
   def extract_datetime(filename, raise_error: true)
@@ -78,6 +81,7 @@ class LogDownloader
 
     total = keys.length
     pct_printed = 0
+    missing_files = []
 
     keys.each_with_index do |key, i|
       pct = 100 * i / total
@@ -86,7 +90,16 @@ class LogDownloader
         pct_printed = pct
       end
 
-      download_file(bucket: bucket, key: key)
+      begin
+        download_file(bucket: bucket, key: key)
+      rescue Aws::S3::Errors::NoSuchKey
+        missing_files << key
+      end
+    end
+
+    unless missing_files.empty?
+      log.error("Could not find these keys in S3:\n  " +
+                missing_files.join("\n  "))
     end
   end
 
