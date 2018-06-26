@@ -9,6 +9,15 @@ server {
     ssl_verify_client optional_no_ca; # on;
     ssl_verify_depth 10;
 
+    ssl_ciphers 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH';
+    ssl_dhparam /etc/ssl/certs/dhparam.pem;
+    ssl_prefer_server_ciphers on;
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 5m;
+    ssl_stapling on;
+    ssl_stapling_verify on;
+
     access_log  /var/log/nginx/access.log  fancy_log;
 
     location / {

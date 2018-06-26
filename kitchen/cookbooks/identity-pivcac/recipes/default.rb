@@ -10,6 +10,8 @@ base_dir	= "/srv/pki-rails"
 deploy_dir	= "#{base_dir}/current/public"
 shared_path	= "#{base_dir}/shared"
 
+include_recipe 'login_dot_gov::dhparam'
+
 directory shared_path do
   owner node['login_dot_gov']['system_user']
   group node['login_dot_gov']['system_user']
