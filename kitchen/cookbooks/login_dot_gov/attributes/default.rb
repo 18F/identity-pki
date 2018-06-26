@@ -3,6 +3,16 @@
 # Attributes:: default
 #
 
+def read_env_file(filename)
+  return nil unless ::File.exist?(filename)
+  data = ::File.read(filename).chomp
+  if data.empty?
+    nil
+  else
+    data
+  end
+end
+
 # Set default provisioner to unknown.
 #   On auto-scaled instances, this will be overridden by chef-attributes.json
 #   from cloud-init.
@@ -83,16 +93,6 @@ default['login_dot_gov']['transaction_tracer_enabled']                = true
 default['login_dot_gov']['record_sql']                                = 'obfuscated'
 default['login_dot_gov']['stack_trace_threshold']                     = 0.500
 default['login_dot_gov']['transaction_threshold']                     = 'apdex_f'
-
-def read_env_file(filename)
-  return nil unless ::File.exist?(filename)
-  data = ::File.read(filename).chomp
-  if data.empty?
-    nil
-  else
-    data
-  end
-end
 
 # Read proxy configuration from files placed by cloud-init, if present. If the
 # files are empty or not present, set the variables to nil.
