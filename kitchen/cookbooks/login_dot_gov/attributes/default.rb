@@ -3,6 +3,16 @@
 # Attributes:: default
 #
 
+def read_env_file(filename)
+  return nil unless ::File.exist?(filename)
+  data = ::File.read(filename).chomp
+  if data.empty?
+    nil
+  else
+    data
+  end
+end
+
 # Set default provisioner to unknown.
 #   On auto-scaled instances, this will be overridden by chef-attributes.json
 #   from cloud-init.
@@ -22,15 +32,14 @@ default['login_dot_gov']['system_user']                               = 'appinst
 # User for serving actual HTTP requests
 default['login_dot_gov']['web_system_user']                           = 'websrv'
 
-default['login_dot_gov']['fips']['version']                           = '2.0.16'
-default['login_dot_gov']['fips']['url']                               = "https://www.openssl.org/source/openssl-fips-#{default['login_dot_gov']['fips']['version']}.tar.gz"
-default['login_dot_gov']['fips']['checksum']                          = 'a3cd13d0521d22dd939063d3b4a0d4ce24494374b91408a05bdaca8b681c63d4'
-default['login_dot_gov']['openssl']['version']                        = '1.0.2o'
-default['login_dot_gov']['openssl']['prefix']                         = "/opt/openssl-#{default['login_dot_gov']['openssl']['version']}"
-default['login_dot_gov']['openssl']['binary']                         = "#{default['login_dot_gov']['openssl']['prefix']}/bin/openssl"
-default['login_dot_gov']['openssl']['url']                            = "https://www.openssl.org/source/openssl-#{default['login_dot_gov']['openssl']['version']}.tar.gz"
-default['login_dot_gov']['openssl']['checksum']                       = 'ec3f5c9714ba0fd45cb4e087301eb1336c317e0d20b575a125050470e8089e4d'
-default['login_dot_gov']['openssl']['configure_flags']                = %W[ shared ]
+# get openssl binary location from info file that is created by the image build
+# temporarily hardcode fallback value to prevent failure if deploying against an older image
+openssl_binary = read_env_file('/etc/login.gov/info/openssl_binary')
+if openssl_binary
+  default['login_dot_gov']['openssl']['binary']                       = openssl_binary
+else
+  default['login_dot_gov']['openssl']['binary']                       = '/opt/openssl-1.0.2o/bin/openssl'
+end
 
 default['login_dot_gov']['cache_dir']                                 = '/var/cache/chef'
 
@@ -84,16 +93,6 @@ default['login_dot_gov']['transaction_tracer_enabled']                = true
 default['login_dot_gov']['record_sql']                                = 'obfuscated'
 default['login_dot_gov']['stack_trace_threshold']                     = 0.500
 default['login_dot_gov']['transaction_threshold']                     = 'apdex_f'
-
-def read_env_file(filename)
-  return nil unless ::File.exist?(filename)
-  data = ::File.read(filename).chomp
-  if data.empty?
-    nil
-  else
-    data
-  end
-end
 
 # Read proxy configuration from files placed by cloud-init, if present. If the
 # files are empty or not present, set the variables to nil.
