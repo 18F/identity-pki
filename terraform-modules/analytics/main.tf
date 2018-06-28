@@ -626,7 +626,7 @@ vpc_config {
      parquet_bucket = "${aws_s3_bucket.parquet_export_bucket.id}"
      hot_bucket = "${aws_s3_bucket.analytics_export_bucket.id}"
      #TO-DO: remove when we have load-testing in staging
-     staging_bucket = "login-gov-${var.env_name}-${data.aws_caller_identity.current.account_id}-export-logs"
+     staging_bucket = "login-gov-staging-${data.aws_caller_identity.current.account_id}-export-logs"
    }
  }
 }
