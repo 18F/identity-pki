@@ -6,7 +6,7 @@ class Certificate
   end
 
   def_delegators :@x509_cert, :not_before, :not_after, :subject, :issuer, :verify,
-                 :public_key, :serial
+                 :public_key, :serial, :to_text
 
   def trusted_root?
     CertificateStore.trusted_ca_root_identifiers.include?(key_id)
@@ -106,6 +106,14 @@ class Certificate
     }
   end
 
+  def logging_filename
+    [key_id, signing_key_id, serial].join('::')
+  end
+
+  def logging_content
+    to_text + "\n\n" + to_pem
+  end
+
   private
 
   # :reek:UtilityFunction
@@ -143,6 +151,7 @@ class Certificate
     reason = validate_cert
 
     Rails.logger.warn("Certificate invalid: #{reason}")
+    CertificateLoggerService.log_certificate(self)
     TokenService.box(extra.merge(error: "certificate.#{reason}"))
   end
 end

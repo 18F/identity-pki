@@ -84,6 +84,25 @@ RSpec.describe Certificate do
       expect(certificate.aia).to have_key 'OCSP'
       expect(certificate.aia['OCSP'].count).to eq 1
     end
+
+    describe '#logging_filename' do
+      it 'includes keys and serial number' do
+        expect(certificate.logging_filename).to eq [
+          certificate.key_id,
+          certificate.signing_key_id,
+          certificate.serial,
+        ].join('::')
+      end
+    end
+
+    describe '#logging_content' do
+      it 'includes the plaintext and the PEM form' do
+        expect(certificate.logging_content).to eq [
+          certificate.to_text,
+          certificate.to_pem,
+        ].join("\n\n")
+      end
+    end
   end
 
   describe 'a cert with no trusted cert in cert store' do
