@@ -5,7 +5,7 @@ group :development do
   gem 'pry'
 end
 
-gem 'aws-sdk', '~> 2.0'
+gem 'aws-sdk', '~> 3.0'
 
 gem 'rake'
 
