@@ -140,9 +140,19 @@ end
 
 execute "chown -R #{node[:passenger][:production][:user]} #{shared_path}/log"
 
+update_revocations_script = '/usr/local/bin/update_cert_revocations'
+
+template update_revocations_script do
+  source 'update_cert_revocations.erb'
+  mode 0755
+  variables({
+    app_path: "#{base_dir}/current",
+    log_file: "#{shared_path}/log/cron.log"
+  })
+end
+
 cron_d 'update_cert_revocations' do
   hour '*/4'
   user node.fetch('login_dot_gov').fetch('web_system_user')
-  # if random_delay is ever implemented properly we can lose the "sleep"
-  command "sleep $[ ( $RANDOM % 3600 ) + 1 ]s && cd #{base_dir}/current && rake crls:update 2>&1 >> #{shared_path}/log/cron.log"
+  command update_revocations_script
 end

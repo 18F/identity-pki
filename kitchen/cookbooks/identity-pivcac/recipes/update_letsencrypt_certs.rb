@@ -62,10 +62,21 @@ execute 'certbot renew' do
   command "certbot renew -n --deploy-hook #{deploy_hook}"
 end
 
-# Run this once a day on each server with a healthy amount of random jitter.
+# update_letsencrypt_certs is called by cron and runs this recipe.
+update_script = '/usr/local/bin/update_letsencrypt_certs'
+template update_script do
+  source 'update_letsencrypt_certs.erb'
+  mode '0755'
+  variables({
+    chef_zero_client_configuration: pivcac_node.fetch('chef_zero_client_configuration')
+  })
+end
+
+# Run this once a day on each server - there is a random sleep built into the
+# script.
 cron_d 'update_letsencrypt_certs' do
   predefined_value "@daily"
   # if random_delay is ever implemented properly we can lose the "sleep"
-  command "cat #{pivcac_node.fetch('chef_zero_client_configuration')} >/dev/null && sleep $[ ( $RANDOM % 1800 ) + 1 ]s && chef-client --local-mode -c  #{pivcac_node.fetch('chef_zero_client_configuration')} -o 'role[pivcac]' 2>&1 >> /var/log/update_letsencrypt_certs.log"
+  command update_script
 end
 

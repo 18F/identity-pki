@@ -1,0 +1,9 @@
+#!/bin/bash
+# 
+# Rerun this recipe from cron.
+#
+set -eu
+
+sleep $[ ( $RANDOM % 3600 ) + 1 ]s \
+  && cd <%= @app_path %> \
+  && bundle exec rake crls:update 2>&1 >> <%= @log_file %>

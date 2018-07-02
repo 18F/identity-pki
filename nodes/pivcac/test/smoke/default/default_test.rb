@@ -39,3 +39,13 @@ describe file('/srv/pki-rails/current/config/application.yml') do
   its('content') { should include('production:') }
   its('content') { should include('secret_key_base') }
 end
+
+describe file('/usr/local/bin/update_cert_revocations') do
+  it { should exist }
+  it { should be_executable }
+end
+
+describe file('/usr/local/bin/update_letsencrypt_certs') do
+  it { should exist }
+  it { should be_executable }
+end

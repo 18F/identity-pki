@@ -1,0 +1,10 @@
+#!/bin/bash
+# 
+# Rerun this recipe from cron.
+#
+set -eu
+
+cat <%= @chef_zero_client_configuration %> > /dev/null \
+  && sleep $[ ( $RANDOM % 1800 ) + 1 ]s \
+  && chef-client --local-mode -c <%= @chef_zero_client_configuration %> \
+     -o 'role[pivcac]' 2>&1 >> /var/log/update_letsencrypt_certs.log
