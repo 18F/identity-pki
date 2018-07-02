@@ -141,11 +141,11 @@ schedule_recycle() {
 
     asg_info="$(get_asg_info "$asg_name")"
 
-    pyDesiredCapacity="import sys, json;print json.load(sys.stdin)['AutoScalingGroups'][0]['DesiredCapacity']"
-    pyMinSize="import sys, json;print json.load(sys.stdin)['AutoScalingGroups'][0]['MinSize']"
-    pyMaxSize="import sys, json;print json.load(sys.stdin)['AutoScalingGroups'][0]['MaxSize']"
-    pyHealthCheckGracePeriod="import sys, json;print json.load(sys.stdin)['AutoScalingGroups'][0]['HealthCheckGracePeriod']"
-    
+    pyDesiredCapacity="import sys, json; print(json.load(sys.stdin)['AutoScalingGroups'][0]['DesiredCapacity'])"
+    pyMinSize="import sys, json; print(json.load(sys.stdin)['AutoScalingGroups'][0]['MinSize'])"
+    pyMaxSize="import sys, json; print(json.load(sys.stdin)['AutoScalingGroups'][0]['MaxSize'])"
+    pyHealthCheckGracePeriod="import sys, json; print(json.load(sys.stdin)['AutoScalingGroups'][0]['HealthCheckGracePeriod'])"
+
     current_size=$(echo $asg_info | python -c "$pyDesiredCapacity")
     max_size=$(echo $asg_info | python -c "$pyMaxSize")
     min_size=$(echo $asg_info | python -c "$pyMinSize")
