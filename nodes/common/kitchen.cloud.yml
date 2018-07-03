@@ -16,12 +16,15 @@ require File.join(common_dir, "cloud_init_utils", "cloud_init_builder")
 
 require 'yaml'
 require 'zlib'
+require 'aws-sdk'
 
 Region = 'us-west-2'
 
 role = File.basename(Dir.pwd)
 environment = ENV.fetch('KITCHEN_EC2_INTEGRATION_ENVIRONMENT', 'ci')
 ami_id = ENV.fetch('KITCHEN_EC2_AMI', 'ami-826122fa') # TODO look up dynamically
+
+vpc_name = "login-vpc-#{environment}"
 
 # set default AWS profile to sandbox account
 ENV['AWS_PROFILE'] ||= 'identitysandbox.gov'
@@ -42,36 +45,36 @@ if !iam_profiles.key?(role)
   raise "IAM profile for role: #{role} not found in test kitchen boilerplate.  Please add it in #{__FILE__}."
 end
 iam_profile = iam_profiles.fetch(role)
-# TODO: Make a standard "subnet type" tag so we don't need this.
+# TODO: Switch to filtering on the subnet's tag: "type" => "public" / "private"
 subnets = {
-    "jumphost" => "login-jumphost_subnet-#{environment}",
+    "jumphost" => "login-jumphost1_subnet-#{environment}",
     "idp" => "login-idp1_subnet-#{environment}",
     "worker" => "login-idp1_subnet-#{environment}",
     "pivcac" => "login-idp1_subnet-#{environment}",
-    "elasticsearch" => "login-admin_subnet-#{environment}",
-    "elk" => "login-admin_subnet-#{environment}",
+    "elasticsearch" => "login-elasticsearch_subnet-#{environment}-*",
+    "elk" => "login-elk_subnet-#{environment}-*",
     "app" => "login-app_subnet-#{environment}",
-    "outboundproxy" => "login-idp1_subnet-#{environment}",
+    "outboundproxy" => "login-public1_subnet-#{environment}",
 }
 if !subnets.key?(role)
   raise "Subnet for role: #{role} not found in test kitchen boilerplate.  Please add it in #{__FILE__}."
 end
 subnet = subnets.fetch(role)
-# TODO: Standardize security group names so we don't need this.
-security_groups = {
-    "jumphost" => "login-jumphost_security_group-#{environment}",
-    "idp" => "login-idp_security_group-#{environment}",
-    "worker" => "login-idp_security_group-#{environment}",
-    "elasticsearch" => "login-elk_security_group-#{environment}",
-    "elk" => "login-elk_security_group-#{environment}",
-    "app" => "login-app_security_group-#{environment}",
-    "outboundproxy" => "login-obproxy_security_group-#{environment}",
-    "pivcac" => "login-pivcac_security_group-#{environment}",
+
+# By default we look up security groups based on the "role" tag
+security_group_tag_name = "role"
+security_group_tag_value = role
+
+# Roles that reuse another role's group (contrary to best practice)
+# TODO: move these to their own security groups
+sg_steal_roles = {
+  'elasticsearch' => 'elk',
+  'worker' => 'idp',
 }
-if !security_groups.key?(role)
-  raise "Security group for role: #{role} not found in test kitchen boilerplate.  Please add it in #{__FILE__}."
+if sg_steal_roles.include?(role)
+  security_group_tag_value = sg_steal_roles.fetch(role)
 end
-security_group = security_groups.fetch(role)
+
 # We want to discover real elasticsearch nodes, unless we're running the
 # elasticsearch integration test.
 es_tag_value = "elasticsearch"
@@ -164,11 +167,16 @@ end
 
 ssh_key_pair_name = ENV.fetch('KITCHEN_EC2_SSH_KEYPAIR_ID')
 
-require 'aws-sdk'
 ec2 = Aws::EC2::Resource.new(region: Region)
 
 # Run a number of checks that expected resources exist, because kitchen-ec2
 # itself bombs out it horrible ways without giving any helpful error messages.
+
+# get VPC
+vpc = ec2.vpcs(filters: [{name: 'tag:Name', values: [vpc_name]}]).first
+unless vpc
+  raise "No VPC found named #{vpc_name}.inspect}"
+end
 
 # Ensure ssh_key_pair_name exists
 ec2.key_pair(ssh_key_pair_name).key_fingerprint
@@ -178,9 +186,15 @@ if ec2.subnets(filters: [{name: 'tag:Name', values: [subnet]}]).count.zero?
   raise "No subnet named #{subnet.inspect} found"
 end
 
-# Ensure security group exists
-if ec2.security_groups(filters: [{name: 'tag:Name', values: [security_group]}]).count.zero?
-  raise "No security group named #{security_group.inspect} found"
+# Look up security group. Test kitchen only lets you filter on one key, so we
+# have to do it ourselves if we want to filter on VPC ID + tag.
+security_group_filters = [
+  {name: "vpc-id", values: [vpc.vpc_id]},
+  {name: "tag:#{security_group_tag_name}", values: [security_group_tag_value]},
+]
+security_group = ec2.security_groups(filters: security_group_filters).first
+unless security_group
+  raise "No security group found with filters: #{security_group_filters.inspect}"
 end
 
 def gzip(string)
@@ -216,10 +230,7 @@ end
             "tag" => "Name",
             "value" => subnet
         },
-        "security_group_filter" => {
-            "tag" => "Name",
-            "value" => security_group
-        },
+        "security_group_ids" => [security_group.group_id],
         "instance_type" => "c4.xlarge",
         "image_id" => ami_id,
         "user_data" => user_data,
@@ -253,7 +264,7 @@ end
         # pre_install_command requires our monkey patched *_preinstall
         # provisioners
         "pre_install_command" => "while ! [ -e /var/lib/cloud/instance/boot-finished ]; do systemctl is-system-running; echo Waiting for systemd / cloud-init boot to finish; sleep 15; done",
-        "install_strategy" => "skip", # Let provision.sh has installed chef
+        "install_strategy" => "skip", # Assume provision.sh has installed chef
         "root_path" => "/var/lib/kitchen"
     },
     "verifier" => {
