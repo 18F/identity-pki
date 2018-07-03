@@ -912,6 +912,7 @@ resource "aws_subnet" "publicsubnet1" {
 
   tags {
     Name = "${var.name}-public1_subnet-${var.env_name}"
+    type = "public"
   }
 
   vpc_id = "${aws_vpc.default.id}"
@@ -924,6 +925,7 @@ resource "aws_subnet" "publicsubnet2" {
 
   tags {
     Name = "${var.name}-public2_subnet-${var.env_name}"
+    type = "public"
   }
 
   vpc_id = "${aws_vpc.default.id}"
@@ -936,6 +938,7 @@ resource "aws_subnet" "publicsubnet3" {
 
   tags {
     Name = "${var.name}-public3_subnet-${var.env_name}"
+    type = "public"
   }
 
   vpc_id = "${aws_vpc.default.id}"
@@ -947,6 +950,7 @@ resource "aws_subnet" "privatesubnet1" {
 
   tags {
     Name = "${var.name}-private1_subnet-${var.env_name}"
+    type = "private"
   }
 
   vpc_id = "${aws_vpc.default.id}"
@@ -958,6 +962,7 @@ resource "aws_subnet" "privatesubnet2" {
 
   tags {
     Name = "${var.name}-private2_subnet-${var.env_name}"
+    type = "private"
   }
 
   vpc_id = "${aws_vpc.default.id}"
@@ -969,6 +974,7 @@ resource "aws_subnet" "privatesubnet3" {
 
   tags {
     Name = "${var.name}-private3_subnet-${var.env_name}"
+    type = "private"
   }
 
   vpc_id = "${aws_vpc.default.id}"
@@ -1042,6 +1048,7 @@ resource "aws_security_group" "obproxy" {
 
   tags {
     Name = "${var.name}-obproxy-${var.env_name}"
+    role = "outboundproxy"
   }
 
   vpc_id = "${aws_vpc.default.id}"

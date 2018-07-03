@@ -67,11 +67,12 @@ control 'check-certs-trusted' do
   end
 end
 
-describe crontab('root') do
-  its('commands') { should include "cat /etc/login.gov/repos/identity-devops/kitchen/chef-client.rb && chef-client --local-mode -c /etc/login.gov/repos/identity-devops/kitchen/chef-client.rb -o 'role[elasticsearch_discovery]' 2>&1 >> /var/log/elasticsearch/discovery.log" }
-end
+discovery_cron_cmd = "cat /etc/login.gov/repos/identity-devops/kitchen/chef-client.rb >/dev/null && chef-client --local-mode -c /etc/login.gov/repos/identity-devops/kitchen/chef-client.rb -o 'role[elasticsearch_discovery]' 2>&1 >> /var/log/elasticsearch/discovery.log"
 
-describe crontab('root').commands("cat /etc/login.gov/repos/identity-devops/kitchen/chef-client.rb && chef-client --local-mode -c /etc/login.gov/repos/identity-devops/kitchen/chef-client.rb -o 'role[elasticsearch_discovery]' 2>&1 >> /var/log/elasticsearch/discovery.log") do
+describe crontab('root') do
+  its('commands') { should include discovery_cron_cmd }
+end
+describe crontab('root').commands(discovery_cron_cmd) do
   its('minutes') { should cmp '0,15,30,45' }
 end
 
