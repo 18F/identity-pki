@@ -1,5 +1,9 @@
 default[:passenger][:production][:path] = '/opt/nginx'
-default[:passenger][:production][:configure_flags] = '--with-ipv6 --with-http_stub_status_module --with-http_ssl_module --with-http_realip_module'
+
+cache_dir = '/var/cache/chef' # must match default['login_dot_gov']['cache_dir']
+openssl_version = '1.0.2o' # must match the one in default['login_dot_gov']['openssl']['binary']
+openssl_srcpath = "#{cache_dir}/openssl-#{openssl_version}"
+default[:passenger][:production][:configure_flags] = "--with-ipv6 --with-http_stub_status_module --with-http_ssl_module --with-http_realip_module --with-openssl=#{openssl_srcpath}"
 default[:passenger][:production][:log_path] = '/var/log/nginx'
 
 # Tune these for your environment, see:

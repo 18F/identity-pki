@@ -40,6 +40,13 @@ describe file('/srv/pki-rails/current/config/application.yml') do
   its('content') { should include('secret_key_base') }
 end
 
+# Ensure we compiled passenger/nginx with the right OpenSSL.
+# This test will break when you upgrade our OpenSSL. Sorry.
+describe command('/opt/nginx/sbin/nginx -V') do
+  its('exit_status') { should eq 0 }
+  its('stderr') { should match (/built with OpenSSL 1.0.2o/) }
+end
+
 describe file('/usr/local/bin/update_cert_revocations') do
   it { should exist }
   it { should be_executable }
