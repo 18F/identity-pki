@@ -302,7 +302,7 @@ resource "aws_autoscaling_group" "idp" {
 }
 
 module "idp_lifecycle_hooks" {
-  source = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=62385b497f5b8dba2478be5759d53c1fb2353185"
+  source = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=b2894483acf0e47edde45ae9288c8f86c049416e"
   asg_name = "${aws_autoscaling_group.idp.name}"
 }
 
