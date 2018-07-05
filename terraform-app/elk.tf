@@ -111,6 +111,12 @@ resource "aws_iam_role_policy" "elk_describe_instances" {
   policy = "${data.aws_iam_policy_document.describe_instances_role_policy.json}"
 }
 
+resource "aws_iam_role_policy" "elk-cloudwatch-logs" {
+  name = "${var.env_name}-elk-cloudwatch-logs"
+  role = "${aws_iam_role.elk_iam_role.id}"
+  policy = "${data.aws_iam_policy_document.cloudwatch-logs.json}"
+}
+
 resource "aws_s3_bucket" "logbucket" {
   # TODO use terraform locals to compute this once we upgrade to 0.10.*
   bucket = "${ var.legacy_log_bucket_name ? "login-gov-${var.env_name}-logs" : "login-gov-logs-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}" }"
