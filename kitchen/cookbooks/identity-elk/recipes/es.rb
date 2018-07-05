@@ -73,7 +73,7 @@ sgdir = "#{Chef::Config[:file_cache_path]}/search-guard-ssl"
 pkidir = sgdir + "/example-pki-scripts"
 git sgdir do
   repository 'https://github.com/floragunncom/search-guard-ssl.git'
-  checkout_branch '5.1.1'
+  checkout_branch 'es-5.1.2'
 end
 execute "#{pkidir}/gen_root_ca.sh #{storepass} #{storepass}" do
   cwd pkidir
@@ -277,8 +277,8 @@ directory '/etc/elasticsearch/sgadmin' do
   owner 'elasticsearch'
 end
 
-elasticsearch_plugin 'com.floragunn:search-guard-5:5.1.2-11' do
-  plugin_name 'com.floragunn:search-guard-5:5.1.2-11'
+elasticsearch_plugin 'com.floragunn:search-guard-5:5.1.2-15' do
+  plugin_name 'com.floragunn:search-guard-5:5.1.2-15'
   not_if "/usr/share/elasticsearch/bin/elasticsearch-plugin list | grep search-guard-5"
   notifies :restart, 'elasticsearch_service[elasticsearch]', :delayed
 end
