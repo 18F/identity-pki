@@ -11,6 +11,9 @@ provider "template" { version = "~> 1.0" }
 terraform {
   backend "s3" {
   }
+
+  # Allowed terraform version
+  required_version = "~> 0.11.7"
 }
 
 # This policy can be used to allow anybody to join the role
