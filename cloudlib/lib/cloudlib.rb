@@ -1,8 +1,11 @@
+# frozen_string_literal: true
+
 require 'logger'
 
 require 'aws-sdk'
 require 'subprocess'
 
+# Top-level module for all cloudlib functionality
 module Cloudlib
   def self.log
     return @log if @log
@@ -20,8 +23,9 @@ module Cloudlib
     @cli_log
   end
 
-  def self.class_log(klass, stream)
+  def self.class_log(_klass, stream)
     log = Logger.new(stream)
+    # log.progname = klass.name
     log.progname = name
     log.level = log_level
     log
@@ -35,7 +39,7 @@ module Cloudlib
       return @log_level
     end
 
-    @log_level = Logger::DEBUG
+    @log_level = Logger::INFO
   end
 
   def self.log_level=(val)
