@@ -1,0 +1,95 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'optparse'
+
+require 'bundler/setup'
+require_relative '../lib/cloudlib'
+
+def log
+  Cloudlib.cli_log
+end
+
+def main(args)
+  options = {}
+
+  basename = File.basename($0)
+
+  optparse = OptionParser.new do |opts|
+    opts.banner = <<-EOM
+usage: #{basename} ENVIRONMENT ROLE [--min|--max|--desired] [COUNT]
+
+If COUNT is not given, report the current counts and scheduled actions.
+
+Set different target counts of an AWS Auto Scaling Group. By default, set the
+desired count to COUNT. If --max or --min is given, set those counts instead.
+
+For example:
+
+    # get current counts
+    #{basename} qa jumphost
+
+    # set desired count to 2
+    #{basename} qa jumphost 2
+
+    # set max size to 4
+    #{basename} qa jumphost --max 2
+    EOM
+
+    opts.on('-h', '--help', 'Display this message') do
+      STDERR.puts opts
+      exit
+    end
+
+    opts.on('-v', '--verbose', 'Be more verbose') do
+      Cloudlib.log_level -= 1 if Cloudlib.log_level > 0
+    end
+
+    opts.on('-q', '--quiet', 'Be quieter (can pass multiple times)') do
+      Cloudlib.log_level += 1
+    end
+
+		opts.on('--min', 'Set minimum count') do
+      options[:mode] = :min
+    end
+		opts.on('--max', 'Set maximum count') do
+      options[:mode] = :max
+    end
+    opts.on('--desired', 'Set desired count') do
+      options[:mode] = :desired
+    end
+  end
+
+  args = optparse.parse!
+
+  case args.length
+  when 2
+    env, role = ARGV
+    options[:mode] = :describe
+  when 3
+    env, role, count = ARGV
+    options[:mode] ||= :desired
+  else
+    STDERR.puts optparse
+    exit 1
+  end
+
+  asg_name = "#{env}-#{role}"
+
+  as = Cloudlib::AutoScaling.new
+
+  mode = options.fetch(:mode)
+
+  case mode
+  when :describe
+    as.print_asg_info(asg_name)
+  when :min, :max, :desired
+    as.change_asg_count(asg_name, type: mode, count: count)
+  else
+    raise "Unexpected mode: #{mode.inspect}"
+  end
+end
+
+if __FILE__ == $0
+  main(ARGV)
+end

@@ -1,22 +1,113 @@
+# frozen_string_literal: true
+
+require 'pastel'
+
+# :nodoc:
 module Cloudlib
+
   def self.autoscaling
     AutoScaling.new_resource
   end
 
+  # Class wrapping AutoScaling functionality
   class AutoScaling
     attr_reader :autoscaling
+    attr_reader :pastel
     attr_reader :prompt
 
     def self.new_resource
       Aws::AutoScaling::Resource.new
     end
 
-    def initialize(env: nil)
+    def initialize
       @autoscaling = self.class.new_resource
+      @pastel = Pastel.new
       @prompt = TTY::Prompt.new(output: STDERR)
     end
 
-    # 
+    # Print information about the given auto scaling group.
+    #
+    # @param [String] asg_name
+    # @param [String] preamble Text to describe the output
+    #
+    def print_asg_info(asg_name, preamble: 'Current',
+                       print_scheduled_actions: true)
+      data = get_autoscaling_group_by_name(asg_name).data
+
+      if print_scheduled_actions
+        print_asg_schedule_info(asg_name)
+      end
+
+      puts pastel.blue.bold("#{preamble} ASG capacity of #{asg_name.inspect}:")
+
+      {
+        'desired:' => :desired_capacity,
+        'min:' => :min_size,
+        'max:' => :max_size,
+      }.each_pair do |label, method|
+        value = data.public_send(method)
+        puts pastel.blue.bold("  #{label.ljust(8)} #{value}")
+      end
+
+      puts pastel.blue.bold(
+        "Health check: #{data.health_check_type}, " +
+        "#{data.health_check_grace_period}s grace period"
+      )
+
+      data
+    end
+
+    # Print scheduled action information about the givien auto scaling group.
+    def print_asg_schedule_info(asg_name)
+      sched = get_autoscaling_scheduled_actions(asg_name)
+
+      unless sched.empty?
+        puts pastel.yellow.bold("Scheduled actions for #{asg_name}:")
+        puts JSON.pretty_generate(sched.map { |action| action.data.to_h })
+      end
+
+      sched
+    end
+
+    # @param [String] asg_name
+    # @param [:min, :max, :desired] type
+    # @param [Integer] count
+    def change_asg_count(asg_name, type:, count:, print_counts: true)
+      case type
+      when :min
+        key = :min_size
+      when :max
+        key = :max_size
+      when :desired
+        key = :desired_capacity
+      else
+        raise ArgumentError.new("Unexpected count type: #{type.inspect}")
+      end
+
+      print_asg_info(asg_name) if print_counts
+
+      log.info("Setting ASG #{asg_name.inspect} #{type} count to " +
+               count.inspect)
+
+      autoscaling.client.update_auto_scaling_group(
+        auto_scaling_group_name: asg_name,
+        key => count
+      )
+
+      if print_counts
+        print_asg_info(asg_name, preamble: 'After change, current',
+                       print_scheduled_actions: false)
+      end
+    end
+
+    # Remove scale-in protection from as many instances are needed to get the
+    # ASG down to its desired count. Perform some sanity checks to help ensure
+    # that all the instances we're keeping are healthy and InService before
+    # removinge scale-in protection from any of them.
+    #
+    # @param [String] asg_name
+    # @param [Boolean] prompt_continue Whether to prompt before proceeding
+    #
     def scale_in_old_instances(asg_name, prompt_continue: true)
       log.info("Looking up ASG #{asg_name.inspect}")
       asg = get_autoscaling_group_by_name(asg_name)
@@ -131,15 +222,24 @@ module Cloudlib
     # @return [Aws::AutoScaling::AutoScalingGroup]
     #
     def get_autoscaling_group_by_name(asg_name)
+      log.debug("describe-auto-scaling-groups named #{asg_name.inspect}")
       found = autoscaling.groups(auto_scaling_group_names: [asg_name]).to_a
       if found.length > 1
-        raise ManyFound.new("Found multiple groups: " + found.inspect)
+        raise ManyFound.new('Found multiple groups: ' + found.inspect)
       end
       if found.empty?
         raise NotFound.new("No groups found for name: #{asg_name.inspect}")
       end
 
       found.first
+    end
+
+    # @param asg_name [String]
+    # @return [Array<Aws::AutoScaling::ScheduledAction>]
+    #
+    def get_autoscaling_scheduled_actions(asg_name)
+      log.debug("describe-scheduled-actions for ASG #{asg_name.inspect}")
+      autoscaling.scheduled_actions(auto_scaling_group_name: 'dev-idp').to_a
     end
   end
 end

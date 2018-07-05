@@ -20,7 +20,11 @@ Style/TrailingCommaInArrayLiteral:
 
 # Lots of methods will be longer than 10 lines
 Metrics/MethodLength:
-  Max: 50
+  Max: 60
+
+# Who are these people who have such tiny classes?
+Metrics/ClassLength:
+  Max: 200
 
 # It's not clear that this metric is useful at all
 Metrics/AbcSize:
@@ -31,6 +35,9 @@ Metrics/CyclomaticComplexity:
   Max: 15
 
 Metrics/PerceivedComplexity:
+  Enabled: false
+
+Naming/HeredocDelimiterNaming:
   Enabled: false
 
 # $PROGRAM_NAME is not less surprising than $0
@@ -66,6 +73,15 @@ SpaceInsideHashLiteralBraces:
 Style/IfInsideElse:
   Enabled: false
 
+# increases errors for little benefit
+Style/LineEndConcatenation:
+  Enabled: false
+
 # sometimes using self enhances clarity
 Style/RedundantSelf:
   Enabled: false
+
+# __FILE__ == $0 is idiomatic, not backwards
+Style/YodaCondition:
+  Exclude:
+    - "**/bin/*"
