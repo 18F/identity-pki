@@ -1,0 +1,20 @@
+#!/bin/bash
+set -eou pipefail
+
+# shellcheck source=/dev/null
+. "$(dirname "$0")/lib/common.sh"
+
+nothing_to_do=1
+
+for branch in $(git branch --format='%(refname:short)' --merged | grep -v '^stages/' | grep -v master); do
+    nothing_to_do=
+    if prompt_yn "Delete '$branch'?"; then
+        run git branch -d "$branch"
+    fi
+done
+
+if [ -n "$nothing_to_do" ]; then
+    echo "Nothing to do"
+else
+    echo "Done"
+fi
