@@ -9,6 +9,10 @@ Style/RaiseArgs:
 Layout/EmptyLinesAroundModuleBody:
   Enabled: false
 
+# The <<~ operator isn't super widely supported yet
+Layout/IndentHeredoc:
+  Enabled: false
+
 # trailing commas improve diff clarity at no cost to readability
 Style/TrailingCommaInHashLiteral:
   EnforcedStyleForMultiline: consistent_comma
@@ -24,17 +28,26 @@ Metrics/MethodLength:
 
 # Who are these people who have such tiny classes?
 Metrics/ClassLength:
-  Max: 200
+  Max: 500
 
 # It's not clear that this metric is useful at all
 Metrics/AbcSize:
   Enabled: false
+
+# CLI scripts will have long optparse blocks
+Metrics/BlockLength:
+  Exclude:
+    - "**/bin/*"
 
 # Not clear whether this is useful at all
 Metrics/CyclomaticComplexity:
   Max: 15
 
 Metrics/PerceivedComplexity:
+  Enabled: false
+
+# Parameters are fine
+Metrics/ParameterLists:
   Enabled: false
 
 Naming/HeredocDelimiterNaming:

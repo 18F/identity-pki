@@ -1,0 +1,112 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'optparse'
+require 'bundler/setup'
+require_relative '../lib/cloudlib'
+
+def log
+  Cloudlib.cli_log
+end
+
+def main
+  recycle_opts = {}
+  basename = File.basename($0)
+
+  optparse = OptionParser.new do |opts|
+    opts.banner = <<-EOM
+usage: #{basename} [OPTIONS] ENVIRONMENT ROLE [RETURN_TO_COUNT]
+
+Create AWS ASG scheduled actions to recycle instances in an ASG by spinning up
+twice as many instances and then spinning back down to the usual number.
+
+By default, spins up 2x instances immediately and spins down to the normal
+number after 2x the ASG's health check grace period. The grace period on an ASG
+defaults to 5 minutes, so if it hasn't been changed, we will spin down to the
+normal number after 10 minutes.
+
+Use -i/--immediate to configure the desired number of instances set immediately
+Use -t/--return-to to configure the desired number of instances after spin down
+
+It is dangerous to spin down instances before the grace period has elapsed
+because the ASG ignores health check results during the grace period and could
+spin down healthy instances with no replacements available. To ensure safety,
+use ASG lifecycle hooks to ensure that instances don't enter the InService
+state before they are finished bootstrapping. With lifecycle hooks in place,
+the health check grace period is 0. We default to a spindown delay of 15
+minutes in this case.
+
+For example:
+
+    # recycle instances in the "qa-jumphost" ASG by doubling and then returning
+    #{basename} qa jumphost
+
+    # (DESTRUCTIVE) immediately set desired count to 0, then set it to 2 after
+    # two minutes
+    #{basename} --immediate 0 --return-to 2 --delay 120 dev app
+
+    # set to 2 instances immediately, then return to 1
+    #{basename} -i 2 -t 1 qa idp
+
+    EOM
+
+    opts.on('-h', '--help', 'Display this message') do
+      STDERR.puts opts
+      exit
+    end
+
+    opts.on('-v', '--verbose', 'Be more verbose') do
+      Cloudlib.log_level -= 1 if Cloudlib.log_level > 0
+    end
+
+    opts.on('-q', '--quiet', 'Be quieter (can pass multiple times)') do
+      Cloudlib.log_level += 1
+    end
+
+    opts.on('--delay SEC', 'Wait before scheduled spindown') do |val|
+      recycle_opts[:spindown_delay] = Integer(val)
+    end
+
+    opts.on('-i', '--immediate SIZE',
+            'Number of instances to spin up') do |val|
+      recycle_opts[:new_size] = Integer(val)
+    end
+
+    opts.on('-t', '--return-to SIZE',
+            'Target number of instances after spin down') do |val|
+      recycle_opts[:return_to_size] = Integer(val)
+    end
+  end
+
+  args = optparse.parse!
+
+  case args.length
+  when 2
+    env, role = args
+  when 3
+    env, role, return_to_size = args
+    recycle_opts[:return_to_size] = Integer(return_to_size)
+  else
+    STDERR.puts optparse
+    exit 1
+  end
+
+  as = Cloudlib::AutoScaling.new
+
+  if role == 'ALL'
+    as.recycle_all_asgs_in_env(env, recycle_opts: recycle_opts)
+  else
+
+    as.start_recycle(asg_name, **recycle_opts)
+    puts as.pastel.bold.blue('Done')
+  end
+end
+
+if __FILE__ == $0
+  begin
+    main
+  rescue TTY::Reader::InputInterrupt
+    STDERR.puts 'OK, aborted'
+    exit 2
+  end
+end

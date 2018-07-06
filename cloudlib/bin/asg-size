@@ -10,7 +10,7 @@ def log
   Cloudlib.cli_log
 end
 
-def main(args)
+def main
   options = {}
 
   basename = File.basename($0)
@@ -49,10 +49,10 @@ For example:
       Cloudlib.log_level += 1
     end
 
-		opts.on('--min', 'Set minimum count') do
+    opts.on('--min', 'Set minimum count') do
       options[:mode] = :min
     end
-		opts.on('--max', 'Set maximum count') do
+    opts.on('--max', 'Set maximum count') do
       options[:mode] = :max
     end
     opts.on('--desired', 'Set desired count') do
@@ -91,5 +91,5 @@ For example:
 end
 
 if __FILE__ == $0
-  main(ARGV)
+  main
 end

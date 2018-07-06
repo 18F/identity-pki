@@ -34,7 +34,7 @@ module Cloudlib
   def self.log_level
     return @log_level if @log_level
 
-    if ENV['CL_LOG_LEVEL']
+    if ENV['CL_LOG_LEVEL'] && !ENV['CL_LOG_LEVEL'].empty?
       @log_level = Integer(ENV['CL_LOG_LEVEL'])
       return @log_level
     end
