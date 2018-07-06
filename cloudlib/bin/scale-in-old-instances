@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 require 'optparse'
 
@@ -11,8 +12,7 @@ def log
   Cloudlib.cli_log
 end
 
-def main(args)
-
+def main
   scale_in_options = {}
 
   basename = File.basename($0)
@@ -67,5 +67,5 @@ Options:
 end
 
 if __FILE__ == $0
-  main(ARGV)
+  main
 end
