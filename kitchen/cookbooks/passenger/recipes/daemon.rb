@@ -90,6 +90,17 @@ template "/etc/init.d/passenger" do
   )
 end
 
+# set proxy environment variables in passenger
+# could alternatively source /etc/profile.d/proxy-config.sh, but it won't exist
+# if the proxy isn't enabled
+file "/etc/default/passenger" do
+  content <<-EOM
+export http_proxy='#{node.fetch('login_dot_gov').fetch('http_proxy')}'
+export https_proxy='#{node.fetch('login_dot_gov').fetch('https_proxy')}'
+export no_proxy='#{node.fetch('login_dot_gov').fetch('no_proxy')}'
+  EOM
+end
+
 if node[:passenger][:production][:status_server]
   cookbook_file "#{nginx_path}/conf/sites.d/status.conf" do
     source "status.conf"
