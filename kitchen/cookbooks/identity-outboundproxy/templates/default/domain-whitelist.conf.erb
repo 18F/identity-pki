@@ -1,6 +1,8 @@
 hooks.slack.com
 .maven.org
 pypi.python.org
+pypi.org
+files.pythonhosted.org
 releases.hashicorp.com
 launchpad.net
 cache.ruby-lang.org
@@ -21,6 +23,7 @@ github.com
 .ec2.archive.ubuntu.com
 security.ubuntu.com
 changelogs.ubuntu.com
+ppa.launchpad.net
 updates.atomicorp.com
 www.atomicorp.com
 deb.nodesource.com
@@ -40,4 +43,7 @@ nginx.org
 github-production-release-asset-2e65be.s3.amazonaws.com
 nodejs.org
 db.local.clamav.net
+# ideally we wouldn't fetch GPG keys at runtime, but there's an
+# apt_repository[openjdk-r-ppa] made by the java::openjdk cookbook
+keyserver.ubuntu.com
 <%= @identity_pivcac_service %>
