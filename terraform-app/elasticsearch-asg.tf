@@ -84,6 +84,7 @@ resource "aws_autoscaling_group" "elasticsearch" {
 
     termination_policies = ["OldestInstance"]
 
+    load_balancers = []
     target_group_arns = ["${aws_lb_target_group.elasticsearch.arn}"]
 
     # Because these nodes have persistent data, we terminate manually in prod.
