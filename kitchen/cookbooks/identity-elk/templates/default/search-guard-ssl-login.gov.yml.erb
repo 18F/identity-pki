@@ -9,34 +9,34 @@ ca:
    root:
       # The distinguished name of this CA. You must specify a distinguished name.
       # example: dn: CN=root.ca.example.com,OU=CA,O=Example Com\, Inc.,DC=example,DC=com
-      dn: CN=root.login.gov.internal,OU=<%= @env %>,O=login.gov,L=Washington\, DC,C=US
+      dn: CN=root.login.gov.internal,OU=<%= node.chef_environment %>,O=login.gov,L=Washington\, DC,C=US
 
       # The size of the generated key in bits
       keysize: 2048
-      
+
       # The validity of the generated certificate in days from now
       validityDays: 3650
-      
+
       # Password for private key
       #   Possible values: 
       #   - auto: automatically generated password, returned in config output; 
       #   - none: unencrypted private key; 
       #   - other values: other values are used directly as password   
-      pkPassword: auto 
-      
+      pkPassword: changeit 
+
       # The name of the generated files can be changed here
       file: root-ca.pem
-      
+
       # If you have a certificate revocation list, you can specify its distribution points here
       # crlDistributionPoints: URI:https://raw.githubusercontent.com/floragunncom/unittest-assets/master/revoked.crl
-       
+
    # If you want to use an intermediate certificate as signing certificate,
    # please specify its parameters here. This is optional. If you remove this section,
    # the root certificate will be used for signing.   
    intermediate:
       # The distinguished name of this CA. You must specify a distinguished name.
       # example: dn: CN=root.ca.example.com,OU=CA,O=Example Com\, Inc.,DC=example,DC=com
-      dn: CN=signing.login.gov.internal,OU=<%= @env %>,O=login.gov,L=Washington\, DC,C=US
+      dn: CN=signing.login.gov.internal,OU=<%= node.chef_environment %>,O=login.gov,L=Washington\, DC,C=US
 
       # The size of the generated key in bits
       keysize: 2048
@@ -45,7 +45,7 @@ ca:
       validityDays: 3650
       
       # Password for private key  
-      pkPassword: auto 
+      pkPassword: changeit 
       
       # The name of the generated files can be changed here
       file: signing-ca.pem
@@ -81,9 +81,8 @@ defaults:
       # - 'CN=*.example.com,OU=SSL,O=Test,L=Test,C=DE'
       # - 'CN=elk-devcluster*'
       # - '/CN=.*regex/' 
-
       # nodesDn:
-
+      
       # If you want to use OIDs to mark legitimate node certificates, 
       # the OID can be included in the certificates by specifying the following
       # attribute
@@ -116,12 +115,11 @@ defaults:
 # Specify the nodes of your ES cluster here
 #
 nodes:
-  <% @esips.each do |ip| -%>
     # The node name is just used as name of the generated files
-  - name: <%= ip %>
+  - name: <%= node.fetch('ipaddress') %>
 
     # The distinguished name of this node
-    dn: CN=elasticsearch.login.gov.internal,OU=<%= @env %>,O=login.gov,L=Washington\, DC,C=US
+    dn: CN=elasticsearch.login.gov.internal,OU=<%= node.chef_environment %>,O=login.gov,L=Washington\, DC,C=US
 
  
     # DNS names of this node. Several names can be specified as list
@@ -133,14 +131,13 @@ nodes:
     # The IP addresses of this node. Several addresses can be specified as list
     
     ip: 
-    - <%= ip %>
+    - <%= node.fetch('ipaddress') %>
     - 127.0.0.1
 
     # If you want to override the keysize, pkPassword or validityDays values from
     # the defaults, just specify them here.
 
     # The node name is just used as name of the generated files
-  <% end -%>
 ###
 ### Clients
 ###
@@ -154,9 +151,9 @@ clients:
     # The client name is just used as name of the generated files
   - name: admin
     # The distinguished name of the client
-    dn: CN=admin.login.gov.internal,OU=<%= @env %>,O=login.gov,L=Washington\, DC,C=US
+    dn: CN=admin.login.gov.internal,OU=<%= node.chef_environment %>,O=login.gov,L=Washington\, DC,C=US
     # To mark the client as super-user
     admin: true
   - name: user
     # The distinguished name of the client
-    dn: CN=user.login.gov.internal,OU=<%= @env %>,O=login.gov,L=Washington\, DC,C=US
+    dn: CN=user.login.gov.internal,OU=<%= node.chef_environment %>,O=login.gov,L=Washington\, DC,C=US

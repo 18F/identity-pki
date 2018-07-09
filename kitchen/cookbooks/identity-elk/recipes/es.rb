@@ -1,12 +1,3 @@
-#
-# Cookbook Name:: identity-elk
-# Recipe:: es
-#
-# Copyright 2016, YOUR_COMPANY_NAME
-#
-# All rights reserved - Do Not Redistribute
-#
-
 include_recipe 'java'
 
 directory '/etc/elasticsearch'
@@ -37,185 +28,18 @@ end
 # this is an ELB.
 elasticsearch_domain = node.fetch("es").fetch("domain")
 
-# create keystore/truststore
-include_recipe 'keytool'
-storepass = 'EipbelbyamyotsOjHod2'
-san = "san=dns:#{elasticsearch_domain},dns:#{node.name},dns:localhost,ip:#{node.fetch('ipaddress')},ip:127.0.0.1,oid:1.2.3.4.5.5"
+services = ::Chef::Recipe::ServiceDiscovery.discover(
+  node,
+  node.fetch('elk').fetch('es_tag_key'),
+  [node.fetch('elk').fetch('es_tag_value')]
+)
 
-keytool_manage 'create keystore' do
-  action :createstore
-  keystore '/etc/elasticsearch/keystore.jks'
-  keystore_alias node.fetch('ipaddress')
-  common_name "#{elasticsearch_domain}"
-  org_unit node.chef_environment
-  org 'login.gov'
-  location 'Washington DC'
-  country 'US'
-  storepass storepass
-  additional "-ext #{san}"
-end
+esnodes = services.map{|service| {
+  "ipaddress" => service.fetch('instance').private_ip_address,
+  "crt" => service.fetch("certificate"),
+  "name" => service.fetch("hostname") } }
 
-keytool_manage 'create truststore' do
-  action :createstore
-  keystore '/etc/elasticsearch/truststore.jks'
-  keystore_alias node.fetch('ipaddress')
-  common_name "#{elasticsearch_domain}"
-  org_unit node.chef_environment
-  org 'login.gov'
-  location 'Washington DC'
-  country 'US'
-  storepass storepass
-  additional "-ext #{san}"
-end
-
-# generate a CA
-sgdir = "#{Chef::Config[:file_cache_path]}/search-guard-ssl"
-pkidir = sgdir + "/example-pki-scripts"
-git sgdir do
-  repository 'https://github.com/floragunncom/search-guard-ssl.git'
-  checkout_branch 'es-5.1.2'
-end
-execute "#{pkidir}/gen_root_ca.sh #{storepass} #{storepass}" do
-  cwd pkidir
-  creates 'ca/chain-ca.pem'
-end
-
-# export, sign, import cert
-execute "keytool -certreq -alias #{node.fetch('ipaddress')} -keystore /etc/elasticsearch/keystore.jks -file #{pkidir}/cacrt.csr -keypass #{storepass} -storepass #{storepass} -dname 'CN=#{elasticsearch_domain}, OU=#{node.chef_environment}, O=login.gov, L=Washington DC, C=US' -ext #{san}" do
-  creates pkidir + '/cacrt.csr'
-end
-
-execute "openssl ca -in #{pkidir}/cacrt.csr -notext -out /etc/elasticsearch/es.login.gov.crt -config etc/signing-ca.conf -extensions v3_req -batch -passin pass:#{storepass} -extensions server_ext" do
-  creates '/etc/elasticsearch/es.login.gov.crt'
-  cwd pkidir
-end
-
-execute "sed -i 's/\r//' /etc/elasticsearch/es.login.gov.crt"
-
-keytool_manage "import my signed cert into keystore" do
-  cert_alias node.fetch('ipaddress')
-  action :importcert
-  file '/etc/elasticsearch/es.login.gov.crt'
-  keystore "/etc/elasticsearch/keystore.jks"
-  storepass storepass
-end
-
-# If we were running with a chef server, we could use the chef server's
-# attributes to register this node's certificate.
-#
-# However, we are running chef-zero locally, so we need to rely on some other
-# mechanism.  Our service_discovery cookbook abstracts out this service
-# registration, and has libaries to publish certificates, so we can use that.
-#
-# We have to use it in a custom resource "publish_cert_and_chain" because of the
-# chef compile versus converge time issue.  Things outside any resource run at
-# compile time, and things in a resource run at converge time.  This is
-# something we want to run at converge time wrapped in a resource because we
-# have ruby code as well as other resources we need to run and the cert won't
-# exist on disk until then.
-# Publish this node's certificate
-publish_cert_and_chain 'Publish the cert and chain of this ES node to s3.' do
-  cert '/etc/elasticsearch/es.login.gov.crt'
-  chain "#{pkidir}/ca/chain-ca.pem"
-  cert_and_chain_path "/etc/elasticsearch/es.login.gov.pem"
-  suffix "legacy-elasticsearch"
-  owner "elasticsearch"
-end
-
-# trust the other ES nodes
-install_certificates 'Installing ES certificates to ca-certificates' do
-  service_tag_key node['elk']['es_tag_key']
-  service_tag_value node['elk']['es_tag_value']
-  cert_user 'elasticsearch'
-  cert_group 'elasticsearch'
-  install_directory '/usr/local/share/ca-certificates'
-  suffix 'legacy-elasticsearch'
-  notifies :run, 'execute[/usr/sbin/update-ca-certificates]', :immediately
-end
-
-install_certificates 'Installing ES certificates to /etc/elasticsearch' do
-  service_tag_key node['elk']['es_tag_key']
-  service_tag_value node['elk']['es_tag_value']
-  cert_user 'elasticsearch'
-  cert_group 'elasticsearch'
-  install_directory '/etc/elasticsearch'
-  suffix 'legacy-elasticsearch'
-  notifies :restart, 'elasticsearch_service[elasticsearch]', :delayed
-end
-execute '/usr/sbin/update-ca-certificates' do
-  action :nothing
-end
-
-# If we were running with a chef server, we could use the chef server's node
-# search functionality to find other services.
-#
-# However, we are running chef-zero locally, so we need to rely on some other
-# mechanism.  Our service_discovery cookbook abstracts out this service
-# discovery and has libraries to fetch a list of services, so we can call that
-# and then massage it to look like the old node list.
-services = ::Chef::Recipe::ServiceDiscovery.discover(node,
-                                                     node.fetch('elk').fetch('es_tag_key'),
-                                                     [node.fetch('elk').fetch('es_tag_value')])
-esnodes = services.map{|service| { "ipaddress" => service.fetch('instance').private_ip_address,
-                                   "crt" => service.fetch("certificate"),
-                                   "name" => service.fetch("hostname") } }
 esips = services.map{|service| service.fetch('instance').private_ip_address}.sort.uniq.join(', ')
-
-esnodes.each do |h|
-  # import certs in from the new way
-  keytool_manage "import #{h['ipaddress']} into truststore from legacy file" do
-    cert_alias h['ipaddress']
-    action :importcert
-    file "/etc/elasticsearch/#{h['name']}-legacy-elasticsearch.crt"
-    keystore '/etc/elasticsearch/truststore.jks'
-    storepass storepass
-    additional '-trustcacerts'
-    only_if "test -s /etc/elasticsearch/#{h['name']}-legacy-elasticsearch.crt"
-  end
-  keytool_manage "import #{h['name']} into truststore from legacy file" do
-    cert_alias h['name']
-    action :importcert
-    file "/etc/elasticsearch/#{h['name']}-legacy-elasticsearch.crt"
-    keystore '/etc/elasticsearch/truststore.jks'
-    storepass storepass
-    additional '-trustcacerts'
-    only_if "test -s /etc/elasticsearch/#{h['name']}-legacy-elasticsearch.crt"
-  end
-
-  # import certs the chef way
-  keytool_manage "import #{h['ipaddress']} into truststore" do
-    cert_alias h['ipaddress']
-    action :importcert
-    file "/etc/elasticsearch/es_#{h['name']}.crt"
-    keystore '/etc/elasticsearch/truststore.jks'
-    storepass storepass
-    additional '-trustcacerts'
-    only_if "test -s /etc/elasticsearch/es_#{h['name']}.crt"
-  end
-  keytool_manage "import #{h['name']} into truststore" do
-    cert_alias h['name']
-    action :importcert
-    file "/etc/elasticsearch/es_#{h['name']}.crt"
-    keystore '/etc/elasticsearch/truststore.jks'
-    storepass storepass
-    additional '-trustcacerts'
-    only_if "test -s /etc/elasticsearch/es_#{h['name']}.crt"
-  end
-end
-
-# I think this is necessary for searchguard, but I'm not completely sure since
-# this node should discover itself and install its own certificate that way.
-# Searchguard needs to have the certificate specified in
-# 'searchguard.authcz.admin_dn' trusted, but I don't know how it maps that dn to
-# the truststore alias internally.
-keytool_manage "import my cert into truststore" do
-  cert_alias "#{elasticsearch_domain}"
-  action :importcert
-  file '/etc/elasticsearch/es.login.gov.crt'
-  keystore "/etc/elasticsearch/truststore.jks"
-  storepass storepass
-  additional '-trustcacerts'
-end
 
 # Elasticsearch now requires this value at a minimum
 template "/etc/sysctl.d/99-chef-vm.max_map_count.conf" do
@@ -224,6 +48,7 @@ template "/etc/sysctl.d/99-chef-vm.max_map_count.conf" do
     :vm_max_map_count => 262144
   })
 end
+
 execute "Set vm_max_map_count to 262144 in sysctl" do
   command "sysctl -p /etc/sysctl.d/99-chef-vm.max_map_count.conf"
 end
@@ -238,20 +63,95 @@ elasticsearch_configure "elasticsearch" do
     'discovery.zen.ping.unicast.hosts' => esips,
     'network.bind_host' => '0.0.0.0',
     'network.publish_host' => node.fetch('ipaddress'),
-    'searchguard.ssl.transport.keystore_filepath' => '/etc/elasticsearch/keystore.jks',
-    'searchguard.ssl.transport.keystore_password' => storepass,
-    'searchguard.ssl.transport.truststore_filepath' => '/etc/elasticsearch/truststore.jks',
-    'searchguard.ssl.transport.truststore_password' => storepass,
+    'searchguard.ssl.transport.pemcert_filepath' => "/etc/elasticsearch/#{node.fetch('ipaddress')}.pem",
+    'searchguard.ssl.transport.pemkey_filepath' => "/etc/elasticsearch/#{node.fetch('ipaddress')}.key",
+    'searchguard.ssl.transport.pemkey_password' => 'changeit',
+    'searchguard.ssl.transport.pemtrustedcas_filepath' => "/etc/elasticsearch/root-ca.pem",
     'searchguard.ssl.transport.enforce_hostname_verification' => false,
     'searchguard.ssl.transport.resolve_hostname' => false,
     'searchguard.ssl.http.enabled' => true,
-    'searchguard.ssl.http.keystore_filepath' => '/etc/elasticsearch/keystore.jks',
-    'searchguard.ssl.http.keystore_password' => storepass,
-    'searchguard.ssl.http.truststore_filepath' => '/etc/elasticsearch/truststore.jks',
-    'searchguard.ssl.http.truststore_password' => storepass,
-    'searchguard.authcz.admin_dn' => ["CN=#{elasticsearch_domain}","CN=#{elasticsearch_domain}, OU=#{node.chef_environment}, O=login.gov, L=Washington DC, C=US"]
+    'searchguard.ssl.http.pemcert_filepath' => "/etc/elasticsearch/#{node.fetch('ipaddress')}.pem",
+    'searchguard.ssl.http.pemkey_filepath' => "/etc/elasticsearch/#{node.fetch('ipaddress')}.key",
+    'searchguard.ssl.http.pemkey_password' => 'changeit',
+    'searchguard.ssl.http.pemtrustedcas_filepath' => "/etc/elasticsearch/root-ca.pem",
+    'searchguard.nodes_dn' => ["CN=#{elasticsearch_domain},OU=#{node.chef_environment},O=login.gov,L=Washington\\, DC,C=US"],
+    'searchguard.authcz.admin_dn' => ["CN=admin.login.gov.internal,OU=#{node.chef_environment},O=login.gov,L=Washington\\, DC,C=US"]
   })
   notifies :restart, 'elasticsearch_service[elasticsearch]', :delayed
+end
+
+elasticsearch_plugin 'x-pack' do
+  action :remove
+end
+
+# install search guard plugin
+directory '/etc/elasticsearch/sgadmin' do
+  owner 'elasticsearch'
+end
+
+elasticsearch_plugin 'com.floragunn:search-guard-5:5.1.2-15' do
+  plugin_name 'com.floragunn:search-guard-5:5.1.2-15'
+  not_if "/usr/share/elasticsearch/bin/elasticsearch-plugin list | grep search-guard-5"
+  notifies :restart, 'elasticsearch_service[elasticsearch]', :delayed
+end
+
+# Install SearchGuard TLS Tool
+# https://github.com/floragunncom/search-guard-tlstool
+# https://search-guard.com/generating-certificates-tls-tool/
+remote_file '/usr/share/elasticsearch/plugins/search-guard-5/search-guard-tlstool-1.5.tar.gz' do
+  checksum '97efc3cbc560a99e59bfdab3d896749a124d1945ce9c92d40bbfdbb10568aa70'
+  source 'https://search.maven.org/remotecontent?filepath=com/floragunn/search-guard-tlstool/1.5/search-guard-tlstool-1.5.tar.gz'
+end
+
+execute 'extract search-guard-tlstool-1.5.tar.gz' do
+  command 'tar xzvf search-guard-tlstool-1.5.tar.gz'
+  cwd '/usr/share/elasticsearch/plugins/search-guard-5'
+end
+
+execute 'make SGtlsTool scripts executable' do 
+  command 'chmod +x tools/*'
+  cwd '/usr/share/elasticsearch/plugins/search-guard-5'
+end
+
+# add login.gov specific configuration
+template '/usr/share/elasticsearch/plugins/search-guard-5/config/login.gov.yml' do
+  source 'search-guard-ssl-login.gov.yml.erb'
+end
+
+# NOTE: redo using service discovery cookbook helpers
+# Download CA and intermediate key pairs from s3 bucket if they exist
+require 'aws-sdk'
+aws_account_id = AwsMetadata.get_aws_account_id
+
+execute 'download CA key pair' do
+  command "aws s3 cp --recursive s3://login-gov-elasticsearch-#{node.chef_environment}.#{aws_account_id}-us-west-2/certs/ /etc/elasticsearch"
+  not_if { ::File.exist?('/etc/elasticsearch/root-ca.pem') }
+end
+
+execute 'generate CA, intermediate, node, admin, and user key pairs' do
+  command './tools/sgtlstool.sh -c config/login.gov.yml -ca -crt'
+  cwd '/usr/share/elasticsearch/plugins/search-guard-5'
+  not_if { ::File.exist?('/etc/elasticsearch/root-ca.pem') }
+end
+
+# NOTE: redo using service discovery cookbook helpers
+execute 'upload CA, intermediate, admin, and user key pairs to s3 bucket' do
+  command "aws s3 cp --sse aws:kms --recursive --exclude '1*' out s3://login-gov-elasticsearch-#{node.chef_environment}.#{aws_account_id}-us-west-2/certs/"
+  cwd '/usr/share/elasticsearch/plugins/search-guard-5'
+  only_if { ::File.exist?('/usr/share/elasticsearch/plugins/search-guard-5/out/root-ca.readme') }
+end
+
+# Or generate a new node key pair if the root and intermediate key pairs have already been created
+execute 'generate node key pair' do
+  command './tools/sgtlstool.sh -c config/login.gov.yml -crt -t /etc/elasticsearch'
+  cwd '/usr/share/elasticsearch/plugins/search-guard-5'
+  only_if { ::File.exist?('/etc/elasticsearch/root-ca.pem') }
+  not_if { ::File.exist?("/etc/elasticsearch/#{node.fetch('ipaddress')}.pem") }
+end
+
+# start elasticsearch
+elasticsearch_service 'elasticsearch' do
+  service_actions [:enable, :start]
 end
 
 execute "wait for elasticsearch to start up without searchguard" do
@@ -267,38 +167,75 @@ execute "wait for elasticsearch to start up without searchguard" do
   subscribes :run, 'elasticsearch_service[elasticsearch]', :immediately
 end
 
-execute '/var/lib/dpkg/info/ca-certificates-java.postinst configure'
-
-elasticsearch_plugin 'x-pack' do
-  action :remove
-end
-
-directory '/etc/elasticsearch/sgadmin' do
-  owner 'elasticsearch'
-end
-
-elasticsearch_plugin 'com.floragunn:search-guard-5:5.1.2-15' do
-  plugin_name 'com.floragunn:search-guard-5:5.1.2-15'
-  not_if "/usr/share/elasticsearch/bin/elasticsearch-plugin list | grep search-guard-5"
-  notifies :restart, 'elasticsearch_service[elasticsearch]', :delayed
-end
-
-file '/usr/share/elasticsearch/plugins/search-guard-5/tools/sgadmin.sh' do
-  mode '0755'
-end
-
-
-elasticsearch_service 'elasticsearch' do
-  service_actions [:enable, :start]
-end
-
 # set up sgadmin stuff
 %w{sg_action_groups.yml sg_config.yml sg_internal_users.yml sg_roles_mapping.yml sg_roles.yml}.each do |f|
   template "/etc/elasticsearch/sgadmin/#{f}"
 end
-execute "/usr/share/elasticsearch/plugins/search-guard-5/tools/sgadmin.sh -ts /etc/elasticsearch/truststore.jks -tspass '#{storepass}' -ks /etc/elasticsearch/keystore.jks -kspass '#{storepass}' -cd /etc/elasticsearch/sgadmin/ -icl -nhnv" do
+
+# Shave a yak so that we can use the older version of sgadmin that doesn't support pem format
+
+# create issuer cert
+execute "cat root-ca.pem signing-ca.pem > issuer.pem" do
+  cwd '/etc/elasticsearch'
 end
 
+execute 'convert PEM formatted keypair to p12' do
+  command "openssl pkcs12 \
+    -export \
+    -CAfile issuer.pem \
+    -chain \
+    -in admin.pem \
+    -inkey admin.key \
+    -name admin \
+    -out admin.p12 \
+    -passin pass:changeit \
+    -passout pass:changeit"
+  cwd '/etc/elasticsearch'
+end
+
+execute 'create jks keystore with admin keys' do
+  command "keytool \
+    -importkeystore \
+    -destkeystore admin.jks \
+    -deststorepass changeit \
+    -noprompt \
+    -srckeystore admin.p12 \
+    -srcstorepass changeit"
+  cwd '/etc/elasticsearch'
+end
+
+execute 'import root-ca into jks truststore' do
+  command "keytool \
+    -importcert \
+    -file /etc/elasticsearch/root-ca.pem \
+    -keystore /etc/elasticsearch/truststore.jks \
+    -noprompt \
+    -storepass changeit"
+  cwd '/etc/elasticsearch'
+  not_if { ::File.exist?('/etc/elasticsearch/truststore.jks') }
+end
+
+execute 'run sgadmin' do
+  command "/usr/share/elasticsearch/plugins/search-guard-5/tools/sgadmin.sh \
+    -cd /etc/elasticsearch/sgadmin/ \
+    -icl \
+    -ks admin.jks \
+    -kspass changeit \
+    -nhnv \
+    -ts /etc/elasticsearch/truststore.jks \
+    -tspass changeit"
+  cwd '/etc/elasticsearch'
+end
+
+# Note: use this format of config for sgadmin once we upgrade to sg 5.6
+# execute "/usr/share/elasticsearch/plugins/search-guard-5/tools/sgadmin.sh \
+#    -cd /etc/elasticsearch/sgadmin/ \
+#    -cacert /etc/elasticsearch/root-ca.pem \
+#    -cert /etc/elasticsearch/admin.pem \
+#    -key /etc/elasticsearch/admin.key  \
+#    -keypass EipbelbyamyotsOjHod2 \
+#    -nhnv
+#    -icl"
 
 # set up log retention using curator
 include_recipe 'elasticsearch-curator'
