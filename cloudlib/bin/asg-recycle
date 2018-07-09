@@ -96,6 +96,7 @@ For example:
   if role == 'ALL'
     as.recycle_all_asgs_in_env(env, recycle_opts: recycle_opts)
   else
+    asg_name = "#{env}-#{role}"
 
     as.start_recycle(asg_name, **recycle_opts)
     puts as.pastel.bold.blue('Done')
