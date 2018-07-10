@@ -203,7 +203,7 @@ variable "asg_app_min" { default = 0 }
 variable "asg_app_desired" { default = 0 }
 variable "asg_app_max" { default = 8 }
 variable "pivcac_nodes" { default = 2 }
-variable "asg_outboundproxy_desired" { default = 2 }
+variable "asg_outboundproxy_desired" { default = 3 }
 variable "asg_outboundproxy_min" { default = 1 }
 variable "asg_outboundproxy_max" { default = 9 }
 
