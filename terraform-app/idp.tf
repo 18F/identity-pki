@@ -307,18 +307,14 @@ module "idp_lifecycle_hooks" {
 }
 
 module "idp_recycle" {
-    source = "../terraform-modules/asg_recycle/"
+  source = "../terraform-modules/asg_recycle/"
 
-    # switch to count when that's a thing that we can do
-    # https://github.com/hashicorp/terraform/issues/953
-    enabled = "${var.asg_auto_6h_recycle}"
+  # switch to count when that's a thing that we can do
+  # https://github.com/hashicorp/terraform/issues/953
+  enabled = "${var.asg_auto_6h_recycle}"
 
-    asg_name = "${aws_autoscaling_group.idp.name}"
-    normal_desired_capacity = "${aws_autoscaling_group.idp.desired_capacity}"
-
-    # TODO once we're on TF 0.10 remove these
-    min_size = "${aws_autoscaling_group.idp.min_size}"
-    max_size = "${aws_autoscaling_group.idp.max_size}"
+  asg_name = "${aws_autoscaling_group.idp.name}"
+  normal_desired_capacity = "${aws_autoscaling_group.idp.desired_capacity}"
 }
 
 resource "aws_route53_record" "idp-postgres" {

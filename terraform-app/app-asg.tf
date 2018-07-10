@@ -114,22 +114,16 @@ resource "aws_autoscaling_group" "app" {
     }
 }
 
-# TODO uncomment this when the app ASG always exists
-# We can't refer to variables like aws_autoscaling_group.app.name unless the
-# resource exists, and we can't use count on modules because terraform doesn't
-# support it.
-# https://github.com/hashicorp/terraform/issues/953
-# https://github.com/hashicorp/terraform/issues/11566
-#
-#module "app_recycle" {
-#    source = "../terraform-modules/asg_recycle/"
-#
-#    enabled = "${var.asg_auto_6h_recycle * var.alb_enabled * var.apps_enabled}"
-#
-#    asg_name = "${aws_autoscaling_group.app.name}"
-#    normal_desired_capacity = "${aws_autoscaling_group.app.desired_capacity}"
-#
-#    # TODO once we're on TF 0.10 remove these
-#    min_size = "${aws_autoscaling_group.app.min_size}"
-#    max_size = "${aws_autoscaling_group.app.max_size}"
-#}
+module "app_recycle" {
+    source = "../terraform-modules/asg_recycle/"
+
+    # switch to count when that's a thing that we can do
+    # https://github.com/hashicorp/terraform/issues/953
+    enabled = "${var.asg_auto_6h_recycle * var.alb_enabled * var.apps_enabled}"
+
+    # This weird element() stuff is so we can refer to these attributes even
+    # when the app autoscaling group has count=0. Reportedly this hack will not
+    # be necessary in TF 0.12.
+    asg_name = "${element(concat(aws_autoscaling_group.app.*.name, list("")), 0)}"
+    normal_desired_capacity = "${element(concat(aws_autoscaling_group.app.*.desired_capacity, list("")), 0)}"
+}
