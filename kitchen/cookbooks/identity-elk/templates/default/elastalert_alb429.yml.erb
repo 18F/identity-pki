@@ -1,0 +1,30 @@
+name: Unusual amount of ALB 429 errors
+type: frequency
+index: logstash-*
+alert_text: More than average amount of 429 response codes in 5 minutes on the idp ALB in <%= @env %>.
+owner: <%= @env %>
+num_events: 10
+timeframe:
+    minutes: 5
+filter:
+- query:
+    query_string:
+      query: 'type:"elb" AND target_status_code:"429"'
+alert:
+<% if ! @emails.empty? %>
+- "email"
+<% end %>
+<% if ! @webhook.nil? %>
+- "slack"
+<% end %>
+<% if ! @emails.empty? %>
+email:
+<%   @emails.each do |e| %>
+- "<%= e %>"
+<%   end %>
+<% end %>
+<% if ! @webhook.nil? %>
+slack_webhook_url: <%= @webhook %>
+slack_username_override: <%= "#{@env} alerts" %>
+slack_channel_override: <%= @slackchannel %>
+<% end %>
