@@ -9,7 +9,7 @@ timeframe:
 filter:
 - query:
     query_string:
-      query: '"TCP_DENIED/403" AND !source:"/var/log/elasticsearch/elasticsearch.log"'
+      query: '"TCP_DENIED/403" AND source:"/var/log/squid/access.log"'
 alert:
 <% if ! @emails.empty? %>
 - "email"
