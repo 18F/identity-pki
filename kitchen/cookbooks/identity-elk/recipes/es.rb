@@ -124,26 +124,32 @@ require 'aws-sdk'
 aws_account_id = AwsMetadata.get_aws_account_id
 s3_cert_url = "s3://login-gov.internal-certs.#{aws_account_id}-us-west-2/#{node.chef_environment}/elasticsearch/"
 
-ca_file_list = %w(root-ca.key root-ca.pem root-ca.readme signing-ca.key signing-ca.pem issuer.pem)
+ca_file_list = %w(root-ca.key root-ca.pem signing-ca.key signing-ca.pem issuer.pem)
 
 ca_file_list.each do |f|
-  execute 'download CA key pairs' do
-    command "aws s3 cp --recursive #{s3_cert_url}#{f} /etc/elasticsearch"
+  execute "download #{f} from s3" do
+    command "aws s3 cp #{s3_cert_url}#{f} /etc/elasticsearch"
     not_if { ::File.exist?("/etc/elasticsearch/#{f}") }
+    ignore_failure true
   end
 end
 
 # generate key pairs if they do not already exist
 execute 'generate CA, intermediate, node, admin, and user key pairs' do
-  command './tools/sgtlstool.sh -c config/login.gov.yml -ca -crt'
+  command './tools/sgtlstool.sh -c config/login.gov.yml -t /etc/elasticsearch -ca -crt'
   cwd '/usr/share/elasticsearch/plugins/search-guard-5'
   not_if { ::File.exist?('/etc/elasticsearch/root-ca.pem') }
 end
 
+# create issuer cert
+execute "cat root-ca.pem signing-ca.pem > issuer.pem" do
+  cwd '/etc/elasticsearch'
+end
+
 aws_s3_options = "--sse aws:kms --recursive --exclude '*' --include 'root-ca*' --include 'signing-ca*' --include 'issuer.pem'"
 execute 'upload CA, intermediate, admin, and user key pairs to s3 bucket' do
-  command "aws s3 cp #{aws_s3_options} /usr/share/elasticsearch/plugins/search-guard-5/out #{s3_cert_url}"
-  only_if { ::File.exist?('/usr/share/elasticsearch/plugins/search-guard-5/out/root-ca.key') }
+  command "aws s3 cp #{aws_s3_options} /etc/elasticsearch #{s3_cert_url}"
+  only_if { ::File.exist?('/etc/elasticsearch/client-certificates.readme') }
 end
 
 # Or generate a new node key pair if the root and intermediate key pairs have already been created
@@ -178,12 +184,6 @@ end
 end
 
 # Shave a yak so that we can use the older version of sgadmin that doesn't support pem format
-
-# create issuer cert
-execute "cat root-ca.pem signing-ca.pem > issuer.pem" do
-  cwd '/etc/elasticsearch'
-end
-
 execute 'convert PEM formatted keypair to p12' do
   command "openssl pkcs12 \
     -export \
@@ -215,6 +215,7 @@ execute 'import root-ca into jks truststore' do
     -file /etc/elasticsearch/root-ca.pem \
     -keystore /etc/elasticsearch/truststore.jks \
     -noprompt \
+    -alias root.login.gov.internal
     -storepass changeit"
   cwd '/etc/elasticsearch'
   not_if { ::File.exist?('/etc/elasticsearch/truststore.jks') }
