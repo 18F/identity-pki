@@ -55,11 +55,10 @@ elasticsearch.url: "https://<%= @elasticsearch_domain %>:9200"
 # Optional setting that enables you to specify a path to the PEM file for the certificate
 # authority for your Elasticsearch instance.
 #elasticsearch.ssl.ca: /path/to/your/CA.pem
-elasticsearch.ssl.ca: /etc/ssl/certs/ca-certificates.crt
+elasticsearch.ssl.ca: /etc/elasticsearch/root-ca.pem
 
 # To disregard the validity of SSL certificates, change this setting’s value to false.
-#elasticsearch.ssl.verify: true
-elasticsearch.ssl.verify: false
+elasticsearch.ssl.verify: true
 
 # Time in milliseconds to wait for Elasticsearch to respond to pings. Defaults to the value of
 # the elasticsearch.requestTimeout setting.
