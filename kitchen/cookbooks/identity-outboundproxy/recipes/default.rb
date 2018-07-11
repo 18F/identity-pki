@@ -33,7 +33,7 @@ template '/etc/squid/domain-whitelist.conf' do
     group 'root'
     variables ({
         identity_pivcac_service: "pivcac.#{node.chef_environment}.#{domain_name}",
-        identity_idp: "idp.#{node.chef_environment}.#{domain_name}"
+        identity_idp: ".#{domain_name}"
     })
     notifies :restart, 'service[squid]', :delayed
 end
