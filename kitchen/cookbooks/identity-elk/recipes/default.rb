@@ -121,9 +121,13 @@ publish_cert_and_chain 'Publish the cert this ELK node to s3.' do
   suffix "legacy-elk"
 end
 
-# trust the other ES nodes
-execute 'download CA key pair' do
-  command "aws s3 cp --recursive s3://login-gov-elasticsearch-#{node.chef_environment}.#{aws_account_id}-us-west-2/certs/ /etc/elasticsearch"
+# NOTE: redo using service discovery cookbook helpers
+# Download root CA cert for elasticsearch node certs
+aws_account_id = AwsMetadata.get_aws_account_id
+s3_root_cert_url = "s3://login-gov.internal-certs.#{aws_account_id}-us-west-2/#{node.chef_environment}/elasticsearch/root-ca.pem"
+
+execute 'download root CA cert' do
+  command "aws s3 cp #{s3_root_cert_url} /etc/elasticsearch"
   not_if { ::File.exist?('/etc/elasticsearch/root-ca.pem') }
 end
 

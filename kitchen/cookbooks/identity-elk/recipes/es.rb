@@ -122,23 +122,28 @@ end
 # Download CA and intermediate key pairs from s3 bucket if they exist
 require 'aws-sdk'
 aws_account_id = AwsMetadata.get_aws_account_id
+s3_cert_url = "s3://login-gov.internal-certs.#{aws_account_id}-us-west-2/#{node.chef_environment}/elasticsearch/"
 
-execute 'download CA key pair' do
-  command "aws s3 cp --recursive s3://login-gov-elasticsearch-#{node.chef_environment}.#{aws_account_id}-us-west-2/certs/ /etc/elasticsearch"
-  not_if { ::File.exist?('/etc/elasticsearch/root-ca.pem') }
+ca_file_list = %w(root-ca.key root-ca.pem root-ca.readme signing-ca.key signing-ca.pem issuer.pem)
+
+ca_file_list.each do |f|
+  execute 'download CA key pairs' do
+    command "aws s3 cp --recursive #{s3_cert_url}#{f} /etc/elasticsearch"
+    not_if { ::File.exist?("/etc/elasticsearch/#{f}") }
+  end
 end
 
+# generate key pairs if they do not already exist
 execute 'generate CA, intermediate, node, admin, and user key pairs' do
   command './tools/sgtlstool.sh -c config/login.gov.yml -ca -crt'
   cwd '/usr/share/elasticsearch/plugins/search-guard-5'
   not_if { ::File.exist?('/etc/elasticsearch/root-ca.pem') }
 end
 
-# NOTE: redo using service discovery cookbook helpers
+aws_s3_options = "--sse aws:kms --recursive --exclude '*' --include 'root-ca*' --include 'signing-ca*' --include 'issuer.pem'"
 execute 'upload CA, intermediate, admin, and user key pairs to s3 bucket' do
-  command "aws s3 cp --sse aws:kms --recursive --exclude '1*' out s3://login-gov-elasticsearch-#{node.chef_environment}.#{aws_account_id}-us-west-2/certs/"
-  cwd '/usr/share/elasticsearch/plugins/search-guard-5'
-  only_if { ::File.exist?('/usr/share/elasticsearch/plugins/search-guard-5/out/root-ca.readme') }
+  command "aws s3 cp #{aws_s3_options} /usr/share/elasticsearch/plugins/search-guard-5/out #{s3_cert_url}"
+  only_if { ::File.exist?('/usr/share/elasticsearch/plugins/search-guard-5/out/root-ca.key') }
 end
 
 # Or generate a new node key pair if the root and intermediate key pairs have already been created
