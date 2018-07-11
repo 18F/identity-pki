@@ -65,14 +65,14 @@ elasticsearch_configure "elasticsearch" do
     'network.publish_host' => node.fetch('ipaddress'),
     'searchguard.ssl.transport.pemcert_filepath' => "/etc/elasticsearch/#{node.fetch('ipaddress')}.pem",
     'searchguard.ssl.transport.pemkey_filepath' => "/etc/elasticsearch/#{node.fetch('ipaddress')}.key",
-    'searchguard.ssl.transport.pemkey_password' => 'changeit',
+    'searchguard.ssl.transport.pemkey_password' => 'EipbelbyamyotsOjHod2',
     'searchguard.ssl.transport.pemtrustedcas_filepath' => "/etc/elasticsearch/root-ca.pem",
     'searchguard.ssl.transport.enforce_hostname_verification' => false,
     'searchguard.ssl.transport.resolve_hostname' => false,
     'searchguard.ssl.http.enabled' => true,
     'searchguard.ssl.http.pemcert_filepath' => "/etc/elasticsearch/#{node.fetch('ipaddress')}.pem",
     'searchguard.ssl.http.pemkey_filepath' => "/etc/elasticsearch/#{node.fetch('ipaddress')}.key",
-    'searchguard.ssl.http.pemkey_password' => 'changeit',
+    'searchguard.ssl.http.pemkey_password' => 'EipbelbyamyotsOjHod2',
     'searchguard.ssl.http.pemtrustedcas_filepath' => "/etc/elasticsearch/root-ca.pem",
     'searchguard.nodes_dn' => ["CN=#{elasticsearch_domain},OU=#{node.chef_environment},O=login.gov,L=Washington\\, DC,C=US"],
     'searchguard.authcz.admin_dn' => ["CN=admin.login.gov.internal,OU=#{node.chef_environment},O=login.gov,L=Washington\\, DC,C=US"]
@@ -124,9 +124,9 @@ require 'aws-sdk'
 aws_account_id = AwsMetadata.get_aws_account_id
 s3_cert_url = "s3://login-gov.internal-certs.#{aws_account_id}-us-west-2/#{node.chef_environment}/elasticsearch/"
 
-ca_file_list = %w(root-ca.key root-ca.pem signing-ca.key signing-ca.pem issuer.pem)
+file_list = %w(root-ca.key root-ca.pem signing-ca.key signing-ca.pem issuer.pem admin.jks)
 
-ca_file_list.each do |f|
+file_list.each do |f|
   execute "download #{f} from s3" do
     command "aws s3 cp #{s3_cert_url}#{f} /etc/elasticsearch"
     not_if { ::File.exist?("/etc/elasticsearch/#{f}") }
@@ -193,8 +193,8 @@ execute 'convert PEM formatted keypair to p12' do
     -inkey admin.key \
     -name admin \
     -out admin.p12 \
-    -passin pass:changeit \
-    -passout pass:changeit"
+    -passin pass:EipbelbyamyotsOjHod2 \
+    -passout pass:EipbelbyamyotsOjHod2"
   cwd '/etc/elasticsearch'
 end
 
@@ -202,21 +202,21 @@ execute 'create jks keystore with admin keys' do
   command "keytool \
     -importkeystore \
     -destkeystore admin.jks \
-    -deststorepass changeit \
+    -deststorepass EipbelbyamyotsOjHod2 \
     -noprompt \
     -srckeystore admin.p12 \
-    -srcstorepass changeit"
+    -srcstorepass EipbelbyamyotsOjHod2"
   cwd '/etc/elasticsearch'
 end
 
 execute 'import root-ca into jks truststore' do
   command "keytool \
     -importcert \
+    -alias root.login.gov.internal \
     -file /etc/elasticsearch/root-ca.pem \
     -keystore /etc/elasticsearch/truststore.jks \
     -noprompt \
-    -alias root.login.gov.internal
-    -storepass changeit"
+    -storepass EipbelbyamyotsOjHod2"
   cwd '/etc/elasticsearch'
   not_if { ::File.exist?('/etc/elasticsearch/truststore.jks') }
 end
@@ -226,10 +226,10 @@ execute 'run sgadmin' do
     -cd /etc/elasticsearch/sgadmin/ \
     -icl \
     -ks admin.jks \
-    -kspass changeit \
+    -kspass EipbelbyamyotsOjHod2 \
     -nhnv \
     -ts /etc/elasticsearch/truststore.jks \
-    -tspass changeit"
+    -tspass EipbelbyamyotsOjHod2"
   cwd '/etc/elasticsearch'
 end
 
