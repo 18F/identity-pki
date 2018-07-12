@@ -116,6 +116,17 @@ module "obproxy_lifecycle_hooks" {
   asg_name = "${aws_autoscaling_group.outboundproxy.name}"
 }
 
+module "outboundproxy_recycle" {
+  source = "../terraform-modules/asg_recycle/"
+
+  # switch to count when that's a thing that we can do
+  # https://github.com/hashicorp/terraform/issues/953
+  enabled = "${var.asg_auto_6h_recycle}"
+
+  asg_name = "${aws_autoscaling_group.outboundproxy.name}"
+  normal_desired_capacity = "${aws_autoscaling_group.outboundproxy.desired_capacity}"
+}
+
 resource "aws_route53_record" "obproxy" {
   depends_on = ["aws_lb.outboundproxy"]
   zone_id    = "${aws_route53_zone.internal.zone_id}"
