@@ -3,11 +3,7 @@
 # instances.  This is because the auto scaled instances are behind an ELB so
 # that they can be dynamically created and destroyed, while the non auto scaled
 # instances get explicitly added to a DNS record by terraform.
-if node.fetch("provisioner", {"auto-scaled" => false}).fetch("auto-scaled")
-  default['es']['domain'] = "elasticsearch.login.gov.internal"
-else
-  default['es']['domain'] = "es.login.gov.internal"
-end
+default['es']['domain'] = "elasticsearch.login.gov.internal"
 
 # logfiles to watch
 default['elk']['filebeat']['logfiles'] = [
