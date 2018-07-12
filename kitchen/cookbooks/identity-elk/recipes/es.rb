@@ -120,7 +120,6 @@ end
 
 # NOTE: redo using service discovery cookbook helpers
 # Download CA and intermediate key pairs from s3 bucket if they exist
-require 'aws-sdk'
 aws_account_id = AwsMetadata.get_aws_account_id
 s3_cert_url = "s3://login-gov.internal-certs.#{aws_account_id}-us-west-2/#{node.chef_environment}/elasticsearch/"
 
