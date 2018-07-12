@@ -28,11 +28,11 @@ describe port(9300) do
   it { should be_listening }
 end
 
-describe command('wget -O - --no-check-certificate https://localhost:9200/') do
+describe command('wget -O - --ca-certificate /etc/elasticsearch/root-ca.pem https://localhost:9200/') do
   its('stdout') { should match 'tagline.*You Know, for Search' }
 end
 
-describe command('wget -O - --no-check-certificate https://localhost:9200/_cluster/health?pretty=true') do
+describe command('wget -O - --ca-certificate /etc/elasticsearch/root-ca.pem https://localhost:9200/_cluster/health?pretty=true') do
   its('stdout') { should match '"cluster_name" : "elasticsearch"' }
   its('stdout') { should match '"status" : "green"' }
 end
