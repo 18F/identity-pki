@@ -33,7 +33,8 @@ describe command('wget -O - --no-check-certificate https://localhost:9200/') do
 end
 
 describe command('wget -O - --no-check-certificate https://localhost:9200/_cluster/health?pretty=true') do
-  its('stdout') { should match 'cluster_name.*elasticsearch' }
+  its('stdout') { should match '"cluster_name" : "elasticsearch"' }
+  its('stdout') { should match '"status" : "green"' }
 end
 
 control 'check-certs-trusted' do
