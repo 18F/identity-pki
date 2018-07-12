@@ -1023,6 +1023,14 @@ resource "aws_security_group" "obproxy" {
     prefix_list_ids = ["${aws_vpc_endpoint.private-s3.prefix_list_id}"]
   }
 
+  # need 8834 to comm with Nessus Server
+  egress {
+    from_port = 8834
+    to_port = 8834
+    protocol = "tcp"
+    cidr_blocks = ["${var.nessusserver_ip}"]
+  }
+
   ingress {
     from_port = 3128
     to_port = 3128
