@@ -39,7 +39,14 @@ deploy_dir = "#{base_dir}/current/public"
 #       configs as to why we added the exception.
 app_name = 'idp'
 
-server_name = node.chef_environment == 'prod' ? 'secure.login.gov' : "#{node.chef_environment}.#{domain_name}"
+# Prod uses secure.login.gov, all others use idp.*
+if node.chef_environment == 'prod'
+  server_name = 'secure.login.gov'
+  redirect_server_names = nil
+else
+  server_name = "idp.#{node.chef_environment}.#{domain_name}"
+  redirect_server_names = ["#{node.chef_environment}.#{domain_name}"]
+end
 
 include_recipe 'login_dot_gov::dhparam'
 
@@ -63,10 +70,12 @@ template '/opt/nginx/conf/sites.d/idp_web.conf' do
   variables({
     app: app_name,
     basic_auth: basic_auth_enabled,
+    idp_web: true,
     passenger_ruby: lazy { Dir.chdir(deploy_dir) { shell_out!(%w{rbenv which ruby}).stdout.chomp } },
     security_group_exceptions: JSON.parse(ConfigLoader.load_config(node, "security_group_exceptions")),
-    server_aliases: "idp.#{node.chef_environment}.#{domain_name}",
-    server_name: server_name
+    server_aliases: nil,
+    server_name: server_name,
+    redirect_server_names: redirect_server_names,
   })
 end
 

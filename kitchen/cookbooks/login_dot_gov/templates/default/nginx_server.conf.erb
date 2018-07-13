@@ -97,5 +97,17 @@ server {
     # WebFonts
     location ~* \.(?:ttf|ttc|otf|eot|woff|woff2)$ {
         expires 1M;
+        <%- if @idp_web %>
+        add_header Access-Control-Allow-Origin <%= "https://#{@server_name}" %>;
+        add_header Access-Control-Allow-Methods 'GET';
+        <%- end %>
     }
 }
+
+<%- if @redirect_server_names %>
+server {
+    listen 443 ssl;
+    server_name <%= @redirect_server_names.map {|x| '"' + x + '"'}.join(' ') %>;
+    return       301  https://<%= @server_name %>$request_uri;
+}
+<%- end %>
