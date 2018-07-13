@@ -495,8 +495,8 @@ execute 'pip install "elasticsearch>=5.0.0"' do
   not_if 'pip list | egrep "^elasticsearch .5"'
 end
 
-template "#{elastalertdir}/config.yml" do
-  source 'elastalert_config.yml.erb'
+template "#{elastalertdir}/config.yaml" do
+  source 'elastalert_config.yaml.erb'
   variables ({
     :elasticsearch_domain => elasticsearch_domain
   })
