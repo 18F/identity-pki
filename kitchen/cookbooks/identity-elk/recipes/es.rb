@@ -65,14 +65,14 @@ elasticsearch_configure "elasticsearch" do
     'network.publish_host' => node.fetch('ipaddress'),
     'searchguard.ssl.transport.pemcert_filepath' => "/etc/elasticsearch/#{node.fetch('ipaddress')}.pem",
     'searchguard.ssl.transport.pemkey_filepath' => "/etc/elasticsearch/#{node.fetch('ipaddress')}.key",
-    'searchguard.ssl.transport.pemkey_password' => 'EipbelbyamyotsOjHod2',
+    'searchguard.ssl.transport.pemkey_password' => 'not-a-secret',
     'searchguard.ssl.transport.pemtrustedcas_filepath' => "/etc/elasticsearch/root-ca.pem",
     'searchguard.ssl.transport.enforce_hostname_verification' => false,
     'searchguard.ssl.transport.resolve_hostname' => false,
     'searchguard.ssl.http.enabled' => true,
     'searchguard.ssl.http.pemcert_filepath' => "/etc/elasticsearch/#{node.fetch('ipaddress')}.pem",
     'searchguard.ssl.http.pemkey_filepath' => "/etc/elasticsearch/#{node.fetch('ipaddress')}.key",
-    'searchguard.ssl.http.pemkey_password' => 'EipbelbyamyotsOjHod2',
+    'searchguard.ssl.http.pemkey_password' => 'not-a-secret',
     'searchguard.ssl.http.pemtrustedcas_filepath' => "/etc/elasticsearch/root-ca.pem",
     'searchguard.nodes_dn' => ["CN=#{elasticsearch_domain},OU=#{node.chef_environment},O=login.gov,L=Washington\\, DC,C=US"],
     'searchguard.authcz.admin_dn' => ["CN=admin.login.gov.internal,OU=#{node.chef_environment},O=login.gov,L=Washington\\, DC,C=US"]
@@ -192,8 +192,8 @@ execute 'convert PEM formatted keypair to p12' do
     -inkey admin.key \
     -name admin \
     -out admin.p12 \
-    -passin pass:EipbelbyamyotsOjHod2 \
-    -passout pass:EipbelbyamyotsOjHod2"
+    -passin pass:not-a-secret \
+    -passout pass:not-a-secret"
   cwd '/etc/elasticsearch'
 end
 
@@ -201,10 +201,10 @@ execute 'create jks keystore with admin keys' do
   command "keytool \
     -importkeystore \
     -destkeystore admin.jks \
-    -deststorepass EipbelbyamyotsOjHod2 \
+    -deststorepass not-a-secret \
     -noprompt \
     -srckeystore admin.p12 \
-    -srcstorepass EipbelbyamyotsOjHod2"
+    -srcstorepass not-a-secret"
   cwd '/etc/elasticsearch'
 end
 
@@ -215,7 +215,7 @@ execute 'import root-ca into jks truststore' do
     -file /etc/elasticsearch/root-ca.pem \
     -keystore /etc/elasticsearch/truststore.jks \
     -noprompt \
-    -storepass EipbelbyamyotsOjHod2"
+    -storepass not-a-secret"
   cwd '/etc/elasticsearch'
   not_if { ::File.exist?('/etc/elasticsearch/truststore.jks') }
 end
@@ -225,10 +225,10 @@ execute 'run sgadmin' do
     -cd /etc/elasticsearch/sgadmin/ \
     -icl \
     -ks admin.jks \
-    -kspass EipbelbyamyotsOjHod2 \
+    -kspass not-a-secret \
     -nhnv \
     -ts /etc/elasticsearch/truststore.jks \
-    -tspass EipbelbyamyotsOjHod2"
+    -tspass not-a-secret"
   cwd '/etc/elasticsearch'
 end
 
@@ -238,7 +238,7 @@ end
 #    -cacert /etc/elasticsearch/root-ca.pem \
 #    -cert /etc/elasticsearch/admin.pem \
 #    -key /etc/elasticsearch/admin.key  \
-#    -keypass EipbelbyamyotsOjHod2 \
+#    -keypass not-a-secret \
 #    -nhnv
 #    -icl"
 

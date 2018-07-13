@@ -65,7 +65,7 @@ control 'check-cert-setup' do
   end
 
   # check and verify admin (client) keystore
-  storepass = 'EipbelbyamyotsOjHod2'
+  storepass = 'not-a-secret'
   keystore_contents = command("sudo keytool -list -keystore /etc/elasticsearch/admin.jks -storepass #{storepass}")
   describe keystore_contents do
     its('exit_status') { should eq 0 }
