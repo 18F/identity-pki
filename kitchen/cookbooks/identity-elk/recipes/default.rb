@@ -503,7 +503,7 @@ template "#{elastalertdir}/config.yml" do
   notifies :restart, 'runit_service[elastalert]'
 end
 
-%w{alb429.yml alb5xx.yml invaliduser.yml nologs.yml failedlogins.yml proxyblock.yml unknownip.yml}.each do |t|
+%w{alb429.yaml alb5xx.yaml invaliduser.yaml nologs.yaml failedlogins.yaml unknownip.yaml}.each do |t|
   template "#{elastalertdir}/rules.d/#{t}" do
     source "elastalert_#{t}.erb"
     variables ({
