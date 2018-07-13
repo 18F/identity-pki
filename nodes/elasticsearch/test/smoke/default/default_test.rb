@@ -28,15 +28,16 @@ describe port(9300) do
   it { should be_listening }
 end
 
-describe command('wget -O - --no-check-certificate https://localhost:9200/') do
+describe command('wget -O - --ca-certificate /etc/elasticsearch/root-ca.pem https://localhost:9200/') do
   its('stdout') { should match 'tagline.*You Know, for Search' }
 end
 
-describe command('wget -O - --no-check-certificate https://localhost:9200/_cluster/health?pretty=true') do
-  its('stdout') { should match 'cluster_name.*elasticsearch' }
+describe command('wget -O - --ca-certificate /etc/elasticsearch/root-ca.pem https://localhost:9200/_cluster/health?pretty=true') do
+  its('stdout') { should match '"cluster_name" : "elasticsearch"' }
+  its('stdout') { should match '"status" : "green"' }
 end
 
-control 'check-certs-trusted' do
+control 'check-cert-setup' do
 
   environment = file("/etc/login.gov/info/env")
   describe environment do
@@ -50,20 +51,34 @@ control 'check-certs-trusted' do
     its('stdout') { should match "elasticsearch-i-[0-9a-z]*.#{environment.content.chomp}.login.gov" }
   end
 
-  storepass = 'EipbelbyamyotsOjHod2'
-  keystore_contents = command("sudo keytool -list -keystore /etc/elasticsearch/keystore.jks -storepass #{storepass}")
+  # check for node tls cert
+  ip = command("hostname -I").stdout.strip
+  describe file("/etc/elasticsearch/#{ip}.pem") do
+    it { should exist }
+    it { should be_file }
+  end
+
+  # check for node http cert
+  describe file("/etc/elasticsearch/#{ip}.pem") do
+    it { should exist }
+    it { should be_file }
+  end
+
+  # check and verify admin (client) keystore
+  storepass = 'not-a-secret'
+  keystore_contents = command("sudo keytool -list -keystore /etc/elasticsearch/admin.jks -storepass #{storepass}")
   describe keystore_contents do
     its('exit_status') { should eq 0 }
     its('stdout') { should match 'Your keystore contains 1 entry' }
-    its('stdout') { should match '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*,.*PrivateKeyEntry' }
+    its('stdout') { should match 'admin,.*PrivateKeyEntry' }
   end
 
+  # check and verify truststore
   truststore_contents = command("sudo keytool -list -keystore /etc/elasticsearch/truststore.jks -storepass #{storepass}")
   describe truststore_contents do
     its('exit_status') { should eq 0 }
-    its('stdout') { should match 'Your keystore contains [3-9] entries' }
-    its('stdout') { should match 'elasticsearch.login.gov.internal,.*trustedCertEntry' }
-    its('stdout') { should match "#{hostname.stdout.chomp},.*trustedCertEntry" }
+    its('stdout') { should match 'Your keystore contains 1 entry' }
+    its('stdout') { should match 'root.login.gov.internal,.*trustedCertEntry' }
   end
 end
 

@@ -26,7 +26,9 @@ es_port: 9200
 use_ssl: True
 
 # Verify TLS certificates
-verify_certs: False
+verify_certs: True
+
+ca_certs: '/etc/elasticsearch/root-ca.pem'
 
 # GET request with body is the default option for Elasticsearch.
 # If it fails for some reason, you can pass 'GET', 'POST' or 'source'.
@@ -47,4 +49,3 @@ writeback_index: elastalert_status
 # sending the alert until this time period has elapsed
 alert_time_limit:
   days: 2
-

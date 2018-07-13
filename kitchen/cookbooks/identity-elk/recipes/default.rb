@@ -121,26 +121,14 @@ publish_cert_and_chain 'Publish the cert this ELK node to s3.' do
   suffix "legacy-elk"
 end
 
-# trust the other ES nodes
-install_certificates 'Installing ES certificates to ca-certificates' do
-  service_tag_key node['elk']['es_tag_key']
-  service_tag_value node['elk']['es_tag_value']
-  install_directory '/usr/local/share/ca-certificates'
-  suffix 'legacy-elasticsearch'
-  notifies :run, 'execute[/usr/sbin/update-ca-certificates]', :immediately
-end
+# NOTE: redo using service discovery cookbook helpers
+# Download root CA cert for elasticsearch node certs
+aws_account_id = AwsMetadata.get_aws_account_id
+s3_root_cert_url = "s3://login-gov.internal-certs.#{aws_account_id}-us-west-2/#{node.chef_environment}/elasticsearch/root-ca.pem"
 
-# TODO: Remove this once we get this passing and can confirm this doesn't
-# change anything.
-directory '/etc/elasticsearch'
-install_certificates 'Installing ES certificates to /etc/elasticsearch' do
-  service_tag_key node['elk']['es_tag_key']
-  service_tag_value node['elk']['es_tag_value']
-  install_directory '/etc/elasticsearch'
-  suffix 'legacy-elasticsearch'
-end
-execute '/usr/sbin/update-ca-certificates' do
-  action :nothing
+execute 'download root CA cert' do
+  command "aws s3 cp #{s3_root_cert_url} /etc/elasticsearch"
+  not_if { ::File.exist?('/etc/elasticsearch/root-ca.pem') }
 end
 
 # install logstash
@@ -175,7 +163,6 @@ execute 'bin/logstash-plugin update logstash-input-s3' do
   cwd '/usr/share/logstash'
 end
 
-
 # create a copy of the key/crt that filebeat can read
 execute "openssl pkcs8 -topk8 -nocrypt -in #{mykey} -out #{mypkcs8}"
 file "#{mypkcs8}" do
@@ -191,7 +178,6 @@ end
 # turn off the non-sv service
 execute 'service logstash stop || true'
 execute 'update-rc.d -f logstash remove'
-
 
 # create the common outputs and services for all logstash instances
 include_recipe 'runit'
@@ -270,7 +256,6 @@ end
 # clean up old logstash config that might be confusing
 execute 'rm -rf /etc/logstash/conf.d'
 
-
 # set up cloudtrail logstash config
 aws_account_id = Chef::Recipe::AwsMetadata.get_aws_account_id
 
@@ -306,7 +291,6 @@ template "/usr/share/logstash/.sincedb_elb" do
   group 'logstash'
   not_if { File.exists?("/usr/share/logstash/.sincedb_elb") }
 end
-
 
 template "/etc/logstash/cloudtraillogstashconf.d/60-analyticsin.conf" do
   source '60-analyticsin.conf.erb'
@@ -347,7 +331,6 @@ directory '/etc/logstash/tmp' do
   owner 'logstash'
   mode '0700'
 end
-
 
 # install kibana (grr, package doesn't work right now)
 user 'kibana' do
@@ -396,8 +379,6 @@ end
 runit_service 'kibana' do
   default_logger true
 end
-
-
 
 # set up log retention using curator
 include_recipe 'elasticsearch-curator'
@@ -562,4 +543,3 @@ cron 'rerun elk discovery every 15 minutes' do
   minute '0,15,30,45'
   command "cat #{node.fetch('elk').fetch('chef_zero_client_configuration')} >/dev/null && chef-client --local-mode -c #{node.fetch('elk').fetch('chef_zero_client_configuration')} -o 'role[elk_discovery]' 2>&1 >> /var/log/elk-discovery.log"
 end
-
