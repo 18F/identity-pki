@@ -118,7 +118,22 @@ template '/usr/share/elasticsearch/plugins/search-guard-5/config/login.gov.yml' 
   source 'search-guard-ssl-login.gov.yml.erb'
 end
 
-# NOTE: redo using service discovery cookbook helpers
+################################
+# ELK Key Sharing Disclaimer
+#
+# We understand that sharing the CA/Signing keys in such a manner has inherent vulnererabilities and
+# is in effect pseudo TLS. That said, this is not significantly different from the previous scheme,
+# it is contained within a VPC, and it is only used for intra elasticsearch/logstash communications.
+# By design our logs do not contain sensitive data.
+#
+# We will revisit this area once we look further into AWS Certificate Manager, AWS Secrets Manager,
+# Vault/Console, and other options
+#
+# For further context see discussion here:
+# https://github.com/18F/identity-devops/pull/990#issuecomment-404663498
+################################
+
+# NOTE: refactor using service discovery cookbook helpers
 # Download CA and intermediate key pairs from s3 bucket if they exist
 aws_account_id = AwsMetadata.get_aws_account_id
 s3_cert_url = "s3://login-gov.internal-certs.#{aws_account_id}-us-west-2/#{node.chef_environment}/elasticsearch/"
