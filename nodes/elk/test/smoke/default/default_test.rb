@@ -20,6 +20,12 @@ describe service('apache2') do
   it { should be_running }
 end
 
+describe runit_service('elastalert') do
+  it { should be_installed }
+  it { should be_enabled }
+  it { should be_running }
+end
+
 describe runit_service('kibana') do
   it { should be_installed }
   it { should be_enabled }
@@ -49,6 +55,7 @@ discovery_cron_cmd = "cat /etc/login.gov/repos/identity-devops/kitchen/chef-clie
 describe crontab('root') do
   its('commands') { should include discovery_cron_cmd }
 end
+
 describe crontab('root').commands(discovery_cron_cmd) do
   its('minutes') { should cmp '0,15,30,45' }
 end
