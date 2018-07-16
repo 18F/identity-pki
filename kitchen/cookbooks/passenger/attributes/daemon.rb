@@ -6,6 +6,8 @@ openssl_srcpath = "#{cache_dir}/openssl-#{openssl_version}"
 default[:passenger][:production][:configure_flags] = "--with-ipv6 --with-http_stub_status_module --with-http_ssl_module --with-http_realip_module --with-openssl=#{openssl_srcpath}"
 default[:passenger][:production][:log_path] = '/var/log/nginx'
 
+default[:passenger][:production][:native_support_dir] = node.fetch(:passenger).fetch(:production).fetch(:path) + '/passenger-native-support'
+
 # Tune these for your environment, see:
 # http://www.modrails.com/documentation/Users%20guide%20Nginx.html#_resource_control_and_optimization_options
 default[:passenger][:production][:max_pool_size] = node.fetch('cpu').fetch('total') * 2

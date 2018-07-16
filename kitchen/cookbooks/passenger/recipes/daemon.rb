@@ -55,6 +55,26 @@ directory "#{nginx_path}/conf/sites.d" do
   notifies :restart, 'service[passenger]'
 end
 
+native_support_dir = node.fetch(:passenger).fetch(:production).fetch(:native_support_dir)
+
+# directory for compiling native ruby version modules
+directory native_support_dir do
+  mode '0755'
+end
+
+cookbook_file "#{nginx_path}/compile-passenger-module" do
+  mode '0755'
+  source 'compile-passenger-module'
+  sensitive true # not actually sensitive, but verbose
+end
+
+execute 'compile passenger modules for all available ruby versions' do
+  command %W[#{nginx_path}/compile-passenger-module ALL]
+  environment(
+    'PASSENGER_NATIVE_SUPPORT_OUTPUT_DIR' => native_support_dir,
+  )
+end
+
 cookbook_file "#{nginx_path}/conf/status-map.conf" do
   source "status-map.conf"
   mode "0644"
@@ -98,6 +118,7 @@ file "/etc/default/passenger" do
 export http_proxy='#{node.fetch('login_dot_gov').fetch('http_proxy')}'
 export https_proxy='#{node.fetch('login_dot_gov').fetch('https_proxy')}'
 export no_proxy='#{node.fetch('login_dot_gov').fetch('no_proxy')}'
+export PASSENGER_NATIVE_SUPPORT_OUTPUT_DIR='#{native_support_dir}'
   EOM
 end
 

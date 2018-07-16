@@ -1,0 +1,103 @@
+#!/bin/bash
+set -euo pipefail
+
+usage() {
+    cat >&2 <<EOM
+usage: $0 RUBY_VERSION [PASSENGER_RUBY_VERSION]
+
+Compile the passenger native support module for RUBY_VERSION.
+
+If the RUBY_VERSION is given as "ALL", then compile the native module for each
+available rbenv ruby version.
+
+This is a weird workaround for cases where we run passenger from one ruby
+version but want to start applications that run a different ruby version.
+
+Passenger has a native support module that it will attempt to compile when the
+ruby version for an application differs from the passenger-wide ruby version.
+It attempts to compile this at runtime, which doesn't succeed because we don't
+want the runtime passenger user to be able to write any files as a security
+precaution against lateral movement in the case of remote code execution
+vulnerabilities.
+
+The PASSENGER_NATIVE_SUPPORT_OUTPUT_DIR environment variable must be used to
+tell passenger where to put or load these compiled ruby modules. Set this to
+configure the output directory used by this script.
+
+This script wraps \`passenger-config build-native-support\`.
+
+If PASSENGER_RUBY_VERSION is provided, it will be used as the ruby version
+the passenger-config script is installed. If not, \`rbenv global\` will be used
+by default.
+EOM
+}
+
+run() {
+    echo >&2 "+ $*"
+    "$@"
+}
+
+if [ $# -lt 1 ] || [ $# -gt 2 ]; then
+    usage
+    exit 1
+fi
+
+target_ruby="$1"
+
+if [ -n "${2-}" ]; then
+    global_ruby="$2"
+else
+    global_ruby="$(run rbenv global)"
+fi
+
+if [ -z "${PASSENGER_NATIVE_SUPPORT_OUTPUT_DIR-}" ]; then
+    echo "Error: please set PASSENGER_NATIVE_SUPPORT_OUTPUT_DIR to configure"
+    echo "the output directory for compilation"
+    exit 2
+fi
+
+# compile for all rbenv ruby versions
+if [ "$target_ruby" = "ALL" ]; then
+    echo "Compiling passenger module for ALL ruby versions"
+
+    for dir in "$(run rbenv root)"/versions/*; do
+        # skip aliases
+        if [ -L "$dir" ]; then
+            continue
+        fi
+        target="$(basename "$dir")"
+        run "$0" "$target" "$global_ruby"
+    done
+
+    echo "Generated files:"
+    if command -v tree >/dev/null; then
+        run tree -ugphD "$PASSENGER_NATIVE_SUPPORT_OUTPUT_DIR"
+    else
+        run ls -lR "$PASSENGER_NATIVE_SUPPORT_OUTPUT_DIR"
+    fi
+
+    exit
+fi
+
+echo "Compiling passenger native module for ruby '$target_ruby'"
+
+echo "PASSENGER_NATIVE_SUPPORT_OUTPUT_DIR: '$PASSENGER_NATIVE_SUPPORT_OUTPUT_DIR'"
+
+# Don't try to download the library from S3
+export PASSENGER_DOWNLOAD_NATIVE_SUPPORT_BINARY=0
+
+echo "Using ruby '$global_ruby' to find passenger-config"
+
+passenger_config_path="$(
+    run env RBENV_VERSION="$global_ruby" gem contents passenger \
+        | grep '/bin/passenger-config$'
+)" || {
+    echo "Failed to find passenger-config in passenger gem"
+    exit 3
+}
+
+echo "Found passenger-config at $passenger_config_path"
+
+run env RBENV_VERSION="$target_ruby" "$passenger_config_path" build-native-support
+
+echo "Finished for $target_ruby"
