@@ -189,3 +189,13 @@ resource "aws_autoscaling_group" "outboundproxy" {
     propagate_at_launch = false
   }
 }
+
+# This module creates cloudwatch logs filters that create metrics for squid
+# total requests and denied requests. It also creates an alarm on denied
+# requests that notifies to the specified alarm SNS ARN.
+module "outboundproxy_cloudwatch_filters" {
+  source = "github.com/18F/identity-terraform//squid_cloudwatch_filters?ref=6ecdb5de66323448ce45fcbd3f2f50ff33966b9a"
+
+  env_name = "${var.env_name}"
+  alarm_actions = ["${var.slack_events_sns_hook_arn}"] # notify slack on denied requests
+}
