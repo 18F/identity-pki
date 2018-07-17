@@ -9,7 +9,7 @@ timeframe:
 filter:
 - query:
     query_string:
-      query: '"ossec: Alert Level: 5; Rule: 5718"'
+      query: '"ossec: Alert Level: 5; Rule: 5718" AND source:"/var/log/syslog"'
 alert:
 <% if ! @emails.empty? %>
 - "email"
@@ -28,4 +28,3 @@ slack_webhook_url: <%= @webhook %>
 slack_username_override: <%= "#{@env} alerts" %>
 slack_channel_override: <%= @slackchannel %>
 <% end %>
-
