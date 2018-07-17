@@ -320,3 +320,7 @@ variable "db_restore_role_arns" {
     description = "Name of role used to restore db data to another env (e.g. arn:aws:iam::555546682965:role/dm_idp_iam_role)"
 }
 
+variable "slack_events_sns_hook_arn" {
+    description = "ARN of SNS topic that will notify the #identity-events/#identity-otherevents channels in Slack"
+}
+
