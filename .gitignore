@@ -14,8 +14,7 @@ certs/*
 terraform.tfstate.backup
 .vagrant
 Vagrantfile
-/terraform-*/.terraform/terraform.tfstate
-/terraform-*/.terraform/modules/
-/terraform-*/.terraform/plugins/
+/terraform-*/.terraform
+/terraform-*/.deploy/
 /nodes/*/Gemfile.lock
 /nodes/*/Berksfile.lock
