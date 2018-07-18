@@ -16,13 +16,14 @@ The <terraform_dir> should contain terraform files, (e.g. main.tf).
 WARNING: this script will \`rm -rf' any .terraform directory present under the
 terraform_dir, so be careful about where you run this from!
 
-TODO: create separate directories for each environment so we don't have to
-delete the .terraform directory and run terraform init with each run.
+It sets up a tree of .terraform directories under \`.deploy/' scoped by the S3
+state bucket, region, and ke path. The directory for the specified environment
+will be symlinked as .terraform when this script is run.
 EOM
 exit 1
 fi
 
-log --blue "Setting up TF state and deleting .terraform"
+log --blue "Setting up TF state and symlinking .terraform"
 
 BUCKET=$1
 STATE=$2
@@ -87,9 +88,29 @@ then
     echo "Finished creating dynamodb table $LOCK_TABLE"
 fi
 
-echo "Deleting ${TF_DIR}/.terraform"
 cd "${TF_DIR}"
-run rm -rfv .terraform
+
+local_state_path=".deploy/$BUCKET/$REGION/$STATE/.terraform"
+
+if [ ! -d "$local_state_path" ]; then
+    echo "Creating new local state directory"
+fi
+
+mkdir -vp "$local_state_path"
+
+if [ -L .terraform ]; then
+    run rm -v .terraform
+elif [ -d .terraform ]; then
+    echo_yellow "warning: Deleting .terraform directory"
+    # TODO: Once we've been using the new directory structure for a while,
+    # change this into an interactive confirmation or even a fatal error. We
+    # should no longer need to ever delete the .terraform directory.
+    run rm -rfv .terraform
+fi
+
+echo "Linking .terraform to local state directory"
+
+run ln -sv "$local_state_path" .terraform
 
 log --blue "Calling terraform init"
 
