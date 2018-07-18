@@ -46,10 +46,9 @@ default['java']['jdk_version'] = '8'
 # remote files
 default['elk']['kibanatarball'] = 'https://artifacts.elastic.co/downloads/kibana/kibana-5.6.9-linux-x86_64.tar.gz'
 default['elk']['logstashdeb'] = 'https://artifacts.elastic.co/downloads/logstash/logstash-5.6.9.deb'
-default['elk']['logstash-input-cloudwatch-logs-version'] = '1.0.1'
+default['elk']['logstash-input-cloudwatch-logs-version'] = '1.0.3'
 default['elk']['logstash-codec-cloudtrail-version'] = '3.0.4'
-default['elk']['kibanalogtrailplugin'] = 'https://github.com/sivasamyk/logtrail/releases/download/0.1.7/logtrail-5.x-0.1.7.zip'
-
+default['elk']['kibanalogtrailplugin'] = 'https://github.com/18F/identity-cookbooks/raw/jjg/logtrail-5.6.9/logtrail/logtrail-5.6.9-0.1.23.zip'
 
 # users to allow into elk
 default['elk']['users'] = [ ]
@@ -103,4 +102,3 @@ default['elk']['elb_logging_bucket'] = "login-gov.elb-logs.#{Chef::Recipe::AwsMe
 
 # use this to turn off analytics logging support
 default['elk']['analytics_logs'] = true
-
