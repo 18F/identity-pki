@@ -160,7 +160,7 @@ execute "cat root-ca.pem signing-ca.pem > issuer.pem" do
   cwd '/etc/elasticsearch'
 end
 
-aws_s3_options = "--sse aws:kms --recursive --exclude '*' --include 'root-ca*' --include 'signing-ca*' --include 'issuer.pem'"
+aws_s3_options = "--sse aws:kms --recursive --exclude '*' --include 'admin.*' --include 'issuer.pem' --include 'root-ca*' --include 'signing-ca*'"
 execute 'upload CA, intermediate, admin, and user key pairs to s3 bucket' do
   command "aws s3 cp #{aws_s3_options} /etc/elasticsearch #{s3_cert_url}"
   only_if { ::File.exist?('/etc/elasticsearch/client-certificates.readme') }
