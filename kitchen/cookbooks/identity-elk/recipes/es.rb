@@ -89,8 +89,8 @@ directory '/etc/elasticsearch/sgadmin' do
   owner 'elasticsearch'
 end
 
-elasticsearch_plugin 'com.floragunn:search-guard-5:5.6.9-19' do
-  plugin_name 'com.floragunn:search-guard-5:5.6.9-19'
+elasticsearch_plugin 'com.floragunn:search-guard-5:5.6.9-19.1' do
+  plugin_name 'com.floragunn:search-guard-5:5.6.9-19.1'
   not_if "/usr/share/elasticsearch/bin/elasticsearch-plugin list | grep search-guard-5"
   notifies :restart, 'elasticsearch_service[elasticsearch]', :delayed
 end
