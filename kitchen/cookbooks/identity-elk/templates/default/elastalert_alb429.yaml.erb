@@ -2,6 +2,7 @@ name: Unusual amount of ALB 429 errors
 type: frequency
 index: logstash-*
 alert_text: More than average amount of 429 response codes in 5 minutes on the idp ALB in <%= @env %>.
+alert_text_type: exclude_fields
 owner: <%= @env %>
 num_events: 10
 timeframe:
