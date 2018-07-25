@@ -1,3 +1,7 @@
+unless node.fetch('login_dot_gov').fetch('cloudhsm_enabled')
+  raise "Somehow cloudhsm recipe was included even though cloudhsm_enabled = false"
+end
+
 installers_dir = '/opt/aws/installers'
 
 directory '/opt/aws'
