@@ -228,7 +228,7 @@ time_zone = UTC
 
 [idp_production] 
 datetime_format = %Y-%m-%dT%H:%M:%S.%fZ
-file = /srv/dashboard/shared/log/production.log
+file = /srv/idp/shared/log/production.log
 buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
@@ -241,7 +241,7 @@ file = /srv/dashboard/shared/log/events.log
 buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
-log_group_name = <%= @environmentName %>_/srv/idp/shared/log/events.log
+log_group_name = <%= @environmentName %>_/srv/dashboard/shared/log/events.log
 time_zone = UTC
 
 [dashboard_newrelic_agent] 
@@ -250,7 +250,7 @@ file = /srv/dashboard/shared/log/newrelic_agent.log
 buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
-log_group_name = <%= @environmentName %>_/srv/idp/shared/log/newrelic_agent.log
+log_group_name = <%= @environmentName %>_/srv/dashboard/shared/log/newrelic_agent.log
 time_zone = UTC
 
 [dashboard_production] 
@@ -259,7 +259,7 @@ file = /srv/dashboard/shared/log/production.log
 buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
-log_group_name = <%= @environmentName %>_/srv/idp/shared/log/production.log
+log_group_name = <%= @environmentName %>_/srv/dashboard/shared/log/production.log
 time_zone = UTC
 
 [sp-oidc-sinatra_events] 
@@ -286,7 +286,7 @@ file = /srv/sp-rails/shared/log/events.log
 buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
-log_group_name = <%= @environmentName %>_/srv/sp-oidc-sinatra/shared/log/events.log
+log_group_name = <%= @environmentName %>_/srv/sp-rails/shared/log/events.log
 time_zone = UTC
 
 [sp-rails_production] 
@@ -309,7 +309,7 @@ time_zone = UTC
 
 [sp-sinatra_production] 
 datetime_format = %Y-%m-%dT%H:%M:%S.%fZ
-file = /srv/sp-rails/shared/log/production.log
+file = /srv/sp-sinatra/shared/log/production.log
 buffer_duration = 5000
 log_stream_name = {hostname}
 initial_position = start_of_file
