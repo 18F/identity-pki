@@ -1,0 +1,128 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'csv'
+require 'optparse'
+
+# ALB log format:
+# https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-access-logs.html
+ALB_FIELDS = %w[
+  type
+  timestamp
+  elb
+  client:port
+  target:port
+  request_processing_time
+  target_processing_time
+  response_processing_time
+  elb_status_code
+  target_status_code
+  received_bytes
+  sent_bytes
+  request
+  user_agent
+  ssl_cipher
+  ssl_protocol
+  target_group_arn
+  trace_id
+  domain_name
+  chosen_cert_arn
+  matched_rule_priority
+].freeze
+
+ALB_INDEX_MAP = {}
+ALB_FIELDS.each_with_index do |field, index|
+  ALB_INDEX_MAP[field] = index
+end
+ALB_INDEX_MAP.freeze
+
+RE_ALL_5XX = /\A5/
+RE_500 = /\A500/
+NULL_FIELD = '-'
+
+def user_agent_breakdown(filename)
+  STDERR.puts('Processing ' + filename.inspect)
+
+  counts = {}
+
+  total_count = 0
+
+  # Treat file as a CSV but with " " instead of ","
+  # This allows us to handle the double quoted fields correctly.
+  CSV.open(filename, 'r', col_sep: ' ').each do |row|
+    total_count += 1
+
+    user_agent = row.fetch(ALB_INDEX_MAP.fetch('user_agent'))
+
+    counts[user_agent] ||= 0
+    counts[user_agent] += 1
+  end
+
+  [counts, total_count]
+end
+
+def process_files(filenames)
+  sum_total_count = 0
+  sum_counts = {}
+  filenames.each do |file|
+    counts, total_count = user_agent_breakdown(file)
+
+    sum_total_count += total_count
+    counts.each do |key, val|
+      sum_counts[key] ||= 0
+      sum_counts[key] += val
+    end
+  end
+
+  STDERR.puts("Analysis of #{sum_total_count} requests")
+  sum_counts.sort_by {|_ua, count| -count }.each do |user_agent, count|
+    puts "#{count}\t#{user_agent}"
+  end
+end
+
+def main(args)
+  options = {}
+
+  basename = File.basename($0)
+
+  optparse = OptionParser.new do |opts|
+    opts.banner = <<-EOM
+usage: #{basename} [OPTIONS] LOG_FILE...
+
+Analyze the user agents found in each access LOG_FILE.
+
+Stream each error log line found to stdout.
+
+https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-access-logs.html
+Parsed log file fields:
+  #{ALB_FIELDS.join(' ')}
+
+This script only handles uncompressed log files, so you will probably need to
+run gunzip *.log.gz first.
+
+For example:
+
+  #{basename} *.log
+
+Options:
+EOM
+
+    opts.on('-h', '--help', 'Display this message') do
+      STDERR.puts opts
+      exit
+    end
+  end
+
+  args = optparse.parse!
+
+  if args.empty?
+    STDERR.puts optparse
+    exit 1
+  end
+
+  process_files(args)
+end
+
+if $0 == __FILE__
+  main(ARGV)
+end
