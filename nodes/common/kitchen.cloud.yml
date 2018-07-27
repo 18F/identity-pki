@@ -88,6 +88,18 @@ if role == "elk"
   elk_tag_value = "test-kitchen-elk"
 end
 
+# Enable the proxy unless env var is set to disable
+if ENV['KITCHEN_DISABLE_PROXY']
+  proxy_server = nil
+  proxy_port = nil
+  no_proxy_hosts = nil
+else
+  # duplicates the values in terraform-app/variables.tf
+  proxy_server = 'obproxy.login.gov.internal'
+  proxy_port = '3128'
+  no_proxy_hosts = 'localhost,127.0.0.1,169.254.169.254,169.254.169.123,.login.gov.internal,s3-us-west-2.amazonaws.com,s3.us-west-2.amazonaws.com,s3.dualstack.us-west-2.amazonaws.com,ec2.us-west-2.amazonaws.com,kms.us-west-2.amazonaws.com,secretsmanager.us-west-2.amazonaws.com,ssm.us-west-2.amazonaws.com'
+end
+
 cloud_init_info = [
   # TODO: Figure out why this is still necessary here but works in production.
   {
@@ -119,9 +131,9 @@ cloud_init_info = [
       "domain" => "login.gov",
       "env" => "#{environment}",
       "role" => role,
-      "proxy_server" => nil,
-      "proxy_port" => nil,
-      "no_proxy_hosts" => nil,
+      "proxy_server" => proxy_server,
+      "proxy_port" => proxy_port,
+      "no_proxy_hosts" => no_proxy_hosts,
     }
   },
   # run identity-devops-private provisioning using provision.sh
