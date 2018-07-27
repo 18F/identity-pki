@@ -1,5 +1,12 @@
 include_recipe 'login_dot_gov::nodejs'
 
+if node.fetch('login_dot_gov').fetch('cloudhsm_enabled')
+  Chef::Log.info('CloudHSM is enabled')
+  include_recipe 'login_dot_gov::cloudhsm'
+else
+  Chef::Log.info('CloudHSM is not enabled')
+end
+
 # setup postgres root config resource
 psql_config 'configure postgres CA bundle root cert'
 
