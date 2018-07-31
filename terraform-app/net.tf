@@ -480,6 +480,8 @@ resource "aws_security_group" "idp" {
   }
 
   # AAMVA DLDV API, used by servers
+  # Unclear if these are actually needed post obproxy rollout since these
+  # should all be HTTP requests going through the proxy.
   egress {
     from_port = 18449
     to_port = 18449
