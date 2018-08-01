@@ -480,6 +480,8 @@ resource "aws_security_group" "idp" {
   }
 
   # AAMVA DLDV API, used by servers
+  # This can probably go away once the obproxy is enabled and these go through
+  # the proxy instead.
   egress {
     from_port = 18449
     to_port = 18449
@@ -1029,6 +1031,17 @@ resource "aws_security_group" "obproxy" {
     to_port = 8834
     protocol = "tcp"
     cidr_blocks = ["${var.nessusserver_ip}"]
+  }
+
+  # Allow egress to AAMVA
+  egress {
+    from_port = 18449
+    to_port = 18449
+    protocol = "tcp"
+    cidr_blocks = [
+      "66.227.17.192/26",
+      "66.16.0.0/16" # This IP range includes AAMVA's failover, but is not exclusively controlled by AAMVA
+    ]
   }
 
   ingress {
