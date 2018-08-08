@@ -20,4 +20,3 @@ depends          'keytool'
 depends          'config_loader'
 depends          'aws_metadata'
 depends          'service_discovery'
-

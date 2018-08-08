@@ -1,11 +1,5 @@
 # This cookbook installs filebeat to send stuff to logstash
 
-# finds and sets active logstash endpoint for the environment
-# TODO remove this code and statically set logstash host to logstash.login.gov.inernal:5044 once the
-# production upgrade is complete.
-node.default['filebeat']['config']['output']['logstash']['hosts'] = find_active_logstash
-node.default['filebeat']['config']['output']['logstash']['ssl']['certificate_authorities'] = ["/etc/ssl/certs/ca-certificates.crt"]
-
 # If we were running with a chef server, we could use the chef server's node
 # search functionality to find other services.
 #
@@ -20,32 +14,58 @@ install_certificates 'Installing ELK certificates to ca-certificates' do
   install_directory '/usr/local/share/ca-certificates'
   suffix 'legacy-elk'
   notifies :run, 'execute[/usr/sbin/update-ca-certificates]', :immediately
-  notifies :restart, 'service[filebeat]'
+  notifies :create, 'filebeat_service[default]'
 end
 
 execute '/usr/sbin/update-ca-certificates' do
   action :nothing
 end
 
-include_recipe 'filebeat'
+filebeat_install 'default' do
+  version '5.6.10'
+end
+
+filebeat_conf = {
+  'output.logstash.hosts' => ['logstash.login.gov.internal:5044'],
+  'output.logstash.ssl.certificate_authorities' => ["/etc/ssl/certs/ca-certificates.crt"]
+}
+
+filebeat_config 'default' do
+  config filebeat_conf
+end
 
 node['elk']['filebeat']['logfiles'].each do |logitem|
   logfile = logitem.fetch('log')
-  filebeat_prospector logfile.gsub(/[\/\*]/,'_') do
-    paths [logfile]
-    document_type "#{logitem.fetch('type')}"
-    ignore_older '24h'
-    scan_frequency '15s'
-    harvester_buffer_size 16384
-    fields 'type' => logfile
-    if logitem['format'] == 'json'
-      json_keys_under_root true
-      json_add_error_key true
-      json_message_key 'id'
-    end
+
+  conf = {
+    'document_type' => "#{logitem.fetch('type')}",
+    'enabled' => true,
     # XXX make sure to nuke this once the auditctl stuff is in the base image
-    exclude_lines [ 'name=./var/lib/filebeat', 'exe=./usr/share/filebeat/bin/filebeat' ]
+    'exclude_lines' => [ 'name=./var/lib/filebeat', 'exe=./usr/share/filebeat/bin/filebeat' ],
+    'fields' => {'type' => logfile},
+    'harvester_buffer_size' => 16384,
+    'ignore_older' => '24h',
+    'paths' => [logfile],
+    'scan_frequency' => '15s',
+    'type' => 'log'
+  }
+
+  if logitem['format'] == 'json'
+    json_config = {
+      'json_keys_under_root' => true,
+      'json_add_error_key' => true,
+      'json_message_key' => 'id'
+    }
+    conf = conf.merge(json_config)
   end
+
+  filebeat_prospector logfile.gsub(/[\/\*]/,'_') do
+    config conf
+  end
+end
+
+filebeat_service 'default' do
+  subscribes :create, 'install_certificates[Installing ELK certificates to ca-certificates]'
 end
 
 cron 'rerun elk filebeat discovery every 15 minutes' do
