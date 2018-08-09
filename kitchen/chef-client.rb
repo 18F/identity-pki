@@ -33,3 +33,8 @@ json_attribs InfoDir + '/chef-attributes.json'
 
 # Uncomment when preparing to upgrade chef versions
 #treat_deprecation_warnings_as_errors true
+
+# This only affects "elasticsearch-plugin install" but it could affect more
+# cookbooks in the future.
+http_proxy 'http://obproxy.login.gov.internal:3128'
+https_proxy 'http://obproxy.login.gov.internal:3128'
