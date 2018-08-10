@@ -36,5 +36,7 @@ json_attribs InfoDir + '/chef-attributes.json'
 
 # This only affects "elasticsearch-plugin install" but it could affect more
 # cookbooks in the future.
-http_proxy 'http://obproxy.login.gov.internal:3128'
-https_proxy 'http://obproxy.login.gov.internal:3128'
+if ENV.has_key?('http_proxy')
+  http_proxy 'http://obproxy.login.gov.internal:3128'
+  https_proxy 'http://obproxy.login.gov.internal:3128'
+end
