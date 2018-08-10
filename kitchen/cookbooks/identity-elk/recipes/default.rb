@@ -371,7 +371,7 @@ execute "wget #{node['elk']['kibanalogtrailplugin']}" do
   creates "/tmp/#{node['elk']['kibanalogtrailplugin']}"
 end
 
-execute "bin/kibana-plugin install /tmp/#{node['elk']['kibanalogtrailplugin']}" do
+execute "bin/kibana-plugin install file:///tmp/#{node['elk']['kibanalogtrailplugin'].split('/').last}" do
   cwd '/usr/share/kibana'
   creates '/usr/share/kibana/plugins/logtrail/index.js'
 end
