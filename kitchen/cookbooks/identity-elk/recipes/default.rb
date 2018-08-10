@@ -366,7 +366,12 @@ template '/usr/share/kibana/config/kibana.yml' do
   notifies :restart, 'runit_service[kibana]'
 end
 
-execute "bin/kibana-plugin install #{node['elk']['kibanalogtrailplugin']}" do
+execute "wget #{node['elk']['kibanalogtrailplugin']}" do
+  cwd '/tmp'
+  creates "/tmp/#{node['elk']['kibanalogtrailplugin']}"
+end
+
+execute "bin/kibana-plugin install /tmp/#{node['elk']['kibanalogtrailplugin']}" do
   cwd '/usr/share/kibana'
   creates '/usr/share/kibana/plugins/logtrail/index.js'
 end
