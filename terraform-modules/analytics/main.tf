@@ -639,7 +639,7 @@ resource "aws_lambda_function" "analytics_lambda_hot" {
   handler          = "function_2.lambda_handler"
   runtime          = "python3.6"
   timeout          = 300
-  memory_size      = 1536
+  memory_size      = 3008
 
 vpc_config {
   subnet_ids = ["${aws_subnet.lambda_subnet.id}"]
