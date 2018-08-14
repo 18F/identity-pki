@@ -6,5 +6,7 @@ output {
      server_side_encryption => true
      tags => <%= @tags %>
      prefix => "elk/%{+YYYY}-%{+MM}-%{+dd}/"
+     proxy_uri => "http://obproxy.login.gov.internal:3128"
+     validate_credentials_on_root_bucket => false
    }
 }
