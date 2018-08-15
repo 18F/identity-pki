@@ -50,7 +50,9 @@ writeback_index: elastalert_status
 alert_time_limit:
   days: 2
 
+<% if node.fetch('login_dot_gov').fetch('https_proxy') -%>
 # https://github.com/Yelp/elastalert/blob/master/docs/source/ruletypes.rst#slack
 # By default ElastAlert will not use a network proxy to send notifications to Slack. Set this option
 # using hostname:port if you need to use a proxy.
 slack_proxy: 'http://obproxy.login.gov.internal:3128'
+<% end -%>
