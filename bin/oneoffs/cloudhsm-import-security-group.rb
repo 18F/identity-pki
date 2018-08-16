@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require_relative '../cloudlib/lib/cloudlib'
+require_relative '../../cloudlib/lib/cloudlib'
 require 'aws-sdk-cloudhsmv2'
 
 # Class for finding and importing CloudHSM security groups into terraform.
@@ -131,7 +131,7 @@ class HSMSecurityGroupImporter
 
   def self.usage
     STDERR.puts <<-EOM
-usage: #{File.basename($0)} --delete ENV_NAME
+usage: #{File.basename($0)} [OPTIONS] ENV_NAME
 
 Find a CloudHSM cluster in ENV_NAME and import it into the terraform state
 as #{TerraformSecurityGroupAddress}.

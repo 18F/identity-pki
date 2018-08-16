@@ -632,7 +632,11 @@ resource "aws_security_group" "idp" {
 # to import the security group under this ID in order to have terraform manage
 # it. (Yes, this is all a huge pain.)
 #
-# terraform import aws_security_group.cloudhsm sg-12345678
+# Wrapper script:
+#   bin/oneoffs/cloudhsm-import-security-group.rb ENV
+#
+# Direct import (what ^ does under the hood):
+#   terraform import aws_security_group.cloudhsm sg-12345678
 #
 resource "aws_security_group" "cloudhsm" {
   name = "${var.env_name}-cloudhsm-tf-placeholder"
