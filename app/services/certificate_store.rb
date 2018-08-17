@@ -25,12 +25,11 @@ class CertificateStore
   end
 
   def_delegators :@certificates, :[], :count, :empty?, :map
+  def_delegators :certificates, :each, :select
   def_delegators CertificateStore, :trusted_ca_root_identifiers, :clear_trusted_ca_root_identifiers
 
   def add_pem_file(filename)
-    raw = IO.binread(filename)
-    certs = extract_certs(raw)
-    certs.each(&method(:add_certificate))
+    extract_certs(IO.binread(filename)).each(&method(:add_certificate))
   end
 
   def add_link(from, to)
@@ -39,16 +38,20 @@ class CertificateStore
     @graph.add_edge(from, to) if from && to
   end
 
-  def each(&block)
-    @certificates.values.each(&block)
+  # :reek:FeatureEnvy
+  def store
+    OpenSSL::X509::Store.new.tap do |obj|
+      obj.purpose = OpenSSL::X509::PURPOSE_ANY
+      each { |cert| obj.add_cert(cert.x509_cert) }
+    end
   end
 
-  def select(&block)
-    @certificates.values.select(&block)
+  def certificates
+    @certificates.values
   end
 
   def add_certificate(cert)
-    key_id = cert.key_id
+    key_id = cert&.key_id
     return unless key_id
 
     CertificateAuthority.find_or_create_for_certificate(cert)
@@ -86,20 +89,21 @@ class CertificateStore
     @certificates.values.all?(&:valid?)
   end
 
-  class << self
-    def trusted_ca_root_identifiers
-      @trusted_ca_root_identifiers ||= begin
-        raw = Figaro.env.trusted_ca_root_identifiers || ''
-        raw.split(',').map(&:strip) - ['']
-      end
-    end
+  def self.trusted_ca_root_identifiers
+    @trusted_ca_root_identifiers ||=
+      (Figaro.env.trusted_ca_root_identifiers || '').split(',').map(&:strip) - ['']
+  end
 
-    def clear_trusted_ca_root_identifiers
-      @trusted_ca_root_identifiers = nil
-    end
+  def self.clear_trusted_ca_root_identifiers
+    @store = @trusted_ca_root_identifiers = nil
   end
 
   private
+
+  def add_certificate_to_graph(key_id, cert)
+    @certificates[key_id] = cert
+    add_link(key_id, cert.signing_key_id)
+  end
 
   # :reek:DuplicateMethodCall
   def trusted_certificate_ids
@@ -121,16 +125,11 @@ class CertificateStore
   end
 
   def extract_certs(raw)
-    raw.
-      split(END_CERTIFICATE).
-      map(&method(:cert_from_pem)).
-      compact.
-      select(&:ca_capable?)
+    raw.split(END_CERTIFICATE).map(&method(:cert_from_pem)).compact.select(&:ca_capable?)
   end
 
   # :reek:UtilityFunction
   def cert_from_pem(pem)
-    return if pem =~ /\A\s*\Z/
-    Certificate.new(OpenSSL::X509::Certificate.new(pem + END_CERTIFICATE))
+    Certificate.new(OpenSSL::X509::Certificate.new(pem + END_CERTIFICATE)) if pem.strip.present?
   end
 end

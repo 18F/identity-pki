@@ -39,6 +39,75 @@ module X509Helpers
     crl
   end
 
+  OCSP_STATUS = begin
+    hash = Hash.new(OpenSSL::OCSP::V_CERTSTATUS_GOOD)
+    hash[:revoked] = OpenSSL::OCSP::V_CERTSTATUS_REVOKED
+    hash
+  end
+
+  # :reek:ControlParameter
+  def create_ocsp_response(request_der, cert_collection, status_enum = :valid)
+    request = OpenSSL::OCSP::Request.new(request_der)
+    status = OCSP_STATUS[status_enum]
+
+    request.certid.map do |certificate_id|
+      cert_info = cert_for_id(certificate_id, cert_collection)
+      next unless cert_info
+      basic_response = OpenSSL::OCSP::BasicResponse.new
+      basic_response.copy_nonce(request)
+      basic_response.add_status(certificate_id, status, 0,
+                                1.day.ago, Time.zone.now, Time.zone.now + 1.day, nil)
+      issuer_id = cert_info[:signing_cert_id]
+      issuer_info = cert_for_id(issuer_id, cert_collection)
+      issuer = issuer_info[:certificate]
+      signing_key = issuer_info[:key]
+      basic_response.sign(issuer.x509_cert, signing_key, [])
+      OpenSSL::OCSP::Response.create(status, basic_response).to_der
+    end.join('')
+  end
+
+  # :reek:ControlParameter
+  # :reek:LongParameterList
+  def create_bad_ocsp_response(request_der, cert_collection, status_enum = :valid, factor = :nonce)
+    request = OpenSSL::OCSP::Request.new(request_der)
+    status = OCSP_STATUS[status_enum]
+
+    request.certid.map do |certificate_id|
+      cert_info = cert_for_id(certificate_id, cert_collection)
+      next unless cert_info
+      basic_response = OpenSSL::OCSP::BasicResponse.new
+      if factor == :nonce
+        basic_response.add_nonce
+      else
+        basic_response.copy_nonce(request)
+      end
+      basic_response.add_status(certificate_id, status, 0,
+                                1.day.ago, Time.zone.now, Time.zone.now + 1.day, nil)
+      issuer_id = cert_info[:signing_cert_id]
+      issuer_info = if factor == :signing_key
+                      random_issuer(issuer_id, cert_collection)
+                    else
+                      cert_for_id(issuer_id, cert_collection)
+                    end
+      issuer = issuer_info[:certificate]
+      signing_key = issuer_info[:key]
+      basic_response.sign(issuer.x509_cert, signing_key, [])
+      OpenSSL::OCSP::Response.create(status, basic_response).to_der
+    end.join('')
+  end
+
+  def random_issuer(id_to_avoid, cert_collection)
+    cert_collection.detect do |info|
+      !id_to_avoid.cmp(info[:cert_id]) && info[:key]
+    end
+  end
+
+  def cert_for_id(cert_id, cert_collection)
+    cert_collection.detect do |info|
+      cert_id.cmp(info[:cert_id])
+    end
+  end
+
   ##
   # Requires:
   #   dn: subject of the cert
@@ -124,15 +193,22 @@ module X509Helpers
   def create_certificate_set(root_count:, intermediate_count:, leaf_count:)
     # we create the number of trusted roots, then for each root, the intermediates,
     # and for each intermediate, the leaves
-    root_certs = []
-    intermediate_certs = []
-    leaf_certs = []
+    set = []
     root_count.times do |root_index|
       root, root_key = create_root_certificate(
         dn: "DC=com, DC=example, OU=ca, CN=Root #{root_index + 1}",
         serial: root_index + 1
       )
-      root_certs << root
+      root_cert_id = OpenSSL::OCSP::CertificateId.new(
+        root, root, OpenSSL::Digest::SHA1.new
+      )
+      set << {
+        type: :root,
+        certificate: Certificate.new(root),
+        key: root_key,
+        signing_cert_id: root_cert_id,
+        cert_id: root_cert_id,
+      }
       intermediate_count.times do |intermediate_index|
         intermediate, intermediate_key = create_intermediate_certificate(
           dn: [
@@ -145,7 +221,16 @@ module X509Helpers
           ca: root,
           ca_key: root_key
         )
-        intermediate_certs << intermediate
+        intermediate_cert_id = OpenSSL::OCSP::CertificateId.new(
+          intermediate, root, OpenSSL::Digest::SHA1.new
+        )
+        set << {
+          type: :intermediate,
+          certificate: Certificate.new(intermediate),
+          key: intermediate_key,
+          signing_cert_id: root_cert_id,
+          cert_id: intermediate_cert_id,
+        }
         leaf_count.times do |leaf_index|
           cn_number = root_index * intermediate_count +
                       intermediate_index * leaf_count +
@@ -161,11 +246,25 @@ module X509Helpers
             ca: intermediate,
             ca_key: intermediate_key
           )
-          leaf_certs << leaf
+          leaf_cert_id = OpenSSL::OCSP::CertificateId.new(
+            leaf, intermediate, OpenSSL::Digest::SHA1.new
+          )
+          set << {
+            type: :leaf,
+            certificate: Certificate.new(leaf),
+            signing_cert_id: intermediate_cert_id,
+            cert_id: leaf_cert_id,
+          }
         end
       end
     end
-    [root_certs, intermediate_certs, leaf_certs]
+    set
+  end
+
+  def certificates_in_collection(collection, key, value)
+    collection.
+      select { |info| info[key] == value }.
+      map { |info| info[:certificate] }
   end
 
   private

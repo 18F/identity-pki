@@ -23,6 +23,7 @@ development:
   database_password: ''
   database_username: ''
   secret_key_base: ''
+  certificate_store_directory: 'config/certs'
 
 test:
   client_cert_escaped: 'true'
@@ -34,6 +35,8 @@ test:
   database_password: ''
   database_username: ''
   secret_key_base: ''
+  certificate_store_directory: 'config/test-certs'
 
 production:
   client_cert_escaped: 'true'
+  certificate_store_directory: 'config/certs'

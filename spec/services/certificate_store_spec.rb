@@ -11,9 +11,9 @@ RSpec.describe CertificateStore do
     )
   end
 
-  let(:root_certs) { cert_collection.first.map { |cert| Certificate.new(cert) } }
-  let(:intermediate_certs) { cert_collection[1].map { |cert| Certificate.new(cert) } }
-  let(:leaf_certs) { cert_collection.last.map { |cert| Certificate.new(cert) } }
+  let(:root_certs) { certificates_in_collection(cert_collection, :type, :root) }
+  let(:intermediate_certs) { certificates_in_collection(cert_collection, :type, :intermediate) }
+  let(:leaf_certs) { certificates_in_collection(cert_collection, :type, :leaf) }
 
   describe 'with loaded certificates' do
     let(:ca_file_path) { data_file_path('certs.pem') }
@@ -21,7 +21,24 @@ RSpec.describe CertificateStore do
     let(:root_cert_key_ids) { root_certs.map(&:key_id) }
     let(:intermediate_cert_key_ids) { intermediate_certs.map(&:key_id) }
 
-    let(:ca_file_content) { cert_collection.flatten.map(&:to_pem).join("\n\n") }
+    let(:ca_file_content) do
+      cert_collection.map { |info| info[:certificate] }.map(&:to_pem).join("\n\n")
+    end
+
+    let(:cert_identifiers) do
+      mapping = {}
+      leaf_certs.each do |cert|
+        issuer = CertificateStore.instance[cert.signing_key_id]
+        certificate_id = OpenSSL::OCSP::CertificateId.new(
+          cert.x509_cert, issuer.x509_cert, OpenSSL::Digest::SHA1.new
+        )
+        mapping[certificate_id] = {
+          subject: cert,
+          issuer: issuer,
+        }
+      end
+      mapping
+    end
 
     before(:each) do
       allow(IO).to receive(:binread).with(ca_file_path).and_return(ca_file_content)
@@ -30,6 +47,20 @@ RSpec.describe CertificateStore do
       )
       certificate_store.clear_trusted_ca_root_identifiers
       certificate_store.add_pem_file(ca_file_path)
+
+      stub_request(:post, 'http://ocsp.example.com/').
+        with(
+          headers: {
+            'Content-Type' => 'application/ocsp-request',
+          }
+        ).
+        to_return do |request|
+        {
+          status: 200,
+          body: create_ocsp_response(request.body, cert_collection),
+          headers: {},
+        }
+      end
     end
 
     describe 'all_certificates_valid?' do
@@ -72,7 +103,7 @@ RSpec.describe CertificateStore do
       end
 
       let(:stored_ids) do
-        cert_collection.flatten.map { |c| Certificate.new(c) }.select(&:ca_capable?).map(&:key_id)
+        cert_collection.map { |c| c[:certificate] }.select(&:ca_capable?).map(&:key_id)
       end
 
       it 'visits each certificate' do
@@ -82,7 +113,7 @@ RSpec.describe CertificateStore do
 
     describe 'loading certificates' do
       it 'loads from the file and retains signing certs' do
-        expect(cert_collection.flatten.count).to eq 14
+        expect(cert_collection.count).to eq 14
         expect(certificate_store.count).to eq 6
       end
 
@@ -110,7 +141,11 @@ RSpec.describe CertificateStore do
       end
 
       describe 'with no intermediates' do
-        let(:ca_file_content) { cert_collection.first.map(&:to_pem).join("\n\n") }
+        let(:ca_file_content) do
+          certificates_in_collection(cert_collection, :type, :root).
+            map(&:to_pem).
+            join("\n\n")
+        end
 
         describe 'then the presented root' do
           let(:root_cert) { root_certs.first }

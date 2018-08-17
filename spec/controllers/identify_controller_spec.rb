@@ -10,6 +10,17 @@ RSpec.describe IdentifyController, type: :controller do
     TokenService.open(token)
   end
 
+  let(:ocsp_response) { false }
+  let(:ocsp_responder) do
+    OpenStruct.new(
+      call: OpenStruct.new(revoked?: ocsp_response)
+    )
+  end
+
+  before(:each) do
+    allow(OCSPService).to receive(:new).and_return(ocsp_responder)
+  end
+
   describe 'GET /' do
     it 'without a referrer returns http bad request' do
       get :create, params: { nonce: '123' }
@@ -102,6 +113,8 @@ RSpec.describe IdentifyController, type: :controller do
           )
           certificate_store.clear_trusted_ca_root_identifiers
           certificate_store.add_pem_file(ca_file_path)
+
+          allow(OCSPService).to receive(:revoked?).and_return(false)
         end
 
         context 'when the web server sends the escaped cert' do
