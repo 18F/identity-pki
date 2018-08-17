@@ -521,6 +521,14 @@ resource "aws_security_group" "idp" {
     cidr_blocks = ["${var.outbound_subnets}"]
   }
 
+  # Allow egress to CloudHSM
+  egress {
+    from_port = 2223
+    to_port = 2225
+    protocol = "tcp"
+    security_groups = ["${aws_security_group.cloudhsm.id}"]
+  }
+
   # AAMVA DLDV API, used by servers
   # This can probably go away once the obproxy is enabled and these go through
   # the proxy instead.
