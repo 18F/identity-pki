@@ -186,6 +186,21 @@ resource "aws_network_acl_rule" "idp-ingress-https" {
   cidr_block = "${var.vpc_cidr_block}"
 }
 
+# The cloudhsm cluster is in the idp subnet, must allow access from the IDP
+# subnets in other AZs
+resource "aws_network_acl_rule" "idp-ingress-cloudhsm" {
+  network_acl_id = "${aws_network_acl.idp.id}"
+  egress = false
+  from_port = 2223
+  to_port = 2225
+  protocol = "tcp"
+  rule_number = 46
+  rule_action = "allow"
+  cidr_block = "${var.vpc_cidr_block}"
+}
+
+
+
 # ------------- end idp rules --------------------
 
 resource "aws_network_acl" "alb" {
