@@ -56,7 +56,6 @@ DEPENDENCIES
   monit
   motd
   nano
-  newrelic
   newrelic_meetme_plugin
   ntp
   ohai
@@ -116,7 +115,6 @@ GRAPH
     aws_metadata (>= 0.0.0)
     citadel_fork (>= 0.0.0)
   cron (6.2.0)
-  curl (2.0.4)
   dpkg_autostart (0.2.0)
   elastic_repo (1.1.1)
   elasticsearch (3.1.1)
@@ -197,7 +195,6 @@ GRAPH
   login_dot_gov (0.0.57)
     application_ruby (>= 0.0.1)
     config_loader (>= 0.0.1)
-    newrelic (>= 0.0.1)
     passenger (>= 0.0.1)
     poise-ruby (>= 0.0.1)
     poise-ruby-build (>= 0.0.1)
@@ -214,11 +211,6 @@ GRAPH
   motd (0.6.4)
     chef_handler (>= 0.0.0)
   nano (1.0.3)
-  newrelic (2.38.1)
-    apt (>= 0.0.0)
-    curl (>= 0.0.0)
-    poise-python (>= 0.0.0)
-    yum (>= 0.0.0)
   newrelic-infra (0.7.1)
     poise-archive (~> 1.5)
     poise-service (~> 1.5)

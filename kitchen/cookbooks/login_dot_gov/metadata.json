@@ -15,7 +15,6 @@
   "dependencies": {
     "application_ruby": ">= 0.0.1",
     "config_loader": ">= 0.0.1",
-    "newrelic": ">= 0.0.1",
     "passenger": ">= 0.0.1",
     "poise-ruby": ">= 0.0.1",
     "poise-ruby-build": ">= 0.0.1",
@@ -44,7 +43,6 @@
     "login_dot_gov::dashboard": "Dashboard setup and deploy",
     "login_dot_gov::default": "Default recipe (no action)",
     "login_dot_gov::idp": "IdP setup and deploy",
-    "login_dot_gov::newrelic": "New Relic config",
     "login_dot_gov::ruby": "Ruby runtime",
     "login_dot_gov::sp-java": "Java example SP",
     "login_dot_gov::sp-node": "NodeJS example SP",
