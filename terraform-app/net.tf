@@ -35,6 +35,7 @@ resource "aws_security_group" "base" {
 
   # allow SSH in from jumphost
   ingress {
+    description = "allow SSH in from jumphost"
     protocol  = "tcp"
     from_port = 22
     to_port   = 22
@@ -43,6 +44,7 @@ resource "aws_security_group" "base" {
 
   # allow TCP egress to outbound proxy
   egress {
+    description = "allow egress to outbound proxy"
     protocol  = "tcp"
     from_port = "${var.proxy_port}"
     to_port   = "${var.proxy_port}"
@@ -527,10 +529,18 @@ resource "aws_security_group" "idp" {
 
   # Allow egress to CloudHSM
   egress {
+    description = "Allow egress to CloudHSM"
     from_port = 2223
     to_port = 2225
     protocol = "tcp"
-    security_groups = ["${aws_security_group.cloudhsm.id}"]
+    # can't use security_groups on account of terraform cycle
+    # https://github.com/terraform-providers/terraform-provider-aws/issues/3234
+    #security_groups = ["${aws_security_group.cloudhsm.id}"]
+    cidr_blocks = [
+      # we put cloudhsm in the idp subnet
+      "${aws_subnet.idp1.cidr_block}",
+      "${aws_subnet.idp2.cidr_block}"
+    ]
   }
 
   # AAMVA DLDV API, used by servers
@@ -546,6 +556,7 @@ resource "aws_security_group" "idp" {
     ]
   }
 
+  # TODO is this still needed with proxy?
   # LexisNexis RDP API, used by servers
   egress {
     from_port = 443
