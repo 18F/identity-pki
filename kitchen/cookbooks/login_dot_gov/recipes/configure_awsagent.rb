@@ -44,7 +44,7 @@ service 'awsagent' do
 end
 
 #aws ssm agent proxy configuration
-directory "/etc/systemd/system/snap.amazon-ssm-agent.amazon-ssm-agent.service.d"
+directory "/etc/systemd/system/snap.amazon-ssm-agent.amazon-ssm-agent.service.d" do
   owner owner 'root'
   group group 'root'
   mode '0755'
