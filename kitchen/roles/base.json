@@ -42,10 +42,8 @@
     "recipe[identity-ntp]",
     "recipe[login_dot_gov::resolve]",
     "recipe[login_dot_gov::ruby]",
-    "recipe[login_dot_gov::newrelic]",
     "recipe[identity-monitoring]"
   ],
   "env_run_lists": {
   }
 }
-
