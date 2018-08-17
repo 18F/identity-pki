@@ -62,7 +62,7 @@ DEPENDENCIES
   openssl
   ossec
     git: https://github.com/sous-chefs/ossec
-    revision: 5466001e2ab6732aa6808a71abea190b2aad86e2
+    revision: 337b7f4ad54ecd51318fe57298232b4416b98409
   passenger
     path: kitchen/cookbooks/passenger
   poise-ruby
@@ -221,7 +221,7 @@ GRAPH
   ntp (3.6.0)
   ohai (5.2.3)
   openssl (8.5.0)
-  ossec (1.0.5)
+  ossec (1.1.0)
     yum-atomic (>= 0.0.0)
   packagecloud (1.0.0)
   passenger (0.0.6)
