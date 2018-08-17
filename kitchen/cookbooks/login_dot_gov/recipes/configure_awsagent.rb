@@ -44,6 +44,12 @@ service 'awsagent' do
 end
 
 #aws ssm agent proxy configuration
+directory "/etc/systemd/system/snap.amazon-ssm-agent.amazon-ssm-agent.service.d"
+  owner owner 'root'
+  group group 'root'
+  mode '0755'
+end
+
 template '/etc/systemd/system/snap.amazon-ssm-agent.amazon-ssm-agent.service.d/override.conf' do
   source 'aws_ssmagent.conf.erb'
   owner 'root'
