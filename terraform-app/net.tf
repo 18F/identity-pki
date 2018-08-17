@@ -583,22 +583,12 @@ resource "aws_security_group" "idp" {
     from_port = 80
     to_port = 80
     protocol = "tcp"
-    # TODO remove cidr_blocks once security_groups is applied
-    cidr_blocks = [
-      "${var.alb1_subnet_cidr_block}",
-      "${var.alb2_subnet_cidr_block}"
-    ]
     security_groups = ["${aws_security_group.web.id}"]
   }
   ingress {
     from_port = 443
     to_port = 443
     protocol = "tcp"
-    # TODO remove cidr_blocks once security_groups is applied
-    cidr_blocks = [
-      "${var.alb1_subnet_cidr_block}",
-      "${var.alb2_subnet_cidr_block}"
-    ]
     security_groups = ["${aws_security_group.web.id}"]
   }
 
@@ -777,16 +767,6 @@ resource "aws_security_group" "web" {
   # TODO: description = "idp-alb security group allowing web traffic"
   description = "Security group for web that allows web traffic from internet"
   vpc_id = "${aws_vpc.default.id}"
-
-  # allow outbound to the VPC so that we can get to the idp hosts
-  # TODO remove this rule once the more finely grained egress rules below are
-  # rolled out
-  egress {
-    from_port = 0
-    to_port = 65535
-    protocol = "tcp"
-    cidr_blocks = ["${var.vpc_cidr_block}"]
-  }
 
   # Allow outbound to the IDP subnets on 80/443.
   #
