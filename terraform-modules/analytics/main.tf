@@ -823,6 +823,6 @@ resource "aws_network_acl" "analytics_redshift" {
   }
 
   tags {
-    Name = "${var.name}-analytics_network_acl-${var.env_name}"
+    Name = "${var.env_name}-analytics"
   }
 }

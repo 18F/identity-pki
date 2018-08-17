@@ -1,8 +1,7 @@
 resource "aws_network_acl" "app" {
 
   tags {
-    client = "${var.client}"
-    Name = "${var.name}-app_network_acl-${var.env_name}"
+    Name = "${var.env_name}-app"
   }
 
   vpc_id = "${aws_vpc.default.id}"
@@ -49,8 +48,7 @@ resource "aws_network_acl_rule" "app-ingress-https" {
 resource "aws_network_acl" "db" {
 
   tags {
-    client = "${var.client}"
-    Name = "${var.name}-db_network_acl-${var.env_name}"
+    Name = "${var.env_name}-db"
   }
 
   vpc_id = "${aws_vpc.default.id}"
@@ -97,8 +95,7 @@ resource "aws_network_acl_rule" "db-ingress-postgres" {
 
 resource "aws_network_acl" "jumphost" {
   tags {
-    client = "${var.client}"
-    Name = "${var.name}-jumphost_network_acl-${var.env_name}"
+    Name = "${var.env_name}-jumphost"
   }
 
   vpc_id = "${aws_vpc.default.id}"
@@ -148,8 +145,7 @@ resource "aws_network_acl_rule" "jumphost-elb-healthcheck2" {
 resource "aws_network_acl" "idp" {
 
   tags {
-    client = "${var.client}"
-    Name = "${var.name}-idp_network_acl-${var.env_name}"
+    Name = "${var.env_name}-idp"
   }
 
   vpc_id = "${aws_vpc.default.id}"
@@ -197,8 +193,7 @@ resource "aws_network_acl" "alb" {
   subnet_ids = ["${aws_subnet.alb1.id}","${aws_subnet.alb2.id}"]
 
   tags {
-    client = "${var.client}"
-    Name = "${var.name}-web_network_acl-${var.env_name}"
+    Name = "${var.env_name}-alb"
   }
 }
 resource "aws_network_acl_rule" "alb-egress-tcp-all-egress" {

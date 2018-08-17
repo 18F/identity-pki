@@ -16,8 +16,7 @@ resource "aws_subnet" "elasticsearch" {
 resource "aws_network_acl" "elasticsearch" {
 
   tags {
-    client = "${var.client}"
-    Name = "${var.name}-elasticsearch_network_acl-${var.env_name}"
+    Name = "${var.env_name}-elasticsearch"
   }
 
   vpc_id = "${aws_vpc.default.id}"
