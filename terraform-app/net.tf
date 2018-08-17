@@ -67,6 +67,7 @@ resource "aws_security_group" "base" {
 resource "aws_security_group" "app" {
   description = "Security group for sample app servers"
 
+  # TODO: limit this to what is actually needed
   # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
   egress {
     from_port = 0
@@ -225,6 +226,7 @@ resource "aws_security_group" "elk" {
   depends_on = ["aws_internet_gateway.default"]
   description = "Allow inbound traffic to ELK from whitelisted IPs for SSH and app security group"
 
+  # TODO: limit this to what is actually needed
   # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
   egress {
     from_port = 0
@@ -366,6 +368,7 @@ resource "aws_security_group" "null" {
 resource "aws_security_group" "jumphost" {
   description = "Allow inbound jumphost traffic: whitelisted IPs for SSH"
 
+  # TODO: limit this to what is actually needed
   # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
   egress {
     from_port = 0
@@ -496,6 +499,7 @@ resource "aws_security_group" "jumphost" {
 resource "aws_security_group" "idp" {
   description = "Allow inbound web traffic and whitelisted IP(s) for SSH"
 
+  # TODO: limit this to what is actually needed
   # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
   egress {
     from_port = 0
@@ -679,6 +683,7 @@ resource "aws_security_group" "cloudhsm" {
 resource "aws_security_group" "pivcac" {
   description = "Allow inbound web traffic and whitelisted IP(s) for SSH"
 
+  # TODO: limit this to what is actually needed
   # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
   egress {
     from_port = 0
@@ -1065,6 +1070,7 @@ resource "aws_subnet" "privatesubnet3" {
 resource "aws_security_group" "obproxy" {
   description = "Allow inbound web traffic and whitelisted IP(s) for SSH"
 
+  # TODO: limit this to what is actually needed
   # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
   egress {
     from_port = 0
