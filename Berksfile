@@ -29,7 +29,7 @@ cookbook 'acme'
 cookbook 'filebeat', '~> 2.1.0'
 cookbook 'elasticsearch-curator', '~> 0.2.8'
 cookbook 'elasticsearch', '~> 3.1.1'
-cookbook 'ossec', '~> 1.0.5', git: 'https://github.com/sous-chefs/ossec'
+cookbook 'ossec', '~> 1.1.0', git: 'https://github.com/sous-chefs/ossec'
 
 # This is a super wacky hack to allow us to symlink this Berksfile into the
 # various nodes/*/ directories. It feels like there ought to be a better way to
