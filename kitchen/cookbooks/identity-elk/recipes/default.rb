@@ -143,7 +143,7 @@ execute 'update-ca-certificates -f'
 
 # install cloudwatch plugin
 git '/usr/share/logstash-codec-cloudtrail' do
-  repository 'https://github.com/timothy-spencer/logstash-codec-cloudtrail.git'
+  repository 'https://github.com/logstash-plugins/logstash-codec-cloudtrail.git'
   revision "v#{node['elk']['logstash-codec-cloudtrail-version']}"
 end
 
