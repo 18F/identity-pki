@@ -63,6 +63,5 @@ template '/etc/systemd/system/snap.amazon-ssm-agent.amazon-ssm-agent.service.d/o
 end
  
 service 'snap.amazon-ssm-agent.amazon-ssm-agent' do
-  action [:enable, :start]
   supports :restart => true, :start=> true, :stop => true
 end
