@@ -42,15 +42,18 @@ class OCSPService
   def make_http_request(uri, request, limit = 10)
     return if limit.negative? || uri.blank?
 
-    response = make_single_http_request(URI(uri), request)
+    handle_response(make_single_http_request(URI(uri), request))
+  rescue SocketError
+    nil # we simply have nothing if we can't connect
+  end
+
+  def handle_response(response)
     case response
     when Net::HTTPSuccess then
       process_http_response_body(response.body)
     when Net::HTTPRedirection then
       make_http_request(response['location'], request, limit - 1)
     end
-  rescue SocketError
-    nil # we simply have nothing if we can't connect
   end
 
   # :reek:UtilityFunction
