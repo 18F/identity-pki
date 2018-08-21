@@ -34,8 +34,6 @@ DEPENDENCIES
     path: kitchen/cookbooks/identity-monitoring
   identity-nessus
     path: kitchen/cookbooks/identity-nessus
-  identity-ntp
-    path: kitchen/cookbooks/identity-ntp
   identity-ossec
     path: kitchen/cookbooks/identity-ossec
   identity-outboundproxy
@@ -44,9 +42,14 @@ DEPENDENCIES
     path: kitchen/cookbooks/identity-pivcac
   identity_base_config
     git: https://github.com/18F/identity-cookbooks
-    revision: e2f31b1d67d520ce54ed3ab5deaad5260394eaae
-    ref: e2f31b1
+    revision: 043d44c4dff5febebcfa7f324da6c154d4c19c52
+    ref: 043d44c
     rel: identity_base_config
+  identity_ntp
+    git: https://github.com/18F/identity-cookbooks
+    revision: 043d44c4dff5febebcfa7f324da6c154d4c19c52
+    ref: 043d44c
+    rel: identity_ntp
   instance_certificate
     path: kitchen/cookbooks/instance_certificate
   jenkins (~> 5.0.1)
@@ -74,8 +77,8 @@ DEPENDENCIES
   ssh-keys
   static_eip
     git: https://github.com/18F/identity-cookbooks
-    revision: e2f31b1d67d520ce54ed3ab5deaad5260394eaae
-    ref: e2f31b1
+    revision: 043d44c4dff5febebcfa7f324da6c154d4c19c52
+    ref: 043d44c
     rel: static_eip
   sudo
   users
@@ -107,7 +110,7 @@ GRAPH
   cacert (0.5.0)
   canonical_hostname (0.1.0)
     aws_metadata (>= 0.0.0)
-  chef-sugar (4.0.0)
+  chef-sugar (4.1.0)
   chef_handler (3.0.3)
   citadel_fork (9.1.1)
   compat_resource (12.19.1)
@@ -173,7 +176,6 @@ GRAPH
     newrelic-infra (>= 0.0.0)
   identity-nessus (0.0.3)
     config_loader (>= 0.0.0)
-  identity-ntp (0.2.0)
   identity-ossec (0.1.1)
     ossec (>= 0.0.0)
   identity-outboundproxy (0.1.3)
@@ -181,6 +183,7 @@ GRAPH
     login_dot_gov (>= 0.0.0)
   identity-pivcac (0.1.0)
   identity_base_config (0.1.1)
+  identity_ntp (0.1.0)
   instance_certificate (0.1.0)
     canonical_hostname (>= 0.0.0)
   java (2.2.0)
@@ -220,7 +223,7 @@ GRAPH
     yum (>= 0.0.0)
   ntp (3.6.0)
   ohai (5.2.3)
-  openssl (8.5.0)
+  openssl (8.5.2)
   ossec (1.1.0)
     yum-atomic (>= 0.0.0)
   packagecloud (1.0.0)

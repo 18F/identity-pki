@@ -58,7 +58,6 @@ cookbook 'identity-elk', path: prefixed('kitchen/cookbooks/identity-elk')
 cookbook 'identity-jenkins', path: prefixed('kitchen/cookbooks/identity-jenkins')
 cookbook 'identity-jumphost', path: prefixed('kitchen/cookbooks/identity-jumphost')
 cookbook 'identity-nessus', path: prefixed('kitchen/cookbooks/identity-nessus')
-cookbook 'identity-ntp', path: prefixed('kitchen/cookbooks/identity-ntp')
 cookbook 'identity-ossec', path: prefixed('kitchen/cookbooks/identity-ossec')
 cookbook 'identity-pivcac', path: prefixed('kitchen/cookbooks/identity-pivcac')
 cookbook 'instance_certificate', path: prefixed('kitchen/cookbooks/instance_certificate')
@@ -68,8 +67,10 @@ cookbook 'service_discovery', path: prefixed('kitchen/cookbooks/service_discover
 cookbook 'identity-monitoring', path: prefixed('kitchen/cookbooks/identity-monitoring')
 
 # Cookbooks from our open source github repo
-IdentityCookbooksRef = 'e2f31b1d67d520ce54ed3ab5deaad5260394eaae'
+IdentityCookbooksRef = '043d44c4dff5febebcfa7f324da6c154d4c19c52'
 cookbook 'identity_base_config', git: 'https://github.com/18F/identity-cookbooks', rel: 'identity_base_config', ref: IdentityCookbooksRef
+# Delete this when https://github.com/18F/identity-base-image/commit/de34ec53f30d742d544411459192824e58730c21 is rolled out everywhere:
+cookbook 'identity_ntp', git: 'https://github.com/18F/identity-cookbooks', rel: 'identity_ntp', ref: IdentityCookbooksRef
 cookbook 'static_eip', '>= 0.2.0', git: 'https://github.com/18F/identity-cookbooks', rel: 'static_eip', ref: IdentityCookbooksRef
 
 # We have to reference this special citadel-build repository for two reasons:

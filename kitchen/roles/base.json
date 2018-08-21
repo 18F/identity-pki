@@ -39,7 +39,7 @@
     "recipe[identity-elk::logcleanup]",
     "recipe[identity-elk::filebeat]",
     "recipe[identity-ossec]",
-    "recipe[identity-ntp]",
+    "recipe[identity_ntp]",
     "recipe[login_dot_gov::resolve]",
     "recipe[login_dot_gov::ruby]",
     "recipe[identity-monitoring]"
