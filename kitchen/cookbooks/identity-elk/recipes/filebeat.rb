@@ -14,11 +14,15 @@ install_certificates 'Installing ELK certificates to ca-certificates' do
   install_directory '/usr/local/share/ca-certificates'
   suffix 'legacy-elk'
   notifies :run, 'execute[/usr/sbin/update-ca-certificates]', :immediately
-  notifies :create, 'filebeat_service[default]'
 end
 
 execute '/usr/sbin/update-ca-certificates' do
   action :nothing
+  notifies :reload, 'service[filebeat]'
+end
+
+service 'filebeat' do
+  reload_command 'systemctl force-reload filebeat.service'
 end
 
 filebeat_install 'default' do
@@ -64,9 +68,7 @@ node['elk']['filebeat']['logfiles'].each do |logitem|
   end
 end
 
-filebeat_service 'default' do
-  subscribes :create, 'install_certificates[Installing ELK certificates to ca-certificates]'
-end
+filebeat_service 'default'
 
 cron 'rerun elk filebeat discovery every 15 minutes' do
   action :create
