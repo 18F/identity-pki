@@ -144,7 +144,7 @@ resource "aws_route53_record" "mail_in_txt" {
     zone_id = "${aws_route53_zone.primary.zone_id}"
     ttl = "900"
     type = "TXT"
-    records = ["v=spf1 include:amazonses.com -all"]
+    records = ["v=spf1 include:amazonses.com ~all"]
 }
 
 resource "aws_route53_record" "mail_in_mx" {
