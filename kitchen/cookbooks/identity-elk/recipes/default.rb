@@ -274,7 +274,6 @@ template "/etc/logstash/cloudtraillogstashconf.d/70-elblogsin.conf" do
   source '70-elblogsin.conf.erb'
   variables ({
     :aws_region => node['ec2']['placement_availability_zone'][0..-2],
-    :proxy_logging_bucket => node['elk']['proxy_logging_bucket'],
     :elb_prefix => node.chef_environment,
     :elb_logging_bucket => node['elk']['elb_logging_bucket']
   })
