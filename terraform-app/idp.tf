@@ -226,7 +226,7 @@ resource "aws_launch_configuration" "idp" {
 
   image_id = "${lookup(var.ami_id_map, "idp", var.default_ami_id)}"
   instance_type = "${var.instance_type_idp}"
-  security_groups = ["${aws_security_group.idp.id}"]
+  security_groups = ["${aws_security_group.idp.id}", "${aws_security_group.base.id}"]
 
   user_data = "${module.idp_launch_config.rendered_cloudinit_config}"
 
