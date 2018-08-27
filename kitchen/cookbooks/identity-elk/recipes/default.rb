@@ -280,37 +280,11 @@ template "/etc/logstash/cloudtraillogstashconf.d/70-elblogsin.conf" do
   notifies :run, 'execute[restart_cloudtraillogstash]', :delayed
 end
 
-template '/usr/share/logstash/.sincedb_proxyelb' do
-  source 'sincedb.erb'
-  owner 'logstash'
-  group 'logstash'
-  not_if { File.exists?("/usr/share/logstash/.sincedb_proxyelb") }
-end
 template "/usr/share/logstash/.sincedb_elb" do
   source 'sincedb.erb'
   owner 'logstash'
   group 'logstash'
   not_if { File.exists?("/usr/share/logstash/.sincedb_elb") }
-end
-
-template "/etc/logstash/cloudtraillogstashconf.d/60-analyticsin.conf" do
-  source '60-analyticsin.conf.erb'
-  variables ({
-    :env => node.chef_environment,
-    :aws_region => node['ec2']['placement_availability_zone'][0..-2],
-    :analytics_logging_bucket => node['elk']['analytics_logging_bucket']
-  })
-  notifies :run, 'execute[restart_cloudtraillogstash]', :delayed
-  only_if { node['elk']['analytics_logs'] }
-end
-
-(1..3).each do |i|
-  template "/usr/share/logstash/.sincedb_analyticslogstash#{i}" do
-    source 'sincedb.erb'
-    owner 'logstash'
-    group 'logstash'
-    not_if { File.exists?("/usr/share/logstash/.sincedb_analyticslogstash#{i}") }
-  end
 end
 
 template '/etc/logstash/logstash-template.json' do
