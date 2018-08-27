@@ -275,7 +275,8 @@ template "/etc/logstash/cloudtraillogstashconf.d/70-elblogsin.conf" do
   variables ({
     :aws_region => node['ec2']['placement_availability_zone'][0..-2],
     :elb_prefix => node.chef_environment,
-    :elb_logging_bucket => node['elk']['elb_logging_bucket']
+    :elb_logging_bucket => node['elk']['elb_logging_bucket'],
+    :proxy_uri => node.fetch('login_dot_gov').fetch('https_proxy') ? 'http://obproxy.login.gov.internal:3128' : ''
   })
   notifies :run, 'execute[restart_cloudtraillogstash]', :delayed
 end

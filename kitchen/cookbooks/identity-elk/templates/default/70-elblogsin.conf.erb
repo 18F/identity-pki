@@ -2,7 +2,7 @@ input {
    s3 {
      bucket => "<%= @elb_logging_bucket %>"
      prefix => "<%= @elb_prefix %>"
-     proxy_uri => "http://obproxy.login.gov.internal:3128"
+     proxy_uri => "<%= @proxy_uri -%>"
      region => "<%= @aws_region %>"
      sincedb_path => "/usr/share/logstash/.sincedb_elb"
      type => "elb"
