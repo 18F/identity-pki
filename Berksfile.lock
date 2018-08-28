@@ -17,6 +17,11 @@ DEPENDENCIES
   citadel_fork
     git: https://github.com/18f/citadel-build.git
     revision: 7007851c91e1404a43f1c914471a2d6c817eea8e
+  cloudhsm
+    git: https://github.com/18F/identity-cookbooks
+    revision: eddaf76adbe45faac8a268f67b8953c9013da046
+    ref: eddaf76
+    rel: cloudhsm
   config_loader
     path: kitchen/cookbooks/config_loader
   elasticsearch (~> 3.1.1)
@@ -113,6 +118,7 @@ GRAPH
   chef-sugar (4.1.0)
   chef_handler (3.0.3)
   citadel_fork (9.1.1)
+  cloudhsm (0.0.3)
   compat_resource (12.19.1)
   config_loader (0.2.2)
     aws_metadata (>= 0.0.0)
@@ -145,7 +151,7 @@ GRAPH
   hostname (0.4.2)
     hostsfile (>= 0.0.0)
   hostsfile (3.0.1)
-  identity-elk (0.1.30)
+  identity-elk (0.1.31)
     acme (>= 0.0.0)
     apache2 (>= 0.0.0)
     aws_metadata (>= 0.0.0)
@@ -197,6 +203,7 @@ GRAPH
   letsencrypt (1.0.3)
   login_dot_gov (0.0.57)
     application_ruby (>= 0.0.1)
+    cloudhsm (>= 0.0.3)
     config_loader (>= 0.0.1)
     passenger (>= 0.0.1)
     poise-ruby (>= 0.0.1)
