@@ -220,6 +220,8 @@ include_recipe 'runit'
     notifies :run, "execute[restart_#{lsname}]", :delayed
   end
 
+  cookbook_file "/etc/boto.cfg"
+
   template "/etc/logstash/#{lsname}conf.d/30-ESoutput.conf" do
     source '30-ESoutput.conf.erb'
     variables ({
