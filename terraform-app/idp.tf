@@ -145,6 +145,28 @@ resource "aws_iam_role_policy" "idp-secrets-manager" {
 EOM
 }
 
+# Allow listing CloudHSM clusters
+resource "aws_iam_role_policy" "idp-cloudhsm-client" {
+  name = "${var.env_name}-idp-cloudhsm-client"
+  role = "${aws_iam_role.idp.id}"
+  policy = <<EOM
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "cloudhsm:DescribeClusters",
+                "cloudhsm:ListTags",
+                "cloudhsm:ListTagsForResource"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+EOM
+}
+
 resource "aws_iam_role_policy" "idp-certificates" {
   name = "${var.env_name}-idp-certificates"
   role = "${aws_iam_role.idp.id}"
