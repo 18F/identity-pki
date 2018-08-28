@@ -22,6 +22,48 @@ resource "aws_route" "default" {
     gateway_id = "${aws_internet_gateway.default.id}"
 }
 
+# Base security group added to all instances, grants default permissions like
+# ingress SSH and ICMP.
+resource "aws_security_group" "base" {
+  name = "${var.env_name}-base"
+  description = "Base security group for rules common to all instances"
+  vpc_id = "${aws_vpc.default.id}"
+
+  tags {
+    Name = "${var.env_name}-base"
+  }
+
+  # allow SSH in from jumphost
+  ingress {
+    protocol  = "tcp"
+    from_port = 22
+    to_port   = 22
+    security_groups = [ "${aws_security_group.jumphost.id}" ]
+  }
+
+  # allow TCP egress to outbound proxy
+  egress {
+    protocol  = "tcp"
+    from_port = "${var.proxy_port}"
+    to_port   = "${var.proxy_port}"
+    security_groups = ["${aws_security_group.obproxy.id}"]
+  }
+
+  # allow ICMP to/from the whole VPC
+  ingress {
+    protocol  = "icmp"
+    from_port = -1
+    to_port   = -1
+    cidr_blocks = ["${aws_vpc.default.cidr_block}"]
+  }
+  egress {
+    protocol  = "icmp"
+    from_port = -1
+    to_port   = -1
+    cidr_blocks = ["${aws_vpc.default.cidr_block}"]
+  }
+}
+
 resource "aws_security_group" "app" {
   description = "Security group for sample app servers"
 
@@ -584,6 +626,52 @@ resource "aws_security_group" "idp" {
   }
 
   vpc_id = "${aws_vpc.default.id}"
+}
+
+# You can't change the security group used by a CloudHSM cluster, so you have
+# to import the security group under this ID in order to have terraform manage
+# it. (Yes, this is all a huge pain.)
+#
+# terraform import aws_security_group.cloudhsm sg-12345678
+#
+resource "aws_security_group" "cloudhsm" {
+  name = "${var.env_name}-cloudhsm-tf-placeholder"
+  description = "CloudHSM security group (terraform placeholder, delete me)"
+  vpc_id = "${aws_vpc.default.id}"
+
+  # We ignore changes to the name and description since they can't be edited.
+  lifecycle {
+    ignore_changes = ["name", "description"]
+  }
+
+  tags {
+    Name = "${var.env_name}-cloudhsm"
+  }
+
+  # Allow ingress to CloudHSM ports from IDP and from other CloudHSM instances
+  ingress {
+    from_port = 2223
+    to_port = 2225
+    protocol = "tcp"
+    security_groups = ["${aws_security_group.idp.id}"]
+    self = true
+  }
+
+  # Allow egress to CloudHSM ports to other cluster instances
+  egress {
+    from_port = 2223
+    to_port = 2225
+    protocol = "tcp"
+    self = true
+  }
+
+  # Allow ICMP from IDP
+  ingress {
+    from_port = -1
+    to_port = -1
+    protocol = "icmp"
+    security_groups = ["${aws_security_group.idp.id}"]
+  }
 }
 
 resource "aws_security_group" "pivcac" {
