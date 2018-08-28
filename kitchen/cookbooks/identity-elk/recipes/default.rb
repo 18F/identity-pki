@@ -270,13 +270,19 @@ template "/etc/logstash/cloudtraillogstashconf.d/30-cloudtrailin.conf" do
   notifies :run, 'execute[restart_cloudtraillogstash]', :delayed
 end
 
+if node.fetch('login_dot_gov').fetch('https_proxy') && !node.fetch('login_dot_gov').fetch('no_proxy').match('s3-us-west-2.amazonaws.com')
+  proxy_uri = 'http://obproxy.login.gov.internal:3128'
+else
+  proxy_uri = ''
+end
+
 template "/etc/logstash/cloudtraillogstashconf.d/70-elblogsin.conf" do
   source '70-elblogsin.conf.erb'
   variables ({
     :aws_region => node['ec2']['placement_availability_zone'][0..-2],
     :elb_prefix => node.chef_environment,
     :elb_logging_bucket => node['elk']['elb_logging_bucket'],
-    :proxy_uri => node.fetch('login_dot_gov').fetch('https_proxy') ? 'http://obproxy.login.gov.internal:3128' : ''
+    :proxy_uri => proxy_uri
   })
   notifies :run, 'execute[restart_cloudtraillogstash]', :delayed
 end
