@@ -1,16 +1,11 @@
 input {
    s3 {
-     region => "<%= @aws_region %>"
-     bucket => "<%= @proxy_logging_bucket %>"
-     type => "proxyelb"
-     sincedb_path => "/usr/share/logstash/.sincedb_proxyelb"
-   }
-   s3 {
-     region => "<%= @aws_region %>"
      bucket => "<%= @elb_logging_bucket %>"
-     type => "elb"
-     sincedb_path => "/usr/share/logstash/.sincedb_elb"
      prefix => "<%= @elb_prefix %>"
+     proxy_uri => "<%= @proxy_uri -%>"
+     region => "<%= @aws_region %>"
+     sincedb_path => "/usr/share/logstash/.sincedb_elb"
+     type => "elb"
    }
 }
 
@@ -29,4 +24,3 @@ filter {
     }
   }
 }
-
