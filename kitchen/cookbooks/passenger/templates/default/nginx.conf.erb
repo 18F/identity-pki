@@ -39,7 +39,7 @@ http {
   large_client_header_buffers 2 20k;
 <% if @passenger.fetch(:limit_connections) %>
   # Limit connections
-  limit_conn addr       5;
+  limit_conn addr       10;
   limit_conn_status     429;
   limit_conn_zone       $binary_remote_addr zone=addr:5m;
 <% end -%>
