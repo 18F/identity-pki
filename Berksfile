@@ -67,7 +67,8 @@ cookbook 'service_discovery', path: prefixed('kitchen/cookbooks/service_discover
 cookbook 'identity-monitoring', path: prefixed('kitchen/cookbooks/identity-monitoring')
 
 # Cookbooks from our open source github repo
-IdentityCookbooksRef = '043d44c4dff5febebcfa7f324da6c154d4c19c52'
+IdentityCookbooksRef = '210008bc835a0093448ca7d5559b8d198e32f0e7'
+cookbook 'cloudhsm', '>= 0.0.7', git: 'https://github.com/18F/identity-cookbooks', rel: 'cloudhsm', ref: IdentityCookbooksRef
 cookbook 'identity_base_config', git: 'https://github.com/18F/identity-cookbooks', rel: 'identity_base_config', ref: IdentityCookbooksRef
 # Delete this when https://github.com/18F/identity-base-image/commit/de34ec53f30d742d544411459192824e58730c21 is rolled out everywhere:
 cookbook 'identity_ntp', git: 'https://github.com/18F/identity-cookbooks', rel: 'identity_ntp', ref: IdentityCookbooksRef

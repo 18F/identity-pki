@@ -41,22 +41,22 @@ aws() {
   env aws "$@"
 }
 
-echo "State file: $STATE"
-echo "State bucket: $BUCKET"
+log "State file: $STATE"
+log "State bucket: $BUCKET"
 
 echo >&2 "+ aws s3api head-bucket --bucket $BUCKET"
 output="$(env aws s3api head-bucket --bucket "$BUCKET" 2>&1)" \
     && ret=$? || ret=$?
 
 if grep -F "Not Found" <<< "$output" >/dev/null; then
-    echo "$output"
+    log "$output"
 
-    echo "Bucket $BUCKET does not exist, creating..."
-    echo "Creating an s3 bucket for terraform state"
+    log "Bucket $BUCKET does not exist, creating..."
+    log "Creating an s3 bucket for terraform state"
 
     aws s3 mb "s3://$BUCKET"
 
-    echo "Enabling versioning on the s3 bucket"
+    log "Enabling versioning on the s3 bucket"
     aws s3api put-bucket-versioning --bucket "$BUCKET" \
         --versioning-configuration Status=Enabled
 
@@ -64,13 +64,13 @@ elif [ "$ret" -ne 0 ]; then
     exit "$ret"
 fi
 
-echo "State lock table: $LOCK_TABLE"
+log "State lock table: $LOCK_TABLE"
 
 if ! aws dynamodb describe-table --table-name "$LOCK_TABLE" \
         --region "$REGION" >/dev/null
 then
-    echo "Lock table does not exist, creating..."
-    echo "Creating a dynamodb table for terraform lock files"
+    log "Lock table does not exist, creating..."
+    log "Creating a dynamodb table for terraform lock files"
 
     aws dynamodb create-table \
         --region "${REGION}" \
@@ -80,12 +80,12 @@ then
         --sse-specification Enabled=true \
         --provisioned-throughput ReadCapacityUnits=2,WriteCapacityUnits=1
 
-    echo "Waiting for table to appear"
+    log "Waiting for table to appear"
 
     aws dynamodb wait table-exists --table-name "$LOCK_TABLE" \
         --region "$REGION"
 
-    echo "Finished creating dynamodb table $LOCK_TABLE"
+    log "Finished creating dynamodb table $LOCK_TABLE"
 fi
 
 cd "${TF_DIR}"
@@ -93,24 +93,24 @@ cd "${TF_DIR}"
 local_state_path=".deploy/$BUCKET/$REGION/$STATE/.terraform"
 
 if [ ! -d "$local_state_path" ]; then
-    echo "Creating new local state directory"
+    log "Creating new local state directory"
 fi
 
-mkdir -vp "$local_state_path"
+mkdir -vp "$local_state_path" >&2
 
 if [ -L .terraform ]; then
-    run rm -v .terraform
+    run rm -v .terraform >&2
 elif [ -d .terraform ]; then
-    echo_yellow "warning: Deleting .terraform directory"
+    echo_yellow >&2 "warning: Deleting .terraform directory"
     # TODO: Once we've been using the new directory structure for a while,
     # change this into an interactive confirmation or even a fatal error. We
     # should no longer need to ever delete the .terraform directory.
-    run rm -rfv .terraform
+    run rm -rfv .terraform >&2
 fi
 
-echo "Linking .terraform to local state directory"
+log "Linking .terraform to local state directory"
 
-run ln -sv "$local_state_path" .terraform
+run ln -sv "$local_state_path" .terraform >&2
 
 log --blue "Calling terraform init"
 
@@ -124,7 +124,7 @@ case "$(CHECKPOINT_DISABLE=1 terraform --version)" in
       -backend-config="region=${REGION}"
     ;;
   *v0.8.*)
-    echo "WARNING: TERRAFORM 0.8.* IS DEPRECATED AND SHOULD NOT BE USED"
+    echo_yellow "WARNING: TERRAFORM 0.8.* IS DEPRECATED AND SHOULD NOT BE USED"
     terraform remote config -backend=s3 \
       -backend-config="bucket=${BUCKET}" \
       -backend-config="key=${STATE}" \
@@ -132,7 +132,7 @@ case "$(CHECKPOINT_DISABLE=1 terraform --version)" in
       -state="${STATE}"
     ;;
   *)
-    echo "ERROR: Unsupported terraform version"
+    echo_red >&2 "ERROR: Unsupported terraform version"
     exit 1
     ;;
 esac

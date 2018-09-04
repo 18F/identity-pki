@@ -6,10 +6,17 @@ die() { echo_red "$*" >&2 ; exit 1; }
 # http://redsymbol.net/articles/unofficial-bash-strict-mode/
 set -euo pipefail
 
+# Try really hard not to let anything accidentally write to stdout.
+# Point stdout at stderr and open FD 3 to point to the original stdout.
+# Use echo >&3 to write to stdout hereafter.
+exec 3>&1 1>&2
+
 if [ $# -lt 3 ] ; then
-    echo "Usage: $0 <environment_name> <terraform_dir> [<terraform_commands>]"
-    echo "   Runs <terraform_commands> against <environment_name> using the"
-    echo "   configuration in <terraform_dir>."
+    cat >&2 <<EOM
+Usage: $0 <environment_name> <terraform_dir> [<terraform_commands>]"
+   Runs <terraform_commands> against <environment_name> using the"
+   configuration in <terraform_dir>."
+EOM
     exit 1
 fi
 
@@ -18,7 +25,7 @@ fi
 
 # Be sure ruby is working and bundler is setup since some terraform modules
 # rely on erb templates and ruby to be working.
-run bundle check
+run bundle check >&2
 
 ORIGIN_REMOTE_NAME="${ORIGIN_REMOTE_NAME-origin}"
 
@@ -54,7 +61,7 @@ cd "$(dirname "$0")"
 
 check_release_versioning() {
     local strict_check rev_name
-    echo "DEPLOY: Checking whether environment versioning is recommended"
+    echo >&2 "DEPLOY: Checking whether environment versioning is recommended"
 
     case "$TF_DIR" in
         terraform-app)
@@ -164,11 +171,11 @@ The current version in VERSION.txt is: $(cat VERSION.txt)
     fi
 }
 
-echo_blue "deploy environment: $ENVIRONMENT"
+echo_blue >&2 "deploy environment: $ENVIRONMENT"
 
 check_release_versioning
 
-echo "DEPLOY: Loading environment variables...."
+echo >&2 "DEPLOY: Loading environment variables...."
 . bin/load-env.sh "$ENVIRONMENT"
 
 if [ -z "${TF_VAR_account_id-}" ]; then
@@ -192,7 +199,7 @@ fi
 
 # Check that current version of terraform is supported by our environment. This
 # array should be set in the environment-specific variables.
-check_terraform_version "${ID_SUPPORTED_TERRAFORM_VERSIONS[@]}"
+check_terraform_version "${ID_SUPPORTED_TERRAFORM_VERSIONS[@]}" >&2
 
 # Check that the account ID is correct
 real_account_id="$(run aws sts get-caller-identity --output text --query 'Account')"
@@ -212,9 +219,9 @@ case "$TF_DIR" in
         STATE=${TF_DIR}/terraform.tfstate
         ;;
 esac
-echo "Using state file $STATE"
+echo >&2 "Using state file $STATE"
 
-echo "Ensuring ${TF_DIR} is a terraform directory"
+echo >&2 "Ensuring ${TF_DIR} is a terraform directory"
 if [ ! -f "${TF_DIR}/main.tf" ] ; then
     echo_red "deploy: not found: '${TF_DIR}/main.tf'"
     echo_red "Are you sure '${TF_DIR}' is a terraform project folder?"
@@ -224,7 +231,7 @@ if [ ! -f "${TF_DIR}/main.tf" ] ; then
     die "error: Could not find terraform files"
 fi
 
-echo "Configuring state bucket login_dot_gov_tf_state with state path ${STATE}"
+echo >&2 "Configuring state bucket login_dot_gov_tf_state with state path ${STATE}"
 if [ -z "${TERRAFORM_STATE_BUCKET:=}" ] ; then
     die "You must set the TERRAFORM_STATE_BUCKET environment variable.  \
 This should contain the name of the s3 bucket used to store terraform state for this run."
@@ -245,7 +252,7 @@ run bin/configure_state_bucket.sh "$TERRAFORM_STATE_BUCKET" "$STATE" \
 echo >&2 "+ cd $TF_DIR"
 cd "$TF_DIR"
 
-cat <<EOF
+cat >&2 <<EOF
 ########################################
 #
 # Working in environment:
@@ -255,8 +262,8 @@ cat <<EOF
 
 EOF
 
-echo_blue "Running terraform..."
-echo
+echo_blue >&2 "Running terraform get"
+run terraform get >&2
 
 # If we are using variables from .tfvars files, splice in the -var-file options
 # after the first element in TF_CMD, which will be the terraform command like
@@ -275,6 +282,15 @@ if [ -n "$MOVED_TO_TFVARS" ] && [ -z "${ID_SKIP_LOADING_VARS-}" ]; then
             ;;
     esac
 fi
+    # Add -no-color if stdout is not a TTY
+    # https://github.com/hashicorp/terraform/issues/15264
+    if [ ! -t 0 ]; then
+        tf_vars_opts=("-no-color" "${tf_vars_opts[@]}")
+    fi
 
-run terraform get
-run terraform "${TF_CMD[@]}"
+echo >&2
+echo_blue >&2 "Running terraform..."
+
+# Run main terraform command. This is the only command that should print to
+# stdout (reassigned to FD 3)
+run terraform "${TF_CMD[@]}" >&3

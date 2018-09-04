@@ -16,8 +16,7 @@ resource "aws_subnet" "elk" {
 resource "aws_network_acl" "elk" {
 
   tags {
-    client = "${var.client}"
-    Name = "${var.name}-elk_network_acl-${var.env_name}"
+    Name = "${var.env_name}-elk"
   }
 
   vpc_id = "${aws_vpc.default.id}"

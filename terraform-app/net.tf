@@ -22,9 +22,54 @@ resource "aws_route" "default" {
     gateway_id = "${aws_internet_gateway.default.id}"
 }
 
+# Base security group added to all instances, grants default permissions like
+# ingress SSH and ICMP.
+resource "aws_security_group" "base" {
+  name = "${var.env_name}-base"
+  description = "Base security group for rules common to all instances"
+  vpc_id = "${aws_vpc.default.id}"
+
+  tags {
+    Name = "${var.env_name}-base"
+  }
+
+  # allow SSH in from jumphost
+  ingress {
+    description = "allow SSH in from jumphost"
+    protocol  = "tcp"
+    from_port = 22
+    to_port   = 22
+    security_groups = [ "${aws_security_group.jumphost.id}" ]
+  }
+
+  # allow TCP egress to outbound proxy
+  egress {
+    description = "allow egress to outbound proxy"
+    protocol  = "tcp"
+    from_port = "${var.proxy_port}"
+    to_port   = "${var.proxy_port}"
+    security_groups = ["${aws_security_group.obproxy.id}"]
+  }
+
+  # allow ICMP to/from the whole VPC
+  ingress {
+    protocol  = "icmp"
+    from_port = -1
+    to_port   = -1
+    cidr_blocks = ["${aws_vpc.default.cidr_block}"]
+  }
+  egress {
+    protocol  = "icmp"
+    from_port = -1
+    to_port   = -1
+    cidr_blocks = ["${aws_vpc.default.cidr_block}"]
+  }
+}
+
 resource "aws_security_group" "app" {
   description = "Security group for sample app servers"
 
+  # TODO: limit this to what is actually needed
   # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
   egress {
     from_port = 0
@@ -183,6 +228,7 @@ resource "aws_security_group" "elk" {
   depends_on = ["aws_internet_gateway.default"]
   description = "Allow inbound traffic to ELK from whitelisted IPs for SSH and app security group"
 
+  # TODO: limit this to what is actually needed
   # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
   egress {
     from_port = 0
@@ -324,6 +370,7 @@ resource "aws_security_group" "null" {
 resource "aws_security_group" "jumphost" {
   description = "Allow inbound jumphost traffic: whitelisted IPs for SSH"
 
+  # TODO: limit this to what is actually needed
   # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
   egress {
     from_port = 0
@@ -454,6 +501,7 @@ resource "aws_security_group" "jumphost" {
 resource "aws_security_group" "idp" {
   description = "Allow inbound web traffic and whitelisted IP(s) for SSH"
 
+  # TODO: limit this to what is actually needed
   # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
   egress {
     from_port = 0
@@ -479,6 +527,22 @@ resource "aws_security_group" "idp" {
     cidr_blocks = ["${var.outbound_subnets}"]
   }
 
+  # Allow egress to CloudHSM
+  egress {
+    description = "Allow egress to CloudHSM"
+    from_port = 2223
+    to_port = 2225
+    protocol = "tcp"
+    # can't use security_groups on account of terraform cycle
+    # https://github.com/terraform-providers/terraform-provider-aws/issues/3234
+    #security_groups = ["${aws_security_group.cloudhsm.id}"]
+    cidr_blocks = [
+      # we put cloudhsm in the idp subnet
+      "${aws_subnet.idp1.cidr_block}",
+      "${aws_subnet.idp2.cidr_block}"
+    ]
+  }
+
   # AAMVA DLDV API, used by servers
   # This can probably go away once the obproxy is enabled and these go through
   # the proxy instead.
@@ -492,6 +556,7 @@ resource "aws_security_group" "idp" {
     ]
   }
 
+  # TODO is this still needed with proxy?
   # LexisNexis RDP API, used by servers
   egress {
     from_port = 443
@@ -533,22 +598,12 @@ resource "aws_security_group" "idp" {
     from_port = 80
     to_port = 80
     protocol = "tcp"
-    # TODO remove cidr_blocks once security_groups is applied
-    cidr_blocks = [
-      "${var.alb1_subnet_cidr_block}",
-      "${var.alb2_subnet_cidr_block}"
-    ]
     security_groups = ["${aws_security_group.web.id}"]
   }
   ingress {
     from_port = 443
     to_port = 443
     protocol = "tcp"
-    # TODO remove cidr_blocks once security_groups is applied
-    cidr_blocks = [
-      "${var.alb1_subnet_cidr_block}",
-      "${var.alb2_subnet_cidr_block}"
-    ]
     security_groups = ["${aws_security_group.web.id}"]
   }
 
@@ -586,9 +641,60 @@ resource "aws_security_group" "idp" {
   vpc_id = "${aws_vpc.default.id}"
 }
 
+# You can't change the security group used by a CloudHSM cluster, so you have
+# to import the security group under this ID in order to have terraform manage
+# it. (Yes, this is all a huge pain.)
+#
+# Wrapper script:
+#   bin/oneoffs/cloudhsm-import-security-group.rb ENV
+#
+# Direct import (what ^ does under the hood):
+#   terraform import aws_security_group.cloudhsm sg-12345678
+#
+resource "aws_security_group" "cloudhsm" {
+  name = "${var.env_name}-cloudhsm-tf-placeholder"
+  description = "CloudHSM security group (terraform placeholder, delete me)"
+  vpc_id = "${aws_vpc.default.id}"
+
+  # We ignore changes to the name and description since they can't be edited.
+  lifecycle {
+    ignore_changes = ["name", "description"]
+  }
+
+  tags {
+    Name = "${var.env_name}-cloudhsm"
+  }
+
+  # Allow ingress to CloudHSM ports from IDP and from other CloudHSM instances
+  ingress {
+    from_port = 2223
+    to_port = 2225
+    protocol = "tcp"
+    security_groups = ["${aws_security_group.idp.id}"]
+    self = true
+  }
+
+  # Allow egress to CloudHSM ports to other cluster instances
+  egress {
+    from_port = 2223
+    to_port = 2225
+    protocol = "tcp"
+    self = true
+  }
+
+  # Allow ICMP from IDP
+  ingress {
+    from_port = -1
+    to_port = -1
+    protocol = "icmp"
+    security_groups = ["${aws_security_group.idp.id}"]
+  }
+}
+
 resource "aws_security_group" "pivcac" {
   description = "Allow inbound web traffic and whitelisted IP(s) for SSH"
 
+  # TODO: limit this to what is actually needed
   # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
   egress {
     from_port = 0
@@ -677,16 +783,6 @@ resource "aws_security_group" "web" {
   # TODO: description = "idp-alb security group allowing web traffic"
   description = "Security group for web that allows web traffic from internet"
   vpc_id = "${aws_vpc.default.id}"
-
-  # allow outbound to the VPC so that we can get to the idp hosts
-  # TODO remove this rule once the more finely grained egress rules below are
-  # rolled out
-  egress {
-    from_port = 0
-    to_port = 65535
-    protocol = "tcp"
-    cidr_blocks = ["${var.vpc_cidr_block}"]
-  }
 
   # Allow outbound to the IDP subnets on 80/443.
   #
@@ -985,6 +1081,7 @@ resource "aws_subnet" "privatesubnet3" {
 resource "aws_security_group" "obproxy" {
   description = "Allow inbound web traffic and whitelisted IP(s) for SSH"
 
+  # TODO: limit this to what is actually needed
   # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
   egress {
     from_port = 0

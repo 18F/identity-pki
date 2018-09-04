@@ -6,6 +6,10 @@ Style/RaiseArgs:
   EnforcedStyle: compact
 
 # empty lines are fine
+Layout/EmptyLinesAroundClassBody:
+  Enabled: false
+Layout/EmptyLinesAroundExceptionHandlingKeywords:
+  Enabled: false
 Layout/EmptyLinesAroundModuleBody:
   Enabled: false
 
@@ -51,6 +55,10 @@ Metrics/ParameterLists:
   Enabled: false
 
 Naming/HeredocDelimiterNaming:
+  Enabled: false
+
+# Constants with lowercase are fine
+Naming/ConstantName:
   Enabled: false
 
 # $PROGRAM_NAME is not less surprising than $0

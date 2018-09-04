@@ -145,6 +145,28 @@ resource "aws_iam_role_policy" "idp-secrets-manager" {
 EOM
 }
 
+# Allow listing CloudHSM clusters
+resource "aws_iam_role_policy" "idp-cloudhsm-client" {
+  name = "${var.env_name}-idp-cloudhsm-client"
+  role = "${aws_iam_role.idp.id}"
+  policy = <<EOM
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "cloudhsm:DescribeClusters",
+                "cloudhsm:ListTags",
+                "cloudhsm:ListTagsForResource"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+EOM
+}
+
 resource "aws_iam_role_policy" "idp-certificates" {
   name = "${var.env_name}-idp-certificates"
   role = "${aws_iam_role.idp.id}"
@@ -226,7 +248,7 @@ resource "aws_launch_configuration" "idp" {
 
   image_id = "${lookup(var.ami_id_map, "idp", var.default_ami_id)}"
   instance_type = "${var.instance_type_idp}"
-  security_groups = ["${aws_security_group.idp.id}"]
+  security_groups = ["${aws_security_group.idp.id}", "${aws_security_group.base.id}"]
 
   user_data = "${module.idp_launch_config.rendered_cloudinit_config}"
 
