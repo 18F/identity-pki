@@ -54,7 +54,7 @@ class HSMSecurityGroupImporter
   end
 
   def run_deploy(args, check_output: false)
-    deploy_cmd = File.dirname(__FILE__) + '/../deploy'
+    deploy_cmd = File.dirname(__FILE__) + '/../../deploy'
     cmdline = [deploy_cmd, env_name] + args
 
     log.info('+ ' + cmdline.join(' '))
