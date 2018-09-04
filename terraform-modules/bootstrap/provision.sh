@@ -43,11 +43,10 @@ options:
                                 provisioning succeeds or fails. We'll complete
                                 the lifecycle hook with a CONTINUE result on
                                 success, or an ABANDON result on failure.
-    --lifecycle-hook-abandon-delay SECONDS
-                                On failure, wait SECONDS before notifying the
-                                lifecycle hook. This is useful when testing to
-                                keep failed instances alive without terminating
-                                them to allow for interactive debugging.
+
+                                If \$INFO_DIR/skip_abandon_hook exists, don't
+                                send any result on failure, which will keep the
+                                instance alive until the abandon timeout.
 
 Needed config files:
 
@@ -70,6 +69,14 @@ Proxy configuration:
     $INFO_DIR/proxy_port      TCP port of the outbound proxy server
     $INFO_DIR/no_proxy_hosts  The no_proxy string containing a comma-separated
                               list of names that should not use the proxy.
+
+Debugging after failure with lifecycle hooks:
+
+    If the file $INFO_DIR/skip_abandon_hook exists, then the ABANDON signal
+    will not be sent even on provision failure. Create this file to keep an
+    instance alive for debugging. The instance will remain in the pending state
+    and won't be terminated until it reaches the lifecycle hook's abandon
+    timeout.
 
 EOM
 }
@@ -229,6 +236,15 @@ maybe_complete_lifecycle_hook() {
     fi
 }
 
+maybe_lifecycle_hook_heartbeat() {
+    if [ -n "$asg_name" ] && [ -n "$asg_lifecycle_hook_name" ]; then
+        echo >&2 "Sending heartbeat to ASG lifecycle hook"
+        lifecycle_hook_heartbeat "$asg_name" "$asg_lifecycle_hook_name"
+    else
+        echo >&2 "No lifecycle hook was specified, nothing to notify."
+    fi
+}
+
 # usage: complete_lifecycle_hook ASG_NAME ASG_LIFECYCLE_HOOK_NAME RESULT
 #
 # Notify the specified lifecycle hook with RESULT.
@@ -251,6 +267,27 @@ complete_lifecycle_hook() {
         --lifecycle-action-result "$result"
 }
 
+# usage: lifecycle_hook_heartbeat ASG_NAME ASG_LIFECYCLE_HOOK_NAME
+#
+# Send a keep alive heartbeat to the specified lifecycle hook.
+#
+lifecycle_hook_heartbeat() {
+    local asg_name asg_lifecycle_hook_name
+    asg_name="$1"
+    asg_lifecycle_hook_name="$2"
+
+    local instance_id az
+    instance_id="$(ec2metadata --instance-id)"
+    az="$(ec2metadata --availability-zone)"
+
+    run aws autoscaling record-lifecycle-action-heartbeat \
+        --region "${az::-1}" \
+        --auto-scaling-group-name "$asg_name" \
+        --lifecycle-hook-name "$asg_lifecycle_hook_name" \
+        --instance-id "$instance_id"
+}
+
+
 # --
 
 # If we appear to be a cloud-init user-data script running as root, exit zero.
@@ -271,7 +308,6 @@ berks_subdir="berks-cookbooks"
 berksfile_toplevel=
 asg_name=
 asg_lifecycle_hook_name=
-lifecycle_hook_abandon_delay=
 
 while [ $# -gt 0 ] && [[ $1 = -* ]]; do
     case "$1" in
@@ -303,7 +339,7 @@ while [ $# -gt 0 ] && [[ $1 = -* ]]; do
             shift
             ;;
         --lifecycle-hook-abandon-delay)
-            lifecycle_hook_abandon_delay="$2"
+            echo >&2 "Warning: --lifecycle-hook-abandon-delay is deprecated"
             shift
             ;;
         -h|--help)
@@ -329,11 +365,15 @@ handle_error() {
     echo >&2 "provision.sh: ERROR -- exiting after failure"
     echo >&2 "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 
-    if [ -n "$lifecycle_hook_abandon_delay" ]; then
-        echo >&2 "Sleeping $lifecycle_hook_abandon_delay seconds due to" \
-            " --lifecycle-hook-abandon-delay"
-        sleep "$lifecycle_hook_abandon_delay"
+    if [ -e "$INFO_DIR/skip_abandon_hook" ]; then
+        echo >&2 "Flag file $INFO_DIR/skip_abandon_hook exists! Will not" \
+            "send the ABANDON signal to the lifecycle hook."
+        maybe_lifecycle_hook_heartbeat
+        return
     fi
+
+    echo >&2 "Sleeping 15 seconds before sending ABANDON signal..."
+    sleep 15
 
     maybe_complete_lifecycle_hook ABANDON
 }

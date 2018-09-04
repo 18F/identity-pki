@@ -65,15 +65,6 @@ variable "override_asg_name" {
     default = ""
 }
 
-variable "asg_lifecycle_hook_abandon_delay" {
-    description = <<EOM
-Seconds to wait before notifying the lifecycle hook to ABANDON when
-provision.sh fails. This is useful if you want to keep an instance running for
-manual debugging on failures.
-EOM
-    default = 30
-}
-
 locals {
     "asg_name" = "${var.override_asg_name != "" ? var.override_asg_name : "${var.env}-${var.role}"}"
 }
@@ -171,7 +162,6 @@ data "external" "cloud-init-provision-private-template" {
 
         asg_name = "${local.asg_name}"
         lifecycle_hook_name = "${var.private_lifecycle_hook_name}"
-        lifecycle_hook_abandon_delay = "${var.asg_lifecycle_hook_abandon_delay}"
     }
 }
 
@@ -197,7 +187,6 @@ data "external" "cloud-init-provision-main-template" {
 
         asg_name = "${local.asg_name}"
         lifecycle_hook_name = "${var.main_lifecycle_hook_name}"
-        lifecycle_hook_abandon_delay = "${var.asg_lifecycle_hook_abandon_delay}"
     }
 }
 
