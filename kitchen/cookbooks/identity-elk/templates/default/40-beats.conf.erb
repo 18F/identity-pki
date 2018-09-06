@@ -8,6 +8,13 @@ input {
 }
 
 filter { 
+  if [source] == "/srv/idp/shared/log/events.log" {
+    json {
+      source => "message"
+      target => "events"
+    }
+  }
+
   if [source] == "/srv/idp/shared/log/production.log" {
     if [message] =~ "^\{" {
       json {
