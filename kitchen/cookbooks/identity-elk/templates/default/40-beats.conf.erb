@@ -7,3 +7,25 @@ input {
   }
 }
 
+filter { 
+  if [source] == "/srv/idp/shared/log/events.log" {
+    json {
+      source => "message"
+      target => "events"
+    }
+  }
+
+  if [source] == "/srv/idp/shared/log/production.log" {
+    if [message] =~ "^\{" {
+      json {
+        source => "message"
+        target => "rails"
+      }
+    }
+    if [message] =~ "^source" {
+      kv {
+        target => "rack"
+      }
+    }
+  }
+}

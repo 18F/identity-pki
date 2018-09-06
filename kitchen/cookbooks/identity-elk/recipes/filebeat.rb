@@ -54,15 +54,6 @@ node['elk']['filebeat']['logfiles'].each do |logitem|
     'type' => 'log'
   }
 
-  if logitem['format'] == 'json'
-    json_config = {
-      'json_keys_under_root' => true,
-      'json_add_error_key' => true,
-      'json_message_key' => 'id'
-    }
-    conf = conf.merge(json_config)
-  end
-
   filebeat_prospector logfile.gsub(/[\/\*]/,'_') do
     config conf
   end
