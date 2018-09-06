@@ -42,9 +42,7 @@ node['elk']['filebeat']['logfiles'].each do |logitem|
   logfile = logitem.fetch('log')
 
   conf = {
-    'document_type' => "#{logitem.fetch('type')}",
     'enabled' => true,
-    'fields' => {'type' => logfile},
     'harvester_buffer_size' => 16384,
     'ignore_older' => '24h',
     'paths' => [logfile],
