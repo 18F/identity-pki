@@ -44,8 +44,6 @@ node['elk']['filebeat']['logfiles'].each do |logitem|
   conf = {
     'document_type' => "#{logitem.fetch('type')}",
     'enabled' => true,
-    # XXX make sure to nuke this once the auditctl stuff is in the base image
-    'exclude_lines' => [ 'name=./var/lib/filebeat', 'exe=./usr/share/filebeat/bin/filebeat' ],
     'fields' => {'type' => logfile},
     'harvester_buffer_size' => 16384,
     'ignore_older' => '24h',
