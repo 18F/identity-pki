@@ -10,7 +10,6 @@ default['elk']['filebeat']['logfiles'] = [
   {'log' => '/srv/*/shared/log/*.log', 'type' => 'log', 'format' => 'text'},
   {'log' => '/srv/*/shared/log/events.log', 'type' => 'log', 'format' => 'json'},
   {'log' => '/srv/*/shared/log/production.log', 'type' => 'log', 'format' => 'text'},
-  {'log' => '/opt/nginx/logs/*.log', 'type' => 'nginx-access', 'format' => 'text'},
   {'log' => '/var/log/syslog', 'type' => 'syslog', 'format' => 'text'},
   {'log' => '/var/log/auth.log', 'type' => 'syslog', 'format' => 'text'},
   {'log' => '/var/lib/docker/aufs/mnt/*/var/log/*/*.log', 'type' => 'syslog', 'format' => 'text'},
