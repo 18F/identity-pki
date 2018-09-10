@@ -30,6 +30,13 @@ filebeat_install 'default' do
 end
 
 filebeat_conf = {
+  'filebeat.modules' => [
+    {
+      'module' => 'nginx',
+      'access' => { 'enabled' => true },
+      'error' => { 'enabled' => true }
+    }
+  ],
   'output.logstash.hosts' => ['logstash.login.gov.internal:5044'],
   'output.logstash.ssl.certificate_authorities' => ["/etc/ssl/certs/ca-certificates.crt"]
 }

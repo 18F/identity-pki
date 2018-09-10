@@ -1,6 +1,5 @@
 #user  nobody;
 worker_processes  5;
-error_log  <%= @log_path %>/error.log;
 pid <%= @pidfile %>;
 
 events {
@@ -75,30 +74,22 @@ http {
     default $realip_remote_addr;
   }
 
+  # Specify a key=value format useful for machine parsing
+  log_format kv 'host="$host" dest_port="$server_port" dest_ip="$server_addr" '
+                  'src="$remote_addr" src_ip="$realip_remote_addr" user="$remote_user" '
+                  'time_local="$time_local" protocol="$server_protocol" status="$status" '
+                  'bytes_out="$body_bytes_sent" bytes_in="$upstream_response_length" '
+                  'http_referer="$http_referer" http_user_agent="$http_user_agent" '
+                  'nginx_version="$nginx_version" http_x_forwarded_for="$http_x_forwarded_for" '
+                  'uri_query="$query_string" uri_path="$uri" '
+                  'http_method="$request_method" response_time="$upstream_response_time" '
+                  'cookie="$http_cookie" request_time="$request_time" ';
+
+  access_log <%= @log_path or raise "no @log_path" %>/access.log kv;
+  error_log  <%= @log_path or raise "no @log_path" %>/error.log info;
+
   # Get $status_reason variable, a human readable version of $status
   include status-map.conf;
-
-  # Specify a fancy human-friendly format for our access logs
-  log_format fancy_log '[$time_local] $host:$server_port : $remote_addr - ($lb_if_proxied) '
-                       '$remote_user "$request" $status "$status_reason" $body_bytes_sent Bytes '
-                       '"$http_referer" "$http_user_agent" $request_time sec "$http_x_amzn_trace_id"';
-
-  # Specify a key=value format useful for machine parsing
-  log_format splunk 'host="$host" dest_port="$server_port" dest_ip="$server_addr" '
-                    'src="$remote_addr" src_ip="$realip_remote_addr" user="$remote_user" '
-                    'time_local="$time_local" protocol="$server_protocol" status="$status" '
-                    'bytes_out="$body_bytes_sent" bytes_in="$upstream_response_length" '
-                    'http_referer="$http_referer" http_user_agent="$http_user_agent" '
-                    'nginx_version="$nginx_version" http_x_forwarded_for="$http_x_forwarded_for" '
-                    'uri_query="$query_string" uri_path="$uri" '
-                    'http_method="$request_method" response_time="$upstream_response_time" '
-                    'cookie="$http_cookie" request_time="$request_time" ';
-
-  # Use the fancy log format for our access logs
-  access_log <%= @log_path or raise "no @log_path" %>/access.log fancy_log;
-
-  # Also log machine parseable logs
-  access_log <%= @log_path or raise "no @log_path" %>/machine.access.log splunk;
 
   include sites.d/*.conf;
 }
