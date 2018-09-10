@@ -24,7 +24,7 @@ class OCSPResponse
     # This will spit out a warning if the response is not signed by
     # the cert we expect since we won't have the unexpected signing
     # cert in the chain. That's okay.
-    response.verify(chain, cert_store.store, OpenSSL::OCSP::TRUSTOTHER)
+    response&.verify(chain, cert_store.store, OpenSSL::OCSP::TRUSTOTHER)
   end
 
   def valid_nonce?
