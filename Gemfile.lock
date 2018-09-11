@@ -711,7 +711,7 @@ GEM
     fasterer (0.4.1)
       colorize (~> 0.7)
       ruby_parser (~> 3.11.0)
-    ffi (1.9.23)
+    ffi (1.9.25)
     figaro (1.1.1)
       thor (~> 0.14)
     formatador (0.2.5)
