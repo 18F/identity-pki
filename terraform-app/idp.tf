@@ -55,7 +55,7 @@ output "idp_db_endpoint" {
 }
 
 resource "aws_db_parameter_group" "force_ssl" {
-  name = "${var.name}-idp-force-ssl-${var.env_name}-${var.rds_engine}${replace(var.rds_engine_version_short, ".", "")}"
+  name_prefix = "${var.name}-${var.env_name}-idp-${var.rds_engine}${replace(var.rds_engine_version_short, ".", "")}-"
   # Before changing this value, make sure the parameters are correct for the
   # version you are upgrading to.  See
   # http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_WorkingWithParamGroups.html.
@@ -65,6 +65,18 @@ resource "aws_db_parameter_group" "force_ssl" {
     name = "rds.force_ssl"
     value = "1"
     apply_method = "pending-reboot"
+  }
+
+  # Log all Data Definition Layer changes (ALTER, CREATE, etc.)
+  parameter {
+    name = "log_statement"
+    value = "ddl"
+  }
+
+  # Log all slow queries that take longer than specified time in ms
+  parameter {
+    name = "log_min_duration_statement"
+    value = "250" # 250 ms
   }
 
   lifecycle {
