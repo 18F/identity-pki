@@ -35,6 +35,7 @@ filter {
   # Nginx
   if [source] == "/var/log/nginx/access.log" {
     kv {
+      add_field => { "type" => "nginx_access" }
       remove_field => "message"
       target => "nginx"
     }
@@ -45,7 +46,10 @@ filter {
   else if [source] == "/var/log/nginx/error.log" {
     if [message] =~ "^\[" {
       grok {
-        add_field => { "[nginx][error][logtype]" => "module" }
+        add_field => {
+          "[nginx][error][logtype]" => "module"
+          "type" => "nginx_error"
+        }
         match => { "message" => ["\[ N %{TIMESTAMP_ISO8601:[nginx][error][time]} %{NUMBER:[nginx][error][process_id]}/(?<source_code_filename>T.*):%{NUMBER:[nginx][error][source_code][line_number]} ]: %{GREEDYDATA:[nginx][error][message]}"] }
         remove_field => "message"
       }
@@ -55,7 +59,10 @@ filter {
     }
     else if [message] =~ "^%{YEAR}" {
       grok {
-        add_field => { "[nginx][error][logtype]" => "core" }
+        add_field => {
+          "[nginx][error][logtype]" => "core"
+          "type" => "nginx_error"
+        }
         match => { "message" => ["%{DATA:[nginx][error][time]} \[%{DATA:[nginx][error][level]}\] %{NUMBER:[nginx][error][pid]}#%{NUMBER:[nginx][error][tid]}: (\*%{NUMBER:[nginx][error][connection_id]} )?%{GREEDYDATA:[nginx][error][message]}"] }
         remove_field => "message"
       }
@@ -66,7 +73,10 @@ filter {
     }
     else if [message] =~ "^App" {
       grok {
-        add_field => { "[nginx][error][logtype]" => "app" }
+        add_field => {
+          "[nginx][error][logtype]" => "app"
+          "type" => "nginx_error"
+        }
         match => { "message" => ["App %{NUMBER:[nginx][error][app][process_id]} output: %{GREEDYDATA:[nginx][error][app][message]}"] }
         remove_field => "message"
       }
