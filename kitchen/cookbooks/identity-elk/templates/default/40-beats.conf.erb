@@ -39,6 +39,9 @@ filter {
       target => "nginx"
     }
   }
+  else if [source] == "/var/log/nginx/fancy_access.log" {
+    drop { }
+  }
   else if [source] == "/var/log/nginx/error.log" {
     if [message] =~ "^\[" {
       grok {
