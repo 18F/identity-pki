@@ -10,17 +10,16 @@ input {
 }
 
 filter {
-  if [type] == "elb" {
+  if [message] =~ "^h2|http|https|ws|wss" {
     grok {
-      match => { "message" => "\A%{WORD:type} %{TIMESTAMP_ISO8601:timestamp} %{NOTSPACE:elb} %{HOSTPORT:clientport} %{HOSTPORT:targetport} %{ISO8601_SECOND:request_processing_time} %{ISO8601_SECOND:target_processing_time} %{ISO8601_SECOND:response_processing_time} %{INT:elb_status_code} %{INT:target_status_code} %{INT:received_bytes} %{INT:sent_bytes} %{QS:request} %{QS:user_agent} %{NOTSPACE:ssl_cipher} %{NOTSPACE:ssl_protocol} %{NOTSPACE:target_group_arn} %{QS:trace_id} " }
+      add_field => { "type" => "alb" }
+      match => { "message" => "\A%{WORD:network_protocol} %{TIMESTAMP_ISO8601:timestamp} %{NOTSPACE:elb} %{HOSTPORT:clientport} %{HOSTPORT:targetport} %{ISO8601_SECOND:request_processing_time} %{ISO8601_SECOND:target_processing_time} %{ISO8601_SECOND:response_processing_time} %{INT:elb_status_code} %{INT:target_status_code} %{INT:received_bytes} %{INT:sent_bytes} %{QS:request} %{QS:user_agent} %{NOTSPACE:ssl_cipher} %{NOTSPACE:ssl_protocol} %{NOTSPACE:target_group_arn} %{QS:trace_id} " }
     }
   }
-}
-
-filter {
-  if [type] == "proxyelb" {
+  if [type] == "elb" {
     grok {
-      match => { "message" => '%{TIMESTAMP_ISO8601:timestamp} %{NOTSPACE:elb_name} %{IP:elb_client_ip}:%{NUMBER:elb_client_port} %{IP:elb_backend_ip}:%{NUMBER:elb_backend_port} %{NUMBER:request_processing_time} %{NUMBER:backend_processing_time} %{NUMBER:response_processing_time} (?:%{NUMBER:elb_status_code}|-) (?:%{NUMBER:backend_status_code}|-) %{NUMBER:elb_received_bytes} %{NUMBER:elb_sent_bytes} "(?:%{QS:elb_request}|-)" "(?:%{QS:userAgent}|-)" %{NOTSPACE:elb_sslcipher} %{NOTSPACE:elb_sslprotocol}' }
+      add_field => { "type" => "clb" }
+      match => { "message" => '%{TIMESTAMP_ISO8601:timestamp} %{NOTSPACE:elb_name} %{IP:elb_client_ip}:%{NUMBER:elb_client_port} %{IP:elb_backend_ip}:%{NUMBER:elb_backend_port} %{NUMBER:request_processing_time} %{NUMBER:backend_processing_time} %{NUMBER:response_processing_time} (?:%{NUMBER:elb_status_code}|-) (?:%{NUMBER:backend_status_code}|-) %{NUMBER:elb_received_bytes} %{NUMBER:elb_sent_bytes} "(?:%{QS:elb_request}|- - - )" "(?:%{QS:userAgent}|-)" %{NOTSPACE:elb_sslcipher}|- %{NOTSPACE:elb_sslprotocol}|-' }
     }
   }
 }
