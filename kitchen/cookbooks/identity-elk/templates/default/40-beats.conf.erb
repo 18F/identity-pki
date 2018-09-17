@@ -8,23 +8,77 @@ input {
 }
 
 filter { 
+  # Rails Events
   if [source] == "/srv/idp/shared/log/events.log" {
     json {
+      remove_field => "message"
       source => "message"
       target => "events"
     }
   }
-
+  # Rails Production
   if [source] == "/srv/idp/shared/log/production.log" {
     if [message] =~ "^\{" {
       json {
+        remove_field => "message"
         source => "message"
         target => "rails"
       }
     }
     if [message] =~ "^source" {
       kv {
+        remove_field => "message"
         target => "rack"
+      }
+    }
+  }
+  # Nginx
+  if [source] == "/var/log/nginx/access.log" {
+    kv {
+      add_field => { "type" => "nginx_access" }
+      remove_field => "message"
+      target => "nginx"
+    }
+  }
+  else if [source] == "/var/log/nginx/fancy_access.log" {
+    drop { }
+  }
+  else if [source] == "/var/log/nginx/error.log" {
+    if [message] =~ "^\[" {
+      grok {
+        add_field => {
+          "[nginx][error][logtype]" => "module"
+          "type" => "nginx_error"
+        }
+        match => { "message" => ["\[ N %{TIMESTAMP_ISO8601:[nginx][error][time]} %{NUMBER:[nginx][error][process_id]}/(?<source_code_filename>T.*):%{NUMBER:[nginx][error][source_code][line_number]} ]: %{GREEDYDATA:[nginx][error][message]}"] }
+        remove_field => "message"
+      }
+      mutate {
+        rename => { "source_code_filename" => "[nginx][error][source_code][filename]" }
+      }
+    }
+    else if [message] =~ "^%{YEAR}" {
+      grok {
+        add_field => {
+          "[nginx][error][logtype]" => "core"
+          "type" => "nginx_error"
+        }
+        match => { "message" => ["%{DATA:[nginx][error][time]} \[%{DATA:[nginx][error][level]}\] %{NUMBER:[nginx][error][pid]}#%{NUMBER:[nginx][error][tid]}: (\*%{NUMBER:[nginx][error][connection_id]} )?%{GREEDYDATA:[nginx][error][message]}"] }
+        remove_field => "message"
+      }
+      date {
+        match => [ "[nginx][error][time]", "YYYY/MM/dd H:m:s" ]
+        remove_field => "[nginx][error][time]"
+      }
+    }
+    else if [message] =~ "^App" {
+      grok {
+        add_field => {
+          "[nginx][error][logtype]" => "app"
+          "type" => "nginx_error"
+        }
+        match => { "message" => ["App %{NUMBER:[nginx][error][app][process_id]} output: %{GREEDYDATA:[nginx][error][app][message]}"] }
+        remove_field => "message"
       }
     }
   }
