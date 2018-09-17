@@ -59,3 +59,14 @@ end
 describe crontab('root').commands(discovery_cron_cmd) do
   its('minutes') { should cmp '0,15,30,45' }
 end
+
+LOGSTASH_CONFIG_DIRECTORIES = ['cloudtraillogstashconf.d',
+                               'cloudwatchlogstashconf.d',
+                               'logstashconf.d'].freeze
+
+LOGSTASH_CONFIG_DIRECTORIES.each do |config_dir|
+  describe command("/usr/share/logstash/bin/logstash -f /etc/logstash/#{config_dir} --config.test_and_exit") do
+    its('exit_status') { should eq 0 }
+    its('stdout') { should match 'Configuration OK' }
+  end
+end
