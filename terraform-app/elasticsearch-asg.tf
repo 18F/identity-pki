@@ -87,8 +87,8 @@ resource "aws_autoscaling_group" "elasticsearch" {
     load_balancers = []
     target_group_arns = ["${aws_lb_target_group.elasticsearch.arn}"]
 
-    # Because these nodes have persistent data, we terminate manually in prod.
-    protect_from_scale_in = "${var.asg_prevent_auto_terminate}"
+    # Because these nodes have persistent data, we terminate manually.
+    protect_from_scale_in = true
 
     tag {
         key = "Name"
