@@ -18,7 +18,9 @@ server {
     ssl_stapling on;
     ssl_stapling_verify on;
 
-    access_log  /var/log/nginx/access.log  fancy_log;
+    access_log <%= @log_path or raise "no @log_path" %>/access.log kv;
+    access_log <%= @log_path or raise "no @log_path" %>/fancy_access.log fancy;
+    error_log  <%= @log_path or raise "no @log_path" %>/error.log info;
 
     location / {
         root           /usr/local/var/www;

@@ -98,3 +98,12 @@ describe file('/var/log/nginx/access.log') do
   it { should exist }
   its(:size) { should > 0 }
 end
+
+# Ensure our nginx configuration is a valid one.
+describe command('/opt/nginx/sbin/nginx -t') do
+  its('exit_status') { should eq 0 }
+end
+
+describe port(443) do
+  it { should be_listening }
+end

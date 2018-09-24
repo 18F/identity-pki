@@ -47,6 +47,11 @@ describe command('/opt/nginx/sbin/nginx -V') do
   its('stderr') { should match (/built with OpenSSL 1.0.2o/) }
 end
 
+# Ensure our nginx configuration is a valid one.
+describe command('/opt/nginx/sbin/nginx -t') do
+  its('exit_status') { should eq 0 }
+end
+
 describe file('/usr/local/bin/update_cert_revocations') do
   it { should exist }
   it { should be_executable }
@@ -55,4 +60,8 @@ end
 describe file('/usr/local/bin/update_letsencrypt_certs') do
   it { should exist }
   it { should be_executable }
+end
+
+describe port(443) do
+  it { should be_listening }
 end

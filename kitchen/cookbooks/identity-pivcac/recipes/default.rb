@@ -93,6 +93,7 @@ template "/opt/nginx/conf/sites.d/pivcac.conf" do
   notifies :restart, "service[passenger]"
   source 'nginx_server.conf.erb'
   variables({
+    log_path: '/var/log/nginx',
     passenger_ruby: lazy { Dir.chdir(deploy_dir) { shell_out!(%w{rbenv which ruby}).stdout.chomp } },
     server_name: node.fetch('pivcac').fetch('wildcard'),
     ssl_domain: node.fetch('pivcac').fetch('domain')
