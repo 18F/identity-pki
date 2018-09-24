@@ -43,11 +43,11 @@ default['elk']['legacy_log_bucket_name'] = true
 default['java']['jdk_version'] = '8'
 
 # remote files
-default['elk']['kibanatarball'] = 'https://artifacts.elastic.co/downloads/kibana/kibana-5.6.9-linux-x86_64.tar.gz'
-default['elk']['logstashdeb'] = 'https://artifacts.elastic.co/downloads/logstash/logstash-5.6.9.deb'
+default['elk']['kibanatarball'] = 'https://artifacts.elastic.co/downloads/kibana/kibana-5.6.12-linux-x86_64.tar.gz'
+default['elk']['logstashdeb'] = 'https://artifacts.elastic.co/downloads/logstash/logstash-5.6.12.deb'
 default['elk']['logstash-input-cloudwatch-logs-version'] = '1.0.3'
 default['elk']['logstash-codec-cloudtrail-version'] = '3.0.5'
-default['elk']['kibanalogtrailplugin'] = 'https://github.com/18F/identity-cookbooks/raw/jjg/logtrail-5.6.9/logtrail/logtrail-5.6.9-0.1.23.zip'
+default['elk']['kibanalogtrailplugin'] = 'https://github.com/18F/identity-cookbooks/raw/jjg/logtrail-5.6.12/logtrail/logtrail-5.6.12-0.1.23.zip'
 
 # users to allow into elk
 default['elk']['users'] = [ ]
