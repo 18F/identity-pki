@@ -102,6 +102,16 @@ server {
         add_header Access-Control-Allow-Methods 'GET';
         <%- end %>
     }
+
+    location /verify/doc_auth/front_image
+      client_max_body_size 10M;
+    }
+    location /verify/doc_auth/back_image
+      client_max_body_size 10M;
+    }
+    location /verify/doc_auth/self_image
+      client_max_body_size 10M;
+    }
 }
 
 <%- if @redirect_server_names %>
