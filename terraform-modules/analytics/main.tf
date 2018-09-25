@@ -45,9 +45,9 @@ resource "aws_redshift_cluster" "redshift" {
   database_name                = "analytics"
   master_username              = "awsuser"
   master_password              = "${var.redshift_master_password}"
-  node_type                    = "dc2.8xlarge"
-  cluster_type                 = "multi-node"
-  number_of_nodes              = "${var.num_redshift_nodes}"
+  node_type                    = "${var.env_name == "prod" ? "dc2.8xlarge": "dc2.large"}"
+  cluster_type                 = "${var.env_name == "prod" ? "multi-node": "single-node"}"
+  number_of_nodes              = "${var.env_name == "prod" ? "${var.num_redshift_nodes}" : 1}"
   cluster_subnet_group_name    = "${aws_redshift_subnet_group.redshift_subnet_group.name}"
   publicly_accessible          = true
   iam_roles                    = ["${aws_iam_role.redshift_role.arn}"]
