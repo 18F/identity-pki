@@ -16,6 +16,7 @@
     "application_ruby": ">= 0.0.1",
     "cloudhsm": ">= 0.0.7",
     "config_loader": ">= 0.0.1",
+    "identity_shared_attributes": ">= 0.0.1",
     "passenger": ">= 0.0.1",
     "poise-ruby": ">= 0.0.1",
     "poise-ruby-build": ">= 0.0.1",

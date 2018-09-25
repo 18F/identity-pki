@@ -62,16 +62,17 @@ cookbook 'identity-ossec', path: prefixed('kitchen/cookbooks/identity-ossec')
 cookbook 'identity-pivcac', path: prefixed('kitchen/cookbooks/identity-pivcac')
 cookbook 'instance_certificate', path: prefixed('kitchen/cookbooks/instance_certificate')
 cookbook 'login_dot_gov', path: prefixed('kitchen/cookbooks/login_dot_gov')
-cookbook 'passenger', path: prefixed('kitchen/cookbooks/passenger')
 cookbook 'service_discovery', path: prefixed('kitchen/cookbooks/service_discovery')
 cookbook 'identity-monitoring', path: prefixed('kitchen/cookbooks/identity-monitoring')
 
 # Cookbooks from our open source github repo
-IdentityCookbooksRef = '210008bc835a0093448ca7d5559b8d198e32f0e7'
+IdentityCookbooksRef = '85affb9790b8c2d917a8708ee921afeb9a5c8b7c'
 cookbook 'cloudhsm', '>= 0.0.7', git: 'https://github.com/18F/identity-cookbooks', rel: 'cloudhsm', ref: IdentityCookbooksRef
 cookbook 'identity_base_config', git: 'https://github.com/18F/identity-cookbooks', rel: 'identity_base_config', ref: IdentityCookbooksRef
 # Delete this when https://github.com/18F/identity-base-image/commit/de34ec53f30d742d544411459192824e58730c21 is rolled out everywhere:
 cookbook 'identity_ntp', git: 'https://github.com/18F/identity-cookbooks', rel: 'identity_ntp', ref: IdentityCookbooksRef
+ cookbook 'identity_shared_attributes', git: 'https://github.com/18F/identity-cookbooks', rel: 'identity_shared_attributes', ref: IdentityCookbooksRef
+ cookbook 'passenger', git: 'https://github.com/18F/identity-cookbooks', rel: 'passenger', ref: IdentityCookbooksRef
 cookbook 'static_eip', '>= 0.2.0', git: 'https://github.com/18F/identity-cookbooks', rel: 'static_eip', ref: IdentityCookbooksRef
 
 # We have to reference this special citadel-build repository for two reasons:

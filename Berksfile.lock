@@ -71,8 +71,6 @@ DEPENDENCIES
   ossec
     git: https://github.com/sous-chefs/ossec
     revision: 337b7f4ad54ecd51318fe57298232b4416b98409
-  passenger
-    path: kitchen/cookbooks/passenger
   poise-ruby
   poise-ruby-build
   ruby_build

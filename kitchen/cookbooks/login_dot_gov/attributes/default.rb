@@ -30,18 +30,17 @@ default['login_dot_gov']['rails_env']                                 = 'product
 default['login_dot_gov']['system_user']                               = 'appinstall'
 
 # User for serving actual HTTP requests
-default['login_dot_gov']['web_system_user']                           = 'websrv'
-
+default['login_dot_gov']['web_system_user'] = node.fetch(:identity_shared_attributes).fetch(:production_user)
 # get openssl binary location from info file that is created by the image build
 # temporarily hardcode fallback value to prevent failure if deploying against an older image
 openssl_binary = read_env_file('/etc/login.gov/info/openssl_binary')
+
 if openssl_binary
   default['login_dot_gov']['openssl']['binary']                       = openssl_binary
 else
-  default['login_dot_gov']['openssl']['binary']                       = '/opt/openssl-1.0.2o/bin/openssl'
+  openssl_version = node.fetch(:identity_shared_attributes).fetch(:openssl_version)
+  default['login_dot_gov']['openssl']['binary']                       = '/opt/#{openssl_version}/bin/openssl'
 end
-
-default['login_dot_gov']['cache_dir']                                 = '/var/cache/chef'
 
 # rbenv settings, must reflect values set in identity-base-image for the
 # identity-ruby cookbook.
