@@ -22,6 +22,14 @@ mypkcs8 = '/etc/logstash/elk.login.gov.key.pkcs8'
 
 directory '/etc/logstash'
 
+# TODO: This should probably use Chef::Config.fetch('http_proxy') or
+# identity_shared_attributes instead of depending on an IDP recipe.
+if node.fetch('login_dot_gov').fetch('https_proxy') && !node.fetch('login_dot_gov').fetch('no_proxy').match('s3-us-west-2.amazonaws.com')
+  proxy_uri = 'http://obproxy.login.gov.internal:3128'
+else
+  proxy_uri = ''
+end
+
 execute 'generate_elk_key' do
   command "openssl genrsa -out '#{mykey}' 2048"
   umask '0066'
@@ -215,6 +223,7 @@ include_recipe 'runit'
     variables ({
       :aws_region => node['ec2']['placement_availability_zone'][0..-2],
       :aws_logging_bucket => node['elk']['aws_logging_bucket'],
+      :proxy_uri => proxy_uri,
       :tags => [lsname]
     })
     notifies :run, "execute[restart_#{lsname}]", :delayed
@@ -265,15 +274,10 @@ template "/etc/logstash/cloudtraillogstashconf.d/30-cloudtrailin.conf" do
   source '30-cloudtrailin.conf.erb'
   variables ({
     :aws_region => node['ec2']['placement_availability_zone'][0..-2],
-    :cloudtrail_logging_bucket => "login-gov-cloudtrail-#{aws_account_id}"
+    :cloudtrail_logging_bucket => "login-gov-cloudtrail-#{aws_account_id}",
+    :proxy_uri => proxy_uri
   })
   notifies :run, 'execute[restart_cloudtraillogstash]', :delayed
-end
-
-if node.fetch('login_dot_gov').fetch('https_proxy') && !node.fetch('login_dot_gov').fetch('no_proxy').match('s3-us-west-2.amazonaws.com')
-  proxy_uri = 'http://obproxy.login.gov.internal:3128'
-else
-  proxy_uri = ''
 end
 
 template "/etc/logstash/cloudtraillogstashconf.d/70-elblogsin.conf" do
