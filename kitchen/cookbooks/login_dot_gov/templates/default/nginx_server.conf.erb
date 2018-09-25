@@ -103,13 +103,13 @@ server {
         <%- end %>
     }
 
-    location /verify/doc_auth/front_image
+    location /verify/doc_auth/front_image {
       client_max_body_size 10M;
     }
-    location /verify/doc_auth/back_image
+    location /verify/doc_auth/back_image {
       client_max_body_size 10M;
     }
-    location /verify/doc_auth/self_image
+    location /verify/doc_auth/self_image {
       client_max_body_size 10M;
     }
 }
