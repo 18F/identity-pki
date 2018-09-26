@@ -60,7 +60,11 @@ icp_access deny all
 
 http_port 3128
 
-access_log /var/log/squid/access.log squid
+# just like the standard squid log, but adds client source port %>p
+logformat custom_squid  %ts.%03tu %6tr %>a:%>p %Ss/%03>Hs %<st %rm %ru %[un %Sh/%<a %mt
+
+access_log /var/log/squid/access.log custom_squid
+
 refresh_pattern     ^ftp:                       1440    20%     10080
 refresh_pattern     ^gopher:                    1440    0%      1440
 refresh_pattern     -i (/cgi-bin/|\?)           0       0%      0
