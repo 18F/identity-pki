@@ -126,6 +126,7 @@ KNOWN_TF_VERSIONS='
 0.9.11
 0.10.8
 0.11.7
+0.11.8
 '
 
 check_tf_version() {
