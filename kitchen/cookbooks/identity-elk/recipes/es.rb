@@ -89,8 +89,8 @@ directory '/etc/elasticsearch/sgadmin' do
   owner 'elasticsearch'
 end
 
-elasticsearch_plugin 'com.floragunn:search-guard-5:5.6.9-19.1' do
-  plugin_name 'com.floragunn:search-guard-5:5.6.9-19.1'
+elasticsearch_plugin 'com.floragunn:search-guard-5:5.6.12-19.2' do
+  plugin_name 'com.floragunn:search-guard-5:5.6.12-19.2'
   # The documentation says this is true by default, but the code disagrees.
   # https://github.com/elastic/cookbook-elasticsearch/issues/663
   chef_proxy true
