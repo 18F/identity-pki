@@ -30,3 +30,24 @@ describe command('sudo whoami') do
   its('stdout') { should eq "root\n" }
   its('exit_status') { should eq 0 }
 end
+
+# test proxy HTTP
+describe command('curl -sSf -m 5 --proxy http://localhost:3128 https://checkip.amazonaws.com') do
+  its('stderr') { should eq '' }
+  its('stdout') { should match(/\A\d+\.\d+\.\d+\.\d+/) }
+  its('exit_status') { should eq 0 }
+end
+
+# test proxy HTTP denial
+describe command('curl -sSf -m 5 --proxy http://localhost:3128 https://denial-test.example.com') do
+  its('stderr') { should eq "curl: (22) The requested URL returned error: 403\n" }
+  its('stdout') { should eq '' }
+  its('exit_status') { should eq 22 }
+end
+
+# test proxy port based denial
+describe command('curl -sSf -m 5 --proxy http://localhost:3128 https://checkip.amazonaws.com:22') do
+  its('stderr') { should eq "curl: (22) The requested URL returned error: 403\n" }
+  its('stdout') { should eq '' }
+  its('exit_status') { should eq 22 }
+end
