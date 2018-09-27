@@ -89,7 +89,7 @@ if role == "elk"
 end
 
 # Enable the proxy unless env var is set to disable
-if ENV['KITCHEN_DISABLE_PROXY']
+if ENV['KITCHEN_DISABLE_PROXY'] || role == "outboundproxy"
   proxy_server = nil
   proxy_port = nil
   no_proxy_hosts = nil
