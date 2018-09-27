@@ -24,7 +24,7 @@ DEPENDENCIES
     rel: cloudhsm
   config_loader
     path: kitchen/cookbooks/config_loader
-  elasticsearch (~> 3.1.1)
+  elasticsearch (~> 4.0.3)
   elasticsearch-curator (~> 0.2.8)
   filebeat (~> 2.1.0)
   git
@@ -55,6 +55,11 @@ DEPENDENCIES
     revision: 043d44c4dff5febebcfa7f324da6c154d4c19c52
     ref: 043d44c
     rel: identity_ntp
+  identity_shared_attributes
+    git: https://github.com/18F/identity-cookbooks
+    revision: 85affb9790b8c2d917a8708ee921afeb9a5c8b7c
+    ref: 85affb9
+    rel: identity_shared_attributes
   instance_certificate
     path: kitchen/cookbooks/instance_certificate
   jenkins (~> 5.0.1)
@@ -71,6 +76,11 @@ DEPENDENCIES
   ossec
     git: https://github.com/sous-chefs/ossec
     revision: 337b7f4ad54ecd51318fe57298232b4416b98409
+  passenger
+    git: https://github.com/18F/identity-cookbooks
+    revision: 85affb9790b8c2d917a8708ee921afeb9a5c8b7c
+    ref: 85affb9
+    rel: passenger
   poise-ruby
   poise-ruby-build
   ruby_build
@@ -124,7 +134,7 @@ GRAPH
   cron (6.2.0)
   dpkg_autostart (0.2.0)
   elastic_repo (1.1.1)
-  elasticsearch (3.1.1)
+  elasticsearch (4.0.3)
     apt (>= 0.0.0)
     ark (>= 0.0.0)
     chef-sugar (>= 0.0.0)
@@ -188,6 +198,7 @@ GRAPH
   identity-pivcac (0.1.0)
   identity_base_config (0.1.1)
   identity_ntp (0.1.0)
+  identity_shared_attributes (0.1.0)
   instance_certificate (0.1.0)
     canonical_hostname (>= 0.0.0)
   java (2.2.0)
@@ -203,6 +214,7 @@ GRAPH
     application_ruby (>= 0.0.1)
     cloudhsm (>= 0.0.7)
     config_loader (>= 0.0.1)
+    identity_shared_attributes (>= 0.0.1)
     passenger (>= 0.0.1)
     poise-ruby (>= 0.0.1)
     poise-ruby-build (>= 0.0.1)
@@ -233,6 +245,7 @@ GRAPH
     yum-atomic (>= 0.0.0)
   packagecloud (1.0.0)
   passenger (0.0.6)
+    identity_shared_attributes (>= 0.0.1)
   poise (2.8.2)
   poise-archive (1.5.0)
     poise (~> 2.6)
