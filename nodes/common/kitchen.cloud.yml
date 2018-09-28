@@ -187,7 +187,7 @@ ec2 = Aws::EC2::Resource.new(region: Region)
 # get VPC
 vpc = ec2.vpcs(filters: [{name: 'tag:Name', values: [vpc_name]}]).first
 unless vpc
-  raise "No VPC found named #{vpc_name}.inspect}"
+  raise "No VPC found named #{vpc_name.inspect}"
 end
 
 # Ensure ssh_key_pair_name exists

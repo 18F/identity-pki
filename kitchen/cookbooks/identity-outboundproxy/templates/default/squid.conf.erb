@@ -1,58 +1,56 @@
 # This file generated from a Chef template.
 # identity-outboundproxy/templates/default.squid.conf.erb
 
+# CONNECT HTTPS
 acl SSL_ports port 443
-#AAMVA
+
+# CONNECT AAMVA
 acl SSL_ports port 18449
-#nntp
-#acl SSL_ports port 563
-#rsync
-#acl SSL_ports port 873
-acl Safe_ports port 80
+
+# FTP
 acl Safe_ports port 21
-#gopher
-acl Safe_ports port 70
-#
-acl Safe_ports port 210
-#
-acl Safe_ports port 280
-#
-acl Safe_ports port 488
-#
-acl Safe_ports port 591
-#printing
-#acl Safe_ports port 631
-#
-acl Safe_ports port 777
-#rsync
-#acl Safe_ports port 873
-#
-acl Safe_ports port 901
-#aws smtp
-acl Safe_ports port 587
-acl Safe_ports port 465
-acl Safe_ports port 1025-65535
+# HTTP
+acl Safe_ports port 80
+# HTTPS
+acl Safe_ports port 443
+
+# Unregistered ports, probably not used anywhere
+#acl Safe_ports port 1025-65535
+
 acl purge method PURGE
 acl CONNECT method CONNECT
 
-acl vpc src <%= @vpc_cidr %>
+acl localhost src 127.0.0.1/32 ::1
+acl to_localhost dst 127.0.0.0/8 0.0.0.0/32 ::1
+acl vpc src <%= @vpc_cidr or raise 'no @vpc_cidr' %>
 
 acl urls dstdomain "/etc/squid/domain-whitelist.conf"
 acl ips dst "/etc/squid/ip-whitelist.conf"
 
-http_access allow vpc urls
-http_access allow vpc ips
-http_access deny vpc all
+# Order matters for http_access rules! The first matching rule will apply, so
+# put allow rules as late as possible.
 
-http_access deny !Safe_ports
+# Deny to localhost, unexpected HTTP / HTTPS ports
+http_access deny to_localhost
+http_access deny !Safe_ports !SSL_ports
 http_access deny CONNECT !SSL_ports
 
+# Deny manager / purge except from localhost
 http_access allow manager localhost
 http_access deny manager
 http_access allow purge localhost
 http_access deny purge
 
-http_access allow urls localhost
+# Allow clients in VPC to connect to whitelisted domains and IP addresses
+http_access allow vpc urls
+http_access allow vpc ips
+http_access deny vpc all
+
+# Allow clients on localhost to connect to whitelisted domains and IP addresses
+http_access allow localhost urls
+http_access allow localhost ips
+
+# Deny by default
 http_access deny all
 
 icp_access allow vpc
@@ -64,6 +62,9 @@ http_port 3128
 logformat custom_squid  %ts.%03tu %6tr %>a:%>p %Ss/%03>Hs %<st %rm %ru %[un %Sh/%<a %mt
 
 access_log /var/log/squid/access.log custom_squid
+
+# Disable the ICMP pinger, which runs suid root and isn't super useful
+pinger_enable off
 
 refresh_pattern     ^ftp:                       1440    20%     10080
 refresh_pattern     ^gopher:                    1440    0%      1440
