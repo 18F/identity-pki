@@ -55,6 +55,34 @@ resource "aws_security_group" "ssm_endpoint" {
   vpc_id = "${aws_vpc.default.id}"
 }
 
+resource "aws_security_group" "ssmmessages_endpoint" {
+  description = "Allow inbound from all servers"
+
+  # allow outbound to the VPC
+  egress {
+    from_port = 0
+    to_port = 65535
+    protocol = "tcp"
+    cidr_blocks = ["${var.vpc_cidr_block}"]
+  }
+
+  ingress {
+    from_port = 0
+    to_port = 65535
+    protocol = "tcp"
+    security_groups = [
+        "${aws_security_group.idp.id}",
+        "${aws_security_group.app.id}",
+        "${aws_security_group.obproxy.id}",
+        "${aws_security_group.jumphost.id}",
+        "${aws_security_group.elk.id}",
+        "${aws_security_group.pivcac.id}",
+    ]
+  }
+
+  vpc_id = "${aws_vpc.default.id}"
+}
+
 resource "aws_security_group" "ec2_endpoint" {
   description = "Allow inbound from all servers"
 
@@ -234,6 +262,24 @@ resource "aws_vpc_endpoint" "ssm" {
 
   security_group_ids = [
     "${aws_security_group.ssm_endpoint.id}",
+  ]
+
+  subnet_ids = [
+    "${aws_subnet.privatesubnet1.id}",
+    "${aws_subnet.privatesubnet2.id}",
+    "${aws_subnet.privatesubnet3.id}",
+  ]
+
+  private_dns_enabled = true
+}
+
+resource "aws_vpc_endpoint" "ssmmessages" {
+  vpc_id = "${aws_vpc.default.id}"
+  service_name = "com.amazonaws.${var.region}.ssmmessages"
+  vpc_endpoint_type = "Interface"
+
+  security_group_ids = [
+    "${aws_security_group.ssmmessages_endpoint.id}",
   ]
 
   subnet_ids = [
