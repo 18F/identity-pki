@@ -13,7 +13,33 @@ filter {
   if [message] =~ "^h2|http|https|ws|wss" {
     grok {
       add_field => { "type" => "alb" }
-      match => { "message" => "\A%{WORD:network_protocol} %{TIMESTAMP_ISO8601:timestamp} %{NOTSPACE:elb} %{HOSTPORT:clientport} %{HOSTPORT:targetport} %{ISO8601_SECOND:request_processing_time} %{ISO8601_SECOND:target_processing_time} %{ISO8601_SECOND:response_processing_time} %{INT:elb_status_code} %{INT:target_status_code} %{INT:received_bytes} %{INT:sent_bytes} %{QS:request} %{QS:user_agent} %{NOTSPACE:ssl_cipher} %{NOTSPACE:ssl_protocol} %{NOTSPACE:target_group_arn} %{QS:trace_id} " }
+      match => { "message" => "\A%{WORD:request_type} %{TIMESTAMP_ISO8601:timestamp} %{NOTSPACE:elb} %{HOSTPORT:clientport} (%{HOSTPORT:targetport}|%{NOTSPACE:targetport_other}) (%{ISO8601_SECOND:request_processing_time}|%{NOTSPACE:request_processing_time_other}) (%{ISO8601_SECOND:target_processing_time}|%{NOTSPACE:target_processing_time_other}) (%{ISO8601_SECOND:response_processing_time}|%{NOTSPACE:response_processing_time_other}) %{INT:elb_status_code} (%{INT:target_status_code}|-) %{INT:received_bytes} %{INT:sent_bytes} %{QS:request} %{QS:user_agent} (%{NOTSPACE:ssl_cipher}|-) (%{NOTSPACE:ssl_protocol}|-) %{NOTSPACE:target_group_arn} %{QS:trace_id} %{QS:domain_name} %{QS:chosen_cert_arn} (%{NOTSPACE:matched_rule_priority}|-) %{TIMESTAMP_ISO8601:request_creation_time} (%{NOTSPACE:actions_executed}|-) (%{NOTSPACE:redirect_uri}|-)" }
+    }
+    date {
+      match  => [ "timestamp", ISO8601 ]
+    }
+    mutate {
+      gsub => [
+        "actions_executed", '"', "",
+        "chosen_cert_arn", '"', "",
+        "domain_name", '"', "",
+        "redirect_uri", '"', "",
+        "request", '"', "",
+        "trace_id", '"', "",
+        "user_agent", '"', ""
+      ]
+    }
+    grok {
+        match => ["request", "(%{NOTSPACE:http_method})? (%{NOTSPACE:http_uri})? (%{NOTSPACE:http_version})?"]
+    }
+    grok {
+        match => ["http_uri", "(%{WORD:protocol})?(://)?(%{IPORHOST:domain})?(:)?(%{INT:http_port})?(%{GREEDYDATA:request_uri})?"]
+    }
+    grok {
+        match => ["client", "(%{IPORHOST:client_ip})?"]
+    }
+    geoip {
+        source => "client_ip"
     }
   }
   if [type] == "elb" {
