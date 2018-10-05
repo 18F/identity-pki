@@ -28,7 +28,7 @@ variable "vpc_cidr_block"               { default = "172.16.32.0/22" }  # 172.16
 # proxy settings
 variable "proxy_server" { default = "obproxy.login.gov.internal" }
 variable "proxy_port" { default = "3128" }
-variable "no_proxy_hosts" { default = "localhost,127.0.0.1,169.254.169.254,169.254.169.123,.login.gov.internal,ec2.us-west-2.amazonaws.com,kms.us-west-2.amazonaws.com,secretsmanager.us-west-2.amazonaws.com,ssm.us-west-2.amazonaws.com,ec2messages.us-west-2.amazonaws.com,metadata.google.internal" }
+variable "no_proxy_hosts" { default = "localhost,127.0.0.1,169.254.169.254,169.254.169.123,.login.gov.internal,ec2.us-west-2.amazonaws.com,kms.us-west-2.amazonaws.com,secretsmanager.us-west-2.amazonaws.com,ssm.us-west-2.amazonaws.com,ec2messages.us-west-2.amazonaws.com,ssmmessages.us-west-2.amazonaws.com,metadata.google.internal" }
 
 variable "proxy_enabled_roles" {
   type = "map"
