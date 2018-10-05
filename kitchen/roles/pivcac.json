@@ -10,6 +10,7 @@
   "run_list": [
     "role[base]",
     "recipe[passenger::daemon]",
+    "recipe[login_dot_gov::dhparam]",
     "recipe[identity-pivcac]"
   ],
   "env_run_lists": {

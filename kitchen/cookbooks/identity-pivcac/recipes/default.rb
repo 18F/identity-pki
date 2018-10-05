@@ -9,12 +9,12 @@ include_recipe 'identity-pivcac::update_letsencrypt_certs'
 base_dir	= "/srv/pki-rails"
 deploy_dir	= "#{base_dir}/current/public"
 shared_path	= "#{base_dir}/shared"
-
-include_recipe 'login_dot_gov::dhparam'
+production_user	= node.fetch(:identity_shared_attributes).fetch(:production_user)
+system_user	= node.fetch(:identity_shared_attributes).fetch(:system_user)
 
 directory shared_path do
-  owner node['login_dot_gov']['system_user']
-  group node['login_dot_gov']['system_user']
+  owner system_user
+  group system_user
   recursive true
 end
 
@@ -23,7 +23,7 @@ branch_name = node.fetch('login_dot_gov').fetch('branch_name', "stages/#{node.ch
 deploy "#{base_dir}" do
   action :deploy
 
-  user node.fetch('login_dot_gov').fetch('system_user')
+  user system_user
 
   # Don't try to use database.yml in /shared.
   symlink_before_migrate({})
@@ -48,8 +48,8 @@ deploy "#{base_dir}" do
     end
 
     directory "#{shared_path}/config/certs" do
-      group node['login_dot_gov']['system_user']
-      owner node.fetch(:passenger).fetch(:production).fetch(:user)
+      group system_user
+      owner production_user
       recursive true
     end
 
@@ -103,8 +103,8 @@ end
 
 %w{config log}.each do |dir|
   directory "#{base_dir}/shared/#{dir}" do
-    group node['login_dot_gov']['system_user']
-    owner node.fetch(:passenger).fetch(:production).fetch(:user)
+    group system_user
+    owner production_user
     recursive true
     subscribes :create, "deploy[/srv/pki-rails]", :before
   end
@@ -119,8 +119,8 @@ web_writable_dirs = [
 
 web_writable_dirs.each do |dir|
   directory "#{shared_path}/#{dir}" do
-    owner node.fetch('login_dot_gov').fetch('system_user')
-    group node.fetch('login_dot_gov').fetch('web_system_user')
+    owner system_user
+    group production_user
     mode '0775'
     recursive true
   end
@@ -131,15 +131,15 @@ execute "rbenv exec bundle exec rake db:create db:migrate --trace" do
   environment({
     'RAILS_ENV' => "production"
   })
-  user node['login_dot_gov']['system_user']
+  user system_user
 end
 
 # ensure application.yml is readable by web user
 file '/srv/pki-rails/current/config/application.yml' do
-  group node.fetch('login_dot_gov').fetch('web_system_user')
+  group production_user
 end
 
-execute "chown -R #{node[:passenger][:production][:user]} #{shared_path}/log"
+execute "chown -R #{production_user} #{shared_path}/log"
 
 update_revocations_script = '/usr/local/bin/update_cert_revocations'
 
@@ -154,6 +154,6 @@ end
 
 cron_d 'update_cert_revocations' do
   hour '*/4'
-  user node.fetch('login_dot_gov').fetch('web_system_user')
+  user production_user
   command update_revocations_script
 end
