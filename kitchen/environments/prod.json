@@ -21,7 +21,6 @@
         "brody",
         "jgrevich",
         "jhooper",
-        "jpmugizi",
         "monfresh",
         "mzia",
         "steveu"
@@ -37,13 +36,8 @@
       "admins": [
         "brody",
         "jgrevich",
-        "jpmugizi",
         "mzia"
       ]
-    },
-    "terraform": {
-      "version": "0.8.8",
-      "zipfile": "terraform_0.8.8_linux_amd64.zip"
     }
   },
   "override_attributes": {
