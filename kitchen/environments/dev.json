@@ -23,7 +23,6 @@
         "brody",
         "jgrevich",
         "jhooper",
-        "jpmugizi",
         "monfresh",
         "mzia",
         "steveu"
@@ -32,18 +31,13 @@
     "filebeat": {
       "version": "5.2.0"
     },
-    "terraform": {
-      "version": "0.8.8",
-      "zipfile": "terraform_0.8.8_linux_amd64.zip"
-    },
     "identity-jenkins": {
       "users": [
         "monfresh"
       ],
       "admins": [
         "brody",
-        "jgrevich",
-        "jpmugizi"
+        "jgrevich"
       ]
     }
   },
