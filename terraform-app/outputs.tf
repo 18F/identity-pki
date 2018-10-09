@@ -33,3 +33,7 @@ output "idp_db_address" {
 output "jumphost-lb" {
   value = "${aws_route53_record.jumphost-elb-public.name}"
 }
+
+output "tlstest-cloudfront-domain" {
+  value = "${aws_cloudfront_distribution.tls_profiling.domain_name}"
+}
