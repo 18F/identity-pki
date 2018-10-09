@@ -7,6 +7,7 @@
 # back to one of these roots. The first one is the ultimate public root.
 # The others are DoD certs 2-4 from the archive available at
 # http://iasecontent.disa.mil/pki-pke/Certificates_PKCS7_v5.0u1_DoD.zip
+aws_http_timeout: '5'
 trusted_ca_root_identifiers: "\
   AD:0C:7A:75:5C:E5:F3:98:C4:79:98:0E:AC:28:FD:97:F4:E7:02:FC,\
   49:74:BB:0C:5E:BA:7A:FE:02:54:EF:7B:A0:C6:95:C6:09:80:70:96,\
@@ -14,6 +15,7 @@ trusted_ca_root_identifiers: "\
   BD:C1:B9:6B:4D:F4:1D:EC:30:90:BF:62:73:C0:84:33:F2:71:24:85"
 
 development:
+  aws_region: 'us-east-1'
   client_cert_escaped: 'true'
   database_name: 'identity_pki_dev'
   identity_idp_host: 'localhost'
@@ -27,6 +29,7 @@ development:
   secret_key_base: ''
 
 test:
+  aws_region: 'us-east-1'
   client_cert_escaped: 'true'
   database_name: 'identity_pki_test'
   identity_idp_host: 'localhost'
@@ -40,5 +43,6 @@ test:
   secret_key_base: ''
 
 production:
+  aws_region:
   client_cert_escaped: 'true'
   nonce_bloom_filter_enabled: 'false'
