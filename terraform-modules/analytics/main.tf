@@ -292,6 +292,7 @@ resource "aws_s3_bucket" "analytics_export_bucket" {
   }
 }
 
+# TODO: is this cross-account?
 # S3 bucket used to process 10% of production logs. It was created to workaround the issue of S3 not allowing more than one
 # lambda trigger see https://github.com/18F/identity-analytics-etl/pull/95
 # and https://github.com/terraform-providers/terraform-provider-aws/issues/1715
@@ -667,20 +668,6 @@ resource "aws_lambda_permission" "allow_bucket" {
   function_name = "${aws_lambda_function.analytics_lambda.arn}"
   principal     = "s3.amazonaws.com"
   source_arn    = "arn:aws:s3:::login-gov-${var.env_name}-logs"
-}
-
-resource "aws_s3_bucket_notification" "bucket_notification" {
-  # S3 bucket can only have one lambda trigger/notification at a time. Disable this in  
-  # all other environment,except prod. 
-  # see https://github.com/terraform-providers/terraform-provider-aws/issues/1715
-  count = "${var.env_name == "prod" ? 1: 0}"
-  bucket = "login-gov-${var.env_name}-logs"
-
-  lambda_function {
-    lambda_function_arn = "${aws_lambda_function.analytics_lambda.arn}"
-    events              = ["s3:ObjectCreated:*"]
-    filter_suffix       = ".txt"
-  }
 }
 
 resource "aws_cloudwatch_event_rule" "every_five_minutes" {

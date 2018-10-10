@@ -35,7 +35,7 @@ variable "num_redshift_nodes" {
 }
 
 variable "version_info_bucket" {
-  default = "login-dot-gov-analytics-terraform-state"
+  default = "login-gov-461353137281-terraform-state"
 }
 
 variable "version_info_region" {

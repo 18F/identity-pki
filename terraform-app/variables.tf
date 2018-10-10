@@ -88,6 +88,11 @@ variable "analytics_redshift_security_group_id" {
     default = ""
 }
 
+variable "analytics_lambda_arn_for_s3_notify" {
+    description = "The ARN of the analytics lambda that should be notified when new files are uploaded to the logstash S3 logs bucket. If empty, no lambda will be notified. This should be the same as aws_lambda_function.analytics_lambda.arn in the terraform-analytics directory."
+    default = ""
+}
+
 # CIDR block that is carved up for both the ASG elasticsearch instances and the
 # elasticsearch ELBs.
 # Range: 172.16.32.128 -> 172.16.32.191
