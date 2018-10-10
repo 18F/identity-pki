@@ -115,11 +115,13 @@ resource "aws_autoscaling_group" "app" {
 }
 
 module "app_recycle" {
-    source = "../terraform-modules/asg_recycle/"
+    source = "github.com/18F/identity-terraform//asg_recycle?ref=a1802acca51d07391bc818b62b38693a05df6c6f"
 
     # switch to count when that's a thing that we can do
     # https://github.com/hashicorp/terraform/issues/953
-    enabled = "${var.asg_auto_6h_recycle * var.alb_enabled * var.apps_enabled}"
+    enabled = "${var.asg_auto_recycle_enabled * var.alb_enabled * var.apps_enabled}"
+
+    use_daily_business_hours_schedule = "${var.asg_auto_recycle_use_business_schedule}"
 
     # This weird element() stuff is so we can refer to these attributes even
     # when the app autoscaling group has count=0. Reportedly this hack will not

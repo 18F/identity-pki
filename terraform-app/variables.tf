@@ -186,9 +186,13 @@ variable "root_domain" {
 }
 
 # Auto scaling flags
-variable "asg_auto_6h_recycle" {
+variable "asg_auto_recycle_enabled" {
     default = 0
     description = "Whether to automatically recycle IdP/worker/app/outboundproxy servers every 6 hours"
+}
+variable "asg_auto_recycle_use_business_schedule" {
+    default = 0
+    description = "If set to 1, recycle only once/day during business hours Mon-Fri, not every 6 houts"
 }
 
 # Auto scaling group desired counts
