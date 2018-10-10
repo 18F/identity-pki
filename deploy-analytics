@@ -16,7 +16,7 @@ BUCKET="login-gov-461353137281-terraform-state"
 STATE=${TF_DIR}/terraform-${TF_VAR_env_name}.tfstate
 
 echo "Configuring state bucket login_dot_gov_tf_state with state path ${STATE}"
-bash -x bin/configure_state_bucket.sh "${BUCKET}" "${STATE}" "${TF_DIR}" "us-west-2" "terraform_locks"
+bin/configure_state_bucket.sh "${BUCKET}" "${STATE}" "${TF_DIR}" "us-west-2" "terraform_locks"
 
 cat <<EOF
 ########################################
