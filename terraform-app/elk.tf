@@ -138,7 +138,7 @@ resource "aws_s3_bucket" "logbucket" {
       storage_class = "GLACIER"
     }
     expiration {
-      days = 1095
+      days = 2190 # 6 years
     }
   }
 
