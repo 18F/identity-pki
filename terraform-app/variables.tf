@@ -102,9 +102,6 @@ variable "elasticsearch_cidr_block" { default = "172.16.34.128/26" }
 # Range: 172.16.34.192 -> 172.16.34.255
 variable "elk_cidr_block" { default = "172.16.34.192/26" }
 
-variable "default_ami_id" {
-  description = "Default AMI ID to use if no role-specific value is set in the map"
-}
 variable "ami_id_map" {
   type = "map"
   description = "Mapping from server role to an AMI ID, overrides the default_ami_id if key present"
@@ -261,10 +258,24 @@ variable "bootstrap_private_git_clone_url" {
     description = "URL for provision.sh to use to clone identity-devops-private"
 }
 
+# The following two AMIs should be built at the same time and identical, even
+# though they will have different IDs. They should be updated here at the same
+# time, and then released to environments in sequence.
+variable "default_ami_id_sandbox" {
+    default = "ami-0f5718e8557d8b9b3"
+    description = "default AMI ID for environments in the sandbox account"
+}
+
+variable "default_ami_id_prod" {
+    default = "ami-0a75ce0c8e83df30f"
+    description = "default AMI ID for environments in the prod account"
+}
+
 locals {
   bootstrap_main_s3_ssh_key_url = "${var.bootstrap_main_s3_ssh_key_url != "" ? var.bootstrap_main_s3_ssh_key_url : "s3://login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}/common/id_ecdsa.identity-devops.deploy"}"
   bootstrap_private_s3_ssh_key_url = "${var.bootstrap_private_s3_ssh_key_url != "" ? var.bootstrap_private_s3_ssh_key_url : "s3://login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}/common/id_ecdsa.id-do-private.deploy"}"
   bootstrap_main_git_ref_default = "${var.bootstrap_main_git_ref_default != "" ? var.bootstrap_main_git_ref_default : "stages/${var.env_name}"}"
+  account_default_ami_id = "${data.aws_caller_identity.current.account_id == "555546682965" ? var.default_ami_id_prod : var.default_ami_id_sandbox}"
 }
 
 # These variables are used to toggle whether certain services are enabled.

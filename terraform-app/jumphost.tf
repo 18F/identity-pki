@@ -37,7 +37,7 @@ resource "aws_launch_configuration" "jumphost" {
         create_before_destroy = true
     }
 
-    image_id = "${lookup(var.ami_id_map, "jumphost", var.default_ami_id)}"
+    image_id = "${lookup(var.ami_id_map, "jumphost", local.account_default_ami_id)}"
     instance_type = "${var.instance_type_jumphost}"
     security_groups = ["${aws_security_group.jumphost.id}"]
 

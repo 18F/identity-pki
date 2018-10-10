@@ -37,7 +37,7 @@ resource "aws_launch_configuration" "worker" {
     create_before_destroy = true
   }
 
-  image_id = "${lookup(var.ami_id_map, "worker", var.default_ami_id)}"
+  image_id = "${lookup(var.ami_id_map, "worker", local.account_default_ami_id)}"
   instance_type = "${var.instance_type_worker}"
   security_groups = ["${aws_security_group.idp.id}"] # TODO use a separate sg
 

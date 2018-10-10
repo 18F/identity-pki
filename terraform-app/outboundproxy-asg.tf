@@ -73,7 +73,7 @@ resource "aws_launch_template" "outboundproxy" {
     name = "${aws_iam_instance_profile.obproxy.name}"
   }
 
-  image_id = "${lookup(var.ami_id_map, "outboundproxy", var.default_ami_id)}"
+  image_id = "${lookup(var.ami_id_map, "outboundproxy", local.account_default_ami_id)}"
 
   instance_initiated_shutdown_behavior = "terminate"
 

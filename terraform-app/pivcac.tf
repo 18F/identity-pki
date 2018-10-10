@@ -37,7 +37,7 @@ resource "aws_launch_configuration" "pivcac" {
     create_before_destroy = true
   }
 
-  image_id = "${lookup(var.ami_id_map, "pivcac", var.default_ami_id)}"
+  image_id = "${lookup(var.ami_id_map, "pivcac", local.account_default_ami_id)}"
   instance_type = "${var.instance_type_pivcac}"
   security_groups = ["${aws_security_group.pivcac.id}"]
 

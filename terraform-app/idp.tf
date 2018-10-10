@@ -258,7 +258,7 @@ resource "aws_launch_configuration" "idp" {
     create_before_destroy = true
   }
 
-  image_id = "${lookup(var.ami_id_map, "idp", var.default_ami_id)}"
+  image_id = "${lookup(var.ami_id_map, "idp", local.account_default_ami_id)}"
   instance_type = "${var.instance_type_idp}"
   security_groups = ["${aws_security_group.idp.id}", "${aws_security_group.base.id}"]
 
