@@ -11,7 +11,6 @@ filter {
   # Rails Events
   if [source] == "/srv/idp/shared/log/events.log" {
     json {
-      remove_field => "message"
       source => "message"
       target => "events"
     }
@@ -20,7 +19,6 @@ filter {
   if [source] == "/srv/idp/shared/log/production.log" {
     if [message] =~ "^\{" {
       json {
-        remove_field => "message"
         source => "message"
         target => "rails"
       }
@@ -36,7 +34,6 @@ filter {
   if [source] == "/var/log/nginx/access.log" {
     kv {
       add_field => { "type" => "nginx_access" }
-      remove_field => "message"
       target => "nginx"
     }
   }
@@ -51,7 +48,6 @@ filter {
           "type" => "nginx_error"
         }
         match => { "message" => ["\[ N %{TIMESTAMP_ISO8601:[nginx][error][time]} %{NUMBER:[nginx][error][process_id]}/(?<source_code_filename>T.*):%{NUMBER:[nginx][error][source_code][line_number]} ]: %{GREEDYDATA:[nginx][error][message]}"] }
-        remove_field => "message"
       }
       mutate {
         rename => { "source_code_filename" => "[nginx][error][source_code][filename]" }
@@ -64,7 +60,6 @@ filter {
           "type" => "nginx_error"
         }
         match => { "message" => ["%{DATA:[nginx][error][time]} \[%{DATA:[nginx][error][level]}\] %{NUMBER:[nginx][error][pid]}#%{NUMBER:[nginx][error][tid]}: (\*%{NUMBER:[nginx][error][connection_id]} )?%{GREEDYDATA:[nginx][error][message]}"] }
-        remove_field => "message"
       }
       date {
         match => [ "[nginx][error][time]", "YYYY/MM/dd H:m:s" ]
@@ -78,7 +73,6 @@ filter {
           "type" => "nginx_error"
         }
         match => { "message" => ["App %{NUMBER:[nginx][error][app][process_id]} output: %{GREEDYDATA:[nginx][error][app][message]}"] }
-        remove_field => "message"
       }
     }
   }
