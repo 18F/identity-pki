@@ -341,11 +341,13 @@ module "idp_lifecycle_hooks" {
 }
 
 module "idp_recycle" {
-  source = "../terraform-modules/asg_recycle/"
+  source = "github.com/18F/identity-terraform//asg_recycle?ref=a1802acca51d07391bc818b62b38693a05df6c6f"
 
   # switch to count when that's a thing that we can do
   # https://github.com/hashicorp/terraform/issues/953
-  enabled = "${var.asg_auto_6h_recycle}"
+  enabled = "${var.asg_auto_recycle_enabled}"
+
+  use_daily_business_hours_schedule = "${var.asg_auto_recycle_use_business_schedule}"
 
   asg_name = "${aws_autoscaling_group.idp.name}"
   normal_desired_capacity = "${aws_autoscaling_group.idp.desired_capacity}"

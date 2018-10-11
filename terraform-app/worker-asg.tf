@@ -118,14 +118,14 @@ resource "aws_autoscaling_group" "worker" {
 }
 
 module "worker_recycle" {
-    source = "../terraform-modules/asg_recycle/"
+    source = "github.com/18F/identity-terraform//asg_recycle?ref=a1802acca51d07391bc818b62b38693a05df6c6f"
 
-    enabled = "${var.asg_auto_6h_recycle}"
+    # switch to count when that's a thing that we can do
+    # https://github.com/hashicorp/terraform/issues/953
+    enabled = "${var.asg_auto_recycle_enabled}"
+
+    use_daily_business_hours_schedule = "${var.asg_auto_recycle_use_business_schedule}"
 
     asg_name = "${aws_autoscaling_group.worker.name}"
     normal_desired_capacity = "${aws_autoscaling_group.worker.desired_capacity}"
-
-    # TODO once we're on TF 0.10 remove these
-    min_size = "${aws_autoscaling_group.worker.min_size}"
-    max_size = "${aws_autoscaling_group.worker.max_size}"
 }
