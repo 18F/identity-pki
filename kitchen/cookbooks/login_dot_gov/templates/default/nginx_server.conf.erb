@@ -13,7 +13,7 @@ map $upstream_http_strict_transport_security $sts_value {
 
 server {
     listen       443 ssl;
-    server_name  <%= @server_name or raise 'no @server_name' %> <%= @server_aliases -%>;
+    server_name  <%= @server_name or raise 'no @server_name' %> <%= @server_aliases -%> localhost "~^\d+\.\d+\.\d+\.\d+$";
 
     # Use the certificate and key placed by the instance_certificate cookbook
     # TODO: pull this from a template variable via
