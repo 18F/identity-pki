@@ -6,6 +6,8 @@ class IdentifyController < ApplicationController
   CERT_HEADER = 'X-Client-Cert'.freeze
   REFERER_HEADER = 'Referer'.freeze
 
+  delegate :logger, to: Rails
+
   def create
     if referrer
       # given a valid certificate from the client, return a token
@@ -14,12 +16,18 @@ class IdentifyController < ApplicationController
       # redirect to referer OR redirect to a preconfigured URL template
       redirect_to referrer.to_s
     else
-      Rails.logger.warn('No referrer, returning Bad Request.')
-      render plain: 'Invalid request', status: :bad_request
+      render_bad_request('No referrer')
     end
+  rescue URI::InvalidURIError
+    render_bad_request('Bad referrer')
   end
 
   private
+
+  def render_bad_request(reason)
+    logger.warn("#{reason}, returning Bad Request.")
+    render plain: 'Invalid request', status: :bad_request
+  end
 
   # :reek:UtilityFunction
   def token_for_referrer
@@ -27,7 +35,7 @@ class IdentifyController < ApplicationController
     token = if cert_pem
               process_cert(cert_pem)
             else
-              Rails.logger.warn('No certificate found in headers.')
+              logger.warn('No certificate found in headers.')
               TokenService.box(error: 'certificate.none', nonce: nonce)
             end
     CGI.escape(token)
@@ -49,7 +57,7 @@ class IdentifyController < ApplicationController
 
     cert.token(nonce: nonce)
   rescue OpenSSL::X509::CertificateError => error
-    Rails.logger.warn("CertificateError: #{error.message}")
+    logger.warn("CertificateError: #{error.message}")
     TokenService.box(error: 'certificate.bad', nonce: nonce)
   end
 

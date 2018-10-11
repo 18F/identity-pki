@@ -1,3 +1,4 @@
+require 'base64'
 require 'cgi'
 require 'openssl'
 
@@ -5,9 +6,9 @@ class VerifyController < ApplicationController
   skip_before_action :verify_authenticity_token
 
   def open
-    # TODO: secure this endpoint against public use
     token = params.require(:token)
-    render json: TokenService.open(token)
+    hmac = request.headers['HTTP_AUTHENTICATION']
+    render json: TokenService.open(token, hmac)
   rescue ActionController::ParameterMissing
     render json: { error: 'token.missing' }
   end
