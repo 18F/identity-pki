@@ -79,6 +79,8 @@ elasticsearch_configure "elasticsearch" do
   notifies :restart, 'elasticsearch_service[elasticsearch]', :delayed
 end
 
+template_log4j2_properties "log4j2.properties.erb"
+
 elasticsearch_plugin 'x-pack' do
   action :remove
 end
