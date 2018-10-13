@@ -76,10 +76,10 @@ elasticsearch_configure "elasticsearch" do
     'searchguard.authcz.admin_dn' => ["CN=admin.login.gov.internal,OU=#{node.chef_environment},O=login.gov,L=Washington\\, DC,C=US"],
     'xpack.security.enabled' => false
   })
+  logging({:"action" => 'INFO'})
+
   notifies :restart, 'elasticsearch_service[elasticsearch]', :delayed
 end
-
-template_log4j2_properties "log4j2.properties.erb"
 
 elasticsearch_plugin 'x-pack' do
   action :remove
