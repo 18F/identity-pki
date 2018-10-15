@@ -1,7 +1,5 @@
 include_recipe 'java'
 
-directory '/etc/elasticsearch'
-
 # mount extra disk up if it's there
 execute 'extend_disk' do
   command 'vgextend securefolders /dev/xvdg ; lvextend -l+100%FREE /dev/securefolders/variables ; resize2fs /dev/mapper/securefolders-variables'
@@ -20,7 +18,7 @@ end
 elasticsearch_user 'elasticsearch'
 elasticsearch_install 'elasticsearch' do
   type 'tarball' # type of install
-  version "5.6.12"
+  version "6.4.2"
 end
 
 # URL to reach the elasticsearch cluster.  In the pre-auto-scaled world this was
@@ -75,8 +73,11 @@ elasticsearch_configure "elasticsearch" do
     'searchguard.ssl.http.pemkey_password' => 'not-a-secret',
     'searchguard.ssl.http.pemtrustedcas_filepath' => "/etc/elasticsearch/root-ca.pem",
     'searchguard.nodes_dn' => ["CN=#{elasticsearch_domain},OU=#{node.chef_environment},O=login.gov,L=Washington\\, DC,C=US"],
-    'searchguard.authcz.admin_dn' => ["CN=admin.login.gov.internal,OU=#{node.chef_environment},O=login.gov,L=Washington\\, DC,C=US"]
+    'searchguard.authcz.admin_dn' => ["CN=admin.login.gov.internal,OU=#{node.chef_environment},O=login.gov,L=Washington\\, DC,C=US"],
+    'xpack.security.enabled' => false
   })
+  logging({:"action" => 'INFO'})
+
   notifies :restart, 'elasticsearch_service[elasticsearch]', :delayed
 end
 
@@ -89,35 +90,36 @@ directory '/etc/elasticsearch/sgadmin' do
   owner 'elasticsearch'
 end
 
-elasticsearch_plugin 'com.floragunn:search-guard-5:5.6.12-19.2' do
-  plugin_name 'com.floragunn:search-guard-5:5.6.12-19.2'
+elasticsearch_plugin 'com.floragunn:search-guard-6:6.4.2-23.1' do
+  plugin_name 'com.floragunn:search-guard-6:6.4.2-23.1'
   # The documentation says this is true by default, but the code disagrees.
   # https://github.com/elastic/cookbook-elasticsearch/issues/663
   chef_proxy true
-  not_if "/usr/share/elasticsearch/bin/elasticsearch-plugin list | grep search-guard-5"
+  options '-b'
+  not_if "/usr/share/elasticsearch/bin/elasticsearch-plugin list | grep search-guard-6"
   notifies :restart, 'elasticsearch_service[elasticsearch]', :delayed
 end
 
 # Install SearchGuard TLS Tool
 # https://github.com/floragunncom/search-guard-tlstool
 # https://search-guard.com/generating-certificates-tls-tool/
-remote_file '/usr/share/elasticsearch/plugins/search-guard-5/search-guard-tlstool-1.5.tar.gz' do
+remote_file '/usr/share/elasticsearch/plugins/search-guard-6/search-guard-tlstool-1.5.tar.gz' do
   checksum '97efc3cbc560a99e59bfdab3d896749a124d1945ce9c92d40bbfdbb10568aa70'
   source 'https://search.maven.org/remotecontent?filepath=com/floragunn/search-guard-tlstool/1.5/search-guard-tlstool-1.5.tar.gz'
 end
 
 execute 'extract search-guard-tlstool-1.5.tar.gz' do
   command 'tar xzvf search-guard-tlstool-1.5.tar.gz'
-  cwd '/usr/share/elasticsearch/plugins/search-guard-5'
+  cwd '/usr/share/elasticsearch/plugins/search-guard-6'
 end
 
 execute 'make SGtlsTool scripts executable' do 
   command 'chmod +x tools/*'
-  cwd '/usr/share/elasticsearch/plugins/search-guard-5'
+  cwd '/usr/share/elasticsearch/plugins/search-guard-6'
 end
 
 # add login.gov specific configuration
-template '/usr/share/elasticsearch/plugins/search-guard-5/config/login.gov.yml' do
+template '/usr/share/elasticsearch/plugins/search-guard-6/config/login.gov.yml' do
   source 'search-guard-ssl-login.gov.yml.erb'
 end
 
@@ -154,7 +156,7 @@ end
 # generate key pairs if they do not already exist
 execute 'generate CA, intermediate, node, admin, and user key pairs' do
   command './tools/sgtlstool.sh -c config/login.gov.yml -t /etc/elasticsearch -ca -crt'
-  cwd '/usr/share/elasticsearch/plugins/search-guard-5'
+  cwd '/usr/share/elasticsearch/plugins/search-guard-6'
   not_if { ::File.exist?('/etc/elasticsearch/root-ca.pem') }
 end
 
@@ -172,7 +174,7 @@ end
 # Or generate a new node key pair if the root and intermediate key pairs have already been created
 execute 'generate node key pair' do
   command './tools/sgtlstool.sh -c config/login.gov.yml -crt -t /etc/elasticsearch'
-  cwd '/usr/share/elasticsearch/plugins/search-guard-5'
+  cwd '/usr/share/elasticsearch/plugins/search-guard-6'
   only_if { ::File.exist?('/etc/elasticsearch/root-ca.pem') }
   not_if { ::File.exist?("/etc/elasticsearch/#{node.fetch('ipaddress')}.pem") }
 end
@@ -239,9 +241,8 @@ execute 'import root-ca into jks truststore' do
 end
 
 execute 'run sgadmin' do
-  command "/usr/share/elasticsearch/plugins/search-guard-5/tools/sgadmin.sh \
+  command "/usr/share/elasticsearch/plugins/search-guard-6/tools/sgadmin.sh \
     -cd /etc/elasticsearch/sgadmin/ \
-    -icl \
     -ks admin.jks \
     -kspass not-a-secret \
     -nhnv \
@@ -250,15 +251,13 @@ execute 'run sgadmin' do
   cwd '/etc/elasticsearch'
 end
 
-# Note: use this format of config for sgadmin once we upgrade to sg 5.6
-# execute "/usr/share/elasticsearch/plugins/search-guard-5/tools/sgadmin.sh \
-#    -cd /etc/elasticsearch/sgadmin/ \
-#    -cacert /etc/elasticsearch/root-ca.pem \
-#    -cert /etc/elasticsearch/admin.pem \
-#    -key /etc/elasticsearch/admin.key  \
-#    -keypass not-a-secret \
-#    -nhnv
-#    -icl"
+execute "/usr/share/elasticsearch/plugins/search-guard-6/tools/sgadmin.sh \
+   -cd /etc/elasticsearch/sgadmin/ \
+   -cacert /etc/elasticsearch/root-ca.pem \
+   -cert /etc/elasticsearch/admin.pem \
+   -key /etc/elasticsearch/admin.key  \
+   -keypass not-a-secret \
+   -nhnv"
 
 # set up log retention using curator
 include_recipe 'elasticsearch-curator'

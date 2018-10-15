@@ -298,11 +298,6 @@ template "/usr/share/logstash/.sincedb_elb" do
   not_if { File.exists?("/usr/share/logstash/.sincedb_elb") }
 end
 
-template '/etc/logstash/logstash-template.json' do
-  source 'logstash-template.json.erb'
-  notifies :run, 'execute[restart_logstash]', :delayed
-end
-
 # set up filebeat (default) logstash config
 template '/etc/logstash/logstashconf.d/40-beats.conf' do
   source '40-beats.conf.erb'

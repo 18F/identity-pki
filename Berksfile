@@ -27,7 +27,7 @@ cookbook 'apache2'
 cookbook 'acme'
 cookbook 'filebeat', '~> 2.1.0'
 cookbook 'elasticsearch-curator', '~> 0.2.8'
-cookbook 'elasticsearch', '~> 3.1.1'
+cookbook 'elasticsearch', '~> 4.0.3'
 cookbook 'ossec', '~> 1.1.0', git: 'https://github.com/sous-chefs/ossec'
 
 # This is a super wacky hack to allow us to symlink this Berksfile into the
