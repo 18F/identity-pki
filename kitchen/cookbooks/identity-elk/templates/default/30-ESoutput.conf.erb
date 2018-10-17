@@ -6,8 +6,6 @@ output {
     ssl_certificate_verification => true
     manage_template => true
     index => "logstash-%{+YYYY.MM.dd}"
-    document_type => "%{[@metadata][type]}"
-    template => "/etc/logstash/logstash-template.json"
     template_overwrite => true
   }
 }
