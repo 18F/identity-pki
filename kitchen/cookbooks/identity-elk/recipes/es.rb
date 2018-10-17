@@ -74,6 +74,8 @@ elasticsearch_configure "elasticsearch" do
     'searchguard.ssl.http.pemtrustedcas_filepath' => "/etc/elasticsearch/root-ca.pem",
     'searchguard.nodes_dn' => ["CN=#{elasticsearch_domain},OU=#{node.chef_environment},O=login.gov,L=Washington\\, DC,C=US"],
     'searchguard.authcz.admin_dn' => ["CN=admin.login.gov.internal,OU=#{node.chef_environment},O=login.gov,L=Washington\\, DC,C=US"],
+    'xpack.monitoring.collection.enabled' => true,
+    'xpack.monitoring.history.duration' => "30d",
     'xpack.security.enabled' => false
   })
   logging({:"action" => 'INFO'})
