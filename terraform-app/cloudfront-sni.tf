@@ -7,7 +7,7 @@ resource "aws_cloudfront_distribution" "sni_profiling" {
       origin_ssl_protocols   = ["TLSv1.2"]
     }
 
-    domain_name = "${var.env_name == "prod" ? "secure.${var.root_domain}" : "idp.${var.env_name}.${var.root_domain}"}"
+    domain_name = "${var.env_name == "prod" ? "snitestsecure.${var.root_domain}" : "snitest.${var.env_name}.${var.root_domain}"}"
     origin_id   = "${var.env_name}.snitest"
   }
 
