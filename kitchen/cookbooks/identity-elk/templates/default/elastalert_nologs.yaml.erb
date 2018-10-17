@@ -6,7 +6,7 @@ owner: <%= @env %>
 threshold: 10
 realert:
     hours: 2
-doc_type: log
+doc_type: doc
 timeframe:
     minutes: 20
 use_count_query: true
@@ -32,4 +32,3 @@ slack_webhook_url: <%= @webhook %>
 slack_username_override: <%= "#{@env} alerts" %>
 slack_channel_override: <%= @slackchannel %>
 <% end %>
-
