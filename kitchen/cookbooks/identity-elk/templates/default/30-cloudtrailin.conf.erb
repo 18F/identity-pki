@@ -2,7 +2,7 @@ input {
    s3 {
      region => "<%= @aws_region %>"
      bucket => "<%= @cloudtrail_logging_bucket %>"
-     proxy_uri => "<%= @s3_proxy_uri %>"
+     proxy_uri => "<%= @proxy_uri %>"
      type => "cloudtrail"
      codec => "cloudtrail"
      exclude_pattern => ".*\/CloudTrail\-Digest\/.*"
