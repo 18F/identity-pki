@@ -2,6 +2,7 @@ data "aws_acm_certificate" "tlstest" {
     # tlstest.secure.login.gov in prod, tltest.$env.login.gov in other environments
     domain = "${var.env_name == "prod" ? "tlstest.secure.${var.root_domain}" : "tlstest.${var.env_name}.${var.root_domain}"}"
     statuses = ["ISSUED"]
+    provider = "aws.use1"
 }
 
 resource "aws_cloudfront_distribution" "tls_profiling" {
