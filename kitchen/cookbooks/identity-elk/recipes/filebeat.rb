@@ -31,7 +31,10 @@ end
 
 filebeat_conf = {
   'output.logstash.hosts' => ['logstash.login.gov.internal:5044'],
-  'output.logstash.ssl.certificate_authorities' => ["/etc/ssl/certs/ca-certificates.crt"]
+  'output.logstash.ssl.certificate_authorities' => ["/etc/ssl/certs/ca-certificates.crt"],
+  'xpack.monitoring.enabled' => true,
+  'xpack.monitoring.elasticsearch.hosts' => ['https://elasticsearch.login.gov.internal:9200'],
+  'xpack.monitoring.elasticsearch.ssl.certificate_authorities' => ["/etc/elasticsearch/root-ca.pem"]
 }
 
 filebeat_config 'default' do
