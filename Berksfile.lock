@@ -19,8 +19,8 @@ DEPENDENCIES
     revision: 7007851c91e1404a43f1c914471a2d6c817eea8e
   cloudhsm
     git: https://github.com/18F/identity-cookbooks
-    revision: 210008bc835a0093448ca7d5559b8d198e32f0e7
-    ref: 210008b
+    revision: 716c00f7824170badcb6ae8be2a27e8d93f6de06
+    ref: 716c00f
     rel: cloudhsm
   config_loader
     path: kitchen/cookbooks/config_loader
@@ -47,18 +47,18 @@ DEPENDENCIES
     path: kitchen/cookbooks/identity-pivcac
   identity_base_config
     git: https://github.com/18F/identity-cookbooks
-    revision: 043d44c4dff5febebcfa7f324da6c154d4c19c52
-    ref: 043d44c
+    revision: 716c00f7824170badcb6ae8be2a27e8d93f6de06
+    ref: 716c00f
     rel: identity_base_config
   identity_ntp
     git: https://github.com/18F/identity-cookbooks
-    revision: 043d44c4dff5febebcfa7f324da6c154d4c19c52
-    ref: 043d44c
+    revision: 716c00f7824170badcb6ae8be2a27e8d93f6de06
+    ref: 716c00f
     rel: identity_ntp
   identity_shared_attributes
     git: https://github.com/18F/identity-cookbooks
-    revision: 85affb9790b8c2d917a8708ee921afeb9a5c8b7c
-    ref: 85affb9
+    revision: 716c00f7824170badcb6ae8be2a27e8d93f6de06
+    ref: 716c00f
     rel: identity_shared_attributes
   instance_certificate
     path: kitchen/cookbooks/instance_certificate
@@ -75,11 +75,11 @@ DEPENDENCIES
   openssl
   ossec
     git: https://github.com/sous-chefs/ossec
-    revision: 337b7f4ad54ecd51318fe57298232b4416b98409
+    revision: 4d755acd1660ed09d1f7d666b9ca9344af08ab8a
   passenger
     git: https://github.com/18F/identity-cookbooks
-    revision: 85affb9790b8c2d917a8708ee921afeb9a5c8b7c
-    ref: 85affb9
+    revision: 716c00f7824170badcb6ae8be2a27e8d93f6de06
+    ref: 716c00f
     rel: passenger
   poise-ruby
   poise-ruby-build
@@ -90,8 +90,8 @@ DEPENDENCIES
   ssh-keys
   static_eip
     git: https://github.com/18F/identity-cookbooks
-    revision: 043d44c4dff5febebcfa7f324da6c154d4c19c52
-    ref: 043d44c
+    revision: 716c00f7824170badcb6ae8be2a27e8d93f6de06
+    ref: 716c00f
     rel: static_eip
   sudo
   users
@@ -99,7 +99,7 @@ DEPENDENCIES
 GRAPH
   acme (4.0.0)
     compat_resource (>= 12.19)
-  apache2 (5.0.1)
+  apache2 (5.2.1)
   application (5.2.0)
     poise (~> 2.4)
     poise-service (~> 1.0)
@@ -108,7 +108,7 @@ GRAPH
     poise (~> 2.0)
     poise-ruby (~> 2.1)
     poise-service (~> 1.0)
-  apt (7.0.0)
+  apt (7.1.1)
   apt_update (0.1.2)
   ark (3.1.1)
     build-essential (>= 0.0.0)
@@ -117,7 +117,7 @@ GRAPH
   aws_s3 (0.1.0)
     aws_metadata (>= 0.0.0)
   bash-completion (0.1.0)
-  build-essential (8.1.1)
+  build-essential (8.2.1)
     mingw (>= 1.1)
     seven_zip (>= 0.0.0)
   cacert (0.5.0)
@@ -131,7 +131,7 @@ GRAPH
   config_loader (0.2.2)
     aws_metadata (>= 0.0.0)
     citadel_fork (>= 0.0.0)
-  cron (6.2.0)
+  cron (6.2.1)
   dpkg_autostart (0.2.0)
   elastic_repo (1.1.1)
   elasticsearch (4.0.3)
@@ -196,12 +196,14 @@ GRAPH
     aws_metadata (>= 0.0.0)
     login_dot_gov (>= 0.0.0)
   identity-pivcac (0.1.0)
+    identity_shared_attributes (>= 0.0.0)
+    login_dot_gov (>= 0.0.0)
   identity_base_config (0.1.1)
   identity_ntp (0.1.0)
   identity_shared_attributes (0.1.0)
   instance_certificate (0.1.0)
     canonical_hostname (>= 0.0.0)
-  java (2.2.0)
+  java (3.1.0)
     homebrew (>= 0.0.0)
     windows (>= 0.0.0)
   jenkins (5.0.6)
@@ -231,7 +233,7 @@ GRAPH
   motd (0.6.4)
     chef_handler (>= 0.0.0)
   nano (1.0.3)
-  newrelic-infra (0.7.1)
+  newrelic-infra (0.7.2)
     poise-archive (~> 1.5)
     poise-service (~> 1.5)
   newrelic_meetme_plugin (0.5.0)
@@ -239,8 +241,8 @@ GRAPH
     python (>= 0.0.0)
     yum (>= 0.0.0)
   ntp (3.6.0)
-  ohai (5.2.3)
-  openssl (8.5.2)
+  ohai (5.2.5)
+  openssl (8.5.5)
   ossec (1.1.0)
     yum-atomic (>= 0.0.0)
   packagecloud (1.0.0)
@@ -280,7 +282,7 @@ GRAPH
   ruby_build (1.1.0)
     git (>= 0.0.0)
     yum-epel (>= 0.0.0)
-  ruby_rbenv (2.0.9)
+  ruby_rbenv (2.1.0)
   runit (4.3.0)
     packagecloud (>= 0.0.0)
     yum-epel (>= 0.0.0)
@@ -293,15 +295,15 @@ GRAPH
   squid (4.1.0)
   ssh-keys (1.2.7)
   static_eip (0.2.0)
-  sudo (5.4.0)
+  sudo (5.4.4)
   terraform (2.1.1)
     ark (~> 3.1)
     gpg (~> 0.3)
   users (5.4.0)
-  windows (5.0.0)
+  windows (5.1.3)
   yum (5.1.0)
   yum-atomic (0.2.0)
     compat_resource (>= 12.14.6)
     yum-epel (>= 0.0.0)
-  yum-epel (3.2.0)
+  yum-epel (3.3.0)
   yum-plugin-versionlock (0.2.1)
