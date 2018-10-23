@@ -31,11 +31,20 @@ end
 
 filebeat_conf = {
   'output.logstash.hosts' => ['logstash.login.gov.internal:5044'],
-  'output.logstash.ssl.certificate_authorities' => ["/etc/ssl/certs/ca-certificates.crt"],
+  'output.logstash.ssl.certificate_authorities' => ["/etc/ssl/certs/ca-certificates.crt"]
+}
+
+monitoring_conf = {
   'xpack.monitoring.enabled' => true,
   'xpack.monitoring.elasticsearch.hosts' => ['https://elasticsearch.login.gov.internal:9200'],
   'xpack.monitoring.elasticsearch.ssl.certificate_authorities' => ["/etc/elasticsearch/root-ca.pem"]
 }
+
+# add monitoring config for instances with elasticsearch and elk roles. This is because ATM those
+# are the only node that can connect directly to the elasticsearch cluster.
+if ['elasticsearch', 'elk'].include?(node.fetch('roles'))
+  filebeat_conf = filebeat_conf.merge(monitoring_conf)
+end
 
 filebeat_config 'default' do
   config filebeat_conf
