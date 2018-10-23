@@ -244,8 +244,8 @@ include_recipe 'runit'
     sv_timeout 20
     options ({
       :home => '/usr/share/logstash',
-      :max_heap => "#{(node['memory']['total'].to_i * 0.5).floor / 1024}M",
-      :min_heap => "#{(node['memory']['total'].to_i * 0.2).floor / 1024}M",
+      :max_heap => "#{(node['memory']['total'].to_i * 0.25).floor / 1024}M",
+      :min_heap => "#{(node['memory']['total'].to_i * 0.25).floor / 1024}M",
       :gc_opts => '-XX:+UseParallelOldGC',
       :java_opts => '-Dio.netty.native.workdir=/etc/logstash/tmp -XX:HeapDumpPath=/dev/null',
       :tmpdir => "/srv/tmp/#{lsname}",
