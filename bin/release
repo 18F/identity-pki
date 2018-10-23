@@ -42,7 +42,7 @@ end
 def safe_to_run(command)
   abort "command failed (#{$?}): #{command}" unless system command
 end
-  
+
 
 def create_new_rc_branch_and_push_to_github
   puts "==> This script will perform all of the following:"
@@ -98,7 +98,7 @@ def publish_wiki_page_for_new_rc
     rc_commit = `git log --grep="#{RC_BRANCH}" --oneline`
     unless rc_commit.include?(RC_BRANCH)
       puts "==> Generating the wiki page for the RC"
-      run "./scripts/generate-release --release-date=#{RELEASE_DATE}"
+      run "./scripts/generate-pivcac-release --release-date=#{RELEASE_DATE}"
       puts "==> Pushing the wiki page to GitHub"
       run "git add ."
       run "git commit -m \"Add page for #{RC_BRANCH}\""
