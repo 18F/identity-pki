@@ -11,6 +11,16 @@ module X509Helpers
     false,
   ].freeze
 
+  CA_CONFIG = OpenSSL::Config.parse(<<~SSL_CONFIG)
+    oid_section = new_oids
+     [ new_oids ]
+    id-US-dod-mediumHardware-112 = 2.16.840.1.101.2.1.11.42
+    id-US-dod-mediumHardware-128 = 2.16.840.1.101.2.1.11.43
+    id-US-dod-mediumHardware-192 = 2.16.840.1.101.2.1.11.44
+    id-fpki-common-hardware = 2.16.840.1.101.3.2.1.3.7
+    id-fpki-common-authentication = 2.16.840.1.101.3.2.1.3.13
+  SSL_CONFIG
+
   ##
   # Requires:
   # ca: the issuing cert
@@ -110,30 +120,41 @@ module X509Helpers
     cert.issuer = root_ca.subject # root CA is the issuer
     cert.public_key = key.public_key
 
+    policies = if info[:no_policies]
+                 []
+               else
+                 [
+                   ['certificatePolicies',
+                    JSON.parse(Figaro.env.required_policies).first,
+                    false],
+                 ]
+               end
+
     add_certificate_extensions(cert, root_ca,
                                ['keyUsage', 'digitalSignature', true],
                                ['subjectKeyIdentifier', 'hash', false],
                                AUTHORITY_INFO_ACCESS_EXTENSION,
-                               ['authorityKeyIdentifier', 'keyid:always', false])
+                               ['authorityKeyIdentifier', 'keyid:always', false],
+                               *policies)
     cert.sign(root_key, OpenSSL::Digest::SHA256.new)
     cert
   end
 
   ##
   # Output is a list of certificates.
-  def create_certificate_set(root_count:, intermediate_count:, leaf_count:)
+  def create_certificate_set(**options)
     # we create the number of trusted roots, then for each root, the intermediates,
     # and for each intermediate, the leaves
     root_certs = []
     intermediate_certs = []
     leaf_certs = []
-    root_count.times do |root_index|
+    options[:root_count].times do |root_index|
       root, root_key = create_root_certificate(
         dn: "DC=com, DC=example, OU=ca, CN=Root #{root_index + 1}",
         serial: root_index + 1
       )
       root_certs << root
-      intermediate_count.times do |intermediate_index|
+      options[:intermediate_count].times do |intermediate_index|
         intermediate, intermediate_key = create_intermediate_certificate(
           dn: [
             'DC=com',
@@ -146,9 +167,9 @@ module X509Helpers
           ca_key: root_key
         )
         intermediate_certs << intermediate
-        leaf_count.times do |leaf_index|
-          cn_number = root_index * intermediate_count +
-                      intermediate_index * leaf_count +
+        options[:leaf_count].times do |leaf_index|
+          cn_number = root_index * options[:intermediate_count] +
+                      intermediate_index * options[:leaf_count] +
                       leaf_index
           leaf = create_leaf_certificate(
             dn: [
@@ -159,7 +180,8 @@ module X509Helpers
             ].join(' '),
             serial: leaf_index + 1,
             ca: intermediate,
-            ca_key: intermediate_key
+            ca_key: intermediate_key,
+            **(options[:leaf_options] || {})
           )
           leaf_certs << leaf
         end
@@ -182,6 +204,7 @@ module X509Helpers
 
   def add_certificate_extensions(cert, issuer_cert, *extension_list)
     ef = OpenSSL::X509::ExtensionFactory.new
+    ef.config = CA_CONFIG
     ef.subject_certificate = cert
     ef.issuer_certificate = issuer_cert
     extension_list.each do |oid, value, crit|

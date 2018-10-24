@@ -25,6 +25,15 @@ class Certificate
     signing_key_id == key_id
   end
 
+  def allowed_by_policy?
+    # if at least one policy in the cert matches one of the "required policies", then we're good
+    # otherwise, we want to allow it for now, but log the cert so we can see what policies are
+    # coming up
+    # This policy check is only on the leaf certificate - not used by CAs
+    expected_policies = required_policies
+    policies.any? { |policy| expected_policies.include?(policy) }
+  end
+
   def validate_cert
     if expired?
       'expired'
@@ -91,8 +100,12 @@ class Certificate
   end
 
   def token(extra)
-    return token_for_valid_certificate(extra) if valid?
-    token_for_invalid_certificate(extra)
+    if valid?
+      CertificateLoggerService.log_certificate(self) unless allowed_by_policy?
+      token_for_valid_certificate(extra)
+    else
+      token_for_invalid_certificate(extra)
+    end
   end
 
   def issuer_metadata
@@ -104,6 +117,12 @@ class Certificate
       ca_issuer_url: ca_issuer_url,
       ocsp_url: ocsp_url,
     }
+  end
+
+  def policies
+    (get_extension('certificatePolicies') || '').split(/\n/).map do |line|
+      line.sub(/^Policy:\s+/, '')
+    end
   end
 
   def logging_filename
@@ -153,5 +172,10 @@ class Certificate
     Rails.logger.warn("Certificate invalid: #{reason}")
     CertificateLoggerService.log_certificate(self)
     TokenService.box(extra.merge(error: "certificate.#{reason}"))
+  end
+
+  # :reek:UtilityFunction
+  def required_policies
+    JSON.parse(Figaro.env.required_policies || '[]')
   end
 end
