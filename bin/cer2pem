@@ -1,0 +1,12 @@
+#!/bin/sh
+
+cd config/certs
+for i in *.cer; do
+  outfile=`echo $i | sed -e 's/.cer$/.pem/'`
+  if [ -e $outfile ]; then
+    echo $outfile already exists
+  else
+    echo $i ':>' $outfile
+    openssl x509 -inform der -in $i -out $outfile
+  fi
+done
