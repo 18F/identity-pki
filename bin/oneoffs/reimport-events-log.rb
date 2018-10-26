@@ -11,8 +11,6 @@ require_relative '../../cloudlib/lib/cloudlib'
 # Download event logs for the specified time period from CloudWatch Logs and
 # upload them to S3.
 class EventMover
-  DefaultS3UploadPrefix = 'imported_from_cloudwatch_logs/'
-
   attr_reader :log_bucket_name
   attr_reader :log_client
   attr_reader :log_group_name
@@ -30,10 +28,6 @@ class EventMover
 
   def log
     Cloudlib.cli_log
-  end
-
-  def self.log_group_name_for_env(env)
-    "#{env}_/srv/idp/shared/log/events.log"
   end
 
   def list_log_streams(start_time: nil, end_time: nil)
@@ -164,12 +158,8 @@ class EventMover
         end_time: end_time, out_dir: out_dir
       )
 
-      if dry_run
-        log.info('Skipping upload due to dry run')
-      else
-        upload_log_stream_to_s3(filename: filename,
-                                s3_key_prefix: s3_key_prefix)
-      end
+      upload_log_stream_to_s3(filename: filename, dry_run: dry_run,
+                              s3_key_prefix: s3_key_prefix)
 
       delete_local_file(filename) unless skip_delete
     end
@@ -186,15 +176,25 @@ class EventMover
     Aws::S3::Client.new
   end
 
-  def upload_log_stream_to_s3(filename:, s3_key_prefix: nil,
-                              s3_key_suffix: '.txt')
-    s3_key_prefix ||= DefaultS3UploadPrefix
-    s3_key = s3_key_prefix + File.basename(filename) + s3_key_suffix
-    s3_put_object(filename: filename, s3_key: s3_key)
+  def default_s3_upload_prefix
+    "imported_from_cloudwatch_logs/#{File.basename(log_group_name)}/"
   end
 
-  def s3_put_object(filename:, s3_key:)
+  def upload_log_stream_to_s3(filename:, s3_key_prefix: nil,
+                              s3_key_suffix: '.txt', dry_run: false)
+    s3_key_prefix ||= default_s3_upload_prefix
+    s3_key = s3_key_prefix + File.basename(filename) + s3_key_suffix
+    s3_put_object(filename: filename, s3_key: s3_key, dry_run: dry_run)
+  end
+
+  def s3_put_object(filename:, s3_key:, dry_run: false)
     s3_url = "s3://#{log_bucket_name}/#{s3_key}"
+
+    if dry_run
+      log.info("Skipping upload due to dry run. Would upload to: #{s3_url}")
+      return false
+    end
+
     log.info("Uploading #{filename.inspect} to #{s3_url}")
 
     File.open(filename, 'rb') do |file|
@@ -219,6 +219,17 @@ and upload them to LOG_BUCKET_NAME.
 
 The current working directory will be used for temporary storage of the log
 files, which may be very large!
+
+For example:
+
+  # Download logs from prod events.log between 2018-09-21 and 2018-10-10, but
+  # keep them locally and don't upload them. This is useful if the files need
+  # to be manually split before uploading.
+  #{File.basename($0)} -s 1537574400 -e 1539214898 --dry-run --skip-delete prod_/srv/idp/shared/log/events.log login-gov-prod-logs
+
+  # Download logs from prod events.log between 2018-09-21 and 2018-10-10, and
+  # upload them to s3://login-gov-prod-logs/...
+  #{File.basename($0)} -s 1537574400 -e 1539214898 prod_/srv/idp/shared/log/events.log login-gov-prod-logs
 
 Options:
     EOM
