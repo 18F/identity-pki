@@ -43,7 +43,7 @@ filter {
     }
     grok {
         # further parse client
-        match => ["client", "(%{IPORHOST:client_ip})?"]
+        match => ["clientport", "(%{IPORHOST:client_ip})?"]
     }
     geoip {
         # perform a geoip lookup on the client ip
