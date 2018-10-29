@@ -5,8 +5,7 @@ output {
     ssl => true
     ssl_certificate_verification => true
     manage_template => true
-    index => "logstash-%{+YYYY.MM.dd}"
+    index => "logstash-<%= @index -%>%{+YYYY.MM.dd}"
     template_overwrite => true
   }
 }
-
