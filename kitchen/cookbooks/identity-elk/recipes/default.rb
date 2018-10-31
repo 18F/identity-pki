@@ -235,7 +235,7 @@ include_recipe 'runit'
     source '30-ESoutput.conf.erb'
     variables ({
       :hostips => "\"#{elasticsearch_domain}\"",
-      :index => lsname == 'logstash' ? nil : lsname.gsub('logstash') + '-'
+      :index => lsname == 'logstash' ? nil : lsname.gsub('logstash', '') + '-'
     })
     notifies :run, "execute[restart_#{lsname}]", :delayed
   end
