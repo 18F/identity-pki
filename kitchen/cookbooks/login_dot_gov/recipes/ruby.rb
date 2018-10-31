@@ -44,6 +44,12 @@ file '/etc/environment' do
     header + global_env_vars.map { |key, val| "#{key}='#{val}'" }.join("\n") \
     + "\n"
   )
+  notifies :run, 'execute[restart_snapd]'
+end
+
+execute 'restart_snapd' do
+  command 'systemctl restart snapd'
+  action :nothing
 end
 
 # install dependencies
