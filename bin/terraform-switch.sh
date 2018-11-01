@@ -125,21 +125,8 @@ EOM
 KNOWN_TF_VERSIONS='
 0.9.11
 0.10.8
-0.11.7
-0.11.8
+0.11.10
 '
-
-check_tf_version() {
-    if ! grep -w "^$1$" <<< "$KNOWN_TF_VERSIONS" >/dev/null; then
-        echo_red >&2 "Error: Sorry, I don't have info on terraform version $1"
-        cat >&2 <<EOM
-
-You should add a new line for $1 to KNOWN_TF_VERSIONS in this script.
-This script: $0
-EOM
-        return 2
-    fi
-}
 
 sha256_cmd() {
     if which sha256sum >/dev/null; then
@@ -324,7 +311,6 @@ main() {
     if [ -e "$terraform_exe" ]; then
         echo_blue "Terraform $target_version already installed at $terraform_exe"
     else
-        check_tf_version "$target_version"
         echo "Terraform $target_version does not appear to be installed."
         if prompt_yn "Install it?"; then
             install_tf_version "$target_version" "$terraform_exe"
