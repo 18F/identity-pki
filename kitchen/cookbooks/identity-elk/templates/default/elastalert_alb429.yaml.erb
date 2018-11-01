@@ -27,5 +27,5 @@ email:
 <% if ! @webhook.nil? %>
 slack_webhook_url: <%= @webhook %>
 slack_username_override: <%= "#{@env} alerts" %>
-slack_channel_override: <%= @slackchannel %>
+slack_channel_override: [<%= @slackchannel %>]
 <% end %>
