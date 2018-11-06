@@ -1,3 +1,70 @@
+# Manage the special default Network ACL, which should not be used by any
+# subnets. Add every subnet explicitly to one of the NACLs below so that they
+# don't use this default NACL.
+resource "aws_default_network_acl" "default" {
+  default_network_acl_id = "${aws_vpc.default.default_network_acl_id}"
+
+  tags {
+    Name = "${var.env_name}-default-should-not-be-used"
+  }
+
+  ingress {
+    protocol   = -1
+    rule_no    = 100
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 0
+    to_port    = 0
+  }
+
+  egress {
+    protocol   = -1
+    rule_no    = 100
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 0
+    to_port    = 0
+  }
+}
+
+
+# A default network ACL that allows all traffic
+resource "aws_network_acl" "allow" {
+  tags {
+    Name = "${var.env_name}-allow"
+  }
+
+  vpc_id = "${aws_vpc.default.id}"
+
+  ingress {
+    protocol   = -1
+    rule_no    = 100
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 0
+    to_port    = 0
+  }
+
+  egress {
+    protocol   = -1
+    rule_no    = 100
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 0
+    to_port    = 0
+  }
+
+  # Add basically every subnet here.
+  subnet_ids = [
+    "${aws_subnet.publicsubnet1.id}",
+    "${aws_subnet.publicsubnet2.id}",
+    "${aws_subnet.publicsubnet3.id}",
+    "${aws_subnet.privatesubnet1.id}",
+    "${aws_subnet.privatesubnet2.id}",
+    "${aws_subnet.privatesubnet3.id}",
+  ]
+}
+
 resource "aws_network_acl" "app" {
 
   tags {
