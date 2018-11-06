@@ -14,7 +14,7 @@ resource "aws_cloudfront_distribution" "tls_profiling" {
       origin_ssl_protocols   = ["TLSv1.2"]
     }
 
-    domain_name = "${var.env_name == "prod" ? "tlstest.secure.${var.root_domain}" : "tlstest.${var.env_name}.${var.root_domain}"}"
+    domain_name = "${var.env_name == "prod" ? "secure.${var.root_domain}" : "idp.${var.env_name}.${var.root_domain}"}"
     origin_id   = "${var.env_name}.tlstest"
   }
 
