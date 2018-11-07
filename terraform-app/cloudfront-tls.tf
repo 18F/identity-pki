@@ -18,6 +18,7 @@ resource "aws_cloudfront_distribution" "tls_profiling" {
     origin_id   = "${var.env_name}.tlstest"
   }
 
+  aliases = ["${var.env_name == "prod" ? "tlstest.secure.${var.root_domain}" : "tlstest.${var.env_name}.${var.root_domain}"}"]
   enabled             = true
   is_ipv6_enabled     = false
   default_root_object = "favicon-16x16.png"
