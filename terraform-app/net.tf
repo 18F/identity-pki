@@ -3,6 +3,16 @@ data "aws_ip_ranges" "route53" {
   services = ["route53"]
 }
 
+# When adding a new subnet, be sure to add an association with a network ACL,
+# or it will use the default NACL, which causes problems since the default
+# network ACL is special and is handled weirdly by AWS and Terraform.
+#
+# If you don't explicitly give the subnet a NACL, a terraform plan will show an
+# attempt to remove the default plan, which can't actually be done, so it will
+# continually show that same plan.
+#
+# See https://www.terraform.io/docs/providers/aws/r/default_network_acl.html
+
 resource "aws_elasticache_subnet_group" "idp" {
   name = "${var.name}-idp-cache-${var.env_name}"
   description = "Redis Subnet Group"
