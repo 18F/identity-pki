@@ -3,6 +3,16 @@ provider "aws" {
   version = "~> 1.18"
 }
 
+provider "aws" {
+  region = "us-east-1"
+  alias = "use1"
+}
+
+provider "aws" {
+  alias = "usw2"
+  region = "${var.region}"
+}
+
 provider "external" { version = "~> 1.0" }
 provider "null"     { version = "~> 1.0" }
 provider "template" { version = "~> 1.0" }
