@@ -294,6 +294,11 @@ variable "alb_enabled" {
     description = "Enable ALB for idp hosts"
 }
 
+variable "cloudfront_tlstest_enabled" {
+    default = 0
+    description = "Enable the cloudfront endpoints for testing SNI and TLSv1.2 compatibility"
+}
+
 variable "alb_http_port_80_enabled" {
     default = 1
     description = "Whether to have ALB listen on HTTP port 80 (not just HTTPS 443)"

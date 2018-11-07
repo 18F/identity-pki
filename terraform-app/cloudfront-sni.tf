@@ -1,4 +1,6 @@
 resource "aws_cloudfront_distribution" "sni_profiling" {
+  count = "${var.cloudfront_tlstest_enabled}"
+
   origin {
     custom_origin_config {
       http_port              = 80
