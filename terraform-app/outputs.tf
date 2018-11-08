@@ -35,9 +35,9 @@ output "jumphost-lb" {
 }
 
 output "tlstest-cloudfront-domain" {
-  value = "${aws_cloudfront_distribution.tls_profiling.domain_name}"
+  value = "${element(concat(aws_cloudfront_distribution.tls_profiling.*.domain_name, list("")), 0)}"
 }
 
 output "snitest-cloudfront-domain" {
-  value = "${aws_cloudfront_distribution.sni_profiling.domain_name}"
+  value = "${element(concat(aws_cloudfront_distribution.sni_profiling.*.domain_name, list("")), 0)}"
 }
