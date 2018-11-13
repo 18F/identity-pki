@@ -30,7 +30,10 @@ class CertificateRevocationListService
 
     def fetch_crl(url)
       raise NO_CRL_URL_ERROR if url.blank?
-      response = Net::HTTP.get_response(URI(url))
+      parsed_url = URI(url)
+      http = Net::HTTP.new(parsed_url.hostname)
+      response = http.get(parsed_url.path)
+
 
       case response
       when Net::HTTPSuccess then
