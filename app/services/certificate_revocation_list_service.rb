@@ -30,10 +30,8 @@ class CertificateRevocationListService
 
     def fetch_crl(url)
       raise NO_CRL_URL_ERROR if url.blank?
-      parsed_url = URI(url)
-      http = Net::HTTP.new(parsed_url.hostname)
-      response = http.get(parsed_url.path)
 
+      response = get_response(url)
 
       case response
       when Net::HTTPSuccess then
@@ -42,6 +40,12 @@ class CertificateRevocationListService
         Rails.logger.warn "  unable to fetch <#{url}>: #{response.message}"
         nil
       end
+    end
+
+    def get_response(url)
+      parsed_url = URI(url)
+      http = Net::HTTP.new(parsed_url.hostname)
+      http.get(parsed_url.path)
     end
   end
 end
