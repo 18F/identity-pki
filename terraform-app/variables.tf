@@ -266,13 +266,13 @@ variable "bootstrap_private_git_clone_url" {
 # though they will have different IDs. They should be updated here at the same
 # time, and then released to environments in sequence.
 variable "default_ami_id_sandbox" {
-    default = "ami-01b81de0e389835f6"
-    description = "20181030 - default AMI ID for environments in the sandbox account"
+    default = "ami-0e03d105b382e5a4f" # 2018-11-14
+    description = "default AMI ID for environments in the sandbox account"
 }
 
 variable "default_ami_id_prod" {
-    default = "ami-0bdfa9ad4ef5089e8"
-    description = "20181030 - default AMI ID for environments in the prod account"
+    default = "ami-00d7811f396806ddf" # 2018-11-14
+    description = "default AMI ID for environments in the prod account"
 }
 
 locals {
