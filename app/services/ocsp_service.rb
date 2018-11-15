@@ -58,9 +58,8 @@ class OCSPService
 
   # :reek:UtilityFunction
   def make_single_http_request(uri, request)
-    Net::HTTP.start(uri.hostname, uri.port) do |http|
-      http.post(uri.path.presence || '/', request, 'content-type' => 'application/ocsp-request')
-    end
+    http = Net::HTTP.new(uri.hostname, uri.port)
+    http.post(uri.path.presence || '/', request, 'content-type' => 'application/ocsp-request')
   end
 
   # :reek:UtilityFunction
