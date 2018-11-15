@@ -18,6 +18,10 @@ class CertificateAuthority < ApplicationRecord
     ).find_or_create_by(key: key_id)
   end
 
+  def certificate
+    CertificateStore.instance[key]
+  end
+
   ##
   # Fetches the CRL from the stored URL and adds any new serial numbers.
   # Will raise on errors.
@@ -33,14 +37,15 @@ class CertificateAuthority < ApplicationRecord
                                  on_duplicate_key: :ignore)
   end
 
-  def revoked?(serial)
+  def revoked?(subject_cert)
+    serial = subject_cert.serial.to_s
     certificate_revocations.where(serial: serial).any?
   end
 
-  def self.revoked?(key_id, serial)
-    cert = find_by(key: key_id)
+  def self.revoked?(subject_cert)
+    cert = find_by(key: subject_cert.signing_key_id)
     # Cert should exist and not be revoked.
-    cert&.revoked?(serial)
+    cert&.revoked?(subject_cert)
   end
 
   private
