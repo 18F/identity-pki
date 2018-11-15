@@ -5,7 +5,7 @@ require 'uri'
 class OCSPService
   attr_reader :subject, :authority, :request
 
-  NO_AUTHORITY_RESPONSE = OpenStruct.new(revoked?: nil)
+  NO_AUTHORITY_RESPONSE = OpenStruct.new(revoked?: nil).freeze
 
   def initialize(subject)
     @subject = subject

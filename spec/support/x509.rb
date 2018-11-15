@@ -282,7 +282,7 @@ module X509Helpers
         end
       end
     end
-    set
+    root_certs + intermediate_certs + leaf_certs
   end
 
   def certificates_in_collection(collection, key, value)

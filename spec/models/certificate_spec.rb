@@ -160,14 +160,14 @@ RSpec.describe Certificate do
       certificate_store.clear_trusted_ca_root_identifiers
       certificate_store.add_pem_file(ca_file_path)
     end
-    
+
     it { expect(certificate.revoked?).to be_truthy }
 
     it 'adds the serial number to the list of revoked serials' do
       expect { certificate.revoked? }.to change { CertificateRevocation.count }.by(1)
     end
   end
-  
+
   describe 'a verified cert with no expected policies' do
     let(:cert_collection) do
       create_certificate_set(
@@ -194,7 +194,6 @@ RSpec.describe Certificate do
     before(:each) do
       allow(IO).to receive(:binread).with(ca_file_path).and_return(ca_file_content)
       allow(Figaro.env).to receive(:trusted_ca_root_identifiers).and_return(
-
         root_cert_key_id
       )
       certificate_store.clear_trusted_ca_root_identifiers
