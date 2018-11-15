@@ -92,6 +92,23 @@ Certificate authorities are made trusted roots by listing their key id in the
 `config/application.yml`. The `trusted_ca_root_identifiers` configuration attribute
 is a comma-delimited list of key ids.
 
+#### Managing OCSP
+
+OCSP is a real-time revocation status protocol for certificates. We contact the OCSP
+server when we check the validity of a certificate rather than relying on a periodic
+refresh of CRLs. CRLs become a fall-back if we aren't able to contact the OCSP server.
+
+If we have a OCSP URL on record for an issuing certificate, we use that. Otherwise, we
+find the OCSP URL in the certificate we're verifying. If we are not able to get a
+response from the OCSP server, we fall back to the CRL information we've cached.
+
+If we get a "revoked" status from the OCSP server, we record that for future checks so
+we don't have to go back to the OCSP server.
+
+Once a certificate is marked as revoked, we don't "unrevoke." We will always refuse to
+accept the certificate as valid unless the revocation status is removed from the
+database.
+
 #### Managing Certificate Revocation Lists (CRLs)
 
 The application does not download CRLs. Instead, it expects revoked serial numbers to

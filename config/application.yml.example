@@ -10,11 +10,16 @@
 aws_http_timeout: '5'
 trusted_ca_root_identifiers: "\
   AD:0C:7A:75:5C:E5:F3:98:C4:79:98:0E:AC:28:FD:97:F4:E7:02:FC,\
+  17:4B:B8:26:BA:69:7A:AD:12:50:57:45:31:9E:57:BB:74:A5:DA:2F,\
   49:74:BB:0C:5E:BA:7A:FE:02:54:EF:7B:A0:C6:95:C6:09:80:70:96,\
+  68:84:15:48:8C:54:70:7F:2D:12:58:0E:EC:1C:78:EF:3C:2E:59:64,\
   6C:8A:94:A2:77:B1:80:72:1D:81:7A:16:AA:F2:DC:CE:66:EE:45:C0,\
   BD:C1:B9:6B:4D:F4:1D:EC:30:90:BF:62:73:C0:84:33:F2:71:24:85"
+
 required_policies: |
   [
+    "2.16.840.1.101.2.1.11.9",
+    "2.16.840.1.101.2.1.11.19",
     "2.16.840.1.101.2.1.11.42",
     "2.16.840.1.101.2.1.11.43",
     "2.16.840.1.101.2.1.11.44",
@@ -35,6 +40,7 @@ development:
   database_password: ''
   database_username: ''
   secret_key_base: ''
+  certificate_store_directory: 'config/certs'
 
 test:
   aws_region: 'us-east-1'
@@ -49,8 +55,10 @@ test:
   database_password: ''
   database_username: ''
   secret_key_base: ''
+  certificate_store_directory: 'config/test-certs'
 
 production:
   aws_region:
   client_cert_escaped: 'true'
+  certificate_store_directory: 'config/certs'
   nonce_bloom_filter_enabled: 'false'

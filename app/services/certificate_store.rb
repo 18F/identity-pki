@@ -39,12 +39,20 @@ class CertificateStore
     @graph.add_edge(from, to) if from && to
   end
 
+  # :reek:FeatureEnvy
+  def store
+    OpenSSL::X509::Store.new.tap do |obj|
+      obj.purpose = OpenSSL::X509::PURPOSE_ANY
+      each { |cert| obj.add_cert(cert.x509_cert) }
+    end
+  end
+
   def certificates
     @certificates.values
   end
 
   def add_certificate(cert)
-    key_id = cert.key_id
+    key_id = cert&.key_id
     return unless key_id
 
     CertificateAuthority.find_or_create_for_certificate(cert)
@@ -86,17 +94,13 @@ class CertificateStore
     @certificates.values.all?(&:valid?)
   end
 
-  class << self
-    def trusted_ca_root_identifiers
-      @trusted_ca_root_identifiers ||= begin
-        raw = Figaro.env.trusted_ca_root_identifiers || ''
-        raw.split(',').map(&:strip) - ['']
-      end
-    end
+  def self.trusted_ca_root_identifiers
+    @trusted_ca_root_identifiers ||=
+      (Figaro.env.trusted_ca_root_identifiers || '').split(',').map(&:strip) - ['']
+  end
 
-    def clear_trusted_ca_root_identifiers
-      @trusted_ca_root_identifiers = nil
-    end
+  def self.clear_trusted_ca_root_identifiers
+    @store = @trusted_ca_root_identifiers = nil
   end
 
   private
@@ -121,15 +125,11 @@ class CertificateStore
   end
 
   def extract_certs(raw)
-    raw.
-      split(END_CERTIFICATE).
-      map(&method(:cert_from_pem)).
-      compact.
-      select(&:ca_capable?)
+    raw.split(END_CERTIFICATE).map(&method(:cert_from_pem)).compact.select(&:ca_capable?)
   end
 
   # :reek:UtilityFunction
   def cert_from_pem(pem)
-    Certificate.new(OpenSSL::X509::Certificate.new(pem + END_CERTIFICATE)) if pem.present?
+    Certificate.new(OpenSSL::X509::Certificate.new(pem + END_CERTIFICATE)) if pem.strip.present?
   end
 end

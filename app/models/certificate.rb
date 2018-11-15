@@ -1,11 +1,13 @@
 class Certificate
   extend Forwardable
 
+  attr_accessor :x509_cert
+
   def initialize(x509_cert)
     @x509_cert = x509_cert
   end
 
-  def_delegators :@x509_cert, :not_before, :not_after, :subject, :issuer, :verify,
+  def_delegators :x509_cert, :not_before, :not_after, :subject, :issuer, :verify,
                  :public_key, :serial, :to_text
 
   def trusted_root?
@@ -13,7 +15,12 @@ class Certificate
   end
 
   def revoked?
-    CertificateAuthority.revoked?(signing_key_id, serial.to_s)
+    return true if CertificateAuthority.revoked?(self)
+    ocsp_response = OCSPService.new(self).call
+    revoked_status = ocsp_response.revoked?
+    # save serial number as revoked
+    ocsp_response.authority&.certificate_revocations&.create!(serial: serial) if revoked_status
+    revoked_status
   end
 
   def ==(other)
@@ -114,14 +121,20 @@ class Certificate
     end
   end
 
-  def issuer_metadata
-    ca_issuer_url, ocsp_url = authority_information
+  def ca_issuer_http_url
+    extract_http_url(aia['CA Issuers'])
+  end
 
+  def ocsp_http_url
+    extract_http_url(aia['OCSP'])
+  end
+
+  def issuer_metadata
     {
       dn: issuer,
       crl_http_url: crl_http_url,
-      ca_issuer_url: ca_issuer_url,
-      ocsp_url: ocsp_url,
+      ca_issuer_url: ca_issuer_http_url,
+      ocsp_url: ocsp_http_url,
     }
   end
 
