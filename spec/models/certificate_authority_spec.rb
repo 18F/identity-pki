@@ -36,7 +36,7 @@ RSpec.describe CertificateAuthority, type: :model do
 
   describe 'revoked?' do
     it 'with no revocations' do
-      expect(authority.revoked?('123')).to be_falsey
+      expect(authority.revoked?(OpenStruct.new(serial: '123'))).to be_falsey
     end
 
     describe 'with some revocations' do
@@ -46,11 +46,11 @@ RSpec.describe CertificateAuthority, type: :model do
       end
 
       it 'finds a revoked serial' do
-        expect(authority.revoked?('234')).to be_truthy
+        expect(authority.revoked?(OpenStruct.new(serial: '234'))).to be_truthy
       end
 
       it 'fails to find a serial not revoked' do
-        expect(authority.revoked?('123')).to be_falsey
+        expect(authority.revoked?(OpenStruct.new(serial: '123'))).to be_falsey
       end
     end
   end

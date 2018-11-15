@@ -12,11 +12,24 @@ RSpec.describe CertificateLoggerService do
     )
   end
 
-  let(:root_cert) { cert_collection.first.first }
-  let(:intermediate_cert) { cert_collection[1].first }
-  let(:leaf_cert) { cert_collection.last.first }
+  let(:root_cert) { certificates_in_collection(cert_collection, :type, :root).first.x509_cert }
+  let(:intermediate_cert) do
+    certificates_in_collection(cert_collection, :type, :intermediate).first.x509_cert
+  end
+  let(:leaf_cert) { certificates_in_collection(cert_collection, :type, :leaf).first.x509_cert }
 
   let(:x509_cert) { leaf_cert }
+
+  let(:ocsp_response) { false }
+  let(:ocsp_responder) do
+    OpenStruct.new(
+      call: OpenStruct.new(revoked?: ocsp_response)
+    )
+  end
+
+  before(:each) do
+    allow(OCSPService).to receive(:new).and_return(ocsp_responder)
+  end
 
   after(:each) do
     service.instance_variable_set(:@bucket, nil)
