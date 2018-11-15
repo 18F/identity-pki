@@ -16,6 +16,12 @@ class Certificate
     CertificateAuthority.revoked?(signing_key_id, serial.to_s)
   end
 
+  def ==(other)
+    subject == other.subject &&
+      serial == other.serial &&
+      signing_key_id == other.signing_key_id
+  end
+
   def expired?
     now = Time.zone.now
     not_before > now || now > not_after # expiration bounds
@@ -87,7 +93,7 @@ class Certificate
   end
 
   def crl_http_url
-    extract_http_url(get_extension('crlDistributionPoints')&.split(/\n/))
+    extract_http_url(get_extension('crlDistributionPoints')&.split(/\s*\n\s*/))
   end
 
   def aia
@@ -142,7 +148,6 @@ class Certificate
 
   def authority_information
     info = aia
-
     [extract_http_url(aia['CA Issuers']), extract_http_url(aia['OCSP'])] if info
   end
 

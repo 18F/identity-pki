@@ -18,19 +18,19 @@ class CertificateStore
   def reset
     @certificates = {}
     @graph = RGL::DirectedAdjacencyGraph.new
-  end
-
-  def self.reset
-    instance.reset
+    self
   end
 
   def_delegators :@certificates, :[], :count, :empty?, :map
+  def_delegators :certificates, :each, :select
   def_delegators CertificateStore, :trusted_ca_root_identifiers, :clear_trusted_ca_root_identifiers
 
   def add_pem_file(filename)
-    raw = IO.binread(filename)
-    certs = extract_certs(raw)
-    certs.each(&method(:add_certificate))
+    add_pem_string(IO.binread(filename))
+  end
+
+  def add_pem_string(string)
+    extract_certs(string).each(&method(:add_certificate))
   end
 
   def add_link(from, to)
@@ -39,12 +39,8 @@ class CertificateStore
     @graph.add_edge(from, to) if from && to
   end
 
-  def each(&block)
-    @certificates.values.each(&block)
-  end
-
-  def select(&block)
-    @certificates.values.select(&block)
+  def certificates
+    @certificates.values
   end
 
   def add_certificate(cert)
@@ -55,6 +51,10 @@ class CertificateStore
 
     @certificates[key_id] = cert
     add_link(key_id, cert.signing_key_id)
+  end
+
+  def add_certificates(list)
+    list.each { |cert| add_certificate(cert) }
   end
 
   def x509_certificate_chain(cert)
@@ -130,7 +130,6 @@ class CertificateStore
 
   # :reek:UtilityFunction
   def cert_from_pem(pem)
-    return if pem =~ /\A\s*\Z/
-    Certificate.new(OpenSSL::X509::Certificate.new(pem + END_CERTIFICATE))
+    Certificate.new(OpenSSL::X509::Certificate.new(pem + END_CERTIFICATE)) if pem.present?
   end
 end

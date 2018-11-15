@@ -29,6 +29,7 @@ group :development do
   gem 'brakeman', require: false
   gem 'bummr', require: false
   gem 'derailed'
+  gem 'dotenv'
   gem 'fasterer', require: false
   gem 'guard-rspec', require: false
   gem 'overcommit', require: false

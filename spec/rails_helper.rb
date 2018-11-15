@@ -27,7 +27,7 @@ RSpec.configure do |config|
   config.before(:each) do
     I18n.locale = :en
     allow(Figaro.env).to receive(:domain_name).and_return('127.0.0.1')
-    CertificateStore.reset
+    CertificateStore.instance.reset
   end
 
   config.before(:each, type: :controller) do
