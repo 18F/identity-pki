@@ -152,7 +152,6 @@ RSpec.describe Certificate do
     end
 
     let(:root_cert_key_ids) { root_certs.map(&:key_id) }
-
     before(:each) do
       allow(IO).to receive(:binread).with(ca_file_path).and_return(ca_file_content)
       allow(Figaro.env).to receive(:trusted_ca_root_identifiers).and_return(
@@ -161,11 +160,54 @@ RSpec.describe Certificate do
       certificate_store.clear_trusted_ca_root_identifiers
       certificate_store.add_pem_file(ca_file_path)
     end
-
+    
     it { expect(certificate.revoked?).to be_truthy }
 
     it 'adds the serial number to the list of revoked serials' do
       expect { certificate.revoked? }.to change { CertificateRevocation.count }.by(1)
+    end
+  end
+  
+  describe 'a verified cert with no expected policies' do
+    let(:cert_collection) do
+      create_certificate_set(
+        root_count: 1,
+        intermediate_count: 1,
+        leaf_count: 1,
+        leaf_options: {
+          no_policies: true,
+        }
+      )
+    end
+
+    let(:x509_cert) { leaf_cert }
+
+    let(:ca_file_path) { data_file_path('certs.pem') }
+
+    let(:root_cert_key_id) { Certificate.new(root_cert).key_id }
+    let(:intermediate_cert_key_id) { Certificate.new(intermediate_cert).key_id }
+
+    let(:ca_file_content) { [root_cert, intermediate_cert].map(&:to_pem).join("\n\n") }
+
+    let(:certificate_store) { CertificateStore.instance }
+
+    before(:each) do
+      allow(IO).to receive(:binread).with(ca_file_path).and_return(ca_file_content)
+      allow(Figaro.env).to receive(:trusted_ca_root_identifiers).and_return(
+
+        root_cert_key_id
+      )
+      certificate_store.clear_trusted_ca_root_identifiers
+      certificate_store.add_pem_file(ca_file_path)
+    end
+
+    it 'verifies the certificate' do
+      expect(certificate.valid?).to be_truthy
+    end
+
+    it 'logs the cert in S3 when creating a token' do
+      expect(CertificateLoggerService).to receive(:log_certificate).with(certificate)
+      certificate.token({})
     end
   end
 end
