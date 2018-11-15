@@ -100,11 +100,6 @@ class CertificateStore
 
   private
 
-  def add_certificate_to_graph(key_id, cert)
-    @certificates[key_id] = cert
-    add_link(key_id, cert.signing_key_id)
-  end
-
   # :reek:DuplicateMethodCall
   def trusted_certificate_ids
     # start with the trusted roots and work down

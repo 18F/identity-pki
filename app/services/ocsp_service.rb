@@ -42,12 +42,12 @@ class OCSPService
   def make_http_request(uri, request, limit = 10)
     return if limit.negative? || uri.blank?
 
-    handle_response(make_single_http_request(URI(uri), request))
+    handle_response(make_single_http_request(URI(uri), request), limit)
   rescue SocketError
     nil # we simply have nothing if we can't connect
   end
 
-  def handle_response(response)
+  def handle_response(response, limit)
     case response
     when Net::HTTPSuccess then
       process_http_response_body(response.body)
