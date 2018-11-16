@@ -11,11 +11,11 @@ class OCSPService
     @subject = subject
     @authority = CertificateAuthority.find_by(key: subject.signing_key_id)
     @request = OpenSSL::OCSP::Request.new
-    build_request if @authority
+    build_request if @authority&.certificate
   end
 
   def call
-    return NO_AUTHORITY_RESPONSE unless @authority
+    return NO_AUTHORITY_RESPONSE unless @authority&.certificate && request.present?
     response = make_http_request(ocsp_url_for_subject, request.to_der)
     OCSPResponse.new(self, response)
   end
@@ -24,7 +24,6 @@ class OCSPService
 
   def build_request
     issuer = authority.certificate
-    return unless issuer.present?
     digest = OpenSSL::Digest::SHA1.new
     certificate_id = OpenSSL::OCSP::CertificateId.new(subject.x509_cert, issuer.x509_cert, digest)
     request.add_certid(certificate_id)
@@ -57,15 +56,19 @@ class OCSPService
     end
   end
 
-  # :reek:UtilityFunction
   def make_single_http_request(uri, request, retries = 3)
-    http = Net::HTTP.new(uri.hostname, uri.port)
-    http.post(uri.path.presence || '/', request, 'content-type' => 'application/ocsp-request')
+    make_single_http_request!(uri, request)
   rescue Errno::ECONNRESET
     retries -= 1
     return if retries.negative?
     sleep(1)
     retry
+  end
+
+  # :reek:UtilityFunction
+  def make_single_http_request!(uri, request)
+    http = Net::HTTP.new(uri.hostname, uri.port)
+    http.post(uri.path.presence || '/', request, 'content-type' => 'application/ocsp-request')
   end
 
   # :reek:UtilityFunction
