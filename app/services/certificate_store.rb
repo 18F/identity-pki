@@ -74,6 +74,8 @@ class CertificateStore
     @certificates.values_at(
       *@graph.dijkstra_shortest_path(Hash.new(1), signing_key_id, cert_root_id)
     )
+  rescue RGL::NoVertexError
+    []
   end
 
   def delete(key)

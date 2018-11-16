@@ -24,6 +24,7 @@ class OCSPService
 
   def build_request
     issuer = authority.certificate
+    return unless issuer.present?
     digest = OpenSSL::Digest::SHA1.new
     certificate_id = OpenSSL::OCSP::CertificateId.new(subject.x509_cert, issuer.x509_cert, digest)
     request.add_certid(certificate_id)
@@ -40,7 +41,7 @@ class OCSPService
   end
 
   def make_http_request(uri, request, limit = 10)
-    return if limit.negative? || uri.blank?
+    return if limit.negative? || uri.blank? || request.blank?
 
     handle_response(make_single_http_request(URI(uri), request), limit)
   rescue SocketError
@@ -57,9 +58,14 @@ class OCSPService
   end
 
   # :reek:UtilityFunction
-  def make_single_http_request(uri, request)
+  def make_single_http_request(uri, request, retries = 3)
     http = Net::HTTP.new(uri.hostname, uri.port)
     http.post(uri.path.presence || '/', request, 'content-type' => 'application/ocsp-request')
+  rescue Errno::ECONNRESET
+    retries -= 1
+    return if retries.negative?
+    sleep(1)
+    retry
   end
 
   # :reek:UtilityFunction
