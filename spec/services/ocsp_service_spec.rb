@@ -167,11 +167,57 @@ RSpec.describe OCSPService do
     context 'with invalid certs' do
       let(:status) { :revoked }
 
-      it 'returns true for a cert with a known ca' do
+      it 'returns nil for a cert with a known ca' do
         expect(ocsp_service.call.revoked?).to be_nil
       end
     end
   end
+
+  context 'with connection reset' do
+    let(:ca_file_path) { data_file_path('certs.pem') }
+
+    let(:ca_file_content) do
+      cert_collection.map { |info| info[:certificate] }.map(&:to_pem).join("\n\n")
+    end
+
+    let(:root_cert_key_ids) { root_certs.map(&:key_id) }
+
+    before(:each) do
+      allow(IO).to receive(:binread).with(ca_file_path).and_return(ca_file_content)
+      allow(Figaro.env).to receive(:trusted_ca_root_identifiers).and_return(
+        root_cert_key_ids.join(',')
+      )
+      certificate_store.clear_trusted_ca_root_identifiers
+      certificate_store.add_pem_file(ca_file_path)
+
+      stub_request(:post, 'http://ocsp.example.com/').
+        with(
+          headers: {
+            'Content-Type' => 'application/ocsp-request',
+          }
+        ).
+        to_return do |_request|
+          raise Errno::ECONNRESET
+        end
+    end
+
+    context 'with valid certs' do
+      let(:status) { :valid }
+
+      it 'returns nil for a cert with a known ca' do
+        expect(ocsp_service.call.revoked?).to be_nil
+      end
+    end
+
+    context 'with invalid certs' do
+      let(:status) { :revoked }
+
+      it 'returns nil for a cert with a known ca' do
+        expect(ocsp_service.call.revoked?).to be_nil
+      end
+    end
+  end
+
 
   context 'with invalid OCSP response' do
     let(:ca_file_path) { data_file_path('certs.pem') }
