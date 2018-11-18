@@ -218,7 +218,6 @@ RSpec.describe OCSPService do
     end
   end
 
-
   context 'with invalid OCSP response' do
     let(:ca_file_path) { data_file_path('certs.pem') }
 
