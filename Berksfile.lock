@@ -25,7 +25,7 @@ DEPENDENCIES
   config_loader
     path: kitchen/cookbooks/config_loader
   elasticsearch (~> 4.0.3)
-  elasticsearch-curator (~> 0.2.8)
+  elasticsearch-curator (~> 0.3.0)
   filebeat (~> 2.1.0)
   git
   hostname
@@ -139,9 +139,8 @@ GRAPH
     ark (>= 0.0.0)
     chef-sugar (>= 0.0.0)
     yum (>= 0.0.0)
-  elasticsearch-curator (0.2.8)
+  elasticsearch-curator (0.3.0)
     apt (>= 0.0.0)
-    compat_resource (>= 0.0.0)
     cron (>= 0.0.0)
     poise-python (>= 0.0.0)
     yum (>= 0.0.0)
