@@ -271,7 +271,7 @@ variable "default_ami_id_sandbox" {
 }
 
 variable "default_ami_id_prod" {
-    default = "ami-00d7811f396806ddf" # 2018-11-14
+    default = "ami-0a858c781345aabbb" # 2018-11-14
     description = "default AMI ID for environments in the prod account"
 }
 
