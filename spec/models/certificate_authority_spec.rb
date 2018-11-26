@@ -73,6 +73,17 @@ RSpec.describe CertificateAuthority, type: :model do
         stub_request(:get, crl_http_url).to_return(body: crl_content)
       end
 
+      describe 'that returns a 404' do
+        before(:each) do
+          stub_request(:get, crl_http_url).to_return(status: 404, body: '')
+        end
+
+        it 'logs to the Rails log' do
+          expect(Rails.logger).to receive(:warn)
+          authority.update_revocations
+        end
+      end
+
       it 'pulls the content via a GET' do
         authority.update_revocations
 

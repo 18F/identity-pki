@@ -140,6 +140,15 @@ RSpec.describe CertificateStore do
         end
       end
 
+      describe 'with an invalid trusted root id' do
+        it 'has no chain' do
+          cert = leaf_certs.first
+          allow(cert).to receive(:signing_key_id).and_return('NOT:A:REAL:CERTIFICATE:KEY:ID')
+          chain_ids = certificate_store.x509_certificate_chain(cert)
+          expect(chain_ids).to be_empty
+        end
+      end
+
       describe 'with no intermediates' do
         let(:ca_file_content) do
           certificates_in_collection(cert_collection, :type, :root).

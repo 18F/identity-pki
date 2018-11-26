@@ -63,7 +63,7 @@ class CertificateStore
   def x509_certificate_chain(cert)
     trusted_ca_root_identifiers.each do |cert_root_id|
       sequence = x509_certificate_chain_to_root(cert, cert_root_id)
-      return sequence if sequence&.any?
+      return sequence if sequence&.any? && sequence&.all?
     end
     []
   end
@@ -74,6 +74,8 @@ class CertificateStore
     @certificates.values_at(
       *@graph.dijkstra_shortest_path(Hash.new(1), signing_key_id, cert_root_id)
     )
+  rescue RGL::NoVertexError
+    []
   end
 
   def delete(key)

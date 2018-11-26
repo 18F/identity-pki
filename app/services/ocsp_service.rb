@@ -11,11 +11,11 @@ class OCSPService
     @subject = subject
     @authority = CertificateAuthority.find_by(key: subject.signing_key_id)
     @request = OpenSSL::OCSP::Request.new
-    build_request if @authority
+    build_request if @authority&.certificate
   end
 
   def call
-    return NO_AUTHORITY_RESPONSE unless @authority
+    return NO_AUTHORITY_RESPONSE unless @authority&.certificate && request.present?
     response = make_http_request(ocsp_url_for_subject, request.to_der)
     OCSPResponse.new(self, response)
   end
@@ -40,7 +40,7 @@ class OCSPService
   end
 
   def make_http_request(uri, request, limit = 10)
-    return if limit.negative? || uri.blank?
+    return if limit.negative? || uri.blank? || request.blank?
 
     handle_response(make_single_http_request(URI(uri), request), limit)
   rescue SocketError
@@ -56,8 +56,17 @@ class OCSPService
     end
   end
 
+  def make_single_http_request(uri, request, retries = 3)
+    make_single_http_request!(uri, request)
+  rescue Errno::ECONNRESET
+    retries -= 1
+    return if retries.negative?
+    sleep(1)
+    retry
+  end
+
   # :reek:UtilityFunction
-  def make_single_http_request(uri, request)
+  def make_single_http_request!(uri, request)
     http = Net::HTTP.new(uri.hostname, uri.port)
     http.post(uri.path.presence || '/', request, 'content-type' => 'application/ocsp-request')
   end
