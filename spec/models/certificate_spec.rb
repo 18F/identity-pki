@@ -87,6 +87,42 @@ RSpec.describe Certificate do
     end
   end
 
+  describe '#ocsp_http_url' do
+    let(:x509_cert) { leaf_cert }
+
+    it 'has an OCSP url' do
+      expect(certificate.ocsp_http_url).to be_present
+    end
+
+    context 'with no AIA extension' do
+      before(:each) do
+        allow(certificate).to receive(:aia).and_return(nil)
+      end
+
+      it 'returns nil' do
+        expect(certificate.ocsp_http_url).to be_nil
+      end
+    end
+  end
+
+  describe '#ca_issuer_http_url' do
+    let(:x509_cert) { leaf_cert }
+
+    it 'has an OCSP url' do
+      expect(certificate.ca_issuer_http_url).to be_present
+    end
+
+    context 'with no AIA extension' do
+      before(:each) do
+        allow(certificate).to receive(:aia).and_return(nil)
+      end
+
+      it 'returns nil' do
+        expect(certificate.ca_issuer_http_url).to be_nil
+      end
+    end
+  end
+
   describe 'a root cert' do
     let(:x509_cert) { root_cert }
 

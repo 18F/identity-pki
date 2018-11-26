@@ -104,7 +104,7 @@ class Certificate
   end
 
   def aia
-    get_extension('authorityInfoAccess')&.
+    @aia ||= get_extension('authorityInfoAccess')&.
       split(/\n/)&.
       map { |line| line.split(/\s*-\s*/, 2) }&.
       each_with_object(Hash.new { |hash, key| hash[key] = [] }) do |(key, value), memo|
@@ -122,11 +122,11 @@ class Certificate
   end
 
   def ca_issuer_http_url
-    extract_http_url(aia['CA Issuers'])
+    extract_http_url(aia['CA Issuers']) if aia.present?
   end
 
   def ocsp_http_url
-    extract_http_url(aia['OCSP'])
+    extract_http_url(aia['OCSP']) if aia.present?
   end
 
   def issuer_metadata
