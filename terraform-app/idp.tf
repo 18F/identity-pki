@@ -35,7 +35,7 @@ resource "aws_db_instance" "idp" {
 
   # If you want to destroy your database, you need to do this in two phases:
   # 1. Uncomment `skip_final_snapshot=true` and
-  #    comment `prevent_destroy=true` below.
+  #    comment `prevent_destroy=true` and `deletion_protection = true` below.
   # 2. Perform a terraform/deploy "apply" with the additional
   #    argument of "-target=aws_db_instance.idp" to mark the database
   #    as not requiring a final snapshot.
@@ -48,6 +48,8 @@ resource "aws_db_instance" "idp" {
     # we set the password by hand so it doesn't end up in the state file
     ignore_changes = ["password"]
   }
+
+  deletion_protection = true
 }
 
 output "idp_db_endpoint" {
