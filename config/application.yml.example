@@ -40,6 +40,7 @@ development:
   database_password: ''
   database_username: ''
   secret_key_base: ''
+  certificate_store_directory: 'config/certs'
 
 test:
   aws_region: 'us-east-1'
@@ -54,8 +55,10 @@ test:
   database_password: ''
   database_username: ''
   secret_key_base: ''
+  certificate_store_directory: 'config/test-certs'
 
 production:
   aws_region:
   client_cert_escaped: 'true'
+  certificate_store_directory: 'config/certs'
   nonce_bloom_filter_enabled: 'false'
