@@ -47,7 +47,7 @@ resource "aws_launch_configuration" "elk" {
 }
 
 module "elk_lifecycle_hooks" {
-  source = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=b2894483acf0e47edde45ae9288c8f86c049416e"
+  source = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=2c43bfd79a8a2377657bc8ed4764c3321c0f8e80"
   asg_name = "${aws_autoscaling_group.elk.name}"
 }
 
