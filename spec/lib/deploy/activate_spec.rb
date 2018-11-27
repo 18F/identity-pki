@@ -64,8 +64,10 @@ describe Deploy::Activate do
 
       # top-level key from application.yml.example
       expect(combined_application_yml['trusted_ca_root_identifiers']).not_to be_empty
-      # six fingerprints, each of length 59, separated by four commas
-      expect(combined_application_yml['trusted_ca_root_identifiers'].length).to eq(TRUSTED_ROOT_COUNT * 59 + TRUSTED_ROOT_COUNT - 1)
+      # ___ fingerprints, each of length 59, separated by ___ - 1 commas
+      expect(combined_application_yml['trusted_ca_root_identifiers'].length).to eq(
+        TRUSTED_ROOT_COUNT * 59 + TRUSTED_ROOT_COUNT - 1
+      )
       # overridden production key from s3
       expect(combined_application_yml['production']['secret_key_base']).to eq('this is a secret')
       # production key from applicaiton.yml.example, not overwritten
