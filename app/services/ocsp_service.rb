@@ -31,9 +31,9 @@ class OCSPService
   end
 
   def ocsp_url_for_subject
-    authority.ocsp_url.presence || begin
+    authority.ocsp_http_url.presence || begin
       uri = subject.ocsp_http_url
-      authority.ocsp_url = uri
+      authority.ocsp_http_url = uri
       authority.save!
       uri
     end
