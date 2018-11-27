@@ -23,7 +23,7 @@ ActiveRecord::Schema.define(version: 2018_05_23_205303) do
     t.datetime "valid_not_after", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "ocsp_url"
+    t.string "ocsp_http_url"
     t.index ["key"], name: "index_certificate_authorities_on_key", unique: true
   end
 
