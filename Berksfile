@@ -26,7 +26,7 @@ cookbook 'jenkins', '~> 5.0.1'
 cookbook 'apache2'
 cookbook 'acme'
 cookbook 'filebeat', '~> 2.1.0'
-cookbook 'elasticsearch-curator', '~> 0.2.8'
+cookbook 'elasticsearch-curator', '~> 0.3.0'
 cookbook 'elasticsearch', '~> 4.0.3'
 cookbook 'ossec', '~> 1.1.0', git: 'https://github.com/sous-chefs/ossec'
 
