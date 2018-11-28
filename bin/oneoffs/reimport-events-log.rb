@@ -82,31 +82,66 @@ class EventMover
     [time_string, log_stream_name, event.message].join(' ') + "\n"
   end
 
+  # @param [Integer] split_bytes Maximum size of output text files
+  #
+  # @return [Array<String>] A list of locally downloaded filenames
   def download_log_stream(log_stream_name:, start_time: nil, end_time: nil,
-                          out_dir: '.')
-    filename = File.join(out_dir, log_stream_name)
+                          out_dir: '.', split_bytes: nil)
+
+    basedir = File.join(out_dir, log_stream_name)
     log.info("Downloading log stream #{log_stream_name.inspect} to " +
-             filename.inspect)
+             basedir.inspect)
 
     if start_time || end_time
       log.info("Download filtering start: #{start_time.inspect}, " \
                "end: #{end_time.inspect}")
     end
 
-    count = 0
+    Dir.mkdir(basedir)
 
-    File.open(filename, File::WRONLY | File::CREAT | File::EXCL) do |f|
-      each_log_event_in_stream(log_stream_name,
-                               start_time: start_time,
-                               end_time: end_time) do |event|
-        f.write(render_event_as_syslog(event, log_stream_name))
-        count += 1
+    event_count = 0
+
+    next_file_index = 0
+    filenames = []
+
+    cur_file = nil
+    cur_file_bytes = nil
+
+    # iterate over all log events in the stream for the given time window
+    each_log_event_in_stream(log_stream_name,
+                             start_time: start_time,
+                             end_time: end_time) do |event|
+
+      # transform the event into a logstash/syslog like format
+      output_data = render_event_as_syslog(event, log_stream_name)
+
+      # open a new file if no file yet or if we would exceed the split size
+      if cur_file.nil? || \
+         (split_bytes && (cur_file_bytes + output_data.bytesize > split_bytes))
+
+        if split_bytes
+          f_base = log_stream_name + format('_part.%04d.txt', next_file_index)
+        else
+          f_base = log_stream_name + '.txt'
+        end
+        filename = File.join(basedir, f_base)
+
+        log.info("Creating new output file #{filename.inspect}")
+        cur_file = File.open(filename, File::WRONLY | File::CREAT | File::EXCL)
+        filenames << filename
+        cur_file_bytes = 0
+        next_file_index += 1
       end
+
+      # write the event to the file
+      cur_file.write(output_data)
+      cur_file_bytes += output_data.bytesize
+      event_count += 1
     end
 
-    log.info("Wrote #{count} events to #{filename.inspect}")
+    log.info("Wrote #{event_count} events to #{filenames.length} files")
 
-    filename
+    filenames
   end
 
   def parse_timestamp_ms(ms_timestamp)
@@ -120,10 +155,15 @@ class EventMover
     (time.to_f * 1000).round
   end
 
+  # @param [Integer] split_bytes Maximum size of output text files that are
+  #   uploaded to S3
   def download_and_reupload_time_window(start_time: nil, end_time: nil,
                                         out_dir: '.', skip_streams: nil,
                                         s3_key_prefix: nil, skip_delete: false,
-                                        dry_run: false)
+                                        dry_run: false, split_bytes: nil)
+    if s3_key_prefix && !s3_key_prefix.end_with?('/')
+      raise ArgumentError.new('Expected S3 prefix to end with /')
+    end
     if start_time || end_time
       log.info('Downloading and reuploading logs between ' +
                "#{start_time || 'forever'} and #{end_time || 'forever'}")
@@ -153,15 +193,23 @@ class EventMover
       log.info("(#{i + 1}/#{streams_count}) Processing stream #{stream_name}")
       log.info("This stream stores #{stream.stored_bytes} bytes in total")
 
-      filename = download_log_stream(
+      filenames = download_log_stream(
         log_stream_name: stream_name, start_time: start_time,
-        end_time: end_time, out_dir: out_dir
+        end_time: end_time, out_dir: out_dir, split_bytes: split_bytes
       )
 
-      upload_log_stream_to_s3(filename: filename, dry_run: dry_run,
-                              s3_key_prefix: s3_key_prefix)
+      filenames_len = filenames.length
 
-      delete_local_file(filename) unless skip_delete
+      filenames.each_with_index do |filename, f_n|
+        log.info("Uploading file #{f_n + 1}/#{filenames_len} to S3")
+        upload_log_stream_to_s3(filename: filename, dry_run: dry_run,
+                                s3_key_prefix: s3_key_prefix,
+                                stream_name: stream_name)
+      end
+
+      filenames.each do
+        delete_local_file(filename) unless skip_delete
+      end
     end
 
     log.info("Finished processing all #{streams_count} log streams")
@@ -180,9 +228,11 @@ class EventMover
     "imported_from_cloudwatch_logs/#{File.basename(log_group_name)}/"
   end
 
-  def upload_log_stream_to_s3(filename:, s3_key_prefix: nil,
-                              s3_key_suffix: '.txt', dry_run: false)
+  def upload_log_stream_to_s3(filename:, s3_key_prefix: nil, stream_name: nil,
+                              s3_key_suffix: '', dry_run: false)
     s3_key_prefix ||= default_s3_upload_prefix
+    s3_key_prefix += stream_name + '/' if stream_name
+
     s3_key = s3_key_prefix + File.basename(filename) + s3_key_suffix
     s3_put_object(filename: filename, s3_key: s3_key, dry_run: dry_run)
   end
@@ -221,6 +271,16 @@ The current working directory will be used for temporary storage of the log
 files, which may be very large!
 
 For example:
+  # Download logs from prod events.log between 2018-09-21 and 2018-10-10,
+  # split them into 5 MiB chunks, and then upload them to S3 under
+  # s3://login-gov-prod-logs/imported_from_cloudwatch_logs/events.log/.
+  # Don't delete them afterwards in case it's useful to go through them.
+  #{File.basename($0)} -s 1537574400 -e 1539214898 --split-bytes 5242880 --skip-delete prod_/srv/idp/shared/log/events.log login-gov-prod-logs
+
+  # Download logs from prod events.log between 2018-09-21 and 2018-10-10, but
+  # keep them locally and don't upload them. This is useful if the files need
+  # to be manually split before uploading.
+  #{File.basename($0)} -s 1537574400 -e 1539214898 --dry-run --skip-delete prod_/srv/idp/shared/log/events.log login-gov-prod-logs
 
   # Download logs from prod events.log between 2018-09-21 and 2018-10-10, but
   # keep them locally and don't upload them. This is useful if the files need
@@ -253,6 +313,11 @@ Options:
             'List of log streams (space separated) to ignore') do |streams|
       reupload_options[:skip_streams] ||= Set.new
       reupload_options[:skip_streams] += streams.split(' ')
+    end
+
+    opts.on('-Z', '--split-bytes SIZE',
+            'Split output files into chunks <= SIZE bytes.') do |val|
+      reupload_options[:split_bytes] = Integer(val)
     end
 
     opts.on('--s3-prefix KEY',
