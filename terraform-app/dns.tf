@@ -3,13 +3,17 @@
 resource "aws_route53_zone" "internal" {
   comment = "${var.name}-zone-${var.env_name}"
   name = "login.gov.internal"
-  vpc_id = "${aws_vpc.default.id}"
+  vpc {
+    vpc_id = "${aws_vpc.default.id}"
+  }
 }
 
 resource "aws_route53_zone" "internal-reverse" {
   comment = "${var.name}-zone-${var.env_name}"
   name = "16.172.in-addr.arpa"
-  vpc_id = "${aws_vpc.default.id}"
+  vpc {
+    vpc_id = "${aws_vpc.default.id}"
+  }
 }
 
 resource "aws_route53_record" "internal-ns" {

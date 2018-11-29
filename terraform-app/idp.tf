@@ -35,7 +35,7 @@ resource "aws_db_instance" "idp" {
 
   # If you want to destroy your database, you need to do this in two phases:
   # 1. Uncomment `skip_final_snapshot=true` and
-  #    comment `prevent_destroy=true` below.
+  #    comment `prevent_destroy=true` and `deletion_protection = true` below.
   # 2. Perform a terraform/deploy "apply" with the additional
   #    argument of "-target=aws_db_instance.idp" to mark the database
   #    as not requiring a final snapshot.
@@ -48,6 +48,8 @@ resource "aws_db_instance" "idp" {
     # we set the password by hand so it doesn't end up in the state file
     ignore_changes = ["password"]
   }
+
+  deletion_protection = true
 }
 
 output "idp_db_endpoint" {
@@ -336,12 +338,12 @@ resource "aws_autoscaling_group" "idp" {
 }
 
 module "idp_lifecycle_hooks" {
-  source = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=b2894483acf0e47edde45ae9288c8f86c049416e"
+  source = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=2c43bfd79a8a2377657bc8ed4764c3321c0f8e80"
   asg_name = "${aws_autoscaling_group.idp.name}"
 }
 
 module "idp_recycle" {
-  source = "github.com/18F/identity-terraform//asg_recycle?ref=a1802acca51d07391bc818b62b38693a05df6c6f"
+  source = "github.com/18F/identity-terraform//asg_recycle?ref=2c43bfd79a8a2377657bc8ed4764c3321c0f8e80"
 
   # switch to count when that's a thing that we can do
   # https://github.com/hashicorp/terraform/issues/953

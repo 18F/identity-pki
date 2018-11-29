@@ -25,29 +25,38 @@ resource "aws_alb_listener" "app" {
   }
 }
 
-# This cert should be created by hand with these names:
-# sp.env.login.gov
-# dashboard.env.login.gov
-# sp-oidc-sinatra.env.login.gov
-# sp-rails.env.login.gov
-# sp-sinatra.env.login.gov
-# app.env.login.gov
-# apps.env.login.gov
-#
-# https://us-west-2.console.aws.amazon.com/acm/home?region=us-west-2#/
-#
-# Once the cert has been created by hand, this terraform data resource will
-# discover it so that we can associate the cert with the ALB.
-#
-data "aws_acm_certificate" "apps-combined" {
-    count = "${var.apps_enabled * var.acm_certs_enabled}"
-    domain = "sp.${var.env_name}.${var.root_domain}"
-    statuses = ["ISSUED"]
+# Create a TLS certificate with ACM
+module "acm-cert-apps-combined" {
+  source = "github.com/18F/identity-terraform//acm_certificate?ref=2c43bfd79a8a2377657bc8ed4764c3321c0f8e80"
+  enabled = "${var.apps_enabled * var.acm_certs_enabled}"
+  domain_name = "sp.${var.env_name}.${var.root_domain}"
+  subject_alternative_names = [
+    "app.${var.env_name}.${var.root_domain}",
+    "apps.${var.env_name}.${var.root_domain}",
+    "dashboard.${var.env_name}.${var.root_domain}",
+    "sp-oidc-sinatra.${var.env_name}.${var.root_domain}",
+    "sp-rails.${var.env_name}.${var.root_domain}",
+    "sp-sinatra.${var.env_name}.${var.root_domain}",
+  ]
+  validation_zone_id = "${var.route53_id}"
+}
+
+# Fake resource to allow depends_on
+# TODO: this can go away in TF 0.12
+# https://github.com/hashicorp/terraform/issues/16983
+resource "null_resource" "apps-combined-issued" {
+  triggers {
+    finished = "${module.acm-cert-apps-combined.finished_id}"
+  }
 }
 
 resource "aws_alb_listener" "app-ssl" {
+  # TODO TF 0.12 syntax:
+  # depends_on = ["module.acm-cert-apps-combined.finished_id"] # don't use cert until valid
+  depends_on = ["null_resource.apps-combined-issued"] # don't use cert until valid
+
   count = "${var.alb_enabled * var.apps_enabled}"
-  certificate_arn = "${data.aws_acm_certificate.apps-combined.arn}"
+  certificate_arn = "${module.acm-cert-apps-combined.cert_arn}"
   load_balancer_arn = "${aws_alb.app.id}"
   port = "443"
   protocol = "HTTPS"
