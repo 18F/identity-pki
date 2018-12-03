@@ -25,7 +25,7 @@ locals {
 # Create a TLS certificate with ACM
 module "acm-cert-idp" {
   source = "github.com/18F/identity-terraform//acm_certificate?ref=2c43bfd79a8a2377657bc8ed4764c3321c0f8e80"
-  enabled = "${var.apps_enabled * var.acm_certs_enabled}"
+  enabled = "${var.alb_enabled * var.acm_certs_enabled}"
   domain_name = "${local.idp_domain_name}"
   subject_alternative_names = ["${local.idp_subject_alt_names}"]
   validation_zone_id = "${var.route53_id}"
@@ -50,10 +50,6 @@ resource "aws_alb_listener" "idp" {
     target_group_arn = "${aws_alb_target_group.idp.id}"
     type = "forward"
   }
-
-  # TODO TF 0.12 syntax:
-  # depends_on = ["module.acm-cert-idp.finished_id"] # don't use cert until valid
-  depends_on = ["null_resource.acm-idp-issued"] # don't use cert until valid
 }
 
 resource "aws_alb_listener" "idp-ssl" {
@@ -68,6 +64,10 @@ resource "aws_alb_listener" "idp-ssl" {
     target_group_arn = "${aws_alb_target_group.idp-ssl.id}"
     type             = "forward"
   }
+
+  # TODO TF 0.12 syntax:
+  # depends_on = ["module.acm-cert-idp.finished_id"] # don't use cert until valid
+  depends_on = ["null_resource.acm-idp-issued"] # don't use cert until valid
 }
 
 resource "aws_alb_target_group" "idp" {
