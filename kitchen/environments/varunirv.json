@@ -1,0 +1,28 @@
+{
+  "name": "varunirv",
+  "description": "",
+  "cookbook_versions": {
+  },
+  "json_class": "Chef::Environment",
+  "chef_type": "environment",
+  "default_attributes": {
+    "identity-devops": {
+      "branch_name": "stages/varunirv"
+    },
+    "login_dot_gov": {
+      "domain_name": "identitysandbox.gov",
+      "branch_name": "master"
+    },
+    "elk": {
+      "retentiondays": 14,
+      "users": [
+        "brody",
+        "jgrevich",
+        "varunirv"
+      ]
+    }
+  },
+  "override_attributes": {
+
+  }
+}
