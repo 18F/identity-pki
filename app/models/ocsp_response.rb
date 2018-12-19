@@ -15,7 +15,7 @@ class OCSPResponse
   end
 
   def revoked?
-    return unless verified? && valid_nonce?
+    return unless successful? && verified? && valid_nonce?
     any_revoked?
   end
 
@@ -55,13 +55,10 @@ class OCSPResponse
 
   def logging_content
     if response
-      content = subject.to_pem
-      content << to_pem
-      content << to_text
+      [subject.to_pem, to_pem, to_text].join("\n")
     else
-      content = "No Response\n"
+      'No Response'
     end
-    content
   end
 
   def to_pem
@@ -93,6 +90,7 @@ class OCSPResponse
   # :reek:UtilityFunction
   def status_description(status)
     (certid, status_code, reason_code) = status
+    reason_code = status_code == OpenSSL::OCSP::V_CERTSTATUS_REVOKED ? reason_code : '-'
     "    - Status Int: #{status_code}\n" \
       "      Status String: #{STATUS_STRINGS[status_code] || 'other'}\n" \
       "      Reason Int: #{reason_code}\n" \
