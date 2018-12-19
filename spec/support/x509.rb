@@ -56,7 +56,9 @@ module X509Helpers
   end
 
   # :reek:ControlParameter
-  def create_ocsp_response(request_der, cert_collection, status_enum = :valid)
+  # :reek:BooleanParameter
+  # :reek:LongParameterList
+  def create_ocsp_response(request_der, cert_collection, status_enum = :valid, valid_ocsp = true)
     request = OpenSSL::OCSP::Request.new(request_der)
     status = OCSP_STATUS[status_enum]
 
@@ -72,7 +74,7 @@ module X509Helpers
       issuer = issuer_info[:certificate]
       signing_key = issuer_info[:key]
       basic_response.sign(issuer.x509_cert, signing_key, [])
-      OpenSSL::OCSP::Response.create(status, basic_response).to_der
+      OpenSSL::OCSP::Response.create(valid_ocsp ? 0 : 1, basic_response).to_der
     end.join('')
   end
 
