@@ -103,33 +103,40 @@ RSpec.describe OCSPResponse do
         ].join("\n")
       end
     end
-  end
 
-  describe 'a cert that is revoked via ocsp' do
-    let(:status) { :revoked }
-    let(:x509_cert) { leaf_cert }
-    let(:ca_file_path) { data_file_path('certs.pem') }
+    describe 'a cert that is revoked via ocsp' do
+      let(:status) { :revoked }
+      let(:ca_file_path) { data_file_path('certs.pem') }
 
-    let(:ca_file_content) do
-      cert_collection.map { |info| info[:certificate] }.map(&:to_pem).join("\n\n")
+      let(:ca_file_content) do
+        cert_collection.map { |info| info[:certificate] }.map(&:to_pem).join("\n\n")
+      end
+
+      let(:root_cert_key_ids) { root_certs.map(&:key_id) }
+      before(:each) do
+        allow(IO).to receive(:binread).with(ca_file_path).and_return(ca_file_content)
+        allow(Figaro.env).to receive(:trusted_ca_root_identifiers).and_return(
+          root_cert_key_ids.join(',')
+        )
+        certificate_store.clear_trusted_ca_root_identifiers
+        certificate_store.add_pem_file(ca_file_path)
+      end
+
+      it { expect(ocsp_response.revoked?).to be_truthy }
+
+      describe 'but with a "malformed" ocsp request' do
+        let(:valid_ocsp) { false }
+
+        it { expect(ocsp_response.revoked?).to be_falsey }
+      end
     end
 
-    let(:root_cert_key_ids) { root_certs.map(&:key_id) }
-    before(:each) do
-      allow(IO).to receive(:binread).with(ca_file_path).and_return(ca_file_content)
-      allow(Figaro.env).to receive(:trusted_ca_root_identifiers).and_return(
-        root_cert_key_ids.join(',')
-      )
-      certificate_store.clear_trusted_ca_root_identifiers
-      certificate_store.add_pem_file(ca_file_path)
-    end
+    describe 'with no server response' do
+      let(:response) {}
 
-    it { expect(ocsp_response.revoked?).to be_truthy }
-
-    describe 'but with a "malformed" ocsp request' do
-      let(:valid_ocsp) { false }
-
-      it { expect(ocsp_response.revoked?).to be_falsey }
+      describe '#logging_content' do
+        it { expect(ocsp_response.logging_content).to eq 'No Response' }
+      end
     end
   end
 end
