@@ -66,50 +66,20 @@ resource "aws_iam_role_policy" "obproxy-auto-eip" {
   policy = "${data.aws_iam_policy_document.auto_eip_policy.json}"
 }
 
-resource "aws_launch_template" "outboundproxy" {
-  name = "${var.env_name}-outboundproxy"
+module "outboundproxy_launch_template" {
+  source = "github.com/18F/identity-terraform//launch_template?ref=brody%2Ftemplate" # TODO
 
-  iam_instance_profile {
-    name = "${aws_iam_instance_profile.obproxy.name}"
-  }
+  role           = "outboundproxy"
+  env            = "${var.env_name}"
+  root_domain    = "${var.root_domain}"
+  ami_id_map     = "${var.ami_id_map}"
+  default_ami_id = "${local.account_default_ami_id}"
 
-  image_id = "${lookup(var.ami_id_map, "outboundproxy", local.account_default_ami_id)}"
-
-  instance_initiated_shutdown_behavior = "terminate"
-
-  instance_type = "${var.instance_type_outboundproxy}"
-
-  user_data = "${module.outboundproxy_launch_config.rendered_cloudinit_config}"
-
-  monitoring {
-    enabled = true
-  }
-
-  vpc_security_group_ids = ["${aws_security_group.obproxy.id}"]
-
-  tag_specifications {
-    resource_type = "instance"
-    tags {
-      Name = "asg-${var.env_name}-outboundproxy",
-      prefix = "outboundproxy",
-      domain = "${var.env_name}.${var.root_domain}"
-    }
-  }
-
-  tag_specifications {
-    resource_type = "volume"
-    tags {
-      Name = "asg-${var.env_name}-outboundproxy",
-      prefix = "outboundproxy",
-      domain = "${var.env_name}.${var.root_domain}"
-    }
-  }
+  instance_type             = "${var.instance_type_outboundproxy}"
+  iam_instance_profile_name = "${aws_iam_instance_profile.obproxy.name}"
+  user_data                 = "${module.outboundproxy_launch_config.rendered_cloudinit_config}"
+  security_group_ids        = ["${aws_security_group.obproxy.id}", "${aws_security_group.base.id}"]
 }
-
-# For debugging cloud-init
-#output "rendered_cloudinit_config" {
-#  value = "${module.outboundproxy_launch_config.rendered_cloudinit_config}"
-#}
 
 module "obproxy_lifecycle_hooks" {
   source = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=2c43bfd79a8a2377657bc8ed4764c3321c0f8e80"
@@ -171,15 +141,11 @@ resource "aws_autoscaling_group" "outboundproxy" {
   protect_from_scale_in = "${var.asg_prevent_auto_terminate}"
 
   launch_template = {
-    id = "${aws_launch_template.outboundproxy.id}"
+    id      = "${module.outboundproxy_launch_template.template_id}"
     version = "$$Latest"
   }
 
-  tag {
-    key = "Name"
-    value = "asg-${var.env_name}-outboundproxy"
-    propagate_at_launch = false
-  }
+  # tags on the instance will come from the launch template
   tag {
     key = "prefix"
     value = "outboundproxy"
