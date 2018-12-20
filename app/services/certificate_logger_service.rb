@@ -8,6 +8,12 @@ class CertificateLoggerService
       obj.put(body: certificate.logging_content)
     end
 
+    def log_ocsp_response(response)
+      return if bucket.blank? || !response.response
+      obj = bucket.object(response.logging_filename)
+      obj.put(body: response.logging_content)
+    end
+
     private
 
     def bucket
