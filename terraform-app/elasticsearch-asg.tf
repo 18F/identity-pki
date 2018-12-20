@@ -27,7 +27,7 @@ module "elasticsearch_user_data" {
 }
 
 module "elasticsearch_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=72ca4700ab91eadf0bd62c11df693519923e559e" # TODO XXX
+  source = "github.com/18F/identity-terraform//launch_template?ref=fd062e0395adb63a9f6501d3e825c302543b2fe6" # TODO XXX
 
   role           = "elasticsearch"
   env            = "${var.env_name}"
@@ -45,14 +45,18 @@ module "elasticsearch_launch_template" {
     main_git_ref = "${module.elasticsearch_user_data.main_git_ref}"
   }
 
-  block_device_mappings = {
-    device_name = "/dev/sdg"
-    ebs {
-      volume_size = "${var.elasticsearch_volume_size}"
-      volume_type = "gp2"
-      encrypted = true
+  block_device_mappings = [
+    {
+      device_name = "/dev/sdg"
+      ebs = [
+        {
+          volume_size = "${var.elasticsearch_volume_size}"
+          volume_type = "gp2"
+          encrypted = true
+        }
+      ]
     }
-  }
+  ]
 }
 
 module "elasticsearch_lifecycle_hooks" {
