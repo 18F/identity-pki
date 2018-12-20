@@ -1,4 +1,4 @@
-module "elasticsearch_launch_config" {
+module "elasticsearch_user_data" {
   source = "../terraform-modules/bootstrap/"
 
   role = "elasticsearch"
@@ -26,33 +26,33 @@ module "elasticsearch_launch_config" {
   proxy_enabled_roles = "${var.proxy_enabled_roles}"
 }
 
-# TODO it would be nicer to have this in the module, but the
-# aws_launch_configuration and aws_autoscaling_group must be in the same module
-# due to https://github.com/terraform-providers/terraform-provider-aws/issues/681
-# See discussion in ../terraform-modules/bootstrap/vestigial.tf.txt
-resource "aws_launch_configuration" "elasticsearch" {
-  name_prefix = "${var.env_name}.elasticsearch.${module.elasticsearch_launch_config.main_git_ref}."
+module "elasticsearch_launch_template" {
+  source = "github.com/18F/identity-terraform//launch_template?ref=72ca4700ab91eadf0bd62c11df693519923e559e" # TODO XXX
 
-  lifecycle {
-    create_before_destroy = true
+  role           = "elasticsearch"
+  env            = "${var.env_name}"
+  root_domain    = "${var.root_domain}"
+  ami_id_map     = "${var.ami_id_map}"
+  default_ami_id = "${local.account_default_ami_id}"
+
+  instance_type             = "${var.instance_type_es}"
+  iam_instance_profile_name = "${aws_iam_instance_profile.idp.name}" # TODO elasticsearch should not use idp instance profile TODO
+  security_group_ids        = ["${aws_security_group.elk.id}", "${aws_security_group.base.id}"] # TODO elasticsearch should not use elk security group
+
+  user_data                 = "${module.elasticsearch_user_data.rendered_cloudinit_config}"
+
+  template_tags = {
+    main_git_ref = "${module.elasticsearch_user_data.main_git_ref}"
   }
 
-  image_id = "${lookup(var.ami_id_map, "elasticsearch", local.account_default_ami_id)}"
-  instance_type = "${var.instance_type_es}"
-  security_groups = ["${aws_security_group.elk.id}"]
-
-  # We will add this to the var VG
-  ebs_block_device {
+  block_device_mappings = {
     device_name = "/dev/sdg"
-    volume_size = "${var.elasticsearch_volume_size}"
-    volume_type = "gp2"
-    encrypted = true
-    delete_on_termination = true
+    ebs {
+      volume_size = "${var.elasticsearch_volume_size}"
+      volume_type = "gp2"
+      encrypted = true
+    }
   }
-
-  user_data = "${module.elasticsearch_launch_config.rendered_cloudinit_config}"
-
-  iam_instance_profile = "${aws_iam_instance_profile.idp.id}"
 }
 
 module "elasticsearch_lifecycle_hooks" {
@@ -60,15 +60,13 @@ module "elasticsearch_lifecycle_hooks" {
   asg_name = "${aws_autoscaling_group.elasticsearch.name}"
 }
 
-# For debugging cloud-init
-#output "rendered_cloudinit_config" {
-#  value = "${module.elasticsearch_launch_config.rendered_cloudinit_config}"
-#}
-
 resource "aws_autoscaling_group" "elasticsearch" {
     name = "${var.env_name}-elasticsearch"
 
-    launch_configuration = "${aws_launch_configuration.elasticsearch.name}"
+    launch_template = {
+      id = "${module.elasticsearch_launch_template.template_id}"
+      version = "$$Latest"
+    }
 
     min_size = 0
     max_size = 32
@@ -90,35 +88,16 @@ resource "aws_autoscaling_group" "elasticsearch" {
     # Because these nodes have persistent data, we terminate manually.
     protect_from_scale_in = true
 
-    tag {
-        key = "Name"
-        value = "asg-${var.env_name}-elasticsearch"
-        propagate_at_launch = true
-    }
-    tag {
-        key = "client"
-        value = "${var.client}"
-        propagate_at_launch = true
-    }
+    # tags on the instance will come from the launch template
     tag {
         key = "prefix"
         value = "elasticsearch"
-        propagate_at_launch = true
+        propagate_at_launch = false
     }
     tag {
         key = "domain"
         value = "${var.env_name}.${var.root_domain}"
-        propagate_at_launch = true
-    }
-    tag {
-        key = "identity-devops-gitref"
-        value = "${module.elasticsearch_launch_config.main_git_ref}"
-        propagate_at_launch = true
-    }
-    tag {
-        key = "identity-devops-private-gitref"
-        value = "${module.elasticsearch_launch_config.private_git_ref}"
-        propagate_at_launch = true
+        propagate_at_launch = false
     }
 
     # elasticsearch instances are stateful, shouldn't be recycled willy nilly
