@@ -1,4 +1,4 @@
-module "pivcac_launch_config" {
+module "pivcac_user_data" {
   source = "../terraform-modules/bootstrap/"
 
   role = "pivcac"
@@ -26,24 +26,24 @@ module "pivcac_launch_config" {
   proxy_enabled_roles = "${var.proxy_enabled_roles}"
 }
 
-# TODO it would be nicer to have this in the module, but the
-# aws_launch_configuration and aws_autoscaling_group must be in the same module
-# due to https://github.com/terraform-providers/terraform-provider-aws/issues/681
-# See discussion in ../terraform-modules/bootstrap/vestigial.tf.txt
-resource "aws_launch_configuration" "pivcac" {
-  name_prefix = "${var.env_name}.pivcac.${module.pivcac_launch_config.main_git_ref}."
+module "pivcac_launch_template" {
+  source = "github.com/18F/identity-terraform//launch_template?ref=0691622ebed26f94f7aadb3eea31867b525326bd" # TODO XXX
 
-  lifecycle {
-    create_before_destroy = true
+  role           = "pivcac"
+  env            = "${var.env_name}"
+  root_domain    = "${var.root_domain}"
+  ami_id_map     = "${var.ami_id_map}"
+  default_ami_id = "${local.account_default_ami_id}"
+
+  instance_type             = "${var.instance_type_pivcac}"
+  iam_instance_profile_name = "${aws_iam_instance_profile.pivcac.name}"
+  security_group_ids        = ["${aws_security_group.pivcac.id}", "${aws_security_group.base.id}"]
+
+  user_data                 = "${module.pivcac_user_data.rendered_cloudinit_config}"
+
+  template_tags = {
+    main_git_ref = "${module.pivcac_user_data.main_git_ref}"
   }
-
-  image_id = "${lookup(var.ami_id_map, "pivcac", local.account_default_ami_id)}"
-  instance_type = "${var.instance_type_pivcac}"
-  security_groups = ["${aws_security_group.pivcac.id}"]
-
-  user_data = "${module.pivcac_launch_config.rendered_cloudinit_config}"
-
-  iam_instance_profile = "${aws_iam_instance_profile.pivcac.id}"
 }
 
 module "pivcac_lifecycle_hooks" {
@@ -64,11 +64,6 @@ module "pivcac_recycle" {
   asg_name = "${element(concat(aws_autoscaling_group.pivcac.*.name, list("")), 0)}"
   normal_desired_capacity = "${element(concat(aws_autoscaling_group.pivcac.*.desired_capacity, list("")), 0)}"
 }
-
-# For debugging cloud-init
-#output "rendered_cloudinit_config" {
-#  value = "${module.pivcac_launch_config.rendered_cloudinit_config}"
-#}
 
 resource "aws_iam_instance_profile" "pivcac" {
   name = "${var.env_name}_pivcac_instance_profile"
@@ -107,7 +102,10 @@ resource "aws_iam_role_policy" "pivcac-cloudwatch-logs" {
 resource "aws_autoscaling_group" "pivcac" {
     name = "${var.env_name}-pivcac"
 
-    launch_configuration = "${aws_launch_configuration.pivcac.name}"
+    launch_template = {
+      id = "${module.pivcac_launch_template.template_id}"
+      version = "$$Latest"
+    }
 
     min_size = 0
     max_size = "${var.pivcac_nodes * 2}"
