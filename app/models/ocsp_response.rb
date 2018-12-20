@@ -46,7 +46,11 @@ class OCSPResponse
 
   def any_revoked?
     return unless response
-    response.basic.status.any? { |status| status[1] == OpenSSL::OCSP::V_CERTSTATUS_REVOKED }
+    expected_serial = subject.serial
+    response.basic.status.any? do |status|
+      status[0].serial == expected_serial &&
+        status[1] == OpenSSL::OCSP::V_CERTSTATUS_REVOKED
+    end
   end
 
   def logging_filename
