@@ -67,7 +67,7 @@ resource "aws_iam_role_policy" "obproxy-auto-eip" {
 }
 
 module "outboundproxy_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=c2397cbf154a4d0779fa57fa060543a066130f15" # TODO
+  source = "github.com/18F/identity-terraform//launch_template?ref=0691622ebed26f94f7aadb3eea31867b525326bd" # TODO XXX
 
   role           = "outboundproxy"
   env            = "${var.env_name}"
