@@ -166,13 +166,13 @@ variable "chef_download_sha256" {
 
 variable "client" {}
 variable "env_name" { }
-variable "instance_type_app" { default = "t2.medium" }
-variable "instance_type_elk" { default = "t2.medium" }
-variable "instance_type_es" { default = "t2.medium" }
-variable "instance_type_idp" { default = "t2.medium" }
-variable "instance_type_jumphost" { default = "t2.small" }
-variable "instance_type_pivcac" { default = "t2.medium" }
-variable "instance_type_outboundproxy" { default = "t2.medium" }
+variable "instance_type_app" { default = "c5.large" }
+variable "instance_type_elk" { default = "c5.large" }
+variable "instance_type_es" { default = "c5.large" }
+variable "instance_type_idp" { default = "c5.large" }
+variable "instance_type_jumphost" { default = "c5.large" }
+variable "instance_type_pivcac" { default = "c5.large" }
+variable "instance_type_outboundproxy" { default = "c5.large" }
 variable "name" { default = "login" }
 variable "region" { default = "us-west-2" }
 variable "availability_zones" { default = ["us-west-2a","us-west-2b","us-west-2c"] }
