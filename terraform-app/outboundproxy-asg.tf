@@ -1,4 +1,4 @@
-module "outboundproxy_launch_config" {
+module "outboundproxy_user_data" {
   source = "../terraform-modules/bootstrap/"
 
   role = "outboundproxy"
@@ -67,7 +67,7 @@ resource "aws_iam_role_policy" "obproxy-auto-eip" {
 }
 
 module "outboundproxy_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=brody%2Ftemplate" # TODO
+  source = "github.com/18F/identity-terraform//launch_template?ref=c2397cbf154a4d0779fa57fa060543a066130f15" # TODO
 
   role           = "outboundproxy"
   env            = "${var.env_name}"
@@ -77,8 +77,12 @@ module "outboundproxy_launch_template" {
 
   instance_type             = "${var.instance_type_outboundproxy}"
   iam_instance_profile_name = "${aws_iam_instance_profile.obproxy.name}"
-  user_data                 = "${module.outboundproxy_launch_config.rendered_cloudinit_config}"
   security_group_ids        = ["${aws_security_group.obproxy.id}", "${aws_security_group.base.id}"]
+  user_data                 = "${module.outboundproxy_user_data.rendered_cloudinit_config}"
+
+  template_tags = {
+    main_git_ref = "${module.outboundproxy_user_data.main_git_ref}"
+  }
 }
 
 module "obproxy_lifecycle_hooks" {
