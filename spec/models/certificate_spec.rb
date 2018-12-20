@@ -28,6 +28,7 @@ RSpec.describe Certificate do
   let(:intermediate_cert) { intermediate_certs.first.x509_cert }
   let(:leaf_cert) { leaf_certs.first.x509_cert }
   let(:status) { :valid }
+  let(:valid_ocsp) { true }
 
   before(:each) do
     stub_request(:post, 'http://ocsp.example.com/').
@@ -39,7 +40,7 @@ RSpec.describe Certificate do
       to_return do |request|
       {
         status: 200,
-        body: create_ocsp_response(request.body, cert_collection, status),
+        body: create_ocsp_response(request.body, cert_collection, status, valid_ocsp),
         headers: {},
       }
     end
@@ -199,8 +200,24 @@ RSpec.describe Certificate do
 
     it { expect(certificate.revoked?).to be_truthy }
 
-    it 'adds the serial number to the list of revoked serials' do
+    it 'logs to S3' do
+      expect(CertificateLoggerService).to receive(:log_ocsp_response)
+      certificate.revoked?
+    end
+
+    xit 'adds the serial number to the list of revoked serials' do
       expect { certificate.revoked? }.to change { CertificateRevocation.count }.by(1)
+    end
+
+    describe 'but with a "malformed" ocsp request' do
+      let(:valid_ocsp) { false }
+
+      it { expect(certificate.revoked?).to be_falsey }
+
+      it 'logs to S3' do
+        expect(CertificateLoggerService).to receive(:log_ocsp_response)
+        certificate.revoked?
+      end
     end
   end
 
