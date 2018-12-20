@@ -41,7 +41,6 @@ variable "proxy_enabled_roles" {
     jumphost = 0
     outboundproxy = 0
     pivcac = 0
-    worker = 0
   }
 }
 
@@ -173,7 +172,6 @@ variable "instance_type_es" { default = "t2.medium" }
 variable "instance_type_idp" { default = "t2.medium" }
 variable "instance_type_jumphost" { default = "t2.small" }
 variable "instance_type_pivcac" { default = "t2.medium" }
-variable "instance_type_worker" { default = "t2.small" } # TODO way too small
 variable "instance_type_outboundproxy" { default = "t2.medium" }
 variable "name" { default = "login" }
 variable "region" { default = "us-west-2" }
@@ -188,7 +186,7 @@ variable "root_domain" {
 # Auto scaling flags
 variable "asg_auto_recycle_enabled" {
     default = 0
-    description = "Whether to automatically recycle IdP/worker/app/outboundproxy servers every 6 hours"
+    description = "Whether to automatically recycle IdP/app/outboundproxy servers every 6 hours"
 }
 variable "asg_auto_recycle_use_business_schedule" {
     default = 0
@@ -200,9 +198,6 @@ variable "asg_jumphost_desired" { default = 0 }
 variable "asg_idp_min" { default = 0 }
 variable "asg_idp_desired" { default = 0 }
 variable "asg_idp_max" { default = 8 }
-variable "asg_worker_min" { default = 0 }
-variable "asg_worker_desired" { default = 0 }
-variable "asg_worker_max" { default = 8 }
 variable "asg_elasticsearch_desired" { default = 0 }
 variable "asg_elk_desired" { default = 0 }
 variable "asg_app_min" { default = 0 }

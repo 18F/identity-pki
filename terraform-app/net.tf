@@ -645,7 +645,6 @@ resource "aws_security_group" "idp" {
   tags {
     Name = "${var.name}-idp_security_group-${var.env_name}"
     role = "idp"
-    to_deprecate_role = "worker"
   }
 
   vpc_id = "${aws_vpc.default.id}"

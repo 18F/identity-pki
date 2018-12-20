@@ -215,6 +215,7 @@ resource "aws_iam_role_policy" "idp-cloudwatch-logs" {
 # need to be able to associate EIPs with themselves in order to assign
 # themselves a static IP address.
 # https://github.com/18F/identity-devops/pull/689
+# TODO: delete this now that we have obproxy?
 resource "aws_iam_role_policy" "idp-worker-auto-eip" {
   name = "${var.env_name}-idp-worker-auto-eip"
   role = "${aws_iam_role.idp.id}"
