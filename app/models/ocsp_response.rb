@@ -40,6 +40,9 @@ class OCSPResponse
   # 2 and 3 can't happen since we set it in the request; 0 is always an error
   # whether or not we accept -1 depends on if we expect all OCSP responders
   # to echo back our nonce. We'll be forgiving for now.
+  #
+  # Entrust caches their OCSP responses, so we can't expect a nonce in their responses.
+  #
   def valid_nonce?
     !request.check_nonce(response.basic).zero?
   end
