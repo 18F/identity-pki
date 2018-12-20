@@ -77,9 +77,9 @@ resource "aws_autoscaling_group" "app" {
       "${aws_alb_target_group.app-ssl.arn}"
     ]
 
-    # TODO: make it highly available
     vpc_zone_identifier = [
-      "${aws_subnet.app.id}"
+      "${aws_subnet.publicsubnet1.id}",
+      "${aws_subnet.publicsubnet2.id}"
     ]
 
     # possible choices: EC2, ELB
