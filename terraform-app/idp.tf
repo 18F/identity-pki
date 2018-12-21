@@ -215,13 +215,14 @@ resource "aws_iam_role_policy" "idp-cloudwatch-logs" {
 # need to be able to associate EIPs with themselves in order to assign
 # themselves a static IP address.
 # https://github.com/18F/identity-devops/pull/689
+# TODO: delete this now that we have obproxy?
 resource "aws_iam_role_policy" "idp-worker-auto-eip" {
   name = "${var.env_name}-idp-worker-auto-eip"
   role = "${aws_iam_role.idp.id}"
   policy = "${data.aws_iam_policy_document.auto_eip_policy.json}"
 }
 
-module "idp_launch_config" {
+module "idp_user_data" {
   source = "../terraform-modules/bootstrap/"
 
   role = "idp"
@@ -249,35 +250,33 @@ module "idp_launch_config" {
   proxy_enabled_roles = "${var.proxy_enabled_roles}"
 }
 
-# TODO it would be nicer to have this in the module, but the
-# aws_launch_configuration and aws_autoscaling_group must be in the same module
-# due to https://github.com/terraform-providers/terraform-provider-aws/issues/681
-# See discussion in ../terraform-modules/bootstrap/vestigial.tf.txt
-resource "aws_launch_configuration" "idp" {
-  name_prefix = "${var.env_name}.idp.${module.idp_launch_config.main_git_ref}."
+module "idp_launch_template" {
+  source = "github.com/18F/identity-terraform//launch_template?ref=774195a363107e0d9b4aa658a30dad2a78efcb56"
 
-  lifecycle {
-    create_before_destroy = true
+  role           = "idp"
+  env            = "${var.env_name}"
+  root_domain    = "${var.root_domain}"
+  ami_id_map     = "${var.ami_id_map}"
+  default_ami_id = "${local.account_default_ami_id}"
+
+  instance_type             = "${var.instance_type_idp}"
+  iam_instance_profile_name = "${aws_iam_instance_profile.idp.name}"
+  security_group_ids        = ["${aws_security_group.idp.id}", "${aws_security_group.base.id}"]
+
+  user_data                 = "${module.idp_user_data.rendered_cloudinit_config}"
+
+  template_tags = {
+    main_git_ref = "${module.idp_user_data.main_git_ref}"
   }
-
-  image_id = "${lookup(var.ami_id_map, "idp", local.account_default_ami_id)}"
-  instance_type = "${var.instance_type_idp}"
-  security_groups = ["${aws_security_group.idp.id}", "${aws_security_group.base.id}"]
-
-  user_data = "${module.idp_launch_config.rendered_cloudinit_config}"
-
-  iam_instance_profile = "${aws_iam_instance_profile.idp.id}"
 }
-
-# For debugging cloud-init
-#output "rendered_cloudinit_config" {
-#  value = "${module.idp_launch_config.rendered_cloudinit_config}"
-#}
 
 resource "aws_autoscaling_group" "idp" {
     name = "${var.env_name}-idp"
 
-    launch_configuration = "${aws_launch_configuration.idp.name}"
+    launch_template = {
+      id = "${module.idp_launch_template.template_id}"
+      version = "$$Latest"
+    }
 
     min_size = "${var.asg_idp_min}"
     max_size = "${var.asg_idp_max}"
@@ -315,25 +314,16 @@ resource "aws_autoscaling_group" "idp" {
 
     enabled_metrics = "${var.asg_enabled_metrics}"
 
-    tag {
-        key = "Name"
-        value = "asg-${var.env_name}-idp"
-        propagate_at_launch = true
-    }
-    tag {
-        key = "client"
-        value = "${var.client}"
-        propagate_at_launch = true
-    }
+    # tags on the instance will come from the launch template
     tag {
         key = "prefix"
         value = "idp"
-        propagate_at_launch = true
+        propagate_at_launch = false
     }
     tag {
         key = "domain"
         value = "${var.env_name}.${var.root_domain}"
-        propagate_at_launch = true
+        propagate_at_launch = false
     }
 }
 

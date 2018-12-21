@@ -1,4 +1,4 @@
-module "elk_launch_config" {
+module "elk_user_data" {
   source = "../terraform-modules/bootstrap/"
 
   role = "elk"
@@ -26,40 +26,39 @@ module "elk_launch_config" {
   proxy_enabled_roles = "${var.proxy_enabled_roles}"
 }
 
-# TODO it would be nicer to have this in the module, but the
-# aws_launch_configuration and aws_autoscaling_group must be in the same module
-# due to https://github.com/terraform-providers/terraform-provider-aws/issues/681
-# See discussion in ../terraform-modules/bootstrap/vestigial.tf.txt
-resource "aws_launch_configuration" "elk" {
-  name_prefix = "${var.env_name}.elk.${module.elk_launch_config.main_git_ref}."
-
-  lifecycle {
-    create_before_destroy = true
-  }
-
-  image_id = "${lookup(var.ami_id_map, "elk", local.account_default_ami_id)}"
-  instance_type = "${var.instance_type_elk}"
-  security_groups = ["${aws_security_group.elk.id}"]
-
-  user_data = "${module.elk_launch_config.rendered_cloudinit_config}"
-
-  iam_instance_profile = "${aws_iam_instance_profile.elk_instance_profile.id}"
-}
-
 module "elk_lifecycle_hooks" {
   source = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=2c43bfd79a8a2377657bc8ed4764c3321c0f8e80"
   asg_name = "${aws_autoscaling_group.elk.name}"
 }
 
-# For debugging cloud-init
-#output "rendered_cloudinit_config" {
-#  value = "${module.elk_launch_config.rendered_cloudinit_config}"
-#}
+module "elk_launch_template" {
+  source = "github.com/18F/identity-terraform//launch_template?ref=774195a363107e0d9b4aa658a30dad2a78efcb56"
+
+  role           = "elk"
+  env            = "${var.env_name}"
+  root_domain    = "${var.root_domain}"
+  ami_id_map     = "${var.ami_id_map}"
+  default_ami_id = "${local.account_default_ami_id}"
+
+  instance_type             = "${var.instance_type_elk}"
+  iam_instance_profile_name = "${aws_iam_instance_profile.elk_instance_profile.name}"
+  security_group_ids        = ["${aws_security_group.elk.id}", "${aws_security_group.base.id}"]
+
+  user_data                 = "${module.elk_user_data.rendered_cloudinit_config}"
+
+  template_tags = {
+    main_git_ref    = "${module.elk_user_data.main_git_ref}"
+    private_git_ref = "${module.elk_user_data.private_git_ref}"
+  }
+}
 
 resource "aws_autoscaling_group" "elk" {
     name = "${var.env_name}-elk"
 
-    launch_configuration = "${aws_launch_configuration.elk.name}"
+    launch_template = {
+      id = "${module.elk_launch_template.template_id}"
+      version = "$$Latest"
+    }
 
     min_size = 0
     max_size = 8
@@ -79,34 +78,15 @@ resource "aws_autoscaling_group" "elk" {
 
     protect_from_scale_in = "${var.asg_prevent_auto_terminate}"
 
-    tag {
-        key = "Name"
-        value = "asg-${var.env_name}-elk"
-        propagate_at_launch = true
-    }
-    tag {
-        key = "client"
-        value = "${var.client}"
-        propagate_at_launch = true
-    }
+    # tags on the instance will come from the launch template
     tag {
         key = "prefix"
         value = "elk"
-        propagate_at_launch = true
+        propagate_at_launch = false
     }
     tag {
         key = "domain"
         value = "${var.env_name}.${var.root_domain}"
-        propagate_at_launch = true
-    }
-    tag {
-        key = "identity-devops-gitref"
-        value = "${module.elk_launch_config.main_git_ref}"
-        propagate_at_launch = true
-    }
-    tag {
-        key = "identity-devops-private-gitref"
-        value = "${module.elk_launch_config.private_git_ref}"
-        propagate_at_launch = true
+        propagate_at_launch = false
     }
 }

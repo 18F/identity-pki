@@ -1,4 +1,4 @@
-module "app_launch_config" {
+module "app_user_data" {
   source = "../terraform-modules/bootstrap/"
 
   role = "app"
@@ -26,41 +26,39 @@ module "app_launch_config" {
   proxy_enabled_roles = "${var.proxy_enabled_roles}"
 }
 
-# TODO it would be nicer to have this in the module, but the
-# aws_launch_configuration and aws_autoscaling_group must be in the same module
-# due to https://github.com/terraform-providers/terraform-provider-aws/issues/681
-# See discussion in ../terraform-modules/bootstrap/vestigial.tf.txt
-resource "aws_launch_configuration" "app" {
-  name_prefix = "${var.env_name}.app.${module.app_launch_config.main_git_ref}."
-
-  lifecycle {
-    create_before_destroy = true
-  }
-
-  image_id = "${lookup(var.ami_id_map, "app", local.account_default_ami_id)}"
-  instance_type = "${var.instance_type_idp}"
-  security_groups = ["${aws_security_group.app.id}"]
-
-  user_data = "${module.app_launch_config.rendered_cloudinit_config}"
-
-  iam_instance_profile = "${aws_iam_instance_profile.base-permissions.id}"
-}
-
 module "app_lifecycle_hooks" {
   source = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=2c43bfd79a8a2377657bc8ed4764c3321c0f8e80"
   asg_name = "${element(concat(aws_autoscaling_group.app.*.name, list("")), 0)}"
   enabled = "${var.alb_enabled * var.apps_enabled}"
 }
 
-# For debugging cloud-init
-#output "rendered_cloudinit_config" {
-#  value = "${module.idp_launch_config.rendered_cloudinit_config}"
-#}
+module "app_launch_template" {
+  source = "github.com/18F/identity-terraform//launch_template?ref=774195a363107e0d9b4aa658a30dad2a78efcb56"
+
+  role           = "app"
+  env            = "${var.env_name}"
+  root_domain    = "${var.root_domain}"
+  ami_id_map     = "${var.ami_id_map}"
+  default_ami_id = "${local.account_default_ami_id}"
+
+  instance_type             = "${var.instance_type_app}"
+  iam_instance_profile_name = "${aws_iam_instance_profile.base-permissions.name}"
+  security_group_ids        = ["${aws_security_group.app.id}", "${aws_security_group.base.id}"]
+
+  user_data                 = "${module.app_user_data.rendered_cloudinit_config}"
+
+  template_tags = {
+    main_git_ref = "${module.app_user_data.main_git_ref}"
+  }
+}
 
 resource "aws_autoscaling_group" "app" {
     name = "${var.env_name}-app"
 
-    launch_configuration = "${aws_launch_configuration.app.name}"
+    launch_template = {
+        id = "${module.app_launch_template.template_id}"
+        version = "$$Latest"
+    }
 
     min_size = "${var.asg_app_min}"
     max_size = "${var.asg_app_max}"
@@ -77,9 +75,9 @@ resource "aws_autoscaling_group" "app" {
       "${aws_alb_target_group.app-ssl.arn}"
     ]
 
-    # TODO: make it highly available
     vpc_zone_identifier = [
-      "${aws_subnet.app.id}"
+      "${aws_subnet.publicsubnet1.id}",
+      "${aws_subnet.publicsubnet2.id}"
     ]
 
     # possible choices: EC2, ELB
@@ -97,20 +95,16 @@ resource "aws_autoscaling_group" "app" {
     # https://github.com/18F/identity-devops-private/issues/337
     protect_from_scale_in = "${var.asg_prevent_auto_terminate}"
 
-    tag {
-        key = "Name"
-        value = "asg-${var.env_name}-app"
-        propagate_at_launch = true
-    }
+    # tags on the instance will come from the launch template
     tag {
         key = "prefix"
         value = "app"
-        propagate_at_launch = true
+        propagate_at_launch = false
     }
     tag {
         key = "domain"
         value = "${var.env_name}.${var.root_domain}"
-        propagate_at_launch = true
+        propagate_at_launch = false
     }
 }
 
