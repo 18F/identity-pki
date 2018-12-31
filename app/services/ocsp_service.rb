@@ -6,6 +6,7 @@ class OCSPService
   attr_reader :subject, :authority, :request
 
   NO_AUTHORITY_RESPONSE = OpenStruct.new(revoked?: nil).freeze
+  OCSP_RESPONSE_CACHE_EXPIRATION = 5.minutes
 
   def initialize(subject)
     @subject = subject
@@ -16,16 +17,35 @@ class OCSPService
 
   def call
     return NO_AUTHORITY_RESPONSE unless @authority&.certificate && request.present?
-    response = make_http_request(ocsp_url_for_subject, request.to_der)
-    OCSPResponse.new(self, response)
+
+    # we want to cache the call for a few minutes so we don't hammer on the same request
+    OCSPService.ocsp_response(ocsp_url_for_subject, authority.certificate, subject) do
+      response = make_http_request(ocsp_url_for_subject, request.to_der)
+      OCSPResponse.new(self, response)
+    end
+  end
+
+  def self.ocsp_response(url, issuer, subject, &block)
+    @ocsp_response_cache ||= MiniCache::Store.new
+    key = [issuer.subject, subject.subject, subject.serial, url].map(&:to_s).inspect
+    @ocsp_response_cache.get_or_set(key, expires_in: OCSP_RESPONSE_CACHE_EXPIRATION, &block)
+  end
+
+  def self.clear_ocsp_response_cache
+    @ocsp_response_cache = nil
   end
 
   private
 
+  def certificate_id
+    @certificate_id ||= begin
+      issuer = authority.certificate
+      digest = OpenSSL::Digest::SHA1.new
+      OpenSSL::OCSP::CertificateId.new(subject.x509_cert, issuer.x509_cert, digest)
+    end
+  end
+
   def build_request
-    issuer = authority.certificate
-    digest = OpenSSL::Digest::SHA1.new
-    certificate_id = OpenSSL::OCSP::CertificateId.new(subject.x509_cert, issuer.x509_cert, digest)
     request.add_certid(certificate_id)
     request.add_nonce
   end

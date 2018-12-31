@@ -31,6 +31,7 @@ RSpec.describe Certificate do
   let(:valid_ocsp) { true }
 
   before(:each) do
+    OCSPService.clear_ocsp_response_cache
     stub_request(:post, 'http://ocsp.example.com/').
       with(
         headers: {
