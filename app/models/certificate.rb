@@ -14,13 +14,28 @@ class Certificate
     CertificateStore.trusted_ca_root_identifiers.include?(key_id)
   end
 
+  # :reek:DuplicateMethodCall
+  # :reek:TooManyStatements
   def revoked?
-    return true if CertificateAuthority.revoked?(self)
     ocsp_response = OCSPService.new(self).call
-    revoked_status = ocsp_response.revoked?
-    # save serial number as revoked
-    ocsp_response.authority&.certificate_revocations&.create!(serial: serial) if revoked_status
-    revoked_status
+    if !ocsp_response.successful?
+      CertificateLoggerService.log_ocsp_response(ocsp_response)
+      CertificateAuthority.revoked?(self)
+    elsif ocsp_response.revoked?
+      CertificateLoggerService.log_ocsp_response(ocsp_response)
+      # save serial number as revoked
+      # temporarily not caching it while we investigate some reported wrong revocations via OCSP
+      # ocsp_response.authority&.certificate_revocations&.create!(serial: serial) if revoked_status
+      true
+    else
+      false
+    end
+  end
+
+  def ==(other)
+    subject == other.subject &&
+      serial == other.serial &&
+      signing_key_id == other.signing_key_id
   end
 
   def expired?
@@ -55,10 +70,10 @@ class Certificate
   def validate_untrusted_root
     if self_signed?
       'self-signed cert'
-    elsif revoked?
-      'revoked'
     elsif !signature_verified?
       'unverified'
+    elsif revoked?
+      'revoked'
     else
       'valid'
     end
@@ -94,7 +109,7 @@ class Certificate
   end
 
   def crl_http_url
-    extract_http_url(get_extension('crlDistributionPoints')&.split(/\n/))
+    extract_http_url(get_extension('crlDistributionPoints')&.split(/\s*\n\s*/))
   end
 
   def aia

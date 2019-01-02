@@ -73,6 +73,6 @@ class OCSPService
 
   # :reek:UtilityFunction
   def process_http_response_body(body)
-    OpenSSL::OCSP::Response.new(body).basic if body.present?
+    OpenSSL::OCSP::Response.new(body) if body.present?
   end
 end
