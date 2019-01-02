@@ -235,6 +235,24 @@ initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/srv/idp/shared/log/production.log
 time_zone = UTC
 
+[pivcac_newrelic_agent] 
+datetime_format = %Y-%m-%d %H:%M:%S %z
+file = /srv/pki-rails/shared/log/newrelic_agent.log
+buffer_duration = 5000
+log_stream_name = {hostname}
+initial_position = start_of_file
+log_group_name = <%= @environmentName %>_/srv/pki-rails/shared/log/newrelic_agent.log
+time_zone = UTC
+
+[pivcac_production] 
+datetime_format = %Y-%m-%dT%H:%M:%S.%fZ
+file = /srv/pki-rails/shared/log/production.log
+buffer_duration = 5000
+log_stream_name = {hostname}
+initial_position = start_of_file
+log_group_name = <%= @environmentName %>_/srv/pki-rails/shared/log/production.log
+time_zone = UTC
+
 [dashboard_events] 
 datetime_format = %Y-%m-%dT%H:%M:%S.%fZ
 file = /srv/dashboard/shared/log/events.log
