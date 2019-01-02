@@ -41,7 +41,7 @@
     "recipe[identity-ossec]",
     "recipe[identity_ntp]",
     "recipe[login_dot_gov::resolve]",
-    "recipe[login_dot_gov::ruby]",
+    "recipe[identity_base_config::ruby]",
     "recipe[identity-monitoring]"
   ],
   "env_run_lists": {

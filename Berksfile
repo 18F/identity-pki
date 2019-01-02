@@ -69,7 +69,7 @@ cookbook 'identity-monitoring', path: prefixed('kitchen/cookbooks/identity-monit
 # When updating this gitref, you MUST also run `berks update` and commit
 # the changes to Berksfile.lock. Otherwise the old gitref will continue to be
 # used by Chef.
-IdentityCookbooksRef = '716c00f7824170badcb6ae8be2a27e8d93f6de06'
+IdentityCookbooksRef = '4723559b50ed93ff187fd0b8893daa132edde173'
 cookbook 'cloudhsm', '>= 0.0.7', git: 'https://github.com/18F/identity-cookbooks', rel: 'cloudhsm', ref: IdentityCookbooksRef
 cookbook 'identity_base_config', git: 'https://github.com/18F/identity-cookbooks', rel: 'identity_base_config', ref: IdentityCookbooksRef
 # Delete this when https://github.com/18F/identity-base-image/commit/de34ec53f30d742d544411459192824e58730c21 is rolled out everywhere:
