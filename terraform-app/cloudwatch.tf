@@ -44,3 +44,12 @@ module "rds_dashboard_idp" {
 
     vertical_annotations = "${var.rds_dashboard_idp_vertical_annotations}"
 }
+
+module "elb_http_alerts" {
+  source = "github.com/18F/identity-terraform//elb_http_alerts?ref=a82d4fbf42ad2a1271f8414cd7b4f2aa75be6522"
+
+  env_name = "${var.env_name}"
+  load_balancer_id = "${aws_alb.idp.id}"
+  // These are defined in variables.tf
+  alarm_actions = "${local.high_priority_alarm_actions}"
+}
