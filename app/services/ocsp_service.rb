@@ -76,7 +76,7 @@ class OCSPService
     end
   end
 
-  def make_single_http_request(uri, request, retries = 3)
+  def make_single_http_request(uri, request, retries = 1)
     make_single_http_request!(uri, request)
   rescue Errno::ECONNRESET
     retries -= 1

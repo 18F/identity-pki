@@ -3,6 +3,8 @@ class Certificate
 
   attr_accessor :x509_cert
 
+  REVOCATION_CACHE_EXPIRATION = 5.minutes
+
   def initialize(x509_cert)
     @x509_cert = x509_cert
   end
@@ -14,9 +16,13 @@ class Certificate
     CertificateStore.trusted_ca_root_identifiers.include?(key_id)
   end
 
+  def revoked?
+    Certificate.revocation_status?(self) { calculate_revocation_status }
+  end
+
   # :reek:DuplicateMethodCall
   # :reek:TooManyStatements
-  def revoked?
+  def calculate_revocation_status
     ocsp_response = OCSPService.new(self).call
     if !ocsp_response.successful?
       CertificateLoggerService.log_ocsp_response(ocsp_response)
@@ -30,6 +36,16 @@ class Certificate
     else
       false
     end
+  end
+
+  def self.revocation_status?(certificate, &block)
+    @revocation_cache ||= MiniCache::Store.new
+    key = [certificate.issuer, certificate.subject, certificate.serial].map(&:to_s).inspect
+    @revocation_cache.get_or_set(key, expires_in: REVOCATION_CACHE_EXPIRATION, &block)
+  end
+
+  def self.clear_revocation_cache
+    @revocation_cache = nil
   end
 
   def ==(other)
