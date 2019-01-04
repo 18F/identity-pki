@@ -199,10 +199,9 @@ resource "aws_security_group" "db" {
     from_port = 5432
     to_port = 5432
     protocol = "tcp"
-    cidr_blocks = [
-      "${var.app1_subnet_cidr_block}",
-      "${var.idp1_subnet_cidr_block}",
-      "${var.idp2_subnet_cidr_block}"
+    security_groups = [
+      "${aws_security_group.app.id}",
+      "${aws_security_group.idp.id}"
     ]
   }
 
@@ -210,10 +209,9 @@ resource "aws_security_group" "db" {
     from_port = 5432
     to_port = 5432
     protocol = "tcp"
-    cidr_blocks = [
-      "${var.app1_subnet_cidr_block}",
-      "${var.idp1_subnet_cidr_block}",
-      "${var.idp2_subnet_cidr_block}"
+    security_groups = [
+      "${aws_security_group.app.id}",
+      "${aws_security_group.idp.id}"
     ]
   }
 
