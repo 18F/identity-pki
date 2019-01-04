@@ -46,7 +46,7 @@ module "rds_dashboard_idp" {
 }
 
 module "elb_http_alerts" {
-  source = "github.com/18F/identity-terraform//elb_http_alerts?ref=a82d4fbf42ad2a1271f8414cd7b4f2aa75be6522"
+  source = "github.com/18F/identity-terraform//elb_http_alerts?ref=bb33569f35594a1bb2a08e4aeb6a16784b24e0da"
 
   env_name = "${var.env_name}"
   load_balancer_id = "${aws_alb.idp.id}"
