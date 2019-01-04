@@ -219,10 +219,14 @@ module X509Helpers
     root_certs = []
     intermediate_certs = []
     leaf_certs = []
+    root_options = options[:root_options] || {}
+    intermediate_options = options[:intermediate_options] || {}
+    leaf_options = options[:leaf_options] || {}
     options[:root_count].times do |root_index|
       root, root_key = create_root_certificate(
         dn: "DC=com, DC=example, OU=ca, CN=Root #{root_index + 1}",
-        serial: root_index + 1
+        serial: root_index + 1,
+        **root_options
       )
       root_cert_id = OpenSSL::OCSP::CertificateId.new(
         root, root, OpenSSL::Digest::SHA1.new
@@ -244,7 +248,8 @@ module X509Helpers
           ].join(' '),
           serial: intermediate_index + 1,
           ca: root,
-          ca_key: root_key
+          ca_key: root_key,
+          **intermediate_options
         )
         intermediate_cert_id = OpenSSL::OCSP::CertificateId.new(
           intermediate, root, OpenSSL::Digest::SHA1.new
@@ -270,7 +275,7 @@ module X509Helpers
             serial: leaf_index + 1,
             ca: intermediate,
             ca_key: intermediate_key,
-            **(options[:leaf_options] || {})
+            **leaf_options
           )
           leaf_cert_id = OpenSSL::OCSP::CertificateId.new(
             leaf, intermediate, OpenSSL::Digest::SHA1.new

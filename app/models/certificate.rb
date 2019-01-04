@@ -107,7 +107,7 @@ class Certificate
   def signature_verified?
     signing_cert = CertificateStore.instance[signing_key_id]
     UnrecognizedCertificateAuthority.find_or_create_for_certificate(self) unless signing_cert
-    signing_cert && verify(signing_cert.public_key)
+    signing_cert && verify(signing_cert.public_key) && signing_cert.valid?
   end
 
   def ca_capable?
