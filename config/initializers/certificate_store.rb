@@ -7,12 +7,4 @@ unless File.basename($PROGRAM_NAME) == 'rake' && ARGV.any? { |arg| arg.start_wit
       cert_store.add_pem_file(file)
     end
   end
-
-  cert_store.remove_untrusted_certificates
-
-  unless cert_store.all_certificates_valid?
-    raise 'Not all certificates in the certificate store can be trusted'
-  end
-
-  raise 'There are no trusted certificates available' if cert_store.empty? && Rails.env.production?
 end

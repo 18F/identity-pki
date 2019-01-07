@@ -759,6 +759,7 @@ GEM
     memory_profiler (0.9.10)
     method_source (0.9.0)
     mimemagic (0.3.2)
+    mini_cache (1.1.0)
     mini_mime (1.0.0)
     mini_portile2 (2.3.0)
     minitest (5.11.3)
@@ -937,6 +938,7 @@ DEPENDENCIES
   guard-rspec
   health_check
   identity-hostdata!
+  mini_cache
   newrelic_rpm
   overcommit
   pg
