@@ -17,6 +17,47 @@ RSpec.describe OCSPService do
   let(:leaf_certs) { certificates_in_collection(cert_collection, :type, :leaf) }
   let(:cert) { leaf_certs.first }
 
+  describe 'OCSP response caching' do
+    let(:ca_file_path) { data_file_path('certs.pem') }
+
+    let(:ca_file_content) do
+      cert_collection.map { |info| info[:certificate] }.map(&:to_pem).join("\n\n")
+    end
+
+    let(:root_cert_key_ids) { root_certs.map(&:key_id) }
+    let(:status) { :valid }
+
+    before(:each) do
+      allow(IO).to receive(:binread).with(ca_file_path).and_return(ca_file_content)
+      allow(Figaro.env).to receive(:trusted_ca_root_identifiers).and_return(
+        root_cert_key_ids.join(',')
+      )
+      certificate_store.clear_trusted_ca_root_identifiers
+      certificate_store.add_pem_file(ca_file_path)
+
+      stub_request(:post, 'http://ocsp.example.com/').
+        with(
+          headers: {
+            'Content-Type' => 'application/ocsp-request',
+          }
+        ).
+        to_return do |request|
+        {
+          status: 200,
+          body: create_ocsp_response(request.body, cert_collection, status),
+          headers: {},
+        }
+      end
+    end
+
+    it 'makes a request to the OCSP server once' do
+      described_class.clear_ocsp_response_cache
+      expect(ocsp_service).to receive(:make_http_request).once
+      ocsp_service.call
+      ocsp_service.call
+    end
+  end
+
   context 'with valid OCSP responses' do
     let(:ca_file_path) { data_file_path('certs.pem') }
 
@@ -27,6 +68,7 @@ RSpec.describe OCSPService do
     let(:root_cert_key_ids) { root_certs.map(&:key_id) }
 
     before(:each) do
+      described_class.clear_ocsp_response_cache
       allow(IO).to receive(:binread).with(ca_file_path).and_return(ca_file_content)
       allow(Figaro.env).to receive(:trusted_ca_root_identifiers).and_return(
         root_cert_key_ids.join(',')
@@ -76,6 +118,7 @@ RSpec.describe OCSPService do
     let(:root_cert_key_ids) { root_certs.map(&:key_id) }
 
     before(:each) do
+      described_class.clear_ocsp_response_cache
       allow(IO).to receive(:binread).with(ca_file_path).and_return(ca_file_content)
       allow(Figaro.env).to receive(:trusted_ca_root_identifiers).and_return(
         root_cert_key_ids.join(',')
@@ -138,6 +181,7 @@ RSpec.describe OCSPService do
     let(:root_cert_key_ids) { root_certs.map(&:key_id) }
 
     before(:each) do
+      described_class.clear_ocsp_response_cache
       allow(IO).to receive(:binread).with(ca_file_path).and_return(ca_file_content)
       allow(Figaro.env).to receive(:trusted_ca_root_identifiers).and_return(
         root_cert_key_ids.join(',')
@@ -183,6 +227,7 @@ RSpec.describe OCSPService do
     let(:root_cert_key_ids) { root_certs.map(&:key_id) }
 
     before(:each) do
+      described_class.clear_ocsp_response_cache
       allow(IO).to receive(:binread).with(ca_file_path).and_return(ca_file_content)
       allow(Figaro.env).to receive(:trusted_ca_root_identifiers).and_return(
         root_cert_key_ids.join(',')
@@ -253,6 +298,7 @@ RSpec.describe OCSPService do
 
     context 'with bad data' do
       before(:each) do
+        described_class.clear_ocsp_response_cache
         allow(IO).to receive(:binread).with(ca_file_path).and_return(ca_file_content)
         allow(Figaro.env).to receive(:trusted_ca_root_identifiers).and_return(
           root_cert_key_ids.join(',')
