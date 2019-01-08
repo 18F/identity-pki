@@ -199,11 +199,7 @@ resource "aws_security_group" "db" {
     from_port = 5432
     to_port = 5432
     protocol = "tcp"
-    security_groups = [
-      "${aws_security_group.app.id}",
-      "${aws_security_group.idp.id}",
-      "${aws_security_group.pivcac.id}"
-    ]
+    security_groups = []
   }
 
   ingress {
