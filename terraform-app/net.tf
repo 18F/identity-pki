@@ -201,7 +201,8 @@ resource "aws_security_group" "db" {
     protocol = "tcp"
     security_groups = [
       "${aws_security_group.app.id}",
-      "${aws_security_group.idp.id}"
+      "${aws_security_group.idp.id}",
+      "${aws_security_group.pivcac.id}"
     ]
   }
 
@@ -211,7 +212,8 @@ resource "aws_security_group" "db" {
     protocol = "tcp"
     security_groups = [
       "${aws_security_group.app.id}",
-      "${aws_security_group.idp.id}"
+      "${aws_security_group.idp.id}",
+      "${aws_security_group.pivcac.id}"
     ]
   }
 
