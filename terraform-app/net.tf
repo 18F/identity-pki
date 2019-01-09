@@ -74,6 +74,15 @@ resource "aws_security_group" "base" {
     to_port   = -1
     cidr_blocks = ["${aws_vpc.default.cidr_block}"]
   }
+
+  # allow access to the VPC private S3 endpoint
+  egress {
+    description = "allow egress to VPC S3 endpoint"
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    prefix_list_ids = ["${aws_vpc_endpoint.private-s3.prefix_list_id}"]
+  }
 }
 
 resource "aws_security_group" "app" {
