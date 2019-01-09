@@ -30,8 +30,7 @@ class Certificate
     elsif ocsp_response.revoked?
       CertificateLoggerService.log_ocsp_response(ocsp_response)
       # save serial number as revoked
-      # temporarily not caching it while we investigate some reported wrong revocations via OCSP
-      # ocsp_response.authority&.certificate_revocations&.create!(serial: serial) if revoked_status
+      ocsp_response.authority&.certificate_revocations&.create!(serial: serial)
       true
     else
       false
