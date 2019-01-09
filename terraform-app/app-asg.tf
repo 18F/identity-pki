@@ -76,8 +76,10 @@ resource "aws_autoscaling_group" "app" {
     ]
 
     vpc_zone_identifier = [
-      "${aws_subnet.publicsubnet1.id}",
-      "${aws_subnet.publicsubnet2.id}"
+      "${aws_subnet.app.id}",
+      # TODO
+      #"${aws_subnet.publicsubnet1.id}",
+      #"${aws_subnet.publicsubnet2.id}"
     ]
 
     # possible choices: EC2, ELB
