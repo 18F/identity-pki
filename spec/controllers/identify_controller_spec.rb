@@ -121,6 +121,7 @@ RSpec.describe IdentifyController, type: :controller do
 
         before(:each) do
           # create signing cert
+          Certificate.clear_revocation_cache
           allow(IO).to receive(:binread).with(ca_file_path).and_return(ca_file_content)
           allow(Figaro.env).to receive(:trusted_ca_root_identifiers).and_return(
             root_cert_key_ids.join(',')
