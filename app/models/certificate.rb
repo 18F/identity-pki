@@ -17,24 +17,7 @@ class Certificate
   end
 
   def revoked?
-    Certificate.revocation_status?(self) { calculate_revocation_status }
-  end
-
-  # :reek:DuplicateMethodCall
-  # :reek:TooManyStatements
-  def calculate_revocation_status
-    ocsp_response = OCSPService.new(self).call
-    if !ocsp_response.successful?
-      CertificateLoggerService.log_ocsp_response(ocsp_response)
-      CertificateAuthority.revoked?(self)
-    elsif ocsp_response.revoked?
-      CertificateLoggerService.log_ocsp_response(ocsp_response)
-      # save serial number as revoked
-      ocsp_response.authority&.certificate_revocations&.create!(serial: serial)
-      true
-    else
-      false
-    end
+    Certificate.revocation_status?(self) { OCSPService.new(self).call.revoked? }
   end
 
   def self.revocation_status?(certificate, &block)
