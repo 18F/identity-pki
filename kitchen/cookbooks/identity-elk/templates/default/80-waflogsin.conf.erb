@@ -1,0 +1,16 @@
+input {
+   s3 {
+     bucket => "<%= @waf_logging_bucket %>"
+     proxy_uri => "<%= @proxy_uri -%>"
+     region => "<%= @aws_region %>"
+     sincedb_path => "/usr/share/logstash/.sincedb_waf"
+     type => "waf"
+   }
+}
+
+filter {
+   json {
+    source => "message"
+    target => "waf"
+  }
+}
