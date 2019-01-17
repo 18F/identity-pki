@@ -24,3 +24,8 @@ resource "aws_iam_role_policy_attachment" "rds-enhanced-monitoring" {
     role = "${aws_iam_role.rds-monitoring-role.name}"
     policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole"
 }
+
+resource "aws_iam_user" "circleci" {
+  name = "bot=circleci"
+  path = "/system/"
+}
