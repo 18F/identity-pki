@@ -1,6 +1,7 @@
 #!/bin/sh
 # 
-# Push letsencrypt certs to S3
+# Push letsencrypt certs to S3 and reload certs in nginx
+# Usually called by certbot when a new cert is received
 #
 set -eu
 
@@ -16,3 +17,5 @@ else
   echo ERROR: Failed to create cert bundle <%= @letsencrypt_bundle %> 1>&2
   exit 1
 fi
+
+service passenger force-reload
