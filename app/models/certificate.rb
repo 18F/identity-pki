@@ -137,11 +137,8 @@ class Certificate
   end
 
   def token(extra)
+    maybe_log_certificate
     if valid?
-      unless critical_policies_recognized? && allowed_by_policy?
-        CertificateLoggerService.log_certificate(self)
-      end
-
       token_for_valid_certificate(extra)
     else
       token_for_invalid_certificate(extra)
@@ -175,6 +172,11 @@ class Certificate
 
   private
 
+  def maybe_log_certificate
+    return if valid? && critical_policies_recognized? && allowed_by_policy?
+    CertificateLoggerService.log_certificate(self)
+  end
+
   # :reek:UtilityFunction
   def get_extension(oid)
     @x509_cert.extensions.detect { |record| record.oid == oid }&.value
@@ -204,7 +206,6 @@ class Certificate
     reason = validate_cert
 
     Rails.logger.warn("Certificate invalid: #{reason}")
-    CertificateLoggerService.log_certificate(self)
     TokenService.box(extra.merge(error: "certificate.#{reason}"))
   end
 end
