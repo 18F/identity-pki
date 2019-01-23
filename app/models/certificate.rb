@@ -85,10 +85,6 @@ class Certificate
       'unverified'
     elsif revoked?
       'revoked'
-    # elsif !critical_policies_recognized?
-    #   'policy'
-    # elsif !allowed_by_policy?(PolicyMappingService.new(self).call)
-    #   'policy'
     else
       'valid'
     end

@@ -1,8 +1,4 @@
 class InfinitePolicyMappingDepth
-  def value
-    :any
-  end
-
   def negative?
     false
   end
