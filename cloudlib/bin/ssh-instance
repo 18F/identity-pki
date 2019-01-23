@@ -154,6 +154,12 @@ Options:
       cl_ssh_options[:local_forwards] += ['-L', val]
     end
 
+    opts.on('-D', '--socks-forward OPT',
+            'listen on OPT as a SOCKS proxy, forwarding to remote') do |val|
+      cl_ssh_options[:ssh_opts] ||= []
+      cl_ssh_options[:ssh_opts] += ['-D', val]
+    end
+
     opts.on('-o', '--ssh-opt OPT',
             'Set SSH option (may be passed multiple times)') do |val|
       cl_ssh_options[:ssh_opts] ||= []
