@@ -15,6 +15,11 @@ variable "synack_vpn_ami_id" {
   description = "AMI ID of Synack VPN instance"
 }
 
+output "synack_vpn_local_private_ip" {
+  description = "Synack VPN instance private IP. Visit this over https tunneling via the jumphost to set up VPN."
+  value = "${element(concat(aws_instance.synack_vpn.*.private_ip, list("")), 0)}"
+}
+
 resource aws_instance "synack_vpn" {
   count = "${var.synack_vpn_enabled}"
 
