@@ -4,13 +4,17 @@ class Certificate
   attr_accessor :x509_cert
 
   REVOCATION_CACHE_EXPIRATION = 5.minutes
+  ANY_POLICY = '2.5.29.32.0'.freeze
 
   def initialize(x509_cert)
     @x509_cert = x509_cert
+    @cert_policies = CertificatePolicies.new(self)
   end
 
   def_delegators :x509_cert, :not_before, :not_after, :subject, :issuer, :verify,
                  :public_key, :serial, :to_text
+
+  def_delegators :@cert_policies, :allowed_by_policy?, :critical_policies_recognized?
 
   def trusted_root?
     CertificateStore.trusted_ca_root_identifiers.include?(key_id)
@@ -63,15 +67,6 @@ class Certificate
     signing_key_id == key_id
   end
 
-  def allowed_by_policy?
-    # if at least one policy in the cert matches one of the "required policies", then we're good
-    # otherwise, we want to allow it for now, but log the cert so we can see what policies are
-    # coming up
-    # This policy check is only on the leaf certificate - not used by CAs
-    expected_policies = required_policies
-    policies.any? { |policy| expected_policies.include?(policy) }
-  end
-
   def validate_cert
     if expired?
       'expired'
@@ -90,6 +85,10 @@ class Certificate
       'unverified'
     elsif revoked?
       'revoked'
+    # elsif !critical_policies_recognized?
+    #   'policy'
+    # elsif !allowed_by_policy?(PolicyMappingService.new(self).call)
+    #   'policy'
     else
       'valid'
     end
@@ -139,7 +138,10 @@ class Certificate
 
   def token(extra)
     if valid?
-      CertificateLoggerService.log_certificate(self) unless allowed_by_policy?
+      unless critical_policies_recognized? && allowed_by_policy?
+        CertificateLoggerService.log_certificate(self)
+      end
+
       token_for_valid_certificate(extra)
     else
       token_for_invalid_certificate(extra)
@@ -161,12 +163,6 @@ class Certificate
       ca_issuer_url: ca_issuer_http_url,
       ocsp_url: ocsp_http_url,
     }
-  end
-
-  def policies
-    (get_extension('certificatePolicies') || '').split(/\n/).map do |line|
-      line.sub(/^Policy:\s+/, '')
-    end
   end
 
   def logging_filename
@@ -210,10 +206,5 @@ class Certificate
     Rails.logger.warn("Certificate invalid: #{reason}")
     CertificateLoggerService.log_certificate(self)
     TokenService.box(extra.merge(error: "certificate.#{reason}"))
-  end
-
-  # :reek:UtilityFunction
-  def required_policies
-    JSON.parse(Figaro.env.required_policies || '[]')
   end
 end
