@@ -6,6 +6,7 @@ class OCSPResponse
   def initialize(ocsp_request, response)
     @ocsp_request = ocsp_request
     @response = response
+    @revoked = nil
   end
 
   def_delegators :@ocsp_request, :subject, :request, :authority
@@ -15,8 +16,18 @@ class OCSPResponse
   end
 
   def revoked?
-    return unless successful? && verified? && valid_nonce?
-    any_revoked?
+    return @revoked unless @revoked.nil?
+
+    @revoked = calculate_revocation
+    log_if_interesting
+    cache_revocation
+    @revoked
+  end
+
+  def calculate_revocation
+    return CertificateAuthority.revoked?(subject) unless successful? && verified? && valid_nonce?
+
+    any_revoked? || false
   end
 
   def verified?
@@ -78,6 +89,17 @@ class OCSPResponse
     general_text_description +
       "Basic Response:\n  Responses:\n" +
       response.basic.status.map { |status| status_description(status) }.join('')
+  end
+
+  def log_if_interesting
+    return if successful? && !revoked?
+    CertificateLoggerService.log_ocsp_response(self)
+  end
+
+  def cache_revocation
+    return unless revoked?
+    # save serial number as revoked
+    authority&.certificate_revocations&.create(serial: subject.serial)
   end
 
   private
