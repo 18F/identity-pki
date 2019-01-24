@@ -18,7 +18,7 @@ RSpec.describe IdentifyController, type: :controller do
   end
 
   before(:each) do
-    allow(OCSPService).to receive(:new).and_return(ocsp_responder)
+    Certificate.clear_revocation_cache
   end
 
   describe 'GET /' do
@@ -121,18 +121,19 @@ RSpec.describe IdentifyController, type: :controller do
 
         before(:each) do
           # create signing cert
-          Certificate.clear_revocation_cache
           allow(IO).to receive(:binread).with(ca_file_path).and_return(ca_file_content)
           allow(Figaro.env).to receive(:trusted_ca_root_identifiers).and_return(
             root_cert_key_ids.join(',')
           )
           certificate_store.clear_trusted_ca_root_identifiers
           certificate_store.add_pem_file(ca_file_path)
-
-          allow(OCSPService).to receive(:revoked?).and_return(false)
         end
 
         context 'when the web server sends the escaped cert' do
+          before(:each) do
+            allow(OCSPService).to receive(:new).and_return(ocsp_responder)
+          end
+
           it 'returns a token with a uuid and subject' do
             allow(Figaro.env).to receive(:client_cert_escaped).and_return('true')
             @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
@@ -155,6 +156,10 @@ RSpec.describe IdentifyController, type: :controller do
         end
 
         context 'when the web server sends an unescaped cert' do
+          before(:each) do
+            allow(OCSPService).to receive(:new).and_return(ocsp_responder)
+          end
+
           it 'returns a token with a uuid and subject' do
             allow(Figaro.env).to receive(:client_cert_escaped).and_return('false')
             @request.headers['X-Client-Cert'] = client_cert_pem.split(/\n/).join("\n\t")
@@ -193,11 +198,15 @@ RSpec.describe IdentifyController, type: :controller do
         end
 
         describe 'with a revoked certificate' do
+          before(:each) do
+            allow_any_instance_of(OCSPService).to receive(:make_http_request).and_return(nil)
+          end
+
           it 'returns a token as revoked' do
             ca = CertificateAuthority.find_or_create_for_certificate(
               Certificate.new(root_cert)
             )
-            ca.certificate_revocations.create(serial: '1')
+            ca.certificate_revocations.create(serial: client_cert.serial)
 
             @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
             expect(CertificateLoggerService).to receive(:log_certificate)
