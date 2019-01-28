@@ -71,12 +71,15 @@ template update_script do
     chef_zero_client_configuration: pivcac_node.fetch('chef_zero_client_configuration')
   })
 end
+update_script_with_lock = "flock -n /tmp/update_letsencrypt_certs.lock "\
+                          "-c #{update_script}"
+
 
 # Run this once a day on each server - there is a random sleep built into the
 # script.
 cron_d 'update_letsencrypt_certs' do
   predefined_value "@daily"
   # if random_delay is ever implemented properly we can lose the "sleep"
-  command update_script
+  command update_script_with_lock
 end
 

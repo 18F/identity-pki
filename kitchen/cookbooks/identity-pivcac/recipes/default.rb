@@ -142,6 +142,8 @@ end
 execute "chown -R #{production_user} #{shared_path}/log"
 
 update_revocations_script = '/usr/local/bin/update_cert_revocations'
+update_revocations_with_lock = "flock -n /tmp/update_cert_revocations.lock "\
+                               "-c #{update_revocations_script}"
 
 template update_revocations_script do
   source 'update_cert_revocations.erb'
@@ -155,5 +157,5 @@ end
 cron_d 'update_cert_revocations' do
   hour '*/4'
   user production_user
-  command update_revocations_script
+  command update_revocations_with_lock
 end
