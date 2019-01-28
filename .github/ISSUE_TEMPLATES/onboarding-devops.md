@@ -16,6 +16,7 @@ labels: administration
 * [ ] [Set up your development environment](https://github.com/18F/identity-idp/blob/master/README.md) (_this is helpful for all new team members!_)
 * [ ] Add yourself to the [team page](https://github.com/18F/identity-private/wiki/Team).
 * [ ] Request access to the listserv (all@login.gov): * [ ] Request access to the listserv (all@login.gov): https://groups.google.com/a/login.gov/forum/#!forum/all
+* [ ] [Add your gpg to github](https://help.github.com/articles/adding-a-new-gpg-key-to-your-github-account/).
 
 ## Tasks for on-boarding buddy 
 
