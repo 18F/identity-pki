@@ -17,6 +17,10 @@ RSpec.describe OCSPService do
   let(:leaf_certs) { certificates_in_collection(cert_collection, :type, :leaf) }
   let(:cert) { leaf_certs.first }
 
+  before(:each) do
+    allow(CertificateAuthority).to receive(:revoked?).and_return(:cached_status)
+  end
+
   describe 'OCSP response caching' do
     let(:ca_file_path) { data_file_path('certs.pem') }
 
@@ -203,16 +207,16 @@ RSpec.describe OCSPService do
     context 'with valid certs' do
       let(:status) { :valid }
 
-      it 'returns nil for a cert with a known ca' do
-        expect(ocsp_service.call.revoked?).to be_nil
+      it 'returns the cached status for a cert with a known ca' do
+        expect(ocsp_service.call.revoked?).to eq :cached_status
       end
     end
 
     context 'with invalid certs' do
       let(:status) { :revoked }
 
-      it 'returns nil for a cert with a known ca' do
-        expect(ocsp_service.call.revoked?).to be_nil
+      it 'returns the cached status for a cert with a known ca' do
+        expect(ocsp_service.call.revoked?).to eq :cached_status
       end
     end
   end
@@ -249,16 +253,16 @@ RSpec.describe OCSPService do
     context 'with valid certs' do
       let(:status) { :valid }
 
-      it 'returns nil for a cert with a known ca' do
-        expect(ocsp_service.call.revoked?).to be_nil
+      it 'returns the cached status for a cert with a known ca' do
+        expect(ocsp_service.call.revoked?).to eq :cached_status
       end
     end
 
     context 'with invalid certs' do
       let(:status) { :revoked }
 
-      it 'returns nil for a cert with a known ca' do
-        expect(ocsp_service.call.revoked?).to be_nil
+      it 'returns the cached status for a cert with a known ca' do
+        expect(ocsp_service.call.revoked?).to eq :cached_status
       end
     end
   end
@@ -291,8 +295,8 @@ RSpec.describe OCSPService do
         end
       end
 
-      it 'returns nil' do
-        expect(ocsp_service.call.revoked?).to be_nil
+      it 'returns the cached status' do
+        expect(ocsp_service.call.revoked?).to eq :cached_status
       end
     end
 
@@ -324,16 +328,16 @@ RSpec.describe OCSPService do
       context 'nonce' do
         let(:variant) { :nonce }
 
-        it 'returns nil' do
-          expect(ocsp_service.call.revoked?).to be_nil
+        it 'returns the cached status' do
+          expect(ocsp_service.call.revoked?).to eq :cached_status
         end
       end
 
       context 'signing_key' do
         let(:variant) { :signing_key }
 
-        it 'returns nil' do
-          expect(ocsp_service.call.revoked?).to be_nil
+        it 'returns the cached status' do
+          expect(ocsp_service.call.revoked?).to eq :cached_status
         end
       end
     end

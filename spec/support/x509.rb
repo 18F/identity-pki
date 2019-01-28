@@ -126,7 +126,9 @@ module X509Helpers
   #   serial: serial number of the cert
   #   not_before: start date of cert
   #   not_after: end date of cert
-  #
+  #   policies: # optional list of policies
+  #   policy_mapping: # optional mapping of policies
+  #   policy_constraints: # optional mapping of policy constraints
   def create_root_certificate(info = {})
     root_key = OpenSSL::PKey::RSA.new(RSA_KEY_SIZE)
     root_ca = create_certificate_skeleton(info)
@@ -134,11 +136,30 @@ module X509Helpers
     root_ca.issuer = root_ca.subject
     root_ca.public_key = root_key.public_key
 
-    add_certificate_extensions(root_ca, root_ca,
-                               ['basicConstraints', 'CA:TRUE', true],
-                               ['keyUsage', 'keyCertSign, cRLSign', true],
-                               ['subjectKeyIdentifier', 'hash', false],
-                               ['authorityKeyIdentifier', 'keyid:always', false])
+    extensions = [
+      ['basicConstraints', 'CA:TRUE', true],
+      ['keyUsage', 'keyCertSign, cRLSign', true],
+      ['subjectKeyIdentifier', 'hash', false],
+      ['authorityKeyIdentifier', 'keyid:always', false],
+    ]
+
+    if info[:policy_constraints]
+      extensions << [
+        'policyConstraints',
+        info[:policy_constraints].to_a.map { |kv| kv.join(':') }.join(','),
+        true,
+      ]
+    end
+
+    if info[:policy_mapping]
+      extensions << [
+        'policyMappings',
+        info[:policy_mapping].to_a.map { |kv| kv.join(':') }.join(','),
+        true,
+      ]
+    end
+
+    add_certificate_extensions(root_ca, root_ca, *extensions)
     root_ca.sign(root_key, OpenSSL::Digest::SHA256.new)
     [root_ca, root_key]
   end
@@ -162,12 +183,31 @@ module X509Helpers
     cert.issuer = root_ca.subject # root CA is the issuer
     cert.public_key = key.public_key
 
-    add_certificate_extensions(cert, root_ca,
-                               ['basicConstraints', 'CA:TRUE', true],
-                               ['keyUsage', 'keyCertSign, cRLSign', true],
-                               AUTHORITY_INFO_ACCESS_EXTENSION,
-                               ['subjectKeyIdentifier', 'hash', false],
-                               ['authorityKeyIdentifier', 'keyid:always', false])
+    extensions = [
+      ['basicConstraints', 'CA:TRUE', true],
+      ['keyUsage', 'keyCertSign, cRLSign', true],
+      AUTHORITY_INFO_ACCESS_EXTENSION,
+      ['subjectKeyIdentifier', 'hash', false],
+      ['authorityKeyIdentifier', 'keyid:always', false],
+    ]
+
+    if info[:policy_constraints]
+      extensions << [
+        'policyConstraints',
+        info[:policy_constraints].to_a.map { |kv| kv.join(':') }.join(','),
+        true,
+      ]
+    end
+
+    if info[:policy_mapping]
+      extensions << [
+        'policyMappings',
+        info[:policy_mapping].to_a.map { |kv| kv.join(':') }.join(','),
+        true,
+      ]
+    end
+
+    add_certificate_extensions(cert, root_ca, *extensions)
     cert.sign(root_key, OpenSSL::Digest::SHA256.new)
     [cert, key]
   end
@@ -191,22 +231,38 @@ module X509Helpers
     cert.issuer = root_ca.subject # root CA is the issuer
     cert.public_key = key.public_key
 
-    policies = if info[:no_policies]
-                 []
-               else
-                 [
-                   ['certificatePolicies',
-                    JSON.parse(Figaro.env.required_policies).first,
-                    false],
-                 ]
-               end
+    extensions = [
+      ['keyUsage', 'digitalSignature', true],
+      ['subjectKeyIdentifier', 'hash', false],
+      AUTHORITY_INFO_ACCESS_EXTENSION,
+      ['authorityKeyIdentifier', 'keyid:always', false],
+    ]
 
-    add_certificate_extensions(cert, root_ca,
-                               ['keyUsage', 'digitalSignature', true],
-                               ['subjectKeyIdentifier', 'hash', false],
-                               AUTHORITY_INFO_ACCESS_EXTENSION,
-                               ['authorityKeyIdentifier', 'keyid:always', false],
-                               *policies)
+    unless info[:no_policies]
+      extensions << [
+        'certificatePolicies',
+        JSON.parse(Figaro.env.required_policies).first,
+        false,
+      ]
+    end
+
+    if info[:policy_constraints]
+      extensions << [
+        'policyConstraints',
+        info[:policy_constraints].to_a.map { |kv| kv.join(':') }.join(','),
+        true,
+      ]
+    end
+
+    if info[:policy_mapping]
+      extensions << [
+        'policyMappings',
+        info[:policy_mapping].to_a.map { |kv| kv.join(':') }.join(','),
+        true,
+      ]
+    end
+
+    add_certificate_extensions(cert, root_ca, *extensions)
     cert.sign(root_key, OpenSSL::Digest::SHA256.new)
     cert
   end
