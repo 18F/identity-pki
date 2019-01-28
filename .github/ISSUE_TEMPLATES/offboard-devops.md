@@ -46,10 +46,8 @@ _DATE_
    - [ ] https://account.newrelic.com/accounts/1376370/users  
      _user name_ 
    
-- [ ] PagerDuty
-   - [ ] Request removal by filing a ticket at 18F/infrastructure
-      - [ ] Example: https://github.com/18F/Infrastructure/issues/new  
-     _user's given name and email_
+- [ ] OpsGenie
+   - [ ] 
       
 - Slack
    - [ ] https://goo.gl/forms/mKATdB9QuNo7AXVY2 -- submit user modification

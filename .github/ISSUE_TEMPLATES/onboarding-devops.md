@@ -17,11 +17,11 @@ labels: administration
 * [ ] Add yourself to the [team page](https://github.com/18F/identity-private/wiki/Team).
 * [ ] Request access to the listserv (all@login.gov): * [ ] Request access to the listserv (all@login.gov): https://groups.google.com/a/login.gov/forum/#!forum/all
 
-## Tasks for onboarding buddy 
+## Tasks for on-boarding buddy 
 
 * [ ] Give intro to weekly ceremonies and team workflow
 * [ ] Ask the new team member for their GitHub username. Make a request to the [team owner](https://github.com/orgs/18F/teams/identity?utf8=%E2%9C%93&query=%20role%3Aowner) or a [team maintainer](https://github.com/orgs/18F/teams/identity?utf8=%E2%9C%93&query=%20role%3Amaintainer) to add the username to the `identity` GitHub team.
-    * [ ] For 18F, you may need access to `identy-core`.
+    * [ ] For 18F, you may need access to `identity-core`.
 * [ ] If the new team member does not have Slack access, request access for them in the `#admins-slack` channel and fill out this form: https://goo.gl/forms/4Mz21nvALvITj9Os1.
 * [ ] Add the new team member to the Login Services Shared Events calendar. Add users with non-GSA.gov email addresses with the `See all event details` permission, and those with GSA.gov emails as `Make changes AND manage sharing`.
 * [ ] Set up pairing session to walk through the relevant project details with the new team member. If you are not the correct person to do the walk-through, please schedule and facilitate a session with the appropriate team member(s).
@@ -29,7 +29,7 @@ labels: administration
 ### For new end-user team members:
 * [ ] Invite the new team member to the following events:
   * end-user sprint planning (every other Monday)
-  * end-user mid-sprint checkin (alternate Mondays)
+  * end-user mid-sprint check-in (alternate Mondays)
   * login.gov demo (every other Friday)
   * end-user sprint retro (every other Friday)
 * [ ] For access to environments, extract PIV public key following these steps: https://github.com/18F/identity-private/wiki/Operations:-MacOSX-PIV-to-SSH-key-extraction, and securely pass it to a member of the devops team.
@@ -72,6 +72,7 @@ labels: administration
   * [ ] performance testing (pt)  
   * [ ] integration (int)
 * [ ] Twilio
-* [ ] Quicksight
+* [ ] Opsgenie
+* [ ] Quicksite
 * [ ] Nessus Scanner
 * [ ] LexisNexis RDP Reporting Portal
