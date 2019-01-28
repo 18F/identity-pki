@@ -12,9 +12,10 @@ _DATE_
    - [ ] AWS Quicksight
    - [ ] AWS Analytics
 
-- Internal mgmt tools and services  
-   - [ ] SSH  
-      _user name_ 
+- Internal mgmt tools and services
+   - [ ] SSH
+      Remove all SSH keys and groups from the [relevant databag file](https://github.com/18F/identity-devops-private/tree/master/chef/data_bags/users),
+      but do not delete it. This allows us to avoid reusing user UIDs.
    - [ ] Kibana  
       _user name_  
    - [ ] Nessus Server  
