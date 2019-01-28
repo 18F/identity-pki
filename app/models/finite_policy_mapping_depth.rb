@@ -16,7 +16,11 @@ class FinitePolicyMappingDepth
 
   # :reek:FeatureEnvy
   def <=>(other)
-    value <=> other.value
+    if other.any?
+      -1
+    else
+      value <=> other.value
+    end
   end
 
   def -(other)
