@@ -50,15 +50,10 @@ DEPENDENCIES
     revision: 4723559b50ed93ff187fd0b8893daa132edde173
     ref: 4723559
     rel: identity_base_config
-  identity_ntp
-    git: https://github.com/18F/identity-cookbooks
-    revision: 4723559b50ed93ff187fd0b8893daa132edde173
-    ref: 4723559
-    rel: identity_ntp
   identity_shared_attributes
     git: https://github.com/18F/identity-cookbooks
-    revision: 4723559b50ed93ff187fd0b8893daa132edde173
-    ref: 4723559
+    revision: fe0defacb72aa7c106df21a61d3c4f9482243e4a
+    ref: fe0defa
     rel: identity_shared_attributes
   instance_certificate
     path: kitchen/cookbooks/instance_certificate
@@ -199,8 +194,7 @@ GRAPH
     login_dot_gov (>= 0.0.0)
   identity_base_config (0.1.1)
     identity_shared_attributes (>= 0.0.0)
-  identity_ntp (0.1.0)
-  identity_shared_attributes (0.1.0)
+  identity_shared_attributes (0.1.1)
   instance_certificate (0.1.0)
     canonical_hostname (>= 0.0.0)
   java (3.1.2)
