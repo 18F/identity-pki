@@ -28,7 +28,7 @@ Style/TrailingCommaInArrayLiteral:
 
 # Lots of methods will be longer than 10 lines
 Metrics/MethodLength:
-  Max: 60
+  Enabled: false
 
 # Who are these people who have such tiny classes?
 Metrics/ClassLength:
@@ -45,7 +45,7 @@ Metrics/BlockLength:
 
 # Not clear whether this is useful at all
 Metrics/CyclomaticComplexity:
-  Max: 15
+  Max: 16
 
 Metrics/PerceivedComplexity:
   Enabled: false
@@ -92,6 +92,8 @@ SpaceInsideHashLiteralBraces:
 
 # not useful
 Style/IfInsideElse:
+  Enabled: false
+Style/NegatedIf:
   Enabled: false
 
 # increases errors for little benefit

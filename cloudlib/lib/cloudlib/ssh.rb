@@ -1,6 +1,9 @@
+# frozen_string_literal: true
+
 require 'subprocess'
 
 module Cloudlib
+  # Cloudlib SSH functionality
   module SSH
 
     KnownHostsPath = File.expand_path('~/.ssh/known_hosts_cloudlib').freeze
@@ -17,6 +20,9 @@ module Cloudlib
       @ec2libs[vpc_id] ||= Cloudlib::EC2.new_from_vpc_id(vpc_id)
     end
 
+    # This class is a helper to manage SSHing to a single server. It accepts an
+    # instance ID or Aws::EC2::Instance object, and provides helper methods to
+    # faciliate SSHing to that instance.
     class Single
 
       attr_reader :cl
@@ -26,7 +32,7 @@ module Cloudlib
       # @param [Aws::EC2::Instance] instance
       def initialize(instance_id: nil, instance: nil)
         if (instance_id && instance) || (!instance_id && !instance)
-          raise ArgumentError.new("must pass one of instance_id or instance")
+          raise ArgumentError.new('must pass one of instance_id or instance')
         end
 
         @ec2 = Cloudlib::EC2.new_resource
@@ -76,6 +82,7 @@ module Cloudlib
       #   local ports. The "-L" is included in the list for each forward.
       def ssh_cmdline(username: nil, command: nil, port: 22, pkcs11_lib: nil,
                       strict_host_key_checking: nil, use_jumphost: nil,
+                      jumphost_username: nil,
                       verbose: false, quiet: false,
                       ssh_opts: [], local_forwards: [])
 
@@ -102,10 +109,10 @@ module Cloudlib
 
         if pkcs11_lib
           cmd += ['-I', pkcs11_lib]
-        elsif pkcs11_lib.nil? && name_tag.include?(Prod) && ENV.key?('PKCS11_LIB')
+        elsif pkcs11_lib.nil? && name_tag.include?(Prod) \
+                              && ENV.key?('PKCS11_LIB')
           cmd += ['-I', ENV['PKCS11_LIB']]
         end
-
 
         hostkey_alias = "#{instance.instance_id}:#{port}"
 
@@ -126,7 +133,7 @@ module Cloudlib
           '-o', "HostKeyAlias=#{hostkey_alias}",
           '-o', "UserKnownHostsFile=#{KnownHostsPath}",
           '-o', "StrictHostKeyChecking=#{strict_host_key_checking}",
-          '-o', 'HashKnownHosts=no'
+          '-o', 'HashKnownHosts=no',
         ]
 
         if use_jumphost
@@ -135,7 +142,7 @@ module Cloudlib
           begin
             jumphost = @cl.find_jumphost
           rescue NotFound
-            log.error("Failed to find jumphost! Try with --no-jumphost ?")
+            log.error('Failed to find jumphost! Try with --no-jumphost ?')
             raise
           end
 
@@ -145,8 +152,10 @@ module Cloudlib
 
           netcat_host = instance.private_ip_address + ':' + port.to_s
 
+          jumphost_username ||= username
+
           proxycommand = jumphost_ssh_single.ssh_cmdline(
-            username: username, port: port, pkcs11_lib: pkcs11_lib,
+            username: jumphost_username, port: port, pkcs11_lib: pkcs11_lib,
             use_jumphost: false, verbose: verbose, quiet: quiet,
             ssh_opts: ['-W', netcat_host] + ssh_opts, local_forwards: []
           )
@@ -166,7 +175,7 @@ module Cloudlib
             # SSH doesn't respect quoting from arrays anyway
             # TODO do some stuff to handle quoted arrays by shell quoting them
             # automagically
-            log.debug("SSH array quoting not implemented, treating as single string")
+            log.debug('SSH array quoting not implemented, mashing array to str')
             cmd << command.join(' ')
           else
             cmd << command
@@ -206,6 +215,7 @@ module Cloudlib
       end
     end
 
+    # Helper class for running multi-threaded SSH to many servers at once.
     class Multi
       attr_reader :instances
 
@@ -263,10 +273,11 @@ module Cloudlib
           end
 
           if retval.exited?
+            label = single.instance_label
             if retval.success?
-              log.info("#{single.instance_label} returned exit status #{retval.exitstatus}")
+              log.info("#{label} returned exit status #{retval.exitstatus}")
             else
-              log.error("#{single.instance_label} returned exit status #{retval.exitstatus}")
+              log.error("#{label} returned exit status #{retval.exitstatus}")
               all_succeeded = false
             end
           else
