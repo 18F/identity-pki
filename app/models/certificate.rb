@@ -4,38 +4,24 @@ class Certificate
   attr_accessor :x509_cert
 
   REVOCATION_CACHE_EXPIRATION = 5.minutes
+  ANY_POLICY = '2.5.29.32.0'.freeze
 
   def initialize(x509_cert)
     @x509_cert = x509_cert
+    @cert_policies = CertificatePolicies.new(self)
   end
 
   def_delegators :x509_cert, :not_before, :not_after, :subject, :issuer, :verify,
                  :public_key, :serial, :to_text
+
+  def_delegators :@cert_policies, :allowed_by_policy?, :critical_policies_recognized?
 
   def trusted_root?
     CertificateStore.trusted_ca_root_identifiers.include?(key_id)
   end
 
   def revoked?
-    Certificate.revocation_status?(self) { calculate_revocation_status }
-  end
-
-  # :reek:DuplicateMethodCall
-  # :reek:TooManyStatements
-  def calculate_revocation_status
-    ocsp_response = OCSPService.new(self).call
-    if !ocsp_response.successful?
-      CertificateLoggerService.log_ocsp_response(ocsp_response)
-      CertificateAuthority.revoked?(self)
-    elsif ocsp_response.revoked?
-      CertificateLoggerService.log_ocsp_response(ocsp_response)
-      # save serial number as revoked
-      # temporarily not caching it while we investigate some reported wrong revocations via OCSP
-      # ocsp_response.authority&.certificate_revocations&.create!(serial: serial) if revoked_status
-      true
-    else
-      false
-    end
+    Certificate.revocation_status?(self) { OCSPService.new(self).call.revoked? }
   end
 
   def self.revocation_status?(certificate, &block)
@@ -61,15 +47,6 @@ class Certificate
 
   def self_signed?
     signing_key_id == key_id
-  end
-
-  def allowed_by_policy?
-    # if at least one policy in the cert matches one of the "required policies", then we're good
-    # otherwise, we want to allow it for now, but log the cert so we can see what policies are
-    # coming up
-    # This policy check is only on the leaf certificate - not used by CAs
-    expected_policies = required_policies
-    policies.any? { |policy| expected_policies.include?(policy) }
   end
 
   def validate_cert
@@ -138,8 +115,8 @@ class Certificate
   end
 
   def token(extra)
+    maybe_log_certificate
     if valid?
-      CertificateLoggerService.log_certificate(self) unless allowed_by_policy?
       token_for_valid_certificate(extra)
     else
       token_for_invalid_certificate(extra)
@@ -163,12 +140,6 @@ class Certificate
     }
   end
 
-  def policies
-    (get_extension('certificatePolicies') || '').split(/\n/).map do |line|
-      line.sub(/^Policy:\s+/, '')
-    end
-  end
-
   def logging_filename
     [key_id, signing_key_id, serial].join('::')
   end
@@ -178,6 +149,11 @@ class Certificate
   end
 
   private
+
+  def maybe_log_certificate
+    return if valid? && critical_policies_recognized? && allowed_by_policy?
+    CertificateLoggerService.log_certificate(self)
+  end
 
   # :reek:UtilityFunction
   def get_extension(oid)
@@ -208,12 +184,6 @@ class Certificate
     reason = validate_cert
 
     Rails.logger.warn("Certificate invalid: #{reason}")
-    CertificateLoggerService.log_certificate(self)
     TokenService.box(extra.merge(error: "certificate.#{reason}"))
-  end
-
-  # :reek:UtilityFunction
-  def required_policies
-    JSON.parse(Figaro.env.required_policies || '[]')
   end
 end
