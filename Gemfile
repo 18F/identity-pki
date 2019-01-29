@@ -14,6 +14,7 @@ gem 'identity-hostdata', github: '18F/identity-hostdata', branch: 'master'
 gem 'mini_cache'
 gem 'newrelic_rpm'
 gem 'pg'
+gem 'pry-rails'
 gem 'puma', '~> 3.7'
 gem 'rgl'
 
