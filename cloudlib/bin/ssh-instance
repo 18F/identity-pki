@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 require 'optparse'
 
@@ -21,10 +22,10 @@ def get_instance_by_id(instance_id)
   Cloudlib::EC2.new.lookup_instance_by_id(instance_id)
 end
 
-def get_instance_by_name(name_tag, states:['running'], pick_strategy: nil)
+def get_instance_by_name(name_tag, states: ['running'], pick_strategy: nil)
   filters = [
     {name: 'tag:Name', values: [name_tag]},
-    {name: 'instance-state-name', values: states}
+    {name: 'instance-state-name', values: states},
   ]
 
   # Interactively prompt by default iff we're connected to a TTY.
@@ -63,7 +64,6 @@ def get_instance_by_name(name_tag, states:['running'], pick_strategy: nil)
 end
 
 def main(args)
-
   options = {pick_strategy: nil}
   cl_ssh_options = {}
 
@@ -210,7 +210,9 @@ Options:
   if host_spec =~ /\Ai-[a-f0-9]+\z/
     instance = get_instance_by_id(host_spec)
   else
-    instance = get_instance_by_name(host_spec, pick_strategy: options.fetch(:pick_strategy))
+    instance = get_instance_by_name(
+      host_spec, pick_strategy: options.fetch(:pick_strategy)
+    )
   end
 
   if !host_and_cmd.empty?
