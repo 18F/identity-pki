@@ -128,6 +128,10 @@ Options:
       cl_ssh_options[:username] = val
     end
 
+    opts.on('--jumphost-login USER', 'Jumphost SSH login username') do |val|
+      cl_ssh_options[:jumphost_username] = val
+    end
+
     opts.on('-1', '--any', 'SSH to random server matching name') do
       options[:pick_strategy] = :random
     end

@@ -76,6 +76,7 @@ module Cloudlib
       #   local ports. The "-L" is included in the list for each forward.
       def ssh_cmdline(username: nil, command: nil, port: 22, pkcs11_lib: nil,
                       strict_host_key_checking: nil, use_jumphost: nil,
+                      jumphost_username: nil,
                       verbose: false, quiet: false,
                       ssh_opts: [], local_forwards: [])
 
@@ -145,8 +146,10 @@ module Cloudlib
 
           netcat_host = instance.private_ip_address + ':' + port.to_s
 
+          jumphost_username ||= username
+
           proxycommand = jumphost_ssh_single.ssh_cmdline(
-            username: username, port: port, pkcs11_lib: pkcs11_lib,
+            username: jumphost_username, port: port, pkcs11_lib: pkcs11_lib,
             use_jumphost: false, verbose: verbose, quiet: quiet,
             ssh_opts: ['-W', netcat_host] + ssh_opts, local_forwards: []
           )
