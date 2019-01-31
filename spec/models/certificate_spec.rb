@@ -276,7 +276,7 @@ RSpec.describe Certificate do
       certificate.revoked?
     end
 
-    xit 'adds the serial number to the list of revoked serials' do
+    it 'adds the serial number to the list of revoked serials' do
       expect { certificate.revoked? }.to change { CertificateRevocation.count }.by(1)
     end
 
