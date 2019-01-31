@@ -63,6 +63,23 @@ resource aws_security_group "synack_vpn" {
     description = "Allow ICMP to the whole VPC"
   }
 
+  # Allow ALL TCP and UDP egress to the whole VPC
+  egress {
+    protocol  = "tcp"
+    from_port = 0
+    to_port   = 65535
+    cidr_blocks = ["${aws_vpc.default.cidr_block}"]
+    description = "Allow TCP to the whole VPC"
+  }
+  egress {
+    protocol  = "udp"
+    from_port = 0
+    to_port   = 65535
+    cidr_blocks = ["${aws_vpc.default.cidr_block}"]
+    description = "Allow UDP to the whole VPC"
+  }
+
+  # allow egress access to synack VPN
   egress {
     protocol  = "icmp"
     from_port = -1
@@ -70,8 +87,6 @@ resource aws_security_group "synack_vpn" {
     cidr_blocks = ["${var.synack_vpn_cidr_block}"]
     description = "Allow ICMP to Synack VPN"
   }
-
-  # allow egress access to synack VPN
   egress {
     description = "allow egress to synack VPN"
     from_port = 443
@@ -98,6 +113,13 @@ resource aws_security_group "synack_vpn" {
     description = "Allow HTTPS in from jumphost for web interface"
     from_port = 443
     to_port = 443
+    protocol = "tcp"
+    security_groups = ["${aws_security_group.jumphost.id}"]
+  }
+  ingress {
+    description = "Allow SSH in from jumphost"
+    from_port = 22
+    to_port = 22
     protocol = "tcp"
     security_groups = ["${aws_security_group.jumphost.id}"]
   }
