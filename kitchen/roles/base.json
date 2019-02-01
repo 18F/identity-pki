@@ -38,7 +38,6 @@
     "recipe[sudo]",
     "recipe[identity-elk::logcleanup]",
     "recipe[identity-elk::filebeat]",
-    "recipe[identity-ossec]",
     "recipe[login_dot_gov::resolve]",
     "recipe[identity_base_config::ruby]",
     "recipe[identity-monitoring]"
