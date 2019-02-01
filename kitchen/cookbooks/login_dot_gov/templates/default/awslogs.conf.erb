@@ -368,3 +368,64 @@ log_stream_name = {hostname}
 initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/var/log/squid/cache.log
 time_zone = UTC
+
+[aidelog]
+file = /var/log/aide/aide.log
+buffer_duration = 5000
+log_stream_name = {hostname}
+initial_position = start_of_file
+log_group_name = <%= @environmentName %>_/var/log/aide/aide.log
+time_zone = UTC
+
+[ssmagentlog]
+datetime_format = %Y-%m-%d %H:%M:%S
+file = /var/log/amazon/ssm/amazon-ssm-agent.log
+buffer_duration = 5000
+log_stream_name = {hostname}
+initial_position = start_of_file
+log_group_name = <%= @environmentName %>_/var/log/amazon/ssm/amazon-ssm-agent.log
+time_zone = UTC
+
+[ssmagenterrorlog]
+datetime_format = %Y-%m-%d %H:%M:%S
+file = /var/log/amazon/ssm/errors.log
+buffer_duration = 5000
+log_stream_name = {hostname}
+initial_position = start_of_file
+log_group_name = <%= @environmentName %>_/var/log/amazon/ssm/errors.log
+time_zone = UTC
+
+[ssmagenthibernatelog]
+datetime_format = %Y-%m-%d %H:%M:%S
+file = /var/log/amazon/ssm/hibernate.log
+buffer_duration = 5000
+log_stream_name = {hostname}
+initial_position = start_of_file
+log_group_name = <%= @environmentName %>_/var/log/amazon/ssm/hibernate.log
+time_zone = UTC
+
+[dpkglog]
+datetime_format = %Y-%m-%d %H:%M:%S
+file = /var/log/dpkg.log
+buffer_duration = 5000
+log_stream_name = {hostname}
+initial_position = start_of_file
+log_group_name = <%= @environmentName %>_/var/log/dpkg.log
+time_zone = UTC
+
+[messageslog]
+datetime_format = %b %d %H:%M:%S
+file = /var/log/messages
+buffer_duration = 5000
+log_stream_name = {hostname}
+initial_position = start_of_file
+log_group_name = <%= @environmentName %>_/var/log/messages
+time_zone = UTC
+
+[apthistorylog]
+file = /var/log/apt/history.log
+buffer_duration = 5000
+log_stream_name = {hostname}
+initial_position = start_of_file
+log_group_name = <%= @environmentName %>_/var/log/apt/history.log
+time_zone = UTC
