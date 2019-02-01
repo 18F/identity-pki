@@ -9,13 +9,19 @@ template '/etc/clamav/freshclam.conf' do
     group 'root'
     mode 0444
     variables ({
-      proxy_server: node.fetch('login_dot_gov').fetch('proxy_server'),
-      proxy_port: node.fetch('login_dot_gov').fetch('proxy_port'),
+      proxy_server: 'http://obproxy.login.gov.internal',
+      proxy_port: '3128',
     })
     notifies :restart, 'service[clamav-freshclam]', :delayed
- end
+    notifies :restart, 'service[clamav-daemon]', :delayed
+end
 
- service 'clamav-freshclam' do
+service 'clamav-freshclam' do
     action [:enable, :start]
     supports :restart => true, :status => true, :start => true, :stop => true
- end
+end
+
+service 'clamav-daemon' do
+    action [:enable, :start]
+    supports :restart => true, :status => true, :start => true, :stop => true
+end

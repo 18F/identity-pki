@@ -27,5 +27,7 @@ NotifyClamd /etc/clamav/clamd.conf
 Checks 24
 DatabaseMirror db.local.clamav.net
 DatabaseMirror database.clamav.net
-HTTPProxyServer <%= @proxy_server %>
-HTTPProxyPort <%= @proxy_port %>
+<% if !@proxy_server.nil? -%>
+HTTPProxyServer  <%= @proxy_server %>
+HTTPProxyPort  <%= @proxy_port %>
+<% end -%>
