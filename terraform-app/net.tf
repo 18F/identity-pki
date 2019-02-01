@@ -205,10 +205,6 @@ resource "aws_security_group" "db" {
   description = "Allow inbound and outbound postgresql traffic with app subnet in vpc"
 
   egress {
-    from_port = 5432
-    to_port = 5432
-    protocol = "tcp"
-    security_groups = []
   }
 
   ingress {
