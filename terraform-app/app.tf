@@ -1,5 +1,6 @@
 resource "aws_db_instance" "default" {
   allocated_storage = "${var.rds_storage_app}"
+  apply_immediately = true
   count = "${var.apps_enabled}"
   db_subnet_group_name = "${aws_db_subnet_group.default.id}"
   depends_on = ["aws_security_group.db", "aws_subnet.db1", "aws_subnet.db2"]
