@@ -109,7 +109,7 @@ resource "aws_route53_record" "obproxy" {
   name       = "obproxy.login.gov.internal"
   type       = "CNAME"
   ttl        = "300"
-  records    = ["${aws_lb.outboundproxy.dns_name}"]
+  records    = ["${aws_lb.obproxy.dns_name}"]
 }
 
 resource "aws_autoscaling_group" "outboundproxy" {

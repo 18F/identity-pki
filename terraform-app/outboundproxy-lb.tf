@@ -1,3 +1,4 @@
+# TODO: remove all of the outboundproxy variants in favor of obproxy copy below
 resource "aws_lb" "outboundproxy" {
     name               = "${var.env_name}-outboundproxy"
     internal           = true
@@ -12,6 +13,7 @@ resource "aws_lb" "outboundproxy" {
   }
 }
 
+# TODO remove
 resource "aws_lb_listener" "outboundproxy" {
   depends_on = ["aws_lb.outboundproxy"]
   load_balancer_arn = "${aws_lb.outboundproxy.arn}"
@@ -23,6 +25,7 @@ resource "aws_lb_listener" "outboundproxy" {
   }
 }
 
+# TODO remove
 resource "aws_lb_target_group" "outboundproxy" {
   depends_on = ["aws_lb.outboundproxy"]
   name = "${var.env_name}-obproxy-target"
