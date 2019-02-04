@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+sentinel_pattern="Terraform will perform the following actions:"
+
 usage() {
     cat >&2 <<EOM
 usage: $(basename "$0") [FILE]
@@ -13,11 +15,40 @@ with "+", "-", or "~").
 This is useful if you want a list of all -target resource names that a plan
 produces.
 
+By default, look for and skip past this header in the input text:
+    "$sentinel_pattern"
+
+Options:
+    -h, --help          Print this help message
+    -n, --no-adjoin     Instead of normal output, print partially spliced lines
+    --no-skip-sentinel  Don't skip sentinel pattern (Terraform will perform...)
+
 Examples:
 
     terraform plan | $0
 EOM
 }
+
+adjoin=1
+while [ $# -gt 0 ] && [[ $1 == -* ]]; do
+    case "$1" in
+        -h|--help)
+            usage
+            exit
+            ;;
+        -n|--no-adjoin)
+            adjoin=
+            ;;
+        --no-skip-sentinel)
+            sentinel_pattern=
+            ;;
+        *)
+            usage
+            exit 1
+            ;;
+    esac
+    shift
+done
 
 case $# in
     0)
@@ -45,8 +76,38 @@ strip_ansi_color() {
     ruby -n -e 'puts $_.gsub(/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]/, "")'
 }
 
-cat -- "$file" | strip_ansi_color | grep '^[+~-]' | cut -f2 -d' ' | while read -r line; do
-    echo -n "-target $line "
-done
+# Takes output from grep on stdin and prints target field
+adjoin_targets() {
+    if [ -z "$adjoin" ]; then
+        cat
+    else
+        awk '{ print $2 }' | while read -r line; do
+            echo -n "-target $line "
+        done
+        echo
+    fi
+}
 
-echo
+skip_through_sentinel() {
+    if [ -z "$sentinel_pattern" ]; then
+        cat
+        return
+    fi
+
+    sed -e "1,/$sentinel_pattern/ d"
+}
+
+filter_target_diff_lines() {
+    grep '^ *[+~-]'
+}
+
+errx() {
+    echo >&2 "$(basename "$0"): exiting on error"
+}
+
+trap errx EXIT
+
+cat -- "$file" | strip_ansi_color | skip_through_sentinel | \
+    filter_target_diff_lines | adjoin_targets
+
+trap - EXIT
