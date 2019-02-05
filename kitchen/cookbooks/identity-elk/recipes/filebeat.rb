@@ -72,5 +72,5 @@ filebeat_service 'default'
 cron 'rerun elk filebeat discovery every 15 minutes' do
   action :create
   minute '0,15,30,45'
-  command "cat #{node['elk']['chef_zero_client_configuration']} >/dev/null && chef-client --local-mode -c #{node['elk']['chef_zero_client_configuration']} -o 'role[filebeat_discovery]' 2>&1 >> /var/log/filebeat-discovery.log"
+  command "flock -n /tmp/filebeat_discovery.lock -c \"cat #{node['elk']['chef_zero_client_configuration']} >/dev/null && chef-client --local-mode -c #{node['elk']['chef_zero_client_configuration']} -o 'role[filebeat_discovery]' 2>&1 >> /var/log/filebeat-discovery.log\""
 end

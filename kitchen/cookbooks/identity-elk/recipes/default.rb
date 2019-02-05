@@ -528,5 +528,5 @@ end
 cron 'rerun elk discovery every 15 minutes' do
   action :create
   minute '0,15,30,45'
-  command "cat #{node.fetch('elk').fetch('chef_zero_client_configuration')} >/dev/null && chef-client --local-mode -c #{node.fetch('elk').fetch('chef_zero_client_configuration')} -o 'role[elk_discovery]' 2>&1 >> /var/log/elk-discovery.log"
+  command "flock -n /tmp/elk_discovery.lock -c \"cat #{node.fetch('elk').fetch('chef_zero_client_configuration')} >/dev/null && chef-client --local-mode -c #{node.fetch('elk').fetch('chef_zero_client_configuration')} -o 'role[elk_discovery]' 2>&1 >> /var/log/elk-discovery.log\""
 end

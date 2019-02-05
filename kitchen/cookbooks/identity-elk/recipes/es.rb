@@ -297,8 +297,9 @@ node['elk']['indextypes'].each do |index|
   end
 end
 
+
 cron 'rerun elasticsearch setup every 15 minutes' do
   action :create
   minute '0,15,30,45'
-  command "cat #{node.fetch('elk').fetch('chef_zero_client_configuration')} >/dev/null && chef-client --local-mode -c #{node.fetch('elk').fetch('chef_zero_client_configuration')} -o 'role[elasticsearch_discovery]' 2>&1 >> /var/log/elasticsearch/discovery.log"
+  command "flock -n /tmp/es_setup.lock -c \"cat #{node.fetch('elk').fetch('chef_zero_client_configuration')} >/dev/null && chef-client --local-mode -c #{node.fetch('elk').fetch('chef_zero_client_configuration')} -o 'role[elasticsearch_discovery]' 2>&1 >> /var/log/elasticsearch/discovery.log\""
 end

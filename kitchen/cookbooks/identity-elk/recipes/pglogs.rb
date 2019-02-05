@@ -15,13 +15,13 @@ end
 
 cron_d 'getpglogs' do
   minute 10
-  command '/usr/local/bin/getpglogs.rb'
+  command 'flock -n /tmp/getpglogs.lock -c /usr/local/bin/getpglogs.rb'
 end
 
 # make sure we clean up the pglogs dir
 cron_d 'cleanpglogs' do
   minute 0
   hour 5
-  command "find #{node['elk']['pglogsdir']} -type f -mtime +10 | xargs rm"
+  command "flock -n /tmp/cleanpglogs.lock -c \"find #{node['elk']['pglogsdir']} -type f -mtime +10 | xargs rm\""
 end
 
