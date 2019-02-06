@@ -147,7 +147,7 @@ dpkg_package 'logstash' do
   source '/usr/share/logstash.deb'
 end
 
-execute 'update-ca-certificates -f'
+execute '/usr/sbin/update-ca-certificates -f'
 
 # install cloudwatch plugin
 git '/usr/share/logstash-codec-cloudtrail' do
