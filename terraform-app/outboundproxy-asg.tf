@@ -133,7 +133,8 @@ resource "aws_autoscaling_group" "outboundproxy" {
   ]
 
   target_group_arns = [
-    "${aws_lb_target_group.outboundproxy.arn}"
+    "${aws_lb_target_group.outboundproxy.arn}",
+    "${aws_lb_target_group.obproxy.arn}"
   ]
 
   health_check_type         = "EC2"
