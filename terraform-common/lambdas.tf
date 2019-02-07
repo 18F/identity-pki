@@ -3,7 +3,7 @@ variable "lambda_audit_github_enabled" {
   description = "Whether to run the audit-github lambda in this account"
 }
 variable "lambda_identity_lambda_functions_gitrev" {
-  default = "7a468f03d11e91ee0e680af396f7e3830272cd66"
+  default = "111820219fcb960cf042b690c77a51721ae1d054"
   description = "Initial gitrev of identity-lambda-functions to deploy (updated outside of terraform)"
 }
 
