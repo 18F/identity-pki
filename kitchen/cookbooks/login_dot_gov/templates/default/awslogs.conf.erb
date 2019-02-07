@@ -429,3 +429,12 @@ log_stream_name = {hostname}
 initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/var/log/apt/history.log
 time_zone = UTC
+
+[dnsmasqlog]
+datetime_format = %b %d %H:%M:%S
+file = /var/log/dnsmasq.log
+buffer_duration = 5000
+log_stream_name = {hostname}
+initial_position = start_of_file
+log_group_name = <%= @environmentName %>_/var/log/dnsmasq.log
+time_zone = UTC
