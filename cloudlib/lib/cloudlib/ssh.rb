@@ -82,7 +82,7 @@ module Cloudlib
       #   local ports. The "-L" is included in the list for each forward.
       def ssh_cmdline(username: nil, command: nil, port: 22, pkcs11_lib: nil,
                       strict_host_key_checking: nil, use_jumphost: nil,
-                      jumphost_username: nil,
+                      jumphost_username: nil, jumphost_instance_id: nil,
                       verbose: false, quiet: false,
                       ssh_opts: [], local_forwards: [])
 
@@ -100,6 +100,12 @@ module Cloudlib
             log.debug('Automatically using jumphost')
             use_jumphost = true
           end
+        end
+
+        if jumphost_instance_id && !use_jumphost
+          raise ArgumentError.new(
+            'Must be using jumphost to pass jumphost instance ID'
+          )
         end
 
         cmd = ['ssh', '-l', username]
@@ -140,7 +146,7 @@ module Cloudlib
           log.debug('Finding a jumphost to use')
 
           begin
-            jumphost = @cl.find_jumphost
+            jumphost = @cl.find_jumphost(instance_id: jumphost_instance_id)
           rescue NotFound
             log.error('Failed to find jumphost! Try with --no-jumphost ?')
             raise
