@@ -235,6 +235,22 @@ RSpec.describe Certificate do
         ].join("\n\n")
       end
     end
+
+    describe '#signing_key_id' do
+      it 'handles multiline authorityKeyIdentifier' do
+        # stub multiline aKI
+        expect(certificate).to receive(:get_extension).with('authorityKeyIdentifier').and_return(
+          <<~CERT
+            keyid:cf:ab:b1:cf:b3:eb:28:e2:e0:c7:24:75:72:3b:f5:b6:31:18:77:6f
+            DirName:/CN=my test CA
+            serial:89:20:39:72:B8:50:56:5E
+          CERT
+        )
+        expect(certificate.signing_key_id).to eq(
+          'CF:AB:B1:CF:B3:EB:28:E2:E0:C7:24:75:72:3B:F5:B6:31:18:77:6F'
+        )
+      end
+    end
   end
 
   describe 'a cert with no trusted cert in cert store' do
@@ -276,7 +292,7 @@ RSpec.describe Certificate do
       certificate.revoked?
     end
 
-    xit 'adds the serial number to the list of revoked serials' do
+    it 'adds the serial number to the list of revoked serials' do
       expect { certificate.revoked? }.to change { CertificateRevocation.count }.by(1)
     end
 
