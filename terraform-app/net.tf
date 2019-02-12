@@ -293,7 +293,7 @@ resource "aws_security_group" "elk" {
     protocol = "tcp"
     self = true
     cidr_blocks = [
-      "${var.app1_subnet_cidr_block}",
+      # TODO should probably be whole VPC
       "${var.idp1_subnet_cidr_block}",
       "${var.idp2_subnet_cidr_block}",
       "${var.idp3_subnet_cidr_block}",
@@ -852,13 +852,21 @@ resource "aws_security_group" "app-alb" {
     from_port = 80
     to_port = 80
     protocol = "tcp"
-    cidr_blocks = ["${var.app1_subnet_cidr_block}"] # TODO make multi-AZ
+    cidr_blocks = [
+      "${aws_subnet.publicsubnet1.cidr_block}",
+      "${aws_subnet.publicsubnet2.cidr_block}",
+      "${aws_subnet.publicsubnet3.cidr_block}"
+    ]
   }
   egress {
     from_port = 443
     to_port = 443
     protocol = "tcp"
-    cidr_blocks = ["${var.app1_subnet_cidr_block}"] # TODO make multi-AZ
+    cidr_blocks = [
+      "${aws_subnet.publicsubnet1.cidr_block}",
+      "${aws_subnet.publicsubnet2.cidr_block}",
+      "${aws_subnet.publicsubnet3.cidr_block}"
+    ]
   }
 
   ingress {
@@ -880,18 +888,6 @@ resource "aws_security_group" "app-alb" {
   tags {
     Name = "${var.env_name}-app-alb"
   }
-}
-
-resource "aws_subnet" "app" {
-  availability_zone = "${var.region}a"
-  cidr_block = "${var.app1_subnet_cidr_block}"
-  map_public_ip_on_launch = true
-
-  tags {
-    Name = "${var.name}-app_subnet-${var.env_name}"
-  }
-
-  vpc_id = "${aws_vpc.default.id}"
 }
 
 resource "aws_subnet" "db1" {

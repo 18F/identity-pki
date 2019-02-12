@@ -65,53 +65,6 @@ resource "aws_network_acl" "allow" {
   ]
 }
 
-resource "aws_network_acl" "app" {
-
-  tags {
-    Name = "${var.env_name}-app"
-  }
-
-  vpc_id = "${aws_vpc.default.id}"
-  subnet_ids = ["${aws_subnet.app.id}"]
-}
-
-# Uses up to rule number 25 + number of ssh_cidr_blocks
-module "app-base-nacl-rules" {
-  source = "../terraform-modules/base_nacl_rules"
-  network_acl_id = "${aws_network_acl.app.id}"
-  ssh_cidr_blocks = [
-      # Jumphost
-      "${var.jumphost1_subnet_cidr_block}",
-      "${var.jumphost2_subnet_cidr_block}",
-      # CI VPC
-      "${var.ci_sg_ssh_cidr_blocks}"
-  ]
-}
-
-# this is only used in lower environments, and it needs to be open to partners
-resource "aws_network_acl_rule" "app-ingress-http" {
-  network_acl_id = "${aws_network_acl.app.id}"
-  egress = false
-  from_port = 80
-  to_port = 80
-  protocol = "tcp"
-  cidr_block = "0.0.0.0/0"
-  rule_number = 40
-  rule_action = "allow"
-}
-
-# this is only used in lower environments, and it needs to be open to partners
-resource "aws_network_acl_rule" "app-ingress-https" {
-  network_acl_id = "${aws_network_acl.app.id}"
-  egress = false
-  from_port = 443
-  to_port = 443
-  protocol = "tcp"
-  cidr_block = "0.0.0.0/0"
-  rule_number = 45
-  rule_action = "allow"
-}
-
 resource "aws_network_acl" "db" {
 
   tags {
