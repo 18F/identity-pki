@@ -6,10 +6,6 @@ output "alb_hostname" {
   value = "${element(concat(aws_alb.idp.*.dns_name, list("")), 0)}"
 }
 
-output "aws_app_subnet_id" {
-  value = "SUBNET_ID=${aws_subnet.app.id}"
-}
-
 output "aws_db_address" {
   value = "postgres.login.gov.internal"
 }
