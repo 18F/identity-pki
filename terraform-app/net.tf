@@ -849,6 +849,7 @@ resource "aws_security_group" "app-alb" {
   # bootstrapping cycle and will still remove unmanaged rules.
   # https://github.com/terraform-providers/terraform-provider-aws/issues/3095
   egress {
+    description = "Permit HTTP to public subnets for app"
     from_port = 80
     to_port = 80
     protocol = "tcp"
@@ -859,6 +860,7 @@ resource "aws_security_group" "app-alb" {
     ]
   }
   egress {
+    description = "Permit HTTPS to public subnets for app"
     from_port = 443
     to_port = 443
     protocol = "tcp"
