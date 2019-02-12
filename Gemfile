@@ -6,6 +6,7 @@ group :development do
 end
 
 gem 'aws-sdk', '~> 3.0'
+gem 'aws-sdk-secretsmanager', '~> 1.20'
 
 gem 'rake'
 

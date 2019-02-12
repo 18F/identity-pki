@@ -1,7 +1,8 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    aws-partitions (1.76.0)
+    aws-eventstream (1.0.1)
+    aws-partitions (1.136.0)
     aws-sdk (3.0.1)
       aws-sdk-resources (~> 3)
     aws-sdk-acm (1.5.0)
@@ -109,7 +110,8 @@ GEM
     aws-sdk-connect (1.0.0)
       aws-sdk-core (~> 3)
       aws-sigv4 (~> 1.0)
-    aws-sdk-core (3.18.1)
+    aws-sdk-core (3.46.0)
+      aws-eventstream (~> 1.0)
       aws-partitions (~> 1.0)
       aws-sigv4 (~> 1.0)
       jmespath (~> 1.0)
@@ -469,6 +471,9 @@ GEM
     aws-sdk-sagemakerruntime (1.0.0)
       aws-sdk-core (~> 3)
       aws-sigv4 (~> 1.0)
+    aws-sdk-secretsmanager (1.20.0)
+      aws-sdk-core (~> 3, >= 3.39.0)
+      aws-sigv4 (~> 1.0)
     aws-sdk-serverlessapplicationrepository (1.2.0)
       aws-sdk-core (~> 3)
       aws-sigv4 (~> 1.0)
@@ -539,7 +544,7 @@ GEM
       aws-sdk-core (~> 3)
       aws-sigv4 (~> 1.0)
     aws-sigv2 (1.0.1)
-    aws-sigv4 (1.0.2)
+    aws-sigv4 (1.0.3)
     coderay (1.1.1)
     colorize (0.8.1)
     commander (4.4.3)
@@ -610,6 +615,7 @@ PLATFORMS
 
 DEPENDENCIES
   aws-sdk (~> 3.0)
+  aws-sdk-secretsmanager (~> 1.20)
   colorize
   pry
   rake
@@ -621,4 +627,4 @@ DEPENDENCIES
   tty-prompt (~> 0.14)
 
 BUNDLED WITH
-   1.16.1
+   1.17.1
