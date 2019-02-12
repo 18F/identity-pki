@@ -98,7 +98,8 @@ class Certificate
   end
 
   def signing_key_id
-    get_extension('authorityKeyIdentifier')&.sub(/^keyid:/, '')&.chomp&.upcase
+    get_extension('authorityKeyIdentifier')&.lines&.grep(/\Akeyid:/)&.first
+                                           &.sub(/\Akeyid:/, '')&.chomp&.upcase
   end
 
   def crl_http_url
