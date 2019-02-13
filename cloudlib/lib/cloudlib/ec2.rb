@@ -130,10 +130,20 @@ module Cloudlib
     end
 
     # TODO: pick jumphost within an AZ or pick an ELB jumphost
-    def find_jumphost
-      # find ASG and non-asg jumphosts
-      jumphosts = list_instances_by_name('*jumphost*', in_vpc: true)
-      jumphosts.first
+    # @param [String] instance_id If provided, pick this specific instance by
+    #   instance ID instead of a random jumphost.
+    def find_jumphost(instance_id: nil)
+      if instance_id
+        unless instance_id =~ /\Ai-[a-f0-9]+\z/
+          raise ArgumentError.new('Invalid instance ID: ' + instance_id.inspect)
+        end
+
+        lookup_instance_by_id(instance_id)
+      else
+        # find ASG and non-asg jumphosts
+        jumphosts = list_instances_by_name('*jumphost*', in_vpc: true)
+        jumphosts.first
+      end
     end
 
     # @param [String,Array<String>] name_tag A name tag pattern, or array of

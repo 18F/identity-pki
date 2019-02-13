@@ -152,6 +152,11 @@ Options:
       cl_ssh_options[:use_jumphost] = val
     end
 
+    opts.on('--jumphost-id INSTANCE',
+            'Specify instance ID of jumphost') do |val|
+      cl_ssh_options[:jumphost_instance_id] = val
+    end
+
     opts.on('-L', '--local-forward OPT',
             'forward local ports over SSH (can pass multiple times)') do |val|
       cl_ssh_options[:local_forwards] ||= []
