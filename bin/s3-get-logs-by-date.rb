@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-require 'bundler/setup'
+Dir.chdir(File.dirname(__FILE__)) { require 'bundler/setup' }
 
 require 'aws-sdk-s3'
 require_relative '../cloudlib/lib/cloudlib'
