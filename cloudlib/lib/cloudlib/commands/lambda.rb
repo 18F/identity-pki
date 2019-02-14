@@ -16,6 +16,8 @@ module Cloudlib
 
       desc('deploy NAME ENV',
            'Deploy current rev of NAME lambda to the ENV environment')
+      method_option :revision, aliases: '-r', type: :string,
+                               desc: 'Git revision to deploy'
       def deploy(name, env=nil)
         cl = Cloudlib::Lambda.new
         if env.nil?
@@ -23,7 +25,7 @@ module Cloudlib
           raise Thor::Error.new('Must pass ENV, one of: ' + env_names.inspect)
         end
 
-        cl.deploy_lambda(name: name, env: env)
+        cl.deploy_lambda(name: name, env: env, git_rev: options['revision'])
       end
 
       desc 'info NAME', 'Show information about the NAME lambda'
