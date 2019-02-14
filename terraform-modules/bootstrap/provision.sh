@@ -372,6 +372,10 @@ handle_error() {
         return
     fi
 
+    # pstree
+    echo "Running processes:"
+    run pstree -apu || run ps -ef
+
     echo >&2 "Sleeping 15 seconds before sending ABANDON signal..."
     sleep 15
 
