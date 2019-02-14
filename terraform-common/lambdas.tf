@@ -2,6 +2,10 @@ variable "lambda_audit_github_enabled" {
   default = 1
   description = "Whether to run the audit-github lambda in this account"
 }
+variable "lambda_audit_github_debug" {
+  default = 1
+  description = "Whether to run the audit-github lambda in debug mode in this account"
+}
 variable "lambda_identity_lambda_functions_gitrev" {
   default = "07af04c7bb53fde03ed9a705953b1881490d8c05"
   description = "Initial gitrev of identity-lambda-functions to deploy (updated outside of terraform)"
@@ -23,7 +27,7 @@ resource "aws_lambda_function" "audit-github" {
   environment {
     variables = {
       #DEBUG = "1"
-      DEBUG = ""
+      DEBUG = "${var.lambda_audit_github_debug ? "1" : ""}"
       LOG_LEVEL = "0"
     }
   }
