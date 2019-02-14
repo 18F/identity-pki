@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+RootDir = File.dirname(__FILE__)
+Dir.chdir(RootDir) { require 'bundler/setup' }
+
+require_relative '../lib/cloudlib'
+
+Cloudlib::CLI.with_friendly_errors do
+  Cloudlib::CLI.start(ARGV)
+end

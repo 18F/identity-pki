@@ -12,6 +12,12 @@ Layout/EmptyLinesAroundExceptionHandlingKeywords:
   Enabled: false
 Layout/EmptyLinesAroundModuleBody:
   Enabled: false
+Layout/EmptyLines:
+  Enabled: false
+
+# Spaces before argument default values are ugly
+Layout/SpaceAroundEqualsInParameterDefault:
+  EnforcedStyle: no_space
 
 # The <<~ operator isn't super widely supported yet
 Layout/IndentHeredoc:

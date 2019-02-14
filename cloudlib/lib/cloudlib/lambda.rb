@@ -26,9 +26,7 @@ module Cloudlib
       @log ||= Cloudlib.class_log(self.class, STDERR)
     end
 
-    def cmd_init(args:)
-      assert_empty(args)
-
+    def cmd_init
       log.info('init command starting')
       populate_repo_info
 
@@ -48,43 +46,20 @@ module Cloudlib
       log.info('init complete')
     end
 
-    def cmd_info(args:)
-      if args.length != 1
-        raise Cloudlib::CLIUsageError.new('Required arguments: NAME')
-      end
-
-      name = args.fetch(0)
-
+    def cmd_info(name)
       raise NotImplementedError.new(name) # TODO
     end
 
-    def cmd_list(args:)
-      assert_empty(args)
-
+    def cmd_list
       lambda_data = cloudlib_yaml_data.fetch('lambdas')
       puts 'Known lambdas:'
       puts '- ' + lambda_data.keys.join("\n- ")
     end
 
-    def cmd_deploy(args:)
-      if args.length == 1
-        name = args.fetch(0)
-        env_names = get_available_envs(lambda_name: name)
-        raise Cloudlib::CLIError.new(
-          'Must pass ENV, one of: ' + env_names.inspect
-        )
-      end
-
-      if args.length != 2
-        raise Cloudlib::CLIUsageError.new('Required arguments: NAME, ENV')
-      end
-
-      name = args.fetch(0)
-      env = args.fetch(1)
-
-      deploy_lambda(name: name, env: env)
-    end
-
+    # List available environments for the given lambda
+    #
+    # @param [String] lambda_name
+    #
     # @return [Array<String>]
     def get_available_envs(lambda_name: name)
       l_config = config_for_lambda(name: lambda_name)
@@ -386,10 +361,6 @@ module Cloudlib
     end
 
     private
-
-    def assert_empty(args)
-      raise Cloudlib::CLIUsageError.new if !args.empty?
-    end
 
     def assert_account_id(expected_id:)
       actual = Aws::STS::Client.new.get_caller_identity.account

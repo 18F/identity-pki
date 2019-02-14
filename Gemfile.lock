@@ -587,6 +587,7 @@ GEM
       commander (~> 4.4)
       diffy (~> 3.0)
       treetop (~> 1.6)
+    thor (0.20.3)
     timers (4.1.2)
       hitimes
     treetop (1.6.9)
@@ -624,6 +625,7 @@ DEPENDENCIES
   subprocess
   terminal-table (~> 1.8)
   terraform_landscape (~> 0.1)
+  thor (~> 0.20)
   tty-prompt (~> 0.14)
 
 BUNDLED WITH
