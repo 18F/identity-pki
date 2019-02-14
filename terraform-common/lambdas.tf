@@ -22,6 +22,10 @@ resource "aws_lambda_function" "audit-github" {
   s3_bucket        = "${aws_s3_bucket.lambda-functions.id}"
   s3_key           = "circleci/identity-lambda-functions/${var.lambda_identity_lambda_functions_gitrev}.zip"
 
+  lifecycle {
+    ignore_changes = ["s3_key", "last_modified"]
+  }
+
   function_name    = "audit-github"
   description      = "18F/identity-lambda-functions: GithubAuditor -- auditor of Github teams and membership"
   role             = "${aws_iam_role.lambda-audit-github.arn}"
@@ -109,6 +113,10 @@ resource "aws_lambda_function" "audit-aws" {
 
   s3_bucket        = "${aws_s3_bucket.lambda-functions.id}"
   s3_key           = "circleci/identity-lambda-functions/${var.lambda_identity_lambda_functions_gitrev}.zip"
+
+  lifecycle {
+    ignore_changes = ["s3_key", "last_modified"]
+  }
 
   function_name    = "audit-aws"
   description      = "18F/identity-lambda-functions: AwsIamAuditor -- auditor of AWS IAM users and 2FA setup"
