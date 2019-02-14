@@ -6,6 +6,7 @@ group :development do
 end
 
 gem 'aws-sdk', '~> 3.0'
+gem 'aws-sdk-secretsmanager', '~> 1.20'
 
 gem 'rake'
 
@@ -14,6 +15,7 @@ gem 'rest-client', '~> 2.0'
 gem 'semantic'
 gem 'subprocess'
 gem 'terminal-table', '~> 1.8'
+gem 'thor', '~> 0.20'
 gem 'tty-prompt', '~> 0.14'
 
 gem 'terraform_landscape', '~> 0.1'

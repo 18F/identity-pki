@@ -160,6 +160,60 @@ resource "aws_s3_bucket" "s3-email" {
   }
 }
 
+# Bucket used for storing lambda code deployment bundles
+resource "aws_s3_bucket" "lambda-functions" {
+  bucket = "login-gov.lambda-functions.${data.aws_caller_identity.current.account_id}-${var.region}"
+  region = "${var.region}"
+
+  policy = "${data.aws_iam_policy_document.lambda-functions.json}"
+
+  # Move to IA after 180 days
+  lifecycle_rule {
+    id = "inactive"
+    enabled = true
+
+    prefix  = "/"
+
+    transition {
+      days = 180
+      storage_class = "STANDARD_IA"
+    }
+  }
+
+  versioning {
+    enabled = true
+  }
+
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "aws:kms"
+      }
+    }
+  }
+}
+
+# Policy covering uploads to the lambda functions bucket
+data "aws_iam_policy_document" "lambda-functions" {
+
+    # Allow CircleCI role to upload under /circleci/*
+    statement {
+        sid = "AllowCircleCIPuts"
+        effect = "Allow"
+        principals = {
+            type = "AWS"
+            identifiers = ["${aws_iam_user.circleci.arn}"]
+        }
+        actions = [
+            "s3:PutObject"
+        ]
+        resources = [
+            "arn:aws:s3:::login-gov.lambda-functions.${data.aws_caller_identity.current.account_id}-${var.region}/circleci/*"
+        ]
+    }
+}
+
+
 # This is the terraform state bucket used by terraform including by this
 # terraform file itself. Obviously this is a circular dependency, so there is a
 # major chicken/egg bootstrapping problem.
