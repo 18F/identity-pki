@@ -214,7 +214,7 @@ resource "aws_cloudwatch_event_rule" "every_hour" {
 resource "aws_cloudwatch_event_rule" "weekdays_at_noon" {
   name = "weekdays-at-noon"
   description = "Fires on weekdays at 12p EST / 1 pm EDT"
-  schedule_expression = "cron(0 16 ? * MON-FRI *)"
+  schedule_expression = "cron(0 17 ? * MON-FRI *)"
 }
 
 # Run the audit-github lambda daily on weekdays
