@@ -365,16 +365,19 @@ handle_error() {
     echo >&2 "provision.sh: ERROR -- exiting after failure"
     echo >&2 "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 
+    # Debugging for apt/dpkg lock issues
+    echo "apt/dpkg lock status:"
+    run fuser /var/lib/dpkg/lock /var/lib/dpkg/lock-frontend \
+        /var/lib/apt/lists/lock || true
+    echo "Running processes:"
+    run pstree -apu || run ps -ef
+
     if [ -e "$INFO_DIR/skip_abandon_hook" ]; then
         echo >&2 "Flag file $INFO_DIR/skip_abandon_hook exists! Will not" \
             "send the ABANDON signal to the lifecycle hook."
         maybe_lifecycle_hook_heartbeat
         return
     fi
-
-    # pstree
-    echo "Running processes:"
-    run pstree -apu || run ps -ef
 
     echo >&2 "Sleeping 15 seconds before sending ABANDON signal..."
     sleep 15
