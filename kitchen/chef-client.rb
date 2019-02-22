@@ -36,10 +36,10 @@ json_attribs InfoDir + '/chef-attributes.json'
 
 # These options are used by "elasticsearch-plugin install" and
 # passenger::daemon.
-if ENV['http_proxy']
+if !ENV['http_proxy'].to_s.empty?
   http_proxy ENV['http_proxy']
 end
-if ENV['https_proxy']
+if !ENV['https_proxy'].to_s.empty?
   https_proxy ENV['https_proxy']
 end
 no_proxy ENV['no_proxy']
