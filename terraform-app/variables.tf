@@ -343,10 +343,11 @@ variable "app_secrets_bucket_name_prefix" {
 }
 
 # This variable is used to allow access to 80/443 on the general internet
-# Set it to [] to turn access off, "0.0.0.0/0" to allow it.
+# Set it to "127.0.0.1/32" to turn access off, "0.0.0.0/0" to allow it.
 variable "outbound_subnets" {
-  default = ["0.0.0.0/0"]
-  type="list"
+  #default = ["0.0.0.0/0"]
+  default = ["127.0.0.1/32"] # use localhost as hack since TF doesn't handle empty list well
+  type = "list"
 }
 
 variable "nessusserver_ip" {
