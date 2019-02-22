@@ -20,7 +20,7 @@ action :create do
     user node['login_dot_gov']['system_user']
   end
 
-  %w{saml.crt saml2018.crt}.each do |certfile|
+  %w{saml.crt saml2018.crt saml2019.crt}.each do |certfile|
     if ConfigLoader.load_config_or_nil(node, certfile)
       file "#{name}/certs/#{certfile}" do
         action :create
@@ -52,7 +52,7 @@ action :create do
     end
   end
 
-  %w{saml.key.enc saml2018.key.enc}.each do |keyfile|
+  %w{saml.key.enc saml2018.key.enc saml2019.key.enc}.each do |keyfile|
     file "#{name}/keys/#{keyfile}" do
       action :create
       content ConfigLoader.load_config(node, keyfile)
@@ -92,8 +92,10 @@ action :create do
       'config/experiments.yml',
       'certs/saml.crt',
       'certs/saml2018.crt',
+      'certs/saml2019.crt',
       'keys/saml.key.enc',
       'keys/saml2018.key.enc',
+      'keys/saml2019.key.enc',
       'keys/equifax_rsa',
       'keys/equifax_gpg.pub',
     ].each do |filename|
