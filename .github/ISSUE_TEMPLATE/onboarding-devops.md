@@ -1,4 +1,6 @@
 ---
+name: Onboarding
+about: Bring a new team member on board!
 title: 'Onboarding for [insert new team member's name]'
 labels: administration
 ---
@@ -21,7 +23,7 @@ _🌮 note: as tasks are completed, please create a separate comment.  This is t
 * [ ] Request access to the listserv (all@login.gov): * [ ] Request access to the listserv (all@login.gov): https://groups.google.com/a/login.gov/forum/#!forum/all
 * [ ] [Add your gpg to github](https://help.github.com/articles/adding-a-new-gpg-key-to-your-github-account/).
 
-## Tasks for on-boarding buddy 
+## Tasks for on-boarding buddy
 
 * [ ] Give intro to weekly ceremonies and team workflow
 * [ ] Ask the new team member for their GitHub username. Make sure they have already been invited to the 18F org and accepted the invitation.
@@ -39,7 +41,7 @@ _🌮 note: as tasks are completed, please create a separate comment.  This is t
   * login.gov demo (every other Friday)
   * end-user sprint retro (every other Friday)
 * [ ] For access to environments, extract PIV public key following these steps: https://github.com/18F/identity-private/wiki/Operations:-MacOSX-PIV-to-SSH-key-extraction, and securely pass it to a member of the devops team or create a pull request in https://github.com/18F/identity-devops-private.
-* [ ] For access to Kibana log searches, create a password hash and get it to a member of the devops team securely (`htpasswd -nB -C 10 username > /tmp/usernamehash ; gpg -a --encrypt -r yourgpgkeyid < /tmp/usernamehash`, for example).  
+* [ ] For access to Kibana log searches, create a password hash and get it to a member of the devops team securely (`htpasswd -nB -C 10 username > /tmp/usernamehash ; gpg -a --encrypt -r yourgpgkeyid < /tmp/usernamehash`, for example).
 
 ## Tasks to be completed by DevOps
 
@@ -54,12 +56,12 @@ _🌮 note: as tasks are completed, please create a separate comment.  This is t
   * [ ] When ready, add the new team member to any relevant pager rotations / shadow rotations.
 * [ ] Configure access for new team member to
   * [ ] dev
-  * [ ] qa 
+  * [ ] qa
 
 ### For new DevOps team members only:
 * [ ] Configure access for the new team member to
-  * [ ] dm (data migration)  
-  * [ ] staging/pre-prod (staging)  
+  * [ ] dm (data migration)
+  * [ ] staging/pre-prod (staging)
   * [ ] prod (prod)
   * [ ] Add the new team member to [AWS 18f-identity-analytics](https://18f-identity-analytics.signin.aws.amazon.com/console) account to IAM group `identity-power` or `identity-admin`
   * [ ] Add the new team member to [AWS 18f-identity](https://18f-identity-dev.signin.aws.amazon.com/console) account to IAM group `identity-admin`
@@ -76,7 +78,7 @@ _🌮 note: as tasks are completed, please create a separate comment.  This is t
 
 ### For those requiring additional access:
 * [ ] Configure access for the new team member to
-  * [ ] performance testing (pt)  
+  * [ ] performance testing (pt)
   * [ ] integration (int)
 * [ ] Twilio
 * [ ] Quicksite
