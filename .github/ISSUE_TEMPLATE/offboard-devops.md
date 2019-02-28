@@ -1,4 +1,6 @@
 ---
+name: Offboarding
+about: Track removing credentials for a departing team member
 title: 'Offboard  for [insert team member's name]'
 labels: administration
 ---
