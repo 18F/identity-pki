@@ -1,7 +1,7 @@
 ---
 name: Onboarding
 about: Bring a new team member on board!
-title: 'Onboarding for [insert new team member's name]'
+title: "Onboarding for [insert new team member's name]"
 labels: administration
 ---
 
