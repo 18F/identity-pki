@@ -72,11 +72,17 @@ module Cloudlib
     # @param [String] env The target deploy environment
     # @param [String, nil] region The target region (inferred from AWS config
     #   by default)
+    # @param [String, nil] git_rev The git revision to deploy (defaults to
+    #   parsing currently checked out HEAD)
+    #
     # @return [Seahorse::Client::Response] Response from update_function_code
-    def deploy_lambda(name:, env:, region: nil)
+    #
+    def deploy_lambda(name:, env:, region: nil, git_rev: nil)
       l_config = config_for_lambda(name: name)
       env_config = config_for_env(name: env)
-      git_rev = git_rev_parse_head
+
+      git_rev ||= 'HEAD'
+      git_rev = git_rev_parse(git_rev)
 
       log.info("Deploying #{name.inspect} to #{env.inspect} @ #{git_rev}")
 
@@ -146,7 +152,7 @@ module Cloudlib
       # obviously this is not for security audit trail
       username = ENV['GSA_USERNAME'] || ENV['USER'] || Etc.getlogin
 
-      git_branch = git_symbolic_ref_head
+      git_branch = git_name_rev(git_rev)
       if git_branch.empty?
         git_branch = git_rev[0..8]
       end
@@ -349,15 +355,36 @@ module Cloudlib
       Subprocess.check_output(cmd).chomp
     end
 
-    # Get the symbolic human-readable ref name of HEAD
+    # Wrapper around git rev-parse --verify
+    # @param [String] ref
     # @return [String]
-    def git_symbolic_ref_head
-      cmd = %w[git symbolic-ref -q --short HEAD]
-      log.debug('+ ' + cmd.join(' '))
-      Subprocess.call(cmd, stdout: Subprocess::PIPE) do |p|
-        out, _err = p.communicate
-        return out.chomp
+    def git_rev_parse(ref)
+      if ref.start_with?('-')
+        raise ArgumentError.new('Ref cannot start with -')
       end
+      cmd = %W[git rev-parse --verify #{ref} --]
+      log.debug('+ ' + cmd.join(' '))
+      Subprocess.check_output(cmd).chomp
+    end
+
+    # Get the human-readable ref name of ref. If it can't be parsed, return the
+    # original ref unchanged.
+    #
+    # Wrapper around git name-rev.
+    #
+    # @param [String] ref A gitref
+    # @return [String]
+    #
+    def git_name_rev(ref)
+      cmd = %W[git name-rev --name-only #{ref}]
+      log.debug('+ ' + cmd.join(' '))
+      result = Subprocess.check_output(cmd).chomp
+
+      if result.start_with?('Could not get sha1')
+        return ref
+      end
+
+      result
     end
 
     private
