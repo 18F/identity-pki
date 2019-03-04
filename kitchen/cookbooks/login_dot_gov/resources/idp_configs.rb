@@ -20,7 +20,7 @@ action :create do
     user node['login_dot_gov']['system_user']
   end
 
-  %w{saml.crt saml2018.crt saml2019.crt}.each do |certfile|
+  %w{oidc.crt saml.crt saml2018.crt saml2019.crt}.each do |certfile|
     if ConfigLoader.load_config_or_nil(node, certfile)
       file "#{name}/certs/#{certfile}" do
         action :create
@@ -52,7 +52,7 @@ action :create do
     end
   end
 
-  %w{saml.key.enc saml2018.key.enc saml2019.key.enc}.each do |keyfile|
+  %w{oidc.key.enc saml.key.enc saml2018.key.enc saml2019.key.enc}.each do |keyfile|
     file "#{name}/keys/#{keyfile}" do
       action :create
       content ConfigLoader.load_config(node, keyfile)
@@ -90,9 +90,11 @@ action :create do
   if new_resource.symlink_from
     [
       'config/experiments.yml',
+      'certs/oidc.crt',
       'certs/saml.crt',
       'certs/saml2018.crt',
       'certs/saml2019.crt',
+      'keys/oidc.key.enc',
       'keys/saml.key.enc',
       'keys/saml2018.key.enc',
       'keys/saml2019.key.enc',
