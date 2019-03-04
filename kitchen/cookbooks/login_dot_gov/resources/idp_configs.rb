@@ -20,7 +20,7 @@ action :create do
     user node['login_dot_gov']['system_user']
   end
 
-  %w{oidc.crt saml.crt saml2018.crt saml2019.crt}.each do |certfile|
+  %w{saml.crt saml2018.crt saml2019.crt}.each do |certfile|
     if ConfigLoader.load_config_or_nil(node, certfile)
       file "#{name}/certs/#{certfile}" do
         action :create
@@ -32,14 +32,14 @@ action :create do
     else
       # Do not allow the hardcoded certificate when in prod
       if node.chef_environment == 'prod'
-        Chef::Log.fatal 'ERROR: Must specify SAML/OIDC public certificate in data bag (#{certfile})'
+        Chef::Log.fatal 'ERROR: Must specify SAML public certificate in data bag (#{certfile})'
         raise
       end
 
       # Help push developers to use the data bag for this configuration since the private
       # key is already configured using the databag. (see saml.key.enc)
       log 'idp_configs' do
-        message 'No SAML/OIDC public certificate found in data bag, using default'
+        message 'No SAML public certificate found in data bag, using default'
         level :warn
       end
 
@@ -52,7 +52,7 @@ action :create do
     end
   end
 
-  %w{oidc.key.enc saml.key.enc saml2018.key.enc saml2019.key.enc}.each do |keyfile|
+  %w{oidc.key saml.key.enc saml2018.key.enc saml2019.key.enc}.each do |keyfile|
     file "#{name}/keys/#{keyfile}" do
       action :create
       content ConfigLoader.load_config(node, keyfile)
@@ -62,6 +62,36 @@ action :create do
       group node.fetch('login_dot_gov').fetch('web_system_user')
       mode '0640'
       sensitive true
+    end
+  end
+
+  if ConfigLoader.load_config_or_nil(node, 'oidc.pub')
+    file "#{name}/keys/oidc.pub" do
+      action :create
+      content ConfigLoader.load_config(node, 'oidc.pub')
+      manage_symlink_source true
+      subscribes :create, 'resource[git]', :immediately
+      user node['login_dot_gov']['system_user']
+    end
+  else
+    # Do not allow the hardcoded certificate when in prod
+    if node.chef_environment == 'prod'
+      Chef::Log.fatal 'ERROR: Must specify OIDC public key in data bag (oidc.pub)'
+      raise
+    end
+
+    # Help push developers to use the data bag for this configuration since the private
+    # key is already configured using the databag. (see saml.key.enc)
+    log 'idp_configs' do
+      message 'No OIDC public certificate found in data bag, using default'
+      level :warn
+    end
+
+    cookbook_file "#{name}/keys/oidc.pub" do
+      action :create
+      manage_symlink_source true
+      subscribes :create, 'resource[git]', :immediately
+      user node['login_dot_gov']['system_user']
     end
   end
 
