@@ -20,8 +20,7 @@ action :create do
     user node['login_dot_gov']['system_user']
   end
 
-  # TODO remove saml.crt without suffix
-  %w{saml.crt saml2018.crt saml2019.crt}.each do |certfile|
+  %w{saml2018.crt saml2019.crt}.each do |certfile|
     file "#{name}/certs/#{certfile}" do
       action :create
       content ConfigLoader.load_config(node, certfile)
@@ -31,8 +30,7 @@ action :create do
     end
   end
 
-  # TODO remove saml.key.enc without suffix
-  %w{oidc.key saml.key.enc saml2018.key.enc saml2019.key.enc}.each do |keyfile|
+  %w{oidc.key saml2018.key.enc saml2019.key.enc}.each do |keyfile|
     file "#{name}/keys/#{keyfile}" do
       action :create
       content ConfigLoader.load_config(node, keyfile)
@@ -78,12 +76,10 @@ action :create do
   if new_resource.symlink_from
     [
       'config/experiments.yml',
-      'certs/saml.crt',
       'certs/saml2018.crt',
       'certs/saml2019.crt',
       'keys/oidc.key',
       'keys/oidc.pub',
-      'keys/saml.key.enc',
       'keys/saml2018.key.enc',
       'keys/saml2019.key.enc',
       'keys/equifax_rsa',
