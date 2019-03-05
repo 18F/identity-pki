@@ -107,3 +107,11 @@ end
 describe port(443) do
   it { should be_listening }
 end
+
+# hit the IDP SAML 2019 metadata endpoint
+describe command('curl -Sfk -i https://localhost/api/saml/metadata2019') do
+  its('exit_status') { should eq 0 }
+  its('stdout') { should start_with('HTTP/1.1 200 OK') }
+  its('stdout') { should include 'Content-Type: text/xml' }
+  its('stdout') { should include '<SingleSignOnService' }
+end
