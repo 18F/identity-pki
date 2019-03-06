@@ -4,7 +4,86 @@ provider "aws" {
 
 data "aws_caller_identity" "current" {}
 
-data "aws_iam_policy_document" "cloudtrail" {
+data "aws_iam_policy_document" "cloudtrail_sandbox" {
+  statement {
+    principals = {
+      type = "AWS"
+      identifiers = [
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/brody_elk_iam_role",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ci_elk_iam_role",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/crissup_elk_iam_role",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/dev_elk_iam_role",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/int_elk_iam_role",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/jjg_elk_iam_role",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/markryan_elk_iam_role",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/qa_elk_iam_role",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/varunirv_elk_iam_role"
+      ]
+    }
+    actions = [
+      "s3:ListBucket"
+    ]
+    resources = [
+      "arn:aws:s3:::login-gov-cloudtrail-${data.aws_caller_identity.current.account_id}"
+    ]
+  }
+  statement {
+    principals = {
+      type = "AWS"
+      identifiers = [
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/brody_elk_iam_role",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ci_elk_iam_role",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/crissup_elk_iam_role",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/dev_elk_iam_role",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/int_elk_iam_role",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/jjg_elk_iam_role",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/markryan_elk_iam_role",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/qa_elk_iam_role",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/varunirv_elk_iam_role"
+      ]
+    }
+    actions = [
+      "s3:GetObject"
+    ]
+    resources = [
+      "arn:aws:s3:::login-gov-cloudtrail-${data.aws_caller_identity.current.account_id}/*"
+    ]
+  }
+
+  statement {
+    principals = {
+      type = "Service"
+      identifiers = ["cloudtrail.amazonaws.com"]
+    }
+    actions = [
+      "s3:GetBucketAcl"
+    ]
+    resources = [
+      "arn:aws:s3:::login-gov-cloudtrail-${data.aws_caller_identity.current.account_id}"
+    ]
+  }
+  statement {
+    principals = {
+      type = "Service"
+      identifiers = ["cloudtrail.amazonaws.com"]
+    }
+    actions = [
+      "s3:PutObject"
+    ]
+    resources = [
+      "arn:aws:s3:::login-gov-cloudtrail-${data.aws_caller_identity.current.account_id}/*"
+    ]
+    condition {
+      test = "StringEquals"
+      variable = "s3:x-amz-acl"
+      values = [
+        "bucket-owner-full-control"
+      ]
+    }
+  }
+}
+
+data "aws_iam_policy_document" "cloudtrail_prod" {
   statement {
     principals = {
       type = "AWS"
@@ -32,15 +111,7 @@ data "aws_iam_policy_document" "cloudtrail" {
     principals = {
       type = "AWS"
       identifiers = [
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/brody_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/crissup_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/jjg_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/markryan_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ci_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/dev_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/int_elk_iam_role",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/prod_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/qa_elk_iam_role",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/staging_elk_iam_role"
       ]
     }
@@ -88,7 +159,8 @@ data "aws_iam_policy_document" "cloudtrail" {
 resource "aws_s3_bucket" "cloudtrail" {
   bucket = "login-gov-cloudtrail-${data.aws_caller_identity.current.account_id}"
   force_destroy = true
-  policy = "${data.aws_iam_policy_document.cloudtrail.json}"
+
+  policy = "${data.aws_caller_identity.current.account_id != "555546682965" ? data.aws_iam_policy_document.cloudtrail_sandbox.json : data.aws_iam_policy_document.cloudtrail_prod.json}"
 
   lifecycle_rule {
     id = "logexpire"
