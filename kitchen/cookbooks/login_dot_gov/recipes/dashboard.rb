@@ -95,13 +95,14 @@ end
 deploy "#{base_dir}" do
   action :deploy
 
+  symlink_before_migrate({
+    'config/database.yml' => 'config/database.yml',
+    'config/newrelic.yml' => 'config/newrelic.yml',
+    'config/application.yml' => 'config/application.yml',
+    'log' => 'log',
+  })
+
   before_symlink do
-    execute "cp #{base_dir}/shared/config/application.yml #{release_path}/config/application.yml"
-    # cp generated configs from chef to the shared dir on first run
-    app_config = "#{base_dir}/shared/config/secrets.yml"
-    unless File.exist?(app_config) && File.symlink?(app_config) || node['login_dot_gov']['setup_only']
-      execute "cp #{release_path}/config/secrets.yml #{base_dir}/shared/config"
-    end
 
     cmds = [
       "rbenv exec bundle config build.nokogiri --use-system-libraries",
@@ -115,6 +116,7 @@ deploy "#{base_dir}" do
         environment ({
           'RAILS_ENV' => 'production',
         })
+        #user node.fetch('login_dot_gov').fetch('system_user')
       end
     end
   end
@@ -123,13 +125,8 @@ deploy "#{base_dir}" do
   branch branch_name
   shallow_clone true
   keep_releases 1
-  
-  symlinks ({
-    'config/database.yml' => 'config/database.yml',
-    'config/newrelic.yml' => 'config/newrelic.yml',
-    'config/application.yml' => 'config/application.yml',
-    "log" => "log",
-  })
+
+  #user node.fetch('login_dot_gov').fetch('system_user')
 end
 
 execute "rbenv exec bundle exec rake db:create db:migrate --trace" do
