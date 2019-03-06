@@ -354,14 +354,15 @@ resource "aws_iam_role_policy" "firehose_role_policy" {
     {
       "Action": [
         "s3:AbortMultipartUpload",
-        "s3:GetBucketLocation",
-        "s3:GetObject",
-        "s3:ListBucket",
-        "s3:ListBucketMultipartUploads",
-        "s3:PutObject"
+        "s3:Get*",
+        "s3:List*",
+        "s3:Put*"
       ],
       "Effect": "Allow",
-      "Resource": "${aws_s3_bucket.waf_logbucket.arn}"
+      "Resource": [
+        "${aws_s3_bucket.waf_logbucket.arn}",
+        "${aws_s3_bucket.waf_logbucket.arn}/*"
+      ]
     }
   ]
 }
