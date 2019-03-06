@@ -342,3 +342,28 @@ resource "aws_iam_role" "firehose_role" {
 }
 EOF
 }
+
+
+resource "aws_iam_role_policy" "firehose_role_policy" {
+    name = "${var.env_name}_firehose_waf_role_policy"
+    role = "${aws_iam_role.firehose_role.id}"
+    policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "s3:AbortMultipartUpload",
+        "s3:GetBucketLocation",
+        "s3:GetObject",
+        "s3:ListBucket",
+        "s3:ListBucketMultipartUploads",
+        "s3:PutObject"
+      ],
+      "Effect": "Allow",
+      "Resource": "${aws_s3_bucket.waf_logbucket.arn}"
+    }
+  ]
+}
+EOF
+}
