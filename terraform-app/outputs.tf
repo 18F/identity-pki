@@ -43,5 +43,5 @@ output "waf-id" {
 }
 
 output "waf-firehose-arn" {
-  value = "${aws_kinesis_firehose_delivery_stream.waf_s3_stream.0.arn}"
+  value = "${element(concat(aws_kinesis_firehose_delivery_stream.waf_s3_stream.*.arn, list("")), 0)}"
 }
