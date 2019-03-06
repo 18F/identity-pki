@@ -83,6 +83,11 @@ resource "aws_wafregional_web_acl" "idp_web_acl" {
   }
 }
 
+resource "aws_wafregional_web_acl_association" "idp_alb" {
+  resource_arn = "${aws_alb.idp.arn}"
+  web_acl_id   = "${aws_wafregional_web_acl.idp_web_acl.id}"
+}
+
 ###############
 # rules and ip sets
 ###############
