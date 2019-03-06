@@ -11,15 +11,12 @@ data "aws_iam_policy_document" "cloudtrail" {
       identifiers = [
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/brody_elk_iam_role",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/crissup_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ericmill_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/jp_elk_iam_role",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/jjg_elk_iam_role",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/markryan_elk_iam_role",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ci_elk_iam_role",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/dev_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/dm_elk_iam_role",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/int_elk_iam_role",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/prod_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/pt_elk_iam_role",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/qa_elk_iam_role",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/staging_elk_iam_role"
       ]
@@ -37,15 +34,12 @@ data "aws_iam_policy_document" "cloudtrail" {
       identifiers = [
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/brody_elk_iam_role",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/crissup_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ericmill_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/jp_elk_iam_role",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/jjg_elk_iam_role",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/markryan_elk_iam_role",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ci_elk_iam_role",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/dev_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/dm_elk_iam_role",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/int_elk_iam_role",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/prod_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/pt_elk_iam_role",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/qa_elk_iam_role",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/staging_elk_iam_role"
       ]
