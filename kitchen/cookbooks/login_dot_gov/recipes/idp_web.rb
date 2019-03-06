@@ -126,7 +126,7 @@ Chef.event_handler do
   on :run_completed do
     Chef::Log.info('Starting handler for passenger restart hack')
     if system('pgrep -a "^Passenger"')
-      Chef::Log.info('Found running Passenger process')
+      Chef::Log.info('Found running Passenger process, skipping hack')
     else
       Chef::Log.warn('Restarting passenger as hack to finish startup')
       if system('service passenger restart')
