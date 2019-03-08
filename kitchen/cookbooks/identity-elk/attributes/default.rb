@@ -55,6 +55,14 @@ default['elk']['users'] = [ ]
 # set this so that we listen on 8443
 default['apache']['listen'] = [8443]
 
+
+default['elk']['logstash']['log_level'] = 'info'
+default['elk']['logstash']['path_data'] = '/var/lib/logstash'
+default['elk']['logstash']['path_logs'] = '/var/log/logstash'
+default['elk']['logstash']['xpack_monitoring_enabled'] = true
+default['elk']['logstash']['xpack_monitoring_elasticsearch_url'] = 'https://elasticsearch.login.gov.internal:9200'
+default['elk']['logstash']['xpack_monitoring_elasticsearch_ssl_ca'] = '/etc/elasticsearch/root-ca.pem'
+
 default['elk']['elastalert']['version'] = 'v0.1.36'
 # If the list of emails is empty, then do not email.
 default['elk']['elastalert']['emails'] = []
