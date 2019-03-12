@@ -16,8 +16,8 @@ branch_name = node.fetch('login_dot_gov').fetch('branch_name', "stages/#{node.ch
 
 %w{cached-copy config log}.each do |dir|
   directory "#{base_dir}/shared/#{dir}" do
-    group node['login_dot_gov']['system_user']
     owner node.fetch(:passenger).fetch(:production).fetch(:user)
+    group node['login_dot_gov']['system_user']
     recursive true
     subscribes :create, "deploy[/srv/#{app_name}]", :before
   end
@@ -32,19 +32,17 @@ deploy "/srv/#{app_name}" do
       #user 'ubuntu'
     end
   end
-  
+
   repo "https://github.com/18F/identity-#{app_name}.git"
   branch branch_name
   shallow_clone true
   keep_releases 1
 
-  symlinks ({
-    "system" => "public/system",
-    "pids" => "tmp/pids",
+  symlinks({
     "log" => "log",
-    'bundle' => '.bundle'
   })
-  #user 'ubuntu'
+
+  # user node['login_dot_gov']['system_user']
 end
 
 if basic_auth_username
@@ -61,14 +59,10 @@ template "/opt/nginx/conf/sites.d/#{app_name}.login.gov.conf" do
   owner node['login_dot_gov']['system_user']
   notifies :restart, "service[passenger]"
   source 'nginx_server.conf.erb'
-  # TODO: remove secret_key_base and make non-sensitive
-  sensitive true
   variables({
     app: app_name,
     domain: "#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
     passenger_ruby: lazy { Dir.chdir(deploy_dir) { shell_out!(%w{rbenv which ruby}).stdout.chomp } },
-    saml_env: node.chef_environment,
-    secret_key_base: ConfigLoader.load_config(node, "secret_key_base_rails"),
     security_group_exceptions: ConfigLoader.load_config(node, "security_group_exceptions"),
     server_name: "#{app_name}.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
   })
