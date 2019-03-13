@@ -42,7 +42,7 @@ module "app_launch_template" {
   default_ami_id = "${local.account_default_ami_id}"
 
   instance_type             = "${var.instance_type_app}"
-  iam_instance_profile_name = "${aws_iam_instance_profile.base-permissions.name}"
+  iam_instance_profile_name = "${aws_iam_instance_profile.app.name}"
   security_group_ids        = ["${aws_security_group.app.id}", "${aws_security_group.base.id}"]
 
   user_data                 = "${module.app_user_data.rendered_cloudinit_config}"
@@ -123,3 +123,74 @@ module "app_recycle" {
     asg_name = "${element(concat(aws_autoscaling_group.app.*.name, list("")), 0)}"
     normal_desired_capacity = "${element(concat(aws_autoscaling_group.app.*.desired_capacity, list("")), 0)}"
 }
+
+resource "aws_iam_instance_profile" "app" {
+  name = "${var.env_name}_app_instance_profile"
+  role = "${aws_iam_role.app.name}"
+}
+
+resource "aws_iam_role" "app" {
+  name = "${var.env_name}_app_iam_role"
+  assume_role_policy = "${data.aws_iam_policy_document.assume_role_from_vpc.json}"
+}
+
+resource "aws_iam_role_policy" "app-secrets-manager" {
+  name = "${var.env_name}-app-secrets-manager"
+  role = "${aws_iam_role.app.id}"
+  policy = <<EOM
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "secretsmanager:DescribeSecret",
+                "secretsmanager:List*"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": "secretsmanager:Get*",
+            "Resource": [
+                "arn:aws:secretsmanager:*:*:secret:global/common/*",
+                "arn:aws:secretsmanager:*:*:secret:global/app/*",
+                "arn:aws:secretsmanager:*:*:secret:${var.env_name}/common/*",
+                "arn:aws:secretsmanager:*:*:secret:${var.env_name}/app/*",
+                "arn:aws:secretsmanager:*:*:secret:${var.env_name}/sp-oidc-sinatra/*"
+            ]
+        }
+    ]
+}
+EOM
+}
+
+# These policies are all duplicated from base-permissions
+
+resource "aws_iam_role_policy" "app-secrets" {
+  name = "${var.env_name}-app-secrets"
+  role = "${aws_iam_role.app.id}"
+  policy = "${data.aws_iam_policy_document.secrets_role_policy.json}"
+}
+
+# Role policy that associates it with the certificates_role_policy
+resource "aws_iam_role_policy" "app-certificates" {
+    name = "${var.env_name}-app-certificates"
+    role = "${aws_iam_role.app.id}"
+    policy = "${data.aws_iam_policy_document.certificates_role_policy.json}"
+}
+
+# Role policy that associates it with the describe_instances_role_policy
+resource "aws_iam_role_policy" "app-describe_instances" {
+    name = "${var.env_name}-app-describe_instances"
+    role = "${aws_iam_role.app.id}"
+    policy = "${data.aws_iam_policy_document.describe_instances_role_policy.json}"
+}
+
+resource "aws_iam_role_policy" "app-cloudwatch-logs" {
+    name = "${var.env_name}-app-cloudwatch-logs"
+    role = "${aws_iam_role.app.id}"
+    policy = "${data.aws_iam_policy_document.cloudwatch-logs.json}"
+}
+
+# </end> base-permissions policies
