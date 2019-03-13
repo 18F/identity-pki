@@ -235,7 +235,8 @@ include_recipe 'runit'
     source '30-ESoutput.conf.erb'
     variables ({
       :hostips => "\"#{elasticsearch_domain}\"",
-      :index => lsname == 'logstash' ? nil : lsname.gsub('logstash', '') + '-'
+      :index => lsname == 'logstash' ? nil : lsname.gsub('logstash', '') + '-',
+      :elasticsearch_template_path => '/etc/logstash/logstash-template.json'
     })
     notifies :run, "execute[restart_#{lsname}]", :delayed
   end
@@ -270,6 +271,13 @@ execute 'rm -rf /etc/logstash/conf.d'
 
 # set up cloudtrail logstash config
 aws_account_id = Chef::Recipe::AwsMetadata.get_aws_account_id
+
+cookbook_file '/etc/logstash/logstash-template.json' do
+  owner 'logstash'
+  group 'logstash'
+  source 'logstash-template.json'
+  notifies :run, 'execute[restart_logstash]', :delayed
+end
 
 template "/etc/logstash/cloudtraillogstashconf.d/30-cloudtrailin.conf" do
   source '30-cloudtrailin.conf.erb'

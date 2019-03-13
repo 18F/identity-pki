@@ -6,6 +6,7 @@ output {
     ssl_certificate_verification => true
     manage_template => true
     index => "logstash-<%= @index %>%{+YYYY.MM.dd}"
+    template => "<%= @elasticsearch_template_path %>"
     template_overwrite => true
   }
 }
