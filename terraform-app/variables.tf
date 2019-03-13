@@ -328,6 +328,11 @@ variable "pivcac_service_enabled" {
     description = "Whether to run the microservice for PIV/CAC authentication"
 }
 
+variable "kmslogging_enabled" {
+    default = 0
+    description = "Whether to enable KMS logging data"
+}
+
 # This variable is needed for service discovery
 
 variable "certificates_bucket_name_prefix" {
