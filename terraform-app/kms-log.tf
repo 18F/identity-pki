@@ -1,5 +1,5 @@
 module "kms_logging" {
-    source = "github.com/18F/identity-terraform//kms_log?ref=674021d6dc358b255117edd78cee2579ad295f65"
+    source = "github.com/18F/identity-terraform//kms_log?ref=ce1555297672f85baaa96240a24edc1a67d4dadb"
     #source = "../../identity-terraform/kms_log"
 
     env_name = "${var.env_name}"
