@@ -109,6 +109,11 @@ resource "aws_alb_target_group" "idp-ssl" {
   vpc_id   = "${aws_vpc.default.id}"
 
   deregistration_delay = 120
+
+  tags {
+    prefix = "${var.env_name}"
+    health_role = "idp"
+  }
 }
 
 # secure.login.gov is the production-only name for the IDP app

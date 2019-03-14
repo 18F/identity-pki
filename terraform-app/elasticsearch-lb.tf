@@ -39,6 +39,11 @@ resource "aws_lb_target_group" "elasticsearch" {
     protocol            = "TCP"
     unhealthy_threshold = 2
   }
+
+  tags {
+    prefix = "${var.env_name}"
+    health_role = "elasticsearch"
+  }
 }
 
 resource "aws_route53_record" "elasticsearch" {

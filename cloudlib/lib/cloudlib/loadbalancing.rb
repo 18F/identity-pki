@@ -1,3 +1,6 @@
+require 'aws-sdk-elasticloadbalancingv2'
+require 'aws-sdk-resourcegroupstaggingapi'
+
 module Cloudlib
   def self.loadbalancing
     ElasticLoadBalancingV2.new_resource
@@ -5,13 +8,19 @@ module Cloudlib
 
   class ElasticLoadBalancingV2
     attr_reader :loadbalancing
+    attr_reader :tagging_api
 
     def self.new_resource
       Aws::ElasticLoadBalancingV2::Resource.new
     end
 
+    def self.new_tagging_api_client
+      Aws::ResourceGroupsTaggingAPI::Client.new
+    end
+
     def initialize(env: nil)
       @loadbalancing = self.class.new_resource
+      @tagging_api = self.class.new_tagging_api_client
     end
 
     def find_target_group_arn_by_name(target_group_name)
@@ -30,21 +39,38 @@ module Cloudlib
       found.first.target_group_arn
     end
 
-    def target_group_name(environment, role)
-      # Here we just hardcode the naming format we're using.
-      case role
-        when "idp"
-          "#{environment}-ssl-target-group"  
-        when "app"
-          "#{environment}-app-ssl"
-        else
-          NotFound.new("No target group for role #{role}: only idp and app " +
-                       "are supported at present.")
+    def find_target_group_arn_by_tags(env:, health_role:)
+      log.info('Looking up ARN for target group ' +
+               {env: env, health_role: health_role}.inspect)
+
+      # We have to use the tagging API to locate the ARNs since there's no
+      # ELBv2 API native way to do it. (ugh)
+
+      tag_filters = [
+        {key: 'prefix', values: [env]},
+        {key: 'health_role', values: [health_role]},
+      ]
+
+      log.debug('Filters: ' + tag_filters.inspect)
+
+      arns = tagging_api.get_resources(
+        tag_filters: tag_filters,
+        resource_type_filters: ['elasticloadbalancing:targetgroup']
+      ).resource_tag_mapping_list.map(&:resource_arn)
+
+      if arns.length > 1
+        raise ManyFound.new('Found multiple target groups: ' + arns.inspect)
       end
+      if arns.empty?
+        raise NotFound.new('No target groups found for ' +
+                           {env: env, health_role: health_role}.inspect)
+      end
+
+      arns.first
     end
 
     def find_target_health_data(environment, role)
-      arn = find_target_group_arn_by_name(target_group_name(environment, role))
+      arn = find_target_group_arn_by_tags(env: environment, health_role: role)
       log.info("Looking up health data for target group ARN #{arn}")
       result = loadbalancing.client.describe_target_health({
         target_group_arn: arn,
