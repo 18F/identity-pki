@@ -8,21 +8,7 @@ data "aws_iam_policy_document" "cloudtrail" {
   statement {
     principals = {
       type = "AWS"
-      identifiers = [
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/brody_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/crissup_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ericmill_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/jp_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/markryan_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ci_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/dev_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/dm_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/int_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/prod_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/pt_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/qa_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/staging_elk_iam_role"
-      ]
+      identifiers = ["${var.elk_cloudtrail_bucket_access_roles}"]
     }
     actions = [
       "s3:ListBucket"
@@ -34,21 +20,8 @@ data "aws_iam_policy_document" "cloudtrail" {
   statement {
     principals = {
       type = "AWS"
-      identifiers = [
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/brody_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/crissup_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ericmill_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/jp_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/markryan_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ci_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/dev_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/dm_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/int_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/prod_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/pt_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/qa_elk_iam_role",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/staging_elk_iam_role"
-      ]
+      identifiers = ["${var.elk_cloudtrail_bucket_access_roles}"]
+
     }
     actions = [
       "s3:GetObject"
@@ -94,6 +67,7 @@ data "aws_iam_policy_document" "cloudtrail" {
 resource "aws_s3_bucket" "cloudtrail" {
   bucket = "login-gov-cloudtrail-${data.aws_caller_identity.current.account_id}"
   force_destroy = true
+
   policy = "${data.aws_iam_policy_document.cloudtrail.json}"
 
   lifecycle_rule {
