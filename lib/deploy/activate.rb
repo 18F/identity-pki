@@ -37,8 +37,7 @@ module Deploy
           logger: logger,
           s3_client: s3_client,
         ).download_configs('/%<env>s/extra_pivcac_certs.pem')
-      rescue rescue Aws::S3::Errors::NotFound
-      end
+      rescue; end
     end
 
     def default_logger
