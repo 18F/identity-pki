@@ -27,13 +27,15 @@ module Deploy
     private
 
     def download_extra_certs_from_s3
-      ec2_region = ec2_data.region
+      ec2_data = LoginGov::Hostdata::EC2.load
+      aws_region = ec2_data.region
+      aws_account_id = ec2_data.account_id
 
       begin
         LoginGov::Hostdata::S3.new(
-          bucket: "login-gov.secrets.#{ec2_data.account_id}-#{ec2_region}",
+          bucket: "login-gov.secrets.#{aws_account_id}-#{aws_region}",
           env: nil,
-          region: ec2_region,
+          region: aws_region,
           logger: logger,
           s3_client: s3_client,
         ).download_configs('/%<env>s/extra_pivcac_certs.pem')
