@@ -187,6 +187,18 @@ end
 execute 'service logstash stop || true'
 execute 'update-rc.d -f logstash remove'
 
+template "/etc/logstash/logstash.yml" do
+  source 'logstash.yml.erb'
+  variables ({
+    :log_level => node['elk']['logstash']['log_level'],
+    :path_data => node['elk']['logstash']['path_data'],
+    :path_logs => node['elk']['logstash']['path_logs'],
+    :xpack_monitoring_enabled => node['elk']['logstash']['xpack_monitoring_enabled'],
+    :xpack_monitoring_elasticsearch_url => node['elk']['logstash']['xpack_monitoring_elasticsearch_url'],
+    :xpack_monitoring_elasticsearch_ssl_ca => node['elk']['logstash']['xpack_monitoring_elasticsearch_ssl_ca']
+  })
+end
+
 # create the common outputs and services for all logstash instances
 include_recipe 'runit'
 %w{ logstash cloudtraillogstash cloudwatchlogstash }.each do |lsname|

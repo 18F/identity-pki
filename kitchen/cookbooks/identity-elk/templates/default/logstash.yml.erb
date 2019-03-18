@@ -1,0 +1,27 @@
+# ------------ Data path ------------------
+#
+# Which directory should be used by logstash and its plugins
+# for any persistent needs. Defaults to LOGSTASH_HOME/data
+#
+path.data: <%= @path_data %>
+
+# ------------ Debugging Settings --------------
+#
+# Options for log.level:
+#   * fatal
+#   * error
+#   * warn
+#   * info (default)
+#   * debug
+#   * trace
+#
+log.level: <%= @log_level %>
+path.logs: <%= @path_logs %>
+
+# ------------ X-Pack Settings (not applicable for OSS build)--------------
+#
+# X-Pack Monitoring
+# https://www.elastic.co/guide/en/logstash/current/monitoring-logstash.html
+xpack.monitoring.enabled: <%= @xpack_monitoring_enabled %>
+xpack.monitoring.elasticsearch.url: ['<%= @xpack_monitoring_elasticsearch_url %>']
+xpack.monitoring.elasticsearch.ssl.ca: <%= @xpack_monitoring_elasticsearch_ssl_ca %>
