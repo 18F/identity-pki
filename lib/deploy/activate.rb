@@ -20,9 +20,26 @@ module Deploy
       File.open(result_yaml_path, 'w') { |file| file.puts YAML.dump(application_config) }
 
       FileUtils.chmod(0o640, [env_yaml_path, result_yaml_path])
+
+      download_extra_certs_from_s3
     end
 
     private
+
+    def download_extra_certs_from_s3
+      ec2_region = ec2_data.region
+
+      begin
+        LoginGov::Hostdata::S3.new(
+          bucket: "login-gov.secrets.#{ec2_data.account_id}-#{ec2_region}",
+          env: nil,
+          region: ec2_region,
+          logger: logger,
+          s3_client: s3_client,
+        ).download_configs('/%<env>s/extra_pivcac_certs.pem')
+      rescue rescue Aws::S3::Errors::NotFound
+      end
+    end
 
     def default_logger
       logger = Logger.new(STDOUT)
