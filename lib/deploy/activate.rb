@@ -34,7 +34,7 @@ module Deploy
       begin
         LoginGov::Hostdata::S3.new(
           bucket: "login-gov.secrets.#{aws_account_id}-#{aws_region}",
-          env: env,
+          env: LoginGov::Hostdata.env,
           region: aws_region,
           logger: logger,
           s3_client: s3_client,
