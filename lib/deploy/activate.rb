@@ -34,6 +34,8 @@ module Deploy
       begin
         LoginGov::Hostdata::S3.new(
           bucket: "login-gov.secrets.#{aws_account_id}-#{aws_region}",
+          env: env,
+          region: aws_region,
           logger: logger,
           s3_client: s3_client,
         ).download_configs('/%<env>s/extra_pivcac_certs.pem' => 'config/certs/extra_pivcac_certs.pem')
