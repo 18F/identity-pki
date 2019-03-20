@@ -110,4 +110,21 @@ describe Deploy::Activate do
       expect { subject.run }.to raise_error(Net::OpenTimeout)
     end
   end
+
+  let(:s3_empty) { LoginGov::Hostdata::FakeS3Client.new }
+  let(:notfound_subject) {
+    Deploy::Activate.new(logger: logger, s3_client: s3_empty) }
+  context 'in a deployed production environment with no extra cert bundle' do
+    before do
+      stub_request(:get, 'http://169.254.169.254/2016-09-02/dynamic/instance-identity/document').
+        to_return(body: {
+          'region' => 'us-west-1',
+          'accountId' => '12345',
+        }.to_json)
+    end
+
+    it 'downloads configs from s3' do
+      notfound_subject.send(:download_extra_certs_from_s3)
+    end
+  end
 end
