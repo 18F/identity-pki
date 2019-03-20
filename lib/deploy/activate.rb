@@ -39,7 +39,8 @@ module Deploy
           logger: logger,
           s3_client: s3_client,
         ).download_configs('/%<env>s/extra_pivcac_certs.pem' =>
-                           'config/certs/extra_pivcac_certs.pem')
+                           File.join(root,
+                                     'config/certs/extra_pivcac_certs.pem'))
       # If the file doesn't exist that's fine. This step is optional.
       rescue Aws::S3::Errors::NotFound; end
     end

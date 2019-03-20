@@ -40,6 +40,12 @@ describe Deploy::Activate do
         body: application_yml
       )
 
+      s3_client.put_object(
+        bucket: 'login-gov.secrets.12345-us-west-1',
+        key: '/int/extra_pivcac_certs.pem',
+        body: "fake cert file"
+      )
+
       FileUtils.mkdir_p('/etc/login.gov/info')
       File.open('/etc/login.gov/info/env', 'w') { |file| file.puts 'int' }
     end
@@ -55,6 +61,8 @@ describe Deploy::Activate do
       subject.run
 
       expect(File.exist?(File.join(config_dir, 'application.yml'))).to eq(true)
+      expect(File.exist?(File.join(config_dir, 'certs',
+                                   'extra_pivcac_certs.pem'))).to eq(true)
     end
 
     it 'merges the application.yml from s3 over the application.yml.example' do
