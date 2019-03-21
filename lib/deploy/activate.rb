@@ -42,7 +42,7 @@ module Deploy
                            File.join(root,
                                      'config/certs/extra_pivcac_certs.pem'))
       # If the file doesn't exist that's fine. This step is optional.
-      rescue Aws::S3::Errors::NotFound
+      rescue Aws::S3::Errors::NoSuchKey
         logger.info('extra_pivcac_certs.pem is not in S3 but that is okay.')
       end
     end

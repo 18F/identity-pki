@@ -125,7 +125,7 @@ describe Deploy::Activate do
 
     it 'downloads configs from s3' do
       allow(s3_empty).to receive(:get_object) do |arg1|
-        raise Aws::S3::Errors::NotFound.new("an error", "for testing")
+        raise Aws::S3::Errors::NoSuchKey.new("an error", "for testing")
       end
       notfound_subject.send(:download_extra_certs_from_s3)
     end
