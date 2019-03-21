@@ -49,20 +49,17 @@ _🌮 note: as tasks are completed, please create a separate comment.  This is t
 
 * [ ] Complete [GSA OLU](https://insite.gsa.gov/topics/training-and-development/online-university-olu?term=olu) IT Security Awareness Training, including accepting the GSA IT Rules of Behavior, which is required before we can give you access to any login.gov systems. If you joined GSA more than two months ago, you’ve already completed this task and can just check the box. (Detailees must complete similar organization driven training and provide as proof to login.gov team members)
 * [ ] Obtain the PIV public key from the new member, create a file under https://github.com/18F/identity-devops-private/tree/master/chef/data_bags/users that has the PIV key in it and all the environments they need access to.
-* [ ] Add password sent securely by new user to the `common/elk_htpasswd.json` file in the secrets bucket.  This will allow access to Kibana for log searches.
+* [ ] Add password [sent securely](https://onceler.app.cloud.gov/) by new user to the `common/elk_htpasswd.json` file in the secrets bucket. This will allow access to Kibana for log searches.
 * [ ] Relaunch ASG systems (jumphosts, idp, pivcac) to ensure that the user is in there.
 * [ ] Add the new team member to New Relic
 * [ ] Invite the new team member to Opsgenie for alerting, and ask them to accept the invitation. https://app.opsgenie.com/users
   * [ ] When ready, add the new team member to any relevant pager rotations / shadow rotations.
 * [ ] Configure access for new team member to
-  * [ ] dev
-  * [ ] qa
+  * [ ] identitysandbox.gov (ci, dev-int, and personal envs)
+  * [ ] login.gov (staging/prod)
 
 ### For new DevOps team members only:
 * [ ] Configure access for the new team member to
-  * [ ] dm (data migration)
-  * [ ] staging/pre-prod (staging)
-  * [ ] prod (prod)
   * [ ] Add the new team member to [AWS 18f-identity-analytics](https://18f-identity-analytics.signin.aws.amazon.com/console) account to IAM group `identity-power` or `identity-admin`
   * [ ] Add the new team member to [AWS 18f-identity](https://18f-identity-dev.signin.aws.amazon.com/console) account to IAM group `identity-admin`
   * [ ] Add the new team member to [AWS 18f-identity](https://18f-identity.signin.aws.amazon.com/console) account to IAM group `identity-power`
