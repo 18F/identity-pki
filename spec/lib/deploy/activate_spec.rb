@@ -124,6 +124,11 @@ describe Deploy::Activate do
     end
 
     it 'downloads configs from s3' do
+      allow(s3_empty).to receive(:get_object) do |arg1|
+        puts "this is our broken get_object"
+        err_obj = Aws::S3::Errors::NotFound.new("this is an error", "what is")
+        raise err_obj
+      end
       notfound_subject.send(:download_extra_certs_from_s3)
     end
   end
