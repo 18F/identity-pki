@@ -58,12 +58,9 @@ tee "kitchen/data_bags/users/$USERNAME.json" <<EOF
  "groups": [
    "$USERNAME",
    "adm",
+   "ci",
    "dev",
    "qa",
-   "tf",
-   "dm",
-   "pt",
-   "demo",
    "sudo"
  ],
  "uid": $USER_UID,
