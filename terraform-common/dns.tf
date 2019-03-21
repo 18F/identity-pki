@@ -5,9 +5,15 @@ variable "root_domain" {
 variable "static_cloudfront_name" {
     description = "Static site Cloudfront DNS name, e.g. abcd.cloudfront.net"
 }
+
+variable "design_cloudfront_name" {
+    description = "Design site Cloudfront DNS name, e.g. abcd.cloudfront.net"
+}
+
 variable "developers_cloudfront_name" {
     description = "Developers site Cloudfront DNS name, e.g. abcd.cloudfront.net"
 }
+
 
 variable "google_site_verification_txt" {
     description = "Google site verification text to put in TXT record"
@@ -28,6 +34,7 @@ module "common_dns" {
 
     domain = "${var.root_domain}"
     static_cloudfront_name = "${var.static_cloudfront_name}"
+    design_cloudfront_name = "${var.design_cloudfront_name}"
     developers_cloudfront_name = "${var.developers_cloudfront_name}"
     google_site_verification_txt = "${var.google_site_verification_txt}"
 
