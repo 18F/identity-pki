@@ -40,6 +40,12 @@ describe Deploy::Activate do
         body: application_yml
       )
 
+      s3_client.put_object(
+        bucket: 'login-gov.secrets.12345-us-west-1',
+        key: '/int/extra_pivcac_certs.pem',
+        body: "fake cert file"
+      )
+
       FileUtils.mkdir_p('/etc/login.gov/info')
       File.open('/etc/login.gov/info/env', 'w') { |file| file.puts 'int' }
     end
@@ -55,6 +61,8 @@ describe Deploy::Activate do
       subject.run
 
       expect(File.exist?(File.join(config_dir, 'application.yml'))).to eq(true)
+      expect(File.exist?(File.join(config_dir, 'certs',
+                                   'extra_pivcac_certs.pem'))).to eq(true)
     end
 
     it 'merges the application.yml from s3 over the application.yml.example' do
@@ -100,6 +108,26 @@ describe Deploy::Activate do
 
     it 'errors' do
       expect { subject.run }.to raise_error(Net::OpenTimeout)
+    end
+  end
+
+  let(:s3_empty) { LoginGov::Hostdata::FakeS3Client.new }
+  let(:notfound_subject) {
+    Deploy::Activate.new(logger: logger, s3_client: s3_empty) }
+  context 'in a deployed production environment with no extra cert bundle' do
+    before do
+      stub_request(:get, 'http://169.254.169.254/2016-09-02/dynamic/instance-identity/document').
+        to_return(body: {
+          'region' => 'us-west-1',
+          'accountId' => '12345',
+        }.to_json)
+    end
+
+    it 'downloads configs from s3' do
+      allow(s3_empty).to receive(:get_object) do |arg1|
+        raise Aws::S3::Errors::NoSuchKey.new("an error", "for testing")
+      end
+      notfound_subject.send(:download_extra_certs_from_s3)
     end
   end
 end
