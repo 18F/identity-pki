@@ -5,9 +5,15 @@ variable "domain" {
 variable "static_cloudfront_name" {
     description = "Static site Cloudfront DNS name, e.g. abcd.cloudfront.net"
 }
+
+variable "design_cloudfront_name" {
+    description = "Design site Cloudfront DNS name, e.g. abcd.cloudfront.net"
+}
+
 variable "developers_cloudfront_name" {
     description = "Developers site Cloudfront DNS name, e.g. abcd.cloudfront.net"
 }
+
 variable "cloudfront_zone_id" {
     description = "Static site Cloudfront Zone ID, e.g. ZABCDEFG1234"
     default = "Z2FDTNDATAQYW2" # Zone ID for all cloudfront sites?
@@ -70,6 +76,17 @@ resource "aws_route53_record" "a_www" {
     alias {
         evaluate_target_health = false
         name = "${var.static_cloudfront_name}"
+        zone_id = "${var.cloudfront_zone_id}"
+    }
+}
+
+resource "aws_route53_record" "a_design" {
+    name = "design.${var.domain}"
+    type = "A"
+    zone_id = "${aws_route53_zone.primary.zone_id}"
+    alias {
+        evaluate_target_health = false
+        name = "${var.design_cloudfront_name}"
         zone_id = "${var.cloudfront_zone_id}"
     }
 }
