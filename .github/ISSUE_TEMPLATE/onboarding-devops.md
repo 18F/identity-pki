@@ -41,7 +41,9 @@ _🌮 note: as tasks are completed, please create a separate comment.  This is t
   * login.gov demo (every other Friday)
   * end-user sprint retro (every other Friday)
 * [ ] For access to environments, extract PIV public key following these steps: https://github.com/18F/identity-private/wiki/Operations:-MacOSX-PIV-to-SSH-key-extraction, and securely pass it to a member of the devops team or create a pull request in https://github.com/18F/identity-devops-private.
-* [ ] For access to Kibana log searches, create a password hash and get it to a member of the devops team securely (`htpasswd -nB -C 10 username > /tmp/usernamehash ; gpg -a --encrypt -r yourgpgkeyid < /tmp/usernamehash`, for example).
+* [ ] For access to Kibana log searches, create a password hash and get it to a member of the devops team securely
+  * `htpasswd -nB -C 10 username` to create the hash
+  * Send the hash to a devops team member using https://onceler.app.cloud.gov/
 
 ## Tasks to be completed by DevOps
 
