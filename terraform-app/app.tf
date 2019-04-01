@@ -11,8 +11,8 @@ resource "aws_db_instance" "default" {
   password = "${var.rds_password}"
   username = "${var.rds_username}"
 
-  # change this to true to allow upgrading engine versions
-  allow_major_version_upgrade = false
+  # we want to push these via Terraform now
+  allow_major_version_upgrade = true
 
   tags {
     client = "${var.client}"
