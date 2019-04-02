@@ -19,8 +19,8 @@ resource "aws_db_instance" "idp" {
   storage_type = "${var.rds_storage_type_idp}"
   iops = "${var.rds_iops_idp}"
 
-  # change this to true to allow upgrading engine versions
-  allow_major_version_upgrade = false
+  # we want to push these via Terraform now
+  allow_major_version_upgrade = true
 
   tags {
     client = "${var.client}"
