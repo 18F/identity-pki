@@ -43,11 +43,10 @@ default['elk']['legacy_log_bucket_name'] = true
 default['java']['jdk_version'] = '8'
 
 # remote files
-default['elk']['kibanatarball'] = 'https://artifacts.elastic.co/downloads/kibana/kibana-6.4.2-linux-x86_64.tar.gz'
-default['elk']['logstashdeb'] = 'https://artifacts.elastic.co/downloads/logstash/logstash-6.4.2.deb'
+default['elk']['kibanatarball'] = 'https://artifacts.elastic.co/downloads/kibana/kibana-6.7.0-linux-x86_64.tar.gz'
+default['elk']['logstashdeb'] = 'https://artifacts.elastic.co/downloads/logstash/logstash-6.7.0.deb'
 default['elk']['logstash-input-cloudwatch-logs-version'] = '1.0.3'
 default['elk']['logstash-codec-cloudtrail-version'] = '3.0.5'
-default['elk']['kibanalogtrailplugin'] = 'https://github.com/sivasamyk/logtrail/releases/download/v0.1.30/logtrail-6.4.2-0.1.30.zip'
 
 # users to allow into elk
 default['elk']['users'] = [ ]
@@ -63,7 +62,7 @@ default['elk']['logstash']['xpack_monitoring_enabled'] = true
 default['elk']['logstash']['xpack_monitoring_elasticsearch_url'] = 'https://elasticsearch.login.gov.internal:9200'
 default['elk']['logstash']['xpack_monitoring_elasticsearch_ssl_ca'] = '/etc/elasticsearch/root-ca.pem'
 
-default['elk']['elastalert']['version'] = 'v0.1.36'
+default['elk']['elastalert']['version'] = 'v0.1.39'
 # If the list of emails is empty, then do not email.
 default['elk']['elastalert']['emails'] = []
 
