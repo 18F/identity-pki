@@ -9,9 +9,6 @@
         "jgrevich"
       ]
     },
-    "filebeat": {
-      "version": "5.2.0"
-    },
     "identity-devops": {
       "branch_name": "stages/jjg"
     },

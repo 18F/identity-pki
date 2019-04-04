@@ -20,22 +20,8 @@
         "brody",
         "jgrevich",
         "jhooper",
-        "monfresh",
         "mzia",
         "steveu"
-      ]
-    },
-    "filebeat": {
-      "version": "5.2.0"
-    },
-    "identity-jenkins": {
-      "users": [
-        "monfresh"
-      ],
-      "admins": [
-        "brody",
-        "jgrevich",
-        "mzia"
       ]
     }
   },
