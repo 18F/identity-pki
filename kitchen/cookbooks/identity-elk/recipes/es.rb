@@ -18,7 +18,7 @@ end
 elasticsearch_user 'elasticsearch'
 elasticsearch_install 'elasticsearch' do
   type 'tarball' # type of install
-  version "6.4.2"
+  version "6.7.0"
 end
 
 # URL to reach the elasticsearch cluster.  In the pre-auto-scaled world this was
@@ -92,8 +92,8 @@ directory '/etc/elasticsearch/sgadmin' do
   owner 'elasticsearch'
 end
 
-elasticsearch_plugin 'com.floragunn:search-guard-6:6.4.2-23.1' do
-  plugin_name 'com.floragunn:search-guard-6:6.4.2-23.1'
+elasticsearch_plugin 'com.floragunn:search-guard-6:6.7.0-24.3' do
+  plugin_name 'com.floragunn:search-guard-6:6.7.0-24.3'
   # The documentation says this is true by default, but the code disagrees.
   # https://github.com/elastic/cookbook-elasticsearch/issues/663
   chef_proxy true
