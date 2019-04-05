@@ -18,20 +18,8 @@
       "users": [
         "brody"
       ]
-    },
-    "filebeat": {
-      "version": "5.2.0"
-    },
-    "identity-jenkins": {
-      "users": [
-        "monfresh"
-      ],
-      "admins": [
-        "brody"
-      ]
     }
   },
   "override_attributes": {
-
   }
 }

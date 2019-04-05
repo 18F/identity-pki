@@ -12,14 +12,7 @@
       "retentiondays": 14,
       "users": [
         "brody",
-        "jgrevich",
-        "monfresh"
-      ]
-    },
-    "identity-jenkins": {
-      "users": [ ],
-      "admins": [
-        "test"
+        "jgrevich"
       ]
     },
     "pivcac": {
@@ -27,6 +20,5 @@
     }
   },
   "override_attributes": {
-
   }
 }
