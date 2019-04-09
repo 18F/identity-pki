@@ -103,19 +103,30 @@ server {
     location /verify/doc_auth/back_image {
       client_max_body_size 10M;
     }
-    location /verify/doc_auth/self_image {
-      client_max_body_size 10M;
-    }
     location /verify/doc_auth/mobile_front_image {
       client_max_body_size 10M;
     }
     location /verify/doc_auth/mobile_back_image {
       client_max_body_size 10M;
     }
-    location /verify/doc_auth/mobile_self_image {
+    location /verify/recovery/front_image {
       client_max_body_size 10M;
     }
-
+    location /verify/recovery/back_image {
+      client_max_body_size 10M;
+    }
+    location /verify/recovery/mobile_front_image {
+      client_max_body_size 10M;
+    }
+    location /verify/recovery/mobile_back_image {
+      client_max_body_size 10M;
+    }
+    location /verify/capture_doc/mobile_front_image {
+      client_max_body_size 10M;
+    }
+    location /verify/capture_doc/capture_mobile_back_image {
+      client_max_body_size 10M;
+    }
 }
 
 <%- if @redirect_server_names %>
