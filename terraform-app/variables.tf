@@ -215,13 +215,13 @@ variable "idp_web_acl_id" {
     # or `aws waf-regional list-web-acls`
 }
 variable "enable_legacy_waf" {
-    default = false # TODO FIXME this is treated as "false" since terraform doesn't have booleans
+    default = 0
     description = "Enable WAF to filter ingress traffic."
     # See ../../doc/technical/waf.md
 }
 
 variable "enable_waf" {
-    default = false # TODO FIXME this is treated as "false" since terraform doesn't have booleans
+    default = 0
     description = "Enable WAF to filter ingress traffic."
     # See ../../doc/technical/waf.md
 }
