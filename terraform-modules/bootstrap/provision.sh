@@ -521,6 +521,8 @@ run rm -rf /tmp/bundler
 
 maybe_complete_lifecycle_hook CONTINUE
 
+run aideinit -f -y
+
 echo "==========================================================="
 echo "All done! provision.sh finished for $repo_basename"
 echo "==========================================================="
