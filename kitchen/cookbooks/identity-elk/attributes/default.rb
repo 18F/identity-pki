@@ -13,6 +13,7 @@ default['elk']['filebeat']['logfiles'] = [
   {'log' => '/var/log/syslog', 'type' => 'syslog', 'format' => 'text'},
   {'log' => '/var/log/auth.log', 'type' => 'syslog', 'format' => 'text'},
   {'log' => '/var/lib/docker/aufs/mnt/*/var/log/*/*.log', 'type' => 'syslog', 'format' => 'text'},
+  {'log' => '/var/log/dnsmasq.log', 'type' => 'syslog', 'format' => 'text'},
   {'log' => '/var/log/*/current', 'type' => 'log', 'format' => 'text'},
   {'log' => '/var/log/opscode/*/current', 'type' => 'cheflog', 'format' => 'text'},
   {'log' => '/var/log/opscode/*/*.log', 'type' => 'cheflog', 'format' => 'text'},
