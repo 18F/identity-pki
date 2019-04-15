@@ -219,6 +219,16 @@ module Cloudlib
           Subprocess.call(cmd)
         end
       end
+
+      # Generate an SSH command line and run it in a subprocess, saving output
+      # @param [Hash] ssh_cmdline_opts Options passed to {#ssh_cmdline}
+      # @see #ssh_cmdline
+      # @return String
+      def ssh_subprocess_output(ssh_cmdline_opts: {})
+        cmd = ssh_cmdline(**ssh_cmdline_opts)
+        log.debug('+ ' + cmd.join(' '))
+        Subprocess.check_output(cmd)
+      end
     end
 
     # Helper class for running multi-threaded SSH to many servers at once.
@@ -238,8 +248,9 @@ module Cloudlib
       # @param command [String] SSH command to execute
       # @param ssh_cmdline_opts [Hash] Options to pass to
       #   {Single#ssh_subprocess}
+      # @param return_output [Boolean, nil] Whether to collect standard output
       #
-      def ssh_threads(command:, ssh_cmdline_opts: {})
+      def ssh_threads(command:, ssh_cmdline_opts: {}, return_output: nil)
         ssh_cmdline_opts[:command] = command
 
         log.info('SSH::Multi.ssh_threads with: ' +
@@ -248,19 +259,29 @@ module Cloudlib
         threads = singles.map { |s|
           Thread.new {
             Thread.current[:single] = s
-            s.ssh_subprocess(check_call: false,
-                             ssh_cmdline_opts: ssh_cmdline_opts)
+            if return_output
+              s.ssh_subprocess_output(ssh_cmdline_opts: ssh_cmdline_opts)
+            else
+              s.ssh_subprocess(check_call: false,
+                               ssh_cmdline_opts: ssh_cmdline_opts)
+            end
           }
         }
 
         threads.map(&:join)
 
-        succeeded = print_report(threads)
+        succeeded = print_report(threads, return_output)
 
-        {success: succeeded, threads: threads}
+        if return_output
+          output_hash = Hash[threads.map { |t| [t[:single].instance.instance_id,
+                                                t.value] }]
+        else
+          output_hash = nil
+        end
+        {success: succeeded, threads: threads, outputs: output_hash}
       end
 
-      def print_report(threads)
+      def print_report(threads, with_output=false)
         all_succeeded = true
 
         threads.each do |t|
@@ -274,8 +295,18 @@ module Cloudlib
           # thread return value
           retval = t.value
 
-          unless retval.is_a?(Process::Status)
+          if with_output
+            return_type_ok = retval.is_a?(String)
+          else
+            return_type_ok = retval.is_a?(Process::Status)
+          end
+
+          unless return_type_ok
             raise "Somehow #{single.inspect} thread returned #{retval.inspect}"
+          end
+
+          if with_output
+            next # we got a String back, so this thread succeeded
           end
 
           if retval.exited?
