@@ -20,8 +20,16 @@ _🌮 note: as tasks are completed, please create a separate comment.  This is t
 * [ ] Add the following email address to your Google Calendar to see the Login Services Shared Events calendar: gsa.gov_6ovul6pcsmgd40o8pqn7qmge5g@group.calendar.google.com
 * [ ] [Set up your development environment](https://github.com/18F/identity-idp/blob/master/README.md) (_this is helpful for all new team members!_)
 * [ ] Add yourself to the [team.yml](https://github.com/18F/identity-private/blob/master/team/team.yml).
-* [ ] Request access to the listserv (all@login.gov): * [ ] Request access to the listserv (all@login.gov): https://groups.google.com/a/login.gov/forum/#!forum/all
-* [ ] [Add your gpg to github](https://help.github.com/articles/adding-a-new-gpg-key-to-your-github-account/).
+* [ ] Request access to relevant Google Groups. These Google Groups grant access to Login.gov Google Docs and Drives, contain internal team email traffic, and provide addresses that can sometimes be used as points of contact to be given to third parties:
+    * All team members: all@login.gov https://groups.google.com/a/login.gov/forum/#!forum/all
+    * All federal employees, but not contractors: login-team@login.gov https://groups.google.com/a/login.gov/forum/#!forum/login-team
+    * End-User team members: identity-end-user@login.gov https://groups.google.com/a/login.gov/forum/#!forum/identity-end-user
+    * Security team members: security-team@login.gov https://groups.google.com/a/login.gov/forum/#!forum/security-team
+    * Infra/Devops team members: identity-devops@login.gov https://groups.google.com/a/login.gov/forum/#!forum/identity-devops
+    * Anyone interested in agency partner integrations (external inbox): partners@login.gov https://groups.google.com/a/login.gov/forum/#!forum/partners
+    * Anyone interested in recruiting federal employees: jobs@login.gov https://groups.google.com/a/login.gov/forum/#!forum/jobs
+    * There many be other new @login.gov email addresses that are relevant
+* [ ] (Optional) [Add your gpg key to github](https://help.github.com/articles/adding-a-new-gpg-key-to-your-github-account/).
 
 ## Tasks for on-boarding buddy
 
@@ -33,6 +41,7 @@ _🌮 note: as tasks are completed, please create a separate comment.  This is t
 * [ ] Add the new team member to the Login Services Shared Events calendar. Add users with non-GSA.gov email addresses with the `See all event details` permission, and those with GSA.gov emails as `Make changes AND manage sharing`.
 * [ ] Set up pairing session to walk through the relevant project details with the new team member. If you are not the correct person to do the walk-through, please schedule and facilitate a session with the appropriate team member(s).
 * [ ] Update login.gov team roster information [team.yaml](https://github.com/18F/identity-private/blob/master/team/team.yml)! Regenerate [Team.md](https://github.com/18F/identity-private/wiki/Team) for the wiki
+* [ ] Make sure the team member is added to all appropriate Google Groups, especially all@login.gov. This will grant them permission to see the Login.gov Team Drive and other Google Docs.
 
 ### For new end-user team members:
 * [ ] Invite the new team member to the following events:
