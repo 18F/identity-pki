@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 require 'rubygems'
 require 'json'
@@ -14,7 +15,9 @@ end
 erb_template = input.delete("erb_template")
 
 def erb(template, vars)
-    ERB.new(template).result(OpenStruct.new(vars).instance_eval { binding })
+  ERB.new(template, trim_mode: '-').result(
+    OpenStruct.new(vars).instance_eval { binding }
+  )
 end
 
 output = {
