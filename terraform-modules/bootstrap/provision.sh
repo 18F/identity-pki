@@ -521,6 +521,11 @@ run rm -rf /tmp/bundler
 
 maybe_complete_lifecycle_hook CONTINUE
 
+# TODO this should probably be in chef instead as a final stage
+# Create a new AIDE database so that we detect files changed after chef
+# provisioning.
+run aideinit -f -y
+
 echo "==========================================================="
 echo "All done! provision.sh finished for $repo_basename"
 echo "==========================================================="
