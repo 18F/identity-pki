@@ -6,7 +6,9 @@ require 'ostruct'
 
 def load_template(template_path, vars)
   template = File.read(template_path)
-  ERB.new(template).result(OpenStruct.new(vars).instance_eval { binding })
+  ERB.new(template, trim_mode: '-').result(
+    OpenStruct.new(vars).instance_eval { binding }
+  )
 end
 
 def build_cloud_init(file_info_objects)
