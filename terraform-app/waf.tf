@@ -21,7 +21,7 @@ resource "aws_wafregional_web_acl" "idp_web_acl" {
     }
 
     priority = 1
-    rule_id  = "${aws_wafregional_rule.idp_waf_rule1_passlist.id}"
+    rule_id  = "${aws_wafregional_rule.idp_waf_rule1_pass_list.id}"
     type     = "REGULAR"
   }
   rule {
@@ -30,7 +30,7 @@ resource "aws_wafregional_web_acl" "idp_web_acl" {
     }
 
     priority = 2
-    rule_id  = "${aws_wafregional_rule.idp_waf_rule2_blocklist.id}"
+    rule_id  = "${aws_wafregional_rule.idp_waf_rule2_block_list.id}"
     type     = "REGULAR"
   }
   rule {
@@ -51,14 +51,21 @@ resource "aws_wafregional_web_acl_association" "idp_alb" {
 
 ###############
 # rules and ip sets
+# Aside from the SQLi and XSS rules, the IP Set values are maintained 
+# by lambda functions found in the dentity-lambda-functions-repo: 
+# https://github.com/18F/identity-lambda-functions
+#
+# The SQLi and XSS rules update the IP Sets based on the configured
+# SQLi and XSS matchsets, ex:
+# https://www.terraform.io/docs/providers/aws/r/waf_sql_injection_match_set.html
 ###############
 
 # rule 1
 # IP based passlist
-resource "aws_wafregional_rule" "idp_waf_rule1_passlist" {
+resource "aws_wafregional_rule" "idp_waf_rule1_pass_list" {
   count       = "${var.enable_waf ? 1 : 0}"
-  name        = "IdPWAFRule1"
-  metric_name = "IdPWAFRule1"
+  name        = "IdPWAFRule1PassList"
+  metric_name = "IdPWAFRule1PassList"
 
   predicate {
     type    = "IPMatch"
@@ -69,40 +76,15 @@ resource "aws_wafregional_rule" "idp_waf_rule1_passlist" {
 
 resource "aws_wafregional_ipset" "rule1_ipset" {
   count = "${var.enable_waf ? 1 : 0}"
-  name  = "IdPWAFRule1IPSet"
-
-  ip_set_descriptor {
-    type  = "IPV4"
-    value = "129.42.208.179/32"
-  }
-  ip_set_descriptor {
-    type  = "IPV4"
-    value = "129.42.208.180/32"
-  }
-  ip_set_descriptor {
-    type  = "IPV4"
-    value = "129.42.208.181/32"
-  }
-  ip_set_descriptor {
-    type  = "IPV4"
-    value = "129.42.208.182/32"
-  }
-  ip_set_descriptor {
-    type  = "IPV4"
-    value = "129.42.208.183/32"
-  }
-  ip_set_descriptor {
-    type  = "IPV4"
-    value = "129.42.208.184/32"
-  }
+  name  = "IdPWAFRule1PassListIPSet"
 }
 
 # rule 2
 # IP based blocklist
-resource "aws_wafregional_rule" "idp_waf_rule2_blocklist" {
+resource "aws_wafregional_rule" "idp_waf_rule2_block_list" {
   count       = "${var.enable_waf ? 1 : 0}"
-  name        = "IdPWAFRule2"
-  metric_name = "IdPWAFRule2"
+  name        = "IdPWAFRule2BlockList"
+  metric_name = "IdPWAFRule2BlockList"
 
   predicate {
     type    = "IPMatch"
@@ -117,7 +99,7 @@ resource "aws_wafregional_ipset" "rule2_ipset" {
 }
 
 # rule 3
-# IP based bad bots blocklist
+# IP based bad bots list
 resource "aws_wafregional_rule" "idp_waf_rule3_bad_bots" {
   count       = "${var.enable_waf ? 1 : 0}"
   name        = "IdPWAFRule3BadBots"
@@ -131,103 +113,67 @@ resource "aws_wafregional_rule" "idp_waf_rule3_bad_bots" {
 }
 
 resource "aws_wafregional_ipset" "rule3_ipset" {
-  name = "IdPWAFRule3IPSet"
+  name = "IdPWAFRule3BadBotsIPSet"
 }
 
 # rule 4
-# IP Reputation List from https://www.spamhaus.org/
-resource "aws_wafregional_rule" "idp_waf_rule4_" {
+# Aggregate IP Reputation List from:
+# https://www.spamhaus.org/drop/drop.txt, 
+# https://rules.emergingthreats.net/fwrules/emerging-Block-IPs.txt,
+# and, https://check.torproject.org/exit-addresses
+resource "aws_wafregional_rule" "idp_waf_rule4_reputation_lists" {
   count       = "${var.enable_waf ? 1 : 0}"
-  name        = "IdPWAFRule4BadBots"
-  metric_name = "IdPWAFRule4BadBots"
+  name        = "IdPWAFRule4ReputationLists"
+  metric_name = "IdPWAFRule4ReputationLists"
 
   predicate {
     type    = "IPMatch"
-    data_id = "${aws_wafregional_ipset.rule3_ipset.id}"
+    data_id = "${aws_wafregional_ipset.rule4_ipset.id}"
     negated = false
   }
 }
 
 resource "aws_wafregional_ipset" "rule4_ipset" {
   count = "${var.enable_waf ? 1 : 0}"
-  name  = "IdPWAFRule4IPSet"
+  name  = "IdPWAFRule4ReputationListsIPSet"
 }
 
 # rule 5
-# IP Reputation List from https://rules.emergingthreats.net/
-# https://rules.emergingthreats.net/fwrules/emerging-Block-IPs.txt
-resource "aws_wafregional_rule" "idp_waf_rule5_" {
+# SQL Injection Conditions
+resource "aws_wafregional_rule" "idp_waf_rule5_sqli" {
   count       = "${var.enable_waf ? 1 : 0}"
-  name        = "IdPWAFRule4BadBots"
-  metric_name = "IdPWAFRule4BadBots"
+  name        = "IdPWAFRule5SQLiConditions"
+  metric_name = "IdPWAFRule5SQLiConditions"
 
   predicate {
-    type    = "IPMatch"
-    data_id = "${aws_wafregional_ipset.rule3_ipset.id}"
+    type    = "SqlInjectionMatch"
+    data_id = "${aws_wafregional_ipset.rule5_ipset.id}"
     negated = false
   }
 }
 
 resource "aws_wafregional_ipset" "rule5_ipset" {
-  count       = "${var.enable_waf ? 1 : 0}"
-  name = "IdPWAFRule4IPSet"
+  count = "${var.enable_waf ? 1 : 0}"
+  name  = "IdPWAFRule5SQLiConditionsIPSet"
 }
 
 # rule 6
-# Tor exit points from https://check.torproject.org/exit-addresses
-resource "aws_wafregional_rule" "idp_waf_rule6_" {
+# XSS conditions
+resource "aws_wafregional_rule" "idp_waf_rule6_xss" {
   count       = "${var.enable_waf ? 1 : 0}"
-  name        = "IdPWAFRule4BadBots"
-  metric_name = "IdPWAFRule4BadBots"
+  name        = "IdPWAFRule6XSSConditions"
+  metric_name = "IdPWAFRule6XSSConditions"
 
   predicate {
-    type    = "IPMatch"
-    data_id = "${aws_wafregional_ipset.rule3_ipset.id}"
+    type    = "XssMatch"
+    data_id = "${aws_wafregional_ipset.rule6_ipset.id}"
     negated = false
   }
 }
 
 resource "aws_wafregional_ipset" "rule6_ipset" {
-  count = "${var.enable_waf ? 1 : 0}"
-  name  = "IdPWAFRule4IPSet"
-}
-
-# rule 7
-# SQL Injection Conditions
-resource "aws_wafregional_rule" "idp_waf_rule7_" {
   count       = "${var.enable_waf ? 1 : 0}"
-  name        = "IdPWAFRule4BadBots"
-  metric_name = "IdPWAFRule4BadBots"
-
-  predicate {
-    type    = "IPMatch"
-    data_id = "${aws_wafregional_ipset.rule3_ipset.id}"
-    negated = false
-  }
-}
-
-resource "aws_wafregional_ipset" "rule7_ipset" {
-  count = "${var.enable_waf ? 1 : 0}"
-  name  = "IdPWAFRule4IPSet"
-}
-
-# rule 8
-# XSS conditions
-resource "aws_wafregional_rule" "idp_waf_rule8_" {
-  count       = "${var.enable_waf ? 1 : 0}"
-  name        = "IdPWAFRule4BadBots"
-  metric_name = "IdPWAFRule4BadBots"
-
-  predicate {
-    type    = "IPMatch"
-    data_id = "${aws_wafregional_ipset.rule3_ipset.id}"
-    negated = false
-  }
-}
-
-resource "aws_wafregional_ipset" "rule8_ipset" {
-  count       = "${var.enable_waf ? 1 : 0}"
-  name = "IdPWAFRule4IPSet"
+  name = "IdPWAFRule6XSSConditionsIPSet"
 }
 
 ###############
