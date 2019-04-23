@@ -214,11 +214,6 @@ variable "idp_web_acl_id" {
     # Get this from https://console.aws.amazon.com/waf/home?region=us-west-2#/webacls
     # or `aws waf-regional list-web-acls`
 }
-variable "enable_legacy_waf" {
-    default = 0
-    description = "Enable WAF to filter ingress traffic."
-    # See ../../doc/technical/waf.md
-}
 
 variable "enable_waf" {
     default = 0
