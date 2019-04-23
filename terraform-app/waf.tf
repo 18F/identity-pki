@@ -247,7 +247,6 @@ resource "aws_kinesis_firehose_delivery_stream" "waf_s3_stream" {
 resource "aws_s3_bucket" "waf_logbucket" {
   count  = "${var.enable_waf ? 1 : 0}"
   acl    = "private"
-  # TODO use terraform locals to compute this once we upgrade to 0.10.*
   bucket = "${ "login-gov.waf-logs-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}" }"
 
   versioning {
