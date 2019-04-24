@@ -1,9 +1,7 @@
-# The WAF acts as an ingress firewall for everything in our VPC.
-
+# The WAF acts as an ingress firewall for the IdP ALB.
 resource "aws_wafregional_web_acl" "idp_web_acl" {
   count       = "${var.enable_waf ? 1 : 0}"
-  # TODO: verify that we actually need the depends_on
-  depends_on  = ["aws_alb.idp"]
+#  depends_on  = ["aws_alb.idp"]
   name        = "${var.env_name}-idp-web-acl"
   metric_name = "${var.env_name}IdPWebACL"
 
@@ -45,6 +43,7 @@ resource "aws_wafregional_web_acl" "idp_web_acl" {
 }
 
 resource "aws_wafregional_web_acl_association" "idp_alb" {
+  count       = "${var.enable_waf ? 1 : 0}"
   resource_arn = "${aws_alb.idp.arn}"
   web_acl_id   = "${aws_wafregional_web_acl.idp_web_acl.id}"
 }
@@ -113,6 +112,7 @@ resource "aws_wafregional_rule" "idp_waf_rule3_bad_bots" {
 }
 
 resource "aws_wafregional_ipset" "rule3_ipset" {
+  count       = "${var.enable_waf ? 1 : 0}"
   name = "IdPWAFRule3BadBotsIPSet"
 }
 
@@ -191,7 +191,6 @@ resource "aws_kinesis_firehose_delivery_stream" "waf_s3_stream" {
 }
 
 resource "aws_s3_bucket" "waf_logbucket" {
-  count  = "${var.enable_waf ? 1 : 0}"
   acl    = "private"
   bucket = "${ "login-gov.waf-logs-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}" }"
 
@@ -249,11 +248,12 @@ resource "aws_iam_role" "firehose_role" {
 EOF
 }
 
-
 resource "aws_iam_role_policy" "firehose_role_policy" {
-    name = "${var.env_name}_firehose_waf_role_policy"
-    role = "${aws_iam_role.firehose_role.id}"
-    policy = <<EOF
+  count       = "${var.enable_waf ? 1 : 0}"
+  name = "${var.env_name}_firehose_waf_role_policy"
+  role = "${aws_iam_role.firehose_role.id}"
+
+  policy = <<EOF
 {
   "Version": "2012-10-17",
   "Statement": [
