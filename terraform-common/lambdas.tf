@@ -46,6 +46,15 @@ resource "aws_lambda_function" "audit-github" {
   }
 }
 
+# Alert on errors
+module "audit-github-alerts" {
+  source = "github.com/18F/identity-terraform//lambda_alerts?ref=37db139461e01fc42962ddfe4c77591397ff305e"
+
+  function_name = "${aws_lambda_function.audit-github.function_name}"
+  alarm_actions = ["${var.slack_events_sns_hook_arn}"]
+  error_rate_threshold = 1 # percent
+}
+
 data "aws_iam_policy_document" "lambda-assume-role-policy" {
   statement {
     actions = ["sts:AssumeRole"]
@@ -136,6 +145,15 @@ resource "aws_lambda_function" "audit-aws" {
   tags {
     source_repo = "https://github.com/18F/identity-lambda-functions"
   }
+}
+
+# Alert on errors
+module "audit-aws-alerts" {
+  source = "github.com/18F/identity-terraform//lambda_alerts?ref=37db139461e01fc42962ddfe4c77591397ff305e"
+
+  function_name = "${aws_lambda_function.audit-aws.function_name}"
+  alarm_actions = ["${var.slack_events_sns_hook_arn}"]
+  error_rate_threshold = 1 # percent
 }
 
 resource "aws_iam_role" "lambda-audit-aws" {
