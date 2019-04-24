@@ -1,7 +1,6 @@
 # The WAF acts as an ingress firewall for the IdP ALB.
 resource "aws_wafregional_web_acl" "idp_web_acl" {
   count       = "${var.enable_waf ? 1 : 0}"
-#  depends_on  = ["aws_alb.idp"]
   name        = "${var.env_name}-idp-web-acl"
   metric_name = "${var.env_name}IdPWebACL"
 
@@ -40,10 +39,37 @@ resource "aws_wafregional_web_acl" "idp_web_acl" {
     rule_id  = "${aws_wafregional_rule.idp_waf_rule3_bad_bots.id}"
     type     = "REGULAR"
   }
+  rule {
+    action {
+      type = "BLOCK"
+    }
+
+    priority = 4
+    rule_id  = "${aws_wafregional_rule.idp_waf_rule4_reputation_lists.id}"
+    type     = "REGULAR"
+  }
+  rule {
+    action {
+      type = "BLOCK"
+    }
+
+    priority = 5
+    rule_id  = "${aws_wafregional_rule.idp_waf_rule5_sqli.id}"
+    type     = "REGULAR"
+  }
+  rule {
+    action {
+      type = "BLOCK"
+   }
+
+  priority = 6
+  rule_id  = "${aws_wafregional_rule.idp_waf_rule6_xss.id}"
+  type     = "REGULAR"
+  }
 }
 
 resource "aws_wafregional_web_acl_association" "idp_alb" {
-  count       = "${var.enable_waf ? 1 : 0}"
+  count        = "${var.enable_waf ? 1 : 0}"
   resource_arn = "${aws_alb.idp.arn}"
   web_acl_id   = "${aws_wafregional_web_acl.idp_web_acl.id}"
 }
@@ -63,8 +89,8 @@ resource "aws_wafregional_web_acl_association" "idp_alb" {
 # IP based passlist
 resource "aws_wafregional_rule" "idp_waf_rule1_pass_list" {
   count       = "${var.enable_waf ? 1 : 0}"
-  name        = "IdPWAFRule1PassList"
-  metric_name = "IdPWAFRule1PassList"
+  name        = "${var.env_name}IdPWAFRule1PassList"
+  metric_name = "${var.env_name}IdPWAFRule1PassList"
 
   predicate {
     type    = "IPMatch"
@@ -75,15 +101,15 @@ resource "aws_wafregional_rule" "idp_waf_rule1_pass_list" {
 
 resource "aws_wafregional_ipset" "rule1_ipset" {
   count = "${var.enable_waf ? 1 : 0}"
-  name  = "IdPWAFRule1PassListIPSet"
+  name  = "${var.env_name}IdPWAFRule1PassListIPSet"
 }
 
 # rule 2
 # IP based blocklist
 resource "aws_wafregional_rule" "idp_waf_rule2_block_list" {
   count       = "${var.enable_waf ? 1 : 0}"
-  name        = "IdPWAFRule2BlockList"
-  metric_name = "IdPWAFRule2BlockList"
+  name        = "${var.env_name}IdPWAFRule2BlockList"
+  metric_name = "${var.env_name}IdPWAFRule2BlockList"
 
   predicate {
     type    = "IPMatch"
@@ -93,16 +119,16 @@ resource "aws_wafregional_rule" "idp_waf_rule2_block_list" {
 }
 
 resource "aws_wafregional_ipset" "rule2_ipset" {
-  count       = "${var.enable_waf ? 1 : 0}"
-  name = "IdPWAFRule2BlocklistIPSet"
+  count = "${var.enable_waf ? 1 : 0}"
+  name  = "${var.env_name}IdPWAFRule2BlocklistIPSet"
 }
 
 # rule 3
 # IP based bad bots list
 resource "aws_wafregional_rule" "idp_waf_rule3_bad_bots" {
   count       = "${var.enable_waf ? 1 : 0}"
-  name        = "IdPWAFRule3BadBots"
-  metric_name = "IdPWAFRule3BadBots"
+  name        = "${var.env_name}IdPWAFRule3BadBots"
+  metric_name = "${var.env_name}IdPWAFRule3BadBots"
 
   predicate {
     type    = "IPMatch"
@@ -112,8 +138,8 @@ resource "aws_wafregional_rule" "idp_waf_rule3_bad_bots" {
 }
 
 resource "aws_wafregional_ipset" "rule3_ipset" {
-  count       = "${var.enable_waf ? 1 : 0}"
-  name = "IdPWAFRule3BadBotsIPSet"
+  count = "${var.enable_waf ? 1 : 0}"
+  name  = "${var.env_name}IdPWAFRule3BadBotsIPSet"
 }
 
 # rule 4
@@ -123,8 +149,8 @@ resource "aws_wafregional_ipset" "rule3_ipset" {
 # and, https://check.torproject.org/exit-addresses
 resource "aws_wafregional_rule" "idp_waf_rule4_reputation_lists" {
   count       = "${var.enable_waf ? 1 : 0}"
-  name        = "IdPWAFRule4ReputationLists"
-  metric_name = "IdPWAFRule4ReputationLists"
+  name        = "${var.env_name}IdPWAFRule4ReputationLists"
+  metric_name = "${var.env_name}IdPWAFRule4ReputationLists"
 
   predicate {
     type    = "IPMatch"
@@ -135,45 +161,53 @@ resource "aws_wafregional_rule" "idp_waf_rule4_reputation_lists" {
 
 resource "aws_wafregional_ipset" "rule4_ipset" {
   count = "${var.enable_waf ? 1 : 0}"
-  name  = "IdPWAFRule4ReputationListsIPSet"
+  name  = "${var.env_name}IdPWAFRule4ReputationListsIPSet"
 }
 
 # rule 5
 # SQL Injection Conditions
 resource "aws_wafregional_rule" "idp_waf_rule5_sqli" {
   count       = "${var.enable_waf ? 1 : 0}"
-  name        = "IdPWAFRule5SQLiConditions"
-  metric_name = "IdPWAFRule5SQLiConditions"
+  name        = "${var.env_name}IdPWAFRule5SQLiConditions"
+  metric_name = "${var.env_name}IdPWAFRule5SQLiConditions"
 
   predicate {
     type    = "SqlInjectionMatch"
-    data_id = "${aws_wafregional_ipset.rule5_ipset.id}"
+    data_id = "${aws_wafregional_sql_injection_match_set.rule5_match_set.id}"
     negated = false
   }
 }
 
-resource "aws_wafregional_ipset" "rule5_ipset" {
+resource "aws_wafregional_sql_injection_match_set" "rule5_match_set" {
   count = "${var.enable_waf ? 1 : 0}"
-  name  = "IdPWAFRule5SQLiConditionsIPSet"
+  name  = "${var.env_name}IdPWAFRule5SQLiConditionsMatchSet"
+
+  sql_injection_match_tuple {
+    text_transformation = "URL_DECODE"
+
+    field_to_match {
+      type = "URI"
+    }
+  }
 }
 
 # rule 6
 # XSS conditions
 resource "aws_wafregional_rule" "idp_waf_rule6_xss" {
   count       = "${var.enable_waf ? 1 : 0}"
-  name        = "IdPWAFRule6XSSConditions"
-  metric_name = "IdPWAFRule6XSSConditions"
+  name        = "${var.env_name}IdPWAFRule6XSSConditions"
+  metric_name = "${var.env_name}IdPWAFRule6XSSConditions"
 
   predicate {
     type    = "XssMatch"
-    data_id = "${aws_wafregional_ipset.rule6_ipset.id}"
+    data_id = "${aws_wafregional_xss_match_set.rule6_match_set.id}"
     negated = false
   }
 }
 
-resource "aws_wafregional_ipset" "rule6_ipset" {
-  count       = "${var.enable_waf ? 1 : 0}"
-  name = "IdPWAFRule6XSSConditionsIPSet"
+resource "aws_wafregional_xss_match_set" "rule6_match_set" {
+  count = "${var.enable_waf ? 1 : 0}"
+  name  = "${var.env_name}IdPWAFRule6XSSConditionsMatchSet"
 }
 
 ###############
@@ -249,9 +283,9 @@ EOF
 }
 
 resource "aws_iam_role_policy" "firehose_role_policy" {
-  count       = "${var.enable_waf ? 1 : 0}"
-  name = "${var.env_name}_firehose_waf_role_policy"
-  role = "${aws_iam_role.firehose_role.id}"
+  count = "${var.enable_waf ? 1 : 0}"
+  name  = "${var.env_name}_firehose_waf_role_policy"
+  role  = "${aws_iam_role.firehose_role.id}"
 
   policy = <<EOF
 {
