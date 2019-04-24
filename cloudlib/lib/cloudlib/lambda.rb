@@ -242,7 +242,7 @@ module Cloudlib
 
     def cloudlib_yaml_data!
       log.debug("Loading main config from #{cloudlib_yaml_path.inspect}")
-      YAML.safe_load(File.read(cloudlib_yaml_path))
+      YAML.safe_load(File.read(cloudlib_yaml_path), aliases: true)
     end
 
     # @return [Hash]
@@ -327,7 +327,7 @@ module Cloudlib
 
       # make sure target exists and is a YAML file
       begin
-        YAML.safe_load(File.read(target))
+        YAML.safe_load(File.read(target), aliases: true)
       rescue StandardError
         log.error('Refusing to create symlink due to error')
         raise
@@ -424,7 +424,8 @@ module Cloudlib
       cl_source_path = File.join(@repo_root || '.', CloudlibSourceConfigName)
       log.debug("Loading source config from #{cl_source_path.inspect}")
       begin
-        @source_config = YAML.safe_load(File.read(cl_source_path))
+        @source_config = YAML.safe_load(File.read(cl_source_path),
+                                        aliases: true)
       rescue Errno::ENOENT
         log.error('Could not find Cloudlib source config at ' +
                   cl_source_path.inspect)
