@@ -144,7 +144,7 @@ resource "aws_wafregional_ipset" "rule3_ipset" {
 
 # rule 4
 # Aggregate IP Reputation List from:
-# https://www.spamhaus.org/drop/drop.txt, 
+# https://www.spamhaus.org/drop/drop.txt,
 # https://rules.emergingthreats.net/fwrules/emerging-Block-IPs.txt,
 # and, https://check.torproject.org/exit-addresses
 resource "aws_wafregional_rule" "idp_waf_rule4_reputation_lists" {
@@ -187,6 +187,41 @@ resource "aws_wafregional_sql_injection_match_set" "rule5_match_set" {
 
     field_to_match {
       type = "URI"
+    }
+  }
+  sql_injection_match_tuple {
+    text_transformation = "URL_DECODE"
+
+    field_to_match {
+      type = "BODY"
+    }
+  }
+  sql_injection_match_tuple {
+    text_transformation = "HTML_ENTITY_DECODE"
+
+    field_to_match {
+      type = "BODY"
+    }
+  }
+  sql_injection_match_tuple {
+    text_transformation = "HTML_ENTITY_DECODE"
+
+    field_to_match {
+      type = "URI"
+    }
+  }
+  sql_injection_match_tuple {
+    text_transformation = "HTML_ENTITY_DECODE"
+
+    field_to_match {
+      type = "QUERY_STRING"
+    }
+  }
+  sql_injection_match_tuple {
+    text_transformation = "URL_DECODE"
+
+    field_to_match {
+      type = "QUERY_STRING"
     }
   }
 }
