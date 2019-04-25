@@ -102,6 +102,31 @@ resource "aws_wafregional_rule" "idp_waf_rule1_pass_list" {
 resource "aws_wafregional_ipset" "rule1_ipset" {
   count = "${var.enable_waf ? 1 : 0}"
   name  = "${var.env_name}IdPWAFRule1PassListIPSet"
+
+  ip_set_descriptor {
+    type  = "IPV4"
+    value = "${element(var.waf_whitelisted_ips, 0)}"
+  }
+  ip_set_descriptor {
+    type  = "IPV4"
+    value = "${element(var.waf_whitelisted_ips, 1)}"
+  }
+  ip_set_descriptor {
+    type  = "IPV4"
+    value = "${element(var.waf_whitelisted_ips, 2)}"
+  }
+  ip_set_descriptor {
+    type  = "IPV4"
+    value = "${element(var.waf_whitelisted_ips, 3)}"
+  }
+  ip_set_descriptor {
+    type  = "IPV4"
+    value = "${element(var.waf_whitelisted_ips, 4)}"
+  }
+  ip_set_descriptor {
+    type  = "IPV4"
+    value = "${element(var.waf_whitelisted_ips, 5)}"
+  }
 }
 
 # rule 2
