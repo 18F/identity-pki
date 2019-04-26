@@ -220,7 +220,6 @@ variable "enable_waf" {
   description = "Enable WAF to filter ingress traffic."
   # See ../../doc/technical/waf.md
 }
-
 variable "waf_whitelisted_ips" {
   default = []
   description = "Array of IPs that are added to the WAF whitelist."

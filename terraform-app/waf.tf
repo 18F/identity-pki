@@ -115,18 +115,6 @@ resource "aws_wafregional_ipset" "rule1_ipset" {
     type  = "IPV4"
     value = "${element(var.waf_whitelisted_ips, 2)}"
   }
-  ip_set_descriptor {
-    type  = "IPV4"
-    value = "${element(var.waf_whitelisted_ips, 3)}"
-  }
-  ip_set_descriptor {
-    type  = "IPV4"
-    value = "${element(var.waf_whitelisted_ips, 4)}"
-  }
-  ip_set_descriptor {
-    type  = "IPV4"
-    value = "${element(var.waf_whitelisted_ips, 5)}"
-  }
 }
 
 # rule 2
