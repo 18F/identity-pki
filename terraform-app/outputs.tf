@@ -37,3 +37,11 @@ output "tlstest-cloudfront-domain" {
 output "snitest-cloudfront-domain" {
   value = "${element(concat(aws_cloudfront_distribution.sni_profiling.*.domain_name, list("")), 0)}"
 }
+
+output "waf-id" {
+  value = "${element(concat(aws_wafregional_web_acl.idp_web_acl.*.id, list("")), 0)}"
+}
+
+output "waf-firehose-arn" {
+  value = "${element(concat(aws_kinesis_firehose_delivery_stream.waf_s3_stream.*.arn, list("")), 0)}"
+}

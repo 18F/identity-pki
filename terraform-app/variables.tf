@@ -214,10 +214,15 @@ variable "idp_web_acl_id" {
     # Get this from https://console.aws.amazon.com/waf/home?region=us-west-2#/webacls
     # or `aws waf-regional list-web-acls`
 }
+
 variable "enable_waf" {
-    default = false # TODO FIXME this is treated as "false" since terraform doesn't have booleans
-    description = "Enable WAF to filter ingress traffic."
-    # See ../../doc/technical/waf.md
+  default = 0
+  description = "Enable WAF to filter ingress traffic."
+  # See ../../doc/technical/waf.md
+}
+variable "waf_whitelisted_ips" {
+  default = []
+  description = "Array of IPs that are added to the WAF whitelist."
 }
 
 # Several variables used by the terraform-modules/bootstrap/ module for running
