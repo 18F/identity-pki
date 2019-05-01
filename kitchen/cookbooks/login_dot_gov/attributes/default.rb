@@ -25,6 +25,7 @@ default['login_dot_gov']['admin_email']                               = 'develop
 default['login_dot_gov']['app_names']                                 = []
 default['login_dot_gov']['dev_users']                                 = []
 default['login_dot_gov']['rails_env']                                 = 'production'
+default['login_dot_gov']['allow_unsafe_migrations']                   = false
 
 # User for installing various application data
 default['login_dot_gov']['system_user']                               = 'appinstall'
