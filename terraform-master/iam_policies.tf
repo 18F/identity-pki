@@ -1,6 +1,14 @@
 # manage your account policy
+resource "aws_iam_policy" "manage_your_account"
+{
+    name = "ManageYourAccount"
+    path = "/"
+    description = "Policy for account self management"
+    policy = "${data.aws_iam_policy_document.manage_your_account.json}"
+}
 
-data "aws_iam_policy_document" "list_user_accounts" {
+# manage your account policy statements
+data "aws_iam_policy_document" "manage_your_account" {
     statement {
         sid = "AllowAllUsersToListAccounts"
         effect = "Allow"
@@ -15,9 +23,6 @@ data "aws_iam_policy_document" "list_user_accounts" {
             "*"
         ]
     }
-}
-
-data "aws_iam_policy_document" "manage_user_account" {
     statement {
         sid = "AllowIndividualUserToSeeAndManagaeOnlyTheirOwnAccountInformation"
         effect = "Allow"
@@ -48,11 +53,8 @@ data "aws_iam_policy_document" "manage_user_account" {
             "arn:aws:iam::*:user/$${aws:username}"
         ]
     }
-}
-
-data "aws_iam_policy_document" "user_list_mfa" {
     statement {
-        sid = "AllowIndividualUserToListOnlyTeirOwnMFA"
+        sid = "AllowIndividualUserToListOnlyTheirOwnMFA"
         effect = "Allow"
         actions = [
             "iam:ListMFADevices"
@@ -62,9 +64,6 @@ data "aws_iam_policy_document" "user_list_mfa" {
             "arn:aws:iam::*:user/$${aws:username}"
         ]
     }
-}
-
-data "aws_iam_policy_document" "manage_user_mfa" {
     statement {
         sid = "AllowIndividualUserToManageTheirOwnMFA"
         effect = "Allow"
@@ -76,12 +75,9 @@ data "aws_iam_policy_document" "manage_user_mfa" {
         ]
         resources = [
             "arn:aws:iam::*:mfa/$${aws:username}",
-            "arn:aws:iam::*user/$${aws:username}"
+            "arn:aws:iam::*:user/$${aws:username}"
         ]
     }
-}
-
-data "aws_iam_policy_document" "user_disable_mfa" {
     statement {
         sid = "AllowIndividualUserToDeactivateOnlyTheirOwnMFAOnlyWhenUsingMFA"
         effect = "Allow"
@@ -100,9 +96,6 @@ data "aws_iam_policy_document" "user_disable_mfa" {
             ]
         }
     }
-}
-
-data "aws_iam_policy_document" "restrict_user_without_mfa" {
     statement {
         sid = "BlockMostAccessUnlessSignedInWithMFA"
         effect = "Deny"
@@ -135,6 +128,15 @@ data "aws_iam_policy_document" "restrict_user_without_mfa" {
     }
 }
 
+# full admin policy that requires mfa device
+resource "aws_iam_policy" "full_administrator"
+{
+    name = "FullAdministratorWithMFA"
+    path = "/"
+    description = "Policy for full administrator with MFA"
+    policy = "${data.aws_iam_policy_document.full_administrator.json}"
+}
+
 data "aws_iam_policy_document" "full_administrator" {
     statement {
         sid = "FullAdministratorWithMFA"
@@ -145,7 +147,32 @@ data "aws_iam_policy_document" "full_administrator" {
         resources = [
             "*"
         ]
+        condition = {
+            test = "Bool"
+            variable = "aws:MultiFactorAuthPresent"
+            values = [
+                "true"
+            ]
+        }
     }
 }
 
-#assume role
+resource "aws_iam_policy" "assume_full_administrator" {
+    name = "AssumeFullAdministator"
+    path = "/"
+    description = "Policy to assign that permits user to assume full administrator role"
+    policy = "${data.aws_iam_policy_document.assume_full_administrator.json}"
+}
+
+data "aws_iam_policy_document" "assume_full_administrator" {
+    statement {
+        sid = "AssumeFullAdministratorWithMFA"
+        effect = "Allow"
+        actions = [
+            "sts:AssumeRole"
+        ]
+        resources = [
+            "${aws_iam_role.assume_full_administrator.arn}"
+        ]
+    }
+}
