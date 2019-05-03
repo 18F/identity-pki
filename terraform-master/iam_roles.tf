@@ -1,19 +1,18 @@
-resource "aws_iam_role" "assume_full_administrator" {
-    name = "AssumeFullAdministrator"
-    assume_role_policy = "${data.aws_iam_policy_document.full_administrator_role.json}"
+resource "aws_iam_role" "master_full_administrator" {
+    name = "FullAdministrator"
+    assume_role_policy = "${data.aws_iam_policy_document.master_full_administrator_role.json}"
     path = "/"
     max_session_duration = 3600 #seconds
 }
 
-resource "aws_iam_role_policy_attachment" "assume_full_administrator" {
-    role = "${aws_iam_role.assume_full_administrator.name}"
+resource "aws_iam_role_policy_attachment" "master_full_administrator" {
+    role = "${aws_iam_role.master_full_administrator.name}"
     policy_arn = "${aws_iam_policy.full_administrator.arn}"
-
 }
 
-data "aws_iam_policy_document" "full_administrator_role" {
+data "aws_iam_policy_document" "master_full_administrator_role" {
     statement {
-        sid = "AssumeFullAdministrator"
+        sid = "MasterFullAdministrator"
         actions = [
             "sts:AssumeRole"
         ]

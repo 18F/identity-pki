@@ -157,22 +157,22 @@ data "aws_iam_policy_document" "full_administrator" {
     }
 }
 
-resource "aws_iam_policy" "assume_full_administrator" {
-    name = "AssumeFullAdministator"
+resource "aws_iam_policy" "sandbox_assume_full_administrator" {
+    name = "SandboxAssumeFullAdministrator"
     path = "/"
-    description = "Policy to assign that permits user to assume full administrator role"
-    policy = "${data.aws_iam_policy_document.assume_full_administrator.json}"
+    description = "Policy to allow user to assume full administrator role in Sandbox"
+    policy = "${data.aws_iam_policy_document.sandbox_assume_full_administrator.json}"
 }
 
-data "aws_iam_policy_document" "assume_full_administrator" {
+data "aws_iam_policy_document" "sandbox_assume_full_administrator" {
     statement {
-        sid = "AssumeFullAdministratorWithMFA"
+        sid = "SandboxAssumeFullAdministrator"
         effect = "Allow"
         actions = [
             "sts:AssumeRole"
         ]
         resources = [
-            "${aws_iam_role.assume_full_administrator.arn}"
+            "arn:aws:iam::${var.sandbox_account_id}:role/FullAdministrator"
         ]
     }
 }
