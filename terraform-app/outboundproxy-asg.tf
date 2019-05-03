@@ -104,7 +104,6 @@ module "outboundproxy_recycle" {
 }
 
 resource "aws_route53_record" "obproxy" {
-  depends_on = ["aws_lb.outboundproxy"]
   zone_id    = "${aws_route53_zone.internal.zone_id}"
   name       = "obproxy.login.gov.internal"
   type       = "CNAME"
@@ -113,7 +112,6 @@ resource "aws_route53_record" "obproxy" {
 }
 
 resource "aws_autoscaling_group" "outboundproxy" {
-  depends_on = ["aws_lb.outboundproxy"]
   name = "${var.env_name}-outboundproxy"
 
   min_size         = "${var.asg_outboundproxy_min}"
@@ -132,10 +130,7 @@ resource "aws_autoscaling_group" "outboundproxy" {
     "${aws_subnet.publicsubnet3.id}",
   ]
 
-  target_group_arns = [
-    "${aws_lb_target_group.outboundproxy.arn}",
-    "${aws_lb_target_group.obproxy.arn}"
-  ]
+  target_group_arns = ["${aws_lb_target_group.obproxy.arn}"]
 
   health_check_type         = "EC2"
   health_check_grace_period = 0
