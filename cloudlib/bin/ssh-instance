@@ -48,7 +48,7 @@ def get_instance_by_name(name_tag, states: ['running'], pick_strategy: nil)
   when :newest
     log.debug("Looking up newest instance named #{name_tag.inspect}")
     instances = Cloudlib::EC2.new.list_things(:instances, filters)
-    instances.sort_by(&:launch_time).last
+    instances.sort_by(&:launch_time).fetch(-1)
   when :unique
     log.debug("Looking up instance named #{name_tag.inspect}")
     Cloudlib::EC2.new.get_unique_thing(:instances, filters)

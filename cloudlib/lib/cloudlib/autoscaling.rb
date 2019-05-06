@@ -128,23 +128,15 @@ module Cloudlib
       end
     end
 
-    # Remove scale-in protection from as many instances are needed to get the
-    # ASG down to its desired count. Perform some sanity checks to help ensure
-    # that all the instances we're keeping are healthy and InService before
-    # removinge scale-in protection from any of them.
+    # Identify which instances to terminate in order to get the ASG down to its
+    # desired count. Log the rationale being used.
     #
-    # @param [String] asg_name
-    # @param [Boolean] prompt_continue Whether to prompt before proceeding
+    # @param [Aws::AutoScaling::AutoScalingGroup] asg
+    # @param [Integer] Desired count of instances after scaling in
     #
-    def scale_in_old_instances(asg_name, prompt_continue: true)
-      log.info("Looking up ASG #{asg_name.inspect}")
-      asg = get_autoscaling_group_by_name(asg_name)
-
+    def find_instances_to_scale_in(asg, desired_capacity)
       asg_instance_info = {}
       asg.instances.each {|i| asg_instance_info[i.instance_id] = i }
-
-      log.info("#{asg_name} desired count: #{asg.desired_capacity}")
-      log.info("#{asg_name} running count: #{asg.instances.count}")
 
       ec2 = Cloudlib::EC2.new
       instances = ec2.list_instances_by_ids(asg.instances.map(&:instance_id), in_vpc: false)
@@ -155,7 +147,7 @@ module Cloudlib
       instances.each_with_index do |i, index|
         info = asg_instance_info.fetch(i.instance_id)
         uptime_hours = ((Time.now - i.launch_time) / 3600.0).round(1)
-        if index == asg.desired_capacity
+        if index == desired_capacity
           log.info('To scale in:')
         end
         log.info([
@@ -165,7 +157,7 @@ module Cloudlib
       end
 
       # instances to scale in will be left in instances
-      to_keep = instances.shift(asg.desired_capacity)
+      to_keep = instances.shift(desired_capacity)
 
       to_scale_in = instances.select {|i| asg_instance_info.fetch(i.instance_id).protected_from_scale_in }
       unprotected = instances.reject {|i| asg_instance_info.fetch(i.instance_id).protected_from_scale_in }
@@ -176,8 +168,7 @@ module Cloudlib
       end
 
       if to_scale_in.empty?
-        log.info("No instances require removal of scale-in protection")
-        return
+        return to_scale_in
       end
 
       # assert that all the new instances are up and healthy
@@ -204,11 +195,37 @@ module Cloudlib
 
       log.info('New instances are all healthy according to ASG: ' + to_keep.map(&:instance_id).join(' '))
 
+      asg_name = asg.auto_scaling_group_name
       if asg.health_check_type == 'EC2'
         log.warn("#{asg_name} uses EC2 health checks, which only check hardware")
         log.warn("WARNING: you must check health independently!")
       else
         log.info("#{asg_name} uses ELB health checks, which are informative")
+      end
+
+      return to_scale_in
+    end
+
+    # Remove scale-in protection from as many instances are needed to get the
+    # ASG down to its desired count. Perform some sanity checks to help ensure
+    # that all the instances we're keeping are healthy and InService before
+    # removinge scale-in protection from any of them.
+    #
+    # @param [String] asg_name
+    # @param [Boolean] prompt_continue Whether to prompt before proceeding
+    #
+    def scale_in_old_instances(asg_name, prompt_continue: true)
+      log.info("Looking up ASG #{asg_name.inspect}")
+      asg = get_autoscaling_group_by_name(asg_name)
+
+      log.info("#{asg_name} desired count: #{asg.desired_capacity}")
+      log.info("#{asg_name} running count: #{asg.instances.count}")
+
+      to_scale_in = find_instances_to_scale_in(asg, asg.desired_capacity)
+
+      if to_scale_in.empty?
+        log.info("No instances require removal of scale-in protection")
+        return
       end
 
       log.warn("Will remove scale-in protection from #{to_scale_in.count} older instances: " + to_scale_in.map(&:instance_id).join(' '))
