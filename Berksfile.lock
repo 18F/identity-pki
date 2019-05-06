@@ -71,8 +71,8 @@ DEPENDENCIES
     revision: 970104729211713bc0d468540dfe018bd67cace5
   passenger
     git: https://github.com/18F/identity-cookbooks
-    revision: fe0defacb72aa7c106df21a61d3c4f9482243e4a
-    ref: fe0defa
+    revision: cf70ebf5930ad58833040e7705f7927b8f586738
+    ref: cf70ebf
     rel: passenger
   poise-ruby
   poise-ruby-build
@@ -236,7 +236,7 @@ GRAPH
   ossec (1.1.0)
     yum-atomic (>= 0.0.0)
   packagecloud (1.0.1)
-  passenger (0.0.6)
+  passenger (0.0.7)
     identity_shared_attributes (>= 0.0.1)
   poise (2.8.2)
   poise-archive (1.5.0)

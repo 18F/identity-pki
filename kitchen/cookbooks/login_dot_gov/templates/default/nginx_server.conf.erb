@@ -33,13 +33,14 @@ server {
     resolver_timeout 5s;
 
     root "/srv/<%= @app or raise 'no @app' %>/current/public";
+    # You must explicitly set 'passenger_enabled on', otherwise Passenger won't
+    # serve this app.
     passenger_enabled on;
     passenger_ruby "<%= @passenger_ruby or raise 'no @passenger_ruby' %>";
 
     <% raise '@saml_env is deprecated' if @saml_env -%>
     <% raise '@secret_key_base is deprecated' if @secret_key_base -%>
 
-    passenger_min_instances 5;
     rails_env production;
 
     # Allow specific HTTP methods
