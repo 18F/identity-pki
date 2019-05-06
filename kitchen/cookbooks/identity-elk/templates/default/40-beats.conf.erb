@@ -19,13 +19,15 @@ filter {
   if [log][file][path] == "/srv/idp/shared/log/production.log" {
     if [message] =~ "^\{" {
       json {
-        source => "message"
-        target => "rails"
+        source => "message",
+        target => "rails",
+        type   => "rails"
       }
     }
     if [message] =~ "^source" {
       kv {
         target => "rack"
+        type   => "rack",
       }
     }
   }
