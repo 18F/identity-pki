@@ -64,25 +64,45 @@ data "aws_iam_policy_document" "assume_full_administrator_role" {
     }
 }
 
-resource "aws_iam_policy" "full_administrator"
-{
-    name = "FullAdministratorWithMFA"
+resource "aws_iam_role" "power" {
+    name = "PowerUser"
+    assume_role_policy = "${data.aws_iam_policy_document.assume_full_administrator_role.json}"
     path = "/"
-    description = "Policy for full administrator with MFA"
-    policy = "${data.aws_iam_policy_document.full_administrator.json}"
+    max_session_duration = 3600 #seconds
 }
 
-data "aws_iam_policy_document" "full_administrator" {
+resource "aws_iam_role_policy_attachment" "power1" {
+    role = "${aws_iam_role.power.name}"
+    policy_arn = "${aws_iam_policy.power1.arn}"
+}
+resource "aws_iam_role_policy_attachment" "power2" {
+    role = "${aws_iam_role.power.name}"
+    policy_arn = "${aws_iam_policy.power2.arn}"
+}
+
+resource "aws_iam_role_policy_attachment" "power_rds_delete_prevent" {
+    role = "${aws_iam_role.power.name}"
+    policy_arn = "${aws_iam_policy.rds_delete_prevent.arn}"
+}
+
+resource "aws_iam_role_policy_attachment" "power_region_restriction" {
+    role = "${aws_iam_role.power.name}"
+    policy_arn = "${aws_iam_policy.region_restriction.arn}"
+}
+
+data "aws_iam_policy_document" "assume_power_role" {
     statement {
-        sid = "FullAdministratorWithMFA"
-        effect = "Allow"
+        sid = "AssumePower"
         actions = [
-            "*"
+            "sts:AssumeRole"
         ]
-        resources = [
-            "*"
-        ]
-        condition = {
+        principals = {
+            type = "AWS"
+            identifiers = [
+                "arn:aws:iam::${var.master_account_id}:root"
+            ]
+        }
+        condition {
             test = "Bool"
             variable = "aws:MultiFactorAuthPresent"
             values = [
@@ -91,3 +111,4 @@ data "aws_iam_policy_document" "full_administrator" {
         }
     }
 }
+

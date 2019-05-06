@@ -176,3 +176,43 @@ data "aws_iam_policy_document" "sandbox_assume_full_administrator" {
         ]
     }
 }
+
+resource "aws_iam_policy" "sandbox_assume_power_user" {
+    name = "SandboxAssumePower"
+    path = "/"
+    description = "Policy to allow user to assume power role in Sandbox"
+    policy = "${data.aws_iam_policy_document.sandbox_assume_power_user.json}"
+}
+
+data "aws_iam_policy_document" "sandbox_assume_power_user" {
+    statement {
+        sid = "SandboxAssumePowerUser"
+        effect = "Allow"
+        actions = [
+            "sts:AssumeRole"
+        ]
+        resources = [
+            "arn:aws:iam::${var.sandbox_account_id}:role/PowerUser"
+        ]
+    }
+}
+
+resource "aws_iam_policy" "production_assume_power_user" {
+    name = "ProductionAssumePowerUser"
+    path = "/"
+    description = "Policy to allow user to assume power role in Production"
+    policy = "${data.aws_iam_policy_document.production_assume_power_user.json}"
+}
+
+data "aws_iam_policy_document" "production_assume_power_user" {
+    statement {
+        sid = "ProductionAssumePowerUser"
+        effect = "Allow"
+        actions = [
+            "sts:AssumeRole"
+        ]
+        resources = [
+            "arn:aws:iam::${var.production_account_id}:role/PowerUser"
+        ]
+    }
+}
