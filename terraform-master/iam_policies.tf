@@ -177,6 +177,26 @@ data "aws_iam_policy_document" "sandbox_assume_full_administrator" {
     }
 }
 
+resource "aws_iam_policy" "production_assume_full_administrator" {
+    name = "ProductionAssumeFullAdministrator"
+    path = "/"
+    description = "Policy to allow user to assume full administrator role in Production"
+    policy = "${data.aws_iam_policy_document.sandbox_assume_full_administrator.json}"
+}
+
+data "aws_iam_policy_document" "sandbox_assume_full_administrator" {
+    statement {
+        sid = "ProductionAssumeFullAdministrator"
+        effect = "Allow"
+        actions = [
+            "sts:AssumeRole"
+        ]
+        resources = [
+            "arn:aws:iam::${var.production_account_id}:role/FullAdministrator"
+        ]
+    }
+}
+
 resource "aws_iam_policy" "sandbox_assume_power_user" {
     name = "SandboxAssumePower"
     path = "/"
@@ -213,6 +233,46 @@ data "aws_iam_policy_document" "production_assume_power_user" {
         ]
         resources = [
             "arn:aws:iam::${var.production_account_id}:role/PowerUser"
+        ]
+    }
+}
+
+resource "aws_iam_policy" "sandbox_assume_readonly" {
+    name = "SandboxAssumeReadOnly"
+    path = "/"
+    description = "Policy to allow user to assume readonly role in Sandbox"
+    policy = "${data.aws_iam_policy_document.sandbox_assume_readonly.json}"
+}
+
+data "aws_iam_policy_document" "sandbox_assume_readonly" {
+    statement {
+        sid = "SandboxAssumeReadOnly"
+        effect = "Allow"
+        actions = [
+            "sts:AssumeRole"
+        ]
+        resources = [
+            "arn:aws:iam::${var.sandbox_account_id}:role/ReadOnly"
+        ]
+    }
+}
+
+resource "aws_iam_policy" "production_assume_readonly" {
+    name = "ProductionAssumeReadOnly"
+    path = "/"
+    description = "Policy to allow user to assume readonly in Production"
+    policy = "${data.aws_iam_policy_document.production_assume_readonly.json}"
+}
+
+data "aws_iam_policy_document" "production_assume_readonly" {
+    statement {
+        sid = "ProductionAssumeReadOnly"
+        effect = "Allow"
+        actions = [
+            "sts:AssumeRole"
+        ]
+        resources = [
+            "arn:aws:iam::${var.production_account_id}:role/ReadOnly"
         ]
     }
 }

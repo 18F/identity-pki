@@ -42,6 +42,11 @@ resource "aws_iam_role_policy_attachment" "full_administrator" {
     policy_arn = "${aws_iam_policy.full_administrator.arn}"
 }
 
+resource "aws_iam_role_policy_attachment" "region_restriction" {
+    role = "${aws_iam_role.full_administrator.name}"
+    policy_arn = "${aws_iam_policy.region_restriction.arn}"
+}
+
 data "aws_iam_policy_document" "assume_full_administrator_role" {
     statement {
         sid = "AssumeFullAdministrator"
@@ -112,3 +117,45 @@ data "aws_iam_policy_document" "assume_power_role" {
     }
 }
 
+resource "aws_iam_role" "readonly" {
+    name = "ReadOnly"
+    assume_role_policy = "${data.aws_iam_policy_document.assume_readonly_role.json}"
+    path = "/"
+    max_session_duration = 3600 #seconds
+}
+
+resource "aws_iam_role_policy_attachment" "readonly1" {
+    role = "${aws_iam_role.readonly.name}"
+    policy_arn = "${aws_iam_policy.readonly1.arn}"
+}
+resource "aws_iam_role_policy_attachment" "readonly2" {
+    role = "${aws_iam_role.readonly.name}"
+    policy_arn = "${aws_iam_policy.readonly2.arn}"
+}
+
+resource "aws_iam_role_policy_attachment" "readonly_region_restriction" {
+    role = "${aws_iam_role.readonly.name}"
+    policy_arn = "${aws_iam_policy.region_restriction.arn}"
+}
+
+data "aws_iam_policy_document" "assume_readonly_role" {
+    statement {
+        sid = "AssumeReadOnly"
+        actions = [
+            "sts:AssumeRole"
+        ]
+        principals = {
+            type = "AWS"
+            identifiers = [
+                "arn:aws:iam::${var.master_account_id}:root"
+            ]
+        }
+        condition {
+            test = "Bool"
+            variable = "aws:MultiFactorAuthPresent"
+            values = [
+                "true"
+            ]
+        }
+    }
+}
