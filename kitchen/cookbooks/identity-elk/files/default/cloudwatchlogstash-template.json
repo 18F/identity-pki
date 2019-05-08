@@ -1,6 +1,6 @@
 {
-  "template": "logstash",
-  "index_patterns": ["logstash-2*"],
+  "template": "cloudwatchlogstash",
+  "index_patterns": ["logstash-cloudwatch-*"],
   "settings": { },
   "mappings": {
     "_doc": {

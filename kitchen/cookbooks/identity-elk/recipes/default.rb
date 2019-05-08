@@ -248,7 +248,7 @@ include_recipe 'runit'
     variables ({
       :hostips => "\"#{elasticsearch_domain}\"",
       :index => lsname == 'logstash' ? nil : lsname.gsub('logstash', '') + '-',
-      :elasticsearch_template_path => '/etc/logstash/logstash-template.json'
+      :elasticsearch_template_path => "/etc/logstash/#{lsname}-template.json"
     })
     notifies :run, "execute[restart_#{lsname}]", :delayed
   end
@@ -284,11 +284,16 @@ execute 'rm -rf /etc/logstash/conf.d'
 # set up cloudtrail logstash config
 aws_account_id = Chef::Recipe::AwsMetadata.get_aws_account_id
 
-cookbook_file '/etc/logstash/logstash-template.json' do
-  owner 'logstash'
-  group 'logstash'
-  source 'logstash-template.json'
-  notifies :run, 'execute[restart_logstash]', :delayed
+# Use custom index templates to explicitly define field types and
+# other settings across the index. More info:
+# https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-templates.html
+%w{ logstash cloudtraillogstash cloudwatchlogstash }.each do |lsname|
+  cookbook_file "/etc/logstash/#{lsname}-template.json" do
+    owner 'logstash'
+    group 'logstash'
+    source "#{lsname}-template.json"
+    notifies :run, 'execute[restart_logstash]', :delayed
+  end
 end
 
 template "/etc/logstash/cloudtraillogstashconf.d/30-cloudtrailin.conf" do
