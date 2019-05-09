@@ -184,7 +184,7 @@ resource "aws_iam_policy" "production_assume_full_administrator" {
     policy = "${data.aws_iam_policy_document.sandbox_assume_full_administrator.json}"
 }
 
-data "aws_iam_policy_document" "sandbox_assume_full_administrator" {
+data "aws_iam_policy_document" "production_assume_full_administrator" {
     statement {
         sid = "ProductionAssumeFullAdministrator"
         effect = "Allow"
