@@ -1,0 +1,22 @@
+{
+  "template": "cloudtraillogstash",
+  "index_patterns": ["logstash-cloudtrail-*"],
+  "settings": {
+    "index": {
+      "mapping": {
+        "total_fields": {
+          "limit": "3000"
+        }
+      }
+    }
+  },
+  "mappings": {
+    "_doc": {
+      "properties": {
+        "apiVersion": {
+          "type": "keyword"
+        }
+      }
+    }
+  }
+}
