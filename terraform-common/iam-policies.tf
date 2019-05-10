@@ -279,7 +279,6 @@ data "aws_iam_policy_document" "power1" {
         ]
     }
 }
-#TODO KMS Delete functionality.  Separate role or limit to environment?
 
 resource "aws_iam_policy" "power2"
 {
@@ -449,6 +448,16 @@ data "aws_iam_policy_document" "power2" {
             "ec2:TerminateInstances",
             "ec2:UnassignPrivateIpAddresses",
             "ec2:UnmonitorInstances"
+        ]
+        resources = [
+            "*"
+        ]
+    }
+    statement {
+        sid = "SQS"
+        effect = "Allow"
+        actions = [
+            "sqs:*"
         ]
         resources = [
             "*"

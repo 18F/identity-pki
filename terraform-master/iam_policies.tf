@@ -276,3 +276,43 @@ data "aws_iam_policy_document" "production_assume_readonly" {
         ]
     }
 }
+
+resource "aws_iam_policy" "sandbox_assume_appdev" {
+    name = "SandboxAssumeAppDev"
+    path = "/"
+    description = "Policy to allow user to assume appdev role in Sandbox"
+    policy = "${data.aws_iam_policy_document.sandbox_assume_appdev.json}"
+}
+
+data "aws_iam_policy_document" "sandbox_assume_appdev" {
+    statement {
+        sid = "SandboxAssumeAppDev"
+        effect = "Allow"
+        actions = [
+            "sts:AssumeRole"
+        ]
+        resources = [
+            "arn:aws:iam::${var.sandbox_account_id}:role/AppDev"
+        ]
+    }
+}
+
+resource "aws_iam_policy" "production_assume_AppDev" {
+    name = "ProductionAssumeAppDev"
+    path = "/"
+    description = "Policy to allow user to assume appdev in Production"
+    policy = "${data.aws_iam_policy_document.production_assume_appdev.json}"
+}
+
+data "aws_iam_policy_document" "production_assume_appdev" {
+    statement {
+        sid = "ProductionAssumeAppDev"
+        effect = "Allow"
+        actions = [
+            "sts:AssumeRole"
+        ]
+        resources = [
+            "arn:aws:iam::${var.production_account_id}:role/AppDev"
+        ]
+    }
+}

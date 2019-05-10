@@ -71,7 +71,7 @@ data "aws_iam_policy_document" "assume_full_administrator_role" {
 
 resource "aws_iam_role" "power" {
     name = "PowerUser"
-    assume_role_policy = "${data.aws_iam_policy_document.assume_full_administrator_role.json}"
+    assume_role_policy = "${data.aws_iam_policy_document.assume_power_role.json}"
     path = "/"
     max_session_duration = 3600 #seconds
 }
@@ -141,6 +141,50 @@ resource "aws_iam_role_policy_attachment" "readonly_region_restriction" {
 data "aws_iam_policy_document" "assume_readonly_role" {
     statement {
         sid = "AssumeReadOnly"
+        actions = [
+            "sts:AssumeRole"
+        ]
+        principals = {
+            type = "AWS"
+            identifiers = [
+                "arn:aws:iam::${var.master_account_id}:root"
+            ]
+        }
+        condition {
+            test = "Bool"
+            variable = "aws:MultiFactorAuthPresent"
+            values = [
+                "true"
+            ]
+        }
+    }
+}
+
+resource "aws_iam_role" "appdev" {
+    name = "Appdev"
+    assume_role_policy = "${data.aws_iam_policy_document.assume_appdev_role.json}"
+    path = "/"
+    max_session_duration = 3600 #seconds
+}
+
+resource "aws_iam_role_policy_attachment" "appdev1" {
+    role = "${aws_iam_role.power.name}"
+    policy_arn = "${aws_iam_policy.appdev1.arn}"
+}
+
+resource "aws_iam_role_policy_attachment" "power_rds_delete_prevent" {
+    role = "${aws_iam_role.power.name}"
+    policy_arn = "${aws_iam_policy.rds_delete_prevent.arn}"
+}
+
+resource "aws_iam_role_policy_attachment" "power_region_restriction" {
+    role = "${aws_iam_role.power.name}"
+    policy_arn = "${aws_iam_policy.region_restriction.arn}"
+}
+
+data "aws_iam_policy_document" "assume_appdev_role" {
+    statement {
+        sid = "AssumeAppDev"
         actions = [
             "sts:AssumeRole"
         ]

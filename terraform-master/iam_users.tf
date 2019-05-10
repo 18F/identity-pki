@@ -163,8 +163,16 @@ resource "aws_iam_policy_attachment" "sandbox_power_user" {
 #     policy_arn = "${aws_iam_policy.production_assume_power_user.arn}"
 # }
 
+resource "aws_iam_policy_attachment" "production_appdev_user" {
+    name = "production_appdev"
+    users = [
+        "${module.steve_urciuoli.this_iam_user_name}",
+        "${module.jonathan_hooper.this_iam_user_name}"
+    ]
+}
+
 # resource "aws_iam_policy_attachment" "production_readonly" {
-#     name = "production_power_user"
+#     name = "production_readonly"
 #     users = [
 #         "${module.andy_brody.this_iam_user_name}",
 #         "${module.brian_crissup.this_iam_user_name}",
@@ -175,7 +183,7 @@ resource "aws_iam_policy_attachment" "sandbox_power_user" {
 # }
 
 resource "aws_iam_policy_attachment" "sandbox_readonly" {
-    name = "production_power_user"
+    name = "sandbox_readonly"
     users = [
         "${module.andy_brody.this_iam_user_name}",
         "${module.brian_crissup.this_iam_user_name}",
