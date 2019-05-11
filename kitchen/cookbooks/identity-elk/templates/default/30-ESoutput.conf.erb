@@ -7,6 +7,7 @@ output {
     manage_template => true
     index => "logstash-<%= @index %>%{+YYYY.MM.dd}"
     template => "<%= @elasticsearch_template_path %>"
+    template_name => "<%= @index_template_name %>"
     template_overwrite => true
   }
 }
