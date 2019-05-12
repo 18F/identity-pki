@@ -11,7 +11,7 @@
     }
   },
   "mappings": {
-    "_doc": {
+    "doc": {
       "properties": {
         "apiVersion": {
           "type": "keyword"

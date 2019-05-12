@@ -3,7 +3,7 @@
   "index_patterns": ["logstash-cloudwatch-*"],
   "settings": {},
   "mappings": {
-    "_doc": {
+    "doc": {
       "properties": {
         "account-id": {
           "type": "keyword"
