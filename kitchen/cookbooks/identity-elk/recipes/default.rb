@@ -246,9 +246,10 @@ include_recipe 'runit'
   template "/etc/logstash/#{lsname}conf.d/30-ESoutput.conf" do
     source '30-ESoutput.conf.erb'
     variables ({
+      :elasticsearch_template_path => "/etc/logstash/#{lsname}-template.json",
       :hostips => "\"#{elasticsearch_domain}\"",
       :index => lsname == 'logstash' ? nil : lsname.gsub('logstash', '') + '-',
-      :elasticsearch_template_path => "/etc/logstash/#{lsname}-template.json"
+      :index_template_name => lsname
     })
     notifies :run, "execute[restart_#{lsname}]", :delayed
   end

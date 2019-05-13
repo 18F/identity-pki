@@ -1,10 +1,68 @@
 {
   "template": "cloudwatchlogstash",
   "index_patterns": ["logstash-cloudwatch-*"],
-  "settings": { },
+  "settings": {},
   "mappings": {
-    "_doc": {
+    "doc": {
       "properties": {
+        "account-id": {
+          "type": "keyword"
+        },
+        "action": {
+          "type": "keyword"
+        },
+        "bytes": {
+          "type": "integer"
+        },
+        "cloudwatch_logs": {
+          "properties": {
+            "event_id": {
+              "type": "keyword"
+            },
+            "ingestion_time": {
+              "type": "date"
+            },
+            "log_group": {
+              "type": "keyword"
+            },
+            "log_stream": {
+              "type": "keyword"
+            }
+          }
+        },
+        "dstaddr": {
+          "type": "ip"
+        },
+        "dstport": {
+          "type": "integer"
+        },
+        "end": {
+          "type": "integer"
+        },
+        "interface-id": {
+          "type": "keyword"
+        },
+        "log-status": {
+          "type": "keyword"
+        },
+        "message": {
+          "type": "text"
+        },
+        "packets": {
+          "type": "integer"
+        },
+        "protocol": {
+          "type": "integer"
+        },
+        "srcaddr": {
+          "type": "ip"
+        },
+        "srcport": {
+          "type": "integer"
+        },
+        "start": {
+          "type": "long"
+        }
       }
     }
   }

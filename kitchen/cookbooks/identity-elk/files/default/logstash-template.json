@@ -3,7 +3,7 @@
   "index_patterns": ["logstash-2*"],
   "settings": { },
   "mappings": {
-    "_doc": {
+    "doc": {
       "properties": {
       }
     }
