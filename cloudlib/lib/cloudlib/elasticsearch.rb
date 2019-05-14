@@ -212,6 +212,17 @@ module Cloudlib
       check_acknowledgement(response_json)
     end
 
+    # SSH to an Elasticsearch cluster and change its minimum_masters value.
+    #
+    # @param [String] environment
+    # @param [Integer] new number of minimum master nodes
+    # @return [Boolean]
+    def update_minimum_masters(environment, new_minimum)
+      response_json = run_on_newest_instance(
+        environment, minimum_masters_command(new_minimum))
+      check_acknowledgement(response_json)
+    end
+
     # Examine a JSON response from an Elasticsearch PUT command and determine
     # if the message was acknowledged correctly.
     #

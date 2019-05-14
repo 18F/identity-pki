@@ -21,6 +21,12 @@ module Cloudlib
       def check_status(env)
         Cloudlib::Elasticsearch.new.check_cluster_status(env)
       end
+
+      desc('update_minimum_masters ENV NEW_MIN',
+           'Change the required number of master nodes in the ENVironment')
+      def update_minimum_masters(env, new_minimum)
+        Cloudlib::Elasticsearch.new.update_minimum_masters(env, new_minimum)
+      end
     end
   end
 end
