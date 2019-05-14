@@ -536,6 +536,16 @@ template "/etc/logstash/cloudwatchlogstashconf.d/50-cloudwatchin.conf" do
   notifies :run, 'execute[restart_cloudwatchlogstash]', :delayed
 end
 
+template "/etc/logstash/cloudwatchlogstashconf.d/80-waflogsin.conf" do
+  source '80-waflogsin.conf.erb'
+  variables ({
+    :waf_logging_bucket => node.fetch('elk').fetch('waf_logging_bucket'),
+    :aws_region => node['ec2']['placement_availability_zone'][0..-2],
+    :proxy_uri => proxy_uri
+  })
+  notifies :run, 'execute[restart_cloudwatchlogstash]', :delayed
+end
+
 cron 'rerun elk discovery every 15 minutes' do
   action :create
   minute '0,15,30,45'
