@@ -9,8 +9,10 @@ input {
 }
 
 filter {
-   json {
-    source => "message"
-    target => "waf"
+  if [type] == "waf" {
+     json {
+      source => "message"
+      target => "waf"
+    }
   }
 }
