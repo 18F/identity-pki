@@ -33,6 +33,9 @@ resource "aws_db_instance" "idp" {
 
   vpc_security_group_ids = ["${aws_security_group.db.id}"]
 
+  # send logs to cloudwatch
+  enabled_cloudwatch_logs_exports = ["postgresql"]
+
   # If you want to destroy your database, you need to do this in two phases:
   # 1. Uncomment `skip_final_snapshot=true` and
   #    comment `prevent_destroy=true` and `deletion_protection = true` below.
