@@ -117,7 +117,7 @@ module Cloudlib
     def check_cluster_status(environment)
       multi = Cloudlib::SSH::Multi.new(
         instances: cluster_instances(environment))
-      command = make_get_command('_cluster/health')
+      command = make_get_command('_cluster/health?level=shards')
       log.info("command to run: #{command}")
       result = multi.ssh_threads(command: command, return_output: true)
       unless result.fetch(:success)
@@ -130,19 +130,64 @@ module Cloudlib
       json_outputs = outputs.values.map { |j| JSON.parse(j) }
       statuses = json_outputs.map {|o| o["status"]}
       node_counts = json_outputs.map {|o| o["number_of_data_nodes"]}
-      if statuses.uniq == ["green"]
-        log.info("All nodes report green status.")
-      else
-        log.error("Node statuses are suboptimal: #{statuses}")
-        return false
-      end
+      # First check if all the node counts match. If they don't, there's
+      # no point in looking at anything else, because the cluster is split.
       if node_counts.uniq == [json_outputs.length]
         log.info("All nodes see exactly #{json_outputs.length} data nodes.")
       else
         log.error("Reported data node counts are suboptimal: #{node_counts}")
         return false
       end
+      # Since all the nodes agree on the number of data nodes, we don't have
+      # a split brain now. We can look at only one node, i.e. json_outputs[0]
+      if statuses.uniq == ['green']
+        log.info('All nodes report green status.')
+      elsif statuses.uniq == ['yellow']
+        log.warn('Nodes report yellow status. Will investigate indices.')
+        return false unless check_indices(json_outputs[0])
+      else
+        log.error("Node statuses are unexpected: #{statuses}")
+        return false
+      end
+      log.info("Relocating shards (if draining): " +
+               String(json_outputs[0]['relocating_shards']))
       return true
+    end
+
+    # Examine the "cluster health" output from an Elasticsearch node and
+    # determine if the indices are acceptably healthy. We expect the index named
+    # "searchguard" to have yellow status sometimes.
+    #
+    # @param [Hash] parsed output of a cluster health request
+    # @return [Boolean]
+    def check_indices(cluster_health)
+      indices_by_name = cluster_health.fetch('indices')
+      yellow_indices = []
+      indices_by_name.keys.each do |index_name|
+        status = indices_by_name[index_name].fetch('status')
+        if status == 'green'
+          next
+        elsif status == 'yellow'
+          yellow_indices.push(index_name)
+        else
+          # log all the information we have on the index, not just the status
+          log.error("Index #{index_name} has unacceptable status: " +
+                    indices_by_name[index_name].inspect)
+          return false
+        end
+      end
+      if yellow_indices.empty?
+        log.info('All indices have green status. Why was this check called?')
+        return true
+      elsif yellow_indices == ['searchguard']
+        log.warn('The only yellow index is searchguard, which is expected.')
+        return true
+      else
+        debug_data = yellow_indices.map {|i| indices_by_name[i]}
+        log.error("Multiple indices have non-green status: " +
+                  debug_data.inspect)
+        return false
+      end
     end
 
     # Elasticsearch drains old nodes by specifying their internal IP addresses.
