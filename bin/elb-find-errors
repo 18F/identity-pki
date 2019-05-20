@@ -36,8 +36,8 @@ ALB_FIELDS.each_with_index do |field, index|
 end
 ALB_INDEX_MAP.freeze
 
-RE_ALL_5XX = /\A5/
-RE_500 = /\A500/
+RE_ALL_5XX = /\A5/.freeze
+RE_500 = /\A500/.freeze
 NULL_FIELD = '-'
 
 def find_errors(filename, only_elb_errors: false, only_target_errors: false,
@@ -70,7 +70,7 @@ def find_errors(filename, only_elb_errors: false, only_target_errors: false,
     )
 
     if elb_errors
-      if status_code_re.match(elb_status_code)
+      if status_code_re.match?(elb_status_code)
         # check that we got - for target status if only_elb_errors is set
         if only_elb_errors && target_status_code == NULL_FIELD
           found_count += 1
@@ -80,7 +80,7 @@ def find_errors(filename, only_elb_errors: false, only_target_errors: false,
       end
     end
     if target_errors
-      if status_code_re.match(target_status_code)
+      if status_code_re.match?(target_status_code)
         found_count += 1
         yield row
         next
@@ -127,7 +127,7 @@ def process_files(filenames, find_errors_opts: {})
   files_with_errors.each { |f| STDERR.puts '  ' + f }
 end
 
-def main(args)
+def main
   options = {find_errors_opts: {}}
 
   basename = File.basename($0)
@@ -165,7 +165,7 @@ For example:
   #{basename} --target-errors *.log
 
 Options:
-EOM
+    EOM
 
     opts.on('-h', '--help', 'Display this message') do
       STDERR.puts opts
@@ -184,6 +184,11 @@ EOM
     opts.on('--500', 'Find only HTTP 500 errors, not 5xx') do
       options[:find_errors_opts][:status_code_re] = RE_500
     end
+
+    opts.on('--regex PAT',
+            'Find HTTP status codes matching PAT, not default "\A5"') do |pat|
+      options[:find_errors_opts][:status_code_re] = Regexp.new(pat)
+    end
   end
 
   args = optparse.parse!
@@ -197,5 +202,5 @@ EOM
 end
 
 if $0 == __FILE__
-  main(ARGV)
+  main
 end
