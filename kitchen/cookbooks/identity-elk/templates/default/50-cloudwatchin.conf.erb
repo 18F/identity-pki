@@ -2,14 +2,44 @@ input {
   cloudwatch_logs {
     log_group => "<%= @env %>_flow_log_group"
     region => "<%= @aws_region %>"
-    type => "flowlog"
-    sincedb_path => "/usr/share/logstash/.sincedb_cloudwatch"
+    type => "cw_flowlog"
+    sincedb_path => "/usr/share/logstash/.sincedb_cloudwatch_flowlog"
+    start_position => "end"
+  }
+}
+
+input {
+  cloudwatch_logs {
+    log_group => "/aws/lambda/<%= @env %>-cloudwatch-kms"
+    region => "<%= @aws_region %>"
+    type => "cw_kms"
+    sincedb_path => "/usr/share/logstash/.sincedb_cloudwatch_kms"
+    start_position => "end"
+  }
+}
+
+input {
+  cloudwatch_logs {
+    log_group => "/aws/rds/instance/login-<%= @env %>-idp/postgresql"
+    region => "<%= @aws_region %>"
+    type => "cw_postgres"
+    sincedb_path => "/usr/share/logstash/.sincedb_cloudwatch_postgres"
+    start_position => "end"
+  }
+}
+
+input {
+  cloudwatch_logs {
+    log_group => "/aws/kinesisfirehose/aws-waf-logs-<%= @env %>-idp-waf-firehose-s3-stream"
+    region => "<%= @aws_region %>"
+    type => "cw_waf"
+    sincedb_path => "/usr/share/logstash/.sincedb_cloudwatch_waf"
     start_position => "end"
   }
 }
 
 filter {
-  if [type] == "flowlog" {
+  if [type] == "cw_flowlog" {
     grok {
       match => { "message" => "%{NUMBER:version} %{NUMBER:account-id} %{NOTSPACE:interface-id} %{NOTSPACE:srcaddr} %{NOTSPACE:dstaddr} %{NOTSPACE:srcport} %{NOTSPACE:dstport} %{NOTSPACE:protocol} %{NOTSPACE:packets} %{NOTSPACE:bytes} %{NUMBER:start} %{NUMBER:end} %{NOTSPACE:action} %{NOTSPACE:log-status}" }
     }
