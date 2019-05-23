@@ -1,0 +1,9 @@
+input {
+  cloudwatch_logs {
+    log_group => "/aws/kinesisfirehose/aws-waf-logs-<%= @env %>-idp-waf-firehose-s3-stream"
+    region => "<%= @aws_region %>"
+    type => "cw_<%= @log_group %>"
+    sincedb_path => "/usr/share/logstash/.sincedb_cloudwatch_<%= @log_group %>"
+    start_position => "end"
+  }
+}
