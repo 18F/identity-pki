@@ -6,7 +6,7 @@ owner: <%= @env %>
 filter:
 - query:
     query_string:
-      query: '"Attempt to login using a non-existent user" AND source:"/var/log/syslog"'
+      query: '"Attempt to login using a non-existent user" AND source:"/var/log/auth.log"'
 alert:
 <% if ! @emails.empty? %>
 - "email"
