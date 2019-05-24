@@ -269,6 +269,11 @@ resource "aws_kinesis_firehose_delivery_stream" "waf_s3_stream" {
   s3_configuration {
     role_arn   = "${aws_iam_role.firehose_role.arn}"
     bucket_arn = "${aws_s3_bucket.waf_logbucket.arn}"
+    cloudwatch_logging_options {
+      enabled = true
+      log_group_name = "/aws/kinesisfirehose/aws-waf-logs-${var.env_name}-idp-waf-firehose-s3-stream"
+      log_stream_name = "s3delivery"
+    }
   }
 }
 
