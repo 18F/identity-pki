@@ -2,14 +2,14 @@ input {
   cloudwatch_logs {
     log_group => "<%= @env %>_flow_log_group"
     region => "<%= @aws_region %>"
-    type => "flowlog"
-    sincedb_path => "/usr/share/logstash/.sincedb_cloudwatch"
+    type => "cw_<%= @log_group %>"
+    sincedb_path => "/usr/share/logstash/.sincedb_cloudwatch_<%= @log_group %>"
     start_position => "end"
   }
 }
 
 filter {
-  if [type] == "flowlog" {
+  if [type] == "cw_<%= @log_group %>" {
     grok {
       match => { "message" => "%{NUMBER:version} %{NUMBER:account-id} %{NOTSPACE:interface-id} %{NOTSPACE:srcaddr} %{NOTSPACE:dstaddr} %{NOTSPACE:srcport} %{NOTSPACE:dstport} %{NOTSPACE:protocol} %{NOTSPACE:packets} %{NOTSPACE:bytes} %{NUMBER:start} %{NUMBER:end} %{NOTSPACE:action} %{NOTSPACE:log-status}" }
     }

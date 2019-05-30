@@ -92,6 +92,14 @@ default['elk']['es_tag_value'] = "elasticsearch"
 default['elk']['elk_tag_key'] = "prefix"
 default['elk']['elk_tag_value'] = "elk"
 
+# CloudWatch log groups to ingest
+default['elk']['logstash']['cloudwatch']['audit-aws']['enable'] = true
+default['elk']['logstash']['cloudwatch']['audit-github']['enable'] = true
+default['elk']['logstash']['cloudwatch']['flowlog']['enable'] = true
+default['elk']['logstash']['cloudwatch']['kms']['enable'] = true
+default['elk']['logstash']['cloudwatch']['postgresql']['enable'] = true
+default['elk']['logstash']['cloudwatch']['waf']['enable'] = false
+
 # For adding chef discovery cron job
 default['elk']['chef_zero_client_configuration'] = '/etc/login.gov/repos/identity-devops/kitchen/chef-client.rb'
 
