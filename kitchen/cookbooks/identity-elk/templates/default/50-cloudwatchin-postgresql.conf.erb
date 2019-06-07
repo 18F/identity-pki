@@ -7,3 +7,73 @@ input {
     start_position => "end"
   }
 }
+
+filter {
+  if [type] == "cw_postgresql" {
+    if [message] =~ "checkpoint starting|checkpoint complete" {
+      grok {
+        match => { "message" => "%{DATESTAMP:postgresql.timestamp} %{TZ:postgresql.time_zone}.*\[%{POSINT:postgresql.pid}\]:%{NOTSPACE:postgresql.log_level}:\s+%{GREEDYDATA:postgresql.statement}" }
+      }
+      if [postgresql.statement] =~ "checkpoint complete" {
+        grok {
+          match => { "postgresql.statement" => ".*%{NUMBER:postgresql.buffers} buffers \(%{NUMBER:postgresql.buffers_percent}\%\); %{NUMBER:postgresql.transaction_log_file_count} .* %{NUMBER:postgresql.removed} .* %{NUMBER:postgresql.recycled} .* write=%{NUMBER:postgresql.write_duration} .* sync=%{NUMBER:postgresql.sync_duration} .* total=%{NUMBER:postgresql.total_duration} .* files=%{NUMBER:postgresql.sync_files}, longest=%{NUMBER:postgresql.longest_duration} .* average=%{NUMBER:postgresql.average_duration} .* distance=%{NUMBER:postgresql.distance} .* estimate=%{NUMBER:postgresql.estimate}" }
+        }
+        mutate {
+          add_tag => [ "checkpoint_complete" ]
+        }
+      } else {
+        mutate {
+          add_tag => [ "checkpoint_starting" ]
+        }
+      }
+    }
+    if [message] =~ ".*:CONTEXT:.*" {
+      grok {
+        match => { "message" => "%{DATESTAMP:postgresql.timestamp} %{TZ:postgresql.time_zone}\:%{IPV4:postgresql.client_ip}\(%{POSINT:postgresql.client_port}\)\:%{NOTSPACE:postgresql.username}@%{NOTSPACE:postgresql.db_name}\:\[%{POSINT:postgresql.pid}\]:%{NOTSPACE:postgresql.log_level}:\s*%{GREEDYDATA:postgresql.statement}" }
+      }
+      mutate {
+        add_tag => [ "context" ]
+      }
+    }
+    if [message] =~ ".*:DETAIL:.*" {
+      grok {
+        match => { "message" => "%{DATESTAMP:postgresql.timestamp} %{TZ:postgresql.time_zone}\:%{IPV4:postgresql.client_ip}\(%{POSINT:postgresql.client_port}\)\:%{NOTSPACE:postgresql.username}@%{NOTSPACE:postgresql.db_name}\:\[%{POSINT:postgresql.pid}\]:%{NOTSPACE:postgresql.log_level}:\s*%{GREEDYDATA:postgresql.statement}" }
+      }
+      mutate {
+        add_tag => [ "detail" ]
+      }
+    }
+    if [message] =~ ".*:ERROR:.*" {
+      grok {
+        match => { "message" => "%{DATESTAMP:postgresql.timestamp} %{TZ:postgresql.time_zone}\:%{IPV4:postgresql.client_ip}\(%{POSINT:postgresql.client_port}\)\:%{NOTSPACE:postgresql.username}@%{NOTSPACE:postgresql.db_name}\:\[%{POSINT:postgresql.pid}\]:%{NOTSPACE:postgresql.log_level}:  %{GREEDYDATA:postgresql.statement}" }
+      }
+      mutate {
+        add_tag => [ "error" ]
+      }
+    }
+    if [message] =~ ".*:LOG:\s+duration.*" {
+      grok {
+        match => { "message" => "%{DATESTAMP:postgresql.timestamp} %{TZ:postgresql.time_zone}\:%{IPV4:postgresql.client_ip}\(%{POSINT:postgresql.client_port}\)\:%{NOTSPACE:postgresql.username}@%{NOTSPACE:postgresql.db_name}\:\[%{POSINT:postgresql.pid}\]:%{NOTSPACE:postgresql.log_level}:\s+duration\: %{NUMBER:postgresql.duration} ms statement: %{GREEDYDATA:postgresql.statement}" }
+      }
+      mutate {
+        add_tag => [ "log_duration" ]
+      }
+    }
+    if [message] =~ ".*:LOG:  statement.*" {
+      grok {
+        match => { "message" => "%{DATESTAMP:postgresql.timestamp} %{TZ:postgresql.time_zone}\:%{IPV4:postgresql.client_ip}\(%{POSINT:postgresql.client_port}\)\:%{NOTSPACE:postgresql.username}@%{NOTSPACE:postgresql.db_name}\:\[%{POSINT:postgresql.pid}\]:%{NOTSPACE:postgresql.log_level}:  statement: %{GREEDYDATA:postgresql.statement}" }
+      }
+      mutate {
+        add_tag => [ "log_statement" ]
+      }
+    }
+    if [message] =~ ".*:STATEMENT:.*" {
+      grok {
+        match => { "message" => "%{DATESTAMP:postgresql.timestamp} %{TZ:postgresql.time_zone}\:%{IPV4:postgresql.client_ip}\(%{POSINT:postgresql.client_port}\)\:%{NOTSPACE:postgresql.username}@%{NOTSPACE:postgresql.db_name}\:\[%{POSINT:postgresql.pid}\]:%{NOTSPACE:postgresql.log_level}:\s*%{GREEDYDATA:postgresql.statement}" }
+      }
+      mutate {
+        add_tag => [ "statement" ]
+      }
+    }
+  }
+}
