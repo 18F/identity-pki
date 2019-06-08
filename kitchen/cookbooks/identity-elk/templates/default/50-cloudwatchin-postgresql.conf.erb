@@ -53,7 +53,7 @@ filter {
     }
     if [message] =~ ".*:LOG:\s+duration.*" {
       grok {
-        match => { "message" => "%{DATESTAMP:postgresql.timestamp} %{TZ:postgresql.time_zone}\:%{IPV4:postgresql.client_ip}\(%{POSINT:postgresql.client_port}\)\:%{NOTSPACE:postgresql.username}@%{NOTSPACE:postgresql.db_name}\:\[%{POSINT:postgresql.pid}\]:%{NOTSPACE:postgresql.log_level}:\s+duration\: %{NUMBER:postgresql.duration} ms statement: %{GREEDYDATA:postgresql.statement}" }
+        match => { "message" => "%{DATESTAMP:postgresql.timestamp} %{TZ:postgresql.time_zone}\:%{IPV4:postgresql.client_ip}\(%{POSINT:postgresql.client_port}\)\:%{NOTSPACE:postgresql.username}@%{NOTSPACE:postgresql.db_name}\:\[%{POSINT:postgresql.pid}\]:%{NOTSPACE:postgresql.log_level}:\s+duration\: %{NUMBER:postgresql.duration} ms\s+\w+:?\s+%{GREEDYDATA:postgresql.statement}" }
       }
       mutate {
         add_tag => [ "log_duration" ]
@@ -61,7 +61,7 @@ filter {
     }
     if [message] =~ ".*:LOG:  statement.*" {
       grok {
-        match => { "message" => "%{DATESTAMP:postgresql.timestamp} %{TZ:postgresql.time_zone}\:%{IPV4:postgresql.client_ip}\(%{POSINT:postgresql.client_port}\)\:%{NOTSPACE:postgresql.username}@%{NOTSPACE:postgresql.db_name}\:\[%{POSINT:postgresql.pid}\]:%{NOTSPACE:postgresql.log_level}:  statement: %{GREEDYDATA:postgresql.statement}" }
+        match => { "message" => "%{DATESTAMP:postgresql.timestamp} %{TZ:time_zone}\:%{IPV4:postgresql.client_ip}\(%{POSINT:postgresql.client_port}\)\:%{NOTSPACE:postgresql.username}@%{NOTSPACE:postgresql.db_name}\:\[%{POSINT:postgresql.pid}\]:%{NOTSPACE:postgresql.log_level}:\s+duration\: %{NUMBER:postgresql.duration} ms\s+\w+:?\s+%{GREEDYDATA:postgresql.statement}" }
       }
       mutate {
         add_tag => [ "log_statement" ]
