@@ -61,14 +61,13 @@ DEPENDENCIES
     path: kitchen/cookbooks/login_dot_gov
   monit
   motd
-  nano
   newrelic_meetme_plugin
   ntp
   ohai
   openssl
   ossec
     git: https://github.com/sous-chefs/ossec
-    revision: 970104729211713bc0d468540dfe018bd67cace5
+    revision: 7e63571e40456e63c08dc5e4538bd5006993563c
   passenger
     git: https://github.com/18F/identity-cookbooks
     revision: cf70ebf5930ad58833040e7705f7927b8f586738
@@ -222,7 +221,6 @@ GRAPH
     poise-monit (~> 1.0)
   motd (0.6.4)
     chef_handler (>= 0.0.0)
-  nano (1.0.3)
   newrelic-infra (0.8.0)
     poise-archive (~> 1.5)
     poise-service (~> 1.5)
@@ -233,7 +231,7 @@ GRAPH
   ntp (3.6.2)
   ohai (5.2.5)
   openssl (8.5.5)
-  ossec (1.1.0)
+  ossec (1.2.0)
     yum-atomic (>= 0.0.0)
   packagecloud (1.0.1)
   passenger (0.0.7)

@@ -10,7 +10,6 @@ cookbook 'hostname'
 cookbook 'letsencrypt', '~> 1.0.0'
 cookbook 'monit'
 cookbook 'motd'
-cookbook 'nano'
 cookbook 'newrelic_meetme_plugin'
 cookbook 'ntp'
 cookbook 'ohai'
@@ -28,7 +27,7 @@ cookbook 'acme'
 cookbook 'filebeat', '~> 2.1.0'
 cookbook 'elasticsearch-curator', '~> 0.3.0'
 cookbook 'elasticsearch', '~> 4.0.3'
-cookbook 'ossec', '~> 1.1.0', git: 'https://github.com/sous-chefs/ossec'
+cookbook 'ossec', '~> 1.2.0', git: 'https://github.com/sous-chefs/ossec'
 
 # This is a super wacky hack to allow us to symlink this Berksfile into the
 # various nodes/*/ directories. It feels like there ought to be a better way to
