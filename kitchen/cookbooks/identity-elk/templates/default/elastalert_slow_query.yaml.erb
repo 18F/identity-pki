@@ -1,0 +1,31 @@
+name: Postgresql slow query
+type: any
+index: logstash-cloudwatch-*
+alert_text: Postgresql slow query
+owner: <%= @env %>
+filter:
+- query:
+    query_string:
+      query: 'type: cw_postgresql AND postgresql.duration: >4000'
+alert:
+- "slack"
+slack_webhook_url: https://hooks.slack.com/services/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
+slack_username_override: jjg alerts
+slack_channel_override: ["#login-otherevents"]alert:
+<% if ! @emails.empty? %>
+- "email"
+<% end %>
+<% if ! @webhook.nil? %>
+- "slack"
+<% end %>
+<% if ! @emails.empty? %>
+email:
+<%   @emails.each do |e| %>
+- "<%= e %>"
+<%   end %>
+<% end %>
+<% if ! @webhook.nil? %>
+slack_webhook_url: <%= @webhook %>
+slack_username_override: <%= "#{@env} alerts" %>
+slack_channel_override: ["<%= @slackchannel %>"]
+<% end %>
