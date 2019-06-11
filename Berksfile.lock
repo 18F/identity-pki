@@ -61,7 +61,6 @@ DEPENDENCIES
     path: kitchen/cookbooks/login_dot_gov
   monit
   motd
-  nano
   newrelic_meetme_plugin
   ntp
   ohai
@@ -222,7 +221,6 @@ GRAPH
     poise-monit (~> 1.0)
   motd (0.6.4)
     chef_handler (>= 0.0.0)
-  nano (1.0.3)
   newrelic-infra (0.8.0)
     poise-archive (~> 1.5)
     poise-service (~> 1.5)
