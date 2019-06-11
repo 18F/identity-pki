@@ -91,6 +91,7 @@ server {
 
     # WebFonts
     location ~* \.(?:ttf|ttc|otf|eot|woff|woff2)$ {
+        types {font/woff2 woff2;}
         expires 1M;
         <%- if @idp_web %>
         add_header Access-Control-Allow-Origin <%= "https://#{@server_name}" %>;
