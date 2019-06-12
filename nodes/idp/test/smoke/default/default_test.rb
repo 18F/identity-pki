@@ -115,3 +115,14 @@ describe command('curl -Sfk -i https://localhost/api/saml/metadata2019') do
   its('stdout') { should include 'Content-Type: text/xml' }
   its('stdout') { should include '<SingleSignOnService' }
 end
+
+# idp-jobs service
+describe processes(/rake job_runs:run/) do
+  it { should exist }
+
+  # there should be exactly one job run service process
+  its('entries.length') { should eq 1 }
+
+  # should be running as websrv
+  its('users') { should eq ['websrv'] }
+end
