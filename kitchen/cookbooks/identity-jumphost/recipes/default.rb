@@ -8,7 +8,12 @@
 #
 
 # Install postgresql-client so that Redshift may be reached from the jumphost
-package 'postgresql-client-9.5'
+case node[:platform_version]
+when '16.04'
+  package 'postgresql-client-9.5'
+when '18.04'
+  package 'postgresql-client-10'
+end
 
 # TODO needs more hardening
 package 'landscape-common' do
@@ -81,11 +86,14 @@ execute 'restart_sshd' do
   action :nothing
 end
 
-template '/etc/network/interfaces.d/lo:1.cfg' do
-  source 'lo:1.cfg.erb'
-  variables({
-    :eip => node['cloud']['public_ipv4']
-  })
+case node[:platform_version]
+when '16.04'
+  template '/etc/network/interfaces.d/lo:1.cfg' do
+    source 'lo:1.cfg.erb'
+    variables({
+      :eip => node['cloud']['public_ipv4']
+    })
+  end
+  
+  execute 'ifdown lo:1 ; ifup lo:1'
 end
-
-execute 'ifdown lo:1 ; ifup lo:1'

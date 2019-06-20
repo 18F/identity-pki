@@ -1,7 +1,12 @@
-package 'python-pip'
-execute 'install certbot via pip' do
-  command 'pip install certbot certbot_dns_route53'
-  not_if 'pip show certbot && pip show certbot_dns_route53'
+case node[:platform_version]
+when '16.04'
+  package 'python-pip'
+  execute 'install certbot via pip' do
+    command 'pip install certbot certbot_dns_route53'
+    not_if 'pip show certbot && pip show certbot_dns_route53'
+  end
+when '18.04'
+    package 'certbot'
 end
 
 include_recipe 'identity-pivcac::update_letsencrypt_certs'

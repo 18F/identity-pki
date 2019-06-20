@@ -70,8 +70,10 @@ cookbook 'identity-monitoring', path: prefixed('kitchen/cookbooks/identity-monit
 IdentityCookbooksRef = 'cf70ebf5930ad58833040e7705f7927b8f586738'
 cookbook 'cloudhsm', '>= 0.0.7', git: 'https://github.com/18F/identity-cookbooks', rel: 'cloudhsm', ref: IdentityCookbooksRef
 cookbook 'identity_base_config', git: 'https://github.com/18F/identity-cookbooks', rel: 'identity_base_config', ref: IdentityCookbooksRef
-cookbook 'identity_shared_attributes', '>= 0.1.1', git: 'https://github.com/18F/identity-cookbooks', rel: 'identity_shared_attributes', ref: IdentityCookbooksRef
-cookbook 'passenger', git: 'https://github.com/18F/identity-cookbooks', rel: 'passenger', ref: IdentityCookbooksRef
+#cookbook 'identity_shared_attributes', '>= 0.1.1', git: 'https://github.com/18F/identity-cookbooks', rel: 'identity_shared_attributes', ref: IdentityCookbooksRef
+cookbook 'identity_shared_attributes', git: 'https://github.com/18F/identity-cookbooks', rel: 'identity_shared_attributes', branch: "crissupb/ubuntu18"
+#cookbook 'passenger', git: 'https://github.com/18F/identity-cookbooks', rel: 'passenger', ref: IdentityCookbooksRef
+cookbook "passenger", git: "https://github.com/18F/identity-cookbooks", rel: 'passenger', branch: "crissupb/ubuntu18"
 cookbook 'static_eip', '>= 0.2.0', git: 'https://github.com/18F/identity-cookbooks', rel: 'static_eip', ref: IdentityCookbooksRef
 
 # We have to reference this special citadel-build repository for two reasons:
