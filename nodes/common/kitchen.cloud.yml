@@ -22,7 +22,7 @@ Region = 'us-west-2'
 
 role = File.basename(Dir.pwd)
 environment = ENV.fetch('KITCHEN_EC2_INTEGRATION_ENVIRONMENT', 'ci')
-ami_id = ENV.fetch('KITCHEN_EC2_AMI', 'ami-0abee874cb5f2a1cf') # TODO look up dynamically
+ami_id = ENV.fetch('KITCHEN_EC2_AMI', 'ami-054fd10f11be0a078') # TODO look up dynamically
 
 vpc_name = "login-vpc-#{environment}"
 
@@ -53,7 +53,7 @@ subnets = {
     "pivcac" => "login-idp1_subnet-#{environment}",
     "elasticsearch" => "login-elasticsearch_subnet-#{environment}-*",
     "elk" => "login-elk_subnet-#{environment}-*",
-    "app" => "login-app_subnet-#{environment}",
+    "app" => "login-public1_subnet-#{environment}",
     "outboundproxy" => "login-public1_subnet-#{environment}",
 }
 if !subnets.key?(role)
