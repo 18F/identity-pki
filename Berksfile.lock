@@ -1,6 +1,6 @@
 DEPENDENCIES
   acme
-  apache2
+  apache2 (~> 5.2)
   application_ruby (~> 4.0.1)
   apt (~> 7.0)
   apt_update
@@ -19,8 +19,8 @@ DEPENDENCIES
     revision: 7007851c91e1404a43f1c914471a2d6c817eea8e
   cloudhsm
     git: https://github.com/18F/identity-cookbooks
-    revision: fe0defacb72aa7c106df21a61d3c4f9482243e4a
-    ref: fe0defa
+    revision: 22284b06e5543b7ea734c81d6f76b7e581afab06
+    ref: 22284b0
     rel: cloudhsm
   config_loader
     path: kitchen/cookbooks/config_loader
@@ -45,13 +45,13 @@ DEPENDENCIES
     path: kitchen/cookbooks/identity-pivcac
   identity_base_config
     git: https://github.com/18F/identity-cookbooks
-    revision: fe0defacb72aa7c106df21a61d3c4f9482243e4a
-    ref: fe0defa
+    revision: 22284b06e5543b7ea734c81d6f76b7e581afab06
+    ref: 22284b0
     rel: identity_base_config
   identity_shared_attributes
     git: https://github.com/18F/identity-cookbooks
-    revision: fe0defacb72aa7c106df21a61d3c4f9482243e4a
-    ref: fe0defa
+    revision: 22284b06e5543b7ea734c81d6f76b7e581afab06
+    ref: 22284b0
     rel: identity_shared_attributes
   instance_certificate
     path: kitchen/cookbooks/instance_certificate
@@ -70,8 +70,8 @@ DEPENDENCIES
     revision: 7e63571e40456e63c08dc5e4538bd5006993563c
   passenger
     git: https://github.com/18F/identity-cookbooks
-    revision: cf70ebf5930ad58833040e7705f7927b8f586738
-    ref: cf70ebf
+    revision: 22284b06e5543b7ea734c81d6f76b7e581afab06
+    ref: 22284b0
     rel: passenger
   poise-ruby
   poise-ruby-build
@@ -82,8 +82,8 @@ DEPENDENCIES
   ssh-keys
   static_eip
     git: https://github.com/18F/identity-cookbooks
-    revision: fe0defacb72aa7c106df21a61d3c4f9482243e4a
-    ref: fe0defa
+    revision: 22284b06e5543b7ea734c81d6f76b7e581afab06
+    ref: 22284b0
     rel: static_eip
   sudo
   users
@@ -115,7 +115,7 @@ GRAPH
   cacert (0.5.0)
   canonical_hostname (0.1.0)
     aws_metadata (>= 0.0.0)
-  chef-sugar (5.0.0)
+  chef-sugar (5.0.1)
   chef_handler (3.0.3)
   citadel_fork (9.1.1)
   cloudhsm (0.0.7)
@@ -126,7 +126,7 @@ GRAPH
   cron (6.2.1)
   dpkg_autostart (0.2.0)
   elastic_repo (1.1.1)
-  elasticsearch (4.0.5)
+  elasticsearch (4.0.6)
     apt (>= 0.0.0)
     ark (>= 0.0.0)
     chef-sugar (>= 0.0.0)
@@ -192,7 +192,7 @@ GRAPH
   identity_shared_attributes (0.1.1)
   instance_certificate (0.1.0)
     canonical_hostname (>= 0.0.0)
-  java (3.2.0)
+  java (4.1.0)
     homebrew (>= 0.0.0)
     windows (>= 0.0.0)
   jenkins (5.0.6)
@@ -221,7 +221,7 @@ GRAPH
     poise-monit (~> 1.0)
   motd (0.6.4)
     chef_handler (>= 0.0.0)
-  newrelic-infra (0.8.0)
+  newrelic-infra (0.10.0)
     poise-archive (~> 1.5)
     poise-service (~> 1.5)
   newrelic_meetme_plugin (0.5.0)
@@ -271,14 +271,14 @@ GRAPH
     git (>= 0.0.0)
     yum-epel (>= 0.0.0)
   ruby_rbenv (2.1.2)
-  runit (4.3.1)
+  runit (5.1.1)
     packagecloud (>= 0.0.0)
     yum-epel (>= 0.0.0)
   service_discovery (0.1.0)
     aws_metadata (>= 0.0.0)
     aws_s3 (>= 0.0.0)
     canonical_hostname (>= 0.0.0)
-  seven_zip (3.1.0)
+  seven_zip (3.1.1)
     windows (>= 0.0.0)
   squid (4.1.0)
   ssh-keys (1.2.7)
@@ -288,7 +288,7 @@ GRAPH
     ark (~> 3.1)
     gpg (~> 0.3)
   users (5.4.0)
-  windows (5.2.3)
+  windows (6.0.0)
   yum (5.1.0)
   yum-atomic (0.2.0)
     compat_resource (>= 12.14.6)
