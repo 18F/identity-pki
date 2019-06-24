@@ -1,28 +1,31 @@
-package 'monit'
+system_user = node.fetch('login_dot_gov').fetch('web_system_user')
 
-service 'monit' do
-  action :start
-end
+systemd_unit 'idp-jobs.service' do
+  action [:create, :enable, :start]
 
-template '/etc/monit/monitrc' do
-  notifies :restart, 'service[monit]', :immediately
-end
+  content <<-EOM
+# Dropped off by chef
+# Systemd unit for idp-jobs
 
-template '/etc/monit/conf.d/sidekiq_idp_production.conf' do
-  notifies :restart, 'service[monit]', :immediately
-  variables({
-    system_user: node.fetch('login_dot_gov').fetch('web_system_user'),
-  })
-end
+[Unit]
+Description=IDP Jobs Runner Service (idp-jobs)
 
-# Action nothing means that this won't restart unless it's explicitly notified.
-# We already trigger a monit restart above when sidekiq_idp_production.conf is
-# modified, so keeping both of these restarts was leading to multiple sidekiq
-# processes running. https://github.com/18F/identity-devops-private/issues/365
-service 'sidekiq' do
-  action :nothing
-  restart_command '/usr/bin/monit restart sidekiq_idp_production0'
-  start_command '/usr/bin/monit start sidekiq_idp_production0'
-  status_command '/usr/bin/monit status'
-  stop_command '/usr/bin/monit stop sidekiq_idp_production0'
+[Service]
+ExecStart=/bin/bash -c 'bin/job_runs.sh start'
+EnvironmentFile=/etc/environment
+WorkingDirectory=/srv/idp/current
+User=#{system_user}
+Group=#{system_user}
+
+Restart=on-failure
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=idp-jobs
+
+# attempt graceful stop first
+KillSignal=SIGINT
+
+[Install]
+WantedBy=multi-user.target
+  EOM
 end

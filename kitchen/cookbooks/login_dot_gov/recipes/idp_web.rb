@@ -94,21 +94,6 @@ login_dot_gov_deploy_info "#{deploy_dir}/api/deploy.json" do
   branch branch_name
 end
 
-# Create a cron job to enqueue dummy jobs on all IDP servers
-file "/etc/cron.d/idp-enqueue-dummy-job" do
-  mode '0644'
-  content <<-EOM
-PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-* * * * * #{node.fetch(:passenger).fetch(:production).fetch(:user)} /bin/bash -l -c 'cd /srv/idp/releases/chef && rbenv exec bundle exec bin/rails runner -e production WorkerHealthChecker.enqueue_dummy_jobs >> /srv/idp/shared/log/cron.log 2>&1'
-  EOM
-
-  if node.fetch('login_dot_gov').fetch('dummy_jobs_cron_enabled')
-    action :create
-  else
-    action :delete
-  end
-end
-
 # allow other execute permissions on all directories within the application folder
 # TODO: check that this is needed
 # https://www.phusionpassenger.com/library/admin/nginx/troubleshooting/ruby/#upon-accessing-the-web-app-nginx-reports-a-permission-denied-error
