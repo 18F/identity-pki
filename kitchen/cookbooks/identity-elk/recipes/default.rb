@@ -12,6 +12,12 @@
 # this is an ELB.
 elasticsearch_domain = node.fetch("es").fetch("domain")
 
+apt_repository 'openjdk-r-ppa' do
+  uri "ppa:openjdk-r"
+  distribution node.fetch('lsb').fetch('codename')
+  key_proxy 'http://obproxy.login.gov.internal:3128'
+end
+
 include_recipe 'java'
 
 # create cert
