@@ -72,7 +72,7 @@ DEPENDENCIES
     revision: 22284b06e5543b7ea734c81d6f76b7e581afab06
     ref: 22284b0
     rel: passenger
-  runit (~> 5.1.1)
+  runit (~> 4.3.1)
   service_discovery
     path: kitchen/cookbooks/service_discovery
   ssh-keys
@@ -266,7 +266,7 @@ GRAPH
   ruby_build (1.2.0)
     git (>= 0.0.0)
     yum-epel (>= 0.0.0)
-  runit (5.1.1)
+  runit (4.3.1)
     packagecloud (>= 0.0.0)
     yum-epel (>= 0.0.0)
   service_discovery (0.1.0)
