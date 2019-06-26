@@ -1,7 +1,10 @@
+# configure the java repo
+# the java receipe will fail to setup the repo since we are
+# using a proxy server
 apt_repository 'openjdk-r-ppa' do
   uri "ppa:openjdk-r"
   distribution node.fetch('lsb').fetch('codename')
-  key_proxy 'http://obproxy.login.gov.internal:3128'
+  key_proxy Chef::Config.fetch('http_proxy')
 end
 
 include_recipe 'java'

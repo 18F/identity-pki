@@ -12,10 +12,18 @@
 # this is an ELB.
 elasticsearch_domain = node.fetch("es").fetch("domain")
 
+# TODO: This should probably use Chef::Config.fetch('http_proxy') or
+# identity_shared_attributes instead of depending on an IDP recipe.
+if node.fetch('login_dot_gov').fetch('https_proxy') && !node.fetch('login_dot_gov').fetch('no_proxy').match('s3-us-west-2.amazonaws.com')
+  proxy_uri = 'http://obproxy.login.gov.internal:3128'
+else
+  proxy_uri = ''
+end
+
 apt_repository 'openjdk-r-ppa' do
   uri "ppa:openjdk-r"
   distribution node.fetch('lsb').fetch('codename')
-  key_proxy 'http://obproxy.login.gov.internal:3128'
+  key_proxy Chef::Config.fetch('http_proxy')
 end
 
 include_recipe 'java'
@@ -27,14 +35,6 @@ mycacrt = '/etc/logstash/elk.login.gov.cacrt'
 mypkcs8 = '/etc/logstash/elk.login.gov.key.pkcs8'
 
 directory '/etc/logstash'
-
-# TODO: This should probably use Chef::Config.fetch('http_proxy') or
-# identity_shared_attributes instead of depending on an IDP recipe.
-if node.fetch('login_dot_gov').fetch('https_proxy') && !node.fetch('login_dot_gov').fetch('no_proxy').match('s3-us-west-2.amazonaws.com')
-  proxy_uri = 'http://obproxy.login.gov.internal:3128'
-else
-  proxy_uri = ''
-end
 
 execute 'generate_elk_key' do
   command "openssl genrsa -out '#{mykey}' 2048"
