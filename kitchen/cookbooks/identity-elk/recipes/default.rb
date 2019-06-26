@@ -23,7 +23,7 @@ end
 apt_repository 'openjdk-r-ppa' do
   uri "ppa:openjdk-r"
   distribution node.fetch('lsb').fetch('codename')
-  key_proxy Chef::Config.fetch('http_proxy')
+  key_proxy node.fetch('login_dot_gov').fetch('http_proxy')
 end
 
 include_recipe 'java'

@@ -10,8 +10,6 @@ node_version = '8.x'
 
 apt_package 'apt-transport-https'
 
-proxy_uri = Chef::Config.fetch('http_proxy')
-
 # https://deb.nodesource.com/gpgkey/nodesource.gpg.key
 # GPG key 9FD3B784BC1C6FC31A8A0A1C1655A0AB68576280
 cookbook_file '/etc/apt/trusted.gpg.d/nodesource.gpg' do
@@ -24,7 +22,7 @@ apt_repository 'nodesource' do
   distribution node.fetch('lsb').fetch('codename')
   components ['main']
   deb_src true
-  key_proxy Chef::Config.fetch('http_proxy')
+  key_proxy node.fetch('login_dot_gov').fetch('http_proxy')
 end
 
 apt_package 'nodejs' do
@@ -44,7 +42,7 @@ apt_repository 'yarnpkg' do
   uri 'https://dl.yarnpkg.com/debian/'
   distribution 'stable'
   components ['main']
-  key_proxy Chef::Config.fetch('http_proxy')
+  key_proxy node.fetch('login_dot_gov').fetch('http_proxy')
 end
 
 apt_package 'yarn'
