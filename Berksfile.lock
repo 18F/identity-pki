@@ -1,5 +1,4 @@
 DEPENDENCIES
-  acme
   apache2 (~> 5.2)
   application_ruby (~> 4.0.1)
   apt (~> 7.0)
@@ -73,10 +72,6 @@ DEPENDENCIES
     revision: 22284b06e5543b7ea734c81d6f76b7e581afab06
     ref: 22284b0
     rel: passenger
-  poise-ruby
-  poise-ruby-build
-  ruby_build
-  ruby_rbenv
   service_discovery
     path: kitchen/cookbooks/service_discovery
   ssh-keys
@@ -270,7 +265,6 @@ GRAPH
   ruby_build (1.2.0)
     git (>= 0.0.0)
     yum-epel (>= 0.0.0)
-  ruby_rbenv (2.1.2)
   runit (5.1.1)
     packagecloud (>= 0.0.0)
     yum-epel (>= 0.0.0)
