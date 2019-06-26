@@ -1,3 +1,9 @@
+apt_repository 'openjdk-r-ppa' do
+  uri "ppa:openjdk-r"
+  distribution node.fetch('lsb').fetch('codename')
+  key_proxy 'http://obproxy.login.gov.internal:3128'
+end
+
 include_recipe 'java'
 
 # mount extra disk up if it's there
