@@ -8,7 +8,7 @@ when '16.04'
 when '18.04'
     package 'certbot'
     execute 'install certbot_dns_route53' do
-      command 'pip install certbot_dns_route53==0.23.0'
+      command 'pip install certbot_dns_route53'
     end
 end
 
