@@ -125,7 +125,7 @@ resource "aws_autoscaling_group" "pivcac" {
     load_balancers = ["${aws_elb.pivcac.id}"]
 
     health_check_type = "ELB"
-    health_check_grace_period = 180
+    health_check_grace_period = "0"
 
     termination_policies = ["OldestInstance"]
 
