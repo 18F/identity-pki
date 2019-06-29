@@ -22,7 +22,7 @@ Region = 'us-west-2'
 
 role = File.basename(Dir.pwd)
 environment = ENV.fetch('KITCHEN_EC2_INTEGRATION_ENVIRONMENT', 'ci')
-ami_id = ENV.fetch('KITCHEN_EC2_AMI', 'ami-054fd10f11be0a078') # TODO look up dynamically
+ami_id = ENV.fetch('KITCHEN_EC2_AMI', 'ami-013774565dfa9b251') # TODO look up dynamically
 
 vpc_name = "login-vpc-#{environment}"
 

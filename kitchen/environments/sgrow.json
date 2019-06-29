@@ -1,0 +1,21 @@
+{
+  "name": "sgrow",
+  "description": "",
+  "json_class": "Chef::Environment",
+  "chef_type": "environment",
+  "default_attributes": {
+    "elk": {
+      "users": [
+        "sgrow"
+      ]
+    },
+    "identity-devops": {
+      "branch_name": "stages/sgrow"
+    },
+    "login_dot_gov": {
+      "branch_name": "stages/sgrow"
+    }
+  },
+  "override_attributes": {
+  }
+}
