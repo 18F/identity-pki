@@ -8,10 +8,6 @@ filter:
     query_string:
       query: 'type: cw_postgresql AND postgresql.duration: >4000'
 alert:
-- "slack"
-slack_webhook_url: https://hooks.slack.com/services/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
-slack_username_override: jjg alerts
-slack_channel_override: ["#login-otherevents"]alert:
 <% if ! @emails.empty? %>
 - "email"
 <% end %>
