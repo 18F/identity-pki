@@ -712,6 +712,75 @@ resource "aws_security_group" "cloudhsm" {
   }
 }
 
+resource "aws_security_group" "migration" {
+  name = "${var.env_name}-migration"
+
+  tags {
+    Name = "${var.env_name}-migration"
+    role = "migration"
+  }
+
+  vpc_id = "${aws_vpc.default.id}"
+  description = "Security group for migration server role"
+
+  # TODO: limit this to what is actually needed
+  # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
+  egress {
+    from_port = 0
+    to_port = 65535
+    protocol = "tcp"
+    cidr_blocks = ["${var.vpc_cidr_block}"]
+  }
+
+  # github
+  egress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["192.30.252.0/22"]
+  }
+
+  # need 8834 to comm with Nessus Server
+  egress {
+    from_port = 8834
+    to_port = 8834
+    protocol = "tcp"
+    cidr_blocks = ["${var.nessusserver_ip}"]
+  }
+
+  #s3 gateway
+  egress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    prefix_list_ids = ["${aws_vpc_endpoint.private-s3.prefix_list_id}"]
+  }
+
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    security_groups = [ "${aws_security_group.jumphost.id}" ]
+  }
+
+  # allow CI VPC for integration tests
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["${var.ci_sg_ssh_cidr_blocks}"]
+  }
+
+  # need 8834 to comm with Nessus Server
+  ingress {
+    from_port = 8834
+    to_port = 8834
+    protocol = "tcp"
+    cidr_blocks = ["${var.nessusserver_ip}"]
+  }
+}
+
+
 resource "aws_security_group" "pivcac" {
   description = "Allow inbound web traffic and whitelisted IP(s) for SSH"
 
