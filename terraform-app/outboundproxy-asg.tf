@@ -162,7 +162,7 @@ resource "aws_autoscaling_group" "outboundproxy" {
 # total requests and denied requests. It also creates an alarm on denied
 # requests that notifies to the specified alarm SNS ARN.
 module "outboundproxy_cloudwatch_filters" {
-  source = "github.com/18F/identity-terraform//squid_cloudwatch_filters?ref=2c43bfd79a8a2377657bc8ed4764c3321c0f8e80"
+  source = "github.com/18F/identity-terraform//squid_cloudwatch_filters?ref=9c13801ac0be5c3e1fa773674f75a368dc450634"
 
   env_name = "${var.env_name}"
   alarm_actions = ["${var.slack_events_sns_hook_arn}"] # notify slack on denied requests
