@@ -121,16 +121,19 @@ variable "elasticache_redis_node_type" {
     # allowed values: t2.micro-medium, m3.medium-2xlarge, m4|r3|r4.large-
     default = "cache.m3.medium"
 }
+variable "elasticache_redis_engine_version" {
+    description = "Engine version used for redis elasticache. Changes may incur downtime."
+    default = "3.2.10"
+}
+variable "elasticache_redis_parameter_group_name" {
+  default = "default.redis3.2"
+}
+
 
 variable "elasticsearch_volume_size" {
     description = "EBS volume size for elasticsearch hosts"
     # allowed values: 300 - 1000
     default = 300
-}
-
-variable "use_multi_az_redis" {
-    description = "Whether to use the new multi-AZ elasticache redis cluster. (Repoints DNS CNAME)"
-    default = 0
 }
 
 # prod/test environment flags
