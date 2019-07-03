@@ -40,6 +40,7 @@ iam_profiles = {
     "app" => "#{environment}-base-permissions",
     "outboundproxy" => "#{environment}_obproxy_instance_profile",
     "pivcac" => "#{environment}_pivcac_instance_profile",
+    "migration" => "#{environment}-migration",
 }
 if !iam_profiles.key?(role)
   raise "IAM profile for role: #{role} not found in test kitchen boilerplate.  Please add it in #{__FILE__}."
@@ -55,6 +56,7 @@ subnets = {
     "elk" => "login-elk_subnet-#{environment}-*",
     "app" => "login-public1_subnet-#{environment}",
     "outboundproxy" => "login-public1_subnet-#{environment}",
+    "migration" => "login-idp1_subnet-#{environment}",
 }
 if !subnets.key?(role)
   raise "Subnet for role: #{role} not found in test kitchen boilerplate.  Please add it in #{__FILE__}."
