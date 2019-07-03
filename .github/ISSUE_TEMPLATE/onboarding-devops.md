@@ -35,7 +35,7 @@ _🌮 note: as tasks are completed, please create a separate comment.  This is t
 
 * [ ] Give intro to weekly ceremonies and team workflow
 * [ ] Ask the new team member for their GitHub username. Make sure they have already been invited to the 18F org and accepted the invitation.
-  * [ ] Team members who need write access to push commits should be added to the [identity-core](https://github.com/orgs/18F/teams/identity-core/members) team. Make a request to the [team maintainers](https://github.com/orgs/18F/teams/identity-core?utf8=%E2%9C%93&query=%20role%3Amaintainer) to add them.
+  * [ ] Team members who need write access to push commits should be added to the [identity-core](https://github.com/orgs/18F/teams/identity-core/members) team. Make a request to the [team maintainers](https://github.com/orgs/18F/teams/identity-core/members?utf8=%E2%9C%93&query=%20role%3Amaintainer) to add them.
   * [ ] Team members who do not need push access should be added to the [identity-team-yml](https://github.com/orgs/18F/teams/identity-team-yml/members) team, which grants read-only access. [team maintainers](https://github.com/orgs/18F/teams/identity-team-yml/members?utf8=%E2%9C%93&query=+role%3Amaintainer)
 * [ ] If the new team member does not have Slack access, request access for them in the `#admins-slack` channel and fill out this form: https://goo.gl/forms/4Mz21nvALvITj9Os1.
 * [ ] Add the new team member to the Login Services Shared Events calendar. Add users with non-GSA.gov email addresses with the `See all event details` permission, and those with GSA.gov emails as `Make changes AND manage sharing`.
