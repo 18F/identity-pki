@@ -1,9 +1,14 @@
-data "aws_acm_certificate" "tlstest" {
+resource "aws_acm_certificate" "tlstest" {
     count = "${var.cloudfront_tlstest_enabled}"
 
     # tlstest.secure.login.gov in prod, tltest.$env.login.gov in other environments
-    domain = "${var.env_name == "prod" ? "tlstest.secure.${var.root_domain}" : "tlstest.${var.env_name}.${var.root_domain}"}"
-    statuses = ["ISSUED"]
+    domain_name = "${var.env_name == "prod" ? "tlstest.secure.${var.root_domain}" : "tlstest.${var.env_name}.${var.root_domain}"}"
+    validation_method         = "DNS"
+
+    lifecycle {
+      create_before_destroy = true
+    }
+
     provider = "aws.use1"
 }
 
@@ -51,7 +56,7 @@ resource "aws_cloudfront_distribution" "tls_profiling" {
   }
 
   viewer_certificate {
-    acm_certificate_arn      = "${data.aws_acm_certificate.tlstest.arn}"
+    acm_certificate_arn      = "${aws_acm_certificate.tlstest.arn}"
     minimum_protocol_version = "TLSv1.2_2018"
     ssl_support_method       = "sni-only"
   }
