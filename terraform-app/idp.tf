@@ -93,6 +93,7 @@ resource "aws_db_parameter_group" "force_ssl" {
 resource "aws_elasticache_cluster" "idp" {
   cluster_id = "login-idp-${var.env_name}"
   engine = "redis"
+  engine_version = "3.2.10"
   node_type = "${var.elasticache_redis_node_type}"
   num_cache_nodes = 1
   parameter_group_name = "default.redis3.2"
@@ -106,6 +107,7 @@ resource "aws_elasticache_replication_group" "idp" {
   replication_group_id          = "${var.env_name}-idp"
   replication_group_description = "Multi AZ redis cluster for the IdP in ${var.env_name}"
   engine                        = "redis"
+  engine_version                = "3.2.10"
   node_type                     = "${var.elasticache_redis_node_type}"
   number_cache_clusters         = 2
   parameter_group_name          = "default.redis3.2"
