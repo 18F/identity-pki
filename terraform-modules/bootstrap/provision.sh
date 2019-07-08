@@ -222,6 +222,19 @@ export NEW_RELIC_PROXY_PORT='$proxy_port'
 EOF
     # shellcheck disable=SC1091
     source /etc/profile.d/proxy-config.sh
+
+    # Also add vars to /etc/environment so that anything reading this early on
+    # before the main chef run will still get the appropriate proxy.
+    if ! grep "^http_proxy=" /etc/environment >/dev/null; then
+        run tee -a /etc/environment >&2 <<EOF
+# Proxy vars added by provision.sh
+http_proxy='$http_proxy'
+https_proxy='$https_proxy'
+no_proxy='$no_proxy_hosts'
+NEW_RELIC_PROXY_HOST='$proxy_server'
+NEW_RELIC_PROXY_PORT='$proxy_port'
+EOF
+    fi
 }
 
 maybe_complete_lifecycle_hook() {
