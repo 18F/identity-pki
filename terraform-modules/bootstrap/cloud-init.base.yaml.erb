@@ -12,6 +12,7 @@ def append_if_nonempty(string, suffix)
   return '' if string.empty?
   string + suffix
 end
+
 %>
 
 write_files:
@@ -44,6 +45,13 @@ write_files:
    content: "<%= append_if_nonempty(proxy_port, '\n') %>"
  - path: /etc/login.gov/info/no_proxy_hosts
    content: "<%= append_if_nonempty(no_proxy_hosts, '\n') %>"
+
+<% if proxy_server && !proxy_server.empty? %>
+ - path: /etc/apt/apt.conf.d/proxy.conf
+   content: |
+     Acquire::http::Proxy "<%= "http://#{proxy_server}:#{proxy_port}" %>";
+     Acquire::https::Proxy "<%= "http://#{proxy_server}:#{proxy_port}" %>";
+<% end %>
 
  - path: /etc/ssh/ssh_known_hosts
    content: |
