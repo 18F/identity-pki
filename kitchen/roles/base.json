@@ -32,7 +32,6 @@
     "recipe[hostname]",
     "recipe[motd]",
     "recipe[identity_base_config]",
-    "recipe[ruby_build]",
     "recipe[ssh-keys]",
     "recipe[sudo]",
     "recipe[identity-elk::logcleanup]",
