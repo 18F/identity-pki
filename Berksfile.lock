@@ -18,8 +18,8 @@ DEPENDENCIES
     revision: 7007851c91e1404a43f1c914471a2d6c817eea8e
   cloudhsm
     git: https://github.com/18F/identity-cookbooks
-    revision: 22284b06e5543b7ea734c81d6f76b7e581afab06
-    ref: 22284b0
+    revision: 3f7ec4c4e23b372f1ffc09eda010eae3f5d5f52f
+    ref: 3f7ec4c
     rel: cloudhsm
   config_loader
     path: kitchen/cookbooks/config_loader
@@ -44,13 +44,13 @@ DEPENDENCIES
     path: kitchen/cookbooks/identity-pivcac
   identity_base_config
     git: https://github.com/18F/identity-cookbooks
-    revision: 22284b06e5543b7ea734c81d6f76b7e581afab06
-    ref: 22284b0
+    revision: 3f7ec4c4e23b372f1ffc09eda010eae3f5d5f52f
+    ref: 3f7ec4c
     rel: identity_base_config
   identity_shared_attributes
     git: https://github.com/18F/identity-cookbooks
-    revision: 22284b06e5543b7ea734c81d6f76b7e581afab06
-    ref: 22284b0
+    revision: 3f7ec4c4e23b372f1ffc09eda010eae3f5d5f52f
+    ref: 3f7ec4c
     rel: identity_shared_attributes
   instance_certificate
     path: kitchen/cookbooks/instance_certificate
@@ -66,11 +66,11 @@ DEPENDENCIES
   openssl
   ossec
     git: https://github.com/sous-chefs/ossec
-    revision: 7e63571e40456e63c08dc5e4538bd5006993563c
+    revision: 4723e0314e3da33c08cb06e3c73a43c07d213185
   passenger
     git: https://github.com/18F/identity-cookbooks
-    revision: 22284b06e5543b7ea734c81d6f76b7e581afab06
-    ref: 22284b0
+    revision: 3f7ec4c4e23b372f1ffc09eda010eae3f5d5f52f
+    ref: 3f7ec4c
     rel: passenger
   runit (~> 4.3.1)
   service_discovery
@@ -78,8 +78,8 @@ DEPENDENCIES
   ssh-keys
   static_eip
     git: https://github.com/18F/identity-cookbooks
-    revision: 22284b06e5543b7ea734c81d6f76b7e581afab06
-    ref: 22284b0
+    revision: 3f7ec4c4e23b372f1ffc09eda010eae3f5d5f52f
+    ref: 3f7ec4c
     rel: static_eip
   sudo
   users
@@ -185,7 +185,7 @@ GRAPH
     login_dot_gov (>= 0.0.0)
   identity_base_config (0.1.1)
     identity_shared_attributes (>= 0.0.0)
-  identity_shared_attributes (0.1.1)
+  identity_shared_attributes (0.1.2)
   instance_certificate (0.1.0)
     canonical_hostname (>= 0.0.0)
   java (4.1.0)
@@ -217,7 +217,7 @@ GRAPH
     poise-monit (~> 1.0)
   motd (0.6.4)
     chef_handler (>= 0.0.0)
-  newrelic-infra (0.10.0)
+  newrelic-infra (0.11.0)
     poise-archive (~> 1.5)
     poise-service (~> 1.5)
   newrelic_meetme_plugin (0.5.0)
@@ -230,7 +230,7 @@ GRAPH
   ossec (1.2.0)
     yum-atomic (>= 0.0.0)
   packagecloud (1.0.1)
-  passenger (0.0.7)
+  passenger (0.0.8)
     identity_shared_attributes (>= 0.0.1)
   poise (2.8.2)
   poise-archive (1.5.0)
