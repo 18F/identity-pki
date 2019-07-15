@@ -13,6 +13,8 @@ when '16.04'
   package 'postgresql-client-9.5'
 when '18.04'
   package 'postgresql-client-10'
+else
+  raise "Unexpected platform_version: #{node[:platform_version].inspect}"
 end
 
 # TODO needs more hardening

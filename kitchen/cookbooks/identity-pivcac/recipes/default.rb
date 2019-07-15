@@ -11,6 +11,8 @@ when '18.04'
     execute 'install certbot_dns_route53' do
       command 'pip3 install certbot_dns_route53==0.23.0'  #match certbot version from ubuntu
     end
+else
+  raise "Unexpected platform_version: #{node[:platform_version].inspect}"
 end
 
 include_recipe 'identity-pivcac::update_letsencrypt_certs'
