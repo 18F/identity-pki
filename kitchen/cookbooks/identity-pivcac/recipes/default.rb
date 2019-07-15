@@ -1,7 +1,18 @@
-package 'python-pip'
-execute 'install certbot via pip' do
-  command 'pip install certbot certbot_dns_route53'
-  not_if 'pip show certbot && pip show certbot_dns_route53'
+case node[:platform_version]
+when '16.04'
+  package 'python-pip'
+  execute 'install certbot via pip' do
+    command 'pip install certbot certbot_dns_route53'
+    not_if 'pip show certbot && pip show certbot_dns_route53'
+  end
+when '18.04'
+    package 'certbot'
+    package 'python3-pip'
+    execute 'install certbot_dns_route53' do
+      command 'pip3 install certbot_dns_route53==0.23.0'  #match certbot version from ubuntu
+    end
+else
+  raise "Unexpected platform_version: #{node[:platform_version].inspect}"
 end
 
 include_recipe 'identity-pivcac::update_letsencrypt_certs'

@@ -14,7 +14,10 @@ release_path    = '/srv/idp/releases/chef'
 shared_path     = '/srv/idp/shared'
 
 package 'jq'
-package 'libcurl4-openssl-dev'
+case node[:platform_version]
+when '16.04'
+  package 'libcurl4-openssl-dev'
+end
 
 # create dir for AWS PostgreSQL combined CA cert bundle
 directory '/usr/local/share/aws' do

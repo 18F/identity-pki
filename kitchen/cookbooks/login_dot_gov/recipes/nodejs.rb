@@ -22,6 +22,7 @@ apt_repository 'nodesource' do
   distribution node.fetch('lsb').fetch('codename')
   components ['main']
   deb_src true
+  key_proxy node.fetch('login_dot_gov').fetch('http_proxy')
 end
 
 apt_package 'nodejs' do
@@ -41,6 +42,7 @@ apt_repository 'yarnpkg' do
   uri 'https://dl.yarnpkg.com/debian/'
   distribution 'stable'
   components ['main']
+  key_proxy node.fetch('login_dot_gov').fetch('http_proxy')
 end
 
 apt_package 'yarn'

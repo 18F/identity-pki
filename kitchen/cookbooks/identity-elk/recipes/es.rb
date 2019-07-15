@@ -1,3 +1,12 @@
+# configure the java repo
+# the java receipe will fail to setup the repo since we are
+# using a proxy server
+apt_repository 'openjdk-r-ppa' do
+  uri "ppa:openjdk-r"
+  distribution node.fetch('lsb').fetch('codename')
+  key_proxy node.fetch('login_dot_gov').fetch('http_proxy')
+end
+
 include_recipe 'java'
 
 # mount extra disk up if it's there
