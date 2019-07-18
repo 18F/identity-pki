@@ -1,7 +1,16 @@
+# frozen_string_literal: true
+
 system_user = node.fetch('login_dot_gov').fetch('web_system_user')
 
+if node.fetch('login_dot_gov').fetch('idp_run_recurring_jobs')
+  service_state = [:create, :enable, :start]
+else
+  Chef::Log.info('idp_run_recurring_jobs is falsy, disabling idp-jobs.service')
+  service_state = [:create, :disable, :stop]
+end
+
 systemd_unit 'idp-jobs.service' do
-  action [:create, :enable, :start]
+  action service_state
 
   content <<-EOM
 # Dropped off by chef

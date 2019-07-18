@@ -4,7 +4,8 @@
   "json_class": "Chef::Role",
   "default_attributes": {
     "login_dot_gov": {
-      "idp_run_migrations": true
+      "idp_run_migrations": true,
+      "idp_run_recurring_jobs": false
     }
   },
   "override_attributes": {
