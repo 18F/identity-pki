@@ -213,6 +213,7 @@ resource "aws_security_group" "db" {
     security_groups = [
       "${aws_security_group.app.id}",
       "${aws_security_group.idp.id}",
+      "${aws_security_group.migration.id}",
       "${aws_security_group.pivcac.id}"
     ]
   }
