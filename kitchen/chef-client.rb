@@ -34,12 +34,7 @@ json_attribs InfoDir + '/chef-attributes.json'
 # Uncomment when preparing to upgrade chef versions
 #treat_deprecation_warnings_as_errors true
 
-# These options are used by "elasticsearch-plugin install" and
-# passenger::daemon.
-if !ENV['http_proxy'].to_s.empty?
-  http_proxy ENV['http_proxy']
-end
-if !ENV['https_proxy'].to_s.empty?
-  https_proxy ENV['https_proxy']
-end
-no_proxy ENV['no_proxy']
+# Note: the http_proxy, https_proxy, and no_proxy config variables may also be
+# set by the chef_proxy_env cookbook. This is needed because Test Kitchen
+# creates its own chef-client.rb when running chef under kitchen-ec2 and does
+# not use this file, but we still need to set appropriate proxy configs.

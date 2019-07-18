@@ -46,6 +46,9 @@ write_files:
  - path: /etc/login.gov/info/no_proxy_hosts
    content: "<%= append_if_nonempty(no_proxy_hosts, '\n') %>"
 
+ - path: /etc/login.gov/info/http_proxy
+   content: <%= ((proxy_server && !proxy_server.empty?) ? "http://#{proxy_server}:#{proxy_port}\n" : '').to_json %>
+
 <% if proxy_server && !proxy_server.empty? %>
  - path: /etc/apt/apt.conf.d/proxy.conf
    content: |

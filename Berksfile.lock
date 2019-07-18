@@ -13,6 +13,8 @@ DEPENDENCIES
   cacert
   canonical_hostname
     path: kitchen/cookbooks/canonical_hostname
+  chef_proxy_env
+    path: kitchen/cookbooks/chef_proxy_env
   citadel_fork
     git: https://github.com/18f/citadel-build.git
     revision: 7007851c91e1404a43f1c914471a2d6c817eea8e
@@ -113,6 +115,7 @@ GRAPH
     aws_metadata (>= 0.0.0)
   chef-sugar (5.0.1)
   chef_handler (3.0.3)
+  chef_proxy_env (0.1.1)
   citadel_fork (9.1.1)
   cloudhsm (0.0.7)
   compat_resource (12.19.1)
