@@ -46,3 +46,23 @@ end
     its('addresses') { should include '0.0.0.0' }
   end
 end
+
+# proxy configs
+describe os_env('https_proxy') do
+  its('content') { should eq 'http://obproxy.login.gov.internal:3128' }
+end
+describe file('/etc/login.gov/info/http_proxy') do
+  it { should exist }
+  its('content') { should eq "http://obproxy.login.gov.internal:3128\n" }
+end
+describe file('/etc/login.gov/info/proxy_server') do
+  it { should exist }
+  its('content') { should eq "obproxy.login.gov.internal\n" }
+end
+describe file('/etc/login.gov/info/proxy_port') do
+  it { should exist }
+  its('content') { should eq "3128\n" }
+end
+describe file('/etc/environment') do
+  its('content') { should include("http_proxy='http://obproxy.login.gov.internal:3128'") }
+end
