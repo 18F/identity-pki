@@ -245,7 +245,7 @@ end
             "value" => subnet
         },
         "security_group_ids" => [security_group.group_id],
-        "instance_type" => "c4.xlarge",
+        "instance_type" => "c5.xlarge",
         "image_id" => ami_id,
         "user_data" => user_data,
         "iam_profile_name" => iam_profile,
