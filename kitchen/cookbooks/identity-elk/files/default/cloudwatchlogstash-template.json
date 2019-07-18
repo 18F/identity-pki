@@ -39,6 +39,106 @@
         "end": {
           "type": "integer"
         },
+        "geoip": {
+          "properties": {
+            "city_name": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "continent_code": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "country_code2": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "country_code3": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "country_name": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "dma_code": {
+              "type": "long"
+            },
+            "ip": {
+              "type": "ip"
+            },
+            "latitude": {
+              "type": "half_float"
+            },
+            "location": {
+              "type": "geo_point"
+            },
+            "longitude": {
+              "type": "half_float"
+            },
+            "postal_code": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "region_code": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "region_name": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "timezone": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            }
+          }
+        },
         "interface-id": {
           "type": "keyword"
         },
@@ -50,6 +150,133 @@
         },
         "packets": {
           "type": "integer"
+        },
+        "postgresql": {
+          "properties": {
+            "average_duration": {
+              "type": "scaled_float",
+              "scaling_factor": 1000
+            },
+            "buffers": {
+              "type": "byte"
+            },
+            "buffers_percent": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "client_ip": {
+              "type": "ip"
+            },
+            "client_port": {
+              "type": "integer"
+            },
+            "db_name": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "distance": {
+              "type": "integer"
+            },
+            "duration": {
+              "type": "scaled_float",
+              "scaling_factor": 1000
+            },
+            "estimate": {
+              "type": "integer"
+            },
+            "log_level": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "longest_duration": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "pid": {
+              "type": "integer"
+            },
+            "recycled": {
+              "type": "byte"
+            },
+            "removed": {
+              "type": "byte"
+            },
+            "statement": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "sync_duration": {
+              "type": "scaled_float",
+              "scaling_factor": 1000
+            },
+            "sync_files": {
+              "type": "byte"
+            },
+            "time_zone": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "timestamp": {
+              "type": "date",
+              "format": "yy-MM-dd HH:mm:ss"
+            },
+            "total_duration": {
+              "type": "scaled_float",
+              "scaling_factor": 1000
+            },
+            "transaction_log_file_count": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "username": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "write_duration": {
+              "type": "scaled_float",
+              "scaling_factor": 1000
+            }
+          }
         },
         "protocol": {
           "type": "integer"
