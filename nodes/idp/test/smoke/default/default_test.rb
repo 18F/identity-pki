@@ -46,6 +46,11 @@ describe file('/opt/nginx/logs') do
   it { should be_linked_to '/var/log/nginx' }
 end
 
+# should not run migrations on idp
+describe file('/tmp/ran-deploy-migrate') do
+  it { should_not exist }
+end
+
 # check deploy info file
 describe file('/srv/idp/current/public/api/deploy.json') do
   it { should be_file }

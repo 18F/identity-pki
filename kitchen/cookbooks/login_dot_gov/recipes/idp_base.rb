@@ -176,7 +176,7 @@ application release_path do
 
     execute 'deploy migrate step' do
       cwd '/srv/idp/releases/chef'
-      command './deploy/migrate'
+      command './deploy/migrate && touch /tmp/ran-deploy-migrate'
       environment (node.fetch('login_dot_gov').fetch('allow_unsafe_migrations') ? { "SAFETY_ASSURED" => "1" } : nil )
       user node['login_dot_gov']['system_user']
       group node['login_dot_gov']['system_user']
