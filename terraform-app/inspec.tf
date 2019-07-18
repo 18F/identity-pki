@@ -10,6 +10,6 @@ resource "aws_ssm_association" "cis" {
 
   parameters {
     sourceType = "GitHub"
-    sourceInfo = "{\"owner\":\"18F\",\"repository\":\"cis-dil-benchmark\",\"path\":\"\",\"getOptions\":\"branch:crissupb/updates\"}"
+    sourceInfo = "{\"owner\":\"18F\",\"repository\":\"cis-dil-benchmark\",\"path\":\"\",\"getOptions\":\"branch:master\"}"
   }
 }
