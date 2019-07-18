@@ -82,7 +82,7 @@ control 'check-cert-setup' do
   end
 end
 
-discovery_cron_cmd = "cat /etc/login.gov/repos/identity-devops/kitchen/chef-client.rb >/dev/null && chef-client --local-mode -c /etc/login.gov/repos/identity-devops/kitchen/chef-client.rb -o 'role[elasticsearch_discovery]' 2>&1 >> /var/log/elasticsearch/discovery.log"
+discovery_cron_cmd = %q(flock -n /tmp/es_setup.lock -c "cat /etc/login.gov/repos/identity-devops/kitchen/chef-client.rb >/dev/null && chef-client --local-mode -c /etc/login.gov/repos/identity-devops/kitchen/chef-client.rb -o 'role[elasticsearch_discovery]' 2>&1 >> /var/log/elasticsearch/discovery.log")
 
 describe crontab('root') do
   its('commands') { should include discovery_cron_cmd }

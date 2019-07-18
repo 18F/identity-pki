@@ -50,7 +50,7 @@ describe runit_service('cloudwatchlogstash') do
   it { should be_running }
 end
 
-discovery_cron_cmd = "cat /etc/login.gov/repos/identity-devops/kitchen/chef-client.rb >/dev/null && chef-client --local-mode -c /etc/login.gov/repos/identity-devops/kitchen/chef-client.rb -o 'role[elk_discovery]' 2>&1 >> /var/log/elk-discovery.log"
+discovery_cron_cmd = %q(flock -n /tmp/elk_discovery.lock -c "cat /etc/login.gov/repos/identity-devops/kitchen/chef-client.rb >/dev/null && chef-client --local-mode -c /etc/login.gov/repos/identity-devops/kitchen/chef-client.rb -o 'role[elk_discovery]' 2>&1 >> /var/log/elk-discovery.log")
 
 describe crontab('root') do
   its('commands') { should include discovery_cron_cmd }
