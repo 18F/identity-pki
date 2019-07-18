@@ -15,6 +15,7 @@ resource "aws_security_group" "kms_endpoint" {
     protocol = "tcp"
     security_groups = [
         "${aws_security_group.idp.id}",
+        "${aws_security_group.migration.id}",
     ]
   }
 
@@ -43,12 +44,9 @@ resource "aws_security_group" "ssm_endpoint" {
     to_port = 65535
     protocol = "tcp"
     security_groups = [
-        "${aws_security_group.idp.id}",
-        "${aws_security_group.app.id}",
-        "${aws_security_group.obproxy.id}",
-        "${aws_security_group.jumphost.id}",
-        "${aws_security_group.elk.id}",
-        "${aws_security_group.pivcac.id}",
+        "${aws_security_group.base.id}",
+
+        "${aws_security_group.jumphost.id}", # TODO remove
     ]
   }
 
@@ -71,12 +69,9 @@ resource "aws_security_group" "ssmmessages_endpoint" {
     to_port = 65535
     protocol = "tcp"
     security_groups = [
-        "${aws_security_group.idp.id}",
-        "${aws_security_group.app.id}",
-        "${aws_security_group.obproxy.id}",
-        "${aws_security_group.jumphost.id}",
-        "${aws_security_group.elk.id}",
-        "${aws_security_group.pivcac.id}",
+        "${aws_security_group.base.id}",
+
+        "${aws_security_group.jumphost.id}", # TODO remove
     ]
   }
 
@@ -99,12 +94,9 @@ resource "aws_security_group" "ec2_endpoint" {
     to_port = 65535
     protocol = "tcp"
     security_groups = [
-        "${aws_security_group.idp.id}",
-        "${aws_security_group.app.id}",
-        "${aws_security_group.obproxy.id}",
-        "${aws_security_group.jumphost.id}",
-        "${aws_security_group.elk.id}",
-        "${aws_security_group.pivcac.id}",
+        "${aws_security_group.base.id}",
+
+        "${aws_security_group.jumphost.id}", # TODO remove
     ]
   }
 
@@ -133,12 +125,9 @@ resource "aws_security_group" "ec2messages_endpoint" {
     to_port = 65535
     protocol = "tcp"
     security_groups = [
-        "${aws_security_group.idp.id}",
-        "${aws_security_group.app.id}",
-        "${aws_security_group.obproxy.id}",
-        "${aws_security_group.jumphost.id}",
-        "${aws_security_group.elk.id}",
-        "${aws_security_group.pivcac.id}",
+        "${aws_security_group.base.id}",
+
+        "${aws_security_group.jumphost.id}", # TODO remove
     ]
   }
 
@@ -167,12 +156,9 @@ resource "aws_security_group" "logs_endpoint" {
     to_port = 65535
     protocol = "tcp"
     security_groups = [
-        "${aws_security_group.idp.id}",
-        "${aws_security_group.app.id}",
-        "${aws_security_group.obproxy.id}",
-        "${aws_security_group.jumphost.id}",
-        "${aws_security_group.elk.id}",
-        "${aws_security_group.pivcac.id}",
+        "${aws_security_group.base.id}",
+
+        "${aws_security_group.jumphost.id}", # TODO remove
     ]
   }
 
@@ -201,12 +187,9 @@ resource "aws_security_group" "secretsmanager_endpoint" {
     to_port = 65535
     protocol = "tcp"
     security_groups = [
-        "${aws_security_group.idp.id}",
-        "${aws_security_group.app.id}",
-        "${aws_security_group.obproxy.id}",
-        "${aws_security_group.jumphost.id}",
-        "${aws_security_group.elk.id}",
-        "${aws_security_group.pivcac.id}",
+        "${aws_security_group.base.id}",
+
+        "${aws_security_group.jumphost.id}", # TODO remove
     ]
   }
 

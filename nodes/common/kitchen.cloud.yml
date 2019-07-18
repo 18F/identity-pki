@@ -200,16 +200,28 @@ if ec2.subnets(filters: [{name: 'tag:Name', values: [subnet]}]).count.zero?
   raise "No subnet named #{subnet.inspect} found"
 end
 
+def get_security_group(ec2:, vpc:, tag_key:, tag_value:)
+  filters = [
+    {name: "vpc-id", values: [vpc.vpc_id]},
+    {name: "tag:#{tag_key}", values: [tag_value]},
+  ]
+  groups = ec2.security_groups(filters: filters).to_a
+  if groups.empty?
+    raise "No security group found with filters: #{filters.inspect}"
+  end
+
+  if groups.length > 1
+    raise "Many SGs found for filters: #{filters.inspect}: #{groups.inspect}"
+  end
+
+  groups.fetch(0)
+end
+
 # Look up security group. Test kitchen only lets you filter on one key, so we
 # have to do it ourselves if we want to filter on VPC ID + tag.
-security_group_filters = [
-  {name: "vpc-id", values: [vpc.vpc_id]},
-  {name: "tag:#{security_group_tag_name}", values: [security_group_tag_value]},
-]
-security_group = ec2.security_groups(filters: security_group_filters).first
-unless security_group
-  raise "No security group found with filters: #{security_group_filters.inspect}"
-end
+main_security_group = get_security_group(vpc: vpc, ec2: ec2, tag_key: security_group_tag_name, tag_value: security_group_tag_value)
+
+base_security_group = get_security_group(vpc: vpc, ec2: ec2,  tag_key: 'Name', tag_value: "#{environment}-base")
 
 def gzip(string)
   begin
@@ -244,7 +256,7 @@ end
             "tag" => "Name",
             "value" => subnet
         },
-        "security_group_ids" => [security_group.group_id],
+        "security_group_ids" => [main_security_group, base_security_group].map(&:group_id),
         "instance_type" => "c5.xlarge",
         "image_id" => ami_id,
         "user_data" => user_data,

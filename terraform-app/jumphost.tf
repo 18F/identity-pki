@@ -42,7 +42,7 @@ module "jumphost_launch_template" {
 
   instance_type             = "${var.instance_type_jumphost}"
   iam_instance_profile_name = "${aws_iam_instance_profile.base-permissions.name}"
-  security_group_ids        = ["${aws_security_group.jumphost.id}"]
+  security_group_ids        = ["${aws_security_group.jumphost.id}", "${aws_security_group.base.id}"]
 
   user_data                 = "${module.jumphost_user_data.rendered_cloudinit_config}"
 
