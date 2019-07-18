@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 # Inspec tests for App (dashboard / sample sp) node
 
 # The Inspec reference, with examples and extensive documentation, can be
@@ -47,6 +45,11 @@ describe command('curl -Sfk -i https://localhost/') do
   its('stdout') { should include 'Content-Type: text/html' }
   its('stdout') { should include '<title>login.gov Dashboard</title>' }
 end
+# TODO: ^ test is broken due to an inspec bug with UTF-8 characters
+# We need to upgrade inspec, which involves a yak shave to figure out what to
+# do about kitchen-transport-rsync
+# https://github.com/inspec/kitchen-inspec/issues/160
+# https://github.com/inspec/inspec/pull/3376
 
 describe file('/opt/nginx/logs') do
   it { should be_linked_to '/var/log/nginx' }
