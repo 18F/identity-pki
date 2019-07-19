@@ -31,6 +31,26 @@ describe command('sudo whoami') do
   its('exit_status') { should eq 0 }
 end
 
+# should not be set up to use the proxy ourselves
+describe os_env('http_proxy') do
+  its('content') { should be_in [nil, ''] }
+end
+describe os_env('https_proxy') do
+  its('content') { should be_in [nil, ''] }
+end
+describe file('/etc/login.gov/info/http_proxy') do
+  it { should exist }
+  its('size') { should eq 0 }
+end
+describe file('/etc/login.gov/info/proxy_server') do
+  it { should exist }
+  its('size') { should eq 0 }
+end
+describe file('/etc/environment') do
+  its('content') { should_not match(/http_proxy=.../) }
+  its('content') { should_not match(/https_proxy=.../) }
+end
+
 # test proxy HTTP
 describe command('curl -sSf -m 5 --proxy http://localhost:3128 https://checkip.amazonaws.com') do
   its('stderr') { should eq '' }

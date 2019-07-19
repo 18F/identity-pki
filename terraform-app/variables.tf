@@ -174,8 +174,9 @@ variable "instance_type_elk" { default = "c5.large" }
 variable "instance_type_es" { default = "c5.large" }
 variable "instance_type_idp" { default = "c5.large" }
 variable "instance_type_jumphost" { default = "c5.large" }
-variable "instance_type_pivcac" { default = "c5.large" }
+variable "instance_type_migration" { default = "c5.large" }
 variable "instance_type_outboundproxy" { default = "c5.large" }
+variable "instance_type_pivcac" { default = "c5.large" }
 variable "name" { default = "login" }
 variable "region" { default = "us-west-2" }
 variable "availability_zones" { default = ["us-west-2a","us-west-2b","us-west-2c"] }
@@ -206,6 +207,9 @@ variable "asg_elk_desired" { default = 0 }
 variable "asg_app_min" { default = 0 }
 variable "asg_app_desired" { default = 0 }
 variable "asg_app_max" { default = 8 }
+variable "asg_migration_min" { default = 0 }
+variable "asg_migration_desired" { default = 0 }
+variable "asg_migration_max" { default = 8 }
 variable "pivcac_nodes" { default = 2 }
 variable "asg_outboundproxy_desired" { default = 3 }
 variable "asg_outboundproxy_min" { default = 1 }
@@ -269,12 +273,12 @@ variable "bootstrap_private_git_clone_url" {
 # though they will have different IDs. They should be updated here at the same
 # time, and then released to environments in sequence.
 variable "default_ami_id_sandbox" {
-    default = "ami-013774565dfa9b251" # 2019-06-18
+    default = "ami-0b8a3af1b63258dce" # 2019-07-17 Ubuntu 16.04
     description = "default AMI ID for environments in the sandbox account"
 }
 
 variable "default_ami_id_prod" {
-    default = "ami-0890ab0f68fed6784" # 2019-06-18
+    default = "ami-0507c9c210027dc69" # 2019-07-17 Ubuntu 16.04
     description = "default AMI ID for environments in the prod account"
 }
 

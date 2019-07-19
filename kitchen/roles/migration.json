@@ -1,0 +1,19 @@
+{
+  "name": "migration",
+  "description": "",
+  "json_class": "Chef::Role",
+  "default_attributes": {
+    "login_dot_gov": {
+      "idp_run_migrations": true,
+      "idp_run_recurring_jobs": false
+    }
+  },
+  "override_attributes": {
+  },
+  "chef_type": "role",
+  "run_list": [
+    "role[idp]"
+  ],
+  "env_run_lists": {
+  }
+}

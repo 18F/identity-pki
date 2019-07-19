@@ -171,12 +171,19 @@ application release_path do
     group node['login_dot_gov']['system_user']
   end
 
-  execute 'deploy migrate step' do
-    cwd '/srv/idp/releases/chef'
-    command './deploy/migrate'
-    environment (node.fetch('login_dot_gov').fetch('allow_unsafe_migrations') ? { "SAFETY_ASSURED" => "1" } : nil )
-    user node['login_dot_gov']['system_user']
-    group node['login_dot_gov']['system_user']
+  if node.fetch('login_dot_gov').fetch('idp_run_migrations')
+    Chef::Log.info('Running idp migrations')
+
+    execute 'deploy migrate step' do
+      cwd '/srv/idp/releases/chef'
+      command './deploy/migrate && touch /tmp/ran-deploy-migrate'
+      environment (node.fetch('login_dot_gov').fetch('allow_unsafe_migrations') ? { "SAFETY_ASSURED" => "1" } : nil )
+      user node['login_dot_gov']['system_user']
+      group node['login_dot_gov']['system_user']
+    end
+
+  else
+    Chef::Log.info('Skipping idp migrations, idp_run_migrations is falsy')
   end
 
   if File.exist?("/etc/init.d/passenger")

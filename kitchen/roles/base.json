@@ -10,10 +10,18 @@
         ],
         "passwordless": true
       }
+    },
+    "chef_proxy_env": {
+      "config_files": {
+        "http_proxy": "/etc/login.gov/info/http_proxy",
+        "https_proxy": "/etc/login.gov/info/http_proxy",
+        "no_proxy": "/etc/login.gov/info/no_proxy_hosts"
+      }
     }
   },
   "chef_type": "role",
   "run_list": [
+    "recipe[chef_proxy_env]",
     "recipe[instance_certificate::generate]",
     "recipe[service_discovery::register]",
     "recipe[login_dot_gov::configure_awsagent]",
@@ -32,7 +40,6 @@
     "recipe[hostname]",
     "recipe[motd]",
     "recipe[identity_base_config]",
-    "recipe[ruby_build]",
     "recipe[ssh-keys]",
     "recipe[sudo]",
     "recipe[identity-elk::logcleanup]",

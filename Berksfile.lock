@@ -13,6 +13,8 @@ DEPENDENCIES
   cacert
   canonical_hostname
     path: kitchen/cookbooks/canonical_hostname
+  chef_proxy_env
+    path: kitchen/cookbooks/chef_proxy_env
   citadel_fork
     git: https://github.com/18f/citadel-build.git
     revision: 7007851c91e1404a43f1c914471a2d6c817eea8e
@@ -113,6 +115,7 @@ GRAPH
     aws_metadata (>= 0.0.0)
   chef-sugar (5.0.1)
   chef_handler (3.0.3)
+  chef_proxy_env (0.1.1)
   citadel_fork (9.1.1)
   cloudhsm (0.0.7)
   compat_resource (12.19.1)
@@ -197,15 +200,12 @@ GRAPH
     runit (>= 1.7)
   keytool (0.7.1)
   letsencrypt (1.0.3)
-  login_dot_gov (0.0.59)
+  login_dot_gov (0.0.61)
     application_ruby (>= 0.0.1)
     cloudhsm (>= 0.0.7)
     config_loader (>= 0.0.1)
     identity_shared_attributes (>= 0.0.1)
     passenger (>= 0.0.1)
-    poise-ruby (>= 0.0.1)
-    poise-ruby-build (>= 0.0.1)
-    ruby_build (>= 0.0.1)
     ssh-keys (> 0.0.1)
     static_eip (>= 0.2.0)
     sudo (>= 0.0.1)
@@ -235,11 +235,6 @@ GRAPH
   poise (2.8.2)
   poise-archive (1.5.0)
     poise (~> 2.6)
-  poise-build-essential (1.0.0)
-    poise (~> 2.6)
-  poise-git (1.0.0)
-    poise (~> 2.6)
-    poise-languages (~> 2.1)
   poise-languages (2.1.2)
     poise (~> 2.5)
     poise-archive (~> 1.0)
@@ -253,18 +248,10 @@ GRAPH
   poise-ruby (2.4.0)
     poise (~> 2.0)
     poise-languages (~> 2.0)
-  poise-ruby-build (1.1.0)
-    poise (~> 2.0)
-    poise-build-essential (~> 1.0)
-    poise-git (~> 1.0)
-    poise-ruby (~> 2.1)
   poise-service (1.5.2)
     poise (~> 2.0)
   python (1.4.6)
     build-essential (>= 0.0.0)
-    yum-epel (>= 0.0.0)
-  ruby_build (1.2.0)
-    git (>= 0.0.0)
     yum-epel (>= 0.0.0)
   runit (4.3.1)
     packagecloud (>= 0.0.0)
