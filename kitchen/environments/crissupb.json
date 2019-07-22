@@ -11,7 +11,8 @@
     },
     "login_dot_gov": {
       "domain_name": "identitysandbox.gov",
-      "branch_name": "master"
+      "branch_name": "master",
+      "idp_run_migrations": "true"
     },
     "elk": {
       "retentiondays": 14,
