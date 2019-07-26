@@ -62,12 +62,13 @@ describe file('/srv/idp/current/config/database.yml') do
 end
 
 # make sure we're writing to production log
-describe file('/srv/idp/shared/log/production.log') do
-  it { should exist }
-  it { should be_file }
-  it { should_not be_symlink }
-  its(:size) { should > 0 }
-end
+# TODO: replace this with wherever we decide to put migration logs
+#describe file('/srv/idp/shared/log/production.log') do
+#  it { should exist }
+#  it { should be_file }
+#  it { should_not be_symlink }
+#  its(:size) { should > 0 }
+#end
 
 describe file('/var/log/nginx/access.log') do
   it { should exist }
