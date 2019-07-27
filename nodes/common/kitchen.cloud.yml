@@ -16,7 +16,7 @@ require File.join(common_dir, "cloud_init_utils", "cloud_init_builder")
 
 require 'yaml'
 require 'zlib'
-require 'aws-sdk'
+require 'aws-sdk-ec2'
 
 Region = 'us-west-2'
 
@@ -148,6 +148,10 @@ cloud_init_info = [
       "chef_download_sha256" => "",
       "chef_download_url" => "",
 
+      # we're not in an ASG, don't try to notify lifecycle hooks
+      "asg_name" => "",
+      "lifecycle_hook_name" => "",
+
       # uncomment and customize in order to test new chef versions
       #"chef_download_sha256" => "ce0ff3baf39c8c13ed474104928e7e4568a4997a1d5797cae2b2ba3ee001e3a8",
       #"chef_download_url" => "https://packages.chef.io/files/stable/chef/13.8.5/ubuntu/16.04/chef_13.8.5-1_amd64.deb",
@@ -191,6 +195,7 @@ vpc = ec2.vpcs(filters: [{name: 'tag:Name', values: [vpc_name]}]).first
 unless vpc
   raise "No VPC found named #{vpc_name.inspect}"
 end
+
 
 # Ensure ssh_key_pair_name exists
 ec2.key_pair(ssh_key_pair_name).key_fingerprint
@@ -273,12 +278,23 @@ end
     "transport" => {
         "username" => "ubuntu",
         "ssh_key" => ssh_key_file,
-        "name" => "sshtar",
+        "name" => "speedy_ssh",
         "compression" => "zlib",
         "compression_level" => 9
     },
+    "lifecycle" => {
+      # pre_converge commands run after creating an instance but before the
+      # chef converge phase begins. We use this to block until cloud-init has
+      # finished installing updates and running identity-devops-private.
+      "pre_converge" => [
+        {
+          "remote" =>
+            "while ! [ -e /var/lib/cloud/instance/boot-finished ]; do systemctl is-system-running; echo Waiting for systemd / cloud-init boot to finish; sleep 15; done"
+        },
+      ],
+    },
     "provisioner" => {
-        "name" => "chef_zero_preinstall",
+        "name" => "chef_zero",
         "always_update_cookbooks" => "true",
         "environments_path" => "../../kitchen/environments",
         "roles_path" => "../../kitchen/roles",
@@ -287,10 +303,8 @@ end
             #"treat_deprecation_warnings_as_errors" => true,
             #"resource_cloning" => false,
         },
-        # pre_install_command requires our monkey patched *_preinstall
-        # provisioners
-        "pre_install_command" => "while ! [ -e /var/lib/cloud/instance/boot-finished ]; do systemctl is-system-running; echo Waiting for systemd / cloud-init boot to finish; sleep 15; done",
         "install_strategy" => "skip", # Assume provision.sh has installed chef
+        "chef_license" => "accept", # ugh
         "root_path" => "/var/lib/kitchen"
     },
     "verifier" => {
