@@ -2,8 +2,6 @@ DEPENDENCIES
   apache2 (~> 5.2)
   application_ruby (~> 4.0.1)
   apt (~> 7.0)
-  apt_update
-    path: kitchen/cookbooks/apt_update
   aws_metadata
     path: kitchen/cookbooks/aws_metadata
   aws_s3
@@ -99,7 +97,6 @@ GRAPH
     poise-ruby (~> 2.1)
     poise-service (~> 1.0)
   apt (7.1.1)
-  apt_update (0.1.2)
   ark (3.1.1)
     build-essential (>= 0.0.0)
     seven_zip (>= 0.0.0)

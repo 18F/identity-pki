@@ -44,7 +44,6 @@ end
 
 # Vendored cookbooks. This should include everything in kitchen/cookbooks except for cookbook_example
 cookbook 'identity-outboundproxy', path: prefixed('kitchen/cookbooks/identity-outboundproxy')
-cookbook 'apt_update', path: prefixed('kitchen/cookbooks/apt_update')
 cookbook 'aws_metadata', path: prefixed('kitchen/cookbooks/aws_metadata')
 cookbook 'aws_s3', path: prefixed('kitchen/cookbooks/aws_s3')
 cookbook 'canonical_hostname', path: prefixed('kitchen/cookbooks/canonical_hostname')
