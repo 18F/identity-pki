@@ -5,7 +5,7 @@ property :cert_path, String, identity: true
 property :key_path, String, identity: true
 property :valid_days, Integer
 property :regenerate_grace_seconds, Integer, default: 3600 * 24
-property :subject, [String, nil], default: lazy { |_r| default_subject }
+property :subject, [String, nil], default: lazy { |r| r.default_subject }
 property :owner, String, default: 'root'
 property :group, String, default: 'root'
 property :_loaded_cert, OpenSSL::X509::Certificate

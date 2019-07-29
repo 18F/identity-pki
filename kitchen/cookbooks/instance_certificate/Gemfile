@@ -11,8 +11,8 @@ gem 'chefspec'
 #gem 'kitchen-vagrant'
 #gem 'kitchen-inspec'
 
-# not super clear why this is needed here when it's only used by dependency
-# cookbooks
-#gem 'aws-sdk'
+# We need this in order to run rspec tests, which is weird since it's only used
+# by dependency cookbooks.
+gem 'aws-sdk-ec2', '~> 1.0'
 
 gem 'chef', '~> 13.9'
