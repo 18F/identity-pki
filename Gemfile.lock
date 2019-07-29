@@ -1026,6 +1026,7 @@ DEPENDENCIES
   aws-sdk-secretsmanager (~> 1.20)
   berkshelf (~> 6.3)
   colorize
+  erubis (~> 2)
   pry
   rake
   rest-client (~> 2.0)
