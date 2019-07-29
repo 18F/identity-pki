@@ -173,12 +173,15 @@ check_install_berkshelf() {
             run "$embedded_bin/gem" install -v '~> 1.2' nio4r
             run "$embedded_bin/gem" install -v '~> 4.3' berkshelf
             ;;
-        2.2*|2.3*|2.4*)
+        2.2*|2.3*|2.4*|2.5*|2.6*)
             case "$chef_version" in
                 'Chef: 12.'*)
                     run "$embedded_bin/gem" install -v '~> 5.0' berkshelf
                     ;;
                 'Chef: 13.'*)
+                    run "$embedded_bin/gem" install -v '~> 6.0' berkshelf
+                    ;;
+                'Chef: 14.'*)
                     run "$embedded_bin/gem" install -v '~> 6.0' berkshelf
                     ;;
                 *)

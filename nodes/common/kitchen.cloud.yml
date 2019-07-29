@@ -22,7 +22,7 @@ Region = 'us-west-2'
 
 role = File.basename(Dir.pwd)
 environment = ENV.fetch('KITCHEN_EC2_INTEGRATION_ENVIRONMENT', 'ci')
-ami_id = ENV.fetch('KITCHEN_EC2_AMI', 'ami-0b8a3af1b63258dce') # TODO look up dynamically
+ami_id = ENV.fetch('KITCHEN_EC2_AMI', 'ami-0ddbc0301d1fede13') # TODO look up dynamically
 
 vpc_name = "login-vpc-#{environment}"
 
@@ -145,16 +145,16 @@ cloud_init_info = [
     "content_type" => "text/cloud-config",
     "vars" => {
       # assume chef is already installed in the AMI
-      #"chef_download_sha256" => "",
-      #"chef_download_url" => "",
+      "chef_download_sha256" => "",
+      "chef_download_url" => "",
 
       # we're not in an ASG, don't try to notify lifecycle hooks
       "asg_name" => "",
       "lifecycle_hook_name" => "",
 
       # uncomment and customize in order to test new chef versions
-      "chef_download_sha256" => "9ddcd5ceef19c95ecc1f34bef080c23d9cb42ae8ebc69fd41dcf1c768a6a708f",
-      "chef_download_url" => "https://packages.chef.io/files/stable/chef/14.13.11/ubuntu/18.04/chef_14.13.11-1_amd64.deb",
+      #"chef_download_sha256" => "9ddcd5ceef19c95ecc1f34bef080c23d9cb42ae8ebc69fd41dcf1c768a6a708f",
+      #"chef_download_url" => "https://packages.chef.io/files/stable/chef/14.13.11/ubuntu/18.04/chef_14.13.11-1_amd64.deb",
 
       "provision_phase_name" => "private-provisioning",
 
