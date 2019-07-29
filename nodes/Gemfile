@@ -10,7 +10,7 @@ gem 'test-kitchen', '~> 1.25'
 gem 'kitchen-ec2'
 gem 'kitchen-vagrant'
 gem 'kitchen-inspec', '~> 1.1'
-#gem 'inspec', '~> 4.7' TODO requires berkshelf/chef upgrade
+gem 'inspec', '~> 4.7'
 
 
 # The default test-kitchen SSH transport is unusably slow
