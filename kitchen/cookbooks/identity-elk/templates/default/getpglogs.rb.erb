@@ -12,7 +12,7 @@ env = '<%= @env %>'
 instance = "login-#{env}-idp"
 
 require 'fileutils'
-require 'aws-sdk'
+require 'aws-sdk-rds'
 
 Aws.config.update({
   region: region
