@@ -18,8 +18,8 @@ DEPENDENCIES
     revision: 7007851c91e1404a43f1c914471a2d6c817eea8e
   cloudhsm
     git: https://github.com/18F/identity-cookbooks
-    revision: 3f7ec4c4e23b372f1ffc09eda010eae3f5d5f52f
-    ref: 3f7ec4c
+    revision: eee85db18f5a50b26d095b74103b61546c511730
+    ref: eee85db
     rel: cloudhsm
   config_loader
     path: kitchen/cookbooks/config_loader
@@ -114,7 +114,7 @@ GRAPH
   chef_handler (3.0.3)
   chef_proxy_env (0.1.1)
   citadel_fork (9.1.1)
-  cloudhsm (0.0.7)
+  cloudhsm (0.0.8)
   compat_resource (12.19.1)
   config_loader (0.2.2)
     aws_metadata (>= 0.0.0)
