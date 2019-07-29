@@ -1,5 +1,3 @@
-require 'aws-sdk'
-
 # Helper class for getting AWS info for the currently running instance
 class Chef::Recipe::AwsMetadata
 
