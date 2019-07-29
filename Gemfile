@@ -20,7 +20,8 @@ gem 'tty-prompt', '~> 0.14'
 
 gem 'terraform_landscape', '~> 0.1'
 
-gem 'berkshelf', '~> 6.3'
+gem 'berkshelf', '~> 7.0'
+gem 'chef', '~> 14.13' # needed by berkshelf, added here to pin version
 
 # used for terraform-modules/bootstrap templates
 gem 'erubis', '~> 2'

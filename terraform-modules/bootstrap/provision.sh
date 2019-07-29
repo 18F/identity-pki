@@ -182,7 +182,7 @@ check_install_berkshelf() {
                     run "$embedded_bin/gem" install -v '~> 6.0' berkshelf
                     ;;
                 'Chef: 14.'*)
-                    run "$embedded_bin/gem" install -v '~> 6.0' berkshelf
+                    run "$embedded_bin/gem" install -v '~> 7.0' berkshelf
                     ;;
                 *)
                     echo >&2 "Error: Unknown chef version $chef_version"
