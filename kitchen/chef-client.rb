@@ -32,7 +32,7 @@ environment File.read(InfoDir + '/env').chomp
 json_attribs InfoDir + '/chef-attributes.json'
 
 # Uncomment when preparing to upgrade chef versions
-#treat_deprecation_warnings_as_errors true
+treat_deprecation_warnings_as_errors true
 
 # Note: the http_proxy, https_proxy, and no_proxy config variables may also be
 # set by the chef_proxy_env cookbook. This is needed because Test Kitchen

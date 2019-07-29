@@ -300,7 +300,7 @@ end
         "roles_path" => "../../kitchen/roles",
         "client_rb" => {
             "environment" => "#{environment}",
-            #"treat_deprecation_warnings_as_errors" => true,
+            "treat_deprecation_warnings_as_errors" => true,
             #"resource_cloning" => false,
         },
         "install_strategy" => "skip", # Assume provision.sh has installed chef
