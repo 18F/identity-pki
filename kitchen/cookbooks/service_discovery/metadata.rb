@@ -4,10 +4,10 @@ maintainer_email 'you@example.com'
 license 'All Rights Reserved'
 description 'Installs/Configures service_discovery'
 long_description 'Installs/Configures service_discovery'
-version '0.1.0'
+version '0.2.0'
 chef_version '>= 12.15.19' if respond_to?(:chef_version)
 
-gem 'aws-sdk'
+gem 'aws-sdk-ec2', '~> 1.0'
 
 depends 'aws_metadata'
 depends 'aws_s3'
