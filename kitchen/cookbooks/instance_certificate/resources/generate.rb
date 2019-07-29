@@ -1,64 +1,82 @@
 resource_name :generate
 
 property :name, String, default: 'generate and install instance key and certificate'
-property :cert_path, String
-property :key_path, String
+property :cert_path, String, identity: true
+property :key_path, String, identity: true
 property :valid_days, Integer
-property :subject, String
+property :regenerate_grace_seconds, Integer, default: 3600 * 24
+property :subject, [String, nil], default: lazy { |_r| default_subject }
 property :owner, String, default: 'root'
 property :group, String, default: 'root'
+property :_loaded_cert, OpenSSL::X509::Certificate
+
+def default_subject
+  "CN=#{::Chef::Recipe::CanonicalHostname.get_hostname}, OU=#{node.chef_environment}"
+end
+
 
 default_action :generate
+
+load_current_value do
+  current_value_does_not_exist! unless cert_path && ::File.exist?(cert_path)
+
+  raw_cert = ::File.read(cert_path)
+  cert = OpenSSL::X509::Certificate.new(raw_cert)
+
+  _loaded_cert cert
+
+  subject cert.subject.to_s
+  valid_days(((cert.not_after - cert.not_before) / 3600 / 24).round)
+end
 
 action :generate do
 
   # Make sure the certificate directories exist
-  directory ::File.dirname(node['instance_certificate']['key_path'])
-  directory ::File.dirname(node['instance_certificate']['cert_path'])
+  directory ::File.dirname(new_resource.key_path)
+  directory ::File.dirname(new_resource.cert_path)
 
-  # If certificate exists, we want to check two things:
-  #
-  # 1. Has the subject changed (in an X509 aware way)
-  # 2. Is the certificate expired
+  # Generate a new certificate by default
   regenerate = true
-  if ::File.exist?(new_resource.cert_path)
 
-    # Get the current certificate
-    raw_cert = ::File.read(new_resource.cert_path)
-    cert = OpenSSL::X509::Certificate.new(raw_cert)
+  new_resource.subject default_subject if new_resource.subject.nil?
 
-    # Get the new subject in an X509 form
-    if new_resource.subject.nil?
-        new_cert_subject = cert.subject
-    else
-        new_cert_subject = OpenSSL::X509::Name.parse(new_resource.subject)
-    end
-
-    # If the subjects match and the cert is not expired, do not regenerate
-    if Time.now < cert.not_after && new_cert_subject == cert.subject
-      regenerate = false
+  # If the X.509 subject has not changed and the cert is not expired, then
+  # there is no need to regenerate
+  if current_resource
+    current_subject = current_resource._loaded_cert.subject
+    new_subject = OpenSSL::X509::Name.parse(new_resource.subject)
+    if current_subject == new_subject
+      # check if cert is expired or will expire within regenerate_grace_seconds
+      if Time.now + new_resource.regenerate_grace_seconds < current_resource._loaded_cert.not_after
+        # existing cert is OK
+        regenerate = false
+      end
     end
   end
 
   if regenerate
-    if subject.nil?
-        subject "CN=#{::Chef::Recipe::CanonicalHostname.get_hostname}, OU=#{node.chef_environment}, O=login.gov, L=Washington, ST=District of Columbia, C=US"
-    end
-    key, cert = ::Chef::Recipe::CertificateGenerator.generate_selfsigned_keypair(subject, valid_days)
+    key, cert = ::Chef::Recipe::CertificateGenerator.generate_selfsigned_keypair(new_resource.subject, new_resource.valid_days)
+    key_content = key.to_pem
+    cert_content = cert.to_pem
+    new_resource._loaded_cert cert
+  else
+    # leave unchanged
+    key_content = nil
+    cert_content = nil
+  end
 
-    file key_path do
-      content key.to_pem
-      mode '0700'
-      sensitive true
-      owner(owner)
-      group(group)
-    end
+  file new_resource.key_path do
+    content key_content
+    mode '0700'
+    sensitive true
+    owner(owner)
+    group(group)
+  end
 
-    file cert_path do
-      content cert.to_pem
-      mode '0644'
-      owner(owner)
-      group(group)
-    end
+  file new_resource.cert_path do
+    content cert_content
+    mode '0644'
+    owner(owner)
+    group(group)
   end
 end

@@ -1,14 +1,18 @@
 source 'https://rubygems.org'
 
-gem 'berkshelf', '~> 6.1.1'
+gem 'berkshelf', '~> 6.3'
 
 # For Chefspec: https://github.com/sethvargo/chefspec
 gem 'chefspec'
 
 # For Test Kitchen: https://github.com/test-kitchen/test-kitchen
-gem 'test-kitchen'
-gem 'kitchen-ec2'
-gem 'kitchen-vagrant'
-gem 'kitchen-inspec'
+#gem 'test-kitchen'
+#gem 'kitchen-ec2'
+#gem 'kitchen-vagrant'
+#gem 'kitchen-inspec'
 
-gem 'chef', '= 12.15.19'
+# not super clear why this is needed here when it's only used by dependency
+# cookbooks
+#gem 'aws-sdk'
+
+gem 'chef', '~> 13.9'
