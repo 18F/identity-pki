@@ -23,6 +23,7 @@ branch_name = node.fetch('login_dot_gov').fetch('branch_name', "stages/#{node.ch
   end
 end
 
+# TODO: stop using deprecated deploy resource
 deploy "/srv/#{app_name}" do
   action :deploy
   before_symlink do

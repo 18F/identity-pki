@@ -6,14 +6,14 @@ ConfigLoader = Chef::Recipe::ConfigLoader
 
 action :create do
   %w{certs keys config}.each do |dir|
-    directory "#{name}/#{dir}" do
+    directory "#{new_resource.name}/#{dir}" do
       owner node.fetch('login_dot_gov').fetch('system_user')
       group node.fetch('login_dot_gov').fetch('web_system_user')
     end
   end
 
   # TODO: don't generate YAML with erb, that's an antipattern
-  template "#{name}/config/experiments.yml" do
+  template "#{new_resource.name}/config/experiments.yml" do
     action :create
     manage_symlink_source true
     subscribes :create, 'resource[git]', :immediately
@@ -21,7 +21,7 @@ action :create do
   end
 
   %w{saml2018.crt saml2019.crt}.each do |certfile|
-    file "#{name}/certs/#{certfile}" do
+    file "#{new_resource.name}/certs/#{certfile}" do
       action :create
       content ConfigLoader.load_config(node, certfile)
       manage_symlink_source true
@@ -31,7 +31,7 @@ action :create do
   end
 
   %w{oidc.key saml2018.key.enc saml2019.key.enc}.each do |keyfile|
-    file "#{name}/keys/#{keyfile}" do
+    file "#{new_resource.name}/keys/#{keyfile}" do
       action :create
       content ConfigLoader.load_config(node, keyfile)
       manage_symlink_source true
@@ -43,7 +43,7 @@ action :create do
     end
   end
 
-  file "#{name}/keys/oidc.pub" do
+  file "#{new_resource.name}/keys/oidc.pub" do
     action :create
     content ConfigLoader.load_config(node, 'oidc.pub')
     manage_symlink_source true
@@ -51,7 +51,7 @@ action :create do
     user node['login_dot_gov']['system_user']
   end
 
-  file "#{name}/keys/equifax_rsa" do
+  file "#{new_resource.name}/keys/equifax_rsa" do
     action :create
     content ConfigLoader.load_config(node, "equifax_ssh_privkey")
     manage_symlink_source true
@@ -62,7 +62,7 @@ action :create do
     sensitive true
   end
 
-  file "#{name}/keys/equifax_gpg.pub" do
+  file "#{new_resource.name}/keys/equifax_gpg.pub" do
     action :create
     content ConfigLoader.load_config(node, "equifax_gpg_public_key")
     manage_symlink_source true

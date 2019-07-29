@@ -31,6 +31,7 @@ end
 
 branch_name = node.fetch('login_dot_gov').fetch('branch_name', "stages/#{node.chef_environment}")
 
+# TODO: stop using deprecated deploy resource
 deploy "#{base_dir}" do
   action :deploy
 

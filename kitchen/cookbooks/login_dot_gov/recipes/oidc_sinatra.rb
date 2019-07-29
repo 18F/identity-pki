@@ -26,6 +26,7 @@ deploy_dir = "#{base_dir}/current/public"
 branch_name = node.fetch('login_dot_gov').fetch('branch_name', "stages/#{node.chef_environment}")
 
 
+# TODO: stop using deprecated deploy resource
 deploy "/srv/#{app_name}" do
   action :deploy
 

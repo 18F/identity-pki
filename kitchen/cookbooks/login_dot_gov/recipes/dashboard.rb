@@ -92,6 +92,7 @@ file "#{base_dir}/shared/config/application.yml" do
   subscribes :create, 'deploy[/srv/dashboard]', :immediately
 end
 
+# TODO: stop using deprecated deploy resource
 deploy "#{base_dir}" do
   action :deploy
 

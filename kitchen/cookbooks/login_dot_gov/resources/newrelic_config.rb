@@ -7,13 +7,13 @@ property :app_name, String, default: '<default_app_name>'
 action :create do
   license_key = Chef::Recipe::ConfigLoader.load_config(node, "newrelic_license_key")
 
-  directory "#{name}/config" do
+  directory "#{new_resource.name}/config" do
     group node['login_dot_gov']['system_user']
     owner node['login_dot_gov']['system_user']
     recursive true
   end
 
-  file "#{name}/config/newrelic.yml" do
+  file "#{new_resource.name}/config/newrelic.yml" do
     action :create
     manage_symlink_source true
     subscribes :create, 'resource[git]', :immediately
@@ -22,7 +22,7 @@ action :create do
     content({
       'production' => {
         'agent_enabled' => node['login_dot_gov']['agent_enabled'],
-        'app_name' => app_name,
+        'app_name' => new_resource.app_name,
         'audit_log' => {
           'enabled' => node['login_dot_gov']['audit_log_enabled'],
         },
