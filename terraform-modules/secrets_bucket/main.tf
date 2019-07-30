@@ -1,7 +1,11 @@
 data "aws_caller_identity" "current" {}
 
+locals {
+  "bucket_name" = "${var.bucket_name_prefix}.${var.secrets_bucket_type}.${data.aws_caller_identity.current.account_id}-${var.region}"
+}
+
 resource "aws_s3_bucket" "secrets" {
-  bucket = "${var.bucket_name_prefix}.${var.secrets_bucket_type}.${data.aws_caller_identity.current.account_id}-${var.region}"
+  bucket = "${local.bucket_name}"
   acl    = "private"
   force_destroy = "${var.force_destroy}"
 
@@ -18,8 +22,7 @@ resource "aws_s3_bucket" "secrets" {
 
   logging {
     target_bucket = "${var.logs_bucket}"
-    # This is effectively the bucket name, but I can't self reference
-    target_prefix = "${var.bucket_name_prefix}.${var.secrets_bucket_type}.${data.aws_caller_identity.current.account_id}-${var.region}/"
+    target_prefix = "${local.bucket_name}/"
   }
 
   server_side_encryption_configuration {
@@ -29,4 +32,13 @@ resource "aws_s3_bucket" "secrets" {
       }
     }
   }
+}
+
+resource "aws_s3_bucket_public_access_block" "secrets" {
+  bucket = "${aws_s3_bucket.secrets.id}"
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }

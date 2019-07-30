@@ -260,6 +260,14 @@ resource "aws_s3_bucket" "tf-state" {
     prevent_destroy = true
   }
 }
+resource "aws_s3_bucket_public_access_block" "tf-state" {
+    bucket = "${aws_s3_bucket.tf-state.id}"
+
+    block_public_acls       = true
+    block_public_policy     = true
+    ignore_public_acls      = true
+    restrict_public_buckets = true
+}
 
 # This is the terraform state lock file used by terraform including by this
 # terraform file itself. Obviously this is a circular dependency like the AWS
@@ -301,6 +309,46 @@ resource "aws_dynamodb_table" "tf-lock-table" {
   }
 }
 
+# Bucket used for storing generated reports
+resource "aws_s3_bucket" "reports" {
+  bucket = "login-gov.reports.${data.aws_caller_identity.current.account_id}-${var.region}"
+  region = "${var.region}"
+
+  acl = "private"
+  policy = ""
+
+  lifecycle_rule {
+    id = "aging"
+    enabled = true
+
+    prefix  = "/"
+
+    # move to infrequent access after 30 days
+    transition {
+      days = 30
+      storage_class = "STANDARD_IA"
+    }
+
+    # keep forever
+  }
+
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "aws:kms"
+      }
+    }
+  }
+}
+# Block public access to reports. We may revisit in the future if we do want to expose some subset of reports.
+resource "aws_s3_bucket_public_access_block" "reports" {
+    bucket = "${aws_s3_bucket.reports.id}"
+
+    block_public_acls       = true
+    block_public_policy     = true
+    ignore_public_acls      = true
+    restrict_public_buckets = true
+}
 
 output "s3_log_bucket" {
   value = "${aws_s3_bucket.s3-logs.id}"
