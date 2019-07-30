@@ -10,11 +10,6 @@ variable "power_users" {
     type="list"
 }
 
-variable "certificates_bucket_prefix" {
-    description = "Prefix to use when creating the self signed certificates bucket"
-    default = "login-gov-internal-certs-test"
-}
-
 variable "manage_state_bucket" {
     description = <<EOM
 Whether to manage the TF remote state bucket and lock table.

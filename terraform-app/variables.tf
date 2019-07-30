@@ -345,13 +345,6 @@ variable "kmslogging_enabled" {
     description = "Whether to enable KMS logging data"
 }
 
-# This variable is needed for service discovery
-
-variable "certificates_bucket_name_prefix" {
-    description = "Base name for the self signed certificates bucket used for service discovery"
-    default = "login-gov-internal-certs-test"
-}
-
 # This is needed so the application can download its secrets
 
 variable "app_secrets_bucket_name_prefix" {
