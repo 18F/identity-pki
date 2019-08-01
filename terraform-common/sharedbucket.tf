@@ -134,6 +134,11 @@ resource "aws_s3_bucket" "s3-email" {
 
   policy = "${data.aws_iam_policy_document.ses-upload.json}"
 
+  logging {
+    target_bucket = "${aws_s3_bucket.s3-logs.id}"
+    target_prefix = "login-gov.email.${data.aws_caller_identity.current.account_id}-${var.region}/"
+  }
+
   lifecycle_rule {
     id = "expireinbound"
     enabled = true
@@ -316,6 +321,11 @@ resource "aws_s3_bucket" "reports" {
 
   acl = "private"
   policy = ""
+
+  logging {
+    target_bucket = "${aws_s3_bucket.s3-logs.id}"
+    target_prefix = "login-gov.reports.${data.aws_caller_identity.current.account_id}-${var.region}/"
+  }
 
   lifecycle_rule {
     id = "aging"
