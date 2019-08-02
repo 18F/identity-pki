@@ -203,16 +203,37 @@ resource "aws_iam_role_policy" "idp-cloudwatch-logs" {
   policy = "${data.aws_iam_policy_document.cloudwatch-logs.json}"
 }
 
-# Currently idp and worker share an IAM instance profile. The worker servers
-# need to be able to associate EIPs with themselves in order to assign
-# themselves a static IP address.
-# https://github.com/18F/identity-devops/pull/689
-# TODO: delete this now that we have obproxy?
-resource "aws_iam_role_policy" "idp-worker-auto-eip" {
-  name = "${var.env_name}-idp-worker-auto-eip"
+resource "aws_iam_role_policy" "idp-upload-s3-reports" {
+  name = "${var.env_name}-idp-s3-reports"
   role = "${aws_iam_role.idp.id}"
-  policy = "${data.aws_iam_policy_document.auto_eip_policy.json}"
+  policy = "${data.aws_iam_policy_document.put_reports_to_s3.json}"
 }
+
+# This policy allows writing to the S3 reports bucket
+data "aws_iam_policy_document" "put_reports_to_s3" {
+  statement {
+    sid = "PutObjectsToReportsS3Bucket"
+    effect = "Allow"
+    actions = [
+      "s3:PutObject"
+    ]
+    resources = [
+      "arn:aws:s3:::login-gov.reports.${data.aws_caller_identity.current.account_id}-${var.region}/${var.env_name}/*",
+    ]
+  }
+  # allow listing objects so we can see what we've uploaded
+  statement {
+    sid = "ListBucket"
+    effect = "Allow"
+    actions = [
+      "s3:ListBucket"
+    ]
+    resources = [
+      "arn:aws:s3:::login-gov.reports.${data.aws_caller_identity.current.account_id}-${var.region}",
+    ]
+  }
+}
+
 
 module "idp_user_data" {
   source = "../terraform-modules/bootstrap/"
