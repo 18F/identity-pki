@@ -6,7 +6,7 @@ owner: <%= @env %>
 filter:
 - query:
     query_string:
-      query: 'type: cw_postgresql AND postgresql.duration: >4000'
+      query: 'type: cw_postgresql AND postgresql.duration: >8000'
 alert:
 <% if ! @emails.empty? %>
 - "email"
