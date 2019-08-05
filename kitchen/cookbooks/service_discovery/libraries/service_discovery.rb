@@ -1,4 +1,4 @@
-require 'aws-sdk'
+require 'aws-sdk-ec2'
 
 # This class abstracts the service discovery from chef recipes so that they can
 # get information about other nodes in the environment without needing to know

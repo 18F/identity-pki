@@ -16,13 +16,13 @@ action :publish do
   # XXX: This is a workaround for ELK, which currently only publishes its self
   # signed certificate, whereas ES was sharing both the cert and a ca chain that
   # chef generated.
-  if chain
-    cert_and_chain = ::File.read(cert) + ::File.read(chain)
+  if new_resource.chain
+    cert_and_chain = ::File.read(new_resource.cert) + ::File.read(new_resource.chain)
   else
-    cert_and_chain = ::File.read(cert)
+    cert_and_chain = ::File.read(new_resource.cert)
   end
 
-  file cert_and_chain_path do
+  file new_resource.cert_and_chain_path do
     content cert_and_chain
     owner owner
     group owner
@@ -30,7 +30,7 @@ action :publish do
   end
 
   publish_certificate 'Publish my certificate with a custom suffix' do
-    cert_path cert_and_chain_path
+    cert_path new_resource.cert_and_chain_path
     suffix new_resource.suffix
   end
 end

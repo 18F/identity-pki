@@ -11,7 +11,7 @@ property :suffix, [String, nil], default: nil
 default_action :install
 
 action :install do
-  services = ::Chef::Recipe::ServiceDiscovery.discover(node, service_tag_key, [service_tag_value])
+  services = ::Chef::Recipe::ServiceDiscovery.discover(node, new_resource.service_tag_key, [new_resource.service_tag_value])
 
   services.each do |service|
 
@@ -20,18 +20,18 @@ action :install do
     # way we are currently generating elasticsearch certs using the java
     # keystore as that would require more work getting everything configured
     # properly (and it works now).
-    if suffix.nil?
+    if new_resource.suffix.nil?
       cert_name = "#{service.fetch('hostname')}.crt"
       certificate = service.fetch('certificate')
     else
-      cert_name = "#{service.fetch('hostname')}-#{suffix}.crt"
+      cert_name = "#{service.fetch('hostname')}-#{new_resource.suffix}.crt"
       certificate = Chef::Recipe::ServiceDiscovery.get_certificate(node, cert_name)
     end
 
-    file "#{install_directory}/#{cert_name}" do
+    file "#{new_resource.install_directory}/#{cert_name}" do
       content certificate
-      owner cert_user
-      group cert_group
+      owner new_resource.cert_user
+      group new_resource.cert_group
       mode '0644'
     end
   end

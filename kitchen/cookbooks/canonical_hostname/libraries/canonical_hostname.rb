@@ -1,4 +1,4 @@
-require 'aws-sdk'
+require 'aws-sdk-ec2'
 
 # This class manages building the proper hostname for an instance.
 class Chef::Recipe::CanonicalHostname

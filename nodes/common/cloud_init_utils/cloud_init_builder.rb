@@ -1,14 +1,14 @@
 #!/usr/bin/env ruby
 
 require 'mime'
-require 'erb'
-require 'ostruct'
+#require 'erb'
+
+require 'erubis'
 
 def load_template(template_path, vars)
   template = File.read(template_path)
-  ERB.new(template, trim_mode: '-').result(
-    OpenStruct.new(vars).instance_eval { binding }
-  )
+  #ERB.new(template, trim_mode: '-').result_with_hash(vars)
+  Erubis::Eruby.new(template).result(vars)
 end
 
 def build_cloud_init(file_info_objects)

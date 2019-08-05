@@ -1,6 +1,8 @@
+attributes = node.fetch('instance_certificate')
+
 generate 'generate and install instance key and certificate' do
-  key_path node['instance_certificate']['key_path']
-  cert_path node['instance_certificate']['cert_path']
-  subject node['instance_certificate']['subject']
-  valid_days node['instance_certificate']['valid_days']
+  key_path attributes.fetch('key_path')
+  cert_path attributes.fetch('cert_path')
+  subject attributes.fetch('subject') if attributes.include?('subject')
+  valid_days attributes.fetch('valid_days')
 end

@@ -1,19 +1,30 @@
 source 'https://rubygems.org'
 
-gem 'berkshelf', '~> 6.0'
+gem 'berkshelf', '~> 7.0'
 
 # For Chefspec: https://github.com/sethvargo/chefspec
 gem 'chefspec'
 
 # For Test Kitchen: https://github.com/test-kitchen/test-kitchen
-gem 'test-kitchen'
-gem 'kitchen-provisioner-pre-install', git: 'https://github.com/18F/kitchen-provisioner-pre-install'
+gem 'test-kitchen', '~> 1.25'
 gem 'kitchen-ec2'
 gem 'kitchen-vagrant'
-gem 'kitchen-inspec', '= 0.20' # https://github.com/chef/kitchen-inspec/issues/160
-gem 'kitchen-transport-sshtar'
+gem 'kitchen-inspec', '~> 1.1'
+gem 'inspec', '~> 4.7'
 
-gem 'chef', '~> 13.8'
 
-# This is needed to build multipart cloud init data for test kitchen
+# The default test-kitchen SSH transport is unusably slow
+# (default ssh at ~760s vs. speedy_ssh at ~25s)
+gem 'kitchen-transport-speedy', '~> 0.1'
+# see also:
+# gem 'kitchen-transport-sshtar'
+# gem 'kitchen-transport-rsync'
+
+gem 'chef', '~> 14.13'
+
+# These are needed to build multipart cloud init data for test kitchen
 gem 'mime'
+gem 'erubis', '~> 2'
+
+# EC2 API used for various lookups inside the kitchen.cloud.yml
+gem 'aws-sdk-ec2', '~> 1.0'

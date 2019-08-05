@@ -1,5 +1,3 @@
-require 'aws-sdk'
-
 # This class helps generate new X509 certificates.
 class Chef::Recipe::CertificateGenerator
 
@@ -14,9 +12,14 @@ class Chef::Recipe::CertificateGenerator
   def self.generate_selfsigned_keypair(subject, valid_days)
     key = OpenSSL::PKey::RSA.new(2048)
     public_key = key.public_key
+    if subject.is_a?(OpenSSL::X509::Name)
+      subject_name = subject
+    else
+      subject_name = OpenSSL::X509::Name.parse(subject)
+    end
 
     cert = OpenSSL::X509::Certificate.new
-    cert.subject = cert.issuer = OpenSSL::X509::Name.parse(subject)
+    cert.subject = cert.issuer = subject_name
     cert.not_before = Time.now - 3600
     cert.not_after = Time.now + 24 * 60 * 60 * valid_days
     cert.public_key = public_key
@@ -32,7 +35,7 @@ class Chef::Recipe::CertificateGenerator
       ef.create_extension("keyUsage", "keyEncipherment,digitalSignature", true),
     ]
     cert.add_extension ef.create_extension("authorityKeyIdentifier",
-                                          "keyid:always,issuer:always")
+                                           "keyid:always,issuer:always")
 
     cert.sign key, OpenSSL::Digest::SHA256.new
 

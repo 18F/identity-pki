@@ -14,12 +14,12 @@ action :publish do
   # we are currently generating elasticsearch certs using the java keystore as
   # that would require more work getting everything configured properly (and it
   # works now).
-  s3_path = suffix.nil? ? "#{hostname}.crt" : "#{hostname}-#{suffix}.crt"
+  s3_path = new_resource.suffix.nil? ? "#{hostname}.crt" : "#{hostname}-#{new_resource.suffix}.crt"
 
   log 'publishing certificate' do
-    message "Publishing certificate: #{cert_path} to s3 at #{s3_path}"
+    message "Publishing certificate: #{new_resource.cert_path} to s3 at #{s3_path}"
     level :info
   end
 
-  Chef::Recipe::ServiceDiscovery.put_certificate(node, cert_path, s3_path)
+  Chef::Recipe::ServiceDiscovery.put_certificate(node, new_resource.cert_path, s3_path)
 end

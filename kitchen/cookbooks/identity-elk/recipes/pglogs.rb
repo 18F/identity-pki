@@ -1,6 +1,6 @@
 # This cookbook installs a tool to slurp down logs from the RDS postgres instance
 
-gem_package 'aws-sdk'
+gem_package 'aws-sdk-rds'
 
 template '/usr/local/bin/getpglogs.rb' do
   source 'getpglogs.rb.erb'

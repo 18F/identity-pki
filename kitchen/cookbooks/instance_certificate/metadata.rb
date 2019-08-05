@@ -4,7 +4,7 @@ maintainer_email 'andy.brody@beta.dhs.gov'
 license 'all_rights'
 description 'Manages a minimalist PKI'
 long_description 'Manages a minimalist PKI'
-version '0.1.0'
+version '0.2.0'
 
 # If you upload to Supermarket you should set this so your cookbook
 # gets a `View Issues` link
@@ -13,7 +13,5 @@ version '0.1.0'
 # If you upload to Supermarket you should set this so your cookbook
 # gets a `View Source` link
 # source_url 'https://github.com/<insert_org_here>/instance_certificate' if respond_to?(:source_url)
-
-gem 'aws-sdk'
 
 depends 'canonical_hostname'

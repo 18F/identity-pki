@@ -1,7 +1,9 @@
-require 'aws-sdk'
-
 # Helper class for getting AWS info for the currently running instance
 class Chef::Recipe::AwsMetadata
+
+  # TODO: all of these attributes can now be retrieved from ohai via
+  # node.fetch('ec2'), but we'd have to pass in the node object explicitly,
+  # which is a nuisance.
 
   # Fetch and parse the instance identity document from the EC2 metadata API
   #

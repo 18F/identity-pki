@@ -77,6 +77,7 @@ template "#{base_dir}/shared/config/database.yml" do
   })
 end
 
+# TODO: stop using deprecated deploy resource
 deploy "/srv/#{app_name}" do
   action :deploy
 

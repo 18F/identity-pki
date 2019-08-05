@@ -14,8 +14,9 @@
   },
   "dependencies": {
     "application_ruby": ">= 0.0.1",
-    "cloudhsm": ">= 0.0.7",
+    "cloudhsm": ">= 0.0.8",
     "config_loader": ">= 0.0.1",
+    "deploy_resource": "~> 1.0",
     "identity_shared_attributes": ">= 0.0.1",
     "passenger": ">= 0.0.1",
     "ssh-keys": "> 0.0.1",
@@ -49,5 +50,5 @@
     "login_dot_gov::users": "User management",
     "login_dot_gov::worker": "Worker instance setup and deploy"
   },
-  "version": "0.0.61"
+  "version": "0.0.62"
 }
