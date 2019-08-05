@@ -12,8 +12,9 @@ license_status =  response.fetch('license').fetch('status')
 license_type = response.fetch('license').fetch('type')
 expiry_date = DateTime.parse response.fetch('license').fetch('expiry_date')
 
-# true if license is valid for more than one month
-license_current = ((expiry_date - DateTime.now).to_i > 30)
+# true if license is valid for more than one week. We will receieve the next license within one week
+# of the existing license's expiry date.
+license_current = ((expiry_date - DateTime.now).to_i > 7)
 
 if license_type == 'platinum' && license_status == 'active' && license_current
   puts 'Current license is still active. No need to update license.'
