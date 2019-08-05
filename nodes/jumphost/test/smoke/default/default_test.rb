@@ -47,6 +47,11 @@ end
   end
 end
 
+# time sync enabled
+describe command('timedatectl status') do
+  its('stdout') { should include 'System clock synchronized: yes' }
+end
+
 # proxy configs
 describe os_env('https_proxy') do
   its('content') { should eq 'http://obproxy.login.gov.internal:3128' }
