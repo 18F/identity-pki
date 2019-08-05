@@ -11,7 +11,6 @@ cookbook 'letsencrypt', '~> 1.0.0'
 cookbook 'monit'
 cookbook 'motd'
 cookbook 'newrelic_meetme_plugin'
-cookbook 'ntp'
 cookbook 'ohai'
 cookbook 'openssl'
 cookbook 'ssh-keys'
@@ -70,6 +69,9 @@ cookbook 'identity_base_config', git: 'https://github.com/18F/identity-cookbooks
 cookbook 'identity_shared_attributes', '>= 0.1.2', git: 'https://github.com/18F/identity-cookbooks', rel: 'identity_shared_attributes', ref: IdentityCookbooksRef
 cookbook 'passenger', git: 'https://github.com/18F/identity-cookbooks', rel: 'passenger', ref: IdentityCookbooksRef
 cookbook 'static_eip', '>= 0.2.0', git: 'https://github.com/18F/identity-cookbooks', rel: 'static_eip', ref: IdentityCookbooksRef
+
+# this is a temporary fix to restore NTP service while we build a new base image
+cookbook 'identity_ntp', '~> 1.0', git: 'https://github.com/18F/identity-cookbooks', rel: 'identity_ntp', ref: '0e8bb8c0968f6f03417878939a8c44ec552d1802'
 
 # We have to reference this special citadel-build repository for two reasons:
 #
