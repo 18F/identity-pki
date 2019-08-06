@@ -22,7 +22,6 @@
   "chef_type": "role",
   "run_list": [
     "recipe[chef_proxy_env]",
-    "recipe[identity_ntp]",
     "recipe[instance_certificate::generate]",
     "recipe[service_discovery::register]",
     "recipe[login_dot_gov::configure_awsagent]",
