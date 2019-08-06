@@ -48,11 +48,6 @@ DEPENDENCIES
     revision: 3f7ec4c4e23b372f1ffc09eda010eae3f5d5f52f
     ref: 3f7ec4c
     rel: identity_base_config
-  identity_ntp
-    git: https://github.com/18F/identity-cookbooks
-    revision: 0e8bb8c0968f6f03417878939a8c44ec552d1802
-    ref: 0e8bb8c
-    rel: identity_ntp
   identity_shared_attributes
     git: https://github.com/18F/identity-cookbooks
     revision: 3f7ec4c4e23b372f1ffc09eda010eae3f5d5f52f
@@ -192,7 +187,6 @@ GRAPH
     login_dot_gov (>= 0.0.0)
   identity_base_config (0.1.1)
     identity_shared_attributes (>= 0.0.0)
-  identity_ntp (1.0.1)
   identity_shared_attributes (0.1.2)
   instance_certificate (0.2.0)
     canonical_hostname (>= 0.0.0)
