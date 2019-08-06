@@ -95,3 +95,8 @@ end
 describe command('/opt/newrelic-infra/elasticsearch_health/es_health') do
   its(:exit_status) { should eq 0 }
 end
+
+# It should have a valid platinum license subscription
+describe command('wget -O - --ca-certificate /etc/elasticsearch/root-ca.pem https://localhost:9200/_xpack/license') do
+  its('stdout') { should match '"type" : "platinum"' }
+end
