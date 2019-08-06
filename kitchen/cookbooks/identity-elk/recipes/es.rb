@@ -9,19 +9,12 @@ end
 
 include_recipe 'java'
 
-# mount extra disk up if it's there
-execute 'extend_disk' do
-  command 'vgextend securefolders /dev/xvdg ; lvextend -l+100%FREE /dev/securefolders/variables ; resize2fs /dev/mapper/securefolders-variables'
-  only_if 'lsblk /dev/xvdg'
-  not_if  'pvdisplay | grep .dev.xvdg >/dev/null'
+# add a script to help format and mount the nvme drive if available
+cookbook_file '/usr/local/sbin/format_nvme' do
+  mode '0755'
 end
 
-# format and mount the local nvme drive if available
-execute 'format and mount nvme drive' do
-  command 'mkfs.ext4 /dev/nvme0n1; mkdir -p /var/lib/elasticsearch ; mount /dev/nvme0n1 /var/lib/elasticsearch/'
-  only_if 'lsblk /dev/nvme0n1'
-  not_if  'mount -l | grep .dev.nvme0n1 >/dev/null'
-end
+execute '/usr/local/sbin/format_nvme'
 
 # install elasticsearch
 elasticsearch_user 'elasticsearch'
