@@ -9,5 +9,5 @@ resource "aws_cloudwatch_metric_alarm" "DDoS Alert" {
   threshold                 = "1"
   alarm_description         = "This Alarm is executed when a DDoS attack is detected"
   insufficient_data_actions = []
-  alarm_actions     = ["${slack_events_sns_hook_arn.arn}"]
+  alarm_actions     = ["${var.slack_events_sns_hook_arn}"]
 }
