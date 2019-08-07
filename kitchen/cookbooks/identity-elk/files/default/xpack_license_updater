@@ -1,4 +1,40 @@
 #!/usr/bin/env ruby
+#
+# potential xpack license output
+#
+# basic license:
+# {
+#   "license" : {
+#     "status" : "active",
+#     "uid" : "b28e1e66-7847-433e-8c91-423dfc7b9768",
+#     "type" : "basic",
+#     "issue_date" : "2019-03-21T23:59:28.918Z",
+#     "issue_date_in_millis" : 1553212768918,
+#     "max_nodes" : 1000,
+#     "issued_to" : "elasticsearch",
+#     "issuer" : "elasticsearch",
+#     "start_date_in_millis" : -1
+#   }
+# }
+#
+# platinum license:
+#
+# {
+#   "license" : {
+#     "status" : "active",
+#     "uid" : "10ed5f5a-3690-4578-a173-5d2f4f2ab879",
+#     "type" : "platinum",
+#     "issue_date" : "2019-07-09T00:00:00.000Z",
+#     "issue_date_in_millis" : 1562630400000,
+#     "expiry_date" : "2020-07-09T23:59:59.999Z",
+#    "expiry_date_in_millis" : 1594339199999,
+#     "max_nodes" : 5,
+#     "issued_to" : "General Services Administration (GSA) (non-production environments)",
+#     "issuer" : "API",
+#     "start_date_in_millis" : 1562716800000
+#   }
+# }
+
 require 'json'
 require 'jsonclient'
 
@@ -10,18 +46,20 @@ response = j.get('https://elasticsearch.login.gov.internal:9200/_xpack/license')
 
 license_status =  response.fetch('license').fetch('status')
 license_type = response.fetch('license').fetch('type')
-expiry_date = DateTime.parse response.fetch('license').fetch('expiry_date')
 
-# true if license is valid for more than one week. We will receieve the next license within one week
-# of the existing license's expiry date.
-license_current = ((expiry_date - DateTime.now).to_i > 7)
+if response.fetch('license').has_key?('expiry_date')
+  # true if license expires in less than a week. We receieve the next license within a week of the
+  # existing license's expiry date.
+  expiry_date = DateTime.parse(response.fetch('license').fetch('expiry_date'))
+  license_about_to_expire = ((expiry_date - DateTime.now).to_i < 7)
+end
 
-if license_type == 'platinum' && license_status == 'active' && license_current
-  puts 'Current license is still active. No need to update license.'
-else
+if license_type != 'platinum' || license_about_to_expire
   # post license
   file = File.read('/etc/xpack_license')
   post_data = JSON.parse(file)
   response = j.post('https://elasticsearch.login.gov.internal:9200/_xpack/license', post_data).body
   puts response
+else
+  puts 'Current license is still active. No need to update license.'
 end
