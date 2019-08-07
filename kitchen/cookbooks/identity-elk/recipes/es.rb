@@ -14,7 +14,10 @@ cookbook_file '/usr/local/sbin/format_nvme' do
   mode '0755'
 end
 
-execute '/usr/local/sbin/format_nvme'
+# don't run if a drive is already mounted to the elasticsearch data path
+execute '/usr/local/sbin/format_nvme' do
+  not_if  'mount -l | grep elasticsearch >/dev/null'
+end
 
 # install elasticsearch
 elasticsearch_user 'elasticsearch'
