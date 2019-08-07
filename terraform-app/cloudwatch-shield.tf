@@ -1,4 +1,4 @@
-resource "aws_cloudwatch_metric_alarm" "DDoS Alert" {
+resource "aws_cloudwatch_metric_alarm" "DDoS_Alert" {
   alarm_name                = "DDoS Alert"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "1"
