@@ -26,7 +26,7 @@ service 'filebeat' do
 end
 
 filebeat_install 'default' do
-  version '6.7.0'
+  version '6.8.2'
 end
 
 filebeat_conf = {
