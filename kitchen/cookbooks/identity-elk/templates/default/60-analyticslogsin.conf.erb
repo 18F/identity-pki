@@ -1,0 +1,18 @@
+input {
+   s3 {
+     bucket => "<%= @analytics_logging_bucket %>"
+     proxy_uri => "<%= @proxy_uri -%>"
+     region => "<%= @aws_region %>"
+     sincedb_path => "/usr/share/logstash/.sincedb_analytics"
+     type => "analytics"
+   }
+}
+
+filter {
+  if [type] == "analytics" {
+     json {
+      source => "message"
+      target => "analytics"
+    }
+  }
+}
