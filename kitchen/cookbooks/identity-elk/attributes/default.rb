@@ -107,14 +107,12 @@ default['elk']['chef_zero_client_configuration'] = '/etc/login.gov/repos/identit
 #default['elk']['aws_logging_bucket'] = "login-gov-logs-${node.chef_environment}.${aws_account_id}-#{Chef::Recipe::AwsMetadata.get_aws_region}"
 if node['elk']['legacy_log_bucket_name']
   default['elk']['aws_logging_bucket'] = "login-gov-#{node.chef_environment}-logs"
-  default['elk']['analytics_logging_bucket'] = "login-gov-#{node.chef_environment}-analytics-logs"
 else
   default['elk']['aws_logging_bucket'] = "login-gov-logs-#{node.chef_environment}.#{Chef::Recipe::AwsMetadata.get_aws_account_id}-#{Chef::Recipe::AwsMetadata.get_aws_region}"
-  default['elk']['analytics_logging_bucket'] = "login-gov-analytics-logs-#{node.chef_environment}.#{Chef::Recipe::AwsMetadata.get_aws_account_id}-#{Chef::Recipe::AwsMetadata.get_aws_region}"
 end
 default['elk']['elb_logging_bucket'] = "login-gov.elb-logs.#{Chef::Recipe::AwsMetadata.get_aws_account_id}-#{Chef::Recipe::AwsMetadata.get_aws_region}"
 default['elk']['waf_logging_bucket'] = "login-gov.waf-logs-#{node.chef_environment}.#{Chef::Recipe::AwsMetadata.get_aws_account_id}-#{Chef::Recipe::AwsMetadata.get_aws_region}"
-default['elk']['analytics_logging_bucket'] = "login-gov.analytics-logs-#{node.chef_environment}.#{Chef::Recipe::AwsMetadata.get_aws_account_id}-#{Chef::Recipe::AwsMetadata.get_aws_region}"
+default['elk']['analytics_logging_bucket'] = "login-gov.reports.#{Chef::Recipe::AwsMetadata.get_aws_account_id}-#{Chef::Recipe::AwsMetadata.get_aws_region}"
 
 # use this to turn off analytics logging support
 default['elk']['analytics_logs'] = true
