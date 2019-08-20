@@ -552,6 +552,16 @@ enabled_log_groups.each do |log_group|
   end
 end
 
+template "/etc/logstash/cloudwatchlogstashconf.d/60-analyticslogsin.conf" do
+  source '60-analyticslogsin.conf.erb'
+  variables ({
+    :analytics_logging_bucket => node.fetch('elk').fetch('analytics_logging_bucket'),
+    :aws_region => node['ec2']['placement_availability_zone'][0..-2],
+    :proxy_uri => proxy_uri
+  })
+  notifies :run, 'execute[restart_cloudwatchlogstash]', :delayed
+end
+
 template "/etc/logstash/cloudwatchlogstashconf.d/80-waflogsin.conf" do
   source '80-waflogsin.conf.erb'
   variables ({
