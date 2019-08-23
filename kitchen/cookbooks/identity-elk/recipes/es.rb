@@ -103,7 +103,7 @@ elasticsearch_plugin 'com.floragunn:search-guard-7:7.3.0-36.1.0' do
   # https://github.com/elastic/cookbook-elasticsearch/issues/663
   chef_proxy true
   options '-b'
-  not_if "/usr/share/elasticsearch/bin/elasticsearch-plugin list | grep search-guard-6"
+  not_if "/usr/share/elasticsearch/bin/elasticsearch-plugin list | grep search-guard-7"
   notifies :restart, 'elasticsearch_service[elasticsearch]', :delayed
 end
 
@@ -115,18 +115,18 @@ remote_file '/usr/share/elasticsearch/plugins/search-guard-7/search-guard-tlstoo
   source 'https://search.maven.org/remotecontent?filepath=com/floragunn/search-guard-tlstool/1.7/search-guard-tlstool-1.7.tar.gz'
 end
 
-execute 'extract search-guard-tlstool-1.5.tar.gz' do
-  command 'tar xzvf search-guard-tlstool-1.5.tar.gz'
-  cwd '/usr/share/elasticsearch/plugins/search-guard-6'
+execute 'extract search-guard-tlstool-1.7.tar.gz' do
+  command 'tar xzvf search-guard-tlstool-1.7.tar.gz'
+  cwd '/usr/share/elasticsearch/plugins/search-guard-7'
 end
 
 execute 'make SGtlsTool scripts executable' do 
   command 'chmod +x tools/*'
-  cwd '/usr/share/elasticsearch/plugins/search-guard-6'
+  cwd '/usr/share/elasticsearch/plugins/search-guard-7'
 end
 
 # add login.gov specific configuration
-template '/usr/share/elasticsearch/plugins/search-guard-6/config/login.gov.yml' do
+template '/usr/share/elasticsearch/plugins/search-guard-7/config/login.gov.yml' do
   source 'search-guard-ssl-login.gov.yml.erb'
 end
 
@@ -181,7 +181,7 @@ end
 # Or generate a new node key pair if the root and intermediate key pairs have already been created
 execute 'generate node key pair' do
   command './tools/sgtlstool.sh -c config/login.gov.yml -crt -t /etc/elasticsearch'
-  cwd '/usr/share/elasticsearch/plugins/search-guard-6'
+  cwd '/usr/share/elasticsearch/plugins/search-guard-7'
   only_if { ::File.exist?('/etc/elasticsearch/root-ca.pem') }
   not_if { ::File.exist?("/etc/elasticsearch/#{node.fetch('ipaddress')}.pem") }
 end
@@ -248,7 +248,7 @@ execute 'import root-ca into jks truststore' do
 end
 
 execute 'run sgadmin' do
-  command "/usr/share/elasticsearch/plugins/search-guard-6/tools/sgadmin.sh \
+  command "/usr/share/elasticsearch/plugins/search-guard-7/tools/sgadmin.sh \
     -cd /etc/elasticsearch/sgadmin/ \
     -ks admin.jks \
     -kspass not-a-secret \
@@ -258,7 +258,7 @@ execute 'run sgadmin' do
   cwd '/etc/elasticsearch'
 end
 
-execute "/usr/share/elasticsearch/plugins/search-guard-6/tools/sgadmin.sh \
+execute "/usr/share/elasticsearch/plugins/search-guard-7/tools/sgadmin.sh \
    -cd /etc/elasticsearch/sgadmin/ \
    -cacert /etc/elasticsearch/root-ca.pem \
    -cert /etc/elasticsearch/admin.pem \
