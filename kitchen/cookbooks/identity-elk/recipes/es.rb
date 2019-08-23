@@ -111,7 +111,7 @@ end
 # https://github.com/floragunncom/search-guard-tlstool
 # https://search-guard.com/generating-certificates-tls-tool/
 remote_file '/usr/share/elasticsearch/plugins/search-guard-7/search-guard-tlstool-1.7.tar.gz' do
-  checksum '97efc3cbc560a99e59bfdab3d896749a124d1945ce9c92d40bbfdbb10568aa70'
+  checksum '284492779edf037348375994a0f320cc1425bda149d56c3db0031014241e7110'
   source 'https://search.maven.org/remotecontent?filepath=com/floragunn/search-guard-tlstool/1.7/search-guard-tlstool-1.7.tar.gz'
 end
 
