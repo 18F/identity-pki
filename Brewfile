@@ -1,5 +1,4 @@
 brew 'awscli'
-brew 'terraform'
 brew 'terraform-provider-acme-bin'
 brew 'gpg'
 brew 'opensc'
