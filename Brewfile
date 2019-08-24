@@ -1,0 +1,6 @@
+brew 'awscli'
+brew 'terraform-provider-acme-bin'
+brew 'gpg'
+brew 'opensc'
+brew 'jq'
+cask 'chef/chef/chefdk'
