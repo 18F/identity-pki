@@ -1,0 +1,23 @@
+{
+  "name": "bleachbyte",
+  "description": "",
+  "json_class": "Chef::Environment",
+  "chef_type": "environment",
+  "default_attributes": {
+    "elk": {
+      "legacy_log_bucket_name": false,
+      "retentiondays": 14,
+      "users": [
+        "bleachbyte"
+      ]
+    },
+    "identity-devops": {
+      "branch_name": "stages/bleachbyte"
+    },
+    "login_dot_gov": {
+      "branch_name": "stages/bleachbyte"
+    }
+  },
+  "override_attributes": {
+  }
+}
