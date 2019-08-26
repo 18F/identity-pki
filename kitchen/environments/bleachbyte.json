@@ -15,7 +15,8 @@
       "branch_name": "stages/bleachbyte"
     },
     "login_dot_gov": {
-      "branch_name": "stages/bleachbyte"
+      "domain_name": "identitysandbox.gov",
+      "branch_name": "master"
     }
   },
   "override_attributes": {
