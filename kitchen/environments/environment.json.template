@@ -1,0 +1,24 @@
+{
+  "name": "TEMPLATE",
+  "description": "",
+  "json_class": "Chef::Environment",
+  "chef_type": "environment",
+  "default_attributes": {
+    "elk": {
+      "legacy_log_bucket_name": false,
+      "retentiondays": 14,
+      "users": [
+        "TEMPLATE"
+      ]
+    },
+    "identity-devops": {
+      "branch_name": "stages/TEMPLATE"
+    },
+    "login_dot_gov": {
+      "domain_name": "identitysandbox.gov",
+      "branch_name": "master"
+    }
+  },
+  "override_attributes": {
+  }
+}

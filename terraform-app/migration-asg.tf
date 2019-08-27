@@ -77,7 +77,7 @@ resource "aws_autoscaling_group" "migration" {
     # The grace period starts after lifecycle hooks are done and the instance
     # is InService. Having a grace period is dangerous because the ASG
     # considers instances in the grace period to be healthy.
-    health_check_grace_period = 0
+    health_check_grace_period = 1
 
     termination_policies = ["OldestInstance"]
 
