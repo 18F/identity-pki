@@ -108,6 +108,7 @@ deploy "#{base_dir}" do
     cmds = [
       "rbenv exec bundle config build.nokogiri --use-system-libraries",
       "rbenv exec bundle install --deployment --jobs 3 --path #{base_dir}/shared/bundle --without deploy development test",
+      "npm install",
       "rbenv exec bundle exec rake assets:precompile",
     ]
 
