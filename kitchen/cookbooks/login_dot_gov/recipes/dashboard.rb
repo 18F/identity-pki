@@ -130,7 +130,7 @@ deploy "#{base_dir}" do
   #user node.fetch('login_dot_gov').fetch('system_user')
 end
 
-execute "rbenv exec bundle exec rake db:create db:migrate --trace" do
+execute "rbenv exec bundle exec rake db:create db:migrate db:seed --trace" do
   cwd "#{base_dir}/current"
   environment({
     'RAILS_ENV' => "production"
