@@ -557,7 +557,8 @@ template "/etc/logstash/cloudwatchlogstashconf.d/60-analyticslogsin.conf" do
   variables ({
     :analytics_logging_bucket => node.fetch('elk').fetch('analytics_logging_bucket'),
     :aws_region => node['ec2']['placement_availability_zone'][0..-2],
-    :proxy_uri => proxy_uri
+    :proxy_uri => proxy_uri,
+    :env => node.chef_environment
   })
   notifies :run, 'execute[restart_cloudwatchlogstash]', :delayed
 end

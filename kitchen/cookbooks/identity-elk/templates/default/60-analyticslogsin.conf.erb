@@ -5,6 +5,7 @@ input {
      region => "<%= @aws_region %>"
      sincedb_path => "/usr/share/logstash/.sincedb_analytics"
      type => "analytics"
+     prefix => "<%= @env %>/"
    }
 }
 
