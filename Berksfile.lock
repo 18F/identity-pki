@@ -24,7 +24,7 @@ DEPENDENCIES
   config_loader
     path: kitchen/cookbooks/config_loader
   deploy_resource (~> 1.0)
-  elasticsearch (~> 4.0.3)
+  elasticsearch (~> 4.2.0)
   elasticsearch-curator (~> 0.3.0)
   filebeat (~> 2.1.0)
   git
@@ -123,7 +123,7 @@ GRAPH
   deploy_resource (1.0.2)
   dpkg_autostart (0.2.0)
   elastic_repo (1.1.1)
-  elasticsearch (4.0.6)
+  elasticsearch (4.2.0)
     apt (>= 0.0.0)
     ark (>= 0.0.0)
     chef-sugar (>= 0.0.0)

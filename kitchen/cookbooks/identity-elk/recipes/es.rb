@@ -23,7 +23,7 @@ end
 elasticsearch_user 'elasticsearch'
 elasticsearch_install 'elasticsearch' do
   type 'tarball' # type of install
-  version "6.8.2"
+  version "7.3.1"
 end
 
 # URL to reach the elasticsearch cluster.  In the pre-auto-scaled world this was
@@ -97,36 +97,36 @@ directory '/etc/elasticsearch/sgadmin' do
   owner 'elasticsearch'
 end
 
-elasticsearch_plugin 'com.floragunn:search-guard-6:6.8.2-25.3' do
-  plugin_name 'com.floragunn:search-guard-6:6.8.2-25.3'
+elasticsearch_plugin 'com.floragunn:search-guard-7:7.3.1-36.1.0' do
+  plugin_name 'com.floragunn:search-guard-7:7.3.1-36.1.0'
   # The documentation says this is true by default, but the code disagrees.
   # https://github.com/elastic/cookbook-elasticsearch/issues/663
   chef_proxy true
   options '-b'
-  not_if "/usr/share/elasticsearch/bin/elasticsearch-plugin list | grep search-guard-6"
+  not_if "/usr/share/elasticsearch/bin/elasticsearch-plugin list | grep search-guard-7"
   notifies :restart, 'elasticsearch_service[elasticsearch]', :delayed
 end
 
 # Install SearchGuard TLS Tool
 # https://github.com/floragunncom/search-guard-tlstool
 # https://search-guard.com/generating-certificates-tls-tool/
-remote_file '/usr/share/elasticsearch/plugins/search-guard-6/search-guard-tlstool-1.5.tar.gz' do
-  checksum '97efc3cbc560a99e59bfdab3d896749a124d1945ce9c92d40bbfdbb10568aa70'
-  source 'https://search.maven.org/remotecontent?filepath=com/floragunn/search-guard-tlstool/1.5/search-guard-tlstool-1.5.tar.gz'
+remote_file '/usr/share/elasticsearch/plugins/search-guard-7/search-guard-tlstool-1.7.tar.gz' do
+  checksum '284492779edf037348375994a0f320cc1425bda149d56c3db0031014241e7110'
+  source 'https://search.maven.org/remotecontent?filepath=com/floragunn/search-guard-tlstool/1.7/search-guard-tlstool-1.7.tar.gz'
 end
 
-execute 'extract search-guard-tlstool-1.5.tar.gz' do
-  command 'tar xzvf search-guard-tlstool-1.5.tar.gz'
-  cwd '/usr/share/elasticsearch/plugins/search-guard-6'
+execute 'extract search-guard-tlstool-1.7.tar.gz' do
+  command 'tar xzvf search-guard-tlstool-1.7.tar.gz'
+  cwd '/usr/share/elasticsearch/plugins/search-guard-7'
 end
 
 execute 'make SGtlsTool scripts executable' do 
   command 'chmod +x tools/*'
-  cwd '/usr/share/elasticsearch/plugins/search-guard-6'
+  cwd '/usr/share/elasticsearch/plugins/search-guard-7'
 end
 
 # add login.gov specific configuration
-template '/usr/share/elasticsearch/plugins/search-guard-6/config/login.gov.yml' do
+template '/usr/share/elasticsearch/plugins/search-guard-7/config/login.gov.yml' do
   source 'search-guard-ssl-login.gov.yml.erb'
 end
 
@@ -181,7 +181,7 @@ end
 # Or generate a new node key pair if the root and intermediate key pairs have already been created
 execute 'generate node key pair' do
   command './tools/sgtlstool.sh -c config/login.gov.yml -crt -t /etc/elasticsearch'
-  cwd '/usr/share/elasticsearch/plugins/search-guard-6'
+  cwd '/usr/share/elasticsearch/plugins/search-guard-7'
   only_if { ::File.exist?('/etc/elasticsearch/root-ca.pem') }
   not_if { ::File.exist?("/etc/elasticsearch/#{node.fetch('ipaddress')}.pem") }
 end
@@ -248,7 +248,7 @@ execute 'import root-ca into jks truststore' do
 end
 
 execute 'run sgadmin' do
-  command "/usr/share/elasticsearch/plugins/search-guard-6/tools/sgadmin.sh \
+  command "/usr/share/elasticsearch/plugins/search-guard-7/tools/sgadmin.sh \
     -cd /etc/elasticsearch/sgadmin/ \
     -ks admin.jks \
     -kspass not-a-secret \
@@ -258,7 +258,7 @@ execute 'run sgadmin' do
   cwd '/etc/elasticsearch'
 end
 
-execute "/usr/share/elasticsearch/plugins/search-guard-6/tools/sgadmin.sh \
+execute "/usr/share/elasticsearch/plugins/search-guard-7/tools/sgadmin.sh \
    -cd /etc/elasticsearch/sgadmin/ \
    -cacert /etc/elasticsearch/root-ca.pem \
    -cert /etc/elasticsearch/admin.pem \
