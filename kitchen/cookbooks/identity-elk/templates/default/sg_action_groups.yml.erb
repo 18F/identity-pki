@@ -1,57 +1,18 @@
-ALL:
-  - "indices:*"
-MANAGE:
-  - "indices:monitor/*"
-  - "indices:admin/*"
-CREATE_INDEX:
-  - "indices:admin/create"
-  - "indices:admin/mapping/put"
-MANAGE_ALIASES:
-  - "indices:admin/aliases*"
-MONITOR:
-  - "indices:monitor/*"
-DATA_ACCESS:
-  - "indices:data/*"
-  - "indices:admin/mapping/put"
-WRITE:
-  - "indices:data/write*"
-  - "indices:admin/mapping/put"
-READ:
-  - "indices:data/read*"
-DELETE:
-  - "indices:data/write/delete*"
-CRUD:
-  - READ
-  - WRITE
-SEARCH:
-  - "indices:data/read/search*"
-  - "indices:data/read/msearch*"
-  - SUGGEST
-SUGGEST:
-  - "indices:data/read/suggest*"
-INDEX:
-  - "indices:data/write/index*"
-  - "indices:data/write/update*"
-  - "indices:admin/mapping/put"
-  # no bulk index
-GET:
-  - "indices:data/read/get*"
-  - "indices:data/read/mget*"
+---
+# In this files action groups can be defined. Action groups are a collection of permissions.
 
-# CLUSTER
-CLUSTER_ALL:
-  - cluster:*
-CLUSTER_MONITOR:
-  - cluster:monitor/*
-CLUSTER_COMPOSITE_OPS_RO:
-  - "indices:data/read/mget"
-  - "indices:data/read/msearch"
-  - "indices:data/read/mtv"
-  - "indices:data/read/coordinate-msearch*"
-  - "indices:admin/aliases/exists*"
-  - "indices:admin/aliases/get*"
-CLUSTER_COMPOSITE_OPS:
-  - "indices:data/write/bulk"
-  - "indices:admin/aliases*"
-  - CLUSTER_COMPOSITE_OPS_RO
+_sg_meta:
+  type: "actiongroups"
+  config_version: 2
 
+# Define your own action groups here
+# or use the built-in groups
+# See https://docs.search-guard.com/latest/action-groups
+
+#MY_ACTION_GROUP:
+#  reserved: false
+#  allowed_actions:
+#  - "indices:data/read/search*"
+#  - "indices:data/read/msearch*"
+#  type: "index"
+#  description: "my action group"
