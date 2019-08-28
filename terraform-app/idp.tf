@@ -234,6 +234,29 @@ data "aws_iam_policy_document" "put_reports_to_s3" {
   }
 }
 
+# Allow sending SMS/Voice messages with Pinpoint
+resource "aws_iam_role_policy" "idp-pinpoint-send" {
+  name = "${var.env_name}-idp-pinpoint-send"
+  role = "${aws_iam_role.idp.id}"
+  policy = <<EOM
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "mobiletargeting:PhoneNumberValidate",
+                "mobiletargeting:SendMessages",
+                "mobiletargeting:SendUsersMessages",
+                "sms-voice:SendVoiceMessage"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+EOM
+}
+
 
 module "idp_user_data" {
   source = "../terraform-modules/bootstrap/"
