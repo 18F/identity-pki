@@ -205,7 +205,7 @@ execute "wait for elasticsearch to start up without searchguard" do
 end
 
 # set up sgadmin stuff
-%w{sg_action_groups.yml sg_config.yml sg_internal_users.yml sg_roles_mapping.yml sg_roles.yml}.each do |f|
+%w{sg_action_groups.yml sg_config.yml sg_internal_users.yml sg_roles_mapping.yml sg_roles.yml sg_tenants.yml}.each do |f|
   cookbook_file "/etc/elasticsearch/sgadmin/#{f}"
 end
 
