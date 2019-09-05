@@ -20,9 +20,32 @@ module Deploy
       File.open(result_yaml_path, 'w') { |file| file.puts YAML.dump(application_config) }
 
       FileUtils.chmod(0o640, [env_yaml_path, result_yaml_path])
+
+      download_extra_certs_from_s3
     end
 
     private
+
+    def download_extra_certs_from_s3
+      ec2_data = LoginGov::Hostdata::EC2.load
+      aws_region = ec2_data.region
+      aws_account_id = ec2_data.account_id
+
+      begin
+        LoginGov::Hostdata::S3.new(
+          bucket: "login-gov.secrets.#{aws_account_id}-#{aws_region}",
+          env: LoginGov::Hostdata.env,
+          region: aws_region,
+          logger: logger,
+          s3_client: s3_client,
+        ).download_configs('/%<env>s/extra_pivcac_certs.pem' =>
+                           File.join(root,
+                                     'config/certs/extra_pivcac_certs.pem'))
+      # If the file doesn't exist that's fine. This step is optional.
+      rescue Aws::S3::Errors::NoSuchKey
+        logger.info('extra_pivcac_certs.pem is not in S3 but that is okay.')
+      end
+    end
 
     def default_logger
       logger = Logger.new(STDOUT)
