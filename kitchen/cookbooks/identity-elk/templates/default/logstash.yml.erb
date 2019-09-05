@@ -24,4 +24,4 @@ path.logs: <%= @path_logs %>
 # https://www.elastic.co/guide/en/logstash/current/monitoring-logstash.html
 xpack.monitoring.enabled: <%= @xpack_monitoring_enabled %>
 xpack.monitoring.elasticsearch.hosts: ['<%= @xpack_monitoring_elasticsearch_url %>']
-xpack.monitoring.elasticsearch.ssl.ca: <%= @xpack_monitoring_elasticsearch_ssl_ca %>
+xpack.monitoring.elasticsearch.ssl.certificate_authority: <%= @xpack_monitoring_elasticsearch_ssl_ca %>
