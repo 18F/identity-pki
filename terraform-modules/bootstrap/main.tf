@@ -188,7 +188,7 @@ data "external" "cloud-init-provision-main-template" {
         asg_name = "${local.asg_name}"
         lifecycle_hook_name = "${var.main_lifecycle_hook_name}"
 
-        run_aideinit = "true"
+        run_aide = "true"
     }
 }
 
