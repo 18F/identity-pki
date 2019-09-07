@@ -475,9 +475,9 @@ execute 'pip install -r requirements.txt' do
   cwd elastalertdir
   not_if 'pip list | grep funcsigs'
 end
-execute 'pip install "elasticsearch>=6.0.0,<7.0.0"' do
+execute 'pip install "elasticsearch>=7.0.0,<8.0.0"' do
   cwd elastalertdir
-  not_if 'pip list | egrep "elasticsearch \(6"'
+  not_if 'pip list | egrep "elasticsearch \(7"'
 end
 
 template "#{elastalertdir}/config.yaml" do
