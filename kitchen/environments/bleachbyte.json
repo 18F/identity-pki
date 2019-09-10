@@ -16,10 +16,12 @@
     },
     "login_dot_gov": {
       "domain_name": "identitysandbox.gov",
-      "branch_name": "master",
-      "idp_run_migrations": "true"
+      "branch_name": "stages/bleachbyte",
+      "idp_run_migrations": true,
+      "allow_unsafe_migrations": true
     }
   },
   "override_attributes": {
+
   }
 }
