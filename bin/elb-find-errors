@@ -71,12 +71,14 @@ def find_errors(filename, only_elb_errors: false, only_target_errors: false,
 
     if elb_errors
       if status_code_re.match?(elb_status_code)
-        # check that we got - for target status if only_elb_errors is set
-        if only_elb_errors && target_status_code == NULL_FIELD
-          found_count += 1
-          yield row
-          next
-        end
+        # If only_elb_errors is set, we want to exclude cases where the error
+        # came from the target group. This means that we only want to consider
+        # it an error here if the target status is "-".
+        next if only_elb_errors && target_status_code != NULL_FIELD
+
+        found_count += 1
+        yield row
+        next
       end
     end
     if target_errors
