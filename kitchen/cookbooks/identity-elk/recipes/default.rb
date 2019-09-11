@@ -454,12 +454,14 @@ apache_site 'kibanaproxy'
 include_recipe 'identity-elk::filebeat'
 
 # === set up elastalert ===
-package 'python-pip'
+package %w(python3 python3-dev python3-pip libssl-dev libffi-dev)
 
-# python cryptography build dependencies
-package 'python-dev'
-package 'libssl-dev'
-package 'libffi-dev'
+# make python 3 default
+execute 'update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1'
+execute 'update-alternatives --install /usr/bin/python python /usr/bin/python3.6 2'
+
+# upgrade pip
+execute 'python3 -m pip install --upgrade pip'
 
 elastalertdir = '/usr/share/elastalert'
 directory "#{elastalertdir}/rules.d" do
@@ -467,17 +469,12 @@ directory "#{elastalertdir}/rules.d" do
 end
 
 execute 'pip install setuptools --upgrade'
+# we have to --ignore-installed due to the PyYAML installed from APT. Perhaps there's a better way
+# to resolve this conflict.
+execute 'pip install --ignore-installed PyYAML==5.1'
 execute "pip install elastalert==#{node.fetch('elk').fetch('elastalert').fetch('version')}" do
   cwd elastalertdir
   creates '/usr/local/bin/elastalert'
-end
-execute 'pip install -r requirements.txt' do
-  cwd elastalertdir
-  not_if 'pip list | grep funcsigs'
-end
-execute 'pip install "elasticsearch>=6.0.0,<7.0.0"' do
-  cwd elastalertdir
-  not_if 'pip list | egrep "elasticsearch \(6"'
 end
 
 template "#{elastalertdir}/config.yaml" do
