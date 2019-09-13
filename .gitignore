@@ -5,6 +5,7 @@ certs/*
 .chef/syntaxcache
 .DS_Store
 /env/*
+.idea/
 .kitchen/
 .kitchen.local.yml
 /kitchen/data_bags/config/
