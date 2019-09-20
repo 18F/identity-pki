@@ -47,9 +47,9 @@ resource "aws_iam_role_policy_attachment" "region_restriction" {
     policy_arn = "${aws_iam_policy.region_restriction.arn}"
 }
 
-data "aws_iam_policy_document" "assume_full_administrator_role" {
+data "aws_iam_policy_document" "allow_master_account_assumerole" {
     statement {
-        sid = "AssumeFullAdministrator"
+        sid = "AssumeRoleFromMasterAccount"
         actions = [
             "sts:AssumeRole"
         ]
@@ -71,7 +71,7 @@ data "aws_iam_policy_document" "assume_full_administrator_role" {
 
 resource "aws_iam_role" "power" {
     name = "PowerUser"
-    assume_role_policy = "${data.aws_iam_policy_document.assume_power_role.json}"
+    assume_role_policy = "${data.aws_iam_policy_document.allow_master_account_assumerole.json}"
     path = "/"
     max_session_duration = 3600 #seconds
 }
@@ -95,31 +95,9 @@ resource "aws_iam_role_policy_attachment" "power_region_restriction" {
     policy_arn = "${aws_iam_policy.region_restriction.arn}"
 }
 
-data "aws_iam_policy_document" "assume_power_role" {
-    statement {
-        sid = "AssumePower"
-        actions = [
-            "sts:AssumeRole"
-        ]
-        principals = {
-            type = "AWS"
-            identifiers = [
-                "arn:aws:iam::${var.master_account_id}:root"
-            ]
-        }
-        condition {
-            test = "Bool"
-            variable = "aws:MultiFactorAuthPresent"
-            values = [
-                "true"
-            ]
-        }
-    }
-}
-
 resource "aws_iam_role" "readonly" {
     name = "ReadOnly"
-    assume_role_policy = "${data.aws_iam_policy_document.assume_readonly_role.json}"
+    assume_role_policy = "${data.aws_iam_policy_document.allow_master_account_assumerole.json}"
     path = "/"
     max_session_duration = 3600 #seconds
 }
@@ -138,31 +116,9 @@ resource "aws_iam_role_policy_attachment" "readonly_region_restriction" {
     policy_arn = "${aws_iam_policy.region_restriction.arn}"
 }
 
-data "aws_iam_policy_document" "assume_readonly_role" {
-    statement {
-        sid = "AssumeReadOnly"
-        actions = [
-            "sts:AssumeRole"
-        ]
-        principals = {
-            type = "AWS"
-            identifiers = [
-                "arn:aws:iam::${var.master_account_id}:root"
-            ]
-        }
-        condition {
-            test = "Bool"
-            variable = "aws:MultiFactorAuthPresent"
-            values = [
-                "true"
-            ]
-        }
-    }
-}
-
 resource "aws_iam_role" "appdev" {
     name = "Appdev"
-    assume_role_policy = "${data.aws_iam_policy_document.assume_appdev_role.json}"
+    assume_role_policy = "${data.aws_iam_policy_document.allow_master_account_assumerole.json}"
     path = "/"
     max_session_duration = 3600 #seconds
 }
@@ -182,24 +138,3 @@ resource "aws_iam_role_policy_attachment" "power_region_restriction" {
     policy_arn = "${aws_iam_policy.region_restriction.arn}"
 }
 
-data "aws_iam_policy_document" "assume_appdev_role" {
-    statement {
-        sid = "AssumeAppDev"
-        actions = [
-            "sts:AssumeRole"
-        ]
-        principals = {
-            type = "AWS"
-            identifiers = [
-                "arn:aws:iam::${var.master_account_id}:root"
-            ]
-        }
-        condition {
-            test = "Bool"
-            variable = "aws:MultiFactorAuthPresent"
-            values = [
-                "true"
-            ]
-        }
-    }
-}
