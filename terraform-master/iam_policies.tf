@@ -297,7 +297,7 @@ data "aws_iam_policy_document" "sandbox_assume_appdev" {
     }
 }
 
-resource "aws_iam_policy" "production_assume_AppDev" {
+resource "aws_iam_policy" "production_assume_appdev" {
     name = "ProductionAssumeAppDev"
     path = "/"
     description = "Policy to allow user to assume appdev in Production"
