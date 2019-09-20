@@ -1,6 +1,11 @@
 # users
+resource "aws_iam_user" "brian_crissup2" {
+    name = "brian.crissup2"
+}
+
 module "brian_crissup" {
     source = "terraform-aws-modules/iam/aws//modules/iam-user"
+    version = "~> 1.0"
     name = "brian.crissup"
     password_length = "${local.password_length}"
     password_reset_required = true
@@ -11,6 +16,7 @@ module "brian_crissup" {
 
 module "andy_brody" {
     source = "terraform-aws-modules/iam/aws//modules/iam-user"
+    version = "~> 1.0"
     name = "andy.brody"
     password_length = "${local.password_length}"
     password_reset_required = true
@@ -21,6 +27,7 @@ module "andy_brody" {
 
 module "brett_mcparland" {
     source = "terraform-aws-modules/iam/aws//modules/iam-user"
+    version = "~> 1.0"
     name = "brett.mcparland"
     password_length = "${local.password_length}"
     password_reset_required = true
@@ -31,6 +38,7 @@ module "brett_mcparland" {
 
 module "clara_bridges" {
     source = "terraform-aws-modules/iam/aws//modules/iam-user"
+    version = "~> 1.0"
     name = "clara.bridges"
     password_length = "${local.password_length}"
     password_reset_required = true
@@ -41,6 +49,7 @@ module "clara_bridges" {
 
 module "jonathan_hooper" {
     source = "terraform-aws-modules/iam/aws//modules/iam-user"
+    version = "~> 1.0"
     name = "jonathan.hooper"
     password_length = "${local.password_length}"
     password_reset_required = true
@@ -51,6 +60,7 @@ module "jonathan_hooper" {
 
 module "justin_grevich" {
     source = "terraform-aws-modules/iam/aws//modules/iam-user"
+    version = "~> 1.0"
     name = "justin.grevich"
     password_length = "${local.password_length}"
     password_reset_required = true
@@ -61,6 +71,7 @@ module "justin_grevich" {
 
 module "laura_gerhardt" {
     source = "terraform-aws-modules/iam/aws//modules/iam-user"
+    version = "~> 1.0"
     name = "laura.gerhardt"
     password_length = "${local.password_length}"
     password_reset_required = true
@@ -71,6 +82,7 @@ module "laura_gerhardt" {
 
 module "mark_ryan" {
     source = "terraform-aws-modules/iam/aws//modules/iam-user"
+    version = "~> 1.0"
     name = "mark.ryan"
     password_length = "${local.password_length}"
     password_reset_required = true
@@ -91,6 +103,7 @@ module "mark_ryan" {
 
 module "rajat_varuni" {
     source = "terraform-aws-modules/iam/aws//modules/iam-user"
+    version = "~> 1.0"
     name = "rajat.varuni"
     password_length = "${local.password_length}"
     password_reset_required = true
@@ -101,6 +114,7 @@ module "rajat_varuni" {
 
 module "steve_urciuoli" {
     source = "terraform-aws-modules/iam/aws//modules/iam-user"
+    version = "~> 1.0"
     name = "steve.urciuoli"
     password_length = "${local.password_length}"
     password_reset_required = true
@@ -163,12 +177,13 @@ resource "aws_iam_policy_attachment" "sandbox_power_user" {
 #     policy_arn = "${aws_iam_policy.production_assume_power_user.arn}"
 # }
 
-resource "aws_iam_policy_attachment" "production_appdev_user" {
+resource "aws_iam_policy_attachment" "production_appdev" {
     name = "production_appdev"
     users = [
         "${module.steve_urciuoli.this_iam_user_name}",
         "${module.jonathan_hooper.this_iam_user_name}"
     ]
+    policy_arn = "${aws_iam_policy.production_assume_appdev.arn}"
 }
 
 # resource "aws_iam_policy_attachment" "production_readonly" {
