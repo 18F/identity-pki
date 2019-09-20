@@ -19,5 +19,5 @@ variable "production_analytics_account_id" {
 
 variable "sandbox_analytics_account_id" {
     default = ""
-    description = "Sanbox Analytics AWS Account ID"
+    description = "Sandbox Analytics AWS Account ID"
 }
