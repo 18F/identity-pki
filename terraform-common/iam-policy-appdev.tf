@@ -251,8 +251,8 @@ data "aws_iam_policy_document" "appdev1" {
         sid = "S3"
         effect = "Allow"
         actions = [
-            "sqs:List*",
-            "sqs:Get*"
+            "s3:List*",
+            "s3:Get*"
         ]
         resources = [
             "*"
