@@ -88,6 +88,10 @@ elasticsearch_configure "elasticsearch" do
   notifies :restart, 'elasticsearch_service[elasticsearch]', :delayed
 end
 
+link '/usr/share/elasticsearch/config' do
+  to '/etc/elasticsearch'
+end
+
 elasticsearch_plugin 'x-pack' do
   action :remove
 end
@@ -97,12 +101,17 @@ directory '/etc/elasticsearch/sgadmin' do
   owner 'elasticsearch'
 end
 
+execute 'download SearchGuard installer' do
+  command 'aws s3 cp s3://login-gov-elasticsearch-jjg.894947205914-us-west-2/search-guard-7-7.3.1-36.1.0.zip /tmp/'
+end
+
 elasticsearch_plugin 'com.floragunn:search-guard-7:7.3.1-36.1.0' do
   plugin_name 'com.floragunn:search-guard-7:7.3.1-36.1.0'
   # The documentation says this is true by default, but the code disagrees.
   # https://github.com/elastic/cookbook-elasticsearch/issues/663
   chef_proxy true
   options '-b'
+  url 'file:/tmp/search-guard-7-7.3.1-36.1.0.zip'
   not_if "/usr/share/elasticsearch/bin/elasticsearch-plugin list | grep search-guard-7"
   notifies :restart, 'elasticsearch_service[elasticsearch]', :delayed
 end
