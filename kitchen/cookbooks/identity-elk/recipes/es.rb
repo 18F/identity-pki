@@ -101,8 +101,10 @@ directory '/etc/elasticsearch/sgadmin' do
   owner 'elasticsearch'
 end
 
+aws_account_id = AwsMetadata.get_aws_account_id
+
 execute 'download SearchGuard installer' do
-  command 'aws s3 cp s3://login-gov-elasticsearch-jjg.894947205914-us-west-2/search-guard-7-7.3.1-36.1.0.zip /tmp/'
+  command 'aws s3 cp s3://login-gov-elasticsearch-#{node.chef_environment}.#{aws_account_id}-us-west-2/search-guard-7-7.3.1-36.1.0.zip /tmp/'
 end
 
 elasticsearch_plugin 'com.floragunn:search-guard-7:7.3.1-36.1.0' do
@@ -156,7 +158,6 @@ end
 
 # NOTE: refactor using service discovery cookbook helpers
 # Download CA and intermediate key pairs from s3 bucket if they exist
-aws_account_id = AwsMetadata.get_aws_account_id
 s3_cert_url = "s3://login-gov.internal-certs.#{aws_account_id}-us-west-2/#{node.chef_environment}/elasticsearch/"
 
 file_list = %w(root-ca.key root-ca.pem signing-ca.key signing-ca.pem issuer.pem admin.jks)
