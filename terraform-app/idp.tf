@@ -234,7 +234,30 @@ data "aws_iam_policy_document" "put_reports_to_s3" {
   }
 }
 
+# Allow assuming cross-account role for Pinpoint APIs. This is in a separate
+# account for accounting purposes since it's on a separate contract.
+resource "aws_iam_role_policy" "idp-pinpoint-assumerole" {
+  name = "${var.env_name}-idp-pinpoint-assumerole"
+  role = "${aws_iam_role.idp.id}"
+  policy = <<EOM
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "sts:AssumeRole",
+      "Condition": {"Bool": {"aws:MultiFactorAuthPresent": true}},
+      "Resource": [
+        "arn:aws:iam::${var.identity_sms_aws_account_id}:role/${var.identity_sms_iam_role_name_idp}"
+      ]
+    }
+  ]
+}
+EOM
+}
+
 # Allow sending SMS/Voice messages with Pinpoint
+# (Deprecated: TODO remove)
 resource "aws_iam_role_policy" "idp-pinpoint-send" {
   name = "${var.env_name}-idp-pinpoint-send"
   role = "${aws_iam_role.idp.id}"
