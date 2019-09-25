@@ -8,6 +8,8 @@ provider "aws" {
   #  session_name = "SESSION_NAME"
   #  external_id  = "EXTERNAL_ID"
   #}
+
+  version = "~> 2.29"
 }
 
 # Stub remote config

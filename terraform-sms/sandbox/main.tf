@@ -8,6 +8,8 @@ provider "aws" {
   #  session_name = "SESSION_NAME"
   #  external_id  = "EXTERNAL_ID"
   #}
+
+  version = "~> 2.29"
 }
 
 # Stub remote config
@@ -22,8 +24,9 @@ terraform {
 module "main" {
   source = "../module"
 
-  env = "sandbox"
+  #env = "sandbox"
   region = "us-west-2"
   main_account_id = "894947205914"
   pinpoint_app_name = "identitysandbox.gov"
+  state_lock_table = "terraform_locks"
 }
