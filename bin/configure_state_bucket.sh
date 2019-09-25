@@ -77,7 +77,7 @@ check_or_create_remote_state_resources() {
       log "Bucket $BUCKET does not exist, creating..."
       log "Creating an s3 bucket for terraform state"
 
-      aws s3 mb "s3://$BUCKET"
+      aws s3 mb "s3://$BUCKET" --region "$REGION"
 
       log "Enabling versioning on the s3 bucket"
       aws s3api put-bucket-versioning --bucket "$BUCKET" \
@@ -162,6 +162,9 @@ check_or_create_remote_state_resources
 # directory management styles.
 #
 cd "${TF_DIR}"
+
+# Sanity check: make sure we have a main.tf
+assert_file_exists "main.tf"
 
 if [ -z "$MODULE_STYLE" ]; then
   log --blue "Setting up shared style .terraform symlink"

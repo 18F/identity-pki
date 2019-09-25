@@ -448,7 +448,7 @@ fi
 echo >&2 "Configuring state bucket $TERRAFORM_STATE_BUCKET with path $STATE"
 
 run bin/configure_state_bucket.sh "$style_option" "$TERRAFORM_STATE_BUCKET" \
-    "$STATE" "$TF_DIR" "$TERRAFORM_STATE_BUCKET_REGION" "$ID_state_lock_table"
+    "$STATE" "$TF_DIR_FULL" "$TERRAFORM_STATE_BUCKET_REGION" "$ID_state_lock_table"
 
 echo >&2 "+ cd $TF_DIR_FULL"
 cd "$TF_DIR_FULL"

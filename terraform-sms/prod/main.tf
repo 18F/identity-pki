@@ -22,8 +22,9 @@ terraform {
 module "main" {
   source = "../module"
 
-  env = "prod"
+  #env = "prod"
   region = "us-west-2"
   main_account_id = "555546682965"
   pinpoint_app_name = "login.gov"
+  state_lock_table = "terraform_locks"
 }
