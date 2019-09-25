@@ -8,69 +8,6 @@ resource "aws_iam_role" "elasticsearch" {
   assume_role_policy = "${data.aws_iam_policy_document.assume_role_from_vpc.json}"
 }
 
-resource "aws_iam_role_policy" "elasticsearch-secrets" {
-  name = "${var.env_name}-elasticsearch-secrets"
-  role = "${aws_iam_role.elasticsearch.id}"
-  policy = "${data.aws_iam_policy_document.elasticsearch-secrets-role-policy.json}"
-}
-
-data "aws_iam_policy_document" "elasticsearch-secrets-role-policy" {
-  statement {
-    sid = "AllowBucketAndObjects"
-    effect = "Allow"
-    actions = [
-      "s3:Get*",
-      "s3:List*"
-    ]
-
-    resources = [
-      "arn:aws:s3:::login-gov.secrets.${data.aws_caller_identity.current.account_id}-*/common/",
-      "arn:aws:s3:::login-gov.secrets.${data.aws_caller_identity.current.account_id}-*/common/*",
-      "arn:aws:s3:::login-gov.secrets.${data.aws_caller_identity.current.account_id}-*/${var.env_name}/",
-      "arn:aws:s3:::login-gov.secrets.${data.aws_caller_identity.current.account_id}-*/${var.env_name}/*",
-    ]
-  }
-
-  # allow ls to work
-  statement {
-    sid = "AllowRootAndTopListing"
-    effect = "Allow"
-    actions = [
-      "s3:ListBucket"
-    ]
-    condition {
-      test = "StringEquals"
-      variable = "s3:prefix"
-      values = ["", "common/", "${var.env_name}/"]
-    }
-    condition {
-      test = "StringEquals"
-      variable = "s3:delimiter"
-      values = ["/"]
-    }
-    resources = [
-      "arn:aws:s3:::login-gov.secrets.${data.aws_caller_identity.current.account_id}-*",
-    ]
-  }
-
-  # allow subdirectory ls
-  statement {
-    sid = "AllowSubListing"
-    effect = "Allow"
-    actions = [
-      "s3:ListBucket"
-    ]
-    condition {
-      test = "StringLike"
-      variable = "s3:prefix"
-      values = ["common/", "${var.env_name}/*"]
-    }
-    resources = [
-      "arn:aws:s3:::login-gov.secrets.${data.aws_caller_identity.current.account_id}-*",
-    ]
-  }
-}
-
 resource "aws_iam_role_policy" "elasticsearch-secrets-manager" {
   name = "${var.env_name}-elasticsearch-secrets-manager"
   role = "${aws_iam_role.elasticsearch.id}"
@@ -138,3 +75,33 @@ data "aws_iam_policy_document" "elasticsearch_bucket_policy" {
     ]
   }
 }
+
+# These policies are all duplicated from base-permissions
+
+resource "aws_iam_role_policy" "elasticsearch-secrets" {
+  name = "${var.env_name}-elasticsearch-secrets"
+  role = "${aws_iam_role.elasticsearch.id}"
+  policy = "${data.aws_iam_policy_document.secrets_role_policy.json}"
+}
+
+# Role policy that associates it with the certificates_role_policy
+resource "aws_iam_role_policy" "elasticsearch-certificates" {
+    name = "${var.env_name}-elasticsearch-certificates"
+    role = "${aws_iam_role.elasticsearch.id}"
+    policy = "${data.aws_iam_policy_document.certificates_role_policy.json}"
+}
+
+# Role policy that associates it with the describe_instances_role_policy
+resource "aws_iam_role_policy" "elasticsearch-describe_instances" {
+    name = "${var.env_name}-elasticsearch-describe_instances"
+    role = "${aws_iam_role.elasticsearch.id}"
+    policy = "${data.aws_iam_policy_document.describe_instances_role_policy.json}"
+}
+
+resource "aws_iam_role_policy" "elasticsearch-cloudwatch-logs" {
+    name = "${var.env_name}-elasticsearch-cloudwatch-logs"
+    role = "${aws_iam_role.elasticsearch.id}"
+    policy = "${data.aws_iam_policy_document.cloudwatch-logs.json}"
+}
+
+# </end> base-permissions policies

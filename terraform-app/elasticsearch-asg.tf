@@ -111,20 +111,3 @@ resource "aws_autoscaling_group" "elasticsearch" {
         propagate_at_launch = true
     }
 }
-
-data "aws_iam_policy_document" "elasticsearch_asg_role_policy" {
-  # Allow notifying ASG lifecycle hooks. This isn't a great place for this
-  # permission since not actually related, but it's useful to put here because
-  # all of our ASG instances need it.
-  statement {
-    sid = "AllowCompleteLifecycleHook"
-    effect = "Allow"
-    actions = [
-      "autoscaling:CompleteLifecycleAction",
-      "autoscaling:RecordLifecycleActionHeartbeat"
-    ]
-    resources = [
-      "arn:aws:autoscaling:*:*:autoScalingGroup:*:autoScalingGroupName/${var.env_name}-*"
-    ]
-  }
-}
