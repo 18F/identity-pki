@@ -21,7 +21,7 @@ resource "aws_iam_role" "idp-pinpoint" {
     {
       "Effect": "Allow",
       "Action": "sts:AssumeRole",
-      "Condition": {"Bool": {"aws:MultiFactorAuthPresent": true}},
+      "Condition": {"Bool": {"aws:MultiFactorAuthPresent": "true"}},
       "Principal": {"AWS": "arn:aws:iam::${var.main_account_id}:root"}
     }
   ]
@@ -63,7 +63,7 @@ resource "aws_iam_role" "admin" {
     {
       "Effect": "Allow",
       "Action": "sts:AssumeRole",
-      "Condition": {"Bool": {"aws:MultiFactorAuthPresent": true}},
+      "Condition": {"Bool": {"aws:MultiFactorAuthPresent": "true"}},
       "Principal": {"AWS": "arn:aws:iam::${var.main_account_id}:root"}
     }
   ]
