@@ -304,9 +304,4 @@ Repo root from your cwd:   $repo_root_before_cd
 Repo root for $BASENAME: $repo_root_after_cd"
         prompt_yn
     fi
-
-    echo "repo root stuff:"
-    echo "before_cd: $repo_root_before_cd"
-    echo "after: $repo_root_after_cd"
-    echo "basename: $repo_root_before_cd/bin/$BASENAME"
 }
