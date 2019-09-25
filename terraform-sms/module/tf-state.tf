@@ -5,6 +5,7 @@ resource "aws_s3_bucket" "s3-logs" {
   bucket = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
   region = "${var.region}"
   acl = "log-delivery-write"
+  policy = ""
 
   versioning {
     enabled = true
@@ -38,6 +39,10 @@ resource "aws_s3_bucket" "s3-logs" {
         sse_algorithm = "aws:kms"
       }
     }
+  }
+
+  lifecycle {
+    prevent_destroy = true
   }
 }
 
