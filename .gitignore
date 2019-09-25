@@ -15,7 +15,13 @@ certs/*
 terraform.tfstate.backup
 .vagrant
 Vagrantfile
+
+# old-style shared dir symlinks
 /terraform-*/.terraform
 /terraform-*/.deploy/
+
+# new-style subdir .terraform dirs
+/terraform-*/*/.terraform/
+
 /nodes/*/Gemfile.lock
 /nodes/*/Berksfile.lock
