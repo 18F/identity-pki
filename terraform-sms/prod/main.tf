@@ -29,4 +29,5 @@ module "main" {
   main_account_id = "555546682965"
   pinpoint_app_name = "login.gov"
   state_lock_table = "terraform_locks"
+  opsgenie_devops_high_endpoint = "https://api.opsgenie.com/v1/json/amazonsns?apiKey=1b1a2d80-6260-460a-995a-5200876f7372"
 }

@@ -24,3 +24,7 @@ EOM
 variable "pinpoint_app_name" {
     description = "Name of the pinpoint app"
 }
+
+variable "opsgenie_devops_high_endpoint" {
+    description = "OpsGenie endpoint to use for high priority alerting from SNS"
+}
