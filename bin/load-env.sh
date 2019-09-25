@@ -32,7 +32,8 @@ Usage: $BASENAME ENVIRONMENT_NAME
 Load environment files for ENVIRONMENT_NAME, and do some sanity checking to
 ensure we have all the necessary variables.
 
-This script loads environment variables from identity-devops-private.
+This script loads environment variables from identity-devops-private. It is not
+typically called directly, but instead is invoked by \`deploy\`.
 
 NOTE: This script might exit your shell if you source it and don't have all the
 right stuff set up. It's a good idea to only source it from another script, or
@@ -67,13 +68,6 @@ enforce_environment_compat_version() {
     fi
 }
 
-# Check for empty even with "set -u" on http://stackoverflow.com/a/16753536
-if [ -z "${GSA_FULLNAME:=}" ] || [ -z "${GSA_EMAIL:=}" ]; then
-    echo >&2 "Must set GSA_FULLNAME and GSA_EMAIL in your environment"
-    echo >&2 "GSA_FULLNAME is \"Firstname Lastname\" separated by a space"
-    return 1 2>/dev/null || exit 1
-fi
-
 if [ $# -ne 1 ]; then
     usage
 
@@ -99,28 +93,7 @@ if [ -n "$ID_ENV_FILE" ]; then
     return 0 2>/dev/null || exit 0
 fi
 
-# Check if env/env.sh exists, and if so inform the user about the migration to
-# private, checked-in environment variable configs.
-if [ -e "$DIRNAME/../env/env.sh" ]; then
-    echo_yellow >&2 "Warning: $BASENAME found untracked env file at env/env.sh"
-    echo_yellow >&2 "
-This env.sh will not be used due to
-  https://github.com/18F/identity-devops/pull/350
-We're migrating our workflow so that environment variables are always checked
-in to version control in identity-devops-private. Please remove the local
-untracked env.sh after double checking that there is no data in it that is
-missing from identity-devops-private/env/base.sh.
-
-(The base.sh was created as a copy of env/env.sh.example in this repo, so
-there shouldn't be any changes unless you've made changes locally.)
-"
-    if prompt_yn "Would you like to move env.sh to env.sh.backup?"; then
-        run mv -vn "$DIRNAME/../env/env.sh" "$DIRNAME/../env/env.sh.backup"
-    else
-        echo >&2 "OK, continuing on"
-    fi
-fi
-
+# Locate and potentially git clone identity-devops-private
 ID_ENV_DIR="$(run "$DIRNAME/get-private-env.sh")"
 
 if [ -z "$ID_ENV_DIR" ]; then
