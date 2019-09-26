@@ -64,7 +64,7 @@ data "aws_iam_policy_document" "elasticsearch_bucket_policy" {
     principals = {
       type ="AWS"
       identifiers = [
-        "${aws_iam_role.idp.arn}", # asg-*-elasticsearch uses this
+        "${aws_iam_role.elasticsearch.arn}", # asg-*-elasticsearch uses this
         "${aws_iam_role.elk_iam_role.arn}"
       ]
     }
