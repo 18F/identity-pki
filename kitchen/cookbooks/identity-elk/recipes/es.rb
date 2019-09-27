@@ -104,7 +104,7 @@ end
 aws_account_id = AwsMetadata.get_aws_account_id
 
 execute 'download SearchGuard installer' do
-  command 'aws s3 cp s3://login-gov-elasticsearch-#{node.chef_environment}.#{aws_account_id}-us-west-2/search-guard-7-7.3.1-36.1.0.zip /tmp/'
+  command "aws s3 cp s3://login-gov-elasticsearch-#{node.chef_environment}.#{aws_account_id}-us-west-2/search-guard-7-7.3.1-36.1.0.zip /tmp/"
 end
 
 elasticsearch_plugin 'com.floragunn:search-guard-7:7.3.1-36.1.0' do

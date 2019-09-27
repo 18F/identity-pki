@@ -36,7 +36,7 @@ module "elasticsearch_launch_template" {
   default_ami_id = "${local.account_default_ami_id}"
 
   instance_type             = "${var.instance_type_es}"
-  iam_instance_profile_name = "${aws_iam_instance_profile.idp.name}" # TODO elasticsearch should not use idp instance profile TODO
+  iam_instance_profile_name = "${aws_iam_instance_profile.elasticsearch.name}"
   security_group_ids        = ["${aws_security_group.elk.id}", "${aws_security_group.base.id}"] # TODO elasticsearch should not use elk security group
 
   user_data                 = "${module.elasticsearch_user_data.rendered_cloudinit_config}"
