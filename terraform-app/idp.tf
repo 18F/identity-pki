@@ -246,7 +246,6 @@ resource "aws_iam_role_policy" "idp-pinpoint-assumerole" {
     {
       "Effect": "Allow",
       "Action": "sts:AssumeRole",
-      "Condition": {"Bool": {"aws:MultiFactorAuthPresent": "true"}},
       "Resource": [
         "arn:aws:iam::${var.identity_sms_aws_account_id}:role/${var.identity_sms_iam_role_name_idp}"
       ]

@@ -11,6 +11,14 @@
 # environments, it's easiest to just grant access to the whole account and rely
 # on the source account's permissions.
 
+# TODO: I couldn't figure out how to get MFA enforcement to work
+# Neither of these seemed to work when the source is an EC2 IAM instance
+# profile, which doesn't technically have MFA.
+# "Condition": {"Bool": {"aws:MultiFactorAuthPresent": "true"}},
+#
+# "Effect" : "Deny",
+# "Condition" : { "Bool" : { "aws:MultiFactorAuthPresent" : false } }
+
 resource "aws_iam_role" "idp-pinpoint" {
     name = "idp-pinpoint"
 
@@ -21,7 +29,6 @@ resource "aws_iam_role" "idp-pinpoint" {
     {
       "Effect": "Allow",
       "Action": "sts:AssumeRole",
-      "Condition": {"Bool": {"aws:MultiFactorAuthPresent": "true"}},
       "Principal": {"AWS": "arn:aws:iam::${var.main_account_id}:root"}
     }
   ]
