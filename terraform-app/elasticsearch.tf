@@ -64,11 +64,9 @@ data "aws_iam_policy_document" "elasticsearch_bucket_policy" {
     principals = {
       type ="AWS"
       identifiers = [
-        "${aws_iam_role.elasticsearch.arn}", # asg-*-elasticsearch uses this
-        "${aws_iam_role.elk_iam_role.arn}"
+        "${aws_iam_role.elasticsearch.arn}"
       ]
     }
-
     resources = [
       "arn:aws:s3:::login-gov-elasticsearch-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}",
       "arn:aws:s3:::login-gov-elasticsearch-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}/*"
