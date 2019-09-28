@@ -31,3 +31,10 @@ module "main" {
   state_lock_table = "terraform_locks"
   opsgenie_devops_high_endpoint = "https://api.opsgenie.com/v1/json/amazonsns?apiKey=1b1a2d80-6260-460a-995a-5200876f7372"
 }
+
+output "pinpoint_app_id" {
+  value = "${module.main.pinpoint_app_id}"
+}
+output "pinpoint_idp_role_arn" {
+  value = "${module.main.pinpoint_idp_role_arn}"
+}
