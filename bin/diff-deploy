@@ -8,11 +8,16 @@ set -euo pipefail
 usage() {
     cat >&2 <<EOM
 usage: $(basename "$0") [OPTIONS] ENVIRONMENT TERRAFORM_DIR [PLAN_OPTIONS...]
+usage: $(basename "$0") [OPTIONS] TERRAFORM_DIR/ENVIRONMENT/ [PLAN_OPTIONS...]
 
 Run deploy to show a terraform plan. Interactively prompt the user whether this
 plan looks good, and if it does, run the plan exactly as shown.
 
 Any PLAN_OPTIONS will be passed directly to terraform plan.
+
+If the TERRAFORM_DIR consists of two parts separated by a '/', it is assumed to
+be a newer module-style subdirectory tree. Otherwise, you must pass ENVIRONMENT
+and TERRAFORM_DIR separately.
 
 OPTIONS:
     -h, --help        Print this help message
@@ -43,36 +48,51 @@ while [ $# -gt 0 ] && [[ $1 == -* ]]; do
     shift
 done
 
-if [ $# -lt 2 ]; then
+if [ $# -lt 1 ]; then
     usage
     exit 1
 fi
 
-environment="$1"
-terraform_dir="$2"
+env_or_tf_dir="$1"
+env_or_tf_dir="${env_or_tf_dir%/}" # strip trailing /
 
-shift 2
+# if env_or_tf_dir includes a /, assume it's a module style env
+# split input on '/'
+IFS='/' read -ra parts <<< "$env_or_tf_dir"
+
+# Turn "./foo/bar" into "foo/bar"
+if [ "${parts[0]-}" = "." ]; then
+    parts=("${parts[@]:1}")
+fi
+
+# If first arg has two '/'-separated parts, treat as TF_DIR/ENV/
+if [ "${#parts[@]}" -eq 2 ]; then
+    MODULE_STYLE=1
+    terraform_dir="${parts[0]}"
+    environment="${parts[1]}"
+
+    shift
+
+else
+    MODULE_STYLE=
+
+    if [ $# -lt 2 ]; then
+        usage
+        exit 1
+    fi
+
+    environment="$1"
+    terraform_dir="$2"
+
+    shift 2
+fi
 
 repo_root_before_cd="$(git rev-parse --show-toplevel 2>/dev/null || true)"
 
 BASENAME="$(basename "$0")"
 cd "$(dirname "$0")"
 
-# Since we just changed directory to where diff-deploy is, the user can be
-# surprised when diff-deploy from their path is different from the
-# identity-devops checkout from their cwd. Prompt to confirm if the git repo
-# after cd is different because this is probably not what they intended.
-repo_root_after_cd="$(git rev-parse --show-toplevel)"
-if [ -n "$repo_root_before_cd" ] \
-    && [ -e "$repo_root_before_cd/bin/$BASENAME" ] \
-    && [ "$repo_root_before_cd" != "$repo_root_after_cd" ]
-then
-    echo_yellow >&2 "WARNING: your cwd is in a different directory than $BASENAME.
-Are you sure you didn't mean to run ./bin/$BASENAME instead?
-Repo root from your cwd:   $repo_root_before_cd
-Repo root for $BASENAME: $repo_root_after_cd"
-    prompt_yn
-fi
+verify_repo_root_unchanged "$repo_root_before_cd" "$BASENAME"
 
 run bundle check
 
@@ -81,7 +101,11 @@ cleanup() {
 }
 
 run_deploy() {
-    run ../deploy "$environment" "$terraform_dir" "$@"
+    if [ -n "$MODULE_STYLE" ]; then
+        run ./tf-deploy "$terraform_dir/$environment" "$@"
+    else
+        run ./tf-deploy "$environment" "$terraform_dir" "$@"
+    fi
 }
 
 diff_deploy_with_landscape() {
@@ -90,7 +114,7 @@ diff_deploy_with_landscape() {
 
     echo_basename "Running terraform plan"
 
-    plan_path="$tmpdir/$environment.tfplan"
+    plan_path="$tmpdir/$terraform_dir-$environment.tfplan"
     run_deploy plan -out "$plan_path" "$@"
 
     echo >&2

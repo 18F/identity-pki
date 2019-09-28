@@ -1,0 +1,498 @@
+#!/usr/bin/env bash
+
+# function to exit process with error message
+die() { echo_red "$*" >&2 ; exit 1; }
+
+# http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -euo pipefail
+
+# Try really hard not to let anything accidentally write to stdout.
+# Point stdout at stderr and open FD 3 to point to the original stdout.
+# Use echo >&3 to write to stdout hereafter.
+exec 3>&1 1>&2
+
+basename="$(basename "$0")"
+
+usage() {
+    cat >&2 <<EOM
+# identity-devops-private configs:
+usage: $basename ENV_NAME TERRAFORM_DIR [TERRAFORM_COMMANDS...]
+
+# newer module-style configs:
+usage: $basename TERRAFORM_DIR/ENV_NAME [TERRAFORM_COMMANDS...]
+
+Run TERRAFORM_COMMANDS against environment ENV_NAME using the configuration in
+TERRAFORM_DIR.
+
+Arguments:
+
+    TERRAFORM_DIR:
+        Directory path relative to the repo root to a terraform directory such
+        as "terraform_app"
+
+    ENV_NAME:
+        Environment name for the deployment, e.g. "dev", "prod", or "global".
+        The specifics will differ between terraform dirs.
+
+    TERRAFORM_COMMANDS:
+        Arguments and options passed to terraform, such as "plan", "apply", or
+        "state list".
+
+For older terraform directories that use identity-devops-private, env-specific
+config variables will be loaded automatically from identity-devops-private.
+This script will automatically delete .terraform/ and set it up as a symlink to
+a common .deploy/ subdirectory.
+Example:
+    $basename dev terraform-app plan
+
+For newer terraform directories that use module-style configuration, any
+env-specific config variables will be loaded directly from the specified
+subdirectory, and identity-devops-private will not be used. In this mode,
+.terraform/ is left as-is and not managed specially, which makes it easier to
+use terraform without invoking this script.
+Example:
+    $basename terraform-sms/sandbox plan
+
+EOM
+}
+
+# usage: module_style_check_required_files TF_DIR
+module_style_check_required_files() {
+    local tf_dir
+    tf_dir="$1"
+
+    if [ ! -e "$tf_dir/main.tf" ]; then
+        echo_red >&2 "$basename: No such file: $tf_dir/main.tf"
+        echo_red >&2 "Are you sure that $tf_dir is a module-style TF_DIR?"
+        return 1
+    fi
+    if [ ! -e "$tf_dir/env-vars.sh" ]; then
+        echo_red >&2 "$basename: No such file: $tf_dir/env-vars.sh"
+        echo_red >&2 "Are you sure that $tf_dir is a module-style TF_DIR?"
+        return 1
+    fi
+}
+
+# usage: verify_not_module_style
+#
+# Variables: $TF_DIR, $ENVIRONMENT
+#
+# Ensure that the target directory is not a module/subdirectory style TF_DIR.
+#
+verify_not_module_style() {
+    local tf_dir test_file
+    tf_dir="$TF_DIR/$ENVIRONMENT"
+
+    test_file="$tf_dir/env-vars.sh"
+
+    if [ -e "$test_file" ]; then
+        echo_red >&2 "
+Error: mismatch between expected and apparent .terraform directory style.
+I thought this was a shared-style TF_DIR that uses identity-devops-private.
+However, it contains the env-vars.sh that is only supposed to exist in
+module/subdirectory style TF_DIRs.
+
+$basename: file unexpectedly exists: $test_file
+Are you sure that $tf_dir is a shared-style TF_DIR?
+
+Try instead:
+    $basename $TF_DIR/$ENVIRONMENT ${TF_CMD[*]}
+"
+        return 1
+    fi
+}
+
+
+if [ $# -lt 2 ]; then
+    usage
+    exit 1
+fi
+
+repo_root_before_cd="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+
+# This script assumes it is being run from the repo root.
+cd "$(dirname "$0")"
+cd "$(git rev-parse --show-toplevel)"
+
+# shellcheck source=/dev/null
+. "./bin/lib/common.sh"
+
+# Make sure our repo root didn't change after cd, because that implies that the
+# user is running a different script than they expected.
+verify_repo_root_unchanged "$repo_root_before_cd" "$basename"
+
+ORIGIN_REMOTE_NAME="${ORIGIN_REMOTE_NAME-origin}"
+
+# This is a bit of a mess since we handle both old identity-devops-private
+# style config and new module-style config. Once we deprecate the former, we can
+# simplify the argument parsing dramatically.
+ENVIRONMENT_OR_TF_DIR=$1; shift
+
+if [ -d "$ENVIRONMENT_OR_TF_DIR" ]; then
+    # assume new module-style config if first arg is a directory that exists
+    MODULE_STYLE=1
+
+    ENVIRONMENT_OR_TF_DIR="${ENVIRONMENT_OR_TF_DIR%/}" # strip off trailing /
+
+    # split input on '/'
+    IFS='/' read -ra parts <<< "$ENVIRONMENT_OR_TF_DIR"
+
+    # Turn "./foo/bar" into "foo/bar"
+    if [ "${parts[0]-}" = "." ]; then
+        parts=("${parts[@]:1}")
+    fi
+
+    if [ "${#parts[@]}" -ne 2 ]; then
+        echo_red >&2 "Error: could not parse first argument as TF_DIR."
+        echo_red >&2
+        echo_red >&2 "First arg is a directory, so I'm assuming it is a new"
+        echo_red >&2 "module-style terraform dir. This format is expected to"
+        echo_red >&2 "contain two '/'-separated parts."
+        echo_red >&2
+        echo_red >&2 "Expected format: '<TF_DIR>/<ENV>/'"
+        echo_red >&2 "Received:        '$ENVIRONMENT_OR_TF_DIR'"
+        exit 2
+    fi
+
+    TF_DIR="${parts[0]}"
+    ENVIRONMENT="${parts[1]}"
+    TF_DIR_FULL="${parts[0]}/${parts[1]}"
+
+    echo_blue >&2 "TF_DIR: $TF_DIR (style: module vars)"
+    echo_blue >&2 "ENVIRONMENT: $ENVIRONMENT"
+
+    module_style_check_required_files "$ENVIRONMENT_OR_TF_DIR"
+else
+    # otherwise use traditional identity-devops-private style
+    MODULE_STYLE=
+
+    # environment is first arg
+    ENVIRONMENT="$ENVIRONMENT_OR_TF_DIR"
+
+    # tf_dir is second arg
+    TF_DIR=$1; shift
+    TF_DIR="${TF_DIR%/}" # strip off trailing /
+    TF_DIR_FULL="$TF_DIR"
+
+    echo_blue >&2 "TF_DIR: $TF_DIR (style: identity-devops-private vars)"
+    echo_blue >&2 "ENVIRONMENT: $ENVIRONMENT"
+fi
+
+if [ $# -eq 0 ]; then
+    usage
+    exit 1
+fi
+
+TF_CMD=("$@")
+
+case "$TF_DIR" in
+    terraform-dns|terraform-cloudtrail|terraform-common)
+        # These configurations apply account wide, so set the environment to the
+        # account ID.
+        #
+        # https://stackoverflow.com/a/33791322
+        if [ "$ENVIRONMENT" != "global" ]; then
+            echo_red >&2 "$TF_DIR applies to the whole AWS account!"
+            echo_red >&2 "For safety, pass 'global' as the environment name"
+            die "You provided '$ENVIRONMENT'"
+        fi
+
+        ENVIRONMENT="account_global_$(run aws sts get-caller-identity --output text --query 'Account')"
+        echo >&2 "Forcing environment name to be $ENVIRONMENT since $TF_DIR is account wide configuration"
+        ;;
+    */?*)
+        echo_red >&2 "\$TF_DIR cannot contain slashes, must be at top level"
+        die "You provided '$TF_DIR'"
+        ;;
+esac
+
+check_release_versioning() {
+    local strict_check rev_name
+    echo >&2 "DEPLOY: Checking whether environment versioning is recommended"
+
+    case "$TF_DIR" in
+        terraform-app|terraform-sms)
+            # versioning enabled
+            ;;
+        *)
+            # versioning not enabled
+            return
+            ;;
+    esac
+
+    case "$ENVIRONMENT" in
+        # strict checks in these user-facing environments
+        prod|staging|int)
+            strict_check=1
+            ;;
+
+        # limited checks in these testing environments
+        dev|qa|pt|dm)
+            strict_check=
+            ;;
+
+        # no checking in other environments
+        *)
+            return
+            ;;
+    esac
+
+    rev_name="$(git rev-parse --abbrev-ref HEAD)"
+    # make sure we're on stages/$ENVIRONMENT
+    if [ "$rev_name" != "stages/$ENVIRONMENT" ]; then
+        echo_yellow >&2 "
+warning: Current git branch is not the expected stages/$ENVIRONMENT
+
+Environment: $ENVIRONMENT
+Expected branch: stages/$ENVIRONMENT
+Actual branch:   $rev_name
+"
+
+        # check is fatal for strict environments
+        if [ -n "$strict_check" ] && [ -z "${DEPLOY_WEIRD_BRANCH-}" ]; then
+            echo_red >&2 "error: branch name must be stages/$ENVIRONMENT"
+            echo_red >&2 "set DEPLOY_WEIRD_BRANCH=1 to skip this check"
+            return 2
+        fi
+    else
+        # make sure local stages/<env> is the same as origin/stages/<env>
+
+        # fetch latest from remote
+        if ! run git fetch "$ORIGIN_REMOTE_NAME"; then
+            echo_yellow >&2 "git fetch failed"
+        fi
+
+        local local_ref origin_ref
+        local_ref="$(git rev-parse "stages/$ENVIRONMENT")"
+        origin_ref="$(git rev-parse "$ORIGIN_REMOTE_NAME/stages/$ENVIRONMENT")"
+        if [ "$local_ref" != "$origin_ref" ]; then
+
+            echo_yellow >&2 "
+Warning: Local stages branch differs from origin stages branch!
+Maybe you need to git push?
+
+stages/$ENVIRONMENT:        $local_ref
+$ORIGIN_REMOTE_NAME/stages/$ENVIRONMENT: $origin_ref
+
+You can also set ORIGIN_REMOTE_NAME if your primary git remote is named
+something other than 'origin'.
+"
+
+            # check is fatal for strict environments
+            if [ -n "$strict_check" ] && [ -z "${DEPLOY_WEIRD_BRANCH-}" ]; then
+                echo_red >&2 "error: local and remote stages branches differ"
+                echo_red >&2 "set DEPLOY_WEIRD_BRANCH=1 to skip this check"
+                return 3
+            fi
+        fi
+    fi
+
+
+    if [ -n "$strict_check" ]; then
+        if [[ ( $(cat VERSION.txt) == *pre* ||
+                ! "$(git log -n 1 --pretty=format:'%d')" =~ tag: ) ]]
+        then
+            echo_yellow >&2 "
+
+###############################################################################
+#                              INFORMATIONAL                                  #
+###############################################################################
+
+We would like to start using tagged release versions that we carry through
+environments for user-facing environments.
+
+The $ENVIRONMENT environment ideally should be deployed from a tagged,
+non-prerelease version because it is one of the environments officially
+supported by the devops team for client use.
+
+Please consider running \`rake release\` to edit VERSION.txt and create a
+tagged release.
+
+See https://github.com/18F/identity-devops/tree/master/doc/process/releases.md
+for more details about our release tools.
+
+The current version in VERSION.txt is: $(cat VERSION.txt)
+
+"
+        fi
+    fi
+}
+
+# Verify that the account ID expected from env vars matches the actual AWS
+# account that we connect to when running AWS commands. This isn't as useful
+# for newer module-style terraform directories, which can independently specify
+# 'allowed_account_ids = ["01234..."]' in their main.tf files.
+check_account_id() {
+    real_account_id="$(run aws sts get-caller-identity --output text --query 'Account')"
+    if [ "$real_account_id" != "$aws_account_id" ]; then
+        echo_red "Account ID from environment does not match actual account"
+        echo_red "From env vars:     $aws_account_id"
+        echo_red "Actual account ID: $real_account_id"
+        echo_red "Are you sure you set AWS_PROFILE / secret key right?"
+        die "error: Account ID mismatch"
+    fi
+}
+
+# Use the newer, massively simpler, module style of keeping env vars in subdirs.
+load_env_module_style() {
+    local env_vars_file
+    env_vars_file="$TF_DIR/$ENVIRONMENT/env-vars.sh"
+    echo >&2 "DEPLOY: Loading module-style env variables from $env_vars_file..."
+    # shellcheck source=/dev/null
+    . "$env_vars_file"
+
+    if [ -z "${aws_account_id-}" ]; then
+        echo_red "Expected to find var \$aws_account_id in env vars file"
+        return 3
+    fi
+
+    MOVED_TO_TFVARS=
+
+    STATE="${TF_DIR_FULL}.tfstate"
+}
+
+
+# Load and validate environment variables from identity-devops-private using
+# bin/load-env.sh and bin/get-tfvars-for-env
+load_env_devops_private_style() {
+    echo >&2 "DEPLOY: Loading shared-style environment variables..."
+    verify_not_module_style
+    . bin/load-env.sh "$ENVIRONMENT"
+
+    if [ -z "${TF_VAR_account_id-}" ]; then
+        echo_red >&2 "Expected to find TF_VAR_account_id in private env"
+        return 3
+    fi
+
+    aws_account_id="$TF_VAR_account_id"
+
+    if [ -n "$MOVED_TO_TFVARS" ]; then
+        echo >&2 "Looks like this environment has switched to using .tfvars files"
+
+        # read a list of .tfvars files printed by get-tfvars-for-env
+        tfvars_names="$(bin/get-tfvars-for-env "$aws_account_id" "$ENVIRONMENT")"
+
+        # render an array prefixing each filename with -var-file
+        # in bash 4 we could use mapfile instead
+        tf_vars_opts=()
+        while IFS= read -r line; do
+            tf_vars_opts+=( "-var-file" "$line" )
+        done <<< "$tfvars_names"
+    fi
+
+    # Check that current version of terraform is supported by our environment. This
+    # array should be set in the environment-specific variables.
+    check_terraform_version "${ID_SUPPORTED_TERRAFORM_VERSIONS[@]}" >&2
+
+    STATE="${TF_DIR}/terraform-${TF_VAR_env_name}.tfstate"
+    case "$TF_DIR" in
+        terraform-dns|terraform-cloudtrail|terraform-common)
+            echo "This TF_DIR uses a common state file, not env-specific"
+            STATE=${TF_DIR}/terraform.tfstate
+            ;;
+    esac
+}
+
+# Be sure ruby is working and bundler is setup since some terraform modules
+# rely on erb templates and ruby to be working.
+run bundle check >&2
+
+check_release_versioning
+
+
+if [ -n "$MODULE_STYLE" ]; then
+    style_description="module, separate subdirectory style"
+    load_env_module_style
+else
+    style_description="shared, identity-devops-private, symlink style"
+    load_env_devops_private_style
+fi
+
+echo_blue >&2 "Finished loading environment variables"
+echo_blue >&2 "The .terraform directory for $TF_DIR is: $style_description"
+
+check_account_id
+
+echo >&2 "Using state file: $STATE"
+
+echo >&2 "Ensuring ${TF_DIR_FULL} is a terraform directory"
+if [ ! -f "${TF_DIR_FULL}/main.tf" ] ; then
+    echo_red "deploy: not found: '${TF_DIR_FULL}/main.tf'"
+    echo_red "Are you sure '${TF_DIR_FULL}' is a terraform project folder?"
+    echo_red "Known examples include terraform-app, etc."
+    echo_red "Did you specify your username? This script no longer takes a "
+    echo_red "username argument."
+    die "error: Could not find terraform files"
+fi
+
+if [ -z "${TERRAFORM_STATE_BUCKET:=}" ] ; then
+    die "You must set the TERRAFORM_STATE_BUCKET environment variable.  \
+This should contain the name of the s3 bucket used to store terraform state for this run."
+fi
+
+if [ -z "${TERRAFORM_STATE_BUCKET_REGION:=}" ] ; then
+    die "You must set the TERRAFORM_STATE_BUCKET_REGION environment variable.  \
+This should contain the region of the s3 bucket used to store terraform state for this run."
+fi
+
+if [ -z "${ID_state_lock_table-}" ]; then
+    die "Must set ID_state_lock_table to dynamodb terraform state locking table"
+fi
+
+if [ -n "$MODULE_STYLE" ]; then
+    style_option="--module-style"
+else
+    style_option="--shared-style"
+fi
+
+echo >&2 "Configuring state bucket $TERRAFORM_STATE_BUCKET with path $STATE"
+
+run bin/configure_state_bucket.sh "$style_option" "$TERRAFORM_STATE_BUCKET" \
+    "$STATE" "$TF_DIR_FULL" "$TERRAFORM_STATE_BUCKET_REGION" "$ID_state_lock_table"
+
+echo >&2 "+ cd $TF_DIR_FULL"
+cd "$TF_DIR_FULL"
+
+cat >&2 <<EOF
+########################################
+#
+# Deploy environment:
+#     TF_DIR: $TF_DIR
+#     ENVIRONMENT: $ENVIRONMENT
+#
+########################################
+
+EOF
+
+echo_blue >&2 "Running terraform get"
+run terraform get >&2
+
+# If we are using variables from .tfvars files, splice in the -var-file options
+# after the first element in TF_CMD, which will be the terraform command like
+# plan/apply etc. (Only do this for terraform subcommands that accept
+# -var-file. For terraform apply you can't pass vars if you also pass a plan
+# file, so allow the caller to disable loading vars with ID_SKIP_LOADING_VARS.)
+if [ -n "$MOVED_TO_TFVARS" ] && [ -z "${ID_SKIP_LOADING_VARS-}" ]; then
+    tf_subcommand="${TF_CMD[0]-}"
+
+    # these are the subcommands that accept -var-file
+    case "$tf_subcommand" in
+        apply|destroy|import|plan|refresh|validate)
+            TF_CMD=(
+                "$tf_subcommand" "${tf_vars_opts[@]}" "${TF_CMD[@]:1}"
+            )
+            ;;
+    esac
+fi
+    # Add -no-color if stdout is not a TTY
+    # https://github.com/hashicorp/terraform/issues/15264
+    if [ ! -t 0 ]; then
+        tf_vars_opts=("-no-color" "${tf_vars_opts[@]}")
+    fi
+
+echo >&2
+echo_blue >&2 "Running terraform..."
+
+# Run main terraform command. This is the only command that should print to
+# stdout (reassigned to FD 3)
+run terraform "${TF_CMD[@]}" >&3

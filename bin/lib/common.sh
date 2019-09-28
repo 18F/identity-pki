@@ -276,3 +276,32 @@ join_by() {
 array_to_string() {
     echo "[\"$(join_by '", "' "$@")\"]"
 }
+
+
+# Usage: verify_repo_root_unchanged REPO_ROOT_BEFORE_CD BASENAME
+#
+# Double check that the repo root has not changed after executing a cd. This is
+# useful in case you are running a script like tf-deploy or diff-deploy on your
+# PATH, since the script will cd to the script's own parent directory..
+#
+# If your prior cwd repo root was not the same as the new repo root, this means
+# that you are probably executing a different script from the one you expected.
+# Prompt to confirm, since this is probably not what the user intended.
+#
+verify_repo_root_unchanged() {
+    local repo_root_before_cd repo_root_after_cd BASENAME
+    repo_root_before_cd="$1"
+    BASENAME="$2"
+
+    repo_root_after_cd="$(git rev-parse --show-toplevel)"
+    if [ -n "$repo_root_before_cd" ] \
+        && [ -e "$repo_root_before_cd/bin/$BASENAME" ] \
+        && [ "$repo_root_before_cd" != "$repo_root_after_cd" ]
+    then
+        echo_yellow >&2 "WARNING: your cwd is in a different directory than $BASENAME.
+Are you sure you didn't mean to run ./bin/$BASENAME instead?
+Repo root from your cwd:   $repo_root_before_cd
+Repo root for $BASENAME: $repo_root_after_cd"
+        prompt_yn
+    fi
+}

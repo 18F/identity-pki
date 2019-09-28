@@ -26,7 +26,7 @@ terraform {
   required_version = "~> 0.11.7"
 }
 
-# This policy can be used to allow anybody to join the role
+# This policy can be used to allow the EC2 service to assume the role.
 data "aws_iam_policy_document" "assume_role_from_vpc" {
   statement {
     sid = "allowVPC"

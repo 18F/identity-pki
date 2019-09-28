@@ -92,6 +92,15 @@ variable "analytics_lambda_arn_for_s3_notify" {
     default = ""
 }
 
+variable "identity_sms_aws_account_id" {
+    description = "Account ID of the AWS account used for Pinpoint and SMS sending (identity-sms-*)"
+}
+
+variable "identity_sms_iam_role_name_idp" {
+    description = "IAM role assumed by the IDP for cross-account access into the above identity-sms-* account."
+    default = "idp-pinpoint"
+}
+
 # CIDR block that is carved up for both the ASG elasticsearch instances and the
 # elasticsearch ELBs.
 # Range: 172.16.32.128 -> 172.16.32.191
