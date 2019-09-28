@@ -35,6 +35,9 @@ resource "aws_iam_role" "idp-pinpoint" {
 }
 EOF
 }
+output "pinpoint_idp_role_arn" {
+  value = "${aws_iam_role.idp-pinpoint.arn}"
+}
 
 # Allow sending SMS/Voice messages with Pinpoint
 resource "aws_iam_role_policy" "idp-pinpoint-send" {
