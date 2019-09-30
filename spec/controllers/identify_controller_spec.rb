@@ -258,6 +258,13 @@ RSpec.describe IdentifyController, type: :controller do
             expect(token_contents['nonce']).to eq '123'
           end
         end
+
+        context 'when the nonce param is missing' do
+          it 'returns a bad request' do
+            get :create, params: {}
+            expect(response).to have_http_status(:bad_request)
+          end
+        end
       end
     end
   end
