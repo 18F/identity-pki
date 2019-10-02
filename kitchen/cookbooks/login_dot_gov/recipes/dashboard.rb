@@ -100,7 +100,7 @@ deploy "#{base_dir}" do
     'config/database.yml' => 'config/database.yml',
     'config/newrelic.yml' => 'config/newrelic.yml',
     'config/application.yml' => 'config/application.yml',
-    'log' => 'log',
+    #'log' => 'log',
   })
 
   before_symlink do
@@ -188,6 +188,14 @@ login_dot_gov_deploy_info "#{deploy_dir}/api/deploy.json" do
   branch branch_name
 end
 
+# set log directory permissions
+directory "#{shared_path}/log" do
+    owner node.fetch('login_dot_gov').fetch('web_system_user')
+    group node.fetch('login_dot_gov').fetch('web_system_user')
+    mode '0775'
+    recursive true
+end
+    
 # After doing the full deploy, we need to fully restart passenger in order for
 # it to actually be running. This seems like a bug in our chef config. The main
 # service[passenger] restart seems to attempt a graceful restart that doesn't
