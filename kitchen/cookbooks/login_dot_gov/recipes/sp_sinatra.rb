@@ -53,6 +53,14 @@ if basic_auth_username
   end
 end
 
+# set log directory permissions
+directory "#{base_dir}/shared/log" do
+    owner node.fetch('login_dot_gov').fetch('web_system_user')
+    group node.fetch('login_dot_gov').fetch('web_system_user')
+    mode '0775'
+    recursive true
+end
+
 # add nginx conf for app server
 # TODO: JJG convert security_group_exceptions to hash so we can keep a note in both chef and nginx
 #       configs as to why we added the exception.
