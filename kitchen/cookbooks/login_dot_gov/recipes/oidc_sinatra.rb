@@ -75,6 +75,14 @@ deploy "/srv/#{app_name}" do
   group node.fetch('login_dot_gov').fetch('system_user')
 end
 
+# set log directory permissions
+directory "#{base_dir}/shared/log" do
+    owner node.fetch('login_dot_gov').fetch('web_system_user')
+    group node.fetch('login_dot_gov').fetch('web_system_user')
+    mode '0775'
+    recursive true
+end
+
 basic_auth_enabled = !!ConfigLoader.load_config_or_nil(node, "basic_auth_user_name")
 
 if basic_auth_enabled
