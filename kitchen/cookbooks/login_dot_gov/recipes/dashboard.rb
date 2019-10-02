@@ -189,7 +189,7 @@ login_dot_gov_deploy_info "#{deploy_dir}/api/deploy.json" do
 end
 
 # set log directory permissions
-directory "#{shared_path}/log" do
+directory "#{base_dir}/shared/log" do
     owner node.fetch('login_dot_gov').fetch('web_system_user')
     group node.fetch('login_dot_gov').fetch('web_system_user')
     mode '0775'
