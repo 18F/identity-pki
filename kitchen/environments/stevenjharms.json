@@ -1,0 +1,24 @@
+{
+  "name": "stevenjharms",
+  "description": "",
+  "json_class": "Chef::Environment",
+  "chef_type": "environment",
+  "default_attributes": {
+    "elk": {
+      "legacy_log_bucket_name": false,
+      "retentiondays": 14,
+      "users": [
+        "stevenjharms"
+      ]
+    },
+    "identity-devops": {
+      "branch_name": "stages/stevenjharms"
+    },
+    "login_dot_gov": {
+      "domain_name": "identitysandbox.gov",
+      "branch_name": "master"
+    }
+  },
+  "override_attributes": {
+  }
+}
