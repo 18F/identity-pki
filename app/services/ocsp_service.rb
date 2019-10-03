@@ -91,6 +91,8 @@ class OCSPService
   # :reek:UtilityFunction
   def make_single_http_request!(uri, request)
     http = Net::HTTP.new(uri.hostname, uri.port)
+    http.open_timeout = Figaro.env.http_open_timeout.to_i
+    http.read_timeout = Figaro.env.http_read_timeout.to_i
     http.post(uri.path.presence || '/', request, 'content-type' => 'application/ocsp-request')
   end
 
