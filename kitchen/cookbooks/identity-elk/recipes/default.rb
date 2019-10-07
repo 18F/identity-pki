@@ -294,7 +294,7 @@ aws_account_id = Chef::Recipe::AwsMetadata.get_aws_account_id
 # Use custom index templates to explicitly define field types and
 # other settings across the index. More info:
 # https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-templates.html
-%w{ logstash cloudtraillogstash cloudwatchlogstash }.each do |lsname|
+%w{ cloudtraillogstash cloudwatchlogstash }.each do |lsname|
   cookbook_file "/etc/logstash/#{lsname}-template.json" do
     owner 'logstash'
     group 'logstash'

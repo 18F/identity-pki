@@ -6,8 +6,10 @@ output {
     ssl_certificate_verification => true
     manage_template => true
     index => "logstash-<%= @index %>%{+yyyy.MM.dd}"
+    <% unless index_template_name == 'logstash' -%>
     template => "<%= @elasticsearch_template_path %>"
     template_name => "<%= @index_template_name %>"
     template_overwrite => true
+    <% end -%>
   }
 }
