@@ -16,10 +16,10 @@ basename="$(basename "$0")"
 usage() {
     cat >&2 <<EOM
 # identity-devops-private configs:
-usage: $basename ENV_NAME TERRAFORM_DIR [TERRAFORM_COMMANDS...]
+usage: $basename [OPTIONS] ENV_NAME TERRAFORM_DIR [TERRAFORM_COMMANDS...]
 
 # newer module-style configs:
-usage: $basename TERRAFORM_DIR/ENV_NAME [TERRAFORM_COMMANDS...]
+usage: $basename [OPTIONS] TERRAFORM_DIR/ENV_NAME [TERRAFORM_COMMANDS...]
 
 Run TERRAFORM_COMMANDS against environment ENV_NAME using the configuration in
 TERRAFORM_DIR.
@@ -37,6 +37,15 @@ Arguments:
     TERRAFORM_COMMANDS:
         Arguments and options passed to terraform, such as "plan", "apply", or
         "state list".
+
+Options:
+
+    -h, --help              Display this message
+    --import-remote-state   Bootstrap terraform remote state management by
+                            importing into terraform management the terraform
+                            remote state S3 bucket and DynamoDB table that are
+                            used to manage TF remote state, which are
+                            automatically created by configure_state_bucket.sh.
 
 For older terraform directories that use identity-devops-private, env-specific
 config variables will be loaded automatically from identity-devops-private.
@@ -123,6 +132,25 @@ verify_repo_root_unchanged "$repo_root_before_cd" "$basename"
 
 ORIGIN_REMOTE_NAME="${ORIGIN_REMOTE_NAME-origin}"
 
+# Parse options
+IMPORT_REMOTE_STATE=
+while [ $# -gt 0 ] && [[ $1 == -* ]]; do
+    case "$1" in
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        --import-remote-state)
+            IMPORT_REMOTE_STATE=1
+            ;;
+        *)
+            usage
+            exit 1
+            ;;
+    esac
+    shift
+done
+
 # This is a bit of a mess since we handle both old identity-devops-private
 # style config and new module-style config. Once we deprecate the former, we can
 # simplify the argument parsing dramatically.
@@ -178,12 +206,30 @@ else
     echo_blue >&2 "ENVIRONMENT: $ENVIRONMENT"
 fi
 
-if [ $# -eq 0 ]; then
-    usage
-    exit 1
-fi
+# If we're loading the terraform remote state, then override our default
+# argument parsing. (Yeah, this is ugly.)
+if [ -n "$IMPORT_REMOTE_STATE" ]; then
+    if [ $# -gt 0 ]; then
+        usage
+        echo_red "Cannot pass arguments when --import-remote-state is set"
+        exit 1
+    fi
 
-TF_CMD=("$@")
+    echo_blue "Importing TF remote state, as requested..."
+
+    TF_CMD=("command-should-not-be-reached")
+else
+
+    # Consume all remaining arguments as Terraform command
+
+    if [ $# -eq 0 ]; then
+        usage
+        exit 1
+    fi
+
+    TF_CMD=("$@")
+
+fi
 
 case "$TF_DIR" in
     terraform-dns|terraform-cloudtrail|terraform-common)
@@ -393,6 +439,50 @@ load_env_devops_private_style() {
     esac
 }
 
+import_remote_state_resources() {
+    local addr1 addr2 cmd1 cmd2
+
+    # Import the terraform remote state S3 bucket and remote state lock table.
+    # The commands will end up looking something like:
+    # terraform import $prefix.tf-state.aws_s3_bucket.tf-state $TERRAFORM_STATE_BUCKET
+    # terraform import \
+    #     module.main.module.tf-state.aws_dynamodb_table.tf-lock-table $
+    # terraform import module.... ID_state_lock_table
+
+    if [ -z "${ID_state_module_prefix-}" ]; then
+        echo_red "error: ID_state_module_prefix is unset"
+        echo_red "This must be set to the terraform address of the module"
+        echo_red "where the remote state resources should be imported."
+        echo_red "For example, 'module.main.module.tf-state'"
+        return 5
+    fi
+
+    # Prepare commands for execution and prompt for confirmation / edits
+    while true; do
+        addr1="$ID_state_module_prefix.aws_s3_bucket.tf-state"
+        addr2="$ID_state_module_prefix.aws_dynamodb_table.tf-lock-table"
+
+        cmd1=(terraform import "$addr1" "$TERRAFORM_STATE_BUCKET")
+        cmd2=(terraform import "$addr2" "$ID_state_lock_table")
+
+        echo "About to run these terraform commands:"
+        echo "    + ${cmd1[*]}"
+        echo "    + ${cmd2[*]}"
+        if prompt_yn "Is this correct? (Answer N to edit)"; then
+            break
+        fi
+
+        read -rp "Terraform remote state S3 bucket name: " TERRAFORM_STATE_BUCKET
+        read -rp "Terraform remote state lock table name: " ID_state_lock_table
+    done
+
+    # Send output from these commands to the real stdout (FD 3)
+    run "${cmd1[@]}" >&3
+    run "${cmd2[@]}" >&3
+
+    echo_blue "Finished importing terraform remote state resources"
+}
+
 # Be sure ruby is working and bundler is setup since some terraform modules
 # rely on erb templates and ruby to be working.
 run bundle check >&2
@@ -484,11 +574,13 @@ if [ -n "$MOVED_TO_TFVARS" ] && [ -z "${ID_SKIP_LOADING_VARS-}" ]; then
             ;;
     esac
 fi
-    # Add -no-color if stdout is not a TTY
-    # https://github.com/hashicorp/terraform/issues/15264
-    if [ ! -t 0 ]; then
-        tf_vars_opts=("-no-color" "${tf_vars_opts[@]}")
-    fi
+
+if [ -n "$IMPORT_REMOTE_STATE" ]; then
+    # Import terraform remote state rather than running any terraform commands
+    import_remote_state_resources
+    echo_blue "All done"
+    exit
+fi
 
 echo >&2
 echo_blue >&2 "Running terraform..."

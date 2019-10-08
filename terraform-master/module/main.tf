@@ -1,7 +1,3 @@
-provider "aws" {
-  region = "${var.region}"
-}
-
 locals {
     password_length = 32
 }
@@ -95,4 +91,15 @@ resource "aws_cloudtrail" "cloudtrail" {
   include_global_service_events = false
   name = "login-gov-cloudtrail"
   s3_bucket_name = "${aws_s3_bucket.cloudtrail.id}"
+}
+
+
+# Module that manages the terraform remote state bucket and creates the S3 logs bucket
+module "tf-state" {
+  source = "github.com/18F/identity-terraform//state_bucket?ref=c4970aefd61759d92b123de7afe496882d1a7c5b"
+  region = "${var.region}"
+}
+
+locals {
+  s3_log_bucket = "${module.tf-state.s3_log_bucket}"
 }
