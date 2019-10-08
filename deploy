@@ -36,7 +36,7 @@ TF_CMD=("$@")
 TF_DIR="${TF_DIR%/}" # strip off trailing /
 
 case "$TF_DIR" in
-    terraform-dns|terraform-cloudtrail|terraform-common|terraform-master)
+    terraform-dns|terraform-cloudtrail|terraform-common)
         # These configurations apply account wide, so set the environment to the
         # account ID.
         #
