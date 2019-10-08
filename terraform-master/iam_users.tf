@@ -1,135 +1,90 @@
-# users
+# create users
 resource "aws_iam_user" "brian_crissup2" {
     name = "brian.crissup2"
 }
 
-module "brian_crissup" {
-    source = "terraform-aws-modules/iam/aws//modules/iam-user"
-    version = "~> 1.0"
-    name = "brian.crissup"
-    password_length = "${local.password_length}"
-    password_reset_required = true
+resource "aws_iam_user" "aaron_chapman" {
+    name = "aaron.chapman"
     force_destroy = true
-    create_iam_access_key = false
-    pgp_key = "keybase:test"  
 }
 
-module "andy_brody" {
-    source = "terraform-aws-modules/iam/aws//modules/iam-user"
-    version = "~> 1.0"
+resource "aws_iam_user" "andy_brody" {
     name = "andy.brody"
-    password_length = "${local.password_length}"
-    password_reset_required = true
     force_destroy = true
-    create_iam_access_key = false
-    pgp_key = "keybase:test"
 }
 
-module "brett_mcparland" {
-    source = "terraform-aws-modules/iam/aws//modules/iam-user"
-    version = "~> 1.0"
+resource "aws_iam_user" "brian_crissup" {
+    name = "brian.crissup"
+    force_destroy = true
+}
+
+resource "aws_iam_user" "brett_mcparland" {
     name = "brett.mcparland"
-    password_length = "${local.password_length}"
-    password_reset_required = true
     force_destroy = true
-    create_iam_access_key = false
-    pgp_key = "keybase:test"
 }
 
-module "clara_bridges" {
-    source = "terraform-aws-modules/iam/aws//modules/iam-user"
-    version = "~> 1.0"
+resource "aws_iam_user" "clara_bridges" {
     name = "clara.bridges"
-    password_length = "${local.password_length}"
-    password_reset_required = true
     force_destroy = true
-    create_iam_access_key = false
-    pgp_key = "keybase:test"
 }
 
-module "jonathan_hooper" {
-    source = "terraform-aws-modules/iam/aws//modules/iam-user"
-    version = "~> 1.0"
+resource "aws_iam_user" "douglas_price" {
+    name = "douglas.price"
+    force_destroy = true
+} 
+
+resource "aws_iam_user" "jonathan_hooper" {
     name = "jonathan.hooper"
-    password_length = "${local.password_length}"
-    password_reset_required = true
     force_destroy = true
-    create_iam_access_key = false
-    pgp_key = "keybase:test"
 }
 
-module "justin_grevich" {
-    source = "terraform-aws-modules/iam/aws//modules/iam-user"
-    version = "~> 1.0"
+resource "aws_iam_user" "jonathan_pirro" {
+    name = "jonathan.pirro"
+    force_destroy = true
+}
+
+resource "aws_iam_user" "justin_grevich" {
     name = "justin.grevich"
-    password_length = "${local.password_length}"
-    password_reset_required = true
     force_destroy = true
-    create_iam_access_key = false
-    pgp_key = "keybase:test"
 }
 
-module "laura_gerhardt" {
-    source = "terraform-aws-modules/iam/aws//modules/iam-user"
-    version = "~> 1.0"
+resource "aws_iam_user" "laura_gerhardt" {
     name = "laura.gerhardt"
-    password_length = "${local.password_length}"
-    password_reset_required = true
     force_destroy = true
-    create_iam_access_key = false
-    pgp_key = "keybase:test"
 }
 
-module "mark_ryan" {
-    source = "terraform-aws-modules/iam/aws//modules/iam-user"
-    version = "~> 1.0"
-    name = "mark.ryan"
-    password_length = "${local.password_length}"
-    password_reset_required = true
-    force_destroy = true
-    create_iam_access_key = false
-    pgp_key = "keybase:test"
-}
+#resource "aws_iam_user" "mossadeq_zia" {
+#    name = "mossadeq.zia"
+#    force_destroy = true
+#}
 
-# module "mossadeq_zia" {
-#     source = "terraform-aws-modules/iam/aws//modules/iam-user"
-#     name = "mossadeq.zia"
-#     password_length = "${local.password_length}"
-#     password_reset_required = true
-#     force_destroy = true
-#     create_iam_access_key = false
-#     pgp_key = "keybase:test"
-# }
-
-module "rajat_varuni" {
-    source = "terraform-aws-modules/iam/aws//modules/iam-user"
-    version = "~> 1.0"
+resource "aws_iam_user" "rajat_varuni" {
     name = "rajat.varuni"
-    password_length = "${local.password_length}"
-    password_reset_required = true
     force_destroy = true
-    create_iam_access_key = false
-    pgp_key = "keybase:test"
 }
 
-module "steve_urciuoli" {
-    source = "terraform-aws-modules/iam/aws//modules/iam-user"
-    version = "~> 1.0"
+resource "aws_iam_user" "steve_urciuoli" {
     name = "steve.urciuoli"
-    password_length = "${local.password_length}"
-    password_reset_required = true
     force_destroy = true
-    create_iam_access_key = false
-    pgp_key = "keybase:test"
+}
+
+resource "aws_iam_user" "stephen_grow" {
+    name = "stephen.grow"
+    force_destroy = true
+}
+
+resource "aws_iam_user" "steven_harms" {
+    name = "steven.harms"
+    force_destroy = true
 }
 
 # policy attachments
 resource "aws_iam_policy_attachment" "master_full_administrator" {
     name = "master_full_administrator"
     users = [
-        "${module.andy_brody.this_iam_user_name}",
-        "${module.brian_crissup.this_iam_user_name}",
-        "${module.justin_grevich.this_iam_user_name}"
+        "${aws_iam_user.andy_brody.name}",
+        "${aws_iam_user.brian_crissup.name}",
+        "${aws_iam_user.justin_grevich.name}"
     ]
     policy_arn = "${aws_iam_policy.master_full_administrator.arn}"
 }
@@ -137,8 +92,8 @@ resource "aws_iam_policy_attachment" "master_full_administrator" {
 resource "aws_iam_policy_attachment" "sandbox_full_administrator" {
     name = "sandbox_full_administrator"
     users = [
-        "${module.andy_brody.this_iam_user_name}",
-        "${module.justin_grevich.this_iam_user_name}"
+        "${aws_iam_user.andy_brody.name}",
+        "${aws_iam_user.justin_grevich.name}"
     ]
     policy_arn = "${aws_iam_policy.sandbox_assume_full_administrator.arn}"
 }
@@ -146,7 +101,7 @@ resource "aws_iam_policy_attachment" "sandbox_full_administrator" {
 # resource "aws_iam_policy_attachment" "production_full_administrator" {
 #     name = "production_full_administrator"
 #     users = [
-#         "${module.andy_brody.this_iam_user_name}"
+#         "${aws_iam_user.andy_brody.name}"
 #     ]
 #     policy_arn = "${aws_iam_policy.production_assume_full_administrator.arn}"
 # }
@@ -154,14 +109,16 @@ resource "aws_iam_policy_attachment" "sandbox_full_administrator" {
 resource "aws_iam_policy_attachment" "sandbox_power_user" {
     name = "sandbox_power_user"
     users = [
-        "${module.andy_brody.this_iam_user_name}",
-        "${module.brian_crissup.this_iam_user_name}",
-        "${module.steve_urciuoli.this_iam_user_name}",
-        "${module.rajat_varuni.this_iam_user_name}",
-        "${module.justin_grevich.this_iam_user_name}",
-        "${module.clara_bridges.this_iam_user_name}",
-        "${module.mark_ryan.this_iam_user_name}",
-        "${module.laura_gerhardt.this_iam_user_name}"
+        "${aws_iam_user.andy_brody.name}",
+        "${aws_iam_user.aaron_chapman.name}",
+        "${aws_iam_user.brian_crissup.name}",
+        "${aws_iam_user.clara_bridges.name}",
+        "${aws_iam_user.justin_grevich.name}",
+        "${aws_iam_user.jonathan_pirro.name}",
+        "${aws_iam_user.laura_gerhardt.name}",
+        "${aws_iam_user.rajat_varuni.name}",
+        "${aws_iam_user.steven_harms.name}",
+        "${aws_iam_user.steve_urciuoli.name}",
     ]
     policy_arn = "${aws_iam_policy.sandbox_assume_power_user.arn}"
 }
@@ -169,30 +126,30 @@ resource "aws_iam_policy_attachment" "sandbox_power_user" {
 # resource "aws_iam_policy_attachment" "production_power_user" {
 #     name = "production_power_user"
 #     users = [
-#         "${module.andy_brody.this_iam_user_name}",
-#         "${module.brian_crissup.this_iam_user_name}",
-#         "${module.steve_urciuoli.this_iam_user_name}",
-#         "${module.jonathan_hooper.this_iam_user_name}"
+#         "${aws_iam_user.andy_brody.name}",
+#         "${aws_iam_user.brian_crissup.name}",
+#         "${aws_iam_user.steve_urciuoli.name}",
+#         "${aws_iam_user.jonathan_hooper.name}"
 #     ]
 #     policy_arn = "${aws_iam_policy.production_assume_power_user.arn}"
 # }
 
-resource "aws_iam_policy_attachment" "production_appdev" {
-    name = "production_appdev"
-    users = [
-        "${module.steve_urciuoli.this_iam_user_name}",
-        "${module.jonathan_hooper.this_iam_user_name}"
-    ]
-    policy_arn = "${aws_iam_policy.production_assume_appdev.arn}"
-}
+#resource "aws_iam_policy_attachment" "production_appdev" {
+#    name = "production_appdev"
+#    users = [
+#        "${aws_iam_user.steve_urciuoli.name}",
+#        "${aws_iam_user.jonathan_hooper.name}"
+#    ]
+#    policy_arn = "${aws_iam_policy.production_assume_appdev.arn}"
+#}
 
 # resource "aws_iam_policy_attachment" "production_readonly" {
 #     name = "production_readonly"
 #     users = [
-#         "${module.andy_brody.this_iam_user_name}",
-#         "${module.brian_crissup.this_iam_user_name}",
-#         "${module.steve_urciuoli.this_iam_user_name}",
-#         "${module.jonathan_hooper.this_iam_user_name}"
+#         "${aws_iam_user.andy_brody.name}",
+#         "${aws_iam_user.brian_crissup.name}",
+#         "${aws_iam_user.steve_urciuoli.name}",
+#         "${aws_iam_user.jonathan_hooper.name}"
 #     ]
 #     policy_arn = "${aws_iam_policy.production_assume_readonly.arn}"
 # }
@@ -200,10 +157,11 @@ resource "aws_iam_policy_attachment" "production_appdev" {
 resource "aws_iam_policy_attachment" "sandbox_readonly" {
     name = "sandbox_readonly"
     users = [
-        "${module.andy_brody.this_iam_user_name}",
-        "${module.brian_crissup.this_iam_user_name}",
-        "${module.steve_urciuoli.this_iam_user_name}",
-        "${module.jonathan_hooper.this_iam_user_name}"
+        "${aws_iam_user.andy_brody.name}",
+        "${aws_iam_user.brian_crissup.name}",
+        "${aws_iam_user.jonathan_hooper.name}",
+        "${aws_iam_user.justin_grevich.name}",
+        "${aws_iam_user.steve_urciuoli.name}",
     ]
     policy_arn = "${aws_iam_policy.sandbox_assume_readonly.arn}"
 }
