@@ -21,3 +21,8 @@ EOM
 variable "slack_events_sns_hook_arn" {
     description = "ARN of SNS topic that will notify the #identity-events/#identity-otherevents channels in Slack"
 }
+
+variable "master_account_id" {
+    default = "340731855345"
+    description = "AWS Account ID for master account"
+}
