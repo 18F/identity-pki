@@ -1,14 +1,11 @@
 variable "region" { 
-    default = "us-west-2" 
 }
 
 variable "sandbox_account_id" {
-    default = "894947205914"
     description = "Sandbox AWS Account ID"
 }
 
 variable "production_account_id" {
-    default = "555546682965"
     description = "Production AWS Account ID"
 }
 
