@@ -27,6 +27,5 @@ module "main" {
   region = "us-west-2"
   sandbox_account_id = "894947205914"
   production_account_id = "555546682965"
-  
-  state_lock_table = "terraform_locks"
+
 }

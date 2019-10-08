@@ -1,4 +1,4 @@
-variable "region" { 
+variable "region" {
 }
 
 variable "sandbox_account_id" {

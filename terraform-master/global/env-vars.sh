@@ -13,8 +13,11 @@ aws_account_id="340731855345"
 TERRAFORM_STATE_BUCKET_REGION="us-west-2"
 TERRAFORM_STATE_BUCKET="login-gov.tf-state.$aws_account_id-$TERRAFORM_STATE_BUCKET_REGION"
 
-# used by `deploy` to pass to configure_state_bucket.sh
+# used by `tf-deploy` to pass to configure_state_bucket.sh
 ID_state_lock_table=terraform_locks
+
+# used by `tf-deploy --import-remote-state` to know TF address for importing
+ID_state_module_prefix=module.main.module.tf-state
 
 # default AWS credentials profile for this account
 if [ -z "${AWS_PROFILE-}${AWS_ACCESS_KEY_ID-}" ]; then
