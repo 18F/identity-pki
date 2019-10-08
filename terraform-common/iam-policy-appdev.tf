@@ -71,7 +71,9 @@ data "aws_iam_policy_document" "appdev1" {
             "iam:List*",
             "iam:Simulate*",
         ]
-        resources = "*"
+        resources = [
+            "*"
+        ]
     }
     statement {
         sid = "CloudFront"

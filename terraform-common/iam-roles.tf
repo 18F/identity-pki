@@ -32,7 +32,7 @@ resource "aws_iam_user" "circleci" {
 
 resource "aws_iam_role" "full_administrator" {
     name = "FullAdministrator"
-    assume_role_policy = "${data.aws_iam_policy_document.assume_full_administrator_role.json}"
+    assume_role_policy = "${data.aws_iam_policy_document.allow_master_account_assumerole.json}"
     path = "/"
     max_session_duration = 3600 #seconds
 }
@@ -127,14 +127,3 @@ resource "aws_iam_role_policy_attachment" "appdev1" {
     role = "${aws_iam_role.power.name}"
     policy_arn = "${aws_iam_policy.appdev1.arn}"
 }
-
-resource "aws_iam_role_policy_attachment" "power_rds_delete_prevent" {
-    role = "${aws_iam_role.power.name}"
-    policy_arn = "${aws_iam_policy.rds_delete_prevent.arn}"
-}
-
-resource "aws_iam_role_policy_attachment" "power_region_restriction" {
-    role = "${aws_iam_role.power.name}"
-    policy_arn = "${aws_iam_policy.region_restriction.arn}"
-}
-
