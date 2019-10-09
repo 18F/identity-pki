@@ -1,0 +1,69 @@
+#!/bin/bash
+set -euo pipefail
+
+# shellcheck source=/dev/null
+. "$(dirname "$0")/lib/common.sh"
+
+usage() {
+    cat >&2 <<EOM
+usage: $(basename "$0") USERNAME [AWS_PROFILE]
+
+Create an IAM user for a Login.gov interviewee in the Login.gov interview
+account.
+EOM
+}
+
+if [ $# -lt 1 ]; then
+    usage
+    exit 1
+fi
+
+user="$1"
+
+AWS_PROFILE="${2-identity-interviews}"
+export AWS_PROFILE
+
+echo "AWS_PROFILE: $AWS_PROFILE"
+
+echo_blue "Creating account for $user in $AWS_PROFILE"
+
+delete_after="$(run python -c 'import datetime; print(datetime.date.today() + datetime.timedelta(1))')"
+
+password="$(run pwgen -sy 32 1)"
+
+run aws iam create-user --user-name "$user"
+run aws iam tag-user --user-name "$user" --tags \
+    "Key=delete-after,Value=$delete_after" \
+    "Key=created-by,Value=${GSA_USERNAME-$USER}"
+
+# not super secure to put password on CLI, but we don't care for this use case
+run aws iam create-login-profile --user-name "$user" --password "$password"
+
+keyinfo="$(run aws iam create-access-key --user-name "$user" --output text)"
+
+key_id="$(cut -f2 <<< "$keyinfo")"
+secret_key="$(cut -f4 <<< "$keyinfo")"
+
+account_alias="$(run aws iam list-account-aliases --output text | head -1 | cut -f2)"
+
+info="
+Sign in URL: https://$account_alias.signin.aws.amazon.com/console
+
+Account nickname: $account_alias
+Username: $user
+Password: $password
+
+Access key ID: $key_id
+Secret access key: $secret_key
+"
+
+echo_blue "New account sign in info:"
+sed 's/^/    /' <<< "$info"
+
+echo
+
+# Again insecure to put secrets in CLI args, but that's OK
+run curl -sS --data-urlencode "content=$info" --data-urlencode 'action=multi' \
+    -X POST https://onceler.app.cloud.gov/once/
+
+echo_blue "This account can be deleted with interview-delete-iam-user"
