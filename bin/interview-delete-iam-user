@@ -13,7 +13,7 @@ account.
 EOM
 }
 
-if [ $# -lt 2 ]; then
+if [ $# -lt 1 ]; then
     usage
     exit 1
 fi
@@ -37,6 +37,13 @@ for key_id in \
     $(run aws iam list-access-keys --user-name "$user" --output text | cut -f2)
 do
     run aws iam delete-access-key --user-name "$user" --access-key-id "$key_id"
+done
+
+for group in \
+    $(run aws iam list-groups-for-user --user-name "$user" --output text | cut -f5)
+do
+    run aws iam remove-user-from-group \
+        --user-name "$user" --group-name "$group"
 done
 
 run aws iam delete-user --user-name "$user"

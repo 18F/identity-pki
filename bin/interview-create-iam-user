@@ -4,28 +4,39 @@ set -euo pipefail
 # shellcheck source=/dev/null
 . "$(dirname "$0")/lib/common.sh"
 
+ONCELER_URL='https://onceler.app.cloud.gov/once/'
+DEFAULT_GROUP='identity-interview-candidate'
+DEFAULT_PROFILE='identity-interviews'
+
 usage() {
     cat >&2 <<EOM
-usage: $(basename "$0") USERNAME [AWS_PROFILE]
+usage: $(basename "$0") USERNAME [AWS_PROFILE [IAM_GROUP]]
 
 Create an IAM user for a Login.gov interviewee in the Login.gov interview
-account.
+account. Add the user to IAM_GROUP for permissions.
+
+Post the credentials to a multi-use secure clipboard at:
+    $ONCELER_URL
+
+Defaults:
+    AWS_PROFILE: $DEFAULT_PROFILE
+    IAM_GROUP:   $DEFAULT_GROUP
 EOM
 }
 
-if [ $# -lt 1 ]; then
+if [ $# -lt 1 ] || [ $# -gt 3 ]; then
     usage
     exit 1
 fi
 
 user="$1"
 
-AWS_PROFILE="${2-identity-interviews}"
+AWS_PROFILE="${2-"$DEFAULT_PROFILE"}"
 export AWS_PROFILE
+iam_group="${3-"$DEFAULT_GROUP"}"
 
-echo "AWS_PROFILE: $AWS_PROFILE"
-
-echo_blue "Creating account for $user in $AWS_PROFILE"
+echo_blue "Creating account for $user in IAM group $iam_group"
+echo_blue "AWS_PROFILE: $AWS_PROFILE"
 
 delete_after="$(run python -c 'import datetime; print(datetime.date.today() + datetime.timedelta(1))')"
 
@@ -61,6 +72,9 @@ echo_blue "New account sign in info:"
 sed 's/^/    /' <<< "$info"
 
 echo
+
+# Give user permissions
+run aws iam add-user-to-group --user-name "$user" --group-name "$iam_group"
 
 # Again insecure to put secrets in CLI args, but that's OK
 run curl -sS --data-urlencode "content=$info" --data-urlencode 'action=multi' \
