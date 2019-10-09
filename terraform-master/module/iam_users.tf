@@ -1,8 +1,4 @@
 # create users
-resource "aws_iam_user" "brian_crissup2" {
-    name = "brian.crissup2"
-}
-
 resource "aws_iam_user" "aaron_chapman" {
     name = "aaron.chapman"
     force_destroy = true
@@ -79,6 +75,28 @@ resource "aws_iam_user" "steven_harms" {
 }
 
 # policy attachments
+# attach this policy to every user
+resource "aws_iam_policy_attachment" "manage_your_account" {
+    name = "manage_your_account"
+    users = [
+        "${aws_iam_user.aaron_chapman.name}",
+        "${aws_iam_user.andy_brody.name}",
+        "${aws_iam_user.brett_mcparland.name}",
+        "${aws_iam_user.brian_crissup.name}",
+        "${aws_iam_user.clara_bridges.name}",
+        "${aws_iam_user.douglas_price.name}",
+        "${aws_iam_user.jonathan_hooper.name}",
+        "${aws_iam_user.jonathan_pirro.name}",
+        "${aws_iam_user.justin_grevich.name}",
+        "${aws_iam_user.laura_gerhardt.name}",
+        "${aws_iam_user.rajat_varuni.name}",
+        "${aws_iam_user.stephen_grow.name}",
+        "${aws_iam_user.steve_urciuoli.name}",
+        "${aws_iam_user.steven_harms.name}",
+    ]
+    policy_arn = "${aws_iam_policy.manage_your_account.arn}"
+}
+
 resource "aws_iam_policy_attachment" "master_full_administrator" {
     name = "master_full_administrator"
     users = [
