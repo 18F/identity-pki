@@ -173,7 +173,7 @@ end
 # generate key pairs if they do not already exist
 execute 'generate CA, intermediate, node, admin, and user key pairs' do
   command './tools/sgtlstool.sh -c config/login.gov.yml -t /etc/elasticsearch -ca -crt'
-  cwd '/usr/share/elasticsearch/plugins/search-guard-6'
+  cwd '/usr/share/elasticsearch/plugins/search-guard-7'
   not_if { ::File.exist?('/etc/elasticsearch/root-ca.pem') }
 end
 
