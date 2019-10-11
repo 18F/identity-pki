@@ -160,7 +160,7 @@ end
 # Download CA and intermediate key pairs from s3 bucket if they exist
 s3_cert_url = "s3://login-gov.internal-certs.#{aws_account_id}-us-west-2/#{node.chef_environment}/elasticsearch/"
 
-file_list = %w(root-ca.key root-ca.pem signing-ca.key signing-ca.pem issuer.pem admin.jks)
+file_list = %w(root-ca.key root-ca.pem signing-ca.key signing-ca.pem issuer.pem)
 
 file_list.each do |f|
   execute "download #{f} from s3" do
