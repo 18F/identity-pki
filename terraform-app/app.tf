@@ -25,7 +25,15 @@ resource "aws_db_instance" "default" {
 
   vpc_security_group_ids = ["${aws_security_group.db.id}"]
 
-  # If you want to destroy your database, comment this block out
+  # If you want to destroy your database, you need to do this in two phases:
+  # 1. Uncomment `skip_final_snapshot=true` and
+  #    comment `prevent_destroy=true`
+  # 2. Perform a terraform/deploy "apply" with the additional
+  #    argument of "-target=aws_db_instance.default" to mark the database
+  #    as not requiring a final snapshot.
+  # 3. Perform a terraform/deploy "destroy" as needed.
+  #
+  #skip_final_snapshot = true
   lifecycle {
     prevent_destroy = true
 
