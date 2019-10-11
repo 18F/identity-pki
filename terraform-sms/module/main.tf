@@ -1,4 +1,6 @@
-# AWS provider is inherited from per-env main.tf
+# AWS provider is inherited from per-env main.tf rather than defined here, due
+# to https://github.com/hashicorp/terraform/issues/13018
+
 provider "external" { version = "~> 1.0" }
 provider "null"     { version = "~> 1.0" }
 provider "template" { version = "~> 1.0" }
@@ -19,4 +21,13 @@ resource "aws_iam_account_password_policy" "strict" {
 resource "aws_s3_account_public_access_block" "acct-policy" {
   block_public_acls   = true
   block_public_policy = true
+}
+
+module "tf-state" {
+  source = "github.com/18F/identity-terraform//state_bucket?ref=c4970aefd61759d92b123de7afe496882d1a7c5b"
+  region = "${var.region}"
+}
+
+locals {
+  s3_log_bucket = "${module.tf-state.s3_log_bucket}"
 }
