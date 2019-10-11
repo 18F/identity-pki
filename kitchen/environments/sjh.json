@@ -1,5 +1,5 @@
 {
-  "name": "stevenjharms",
+  "name": "sjh",
   "description": "",
   "json_class": "Chef::Environment",
   "chef_type": "environment",
@@ -8,11 +8,11 @@
       "legacy_log_bucket_name": false,
       "retentiondays": 14,
       "users": [
-        "stevenjharms"
+        "sjh"
       ]
     },
     "identity-devops": {
-      "branch_name": "stages/stevenjharms"
+      "branch_name": "stages/sjh"
     },
     "login_dot_gov": {
       "domain_name": "identitysandbox.gov",
