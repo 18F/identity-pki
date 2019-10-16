@@ -403,6 +403,28 @@ module "idp_recycle" {
   normal_desired_capacity = "${aws_autoscaling_group.idp.desired_capacity}"
 }
 
+resource "aws_autoscaling_policy" "idp-cpu" {
+  count = "${var.idp_cpu_autoscaling_enabled}"
+
+  autoscaling_group_name = "${aws_autoscaling_group.idp.name}"
+  name                   = "cpu-scaling"
+
+  # currently it takes about 15 minutes for instances to bootstrap
+  estimated_instance_warmup = 900
+
+  policy_type            = "TargetTrackingScaling"
+
+  target_tracking_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ASGAverageCPUUtilization"
+    }
+
+    target_value = "${var.idp_cpu_autoscaling_target}"
+
+    disable_scale_in = "${var.idp_cpu_autoscaling_disable_scale_in}"
+  }
+}
+
 resource "aws_route53_record" "idp-postgres" {
   zone_id = "${aws_route53_zone.internal.zone_id}"
   name = "idp-postgres"

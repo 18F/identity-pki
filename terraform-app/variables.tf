@@ -159,7 +159,16 @@ variable "enable_deletion_protection" {
 variable "asg_enabled_metrics" {
     type = "list"
     description = "A list of cloudwatch metrics to collect on ASGs https://www.terraform.io/docs/providers/aws/r/autoscaling_group.html#enabled_metrics"
-    default = []
+    default = [
+      "GroupStandbyInstances",
+      "GroupTotalInstances",
+      "GroupPendingInstances",
+      "GroupTerminatingInstances",
+      "GroupDesiredCapacity",
+      "GroupInServiceInstances",
+      "GroupMinSize",
+      "GroupMaxSize"
+    ]
 }
 
 # https://downloads.chef.io/chef/stable/13.8.5#ubuntu
@@ -223,6 +232,10 @@ variable "pivcac_nodes" { default = 2 }
 variable "asg_outboundproxy_desired" { default = 3 }
 variable "asg_outboundproxy_min" { default = 1 }
 variable "asg_outboundproxy_max" { default = 9 }
+
+variable "idp_cpu_autoscaling_enabled" { default = 1 }
+variable "idp_cpu_autoscaling_disable_scale_in" { default = 1 } # we're not ready for auto scale-in yet
+variable "idp_cpu_autoscaling_target" { default = 40.0 }
 
 variable "idp_web_acl_id" {
     default = "eb5d2b12-a361-4fa0-88f2-8f632f6a9819"
