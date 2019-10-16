@@ -1,7 +1,7 @@
 
 # cloudwatch dashboard for IDP
 module "idp_dashboard" {
-    source = "github.com/18F/identity-terraform//cloudwatch_dashboard_alb?ref=2c43bfd79a8a2377657bc8ed4764c3321c0f8e80"
+    source = "github.com/18F/identity-terraform//cloudwatch_dashboard_alb?ref=d9aedceb2d51f604532e77b10ea9fbd432b6817d"
 
     enabled = "${var.alb_enabled}"
 
@@ -9,6 +9,7 @@ module "idp_dashboard" {
     alb_arn_suffix = "${aws_alb.idp.arn_suffix}"
     target_group_label = "${var.env_name} IDP"
     target_group_arn_suffix = "${aws_alb_target_group.idp-ssl.arn_suffix}"
+    asg_name = "${aws_autoscaling_group.idp.name}"
 
     # annotations of when some major partner launches happened
     vertical_annotations = <<EOM
