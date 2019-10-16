@@ -40,7 +40,7 @@ module "rds_dashboard_idp" {
     region = "${var.region}"
 
     db_instance_identifier = "${aws_db_instance.idp.id}"
-    iops = "${aws_db_instance.idp.iops}"
+    iops = "${var.rds_iops_idp}"
 
     vertical_annotations = "${var.rds_dashboard_idp_vertical_annotations}"
 }
