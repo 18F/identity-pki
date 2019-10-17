@@ -195,24 +195,17 @@ directory "#{base_dir}/shared/log" do
     mode '0775'
     recursive true
 end
-    
-# After doing the full deploy, we need to fully restart passenger in order for
-# it to actually be running. This seems like a bug in our chef config. The main
-# service[passenger] restart seems to attempt a graceful restart that doesn't
-# actually work.
-# TODO don't do this, figure out how to get passenger/nginx to be happy
+
+# After doing the full deploy, we want to ensure that passenger is up and
+# running before the ELB starts trying to health check it. We've seen some
+# cases where passenger takes too long to start up the process, fails two
+# health checks, and the whole instance gets terminated.
 Chef.event_handler do
   on :run_completed do
-    Chef::Log.info('Starting handler for passenger restart hack')
-    if system('pgrep -a "^Passenger"')
-      Chef::Log.info('Found running Passenger process, skipping hack')
-    else
-      Chef::Log.warn('Restarting passenger as hack to finish startup')
-      if system('service passenger restart')
-        Chef::Log.warn('OK, restarting passenger succeeded')
-      else
-        Chef::Log.warn('FAIL, restarting passenger failed')
-      end
-    end
+    Chef::Log.info('Pre-warming passenger by sending an HTTP request')
+    cmd = Mixlib::ShellOut.new('curl', '-sSIk', 'https://localhost', timeout: 10)
+    cmd.run_command
+    cmd.error!
+    Chef::Log.info("Success:\n" + cmd.stdout)
   end
 end
