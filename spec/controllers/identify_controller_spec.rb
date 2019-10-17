@@ -230,7 +230,6 @@ RSpec.describe IdentifyController, type: :controller do
             ca = CertificateAuthority.find_or_create_for_certificate(
                 Certificate.new(root_cert)
             )
-            ca.certificate_revocations.create(serial: client_cert.serial)
 
             @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
             expect(CertificateLoggerService).to receive(:log_certificate)
@@ -250,11 +249,10 @@ RSpec.describe IdentifyController, type: :controller do
             allow_any_instance_of(OCSPService).to receive(:make_http_request).and_raise(OpenSSL::OCSP::OCSPError)
           end
 
-          it 'returns a token as timeout' do
+          it 'returns a token as ocsp error' do
             ca = CertificateAuthority.find_or_create_for_certificate(
                 Certificate.new(root_cert)
             )
-            ca.certificate_revocations.create(serial: client_cert.serial)
 
             @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
             expect(CertificateLoggerService).to receive(:log_certificate)
