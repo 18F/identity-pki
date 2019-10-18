@@ -141,9 +141,15 @@ application release_path do
   # to be present.
   execute 'deploy activate step' do
     cwd '/srv/idp/releases/chef'
-    command './deploy/activate'
-    user node['login_dot_gov']['system_user']
-    group node['login_dot_gov']['system_user']
+    # We need to have a secondary group of "github" in order to read the github
+    # SSH key, but chef doesn't set secondary sgids when executing processes,
+    # so we use sudo instead to get all the login secondary groups.
+    # https://github.com/chef/chef/issues/6162
+    command [
+      'sudo', '-H', '-u', node.fetch('login_dot_gov').fetch('system_user'),
+      './deploy/activate'
+    ]
+    user 'root'
   end
 
   rails do
