@@ -8,6 +8,9 @@
 # The others are DoD certs 2-4 from the archive available at
 # http://iasecontent.disa.mil/pki-pke/Certificates_PKCS7_v5.0u1_DoD.zip
 aws_http_timeout: '5'
+http_read_timeout: '5'
+http_open_timeout: '5'
+
 trusted_ca_root_identifiers: "\
   AD:0C:7A:75:5C:E5:F3:98:C4:79:98:0E:AC:28:FD:97:F4:E7:02:FC,\
   17:4B:B8:26:BA:69:7A:AD:12:50:57:45:31:9E:57:BB:74:A5:DA:2F,\
