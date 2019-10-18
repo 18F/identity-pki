@@ -81,6 +81,9 @@ default['login_dot_gov']['sha_revision']                              = ''
 default['login_dot_gov']['sslrootcert']                               = '/usr/local/share/aws/rds-combined-ca-bundle.pem'
 default['login_dot_gov']['branch_name']                               = 'master'
 
+# how long to wait for curl localhost to finish at end of bootstrapping
+default['login_dot_gov']['passenger_prewarm_timeout']                 = 30
+
 # new relic
 default['login_dot_gov']['agent_enabled']                             = true
 default['login_dot_gov']['app_name']                                  = 'login.gov'
