@@ -45,8 +45,8 @@ DEPENDENCIES
     path: kitchen/cookbooks/identity-pivcac
   identity_base_config
     git: https://github.com/18F/identity-cookbooks
-    revision: 3f7ec4c4e23b372f1ffc09eda010eae3f5d5f52f
-    ref: 3f7ec4c
+    revision: e5dae698512b7b67794e9fa4b36f0cecda800368
+    ref: e5dae69
     rel: identity_base_config
   identity_shared_attributes
     git: https://github.com/18F/identity-cookbooks
@@ -185,7 +185,7 @@ GRAPH
     deploy_resource (>= 0.0.0)
     identity_shared_attributes (>= 0.0.0)
     login_dot_gov (>= 0.0.0)
-  identity_base_config (0.1.1)
+  identity_base_config (0.1.2)
     identity_shared_attributes (>= 0.0.0)
   identity_shared_attributes (0.1.2)
   instance_certificate (0.2.0)
