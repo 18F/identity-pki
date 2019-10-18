@@ -74,6 +74,18 @@ action :create do
 
   # create symlinks if requested
   if new_resource.symlink_from
+
+    # Make sure certs and keys directories exist (they are absent from newer
+    # identity-idp versions).
+    # TODO: once newer idp is rolled out everywhere, we should just symlink the
+    # entire certs and keys directories and not manage individual files here
+    ['certs', 'keys'].each do |name|
+      directory "#{new_resource.symlink_from}/#{name}" do
+        owner node.fetch('login_dot_gov').fetch('system_user')
+        group node.fetch('login_dot_gov').fetch('system_user')
+      end
+    end
+
     [
       'config/experiments.yml',
       'certs/saml2018.crt',
