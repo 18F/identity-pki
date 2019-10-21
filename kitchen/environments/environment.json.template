@@ -12,7 +12,7 @@
       ]
     },
     "identity-devops": {
-      "branch_name": "stages/TEMPLATE"
+      "branch_name": "master"
     },
     "login_dot_gov": {
       "domain_name": "identitysandbox.gov",
