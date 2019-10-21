@@ -94,7 +94,7 @@ deploy "/srv/#{app_name}" do
   end
 
   repo "https://github.com/18F/identity-#{app_name}.git"
-  branch_name
+  branch branch_name
   shallow_clone true
   keep_releases 1
 
@@ -119,14 +119,6 @@ if basic_auth_password
     password basic_auth_password
     user_name basic_auth_user_name
   end
-end
-
-# set log directory permissions
-directory "#{base_dir}/shared/log" do
-    owner node.fetch('login_dot_gov').fetch('web_system_user')
-    group node.fetch('login_dot_gov').fetch('web_system_user')
-    mode '0775'
-    recursive true
 end
 
 # add nginx conf for app server
