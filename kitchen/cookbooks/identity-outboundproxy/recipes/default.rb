@@ -6,6 +6,36 @@
 #
 # All rights reserved - Do Not Redistribute
 #
+# Create array to hold the dynamic domain values
+push_notification_domains = []
+
+if node.fetch('identity-outboundproxy').fetch('use_dashboard_dynamic_updates')
+    # Create array to store push notification urls from JSON
+    json_push_notification_urls = []
+    # Create array to store push notification urls for pushing
+    push_notification_urls = []
+
+    response = Chef::HTTP.new("https://dashboard.#{node.chef_environment}.identitysandbox.gov")  
+    sp = response.get('/api/service_providers') 
+    response_json = JSON.parse(sp) 
+    response_json.each do |service_provider_config|
+        json_push_notification_url = service_provider_config['push_notification_url']
+        unless json_push_notification_url.nil? || json_push_notification_url.empty?
+            push_notification_urls << service_provider_config['push_notification_url']
+        end
+    end
+
+    # Split push_notification_url into ip and domains and localhost
+    # Then grab each push_notification_url and put in an array
+    ip_address_regex = "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$"
+    push_notification_urls.each do |url|
+        uri = URI.parse(url)
+        if !uri.host.match(ip_address_regex) and !uri.host.match('localhost') and uri.scheme.match('https')
+            # if not ip address or local host push hostnames
+            push_notification_domains << uri.host
+        end
+    end
+end
 
 #install squid
 package 'squid'
@@ -32,7 +62,8 @@ template '/etc/squid/domain-whitelist.conf' do
     owner 'root'
     group 'root'
     variables ({
-        identity_idp: ".#{domain_name}"
+        identity_idp: ".#{domain_name}",
+        push_notification_domains: push_notification_domains
     })
     notifies :restart, 'service[squid]', :delayed
 end

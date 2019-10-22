@@ -142,3 +142,9 @@ ocsp1.ssp-strong-id.net
 ssp4.eva.orc.com
 ssp-ocsp.symauth.com
 ssp-ocsp.verisign.com
+
+# push notification domains for service providers
+# The below domains are being populated dynamically by querying the dashboard service providers
+<% @push_notification_domains.each do |domain| -%>
+<%= domain %>
+<% end -%>
