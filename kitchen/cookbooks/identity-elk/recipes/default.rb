@@ -382,6 +382,8 @@ end
 
 runit_service 'kibana' do
   default_logger true
+  retries 10
+  retry_delay 5
 end
 
 # set up log retention using curator
