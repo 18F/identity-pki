@@ -94,7 +94,7 @@ deploy "/srv/#{app_name}" do
   end
 
   repo "https://github.com/18F/identity-#{app_name}.git"
-  branch_name
+  branch branch_name
   shallow_clone true
   keep_releases 1
 
