@@ -131,15 +131,6 @@ this.
         ...
 ```
 
-## `packer` directory
-
-Contains the packer configuration to build preconfigured AMIs that we can
-deploy.  Currently this isn't used in the critical path of anything.
-
-```
-├── packer
-```
-
 ## `terraform-analytics` directory
 
 Contains the terraform configuration for the analytics stack.  See
