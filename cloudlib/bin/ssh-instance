@@ -90,11 +90,8 @@ Examples:
     # SSH with a username
     #{basename} ubuntu@i-abcd1234
 
-    # SSH to a uniquely named instance
-    #{basename} login-worker0-dev
-
-    # SSH to a randomly selected matching auto scaled IDP instance
-    #{basename} -1 asg-dev-idp
+    # SSH to an interactively selected auto scaled IDP instance by name tag
+    #{basename} asg-dev-idp
 
     # Quietly SSH to a randomly selected matching es server, run hostname
     #{basename} -1 -q login-es*-qa hostname -f

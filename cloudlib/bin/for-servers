@@ -53,8 +53,8 @@ Examples:
     # SSH to all dev ASG IDP servers, take two
     #{basename} -n 'asg-dev-idp' hostname -f
 
-    # SSH to all worker and IDP servers
-    #{basename} -n '*-worker' -n '*-idp' hostname -f
+    # SSH to all pivcac and IDP servers
+    #{basename} -n '*-pivcac' -n '*-idp' hostname -f
 
 Options:
     EOM

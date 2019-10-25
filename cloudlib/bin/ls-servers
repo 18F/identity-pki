@@ -86,8 +86,8 @@ For example:
   # list all es servers in dev
   #{basename} -n 'login-es*-dev'
 
-  # list all idp and worker servers in dev
-  #{basename} -e dev -n '*-idp' -n '*-worker'
+  # list all idp and pivcac servers in dev
+  #{basename} -e dev -n '*-idp' -n '*-pivcac'
 
   # list all idp servers in dev, with target health status
   #{basename} -e dev -r idp

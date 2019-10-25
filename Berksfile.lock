@@ -31,8 +31,6 @@ DEPENDENCIES
   hostname
   identity-elk
     path: kitchen/cookbooks/identity-elk
-  identity-jenkins
-    path: kitchen/cookbooks/identity-jenkins
   identity-jumphost
     path: kitchen/cookbooks/identity-jumphost
   identity-monitoring
@@ -55,7 +53,6 @@ DEPENDENCIES
     rel: identity_shared_attributes
   instance_certificate
     path: kitchen/cookbooks/instance_certificate
-  jenkins (~> 5.0.1)
   letsencrypt (~> 1.0.0)
   login_dot_gov
     path: kitchen/cookbooks/login_dot_gov
@@ -121,7 +118,6 @@ GRAPH
     citadel_fork (>= 0.0.0)
   cron (6.2.1)
   deploy_resource (1.0.2)
-  dpkg_autostart (0.2.0)
   elastic_repo (1.1.1)
   elasticsearch (4.2.0)
     apt (>= 0.0.0)
@@ -142,7 +138,6 @@ GRAPH
     yum-plugin-versionlock (>= 0.1.2)
   git (9.0.1)
     build-essential (>= 5.0.0)
-  gpg (0.3.0)
   homebrew (4.3.0)
   hostname (0.4.2)
     hostsfile (>= 0.0.0)
@@ -161,13 +156,6 @@ GRAPH
     login_dot_gov (>= 0.0.0)
     runit (>= 0.0.0)
     service_discovery (>= 0.0.0)
-  identity-jenkins (0.1.11)
-    acme (>= 0.0.0)
-    apache2 (>= 0.0.0)
-    config_loader (>= 0.0.0)
-    jenkins (>= 0.0.0)
-    login_dot_gov (>= 0.0.0)
-    terraform (>= 0.0.0)
   identity-jumphost (0.1.2)
     login_dot_gov (>= 0.0.0)
     squid (~> 4.0)
@@ -193,10 +181,6 @@ GRAPH
   java (4.1.0)
     homebrew (>= 0.0.0)
     windows (>= 0.0.0)
-  jenkins (5.0.6)
-    compat_resource (>= 12.16.3)
-    dpkg_autostart (>= 0.0.0)
-    runit (>= 1.7)
   keytool (0.7.1)
   letsencrypt (1.0.3)
   login_dot_gov (0.0.62)
@@ -265,9 +249,6 @@ GRAPH
   ssh-keys (1.2.7)
   static_eip (0.2.1)
   sudo (5.4.4)
-  terraform (2.1.1)
-    ark (~> 3.1)
-    gpg (~> 0.3)
   users (5.4.0)
   windows (6.0.0)
   yum (5.1.0)
