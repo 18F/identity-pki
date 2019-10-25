@@ -42,7 +42,9 @@ j = JSONClient.new
 
 j.ssl_config.add_trust_ca('/etc/elasticsearch/root-ca.pem')
 
-response = j.get('https://elasticsearch.login.gov.internal:9200/_xpack/license').body
+license_url = 'https://localhost:9200/_xpack/license'
+
+response = j.get(license_url).body
 
 license_status =  response.fetch('license').fetch('status')
 license_type = response.fetch('license').fetch('type')
@@ -58,7 +60,7 @@ if license_type != 'platinum' || license_about_to_expire
   # post license
   file = File.read('/etc/xpack_license')
   post_data = JSON.parse(file)
-  response = j.post('https://elasticsearch.login.gov.internal:9200/_xpack/license', post_data).body
+  response = j.post(license_url, post_data).body
   puts response
 else
   puts 'Current license is still active. No need to update license.'
