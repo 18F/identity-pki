@@ -4,7 +4,7 @@ class CertificateIssuerUpdateService
       profile: ENV['AWS_PROFILE'] || 'default', region: ENV['AWS_REGION']
     )
 
-    fetch_issuer_list(s3_client)
+    #fetch_issuer_list(s3_client)
 
     unknown_certs = enumerate_unknown_certs(s3_client)
 
@@ -39,8 +39,13 @@ class CertificateIssuerUpdateService
 
   def process_unknown_certs(unknown_certs, new_certs = [])
     unknown_certs.each do |x509_cert|
-      start_processing(x509_cert)
-      new_certs |= process_unknown_cert(x509_cert)
+      begin
+        start_processing(x509_cert)
+        new_certs |= process_unknown_cert(x509_cert)
+      rescue StandardError => e
+        puts e.message
+        puts "------------------------------"
+      end
     end
     output_certs(new_certs)
   end
@@ -66,7 +71,14 @@ class CertificateIssuerUpdateService
   end
 
   def process_unknown_cert(x509_cert, chain = [])
-    walk_certificate_chain(x509_cert) { |issuing_cert| chain << issuing_cert }
+    begin
+      walk_certificate_chain(x509_cert) do |issuing_cert|
+        chain << issuing_cert
+      end
+    rescue StandardError => e
+      puts e.message
+      puts "------------------------------"
+    end
     CertificateStore.instance.add_certificates(chain)
     summarize_chain(chain)
     chain
@@ -123,8 +135,8 @@ class CertificateIssuerUpdateService
   def process_tree(stack, chain = [])
     while stack.any?
       new_certs = yield stack.shift
-      chain |= new_certs
-      stack |= new_certs
+      chain |= new_certs if new_certs != nil
+      stack |= new_certs if new_certs != nil
     end
     chain
   end
@@ -143,7 +155,8 @@ class CertificateIssuerUpdateService
 
   def get_cert_issuer(cert)
     ca_issuer_url = cert.issuer_metadata[:ca_issuer_url]
-    puts "  fetching <#{ca_issuer_url}>"
+
+    #puts "  fetching <#{ca_issuer_url}>"
     response = get_response(ca_issuer_url)
     case response
     when Net::HTTPSuccess then
@@ -157,8 +170,10 @@ class CertificateIssuerUpdateService
 
   # :reek:FeatureEnvy
   def get_response(url)
-    parsed_url = URI(url)
-    http = Net::HTTP.new(parsed_url.hostname, parsed_url.port)
-    http.get(parsed_url.path)
+    url = URI.parse(url)
+    http = Net::HTTP.new(url.host, url.port)
+    http.read_timeout = 10 # seconds
+
+    http.request_get(url.path)
   end
 end
