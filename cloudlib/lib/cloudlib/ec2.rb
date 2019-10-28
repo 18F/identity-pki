@@ -282,35 +282,6 @@ module Cloudlib
       self.class.instance_label(instance)
     end
 
-    def classic_hostname_for_instance(instance)
-      name = name_tag(instance)
-
-      prefix = fetch_tag(instance, 'prefix')
-      domain = fetch_tag(instance, 'domain')
-
-      match = name.match(/\Alogin-([a-z0-9-]+)-([a-z]+)\z/)
-      unless match
-        raise "Failed to parse #{name.inspect} as login-TYPE-ENV"
-      end
-
-      base = match.captures.fetch(0)
-      env = match.captures.fetch(1)
-
-      unless domain.start_with?(env + '.')
-        raise "domain and Name conflict: #{domain.inspect}, #{name.inspect}"
-      end
-      unless base.start_with?(prefix)
-        raise "prefix and Name conflict: #{prefix.inspect}, #{name.inspect}"
-      end
-
-      # FIXME hack to handle worker nonsense
-      if prefix == 'worker'
-        base = base.gsub('worker', 'worker-')
-      end
-
-      return base + '.' + domain
-    end
-
     def self.name_tag(obj, allow_nil: false)
       fetch_tag(obj, 'Name', allow_nil: allow_nil)
     end

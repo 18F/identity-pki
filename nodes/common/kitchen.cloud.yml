@@ -34,7 +34,6 @@ ENV['AWS_PROFILE'] ||= 'identitysandbox.gov'
 iam_profiles = {
     "jumphost" => "#{environment}-base-permissions",
     "idp" => "#{environment}_idp_instance_profile",
-    "worker" => "#{environment}_idp_instance_profile",
     "elasticsearch" => "#{environment}_elasticsearch_instance_profile",
     "elk" => "#{environment}_elk_instance_profile",
     "app" => "#{environment}-base-permissions",
@@ -50,7 +49,6 @@ iam_profile = iam_profiles.fetch(role)
 subnets = {
     "jumphost" => "login-jumphost1_subnet-#{environment}",
     "idp" => "login-idp1_subnet-#{environment}",
-    "worker" => "login-idp1_subnet-#{environment}",
     "pivcac" => "login-idp1_subnet-#{environment}",
     "elasticsearch" => "login-elasticsearch_subnet-#{environment}-*",
     "elk" => "login-elk_subnet-#{environment}-*",
@@ -71,7 +69,6 @@ security_group_tag_value = role
 # TODO: move these to their own security groups
 sg_steal_roles = {
   'elasticsearch' => 'elk',
-  'worker' => 'idp',
 }
 if sg_steal_roles.include?(role)
   security_group_tag_value = sg_steal_roles.fetch(role)

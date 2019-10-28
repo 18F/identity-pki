@@ -43,7 +43,7 @@ describe command('curl -Sfk -i https://localhost/') do
   its('exit_status') { should eq 0 }
   its('stdout') { should start_with('HTTP/1.1 200 OK') }
   its('stdout') { should include 'Content-Type: text/html' }
-  its('stdout') { should include '<title>Partner Dashboard</title>' }
+  its('stdout') { should include '<title>login.gov - Partner Dashboard</title>' }
 end
 
 describe file('/opt/nginx/logs') do

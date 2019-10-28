@@ -32,12 +32,6 @@ The IDP servers are the user facing servers that run the main identity-idp code.
 See the [identity-idp](https://github.com/18F/identity-idp) repository for more
 details.
 
-## IDP Worker Servers
-
-The IDP Worker servers are the backend job servers that run the workers that
-handle sending SMS and email.  See the
-[identity-idp](https://github.com/18F/identity-idp) repository for more details.
-
 ## ELK Server
 
 This server runs logstash and kibana and connects to our elasticsearch cluster

@@ -17,7 +17,6 @@ cookbook 'openssl'
 cookbook 'ssh-keys'
 cookbook 'sudo'
 cookbook 'users'
-cookbook 'jenkins', '~> 5.0.1'
 cookbook 'apache2', '~> 5.2'
 cookbook 'runit', '~>4.3.1'
 cookbook 'filebeat', '~> 2.1.0'
@@ -50,7 +49,6 @@ cookbook 'canonical_hostname', path: prefixed('kitchen/cookbooks/canonical_hostn
 cookbook 'chef_proxy_env', path: prefixed('kitchen/cookbooks/chef_proxy_env')
 cookbook 'config_loader', path: prefixed('kitchen/cookbooks/config_loader')
 cookbook 'identity-elk', path: prefixed('kitchen/cookbooks/identity-elk')
-cookbook 'identity-jenkins', path: prefixed('kitchen/cookbooks/identity-jenkins')
 cookbook 'identity-jumphost', path: prefixed('kitchen/cookbooks/identity-jumphost')
 cookbook 'identity-nessus', path: prefixed('kitchen/cookbooks/identity-nessus')
 cookbook 'identity-pivcac', path: prefixed('kitchen/cookbooks/identity-pivcac')

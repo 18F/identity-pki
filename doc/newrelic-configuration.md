@@ -7,8 +7,8 @@ https://github.com/18F/identity-private/issues/1925 is done.
 
 ## Health Checks
 
-Ping `/api/health/workers`, for example
-`https://secure.login.gov/api/health/workers`.  See
+Ping `/api/health`, for example
+`https://secure.login.gov/api/health`.  See
 https://synthetics.newrelic.com/accounts/1376370/monitors.
 
 Known issue, the monitor [does not check for expired
