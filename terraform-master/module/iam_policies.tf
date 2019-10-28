@@ -24,7 +24,25 @@ data "aws_iam_policy_document" "manage_your_account" {
         ]
     }
     statement {
-        sid = "AllowIndividualUserToSeeAndManagaeOnlyTheirOwnAccountInformation"
+        sid = "AllowAllUsersToListIAMResourcesWithMFA"
+        effect = "Allow"
+        actions = [
+            "iam:ListPolicies",
+            "iam:GetPolicyVersion"
+        ]
+        resources = [
+            "*"
+        ]
+        condition = {
+            test = "Bool"
+            variable = "aws:MultiFactorAuthPresent"
+            values = [
+                "true"
+            ]
+        }
+    }
+    statement {
+        sid = "AllowIndividualUserToSeeAndManageOnlyTheirOwnAccountInformation"
         effect = "Allow"
         actions = [
             "iam:ChangePassword",
@@ -37,7 +55,6 @@ data "aws_iam_policy_document" "manage_your_account" {
             "iam:GetAccessKeyLastUsed",
             "iam:ListAccessKeys",
             "iam:UpdateAccessKey",
-            "iam:UpdateAccessKey",
             "iam:UpdateLoginProfile",
             "iam:ListSigningCertificates",
             "iam:DeleteSigningCertificate",
@@ -47,7 +64,10 @@ data "aws_iam_policy_document" "manage_your_account" {
             "iam:GetSSHPublicKey",
             "iam:DeleteSSHPublicKey",
             "iam:UpdateSSHPublicKey",
-            "iam:UploadSSHPublicKey"
+            "iam:UploadSSHPublicKey",
+            "iam:ListUserPolicies",
+            "iam:ListAttachedUserPolicies",
+            "iam:ListGroupsForUser"
         ]
         resources = [
             "arn:aws:iam::*:user/$${aws:username}"
@@ -100,20 +120,25 @@ data "aws_iam_policy_document" "manage_your_account" {
         sid = "BlockMostAccessUnlessSignedInWithMFA"
         effect = "Deny"
         actions = [
-            "iam:CreateVirtualMFADevice",
             "iam:DeleteVirtualMFADevice",
-            "iam:ListVirtualMFADevices",
-            "iam:EnableMFADevice",
+            "iam:DeleteLoginProfile",
+            "iam:DeleteAccessKey",
+            "iam:DeactivateMFADevice",
             "iam:ResyncMFADevice",
-            "iam:ListAccountAliases",
-            "iam:ListUsers",
             "iam:ListSSHPublicKeys",
+            "iam:DeleteSSHPublicKey",
+            "iam:UpdateSSHPublicKey",
+            "iam:UploadSSHPublicKey",
             "iam:ListAccessKeys",
             "iam:GetAccessKeyLastUsed",
             "iam:ListServiceSpecificCredentials",
-            "iam:ListMFADevices",
             "iam:GetAccountSummary",
-            "sts:GetSessionToken"
+            "iam:GetUser",
+            "iam:ListUserPolicies",
+            "iam:ListAttachedUserPolicies",
+            "iam:ListGroupsForUser",
+            "iam:GetPolicyVersion",
+            "sts:AssumeRole"
         ]
         resources = [
             "*"
