@@ -42,7 +42,7 @@ data "aws_iam_policy_document" "manage_your_account" {
         }
     }
     statement {
-        sid = "AllowIndividualUserToSeeAndManagaeOnlyTheirOwnAccountInformation"
+        sid = "AllowIndividualUserToSeeAndManageOnlyTheirOwnAccountInformation"
         effect = "Allow"
         actions = [
             "iam:ChangePassword",
