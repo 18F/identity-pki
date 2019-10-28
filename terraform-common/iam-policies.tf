@@ -142,6 +142,9 @@ data "aws_iam_policy_document" "power1" {
             "kms:ListAliases",
             "kms:CreateAlias",
         ]
+        resources = [
+            "*"
+        ]
     }
     statement {
         sid = "IAM"
@@ -169,6 +172,9 @@ data "aws_iam_policy_document" "power1" {
             "iam:DeleteRolePolicy",
             "iam:DeleteInstanceProfile",
             "iam:UploadServerCertificate"
+        ]
+        resources = [
+            "*"
         ]
     }
     statement {
