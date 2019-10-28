@@ -43,6 +43,7 @@ esnodes = services.map{|service| {
   "name" => service.fetch("hostname") } }
 
 esips = services.map{|service| service.fetch('instance').private_ip_address}.sort.uniq.join(', ')
+esnames = services.map{|service| service.fetch('hostname')}.sort.uniq.join(',')
 
 # Elasticsearch now requires this value at a minimum
 template "/etc/sysctl.d/99-chef-vm.max_map_count.conf" do
@@ -64,6 +65,7 @@ elasticsearch_configure "elasticsearch" do
   configuration ({
     'discovery.zen.minimum_master_nodes' => min_masters_count,
     'discovery.zen.ping.unicast.hosts' => esips,
+    'cluster.initial_master_nodes' => esnames,
     'network.bind_host' => '0.0.0.0',
     'network.publish_host' => node.fetch('ipaddress'),
     'searchguard.ssl.transport.pemcert_filepath' => "/etc/elasticsearch/#{node.fetch('ipaddress')}.pem",
@@ -186,6 +188,7 @@ aws_s3_options = "--sse aws:kms --recursive --exclude '*' --include 'admin.*' --
 execute 'upload CA, intermediate, admin, and user key pairs to s3 bucket' do
   command "aws s3 cp #{aws_s3_options} /etc/elasticsearch #{s3_cert_url}"
   only_if { ::File.exist?('/etc/elasticsearch/client-certificates.readme') }
+  not_if "aws s3 ls #{s3_cert_url} | grep root-ca"
 end
 
 # Or generate a new node key pair if the root and intermediate key pairs have already been created
