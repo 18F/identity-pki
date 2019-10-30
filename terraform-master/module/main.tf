@@ -89,13 +89,58 @@ resource "aws_s3_bucket" "cloudtrail" {
   }
 }
 
+# create cloudwatch log group for cloudtrail
+resource "aws_cloudwatch_log_group" "cloudtrail" {
+  name = "CloudTrail/logs"
+}
+
+data "aws_iam_policy_document" "cloudtrail_assume" {
+  statement {
+    actions = [
+      "sts:AssumeRole"
+    ]
+    effect = "Allow"
+    principals {
+      type = "Service"
+      identifiers = [
+        "cloudtrail.amazonaws.com"
+      ]
+    }
+  }
+}
+
+resource "aws_iam_role" "cloudtrail_cloudwatch" {
+  name = "CloudTrailCloudWatch"
+  assume_role_policy = "${data.aws_iam_policy_document.cloudtrail_assume.json}"
+}
+
+data "aws_iam_policy_document" "cloudwatch_perms_cloudtrail" {
+  statement {
+    sid = "CloudWatch"
+    effect = "Allow"
+    actions = [
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+    ]
+    resources = [
+      "${aws_cloudwatch_log_group.cloudtrail.arn}:log-stream:*"
+    ]
+  }
+}
+
+resource "aws_iam_role_policy" "cloudwatch_perms_cloudtrail" {
+  name = "CloudWatch"
+  role = "${aws_iam_role.cloudtrail_cloudwatch.name}"
+  policy = "${data.aws_iam_policy_document.cloudwatch_perms_cloudtrail.json}"
+}
+
 resource "aws_cloudtrail" "cloudtrail" {
   enable_log_file_validation = true
-  include_global_service_events = false
+  include_global_service_events = true
+  is_multi_region_trail = true
   name = "login-gov-cloudtrail"
   s3_bucket_name = "${aws_s3_bucket.cloudtrail.id}"
 }
-
 
 # Module that manages the terraform remote state bucket and creates the S3 logs bucket
 module "tf-state" {
