@@ -14,6 +14,10 @@ EOM
     default = 1
 }
 
+variable "env" {
+    description = "Name of this account environment (e.g. sandbox)"
+}
+
 variable "main_account_id" {
     description = <<EOM
 Account ID of the main login.gov prod or sandbox account.
