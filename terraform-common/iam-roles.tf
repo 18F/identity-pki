@@ -34,7 +34,7 @@ resource "aws_iam_role" "full_administrator" {
     name = "FullAdministrator"
     assume_role_policy = "${data.aws_iam_policy_document.allow_master_account_assumerole.json}"
     path = "/"
-    max_session_duration = 3600 #seconds
+    max_session_duration = 43200 #seconds
 }
 
 resource "aws_iam_role_policy_attachment" "full_administrator" {
@@ -73,7 +73,7 @@ resource "aws_iam_role" "power" {
     name = "PowerUser"
     assume_role_policy = "${data.aws_iam_policy_document.allow_master_account_assumerole.json}"
     path = "/"
-    max_session_duration = 3600 #seconds
+    max_session_duration = 43200 #seconds
 }
 
 resource "aws_iam_role_policy_attachment" "power1" {
@@ -99,7 +99,7 @@ resource "aws_iam_role" "readonly" {
     name = "ReadOnly"
     assume_role_policy = "${data.aws_iam_policy_document.allow_master_account_assumerole.json}"
     path = "/"
-    max_session_duration = 3600 #seconds
+    max_session_duration = 43200 #seconds
 }
 
 resource "aws_iam_role_policy_attachment" "readonly1" {
@@ -120,7 +120,7 @@ resource "aws_iam_role" "appdev" {
     name = "Appdev"
     assume_role_policy = "${data.aws_iam_policy_document.allow_master_account_assumerole.json}"
     path = "/"
-    max_session_duration = 3600 #seconds
+    max_session_duration = 43200 #seconds
 }
 
 resource "aws_iam_role_policy_attachment" "appdev1" {
