@@ -488,13 +488,20 @@ template "#{elastalertdir}/config.yaml" do
 end
 
 %w{alb429.yaml alb5xx.yaml failedlogins.yaml invaliduser.yaml nologs.yaml proxyblock.yaml slow_query.yaml unknownip.yaml}.each do |t|
+  # set custom channel for slow query alarms
+  if t == 'slow_query.yaml'
+    slackchannel = '#login-slow-queries'
+  else
+    slackchannel = ConfigLoader.load_config(node, "slackchannel")
+  end
+
   template "#{elastalertdir}/rules.d/#{t}" do
     source "elastalert_#{t}.erb"
     variables ({
       :env => node.chef_environment,
       :emails => node['elk']['elastalert']['emails'],
       :webhook => ConfigLoader.load_config(node, "slackwebhook"),
-      :slackchannel => ConfigLoader.load_config(node, "slackchannel")
+      :slackchannel => slackchannel
     })
     notifies :restart, 'runit_service[elastalert]'
   end
