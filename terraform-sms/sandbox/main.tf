@@ -24,7 +24,7 @@ terraform {
 module "main" {
   source = "../module"
 
-  #env = "sandbox"
+  env = "sandbox"
   region = "us-west-2"
   main_account_id = "894947205914"
   pinpoint_app_name = "identitysandbox.gov"
