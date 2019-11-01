@@ -6,13 +6,6 @@
   "json_class": "Chef::Environment",
   "chef_type": "environment",
   "default_attributes": {
-    "identity-devops": {
-      "branch_name": "stages/qa"
-    },
-    "login_dot_gov": {
-      "branch_name": "stages/qa",
-      "auto_eip_enabled_roles": ["jumphost", "outboundproxy"]
-    },
     "elk": {
       "legacy_log_bucket_name": false,
       "retentiondays": 14,
@@ -23,7 +16,17 @@
         "mzia",
         "steveu"
       ]
-    }
+    },
+    "identity-devops": {
+      "branch_name": "stages/qa"
+    },
+    "identity-outboundproxy": {
+      "use_dashboard_dynamic_updates": true
+    },
+    "login_dot_gov": {
+      "branch_name": "stages/qa",
+      "auto_eip_enabled_roles": ["jumphost", "outboundproxy"]
+    }    
   },
   "override_attributes": {
   }
