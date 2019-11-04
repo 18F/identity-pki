@@ -49,29 +49,33 @@ end
 #  NOTICE: dsa removed per ssh-audit (https://github.com/arthepsy/ssh-audit)
 #file '/etc/ssh/ssh_host_dsa_key' do
 #
-file '/etc/ssh/ssh_host_ecdsa_key' do
-  owner	'root'
-  group 'root'
-  mode	'600'
-  content ConfigLoader.load_config(node, 'jumphost/ssh_host_ecdsa_key')
-  notifies :run, 'execute[restart_sshd]'
-  sensitive true
-end
-file '/etc/ssh/ssh_host_rsa_key' do
-  owner	'root'
-  group 'root'
-  mode	'600'
-  content ConfigLoader.load_config(node, 'jumphost/ssh_host_rsa_key')
-  notifies :run, 'execute[restart_sshd]'
-  sensitive true
-end
-file '/etc/ssh/ssh_host_ed25519_key' do
-  owner 'root'
-  group 'root'
-  mode  '600'
-  content ConfigLoader.load_config(node, 'jumphost/ssh_host_ed25519_key')
-  notifies :run, 'execute[restart_sshd]'
-  sensitive true
+if node.fetch('identity-jumphost').fetch('retrieve-ssh-host-keys')
+  file '/etc/ssh/ssh_host_ecdsa_key' do
+    owner	'root'
+    group 'root'
+    mode	'600'
+    content ConfigLoader.load_config(node, 'jumphost/ssh_host_ecdsa_key')
+    notifies :run, 'execute[restart_sshd]'
+    sensitive true
+  end
+
+  file '/etc/ssh/ssh_host_rsa_key' do
+    owner	'root'
+    group 'root'
+    mode	'600'
+    content ConfigLoader.load_config(node, 'jumphost/ssh_host_rsa_key')
+    notifies :run, 'execute[restart_sshd]'
+    sensitive true
+  end
+
+  file '/etc/ssh/ssh_host_ed25519_key' do
+    owner 'root'
+    group 'root'
+    mode  '600'
+    content ConfigLoader.load_config(node, 'jumphost/ssh_host_ed25519_key')
+    notifies :run, 'execute[restart_sshd]'
+    sensitive true
+  end
 end
 
 # clean out obsolete public keys

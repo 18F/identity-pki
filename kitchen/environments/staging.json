@@ -23,6 +23,9 @@
         "mzia",
         "steveu"
       ]
+    },
+    "identity-jumphost": {
+      "retrieve-ssh-host-keys": true
     }
   },
   "override_attributes": {
