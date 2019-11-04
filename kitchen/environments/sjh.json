@@ -16,7 +16,9 @@
     },
     "login_dot_gov": {
       "domain_name": "identitysandbox.gov",
-      "branch_name": "master"
+      "branch_name": "master",
+      "allow_unsafe_migrations": true,
+      "idp_run_migrations": true
     }
   },
   "override_attributes": {
