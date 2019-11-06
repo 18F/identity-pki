@@ -104,7 +104,7 @@ directory '/etc/elasticsearch/sgadmin' do
 end
 
 remote_file "/tmp/#{node['es']['sg_version']}-#{node['es']['sg_zip']}.zip" do
-  checksum '640c664b7cf73a5f84e1fcc60f2fb4faf9a9085ae59c237894db87698201729f'
+  checksum node['es']['sg_zip_sum']
   source "https://search.maven.org/remotecontent?filepath=com/floragunn/#{node['es']['sg_version']}/#{node['es']['sg_zip']}/#{node['es']['sg_version']}-#{node['es']['sg_zip']}.zip"
 end
 
@@ -123,7 +123,7 @@ end
 # https://github.com/floragunncom/search-guard-tlstool
 # https://search-guard.com/generating-certificates-tls-tool/
 remote_file "/usr/share/elasticsearch/plugins/#{node['es']['sg_version']}/search-guard-tlstool-#{node['es']['sg_tls']}" do
-  checksum '284492779edf037348375994a0f320cc1425bda149d56c3db0031014241e7110'
+  checksum node['es']['sg_tls_sum']
   source 'https://search.maven.org/remotecontent?filepath=com/floragunn/search-guard-tlstool/1.7/search-guard-tlstool-1.7.tar.gz'
 end
 
