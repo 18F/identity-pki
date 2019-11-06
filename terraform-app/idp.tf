@@ -93,6 +93,13 @@ resource "aws_db_instance" "idp-read-replica" {
   enabled_cloudwatch_logs_exports = ["postgresql"]
 }
 
+output "idp_db_endpoint_replica" {
+  # This weird element() stuff is so we can refer to these attributes even
+  # when the resource has count=0. Reportedly this hack will not
+  # be necessary in TF 0.12.
+  value = "${element(concat(aws_db_instance.idp-read-replica.*.endpoint, list("")), 0)}"
+}
+
 resource "aws_db_parameter_group" "force_ssl" {
   name_prefix = "${var.name}-${var.env_name}-idp-${var.rds_engine}${replace(var.rds_engine_version_short, ".", "")}-"
   # Before changing this value, make sure the parameters are correct for the
