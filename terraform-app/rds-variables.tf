@@ -1,3 +1,9 @@
+variable "enable_rds_idp_read_replica" {
+  description = "Whether to create an RDS read replica of the IDP database"
+  default = false
+  # TODO: TF 0.12
+  # type = bool
+}
 variable "rds_backup_retention_period" { default = "34" }
 variable "rds_backup_window" { default = "08:00-08:34" }
 # Changing engine or engine_version requires also changing any relevant uses of
@@ -7,6 +13,7 @@ variable "rds_engine" { default = "postgres" }
 variable "rds_engine_version" { default = "9.6.11" }
 variable "rds_engine_version_short" { default = "9.6" }
 variable "rds_instance_class" { default = "db.t2.large" }
+variable "rds_instance_class_replica" { default = "db.t2.large" }
 variable "rds_storage_type_idp" {
     # possible storage types:
     # standard (magnetic)
@@ -17,7 +24,12 @@ variable "rds_storage_type_idp" {
 }
 variable "rds_iops_idp" {
     description = "If PIOPS storage is used, the number of IOPS provisioned"
-    # Terraform doesn't distinguish between 0 and unset
+    # Terraform doesn't distinguish between 0 and unset / TODO TF 0.12
+    default = 0
+}
+variable "rds_iops_idp_replica" {
+    description = "If PIOPS storage is used, the number of IOPS provisioned for the read replica"
+    # Terraform doesn't distinguish between 0 and unset / TODO TF 0.12
     default = 0
 }
 variable "rds_password" { }

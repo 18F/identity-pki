@@ -6,6 +6,8 @@ resource "aws_db_instance" "default" {
   depends_on = ["aws_security_group.db", "aws_subnet.db1", "aws_subnet.db2"]
   engine = "${var.rds_engine}"
   engine_version = "${var.rds_engine_version}"
+
+  # TODO: rename to "${var.env_name}-sampleapps" (forces new resource)
   identifier = "${var.name}-${var.env_name}"
   instance_class = "${var.rds_instance_class}"
   password = "${var.rds_password}"
@@ -15,7 +17,6 @@ resource "aws_db_instance" "default" {
   allow_major_version_upgrade = true
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-${var.env_name}-app"
   }
 
