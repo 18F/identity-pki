@@ -103,43 +103,42 @@ directory '/etc/elasticsearch/sgadmin' do
   owner 'elasticsearch'
 end
 
-aws_account_id = AwsMetadata.get_aws_account_id
-
-execute 'download SearchGuard installer' do
-  command "aws s3 cp s3://login-gov-elasticsearch-#{node.chef_environment}.#{aws_account_id}-us-west-2/search-guard-7-7.3.1-36.1.0.zip /tmp/"
+remote_file "/tmp/#{node['es']['sg_version']}-#{node['es']['sg_zip']}.zip" do
+  checksum node['es']['sg_zip_sum']
+  source "https://search.maven.org/remotecontent?filepath=com/floragunn/#{node['es']['sg_version']}/#{node['es']['sg_zip']}/#{node['es']['sg_version']}-#{node['es']['sg_zip']}.zip"
 end
 
-elasticsearch_plugin 'com.floragunn:search-guard-7:7.3.1-36.1.0' do
-  plugin_name 'com.floragunn:search-guard-7:7.3.1-36.1.0'
+elasticsearch_plugin "com.floragunn:#{node['es']['sg_version']}:#{node['es']['sg_zip']}" do
+  plugin_name "com.floragunn:#{node['es']['sg_version']}:#{node['es']['sg_zip']}"
   # The documentation says this is true by default, but the code disagrees.
   # https://github.com/elastic/cookbook-elasticsearch/issues/663
   chef_proxy true
   options '-b'
-  url 'file:/tmp/search-guard-7-7.3.1-36.1.0.zip'
-  not_if "/usr/share/elasticsearch/bin/elasticsearch-plugin list | grep search-guard-7"
+  url "file:/tmp/#{node['es']['sg_version']}-#{node['es']['sg_zip']}.zip"
+  not_if "/usr/share/elasticsearch/bin/elasticsearch-plugin list | grep #{node['es']['sg_version']}"
   notifies :restart, 'elasticsearch_service[elasticsearch]', :delayed
 end
 
 # Install SearchGuard TLS Tool
 # https://github.com/floragunncom/search-guard-tlstool
 # https://search-guard.com/generating-certificates-tls-tool/
-remote_file '/usr/share/elasticsearch/plugins/search-guard-7/search-guard-tlstool-1.7.tar.gz' do
-  checksum '284492779edf037348375994a0f320cc1425bda149d56c3db0031014241e7110'
+remote_file "/usr/share/elasticsearch/plugins/#{node['es']['sg_version']}/search-guard-tlstool-#{node['es']['sg_tls']}" do
+  checksum node['es']['sg_tls_sum']
   source 'https://search.maven.org/remotecontent?filepath=com/floragunn/search-guard-tlstool/1.7/search-guard-tlstool-1.7.tar.gz'
 end
 
 execute 'extract search-guard-tlstool-1.7.tar.gz' do
   command 'tar xzvf search-guard-tlstool-1.7.tar.gz'
-  cwd '/usr/share/elasticsearch/plugins/search-guard-7'
+  cwd "/usr/share/elasticsearch/plugins/#{node['es']['sg_version']}"
 end
 
 execute 'make SGtlsTool scripts executable' do 
   command 'chmod +x tools/*'
-  cwd '/usr/share/elasticsearch/plugins/search-guard-7'
+  cwd "/usr/share/elasticsearch/plugins/#{node['es']['sg_version']}"
 end
 
 # add login.gov specific configuration
-template '/usr/share/elasticsearch/plugins/search-guard-7/config/login.gov.yml' do
+template "/usr/share/elasticsearch/plugins/#{node['es']['sg_version']}/config/login.gov.yml" do
   source 'search-guard-ssl-login.gov.yml.erb'
 end
 
@@ -160,6 +159,8 @@ end
 
 # NOTE: refactor using service discovery cookbook helpers
 # Download CA and intermediate key pairs from s3 bucket if they exist
+aws_account_id = AwsMetadata.get_aws_account_id
+
 s3_cert_url = "s3://login-gov.internal-certs.#{aws_account_id}-us-west-2/#{node.chef_environment}/elasticsearch/"
 
 file_list = %w(root-ca.key root-ca.pem signing-ca.key signing-ca.pem issuer.pem)
@@ -175,7 +176,7 @@ end
 # generate key pairs if they do not already exist
 execute 'generate CA, intermediate, node, admin, and user key pairs' do
   command './tools/sgtlstool.sh -c config/login.gov.yml -t /etc/elasticsearch -ca -crt'
-  cwd '/usr/share/elasticsearch/plugins/search-guard-7'
+  cwd "/usr/share/elasticsearch/plugins/#{node['es']['sg_version']}"
   not_if { ::File.exist?('/etc/elasticsearch/root-ca.pem') }
 end
 
@@ -194,7 +195,7 @@ end
 # Or generate a new node key pair if the root and intermediate key pairs have already been created
 execute 'generate node key pair' do
   command './tools/sgtlstool.sh -c config/login.gov.yml -crt -t /etc/elasticsearch'
-  cwd '/usr/share/elasticsearch/plugins/search-guard-7'
+  cwd "/usr/share/elasticsearch/plugins/#{node['es']['sg_version']}"
   only_if { ::File.exist?('/etc/elasticsearch/root-ca.pem') }
   not_if { ::File.exist?("/etc/elasticsearch/#{node.fetch('ipaddress')}.pem") }
 end
@@ -261,7 +262,7 @@ execute 'import root-ca into jks truststore' do
 end
 
 execute 'run sgadmin' do
-  command "/usr/share/elasticsearch/plugins/search-guard-7/tools/sgadmin.sh \
+  command "/usr/share/elasticsearch/plugins/#{node['es']['sg_version']}/tools/sgadmin.sh \
     -cd /etc/elasticsearch/sgadmin/ \
     -ks admin.jks \
     -kspass not-a-secret \
@@ -271,7 +272,7 @@ execute 'run sgadmin' do
   cwd '/etc/elasticsearch'
 end
 
-execute "/usr/share/elasticsearch/plugins/search-guard-7/tools/sgadmin.sh \
+execute "/usr/share/elasticsearch/plugins/#{node['es']['sg_version']}/tools/sgadmin.sh \
    -cd /etc/elasticsearch/sgadmin/ \
    -cacert /etc/elasticsearch/root-ca.pem \
    -cert /etc/elasticsearch/admin.pem \

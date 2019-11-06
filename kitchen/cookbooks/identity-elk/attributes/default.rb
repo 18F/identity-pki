@@ -3,7 +3,11 @@
 # instances.  This is because the auto scaled instances are behind an ELB so
 # that they can be dynamically created and destroyed, while the non auto scaled
 # instances get explicitly added to a DNS record by terraform.
-default['es']['domain'] = "elasticsearch.login.gov.internal"
+default['es']['domain'] = 'elasticsearch.login.gov.internal'
+default['es']['sg_version'] = 'search-guard-7'
+default['es']['sg_zip'] = '7.3.1-36.1.0'
+default['es']['sg_zip_sum'] = '640c664b7cf73a5f84e1fcc60f2fb4faf9a9085ae59c237894db87698201729f'
+default['es']['sg_tls_sum'] = '284492779edf037348375994a0f320cc1425bda149d56c3db0031014241e7110'
 
 # logfiles to watch
 default['elk']['filebeat']['logfiles'] = [
