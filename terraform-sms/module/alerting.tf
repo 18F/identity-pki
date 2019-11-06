@@ -108,7 +108,7 @@ resource "aws_cloudwatch_metric_alarm" "pinpoint_temporary_errors" {
 
   dimensions = {
     Channel = "SMS"
-    ApplicationID = "${aws_pinpoint_app.main.application_id}"
+    ApplicationId = "${aws_pinpoint_app.main.application_id}"
   }
 
   statistic = "Sum"
@@ -130,7 +130,7 @@ resource "aws_cloudwatch_metric_alarm" "pinpoint_permanent_errors" {
 
   dimensions = {
     Channel = "SMS"
-    ApplicationID = "${aws_pinpoint_app.main.application_id}"
+    ApplicationId = "${aws_pinpoint_app.main.application_id}"
   }
 
   statistic = "Sum"
@@ -152,7 +152,7 @@ resource "aws_cloudwatch_metric_alarm" "pinpoint_throttled_errors" {
 
   dimensions = {
     Channel = "SMS"
-    ApplicationID = "${aws_pinpoint_app.main.application_id}"
+    ApplicationId = "${aws_pinpoint_app.main.application_id}"
   }
 
   statistic = "Sum"
