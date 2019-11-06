@@ -4,7 +4,7 @@ variable "rds_backup_window" { default = "08:00-08:34" }
 # aws_db_parameter_group, which has a family attribute that tightly couples its
 # parameter to the engine and version.
 variable "rds_engine" { default = "postgres" }
-variable "rds_engine_version" { default = "9.6.11" }
+variable "rds_engine_version" { default = "9.6.15" }
 variable "rds_engine_version_short" { default = "9.6" }
 variable "rds_instance_class" { default = "db.t2.large" }
 variable "rds_storage_type_idp" {
