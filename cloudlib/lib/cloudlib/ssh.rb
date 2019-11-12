@@ -9,7 +9,6 @@ module Cloudlib
     KnownHostsPath = File.expand_path('~/.ssh/known_hosts_cloudlib').freeze
     StrictHostKeyChecking = 'yes' # trust on first use
     JumphostName = 'jumphost'
-    Prod = 'prod'
 
     class SSHError < Cloudlib::Error; end
 
@@ -115,8 +114,7 @@ module Cloudlib
 
         if pkcs11_lib
           cmd += ['-I', pkcs11_lib]
-        elsif pkcs11_lib.nil? && name_tag.include?(Prod) \
-                              && ENV.key?('PKCS11_LIB')
+        elsif pkcs11_lib.nil? && ENV.key?('PKCS11_LIB')
           cmd += ['-I', ENV['PKCS11_LIB']]
         end
 
