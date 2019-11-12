@@ -4,8 +4,6 @@ resource "aws_db_instance" "idp" {
   backup_retention_period = "${var.rds_backup_retention_period}"
   backup_window = "${var.rds_backup_window}"
   db_subnet_group_name = "${aws_db_subnet_group.default.id}"
-  # TODO: these deps prevent cleanly destroying an RDS instance, and they should probably be removed
-  depends_on = ["aws_security_group.db", "aws_subnet.db1", "aws_subnet.db2", "aws_db_parameter_group.force_ssl"]
   engine = "${var.rds_engine}"
   engine_version = "${var.rds_engine_version}"
   identifier = "${var.name}-${var.env_name}-idp"
@@ -23,7 +21,6 @@ resource "aws_db_instance" "idp" {
   allow_major_version_upgrade = true
 
   tags {
-    client = "${var.client}"
     Name = "${var.name}-${var.env_name}"
   }
 
@@ -57,6 +54,50 @@ resource "aws_db_instance" "idp" {
 
 output "idp_db_endpoint" {
   value = "${aws_db_instance.idp.endpoint}"
+}
+
+# Optional read replica of the primary idp database
+resource "aws_db_instance" "idp-read-replica" {
+  count = "${var.enable_rds_idp_read_replica ? 1 : 0}"
+  replicate_source_db = "${aws_db_instance.idp.id}"
+
+  identifier = "${var.env_name}-idp-replica"
+
+  tags {
+    Name = "${var.env_name}-idp-replica"
+    description = "Read replica of idp database"
+  }
+
+  engine = "${var.rds_engine}"
+  instance_class = "${var.rds_instance_class_replica}"
+
+  multi_az = false
+
+  allow_major_version_upgrade = true
+  parameter_group_name = "${aws_db_parameter_group.force_ssl.name}"
+
+  apply_immediately = true
+  maintenance_window = "${var.rds_maintenance_window}"
+  storage_encrypted = true
+  username = "${var.rds_username}"
+  storage_type = "${var.rds_storage_type_idp}"
+  iops = "${var.rds_iops_idp_replica}"
+
+  # enhanced monitoring
+  monitoring_interval = "${var.rds_enhanced_monitoring_enabled ? 60 : 0}"
+  monitoring_role_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.rds_monitoring_role_name}"
+
+  vpc_security_group_ids = ["${aws_security_group.db.id}"]
+
+  # send logs to cloudwatch
+  enabled_cloudwatch_logs_exports = ["postgresql"]
+}
+
+output "idp_db_endpoint_replica" {
+  # This weird element() stuff is so we can refer to these attributes even
+  # when the resource has count=0. Reportedly this hack will not
+  # be necessary in TF 0.12.
+  value = "${element(concat(aws_db_instance.idp-read-replica.*.endpoint, list("")), 0)}"
 }
 
 resource "aws_db_parameter_group" "force_ssl" {
