@@ -3,4 +3,4 @@ source 'https://supermarket.chef.io'
 metadata
 
 cookbook 'canonical_hostname', path: '../canonical_hostname'
-cookbook 'aws_metadata', path: '../aws_metadata'
+cookbook 'aws_metadata'

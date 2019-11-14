@@ -3,6 +3,9 @@
   "description": "",
   "json_class": "Chef::Role",
   "default_attributes": {
+    "config_loader": {
+      "bucket_prefix": "login-gov.secrets"
+    },
     "authorization": {
       "sudo": {
         "groups": [

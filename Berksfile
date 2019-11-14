@@ -43,11 +43,9 @@ end
 
 # Vendored cookbooks. This should include everything in kitchen/cookbooks except for cookbook_example
 cookbook 'identity-outboundproxy', path: prefixed('kitchen/cookbooks/identity-outboundproxy')
-cookbook 'aws_metadata', path: prefixed('kitchen/cookbooks/aws_metadata')
 cookbook 'aws_s3', path: prefixed('kitchen/cookbooks/aws_s3')
 cookbook 'canonical_hostname', path: prefixed('kitchen/cookbooks/canonical_hostname')
 cookbook 'chef_proxy_env', path: prefixed('kitchen/cookbooks/chef_proxy_env')
-cookbook 'config_loader', path: prefixed('kitchen/cookbooks/config_loader')
 cookbook 'identity-elk', path: prefixed('kitchen/cookbooks/identity-elk')
 cookbook 'identity-jumphost', path: prefixed('kitchen/cookbooks/identity-jumphost')
 cookbook 'identity-nessus', path: prefixed('kitchen/cookbooks/identity-nessus')
@@ -61,8 +59,10 @@ cookbook 'identity-monitoring', path: prefixed('kitchen/cookbooks/identity-monit
 # When updating this gitref, you MUST also run `berks update` and commit
 # the changes to Berksfile.lock. Otherwise the old gitref will continue to be
 # used by Chef.
-IdentityCookbooksRef = 'e5dae698512b7b67794e9fa4b36f0cecda800368'
+IdentityCookbooksRef = 'f09e2e9784bb422873ac9426b59a90a5a270de7f'
+cookbook 'aws_metadata', '>= 0.2.0', git: 'https://github.com/18F/identity-cookbooks', rel: 'aws_metadata', ref: IdentityCookbooksRef
 cookbook 'cloudhsm', '>= 0.0.7', git: 'https://github.com/18F/identity-cookbooks', rel: 'cloudhsm', ref: IdentityCookbooksRef
+cookbook 'config_loader', '>= 0.2.2', git: 'https://github.com/18F/identity-cookbooks', rel: 'config_loader', ref: IdentityCookbooksRef
 cookbook 'identity_base_config', '>= 0.1.2', git: 'https://github.com/18F/identity-cookbooks', rel: 'identity_base_config', ref: IdentityCookbooksRef
 cookbook 'identity_shared_attributes', '>= 0.1.2', git: 'https://github.com/18F/identity-cookbooks', rel: 'identity_shared_attributes', ref: IdentityCookbooksRef
 cookbook 'passenger', git: 'https://github.com/18F/identity-cookbooks', rel: 'passenger', ref: IdentityCookbooksRef
