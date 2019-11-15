@@ -15,7 +15,9 @@
       "branch_name": "stages/sgrow"
     },
     "login_dot_gov": {
-      "branch_name": "stages/sgrow"
+      "branch_name": "stages/sgrow",
+      "idp_run_migrations": true,
+      "idp_migrations_ignore_failure": false
     }
   },
   "override_attributes": {
