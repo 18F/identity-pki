@@ -9,10 +9,10 @@ describe service('ssh') do
   it { should be_running }
 end
 
-# ensure that node.js v8.* is installed
+# ensure that node.js v12.* is installed
 describe command('node --version') do
   its('exit_status') { should eq 0 }
-  its('stdout') { should start_with('v8.') }
+  its('stdout') { should start_with('v12.') }
 end
 
 # check that passenger is installed and running

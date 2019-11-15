@@ -6,7 +6,7 @@
 # what bits were actually installed. Aptly https://www.aptly.info/ looks like a
 # really good tool for doing this.
 
-node_version = '8.x'
+node_version = '12.x'
 
 apt_package 'apt-transport-https'
 
