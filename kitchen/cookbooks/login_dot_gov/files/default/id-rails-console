@@ -1,0 +1,68 @@
+#!/bin/bash
+set -eu
+
+app=idp
+APP_USER="${APP_USER-websrv}"
+missing_keys=0
+
+ENV_VARS=("app=$app")
+
+# Pass through ALLOW_CONSOLE_DB_WRITE_ACCESS, if set
+if [ -n "${ALLOW_CONSOLE_DB_WRITE_ACCESS-}" ]; then
+    ENV_VARS=(
+        "${ENV_VARS[@]}"
+        "ALLOW_CONSOLE_DB_WRITE_ACCESS=$ALLOW_CONSOLE_DB_WRITE_ACCESS"
+    )
+fi
+
+
+usage() {
+    cat >&2 <<EOM
+usage: $(basename "$0") [APP]
+
+Run a Rails console for APP (default "idp"). 
+
+This involves using sudo to change to the app service user, default $APP_USER.
+(Override by setting APP_USER). You will be prompted to provide a justification
+for creating this console, which will be recorded in the <%= @channel %>
+channel in Slack.
+
+If the env variable ALLOW_CONSOLE_DB_WRITE_ACCESS is set, it will be passed
+through to the Rails console.
+EOM
+}
+
+if [ $# -ge 1 ]; then
+    case "$1" in
+        -h|--help)
+            usage
+            exit
+            ;;
+        *)
+            app="$1"
+            ;;
+    esac
+fi
+
+while true; do
+    read -r -p "Please provide an explanation for this Rails console: " USE_CASE
+    if [ ! -z "$USE_CASE" ]; then
+        break
+    fi
+done
+USE_CASE=$(echo $USE_CASE | sed 's/"/\\\"/g;s/\&/\&amp\;/g;s/</\&lt\;/g;s/>/\&gt\;/g')
+
+CHANNEL=$(cat /etc/login.gov/keys/slackchannel) || ((missing_keys++))
+WEBHOOK=$(cat /etc/login.gov/keys/slackwebhook) || ((missing_keys++))
+if [ ${missing_keys} -gt 0 ]; then
+    echo 'Slack channel/webhook missing! Verify files and run Chef to repopulate.'
+    exit 1
+fi
+
+TEXT=':rails: _rails console_ :rails: for `'"$(logname)"'` on `'"$(hostname)"'` :\n*'"${USE_CASE}"'*'
+PAYLOAD='payload={"channel": "'"${CHANNEL}"'", "username": "id-rails-console", "text": "'"${TEXT}"'", "icon_emoji": ":dopetopus:"}'
+curl -X POST --data-urlencode "${PAYLOAD}" $WEBHOOK
+
+set -x
+
+exec sudo -H -u "$APP_USER" env "${ENV_VARS[@]}" sh -euxc "cd '/srv/$app/current'; bundle exec rails c"

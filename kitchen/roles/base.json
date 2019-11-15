@@ -40,6 +40,7 @@
     "recipe[hostname]",
     "recipe[motd]",
     "recipe[identity_base_config]",
+    "recipe[login_dot_gov::common_scripts]",
     "recipe[ssh-keys]",
     "recipe[sudo]",
     "recipe[identity-elk::logcleanup]",
