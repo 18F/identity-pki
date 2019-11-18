@@ -17,7 +17,7 @@
     "login_dot_gov": {
       "branch_name": "stages/sgrow",
       "idp_run_migrations": true,
-      "idp_migrations_ignore_failure": false
+      "allow_unsafe_migrations": true
     }
   },
   "override_attributes": {
