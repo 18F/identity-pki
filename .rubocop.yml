@@ -110,6 +110,10 @@ Style/LineEndConcatenation:
 Style/RedundantSelf:
   Enabled: false
 
+# wrong
+Style/StderrPuts:
+  Enabled: false
+
 # __FILE__ == $0 is idiomatic, not backwards
 Style/YodaCondition:
   Exclude:
