@@ -124,6 +124,6 @@ resource "aws_iam_role" "appdev" {
 }
 
 resource "aws_iam_role_policy_attachment" "appdev1" {
-    role = "${aws_iam_role.power.name}"
+    role = "${aws_iam_role.appdev.name}"
     policy_arn = "${aws_iam_policy.appdev1.arn}"
 }
