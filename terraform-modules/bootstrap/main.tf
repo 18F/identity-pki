@@ -66,7 +66,7 @@ variable "override_asg_name" {
 }
 
 locals {
-    "asg_name" = "${var.override_asg_name != "" ? var.override_asg_name : "${var.env}-${var.role}"}"
+    asg_name = "${var.override_asg_name != "" ? var.override_asg_name : "${var.env}-${var.role}"}"
 }
 
 locals {

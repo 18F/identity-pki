@@ -1,6 +1,6 @@
 provider "aws" {
   region = "${var.region}"
-  version = "~> 1.60"
+  version = "~> 2.37.0"
 }
 
 provider "aws" {
@@ -14,8 +14,8 @@ provider "aws" {
 }
 
 provider "external" { version = "~> 1.0" }
-provider "null"     { version = "~> 1.0" }
-provider "template" { version = "~> 1.0" }
+provider "null"     { version = "~> 2.1.2" }
+provider "template" { version = "~> 2.1.2" }
 
 # Stub remote config needed for terraform 0.9.*
 terraform {
@@ -23,7 +23,7 @@ terraform {
   }
 
   # Allowed terraform version
-  required_version = "~> 0.11.7"
+  # required_version = "~> 0.12.15"
 }
 
 # This policy can be used to allow the EC2 service to assume the role.
@@ -33,7 +33,7 @@ data "aws_iam_policy_document" "assume_role_from_vpc" {
     actions = [
       "sts:AssumeRole"
     ]
-    principals = {
+    principals {
       type = "Service"
       identifiers = ["ec2.amazonaws.com"]
     }
