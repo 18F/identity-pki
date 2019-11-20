@@ -27,12 +27,12 @@ module "elk_user_data" {
 }
 
 module "elk_lifecycle_hooks" {
-  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=2c43bfd79a8a2377657bc8ed4764c3321c0f8e80"
+  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=1db3ba569822d7803f2f6701fab5bc3242e2bb36"
   asg_name = aws_autoscaling_group.elk.name
 }
 
 module "elk_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=d1402b5b98174e9a8aa23f1be05b2a8e39223fd4"
+  source = "github.com/18F/identity-terraform//launch_template?ref=1db3ba569822d7803f2f6701fab5bc3242e2bb36"
 
   role           = "elk"
   env            = var.env_name

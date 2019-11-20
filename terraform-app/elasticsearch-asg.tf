@@ -60,7 +60,7 @@ module "elasticsearch_launch_template" {
 }
 
 module "elasticsearch_lifecycle_hooks" {
-  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=2c43bfd79a8a2377657bc8ed4764c3321c0f8e80"
+  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=1db3ba569822d7803f2f6701fab5bc3242e2bb36"
   asg_name = aws_autoscaling_group.elasticsearch.name
 }
 
