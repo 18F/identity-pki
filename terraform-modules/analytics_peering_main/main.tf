@@ -24,11 +24,11 @@ variable "enabled" {
  *  Establish VPC peering connection between primary/main and secondary(Analytics) VPCs
  **/
 resource "aws_vpc_peering_connection" "main_to_analytics" {
-    count = "${var.enabled}"
+    count = var.enabled
 
-    peer_owner_id = "${data.aws_caller_identity.current.account_id}" # This will be analytics account ID in the future
-    peer_vpc_id   = "${var.analytics_vpc_id}"
-    vpc_id        = "${var.main_vpc_id}"
+    peer_owner_id = data.aws_caller_identity.current.account_id # This will be analytics account ID in the future
+    peer_vpc_id   = var.analytics_vpc_id
+    vpc_id        = var.main_vpc_id
 
     # TODO: change when analytics moves to different account
     auto_accept = true
@@ -44,10 +44,10 @@ resource "aws_vpc_peering_connection" "main_to_analytics" {
 * Route packets from main to analytics through our VPC peering connection.
 **/
 resource "aws_route" "analytics_to_prod" {
-    count = "${var.enabled}"
+    count = var.enabled
 
-    route_table_id            = "${var.main_route_table_id}"
-    destination_cidr_block    = "${var.analytics_cidr_block}"
+    route_table_id            = var.main_route_table_id
+    destination_cidr_block    = var.analytics_cidr_block
     vpc_peering_connection_id = aws_vpc_peering_connection.main_to_analytics[0].id
 }
 
