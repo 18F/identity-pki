@@ -34,7 +34,7 @@ variable "main_git_clone_url" {
 }
 variable "main_git_ref_map" {
     description = "Mapping from role to the git ref to check out after cloning main_git_clone_url"
-    type = "map"
+    type = map
     default = {}
 }
 variable "main_git_ref_default" {
@@ -51,7 +51,7 @@ variable "no_proxy_hosts" {
     description = "Comma delimited list of hostnames, ip's and domains that should not use outbound proxy"
 }
 variable "proxy_enabled_roles" {
-    type = "map"
+    type = map
     description = "Mapping from role names to integer {0,1} for whether the outbound proxy server is enabled during bootstrapping."
 }
 

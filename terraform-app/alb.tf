@@ -29,7 +29,7 @@ locals {
 
 # Create a TLS certificate with ACM
 module "acm-cert-idp" {
-  source                    = "github.com/18F/identity-terraform//acm_certificate?ref=623dcf5201d2909c43f21f5bf80e72aa345cfe18"
+  source                    = "github.com/18F/identity-terraform//acm_certificate?ref=e5857113c460c7c085b88c8948b28798d6f17935"
   enabled                   = var.alb_enabled * var.acm_certs_enabled
   domain_name               = local.idp_domain_name
   subject_alternative_names = [local.idp_subject_alt_names]

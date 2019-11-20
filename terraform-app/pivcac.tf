@@ -27,7 +27,7 @@ module "pivcac_user_data" {
 }
 
 module "pivcac_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=623dcf5201d2909c43f21f5bf80e72aa345cfe18"
+  source = "github.com/18F/identity-terraform//launch_template?ref=e5857113c460c7c085b88c8948b28798d6f17935"
 
   role           = "pivcac"
   env            = var.env_name
@@ -47,13 +47,13 @@ module "pivcac_launch_template" {
 }
 
 module "pivcac_lifecycle_hooks" {
-  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=623dcf5201d2909c43f21f5bf80e72aa345cfe18"
+  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=e5857113c460c7c085b88c8948b28798d6f17935"
   asg_name = element(concat(aws_autoscaling_group.pivcac.*.name, [""]), 0)
   enabled  = var.pivcac_service_enabled
 }
 
 module "pivcac_recycle" {
-  source = "github.com/18F/identity-terraform//asg_recycle?ref=623dcf5201d2909c43f21f5bf80e72aa345cfe18"
+  source = "github.com/18F/identity-terraform//asg_recycle?ref=e5857113c460c7c085b88c8948b28798d6f17935"
 
   # switch to count when that's a thing that we can do
   # https://github.com/hashicorp/terraform/issues/953
