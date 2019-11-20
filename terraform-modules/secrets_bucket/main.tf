@@ -1,7 +1,7 @@
 data "aws_caller_identity" "current" {}
 
 locals {
-  "bucket_name" = "${var.bucket_name_prefix}.${var.secrets_bucket_type}.${data.aws_caller_identity.current.account_id}-${var.region}"
+  bucket_name = "${var.bucket_name_prefix}.${var.secrets_bucket_type}.${data.aws_caller_identity.current.account_id}-${var.region}"
 }
 
 resource "aws_s3_bucket" "secrets" {

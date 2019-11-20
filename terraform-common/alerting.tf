@@ -13,7 +13,8 @@ resource "aws_sns_topic" "devops_high_priority" {
 // May do nothing after 20181219, but better to have it documented here in case
 // we buy it again.
 resource "aws_sns_topic_subscription" "opsgenie_devops_high" {
-  topic_arn = "${aws_sns_topic.devops_high_priority.arn}"
+  topic_arn = aws_sns_topic.devops_high_priority.arn
   protocol  = "https"
   endpoint  = "https://api.opsgenie.com/v1/json/cloudwatch?apiKey=a0afabc6-eca0-477d-b05a-0e6dc6990729"
 }
+

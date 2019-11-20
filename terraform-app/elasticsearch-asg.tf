@@ -27,7 +27,7 @@ module "elasticsearch_user_data" {
 }
 
 module "elasticsearch_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=a74f41d1549e79c0323e143e9ce33e85b2cbf50a"
+  source = "github.com/18F/identity-terraform//launch_template?ref=207a7bb24e4b592f28f7c81b6218cf0d5e557a91"
 
   role           = "elasticsearch"
   env            = var.env_name

@@ -48,7 +48,7 @@ resource "aws_route" "analytics_to_prod" {
 
     route_table_id            = "${var.main_route_table_id}"
     destination_cidr_block    = "${var.analytics_cidr_block}"
-    vpc_peering_connection_id = "${aws_vpc_peering_connection.main_to_analytics.id}"
+    vpc_peering_connection_id = aws_vpc_peering_connection.main_to_analytics[0].id
 }
 
 # TODO: Add NACLs and SGs?
