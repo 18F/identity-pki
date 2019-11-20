@@ -1,0 +1,12 @@
+---
+filebeat.config_dir: <% @config_dir %>
+
+output.logstash.hosts:
+<% @logstash_hosts.each do |hosts| -%>
+<%= "- #{hosts}" -%>
+<% end -%>
+
+output.logstash.ssl.certificate_authorities:
+<% @logstash_ssl_certificate_authorities.each do |ca| -%>
+<%= "- #{ca}" -%>
+<% end -%>
