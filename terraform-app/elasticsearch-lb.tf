@@ -4,11 +4,23 @@ resource "aws_lb" "elasticsearch" {
   load_balancer_type = "network"
   subnets            = ["${aws_subnet.elasticsearch.*.id}"]
 
-  access_logs {
-    bucket        = "login-gov.elasticsearch-lb-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
-    prefix = "${var.env_name}/elasticsearch"
-    enabled      = true
-  }
+
+  # Access logs are not enabled because AWS only emits them when there is a TLS
+  # listener, which we don't have.
+  # https://docs.aws.amazon.com/elasticloadbalancing/latest/network/load-balancer-access-logs.html
+  #
+  # > Access logs are created only if the load balancer has a TLS listener and
+  # > they contain information only about TLS requests.
+  #
+  # NLBs also require different permissions from ELB or ALB for log delivery,
+  # so we would need to modify the permissions on elb-logs or use a different
+  # bucket.
+  #
+  #access_logs {
+  #  bucket = "login-gov.elb-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+  #  prefix = "${var.env_name}/elasticsearch"
+  #  enabled = false
+  #}
 
   tags {
     Name = "elasticsearch-lb"
