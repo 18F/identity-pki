@@ -84,7 +84,7 @@ resource "aws_autoscaling_group" "migration" {
 
   # Migration servers never serve production traffic, so are not protected
   # from scale-in.
-  protect_from_scale_in = 0
+  protect_from_scale_in = false
 
   enabled_metrics = var.asg_enabled_metrics
 
