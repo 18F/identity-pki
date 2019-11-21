@@ -69,6 +69,7 @@ resource "aws_db_instance" "idp-read-replica" {
   }
 
   engine = "${var.rds_engine}"
+  engine_version = "${var.rds_engine_version_replica}"
   instance_class = "${var.rds_instance_class_replica}"
 
   multi_az = false
