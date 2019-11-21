@@ -1,6 +1,6 @@
 # cloudwatch dashboard for IDP
 module "idp_dashboard" {
-  source = "github.com/18F/identity-terraform//cloudwatch_dashboard_alb?ref=e5857113c460c7c085b88c8948b28798d6f17935"
+  source = "github.com/18F/identity-terraform//cloudwatch_dashboard_alb?ref=a02e8ecfd4c6e952ad6a8958158a4b455807fa2e"
 
   enabled = var.alb_enabled
 
@@ -33,7 +33,7 @@ output "idp_dashboard_arn" {
 }
 
 module "rds_dashboard_idp" {
-  source = "github.com/18F/identity-terraform//cloudwatch_dashboard_rds?ref=e5857113c460c7c085b88c8948b28798d6f17935"
+  source = "github.com/18F/identity-terraform//cloudwatch_dashboard_rds?ref=a02e8ecfd4c6e952ad6a8958158a4b455807fa2e"
 
   dashboard_name = "${var.env_name}-RDS-idp"
 
@@ -46,7 +46,7 @@ module "rds_dashboard_idp" {
 }
 
 module "elb_http_alerts" {
-  source = "github.com/18F/identity-terraform//elb_http_alerts?ref=e5857113c460c7c085b88c8948b28798d6f17935"
+  source = "github.com/18F/identity-terraform//elb_http_alerts?ref=a02e8ecfd4c6e952ad6a8958158a4b455807fa2e"
 
   env_name         = var.env_name
   load_balancer_id = aws_alb.idp[0].id

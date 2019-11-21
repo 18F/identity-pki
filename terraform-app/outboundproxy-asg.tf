@@ -67,7 +67,7 @@ resource "aws_iam_role_policy" "obproxy-auto-eip" {
 }
 
 module "outboundproxy_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=e5857113c460c7c085b88c8948b28798d6f17935"
+  source = "github.com/18F/identity-terraform//launch_template?ref=a02e8ecfd4c6e952ad6a8958158a4b455807fa2e"
 
   role           = "outboundproxy"
   env            = var.env_name
@@ -86,12 +86,12 @@ module "outboundproxy_launch_template" {
 }
 
 module "obproxy_lifecycle_hooks" {
-  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=e5857113c460c7c085b88c8948b28798d6f17935"
+  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=a02e8ecfd4c6e952ad6a8958158a4b455807fa2e"
   asg_name = aws_autoscaling_group.outboundproxy.name
 }
 
 module "outboundproxy_recycle" {
-  source = "github.com/18F/identity-terraform//asg_recycle?ref=e5857113c460c7c085b88c8948b28798d6f17935"
+  source = "github.com/18F/identity-terraform//asg_recycle?ref=a02e8ecfd4c6e952ad6a8958158a4b455807fa2e"
 
   # switch to count when that's a thing that we can do
   # https://github.com/hashicorp/terraform/issues/953
@@ -162,7 +162,7 @@ resource "aws_autoscaling_group" "outboundproxy" {
 # total requests and denied requests. It also creates an alarm on denied
 # requests that notifies to the specified alarm SNS ARN.
 module "outboundproxy_cloudwatch_filters" {
-  source = "github.com/18F/identity-terraform//squid_cloudwatch_filters?ref=e5857113c460c7c085b88c8948b28798d6f17935"
+  source = "github.com/18F/identity-terraform//squid_cloudwatch_filters?ref=a02e8ecfd4c6e952ad6a8958158a4b455807fa2e"
 
   env_name      = var.env_name
   alarm_actions = [var.slack_events_sns_hook_arn] # notify slack on denied requests
