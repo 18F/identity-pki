@@ -17,8 +17,6 @@ terraform {
   backend "s3" {
   }
 
-  # allowed terraform version
-  required_version = "~> 0.11.7"
 }
 
 module "main" {
