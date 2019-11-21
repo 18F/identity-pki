@@ -58,6 +58,6 @@ resource "aws_network_acl_rule" "ingress-tcp-ssh-cidr-blocks" {
   protocol = "tcp"
   from_port = 22
   to_port = 22
-  cidr_block = element(var.ssh_cidr_blocks, count.index)
+  cidr_block = var.ssh_cidr_blocks[count.index]
   rule_action = "allow"
 }

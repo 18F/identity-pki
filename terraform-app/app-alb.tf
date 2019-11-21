@@ -10,7 +10,7 @@ resource "aws_alb" "app" {
     enabled = true
   }
 
-  enable_deletion_protection = var.enable_deletion_protection
+  enable_deletion_protection = var.enable_deletion_protection == 1 ? true : false
 }
 
 resource "aws_alb_listener" "app" {

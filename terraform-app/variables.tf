@@ -511,7 +511,7 @@ locals {
   high_priority_alarm_actions = [
     split(
       ",",
-      var.page_devops ? join(
+      var.page_devops == 1 ? join(
         ",",
         [var.high_priority_sns_hook, var.slack_events_sns_hook_arn],
       ) : join(",", [var.slack_events_sns_hook_arn]),

@@ -52,10 +52,10 @@ data "aws_iam_policy_document" "kms" {
     ]
     principals {
       type        = "AWS"
-      identifiers = [
-        aws_iam_role.idp.arn,
-        concat(var.db_restore_role_arns)
-      ]
+      identifiers = concat(
+        [aws_iam_role.idp.arn],
+        var.db_restore_role_arns
+      )
     }
     resources = [
       "*",

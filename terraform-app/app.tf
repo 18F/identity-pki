@@ -25,7 +25,7 @@ resource "aws_db_instance" "default" {
   }
 
   # enhanced monitoring
-  monitoring_interval = var.rds_enhanced_monitoring_enabled ? 60 : 0
+  monitoring_interval = var.rds_enhanced_monitoring_enabled == 1 ? 60 : 0
   monitoring_role_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.rds_monitoring_role_name}"
 
   vpc_security_group_ids = [aws_security_group.db.id]
@@ -81,7 +81,7 @@ resource "aws_route53_record" "app_external" {
 }
 
 resource "aws_route53_record" "c_dash" {
-  count   = var.apps_enabled ? 1 : 0
+  count   = var.apps_enabled == 1 ? 1 : 0
   name    = "dashboard.${var.env_name}.${var.root_domain}"
   records = ["app.${var.env_name}.${var.root_domain}"]
   ttl     = "300"
