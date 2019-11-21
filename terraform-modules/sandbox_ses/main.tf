@@ -22,24 +22,24 @@ variable "enabled" {
 }
 
 resource "aws_ses_receipt_rule" "admin-at" {
-    count = "${var.enabled}"
+    count = var.enabled
 
     name          = "admin-at-store"
-    rule_set_name = "${var.rule_set_name}"
+    rule_set_name = var.rule_set_name
     recipients    = ["admin@${var.domain}"]
     enabled       = true
     scan_enabled  = true
     tls_policy    = "Require"
 
     s3_action {
-        bucket_name = "${var.email_bucket}"
+        bucket_name = var.email_bucket
         object_key_prefix = "${var.email_bucket_prefix}admin-at/"
         position = 1
     }
 
     sns_action {
         position = 2
-        topic_arn="${aws_sns_topic.admin-at.arn}"
+        topic_arn = aws_sns_topic.admin-at[count.index].arn
     }
 
     stop_action {
@@ -51,16 +51,16 @@ resource "aws_ses_receipt_rule" "admin-at" {
 # you have to subscribe to this topic manually since aws_sns_topic_subscription
 # doesn't support the email protocol
 resource "aws_sns_topic" "admin-at" {
-    count = "${var.enabled}"
+    count = var.enabled
     name = "email_admin-at-identitysandbox-dot-gov"
 }
 
 resource "aws_ses_receipt_rule" "drop-no-reply" {
-    count = "${var.enabled}"
+    count = var.enabled
 
     name          = "drop-no-reply"
-    rule_set_name = "${var.rule_set_name}"
-    after = "${aws_ses_receipt_rule.admin-at.name}"
+    rule_set_name = var.rule_set_name
+    after = aws_ses_receipt_rule.admin-at[count.index].name
     recipients    = ["no-reply@${var.domain}"]
     enabled       = true
     scan_enabled  = true
@@ -72,11 +72,11 @@ resource "aws_ses_receipt_rule" "drop-no-reply" {
 }
 
 resource "aws_ses_receipt_rule" "bounce-unknown" {
-    count = "${var.enabled}"
+    count = var.enabled
 
     name          = "bounce-unknown_mailboxes"
-    rule_set_name = "${var.rule_set_name}"
-    after = "${aws_ses_receipt_rule.drop-no-reply.name}"
+    rule_set_name = var.rule_set_name
+    after = aws_ses_receipt_rule.drop-no-reply[count.index].name
 
     # no recipients, so this is a catchall
 

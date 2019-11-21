@@ -49,7 +49,7 @@ resource "aws_s3_bucket" "shared" {
 #   login-gov.elb-logs.<ACCOUNT_ID>-<AWS_REGION>
 module "elb-logs" {
   # can't use variable for ref -- see https://github.com/hashicorp/terraform/issues/17994
-  source = "github.com/18F/identity-terraform//elb_access_logs_bucket?ref=62385b497f5b8dba2478be5759d53c1fb2353185"
+  source = "github.com/18F/identity-terraform//elb_access_logs_bucket?ref=f6f34ddcad06b29b87d2d8cc8fddd9d49ec23b61"
 
   region                     = var.region
   bucket_name_prefix         = "login-gov"

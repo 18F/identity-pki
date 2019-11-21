@@ -5,14 +5,14 @@ locals {
 }
 
 resource "aws_s3_bucket" "secrets" {
-  bucket = "${local.bucket_name}"
+  bucket = local.bucket_name
   acl    = "private"
-  force_destroy = "${var.force_destroy}"
+  force_destroy = var.force_destroy
 
   policy = ""
 
-  tags {
-    Name        = "${var.bucket_name_prefix}"
+  tags = {
+    Name        = var.bucket_name_prefix
     Environment = "All"
   }
 
@@ -21,7 +21,7 @@ resource "aws_s3_bucket" "secrets" {
   }
 
   logging {
-    target_bucket = "${var.logs_bucket}"
+    target_bucket = var.logs_bucket
     target_prefix = "${local.bucket_name}/"
   }
 
@@ -35,7 +35,7 @@ resource "aws_s3_bucket" "secrets" {
 }
 
 resource "aws_s3_bucket_public_access_block" "secrets" {
-  bucket = "${aws_s3_bucket.secrets.id}"
+  bucket = aws_s3_bucket.secrets.id
 
   block_public_acls       = true
   block_public_policy     = true
