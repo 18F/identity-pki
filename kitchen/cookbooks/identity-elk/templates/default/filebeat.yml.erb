@@ -1,5 +1,7 @@
 ---
-filebeat.config_dir: <% @config_dir %>
+filebeat.config.inputs:
+  enabled: true
+  path: inputs.d/*.yml
 
 output.logstash.hosts:
 <% @logstash_hosts.each do |hosts| -%>
@@ -9,4 +11,4 @@ output.logstash.hosts:
 output.logstash.ssl.certificate_authorities:
 <% @logstash_ssl_certificate_authorities.each do |ca| -%>
 <%= "- #{ca}" -%>
-<% end -%>
+<% end %>

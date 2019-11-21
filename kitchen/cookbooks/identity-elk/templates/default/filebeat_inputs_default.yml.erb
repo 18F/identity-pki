@@ -1,0 +1,6 @@
+---
+<% @logfiles.each do |logfile| -%>
+- type: log
+  paths:
+    - <%= logfile.fetch('path') %>
+<% end -%>
