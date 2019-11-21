@@ -3,14 +3,14 @@ module "version_info" {
 }
 
 provider "aws" {
-    region                 = "${var.version_info_region}"
+    region                 = var.version_info_region
     alias                  = "version_info"
 }
 
 resource "aws_s3_bucket_object" "version_info" {
-    provider               = "aws.version_info"
+    provider               = aws.version_info
     key                    = "terraform-analytics/version_info/${var.env_name}.txt"
-    bucket                 = "${var.version_info_bucket}"
+    bucket                 = var.version_info_bucket
     content                = <<EOF
 commit=${module.version_info.version_info["commit"]}
 branch=${module.version_info.version_info["branch"]}

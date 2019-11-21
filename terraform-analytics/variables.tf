@@ -1,7 +1,7 @@
 variable "env_name" {}
 
 variable "jumphost_cidr_block" {
-  type = "map"
+  type = map
 
   default = {
     dev     = "34.216.215.128/26"
