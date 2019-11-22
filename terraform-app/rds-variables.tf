@@ -16,12 +16,18 @@ variable "rds_backup_window" {
 # Changing engine or engine_version requires also changing any relevant uses of
 # aws_db_parameter_group, which has a family attribute that tightly couples its
 # parameter to the engine and version.
+
 variable "rds_engine" {
   default = "postgres"
 }
 
 variable "rds_engine_version" {
   default = "9.6.15"
+}
+
+variable "rds_engine_version_replica" {
+  default = "9.6.15"
+  description = "RDS requires that replicas be upgraded *before* primaries"
 }
 
 variable "rds_engine_version_short" {

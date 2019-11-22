@@ -76,6 +76,7 @@ _🌮 note: as tasks are completed, please create a separate comment.  This is t
   * [ ] Add the new team member to [AWS 18f-identity](https://18f-identity.signin.aws.amazon.com/console) account to IAM group `identity-power`
 * [ ] Add the new team member to DevOps LG infrastructure (Jumphost, ELK, outbound proxy)
 * [ ] Ask the new team member to create a GSA-dedicated [SSLMate account](https://sslmate.com/signup) and subscribe to updates on `login.gov` and `identitysandbox.gov`.
+* [ ] Add the new team member to [login.gov Statuspage.io](https://logingov.statuspage.io/) account
 
 ### For new Analytics team members only:
 * [ ] Add the new team member to [AWS 18f-identity-analytics](https://18f-identity-analytics.signin.aws.amazon.com/console) account to IAM group `identity-power`

@@ -1,13 +1,13 @@
 resource "aws_iam_policy" "full_administrator" {
-  name        = "FullAdministratorWithMFA"
+  name        = "FullAdministrator"
   path        = "/"
-  description = "Policy for full administrator with MFA"
+  description = "Policy for full administrator"
   policy      = data.aws_iam_policy_document.full_administrator.json
 }
 
 data "aws_iam_policy_document" "full_administrator" {
   statement {
-    sid    = "FullAdministratorWithMFA"
+    sid    = "FullAdministrator"
     effect = "Allow"
     actions = [
       "*",
@@ -15,13 +15,6 @@ data "aws_iam_policy_document" "full_administrator" {
     resources = [
       "*",
     ]
-    condition {
-      test     = "Bool"
-      variable = "aws:MultiFactorAuthPresent"
-      values = [
-        "true",
-      ]
-    }
   }
 }
 
@@ -80,7 +73,7 @@ data "aws_iam_policy_document" "rds_delete_prevent" {
 resource "aws_iam_policy" "power1" {
   name        = "Power1"
   path        = "/"
-  description = "Policy for power with MFA"
+  description = "Policy for power"
   policy      = data.aws_iam_policy_document.power1.json
 }
 
