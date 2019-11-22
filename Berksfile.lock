@@ -3,7 +3,10 @@ DEPENDENCIES
   application_ruby (~> 4.0.1)
   apt (~> 7.0)
   aws_metadata
-    path: kitchen/cookbooks/aws_metadata
+    git: https://github.com/18F/identity-cookbooks
+    revision: d85afdee6ad512b1d6a12f1dd46d872eb4e65bb3
+    ref: d85afde
+    rel: aws_metadata
   aws_s3
     path: kitchen/cookbooks/aws_s3
   bash-completion
@@ -18,11 +21,14 @@ DEPENDENCIES
     revision: 7007851c91e1404a43f1c914471a2d6c817eea8e
   cloudhsm
     git: https://github.com/18F/identity-cookbooks
-    revision: eee85db18f5a50b26d095b74103b61546c511730
-    ref: eee85db
+    revision: d85afdee6ad512b1d6a12f1dd46d872eb4e65bb3
+    ref: d85afde
     rel: cloudhsm
   config_loader
-    path: kitchen/cookbooks/config_loader
+    git: https://github.com/18F/identity-cookbooks
+    revision: d85afdee6ad512b1d6a12f1dd46d872eb4e65bb3
+    ref: d85afde
+    rel: config_loader
   deploy_resource (~> 1.0)
   elasticsearch (~> 4.2.0)
   elasticsearch-curator (~> 0.3.0)
@@ -43,13 +49,13 @@ DEPENDENCIES
     path: kitchen/cookbooks/identity-pivcac
   identity_base_config
     git: https://github.com/18F/identity-cookbooks
-    revision: e5dae698512b7b67794e9fa4b36f0cecda800368
-    ref: e5dae69
+    revision: d85afdee6ad512b1d6a12f1dd46d872eb4e65bb3
+    ref: d85afde
     rel: identity_base_config
   identity_shared_attributes
     git: https://github.com/18F/identity-cookbooks
-    revision: 3f7ec4c4e23b372f1ffc09eda010eae3f5d5f52f
-    ref: 3f7ec4c
+    revision: d85afdee6ad512b1d6a12f1dd46d872eb4e65bb3
+    ref: d85afde
     rel: identity_shared_attributes
   instance_certificate
     path: kitchen/cookbooks/instance_certificate
@@ -63,11 +69,11 @@ DEPENDENCIES
   openssl
   ossec
     git: https://github.com/sous-chefs/ossec
-    revision: 4723e0314e3da33c08cb06e3c73a43c07d213185
+    revision: b2ea9e2f29790b0a3388c0bd9bf1444f0f789b87
   passenger
     git: https://github.com/18F/identity-cookbooks
-    revision: 3f7ec4c4e23b372f1ffc09eda010eae3f5d5f52f
-    ref: 3f7ec4c
+    revision: d85afdee6ad512b1d6a12f1dd46d872eb4e65bb3
+    ref: d85afde
     rel: passenger
   runit (~> 4.3.1)
   service_discovery
@@ -75,15 +81,14 @@ DEPENDENCIES
   ssh-keys
   static_eip
     git: https://github.com/18F/identity-cookbooks
-    revision: e068283896d98ec174089fad8735705a036dbb2d
-    ref: e068283
+    revision: d85afdee6ad512b1d6a12f1dd46d872eb4e65bb3
+    ref: d85afde
     rel: static_eip
   sudo
   users
 
 GRAPH
-  acme (4.0.0)
-    compat_resource (>= 12.19)
+  acme (4.1.1)
   apache2 (5.2.1)
   application (5.2.0)
     poise (~> 2.4)
@@ -93,8 +98,8 @@ GRAPH
     poise (~> 2.0)
     poise-ruby (~> 2.1)
     poise-service (~> 1.0)
-  apt (7.1.1)
-  ark (3.1.1)
+  apt (7.2.0)
+  ark (4.0.0)
     build-essential (>= 0.0.0)
     seven_zip (>= 0.0.0)
   aws_metadata (0.2.0)
@@ -107,7 +112,7 @@ GRAPH
   cacert (0.5.0)
   canonical_hostname (0.2.0)
     aws_metadata (>= 0.0.0)
-  chef-sugar (5.0.1)
+  chef-sugar (5.1.8)
   chef_handler (3.0.3)
   chef_proxy_env (0.1.1)
   citadel_fork (9.1.1)
@@ -116,7 +121,7 @@ GRAPH
   config_loader (0.2.2)
     aws_metadata (>= 0.0.0)
     citadel_fork (>= 0.0.0)
-  cron (6.2.1)
+  cron (6.2.2)
   deploy_resource (1.0.2)
   elastic_repo (1.1.1)
   elasticsearch (4.2.0)
@@ -136,8 +141,7 @@ GRAPH
     runit (>= 0.0.0)
     windows (>= 0.0.0)
     yum-plugin-versionlock (>= 0.1.2)
-  git (9.0.1)
-    build-essential (>= 5.0.0)
+  git (10.0.0)
   homebrew (4.3.0)
   hostname (0.4.2)
     hostsfile (>= 0.0.0)
@@ -173,17 +177,17 @@ GRAPH
     deploy_resource (>= 0.0.0)
     identity_shared_attributes (>= 0.0.0)
     login_dot_gov (>= 0.0.0)
-  identity_base_config (0.1.2)
+  identity_base_config (0.1.4)
     identity_shared_attributes (>= 0.0.0)
   identity_shared_attributes (0.1.2)
   instance_certificate (0.2.0)
     canonical_hostname (>= 0.0.0)
-  java (4.1.0)
+  java (4.3.0)
     homebrew (>= 0.0.0)
     windows (>= 0.0.0)
   keytool (0.7.1)
   letsencrypt (1.0.3)
-  login_dot_gov (0.0.62)
+  login_dot_gov (0.0.63)
     application_ruby (>= 0.0.1)
     cloudhsm (>= 0.0.8)
     config_loader (>= 0.0.1)
@@ -208,7 +212,7 @@ GRAPH
     apt (>= 0.0.0)
     python (>= 0.0.0)
     yum (>= 0.0.0)
-  ohai (5.2.5)
+  ohai (5.3.0)
   openssl (8.5.5)
   ossec (1.2.0)
     yum-atomic (>= 0.0.0)
@@ -243,14 +247,14 @@ GRAPH
     aws_metadata (>= 0.0.0)
     aws_s3 (>= 0.0.0)
     canonical_hostname (>= 0.0.0)
-  seven_zip (3.1.1)
+  seven_zip (3.1.2)
     windows (>= 0.0.0)
-  squid (4.1.0)
+  squid (4.2.0)
   ssh-keys (1.2.7)
   static_eip (0.2.1)
   sudo (5.4.4)
   users (5.4.0)
-  windows (6.0.0)
+  windows (6.0.1)
   yum (5.1.0)
   yum-atomic (0.2.0)
     compat_resource (>= 12.14.6)
