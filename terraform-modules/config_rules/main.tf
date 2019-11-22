@@ -43,13 +43,11 @@ resource "aws_config_config_rule" "guardduty-enabled-centralized" {
 resource "aws_config_config_rule" "encrypted-volumes" {
     name = "encrypted-volumes"
     description = "Checks whether EBS volumes that are in an attached state are encrypted. Optionally, you can specify the ID of a KMS key to use to encrypt the volume."
-
     scope {
         compliance_resource_types = [
             "AWS::EC2::Volume"
         ]
     }
-
     source {
         owner = "AWS"
         source_identifier = "ENCRYPTED_VOLUMES"
@@ -60,7 +58,6 @@ resource "aws_config_config_rule" "encrypted-volumes" {
 resource "aws_config_config_rule" "iam-root-access-key-check" {
     name = "iam-root-access-key-check"
     description = "Checks whether the root user access key is available. The rule is compliant if the user access key does not exist."
-   
     maximum_execution_frequency = "One_Hour"
     source {
         owner = "AWS"
@@ -72,7 +69,6 @@ resource "aws_config_config_rule" "iam-root-access-key-check" {
 resource "aws_config_config_rule" "iam-user-mfa-enabled" {
     name = "iam-user-mfa-enabled"
     description = "Checks whether the AWS Identity and Access Management users have multi-factor authentication (MFA) enabled."
-    
     maximum_execution_frequency = "TwentyFour_Hours"
     source {
         owner = "AWS"
@@ -84,9 +80,7 @@ resource "aws_config_config_rule" "iam-user-mfa-enabled" {
 resource "aws_config_config_rule" "iam-user-unused-credentials-check" {
     name = "iam-user-unused-credentials-check"
     description = "Checks whether your AWS Identity and Access Management (IAM) users have passwords or active access keys that have not been used within the specified number of days you provided."
-    
     input_parameters = <<EOP
-    
     {
         "maxCredentialUsageAge" : 90
     }
@@ -104,13 +98,11 @@ resource "aws_config_config_rule" "iam-user-unused-credentials-check" {
 resource "aws_config_config_rule" "rds-instance-public-access-check" {
     name = "rds-instance-public-access-check"
     description = "Checks whether the Amazon Relational Database Service (RDS) instances are not publicly accessible. The rule is non-compliant if the publiclyAccessible field is true in the instance configuration item."
-
     scope {
         compliance_resource_types = [
             "AWS::RDS::DBInstance"
         ]
     }
-
     source {
         owner = "AWS"
         source_identifier = "RDS_INSTANCE_PUBLIC_ACCESS_CHECK"
@@ -121,31 +113,25 @@ resource "aws_config_config_rule" "rds-instance-public-access-check" {
 resource "aws_config_config_rule" "rds-storage-encrypted" {
     name = "rds-storage-encrypted"
     description = "Checks whether storage encryption is enabled for your RDS DB instances."
-
     scope {
         compliance_resource_types = [
             "AWS::RDS::DBInstance"
         ]
     }
-
     source {
         owner = "AWS"
         source_identifier = "RDS_STORAGE_ENCRYPTED"
     }
-
 }
 
 resource "aws_config_config_rule" "root-account-mfa-enabled" {
     name = "root-account-mfa-enabled"
     description = "Checks whether the root user of your AWS account requires multi-factor authentication for console sign-in."
-
-
     maximum_execution_frequency = "One_Hour"
     source {
         owner = "AWS"
         source_identifier = "ROOT_ACCOUNT_MFA_ENABLED"
     }
-
 }
 
 resource "aws_config_config_rule" "approved-amis-by-tag" {
@@ -153,7 +139,7 @@ resource "aws_config_config_rule" "approved-amis-by-tag" {
     description = "Checks whether running instances are using specified AMIs. Specify the tags that identify the AMIs. Running instances with AMIs that don't have at least one of the specified tags are noncompliant."
     input_parameters = <<EOP
         {
-        "amisByTagKeyAndValue" : "OS_Version:Ubuntu 16.04"
+        "amisByTagKeyAndValue" : "OS_Version:Ubuntu 18.04"
         }
     EOP
     scope {
@@ -161,22 +147,18 @@ resource "aws_config_config_rule" "approved-amis-by-tag" {
             "AWS::EC2::Instance"
         ]
     }
-
     source {
         owner = "AWS"
         source_identifier = "APPROVED_AMIS_BY_TAG"
     }
-
 }
 
 resource "aws_config_config_rule" "cloud-trail-encryption-enabled" {
     name = "cloud-trail-encryption-enabled"
     description = "Checks whether AWS CloudTrail is configured to use the server side encryption (SSE) AWS Key Management Service (AWS KMS) customer master key (CMK) encryption. The rule is compliant if the KmsKeyId is defined."
-
     maximum_execution_frequency = "TwentyFour_Hours"
     source {
         owner = "AWS"
         source_identifier = "CLOUD_TRAIL_ENCRYPTION_ENABLED"
     }
-
 }
