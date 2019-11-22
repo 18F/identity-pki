@@ -3,6 +3,9 @@
   "description": "",
   "json_class": "Chef::Role",
   "default_attributes": {
+    "config_loader": {
+      "bucket_prefix": "login-gov.secrets"
+    },
     "authorization": {
       "sudo": {
         "groups": [
@@ -37,6 +40,7 @@
     "recipe[hostname]",
     "recipe[motd]",
     "recipe[identity_base_config]",
+    "recipe[login_dot_gov::common_scripts]",
     "recipe[ssh-keys]",
     "recipe[sudo]",
     "recipe[identity-elk::logcleanup]",

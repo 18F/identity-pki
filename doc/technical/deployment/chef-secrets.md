@@ -2,25 +2,28 @@
 
 ## Changing Secrets
 
-All our secrets are stored in S3 and encrypted using KMS the secrets are
-downloaded when chef is run using Citadel.
+All our secrets are stored in S3, and encrypted using KMS. The secrets are
+downloaded when Chef is run using Citadel, using the `config_loader` cookbook in `identity-cookbooks`.
 
-The bucket that is used is configured as the `citadel.bucket` chef attribute.
-For example, as of this writing, [the default is
-`login-gov-secrets-test`](https://github.com/18F/identity-devops/blob/cfd89eafd74185ec827fccabca752bbe83c85256/kitchen/cookbooks/config_loader/attributes/default.rb#L1),
-and the `prod` environment is configured to use
-[`login-gov-secrets`](https://github.com/18F/identity-devops/blob/cfd89eafd74185ec827fccabca752bbe83c85256/kitchen/environments/prod.json#L78).
+The bucket that is used is configured as the `citadel.bucket` Chef attribute,
+whose value is:
+```
+default['citadel']['bucket'] = "#{node['config_loader']['bucket_prefix']}.#{Chef::Recipe::AwsMetadata.get_aws_account_id}-#{Chef::Recipe::AwsMetadata.get_aws_region}"
+```
+* The `config_loader.bucket_prefix` default is `login-gov.secrets`, as is set in
+the `default_attributes` of the `base` role.
+* The `aws_metadata` cookbook has a class which uses the methods `get_aws_account_id` and `get_aws_region` to fill the appropriate values.
 
 You can use the AWS CLI to work with these secrets, but you may need to pass
 `--sse aws:kms` since we do server side encryption.  Here are some examples:
 
 ```
 # view a secret in S3
-aws s3 cp --sse aws:kms s3://login-gov-secrets-test/qa/equifax_wsdl - ; echo
+aws s3 cp --sse aws:kms s3://login-gov.secrets.894947205914-us-west-2/qa/equifax_wsdl - ; echo
 # copy a secret from qa to dev
-aws s3 cp --sse aws:kms s3://login-gov-secrets-test/{qa,dev}/equifax_wsdl
+aws s3 cp --sse aws:kms s3://login-gov.secrets.894947205914-us-west-2/{qa,dev}/equifax_wsdl
 # list secrets in the qa env
-aws s3 ls s3://login-gov-secrets-test/qa/
+aws s3 ls s3://login-gov.secrets.894947205914-us-west-2/qa/
 ```
 
 ## Deploying Secrets Changes
