@@ -84,7 +84,7 @@ resource "aws_db_instance" "idp-read-replica" {
   iops               = var.rds_iops_idp_replica
 
   # enhanced monitoring
-  monitoring_interval = var.rds_enhanced_monitoring_enabled ? 60 : 0
+  monitoring_interval = var.rds_enhanced_monitoring_enabled == 1 ? 60 : 0
   monitoring_role_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.rds_monitoring_role_name}"
 
   vpc_security_group_ids = [aws_security_group.db.id]
@@ -416,7 +416,7 @@ resource "aws_autoscaling_group" "idp" {
   # Because bootstrapping takes so long, we terminate manually in prod
   # More context on ASG deploys and safety:
   # https://github.com/18F/identity-devops-private/issues/337
-  protect_from_scale_in = var.asg_prevent_auto_terminate
+  protect_from_scale_in = var.asg_prevent_auto_terminate == 1 ? true : false
 
   enabled_metrics = var.asg_enabled_metrics
 

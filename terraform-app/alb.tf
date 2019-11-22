@@ -98,7 +98,7 @@ resource "aws_alb_target_group" "idp-ssl" {
 
   health_check {
     # we have HTTP basic auth enabled in nonprod envs in the prod AWS account
-    matcher  = var.basic_auth_enabled ? "401,200" : "200"
+    matcher  = var.basic_auth_enabled == 1 ? "401,200" : "200"
     protocol = "HTTPS"
 
     interval            = 10

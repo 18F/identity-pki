@@ -93,7 +93,7 @@ resource "aws_autoscaling_group" "app" {
   # Because bootstrapping takes so long, we terminate manually in prod
   # More context on ASG deploys and safety:
   # https://github.com/18F/identity-devops-private/issues/337
-  protect_from_scale_in = var.asg_prevent_auto_terminate
+  protect_from_scale_in = var.asg_prevent_auto_terminate == 1 ? true : false
 
   # tags on the instance will come from the launch template
   tag {
