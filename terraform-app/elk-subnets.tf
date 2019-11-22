@@ -27,11 +27,11 @@ resource "aws_network_acl" "elk" {
 module "elk-base-nacl-rules" {
   source         = "../terraform-modules/base_nacl_rules"
   network_acl_id = aws_network_acl.elk.id
-  ssh_cidr_blocks = [
+  ssh_cidr_blocks = flatten([
     var.jumphost1_subnet_cidr_block,
     var.jumphost2_subnet_cidr_block,
     var.ci_sg_ssh_cidr_blocks,
-  ]
+  ])
 }
 
 # need to allow filebeat to get to logstash

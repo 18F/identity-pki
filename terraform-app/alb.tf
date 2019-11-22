@@ -18,18 +18,12 @@ locals {
   # In other environments, the TLS cert has "idp.<env>.<domain>" and "<env>.<domain>"
   idp_domain_name = var.env_name == "prod" ? "secure.${var.root_domain}" : "idp.${var.env_name}.${var.root_domain}"
 
-  # until we upgrade to TF 0.12 we can't use lists as the value outputted by a conditional, so split on space
-  idp_subject_alt_names = [compact(
-    split(
-      " ",
-      var.env_name == "prod" ? "" : "${var.env_name}.${var.root_domain}",
-    ),
-  )]
+  idp_subject_alt_names = var.env_name == "prod" ? "" : "${var.env_name}.${var.root_domain}"
 }
 
 # Create a TLS certificate with ACM
 module "acm-cert-idp" {
-  source                    = "github.com/18F/identity-terraform//acm_certificate?ref=a02e8ecfd4c6e952ad6a8958158a4b455807fa2e"
+  source                    = "github.com/18F/identity-terraform//acm_certificate?ref=6d0c28e58bbf4d5d9840902abb1127aa1fa5767b"
   enabled                   = var.alb_enabled * var.acm_certs_enabled
   domain_name               = local.idp_domain_name
   subject_alternative_names = [local.idp_subject_alt_names]

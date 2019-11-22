@@ -504,19 +504,7 @@ locals {
   bootstrap_main_git_ref_default   = var.bootstrap_main_git_ref_default != "" ? var.bootstrap_main_git_ref_default : "stages/${var.env_name}"
   account_default_ami_id           = data.aws_caller_identity.current.account_id == "555546682965" ? var.default_ami_id_prod : var.default_ami_id_sandbox
 
-  // https://github.com/hashicorp/terraform/issues/12453
-  // If page_devops is true, we want a list containing both the paging and Slack
-  // topics. Otherwise we want the Slack topic in a list by itself. The only
-  // way to generate a list conditionally is to use this split/join hack.
-  high_priority_alarm_actions = [
-    split(
-      ",",
-      var.page_devops == 1 ? join(
-        ",",
-        [var.high_priority_sns_hook, var.slack_events_sns_hook_arn],
-      ) : join(",", [var.slack_events_sns_hook_arn]),
-    ),
-  ]
+  high_priority_alarm_actions = var.page_devops == 1 ? [var.high_priority_sns_hook, var.slack_events_sns_hook_arn] : [var.slack_events_sns_hook_arn]
 }
 
 # These variables are used to toggle whether certain services are enabled.

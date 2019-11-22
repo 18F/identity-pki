@@ -356,7 +356,7 @@ module "idp_user_data" {
 }
 
 module "idp_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=a02e8ecfd4c6e952ad6a8958158a4b455807fa2e"
+  source = "github.com/18F/identity-terraform//launch_template?ref=6d0c28e58bbf4d5d9840902abb1127aa1fa5767b"
 
   role           = "idp"
   env            = var.env_name
@@ -434,12 +434,12 @@ resource "aws_autoscaling_group" "idp" {
 }
 
 module "idp_lifecycle_hooks" {
-  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=a02e8ecfd4c6e952ad6a8958158a4b455807fa2e"
+  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=6d0c28e58bbf4d5d9840902abb1127aa1fa5767b"
   asg_name = aws_autoscaling_group.idp[0].name
 }
 
 module "idp_recycle" {
-  source = "github.com/18F/identity-terraform//asg_recycle?ref=a02e8ecfd4c6e952ad6a8958158a4b455807fa2e"
+  source = "github.com/18F/identity-terraform//asg_recycle?ref=6d0c28e58bbf4d5d9840902abb1127aa1fa5767b"
 
   # switch to count when that's a thing that we can do
   # https://github.com/hashicorp/terraform/issues/953
@@ -469,7 +469,7 @@ resource "aws_autoscaling_policy" "idp-cpu" {
 
     target_value = var.idp_cpu_autoscaling_target
 
-    disable_scale_in = var.idp_cpu_autoscaling_disable_scale_in
+    disable_scale_in = var.idp_cpu_autoscaling_disable_scale_in == 1 ? true : false
   }
 }
 

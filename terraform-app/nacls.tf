@@ -127,12 +127,12 @@ resource "aws_network_acl" "jumphost" {
 module "jumphost-base-nacl-rules" {
   source         = "../terraform-modules/base_nacl_rules"
   network_acl_id = aws_network_acl.jumphost.id
-  ssh_cidr_blocks = [
+  ssh_cidr_blocks = flatten([
     var.jumphost1_subnet_cidr_block,
     var.jumphost2_subnet_cidr_block,
     var.app_sg_ssh_cidr_blocks,
     var.ci_sg_ssh_cidr_blocks,
-  ]
+  ])
 }
 
 resource "aws_network_acl_rule" "jumphost-elb-healthcheck1" {
@@ -170,11 +170,11 @@ resource "aws_network_acl" "idp" {
 module "idp-base-nacl-rules" {
   source         = "../terraform-modules/base_nacl_rules"
   network_acl_id = aws_network_acl.idp.id
-  ssh_cidr_blocks = [
+  ssh_cidr_blocks = flatten([
     var.jumphost1_subnet_cidr_block,
     var.jumphost2_subnet_cidr_block,
     var.ci_sg_ssh_cidr_blocks,
-  ]
+  ])
 }
 
 resource "aws_network_acl_rule" "idp-ingress-http" {

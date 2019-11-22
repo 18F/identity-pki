@@ -4,6 +4,7 @@ variable "network_acl_id" {
 
 variable "ssh_cidr_blocks" {
     description = "CIDR blocks to allow into this NACL."
+    type = list
     default = []
 }
 
