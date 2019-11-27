@@ -48,6 +48,7 @@ variable "main_git_clone_url" {
 
 variable "main_git_ref_map" {
   description = "Mapping from role to the git ref to check out after cloning main_git_clone_url"
+  type        = map(string)
   default     = {}
 }
 
@@ -70,6 +71,8 @@ variable "no_proxy_hosts" {
 
 variable "proxy_enabled_roles" {
   description = "Mapping from role names to integer {0,1} for whether the outbound proxy server is enabled during bootstrapping."
+  type        = map(number)
+  default     = {}
 }
 
 variable "main_lifecycle_hook_name" {
