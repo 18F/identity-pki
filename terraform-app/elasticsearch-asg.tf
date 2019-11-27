@@ -27,7 +27,7 @@ module "elasticsearch_user_data" {
 }
 
 module "elasticsearch_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=6d0c28e58bbf4d5d9840902abb1127aa1fa5767b"
+  source = "github.com/18F/identity-terraform//launch_template?ref=a383cf2dc02036029e966e3401fbbe07e77f7186"
 
   role           = "elasticsearch"
   env            = var.env_name
@@ -60,7 +60,7 @@ module "elasticsearch_launch_template" {
 }
 
 module "elasticsearch_lifecycle_hooks" {
-  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=6d0c28e58bbf4d5d9840902abb1127aa1fa5767b"
+  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=a383cf2dc02036029e966e3401fbbe07e77f7186"
   asg_name = aws_autoscaling_group.elasticsearch.name
 }
 
