@@ -1,12 +1,13 @@
-data "aws_caller_identity" "current" {}
+data "aws_caller_identity" "current" {
+}
 
 locals {
   bucket_name = "${var.bucket_name_prefix}.${var.secrets_bucket_type}.${data.aws_caller_identity.current.account_id}-${var.region}"
 }
 
 resource "aws_s3_bucket" "secrets" {
-  bucket = local.bucket_name
-  acl    = "private"
+  bucket        = local.bucket_name
+  acl           = "private"
   force_destroy = var.force_destroy
 
   policy = ""
@@ -42,3 +43,4 @@ resource "aws_s3_bucket_public_access_block" "secrets" {
   ignore_public_acls      = true
   restrict_public_buckets = true
 }
+
