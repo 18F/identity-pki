@@ -30,16 +30,13 @@ variable "mx_provider" {
 
 variable "mx_record_map" {
   description = "Mapping of provider name to comma-separated MX records"
-  default     = {}
+  type        = map(string)
+  default = {
+    "google-g-suite"               = "10 aspmx.l.google.com.,20 alt1.aspmx.l.google.com.,20 alt2.aspmx.l.google.com.,30 aspmx2.googlemail.com.,30 aspmx3.googlemail.com.,30 aspmx4.googlemail.com.,30 aspmx5.googlemail.com."
+    "amazon-ses-inbound.us-west-2" = "10 inbound-smtp.us-west-2.amazonaws.com."
+  }
 }
 
-locals {
-  default_mx_record_map = {  
-    "google-g-suite"               = "10 aspmx.l.google.com.,20 alt1.aspmx.l.google.com.,20 alt2.aspmx.l.google.com.,30 aspmx2.googlemail.com.,30 aspmx3.googlemail.com.,30 aspmx4.googlemail.com.,30 aspmx5.googlemail.com.",
-    "amazon-ses-inbound.us-west-2" = "10 inbound-smtp.us-west-2.amazonaws.com."  
-  }
-  merged_mx_record_map  = merge(local.default_mx_record_map, var.mx_record_map)
-}
 resource "aws_route53_zone" "primary" {
   # domain, ensuring it has a trailing "."
   name = replace(var.domain, "/\\.?$/", ".")
@@ -153,11 +150,11 @@ resource "aws_route53_record" "txt_dmarc_authorization_connect_gov" {
 # or not.
 # This record is only used for the prod login.gov G Suite DKIM signing.
 #resource "aws_route53_record" "google_dkim_txt" {
-#  name    = "google._domainkey.${var.domain}"
-#  records = ["v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkcuOOdgaWfHIKM1ILlzPOHBPJKLxU9+1+ufIprNdjrD+QQ6/uJtc/tP5s1MUwYU/fld2Y1QwXC5JHdE6JXP31XwCtvbfIwn/Dr/EaRB3PomOp0SNbTtFMmvuxPF87HidvzDH3cWXcmyjMx6XU1i9O3nBs66Z+8i4gfh/PZdjJs6wcNp9urJjCo23KYzbiNAn7FJjbD4g3NucMvkBXHIsOMLvb7WzIekpxL2bjz6XlDfK1t4VTLv4IqIlLMfhYGwwaWPhgyra7qezYkp6a2XSoLWxPWRbfb1bNmVUJ7vBeB6NdFnr9n/7TqbhDVEo9/XyO1MIsuNTTZuhurlZqoXx0QIDAQAB"]
-#  ttl     = "900"
-#  type    = "TXT"
-#  zone_id = "${aws_route53_zone.primary.zone_id}"
+#    name = "google._domainkey.${var.domain}"
+#    records = ["v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkcuOOdgaWfHIKM1ILlzPOHBPJKLxU9+1+ufIprNdjrD+QQ6/uJtc/tP5s1MUwYU/fld2Y1QwXC5JHdE6JXP31XwCtvbfIwn/Dr/EaRB3PomOp0SNbTtFMmvuxPF87HidvzDH3cWXcmyjMx6XU1i9O3nBs66Z+8i4gfh/PZdjJs6wcNp9urJjCo23KYzbiNAn7FJjbD4g3NucMvkBXHIsOMLvb7WzIekpxL2bjz6XlDfK1t4VTLv4IqIlLMfhYGwwaWPhgyra7qezYkp6a2XSoLWxPWRbfb1bNmVUJ7vBeB6NdFnr9n/7TqbhDVEo9/XyO1MIsuNTTZuhurlZqoXx0QIDAQAB"]
+#    ttl = "900"
+#    type = "TXT"
+#    zone_id = "${aws_route53_zone.primary.zone_id}"
 #}
 
 resource "aws_route53_record" "mail_in_txt" {

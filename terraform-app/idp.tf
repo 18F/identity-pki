@@ -357,7 +357,7 @@ module "idp_user_data" {
 }
 
 module "idp_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=379b9ca062233ddf26b69c021b7a8546532ec934"
+  source = "github.com/18F/identity-terraform//launch_template?ref=beeed1e3d70ba34aaf9198810399843adebfca22"
 
   role           = "idp"
   env            = var.env_name
@@ -435,12 +435,12 @@ resource "aws_autoscaling_group" "idp" {
 }
 
 module "idp_lifecycle_hooks" {
-  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=379b9ca062233ddf26b69c021b7a8546532ec934"
+  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=beeed1e3d70ba34aaf9198810399843adebfca22"
   asg_name = aws_autoscaling_group.idp[0].name
 }
 
 module "idp_recycle" {
-  source = "github.com/18F/identity-terraform//asg_recycle?ref=379b9ca062233ddf26b69c021b7a8546532ec934"
+  source = "github.com/18F/identity-terraform//asg_recycle?ref=beeed1e3d70ba34aaf9198810399843adebfca22"
 
   # switch to count when that's a thing that we can do
   # https://github.com/hashicorp/terraform/issues/953
