@@ -27,13 +27,13 @@ module "app_user_data" {
 }
 
 module "app_lifecycle_hooks" {
-  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=a383cf2dc02036029e966e3401fbbe07e77f7186"
+  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=379b9ca062233ddf26b69c021b7a8546532ec934"
   asg_name = element(concat(aws_autoscaling_group.app.*.name, [""]), 0)
   enabled  = var.alb_enabled * var.apps_enabled
 }
 
 module "app_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=a383cf2dc02036029e966e3401fbbe07e77f7186"
+  source = "github.com/18F/identity-terraform//launch_template?ref=379b9ca062233ddf26b69c021b7a8546532ec934"
 
   role           = "app"
   env            = var.env_name
@@ -109,7 +109,7 @@ resource "aws_autoscaling_group" "app" {
 }
 
 module "app_recycle" {
-  source = "github.com/18F/identity-terraform//asg_recycle?ref=a383cf2dc02036029e966e3401fbbe07e77f7186"
+  source = "github.com/18F/identity-terraform//asg_recycle?ref=379b9ca062233ddf26b69c021b7a8546532ec934"
 
   # switch to count when that's a thing that we can do
   # https://github.com/hashicorp/terraform/issues/953
