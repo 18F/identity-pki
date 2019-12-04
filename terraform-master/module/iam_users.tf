@@ -27,7 +27,7 @@ resource "aws_iam_user" "clara_bridges" {
 resource "aws_iam_user" "douglas_price" {
     name = "douglas.price"
     force_destroy = true
-} 
+}
 
 resource "aws_iam_user" "jonathan_hooper" {
     name = "jonathan.hooper"
@@ -44,8 +44,18 @@ resource "aws_iam_user" "justin_grevich" {
     force_destroy = true
 }
 
+resource "aws_iam_user" "karla_rodriguez" {
+    name = "karla.rodriguez"
+    force_destroy = true
+}
+
 resource "aws_iam_user" "laura_gerhardt" {
     name = "laura.gerhardt"
+    force_destroy = true
+}
+
+resource "aws_iam_user" "likhitha_patha" {
+    name = "likhitha.patha"
     force_destroy = true
 }
 
@@ -74,6 +84,11 @@ resource "aws_iam_user" "steven_harms" {
     force_destroy = true
 }
 
+resource "aws_iam_user" "thomas_black" {
+    name = "thomas.black"
+    force_destroy = true
+}
+
 # policy attachments
 # attach this policy to every user
 resource "aws_iam_policy_attachment" "manage_your_account" {
@@ -88,12 +103,15 @@ resource "aws_iam_policy_attachment" "manage_your_account" {
         "${aws_iam_user.jonathan_hooper.name}",
         "${aws_iam_user.jonathan_pirro.name}",
         "${aws_iam_user.justin_grevich.name}",
+        "${aws_iam_user.karla_rodriguez.name}",
         "${aws_iam_user.laura_gerhardt.name}",
+        "${aws_iam_user.likhitha_patha.name}",
         "${aws_iam_user.mossadeq_zia.name}",
         "${aws_iam_user.rajat_varuni.name}",
         "${aws_iam_user.stephen_grow.name}",
         "${aws_iam_user.steve_urciuoli.name}",
         "${aws_iam_user.steven_harms.name}",
+        "${aws_iam_user.thomas_black.name}",
     ]
     policy_arn = "${aws_iam_policy.manage_your_account.arn}"
 }

@@ -341,3 +341,43 @@ data "aws_iam_policy_document" "production_assume_appdev" {
         ]
     }
 }
+
+resource "aws_iam_policy" "sandbox_assume_reporting_ro" {
+    name = "SandboxAssumeReportsReadOnly"
+    path = "/"
+    description = "Policy to allow user to assume reporting read-only role in Sandbox"
+    policy = "${data.aws_iam_policy_document.sandbox_assume_reporting_ro.json}"
+}
+
+data "aws_iam_policy_document" "sandbox_assume_reporting_ro" {
+    statement {
+        sid = "SandboxAssumeReportsReadOnly"
+        effect = "Allow"
+        actions = [
+            "sts:AssumeRole"
+        ]
+        resources = [
+            "arn:aws:iam::${var.sandbox_account_id}:role/ReportsReadOnly"
+        ]
+    }
+}
+
+resource "aws_iam_policy" "production_assume_reporting_ro" {
+    name = "ProductionAssumeReportsReadOnly"
+    path = "/"
+    description = "Policy to allow user to assume reporting read-only role in Production"
+    policy = "${data.aws_iam_policy_document.production_assume_reporting_ro.json}"
+}
+
+data "aws_iam_policy_document" "production_assume_reporting_ro" {
+    statement {
+        sid = "ProductionAssumeReportsReadOnly"
+        effect = "Allow"
+        actions = [
+            "sts:AssumeRole"
+        ]
+        resources = [
+            "arn:aws:iam::${var.production_account_id}:role/ReportsReadOnly"
+        ]
+    }
+}

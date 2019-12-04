@@ -127,3 +127,15 @@ resource "aws_iam_role_policy_attachment" "appdev1" {
     role = "${aws_iam_role.appdev.name}"
     policy_arn = "${aws_iam_policy.appdev1.arn}"
 }
+
+resource "aws_iam_role" "reports_ro" {
+    name = "ReportsReadOnly"
+    assume_role_policy = "${data.aws_iam_policy_document.allow_master_account_assumerole.json}"
+    path = "/"
+    max_session_duration = 43200 #seconds
+}
+
+resource "aws_iam_role_policy_attachment" "reports_ro" {
+    role = "${aws_iam_role.reports_ro.name}"
+    policy_arn = "${aws_iam_policy.reports_ro.arn}"
+}
