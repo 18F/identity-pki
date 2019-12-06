@@ -1,4 +1,5 @@
-data "aws_caller_identity" "current" {}
+data "aws_caller_identity" "current" {
+}
 
 data "aws_iam_policy_document" "kms" {
   # Allow root users in
@@ -6,12 +7,12 @@ data "aws_iam_policy_document" "kms" {
     actions = [
       "kms:*",
     ]
-    principals = {
-      type = "AWS"
+    principals {
+      type        = "AWS"
       identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
     }
     resources = [
-      "*"
+      "*",
     ]
   }
 
@@ -29,14 +30,14 @@ data "aws_iam_policy_document" "kms" {
       "kms:Get*",
       "kms:Delete*",
       "kms:ScheduleKeyDeletion",
-      "kms:CancelKeyDeletion"
+      "kms:CancelKeyDeletion",
     ]
-    principals = {
-      type = "AWS"
-      identifiers = ["${var.power_users}"]
+    principals {
+      type        = "AWS"
+      identifiers = var.power_users
     }
     resources = [
-      "*"
+      "*",
     ]
   }
 
@@ -47,26 +48,29 @@ data "aws_iam_policy_document" "kms" {
       "kms:Decrypt",
       "kms:ReEncrypt*",
       "kms:GenerateDataKey*",
-      "kms:DescribeKey"
+      "kms:DescribeKey",
     ]
-    principals = {
-      type = "AWS"
-      identifiers = ["${aws_iam_role.idp.arn}", "${concat(var.db_restore_role_arns)}"]
+    principals {
+      type        = "AWS"
+      identifiers = concat(
+        [aws_iam_role.idp.arn],
+        var.db_restore_role_arns
+      )
     }
     resources = [
-      "*"
+      "*",
     ]
   }
 }
 
 resource "aws_kms_key" "login-dot-gov-keymaker" {
   enable_key_rotation = true
-  description = "${var.env_name}-login-dot-gov-keymaker"
-  policy = "${data.aws_iam_policy_document.kms.json}"
+  description         = "${var.env_name}-login-dot-gov-keymaker"
+  policy              = data.aws_iam_policy_document.kms.json
 }
 
 resource "aws_kms_alias" "login-dot-gov-keymaker-alias" {
-  name = "alias/${var.env_name}-login-dot-gov-keymaker"
-  target_key_id = "${aws_kms_key.login-dot-gov-keymaker.key_id}"
+  name          = "alias/${var.env_name}-login-dot-gov-keymaker"
+  target_key_id = aws_kms_key.login-dot-gov-keymaker.key_id
 }
 

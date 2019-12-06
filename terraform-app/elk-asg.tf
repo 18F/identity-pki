@@ -1,92 +1,93 @@
 module "elk_user_data" {
   source = "../terraform-modules/bootstrap/"
 
-  role = "elk"
-  env = "${var.env_name}"
-  domain = "${var.root_domain}"
+  role   = "elk"
+  env    = var.env_name
+  domain = var.root_domain
 
-  chef_download_url = "${var.chef_download_url}"
-  chef_download_sha256 = "${var.chef_download_sha256}"
+  chef_download_url    = var.chef_download_url
+  chef_download_sha256 = var.chef_download_sha256
 
   # identity-devops-private variables
-  private_s3_ssh_key_url = "${local.bootstrap_private_s3_ssh_key_url}"
-  private_git_clone_url = "${var.bootstrap_private_git_clone_url}"
-  private_git_ref = "${var.bootstrap_private_git_ref}"
+  private_s3_ssh_key_url = local.bootstrap_private_s3_ssh_key_url
+  private_git_clone_url  = var.bootstrap_private_git_clone_url
+  private_git_ref        = var.bootstrap_private_git_ref
 
   # identity-devops variables
-  main_s3_ssh_key_url = "${local.bootstrap_main_s3_ssh_key_url}"
-  main_git_clone_url = "${var.bootstrap_main_git_clone_url}"
-  main_git_ref_map = "${var.bootstrap_main_git_ref_map}"
-  main_git_ref_default = "${local.bootstrap_main_git_ref_default}"
+  main_s3_ssh_key_url  = local.bootstrap_main_s3_ssh_key_url
+  main_git_clone_url   = var.bootstrap_main_git_clone_url
+  main_git_ref_map     = var.bootstrap_main_git_ref_map
+  main_git_ref_default = local.bootstrap_main_git_ref_default
 
   # proxy variables
-  proxy_server = "${var.proxy_server}"
-  proxy_port = "${var.proxy_port}"
-  no_proxy_hosts = "${var.no_proxy_hosts}"
-  proxy_enabled_roles = "${var.proxy_enabled_roles}"
+  proxy_server        = var.proxy_server
+  proxy_port          = var.proxy_port
+  no_proxy_hosts      = var.no_proxy_hosts
+  proxy_enabled_roles = var.proxy_enabled_roles
 }
 
 module "elk_lifecycle_hooks" {
-  source = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=2c43bfd79a8a2377657bc8ed4764c3321c0f8e80"
-  asg_name = "${aws_autoscaling_group.elk.name}"
+  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=19a1a7d7a5c3e2177f62d96a553fed53ac2c251c"
+  asg_name = aws_autoscaling_group.elk.name
 }
 
 module "elk_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=774195a363107e0d9b4aa658a30dad2a78efcb56"
+  source = "github.com/18F/identity-terraform//launch_template?ref=19a1a7d7a5c3e2177f62d96a553fed53ac2c251c"
 
   role           = "elk"
-  env            = "${var.env_name}"
-  root_domain    = "${var.root_domain}"
-  ami_id_map     = "${var.ami_id_map}"
-  default_ami_id = "${local.account_default_ami_id}"
+  env            = var.env_name
+  root_domain    = var.root_domain
+  ami_id_map     = var.ami_id_map
+  default_ami_id = local.account_default_ami_id
 
-  instance_type             = "${var.instance_type_elk}"
-  iam_instance_profile_name = "${aws_iam_instance_profile.elk_instance_profile.name}"
-  security_group_ids        = ["${aws_security_group.elk.id}", "${aws_security_group.base.id}"]
+  instance_type             = var.instance_type_elk
+  iam_instance_profile_name = aws_iam_instance_profile.elk_instance_profile.name
+  security_group_ids        = [aws_security_group.elk.id, aws_security_group.base.id]
 
-  user_data                 = "${module.elk_user_data.rendered_cloudinit_config}"
+  user_data = module.elk_user_data.rendered_cloudinit_config
 
   template_tags = {
-    main_git_ref    = "${module.elk_user_data.main_git_ref}"
-    private_git_ref = "${module.elk_user_data.private_git_ref}"
+    main_git_ref    = module.elk_user_data.main_git_ref
+    private_git_ref = module.elk_user_data.private_git_ref
   }
 }
 
 resource "aws_autoscaling_group" "elk" {
-    name = "${var.env_name}-elk"
+  name = "${var.env_name}-elk"
 
-    launch_template = {
-      id = "${module.elk_launch_template.template_id}"
-      version = "$$Latest"
-    }
+  launch_template {
+    id      = module.elk_launch_template.template_id
+    version = "$Latest"
+  }
 
-    min_size = 0
-    max_size = 8
-    desired_capacity = "${var.asg_elk_desired}"
+  min_size         = 0
+  max_size         = 8
+  desired_capacity = var.asg_elk_desired
 
-    wait_for_capacity_timeout = 0
+  wait_for_capacity_timeout = 0
 
-    vpc_zone_identifier = ["${aws_subnet.elk.*.id}"]
+  vpc_zone_identifier = aws_subnet.elk.*.id
 
-    # https://github.com/18F/identity-devops-private/issues/631
-    health_check_type = "EC2"
-    health_check_grace_period = 0
+  # https://github.com/18F/identity-devops-private/issues/631
+  health_check_type         = "EC2"
+  health_check_grace_period = 0
 
-    termination_policies = ["OldestInstance"]
+  termination_policies = ["OldestInstance"]
 
-    load_balancers = ["${aws_elb.elk.id}"]
+  load_balancers = [aws_elb.elk.id]
 
-    protect_from_scale_in = "${var.asg_prevent_auto_terminate}"
+  protect_from_scale_in = var.asg_prevent_auto_terminate == 1 ? true : false
 
-    # tags on the instance will come from the launch template
-    tag {
-        key = "prefix"
-        value = "elk"
-        propagate_at_launch = false
-    }
-    tag {
-        key = "domain"
-        value = "${var.env_name}.${var.root_domain}"
-        propagate_at_launch = false
-    }
+  # tags on the instance will come from the launch template
+  tag {
+    key                 = "prefix"
+    value               = "elk"
+    propagate_at_launch = false
+  }
+  tag {
+    key                 = "domain"
+    value               = "${var.env_name}.${var.root_domain}"
+    propagate_at_launch = false
+  }
 }
+

@@ -1,19 +1,19 @@
 resource "aws_acm_certificate" "tlstest" {
-    count = "${var.cloudfront_tlstest_enabled}"
+  count = var.cloudfront_tlstest_enabled
 
-    # tlstest.secure.login.gov in prod, tltest.$env.login.gov in other environments
-    domain_name = "${var.env_name == "prod" ? "tlstest.secure.${var.root_domain}" : "tlstest.${var.env_name}.${var.root_domain}"}"
-    validation_method         = "DNS"
+  # tlstest.secure.login.gov in prod, tltest.$env.login.gov in other environments
+  domain_name       = var.env_name == "prod" ? "tlstest.secure.${var.root_domain}" : "tlstest.${var.env_name}.${var.root_domain}"
+  validation_method = "DNS"
 
-    lifecycle {
-      create_before_destroy = true
-    }
+  lifecycle {
+    create_before_destroy = true
+  }
 
-    provider = "aws.use1"
+  provider = aws.use1
 }
 
 resource "aws_cloudfront_distribution" "tls_profiling" {
-  count = "${var.cloudfront_tlstest_enabled}"
+  count = var.cloudfront_tlstest_enabled
 
   origin {
     custom_origin_config {
@@ -23,11 +23,11 @@ resource "aws_cloudfront_distribution" "tls_profiling" {
       origin_ssl_protocols   = ["TLSv1.2"]
     }
 
-    domain_name = "${var.env_name == "prod" ? "secure.${var.root_domain}" : "idp.${var.env_name}.${var.root_domain}"}"
+    domain_name = var.env_name == "prod" ? "secure.${var.root_domain}" : "idp.${var.env_name}.${var.root_domain}"
     origin_id   = "${var.env_name}.tlstest"
   }
 
-  aliases = ["${var.env_name == "prod" ? "tlstest.secure.${var.root_domain}" : "tlstest.${var.env_name}.${var.root_domain}"}"]
+  aliases             = [var.env_name == "prod" ? "tlstest.secure.${var.root_domain}" : "tlstest.${var.env_name}.${var.root_domain}"]
   enabled             = true
   is_ipv6_enabled     = false
   default_root_object = "favicon-16x16.png"
@@ -56,8 +56,9 @@ resource "aws_cloudfront_distribution" "tls_profiling" {
   }
 
   viewer_certificate {
-    acm_certificate_arn      = "${aws_acm_certificate.tlstest.arn}"
+    acm_certificate_arn      = aws_acm_certificate.tlstest[0].arn
     minimum_protocol_version = "TLSv1.2_2018"
     ssl_support_method       = "sni-only"
   }
 }
+

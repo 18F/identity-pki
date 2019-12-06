@@ -1,29 +1,34 @@
 provider "aws" {
-  region = "${var.region}"
-  version = "~> 1.60"
+  region  = var.region
+  version = "~> 2.37.0"
 }
 
 provider "aws" {
   region = "us-east-1"
-  alias = "use1"
+  alias  = "use1"
 }
 
 provider "aws" {
-  alias = "usw2"
-  region = "${var.region}"
+  alias  = "usw2"
+  region = var.region
 }
 
-provider "external" { version = "~> 1.0" }
-provider "null"     { version = "~> 1.0" }
-provider "template" { version = "~> 1.0" }
+provider "external" {
+  version = "~> 1.2.0"
+}
 
-# Stub remote config needed for terraform 0.9.*
+provider "null" {
+  version = "~> 2.1.2"
+}
+
+provider "template" {
+  version = "~> 2.1.2"
+}
+
 terraform {
   backend "s3" {
   }
-
-  # Allowed terraform version
-  required_version = "~> 0.11.7"
+  required_version = ">= 0.12"
 }
 
 # This policy can be used to allow the EC2 service to assume the role.
@@ -31,10 +36,10 @@ data "aws_iam_policy_document" "assume_role_from_vpc" {
   statement {
     sid = "allowVPC"
     actions = [
-      "sts:AssumeRole"
+      "sts:AssumeRole",
     ]
-    principals = {
-      type = "Service"
+    principals {
+      type        = "Service"
       identifiers = ["ec2.amazonaws.com"]
     }
   }
@@ -48,10 +53,11 @@ data "aws_iam_policy_document" "cloudwatch-logs" {
       "logs:CreateLogGroup",
       "logs:CreateLogStream",
       "logs:PutLogEvents",
-      "logs:DescribeLogStreams"
+      "logs:DescribeLogStreams",
     ]
     resources = [
-      "arn:aws:logs:*:*:*"
+      "arn:aws:logs:*:*:*",
     ]
   }
 }
+

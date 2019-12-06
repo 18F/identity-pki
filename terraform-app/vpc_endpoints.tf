@@ -3,29 +3,29 @@ resource "aws_security_group" "kms_endpoint" {
 
   # allow outbound to the VPC
   egress {
-    from_port = 0
-    to_port = 65535
-    protocol = "tcp"
-    cidr_blocks = ["${var.vpc_cidr_block}"]
+    from_port   = 0
+    to_port     = 65535
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr_block]
   }
 
   ingress {
     from_port = 0
-    to_port = 65535
-    protocol = "tcp"
+    to_port   = 65535
+    protocol  = "tcp"
     security_groups = [
-        "${aws_security_group.idp.id}",
-        "${aws_security_group.migration.id}",
+      aws_security_group.idp.id,
+      aws_security_group.migration.id,
     ]
   }
 
   name = "${var.name}-kms_endpoint-${var.env_name}"
 
-  tags {
+  tags = {
     Name = "${var.name}-kms_endpoint-${var.env_name}"
   }
 
-  vpc_id = "${aws_vpc.default.id}"
+  vpc_id = aws_vpc.default.id
 }
 
 resource "aws_security_group" "ssm_endpoint" {
@@ -33,24 +33,23 @@ resource "aws_security_group" "ssm_endpoint" {
 
   # allow outbound to the VPC
   egress {
-    from_port = 0
-    to_port = 65535
-    protocol = "tcp"
-    cidr_blocks = ["${var.vpc_cidr_block}"]
+    from_port   = 0
+    to_port     = 65535
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr_block]
   }
 
   ingress {
     from_port = 0
-    to_port = 65535
-    protocol = "tcp"
+    to_port   = 65535
+    protocol  = "tcp"
     security_groups = [
-        "${aws_security_group.base.id}",
-
-        "${aws_security_group.jumphost.id}", # TODO remove
+      aws_security_group.base.id,
+      aws_security_group.jumphost.id, # TODO remove
     ]
   }
 
-  vpc_id = "${aws_vpc.default.id}"
+  vpc_id = aws_vpc.default.id
 }
 
 resource "aws_security_group" "ssmmessages_endpoint" {
@@ -58,24 +57,23 @@ resource "aws_security_group" "ssmmessages_endpoint" {
 
   # allow outbound to the VPC
   egress {
-    from_port = 0
-    to_port = 65535
-    protocol = "tcp"
-    cidr_blocks = ["${var.vpc_cidr_block}"]
+    from_port   = 0
+    to_port     = 65535
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr_block]
   }
 
   ingress {
     from_port = 0
-    to_port = 65535
-    protocol = "tcp"
+    to_port   = 65535
+    protocol  = "tcp"
     security_groups = [
-        "${aws_security_group.base.id}",
-
-        "${aws_security_group.jumphost.id}", # TODO remove
+      aws_security_group.base.id,
+      aws_security_group.jumphost.id, # TODO remove
     ]
   }
 
-  vpc_id = "${aws_vpc.default.id}"
+  vpc_id = aws_vpc.default.id
 }
 
 resource "aws_security_group" "ec2_endpoint" {
@@ -83,30 +81,29 @@ resource "aws_security_group" "ec2_endpoint" {
 
   # allow outbound to the VPC
   egress {
-    from_port = 0
-    to_port = 65535
-    protocol = "tcp"
-    cidr_blocks = ["${var.vpc_cidr_block}"]
+    from_port   = 0
+    to_port     = 65535
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr_block]
   }
 
   ingress {
     from_port = 0
-    to_port = 65535
-    protocol = "tcp"
+    to_port   = 65535
+    protocol  = "tcp"
     security_groups = [
-        "${aws_security_group.base.id}",
-
-        "${aws_security_group.jumphost.id}", # TODO remove
+      aws_security_group.base.id,
+      aws_security_group.jumphost.id, # TODO remove
     ]
   }
 
   name = "${var.name}-ec2_endpoint-${var.env_name}"
 
-  tags {
+  tags = {
     Name = "${var.name}-ec2_endpoint-${var.env_name}"
   }
 
-  vpc_id = "${aws_vpc.default.id}"
+  vpc_id = aws_vpc.default.id
 }
 
 resource "aws_security_group" "ec2messages_endpoint" {
@@ -114,30 +111,29 @@ resource "aws_security_group" "ec2messages_endpoint" {
 
   # allow outbound to the VPC
   egress {
-    from_port = 0
-    to_port = 65535
-    protocol = "tcp"
-    cidr_blocks = ["${var.vpc_cidr_block}"]
+    from_port   = 0
+    to_port     = 65535
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr_block]
   }
 
   ingress {
     from_port = 0
-    to_port = 65535
-    protocol = "tcp"
+    to_port   = 65535
+    protocol  = "tcp"
     security_groups = [
-        "${aws_security_group.base.id}",
-
-        "${aws_security_group.jumphost.id}", # TODO remove
+      aws_security_group.base.id,
+      aws_security_group.jumphost.id, # TODO remove
     ]
   }
 
   name = "${var.name}-ec2messages_endpoint-${var.env_name}"
 
-  tags {
+  tags = {
     Name = "${var.name}-ec2messages_endpoint-${var.env_name}"
   }
 
-  vpc_id = "${aws_vpc.default.id}"
+  vpc_id = aws_vpc.default.id
 }
 
 resource "aws_security_group" "logs_endpoint" {
@@ -145,30 +141,29 @@ resource "aws_security_group" "logs_endpoint" {
 
   # allow outbound to the VPC
   egress {
-    from_port = 0
-    to_port = 65535
-    protocol = "tcp"
-    cidr_blocks = ["${var.vpc_cidr_block}"]
+    from_port   = 0
+    to_port     = 65535
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr_block]
   }
 
   ingress {
     from_port = 0
-    to_port = 65535
-    protocol = "tcp"
+    to_port   = 65535
+    protocol  = "tcp"
     security_groups = [
-        "${aws_security_group.base.id}",
-
-        "${aws_security_group.jumphost.id}", # TODO remove
+      aws_security_group.base.id,
+      aws_security_group.jumphost.id, # TODO remove
     ]
   }
 
   name = "${var.name}-logs_endpoint-${var.env_name}"
 
-  tags {
+  tags = {
     Name = "${var.name}-logs_endpoint-${var.env_name}"
   }
 
-  vpc_id = "${aws_vpc.default.id}"
+  vpc_id = aws_vpc.default.id
 }
 
 resource "aws_security_group" "secretsmanager_endpoint" {
@@ -176,154 +171,154 @@ resource "aws_security_group" "secretsmanager_endpoint" {
 
   # allow outbound to the VPC
   egress {
-    from_port = 0
-    to_port = 65535
-    protocol = "tcp"
-    cidr_blocks = ["${var.vpc_cidr_block}"]
+    from_port   = 0
+    to_port     = 65535
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr_block]
   }
 
   ingress {
     from_port = 0
-    to_port = 65535
-    protocol = "tcp"
+    to_port   = 65535
+    protocol  = "tcp"
     security_groups = [
-        "${aws_security_group.base.id}",
-
-        "${aws_security_group.jumphost.id}", # TODO remove
+      aws_security_group.base.id,
+      aws_security_group.jumphost.id, # TODO remove
     ]
   }
 
   name = "${var.name}-secretsmanager_endpoint-${var.env_name}"
 
-  tags {
+  tags = {
     Name = "${var.name}-secretsmanager_endpoint-${var.env_name}"
   }
 
-  vpc_id = "${aws_vpc.default.id}"
+  vpc_id = aws_vpc.default.id
 }
 
 resource "aws_vpc_endpoint" "kms" {
-  vpc_id = "${aws_vpc.default.id}"
-  service_name = "com.amazonaws.${var.region}.kms"
+  vpc_id            = aws_vpc.default.id
+  service_name      = "com.amazonaws.${var.region}.kms"
   vpc_endpoint_type = "Interface"
 
   security_group_ids = [
-    "${aws_security_group.kms_endpoint.id}"
+    aws_security_group.kms_endpoint.id,
   ]
 
   subnet_ids = [
-    "${aws_subnet.privatesubnet1.id}",
-    "${aws_subnet.privatesubnet2.id}",
-    "${aws_subnet.privatesubnet3.id}",
+    aws_subnet.privatesubnet1.id,
+    aws_subnet.privatesubnet2.id,
+    aws_subnet.privatesubnet3.id,
   ]
 
   private_dns_enabled = true
 }
 
 resource "aws_vpc_endpoint" "logs" {
-  vpc_id = "${aws_vpc.default.id}"
-  service_name = "com.amazonaws.${var.region}.logs"
+  vpc_id            = aws_vpc.default.id
+  service_name      = "com.amazonaws.${var.region}.logs"
   vpc_endpoint_type = "Interface"
 
   security_group_ids = [
-    "${aws_security_group.logs_endpoint.id}",
+    aws_security_group.logs_endpoint.id,
   ]
 
   subnet_ids = [
-    "${aws_subnet.privatesubnet1.id}",
-    "${aws_subnet.privatesubnet2.id}",
-    "${aws_subnet.privatesubnet3.id}",
+    aws_subnet.privatesubnet1.id,
+    aws_subnet.privatesubnet2.id,
+    aws_subnet.privatesubnet3.id,
   ]
 
   private_dns_enabled = true
 }
 
 resource "aws_vpc_endpoint" "ssm" {
-  vpc_id = "${aws_vpc.default.id}"
-  service_name = "com.amazonaws.${var.region}.ssm"
+  vpc_id            = aws_vpc.default.id
+  service_name      = "com.amazonaws.${var.region}.ssm"
   vpc_endpoint_type = "Interface"
 
   security_group_ids = [
-    "${aws_security_group.ssm_endpoint.id}",
+    aws_security_group.ssm_endpoint.id,
   ]
 
   subnet_ids = [
-    "${aws_subnet.privatesubnet1.id}",
-    "${aws_subnet.privatesubnet2.id}",
-    "${aws_subnet.privatesubnet3.id}",
+    aws_subnet.privatesubnet1.id,
+    aws_subnet.privatesubnet2.id,
+    aws_subnet.privatesubnet3.id,
   ]
 
   private_dns_enabled = true
 }
 
 resource "aws_vpc_endpoint" "ssmmessages" {
-  vpc_id = "${aws_vpc.default.id}"
-  service_name = "com.amazonaws.${var.region}.ssmmessages"
+  vpc_id            = aws_vpc.default.id
+  service_name      = "com.amazonaws.${var.region}.ssmmessages"
   vpc_endpoint_type = "Interface"
 
   security_group_ids = [
-    "${aws_security_group.ssmmessages_endpoint.id}",
+    aws_security_group.ssmmessages_endpoint.id,
   ]
 
   subnet_ids = [
-    "${aws_subnet.privatesubnet1.id}",
-    "${aws_subnet.privatesubnet2.id}",
-    "${aws_subnet.privatesubnet3.id}",
+    aws_subnet.privatesubnet1.id,
+    aws_subnet.privatesubnet2.id,
+    aws_subnet.privatesubnet3.id,
   ]
 
   private_dns_enabled = true
 }
 
 resource "aws_vpc_endpoint" "ec2" {
-  vpc_id = "${aws_vpc.default.id}"
-  service_name = "com.amazonaws.${var.region}.ec2"
+  vpc_id            = aws_vpc.default.id
+  service_name      = "com.amazonaws.${var.region}.ec2"
   vpc_endpoint_type = "Interface"
 
   security_group_ids = [
-    "${aws_security_group.ec2_endpoint.id}",
+    aws_security_group.ec2_endpoint.id,
   ]
 
   subnet_ids = [
-    "${aws_subnet.privatesubnet1.id}",
-    "${aws_subnet.privatesubnet2.id}",
-    "${aws_subnet.privatesubnet3.id}",
+    aws_subnet.privatesubnet1.id,
+    aws_subnet.privatesubnet2.id,
+    aws_subnet.privatesubnet3.id,
   ]
 
   private_dns_enabled = true
 }
 
 resource "aws_vpc_endpoint" "ec2messages" {
-  vpc_id = "${aws_vpc.default.id}"
-  service_name = "com.amazonaws.${var.region}.ec2messages"
+  vpc_id            = aws_vpc.default.id
+  service_name      = "com.amazonaws.${var.region}.ec2messages"
   vpc_endpoint_type = "Interface"
 
   security_group_ids = [
-    "${aws_security_group.ec2messages_endpoint.id}",
-    ]
+    aws_security_group.ec2messages_endpoint.id,
+  ]
 
   subnet_ids = [
-    "${aws_subnet.privatesubnet1.id}",
-    "${aws_subnet.privatesubnet2.id}",
-    "${aws_subnet.privatesubnet3.id}",
+    aws_subnet.privatesubnet1.id,
+    aws_subnet.privatesubnet2.id,
+    aws_subnet.privatesubnet3.id,
   ]
 
   private_dns_enabled = true
 }
 
 resource "aws_vpc_endpoint" "secretsmanager" {
-  vpc_id = "${aws_vpc.default.id}"
-  service_name = "com.amazonaws.${var.region}.secretsmanager"
+  vpc_id            = aws_vpc.default.id
+  service_name      = "com.amazonaws.${var.region}.secretsmanager"
   vpc_endpoint_type = "Interface"
 
   security_group_ids = [
-    "${aws_security_group.secretsmanager_endpoint.id}",
-    ]
+    aws_security_group.secretsmanager_endpoint.id,
+  ]
 
   subnet_ids = [
-    "${aws_subnet.privatesubnet1.id}",
-    "${aws_subnet.privatesubnet2.id}",
-    "${aws_subnet.privatesubnet3.id}",
+    aws_subnet.privatesubnet1.id,
+    aws_subnet.privatesubnet2.id,
+    aws_subnet.privatesubnet3.id,
   ]
 
   private_dns_enabled = true
 }
+

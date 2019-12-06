@@ -567,7 +567,7 @@ if [ -n "$MOVED_TO_TFVARS" ] && [ -z "${ID_SKIP_LOADING_VARS-}" ]; then
 
     # these are the subcommands that accept -var-file
     case "$tf_subcommand" in
-        apply|destroy|import|plan|refresh|validate)
+        apply|destroy|import|plan|refresh)
             TF_CMD=(
                 "$tf_subcommand" "${tf_vars_opts[@]}" "${TF_CMD[@]:1}"
             )

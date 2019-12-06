@@ -1,147 +1,148 @@
 variable "domain" {
-    description = "DNS domain to use as the root domain, e.g. 'login.gov.'"
+  description = "DNS domain to use as the root domain, e.g. 'login.gov.'"
 }
 
 variable "static_cloudfront_name" {
-    description = "Static site Cloudfront DNS name, e.g. abcd.cloudfront.net"
+  description = "Static site Cloudfront DNS name, e.g. abcd.cloudfront.net"
 }
 
 variable "design_cloudfront_name" {
-    description = "Design site Cloudfront DNS name, e.g. abcd.cloudfront.net"
+  description = "Design site Cloudfront DNS name, e.g. abcd.cloudfront.net"
 }
 
 variable "developers_cloudfront_name" {
-    description = "Developers site Cloudfront DNS name, e.g. abcd.cloudfront.net"
+  description = "Developers site Cloudfront DNS name, e.g. abcd.cloudfront.net"
 }
 
 variable "cloudfront_zone_id" {
-    description = "Static site Cloudfront Zone ID, e.g. ZABCDEFG1234"
-    default = "Z2FDTNDATAQYW2" # Zone ID for all cloudfront sites?
+  description = "Static site Cloudfront Zone ID, e.g. ZABCDEFG1234"
+  default     = "Z2FDTNDATAQYW2" # Zone ID for all cloudfront sites?
 }
 
 variable "google_site_verification_txt" {
-    description = "Google site verification text to put in TXT record"
-    default = ""
+  description = "Google site verification text to put in TXT record"
+  default     = ""
 }
 
 variable "mx_provider" {
-    description = "Which provider to use for MX records (see mx_record_map)"
+  description = "Which provider to use for MX records (see mx_record_map)"
 }
 
 variable "mx_record_map" {
-    description = "Mapping of provider name to comma-separated MX records"
-    type = "map"
-    default = {
-        "google-g-suite" = "10 aspmx.l.google.com.,20 alt1.aspmx.l.google.com.,20 alt2.aspmx.l.google.com.,30 aspmx2.googlemail.com.,30 aspmx3.googlemail.com.,30 aspmx4.googlemail.com.,30 aspmx5.googlemail.com."
-        "amazon-ses-inbound.us-west-2" = "10 inbound-smtp.us-west-2.amazonaws.com."
-    }
+  description = "Mapping of provider name to comma-separated MX records"
+  type        = map(string)
+  default = {
+    "google-g-suite"               = "10 aspmx.l.google.com.,20 alt1.aspmx.l.google.com.,20 alt2.aspmx.l.google.com.,30 aspmx2.googlemail.com.,30 aspmx3.googlemail.com.,30 aspmx4.googlemail.com.,30 aspmx5.googlemail.com."
+    "amazon-ses-inbound.us-west-2" = "10 inbound-smtp.us-west-2.amazonaws.com."
+  }
 }
 
 resource "aws_route53_zone" "primary" {
-    # domain, ensuring it has a trailing "."
-    name = "${replace(var.domain, "/\\.?$/", ".")}"
+  # domain, ensuring it has a trailing "."
+  name = replace(var.domain, "/\\.?$/", ".")
 }
 
 output "primary_zone_id" {
-    value = "${aws_route53_zone.primary.zone_id}"
-}
-output "primary_domain" {
-    value = "${var.domain}"
-}
-output "primary_name_servers" {
-    value = [
-        "${aws_route53_zone.primary.name_servers.0}",
-        "${aws_route53_zone.primary.name_servers.1}",
-        "${aws_route53_zone.primary.name_servers.2}",
-        "${aws_route53_zone.primary.name_servers.3}"
-    ]
+  value = aws_route53_zone.primary.zone_id
 }
 
+output "primary_domain" {
+  value = var.domain
+}
+
+output "primary_name_servers" {
+  value = [
+    aws_route53_zone.primary.name_servers[0],
+    aws_route53_zone.primary.name_servers[1],
+    aws_route53_zone.primary.name_servers[2],
+    aws_route53_zone.primary.name_servers[3],
+  ]
+}
 
 resource "aws_route53_record" "a_root" {
-    name = "${var.domain}"
-    type = "A"
-    zone_id = "${aws_route53_zone.primary.zone_id}"
-    alias {
-        evaluate_target_health = false
-        name = "${var.static_cloudfront_name}"
-        zone_id = "${var.cloudfront_zone_id}"
-    }
+  name    = var.domain
+  type    = "A"
+  zone_id = aws_route53_zone.primary.zone_id
+  alias {
+    evaluate_target_health = false
+    name                   = var.static_cloudfront_name
+    zone_id                = var.cloudfront_zone_id
+  }
 }
 
 resource "aws_route53_record" "a_www" {
-    name = "www.${var.domain}"
-    type = "A"
-    zone_id = "${aws_route53_zone.primary.zone_id}"
-    alias {
-        evaluate_target_health = false
-        name = "${var.static_cloudfront_name}"
-        zone_id = "${var.cloudfront_zone_id}"
-    }
+  name    = "www.${var.domain}"
+  type    = "A"
+  zone_id = aws_route53_zone.primary.zone_id
+  alias {
+    evaluate_target_health = false
+    name                   = var.static_cloudfront_name
+    zone_id                = var.cloudfront_zone_id
+  }
 }
 
 resource "aws_route53_record" "a_design" {
-    name = "design.${var.domain}"
-    type = "A"
-    zone_id = "${aws_route53_zone.primary.zone_id}"
-    alias {
-        evaluate_target_health = false
-        name = "${var.design_cloudfront_name}"
-        zone_id = "${var.cloudfront_zone_id}"
-    }
+  name    = "design.${var.domain}"
+  type    = "A"
+  zone_id = aws_route53_zone.primary.zone_id
+  alias {
+    evaluate_target_health = false
+    name                   = var.design_cloudfront_name
+    zone_id                = var.cloudfront_zone_id
+  }
 }
 
 resource "aws_route53_record" "a_developers" {
-    name = "developers.${var.domain}"
-    type = "A"
-    zone_id = "${aws_route53_zone.primary.zone_id}"
-    alias {
-        evaluate_target_health = false
-        name = "${var.developers_cloudfront_name}"
-        zone_id = "${var.cloudfront_zone_id}"
-    }
+  name    = "developers.${var.domain}"
+  type    = "A"
+  zone_id = aws_route53_zone.primary.zone_id
+  alias {
+    evaluate_target_health = false
+    name                   = var.developers_cloudfront_name
+    zone_id                = var.cloudfront_zone_id
+  }
 }
 
-
 resource "aws_route53_record" "mx_google" {
-    name = "${var.domain}"
-    records = ["${split(",", lookup(var.mx_record_map, var.mx_provider))}"]
-    ttl = "3600"
-    type = "MX"
-    zone_id = "${aws_route53_zone.primary.zone_id}"
+  name    = var.domain
+  records = split(",", var.mx_record_map[var.mx_provider])
+  ttl     = "3600"
+  type    = "MX"
+  zone_id = aws_route53_zone.primary.zone_id
 }
 
 # Root TXT records, including SPF.
 # TODO: remove GSA? All mail should be from SES or Google.
 resource "aws_route53_record" "txt" {
-    name = "${var.domain}"
-    records = ["google-site-verification=${var.google_site_verification_txt}", "v=spf1 mx include:_spf.google.com ~all"]
-    ttl = "900"
-    type = "TXT"
-    zone_id = "${aws_route53_zone.primary.zone_id}"
+  name    = var.domain
+  records = ["google-site-verification=${var.google_site_verification_txt}", "v=spf1 mx include:_spf.google.com ~all"]
+  ttl     = "900"
+  type    = "TXT"
+  zone_id = aws_route53_zone.primary.zone_id
 }
 
 # Add a record under login.gov saying it's OK to send reports for
 # identitysandbox.gov to login.gov.
 # https://space.dmarcian.com/what-is-external-destination-verification/
 resource "aws_route53_record" "txt_dmarc_authorization" {
-    count = "${var.domain == "login.gov" ? 1 : 0}"
-    name = "identitysandbox.gov._report._dmarc.${var.domain}"
-    records = ["v=DMARC1"]
-    ttl = "3600"
-    type = "TXT"
-    zone_id = "${aws_route53_zone.primary.zone_id}"
+  count   = var.domain == "login.gov" ? 1 : 0
+  name    = "identitysandbox.gov._report._dmarc.${var.domain}"
+  records = ["v=DMARC1"]
+  ttl     = "3600"
+  type    = "TXT"
+  zone_id = aws_route53_zone.primary.zone_id
 }
+
 # Add a record under login.gov saying it's OK to send reports for
 # connect.gov to login.gov.
 # https://space.dmarcian.com/what-is-external-destination-verification/
 resource "aws_route53_record" "txt_dmarc_authorization_connect_gov" {
-    count = "${var.domain == "login.gov" ? 1 : 0}"
-    name = "connect.gov._report._dmarc.${var.domain}"
-    records = ["v=DMARC1"]
-    ttl = "3600"
-    type = "TXT"
-    zone_id = "${aws_route53_zone.primary.zone_id}"
+  count   = var.domain == "login.gov" ? 1 : 0
+  name    = "connect.gov._report._dmarc.${var.domain}"
+  records = ["v=DMARC1"]
+  ttl     = "3600"
+  type    = "TXT"
+  zone_id = aws_route53_zone.primary.zone_id
 }
 
 # TODO: Add this record once we upgrade to a version of terraform that can
@@ -157,25 +158,26 @@ resource "aws_route53_record" "txt_dmarc_authorization_connect_gov" {
 #}
 
 resource "aws_route53_record" "mail_in_txt" {
-    name = "mail.${var.domain}"
-    zone_id = "${aws_route53_zone.primary.zone_id}"
-    ttl = "900"
-    type = "TXT"
-    records = ["v=spf1 include:amazonses.com ~all"]
+  name    = "mail.${var.domain}"
+  zone_id = aws_route53_zone.primary.zone_id
+  ttl     = "900"
+  type    = "TXT"
+  records = ["v=spf1 include:amazonses.com ~all"]
 }
 
 resource "aws_route53_record" "mail_in_mx" {
-    name = "mail.${var.domain}"
-    zone_id = "${aws_route53_zone.primary.zone_id}"
-    ttl = "900"
-    type = "MX"
-    records = ["10 feedback-smtp.us-west-2.amazonses.com"] # NB us-west-2 only
+  name    = "mail.${var.domain}"
+  zone_id = aws_route53_zone.primary.zone_id
+  ttl     = "900"
+  type    = "MX"
+  records = ["10 feedback-smtp.us-west-2.amazonses.com"] # NB us-west-2 only
 }
 
 resource "aws_route53_record" "main_dmarc" {
-    name = "_dmarc.${var.domain}"
-    zone_id = "${aws_route53_zone.primary.zone_id}"
-    ttl = "900"
-    type = "TXT"
-    records = ["v=DMARC1; p=reject; pct=100; fo=1; ri=3600; rua=mailto:gsalogin@rua.agari.com,mailto:dmarc-reports@login.gov,mailto:reports@dmarc.cyber.dhs.gov; ruf=mailto:dmarc-forensics@login.gov"]
+  name    = "_dmarc.${var.domain}"
+  zone_id = aws_route53_zone.primary.zone_id
+  ttl     = "900"
+  type    = "TXT"
+  records = ["v=DMARC1; p=reject; pct=100; fo=1; ri=3600; rua=mailto:gsalogin@rua.agari.com,mailto:dmarc-reports@login.gov,mailto:reports@dmarc.cyber.dhs.gov; ruf=mailto:dmarc-forensics@login.gov"]
 }
+

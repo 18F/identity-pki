@@ -2,78 +2,79 @@
 # to https://github.com/hashicorp/terraform/issues/13018
 
 locals {
-    password_length = 32
+  password_length = 32
 }
 
-data "aws_caller_identity" "current" {}
+data "aws_caller_identity" "current" {
+}
 
 module "iam_account" {
-    source = "terraform-aws-modules/iam/aws//modules/iam-account"
-    version = "~> 1.0"
-    account_alias = "identity-master"
+  source        = "terraform-aws-modules/iam/aws//modules/iam-account"
+  version       = "~> 1.0"
+  account_alias = "identity-master"
 
-    allow_users_to_change_password = true
-    create_account_password_policy = true
-    max_password_age = 90
-    minimum_password_length = "${local.password_length}"
-    password_reuse_prevention = true
-    require_lowercase_characters = true
-    require_numbers = true
-    require_symbols = true
-    require_uppercase_characters = true
+  allow_users_to_change_password = true
+  create_account_password_policy = true
+  max_password_age               = 90
+  minimum_password_length        = local.password_length
+  password_reuse_prevention      = true
+  require_lowercase_characters   = true
+  require_numbers                = true
+  require_symbols                = true
+  require_uppercase_characters   = true
 }
 
 resource "aws_s3_account_public_access_block" "s3_limits" {
-    block_public_acls = true
-    block_public_policy = true
-    ignore_public_acls = true
-    restrict_public_buckets = true
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }
 
 data "aws_iam_policy_document" "cloudtrail" {
   statement {
-    principals = {
-      type = "Service"
+    principals {
+      type        = "Service"
       identifiers = ["cloudtrail.amazonaws.com"]
     }
     actions = [
-      "s3:GetBucketAcl"
+      "s3:GetBucketAcl",
     ]
     resources = [
-      "arn:aws:s3:::login-gov-cloudtrail-${data.aws_caller_identity.current.account_id}"
+      "arn:aws:s3:::login-gov-cloudtrail-${data.aws_caller_identity.current.account_id}",
     ]
   }
   statement {
-    principals = {
-      type = "Service"
+    principals {
+      type        = "Service"
       identifiers = ["cloudtrail.amazonaws.com"]
     }
     actions = [
-      "s3:PutObject"
+      "s3:PutObject",
     ]
     resources = [
-      "arn:aws:s3:::login-gov-cloudtrail-${data.aws_caller_identity.current.account_id}/*"
+      "arn:aws:s3:::login-gov-cloudtrail-${data.aws_caller_identity.current.account_id}/*",
     ]
     condition {
-      test = "StringEquals"
+      test     = "StringEquals"
       variable = "s3:x-amz-acl"
       values = [
-        "bucket-owner-full-control"
+        "bucket-owner-full-control",
       ]
     }
   }
 }
 
 resource "aws_s3_bucket" "cloudtrail" {
-  bucket = "login-gov-cloudtrail-${data.aws_caller_identity.current.account_id}"
+  bucket        = "login-gov-cloudtrail-${data.aws_caller_identity.current.account_id}"
   force_destroy = true
 
-  policy = "${data.aws_iam_policy_document.cloudtrail.json}"
+  policy = data.aws_iam_policy_document.cloudtrail.json
 
   lifecycle_rule {
-    id = "logexpire"
+    id      = "logexpire"
     enabled = true
-    prefix = ""
+    prefix  = ""
 
     expiration {
       days = 30
@@ -97,57 +98,58 @@ resource "aws_cloudwatch_log_group" "cloudtrail" {
 data "aws_iam_policy_document" "cloudtrail_assume" {
   statement {
     actions = [
-      "sts:AssumeRole"
+      "sts:AssumeRole",
     ]
     effect = "Allow"
     principals {
       type = "Service"
       identifiers = [
-        "cloudtrail.amazonaws.com"
+        "cloudtrail.amazonaws.com",
       ]
     }
   }
 }
 
 resource "aws_iam_role" "cloudtrail_cloudwatch" {
-  name = "CloudTrailCloudWatch"
-  assume_role_policy = "${data.aws_iam_policy_document.cloudtrail_assume.json}"
+  name               = "CloudTrailCloudWatch"
+  assume_role_policy = data.aws_iam_policy_document.cloudtrail_assume.json
 }
 
 data "aws_iam_policy_document" "cloudwatch_perms_cloudtrail" {
   statement {
-    sid = "CloudWatch"
+    sid    = "CloudWatch"
     effect = "Allow"
     actions = [
       "logs:CreateLogStream",
-      "logs:PutLogEvents"
+      "logs:PutLogEvents",
     ]
     resources = [
-      "${aws_cloudwatch_log_group.cloudtrail.arn}:log-stream:*"
+      "${aws_cloudwatch_log_group.cloudtrail.arn}:log-stream:*",
     ]
   }
 }
 
 resource "aws_iam_role_policy" "cloudwatch_perms_cloudtrail" {
-  name = "CloudWatch"
-  role = "${aws_iam_role.cloudtrail_cloudwatch.name}"
-  policy = "${data.aws_iam_policy_document.cloudwatch_perms_cloudtrail.json}"
+  name   = "CloudWatch"
+  role   = aws_iam_role.cloudtrail_cloudwatch.name
+  policy = data.aws_iam_policy_document.cloudwatch_perms_cloudtrail.json
 }
 
 resource "aws_cloudtrail" "cloudtrail" {
-  enable_log_file_validation = true
+  enable_log_file_validation    = true
   include_global_service_events = true
-  is_multi_region_trail = true
-  name = "login-gov-cloudtrail"
-  s3_bucket_name = "${aws_s3_bucket.cloudtrail.id}"
+  is_multi_region_trail         = true
+  name                          = "login-gov-cloudtrail"
+  s3_bucket_name                = aws_s3_bucket.cloudtrail.id
 }
 
 # Module that manages the terraform remote state bucket and creates the S3 logs bucket
 module "tf-state" {
   source = "github.com/18F/identity-terraform//state_bucket?ref=c4970aefd61759d92b123de7afe496882d1a7c5b"
-  region = "${var.region}"
+  region = var.region
 }
 
 locals {
-  s3_log_bucket = "${module.tf-state.s3_log_bucket}"
+  s3_log_bucket = module.tf-state.s3_log_bucket
 }
+

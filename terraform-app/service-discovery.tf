@@ -7,13 +7,13 @@
 # discovery)
 data "aws_iam_policy_document" "describe_instances_role_policy" {
   statement {
-    sid = "AllowDescribeInstancesIntegrationTest"
+    sid    = "AllowDescribeInstancesIntegrationTest"
     effect = "Allow"
     actions = [
-      "ec2:DescribeInstances"
+      "ec2:DescribeInstances",
     ]
     resources = [
-       "*"
+      "*",
     ]
   }
 }
@@ -22,14 +22,14 @@ data "aws_iam_policy_document" "describe_instances_role_policy" {
 # signed certificates (for service registration and discovery)
 data "aws_iam_policy_document" "certificates_role_policy" {
   statement {
-    sid = "AllowCertificatesBucketIntegrationTest"
+    sid    = "AllowCertificatesBucketIntegrationTest"
     effect = "Allow"
     actions = [
-      "s3:*"
+      "s3:*",
     ]
     resources = [
-       "arn:aws:s3:::login-gov.internal-certs.${data.aws_caller_identity.current.account_id}-${var.region}/${var.env_name}/",
-       "arn:aws:s3:::login-gov.internal-certs.${data.aws_caller_identity.current.account_id}-${var.region}/${var.env_name}/*",
+      "arn:aws:s3:::login-gov.internal-certs.${data.aws_caller_identity.current.account_id}-${var.region}/${var.env_name}/",
+      "arn:aws:s3:::login-gov.internal-certs.${data.aws_caller_identity.current.account_id}-${var.region}/${var.env_name}/*",
     ]
   }
 }
@@ -46,26 +46,27 @@ data "aws_iam_policy_document" "certificates_role_policy" {
 # even though there is a 1:1 mapping between iam_instance_profiles and
 # iam_roles, so if your instance needs other permissions you can't use this.
 resource "aws_iam_role" "service-discovery" {
-    name = "${var.env_name}-service-discovery"
-    assume_role_policy = "${data.aws_iam_policy_document.assume_role_from_vpc.json}"
+  name               = "${var.env_name}-service-discovery"
+  assume_role_policy = data.aws_iam_policy_document.assume_role_from_vpc.json
 }
 
 # Role policy that associates it with the certificates_role_policy
 resource "aws_iam_role_policy" "service-discovery-certificates" {
-    name = "${var.env_name}-service-discovery-certificates"
-    role = "${aws_iam_role.service-discovery.id}"
-    policy = "${data.aws_iam_policy_document.certificates_role_policy.json}"
+  name   = "${var.env_name}-service-discovery-certificates"
+  role   = aws_iam_role.service-discovery.id
+  policy = data.aws_iam_policy_document.certificates_role_policy.json
 }
 
 # Role policy that associates it with the describe_instances_role_policy
 resource "aws_iam_role_policy" "service-discovery-describe_instances" {
-    name = "${var.env_name}-service-discovery-describe_instances"
-    role = "${aws_iam_role.service-discovery.id}"
-    policy = "${data.aws_iam_policy_document.describe_instances_role_policy.json}"
+  name   = "${var.env_name}-service-discovery-describe_instances"
+  role   = aws_iam_role.service-discovery.id
+  policy = data.aws_iam_policy_document.describe_instances_role_policy.json
 }
 
 # IAM instance profile using the citadel client role
 resource "aws_iam_instance_profile" "service-discovery" {
-    name = "${var.env_name}-service-discovery"
-    role = "${aws_iam_role.service-discovery.name}"
+  name = "${var.env_name}-service-discovery"
+  role = aws_iam_role.service-discovery.name
 }
+

@@ -1,7 +1,7 @@
 resource "aws_elb" "elk" {
-  name               = "${var.env_name}-elk"
-  subnets = ["${aws_subnet.elk.*.id}"]
-  security_groups = ["${aws_security_group.elk.id}"]
+  name            = "${var.env_name}-elk"
+  subnets         = aws_subnet.elk.*.id
+  security_groups = [aws_security_group.elk.id]
 
   access_logs {
     bucket        = "login-gov.elb-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
@@ -34,27 +34,27 @@ resource "aws_elb" "elk" {
     interval            = 5
   }
 
-  internal = true
-  cross_zone_load_balancing   = true
+  internal                  = true
+  cross_zone_load_balancing = true
 
-  tags {
-    Name = "elk-internal-elb"
-    client = "${var.client}"
+  tags = {
+    Name   = "elk-internal-elb"
   }
 }
 
 resource "aws_route53_record" "kibana" {
-  zone_id = "${aws_route53_zone.internal.zone_id}"
-  name = "kibana.login.gov.internal"
-  ttl = "300"
-  type = "CNAME"
-  records = ["${aws_elb.elk.dns_name}"]
+  zone_id = aws_route53_zone.internal.zone_id
+  name    = "kibana.login.gov.internal"
+  ttl     = "300"
+  type    = "CNAME"
+  records = [aws_elb.elk.dns_name]
 }
 
 resource "aws_route53_record" "logstash" {
-  zone_id = "${aws_route53_zone.internal.zone_id}"
-  name = "logstash.login.gov.internal"
-  ttl = "300"
-  type = "CNAME"
-  records = ["${aws_elb.elk.dns_name}"]
+  zone_id = aws_route53_zone.internal.zone_id
+  name    = "logstash.login.gov.internal"
+  ttl     = "300"
+  type    = "CNAME"
+  records = [aws_elb.elk.dns_name]
 }
+

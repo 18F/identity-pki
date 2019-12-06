@@ -1,5 +1,5 @@
 provider "aws" {
-  region = "${var.region}"
+  region var.region
 }
 
 data "aws_caller_identity" "current" {}
@@ -8,7 +8,7 @@ data "aws_iam_policy_document" "cloudtrail" {
   statement {
     principals = {
       type = "AWS"
-      identifiers = ["${var.elk_cloudtrail_bucket_access_roles}"]
+      identifiers = [var.elk_cloudtrail_bucket_access_roles]
     }
     actions = [
       "s3:ListBucket"
@@ -20,7 +20,7 @@ data "aws_iam_policy_document" "cloudtrail" {
   statement {
     principals = {
       type = "AWS"
-      identifiers = ["${var.elk_cloudtrail_bucket_access_roles}"]
+      identifiers = [var.elk_cloudtrail_bucket_access_roles]
 
     }
     actions = [
@@ -68,7 +68,7 @@ resource "aws_s3_bucket" "cloudtrail" {
   bucket = "login-gov-cloudtrail-${data.aws_caller_identity.current.account_id}"
   force_destroy = true
 
-  policy = "${data.aws_iam_policy_document.cloudtrail.json}"
+  policy data.aws_iam_policy_document.cloudtrail.json
 
   lifecycle_rule {
     id = "logexpire"
@@ -93,5 +93,5 @@ resource "aws_cloudtrail" "cloudtrail" {
   enable_log_file_validation = true
   include_global_service_events = false
   name = "login-gov-cloudtrail"
-  s3_bucket_name = "${aws_s3_bucket.cloudtrail.id}"
+  s3_bucket_name aws_s3_bucket.cloudtrail.id
 }

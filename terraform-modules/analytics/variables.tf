@@ -1,7 +1,8 @@
-variable "env_name" {}
+variable "env_name" {
+}
 
 variable "jumphost_cidr_block" {
-  type = "map"
+  type = map(string)
 
   default = {
     dev     = "34.216.215.128/26"
@@ -14,13 +15,15 @@ variable "jumphost_cidr_block" {
   }
 }
 
-variable "redshift_master_password" {}
+variable "redshift_master_password" {
+}
 
 variable "vpc_cidr_block" {
   default = "10.1.0.0/16"
 }
 
-variable "analytics_version" {}
+variable "analytics_version" {
+}
 
 variable "region" {
   default = "us-west-2"
@@ -41,3 +44,4 @@ variable "name" {
 variable "wlm_json_configuration" {
   default = "[{\"query_concurrency\": 50}]"
 }
+

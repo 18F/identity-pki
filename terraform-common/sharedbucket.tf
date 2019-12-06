@@ -1,38 +1,39 @@
-data "aws_caller_identity" "current" {}
+data "aws_caller_identity" "current" {
+}
 
 data "aws_iam_policy_document" "shared" {
   statement {
-    principals = {
-      type = "AWS"
-      identifiers = ["${var.power_users}"]
+    principals {
+      type        = "AWS"
+      identifiers = var.power_users
     }
     actions = [
-      "s3:ListBucket"
+      "s3:ListBucket",
     ]
     resources = [
-      "arn:aws:s3:::login-gov-shared-data-${data.aws_caller_identity.current.account_id}"
+      "arn:aws:s3:::login-gov-shared-data-${data.aws_caller_identity.current.account_id}",
     ]
   }
 
   statement {
-    principals = {
-      type = "AWS"
-      identifiers = ["${var.power_users}"]
+    principals {
+      type        = "AWS"
+      identifiers = var.power_users
     }
     actions = [
       "s3:PutObject",
-      "s3:GetObject"
+      "s3:GetObject",
     ]
     resources = [
-      "arn:aws:s3:::login-gov-shared-data-${data.aws_caller_identity.current.account_id}/*"
+      "arn:aws:s3:::login-gov-shared-data-${data.aws_caller_identity.current.account_id}/*",
     ]
   }
 }
 
 resource "aws_s3_bucket" "shared" {
-  bucket = "login-gov-shared-data-${data.aws_caller_identity.current.account_id}"
+  bucket        = "login-gov-shared-data-${data.aws_caller_identity.current.account_id}"
   force_destroy = true
-  policy = "${data.aws_iam_policy_document.shared.json}"
+  policy        = data.aws_iam_policy_document.shared.json
 
   server_side_encryption_configuration {
     rule {
@@ -48,10 +49,10 @@ resource "aws_s3_bucket" "shared" {
 #   login-gov.elb-logs.<ACCOUNT_ID>-<AWS_REGION>
 module "elb-logs" {
   # can't use variable for ref -- see https://github.com/hashicorp/terraform/issues/17994
-  source = "github.com/18F/identity-terraform//elb_access_logs_bucket?ref=62385b497f5b8dba2478be5759d53c1fb2353185"
+  source = "github.com/18F/identity-terraform//elb_access_logs_bucket?ref=f6f34ddcad06b29b87d2d8cc8fddd9d49ec23b61"
 
-  region = "${var.region}"
-  bucket_name_prefix = "login-gov"
+  region                     = var.region
+  bucket_name_prefix         = "login-gov"
   use_prefix_for_permissions = false
 
   lifecycle_days_standard_ia = 60   # 2 months
@@ -60,32 +61,32 @@ module "elb-logs" {
 }
 
 output "elb_log_bucket" {
-  value = "${module.elb-logs.bucket_name}"
+  value = module.elb-logs.bucket_name
 }
 
 # Bucket used for storing S3 access logs
 resource "aws_s3_bucket" "s3-logs" {
   bucket = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
-  region = "${var.region}"
-  acl = "log-delivery-write"
+  region = var.region
+  acl    = "log-delivery-write"
 
   versioning {
     enabled = true
   }
 
   lifecycle_rule {
-    id = "expirelogs"
+    id      = "expirelogs"
     enabled = true
 
-    prefix  = "/"
+    prefix = "/"
 
     transition {
-      days = 30
+      days          = 30
       storage_class = "STANDARD_IA"
     }
 
     transition {
-      days = 365
+      days          = 365
       storage_class = "GLACIER"
     }
 
@@ -106,47 +107,47 @@ resource "aws_s3_bucket" "s3-logs" {
 
 # policy allowing SES to upload files to the email bucket under /inbound/*
 data "aws_iam_policy_document" "ses-upload" {
-    statement {
-        sid = "AllowSESPuts"
-        effect = "Allow"
-        principals = {
-            type = "Service"
-            identifiers = ["ses.amazonaws.com"]
-        }
-        actions = [
-            "s3:PutObject"
-        ]
-        resources = [
-            "arn:aws:s3:::login-gov.email.${data.aws_caller_identity.current.account_id}-${var.region}/inbound/*"
-        ]
-        condition {
-            test = "StringEquals"
-            variable = "aws:Referer"
-            values = ["${data.aws_caller_identity.current.account_id}"]
-        }
+  statement {
+    sid    = "AllowSESPuts"
+    effect = "Allow"
+    principals {
+      type        = "Service"
+      identifiers = ["ses.amazonaws.com"]
     }
+    actions = [
+      "s3:PutObject",
+    ]
+    resources = [
+      "arn:aws:s3:::login-gov.email.${data.aws_caller_identity.current.account_id}-${var.region}/inbound/*",
+    ]
+    condition {
+      test     = "StringEquals"
+      variable = "aws:Referer"
+      values   = [data.aws_caller_identity.current.account_id]
+    }
+  }
 }
 
 # Bucket used for storing email stuff, such as inbound email
 resource "aws_s3_bucket" "s3-email" {
   bucket = "login-gov.email.${data.aws_caller_identity.current.account_id}-${var.region}"
-  region = "${var.region}"
+  region = var.region
 
-  policy = "${data.aws_iam_policy_document.ses-upload.json}"
+  policy = data.aws_iam_policy_document.ses-upload.json
 
   logging {
-    target_bucket = "${aws_s3_bucket.s3-logs.id}"
+    target_bucket = aws_s3_bucket.s3-logs.id
     target_prefix = "login-gov.email.${data.aws_caller_identity.current.account_id}-${var.region}/"
   }
 
   lifecycle_rule {
-    id = "expireinbound"
+    id      = "expireinbound"
     enabled = true
 
-    prefix  = "/inbound/"
+    prefix = "/inbound/"
 
     transition {
-      days = 30
+      days          = 30
       storage_class = "STANDARD_IA"
     }
 
@@ -168,19 +169,19 @@ resource "aws_s3_bucket" "s3-email" {
 # Bucket used for storing lambda code deployment bundles
 resource "aws_s3_bucket" "lambda-functions" {
   bucket = "login-gov.lambda-functions.${data.aws_caller_identity.current.account_id}-${var.region}"
-  region = "${var.region}"
+  region = var.region
 
-  policy = "${data.aws_iam_policy_document.lambda-functions.json}"
+  policy = data.aws_iam_policy_document.lambda-functions.json
 
   # Move to IA after 180 days
   lifecycle_rule {
-    id = "inactive"
+    id      = "inactive"
     enabled = true
 
-    prefix  = "/"
+    prefix = "/"
 
     transition {
-      days = 180
+      days          = 180
       storage_class = "STANDARD_IA"
     }
   }
@@ -200,24 +201,22 @@ resource "aws_s3_bucket" "lambda-functions" {
 
 # Policy covering uploads to the lambda functions bucket
 data "aws_iam_policy_document" "lambda-functions" {
-
-    # Allow CircleCI role to upload under /circleci/*
-    statement {
-        sid = "AllowCircleCIPuts"
-        effect = "Allow"
-        principals = {
-            type = "AWS"
-            identifiers = ["${aws_iam_user.circleci.arn}"]
-        }
-        actions = [
-            "s3:PutObject"
-        ]
-        resources = [
-            "arn:aws:s3:::login-gov.lambda-functions.${data.aws_caller_identity.current.account_id}-${var.region}/circleci/*"
-        ]
+  # Allow CircleCI role to upload under /circleci/*
+  statement {
+    sid    = "AllowCircleCIPuts"
+    effect = "Allow"
+    principals {
+      type        = "AWS"
+      identifiers = [aws_iam_user.circleci.arn]
     }
+    actions = [
+      "s3:PutObject",
+    ]
+    resources = [
+      "arn:aws:s3:::login-gov.lambda-functions.${data.aws_caller_identity.current.account_id}-${var.region}/circleci/*",
+    ]
+  }
 }
-
 
 # This is the terraform state bucket used by terraform including by this
 # terraform file itself. Obviously this is a circular dependency, so there is a
@@ -239,17 +238,17 @@ data "aws_iam_policy_document" "lambda-functions" {
 #     terraform import aws_s3_bucket.tf-state login-gov.tf-state.<ACCT_ID>-<REGION>
 #
 resource "aws_s3_bucket" "tf-state" {
-  count = "${var.manage_state_bucket ? 1 : 0}"
+  count  = var.manage_state_bucket ? 1 : 0
   bucket = "login-gov.tf-state.${data.aws_caller_identity.current.account_id}-${var.region}"
-  region = "${var.region}"
-  acl = "private"
+  region = var.region
+  acl    = "private"
   policy = ""
   versioning {
     enabled = true
   }
 
   logging {
-    target_bucket = "${aws_s3_bucket.s3-logs.id}"
+    target_bucket = aws_s3_bucket.s3-logs.id
     target_prefix = "login-gov.tf-state.${data.aws_caller_identity.current.account_id}-${var.region}/"
   }
 
@@ -265,13 +264,14 @@ resource "aws_s3_bucket" "tf-state" {
     prevent_destroy = true
   }
 }
-resource "aws_s3_bucket_public_access_block" "tf-state" {
-    bucket = "${aws_s3_bucket.tf-state.id}"
 
-    block_public_acls       = true
-    block_public_policy     = true
-    ignore_public_acls      = true
-    restrict_public_buckets = true
+resource "aws_s3_bucket_public_access_block" "tf-state" {
+  bucket = aws_s3_bucket.tf-state[0].id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }
 
 # This is the terraform state lock file used by terraform including by this
@@ -293,8 +293,8 @@ resource "aws_s3_bucket_public_access_block" "tf-state" {
 #     terraform import aws_dynamodb_table.tf-lock-table terraform_locks
 #
 resource "aws_dynamodb_table" "tf-lock-table" {
-  count          = "${var.manage_state_bucket ? 1 : 0}"
-  name           = "${var.state_lock_table}"
+  count          = var.manage_state_bucket ? 1 : 0
+  name           = var.state_lock_table
   read_capacity  = 2
   write_capacity = 1
   hash_key       = "LockID"
@@ -317,28 +317,27 @@ resource "aws_dynamodb_table" "tf-lock-table" {
 # Bucket used for storing generated reports
 resource "aws_s3_bucket" "reports" {
   bucket = "login-gov.reports.${data.aws_caller_identity.current.account_id}-${var.region}"
-  region = "${var.region}"
+  region = var.region
 
-  acl = "private"
+  acl    = "private"
   policy = ""
 
   logging {
-    target_bucket = "${aws_s3_bucket.s3-logs.id}"
+    target_bucket = aws_s3_bucket.s3-logs.id
     target_prefix = "login-gov.reports.${data.aws_caller_identity.current.account_id}-${var.region}/"
   }
 
   lifecycle_rule {
-    id = "aging"
+    id      = "aging"
     enabled = true
 
-    prefix  = "/"
+    prefix = "/"
 
     # move to infrequent access after 30 days
     transition {
-      days = 30
+      days          = 30
       storage_class = "STANDARD_IA"
     }
-
     # keep forever
   }
 
@@ -350,16 +349,18 @@ resource "aws_s3_bucket" "reports" {
     }
   }
 }
+
 # Block public access to reports. We may revisit in the future if we do want to expose some subset of reports.
 resource "aws_s3_bucket_public_access_block" "reports" {
-    bucket = "${aws_s3_bucket.reports.id}"
+  bucket = aws_s3_bucket.reports.id
 
-    block_public_acls       = true
-    block_public_policy     = true
-    ignore_public_acls      = true
-    restrict_public_buckets = true
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }
 
 output "s3_log_bucket" {
-  value = "${aws_s3_bucket.s3-logs.id}"
+  value = aws_s3_bucket.s3-logs.id
 }
+

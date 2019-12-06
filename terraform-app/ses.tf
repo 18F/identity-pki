@@ -5,18 +5,17 @@
 # Refer to top comment in secrets.tf  to understand how IAM roles, policies,
 # and instance profile work.
 
-
 #Allow SES to send emails from the idp hosts
 data "aws_iam_policy_document" "ses_email_role_policy" {
   statement {
-    sid = "AllowSendEmail"
+    sid    = "AllowSendEmail"
     effect = "Allow"
     actions = [
       "ses:SendRawEmail",
-      "ses:SendEmail"
+      "ses:SendEmail",
     ]
     resources = [
-      "*"
+      "*",
     ]
   }
 }
