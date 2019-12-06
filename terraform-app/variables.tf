@@ -134,6 +134,9 @@ variable "redshift_cidr_block" {
   }
 }
 
+# TODO: Using an _enabled integer variable is not necessary in TF 0.12;
+# update/remove vars as necessary so that certain resources are not dependent
+# on using 'count'.
 variable "analytics_vpc_peering_enabled" {
   description = "Whether to enable VPC peering with the analytics VPC. Set this to 1 once it exists."
   default     = 0
