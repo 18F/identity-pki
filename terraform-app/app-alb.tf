@@ -10,7 +10,7 @@ resource "aws_alb" "app" {
     enabled = true
   }
 
-  enable_deletion_protection = var.enable_deletion_protection == 1 ? true : false
+  enable_deletion_protection = var.enable_deletion_protection
 }
 
 resource "aws_alb_listener" "app" {
@@ -41,19 +41,8 @@ module "acm-cert-apps-combined" {
   validation_zone_id = var.route53_id
 }
 
-# Fake resource to allow depends_on
-# TODO: this can go away in TF 0.12
-# https://github.com/hashicorp/terraform/issues/16983
-resource "null_resource" "apps-combined-issued" {
-  triggers = {
-    finished = module.acm-cert-apps-combined.finished_id
-  }
-}
-
 resource "aws_alb_listener" "app-ssl" {
-  # TODO TF 0.12 syntax:
-  # depends_on = ["module.acm-cert-apps-combined.finished_id"] # don't use cert until valid
-  depends_on = [null_resource.apps-combined-issued] # don't use cert until valid
+  depends_on = [module.acm-cert-apps-combined.finished_id] # don't use cert until valid
 
   count             = var.alb_enabled * var.apps_enabled
   certificate_arn   = module.acm-cert-apps-combined.cert_arn
@@ -89,7 +78,6 @@ resource "aws_alb_target_group" "app-ssl" {
   depends_on = [aws_alb.app]
 
   health_check {
-    # we don't actually have basic auth enabled on app
     matcher  = "200"
     protocol = "HTTPS"
 

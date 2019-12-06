@@ -10,7 +10,7 @@ resource "aws_alb" "idp" {
     enabled = true
   }
 
-  enable_deletion_protection = var.enable_deletion_protection == 1 ? true : false
+  enable_deletion_protection = var.enable_deletion_protection
 }
 
 locals {
@@ -18,7 +18,7 @@ locals {
   # In other environments, the TLS cert has "idp.<env>.<domain>" and "<env>.<domain>"
   idp_domain_name = var.env_name == "prod" ? "secure.${var.root_domain}" : "idp.${var.env_name}.${var.root_domain}"
 
-  idp_subject_alt_names = var.env_name == "prod" ? "" : "${var.env_name}.${var.root_domain}"
+  idp_subject_alt_names = var.env_name == "prod" ? [] : ["${var.env_name}.${var.root_domain}"]
 }
 
 # Create a TLS certificate with ACM
@@ -26,17 +26,8 @@ module "acm-cert-idp" {
   source                    = "github.com/18F/identity-terraform//acm_certificate?ref=beeed1e3d70ba34aaf9198810399843adebfca22"
   enabled                   = var.alb_enabled * var.acm_certs_enabled
   domain_name               = local.idp_domain_name
-  subject_alternative_names = [local.idp_subject_alt_names]
+  subject_alternative_names = local.idp_subject_alt_names
   validation_zone_id        = var.route53_id
-}
-
-# Fake resource to allow depends_on
-# TODO: this can go away in TF 0.12
-# https://github.com/hashicorp/terraform/issues/16983
-resource "null_resource" "acm-idp-issued" {
-  triggers = {
-    finished = module.acm-cert-idp.finished_id
-  }
 }
 
 resource "aws_alb_listener" "idp" {
@@ -52,7 +43,9 @@ resource "aws_alb_listener" "idp" {
 }
 
 resource "aws_alb_listener" "idp-ssl" {
-  count             = var.alb_enabled
+  depends_on = [module.acm-cert-idp.finished_id] # don't use cert until valid
+  count      = var.alb_enabled
+
   certificate_arn   = module.acm-cert-idp.cert_arn
   load_balancer_arn = aws_alb.idp[0].id
   port              = "443"
@@ -63,10 +56,6 @@ resource "aws_alb_listener" "idp-ssl" {
     target_group_arn = aws_alb_target_group.idp-ssl[0].id
     type             = "forward"
   }
-
-  # TODO TF 0.12 syntax:
-  # depends_on = ["module.acm-cert-idp.finished_id"] # don't use cert until valid
-  depends_on = [null_resource.acm-idp-issued] # don't use cert until valid
 }
 
 resource "aws_alb_target_group" "idp" {
@@ -92,7 +81,7 @@ resource "aws_alb_target_group" "idp-ssl" {
 
   health_check {
     # we have HTTP basic auth enabled in nonprod envs in the prod AWS account
-    matcher  = var.basic_auth_enabled == 1 ? "401,200" : "200"
+    matcher  = "200"
     protocol = "HTTPS"
 
     interval            = 10

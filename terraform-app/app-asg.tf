@@ -53,22 +53,20 @@ module "app_launch_template" {
 }
 
 resource "aws_autoscaling_group" "app" {
-  name = "${var.env_name}-app"
+# Don't create an app ASG if we don't have an ALB.
+  # We can't refer to aws_alb_target_group.idp unless it exists.
+  count = var.alb_enabled * var.apps_enabled
 
   launch_template {
     id      = module.app_launch_template.template_id
     version = "$Latest"
   }
 
-  min_size         = var.asg_app_min
-  max_size         = var.asg_app_max
-  desired_capacity = var.asg_app_desired
-
+  name                      = "${var.env_name}-app"
+  min_size                  = var.asg_app_min
+  max_size                  = var.asg_app_max
+  desired_capacity          = var.asg_app_desired
   wait_for_capacity_timeout = 0
-
-  # Don't create an IDP ASG if we don't have an ALB.
-  # We can't refer to aws_alb_target_group.idp unless it exists.
-  count = var.alb_enabled * var.apps_enabled
 
   target_group_arns = [
     aws_alb_target_group.app[0].arn,

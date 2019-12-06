@@ -227,7 +227,7 @@ variable "elasticsearch_volume_size" {
 
 # prod/test environment flags
 variable "basic_auth_enabled" {
-  description = "Whether HTTP basic auth is enabled (controls ELB expected HTTP status code"
+  description = "Whether HTTP basic auth is enabled (controls ELB expected HTTP status code)"
 }
 
 variable "asg_prevent_auto_terminate" {
@@ -236,6 +236,7 @@ variable "asg_prevent_auto_terminate" {
 
 variable "enable_deletion_protection" {
   description = "Whether to protect against API deletion of certain resources"
+  default     = false
 }
 
 variable "asg_enabled_metrics" {
