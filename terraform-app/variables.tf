@@ -98,14 +98,6 @@ variable "no_proxy_hosts" {
 variable "proxy_enabled_roles" {
   type        = map(string)
   description = "Mapping from role names to integer {0,1} for whether the outbound proxy server is enabled during bootstrapping."
-  default = {
-    unknown       = 0
-    app           = 0
-    idp           = 0
-    jumphost      = 0
-    outboundproxy = 0
-    pivcac        = 0
-  }
 }
 
 #FIXME referrer must define+use SG resource reference
