@@ -29,7 +29,7 @@ module "app_user_data" {
 module "app_lifecycle_hooks" {
   source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=beeed1e3d70ba34aaf9198810399843adebfca22"
   asg_name = element(concat(aws_autoscaling_group.app.*.name, [""]), 0)
-  enabled  = var.alb_enabled * var.apps_enabled
+  enabled  = var.apps_enabled
 }
 
 module "app_launch_template" {
@@ -53,9 +53,9 @@ module "app_launch_template" {
 }
 
 resource "aws_autoscaling_group" "app" {
-# Don't create an app ASG if we don't have an ALB.
-  # We can't refer to aws_alb_target_group.idp unless it exists.
-  count = var.alb_enabled * var.apps_enabled
+  # Don't create an app ASG if we don't have an ALB.
+  # We can't refer to aws_alb_target_group.app unless it exists.
+  count = var.apps_enabled
 
   launch_template {
     id      = module.app_launch_template.template_id
@@ -91,7 +91,7 @@ resource "aws_autoscaling_group" "app" {
   # Because bootstrapping takes so long, we terminate manually in prod
   # More context on ASG deploys and safety:
   # https://github.com/18F/identity-devops-private/issues/337
-  protect_from_scale_in = var.asg_prevent_auto_terminate == 1 ? true : false
+  protect_from_scale_in = var.asg_prevent_auto_terminate
 
   # tags on the instance will come from the launch template
   tag {
@@ -111,7 +111,7 @@ module "app_recycle" {
 
   # switch to count when that's a thing that we can do
   # https://github.com/hashicorp/terraform/issues/953
-  enabled = var.asg_auto_recycle_enabled * var.alb_enabled * var.apps_enabled
+  enabled = var.asg_auto_recycle_enabled * var.apps_enabled
 
   use_daily_business_hours_schedule = var.asg_auto_recycle_use_business_schedule
 

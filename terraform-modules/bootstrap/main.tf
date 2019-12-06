@@ -72,7 +72,6 @@ variable "no_proxy_hosts" {
 variable "proxy_enabled_roles" {
   description = "Mapping from role names to integer {0,1} for whether the outbound proxy server is enabled during bootstrapping."
   type        = map(number)
-  default     = {}
 }
 
 variable "main_lifecycle_hook_name" {

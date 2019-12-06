@@ -2,13 +2,11 @@
 module "idp_dashboard" {
   source = "github.com/18F/identity-terraform//cloudwatch_dashboard_alb?ref=beeed1e3d70ba34aaf9198810399843adebfca22"
 
-  enabled = var.alb_enabled
-
   dashboard_name          = "${var.env_name}-idp"
-  alb_arn_suffix          = aws_alb.idp[0].arn_suffix
+  alb_arn_suffix          = aws_alb.idp.arn_suffix
   target_group_label      = "${var.env_name} IDP"
-  target_group_arn_suffix = aws_alb_target_group.idp-ssl[0].arn_suffix
-  asg_name                = aws_autoscaling_group.idp[0].name
+  target_group_arn_suffix = aws_alb_target_group.idp-ssl.arn_suffix
+  asg_name                = aws_autoscaling_group.idp.name
 
   # annotations of when some major partner launches happened
   vertical_annotations = <<EOM
@@ -49,7 +47,7 @@ module "elb_http_alerts" {
   source = "github.com/18F/identity-terraform//elb_http_alerts?ref=beeed1e3d70ba34aaf9198810399843adebfca22"
 
   env_name         = var.env_name
-  load_balancer_id = aws_alb.idp[0].id
+  load_balancer_id = aws_alb.idp.id
 
   // These are defined in variables.tf
   alarm_actions = local.high_priority_alarm_actions

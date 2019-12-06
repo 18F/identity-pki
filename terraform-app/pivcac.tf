@@ -137,7 +137,7 @@ resource "aws_autoscaling_group" "pivcac" {
   # to automatically terminate instances. Right now the ASG can't tell if
   # instance bootstrapping completed successfully.
   # https://github.com/18F/identity-devops-private/issues/337
-  protect_from_scale_in = var.asg_prevent_auto_terminate == 1 ? true : false
+  protect_from_scale_in = var.asg_prevent_auto_terminate
 
   enabled_metrics = var.asg_enabled_metrics
 

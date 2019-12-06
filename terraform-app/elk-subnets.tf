@@ -7,7 +7,6 @@ resource "aws_subnet" "elk" {
   map_public_ip_on_launch = true
 
   tags = {
-    client = var.client
     Name   = "${var.name}-elk_subnet-${var.env_name}-${element(var.availability_zones, count.index)}"
   }
 
@@ -28,8 +27,10 @@ module "elk-base-nacl-rules" {
   source         = "../terraform-modules/base_nacl_rules"
   network_acl_id = aws_network_acl.elk.id
   ssh_cidr_blocks = flatten([
+    # Jumphost
     var.jumphost1_subnet_cidr_block,
     var.jumphost2_subnet_cidr_block,
+    # CI VPC
     var.ci_sg_ssh_cidr_blocks,
   ])
 }

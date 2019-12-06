@@ -390,13 +390,9 @@ resource "aws_autoscaling_group" "idp" {
 
   wait_for_capacity_timeout = 0
 
-  # Don't create an IDP ASG if we don't have an ALB.
-  # We can't refer to aws_alb_target_group.idp unless it exists.
-  count = var.alb_enabled
-
   target_group_arns = [
-    aws_alb_target_group.idp[0].arn,
-    aws_alb_target_group.idp-ssl[0].arn,
+    aws_alb_target_group.idp.arn,
+    aws_alb_target_group.idp-ssl.arn,
   ]
 
   vpc_zone_identifier = [
@@ -417,7 +413,7 @@ resource "aws_autoscaling_group" "idp" {
   # Because bootstrapping takes so long, we terminate manually in prod
   # More context on ASG deploys and safety:
   # https://github.com/18F/identity-devops-private/issues/337
-  protect_from_scale_in = var.asg_prevent_auto_terminate == 1 ? true : false
+  protect_from_scale_in = var.asg_prevent_auto_terminate
 
   enabled_metrics = var.asg_enabled_metrics
 
@@ -436,7 +432,7 @@ resource "aws_autoscaling_group" "idp" {
 
 module "idp_lifecycle_hooks" {
   source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=beeed1e3d70ba34aaf9198810399843adebfca22"
-  asg_name = aws_autoscaling_group.idp[0].name
+  asg_name = aws_autoscaling_group.idp.name
 }
 
 module "idp_recycle" {
@@ -448,14 +444,14 @@ module "idp_recycle" {
 
   use_daily_business_hours_schedule = var.asg_auto_recycle_use_business_schedule
 
-  asg_name                = aws_autoscaling_group.idp[0].name
-  normal_desired_capacity = aws_autoscaling_group.idp[0].desired_capacity
+  asg_name                = aws_autoscaling_group.idp.name
+  normal_desired_capacity = aws_autoscaling_group.idp.desired_capacity
 }
 
 resource "aws_autoscaling_policy" "idp-cpu" {
   count = var.idp_cpu_autoscaling_enabled
 
-  autoscaling_group_name = aws_autoscaling_group.idp[0].name
+  autoscaling_group_name = aws_autoscaling_group.idp.name
   name                   = "cpu-scaling"
 
   # currently it takes about 15 minutes for instances to bootstrap

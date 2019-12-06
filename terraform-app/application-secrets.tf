@@ -5,6 +5,8 @@ data "aws_iam_policy_document" "application_secrets_role_policy" {
     sid    = "AllowApplicationSecretsBucket${var.env_name}"
     effect = "Allow"
     actions = [
+      # TODO: ROLE-AUDIT-XXX https://github.com/18F/identity-devops/issues/1563
+      # pretty sure this should only grant read, not s3:*
       "s3:*",
     ]
     resources = [

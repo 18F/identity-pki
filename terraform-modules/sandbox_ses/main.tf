@@ -39,7 +39,7 @@ resource "aws_ses_receipt_rule" "admin-at" {
 
   sns_action {
     position  = 2
-    topic_arn = aws_sns_topic.admin-at[count.index].arn
+    topic_arn = aws_sns_topic.admin-at[0].arn
   }
 
   stop_action {

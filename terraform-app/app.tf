@@ -57,13 +57,12 @@ resource "aws_db_subnet_group" "default" {
   subnet_ids  = [aws_subnet.db1.id, aws_subnet.db2.id]
 
   tags = {
-    client = var.client
     Name   = "${var.name}-${var.env_name}"
   }
 }
 
 resource "aws_route53_record" "app_internal" {
-  count   = var.apps_enabled * var.alb_enabled
+  count   = var.apps_enabled
   name    = "app.login.gov.internal"
   zone_id = aws_route53_zone.internal.zone_id
   records = [aws_alb.app[0].dns_name]
@@ -72,7 +71,7 @@ resource "aws_route53_record" "app_internal" {
 }
 
 resource "aws_route53_record" "app_external" {
-  count   = var.apps_enabled * var.alb_enabled
+  count   = var.apps_enabled
   name    = "app.${var.env_name}.${var.root_domain}"
   zone_id = var.route53_id
   records = [aws_alb.app[0].dns_name]

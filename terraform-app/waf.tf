@@ -70,7 +70,7 @@ resource "aws_wafregional_web_acl" "idp_web_acl" {
 
 resource "aws_wafregional_web_acl_association" "idp_alb" {
   count        = var.enable_waf == 1 ? 1 : 0
-  resource_arn = aws_alb.idp[0].arn
+  resource_arn = aws_alb.idp.arn
   web_acl_id   = aws_wafregional_web_acl.idp_web_acl[0].id
 }
 

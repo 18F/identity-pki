@@ -226,12 +226,9 @@ variable "elasticsearch_volume_size" {
 }
 
 # prod/test environment flags
-variable "basic_auth_enabled" {
-  description = "Whether HTTP basic auth is enabled (controls ELB expected HTTP status code)"
-}
-
 variable "asg_prevent_auto_terminate" {
   description = "Whether to protect auto scaled instances from automatic termination"
+  default     = false
 }
 
 variable "enable_deletion_protection" {
@@ -517,11 +514,6 @@ locals {
 # only numbers and strings.
 #
 # See: https://blog.gruntwork.io/terraform-tips-tricks-loops-if-statements-and-gotchas-f739bbae55f9
-
-variable "alb_enabled" {
-  default     = 1
-  description = "Enable ALB for idp hosts"
-}
 
 variable "cloudfront_tlstest_enabled" {
   default     = 0

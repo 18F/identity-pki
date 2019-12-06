@@ -76,7 +76,7 @@ resource "aws_autoscaling_group" "elk" {
 
   load_balancers = [aws_elb.elk.id]
 
-  protect_from_scale_in = var.asg_prevent_auto_terminate == 1 ? true : false
+  protect_from_scale_in = var.asg_prevent_auto_terminate
 
   # tags on the instance will come from the launch template
   tag {

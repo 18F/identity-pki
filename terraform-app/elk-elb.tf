@@ -39,7 +39,6 @@ resource "aws_elb" "elk" {
 
   tags = {
     Name   = "elk-internal-elb"
-    client = var.client
   }
 }
 

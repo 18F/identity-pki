@@ -1,5 +1,5 @@
 resource "aws_alb" "app" {
-  count           = var.alb_enabled * var.apps_enabled
+  count           = var.apps_enabled
   name            = "${var.name}-app-alb-${var.env_name}"
   security_groups = [aws_security_group.app-alb.id]
   subnets         = [aws_subnet.alb1.id, aws_subnet.alb2.id]
@@ -14,7 +14,7 @@ resource "aws_alb" "app" {
 }
 
 resource "aws_alb_listener" "app" {
-  count             = var.alb_enabled * var.apps_enabled * var.alb_http_port_80_enabled
+  count             = var.apps_enabled * var.alb_http_port_80_enabled
   load_balancer_arn = aws_alb.app[0].id
   port              = "80"
   protocol          = "HTTP"
@@ -44,7 +44,7 @@ module "acm-cert-apps-combined" {
 resource "aws_alb_listener" "app-ssl" {
   depends_on = [module.acm-cert-apps-combined.finished_id] # don't use cert until valid
 
-  count             = var.alb_enabled * var.apps_enabled
+  count             = var.apps_enabled
   certificate_arn   = module.acm-cert-apps-combined.cert_arn
   load_balancer_arn = aws_alb.app[0].id
   port              = "443"
@@ -58,7 +58,7 @@ resource "aws_alb_listener" "app-ssl" {
 }
 
 resource "aws_alb_target_group" "app" {
-  count      = var.alb_enabled * var.apps_enabled
+  count      = var.apps_enabled
   depends_on = [aws_alb.app]
 
   health_check {
@@ -74,7 +74,7 @@ resource "aws_alb_target_group" "app" {
 }
 
 resource "aws_alb_target_group" "app-ssl" {
-  count      = var.alb_enabled * var.apps_enabled
+  count      = var.apps_enabled
   depends_on = [aws_alb.app]
 
   health_check {

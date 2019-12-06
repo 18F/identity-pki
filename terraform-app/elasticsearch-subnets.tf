@@ -7,7 +7,6 @@ resource "aws_subnet" "elasticsearch" {
   map_public_ip_on_launch = true
 
   tags = {
-    client = var.client
     Name   = "${var.name}-elasticsearch_subnet-${var.env_name}-${element(var.availability_zones, count.index)}"
   }
 

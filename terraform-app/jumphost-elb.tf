@@ -35,7 +35,6 @@ resource "aws_elb" "jumphost" {
 
   tags = {
     Name   = "${var.env_name}-jumphost"
-    client = var.client
   }
 }
 
