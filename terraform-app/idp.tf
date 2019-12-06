@@ -357,7 +357,7 @@ module "idp_user_data" {
 }
 
 module "idp_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=beeed1e3d70ba34aaf9198810399843adebfca22"
+  source = "github.com/18F/identity-terraform//launch_template?ref=19a1a7d7a5c3e2177f62d96a553fed53ac2c251c"
 
   role           = "idp"
   env            = var.env_name
@@ -413,7 +413,7 @@ resource "aws_autoscaling_group" "idp" {
   # Because bootstrapping takes so long, we terminate manually in prod
   # More context on ASG deploys and safety:
   # https://github.com/18F/identity-devops-private/issues/337
-  protect_from_scale_in = var.asg_prevent_auto_terminate
+  protect_from_scale_in = var.asg_prevent_auto_terminate == 1 ? true : false
 
   enabled_metrics = var.asg_enabled_metrics
 
@@ -431,12 +431,12 @@ resource "aws_autoscaling_group" "idp" {
 }
 
 module "idp_lifecycle_hooks" {
-  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=beeed1e3d70ba34aaf9198810399843adebfca22"
+  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=19a1a7d7a5c3e2177f62d96a553fed53ac2c251c"
   asg_name = aws_autoscaling_group.idp.name
 }
 
 module "idp_recycle" {
-  source = "github.com/18F/identity-terraform//asg_recycle?ref=beeed1e3d70ba34aaf9198810399843adebfca22"
+  source = "github.com/18F/identity-terraform//asg_recycle?ref=19a1a7d7a5c3e2177f62d96a553fed53ac2c251c"
 
   # switch to count when that's a thing that we can do
   # https://github.com/hashicorp/terraform/issues/953

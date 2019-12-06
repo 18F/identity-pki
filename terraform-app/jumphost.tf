@@ -27,12 +27,12 @@ module "jumphost_user_data" {
 }
 
 module "jumphost_lifecycle_hooks" {
-  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=beeed1e3d70ba34aaf9198810399843adebfca22"
+  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=19a1a7d7a5c3e2177f62d96a553fed53ac2c251c"
   asg_name = aws_autoscaling_group.jumphost.name
 }
 
 module "jumphost_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=beeed1e3d70ba34aaf9198810399843adebfca22"
+  source = "github.com/18F/identity-terraform//launch_template?ref=19a1a7d7a5c3e2177f62d96a553fed53ac2c251c"
 
   role           = "jumphost"
   env            = var.env_name
@@ -92,6 +92,6 @@ resource "aws_autoscaling_group" "jumphost" {
   }
 
   # We manually terminate instances in prod
-  protect_from_scale_in = var.asg_prevent_auto_terminate
+  protect_from_scale_in = var.asg_prevent_auto_terminate == 1 ? true : false
 }
 

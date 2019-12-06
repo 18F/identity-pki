@@ -220,12 +220,12 @@ variable "elasticsearch_volume_size" {
 # prod/test environment flags
 variable "asg_prevent_auto_terminate" {
   description = "Whether to protect auto scaled instances from automatic termination"
-  default     = false
+  default     = 0
 }
 
 variable "enable_deletion_protection" {
   description = "Whether to protect against API deletion of certain resources"
-  default     = false
+  default     = 0
 }
 
 variable "asg_enabled_metrics" {

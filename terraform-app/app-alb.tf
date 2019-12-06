@@ -10,7 +10,7 @@ resource "aws_alb" "app" {
     enabled = true
   }
 
-  enable_deletion_protection = var.enable_deletion_protection
+  enable_deletion_protection = var.enable_deletion_protection == 1 ? true : false
 }
 
 resource "aws_alb_listener" "app" {
@@ -27,8 +27,7 @@ resource "aws_alb_listener" "app" {
 
 # Create a TLS certificate with ACM
 module "acm-cert-apps-combined" {
-#  source      = "github.com/18F/identity-terraform//acm_certificate?ref=beeed1e3d70ba34aaf9198810399843adebfca22"
-  source      = "../../identity-terraform/acm_certificate"
+  source      = "github.com/18F/identity-terraform//acm_certificate?ref=19a1a7d7a5c3e2177f62d96a553fed53ac2c251c"
   enabled     = var.apps_enabled * var.acm_certs_enabled
   domain_name = "sp.${var.env_name}.${var.root_domain}"
   subject_alternative_names = [
