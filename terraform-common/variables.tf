@@ -20,9 +20,8 @@ variable "manage_state_bucket" {
 Whether to manage the TF remote state bucket and lock table.
 Set this to false if you want to skip this for bootstrapping.
 EOM
-
-
-  default = 1
+  type        = bool
+  default     = true
 }
 
 variable "slack_events_sns_hook_arn" {

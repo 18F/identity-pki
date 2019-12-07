@@ -42,7 +42,7 @@ resource "aws_lambda_function" "audit-github" {
   environment {
     variables = {
       #DEBUG = "1"
-      DEBUG     = var.lambda_audit_github_debug ? "1" : ""
+      DEBUG     = var.lambda_audit_github_debug == 1 ? "1" : ""
       LOG_LEVEL = "0"
     }
   }
@@ -54,7 +54,7 @@ resource "aws_lambda_function" "audit-github" {
 
 # Alert on errors
 module "audit-github-alerts" {
-  source = "github.com/18F/identity-terraform//lambda_alerts?ref=f6f34ddcad06b29b87d2d8cc8fddd9d49ec23b61"
+  source = "github.com/18F/identity-terraform//lambda_alerts?ref=cafa07ecec6afd11d98765b288572462371ed741"
 
   function_name        = aws_lambda_function.audit-github[0].function_name
   alarm_actions        = [var.slack_events_sns_hook_arn]
@@ -162,7 +162,7 @@ resource "aws_lambda_function" "audit-aws" {
 
 # Alert on errors
 module "audit-aws-alerts" {
-  source = "github.com/18F/identity-terraform//lambda_alerts?ref=f6f34ddcad06b29b87d2d8cc8fddd9d49ec23b61"
+  source = "github.com/18F/identity-terraform//lambda_alerts?ref=cafa07ecec6afd11d98765b288572462371ed741"
 
   function_name        = aws_lambda_function.audit-aws[0].function_name
   alarm_actions        = [var.slack_events_sns_hook_arn]
