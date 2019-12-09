@@ -6,7 +6,7 @@ resource "aws_pinpoint_app" "main" {
 
 resource "aws_pinpoint_sms_channel" "sms" {
   application_id = "${aws_pinpoint_app.main.application_id}"
-  enabled = true
+  enabled        = true
 
   # sender_id - (Optional) Sender identifier of your messages.
   # short_code - (Optional) The Short Code registered with the phone provider.

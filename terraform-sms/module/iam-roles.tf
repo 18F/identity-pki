@@ -20,9 +20,9 @@
 # "Condition" : { "Bool" : { "aws:MultiFactorAuthPresent" : false } }
 
 resource "aws_iam_role" "idp-pinpoint" {
-    name = "idp-pinpoint"
+  name = "idp-pinpoint"
 
-    assume_role_policy = <<EOF
+  assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -41,8 +41,8 @@ output "pinpoint_idp_role_arn" {
 
 # Allow sending SMS/Voice messages with Pinpoint
 resource "aws_iam_role_policy" "idp-pinpoint-send" {
-  name = "idp-pinpoint-send"
-  role = "${aws_iam_role.idp-pinpoint.id}"
+  name   = "idp-pinpoint-send"
+  role   = "${aws_iam_role.idp-pinpoint.id}"
   policy = <<EOM
 {
     "Version": "2012-10-17",
@@ -64,9 +64,9 @@ EOM
 
 
 resource "aws_iam_role" "admin" {
-    name = "admin"
+  name = "admin"
 
-    assume_role_policy = <<EOF
+  assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
   "Statement": [
