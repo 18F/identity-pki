@@ -24,10 +24,11 @@ resource "aws_s3_account_public_access_block" "acct-policy" {
 }
 
 module "tf-state" {
-  source = "github.com/18F/identity-terraform//state_bucket?ref=c4970aefd61759d92b123de7afe496882d1a7c5b"
-  region = "${var.region}"
+  source = "github.com/18F/identity-terraform//state_bucket?ref=d111d1df1e47671313430b6f1492735ae45767bf"
+  region = var.region
 }
 
 locals {
-  s3_log_bucket = "${module.tf-state.s3_log_bucket}"
+  s3_log_bucket = module.tf-state.s3_log_bucket
 }
+

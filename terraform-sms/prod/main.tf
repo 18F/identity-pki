@@ -18,7 +18,7 @@ terraform {
   }
 
   # allowed terraform version
-  required_version = "~> 0.11.7"
+  required_version = "~> 0.12"
 }
 
 module "main" {
@@ -35,8 +35,10 @@ module "main" {
 }
 
 output "pinpoint_app_id" {
-  value = "${module.main.pinpoint_app_id}"
+  value = module.main.pinpoint_app_id
 }
+
 output "pinpoint_idp_role_arn" {
-  value = "${module.main.pinpoint_idp_role_arn}"
+  value = module.main.pinpoint_idp_role_arn
 }
+

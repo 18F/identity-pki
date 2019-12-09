@@ -7,9 +7,9 @@ resource "aws_sns_topic" "devops_high_priority_pinpoint" {
 
 # Subscription that connects the SNS topic to paging.
 resource "aws_sns_topic_subscription" "opsgenie_devops_high" {
-  topic_arn              = "${aws_sns_topic.devops_high_priority_pinpoint.arn}"
+  topic_arn              = aws_sns_topic.devops_high_priority_pinpoint.arn
   protocol               = "https"
-  endpoint               = "${var.opsgenie_devops_high_endpoint}"
+  endpoint               = var.opsgenie_devops_high_endpoint
   endpoint_auto_confirms = true
 }
 
@@ -25,18 +25,19 @@ Runbook: TODO
 (Alarm managed by Terraform)
 EOM
 
+
   namespace   = "AWS/SNS"
   metric_name = "SMSMonthToDateSpentUSD"
 
   statistic           = "Maximum"
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  threshold           = "${floor(0.90 * var.pinpoint_spend_limit)}"
+  threshold           = floor(0.9 * var.pinpoint_spend_limit)
   period              = 3600
   evaluation_periods  = 1
 
   treat_missing_data = "missing"
 
-  alarm_actions = ["${aws_sns_topic.devops_high_priority_pinpoint.arn}"]
+  alarm_actions = [aws_sns_topic.devops_high_priority_pinpoint.arn]
 }
 
 resource "aws_cloudwatch_metric_alarm" "pinpoint_spend_limit_warning" {
@@ -53,13 +54,13 @@ EOM
 
   statistic           = "Maximum"
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  threshold           = "${floor(0.80 * var.pinpoint_spend_limit)}"
+  threshold           = floor(0.8 * var.pinpoint_spend_limit)
   period              = 3600
   evaluation_periods  = 1
 
   treat_missing_data = "missing"
 
-  alarm_actions = ["${var.sns_topic_arn_slack_events}"]
+  alarm_actions = [var.sns_topic_arn_slack_events]
 }
 
 resource "aws_cloudwatch_metric_alarm" "pinpoint_spend_limit_daily_warning" {
@@ -73,8 +74,9 @@ Runbook: TODO
 (Alarm managed by Terraform)
 EOM
 
+
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  threshold           = "${floor(var.pinpoint_spend_limit / 31.0)}"
+  threshold           = floor(var.pinpoint_spend_limit / 31)
   evaluation_periods  = 1
 
   metric_query {
@@ -95,7 +97,7 @@ EOM
     }
   }
 
-  alarm_actions = ["${var.sns_topic_arn_slack_events}"]
+  alarm_actions = [var.sns_topic_arn_slack_events]
 }
 
 # == Pinpoint error alarms ==
@@ -108,18 +110,18 @@ resource "aws_cloudwatch_metric_alarm" "pinpoint_temporary_errors" {
 
   dimensions = {
     Channel       = "SMS"
-    ApplicationId = "${aws_pinpoint_app.main.application_id}"
+    ApplicationId = aws_pinpoint_app.main.application_id
   }
 
   statistic           = "Sum"
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  threshold           = "${var.pinpoint_error_alarm_threshold}"
+  threshold           = var.pinpoint_error_alarm_threshold
   period              = 300
   evaluation_periods  = 1
 
   treat_missing_data = "notBreaching"
 
-  alarm_actions = ["${var.sns_topic_arn_slack_events}"]
+  alarm_actions = [var.sns_topic_arn_slack_events]
 }
 
 resource "aws_cloudwatch_metric_alarm" "pinpoint_permanent_errors" {
@@ -130,18 +132,18 @@ resource "aws_cloudwatch_metric_alarm" "pinpoint_permanent_errors" {
 
   dimensions = {
     Channel       = "SMS"
-    ApplicationId = "${aws_pinpoint_app.main.application_id}"
+    ApplicationId = aws_pinpoint_app.main.application_id
   }
 
   statistic           = "Sum"
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  threshold           = "${var.pinpoint_error_alarm_threshold}"
+  threshold           = var.pinpoint_error_alarm_threshold
   period              = 300
   evaluation_periods  = 1
 
   treat_missing_data = "notBreaching"
 
-  alarm_actions = ["${var.sns_topic_arn_slack_events}"]
+  alarm_actions = [var.sns_topic_arn_slack_events]
 }
 
 resource "aws_cloudwatch_metric_alarm" "pinpoint_throttled_errors" {
@@ -152,16 +154,17 @@ resource "aws_cloudwatch_metric_alarm" "pinpoint_throttled_errors" {
 
   dimensions = {
     Channel       = "SMS"
-    ApplicationId = "${aws_pinpoint_app.main.application_id}"
+    ApplicationId = aws_pinpoint_app.main.application_id
   }
 
   statistic           = "Sum"
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  threshold           = "${var.pinpoint_error_alarm_threshold}"
+  threshold           = var.pinpoint_error_alarm_threshold
   period              = 300
   evaluation_periods  = 1
 
   treat_missing_data = "notBreaching"
 
-  alarm_actions = ["${var.sns_topic_arn_slack_events}"]
+  alarm_actions = [var.sns_topic_arn_slack_events]
 }
+
