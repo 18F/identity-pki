@@ -2,12 +2,12 @@
 
 resource "aws_cloudwatch_dashboard" "pinpoint" {
 
-    # The dashboard naemd "CloudWatch-Default" gets displayed on the CloudWatch
-    # front page for the account. Since there's nothing else in this account, a
-    # graph of Pinpoint traffic is a good one.
-    dashboard_name = "CloudWatch-Default"
+  # The dashboard naemd "CloudWatch-Default" gets displayed on the CloudWatch
+  # front page for the account. Since there's nothing else in this account, a
+  # graph of Pinpoint traffic is a good one.
+  dashboard_name = "CloudWatch-Default"
 
-    dashboard_body = <<EOF
+  dashboard_body = <<EOF
 {
     "widgets": [
         {
