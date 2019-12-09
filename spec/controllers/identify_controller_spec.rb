@@ -221,6 +221,52 @@ RSpec.describe IdentifyController, type: :controller do
           end
         end
 
+        describe 'with a certificate timeout' do
+          before(:each) do
+            allow_any_instance_of(OCSPService).to receive(:make_http_request).and_raise(Timeout::Error)
+          end
+
+          it 'returns a token as timeout' do
+            ca = CertificateAuthority.find_or_create_for_certificate(
+                Certificate.new(root_cert)
+            )
+
+            @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
+            expect(CertificateLoggerService).to receive(:log_certificate)
+
+            get :create, params: { nonce: '123' }
+            expect(response).to have_http_status(:found)
+            expect(response.has_header?('Location')).to be_truthy
+            expect(token).to be_truthy
+
+            expect(token_contents['error']).to eq 'certificate.timeout'
+            expect(token_contents['nonce']).to eq '123'
+          end
+        end
+
+        describe 'with a certificate ocsp error' do
+          before(:each) do
+            allow_any_instance_of(OCSPService).to receive(:make_http_request).and_raise(OpenSSL::OCSP::OCSPError)
+          end
+
+          it 'returns a token as ocsp error' do
+            ca = CertificateAuthority.find_or_create_for_certificate(
+                Certificate.new(root_cert)
+            )
+
+            @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
+            expect(CertificateLoggerService).to receive(:log_certificate)
+
+            get :create, params: { nonce: '123' }
+            expect(response).to have_http_status(:found)
+            expect(response.has_header?('Location')).to be_truthy
+            expect(token).to be_truthy
+
+            expect(token_contents['error']).to eq 'certificate.ocsp_error'
+            expect(token_contents['nonce']).to eq '123'
+          end
+        end
+
         describe 'a certificate signed by an unrecognized authority' do
           let(:other_root_cert_and_key) do
             create_root_certificate(
@@ -256,6 +302,13 @@ RSpec.describe IdentifyController, type: :controller do
 
             expect(token_contents['error']).to eq 'certificate.unverified'
             expect(token_contents['nonce']).to eq '123'
+          end
+        end
+
+        context 'when the nonce param is missing' do
+          it 'returns a bad request' do
+            get :create, params: {}
+            expect(response).to have_http_status(:bad_request)
           end
         end
       end

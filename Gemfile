@@ -15,7 +15,7 @@ gem 'mini_cache'
 gem 'newrelic_rpm'
 gem 'pg'
 gem 'pry-rails'
-gem 'puma', '~> 3.7'
+gem 'puma', '~> 3.12'
 gem 'rgl'
 
 group :development, :test do
