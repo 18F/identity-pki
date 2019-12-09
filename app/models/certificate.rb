@@ -61,6 +61,14 @@ class Certificate
   end
 
   def validate_untrusted_root
+    validate_untrusted_root_with_exceptions
+  rescue OpenSSL::OCSP::OCSPError
+    'ocsp_error'
+  rescue Timeout::Error
+    'timeout'
+  end
+
+  def validate_untrusted_root_with_exceptions
     if self_signed?
       'self-signed cert'
     elsif !signature_verified?
