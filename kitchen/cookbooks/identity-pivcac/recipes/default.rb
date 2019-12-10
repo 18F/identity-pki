@@ -29,7 +29,7 @@ directory shared_path do
   recursive true
 end
 
-branch_name = node.fetch('login_dot_gov').fetch('branch_name', "stages/#{node.chef_environment}")
+deploy_branch = node.fetch('login_dot_gov').fetch('deploy_branch').fetch('identity-pivcac', "stages/#{node.chef_environment}")
 
 # TODO: stop using deprecated deploy resource
 deploy "#{base_dir}" do
@@ -88,7 +88,7 @@ deploy "#{base_dir}" do
   end
 
   repo 'https://github.com/18F/identity-pki.git'
-  branch branch_name
+  branch deploy_branch
   shallow_clone true
   keep_releases 1
   

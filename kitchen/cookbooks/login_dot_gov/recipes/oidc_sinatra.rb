@@ -23,7 +23,7 @@ include_recipe 'login_dot_gov::dhparam'
 base_dir = "/srv/#{app_name}"
 deploy_dir = "#{base_dir}/current/public"
 
-branch_name = node.fetch('login_dot_gov').fetch('branch_name', "stages/#{node.chef_environment}")
+deploy_branch = node.fetch('login_dot_gov').fetch('deploy_branch').fetch("identity-#{app_name}", "stages/#{node.chef_environment}")
 
 
 # TODO: stop using deprecated deploy resource
@@ -60,7 +60,7 @@ deploy "/srv/#{app_name}" do
   end
 
   repo 'https://github.com/18F/identity-openidconnect-sinatra.git'
-  branch branch_name
+  branch deploy_branch
   shallow_clone true
   keep_releases 1
 
@@ -116,5 +116,5 @@ end
 
 login_dot_gov_deploy_info "#{deploy_dir}/api/deploy.json" do
   owner node.fetch('login_dot_gov').fetch('system_user')
-  branch branch_name
+  branch deploy_branch
 end

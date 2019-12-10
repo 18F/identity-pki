@@ -76,10 +76,17 @@ when /\A89494/
 else
   raise "Unexpected AWS account ID: #{Chef::Recipe::AwsMetadata.get_aws_account_id.inspect}"
 end
-default['login_dot_gov']['release_dir']                               = ''
-default['login_dot_gov']['sha_revision']                              = ''
-default['login_dot_gov']['sslrootcert']                               = '/usr/local/share/aws/rds-combined-ca-bundle.pem'
-default['login_dot_gov']['branch_name']                               = 'master'
+default['login_dot_gov']['release_dir']   = ''
+default['login_dot_gov']['sha_revision']  = ''
+default['login_dot_gov']['sslrootcert']   = '/usr/local/share/aws/rds-combined-ca-bundle.pem'
+
+default['login_dot_gov']['deploy_branch'] = [
+  {'identity-idp'          => 'master'},
+  {'identity-dashboard'    => 'master'},
+  {'identity-oidc-sinatra' => 'master'},
+  {'identity-sp-rails'     => 'master'},
+  {'identity-sp-sinatra'   => 'master'}
+]
 
 # how long to wait for curl localhost to finish at end of bootstrapping
 default['login_dot_gov']['passenger_prewarm_timeout']                 = 30
