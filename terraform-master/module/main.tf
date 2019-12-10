@@ -10,14 +10,14 @@ data "aws_caller_identity" "current" {
 
 module "iam_account" {
   source        = "terraform-aws-modules/iam/aws//modules/iam-account"
-  version       = "~> 1.0"
+  version       = "~> 2.0"
   account_alias = "identity-master"
 
   allow_users_to_change_password = true
   create_account_password_policy = true
   max_password_age               = 90
   minimum_password_length        = local.password_length
-  password_reuse_prevention      = true
+  password_reuse_prevention      = 1
   require_lowercase_characters   = true
   require_numbers                = true
   require_symbols                = true
@@ -145,7 +145,7 @@ resource "aws_cloudtrail" "cloudtrail" {
 
 # Module that manages the terraform remote state bucket and creates the S3 logs bucket
 module "tf-state" {
-  source = "github.com/18F/identity-terraform//state_bucket?ref=c4970aefd61759d92b123de7afe496882d1a7c5b"
+  source = "github.com/18F/identity-terraform//state_bucket?ref=d111d1df1e47671313430b6f1492735ae45767bf"
   region = var.region
 }
 
