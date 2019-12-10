@@ -6,7 +6,7 @@ set -eou pipefail
 
 nothing_to_do=1
 
-for branch in $(git branch --format='%(refname:short)' --merged | grep -v '^stages/' | grep -v master); do
+for branch in $(git branch --format='%(refname:short)' --merged | grep -v '^stages/' | grep -vx master); do
     nothing_to_do=
     if prompt_yn "Delete '$branch'?"; then
         run git branch -d "$branch"
