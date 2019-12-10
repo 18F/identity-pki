@@ -13,7 +13,13 @@
     },
     "login_dot_gov": {
       "domain_name": "identitysandbox.gov",
-      "branch_name": "stages/bleachbyte",
+      "deploy_branch": {
+        "identity-idp": "stages/bleachbyte",
+        "identity-dashboard": "stages/bleachbyte",
+        "identity-oidc-sinatra": "stages/bleachbyte",
+        "identity-sp-rails": "stages/bleachbyte",
+        "identity-sp-sinatra": "stages/bleachbyte"
+      },
       "idp_run_migrations": true,
       "allow_unsafe_migrations": true
     }

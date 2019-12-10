@@ -6,7 +6,13 @@
   "default_attributes": {
     "login_dot_gov": {
       "domain_name": "identitysandbox.gov",
-      "branch_name": "master"
+      "deploy_branch": {
+        "identity-idp": "master",
+        "identity-dashboard": "master",
+        "identity-oidc-sinatra": "master",
+        "identity-sp-rails": "master",
+        "identity-sp-sinatra": "master"
+      }
     },
     "elk": {
       "retentiondays": 14,
