@@ -18,7 +18,6 @@ install_certificates 'Installing ELK certificates to ca-certificates' do
   service_tag_key node['elk']['elk_tag_key']
   service_tag_value node['elk']['elk_tag_value']
   install_directory '/usr/local/share/ca-certificates'
-  suffix 'legacy-elk'
   notifies :run, 'execute[/usr/sbin/update-ca-certificates]', :immediately
 end
 
