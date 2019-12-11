@@ -84,8 +84,9 @@ application release_path do
   owner node['login_dot_gov']['system_user']
   group node['login_dot_gov']['system_user']
 
-  # branch is defined as an attribute or defaults to stages/<env>
-  deploy_branch = node['login_dot_gov']['deploy_branch']['identity-idp'] || "stages/#{node.chef_environment}"
+  # branch is defined as an attribute or defaults to master
+  default_branch = node.fetch('login_dot_gov').fetch('deploy_branch_default')
+  deploy_branch = node.fetch('login_dot_gov').fetch('deploy_branch').fetch("identity-#{app_name}", default_branch)
 
   git do
     repository 'https://github.com/18F/identity-idp.git'

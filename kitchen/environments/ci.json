@@ -5,14 +5,7 @@
   "chef_type": "environment",
   "default_attributes": {
     "login_dot_gov": {
-      "domain_name": "identitysandbox.gov",
-      "deploy_branch": {
-        "identity-idp": "master",
-        "identity-dashboard": "master",
-        "identity-oidc-sinatra": "master",
-        "identity-sp-rails": "master",
-        "identity-sp-sinatra": "master"
-      }
+      "domain_name": "identitysandbox.gov"
     },
     "elk": {
       "retentiondays": 14,
