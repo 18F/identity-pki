@@ -191,13 +191,7 @@ data "aws_iam_policy_document" "power1" {
     sid    = "DynamoDb"
     effect = "Allow"
     actions = [
-      "dynamodb:CreateTable",
-      "dynamodb:DescribeTable",
-      "dynamodb:DeleteItem",
-      "dynamodb:CreateTable",
-      "dynamodb:DescribeTable",
-      "dynamodb:PutItem",
-      "dynamodb:GetItem",
+      "dynamodb:*",
     ]
     resources = [
       "*",
@@ -235,6 +229,7 @@ data "aws_iam_policy_document" "power1" {
       "route53:ChangeResourceRecordSets",
       "route53:GetChange",
       "route53:DeleteHostedZone",
+      "route53:ListTagsForResource",
     ]
     resources = [
       "*",
@@ -245,6 +240,16 @@ data "aws_iam_policy_document" "power1" {
     effect = "Allow"
     actions = [
       "cloudformation:*",
+    ]
+    resources = [
+      "*",
+    ]
+  }
+  statement {
+    sid    = "Kinesis"
+    effect = "Allow"
+    actions = [
+      "kinesis:*",
     ]
     resources = [
       "*",
@@ -471,6 +476,7 @@ data "aws_iam_policy_document" "power2" {
       "elasticloadbalancing:DeleteTargetGroup",
       "elasticloadbalancing:DeregisterTargets",
       "elasticloadbalancing:DeregisterInstancesFromLoadBalancer",
+      "elasticloadbalancing:DescribeLoadBalancers",
       "elasticloadbalancing:DescribeTags",
       "elasticloadbalancing:DescribeTargetHealth",
       "elasticloadbalancing:DescribeTargetGroups",
@@ -504,6 +510,16 @@ data "aws_iam_policy_document" "power2" {
     effect = "Allow"
     actions = [
       "ses:*",
+    ]
+    resources = [
+      "*",
+    ]
+  }
+  statement {
+    sid    = "SSM"
+    effect = "Allow"
+    actions = [
+      "ssm:*",
     ]
     resources = [
       "*",

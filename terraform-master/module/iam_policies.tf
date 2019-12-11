@@ -380,3 +380,93 @@ data "aws_iam_policy_document" "production_assume_reporting_ro" {
   }
 }
 
+resource "aws_iam_policy" "production_assume_socadministrator" {
+    name = "ProductionAssumeSOCAdministrator"
+    path = "/"
+    description = "Policy to allow user to assume SOCAdministrator in Production"
+    policy = data.aws_iam_policy_document.production_assume_socadministrator.json
+}
+
+data "aws_iam_policy_document" "production_assume_socadministrator" {
+    statement {
+        sid = "ProductionAssumeSOCAdministrator"
+        effect = "Allow"
+        actions = [
+            "sts:AssumeRole"
+        ]
+        resources = [
+            "arn:aws:iam::${var.production_account_id}:role/SOCAdministrator"
+        ]
+        condition {
+            test = "Bool"
+            variable = "aws:MultiFactorAuthPresent"
+            values = [
+                "true"
+            ]
+        }
+    }
+}
+
+resource "aws_iam_policy" "sandbox_assume_socadministrator" {
+    name = "SandboxAssumeSOCAdministrator"
+    path = "/"
+    description = "Policy to allow user to assume SOCAdministrator in Sandbox"
+    policy = data.aws_iam_policy_document.production_assume_socadministrator.json
+}
+
+data "aws_iam_policy_document" "sandbox_assume_socadministrator" {
+    statement {
+        sid = "SandboxAssumeSOCAdministrator"
+        effect = "Allow"
+        actions = [
+            "sts:AssumeRole"
+        ]
+        resources = [
+            "arn:aws:iam::${var.sandbox_account_id}:role/SOCAdministrator"
+        ]
+        condition {
+            test = "Bool"
+            variable = "aws:MultiFactorAuthPresent"
+            values = [
+                "true"
+            ]
+        }
+    }
+}
+
+resource "aws_iam_policy" "socadministrator" {
+    name = "SOCAdministrator"
+    path = "/"
+    description = "Policy for SOC administrators"
+    policy = data.aws_iam_policy_document.socadministrator.json
+}
+
+data "aws_iam_policy_document" "socadministrator" {
+    statement {
+        sid = "SOCAdministrator"
+        effect = "Allow"
+        actions = [
+            "cloudtrail:*",
+            "cloudwatch:*",
+            "logs:*",
+            "config:*",
+            "guardduty:*",
+            "iam:Get*",
+            "iam:List*",
+            "iam:Generate*",
+            "macie:*",
+            "organizations:List*",
+            "organizations:Describe*",
+            "s3:HeadBucket",
+            "s3:List*",
+            "s3:Get*",
+            "securityhub:*",
+            "shield:*",
+            "ssm:*",
+            "trustedadvisor:*",
+        ]
+        resources = [
+            "*"
+        ]
+    }
+} 

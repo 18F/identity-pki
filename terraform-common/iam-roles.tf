@@ -1,3 +1,9 @@
+module "common_iam" {
+  source = "../terraform-modules/common_iam/"
+
+  master_account_id = var.master_account_id
+}
+
 # This role is created by the RDS wizard when you enable enhanced monitoring on
 # an RDS DB instance. It's just a role to wrap the AWS managed policy
 # "AmazonRDSEnhancedMonitoringRole".
