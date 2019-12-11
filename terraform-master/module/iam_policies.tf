@@ -411,7 +411,7 @@ resource "aws_iam_policy" "sandbox_assume_socadministrator" {
     name = "SandboxAssumeSOCAdministrator"
     path = "/"
     description = "Policy to allow user to assume SOCAdministrator in Sandbox"
-    policy = data.aws_iam_policy_document.production_assume_socadministrator.json
+    policy = data.aws_iam_policy_document.sandbox_assume_socadministrator.json
 }
 
 data "aws_iam_policy_document" "sandbox_assume_socadministrator" {
