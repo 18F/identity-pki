@@ -11,7 +11,8 @@ include_recipe 'login_dot_gov::dhparam'
 base_dir = "/srv/#{app_name}"
 deploy_dir = "#{base_dir}/current/public"
 
-deploy_branch = node.fetch('login_dot_gov').fetch('deploy_branch').fetch("identity-#{app_name}", "stages/#{node.chef_environment}")
+default_branch = node.fetch('login_dot_gov').fetch('deploy_branch_default')
+deploy_branch = node.fetch('login_dot_gov').fetch('deploy_branch').fetch("identity-#{app_name}", default_branch)
 
 %w{cached-copy config log}.each do |dir|
   directory "#{base_dir}/shared/#{dir}" do

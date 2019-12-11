@@ -31,7 +31,9 @@ end
 
 app_name = 'idp'
 # branch is set by environment/node, otherwise use stages/env
-deploy_branch = node['login_dot_gov']['deploy_branch']["identity-#{app_name}"] || "stages/#{node.chef_environment}"
+default_branch = node.fetch('login_dot_gov').fetch('deploy_branch_default')
+deploy_branch = node.fetch('login_dot_gov').fetch('deploy_branch').fetch("identity-#{app_name}", default_branch)
+
 base_dir = '/srv/idp'
 deploy_dir = "#{base_dir}/current/public"
 
