@@ -1,3 +1,3 @@
 variable "master_account_id" {
-    description = "AWS Account ID for master account"
-} 
+  description = "AWS Account ID for master account"
+}
