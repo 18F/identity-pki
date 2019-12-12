@@ -40,10 +40,11 @@ _DATE_
    - [ ] CodeClimate
    - [ ] Snyk
 
-- [ ] Twilio
-   - [ ] https://www.twilio.com/console/project/users
-     _user name_
-   - [ ] The devops@gsa.gov google group is the account owner
+- Jira
+  - [ ] Create a ticket in the Jira AdminTasks project requesting that the user
+        be removed from the Login.gov project (and deactivated if they are no
+        longer working for GSA).
+        https://cm-jira.usa.gov/secure/CreateIssue!default.jspa
 
 - [ ] New Relic
    - [ ] https://account.newrelic.com/accounts/1376370/users
@@ -51,6 +52,8 @@ _DATE_
 
 - [ ] OpsGenie
    - [ ]
+
+- [ ] Statuspage.io
 
 - Slack
    - [ ] https://goo.gl/forms/mKATdB9QuNo7AXVY2 -- submit user modification
