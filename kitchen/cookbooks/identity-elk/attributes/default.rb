@@ -10,6 +10,8 @@ default['es']['sg_zip_sum'] = '04e460f13dad349ac154965f9d77b31c2cdecbc1a60f4b619
 default['es']['sg_tls'] = '1.7.tar.gz'
 default['es']['sg_tls_sum'] = '284492779edf037348375994a0f320cc1425bda149d56c3db0031014241e7110'
 
+default['filebeat']['version'] = '7.3.1'
+
 # logfiles to watch
 default['filebeat']['logfiles'] = [
   '/srv/*/shared/log/*.log',

@@ -1,7 +1,7 @@
 # This cookbook installs filebeat to send stuff to logstash
 
 filebeat_install 'default' do
-  version '7.3.1'
+  version node.fetch('filebeat').fetch('version')
   notifies :enable, 'service[filebeat]'
 end
 
@@ -15,8 +15,8 @@ end
 
 # TODO: Don't use this suffix, just use the base host certificate
 install_certificates 'Installing ELK certificates to ca-certificates' do
-  service_tag_key node['elk']['elk_tag_key']
-  service_tag_value node['elk']['elk_tag_value']
+  service_tag_key node.fetch('elk').fetch('elk_tag_key')
+  service_tag_value node.fetch('elk').fetch('elk_tag_value')
   install_directory '/usr/local/share/ca-certificates'
   notifies :run, 'execute[/usr/sbin/update-ca-certificates]', :immediately
 end
@@ -29,8 +29,8 @@ end
 template "/etc/filebeat/filebeat.yml" do
   source 'filebeat.yml.erb'
   variables ({
-    :logstash_hosts => node['filebeat'].fetch('config').fetch('output').fetch('logstash').fetch('hosts'),
-    :logstash_ssl_certificate_authorities => node['filebeat'].fetch('config').fetch('output').fetch('logstash').fetch('tls').fetch('certificate_authorities')
+    :logstash_hosts => node.fetch('filebeat').fetch('config').fetch('output').fetch('logstash').fetch('hosts'),
+    :logstash_ssl_certificate_authorities => node.fetch('filebeat').fetch('config').fetch('output').fetch('logstash').fetch('tls').fetch('certificate_authorities')
   })
   notifies :restart, 'service[filebeat]'
 end
@@ -40,7 +40,7 @@ directory '/etc/filebeat/inputs.d'
 template "/etc/filebeat/inputs.d/default.yml" do
   source 'filebeat_inputs_default.yml.erb'
   variables ({
-    :logfiles => node['filebeat'].fetch('logfiles'),
+    :logfiles => node.fetch('filebeat').fetch('logfiles'),
   })
   notifies :restart, 'service[filebeat]'
 end
