@@ -170,13 +170,6 @@ data "aws_iam_policy_document" "full_administrator" {
     resources = [
       "*",
     ]
-    condition {
-      test     = "Bool"
-      variable = "aws:MultiFactorAuthPresent"
-      values = [
-        "true",
-      ]
-    }
   }
 }
 
