@@ -11,8 +11,10 @@
         "bleachbyte"
       ]
     },
-    "idp_run_migrations": true,
-    "allow_unsafe_migrations": true
+    "login_dot_gov": {
+      "idp_run_migrations": true,
+      "allow_unsafe_migrations": true
+    }
   },
   "override_attributes": {
 
