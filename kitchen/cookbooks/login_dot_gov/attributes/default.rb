@@ -81,6 +81,7 @@ default['login_dot_gov']['sha_revision']  = ''
 default['login_dot_gov']['sslrootcert']   = '/usr/local/share/aws/rds-combined-ca-bundle.pem'
 
 default['login_dot_gov']['deploy_branch_default'] = 'master'
+default['login_dot_gov']['deploy_branch'] = {}
 
 # how long to wait for curl localhost to finish at end of bootstrapping
 default['login_dot_gov']['passenger_prewarm_timeout']                 = 30
