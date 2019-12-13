@@ -122,6 +122,7 @@ resource "aws_iam_policy_attachment" "master_full_administrator" {
     aws_iam_user.andy_brody.name,
     aws_iam_user.amit_freeman.name,
     aws_iam_user.brian_crissup.name,
+    aws_iam_user.jonathan_pirro.name,
     aws_iam_user.justin_grevich.name,
     aws_iam_user.mossadeq_zia.name,
   ]
