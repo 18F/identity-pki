@@ -6,7 +6,7 @@ set -euo pipefail
 
 usage() {
     cat >&2 <<EOM
-usage: $(basename "$0") [RSA_PUBKEY_PATH]
+usage: $(basename "$0") RSA_PUBKEY_PATH [AWS_USER]
 
 Upload a public SSH key to AWS. Only RSA keys are supported.
 
@@ -25,8 +25,14 @@ EOM
 }
 
 main() {
-    local ssh_pubkey_path
+    local ssh_pubkey_path aws_username
     ssh_pubkey_path="$1"
+
+    if [ $# -ge 2 ]; then
+        aws_username="$2"
+    else
+        aws_username=
+    fi
 
     # ensure pubkey exists
     cat "$ssh_pubkey_path" >/dev/null || {
@@ -34,7 +40,9 @@ main() {
         return 1
     }
 
-    aws_username="$(run aws iam get-user --output text --query User.UserName)"
+    if [ -z "$aws_username" ]; then
+        aws_username="$(run aws iam get-user --output text --query User.UserName)"
+    fi
 
     ssh_key_basename="$(basename "$ssh_pubkey_path" .pub)"
     ssh_private_key_path="$(dirname "$ssh_pubkey_path")/$ssh_key_basename"
@@ -52,9 +60,13 @@ main() {
     echo_blue "export KITCHEN_EC2_SSH_KEY='$ssh_private_key_path'"
 }
 
-if [ $# -lt 1 ]; then
-    usage
-    exit 1
-fi
+case $# in
+    1|2)
+        ;;
+    *)
+        usage
+        exit 1
+        ;;
+esac
 
-main "$1"
+main "$@"
