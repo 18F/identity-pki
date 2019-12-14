@@ -478,7 +478,7 @@ variable "bootstrap_private_git_clone_url" {
 # though they will have different IDs. They should be updated here at the same
 # time, and then released to environments in sequence.
 variable "default_ami_id_sandbox" {
-  default = "ami-02b5b9364f1b8fd38" # 2019-12-06 Ubuntu 18.04
+  default = "ami-08d129660cf9e2909" # 2019-12-13 Ubuntu 18.04
   description = "default AMI ID for environments in the sandbox account"
 }
 
