@@ -113,6 +113,8 @@ resource "aws_db_parameter_group" "force_ssl" {
     name         = "rds.force_ssl"
     value        = "1"
     apply_method = "pending-reboot"
+    max_standby_archive_delay = "1800s"
+    max_standby_streaming_delay = "1800s"
   }
 
   # Log all Data Definition Layer changes (ALTER, CREATE, etc.)
