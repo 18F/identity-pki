@@ -115,6 +115,20 @@ resource "aws_db_parameter_group" "force_ssl" {
     apply_method = "pending-reboot"
   }
 
+  # Setting to 30 minutes, RDS requires value in ms
+  # https://aws.amazon.com/blogs/database/best-practices-for-amazon-rds-postgresql-replication/
+  parameter {
+    name  = "max_standby_archive_delay"
+    value = "1800000"
+  }
+
+  # Setting to 30 minutes, RDS requires value in ms
+  # https://aws.amazon.com/blogs/database/best-practices-for-amazon-rds-postgresql-replication/
+  parameter {
+    name  = "max_standby_streaming_delay"
+    value = "1800000"
+  }
+
   # Log all Data Definition Layer changes (ALTER, CREATE, etc.)
   parameter {
     name  = "log_statement"
