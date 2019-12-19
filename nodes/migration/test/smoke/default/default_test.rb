@@ -72,7 +72,6 @@ end
 
 describe file('/var/log/nginx/access.log') do
   it { should exist }
-  its(:size) { should == 0 }
 end
 
 # idp-jobs service should not be running
