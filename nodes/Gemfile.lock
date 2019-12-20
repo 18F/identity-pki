@@ -609,9 +609,9 @@ PLATFORMS
 
 DEPENDENCIES
   aws-sdk-ec2 (~> 1.0)
-  berkshelf (~> 7.0)
-  chef (~> 14.13)
-  chefspec
+  berkshelf (~> 7.0, >= 7.0.8)
+  chef (~> 14.13, >= 14.13.11)
+  chefspec (>= 8.0.0)
   erubis (~> 2)
   inspec (~> 4.7)
   kitchen-ec2
