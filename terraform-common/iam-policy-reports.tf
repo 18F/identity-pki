@@ -13,7 +13,8 @@ data "aws_iam_policy_document" "reports_ro" {
       "s3:GetObject",
     ]
     resources = [
-      aws_s3_bucket.reports.arn
+      aws_s3_bucket.reports.arn,
+      "${aws_s3_bucket.reports.arn}/*"
     ]
   }
 }
