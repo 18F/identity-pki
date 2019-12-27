@@ -17,14 +17,11 @@
         "steveu"
       ]
     },
-    "identity-devops": {
-      "branch_name": "stages/dev"
-    },
     "identity-outboundproxy": {
       "use_dashboard_dynamic_updates": true
     },
     "login_dot_gov": {
-      "branch_name": "master",
+      "deploy_branch_default": "master",
       "cloudhsm_enabled": true,
       "cloudhsm_cluster_id": "cluster-3647hjftjyc",
       "cloudhsm_customer_ca": "-----BEGIN CERTIFICATE-----\nMIID1TCCAr2gAwIBAgIJAKQ7uanuL4jnMA0GCSqGSIb3DQEBCwUAMIGAMQswCQYD\nVQQGEwJVUzETMBEGA1UECAwKU29tZS1TdGF0ZTEPMA0GA1UECgwGQW1hem9uMSQw\nIgYDVQQDDBtpZHAuZGV2LmlkZW50aXR5c2FuZGJveC5nb3YxJTAjBgkqhkiG9w0B\nCQEWFnN0ZXZlLnVyY2l1b2xpQGdzYS5nb3YwHhcNMTgwNDE4MjIwNTU4WhcNMjgw\nNDE3MjIwNTU4WjCBgDELMAkGA1UEBhMCVVMxEzARBgNVBAgMClNvbWUtU3RhdGUx\nDzANBgNVBAoMBkFtYXpvbjEkMCIGA1UEAwwbaWRwLmRldi5pZGVudGl0eXNhbmRi\nb3guZ292MSUwIwYJKoZIhvcNAQkBFhZzdGV2ZS51cmNpdW9saUBnc2EuZ292MIIB\nIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7VtPDyLtRURBxQxjGByzPt/d\njj8qFr4z6DttvrKQTNo88peO7MSgLEaph49SBQW5H+RChTxNm7Beegm0VH9TV4Xt\nN64UvFMdNB3g0DBdgdsZgRl/LNKkFNmZmFKeNTgNkSxdEtwY8NShoQUlYfQGQP+c\ngySR+CPlj6W7RtHxkwCGt0rG/wtRU4JkVwMasm19KfwpbjEW2noTEgckrAYeTyzn\nDm0aifSMaaNl9hp50DAv41h4Y0zAz2ib6GSHvCEYBn4socs7N0i+EcmZlIgS+apX\nXeDG2tlHQP4ue2eUJtYHEaE8hBlO7JrI2i5ZRyYjyobEIgGWK/A09g3nSvScAwID\nAQABo1AwTjAdBgNVHQ4EFgQUT80QVrsjl59t43s1zeS7X8jxdfMwHwYDVR0jBBgw\nFoAUT80QVrsjl59t43s1zeS7X8jxdfMwDAYDVR0TBAUwAwEB/zANBgkqhkiG9w0B\nAQsFAAOCAQEAHd4R0r/8553pvsUrijxxEdsjWZmplStHmeruBP27XvZ73bLvBMYc\nULPDUp8y9QW3Ov2lEBpi6Z6dVd1/wibIfYNOnJ8IHWE//P0n5ofLUAoBWI4hyfHA\n0cBKW5UFcYfk/FfVpLmbas0ZS92yI5TzFgsbP/JlnPN+Sm35ci+ssd0u5+F6MHfa\nO2HIs+cIFEp+ZBPlD816hEipB03Ps31u2OzPoRza0rf7XW5bhwVidJ0yKd3zcS46\nmZ8T5W+mqoevwxVlvkk5FsHZDsZw1QfNSMNm4R60KAKk24tfmQIrxOB16P8lKphS\naF4jNjozcD6JTW2kN2tFxEp2H9npgqy3Eg==\n-----END CERTIFICATE-----\n",

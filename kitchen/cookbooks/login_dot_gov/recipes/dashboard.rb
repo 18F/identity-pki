@@ -20,6 +20,8 @@ else
 end
 dashboard_url = "https://dashboard.#{node.chef_environment}.#{node.fetch('login_dot_gov').fetch('domain_name')}"
 
+# deploy_branch defaults to stages/<env>
+# unless deploy_branch.identity-#{app_name} is specifically set otherwise
 default_branch = node.fetch('login_dot_gov').fetch('deploy_branch_default')
 deploy_branch = node.fetch('login_dot_gov').fetch('deploy_branch').fetch("identity-#{app_name}", default_branch)
 
