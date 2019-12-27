@@ -10,12 +10,6 @@
       "users": [
         "solipet"
       ]
-    },
-    "identity-devops": {
-      "branch_name": "stages/solipet"
-    },
-    "login_dot_gov": {
-      "branch_name": "stages/solipet"
     }
   },
   "override_attributes": {

@@ -11,11 +11,7 @@
         "sgrow"
       ]
     },
-    "identity-devops": {
-      "branch_name": "stages/sgrow"
-    },
     "login_dot_gov": {
-      "branch_name": "stages/sgrow",
       "idp_run_migrations": true,
       "allow_unsafe_migrations": true
     }

@@ -6,12 +6,8 @@
   "json_class": "Chef::Environment",
   "chef_type": "environment",
   "default_attributes": {
-    "identity-devops": {
-      "branch_name": "stages/crissupb"
-    },
     "login_dot_gov": {
-      "domain_name": "identitysandbox.gov",
-      "branch_name": "master",
+      "deploy_branch_default": "master",
       "idp_run_migrations": "true"
     },
     "elk": {
