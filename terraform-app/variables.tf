@@ -483,7 +483,7 @@ variable "default_ami_id_sandbox" {
 }
 
 variable "default_ami_id_prod" {
-  default = "ami-0c5dbcaaaa31cc937" # 2019-12-06 Ubuntu 18.04
+  default = "ami-07dbce327c9f310f0" # 2019-12-13 Ubuntu 18.04
   description = "default AMI ID for environments in the prod account"
 }
 
