@@ -29,7 +29,7 @@ variable "sandbox_ses_inbound_enabled" {
 }
 
 module "common_dns" {
-  source = "../terraform-modules/common_dns/"
+  source = "../../terraform-modules/common_dns/"
 
   domain                       = var.root_domain
   static_cloudfront_name       = var.static_cloudfront_name
@@ -49,7 +49,7 @@ output "primary_name_servers" {
 }
 
 module "sandbox_ses" {
-  source = "../terraform-modules/sandbox_ses/"
+  source = "../../terraform-modules/sandbox_ses/"
 
   domain = var.root_domain
 

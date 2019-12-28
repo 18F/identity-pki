@@ -15,9 +15,3 @@ provider "template" {
   version = "~> 2.1.2"
 }
 
-# Stub remote config needed for terraform 0.9.*
-terraform {
-  backend "s3" {
-  }
-}
-
