@@ -232,7 +232,7 @@ else
 fi
 
 case "$TF_DIR" in
-    terraform-dns|terraform-cloudtrail|terraform-common)
+    terraform-dns|terraform-cloudtrail)
         # These configurations apply account wide, so set the environment to the
         # account ID.
         #
