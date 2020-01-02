@@ -105,7 +105,7 @@ end
 
 remote_file "/tmp/#{node['es']['sg_version']}-#{node['es']['sg_zip']}.zip" do
   checksum node['es']['sg_zip_sum']
-  source "https://search.maven.org/remotecontent?filepath=com/floragunn/#{node['es']['sg_version']}/#{node['es']['sg_zip']}/#{node['es']['sg_version']}-#{node['es']['sg_zip']}.zip"
+  source "https://releases.floragunn.com/#{node['es']['sg_version']}/#{node['es']['sg_zip']}/#{node['es']['sg_version']}-#{node['es']['sg_zip']}.zip"
 end
 
 elasticsearch_plugin "com.floragunn:#{node['es']['sg_version']}:#{node['es']['sg_zip']}" do
