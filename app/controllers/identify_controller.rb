@@ -50,9 +50,9 @@ class IdentifyController < ApplicationController
     CGI.escape(token)
   end
 
+  # :reek:DuplicateMethodCall
   def client_cert
-    headers = request.headers
-    cert_pem = headers[CERT_HEADER] || headers.env['rack.peer_cert']
+    cert_pem = request.headers[CERT_HEADER] || request.headers.env['rack.peer_cert']
     return unless cert_pem
     if Figaro.env.client_cert_escaped == 'true'
       CGI.unescape(cert_pem)
