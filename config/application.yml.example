@@ -39,7 +39,7 @@ required_policies: |
 
 development:
   aws_region: 'us-east-1'
-  client_cert_escaped: 'true'
+  client_cert_escaped: 'false'
   database_name: 'identity_pki_dev'
   identity_idp_host: 'localhost'
   nonce_bloom_filter_server: 'redis://localhost:6379/2'
