@@ -16,9 +16,6 @@ TERRAFORM_STATE_BUCKET="login-gov.tf-state.$aws_account_id-$TERRAFORM_STATE_BUCK
 # used by `deploy` to pass to configure_state_bucket.sh
 ID_state_lock_table=terraform_locks
 
-# used by `tf-deploy --import-remote-state` to know TF address for importing
-ID_state_module_prefix=module.main.module.tf-state
-
 # default AWS credentials profile for this account
 if [ -z "${AWS_PROFILE-}${AWS_ACCESS_KEY_ID-}" ]; then
     export AWS_PROFILE="identitysandbox.gov"
