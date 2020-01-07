@@ -131,6 +131,7 @@ resource "aws_iam_policy_attachment" "master_full_administrator" {
     aws_iam_user.jonathan_pirro.name,
     aws_iam_user.justin_grevich.name,
     aws_iam_user.mossadeq_zia.name,
+    aws_iam_user.steven_harms.name,
   ]
   policy_arn = aws_iam_policy.master_full_administrator.arn
 }
