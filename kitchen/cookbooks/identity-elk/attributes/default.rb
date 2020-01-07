@@ -10,28 +10,27 @@ default['es']['sg_zip_sum'] = '04e460f13dad349ac154965f9d77b31c2cdecbc1a60f4b619
 default['es']['sg_tls'] = '1.7.tar.gz'
 default['es']['sg_tls_sum'] = '284492779edf037348375994a0f320cc1425bda149d56c3db0031014241e7110'
 
+default['filebeat']['version'] = '7.3.1'
+
 # logfiles to watch
-default['elk']['filebeat']['logfiles'] = [
-  {'log' => '/srv/*/shared/log/events.log', 'type' => 'log', 'format' => 'json'},
-  {'log' => '/srv/*/shared/log/production.log', 'type' => 'log', 'format' => 'text'},
-  {'log' => '/srv/*/shared/log/newrelic_agent.log', 'type' => 'log', 'format' => 'text'},
-  {'log' => '/var/log/syslog', 'type' => 'syslog', 'format' => 'text'},
-  {'log' => '/var/log/auth.log', 'type' => 'syslog', 'format' => 'text'},
-  {'log' => '/var/lib/docker/aufs/mnt/*/var/log/*/*.log', 'type' => 'syslog', 'format' => 'text'},
-  {'log' => '/var/log/dnsmasq.log', 'type' => 'syslog', 'format' => 'text'},
-  {'log' => '/var/log/*/current', 'type' => 'log', 'format' => 'text'},
-  {'log' => '/var/log/opscode/*/current', 'type' => 'cheflog', 'format' => 'text'},
-  {'log' => '/var/log/opscode/*/*.log', 'type' => 'cheflog', 'format' => 'text'},
-  {'log' => '/var/log/postgres/*', 'type' => 'pglog', 'format' => 'text'},
-  {'log' => '/var/log/*/*.log', 'type' => 'syslog', 'format' => 'text'}
+default['filebeat']['logfiles'] = [
+  '/srv/*/shared/log/*.log',
+  '/var/lib/docker/aufs/mnt/*/var/log/*/*.log',
+  '/var/log/*.log',
+  '/var/log/*/*.log',
+  '/var/log/*/*/*.log',
+  '/var/log/*/current',
+  '/var/log/messages',
+  '/var/log/syslog'
 ]
 
 # set filebeat to do logstash output
 default['filebeat']['config']['output']['logstash']['enable'] = true
+default['filebeat']['config']['output']['logstash']['hosts'] = [ 'logstash.login.gov.internal:5044' ]
+default['filebeat']['config']['output']['logstash']['index'] = 'filebeat'
 default['filebeat']['config']['output']['logstash']['loadbalance'] = true
 default['filebeat']['config']['output']['logstash']['save_topology'] = false
-default['filebeat']['config']['output']['logstash']['index'] = 'filebeat'
-default['filebeat']['config']['output']['logstash']['tls']['certificate_authorities'] = ["/etc/ssl/certs/ca-certificates.crt"]
+default['filebeat']['config']['output']['logstash']['tls']['certificate_authorities'] = [ "/etc/ssl/certs/ca-certificates.crt" ]
 
 # how many days to keep logs around in ELK
 default['elk']['retentiondays'] = 30
@@ -54,12 +53,8 @@ default['elk']['logstashdeb'] = 'https://artifacts.elastic.co/downloads/logstash
 default['elk']['logstash-input-cloudwatch-logs-version'] = '1.0.3'
 default['elk']['logstash-codec-cloudtrail-version'] = '3.0.5'
 
-# users to allow into elk
-default['elk']['users'] = [ ]
-
 # set this so that we listen on 8443
 default['apache']['listen'] = [8443]
-
 
 default['elk']['logstash']['log_level'] = 'info'
 default['elk']['logstash']['path_data'] = '/var/lib/logstash'

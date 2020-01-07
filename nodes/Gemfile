@@ -12,7 +12,6 @@ gem 'kitchen-vagrant'
 gem 'kitchen-inspec', '~> 1.1'
 gem 'inspec', '~> 4.7'
 
-
 # The default test-kitchen SSH transport is unusably slow
 # (default ssh at ~760s vs. speedy_ssh at ~25s)
 gem 'kitchen-transport-speedy', '~> 0.1'
