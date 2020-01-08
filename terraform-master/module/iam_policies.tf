@@ -173,6 +173,7 @@ data "aws_iam_policy_document" "full_administrator" {
   }
 }
 
+######## identitysandbox.gov/login.gov assume-role policies ########
 resource "aws_iam_policy" "sandbox_assume_full_administrator" {
   name        = "SandboxAssumeFullAdministrator"
   path        = "/"
@@ -427,6 +428,182 @@ data "aws_iam_policy_document" "sandbox_assume_socadministrator" {
     }
 }
 
+######## identity-sms-sandbox/prod assume-role policies ########
+resource "aws_iam_policy" "sandbox_sms_assume_full_administrator" {
+  name        = "SandboxSMSAssumeFullAdministrator"
+  path        = "/"
+  description = "Policy to allow user to assume full administrator role in Sandbox SMS"
+  policy      = data.aws_iam_policy_document.sandbox_sms_assume_full_administrator.json
+}
+
+data "aws_iam_policy_document" "sandbox_sms_assume_full_administrator" {
+  statement {
+    sid    = "SandboxSMSAssumeFullAdministrator"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole",
+    ]
+    resources = [
+      "arn:aws:iam::${var.sandbox_sms_account_id}:role/FullAdministrator",
+    ]
+  }
+}
+
+resource "aws_iam_policy" "production_sms_assume_full_administrator" {
+  name        = "ProductionSMSAssumeFullAdministrator"
+  path        = "/"
+  description = "Policy to allow user to assume full administrator role in Production SMS"
+  policy      = data.aws_iam_policy_document.production_sms_assume_full_administrator.json
+}
+
+data "aws_iam_policy_document" "production_sms_assume_full_administrator" {
+  statement {
+    sid    = "ProductionSMSAssumeFullAdministrator"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole",
+    ]
+    resources = [
+      "arn:aws:iam::${var.production_sms_account_id}:role/FullAdministrator",
+    ]
+  }
+}
+
+resource "aws_iam_policy" "sandbox_sms_assume_power_user" {
+  name        = "SandboxSMSAssumePower"
+  path        = "/"
+  description = "Policy to allow user to assume power role in Sandbox SMS"
+  policy      = data.aws_iam_policy_document.sandbox_sms_assume_power_user.json
+}
+
+data "aws_iam_policy_document" "sandbox_sms_assume_power_user" {
+  statement {
+    sid    = "SandboxSMSAssumePowerUser"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole",
+    ]
+    resources = [
+      "arn:aws:iam::${var.sandbox_sms_account_id}:role/PowerUser",
+    ]
+  }
+}
+
+resource "aws_iam_policy" "production_sms_assume_power_user" {
+  name        = "ProductionSMSAssumePowerUser"
+  path        = "/"
+  description = "Policy to allow user to assume power role in Production SMS"
+  policy      = data.aws_iam_policy_document.production_sms_assume_power_user.json
+}
+
+data "aws_iam_policy_document" "production_sms_assume_power_user" {
+  statement {
+    sid    = "ProductionSMSAssumePowerUser"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole",
+    ]
+    resources = [
+      "arn:aws:iam::${var.production_sms_account_id}:role/PowerUser",
+    ]
+  }
+}
+
+resource "aws_iam_policy" "sandbox_sms_assume_readonly" {
+  name        = "SandboxSMSAssumeReadOnly"
+  path        = "/"
+  description = "Policy to allow user to assume readonly role in Sandbox SMS"
+  policy      = data.aws_iam_policy_document.sandbox_sms_assume_readonly.json
+}
+
+data "aws_iam_policy_document" "sandbox_sms_assume_readonly" {
+  statement {
+    sid    = "SandboxSMSAssumeReadOnly"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole",
+    ]
+    resources = [
+      "arn:aws:iam::${var.sandbox_sms_account_id}:role/ReadOnly",
+    ]
+  }
+}
+
+resource "aws_iam_policy" "production_sms_assume_readonly" {
+  name        = "ProductionSMSAssumeReadOnly"
+  path        = "/"
+  description = "Policy to allow user to assume readonly in Production SMS"
+  policy      = data.aws_iam_policy_document.production_sms_assume_readonly.json
+}
+
+data "aws_iam_policy_document" "production_sms_assume_readonly" {
+  statement {
+    sid    = "ProductionSMSAssumeReadOnly"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole",
+    ]
+    resources = [
+      "arn:aws:iam::${var.production_sms_account_id}:role/ReadOnly",
+    ]
+  }
+}
+
+resource "aws_iam_policy" "production_sms_assume_socadministrator" {
+    name = "ProductionSMSAssumeSOCAdministrator"
+    path = "/"
+    description = "Policy to allow user to assume SOCAdministrator in Production SMS"
+    policy = data.aws_iam_policy_document.production_sms_assume_socadministrator.json
+}
+
+data "aws_iam_policy_document" "production_sms_assume_socadministrator" {
+    statement {
+        sid = "ProductionSMSAssumeSOCAdministrator"
+        effect = "Allow"
+        actions = [
+            "sts:AssumeRole"
+        ]
+        resources = [
+            "arn:aws:iam::${var.production_sms_account_id}:role/SOCAdministrator"
+        ]
+        condition {
+            test = "Bool"
+            variable = "aws:MultiFactorAuthPresent"
+            values = [
+                "true"
+            ]
+        }
+    }
+}
+
+resource "aws_iam_policy" "sandbox_sms_assume_socadministrator" {
+    name = "SandboxSMSAssumeSOCAdministrator"
+    path = "/"
+    description = "Policy to allow user to assume SOCAdministrator in Sandbox SMS"
+    policy = data.aws_iam_policy_document.sandbox_sms_assume_socadministrator.json
+}
+
+data "aws_iam_policy_document" "sandbox_sms_assume_socadministrator" {
+    statement {
+        sid = "SandboxSMSAssumeSOCAdministrator"
+        effect = "Allow"
+        actions = [
+            "sts:AssumeRole"
+        ]
+        resources = [
+            "arn:aws:iam::${var.sandbox_sms_account_id}:role/SOCAdministrator"
+        ]
+        condition {
+            test = "Bool"
+            variable = "aws:MultiFactorAuthPresent"
+            values = [
+                "true"
+            ]
+        }
+    }
+}
+
+######## SOCAdmin policy data ########
 resource "aws_iam_policy" "socadministrator" {
     name = "SOCAdministrator"
     path = "/"

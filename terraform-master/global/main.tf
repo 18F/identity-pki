@@ -21,8 +21,10 @@ terraform {
 module "main" {
   source = "../module"
 
-  region                = "us-west-2"
-  sandbox_account_id    = "894947205914"
-  production_account_id = "555546682965"
+  region                    = "us-west-2"
+  sandbox_account_id        = "894947205914"
+  production_account_id     = "555546682965"
+  sandbox_sms_account_id    = "035466892286"
+  production_sms_account_id = "472911866628"
 }
 
