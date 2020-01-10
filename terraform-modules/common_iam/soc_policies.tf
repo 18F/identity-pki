@@ -10,6 +10,7 @@ data "aws_iam_policy_document" "soc_administrator" {
     sid    = "SOCAdministrator"
     effect = "Allow"
     actions = [
+      "access-analyzer:*",
       "cloudtrail:*",
       "cloudwatch:*",
       "logs:*",
