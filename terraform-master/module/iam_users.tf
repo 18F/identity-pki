@@ -4,6 +4,11 @@ resource "aws_iam_user" "aaron_chapman" {
   force_destroy = true
 }
 
+resource "aws_iam_user" "akhlaq_khan" {
+  name          = "akhlaq.khan"
+  force_destroy = true
+}
+
 resource "aws_iam_user" "andy_brody" {
   name          = "andy.brody"
   force_destroy = true
@@ -21,6 +26,11 @@ resource "aws_iam_user" "brian_crissup" {
 
 resource "aws_iam_user" "brett_mcparland" {
   name          = "brett.mcparland"
+  force_destroy = true
+}
+
+resource "aws_iam_user" "christopher_billas" {
+  name          = "christopher.billas"
   force_destroy = true
 }
 
@@ -100,10 +110,12 @@ resource "aws_iam_policy_attachment" "manage_your_account" {
   name = "manage_your_account"
   users = [
     aws_iam_user.aaron_chapman.name,
+    aws_iam_user.akhlaq_khan.name,
     aws_iam_user.andy_brody.name,
     aws_iam_user.amit_freeman.name,
     aws_iam_user.brett_mcparland.name,
     aws_iam_user.brian_crissup.name,
+    aws_iam_user.christopher_billas.name,
     aws_iam_user.douglas_price.name,
     aws_iam_user.jonathan_hooper.name,
     aws_iam_user.jonathan_pirro.name,

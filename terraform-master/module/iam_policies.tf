@@ -463,3 +463,43 @@ data "aws_iam_policy_document" "socadministrator" {
         ]
     }
 } 
+
+resource "aws_iam_policy" "sandbox_assume_billing_ro" {
+  name        = "SandboxAssumeBillingReadOnly"
+  path        = "/"
+  description = "Policy to allow user to assume billing read-only role in Sandbox"
+  policy      = data.aws_iam_policy_document.sandbox_assume_billing_ro.json
+}
+
+data "aws_iam_policy_document" "sandbox_assume_billing_ro" {
+  statement {
+    sid    = "SandboxAssumeBillingReadOnly"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole",
+    ]
+    resources = [
+      "arn:aws:iam::${var.sandbox_account_id}:role/BillingReadOnly",
+    ]
+  }
+}
+
+resource "aws_iam_policy" "production_assume_billing_ro" {
+  name        = "ProductionAssumeBillingReadOnly"
+  path        = "/"
+  description = "Policy to allow user to assume billing read-only role in Production"
+  policy      = data.aws_iam_policy_document.production_assume_billing_ro.json
+}
+
+data "aws_iam_policy_document" "production_assume_billing_ro" {
+  statement {
+    sid    = "ProductionAssumeBillingReadOnly"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole",
+    ]
+    resources = [
+      "arn:aws:iam::${var.production_account_id}:role/BillingReadOnly",
+    ]
+  }
+}
