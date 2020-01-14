@@ -9,11 +9,6 @@ resource "aws_iam_user" "akhlaq_khan" {
   force_destroy = true
 }
 
-resource "aws_iam_user" "andy_brody" {
-  name          = "andy.brody"
-  force_destroy = true
-}
-
 resource "aws_iam_user" "amit_freeman" {
   name          = "amit.freeman"
   force_destroy = true
@@ -111,7 +106,6 @@ resource "aws_iam_policy_attachment" "manage_your_account" {
   users = [
     aws_iam_user.aaron_chapman.name,
     aws_iam_user.akhlaq_khan.name,
-    aws_iam_user.andy_brody.name,
     aws_iam_user.amit_freeman.name,
     aws_iam_user.brett_mcparland.name,
     aws_iam_user.brian_crissup.name,
@@ -137,7 +131,6 @@ resource "aws_iam_policy_attachment" "manage_your_account" {
 resource "aws_iam_policy_attachment" "master_full_administrator" {
   name = "master_full_administrator"
   users = [
-    aws_iam_user.andy_brody.name,
     aws_iam_user.amit_freeman.name,
     aws_iam_user.brian_crissup.name,
     aws_iam_user.jonathan_pirro.name,
@@ -151,7 +144,6 @@ resource "aws_iam_policy_attachment" "master_full_administrator" {
 resource "aws_iam_policy_attachment" "sandbox_full_administrator" {
   name = "sandbox_full_administrator"
   users = [
-    aws_iam_user.andy_brody.name,
     aws_iam_user.amit_freeman.name,
     aws_iam_user.jonathan_pirro.name,
     aws_iam_user.justin_grevich.name,
@@ -173,7 +165,6 @@ resource "aws_iam_policy_attachment" "sandbox_full_administrator" {
 resource "aws_iam_policy_attachment" "sandbox_power_user" {
   name = "sandbox_power_user"
   users = [
-    aws_iam_user.andy_brody.name,
     aws_iam_user.amit_freeman.name,
     aws_iam_user.aaron_chapman.name,
     aws_iam_user.brian_crissup.name,
@@ -224,7 +215,6 @@ resource "aws_iam_policy_attachment" "sandbox_power_user" {
 resource "aws_iam_policy_attachment" "sandbox_readonly" {
   name = "sandbox_readonly"
   users = [
-    aws_iam_user.andy_brody.name,
     aws_iam_user.amit_freeman.name,
     aws_iam_user.brian_crissup.name,
     aws_iam_user.jonathan_hooper.name,
