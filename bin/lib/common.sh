@@ -217,6 +217,16 @@ assert_file_exists() {
     fi
 }
 
+# Upstream references for the releases:
+#   - https://releases.hashicorp.com/terraform/
+#
+KNOWN_TF_VERSIONS=(
+  "v0.9.11"
+  "v0.10.8"
+  "v0.11.14"
+  "v0.12.19"
+)
+
 # usage: check_terraform_version SUPPORTED_VERSION...
 #
 # e.g. check_terraform_version v0.8.* v0.9.*

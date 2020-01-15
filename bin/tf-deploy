@@ -394,6 +394,10 @@ load_env_module_style() {
 
     MOVED_TO_TFVARS=
 
+    # verify that current_tf_version is within versions supported
+    # by terraform-switch
+    check_terraform_version "${KNOWN_TF_VERSIONS[@]}" >&2
+
     STATE="${TF_DIR_FULL}.tfstate"
 }
 

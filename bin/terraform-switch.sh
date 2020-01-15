@@ -113,21 +113,8 @@ For example:
 
 Known Terraform versions:
 EOM
-    echo "$KNOWN_TF_VERSIONS" | cut -d' ' -f1 | sed 's/^/    /'
+    echo "${KNOWN_TF_VERSIONS[@]}" | tr ' ' '\n'
 }
-
-# If macOS shipped with a modern version of bash (i.e. Bash 4.0), we would have
-# associative arrays and wouldn't need this hack.
-#
-# Upstream references for the releases:
-#   - https://releases.hashicorp.com/terraform/
-#
-KNOWN_TF_VERSIONS='
-0.9.11
-0.10.8
-0.11.14
-0.12.17
-'
 
 sha256_cmd() {
     if which sha256sum >/dev/null; then
@@ -250,12 +237,12 @@ install_tf_symlink() {
     # if homebrew terraform is installed, unlink it
     if which brew >/dev/null; then
         # if we already have any terraforms, unlink first
-        if run brew list terraform; then
+        if run brew list terraform 2>/dev/null >/dev/null; then
             run brew unlink terraform
         fi
     fi
 
-    echo_blue "Installing terraform symlink to $TERRAFORM_SYMLINK"
+    echo_blue "Updating terraform symlink for $TERRAFORM_SYMLINK"
 
     if [ -n "$SUDO_LN" ]; then
         run sudo ln -sfv "$terraform_exe" "$TERRAFORM_SYMLINK"
