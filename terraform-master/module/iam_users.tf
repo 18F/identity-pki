@@ -79,6 +79,11 @@ resource "aws_iam_user" "mossadeq_zia" {
   force_destroy = true
 }
 
+resource "aws_iam_user" "paul_hirsch" {
+  name          = "paul.hirsch"
+  force_destroy = true
+}
+
 resource "aws_iam_user" "rajat_varuni" {
   name          = "rajat.varuni"
   force_destroy = true
@@ -125,6 +130,7 @@ resource "aws_iam_policy_attachment" "manage_your_account" {
     aws_iam_user.laura_gerhardt.name,
     aws_iam_user.likhitha_patha.name,
     aws_iam_user.mossadeq_zia.name,
+    aws_iam_user.paul_hirsch.name,
     aws_iam_user.rajat_varuni.name,
     aws_iam_user.stephen_grow.name,
     aws_iam_user.steve_urciuoli.name,
@@ -143,6 +149,7 @@ resource "aws_iam_policy_attachment" "master_full_administrator" {
     aws_iam_user.jonathan_pirro.name,
     aws_iam_user.justin_grevich.name,
     aws_iam_user.mossadeq_zia.name,
+    aws_iam_user.paul_hirsch.name,
     aws_iam_user.steven_harms.name,
   ]
   policy_arn = aws_iam_policy.master_full_administrator.arn
@@ -156,6 +163,7 @@ resource "aws_iam_policy_attachment" "sandbox_full_administrator" {
     aws_iam_user.jonathan_pirro.name,
     aws_iam_user.justin_grevich.name,
     aws_iam_user.mossadeq_zia.name,
+    aws_iam_user.paul_hirsch.name,
     aws_iam_user.steven_harms.name,
   ]
   policy_arn = aws_iam_policy.sandbox_assume_full_administrator.arn
@@ -181,6 +189,7 @@ resource "aws_iam_policy_attachment" "sandbox_power_user" {
     aws_iam_user.jonathan_pirro.name,
     aws_iam_user.laura_gerhardt.name,
     aws_iam_user.mossadeq_zia.name,
+    aws_iam_user.paul_hirsch.name,
     aws_iam_user.rajat_varuni.name,
     aws_iam_user.steven_harms.name,
     aws_iam_user.steve_urciuoli.name,
@@ -231,6 +240,7 @@ resource "aws_iam_policy_attachment" "sandbox_readonly" {
     aws_iam_user.jonathan_pirro.name,
     aws_iam_user.justin_grevich.name,
     aws_iam_user.mossadeq_zia.name,
+    aws_iam_user.paul_hirsch.name,
     aws_iam_user.steven_harms.name,
     aws_iam_user.steve_urciuoli.name,
   ]
