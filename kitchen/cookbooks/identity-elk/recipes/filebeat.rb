@@ -1,5 +1,19 @@
 # This cookbook installs filebeat to send stuff to logstash
 
+# TODO: Don't use this suffix, just use the base host certificate
+install_certificates 'Installing ELK certificates to ca-certificates' do
+  service_tag_key node.fetch('elk').fetch('elk_tag_key')
+  service_tag_value node.fetch('elk').fetch('elk_tag_value')
+  install_directory '/usr/local/share/ca-certificates'
+  suffix 'legacy-elk'
+  notifies :run, 'execute[/usr/sbin/update-ca-certificates]', :immediately
+end
+
+execute '/usr/sbin/update-ca-certificates' do
+  action :nothing
+  notifies :restart, 'service[filebeat]'
+end
+
 filebeat_install 'default' do
   version node.fetch('filebeat').fetch('version')
   notifies :enable, 'service[filebeat]'
@@ -10,19 +24,6 @@ directory '/etc/systemd/system/filebeat.service.d'
 # override default systemd config to log to file (removes -e when loading)
 cookbook_file '/etc/systemd/system/filebeat.service.d/enable_logging.conf' do
   mode '0755'
-  notifies :restart, 'service[filebeat]'
-end
-
-# TODO: Don't use this suffix, just use the base host certificate
-install_certificates 'Installing ELK certificates to ca-certificates' do
-  service_tag_key node.fetch('elk').fetch('elk_tag_key')
-  service_tag_value node.fetch('elk').fetch('elk_tag_value')
-  install_directory '/usr/local/share/ca-certificates'
-  notifies :run, 'execute[/usr/sbin/update-ca-certificates]', :immediately
-end
-
-execute '/usr/sbin/update-ca-certificates' do
-  action :nothing
   notifies :restart, 'service[filebeat]'
 end
 
