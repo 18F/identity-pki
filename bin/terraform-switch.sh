@@ -113,21 +113,8 @@ For example:
 
 Known Terraform versions:
 EOM
-    echo "$KNOWN_TF_VERSIONS" | cut -d' ' -f1 | sed 's/^/    /'
+    echo "${KNOWN_TF_VERSIONS[@]}" | tr ' ' '\n'
 }
-
-# If macOS shipped with a modern version of bash (i.e. Bash 4.0), we would have
-# associative arrays and wouldn't need this hack.
-#
-# Upstream references for the releases:
-#   - https://releases.hashicorp.com/terraform/
-#
-KNOWN_TF_VERSIONS='
-0.9.11
-0.10.8
-0.11.14
-0.12.17
-'
 
 sha256_cmd() {
     if which sha256sum >/dev/null; then
