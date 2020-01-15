@@ -237,12 +237,12 @@ install_tf_symlink() {
     # if homebrew terraform is installed, unlink it
     if which brew >/dev/null; then
         # if we already have any terraforms, unlink first
-        if run brew list terraform; then
+        if run brew list terraform 2>/dev/null >/dev/null; then
             run brew unlink terraform
         fi
     fi
 
-    echo_blue "Installing terraform symlink to $TERRAFORM_SYMLINK"
+    echo_blue "Updating terraform symlink for $TERRAFORM_SYMLINK"
 
     if [ -n "$SUDO_LN" ]; then
         run sudo ln -sfv "$terraform_exe" "$TERRAFORM_SYMLINK"
