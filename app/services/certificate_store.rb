@@ -26,7 +26,10 @@ class CertificateStore
 
   def_delegators :@certificates, :[], :count, :empty?, :map
   def_delegators :certificates, :each, :select
-  def_delegators CertificateStore, :trusted_ca_root_identifiers, :clear_trusted_ca_root_identifiers
+  def_delegators CertificateStore, :trusted_ca_root_identifiers,
+                                   :clear_trusted_ca_root_identifiers,
+                                   :dod_root_identifiers,
+                                   :clear_dod_root_identifiers
 
   def add_pem_file(filename)
     extract_certs(IO.binread(filename)).each(&method(:add_certificate))
@@ -98,6 +101,15 @@ class CertificateStore
 
   def self.clear_trusted_ca_root_identifiers
     @store = @trusted_ca_root_identifiers = nil
+  end
+
+  def self.dod_root_identifiers
+    @dod_root_identifiers ||=
+      (Figaro.env.dod_root_identifiers || '').split(',').map(&:strip) - ['']
+  end
+
+  def self.clear_dod_root_identifiers
+    @store = @dod_root_identifiers = nil
   end
 
   private
