@@ -1,0 +1,71 @@
+if [[ ! $(brew list | grep hub) ]] ; then
+  brew install hub || { echo "hub not installed!" && exit 1 ; }
+fi
+
+export GITHUB_PARENT_DIR="${HOME}/GitHub/18F/"
+##### github aliases and functions ####################
+alias gs="run git status"
+alias gl="run git log --pretty=oneline --no-abbrev-commit -n 10"
+alias gpom="run git pull origin master"
+alias gom="run git checkout master && gpom"
+alias bc="git rev-parse HEAD | tr -d '\n' | pbcopy"
+
+#### cd to ${GITHUB_PARENT_DIR}/identity-${1} ####
+gid() {
+  run cd "${GITHUB_PARENT_DIR}/identity-${1}"
+}
+
+#### create/checkout new git branch named ${1} ####
+newb() {
+  gom
+  run git checkout -b "${1}"
+}
+
+#### add files, commit w/message, push to origin with set-upstream ####
+gpb() {
+  run git add --all
+  run git commit -m "$@"
+  run git push --set-upstream origin $(git_current_branch)
+}
+
+#### delete either current branch or branch name = ${1}; end on master ####
+delb() {
+  local branch=$1
+  [ -z ${1} ] && branch=$(git_current_branch)
+  gom
+  run git branch -d $branch
+}
+
+#### merge/close PR, delete current/specified branch ####
+gmpr() {
+  local branch=$1
+  [ -z ${1} ] && branch=$(git_current_branch)
+  gom
+  run git checkout $branch
+  run git merge master
+  run git checkout master
+  run git merge --no-ff $branch
+  run git push origin master
+  delb $branch
+}
+
+#### open PR from LOGIN_REVS and $msg ####
+pbj() {
+  local revs="${1}"
+  local msg=("${@:2}")
+  git pull-request -p -r "${revs}" -m "${msg[@]}" -e
+}
+
+#### add>commit>push -u>open PR with $msg ####
+gpr() {
+  local revs="${LOGIN_REVS}"
+  local msg=("${@}")
+  gpb "${msg[@]}"
+  pbj "${revs}" "${msg[@]}"
+}
+
+#### push version tags ####
+gv() {
+  run git push --set-upstream origin $(git_current_branch)
+  run git push --tags
+}

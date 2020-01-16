@@ -1,0 +1,223 @@
+if [[ ! $(brew cask list | grep aws-vault) ]] ; then
+  brew cask install aws-vault || { echo "aws-vault not installed!" && exit 1 ; }
+fi
+
+############# functions/aliases for login.gov #############
+######## env vars ########
+
+export AWS_VAULT_PROMPT=osascript
+export AWS_VAULT_KEYCHAIN_NAME=login
+export OPENSC_LIB=/usr/local/lib/opensc-pkcs11.so
+
+######## aliases ########
+alias bb="git checkout stages/${GSA_USERNAME}"
+alias laptop='bash <(curl -s https://raw.githubusercontent.com/18F/laptop/master/laptop)'
+
+######## functions ########
+
+run() {
+  if [ -t 1 ]; then
+    echo -ne "\\033[1;36m"
+  fi
+
+  echo >&2 "+ $*"
+
+  if [ -t 1 ]; then
+    echo -ne '\033[m'
+  fi
+  "$@"
+}
+
+#### fix stuck PKCS11 certificate after unlocking/removing PIV card ####
+pivssh() {
+  run ssh-add -e "${OPENSC_LIB}" || true
+  while ! ssh-add -L | grep -q opensc; do
+    run ssh-add -K -s "${OPENSC_LIB}"
+  done
+}
+
+#### prepend any command with 'aws-vault exec' ####
+av() {
+  local cmd=("${@:2}")
+  while getopts d:i:l:s:p:m: opt
+  do
+    case "${opt}" in          ## profile in aws-vault exec ${profile}
+      d) [ -z $profile ] && profile=${AWS_PROFILE} ;;
+      i) profile='sandbox-admin'                   ;;
+      l) profile='login.gov'                       ;;
+      s) profile='sms-sandbox-admin'               ;;
+      p) profile='sms-prod-admin'                  ;;
+      m) profile='master-admin'                    ;;
+    esac
+    case "${OPTARG}" in       ## syntax of aws-vault command
+      v) run aws-vault exec ${profile} --no-session --assume-role-ttl=2h "${cmd[@]}" ;;
+      c) run aws-vault exec ${profile} --assume-role-ttl=1h -- "${cmd[@]}" ;;
+      l) run aws-vault login ${profile} --assume-role-ttl=1h ;;
+      i) run aws-vault login ${profile} --assume-role-ttl=1h \
+              --stdout | xargs -t /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome \
+              --args --incognito --new-window
+        ;;
+    esac
+  done
+}
+
+#### run tf-deploy with common Terraform commands and any AWS profile/TF directory ####
+td() {
+  local build_env="${@:2}"
+  local profile="${AWS_PROFILE}"
+  local av_flag='-dc'
+  if [[ -z "${build_env}" ]] ; then
+    build_env="${GSA_USERNAME}"
+  elif [[ "${build_env}" =~ "staging|prod" ]] ; then
+    profile="prod-admin"
+  fi
+  while getopts vc:m:a:s:l:n: opt
+  do
+    case "${opt}" in            ## opt = 1 in `td -${1}${OPTARG}`
+      v) av_flag='-dv' ;;       ## opt = 1 in `td -v${1}${OPTARG}`
+      c)
+        [[ "${build_env}" == 'prod' ]] || build_env='sandbox'
+        style='module'
+        tf_dir='terraform-common'
+      ;;
+      m)
+        profile='master-admin'
+        build_env='global'
+        style='module'
+        tf_dir='terraform-master'
+      ;;
+      a)
+        style='tfvars'
+        tf_dir='terraform-app'
+      ;;
+      s)
+        [[ "${build_env}" == 'prod' ]] || build_env='sandbox'
+        profile="sms-${build_env}-admin"
+        style="module"
+        tf_dir="terraform-sms"
+      ;;
+      l)
+        style="tfvars"
+        tf_dir="terraform-cloudtrail"
+      ;;
+      n)
+        style="tfvars"
+        tf_dir="terraform-analytics"
+      ;;
+    esac
+    case "${OPTARG}" in
+      a) tf_cmd='apply'   ;;
+      p) tf_cmd='plan'    ;;
+      d) tf_cmd='destroy' ;;
+    esac
+  done
+  case "${style}" in
+    tfvars) av ${av_flag} tf-deploy ${build_env} ${tf_dir} ${tf_cmd} ;; 
+    module) av ${av_flag} tf-deploy ${tf_dir}/${build_env} ${tf_cmd} ;;
+  esac
+}
+
+# run ssh-instance via av
+# reset/re-add PKCS11 key if kicked out, then retry ssh-instance
+sshi() {
+  local profile="${AWS_PROFILE}"
+  av -dc ssh-instance "$@" || (pivssh && sshi "$@")
+}
+
+#### run bundle exec with common commands ####
+be() {
+  local profile="${AWS_PROFILE}"
+  local av_flag='-dc'
+  while getopts vk:b:r: opt
+  do
+    case "${opt}" in       ## opt in `be -${opt}${OPTARG}`
+      v) av_flag='-dv' ;;
+      k) case "${OPTARG}" in
+          t) cmd='kitchen test'         ;;
+          c) cmd='kitchen converge'     ;;
+          l) cmd='kitchen login'        ;;
+          d) cmd='kitchen destroy'      ;;
+          *) echo "err: ${OPTARG}" && return 1 ;;
+         esac
+      ;;
+      b) case "${OPTARG}" in
+          u) cmd='berks update'         ;;
+          i) cmd='berks install'        ;;
+          *) echo "err: ${OPTARG}" && return 1 ;;
+         esac
+      ;;
+      r) case "${OPTARG}" in
+          k) cmd='rake'                 ;;
+          c) cmd='rails c'              ;;
+          s) cmd='rspec'                ;;
+          *) echo "err: ${OPTARG}" && return 1 ;;
+         esac
+      ;;
+      *) echo "err: ${OPTARG}" && return 1 ;;  
+    esac
+  done
+  av ${av_flag} bundle exec ${cmd}
+} 
+
+
+#### quickly run common cloudlib aliases/commands with any AWS_PROFILE/env ####
+vcl() {
+  local type
+  local profile="${AWS_PROFILE}"
+  local build_env="${@:2}"
+  if [[ -z "${build_env}" ]] ; then
+    build_env="${GSA_USERNAME}"
+  elif [[ "${build_env}" =~ "staging|prod" ]] ; then
+    profile="prod-admin"
+  fi
+  while getopts el:n:o:a:r:s: opt ; do
+    case "${OPTARG}" in       ## 2 in `vcl -${1}${2}`
+      a) type='app'           ;;
+      e) type='elasticsearch' ;;
+      i) type='idp'           ;;
+      j) type='jumphost'      ;;
+      k) type='elk'           ;;
+      o) type='outboundproxy' ;;
+      p) type='pivcac'        ;;
+      *) [[ ${opt} == 'e' ]] || { echo "err: ${1:1}" && return 1 ; } ;;
+    esac
+    case "${opt}" in          ## 1 in `vcl -${1}${2}`
+      e) av -dc ls-servers -e ${build_env}             ;;
+      l) av -dc ls-servers -n asg-${build_env}-${type} ;;
+      n) sshi --newest asg-${build_env}-${type}        ;;
+      o) sshi --oldest asg-${build_env}-${type}        ;;
+      a) sshi --any asg-${build_env}-${type}           ;;
+      r) av -dc asg-recycle ${build_env} ${type}       ;;
+      s)
+        echo -n "asg-size count: "
+        read num
+        av -ic asg-size ${build_env} ${type} ${num}
+        ;;
+      *) echo "err: ${opt}" && return 1                ;;
+    esac
+  done
+}
+
+#### set IdentityCookbooksRef in Berksfile to commit '${1}' ####
+idcb() {
+  sed -i '' -E "s/(IdentityCookbooksRef = ).*\'/\1\'${1}\'/" Berksfile
+  be -bu
+}
+
+#### set an instance's Auto Scaling health to Unhealthy ####
+poison () {
+  [[ -z ${2} ]] || AWS_PROFILE="${2}"
+  av -dc aws autoscaling set-instance-health --instance-id ${1} --health-status Unhealthy
+  av -dc aws autoscaling describe-auto-scaling-instances --instance-ids ${1}
+}
+
+######## shell startup ########
+for key in $(env | grep ".*SSH_KEY=" | sed 's/=.*$//') ; do
+  if [ -f $(eval echo \$$key) ] ; then
+    while ! ssh-add -L | grep -q $key ; do
+      ssh-add -K $(eval echo \$$key)
+    done
+  fi
+done
+
+ssh-add -L | grep -q opensc || pivssh

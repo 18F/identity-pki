@@ -1,0 +1,158 @@
+#!/bin/bash
+. "$(dirname "$0")/../lib/common.sh"
+
+usage() {
+  cat >&2 <<EOM
+Usage: $0 
+
+Adds various aliases, functions, and environment variables
+used by/calling various tools within identity-devops.
+
+This script will:
+
+1. verify whether or not you already have \$HOME/.login-functions and \$HOME/.githubrc;
+   if you do, will ask if you would like to remove those \$HOME-based files and recreate them
+   from the repo source
+2. verify your various AWS/GSA/KITCHEN env vars
+   and prompt you to enter any you currently do not have set
+3. update your \$PATH to include 'identity-devops/bin'
+4. add a line to source \$HOME/.login-functions
+   and (optionally) \$HOME/.githubrc to your shell's rc file
+5. if desired, will pull in the source for \$HOME/.githubrc
+   and prompt to set the LOGIN_REVS env var (list of GitHub
+   usernames to be added as reviewers to any GitHub PR called
+   by the gpr() function)
+
+EOM
+}
+
+# cat repo-based file into homedir, then add to shell rc file
+append_with_rc() {
+  # shellcheck disable=SC2039
+  local rc="${1}"
+
+  cat "$(dirname "$0")/../lib/dotfiles/${rc}" >> "$HOME/.${rc}"
+  local text="source \$HOME/.${rc}"
+  if ! grep -qs "^$text$" "$file"; then
+    printf "\n%s\n" "$text" >> "$file"
+  fi
+
+  echo_green "Added \`source \$HOME/.$rc\` to $file ."
+  echo
+}
+
+# echo ENV_VAR if declared, otherwise prompt to change
+set_env_var() {
+  local rc="${1}"
+  local ENV_VAR=${2}
+  VAR_VAL=$(eval echo \$$ENV_VAR)
+  if [[ -z "$VAR_VAL" ]]; then
+    read -r -p "$ENV_VAR not set; enter desired value: " VAR_VAL
+  else
+    echo_yellow "$ENV_VAR already set: '$VAR_VAL'."
+  fi
+
+  local text="export $ENV_VAR=\"$VAR_VAL\""
+  if ! grep -qs "^${text}$" "$HOME/.${rc}"; then
+    printf "\n%s\n" "$text" >> "$HOME/.${rc}"
+  fi
+}
+
+rebuild_rc_file() {
+  local rc="${1}"
+
+  if [[ -f "$HOME/.${rc}" ]] ; then
+    if ! prompt_yn "\$HOME/.${rc} already exists; recreate?"; then
+      echo_cyan "Skipping recreation of \$HOME/.${rc}."
+      echo
+      return
+    else
+      echo_cyan "Removing old \$HOME/.${rc} file..."
+      run rm -f "$HOME/.${rc}"
+      echo
+      return 10
+    fi
+  else
+    echo_cyan "Creating \$HOME/.${rc}..."
+    run touch "$HOME/.${rc}"
+    echo
+    return 10
+  fi
+}
+
+while getopts hf:a:v: opt
+do
+  case "${opt}" in
+    f) profile='sandbox-admin'                   ;;
+    a) profile='login.gov'                       ;;
+    v) profile='sms-sandbox-admin'               ;;
+    h) usage && exit 0 ;;
+    *) usage && exit 1 ;;
+  esac
+  case "${OPTARG}" in
+    v) run aws-vault exec ${profile} --no-session --assume-role-ttl=2h "${cmd[@]}" ;;
+    c) run aws-vault exec ${profile} --assume-role-ttl=1h -- "${cmd[@]}" ;;
+    l) run aws-vault login ${profile} --assume-role-ttl=1h ;;
+    i) run aws-vault login ${profile} --assume-role-ttl=1h \
+            --stdout | xargs -t /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome \
+            --args --incognito --new-window
+      ;;
+  esac
+done
+
+case "$SHELL" in
+  */fish)
+    file="$HOME/.config/fish/config.fish"
+  ;;
+  */zsh)
+    if [ -w "$HOME/.zshrc.local" ]; then
+      file="$HOME/.zshrc.local"
+    else
+      file="$HOME/.zshrc"
+    fi
+  ;;
+  *)
+    file="$HOME/.bash_profile"
+  ;;
+esac
+
+# if .login-functions already exists, prompt to recreate
+rebuild_rc_file 'login-functions'
+if [[ "${?}" == '10' ]] ; then
+
+  # add identity-devops/bin to $PATH
+  ID_DIR="$(pwd | sed 's/oneoffs//')"
+  echo_cyan "Adding '$ID_DIR' to \$PATH..."
+  echo "export PATH=$ID_DIR:$PATH" >> "$HOME/.login-functions"
+  echo
+
+  # verify AWS_ / GSA_ / KITCHEN_ env vars
+  echo_cyan "Verifying env vars..."
+  for ENV_VAR in AWS_PROFILE\
+                 GSA_USERNAME\
+                 GSA_FULLNAME\
+                 GSA_EMAIL\
+                 GITHUB_SSH_KEY\
+                 KITCHEN_EC2_SSH_KEYPAIR_ID\
+                 KITCHEN_EC2_SSH_KEY ; do set_env_var login-functions $ENV_VAR ; done
+  echo
+
+  append_with_rc "login-functions"
+fi
+
+rebuild_rc_file 'githubrc'
+[[ "${?}" == '10' ]] || exit 0
+if ! grep -qs "source .githubrc" "$file"; then
+  if prompt_yn "Add login.gov GitHub aliases/functions?" ; then
+    set_env_var githubrc GITHUB_PARENT_DIR
+    LOGIN_REVS="jgrevich,sharms,mzia,amitfreeman-gov,pauldoomgov"
+    read -r -p "Comma-separated list of desired PR reviewers (default: $LOGIN_REVS): " NEW_REVS
+    [[ -z $NEW_REVS ]] || LOGIN_REVS="${NEW_REVS}"
+    echo "export LOGIN_REVS=${LOGIN_REVS}" >> "$HOME/.githubrc"
+    
+    echo
+    append_with_rc "githubrc"
+  fi
+fi
+
+echo_green "Done, run \`source $file\` to load the login.gov aliases/functions."
