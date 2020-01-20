@@ -183,7 +183,7 @@ class Certificate
       extra.merge(
         subject: subject_s,
         uuid: piv.uuid,
-        card_type: card_type,
+        card_type: card_type
       )
     )
   end
@@ -203,6 +203,7 @@ class Certificate
     chain.last.key_id
   end
 
+  # :reek:UtilityFunction
   def cert_store
     CertificateStore.instance
   end

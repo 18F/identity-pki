@@ -45,7 +45,7 @@ RSpec.describe CertificateStore do
       allow(Figaro.env).to receive(:trusted_ca_root_identifiers).and_return(
         root_cert_key_ids.join(',')
       )
-      certificate_store.clear_trusted_ca_root_identifiers
+      certificate_store.clear_root_identifiers
       certificate_store.add_pem_file(ca_file_path)
 
       stub_request(:post, 'http://ocsp.example.com/').
@@ -74,7 +74,7 @@ RSpec.describe CertificateStore do
             root_cert_key_ids.first
           )
 
-          certificate_store.clear_trusted_ca_root_identifiers
+          certificate_store.clear_root_identifiers
         end
 
         it 'is false' do
