@@ -2,7 +2,7 @@ require 'openssl'
 require 'rgl/dijkstra'
 require 'rgl/adjacency'
 
-# :reek:TooManyMethods
+# :reek:TooManyMethods :reek:TooManyInstanceVariables
 class CertificateStore # rubocop:disable Metrics/ClassLength
   include Singleton
 
