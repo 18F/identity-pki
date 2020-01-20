@@ -80,7 +80,7 @@ describe Deploy::Activate do
       # top-level dod keys from application.yml.example
       expect(combined_application_yml['dod_root_identifiers']).not_to be_empty
       expect(combined_application_yml['dod_root_identifiers'].length).to eq(
-        DOD_ROOT_COUNT
+        DOD_ROOT_COUNT * 59 + DOD_ROOT_COUNT - 1
       )
       # overridden production key from s3
       expect(combined_application_yml['production']['secret_key_base']).to eq('this is a secret')
