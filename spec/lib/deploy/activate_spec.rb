@@ -4,6 +4,7 @@ require 'login_gov/hostdata/fake_s3_client'
 require Rails.root.join('lib', 'deploy', 'activate.rb')
 
 TRUSTED_ROOT_COUNT = 6 + 1 # extra cert for pen testing
+DOD_ROOT_COUNT = 3
 
 describe Deploy::Activate do
   let(:config_dir) { Rails.root.join('config') }
@@ -75,6 +76,11 @@ describe Deploy::Activate do
       # ___ fingerprints, each of length 59, separated by ___ - 1 commas
       expect(combined_application_yml['trusted_ca_root_identifiers'].length).to eq(
         TRUSTED_ROOT_COUNT * 59 + TRUSTED_ROOT_COUNT - 1
+      )
+      # top-level dod keys from application.yml.example
+      expect(combined_application_yml['dod_root_identifiers']).not_to be_empty
+      expect(combined_application_yml['dod_root_identifiers'].length).to eq(
+        DOD_ROOT_COUNT
       )
       # overridden production key from s3
       expect(combined_application_yml['production']['secret_key_base']).to eq('this is a secret')
