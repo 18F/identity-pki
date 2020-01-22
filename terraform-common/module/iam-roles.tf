@@ -1,5 +1,5 @@
 module "common_iam" {
-  source = "../terraform-modules/common_iam/"
+  source = "../../terraform-modules/common_iam/"
 
   master_account_id = var.master_account_id
 }
