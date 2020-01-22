@@ -173,6 +173,7 @@ data "aws_iam_policy_document" "full_administrator" {
   }
 }
 
+######## identitysandbox.gov/login.gov assume-role policies ########
 resource "aws_iam_policy" "sandbox_assume_full_administrator" {
   name        = "SandboxAssumeFullAdministrator"
   path        = "/"
@@ -427,6 +428,68 @@ data "aws_iam_policy_document" "sandbox_assume_socadministrator" {
     }
 }
 
+######## identity-sms-sandbox/prod assume-role policies ########
+resource "aws_iam_policy" "sandbox_sms_assume_full_administrator" {
+  name        = "SandboxSMSAssumeFullAdministrator"
+  path        = "/"
+  description = "Policy to allow user to assume full administrator role in Sandbox SMS"
+  policy      = data.aws_iam_policy_document.sandbox_sms_assume_full_administrator.json
+}
+
+data "aws_iam_policy_document" "sandbox_sms_assume_full_administrator" {
+  statement {
+    sid    = "SandboxSMSAssumeFullAdministrator"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole",
+    ]
+    resources = [
+      "arn:aws:iam::${var.sandbox_sms_account_id}:role/FullAdministrator",
+    ]
+  }
+}
+
+resource "aws_iam_policy" "production_sms_assume_full_administrator" {
+  name        = "ProductionSMSAssumeFullAdministrator"
+  path        = "/"
+  description = "Policy to allow user to assume full administrator role in Production SMS"
+  policy      = data.aws_iam_policy_document.production_sms_assume_full_administrator.json
+}
+
+data "aws_iam_policy_document" "production_sms_assume_full_administrator" {
+  statement {
+    sid    = "ProductionSMSAssumeFullAdministrator"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole",
+    ]
+    resources = [
+      "arn:aws:iam::${var.production_sms_account_id}:role/FullAdministrator",
+    ]
+  }
+}
+
+resource "aws_iam_policy" "sandbox_sms_assume_power_user" {
+  name        = "SandboxSMSAssumePower"
+  path        = "/"
+  description = "Policy to allow user to assume power role in Sandbox SMS"
+  policy      = data.aws_iam_policy_document.sandbox_sms_assume_power_user.json
+}
+
+data "aws_iam_policy_document" "sandbox_sms_assume_power_user" {
+  statement {
+    sid    = "SandboxSMSAssumePowerUser"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole",
+    ]
+    resources = [
+      "arn:aws:iam::${var.sandbox_sms_account_id}:role/PowerUser",
+    ]
+  }
+}
+
+######## SOCAdmin policy data ########
 resource "aws_iam_policy" "socadministrator" {
     name = "SOCAdministrator"
     path = "/"
