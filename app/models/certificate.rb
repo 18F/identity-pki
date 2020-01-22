@@ -182,9 +182,30 @@ class Certificate
     TokenService.box(
       extra.merge(
         subject: subject_s,
-        uuid: piv.uuid
+        uuid: piv.uuid,
+        card_type: card_type
       )
     )
+  end
+
+  def card_type
+    return 'cac' if trusted_dod_root?
+    'piv'
+  end
+
+  def trusted_dod_root?
+    return true if cert_store.dod_root_identifiers.include?(root_cert_id)
+    false
+  end
+
+  def root_cert_id
+    chain = cert_store.x509_certificate_chain(self)
+    chain.last.key_id
+  end
+
+  # :reek:UtilityFunction
+  def cert_store
+    CertificateStore.instance
   end
 
   # :reek:UtilityFunction

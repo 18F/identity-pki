@@ -125,7 +125,7 @@ RSpec.describe IdentifyController, type: :controller do
           allow(Figaro.env).to receive(:trusted_ca_root_identifiers).and_return(
             root_cert_key_ids.join(',')
           )
-          certificate_store.clear_trusted_ca_root_identifiers
+          certificate_store.clear_root_identifiers
           certificate_store.add_pem_file(ca_file_path)
         end
 
@@ -153,6 +153,37 @@ RSpec.describe IdentifyController, type: :controller do
             expected_subject = client_subject.split(/\s*,\s*/).sort
             expect(given_subject).to eq expected_subject
           end
+
+          context 'when the root certificate is found in dod_root_identifiers' do
+            before(:each) do
+              allow(Figaro.env).to receive(:dod_root_identifiers).and_return(
+                root_cert_key_ids.join(',')
+              )
+            end
+
+            it 'returns a token with a card_type of cac' do
+              @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
+              expect(CertificateLoggerService).to_not receive(:log_certificate)
+              get :create, params: { nonce: '123' }
+
+              expect(token_contents['card_type']).to eq 'cac'
+            end
+          end
+
+          context 'when the root certificate is not found in dod_root_identifiers' do
+            before(:each) do
+              allow(Figaro.env).to receive(:dod_root_identifiers).and_return('')
+            end
+
+            it 'returns a token with a card_type of piv' do
+              @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
+              expect(CertificateLoggerService).to_not receive(:log_certificate)
+              get :create, params: { nonce: '123' }
+
+              expect(token_contents['card_type']).to eq 'piv'
+            end
+          end
+
         end
 
         context 'when the web server sends an unescaped cert' do
