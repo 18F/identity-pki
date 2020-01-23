@@ -1,0 +1,24 @@
+{
+  "name": "pauldoomgov",
+  "description": "",
+  "json_class": "Chef::Environment",
+  "chef_type": "environment",
+  "default_attributes": {
+    "elk": {
+      "legacy_log_bucket_name": false,
+      "retentiondays": 14,
+      "users": [
+        "pauldoomgov"
+      ]
+    },
+    "login_dot_gov": {
+      "domain_name": "identitysandbox.gov",
+      "branch_name": "stages/pauldoomgov",
+      "idp_run_migrations": true,
+      "allow_unsafe_migrations": true
+    }
+  },
+  "override_attributes": {
+  
+  }
+}
