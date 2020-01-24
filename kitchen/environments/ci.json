@@ -11,6 +11,9 @@
         "jgrevich"
       ]
     },
+    "login_dot_gov": {
+      "deploy_branch_default": "master"
+    },
     "pivcac": {
       "letsencrypt_use_staging": true
     }
