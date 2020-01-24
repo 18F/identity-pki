@@ -12,8 +12,6 @@
       ]
     },
     "login_dot_gov": {
-      "domain_name": "identitysandbox.gov",
-      "branch_name": "stages/amitf",
       "idp_run_migrations": true,
       "allow_unsafe_migrations": true
     }
