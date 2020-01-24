@@ -2,8 +2,8 @@ require 'openssl'
 require 'rgl/dijkstra'
 require 'rgl/adjacency'
 
-# :reek:TooManyMethods
-class CertificateStore
+# :reek:TooManyMethods :reek:TooManyInstanceVariables
+class CertificateStore # rubocop:disable Metrics/ClassLength
   include Singleton
 
   END_CERTIFICATE = "\n-----END CERTIFICATE-----\n".freeze
@@ -26,7 +26,10 @@ class CertificateStore
 
   def_delegators :@certificates, :[], :count, :empty?, :map
   def_delegators :certificates, :each, :select
-  def_delegators CertificateStore, :trusted_ca_root_identifiers, :clear_trusted_ca_root_identifiers
+  def_delegators CertificateStore,
+                 :trusted_ca_root_identifiers,
+                 :dod_root_identifiers,
+                 :clear_root_identifiers
 
   def add_pem_file(filename)
     extract_certs(IO.binread(filename)).each(&method(:add_certificate))
@@ -96,8 +99,15 @@ class CertificateStore
       (Figaro.env.trusted_ca_root_identifiers || '').split(',').map(&:strip) - ['']
   end
 
-  def self.clear_trusted_ca_root_identifiers
-    @store = @trusted_ca_root_identifiers = nil
+  def self.dod_root_identifiers
+    @dod_root_identifiers ||=
+      (Figaro.env.dod_root_identifiers || '').split(',').map(&:strip) - ['']
+  end
+
+  def self.clear_root_identifiers
+    @store = nil
+    @trusted_ca_root_identifiers = nil
+    @dod_root_identifiers = nil
   end
 
   private

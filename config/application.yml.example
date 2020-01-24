@@ -8,6 +8,9 @@
 # The others are DoD certs 2-4 from the archive available at
 # http://iasecontent.disa.mil/pki-pke/Certificates_PKCS7_v5.0u1_DoD.zip
 aws_http_timeout: '5'
+http_read_timeout: '5'
+http_open_timeout: '5'
+
 trusted_ca_root_identifiers: "\
   AD:0C:7A:75:5C:E5:F3:98:C4:79:98:0E:AC:28:FD:97:F4:E7:02:FC,\
   17:4B:B8:26:BA:69:7A:AD:12:50:57:45:31:9E:57:BB:74:A5:DA:2F,\
@@ -16,6 +19,11 @@ trusted_ca_root_identifiers: "\
   6C:8A:94:A2:77:B1:80:72:1D:81:7A:16:AA:F2:DC:CE:66:EE:45:C0,\
   BD:C1:B9:6B:4D:F4:1D:EC:30:90:BF:62:73:C0:84:33:F2:71:24:85,\
   9C:16:31:A2:B4:29:8C:2E:04:62:57:87:11:E4:0F:4A:86:F4:75:48" # temporarily add 9C:16:31:A2:B4:29:8C:2E:04:62:57:87:11:E4:0F:4A:86:F4:75:48 for pen test
+
+dod_root_identifiers: "\
+  49:74:BB:0C:5E:BA:7A:FE:02:54:EF:7B:A0:C6:95:C6:09:80:70:96,\
+  6C:8A:94:A2:77:B1:80:72:1D:81:7A:16:AA:F2:DC:CE:66:EE:45:C0,\
+  BD:C1:B9:6B:4D:F4:1D:EC:30:90:BF:62:73:C0:84:33:F2:71:24:85"
 
 required_policies: |
   [
@@ -36,7 +44,7 @@ required_policies: |
 
 development:
   aws_region: 'us-east-1'
-  client_cert_escaped: 'true'
+  client_cert_escaped: 'false'
   database_name: 'identity_pki_dev'
   identity_idp_host: 'localhost'
   nonce_bloom_filter_server: 'redis://localhost:6379/2'

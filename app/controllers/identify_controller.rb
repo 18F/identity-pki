@@ -8,6 +8,9 @@ class IdentifyController < ApplicationController
 
   delegate :logger, to: Rails
 
+  rescue_from URI::InvalidURIError, with: :render_bad_referrer_error
+  rescue_from ActionController::ParameterMissing, with: :render_missing_param_error
+
   def create
     if referrer
       # given a valid certificate from the client, return a token
@@ -18,8 +21,6 @@ class IdentifyController < ApplicationController
     else
       render_bad_request('No referrer')
     end
-  rescue URI::InvalidURIError
-    render_bad_request('Bad referrer')
   end
 
   private
@@ -27,6 +28,14 @@ class IdentifyController < ApplicationController
   def render_bad_request(reason)
     logger.warn("#{reason}, returning Bad Request.")
     render plain: 'Invalid request', status: :bad_request
+  end
+
+  def render_bad_referrer_error
+    render_bad_request('Bad referrer')
+  end
+
+  def render_missing_param_error(exception)
+    render_bad_request("Missing #{exception.param} param")
   end
 
   # :reek:UtilityFunction
@@ -41,8 +50,9 @@ class IdentifyController < ApplicationController
     CGI.escape(token)
   end
 
+  # :reek:DuplicateMethodCall
   def client_cert
-    cert_pem = request.headers[CERT_HEADER]
+    cert_pem = request.headers[CERT_HEADER] || request.headers.env['rack.peer_cert']
     return unless cert_pem
     if Figaro.env.client_cert_escaped == 'true'
       CGI.unescape(cert_pem)

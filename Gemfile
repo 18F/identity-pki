@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo_name| "https://github.com/#{repo_name}.git" }
 
-ruby '~> 2.3.5'
+ruby '~> 2.6.5'
 
 gem 'rails', '~> 5.2', '>= 5.2.2.1'
 
@@ -15,7 +15,7 @@ gem 'mini_cache'
 gem 'newrelic_rpm'
 gem 'pg'
 gem 'pry-rails'
-gem 'puma', '~> 3.7'
+gem 'puma', '~> 3.12'
 gem 'rgl'
 
 group :development, :test do
@@ -38,6 +38,7 @@ group :development do
   gem 'rails-erd'
   gem 'reek'
   gem 'rubocop', require: false
+  gem 'rubocop-rails', require: false
 end
 
 group :test do

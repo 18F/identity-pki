@@ -7,7 +7,7 @@ PIV/CAC support for login.gov.
 
 #### Dependencies
 
-- Ruby 2.3
+- Ruby 2.6
 - [Postgresql](http://www.postgresql.org/download/)
 
 #### Setting up and running the app
@@ -24,7 +24,7 @@ PIV/CAC support for login.gov.
   ```
   git clone git://github.com/tpope/rbenv-aliases.git "$(rbenv root)/plugins/rbenv-aliases" # install rbenv-aliases per its documentation
 
-  rbenv alias 2.3 2.3.5 # create the version alias
+  rbenv alias 2.6 2.6.5 # create the version alias
   ```
 
 2. Make sure Postgres is running.
@@ -57,8 +57,6 @@ PIV/CAC support for login.gov.
   $ make run
   ```
 
-**TODO** Instructions for setting up NGinx to handle TLS/SSL.
-
 Before making any commits, you'll also need to run `overcommit --sign.`
 This verifies that the commit hooks defined in our `.overcommit.yml` file are
 the ones we expect. Each change to the `.overcommit.yml` file, including the initial install
@@ -73,10 +71,84 @@ restart the server. See the [rack_mini_profiler] gem for more details.
 [Laptop]: https://github.com/18F/laptop
 [rack_mini_profiler]: https://github.com/MiniProfiler/rack-mini-profiler
 
-### Viewing the app locally
+### Running the app locally with the IDP
 
-Once it is up and running, the app will be accessible at
-`http://localhost:3001/` by default.
+#### Create a root SSL certificate
+
+1. From the console insure you are at the root of the /identity_pki/ directory.
+
+2. Generate a RSA-2048 key - rootCA.key
+
+  ```
+  openssl genrsa -des3 -out rootCA.key 2048
+  ```
+
+3. Create a new Root SSL certificate - rootCA.pem
+
+  ```
+  openssl req -x509 -new -nodes -key rootCA.key -sha256 -days 1024 -out rootCA.pem
+  ```
+
+#### Trust the root SSL certificate
+
+1. Open Keychain Access on your Mac and go to the Certificates category in your System keychain.
+
+2. Import the rootCA.pem using File > Import Items.
+
+3. Double click the imported certificate and change the “When using this certificate:” dropdown to Always Trust in the Trust section.
+
+#### Create a localhost SSL certificate
+
+1. Create a new file named server.csr.cnf
+
+2. Copy and past the contents below into the server.csr.cnf file to create an OpenSSL configuration.
+
+  ```
+  [req]
+  default_bits = 2048
+  prompt = no
+  default_md = sha256
+  distinguished_name = dn
+
+  [dn]
+  C=US
+  ST=RandomState
+  L=RandomCity
+  O=RandomOrganization
+  OU=RandomOrganizationUnit
+  emailAddress=hello@example.com
+  CN = localhost
+  ```
+
+3. Create a new file named v3.ext
+
+4. Copy and past the contents below into the v3.ext file to create a X509 v3 certificate.
+
+  ```
+  authorityKeyIdentifier=keyid,issuer
+  basicConstraints=CA:FALSE
+  keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
+  subjectAltName = @alt_names
+
+  [alt_names]
+  DNS.1 = localhost
+  ```
+
+5. Run the following command to create server.key for localhost.
+  ```
+  openssl req -new -sha256 -nodes -out server.csr -newkey rsa:2048 -keyout server.key -config <( cat server.csr.cnf )
+  ```
+
+6. Run the following command to create a certificate signing request for localhost.
+  ```
+  openssl x509 -req -in server.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out server.crt -days 500 -sha256 -extfile v3.ext
+  ```
+
+#### Running the PKI app locally
+
+  ```
+  bundle exec thin start -p 8443 --ssl --ssl-key-file server.key --ssl-cert-file server.crt
+  ```
 
 ### Certificate Authority Management
 
