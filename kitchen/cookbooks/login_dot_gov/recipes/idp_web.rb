@@ -29,16 +29,19 @@ else
   end
 end
 
-# branch is set by environment/node, otherwise use stages/env
-branch_name = node['login_dot_gov']['branch_name'] || "stages/#{node.chef_environment}"
+app_name = 'idp'
+
+# deploy_branch defaults to stages/<env>
+# unless deploy_branch.identity-#{app_name} is specifically set otherwise
+default_branch = node.fetch('login_dot_gov').fetch('deploy_branch_default')
+deploy_branch = node.fetch('login_dot_gov').fetch('deploy_branch').fetch("identity-#{app_name}", default_branch)
+
 base_dir = '/srv/idp'
 deploy_dir = "#{base_dir}/current/public"
 
 # add nginx conf for app server
 # TODO: JJG convert security_group_exceptions to hash so we can keep a note in both chef and nginx
 #       configs as to why we added the exception.
-app_name = 'idp'
-
 # Prod uses secure.login.gov, all others use idp.*
 if node.chef_environment == 'prod'
   server_name = 'secure.login.gov'
@@ -91,7 +94,7 @@ end
 
 login_dot_gov_deploy_info "#{deploy_dir}/api/deploy.json" do
   owner node.fetch('login_dot_gov').fetch('system_user')
-  branch branch_name
+  branch deploy_branch
 end
 
 # allow other execute permissions on all directories within the application folder

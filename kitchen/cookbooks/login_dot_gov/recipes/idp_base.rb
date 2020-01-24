@@ -84,13 +84,15 @@ application release_path do
   owner node['login_dot_gov']['system_user']
   group node['login_dot_gov']['system_user']
 
-  # branch is defined as an attribute or defaults to stages/<env>
-  branch_name = node['login_dot_gov']['branch_name'] || "stages/#{node.chef_environment}"
-
+  # deploy_branch defaults to stages/<env>
+  # unless deploy_branch.identity-#{app_name} is specifically set otherwise
+  default_branch = node.fetch('login_dot_gov').fetch('deploy_branch_default')
+  deploy_branch = node.fetch('login_dot_gov').fetch('deploy_branch').fetch("identity-#{app_name}", default_branch)
+  
   git do
     repository 'https://github.com/18F/identity-idp.git'
     user node['login_dot_gov']['system_user']
-    revision branch_name
+    revision deploy_branch
   end
 
   # custom resource to install the IdP config files (app.yml, saml.crt, saml.key)

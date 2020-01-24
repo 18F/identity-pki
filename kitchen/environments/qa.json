@@ -21,7 +21,6 @@
       "use_dashboard_dynamic_updates": true
     },
     "login_dot_gov": {
-      "branch_name": "stages/qa",
       "auto_eip_enabled_roles": ["jumphost", "outboundproxy"]
     },
     "identity-jumphost": {

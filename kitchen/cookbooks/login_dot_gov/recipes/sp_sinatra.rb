@@ -12,7 +12,10 @@ include_recipe 'login_dot_gov::dhparam'
 base_dir = "/srv/#{app_name}"
 deploy_dir = "#{base_dir}/current/public"
 
-branch_name = node.fetch('login_dot_gov').fetch('branch_name', "stages/#{node.chef_environment}")
+# deploy_branch defaults to stages/<env>
+# unless deploy_branch.identity-#{app_name} is specifically set otherwise
+default_branch = node.fetch('login_dot_gov').fetch('deploy_branch_default')
+deploy_branch = node.fetch('login_dot_gov').fetch('deploy_branch').fetch("identity-#{app_name}", default_branch)
 
 %w{cached-copy config log}.each do |dir|
   directory "#{base_dir}/shared/#{dir}" do
@@ -35,7 +38,7 @@ deploy "/srv/#{app_name}" do
   end
 
   repo "https://github.com/18F/identity-#{app_name}.git"
-  branch branch_name
+  branch deploy_branch
   shallow_clone true
   keep_releases 1
 
@@ -85,5 +88,5 @@ end
 
 login_dot_gov_deploy_info "#{deploy_dir}/api/deploy.json" do
   owner node.fetch('login_dot_gov').fetch('system_user')
-  branch branch_name
+  branch deploy_branch
 end

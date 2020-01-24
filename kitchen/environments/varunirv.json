@@ -7,8 +7,7 @@
   "chef_type": "environment",
   "default_attributes": {
     "login_dot_gov": {
-      "domain_name": "identitysandbox.gov",
-      "branch_name": "master"
+      "deploy_branch_default": "master"
     },
     "elk": {
       "retentiondays": 14,

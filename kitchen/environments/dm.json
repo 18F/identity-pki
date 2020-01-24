@@ -5,7 +5,6 @@
   "chef_type": "environment",
   "default_attributes": {
     "login_dot_gov": {
-      "branch_name": "stages/dm",
       "auto_eip_enabled_roles": ["jumphost", "outboundproxy"]
     },
     "elk": {
