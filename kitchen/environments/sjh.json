@@ -11,9 +11,6 @@
         "sjh"
       ]
     },
-    "identity-devops": {
-      "branch_name": "stages/sjh"
-    },
     "login_dot_gov": {
       "domain_name": "identitysandbox.gov",
       "branch_name": "master",

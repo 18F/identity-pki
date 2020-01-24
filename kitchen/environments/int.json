@@ -16,9 +16,6 @@
         "steveu"
       ]
     },
-    "identity-devops": {
-      "branch_name": "stages/int"
-    },
     "identity-outboundproxy": {
       "use_dashboard_dynamic_updates": true
     },
