@@ -38,6 +38,7 @@ group :development do
   gem 'rails-erd'
   gem 'reek'
   gem 'rubocop', require: false
+  gem 'rubocop-rails', require: false
 end
 
 group :test do
