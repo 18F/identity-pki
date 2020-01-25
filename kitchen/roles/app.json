@@ -11,10 +11,7 @@
     "role[base]",
     "recipe[passenger::daemon]",
     "recipe[login_dot_gov::nodejs]",
-    "recipe[login_dot_gov::dashboard]",
-    "recipe[login_dot_gov::oidc_sinatra]",
-    "recipe[login_dot_gov::sp_rails]",
-    "recipe[login_dot_gov::sp_sinatra]"
+    "recipe[login_dot_gov::dashboard]"
   ],
   "env_run_lists": {
   }

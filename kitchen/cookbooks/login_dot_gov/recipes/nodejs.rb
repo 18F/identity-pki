@@ -8,6 +8,8 @@
 
 node_version = '12.x'
 
+execute "chmod o+X -R /srv"
+
 apt_package 'apt-transport-https'
 
 # https://deb.nodesource.com/gpgkey/nodesource.gpg.key
