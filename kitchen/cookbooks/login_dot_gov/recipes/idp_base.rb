@@ -78,6 +78,8 @@ shared_dirs.each do |dir|
   end
 end
 
+app_name = 'idp'
+
 # TODO: JJG consider migrating to chef deploy resource to stay in line with capistrano style:
 # https://docs.chef.io/resource_deploy.html
 application release_path do

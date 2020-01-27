@@ -29,6 +29,8 @@ directory shared_path do
   recursive true
 end
 
+app_name = 'pivcac'
+
 # deploy_branch defaults to stages/<env>
 # unless deploy_branch.identity-#{app_name} is specifically set otherwise
 default_branch = node.fetch('login_dot_gov').fetch('deploy_branch_default')
