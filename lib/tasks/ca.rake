@@ -19,4 +19,9 @@ namespace :ca do
 
     puts uml
   end
+
+  desc 'update CA certificates based on logged PIV/CAC certs'
+  task update: :environment do
+    CertificateIssuerUpdateService.new.call
+  end
 end

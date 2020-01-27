@@ -40,6 +40,12 @@ class Certificate
       signing_key_id == other.signing_key_id
   end
 
+  def ==(other)
+    subject == other.subject &&
+      serial == other.serial &&
+      signing_key_id == other.signing_key_id
+  end
+
   def expired?
     now = Time.zone.now
     not_before > now || now > not_after # expiration bounds
@@ -167,6 +173,11 @@ class Certificate
   # :reek:UtilityFunction
   def get_extension(oid)
     @x509_cert.extensions.detect { |record| record.oid == oid }&.value
+  end
+
+  def authority_information
+    info = aia
+    [extract_http_url(aia['CA Issuers']), extract_http_url(aia['OCSP'])] if info
   end
 
   # :reek:UtilityFunction

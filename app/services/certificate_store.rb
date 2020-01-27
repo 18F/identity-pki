@@ -18,10 +18,7 @@ class CertificateStore # rubocop:disable Metrics/ClassLength
   def reset
     @certificates = {}
     @graph = RGL::DirectedAdjacencyGraph.new
-  end
-
-  def self.reset
-    instance.reset
+    self
   end
 
   def_delegators :@certificates, :[], :count, :empty?, :map
@@ -32,7 +29,11 @@ class CertificateStore # rubocop:disable Metrics/ClassLength
                  :clear_root_identifiers
 
   def add_pem_file(filename)
-    extract_certs(IO.binread(filename)).each(&method(:add_certificate))
+    add_pem_string(IO.binread(filename))
+  end
+
+  def add_pem_string(string)
+    extract_certs(string).each(&method(:add_certificate))
   end
 
   def add_link(from, to)
@@ -61,6 +62,10 @@ class CertificateStore # rubocop:disable Metrics/ClassLength
 
     @certificates[key_id] = cert
     add_link(key_id, cert.signing_key_id)
+  end
+
+  def add_certificates(list)
+    list.each { |cert| add_certificate(cert) }
   end
 
   def x509_certificate_chain(cert)
