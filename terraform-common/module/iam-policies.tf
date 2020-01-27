@@ -477,6 +477,7 @@ data "aws_iam_policy_document" "power2" {
       "elasticloadbalancing:DeregisterTargets",
       "elasticloadbalancing:DeregisterInstancesFromLoadBalancer",
       "elasticloadbalancing:DescribeLoadBalancers",
+      "elasticloadbalancing:DescribeLoadBalancerAttributes",
       "elasticloadbalancing:DescribeTags",
       "elasticloadbalancing:DescribeTargetHealth",
       "elasticloadbalancing:DescribeTargetGroups",
@@ -541,6 +542,19 @@ data "aws_iam_policy_document" "power2" {
     actions = [
       "waf:*",
       "waf-regional:*",
+    ]
+    resources = [
+      "*",
+    ]
+  }
+  statement {
+    sid    = "CodeTools"
+    effect = "Allow"
+    actions = [
+      "codebuild:*",
+      "codepipeline:*",
+      "codecommit:*",
+      "codedeploy:*"
     ]
     resources = [
       "*",
