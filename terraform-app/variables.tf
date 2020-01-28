@@ -488,7 +488,7 @@ variable "default_ami_id_prod" {
 }
 
 variable "rails_ami_id_sandbox" {
-  default = "ami-04f2b6f5ae4c9adf2" # 2020-01-02 Ubuntu 18.04
+  default = "ami-08e3ebffe1e0a39da" # 2020-01-02 Ubuntu 18.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the sandbox account"
 }
 
