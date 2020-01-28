@@ -169,29 +169,19 @@ check_install_berkshelf() {
     chef_version="$(run "$embedded_bin/chef-client" --version)"
 
     case "$ruby_version" in
-        2.1.*)
-            run "$embedded_bin/gem" install -v '~> 1.2' nio4r
-            run "$embedded_bin/gem" install -v '~> 4.3' berkshelf
-            ;;
-        2.2*|2.3*|2.4*|2.5*|2.6*)
+        2.5*|2.6*)
             case "$chef_version" in
-                'Chef: 12.'*)
-                    run "$embedded_bin/gem" install -v '~> 5.0' berkshelf
-                    ;;
-                'Chef: 13.'*)
-                    run "$embedded_bin/gem" install -v '~> 6.0' berkshelf
-                    ;;
                 'Chef: 14.'*)
                     run "$embedded_bin/gem" install -v '~> 7.0' berkshelf
                     ;;
                 *)
-                    echo >&2 "Error: Unknown chef version $chef_version"
+                    echo >&2 "Error: Deprecated or unknown chef version: ${chef_version}"
                     exit 3
                     ;;
             esac
             ;;
         *)
-            echo >&2 "Error: unknown ruby version $ruby_version"
+            echo >&2 "Error: Deprecated or unknown ruby version: ${ruby_version}"
             exit 3
     esac
 
