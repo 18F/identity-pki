@@ -487,6 +487,16 @@ variable "default_ami_id_prod" {
   description = "default AMI ID for environments in the prod account"
 }
 
+variable "rails_ami_id_sandbox" {
+  default = "ami-04f2b6f5ae4c9adf2" # 2020-01-02 Ubuntu 18.04
+  description = "AMI ID for Rails (IdP/PIVCAC servers) in the sandbox account"
+}
+
+variable "rails_ami_id_prod" {
+  default = "ami-01faea3bae7bc3b1d" # 2020-01-02 Ubuntu 18.04
+  description = "AMI ID for Rails (IdP/PIVCAC servers) in the prod account"
+}
+
 variable "high_priority_sns_hook" {
   description = "ARN of SNS topic for high-priority pages"
 }
@@ -501,7 +511,7 @@ locals {
   bootstrap_private_s3_ssh_key_url = var.bootstrap_private_s3_ssh_key_url != "" ? var.bootstrap_private_s3_ssh_key_url : "s3://login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}/common/id_ecdsa.id-do-private.deploy"
   bootstrap_main_git_ref_default   = var.bootstrap_main_git_ref_default != "" ? var.bootstrap_main_git_ref_default : "stages/${var.env_name}"
   account_default_ami_id           = data.aws_caller_identity.current.account_id == "555546682965" ? var.default_ami_id_prod : var.default_ami_id_sandbox
-
+  account_rails_ami_id             = data.aws_caller_identity.current.account_id == "555546682965" ? var.rails_ami_id_prod : var.rails_ami_id_sandbox
   high_priority_alarm_actions = var.page_devops == 1 ? [var.high_priority_sns_hook, var.slack_events_sns_hook_arn] : [var.slack_events_sns_hook_arn]
 }
 
