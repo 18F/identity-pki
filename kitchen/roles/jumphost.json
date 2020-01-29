@@ -8,8 +8,8 @@
   },
   "chef_type": "role",
   "run_list": [
-    "recipe[login_dot_gov::static_eip]",
     "role[base]",
+    "recipe[login_dot_gov::static_eip]",
     "recipe[identity-jumphost]"
   ],
   "env_run_lists": {
