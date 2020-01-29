@@ -8,8 +8,8 @@
   },
   "chef_type": "role",
   "run_list": [
-    "recipe[login_dot_gov::static_eip]",
     "role[base]",
+    "recipe[login_dot_gov::static_eip]",
     "role[idp_only]",
     "recipe[login_dot_gov::idp_worker]"
   ],
