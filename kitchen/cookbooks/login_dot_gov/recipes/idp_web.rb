@@ -43,12 +43,21 @@ deploy_dir = "#{base_dir}/current/public"
 # TODO: JJG convert security_group_exceptions to hash so we can keep a note in both chef and nginx
 #       configs as to why we added the exception.
 # Prod uses secure.login.gov, all others use idp.*
+nginx_redirects = []
 if node.chef_environment == 'prod'
-  server_name = 'secure.login.gov'
-  redirect_server_names = nil
+  nginx_redirects.push(
+    {
+      'server_name' => 'secure.login.gov',
+      'redirect_server' => nil
+    }
+  )
 else
-  server_name = "idp.#{node.chef_environment}.#{domain_name}"
-  redirect_server_names = ["#{node.chef_environment}.#{domain_name}"]
+  nginx_redirects.push(
+    {
+      'server_name' = "idp.#{node.chef_environment}.#{domain_name}"
+      'redirect_server' = "#{node.chef_environment}.#{domain_name}"
+    }
+  )
 end
 
 include_recipe 'login_dot_gov::dhparam'
@@ -78,7 +87,7 @@ template '/opt/nginx/conf/sites.d/idp_web.conf' do
     security_group_exceptions: JSON.parse(ConfigLoader.load_config(node, "security_group_exceptions")),
     server_aliases: nil,
     server_name: server_name,
-    redirect_server_names: redirect_server_names,
+    nginx_redirects: nginx_redirects,
   })
 end
 

@@ -2,6 +2,7 @@
 psql_config 'configure postgres root cert'
 
 app_name = 'dashboard'
+domain_name = node.fetch('login_dot_gov').fetch('domain_name')
 
 include_recipe 'login_dot_gov::dhparam'
 
@@ -166,6 +167,19 @@ end
 # add nginx conf for app server
 # TODO: JJG convert security_group_exceptions to hash so we can keep a note in both chef and nginx
 #       configs as to why we added the exception.
+
+# 302 all sample app URLs to cloud.gov
+# TODO: remove when we can get cloud.gov SSL certs allowing traffic from identitysandbox.gov
+nginx_redirects = []
+%w[oidc saml].each do |app|
+  nginx_redirects.push(
+    {
+      'server_name' => "#{node.chef_environment}-identity-#{app}-sinatra.app.cloud.gov",
+      'redirect_server' => "#{app}-sinatra.#{node.chef_environment}.#{domain_name}"
+    }
+  )
+end
+
 template "/opt/nginx/conf/sites.d/dashboard.login.gov.conf" do
   owner node['login_dot_gov']['system_user']
   notifies :restart, "service[passenger]"
@@ -176,7 +190,8 @@ template "/opt/nginx/conf/sites.d/dashboard.login.gov.conf" do
     domain: "#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
     passenger_ruby: lazy { Dir.chdir(deploy_dir) { shell_out!(%w{rbenv which ruby}).stdout.chomp } },
     security_group_exceptions: ConfigLoader.load_config(node, "security_group_exceptions"),
-    server_name: "#{app_name}.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
+    server_name: "#{app_name}.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
+    nginx_redirects: nginx_redirects
   })
 end
 
