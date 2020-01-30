@@ -9,6 +9,7 @@ resource "aws_iam_group_membership" "reporting_membership" {
     aws_iam_user.jennifer_wagner.name,
     aws_iam_user.karla_rodriguez.name,
     aws_iam_user.likhitha_patha.name,
+    aws_iam_user.silke_dannemann.name,
     aws_iam_user.thomas_black.name,
   ]
   group = aws_iam_group.reporting.name
