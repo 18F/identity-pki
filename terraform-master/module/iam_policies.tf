@@ -469,25 +469,60 @@ data "aws_iam_policy_document" "production_sms_assume_full_administrator" {
   }
 }
 
-resource "aws_iam_policy" "sandbox_sms_assume_power_user" {
-  name        = "SandboxSMSAssumePower"
-  path        = "/"
-  description = "Policy to allow user to assume power role in Sandbox SMS"
-  policy      = data.aws_iam_policy_document.sandbox_sms_assume_power_user.json
+resource "aws_iam_policy" "production_sms_assume_socadministrator" {
+    name = "ProductionSMSAssumeSOCAdministrator"
+    path = "/"
+    description = "Policy to allow user to assume SOCAdministrator role in Production SMS"
+    policy = data.aws_iam_policy_document.production_sms_assume_socadministrator.json
 }
 
-data "aws_iam_policy_document" "sandbox_sms_assume_power_user" {
-  statement {
-    sid    = "SandboxSMSAssumePowerUser"
-    effect = "Allow"
-    actions = [
-      "sts:AssumeRole",
-    ]
-    resources = [
-      "arn:aws:iam::${var.sandbox_sms_account_id}:role/PowerUser",
-    ]
-  }
+data "aws_iam_policy_document" "production_sms_assume_socadministrator" {
+    statement {
+        sid = "ProductionAssumeSOCAdministrator"
+        effect = "Allow"
+        actions = [
+            "sts:AssumeRole"
+        ]
+        resources = [
+            "arn:aws:iam::${var.production_account_id}:role/SOCAdministrator"
+        ]
+        condition {
+            test = "Bool"
+            variable = "aws:MultiFactorAuthPresent"
+            values = [
+                "true"
+            ]
+        }
+    }
 }
+
+resource "aws_iam_policy" "sandbox_sms_assume_socadministrator" {
+    name = "SandboxSMSAssumeSOCAdministrator"
+    path = "/"
+    description = "Policy to allow user to assume SOCAdministrator role in Sandbox SMS"
+    policy = data.aws_iam_policy_document.sandbox_sms_assume_socadministrator.json
+}
+
+data "aws_iam_policy_document" "sandbox_sms_assume_socadministrator" {
+    statement {
+        sid = "SandboxAssumeSOCAdministrator"
+        effect = "Allow"
+        actions = [
+            "sts:AssumeRole"
+        ]
+        resources = [
+            "arn:aws:iam::${var.sandbox_account_id}:role/SOCAdministrator"
+        ]
+        condition {
+            test = "Bool"
+            variable = "aws:MultiFactorAuthPresent"
+            values = [
+                "true"
+            ]
+        }
+    }
+}
+
 
 ######## SOCAdmin policy data ########
 resource "aws_iam_policy" "socadministrator" {

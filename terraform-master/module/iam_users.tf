@@ -142,7 +142,7 @@ resource "aws_iam_policy_attachment" "manage_your_account" {
     aws_iam_user.mossadeq_zia.name,
     aws_iam_user.paul_hirsch.name,
     aws_iam_user.rajat_varuni.name,
-    aws_iam_user.silke_dannemann,
+    aws_iam_user.silke_dannemann.name,
     aws_iam_user.stephen_grow.name,
     aws_iam_user.steve_urciuoli.name,
     aws_iam_user.steven_harms.name,
@@ -249,40 +249,6 @@ resource "aws_iam_policy_attachment" "sandbox_power_user" {
 #     policy_arn = "${aws_iam_policy.production_assume_power_user.arn}"
 # }
 
-resource "aws_iam_policy_attachment" "sandbox_sms_power_user" {
-  name = "sandbox_sms_power_user"
-  users = [
-    aws_iam_user.amit_freeman.name,
-    aws_iam_user.aaron_chapman.name,
-    aws_iam_user.brian_crissup.name,
-    aws_iam_user.justin_grevich.name,
-    aws_iam_user.jonathan_pirro.name,
-    aws_iam_user.laura_gerhardt.name,
-    aws_iam_user.mossadeq_zia.name,
-    aws_iam_user.rajat_varuni.name,
-    aws_iam_user.steven_harms.name,
-    aws_iam_user.steve_urciuoli.name,
-  ]
-  policy_arn = aws_iam_policy.sandbox_sms_assume_power_user.arn
-}
-
-resource "aws_iam_policy_attachment" "production_sms_power_user" {
-  name = "production_sms_power_user"
-  users = [
-    aws_iam_user.amit_freeman.name,
-    aws_iam_user.aaron_chapman.name,
-    aws_iam_user.brian_crissup.name,
-    aws_iam_user.justin_grevich.name,
-    aws_iam_user.jonathan_pirro.name,
-    aws_iam_user.laura_gerhardt.name,
-    aws_iam_user.mossadeq_zia.name,
-    aws_iam_user.rajat_varuni.name,
-    aws_iam_user.steven_harms.name,
-    aws_iam_user.steve_urciuoli.name,
-  ]
-  policy_arn = aws_iam_policy.production_sms_assume_power_user.arn
-}
-
 ######## AppDev ########
 #resource "aws_iam_policy_attachment" "production_appdev" {
 #    name = "production_appdev"
@@ -320,36 +286,6 @@ resource "aws_iam_policy_attachment" "sandbox_readonly" {
     aws_iam_user.steve_urciuoli.name,
   ]
   policy_arn = aws_iam_policy.sandbox_assume_readonly.arn
-}
-
-resource "aws_iam_policy_attachment" "sandbox_sms_readonly" {
-  name = "sandbox_sms_readonly"
-  users = [
-    aws_iam_user.amit_freeman.name,
-    aws_iam_user.brian_crissup.name,
-    aws_iam_user.jonathan_hooper.name,
-    aws_iam_user.jonathan_pirro.name,
-    aws_iam_user.justin_grevich.name,
-    aws_iam_user.mossadeq_zia.name,
-    aws_iam_user.steven_harms.name,
-    aws_iam_user.steve_urciuoli.name,
-  ]
-  policy_arn = aws_iam_policy.sandbox_sms_assume_readonly.arn
-}
-
-resource "aws_iam_policy_attachment" "production_sms_readonly" {
-  name = "production_sms_readonly"
-  users = [
-    aws_iam_user.amit_freeman.name,
-    aws_iam_user.brian_crissup.name,
-    aws_iam_user.jonathan_hooper.name,
-    aws_iam_user.jonathan_pirro.name,
-    aws_iam_user.justin_grevich.name,
-    aws_iam_user.mossadeq_zia.name,
-    aws_iam_user.steven_harms.name,
-    aws_iam_user.steve_urciuoli.name,
-  ]
-  policy_arn = aws_iam_policy.production_sms_assume_readonly.arn
 }
 
 ######## SOCAdministrator ########
