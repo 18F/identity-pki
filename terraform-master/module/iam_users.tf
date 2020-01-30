@@ -175,6 +175,7 @@ resource "aws_iam_policy_attachment" "sandbox_full_administrator" {
     aws_iam_user.justin_grevich.name,
     aws_iam_user.mossadeq_zia.name,
     aws_iam_user.paul_hirsch.name,
+    aws_iam_user.stephen_grow.name,
     aws_iam_user.steven_harms.name,
   ]
   policy_arn = aws_iam_policy.sandbox_assume_full_administrator.arn
@@ -229,6 +230,7 @@ resource "aws_iam_policy_attachment" "sandbox_power_user" {
     aws_iam_user.paul_hirsch.name,
     aws_iam_user.rajat_varuni.name,
     aws_iam_user.steven_harms.name,
+    aws_iam_user.stephen_grow.name,
     aws_iam_user.steve_urciuoli.name,
     aws_iam_user.zachary_margolis.name,
   ]
@@ -241,6 +243,7 @@ resource "aws_iam_policy_attachment" "sandbox_power_user" {
 #         "${aws_iam_user.brian_crissup.name}",
 #         "${aws_iam_user.mossadeq_zia.name}",
 #         "${aws_iam_user.steve_urciuoli.name}",
+#         "${aws_iam_user.stephen_grow.name}",
 #         "${aws_iam_user.jonathan_hooper.name}"
 #     ]
 #     policy_arn = "${aws_iam_policy.production_assume_power_user.arn}"
@@ -313,6 +316,7 @@ resource "aws_iam_policy_attachment" "sandbox_readonly" {
     aws_iam_user.mossadeq_zia.name,
     aws_iam_user.paul_hirsch.name,
     aws_iam_user.steven_harms.name,
+    aws_iam_user.stephen_grow.name,
     aws_iam_user.steve_urciuoli.name,
   ]
   policy_arn = aws_iam_policy.sandbox_assume_readonly.arn
