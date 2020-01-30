@@ -26,7 +26,7 @@ environment = ENV.fetch('KITCHEN_EC2_INTEGRATION_ENVIRONMENT', 'ci')
 # TODO look up dynamically
 ami_id = ENV.fetch('KITCHEN_EC2_AMI', 'ami-04f2b6f5ae4c9adf2')
 if role == "idp" || role == "pivcac"
-  ami_id = ENV.fetch('KITCHEN_RAILS_AMI', 'ami-08e3ebffe1e0a39da')
+  ami_id = ENV.fetch('KITCHEN_RAILS_AMI', 'ami-05166097d18d1cb9c')
 end
 
 vpc_name = "login-vpc-#{environment}"
