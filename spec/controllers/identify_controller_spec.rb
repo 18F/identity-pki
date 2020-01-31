@@ -19,6 +19,7 @@ RSpec.describe IdentifyController, type: :controller do
 
   before(:each) do
     Certificate.clear_revocation_cache
+    OCSPService.clear_ocsp_response_cache
   end
 
   describe 'GET /' do
@@ -230,7 +231,8 @@ RSpec.describe IdentifyController, type: :controller do
 
         describe 'with a revoked certificate' do
           before(:each) do
-            allow_any_instance_of(OCSPService).to receive(:make_http_request).and_return(nil)
+            stub_request(:post, 'http://ocsp.example.com/').
+              to_return(status: 400, body: '', headers: {})
           end
 
           it 'returns a token as revoked' do
@@ -254,7 +256,7 @@ RSpec.describe IdentifyController, type: :controller do
 
         describe 'with a certificate timeout' do
           before(:each) do
-            allow_any_instance_of(OCSPService).to receive(:make_http_request).and_raise(Timeout::Error)
+            stub_request(:post, 'http://ocsp.example.com/').to_timeout
           end
 
           it 'returns a token as timeout' do
@@ -277,7 +279,8 @@ RSpec.describe IdentifyController, type: :controller do
 
         describe 'with a certificate ocsp error' do
           before(:each) do
-            allow_any_instance_of(OCSPService).to receive(:make_http_request).and_raise(OpenSSL::OCSP::OCSPError)
+            stub_request(:post, 'http://ocsp.example.com/').
+              to_return(status: 200, body: 'not-a-valid-cert', headers: {})
           end
 
           it 'returns a token as ocsp error' do
