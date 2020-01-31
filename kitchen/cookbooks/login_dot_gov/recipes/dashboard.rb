@@ -170,15 +170,16 @@ end
 
 # 302 all sample app URLs to cloud.gov
 # TODO: remove when we can get cloud.gov SSL certs allowing traffic from identitysandbox.gov
-nginx_redirects = []
-%w[oidc saml].each do |app|
-  nginx_redirects.push(
-    {
-      'server_name' => "#{node.chef_environment}-identity-#{app}-sinatra.app.cloud.gov",
-      'redirect_server' => "#{app}-sinatra.#{node.chef_environment}.#{domain_name}"
-    }
-  )
-end
+nginx_redirects = [
+  {
+    'server_name' => "#{node.chef_environment}-identity-saml-sinatra.app.cloud.gov",
+    'redirect_server' => "sp-sinatra.#{node.chef_environment}.#{domain_name}"
+  },
+  {
+    'server_name' => "#{node.chef_environment}-identity-oidc-sinatra.app.cloud.gov",
+    'redirect_server' => "sp-oidc-sinatra.#{node.chef_environment}.#{domain_name}"
+  }
+]
 
 template "/opt/nginx/conf/sites.d/dashboard.login.gov.conf" do
   owner node['login_dot_gov']['system_user']

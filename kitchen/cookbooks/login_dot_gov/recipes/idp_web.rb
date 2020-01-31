@@ -87,7 +87,7 @@ template '/opt/nginx/conf/sites.d/idp_web.conf' do
     security_group_exceptions: JSON.parse(ConfigLoader.load_config(node, "security_group_exceptions")),
     server_aliases: nil,
     server_name: server_name,
-    nginx_redirects: nginx_redirects,
+    nginx_redirects: nginx_redirects
   })
 end
 
