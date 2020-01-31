@@ -43,23 +43,23 @@ deploy_dir = "#{base_dir}/current/public"
 # TODO: JJG convert security_group_exceptions to hash so we can keep a note in both chef and nginx
 #       configs as to why we added the exception.
 # Prod uses secure.login.gov, all others use idp.*
-nginx_redirects = []
 if node.chef_environment == 'prod'
-  nginx_redirects.push(
+  nginx_redirects = [
     {
       'server_name' => 'secure.login.gov',
       'redirect_server' => nil
     }
-  )
+  ]
 else
-  nginx_redirects.push(
+  nginx_redirects = [
     {
-      'server_name' = "idp.#{node.chef_environment}.#{domain_name}"
-      'redirect_server' = "#{node.chef_environment}.#{domain_name}"
+      'server_name' => "idp.#{node.chef_environment}.#{domain_name}",
+      'redirect_server' => "#{node.chef_environment}.#{domain_name}"
     }
-  )
+  ]
 end
 
+server_name = nginx_redirects[0]['server_name']
 include_recipe 'login_dot_gov::dhparam'
 
 # Create a self-signed certificate for ALB to talk to. ALB does not verify

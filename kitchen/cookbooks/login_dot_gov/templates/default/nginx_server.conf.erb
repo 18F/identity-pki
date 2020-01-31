@@ -134,10 +134,13 @@ server {
     }
 }
 
+<%- if @nginx_redirects %>
 <%- @nginx_redirects.each do |server| %>
 server {
-    listen 443 ssl;
-    server_name <%= @server.redirect_server %>;
-    return       302  https://<%= @server.server_name %>$request_uri;
+    listen       443 ssl;
+    server_name  <%= server['redirect_server'] %> ;
+    return       302  https://<%= server['server_name'] %>$request_uri;
 }
+
+<%- end %>
 <%- end %>
