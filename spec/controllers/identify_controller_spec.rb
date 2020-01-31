@@ -19,6 +19,7 @@ RSpec.describe IdentifyController, type: :controller do
 
   before(:each) do
     Certificate.clear_revocation_cache
+    OCSPService.clear_ocsp_response_cache
   end
 
   describe 'GET /' do
