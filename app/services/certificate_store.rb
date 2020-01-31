@@ -96,12 +96,12 @@ class CertificateStore # rubocop:disable Metrics/ClassLength
 
   def self.trusted_ca_root_identifiers
     @trusted_ca_root_identifiers ||=
-      (Figaro.env.trusted_ca_root_identifiers || '').split(',').map(&:strip) - ['']
+      (Figaro.env.trusted_ca_root_identifiers || '').split(',').map(&:strip).select(&:present?)
   end
 
   def self.dod_root_identifiers
     @dod_root_identifiers ||=
-      (Figaro.env.dod_root_identifiers || '').split(',').map(&:strip) - ['']
+      (Figaro.env.dod_root_identifiers || '').split(',').map(&:strip).select(&:present?)
   end
 
   def self.clear_root_identifiers
