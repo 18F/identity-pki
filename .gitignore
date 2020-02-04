@@ -28,3 +28,13 @@
 /yarn-error.log
 
 .byebug_history
+
+# Ignore the files generated during setup
+rootCA.key
+rootCA.pem
+rootCA.srl
+server.crt
+server.csr
+server.csr.cnf
+server.key
+v3.ext
