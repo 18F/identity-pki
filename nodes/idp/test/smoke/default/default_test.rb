@@ -187,3 +187,10 @@ describe command("grep 'Harvester started for file' /var/log/filebeat/filebea* |
   its('stdout') { should include '/var/log/nginx/fancy_access.log' }
   its('stdout') { should include '/srv/idp/shared/log/production.log' }
 end
+
+describe file('/opt/nginx/conf/sites.d/idp_web.conf') do
+  it { should exist }
+  its(:size) { should > 0 }
+  its('content') { should include("server_name  ci.identitysandbox.gov ;") }
+  its('content') { should include("return       302  https://idp.ci.identitysandbox.gov$request_uri;") }
+end

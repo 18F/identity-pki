@@ -44,13 +44,22 @@ deploy_dir = "#{base_dir}/current/public"
 #       configs as to why we added the exception.
 # Prod uses secure.login.gov, all others use idp.*
 if node.chef_environment == 'prod'
-  server_name = 'secure.login.gov'
-  redirect_server_names = nil
+  nginx_redirects = [
+    {
+      'server_name' => 'secure.login.gov',
+      'redirect_server' => nil
+    }
+  ]
 else
-  server_name = "idp.#{node.chef_environment}.#{domain_name}"
-  redirect_server_names = ["#{node.chef_environment}.#{domain_name}"]
+  nginx_redirects = [
+    {
+      'server_name' => "idp.#{node.chef_environment}.#{domain_name}",
+      'redirect_server' => "#{node.chef_environment}.#{domain_name}"
+    }
+  ]
 end
 
+server_name = nginx_redirects[0]['server_name']
 include_recipe 'login_dot_gov::dhparam'
 
 # Create a self-signed certificate for ALB to talk to. ALB does not verify
@@ -78,7 +87,7 @@ template '/opt/nginx/conf/sites.d/idp_web.conf' do
     security_group_exceptions: JSON.parse(ConfigLoader.load_config(node, "security_group_exceptions")),
     server_aliases: nil,
     server_name: server_name,
-    redirect_server_names: redirect_server_names,
+    nginx_redirects: nginx_redirects
   })
 end
 

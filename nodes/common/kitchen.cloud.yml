@@ -24,8 +24,13 @@ role = File.basename(Dir.pwd)
 environment = ENV.fetch('KITCHEN_EC2_INTEGRATION_ENVIRONMENT', 'ci')
 
 # TODO look up dynamically
+rails_apps = %w[
+  idp
+  app
+  pivcac
+]
 ami_id = ENV.fetch('KITCHEN_EC2_AMI', 'ami-04f2b6f5ae4c9adf2')
-if role == "idp" || role == "pivcac"
+if rails_apps.include?(role)
   ami_id = ENV.fetch('KITCHEN_RAILS_AMI', 'ami-05166097d18d1cb9c')
 end
 
