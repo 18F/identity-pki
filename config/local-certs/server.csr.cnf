@@ -1,0 +1,14 @@
+[req]
+default_bits = 2048
+prompt = no
+default_md = sha256
+distinguished_name = dn
+
+[dn]
+C = US
+ST = District of Columbia
+L = Washington
+O = login.gov development
+OU = identity-pki
+emailAddress = noreply@login.gov
+CN = localhost
