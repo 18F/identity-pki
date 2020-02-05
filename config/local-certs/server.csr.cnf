@@ -5,10 +5,10 @@ default_md = sha256
 distinguished_name = dn
 
 [dn]
-C=US
-ST=RandomState
-L=RandomCity
-O=RandomOrganization
-OU=RandomOrganizationUnit
-emailAddress=hello@example.com
+C = US
+ST = District of Columbia
+L = Washington
+O = login.gov development
+OU = identity-pki
+emailAddress = noreply@login.gov
 CN = localhost
