@@ -10,7 +10,6 @@
       "legacy_log_bucket_name": false,
       "retentiondays": 14,
       "users": [
-        "brody",
         "jgrevich",
         "jhooper",
         "mzia",

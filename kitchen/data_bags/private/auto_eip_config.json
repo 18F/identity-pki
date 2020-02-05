@@ -77,18 +77,6 @@
         "valid_ips": "34.216.215.128/26"
       }
     },
-    "brody": {
-      "idp": {
-        "valid_ips": "34.216.215.128/26"
-      },
-      "jumphost": {
-        "valid_ips": "34.216.215.128/26",
-        "invalid_ips": null
-      },
-      "outboundproxy": {
-        "valid_ips": "34.216.215.128/26"
-      }
-    },
     "jjg": {
       "idp": {
         "valid_ips": "34.216.215.128/26"

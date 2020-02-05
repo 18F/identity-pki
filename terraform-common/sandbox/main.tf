@@ -30,7 +30,6 @@ module "main" {
     "arn:aws:iam::894947205914:user/justin.grevich",
     "arn:aws:iam::894947205914:user/brian.crissup",
     "arn:aws:iam::894947205914:user/mossadeq.zia",
-    "arn:aws:iam::894947205914:user/jonathan.hooper",
-    "arn:aws:iam::894947205914:user/andy.brody"
+    "arn:aws:iam::894947205914:user/jonathan.hooper"
   ]
 }
