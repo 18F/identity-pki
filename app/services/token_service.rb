@@ -93,14 +93,21 @@ class TokenService
 
     def current_key
       salt, pepper = key_salt_and_pepper
-      ActiveSupport::KeyGenerator.new(pepper).generate_key(salt)
+      truncate_key(ActiveSupport::KeyGenerator.new(pepper).generate_key(salt))
     end
 
     def prior_keys
       prior_key_signifiers.map do |ending|
         old_salt, old_pepper = key_salt_and_pepper(ending)
-        ActiveSupport::KeyGenerator.new(old_pepper).generate_key(old_salt)
+        truncate_key(ActiveSupport::KeyGenerator.new(old_pepper).generate_key(old_salt))
       end
+    end
+
+    # Ruby 2.3's OpenSSL will truncate keys automatically
+    # Newer versions raise an error with the wrong length. We have 64-byte keys
+    # that we manually truncate to 32 bytes
+    def truncate_key(key)
+      key[0...32]
     end
 
     # :reek:UtilityFunction

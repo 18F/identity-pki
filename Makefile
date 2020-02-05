@@ -5,7 +5,7 @@
 # bin/ directory.
 
 CONFIG = config/application.yml
-PORT ?= 3001
+PORT ?= 8443
 
 all: check
 
@@ -19,7 +19,7 @@ check: lint test
 
 lint:
 	@echo "--- rubocop ---"
-	bundle exec rubocop -R
+	bundle exec rubocop
 	@echo "--- reek ---"
 	bundle exec reek
 	@echo "--- fasterer ---"

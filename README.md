@@ -7,7 +7,7 @@ PIV/CAC support for login.gov.
 
 #### Dependencies
 
-- Ruby 2.3
+- Ruby 2.6
 - [Postgresql](http://www.postgresql.org/download/)
 
 #### Setting up and running the app
@@ -24,7 +24,7 @@ PIV/CAC support for login.gov.
   ```
   git clone git://github.com/tpope/rbenv-aliases.git "$(rbenv root)/plugins/rbenv-aliases" # install rbenv-aliases per its documentation
 
-  rbenv alias 2.3 2.3.5 # create the version alias
+  rbenv alias 2.6 2.6.5 # create the version alias
   ```
 
 2. Make sure Postgres is running.
@@ -42,7 +42,11 @@ PIV/CAC support for login.gov.
   $ psql -c "CREATE DATABASE identity_pki_test;"
   ```
 
-4. Run the following command to set up the environment:
+4. Run the following command to set up the environment
+
+  - The first time, it will prompt for a passphrase for the root certificate. You can put anything as long as you remember it, it's just for development. To keep it simple, try `salty pickles`.
+
+  - Make sure to [trust the root SSL certificate](#trust-the-root-ssl-certificate)
 
   ```
   $ make setup
@@ -56,8 +60,6 @@ PIV/CAC support for login.gov.
   ```
   $ make run
   ```
-
-**TODO** Instructions for setting up NGinx to handle TLS/SSL.
 
 Before making any commits, you'll also need to run `overcommit --sign.`
 This verifies that the commit hooks defined in our `.overcommit.yml` file are
@@ -73,10 +75,31 @@ restart the server. See the [rack_mini_profiler] gem for more details.
 [Laptop]: https://github.com/18F/laptop
 [rack_mini_profiler]: https://github.com/MiniProfiler/rack-mini-profiler
 
-### Viewing the app locally
+### Running the app locally with the IDP
 
-Once it is up and running, the app will be accessible at
-`http://localhost:3001/` by default.
+#### Trust the root SSL certificate
+
+Most of the root certificate management is handled by `bin/setup` but there are some manual steps
+
+1. Open the Keychain Access app
+
+2. Go to "Certificates" bottom left section
+
+3. Find the cert named "**identity-pki Development Certificate**" open its settings
+
+4. Under the "Trust" section, select "Always Trust" for the top-level "When using this certificate" dropdown 
+
+#### Cleaning up the root SSL certificate
+
+1. Delete the certificate files:
+
+  ```
+  pushd config/local-certs/
+  make clean
+  popd
+  ```
+
+2. Open Keychain Access and delete the certificate named "**identity-pki Development Certificate**"
 
 ### Certificate Authority Management
 

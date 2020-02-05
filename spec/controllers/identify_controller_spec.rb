@@ -19,6 +19,7 @@ RSpec.describe IdentifyController, type: :controller do
 
   before(:each) do
     Certificate.clear_revocation_cache
+    OCSPService.clear_ocsp_response_cache
   end
 
   describe 'GET /' do
@@ -125,7 +126,7 @@ RSpec.describe IdentifyController, type: :controller do
           allow(Figaro.env).to receive(:trusted_ca_root_identifiers).and_return(
             root_cert_key_ids.join(',')
           )
-          certificate_store.clear_trusted_ca_root_identifiers
+          certificate_store.clear_root_identifiers
           certificate_store.add_pem_file(ca_file_path)
         end
 
@@ -153,6 +154,37 @@ RSpec.describe IdentifyController, type: :controller do
             expected_subject = client_subject.split(/\s*,\s*/).sort
             expect(given_subject).to eq expected_subject
           end
+
+          context 'when the root certificate is found in dod_root_identifiers' do
+            before(:each) do
+              allow(Figaro.env).to receive(:dod_root_identifiers).and_return(
+                root_cert_key_ids.join(',')
+              )
+            end
+
+            it 'returns a token with a card_type of cac' do
+              @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
+              expect(CertificateLoggerService).to_not receive(:log_certificate)
+              get :create, params: { nonce: '123' }
+
+              expect(token_contents['card_type']).to eq 'cac'
+            end
+          end
+
+          context 'when the root certificate is not found in dod_root_identifiers' do
+            before(:each) do
+              allow(Figaro.env).to receive(:dod_root_identifiers).and_return('')
+            end
+
+            it 'returns a token with a card_type of piv' do
+              @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
+              expect(CertificateLoggerService).to_not receive(:log_certificate)
+              get :create, params: { nonce: '123' }
+
+              expect(token_contents['card_type']).to eq 'piv'
+            end
+          end
+
         end
 
         context 'when the web server sends an unescaped cert' do
@@ -199,7 +231,8 @@ RSpec.describe IdentifyController, type: :controller do
 
         describe 'with a revoked certificate' do
           before(:each) do
-            allow_any_instance_of(OCSPService).to receive(:make_http_request).and_return(nil)
+            stub_request(:post, 'http://ocsp.example.com/').
+              to_return(status: 400, body: '', headers: {})
           end
 
           it 'returns a token as revoked' do
@@ -223,7 +256,7 @@ RSpec.describe IdentifyController, type: :controller do
 
         describe 'with a certificate timeout' do
           before(:each) do
-            allow_any_instance_of(OCSPService).to receive(:make_http_request).and_raise(Timeout::Error)
+            stub_request(:post, 'http://ocsp.example.com/').to_timeout
           end
 
           it 'returns a token as timeout' do
@@ -246,7 +279,8 @@ RSpec.describe IdentifyController, type: :controller do
 
         describe 'with a certificate ocsp error' do
           before(:each) do
-            allow_any_instance_of(OCSPService).to receive(:make_http_request).and_raise(OpenSSL::OCSP::OCSPError)
+            stub_request(:post, 'http://ocsp.example.com/').
+              to_return(status: 200, body: 'not-a-valid-cert', headers: {})
           end
 
           it 'returns a token as ocsp error' do
