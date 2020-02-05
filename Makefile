@@ -5,7 +5,7 @@
 # bin/ directory.
 
 CONFIG = config/application.yml
-PORT ?= 3001
+PORT ?= 8443
 
 all: check
 

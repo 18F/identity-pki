@@ -42,7 +42,11 @@ PIV/CAC support for login.gov.
   $ psql -c "CREATE DATABASE identity_pki_test;"
   ```
 
-4. Run the following command to set up the environment:
+4. Run the following command to set up the environment
+
+  - The first time, it will prompt for a passphrase for the root certificate. You can put anything as long as you remember it, it's just for development. To keep it simple, try `salty pickles`.
+
+  - Make sure to [trust the root SSL certificate](#trust-the-root-ssl-certificate)
 
   ```
   $ make setup
@@ -73,82 +77,29 @@ restart the server. See the [rack_mini_profiler] gem for more details.
 
 ### Running the app locally with the IDP
 
-#### Create a root SSL certificate
-
-1. From the console insure you are at the root of the /identity_pki/ directory.
-
-2. Generate a RSA-2048 key - rootCA.key
-
-  ```
-  openssl genrsa -des3 -out rootCA.key 2048
-  ```
-
-3. Create a new Root SSL certificate - rootCA.pem
-
-  ```
-  openssl req -x509 -new -nodes -key rootCA.key -sha256 -days 1024 -out rootCA.pem
-  ```
-
 #### Trust the root SSL certificate
 
-1. Open Keychain Access on your Mac and go to the Certificates category in your System keychain.
+Most of the root certificate management is handled by `bin/setup` but there are some manual steps
 
-2. Import the rootCA.pem using File > Import Items.
+1. Open the Keychain Access app
 
-3. Double click the imported certificate and change the “When using this certificate:” dropdown to Always Trust in the Trust section.
+2. Go to "Certificates" bottom left section
 
-#### Create a localhost SSL certificate
+3. Find the cert named "**identity-pki Development Certificate**" open its settings
 
-1. Create a new file named server.csr.cnf
+4. Under the "Trust" section, select "Always Trust" for the top-level "When using this certificate" dropdown 
 
-2. Copy and past the contents below into the server.csr.cnf file to create an OpenSSL configuration.
+#### Cleaning up the root SSL certificate
 
-  ```
-  [req]
-  default_bits = 2048
-  prompt = no
-  default_md = sha256
-  distinguished_name = dn
-
-  [dn]
-  C=US
-  ST=RandomState
-  L=RandomCity
-  O=RandomOrganization
-  OU=RandomOrganizationUnit
-  emailAddress=hello@example.com
-  CN = localhost
-  ```
-
-3. Create a new file named v3.ext
-
-4. Copy and past the contents below into the v3.ext file to create a X509 v3 certificate.
+1. Delete the certificate files:
 
   ```
-  authorityKeyIdentifier=keyid,issuer
-  basicConstraints=CA:FALSE
-  keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
-  subjectAltName = @alt_names
-
-  [alt_names]
-  DNS.1 = localhost
+  pushd config/local-certs/
+  make clean
+  popd
   ```
 
-5. Run the following command to create server.key for localhost.
-  ```
-  openssl req -new -sha256 -nodes -out server.csr -newkey rsa:2048 -keyout server.key -config <( cat server.csr.cnf )
-  ```
-
-6. Run the following command to create a certificate signing request for localhost.
-  ```
-  openssl x509 -req -in server.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out server.crt -days 500 -sha256 -extfile v3.ext
-  ```
-
-#### Running the PKI app locally
-
-  ```
-  bundle exec thin start -p 8443 --ssl --ssl-key-file server.key --ssl-cert-file server.crt
-  ```
+2. Open Keychain Access and delete the certificate named "**identity-pki Development Certificate**"
 
 ### Certificate Authority Management
 

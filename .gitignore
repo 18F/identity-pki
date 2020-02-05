@@ -28,3 +28,13 @@
 /yarn-error.log
 
 .byebug_history
+
+*.DS_Store
+
+# Ignore the files generated during setup
+/config/local-certs/rootCA.key
+/config/local-certs/rootCA.pem
+/config/local-certs/rootCA.srl
+/config/local-certs/server.crt
+/config/local-certs/server.csr
+/config/local-certs/server.key

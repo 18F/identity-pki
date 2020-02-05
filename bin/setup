@@ -38,6 +38,11 @@ chdir APP_ROOT do
   run 'gem install foreman --conservative && gem update foreman'
   system('bundle check') || system!('bundle install --without deploy production')
 
+  puts '== Setting up certificates =='
+  Dir.chdir('config/local-certs') do
+    system! 'make'
+  end
+
   # Install JavaScript dependencies if using Yarn
   # system('bin/yarn')
 

@@ -1,0 +1,12 @@
+[req]
+distinguished_name = req_distinguished_name
+prompt = no
+
+[ req_distinguished_name ]
+countryName = US
+stateOrProvinceName = District of Columbia
+localityName = Washington
+organizationName = login.gov development
+organizationalUnitName = identity-pki
+emailAddress = noreply@login.gov
+commonName = identity-pki Development Certificate
