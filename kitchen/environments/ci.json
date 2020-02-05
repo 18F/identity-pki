@@ -7,7 +7,6 @@
     "elk": {
       "retentiondays": 14,
       "users": [
-        "brody",
         "jgrevich"
       ]
     },

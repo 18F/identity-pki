@@ -1,6 +1,6 @@
 name 'instance_certificate'
 maintainer 'Login.gov team'
-maintainer_email 'andy.brody@beta.dhs.gov'
+maintainer_email 'identity-devops@login.gov'
 license 'all_rights'
 description 'Manages a minimalist PKI'
 long_description 'Manages a minimalist PKI'
