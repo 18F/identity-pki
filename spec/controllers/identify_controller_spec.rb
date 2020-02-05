@@ -182,6 +182,24 @@ RSpec.describe IdentifyController, type: :controller do
             end
           end
 
+          it 'allows the use of the REFERRER header to specify the referrer' do
+            allow(Figaro.env).to receive(:client_cert_escaped).and_return('true')
+            @request.headers['Referer'] = 'http://example.com/'
+            @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
+
+            get :create, params: { nonce: '123' }
+            expect(response).to have_http_status(:found)
+            expect(response.has_header?('Location')).to be_truthy
+            expect(token).to be_truthy
+
+            expect(token_contents['nonce']).to eq '123'
+
+            # N.B.: we do this split/sort because DNs match without respect to
+            # ordering of components. OpenSSL::X509::Name doesn't match correctly.
+            given_subject = token_contents['subject'].split(/\s*,\s*/).sort
+            expected_subject = client_subject.split(/\s*,\s*/).sort
+            expect(given_subject).to eq expected_subject
+          end
         end
 
         context 'when the web server sends an unescaped cert' do
