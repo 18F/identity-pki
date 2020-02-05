@@ -1,6 +1,6 @@
 name 'chef_proxy_env'
 maintainer 'Login.gov'
-maintainer_email 'andrew.brody@gsa.gov'
+maintainer_email 'identity-devops@login.gov'
 license 'All Rights Reserved'
 description 'Sets Chef proxy configuration using config in files'
 long_description 'This is useful for setting uniform proxy configuration regardless of how chef-client.rb is generated.'
