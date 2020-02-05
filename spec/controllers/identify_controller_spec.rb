@@ -31,11 +31,10 @@ RSpec.describe IdentifyController, type: :controller do
     describe 'with a bad referrer' do
       before(:each) do
         allow(Figaro.env).to receive(:identity_idp_host).and_return('example.org')
-        @request.headers['Referer'] = 'http://example.com/'
       end
 
       it 'returns http bad request' do
-        get :create, params: { nonce: '123' }
+        get :create, params: { nonce: '123', redirect_uri: 'http://example.com/' }
         expect(response).to have_http_status(:bad_request)
       end
     end
@@ -43,13 +42,12 @@ RSpec.describe IdentifyController, type: :controller do
     describe 'with a malformed referrer' do
       before(:each) do
         allow(Figaro.env).to receive(:identity_idp_host).and_return('example.org')
-        @request.headers['Referer'] =
-          "cast((SELECT dblink_connect('host=xyz'|" \
-          "|'123.example.com user=a password=a connect_timeout=2')) as numeric)"
       end
 
       it 'returns http bad request' do
-        get :create, params: { nonce: '123' }
+        redirect_uri = "cast((SELECT dblink_connect('host=xyz'|" \
+          "|'123.example.com user=a password=a connect_timeout=2')) as numeric)"
+        get :create, params: { nonce: '123', redirect_uri: redirect_uri }
         expect(response).to have_http_status(:bad_request)
       end
     end
@@ -57,11 +55,10 @@ RSpec.describe IdentifyController, type: :controller do
     describe 'with a good referrer' do
       before(:each) do
         allow(Figaro.env).to receive(:identity_idp_host).and_return('example.com')
-        @request.headers['Referer'] = 'http://example.com/'
       end
 
       it 'with no certificate returns a redirect with a token' do
-        get :create, params: { nonce: '123' }
+        get :create, params: { nonce: '123', redirect_uri: 'http://example.com/' }
         expect(response).to have_http_status(:found)
         expect(response.has_header?('Location')).to be_truthy
         expect(token).to be_truthy
@@ -72,7 +69,7 @@ RSpec.describe IdentifyController, type: :controller do
       it 'with bad certificate content' do
         # sufficient for the OpenSSL library to throw an error when parsing the content
         @request.headers['X-Client-Cert'] = 'BAD CERT CONTENT'
-        get :create, params: { nonce: '123' }
+        get :create, params: { nonce: '123', redirect_uri: 'http://example.com/' }
         expect(response).to have_http_status(:found)
         expect(response.has_header?('Location')).to be_truthy
         expect(token).to be_truthy
@@ -141,7 +138,7 @@ RSpec.describe IdentifyController, type: :controller do
 
             expect(CertificateLoggerService).to_not receive(:log_certificate)
 
-            get :create, params: { nonce: '123' }
+            get :create, params: { nonce: '123', redirect_uri: 'http://example.com/' }
             expect(response).to have_http_status(:found)
             expect(response.has_header?('Location')).to be_truthy
             expect(token).to be_truthy
@@ -165,7 +162,7 @@ RSpec.describe IdentifyController, type: :controller do
             it 'returns a token with a card_type of cac' do
               @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
               expect(CertificateLoggerService).to_not receive(:log_certificate)
-              get :create, params: { nonce: '123' }
+              get :create, params: { nonce: '123', redirect_uri: 'http://example.com/' }
 
               expect(token_contents['card_type']).to eq 'cac'
             end
@@ -179,7 +176,7 @@ RSpec.describe IdentifyController, type: :controller do
             it 'returns a token with a card_type of piv' do
               @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
               expect(CertificateLoggerService).to_not receive(:log_certificate)
-              get :create, params: { nonce: '123' }
+              get :create, params: { nonce: '123', redirect_uri: 'http://example.com/' }
 
               expect(token_contents['card_type']).to eq 'piv'
             end
@@ -197,7 +194,7 @@ RSpec.describe IdentifyController, type: :controller do
             @request.headers['X-Client-Cert'] = client_cert_pem.split(/\n/).join("\n\t")
             expect(CertificateLoggerService).to_not receive(:log_certificate)
 
-            get :create, params: { nonce: '123' }
+            get :create, params: { nonce: '123', redirect_uri: 'http://example.com/' }
             expect(response).to have_http_status(:found)
             expect(response.has_header?('Location')).to be_truthy
             expect(token).to be_truthy
@@ -219,7 +216,7 @@ RSpec.describe IdentifyController, type: :controller do
           it 'returns a token as expired' do
             @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
             expect(CertificateLoggerService).to receive(:log_certificate)
-            get :create, params: { nonce: '123' }
+            get :create, params: { nonce: '123', redirect_uri: 'http://example.com/' }
             expect(response).to have_http_status(:found)
             expect(response.has_header?('Location')).to be_truthy
             expect(token).to be_truthy
@@ -244,7 +241,7 @@ RSpec.describe IdentifyController, type: :controller do
             @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
             expect(CertificateLoggerService).to receive(:log_certificate)
 
-            get :create, params: { nonce: '123' }
+            get :create, params: { nonce: '123', redirect_uri: 'http://example.com/' }
             expect(response).to have_http_status(:found)
             expect(response.has_header?('Location')).to be_truthy
             expect(token).to be_truthy
@@ -267,7 +264,7 @@ RSpec.describe IdentifyController, type: :controller do
             @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
             expect(CertificateLoggerService).to receive(:log_certificate)
 
-            get :create, params: { nonce: '123' }
+            get :create, params: { nonce: '123', redirect_uri: 'http://example.com/' }
             expect(response).to have_http_status(:found)
             expect(response.has_header?('Location')).to be_truthy
             expect(token).to be_truthy
@@ -291,7 +288,7 @@ RSpec.describe IdentifyController, type: :controller do
             @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
             expect(CertificateLoggerService).to receive(:log_certificate)
 
-            get :create, params: { nonce: '123' }
+            get :create, params: { nonce: '123', redirect_uri: 'http://example.com/' }
             expect(response).to have_http_status(:found)
             expect(response.has_header?('Location')).to be_truthy
             expect(token).to be_truthy
@@ -329,7 +326,7 @@ RSpec.describe IdentifyController, type: :controller do
             @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
             expect(CertificateLoggerService).to receive(:log_certificate)
 
-            get :create, params: { nonce: '123' }
+            get :create, params: { nonce: '123', redirect_uri: 'http://example.com/' }
             expect(response).to have_http_status(:found)
             expect(response.has_header?('Location')).to be_truthy
             expect(token).to be_truthy
