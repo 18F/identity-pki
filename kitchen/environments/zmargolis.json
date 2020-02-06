@@ -1,0 +1,22 @@
+{
+  "name": "zmargolis",
+  "description": "Zach's personal development environment",
+  "json_class": "Chef::Environment",
+  "chef_type": "environment",
+  "default_attributes": {
+    "elk": {
+      "legacy_log_bucket_name": false,
+      "retentiondays": 14,
+      "users": [
+        "zmargolis"
+      ]
+    },
+    "login_dot_gov": {
+      "idp_run_migrations": true,
+      "allow_unsafe_migrations": true
+    }
+  },
+  "override_attributes": {
+  
+  }
+}
