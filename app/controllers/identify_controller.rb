@@ -77,7 +77,7 @@ class IdentifyController < ApplicationController
 
   def referrer
     @referrer ||= begin
-      value = request.headers[REFERER_HEADER]
+      value = params[:redirect_uri] || request.headers[REFERER_HEADER]
       if value
         value = URI(value)
         value.query = ''
