@@ -58,6 +58,7 @@ fi
 # Checking dependencies
 if ! command -v jq >/dev/null 2>&1 ; then
     echo "jq is required but not installed. Aborting. See https://stedolan.github.io/jq/download/"
+    exit 1
 fi
 
 echo -e "${COLOR}Destination account ID:${NC}" ${DST_ACCT_ID}
@@ -65,7 +66,10 @@ echo -e "${COLOR}Destination account ID:${NC}" ${DST_ACCT_ID}
 # Get current account
 ACCOUNT_DETAILS=$(aws sts get-caller-identity)
 ACCOUNT_ID=$(echo ${ACCOUNT_DETAILS} | jq -r '.Account')
-echo -e "${COLOR}Source account ID:${NC}" ${ACCOUNT_ID}
+echo -e "${COLOR}Source account ID:${NC}" ${ACCOUNT_ID}ß
+if [ ACCOUNT_ID != "894947205914" ]; then
+    echo -e "${RED}Current account should be identity-dev (sandbox).${NC}"
+fi
 
 if [ "$AMI_ID" == "" ]; then
     # Find latest image
