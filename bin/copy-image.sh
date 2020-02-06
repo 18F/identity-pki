@@ -76,7 +76,6 @@ echo -e $(aws ec2 describe-images --image-ids $AMI_ID --query 'Images[*].[ImageI
 AMI_DETAILS=$(aws ec2 describe-images --image-id ${AMI_ID}  --query 'Images[0]')
 
 AMI_NAME=$(echo $AMI_DETAILS | jq -r '.Name')
-#AMI_DESCRIPTION=$(echo $AMI_DETAILS | jq -r '.Description')
 
 NEW_AMI_ID=$(aws ec2 copy-image --source-image-id $AMI_ID --name "$AMI_NAME" --source-region $SRC_REGION --encrypted --output text)
 echo -e "${COLOR}New Image Id: ${NC}" $NEW_AMI_ID
