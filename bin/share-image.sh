@@ -78,7 +78,7 @@ echo -e $(aws ec2 describe-images --image-ids $AMI_ID --query 'Images[*].[ImageI
 AMI_DETAILS=$(aws ec2 describe-images --image-id ${AMI_ID} --query 'Images[0]')
 
 # Retrieve the snapshots and key ID's
-SNAPSHOT_IDS=$(echo ${AMI_DETAILS} | jq -r '.BlockDeviceMappings[] | select(has("Ebs")) | .Ebs.SnapshotId' 
+SNAPSHOT_IDS=$(echo ${AMI_DETAILS} | jq -r '.BlockDeviceMappings[] | select(has("Ebs")) | .Ebs.SnapshotId')
 echo -e "${COLOR}Snapshots found:${NC}" ${SNAPSHOT_IDS}
 
 # Give permissions to share ami with account
@@ -86,7 +86,8 @@ run aws ec2 modify-image-attribute --image-id $AMI_ID --launch-permission "Add=[
 echo -e "${COLOR}Permission granted to ami:${NC}" ${AMI_ID}
 
 # Iterate over the snapshots, adding permissions for the destination account
-echo $SNAPSHOT_IDS | while read snapshotid; do
-    run aws ec2 modify-snapshot-attribute --snapshot-id $snapshotid --attribute createVolumePermission --operation-type add --user-ids $DST_ACCT_ID 
+#echo $SNAPSHOT_IDS | while read snapshotid; do
+for snapshotid in $SNAPSHOT_IDS; do
+    run aws ec2 modify-snapshot-attribute --snapshot-id $snapshotid --attribute createVolumePermission --operation-type add --user-ids $DST_ACCT_ID
     echo -e "${COLOR}Permission added to Snapshot(s):${NC} ${snapshotid}"
 done
