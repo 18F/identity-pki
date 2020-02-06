@@ -38,7 +38,7 @@ SRC_REGION="us-west-2"
 while [[ "$#" -gt 0 ]]; do case $1 in 
     -r|--role) AMI_ROLE="$2"; shift;;
     -a|--ami) AMI_ID="$2"; shift;;
-    -d|--source_account) SRC_ACCT_ID="$2"; shift;;
+    -s|--source_account) SRC_ACCT_ID="$2"; shift;;
     -h|--help) usage && exit 1;;
     *) echo "Unknown parameter passed $1"; exit 1;;
 esac; shift; done
