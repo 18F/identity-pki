@@ -157,12 +157,10 @@ resource "aws_iam_policy_attachment" "master_full_administrator" {
   name = "master_full_administrator"
   users = [
     aws_iam_user.amit_freeman.name,
-    aws_iam_user.brian_crissup.name,
     aws_iam_user.jonathan_pirro.name,
     aws_iam_user.justin_grevich.name,
     aws_iam_user.mossadeq_zia.name,
     aws_iam_user.paul_hirsch.name,
-    aws_iam_user.steven_harms.name,
   ]
   policy_arn = aws_iam_policy.master_full_administrator.arn
 }
@@ -175,7 +173,6 @@ resource "aws_iam_policy_attachment" "sandbox_full_administrator" {
     aws_iam_user.justin_grevich.name,
     aws_iam_user.mossadeq_zia.name,
     aws_iam_user.paul_hirsch.name,
-    aws_iam_user.stephen_grow.name,
     aws_iam_user.steven_harms.name,
   ]
   policy_arn = aws_iam_policy.sandbox_assume_full_administrator.arn
@@ -185,12 +182,10 @@ resource "aws_iam_policy_attachment" "production_full_administrator" {
   name = "production_full_administrator"
   users = [
     aws_iam_user.amit_freeman.name,
-    aws_iam_user.brian_crissup.name,
     aws_iam_user.jonathan_pirro.name,
     aws_iam_user.justin_grevich.name,
     aws_iam_user.mossadeq_zia.name,
     aws_iam_user.paul_hirsch.name,
-    aws_iam_user.steven_harms.name
   ]
   policy_arn = aws_iam_policy.production_assume_full_administrator.arn
 }
@@ -199,7 +194,6 @@ resource "aws_iam_policy_attachment" "sandbox_sms_full_administrator" {
   name = "sandbox_sms_full_administrator"
   users = [
     aws_iam_user.amit_freeman.name,
-    aws_iam_user.brian_crissup.name,
     aws_iam_user.jonathan_pirro.name,
     aws_iam_user.justin_grevich.name,
     aws_iam_user.mossadeq_zia.name,
@@ -226,10 +220,12 @@ resource "aws_iam_policy_attachment" "sandbox_power_user" {
   name = "sandbox_power_user"
   users = [
     aws_iam_user.aaron_chapman.name,
+    aws_iam_user.brian_crissup.name,
     aws_iam_user.clinton_troxel.name,
     aws_iam_user.douglas_price.name,
     aws_iam_user.rajat_varuni.name,
     aws_iam_user.stephen_grow.name,
+    aws_iam_user.steven_harms.name,
     aws_iam_user.steve_urciuoli.name,
     aws_iam_user.zachary_margolis.name,
   ]
@@ -241,7 +237,7 @@ resource "aws_iam_policy_attachment" "production_power_user" {
     users = [
         aws_iam_user.brian_crissup.name,
         aws_iam_user.jonathan_hooper.name,
-        aws_iam_user.mossadeq_zia.name,
+        aws_iam_user.steve_harms.name,
         aws_iam_user.steve_urciuoli.name,
         aws_iam_user.stephen_grow.name,
         aws_iam_user.zachary_margolis.name,
