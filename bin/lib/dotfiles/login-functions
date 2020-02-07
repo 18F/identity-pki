@@ -53,9 +53,13 @@ av() {
       v) run aws-vault exec ${profile} --no-session --assume-role-ttl=2h "${cmd[@]}" ;;
       c) run aws-vault exec ${profile} --assume-role-ttl=1h -- "${cmd[@]}" ;;
       l) run aws-vault login ${profile} --assume-role-ttl=1h ;;
-      i) run aws-vault login ${profile} --assume-role-ttl=1h \
-              --stdout | xargs -t /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome \
-              --args --incognito --new-window
+      i) run aws-vault login ${profile} --assume-role-ttl=1h --stdout |
+           xargs -t /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome \
+           --args --incognito --new-window
+        ;;
+      o) run aws-vault login ${profile} --assume-role-ttl=1h --stdout |
+           sed 's/console%2Fhome%3Fregion%3Dus-west-2/cloudwatch%2Fhome%3Fregion%3Dus-west-2%23logStream%3Agroup%3D%2Fvar%2Flog%2Fcloud-init-output.log%3BstreamFilter%3DtypeLogStreamPrefix/' |
+           xargs -t /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome 2>/dev/null
         ;;
     esac
   done
@@ -164,22 +168,26 @@ be() {
 vcl() {
   local type
   local profile="${AWS_PROFILE}"
-  local build_env="${@:2}"
-  if [[ -z "${build_env}" ]] ; then
-    build_env="${GSA_USERNAME}"
-  elif [[ "${build_env}" =~ "staging|prod" ]] ; then
+  local build_env="${GSA_USERNAME}"
+  local account="identitysandbox.gov"
+  [[ -z "${2}" ]] || build_env="${2}"
+  [[ -z "${3}" ]] || data="${3}"
+  if [[ "${build_env}" =~ "staging|prod" ]] ; then
     profile="prod-admin"
+    account="login.gov"
   fi
   while getopts el:n:o:a:r:s: opt ; do
     case "${OPTARG}" in       ## 2 in `vcl -${1}${2}`
+      A) type='ALL'           ;;
       a) type='app'           ;;
       e) type='elasticsearch' ;;
       i) type='idp'           ;;
       j) type='jumphost'      ;;
       k) type='elk'           ;;
+      m) type='migration'     ;;
       o) type='outboundproxy' ;;
       p) type='pivcac'        ;;
-      *) [[ ${opt} == 'e' ]] || { echo "err: ${1:1}" && return 1 ; } ;;
+      *) [[ ${opt} =~ 'e|i' ]] || { echo "err: ${1:1}" && return 1 ; } ;;
     esac
     case "${opt}" in          ## 1 in `vcl -${1}${2}`
       e) av -dc ls-servers -e ${build_env}             ;;
@@ -187,13 +195,34 @@ vcl() {
       n) sshi --newest asg-${build_env}-${type}        ;;
       o) sshi --oldest asg-${build_env}-${type}        ;;
       a) sshi --any asg-${build_env}-${type}           ;;
+      i) sshi ${build_env}                             ;;
       r) av -dc asg-recycle ${build_env} ${type}       ;;
-      s)
-        echo -n "asg-size count: "
-        read num
-        av -ic asg-size ${build_env} ${type} ${num}
-        ;;
+      s) av -dc asg-size ${build_env} ${type} ${data}  ;;
+      w) av -dc cw tail -f \
+         /var/log/cloud-init-output.log:${type}-${data}.${build_env}.${account}.gov
+      ;;
       *) echo "err: ${opt}" && return 1                ;;
+    esac
+  done
+}
+
+#### call the cl elasticsearch commands with av() ####
+ve() {
+  local profile="${AWS_PROFILE}"
+  local build_env="${GSA_USERNAME}"
+  [[ -z "${2}" ]] || build_env="${2}"
+  [[ -z "${3}" ]] || data="${3}"
+  if [[ "${build_env}" =~ "staging|prod" ]] ; then
+    profile="prod-admin"
+    account="login.gov"
+  fi
+  while getopts sduc opt ; do
+    case "${opt}" in       ## ve -${opt}
+      s) av -dc cl elasticsearch check_status ${build_env} ;;
+      d) av -dc cl elasticsearch drain_old_nodes ${build_env} ;;
+      u) av -dc cl elasticsearch update_minimum_masters ${build_env} ${data} ;;
+      c) av -dc cl elasticsearch clear_node_drain ${build_env} ;;
+      *) echo "err: ${1:1}" && return 1 ;;
     esac
   done
 }
