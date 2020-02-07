@@ -13,7 +13,11 @@
     },
     "login_dot_gov": {
       "idp_run_migrations": true,
-      "allow_unsafe_migrations": true
+      "allow_unsafe_migrations": true,
+      "deploy_branch_default": "master",
+      "deploy_branch": {
+        "identity-idp": "stages/zmargolis"
+      }
     }
   },
   "override_attributes": {
