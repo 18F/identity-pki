@@ -1,6 +1,8 @@
 #!/bin/bash
 . "$(dirname "$0")/../lib/common.sh"
 
+LOGIN_REVS="jgrevich,sharms,mzia,amitfreeman-gov,pauldoomgov"
+
 usage() {
   cat >&2 <<EOM
 Usage: $0 
@@ -31,13 +33,13 @@ append_with_rc() {
   # shellcheck disable=SC2039
   local rc="${1}"
 
+  echo >> "$HOME/.${rc}"
   cat "$(dirname "$0")/../lib/dotfiles/${rc}" >> "$HOME/.${rc}"
   local text="source \$HOME/.${rc}"
   if ! grep -qs "^$text$" "$file"; then
-    printf "\n%s\n" "$text" >> "$file"
+    echo && echo_cyan "Adding \`source \$HOME/.$rc\` to $file..."
+    run printf "%s\n" "$text" >> "$file"
   fi
-
-  echo_green "Added \`source \$HOME/.$rc\` to $file ."
   echo
 }
 
@@ -49,12 +51,12 @@ set_env_var() {
   if [[ -z "$VAR_VAL" ]]; then
     read -r -p "$ENV_VAR not set; enter desired value: " VAR_VAL
   else
-    echo_yellow "$ENV_VAR already set: '$VAR_VAL'."
+    echo_yellow "$ENV_VAR already set: '$VAR_VAL'"
   fi
 
   local text="export $ENV_VAR=\"$VAR_VAL\""
   if ! grep -qs "^${text}$" "$HOME/.${rc}"; then
-    printf "\n%s\n" "$text" >> "$HOME/.${rc}"
+    printf "%s\n" "$text" >> "$HOME/.${rc}"
   fi
 }
 
@@ -67,38 +69,18 @@ rebuild_rc_file() {
       echo
       return
     else
-      echo_cyan "Removing old \$HOME/.${rc} file..."
+      echo && echo_cyan "Removing old \$HOME/.${rc} file..."
       run rm -f "$HOME/.${rc}"
       echo
       return 10
     fi
   else
-    echo_cyan "Creating \$HOME/.${rc}..."
+    echo && echo_cyan "Creating \$HOME/.${rc}..."
     run touch "$HOME/.${rc}"
     echo
     return 10
   fi
 }
-
-while getopts hf:a:v: opt
-do
-  case "${opt}" in
-    f) profile='sandbox-admin'                   ;;
-    a) profile='login.gov'                       ;;
-    v) profile='sms-sandbox-admin'               ;;
-    h) usage && exit 0 ;;
-    *) usage && exit 1 ;;
-  esac
-  case "${OPTARG}" in
-    v) run aws-vault exec ${profile} --no-session --assume-role-ttl=2h "${cmd[@]}" ;;
-    c) run aws-vault exec ${profile} --assume-role-ttl=1h -- "${cmd[@]}" ;;
-    l) run aws-vault login ${profile} --assume-role-ttl=1h ;;
-    i) run aws-vault login ${profile} --assume-role-ttl=1h \
-            --stdout | xargs -t /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome \
-            --args --incognito --new-window
-      ;;
-  esac
-done
 
 case "$SHELL" in
   */fish)
@@ -117,13 +99,15 @@ case "$SHELL" in
 esac
 
 # if .login-functions already exists, prompt to recreate
+echo
+echo_green "Ready to configure \$HOME/.login-functions file."
 rebuild_rc_file 'login-functions'
 if [[ "${?}" == '10' ]] ; then
 
   # add identity-devops/bin to $PATH
-  ID_DIR="$(pwd | sed 's/oneoffs//')"
+  ID_DIR="$(cd $(dirname "${BASH_SOURCE[0]}") && pwd | sed 's/oneoffs//')"
   echo_cyan "Adding '$ID_DIR' to \$PATH..."
-  echo "export PATH=$ID_DIR:$PATH" >> "$HOME/.login-functions"
+  run echo "export PATH=$ID_DIR:\$PATH" >> "$HOME/.login-functions"
   echo
 
   # verify AWS_ / GSA_ / KITCHEN_ env vars
@@ -135,22 +119,19 @@ if [[ "${?}" == '10' ]] ; then
                  GITHUB_SSH_KEY\
                  KITCHEN_EC2_SSH_KEYPAIR_ID\
                  KITCHEN_EC2_SSH_KEY ; do set_env_var login-functions $ENV_VAR ; done
-  echo
-
+  echo_cyan "Env vars verified for $HOME/.login-functions file."
   append_with_rc "login-functions"
 fi
 
-rebuild_rc_file 'githubrc'
-[[ "${?}" == '10' ]] || exit 0
+echo_green "Ready to configure \$HOME/.githubrc file."
 if ! grep -qs "source .githubrc" "$file"; then
   if prompt_yn "Add login.gov GitHub aliases/functions?" ; then
+    rebuild_rc_file 'githubrc'
+    [[ "${?}" == '10' ]] || exit 0
+    echo_cyan "Verifying env vars..."
     set_env_var githubrc GITHUB_PARENT_DIR
-    LOGIN_REVS="jgrevich,sharms,mzia,amitfreeman-gov,pauldoomgov"
-    read -r -p "Comma-separated list of desired PR reviewers (default: $LOGIN_REVS): " NEW_REVS
-    [[ -z $NEW_REVS ]] || LOGIN_REVS="${NEW_REVS}"
-    echo "export LOGIN_REVS=${LOGIN_REVS}" >> "$HOME/.githubrc"
-    
-    echo
+    set_env_var githubrc LOGIN_REVS
+    echo_cyan "Env vars verified for $HOME/.githubrc file."
     append_with_rc "githubrc"
   fi
 fi

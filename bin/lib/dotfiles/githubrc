@@ -53,7 +53,7 @@ gmpr() {
 pbj() {
   local revs="${1}"
   local msg=("${@:2}")
-  git pull-request -p -r "${revs}" -m "${msg[@]}" -e
+  run hub pull-request -p -r "${revs}" -m "${msg[@]}" -e
 }
 
 #### add>commit>push -u>open PR with $msg ####
@@ -62,6 +62,15 @@ gpr() {
   local msg=("${@}")
   gpb "${msg[@]}"
   pbj "${revs}" "${msg[@]}"
+}
+
+#### create issues ####
+ghi() {
+  local assignee="${1}"
+  local labels=("${@:2}")
+  [ -z ${assignee} ] && assignee="${GSA_USERNAME}"
+  run hub issue create --edit -a ${assignee} "${labels}" \
+    -F "${GITHUB_PARENT_DIR}/identity-devops/.github/ISSUE_TEMPLATE/feature_request.md"
 }
 
 #### push version tags ####

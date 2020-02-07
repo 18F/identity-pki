@@ -176,7 +176,7 @@ vcl() {
     profile="prod-admin"
     account="login.gov"
   fi
-  while getopts el:n:o:a:r:s: opt ; do
+  while getopts el:n:o:a:r:s:w: opt ; do
     case "${OPTARG}" in       ## 2 in `vcl -${1}${2}`
       A) type='ALL'           ;;
       a) type='app'           ;;
@@ -199,7 +199,7 @@ vcl() {
       r) av -dc asg-recycle ${build_env} ${type}       ;;
       s) av -dc asg-size ${build_env} ${type} ${data}  ;;
       w) av -dc cw tail -f \
-         /var/log/cloud-init-output.log:${type}-${data}.${build_env}.${account}.gov
+         /var/log/cloud-init-output.log:${type}-${data}.${build_env}.${account}
       ;;
       *) echo "err: ${opt}" && return 1                ;;
     esac
