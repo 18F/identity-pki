@@ -115,7 +115,7 @@ resource "aws_iam_user" "thomas_black" {
 }
 
 resource "aws_iam_user" "zachary_margolis" {
-  name          = "zachary.margolis"
+  name          = "zach.margolis"
   force_destroy = true
 }
 
