@@ -483,7 +483,7 @@ variable "default_ami_id_sandbox" {
 }
 
 variable "default_ami_id_prod" {
-  default = "ami-01faea3bae7bc3b1d" # 2020-01-02 Ubuntu 18.04
+  default = "ami-03575a3249f3623cb" # 2020-02-05 Ubuntu 18.04
   description = "default AMI ID for environments in the prod account"
 }
 
@@ -493,7 +493,7 @@ variable "rails_ami_id_sandbox" {
 }
 
 variable "rails_ami_id_prod" {
-  default = "ami-01faea3bae7bc3b1d" # 2020-01-02 Ubuntu 18.04
+  default = "ami-0af341726412eb719" # 2020-02-05 Ubuntu 18.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the prod account"
 }
 
