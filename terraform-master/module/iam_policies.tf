@@ -198,7 +198,7 @@ resource "aws_iam_policy" "production_assume_full_administrator" {
   name        = "ProductionAssumeFullAdministrator"
   path        = "/"
   description = "Policy to allow user to assume full administrator role in Production"
-  policy      = data.aws_iam_policy_document.sandbox_assume_full_administrator.json
+  policy      = data.aws_iam_policy_document.production_assume_full_administrator.json
 }
 
 data "aws_iam_policy_document" "production_assume_full_administrator" {
