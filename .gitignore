@@ -13,7 +13,7 @@ certs/*
 /kitchen/vendor
 /kitchen/berks-cookbooks
 terraform.tfstate.backup
-terraform.tfstate.*.backup
+**/terraform.tfstate.*.backup
 .vagrant
 Vagrantfile
 
