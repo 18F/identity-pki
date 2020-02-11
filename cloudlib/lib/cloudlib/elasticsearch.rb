@@ -111,10 +111,12 @@ module Cloudlib
     # SSH to every node in a cluster and check the status and the number of
     # perceived nodes. If they aren't all green, or if the nodes perceive
     # differing numbers of nodes, we won't proceed with any automated processes.
+    # Only generate the output hash if -o is set (output_hash).
     #
     # @param [String] environment
+    # @param [String] output hash flag
     # @return [Boolean]
-    def check_cluster_status(environment)
+    def check_cluster_status(environment, output_hash)
       multi = Cloudlib::SSH::Multi.new(
         instances: cluster_instances(environment))
       command = make_get_command('_cluster/health?level=shards')
@@ -126,8 +128,8 @@ module Cloudlib
       end
 
       outputs = result.fetch(:outputs)
-      log.info("Output hash: #{outputs.inspect}")
       json_outputs = outputs.values.map { |j| JSON.parse(j) }
+      log.info("Output hash: #{json_outputs}") if output_hash == '-o'
       statuses = json_outputs.map {|o| o["status"]}
       node_counts = json_outputs.map {|o| o["number_of_data_nodes"]}
       # First check if all the node counts match. If they don't, there's
