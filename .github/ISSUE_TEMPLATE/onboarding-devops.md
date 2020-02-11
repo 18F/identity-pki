@@ -7,7 +7,7 @@ labels: administration
 
 # Onboarding for new team member
 
-_🌮 note: as tasks are completed, please create a separate comment.  This is to show that tasks were completed at a specific time._
+_🌮 note: As tasks are completed, please create a separate comment.  This is to show that tasks were completed at a specific time._
 
 ## Tasks for new team member
 
@@ -16,33 +16,44 @@ _🌮 note: as tasks are completed, please create a separate comment.  This is t
     * [ ] make sure your account is set up [like this](https://handbook.18f.gov/slack/).
     * [ ] make sure to join `#login`, the main announcement channel for our team
 * [ ] Make sure your GitHub account is set up [like this](https://handbook.18f.gov/github/#setup).
-  * [ ] Next, ask a GitHub admin in `#admins-github` to add you to the 18F org https://github.com/orgs/18F
+  * [ ] Next, ask a GitHub admin in `#admins-github` to [add you to the 18F org](https://github.com/orgs/18F)
 * [ ] Add the following email address to your Google Calendar to see the Login Services Shared Events calendar: gsa.gov_6ovul6pcsmgd40o8pqn7qmge5g@group.calendar.google.com
-* [ ] [Set up your development environment](https://github.com/18F/identity-idp/blob/master/README.md) (_this is helpful for all new team members!_)
-* [ ] Add yourself to the [team.yml](https://github.com/18F/identity-private/blob/master/team/team.yml).
-* [ ] Request access to relevant Google Groups. These Google Groups grant access to Login.gov Google Docs and Drives, contain internal team email traffic, and provide addresses that can sometimes be used as points of contact to be given to third parties:
-    * All team members: all@login.gov https://groups.google.com/a/login.gov/forum/#!forum/all
-    * All federal employees, but not contractors: login-team@login.gov https://groups.google.com/a/login.gov/forum/#!forum/login-team
-    * End-User team members: identity-end-user@login.gov https://groups.google.com/a/login.gov/forum/#!forum/identity-end-user
-    * Security team members: security-team@login.gov https://groups.google.com/a/login.gov/forum/#!forum/security-team
-    * Infra/Devops team members: identity-devops@login.gov https://groups.google.com/a/login.gov/forum/#!forum/identity-devops
-    * Anyone interested in agency partner integrations (external inbox): partners@login.gov https://groups.google.com/a/login.gov/forum/#!forum/partners
-    * Anyone interested in recruiting federal employees: jobs@login.gov https://groups.google.com/a/login.gov/forum/#!forum/jobs
-    * There many be other new @login.gov email addresses that are relevant
+* [ ] Add yourself to the [`team.yml`](https://github.com/18F/identity-private/blob/master/team/team.yml) file
+* [ ] Request access to relevant Google Groups:
+    * All team members: [all@login.gov](https://groups.google.com/a/login.gov/forum/#!forum/all)
+    * All federal employees, but not contractors: [login-team@login.gov](https://groups.google.com/a/login.gov/forum/#!forum/login-team)
+    * End-User team members: [identity-end-user@login.gov](https://groups.google.com/a/login.gov/forum/#!forum/identity-end-user)
+    * Security team members: [security-team@login.gov](https://groups.google.com/a/login.gov/forum/#!forum/security-team)
+    * Infra/Devops team members: [identity-devops@login.gov](https://groups.google.com/a/login.gov/forum/#!forum/identity-devops)
+    * Anyone interested in agency partner integrations (external inbox): [partners@login.gov](https://groups.google.com/a/login.gov/forum/#!forum/partners)
+    * Anyone interested in recruiting federal employees: [jobs@login.gov](https://groups.google.com/a/login.gov/forum/#!forum/jobs)
 * [ ] (Optional) [Add your gpg key to github](https://help.github.com/articles/adding-a-new-gpg-key-to-your-github-account/).
 
-## Tasks for on-boarding buddy
+### For new AppDev team members:
+* [ ] [Set up your IdP development environment](https://github.com/18F/identity-idp/blob/master/README.md) (_this is helpful for all new team members!_)
+
+### For new DevOps team members:
+* [ ] Create a GSA-dedicated [SSLMate account](https://sslmate.com/signup) and subscribe to updates on `login.gov` and `identitysandbox.gov`
+* [ ] [Set up your personal sandbox environment](https://github.com/18F/identity-private/wiki/Runbook:-Personal-login.gov-DevOps-Environment) (_this is helpful for all new team members!_)
+
+## Tasks for onboarding buddy
 
 * [ ] Give intro to weekly ceremonies and team workflow
-* [ ] Ask the new team member for their GitHub username. Make sure they have already been invited to the 18F org and accepted the invitation.
-  * [ ] Team members who need write access to push commits should be added to the [identity-core](https://github.com/orgs/18F/teams/identity-core/members) team. Make a request to the [team maintainers](https://github.com/orgs/18F/teams/identity-core/members?utf8=%E2%9C%93&query=%20role%3Amaintainer) to add them.
-  * [ ] Team members who do not need push access should be added to the [identity-team-yml](https://github.com/orgs/18F/teams/identity-team-yml/members) team, which grants read-only access. [team maintainers](https://github.com/orgs/18F/teams/identity-team-yml/members?utf8=%E2%9C%93&query=+role%3Amaintainer)
-* [ ] If the new team member does not have Slack access, request access for them in the `#admins-slack` channel and fill out this form: https://goo.gl/forms/4Mz21nvALvITj9Os1.
-* [ ] Add the new team member to the Login Services Shared Events calendar. Add users with non-GSA.gov email addresses with the `See all event details` permission, and those with GSA.gov emails as `Make changes AND manage sharing`.
-* [ ] Create a ticket requesting a Jira account: this should be in the JIRA AdminTasks project, list the user's name and email address, and request to be added to the Login.gov project in Jira. https://cm-jira.usa.gov/secure/CreateIssue!default.jspa
-* [ ] Set up pairing session to walk through the relevant project details with the new team member. If you are not the correct person to do the walk-through, please schedule and facilitate a session with the appropriate team member(s).
-* [ ] Update login.gov team roster information [team.yaml](https://github.com/18F/identity-private/blob/master/team/team.yml)! Regenerate [Team.md](https://github.com/18F/identity-private/wiki/Team) for the wiki
-* [ ] Make sure the team member is added to all appropriate Google Groups, especially all@login.gov. This will grant them permission to see the Login.gov Team Drive and other Google Docs.
+* [ ] Make sure they have already been invited to [the 18F org on GitHub](https://github.com/orgs/18F) and accepted the invitation.
+  * [ ] *For members needing **push commit** access*: Add to the [identity-core](https://github.com/orgs/18F/teams/identity-core/members) team (contact [team maintainers](https://github.com/orgs/18F/teams/identity-core/members?utf8=%E2%9C%93&query=%20role%3Amaintainer) for this)
+  * [ ] *For members NOT needing **push** access*: Add to the [identity-team-yml](https://github.com/orgs/18F/teams/identity-team-yml/members) team, which grants read-only access. (contact [team maintainers](https://github.com/orgs/18F/teams/identity-team-yml/members?utf8=%E2%9C%93&query=+role%3Amaintainer) for this)
+* [ ] Request Slack access for them in the `#admins-slack` channel and fill out this form: https://goo.gl/forms/4Mz21nvALvITj9Os1.
+* [ ] Add them to the [Login Services Shared Events calendar](https://calendar.google.com/calendar/embed?src=gsa.gov_6ovul6pcsmgd40o8pqn7qmge5g%40group.calendar.google.com&ctz=America%2FLos_Angeles).
+  * Non-GSA.gov email address: `See all event details` permission
+  * With GSA.gov email address: `Make changes AND manage sharing`
+* [ ] [Create a JIRA ticket](https://cm-jira.usa.gov/secure/CreateIssue!default.jspa) requesting an account for them
+  * Create issue in [the **JIRA AdminTasks** project](https://cm-jira.usa.gov/projects/JAT/issues)
+  * List the user's name and email address, and request they be added to the Login.gov project in JIRA
+* [ ] Set up pairing session to walk through the relevant project details with the new team member.
+  * If you are not the correct person to do the walk-through, please schedule and facilitate a session with the appropriate team member(s).
+* [ ] Approve their PR to update [`team.yml`](https://github.com/18F/identity-private/blob/master/team/team.yml) with their info
+  * [ ] Regenerate [`Team.md`](https://github.com/18F/identity-private/wiki/Team) for the wiki
+* [ ] Verify their membership in all appropriate Google Groups, especially all@login.gov. This will grant them permission to see the Login.gov Team Drive and other Google Docs.
 
 ### For new end-user team members:
 * [ ] Invite the new team member to the following events:
@@ -50,48 +61,24 @@ _🌮 note: as tasks are completed, please create a separate comment.  This is t
   * end-user mid-sprint check-in (alternate Mondays)
   * login.gov demo (every other Friday)
   * end-user sprint retro (every other Friday)
-* [ ] For access to environments, extract PIV public key following these steps: https://github.com/18F/identity-private/wiki/Operations:-MacOSX-PIV-to-SSH-key-extraction, and securely pass it to a member of the devops team or create a pull request in https://github.com/18F/identity-devops-private.
-* [ ] For access to Kibana log searches, create a password hash and get it to a member of the devops team securely
-  * `htpasswd -nB -C 10 username` to create the hash
-  * Send the hash to a devops team member using https://onceler.app.cloud.gov/
 
 ## Tasks to be completed by DevOps
 
 ### For all new Developers and DevOps team members:
-
 * [ ] Complete [GSA OLU](https://insite.gsa.gov/topics/training-and-development/online-university-olu?term=olu) IT Security Awareness Training, including accepting the GSA IT Rules of Behavior, which is required before we can give you access to any login.gov systems. If you joined GSA more than two months ago, you’ve already completed this task and can just check the box. (Detailees must complete similar organization driven training and provide as proof to login.gov team members)
-* [ ] Obtain the PIV public key from the new member, create a file under https://github.com/18F/identity-devops-private/tree/master/chef/data_bags/users that has the PIV key in it and all the environments they need access to.
-* [ ] Add password [sent securely](https://onceler.app.cloud.gov/) by new user to the `common/elk_htpasswd.json` file in the secrets bucket. This will allow access to Kibana for log searches.
-* [ ] Relaunch ASG systems (jumphosts, idp, pivcac) to ensure that the user is in there.
-* [ ] Add the new team member to New Relic
-* [ ] Invite the new team member to Opsgenie for alerting, and ask them to accept the invitation. https://app.opsgenie.com/users
-  * [ ] When ready, add the new team member to any relevant pager rotations / shadow rotations.
-* [ ] Configure access for new team member to
-  * [ ] identitysandbox.gov (ci, dev-int, and personal envs)
-  * [ ] login.gov (staging/prod)
+* [ ] Add the new team member to [New Relic](https://account.newrelic.com/accounts/1376370/users/new)
+* [ ] Invite the new team member to [Opsgenie](https://login-gov.app.opsgenie.com/settings/users/)
 
 ### For new DevOps team members only:
-* [ ] Configure access for the new team member to
-  * [ ] Add the new team member to [AWS 18f-identity-analytics](https://18f-identity-analytics.signin.aws.amazon.com/console) account to IAM group `identity-power` or `identity-admin`
-  * [ ] Add the new team member to [AWS 18f-identity](https://18f-identity-dev.signin.aws.amazon.com/console) account to IAM group `identity-admin`
-  * [ ] Add the new team member to [AWS 18f-identity](https://18f-identity.signin.aws.amazon.com/console) account to IAM group `identity-power`
-* [ ] Add the new team member to DevOps LG infrastructure (Jumphost, ELK, outbound proxy)
-* [ ] Ask the new team member to create a GSA-dedicated [SSLMate account](https://sslmate.com/signup) and subscribe to updates on `login.gov` and `identitysandbox.gov`.
-* [ ] Add the new team member to [login.gov Statuspage.io](https://logingov.statuspage.io/) account
+* [ ] Add member to IAM groups for AWS access
+  * [ ] [18f-identity-analytics](https://18f-identity-analytics.signin.aws.amazon.com/console): `identity-power` or `identity-admin`
+  * [ ] [18f-identity-dev](https://18f-identity-dev.signin.aws.amazon.com/console): `identity-admin`
+  * [ ] [18f-identity](https://18f-identity.signin.aws.amazon.com/console): `identity-power`
+* [ ] Add member to the [login.gov Statuspage.io](https://logingov.statuspage.io/) account
 
 ### For new Analytics team members only:
-* [ ] Add the new team member to [AWS 18f-identity-analytics](https://18f-identity-analytics.signin.aws.amazon.com/console) account to IAM group `identity-power`
-* [ ] Add the new team member to [AWS 18f-identity](https://18f-identity-dev.signin.aws.amazon.com/console) account to IAM group `identity-redshift`
-* [ ] Add the new team member to [AWS 18f-identity](https://18f-identity.signin.aws.amazon.com/console) account to IAM group `identity-redshift`
-* [ ] Add the new team member to `prod` Jumphost as none sudoer access for redshift sql cli
-
-
-### For those requiring additional access:
-* [ ] Configure access for the new team member to
-  * [ ] performance testing (pt)
-  * [ ] integration (int)
-* [ ] Twilio
-* [ ] Quicksite
-* [ ] Nessus Scanner
-* [ ] LexisNexis RDP Reporting Portal
-* [ ] AAMVA
+* [ ] Configure access for the new team member to AWS
+  * [ ] Add the new team member to [AWS 18f-identity-analytics](https://18f-identity-analytics.signin.aws.amazon.com/console) account to IAM group `identity-power`
+  * [ ] Add the new team member to [AWS 18f-identity-dev](https://18f-identity-dev.signin.aws.amazon.com/console) account to IAM group `identity-redshift`
+  * [ ] Add the new team member to [AWS 18f-identity](https://18f-identity.signin.aws.amazon.com/console) account to IAM group `identity-redshift`
+  * [ ] Add the new team member to `prod` Jumphost as none sudoer access for redshift sql cli
