@@ -9,14 +9,14 @@ input {
 
 filter { 
   # Rails Events
-  if [source] == "/srv/idp/shared/log/events.log" {
+  if [log.file.path] == "/srv/idp/shared/log/events.log" {
     json {
       source => "message"
       target => "events"
     }
   }
   # Rails Production
-  if [source] == "/srv/idp/shared/log/production.log" {
+  if [log.file.path] == "/srv/idp/shared/log/production.log" {
     if [message] =~ "^\{" {
       json {
         source => "message"
@@ -30,16 +30,16 @@ filter {
     }
   }
   # Nginx
-  if [source] == "/var/log/nginx/access.log" {
+  if [log.file.path] == "/var/log/nginx/access.log" {
     kv {
       add_field => { "type" => "nginx_access" }
       target => "nginx"
     }
   }
-  else if [source] == "/var/log/nginx/fancy_access.log" {
+  else if [log.file.path] == "/var/log/nginx/fancy_access.log" {
     drop { }
   }
-  else if [source] == "/var/log/nginx/error.log" {
+  else if [log.file.path] == "/var/log/nginx/error.log" {
     if [message] =~ "^\[" {
       grok {
         add_field => {
