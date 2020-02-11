@@ -8,11 +8,12 @@ labels: administration
 ### Remove NAME-OF-PERSON's access from the following services:
 _DATE_
 
-- AWS
+- AWS IAM
    - [ ] Prod, nonprod AWS accounts
    _user name_
-   - [ ] AWS Quicksight
-   - [ ] AWS Analytics
+   - [ ] Quicksight
+   - [ ] Analytics
+   - [ ] Master credential
 
 - Internal mgmt tools and services
    - [ ] SSH
@@ -27,13 +28,15 @@ _DATE_
    - [ ] Equifax
      _user name_
    - [ ] AAMVA
-      _user name_
+     _user name_
+   - [ ] Acuant
+     _user name_
 
 - Github
    - [ ] Remove rights on the [identity teams](https://github.com/orgs/18F/teams/identity-core/members)
      _user name_
    - [ ] Update [team.yaml](https://github.com/18F/identity-private/blob/master/team/team.yml)! Regenerate [Team.md]() for the wiki
-   - [ ] Request removal from the 18F org in #admins-github (if leaving 18f/USDS)
+   - [ ] Request removal from the 18F org in #admins-github (if leaving TTS/USDS) https://gsa-tts.slack.com/archives/C02KXM98G
 
 - Github integrations
    - [ ] CircleCi
@@ -51,9 +54,12 @@ _DATE_
      _user name_
 
 - [ ] OpsGenie
-   - [ ]
+   - [ ] https://login-gov.app.opsgenie.com/settings/users/
+     _user name_
 
 - [ ] Statuspage.io
+   - [ ] https://manage.statuspage.io/organizations/tg65vnybbdwq/team
+     _user name_
 
 - Slack
    - [ ] https://goo.gl/forms/mKATdB9QuNo7AXVY2 -- submit user modification
@@ -61,7 +67,10 @@ _DATE_
 - GSA Google Group membership  @login.gov
    - [ ] Remove from identity-devops@, hello@, security@.
 
+- HubSpot
+   - [ ] https://app.hubspot.com/settings/5531666/users
+     _user name_
+
 
 #### Final Step
-- GSA Account
-   - [ ] GSA offboarding
+- Leaving GSA/TTS https://handbook.tts.gsa.gov/leaving-tts/
