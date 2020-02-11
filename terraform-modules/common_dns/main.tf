@@ -115,7 +115,7 @@ resource "aws_route53_record" "mx_google" {
 # TODO: remove GSA? All mail should be from SES or Google.
 resource "aws_route53_record" "txt" {
   name    = var.domain
-  records = ["google-site-verification=${var.google_site_verification_txt}", "v=spf1 mx include:_spf.google.com ~all"]
+  records = ["google-site-verification=${var.google_site_verification_txt}", "v=spf1 include:amazonses.com include:_spf.google.com ~all"]
   ttl     = "900"
   type    = "TXT"
   zone_id = aws_route53_zone.primary.zone_id
