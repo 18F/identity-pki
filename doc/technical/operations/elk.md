@@ -1,15 +1,14 @@
 # ELK Stack Operations
 
-The passwords for ELK users are stored here:
+The passwords for ELK users are stored in the `login-gov.secrets` bucket of each account.
+(e.g. for identitysandbox.gov:)
 
 ```
-aws s3 cp s3://login-gov-secrets-test/common/elk_htpasswd.json -
+aws s3 cp s3://login-gov.secrets.894947205914-us-west-2/common/elk_htpasswd.json -
 ```
 
-They are stored in the `common` subdirectory so the passwords themselves are
-stored account wide.  Note also that the production secrets bucket is currently
-`login-gov-secrets`, but this may change.  See [Secrets
-Deployment](../deployment/secrets.md) for more details.
+Since they are stored in the `common` subdirectory, the passwords themselves are
+stored account wide.
 
 You can generate a password hash for yourself by running, then add it to the JSON file in S3:
 
