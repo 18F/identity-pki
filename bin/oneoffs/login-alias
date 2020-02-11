@@ -5,25 +5,29 @@ LOGIN_REVS="jgrevich,sharms,mzia,amitfreeman-gov,pauldoomgov"
 
 usage() {
   cat >&2 <<EOM
-Usage: $0 
+
+Usage: $0 [ flags ]
+
+    flags    ::= a(ll)
+                 g(ithubrc)
+                 l(ogin-alias)
+                 r(emove run)
+                 e(nv vars)
 
 Adds various aliases, functions, and environment variables
-used by/calling various tools within identity-devops.
+used by/calling various tools within identity-devops. Steps:
 
-This script will:
+1. Verify \$HOME/.login-functions and \$HOME/.githubrc
+   and then prompt to recreate for each (ignored with -l / -g / -a)
+2. Verify AWS/GSA/KITCHEN env vars and prompt for any
+   not yet set (force with -e)
+3. Update \$PATH to include 'identity-devops/bin'
+4. Add \$HOME/.login-functions and \$HOME/.githubrc to
+   your shell's rc file (skip if already present)
 
-1. verify whether or not you already have \$HOME/.login-functions and \$HOME/.githubrc;
-   if you do, will ask if you would like to remove those \$HOME-based files and recreate them
-   from the repo source
-2. verify your various AWS/GSA/KITCHEN env vars
-   and prompt you to enter any you currently do not have set
-3. update your \$PATH to include 'identity-devops/bin'
-4. add a line to source \$HOME/.login-functions
-   and (optionally) \$HOME/.githubrc to your shell's rc file
-5. if desired, will pull in the source for \$HOME/.githubrc
-   and prompt to set the LOGIN_REVS env var (list of GitHub
-   usernames to be added as reviewers to any GitHub PR called
-   by the gpr() function)
+Optional:
+  -r        Do NOT print commands to the console via run()
+  -e        Reset ALL environment variables
 
 EOM
 }
@@ -36,9 +40,9 @@ append_with_rc() {
   echo >> "$HOME/.${rc}"
   cat "$(dirname "$0")/../lib/dotfiles/${rc}" >> "$HOME/.${rc}"
   local text="source \$HOME/.${rc}"
-  if ! grep -qs "^$text$" "$file"; then
-    echo && echo_cyan "Adding \`source \$HOME/.$rc\` to $file..."
-    run printf "%s\n" "$text" >> "$file"
+  if ! grep -qs "^$text$" "${shell_rc}"; then
+    echo && echo_cyan "Adding \`source \$HOME/.$rc\` to ${shell_rc}..."
+    run printf "%s\n" "$text" >> "${shell_rc}"
   fi
   echo
 }
@@ -60,6 +64,20 @@ set_env_var() {
   fi
 }
 
+remove_rc_file () {
+  echo && echo_cyan "Removing old \$HOME/.${1} file..."
+  run rm -f "$HOME/.${1}"
+  echo
+  return 10
+}
+
+touch_rc_file () {
+  echo && echo_cyan "Creating \$HOME/.${1}..."
+  run touch "$HOME/.${1}"
+  echo
+  return 10
+}
+
 rebuild_rc_file() {
   local rc="${1}"
 
@@ -69,41 +87,20 @@ rebuild_rc_file() {
       echo
       return
     else
-      echo && echo_cyan "Removing old \$HOME/.${rc} file..."
-      run rm -f "$HOME/.${rc}"
-      echo
-      return 10
+      remove_rc_file "${rc}"
     fi
   else
-    echo && echo_cyan "Creating \$HOME/.${rc}..."
-    run touch "$HOME/.${rc}"
-    echo
-    return 10
+    touch_rc_file "${rc}"
   fi
 }
 
-case "$SHELL" in
-  */fish)
-    file="$HOME/.config/fish/config.fish"
-  ;;
-  */zsh)
-    if [ -w "$HOME/.zshrc.local" ]; then
-      file="$HOME/.zshrc.local"
-    else
-      file="$HOME/.zshrc"
-    fi
-  ;;
-  *)
-    file="$HOME/.bash_profile"
-  ;;
-esac
+new_rc_file() {
+  local rc="${1}"
+  remove_rc_file "${rc}"
+  touch_rc_file "${rc}"
+}
 
-# if .login-functions already exists, prompt to recreate
-echo
-echo_green "Ready to configure \$HOME/.login-functions file."
-rebuild_rc_file 'login-functions'
-if [[ "${?}" == '10' ]] ; then
-
+create_login_rc () {
   # add identity-devops/bin to $PATH
   ID_DIR="$(cd $(dirname "${BASH_SOURCE[0]}") && pwd | sed 's/oneoffs//')"
   echo_cyan "Adding '$ID_DIR' to \$PATH..."
@@ -121,19 +118,96 @@ if [[ "${?}" == '10' ]] ; then
                  KITCHEN_EC2_SSH_KEY ; do set_env_var login-functions $ENV_VAR ; done
   echo_cyan "Env vars verified for $HOME/.login-functions file."
   append_with_rc "login-functions"
+}
+
+create_github_rc () {
+  echo_cyan "Verifying env vars..."
+  for ENV_VAR in GITHUB_PARENT_DIR LOGIN_REVS ; do set_env_var githubrc $ENV_VAR ; done
+  echo_cyan "Env vars verified for $HOME/.githubrc file."
+  append_with_rc "githubrc"
+}
+
+case "$SHELL" in
+  */fish)
+    shell_rc="$HOME/.config/fish/config.fish"
+  ;;
+  */zsh)
+    if [ -w "$HOME/.zshrc.local" ]; then
+      shell_rc="$HOME/.zshrc.local"
+    else
+      shell_rc="$HOME/.zshrc"
+    fi
+  ;;
+  *)
+    shell_rc="$HOME/.bash_profile"
+  ;;
+esac
+
+while getopts aglre opt ; do
+case ${opt} in
+  a) 
+    for file in login-functions githubrc ; do new_rc_file "${file}" ; done
+    create_login_rc && create_github_rc
+  ;;
+  g)
+    new_rc_file 'githubrc'
+    create_github_rc
+  ;;
+  l)
+    new_rc_file 'login-functions'
+    create_login_rc
+  ;;
+  r) 
+    export USE_RUN=0
+    for file in login-functions githubrc ; do
+      sed -i '' -E "s/(USE_RUN=)1/\10/" "$HOME/.${file}"
+    done && echo "Output of run() suppressed."
+  ;;
+  e)
+    if ! prompt_yn "Clear out ALL env vars?"; then
+      echo_cyan "Not clearing env vars."
+      echo
+      return
+    else
+      echo_cyan "Clearing env vars..."
+      for ENV_VAR in AWS_PROFILE\
+                     GSA_USERNAME\
+                     GSA_FULLNAME\
+                     GSA_EMAIL\
+                     GITHUB_SSH_KEY\
+                     KITCHEN_EC2_SSH_KEYPAIR_ID\
+                     KITCHEN_EC2_SSH_KEY\
+                     GITHUB_PARENT_DIR\
+                     LOGIN_REVS ; do
+        unset $ENV_VAR
+        echo "$ENV_VAR unset."
+      done
+    fi
+  ;;
+  *)
+    usage
+    exit
+  ;;
+esac
+done
+if [ $OPTIND -eq 1 ]; then 
+  usage
+  exit
 fi
 
-echo_green "Ready to configure \$HOME/.githubrc file."
-if ! grep -qs "source .githubrc" "$file"; then
-  if prompt_yn "Add login.gov GitHub aliases/functions?" ; then
-    rebuild_rc_file 'githubrc'
-    [[ "${?}" == '10' ]] || exit 0
-    echo_cyan "Verifying env vars..."
-    set_env_var githubrc GITHUB_PARENT_DIR
-    set_env_var githubrc LOGIN_REVS
-    echo_cyan "Env vars verified for $HOME/.githubrc file."
-    append_with_rc "githubrc"
+if [[ $# == 0 ]] ; then
+  echo
+  echo_green "Ready to configure \$HOME/.login-functions file."
+  rebuild_rc_file 'login-functions'
+  [[ "${?}" == '10' ]] && create_login_rc
+  
+  echo_green "Ready to configure \$HOME/.githubrc file."
+  rebuild_rc_file 'githubrc'
+  if [[ "${?}" == '10' ]] ; then
+    create_github_rc
+  else
+    exit 0
   fi
 fi
 
-echo_green "Done, run \`source $file\` to load the login.gov aliases/functions."
+echo_green "Done, run \`source ${shell_rc}\` to load the login.gov aliases/functions."

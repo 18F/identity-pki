@@ -1,129 +1,183 @@
+############# login.gov aliases/functions #############
 if [[ ! $(brew cask list | grep aws-vault) ]] ; then
   brew cask install aws-vault || { echo "aws-vault not installed!" && exit 1 ; }
 fi
-
-############# functions/aliases for login.gov #############
-######## env vars ########
-
-export AWS_VAULT_PROMPT=osascript
-export AWS_VAULT_KEYCHAIN_NAME=login
-export OPENSC_LIB=/usr/local/lib/opensc-pkcs11.so
 
 ######## aliases ########
 alias bb="git checkout stages/${GSA_USERNAME}"
 alias laptop='bash <(curl -s https://raw.githubusercontent.com/18F/laptop/master/laptop)'
 
 ######## functions ########
-
+USE_RUN=1
 run() {
-  if [ -t 1 ]; then
-    echo -ne "\\033[1;36m"
-  fi
+  if [[ $USE_RUN -gt 0 ]] ; then
+    if [ -t 1 ]; then
+      echo -ne "\\033[1;36m"
+    fi
 
-  echo >&2 "+ $*"
+    echo >&2 "+ $*"
 
-  if [ -t 1 ]; then
-    echo -ne '\033[m'
+    if [ -t 1 ]; then
+      echo -ne '\033[m'
+    fi
   fi
   "$@"
 }
 
-#### fix stuck PKCS11 certificate after unlocking/removing PIV card ####
+badopt() {
+  echo "Usage: ${usage}"
+  break 1
+}
+
+#### fix stuck PKCS11 when using OPENSC_LIB ####
 pivssh() {
-  run ssh-add -e "${OPENSC_LIB}" || true
-  while ! ssh-add -L | grep -q opensc; do
-    run ssh-add -K -s "${OPENSC_LIB}"
+  if [[ $(env | grep OSXSC_LIB) ]] ; then
+    PKCS11=${OSXSC_LIB}
+  elif [[ $(env | grep OPENSC_LIB) ]] ; then
+    PKCS11=${OPENSC_LIB}
+  fi
+  run ssh-add -e "${PKCS11}" || true
+  while ! ssh-add -L | grep -q "${PKCS11}"; do
+    run ssh-add -Ks "${PKCS11}"
   done
 }
 
 #### prepend any command with 'aws-vault exec' ####
 av() {
+  read -r -d '' usage <<'EOF'
+
+                                                  $$\      $$$$$$\               $$\    
+                                                $$$$ |    $$  __$$\            $$$$$$\  
+      $$$$$$\    $$\    $$\                     \_$$ |    \__/  $$ |          $$  __$$\ 
+      \____$$\   \$$\  $$  |          $$$$$$\     $$ |     $$$$$$  |          $$ /  \__|
+      $$$$$$$ |   \$$\$$  /           \______|    $$ |    $$  ____/           \$$$$$$\  
+     $$  __$$ |    \$$$  /                        $$ |    $$ |                 \___ $$\ 
+     \$$$$$$$ |     \$  /                       $$$$$$\   $$$$$$$$\           $$\  \$$ |
+      \_______|      \_/                        \______|  \________|          \$$$$$$  |
+                                                                               \_$$  _/ 
+                                                                                 \ _/   
+
+                     <VAULT_COMMAND>                <AWS_PROFILE>          <COMMAND(S)>
+              c = exec                            i = sandbox              
+              l = login                           l = prod                enter a command
+aws-vault  1) v = exec --no-session \          2) m = master           3) as if prepending
+                       --duration=2h       s = sms-sandbox         with AWS_PROFILE
+              i = login (incognito)               p = sms-prod            set as needed
+              o = login (and then go to           a = analytics           (use with 'exec')
+                  CloudWatch in AWS Console)      d = $AWS_PROFILE
+
+EXAMPLE: av -ic $CMD ==> aws-vault exec sandbox-admin -- $CMD
+
+NOTE: profile invoked will be named "${AWS_PROFILE}-admin" ;
+set names in ~/.aws/config appropriately
+EOF
+  [[ $# == 0 ]] && badopt
   local cmd=("${@:2}")
   local yk ttl
-  if [[ -z $(aws-vault list --sessions) ]] ; then
-    [[ $(which ykman) ]] && yk="--mfa-token=$(ykman oath code --single aws/identity-master | awk '{print $NF}')"
-    ttl="--assume-role-ttl=1h"
+  ttl_time=$(aws-vault list --sessions | awk -F, '{print $NF}')
+  if [[ -z ${ttl_time} ]] || [[ ${ttl_time} -lt $(date +%s) ]] ; then
+    ttl="--duration=1h"
+    [[ $(command -v ykman) ]] && yk="--mfa-token=$(ykman oath code --single aws/identity-master | awk '{print $NF}')"
   fi
-  while getopts d:i:l:s:p:m: opt
+  while getopts d:i:l:s:p:a:m: opt
   do
     case "${opt}" in          ## profile in aws-vault exec ${profile}
       d) [ -z $profile ] && profile=${AWS_PROFILE} ;;
-      i) profile='sandbox-admin'                   ;;
-      l) profile='prod-admin'                      ;;
-      s) profile='sms-sandbox-admin'               ;;
-      p) profile='sms-prod-admin'                  ;;
-      m) profile='master-admin'                    ;;
+      i) profile='sandbox-admin'     ;;
+      l) profile='prod-admin'        ;;
+      s) profile='sms-sandbox-admin' ;;
+      p) profile='sms-prod-admin'    ;;
+      a) profile='analytics-admin'   ;;
+      m) profile='master-admin'      ;;
+    h|*) badopt                      ;;
     esac
     case "${OPTARG}" in       ## syntax of aws-vault command
-      v) run aws-vault exec ${profile} --no-session --assume-role-ttl=2h ${yk} "${cmd[@]}" ;;
       c) run aws-vault exec ${profile} ${ttl} ${yk} -- "${cmd[@]}" ;;
-      l) run aws-vault login ${profile} ${ttl} ${yk} ;;
+      l) run aws-vault login ${profile} ${ttl} ${yk}               ;;
+      v)
+         run aws-vault remove master --sessions-only
+         [[ $(command -v ykman) ]] && yk="--mfa-token=$(ykman oath code --single aws/identity-master | awk '{print $NF}')"
+         run aws-vault exec ${profile} --no-session --duration=2h ${yk}
+      ;;
       i) run aws-vault login ${profile} ${ttl} ${yk} --stdout |
            xargs -t /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome \
            --args --incognito --new-window
-        ;;
+      ;;
       o) run aws-vault login ${profile} ${ttl} ${yk} --stdout |
            sed 's/console%2Fhome%3Fregion%3Dus-west-2/cloudwatch%2Fhome%3Fregion%3Dus-west-2%23logStream%3Agroup%3D%2Fvar%2Flog%2Fcloud-init-output.log%3BstreamFilter%3DtypeLogStreamPrefix/' |
            xargs -t /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome 2>/dev/null
-        ;;
+      ;;
+    h|*) badopt ${OPTARG} ;;
     esac
   done
 }
 
 #### run tf-deploy with common Terraform commands and any AWS profile/TF directory ####
 td() {
+  read -r -d '' usage <<'EOF'
+
+  $$\             $$\                       $$\      $$$$$$\             $$$$$$\  
+  $$ |            $$ |                    $$$$ |    $$  __$$\           $$ ___$$\ 
+$$$$$$\      $$$$$$$ |                    \_$$ |    \__/  $$ |          \_/   $$ |
+\_$$  _|    $$  __$$ |          $$$$$$\     $$ |     $$$$$$  |            $$$$$ / 
+  $$ |      $$ /  $$ |          \______|    $$ |    $$  ____/             \___$$\ 
+  $$ |$$\   $$ |  $$ |                      $$ |    $$ |                $$\   $$ |
+  \$$$$  |  \$$$$$$$ |                    $$$$$$\   $$$$$$$$\           \$$$$$$  |
+   \____/    \_______|                    \______|  \________|           \______/ 
+                          <TF_DIR>        <TF_COMMAND>        <ENVIRONMENT>
+                         m = master       a = apply          
+                         c = core         p = plan           if left blank:
+    bin/tf-deploy   1)   a = app     2)   d = destroy   3)   app = $GSA_USERNAME
+                         s = sms          l = state          master = global
+                         l = all              list           others = sandbox
+
+    EXAMPLE: td -aa dev ==> tf-deploy dev terraform-app apply
+
+NOTE: ENVIRONMENT used to determine AWS_PROFILE passed to aws-vault command
+EOF
+  [[ $# == 0 ]] && badopt
   local build_env="${@:2}"
   local profile="${AWS_PROFILE}"
   local av_flag='-dc'
-  if [[ -z "${build_env}" ]] ; then
-    build_env="${GSA_USERNAME}"
-  elif [[ "${build_env}" =~ "staging|prod" ]] ; then
-    profile="prod-admin"
-  fi
-  while getopts vc:m:a:s:l:n: opt
+  while getopts vc:m:c:a:s:l: opt
   do
-    case "${opt}" in            ## opt = 1 in `td -${1}${OPTARG}`
-      v) av_flag='-dv' ;;       ## opt = 1 in `td -v${1}${OPTARG}`
-      c)
-        [[ "${build_env}" == 'prod' ]] || build_env='sandbox'
-        style='module'
-        tf_dir='terraform-common'
-      ;;
-      m)
-        profile='master-admin'
-        build_env='global'
-        style='module'
-        tf_dir='terraform-master'
-      ;;
-      a)
-        style='tfvars'
-        tf_dir='terraform-app'
-      ;;
-      s)
-        [[ "${build_env}" == 'prod' ]] || build_env='sandbox'
-        profile="sms-${build_env}-admin"
-        style="module"
-        tf_dir="terraform-sms"
-      ;;
-      l)
-        style="tfvars"
-        tf_dir="terraform-cloudtrail"
-      ;;
-      n)
-        style="tfvars"
-        tf_dir="terraform-analytics"
-      ;;
-    esac
     case "${OPTARG}" in
-      a) tf_cmd='apply'   ;;
-      p) tf_cmd='plan'    ;;
-      d) tf_cmd='destroy' ;;
+      a) tf_cmd='apply'      ;;
+      p) tf_cmd='plan'       ;;
+      d) tf_cmd='destroy'    ;;
+      l) tf_cmd='state list' ;;
+      *) badopt ${OPTARG}    ;;
+    esac
+    case "${opt}" in            ## opt = 1 in `td -${1}${OPTARG}`
+      v) av_flag='-dv'       ;; ## opt = 1 in `td -v${1}${OPTARG}`
+      m) tf_dir='master'     ;;
+      c) tf_dir='core'       ;;
+      a) tf_dir='app'        ;;
+      s) tf_dir='sms'        ;;
+      l) tf_dir='all'        ;;
+      *) badopt ${opt}       ;;
     esac
   done
-  case "${style}" in
-    tfvars) av ${av_flag} tf-deploy ${build_env} ${tf_dir} ${tf_cmd} ;; 
-    module) av ${av_flag} tf-deploy ${tf_dir}/${build_env} ${tf_cmd} ;;
+  case "${tf_dir}" in
+    master) av -mc tf-deploy terraform-master/global ${tf_cmd} ;;
+    app)
+      [[ -z "${build_env}" ]] && build_env="${GSA_USERNAME}"
+      [[ "${build_env}" =~ "staging|prod" ]] && profile="prod-admin"
+      av ${av_flag} tf-deploy ${build_env} "terraform-${tf_dir}" ${tf_cmd}
+    ;;
+    common|iam|sms)
+      [[ -z "${build_env}" ]] && build_env="sandbox"
+      profile="${build_env}-admin"
+      [[ "${tf_dir}" == 'sms' ]] && profile="sms-${build_env}-admin"
+      av ${av_flag} tf-deploy "terraform-${tf_dir}"/${build_env} ${tf_cmd}
+    ;;
   esac
+}
+
+#### run terraform plan with trimmed-down output ####
+tpc() {
+  while getopts mcasi opt ; do plan=$(td -${opt}p "${@:2}") ; done
+  echo $plan | sed $'s,\x1b\\[[0-9;]*[a-zA-Z],,g' | grep -E '^\s+[\#\+\-\~]'
 }
 
 # run ssh-instance via av
@@ -135,6 +189,32 @@ sshi() {
 
 #### run bundle exec with common commands ####
 be() {
+  read -r -d '' usage <<'EOF'
+
+       $$\                                         $$\      $$$$$$\  
+       $$ |                                      $$$$ |    $$  __$$\ 
+       $$$$$$$\     $$$$$$\                      \_$$ |    \__/  $$ |
+       $$  __$$\   $$  __$$\           $$$$$$\     $$ |     $$$$$$  |
+       $$ |  $$ |  $$$$$$$$ |          \______|    $$ |    $$  ____/ 
+       $$ |  $$ |  $$   ____|                      $$ |    $$ |      
+       $$$$$$$  |  \$$$$$$$\                     $$$$$$\   $$$$$$$$\ 
+       \_______/    \_______|                    \______|  \________|
+      
+                                              < kitchen >      < berks >
+                                             kt = test        bu = update
+                                             kc = converge    bi = install    
+                     bundle exec             kl = login
+                                             ki = list         < rails >
+                                             kd = destroy     rk = rake
+                                             kv = verify      rc = rails c
+                                             ko = console     rs = rspec
+      
+      EXAMPLE: be -kc ==>
+         aws-vault exec AWS_PROFILE -- bundle exec kitchen converge
+
+NOTE: ENVIRONMENT used to determine AWS_PROFILE passed to aws-vault command
+EOF
+  [[ $# == 0 ]] && badopt
   local profile="${AWS_PROFILE}"
   local av_flag='-dc'
   while getopts vk:b:r: opt
@@ -142,27 +222,30 @@ be() {
     case "${opt}" in       ## opt in `be -${opt}${OPTARG}`
       v) av_flag='-dv' ;;
       k) case "${OPTARG}" in
-          t) cmd='kitchen test'         ;;
-          c) cmd='kitchen converge'     ;;
-          l) cmd='kitchen login'        ;;
-          d) cmd='kitchen destroy'      ;;
-          *) echo "err: ${OPTARG}" && return 1 ;;
+          t) cmd='kitchen test'     ;;
+          c) cmd='kitchen converge' ;;
+          l) cmd='kitchen login'    ;;
+          i) cmd='kitchen list'     ;;
+          d) cmd='kitchen destroy'  ;;
+          v) cmd='kitchen verify'   ;;
+          o) cmd='kitchen console'  ;;
+          *) badopt                 ;;
          esac
       ;;
       b) case "${OPTARG}" in
-          u) cmd='berks update'         ;;
-          i) cmd='berks install'        ;;
-          *) echo "err: ${OPTARG}" && return 1 ;;
+          u) cmd='berks update'  ;;
+          i) cmd='berks install' ;;
+          *) badopt              ;;
          esac
       ;;
       r) case "${OPTARG}" in
-          k) cmd='rake'                 ;;
-          c) cmd='rails c'              ;;
-          s) cmd='rspec'                ;;
-          *) echo "err: ${OPTARG}" && return 1 ;;
+          k) cmd='rake'    ;;
+          c) cmd='rails c' ;;
+          s) cmd='rspec'   ;;
+          *) badopt        ;;
          esac
       ;;
-      *) echo "err: ${OPTARG}" && return 1 ;;  
+      h|*) badopt ${opt} ;;  
     esac
   done
   av ${av_flag} bundle exec ${cmd}
@@ -171,6 +254,37 @@ be() {
 
 #### quickly run common cloudlib aliases/commands with any AWS_PROFILE/env ####
 vcl() {
+  read -r -d '' usage <<'EOF'
+
+                       $$\                $$\     $$$$$$\        $$$$$$\       $$\   $$\ 
+                       $$ |             $$$$ |   $$  __$$\      $$ ___$$\      $$ |  $$ |
+$$\    $$\   $$$$$$$\  $$ |             \_$$ |   \__/  $$ |     \_/   $$ |     $$ |  $$ |
+\$$\  $$  | $$  _____| $$ |     $$$$$$\   $$ |    $$$$$$  |       $$$$$ /      $$$$$$$$ |
+ \$$\$$  /  $$ /       $$ |     \______|  $$ |   $$  ____/        \___$$\      \_____$$ |
+  \$$$  /   $$ |       $$ |               $$ |   $$ |           $$\   $$ |           $$ |
+   \$  /    \$$$$$$$\  $$ |             $$$$$$\  $$$$$$$$\      \$$$$$$  |           $$ |
+    \_/      \_______| \__|             \______| \________|      \______/            \__|
+
+                <CLOUDLIB_COMMAND>                        <TYPE>          
+    e) ls-servers -e                                 a = app              
+    l) ls-servers -n asg-<ENV> <TYPE>              e = elasticsearch    
+    n) ssh-instance --newest asg-<ENV>-<TYPE>      i = idp              
+    o) ssh-instance --oldest asg-<ENV>-<TYPE>      j = jumphost         
+$1  a) ssh-instance --any asg-<ENV>-<TYPE>     $2  k = elk           $3 <ENV>    $4 <DATA>
+    i) ssh-instance ${2} (no other args)           m = migration        
+    r) asg-recycle <ENV> <TYPE>                    o = outboundproxy    
+    s) asg-size <ENV> <TYPE> <DATA>                p = pivcac           
+    w) cw tail -f \                                
+        /var/log/cloud-init-output.log:            A = ALL (use w/            
+      <TYPE>-<DATA>.<ENV>.<ACCOUNT>                    recyle only)
+
+        EXAMPLE: vcl -ri dev ==> aws-vault exec sandbox-admin -- asg-recycle dev idp
+NOTES:
+- ENV defaults to GSA_USERNAME unless otherwise specified
+- DATA is used for either 1) count for asg-size or 2) instance ID for cw
+- ENV used to determine AWS_PROFILE passed to aws-vault command
+
+EOF
   local type account
   local profile="${AWS_PROFILE}"
   local build_env="${GSA_USERNAME}"
@@ -191,7 +305,7 @@ vcl() {
       m) type='migration'     ;;
       o) type='outboundproxy' ;;
       p) type='pivcac'        ;;
-      *) [[ ${opt} =~ 'e|i' ]] || { echo "err: ${1:1}" && return 1 ; } ;;
+      *) [[ ${opt} =~ 'e|i' ]] || badopt ${OPTARG} ;;
     esac
     case "${opt}" in          ## 1 in `vcl -${1}${2}`
       e) av -dc ls-servers -e ${build_env}             ;;
@@ -199,7 +313,7 @@ vcl() {
       n) sshi --newest asg-${build_env}-${type}        ;;
       o) sshi --oldest asg-${build_env}-${type}        ;;
       a) sshi --any asg-${build_env}-${type}           ;;
-      i) sshi ${build_env}                             ;;
+      i) sshi ${2}                                     ;;
       r) av -dc asg-recycle ${build_env} ${type}       ;;
       s) [[ -z "${data}" ]] && { data="${2}" && build_env="${GSA_USERNAME}" ; }
          av -dc asg-size ${build_env} ${type} ${data}
@@ -208,13 +322,37 @@ vcl() {
          av -dc cw tail -f \
           /var/log/cloud-init-output.log:${type}-${data}.${build_env}.${account}
       ;;
-      *) echo "err: ${opt}" && return 1                ;;
+      *) badopt ${opt} ;;
     esac
   done
 }
 
 #### call the cl elasticsearch commands with av() ####
 ve() {
+  read -r -d '' usage <<'EOF'
+
+                                     $$\          $$$$$$\         $$$$$$\  
+                                   $$$$ |        $$  __$$\       $$ ___$$\ 
+$$\    $$\  $$$$$$\                \_$$ |        \__/  $$ |      \_/   $$ |
+\$$\  $$  |$$  __$$\       $$$$$$\   $$ |         $$$$$$  |        $$$$$ / 
+ \$$\$$  / $$$$$$$$ |      \______|  $$ |        $$  ____/         \___$$\ 
+  \$$$  /  $$   ____|                $$ |        $$ |            $$\   $$ |
+   \$  /   \$$$$$$$\               $$$$$$\       $$$$$$$$\       \$$$$$$  |
+    \_/     \_______|              \______|      \________|       \______/ 
+
+                        <COMMAND>                   
+                                                    
+  cl elasticsearch  $1  s = check_status         $2 <ENV>   $3 <DATA>
+                        d = drain_old_nodes                    (number of
+                        c = clear_node_drain                    min masters)
+                        u = update_minimum_masters  
+      
+ EXAMPLE: ve -d int ==>
+    aws-vault exec sandbox-admin -- cl elasticsearch drain_old_nodes int
+
+NOTE: ENVIRONMENT used to determine AWS_PROFILE passed to aws-vault command
+
+EOF
   local profile="${AWS_PROFILE}"
   local build_env="${GSA_USERNAME}"
   local data="${3}"
@@ -228,7 +366,7 @@ ve() {
       u) [[ -z "${data}" ]] && { data="${2}" && build_env="${GSA_USERNAME}" ; }
           av -dc cl elasticsearch update_minimum_masters ${build_env} ${data}
       ;;
-      *) echo "err: ${1:1}" && return 1 ;;
+      *) badopt ${opt} ;;
     esac
   done
 }
@@ -254,5 +392,3 @@ for key in $(env | grep ".*SSH_KEY=" | sed 's/=.*$//') ; do
     done
   fi
 done
-
-ssh-add -L | grep -q opensc || pivssh

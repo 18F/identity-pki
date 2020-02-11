@@ -1,14 +1,35 @@
+############### github aliases/functions ###############
 if [[ ! $(brew list | grep hub) ]] ; then
   brew install hub || { echo "hub not installed!" && exit 1 ; }
 fi
 
-export GITHUB_PARENT_DIR="${HOME}/GitHub/18F/"
-##### github aliases and functions ####################
+######## aliases ########
 alias gs="run git status"
 alias gl="run git log --pretty=oneline --no-abbrev-commit -n 10"
 alias gpom="run git pull origin master"
 alias gom="run git checkout master && gpom"
 alias bc="git rev-parse HEAD | tr -d '\n' | pbcopy"
+alias gil="run open https://github.com/issues/assigned"
+alias gbi="run open https://github.com/orgs/18F/projects/5?card_filter_query=assignee%3A${GSA_USERNAME}"
+alias gpl="run hub pr list"
+alias gi="run hub issue"
+
+######## functions ########
+USE_RUN=1
+run() {
+  if [[ $USE_RUN -gt 0 ]] ; then
+    if [ -t 1 ]; then
+      echo -ne "\\033[1;36m"
+    fi
+
+    echo >&2 "+ $*"
+
+    if [ -t 1 ]; then
+      echo -ne '\033[m'
+    fi
+  fi
+  "$@"
+}
 
 #### cd to ${GITHUB_PARENT_DIR}/identity-${1} ####
 gid() {
@@ -19,6 +40,17 @@ gid() {
 newb() {
   gom
   run git checkout -b "${1}"
+}
+
+#### open specified PR in browser
+gps() {
+  run hub pr show "${1}"
+}
+
+#### open specified issue in browser
+gio() {
+  local repo=$(git remote get-url --all origin | sed -E 's/.*:(.*)\..*/\1/')
+  run open "https://github.com/${repo}/issues/${1}"
 }
 
 #### add files, commit w/message, push to origin with set-upstream ####
@@ -71,6 +103,13 @@ ghi() {
   [ -z ${assignee} ] && assignee="${GSA_USERNAME}"
   run hub issue create --edit -a ${assignee} "${labels}" \
     -F "${GITHUB_PARENT_DIR}/identity-devops/.github/ISSUE_TEMPLATE/feature_request.md"
+}
+
+#### create private gist from clipboard ####
+ggc() {
+  local file="${1}"
+  local desc=("${@:2}")
+  run gist -oPp -d "${desc[@]}" -f ${file}
 }
 
 #### push version tags ####
