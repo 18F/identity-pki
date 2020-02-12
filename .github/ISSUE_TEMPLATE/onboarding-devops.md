@@ -31,10 +31,9 @@ _Also, be sure to only copy the sections of this template that are needed for th
 * [ ] (Optional) [Add your gpg key to github](https://help.github.com/articles/adding-a-new-gpg-key-to-your-github-account/).
 
 ### For new AppDev team members:
-* [ ] [Set up your IdP development environment](https://github.com/18F/identity-idp/blob/master/README.md) (_this is helpful for all new team members!_)
+* [ ] [Set up your IdP development environment](https://github.com/18F/identity-idp/blob/master/README.md)
 
 ### For new DevOps team members:
-* [ ] Create a GSA-dedicated [SSLMate account](https://sslmate.com/signup) and subscribe to updates on `login.gov` and `identitysandbox.gov`
 * [ ] [Set up your personal sandbox environment](https://github.com/18F/identity-private/wiki/Runbook:-Personal-login.gov-DevOps-Environment) (_this is helpful for all new team members!_)
 
 ## Tasks for onboarding buddy
