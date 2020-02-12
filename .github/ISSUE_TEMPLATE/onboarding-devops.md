@@ -8,6 +8,7 @@ labels: administration
 # Onboarding for new team member
 
 _🌮 note: As tasks are completed, please create a separate comment.  This is to show that tasks were completed at a specific time._
+_Also, be sure to only copy the sections of this template that are needed for this member's onboarding._
 
 ## Tasks for new team member
 
@@ -16,7 +17,7 @@ _🌮 note: As tasks are completed, please create a separate comment.  This is t
     * [ ] make sure your account is set up [like this](https://handbook.18f.gov/slack/).
     * [ ] make sure to join `#login`, the main announcement channel for our team
 * [ ] Make sure your GitHub account is set up [like this](https://handbook.18f.gov/github/#setup).
-  * [ ] Next, ask a GitHub admin in `#admins-github` to [add you to the 18F org](https://github.com/orgs/18F)
+  * [ ] Next, ask in `#identity-devops` for a GitHub Admin to [add you to the 18F org](https://github.com/orgs/18F)
 * [ ] Add the following email address to your Google Calendar to see the Login Services Shared Events calendar: gsa.gov_6ovul6pcsmgd40o8pqn7qmge5g@group.calendar.google.com
 * [ ] Add yourself to the [`team.yml`](https://github.com/18F/identity-private/blob/master/team/team.yml) file
 * [ ] Request access to relevant Google Groups:
