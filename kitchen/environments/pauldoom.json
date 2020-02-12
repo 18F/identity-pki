@@ -1,5 +1,5 @@
 {
-  "name": "pauldoomgov",
+  "name": "pauldoom",
   "description": "",
   "json_class": "Chef::Environment",
   "chef_type": "environment",
@@ -8,7 +8,7 @@
       "legacy_log_bucket_name": false,
       "retentiondays": 14,
       "users": [
-        "pauldoomgov"
+        "pauldoom"
       ]
     },
     "login_dot_gov": {
