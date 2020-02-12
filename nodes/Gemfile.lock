@@ -613,9 +613,9 @@ DEPENDENCIES
   chef (~> 14.13)
   chefspec
   erubis (~> 2)
-  inspec (~> 4.7)
-  kitchen-ec2
-  kitchen-inspec (~> 1.1)
+  inspec (~> 4.7, >= 4.7.24)
+  kitchen-ec2 (>= 3.0.1)
+  kitchen-inspec (~> 1.1, >= 1.1.0)
   kitchen-transport-speedy (~> 0.1)
   kitchen-vagrant
   mime
