@@ -1,9 +1,9 @@
 source 'https://rubygems.org'
 
-gem 'berkshelf', '~> 7.0', '>= 7.0.8'
+gem 'berkshelf', '~> 7.0'
 
 # For Chefspec: https://github.com/sethvargo/chefspec
-gem 'chefspec', '>= 8.0.0'
+gem 'chefspec'
 
 # For Test Kitchen: https://github.com/test-kitchen/test-kitchen
 gem 'test-kitchen', '~> 1.25'
@@ -19,7 +19,7 @@ gem 'kitchen-transport-speedy', '~> 0.1'
 # gem 'kitchen-transport-sshtar'
 # gem 'kitchen-transport-rsync'
 
-gem 'chef', '~> 14.13', '>= 14.13.11'
+gem 'chef', '~> 14.13'
 
 # These are needed to build multipart cloud init data for test kitchen
 gem 'mime'
