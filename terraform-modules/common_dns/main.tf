@@ -181,3 +181,20 @@ resource "aws_route53_record" "main_dmarc" {
   records = ["v=DMARC1; p=reject; pct=100; fo=1; ri=3600; rua=mailto:gsalogin@rua.agari.com,mailto:dmarc-reports@login.gov,mailto:reports@dmarc.cyber.dhs.gov; ruf=mailto:dmarc-forensics@login.gov"]
 }
 
+resource "aws_route53_record" "acme_challenge" {
+  count   = var.domain == "login.gov" ? 1 : 0
+  name    = "_acme-challenge.${var.domain}"
+  zone_id = aws_route53_zone.primary.zone_id
+  ttl     = "120"
+  type    = "TXT"
+  records = ["g_ybuPyxTGP-JeDhOA-AyjIlJEwsZU5fd0dr7zvpFsg"]
+}
+
+resource "aws_route53_record" "acme_challenge_www" {
+  count   = var.domain == "login.gov" ? 1 : 0
+  name    = "_acme-challenge.www.${var.domain}"
+  zone_id = aws_route53_zone.primary.zone_id
+  ttl     = "120"
+  type    = "TXT"
+  records = ["L1XfURLRizB_sP022sBOoQGaulRl34R9B3xEZxTTFfs"]
+}
