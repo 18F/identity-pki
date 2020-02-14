@@ -236,6 +236,7 @@ resource "aws_iam_policy_attachment" "production_power_user" {
     name = "production_power_user"
     users = [
         aws_iam_user.brian_crissup.name,
+        aws_iam_user.douglas_price.name,
         aws_iam_user.jonathan_hooper.name,
         aws_iam_user.steven_harms.name,
         aws_iam_user.steve_urciuoli.name,
