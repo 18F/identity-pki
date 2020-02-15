@@ -239,7 +239,7 @@ RSpec.describe IdentifyController, type: :controller do
             expect(response.has_header?('Location')).to be_truthy
             expect(token).to be_truthy
 
-            expect(token_contents['error']).to eq 'certificate.expired'
+            expect(token_contents['error']).to start_with('certificate.expired|')
             expect(token_contents['nonce']).to eq '123'
           end
         end
@@ -264,7 +264,7 @@ RSpec.describe IdentifyController, type: :controller do
             expect(response.has_header?('Location')).to be_truthy
             expect(token).to be_truthy
 
-            expect(token_contents['error']).to eq 'certificate.revoked'
+            expect(token_contents['error']).to start_with('certificate.revoked|')
             expect(token_contents['nonce']).to eq '123'
           end
         end
@@ -287,7 +287,7 @@ RSpec.describe IdentifyController, type: :controller do
             expect(response.has_header?('Location')).to be_truthy
             expect(token).to be_truthy
 
-            expect(token_contents['error']).to eq 'certificate.timeout'
+            expect(token_contents['error']).to start_with('certificate.timeout|')
             expect(token_contents['nonce']).to eq '123'
           end
         end
@@ -311,7 +311,7 @@ RSpec.describe IdentifyController, type: :controller do
             expect(response.has_header?('Location')).to be_truthy
             expect(token).to be_truthy
 
-            expect(token_contents['error']).to eq 'certificate.ocsp_error'
+            expect(token_contents['error']).to start_with('certificate.ocsp_error|')
             expect(token_contents['nonce']).to eq '123'
           end
         end
@@ -349,7 +349,7 @@ RSpec.describe IdentifyController, type: :controller do
             expect(response.has_header?('Location')).to be_truthy
             expect(token).to be_truthy
 
-            expect(token_contents['error']).to eq 'certificate.unverified'
+            expect(token_contents['error']).to start_with('certificate.unverified|')
             expect(token_contents['nonce']).to eq '123'
           end
         end
