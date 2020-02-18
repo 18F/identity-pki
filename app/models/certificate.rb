@@ -214,6 +214,6 @@ class Certificate
     reason = validate_cert
 
     Rails.logger.warn("Certificate invalid: #{reason}")
-    TokenService.box(extra.merge(error: "certificate.#{reason}|#{key_id}"))
+    TokenService.box(extra.merge(error: "certificate.#{reason}", key_id: key_id))
   end
 end
