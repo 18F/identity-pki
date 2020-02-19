@@ -23,16 +23,18 @@ Region = 'us-west-2'
 role = File.basename(Dir.pwd)
 environment = ENV.fetch('KITCHEN_EC2_INTEGRATION_ENVIRONMENT', 'ci')
 
-# TODO look up dynamically
-rails_apps = %w[
-  idp
-  app
-  pivcac
-]
-ami_id = ENV.fetch('KITCHEN_EC2_AMI', 'ami-04f2b6f5ae4c9adf2')
-if rails_apps.include?(role)
-  ami_id = ENV.fetch('KITCHEN_RAILS_AMI', 'ami-05166097d18d1cb9c')
-end
+ec2 = Aws::EC2::Resource.new(region: Region)
+
+lt = ec2.client.describe_launch_templates(
+  {
+    launch_template_names: ["#{environment}-#{role}"],
+  }
+).launch_templates[0].launch_template_id
+
+ami_id = ec2.client.describe_launch_template_versions({
+  launch_template_id: lt,
+  versions: ['$Latest']
+}).launch_template_versions[0].launch_template_data.image_id
 
 vpc_name = "login-vpc-#{environment}"
 
@@ -191,8 +193,6 @@ if !File.exist?(ssh_key_file)
 end
 
 ssh_key_pair_name = ENV.fetch('KITCHEN_EC2_SSH_KEYPAIR_ID')
-
-ec2 = Aws::EC2::Resource.new(region: Region)
 
 # Run a number of checks that expected resources exist, because kitchen-ec2
 # itself bombs out it horrible ways without giving any helpful error messages.
