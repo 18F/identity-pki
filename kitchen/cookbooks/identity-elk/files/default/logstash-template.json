@@ -1,11 +1,4 @@
 {
   "template": "logstash",
-  "index_patterns": ["logstash-2*"],
-  "settings": { },
-  "mappings": {
-    "doc": {
-      "properties": {
-      }
-    }
-  }
+  "index_patterns": ["logstash-2*"]
 }

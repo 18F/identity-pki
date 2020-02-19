@@ -11,11 +11,9 @@
     }
   },
   "mappings": {
-    "doc": {
-      "properties": {
-        "apiVersion": {
-          "type": "keyword"
-        }
+    "properties": {
+      "apiVersion": {
+        "type": "keyword"
       }
     }
   }
