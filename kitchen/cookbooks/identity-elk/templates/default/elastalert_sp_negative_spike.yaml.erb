@@ -1,0 +1,32 @@
+name: Drop in service provider traffic
+type: spike
+# calculated by grabbing counts of SP events every 10m for ~10 days. The spike_heigh is set 0.02
+# larger than the largest negative spike in that history.
+spike_height: 1.35
+spike_type: down
+timeframe: minutes: 10
+index: logstash-2*
+alert_text: There has been a significant drop in service prodiver traffic in <%= @env %>
+owner: <%= @env %>
+filter:
+- query:
+    query_string:
+      query: 'log.file.path:"events.log" AND events.name:"SP redirect initiated"'
+alert:
+<% if ! @emails.empty? %>
+- "email"
+<% end %>
+<% if ! @webhook.nil? %>
+- "slack"
+<% end %>
+<% if ! @emails.empty? %>
+email:
+<%   @emails.each do |e| %>
+- "<%= e %>"
+<%   end %>
+<% end %>
+<% if ! @webhook.nil? %>
+slack_webhook_url: <%= @webhook %>
+slack_username_override: <%= "#{@env} alerts" %>
+slack_channel_override: ["<%= @slackchannel %>"]
+<% end %>
