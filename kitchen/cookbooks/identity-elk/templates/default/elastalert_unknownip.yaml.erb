@@ -6,7 +6,7 @@ owner: <%= @env %>
 filter:
 - query:
     query_string:
-      query: 'source: "/var/log/auth.log"  AND ( "Accepted publickey for *"  OR "input_userauth_request: invalid user" ) "from"  NOT 159.142.* NOT 172.16.3*  NOT 127.0.0.1'
+      query: 'log.file.path:"/var/log/auth.log"  AND ( "Accepted publickey for *"  OR "input_userauth_request: invalid user" ) "from"  NOT 159.142.* NOT 172.16.3*  NOT 127.0.0.1'
 alert:
 <% if ! @emails.empty? %>
 - "email"

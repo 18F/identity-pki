@@ -9,7 +9,7 @@ timeframe:
 filter:
 - query:
     query_string:
-      query: '"ossec: Alert Level: 5; Rule: 5718" AND source:"/var/log/syslog"'
+      query: '"ossec: Alert Level: 5; Rule: 5718" AND log.file.path:"/var/log/syslog"'
 alert:
 <% if ! @emails.empty? %>
 - "email"
