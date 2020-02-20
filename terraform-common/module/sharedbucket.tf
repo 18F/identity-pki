@@ -199,6 +199,11 @@ resource "aws_s3_bucket" "lambda-functions" {
   }
 }
 
+resource "aws_iam_user" "circleci" {
+  name = "bot=circleci"
+  path = "/system/"
+}
+
 # Policy covering uploads to the lambda functions bucket
 data "aws_iam_policy_document" "lambda-functions" {
   # Allow CircleCI role to upload under /circleci/*

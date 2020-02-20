@@ -1,11 +1,5 @@
-resource "aws_iam_policy" "appdev1" {
-  name        = "AppDev1"
-  path        = "/"
-  description = "Policy for appdev with MFA"
-  policy      = data.aws_iam_policy_document.appdev1.json
-}
-
-data "aws_iam_policy_document" "appdev1" {
+data "aws_iam_policy_document" "appdev" {
+  count  = var.iam_appdev_enabled ? 1 : 0
   statement {
     sid    = "Autoscaling"
     effect = "Allow"
@@ -272,3 +266,41 @@ data "aws_iam_policy_document" "appdev1" {
   }
 }
 
+resource "aws_iam_role" "appdev" {
+  count                = var.iam_appdev_enabled ? 1 : 0
+  
+  name                 = "Appdev"
+  assume_role_policy   = data.aws_iam_policy_document.master_account_assumerole.json
+  path                 = "/"
+  max_session_duration = 43200 #seconds
+}
+
+resource "aws_iam_policy" "appdev" {
+  count  = var.iam_appdev_enabled ? 1 : 0
+
+  name        = "AppDev1"
+  path        = "/"
+  description = "Policy for appdev with MFA"
+  policy      = data.aws_iam_policy_document.appdev[0].json
+}
+
+resource "aws_iam_role_policy_attachment" "appdev" {
+  count  = var.iam_appdev_enabled ? 1 : 0
+  
+  role       = aws_iam_role.appdev[0].name
+  policy_arn = aws_iam_policy.appdev[0].arn
+}
+
+resource "aws_iam_role_policy_attachment" "appdev_rds_delete_prevent" {
+  count  = var.iam_appdev_enabled ? 1 : 0
+  
+  role       = aws_iam_role.appdev[0].name
+  policy_arn = aws_iam_policy.rds_delete_prevent.arn
+}
+
+resource "aws_iam_role_policy_attachment" "appdev_region_restriction" {
+  count  = var.iam_appdev_enabled ? 1 : 0
+  
+  role       = aws_iam_role.appdev[0].name
+  policy_arn = aws_iam_policy.region_restriction.arn
+}
