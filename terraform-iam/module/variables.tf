@@ -1,3 +1,12 @@
+# attach rds_delete_prevent and region_restriction to all roles
+locals {
+  custom_policy_arns = [
+    aws_iam_policy.rds_delete_prevent.arn,
+    aws_iam_policy.region_restriction.arn,
+  ]
+  master_assumerole_policy = data.aws_iam_policy_document.master_account_assumerole.json
+}
+
 variable "region" {
   default = "us-west-2"
 }
