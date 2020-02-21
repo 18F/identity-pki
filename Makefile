@@ -15,6 +15,9 @@ setup $(CONFIG): config/application.yml.example
 fast_setup:
 	bin/fast_setup
 
+docker_setup:
+	bin/docker_setup
+
 check: lint test
 
 lint:

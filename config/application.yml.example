@@ -54,6 +54,8 @@ development:
   database_host: ''
   database_password: ''
   database_username: ''
+  database_statement_timeout: '2500'
+  database_timeout: '5000'
   secret_key_base: ''
   certificate_store_directory: 'config/certs'
 
