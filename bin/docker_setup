@@ -41,4 +41,7 @@ Dir.chdir APP_ROOT do
   run "docker-compose run --rm web rake db:environment:set"
   run "docker-compose run --rm web rake db:reset"
   run "docker-compose run --rm web rake db:environment:set"
+
+  puts "== Create tests database =="
+  run "docker-compose run --rm web rake db:create RAILS_ENV=test"
 end
