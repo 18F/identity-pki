@@ -9,9 +9,6 @@ provider "aws" {
 terraform {
   backend "s3" {
   }
-
-  # allowed terraform version
-  required_version = "~> 0.12"
 }
 
 module "main" {
@@ -19,6 +16,4 @@ module "main" {
 
   state_lock_table    = "terraform_locks"
   iam_appdev_enabled  = false
-  iam_billing_enabled = true
-  iam_reports_enabled = true
 }
