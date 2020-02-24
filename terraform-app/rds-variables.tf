@@ -35,11 +35,11 @@ variable "rds_engine_version_short" {
 }
 
 variable "rds_instance_class" {
-  default = "db.t2.large"
+  default = "db.t3.micro"
 }
 
 variable "rds_instance_class_replica" {
-  default = "db.t2.large"
+  default = "db.t3.micro"
 }
 
 variable "rds_storage_type_idp" {

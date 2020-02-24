@@ -203,7 +203,7 @@ variable "elasticache_redis_node_type" {
   description = "Instance type used for redis elasticache. Changes incur downtime."
 
   # allowed values: t2.micro-medium, m3.medium-2xlarge, m4|r3|r4.large-
-  default = "cache.m3.medium"
+  default = "cache.t3.micro"
 }
 
 variable "elasticache_redis_engine_version" {
@@ -271,36 +271,38 @@ variable "client" {
 variable "env_name" {
 }
 
+# Instance sizes are minimums, suitable for sandbox/testing.
+# Production and other environments must override.
 variable "instance_type_app" {
-  default = "c5.large"
+  default = "t3.micro"
 }
 
 variable "instance_type_elk" {
-  default = "c5.large"
+  default = "t3.medium"
 }
 
 variable "instance_type_es" {
-  default = "c5.large"
+  default = "t3.large"
 }
 
 variable "instance_type_idp" {
-  default = "c5.large"
+  default = "t3.small"
 }
 
 variable "instance_type_jumphost" {
-  default = "c5.large"
+  default = "t3.micro"
 }
 
 variable "instance_type_migration" {
-  default = "c5.large"
+  default = "t3.small"
 }
 
 variable "instance_type_outboundproxy" {
-  default = "c5.large"
+  default = "t3.micro"
 }
 
 variable "instance_type_pivcac" {
-  default = "c5.large"
+  default = "t3.micro"
 }
 
 variable "name" {
