@@ -14,6 +14,8 @@ terraform {
 module "main" {
   source = "../module"
 
+  lambda_audit_github_enabled  = 0
+  lambda_audit_aws_enabled     = 0
   state_lock_table             = "terraform_locks"
   slack_events_sns_hook_arn    = "arn:aws:sns:us-west-2:555546682965:slack-identity-events"
   root_domain                  = "login.gov"
