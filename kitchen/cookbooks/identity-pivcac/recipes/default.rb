@@ -158,6 +158,17 @@ end
 
 execute "chown -R #{production_user} #{shared_path}/log"
 
+directory "#{deploy_dir}/api" do
+  owner node.fetch('login_dot_gov').fetch('system_user')
+  recursive true
+  action :create
+end
+
+login_dot_gov_deploy_info "#{deploy_dir}/api/deploy.json" do
+  owner node.fetch('login_dot_gov').fetch('system_user')
+  branch deploy_branch
+end
+
 update_revocations_script = '/usr/local/bin/update_cert_revocations'
 update_revocations_with_lock = "flock -n /tmp/update_cert_revocations.lock "\
                                "-c #{update_revocations_script}"
