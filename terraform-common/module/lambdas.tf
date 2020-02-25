@@ -14,7 +14,7 @@ resource "aws_lambda_function" "audit-github" {
 
   function_name = "audit-github"
   description   = "18F/identity-lambda-functions: GithubAuditor -- auditor of Github teams and membership"
-  role          = aws_iam_role.lambda-audit-github.arn
+  role          = aws_iam_role.lambda-audit-github[0].arn
   handler       = "main.IdentityAudit::GithubAuditor.process"
   runtime       = "ruby2.5"
   timeout       = 30 # seconds
@@ -34,9 +34,10 @@ resource "aws_lambda_function" "audit-github" {
 
 # Alert on errors
 module "audit-github-alerts" {
-  source = "github.com/18F/identity-terraform//lambda_alerts?ref=cafa07ecec6afd11d98765b288572462371ed741"
-
-  function_name        = aws_lambda_function.audit-github[0].function_name
+  source = "github.com/18F/identity-terraform//lambda_alerts?ref=0290e16a1789f986721a722337b6a9166bcebbc6"
+  
+  enabled              = var.lambda_audit_github_enabled
+  function_name        = var.lambda_audit_github_enabled == 1 ? aws_lambda_function.audit-github[0].function_name : ""
   alarm_actions        = [var.slack_events_sns_hook_arn]
   error_rate_threshold = 1 # percent
 }
@@ -53,14 +54,17 @@ data "aws_iam_policy_document" "lambda-assume-role-policy" {
 }
 
 resource "aws_iam_role" "lambda-audit-github" {
-  name = "lambda-audit-github"
+  count = var.lambda_audit_github_enabled
+  name  = "lambda-audit-github"
 
   assume_role_policy = data.aws_iam_policy_document.lambda-assume-role-policy.json
 }
 
 resource "aws_iam_role_policy" "lambda-audit-github-policy" {
+  count = var.lambda_audit_github_enabled
+
   name = "lambda-audit-github-policy"
-  role = aws_iam_role.lambda-audit-github.id
+  role = aws_iam_role.lambda-audit-github[0].id
 
   # Allow accessing necessary secrets
   policy = <<EOM
@@ -96,13 +100,17 @@ EOM
 
 # allow audit-github to send logs
 resource "aws_iam_role_policy_attachment" "lambda-audit-github-logs" {
-  role       = aws_iam_role.lambda-audit-github.name
+  count = var.lambda_audit_github_enabled
+
+  role       = aws_iam_role.lambda-audit-github[0].name
   policy_arn = aws_iam_policy.lambda-allow-logs.arn
 }
 
 # allow audit-github to log to x-ray
 resource "aws_iam_role_policy_attachment" "lambda-audit-github-xray" {
-  role       = aws_iam_role.lambda-audit-github.name
+  count = var.lambda_audit_github_enabled
+
+  role       = aws_iam_role.lambda-audit-github[0].name
   policy_arn = "arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess"
 }
 
@@ -122,7 +130,7 @@ resource "aws_lambda_function" "audit-aws" {
 
   function_name = "audit-aws"
   description   = "18F/identity-lambda-functions: AwsIamAuditor -- auditor of AWS IAM users and 2FA setup"
-  role          = aws_iam_role.lambda-audit-aws.arn
+  role          = aws_iam_role.lambda-audit-aws[0].arn
   handler       = "main.IdentityAudit::AwsIamAuditor.process"
   runtime       = "ruby2.5"
   timeout       = 30 # seconds
@@ -142,22 +150,26 @@ resource "aws_lambda_function" "audit-aws" {
 
 # Alert on errors
 module "audit-aws-alerts" {
-  source = "github.com/18F/identity-terraform//lambda_alerts?ref=cafa07ecec6afd11d98765b288572462371ed741"
+  source = "github.com/18F/identity-terraform//lambda_alerts?ref=0290e16a1789f986721a722337b6a9166bcebbc6"
 
-  function_name        = aws_lambda_function.audit-aws[0].function_name
+  enabled              = var.lambda_audit_aws_enabled
+  function_name        = var.lambda_audit_aws_enabled == 1 ? aws_lambda_function.audit-aws[0].function_name : ""
   alarm_actions        = [var.slack_events_sns_hook_arn]
   error_rate_threshold = 1 # percent
 }
 
 resource "aws_iam_role" "lambda-audit-aws" {
-  name = "lambda-audit-aws"
+  count = var.lambda_audit_aws_enabled
 
+  name = "lambda-audit-aws"
   assume_role_policy = data.aws_iam_policy_document.lambda-assume-role-policy.json
 }
 
 resource "aws_iam_role_policy" "lambda-audit-aws-policy" {
+  count = var.lambda_audit_aws_enabled
+
   name = "lambda-audit-aws-policy"
-  role = aws_iam_role.lambda-audit-aws.id
+  role = aws_iam_role.lambda-audit-aws[0].id
 
   # Allow accessing necessary secrets
   policy = <<EOM
@@ -203,13 +215,17 @@ EOM
 
 # allow audit-aws to send logs
 resource "aws_iam_role_policy_attachment" "lambda-audit-aws-logs" {
-  role       = aws_iam_role.lambda-audit-aws.name
+  count = var.lambda_audit_aws_enabled
+
+  role       = aws_iam_role.lambda-audit-aws[0].name
   policy_arn = aws_iam_policy.lambda-allow-logs.arn
 }
 
 # allow audit-aws to log to x-ray
 resource "aws_iam_role_policy_attachment" "lambda-audit-aws-xray" {
-  role       = aws_iam_role.lambda-audit-aws.name
+  count = var.lambda_audit_aws_enabled
+
+  role       = aws_iam_role.lambda-audit-aws[0].name
   policy_arn = "arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess"
 }
 
@@ -234,11 +250,15 @@ resource "aws_cloudwatch_event_rule" "weekdays_at_noon" {
 
 # Run the audit-github lambda daily on weekdays
 resource "aws_cloudwatch_event_target" "audit-github_daily" {
+  count = var.lambda_audit_github_enabled
+
   rule = aws_cloudwatch_event_rule.weekdays_at_noon.name
   arn  = aws_lambda_function.audit-github[0].arn
 }
 
 resource "aws_lambda_permission" "allow_cloudwatch_to_call_audit-github" {
+  count = var.lambda_audit_github_enabled
+
   statement_id  = "AllowExecutionFromCloudWatch"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.audit-github[0].function_name
@@ -248,11 +268,15 @@ resource "aws_lambda_permission" "allow_cloudwatch_to_call_audit-github" {
 
 # Run the audit-aws lambda daily on weekdays
 resource "aws_cloudwatch_event_target" "audit-aws_daily" {
+  count = var.lambda_audit_aws_enabled
+
   rule = aws_cloudwatch_event_rule.weekdays_at_noon.name
   arn  = aws_lambda_function.audit-aws[0].arn
 }
 
 resource "aws_lambda_permission" "allow_cloudwatch_to_call_audit-aws" {
+  count = var.lambda_audit_aws_enabled
+
   statement_id  = "AllowExecutionFromCloudWatch"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.audit-aws[0].function_name
