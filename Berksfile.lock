@@ -72,8 +72,8 @@ DEPENDENCIES
     revision: b2ea9e2f29790b0a3388c0bd9bf1444f0f789b87
   passenger
     git: https://github.com/18F/identity-cookbooks
-    revision: d85afdee6ad512b1d6a12f1dd46d872eb4e65bb3
-    ref: d85afde
+    revision: df053b05d00986a42b8e2b00efc0548db1198d08
+    ref: df053b0
     rel: passenger
   runit (~> 4.3.1)
   service_discovery
