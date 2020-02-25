@@ -271,8 +271,6 @@ variable "client" {
 variable "env_name" {
 }
 
-# Instance sizes are minimums, suitable for sandbox/testing.
-# Production and other environments must override.
 variable "instance_type_app" {
   default = "t3.micro"
 }
