@@ -13,6 +13,7 @@ variable "region" {
 
 variable "state_lock_table" {
   description = "Name of the DynamoDB table to use for state locking with the S3 state backend, e.g. 'terraform-locks'"
+  default     = "terraform_locks"
 }
 
 variable "manage_state_bucket" {
@@ -56,7 +57,7 @@ variable "iam_socadmin_enabled" {
 variable "iam_billing_enabled" {
   description = "Enable billing role in this account."
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "iam_reports_enabled" {
