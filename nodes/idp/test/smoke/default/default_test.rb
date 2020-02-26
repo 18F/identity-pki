@@ -74,6 +74,7 @@ describe file('/srv/idp/current/config/application.yml') do
   it { should be_readable.by_user('websrv') }
   its('content') { should include('production:') }
   its('content') { should include('database_host') }
+  its('content') { should include('"suffix":"2020"') }
 end
 
 describe file('/srv/idp/current/config/database.yml') do
@@ -113,8 +114,26 @@ describe port(443) do
   it { should be_listening }
 end
 
-# hit the IDP SAML 2019 metadata endpoint
-describe command('curl -Sfk -i https://localhost/api/saml/metadata2019') do
+# verify certs and hit the IDP SAML 2020 metadata endpoint
+describe file('/srv/idp/shared/certs/saml2020.crt') do
+  it { should exist }
+  it { should be_file }
+  it { should_not be_symlink }
+  its('owner') { should eq 'appinstall' }
+  its(:size) { should > 0 }
+end
+
+describe file('/srv/idp/shared/keys/saml2020.key.enc') do
+  it { should exist }
+  it { should be_file }
+  it { should_not be_symlink }
+  it { should_not be_readable.by('others') }
+  it { should be_readable.by('group') }
+  its('owner') { should eq 'appinstall' }
+  its(:size) { should > 0 }
+end
+
+describe command('curl -Sfk -i https://localhost/api/saml/metadata2020') do
   its('exit_status') { should eq 0 }
   its('stdout') { should start_with('HTTP/1.1 200 OK') }
   its('stdout') { should include 'Content-Type: text/xml' }
