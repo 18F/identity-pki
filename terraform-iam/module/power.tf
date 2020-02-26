@@ -189,6 +189,16 @@ module "poweruser-assumerole" {
           ]
         },
         {
+          sid    = "Firehose"
+          effect = "Allow"
+          actions = [
+            "firehose:*",
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
           sid    = "STS"
           effect = "Allow"
           actions = [
@@ -392,6 +402,8 @@ module "poweruser-assumerole" {
           sid    = "ELB"
           effect = "Allow"
           actions = [
+            "elasticloadbalancing:AddListenerCertificates",
+            "elasticloadbalancing:RemoveListenerCertificates",
             "elasticloadbalancing:AddTags",
             "elasticloadbalancing:ApplySecurityGroupsToLoadBalancer",
             "elasticloadbalancing:AttachLoadBalancerToSubnets",
@@ -399,26 +411,27 @@ module "poweruser-assumerole" {
             "elasticloadbalancing:ConfigureHealthCheck",
             "elasticloadbalancing:CreateLoadBalancer",
             "elasticloadbalancing:CreateLoadBalancerListeners",
+            "elasticloadbalancing:CreateRule",
             "elasticloadbalancing:CreateTargetGroup",
             "elasticloadbalancing:DeleteListener",
             "elasticloadbalancing:DeleteLoadBalancer",
+            "elasticloadbalancing:DeleteRule",
             "elasticloadbalancing:DeleteTargetGroup",
             "elasticloadbalancing:DeregisterTargets",
             "elasticloadbalancing:DeregisterInstancesFromLoadBalancer",
-            "elasticloadbalancing:DescribeLoadBalancers",
-            "elasticloadbalancing:DescribeLoadBalancerAttributes",
-            "elasticloadbalancing:DescribeTags",
-            "elasticloadbalancing:DescribeTargetHealth",
-            "elasticloadbalancing:DescribeTargetGroups",
-            "elasticloadbalancing:DescribeTargetGroupAttributes",
+            "elasticloadbalancing:Describe*",
             "elasticloadbalancing:ModifyLoadBalancerAttributes",
             "elasticloadbalancing:ModifyTargetGroup",
             "elasticloadbalancing:ModifyTargetGroupAttributes",
             "elasticloadbalancing:ModifyListener",
+            "elasticloadbalancing:ModifyRule",
             "elasticloadbalancing:RegisterTargets",
             "elasticloadbalancing:RegisterInstancesWithLoadBalancer",
             "elasticloadbalancing:SetSecurityGroups",
+            "elasticloadbalancing:SetSubnets",
             "elasticloadbalancing:DescribeSSLPolicies",
+            "elasticloadbalancing:SetIpAddressType",
+            "elasticloadbalancing:SetRulePriorities",
             "elasticloadbalancing:SetWebACL",
           ]
           resources = [
