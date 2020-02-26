@@ -14,8 +14,6 @@ terraform {
 module "main" {
   source = "../module"
 
-  state_lock_table    = "terraform_locks"
-  iam_billing_enabled = true
   iam_reports_enabled = true
   reports_bucket_arn  = "arn:aws:s3:::login-gov.reports.555546682965-us-west-2"
 }

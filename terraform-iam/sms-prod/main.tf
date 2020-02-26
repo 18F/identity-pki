@@ -14,6 +14,5 @@ terraform {
 module "main" {
   source = "../module"
 
-  state_lock_table    = "terraform_locks"
   iam_appdev_enabled  = false
 }
