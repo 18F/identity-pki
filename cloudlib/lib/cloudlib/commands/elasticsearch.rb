@@ -16,10 +16,13 @@ module Cloudlib
         Cloudlib::Elasticsearch.new.clear_node_drain(env)
       end
 
-      desc('check_status ENV',
-           'Retrieve status of Elasticsearch nodes in the ENVironment')
-      def check_status(env)
-        Cloudlib::Elasticsearch.new.check_cluster_status(env)
+      desc('check_status ENV', <<~D
+              Retrieve status of Elasticsearch nodes in the ENVironment.
+              Run with -o flag to print the output hash of cluster/health?level=shards\n
+            D
+          )
+      def check_status(env, output_hash = '')
+        Cloudlib::Elasticsearch.new.check_cluster_status(env, output_hash)
       end
 
       desc('update_minimum_masters ENV NEW_MIN',
