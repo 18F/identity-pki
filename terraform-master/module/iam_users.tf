@@ -64,11 +64,6 @@ resource "aws_iam_user" "karla_rodriguez" {
   force_destroy = true
 }
 
-resource "aws_iam_user" "laura_gerhardt" {
-  name          = "laura.gerhardt"
-  force_destroy = true
-}
-
 resource "aws_iam_user" "likhitha_patha" {
   name          = "likhitha.patha"
   force_destroy = true
@@ -137,7 +132,6 @@ resource "aws_iam_policy_attachment" "manage_your_account" {
     aws_iam_user.justin_grevich.name,
     aws_iam_user.jennifer_wagner.name,
     aws_iam_user.karla_rodriguez.name,
-    aws_iam_user.laura_gerhardt.name,
     aws_iam_user.likhitha_patha.name,
     aws_iam_user.mossadeq_zia.name,
     aws_iam_user.paul_hirsch.name,
