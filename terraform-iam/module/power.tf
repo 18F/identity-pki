@@ -113,7 +113,7 @@ module "poweruser-assumerole" {
             "cloudfront:ListDistributions",
             "cloudfront:ListInvalidations",
             "cloudfront:ListFieldLevelEncryptionConfigs",
-            "cloudfront:LisStreamingDistributions",
+            "cloudfront:ListStreamingDistributions",
             "cloudfront:CreateDistribution",
           ]
           resources = [
@@ -154,15 +154,13 @@ module "poweruser-assumerole" {
           sid    = "Route53"
           effect = "Allow"
           actions = [
-            "route53:GetHostedZone",
-            "route53:ListHostedZonesByName",
-            "route53:ListResourceRecordSets",
+            "route53:Get*",
+            "route53:List*",
             "route53:UpdateHostedZoneComment",
             "route53:CreateHostedZone",
             "route53:ChangeResourceRecordSets",
-            "route53:GetChange",
             "route53:DeleteHostedZone",
-            "route53:ListTagsForResource",
+            "route53:TestDNSAnswer",
           ]
           resources = [
             "*",
