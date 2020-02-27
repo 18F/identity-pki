@@ -101,6 +101,17 @@ Most of the root certificate management is handled by `bin/setup` but there are 
 
 2. Open Keychain Access and delete the certificate named "**identity-pki Development Certificate**"
 
+#### Using Docker Locally
+
+1. Download, install, and launch [Docker](https://www.docker.com/products/docker-desktop).
+
+1. Build the Docker containers: `docker-compose build`
+
+1. Run `make docker_setup` to copy configuration files and bootstrap the database.
+
+1. Start the Docker containers `docker-compose up` and `open https://localhost:8443` (If you see an SSL error, check [Trust the root SSL certificate](#trust-the-root-ssl-certificate) instructions)
+
+
 ### Certificate Authority Management
 
 The PIV/CAC service relies on having all of the certificate authorities (issuing
