@@ -1,0 +1,26 @@
+version: '3'
+services:
+  web:
+    build: .
+    volumes:
+      - .:/pivcac
+    ports:
+      - "8443:8443"
+    environment:
+      DATABASE_URL: "postgres://postgres@db"
+      DATABASE_CLEANER_ALLOW_REMOTE_DATABASE_URL: 'true'
+      nonce_bloom_filter_server: "redis://redis:6379"
+      # Set database timeouts to 30 seconds
+      database_timeout: '30000'
+      database_statement_timeout: '30000'
+      DOCKER_DB_HOST: 'db'
+      DOCKER_DB_USER: 'postgres'
+    depends_on:
+      - db
+      - redis
+  db:
+    image: postgres
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+  redis:
+    image: redis

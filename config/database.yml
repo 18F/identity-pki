@@ -10,6 +10,7 @@ defaults: &defaults
   pool: 5
   <<: *postgresql
   reconnect: true
+  timeout: <%= (Figaro.env.database_timeout || 5000).to_i %> # ms
   connect_timeout: 2
   keepalives_idle: 10
   keepalives_interval: 10
@@ -17,7 +18,7 @@ defaults: &defaults
   checkout_timeout: 5
   reaping_frequency: 10
   variables:
-    statement_timeout: 2500 # ms
+    statement_timeout: <%= (Figaro.env.database_statement_timeout || 2500).to_i %> # ms
 
 development:
   <<: *defaults
