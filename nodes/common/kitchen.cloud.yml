@@ -36,7 +36,7 @@ lt_ami_id = ec2.client.describe_launch_template_versions({
   versions: ['$Latest']
 }).launch_template_versions[0].launch_template_data.image_id
 
-ami_id = ENV.fetch('KITCHEN_RAILS_AMI', 'lt_ami_id')
+ami_id = ENV.fetch('KITCHEN_RAILS_AMI', lt_ami_id)
 
 vpc_name = "login-vpc-#{environment}"
 
