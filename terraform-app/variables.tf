@@ -272,7 +272,7 @@ variable "env_name" {
 }
 
 variable "instance_type_app" {
-  default = "t3.micro"
+  default = "t3.small"
 }
 
 variable "instance_type_elk" {
@@ -288,7 +288,7 @@ variable "instance_type_idp" {
 }
 
 variable "instance_type_jumphost" {
-  default = "t3.micro"
+  default = "t3.small"
 }
 
 variable "instance_type_migration" {
@@ -296,11 +296,11 @@ variable "instance_type_migration" {
 }
 
 variable "instance_type_outboundproxy" {
-  default = "t3.micro"
+  default = "t3.small"
 }
 
 variable "instance_type_pivcac" {
-  default = "t3.micro"
+  default = "t3.small"
 }
 
 variable "name" {
