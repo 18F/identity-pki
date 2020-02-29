@@ -25,11 +25,6 @@ describe file('/opt/nginx/logs') do
   it { should be_linked_to '/var/log/nginx' }
 end
 
-# should run migrations on migration servers
-describe file('/tmp/ran-deploy-migrate') do
-  it { should exist }
-end
-
 # check deploy info file
 describe file('/srv/idp/current/public/api/deploy.json') do
   it { should be_file }
