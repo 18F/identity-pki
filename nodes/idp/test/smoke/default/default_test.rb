@@ -1,3 +1,14 @@
+# encoding: utf-8
+require 'rspec/retry'
+
+RSpec.configure do |config|
+  # show retry status in spec process
+  # config.verbose_retry = true
+
+  # show exception that triggers a retry if verbose_retry is set to true
+  # config.display_try_failure_messages = true
+end
+
 # Inspec tests for idp node
 
 # The Inspec reference, with examples and extensive documentation, can be
@@ -62,6 +73,7 @@ end
 describe file('/srv/idp/shared/config/application.yml') do
   it { should_not exist }
 end
+
 describe file('/srv/idp/shared/config/database.yml') do
   it { should_not exist }
 end
@@ -83,13 +95,16 @@ describe file('/srv/idp/current/config/database.yml') do
   it { should_not be_symlink }
 end
 
-# hit the IDP database health check and ensure it's healthy
-# Ideally we would use the http() inspec resource, but it doesn't seem to work
-describe command('curl -Sfk -i https://localhost/api/health/database') do
-  its('exit_status') { should eq 0 }
-  its('stdout') { should start_with('HTTP/1.1 200 OK') }
-  its('stdout') { should include 'Content-Type: application/json' }
-  its('stdout') { should include '"healthy":true' }
+describe http('https://localhost/api/health', ssl_verify: false) do
+  its('status') { should eq 200 }
+  its('headers.Content-Type') { should cmp 'application/json; charset=utf-8' }
+  its('body') { should include '"all_checks_healthy":true' }
+end
+
+describe http('https://localhost', ssl_verify: false) do
+  its('status') { should eq 200 }
+  its('headers.Content-Type') { should cmp 'text/html; charset=utf-8' }
+  its('body') { should include 'Sign in' }
 end
 
 # make sure we're writing to production log
@@ -133,11 +148,10 @@ describe file('/srv/idp/shared/keys/saml2020.key.enc') do
   its(:size) { should > 0 }
 end
 
-describe command('curl -Sfk -i https://localhost/api/saml/metadata2020') do
-  its('exit_status') { should eq 0 }
-  its('stdout') { should start_with('HTTP/1.1 200 OK') }
-  its('stdout') { should include 'Content-Type: text/xml' }
-  its('stdout') { should include '<SingleSignOnService' }
+describe http('https://localhost/api/saml/metadata2020', ssl_verify: false) do
+  its('status') { should eq 200 }
+  its('headers.Content-Type') { should cmp 'text/xml; charset=utf-8' }
+  its('body') { should include '<SingleSignOnService' }
 end
 
 # idp-jobs service
@@ -151,60 +165,63 @@ describe processes(/rake job_runs:run/) do
   its('users') { should eq ['websrv'] }
 end
 
-
 describe service('filebeat') do
   it { should be_installed }
   it { should be_enabled }
 end
 
 # filebeat is harvesting common logs
-describe command("grep 'Harvester started for file' /var/log/filebeat/filebea* | awk '{print $NF}' | sort | uniq") do
-  its('stdout') { should include '/var/log/alternatives.log' }
-  its('stdout') { should include '/var/log/amazon/ssm/amazon-ssm-agent.log' }
-  its('stdout') { should include '/var/log/amazon/ssm/errors.log' }
-  its('stdout') { should include '/var/log/amazon/ssm/hibernate.log' }
-  its('stdout') { should include '/var/log/apport.log' }
-  its('stdout') { should include '/var/log/apt/history.log' }
-  its('stdout') { should include '/var/log/apt/term.log' }
-  its('stdout') { should include '/var/log/audit/audit.log' }
-  its('stdout') { should include '/var/log/auth.log' }
+describe file('/var/log/filebeat/filebeat') do
+  its('content') { should include '/var/log/alternatives.log' }
+  its('content') { should include '/var/log/amazon/ssm/amazon-ssm-agent.log' }
+  its('content') { should include '/var/log/amazon/ssm/errors.log' }
+  its('content') { should include '/var/log/amazon/ssm/hibernate.log' }
+  its('content') { should include '/var/log/apport.log' }
+  its('content') { should include '/var/log/apt/history.log' }
+  its('content') { should include '/var/log/apt/term.log' }
+  its('content') { should include '/var/log/audit/audit.log' }
+  its('content') { should include '/var/log/auth.log' }
 # TODO: add once we either test the awsagent update process or the build of this instance takes long
 # enough for the awsagent update to occur automatically.
-#  its('stdout') { should include '/var/log/awsagent-update.log' }
-  its('stdout') { should include '/var/log/awslogs-agent-setup.log' }
-  its('stdout') { should include '/var/log/awslogs.log' }
-  its('stdout') { should include '/var/log/clamav/clamav.log' }
+#  its('content') { should include '/var/log/awsagent-update.log' }
+  its('content') { should include '/var/log/awslogs-agent-setup.log' }
+  its('content') { should include '/var/log/awslogs.log' }
+  its('content') { should include '/var/log/clamav/clamav.log' }
 # TODO: add once we have a test that updates the clamav definitions.
-  its('stdout') { should include '/var/log/clamav/freshclam.log' }
-  its('stdout') { should include '/var/log/cloud-init-output.log' }
-  its('stdout') { should include '/var/log/cloud-init.log' }
-  its('stdout') { should include '/var/log/dnsmasq.log' }
-  its('stdout') { should include '/var/log/dpkg.log' }
+  its('content') { should include '/var/log/clamav/freshclam.log' }
+  its('content') { should include '/var/log/cloud-init-output.log' }
+  its('content') { should include '/var/log/cloud-init.log' }
+  its('content') { should include '/var/log/dnsmasq.log' }
+  its('content') { should include '/var/log/dpkg.log' }
 # TODO: perhaps remove this from common since it seems to only be present on ELK instances  
-#  its('stdout') { should include '/var/log/fontconfig.log' }
-  its('stdout') { should include '/var/log/grubfix.log' }
-  its('stdout') { should include '/var/log/kern.log' }
+#  its('content') { should include '/var/log/fontconfig.log' }
+  its('content') { should include '/var/log/grubfix.log' }
+  its('content') { should include '/var/log/kern.log' }
 # NOTE: this does not seem to be used on the jumphost
-#  its('stdout') { should include '/var/log/landscape/sysinfo.log' }
-  its('stdout') { should include '/var/log/mail.log' }
-  its('stdout') { should include '/var/log/messages' }
+#  its('content') { should include '/var/log/landscape/sysinfo.log' }
+  its('content') { should include '/var/log/mail.log' }
+  its('content') { should include '/var/log/messages' }
 # TODO: add once we have a test for proxy and proxy cache.
-#  its('stdout') { should include '/var/log/squid/access.log' }
-#  its('stdout') { should include '/var/log/squid/cache.log' }
-  its('stdout') { should include '/var/log/sysctlfix.log' }
-  its('stdout') { should include '/var/log/syslog' }
-  its('stdout') { should include '/var/log/unattended-upgrades/unattended-upgrades-shutdown.log' }
+#  its('content') { should include '/var/log/squid/access.log' }
+#  its('content') { should include '/var/log/squid/cache.log' }
+  its('content') { should include '/var/log/sysctlfix.log' }
+  its('content') { should include '/var/log/syslog' }
+  its('content') { should include '/var/log/unattended-upgrades/unattended-upgrades-shutdown.log' }
 end
 
 # filebeat is harvesting instance specific logs
-describe command("grep 'Harvester started for file' /var/log/filebeat/filebea* | awk '{print $NF}' | sort | uniq") do
-  its('stdout') { should include '/srv/idp/shared/log/events.log' }
-  its('stdout') { should include '/srv/idp/shared/log/kms.log' }
-  its('stdout') { should include '/srv/idp/shared/log/newrelic_agent.log' }
-  its('stdout') { should include '/var/log/nginx/access.log' }
-  its('stdout') { should include '/var/log/nginx/error.log' }
-  its('stdout') { should include '/var/log/nginx/fancy_access.log' }
-  its('stdout') { should include '/srv/idp/shared/log/production.log' }
+describe file('/var/log/filebeat/filebeat') do
+  it 'should include events.log', retry: 3, retry_wait: 20 do
+    expect(file('/var/log/filebeat/filebeat').content).to include('/srv/idp/shared/log/events.log')
+  end
+  it 'should include kms.log', retry: 3, retry_wait: 20 do
+    expect(file('/var/log/filebeat/filebeat').content).to include('/srv/idp/shared/log/kms.log')
+  end
+  its('content') { should include '/srv/idp/shared/log/newrelic_agent.log' }
+  its('content') { should include '/var/log/nginx/access.log' }
+  its('content') { should include '/var/log/nginx/error.log' }
+  its('content') { should include '/var/log/nginx/fancy_access.log' }
+  its('content') { should include '/srv/idp/shared/log/production.log' }
 end
 
 describe file('/opt/nginx/conf/sites.d/idp_web.conf') do
