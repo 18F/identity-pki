@@ -975,7 +975,7 @@ GEM
       pry (>= 0.10.4)
     psych (3.1.0)
     public_suffix (3.1.1)
-    puma (3.12.2)
+    puma (3.12.4)
     rack (2.0.8)
     rack-mini-profiler (1.0.2)
       rack (>= 1.2.0)
@@ -1137,7 +1137,7 @@ DEPENDENCIES
   pg
   pry-byebug
   pry-rails
-  puma (~> 3.12)
+  puma (~> 3.12, >= 3.12.4)
   rack-mini-profiler
   rails (~> 5.2, >= 5.2.2.1)
   rails-controller-testing
@@ -1159,4 +1159,4 @@ RUBY VERSION
    ruby 2.6.5p114
 
 BUNDLED WITH
-   2.1.4
+   1.17.3
