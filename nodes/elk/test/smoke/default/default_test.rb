@@ -1,4 +1,13 @@
-# # encoding: utf-8
+# encoding: utf-8
+require 'rspec/retry'
+
+RSpec.configure do |config|
+  # show retry status in spec process
+  # config.verbose_retry = true
+
+  # show exception that triggers a retry if verbose_retry is set to true
+  # config.display_try_failure_messages = true
+end
 
 # Inspec tests for elk node
 # The Inspec reference, with examples and extensive documentation, can be
@@ -47,11 +56,15 @@ end
 
 # kibana
 describe port(5601) do
-# TODO: this should work with the .on predicate to specify the interface that the port is listening
-# on however it results in the following error:
-# undefined method `on' for #<RSpec::Matchers::BuiltIn::BePredicate:0x00007fe6377ae750>
-#  it { should be_listening.on('127.0.0.1') }
-  it { should be_listening }
+  it 'should be addressable on 127.0.0.1', retry: 6, retry_wait: 60 do
+    expect(port(5601).addresses).to include('127.0.0.1')
+  end
+  it 'should have its processed owned by node', retry: 6, retry_wait: 60 do
+    expect(port(5601).processes).to include('node')
+  end
+  it 'should be_listening', retry: 6, retry_wait: 60 do
+    should be_listening
+  end
 end
 
 # apache https proxy to kibana
@@ -86,57 +99,59 @@ describe service('filebeat') do
 end
 
 # filebeat is harvesting common logs
-describe command("grep 'Harvester started for file' /var/log/filebeat/filebea* | awk '{print $NF}' | sort | uniq") do
-  its('stdout') { should include '/var/log/alternatives.log' }
-  its('stdout') { should include '/var/log/amazon/ssm/amazon-ssm-agent.log' }
-  its('stdout') { should include '/var/log/amazon/ssm/errors.log' }
-  its('stdout') { should include '/var/log/amazon/ssm/hibernate.log' }
-  its('stdout') { should include '/var/log/apport.log' }
-  its('stdout') { should include '/var/log/apt/history.log' }
-  its('stdout') { should include '/var/log/apt/term.log' }
-  its('stdout') { should include '/var/log/audit/audit.log' }
-  its('stdout') { should include '/var/log/auth.log' }
+describe file('/var/log/filebeat/filebeat') do
+# TODO: add once we test something that creates entries in the alternatives log.
+#  its('content') { should include '/var/log/alternatives.log' }
+  its('content') { should include '/var/log/amazon/ssm/amazon-ssm-agent.log' }
+  its('content') { should include '/var/log/amazon/ssm/errors.log' }
+# TODO: add once we test something that creates entries in the amazon/ssm/hibernate.log.
+#  its('content') { should include '/var/log/amazon/ssm/hibernate.log' }
+  its('content') { should include '/var/log/apport.log' }
+# TODO: add once we test something that creates entries in the audit log.
+#  its('content') { should include '/var/log/audit/audit.log' }
+  its('content') { should include '/var/log/auth.log' }
 # TODO: add once we either test the awsagent update process or the build of this instance takes long
 # enough for the awsagent update to occur automatically.
-#  its('stdout') { should include '/var/log/awsagent-update.log' }
-  its('stdout') { should include '/var/log/awslogs-agent-setup.log' }
-  its('stdout') { should include '/var/log/awslogs.log' }
-  its('stdout') { should include '/var/log/clamav/clamav.log' }
+#  its('content') { should include '/var/log/awsagent-update.log' }
+  its('content') { should include '/var/log/awslogs-agent-setup.log' }
+  its('content') { should include '/var/log/awslogs.log' }
+# TODO: add once we have a test that assures clamav is running.
+#  its('content') { should include '/var/log/clamav/clamav.log' }
 # TODO: add once we have a test that updates the clamav definitions.
-  its('stdout') { should include '/var/log/clamav/freshclam.log' }
-  its('stdout') { should include '/var/log/cloud-init-output.log' }
-  its('stdout') { should include '/var/log/cloud-init.log' }
-  its('stdout') { should include '/var/log/dnsmasq.log' }
-  its('stdout') { should include '/var/log/dpkg.log' }
+#  its('content') { should include '/var/log/clamav/freshclam.log' }
+  its('content') { should include '/var/log/cloud-init-output.log' }
+  its('content') { should include '/var/log/cloud-init.log' }
+  its('content') { should include '/var/log/dnsmasq.log' }
+  its('content') { should include '/var/log/dpkg.log' }
 # TODO: perhaps remove this from common since it seems to only be present on ELK instances
-#  its('stdout') { should include '/var/log/fontconfig.log' }
-  its('stdout') { should include '/var/log/grubfix.log' }
-  its('stdout') { should include '/var/log/kern.log' }
+#  its('content') { should include '/var/log/fontconfig.log' }
+  its('content') { should include '/var/log/grubfix.log' }
+  its('content') { should include '/var/log/kern.log' }
 # NOTE: this does not seem to be used on the jumphost
-#  its('stdout') { should include '/var/log/landscape/sysinfo.log' }
-  its('stdout') { should include '/var/log/mail.log' }
-  its('stdout') { should include '/var/log/messages' }
+#  its('content') { should include '/var/log/landscape/sysinfo.log' }
+  its('content') { should include '/var/log/mail.log' }
+  its('content') { should include '/var/log/messages' }
 # TODO: add once we have a test for proxy and proxy cache.
-#  its('stdout') { should include '/var/log/squid/access.log' }
-#  its('stdout') { should include '/var/log/squid/cache.log' }
-  its('stdout') { should include '/var/log/sysctlfix.log' }
-  its('stdout') { should include '/var/log/syslog' }
-  its('stdout') { should include '/var/log/unattended-upgrades/unattended-upgrades-shutdown.log' }
+#  its('content') { should include '/var/log/squid/access.log' }
+#  its('content') { should include '/var/log/squid/cache.log' }
+  its('content') { should include '/var/log/sysctlfix.log' }
+  its('content') { should include '/var/log/syslog' }
 end
 
 # filebeat is harvesting instance specific logs
-describe command("grep 'Harvester started for file' /var/log/filebeat/filebea* | awk '{print $NF}' | sort | uniq") do
-  its('stdout') { should include '/var/log/apache2/access.log' }
+describe file('/var/log/filebeat/filebeat') do
+# TODO: add once we have a test that confirms events that log to this file.
+#  its('content') { should include '/var/log/apache2/access.log' }
 # TODO: add once we have a test that confirms Apache error conditions.
-#  its('stdout') { should include '/var/log/apache2/error.log' }
+#  its('content') { should include '/var/log/apache2/error.log' }
 # TODO: add once we have a test that confirms events that log to this file.
-#  its('stdout') { should include '/var/log/apache2/other_vhosts_access.log' }
-  its('stdout') { should include '/var/log/cloudtraillogstash/current' }
-  its('stdout') { should include '/var/log/cloudwatchlogstash/current' }
-  its('stdout') { should include '/var/log/kibana/current' }
-  its('stdout') { should include '/var/log/logstash/current' }
+#  its('content') { should include '/var/log/apache2/other_vhosts_access.log' }
+  its('content') { should include '/var/log/cloudtraillogstash/current' }
+  its('content') { should include '/var/log/cloudwatchlogstash/current' }
+  its('content') { should include '/var/log/kibana/current' }
+  its('content') { should include '/var/log/logstash/current' }
 # TODO: add once we have a test that confirms events that log to this file.
-#  its('stdout') { should include '/var/log/logstash/logstash-plain.log' }
+#  its('content') { should include '/var/log/logstash/logstash-plain.log' }
 # TODO: add once we have a test to introduce a slowlog event.
-#  its('stdout') { should include '/var/log/logstash/logstash-slowlog-plain.log' }
+#  its('content') { should include '/var/log/logstash/logstash-slowlog-plain.log' }
 end
