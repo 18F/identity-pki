@@ -4,7 +4,8 @@ type: spike
 # larger than the largest negative spike in that history.
 spike_height: 1.35
 spike_type: down
-timeframe: minutes: 10
+timeframe:
+  minutes: 10
 index: logstash-2*
 alert_text: There has been a significant drop in service prodiver traffic in <%= @env %>
 owner: <%= @env %>
