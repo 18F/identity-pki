@@ -113,7 +113,7 @@ module "poweruser-assumerole" {
             "cloudfront:ListDistributions",
             "cloudfront:ListInvalidations",
             "cloudfront:ListFieldLevelEncryptionConfigs",
-            "cloudfront:LisStreamingDistributions",
+            "cloudfront:ListStreamingDistributions",
             "cloudfront:CreateDistribution",
           ]
           resources = [
@@ -154,15 +154,13 @@ module "poweruser-assumerole" {
           sid    = "Route53"
           effect = "Allow"
           actions = [
-            "route53:GetHostedZone",
-            "route53:ListHostedZonesByName",
-            "route53:ListResourceRecordSets",
+            "route53:Get*",
+            "route53:List*",
             "route53:UpdateHostedZoneComment",
             "route53:CreateHostedZone",
             "route53:ChangeResourceRecordSets",
-            "route53:GetChange",
             "route53:DeleteHostedZone",
-            "route53:ListTagsForResource",
+            "route53:TestDNSAnswer",
           ]
           resources = [
             "*",
@@ -183,6 +181,16 @@ module "poweruser-assumerole" {
           effect = "Allow"
           actions = [
             "kinesis:*",
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
+          sid    = "Firehose"
+          effect = "Allow"
+          actions = [
+            "firehose:*",
           ]
           resources = [
             "*",
@@ -392,6 +400,8 @@ module "poweruser-assumerole" {
           sid    = "ELB"
           effect = "Allow"
           actions = [
+            "elasticloadbalancing:AddListenerCertificates",
+            "elasticloadbalancing:RemoveListenerCertificates",
             "elasticloadbalancing:AddTags",
             "elasticloadbalancing:ApplySecurityGroupsToLoadBalancer",
             "elasticloadbalancing:AttachLoadBalancerToSubnets",
@@ -399,26 +409,27 @@ module "poweruser-assumerole" {
             "elasticloadbalancing:ConfigureHealthCheck",
             "elasticloadbalancing:CreateLoadBalancer",
             "elasticloadbalancing:CreateLoadBalancerListeners",
+            "elasticloadbalancing:CreateRule",
             "elasticloadbalancing:CreateTargetGroup",
             "elasticloadbalancing:DeleteListener",
             "elasticloadbalancing:DeleteLoadBalancer",
+            "elasticloadbalancing:DeleteRule",
             "elasticloadbalancing:DeleteTargetGroup",
             "elasticloadbalancing:DeregisterTargets",
             "elasticloadbalancing:DeregisterInstancesFromLoadBalancer",
-            "elasticloadbalancing:DescribeLoadBalancers",
-            "elasticloadbalancing:DescribeLoadBalancerAttributes",
-            "elasticloadbalancing:DescribeTags",
-            "elasticloadbalancing:DescribeTargetHealth",
-            "elasticloadbalancing:DescribeTargetGroups",
-            "elasticloadbalancing:DescribeTargetGroupAttributes",
+            "elasticloadbalancing:Describe*",
             "elasticloadbalancing:ModifyLoadBalancerAttributes",
             "elasticloadbalancing:ModifyTargetGroup",
             "elasticloadbalancing:ModifyTargetGroupAttributes",
             "elasticloadbalancing:ModifyListener",
+            "elasticloadbalancing:ModifyRule",
             "elasticloadbalancing:RegisterTargets",
             "elasticloadbalancing:RegisterInstancesWithLoadBalancer",
             "elasticloadbalancing:SetSecurityGroups",
+            "elasticloadbalancing:SetSubnets",
             "elasticloadbalancing:DescribeSSLPolicies",
+            "elasticloadbalancing:SetIpAddressType",
+            "elasticloadbalancing:SetRulePriorities",
             "elasticloadbalancing:SetWebACL",
           ]
           resources = [
