@@ -107,49 +107,49 @@ describe service('filebeat') do
 end
 
 # filebeat is harvesting common logs
-describe command("grep 'Harvester started for file' /var/log/filebeat/filebea* | awk '{print $NF}' | sort | uniq") do
-  its('stdout') { should include '/var/log/alternatives.log' }
-  its('stdout') { should include '/var/log/amazon/ssm/amazon-ssm-agent.log' }
-  its('stdout') { should include '/var/log/amazon/ssm/errors.log' }
-  its('stdout') { should include '/var/log/amazon/ssm/hibernate.log' }
-  its('stdout') { should include '/var/log/apport.log' }
-  its('stdout') { should include '/var/log/apt/history.log' }
-  its('stdout') { should include '/var/log/apt/term.log' }
-  its('stdout') { should include '/var/log/audit/audit.log' }
-  its('stdout') { should include '/var/log/auth.log' }
+describe file('/var/log/filebeat/filebeat') do
+  its('content') { should include '/var/log/alternatives.log' }
+  its('content') { should include '/var/log/amazon/ssm/amazon-ssm-agent.log' }
+  its('content') { should include '/var/log/amazon/ssm/errors.log' }
+  its('content') { should include '/var/log/amazon/ssm/hibernate.log' }
+  its('content') { should include '/var/log/apport.log' }
+  its('content') { should include '/var/log/apt/history.log' }
+  its('content') { should include '/var/log/apt/term.log' }
+  its('content') { should include '/var/log/audit/audit.log' }
+  its('content') { should include '/var/log/auth.log' }
 # TODO: add once we either test the awsagent update process or the build of this instance takes long
 # enough for the awsagent update to occur automatically.
-#  its('stdout') { should include '/var/log/awsagent-update.log' }
-  its('stdout') { should include '/var/log/awslogs-agent-setup.log' }
-  its('stdout') { should include '/var/log/awslogs.log' }
-  its('stdout') { should include '/var/log/clamav/clamav.log' }
+#  its('content') { should include '/var/log/awsagent-update.log' }
+  its('content') { should include '/var/log/awslogs-agent-setup.log' }
+  its('content') { should include '/var/log/awslogs.log' }
+  its('content') { should include '/var/log/clamav/clamav.log' }
 # TODO: add once we have a test that updates the clamav definitions.
-  its('stdout') { should include '/var/log/clamav/freshclam.log' }
-  its('stdout') { should include '/var/log/cloud-init-output.log' }
-  its('stdout') { should include '/var/log/cloud-init.log' }
-  its('stdout') { should include '/var/log/dnsmasq.log' }
-  its('stdout') { should include '/var/log/dpkg.log' }
+  its('content') { should include '/var/log/clamav/freshclam.log' }
+  its('content') { should include '/var/log/cloud-init-output.log' }
+  its('content') { should include '/var/log/cloud-init.log' }
+  its('content') { should include '/var/log/dnsmasq.log' }
+  its('content') { should include '/var/log/dpkg.log' }
 # TODO: perhaps remove this from common since it seems to only be present on ELK instances  
-#  its('stdout') { should include '/var/log/fontconfig.log' }
-  its('stdout') { should include '/var/log/grubfix.log' }
-  its('stdout') { should include '/var/log/kern.log' }
+#  its('content') { should include '/var/log/fontconfig.log' }
+  its('content') { should include '/var/log/grubfix.log' }
+  its('content') { should include '/var/log/kern.log' }
 # NOTE: this does not seem to be used on the jumphost
-#  its('stdout') { should include '/var/log/landscape/sysinfo.log' }
-  its('stdout') { should include '/var/log/mail.log' }
-  its('stdout') { should include '/var/log/messages' }
+#  its('content') { should include '/var/log/landscape/sysinfo.log' }
+  its('content') { should include '/var/log/mail.log' }
+  its('content') { should include '/var/log/messages' }
 # TODO: add once we have a test for proxy and proxy cache.
-#  its('stdout') { should include '/var/log/squid/access.log' }
-#  its('stdout') { should include '/var/log/squid/cache.log' }
-  its('stdout') { should include '/var/log/sysctlfix.log' }
-  its('stdout') { should include '/var/log/syslog' }
-  its('stdout') { should include '/var/log/unattended-upgrades/unattended-upgrades-shutdown.log' }
+#  its('content') { should include '/var/log/squid/access.log' }
+#  its('content') { should include '/var/log/squid/cache.log' }
+  its('content') { should include '/var/log/sysctlfix.log' }
+  its('content') { should include '/var/log/syslog' }
+  its('content') { should include '/var/log/unattended-upgrades/unattended-upgrades-shutdown.log' }
 end
 
 # filebeat is harvesting instance specific logs
-describe command("grep 'Harvester started for file' /var/log/filebeat/filebea* | awk '{print $NF}' | sort | uniq") do
-  its('stdout') { should include '/var/log/elasticsearch/discovery.log' }
-  its('stdout') { should include '/var/log/elasticsearch/elasticsearch.log' }
-  its('stdout') { should include '/var/log/elasticsearch/elasticsearch_deprecation.log' }
-  its('stdout') { should include '/var/log/elasticsearch/elasticsearch_index_indexing_slowlog.log' }
-  its('stdout') { should include '/var/log/elasticsearch/elasticsearch_index_search_slowlog.log' }
+describe file('/var/log/filebeat/filebeat') do
+  its('content') { should include '/var/log/elasticsearch/discovery.log' }
+  its('content') { should include '/var/log/elasticsearch/elasticsearch.log' }
+  its('content') { should include '/var/log/elasticsearch/elasticsearch_deprecation.log' }
+  its('content') { should include '/var/log/elasticsearch/elasticsearch_index_indexing_slowlog.log' }
+  its('content') { should include '/var/log/elasticsearch/elasticsearch_index_search_slowlog.log' }
 end

@@ -257,6 +257,8 @@ if user_data.length > 16_384
   user_data = gzip(user_data)
 end
 
+instance_type = role == 'elk' ? 'r5d.2xlarge' : 'c5.xlarge'
+
 %>
 
 <%=
@@ -271,7 +273,7 @@ end
             "value" => subnet
         },
         "security_group_ids" => [main_security_group, base_security_group].map(&:group_id),
-        "instance_type" => "c5.xlarge",
+        "instance_type" => instance_type,
         "image_id" => ami_id,
         "user_data" => user_data,
         "iam_profile_name" => iam_profile,
