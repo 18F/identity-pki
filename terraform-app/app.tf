@@ -133,3 +133,55 @@ resource "aws_route53_record" "postgres" {
   zone_id = aws_route53_zone.internal.zone_id
 }
 
+# S3 bucket for partners to upload and serve logos
+resource "aws_s3_bucket" "partner_logos_bucket" {
+  # Conditionally create this bucket only if the environment is listed in static_logos_bucket_envs variable
+  count = contains(var.static_logos_bucket_envs, var.env_name) ? 1 : 0
+
+  bucket = "login-gov-partner-logos-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
+  acl    = "public-read"
+
+  logging {
+    target_bucket = "login-gov-logs-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
+    target_prefix = "/s3-access-logs/login-gov-partner-logos/"
+  }
+
+  tags = {
+    Name = "login-gov-partner-logos-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
+  }
+  policy = data.aws_iam_policy_document.partner_logos_bucket_policy.json
+
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
+
+  versioning {
+    enabled = true
+  }
+}
+
+data "aws_iam_policy_document" "partner_logos_bucket_policy" {
+  statement {
+    actions = [
+      "s3:PutObject",
+    ]
+    principals {
+      type = "AWS"
+      identifiers = [
+        aws_iam_role.app.arn,
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}/role/AppDev",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}/role/FullAdministrator",
+      ]
+    }
+
+    resources = [
+      "arn:aws:s3:::login-gov-partner-logos-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}",
+      "arn:aws:s3:::login-gov-partner-logos-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}/*",
+    ]
+  }
+}
+

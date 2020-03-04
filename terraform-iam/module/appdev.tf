@@ -265,6 +265,17 @@ module "appdev-assumerole" {
           ]
         },
         {
+          sid   = "S3-logos-write"
+          effect  = "${ var.dashboard_logos_bucket_write == true ? "Allow" : "Deny" }"
+          actions = [
+            "s3:PutObject",
+          ]
+          resources = [
+            "arn:aws:s3:::login-gov-partner-logos-*",
+            "arn:aws:s3:::login-gov-partner-logos-*/*",
+          ]
+        },
+        {
           sid    = "SES"
           effect = "Allow"
           actions = [

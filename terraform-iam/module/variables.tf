@@ -36,6 +36,12 @@ variable "iam_appdev_enabled" {
   default     = true
 }
 
+variable "dashboard_logos_bucket_write" {
+  description = "Permit AppDev role write access to static logos buckets"
+  type        = bool
+  default     = false
+}
+
 variable "iam_power_enabled" {
   description = "Enable power role in this account."
   type        = bool
