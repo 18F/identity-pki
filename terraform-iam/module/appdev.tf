@@ -265,7 +265,7 @@ module "appdev-assumerole" {
           ]
         },
         {
-          sid   = "S3-logos-write"
+          sid   = "S3LogosWrite"
           effect  = "${ var.dashboard_logos_bucket_write == true ? "Allow" : "Deny" }"
           actions = [
             "s3:PutObject",
