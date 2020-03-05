@@ -13,4 +13,3 @@ resource "aws_cloudwatch_log_group" "squid_access_log" {
     environment = var.env_name
   }
 }
-

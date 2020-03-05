@@ -342,6 +342,12 @@ EOM
 
 }
 
+resource "aws_iam_role_policy_attachment" "idp-ssm" {
+  count      = var.enable_aws_ssm
+  role       = aws_iam_role.idp.id
+  policy_arn = module.ssm.ssm_iam_policy_arn
+}
+
 module "idp_user_data" {
   source = "../terraform-modules/bootstrap/"
 
