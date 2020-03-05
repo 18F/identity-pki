@@ -12,6 +12,11 @@ variable "power_users" {
   type = list(string)
 }
 
+variable "enable_partner_logos_bucket" {
+  type = bool
+  default = false
+}
+
 # unallocated: "172.16.33.96/28"   # 172.16.33.96  - 172.16.33.111
 # unallocated: "172.16.33.112/28"  # 172.16.33.112 - 172.16.33.115
 variable "db1_subnet_cidr_block" { # 172.16.33.32 - 172.16.33.47

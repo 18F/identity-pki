@@ -6,6 +6,12 @@ variable "state_lock_table" {
   description = "Name of the DynamoDB table to use for state locking with the S3 state backend, e.g. 'terraform-locks'"
 }
 
+variable "allow_public_buckets" {
+  description = "Permit account to host public buckets"
+  type        = bool
+  default     = true # At the time this was added, prod allowed public s3 buckets, sandbox did not
+}
+
 variable "power_users" {
   description = "List of admin users, used in some IAM roles"
   type        = list(string)

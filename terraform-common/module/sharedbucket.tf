@@ -30,6 +30,15 @@ data "aws_iam_policy_document" "shared" {
   }
 }
 
+resource "aws_s3_account_public_access_block" "public_access_block" {
+  count = (var.allow_public_buckets ? 1 : 0)
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
 resource "aws_s3_bucket" "shared" {
   bucket        = "login-gov-shared-data-${data.aws_caller_identity.current.account_id}"
   force_destroy = true

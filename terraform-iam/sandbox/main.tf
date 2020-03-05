@@ -12,5 +12,6 @@ terraform {
 }
 
 module "main" {
+  dashboard_logos_bucket_write = true
   source = "../module"
 }
