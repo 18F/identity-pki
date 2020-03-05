@@ -12,9 +12,9 @@ variable "power_users" {
   type = list(string)
 }
 
-variable "static_logos_bucket_envs" {
-  type = list(string)
-  default = ["int", "amitf"]
+variable "enable_partner_logos_bucket" {
+  type = bool
+  default = false
 }
 
 # unallocated: "172.16.33.96/28"   # 172.16.33.96  - 172.16.33.111
