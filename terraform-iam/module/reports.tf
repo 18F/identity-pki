@@ -12,14 +12,32 @@ module "reports-assumerole" {
       policy_description = "Policy for reporting group read-only access to Reports bucket"
       policy_document    = [
         {
-          sid    = "ReportsReadOnly"
+          sid    = "RROAllBuckets"
           effect = "Allow"
           actions = [
-            "s3:ListBucket",
-            "s3:GetObject",
+            "s3:ListAllMyBuckets"
           ]
           resources = [
-            var.reports_bucket_arn,
+            "arn:aws:s3:::*"
+          ]
+        },
+        {
+          sid    = "RROSeeBucket"
+          effect = "Allow"
+          actions = [
+            "s3:ListBucket"
+          ]
+          resources = [
+            var.reports_bucket_arn
+          ]
+        },
+        {
+          sid    = "RROGetObjects"
+          effect = "Allow"
+          actions = [
+            "s3:GetObject"
+          ]
+          resources = [
             "${var.reports_bucket_arn}/*"
           ]
         }
