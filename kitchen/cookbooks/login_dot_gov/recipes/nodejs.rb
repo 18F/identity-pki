@@ -45,4 +45,6 @@ apt_repository 'yarnpkg' do
   key_proxy node.fetch('login_dot_gov').fetch('http_proxy')
 end
 
-apt_package 'yarn'
+apt_package 'yarn' do
+  version '1.22.0-1'
+end
