@@ -142,13 +142,19 @@ resource "aws_s3_bucket" "partner_logos_bucket" {
   acl    = "public-read"
 
   logging {
-    target_bucket = "login-gov-logs-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
-    target_prefix = "/s3-access-logs/login-gov-partner-logos/"
+    target_bucket = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+    target_prefix = "/${var.env_name}/s3-access-logs/login-gov-partner-logos/"
   }
 
   tags = {
     Name = "login-gov-partner-logos-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
   }
+
+  website {
+    index_document = "index.html"
+    error_document = "error.html"
+  }
+
   policy = data.aws_iam_policy_document.partner_logos_bucket_policy.json
 
   server_side_encryption_configuration {
@@ -168,13 +174,15 @@ data "aws_iam_policy_document" "partner_logos_bucket_policy" {
   statement {
     actions = [
       "s3:PutObject",
+      "s3:AbortMultipartUpload",
+      "s3:GetObject",
     ]
     principals {
       type = "AWS"
       identifiers = [
         aws_iam_role.app.arn,
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}/role/AppDev",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}/role/FullAdministrator",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/AppDev",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/FullAdministrator",
       ]
     }
 
@@ -185,3 +193,26 @@ data "aws_iam_policy_document" "partner_logos_bucket_policy" {
   }
 }
 
+resource "aws_iam_role_policy" "app-s3-logos-access" {
+  name   = "${var.env_name}-app-s3-logos-access"
+  role   = aws_iam_role.app.id
+  policy = <<EOM
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:PutObject",
+                "s3:AbortMultipartUpload",
+                "s3:GetObject"
+            ],
+            "Resource": [
+                "arn:aws:s3:::login-gov-partner-logos-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}",
+                "arn:aws:s3:::login-gov-partner-logos-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}/*"
+            ]
+        }
+    ]
+}
+EOM
+}
