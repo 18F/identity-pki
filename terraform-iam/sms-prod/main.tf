@@ -14,5 +14,5 @@ terraform {
 module "main" {
   source = "../module"
 
-  iam_appdev_enabled  = false
+  iam_appdev_enabled = false
 }

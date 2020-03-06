@@ -10,7 +10,7 @@ module "reports-assumerole" {
     {
       policy_name        = "ReportsReadOnly"
       policy_description = "Policy for reporting group read-only access to Reports bucket"
-      policy_document    = [
+      policy_document = [
         {
           sid    = "RROAllBuckets"
           effect = "Allow"

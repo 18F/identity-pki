@@ -10,7 +10,7 @@ module "billing-assumerole" {
     {
       policy_name        = "BillingReadOnly"
       policy_description = "Policy for reporting group read-only access to Billing ui"
-      policy_document    = [
+      policy_document = [
         {
           sid    = "BillingReadOnly"
           effect = "Allow"

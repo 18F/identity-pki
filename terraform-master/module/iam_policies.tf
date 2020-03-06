@@ -375,57 +375,57 @@ data "aws_iam_policy_document" "production_assume_reporting_ro" {
 }
 
 resource "aws_iam_policy" "production_assume_socadministrator" {
-    name = "ProductionAssumeSOCAdministrator"
-    path = "/"
-    description = "Policy to allow user to assume SOCAdministrator in Production"
-    policy = data.aws_iam_policy_document.production_assume_socadministrator.json
+  name        = "ProductionAssumeSOCAdministrator"
+  path        = "/"
+  description = "Policy to allow user to assume SOCAdministrator in Production"
+  policy      = data.aws_iam_policy_document.production_assume_socadministrator.json
 }
 
 data "aws_iam_policy_document" "production_assume_socadministrator" {
-    statement {
-        sid = "ProductionAssumeSOCAdministrator"
-        effect = "Allow"
-        actions = [
-            "sts:AssumeRole"
-        ]
-        resources = [
-            "arn:aws:iam::${var.production_account_id}:role/SOCAdministrator"
-        ]
-        condition {
-            test = "Bool"
-            variable = "aws:MultiFactorAuthPresent"
-            values = [
-                "true"
-            ]
-        }
+  statement {
+    sid    = "ProductionAssumeSOCAdministrator"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole"
+    ]
+    resources = [
+      "arn:aws:iam::${var.production_account_id}:role/SOCAdministrator"
+    ]
+    condition {
+      test     = "Bool"
+      variable = "aws:MultiFactorAuthPresent"
+      values = [
+        "true"
+      ]
     }
+  }
 }
 
 resource "aws_iam_policy" "sandbox_assume_socadministrator" {
-    name = "SandboxAssumeSOCAdministrator"
-    path = "/"
-    description = "Policy to allow user to assume SOCAdministrator in Sandbox"
-    policy = data.aws_iam_policy_document.sandbox_assume_socadministrator.json
+  name        = "SandboxAssumeSOCAdministrator"
+  path        = "/"
+  description = "Policy to allow user to assume SOCAdministrator in Sandbox"
+  policy      = data.aws_iam_policy_document.sandbox_assume_socadministrator.json
 }
 
 data "aws_iam_policy_document" "sandbox_assume_socadministrator" {
-    statement {
-        sid = "SandboxAssumeSOCAdministrator"
-        effect = "Allow"
-        actions = [
-            "sts:AssumeRole"
-        ]
-        resources = [
-            "arn:aws:iam::${var.sandbox_account_id}:role/SOCAdministrator"
-        ]
-        condition {
-            test = "Bool"
-            variable = "aws:MultiFactorAuthPresent"
-            values = [
-                "true"
-            ]
-        }
+  statement {
+    sid    = "SandboxAssumeSOCAdministrator"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole"
+    ]
+    resources = [
+      "arn:aws:iam::${var.sandbox_account_id}:role/SOCAdministrator"
+    ]
+    condition {
+      test     = "Bool"
+      variable = "aws:MultiFactorAuthPresent"
+      values = [
+        "true"
+      ]
     }
+  }
 }
 
 ######## identity-sms-sandbox/prod assume-role policies ########
@@ -470,98 +470,98 @@ data "aws_iam_policy_document" "production_sms_assume_full_administrator" {
 }
 
 resource "aws_iam_policy" "production_sms_assume_socadministrator" {
-    name = "ProductionSMSAssumeSOCAdministrator"
-    path = "/"
-    description = "Policy to allow user to assume SOCAdministrator role in Production SMS"
-    policy = data.aws_iam_policy_document.production_sms_assume_socadministrator.json
+  name        = "ProductionSMSAssumeSOCAdministrator"
+  path        = "/"
+  description = "Policy to allow user to assume SOCAdministrator role in Production SMS"
+  policy      = data.aws_iam_policy_document.production_sms_assume_socadministrator.json
 }
 
 data "aws_iam_policy_document" "production_sms_assume_socadministrator" {
-    statement {
-        sid = "ProductionAssumeSOCAdministrator"
-        effect = "Allow"
-        actions = [
-            "sts:AssumeRole"
-        ]
-        resources = [
-            "arn:aws:iam::${var.production_account_id}:role/SOCAdministrator"
-        ]
-        condition {
-            test = "Bool"
-            variable = "aws:MultiFactorAuthPresent"
-            values = [
-                "true"
-            ]
-        }
+  statement {
+    sid    = "ProductionAssumeSOCAdministrator"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole"
+    ]
+    resources = [
+      "arn:aws:iam::${var.production_account_id}:role/SOCAdministrator"
+    ]
+    condition {
+      test     = "Bool"
+      variable = "aws:MultiFactorAuthPresent"
+      values = [
+        "true"
+      ]
     }
+  }
 }
 
 resource "aws_iam_policy" "sandbox_sms_assume_socadministrator" {
-    name = "SandboxSMSAssumeSOCAdministrator"
-    path = "/"
-    description = "Policy to allow user to assume SOCAdministrator role in Sandbox SMS"
-    policy = data.aws_iam_policy_document.sandbox_sms_assume_socadministrator.json
+  name        = "SandboxSMSAssumeSOCAdministrator"
+  path        = "/"
+  description = "Policy to allow user to assume SOCAdministrator role in Sandbox SMS"
+  policy      = data.aws_iam_policy_document.sandbox_sms_assume_socadministrator.json
 }
 
 data "aws_iam_policy_document" "sandbox_sms_assume_socadministrator" {
-    statement {
-        sid = "SandboxAssumeSOCAdministrator"
-        effect = "Allow"
-        actions = [
-            "sts:AssumeRole"
-        ]
-        resources = [
-            "arn:aws:iam::${var.sandbox_account_id}:role/SOCAdministrator"
-        ]
-        condition {
-            test = "Bool"
-            variable = "aws:MultiFactorAuthPresent"
-            values = [
-                "true"
-            ]
-        }
+  statement {
+    sid    = "SandboxAssumeSOCAdministrator"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole"
+    ]
+    resources = [
+      "arn:aws:iam::${var.sandbox_account_id}:role/SOCAdministrator"
+    ]
+    condition {
+      test     = "Bool"
+      variable = "aws:MultiFactorAuthPresent"
+      values = [
+        "true"
+      ]
     }
+  }
 }
 
 
 ######## SOCAdmin policy data ########
 resource "aws_iam_policy" "socadministrator" {
-    name = "SOCAdministrator"
-    path = "/"
-    description = "Policy for SOC administrators"
-    policy = data.aws_iam_policy_document.socadministrator.json
+  name        = "SOCAdministrator"
+  path        = "/"
+  description = "Policy for SOC administrators"
+  policy      = data.aws_iam_policy_document.socadministrator.json
 }
 
 data "aws_iam_policy_document" "socadministrator" {
-    statement {
-        sid = "SOCAdministrator"
-        effect = "Allow"
-        actions = [
-            "access-analyzer:*",
-            "cloudtrail:*",
-            "cloudwatch:*",
-            "logs:*",
-            "config:*",
-            "guardduty:*",
-            "iam:Get*",
-            "iam:List*",
-            "iam:Generate*",
-            "macie:*",
-            "organizations:List*",
-            "organizations:Describe*",
-            "s3:HeadBucket",
-            "s3:List*",
-            "s3:Get*",
-            "securityhub:*",
-            "shield:*",
-            "ssm:*",
-            "trustedadvisor:*",
-        ]
-        resources = [
-            "*"
-        ]
-    }
-} 
+  statement {
+    sid    = "SOCAdministrator"
+    effect = "Allow"
+    actions = [
+      "access-analyzer:*",
+      "cloudtrail:*",
+      "cloudwatch:*",
+      "logs:*",
+      "config:*",
+      "guardduty:*",
+      "iam:Get*",
+      "iam:List*",
+      "iam:Generate*",
+      "macie:*",
+      "organizations:List*",
+      "organizations:Describe*",
+      "s3:HeadBucket",
+      "s3:List*",
+      "s3:Get*",
+      "securityhub:*",
+      "shield:*",
+      "ssm:*",
+      "trustedadvisor:*",
+    ]
+    resources = [
+      "*"
+    ]
+  }
+}
 
 resource "aws_iam_policy" "sandbox_assume_billing_ro" {
   name        = "SandboxAssumeBillingReadOnly"

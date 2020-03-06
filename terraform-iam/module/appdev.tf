@@ -10,7 +10,7 @@ module "appdev-assumerole" {
     {
       policy_name        = "AppDev"
       policy_description = "Policy for AppDev user with MFA"
-      policy_document    = [
+      policy_document = [
         {
           sid    = "Autoscaling"
           effect = "Allow"
@@ -265,8 +265,8 @@ module "appdev-assumerole" {
           ]
         },
         {
-          sid   = "S3LogosWrite"
-          effect  = "${ var.dashboard_logos_bucket_write == true ? "Allow" : "Deny" }"
+          sid    = "S3LogosWrite"
+          effect = "${var.dashboard_logos_bucket_write == true ? "Allow" : "Deny"}"
           actions = [
             "s3:PutObject",
           ]

@@ -18,10 +18,10 @@ resource "aws_route53_zone" "internal-reverse" {
 
 resource "aws_route53_record" "internal-ns" {
   allow_overwrite = true
-  zone_id = aws_route53_zone.internal.zone_id
-  name    = "login.gov.internal"
-  type    = "NS"
-  ttl     = "30"
-  records = aws_route53_zone.internal.name_servers
+  zone_id         = aws_route53_zone.internal.zone_id
+  name            = "login.gov.internal"
+  type            = "NS"
+  ttl             = "30"
+  records         = aws_route53_zone.internal.name_servers
 }
 

@@ -81,8 +81,8 @@ resource "aws_ses_receipt_rule" "bounce-unknown" {
 
   # no recipients, so this is a catchall
 
-  enabled       = true
-  scan_enabled  = true
+  enabled      = true
+  scan_enabled = true
 
   bounce_action {
     position        = 1

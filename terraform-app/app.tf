@@ -57,7 +57,7 @@ resource "aws_db_subnet_group" "default" {
   subnet_ids  = [aws_subnet.db1.id, aws_subnet.db2.id]
 
   tags = {
-    Name   = "${var.name}-${var.env_name}"
+    Name = "${var.name}-${var.env_name}"
   }
 }
 

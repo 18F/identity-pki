@@ -10,7 +10,7 @@ module "poweruser-assumerole" {
     {
       policy_name        = "Power1"
       policy_description = "Policy 1 for Power User"
-      policy_document    = [
+      policy_document = [
         {
           sid    = "Autoscaling"
           effect = "Allow"
@@ -211,7 +211,7 @@ module "poweruser-assumerole" {
     {
       policy_name        = "Power2"
       policy_description = "Policy 2 for Power User"
-      policy_document    = [
+      policy_document = [
         {
           sid    = "GuardDuty"
           effect = "Allow"

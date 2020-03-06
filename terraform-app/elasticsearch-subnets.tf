@@ -7,7 +7,7 @@ resource "aws_subnet" "elasticsearch" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name   = "${var.name}-elasticsearch_subnet-${var.env_name}-${element(var.availability_zones, count.index)}"
+    Name = "${var.name}-elasticsearch_subnet-${var.env_name}-${element(var.availability_zones, count.index)}"
   }
 
   vpc_id = aws_vpc.default.id

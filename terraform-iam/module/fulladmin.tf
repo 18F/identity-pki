@@ -9,7 +9,7 @@ module "fulladmin-assumerole" {
     {
       policy_name        = "FullAdministrator"
       policy_description = "Policy for full administrator"
-      policy_document    = [
+      policy_document = [
         {
           sid    = "FullAdministrator"
           effect = "Allow"
