@@ -94,7 +94,7 @@ Examples:
     #{basename} asg-dev-idp
 
     # Quietly SSH to a randomly selected matching es server, run hostname
-    #{basename} -1 -q login-es*-qa hostname -f
+    #{basename} -1 -q login-es*-int hostname -f
 
     # SSH, forwarding a local port to a remote destination
     #{basename} -L 5601:localhost:5601 i-abcd1234

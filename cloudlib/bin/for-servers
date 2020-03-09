@@ -41,8 +41,8 @@ If user is not specified, it defaults to $GSA_USERNAME.
 
 Examples:
 
-    # SSH to servers in QA VPC, run hostname
-    #{basename} -e qa hostname
+    # SSH to servers in INT VPC, run hostname
+    #{basename} -e int hostname
 
     # SSH to jumphost servers in all environments, run uname -a
     #{basename} -n '*jumphost*' uname -a

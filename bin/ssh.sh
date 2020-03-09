@@ -16,7 +16,7 @@ the jumphost.
 For example:
     $(basename "$0") idp1-0 dev
 
-    $(basename "$0") chef qa
+    $(basename "$0") chef int
 
     Use host.environment:
         $(basename "$0") idp1-0.dev

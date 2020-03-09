@@ -273,7 +273,7 @@ check_release_versioning() {
             ;;
 
         # limited checks in these testing environments
-        dev|qa|pt|dm)
+        dev|pt|dm)
             strict_check=
             ;;
 

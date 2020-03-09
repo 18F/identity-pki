@@ -115,7 +115,6 @@ variable "redshift_sg_id" {
   type = map(string)
   default = {
     dev     = "sg-6a8d8710"
-    qa      = "sg-0a584d70"
     int     = "sg-aef2a8d4"
     dm      = "sg-4c156f36"
     staging = "sg-cf5416b5"
@@ -128,7 +127,6 @@ variable "redshift_cidr_block" {
   type = map(string)
   default = {
     dev     = "34.214.42.173/32"
-    qa      = "35.160.215.243/32"
     int     = "34.211.57.255/32"
     dm      = "54.148.147.138/32"
     staging = "54.68.178.165/32"

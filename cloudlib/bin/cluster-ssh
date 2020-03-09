@@ -62,8 +62,8 @@ operate similarly to ls-servers.
 
 Examples:
 
-    # SSH to servers in QA VPC
-    #{basename} -e qa
+    # SSH to servers in INT VPC
+    #{basename} -e int
 
     # SSH to jumphost servers in all environments
     #{basename} -n '*jumphost*'

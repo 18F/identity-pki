@@ -39,15 +39,15 @@ minutes in this case.
 
 For example:
 
-    # recycle instances in the "qa-jumphost" ASG by doubling and then returning
-    #{basename} qa jumphost
+    # recycle instances in the "int-jumphost" ASG by doubling and then returning
+    #{basename} int jumphost
 
     # (DESTRUCTIVE) immediately set desired count to 0, then set it to 2 after
     # two minutes
     #{basename} --immediate 0 --return-to 2 --delay 120 dev app
 
     # set to 2 instances immediately, then return to 1
-    #{basename} -i 2 -t 1 qa idp
+    #{basename} -i 2 -t 1 int idp
 
     EOM
 

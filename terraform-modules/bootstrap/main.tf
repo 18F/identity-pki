@@ -1,5 +1,5 @@
 variable "env" {
-  description = "Environment (prod/qa/dev)"
+  description = "Environment (prod/int/dev)"
 }
 
 variable "role" {

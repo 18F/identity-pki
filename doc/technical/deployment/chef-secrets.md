@@ -19,11 +19,11 @@ You can use the AWS CLI to work with these secrets, but you may need to pass
 
 ```
 # view a secret in S3
-aws s3 cp --sse aws:kms s3://login-gov.secrets.894947205914-us-west-2/qa/equifax_wsdl - ; echo
-# copy a secret from qa to dev
-aws s3 cp --sse aws:kms s3://login-gov.secrets.894947205914-us-west-2/{qa,dev}/equifax_wsdl
-# list secrets in the qa env
-aws s3 ls s3://login-gov.secrets.894947205914-us-west-2/qa/
+aws s3 cp --sse aws:kms s3://login-gov.secrets.894947205914-us-west-2/int/equifax_wsdl - ; echo
+# copy a secret from int to dev
+aws s3 cp --sse aws:kms s3://login-gov.secrets.894947205914-us-west-2/{int,dev}/equifax_wsdl
+# list secrets in the int env
+aws s3 ls s3://login-gov.secrets.894947205914-us-west-2/int/
 ```
 
 ## Deploying Secrets Changes

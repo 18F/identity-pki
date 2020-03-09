@@ -74,8 +74,8 @@ List servers by filters.
 
 For example:
 
-  # list all servers in QA
-  #{basename} -e qa
+  # list all servers in INT
+  #{basename} -e int
 
   # list all non-asg servers in dev
   #{basename} -n 'login-*-dev'
