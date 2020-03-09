@@ -205,7 +205,9 @@ resource "aws_iam_role_policy" "app-s3-logos-access" {
             "Action": [
                 "s3:PutObject",
                 "s3:AbortMultipartUpload",
-                "s3:GetObject"
+                "s3:GetObject",
+                "s3:ListObject",
+                "s3:DeleteObject"
             ],
             "Resource": [
                 "arn:aws:s3:::login-gov-partner-logos-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}",

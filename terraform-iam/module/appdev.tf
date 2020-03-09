@@ -269,6 +269,10 @@ module "appdev-assumerole" {
           effect = "${var.dashboard_logos_bucket_write == true ? "Allow" : "Deny"}"
           actions = [
             "s3:PutObject",
+            "s3:AbortMultipartUpload",
+            "s3:ListBucket",
+            "s3:GetObject",
+            "s3:DeleteObject",
           ]
           resources = [
             "arn:aws:s3:::login-gov-partner-logos-*",
