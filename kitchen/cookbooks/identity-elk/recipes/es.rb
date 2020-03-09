@@ -23,7 +23,7 @@ end
 elasticsearch_user 'elasticsearch'
 elasticsearch_install 'elasticsearch' do
   type 'tarball' # type of install
-  version "7.3.1"
+  version "7.4.2"
 end
 
 # URL to reach the elasticsearch cluster.  In the pre-auto-scaled world this was
