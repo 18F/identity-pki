@@ -34,7 +34,7 @@ resource "aws_elb" "jumphost" {
   connection_draining = true
 
   tags = {
-    Name   = "${var.env_name}-jumphost"
+    Name = "${var.env_name}-jumphost"
   }
 }
 

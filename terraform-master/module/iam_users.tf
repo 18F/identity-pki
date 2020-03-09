@@ -229,16 +229,16 @@ resource "aws_iam_policy_attachment" "sandbox_power_user" {
 }
 
 resource "aws_iam_policy_attachment" "production_power_user" {
-    name = "production_power_user"
-    users = [
-        aws_iam_user.brian_crissup.name,
-        aws_iam_user.douglas_price.name,
-        aws_iam_user.jonathan_hooper.name,
-        aws_iam_user.steve_urciuoli.name,
-        aws_iam_user.stephen_grow.name,
-        aws_iam_user.zachary_margolis.name,
-    ]
-    policy_arn = aws_iam_policy.production_assume_power_user.arn
+  name = "production_power_user"
+  users = [
+    aws_iam_user.brian_crissup.name,
+    aws_iam_user.douglas_price.name,
+    aws_iam_user.jonathan_hooper.name,
+    aws_iam_user.steve_urciuoli.name,
+    aws_iam_user.stephen_grow.name,
+    aws_iam_user.zachary_margolis.name,
+  ]
+  policy_arn = aws_iam_policy.production_assume_power_user.arn
 }
 
 ######## AppDev ########
@@ -276,44 +276,44 @@ resource "aws_iam_policy_attachment" "sandbox_readonly" {
 
 ######## SOCAdministrator ########
 resource "aws_iam_policy_attachment" "production_socadministrator" {
-    name = "production_socadministrator"
-    users = [
-        aws_iam_user.brett_mcparland.name,
-    ]
-    policy_arn = aws_iam_policy.production_assume_socadministrator.arn
+  name = "production_socadministrator"
+  users = [
+    aws_iam_user.brett_mcparland.name,
+  ]
+  policy_arn = aws_iam_policy.production_assume_socadministrator.arn
 }
 
 resource "aws_iam_policy_attachment" "sandbox_socadministrator" {
-    name = "sandbox_socadministrator"
-    users = [
-        aws_iam_user.brett_mcparland.name,
-        aws_iam_user.rajat_varuni.name,
-    ]
-    policy_arn = aws_iam_policy.sandbox_assume_socadministrator.arn
+  name = "sandbox_socadministrator"
+  users = [
+    aws_iam_user.brett_mcparland.name,
+    aws_iam_user.rajat_varuni.name,
+  ]
+  policy_arn = aws_iam_policy.sandbox_assume_socadministrator.arn
 }
 
 resource "aws_iam_policy_attachment" "master_socadministrator" {
-    name = "sandbox_socadministrator"
-    users = [
-        aws_iam_user.brett_mcparland.name,
-        aws_iam_user.rajat_varuni.name,
-    ]
-    policy_arn = aws_iam_policy.master_socadministrator.arn
+  name = "sandbox_socadministrator"
+  users = [
+    aws_iam_user.brett_mcparland.name,
+    aws_iam_user.rajat_varuni.name,
+  ]
+  policy_arn = aws_iam_policy.master_socadministrator.arn
 }
 
 resource "aws_iam_policy_attachment" "production_sms_socadministrator" {
-    name = "production_sms_socadministrator"
-    users = [
-        aws_iam_user.brett_mcparland.name,
-    ]
-    policy_arn = aws_iam_policy.production_sms_assume_socadministrator.arn
+  name = "production_sms_socadministrator"
+  users = [
+    aws_iam_user.brett_mcparland.name,
+  ]
+  policy_arn = aws_iam_policy.production_sms_assume_socadministrator.arn
 }
 
 resource "aws_iam_policy_attachment" "sandbox_sms_socadministrator" {
-    name = "sandbox_sms_socadministrator"
-    users = [
-        aws_iam_user.brett_mcparland.name,
-        aws_iam_user.rajat_varuni.name,
-    ]
-    policy_arn = aws_iam_policy.sandbox_sms_assume_socadministrator.arn
+  name = "sandbox_sms_socadministrator"
+  users = [
+    aws_iam_user.brett_mcparland.name,
+    aws_iam_user.rajat_varuni.name,
+  ]
+  policy_arn = aws_iam_policy.sandbox_sms_assume_socadministrator.arn
 }

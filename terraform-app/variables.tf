@@ -13,7 +13,7 @@ variable "power_users" {
 }
 
 variable "enable_partner_logos_bucket" {
-  type = bool
+  type    = bool
   default = false
 }
 
@@ -104,9 +104,9 @@ variable "proxy_enabled_roles" {
   type        = map(string)
   description = "Mapping from role names to integer {0,1} for whether the outbound proxy server is enabled during bootstrapping."
   default = {
-    unknown = 1
+    unknown       = 1
     outboundproxy = 0
-    jumphost = 0
+    jumphost      = 0
   }
 }
 
@@ -483,22 +483,22 @@ variable "bootstrap_private_git_clone_url" {
 # though they will have different IDs. They should be updated here at the same
 # time, and then released to environments in sequence.
 variable "default_ami_id_sandbox" {
-  default = "ami-010aa499fb3845426" # 2020-03-03 Ubuntu 18.04
+  default     = "ami-010aa499fb3845426" # 2020-03-03 Ubuntu 18.04
   description = "default AMI ID for environments in the sandbox account"
 }
 
 variable "default_ami_id_prod" {
-  default = "ami-0a92c3f25d9726e04" # 2020-03-03 Ubuntu 18.04
+  default     = "ami-0a92c3f25d9726e04" # 2020-03-03 Ubuntu 18.04
   description = "default AMI ID for environments in the prod account"
 }
 
 variable "rails_ami_id_sandbox" {
-  default = "ami-062cd22a924b7c4e6" # 2020-03-03 Ubuntu 18.04
+  default     = "ami-062cd22a924b7c4e6" # 2020-03-03 Ubuntu 18.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the sandbox account"
 }
 
 variable "rails_ami_id_prod" {
-  default = "ami-05eec48c03d93d647" # 2020-03-03 Ubuntu 18.04
+  default     = "ami-05eec48c03d93d647" # 2020-03-03 Ubuntu 18.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the prod account"
 }
 
@@ -517,7 +517,7 @@ locals {
   bootstrap_main_git_ref_default   = var.bootstrap_main_git_ref_default != "" ? var.bootstrap_main_git_ref_default : "stages/${var.env_name}"
   account_default_ami_id           = data.aws_caller_identity.current.account_id == "555546682965" ? var.default_ami_id_prod : var.default_ami_id_sandbox
   account_rails_ami_id             = data.aws_caller_identity.current.account_id == "555546682965" ? var.rails_ami_id_prod : var.rails_ami_id_sandbox
-  high_priority_alarm_actions = var.page_devops == 1 ? [var.high_priority_sns_hook, var.slack_events_sns_hook_arn] : [var.slack_events_sns_hook_arn]
+  high_priority_alarm_actions      = var.page_devops == 1 ? [var.high_priority_sns_hook, var.slack_events_sns_hook_arn] : [var.slack_events_sns_hook_arn]
 }
 
 # These variables are used to toggle whether certain services are enabled.

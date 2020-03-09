@@ -51,7 +51,7 @@ data "aws_iam_policy_document" "kms" {
       "kms:DescribeKey",
     ]
     principals {
-      type        = "AWS"
+      type = "AWS"
       identifiers = concat(
         [aws_iam_role.idp.arn],
         var.db_restore_role_arns

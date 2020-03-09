@@ -10,7 +10,7 @@ module "readonly-assumerole" {
     {
       policy_name        = "ReadOnly1"
       policy_description = "Policy 1 for ReadOnly user"
-      policy_document    = [
+      policy_document = [
         {
           sid    = "ACM"
           effect = "Allow"
@@ -420,7 +420,7 @@ module "readonly-assumerole" {
     {
       policy_name        = "ReadOnly2"
       policy_description = "Policy 2 for ReadOnly user"
-      policy_document    = [
+      policy_document = [
         {
           sid    = "Kinesis"
           effect = "Allow"

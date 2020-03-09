@@ -38,7 +38,7 @@ resource "aws_elb" "elk" {
   cross_zone_load_balancing = true
 
   tags = {
-    Name   = "elk-internal-elb"
+    Name = "elk-internal-elb"
   }
 }
 

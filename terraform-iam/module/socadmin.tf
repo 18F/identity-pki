@@ -10,7 +10,7 @@ module "socadmin-assumerole" {
     {
       policy_name        = "SOCAdministrator"
       policy_description = "Policy for SOC administrators"
-      policy_document    = [
+      policy_document = [
         {
           sid    = "SOCAdministrator"
           effect = "Allow"

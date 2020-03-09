@@ -31,7 +31,7 @@ resource "aws_vpc_peering_connection" "main_to_analytics" {
   vpc_id        = var.main_vpc_id
 
   # TODO: change when analytics moves to different account
-  auto_accept   = true
+  auto_accept = true
 }
 
 # TODO figure out how to do count zero
