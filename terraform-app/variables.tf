@@ -581,3 +581,7 @@ variable "slack_events_sns_hook_arn" {
   description = "ARN of SNS topic that will notify the #identity-events/#identity-otherevents channels in Slack"
 }
 
+variable "enable_aws_ssm" {
+  description = "Enable AWS System Manager Session Manager"
+  default     = 0
+}

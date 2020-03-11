@@ -71,3 +71,14 @@ data "aws_iam_policy_document" "auto_eip_policy" {
   }
 }
 
+module "ssm" {
+  source   = "github.com/18F/identity-terraform//ssm?ref=f41856cc9299737ec01cc1306f4e6a853d07bd8d"
+  env_name = var.env_name
+  enabled  = var.enable_aws_ssm
+}
+
+resource "aws_iam_role_policy_attachment" "base-ssm" {
+  count      = var.enable_aws_ssm
+  role       = aws_iam_role.base-permissions.id
+  policy_arn = module.ssm.ssm_iam_policy_arn
+}

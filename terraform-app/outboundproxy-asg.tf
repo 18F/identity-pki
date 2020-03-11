@@ -66,6 +66,12 @@ resource "aws_iam_role_policy" "obproxy-auto-eip" {
   policy = data.aws_iam_policy_document.auto_eip_policy.json
 }
 
+resource "aws_iam_role_policy_attachment" "obproxy-ssm" {
+  count      = var.enable_aws_ssm
+  role       = aws_iam_role.elasticsearch.id
+  policy_arn = module.ssm.ssm_iam_policy_arn
+}
+
 module "outboundproxy_launch_template" {
   source = "github.com/18F/identity-terraform//launch_template?ref=19a1a7d7a5c3e2177f62d96a553fed53ac2c251c"
 
