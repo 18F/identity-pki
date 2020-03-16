@@ -72,7 +72,7 @@ data "aws_iam_policy_document" "auto_eip_policy" {
 }
 
 module "ssm" {
-  source   = "github.com/18F/identity-terraform//ssm?ref=f41856cc9299737ec01cc1306f4e6a853d07bd8d"
+  source   = "github.com/18F/identity-terraform//ssm?ref=8c0122d275c0deb025639cb74709a443a764a9b9"
   env_name = var.env_name
   enabled  = var.enable_aws_ssm
 }
