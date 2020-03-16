@@ -436,7 +436,7 @@ load_env_devops_private_style() {
 
     STATE="${TF_DIR}/terraform-${TF_VAR_env_name}.tfstate"
     case "$TF_DIR" in
-        terraform-dns|terraform-cloudtrail|terraform-common)
+        terraform-all|terraform-cloudtrail|terraform-core|terraform-sms)
             echo "This TF_DIR uses a common state file, not env-specific"
             STATE=${TF_DIR}/terraform.tfstate
             ;;
