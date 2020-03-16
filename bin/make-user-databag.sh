@@ -60,7 +60,6 @@ tee "kitchen/data_bags/users/$USERNAME.json" <<EOF
    "adm",
    "ci",
    "dev",
-   "qa",
    "sudo"
  ],
  "uid": $USER_UID,

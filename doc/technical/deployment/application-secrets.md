@@ -20,14 +20,14 @@ using the `application.yml` and that identity-idp expects to see.
 
 ```
 # list secrets
-aws s3 ls s3://login-gov.app-secrets.555555555555-us-west-2/qa/idp/v1/
+aws s3 ls s3://login-gov.app-secrets.555555555555-us-west-2/int/idp/v1/
 2017-09-22 17:25:36       4851 application.yml
 
 # download an individual secret file
-aws s3 cp s3://login-gov.app-secrets.555555555555-us-west-2/qa/idp/v1/application.yml -
+aws s3 cp s3://login-gov.app-secrets.555555555555-us-west-2/int/idp/v1/application.yml -
 
 # upload a secrets file
-aws s3 cp --sse aws:kms ./application.yml s3://login-gov.app-secrets.555555555555-us-west-2/qa/idp/v1/
+aws s3 cp --sse aws:kms ./application.yml s3://login-gov.app-secrets.555555555555-us-west-2/int/idp/v1/
 ```
 
 ## Deploying Secrets Changes
