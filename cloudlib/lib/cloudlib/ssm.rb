@@ -3,7 +3,6 @@
 require 'subprocess'
 
 module Cloudlib
-  # Cloudlib SSM functionality - EXTREMELY RUDIMENTARY!
   module SSM
 
     class SSMError < Cloudlib::Error; end
@@ -15,9 +14,10 @@ module Cloudlib
       @ec2libs[vpc_id] ||= Cloudlib::EC2.new_from_vpc_id(vpc_id)
     end
 
-    # This class is a helper to manage opening a SSM session to a single server. It
-    # accepts an instance ID or Aws::EC2::Instance object, and provides helper methods
-    # to faciliate opening a SSM session to that instance.
+    # This class is a helper to manage opening a SSM session to a single
+    # server. It accepts an instance ID or Aws::EC2::Instance object, and
+    # provides helper methods to faciliate opening a SSM session to that
+    # instance.
     class Single
 
       attr_reader :cl
@@ -59,8 +59,8 @@ module Cloudlib
       # Replace this process with aws ssm start-session
       #
       # @return DOES NOT RETURN
-      def ssm_session_exec()
-        cmd = ["aws", "ssm", "start-session", "--target", instance.instance_id]
+      def ssm_session_exec
+        cmd = ['aws', 'ssm', 'start-session', '--target', instance.instance_id]
         log.debug('exec: ' + cmd.inspect)
         exec(*cmd)
       end

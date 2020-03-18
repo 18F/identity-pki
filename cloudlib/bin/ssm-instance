@@ -14,7 +14,7 @@ end
 def ssm_instance(instance:)
   log.info("SSM session to #{Cloudlib::EC2.instance_label(instance)}")
   single = Cloudlib::SSM::Single.new(instance: instance)
-  single.ssm_session_exec()
+  single.ssm_session_exec
 end
 
 def get_instance_by_id(instance_id)
@@ -44,7 +44,7 @@ def get_instance_by_name(name_tag, states: ['running'], pick_strategy: nil)
   when :oldest
     log.debug("Looking up oldest instance named #{name_tag.inspect}")
     instances = Cloudlib::EC2.new.list_things(:instances, filters)
-    instances.sort_by(&:launch_time).first
+    instances.min_by(&:launch_time)
   when :newest
     log.debug("Looking up newest instance named #{name_tag.inspect}")
     instances = Cloudlib::EC2.new.list_things(:instances, filters)
@@ -65,18 +65,17 @@ end
 
 def main(args)
   options = {pick_strategy: nil}
-  cl_ssh_options = {}
 
   basename = File.basename($0)
 
   optparse = OptionParser.new do |opts|
     opts.banner = <<-EOM
-usage: #{basename} [OPTIONS] [USER@]HOST [COMMAND]
+usage: #{basename} [OPTIONS] HOST [COMMAND]
 
 Open SSM session to an individual EC2 instance. HOST may be specified by EC2
 Instance ID or by EC2 instance "Name" tag.
 
-If USER is not specified, it defaults to $GSA_USERNAME.
+Sessions are opened as the "ssm-user"
 
 When there are multiple instances found with the same name tag (like
 asg-dev-jumphost), an interactive prompt will appear by default. There are
@@ -90,7 +89,7 @@ Examples:
     # SSM to an interactively selected auto scaled IDP instance by name tag
     #{basename} asg-dev-idp
 
-    # SSH to an interactively selected server in dev
+    # SSM to an interactively selected server in dev
     #{basename} -P 'asg-dev-*'
 
 Options:
@@ -102,17 +101,14 @@ Options:
     end
 
     opts.on('-v', '--verbose', 'Be more verbose') do
-      cl_ssh_options[:verbose] = true
       Cloudlib.log_level -= 1 if Cloudlib.log_level > 0
     end
 
     opts.on('-q', '--quiet', 'Be quieter (can pass multiple times)') do
-      cl_ssh_options[:verbose] = false
-      cl_ssh_options[:quiet] = true
       Cloudlib.log_level += 1
     end
 
-    opts.on('-1', '--any', 'SSH to random server matching name') do
+    opts.on('-1', '--any', 'SSM to random server matching name') do
       options[:pick_strategy] = :random
     end
 
@@ -128,7 +124,7 @@ Options:
       options[:pick_strategy] = :prompt
     end
 
-    opts.on('--aws-profile PROFILE', 'Set AWS_PROFILE env variable') do |val|
+    opts.on('-p', '--aws-profile PROFILE', 'Set AWS_PROFILE env variable') do |val|
       ENV['AWS_PROFILE'] = val
       log.debug("AWS_PROFILE=#{val.inspect}")
     end
@@ -142,9 +138,6 @@ Options:
   end
 
   host_spec = host_and_cmd.shift
-  if !host_and_cmd.empty?
-    cl_ssh_options[:command] = host_and_cmd
-  end
 
   host_spec = host_spec.strip
 
@@ -154,10 +147,6 @@ Options:
     instance = get_instance_by_name(
       host_spec, pick_strategy: options.fetch(:pick_strategy)
     )
-  end
-
-  if !host_and_cmd.empty?
-    cl_ssh_options[:command] = host_and_cmd
   end
 
   ssm_instance(instance: instance)
