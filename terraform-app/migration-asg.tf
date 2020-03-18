@@ -3,6 +3,13 @@ resource "aws_iam_instance_profile" "migration" {
   role = aws_iam_role.idp.name # for now reuse the idp's role
 }
 
+
+resource "aws_iam_role_policy_attachment" "migration-ssm" {
+  count      = var.enable_aws_ssm
+  role       = aws_iam_role.idp.id # for now reuse the idp's role
+  policy_arn = module.ssm.ssm_iam_policy_arn
+}
+
 module "migration_user_data" {
   source = "../terraform-modules/bootstrap/"
 
