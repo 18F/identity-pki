@@ -211,6 +211,27 @@ data "aws_iam_policy_document" "socadministrator" {
   }
 }
 
+#### Master "BillingReadOnly" policy
+resource "aws_iam_policy" "billing_readonly" {
+  name        = "BillingReadOnly"
+  path        = "/"
+  description = "Policy for reporting group read-only access to Billing ui"
+  policy      = data.aws_iam_policy_document.billing_readonly.json
+}
+
+data "aws_iam_policy_document" "billing_readonly" {
+  statement {
+    sid    = "BillingReadOnly"
+    effect = "Allow"
+    actions = [
+      "aws-portal:ViewBilling",
+    ]
+    resources = [
+      "*"
+    ]
+  }
+}
+
 #### Assume "FullAdminstrator" policies
 # sandbox
 resource "aws_iam_policy" "sandbox_assume_full_administrator" {
@@ -292,6 +313,27 @@ data "aws_iam_policy_document" "production_sms_assume_full_administrator" {
     ]
     resources = [
       "arn:aws:iam::${var.production_sms_account_id}:role/FullAdministrator",
+    ]
+  }
+}
+
+# analytics-prod
+resource "aws_iam_policy" "production_analytics_assume_full_administrator" {
+  name        = "ProductionAnalyticsAssumeFullAdministrator"
+  path        = "/"
+  description = "Policy to allow user to assume full administrator role in Production Analytics"
+  policy      = data.aws_iam_policy_document.production_analytics_assume_full_administrator.json
+}
+
+data "aws_iam_policy_document" "production_analytics_assume_full_administrator" {
+  statement {
+    sid    = "ProductionAnalyticsAssumeFullAdministrator"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole",
+    ]
+    resources = [
+      "arn:aws:iam::${var.production_analytics_account_id}:role/FullAdministrator",
     ]
   }
 }
@@ -621,5 +663,89 @@ data "aws_iam_policy_document" "production_assume_billing_ro" {
     resources = [
       "arn:aws:iam::${var.production_account_id}:role/BillingReadOnly",
     ]
+  }
+}
+
+# sms-sandbox
+resource "aws_iam_policy" "sandbox_sms_assume_billing_ro" {
+  name        = "SandboxSMSAssumeBillingReadOnly"
+  path        = "/"
+  description = "Policy to allow user to assume BillingReadOnly role in Sandbox SMS"
+  policy      = data.aws_iam_policy_document.sandbox_sms_assume_billing_ro.json
+}
+
+data "aws_iam_policy_document" "sandbox_sms_assume_billing_ro" {
+  statement {
+    sid    = "SandboxSMSAssumeBillingReadOnly"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole"
+    ]
+    resources = [
+      "arn:aws:iam::${var.sandbox_sms_account_id}:role/BillingReadOnly"
+    ]
+    condition {
+      test     = "Bool"
+      variable = "aws:MultiFactorAuthPresent"
+      values = [
+        "true"
+      ]
+    }
+  }
+}
+
+# sms-prod
+resource "aws_iam_policy" "production_sms_assume_billing_ro" {
+  name        = "ProductionSMSAssumeBillingReadOnly"
+  path        = "/"
+  description = "Policy to allow user to assume BillingReadOnly role in Production SMS"
+  policy      = data.aws_iam_policy_document.production_sms_assume_billing_ro.json
+}
+
+data "aws_iam_policy_document" "production_sms_assume_billing_ro" {
+  statement {
+    sid    = "ProductionSMSAssumeBillingReadOnly"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole"
+    ]
+    resources = [
+      "arn:aws:iam::${var.production_sms_account_id}:role/BillingReadOnly"
+    ]
+    condition {
+      test     = "Bool"
+      variable = "aws:MultiFactorAuthPresent"
+      values = [
+        "true"
+      ]
+    }
+  }
+}
+
+# analytics-prod
+resource "aws_iam_policy" "production_analytics_assume_billing_ro" {
+  name        = "ProductionAnalyticsAssumeBillingReadOnly"
+  path        = "/"
+  description = "Policy to allow user to assume BillingReadOnly role in Production Analytics"
+  policy      = data.aws_iam_policy_document.production_analytics_assume_billing_ro.json
+}
+
+data "aws_iam_policy_document" "production_analytics_assume_billing_ro" {
+  statement {
+    sid    = "ProductionAnalyticsAssumeBillingReadOnly"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole"
+    ]
+    resources = [
+      "arn:aws:iam::${var.production_analytics_account_id}:role/BillingReadOnly"
+    ]
+    condition {
+      test     = "Bool"
+      variable = "aws:MultiFactorAuthPresent"
+      values = [
+        "true"
+      ]
+    }
   }
 }

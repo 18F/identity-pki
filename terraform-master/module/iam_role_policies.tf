@@ -37,3 +37,23 @@ data "aws_iam_policy_document" "master_socadministrator" {
     ]
   }
 }
+
+resource "aws_iam_policy" "master_billing_readonly" {
+  name        = "MasterAssumeBillingReadOnly"
+  path        = "/"
+  description = "Policy to assign that permits user to assume Billing ReadOnly in master"
+  policy      = data.aws_iam_policy_document.master_billing_readonly.json
+}
+
+data "aws_iam_policy_document" "master_billing_readonly" {
+  statement {
+    sid    = "MasterAssumeBillingReadOnly"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole"
+    ]
+    resources = [
+      aws_iam_role.master_billing_readonly.arn
+    ]
+  }
+}

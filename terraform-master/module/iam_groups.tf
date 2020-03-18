@@ -47,3 +47,18 @@ resource "aws_iam_group_policy_attachment" "production_billing_readonly" {
   group      = aws_iam_group.billing.name
   policy_arn = aws_iam_policy.production_assume_billing_ro.arn
 }
+
+resource "aws_iam_group_policy_attachment" "sandbox_sms_billing_readonly" {
+  group      = aws_iam_group.billing.name
+  policy_arn = aws_iam_policy.sandbox_sms_assume_billing_ro.arn
+}
+
+resource "aws_iam_group_policy_attachment" "production_sms_billing_readonly" {
+  group      = aws_iam_group.billing.name
+  policy_arn = aws_iam_policy.production_sms_assume_billing_ro.arn
+}
+
+resource "aws_iam_group_policy_attachment" "production_analytics_billing_readonly" {
+  group      = aws_iam_group.billing.name
+  policy_arn = aws_iam_policy.production_analytics_assume_billing_ro.arn
+}
