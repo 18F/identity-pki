@@ -1,0 +1,157 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'optparse'
+
+Dir.chdir(File.dirname(__FILE__)) { require 'bundler/setup' }
+
+require_relative '../lib/cloudlib'
+
+def log
+  Cloudlib.cli_log
+end
+
+def ssm_instance(instance:)
+  log.info("SSM session to #{Cloudlib::EC2.instance_label(instance)}")
+  single = Cloudlib::SSM::Single.new(instance: instance)
+  single.ssm_session_exec
+end
+
+def get_instance_by_id(instance_id)
+  log.debug("Looking up instance ID #{instance_id.inspect}")
+  Cloudlib::EC2.new.lookup_instance_by_id(instance_id)
+end
+
+def get_instance_by_name(name_tag, states: ['running'], pick_strategy: nil)
+  filters = [
+    {name: 'tag:Name', values: [name_tag]},
+    {name: 'instance-state-name', values: states},
+  ]
+
+  # Interactively prompt by default iff we're connected to a TTY.
+  if pick_strategy.nil?
+    if STDIN.tty? && STDERR.tty?
+      pick_strategy = :prompt
+    else
+      pick_strategy = :unique
+    end
+  end
+
+  case pick_strategy
+  when :random
+    log.debug("Looking up random instance named #{name_tag.inspect}")
+    Cloudlib::EC2.new.get_random_thing(:instances, filters)
+  when :oldest
+    log.debug("Looking up oldest instance named #{name_tag.inspect}")
+    instances = Cloudlib::EC2.new.list_things(:instances, filters)
+    instances.min_by(&:launch_time)
+  when :newest
+    log.debug("Looking up newest instance named #{name_tag.inspect}")
+    instances = Cloudlib::EC2.new.list_things(:instances, filters)
+    instances.sort_by(&:launch_time).fetch(-1)
+  when :unique
+    log.debug("Looking up instance named #{name_tag.inspect}")
+    Cloudlib::EC2.new.get_unique_thing(:instances, filters)
+  when :prompt
+    log.debug("Looking up instances named #{name_tag.inspect}")
+    Cloudlib::EC2.new.find_instance_interactive(
+      filters: filters,
+      prompt_text: "Found multiple instances named #{name_tag.inspect}:"
+    )
+  else
+    raise ArgumentError.new("Unknown pick_strategy: #{pick_strategy.inspect}")
+  end
+end
+
+def main(args)
+  options = {pick_strategy: nil}
+
+  basename = File.basename($0)
+
+  optparse = OptionParser.new do |opts|
+    opts.banner = <<-EOM
+usage: #{basename} [OPTIONS] HOST [COMMAND]
+
+Open SSM session to an individual EC2 instance. HOST may be specified by EC2
+Instance ID or by EC2 instance "Name" tag.
+
+Sessions are opened as the "ssm-user"
+
+When there are multiple instances found with the same name tag (like
+asg-dev-jumphost), an interactive prompt will appear by default. There are
+several options to choose systematically: --newest, --oldest, --any.
+
+Examples:
+
+    # SSM to a specific instance
+    #{basename} i-abcd1234
+
+    # SSM to an interactively selected auto scaled IDP instance by name tag
+    #{basename} asg-dev-idp
+
+    # SSM to an interactively selected server in dev
+    #{basename} -P 'asg-dev-*'
+
+Options:
+    EOM
+
+    opts.on('-h', '--help', 'Display this message') do
+      STDERR.puts opts
+      exit
+    end
+
+    opts.on('-v', '--verbose', 'Be more verbose') do
+      Cloudlib.log_level -= 1 if Cloudlib.log_level > 0
+    end
+
+    opts.on('-q', '--quiet', 'Be quieter (can pass multiple times)') do
+      Cloudlib.log_level += 1
+    end
+
+    opts.on('-1', '--any', 'SSM to random server matching name') do
+      options[:pick_strategy] = :random
+    end
+
+    opts.on('--newest', 'Pick server with most recent boot time') do
+      options[:pick_strategy] = :newest
+    end
+
+    opts.on('--oldest', 'Pick server with oldest boot time') do
+      options[:pick_strategy] = :oldest
+    end
+
+    opts.on('-P', '--prompt', 'Pick server interactively if ambiguous') do
+      options[:pick_strategy] = :prompt
+    end
+
+    opts.on('-p', '--aws-profile PROFILE', 'Set AWS_PROFILE env variable') do |val|
+      ENV['AWS_PROFILE'] = val
+      log.debug("AWS_PROFILE=#{val.inspect}")
+    end
+  end
+
+  host_and_cmd = optparse.order(args)
+
+  if host_and_cmd.empty?
+    STDERR.puts optparse
+    exit 1
+  end
+
+  host_spec = host_and_cmd.shift
+
+  host_spec = host_spec.strip
+
+  if host_spec =~ /\Ai-[a-f0-9]+\z/
+    instance = get_instance_by_id(host_spec)
+  else
+    instance = get_instance_by_name(
+      host_spec, pick_strategy: options.fetch(:pick_strategy)
+    )
+  end
+
+  ssm_instance(instance: instance)
+end
+
+if __FILE__ == $0
+  main(ARGV)
+end
