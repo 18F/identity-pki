@@ -20,7 +20,7 @@ Layout/SpaceAroundEqualsInParameterDefault:
   EnforcedStyle: no_space
 
 # The <<~ operator isn't super widely supported yet
-Layout/IndentHeredoc:
+Layout/HeredocIndentation:
   Enabled: false
 
 # trailing commas improve diff clarity at no cost to readability
@@ -93,7 +93,7 @@ Style/WordArray:
   Enabled: false
 
 # not useful
-SpaceInsideHashLiteralBraces:
+Style/SpaceInsideHashLiteralBraces:
   Enabled: false
 
 # not useful
