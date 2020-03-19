@@ -38,6 +38,11 @@ resource "aws_iam_group_membership" "billing_membership" {
   group = aws_iam_group.billing.name
 }
 
+resource "aws_iam_group_policy_attachment" "master_billing_readonly" {
+  group      = aws_iam_group.billing.name
+  policy_arn = aws_iam_policy.master_billing_readonly.arn
+}
+
 resource "aws_iam_group_policy_attachment" "sandbox_billing_readonly" {
   group      = aws_iam_group.billing.name
   policy_arn = aws_iam_policy.sandbox_assume_billing_ro.arn
