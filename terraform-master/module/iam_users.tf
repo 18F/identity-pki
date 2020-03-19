@@ -245,6 +245,7 @@ resource "aws_iam_policy_attachment" "production_power_user" {
   name = "production_power_user"
   users = [
     aws_iam_user.brian_crissup.name,
+    aws_iam_user.clinton_troxel.name,
     aws_iam_user.douglas_price.name,
     aws_iam_user.jonathan_hooper.name,
     aws_iam_user.steve_urciuoli.name,
@@ -258,6 +259,7 @@ resource "aws_iam_policy_attachment" "production_power_user" {
 resource "aws_iam_policy_attachment" "production_appdev" {
   name = "production_appdev"
   users = [
+    aws_iam_user.clinton_troxel.name,
     aws_iam_user.steve_urciuoli.name,
     aws_iam_user.jonathan_hooper.name,
     aws_iam_user.zachary_margolis.name,
