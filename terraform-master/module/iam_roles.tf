@@ -65,3 +65,37 @@ data "aws_iam_policy_document" "master_socadministrator_role" {
     }
   }
 }
+
+resource "aws_iam_role" "master_billing_readonly" {
+  name                 = "BillingReadOnly"
+  assume_role_policy   = data.aws_iam_policy_document.master_billing_readonly_role.json
+  path                 = "/"
+  max_session_duration = 3600 #seconds
+}
+
+resource "aws_iam_role_policy_attachment" "master_billing_readonly" {
+  role       = aws_iam_role.master_billing_readonly.name
+  policy_arn = aws_iam_policy.billing_readonly.arn
+}
+
+data "aws_iam_policy_document" "master_billing_readonly_role" {
+  statement {
+    sid = "MasterBillingReadOnly"
+    actions = [
+      "sts:AssumeRole",
+    ]
+    principals {
+      type = "AWS"
+      identifiers = [
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root",
+      ]
+    }
+    condition {
+      test     = "Bool"
+      variable = "aws:MultiFactorAuthPresent"
+      values = [
+        "true",
+      ]
+    }
+  }
+}
