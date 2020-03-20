@@ -14,7 +14,8 @@ terraform {
 module "main" {
   source = "../module"
 
-  reports_bucket_arn   = "arn:aws:s3:::login-gov.reports.555546682965-us-west-2"
-  iam_reports_enabled  = true
+  iam_account_alias    = "identity-prod"
   iam_kmsadmin_enabled = true
+  iam_reports_enabled  = true
+  reports_bucket_arn   = "arn:aws:s3:::login-gov.reports.555546682965-us-west-2"
 }

@@ -13,4 +13,6 @@ terraform {
 
 module "main" {
   source = "../module"
+
+  iam_account_alias = "identity-analytics"
 }
