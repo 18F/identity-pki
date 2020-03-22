@@ -30,6 +30,16 @@ variable "master_account_id" {
   description = "AWS Account ID for master account"
 }
 
+variable "auditor_accounts" {
+  description = "Map of non-Login.gov AWS accounts we allow Security Auditor access to"
+  # Unlike our master account, these are accounts we do not control!
+  type        = map(string)
+  default     = {
+    master        = "340731855345" # Include master for testing
+    techportfolio = "133032889584" # TTS Tech Portfolio
+  }
+}
+
 variable "iam_appdev_enabled" {
   description = "Enable appdev role in this account."
   type        = bool
