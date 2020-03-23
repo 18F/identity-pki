@@ -3,13 +3,13 @@ git_source(:github) { |repo_name| "https://github.com/#{repo_name}.git" }
 
 ruby '~> 2.6.5'
 
-gem 'rails', '~> 5.2', '>= 5.2.2.1'
+gem 'rails', '~> 5.2', '>= 5.2.4.2'
 
 gem 'activerecord-import'
 gem 'aws-sdk', require: false
 gem 'bloomfilter-rb'
 gem 'figaro'
-gem 'health_check'
+gem 'health_check', '>= 3.0.0'
 gem 'identity-hostdata', github: '18F/identity-hostdata', branch: 'master'
 gem 'mini_cache'
 gem 'newrelic_rpm'
@@ -21,7 +21,7 @@ gem 'rgl'
 group :development, :test do
   gem 'bullet'
   gem 'pry-byebug'
-  gem 'rspec-rails'
+  gem 'rspec-rails', '>= 3.8.2'
   gem 'thin'
 end
 
@@ -45,9 +45,9 @@ group :test do
   gem 'axe-matchers', '~> 1.3.4'
   gem 'codeclimate-test-reporter', require: false
   gem 'database_cleaner'
-  gem 'factory_bot_rails'
+  gem 'factory_bot_rails', '>= 5.0.2'
   gem 'fakefs', require: 'fakefs/safe'
-  gem 'rails-controller-testing'
+  gem 'rails-controller-testing', '>= 1.0.4'
   gem 'shoulda-matchers', '~> 3.0', require: false
   gem 'simplecov'
   gem 'timecop'
