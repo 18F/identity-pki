@@ -43,13 +43,13 @@ end
 
 group :test do
   gem 'axe-matchers', '~> 1.3.4'
-  gem 'codeclimate-test-reporter', require: false
+  gem 'codeclimate-test-reporter', '>= 1.0.9', require: false
   gem 'database_cleaner'
   gem 'factory_bot_rails'
   gem 'fakefs', require: 'fakefs/safe'
   gem 'rails-controller-testing'
   gem 'shoulda-matchers', '~> 3.0', require: false
-  gem 'simplecov'
+  gem 'simplecov', '>= 0.13.0'
   gem 'timecop'
   gem 'webmock'
   gem 'zonebie'
