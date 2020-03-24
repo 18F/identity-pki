@@ -29,6 +29,8 @@ default['login_dot_gov']['allow_unsafe_migrations']                   = false
 default['login_dot_gov']['idp_run_migrations']                        = false
 default['login_dot_gov']['idp_migrations_ignore_failure']             = true
 default['login_dot_gov']['idp_run_recurring_jobs']                    = true
+default['login_dot_gov']['idp_sync_assets']                           = false
+default['login_dot_gov']['idp_sync_assets_ignore_failure']            = false
 
 # User for installing various application data
 default['login_dot_gov']['system_user']                               = 'appinstall'

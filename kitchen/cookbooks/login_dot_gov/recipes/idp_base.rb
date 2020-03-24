@@ -197,6 +197,18 @@ application release_path do
     Chef::Log.info('Skipping idp migrations, idp_run_migrations is falsy')
   end
 
+  if node.fetch('login_dot_gov').fetch('idp_sync_assets')
+    Chef::Log.info('Running idp asset syncronization')
+
+    execute 'deploy sync assets step' do
+      cwd '/srv/idp/releases/chef'
+      command './deploy/sync-assets && touch /tmp/ran-deploy-sync-assets'
+      user node['login_dot_gov']['system_user']
+      group node['login_dot_gov']['system_user']
+      ignore_failure node.fetch('login_dot_gov').fetch('idp_sync_assets_ignore_failure')
+    end
+  end
+
   if File.exist?("/etc/init.d/passenger")
     notifies(:restart, "service[passenger]")
     not_if { node['login_dot_gov']['setup_only'] }
