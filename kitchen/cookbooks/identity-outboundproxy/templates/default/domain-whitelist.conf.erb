@@ -78,7 +78,9 @@ route53.amazonaws.com
 <%= @identity_idp %>
 
 # TODO: we should be using a VPC private endpoint for STS
+# https://github.com/18F/identity-devops/issues/2200
 sts.amazonaws.com
+sts.us-west-2.amazonaws.com
 
 # LexisNexis
 staging.ws.idms.lexisnexis.com
