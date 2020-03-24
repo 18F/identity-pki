@@ -928,7 +928,7 @@ GEM
     iniparse (1.4.4)
     jaro_winkler (1.5.4)
     jmespath (1.4.0)
-    json (2.2.0)
+    json (2.3.0)
     kwalify (0.7.2)
     lazy_priority_queue (0.1.1)
     listen (3.1.5)
@@ -1121,7 +1121,7 @@ DEPENDENCIES
   brakeman
   bullet
   bummr
-  codeclimate-test-reporter
+  codeclimate-test-reporter (>= 1.0.9)
   database_cleaner
   derailed
   factory_bot_rails (>= 5.0.2)
@@ -1148,7 +1148,7 @@ DEPENDENCIES
   rubocop
   rubocop-rails
   shoulda-matchers (~> 3.0)
-  simplecov
+  simplecov (>= 0.13.0)
   thin
   timecop
   tzinfo-data
