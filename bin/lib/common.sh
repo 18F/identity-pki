@@ -143,6 +143,13 @@ echo_red() {
 echo_yellow() {
     echo_color yellow "$@"
 }
+echo_cyan() {
+    echo_color cyan "$@"
+}
+echo_purple() {
+    echo_color purple "$@"
+}
+
 
 # Print underscores as wide as the terminal screen
 echo_color_horizontal_rule() {
