@@ -275,7 +275,7 @@ variable "env_name" {
 }
 
 variable "instance_type_app" {
-  default = "t3.small"
+  default = "t3.medium"
 }
 
 variable "instance_type_elk" {
@@ -287,23 +287,23 @@ variable "instance_type_es" {
 }
 
 variable "instance_type_idp" {
-  default = "t3.small"
+  default = "t3.medium"
 }
 
 variable "instance_type_jumphost" {
-  default = "t3.small"
+  default = "t3.medium"
 }
 
 variable "instance_type_migration" {
-  default = "t3.small"
+  default = "t3.medium"
 }
 
 variable "instance_type_outboundproxy" {
-  default = "t3.small"
+  default = "t3.medium"
 }
 
 variable "instance_type_pivcac" {
-  default = "t3.small"
+  default = "t3.medium"
 }
 
 variable "name" {
