@@ -103,3 +103,20 @@ when '16.04'
   
   execute 'ifdown lo:1 ; ifup lo:1'
 end
+
+# drop in locust repo and binary for load testing
+if node.fetch('identity-jumphost').fetch('locust').fetch('enabled')
+
+  git '/opt/mysources/couch' do
+    repository 'https://github.com/18F/identity-locust.git'
+    revision "#{node['identity-jumphost']['locust']['branch']}"
+    action :sync
+  end
+
+  cookbook_file '/usr/local/bin/id-locust' do
+    source 'id-locust'
+    owner 'root'
+    group 'root'
+    mode '0755'
+  end
+end
