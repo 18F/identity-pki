@@ -290,10 +290,12 @@ EOF
   local build_env="${GSA_USERNAME}"
   local data="${3}"
   [[ -z "${2}" ]] || build_env="${2}"
-  case "${build_env}" in
-    staging|prod) account="login.gov"           ;;
-               *) account="identitysandbox.gov" ;;
-  esac
+  if [[ "${build_env}" =~ "staging|prod" ]] ; then
+    profile="prod-admin"
+    account="login.gov"
+  else
+    account="identitysandbox.gov"
+  fi
   while getopts el:n:o:a:r:s:w: opt ; do
     case "${OPTARG}" in       ## 2 in `vcl -${1}${2}`
       A) type='ALL'           ;;
