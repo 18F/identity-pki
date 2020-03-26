@@ -165,7 +165,7 @@ EOF
       [[ "${build_env}" =~ "staging|prod" ]] && profile="prod-admin"
       av ${av_flag} tf-deploy ${build_env} "terraform-${tf_dir}" ${tf_cmd}
     ;;
-    common|iam|sms)
+    core|all|sms)
       [[ -z "${build_env}" ]] && build_env="sandbox"
       profile="${build_env}-admin"
       [[ "${tf_dir}" == 'sms' ]] && profile="sms-${build_env}-admin"
