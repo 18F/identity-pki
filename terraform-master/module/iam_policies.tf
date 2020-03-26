@@ -583,7 +583,7 @@ data "aws_iam_policy_document" "sandbox_sms_assume_socadministrator" {
       "sts:AssumeRole"
     ]
     resources = [
-      "arn:aws:iam::${var.sandbox_account_id}:role/SOCAdministrator"
+      "arn:aws:iam::${var.sandbox_sms_account_id}:role/SOCAdministrator"
     ]
     condition {
       test     = "Bool"
@@ -611,7 +611,7 @@ data "aws_iam_policy_document" "production_sms_assume_socadministrator" {
       "sts:AssumeRole"
     ]
     resources = [
-      "arn:aws:iam::${var.production_account_id}:role/SOCAdministrator"
+      "arn:aws:iam::${var.production_sms_account_id}:role/SOCAdministrator"
     ]
     condition {
       test     = "Bool"
