@@ -183,7 +183,6 @@ tpc() {
 # run ssh-instance via av
 # reset/re-add PKCS11 key if kicked out, then retry ssh-instance
 sshi() {
-  local profile="${AWS_PROFILE}"
   av -dc ssh-instance "$@" || (pivssh && sshi "$@")
 }
 
