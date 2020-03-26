@@ -583,3 +583,8 @@ variable "enable_aws_ssm" {
   description = "Enable AWS System Manager Session Manager"
   default     = 0
 }
+
+variable "kms_log_kinesis_shards" {
+  description = "Number of shards to provision in Kinesis datastream for kms logging"
+  default     = 1
+}
