@@ -581,7 +581,7 @@ variable "slack_events_sns_hook_arn" {
 
 variable "enable_aws_ssm" {
   description = "Enable AWS System Manager Session Manager"
-  default     = 0
+  default     = 1
 }
 
 variable "kms_log_kinesis_shards" {
