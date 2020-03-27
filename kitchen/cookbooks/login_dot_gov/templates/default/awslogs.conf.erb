@@ -447,3 +447,12 @@ log_stream_name = {hostname}
 initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/srv/idp/shared/log/kms.log
 time_zone = UTC
+
+[idp_telephony] 
+datetime_format = %Y-%m-%dT%H:%M:%S.%f
+file = /srv/idp/shared/log/telephony.log
+buffer_duration = 5000
+log_stream_name = {hostname}
+initial_position = start_of_file
+log_group_name = <%= @environmentName %>_/srv/idp/shared/log/telephony.log
+time_zone = UTC
