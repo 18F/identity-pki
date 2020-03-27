@@ -778,3 +778,130 @@ data "aws_iam_policy_document" "production_analytics_assume_billing_ro" {
     }
   }
 }
+
+#### Assume "Auditor" policies
+# sandbox
+resource "aws_iam_policy" "sandbox_assume_auditor" {
+  name        = "SandboxAssumeAuditor"
+  path        = "/"
+  description = "Policy to allow user to assume Auditor role in Sandbox"
+  policy      = data.aws_iam_policy_document.sandbox_assume_auditor.json
+}
+
+data "aws_iam_policy_document" "sandbox_assume_auditor" {
+  statement {
+    sid    = "SandboxAssumeAuditor"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole",
+    ]
+    resources = [
+      "arn:aws:iam::${var.sandbox_account_id}:role/Auditor",
+    ]
+  }
+}
+
+# prod
+resource "aws_iam_policy" "production_assume_auditor" {
+  name        = "ProductionAssumeAuditor"
+  path        = "/"
+  description = "Policy to allow user to assume Auditor role in Production"
+  policy      = data.aws_iam_policy_document.production_assume_auditor.json
+}
+
+data "aws_iam_policy_document" "production_assume_auditor" {
+  statement {
+    sid    = "ProductionAssumeAuditor"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole",
+    ]
+    resources = [
+      "arn:aws:iam::${var.production_account_id}:role/Auditor",
+    ]
+  }
+}
+
+# sms-sandbox
+resource "aws_iam_policy" "sandbox_sms_assume_auditor" {
+  name        = "SandboxSMSAssumeAuditor"
+  path        = "/"
+  description = "Policy to allow user to assume Auditor role in Sandbox SMS"
+  policy      = data.aws_iam_policy_document.sandbox_sms_assume_auditor.json
+}
+
+data "aws_iam_policy_document" "sandbox_sms_assume_auditor" {
+  statement {
+    sid    = "SandboxSMSAssumeAuditor"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole"
+    ]
+    resources = [
+      "arn:aws:iam::${var.sandbox_sms_account_id}:role/Auditor"
+    ]
+    condition {
+      test     = "Bool"
+      variable = "aws:MultiFactorAuthPresent"
+      values = [
+        "true"
+      ]
+    }
+  }
+}
+
+# sms-prod
+resource "aws_iam_policy" "production_sms_assume_auditor" {
+  name        = "ProductionSMSAssumeAuditor"
+  path        = "/"
+  description = "Policy to allow user to assume Auditor role in Production SMS"
+  policy      = data.aws_iam_policy_document.production_sms_assume_auditor.json
+}
+
+data "aws_iam_policy_document" "production_sms_assume_auditor" {
+  statement {
+    sid    = "ProductionSMSAssumeAuditor"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole"
+    ]
+    resources = [
+      "arn:aws:iam::${var.production_sms_account_id}:role/Auditor"
+    ]
+    condition {
+      test     = "Bool"
+      variable = "aws:MultiFactorAuthPresent"
+      values = [
+        "true"
+      ]
+    }
+  }
+}
+
+# analytics-prod
+resource "aws_iam_policy" "production_analytics_assume_auditor" {
+  name        = "ProductionAnalyticsAssumeAuditor"
+  path        = "/"
+  description = "Policy to allow user to assume Auditor role in Production Analytics"
+  policy      = data.aws_iam_policy_document.production_analytics_assume_auditor.json
+}
+
+data "aws_iam_policy_document" "production_analytics_assume_auditor" {
+  statement {
+    sid    = "ProductionAnalyticsAssumeAuditor"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole"
+    ]
+    resources = [
+      "arn:aws:iam::${var.production_analytics_account_id}:role/Auditor"
+    ]
+    condition {
+      test     = "Bool"
+      variable = "aws:MultiFactorAuthPresent"
+      values = [
+        "true"
+      ]
+    }
+  }
+}

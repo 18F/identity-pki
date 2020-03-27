@@ -57,3 +57,23 @@ data "aws_iam_policy_document" "master_billing_readonly" {
     ]
   }
 }
+
+resource "aws_iam_policy" "master_auditor" {
+  name        = "MasterAssumeAuditor"
+  path        = "/"
+  description = "Policy to assign that permits user to assume Auditor in master"
+  policy      = data.aws_iam_policy_document.master_auditor.json
+}
+
+data "aws_iam_policy_document" "master_auditor" {
+  statement {
+    sid    = "MasterAssumeAuditor"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole"
+    ]
+    resources = [
+      aws_iam_role.master_auditor.arn
+    ]
+  }
+}
