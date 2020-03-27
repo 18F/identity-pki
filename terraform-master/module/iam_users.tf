@@ -294,6 +294,7 @@ resource "aws_iam_policy_attachment" "production_socadministrator" {
   name = "production_socadministrator"
   users = [
     aws_iam_user.brett_mcparland.name,
+    aws_iam_user.rajat_varuni.name,
   ]
   policy_arn = aws_iam_policy.production_assume_socadministrator.arn
 }
@@ -320,6 +321,7 @@ resource "aws_iam_policy_attachment" "production_sms_socadministrator" {
   name = "production_sms_socadministrator"
   users = [
     aws_iam_user.brett_mcparland.name,
+    aws_iam_user.rajat_varuni.name,
   ]
   policy_arn = aws_iam_policy.production_sms_assume_socadministrator.arn
 }
@@ -331,4 +333,13 @@ resource "aws_iam_policy_attachment" "sandbox_sms_socadministrator" {
     aws_iam_user.rajat_varuni.name,
   ]
   policy_arn = aws_iam_policy.sandbox_sms_assume_socadministrator.arn
+}
+
+resource "aws_iam_policy_attachment" "production_analytics_socadministrator" {
+  name = "production_analytics_socadministrator"
+  users = [
+    aws_iam_user.brett_mcparland.name,
+    aws_iam_user.rajat_varuni.name,
+  ]
+  policy_arn = aws_iam_policy.production_analytics_assume_socadministrator.arn
 }

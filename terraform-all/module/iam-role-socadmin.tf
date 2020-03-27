@@ -34,6 +34,7 @@ module "socadmin-assumerole" {
             "securityhub:*",
             "shield:*",
             "ssm:*",
+            "sns:*",
             "trustedadvisor:*",
             "waf:*"
           ]
