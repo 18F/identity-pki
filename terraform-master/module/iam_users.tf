@@ -332,3 +332,11 @@ resource "aws_iam_policy_attachment" "sandbox_sms_socadministrator" {
   ]
   policy_arn = aws_iam_policy.sandbox_sms_assume_socadministrator.arn
 }
+
+resource "aws_iam_policy_attachment" "production_analytics_socadministrator" {
+  name = "production_analytics_socadministrator"
+  users = [
+    aws_iam_user.brett_mcparland.name,
+  ]
+  policy_arn = aws_iam_policy.production_analytics_assume_socadministrator.arn
+}

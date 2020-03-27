@@ -202,6 +202,7 @@ data "aws_iam_policy_document" "socadministrator" {
       "s3:Get*",
       "securityhub:*",
       "shield:*",
+      "sns:*",
       "ssm:*",
       "trustedadvisor:*",
     ]
@@ -612,6 +613,34 @@ data "aws_iam_policy_document" "production_sms_assume_socadministrator" {
     ]
     resources = [
       "arn:aws:iam::${var.production_sms_account_id}:role/SOCAdministrator"
+    ]
+    condition {
+      test     = "Bool"
+      variable = "aws:MultiFactorAuthPresent"
+      values = [
+        "true"
+      ]
+    }
+  }
+}
+
+# analytics
+resource "aws_iam_policy" "production_analytics_assume_socadministrator" {
+  name        = "ProductionAnalyticsAssumeSOCAdministrator"
+  path        = "/"
+  description = "Policy to allow user to assume SOCAdministrator role in Production Analytics"
+  policy      = data.aws_iam_policy_document.production_analytics_assume_socadministrator.json
+}
+
+data "aws_iam_policy_document" "production_analytics_assume_socadministrator" {
+  statement {
+    sid    = "ProductionAnalyticsAssumeSOCAdministrator"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole"
+    ]
+    resources = [
+      "arn:aws:iam::${var.production_analytics_account_id}:role/SOCAdministrator"
     ]
     condition {
       test     = "Bool"
