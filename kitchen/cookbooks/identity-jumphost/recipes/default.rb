@@ -105,12 +105,19 @@ when '16.04'
 end
 
 # drop in locust repo and binary for load testing
-if node.fetch('identity-jumphost').fetch('locust').fetch('enabled')
+if node.fetch('identity-jumphost').fetch('loadtest').fetch('enabled')
 
-  git '/opt/mysources/couch' do
-    repository 'https://github.com/18F/identity-locust.git'
-    revision "#{node['identity-jumphost']['locust']['branch']}"
+  include_recipe 'login_dot_gov::python3'  
+
+  git '/etc/login.gov/repos/identity-loadtest' do
+    repository 'https://github.com/18F/identity-loadtest.git'
+    revision "#{node['identity-jumphost']['loadtest']['branch']}"
     action :sync
+  end
+
+  execute 'install_locust' do
+    cwd '/etc/login.gov/repos/identity-loadtest/load_testing'
+    command 'pip3 install -r requirements.txt'
   end
 
   cookbook_file '/usr/local/bin/id-locust' do
