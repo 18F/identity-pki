@@ -197,16 +197,25 @@ application release_path do
     Chef::Log.info('Skipping idp migrations, idp_run_migrations is falsy')
   end
 
-  if node.fetch('login_dot_gov').fetch('idp_sync_assets')
-    Chef::Log.info('Running idp asset syncronization')
+  static_bucket = node.fetch('login_dot_gov').fetch('static_bucket')
+  if static_bucket && node.fetch('login_dot_gov').fetch('idp_sync_static')
+    Chef::Log.info("Syncronizing IdP assets and packs to #{static_bucket}")
 
-    execute 'deploy sync assets step' do
-      cwd '/srv/idp/releases/chef'
-      command './deploy/sync-assets && touch /tmp/ran-deploy-sync-assets'
+    execute 'deploy sync static assets step' do
+      command "aws s3 sync /srv/idp/current/public/assets s3://#{static_bucket}/assets"
       user node['login_dot_gov']['system_user']
       group node['login_dot_gov']['system_user']
-      ignore_failure node.fetch('login_dot_gov').fetch('idp_sync_assets_ignore_failure')
+      ignore_failure node.fetch('login_dot_gov').fetch('idp_sync_static_ignore_failure')
     end
+
+    execute 'deploy sync static packs step' do
+      command "aws s3 sync /srv/idp/current/public/packs s3://#{static_bucket}/packs"
+      user node['login_dot_gov']['system_user']
+      group node['login_dot_gov']['system_user']
+      ignore_failure node.fetch('login_dot_gov').fetch('idp_sync_static_ignore_failure')
+    end
+  else
+    Chef::Log.info('Skipping assets/packs sync - idp_sync_static or static_bucket are falsy')
   end
 
   if File.exist?("/etc/init.d/passenger")
