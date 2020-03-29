@@ -18,11 +18,19 @@ variable "enable_partner_logos_bucket" {
 }
 
 variable "enable_idp_static_bucket" {
-  type    = bool
-  default = false
+  description = "Create public S3 bucket for storing IdP static assets"
+  type        = bool
+  default     = false
+}
+
+variable "force_destroy_idp_static_bucket" {
+  description = "Allow destruction of IdP static bucket even if not empty"
+  type        = bool
+  default     = true
 }
 
 variable "enable_idp_cdn" {
+  description = "Enable CloudFront distribution serving from S3 bucket"
   type    = bool
   default = false
 }
