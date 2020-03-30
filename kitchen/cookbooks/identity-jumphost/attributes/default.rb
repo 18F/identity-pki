@@ -11,3 +11,7 @@ default['login_dot_gov']['lockdown'] = false
 default['identity-jumphost']['ssh-health-check-port'] = 26
 # Download SSH host keys from secret store
 default['identity-jumphost']['retrieve-ssh-host-keys'] = false
+
+# add locust testing to hosts
+default['identity-jumphost']['loadtest']['enabled'] = false
+default['identity-jumphost']['loadtest']['branch'] = 'master'

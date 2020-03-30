@@ -21,6 +21,9 @@
       ]
     },
     "identity-jumphost": {
+      "loadtest": {
+        "enabled": true
+      },
       "retrieve-ssh-host-keys": true
     }
   },
