@@ -197,6 +197,27 @@ application release_path do
     Chef::Log.info('Skipping idp migrations, idp_run_migrations is falsy')
   end
 
+  static_bucket = node.fetch('login_dot_gov').fetch('static_bucket')
+  if static_bucket && node.fetch('login_dot_gov').fetch('idp_sync_static')
+    Chef::Log.info("Syncronizing IdP assets and packs to #{static_bucket}")
+
+    execute 'deploy sync static assets step' do
+      command "aws s3 sync /srv/idp/releases/chef/public/assets s3://#{static_bucket}/assets"
+      user node['login_dot_gov']['system_user']
+      group node['login_dot_gov']['system_user']
+      ignore_failure node.fetch('login_dot_gov').fetch('idp_sync_static_ignore_failure')
+    end
+
+    execute 'deploy sync static packs step' do
+      command "aws s3 sync /srv/idp/releases/chef/public/packs s3://#{static_bucket}/packs"
+      user node['login_dot_gov']['system_user']
+      group node['login_dot_gov']['system_user']
+      ignore_failure node.fetch('login_dot_gov').fetch('idp_sync_static_ignore_failure')
+    end
+  else
+    Chef::Log.info('Skipping assets/packs sync - idp_sync_static or static_bucket are falsy')
+  end
+
   if File.exist?("/etc/init.d/passenger")
     notifies(:restart, "service[passenger]")
     not_if { node['login_dot_gov']['setup_only'] }

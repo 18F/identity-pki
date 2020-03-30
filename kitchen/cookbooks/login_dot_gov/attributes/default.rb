@@ -29,6 +29,8 @@ default['login_dot_gov']['allow_unsafe_migrations']                   = false
 default['login_dot_gov']['idp_run_migrations']                        = false
 default['login_dot_gov']['idp_migrations_ignore_failure']             = true
 default['login_dot_gov']['idp_run_recurring_jobs']                    = true
+default['login_dot_gov']['idp_sync_static']                           = false
+default['login_dot_gov']['idp_sync_static_ignore_failure']            = false
 
 # User for installing various application data
 default['login_dot_gov']['system_user']                               = 'appinstall'
@@ -82,6 +84,13 @@ default['login_dot_gov']['sslrootcert']   = '/usr/local/share/aws/rds-combined-c
 
 default['login_dot_gov']['deploy_branch_default'] = "stages/#{node.chef_environment}"
 default['login_dot_gov']['deploy_branch'] = {}
+
+# static assets bucket
+aws_region                                = Chef::Recipe::AwsMetadata.get_aws_region
+aws_account_id                            = Chef::Recipe::AwsMetadata.get_aws_account_id
+default['login_dot_gov']['static_bucket'] = "login-gov-idp-static-" \
+                                            "#{node.chef_environment}." \
+                                            "#{aws_account_id}-#{aws_region}"
 
 # how long to wait for curl localhost to finish at end of bootstrapping
 default['login_dot_gov']['passenger_prewarm_timeout']                 = 30

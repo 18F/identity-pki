@@ -17,6 +17,24 @@ variable "enable_partner_logos_bucket" {
   default = false
 }
 
+variable "enable_idp_static_bucket" {
+  description = "Create public S3 bucket for storing IdP static assets"
+  type        = bool
+  default     = false
+}
+
+variable "force_destroy_idp_static_bucket" {
+  description = "Allow destruction of IdP static bucket even if not empty"
+  type        = bool
+  default     = true
+}
+
+variable "enable_idp_cdn" {
+  description = "Enable CloudFront distribution serving from S3 bucket"
+  type    = bool
+  default = false
+}
+
 # unallocated: "172.16.33.96/28"   # 172.16.33.96  - 172.16.33.111
 # unallocated: "172.16.33.112/28"  # 172.16.33.112 - 172.16.33.115
 variable "db1_subnet_cidr_block" { # 172.16.33.32 - 172.16.33.47

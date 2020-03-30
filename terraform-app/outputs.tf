@@ -50,6 +50,10 @@ output "snitest-cloudfront-domain" {
   )
 }
 
+output "idp_static_bucket_website" {
+  value = aws_s3_bucket.idp_static_bucket[0].website_endpoint
+}
+
 output "waf-id" {
   value = element(concat(aws_wafregional_web_acl.idp_web_acl.*.id, [""]), 0)
 }

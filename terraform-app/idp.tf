@@ -507,4 +507,3 @@ resource "aws_route53_record" "redis" {
   ttl     = "300"
   records = [aws_elasticache_replication_group.idp.primary_endpoint_address]
 }
-
