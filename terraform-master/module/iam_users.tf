@@ -109,6 +109,11 @@ resource "aws_iam_user" "thomas_black" {
   force_destroy = true
 }
 
+resource "aws_iam_user" "timothy_spencer" {
+  name          = "timothy.spencer"
+  force_destroy = true
+}
+
 resource "aws_iam_user" "zachary_margolis" {
   name          = "zach.margolis"
   force_destroy = true
@@ -141,6 +146,7 @@ resource "aws_iam_policy_attachment" "manage_your_account" {
     aws_iam_user.steve_urciuoli.name,
     aws_iam_user.steven_harms.name,
     aws_iam_user.thomas_black.name,
+    aws_iam_user.timothy_spencer.name,
     aws_iam_user.zachary_margolis.name,
   ]
   policy_arn = aws_iam_policy.manage_your_account.arn
@@ -156,6 +162,7 @@ resource "aws_iam_policy_attachment" "master_full_administrator" {
     aws_iam_user.mossadeq_zia.name,
     aws_iam_user.paul_hirsch.name,
     aws_iam_user.steven_harms.name,
+    aws_iam_user.timothy_spencer.name,
   ]
   policy_arn = aws_iam_policy.master_full_administrator.arn
 }
@@ -169,6 +176,7 @@ resource "aws_iam_policy_attachment" "sandbox_full_administrator" {
     aws_iam_user.mossadeq_zia.name,
     aws_iam_user.paul_hirsch.name,
     aws_iam_user.steven_harms.name,
+    aws_iam_user.timothy_spencer.name,
   ]
   policy_arn = aws_iam_policy.sandbox_assume_full_administrator.arn
 }
@@ -182,6 +190,7 @@ resource "aws_iam_policy_attachment" "production_full_administrator" {
     aws_iam_user.mossadeq_zia.name,
     aws_iam_user.paul_hirsch.name,
     aws_iam_user.steven_harms.name,
+    aws_iam_user.timothy_spencer.name,
   ]
   policy_arn = aws_iam_policy.production_assume_full_administrator.arn
 }
@@ -195,6 +204,7 @@ resource "aws_iam_policy_attachment" "sandbox_sms_full_administrator" {
     aws_iam_user.mossadeq_zia.name,
     aws_iam_user.paul_hirsch.name,
     aws_iam_user.steven_harms.name,
+    aws_iam_user.timothy_spencer.name,
   ]
   policy_arn = aws_iam_policy.sandbox_sms_assume_full_administrator.arn
 }
@@ -208,6 +218,7 @@ resource "aws_iam_policy_attachment" "production_sms_full_administrator" {
     aws_iam_user.mossadeq_zia.name,
     aws_iam_user.paul_hirsch.name,
     aws_iam_user.steven_harms.name,
+    aws_iam_user.timothy_spencer.name,
   ]
   policy_arn = aws_iam_policy.production_sms_assume_full_administrator.arn
 }
@@ -221,6 +232,7 @@ resource "aws_iam_policy_attachment" "production_analytics_full_administrator" {
     aws_iam_user.mossadeq_zia.name,
     aws_iam_user.paul_hirsch.name,
     aws_iam_user.steven_harms.name,
+    aws_iam_user.timothy_spencer.name,
   ]
   policy_arn = aws_iam_policy.production_analytics_assume_full_administrator.arn
 }
