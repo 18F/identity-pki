@@ -1,8 +1,8 @@
 # Dedicated IdP pool for Small Business Administration
-module "idpsba_launch_template" {
+module "idpxtra_launch_template" {
   source = "github.com/18F/identity-terraform//launch_template?ref=19a1a7d7a5c3e2177f62d96a553fed53ac2c251c"
 
-  role           = "idpsba"
+  role           = "idpxtra"
   env            = var.env_name
   root_domain    = var.root_domain
   ami_id_map     = var.ami_id_map
@@ -19,7 +19,7 @@ module "idpsba_launch_template" {
   }
 }
 
-resource "aws_alb_target_group" "idpsba" {
+resource "aws_alb_target_group" "idpxtra" {
   depends_on = [aws_alb.idp]
 
   health_check {
@@ -33,7 +33,7 @@ resource "aws_alb_target_group" "idpsba" {
     unhealthy_threshold = 2 # down for 20 seconds
   }
 
-  name     = "${var.env_name}-idspa-ssl"
+  name     = "${var.env_name}-idpxtra-ssl"
   port     = 443
   protocol = "HTTPS"
   vpc_id   = aws_vpc.default.id
@@ -46,42 +46,45 @@ resource "aws_alb_target_group" "idpsba" {
   }
 }
 
-resource "aws_lb_listener_rule" "idspa_client_id" {
-  count = var.idpsba_client_id == "" ? 0 : 1
+resource "aws_lb_listener_rule" "idpxtra_client_id" {
+  # Using list instead of map to automatically set priority
+  count = length(var.idpxtra_client_ids)
+
+  depends_on = [aws_alb_target_group.idpxtra]
 
   listener_arn = aws_alb_listener.idp-ssl.id
-  priority     = 100
+  priority     = 100 + count.index
 
   action {
     type             = "forward"
-    target_group_arn = aws_alb_target_group.idpsba.arn
+    target_group_arn = aws_alb_target_group.idpxtra.arn
   }
 
   # Match client_id portion of query string
   condition {
     query_string {
       key   = "client_id"
-      value = var.idpsba_client_id
+      value = var.idpxtra_client_ids[count.index]
     }
   }
 }
 
-resource "aws_autoscaling_group" "idpsba" {
-  name = "${var.env_name}-idpsba"
+resource "aws_autoscaling_group" "idpxtra" {
+  name = "${var.env_name}-idpxtra"
 
   launch_template {
-    id      = module.idpsba_launch_template.template_id
+    id      = module.idpxtra_launch_template.template_id
     version = "$Latest"
   }
 
-  min_size         = var.asg_idpsba_min
-  max_size         = var.asg_idpsba_max
-  desired_capacity = var.asg_idpsba_desired
+  min_size         = var.asg_idpxtra_min
+  max_size         = var.asg_idpxtra_max
+  desired_capacity = var.asg_idpxtra_desired
 
   wait_for_capacity_timeout = 0
 
   target_group_arns = [
-    aws_alb_target_group.idpsba.arn
+    aws_alb_target_group.idpxtra.arn
   ]
 
   # Place in shared public blocks accross 3 AZs
@@ -108,7 +111,7 @@ resource "aws_autoscaling_group" "idpsba" {
   # tags on the instance will come from the launch template
   tag {
     key                 = "prefix"
-    value               = "idpsba"
+    value               = "idpxtra"
     propagate_at_launch = false
   }
   tag {
@@ -118,12 +121,12 @@ resource "aws_autoscaling_group" "idpsba" {
   }
 }
 
-module "idpsba_lifecycle_hooks" {
+module "idpxtra_lifecycle_hooks" {
   source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=19a1a7d7a5c3e2177f62d96a553fed53ac2c251c"
-  asg_name = aws_autoscaling_group.idpsba.name
+  asg_name = aws_autoscaling_group.idpxtra.name
 }
 
-module "idpsba_recycle" {
+module "idpxtra_recycle" {
   source = "github.com/18F/identity-terraform//asg_recycle?ref=19a1a7d7a5c3e2177f62d96a553fed53ac2c251c"
 
   # switch to count when that's a thing that we can do
@@ -132,15 +135,15 @@ module "idpsba_recycle" {
 
   use_daily_business_hours_schedule = var.asg_auto_recycle_use_business_schedule
 
-  asg_name                = aws_autoscaling_group.idpsba.name
-  normal_desired_capacity = aws_autoscaling_group.idpsba.desired_capacity
+  asg_name                = aws_autoscaling_group.idpxtra.name
+  normal_desired_capacity = aws_autoscaling_group.idpxtra.desired_capacity
 }
 
-resource "aws_autoscaling_policy" "idpsba-cpu" {
+resource "aws_autoscaling_policy" "idpxtra-cpu" {
   # Follow scale policies for normal IdP
   count = var.idp_cpu_autoscaling_enabled
 
-  autoscaling_group_name = aws_autoscaling_group.idpsba.name
+  autoscaling_group_name = aws_autoscaling_group.idpxtra.name
   name                   = "cpu-scaling"
 
   # currently it takes about 15 minutes for instances to bootstrap

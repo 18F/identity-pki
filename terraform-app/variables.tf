@@ -375,15 +375,15 @@ variable "asg_idp_max" {
   default = 8
 }
 
-variable "asg_idpsba_min" {
+variable "asg_idpxtra_min" {
   default = 0
 }
 
-variable "asg_idpsba_desired" {
+variable "asg_idpxtra_desired" {
   default = 0
 }
 
-variable "asg_idpsba_max" {
+variable "asg_idpxtra_max" {
   default = 8
 }
 
@@ -447,10 +447,10 @@ variable "idp_cpu_autoscaling_target" {
   default = 40
 }
 
-variable "idpsba_client_id" {
-  description = "IdP client ID value for SP traffic to be routed to idpsba pool"
-  type        = string
-  default     = ""
+variable "idpxtra_client_ids" {
+  description = "List of IdP SP client ID values to be routed to idpxtra pool"
+  type        = list(string)
+  default     = []
 }
 
 variable "idp_web_acl_id" {
