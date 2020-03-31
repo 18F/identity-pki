@@ -30,7 +30,7 @@ variable "force_destroy_idp_static_bucket" {
 }
 
 variable "enable_idp_cdn" {
-  description = "Enable CloudFront distribution serving from S3 bucket"
+  description = "Enable CloudFront distribution serving from S3 bucket (enable_idp_static_bucket must be true)"
   type    = bool
   default = false
 }
