@@ -113,23 +113,26 @@ resource "aws_iam_role_policy_attachment" "master_auditor" {
 }
 
 data "aws_iam_policy_document" "master_auditor_role" {
-  statement {
-    sid = "MasterAuditor"
-    actions = [
-      "sts:AssumeRole",
-    ]
-    principals {
-      type = "AWS"
-      identifiers = [
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root",
+  dynamic "statement" {
+    for_each = var.auditor_accounts
+    content {
+      sid = "AssumeAuditorRoleFrom${title(statement.key)}"
+      actions = [
+        "sts:AssumeRole"
       ]
-    }
-    condition {
-      test     = "Bool"
-      variable = "aws:MultiFactorAuthPresent"
-      values = [
-        "true",
-      ]
+      principals {
+        type = "AWS"
+        identifiers = [
+          "arn:aws:iam::${statement.value}:root"
+        ]
+      }
+      condition {
+        test     = "Bool"
+        variable = "aws:MultiFactorAuthPresent"
+        values = [
+          "true"
+        ]
+      }
     }
   }
 }
