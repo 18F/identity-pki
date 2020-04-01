@@ -31,6 +31,23 @@ run() {
   "$@"
 }
 
+run_var() {
+  VAR=${1}
+  shift
+  if [[ $USE_RUN -gt 0 ]] ; then
+    if [ -t 1 ]; then
+      echo -ne "\\033[1;36m"
+    fi
+
+    echo -e >&2 "+ $VAR=\$($*)"
+
+    if [ -t 1 ]; then
+      echo -ne '\033[m'
+    fi
+  fi
+  eval $VAR="\"$($@)\""
+}
+
 #### cd to ${GITHUB_PARENT_DIR}/identity-${1} ####
 gid() {
   run cd "${GITHUB_PARENT_DIR}/identity-${1}"
@@ -116,4 +133,20 @@ ggc() {
 gv() {
   run git push --set-upstream origin $(git_current_branch)
   run git push --tags
+}
+
+#### create a GitHub release ####
+ghr() {
+  VERSION=$(echo ${1} | sed 's/v//')
+  run_var PR_LIST hub pr list -b master -s merged -o updated -L 100 -f "- %i %t%n"
+  PREV_VERSION=$(($VERSION-1))
+  RELEASE_PRS=$(echo "${PR_LIST}" |
+    sed -n "/${VERSION}/,/${PREV_VERSION}/p;/${PREV_VERSION}/q;" |
+    grep -v "$VERSION\|$PREV_VERSION")
+  run hub release create "v${VERSION}" -m "$(cat <<EOF
+Release v${VERSION}
+
+$RELEASE_PRS
+EOF
+  )"
 }
