@@ -76,7 +76,7 @@ resource "aws_autoscaling_group" "jumphost" {
   ]
 
   health_check_type         = "ELB"
-  health_check_grace_period = 1
+  health_check_grace_period = 0
   termination_policies      = ["OldestInstance"]
 
   # tags on the instance will come from the launch template
