@@ -163,7 +163,13 @@ resource "aws_network_acl" "idp" {
   }
 
   vpc_id     = aws_vpc.default.id
-  subnet_ids = [aws_subnet.idp1.id, aws_subnet.idp2.id]
+  subnet_ids = [
+    aws_subnet.idp1.id,
+    aws_subnet.idp2.id,
+    aws_subnet.publicsubnet1.id,
+    aws_subnet.publicsubnet2.id,
+    aws_subnet.publicsubnet3.id,
+  ]
 }
 
 # Uses up to rule number 25 + number of ssh_cidr_blocks
@@ -216,7 +222,7 @@ resource "aws_network_acl_rule" "idp-ingress-cloudhsm" {
 
 resource "aws_network_acl" "alb" {
   vpc_id     = aws_vpc.default.id
-  subnet_ids = [aws_subnet.alb1.id, aws_subnet.alb2.id]
+  subnet_ids = [aws_subnet.alb1.id, aws_subnet.alb2.id, aws_subnet.alb3.id]
 
   tags = {
     Name = "${var.env_name}-alb"

@@ -298,7 +298,6 @@ resource "aws_security_group" "elk" {
     cidr_blocks = [
       var.idp1_subnet_cidr_block,
       var.idp2_subnet_cidr_block,
-      var.idp3_subnet_cidr_block,
       var.jumphost1_subnet_cidr_block,
       var.jumphost2_subnet_cidr_block,
       var.public1_subnet_cidr_block,
@@ -565,6 +564,9 @@ resource "aws_security_group" "idp" {
     cidr_blocks = [
       aws_subnet.idp1.cidr_block,
       aws_subnet.idp2.cidr_block,
+      aws_subnet.publicsubnet1.cidr_block,
+      aws_subnet.publicsubnet2.cidr_block,
+      aws_subnet.publicsubnet3.cidr_block,
     ]
   }
 
@@ -877,7 +879,9 @@ resource "aws_security_group" "web" {
     cidr_blocks = [
       var.idp1_subnet_cidr_block,
       var.idp2_subnet_cidr_block,
-      var.idp3_subnet_cidr_block,
+      var.public1_subnet_cidr_block,
+      var.public2_subnet_cidr_block,
+      var.public3_subnet_cidr_block,
     ]
   }
   egress {
@@ -887,7 +891,9 @@ resource "aws_security_group" "web" {
     cidr_blocks = [
       var.idp1_subnet_cidr_block,
       var.idp2_subnet_cidr_block,
-      var.idp3_subnet_cidr_block,
+      var.public1_subnet_cidr_block,
+      var.public2_subnet_cidr_block,
+      var.public3_subnet_cidr_block,
     ]
   }
 
@@ -1059,6 +1065,19 @@ resource "aws_subnet" "alb2" {
 
   tags = {
     Name = "${var.name}-alb2_subnet-${var.env_name}"
+  }
+
+  vpc_id = aws_vpc.default.id
+}
+
+resource "aws_subnet" "alb3" {
+  availability_zone       = "${var.region}c"
+  cidr_block              = var.alb3_subnet_cidr_block
+  depends_on              = [aws_internet_gateway.default]
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "${var.name}-alb3_subnet-${var.env_name}"
   }
 
   vpc_id = aws_vpc.default.id
