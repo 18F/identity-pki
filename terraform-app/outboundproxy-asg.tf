@@ -68,7 +68,7 @@ resource "aws_iam_role_policy" "obproxy-auto-eip" {
 
 resource "aws_iam_role_policy_attachment" "obproxy-ssm" {
   count      = var.enable_aws_ssm
-  role       = aws_iam_role.elasticsearch.id
+  role       = aws_iam_role.obproxy.id
   policy_arn = module.ssm.ssm_iam_policy_arn
 }
 
