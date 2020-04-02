@@ -92,6 +92,16 @@ resource "aws_db_instance" "idp-read-replica" {
 
   # send logs to cloudwatch
   enabled_cloudwatch_logs_exports = ["postgresql"]
+
+  # uncomment this entire section if you're destroying the environment
+  # and have enable_rds_idp_read_replica = true
+  #skip_final_snapshot = true
+  #lifecycle {
+  #  prevent_destroy = false
+  #}
+  #
+  #deletion_protection = false
+
 }
 
 output "idp_db_endpoint_replica" {
