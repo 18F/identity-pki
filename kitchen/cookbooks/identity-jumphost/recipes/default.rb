@@ -107,7 +107,13 @@ end
 # drop in locust repo and binary for load testing
 if node.fetch('identity-jumphost').fetch('loadtest').fetch('enabled')
 
-  include_recipe 'login_dot_gov::python3'  
+  include_recipe 'login_dot_gov::python3'
+
+  directory '/var/log/loadtest' do
+    owner 'root'
+    group 'users'
+    mode 0775
+  end
 
   git '/etc/login.gov/repos/identity-loadtest' do
     repository 'https://github.com/18F/identity-loadtest.git'

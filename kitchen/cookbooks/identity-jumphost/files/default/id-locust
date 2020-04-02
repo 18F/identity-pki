@@ -38,9 +38,10 @@ EOM
 
 REPO_DIR='/etc/login.gov/repos/identity-loadtest'
 [[ -d "${REPO_DIR}" ]] || raise "REPO_DIR ${REPO_DIR} does not exist"
-
 [[ $# -lt 2 ]] && raise "Both TEST_NAME and ENV must be provided"
-TEST_FILE="${REPO_DIR}/load_testing/${1}.locustfile.py"
+
+TEST=${1}
+TEST_FILE="${REPO_DIR}/load_testing/${TEST}.locustfile.py"
 [[ -f "${TEST_FILE}" ]] || raise "Test '${TEST_FILE}' not found"
 
 case "${2}" in
@@ -51,6 +52,7 @@ case "${2}" in
 esac
 shift 2
 
+TEST_DIR='/var/log/loadtest'
 declare {CLIENTS,HATCH_RATE,NUM_CLIENTS}=1
 while getopts c:h:n: opt
 do
@@ -63,4 +65,4 @@ do
   esac
 done
 
-run locust --host "${TARGET}" --clients="${CLIENTS}" --hatch-rate "${HATCH_RATE}" --locustfile "${TEST_FILE}" --no-web
+run locust --host "${TARGET}" --clients="${CLIENTS}" --hatch-rate "${HATCH_RATE}" --locustfile "${TEST_FILE}" --no-web --csv="${TEST_DIR}/$(date +%Y%m%d%k%M%S)-${TEST}"
