@@ -39,7 +39,7 @@ module Cloudlib
       found.first.target_group_arn
     end
 
-    def find_target_group_arn_by_tags(env:, health_role:)
+    def find_target_group_arns_by_tags(env:, health_role:)
       log.info('Looking up ARN for target group ' +
                {env: env, health_role: health_role}.inspect)
 
@@ -58,24 +58,29 @@ module Cloudlib
         resource_type_filters: ['elasticloadbalancing:targetgroup']
       ).resource_tag_mapping_list.map(&:resource_arn)
 
-      if arns.length > 1
-        raise ManyFound.new('Found multiple target groups: ' + arns.inspect)
-      end
       if arns.empty?
         raise NotFound.new('No target groups found for ' +
                            {env: env, health_role: health_role}.inspect)
       end
 
-      arns.first
+      arns
     end
 
     def find_target_health_data(environment, role)
-      arn = find_target_group_arn_by_tags(env: environment, health_role: role)
-      log.info("Looking up health data for target group ARN #{arn}")
-      result = loadbalancing.client.describe_target_health({
-        target_group_arn: arn,
-      })
-      result.target_health_descriptions
+      arns = find_target_group_arns_by_tags(env: environment, health_role: role)
+
+      target_health_descriptions = []
+
+      arns.each do |arn|
+        log.info("Looking up health data for target group ARN #{arn}")
+        result = loadbalancing.client.describe_target_health(
+          { target_group_arn: arn }
+        )
+
+        target_health_descriptions.concat(result.target_health_descriptions)
+      end
+
+      target_health_descriptions
     end
 
     def log

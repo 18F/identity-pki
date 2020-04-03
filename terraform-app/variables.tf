@@ -57,8 +57,9 @@ variable "idp2_subnet_cidr_block" { # 172.16.33.160 - 172.16.33.191
   default = "172.16.33.160/27"
 }
 
-variable "idp3_subnet_cidr_block" { # 172.16.33.192 - 172.16.33.223
-  default = "172.16.33.192/27"
+# Reusing unused idp3 subnet - Eventually should have all 4 AZs covered
+variable "alb3_subnet_cidr_block" { # 172.16.33.208 - 172.16.33.223
+  default = "172.16.33.208/28"
 }
 
 variable "alb1_subnet_cidr_block" { # 172.16.33.224 - 172.16.33.239
@@ -69,23 +70,23 @@ variable "alb2_subnet_cidr_block" { # 172.16.33.240 - 172.16.33.255
   default = "172.16.33.240/28"
 }
 
-variable "jumphost1_subnet_cidr_block" { # 172.16.32.32  - 172.16.34.47
+variable "jumphost1_subnet_cidr_block" { # 172.16.32.32  - 172.16.32.47
   default = "172.16.32.32/28"
 }
 
-variable "jumphost2_subnet_cidr_block" { # 172.16.32.48  - 172.16.34.63
+variable "jumphost2_subnet_cidr_block" { # 172.16.32.48  - 172.16.32.63
   default = "172.16.32.48/28"
 }
 
-variable "public1_subnet_cidr_block" { # 172.16.34.64 - 172.16.34.127
+variable "public1_subnet_cidr_block" { # 172.16.32.64 - 172.16.32.127
   default = "172.16.32.64/26"
 }
 
-variable "public2_subnet_cidr_block" { # 172.16.34.128 - 172.16.34.191
+variable "public2_subnet_cidr_block" { # 172.16.32.128 - 172.16.32.191
   default = "172.16.32.128/26"
 }
 
-variable "public3_subnet_cidr_block" { # 172.16.34.192 - 172.16.34.255
+variable "public3_subnet_cidr_block" { # 172.16.32.192 - 172.16.32.255
   default = "172.16.32.192/26"
 }
 
@@ -374,6 +375,18 @@ variable "asg_idp_max" {
   default = 8
 }
 
+variable "asg_idpxtra_min" {
+  default = 0
+}
+
+variable "asg_idpxtra_desired" {
+  default = 0
+}
+
+variable "asg_idpxtra_max" {
+  default = 8
+}
+
 variable "asg_elasticsearch_desired" {
   default = 0
 }
@@ -432,6 +445,12 @@ variable "idp_cpu_autoscaling_disable_scale_in" { # we're not ready for auto sca
 
 variable "idp_cpu_autoscaling_target" {
   default = 40
+}
+
+variable "idpxtra_client_ids" {
+  description = "List of IdP SP client ID values to be routed to idpxtra pool"
+  type        = list(string)
+  default     = []
 }
 
 variable "idp_web_acl_id" {

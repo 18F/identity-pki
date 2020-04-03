@@ -92,6 +92,9 @@ resource "aws_db_instance" "idp-read-replica" {
 
   # send logs to cloudwatch
   enabled_cloudwatch_logs_exports = ["postgresql"]
+
+  # uncomment this if deleting the read replica / environment
+  #skip_final_snapshot = true
 }
 
 output "idp_db_endpoint_replica" {
