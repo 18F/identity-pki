@@ -11,11 +11,10 @@ deploy_dir = "#{base_dir}/current/public"
 
 basic_auth_enabled = !!ConfigLoader.load_config_or_nil(node, "basic_auth_user_name")
 
-# JSON.parse breaks if security_group_exceptions doesn't exist
-begin
-  security_group_exceptions = JSON.parse(ConfigLoader.load_config(node, "security_group_exceptions"))
-rescue
-  security_group_exceptions = []
+security_group_exceptions = begin
+  JSON.parse(ConfigLoader.load_config(node, "security_group_exceptions"))
+rescue JSON::ParserError
+  []
 end
 
 idp_url = "https://idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"

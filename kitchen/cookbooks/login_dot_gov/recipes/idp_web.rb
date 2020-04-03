@@ -6,11 +6,10 @@ end
 
 domain_name = node.fetch('login_dot_gov').fetch('domain_name')
 
-# JSON.parse breaks if security_group_exceptions doesn't exist
-begin
-  security_group_exceptions = JSON.parse(ConfigLoader.load_config(node, "security_group_exceptions"))
-rescue
-  security_group_exceptions = []
+security_group_exceptions = begin
+  JSON.parse(ConfigLoader.load_config(node, "security_group_exceptions"))
+rescue JSON::ParserError
+  []
 end
 
 if basic_auth_enabled
