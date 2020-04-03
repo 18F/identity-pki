@@ -166,9 +166,6 @@ resource "aws_network_acl" "idp" {
   subnet_ids = [
     aws_subnet.idp1.id,
     aws_subnet.idp2.id,
-    aws_subnet.publicsubnet1.id,
-    aws_subnet.publicsubnet2.id,
-    aws_subnet.publicsubnet3.id,
   ]
 }
 
