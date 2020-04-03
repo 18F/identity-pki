@@ -177,6 +177,12 @@ tpc() {
                sed -E 's/(user_data += ").*"/\1\*"/'
 }
 
+# run ssh-instance via av
+# reset/re-add PKCS11 key if kicked out, then retry ssh-instance
+sshi() {
+  av -dc ssh-instance "$@" || (pivssh && sshi "$@")
+}
+
 #### run bundle exec with common commands ####
 be() {
   read -r -d '' usage <<'EOF'
