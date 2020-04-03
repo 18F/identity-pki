@@ -6,6 +6,12 @@ end
 
 domain_name = node.fetch('login_dot_gov').fetch('domain_name')
 
+security_group_exceptions = begin
+  JSON.parse(ConfigLoader.load_config(node, "security_group_exceptions"))
+rescue JSON::ParserError
+  []
+end
+
 if basic_auth_enabled
   basic_auth_config 'generate basic auth config' do
     password ConfigLoader.load_config(node, "basic_auth_password")
@@ -80,7 +86,7 @@ template '/opt/nginx/conf/sites.d/idp_web.conf' do
     basic_auth: basic_auth_enabled,
     idp_web: true,
     passenger_ruby: lazy { Dir.chdir(deploy_dir) { shell_out!(%w{rbenv which ruby}).stdout.chomp } },
-    security_group_exceptions: JSON.parse(ConfigLoader.load_config(node, "security_group_exceptions")),
+    security_group_exceptions: security_group_exceptions,
     server_aliases: nil,
     server_name: server_name,
     nginx_redirects: nginx_redirects
