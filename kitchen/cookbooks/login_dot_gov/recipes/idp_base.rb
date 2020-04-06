@@ -201,6 +201,14 @@ application release_path do
   if static_bucket && node.fetch('login_dot_gov').fetch('idp_sync_static')
     Chef::Log.info("Syncronizing IdP assets and packs to #{static_bucket}")
 
+    if File.exist?('/opt/nginx/conf/mime.types')
+      # Link system_users ~/.mime_types to NGINX one to ensure aws s3 sync
+      # properly identifies MIME content-types for synced files
+      link '/opt/nginx/conf/mime.types' do
+        to '/home/' + node.fetch('login_dot_gov').fetch('system_user') + '/.mime.types'
+      end
+    end
+
     execute 'deploy sync static assets step' do
       command "aws s3 sync /srv/idp/releases/chef/public/assets s3://#{static_bucket}/assets"
       user node['login_dot_gov']['system_user']
