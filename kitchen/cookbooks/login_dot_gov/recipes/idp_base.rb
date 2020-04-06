@@ -199,31 +199,41 @@ application release_path do
 
   static_bucket = node.fetch('login_dot_gov').fetch('static_bucket')
   if static_bucket && node.fetch('login_dot_gov').fetch('idp_sync_static')
-    Chef::Log.info("Syncronizing IdP assets and packs to #{static_bucket}")
 
-    if File.exist?('/opt/nginx/conf/mime.types')
+    nginx_mime_types = '/opt/nginx/conf/mime.types'
+    user_mime_types = '/home/' + \
+                      node.fetch('login_dot_gov').fetch('system_user') + \
+                      '/.mime.types'
+
+    if File.exist?(nginx_mime_types)
       # Link system_users ~/.mime_types to NGINX one to ensure aws s3 sync
       # properly identifies MIME content-types for synced files
-      link '/opt/nginx/conf/mime.types' do
-        to '/home/' + node.fetch('login_dot_gov').fetch('system_user') + '/.mime.types'
+      Chef::Log.info("Linking #{user_mime_types} to #{nginx_mime_types}")
+
+      link user_mime_types do
+        to nginx_mime_types
       end
+    else
+      Chef::Log.info("No #{nginx_mime_types} - synced asset MIME types may be wrong")
     end
 
+    Chef::Log.info("Syncronizing IdP assets and packs to #{static_bucket}")
+
     execute 'deploy sync static assets step' do
-      command "aws s3 sync /srv/idp/releases/chef/public/assets s3://#{static_bucket}/assets"
+      command "aws s3 sync #{release_path}/public/assets s3://#{static_bucket}/assets"
       user node['login_dot_gov']['system_user']
       group node['login_dot_gov']['system_user']
       ignore_failure node.fetch('login_dot_gov').fetch('idp_sync_static_ignore_failure')
     end
 
     execute 'deploy sync static packs step' do
-      command "aws s3 sync /srv/idp/releases/chef/public/packs s3://#{static_bucket}/packs"
+      command "aws s3 sync #{release_path}/public/packs s3://#{static_bucket}/packs"
       user node['login_dot_gov']['system_user']
       group node['login_dot_gov']['system_user']
       ignore_failure node.fetch('login_dot_gov').fetch('idp_sync_static_ignore_failure')
     end
   else
-    Chef::Log.info('Skipping assets/packs sync - idp_sync_static or static_bucket are falsy')
+    Chef::Log.info('Skipping assets sync - idp_sync_static or static_bucket are falsy')
   end
 
   if File.exist?("/etc/init.d/passenger")
