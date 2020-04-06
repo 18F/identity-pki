@@ -201,18 +201,16 @@ application release_path do
   if static_bucket && node.fetch('login_dot_gov').fetch('idp_sync_static')
 
     nginx_mime_types = '/opt/nginx/conf/mime.types'
-    user_mime_types = '/home/' + \
-                      node.fetch('login_dot_gov').fetch('system_user') + \
-                      '/.mime.types'
+    local_mime_types = '/usr/local/etc/mime.types'
 
     if File.exist?(nginx_mime_types)
-      # Link system_users ~/.mime_types to NGINX one to ensure aws s3 sync
-      # properly identifies MIME content-types for synced files
-      Chef::Log.info("Linking #{user_mime_types} to #{nginx_mime_types}")
+      # Convert NGINX MIME types into a seondary mime.types file to ensure
+      # AWS s3 sync gets the types right
+      Chef::Log.info("Creating #{local_mime_types} from #{nginx_mime_types}")
 
-      link user_mime_types do
-        to nginx_mime_types
-      end
+      execute "egrep '^ +' #{nginx_mime_types} | " \
+              "awk '{ print $1 \" \" $2 }' | " \
+              "cut -d ';' -f 1 > #{local_mime_types}"
     else
       Chef::Log.info("No #{nginx_mime_types} - synced asset MIME types may be wrong")
     end
