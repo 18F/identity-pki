@@ -453,6 +453,13 @@ variable "idpxtra_client_ids" {
   default     = []
 }
 
+variable "idpxtra_sticky_ttl" {
+  description = "Seconds to keep a client stuck to idpxtra after match"
+  type        = number
+  # Default - 1 hour.  Set to 0 to disable sticky target group.
+  default     = 3600
+}
+
 variable "idp_web_acl_id" {
   default     = "eb5d2b12-a361-4fa0-88f2-8f632f6a9819"
   description = "WAF Web ACL ID to attach to this environment's ALBs (shouldn't need to be changed). Only used when enable_waf=true."

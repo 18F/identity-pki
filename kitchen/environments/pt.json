@@ -25,6 +25,11 @@
         "enabled": true
       },
       "retrieve-ssh-host-keys": true
+    },
+    "passenger": {
+      "production": {
+        "limit_connections": false
+      }
     }
   },
   "override_attributes": {
