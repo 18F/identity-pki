@@ -38,6 +38,12 @@ resource "aws_alb_target_group" "idpxtra" {
   protocol = "HTTPS"
   vpc_id   = aws_vpc.default.id
 
+  stickiness {
+    type            = "lb_cookie"
+    cookie_duration = var.idpxtra_sticky_ttl
+    enabled         = var.idpxtra_sticky_ttl == 0 ? false : true
+  }
+
   deregistration_delay = 120
 
   tags = {
