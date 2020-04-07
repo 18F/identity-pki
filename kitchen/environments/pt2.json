@@ -13,6 +13,11 @@
     },
     "ssh_keys": {
     },
+    "identity-jumphost": {
+      "loadtest": {
+        "enabled": true
+      }
+    },
     "elk": {
       "users": [
         "jgrevich",
@@ -20,6 +25,11 @@
         "mzia",
         "steveu"
       ]
+    },
+    "passenger": {
+      "production": {
+        "limit_connections": false
+      }
     }
   },
   "override_attributes": {
