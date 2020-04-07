@@ -481,7 +481,7 @@ resource "aws_security_group" "jumphost" {
 
   # locust distributed
   egress {
-    from_port = 5557 # ELB
+    from_port = 5557
 
     to_port  = 5557
     protocol = "tcp"
@@ -490,7 +490,7 @@ resource "aws_security_group" "jumphost" {
   
   # locust distributed
   ingress {
-    from_port = 5557 # ELB
+    from_port = 5557
 
     to_port  = 5557
     protocol = "tcp"
