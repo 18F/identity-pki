@@ -479,6 +479,24 @@ resource "aws_security_group" "jumphost" {
     prefix_list_ids = [aws_vpc_endpoint.private-s3.prefix_list_id]
   }
 
+  # locust distributed
+  egress {
+    from_port = 5557 # ELB
+
+    to_port  = 5557
+    protocol = "tcp"
+    self     = true
+  }
+  
+  # locust distributed
+  ingress {
+    from_port = 5557 # ELB
+
+    to_port  = 5557
+    protocol = "tcp"
+    self     = true
+  }
+
   ingress {
     from_port = 22 # ELB
 

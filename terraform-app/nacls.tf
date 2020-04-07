@@ -157,6 +157,30 @@ resource "aws_network_acl_rule" "jumphost-elb-healthcheck2" {
   rule_action    = "allow"
 }
 
+# port to run locust in distributed mode
+resource "aws_network_acl_rule" "jumphost-locust-distributed1" {
+  network_acl_id = aws_network_acl.jumphost.id
+  egress         = false
+  from_port      = 5557
+  to_port        = 5557
+  protocol       = "tcp"
+  cidr_block     = var.jumphost1_subnet_cidr_block
+  rule_number    = 52
+  rule_action    = "allow"
+}
+
+resource "aws_network_acl_rule" "jumphost-locust-distributed2" {
+  network_acl_id = aws_network_acl.jumphost.id
+  egress         = false
+  from_port      = 5557
+  to_port        = 5557
+  protocol       = "tcp"
+  cidr_block     = var.jumphost2_subnet_cidr_block
+  rule_number    = 53
+  rule_action    = "allow"
+}
+
+
 resource "aws_network_acl" "idp" {
   tags = {
     Name = "${var.env_name}-idp"
