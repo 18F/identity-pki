@@ -1,18 +1,17 @@
----
-name: New Feature
-about: Suggest an idea for this project
-title: ''
-labels: ''
-assignees: ''
+TITLE_OF_ISSUE
 
----
+# Problem
 
-**Problem statement**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+As a ***TYPE_OF_USER***,
+I would like to ***NEW_FUNCTIONALITY***,
+So that I can ***ACCEPTED_OUTCOME***
 
-**Proposed solution**
-A clear and concise description of what you want to happen.
+# Solution
 
-**Additional comments**
-Add any other context or screenshots about the feature request here.
+<!-- check boxes for each task to achieve ACCEPTED_OUTCOME -->
+* [ ] One task
+* [ ] Another task
 
+# Acceptance
+
+<!-- Define acceptance criteria for ACCEPTED_OUTCOME -->
