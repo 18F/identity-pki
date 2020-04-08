@@ -528,6 +528,7 @@ execute "rbenv exec gem build logstash-input-cloudwatch_logs.gemspec" do
 end
 
 execute "bin/logstash-plugin install /usr/share/logstash-input-cloudwatch_logs/logstash-input-cloudwatch_logs-#{node['elk']['logstash-input-cloudwatch-logs-version']}.gem" do
+  environment 'JAVA_MEM' => "-Xmx2048m"
   cwd '/usr/share/logstash'
   notifies :run, 'execute[restart_cloudwatchlogstash]', :delayed
   creates "/usr/share/logstash/vendor/cache/logstash-input-cloudwatch_logs-#{node['elk']['logstash-input-cloudwatch-logs-version']}.gem"
