@@ -166,7 +166,7 @@ execute "rbenv exec gem build logstash-codec-cloudtrail.gemspec" do
 end
 
 execute "bin/logstash-plugin install /usr/share/logstash-codec-cloudtrail/logstash-codec-cloudtrail-#{node['elk']['logstash-codec-cloudtrail-version']}.gem" do
-  environment {"JAVA_MEM" => "-Xmx2048m"}
+  environment 'JAVA_MEM' => "-Xmx2048m"
   cwd '/usr/share/logstash'
   notifies :run, 'execute[restart_cloudtraillogstash]', :delayed
   creates "/usr/share/logstash/vendor/cache/logstash-codec-cloudtrail-#{node['elk']['logstash-codec-cloudtrail-version']}.gem"
