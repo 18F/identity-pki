@@ -119,10 +119,10 @@ resource "aws_iam_role_policy" "elk-cloudwatch-logs" {
   policy = data.aws_iam_policy_document.cloudwatch-logs.json
 }
 
-resource "aws_iam_role_policy_attachment" "elk-ssm" {
-  count      = var.enable_aws_ssm
-  role       = aws_iam_role.elasticsearch.id
-  policy_arn = module.ssm.ssm_iam_policy_arn
+resource "aws_iam_role_policy" "elk-ssm-access" {
+  name   = "${var.env_name}-elk-ssm-access"
+  role   = aws_iam_role.elk_iam_role.id
+  policy = data.aws_iam_policy_document.ssm_access_role_policy.json
 }
 
 resource "aws_s3_bucket" "logbucket" {

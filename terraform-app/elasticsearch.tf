@@ -103,9 +103,10 @@ resource "aws_iam_role_policy" "elasticsearch-cloudwatch-logs" {
   policy = data.aws_iam_policy_document.cloudwatch-logs.json
 }
 
-resource "aws_iam_role_policy_attachment" "elasticsearch-ssm" {
-  count      = var.enable_aws_ssm
-  role       = aws_iam_role.elasticsearch.id
-  policy_arn = module.ssm.ssm_iam_policy_arn
+resource "aws_iam_role_policy" "elasticsearch-ssm-access" {
+  name   = "${var.env_name}-elasticsearch-ssm-access"
+  role   = aws_iam_role.elasticsearch.id
+  policy = data.aws_iam_policy_document.ssm_access_role_policy.json
 }
+
 # </end> base-permissions policies

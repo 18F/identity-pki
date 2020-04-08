@@ -66,10 +66,10 @@ resource "aws_iam_role_policy" "obproxy-auto-eip" {
   policy = data.aws_iam_policy_document.auto_eip_policy.json
 }
 
-resource "aws_iam_role_policy_attachment" "obproxy-ssm" {
-  count      = var.enable_aws_ssm
-  role       = aws_iam_role.obproxy.id
-  policy_arn = module.ssm.ssm_iam_policy_arn
+resource "aws_iam_role_policy" "obproxy-ssm-access" {
+  name   = "${var.env_name}-obproxy-ssm-access"
+  role   = aws_iam_role.obproxy.id
+  policy = data.aws_iam_policy_document.ssm_access_role_policy.json
 }
 
 module "outboundproxy_launch_template" {

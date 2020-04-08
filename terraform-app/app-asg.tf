@@ -195,9 +195,10 @@ resource "aws_iam_role_policy" "app-cloudwatch-logs" {
   policy = data.aws_iam_policy_document.cloudwatch-logs.json
 }
 
-resource "aws_iam_role_policy_attachment" "app-ssm" {
-  count      = var.enable_aws_ssm
-  role       = aws_iam_role.app.id
-  policy_arn = module.ssm.ssm_iam_policy_arn
+resource "aws_iam_role_policy" "app-ssm-access" {
+  name   = "${var.env_name}-app-ssm-access"
+  role   = aws_iam_role.app.id
+  policy = data.aws_iam_policy_document.ssm_access_role_policy.json
 }
+
 # </end> base-permissions policies

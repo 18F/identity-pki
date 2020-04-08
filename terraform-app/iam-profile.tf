@@ -49,6 +49,13 @@ resource "aws_iam_role_policy" "base-permissions-auto-eip" {
   policy = data.aws_iam_policy_document.auto_eip_policy.json
 }
 
+# allow SSM service core functionality
+resource "aws_iam_role_policy" "base-permissions-ssm-access" {
+  name   = "${var.env_name}-base-permissions-ssm-access"
+  role   = aws_iam_role.base-permissions.id
+  policy = data.aws_iam_policy_document.ssm_access_role_policy.json
+}
+
 # IAM instance profile using the citadel client role
 resource "aws_iam_instance_profile" "base-permissions" {
   name = "${var.env_name}-base-permissions"
@@ -69,16 +76,4 @@ data "aws_iam_policy_document" "auto_eip_policy" {
       "*",
     ]
   }
-}
-
-module "ssm" {
-  source   = "github.com/18F/identity-terraform//ssm?ref=8c0122d275c0deb025639cb74709a443a764a9b9"
-  env_name = var.env_name
-  enabled  = var.enable_aws_ssm
-}
-
-resource "aws_iam_role_policy_attachment" "base-ssm" {
-  count      = var.enable_aws_ssm
-  role       = aws_iam_role.base-permissions.id
-  policy_arn = module.ssm.ssm_iam_policy_arn
 }

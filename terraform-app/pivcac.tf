@@ -26,12 +26,6 @@ module "pivcac_user_data" {
   proxy_enabled_roles = var.proxy_enabled_roles
 }
 
-resource "aws_iam_role_policy_attachment" "pivcac-ssm" {
-  count      = var.enable_aws_ssm
-  role       = aws_iam_role.pivcac.id
-  policy_arn = module.ssm.ssm_iam_policy_arn
-}
-
 module "pivcac_launch_template" {
   source = "github.com/18F/identity-terraform//launch_template?ref=19a1a7d7a5c3e2177f62d96a553fed53ac2c251c"
 
@@ -106,6 +100,12 @@ resource "aws_iam_role_policy" "pivcac-cloudwatch-logs" {
   name   = "${var.env_name}-pivcac-cloudwatch-logs"
   role   = aws_iam_role.pivcac.id
   policy = data.aws_iam_policy_document.cloudwatch-logs.json
+}
+
+resource "aws_iam_role_policy" "pivcac-ssm-access" {
+  name   = "${var.env_name}-pivcac-ssm-access"
+  role   = aws_iam_role.pivcac.id
+  policy = data.aws_iam_policy_document.ssm_access_role_policy.json
 }
 
 resource "aws_autoscaling_group" "pivcac" {

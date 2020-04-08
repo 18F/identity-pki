@@ -272,6 +272,12 @@ resource "aws_iam_role_policy" "idp-upload-s3-reports" {
   policy = data.aws_iam_policy_document.put_reports_to_s3.json
 }
 
+resource "aws_iam_role_policy" "idp-ssm-access" {
+  name   = "${var.env_name}-idp-ssm-access"
+  role   = aws_iam_role.idp.id
+  policy = data.aws_iam_policy_document.ssm_access_role_policy.json
+}
+
 # This policy allows writing to the S3 reports bucket
 data "aws_iam_policy_document" "put_reports_to_s3" {
   statement {
@@ -343,12 +349,6 @@ resource "aws_iam_role_policy" "idp-pinpoint-send" {
 }
 EOM
 
-}
-
-resource "aws_iam_role_policy_attachment" "idp-ssm" {
-  count      = var.enable_aws_ssm
-  role       = aws_iam_role.idp.id
-  policy_arn = module.ssm.ssm_iam_policy_arn
 }
 
 module "idp_user_data" {

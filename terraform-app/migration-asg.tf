@@ -3,11 +3,10 @@ resource "aws_iam_instance_profile" "migration" {
   role = aws_iam_role.idp.name # for now reuse the idp's role
 }
 
-
-resource "aws_iam_role_policy_attachment" "migration-ssm" {
-  count      = var.enable_aws_ssm
-  role       = aws_iam_role.idp.id # for now reuse the idp's role
-  policy_arn = module.ssm.ssm_iam_policy_arn
+resource "aws_iam_role_policy" "migration-ssm-access" {
+  name   = "${var.env_name}-migration-ssm-access"
+  role   = aws_iam_role.idp.id # for now reuse the idp's role
+  policy = data.aws_iam_policy_document.ssm_access_role_policy.json
 }
 
 module "migration_user_data" {
