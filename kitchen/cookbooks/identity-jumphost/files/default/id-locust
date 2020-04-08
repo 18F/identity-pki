@@ -93,7 +93,7 @@ if [[ "${SLAVE}" == true ]] && [[ "${MASTER}" == true ]] ; then
 fi
 
 if [[ "${MASTER}" == true ]] ; then
-    MASTER_FLAG="--master"
+    MASTER_FLAG=" --master"
     echo "IP address of master: $(ifconfig | grep 'inet 172' | awk '{print $2}')"
     read -n 1 -s -r -p "Press any key to run test... "
 fi
@@ -108,5 +108,5 @@ else
              --hatch-rate "${HATCH_RATE}" \
              --no-web \
              --csv="${TEST_DIR}/$(date +%Y%m%d%k%M%S)-${TEST}" \
-             --run-time "${RUN_TIME}" "${MASTER_FLAG}"
+             --run-time "${RUN_TIME}""${MASTER_FLAG}"
 fi
