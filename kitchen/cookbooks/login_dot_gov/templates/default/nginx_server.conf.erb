@@ -132,6 +132,12 @@ server {
     location /verify/capture_doc/capture_mobile_back_image {
       client_max_body_size 10M;
     }
+    location /api/v1/liveness {
+      client_max_body_size 10M;
+    }
+    location ^~ /AssureIDService/Document/ {
+      client_max_body_size 10M;
+    }
 }
 
 <%- if @nginx_redirects %>
