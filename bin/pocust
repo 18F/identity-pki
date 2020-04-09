@@ -26,13 +26,13 @@ raise() {
 
 usage () {
   cat >&2 <<EOM
-usage: $0 [RUN_NAME] [ENVIRONMENT] [LOCUST_MASTER]
+usage: $0 RUN_NAME ENVIRONMENT [LOCUST_MASTER]
 
 RUN_NAME      - Slugified (no spaces!) name for test run.  Example:
                 sign_up-14worker-10client
 ENVIRONMENT   - pt, pt2, etc
 LOCUST_MASTER - Instance name of where Locust master was during the
-                test.
+                test.  (If omitted, Locust results are not gathered)
                 
 This script will save data into ~/<ENVIRONMENT>-<RUN_NAME>-<TIMESTAMP> on on your
 local machine.
@@ -55,7 +55,7 @@ EOM
 # Yoinked from https://stackoverflow.com/a/8088167
 define(){ IFS='\n' read -r -d '' ${1} || true; }
 
-if [ $# -ne 3 ]; then
+if [ $# -lt 2 ]; then
   usage
   exit 1
 fi
@@ -63,9 +63,8 @@ fi
 TS=`date +%Y%m%d%H%M%S`
 RUN_NAME=${1}
 ENV=${2}
-LOCUST_MASTER=${3}
+LOCUST_MASTER=${3-}
 ODIR="${HOME}/${ENV}-${RUN_NAME}-${TS}"
-
 
 define IDPSCRIPT <<EOM
 echo "# Repositories" > ~/\${HOSTNAME}-pocust.txt
@@ -119,14 +118,16 @@ bin/ssh-instance ${IDPTOP} "${IDPSCRIPT}"
 echo "Gathering data from ${IDPTOP}"
 bin/scp-instance ${IDPTOP}:~/*-pocust.txt "${ODIR}/"
 
-echo "Footprinting ${LOCUST_MASTER}"
-bin/ssh-instance ${LOCUST_MASTER} "${LMSCRIPT}"
+if [ -s "${LOCUST_MASTER}"]; then
+  echo "Footprinting ${LOCUST_MASTER}"
+  bin/ssh-instance ${LOCUST_MASTER} "${LMSCRIPT}"
 
-echo "Gatherning data from ${LOCUST_MASTER}"
-bin/scp-instance ${LOCUST_MASTER}:~/pocust/* "${ODIR}/"
+  echo "Gatherning data from ${LOCUST_MASTER}"
+  bin/scp-instance ${LOCUST_MASTER}:~/pocust/* "${ODIR}/"
 
-echo "Cleaning up ${LOCUST_MASTER}"
-bin/ssh-instance ${LOCUST_MASTER} "rm -rf ~/pocust"
+  echo "Cleaning up ${LOCUST_MASTER}"
+  bin/ssh-instance ${LOCUST_MASTER} "rm -rf ~/pocust"
+fi
 
 echo "Getting applied terraform-app version"
 bin/get-version-info.sh ${ENV} > "${ODIR}/terraform-app-version.txt"
