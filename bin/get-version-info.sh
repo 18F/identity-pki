@@ -22,8 +22,23 @@ fi
 
 ENVIRONMENT="$1"
 
-VERSION_INFO_PATH="s3://login_dot_gov_tf_state/terraform-app"
+if [ ! -d 'terraform-all' ]; then
+  echo "This must be run from the root of the identity-devops repo"
+  exit 1
+fi
+
+# Sources terraform-core environment setup file to find correct bucket.
+case "${ENVIRONMENT}" in
+  prod|staging)
+    . terraform-all/prod/env-vars.sh
+    ;;
+  *)
+    . terraform-all/sandbox/env-vars.sh
+    ;;
+esac
+
+VERSION_INFO_PATH="s3://${TERRAFORM_STATE_BUCKET}/terraform-app"
 
 echo >&2 "Version info for ${ENVIRONMENT}:"
 set -x
-aws s3 cp "$VERSION_INFO_PATH/version_info/$ENVIRONMENT.txt" -
+aws s3 cp "$VERSION_INFO_PATH/version_info/${ENVIRONMENT}.txt" -
