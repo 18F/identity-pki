@@ -107,6 +107,6 @@ else
              --clients="${CLIENTS}" \
              --hatch-rate "${HATCH_RATE}" \
              --no-web \
-             --csv="${TEST_DIR}/$(date +%Y%m%d%k%M%S)-${TEST}" \
+             --csv="${TEST_DIR}/$(date +%Y%m%d%H%M%S)-${TEST}" \
              --run-time "${RUN_TIME}""${MASTER_FLAG}"
 fi
