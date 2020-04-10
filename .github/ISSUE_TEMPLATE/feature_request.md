@@ -1,3 +1,12 @@
+---
+name: New Feature
+about: Suggest an idea for this project
+title: ''
+labels: ''
+assignees: ''
+
+---
+
 TITLE_OF_ISSUE
 <!-- REMOVE ALL COMMENT BLOCKS, LIKE THIS ONE, BEFORE SUBMITTING! -->
 
