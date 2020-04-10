@@ -29,7 +29,7 @@ usage () {
 usage: $0 RUN_NAME ENVIRONMENT [LOCUST_MASTER]
 
 RUN_NAME      - Slugified (no spaces!) name for test run.  Example:
-                sign_up-14worker-10client
+                sign_in-w1-c500-n1000
 ENVIRONMENT   - pt, pt2, etc
 LOCUST_MASTER - Instance name of where Locust master was during the
                 test.  (If omitted, Locust results are not gathered)
@@ -37,7 +37,7 @@ LOCUST_MASTER - Instance name of where Locust master was during the
 This script will save data into ~/<ENVIRONMENT>-<RUN_NAME>-<TIMESTAMP> on on your
 local machine.
 
-Example:  $0 sign_in-14w-1000c pt i-0eeb2eb0e831795fe
+Example:  $0 sign_in-w14-c1000 pt i-0eeb2eb0e831795fe
 
 Gathers:
 * List of instances
@@ -60,7 +60,7 @@ if [ $# -lt 2 ]; then
   exit 1
 fi
 
-TS=`date +%Y%m%d%H%M%S`
+TS=`date -u +%Y%m%d%H%M%S`
 RUN_NAME=${1}
 ENV=${2}
 LOCUST_MASTER=${3-}
