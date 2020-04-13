@@ -14,6 +14,7 @@ terraform {
 module "main" {
   source = "../module"
 
-  iam_reports_enabled = true
-  reports_bucket_arn  = "arn:aws:s3:::login-gov.reports.555546682965-us-west-2"
+  reports_bucket_arn   = "arn:aws:s3:::login-gov.reports.555546682965-us-west-2"
+  iam_reports_enabled  = true
+  iam_kmsadmin_enabled = true
 }

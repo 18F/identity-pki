@@ -34,7 +34,7 @@ data "aws_iam_policy_document" "kms" {
     ]
     principals {
       type        = "AWS"
-      identifiers = var.power_users
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/KMSAdmin"]
     }
     resources = [
       "*",

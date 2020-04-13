@@ -369,3 +369,30 @@ resource "aws_iam_policy_attachment" "production_analytics_socadministrator" {
   ]
   policy_arn = aws_iam_policy.production_analytics_assume_socadministrator.arn
 }
+
+######## KMSAdmin ########
+resource "aws_iam_policy_attachment" "production_kmsadministrator" {
+  name = "production_kmsadministrator"
+  users = [
+    aws_iam_user.rajat_varuni.name,
+    aws_iam_user.steve_urciuoli.name,
+    aws_iam_user.jonathan_hooper.name,
+    aws_iam_user.brian_crissup.name,
+    aws_iam_user.mossadeq_zia.name,
+  ]
+  policy_arn = aws_iam_policy.production_assume_kmsadministrator.arn
+}
+
+resource "aws_iam_policy_attachment" "sandbox_kmsadministrator" {
+  name = "sandbox_kmsadministrator"
+  users = [
+    aws_iam_user.steve_urciuoli.name,
+    aws_iam_user.brett_mcparland.name,
+    aws_iam_user.rajat_varuni.name,
+    aws_iam_user.justin_grevich.name,
+    aws_iam_user.brian_crissup.name,
+    aws_iam_user.mossadeq_zia.name,
+    aws_iam_user.jonathan_hooper.name,
+  ]
+  policy_arn = aws_iam_policy.sandbox_assume_kmsadministrator.arn
+}
