@@ -623,11 +623,6 @@ variable "slack_events_sns_hook_arn" {
   description = "ARN of SNS topic that will notify the #identity-events/#identity-otherevents channels in Slack"
 }
 
-variable "enable_aws_ssm" {
-  description = "Enable AWS System Manager Session Manager"
-  default     = 1
-}
-
 variable "kms_log_kinesis_shards" {
   description = "Number of shards to provision in Kinesis datastream for kms logging"
   default     = 1
