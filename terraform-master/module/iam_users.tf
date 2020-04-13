@@ -237,6 +237,20 @@ resource "aws_iam_policy_attachment" "production_analytics_full_administrator" {
   policy_arn = aws_iam_policy.production_analytics_assume_full_administrator.arn
 }
 
+resource "aws_iam_policy_attachment" "security_full_administrator" {
+  name = "security_full_administrator"
+  users = [
+    aws_iam_user.amit_freeman.name,
+    aws_iam_user.jonathan_pirro.name,
+    aws_iam_user.justin_grevich.name,
+    aws_iam_user.mossadeq_zia.name,
+    aws_iam_user.paul_hirsch.name,
+    aws_iam_user.steven_harms.name,
+    aws_iam_user.timothy_spencer.name,
+  ]
+  policy_arn = aws_iam_policy.security_assume_full_administrator.arn
+}
+
 ######## PowerUser ########
 resource "aws_iam_policy_attachment" "sandbox_power_user" {
   name = "sandbox_power_user"

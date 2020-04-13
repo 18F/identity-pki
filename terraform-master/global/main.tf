@@ -27,5 +27,6 @@ module "main" {
   sandbox_sms_account_id          = "035466892286"
   production_sms_account_id       = "472911866628"
   production_analytics_account_id = "461353137281"
+  security_account_id             = "461353137281"
 }
 
