@@ -8,38 +8,28 @@ module "kmsadmin-assumerole" {
 
   iam_policies = [
     {
-      policy_name        = "SOCAdministrator"
-      policy_description = "Policy for SOC administrators"
+      policy_name        = "KMSAdministrator"
+      policy_description = "Policy for KMS administrators"
       policy_document = [
         {
-          sid    = "SOCAdministrator"
+          sid = "AllowKeyAdmins"
           effect = "Allow"
           actions = [
-            "access-analyzer:*",
-            "cloudtrail:*",
-            "cloudwatch:*",
-            "logs:*",
-            "config:*",
-            "guardduty:*",
-            "iam:Get*",
-            "iam:List*",
-            "iam:Generate*",
-            "inspector:*",
-            "macie:*",
-            "organizations:List*",
-            "organizations:Describe*",
-            "s3:HeadBucket",
-            "s3:List*",
-            "s3:Get*",
-            "securityhub:*",
-            "shield:*",
-            "ssm:*",
-            "sns:*",
-            "trustedadvisor:*",
-            "waf:*"
+            "kms:Create*",
+            "kms:Describe*",
+            "kms:Enable*",
+            "kms:List*",
+            "kms:Put*",
+            "kms:Update*",
+            "kms:Revoke*",
+            "kms:Disable*",
+            "kms:Get*",
+            "kms:Delete*",
+            "kms:ScheduleKeyDeletion",
+            "kms:CancelKeyDeletion",
           ]
           resources = [
-            "*"
+            "*",
           ]
         },
       ]
