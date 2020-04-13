@@ -27,6 +27,11 @@ variable "sandbox_analytics_account_id" {
   description = "Sandbox Analytics AWS Account ID"
 }
 
+variable "secops_account_id" {
+  default     = ""
+  description = "Login.gov SecOps AWS Account ID"
+}
+
 variable "auditor_accounts" {
   description = "Map of non-Login.gov AWS accounts we allow Security Auditor access to"
   # Unlike our master account, these are accounts we do not control!

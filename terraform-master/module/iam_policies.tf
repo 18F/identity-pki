@@ -339,15 +339,15 @@ data "aws_iam_policy_document" "production_analytics_assume_full_administrator" 
   }
 }
 
-# security
-resource "aws_iam_policy" "security_assume_full_administrator" {
+# secops
+resource "aws_iam_policy" "secops_assume_full_administrator" {
   name        = "ProductionAnalyticsAssumeFullAdministrator"
   path        = "/"
   description = "Policy to allow user to assume full administrator role in Production Analytics"
-  policy      = data.aws_iam_policy_document.security_assume_full_administrator.json
+  policy      = data.aws_iam_policy_document.secops_assume_full_administrator.json
 }
 
-data "aws_iam_policy_document" "security_assume_full_administrator" {
+data "aws_iam_policy_document" "secops_assume_full_administrator" {
   statement {
     sid    = "ProductionAnalyticsAssumeFullAdministrator"
     effect = "Allow"
@@ -355,7 +355,7 @@ data "aws_iam_policy_document" "security_assume_full_administrator" {
       "sts:AssumeRole",
     ]
     resources = [
-      "arn:aws:iam::${var.security_account_id}:role/FullAdministrator",
+      "arn:aws:iam::${var.secops_account_id}:role/FullAdministrator",
     ]
   }
 }

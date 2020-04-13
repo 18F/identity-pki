@@ -237,8 +237,8 @@ resource "aws_iam_policy_attachment" "production_analytics_full_administrator" {
   policy_arn = aws_iam_policy.production_analytics_assume_full_administrator.arn
 }
 
-resource "aws_iam_policy_attachment" "security_full_administrator" {
-  name = "security_full_administrator"
+resource "aws_iam_policy_attachment" "secops_full_administrator" {
+  name = "secops_full_administrator"
   users = [
     aws_iam_user.amit_freeman.name,
     aws_iam_user.jonathan_pirro.name,
@@ -248,7 +248,7 @@ resource "aws_iam_policy_attachment" "security_full_administrator" {
     aws_iam_user.steven_harms.name,
     aws_iam_user.timothy_spencer.name,
   ]
-  policy_arn = aws_iam_policy.security_assume_full_administrator.arn
+  policy_arn = aws_iam_policy.secops_assume_full_administrator.arn
 }
 
 ######## PowerUser ########
