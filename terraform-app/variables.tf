@@ -294,7 +294,7 @@ variable "instance_type_app" {
 }
 
 variable "instance_type_elk" {
-  default = "t3.medium"
+  default = "t3.large"
 }
 
 variable "instance_type_es" {
