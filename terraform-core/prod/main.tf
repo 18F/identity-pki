@@ -25,15 +25,4 @@ module "main" {
   google_site_verification_txt = "x8WM0Sy9Q4EmkHypuULXjTibNOJmPEoOxDGUmBppws8"
   mx_provider                  = "google-g-suite"
   lambda_audit_github_debug    = 0
-
-  # Users allowed to administer KMS keys
-  # populate this with:
-  #   aws iam get-group --group-name identity-power --output text | cut -f2
-  power_users = [
-    "arn:aws:iam::555546682965:user/rajat.varuni",
-    "arn:aws:iam::555546682965:user/steve.urciuoli",
-    "arn:aws:iam::555546682965:user/jonathan.hooper",
-    "arn:aws:iam::555546682965:user/brian.crissup",
-    "arn:aws:iam::555546682965:user/mossadeq.zia"
-  ]
 }

@@ -12,11 +12,6 @@ variable "allow_public_buckets" {
   default     = true # At the time this was added, prod allowed public s3 buckets, sandbox did not
 }
 
-variable "power_users" {
-  description = "List of admin users, used in some IAM roles"
-  type        = list(string)
-}
-
 variable "manage_state_bucket" {
   description = <<EOM
 Whether to manage the TF remote state bucket and lock table.
@@ -87,4 +82,3 @@ variable "lambda_audit_aws_enabled" {
   default     = 1
   description = "Whether to run the audit-aws lambda in this account"
 }
-

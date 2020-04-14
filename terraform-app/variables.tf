@@ -8,10 +8,6 @@ variable "ci_sg_ssh_cidr_blocks" {
   description = "List of CIDR blocks to allow into all NACLs/SGs.  Only use in the CI VPC."
 }
 
-variable "power_users" {
-  type = list(string)
-}
-
 variable "enable_partner_logos_bucket" {
   type    = bool
   default = false

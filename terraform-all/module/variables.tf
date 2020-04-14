@@ -87,3 +87,9 @@ variable "reports_bucket_arn" {
   type        = string
   default     = ""
 }
+
+variable "iam_kmsadmin_enabled" {
+  description = "Enable KMSAdministrator role in this account."
+  type        = bool
+  default     = false
+}

@@ -926,3 +926,60 @@ data "aws_iam_policy_document" "production_analytics_assume_auditor" {
     }
   }
 }
+
+#### Assume "KMSAdminstrator" policies
+# sandbox
+resource "aws_iam_policy" "sandbox_assume_kmsadministrator" {
+  name        = "SandboxAssumeKMSAdministrator"
+  path        = "/"
+  description = "Policy to allow user to assume KMSAdministrator in Sandbox"
+  policy      = data.aws_iam_policy_document.sandbox_assume_kmsadministrator.json
+}
+
+data "aws_iam_policy_document" "sandbox_assume_kmsadministrator" {
+  statement {
+    sid    = "SandboxAssumeKMSAdministrator"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole"
+    ]
+    resources = [
+      "arn:aws:iam::${var.sandbox_account_id}:role/KMSAdministrator"
+    ]
+    condition {
+      test     = "Bool"
+      variable = "aws:MultiFactorAuthPresent"
+      values = [
+        "true"
+      ]
+    }
+  }
+}
+
+# prod
+resource "aws_iam_policy" "production_assume_kmsadministrator" {
+  name        = "ProductionAssumeKMSAdministrator"
+  path        = "/"
+  description = "Policy to allow user to assume KMSAdministrator in Production"
+  policy      = data.aws_iam_policy_document.production_assume_kmsadministrator.json
+}
+
+data "aws_iam_policy_document" "production_assume_kmsadministrator" {
+  statement {
+    sid    = "ProductionAssumeKMSAdministrator"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole"
+    ]
+    resources = [
+      "arn:aws:iam::${var.production_account_id}:role/KMSAdministrator"
+    ]
+    condition {
+      test     = "Bool"
+      variable = "aws:MultiFactorAuthPresent"
+      values = [
+        "true"
+      ]
+    }
+  }
+}

@@ -16,31 +16,6 @@ data "aws_iam_policy_document" "kms" {
     ]
   }
 
-  # allow key admins in
-  statement {
-    actions = [
-      "kms:Create*",
-      "kms:Describe*",
-      "kms:Enable*",
-      "kms:List*",
-      "kms:Put*",
-      "kms:Update*",
-      "kms:Revoke*",
-      "kms:Disable*",
-      "kms:Get*",
-      "kms:Delete*",
-      "kms:ScheduleKeyDeletion",
-      "kms:CancelKeyDeletion",
-    ]
-    principals {
-      type        = "AWS"
-      identifiers = var.power_users
-    }
-    resources = [
-      "*",
-    ]
-  }
-
   # allow the app role to use KMS
   statement {
     actions = [
