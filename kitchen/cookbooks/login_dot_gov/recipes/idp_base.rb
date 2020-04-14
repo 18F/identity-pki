@@ -218,14 +218,15 @@ application release_path do
     Chef::Log.info("Syncronizing IdP assets and packs to #{static_bucket}")
 
     execute 'deploy sync static assets step' do
-      command "aws s3 sync #{release_path}/public/assets s3://#{static_bucket}/assets"
+      # Sync based on size only (not create time) and ignore sprockets manifest
+      command "aws s3 sync --size-only --exclude '.sprockets-manifest-*.json' #{release_path}/public/assets s3://#{static_bucket}/assets"
       user node['login_dot_gov']['system_user']
       group node['login_dot_gov']['system_user']
       ignore_failure node.fetch('login_dot_gov').fetch('idp_sync_static_ignore_failure')
     end
 
     execute 'deploy sync static packs step' do
-      command "aws s3 sync #{release_path}/public/packs s3://#{static_bucket}/packs"
+      command "aws s3 sync --size-only #{release_path}/public/packs s3://#{static_bucket}/packs"
       user node['login_dot_gov']['system_user']
       group node['login_dot_gov']['system_user']
       ignore_failure node.fetch('login_dot_gov').fetch('idp_sync_static_ignore_failure')
