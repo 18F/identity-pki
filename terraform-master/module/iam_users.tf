@@ -69,6 +69,11 @@ resource "aws_iam_user" "likhitha_patha" {
   force_destroy = true
 }
 
+resource "aws_iam_user" "mike_lloyd" {
+  name          = "mike.lloyd"
+  force_destroy = true
+}
+
 resource "aws_iam_user" "mossadeq_zia" {
   name          = "mossadeq.zia"
   force_destroy = true
@@ -138,6 +143,7 @@ resource "aws_iam_policy_attachment" "manage_your_account" {
     aws_iam_user.jennifer_wagner.name,
     aws_iam_user.karla_rodriguez.name,
     aws_iam_user.likhitha_patha.name,
+    aws_iam_user.mike_lloyd.name,
     aws_iam_user.mossadeq_zia.name,
     aws_iam_user.paul_hirsch.name,
     aws_iam_user.rajat_varuni.name,
@@ -159,6 +165,7 @@ resource "aws_iam_policy_attachment" "master_full_administrator" {
     aws_iam_user.amit_freeman.name,
     aws_iam_user.jonathan_pirro.name,
     aws_iam_user.justin_grevich.name,
+    aws_iam_user.mike_lloyd.name,
     aws_iam_user.mossadeq_zia.name,
     aws_iam_user.paul_hirsch.name,
     aws_iam_user.steven_harms.name,
@@ -173,6 +180,7 @@ resource "aws_iam_policy_attachment" "sandbox_full_administrator" {
     aws_iam_user.amit_freeman.name,
     aws_iam_user.jonathan_pirro.name,
     aws_iam_user.justin_grevich.name,
+    aws_iam_user.mike_lloyd.name,
     aws_iam_user.mossadeq_zia.name,
     aws_iam_user.paul_hirsch.name,
     aws_iam_user.steven_harms.name,
@@ -187,6 +195,7 @@ resource "aws_iam_policy_attachment" "production_full_administrator" {
     aws_iam_user.amit_freeman.name,
     aws_iam_user.jonathan_pirro.name,
     aws_iam_user.justin_grevich.name,
+    aws_iam_user.mike_lloyd.name,
     aws_iam_user.mossadeq_zia.name,
     aws_iam_user.paul_hirsch.name,
     aws_iam_user.steven_harms.name,
@@ -201,6 +210,7 @@ resource "aws_iam_policy_attachment" "sandbox_sms_full_administrator" {
     aws_iam_user.amit_freeman.name,
     aws_iam_user.jonathan_pirro.name,
     aws_iam_user.justin_grevich.name,
+    aws_iam_user.mike_lloyd.name,
     aws_iam_user.mossadeq_zia.name,
     aws_iam_user.paul_hirsch.name,
     aws_iam_user.steven_harms.name,
@@ -215,6 +225,7 @@ resource "aws_iam_policy_attachment" "production_sms_full_administrator" {
     aws_iam_user.amit_freeman.name,
     aws_iam_user.jonathan_pirro.name,
     aws_iam_user.justin_grevich.name,
+    aws_iam_user.mike_lloyd.name,
     aws_iam_user.mossadeq_zia.name,
     aws_iam_user.paul_hirsch.name,
     aws_iam_user.steven_harms.name,
@@ -229,6 +240,7 @@ resource "aws_iam_policy_attachment" "production_analytics_full_administrator" {
     aws_iam_user.amit_freeman.name,
     aws_iam_user.jonathan_pirro.name,
     aws_iam_user.justin_grevich.name,
+    aws_iam_user.mike_lloyd.name,
     aws_iam_user.mossadeq_zia.name,
     aws_iam_user.paul_hirsch.name,
     aws_iam_user.steven_harms.name,
