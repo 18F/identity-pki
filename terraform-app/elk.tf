@@ -119,6 +119,12 @@ resource "aws_iam_role_policy" "elk-cloudwatch-logs" {
   policy = data.aws_iam_policy_document.cloudwatch-logs.json
 }
 
+resource "aws_iam_role_policy" "elk-cloudwatch-agent" {
+  name   = "${var.env_name}-elk-cloudwatch-agent"
+  role   = aws_iam_role.elk_iam_role.id
+  policy = data.aws_iam_policy_document.cloudwatch-agent.json
+}
+
 resource "aws_iam_role_policy" "elk-ssm-access" {
   name   = "${var.env_name}-elk-ssm-access"
   role   = aws_iam_role.elk_iam_role.id

@@ -102,6 +102,12 @@ resource "aws_iam_role_policy" "pivcac-cloudwatch-logs" {
   policy = data.aws_iam_policy_document.cloudwatch-logs.json
 }
 
+resource "aws_iam_role_policy" "pivcac-cloudwatch-agent" {
+  name   = "${var.env_name}-pivcac-cloudwatch-agent"
+  role   = aws_iam_role.pivcac.id
+  policy = data.aws_iam_policy_document.cloudwatch-agent.json
+}
+
 resource "aws_iam_role_policy" "pivcac-ssm-access" {
   name   = "${var.env_name}-pivcac-ssm-access"
   role   = aws_iam_role.pivcac.id

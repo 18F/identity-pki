@@ -42,6 +42,12 @@ resource "aws_iam_role_policy" "base-permissions-cloudwatch-logs" {
   policy = data.aws_iam_policy_document.cloudwatch-logs.json
 }
 
+resource "aws_iam_role_policy" "base-permissions-cloudwatch-agent" {
+  name   = "${var.env_name}-base-permissions-cloudwatch-agent"
+  role   = aws_iam_role.base-permissions.id
+  policy = data.aws_iam_policy_document.cloudwatch-agent.json
+}
+
 # allow all the base instances to grab an EIP
 resource "aws_iam_role_policy" "base-permissions-auto-eip" {
   name   = "${var.env_name}-base-permissions-auto-eip"

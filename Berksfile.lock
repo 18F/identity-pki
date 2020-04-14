@@ -4,8 +4,8 @@ DEPENDENCIES
   apt (~> 7.0)
   aws_metadata
     git: https://github.com/18F/identity-cookbooks
-    revision: d85afdee6ad512b1d6a12f1dd46d872eb4e65bb3
-    ref: d85afde
+    revision: 33381ff1bdd2d345cf213d765acc773b099dfc8b
+    ref: 33381ff
     rel: aws_metadata
   aws_s3
     path: kitchen/cookbooks/aws_s3
@@ -21,13 +21,13 @@ DEPENDENCIES
     revision: 7007851c91e1404a43f1c914471a2d6c817eea8e
   cloudhsm
     git: https://github.com/18F/identity-cookbooks
-    revision: d85afdee6ad512b1d6a12f1dd46d872eb4e65bb3
-    ref: d85afde
+    revision: 33381ff1bdd2d345cf213d765acc773b099dfc8b
+    ref: 33381ff
     rel: cloudhsm
   config_loader
     git: https://github.com/18F/identity-cookbooks
-    revision: d85afdee6ad512b1d6a12f1dd46d872eb4e65bb3
-    ref: d85afde
+    revision: 33381ff1bdd2d345cf213d765acc773b099dfc8b
+    ref: 33381ff
     rel: config_loader
   deploy_resource (~> 1.0)
   elasticsearch (~> 4.2.0)
@@ -49,13 +49,13 @@ DEPENDENCIES
     path: kitchen/cookbooks/identity-pivcac
   identity_base_config
     git: https://github.com/18F/identity-cookbooks
-    revision: d85afdee6ad512b1d6a12f1dd46d872eb4e65bb3
-    ref: d85afde
+    revision: 33381ff1bdd2d345cf213d765acc773b099dfc8b
+    ref: 33381ff
     rel: identity_base_config
   identity_shared_attributes
     git: https://github.com/18F/identity-cookbooks
-    revision: d85afdee6ad512b1d6a12f1dd46d872eb4e65bb3
-    ref: d85afde
+    revision: 33381ff1bdd2d345cf213d765acc773b099dfc8b
+    ref: 33381ff
     rel: identity_shared_attributes
   instance_certificate
     path: kitchen/cookbooks/instance_certificate
@@ -69,11 +69,11 @@ DEPENDENCIES
   openssl
   ossec
     git: https://github.com/sous-chefs/ossec
-    revision: b2ea9e2f29790b0a3388c0bd9bf1444f0f789b87
+    revision: 00e28e9ceaa5f7e677d932a11e9604b7fb1c3984
   passenger
     git: https://github.com/18F/identity-cookbooks
-    revision: df053b05d00986a42b8e2b00efc0548db1198d08
-    ref: df053b0
+    revision: 33381ff1bdd2d345cf213d765acc773b099dfc8b
+    ref: 33381ff
     rel: passenger
   runit (~> 4.3.1)
   service_discovery
@@ -81,14 +81,14 @@ DEPENDENCIES
   ssh-keys
   static_eip
     git: https://github.com/18F/identity-cookbooks
-    revision: d85afdee6ad512b1d6a12f1dd46d872eb4e65bb3
-    ref: d85afde
+    revision: 33381ff1bdd2d345cf213d765acc773b099dfc8b
+    ref: 33381ff
     rel: static_eip
   sudo
   users
 
 GRAPH
-  acme (4.1.1)
+  acme (4.1.2)
   apache2 (5.2.1)
   application (5.2.0)
     poise (~> 2.4)
@@ -99,8 +99,7 @@ GRAPH
     poise-ruby (~> 2.1)
     poise-service (~> 1.0)
   apt (7.2.0)
-  ark (4.0.0)
-    build-essential (>= 0.0.0)
+  ark (5.0.0)
     seven_zip (>= 0.0.0)
   aws_metadata (0.2.0)
   aws_s3 (0.2.0)
@@ -121,7 +120,7 @@ GRAPH
   config_loader (0.2.2)
     aws_metadata (>= 0.0.0)
     citadel_fork (>= 0.0.0)
-  cron (6.2.2)
+  cron (6.3.0)
   deploy_resource (1.0.2)
   elastic_repo (1.1.1)
   elasticsearch (4.2.0)
@@ -182,9 +181,7 @@ GRAPH
   identity_shared_attributes (0.1.2)
   instance_certificate (0.2.0)
     canonical_hostname (>= 0.0.0)
-  java (4.3.0)
-    homebrew (>= 0.0.0)
-    windows (>= 0.0.0)
+  java (8.0.1)
   keytool (0.7.1)
   letsencrypt (1.0.3)
   login_dot_gov (0.0.63)
@@ -217,7 +214,7 @@ GRAPH
   ossec (1.2.0)
     yum-atomic (>= 0.0.0)
   packagecloud (1.0.1)
-  passenger (0.0.8)
+  passenger (0.0.9)
     identity_shared_attributes (>= 0.0.1)
   poise (2.8.2)
   poise-archive (1.5.0)
@@ -252,9 +249,9 @@ GRAPH
   squid (4.2.0)
   ssh-keys (1.2.7)
   static_eip (0.2.1)
-  sudo (5.4.4)
+  sudo (5.4.5)
   users (5.4.0)
-  windows (6.0.1)
+  windows (7.0.0)
   yum (5.1.0)
   yum-atomic (0.2.0)
     compat_resource (>= 12.14.6)
