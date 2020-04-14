@@ -64,7 +64,8 @@ ENV=${2}
 LOCUST_MASTER=${3-}
 ODIR="${HOME}/${ENV}-${RUN_NAME}-${TS}"
 
-# Yoinked from https://stackoverflow.com/a/8088167
+# Yoinked from https://stackoverflow.com/a/8088167 - Easier to read
+# way to define variable using a heredoc.
 define(){ IFS='\n' read -r -d '' ${1} || true; }
 
 define IDPSCRIPT <<EOM
@@ -89,7 +90,7 @@ for r in ${LMREPOS}; do
   echo -n "\${r}: " >> \${HOME}/pocust/\${HOSTNAME}-pocust.txt
   git describe --always --tags >> \${HOME}/pocust/\${HOSTNAME}-pocust.txt
 done
-# Collect last three locust output files
+echo "# Collecting last three locust output files"
 for i in \`find /var/log/loadtest/ -name "*.csv" | tail -3\`; do cp "\${i}" ~/pocust/; done
 EOM
 
@@ -123,7 +124,7 @@ if [ ! -z "${LOCUST_MASTER}" ]; then
   echo "Footprinting ${LOCUST_MASTER}"
   bin/ssh-instance ${LOCUST_MASTER} "${LMSCRIPT}"
 
-  echo "Gatherning data from ${LOCUST_MASTER}"
+  echo "Gathering data from ${LOCUST_MASTER}"
   bin/scp-instance ${LOCUST_MASTER}:~/pocust/* "${ODIR}/"
 
   echo "Cleaning up ${LOCUST_MASTER}"
