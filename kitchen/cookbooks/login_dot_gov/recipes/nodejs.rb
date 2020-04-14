@@ -29,22 +29,6 @@ apt_package 'nodejs' do
   action :upgrade
 end
 
-# Install the Yarn package manager, a faster and more secure alternative to npm
-
-# https://dl.yarnpkg.com/debian/pubkey.gpg
-# GPG key 72ECF46A56B4AD39C907BBB71646B01B86E50310
-cookbook_file '/etc/apt/trusted.gpg.d/yarnpkg.gpg' do
-  source 'apt/trusted.gpg.d/yarnpkg.gpg'
-  sensitive true # not secret, but useless for humans
-end
-
-apt_repository 'yarnpkg' do
-  uri 'https://dl.yarnpkg.com/debian/'
-  distribution 'stable'
-  components ['main']
-  key_proxy node.fetch('login_dot_gov').fetch('http_proxy')
-end
-
 apt_package 'yarn' do
-  version '1.22.0-1'
+  action :upgrade
 end
