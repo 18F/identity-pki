@@ -18,6 +18,7 @@ IDPFILES="/srv/idp/current/config/application_s3_env.yml /srv/idp/current/config
 # Collect loadtest repo info for identifying version of test suite
 LMREPOS="identity-loadtest"
 
+# TODO - Replace with lib/common.sh version when available
 raise() {
   echo -e "\nERROR: $* \n" >&2
   usage
@@ -52,41 +53,41 @@ environment
 EOM
 }
 
-# Yoinked from https://stackoverflow.com/a/8088167
-define(){ IFS='\n' read -r -d '' ${1} || true; }
-
 if [ $# -lt 2 ]; then
   usage
   exit 1
 fi
 
-TS=`date -u +%Y%m%d%H%M%S`
+TS=$(date -u +%Y%m%d%H%M%S)
 RUN_NAME=${1}
 ENV=${2}
 LOCUST_MASTER=${3-}
 ODIR="${HOME}/${ENV}-${RUN_NAME}-${TS}"
 
+# Yoinked from https://stackoverflow.com/a/8088167
+define(){ IFS='\n' read -r -d '' ${1} || true; }
+
 define IDPSCRIPT <<EOM
-echo "# Repositories" > ~/\${HOSTNAME}-pocust.txt
+echo "# Repositories" > \${HOME}/\${HOSTNAME}-pocust.txt
 for r in ${IDPREPOS}; do
   cd /etc/login.gov/repos/\$r
-  echo -n "\${r}: " >> ~/\${HOSTNAME}-pocust.txt
-  git describe --always --tags >> ~/\${HOSTNAME}-pocust.txt
+  echo -n "\${r}: " >> \${HOME}/\${HOSTNAME}-pocust.txt
+  git describe --always --tags >> \${HOME}/\${HOSTNAME}-pocust.txt
 done
-echo "# Configurations" >> ~/\${HOSTNAME}-pocust.txt
+echo "# Configurations" >> \${HOME}/\${HOSTNAME}-pocust.txt
 for f in ${IDPFILES}; do
-  sudo sha256sum --tag "\$f" >> ~/\${HOSTNAME}-pocust.txt
+  sudo sha256sum --tag "\$f" >> \${HOME}/\${HOSTNAME}-pocust.txt
 done
 EOM
 
 define LMSCRIPT <<EOM
 rm -rf ~/pocust
 mkdir ~/pocust
-echo "# Repositories" > ~/pocust/\${HOSTNAME}-pocust.txt
+echo "# Repositories" > \${HOME}/pocust/\${HOSTNAME}-pocust.txt
 for r in ${LMREPOS}; do
   cd /etc/login.gov/repos/\$r
-  echo -n "\${r}: " >> ~/pocust/\${HOSTNAME}-pocust.txt
-  git describe --always --tags >> ~/pocust/\${HOSTNAME}-pocust.txt
+  echo -n "\${r}: " >> \${HOME}/pocust/\${HOSTNAME}-pocust.txt
+  git describe --always --tags >> \${HOME}/pocust/\${HOSTNAME}-pocust.txt
 done
 # Collect last three locust output files
 for i in \`find /var/log/loadtest/ -name "*.csv" | tail -3\`; do cp "\${i}" ~/pocust/; done
@@ -98,15 +99,12 @@ mkdir "${ODIR}"
 echo "Getting full instance list"
 bin/ls-servers -q -b -e ${ENV} > "${ODIR}/running-instances.tab"
 
-grep -q ${LOCUST_MASTER} "${ODIR}/running-instances.tab" || \
-  raise "${LOCUST_MASTER} not found in running instances"
-
 echo "Getting running IdP instance list with health status"
 bin/ls-servers -q -b -e ${ENV} -r idp > "${ODIR}/running-idp-health.tab"
 
 IDPTOP=$(cat "${ODIR}/running-idp-health.tab" | egrep '^i-' | head -1 | awk '{ print $1 }')
 
-if [ -x "${IDPTOP}" ]; then
+if [ -z "${IDPTOP}" ]; then
   # Thought - Could cleanup directory here, but don't want to presume
   # it is unwanted.  Left to the user.
   raise "Failed to find IdP instance - Aborting"
@@ -118,7 +116,10 @@ bin/ssh-instance ${IDPTOP} "${IDPSCRIPT}"
 echo "Gathering data from ${IDPTOP}"
 bin/scp-instance ${IDPTOP}:~/*-pocust.txt "${ODIR}/"
 
-if [ -s "${LOCUST_MASTER}"]; then
+echo "Getting applied terraform-app version"
+bin/get-version-info.sh ${ENV} > "${ODIR}/terraform-app-version.txt"
+
+if [ ! -z "${LOCUST_MASTER}" ]; then
   echo "Footprinting ${LOCUST_MASTER}"
   bin/ssh-instance ${LOCUST_MASTER} "${LMSCRIPT}"
 
@@ -126,10 +127,7 @@ if [ -s "${LOCUST_MASTER}"]; then
   bin/scp-instance ${LOCUST_MASTER}:~/pocust/* "${ODIR}/"
 
   echo "Cleaning up ${LOCUST_MASTER}"
-  bin/ssh-instance ${LOCUST_MASTER} "rm -rf ~/pocust"
+  bin/ssh-instance ${LOCUST_MASTER} 'rm -rf ${HOME}/pocust'
 fi
-
-echo "Getting applied terraform-app version"
-bin/get-version-info.sh ${ENV} > "${ODIR}/terraform-app-version.txt"
 
 echo "Done!  Now send ${ODIR} to a good place"
