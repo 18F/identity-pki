@@ -7,18 +7,23 @@ assignees: ''
 
 ---
 
-**Describe the bug**
+TITLE_OF_BUG
+
+# Description
+
 A clear and concise description of what the bug is.
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+# Detail
+## Steps To Reproduce
 
-**Expected behavior**
+1. First step to reproduce
+2. Next step
+3. (etc.)
+
+## Expected Behavior
+
 A clear and concise description of what you expected to happen.
 
-**Additional comments**
-Add any other context about the problem here.
+## Actual Behavior
+
+A clear and concise description of what ACTUALLY happens.
