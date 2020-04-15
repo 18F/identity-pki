@@ -1,3 +1,7 @@
+apt_package 'nodejs' do
+  action :upgrade
+end
+
 # setup postgres root config resource
 psql_config 'configure postgres root cert'
 
