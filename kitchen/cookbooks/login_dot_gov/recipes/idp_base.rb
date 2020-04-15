@@ -1,4 +1,6 @@
-include_recipe 'login_dot_gov::nodejs'
+apt_package 'nodejs' do
+  action :upgrade
+end
 
 if node.fetch('login_dot_gov').fetch('cloudhsm_enabled')
   Chef::Log.info('CloudHSM is enabled')
