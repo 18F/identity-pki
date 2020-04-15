@@ -16,11 +16,12 @@
       "allow_unsafe_migrations": true,
       "deploy_branch_default": "master",
       "deploy_branch": {
-        "identity-idp": "stages/zmargolis"
+        "identity-idp": "stages/zmargolis",
+        "identity-pivcac": "stages/zmargolis"
       }
     }
   },
   "override_attributes": {
-  
+
   }
 }
