@@ -169,9 +169,11 @@ application release_path do
 
   execute 'deploy build-post-config step' do
     cwd '/srv/idp/releases/chef'
-    command './deploy/build-post-config'
-    user node['login_dot_gov']['system_user']
-    group node['login_dot_gov']['system_user']
+    command [
+      'sudo', '-H', '-u', node.fetch('login_dot_gov').fetch('system_user'),
+      './deploy/build-post-config'
+    ]
+    user 'root'
   end
 
   execute 'newrelic log deploy' do
