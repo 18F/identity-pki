@@ -271,7 +271,6 @@ resource "aws_iam_policy_attachment" "sandbox_power_user" {
     aws_iam_user.brian_crissup.name,
     aws_iam_user.clinton_troxel.name,
     aws_iam_user.douglas_price.name,
-    aws_iam_user.rajat_varuni.name,
     aws_iam_user.stephen_grow.name,
     aws_iam_user.steve_urciuoli.name,
     aws_iam_user.zachary_margolis.name,
@@ -311,7 +310,6 @@ resource "aws_iam_policy_attachment" "production_readonly" {
   users = [
     aws_iam_user.brian_crissup.name,
     aws_iam_user.jonathan_hooper.name,
-    aws_iam_user.mossadeq_zia.name,
     aws_iam_user.steve_urciuoli.name,
   ]
   policy_arn = aws_iam_policy.production_assume_readonly.arn
