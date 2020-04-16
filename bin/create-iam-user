@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Create an IAM user in the identity-master account!
+
+# Strictish mode
+set -euo pipefail
+
+
+usage () {
+  cat >&2 <<EOM
+usage: $0 
+
+TBD
+
+
+EOM
+}
