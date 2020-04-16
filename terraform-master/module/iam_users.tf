@@ -178,6 +178,7 @@ resource "aws_iam_policy_attachment" "sandbox_full_administrator" {
   name = "sandbox_full_administrator"
   users = [
     aws_iam_user.amit_freeman.name,
+    aws_iam_user.douglas_price.name,
     aws_iam_user.jonathan_pirro.name,
     aws_iam_user.justin_grevich.name,
     aws_iam_user.mike_lloyd.name,
