@@ -1,14 +1,33 @@
 #!/bin/bash
-
 # Common shell functions.
-# Having a library like this is a surefire sign that you are using too much
-# shell and should switch to something like Ruby. But our scripts currently
-# pass around a ton of stuff with shell environment variables, so this will
-# have to do for the time being.
 
+# echo full command before executing, then do it anyway
 run() {
     echo >&2 "+ $*"
     "$@"
+}
+
+# echo error message in red, echo usage(), and exit
+raise() {
+  echo_red "$*" >&2
+  usage
+  exit 1
+}
+
+# Easier-to-read way to define variable using a heredoc.
+# Yoinked from https://stackoverflow.com/a/8088167
+define() {
+  IFS='\n'
+  read -r -d '' ${1} || true
+}
+
+# verify that script is running from identity-devops repo
+verify_root_repo() {
+    GIT_DIR=$(git rev-parse --show-toplevel)
+    if [ "$(echo ${GIT_DIR} | awk -F/ '{print $NF}')" != 'identity-devops' ]
+    then
+        raise "Must be run from the identity-devops repo"
+    fi
 }
 
 # Prompt the user for a yes/no response.

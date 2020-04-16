@@ -9,6 +9,8 @@
 # Strictish mode
 set -euo pipefail
 
+. "$(dirname "$0")/lib/common.sh"
+
 # List of Git repos to check SHAs in for each IdP instance
 IDPREPOS="identity-devops identity-devops-private identity-idp"
 
@@ -17,13 +19,6 @@ IDPFILES="/srv/idp/current/config/application_s3_env.yml /srv/idp/current/config
 
 # Collect loadtest repo info for identifying version of test suite
 LMREPOS="identity-loadtest"
-
-# TODO - Replace with lib/common.sh version when available
-raise() {
-  echo -e "\nERROR: $* \n" >&2
-  usage
-  exit 1
-}
 
 usage () {
   cat >&2 <<EOM
@@ -63,10 +58,6 @@ RUN_NAME=${1}
 ENV=${2}
 LOCUST_MASTER=${3-}
 ODIR="${HOME}/${ENV}-${RUN_NAME}-${TS}"
-
-# Yoinked from https://stackoverflow.com/a/8088167 - Easier to read
-# way to define variable using a heredoc.
-define(){ IFS='\n' read -r -d '' ${1} || true; }
 
 define IDPSCRIPT <<EOM
 echo "# Repositories" > \${HOME}/\${HOSTNAME}-pocust.txt
