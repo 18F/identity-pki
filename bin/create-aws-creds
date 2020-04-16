@@ -1,11 +1,10 @@
 #!/bin/bash
 
-# Create an IAM user's login profilein the identity-master account!
+# Create an IAM user's login profile in the identity-master account!
 
 set -eu
 
 . "$(dirname "$0")/lib/common.sh"
-verify_root_repo
 
 IAM_USERS_FILE="terraform-master/module/iam_users.tf"
 MASTER_ACCOUNT_ID=340731855345
@@ -28,6 +27,12 @@ or with aws-vault) for the identity-master account.
 
 EOM
 }
+
+if [ $# -ne 1 ] ; then
+  usage
+  exit 1
+fi
+verify_root_repo
 
 IAM_USER="${1}"
 
