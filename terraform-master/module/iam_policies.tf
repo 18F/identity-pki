@@ -341,15 +341,15 @@ data "aws_iam_policy_document" "production_analytics_assume_full_administrator" 
 
 # secops
 resource "aws_iam_policy" "secops_assume_full_administrator" {
-  name        = "SecopsAssumeFullAdministrator"
+  name        = "SecOpsAssumeFullAdministrator"
   path        = "/"
-  description = "Policy to allow user to assume full administrator role in Secops"
+  description = "Policy to allow user to assume full administrator role in SecOps account"
   policy      = data.aws_iam_policy_document.secops_assume_full_administrator.json
 }
 
 data "aws_iam_policy_document" "secops_assume_full_administrator" {
   statement {
-    sid    = "SecopsAssumeFullAdministrator"
+    sid    = "SecOpsAssumeFullAdministrator"
     effect = "Allow"
     actions = [
       "sts:AssumeRole",
