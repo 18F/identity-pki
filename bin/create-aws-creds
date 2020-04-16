@@ -1,0 +1,78 @@
+#!/bin/bash
+
+# Create an IAM user's login profile in the identity-master account!
+
+set -eu
+
+. "$(dirname "$0")/lib/common.sh"
+
+IAM_USERS_FILE="terraform-master/module/iam_users.tf"
+MASTER_ACCOUNT_ID=340731855345
+
+usage() {
+  cat >&2 <<EOM
+
+usage: $(basename "$0") USERNAME
+
+Create an AWS login profile w/temporary password + Access/Secret Keys
+for USERNAME in the identity-master account, and then opens
+a new Google Sheet where the credentials can be shared.
+
+To work properly, USERNAME must:
+  - be an entry in ${IAM_USERS_FILE}
+  - be an actual IAM user in the identity-master account
+
+This script must be run with an active AWS STS session (via the API
+or with aws-vault) for the identity-master account.
+
+EOM
+}
+
+if [ $# -ne 1 ] ; then
+  usage
+  exit 1
+fi
+verify_root_repo
+
+IAM_USER="${1}"
+
+echo_blue "Verifying IAM user ${IAM_USER}... "
+if [[ ! $(grep -E "\= \"${IAM_USER}\"" "${GIT_DIR}/${IAM_USERS_FILE}") ]] ; then
+  raise "User '${IAM_USER}' not found in ${IAM_USERS_FILE}"
+fi
+
+MASTER_ACCOUNT_USERS=$(aws iam list-users)
+if [[ ! $(echo "${MASTER_ACCOUNT_USERS}" | grep "${MASTER_ACCOUNT_ID}") ]] ; then
+  raise "This script must be run in the identity-master AWS account"
+fi
+if [[ ! $(echo "${MASTER_ACCOUNT_USERS}" | grep "user/${IAM_USER}") ]] ; then
+  raise "User '${IAM_USER}' not in list of IAM users in identity-master"
+fi
+
+TEMP_PASSWORD=$(env LC_CTYPE=C LC_ALL=C tr -dc \
+                "a-zA-Z0-9-_\!\@\#\$\%\^\&\*\(\)\+\=\[\]\{\}\|\'" < /dev/urandom |
+                head -c 32)
+
+echo_blue "Creating login profile..."
+aws iam create-login-profile \
+  --user-name "${IAM_USER}" \
+  --password "${TEMP_PASSWORD}" \
+  --password-reset-required
+
+echo_blue "Generating Access Key ID / Secret Access Key..."
+IAM_KEY_INFO=($(aws iam create-access-key --user-name "${IAM_USER}" --output text))
+
+define USER_CREDENTIALS <<EOM
+
+user_name ${IAM_USER}
+temp_password ${TEMP_PASSWORD}
+access_key_id $(echo ${IAM_KEY_INFO[1]})
+secret_access_key $(echo ${IAM_KEY_INFO[3]})
+EOM
+
+echo_blue "Account and credentials created:"
+echo "${USER_CREDENTIALS}"
+echo_blue "Press any key to open a new Google Sheet, where the credentials can be shared."
+read -n 1 -s -r -p "" ; echo
+echo
+run open https://docs.google.com/spreadsheets/u/0/create\?usp\=sheets_home\&ths\=true
