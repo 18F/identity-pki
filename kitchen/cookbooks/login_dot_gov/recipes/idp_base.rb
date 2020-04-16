@@ -203,23 +203,40 @@ application release_path do
 
   static_bucket = node.fetch('login_dot_gov').fetch('static_bucket')
   if static_bucket && node.fetch('login_dot_gov').fetch('idp_sync_static')
+
+    nginx_mime_types = '/opt/nginx/conf/mime.types'
+    local_mime_types = '/usr/local/etc/mime.types'
+
+    if File.exist?(nginx_mime_types)
+      # Convert NGINX MIME types into a seondary mime.types file to ensure
+      # AWS s3 sync gets the types right
+      Chef::Log.info("Creating #{local_mime_types} from #{nginx_mime_types}")
+
+      execute "egrep '^ +' #{nginx_mime_types} | " \
+              "awk '{ print $1 \" \" $2 }' | " \
+              "cut -d ';' -f 1 > #{local_mime_types}"
+    else
+      Chef::Log.info("No #{nginx_mime_types} - synced asset MIME types may be wrong")
+    end
+
     Chef::Log.info("Syncronizing IdP assets and packs to #{static_bucket}")
 
     execute 'deploy sync static assets step' do
-      command "aws s3 sync /srv/idp/releases/chef/public/assets s3://#{static_bucket}/assets"
+      # Sync based on size only (not create time) and ignore sprockets manifest
+      command "aws s3 sync --size-only --exclude '.sprockets-manifest-*.json' #{release_path}/public/assets s3://#{static_bucket}/assets"
       user node['login_dot_gov']['system_user']
       group node['login_dot_gov']['system_user']
       ignore_failure node.fetch('login_dot_gov').fetch('idp_sync_static_ignore_failure')
     end
 
     execute 'deploy sync static packs step' do
-      command "aws s3 sync /srv/idp/releases/chef/public/packs s3://#{static_bucket}/packs"
+      command "aws s3 sync --size-only #{release_path}/public/packs s3://#{static_bucket}/packs"
       user node['login_dot_gov']['system_user']
       group node['login_dot_gov']['system_user']
       ignore_failure node.fetch('login_dot_gov').fetch('idp_sync_static_ignore_failure')
     end
   else
-    Chef::Log.info('Skipping assets/packs sync - idp_sync_static or static_bucket are falsy')
+    Chef::Log.info('Skipping assets sync - idp_sync_static or static_bucket are falsy')
   end
 
   if File.exist?("/etc/init.d/passenger")

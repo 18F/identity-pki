@@ -31,8 +31,17 @@ resource "aws_s3_bucket" "idp_static_bucket" {
     }
   }
 
+  # Assets bear unique names and should not require versioning
   versioning {
     enabled = false
+  }
+
+  # Allow JS in subdomains, including idp., to access fonts/etc
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["GET"]
+    allowed_origins = ["https://*.${var.root_domain}"]
+    expose_headers  = ["ETag"]
   }
 }
 
