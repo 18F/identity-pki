@@ -177,12 +177,6 @@ tpc() {
                sed -E 's/(user_data += ").*"/\1\*"/'
 }
 
-# run ssh-instance via av
-# reset/re-add PKCS11 key if kicked out, then retry ssh-instance
-sshi() {
-  av -dc ssh-instance "$@" || (pivssh && sshi "$@")
-}
-
 #### run bundle exec with common commands ####
 be() {
   read -r -d '' usage <<'EOF'
@@ -265,15 +259,16 @@ $$\    $$\   $$$$$$$\  $$ |             \_$$ |   \__/  $$ |     \_/   $$ |     $
                 <CLOUDLIB_COMMAND>                        <TYPE>          
     e) ls-servers -e                                 a = app              
     l) ls-servers -n asg-<ENV> <TYPE>              e = elasticsearch    
-    n) ssh-instance --newest asg-<ENV>-<TYPE>      i = idp              
-    o) ssh-instance --oldest asg-<ENV>-<TYPE>      j = jumphost         
-$1  a) ssh-instance --any asg-<ENV>-<TYPE>     $2  k = elk           $3 <ENV>    $4 <DATA>
-    i) ssh-instance ${2} (no other args)           m = migration        
-    r) asg-recycle <ENV> <TYPE>                    o = outboundproxy    
-    s) asg-size <ENV> <TYPE> <DATA>                p = pivcac           
-    w) cw tail -f \                                
-        /var/log/cloud-init-output.log:            A = ALL (use w/            
-      <TYPE>-<DATA>.<ENV>.<ACCOUNT>                    recyle only)
+    n) ssm-instance --newest asg-<ENV>-<TYPE>      i = idp              
+    o) ssm-instance --oldest asg-<ENV>-<TYPE>      j = jumphost         
+$1  a) ssm-instance --any asg-<ENV>-<TYPE>     $2  k = elk           $3 <ENV>    $4 <DATA>
+    i) ssm-instance ${2} (no other args)           m = migration        
+    c) scale-in-old-instances <ENV> <TYPE>         o = outboundproxy    
+    r) asg-recycle <ENV> <TYPE>                    p = pivcac           
+    s) asg-size <ENV> <TYPE> <DATA>
+    w) cw tail -f \                                A = ALL
+        /var/log/cloud-init-output.log:             (use w/            
+      <TYPE>-<DATA>.<ENV>.<ACCOUNT>                 recyle only)
 
         EXAMPLE: vcl -ri dev ==> aws-vault exec sandbox-admin -- asg-recycle dev idp
 NOTES:
