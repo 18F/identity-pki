@@ -1,3 +1,5 @@
+#!/bin/bash
+
 ############# login.gov aliases/functions #############
 if [[ ! $(brew cask list | grep aws-vault) ]] ; then
   brew cask install aws-vault || { echo "aws-vault not installed!" && exit 1 ; }
@@ -29,23 +31,10 @@ badopt() {
   break 1
 }
 
-#### fix stuck PKCS11 when using OPENSC_LIB ####
-pivssh() {
-  if [[ $(env | grep OSXSC_LIB) ]] ; then
-    PKCS11=${OSXSC_LIB}
-  elif [[ $(env | grep OPENSC_LIB) ]] ; then
-    PKCS11=${OPENSC_LIB}
-  fi
-  run ssh-add -e "${PKCS11}" || true
-  while ! ssh-add -L | grep -q "${PKCS11}"; do
-    run ssh-add -Ks "${PKCS11}"
-  done
-}
-
 #### prepend any command with 'aws-vault exec' ####
 av() {
   read -r -d '' usage <<'EOF'
-
+                                                  
                                                   $$\      $$$$$$\               $$\    
                                                 $$$$ |    $$  __$$\            $$$$$$\  
       $$$$$$\    $$\    $$\                     \_$$ |    \__/  $$ |          $$  __$$\ 
@@ -70,6 +59,7 @@ EXAMPLE: av -ic $CMD ==> aws-vault exec sandbox-admin -- $CMD
 
 NOTE: profile invoked will be named "${AWS_PROFILE}-admin" ;
 set names in ~/.aws/config appropriately
+
 EOF
   [[ $# == 0 ]] && badopt
   local cmd=("${@:2}")
@@ -79,7 +69,7 @@ EOF
     ttl="--duration=1h"
     [[ $(command -v ykman) ]] && yk="--mfa-token=$(ykman oath code --single aws/identity-master | awk '{print $NF}')"
   fi
-  while getopts d:i:l:s:p:a:m: opt
+  while getopts d:i:l:s:p:a:o:m: opt
   do
     case "${opt}" in          ## profile in aws-vault exec ${profile}
       d) [ -z $profile ] && profile=${AWS_PROFILE} ;;
@@ -88,6 +78,7 @@ EOF
       s) profile='sms-sandbox-admin' ;;
       p) profile='sms-prod-admin'    ;;
       a) profile='analytics-admin'   ;;
+      o) profile='secops-admin'      ;;
       m) profile='master-admin'      ;;
     h|*) badopt                      ;;
     esac
@@ -115,7 +106,7 @@ EOF
 #### run tf-deploy with common Terraform commands and any AWS profile/TF directory ####
 td() {
   read -r -d '' usage <<'EOF'
-
+  
   $$\             $$\                       $$\      $$$$$$\             $$$$$$\  
   $$ |            $$ |                    $$$$ |    $$  __$$\           $$ ___$$\ 
 $$$$$$\      $$$$$$$ |                    \_$$ |    \__/  $$ |          \_/   $$ |
@@ -134,6 +125,7 @@ $$$$$$\      $$$$$$$ |                    \_$$ |    \__/  $$ |          \_/   $$
     EXAMPLE: td -aa dev ==> tf-deploy dev terraform-app apply
 
 NOTE: ENVIRONMENT used to determine AWS_PROFILE passed to aws-vault command
+
 EOF
   [[ $# == 0 ]] && badopt
   local build_env="${@:2}"
@@ -176,8 +168,13 @@ EOF
 
 #### run terraform plan with trimmed-down output ####
 tpc() {
-  while getopts mcasi opt ; do plan=$(td -${opt}p "${@:2}") ; done
-  echo $plan | sed $'s,\x1b\\[[0-9;]*[a-zA-Z],,g' | grep -E '^\s+[\#\+\-\~]'
+  while getopts mcasl opt
+  do
+    plan=$(td -${opt}p "${@:2}")
+  done
+  echo $plan | sed $'s,\x1b\\[[0-9;]*[a-zA-Z],,g' |
+               grep --color=auto -E '(^\s+[-\#\+\~\>]|\s->)\s' |
+               sed -E 's/(user_data += ").*"/\1\*"/'
 }
 
 # run ssh-instance via av
@@ -189,7 +186,7 @@ sshi() {
 #### run bundle exec with common commands ####
 be() {
   read -r -d '' usage <<'EOF'
-
+       
        $$\                                         $$\      $$$$$$\  
        $$ |                                      $$$$ |    $$  __$$\ 
        $$$$$$$\     $$$$$$\                      \_$$ |    \__/  $$ |
@@ -212,6 +209,7 @@ be() {
          aws-vault exec AWS_PROFILE -- bundle exec kitchen converge
 
 NOTE: ENVIRONMENT used to determine AWS_PROFILE passed to aws-vault command
+
 EOF
   [[ $# == 0 ]] && badopt
   local profile="${AWS_PROFILE}"
@@ -254,7 +252,7 @@ EOF
 #### quickly run common cloudlib aliases/commands with any AWS_PROFILE/env ####
 vcl() {
   read -r -d '' usage <<'EOF'
-
+                       
                        $$\                $$\     $$$$$$\        $$$$$$\       $$\   $$\ 
                        $$ |             $$$$ |   $$  __$$\      $$ ___$$\      $$ |  $$ |
 $$\    $$\   $$$$$$$\  $$ |             \_$$ |   \__/  $$ |     \_/   $$ |     $$ |  $$ |
@@ -282,8 +280,9 @@ NOTES:
 - ENV defaults to GSA_USERNAME unless otherwise specified
 - DATA is used for either 1) count for asg-size or 2) instance ID for cw
 - ENV used to determine AWS_PROFILE passed to aws-vault command
-
+ 
 EOF
+  [[ $# == 0 ]] && badopt
   local type account
   local profile="${AWS_PROFILE}"
   local build_env="${GSA_USERNAME}"
@@ -295,7 +294,7 @@ EOF
   else
     account="identitysandbox.gov"
   fi
-  while getopts el:n:o:a:r:s:w: opt ; do
+  while getopts el:n:o:a:i:c:r:s:w: opt ; do
     case "${OPTARG}" in       ## 2 in `vcl -${1}${2}`
       A) type='ALL'           ;;
       a) type='app'           ;;
@@ -309,19 +308,19 @@ EOF
       *) [[ ${opt} =~ 'e|i' ]] || badopt ${OPTARG} ;;
     esac
     case "${opt}" in          ## 1 in `vcl -${1}${2}`
-      e) av -dc ls-servers -e ${build_env}             ;;
-      l) av -dc ls-servers -n asg-${build_env}-${type} ;;
-      n) sshi --newest asg-${build_env}-${type}        ;;
-      o) sshi --oldest asg-${build_env}-${type}        ;;
-      a) sshi --any asg-${build_env}-${type}           ;;
-      i) sshi ${2}                                     ;;
-      r) av -dc asg-recycle ${build_env} ${type}       ;;
+      e) av -dc ls-servers -e ${build_env}                     ;;
+      l) av -dc ls-servers -n asg-${build_env}-${type}         ;;
+      n) av -dc ssm-instance --newest asg-${build_env}-${type} ;;
+      o) av -dc ssm-instance --oldest asg-${build_env}-${type} ;;
+      a) av -dc ssm-instance --any asg-${build_env}-${type}    ;;
+      i) av -dc ssm-instance ${2}                              ;;
+      c) av -dc scale-in-old-instances ${build_env} ${type}    ;;
+      r) av -dc asg-recycle ${build_env} ${type}               ;;
       s) [[ -z "${data}" ]] && { data="${2}" && build_env="${GSA_USERNAME}" ; }
          av -dc asg-size ${build_env} ${type} ${data}
       ;;
       w) [[ -z "${data}" ]] && { data="${2}" && build_env="${GSA_USERNAME}" ; }
-         av -dc cw tail -f \
-          /var/log/cloud-init-output.log:${type}-${data}.${build_env}.${account}
+         av -dc cw tail -f /var/log/cloud-init-output.log:${type}-${data}.${build_env}.${account}
       ;;
       *) badopt ${opt} ;;
     esac
@@ -331,7 +330,7 @@ EOF
 #### call the cl elasticsearch commands with av() ####
 ve() {
   read -r -d '' usage <<'EOF'
-
+                                     
                                      $$\          $$$$$$\         $$$$$$\  
                                    $$$$ |        $$  __$$\       $$ ___$$\ 
 $$\    $$\  $$$$$$\                \_$$ |        \__/  $$ |      \_/   $$ |
@@ -352,7 +351,7 @@ $$\    $$\  $$$$$$\                \_$$ |        \__/  $$ |      \_/   $$ |
     aws-vault exec sandbox-admin -- cl elasticsearch drain_old_nodes int
 
 NOTE: ENVIRONMENT used to determine AWS_PROFILE passed to aws-vault command
-
+ 
 EOF
   local profile="${AWS_PROFILE}"
   local build_env="${GSA_USERNAME}"

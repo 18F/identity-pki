@@ -1,3 +1,5 @@
+#!/bin/bash
+
 ############### github aliases/functions ###############
 if [[ ! $(brew list | grep hub) ]] ; then
   brew install hub || { echo "hub not installed!" && exit 1 ; }
@@ -85,17 +87,30 @@ delb() {
   run git branch -d $branch
 }
 
-#### merge/close PR, delete current/specified branch ####
-gmpr() {
-  local branch=$1
-  [ -z ${1} ] && branch=$(git_current_branch)
-  gom
-  run git checkout $branch
-  run git merge master
-  run git checkout master
-  run git merge --no-ff $branch
+#### merge/close PR, delete current/specified branch unless -n is set ####
+gmpr () {
+  local branch=$(git_current_branch)
+  local save_branch=false
+  if [[ "${branch}" == 'master' ]] ; then
+    echo "Cannot be run from master branch!"
+    break 1
+  fi
+  while getopts n opt ; do
+    case "${opt}" in
+      n) save_branch=true ;;
+    esac
+  done
+  run git checkout master && \
+  run git fetch && \
+  run git pull origin master && \
+  run git checkout $branch && \
+  run git rebase master && \
+  run git push --force-with-lease && \
+  run git merge master --no-edit && \
+  run git checkout master && \
+  run git merge --no-edit --no-ff $branch && \
   run git push origin master
-  delb $branch
+  [[ "${save_branch}" == 'true' ]] || delb $branch
 }
 
 #### open PR from LOGIN_REVS and $msg ####
@@ -129,21 +144,43 @@ ggc() {
   run gist -oPp -d "${desc[@]}" -f ${file}
 }
 
-#### push version tags ####
-gv() {
-  run git push --set-upstream origin $(git_current_branch)
-  run git push --tags
-}
-
 #### create a GitHub release ####
 ghr() {
+  RELEASE=$(cat VERSION.txt | sed -E 's/pre\-//')
   VERSION=$(echo ${1} | sed 's/v//')
+  [ -z ${VERSION} ] && VERSION=$(($RELEASE-1))
   run_var PR_LIST hub pr list -b master -s merged -o updated -L 100 -f "- %i %t%n"
   PREV_VERSION=$(($VERSION-1))
   RELEASE_PRS=$(echo "${PR_LIST}" |
     sed -n "/${VERSION}/,/${PREV_VERSION}/p;/${PREV_VERSION}/q;" |
     grep -v "$VERSION\|$PREV_VERSION")
   run hub release create "v${VERSION}" -m "$(cat <<EOF
+Release v${VERSION}
+
+$RELEASE_PRS
+EOF
+  )"
+}
+
+#### create a release PR ####
+grpr() {
+  RELEASE=${1}
+  [ -z ${RELEASE} ] && RELEASE=$(cat VERSION.txt | sed -E 's/pre\-([0-9]+)/v\1/')
+  run git checkout master && \
+  run git fetch && \
+  run git pull origin master && \
+  run git checkout -b release/$RELEASE
+  run rake release
+  run git push origin release/$RELEASE
+  run git push --tags
+  run_var GIT_TAGS git tag -l -n2 | grep version | awk '{print $1}' | sed -E 's/[^0-9\.]*//g' | sort -nr
+  run_var PR_LIST hub pr list -b master -s merged -o updated -L 100 -f "- %i %t%n"
+  VERSION=$(echo $RELEASE | sed 's/v//')
+  PREV_VERSION=$(($VERSION-1))
+  RELEASE_PRS=$(echo "${PR_LIST}" |
+    sed "/${PREV_VERSION}/q" |
+    grep -v "$VERSION\|$PREV_VERSION") 
+  run hub pull-request -p -r "${LOGIN_REVS}" -e -m "$(cat <<EOF
 Release v${VERSION}
 
 $RELEASE_PRS
