@@ -81,8 +81,8 @@ for r in ${LMREPOS}; do
   echo -n "\${r}: " >> \${HOME}/pocust/\${HOSTNAME}-pocust.txt
   git describe --always --tags >> \${HOME}/pocust/\${HOSTNAME}-pocust.txt
 done
-echo "# Collecting last three locust output files"
-for i in \`find /var/log/loadtest/ -name "*.csv" | tail -3\`; do cp "\${i}" ~/pocust/; done
+echo "# Collecting all locust output files"
+cp /var/log/loadtest/* ~/pocust/
 EOM
 
 echo "Creating ${ODIR}"
@@ -119,7 +119,7 @@ if [ ! -z "${LOCUST_MASTER}" ]; then
   bin/scp-instance ${LOCUST_MASTER}:~/pocust/* "${ODIR}/"
 
   echo "Cleaning up ${LOCUST_MASTER}"
-  bin/ssh-instance ${LOCUST_MASTER} 'rm -rf ${HOME}/pocust'
+  bin/ssh-instance ${LOCUST_MASTER} 'rm -rf ${HOME}/pocust; rm -f /var/log/load_test/*'
 fi
 
 echo "Done!  Now send ${ODIR} to a good place"
