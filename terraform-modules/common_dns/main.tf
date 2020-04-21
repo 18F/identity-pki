@@ -198,3 +198,30 @@ resource "aws_route53_record" "acme_challenge_www" {
   type    = "TXT"
   records = ["L1XfURLRizB_sP022sBOoQGaulRl34R9B3xEZxTTFfs"]
 }
+
+resource "aws_route53_record" "hubot_cname1" {
+  count   = var.domain == "login.gov" ? 1 : 0
+  name    = "hs1._domainkey.${var.domain}"
+  zone_id = aws_route53_zone.primary.zone_id
+  ttl     = "900"
+  type    = "CNAME"
+  records = ["login-gov.hs01a.dkim.hubspotemail.net."]
+}
+
+resource "aws_route53_record" "hubot_cname2" {
+  count   = var.domain == "login.gov" ? 1 : 0
+  name    = "hs2._domainkey.${var.domain}"
+  zone_id = aws_route53_zone.primary.zone_id
+  ttl     = "900"
+  type    = "CNAME"
+  records = ["login-gov.hs01b.dkim.hubspotemail.net."]
+}
+
+resource "aws_route53_record" "hubot_txt" {
+  count   = var.domain == "login.gov" ? 1 : 0
+  name    = "smtpapi._domainkey.${var.domain}"
+  zone_id = aws_route53_zone.primary.zone_id
+  ttl     = "900"
+  type    = "TXT"
+  records = ["L1XfURLRizB_sP022sBOoQGaulRl34R9B3xEZxTTFk=rsa; t=s; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDPtW5iwpXVPiH5FzJ7Nrl8USzuY9zqqzjE0D1r04xDN6qwziDnmgcFNNfMewVKN2D1O+2J9N14hRprzByFwfQW76yojh54Xu3uSbQ3JP0A7k8o8GutRF8zbFUA8n0ZH2y0cIEjMliXY4W4LwPA7m4q0ObmvSjhd6\"\"3O9d8z1XkUBwIDAQAB"]
+}
