@@ -69,7 +69,7 @@ DEPENDENCIES
   openssl
   ossec
     git: https://github.com/sous-chefs/ossec
-    revision: 00e28e9ceaa5f7e677d932a11e9604b7fb1c3984
+    revision: cc1a49608ed362824087a440a7b50bebe6edb281
   passenger
     git: https://github.com/18F/identity-cookbooks
     revision: 33381ff1bdd2d345cf213d765acc773b099dfc8b
@@ -154,7 +154,7 @@ GRAPH
     elasticsearch (>= 0.0.0)
     elasticsearch-curator (>= 0.0.0)
     filebeat (>= 0.0.0)
-    java (>= 0.0.0)
+    java (~> 4.3.0)
     keytool (>= 0.0.0)
     login_dot_gov (>= 0.0.0)
     runit (>= 0.0.0)
@@ -181,7 +181,9 @@ GRAPH
   identity_shared_attributes (0.1.2)
   instance_certificate (0.2.0)
     canonical_hostname (>= 0.0.0)
-  java (8.0.1)
+  java (4.3.0)
+    homebrew (>= 0.0.0)
+    windows (>= 0.0.0)
   keytool (0.7.1)
   letsencrypt (1.0.3)
   login_dot_gov (0.0.63)
