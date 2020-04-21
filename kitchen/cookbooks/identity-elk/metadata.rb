@@ -7,7 +7,7 @@ long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 
 version          '0.1.34'
 
-depends          'java'
+depends          'java', '~> 4.3.0'
 depends          'elasticsearch'
 depends          'filebeat'
 depends          'runit'

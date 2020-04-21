@@ -63,7 +63,7 @@ default['elk']['logstash']['xpack_monitoring_enabled'] = true
 default['elk']['logstash']['xpack_monitoring_elasticsearch_url'] = 'https://elasticsearch.login.gov.internal:9200'
 default['elk']['logstash']['xpack_monitoring_elasticsearch_ssl_ca'] = '/etc/elasticsearch/root-ca.pem'
 
-default['elk']['elastalert']['version'] = 'v0.2.1'
+default['elk']['elastalert']['version'] = 'v0.2.4'
 # If the list of emails is empty, then do not email.
 default['elk']['elastalert']['emails'] = []
 
