@@ -103,6 +103,12 @@ resource "aws_iam_role_policy" "elasticsearch-cloudwatch-logs" {
   policy = data.aws_iam_policy_document.cloudwatch-logs.json
 }
 
+resource "aws_iam_role_policy" "elasticsearch-cloudwatch-agent" {
+  name   = "${var.env_name}-elasticsearch-cloudwatch-agent"
+  role   = aws_iam_role.elasticsearch.id
+  policy = data.aws_iam_policy_document.cloudwatch-agent.json
+}
+
 resource "aws_iam_role_policy" "elasticsearch-ssm-access" {
   name   = "${var.env_name}-elasticsearch-ssm-access"
   role   = aws_iam_role.elasticsearch.id

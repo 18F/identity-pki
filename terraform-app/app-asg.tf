@@ -195,6 +195,12 @@ resource "aws_iam_role_policy" "app-cloudwatch-logs" {
   policy = data.aws_iam_policy_document.cloudwatch-logs.json
 }
 
+resource "aws_iam_role_policy" "app-cloudwatch-agent" {
+  name   = "${var.env_name}-app-cloudwatch-agent"
+  role   = aws_iam_role.app.id
+  policy = data.aws_iam_policy_document.cloudwatch-agent.json
+}
+
 resource "aws_iam_role_policy" "app-ssm-access" {
   name   = "${var.env_name}-app-ssm-access"
   role   = aws_iam_role.app.id

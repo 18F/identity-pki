@@ -1,21 +1,40 @@
 template '/var/awslogs/etc/awslogs.conf' do
-    source 'awslogs.conf.erb'
-    owner 'root'
-    group 'root'
-    mode 0644
-    variables ({
-      :environmentName => node.chef_environment
-   })
-    notifies :restart, 'service[awslogs]', :delayed
- end
+  only_if { ::File.exist?('/var/awslogs/bin/aws') }
+  source 'awslogs.conf.erb'
+  owner 'root'
+  group 'root'
+  mode 0644
+  variables ({
+    :environmentName => node.chef_environment
+  })
+  notifies :restart, 'service[awslogs]', :immediate
+end
 
- service 'awslogs' do
-    action [:enable, :start]
-    supports :restart => true, :status => true, :start => true, :stop => true
- end
+service 'awslogs' do
+  only_if { ::File.exist?('/var/awslogs/bin/aws') }
+  action [:enable, :start]
+  supports :restart => true, :status => true, :start => true, :stop => true
+end
 
- #inspector agent proxy configuration
- template '/etc/init.d/awsagent.env' do
+template '/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json' do
+  only_if { ::File.exist?('/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent') }
+  source 'amazon-cloudwatch-agent.json.erb'
+  owner 'root'
+  group 'root'
+  mode 0644
+  variables ({
+    :environmentName => node.chef_environment
+  })
+  notifies :restart, 'service[amazon-cloudwatch-agent]', :delayed
+end
+
+service 'amazon-cloudwatch-agent' do
+  action :nothing
+  supports :restart => true, :status => true, :start => true, :stop => true
+end
+
+#inspector agent proxy configuration
+template '/etc/init.d/awsagent.env' do
   source 'awsagent.env.erb'
   owner 'root'
   group 'root'

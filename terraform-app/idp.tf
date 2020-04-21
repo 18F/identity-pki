@@ -266,6 +266,12 @@ resource "aws_iam_role_policy" "idp-cloudwatch-logs" {
   policy = data.aws_iam_policy_document.cloudwatch-logs.json
 }
 
+resource "aws_iam_role_policy" "idp-cloudwatch-agent" {
+  name   = "${var.env_name}-idp-cloudwatch-agent"
+  role   = aws_iam_role.idp.id
+  policy = data.aws_iam_policy_document.cloudwatch-agent.json
+}
+
 resource "aws_iam_role_policy" "idp-upload-s3-reports" {
   name   = "${var.env_name}-idp-s3-reports"
   role   = aws_iam_role.idp.id

@@ -1,0 +1,319 @@
+{
+        "agent": {
+                "metrics_collection_interval": 60
+        },
+        "logs": {
+                "logs_collected": {
+                        "files": {
+                                "collect_list": [
+                                        {
+                                                "file_path": "/var/log/cloud-init-output.log",
+                                                "log_group_name": "/var/log/cloud-init-output.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC",
+                                                "timestamp_format": "%Y-%m-%dT%H:%M%s+00:00"
+                                        },
+                                        {
+                                                "file_path": "/var/log/cloud-init.log",
+                                                "log_group_name": "/var/log/cloud-init.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC",
+                                                "timestamp_format": "%Y-%m-%dT%H:%M%s+00:00"
+                                        },
+                                        {
+                                                "file_path": "/var/log/syslog",
+                                                "log_group_name": "<%= @environmentName %>_/var/log/syslog",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC",
+                                                "timestamp_format": "%b %d %H:%M:%S"
+
+                                        },
+                                        {
+                                                "file_path": "/var/log/audit/audit.log",
+                                                "log_group_name": "<%= @environmentName %>_/var/log/audit/audit.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC",
+                                                "timestamp_format": "%b %d %H:%M:%S"
+
+                                        },
+                                        {
+                                                "file_path": "/var/log/kern.log",
+                                                "log_group_name": "<%= @environmentName %>_/var/log/kern.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC",
+                                                "timestamp_format": "%b %d %H:%M:%S"
+
+                                        },
+                                        {
+                                                "file_path": "/var/log/mail.log",
+                                                "log_group_name": "<%= @environmentName %>_/var/log/mail.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC",
+                                                "timestamp_format": "%b %d %H:%M:%S"
+
+                                        },
+                                        {
+                                                "file_path": "/var/log/nginx/access.log",
+                                                "log_group_name": "<%= @environmentName %>_/var/log/nginx/access.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC",
+                                                "timestamp_format": "%d/%b/%Y:%H:%M:%S %z"
+
+                                        },
+                                        {
+                                                "file_path": "/var/log/nginx/error.log",
+                                                "log_group_name": "<%= @environmentName %>_/var/log/nginx/error.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC",
+                                                "timestamp_format": "%Y/%m/%d %H:%M:%S"
+
+                                        },
+                                        {
+                                                "file_path": "/var/log/nginx/machine.access.log",
+                                                "log_group_name": "<%= @environmentName %>_/var/log/nginx/machine.access.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC",
+                                                "timestamp_format": "%d/%b/%Y:%H:%M:%S %z"
+
+                                        },
+                                        {
+                                                "file_path": "/srv/idp/shared/log/events.log",
+                                                "log_group_name": "<%= @environmentName %>_/srv/idp/shared/log/events.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC",
+                                                "timestamp_format": "%Y-%m-%dT%H:%M:%S.%fZ"
+
+                                        },
+                                        {
+                                                "file_path": "/srv/idp/shared/log/newrelic_agent.log",
+                                                "log_group_name": "<%= @environmentName %>_/srv/idp/shared/log/newrelic_agent.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC",
+                                                "timestamp_format": "%Y-%m-%d %H:%M:%S %z"
+
+                                        },
+                                        {
+                                                "file_path": "/srv/idp/shared/log/production.log",
+                                                "log_group_name": "<%= @environmentName %>_/srv/idp/shared/log/production.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC",
+                                                "timestamp_format": "%Y-%m-%dT%H:%M:%S.%fZ"
+
+                                        },
+                                        {
+                                                "file_path": "/srv/pki-rails/shared/log/newrelic_agent.log",
+                                                "log_group_name": "<%= @environmentName %>_/srv/pki-rails/shared/log/newrelic_agent.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC",
+                                                "timestamp_format": "%Y-%m-%d %H:%M:%S %z"
+
+                                        },
+                                        {
+                                                "file_path": "/srv/pki-rails/shared/log/production.log",
+                                                "log_group_name": "<%= @environmentName %>_/srv/pki-rails/shared/log/production.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC",
+                                                "timestamp_format": "%Y-%m-%dT%H:%M:%S.%fZ"
+
+                                        },
+                                        {
+                                                "file_path": "/srv/dashboard/shared/log/events.log",
+                                                "log_group_name": "<%= @environmentName %>_/srv/dashboard/shared/log/events.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC",
+                                                "timestamp_format": "%Y-%m-%dT%H:%M:%S.%fZ"
+
+                                        },
+                                        {
+                                                "file_path": "/srv/dashboard/shared/log/newrelic_agent.log",
+                                                "log_group_name": "<%= @environmentName %>_/srv/dashboard/shared/log/newrelic_agent.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC",
+                                                "timestamp_format": "%Y-%m-%d %H:%M:%S %z"
+
+                                        },
+                                        {
+                                                "file_path": "/srv/dashboard/shared/log/production.log",
+                                                "log_group_name": "<%= @environmentName %>_/srv/dashboard/shared/log/production.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC",
+                                                "timestamp_format": "%Y-%m-%dT%H:%M:%S.%fZ"
+
+                                        },
+                                        {
+                                                "file_path": "/var/log/clamav/clamav.log",
+                                                "log_group_name": "<%= @environmentName %>_/var/log/clamav/clamav.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC",
+                                                "timestamp_format": "%b %d %H:%M:%S %Y"
+
+                                        },
+                                        {
+                                                "file_path": "/var/log/clamav/freshclam.log",
+                                                "log_group_name": "<%= @environmentName %>_/var/log/clamav/freshclam.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC",
+                                                "timestamp_format": "%b %d %H:%M:%S %Y"
+
+                                        },
+                                        {
+                                                "file_path": "/var/log/squid/access.log",
+                                                "log_group_name": "<%= @environmentName %>_/var/log/squid/access.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC"
+                                        },
+                                        {
+                                                "file_path": "/var/log/squid/cache.log",
+                                                "log_group_name": "<%= @environmentName %>_/var/log/squid/cache.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC",
+                                                "timestamp_format": "%Y/%m/%d %H:%M:%S"
+
+                                        },
+                                        {
+                                                "file_path": "/var/log/aide/aide.log",
+                                                "log_group_name": "<%= @environmentName %>_/var/log/aide/aide.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC"
+
+                                        },
+                                        {
+                                                "file_path": "/var/log/amazon/ssm/amazon-ssm-agent.log",
+                                                "log_group_name": "<%= @environmentName %>_/var/log/amazon/ssm/amazon-ssm-agent.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC",
+                                                "timestamp_format": "%Y-%m-%d %H:%M:%S"
+
+                                        },
+                                        {
+                                                "file_path": "/var/log/amazon/ssm/errors.log",
+                                                "log_group_name": "<%= @environmentName %>_/var/log/amazon/ssm/errors.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC",
+                                                "timestamp_format": "%Y-%m-%d %H:%M:%S"
+
+                                        },
+                                        {
+                                                "file_path": "/var/log/amazon/ssm/hibernate.log",
+                                                "log_group_name": "<%= @environmentName %>_/var/log/amazon/ssm/hibernate.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC",
+                                                "timestamp_format": "%Y-%m-%d %H:%M:%S"
+
+                                        },
+                                        {
+                                                "file_path": "/var/log/dpkg.log",
+                                                "log_group_name": "<%= @environmentName %>_/var/log/dpkg.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC",
+                                                "timestamp_format": "%Y-%m-%d %H:%M:%S"
+
+                                        },
+                                        {
+                                                "file_path": "/var/log/messages",
+                                                "log_group_name": "<%= @environmentName %>_/var/log/messages",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC",
+                                                "timestamp_format": "%b %d %H:%M:%S"
+
+                                        },
+                                        {
+                                                "file_path": "/var/log/apt/history.log",
+                                                "log_group_name": "<%= @environmentName %>_/var/log/apt/history.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC"
+                                        },
+                                        {
+                                                "file_path": "/var/log/dnsmasq.log",
+                                                "log_group_name": "<%= @environmentName %>_/var/log/dnsmasq.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC",
+                                                "timestamp_format": "%b %d %H:%M:%S"
+
+                                        },
+                                        {
+                                                "file_path": "/srv/idp/shared/log/kms.log",
+                                                "log_group_name": "<%= @environmentName %>_/srv/idp/shared/log/kms.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC",
+                                                "timestamp_format": "%Y-%m-%dT%H:%M:%S.%f"
+
+                                        },
+                                        {
+                                                "file_path": "/srv/idp/shared/log/telephony.log",
+                                                "log_group_name": "<%= @environmentName %>_/srv/idp/shared/log/telephony.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC",
+                                                "timestamp_format": "%Y-%m-%dT%H:%M:%S.%f"
+
+                                        }
+                                ]
+                        }
+                }
+        },
+        "metrics": {
+                "append_dimensions": {
+                        "AutoScalingGroupName": "${aws:AutoScalingGroupName}",
+                        "InstanceId": "${aws:InstanceId}",
+                        "InstanceType": "${aws:InstanceType}"
+                },
+                "metrics_collected": {
+                        "cpu": {
+                                "measurement": [
+                                        "cpu_usage_idle",
+                                        "cpu_usage_iowait",
+                                        "cpu_usage_user",
+                                        "cpu_usage_system"
+                                ],
+                                "metrics_collection_interval": 60,
+                                "resources": [
+                                        "*"
+                                ],
+                                "totalcpu": false
+                        },
+                        "disk": {
+                                "measurement": [
+                                        "used_percent",
+                                        "inodes_free"
+                                ],
+                                "metrics_collection_interval": 60,
+                                "resources": [
+                                        "*"
+                                ]
+                        },
+                        "diskio": {
+                                "measurement": [
+                                        "io_time",
+                                        "write_bytes",
+                                        "read_bytes",
+                                        "writes",
+                                        "reads"
+                                ],
+                                "metrics_collection_interval": 60,
+                                "resources": [
+                                        "*"
+                                ]
+                        },
+                        "mem": {
+                                "measurement": [
+                                        "mem_used_percent"
+                                ],
+                                "metrics_collection_interval": 60
+                        },
+                        "netstat": {
+                                "measurement": [
+                                        "tcp_established",
+                                        "tcp_time_wait"
+                                ],
+                                "metrics_collection_interval": 60
+                        },
+                        "swap": {
+                                "measurement": [
+                                        "swap_used_percent"
+                                ],
+                                "metrics_collection_interval": 60
+                        }
+                }
+        }
+}
+

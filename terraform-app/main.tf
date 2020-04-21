@@ -57,6 +57,7 @@ data "aws_iam_policy_document" "cloudwatch-logs" {
       "logs:CreateLogStream",
       "logs:PutLogEvents",
       "logs:DescribeLogStreams",
+      "logs:DescribeLogGroups",
     ]
     resources = [
       "arn:aws:logs:*:*:*",
@@ -64,3 +65,19 @@ data "aws_iam_policy_document" "cloudwatch-logs" {
   }
 }
 
+#This policy allows the CloudWatch agent to put metrics.
+#Also requires the cloudwatch-logs policy
+#Based on the AWS managed policy CloudWatchAgentServerPolicy
+data "aws_iam_policy_document" "cloudwatch-agent" {
+  statement {
+    sid = "allowCloudWatchAgent"
+    actions = [
+      "cloudwatch:PutMetricData",
+      "ec2:DescribeVolumes",
+      "ec2:DescribeTags",
+    ]
+    resources = [
+      "*",
+    ]
+  }
+}

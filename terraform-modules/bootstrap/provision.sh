@@ -11,6 +11,7 @@ fi
 set -euo pipefail
 
 INFO_DIR=/etc/login.gov/info
+embedded_bin='/opt/chef/embedded/bin'
 
 usage() {
     cat >&2 <<EOM
@@ -18,7 +19,7 @@ usage: $(basename "$0") [options] S3_SSH_KEY_URL GIT_CLONE_URL
 
 This script helps provision an instance using chef. Steps it runs:
 
-- Install chef, git, and other key dependencies
+- Install key dependencies
 - Download an SSH key from S3
 - Clone the specified git repo
 - Inside the git repo there must be a chef repo:
@@ -33,8 +34,6 @@ GIT_CLONE_URL:     The URL to use for cloning identity-devops-private. This URL
                    should be an SSH git URL.
 
 options:
-    --chef-download-url URL     URL to download the chef client debian package.
-    --chef-download-sha256 SUM  The expected sha256 checksum of the chef file.
     --git-ref REF               Check out REF in id-do-private after cloning.
     --kitchen-subdir DIR        The subdirectory to cd to for running chef.
     --asg-name ASG_NAME         Name of the current autoscaling group, used in
@@ -93,52 +92,11 @@ assert_root() {
     fi
 }
 
-install_git() {
-    if ! which git >/dev/null; then
-        echo "Installing git"
-        run apt-get install -y git
-    fi
-}
-
-# usage: install_chef URL [CHECKSUM]
-install_chef() {
-    local tmpdir installer url expected_checksum checksum
-    echo >&2 "Downloading chef"
-
-    url="$1"
-    expected_checksum="${2-}"
-
-    tmpdir="$(run mktemp -d)"
-
-    installer="$tmpdir/chef.deb"
-
-    run wget -nv -O "$installer" "$url"
-
-    if [ -n "$expected_checksum" ]; then
-        checksum="$(run sha256sum "$installer" | cut -d' ' -f1)"
-        if [ "$checksum" != "$expected_checksum" ]; then
-            echo >&2 "Download checksum mismatch in $installer:"
-            echo >&2 "Expected: $expected_checksum"
-            echo >&2 "Got:      $checksum"
-            return 2
-        fi
-    else
-        echo >&2 "No checksum provided, not checking"
-    fi
-
-    echo >&2 "Installing chef"
-    run dpkg -i "$installer"
-
-    echo >&2 "Successfully installed"
-
-    run rm -r "$tmpdir"
-}
-
 # Check whether berkshelf is already installed. If not, install berkshelf by
 # using gem install to get a version appropriate for the chef embedded ruby
 # version. This may be an old version of berkshelf.
 check_install_berkshelf() {
-    local embedded_bin ruby_version chef_version berks_version
+    local ruby_version chef_version berks_version
 
     echo >&2 "Checking for installed berkshelf"
 
@@ -146,8 +104,6 @@ check_install_berkshelf() {
         echo >&2 "berks found on path"
         return
     fi
-
-    embedded_bin="/opt/chef/embedded/bin"
 
     if [ ! -d "$embedded_bin" ]; then
         echo >&2 "Error: could not find chef embedded bin at $embedded_bin"
@@ -306,8 +262,6 @@ fi
 
 echo >&2 "Starting up, args $0 $*"
 
-chef_download_url=
-chef_download_sha256=
 git_ref=
 kitchen_subdir="chef"
 berks_subdir="berks-cookbooks"
@@ -317,14 +271,6 @@ asg_lifecycle_hook_name=
 
 while [ $# -gt 0 ] && [[ $1 = -* ]]; do
     case "$1" in
-        --chef-download-url)
-            chef_download_url="$2"
-            shift
-            ;;
-        --chef-download-sha256)
-            chef_download_sha256="$2"
-            shift
-            ;;
         --git-ref)
             git_ref="$2"
             shift
@@ -371,13 +317,6 @@ handle_error() {
     echo >&2 "provision.sh: ERROR -- exiting after failure"
     echo >&2 "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 
-    # Debugging for apt/dpkg lock issues
-    echo "apt/dpkg lock status:"
-    run fuser /var/lib/dpkg/lock /var/lib/dpkg/lock-frontend \
-        /var/lib/apt/lists/lock || true
-    echo "Running processes:"
-    run pstree -apu || run ps -ef
-
     if [ -e "$INFO_DIR/skip_abandon_hook" ]; then
         echo >&2 "Flag file $INFO_DIR/skip_abandon_hook exists! Will not" \
             "send the ABANDON signal to the lifecycle hook."
@@ -418,13 +357,6 @@ fi
 echo "==========================================================="
 echo "provision.sh: installing dependencies"
 
-run apt-get update
-
-DEBIAN_FRONTEND=noninteractive run apt-get \
-    -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
-    dist-upgrade -y
-
-install_git
 
 echo "==========================================================="
 echo "provision.sh: downloading SSH key and cloning repo"
@@ -475,15 +407,9 @@ if [ -n "$git_ref" ]; then
 fi
 
 echo "==========================================================="
-echo "provision.sh: installing chef and berkshelf"
+echo "provision.sh: installing berkshelf"
 
-if [ -n "$chef_download_url" ]; then
-    install_chef "$chef_download_url" "$chef_download_sha256"
-else
-    echo >&2 "No --chef-download-url given, skipping chef install"
-fi
-
-run chef-client --version
+run "$embedded_bin/chef-client" --version
 
 check_install_berkshelf
 
@@ -521,7 +447,7 @@ if ! [ -e "./chef-client.rb" ]; then
     exit 3
 fi
 
-run chef-client --local-mode -c "./chef-client.rb" --no-color
+run "$embedded_bin/chef-client" --local-mode -c "./chef-client.rb" --no-color
 
 run rm -rf /tmp/bundler
 

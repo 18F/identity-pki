@@ -12,9 +12,7 @@
       ]
     },
     "login_dot_gov": {
-      "deploy_branch_default": "master",
-      "idp_run_migrations": true,
-      "allow_unsafe_migrations": true
+      "deploy_branch_default": "master"
     },
     "identity-jumphost": {
       "loadtest": {
