@@ -19,6 +19,7 @@ class OCSPService
 
     # we want to cache the call for a few minutes so we don't hammer on the same request
     OCSPService.ocsp_response(ocsp_url_for_subject, authority.certificate, subject) do
+      log("cache miss, #{ocsp_url_for_subject}", __LINE__)
       response = make_http_request(ocsp_url_for_subject, request.to_der)
       OCSPResponse.new(self, response)
     end
@@ -67,14 +68,17 @@ class OCSPService
 
     handle_response(make_single_http_request(URI(uri), request), limit)
   rescue SocketError
+    log("SocketError, returning nil", __LINE__)
     nil # we simply have nothing if we can't connect
   end
 
   def handle_response(response, limit)
     case response
     when Net::HTTPSuccess then
+      log("2XX response received", __LINE__)
       process_http_response_body(response.body)
     when Net::HTTPRedirection then
+      log("3XX response received", __LINE__)
       make_http_request(response['location'], request, limit - 1)
     end
   end
@@ -84,6 +88,7 @@ class OCSPService
   rescue Errno::ECONNRESET
     retries -= 1
     return if retries.negative?
+    log("Errno::ECONNRESET, about to sleep + retry, #{uri}", __LINE__)
     sleep(1)
     retry
   end
@@ -94,11 +99,18 @@ class OCSPService
     env = Figaro.env
     http.open_timeout = env.http_open_timeout.to_i
     http.read_timeout = env.http_read_timeout.to_i
-    http.post(uri.path.presence || '/', request, 'content-type' => 'application/ocsp-request')
+    log("pre-request #{uri}", __LINE__)
+    response = http.post(uri.path.presence || '/', request, 'content-type' => 'application/ocsp-request')
+    log("post-request #{uri}", __LINE__)
+    response
   end
 
   # :reek:UtilityFunction
   def process_http_response_body(body)
     OpenSSL::OCSP::Response.new(body) if body.present?
+  end
+
+  def log(message, line)
+    Rails.logger.info("#{Time.zone.now.iso8601} | oscp: #{message} | #{File.basename(__FILE__)}:#{line}")
   end
 end
