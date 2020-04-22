@@ -199,7 +199,7 @@ resource "aws_route53_record" "acme_challenge_www" {
   records = ["L1XfURLRizB_sP022sBOoQGaulRl34R9B3xEZxTTFfs"]
 }
 
-resource "aws_route53_record" "hubot_cname1" {
+resource "aws_route53_record" "hubspot_cname1" {
   count   = var.domain == "login.gov" ? 1 : 0
   name    = "hs1._domainkey.${var.domain}"
   zone_id = aws_route53_zone.primary.zone_id
@@ -208,7 +208,7 @@ resource "aws_route53_record" "hubot_cname1" {
   records = ["login-gov.hs01a.dkim.hubspotemail.net."]
 }
 
-resource "aws_route53_record" "hubot_cname2" {
+resource "aws_route53_record" "hubspot_cname2" {
   count   = var.domain == "login.gov" ? 1 : 0
   name    = "hs2._domainkey.${var.domain}"
   zone_id = aws_route53_zone.primary.zone_id
@@ -217,7 +217,7 @@ resource "aws_route53_record" "hubot_cname2" {
   records = ["login-gov.hs01b.dkim.hubspotemail.net."]
 }
 
-resource "aws_route53_record" "hubot_txt" {
+resource "aws_route53_record" "hubspot_txt" {
   count   = var.domain == "login.gov" ? 1 : 0
   name    = "smtpapi._domainkey.${var.domain}"
   zone_id = aws_route53_zone.primary.zone_id
