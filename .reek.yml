@@ -28,3 +28,4 @@ directories:
 exclude_paths:
   - db/migrate
   - lib/deploy
+  - app/services/ocsp_service.rb
