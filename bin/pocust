@@ -66,6 +66,8 @@ for r in ${IDPREPOS}; do
   echo -n "\${r}: " >> \${HOME}/\${HOSTNAME}-pocust.txt
   git describe --always --tags >> \${HOME}/\${HOSTNAME}-pocust.txt
 done
+echo "# IdP deploy.json" >> \${HOME}/\${HOSTNAME}-pocust.txt
+cat /srv/idp/current/public/api/deploy.json >> \${HOME}/\${HOSTNAME}-pocust.txt
 echo "# Configurations" >> \${HOME}/\${HOSTNAME}-pocust.txt
 for f in ${IDPFILES}; do
   sudo sha256sum --tag "\$f" >> \${HOME}/\${HOSTNAME}-pocust.txt
