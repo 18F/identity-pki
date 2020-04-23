@@ -31,6 +31,7 @@ jobs:
 workflows:
   version: 2
   release:
+    # we have to build them in this order as the build image is required by the base image.
     jobs:
       - build-base-image
       - build-build-image:
