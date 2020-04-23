@@ -11,8 +11,8 @@ set -euo pipefail
 
 . "$(dirname "$0")/lib/common.sh"
 
-# List of Git repos to check SHAs in for each IdP instance
-IDPREPOS="identity-devops identity-devops-private identity-idp"
+# List of Git repos to check SHAs in
+IDPREPOS="/etc/login.gov/repos/identity-devops /etc/login.gov/repos/identity-devops-private /srv/idp/current"
 
 # Files to fingerprint
 IDPFILES="/srv/idp/current/config/application_s3_env.yml /srv/idp/current/config/application.yml"
@@ -62,7 +62,7 @@ ODIR="${HOME}/${ENV}-${RUN_NAME}-${TS}"
 define IDPSCRIPT <<EOM
 echo "# Repositories" > \${HOME}/\${HOSTNAME}-pocust.txt
 for r in ${IDPREPOS}; do
-  cd /etc/login.gov/repos/\$r
+  cd "\${r}"
   echo -n "\${r}: " >> \${HOME}/\${HOSTNAME}-pocust.txt
   git describe --always --tags >> \${HOME}/\${HOSTNAME}-pocust.txt
 done
