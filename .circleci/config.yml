@@ -28,3 +28,11 @@ jobs:
           echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
           docker push logindotgov/build:"${rev}"
           docker push logindotgov/build:latest
+workflows:
+  version: 2
+  release:
+    jobs:
+      - build-base-image
+      - build-build-image:
+          requires:
+            - build-base-image
