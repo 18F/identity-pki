@@ -1,0 +1,30 @@
+version: 2
+jobs:
+  build-base-image:
+    working_directory: ~/identity-devops/dockerfiles
+    docker:
+      - image: circleci/ruby:2.6 # this doesn't matter, just using for consistency.
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run: |
+          rev=$(git rev-parse --short HEAD)
+          docker build -t logindotgov/base:latest -t logindotgov/base:"${rev}" -f base.Dockerfile .
+          echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+          docker push logindotgov/base:"${rev}"
+          docker push logindotgov/base:latest
+  build-build-image:
+    working_directory: ~/identity-devops/dockerfiles
+    docker:
+      - image: circleci/ruby:2.6 # this doesn't matter, just using for consistency.
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run: |
+          rev=$(git rev-parse --short HEAD)
+          docker build -t logindotgov/build:latest -t logindotgov/build:"${rev}" -f build.Dockerfile .
+          echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+          docker push logindotgov/build:"${rev}"
+          docker push logindotgov/build:latest
