@@ -3,7 +3,12 @@ require 'rails_helper'
 describe 'Certificate store in config/certs' do
   before do
     # We need to allow net connect to download CRLs and check for revocations
-    WebMock.allow_net_connect!
+    WebMock.disallow_net_connect!(
+      allow: ['ocsp.disa.mil',
+              'ssp-ocsp.symauth.com',
+              'ocsp.managed.entrust.com',
+              'ocsp1.ssp-strong-id.net']
+    )
 
     CertificateStore.instance.reset
     Dir.glob(File.join('config', 'certs', '**', '*.pem')).each do |file|
