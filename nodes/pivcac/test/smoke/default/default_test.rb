@@ -44,7 +44,7 @@ end
 # This test will break when you upgrade our OpenSSL. Sorry.
 describe command('/opt/nginx/sbin/nginx -V') do
   its('exit_status') { should eq 0 }
-  its('stderr') { should match (/built with OpenSSL 1.0.2t/) }
+  its('stderr') { should match (/built with OpenSSL 1.0.2u/) }
 end
 
 # Ensure our nginx configuration is a valid one.
