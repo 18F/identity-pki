@@ -10,8 +10,6 @@ describe 'Certificate store in config/certs' do
               'ocsp1.ssp-strong-id.net']
     )
 
-    CertificateStore.instance.reset
-
     Dir.glob(File.join('config', 'certs', '**', '*.pem')).each do |file|
       CertificateStore.instance.add_pem_file(file)
     end
