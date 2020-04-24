@@ -28,6 +28,9 @@ RSpec.configure do |config|
     I18n.locale = :en
     allow(Figaro.env).to receive(:domain_name).and_return('127.0.0.1')
     CertificateStore.reset
+    CertificateStore.instance.clear_root_identifiers
+    Certificate.clear_revocation_cache
+    OCSPService.clear_ocsp_response_cache
   end
 
   config.before(:each, type: :controller) do

@@ -11,9 +11,6 @@ describe 'Certificate store in config/certs' do
     )
 
     CertificateStore.instance.reset
-    CertificateStore.instance.clear_root_identifiers
-    Certificate.clear_revocation_cache
-    OCSPService.clear_ocsp_response_cache
 
     Dir.glob(File.join('config', 'certs', '**', '*.pem')).each do |file|
       CertificateStore.instance.add_pem_file(file)
