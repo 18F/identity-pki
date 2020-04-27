@@ -332,13 +332,54 @@ template "/usr/share/logstash/.sincedb_elb" do
 end
 
 # set up filebeat (default) logstash config
-template '/etc/logstash/logstashconf.d/40-beats.conf' do
-  source '40-beats.conf.erb'
+template '/etc/logstash/logstashconf.d/beats-input.conf' do
+  group  'logstash'
+  owner  'logstash'
+  source 'beats-input.conf.erb'
   variables ({
     :mycrt => "#{mycacrt}",
     :mykey => "#{mypkcs8}"
   })
   notifies :run, 'execute[restart_logstash]', :delayed
+end
+
+# add filters to add metadata to various log types
+# idp events logs
+cookbook_file '/etc/logstash/logstashconf.d/idp-events.conf' do
+  group  'logstash'
+  owner  'logstash'
+  source 'idp-events.conf'
+end
+
+# idp production logs
+cookbook_file '/etc/logstash/logstashconf.d/idp-production.conf' do
+  group  'logstash'
+  owner  'logstash'
+  source 'idp-production.conf'
+end
+
+# nginx access logs
+cookbook_file '/etc/logstash/logstashconf.d/nginx-access.conf' do
+  group  'logstash'
+  owner  'logstash'
+  source 'nginx-access.conf'
+end
+
+# nginx errors logs
+cookbook_file '/etc/logstash/logstashconf.d/nginx-error.conf' do
+  group  'logstash'
+  owner  'logstash'
+  source 'nginx-error.conf'
+end
+
+# drop nginx fancy logs
+# this is meant for human viewing and duplicative of events ingested from the
+# above two logs.
+# TODO: This is better to not be ingested at all via filebeat config.
+cookbook_file '/etc/logstash/logstashconf.d/nginx-fancy-drop.conf' do
+  group  'logstash'
+  owner  'logstash'
+  source 'nginx-fancy-drop.conf'
 end
 
 directory '/etc/logstash/tmp' do
