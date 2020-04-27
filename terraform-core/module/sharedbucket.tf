@@ -243,9 +243,9 @@ data "aws_iam_policy_document" "lambda-functions" {
 # automatically as part of running ./deploy, but you can also create the bucket
 # manually.
 #
-# Then import the existing bucket into the terraform-common terraform state using the deploy wrapper:
+# Then import the existing bucket into the terraform-core terraform state using the deploy wrapper:
 #
-#     ./deploy global <USER> terraform-common import aws_s3_bucket.tf-state login-gov.tf-state.<ACCT_ID>-<REGION>
+#     ./deploy global <USER> terraform-core import aws_s3_bucket.tf-state login-gov.tf-state.<ACCT_ID>-<REGION>
 #
 # Under the hood this is running:
 #
