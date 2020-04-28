@@ -1,30 +1,27 @@
 # Use the official Ruby image because the Rails images have been deprecated
-FROM ruby:2.6
-
-# Enable https
-RUN apt-get update
-RUN apt-get install -y apt-transport-https
-
-# Install Postgres client
-RUN apt-get install -y --no-install-recommends postgresql-client
-RUN rm -rf /var/lib/apt/lists/*
+FROM logindotgov/build as build
 
 # Everything happens here from now on   
 WORKDIR /pivcac
 
 # Simple Gem cache.  Success here creates a new layer in the image.
-COPY Gemfile .
-COPY Gemfile.lock .
-RUN gem install bundler --conservative
-RUN bundle install --without deploy production
+COPY Gemfile* ./
+RUN gem install bundler --conservative && \
+    bundle install --without deploy production
 
 # Copy everything else over
 COPY . .
 
-# Up to this point we've been root, change to a lower priv. user
-RUN groupadd -r appuser
-RUN useradd --system --create-home --gid appuser appuser
-RUN chown -R appuser.appuser /pivcac
+# Switch to base image
+FROM logindotgov/base
+WORKDIR /pivcac
+
+# Copy Gems, NPMs, and other relevant items from build layer
+COPY --chown=appuser:appuser --from=build /pivcac .
+
+# Copy in whole source (minus items matched in .dockerignore)
+COPY --chown=appuser:appuser . .
+
 USER appuser
 
 EXPOSE 8443
