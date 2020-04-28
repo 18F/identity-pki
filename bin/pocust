@@ -11,8 +11,8 @@ set -euo pipefail
 
 . "$(dirname "$0")/lib/common.sh"
 
-# List of Git repos to check SHAs in for each IdP instance
-IDPREPOS="identity-devops identity-devops-private identity-idp"
+# List of Git repos to check SHAs in
+IDPREPOS="/etc/login.gov/repos/identity-devops /etc/login.gov/repos/identity-devops-private /srv/idp/current"
 
 # Files to fingerprint
 IDPFILES="/srv/idp/current/config/application_s3_env.yml /srv/idp/current/config/application.yml"
@@ -62,10 +62,12 @@ ODIR="${HOME}/${ENV}-${RUN_NAME}-${TS}"
 define IDPSCRIPT <<EOM
 echo "# Repositories" > \${HOME}/\${HOSTNAME}-pocust.txt
 for r in ${IDPREPOS}; do
-  cd /etc/login.gov/repos/\$r
+  cd "\${r}"
   echo -n "\${r}: " >> \${HOME}/\${HOSTNAME}-pocust.txt
   git describe --always --tags >> \${HOME}/\${HOSTNAME}-pocust.txt
 done
+echo "# IdP deploy.json" >> \${HOME}/\${HOSTNAME}-pocust.txt
+cat /srv/idp/current/public/api/deploy.json >> \${HOME}/\${HOSTNAME}-pocust.txt
 echo "# Configurations" >> \${HOME}/\${HOSTNAME}-pocust.txt
 for f in ${IDPFILES}; do
   sudo sha256sum --tag "\$f" >> \${HOME}/\${HOSTNAME}-pocust.txt
@@ -81,8 +83,8 @@ for r in ${LMREPOS}; do
   echo -n "\${r}: " >> \${HOME}/pocust/\${HOSTNAME}-pocust.txt
   git describe --always --tags >> \${HOME}/pocust/\${HOSTNAME}-pocust.txt
 done
-echo "# Collecting last three locust output files"
-for i in \`find /var/log/loadtest/ -name "*.csv" | tail -3\`; do cp "\${i}" ~/pocust/; done
+echo "# Collecting all locust output files"
+cp /var/log/loadtest/* ~/pocust/
 EOM
 
 echo "Creating ${ODIR}"
@@ -119,7 +121,7 @@ if [ ! -z "${LOCUST_MASTER}" ]; then
   bin/scp-instance ${LOCUST_MASTER}:~/pocust/* "${ODIR}/"
 
   echo "Cleaning up ${LOCUST_MASTER}"
-  bin/ssh-instance ${LOCUST_MASTER} 'rm -rf ${HOME}/pocust'
+  bin/ssh-instance ${LOCUST_MASTER} 'rm -rf ${HOME}/pocust; rm -f /var/log/load_test/*'
 fi
 
 echo "Done!  Now send ${ODIR} to a good place"
