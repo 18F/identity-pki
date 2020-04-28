@@ -7,7 +7,8 @@ describe 'Certificate store in config/certs' do
       allow: ['ocsp.disa.mil',
               'ssp-ocsp.symauth.com',
               'ocsp.managed.entrust.com',
-              'ocsp1.ssp-strong-id.net']
+              'ocsp1.ssp-strong-id.net',
+              'ocsp.pki.state.gov']
     )
 
     Dir.glob(File.join('config', 'certs', '**', '*.pem')).each do |file|
