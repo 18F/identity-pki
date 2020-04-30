@@ -363,7 +363,7 @@ data "aws_iam_policy_document" "secops_assume_full_administrator" {
 #### Assume "PowerUser" policies
 # sandbox
 resource "aws_iam_policy" "sandbox_assume_power_user" {
-  name        = "SandboxAssumePower"
+  name        = "SandboxAssumePowerUser"
   path        = "/"
   description = "Policy to allow user to assume power role in Sandbox"
   policy      = data.aws_iam_policy_document.sandbox_assume_power_user.json
