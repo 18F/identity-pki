@@ -3,7 +3,7 @@ require 'fakefs/spec_helpers'
 require 'login_gov/hostdata/fake_s3_client'
 require Rails.root.join('lib', 'deploy', 'activate.rb')
 
-TRUSTED_ROOT_COUNT = 6 + 1 # extra cert for pen testing
+TRUSTED_ROOT_COUNT = 7 + 1 # extra cert for pen testing
 DOD_ROOT_COUNT = 3
 
 describe Deploy::Activate do
