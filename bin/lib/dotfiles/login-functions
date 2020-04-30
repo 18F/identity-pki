@@ -67,7 +67,7 @@ EOF
   ttl_time=$(aws-vault list --sessions | awk '{print $1}')
   if [[ -z ${ttl_time} ]] || [[ ${ttl_time} -lt $(date +%s) ]] ; then
     ttl="--duration=1h"
-    [[ $(command -v ykman) ]] && yk="--mfa-token=$(ykman oath code --single aws/identity-master | awk '{print $NF}')"
+    [[ $(command -v ykman) ]] && yk="--mfa-token=$(ykman oath code --single aws/login-master | awk '{print $NF}')"
   fi
   while getopts d:i:l:s:p:a:o:m: opt
   do
@@ -87,7 +87,7 @@ EOF
       l) run aws-vault login ${profile} ${ttl} ${yk}               ;;
       v)
          run aws-vault remove master --sessions-only
-         [[ $(command -v ykman) ]] && yk="--mfa-token=$(ykman oath code --single aws/identity-master | awk '{print $NF}')"
+         [[ $(command -v ykman) ]] && yk="--mfa-token=$(ykman oath code --single aws/login-master | awk '{print $NF}')"
          run aws-vault exec ${profile} --no-session --duration=2h ${yk}
       ;;
       i) run aws-vault login ${profile} ${ttl} ${yk} --stdout |

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Create an IAM user's login profile in the identity-master account!
+# Create an IAM user's login profile in the login-master account!
 
 set -eu
 
@@ -15,15 +15,15 @@ usage() {
 usage: $(basename "$0") USERNAME
 
 Create an AWS login profile w/temporary password + Access/Secret Keys
-for USERNAME in the identity-master account, and then opens
+for USERNAME in the login-master account, and then opens
 a new Google Sheet where the credentials can be shared.
 
 To work properly, USERNAME must:
   - be an entry in ${IAM_USERS_FILE}
-  - be an actual IAM user in the identity-master account
+  - be an actual IAM user in the login-master account
 
 This script must be run with an active AWS STS session (via the API
-or with aws-vault) for the identity-master account.
+or with aws-vault) for the login-master account.
 
 EOM
 }
@@ -43,10 +43,10 @@ fi
 
 MASTER_ACCOUNT_USERS=$(aws iam list-users)
 if [[ ! $(echo "${MASTER_ACCOUNT_USERS}" | grep "${MASTER_ACCOUNT_ID}") ]] ; then
-  raise "This script must be run in the identity-master AWS account"
+  raise "This script must be run in the login-master AWS account"
 fi
 if [[ ! $(echo "${MASTER_ACCOUNT_USERS}" | grep "user/${IAM_USER}") ]] ; then
-  raise "User '${IAM_USER}' not in list of IAM users in identity-master"
+  raise "User '${IAM_USER}' not in list of IAM users in login-master"
 fi
 
 TEMP_PASSWORD=$(env LC_CTYPE=C LC_ALL=C tr -dc \

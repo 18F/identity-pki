@@ -21,5 +21,5 @@ ID_state_module_prefix=module.main.module.tf-state
 
 # default AWS credentials profile for this account
 if [ -z "${AWS_PROFILE-}${AWS_ACCESS_KEY_ID-}" ]; then
-    export AWS_PROFILE="identity-master"
+    export AWS_PROFILE="login-master"
 fi

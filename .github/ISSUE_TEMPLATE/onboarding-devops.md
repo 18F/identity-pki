@@ -68,17 +68,3 @@ _Also, be sure to only copy the sections of this template that are needed for th
 * [ ] Complete [GSA OLU](https://insite.gsa.gov/topics/training-and-development/online-university-olu?term=olu) IT Security Awareness Training, including accepting the GSA IT Rules of Behavior, which is required before we can give you access to any login.gov systems. If you joined GSA more than two months ago, you’ve already completed this task and can just check the box. (Detailees must complete similar organization driven training and provide as proof to login.gov team members)
 * [ ] Add the new team member to [New Relic](https://account.newrelic.com/accounts/1376370/users/new)
 * [ ] Invite the new team member to [Opsgenie](https://login-gov.app.opsgenie.com/settings/users/)
-
-### For new DevOps team members only:
-* [ ] Add member to IAM groups for AWS access
-  * [ ] [18f-identity-analytics](https://18f-identity-analytics.signin.aws.amazon.com/console): `identity-power` or `identity-admin`
-  * [ ] [18f-identity-dev](https://18f-identity-dev.signin.aws.amazon.com/console): `identity-admin`
-  * [ ] [18f-identity](https://18f-identity.signin.aws.amazon.com/console): `identity-power`
-* [ ] Add member to the [login.gov Statuspage.io](https://logingov.statuspage.io/) account
-
-### For new Analytics team members only:
-* [ ] Configure access for the new team member to AWS
-  * [ ] Add the new team member to [AWS 18f-identity-analytics](https://18f-identity-analytics.signin.aws.amazon.com/console) account to IAM group `identity-power`
-  * [ ] Add the new team member to [AWS 18f-identity-dev](https://18f-identity-dev.signin.aws.amazon.com/console) account to IAM group `identity-redshift`
-  * [ ] Add the new team member to [AWS 18f-identity](https://18f-identity.signin.aws.amazon.com/console) account to IAM group `identity-redshift`
-  * [ ] Add the new team member to `prod` Jumphost as none sudoer access for redshift sql cli
