@@ -1,8 +1,6 @@
 #!/bin/bash
 . "$(dirname "$0")/../lib/common.sh"
 
-LOGIN_REVS="jgrevich,sharms,mzia,amitfreeman-gov,pauldoomgov"
-
 usage() {
   cat >&2 <<EOM
 
