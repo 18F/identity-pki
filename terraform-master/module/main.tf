@@ -11,7 +11,7 @@ data "aws_caller_identity" "current" {
 module "iam_account" {
   source        = "terraform-aws-modules/iam/aws//modules/iam-account"
   version       = "~> 2.0"
-  account_alias = "identity-master"
+  account_alias = "login-master"
 
   allow_users_to_change_password = true
   create_account_password_policy = true

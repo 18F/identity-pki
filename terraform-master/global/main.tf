@@ -1,7 +1,7 @@
 provider "aws" {
   region              = "us-west-2"
-  allowed_account_ids = ["340731855345"] # require identity-master
-  profile             = "identity-master"
+  allowed_account_ids = ["340731855345"] # require login-master
+  profile             = "login-master"
 
   #assume_role {
   #  role_arn     = "arn:aws:iam::ACCOUNT_ID:role/ROLE_NAME"

@@ -26,8 +26,8 @@ with your credentials.
 
 ## AWS Web Console
 
-18f-identity / login.gov: https://18f-identity.signin.aws.amazon.com/console
-18f-identity-dev / identitysandbox.gov: https://18f-identity.signin.aws.amazon.com/console
+login-prod / login.gov: https://login-prod.signin.aws.amazon.com/console
+login-sandbox / identitysandbox.gov: https://login-sandbox.signin.aws.amazon.com/console
 
 ### Terraform
 
