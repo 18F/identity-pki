@@ -101,7 +101,6 @@ gmpr () {
     esac
   done
   run git checkout master && \
-  run git fetch && \
   run git pull origin master && \
   run git checkout $branch && \
   run git rebase master && \
@@ -137,6 +136,12 @@ ghi() {
     -F "${GITHUB_PARENT_DIR}/identity-devops/.github/ISSUE_TEMPLATE/feature_request.md"
 }
 
+#### pull branch up to current version ####
+grff() {
+  RELEASE=$(($(cat VERSION.txt | sed -E 's/pre\-//')-1))
+  git pull --ff-only origin v${RELEASE}
+}
+
 #### create private gist from clipboard ####
 ggc() {
   local file="${1}"
@@ -167,7 +172,6 @@ grpr() {
   RELEASE=${1}
   [ -z ${RELEASE} ] && RELEASE=$(cat VERSION.txt | sed -E 's/pre\-([0-9]+)/v\1/')
   run git checkout master && \
-  run git fetch && \
   run git pull origin master && \
   run git checkout -b release/$RELEASE
   run rake release
