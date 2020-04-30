@@ -14,6 +14,7 @@ terraform {
 module "main" {
   source = "../module"
 
+  iam_account_alias            = "identity-sandbox"
   iam_kmsadmin_enabled         = true
   dashboard_logos_bucket_write = true
 }

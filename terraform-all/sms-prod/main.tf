@@ -14,5 +14,6 @@ terraform {
 module "main" {
   source = "../module"
 
+  iam_account_alias  = "identity-sms-prod"
   iam_appdev_enabled = false
 }

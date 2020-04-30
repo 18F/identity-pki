@@ -7,6 +7,10 @@ locals {
   master_assumerole_policy = data.aws_iam_policy_document.master_account_assumerole.json
 }
 
+variable "iam_account_alias" {
+  description = "Account alias in AWS."
+}
+
 variable "region" {
   default = "us-west-2"
 }
