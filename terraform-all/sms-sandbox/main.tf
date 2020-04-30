@@ -1,6 +1,6 @@
 provider "aws" {
   region              = "us-west-2"
-  allowed_account_ids = ["035466892286"] # require identity-sandbox
+  allowed_account_ids = ["035466892286"] # require login-sandbox
   profile             = "sms.identitysandbox.gov"
   version             = "~> 2.37.0"
 }
@@ -14,6 +14,6 @@ terraform {
 module "main" {
   source = "../module"
 
-  iam_account_alias  = "identity-sms-sandbox"
+  iam_account_alias  = "login-sms-sandbox"
   iam_appdev_enabled = false
 }

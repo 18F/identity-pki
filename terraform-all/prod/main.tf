@@ -1,6 +1,6 @@
 provider "aws" {
   region              = "us-west-2"
-  allowed_account_ids = ["555546682965"] # require identity-prod
+  allowed_account_ids = ["555546682965"] # require login-prod
   profile             = "login.gov"
   version             = "~> 2.37.0"
 }
@@ -14,7 +14,7 @@ terraform {
 module "main" {
   source = "../module"
 
-  iam_account_alias    = "identity-prod"
+  iam_account_alias    = "login-prod"
   iam_kmsadmin_enabled = true
   iam_reports_enabled  = true
   reports_bucket_arn   = "arn:aws:s3:::login-gov.reports.555546682965-us-west-2"
