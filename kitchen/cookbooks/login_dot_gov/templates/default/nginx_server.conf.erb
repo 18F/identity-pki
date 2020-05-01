@@ -141,6 +141,9 @@ server {
     location ^~ /AssureIDService/Document/ {
       client_max_body_size 10M;
     }
+    location ^~ /service_providers/ {
+      client_max_body_size 2M;
+    }
 }
 
 <%- if @nginx_redirects %>
