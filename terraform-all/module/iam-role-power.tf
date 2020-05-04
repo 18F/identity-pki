@@ -212,7 +212,7 @@ module "poweruser-assumerole" {
       policy_name        = "Power2"
       policy_description = "Policy 2 for Power User"
       policy_document = [
-          {
+        {
           sid    = "ACM"
           effect = "Allow"
           actions = [
@@ -224,7 +224,7 @@ module "poweruser-assumerole" {
             "*",
           ]
         },
-       {
+        {
           sid    = "CloudHSM"
           effect = "Allow"
           actions = [
@@ -434,7 +434,7 @@ module "poweruser-assumerole" {
             "*",
           ]
         },
-       {
+        {
           sid    = "S3"
           effect = "Allow"
           actions = [
@@ -482,6 +482,17 @@ module "poweruser-assumerole" {
           ]
           resources = [
             "*",
+          ]
+        },
+        {
+          # Full access to tagging - Used minimally at this time
+          sid    = "Tag"
+          effect = "Allow"
+          actions = [
+            "tag:*"
+          ]
+          resources = [
+            "*"
           ]
         },
         {
