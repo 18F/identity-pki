@@ -31,6 +31,7 @@ verify_root_repo
 echo
 
 declare {IAM_USER,WRITE_CONFIG}=
+ENV_USER=${AWS_IAM_USER-}
 FOUND_USER=$(aws iam get-user 2>/dev/null | jq -r '.[].UserName')
 
 while test $# -gt 0
@@ -43,8 +44,9 @@ do
 done
 
 if [[ -z "${IAM_USER}" ]] ; then
-  if [[ -z "${AWS_IAM_USER}" ]] ; then
+  if [[ -z "${ENV_USER}" ]] ; then
     if [[ -z "${FOUND_USER}" ]] ; then
+      echo_red "Could not detect current IAM user; also:"
       echo_red "IAM_USER & AWS_IAM_USER not set;"
       raise "must set either to run with AssumedRole"
     else
@@ -101,6 +103,7 @@ if [[ "${WRITE_CONFIG}" == true ]] ; then
   if prompt_yn "Add roles to ~/.aws/config file?" ; then
     echo_blue "Generating config and adding to file..."
     echo
+    MAIN_PROFILE=${AWS_VAULT:-$(echo $AWS_PROFILE)}
     MFA_ARN=$(aws iam list-mfa-devices \
               --user-name "${FOUND_USER}" |
               jq -r '.[][0].SerialNumber')
@@ -115,8 +118,8 @@ if [[ "${WRITE_CONFIG}" == true ]] ; then
       else
         define ROLE_BLOCK <<EOF
 [profile ${ROLE_NAME}]
-parent_profile = ${AWS_PROFILE}
-source_profile = ${AWS_PROFILE}
+parent_profile = ${MAIN_PROFILE}
+source_profile = ${MAIN_PROFILE}
 mfa_serial = ${MFA_ARN}
 role_arn = ${ROLE_ARN}
 EOF
