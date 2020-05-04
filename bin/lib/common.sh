@@ -34,19 +34,6 @@ verify_root_repo() {
     fi
 }
 
-# if $ARG is empty, set to val of $ENV_VAR; raise if $ENV_VAR is also empty
-arg_or_env_var () {
-  ARG=${1}
-  ENV_VAR=${2}
-  if [[ -z $(eval echo \$${ARG}) ]] ; then
-    if [[ -z $(eval echo \$${ENV_VAR}) ]] ; then
-      raise "Argument ${ARG} not received and ${ENV_VAR} env var not set"
-    else
-      eval ${ARG}=$(eval echo \$${ENV_VAR})
-    fi
-  fi
-}
-
 # verify existence of IAM user
 verify_iam_user () {
     local WHO_AM_I=${1}
