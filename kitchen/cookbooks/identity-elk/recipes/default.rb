@@ -332,13 +332,32 @@ template "/usr/share/logstash/.sincedb_elb" do
 end
 
 # set up filebeat (default) logstash config
-template '/etc/logstash/logstashconf.d/40-beats.conf' do
-  source '40-beats.conf.erb'
+template '/etc/logstash/logstashconf.d/beats-input.conf' do
+  group  'logstash'
+  owner  'logstash'
+  source 'beats-input.conf.erb'
   variables ({
     :mycrt => "#{mycacrt}",
     :mykey => "#{mypkcs8}"
   })
   notifies :run, 'execute[restart_logstash]', :delayed
+end
+
+# NOTE: nginx fancy logs are meant for human viewing and duplicate events in 
+# the nginx access and error logs.
+# TODO: This is better to not be ingested at all via filebeat config.
+[
+  'idp-events', 
+  'idp-production',
+  'nginx-access',
+  'nginx-error',
+  'nginx-fancy-drop'
+].each do |config|
+  cookbook_file "/etc/logstash/logstashconf.d/#{config}.conf" do
+    group  'logstash'
+    owner  'logstash'
+    source "#{config}.conf"
+  end
 end
 
 directory '/etc/logstash/tmp' do
