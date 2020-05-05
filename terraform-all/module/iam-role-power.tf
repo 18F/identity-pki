@@ -22,6 +22,35 @@ module "poweruser-assumerole" {
           ]
         },
         {
+          sid    = "CloudFormation"
+          effect = "Allow"
+          actions = [
+            "cloudformation:*",
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
+          sid    = "CloudFront"
+          effect = "Allow"
+          actions = [
+            "cloudfront:ListTagsForResource",
+            "cloudfront:TagResource",
+            "cloudfront:UpdateDistribution",
+            "cloudfront:CreateInvalidation",
+            "cloudfront:GetDistribution",
+            "cloudfront:ListDistributions",
+            "cloudfront:ListInvalidations",
+            "cloudfront:ListFieldLevelEncryptionConfigs",
+            "cloudfront:ListStreamingDistributions",
+            "cloudfront:CreateDistribution",
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
           sid    = "CloudWatch"
           effect = "Allow"
           actions = [
@@ -34,37 +63,20 @@ module "poweruser-assumerole" {
           ]
         },
         {
-          sid    = "SNS"
+          sid    = "DynamoDb"
           effect = "Allow"
           actions = [
-            "sns:*",
+            "dynamodb:*",
           ]
           resources = [
             "*",
           ]
         },
         {
-          sid    = "KMS"
+          sid    = "Firehose"
           effect = "Allow"
           actions = [
-            "kms:ListResourceTags",
-            "kms:GetKeyRotationStatus",
-            "kms:DisableKey",
-            "kms:DisableKeyRotation",
-            "kms:DeleteAlias",
-            "kms:PutKeyPolicy",
-            "kms:TagResource",
-            "kms:ScheduleKeyDeletion",
-            "kms:DescribeKey",
-            "kms:CreateKey",
-            "kms:EnableKeyRotation",
-            "kms:ListKeyPolicies",
-            "kms:UpdateKeyDescription",
-            "kms:GetKeyPolicy",
-            "kms:UpdateAlias",
-            "kms:ListKeys",
-            "kms:ListAliases",
-            "kms:CreateAlias",
+            "firehose:*",
           ]
           resources = [
             "*",
@@ -102,29 +114,37 @@ module "poweruser-assumerole" {
           ]
         },
         {
-          sid    = "CloudFront"
+          sid    = "Kinesis"
           effect = "Allow"
           actions = [
-            "cloudfront:ListTagsForResource",
-            "cloudfront:TagResource",
-            "cloudfront:UpdateDistribution",
-            "cloudfront:CreateInvalidation",
-            "cloudfront:GetDistribution",
-            "cloudfront:ListDistributions",
-            "cloudfront:ListInvalidations",
-            "cloudfront:ListFieldLevelEncryptionConfigs",
-            "cloudfront:ListStreamingDistributions",
-            "cloudfront:CreateDistribution",
+            "kinesis:*",
           ]
           resources = [
             "*",
           ]
         },
         {
-          sid    = "DynamoDb"
+          sid    = "KMS"
           effect = "Allow"
           actions = [
-            "dynamodb:*",
+            "kms:ListResourceTags",
+            "kms:GetKeyRotationStatus",
+            "kms:DisableKey",
+            "kms:DisableKeyRotation",
+            "kms:DeleteAlias",
+            "kms:PutKeyPolicy",
+            "kms:TagResource",
+            "kms:ScheduleKeyDeletion",
+            "kms:DescribeKey",
+            "kms:CreateKey",
+            "kms:EnableKeyRotation",
+            "kms:ListKeyPolicies",
+            "kms:UpdateKeyDescription",
+            "kms:GetKeyPolicy",
+            "kms:UpdateAlias",
+            "kms:ListKeys",
+            "kms:ListAliases",
+            "kms:CreateAlias",
           ]
           resources = [
             "*",
@@ -167,30 +187,10 @@ module "poweruser-assumerole" {
           ]
         },
         {
-          sid    = "CloudFormation"
+          sid    = "SNS"
           effect = "Allow"
           actions = [
-            "cloudformation:*",
-          ]
-          resources = [
-            "*",
-          ]
-        },
-        {
-          sid    = "Kinesis"
-          effect = "Allow"
-          actions = [
-            "kinesis:*",
-          ]
-          resources = [
-            "*",
-          ]
-        },
-        {
-          sid    = "Firehose"
-          effect = "Allow"
-          actions = [
-            "firehose:*",
+            "sns:*",
           ]
           resources = [
             "*",
@@ -213,30 +213,12 @@ module "poweruser-assumerole" {
       policy_description = "Policy 2 for Power User"
       policy_document = [
         {
-          sid    = "GuardDuty"
+          sid    = "ACM"
           effect = "Allow"
           actions = [
-            "guardduty:*",
-          ]
-          resources = [
-            "*",
-          ]
-        },
-        {
-          sid    = "Support"
-          effect = "Allow"
-          actions = [
-            "support:*",
-          ]
-          resources = [
-            "*",
-          ]
-        },
-        {
-          sid    = "Lambda"
-          effect = "Allow"
-          actions = [
-            "lambda:*",
+            "acm:DescribeCertificate",
+            "acm:ListCertificates",
+            "acm:ListTagsForCertificate",
           ]
           resources = [
             "*",
@@ -253,28 +235,6 @@ module "poweruser-assumerole" {
           ]
         },
         {
-          sid    = "Macie"
-          effect = "Allow"
-          actions = [
-            "macie:*",
-          ]
-          resources = [
-            "*",
-          ]
-        },
-        {
-          sid    = "ACM"
-          effect = "Allow"
-          actions = [
-            "acm:DescribeCertificate",
-            "acm:ListCertificates",
-            "acm:ListTagsForCertificate",
-          ]
-          resources = [
-            "*",
-          ]
-        },
-        {
           sid    = "CloudTrail"
           effect = "Allow"
           actions = [
@@ -282,6 +242,29 @@ module "poweruser-assumerole" {
             "cloudtrail:GetTrailStatus",
             "cloudtrail:ListTags",
             "cloudtrail:LookupEvents",
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
+          sid    = "CodeTools"
+          effect = "Allow"
+          actions = [
+            "codebuild:*",
+            "codepipeline:*",
+            "codecommit:*",
+            "codedeploy:*"
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
+          sid    = "GuardDuty"
+          effect = "Allow"
+          actions = [
+            "guardduty:*",
           ]
           resources = [
             "*",
@@ -382,16 +365,6 @@ module "poweruser-assumerole" {
           ]
         },
         {
-          sid    = "SQS"
-          effect = "Allow"
-          actions = [
-            "sqs:*",
-          ]
-          resources = [
-            "*",
-          ]
-        },
-        {
           sid    = "ElasticCache"
           effect = "Allow"
           actions = [
@@ -442,6 +415,26 @@ module "poweruser-assumerole" {
           ]
         },
         {
+          sid    = "Lambda"
+          effect = "Allow"
+          actions = [
+            "lambda:*",
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
+          sid    = "Macie"
+          effect = "Allow"
+          actions = [
+            "macie:*",
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
           sid    = "S3"
           effect = "Allow"
           actions = [
@@ -462,6 +455,16 @@ module "poweruser-assumerole" {
           ]
         },
         {
+          sid    = "SQS"
+          effect = "Allow"
+          actions = [
+            "sqs:*",
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
           sid    = "SSM"
           effect = "Allow"
           actions = [
@@ -469,6 +472,27 @@ module "poweruser-assumerole" {
           ]
           resources = [
             "*",
+          ]
+        },
+        {
+          sid    = "Support"
+          effect = "Allow"
+          actions = [
+            "support:*",
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
+          # Full access to tagging - Used minimally at this time
+          sid    = "Tag"
+          effect = "Allow"
+          actions = [
+            "tag:*"
+          ]
+          resources = [
+            "*"
           ]
         },
         {
@@ -487,19 +511,6 @@ module "poweruser-assumerole" {
           actions = [
             "waf:*",
             "waf-regional:*",
-          ]
-          resources = [
-            "*",
-          ]
-        },
-        {
-          sid    = "CodeTools"
-          effect = "Allow"
-          actions = [
-            "codebuild:*",
-            "codepipeline:*",
-            "codecommit:*",
-            "codedeploy:*"
           ]
           resources = [
             "*",
