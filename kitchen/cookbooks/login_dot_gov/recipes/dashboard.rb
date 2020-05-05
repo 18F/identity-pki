@@ -124,6 +124,7 @@ deploy "#{base_dir}" do
       "rbenv exec bundle install --deployment --jobs 3 --path #{base_dir}/shared/bundle --without deploy development test",
       "sudo npm install",
       "rbenv exec bundle exec rake assets:precompile",
+      "rbenv exec bundle exec bin/activate"
     ]
 
     cmds.each do |cmd|
