@@ -183,6 +183,20 @@ sshi() {
   av -dc ssh-instance "$@" || (pivssh && sshi "$@")
 }
 
+sscf() {
+  av -dc aws ssm start-session \
+      --document-name AWS-StartInteractiveCommand \
+      --parameters command='sudo tail -f /var/log/cloud-init-output.log' \
+      --target ${1}
+}
+
+ssci() {
+  av -dc aws ssm start-session \
+      --document-name AWS-StartInteractiveCommand \
+      --parameters command="sudo su - $GSA_USERNAME" \
+      --target ${1}
+}
+
 #### run bundle exec with common commands ####
 be() {
   read -r -d '' usage <<'EOF'
@@ -275,6 +289,7 @@ $1  a) ssm-instance --any asg-<ENV>-<TYPE>     $2  k = elk           $3 <ENV>   
     w) cw tail -f \                                A = ALL
         /var/log/cloud-init-output.log:             (use w/            
       <TYPE>-<DATA>.<ENV>.<ACCOUNT>                 recyle only)
+    f) ssm-instance ${2} (no other args)
 
         EXAMPLE: vcl -ri dev ==> aws-vault exec sandbox-admin -- asg-recycle dev idp
 NOTES:
