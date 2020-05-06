@@ -16,13 +16,8 @@ raise() {
 
 # Easier-to-read way to define variable using a heredoc.
 # Yoinked from https://stackoverflow.com/a/8088167
-define(){
-    o=
-    while IFS="\n" read -r a; do
-        o="$o$a"'
-'
-    done
-    eval "$1=\$o"
+define() {
+    read -r -d '' ${1} || true
 }
 
 # verify that script is running from identity-devops repo
@@ -68,7 +63,10 @@ run_var() {
       echo -ne '\033[m'
     fi
   fi
-  eval $VAR="\"$($@)\""
+  T=$($@)
+  # Set variable value by reference to avoid ; shenanigans
+  eval "${VAR}=\"\${T}\""
+
 }
 
 # Prompt the user for a yes/no response.

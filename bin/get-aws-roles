@@ -85,7 +85,7 @@ for POLICY in $(echo "${FOUND_POLICIES}" |
   ACCOUNT_ID=$(grep "${ID_STRING}" terraform-master/global/main.tf |
                sed -E 's/.*\"([0-9]+)\".*/\1/')
   ROLE=$(echo $POLICY | sed -E 's/.*Assume//')
-  SHORT_ROLE=$(grep -lr "${ROLE}" terraform-all/module/ |
+  SHORT_ROLE=$(grep -lr "${ROLE}" terraform-all/module/iam-role-*.tf |
                sed -E 's/.*\-([a-z]+)\.tf/\1/')
 
   ROLE_ARNS+=("${SHORT_ACCT}-${SHORT_ROLE}+arn:aws:iam::${ACCOUNT_ID}:role/${ROLE}")
