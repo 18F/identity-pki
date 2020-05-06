@@ -136,7 +136,7 @@ resource "aws_route53_record" "postgres" {
 # S3 bucket for partners to upload and serve logos
 resource "aws_s3_bucket" "partner_logos_bucket" {
   # Conditionally create this bucket only if enable_partner_logos_bucket is set to true
-  count = var.enable_partner_logos_bucket ? 1 : 0
+  count = var.apps_enabled
 
   bucket = "login-gov-partner-logos-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
   acl    = "public-read"
