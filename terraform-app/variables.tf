@@ -9,8 +9,9 @@ variable "ci_sg_ssh_cidr_blocks" {
 }
 
 variable "enable_partner_logos_bucket" {
+  description = "Create public S3 bucket for storing SP partner logos."
   type    = bool
-  default = false
+  default = true
 }
 
 variable "enable_idp_static_bucket" {
