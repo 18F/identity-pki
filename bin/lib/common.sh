@@ -52,21 +52,18 @@ verify_iam_user () {
 run_var() {
   VAR=${1}
   shift
-  if [[ $USE_RUN -gt 0 ]] ; then
-    if [ -t 1 ]; then
-      echo -ne "\\033[1;36m"
-    fi
+  if [ -t 1 ]; then
+    echo -ne "\\033[1;36m"
+  fi
 
-    echo -e >&2 "+ $VAR=\$($*)"
+  echo -e >&2 "+ $VAR=\$($*)"
 
-    if [ -t 1 ]; then
-      echo -ne '\033[m'
-    fi
+  if [ -t 1 ]; then
+    echo -ne '\033[m'
   fi
   T=$($@)
   # Set variable value by reference to avoid ; shenanigans
   eval "${VAR}=\"\${T}\""
-
 }
 
 # Prompt the user for a yes/no response.

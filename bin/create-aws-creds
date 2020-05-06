@@ -23,7 +23,7 @@ Flags:
   -p    Only create temp password
 
 To work properly, USERNAME must:
-  - be an entry in ${IAM_USERS_FILE}
+  - be an entry in terraform-master/module/iam_users.tf
   - be an actual IAM user in the login-master account
 
 This script must be run with an active AWS STS session (via the API
@@ -32,16 +32,21 @@ or with aws-vault) for the login-master account.
 EOM
 }
 
-if [ $# -gt 2 ] ; then
+if [ $# -gt 2 ] || [ $# -lt 1 ] ; then
   usage
   exit 1
 fi
 verify_root_repo
 
 IAM_USER="${1}"
+echo
 verify_iam_user "${IAM_USER}"
 shift
+
 declare {NEW_PASS,NEW_KEY}=true
+TEMP_PASSWORD=$(env LC_CTYPE=C LC_ALL=C tr -dc \
+                "a-zA-Z0-9-_\!\@\#\$\%\^\&\*\(\)\+\=\[\]\{\}\|\'" < /dev/urandom |
+                head -c 32)
 
 while getopts kp opt ; do
   case "${opt}" in
@@ -50,8 +55,29 @@ while getopts kp opt ; do
   esac
 done
 
-if [[ "${NEW_KEY}" == false ]] && [[ "${NEW_KEY}" == false ]] ; then
+if [[ "${NEW_PASS}" == false ]] && [[ "${NEW_KEY}" == false ]] ; then
   declare {NEW_PASS,NEW_KEY}=true
+fi
+
+if [[ "${NEW_PASS}" == true ]] ; then
+  if [[ $(aws iam get-login-profile --user-name "${IAM_USER}") ]] ; then
+    if ! prompt_yn "Login profile for ${IAM_USER} found; recreate?" ; then
+      echo_blue "Exiting."
+      exit 0
+    else
+      echo
+      echo_blue "Deleting old login profile..."
+      run aws iam delete-login-profile --user-name "${IAM_USER}"
+    fi
+  fi
+  
+  echo
+  echo_blue "Creating login profile..."
+  aws iam create-login-profile \
+    --user-name "${IAM_USER}" \
+    --password "${TEMP_PASSWORD}" \
+    --password-reset-required
+  echo
 fi
 
 if [[ "${NEW_KEY}" == true ]] ; then
@@ -64,6 +90,7 @@ if [[ "${NEW_KEY}" == true ]] ; then
       echo_blue "Exiting."
       exit 0
     else
+      echo
       echo_blue "Deleting old access keys..."
       for KEY in $(aws iam list-access-keys \
                     --user-name "${IAM_USER}" |
@@ -76,30 +103,9 @@ if [[ "${NEW_KEY}" == true ]] ; then
     fi
   fi
 
+  echo
   echo_blue "Generating Access Key ID / Secret Access Key..."
   run_var IAM_KEY_INFO aws iam create-access-key --user-name "${IAM_USER}" --output text
-fi
-
-if [[ "${NEW_PASS}" == true ]] ; then
-  TEMP_PASSWORD=$(env LC_CTYPE=C LC_ALL=C tr -dc \
-                  "a-zA-Z0-9-_\!\@\#\$\%\^\&\*\(\)\+\=\[\]\{\}\|\'" < /dev/urandom |
-                  head -c 32)
-  
-  if [[ $(aws iam get-login-profile --user-name "${IAM_USER}") ]] ; then
-    if ! prompt_yn "Login profile for ${IAM_USER} found; recreate?" ; then
-      echo_blue "Exiting."
-      exit 0
-    else
-      echo_blue "Deleting old login profile..."
-      run aws iam delete-login-profile --user-name "${IAM_USER}"
-    fi
-  fi
-  
-  echo_blue "Creating login profile..."
-  aws iam create-login-profile \
-    --user-name "${IAM_USER}" \
-    --password "${TEMP_PASSWORD}" \
-    --password-reset-required
 fi
 
 define USER_PASS <<EOM
@@ -108,14 +114,16 @@ temp_password ${TEMP_PASSWORD}
 EOM
 
 define USER_KEYS <<EOM
-access_key_id $(echo ${IAM_KEY_INFO[1]})
-secret_access_key $(echo ${IAM_KEY_INFO[3]})
+access_key_id $(echo ${IAM_KEY_INFO} | awk '{print $2}')
+secret_access_key $(echo ${IAM_KEY_INFO} | awk '{print $4}')
 EOM
 
-
+echo
 echo_blue "Account and credentials created:"
-[[ -z "${USER_PASS}" ]] || echo "${USER_PASS}"
-[[ -z "${USER_KEYS}" ]] || echo "${USER_KEYS}"
+echo
+[[ "${NEW_PASS}" == true ]] && echo "${USER_PASS}"
+[[ "${NEW_KEY}" == true ]] && echo "${USER_KEYS}"
+echo
 echo_blue "Copy these values, then press any key to open a new Google Sheet, where the credentials can be pasted."
 read -n 1 -s -r -p "" ; echo
 echo
