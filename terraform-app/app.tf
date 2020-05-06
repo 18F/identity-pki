@@ -174,8 +174,12 @@ data "aws_iam_policy_document" "partner_logos_bucket_policy" {
   statement {
     actions = [
       "s3:PutObject",
+      "s3:PutObjectAcl",
+      "s3:PutObjectVersionAcl",
       "s3:AbortMultipartUpload",
       "s3:GetObject",
+      "s3:GetObjectAcl",
+      "s3:GetObjectVersionAcl",
     ]
     principals {
       type = "AWS"
