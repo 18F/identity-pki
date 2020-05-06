@@ -17,8 +17,7 @@ raise() {
 # Easier-to-read way to define variable using a heredoc.
 # Yoinked from https://stackoverflow.com/a/8088167
 define() {
-  IFS='\n'
-  read -r -d '' ${1} || true
+    read -r -d '' ${1} || true
 }
 
 # verify that script is running from identity-devops repo
@@ -28,6 +27,43 @@ verify_root_repo() {
     then
         raise "Must be run from the identity-devops repo"
     fi
+}
+
+# verify existence of IAM user
+verify_iam_user () {
+    local WHO_AM_I=${1}
+    local IAM_USERS_FILE="terraform-master/module/iam_users.tf"
+    local MASTER_ACCOUNT_ID=340731855345
+    
+    echo_blue "Verifying IAM user ${WHO_AM_I}... "
+    if [[ ! $(grep -E "\= \"${WHO_AM_I}\"" "${GIT_DIR}/${IAM_USERS_FILE}") ]] ; then
+      raise "User '${WHO_AM_I}' not found in ${IAM_USERS_FILE}"
+    fi
+    
+    if [[ $(aws sts get-caller-identity | jq -r '.Account') != "${MASTER_ACCOUNT_ID}" ]] ; then
+      raise "This script must be run with a login-master AWS profile"
+    fi
+    if [[ ! $(aws iam list-users | grep "user/${WHO_AM_I}") ]] ; then
+      raise "User '${WHO_AM_I}' not in list of IAM users in login-master"
+    fi
+}
+
+# set a variable AND print its declaration to the console
+run_var() {
+  VAR=${1}
+  shift
+  if [ -t 1 ]; then
+    echo -ne "\\033[1;36m"
+  fi
+
+  echo -e >&2 "+ $VAR=\$($*)"
+
+  if [ -t 1 ]; then
+    echo -ne '\033[m'
+  fi
+  T=$($@)
+  # Set variable value by reference to avoid ; shenanigans
+  eval "${VAR}=\"\${T}\""
 }
 
 # Prompt the user for a yes/no response.
