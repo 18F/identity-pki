@@ -8,11 +8,6 @@ variable "ci_sg_ssh_cidr_blocks" {
   description = "List of CIDR blocks to allow into all NACLs/SGs.  Only use in the CI VPC."
 }
 
-variable "enable_partner_logos_bucket" {
-  type    = bool
-  default = false
-}
-
 variable "enable_idp_static_bucket" {
   description = "Create public S3 bucket for storing IdP static assets"
   type        = bool

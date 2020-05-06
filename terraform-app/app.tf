@@ -136,14 +136,14 @@ resource "aws_route53_record" "postgres" {
 # S3 bucket for partners to upload and serve logos
 resource "aws_s3_bucket" "partner_logos_bucket" {
   # Conditionally create this bucket only if enable_partner_logos_bucket is set to true
-  count = var.enable_partner_logos_bucket ? 1 : 0
+  count = var.apps_enabled
 
   bucket = "login-gov-partner-logos-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
   acl    = "public-read"
 
   logging {
     target_bucket = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
-    target_prefix = "/${var.env_name}/s3-access-logs/login-gov-partner-logos/"
+    target_prefix = "${var.env_name}/s3-access-logs/login-gov-partner-logos/"
   }
 
   tags = {
@@ -174,8 +174,14 @@ data "aws_iam_policy_document" "partner_logos_bucket_policy" {
   statement {
     actions = [
       "s3:PutObject",
+      "s3:PutObjectAcl",
+      "s3:PutObjectVersionAcl",
       "s3:AbortMultipartUpload",
       "s3:GetObject",
+      "s3:GetObjectAcl",
+      "s3:GetObjectVersionAcl",
+      "s3:ListBucket",
+      "s3:DeleteObject", 
     ]
     principals {
       type = "AWS"
