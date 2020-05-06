@@ -180,6 +180,8 @@ data "aws_iam_policy_document" "partner_logos_bucket_policy" {
       "s3:GetObject",
       "s3:GetObjectAcl",
       "s3:GetObjectVersionAcl",
+      "s3:ListBucket",
+      "s3:DeleteObject", 
     ]
     principals {
       type = "AWS"
