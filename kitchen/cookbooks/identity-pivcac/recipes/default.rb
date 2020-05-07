@@ -70,12 +70,6 @@ deploy "#{base_dir}" do
       recursive true
     end
 
-    # Cryptographically speaking, these certs are public. However, we do not yet
-    # have permission from DoD to check the collection into the repo.
-    file "#{release_path}/config/certs/all_certs_deploy.pem" do
-      content ConfigLoader.load_config(node, 'all_certs_deploy.pem')
-    end
-
     cmds = [
       "rbenv exec bundle install --deployment --jobs 3 --path #{base_dir}/shared/bundle --without deploy development test",
       "rbenv exec bundle exec bin/activate",
