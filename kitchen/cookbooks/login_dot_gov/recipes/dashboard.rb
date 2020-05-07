@@ -21,6 +21,16 @@ rescue JSON::ParserError
   []
 end
 
+idp_url = "https://idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
+if basic_auth_enabled
+  basic_auth_username = ConfigLoader.load_config(node, "basic_auth_user_name")
+  basic_auth_password = ConfigLoader.load_config(node, "basic_auth_password")
+  idp_sp_url = "https://#{basic_auth_username}:#{basic_auth_password}@idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}/api/service_provider"
+else
+  idp_sp_url = "https://idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}/api/service_provider"
+end
+dashboard_url = "https://dashboard.#{node.chef_environment}.#{node.fetch('login_dot_gov').fetch('domain_name')}"
+
 # deploy_branch defaults to stages/<env>
 # unless deploy_branch.identity-#{app_name} is specifically set otherwise
 default_branch = node.fetch('login_dot_gov').fetch('deploy_branch_default')
@@ -33,6 +43,20 @@ deploy_branch = node.fetch('login_dot_gov').fetch('deploy_branch').fetch("identi
     recursive true
     subscribes :create, "deploy[/srv/dashboard]", :before
   end
+end
+
+# TODO: don't generate YAML with erb, that's an antipattern
+template "#{base_dir}/shared/config/database.yml" do
+  owner node['login_dot_gov']['system_user']
+  sensitive true
+  variables({
+    database: 'dashboard',
+    username: ConfigLoader.load_config(node, "db_username_app"),
+    host: ConfigLoader.load_config(node, "db_host_app"),
+    password: ConfigLoader.load_config(node, "db_password_app"),
+    sslmode: 'verify-full',
+    sslrootcert: '/usr/local/share/aws/rds-combined-ca-bundle.pem'
+  })
 end
 
 # custom resource to configure new relic (newrelic.yml)
