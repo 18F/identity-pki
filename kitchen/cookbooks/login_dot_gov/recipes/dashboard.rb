@@ -21,16 +21,6 @@ rescue JSON::ParserError
   []
 end
 
-idp_url = "https://idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
-if basic_auth_enabled
-  basic_auth_username = ConfigLoader.load_config(node, "basic_auth_user_name")
-  basic_auth_password = ConfigLoader.load_config(node, "basic_auth_password")
-  idp_sp_url = "https://#{basic_auth_username}:#{basic_auth_password}@idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}/api/service_provider"
-else
-  idp_sp_url = "https://idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}/api/service_provider"
-end
-dashboard_url = "https://dashboard.#{node.chef_environment}.#{node.fetch('login_dot_gov').fetch('domain_name')}"
-
 # deploy_branch defaults to stages/<env>
 # unless deploy_branch.identity-#{app_name} is specifically set otherwise
 default_branch = node.fetch('login_dot_gov').fetch('deploy_branch_default')
@@ -45,54 +35,10 @@ deploy_branch = node.fetch('login_dot_gov').fetch('deploy_branch').fetch("identi
   end
 end
 
-# TODO: don't generate YAML with erb, that's an antipattern
-template "#{base_dir}/shared/config/database.yml" do
-  owner node['login_dot_gov']['system_user']
-  sensitive true
-  variables({
-    database: 'dashboard',
-    username: ConfigLoader.load_config(node, "db_username_app"),
-    host: ConfigLoader.load_config(node, "db_host_app"),
-    password: ConfigLoader.load_config(node, "db_password_app"),
-    sslmode: 'verify-full',
-    sslrootcert: '/usr/local/share/aws/rds-combined-ca-bundle.pem'
-  })
-end
-
 # custom resource to configure new relic (newrelic.yml)
 login_dot_gov_newrelic_config "#{base_dir}/shared" do
   not_if { node['login_dot_gov']['setup_only'] }
   app_name "dashboard.#{node.chef_environment}.#{node.fetch('login_dot_gov').fetch('domain_name')}"
-end
-
-dashboard_config = {
-  'dashboard_api_token' => ConfigLoader.load_config(node, "dashboard_api_token"),
-  'idp_url' => idp_url,
-  'idp_sp_url' => idp_sp_url,
-
-  # Some of these SAML values are unused, some are actually used for OIDC. They
-  # should each be either removed or renamed to reflect their actual purpose
-  # now that the dashboard uses OIDC.
-  # https://github.com/18F/identity-dashboard/issues/194
-  'saml_sp_certificate' => 'not-actually-used',
-  'saml_sp_issuer' => dashboard_url, # TODO rename
-  'saml_sp_private_key' => ConfigLoader.load_config_or_nil(node, "dashboard_sp_private_key") || node['login_dot_gov']['dashboard']['sp_private_key'],
-  'saml_sp_private_key_password' => ConfigLoader.load_config_or_nil(node, "dashboard_sp_private_key_password") || node['login_dot_gov']['dashboard']['sp_private_key_password'],
-
-  'secret_key_base' => ConfigLoader.load_config(node, "secret_key_base_dashboard"),
-
-  # https://github.com/18F/identity-dashboard/issues/196
-  # TODO remove or fix these
-  'smtp_address' => 'unused', # TODO unused
-  'smtp_domain' => dashboard_url, # TODO unused
-  'smtp_password' => 'sekret', # TODO unused
-  'smtp_username' => 'user', # TODO unused
-  'mailer_domain' => dashboard_url,
-}
-
-if basic_auth_enabled
-  dashboard_config['basic_auth_username'] = basic_auth_username
-  dashboard_config['basic_auth_password'] = basic_auth_password
 end
 
 # TODO: stop using deprecated deploy resource
