@@ -118,8 +118,7 @@ ghi() {
 
 #### pull branch up to current version ####
 grff() {
-  RELEASE=$(($(cat VERSION.txt | sed -E 's/pre\-//')-1))
-  git pull --ff-only origin v${RELEASE}
+  git pull --ff-only origin v$(cat VERSION.txt)
 }
 
 #### create private gist from clipboard ####
