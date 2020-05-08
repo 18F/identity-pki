@@ -21,7 +21,7 @@ gem 'tty-prompt', '~> 0.14'
 gem 'terraform_landscape', '~> 0.1'
 
 gem 'berkshelf', '~> 7.0.8'
-gem 'chef', '~> 14.14.29'
+gem 'chef', '~> 15.10.12'
 
 # used for modules/bootstrap templates
 gem 'erubis', '~> 2'
