@@ -5,6 +5,14 @@ remote_file "/tmp/metricbeat-#{version}-amd64.deb" do
   action :create
 end
 
+directory '/etc/systemd/system/metricbeat.service.d'
+
+# override default systemd config to log to file (removes -e when loading)
+cookbook_file '/etc/systemd/system/metricbeat.service.d/enable_logging.conf' do
+  mode '0755'
+  notifies :restart, 'service[metricbeat]'
+end
+
 dpkg_package "metricbeat-#{version}-amd64.deb" do
   source "/tmp/metricbeat-#{version}-amd64.deb"
 end
