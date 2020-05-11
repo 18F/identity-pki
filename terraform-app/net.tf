@@ -1255,6 +1255,9 @@ resource "aws_security_group" "obproxy" {
     cidr_blocks = [
       "66.227.17.192/26",
       "66.16.0.0/16",
+      "66.192.89.112/32",
+      "66.192.89.94/32",
+      "207.67.47.0/24",
     ] # This IP range includes AAMVA's failover, but is not exclusively controlled by AAMVA
   }
 
