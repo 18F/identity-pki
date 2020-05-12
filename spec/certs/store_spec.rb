@@ -27,7 +27,9 @@ describe 'Certificate store in config/certs' do
       !cert.valid?
     end
 
-    invalid_cert_list = invalid_certs.map(&:subject).join("\n")
+    invalid_cert_list = invalid_certs.map do |invalid_cert|
+      "#{invalid_cert.subject} : #{invalid_cert.validate_cert}"
+    end.join("\n")
     failure_message = <<~MESSAGE
       Invalid certs found:
       #{invalid_cert_list}
@@ -51,7 +53,7 @@ describe 'Certificate store in config/certs' do
 
     duplicate_cert_list = duplicate_certs.map do |cert_list|
       cert_list.map(&:subject).join("\n")
-    end.join('----------------------------')
+    end.join("\n----------------------------\n")
     failure_message = "Duplicate certs found:\n#{duplicate_cert_list}"
 
     expect(duplicate_certs).to be_empty, failure_message
