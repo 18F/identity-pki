@@ -9,6 +9,9 @@ assignees: ''
 
 PR_TITLE
 
+<!-- This PR MUST fulfill the accepted criteria defined for DevOps PRs: -->
+<!-- https://login-handbook.app.cloud.gov/articles/devops-acceptance-criteria.html -->
+
 <!-- Short description of what is happening in the PR -->
 
 <!-- HTML code to create a collapsible drop-down for the Terraform plan. -->

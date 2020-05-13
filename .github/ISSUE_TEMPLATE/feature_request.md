@@ -7,6 +7,9 @@ assignees: ''
 
 ---
 
+<!-- This issue MUST fulfill the accepted criteria defined for DevOps Issues: -->
+<!-- https://login-handbook.app.cloud.gov/articles/devops-acceptance-criteria.html -->
+
 TITLE_OF_ISSUE
 <!-- REMOVE ALL COMMENT BLOCKS, LIKE THIS ONE, BEFORE SUBMITTING! -->
 
