@@ -1,7 +1,7 @@
 provider "aws" {
   region              = "us-west-2"
-  allowed_account_ids = ["034795980528"] # require login-interviews
-  profile             = "secops"
+  allowed_account_ids = ["217680906704"] # require login-secops-prod
+  profile             = "login-secops-prod"
   version             = "~> 2.37.0"
 }
 
@@ -12,6 +12,8 @@ terraform {
 }
 
 module "main" {
-  dashboard_logos_bucket_write = true
   source                       = "../module"
+
+  iam_account_alias  = "login-secops-prod"
+  iam_appdev_enabled = false
 }

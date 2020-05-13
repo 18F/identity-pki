@@ -27,9 +27,19 @@ variable "sandbox_analytics_account_id" {
   description = "Sandbox Analytics AWS Account ID"
 }
 
-variable "secops_account_id" {
+variable "prod_secops_account_id" {
   default     = ""
-  description = "Login.gov SecOps AWS Account ID"
+  description = "Login.gov SecOps-Prod AWS Account ID"
+}
+
+variable "dev_secops_account_id" {
+  default     = ""
+  description = "Login.gov SecOps-Dev AWS Account ID"
+}
+
+variable "interviews_account_id" {
+  default     = ""
+  description = "identity-interviews AWS Account ID"
 }
 
 variable "auditor_accounts" {
