@@ -21,10 +21,10 @@ terraform {
   required_version = "~> 0.12"
 }
 
-module "global" {
+module "account_pinpoint" {
   # These are provisoned per-AWS account. This module should only be used
   # in the us-west-2 environment.
-  source = "../global"
+  source = "../../terraform-modules/account_pinpoint/"
 
   main_account_id = "555546682965"
 }
@@ -46,6 +46,6 @@ output "pinpoint_app_id" {
 }
 
 output "pinpoint_idp_role_arn" {
-  value = module.global.pinpoint_idp_role_arn
+  value = module.account_pinpoint.pinpoint_idp_role_arn
 }
 
