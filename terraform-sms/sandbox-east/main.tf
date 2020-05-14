@@ -1,6 +1,6 @@
 provider "aws" {
   region              = "us-east-1"
-  allowed_account_ids = ["035466892286"] # require identity-sms-sandbox
+  allowed_account_ids = ["035466892286"] # require login-sms-sandbox
   profile             = "sms.identitysandbox.gov"
 
   version = "~> 2.29"

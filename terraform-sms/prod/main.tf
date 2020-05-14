@@ -1,6 +1,6 @@
 provider "aws" {
   region              = "us-west-2"
-  allowed_account_ids = ["472911866628"] # require identity-sms-prod
+  allowed_account_ids = ["472911866628"] # require login-sms-prod
   profile             = "sms.login.gov"
 
   #assume_role {
