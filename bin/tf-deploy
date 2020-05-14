@@ -118,6 +118,7 @@ if [ $# -lt 2 ]; then
 fi
 
 repo_root_before_cd="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+DEPLOY_FAIL=false
 
 # This script assumes it is being run from the repo root.
 cd "$(dirname "$0")"
@@ -591,4 +592,48 @@ echo_blue >&2 "Running terraform..."
 
 # Run main terraform command. This is the only command that should print to
 # stdout (reassigned to FD 3)
-run terraform "${TF_CMD[@]}" >&3
+run terraform "${TF_CMD[@]}" >&3 || DEPLOY_FAIL=true
+
+# if running apply or destroy, notify success/fail in Slack
+cd "${repo_root_before_cd}"
+define TF_VERSION_INFO <<EOM
+main_commit=$(git log -n 1 --pretty=format:"%H")
+main_branch=$(git rev-parse --abbrev-ref HEAD)
+main_version=$(cat VERSION.txt)
+EOM
+
+#### TODO: add support for pinpoint/master/etc. via secrets bucket ####
+if [[ "${TF_CMD[0]}" =~ ^(apply|destroy)$ ]] && [[ "${TF_DIR}" =~ ^(terraform-app|terraform-core)$ ]]; then
+
+    if [ -n "$MODULE_STYLE" ] ; then
+        TF_DEPLOY_INFO=$(echo "${TF_VERSION_INFO}" | sed '$!s/$/\\n/' | tr -d '\n')
+        TF_PATH=${TF_DIR_FULL}
+    else
+        TF_DEPLOY_INFO=$(bin/get-version-info.sh "${ENVIRONMENT}" 2>/dev/null | sed '$!s/$/\\n/' | tr -d '\n')
+        TF_PATH="${TF_DIR_FULL}/${ENVIRONMENT}"
+    fi
+
+    TF_SLACK_EMOJI=':terraform:'
+    TF_SLACK_USER='Terraform Deployments'
+    if [ "$DEPLOY_FAIL" == 'true' ] ; then
+        SLACK_COLOR='danger'
+        SLACK_PRETEXT="tf-deploy *FAILED* for \`${TF_PATH}\` !"
+        SLACK_MESSAGE="Please investigate!"
+    else
+        SLACK_COLOR='good'
+        SLACK_PRETEXT="tf-deploy *SUCCESSFUL* for \`${TF_PATH}\` !"
+        SLACK_MESSAGE="\`\`\`${TF_DEPLOY_INFO}\`\`\`"
+    fi
+    
+    slack_notify \
+        -n "${real_account_id}" \
+        -t "${ENVIRONMENT}" \
+        -r "${TERRAFORM_STATE_BUCKET_REGION}" \
+        -c "${SLACK_COLOR}" \
+        -u "${TF_SLACK_USER}" \
+        -e "${TF_SLACK_EMOJI}" \
+        -p "${SLACK_PRETEXT}" \
+        -m "${SLACK_MESSAGE}"
+fi
+
+[ "$DEPLOY_FAIL" == 'true' ] && exit 1
