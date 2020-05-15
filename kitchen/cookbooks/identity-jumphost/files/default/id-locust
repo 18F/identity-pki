@@ -12,6 +12,13 @@ raise() {
   exit 1
 }
 
+REPO_DIR='/etc/login.gov/repos/identity-loadtest'
+[[ -d "${REPO_DIR}" ]] || raise "REPO_DIR ${REPO_DIR} does not exist"
+
+list_tests() {
+  find ${REPO_DIR}/load_testing  -name "*.locustfile.py" -printf '%P\n' | cut -d '.' -f 1 >&2
+}
+
 usage() {
   cat >&2 <<EOM
 usage: $(basename "$0") TEST_NAME ENV [-c CLIENTS] [-h HATCH_RATE] [-n NUM_USERS]
@@ -45,11 +52,13 @@ Examples:
     $(basename "$0") sign_up int -c 10 -h 25 -r 10m
     $(basename "$0") sign_in dev -h 10 -n 120
 
+Available Tests:
+
+
 EOM
+  list_tests
 }
 
-REPO_DIR='/etc/login.gov/repos/identity-loadtest'
-[[ -d "${REPO_DIR}" ]] || raise "REPO_DIR ${REPO_DIR} does not exist"
 [[ $# -lt 2 ]] && raise "Both TEST_NAME and ENV must be provided"
 
 TEST=${1}
