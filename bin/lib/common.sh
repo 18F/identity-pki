@@ -29,6 +29,63 @@ verify_root_repo() {
     fi
 }
 
+# send a notification in Slack, pulling appropriate key(s) from bucket to do so
+slack_notify () {
+    local AWS_ACCT_NUM=$(aws sts get-caller-identity | jq -r '.Account')
+    local TF_ENV=${GSA_USERNAME}
+    local AWS_REGION='us-west-2'
+    local COLOR='good'
+    local SLACK_USER='Login.gov Slack Notifier'
+    local SLACK_EMOJI=':login-gov:'
+    local PRE_TEXT='This is only a test.'
+    local TEXT='This is only a message.'
+    local KEYS=0
+    
+    while getopts n:t:r:c:u:e:p:m: opt
+    do
+        case "${opt}" in
+            n) AWS_ACCT_NUM="${OPTARG}" ;;
+            t) TF_ENV="${OPTARG}" ;;
+            r) AWS_REGION="${OPTARG}" ;;
+            c) COLOR="${OPTARG}" ;;
+            u) SLACK_USER="${OPTARG}" ;;
+            e) SLACK_EMOJI="${OPTARG}" ;;
+            p) PRE_TEXT="${OPTARG}" ;;
+            m) TEXT="${OPTARG}" ;;
+        esac
+    done
+    
+    #### TODO: add support for pinpoint/master/etc. via secrets bucket ####
+    [ $TF_ENV == 'sandbox' ] && TF_ENV='int'
+    local BUCKET="s3://login-gov.secrets.${AWS_ACCT_NUM}-${AWS_REGION}/${TF_ENV}"
+    
+    SLACK_CHANNEL=$(aws s3 cp "${BUCKET}/slackchannel" -) || ((KEYS++))
+    SLACK_WEBHOOK=$(aws s3 cp "${BUCKET}/slackwebhook" -) || ((KEYS++))
+    if [[ "${KEYS}" -gt 0 ]]; then
+        echo 'Slack channel/webhook missing from S3 bucket!'
+        return 1
+    fi
+
+    define PAYLOAD_JSON <<EOM
+{
+  "channel": "${SLACK_CHANNEL}",
+  "username": "${SLACK_USER}",
+  "icon_emoji": "${SLACK_EMOJI}",
+  "attachments": [
+    {
+        "mrkdwn_in": ["text"],
+        "pretext": "${PRE_TEXT}",
+        "color": "${COLOR}",
+        "text": "${TEXT}"
+    }
+  ]
+}
+EOM
+    PAYLOAD=$(printf '%s' "${PAYLOAD_JSON}" | jq -c .)
+    curl -X POST "${SLACK_WEBHOOK}" --data-urlencode payload="${PAYLOAD}"
+    echo -e "\n\n${PRE_TEXT}\n${TEXT}\n" | tr -d "\`" | sed -E "s/\\n/\n/"
+}
+
 # verify existence of IAM user
 verify_iam_user () {
     local WHO_AM_I=${1}
