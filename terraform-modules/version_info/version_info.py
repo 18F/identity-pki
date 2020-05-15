@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python
 """
 A script to get information about the current repository that's meant to be used
 as a Terraform external data source.
@@ -35,7 +35,7 @@ def get_commit():
 
     https://stackoverflow.com/questions/949314/how-to-retrieve-the-hash-for-the-current-commit-in-git#949391
     """
-    return run_cmd(["git", "rev-parse", "HEAD"]).strip()
+    return run_cmd(["git", "rev-parse", "HEAD"]).decode("utf-8").strip()
 
 def get_branch():
     """
@@ -43,7 +43,7 @@ def get_branch():
 
     https://stackoverflow.com/questions/6245570/how-to-get-the-current-branch-name-in-git#12142066
     """
-    return run_cmd(["git", "rev-parse", "--abbrev-ref", "HEAD"]).strip()
+    return run_cmd(["git", "rev-parse", "--abbrev-ref", "HEAD"]).decode("utf-8").strip()
 
 def get_tags():
     """
@@ -55,8 +55,8 @@ def get_tags():
     Example output of git command:
      (HEAD -> sverch/feature/deploy-version, tag: v0.0.1-pre)
     """
-    ref_names_raw = run_cmd(["git", "log", "-n", "1", "--pretty=format:'%d'"])
-    ref_names = re.search(".*\((.*)\).*", ref_names_raw).group(1)
+    ref_names_raw = run_cmd(["git", "log", "-n", "1", "--pretty=format:'%d'"]).decode("utf-8")
+    ref_names = re.search(r'.*\((.*)\).*', ref_names_raw).group(1)
     return ",".join([tag.replace("tag: ", "").strip()
                      for tag in ref_names.split(",") if "tag: " in tag])
 
@@ -92,7 +92,7 @@ def main():
                         format='%(name)s (%(levelname)s): %(message)s')
     try:
         parse_command_line(sys.argv)
-        print json.dumps(get_version_info())
+        print(json.dumps(get_version_info()))
     except KeyboardInterrupt:
         LOG.error('Program interrupted!')
     finally:
