@@ -23,7 +23,7 @@ First do the terraform steps as above to get renewed certificates.
 You probably don't want to rebuild the whole app host, since that's a huge
 pain.
 
-Instead, cd to `terraform-app` immediately after running `./deploy` (so you
+Instead, cd to `terraform/app` immediately after running `bin/tf-deploy` (so you
 still have the correct .terraform remote set up).
 
 List the available ACME certificate objects:

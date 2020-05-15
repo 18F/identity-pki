@@ -64,8 +64,8 @@ Documentation for how to run these tests can be found [here](testing.md).
 
 ```
 # In identity-devops
-sed -e 's/worker/myfavoritecow/g' terraform-app/worker-asg.tf >> terraform-app/myfavoritecow-asg.tf
-echo "variable \"asg_myfavoritecow_desired\" { default = 0 }" >> terraform-app/variables.tf
+sed -e 's/worker/myfavoritecow/g' terraform/app/worker-asg.tf >> terraform/app/myfavoritecow-asg.tf
+echo "variable \"asg_myfavoritecow_desired\" { default = 0 }" >> terraform/app/variables.tf
 ```
 
 The autoscaling deployment has two main pieces.  The first is the cloud-init
@@ -102,7 +102,7 @@ same step, set the number of requested instances to be something non zero.
 Amazon will attempt to spin up a number of instances to meet that demand.
 
 Here is an example of the terraform configuration needed to make this happen:
-https://github.com/18F/identity-devops/blob/master/terraform-app/worker-asg.tf.
+https://github.com/18F/identity-devops/blob/master/terraform/app/worker-asg.tf.
 
 ### Step 4: Deploy To An Environment
 
@@ -111,8 +111,8 @@ https://github.com/18F/identity-devops/blob/master/terraform-app/worker-asg.tf.
 echo "export TF_VAR_asg_myfavoritecow_desired=2" >> env/mycowenv.sh
 
 # In identity-devops
-./deploy mycowenv myusername terraform-app plan # Check output!
-./deploy mycowenv myusername terraform-app apply
+bin/tf-deploy mycowenv app plan # Check output!
+bin/tf-deploy mycowenv app apply
 ```
 
 By default, terraform only creates the autoscaling configuration, but does not

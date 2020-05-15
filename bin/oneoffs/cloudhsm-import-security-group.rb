@@ -54,7 +54,7 @@ class HSMSecurityGroupImporter
   end
 
   def run_deploy(args, check_output: false)
-    deploy_cmd = File.dirname(__FILE__) + '/../../deploy'
+    deploy_cmd = File.dirname(__FILE__) + '/../.bin/tf-deploy'
     cmdline = [deploy_cmd, env_name] + args
 
     log.info('+ ' + cmdline.join(' '))
@@ -71,7 +71,7 @@ class HSMSecurityGroupImporter
 
   def sg_in_tf_state?
     log.info("Looking for existing SG at #{TerraformSecurityGroupAddress}")
-    cmd = %W[terraform-app state list #{TerraformSecurityGroupAddress}]
+    cmd = %W[app state list #{TerraformSecurityGroupAddress}]
     out = run_deploy(cmd, check_output: true)
     if out.include?(TerraformSecurityGroupAddress)
       log.info('Found existing security group')
@@ -83,13 +83,13 @@ class HSMSecurityGroupImporter
 
   def rm_sg_from_tf_state
     log.warn("Removing SG from TF state at #{TerraformSecurityGroupAddress}")
-    run_deploy(%W[terraform-app state rm #{TerraformSecurityGroupAddress}])
+    run_deploy(%W[app state rm #{TerraformSecurityGroupAddress}])
     log.warn('Please delete the orphaned sec group after running terraform')
   end
 
   def run_terraform_sg_import(sg_id:)
     log.info('Importing security group into terraform state')
-    cmd = %W[terraform-app import #{TerraformSecurityGroupAddress} #{sg_id}]
+    cmd = %W[app import #{TerraformSecurityGroupAddress} #{sg_id}]
     run_deploy(cmd)
 
     log.info('Finished importing security group into terraform state')

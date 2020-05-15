@@ -52,7 +52,7 @@ config variables will be loaded automatically from identity-devops-private.
 This script will automatically delete .terraform/ and set it up as a symlink to
 a common .deploy/ subdirectory.
 Example:
-    $basename dev terraform-app plan
+    $basename dev app plan
 
 For newer terraform directories that use module-style configuration, any
 env-specific config variables will be loaded directly from the specified
@@ -60,7 +60,7 @@ subdirectory, and identity-devops-private will not be used. In this mode,
 .terraform/ is left as-is and not managed specially, which makes it easier to
 use terraform without invoking this script.
 Example:
-    $basename terraform-sms/sandbox plan
+    $basename sms/sandbox plan
 
 EOM
 }
@@ -508,7 +508,7 @@ echo >&2 "Ensuring terraform/${TF_DIR_FULL} is a terraform directory"
 if [ ! -f "terraform/${TF_DIR_FULL}/main.tf" ] ; then
     echo_red "deploy: not found: 'terraform/${TF_DIR_FULL}/main.tf'"
     echo_red "Are you sure 'terraform/${TF_DIR_FULL}' is a terraform project folder?"
-    echo_red "Known examples include terraform-app, etc."
+    echo_red "Known examples include terraform/app, etc."
     echo_red "Did you specify your username? This script no longer takes a "
     echo_red "username argument."
     die "error: Could not find terraform files"
@@ -597,7 +597,7 @@ main_version=$(cat VERSION.txt)
 EOM
 
 #### TODO: add support for pinpoint/master/etc. via secrets bucket ####
-if [[ "${TF_CMD[0]}" =~ ^(apply|destroy)$ ]] && [[ "${TF_DIR}" =~ ^(terraform-app|terraform-core)$ ]]; then
+if [[ "${TF_CMD[0]}" =~ ^(apply|destroy)$ ]] && [[ "${TF_DIR}" =~ ^(app|core)$ ]]; then
 
     if [ -n "$MODULE_STYLE" ] ; then
         TF_DEPLOY_INFO=$(echo "${TF_VERSION_INFO}" | sed '$!s/$/\\n/' | tr -d '\n')

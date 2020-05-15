@@ -7,9 +7,9 @@ if [[ $# != 1 ]]; then
     cat >&2 <<EOM
 Usage: $(basename "$0") <environment>
 
-Print version information about the latest terraform-app applied to the given
+Print version information about the latest terraform/app applied to the given
 environment. This metadata includes git revision and timestamp info about the
-last terraform apply that was done from identity-devops:/terraform-app/.
+last terraform apply that was done from identity-devops:/terraform/app/.
 
 This information is stored in S3 next to the terraform state files. Terraform
 apply will automatically change this information when it is run.
@@ -22,18 +22,18 @@ fi
 
 ENVIRONMENT="$1"
 
-if [ ! -d 'terraform-all' ]; then
+if [ ! -d 'terraform/all' ]; then
   echo "This must be run from the root of the identity-devops repo"
   exit 1
 fi
 
-# Sources terraform-core environment setup file to find correct bucket.
+# Sources terraform/core environment setup file to find correct bucket.
 case "${ENVIRONMENT}" in
   prod|staging)
-    . terraform-all/prod/env-vars.sh
+    . terraform/all/prod/env-vars.sh
     ;;
   *)
-    . terraform-all/sandbox/env-vars.sh
+    . terraform/all/sandbox/env-vars.sh
     ;;
 esac
 
