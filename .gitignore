@@ -18,11 +18,11 @@ terraform.tfstate.backup
 Vagrantfile
 
 # old-style shared dir symlinks
-/terraform-*/.terraform
-/terraform-*/.deploy/
+/terraform/*/.terraform
+/terraform/*/.deploy/
 
 # new-style subdir .terraform dirs
-/terraform-*/*/.terraform/
+/terraform/*/*/.terraform/
 
 /nodes/*/Gemfile.lock
 /nodes/*/Berksfile.lock

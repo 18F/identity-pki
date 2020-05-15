@@ -68,7 +68,7 @@ EOM
 # usage: module_style_check_required_files TF_DIR
 module_style_check_required_files() {
     local tf_dir
-    tf_dir="$1"
+    tf_dir="terraform/$1"
 
     if [ ! -e "$tf_dir/main.tf" ]; then
         echo_red >&2 "$basename: No such file: $tf_dir/main.tf"
@@ -90,7 +90,7 @@ module_style_check_required_files() {
 #
 verify_not_module_style() {
     local tf_dir test_file
-    tf_dir="$TF_DIR/$ENVIRONMENT"
+    tf_dir="terraform/$TF_DIR/$ENVIRONMENT"
 
     test_file="$tf_dir/env-vars.sh"
 
@@ -157,7 +157,7 @@ done
 # simplify the argument parsing dramatically.
 ENVIRONMENT_OR_TF_DIR=$1; shift
 
-if [ -d "$ENVIRONMENT_OR_TF_DIR" ]; then
+if [ -d "terraform/$ENVIRONMENT_OR_TF_DIR" ]; then
     # assume new module-style config if first arg is a directory that exists
     MODULE_STYLE=1
 
@@ -233,7 +233,7 @@ else
 fi
 
 case "$TF_DIR" in
-    terraform-dns|terraform-cloudtrail)
+    cloudtrail)
         # These configurations apply account wide, so set the environment to the
         # account ID.
         #
@@ -258,7 +258,7 @@ check_release_versioning() {
     echo >&2 "DEPLOY: Checking whether environment versioning is recommended"
 
     case "$TF_DIR" in
-        terraform-app|terraform-sms)
+        app|sms)
             # versioning enabled
             ;;
         *)
@@ -383,7 +383,7 @@ check_account_id() {
 # Use the newer, massively simpler, module style of keeping env vars in subdirs.
 load_env_module_style() {
     local env_vars_file
-    env_vars_file="$TF_DIR/$ENVIRONMENT/env-vars.sh"
+    env_vars_file="terraform/$TF_DIR/$ENVIRONMENT/env-vars.sh"
     echo >&2 "DEPLOY: Loading module-style env variables from $env_vars_file..."
     # shellcheck source=/dev/null
     . "$env_vars_file"
@@ -399,7 +399,7 @@ load_env_module_style() {
     # by terraform-switch
     check_terraform_version "${KNOWN_TF_VERSIONS[@]}" >&2
 
-    STATE="${TF_DIR_FULL}.tfstate"
+    STATE="terraform-${TF_DIR_FULL}.tfstate"
 }
 
 
@@ -435,13 +435,7 @@ load_env_devops_private_style() {
     # array should be set in the environment-specific variables.
     check_terraform_version "${ID_SUPPORTED_TERRAFORM_VERSIONS[@]}" >&2
 
-    STATE="${TF_DIR}/terraform-${TF_VAR_env_name}.tfstate"
-    case "$TF_DIR" in
-        terraform-all|terraform-cloudtrail|terraform-core|terraform-sms)
-            echo "This TF_DIR uses a common state file, not env-specific"
-            STATE=${TF_DIR}/terraform.tfstate
-            ;;
-    esac
+    STATE="terraform-${TF_DIR}/terraform-${TF_VAR_env_name}.tfstate"
 }
 
 import_remote_state_resources() {
@@ -510,10 +504,10 @@ check_account_id
 
 echo >&2 "Using state file: $STATE"
 
-echo >&2 "Ensuring ${TF_DIR_FULL} is a terraform directory"
-if [ ! -f "${TF_DIR_FULL}/main.tf" ] ; then
-    echo_red "deploy: not found: '${TF_DIR_FULL}/main.tf'"
-    echo_red "Are you sure '${TF_DIR_FULL}' is a terraform project folder?"
+echo >&2 "Ensuring terraform/${TF_DIR_FULL} is a terraform directory"
+if [ ! -f "terraform/${TF_DIR_FULL}/main.tf" ] ; then
+    echo_red "deploy: not found: 'terraform/${TF_DIR_FULL}/main.tf'"
+    echo_red "Are you sure 'terraform/${TF_DIR_FULL}' is a terraform project folder?"
     echo_red "Known examples include terraform-app, etc."
     echo_red "Did you specify your username? This script no longer takes a "
     echo_red "username argument."
@@ -545,8 +539,8 @@ echo >&2 "Configuring state bucket $TERRAFORM_STATE_BUCKET with path $STATE"
 run bin/configure_state_bucket.sh "$style_option" "$TERRAFORM_STATE_BUCKET" \
     "$STATE" "$TF_DIR_FULL" "$TERRAFORM_STATE_BUCKET_REGION" "$ID_state_lock_table"
 
-echo >&2 "+ cd $TF_DIR_FULL"
-cd "$TF_DIR_FULL"
+echo >&2 "+ cd terraform/$TF_DIR_FULL"
+cd "terraform/$TF_DIR_FULL"
 
 cat >&2 <<EOF
 ########################################
