@@ -12,6 +12,7 @@ import logging
 import re
 import subprocess
 import sys
+import os
 
 MODULE = sys.modules['__main__'].__file__
 LOG = logging.getLogger(MODULE)
@@ -60,10 +61,11 @@ def get_tags():
     return ",".join([tag.replace("tag: ", "").strip()
                      for tag in ref_names.split(",") if "tag: " in tag])
 
-def get_version_info():
+def get_version_info(repopath):
     """
     Gets all version info as a dictionary.
     """
+    os.chdir(repopath)
     return {
         "commit" : get_commit(),
         "branch" : get_branch(),
@@ -79,6 +81,7 @@ def parse_command_line(argv):
                                      formatter_class=formatter_class)
     parser.add_argument("--version", action="version",
                         version="%(prog)s {}".format(__version__))
+    parser.add_argument("--repopath", default='.', help='path to repo to get version from')
     parser.add_argument("-v", "--verbose", dest="verbose",
                         action="store_true", help="Increases log verbosity.")
     arguments = parser.parse_args(argv[1:])
@@ -91,8 +94,8 @@ def main():
     logging.basicConfig(stream=sys.stderr, level=logging.WARN,
                         format='%(name)s (%(levelname)s): %(message)s')
     try:
-        parse_command_line(sys.argv)
-        print(json.dumps(get_version_info()))
+        args = parse_command_line(sys.argv)
+        print(json.dumps(get_version_info(args.repopath)))
     except KeyboardInterrupt:
         LOG.error('Program interrupted!')
     finally:
