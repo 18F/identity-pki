@@ -1,3 +1,3 @@
 module "config" {
-  source = "../terraform-modules/config_rules/"
+  source = "../modules/config_rules/"
 }

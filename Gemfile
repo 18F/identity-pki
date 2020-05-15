@@ -23,5 +23,5 @@ gem 'terraform_landscape', '~> 0.1'
 gem 'berkshelf', '~> 7.0.8'
 gem 'chef', '~> 14.14.29'
 
-# used for terraform-modules/bootstrap templates
+# used for modules/bootstrap templates
 gem 'erubis', '~> 2'

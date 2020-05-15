@@ -240,12 +240,12 @@ data "aws_iam_policy_document" "lambda-functions" {
 # configured with the right settings, so it's worth the pain of managing it.
 #
 # The bin/configure_state_bucket.sh script should create this bucket
-# automatically as part of running ./deploy, but you can also create the bucket
+# automatically as part of running bin/tf-deploy, but you can also create the bucket
 # manually.
 #
-# Then import the existing bucket into the terraform-core terraform state using the deploy wrapper:
+# Then import the existing bucket into the core terraform state using the deploy wrapper:
 #
-#     ./deploy global <USER> terraform-core import aws_s3_bucket.tf-state login-gov.tf-state.<ACCT_ID>-<REGION>
+#     bin/tf-deploy core/<ACCOUNT> import aws_s3_bucket.tf-state login-gov.tf-state.<ACCT_ID>-<REGION>
 #
 # Under the hood this is running:
 #
@@ -293,14 +293,14 @@ resource "aws_s3_bucket_public_access_block" "tf-state" {
 # S3 bucket, so there is a major chicken/egg bootstrapping problem.
 #
 # The bin/configure_state_bucket.sh script should create this table
-# automatically as part of running ./deploy, but you can also create this table
+# automatically as part of running bin/tf-deploy, but you can also create this table
 # manually.
 #
-# Then import the existing table into the terraform-common terraform state
+# Then import the existing table into the core terraform state
 # using the deploy wrapper (with terraform_locks as the table name in this
 # example):
 #
-#     ./deploy global <USER> terraform-common import aws_dynamodb_table.tf-lock-table terraform_locks
+#     bin/tf-deploy core/<ACCOUNT> import aws_dynamodb_table.tf-lock-table terraform_locks
 #
 # Under the hood this is running:
 #

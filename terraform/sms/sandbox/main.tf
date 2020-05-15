@@ -24,7 +24,7 @@ terraform {
 module "account_pinpoint" {
   # These are provisoned per-AWS account. This module should only be used
   # in the us-west-2 environment.
-  source = "../../terraform-modules/account_pinpoint/"
+  source = "../../modules/account_pinpoint/"
 
   main_account_id = "894947205914"
 }

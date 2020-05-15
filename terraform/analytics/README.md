@@ -10,14 +10,14 @@ rest of login.gov ecosystem is by way of the s3 logs buckets prefixed: `s3://log
 From the root of `identity-devops` run:
 
 ```
-./deploy-analytics <env_name> plan
+bin/tf-deploy <env_name> analytics plan
 ```
 
 Where <env_name> is the name of an existing environment you want to attach
 analytics to.  Then to apply the changes, run:
 
 ```
-./deploy-analytics <env_name> apply
+bin/tf-deploy <env_name> analytics apply
 ```
 
 The lambda functions can be found in `s3://tf-redshift-bucket-${env}-deployments`

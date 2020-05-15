@@ -131,25 +131,25 @@ this.
         ...
 ```
 
-## `terraform-analytics` directory
+## `terraform/analytics` directory
 
 Contains the terraform configuration for the analytics stack.  See
 https://github.com/18F/identity-analytics-etl for more details.
 
 ```
-├── terraform-analytics
+├── terraform/analytics
 ```
 
-## `terraform-app` directory
+## `terraform/app` directory
 
 Contains the terraform configuration for the main login.gov environment.  See
 the [getting started guide](getting-started.md) for more details.
 
 ```
-├── terraform-app
+├── terraform/app
 ```
 
-## `terraform-cloudtrail` directory
+## `terraform/cloudtrail` directory
 
 Contains the terraform configuration for cloudtrail logging.  I have never seen
 it used.  I think it's run once per account.
@@ -157,10 +157,10 @@ it used.  I think it's run once per account.
 TODO: Better documentation for how to use this.
 
 ```
-├── terraform-cloudtrail
+├── terraform/cloudtrail
 ```
 
-## `terraform-dns` directory
+## `terraform/dns` directory
 
 Contains the terraform configuration for the base DNS setup.  I think this is
 run once per accounts and configures the main login.gov DNS zone.
@@ -168,10 +168,10 @@ run once per accounts and configures the main login.gov DNS zone.
 TODO: Better documentation for how to use this.
 
 ```
-├── terraform-dns
+├── terraform/dns
 ```
 
-## `terraform-modules` directory
+## `terraform/modules` directory
 
 Directory containing reusable terraform modules for other top level terraform
 configuration directories.  These shouldn't be run directory, instead they
@@ -179,7 +179,7 @@ should be imported as a module into other terraform configurations.  See
 https://www.terraform.io/intro/getting-started/modules.html for more details.
 
 ```
-└── terraform-modules
+└── terraform/modules
     └── version_info
         ...
 ```

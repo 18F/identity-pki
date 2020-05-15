@@ -168,7 +168,7 @@ variable "analytics_redshift_security_group_id" {
 }
 
 variable "analytics_lambda_arn_for_s3_notify" {
-  description = "The ARN of the analytics lambda that should be notified when new files are uploaded to the logstash S3 logs bucket. If empty, no lambda will be notified. This should be the same as aws_lambda_function.analytics_lambda.arn in the terraform-analytics directory."
+  description = "The ARN of the analytics lambda that should be notified when new files are uploaded to the logstash S3 logs bucket. If empty, no lambda will be notified. This should be the same as aws_lambda_function.analytics_lambda.arn in the terraform/analytics directory."
   default     = ""
 }
 

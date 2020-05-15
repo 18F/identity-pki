@@ -29,8 +29,8 @@ Then this script may be what you need.
 +-----------------------------------------------------------------------------+
 
 This script must be run with a current working directory that has a .terraform/
-directory under it. So if you are running ./deploy ... terraform-app, then you
-would \`cd terraform-app\` before starting this script.
+directory under it. So if you are running bin/tf-deploy ... app, then you
+would \`cd terraform/app\` before starting this script.
 
 EOM
 }
