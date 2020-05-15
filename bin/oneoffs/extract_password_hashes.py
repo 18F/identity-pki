@@ -10,4 +10,4 @@ for user_databag in user_databags:
     if databag["id"] == "deploy":
         continue
     users[databag["id"]] = databag["password"]
-print json.dumps(users)
+print(json.dumps(users))
