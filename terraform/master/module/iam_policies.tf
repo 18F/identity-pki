@@ -340,22 +340,62 @@ data "aws_iam_policy_document" "production_analytics_assume_full_administrator" 
 }
 
 # secops
-resource "aws_iam_policy" "secops_assume_full_administrator" {
-  name        = "SecOpsAssumeFullAdministrator"
+resource "aws_iam_policy" "prod_secops_assume_full_administrator" {
+  name        = "ProdSecOpsAssumeFullAdministrator"
   path        = "/"
-  description = "Policy to allow user to assume full administrator role in SecOps account"
-  policy      = data.aws_iam_policy_document.secops_assume_full_administrator.json
+  description = "Policy to allow user to assume full administrator role in Prod SecOps account"
+  policy      = data.aws_iam_policy_document.prod_secops_assume_full_administrator.json
 }
 
-data "aws_iam_policy_document" "secops_assume_full_administrator" {
+data "aws_iam_policy_document" "prod_secops_assume_full_administrator" {
   statement {
-    sid    = "SecOpsAssumeFullAdministrator"
+    sid    = "ProdSecOpsAssumeFullAdministrator"
     effect = "Allow"
     actions = [
       "sts:AssumeRole",
     ]
     resources = [
-      "arn:aws:iam::${var.secops_account_id}:role/FullAdministrator",
+      "arn:aws:iam::${var.prod_secops_account_id}:role/FullAdministrator",
+    ]
+  }
+}
+
+resource "aws_iam_policy" "dev_secops_assume_full_administrator" {
+  name        = "DevSecOpsAssumeFullAdministrator"
+  path        = "/"
+  description = "Policy to allow user to assume full administrator role in Dev SecOps account"
+  policy      = data.aws_iam_policy_document.dev_secops_assume_full_administrator.json
+}
+
+data "aws_iam_policy_document" "dev_secops_assume_full_administrator" {
+  statement {
+    sid    = "DevSecOpsAssumeFullAdministrator"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole",
+    ]
+    resources = [
+      "arn:aws:iam::${var.prod_secops_account_id}:role/FullAdministrator",
+    ]
+  }
+}
+
+resource "aws_iam_policy" "interviews_assume_full_administrator" {
+  name        = "InterviewsAssumeFullAdministrator"
+  path        = "/"
+  description = "Policy to allow user to assume full administrator role in identity-interviews account"
+  policy      = data.aws_iam_policy_document.interviews_assume_full_administrator.json
+}
+
+data "aws_iam_policy_document" "interviews_assume_full_administrator" {
+  statement {
+    sid    = "InterviewsAssumeFullAdministrator"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole",
+    ]
+    resources = [
+      "arn:aws:iam::${var.prod_secops_account_id}:role/FullAdministrator",
     ]
   }
 }

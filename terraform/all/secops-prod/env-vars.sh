@@ -7,7 +7,7 @@
 # information that is already present in the main.tf. Ideally we would find
 # some way to share instead.
 
-aws_account_id="034795980528"
+aws_account_id="217680906704"
 
 # Bucket where terraform state is stored
 TERRAFORM_STATE_BUCKET_REGION="us-west-2"
@@ -18,5 +18,5 @@ ID_state_lock_table=terraform_locks
 
 # default AWS credentials profile for this account
 if [ -z "${AWS_PROFILE-}${AWS_ACCESS_KEY_ID-}" ]; then
-    export AWS_PROFILE="secops"
+    export AWS_PROFILE="login-secops-prod"
 fi
