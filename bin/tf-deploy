@@ -596,8 +596,7 @@ main_branch=$(git rev-parse --abbrev-ref HEAD)
 main_version=$(cat VERSION.txt)
 EOM
 
-#### TODO: add support for pinpoint/master/etc. via secrets bucket ####
-if [[ "${TF_CMD[0]}" =~ ^(apply|destroy)$ ]] && [[ "${TF_DIR}" =~ ^(app|core)$ ]]; then
+if [[ "${TF_CMD[0]}" =~ ^(apply|destroy)$ ]] ; then
 
     if [ -n "$MODULE_STYLE" ] ; then
         TF_DEPLOY_INFO=$(echo "${TF_VERSION_INFO}" | sed '$!s/$/\\n/' | tr -d '\n')
