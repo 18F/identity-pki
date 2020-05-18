@@ -155,7 +155,7 @@ locals {
 
 module "main_secrets_bucket" {
   source              = "../../modules/secrets_bucket"
-  logs_bucket         = var.s3_log_bucket
+  logs_bucket         = local.s3_log_bucket
   secrets_bucket_type = "secrets"
   bucket_name_prefix  = "login-gov"
 }
