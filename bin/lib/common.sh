@@ -55,12 +55,10 @@ slack_notify () {
         esac
     done
     
-    #### TODO: add support for pinpoint/master/etc. via secrets bucket ####
-    [ $TF_ENV == 'sandbox' ] && TF_ENV='int'
     local BUCKET="s3://login-gov.secrets.${AWS_ACCT_NUM}-${AWS_REGION}/${TF_ENV}"
     
-    SLACK_CHANNEL=$(aws s3 cp "${BUCKET}/slackchannel" -) || ((KEYS++))
-    SLACK_WEBHOOK=$(aws s3 cp "${BUCKET}/slackwebhook" -) || ((KEYS++))
+    SLACK_CHANNEL=$(aws s3 cp "${BUCKET}/tfslackchannel" -) || ((KEYS++))
+    SLACK_WEBHOOK=$(aws s3 cp "${BUCKET}/tfslackwebhook" -) || ((KEYS++))
     if [[ "${KEYS}" -gt 0 ]]; then
         echo 'Slack channel/webhook missing from S3 bucket!'
         return 1
