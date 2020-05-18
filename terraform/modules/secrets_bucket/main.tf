@@ -44,3 +44,15 @@ resource "aws_s3_bucket_public_access_block" "secrets" {
   restrict_public_buckets = true
 }
 
+# add default Slack keys
+resource "aws_s3_bucket_object" "slack_channel" {
+  bucket = aws_s3_bucket.secrets.id
+  key    = "slackchannel"
+  content = var.slack_channel
+}
+
+resource "aws_s3_bucket_object" "slack_webhook" {
+  bucket = aws_s3_bucket.secrets.id
+  key    = "slackwebhook"
+  content = var.slack_webhook
+}
