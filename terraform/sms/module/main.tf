@@ -21,6 +21,7 @@ module "main_secrets_bucket" {
   logs_bucket         = local.s3_log_bucket
   secrets_bucket_type = "secrets"
   bucket_name_prefix  = "login-gov"
+  region              = var.region
 }
 
 output "main_secrets_bucket" {
