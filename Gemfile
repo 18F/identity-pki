@@ -3,9 +3,9 @@ git_source(:github) { |repo_name| "https://github.com/#{repo_name}.git" }
 
 ruby '~> 2.6.5'
 
-gem 'rails', '~> 5.2', '>= 5.2.4.2'
+gem 'rails', '~> 5.2', '>= 5.2.4.3'
 
-gem 'activerecord-import'
+gem 'activerecord-import', '>= 1.0.2'
 gem 'aws-sdk', require: false
 gem 'bloomfilter-rb'
 gem 'figaro'
@@ -19,9 +19,9 @@ gem 'puma', '~> 3.12'
 gem 'rgl'
 
 group :development, :test do
-  gem 'bullet'
+  gem 'bullet', '>= 6.0.2'
   gem 'pry-byebug'
-  gem 'rspec-rails', '>= 3.8.2'
+  gem 'rspec-rails', '>= 3.8.3'
   gem 'thin'
 end
 
@@ -35,7 +35,7 @@ group :development do
   gem 'guard-rspec', require: false
   gem 'overcommit', require: false
   gem 'rack-mini-profiler', require: false
-  gem 'rails-erd'
+  gem 'rails-erd', '>= 1.6.0'
   gem 'reek'
   gem 'rubocop', require: false
   gem 'rubocop-rails', require: false
@@ -45,10 +45,10 @@ group :test do
   gem 'axe-matchers', '~> 1.3.4'
   gem 'codeclimate-test-reporter', '>= 1.0.9', require: false
   gem 'database_cleaner'
-  gem 'factory_bot_rails', '>= 5.0.2'
+  gem 'factory_bot_rails', '>= 5.1.1'
   gem 'fakefs', require: 'fakefs/safe'
   gem 'rails-controller-testing', '>= 1.0.4'
-  gem 'shoulda-matchers', '~> 3.0', require: false
+  gem 'shoulda-matchers', '~> 3.1', '>= 3.1.3', require: false
   gem 'simplecov', '>= 0.13.0'
   gem 'timecop'
   gem 'webmock'
