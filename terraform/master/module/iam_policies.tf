@@ -375,7 +375,7 @@ data "aws_iam_policy_document" "dev_secops_assume_full_administrator" {
       "sts:AssumeRole",
     ]
     resources = [
-      "arn:aws:iam::${var.prod_secops_account_id}:role/FullAdministrator",
+      "arn:aws:iam::${var.dev_secops_account_id}:role/FullAdministrator",
     ]
   }
 }
@@ -395,7 +395,7 @@ data "aws_iam_policy_document" "interviews_assume_full_administrator" {
       "sts:AssumeRole",
     ]
     resources = [
-      "arn:aws:iam::${var.prod_secops_account_id}:role/FullAdministrator",
+      "arn:aws:iam::${var.interviews_account_id}:role/FullAdministrator",
     ]
   }
 }
