@@ -208,6 +208,7 @@ TBD
  
 EOF
   [[ $# == 0 ]] && badopt
+  local CL_TABLE EC2_TYPE
   env_get ${2}
   while getopts el:c:r:s: opt
   do
@@ -228,7 +229,7 @@ EOF
       l) CL_TABLE=$(run_av ls-servers -Hlqn asg-${EC2_ENV}-${EC2_TYPE}) ;;
       c) run_av scale-in-old-instances -q ${EC2_ENV} ${EC2_TYPE}        ;;
       r) run_av asg-recycle -q ${EC2_ENV} ${EC2_TYPE}                   ;;
-      s) run asg-size -q ${EC2_ENV} ${EC2_TYPE} ${3-}                   ;;
+      s) run_av asg-size -q ${EC2_ENV} ${EC2_TYPE} ${3-}                ;;
       *) badopt ${opt}                                                  ;;
     esac
   done
@@ -246,6 +247,7 @@ TBD
 
 EOF
   [[ $# == 0 ]] && badopt
+  local ES_CMD
   env_get ${2}
   while getopts sdcu opt ; do
     case "${opt}" in
