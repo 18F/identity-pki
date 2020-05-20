@@ -341,7 +341,7 @@ KNOWN_TF_VERSIONS=(
   "v0.10.8"
   "v0.11.14"
   "v0.12.19"
-  "v0.12.23"
+  "v0.12.24"
 )
 
 # usage: check_terraform_version SUPPORTED_VERSION...
