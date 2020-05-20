@@ -360,17 +360,20 @@ check_terraform_version() {
         return 2
     fi
 
+    tf_style="${1}"
+    shift 1
+
     for version in "$@"; do
         # version is expected to be a pattern
         # shellcheck disable=SC2053
         if [[ $current_tf_version == $version ]]; then
-            echo "Terraform version $current_tf_version is supported"
+            echo "Terraform version $current_tf_version is supported (via $tf_style var)"
             return
         fi
     done
 
     echo_red >&2 "Terraform version $current_tf_version is not supported"
-    echo_red >&2 "Expected versions: $*"
+    echo_red >&2 "Expected versions: $* (via $tf_style var)"
 
     echo >&2 "Try using \`bin/terraform-switch.sh\` to install / switch"
     echo >&2 "to a target installed version of terraform with homebrew."
