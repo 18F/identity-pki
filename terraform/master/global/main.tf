@@ -22,13 +22,13 @@ module "main" {
   source = "../module"
 
   region                          = "us-west-2"
-  sandbox_account_id              = "894947205914"
-  production_account_id           = "555546682965"
-  sandbox_sms_account_id          = "035466892286"
-  production_sms_account_id       = "472911866628"
-  production_analytics_account_id = "461353137281"
-  prod_secops_account_id          = "217680906704"
-  dev_secops_account_id           = "138431511372"
-  interviews_account_id           = "034795980528"
+  #sandbox_account_id              = "894947205914"
+  #production_account_id           = "555546682965"
+  #sandbox_sms_account_id          = "035466892286"
+  #production_sms_account_id       = "472911866628"
+  #production_analytics_account_id = "461353137281"
+  #prod_secops_account_id          = "217680906704"
+  #dev_secops_account_id           = "138431511372"
+  #interviews_account_id           = "034795980528"
 }
 

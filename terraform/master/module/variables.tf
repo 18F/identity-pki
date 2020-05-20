@@ -1,45 +1,34 @@
 variable "region" {
 }
 
-variable "sandbox_account_id" {
-  description = "Sandbox AWS Account ID"
+variable "prod_aws_account_nums" {
+  default = [
+    "555546682965", # login-prod
+    "472911866628", # login-sms-prod
+    "461353137281", # login-analytics-prod
+    "217680906704", # login-secops-prod
+  ]
 }
 
-variable "production_account_id" {
-  description = "Production AWS Account ID"
+variable "nonprod_aws_account_nums" {
+  default = [
+    "894947205914", # login-sandbox
+    "035466892286", # login-sms-sandbox
+    "138431511372", # login-secops-dev
+    "034795980528", # login-interviews
+  ]
 }
 
-variable "sandbox_sms_account_id" {
-  description = "Sandbox Pinpoint AWS Account ID"
-}
-
-variable "production_sms_account_id" {
-  description = "Production Pinpoint AWS Account ID"
-}
-
-variable "production_analytics_account_id" {
-  default     = ""
-  description = "Production Analytics AWS Account ID"
-}
-
-variable "sandbox_analytics_account_id" {
-  default     = ""
-  description = "Sandbox Analytics AWS Account ID"
-}
-
-variable "prod_secops_account_id" {
-  default     = ""
-  description = "Login.gov SecOps-Prod AWS Account ID"
-}
-
-variable "dev_secops_account_id" {
-  default     = ""
-  description = "Login.gov SecOps-Dev AWS Account ID"
-}
-
-variable "interviews_account_id" {
-  default     = ""
-  description = "identity-interviews AWS Account ID"
+variable "role_types" {
+  default = [
+    "FullAdministrator",
+    "PowerUser",
+    "ReadOnly",
+    "BillingReadOnly",
+    "ReportsReadOnly",
+    "KMSAdministrator",
+    "SOCAdministrator",
+  ]
 }
 
 variable "auditor_accounts" {
