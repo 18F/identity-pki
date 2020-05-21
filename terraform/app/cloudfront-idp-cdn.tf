@@ -17,14 +17,11 @@ resource "aws_cloudfront_distribution" "idp_static_cdn" {
   ]
 
   origin {
-    custom_origin_config {
-      http_port              = 80
-      https_port             = 443
-      origin_protocol_policy = "http-only" # HTTP from CloudFront to public S3
-      origin_ssl_protocols   = ["TLSv1.2"]
-    }
-    domain_name = aws_s3_bucket.idp_static_bucket[0].website_endpoint
+    domain_name = aws_s3_bucket.idp_static_bucket[0].bucket_regional_domain_name
     origin_id   = "static-idp-${var.env_name}"
+    s3_origin_config {
+      origin_access_identity = aws_cloudfront_origin_access_identity.cloudfront_oai.cloudfront_access_identity_path
+    }
   }
 
   enabled         = true

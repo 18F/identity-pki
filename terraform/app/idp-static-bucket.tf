@@ -4,7 +4,6 @@ resource "aws_s3_bucket" "idp_static_bucket" {
   count = var.enable_idp_static_bucket ? 1 : 0
 
   bucket = "login-gov-idp-static-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
-  acl    = "public-read"
 
   force_destroy = var.force_destroy_idp_static_bucket
 
@@ -68,15 +67,26 @@ data "aws_iam_policy_document" "idp_static_bucket_policy" {
     ]
   }
 
-  # Public read access
+  # Cloudfront access
   statement {
     actions = ["s3:GetObject"]
     principals {
       type        = "AWS"
-      identifiers = ["*"]
+      identifiers = [aws_cloudfront_origin_access_identity.cloudfront_oai.iam_arn]
     }
     resources = [
       "arn:aws:s3:::login-gov-idp-static-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}/*"
+    ]
+  }
+
+  statement {
+    actions = ["s3:ListBucket"]
+    principals {
+      type        = "AWS"
+      identifiers = [aws_cloudfront_origin_access_identity.cloudfront_oai.iam_arn]
+    }
+    resources = [
+      "arn:aws:s3:::login-gov-idp-static-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
     ]
   }
 }
