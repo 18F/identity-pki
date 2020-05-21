@@ -397,7 +397,7 @@ load_env_module_style() {
 
     # verify that current_tf_version is within versions supported
     # by terraform-switch
-    check_terraform_version "${KNOWN_TF_VERSIONS[@]}" >&2
+    check_terraform_version 'KNOWN_TF_VERSIONS' "${KNOWN_TF_VERSIONS[@]}" >&2
 
     STATE="terraform-${TF_DIR_FULL}.tfstate"
 }
@@ -433,7 +433,13 @@ load_env_devops_private_style() {
 
     # Check that current version of terraform is supported by our environment. This
     # array should be set in the environment-specific variables.
-    check_terraform_version "${ID_SUPPORTED_TERRAFORM_VERSIONS[@]}" >&2
+    check_terraform_version 'ID_SUPPORTED_TERRAFORM_VERSIONS' "${ID_SUPPORTED_TERRAFORM_VERSIONS[@]}" >&2
+
+    # ALSO verify that current_tf_version is within versions supported
+    # by terraform-switch, to prevent forcing version ratcheting due to
+    # modified state snapshots
+    check_terraform_version 'KNOWN_TF_VERSIONS' "${KNOWN_TF_VERSIONS[@]}" >&2
+
 
     STATE="terraform-${TF_DIR}/terraform-${TF_VAR_env_name}.tfstate"
 }
