@@ -49,6 +49,11 @@ variable "developers_cloudfront_name" {
   default     = "todo.cloudfront.net"
 }
 
+variable "acme_partners_cloudfront_name" {
+  description = "Partners site Cloudfront DNS name, e.g. abcd.cloudfront.net"
+  default     = "todo.cloudfront.net"
+}
+
 variable "google_site_verification_txt" {
   description = "Google site verification text to put in TXT record"
   default     = ""
