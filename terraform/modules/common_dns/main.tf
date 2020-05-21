@@ -14,6 +14,10 @@ variable "developers_cloudfront_name" {
   description = "Developers site Cloudfront DNS name, e.g. abcd.cloudfront.net"
 }
 
+variable "acme_partners_cloudfront_name" {
+  description = "Partners site Cloudfront DNS name, e.g. abcd.cloudfront.net"
+}
+
 variable "cloudfront_zone_id" {
   description = "Static site Cloudfront Zone ID, e.g. ZABCDEFG1234"
   default     = "Z2FDTNDATAQYW2" # Zone ID for all cloudfront sites?
@@ -99,6 +103,17 @@ resource "aws_route53_record" "a_developers" {
   alias {
     evaluate_target_health = false
     name                   = var.developers_cloudfront_name
+    zone_id                = var.cloudfront_zone_id
+  }
+}
+
+resource "aws_route53_record" "acme_partners" {
+  name    = "partners.${var.domain}"
+  type    = "A"
+  zone_id = aws_route53_zone.primary.zone_id
+  alias {
+    evaluate_target_health = false
+    name                   = var.acme_partners_cloudfront_name
     zone_id                = var.cloudfront_zone_id
   }
 }
@@ -197,6 +212,15 @@ resource "aws_route53_record" "acme_challenge_www" {
   ttl     = "120"
   type    = "TXT"
   records = ["L1XfURLRizB_sP022sBOoQGaulRl34R9B3xEZxTTFfs"]
+}
+
+resource "aws_route53_record" "acme_partners_txt" {
+  count   = var.domain == "login.gov" ? 1 : 0
+  name    = "_acme-challenge.partners.${var.domain}"
+  zone_id = aws_route53_zone.primary.zone_id
+  ttl     = "120"
+  type    = "TXT"
+  records = ["l0DvBtdqJcAcfwmje4YpBglqymSl5xVFseBiMiZf3hE"]
 }
 
 resource "aws_route53_record" "hubspot_cname1" {

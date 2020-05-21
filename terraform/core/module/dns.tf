@@ -1,11 +1,12 @@
 module "common_dns" {
   source = "../../modules/common_dns/"
 
-  domain                       = var.root_domain
-  static_cloudfront_name       = var.static_cloudfront_name
-  design_cloudfront_name       = var.design_cloudfront_name
-  developers_cloudfront_name   = var.developers_cloudfront_name
-  google_site_verification_txt = var.google_site_verification_txt
+  domain                        = var.root_domain
+  static_cloudfront_name        = var.static_cloudfront_name
+  design_cloudfront_name        = var.design_cloudfront_name
+  developers_cloudfront_name    = var.developers_cloudfront_name
+  acme_partners_cloudfront_name = var.acme_partners_cloudfront_name
+  google_site_verification_txt  = var.google_site_verification_txt
 
   mx_provider = var.mx_provider
 }
