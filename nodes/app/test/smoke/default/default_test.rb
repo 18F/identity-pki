@@ -64,3 +64,8 @@ describe file('/opt/nginx/conf/sites.d/dashboard.login.gov.conf') do
   its('content') { should include("server_name  saml-sinatra.ci.identitysandbox.gov ;") }
   its('content') { should include("return       302  https://ci-identity-saml-sinatra.app.cloud.gov$request_uri;") }
 end
+
+describe service('metricbeat') do
+  it { should be_installed }
+  it { should be_enabled }
+end

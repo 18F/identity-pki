@@ -72,6 +72,9 @@ describe file('/etc/environment') do
   its('content') { should include("http_proxy='http://obproxy.login.gov.internal:3128'") }
 end
 
+#
+# Filebeat tests
+#
 describe service('filebeat') do
   it { should be_installed }
   it { should be_enabled }
@@ -114,4 +117,9 @@ describe file('/var/log/filebeat/filebeat') do
   its('content') { should include '/var/log/sysctlfix.log' }
   its('content') { should include '/var/log/syslog' }
   its('content') { should include '/var/log/unattended-upgrades/unattended-upgrades-shutdown.log' }
+end
+
+describe service('metricbeat') do
+  it { should be_installed }
+  it { should be_enabled }
 end

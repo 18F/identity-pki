@@ -153,3 +153,8 @@ describe file('/var/log/filebeat/filebeat') do
   its('content') { should include '/var/log/elasticsearch/elasticsearch_index_indexing_slowlog.log' }
   its('content') { should include '/var/log/elasticsearch/elasticsearch_index_search_slowlog.log' }
 end
+
+describe service('metricbeat') do
+  it { should be_installed }
+  it { should be_enabled }
+end
