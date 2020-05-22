@@ -1,12 +1,6 @@
 module "devops_group" {
-  source = "github.com/18F/identity-terraform//iam_assumegroup?ref=7216bbba9a74eee84adf2dabae51a3d8c0d165d5"
-  #source = "../../../../identity-terraform/iam_assumegroup"
-  
-  module_depends_on = [
-    module.assume_roles_prod.role_arns,
-    module.assume_roles_nonprod.role_arns,
-    module.assume_roles_master.role_arns,
-  ]
+  #source = "github.com/18F/identity-terraform//iam_assumegroup?ref=7216bbba9a74eee84adf2dabae51a3d8c0d165d5"
+  source = "../../../../identity-terraform/iam_assumegroup"
 
   group_name = "login-devops"
   group_members = [
@@ -21,9 +15,10 @@ module "devops_group" {
     aws_iam_user.steven_harms.name,
     aws_iam_user.timothy_spencer.name,
   ]
-  assume_role_policy_arns = [
-    lookup(module.assume_roles_prod.role_arns, "FullAdministrator", ""),
-    lookup(module.assume_roles_nonprod.role_arns, "FullAdministrator", ""),
-    lookup(module.assume_roles_master.role_arns, "FullAdministrator", ""),
+  iam_group_roles = [
+    { role_name = "FullAdministrator", account_types = ["Prod", "Sandbox", "Master"] },
+    { role_name = "ReadOnly", account_types = ["Prod", "Sandbox"] },
+    { role_name = "KMSAdmin", account_types = ["Sandbox"] }
   ]
+  master_account_id = var.master_account_id
 }

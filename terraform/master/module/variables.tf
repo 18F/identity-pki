@@ -1,6 +1,10 @@
 variable "region" {
 }
 
+variable "master_account_id" {
+  default = "340731855345"
+}
+
 variable "prod_aws_account_nums" {
   default = [
     "555546682965", # login-prod
@@ -19,7 +23,7 @@ variable "nonprod_aws_account_nums" {
   ]
 }
 
-variable "role_types" {
+variable "role_list" {
   default = [
     "FullAdministrator",
     "PowerUser",
