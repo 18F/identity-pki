@@ -1,8 +1,6 @@
-# TODO: change to iterative for_each design once https://github.com/hashicorp/terraform/issues/17519 is fixed
-
 module "assume_roles_prod" {
-  #source = "github.com/18F/identity-terraform//iam_masterassume?ref=7216bbba9a74eee84adf2dabae51a3d8c0d165d5"
-  source = "../../../../identity-terraform/iam_masterassume"
+  source = "github.com/18F/identity-terraform//iam_masterassume?ref=a0d2bcad86903c534eedbae87c4bfefb4f457f9c"
+  #source = "../../../../identity-terraform/iam_masterassume"
 
   role_list = var.role_list
   account_type = "Prod"
@@ -10,8 +8,8 @@ module "assume_roles_prod" {
 }
 
 module "assume_roles_nonprod" {
-  #source = "github.com/18F/identity-terraform//iam_masterassume?ref=7216bbba9a74eee84adf2dabae51a3d8c0d165d5"
-  source = "../../../../identity-terraform/iam_masterassume"
+  source = "github.com/18F/identity-terraform//iam_masterassume?ref=a0d2bcad86903c534eedbae87c4bfefb4f457f9c"
+  #source = "../../../../identity-terraform/iam_masterassume"
 
   role_list = var.role_list
   account_type = "Sandbox"
@@ -19,10 +17,10 @@ module "assume_roles_nonprod" {
 }
 
 module "assume_roles_master" {
-  #source = "github.com/18F/identity-terraform//iam_masterassume?ref=7216bbba9a74eee84adf2dabae51a3d8c0d165d5"
-  source = "../../../../identity-terraform/iam_masterassume"
+  source = "github.com/18F/identity-terraform//iam_masterassume?ref=a0d2bcad86903c534eedbae87c4bfefb4f457f9c"
+  #source = "../../../../identity-terraform/iam_masterassume"
 
   role_list = var.role_list
   account_type = "Master"
-  account_numbers = ["340731855345"]
+  account_numbers = [var.master_account_id]
 }

@@ -1,10 +1,9 @@
 # AWS provider is inherited from per-env main.tf rather than defined here, due
 # to https://github.com/hashicorp/terraform/issues/13018
 
-provider "null" { version = "~> 2.1.2" }
-
 locals {
   password_length = 32
+  s3_log_bucket   = module.tf-state.s3_log_bucket
 }
 
 data "aws_caller_identity" "current" {
@@ -149,10 +148,6 @@ resource "aws_cloudtrail" "cloudtrail" {
 module "tf-state" {
   source = "github.com/18F/identity-terraform//state_bucket?ref=d111d1df1e47671313430b6f1492735ae45767bf"
   region = var.region
-}
-
-locals {
-  s3_log_bucket = module.tf-state.s3_log_bucket
 }
 
 module "main_secrets_bucket" {
