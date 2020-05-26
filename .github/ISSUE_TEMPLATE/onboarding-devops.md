@@ -17,7 +17,6 @@ _Also, be sure to only copy the sections of this template that are needed for th
     * [ ] make sure your account is set up [like this](https://handbook.18f.gov/slack/).
     * [ ] make sure to join `#login`, the main announcement channel for our team
 * [ ] Make sure your GitHub account is set up [like this](https://handbook.18f.gov/github/#setup).
-  * [ ] Next, ask in `#identity-devops` for a GitHub Admin to [add you to the 18F org](https://github.com/orgs/18F)
 * [ ] Add the following email address to your Google Calendar to see the Login Services Shared Events calendar: gsa.gov_6ovul6pcsmgd40o8pqn7qmge5g@group.calendar.google.com
 * [ ] Add yourself to the [`team.yml`](https://github.com/18F/identity-private/blob/master/team/team.yml) file
 * [ ] Request access to relevant Google Groups:
@@ -39,7 +38,7 @@ _Also, be sure to only copy the sections of this template that are needed for th
 ## Tasks for onboarding buddy
 
 * [ ] Give intro to weekly ceremonies and team workflow
-* [ ] Make sure they have already been invited to [the 18F org on GitHub](https://github.com/orgs/18F) and accepted the invitation.
+* [ ] Request that the new user to be invited to [the 18F org on GitHub](https://github.com/orgs/18F) in #admins-github on Slack.
   * [ ] *For members needing **push commit** access*: Add to the [identity-core](https://github.com/orgs/18F/teams/identity-core/members) team (contact [team maintainers](https://github.com/orgs/18F/teams/identity-core/members?utf8=%E2%9C%93&query=%20role%3Amaintainer) for this)
   * [ ] *For members NOT needing **push** access*: Add to the [identity-team-yml](https://github.com/orgs/18F/teams/identity-team-yml/members) team, which grants read-only access. (contact [team maintainers](https://github.com/orgs/18F/teams/identity-team-yml/members?utf8=%E2%9C%93&query=+role%3Amaintainer) for this)
 * [ ] Request Slack access for them in the `#admins-slack` channel and fill out this form: https://goo.gl/forms/4Mz21nvALvITj9Os1.
