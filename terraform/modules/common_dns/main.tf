@@ -108,6 +108,7 @@ resource "aws_route53_record" "a_developers" {
 }
 
 resource "aws_route53_record" "acme_partners" {
+  count   = var.domain == "login.gov" ? 1 : 0
   name    = "partners.${var.domain}"
   type    = "A"
   zone_id = aws_route53_zone.primary.zone_id
@@ -162,11 +163,12 @@ resource "aws_route53_record" "txt_dmarc_authorization_connect_gov" {
 
 # This record is only used for the prod login.gov G Suite DKIM signing.
 resource "aws_route53_record" "google_dkim_txt" {
-    name = "google._domainkey.${var.domain}"
-    records = ["v=DKIM1; k=rsa; p=v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkcuOOdgaWfHIKM1ILlzPOHBPJKLxU9+1+ufIprNdjrD+QQ6/uJtc/tP5s1MUwYU/fld2Y1QwXC5JHdE6JXP31XwCtvbfIwn/Dr/EaRB3PomOp0SNbTtFMmvuxPF87HidvzDH3cWXcmyjMx6XU1i9O3nBs66Z+8i4gfh/PZdjJs6wcNp9urJjCo23KYzbiNAn\"\"7FJjbD4g3NucMvkBXHIsOMLvb7WzIekpxL2bjz6XlDfK1t4VTLv4IqIlLMfhYGwwaWPhgyra7qezYkp6a2XSoLWxPWRbfb1bNmVUJ7vBeB6NdFnr9n/7TqbhDVEo9/XyO1MIsuNTTZuhurlZqoXx0QIDAQAB"]
-    ttl = "900"
-    type = "TXT"
-    zone_id = "${aws_route53_zone.primary.zone_id}"
+  count   = var.domain == "login.gov" ? 1 : 0
+  name = "google._domainkey.${var.domain}"
+  records = ["v=DKIM1; k=rsa; p=v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkcuOOdgaWfHIKM1ILlzPOHBPJKLxU9+1+ufIprNdjrD+QQ6/uJtc/tP5s1MUwYU/fld2Y1QwXC5JHdE6JXP31XwCtvbfIwn/Dr/EaRB3PomOp0SNbTtFMmvuxPF87HidvzDH3cWXcmyjMx6XU1i9O3nBs66Z+8i4gfh/PZdjJs6wcNp9urJjCo23KYzbiNAn\"\"7FJjbD4g3NucMvkBXHIsOMLvb7WzIekpxL2bjz6XlDfK1t4VTLv4IqIlLMfhYGwwaWPhgyra7qezYkp6a2XSoLWxPWRbfb1bNmVUJ7vBeB6NdFnr9n/7TqbhDVEo9/XyO1MIsuNTTZuhurlZqoXx0QIDAQAB"]
+  ttl = "900"
+  type = "TXT"
+  zone_id = aws_route53_zone.primary.zone_id
 }
 
 resource "aws_route53_record" "mail_in_txt" {
@@ -264,6 +266,7 @@ resource "aws_route53_record" "hubspot_txt" {
 }
 
 resource "aws_route53_record" "out_mail_49_a" {
+  count   = var.domain == "login.gov" ? 1 : 0
   name    = "out-49.mail.${var.domain}"
   zone_id = aws_route53_zone.primary.zone_id
   type    = "A"
@@ -272,6 +275,7 @@ resource "aws_route53_record" "out_mail_49_a" {
 }
 
 resource "aws_route53_record" "out_mail_50_a" {
+  count   = var.domain == "login.gov" ? 1 : 0
   name    = "out-50.mail.${var.domain}"
   zone_id = aws_route53_zone.primary.zone_id
   type    = "A"
@@ -280,6 +284,7 @@ resource "aws_route53_record" "out_mail_50_a" {
 }
 
 resource "aws_route53_record" "test_dev_login_a" {
+  count   = var.domain == "login.gov" ? 1 : 0
   name    = "test.dev.${var.domain}"
   zone_id = aws_route53_zone.primary.zone_id
   type    = "A"
