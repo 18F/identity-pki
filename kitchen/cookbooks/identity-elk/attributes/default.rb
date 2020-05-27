@@ -11,6 +11,7 @@ default['es']['sg_tls'] = '1.7.tar.gz'
 default['es']['sg_tls_sum'] = '284492779edf037348375994a0f320cc1425bda149d56c3db0031014241e7110'
 
 default['filebeat']['version'] = '7.4.2'
+default['metricbeat']['version'] = '7.4.2'
 
 # logfiles to watch
 default['filebeat']['logfiles'] = [

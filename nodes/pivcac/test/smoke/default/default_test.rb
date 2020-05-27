@@ -116,3 +116,8 @@ describe file('/var/log/filebeat/filebeat') do
   its('content') { should include '/srv/pki-rails/shared/log/production.log' }
   its('content') { should include '/srv/pki-rails/shared/log/newrelic_agent.log' }
 end
+
+describe service('metricbeat') do
+  it { should be_installed }
+  it { should be_enabled }
+end

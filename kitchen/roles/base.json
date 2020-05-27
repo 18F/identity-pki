@@ -45,10 +45,10 @@
     "recipe[sudo]",
     "recipe[identity-elk::logcleanup]",
     "recipe[identity-elk::filebeat]",
+    "recipe[identity-elk::metricbeat]",
     "recipe[login_dot_gov::resolve]",
     "recipe[identity_base_config::ruby]",
     "recipe[identity-monitoring]"
   ],
-  "env_run_lists": {
-  }
+  "env_run_lists": {}
 }

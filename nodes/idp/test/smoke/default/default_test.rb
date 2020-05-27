@@ -230,3 +230,8 @@ describe file('/opt/nginx/conf/sites.d/idp_web.conf') do
   its('content') { should include("server_name  ci.identitysandbox.gov ;") }
   its('content') { should include("return       302  https://idp.ci.identitysandbox.gov$request_uri;") }
 end
+
+describe service('metricbeat') do
+  it { should be_installed }
+  it { should be_enabled }
+end

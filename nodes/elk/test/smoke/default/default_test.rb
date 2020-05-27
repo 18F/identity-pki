@@ -93,6 +93,9 @@ LOGSTASH_CONFIG_DIRECTORIES.each do |config_dir|
   end
 end
 
+#
+# Filebeat tests
+#
 describe service('filebeat') do
   it { should be_installed }
   it { should be_enabled }
@@ -154,4 +157,9 @@ describe file('/var/log/filebeat/filebeat') do
 #  its('content') { should include '/var/log/logstash/logstash-plain.log' }
 # TODO: add once we have a test to introduce a slowlog event.
 #  its('content') { should include '/var/log/logstash/logstash-slowlog-plain.log' }
+end
+
+describe service('metricbeat') do
+  it { should be_installed }
+  it { should be_enabled }
 end
