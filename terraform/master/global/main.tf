@@ -17,7 +17,7 @@ module "main" {
 
   region            = "us-west-2"
   master_account_id = "340731855345"
-  
+
   aws_account_types = {
     "Master" = [
       "340731855345", # login-master
@@ -35,8 +35,8 @@ module "main" {
       "034795980528", # login-interviews
     ],
   }
-    
-  role_list                = [
+
+  role_list = [
     "FullAdministrator",
     "PowerUser",
     "ReadOnly",
@@ -46,9 +46,35 @@ module "main" {
     "SOCAdministrator",
   ]
 
-  auditor_accounts         = {
+  auditor_accounts = {
     master        = "340731855345" # Include master for testing
     techportfolio = "133032889584" # TTS Tech Portfolio
   }
-}
 
+  # User to group mappings - Groups defined in ../module/iam_groups.tf
+  user_map = {
+    "aaron.chapman"      = ["appdev", "apponcall"],
+    "akhlaq.khan"        = ["finops", "bizops"],
+    "amit.freeman"       = ["devops"],
+    "brian.crissup"      = ["devops", "keymasters"],
+    "brett.mcparland"    = ["secops", "soc"],
+    "christopher.billas" = ["bizops", "finops"],
+    "clinton.troxel"     = ["appdev"],
+    "douglas.price"      = ["appdev", "bizops"],
+    "jonathan.hooper"    = ["appdev", "apponcall", "keymasters"],
+    "jonathan.pirro"     = ["devops"],
+    "justin.grevich"     = ["devops"],
+    "likhitha.patha"     = ["bizops"],
+    "mike.lloyd"         = ["devops"],
+    "mossadeq.zia"       = ["devops", "secops", "keymasters"],
+    "paul.hirsch"        = ["devops"],
+    "rajat.varuni"       = ["secops", "soc", "keymasters"],
+    "silke.dannemann"    = ["bizops"],
+    "steve.urciuoli"     = ["appdev", "apponcall", "keymasters"],
+    "stephen.grow"       = ["devops"],
+    "steven.harms"       = ["devops", "secops"],
+    "thomas.black"       = ["bizops"],
+    "timothy.spencer"    = ["devops", "secops"],
+    "zach.margolis"      = ["appdev", "apponcall"],
+  }
+}

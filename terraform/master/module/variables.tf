@@ -17,6 +17,11 @@ variable "role_list" {
   default     = []
 }
 
+variable "user_map" {
+  description = "Map of users to group memberships."
+  type        = map(list(string))
+}
+
 variable "auditor_accounts" {
   description = "Map of non-Login.gov AWS accounts we allow Security Auditor access to"
   # Unlike our master account, these are accounts we do not control!
