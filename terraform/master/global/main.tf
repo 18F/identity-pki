@@ -36,6 +36,39 @@ module "main" {
     ],
   }
 
+  group_role_map = {
+    "appdev" = [
+      { "PowerUser"         = [ "Sandbox" ] },
+      { "ReadOnly"          = [ "Sandbox" ] }
+    ],
+    "apponcall" = [
+      { "PowerUser"         = [ "Sandbox", "Prod" ] },
+      { "ReadOnly"          = [ "Sandbox", "Prod" ] }
+    ],
+    "bizops" = [
+      { "ReportsReadOnly"   = [ "Sandbox", "Prod" ] },
+    ],
+    "devops" = [
+      { "FullAdministrator" = [ "Prod", "Sandbox", "Master" ] },
+      { "ReadOnly"          = [ "Prod", "Sandbox" ] },
+      { "KMSAdministrator"  = [ "Sandbox" ] }
+    ],
+    "finops" = [
+      { "BillingReadOnly"   = [ "Sandbox", "Prod" ] },
+    ],
+    "secops" = [
+      { "FullAdministrator" = [ "Sandbox", "Prod", "Master" ] },
+      { "ReadOnly"          = [ "Sandbox", "Prod" ] },
+      { "KMSAdministrator"  = [ "Sandbox" ] }
+    ],
+    "soc" = [
+      { "SOCAdministrator"  = [ "Sandbox", "Prod", "Master" ] }
+    ],
+    "keymasters" = [
+      { "KMSAdministrator"  = [ "Prod" ] }
+    ]
+  }
+
   role_list = [
     "FullAdministrator",
     "PowerUser",
