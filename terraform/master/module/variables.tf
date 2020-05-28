@@ -2,18 +2,14 @@ variable "region" {
   description = "AWS Region where this account lives."
 }
 
+variable "aws_account_types" {
+  description = "AWS accounts grouped by type"
+  type        = map(list(string))
+  # Example value: {"Prod" = [123, 543, 125], "Dev" = [454, 232]}
+}
+
 variable "master_account_id" {
   description = "AWS Account ID for the master account."
-}
-
-variable "prod_aws_account_nums" {
-  description = "List of account numbers for 'Prod'-type AWS accounts."
-  default     = []
-}
-
-variable "nonprod_aws_account_nums" {
-  description = "List of account numbers for 'NonProd'-type (Sandbox, Dev, etc.) AWS accounts."
-  default     = []
 }
 
 variable "role_list" {

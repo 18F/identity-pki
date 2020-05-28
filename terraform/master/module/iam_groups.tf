@@ -1,8 +1,8 @@
-# Group membersips for IAM users
+# Group definitions
 
 # AppDev
 module "appdev_group" {
-  source = "github.com/18F/identity-terraform//iam_assumegroup?ref=a0d2bcad86903c534eedbae87c4bfefb4f457f9c"
+  source = "github.com/18F/identity-terraform//iam_assumegroup?ref=b24a37a7b4f47fb1dc4cd61267156f95c5a83ba1"
   #source = "../../../../identity-terraform/iam_assumegroup"
 
   group_name = "appdev"
@@ -33,7 +33,7 @@ module "appdev_group" {
 
 # AppOnCall
 module "apponcall_group" {
-  source = "github.com/18F/identity-terraform//iam_assumegroup?ref=a0d2bcad86903c534eedbae87c4bfefb4f457f9c"
+  source = "github.com/18F/identity-terraform//iam_assumegroup?ref=b24a37a7b4f47fb1dc4cd61267156f95c5a83ba1"
   #source = "../../../../identity-terraform/iam_assumegroup"
 
   group_name = "apponcall"
@@ -62,7 +62,7 @@ module "apponcall_group" {
 
 # BizOps
 module "bizops_group" {
-  source = "github.com/18F/identity-terraform//iam_assumegroup?ref=a0d2bcad86903c534eedbae87c4bfefb4f457f9c"
+  source = "github.com/18F/identity-terraform//iam_assumegroup?ref=b24a37a7b4f47fb1dc4cd61267156f95c5a83ba1"
   #source = "../../../../identity-terraform/iam_assumegroup"
 
   group_name = "bizops"
@@ -87,7 +87,7 @@ module "bizops_group" {
 
 # DevOps
 module "devops_group" {
-  source = "github.com/18F/identity-terraform//iam_assumegroup?ref=a0d2bcad86903c534eedbae87c4bfefb4f457f9c"
+  source = "github.com/18F/identity-terraform//iam_assumegroup?ref=b24a37a7b4f47fb1dc4cd61267156f95c5a83ba1"
   #source = "../../../../identity-terraform/iam_assumegroup"
 
   group_name = "devops"
@@ -128,7 +128,7 @@ module "devops_group" {
 
 # FinOps
 module "finops_group" {
-  source = "github.com/18F/identity-terraform//iam_assumegroup?ref=a0d2bcad86903c534eedbae87c4bfefb4f457f9c"
+  source = "github.com/18F/identity-terraform//iam_assumegroup?ref=b24a37a7b4f47fb1dc4cd61267156f95c5a83ba1"
   #source = "../../../../identity-terraform/iam_assumegroup"
 
   group_name = "finops"
@@ -149,7 +149,7 @@ module "finops_group" {
 
 # SecOps
 module "secops_group" {
-  source = "github.com/18F/identity-terraform//iam_assumegroup?ref=a0d2bcad86903c534eedbae87c4bfefb4f457f9c"
+  source = "github.com/18F/identity-terraform//iam_assumegroup?ref=b24a37a7b4f47fb1dc4cd61267156f95c5a83ba1"
   #source = "../../../../identity-terraform/iam_assumegroup"
 
   group_name = "secops"
@@ -185,7 +185,7 @@ module "secops_group" {
 
 # SOC
 module "soc_group" {
-  source = "github.com/18F/identity-terraform//iam_assumegroup?ref=a0d2bcad86903c534eedbae87c4bfefb4f457f9c"
+  source = "github.com/18F/identity-terraform//iam_assumegroup?ref=b24a37a7b4f47fb1dc4cd61267156f95c5a83ba1"
   #source = "../../../../identity-terraform/iam_assumegroup"
 
   group_name = "soc"
@@ -206,7 +206,7 @@ module "soc_group" {
 
 # KeyMasters  - Not in team.yml
 module "keymasters_group" {
-  source = "github.com/18F/identity-terraform//iam_assumegroup?ref=a0d2bcad86903c534eedbae87c4bfefb4f457f9c"
+  source = "github.com/18F/identity-terraform//iam_assumegroup?ref=b24a37a7b4f47fb1dc4cd61267156f95c5a83ba1"
   #source = "../../../../identity-terraform/iam_assumegroup"
 
   group_name = "keymasters"
