@@ -28,22 +28,24 @@ module "sandbox_ses" {
   email_bucket = aws_s3_bucket.s3-email.bucket
 }
 
-module "core_ses" {
-  source = "github.com/18F/identity-terraform//ses_dkim_r53?ref=13d442e710c950792388e663237392534af9bc1c"
+# TODO: Make this identity-terraform module for SES/DKIM play nicely with identities that exist across regions.
 
-  domain                  = var.root_domain
-  zone_id                 = module.common_dns.primary_zone_id
-  ttl_verification_record = "1800"
-  ttl_dkim_records        = "1800"
-  create_token            = true
-}
-
-module "core_ses_east" {
-  source = "github.com/18F/identity-terraform//ses_dkim_r53?ref=13d442e710c950792388e663237392534af9bc1c"
-
-  domain                  = var.root_domain
-  zone_id                 = module.common_dns.primary_zone_id
-  ttl_verification_record = "1800"
-  ttl_dkim_records        = "1800"
-  create_token            = false
-}
+# module "core_ses" {
+#   source = "github.com/18F/identity-terraform//ses_dkim_r53?ref=13d442e710c950792388e663237392534af9bc1c"
+# 
+#   domain                  = var.root_domain
+#   zone_id                 = module.common_dns.primary_zone_id
+#   ttl_verification_record = "1800"
+#   ttl_dkim_records        = "1800"
+#   create_token            = true
+# }
+# 
+# module "core_ses_east" {
+#   source = "github.com/18F/identity-terraform//ses_dkim_r53?ref=13d442e710c950792388e663237392534af9bc1c"
+# 
+#   domain                  = var.root_domain
+#   zone_id                 = module.common_dns.primary_zone_id
+#   ttl_verification_record = "1800"
+#   ttl_dkim_records        = "1800"
+#   create_token            = false
+# }
