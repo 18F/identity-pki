@@ -30,9 +30,19 @@ resource "aws_s3_bucket" "idp_static_bucket" {
     }
   }
 
-  # Assets bear unique names and should not require versioning
+  # Versioning in place, though all resources in this bucket should be
+  # in repos.  Deleted versions purged in 30 days.
   versioning {
-    enabled = false
+    enabled = true
+  }
+
+  lifecycle_rule {
+    prefix  = "/"
+    enabled = true
+
+    noncurrent_version_expiration {
+      days = 30
+    }
   }
 
   # Allow JS in subdomains, including idp., to access fonts/etc
@@ -49,7 +59,6 @@ data "aws_iam_policy_document" "idp_static_bucket_policy" {
   statement {
     actions = [
       "s3:AbortMultipartUpload",
-      "s3:DeleteObject",
       "s3:GetObject",
       "s3:ListBucket",
       "s3:PutObject"
@@ -67,7 +76,9 @@ data "aws_iam_policy_document" "idp_static_bucket_policy" {
     ]
   }
 
-  # Cloudfront access
+  # Cloudfront access for GET on specific item.  Since we are using the
+  # S3 origin the call from CloudFront to S3 uses the S3 API so we do
+  # not want to expose permissions like List.
   statement {
     actions = ["s3:GetObject"]
     principals {
@@ -76,17 +87,6 @@ data "aws_iam_policy_document" "idp_static_bucket_policy" {
     }
     resources = [
       "arn:aws:s3:::login-gov-idp-static-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}/*"
-    ]
-  }
-
-  statement {
-    actions = ["s3:ListBucket"]
-    principals {
-      type        = "AWS"
-      identifiers = [aws_cloudfront_origin_access_identity.cloudfront_oai.iam_arn]
-    }
-    resources = [
-      "arn:aws:s3:::login-gov-idp-static-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
     ]
   }
 }
