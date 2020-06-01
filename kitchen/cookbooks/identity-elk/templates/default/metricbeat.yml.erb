@@ -1,0 +1,13 @@
+metricbeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: false
+
+output.logstash:
+  hosts:
+  <% @logstash_hosts.each do |hosts| -%>
+    <%= "- #{hosts}" %>
+  <% end -%>
+  ssl.certificate_authorities:
+  <% @logstash_ssl_certificate_authorities.each do |ca| -%>
+    <%= "- #{ca}" %>
+  <% end %>

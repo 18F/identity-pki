@@ -11,7 +11,7 @@ Here's an example:
 ```
 {
   "filename" => "set-hostname.yaml",
-  "template" => "../../terraform-modules/bootstrap/cloud-init.hostname.yaml.erb",
+  "template" => "../../modules/bootstrap/cloud-init.hostname.yaml.erb",
   "content_type" => "text/cloud-config",
   "vars" => {
     "hostname_prefix" => role,

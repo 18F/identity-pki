@@ -11,6 +11,7 @@ default['es']['sg_tls'] = '1.7.tar.gz'
 default['es']['sg_tls_sum'] = '284492779edf037348375994a0f320cc1425bda149d56c3db0031014241e7110'
 
 default['filebeat']['version'] = '7.4.2'
+default['metricbeat']['version'] = '7.4.2'
 
 # logfiles to watch
 default['filebeat']['logfiles'] = [
@@ -63,7 +64,7 @@ default['elk']['logstash']['xpack_monitoring_enabled'] = true
 default['elk']['logstash']['xpack_monitoring_elasticsearch_url'] = 'https://elasticsearch.login.gov.internal:9200'
 default['elk']['logstash']['xpack_monitoring_elasticsearch_ssl_ca'] = '/etc/elasticsearch/root-ca.pem'
 
-default['elk']['elastalert']['version'] = 'v0.2.1'
+default['elk']['elastalert']['version'] = 'v0.2.4'
 # If the list of emails is empty, then do not email.
 default['elk']['elastalert']['emails'] = []
 

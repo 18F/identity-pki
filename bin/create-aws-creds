@@ -1,0 +1,130 @@
+#!/bin/bash
+
+# Create an IAM user's login profile in the login-master account!
+
+set -eu
+
+. "$(dirname "$0")/lib/common.sh"
+
+usage() {
+  cat >&2 <<EOM
+
+usage: $(basename "$0") USERNAME [-k] [-p]
+
+Create an AWS login profile w/temporary password + Access/Secret Keys
+for USERNAME in the login-master account, and then opens
+a new Google Sheet where the credentials can be shared.
+
+If run with a user who already has a login profile and/or Access/Secret
+Key(s), prompt to delete/recreate the credentials.
+
+Flags:
+  -k    Only create Access Key ID / Secret Key
+  -p    Only create temp password
+
+To work properly, USERNAME must:
+  - be an entry in terraform/master/module/iam_users.tf
+  - be an actual IAM user in the login-master account
+
+This script must be run with an active AWS STS session (via the API
+or with aws-vault) for the login-master account.
+
+EOM
+}
+
+if [ $# -gt 2 ] || [ $# -lt 1 ] ; then
+  usage
+  exit 1
+fi
+verify_root_repo
+
+IAM_USER="${1}"
+echo
+verify_iam_user "${IAM_USER}"
+shift
+
+declare {NEW_PASS,NEW_KEY}=true
+TEMP_PASSWORD=$(env LC_CTYPE=C LC_ALL=C tr -dc \
+                "a-zA-Z0-9-_\!\@\#\$\%\^\&\*\(\)\+\=\[\]\{\}\|\'" < /dev/urandom |
+                head -c 32)
+
+while getopts kp opt ; do
+  case "${opt}" in
+    k) NEW_PASS=false ;;
+    p) NEW_KEY=false  ;;
+  esac
+done
+
+if [[ "${NEW_PASS}" == false ]] && [[ "${NEW_KEY}" == false ]] ; then
+  declare {NEW_PASS,NEW_KEY}=true
+fi
+
+if [[ "${NEW_PASS}" == true ]] ; then
+  if [[ $(aws iam get-login-profile --user-name "${IAM_USER}") ]] ; then
+    if ! prompt_yn "Login profile for ${IAM_USER} found; recreate?" ; then
+      echo_blue "Exiting."
+      exit 0
+    else
+      echo
+      echo_blue "Deleting old login profile..."
+      run aws iam delete-login-profile --user-name "${IAM_USER}"
+    fi
+  fi
+  
+  echo
+  echo_blue "Creating login profile..."
+  aws iam create-login-profile \
+    --user-name "${IAM_USER}" \
+    --password "${TEMP_PASSWORD}" \
+    --password-reset-required
+  echo
+fi
+
+if [[ "${NEW_KEY}" == true ]] ; then
+  CURRENT_KEYS=$(aws iam list-access-keys \
+                    --user-name "${IAM_USER}" |
+                    jq -r '.[][].AccessKeyId' |
+                    tr '\n' ' ')
+  if ! [[ -z "${CURRENT_KEYS}" ]] ; then
+    if ! prompt_yn "Access/Secret Key(s) for ${IAM_USER} found; recreate?" ; then
+      echo_blue "Exiting."
+      exit 0
+    else
+      echo
+      echo_blue "Deleting old access keys..."
+      for KEY in $(aws iam list-access-keys \
+                    --user-name "${IAM_USER}" |
+                    jq -r '.[][].AccessKeyId' |
+                    tr '\n' ' ') ; do
+        run aws iam delete-access-key \
+            --user-name "${IAM_USER}" \
+            --access-key-id "${KEY}"
+      done
+    fi
+  fi
+
+  echo
+  echo_blue "Generating Access Key ID / Secret Access Key..."
+  run_var IAM_KEY_INFO aws iam create-access-key --user-name "${IAM_USER}" --output text
+fi
+
+define USER_PASS <<EOM
+user_name ${IAM_USER}
+temp_password ${TEMP_PASSWORD}
+EOM
+
+define USER_KEYS <<EOM
+access_key_id $(echo ${IAM_KEY_INFO} | awk '{print $2}')
+secret_access_key $(echo ${IAM_KEY_INFO} | awk '{print $4}')
+EOM
+
+echo
+echo_blue "Account and credentials created:"
+echo
+[[ "${NEW_PASS}" == true ]] && echo "${USER_PASS}"
+[[ "${NEW_KEY}" == true ]] && echo "${USER_KEYS}"
+echo
+echo_blue "Copy these values, then press any key to open a new Google Sheet, where the credentials can be pasted."
+read -n 1 -s -r -p "" ; echo
+echo
+run open https://docs.google.com/spreadsheets/u/0/create\?usp\=sheets_home\&ths\=true

@@ -44,7 +44,7 @@ end
 # This test will break when you upgrade our OpenSSL. Sorry.
 describe command('/opt/nginx/sbin/nginx -V') do
   its('exit_status') { should eq 0 }
-  its('stderr') { should match (/built with OpenSSL 1.0.2t/) }
+  its('stderr') { should match (/built with OpenSSL 1.0.2u/) }
 end
 
 # Ensure our nginx configuration is a valid one.
@@ -115,4 +115,9 @@ describe file('/var/log/filebeat/filebeat') do
 #  its('content') { should include '/srv/pki-rails/shared/log/cron.log' }
   its('content') { should include '/srv/pki-rails/shared/log/production.log' }
   its('content') { should include '/srv/pki-rails/shared/log/newrelic_agent.log' }
+end
+
+describe service('metricbeat') do
+  it { should be_installed }
+  it { should be_enabled }
 end

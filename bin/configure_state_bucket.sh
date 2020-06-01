@@ -161,7 +161,7 @@ check_or_create_remote_state_resources
 # Set up local .terraform directory with either the old or new .terraform
 # directory management styles.
 #
-cd "${TF_DIR}"
+cd "terraform/${TF_DIR}"
 
 # Sanity check: make sure we have a main.tf
 assert_file_exists "main.tf"

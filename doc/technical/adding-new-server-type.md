@@ -5,7 +5,7 @@
 There are several steps needed to create a new type of server. Suppose we're creating a new type of server, `foo` servers.
 
 - Create an auto scaling group (ASG) and launch configuration in
-  `terraform-app/foo-asg.tf`, probably using the bootstrap terraform module to
+  `terraform/app/foo-asg.tf`, probably using the bootstrap terraform module to
   manage the user-data used to bootstrap the instance.
 
   - The ASG should ideally be paired with an ALB/ELB so that the ASG can do

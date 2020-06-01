@@ -122,7 +122,7 @@ if node.fetch('identity-jumphost').fetch('loadtest').fetch('enabled')
   end
 
   execute 'install_locust' do
-    cwd '/etc/login.gov/repos/identity-loadtest/load_testing'
+    cwd '/etc/login.gov/repos/identity-loadtest'
     command 'pip3 install -r requirements.txt'
   end
 

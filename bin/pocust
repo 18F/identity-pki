@@ -1,0 +1,127 @@
+#!/bin/bash
+
+# Gather Locust data and information about the running environment to
+# allow later analysis of logs, versions, etc.
+
+# TODO - Implement pipeline load testing with much better automatic
+#        data collection!  This is primitive.
+
+# Strictish mode
+set -euo pipefail
+
+. "$(dirname "$0")/lib/common.sh"
+
+# List of Git repos to check SHAs in
+IDPREPOS="/etc/login.gov/repos/identity-devops /etc/login.gov/repos/identity-devops-private /srv/idp/current"
+
+# Files to fingerprint
+IDPFILES="/srv/idp/current/config/application_s3_env.yml /srv/idp/current/config/application.yml"
+
+# Collect loadtest repo info for identifying version of test suite
+LMREPOS="identity-loadtest"
+
+usage () {
+  cat >&2 <<EOM
+usage: $0 RUN_NAME ENVIRONMENT [LOCUST_MASTER]
+
+RUN_NAME      - Slugified (no spaces!) name for test run.  Example:
+                sign_in-w1-c500-n1000
+ENVIRONMENT   - pt, pt2, etc
+LOCUST_MASTER - Instance name of where Locust master was during the
+                test.  (If omitted, Locust results are not gathered)
+                
+This script will save data into ~/<ENVIRONMENT>-<RUN_NAME>-<TIMESTAMP> on on your
+local machine.
+
+Example:  $0 sign_in-w14-c1000 pt i-0eeb2eb0e831795fe
+
+Gathers:
+* List of instances
+* Deployed Terraform version
+* Git SHAs for repos on the oldest and newest IdP
+* SHA256 of application.yml and the S3 sourced application.yml
+* Locust CSV output (*The most recent 3 CSVs are selected, so
+  ensure you run this BEFORE a new test is started on the Locust master)
+
+NOTE - Requires an active AWS STS session with access to the requested
+environment
+EOM
+}
+
+if [ $# -lt 2 ]; then
+  usage
+  exit 1
+fi
+
+TS=$(date -u +%Y%m%d%H%M%S)
+RUN_NAME=${1}
+ENV=${2}
+LOCUST_MASTER=${3-}
+ODIR="${HOME}/${ENV}-${RUN_NAME}-${TS}"
+
+define IDPSCRIPT <<EOM
+echo "# Repositories" > \${HOME}/\${HOSTNAME}-pocust.txt
+for r in ${IDPREPOS}; do
+  cd "\${r}"
+  echo -n "\${r}: " >> \${HOME}/\${HOSTNAME}-pocust.txt
+  git describe --always --tags >> \${HOME}/\${HOSTNAME}-pocust.txt
+done
+echo "# IdP deploy.json" >> \${HOME}/\${HOSTNAME}-pocust.txt
+cat /srv/idp/current/public/api/deploy.json >> \${HOME}/\${HOSTNAME}-pocust.txt
+echo "# Configurations" >> \${HOME}/\${HOSTNAME}-pocust.txt
+for f in ${IDPFILES}; do
+  sudo sha256sum --tag "\$f" >> \${HOME}/\${HOSTNAME}-pocust.txt
+done
+EOM
+
+define LMSCRIPT <<EOM
+rm -rf ~/pocust
+mkdir ~/pocust
+echo "# Repositories" > \${HOME}/pocust/\${HOSTNAME}-pocust.txt
+for r in ${LMREPOS}; do
+  cd /etc/login.gov/repos/\$r
+  echo -n "\${r}: " >> \${HOME}/pocust/\${HOSTNAME}-pocust.txt
+  git describe --always --tags >> \${HOME}/pocust/\${HOSTNAME}-pocust.txt
+done
+echo "# Collecting all locust output files"
+cp /var/log/loadtest/* ~/pocust/
+EOM
+
+echo "Creating ${ODIR}"
+mkdir "${ODIR}"
+
+echo "Getting full instance list"
+bin/ls-servers -q -b -e ${ENV} > "${ODIR}/running-instances.tab"
+
+echo "Getting running IdP instance list with health status"
+bin/ls-servers -q -b -e ${ENV} -r idp > "${ODIR}/running-idp-health.tab"
+
+IDPTOP=$(cat "${ODIR}/running-idp-health.tab" | egrep '^i-' | head -1 | awk '{ print $1 }')
+
+if [ -z "${IDPTOP}" ]; then
+  # Thought - Could cleanup directory here, but don't want to presume
+  # it is unwanted.  Left to the user.
+  raise "Failed to find IdP instance - Aborting"
+fi
+
+echo "Footprinting ${IDPTOP}"
+bin/ssh-instance ${IDPTOP} "${IDPSCRIPT}"
+
+echo "Gathering data from ${IDPTOP}"
+bin/scp-instance ${IDPTOP}:~/*-pocust.txt "${ODIR}/"
+
+echo "Getting applied terraform/app version"
+bin/get-version-info.sh ${ENV} > "${ODIR}/terraform-app-version.txt"
+
+if [ ! -z "${LOCUST_MASTER}" ]; then
+  echo "Footprinting ${LOCUST_MASTER}"
+  bin/ssh-instance ${LOCUST_MASTER} "${LMSCRIPT}"
+
+  echo "Gathering data from ${LOCUST_MASTER}"
+  bin/scp-instance ${LOCUST_MASTER}:~/pocust/* "${ODIR}/"
+
+  echo "Cleaning up ${LOCUST_MASTER}"
+  bin/ssh-instance ${LOCUST_MASTER} 'rm -rf ${HOME}/pocust; rm -f /var/log/load_test/*'
+fi
+
+echo "Done!  Now send ${ODIR} to a good place"

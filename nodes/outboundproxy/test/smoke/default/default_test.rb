@@ -121,3 +121,8 @@ describe command("grep 'Harvester started for file' /var/log/filebeat/filebea* |
   its('stdout') { should include '/var/log/squid/access.log' }
   its('stdout') { should include '/var/log/squid/cache.log' }
 end
+
+describe service('metricbeat') do
+  it { should be_installed }
+  it { should be_enabled }
+end

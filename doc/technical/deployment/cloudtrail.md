@@ -3,11 +3,11 @@
 If this is the first environment you are spinning up, you will need to turn spin up the centralized cloudtrail bucket. Here is how:
 
 ```
-./deploy apply terraform-cloudtrail
+bin/tf-deploy cloudtrail apply 
 
 ```
 
-You may need to edit the terraform-cloudtrail/main.tf file to add in additional elk roles as you add environments so that they can access the bucket too.
+You may need to edit the terraform/cloudtrail/main.tf file to add in additional elk roles as you add environments so that they can access the bucket too.
 
 Also! There seems to be some sort of incompatibility between the temporary data files of different versions of the plugins. If you are getting cloudtrail log errors, you may have to do this:
 

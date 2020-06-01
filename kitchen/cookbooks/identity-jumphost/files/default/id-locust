@@ -12,6 +12,13 @@ raise() {
   exit 1
 }
 
+REPO_DIR='/etc/login.gov/repos/identity-loadtest'
+[[ -d "${REPO_DIR}" ]] || raise "REPO_DIR ${REPO_DIR} does not exist"
+
+list_tests() {
+  find ${REPO_DIR}/load_testing  -name "*.locustfile.py" -printf '%P\n' | cut -d '.' -f 1 >&2
+}
+
 usage() {
   cat >&2 <<EOM
 usage: $(basename "$0") TEST_NAME ENV [-c CLIENTS] [-h HATCH_RATE] [-n NUM_USERS]
@@ -45,11 +52,13 @@ Examples:
     $(basename "$0") sign_up int -c 10 -h 25 -r 10m
     $(basename "$0") sign_in dev -h 10 -n 120
 
+Available Tests:
+
+
 EOM
+  list_tests
 }
 
-REPO_DIR='/etc/login.gov/repos/identity-loadtest'
-[[ -d "${REPO_DIR}" ]] || raise "REPO_DIR ${REPO_DIR} does not exist"
 [[ $# -lt 2 ]] && raise "Both TEST_NAME and ENV must be provided"
 
 TEST=${1}
@@ -69,16 +78,16 @@ RUN_TIME="60s"
 MASTER_ADDRESS=
 MASTER_FLAG=
 declare {MASTER,SLAVE}=false
-declare {CLIENTS,HATCH_RATE,NUM_CLIENTS}=1
+declare {CLIENTS,HATCH_RATE,NUM_USERS}=1
 
 while getopts c:h:n:r:s:m opt
 do
   case "${opt}" in
-    c) CLIENTS=${OPTARG}     ;;
-    h) HATCH_RATE=${OPTARG}  ;;
-    n) NUM_CLIENTS=${OPTARG} ;;
-    r) RUN_TIME=${OPTARG}    ;;
-    m) MASTER=true           ;;
+    c) CLIENTS=${OPTARG}    ;;
+    h) HATCH_RATE=${OPTARG} ;;
+    n) NUM_USERS=${OPTARG}  ;;
+    r) RUN_TIME=${OPTARG}   ;;
+    m) MASTER=true          ;;
     s) 
        SLAVE=true
        MASTER_ADDRESS=${OPTARG}
@@ -102,11 +111,14 @@ if [[ "${SLAVE}" == true ]] ; then
   run locust --host "${TARGET}" \
              --locustfile "${TEST_FILE}" --slave --master-host="${MASTER_ADDRESS}"
 else
+  START_TIME=$(date +%Y%m%d%H%M%S)
+  export NUM_USERS
   run locust --host "${TARGET}" \
              --locustfile "${TEST_FILE}" \
              --clients="${CLIENTS}" \
              --hatch-rate "${HATCH_RATE}" \
              --no-web \
-             --csv="${TEST_DIR}/$(date +%Y%m%d%H%M%S)-${TEST}" \
-             --run-time "${RUN_TIME}""${MASTER_FLAG}"
+             --csv="${TEST_DIR}/${START_TIME}-${TEST}" \
+             --run-time "${RUN_TIME}""${MASTER_FLAG}" \
+             2>&1 | tee "${TEST_DIR}/${START_TIME}-${TEST}.log"
 fi

@@ -1,14 +1,124 @@
 #!/bin/bash
-
 # Common shell functions.
-# Having a library like this is a surefire sign that you are using too much
-# shell and should switch to something like Ruby. But our scripts currently
-# pass around a ton of stuff with shell environment variables, so this will
-# have to do for the time being.
 
+# echo full command before executing, then do it anyway
 run() {
     echo >&2 "+ $*"
     "$@"
+}
+
+# echo error message in red, echo usage(), and exit
+raise() {
+  echo_red "$*" >&2
+  usage
+  exit 1
+}
+
+# Easier-to-read way to define variable using a heredoc.
+# Yoinked from https://stackoverflow.com/a/8088167
+define() {
+    read -r -d '' ${1} || true
+}
+
+# verify that script is running from identity-devops repo
+verify_root_repo() {
+    GIT_DIR=$(git rev-parse --show-toplevel)
+    if [ "$(echo ${GIT_DIR} | awk -F/ '{print $NF}')" != 'identity-devops' ]
+    then
+        raise "Must be run from the identity-devops repo"
+    fi
+}
+
+# send a notification in Slack, pulling appropriate key(s) from bucket to do so
+slack_notify () {
+    local AWS_ACCT_NUM=$(aws sts get-caller-identity | jq -r '.Account')
+    local TF_ENV=${GSA_USERNAME}
+    local AWS_REGION='us-west-2'
+    local COLOR='good'
+    local SLACK_USER='Login.gov Slack Notifier'
+    local SLACK_EMOJI=':login-gov:'
+    local PRE_TEXT='This is only a test.'
+    local TEXT='This is only a message.'
+    local KEYS=0
+    
+    while getopts n:t:r:c:u:e:p:m: opt
+    do
+        case "${opt}" in
+            n) AWS_ACCT_NUM="${OPTARG}" ;;
+            t) TF_ENV="${OPTARG}" ;;
+            r) AWS_REGION="${OPTARG}" ;;
+            c) COLOR="${OPTARG}" ;;
+            u) SLACK_USER="${OPTARG}" ;;
+            e) SLACK_EMOJI="${OPTARG}" ;;
+            p) PRE_TEXT="${OPTARG}" ;;
+            m) TEXT="${OPTARG}" ;;
+        esac
+    done
+    
+    local BUCKET="s3://login-gov.secrets.${AWS_ACCT_NUM}-${AWS_REGION}/${TF_ENV}"
+    
+    SLACK_CHANNEL=$(aws s3 cp "${BUCKET}/tfslackchannel" -) || ((KEYS++))
+    SLACK_WEBHOOK=$(aws s3 cp "${BUCKET}/tfslackwebhook" -) || ((KEYS++))
+    if [[ "${KEYS}" -gt 0 ]]; then
+        echo 'Slack channel/webhook missing from S3 bucket!'
+        return 1
+    fi
+
+    define PAYLOAD_JSON <<EOM
+{
+  "channel": "${SLACK_CHANNEL}",
+  "username": "${SLACK_USER}",
+  "icon_emoji": "${SLACK_EMOJI}",
+  "attachments": [
+    {
+        "mrkdwn_in": ["text"],
+        "pretext": "${PRE_TEXT}",
+        "color": "${COLOR}",
+        "text": "${TEXT}"
+    }
+  ]
+}
+EOM
+    PAYLOAD=$(printf '%s' "${PAYLOAD_JSON}" | jq -c .)
+    curl -X POST "${SLACK_WEBHOOK}" --data-urlencode payload="${PAYLOAD}"
+    echo -e "\n\n${PRE_TEXT}\n${TEXT}\n" | tr -d "\`" | sed -E "s/\\n/\n/"
+}
+
+# verify existence of IAM user
+verify_iam_user () {
+    local WHO_AM_I=${1}
+    local IAM_USERS_FILE="terraform/master/module/iam_users.tf"
+    local MASTER_ACCOUNT_ID=340731855345
+    
+    echo_blue "Verifying IAM user ${WHO_AM_I}... "
+    if [[ ! $(grep -E "\= \"${WHO_AM_I}\"" "${GIT_DIR}/${IAM_USERS_FILE}") ]] ; then
+      raise "User '${WHO_AM_I}' not found in ${IAM_USERS_FILE}"
+    fi
+    
+    if [[ $(aws sts get-caller-identity | jq -r '.Account') != "${MASTER_ACCOUNT_ID}" ]] ; then
+      raise "This script must be run with a login-master AWS profile"
+    fi
+    if [[ ! $(aws iam list-users | grep "user/${WHO_AM_I}") ]] ; then
+      raise "User '${WHO_AM_I}' not in list of IAM users in login-master"
+    fi
+}
+
+# set a variable AND print its declaration to the console
+run_var() {
+  VAR=${1}
+  shift
+  if [ -t 1 ]; then
+    echo -ne "\\033[1;36m"
+  fi
+
+  echo -e >&2 "+ $VAR=\$($*)"
+
+  if [ -t 1 ]; then
+    echo -ne '\033[m'
+  fi
+  T=$($@)
+  # Set variable value by reference to avoid ; shenanigans
+  eval "${VAR}=\"\${T}\""
 }
 
 # Prompt the user for a yes/no response.
@@ -231,7 +341,7 @@ KNOWN_TF_VERSIONS=(
   "v0.10.8"
   "v0.11.14"
   "v0.12.19"
-  "v0.12.23"
+  "v0.12.24"
 )
 
 # usage: check_terraform_version SUPPORTED_VERSION...
@@ -250,17 +360,20 @@ check_terraform_version() {
         return 2
     fi
 
+    tf_style="${1}"
+    shift 1
+
     for version in "$@"; do
         # version is expected to be a pattern
         # shellcheck disable=SC2053
         if [[ $current_tf_version == $version ]]; then
-            echo "Terraform version $current_tf_version is supported"
+            echo "Terraform version $current_tf_version is supported (via $tf_style var)"
             return
         fi
     done
 
     echo_red >&2 "Terraform version $current_tf_version is not supported"
-    echo_red >&2 "Expected versions: $*"
+    echo_red >&2 "Expected versions: $* (via $tf_style var)"
 
     echo >&2 "Try using \`bin/terraform-switch.sh\` to install / switch"
     echo >&2 "to a target installed version of terraform with homebrew."

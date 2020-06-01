@@ -107,7 +107,7 @@ if ENV['KITCHEN_DISABLE_PROXY'] || role == "outboundproxy"
   proxy_port = nil
   no_proxy_hosts = nil
 else
-  # duplicates the values in terraform-app/variables.tf
+  # duplicates the values in terraform/app/variables.tf
   proxy_server = 'obproxy.login.gov.internal'
   proxy_port = '3128'
   no_proxy_hosts = 'localhost,127.0.0.1,169.254.169.254,169.254.169.123,.login.gov.internal,s3-us-west-2.amazonaws.com,s3.us-west-2.amazonaws.com,s3.dualstack.us-west-2.amazonaws.com,ec2.us-west-2.amazonaws.com,kms.us-west-2.amazonaws.com,secretsmanager.us-west-2.amazonaws.com,ssm.us-west-2.amazonaws.com'
@@ -123,7 +123,7 @@ cloud_init_info = [
   },
   {
     "filename" => "set-hostname.yaml",
-    "template" => "../../terraform-modules/bootstrap/cloud-init.hostname.yaml.erb",
+    "template" => "../../terraform/modules/bootstrap/cloud-init.hostname.yaml.erb",
     "content_type" => "text/cloud-config",
     "vars" => {
       "hostname_prefix" => role,
@@ -132,13 +132,13 @@ cloud_init_info = [
   },
   {
     "filename" => "provision.sh",
-    "template" => "../../terraform-modules/bootstrap/provision.sh",
+    "template" => "../../terraform/modules/bootstrap/provision.sh",
     "content_type" => "text/x-shellscript",
     "vars" => {}
   },
   {
     "filename" => "base.yaml",
-    "template" => "../../terraform-modules/bootstrap/cloud-init.base.yaml.erb",
+    "template" => "../../terraform/modules/bootstrap/cloud-init.base.yaml.erb",
     "content_type" => "text/cloud-config",
     "vars" => {
       "domain" => "login.gov",
@@ -152,7 +152,7 @@ cloud_init_info = [
   # run identity-devops-private provisioning using provision.sh
   {
     "filename" => "provision-private.yaml",
-    "template" => "../../terraform-modules/bootstrap/cloud-init.provision.yaml.erb",
+    "template" => "../../terraform/modules/bootstrap/cloud-init.provision.yaml.erb",
     "content_type" => "text/cloud-config",
     "vars" => {
       # assume chef is already installed in the AMI

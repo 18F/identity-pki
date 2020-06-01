@@ -1,0 +1,132 @@
+#!/bin/bash
+
+# Create an IAM user's login profile in the login-master account!
+
+set -eu
+
+. "$(dirname "$0")/lib/common.sh"
+
+usage() {
+  cat >&2 <<EOM
+
+usage: $(basename "$0") [AWS_IAM_USER] [-c]
+
+List the available AWS IAM roles that a user can assume +
+add to their ~/.aws/config file for aws-vault access.
+
+Can be run with no arguments to list your own roles, if
+your AWS_IAM_USER env var is set. If run with -c , will
+prompt if you want the printed role(s) to be added to
+your ~/.aws/config file. (You cannot use the -c option
+if looking up roles for another user.)
+
+EOM
+}
+
+if [ $# -gt 2 ] ; then
+  usage
+  exit 1
+fi
+verify_root_repo
+echo
+
+declare {IAM_USER,WRITE_CONFIG}=
+ENV_USER=${AWS_IAM_USER-}
+FOUND_USER=$(aws iam get-user 2>/dev/null | jq -r '.[].UserName')
+
+while test $# -gt 0
+do
+  case "${1}" in
+    -c) WRITE_CONFIG=true ;;
+     *) IAM_USER="${1-}" ;;
+  esac
+  shift
+done
+
+if [[ -z "${IAM_USER}" ]] ; then
+  if [[ -z "${ENV_USER}" ]] ; then
+    if [[ -z "${FOUND_USER}" ]] ; then
+      echo_red "Could not detect current IAM user; also:"
+      echo_red "IAM_USER & AWS_IAM_USER not set;"
+      raise "must set either to run with AssumedRole"
+    else
+      echo_yellow "AWS_IAM_USER not set in env."
+      echo_yellow "Using ${FOUND_USER} as IAM_USER."
+      IAM_USER="${FOUND_USER}"
+    fi
+  else
+    IAM_USER="${AWS_IAM_USER}"
+  fi
+fi
+
+verify_iam_user "${IAM_USER}"
+
+echo_blue "Getting available role(s) for user ${IAM_USER}..."
+echo
+# verify that we have permission to see the policies for $IAM_USER
+FOUND_POLICIES=$(aws iam list-attached-user-policies \
+                --user-name "${IAM_USER}")
+
+ROLE_ARNS=()
+for POLICY in $(echo "${FOUND_POLICIES}" |
+                jq -r '.AttachedPolicies[].PolicyArn' |
+                grep -v Manage | tr '\n' ' ') ; do
+  ACCOUNT=$(echo $POLICY | sed -E 's/.*policy\/([a-zA-z]+)Assume.*/\1/' | tr '[A-Z]' '[a-z]' |
+  sed -E 's/(sms|analytics)/\_\1/')
+  ID_STRING="${ACCOUNT}_account_id"
+  SHORT_ACCT=$(echo "${ACCOUNT}" | sed 's/uction//')
+
+  case $ACCOUNT in
+    master)     ID_STRING='allowed_account_ids' ;;
+    *_sms)      SHORT_ACCT=$(echo "${SHORT_ACCT}" | awk -F_ '{print $2"-"$1}') ;;
+    *analytics) SHORT_ACCT='analytics' ;;
+  esac
+
+  ACCOUNT_ID=$(grep "${ID_STRING}" terraform/master/global/main.tf |
+               sed -E 's/.*\"([0-9]+)\".*/\1/')
+  ROLE=$(echo $POLICY | sed -E 's/.*Assume//')
+  SHORT_ROLE=$(grep -lr "${ROLE}" terraform/all/module/iam-role-*.tf |
+               sed -E 's/.*\-([a-z]+)\.tf/\1/')
+
+  ROLE_ARNS+=("${SHORT_ACCT}-${SHORT_ROLE}+arn:aws:iam::${ACCOUNT_ID}:role/${ROLE}")
+done
+
+echo "${ROLE_ARNS[@]}" | tr ' ' '\n' | sed -E 's/\+/ \| /'
+
+if [[ "${WRITE_CONFIG}" == true ]] ; then
+  if [[ "${FOUND_USER}" != "${IAM_USER}" ]] ; then
+    echo_yellow "Will not add role(s) to ~/.aws/config ;"
+    echo_yellow "current user '${FOUND_USER}' != '${IAM_USER}'."
+    exit 0
+  fi
+  echo 
+  if prompt_yn "Add roles to ~/.aws/config file?" ; then
+    echo_blue "Generating config and adding to file..."
+    echo
+    MAIN_PROFILE=${AWS_VAULT:-$(echo $AWS_PROFILE)}
+    MFA_ARN=$(aws iam list-mfa-devices \
+              --user-name "${FOUND_USER}" |
+              jq -r '.[][0].SerialNumber')
+    for ROLE in "${ROLE_ARNS[@]}" ; do
+      #echo $ROLE
+      ROLE_NAME=$(echo $ROLE | awk -F'+' '{print $1}')
+      ROLE_ARN=$(echo $ROLE | awk -F'+' '{print $2}')
+      if [[ $(grep "${ROLE_ARN}" ~/.aws/config) ]] ; then
+        echo_yellow "${ROLE_ARN} already in config file; skipping."
+      elif [[ $(grep "${ROLE_NAME}" ~/.aws/config) ]] ; then
+        echo_yellow "${ROLE_NAME} already in config file; skipping."
+      else
+        define ROLE_BLOCK <<EOF
+[profile ${ROLE_NAME}]
+parent_profile = ${MAIN_PROFILE}
+source_profile = ${MAIN_PROFILE}
+mfa_serial = ${MFA_ARN}
+role_arn = ${ROLE_ARN}
+EOF
+        echo "${ROLE_BLOCK}" | tee -a ~/.aws/config
+      fi
+    done
+    echo
+    echo_blue "Role(s) added to config file."
+  fi
+fi

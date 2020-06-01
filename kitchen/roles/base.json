@@ -24,10 +24,10 @@
   },
   "chef_type": "role",
   "run_list": [
+    "recipe[login_dot_gov::configure_awsagent]",
     "recipe[chef_proxy_env]",
     "recipe[instance_certificate::generate]",
     "recipe[service_discovery::register]",
-    "recipe[login_dot_gov::configure_awsagent]",
     "recipe[login_dot_gov::configure_clamav]",
     "recipe[login_dot_gov::chage]",
     "recipe[login_dot_gov::ssh]",
@@ -45,10 +45,10 @@
     "recipe[sudo]",
     "recipe[identity-elk::logcleanup]",
     "recipe[identity-elk::filebeat]",
+    "recipe[identity-elk::metricbeat]",
     "recipe[login_dot_gov::resolve]",
     "recipe[identity_base_config::ruby]",
     "recipe[identity-monitoring]"
   ],
-  "env_run_lists": {
-  }
+  "env_run_lists": {}
 }

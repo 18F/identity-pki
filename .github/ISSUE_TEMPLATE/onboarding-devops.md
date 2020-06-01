@@ -17,7 +17,6 @@ _Also, be sure to only copy the sections of this template that are needed for th
     * [ ] make sure your account is set up [like this](https://handbook.18f.gov/slack/).
     * [ ] make sure to join `#login`, the main announcement channel for our team
 * [ ] Make sure your GitHub account is set up [like this](https://handbook.18f.gov/github/#setup).
-  * [ ] Next, ask in `#identity-devops` for a GitHub Admin to [add you to the 18F org](https://github.com/orgs/18F)
 * [ ] Add the following email address to your Google Calendar to see the Login Services Shared Events calendar: gsa.gov_6ovul6pcsmgd40o8pqn7qmge5g@group.calendar.google.com
 * [ ] Add yourself to the [`team.yml`](https://github.com/18F/identity-private/blob/master/team/team.yml) file
 * [ ] Request access to relevant Google Groups:
@@ -39,7 +38,7 @@ _Also, be sure to only copy the sections of this template that are needed for th
 ## Tasks for onboarding buddy
 
 * [ ] Give intro to weekly ceremonies and team workflow
-* [ ] Make sure they have already been invited to [the 18F org on GitHub](https://github.com/orgs/18F) and accepted the invitation.
+* [ ] Request that the new user to be invited to [the 18F org on GitHub](https://github.com/orgs/18F) in #admins-github on Slack.
   * [ ] *For members needing **push commit** access*: Add to the [identity-core](https://github.com/orgs/18F/teams/identity-core/members) team (contact [team maintainers](https://github.com/orgs/18F/teams/identity-core/members?utf8=%E2%9C%93&query=%20role%3Amaintainer) for this)
   * [ ] *For members NOT needing **push** access*: Add to the [identity-team-yml](https://github.com/orgs/18F/teams/identity-team-yml/members) team, which grants read-only access. (contact [team maintainers](https://github.com/orgs/18F/teams/identity-team-yml/members?utf8=%E2%9C%93&query=+role%3Amaintainer) for this)
 * [ ] Request Slack access for them in the `#admins-slack` channel and fill out this form: https://goo.gl/forms/4Mz21nvALvITj9Os1.
@@ -68,17 +67,3 @@ _Also, be sure to only copy the sections of this template that are needed for th
 * [ ] Complete [GSA OLU](https://insite.gsa.gov/topics/training-and-development/online-university-olu?term=olu) IT Security Awareness Training, including accepting the GSA IT Rules of Behavior, which is required before we can give you access to any login.gov systems. If you joined GSA more than two months ago, you’ve already completed this task and can just check the box. (Detailees must complete similar organization driven training and provide as proof to login.gov team members)
 * [ ] Add the new team member to [New Relic](https://account.newrelic.com/accounts/1376370/users/new)
 * [ ] Invite the new team member to [Opsgenie](https://login-gov.app.opsgenie.com/settings/users/)
-
-### For new DevOps team members only:
-* [ ] Add member to IAM groups for AWS access
-  * [ ] [18f-identity-analytics](https://18f-identity-analytics.signin.aws.amazon.com/console): `identity-power` or `identity-admin`
-  * [ ] [18f-identity-dev](https://18f-identity-dev.signin.aws.amazon.com/console): `identity-admin`
-  * [ ] [18f-identity](https://18f-identity.signin.aws.amazon.com/console): `identity-power`
-* [ ] Add member to the [login.gov Statuspage.io](https://logingov.statuspage.io/) account
-
-### For new Analytics team members only:
-* [ ] Configure access for the new team member to AWS
-  * [ ] Add the new team member to [AWS 18f-identity-analytics](https://18f-identity-analytics.signin.aws.amazon.com/console) account to IAM group `identity-power`
-  * [ ] Add the new team member to [AWS 18f-identity-dev](https://18f-identity-dev.signin.aws.amazon.com/console) account to IAM group `identity-redshift`
-  * [ ] Add the new team member to [AWS 18f-identity](https://18f-identity.signin.aws.amazon.com/console) account to IAM group `identity-redshift`
-  * [ ] Add the new team member to `prod` Jumphost as none sudoer access for redshift sql cli
