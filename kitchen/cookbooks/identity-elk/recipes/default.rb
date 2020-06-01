@@ -500,7 +500,7 @@ template "#{elastalertdir}/config.yaml" do
   notifies :restart, 'runit_service[elastalert]'
 end
 
-%w{alb429.yaml alb5xx.yaml failedlogins.yaml invaliduser.yaml nologs.yaml proxyblock.yaml slow_query.yaml sp_negative_spike.yaml unknownip.yaml}.each do |t|
+%w{alb429.yaml alb5xx.yaml failedlogins.yaml invaliduser.yaml nologs.yaml proxyblock.yaml slow_query.yaml sp_negative_spike.yaml unknownip.yaml kmsdeletion.yaml}.each do |t|
   # set custom channel for slow query alarms
   if t == 'slow_query.yaml'
     slackchannel = '#login-slow-queries'
