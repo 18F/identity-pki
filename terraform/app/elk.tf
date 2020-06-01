@@ -21,6 +21,7 @@ data "aws_iam_policy_document" "logbucketpolicy" {
       "arn:aws:s3:::login-gov.elb-logs.${data.aws_caller_identity.current.account_id}-${var.region}",
       "arn:aws:s3:::login-gov.waf-logs-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}",
       "arn:aws:s3:::login-gov.reports.${data.aws_caller_identity.current.account_id}-${var.region}",
+      "arn:aws:s3:::login-gov-cloudtrail-${data.aws_caller_identity.current.account_id}-${var.region}",
     ]
   }
   statement {
@@ -34,6 +35,7 @@ data "aws_iam_policy_document" "logbucketpolicy" {
       "arn:aws:s3:::login-gov.elb-logs.${data.aws_caller_identity.current.account_id}-${var.region}/${var.env_name}/*",
       "arn:aws:s3:::login-gov.waf-logs-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}/*",
       "arn:aws:s3:::login-gov.reports.${data.aws_caller_identity.current.account_id}-${var.region}/*",
+      "arn:aws:s3:::login-gov-cloudtrail-${data.aws_caller_identity.current.account_id}-${var.region}/*",
     ]
   }
 
