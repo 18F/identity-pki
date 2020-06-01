@@ -618,9 +618,3 @@ variable "kms_log_kinesis_shards" {
   description = "Number of shards to provision in Kinesis datastream for kms logging"
   default     = 1
 }
-
-variable "kmskeydeletealert_enabled" {
-  default     = 0
-  description = "Whether to enable KMS ScheduleKeyDeletion alerting"
-}
-

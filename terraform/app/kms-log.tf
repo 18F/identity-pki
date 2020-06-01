@@ -10,31 +10,3 @@ module "kms_logging" {
   ec2_kms_arns               = concat([aws_iam_role.idp.arn],var.db_restore_role_arns)
 }
 
-# alert if we are disabling or deleting a key, which would be terrible for us!
-resource "aws_cloudwatch_metric_alarm" "kms_keydeletion" {
-  count = var.kmskeydeletealert_enabled
-  alarm_name = "${var.env_name}_kms_keydeletion"
-  alarm_description = "A CloudWatch Alarm that triggers if customer created CMKs get disabled or scheduled for deletion."
-  metric_name = "${var.env_name}-KMSCustomerKeyDeletion"
-  namespace = "${var.env_name}/kmslog"
-  statistic = "Sum"
-  period = "60"
-  threshold = "1"
-  evaluation_periods = "1"
-  comparison_operator = "GreaterThanOrEqualToThreshold"
-  alarm_actions = [ "${var.slack_events_sns_hook_arn}" ]
-  treat_missing_data = "notBreaching"
-}
-
-resource "aws_cloudwatch_log_metric_filter" "kmskeydisabledordeleted" {
-  count = var.kmskeydeletealert_enabled
-  log_group_name = "/aws/lambda/${var.env_name}-cloudtrail-kms"
-  pattern = "{ ($.eventSource = kms.amazonaws.com) &&  (($.eventName=DisableKey) || ($.eventName=ScheduleKeyDeletion)) }"
-  name = "${var.env_name}-KMSCustomerKeyDeletion"
-
-  metric_transformation {
-    name = "${var.env_name}-KMSCustomerKeyDeletion"
-    value = "1"
-    namespace = "${var.env_name}/kmslog"
-  }
-}
