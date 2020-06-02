@@ -49,7 +49,7 @@ default['elk']['legacy_log_bucket_name'] = true
 default['java']['jdk_version'] = '8'
 
 # remote files
-default['elk']['kibanatarball'] = 'https://artifacts.elastic.co/downloads/kibana/kibana-7.3.1-linux-x86_64.tar.gz'
+default['elk']['kibanatarball'] = 'https://artifacts.elastic.co/downloads/kibana/kibana-7.4.2-linux-x86_64.tar.gz'
 default['elk']['logstashdeb'] = 'https://artifacts.elastic.co/downloads/logstash/logstash-7.4.2.deb'
 default['elk']['logstash-input-cloudwatch-logs-version'] = '1.0.3'
 default['elk']['logstash-codec-cloudtrail-version'] = '3.0.5'
