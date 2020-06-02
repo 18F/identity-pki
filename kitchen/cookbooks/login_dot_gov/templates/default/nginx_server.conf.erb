@@ -135,6 +135,12 @@ server {
     location /verify/doc_auth/selfie {
       client_max_body_size 10M;
     }
+    location /verify/capture_doc/selfie {
+      client_max_body_size 10M;
+    }
+    location /verify/recovery/selfie {
+      client_max_body_size 10M;
+    }
     location /api/v1/liveness {
       client_max_body_size 10M;
     }
