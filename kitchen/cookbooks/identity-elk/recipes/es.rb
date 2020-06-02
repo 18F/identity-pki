@@ -9,6 +9,11 @@ end
 
 include_recipe 'java'
 
+execute 'add openjdk JAVA_HOME to /etc/environment' do
+  command 'echo "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> /etc/environment'
+  not_if 'grep JAVA_HOME /etc/environment'
+end
+
 # add a script to help format and mount the nvme drive if available
 cookbook_file '/usr/local/sbin/format_nvme' do
   mode '0755'
@@ -73,7 +78,6 @@ elasticsearch_configure "elasticsearch" do
     'discovery.zen.minimum_master_nodes' => min_masters_count,
     'discovery.zen.ping.unicast.hosts' => esips,
     'cluster.initial_master_nodes' => esnames,
-    'java_home' => '/usr/lib/jvm/java-8-openjdk-amd64',
     'network.bind_host' => '0.0.0.0',
     'network.publish_host' => node.fetch('ipaddress'),
     'searchguard.ssl.transport.pemcert_filepath' => "/etc/elasticsearch/#{node.fetch('ipaddress')}.pem",
