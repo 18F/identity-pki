@@ -39,7 +39,7 @@ task :release do
 
   pre = match[:pre]
   major = Integer(match[:major])
-  hf = Integer(match[:hf])
+  hf = Integer(match[:hf]) if match[:hf]
 
   if pre
     release_version = major
