@@ -73,7 +73,6 @@ elasticsearch_configure "elasticsearch" do
     'discovery.zen.minimum_master_nodes' => min_masters_count,
     'discovery.zen.ping.unicast.hosts' => esips,
     'cluster.initial_master_nodes' => esnames,
-    'java_home' => '/usr/lib/jvm/java-8-openjdk-amd64',
     'network.bind_host' => '0.0.0.0',
     'network.publish_host' => node.fetch('ipaddress'),
     'searchguard.ssl.transport.pemcert_filepath' => "/etc/elasticsearch/#{node.fetch('ipaddress')}.pem",
