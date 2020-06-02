@@ -22,8 +22,15 @@ end
 # install elasticsearch
 elasticsearch_user 'elasticsearch'
 elasticsearch_install 'elasticsearch' do
-  type 'tarball' # type of install
+  type 'package' # type of install
   version "7.4.2"
+end
+
+# create directory for systemd override
+directory '/etc/systemd/system/elasticsearch.service.d'
+
+cookbook_file '/etc/systemd/system/elasticsearch.service.d/override.conf' do
+  source 'elasticsearch_systemd_override.conf'
 end
 
 # URL to reach the elasticsearch cluster.  In the pre-auto-scaled world this was
@@ -66,6 +73,7 @@ elasticsearch_configure "elasticsearch" do
     'discovery.zen.minimum_master_nodes' => min_masters_count,
     'discovery.zen.ping.unicast.hosts' => esips,
     'cluster.initial_master_nodes' => esnames,
+    'java_home' => '/usr/lib/jvm/java-8-openjdk-amd64',
     'network.bind_host' => '0.0.0.0',
     'network.publish_host' => node.fetch('ipaddress'),
     'searchguard.ssl.transport.pemcert_filepath' => "/etc/elasticsearch/#{node.fetch('ipaddress')}.pem",
@@ -85,6 +93,7 @@ elasticsearch_configure "elasticsearch" do
     'xpack.monitoring.history.duration' => "30d",
     'xpack.security.enabled' => false
   })
+  java_home '/usr/lib/jvm/java-8-openjdk-amd64'
   logging({:"action" => 'INFO'})
 
   notifies :restart, 'elasticsearch_service[elasticsearch]', :delayed
@@ -333,3 +342,8 @@ cookbook_file '/usr/local/bin/xpack_license_updater' do
 end
 
 execute '/usr/local/bin/xpack_license_updater'
+
+# remove elasticsearch's included jdk
+execute 'rm -rf /usr/share/elasticsearch/jdk' do
+  only_if Dir.exist?('/usr/share/elasticsearch/jdk')
+end
