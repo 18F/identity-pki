@@ -1,11 +1,12 @@
 name: KMS key deletion
 type: any
-index: logstash-*
+index: logstash-cloudtrail-*
 alert_text: Saw a KMS key deletion event in cloudtrail for this account.  Make sure that this is OK.
 owner: cloudtrail
 filter:
-- terms:
-	eventName: "ScheduleKeyDeletion"
+- query:
+    match:
+      eventName: ScheduleKeyDeletion
 alert:
 <% if ! @emails.empty? %>
 - "email"
