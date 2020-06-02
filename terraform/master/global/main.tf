@@ -70,6 +70,7 @@ module "main" {
   }
 
   role_list = [
+    "Auditor",
     "FullAdministrator",
     "PowerUser",
     "ReadOnly",
