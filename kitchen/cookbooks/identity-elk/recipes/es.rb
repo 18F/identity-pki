@@ -9,6 +9,11 @@ end
 
 include_recipe 'java'
 
+execute 'add openjdk JAVA_HOME to /etc/environment' do
+  command 'echo "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> /etc/environment'
+  not_if 'grep JAVA_HOME /etc/environment'
+end
+
 # add a script to help format and mount the nvme drive if available
 cookbook_file '/usr/local/sbin/format_nvme' do
   mode '0755'
