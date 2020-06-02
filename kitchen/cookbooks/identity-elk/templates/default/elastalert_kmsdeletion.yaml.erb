@@ -4,10 +4,8 @@ index: logstash-*
 alert_text: Saw a KMS key deletion event in cloudtrail for this account.  Make sure that this is OK.
 owner: cloudtrail
 filter:
-- query:
-    query_string:
-      query: 'ScheduleKeyDeletion'
-      default_field: 'eventName'
+- terms:
+	eventName: "ScheduleKeyDeletion"
 alert:
 <% if ! @emails.empty? %>
 - "email"
