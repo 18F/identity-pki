@@ -25,7 +25,7 @@
                                                 "log_group_name": "<%= @environmentName %>_/var/log/syslog",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
-                                                "timestamp_format": "%b %d %H:%M:%S"
+                                                "timestamp_format": "%b %-d %H:%M:%S"
 
                                         },
                                         {
@@ -33,15 +33,13 @@
                                                 "log_group_name": "<%= @environmentName %>_/var/log/audit/audit.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
-                                                "timestamp_format": "%b %d %H:%M:%S"
-
                                         },
                                         {
                                                 "file_path": "/var/log/kern.log",
                                                 "log_group_name": "<%= @environmentName %>_/var/log/kern.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
-                                                "timestamp_format": "%b %d %H:%M:%S"
+                                                "timestamp_format": "%b %-d %H:%M:%S"
 
                                         },
                                         {
@@ -49,8 +47,8 @@
                                                 "log_group_name": "<%= @environmentName %>_/var/log/mail.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
-                                                "timestamp_format": "%b %d %H:%M:%S"
-
+                                                "timestamp_format": "%b %-d %H:%M:%S"
+                                                
                                         },
                                         {
                                                 "file_path": "/var/log/nginx/access.log",
@@ -145,7 +143,7 @@
                                                 "log_group_name": "<%= @environmentName %>_/var/log/clamav/clamav.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
-                                                "timestamp_format": "%b %d %H:%M:%S %Y"
+                                                "timestamp_format": "%b %-d %H:%M:%S %Y"
 
                                         },
                                         {
@@ -153,7 +151,7 @@
                                                 "log_group_name": "<%= @environmentName %>_/var/log/clamav/freshclam.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
-                                                "timestamp_format": "%b %d %H:%M:%S %Y"
+                                                "timestamp_format": "%b %-d %H:%M:%S %Y"
 
                                         },
                                         {
@@ -214,7 +212,7 @@
                                                 "log_group_name": "<%= @environmentName %>_/var/log/messages",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
-                                                "timestamp_format": "%b %d %H:%M:%S"
+                                                "timestamp_format": "%b %-d %H:%M:%S"
 
                                         },
                                         {
@@ -228,7 +226,7 @@
                                                 "log_group_name": "<%= @environmentName %>_/var/log/dnsmasq.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
-                                                "timestamp_format": "%b %d %H:%M:%S"
+                                                "timestamp_format": "%b %-d %H:%M:%S"
 
                                         },
                                         {
