@@ -34,17 +34,24 @@ module "poweruser-assumerole" {
         {
           sid    = "CloudFront"
           effect = "Allow"
+          # Create, list, get, and limited delete without deleting a whole distribution
           actions = [
+            "cloudfront:CreateCloudFrontOriginAccessIdentity",
+            "cloudfront:CreateDistribution",
+            "cloudfront:CreateInvalidation",
+            "cloudfront:DeleteCloudFrontOriginAccessIdentity",
+            "cloudfront:GetDistribution",
+            "cloudfront:GetCloudFrontOriginAccessIdentity",
+            "cloudfront:GetCloudFrontOriginAccessIdentityConfig",
+            "cloudfront:ListDistributions",
+            "cloudfront:ListFieldLevelEncryptionConfigs",
+            "cloudfront:ListInvalidations",
+            "cloudfront:ListCloudFrontOriginAccessIdentities",
+            "cloudfront:ListStreamingDistributions",
             "cloudfront:ListTagsForResource",
             "cloudfront:TagResource",
+            "cloudfront:UpdateCloudFrontOriginAccessIdentity",
             "cloudfront:UpdateDistribution",
-            "cloudfront:CreateInvalidation",
-            "cloudfront:GetDistribution",
-            "cloudfront:ListDistributions",
-            "cloudfront:ListInvalidations",
-            "cloudfront:ListFieldLevelEncryptionConfigs",
-            "cloudfront:ListStreamingDistributions",
-            "cloudfront:CreateDistribution",
           ]
           resources = [
             "*",
