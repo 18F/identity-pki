@@ -15,6 +15,8 @@ module "main" {
   source = "../module"
 
   iam_account_alias            = "login-sandbox"
-  iam_kmsadmin_enabled         = true
   dashboard_logos_bucket_write = true
+  account_roles_map = {
+    iam_kmsadmin_enabled         = true
+  }
 }
