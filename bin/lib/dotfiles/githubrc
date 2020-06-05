@@ -16,21 +16,16 @@ alias gbi="run open https://github.com/orgs/18F/projects/5?card_filter_query=ass
 alias gpl="run hub pr list"
 alias gi="run hub issue"
 
-######## functions ########
-USE_RUN=1
-run() {
-  if [[ $USE_RUN -gt 0 ]] ; then
-    if [ -t 1 ]; then
-      echo -ne "\\033[1;36m"
-    fi
-
-    echo >&2 "+ $*"
-
-    if [ -t 1 ]; then
-      echo -ne '\033[m'
-    fi
+#### get current working branch; copied from oh-my-zsh/lib/git.zsh ####
+git_current_branch() {
+  local REF
+  REF=$(git symbolic-ref --quiet HEAD 2>/dev/null)
+  local RET=$?
+  if [[ $RET != 0 ]]; then
+    [[ $RET == 128 ]] && return  # no git repo.
+    REF=$(git rev-parse --short HEAD 2>/dev/null) || return
   fi
-  "$@"
+  echo ${REF#refs/heads/}
 }
 
 #### get list of GH_REVS per the repo ####
