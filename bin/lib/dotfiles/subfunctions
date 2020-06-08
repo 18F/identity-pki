@@ -1,3 +1,5 @@
+#!/bin/bash
+
 ######## sub-functions ########
 ## print full command before running ##
 USE_RUN=1
@@ -13,7 +15,7 @@ run() {
       echo -ne '\033[m'
     fi
   fi
-  "$*"
+  "$@"
 }
 
 ## print $usage and return 1 ##

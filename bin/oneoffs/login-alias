@@ -30,182 +30,147 @@ Optional:
 EOM
 }
 
-# cat repo-based file into homedir, then add to shell rc file
 append_with_rc() {
-  # shellcheck disable=SC2039
-  local rc="${1}"
+  local RC="${1}"
+  local TEXT="source \$HOME/.${RC}"
 
-  echo >> "$HOME/.${rc}"
-  cat "$(dirname "$0")/../lib/dotfiles/${rc}" >> "$HOME/.${rc}"
-  local text="source \$HOME/.${rc}"
-  if ! grep -qs "^$text$" "${shell_rc}"; then
-    echo && echo_cyan "Adding \`source \$HOME/.$rc\` to ${shell_rc}..."
-    run printf "%s\n" "$text" >> "${shell_rc}"
+  echo >> "$HOME/.${RC}"
+  cat "$(dirname "$0")/../lib/dotfiles/${RC}" >> "$HOME/.${RC}"
+
+  if ! grep -qs "^$TEXT$" "${SHELL_RC}"; then
+    echo && echo_cyan "Adding \`${TEXT}\` to ${SHELL_RC}..."
+    run printf "%s\n" "$TEXT" >> "${SHELL_RC}"
   fi
   echo
 }
 
-# echo ENV_VAR if declared, otherwise prompt to change
-set_env_var() {
-  local rc="${1}"
-  local ENV_VAR=${2}
-  VAR_VAL=$(eval echo \$$ENV_VAR)
-  if [[ -z "$VAR_VAL" ]]; then
-    read -r -p "$ENV_VAR not set; enter desired value: " VAR_VAL
+clear_env_vars () {
+  if ! prompt_yn "Clear out ALL env vars?"; then
+    echo_cyan "Not clearing env vars."
+    echo
+    return
   else
-    echo_yellow "$ENV_VAR already set: '$VAR_VAL'"
+    echo_cyan "Clearing env vars..."
+    for ENV_VAR in $(echo "${ENV_VARS[@]}" | tr '\n' ' ') ; do
+      unset $ENV_VAR
+      echo "$ENV_VAR unset."
+    done
   fi
-
-  local text="export $ENV_VAR=\"$VAR_VAL\""
-  if ! grep -qs "^${text}$" "$HOME/.${rc}"; then
-    printf "%s\n" "$text" >> "$HOME/.${rc}"
-  fi
+  unset ENV_VARS
 }
 
-remove_rc_file () {
-  echo && echo_cyan "Removing old \$HOME/.${1} file..."
-  run rm -f "$HOME/.${1}"
+verify_env_vars() {
+  local VARS="$@"
+  echo_cyan "Verifying env vars..."
+  for ENV_VAR in $(echo "${VARS[@]}" | tr '\n' ' ') ; do
+    VAR_VAL=$(eval echo \$$ENV_VAR)
+    if [[ -z "$VAR_VAL" ]]; then
+      read -r -p "$ENV_VAR not set; enter desired value: " VAR_VAL
+    else
+      echo_yellow "$ENV_VAR already set: '$VAR_VAL'"
+    fi
+  
+    local TEXT="export $ENV_VAR=\"$VAR_VAL\""
+    if ! grep -qs "^${TEXT}$" "$HOME/.${FILE}"; then
+      printf "%s\n" "$TEXT" >> "$HOME/.${FILE}"
+    fi
+  done
+  echo_cyan "Env vars verified and added to ${HOME}/.${FILE} file."
   echo
-  return 10
 }
 
-touch_rc_file () {
-  echo && echo_cyan "Creating \$HOME/.${1}..."
-  run touch "$HOME/.${1}"
-  echo
-  return 10
+create_rc_file() {
+  if [[ ! -f "$HOME/.${FILE}" ]] ; then
+    echo && echo_cyan "Creating new \$HOME/.${FILE}..."
+    run touch "$HOME/.${FILE}"
+  fi
+
+  if [[ "${FILE}" == "login-functions" ]] ; then
+    ID_DIR="$(cd $(dirname "${BASH_SOURCE[0]}") && pwd | sed 's/oneoffs//')"
+    if [[ ! $(echo ${PATH} | grep ${ID_DIR}) ]] ; then
+      echo_cyan "Adding '${ID_DIR}' to \$PATH..."
+      run echo "export PATH=${ID_DIR}:\$PATH" >> "$HOME/.login-functions"
+    fi
+  fi
+  append_with_rc "${FILE}"
 }
 
 rebuild_rc_file() {
-  local rc="${1}"
-
-  if [[ -f "$HOME/.${rc}" ]] ; then
-    if ! prompt_yn "\$HOME/.${rc} already exists; recreate?"; then
-      echo_cyan "Skipping recreation of \$HOME/.${rc}."
-      echo
-      return
-    else
-      remove_rc_file "${rc}"
+  local FILE=${1}
+  echo_green "Ready to build local .${FILE} file..."
+  if [[ -f "$HOME/.${FILE}" ]] ; then
+    if [[ $AUTORUN = false ]] ; then
+      if ! prompt_yn "\$HOME/.${FILE} already exists; recreate?"; then
+        echo_cyan "Skipping recreation of \$HOME/.${FILE}."
+        echo
+        return
+      fi
     fi
-  else
-    touch_rc_file "${rc}"
+    echo && echo_cyan "Removing old \$HOME/.${FILE} file..."
+    run rm -f "$HOME/.${FILE}"
   fi
+  create_rc_file
 }
+######################### START OF SCRIPT #########################
 
-new_rc_file() {
-  local rc="${1}"
-  remove_rc_file "${rc}"
-  touch_rc_file "${rc}"
-}
-
-create_login_rc () {
-  # add identity-devops/bin to $PATH
-  ID_DIR="$(cd $(dirname "${BASH_SOURCE[0]}") && pwd | sed 's/oneoffs//')"
-  echo_cyan "Adding '$ID_DIR' to \$PATH..."
-  run echo "export PATH=$ID_DIR:\$PATH" >> "$HOME/.login-functions"
-  echo
-
-  # verify AWS_ / GSA_ / KITCHEN_ env vars
-  echo_cyan "Verifying env vars..."
-  for ENV_VAR in AWS_PROFILE\
-                 GSA_USERNAME\
-                 GSA_FULLNAME\
-                 GSA_EMAIL\
-                 GITHUB_SSH_KEY\
-                 KITCHEN_EC2_SSH_KEYPAIR_ID\
-                 KITCHEN_EC2_SSH_KEY ; do set_env_var login-functions $ENV_VAR ; done
-  echo_cyan "Env vars verified for $HOME/.login-functions file."
-  append_with_rc "login-functions"
-}
-
-create_github_rc () {
-  echo_cyan "Verifying env vars..."
-  for ENV_VAR in GITHUB_PARENT_DIR LOGIN_REVS ; do set_env_var githubrc $ENV_VAR ; done
-  echo_cyan "Env vars verified for $HOME/.githubrc file."
-  append_with_rc "githubrc"
-}
+AUTORUN=false
+CLEAR_VARS=false
+FILES=$(ls $(dirname "${BASH_SOURCE[0]}")/../lib/dotfiles)
+echo
 
 case "$SHELL" in
-  */fish)
-    shell_rc="$HOME/.config/fish/config.fish"
-  ;;
+  */fish) SHELL_RC="$HOME/.config/fish/config.fish" ;;
   */zsh)
     if [ -w "$HOME/.zshrc.local" ]; then
-      shell_rc="$HOME/.zshrc.local"
+      SHELL_RC="$HOME/.zshrc.local"
     else
-      shell_rc="$HOME/.zshrc"
+      SHELL_RC="$HOME/.zshrc"
     fi
   ;;
-  *)
-    shell_rc="$HOME/.bash_profile"
-  ;;
+  *) SHELL_RC="$HOME/.bash_profile" ;;
 esac
 
-while getopts aglre opt ; do
-case ${opt} in
-  a) 
-    for file in login-functions githubrc ; do new_rc_file "${file}" ; done
-    create_login_rc && create_github_rc
-  ;;
-  g)
-    new_rc_file 'githubrc'
-    create_github_rc
-  ;;
-  l)
-    new_rc_file 'login-functions'
-    create_login_rc
-  ;;
-  r) 
-    export USE_RUN=0
-    for file in login-functions githubrc ; do
-      sed -i '' -E "s/(USE_RUN=)1/\10/" "$HOME/.${file}"
-    done && echo "Output of run() suppressed."
-  ;;
-  e)
-    if ! prompt_yn "Clear out ALL env vars?"; then
-      echo_cyan "Not clearing env vars."
-      echo
-      return
-    else
-      echo_cyan "Clearing env vars..."
-      for ENV_VAR in AWS_PROFILE\
-                     GSA_USERNAME\
-                     GSA_FULLNAME\
-                     GSA_EMAIL\
-                     GITHUB_SSH_KEY\
-                     KITCHEN_EC2_SSH_KEYPAIR_ID\
-                     KITCHEN_EC2_SSH_KEY\
-                     GITHUB_PARENT_DIR\
-                     LOGIN_REVS ; do
-        unset $ENV_VAR
-        echo "$ENV_VAR unset."
-      done
-    fi
-  ;;
-  *)
-    usage
-    exit
-  ;;
-esac
+while getopts aglser opt ; do
+  case ${opt} in
+    a) AUTORUN=true ;;
+    g) AUTORUN=true ; FILES="githubrc" ;;
+    l) AUTORUN=true ; FILES="login-functions" ;;
+    s) AUTORUN=true ; FILES="subfunctions" ;;
+    e) CLEAR_VARS=true ;;
+    r)
+      export USE_RUN=0
+      sed -i '' -E "s/(USE_RUN=)1/\10/" "$HOME/.subfunctions"
+      echo "Output of run() suppressed."
+      [[ ${AUTORUN} = false ]] && exit 0
+    ;;
+  esac
 done
-if [ $OPTIND -eq 1 ]; then 
-  usage
-  exit
-fi
 
-if [[ $# == 0 ]] ; then
-  echo
-  echo_green "Ready to configure \$HOME/.login-functions file."
-  rebuild_rc_file 'login-functions'
-  [[ "${?}" == '10' ]] && create_login_rc
-  
-  echo_green "Ready to configure \$HOME/.githubrc file."
-  rebuild_rc_file 'githubrc'
-  if [[ "${?}" == '10' ]] ; then
-    create_github_rc
-  else
-    exit 0
+for FILE in $(echo "${FILES[@]}"  | tr '\n' ' ') ; do
+  case ${FILE} in
+    'githubrc')
+      ENV_VARS=("GITHUB_PARENT_DIR")
+    ;;
+    'login-functions')
+      ENV_VARS=("AWS_PROFILE" \
+                "GSA_USERNAME" \
+                "GSA_FULLNAME" \
+                "GSA_EMAIL" \
+                "GITHUB_SSH_KEY" \
+                "KITCHEN_EC2_SSH_KEYPAIR_ID" \
+                "KITCHEN_EC2_SSH_KEY")
+    ;;
+    'subfunctions')
+      ENV_VARS=()
+    ;;
+  esac
+  if [[ ${CLEAR_VARS} = true ]] ; then
+    clear_env_vars "${ENV_VARS[@]}"
+    [[ ${AUTORUN} = false ]] && exit 0
   fi
-fi
+  rebuild_rc_file "${FILE}"
+  verify_env_vars "${ENV_VARS[@]}"
+done
 
-echo_green "Done, run \`source ${shell_rc}\` to load the login.gov aliases/functions."
+echo_green "Done, run \`source ${SHELL_RC}\` to load the login.gov aliases/functions."
+echo

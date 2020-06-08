@@ -1,4 +1,5 @@
 #!/bin/bash
+. "$(dirname "$0")/.subfunctions"
 
 ############# login.gov aliases/functions #############
 if [[ ! $(brew cask list | grep aws-vault) ]] ; then
@@ -8,6 +9,48 @@ fi
 ######## aliases ########
 alias bb="git checkout stages/${GSA_USERNAME}"
 alias laptop='bash <(curl -s https://raw.githubusercontent.com/18F/laptop/master/laptop)'
+
+######## sub-functions ########
+## print full command before running ##
+USE_RUN=1
+run() {
+  if [[ $USE_RUN -gt 0 ]] ; then
+    if [ -t 1 ]; then
+      echo -ne "\\033[1;36m"
+    fi
+
+    echo >&2 "+ $*"
+
+    if [ -t 1 ]; then
+      echo -ne '\033[m'
+    fi
+  fi
+  "$*"
+}
+
+## print $usage and return 1 ##
+badopt() {
+  echo "Usage: ${usage}"
+  break 1
+}
+
+# set a variable AND print its declaration to the console
+run_var() {
+  VAR=${1}
+  shift
+  if [ -t 1 ]; then
+    echo -ne "\\033[1;36m"
+  fi
+
+  echo -e >&2 "+ $VAR=\$($*)"
+
+  if [ -t 1 ]; then
+    echo -ne '\033[m'
+  fi
+  T=$($@)
+  # Set variable value by reference to avoid ; shenanigans
+  eval "${VAR}=\"\${T}\""
+}
 
 ## determine env (and AWS_PROFILE) from arg ##
 env_get() {
@@ -245,12 +288,3 @@ EOF
   done
   run_av cl elasticsearch ${ES_CMD} ${EC2_ENV} ${3-}
 }
-
-######## shell startup ########
-for key in $(env | grep ".*SSH_KEY=" | sed 's/=.*$//') ; do
-  if [ -f $(eval echo \$$key) ] ; then
-    while ! ssh-add -L | grep -q $key ; do
-      ssh-add -K $(eval echo \$$key)
-    done
-  fi
-done
