@@ -55,7 +55,7 @@ Examples:
     $(basename "$0") sign_in dev -h 10 -n 120
 
     # Pass through options to Locust
-    $(basename "$0") sign_in pt -u 100 -t 10m -- --step-load --step-users 10 --step-time 1m
+    $(basename "$0") sign_up pt -u 100 -t 10m -- --step-load --step-users 10 --step-time 1m
 
 Available Tests:
 
@@ -81,7 +81,7 @@ shift 2
 TEST_DIR='/var/log/loadtest'
 RUN_TIME="60s"
 MASTER_ADDRESS=
-MASTER_FLAG=
+EXTRA_OPTIONS=
 declare {MASTER,WORKER}=false
 declare {USERS,HATCH_RATE,NUM_USERS}=1
 
@@ -103,29 +103,34 @@ done
 
 # Retain unprocessed arguments to pass to Locust
 shift $((OPTIND - 1))
+EXTRA_OPTIONS=$@
 
 if [[ "${WORKER}" == true ]] && [[ "${MASTER}" == true ]] ; then
   raise "Cannot be MASTER and WORKER at once"
 fi
 
 if [[ "${MASTER}" == true ]] ; then
-    MASTER_FLAG="--master"
+    EXTRA_OPTIONS="${EXTRA_OPTIONS} --master"
     echo "IP address of master: $(ifconfig | grep 'inet 172' | awk '{print $2}')"
     read -n 1 -s -r -p "Press any key to run test... "
 fi
 
 if [[ "${WORKER}" == true ]] ; then
   run locust --host "${TARGET}" \
-             --locustfile "${TEST_FILE}" --worker --master-host="${MASTER_ADDRESS}"
+             --locustfile "${TEST_FILE}" --worker --master-host "${MASTER_ADDRESS}"
 else
   START_TIME=$(date +%Y%m%d%H%M%S)
   export NUM_USERS
-  run locust --host "${TARGET}" \
+  # Run locust with extra options front loaded to prevent being interpreted as
+  # UserClass
+  run locust ${EXTRA_OPTIONS} \
+            --host "${TARGET}" \
              --locustfile "${TEST_FILE}" \
-             --users="${USERS}" \
+             --users "${USERS}" \
              --hatch-rate "${HATCH_RATE}" \
              --headless \
-             --csv="${TEST_DIR}/${START_TIME}-${TEST}" \
-             --run-time "${RUN_TIME}" "${MASTER_FLAG}" $@ \
+             --csv "${TEST_DIR}/${START_TIME}-${TEST}" \
+             --run-time "${RUN_TIME}" \
              2>&1 | tee "${TEST_DIR}/${START_TIME}-${TEST}.log"
 fi
+
