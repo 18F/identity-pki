@@ -1,4 +1,5 @@
 #!/bin/bash
+. "$(dirname "$0")/.subfunctions"
 
 ############# login.gov aliases/functions #############
 if [[ ! $(brew cask list | grep aws-vault) ]] ; then
@@ -9,49 +10,29 @@ fi
 alias bb="git checkout stages/${GSA_USERNAME}"
 alias laptop='bash <(curl -s https://raw.githubusercontent.com/18F/laptop/master/laptop)'
 
-######## sub-functions ########
-## print full command before running ##
-USE_RUN=1
-run() {
-  if [[ $USE_RUN -gt 0 ]] ; then
-    if [ -t 1 ]; then
-      echo -ne "\\033[1;36m"
-    fi
-
-    echo >&2 "+ $*"
-
-    if [ -t 1 ]; then
-      echo -ne '\033[m'
-    fi
-  fi
-  "$*"
-}
-
-## print $usage and return 1 ##
-badopt() {
-  echo "Usage: ${usage}"
-  break 1
-}
-
+######## functions ########
 ## determine env (and AWS_PROFILE) from arg ##
 env_get() {
-  AV_PROFILE='sandbox-fulladmin'
+  AV_PROFILE='sandbox-admin'
   EC2_ENV=${1:-$(echo $GSA_USERNAME)}
-  [[ "${EC2_ENV}" =~ "staging|prod" ]] && AV_PROFILE='prod-fulladmin'
+  [[ "${EC2_ENV}" =~ "staging|prod" ]] && AV_PROFILE='prod-admin'
 }
 
 ## integrates with ykman for YubiKey OTP MFA ##
 mfa_get() {
-  ttl_time=$(aws-vault list --sessions | awk '{print $1}')
-  if [[ -z ${ttl_time} ]] || [[ ${ttl_time} -lt $(date +%s) ]] ; then
-    ttl="--duration=1h"
-    [[ $(command -v ykman) ]] && yk="--mfa-token=$(ykman oath code --single aws/login-master | awk '{print $NF}')"
+  local DUR="${1:-1}h"
+  local ttl_time=$(aws-vault list --sessions | awk '{print $1}') 
+  if [[ -z ${ttl_time} ]] || [[ ${ttl_time} -lt $(date +%s) ]]
+  then
+    ttl="--duration=${DUR}" 
+    [[ -n $(command -v ykman) ]] && yk="--mfa-token=$(ykman oath code --single aws/login-master | awk '{print $NF}')" 
   fi
 }
 
 ## strip off aws-vault exec stuff if running a long AWS_VAULT session ##
 run_av() {
-  if [[ -z ${AWS_VAULT} ]] ; then
+  if [[ -z ${AWS_VAULT} ]]
+  then
     declare {ttl,yk}=
     mfa_get
     run aws-vault exec ${AV_PROFILE} ${ttl} ${yk} -- "$@"
@@ -60,7 +41,6 @@ run_av() {
   fi
 }
 
-######## core functions ########
 #### fast aws-vault commands ####
 av() {
   read -r -d '' usage <<'EOF'
@@ -69,25 +49,31 @@ EOF
   [[ $# == 0 ]] && badopt
   while getopts i:l:s:p:a:o:m: opt
   do
-    case "${opt}" in          ## profile in aws-vault exec ${profile}
-      i) AV_PROFILE='sandbox-fulladmin'     ;;
-      l) AV_PROFILE='prod-fulladmin'        ;;
-      s) AV_PROFILE='sms-sandbox-fulladmin' ;;
-      p) AV_PROFILE='sms-prod-fulladmin'    ;;
-      a) AV_PROFILE='analytics-fulladmin'   ;;
-      o) AV_PROFILE='secops-fulladmin'      ;;
-      m) AV_PROFILE='master-fulladmin'      ;;
-    h|*) badopt                             ;;
+    case "${opt}" in
+      i) AV_PROFILE='sandbox-admin'     ;;
+      l) AV_PROFILE='prod-admin'        ;;
+      s) AV_PROFILE='sms-sandbox-admin' ;;
+      p) AV_PROFILE='sms-prod-admin'    ;;
+      a) AV_PROFILE='analytics-admin'   ;;
+      o) AV_PROFILE='secops-admin'      ;;
+      m) AV_PROFILE='master-admin'      ;;
+      h|*) badopt ;;
     esac
-    AV_CMD="${OPTARG}"
+    AV_CMD="${OPTARG}" 
   done
   shift
   declare {ttl,yk}=
   mfa_get
   case "${AV_CMD}" in
-    l) run aws-vault login ${AV_PROFILE} ${ttl} ${yk} ;;
-    c) run_av "$@" ;;
-    *) badopt ;;
+    (l) run aws-vault login ${AV_PROFILE} ${ttl} ${yk} ;;
+    (c) run_av "$@" ;;
+    (v)
+        run aws-vault remove master --sessions-only
+        declare {ttl,yk}=
+        mfa_get "$@"
+        run aws-vault exec ${AV_PROFILE} --no-session ${ttl} ${yk}
+    ;;
+    (*) badopt ;;
   esac
 }
 
@@ -113,13 +99,13 @@ EOF
   EC2_ENV="${2-sandbox}"
   shift
   case $TF_DIR in
-    all|core) AV_PROFILE="${EC2_ENV}-fulladmin" ;;
+    all|core) AV_PROFILE="${EC2_ENV}-admin" ;;
     app) env_get "${1}" ;;
     master)
-      AV_PROFILE='master-fulladmin'
+      AV_PROFILE='master-admin'
       EC2_ENV="global"
     ;;
-    sms) AV_PROFILE="sms-${EC2_ENV}-fulladmin" ;;
+    sms) AV_PROFILE="sms-${EC2_ENV}-admin" ;;
   esac
   if [[ "${TF_DIR}" == 'app' ]] ; then
     run_av tf-deploy ${EC2_ENV} ${TF_DIR} ${TF_CMD}
@@ -165,7 +151,7 @@ TBD
 EOF
   [[ $# == 0 ]] && badopt
   local BUNDLE_CMD
-  AV_PROFILE='sandbox-fulladmin'
+  AV_PROFILE='sandbox-admin'
   while getopts vk:b:r: opt
   do
     case "${opt}" in       ## opt in `be -${opt}${OPTARG}`
@@ -208,6 +194,7 @@ TBD
  
 EOF
   [[ $# == 0 ]] && badopt
+  local CL_TABLE EC2_TYPE
   env_get ${2}
   while getopts el:c:r:s: opt
   do
@@ -228,7 +215,7 @@ EOF
       l) CL_TABLE=$(run_av ls-servers -Hlqn asg-${EC2_ENV}-${EC2_TYPE}) ;;
       c) run_av scale-in-old-instances -q ${EC2_ENV} ${EC2_TYPE}        ;;
       r) run_av asg-recycle -q ${EC2_ENV} ${EC2_TYPE}                   ;;
-      s) run asg-size -q ${EC2_ENV} ${EC2_TYPE} ${3-}                   ;;
+      s) run_av asg-size -q ${EC2_ENV} ${EC2_TYPE} ${3-}                ;;
       *) badopt ${opt}                                                  ;;
     esac
   done
@@ -246,6 +233,7 @@ TBD
 
 EOF
   [[ $# == 0 ]] && badopt
+  local ES_CMD
   env_get ${2}
   while getopts sdcu opt ; do
     case "${opt}" in
@@ -259,11 +247,42 @@ EOF
   run_av cl elasticsearch ${ES_CMD} ${EC2_ENV} ${3-}
 }
 
-######## shell startup ########
-for key in $(env | grep ".*SSH_KEY=" | sed 's/=.*$//') ; do
-  if [ -f $(eval echo \$$key) ] ; then
-    while ! ssh-add -L | grep -q $key ; do
-      ssh-add -K $(eval echo \$$key)
-    done
+## completely delete a legacy IAM user ##
+iam_del() {
+  read -r -d '' usage <<'EOF'
+
+Usage: iam_del $USER $ACCOUNT (sandbox/prod/analytics/etc.)
+- completely removes a legacy IAM user from an account
+
+EOF
+  [[ $# < 2 ]] && badopt
+  local LEGACY_LOGIN_USER=${1}
+  AV_PROFILE="${2}-admin"
+  if [[ ${AV_PROFILE} == "master" ]] ; then
+    echo 'Cannot be run ad hoc in login-master! Use Terraform.'
+    break 1
   fi
-done
+
+  for KEY in $(run_av aws iam list-access-keys \
+    --user-name ${LEGACY_LOGIN_USER} --query 'AccessKeyMetadata[]' |
+    jq -r '.[].AccessKeyId') ; do
+    run_av aws iam delete-access-key \
+      --access-key-id ${KEY} --user-name ${LEGACY_LOGIN_USER}
+  done
+  
+  for GROUP in $(run_av aws iam list-groups-for-user \
+    --user-name ${LEGACY_LOGIN_USER} | jq -r '.[][].GroupName') ; do
+    run_av aws iam remove-user-from-group \
+      --user-name ${LEGACY_LOGIN_USER} --group-name $GROUP
+  done
+  
+  for MFA in $(run_av aws iam list-mfa-devices \
+      --user-name ${LEGACY_LOGIN_USER} | jq -r '.[][].SerialNumber') ; do
+  run_av aws iam deactivate-mfa-device \
+    --serial-number ${MFA} --user-name ${LEGACY_LOGIN_USER} 
+  run_av aws iam delete-virtual-mfa-device --serial-number ${MFA}
+  done
+  
+  run_av aws iam delete-login-profile --user-name ${LEGACY_LOGIN_USER}
+  run_av aws iam delete-user --user-name ${LEGACY_LOGIN_USER}
+}

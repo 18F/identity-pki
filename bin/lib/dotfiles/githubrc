@@ -1,4 +1,5 @@
 #!/bin/bash
+. "$(dirname "$0")/.subfunctions"
 
 ############### github aliases/functions ###############
 if [[ ! $(brew list | grep hub) ]] ; then
@@ -17,20 +18,24 @@ alias gpl="run hub pr list"
 alias gi="run hub issue"
 
 ######## functions ########
-USE_RUN=1
-run() {
-  if [[ $USE_RUN -gt 0 ]] ; then
-    if [ -t 1 ]; then
-      echo -ne "\\033[1;36m"
-    fi
-
-    echo >&2 "+ $*"
-
-    if [ -t 1 ]; then
-      echo -ne '\033[m'
-    fi
+#### get current working branch; copied from oh-my-zsh/lib/git.zsh ####
+git_current_branch() {
+  local REF
+  REF=$(git symbolic-ref --quiet HEAD 2>/dev/null)
+  local RET=$?
+  if [[ $RET != 0 ]]; then
+    [[ $RET == 128 ]] && return  # no git repo.
+    REF=$(git rev-parse --short HEAD 2>/dev/null) || return
   fi
-  "$@"
+  echo ${REF#refs/heads/}
+}
+
+#### get list of GH_REVS per the repo ####
+gh_revs() {
+  GH_REVS=$(cat ~/.login-revs |
+    grep "$(basename $(git rev-parse --show-toplevel))" |
+    awk '{print $2}')
+  [[ -z ${GH_REVS} ]] && GH_REVS="${LOGIN_REVS}-"
 }
 
 #### cd to ${GITHUB_PARENT_DIR}/identity-${1} ####
@@ -95,30 +100,38 @@ gmpr () {
   [[ "${save_branch}" == 'true' ]] || delb $branch
 }
 
-#### open PR from LOGIN_REVS and $msg ####
-pbj() {
-  local revs="${1}"
-  local msg=("${@:2}")
-  run hub pull-request -p -r "${revs}" -m "${msg[@]}" -e
-}
-
 #### add>commit>push -u>open PR with $msg ####
 gpr() {
-  local revs="${LOGIN_REVS}"
+  gh_revs
   local msg=("${@}")
   gpb "${msg[@]}"
-  pbj "${revs}" "${msg[@]}"
+  run hub pull-request -p -r "${GH_REVS}" -m "${msg[@]}" -e
 }
 
 #### create issues ####
 ghi() {
-  run hub issue create --edit \
-    -F "${GITHUB_PARENT_DIR}/identity-devops/.github/ISSUE_TEMPLATE/feature_request.md"
+  local ASSIGNEE
+  local TEMPLATE="feature_request"
+  while getopts a:bon opt ; do
+    case "${opt}" in
+      a) ASSIGNEE="-a ${OPTARG}" ;;
+      b) TEMPLATE="bug_report" ;;
+      o) TEMPLATE="offboard-devops" ;;
+      n) TEMPLATE="onboarding-devops" ;;
+      *) badopt ;;
+    esac
+  done
+  run hub issue create --edit "${ASSIGNEE}" \
+    -F "${GITHUB_PARENT_DIR}/identity-devops/.github/ISSUE_TEMPLATE/${TEMPLATE}.md"
 }
 
 #### pull branch up to current version ####
 grff() {
-  git pull --ff-only origin v$(cat VERSION.txt)
+  if [[ $(cat VERSION.txt | grep 'pre-') ]] ; then
+    echo "Must be run from an appropriate stages/ branch"
+  else
+    git pull --ff-only origin v$(($(cat VERSION.txt)+1))
+  fi
 }
 
 #### create private gist from clipboard ####
@@ -130,22 +143,28 @@ ggc() {
 
 #### determine active version / next / previous, and get PRs ####
 gv() {
-  NEW_RELEASE=$(cat VERSION.txt | sed -E 's/pre\-//')
+  NEW_RELEASE=${1:-$(cat VERSION.txt | sed -E 's/pre\-//')}
   OLD_RELEASE=$(($(echo ${NEW_RELEASE} | sed -E 's/\..+//')-1))
   run_var PR_LIST hub pr list -b master -s merged -o updated -L 100 -f "- %i %t%n"
+  if [[ $(echo "${PR_LIST}" | grep "${NEW_RELEASE}") ]] ; then
+    RELEASE_PRS=$(echo "${PR_LIST}" |
+      sed -n "/${NEW_RELEASE}/,/${OLD_RELEASE}/p;/${OLD_RELEASE}/q;" |
+      grep -v "${NEW_RELEASE}\|${OLD_RELEASE}") 
+  else
+    RELEASE_PRS=$(echo "${PR_LIST}" |
+      sed "/${OLD_RELEASE}/q" |
+      grep -v "$NEW_RELEASE\|$OLD_RELEASE")
+  fi
 }
 
 #### create a GitHub release ####
 ghr() {
   local PR_LIST
   gv
-  RELEASE_PRS=$(echo "${PR_LIST}" |
-    sed -n "/${NEW_RELEASE}/,/${OLD_RELEASE}/p;/${OLD_RELEASE}/q;" |
-    grep -v "$NEW_RELEASE\|$OLD_RELEASE")
   run hub release create "v${NEW_RELEASE}" -m "$(cat <<EOF
 Release v${NEW_RELEASE}
 
-$RELEASE_PRS
+${RELEASE_PRS}
 EOF
   )"
 }
@@ -154,20 +173,17 @@ EOF
 grpr() {
   local PR_LIST GIT_TAGS
   gv
+  gh_revs
   run git checkout master && \
   run git pull origin master && \
   run git checkout -b release/v${NEW_RELEASE}
-  run rake release
+  run rake release && \
   run git push origin release/v${NEW_RELEASE}
-  run git push --tags
-  run_var GIT_TAGS git tag -l -n2 | grep version | awk '{print $1}' | sed -E 's/[^0-9\.]*//g' | sort -nr
-  RELEASE_PRS=$(echo "${PR_LIST}" |
-    sed "/${OLD_RELEASE}/q" |
-    grep -v "$NEW_RELEASE\|$OLD_RELEASE") 
-  run hub pull-request -p -r "${LOGIN_REVS}" -e -m "$(cat <<EOF
-Release v${NEW_RELEASE}
+  run git push --tags && \
+  run hub pull-request -p -r "${GH_REVS}" -e -m "$(cat <<EOF
+Release v${VERSION}
 
-$RELEASE_PRS
+${RELEASE_PRS}
 EOF
   )"
 }
@@ -179,7 +195,7 @@ ghf() {
   local HF_COUNT=$(echo ${NEW_RELEASE} | awk -F. '{print $2}')
   [[ -z ${HF_COUNT} ]] && HF_COUNT=0
   HF_NUM=$((${HF_COUNT}+1))
-  echo "${HF_VERSION}.${HF_COUNT}" > VERSION.txt
+  echo "${HF_VERSION}.${HF_NUM}" > VERSION.txt
   grpr
 }
 
