@@ -10,48 +10,7 @@ fi
 alias bb="git checkout stages/${GSA_USERNAME}"
 alias laptop='bash <(curl -s https://raw.githubusercontent.com/18F/laptop/master/laptop)'
 
-######## sub-functions ########
-## print full command before running ##
-USE_RUN=1
-run() {
-  if [[ $USE_RUN -gt 0 ]] ; then
-    if [ -t 1 ]; then
-      echo -ne "\\033[1;36m"
-    fi
-
-    echo >&2 "+ $*"
-
-    if [ -t 1 ]; then
-      echo -ne '\033[m'
-    fi
-  fi
-  "$*"
-}
-
-## print $usage and return 1 ##
-badopt() {
-  echo "Usage: ${usage}"
-  break 1
-}
-
-# set a variable AND print its declaration to the console
-run_var() {
-  VAR=${1}
-  shift
-  if [ -t 1 ]; then
-    echo -ne "\\033[1;36m"
-  fi
-
-  echo -e >&2 "+ $VAR=\$($*)"
-
-  if [ -t 1 ]; then
-    echo -ne '\033[m'
-  fi
-  T=$($@)
-  # Set variable value by reference to avoid ; shenanigans
-  eval "${VAR}=\"\${T}\""
-}
-
+######## functions ########
 ## determine env (and AWS_PROFILE) from arg ##
 env_get() {
   AV_PROFILE='sandbox-admin'
@@ -82,7 +41,6 @@ run_av() {
   fi
 }
 
-######## core functions ########
 #### fast aws-vault commands ####
 av() {
   read -r -d '' usage <<'EOF'
@@ -287,4 +245,44 @@ EOF
     esac
   done
   run_av cl elasticsearch ${ES_CMD} ${EC2_ENV} ${3-}
+}
+
+## completely delete a legacy IAM user ##
+iam_del() {
+  read -r -d '' usage <<'EOF'
+
+Usage: iam_del $USER $ACCOUNT (sandbox/prod/analytics/etc.)
+- completely removes a legacy IAM user from an account
+
+EOF
+  [[ $# < 2 ]] && badopt
+  local LEGACY_LOGIN_USER=${1}
+  AV_PROFILE="${2}-admin"
+  if [[ ${AV_PROFILE} == "master" ]] ; then
+    echo 'Cannot be run ad hoc in login-master! Use Terraform.'
+    break 1
+  fi
+
+  for KEY in $(run_av aws iam list-access-keys \
+    --user-name ${LEGACY_LOGIN_USER} --query 'AccessKeyMetadata[]' |
+    jq -r '.[].AccessKeyId') ; do
+    run_av aws iam delete-access-key \
+      --access-key-id ${KEY} --user-name ${LEGACY_LOGIN_USER}
+  done
+  
+  for GROUP in $(run_av aws iam list-groups-for-user \
+    --user-name ${LEGACY_LOGIN_USER} | jq -r '.[][].GroupName') ; do
+    run_av aws iam remove-user-from-group \
+      --user-name ${LEGACY_LOGIN_USER} --group-name $GROUP
+  done
+  
+  for MFA in $(run_av aws iam list-mfa-devices \
+      --user-name ${LEGACY_LOGIN_USER} | jq -r '.[][].SerialNumber') ; do
+  run_av aws iam deactivate-mfa-device \
+    --serial-number ${MFA} --user-name ${LEGACY_LOGIN_USER} 
+  run_av aws iam delete-virtual-mfa-device --serial-number ${MFA}
+  done
+  
+  run_av aws iam delete-login-profile --user-name ${LEGACY_LOGIN_USER}
+  run_av aws iam delete-user --user-name ${LEGACY_LOGIN_USER}
 }
