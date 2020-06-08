@@ -12,8 +12,7 @@ raise() {
   exit 1
 }
 
-#REPO_DIR='/etc/login.gov/repos/identity-loadtest'
-REPO_DIR='/Users/paulmhirsch/src/identity-loadtest'
+REPO_DIR='/etc/login.gov/repos/identity-loadtest'
 [[ -d "${REPO_DIR}" ]] || raise "REPO_DIR ${REPO_DIR} does not exist"
 
 list_tests() {
