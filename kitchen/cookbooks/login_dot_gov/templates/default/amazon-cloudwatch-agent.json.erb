@@ -244,6 +244,31 @@
                                                 "timezone": "UTC",
                                                 "timestamp_format": "%Y-%m-%dT%H:%M:%S.%f"
 
+                                        },
+                                        {
+                                                "file_path": "/var/ossec/logs/ossec.log",
+                                                "log_group_name": "<%= @environmentName %>_/var/ossec/logs/ossec.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC",
+                                                "timestamp_format": "%Y/%m/%d %H:%M:%S"
+                                        },
+                                        {
+                                                "file_path": "/var/ossec/logs/firewall/firewall.log",
+                                                "log_group_name": "<%= @environmentName %>_/var/ossec/logs/firewall/firewall.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC"
+                                        },
+                                        {
+                                                "file_path": "/var/ossec/logs/archives/archives.log",
+                                                "log_group_name": "<%= @environmentName %>_/var/ossec/logs/archives/archives.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC"
+                                        },
+                                        {
+                                                "file_path": "/var/ossec/logs/alerts/alerts.log",
+                                                "log_group_name": "<%= @environmentName %>_/var/ossec/logs/alerts/alerts.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC"
                                         }
                                 ]
                         }
