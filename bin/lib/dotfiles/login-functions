@@ -123,25 +123,25 @@ tpc() {
 }
 
 #### quick SSM access ; requires session-manager-plugin to work! ####
-ssc() {
+ssc () {
   local SSM_CMD
-  while getopts ifs opt
-  do
-    case $opt in
-      i) SSM_CMD="sudo su - ${GSA_USERNAME}" ;;
-      f) SSM_CMD="sudo tail -f /var/log/cloud-init-output.log" ;;
-      s) SSM_CMD="sudo su - " ;;
-    esac
-  done
-  shift
   INSTANCE_ID=${1}
   env_get "${2}"
+  shift 2
+  while getopts ifs opt
+  do
+          case $opt in
+                  i) SSM_CMD="sudo su - ${GSA_USERNAME}"  ;;
+                  f) SSM_CMD="sudo tail -f /var/log/cloud-init-output.log"  ;;
+                  s) SSM_CMD="sudo su - "  ;;
+          esac
+  done
+  [ -z $SSM_CMD ] && SSM_CMD="$@"
   run_av aws ssm start-session \
-      --document-name AWS-StartInteractiveCommand \
-      --parameters command="'${SSM_CMD}'" \
-      --target "${INSTANCE_ID}"
+         --document-name AWS-StartInteractiveCommand \
+         --parameters command="'${SSM_CMD}'" \
+         --target "${INSTANCE_ID}"
 }
-
 #### run bundle exec with common commands ####
 be() {
   read -r -d '' usage <<'EOF'
