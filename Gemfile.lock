@@ -975,7 +975,7 @@ GEM
       pry (>= 0.10.4)
     psych (3.1.0)
     public_suffix (3.1.1)
-    puma (3.12.4)
+    puma (3.12.6)
     rack (2.2.2)
     rack-mini-profiler (1.0.2)
       rack (>= 1.2.0)
@@ -1105,7 +1105,7 @@ GEM
       hashdiff (>= 0.4.0, < 2.0.0)
     websocket-driver (0.7.1)
       websocket-extensions (>= 0.1.0)
-    websocket-extensions (0.1.4)
+    websocket-extensions (0.1.5)
     zonebie (0.6.1)
 
 PLATFORMS
