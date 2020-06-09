@@ -286,3 +286,21 @@ EOF
   run_av aws iam delete-login-profile --user-name ${LEGACY_LOGIN_USER}
   run_av aws iam delete-user --user-name ${LEGACY_LOGIN_USER}
 }
+
+#### generate list of 2 newest AMIs in each account ####
+get_amis () {
+  DATA=()
+  HEADERS="|AMI Date Account Description|"
+  for PROFILE in sandbox prod ; do
+    DATA+=$(echo -e "\n$(run aws-vault exec ${PROFILE}-admin -- \
+                  aws ec2 describe-images \
+                  --owners self \
+                  --query 'Images[*].[ImageId,CreationDate,Name]' \
+                  --output text | sort -rk2 | head -n 2 |
+                  sed -E "s/login\.gov (base|rails) (role )?hardened (base )?image Ubuntu 18\.04 /$PROFILE \1\-/g" |
+                  sed -E 's/^/\|/g;s/$/\|/g')\n")
+  done
+  NUM_COLS=$(echo ${DATA} | awk '{print NF}' | sort -nu | tail -n 1)
+  mdout "${HEADERS}\n$(echo "|${$(printf "%${NUM_COLS}s")// /--- }|")\n${DATA}"
+  echo
+}
