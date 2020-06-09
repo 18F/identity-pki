@@ -298,9 +298,10 @@ get_amis () {
                   --query 'Images[*].[ImageId,CreationDate,Name]' \
                   --output text | sort -rk2 | head -n 2 |
                   sed -E "s/login\.gov (base|rails) (role )?hardened (base )?image Ubuntu 18\.04 /$PROFILE \1\-/g" |
+                  sed -E "s/([0-9\:]+)\.000Z/\1/g" |
                   sed -E 's/^/\|/g;s/$/\|/g')\n")
   done
   NUM_COLS=$(echo ${DATA} | awk '{print NF}' | sort -nu | tail -n 1)
-  mdout "${HEADERS}\n$(echo "|${$(printf "%${NUM_COLS}s")// /--- }|")\n${DATA}"
+  mdout "${HEADERS}\n$(echo "|${$(printf "%${NUM_COLS}s")// /--- }|")\n${DATA}" | tr 'T' ' '
   echo
 }
