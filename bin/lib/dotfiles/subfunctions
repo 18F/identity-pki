@@ -41,3 +41,8 @@ run_var() {
   # Set variable value by reference to avoid ; shenanigans
   eval "${VAR}=\"\${T}\""
 }
+
+# parse space/tab-separated column output and space with pipe marks
+mdout() {
+  echo "|$@|" | column -t | tr -s ' ' '|' | sed 's/ *| */@| /g'   | column -s '@' -t
+}

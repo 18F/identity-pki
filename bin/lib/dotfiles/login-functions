@@ -125,23 +125,23 @@ tpc() {
 #### quick SSM access ; requires session-manager-plugin to work! ####
 ssc() {
   local SSM_CMD
-  while getopts ifs opt
-  do
-    case $opt in
-      i) SSM_CMD="sudo su - ${GSA_USERNAME}" ;;
-      f) SSM_CMD="sudo tail -f /var/log/cloud-init-output.log" ;;
-      s) SSM_CMD="sudo su - " ;;
-    esac
-  done
-  shift
   INSTANCE_ID=${1}
   env_get "${2}"
+  shift 2
+  while getopts ifs opt
+  do
+          case $opt in
+                  i) SSM_CMD="sudo su - ${GSA_USERNAME}"  ;;
+                  f) SSM_CMD="sudo tail -f /var/log/cloud-init-output.log"  ;;
+                  s) SSM_CMD="sudo su - "  ;;
+          esac
+  done
+  [ -z $SSM_CMD ] && SSM_CMD="$@"
   run_av aws ssm start-session \
-      --document-name AWS-StartInteractiveCommand \
-      --parameters command="'${SSM_CMD}'" \
-      --target "${INSTANCE_ID}"
+         --document-name AWS-StartInteractiveCommand \
+         --parameters command="'${SSM_CMD}'" \
+         --target "${INSTANCE_ID}"
 }
-
 #### run bundle exec with common commands ####
 be() {
   read -r -d '' usage <<'EOF'
@@ -187,7 +187,7 @@ EOF
 
 
 #### quickly run common cloudlib aliases/commands with any AWS_PROFILE/env ####
-vcl () {
+vcl() {
   read -r -d '' usage <<'EOF'
 
 TBD
@@ -203,6 +203,7 @@ EOF
       a) EC2_TYPE='app'                     ;;
       e) EC2_TYPE='elasticsearch'           ;;
       i) EC2_TYPE='idp'                     ;;
+      x) EC2_TYPE='idpxtra'                 ;;
       j) EC2_TYPE='jumphost'                ;;
       k) EC2_TYPE='elk'                     ;;
       m) EC2_TYPE='migration'               ;;
@@ -228,23 +229,61 @@ EOF
 #### call the cl elasticsearch commands with av() ####
 ve() {
   read -r -d '' usage <<'EOF'
-
-TBD 
+Usage: ve <FLAG> [ENV]
+Flags:
+  -s    Check cluster health via _cluster/health?pretty
+  -g    See if SearchGuard shards are yellow
+  -b    Run rebalancing commands on newest host
+  -d    Exclude IPs of older nodes
+  -w    Watch shard relocations in progress
+  -u    Update minimum_master_nodes to current count / 2
+  -r    Decrease ASG size by 1/2 and scale in old instances
+  -c    Remove routing allocation IP exclusion (set by -d)
 
 EOF
-  [[ $# == 0 ]] && badopt
-  local ES_CMD
+  [[ $# < 1 ]] && badopt
+  local ES_CMD CURL_CMD
   env_get ${2}
-  while getopts sdcu opt ; do
+  INSTANCES=$(run_av aws ec2 describe-instances \
+      --filters "Name=tag:Name,Values=asg-${EC2_ENV}-elasticsearch" "Name=instance-state-name,Values=running" \
+      --query "Reservations[*].Instances[*].{Instance:InstanceId,time:LaunchTime,IP:PrivateIpAddress}" \
+      --output text 2>/dev/null)
+  NEWEST_INSTANCE=$(echo ${INSTANCES} | sort -k3 | head -n 1 | awk '{print $2}')
+  COUNT=$(echo ${INSTANCES} | wc -l | tr -d ' ')
+  NEW_COUNT=$(($COUNT / 2))
+  OLD_IPS=$(echo ${INSTANCES} | sort -k3 | head -n ${NEW_COUNT} | awk '{print $1}' | tr '\n' ',' | sed -E 's/,$//')
+
+  while getopts sgbdwurc opt ; do
     case "${opt}" in
-      s) ES_CMD="check_status" ;;
-      d) ES_CMD="drain_old_nodes" ;;
-      c) ES_CMD="clear_node_drain" ;;
-      u) ES_CMD="update_minimum_masters" ;;
+      s) ES_CMD='curl -k https://localhost:9200/_cluster/health?pretty' ;;
+      g) ES_CMD='wget --no-check-certificate -q -O - "https://localhost:9200/_cat/shards?v" | grep searchguard' ;;
+      b) CURL_CMD='rebalance' ;;
+      d) CURL_CMD="{\"transient\":{\"cluster.routing.allocation.exclude._ip\":\"${OLD_IPS}\"}}" ;;
+      w) ES_CMD="watch \"wget --no-check-certificate -q -O - \'https://localhost:9200/_cat/shards?v\' | grep RELO\"" ;;
+      u) CURL_CMD="{\"persistent\":{\"discovery.zen.minimum_master_nodes\":\"${NEW_COUNT}\"}}" ;;
+      r) ES_CMD='recycle' ;;
+      c) CURL_CMD="{\"transient\":{\"cluster.routing.allocation.exclude._ip\":\"\"}}" ;;
       *) badopt ${opt} ;;
     esac
   done
-  run_av cl elasticsearch ${ES_CMD} ${EC2_ENV} ${3-}
+
+  if [[ ! -z ${CURL_CMD} ]] ; then
+    if [[ ${CURL_CMD} == "rebalance" ]] ; then
+      for CMD in "{\"transient\" :{\"indices.recovery.max_bytes_per_sec\" : \"10000mb\"}}" \
+                "{\"transient\" :{\"cluster.routing.allocation.cluster_concurrent_rebalance\" : \"2\"}}" \
+                "{\"transient\" :{\"cluster.routing.allocation.node_concurrent_recoveries\" : \"2\"}}" ; do
+        ES_CMD+="curl -k -X PUT https://localhost:9200/_cluster/settings -H \'Content-Type: application/json\' -d \'${CMD}\' ; "
+      done
+    else
+      ES_CMD="curl -k -X PUT https://localhost:9200/_cluster/settings -H \'Content-Type: application/json\' -d \'${CURL_CMD}\'"
+    fi
+  fi
+  
+  if [[ ${ES_CMD} == 'recycle' ]] ; then
+    vcl -se ${EC2_ENV} ${NEW_COUNT} && vcl -ce ${EC2_ENV}
+  else
+    ssc ${NEWEST_INSTANCE} ${EC2_ENV} "${ES_CMD}"
+  fi
 }
 
 ## completely delete a legacy IAM user ##
@@ -276,11 +315,11 @@ EOF
       --user-name ${LEGACY_LOGIN_USER} --group-name $GROUP
   done
   
-  for MFA in $(run_av aws iam list-mfa-devices \
+  for MFA_ARN in $(run_av aws iam list-mfa-devices \
       --user-name ${LEGACY_LOGIN_USER} | jq -r '.[][].SerialNumber') ; do
   run_av aws iam deactivate-mfa-device \
-    --serial-number ${MFA} --user-name ${LEGACY_LOGIN_USER} 
-  run_av aws iam delete-virtual-mfa-device --serial-number ${MFA}
+    --serial-number ${MFA_ARN} --user-name ${LEGACY_LOGIN_USER} 
+  run_av aws iam delete-virtual-mfa-device --serial-number ${MFA_ARN}
   done
   
   run_av aws iam delete-login-profile --user-name ${LEGACY_LOGIN_USER}
@@ -292,8 +331,8 @@ get_amis () {
   DATA=()
   HEADERS="|AMI Date Account Description|"
   for PROFILE in sandbox prod ; do
-    DATA+=$(echo -e "\n$(run aws-vault exec ${PROFILE}-admin -- \
-                  aws ec2 describe-images \
+    env_get ${PROFILE}
+    DATA+=$(echo -e "\n$(run_av aws ec2 describe-images \
                   --owners self \
                   --query 'Images[*].[ImageId,CreationDate,Name]' \
                   --output text | sort -rk2 | head -n 2 |
@@ -302,6 +341,7 @@ get_amis () {
                   sed -E 's/^/\|/g;s/$/\|/g')\n")
   done
   NUM_COLS=$(echo ${DATA} | awk '{print NF}' | sort -nu | tail -n 1)
+  echo
   mdout "${HEADERS}\n$(echo "|${$(printf "%${NUM_COLS}s")// /--- }|")\n${DATA}" | tr 'T' ' '
   echo
 }

@@ -171,7 +171,7 @@ EOF
 
 #### create a release PR ####
 grpr() {
-  local PR_LIST GIT_TAGS
+  local PR_LIST
   gv
   gh_revs
   run git checkout master && \
@@ -187,15 +187,3 @@ ${RELEASE_PRS}
 EOF
   )"
 }
-
-#### create git hotfix PR ####
-ghf() {
-  gv
-  local HF_VERSION=$(echo ${NEW_RELEASE} | awk -F. '{print $1}')
-  local HF_COUNT=$(echo ${NEW_RELEASE} | awk -F. '{print $2}')
-  [[ -z ${HF_COUNT} ]] && HF_COUNT=0
-  HF_NUM=$((${HF_COUNT}+1))
-  echo "${HF_VERSION}.${HF_NUM}" > VERSION.txt
-  grpr
-}
-
