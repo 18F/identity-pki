@@ -133,6 +133,12 @@ resource "aws_iam_role_policy" "elk-ssm-access" {
   policy = data.aws_iam_policy_document.ssm_access_role_policy.json
 }
 
+resource "aws_iam_role_policy" "elk-sns-publish-alerts" {
+  name   = "${var.env_name}-elk-sns-publish-alerts"
+  role   = aws_iam_role.elk_iam_role.id
+  policy = data.aws_iam_policy_document.sns-publish-alerts-policy.json
+}
+
 resource "aws_s3_bucket" "logbucket" {
   # TODO use terraform locals to compute this once we upgrade to 0.10.*
   bucket = "login-gov-logs-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"

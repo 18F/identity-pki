@@ -23,6 +23,9 @@ write_files:
  - path: /etc/login.gov/info/env
    content: "<%= env %>\n"
 
+ - path: /etc/login.gov/info/sns_topic_arn
+   content: "<%= sns_topic_arn %>\n"  
+
  - path: /etc/login.gov/info/domain
    content: "<%= domain %>\n"
 

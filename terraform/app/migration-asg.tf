@@ -12,9 +12,10 @@ resource "aws_iam_role_policy" "migration-ssm-access" {
 module "migration_user_data" {
   source = "../modules/bootstrap/"
 
-  role   = "migration"
-  env    = var.env_name
-  domain = var.root_domain
+  role          = "migration"
+  env           = var.env_name
+  domain        = var.root_domain
+  sns_topic_arn = var.slack_events_sns_hook_arn
 
   chef_download_url    = var.chef_download_url
   chef_download_sha256 = var.chef_download_sha256
@@ -104,6 +105,12 @@ resource "aws_autoscaling_group" "migration" {
     key                 = "domain"
     value               = "${var.env_name}.${var.root_domain}"
     propagate_at_launch = false
+  }
+  # utility tag to skip asg_recycle ALL
+  tag {
+    key                 = "utility"
+    value               = "true"
+    propagate_at_launch = true
   }
 }
 

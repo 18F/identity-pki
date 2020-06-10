@@ -81,3 +81,17 @@ data "aws_iam_policy_document" "cloudwatch-agent" {
     ]
   }
 }
+
+# Allow publishing to SNS topics used for alerting
+#This policy is for writing log files to CloudWatch
+data "aws_iam_policy_document" "sns-publish-alerts-policy" {
+  statement {
+    sid = "allowSNSPublish"
+    actions = [
+      "SNS:Publish",
+    ]
+    resources = [
+      var.slack_events_sns_hook_arn,
+    ]
+  }
+}
