@@ -41,6 +41,9 @@ module "main" {
       { "PowerUser"         = [ "Sandbox" ] },
       { "ReadOnly"          = [ "Sandbox" ] }
     ],
+    "analytics" = [
+      { "Analytics"         = [ "Sandbox", "Prod" ] }
+    ],
     "apponcall" = [
       { "PowerUser"         = [ "Sandbox", "Prod" ] },
       { "ReadOnly"          = [ "Sandbox", "Prod" ] }
@@ -70,6 +73,7 @@ module "main" {
   }
 
   role_list = [
+    "Analytics",
     "Auditor",
     "FullAdministrator",
     "PowerUser",
@@ -88,10 +92,11 @@ module "main" {
   # User to group mappings - Groups defined in ../module/iam_groups.tf
   user_map = {
     "aaron.chapman"      = ["appdev", "apponcall"],
-    "akhlaq.khan"        = ["finops", "bizops"],
+    "akhlaq.khan"        = ["analytics", "finops", "bizops"],
     "amit.freeman"       = ["devops"],
-    "brian.crissup"      = ["devops", "keymasters"],
+    "amos.stone"         = ["analytics"],
     "brett.mcparland"    = ["secops", "soc"],
+    "brian.crissup"      = ["devops", "keymasters"],
     "christopher.billas" = ["bizops", "finops"],
     "clinton.troxel"     = ["appdev"],
     "douglas.price"      = ["appdev", "bizops"],
@@ -99,6 +104,7 @@ module "main" {
     "jonathan.pirro"     = ["devops"],
     "justin.grevich"     = ["devops"],
     "likhitha.patha"     = ["bizops"],
+    "michael.antiporta"  = ["analytics"],
     "mossadeq.zia"       = ["devops", "secops", "keymasters"],
     "paul.hirsch"        = ["devops"],
     "rajat.varuni"       = ["secops", "soc", "keymasters"],
