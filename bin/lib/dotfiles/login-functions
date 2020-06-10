@@ -273,10 +273,6 @@ EOF
   fi
   
   ssc ${NEWEST_INSTANCE} ${EC2_ENV} "${ES_CMD}"
-  if [[ ${opt} == 'd' ]] ; then
-    vcl -se ${EC2_ENV} ${NEW_COUNT} && \
-    vcl -ce ${EC2_ENV}
-  fi
 }
 
 ## completely delete a legacy IAM user ##
