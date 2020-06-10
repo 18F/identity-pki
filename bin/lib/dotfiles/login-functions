@@ -123,7 +123,7 @@ tpc() {
 }
 
 #### quick SSM access ; requires session-manager-plugin to work! ####
-ssc () {
+ssc() {
   local SSM_CMD
   INSTANCE_ID=${1}
   env_get "${2}"
@@ -187,7 +187,7 @@ EOF
 
 
 #### quickly run common cloudlib aliases/commands with any AWS_PROFILE/env ####
-vcl () {
+vcl() {
   read -r -d '' usage <<'EOF'
 
 TBD
@@ -228,23 +228,55 @@ EOF
 #### call the cl elasticsearch commands with av() ####
 ve() {
   read -r -d '' usage <<'EOF'
-
-TBD 
+Usage: ve <FLAG> [ENV]
+Flags:
+  -s    Check cluster health via _cluster/health?pretty
+  -g    See if SearchGuard shards are yellow
+  -d    Exclude IPs of older nodes
 
 EOF
-  [[ $# == 0 ]] && badopt
-  local ES_CMD
+  [[ $# < 1 ]] && badopt
+  local ES_CMD CURL_CMD
   env_get ${2}
-  while getopts sdcu opt ; do
+  INSTANCES=$(run_av aws ec2 describe-instances \
+      --filters "Name=tag:Name,Values=asg-${EC2_ENV}-elasticsearch" "Name=instance-state-name,Values=running" \
+      --query "Reservations[*].Instances[*].{Instance:InstanceId,time:LaunchTime,IP:PrivateIpAddress}" \
+      --output text)
+  NEWEST_INSTANCE=$(echo ${INSTANCES} | sort -k3 | head -n 1 | awk '{print $2}')
+  COUNT=$(echo ${INSTANCES} | wc -l | tr -d ' ')
+  NEW_COUNT=$(($COUNT / 2))
+  OLD_IPS=$(echo ${INSTANCES} | sort -k3 | head -n ${NEW_COUNT} | awk '{print $1}' | tr '\n' ',' | sed -E 's/,$//')
+
+  while getopts sgrduwc opt ; do
     case "${opt}" in
-      s) ES_CMD="check_status" ;;
-      d) ES_CMD="drain_old_nodes" ;;
-      c) ES_CMD="clear_node_drain" ;;
-      u) ES_CMD="update_minimum_masters" ;;
+      s) ES_CMD='curl -k https://localhost:9200/_cluster/health?pretty' ;;
+      g) ES_CMD='wget --no-check-certificate -q -O - "https://localhost:9200/_cat/shards?v" | grep searchguard' ;;
+      r) CURL_CMD='rebalance' ;;
+      d) CURL_CMD="{\"transient\":{\"cluster.routing.allocation.exclude._ip\":\"${OLD_IPS}\"}}" ;;
+      u) CURL_CMD="{\"persistent\":{\"discovery.zen.minimum_master_nodes\":\"${NEW_COUNT}\"}}" ;;
+      w) ES_CMD="watch \"wget --no-check-certificate -q -O - \'https://localhost:9200/_cat/shards?v\' | grep RELO\"" ;;
+      c) CURL_CMD="{\"transient\":{\"cluster.routing.allocation.exclude._ip\":\"\"}}" ;;
       *) badopt ${opt} ;;
     esac
   done
-  run_av cl elasticsearch ${ES_CMD} ${EC2_ENV} ${3-}
+
+  if [[ ! -z ${CURL_CMD} ]] ; then
+    if [[ ${CURL_CMD} == "rebalance" ]] ; then
+      for CMD in "{\"transient\" :{\"indices.recovery.max_bytes_per_sec\" : \"10000mb\"}}" \
+                "{\"transient\" :{\"cluster.routing.allocation.cluster_concurrent_rebalance\" : \"2\"}}" \
+                "{\"transient\" :{\"cluster.routing.allocation.node_concurrent_recoveries\" : \"2\"}}" ; do
+        ES_CMD+="curl -k -X PUT https://localhost:9200/_cluster/settings -H \'Content-Type: application/json\' -d \'${CMD}\' ; "
+      done
+    else
+      ES_CMD="curl -k -X PUT https://localhost:9200/_cluster/settings -H \'Content-Type: application/json\' -d \'${CURL_CMD}\'"
+    fi
+  fi
+  
+  ssc ${NEWEST_INSTANCE} ${EC2_ENV} "${ES_CMD}"
+  if [[ ${opt} == 'd' ]] ; then
+    vcl -se ${EC2_ENV} ${NEW_COUNT} && \
+    vcl -ce ${EC2_ENV}
+  fi
 }
 
 ## completely delete a legacy IAM user ##
