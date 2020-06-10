@@ -9,14 +9,15 @@ Usage: $0 [ flags ]
     flags    ::= a(ll)
                  g(ithubrc)
                  l(ogin-alias)
+                 s(ubfunctions)
                  r(emove run)
                  e(nv vars)
 
 Adds various aliases, functions, and environment variables
 used by/calling various tools within identity-devops. Steps:
 
-1. Verify \$HOME/.login-functions and \$HOME/.githubrc
-   and then prompt to recreate for each (ignored with -l / -g / -a)
+1. Verify \$HOME/.login-functions and \$HOME/.githubrc and then
+   prompt to recreate for each (ignored with -l / -g / -s / -a)
 2. Verify AWS/GSA/KITCHEN env vars and prompt for any
    not yet set (force with -e)
 3. Update \$PATH to include 'identity-devops/bin'
@@ -154,9 +155,6 @@ for FILE in $(echo "${FILES[@]}"  | tr '\n' ' ') ; do
     'login-functions')
       ENV_VARS=("AWS_PROFILE" \
                 "GSA_USERNAME" \
-                "GSA_FULLNAME" \
-                "GSA_EMAIL" \
-                "GITHUB_SSH_KEY" \
                 "KITCHEN_EC2_SSH_KEYPAIR_ID" \
                 "KITCHEN_EC2_SSH_KEY")
     ;;
