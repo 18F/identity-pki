@@ -9,6 +9,11 @@ end
 
 include_recipe 'java'
 
+execute 'add openjdk JAVA_HOME to /etc/environment' do
+  command 'echo "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> /etc/environment'
+  not_if 'grep JAVA_HOME /etc/environment'
+end
+
 # add a script to help format and mount the nvme drive if available
 cookbook_file '/usr/local/sbin/format_nvme' do
   mode '0755'
@@ -22,8 +27,15 @@ end
 # install elasticsearch
 elasticsearch_user 'elasticsearch'
 elasticsearch_install 'elasticsearch' do
-  type 'tarball' # type of install
+  type 'package' # type of install
   version "7.4.2"
+end
+
+# create directory for systemd override
+directory '/etc/systemd/system/elasticsearch.service.d'
+
+cookbook_file '/etc/systemd/system/elasticsearch.service.d/override.conf' do
+  source 'elasticsearch_systemd_override.conf'
 end
 
 # URL to reach the elasticsearch cluster.  In the pre-auto-scaled world this was
@@ -85,6 +97,7 @@ elasticsearch_configure "elasticsearch" do
     'xpack.monitoring.history.duration' => "30d",
     'xpack.security.enabled' => false
   })
+  java_home '/usr/lib/jvm/java-8-openjdk-amd64'
   logging({:"action" => 'INFO'})
 
   notifies :restart, 'elasticsearch_service[elasticsearch]', :delayed
@@ -333,3 +346,8 @@ cookbook_file '/usr/local/bin/xpack_license_updater' do
 end
 
 execute '/usr/local/bin/xpack_license_updater'
+
+# remove elasticsearch's included jdk
+execute 'rm -rf /usr/share/elasticsearch/jdk' do
+  only_if Dir.exist?('/usr/share/elasticsearch/jdk')
+end

@@ -29,6 +29,50 @@ end
 
 desc 'Cut a release and bump the release version in VERSION.txt'
 task :release do
+  version_re = /\A((?<pre>\w+)-)?(?<major>\d+)(\.(?<hf>\d+))?\z/
+  current_raw = File.read('VERSION.txt').strip
+  match = version_re.match(current_raw)
+  unless match
+    puts "Version #{current_raw.inspect} does not match expected version regex"
+    exit 1
+  end
+
+  pre = match[:pre]
+  major = Integer(match[:major])
+  hf = Integer(match[:hf]) if match[:hf]
+
+  if pre
+    release_version = major
+  elsif hf
+    release_version = "#{major}.#{hf}"
+  else
+    release_version = major + 1
+  end
+
+  puts "Cutting release: #{current_raw.inspect} -> #{release_version.to_s.inspect}.\n"
+
+  def set_version(version, message)
+    File.write('VERSION.txt', "#{version}\n")
+    sh 'git add VERSION.txt'
+    sh "git commit -m '#{message}'"
+  end
+
+  puts "Cutting #{release_version.inspect} release."
+  set_version(release_version, "Release version #{release_version}")
+  sh "git tag 'v#{release_version}'"
+
+  if hf
+    post_release_version = "pre-#{major + 1}"
+  else
+    post_release_version = "pre-#{release_version + 1}"
+  end
+  puts "Setting version to #{post_release_version.inspect} post release."
+  set_version(post_release_version,
+              "Post release version #{post_release_version}")
+end
+
+desc 'Cut a hotfix and bump the release version in VERSION.txt'
+task :hotfix do
   version_re = /\A((?<pre>\w+)-)?(?<major>\d+)\z/
   current_raw = File.read('VERSION.txt').strip
   match = version_re.match(current_raw)
@@ -47,12 +91,6 @@ task :release do
   end
 
   puts "Cutting release: #{current_raw.inspect} -> #{release_version.to_s.inspect}.\n"
-
-  def set_version(version, message)
-    File.write('VERSION.txt', "#{version}\n")
-    sh 'git add VERSION.txt'
-    sh "git commit -m '#{message}'"
-  end
 
   puts "Cutting #{release_version.inspect} release."
   set_version(release_version, "Release version #{release_version}")

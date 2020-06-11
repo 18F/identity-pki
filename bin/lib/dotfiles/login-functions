@@ -1,4 +1,5 @@
 #!/bin/bash
+. "$(dirname "$0")/.subfunctions"
 
 ############# login.gov aliases/functions #############
 if [[ ! $(brew cask list | grep aws-vault) ]] ; then
@@ -9,49 +10,29 @@ fi
 alias bb="git checkout stages/${GSA_USERNAME}"
 alias laptop='bash <(curl -s https://raw.githubusercontent.com/18F/laptop/master/laptop)'
 
-######## sub-functions ########
-## print full command before running ##
-USE_RUN=1
-run() {
-  if [[ $USE_RUN -gt 0 ]] ; then
-    if [ -t 1 ]; then
-      echo -ne "\\033[1;36m"
-    fi
-
-    echo >&2 "+ $*"
-
-    if [ -t 1 ]; then
-      echo -ne '\033[m'
-    fi
-  fi
-  "$*"
-}
-
-## print $usage and return 1 ##
-badopt() {
-  echo "Usage: ${usage}"
-  break 1
-}
-
+######## functions ########
 ## determine env (and AWS_PROFILE) from arg ##
 env_get() {
-  AV_PROFILE='sandbox-fulladmin'
+  AV_PROFILE='sandbox-admin'
   EC2_ENV=${1:-$(echo $GSA_USERNAME)}
-  [[ "${EC2_ENV}" =~ "staging|prod" ]] && AV_PROFILE='prod-fulladmin'
+  [[ "${EC2_ENV}" =~ "staging|prod" ]] && AV_PROFILE='prod-admin'
 }
 
 ## integrates with ykman for YubiKey OTP MFA ##
 mfa_get() {
-  ttl_time=$(aws-vault list --sessions | awk '{print $1}')
-  if [[ -z ${ttl_time} ]] || [[ ${ttl_time} -lt $(date +%s) ]] ; then
-    ttl="--duration=1h"
-    [[ $(command -v ykman) ]] && yk="--mfa-token=$(ykman oath code --single aws/login-master | awk '{print $NF}')"
+  local DUR="${1:-1}h"
+  local ttl_time=$(aws-vault list --sessions | awk '{print $1}') 
+  if [[ -z ${ttl_time} ]] || [[ ${ttl_time} -lt $(date +%s) ]]
+  then
+    ttl="--duration=${DUR}" 
+    [[ -n $(command -v ykman) ]] && yk="--mfa-token=$(ykman oath code --single aws/login-master | awk '{print $NF}')" 
   fi
 }
 
 ## strip off aws-vault exec stuff if running a long AWS_VAULT session ##
 run_av() {
-  if [[ -z ${AWS_VAULT} ]] ; then
+  if [[ -z ${AWS_VAULT} ]]
+  then
     declare {ttl,yk}=
     mfa_get
     run aws-vault exec ${AV_PROFILE} ${ttl} ${yk} -- "$@"
@@ -60,7 +41,6 @@ run_av() {
   fi
 }
 
-######## core functions ########
 #### fast aws-vault commands ####
 av() {
   read -r -d '' usage <<'EOF'
@@ -69,25 +49,31 @@ EOF
   [[ $# == 0 ]] && badopt
   while getopts i:l:s:p:a:o:m: opt
   do
-    case "${opt}" in          ## profile in aws-vault exec ${profile}
-      i) AV_PROFILE='sandbox-fulladmin'     ;;
-      l) AV_PROFILE='prod-fulladmin'        ;;
-      s) AV_PROFILE='sms-sandbox-fulladmin' ;;
-      p) AV_PROFILE='sms-prod-fulladmin'    ;;
-      a) AV_PROFILE='analytics-fulladmin'   ;;
-      o) AV_PROFILE='secops-fulladmin'      ;;
-      m) AV_PROFILE='master-fulladmin'      ;;
-    h|*) badopt                             ;;
+    case "${opt}" in
+      i) AV_PROFILE='sandbox-admin'     ;;
+      l) AV_PROFILE='prod-admin'        ;;
+      s) AV_PROFILE='sms-sandbox-admin' ;;
+      p) AV_PROFILE='sms-prod-admin'    ;;
+      a) AV_PROFILE='analytics-admin'   ;;
+      o) AV_PROFILE='secops-admin'      ;;
+      m) AV_PROFILE='master-admin'      ;;
+      h|*) badopt ;;
     esac
-    AV_CMD="${OPTARG}"
+    AV_CMD="${OPTARG}" 
   done
   shift
   declare {ttl,yk}=
   mfa_get
   case "${AV_CMD}" in
-    l) run aws-vault login ${AV_PROFILE} ${ttl} ${yk} ;;
-    c) run_av "$@" ;;
-    *) badopt ;;
+    (l) run aws-vault login ${AV_PROFILE} ${ttl} ${yk} ;;
+    (c) run_av "$@" ;;
+    (v)
+        run aws-vault remove master --sessions-only
+        declare {ttl,yk}=
+        mfa_get "$@"
+        run aws-vault exec ${AV_PROFILE} --no-session ${ttl} ${yk}
+    ;;
+    (*) badopt ;;
   esac
 }
 
@@ -113,13 +99,13 @@ EOF
   EC2_ENV="${2-sandbox}"
   shift
   case $TF_DIR in
-    all|core) AV_PROFILE="${EC2_ENV}-fulladmin" ;;
+    all|core) AV_PROFILE="${EC2_ENV}-admin" ;;
     app) env_get "${1}" ;;
     master)
-      AV_PROFILE='master-fulladmin'
+      AV_PROFILE='master-admin'
       EC2_ENV="global"
     ;;
-    sms) AV_PROFILE="sms-${EC2_ENV}-fulladmin" ;;
+    sms) AV_PROFILE="sms-${EC2_ENV}-admin" ;;
   esac
   if [[ "${TF_DIR}" == 'app' ]] ; then
     run_av tf-deploy ${EC2_ENV} ${TF_DIR} ${TF_CMD}
@@ -139,23 +125,23 @@ tpc() {
 #### quick SSM access ; requires session-manager-plugin to work! ####
 ssc() {
   local SSM_CMD
-  while getopts ifs opt
-  do
-    case $opt in
-      i) SSM_CMD="sudo su - ${GSA_USERNAME}" ;;
-      f) SSM_CMD="sudo tail -f /var/log/cloud-init-output.log" ;;
-      s) SSM_CMD="sudo su - " ;;
-    esac
-  done
-  shift
   INSTANCE_ID=${1}
   env_get "${2}"
+  shift 2
+  while getopts ifs opt
+  do
+          case $opt in
+                  i) SSM_CMD="sudo su - ${GSA_USERNAME}"  ;;
+                  f) SSM_CMD="sudo tail -f /var/log/cloud-init-output.log"  ;;
+                  s) SSM_CMD="sudo su - "  ;;
+          esac
+  done
+  [ -z $SSM_CMD ] && SSM_CMD="$@"
   run_av aws ssm start-session \
-      --document-name AWS-StartInteractiveCommand \
-      --parameters command="'${SSM_CMD}'" \
-      --target "${INSTANCE_ID}"
+         --document-name AWS-StartInteractiveCommand \
+         --parameters command="'${SSM_CMD}'" \
+         --target "${INSTANCE_ID}"
 }
-
 #### run bundle exec with common commands ####
 be() {
   read -r -d '' usage <<'EOF'
@@ -165,7 +151,7 @@ TBD
 EOF
   [[ $# == 0 ]] && badopt
   local BUNDLE_CMD
-  AV_PROFILE='sandbox-fulladmin'
+  AV_PROFILE='sandbox-admin'
   while getopts vk:b:r: opt
   do
     case "${opt}" in       ## opt in `be -${opt}${OPTARG}`
@@ -201,13 +187,14 @@ EOF
 
 
 #### quickly run common cloudlib aliases/commands with any AWS_PROFILE/env ####
-vcl () {
+vcl() {
   read -r -d '' usage <<'EOF'
 
 TBD
  
 EOF
   [[ $# == 0 ]] && badopt
+  local CL_TABLE EC2_TYPE
   env_get ${2}
   while getopts el:c:r:s: opt
   do
@@ -216,6 +203,7 @@ EOF
       a) EC2_TYPE='app'                     ;;
       e) EC2_TYPE='elasticsearch'           ;;
       i) EC2_TYPE='idp'                     ;;
+      x) EC2_TYPE='idpxtra'                 ;;
       j) EC2_TYPE='jumphost'                ;;
       k) EC2_TYPE='elk'                     ;;
       m) EC2_TYPE='migration'               ;;
@@ -228,7 +216,7 @@ EOF
       l) CL_TABLE=$(run_av ls-servers -Hlqn asg-${EC2_ENV}-${EC2_TYPE}) ;;
       c) run_av scale-in-old-instances -q ${EC2_ENV} ${EC2_TYPE}        ;;
       r) run_av asg-recycle -q ${EC2_ENV} ${EC2_TYPE}                   ;;
-      s) run asg-size -q ${EC2_ENV} ${EC2_TYPE} ${3-}                   ;;
+      s) run_av asg-size -q ${EC2_ENV} ${EC2_TYPE} ${3-}                ;;
       *) badopt ${opt}                                                  ;;
     esac
   done
@@ -241,29 +229,119 @@ EOF
 #### call the cl elasticsearch commands with av() ####
 ve() {
   read -r -d '' usage <<'EOF'
-
-TBD 
+Usage: ve <FLAG> [ENV]
+Flags:
+  -s    Check cluster health via _cluster/health?pretty
+  -g    See if SearchGuard shards are yellow
+  -b    Run rebalancing commands on newest host
+  -d    Exclude IPs of older nodes
+  -w    Watch shard relocations in progress
+  -u    Update minimum_master_nodes to current count / 2
+  -r    Decrease ASG size by 1/2 and scale in old instances
+  -c    Remove routing allocation IP exclusion (set by -d)
 
 EOF
-  [[ $# == 0 ]] && badopt
+  [[ $# < 1 ]] && badopt
+  local ES_CMD CURL_CMD
   env_get ${2}
-  while getopts sdcu opt ; do
+  INSTANCES=$(run_av aws ec2 describe-instances \
+      --filters "Name=tag:Name,Values=asg-${EC2_ENV}-elasticsearch" "Name=instance-state-name,Values=running" \
+      --query "Reservations[*].Instances[*].{Instance:InstanceId,time:LaunchTime,IP:PrivateIpAddress}" \
+      --output text 2>/dev/null)
+  NEWEST_INSTANCE=$(echo ${INSTANCES} | sort -k3 | head -n 1 | awk '{print $2}')
+  COUNT=$(echo ${INSTANCES} | wc -l | tr -d ' ')
+  NEW_COUNT=$(($COUNT / 2))
+  OLD_IPS=$(echo ${INSTANCES} | sort -k3 | head -n ${NEW_COUNT} | awk '{print $1}' | tr '\n' ',' | sed -E 's/,$//')
+
+  while getopts sgbdwurc opt ; do
     case "${opt}" in
-      s) ES_CMD="check_status" ;;
-      d) ES_CMD="drain_old_nodes" ;;
-      c) ES_CMD="clear_node_drain" ;;
-      u) ES_CMD="update_minimum_masters" ;;
+      s) ES_CMD='curl -k https://localhost:9200/_cluster/health?pretty' ;;
+      g) ES_CMD='wget --no-check-certificate -q -O - "https://localhost:9200/_cat/shards?v" | grep searchguard' ;;
+      b) CURL_CMD='rebalance' ;;
+      d) CURL_CMD="{\"transient\":{\"cluster.routing.allocation.exclude._ip\":\"${OLD_IPS}\"}}" ;;
+      w) ES_CMD="watch \"wget --no-check-certificate -q -O - \'https://localhost:9200/_cat/shards?v\' | grep RELO\"" ;;
+      u) CURL_CMD="{\"persistent\":{\"discovery.zen.minimum_master_nodes\":\"${NEW_COUNT}\"}}" ;;
+      r) ES_CMD='recycle' ;;
+      c) CURL_CMD="{\"transient\":{\"cluster.routing.allocation.exclude._ip\":\"\"}}" ;;
       *) badopt ${opt} ;;
     esac
   done
-  run_av cl elasticsearch ${ES_CMD} ${EC2_ENV} ${3-}
+
+  if [[ ! -z ${CURL_CMD} ]] ; then
+    if [[ ${CURL_CMD} == "rebalance" ]] ; then
+      for CMD in "{\"transient\" :{\"indices.recovery.max_bytes_per_sec\" : \"10000mb\"}}" \
+                "{\"transient\" :{\"cluster.routing.allocation.cluster_concurrent_rebalance\" : \"2\"}}" \
+                "{\"transient\" :{\"cluster.routing.allocation.node_concurrent_recoveries\" : \"2\"}}" ; do
+        ES_CMD+="curl -k -X PUT https://localhost:9200/_cluster/settings -H \'Content-Type: application/json\' -d \'${CMD}\' ; "
+      done
+    else
+      ES_CMD="curl -k -X PUT https://localhost:9200/_cluster/settings -H \'Content-Type: application/json\' -d \'${CURL_CMD}\'"
+    fi
+  fi
+  
+  if [[ ${ES_CMD} == 'recycle' ]] ; then
+    vcl -se ${EC2_ENV} ${NEW_COUNT} && vcl -ce ${EC2_ENV}
+  else
+    ssc ${NEWEST_INSTANCE} ${EC2_ENV} "${ES_CMD}"
+  fi
 }
 
-######## shell startup ########
-for key in $(env | grep ".*SSH_KEY=" | sed 's/=.*$//') ; do
-  if [ -f $(eval echo \$$key) ] ; then
-    while ! ssh-add -L | grep -q $key ; do
-      ssh-add -K $(eval echo \$$key)
-    done
+## completely delete a legacy IAM user ##
+iam_del() {
+  read -r -d '' usage <<'EOF'
+
+Usage: iam_del $USER $ACCOUNT (sandbox/prod/analytics/etc.)
+- completely removes a legacy IAM user from an account
+
+EOF
+  [[ $# < 2 ]] && badopt
+  local LEGACY_LOGIN_USER=${1}
+  AV_PROFILE="${2}-admin"
+  if [[ ${AV_PROFILE} == "master" ]] ; then
+    echo 'Cannot be run ad hoc in login-master! Use Terraform.'
+    break 1
   fi
-done
+
+  for KEY in $(run_av aws iam list-access-keys \
+    --user-name ${LEGACY_LOGIN_USER} --query 'AccessKeyMetadata[]' |
+    jq -r '.[].AccessKeyId') ; do
+    run_av aws iam delete-access-key \
+      --access-key-id ${KEY} --user-name ${LEGACY_LOGIN_USER}
+  done
+  
+  for GROUP in $(run_av aws iam list-groups-for-user \
+    --user-name ${LEGACY_LOGIN_USER} | jq -r '.[][].GroupName') ; do
+    run_av aws iam remove-user-from-group \
+      --user-name ${LEGACY_LOGIN_USER} --group-name $GROUP
+  done
+  
+  for MFA_ARN in $(run_av aws iam list-mfa-devices \
+      --user-name ${LEGACY_LOGIN_USER} | jq -r '.[][].SerialNumber') ; do
+  run_av aws iam deactivate-mfa-device \
+    --serial-number ${MFA_ARN} --user-name ${LEGACY_LOGIN_USER} 
+  run_av aws iam delete-virtual-mfa-device --serial-number ${MFA_ARN}
+  done
+  
+  run_av aws iam delete-login-profile --user-name ${LEGACY_LOGIN_USER}
+  run_av aws iam delete-user --user-name ${LEGACY_LOGIN_USER}
+}
+
+#### generate list of 2 newest AMIs in each account ####
+get_amis () {
+  DATA=()
+  HEADERS="|AMI Date Account Description|"
+  for PROFILE in sandbox prod ; do
+    env_get ${PROFILE}
+    DATA+=$(echo -e "\n$(run_av aws ec2 describe-images \
+                  --owners self \
+                  --query 'Images[*].[ImageId,CreationDate,Name]' \
+                  --output text | sort -rk2 | head -n 2 |
+                  sed -E "s/login\.gov (base|rails) (role )?hardened (base )?image Ubuntu 18\.04 /$PROFILE \1\-/g" |
+                  sed -E "s/([0-9\:]+)\.000Z/\1/g" |
+                  sed -E 's/^/\|/g;s/$/\|/g')\n")
+  done
+  NUM_COLS=$(echo ${DATA} | awk '{print NF}' | sort -nu | tail -n 1)
+  echo
+  mdout "${HEADERS}\n$(echo "|${$(printf "%${NUM_COLS}s")// /--- }|")\n${DATA}" | tr 'T' ' '
+  echo
+}

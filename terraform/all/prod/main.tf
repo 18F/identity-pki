@@ -15,7 +15,10 @@ module "main" {
   source = "../module"
 
   iam_account_alias    = "login-prod"
-  iam_kmsadmin_enabled = true
-  iam_reports_enabled  = true
   reports_bucket_arn   = "arn:aws:s3:::login-gov.reports.555546682965-us-west-2"
+  account_roles_map = {
+    iam_reports_enabled   = true
+    iam_kmsadmin_enabled  = true
+    iam_analytics_enabled = true
+  }
 }

@@ -15,4 +15,4 @@ gem 'chefspec'
 # by dependency cookbooks.
 gem 'aws-sdk-ec2', '~> 1.0'
 
-gem 'chef', '~> 13.9'
+gem 'chef', '~> 15.10.12'

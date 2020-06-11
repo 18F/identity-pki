@@ -4,7 +4,19 @@ locals {
     aws_iam_policy.rds_delete_prevent.arn,
     aws_iam_policy.region_restriction.arn,
   ]
+  
   master_assumerole_policy = data.aws_iam_policy_document.master_account_assumerole.json
+  
+  role_enabled_defaults = {
+    iam_appdev_enabled    = true
+    iam_analytics_enabled = false
+    iam_power_enabled     = true
+    iam_readonly_enabled  = true
+    iam_socadmin_enabled  = true
+    iam_billing_enabled   = true
+    iam_reports_enabled   = false
+    iam_kmsadmin_enabled  = false
+  }
 }
 
 variable "iam_account_alias" {
@@ -44,44 +56,8 @@ variable "auditor_accounts" {
   }
 }
 
-variable "iam_appdev_enabled" {
-  description = "Enable appdev role in this account."
-  type        = bool
-  default     = true
-}
-
 variable "dashboard_logos_bucket_write" {
   description = "Permit AppDev role write access to static logos buckets"
-  type        = bool
-  default     = false
-}
-
-variable "iam_power_enabled" {
-  description = "Enable power role in this account."
-  type        = bool
-  default     = true
-}
-
-variable "iam_readonly_enabled" {
-  description = "Enable readonly role in this account."
-  type        = bool
-  default     = true
-}
-
-variable "iam_socadmin_enabled" {
-  description = "Enable socadmin role in this account."
-  type        = bool
-  default     = true
-}
-
-variable "iam_billing_enabled" {
-  description = "Enable billing role in this account."
-  type        = bool
-  default     = true
-}
-
-variable "iam_reports_enabled" {
-  description = "Enable reports role in this account."
   type        = bool
   default     = false
 }
@@ -92,8 +68,7 @@ variable "reports_bucket_arn" {
   default     = ""
 }
 
-variable "iam_kmsadmin_enabled" {
-  description = "Enable KMSAdministrator role in this account."
-  type        = bool
-  default     = false
+variable "account_roles_map" {
+  description = "Map of roles that are enabled/disabled in current account."
+  type        = map
 }

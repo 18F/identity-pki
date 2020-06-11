@@ -15,5 +15,7 @@ module "main" {
   source                       = "../module"
 
   iam_account_alias  = "login-secops-dev"
-  iam_appdev_enabled = false
+  account_roles_map = {
+    iam_appdev_enabled = false
+  }
 }
