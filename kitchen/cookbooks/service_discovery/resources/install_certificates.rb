@@ -28,7 +28,7 @@ action :install do
       certificate = Chef::Recipe::ServiceDiscovery.get_certificate(node, cert_name)
     end
 
-    if not (certificate.nil? or certificate.empty?)
+    unless certificate.nil? or certificate.empty?
       file "#{new_resource.install_directory}/#{cert_name}" do
         content certificate
         owner new_resource.cert_user
