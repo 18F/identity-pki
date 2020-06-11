@@ -32,6 +32,32 @@ data "aws_iam_policy_document" "cloudtrail" {
   }
 }
 
+data "aws_iam_policy_document" "cloudtrail_assume_role" {
+  statement {
+    sid = "CloudTrailAssumeRole"
+    principals {
+      type        = "Service"
+      identifiers = ["cloudtrail.amazonaws.com"]
+    }
+    actions = [
+      "sts:AssumeRole"
+    ]
+  }
+}
+
+data "aws_iam_policy_document" "cloudtrail_cloudwatch_logs" {
+  statement {
+    actions = [
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+    ]
+    resources = [
+      replace(aws_cloudwatch_log_group.cloudtrail_default.arn, "*",
+        "log-stream:${data.aws_caller_identity.current.account_id}_CloudTrail_${var.region}*")
+    ]
+  }
+}
+
 resource "aws_s3_bucket" "cloudtrail" {
   bucket = "login-gov-cloudtrail-${data.aws_caller_identity.current.account_id}"
   force_destroy = true
@@ -51,15 +77,57 @@ resource "aws_s3_bucket" "cloudtrail" {
   server_side_encryption_configuration {
     rule {
       apply_server_side_encryption_by_default {
-        sse_algorithm = "aws:kms"
+        sse_algorithm = "AES256"
       }
     }
   }
+
+  logging {
+    target_bucket = var.cloudtrail_logging_bucket != "" ? var.cloudtrail_logging_bucket : "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+    target_prefix = "login-gov-cloudtrail-${data.aws_caller_identity.current.account_id}"
+  }
+}
+
+resource "aws_cloudwatch_log_group" "cloudtrail_default" {
+  name = "CloudTrail/DefaultLogGroup"
+  retention_in_days = 30
+}
+
+resource "aws_iam_role" "cloudtrail_cloudwatch_logs" {
+  name               = "CloudTrail_CloudWatchLogs_Role"
+  assume_role_policy = data.aws_iam_policy_document.cloudtrail_assume_role.json
+}
+
+resource "aws_iam_role_policy" "cloudtrail_cloudwatch_logs" {
+  name   = "CloudTrail_CloudWatchLogs_Role"
+  role   = aws_iam_role.cloudtrail_cloudwatch_logs.id
+  policy = data.aws_iam_policy_document.cloudtrail_cloudwatch_logs.json
 }
 
 resource "aws_cloudtrail" "cloudtrail" {
-  enable_log_file_validation    = true
-  include_global_service_events = false
   name                          = "login-gov-cloudtrail"
+  enable_log_file_validation    = true
+  enable_logging                = true
+  include_global_service_events = true
+  is_multi_region_trail         = true
+  is_organization_trail         = false
   s3_bucket_name                = aws_s3_bucket.cloudtrail.id
+  cloud_watch_logs_group_arn = aws_cloudwatch_log_group.cloudtrail_default.arn
+  cloud_watch_logs_role_arn = aws_iam_role.cloudtrail_cloudwatch_logs.arn
+
+  dynamic "event_selector" {
+    for_each = var.cloudtrail_event_selectors
+    content {
+      include_management_events  = lookup(event_selector.value, "include_management_events", false)
+      read_write_type    = lookup(event_selector.value, "read_write_type", "ReadOnly")
+
+      dynamic "data_resource" {
+        for_each = flatten(list(lookup(event_selector.value, "data_resources", [])))
+        content {
+          type = lookup(data_resource.value, "type", null)
+          values = lookup(data_resource.value, "values", [])
+        }
+      }
+    }
+  }
 }
