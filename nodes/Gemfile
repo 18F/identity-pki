@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 gem 'berkshelf', '~> 7.0.9'
 
 # For Chefspec: https://github.com/sethvargo/chefspec
-gem 'chefspec'
+gem 'chefspec', '>= 9.0.0'
 
 # For Test Kitchen: https://github.com/test-kitchen/test-kitchen
 gem 'test-kitchen', '~> 2.5'
