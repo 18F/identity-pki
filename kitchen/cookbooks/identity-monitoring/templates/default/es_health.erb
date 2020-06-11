@@ -2,17 +2,25 @@
 
 require 'elasticsearch'
 require 'json'
+require 'ohai'
 
+healthdata = {}
+healthdata['event_type'] = 'ElasticSearchHealthSample'
+
+# Get ES health data
 client = Elasticsearch::Client.new \
   url: 'https://localhost:9200',
   transport_options: { ssl: { verify: false } }
-
-healthdata = {}
 rawhealthdata = client.cluster.health
 rawhealthdata.keys.each do |k|
   healthdata['es_' + k] = rawhealthdata[k]
 end
-healthdata['event_type'] = 'ElasticSearchHealthSample'
+
+# get disk space info
+ohai = Ohai::System.new
+ohai.all_plugins
+percentstring = ohai['filesystem']['by_mountpoint']['/var']['percent_used']
+healthdata['es_var_diskpercentused'] = percentstring.to_i
 
 data = {
   name: 'elasticsearch_health',

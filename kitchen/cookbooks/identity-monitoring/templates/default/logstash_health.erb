@@ -1,0 +1,47 @@
+#!<%= @ruby %>
+
+require 'elasticsearch'
+require 'json'
+require 'ohai'
+require 'sys/proctable'
+
+client = Elasticsearch::Client.new \
+  url: 'https://elasticsearch.login.gov.internal:9200',
+  transport_options: { ssl: { verify: false } }
+
+healthdata = {}
+healthdata['event_type'] = 'LogstashHealthSample'
+
+rawhealthdata = client.cluster.health
+if rawhealthdata.has_key?('error')
+	healthdata['logstash_es_working'] = false
+else
+	healthdata['logstash_es_working'] = true
+end
+
+# get disk space info
+ohai = Ohai::System.new
+ohai.all_plugins
+percentstring = ohai['filesystem']['by_mountpoint']['/var']['percent_used']
+healthdata['logstash_var_diskpercent'] = percentstring.to_i
+percentstring = ohai['filesystem']['by_mountpoint']['/']['percent_used']
+healthdata['logstash_root_diskpercent'] = percentstring.to_i
+
+# get logstash process existence info
+proc = Sys::ProcTable.ps.select { |p| p['cmdline'] =~ /data_cloudwatchlogstash/ }
+healthdata['logstash_cloudwatch_proc_exists'] = ! proc.empty?
+proc = Sys::ProcTable.ps.select { |p| p['cmdline'] =~ /data_cloudtraillogstash/ }
+healthdata['logstash_cloudtrail_proc_exists'] = ! proc.empty?
+proc = Sys::ProcTable.ps.select { |p| p['cmdline'] =~ /data_logstash/ }
+healthdata['logstash_proc_exists'] = ! proc.empty?
+
+# get process health for logstash processes
+
+data = {
+  name: 'logstash_health',
+  protocol_version: '1',
+  integration_version: '1.0.0',
+  metrics: [ healthdata ]
+}
+
+puts JSON.generate(data)
