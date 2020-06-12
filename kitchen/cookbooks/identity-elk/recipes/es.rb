@@ -283,15 +283,19 @@ execute 'run sgadmin' do
     -ts /etc/elasticsearch/truststore.jks \
     -tspass not-a-secret"
   cwd '/etc/elasticsearch'
+  ignore_failure true
 end
 
-execute "/usr/share/elasticsearch/plugins/#{node['es']['sg_version']}/tools/sgadmin.sh \
+execute 'run sgadmin again' do
+  command "/usr/share/elasticsearch/plugins/#{node['es']['sg_version']}/tools/sgadmin.sh \
    -cd /etc/elasticsearch/sgadmin/ \
    -cacert /etc/elasticsearch/root-ca.pem \
    -cert /etc/elasticsearch/admin.pem \
    -key /etc/elasticsearch/admin.key  \
    -keypass not-a-secret \
    -nhnv"
+  ignore_failure true
+end
 
 # set up log retention using curator
 include_recipe 'elasticsearch-curator'
