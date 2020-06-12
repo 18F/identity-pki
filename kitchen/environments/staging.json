@@ -12,6 +12,7 @@
     "ssh_keys": {
     },
     "elk": {
+      "legacy_log_bucket_name": true,
       "users": [
         "jgrevich",
         "jhooper",

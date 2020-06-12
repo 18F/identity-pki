@@ -49,7 +49,7 @@ default['elk']['extendeddayindextypes'] = [
 ]
 
 # Set this to false in environments that use new-style bucket names.
-default['elk']['legacy_log_bucket_name'] = true
+default['elk']['legacy_log_bucket_name'] = false
 
 # get a modern version of java
 default['java']['jdk_version'] = '8'
