@@ -1,53 +1,35 @@
 variable "region" {
+  description = "AWS Region where this account lives."
 }
 
-variable "sandbox_account_id" {
-  description = "Sandbox AWS Account ID"
+variable "aws_account_types" {
+  description = "AWS accounts grouped by type"
+  type        = map(list(string))
+  # Example value: {"Prod" = [123, 543, 125], "Dev" = [454, 232]}
 }
 
-variable "production_account_id" {
-  description = "Production AWS Account ID"
+variable "master_account_id" {
+  description = "AWS Account ID for the master account."
 }
 
-variable "sandbox_sms_account_id" {
-  description = "Sandbox Pinpoint AWS Account ID"
+variable "role_list" {
+  description = "List of roles available in the various AWS accounts."
+  default     = []
 }
 
-variable "production_sms_account_id" {
-  description = "Production Pinpoint AWS Account ID"
+variable "user_map" {
+  description = "Map of users to group memberships."
+  type        = map(list(string))
 }
 
-variable "production_analytics_account_id" {
-  default     = ""
-  description = "Production Analytics AWS Account ID"
-}
-
-variable "sandbox_analytics_account_id" {
-  default     = ""
-  description = "Sandbox Analytics AWS Account ID"
-}
-
-variable "prod_secops_account_id" {
-  default     = ""
-  description = "Login.gov SecOps-Prod AWS Account ID"
-}
-
-variable "dev_secops_account_id" {
-  default     = ""
-  description = "Login.gov SecOps-Dev AWS Account ID"
-}
-
-variable "interviews_account_id" {
-  default     = ""
-  description = "identity-interviews AWS Account ID"
+variable "group_role_map" {
+  description = "Roles map for IAM groups, along with account types per role to grant access to."
+  type = map(list(map(list(string))))
 }
 
 variable "auditor_accounts" {
   description = "Map of non-Login.gov AWS accounts we allow Security Auditor access to"
   # Unlike our master account, these are accounts we do not control!
-  type = map(string)
-  default = {
-    master        = "340731855345" # Include master for testing
-    techportfolio = "133032889584" # TTS Tech Portfolio
-  }
+  type        = map(string)
+  default     = {}
 }

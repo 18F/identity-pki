@@ -13,10 +13,13 @@ resource "aws_cloudfront_distribution" "idp_static_cdn" {
   count = var.enable_idp_cdn ? 1 : 0
 
   depends_on = [
-    aws_s3_bucket.idp_static_bucket[0]
+    aws_s3_bucket.idp_static_bucket[0],
+    module.acm-cert-idp-static-cdn.finished_id
   ]
 
   origin {
+    # Using regional S3 name here per:
+    #  https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/DownloadDistS3AndCustomOrigins.html#concept_S3Origin
     domain_name = aws_s3_bucket.idp_static_bucket[0].bucket_regional_domain_name
     origin_id   = "static-idp-${var.env_name}"
     s3_origin_config {
@@ -25,8 +28,11 @@ resource "aws_cloudfront_distribution" "idp_static_cdn" {
   }
 
   enabled         = true
-  is_ipv6_enabled = false
+  is_ipv6_enabled = true
   aliases         = list("static.${local.idp_domain_name}")
+
+  # Throwaway default
+  default_root_object = "/index.html"
 
   default_cache_behavior {
     allowed_methods  = ["HEAD", "GET"]
@@ -48,6 +54,7 @@ resource "aws_cloudfront_distribution" "idp_static_cdn" {
 
   viewer_certificate {
     acm_certificate_arn      = module.acm-cert-idp-static-cdn.cert_arn
+    # TLS version should align with idp-alg setting
     minimum_protocol_version = "TLSv1"
     ssl_support_method       = "sni-only"
   }
@@ -59,6 +66,14 @@ resource "aws_cloudfront_distribution" "idp_static_cdn" {
     }
   }
 
+  # Log to ELB log bucket to keep front end AWS logs together.
+  # CloudFront logs are batched and may take over 24 hours to appear.
+  logging_config {
+    bucket          = "login-gov.elb-logs.${data.aws_caller_identity.current.account_id}-${var.region}.s3.amazonaws.com"
+    include_cookies = false
+    prefix          = "${var.env_name}/cloudfront/"
+  }
+
   # Serve from US/Canada/Europe CloudFront instances
   price_class = "PriceClass_100"
 }
@@ -66,7 +81,7 @@ resource "aws_cloudfront_distribution" "idp_static_cdn" {
 resource "aws_route53_record" "cname_cloudfront_idp" {
   count   = var.enable_idp_cdn ? 1 : 0
   name    = "static.${local.idp_domain_name}"
-  records = [aws_cloudfront_distribution.idp_static_cdn[0].domain_name]
+  records = [aws_cloudfront_distribution.idp_static_cdn[count.index].domain_name]
   ttl     = "300"
   type    = "CNAME"
   zone_id = var.route53_id

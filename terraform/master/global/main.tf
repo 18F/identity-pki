@@ -3,12 +3,6 @@ provider "aws" {
   allowed_account_ids = ["340731855345"] # require login-master
   profile             = "login-master"
 
-  #assume_role {
-  #  role_arn     = "arn:aws:iam::ACCOUNT_ID:role/ROLE_NAME"
-  #  session_name = "SESSION_NAME"
-  #  external_id  = "EXTERNAL_ID"
-  #}
-
   version = "~> 2.29"
 }
 
@@ -21,14 +15,105 @@ terraform {
 module "main" {
   source = "../module"
 
-  region                          = "us-west-2"
-  sandbox_account_id              = "894947205914"
-  production_account_id           = "555546682965"
-  sandbox_sms_account_id          = "035466892286"
-  production_sms_account_id       = "472911866628"
-  production_analytics_account_id = "461353137281"
-  prod_secops_account_id          = "217680906704"
-  dev_secops_account_id           = "138431511372"
-  interviews_account_id           = "034795980528"
-}
+  region            = "us-west-2"
+  master_account_id = "340731855345"
 
+  aws_account_types = {
+    "Master" = [
+      "340731855345", # login-master
+    ],
+    "Prod" = [
+      "555546682965", # login-prod
+      "472911866628", # login-sms-prod
+      "461353137281", # login-analytics-prod
+      "217680906704", # login-secops-prod
+    ],
+    "Sandbox" = [
+      "894947205914", # login-sandbox
+      "035466892286", # login-sms-sandbox
+      "138431511372", # login-secops-dev
+      "034795980528", # login-interviews
+    ],
+  }
+
+  group_role_map = {
+    "appdev" = [
+      { "PowerUser"         = [ "Sandbox" ] },
+      { "ReadOnly"          = [ "Sandbox" ] }
+    ],
+    "analytics" = [
+      { "Analytics"         = [ "Sandbox", "Prod" ] }
+    ],
+    "apponcall" = [
+      { "PowerUser"         = [ "Sandbox", "Prod" ] },
+      { "ReadOnly"          = [ "Sandbox", "Prod" ] }
+    ],
+    "bizops" = [
+      { "ReportsReadOnly"   = [ "Sandbox", "Prod" ] },
+    ],
+    "devops" = [
+      { "FullAdministrator" = [ "Prod", "Sandbox", "Master" ] },
+      { "ReadOnly"          = [ "Prod", "Sandbox" ] },
+      { "KMSAdministrator"  = [ "Sandbox" ] }
+    ],
+    "finops" = [
+      { "BillingReadOnly"   = [ "Sandbox", "Prod" ] },
+    ],
+    "secops" = [
+      { "FullAdministrator" = [ "Sandbox", "Prod", "Master" ] },
+      { "ReadOnly"          = [ "Sandbox", "Prod" ] },
+      { "KMSAdministrator"  = [ "Sandbox" ] }
+    ],
+    "soc" = [
+      { "SOCAdministrator"  = [ "Sandbox", "Prod", "Master" ] }
+    ],
+    "keymasters" = [
+      { "KMSAdministrator"  = [ "Prod" ] }
+    ]
+  }
+
+  role_list = [
+    "Analytics",
+    "Auditor",
+    "FullAdministrator",
+    "PowerUser",
+    "ReadOnly",
+    "BillingReadOnly",
+    "ReportsReadOnly",
+    "KMSAdministrator",
+    "SOCAdministrator",
+  ]
+
+  auditor_accounts = {
+    master        = "340731855345" # Include master for testing
+    techportfolio = "133032889584" # TTS Tech Portfolio
+  }
+
+  # User to group mappings - Groups defined in ../module/iam_groups.tf
+  user_map = {
+    "aaron.chapman"      = ["appdev", "apponcall"],
+    "akhlaq.khan"        = ["analytics", "finops", "bizops"],
+    "amit.freeman"       = ["devops"],
+    "amos.stone"         = ["analytics"],
+    "brett.mcparland"    = ["secops", "soc"],
+    "brian.crissup"      = ["devops", "keymasters"],
+    "christopher.billas" = ["bizops", "finops"],
+    "clinton.troxel"     = ["appdev"],
+    "douglas.price"      = ["appdev", "bizops"],
+    "jonathan.hooper"    = ["appdev", "apponcall", "keymasters"],
+    "jonathan.pirro"     = ["devops"],
+    "justin.grevich"     = ["devops"],
+    "likhitha.patha"     = ["bizops"],
+    "michael.antiporta"  = ["analytics"],
+    "mossadeq.zia"       = ["devops", "secops", "keymasters"],
+    "paul.hirsch"        = ["devops"],
+    "rajat.varuni"       = ["secops", "soc", "keymasters"],
+    "shade.jenifer"      = ["appdev", "apponcall"]
+    "silke.dannemann"    = ["bizops"],
+    "steve.urciuoli"     = ["appdev", "apponcall", "keymasters"],
+    "steven.harms"       = ["devops", "secops"],
+    "thomas.black"       = ["bizops"],
+    "timothy.spencer"    = ["devops", "secops"],
+    "zach.margolis"      = ["appdev", "apponcall"],
+  }
+}

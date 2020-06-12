@@ -2,7 +2,11 @@ module "poweruser-assumerole" {
   source = "github.com/18F/identity-terraform//iam_assumerole?ref=master"
 
   role_name                = "PowerUser"
-  enabled                  = var.iam_power_enabled
+  enabled                  = lookup(
+                                merge(local.role_enabled_defaults,var.account_roles_map),
+                                "iam_power_enabled",
+                                lookup(local.role_enabled_defaults,"iam_power_enabled")
+                              )
   master_assumerole_policy = local.master_assumerole_policy
   custom_policy_arns       = local.custom_policy_arns
 
@@ -34,17 +38,24 @@ module "poweruser-assumerole" {
         {
           sid    = "CloudFront"
           effect = "Allow"
+          # Create, list, get, and limited delete without deleting a whole distribution
           actions = [
+            "cloudfront:CreateCloudFrontOriginAccessIdentity",
+            "cloudfront:CreateDistribution",
+            "cloudfront:CreateInvalidation",
+            "cloudfront:DeleteCloudFrontOriginAccessIdentity",
+            "cloudfront:GetDistribution",
+            "cloudfront:GetCloudFrontOriginAccessIdentity",
+            "cloudfront:GetCloudFrontOriginAccessIdentityConfig",
+            "cloudfront:ListDistributions",
+            "cloudfront:ListFieldLevelEncryptionConfigs",
+            "cloudfront:ListInvalidations",
+            "cloudfront:ListCloudFrontOriginAccessIdentities",
+            "cloudfront:ListStreamingDistributions",
             "cloudfront:ListTagsForResource",
             "cloudfront:TagResource",
+            "cloudfront:UpdateCloudFrontOriginAccessIdentity",
             "cloudfront:UpdateDistribution",
-            "cloudfront:CreateInvalidation",
-            "cloudfront:GetDistribution",
-            "cloudfront:ListDistributions",
-            "cloudfront:ListInvalidations",
-            "cloudfront:ListFieldLevelEncryptionConfigs",
-            "cloudfront:ListStreamingDistributions",
-            "cloudfront:CreateDistribution",
           ]
           resources = [
             "*",

@@ -11,4 +11,4 @@ gem 'kitchen-ec2'
 gem 'kitchen-vagrant'
 gem 'kitchen-inspec'
 
-gem 'chef', '= 12.15.19'
+gem 'chef', '= 15.10.12'

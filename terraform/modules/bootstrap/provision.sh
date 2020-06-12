@@ -92,73 +92,6 @@ assert_root() {
     fi
 }
 
-# Check whether berkshelf is already installed. If not, install berkshelf by
-# using gem install to get a version appropriate for the chef embedded ruby
-# version. This may be an old version of berkshelf.
-check_install_berkshelf() {
-    local ruby_version chef_version berks_version
-
-    echo >&2 "Checking for installed berkshelf"
-
-    if which berks >/dev/null; then
-        echo >&2 "berks found on path"
-        return
-    fi
-
-    if [ ! -d "$embedded_bin" ]; then
-        echo >&2 "Error: could not find chef embedded bin at $embedded_bin"
-        return 1
-    fi
-
-    if [ -e "$embedded_bin/berks" ]; then
-        echo >&2 "Berks found at $embedded_bin/berks"
-        return
-    fi
-
-    echo >&2 "Installing berkshelf"
-
-    run "$embedded_bin/chef-client" --version
-    run "$embedded_bin/ruby" --version
-
-    ruby_version="$(run "$embedded_bin/ruby" -e 'puts RUBY_VERSION')"
-
-    chef_version="$(run "$embedded_bin/chef-client" --version)"
-
-    case "$ruby_version" in
-        2.5*|2.6*)
-            case "$chef_version" in
-                'Chef: 14.'*)
-                    run "$embedded_bin/gem" install -v '~> 7.0' berkshelf
-                    ;;
-                *)
-                    echo >&2 "Error: Deprecated or unknown chef version: ${chef_version}"
-                    exit 3
-                    ;;
-            esac
-            ;;
-        *)
-            echo >&2 "Error: Deprecated or unknown ruby version: ${ruby_version}"
-            exit 3
-    esac
-
-    echo >&2 "Checking installed berkshelf"
-
-    berks_version="$(run "$embedded_bin/berks" --version)"
-
-    # belt + suspenders
-    if [ -z "$berks_version" ]; then
-        echo >&2 "Something went wrong"
-        return 2
-    fi
-
-    # symlink into PATH as needed
-    if ! which berks >/dev/null; then
-        run ln -sfv "$embedded_bin/berks" "/usr/local/bin/berks"
-    fi
-
-    echo >&2 "Berkshelf version $berks_version is good to go!"
-}
-
 configure_proxy() {
     http_proxy="http://$proxy_server:$proxy_port"
     https_proxy="$http_proxy"
@@ -355,10 +288,6 @@ else
 fi
 
 echo "==========================================================="
-echo "provision.sh: installing dependencies"
-
-
-echo "==========================================================="
 echo "provision.sh: downloading SSH key and cloning repo"
 
 if [[ "$s3_ssh_key_url" != s3://* ]]; then
@@ -406,12 +335,7 @@ if [ -n "$git_ref" ]; then
     run git checkout "$git_ref"
 fi
 
-echo "==========================================================="
-echo "provision.sh: installing berkshelf"
-
-run "$embedded_bin/chef-client" --version
-
-check_install_berkshelf
+#run "$embedded_bin/chef-client" --version
 
 echo "==========================================================="
 echo "provision.sh: running berks to vendor cookbooks"

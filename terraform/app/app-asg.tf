@@ -189,6 +189,12 @@ resource "aws_iam_role_policy" "app-describe_instances" {
   policy = data.aws_iam_policy_document.describe_instances_role_policy.json
 }
 
+resource "aws_iam_role_policy" "app-ses-email" {
+  name   = "${var.env_name}-app-ses-email"
+  role   = aws_iam_role.app.id
+  policy = data.aws_iam_policy_document.ses_email_role_policy.json
+}
+
 resource "aws_iam_role_policy" "app-cloudwatch-logs" {
   name   = "${var.env_name}-app-cloudwatch-logs"
   role   = aws_iam_role.app.id
