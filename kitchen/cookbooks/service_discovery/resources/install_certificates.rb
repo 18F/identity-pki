@@ -28,11 +28,13 @@ action :install do
       certificate = Chef::Recipe::ServiceDiscovery.get_certificate(node, cert_name)
     end
 
-    file "#{new_resource.install_directory}/#{cert_name}" do
-      content certificate
-      owner new_resource.cert_user
-      group new_resource.cert_group
-      mode '0644'
+    unless certificate.nil? or certificate.empty?
+      file "#{new_resource.install_directory}/#{cert_name}" do
+        content certificate
+        owner new_resource.cert_user
+        group new_resource.cert_group
+        mode '0644'
+      end
     end
   end
 end

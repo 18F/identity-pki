@@ -9,4 +9,3 @@ module "kms_logging" {
   kinesis_shard_count        = var.kms_log_kinesis_shards
   ec2_kms_arns               = concat([aws_iam_role.idp.arn],var.db_restore_role_arns)
 }
-
