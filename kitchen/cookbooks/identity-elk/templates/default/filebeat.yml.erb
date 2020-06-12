@@ -12,3 +12,8 @@ output.logstash.ssl.certificate_authorities:
 <% @logstash_ssl_certificate_authorities.each do |ca| -%>
 <%= "- #{ca}" -%>
 <% end %>
+
+queue.spool:
+  file:
+    size: 4000MiB
+    page_size: 16KiB
