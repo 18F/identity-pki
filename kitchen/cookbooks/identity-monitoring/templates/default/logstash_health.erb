@@ -35,7 +35,18 @@ healthdata['logstash_cloudtrail_proc_exists'] = ! proc.empty?
 proc = Sys::ProcTable.ps.select { |p| p['cmdline'] =~ /data_logstash/ }
 healthdata['logstash_proc_exists'] = ! proc.empty?
 
-# get process health for logstash processes
+# get sincedb info to see where we are in the log buckets
+for sincedb in Dir["/usr/share/logstash/.sincedb*"] do
+	f = File.open(sincedb).read
+	begin
+		timestamp = DateTime.strptime(f, '%Y-%m-%d %H:%M:%S %z')
+		name = 'logstash_sincedb_time_' + sincedb.tr('.', '')
+		healthdata[name] = timestamp.strftime('%s')
+	rescue
+		puts sincedb + ' is not a log bucket sincedb, skipping'
+	end
+end
+
 
 data = {
   name: 'logstash_health',
