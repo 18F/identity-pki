@@ -40,7 +40,7 @@ for sincedb in Dir["/usr/share/logstash/.sincedb*"] do
 	f = File.open(sincedb).read
 	begin
 		timestamp = DateTime.strptime(f, '%Y-%m-%d %H:%M:%S %z')
-		name = 'logstash_sincedb_time_' + sincedb.tr('.', '')
+		name = 'logstash_sincedb_time_' + File.basename(sincedb).tr('.', '')
 		healthdata[name] = timestamp.strftime('%s')
 	rescue
 		puts sincedb + ' is not a log bucket sincedb, skipping'
