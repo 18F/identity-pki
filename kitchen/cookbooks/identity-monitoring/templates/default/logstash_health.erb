@@ -4,6 +4,7 @@ require 'elasticsearch'
 require 'json'
 require 'ohai'
 require 'sys/proctable'
+require 'date'
 
 client = Elasticsearch::Client.new \
   url: 'https://elasticsearch.login.gov.internal:9200',
@@ -39,11 +40,10 @@ healthdata['logstash_proc_exists'] = ! proc.empty?
 for sincedb in Dir["/usr/share/logstash/.sincedb*"] do
 	f = File.open(sincedb).read
 	begin
-		timestamp = DateTime.strptime(f, '%Y-%m-%d %H:%M:%S %z')
-		name = 'logstash_sincedb_time_' + File.basename(sincedb).tr('.', '')
+		timestamp = DateTime.parse(f)
+		name = 'logstash_' + File.basename(sincedb).tr('.', '') + '_time'
 		healthdata[name] = timestamp.strftime('%s')
 	rescue
-		puts sincedb + ' is not a log bucket sincedb, skipping'
 	end
 end
 
