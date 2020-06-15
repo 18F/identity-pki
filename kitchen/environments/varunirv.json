@@ -10,7 +10,6 @@
       "deploy_branch_default": "master"
     },
     "elk": {
-      "legacy_log_bucket_name": true,
       "retentiondays": 14,
       "users": [
         "jgrevich",
