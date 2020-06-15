@@ -18,6 +18,7 @@ class PolicyMappingService
     @chain ||= begin
       signer = store[certificate.signing_key_id]
       while signer
+        break if set.include? signer
         set << signer
         signer = !signer.self_signed? && store[signer.signing_key_id]
       end
