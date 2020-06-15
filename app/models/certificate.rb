@@ -106,8 +106,8 @@ class Certificate
   end
 
   def signing_key_id
-    get_extension('authorityKeyIdentifier')&.lines&.grep(/\Akeyid:/)&.first
-                                           &.sub(/\Akeyid:/, '')&.chomp&.upcase
+    get_extension('authorityKeyIdentifier')&.lines&.grep(/\Akeyid:/)&.first&.
+                                           sub(/\Akeyid:/, '')&.chomp&.upcase
   end
 
   def crl_http_url
@@ -161,6 +161,7 @@ class Certificate
 
   def maybe_log_certificate
     return if valid? && critical_policies_recognized? && allowed_by_policy?
+
     CertificateLoggerService.log_certificate(self)
   end
 
@@ -190,17 +191,19 @@ class Certificate
 
   def card_type
     return 'cac' if trusted_dod_root?
+
     'piv'
   end
 
   def trusted_dod_root?
     return true if cert_store.dod_root_identifiers.include?(root_cert_id)
+
     false
   end
 
   def root_cert_id
     chain = cert_store.x509_certificate_chain(self)
-    chain.last.key_id
+    chain.last&.key_id
   end
 
   # :reek:UtilityFunction
