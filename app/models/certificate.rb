@@ -200,7 +200,7 @@ class Certificate
 
   def root_cert_id
     chain = cert_store.x509_certificate_chain(self)
-    chain.last.key_id
+    chain.last&.key_id
   end
 
   # :reek:UtilityFunction
