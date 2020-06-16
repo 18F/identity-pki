@@ -20,8 +20,9 @@ class PolicyMappingService
       key_ids = set.map(&:key_id)
       signer = store[certificate.signing_key_id]
       while signer
-        break if key_ids.include? signer.key_id
-        key_ids << signer.key_id
+        signer_id = signer.key_id
+        break if key_ids.include? signer_id
+        key_ids << signer_id
         set << signer
         signer = !signer.self_signed? && store[signer.signing_key_id]
       end
