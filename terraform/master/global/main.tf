@@ -20,20 +20,20 @@ module "main" {
 
   aws_account_types = {
     "Master" = [
-      "340731855345", # login-master
+      "340731855345" # login-master
     ],
     "Prod" = [
       "555546682965", # login-prod
       "472911866628", # login-sms-prod
       "461353137281", # login-analytics-prod
-      "217680906704", # login-secops-prod
+      "217680906704" # login-secops-prod
     ],
     "Sandbox" = [
       "894947205914", # login-sandbox
       "035466892286", # login-sms-sandbox
       "138431511372", # login-secops-dev
-      "034795980528", # login-interviews
-    ],
+      "034795980528" # login-interviews
+    ]
   }
 
   group_role_map = {
@@ -49,7 +49,7 @@ module "main" {
       { "ReadOnly"          = [ "Sandbox", "Prod" ] }
     ],
     "bizops" = [
-      { "ReportsReadOnly"   = [ "Sandbox", "Prod" ] },
+      { "ReportsReadOnly"   = [ "Sandbox", "Prod" ] }
     ],
     "devops" = [
       { "FullAdministrator" = [ "Prod", "Sandbox", "Master" ] },
@@ -57,7 +57,7 @@ module "main" {
       { "KMSAdministrator"  = [ "Sandbox" ] }
     ],
     "finops" = [
-      { "BillingReadOnly"   = [ "Sandbox", "Prod" ] },
+      { "BillingReadOnly"   = [ "Sandbox", "Prod" ] }
     ],
     "secops" = [
       { "FullAdministrator" = [ "Sandbox", "Prod", "Master" ] },

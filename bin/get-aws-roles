@@ -61,37 +61,36 @@ fi
 
 verify_iam_user "${IAM_USER}"
 
-echo_blue "Getting available role(s) for user ${IAM_USER}..."
+echo_blue "Getting available roles(s) for user ${IAM_USER}..."
 echo
-# verify that we have permission to see the policies for $IAM_USER
-FOUND_POLICIES=$(aws iam list-attached-user-policies \
-                --user-name "${IAM_USER}")
-
-ROLE_ARNS=()
-for POLICY in $(echo "${FOUND_POLICIES}" |
-                jq -r '.AttachedPolicies[].PolicyArn' |
-                grep -v Manage | tr '\n' ' ') ; do
-  ACCOUNT=$(echo $POLICY | sed -E 's/.*policy\/([a-zA-z]+)Assume.*/\1/' | tr '[A-Z]' '[a-z]' |
-  sed -E 's/(sms|analytics)/\_\1/')
-  ID_STRING="${ACCOUNT}_account_id"
-  SHORT_ACCT=$(echo "${ACCOUNT}" | sed 's/uction//')
-
-  case $ACCOUNT in
-    master)     ID_STRING='allowed_account_ids' ;;
-    *_sms)      SHORT_ACCT=$(echo "${SHORT_ACCT}" | awk -F_ '{print $2"-"$1}') ;;
-    *analytics) SHORT_ACCT='analytics' ;;
-  esac
-
-  ACCOUNT_ID=$(grep "${ID_STRING}" terraform/master/global/main.tf |
-               sed -E 's/.*\"([0-9]+)\".*/\1/')
-  ROLE=$(echo $POLICY | sed -E 's/.*Assume//')
-  SHORT_ROLE=$(grep -lr "${ROLE}" terraform/all/module/iam-role-*.tf |
-               sed -E 's/.*\-([a-z]+)\.tf/\1/')
-
-  ROLE_ARNS+=("${SHORT_ACCT}-${SHORT_ROLE}+arn:aws:iam::${ACCOUNT_ID}:role/${ROLE}")
+# verify that we have permission to see the groups for $IAM_USER
+declare FOUND_POLICIES=()
+for GROUP in $(aws iam list-groups-for-user \
+                --user-name ${IAM_USER} \
+                --query 'Groups[].{Group:GroupName}' \
+                --output text) ; do
+  FOUND_POLICIES+=$(aws iam list-attached-group-policies \
+                    --group ${GROUP} \
+                    --query 'AttachedPolicies[].{Arn:PolicyArn}' \
+                    --output text)
 done
 
-echo "${ROLE_ARNS[@]}" | tr ' ' '\n' | sed -E 's/\+/ \| /'
+ACCOUNT_TYPES=$(echo -e "{\n$(sed -E '1,/aws_account_types/d;/\}/,$d' terraform/master/global/main.tf)}" |
+                sed -E 's/\]\}/\]\'$'\n\}/;s/ = /\: /g;s/ #.+$//g')
+declare ROLE_ARNS=()
+for POLICY in $(echo ${FOUND_POLICIES[@]} |
+                tr -s '[:blank:]' '\n' | sort -u | tr '\n' ' ') ; do
+  ACCOUNT=$(echo $POLICY | sed -E 's/.*policy\/([a-zA-z]+)Assume.*/\1/')
+  ROLE=$(echo $POLICY | sed -E 's/.*Assume//')
+  SHORT_ROLE=$(grep -wlr "${ROLE}" terraform/all/module/iam-role-*.tf |
+               sed -E 's/.*\-([a-z]+)\.tf/\1/')
+  for ACCOUNT_ID in $(echo $ACCOUNT_TYPES | jq -r --arg ACCOUNT "$ACCOUNT" '.[$ACCOUNT][]') ; do
+    SHORT_ACCT=$(egrep "^\s+\"${ACCOUNT_ID}\"" terraform/master/global/main.tf | sed -E 's/.+login-//')
+    ROLE_ARNS+=("${SHORT_ACCT}-${SHORT_ROLE}+arn:aws:iam::${ACCOUNT_ID}:role/${ROLE}")
+  done
+done
+
+echo "${ROLE_ARNS[@]}" | tr ' ' '\n' | sed -E 's/\+/ \| /' | column -t
 
 if [[ "${WRITE_CONFIG}" == true ]] ; then
   if [[ "${FOUND_USER}" != "${IAM_USER}" ]] ; then
@@ -118,10 +117,8 @@ if [[ "${WRITE_CONFIG}" == true ]] ; then
       else
         define ROLE_BLOCK <<EOF
 [profile ${ROLE_NAME}]
-parent_profile = ${MAIN_PROFILE}
-source_profile = ${MAIN_PROFILE}
-mfa_serial = ${MFA_ARN}
 role_arn = ${ROLE_ARN}
+parent_profile = ${MAIN_PROFILE}
 EOF
         echo "${ROLE_BLOCK}" | tee -a ~/.aws/config
       fi
