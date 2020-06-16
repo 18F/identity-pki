@@ -86,11 +86,12 @@ for POLICY in $(echo ${FOUND_POLICIES[@]} |
                sed -E 's/.*\-([a-z]+)\.tf/\1/')
   for ACCOUNT_ID in $(echo $ACCOUNT_TYPES | jq -r --arg ACCOUNT "$ACCOUNT" '.[$ACCOUNT][]') ; do
     SHORT_ACCT=$(egrep "^\s+\"${ACCOUNT_ID}\"" terraform/master/global/main.tf | sed -E 's/.+login-//')
-    ROLE_ARNS+=("${SHORT_ACCT}-${SHORT_ROLE}+arn:aws:iam::${ACCOUNT_ID}:role/${ROLE}")
+    ROLE_ARNS+=("${SHORT_ACCT}-${SHORT_ROLE}+arn:aws:iam::${ACCOUNT_ID}:role+${ROLE}")
   done
 done
 
-echo "${ROLE_ARNS[@]}" | tr ' ' '\n' | sed -E 's/\+/ \| /' | column -t
+echo "${ROLE_ARNS[@]}" | tr ' ' '\n' | sed -E 's/\+/ /g' |
+              sort -k3 | sed -E 's/role /role\//' | column -t
 
 if [[ "${WRITE_CONFIG}" == true ]] ; then
   if [[ "${FOUND_USER}" != "${IAM_USER}" ]] ; then
