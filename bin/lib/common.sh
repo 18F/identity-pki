@@ -87,11 +87,11 @@ EOM
 # verify existence of IAM user
 verify_iam_user () {
     local WHO_AM_I=${1}
-    local IAM_USERS_FILE="terraform/master/module/iam_users.tf"
+    local IAM_USERS_FILE="terraform/master/global/main.tf"
     local MASTER_ACCOUNT_ID=340731855345
     
     echo_blue "Verifying IAM user ${WHO_AM_I}... "
-    if [[ ! $(grep -E "\= \"${WHO_AM_I}\"" "${GIT_DIR}/${IAM_USERS_FILE}") ]] ; then
+    if [[ ! $(grep -E "\"${WHO_AM_I}\"" "${GIT_DIR}/${IAM_USERS_FILE}") ]] ; then
       raise "User '${WHO_AM_I}' not found in ${IAM_USERS_FILE}"
     fi
     
