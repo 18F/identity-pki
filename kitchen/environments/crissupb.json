@@ -11,7 +11,6 @@
       "idp_run_migrations": "true"
     },
     "elk": {
-      "legacy_log_bucket_name": true,
       "retentiondays": 14,
       "users": [
         "jgrevich",

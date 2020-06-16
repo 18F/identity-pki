@@ -207,11 +207,6 @@ variable "apps_enabled" {
   default = 0
 }
 
-variable "legacy_log_bucket_name" {
-  description = "Whether to use the legacy log bucket scheme (login-gov-$env-logs) vs the new one (login-gov-logs-$env.$acct_id-$region)"
-  default     = 0
-}
-
 variable "elasticache_redis_node_type" {
   description = "Instance type used for redis elasticache. Changes incur downtime."
 
