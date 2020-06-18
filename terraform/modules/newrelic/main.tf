@@ -1,4 +1,5 @@
 # this file sets up newrelic alerts for metrics
+# Once we get tf 0.13.* going, we can get rid of all the count and [0] silliness
 
 provider "newrelic" {}
 data "aws_caller_identity" "current" {}
@@ -63,7 +64,7 @@ resource "newrelic_alert_policy_channel" "low" {
   count = var.enabled
   policy_id  = newrelic_alert_policy.low[0].id
   channel_ids = [
-    newrelic_alert_channel.slack[0].id
+    data.newrelic_alert_channel.slack[0].id
   ]
 }
 
@@ -73,8 +74,8 @@ resource "newrelic_alert_policy_channel" "high" {
   count = var.enabled
   policy_id  = newrelic_alert_policy.high[0].id
   channel_ids = [
-    newrelic_alert_channel.opsgenie[0].id,
-    newrelic_alert_channel.slack[0].id
+    data.newrelic_alert_channel.opsgenie[0].id,
+    data.newrelic_alert_channel.slack[0].id
   ]
 }
 
@@ -99,7 +100,7 @@ resource "newrelic_nrql_alert_condition" "es_cluster_red" {
   }
 
   nrql {
-    query       = "SELECT es_status from ElasticSearchHealthSample where label.environment = '${var.env_name}' and es_status = 'red'"
+    query       = "SELECT count(*) from ElasticSearchHealthSample where label.environment = '${var.env_name}' and es_status = 'red'"
     since_value = "3"
   }
 
@@ -124,7 +125,7 @@ resource "newrelic_nrql_alert_condition" "es_cluster_yellow" {
   }
 
   nrql {
-    query       = "SELECT es_status from ElasticSearchHealthSample where label.environment = '${var.env_name}' and es_status = 'yellow'"
+    query       = "SELECT count(*) from ElasticSearchHealthSample where label.environment = '${var.env_name}' and es_status = 'yellow'"
     since_value = "3"
   }
 
