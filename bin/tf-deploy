@@ -488,6 +488,17 @@ import_remote_state_resources() {
     echo_blue "Finished importing terraform remote state resources"
 }
 
+# if export NEWRELIC_API_KEY is not set, set it to something.  This
+# will make it so that developers and others who are not newrelic
+# admins will be able to deploy their env, because they will probably
+# have newrelic_alerts_enabled=0 in their tfvars, which means it won't
+# be used.  When terraform 0.13 gets out and supported, we'll be able
+# to turn off the module with a count and not need this, but until then...
+#
+if [ -z "$(echo $NEWRELIC_API_KEY)" ] ; then
+    export NEWRELIC_API_KEY="notakey"
+fi
+
 # Be sure ruby is working and bundler is setup since some terraform modules
 # rely on erb templates and ruby to be working.
 run bundle check >&2

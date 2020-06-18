@@ -618,3 +618,9 @@ variable "kms_log_kinesis_shards" {
   description = "Number of shards to provision in Kinesis datastream for kms logging"
   default     = 1
 }
+
+variable "newrelic_alerts_enabled" {
+  description = "whether or not to enable newrelic alerting for this environment"
+  default     = 0
+}
+
