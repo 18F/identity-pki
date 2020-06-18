@@ -64,7 +64,7 @@ resource "newrelic_alert_policy_channel" "low" {
   count = var.enabled
   policy_id  = newrelic_alert_policy.low[0].id
   channel_ids = [
-    data.newrelic_alert_channel.slack[0].id
+    newrelic_alert_channel.slack[0].id
   ]
 }
 
@@ -74,8 +74,8 @@ resource "newrelic_alert_policy_channel" "high" {
   count = var.enabled
   policy_id  = newrelic_alert_policy.high[0].id
   channel_ids = [
-    data.newrelic_alert_channel.opsgenie[0].id,
-    data.newrelic_alert_channel.slack[0].id
+    newrelic_alert_channel.opsgenie[0].id,
+    newrelic_alert_channel.slack[0].id
   ]
 }
 
