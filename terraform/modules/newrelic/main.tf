@@ -1,7 +1,11 @@
 # this file sets up newrelic alerts for metrics
 # Once we get tf 0.13.* going, we can get rid of all the count and [0] silliness
 
-provider "newrelic" {}
+provider "newrelic" {
+  version = "~> 2.0.0"
+  region = "US"
+}
+
 data "aws_caller_identity" "current" {}
 
 resource "newrelic_alert_policy" "high" {
@@ -27,11 +31,8 @@ resource "newrelic_alert_channel" "opsgenie" {
   type = "opsgenie"
 
   config {
-    api_key = data.aws_s3_bucket_object.opsgenie_apikey[0].body
-    region = "US"
-# teams - (Optional) A set of teams for targeting notifications. Multiple values are comma separated.
-# tags - (Optional) A set of tags for targeting notifications. Multiple values are comma separated.
-# recipients - (Optional) A set of recipients for targeting notifications. Multiple values are comma separated.
+    api_key    = data.aws_s3_bucket_object.opsgenie_apikey[0].body
+    tags       = var.env_name
   }
 }
 
@@ -91,12 +92,11 @@ resource "newrelic_nrql_alert_condition" "es_cluster_red" {
   runbook_url = "https://login-handbook.app.cloud.gov/articles/appdev-troubleshooting-production.html#ssh-into-the-elk-server"
   enabled     = true
 
-  term {
-    duration      = 5
+  critical {
+    threshold_duration      = 300
     operator      = "above"
-    priority      = "critical"
     threshold     = "1"
-    time_function = "all"
+    threshold_occurrences = "all"
   }
 
   nrql {
@@ -116,17 +116,41 @@ resource "newrelic_nrql_alert_condition" "es_cluster_yellow" {
   runbook_url = "https://login-handbook.app.cloud.gov/articles/appdev-troubleshooting-production.html#ssh-into-the-elk-server"
   enabled     = true
 
-  term {
-    duration      = 5
+  critical {
+    threshold_duration      = 300
     operator      = "above"
-    priority      = "critical"
     threshold     = "1"
-    time_function = "all"
+    threshold_occurrences = "all"
   }
 
   nrql {
     query       = "SELECT count(*) from ElasticSearchHealthSample where label.environment = '${var.env_name}' and es_status = 'yellow'"
     since_value = "3"
+  }
+
+  value_function = "single_value"
+}
+
+
+resource "newrelic_nrql_alert_condition" "es_no_logs" {
+  count = var.enabled
+  policy_id = newrelic_alert_policy.high[0].id
+
+  name        = "${var.env_name}_es_no_logs"
+  type        = "static"
+  runbook_url = "https://login-handbook.app.cloud.gov/articles/appdev-troubleshooting-production.html#ssh-into-the-elk-server"
+  enabled     = true
+
+  critical {
+    threshold_duration      = 120
+    operator      = "below"
+    threshold     = "4000"
+    threshold_occurrences = "all"
+  }
+
+  nrql {
+    query       = "SELECT average(es_documents_in_last_ten_minutes) from LogstashHealthSample where label.environment = '${var.env_name}'"
+    evaluation_offset = "3"
   }
 
   value_function = "single_value"

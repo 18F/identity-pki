@@ -20,6 +20,21 @@ else
 	healthdata['logstash_es_working'] = true
 end
 
+# get # of documents created in the last 10 minutes
+docs = client.count(
+  body: {
+    query: {
+      range: {
+        "@timestamp": {
+          "gte": "now-10m",
+          "lte": "now"
+        }
+      }
+    }
+  }
+)
+healthdata['es_documents_in_last_ten_minutes'] = docs['count']
+
 # get disk space info
 ohai = Ohai::System.new
 ohai.all_plugins
