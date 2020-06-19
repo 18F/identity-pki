@@ -13,6 +13,7 @@ locals {
     iam_power_enabled     = true
     iam_readonly_enabled  = true
     iam_socadmin_enabled  = true
+    iam_terraform_enabled = true
     iam_billing_enabled   = true
     iam_reports_enabled   = false
     iam_kmsadmin_enabled  = false

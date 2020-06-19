@@ -39,14 +39,16 @@ module "main" {
   group_role_map = {
     "appdev" = [
       { "PowerUser"         = [ "Sandbox" ] },
-      { "ReadOnly"          = [ "Sandbox" ] }
+      { "ReadOnly"          = [ "Sandbox" ] },
+      { "Terraform"         = [ "Sandbox" ] }
     ],
     "analytics" = [
       { "Analytics"         = [ "Sandbox", "Prod" ] }
     ],
     "apponcall" = [
       { "PowerUser"         = [ "Sandbox", "Prod" ] },
-      { "ReadOnly"          = [ "Sandbox", "Prod" ] }
+      { "ReadOnly"          = [ "Sandbox", "Prod" ] },
+      { "Terraform"         = [ "Sandbox" ] }
     ],
     "bizops" = [
       { "ReportsReadOnly"   = [ "Sandbox", "Prod" ] }
@@ -54,6 +56,7 @@ module "main" {
     "devops" = [
       { "FullAdministrator" = [ "Prod", "Sandbox", "Master" ] },
       { "ReadOnly"          = [ "Prod", "Sandbox" ] },
+      { "Terraform"         = [ "Prod", "Sandbox", "Master" ] },
       { "KMSAdministrator"  = [ "Sandbox" ] }
     ],
     "finops" = [
@@ -78,6 +81,7 @@ module "main" {
     "FullAdministrator",
     "PowerUser",
     "ReadOnly",
+    "Terraform",
     "BillingReadOnly",
     "ReportsReadOnly",
     "KMSAdministrator",
