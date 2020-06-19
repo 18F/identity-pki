@@ -76,6 +76,9 @@ module "analytics-assumerole" {
             "logs:ListTagsLogGroup",
             "logs:StartQuery",
             "logs:StopQuery",
+            "resource-groups:ListGroups",
+            "sns:ListSubscriptions",
+            "sns:ListTopics",
           ]
           resources = [
             "*",
