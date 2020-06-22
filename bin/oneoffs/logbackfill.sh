@@ -1,15 +1,19 @@
 #!/bin/sh
+#
+# This sets up a logtstash process on an elk host that will slurp in cloudtrail
+# data from a specified time in the past until today into a special index that
+# we can search.
+#
 
 usage() {
 	echo
-	echo "usage:  $0 <cloudtrailbucketname> <indexname> <daysago>"
-	echo "  cloudtrailbucketname is the name of the cloudtrail s3 bucket to slurp from"
-	echo "  indexname is the index to send the data into"
+	echo "usage:  $0 <indexname> <daysago>"
+	echo "  indexname is the index to send the cloudtrail data into"
 	echo "  daysago is how many days back to go"
 	echo
-	echo "example:  $0 s3://cloudtrailbucket/AWSLogs/foo/bar/2020/ importedcloudtrail-2020-06-19-90days 90"
+	echo "example:  $0 importedcloudtrail-2020-06-19-90days 90"
 	echo
-	echo "this script must be run on a system that has a working cloudtrail logstash"
+	echo "this script must be run on an elk system that has a working cloudtrail logstash"
 	echo "going so that it can copy it's config."
 	exit 1
 }
@@ -21,7 +25,7 @@ if [ "$1" = "-d" ] ; then
 	exit 0
 fi
 
-if [ -z "$3" -o -z "$2" -o -z "$1" ] ; then
+if [ -z "$2" -o -z "$1" ] ; then
 	echo "Error:  missing arguments"
 	usage
 fi
@@ -33,7 +37,7 @@ fi
 
 # create sincedb
 mkdir -p /usr/share/logstash/data_backfilllogstash
-date --date='90 days ago' "+%F 00:00:00 +0000" > /usr/share/logstash/.sincedb_backfilllogstash
+date --date="$2 days ago" "+%F 00:00:00 +0000" > /usr/share/logstash/.sincedb_backfilllogstash
 
 
 # create config files from the previous cloudtrail config files
@@ -41,7 +45,7 @@ mkdir -p /etc/logstash/backfilllogstashconf.d /srv/tmp/backfilllogstash /var/log
 chmod 700 /srv/tmp/backfilllogstash
 cp -rp /etc/logstash/cloudtraillogstashconf.d/* /etc/logstash/backfilllogstashconf.d/
 rm -f /etc/logstash/backfilllogstashconf.d/30-s3output.conf
-sed -i "s/index => \"logstash-cloudtrail-.*\"/index => \"$2\"/" /etc/logstash/backfilllogstashconf.d/30-ESoutput.conf
+sed -i "s/index => \"logstash-cloudtrail-.*\"/index => \"$1\"/" /etc/logstash/backfilllogstashconf.d/30-ESoutput.conf
 
 cp -rp /etc/sv/cloudtraillogstash /etc/sv/backfilllogstash
 ln -s /etc/sv/backfilllogstash/ /etc/service/backfilllogstash
