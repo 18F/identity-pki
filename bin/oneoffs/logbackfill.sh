@@ -46,7 +46,7 @@ mkdir -p /etc/logstash/backfilllogstashconf.d /srv/tmp/backfilllogstash /var/log
 chmod 700 /srv/tmp/backfilllogstash
 chown logstash /srv/tmp/backfilllogstash
 cp -rp /etc/logstash/cloudtraillogstashconf.d/* /etc/logstash/backfilllogstashconf.d/
-rm -f /etc/logstash/backfilllogstashconf.d/30-s3output.conf
+rm -f /etc/logstash/backfilllogstashconf.d/30-s3output.conf /etc/logstash/backfilllogstashconf.d/70-elblogsin.conf
 sed -i "s/index => \"logstash-cloudtrail-.*\"/index => \"$1\"/" /etc/logstash/backfilllogstashconf.d/30-ESoutput.conf
 
 mkdir -p /etc/sv/backfilllogstash/log
