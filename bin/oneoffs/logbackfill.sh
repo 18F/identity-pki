@@ -17,7 +17,7 @@ usage() {
 if [ "$1" = "-d" ] ; then
 	echo "stopping backfill import"
 	sv stop /etc/service/backfilllogstash
-	rm -rf /etc/service/backfilllogstash /etc/logstash/backfilllogstashconf.d /usr/share/logstash/data_backfilllogstash /usr/share/logstash/.sincedb_backfilllogstash /etc/cron.d/logbackfill
+	rm -rf /etc/service/backfilllogstash /etc/logstash/backfilllogstashconf.d /usr/share/logstash/data_backfilllogstash /usr/share/logstash/.sincedb_backfilllogstash /etc/cron.d/logbackfill  /etc/sv/backfilllogstash
 	exit 0
 fi
 
@@ -36,14 +36,17 @@ mkdir -p /usr/share/logstash/data_backfilllogstash
 date --date='90 days ago' "+%F 00:00:00 +0000" > /usr/share/logstash/.sincedb_backfilllogstash
 
 
-# create config files
-mkdir -p /etc/logstash/backfilllogstashconf.d
+# create config files from the previous cloudtrail config files
+mkdir -p /etc/logstash/backfilllogstashconf.d /srv/tmp/backfilllogstash /var/log/backfilllogstash
+chmod 700 /srv/tmp/backfilllogstash
 cp -rp /etc/logstash/cloudtraillogstashconf.d/* /etc/logstash/backfilllogstashconf.d/
-rm  /etc/logstash/backfilllogstashconf.d/30-s3output.conf
+rm -f /etc/logstash/backfilllogstashconf.d/30-s3output.conf
 sed -i "s/index => \"logstash-cloudtrail-.*\"/index => \"$2\"/" /etc/logstash/backfilllogstashconf.d/30-ESoutput.conf
 
-cp -rp /etc/service/cloudtraillogstash /etc/service/backfilllogstash
+cp -rp /etc/sv/cloudtraillogstash /etc/sv/backfilllogstash
+ln -s /etc/sv/backfilllogstash/ /etc/service/backfilllogstash
 sed -i 's/cloudtraillogstash/backfilllogstash/g' /etc/service/backfilllogstash/run
+sed -i 's/cloudtraillogstash/backfilllogstash/g' /etc/service/backfilllogstash/log/run
 
 
 # launch logstash with config
