@@ -54,5 +54,5 @@ cp "$0" /root/logbackfill_donotdelete.sh
 chmod +x /root/logbackfill_donotdelete.sh
 cat <<EOF > /etc/cron.d/logbackfill
 # stop the backfill logstash once it is up to $(date +%F)
-0 23 * * * if grep $(date +%F) /usr/share/logstash/.sincedb_backfilllogstash ; then /root/logbackfill_donotdelete.sh -d ; fi
+0 23 * * * root if grep $(date +%F) /usr/share/logstash/.sincedb_backfilllogstash ; then /root/logbackfill_donotdelete.sh -d ; fi
 EOF
