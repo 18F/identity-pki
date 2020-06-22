@@ -37,24 +37,29 @@ fi
 
 # create sincedb
 mkdir -p /usr/share/logstash/data_backfilllogstash
+chown logstash /usr/share/logstash/data_backfilllogstash
 date --date="$2 days ago" "+%F 00:00:00 +0000" > /usr/share/logstash/.sincedb_backfilllogstash
 
 
 # create config files from the previous cloudtrail config files
 mkdir -p /etc/logstash/backfilllogstashconf.d /srv/tmp/backfilllogstash /var/log/backfilllogstash
 chmod 700 /srv/tmp/backfilllogstash
+chown logstash /srv/tmp/backfilllogstash
 cp -rp /etc/logstash/cloudtraillogstashconf.d/* /etc/logstash/backfilllogstashconf.d/
 rm -f /etc/logstash/backfilllogstashconf.d/30-s3output.conf
 sed -i "s/index => \"logstash-cloudtrail-.*\"/index => \"$1\"/" /etc/logstash/backfilllogstashconf.d/30-ESoutput.conf
 
-cp -rp /etc/sv/cloudtraillogstash /etc/sv/backfilllogstash
+mkdir -p /etc/sv/backfilllogstash/log
 ln -s /etc/sv/backfilllogstash/ /etc/service/backfilllogstash
-sed -i 's/cloudtraillogstash/backfilllogstash/g' /etc/service/backfilllogstash/run
-sed -i 's/cloudtraillogstash/backfilllogstash/g' /etc/service/backfilllogstash/log/run
+sed 's/cloudtraillogstash/backfilllogstash/g' /etc/sv/cloudtraillogstash/run > /etc/service/backfilllogstash/run
+sed 's/cloudtraillogstash/backfilllogstash/g' /etc/sv/cloudtraillogstash/log/run > /etc/service/backfilllogstash/log/run
+chmod +x  /etc/service/backfilllogstash/run  /etc/service/backfilllogstash/log/run
 
 
 # launch logstash with config
-sv restart /etc/service/backfilllogstash
+sleep 6
+sv start /etc/service/backfilllogstash
+
 
 # stop it when it's up to now
 cp "$0" /root/logbackfill_donotdelete.sh
