@@ -42,7 +42,9 @@ default['elk']['indextypes'] = [
   'logstash-cloudwatch',
   'filebeat'
 ]
-default['elk']['90dayindextypes'] = [
+
+default['elk']['extendedretentiondays'] = 90
+default['elk']['extendeddayindextypes'] = [
   'logstash-cloudtrail',
 ]
 

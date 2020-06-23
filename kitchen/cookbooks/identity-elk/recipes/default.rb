@@ -441,12 +441,12 @@ node['elk']['indextypes'].each do |index|
   end
 end
 
-node['elk']['90dayindextypes'].each do |index|
+node['elk']['extendeddayindextypes'].each do |index|
   logretentionconfig = {
     'actions' => {
       1 => {
         'action' => "delete_indices",
-        'description' => "Delete indices older than 90 days",
+        'description' => "Delete indices older than #{node['elk']['extendedretentiondays']} days",
         'options' => {
           'ignore_empty_list' => true,
           'continue_if_exception' => true,
@@ -460,7 +460,7 @@ node['elk']['90dayindextypes'].each do |index|
             'source' => 'creation_date',
             'direction' => 'older',
             'unit' => 'days',
-            'unit_count' => 90 }
+            'unit_count' => node['elk']['extendedretentiondays'] }
         ]
       }
     }
