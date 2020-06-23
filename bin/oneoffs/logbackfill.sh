@@ -48,6 +48,7 @@ chown logstash /srv/tmp/backfilllogstash
 cp -rp /etc/logstash/cloudtraillogstashconf.d/* /etc/logstash/backfilllogstashconf.d/
 rm -f /etc/logstash/backfilllogstashconf.d/30-s3output.conf /etc/logstash/backfilllogstashconf.d/70-elblogsin.conf
 sed -i "s/index => \"logstash-cloudtrail-.*\"/index => \"$1\"/" /etc/logstash/backfilllogstashconf.d/30-ESoutput.conf
+sed -i "s/sincedb_cloudtraillogstash/sincedb_backfilllogstash/g" /etc/logstash/backfilllogstashconf.d/30-cloudtrailin.conf
 
 mkdir -p /etc/sv/backfilllogstash/log
 ln -s /etc/sv/backfilllogstash/ /etc/service/backfilllogstash
