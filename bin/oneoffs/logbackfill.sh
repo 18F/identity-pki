@@ -39,6 +39,7 @@ fi
 mkdir -p /usr/share/logstash/data_backfilllogstash
 chown logstash /usr/share/logstash/data_backfilllogstash
 date --date="$2 days ago" "+%F 00:00:00 +0000" > /usr/share/logstash/.sincedb_backfilllogstash
+chown logstash /usr/share/logstash/.sincedb_backfilllogstash
 
 
 # create config files from the previous cloudtrail config files
