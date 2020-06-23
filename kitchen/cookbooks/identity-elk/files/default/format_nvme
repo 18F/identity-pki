@@ -3,51 +3,23 @@
 # This script is designed to format the NVMe device attached to the EC2 instance
 # and mount it to /var/lib/elasticsaerch for use by an elasticsearch cluster.
 #
-# potential scenarios
-#
-# single NVMe device
-#
-# /dev/nvme0n1     AWS1DB82DE4B771EE6D5 Amazon EC2 NVMe Instance Storage         1         950.00  GB / 950.00  GB    512   B +  0 B   0
-#
-# single EBS device
-#
-# /dev/nvme0n1     vol0bd726cb42dafa196 Amazon Elastic Block Store               1           0.00   B / 107.37  GB    512   B +  0 B   1.0
-#
-# multiple EBS devices
-#
-# /dev/nvme0n1     vol0bd726cb42dafa196 Amazon Elastic Block Store               1           0.00   B / 107.37  GB    512   B +  0 B   1.0
-# /dev/nvme1n1     vol0e3425081723c1bd1 Amazon Elastic Block Store               1           0.00   B /  42.95  GB    512   B +  0 B   1.0
-#
-# mixed EBS and NVMe devices
-#
-# /dev/nvme0n1     vol0bd726cb42dafa196 Amazon Elastic Block Store               1           0.00   B / 107.37  GB    512   B +  0 B   1.0
-# /dev/nvme1n1     AWS1EBEA8106DAC8909E Amazon EC2 NVMe Instance Storage         1         300.00  GB / 300.00  GB    512   B +  0 B   0
-# /dev/nvme2n1     vol0e3425081723c1bd1 Amazon Elastic Block Store               1           0.00   B /  42.95  GB    512   B +  0 B   1.0
-#
-# 5 - instance with multiple NVMe devices
-#
-# /dev/nvme0n1     AWS1EBEA8106DAC8909E Amazon EC2 NVMe Instance Storage         1         300.00  GB / 300.00  GB    512   B +  0 B   0
-# /dev/nvme1n1     AWS1EBEA8106DAC8909E Amazon EC2 NVMe Instance Storage         1         300.00  GB / 300.00  GB    512   B +  0 B   0
-#
 
-# get first nvme device path listed by `nvme list`
-nvme_device_path=$(nvme list | grep NVMe | head -1 | awk '{print $1}')
+# get last unused nvme device
+nvme_device_path=$(lsblk -sp | grep -E '^.dev.nvme.*disk $' | awk '{print $1}' | tail -1)
 
 if [ -z "$nvme_device_path" ]
 then
   echo 'No NVMe devices attached to this host'
 else
-  fs_type=$(fsck -N "$nvme_device_path" | tail -1 | awk -F '.' '{print $2}' | awk '{print $1}' )
+  mkdir -p /var/lib/elasticsearch
 
-  if [ "$fs_type" == 'ext4' ]
+  if mount "$nvme_device_path" /var/lib/elasticsearch 2>/dev/null
   then
-    echo 'Exiting, it appears this device has already been formatted'
+    echo "it appears this device has already been formatted, so $nvme_device_path has been mounted on /var/lib/elasticsearch"
   else
     echo 'Formatting device as ext4 and mounting to /var/lib/elasticsearch'
     # format with ext4 fs
     mkfs.ext4 "$nvme_device_path"
-
-    mkdir -p /var/lib/elasticsearch
 
     # mount device
     mount "$nvme_device_path" /var/lib/elasticsearch/
