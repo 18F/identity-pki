@@ -9,7 +9,7 @@ nvme_device_path=$(lsblk -sp | grep -E '^.dev.nvme.*disk $' | awk '{print $1}' |
 
 if [ -z "$nvme_device_path" ]
 then
-  echo 'No NVMe devices attached to this host'
+  echo 'No unused NVMe devices attached to this host'
 else
   mkdir -p /var/lib/elasticsearch
 
