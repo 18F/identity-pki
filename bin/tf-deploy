@@ -593,7 +593,7 @@ echo_blue >&2 "Running terraform..."
 # Run main terraform command. This is the only command that should print to
 # stdout (reassigned to FD 3)
 run terraform "${TF_CMD[@]}" >&3 || DEPLOY_FAIL=true
-exit 0
+
 # if running apply or destroy, notify success/fail in Slack
 cd "${repo_root_before_cd}"
 define TF_VERSION_INFO <<EOM
