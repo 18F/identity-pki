@@ -70,7 +70,7 @@ resource "aws_s3_bucket" "cloudtrail" {
     prefix  = ""
 
     expiration {
-      days = 30
+      days = 90
     }
   }
 
