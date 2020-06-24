@@ -53,14 +53,20 @@ module "reports-assumerole" {
           sid = "RROCloudWatch"
           effect = "Allow"
           actions = [
+            "application-autoscaling:DescribeScalingPolicies",
             "autoscaling:DescribePolicies",
             "autoscaling:DescribeScalingPolicies",
+            "cloudwatch:DescribeAlarms",
+            "cloudwatch:GetDashboard",
+            "cloudwatch:ListDashboards",
             "iam:GetAccountSummary",
             "iam:ListAccountAliases",
             "logs:DescribeLogGroups",
+            "logs:DescribeQueryDefinitions",
             "logs:DescribeMetricFilters",
-            "cloudwatch:DescribeAlarms",
-            "cloudwatch:ListDashboards",
+            "logs:FilterLogEvents",
+            "resource-groups:ListGroups",
+            "sns:ListSubscriptions",
             "sns:ListTopics",
           ]
           resources = [
