@@ -19,8 +19,17 @@ end
 # get disk space info
 ohai = Ohai::System.new
 ohai.all_plugins
-percentstring = ohai['filesystem']['by_mountpoint']['/var']['percent_used']
-healthdata['es_var_diskpercentused'] = percentstring.to_i
+begin
+  percentstring = ohai['filesystem']['by_mountpoint']['/var/lib/elasticsearch']['percent_used']
+  healthdata['es_diskpercentused'] = percentstring.to_i
+rescue
+  begin
+    percentstring = ohai['filesystem']['by_mountpoint']['/var']['percent_used']
+    healthdata['es_diskpercentused'] = percentstring.to_i
+  rescue
+    healthdata['es_diskpercentused'] = -1
+  end    
+end
 
 data = {
   name: 'elasticsearch_health',
@@ -30,4 +39,3 @@ data = {
 }
 
 puts JSON.generate(data)
-
