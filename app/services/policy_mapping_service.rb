@@ -11,6 +11,7 @@ class PolicyMappingService
 
   attr_reader :certificate
 
+  # :reek:FeatureEnvy :reek:TooManyStatements
   def chain(set = [])
     # walk from the cert to a root - we can do this safely because we've already
     # constructed a path from the leaf cert to a trusted root elsewhere
@@ -18,6 +19,7 @@ class PolicyMappingService
     @chain ||= begin
       signer = store[certificate.signing_key_id]
       while signer
+        break if set.include? signer
         set << signer
         signer = !signer.self_signed? && store[signer.signing_key_id]
       end
