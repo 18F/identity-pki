@@ -194,13 +194,14 @@ class Certificate
   end
 
   def trusted_dod_root?
-    return true if cert_store.dod_root_identifiers.include?(root_cert_id)
+    x509_certificate_chain_key_ids.each do |key_id|
+      return true if cert_store.dod_root_identifiers.include?(key_id)
+    end
     false
   end
 
-  def root_cert_id
-    chain = cert_store.x509_certificate_chain(self)
-    chain.last.key_id
+  def x509_certificate_chain_key_ids
+    cert_store.x509_certificate_chain(self).map(&:key_id)
   end
 
   # :reek:UtilityFunction

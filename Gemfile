@@ -15,30 +15,30 @@ gem 'mini_cache'
 gem 'newrelic_rpm'
 gem 'pg'
 gem 'pry-rails'
-gem 'puma', '~> 3.12'
+gem 'puma', '~> 3.12', '>= 3.12.6'
 gem 'rgl'
 
 group :development, :test do
   gem 'bullet', '>= 6.0.2'
   gem 'pry-byebug'
   gem 'rspec-rails', '>= 3.8.3'
-  gem 'thin'
+  gem 'thin', '>= 1.7.2'
 end
 
 group :development do
-  gem 'better_errors'
+  gem 'better_errors', '>= 2.5.1'
   gem 'binding_of_caller'
   gem 'brakeman', require: false
   gem 'bummr', require: false
-  gem 'derailed'
+  gem 'derailed', '>= 0.1.0'
   gem 'fasterer', require: false
   gem 'guard-rspec', require: false
   gem 'overcommit', require: false
-  gem 'rack-mini-profiler', require: false
+  gem 'rack-mini-profiler', '>= 1.0.2', require: false
   gem 'rails-erd', '>= 1.6.0'
   gem 'reek'
   gem 'rubocop', require: false
-  gem 'rubocop-rails', require: false
+  gem 'rubocop-rails', '>= 2.4.1', require: false
 end
 
 group :test do
