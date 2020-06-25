@@ -154,7 +154,7 @@ data "aws_iam_policy_document" "cloudwatch_perms_cloudtrail" {
       "logs:PutLogEvents",
     ]
     resources = [
-      replace(aws_cloudwatch_log_group.cloudtrail_default.arn, "*",
+      replace(aws_cloudwatch_log_group.cloudtrail.arn, "*",
         "log-stream:${data.aws_caller_identity.current.account_id}_CloudTrail_${var.region}*")
     ]
   }
