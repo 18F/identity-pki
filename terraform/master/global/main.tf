@@ -20,44 +20,47 @@ module "main" {
 
   aws_account_types = {
     "Master" = [
-      "340731855345", # login-master
+      "340731855345" # login-master
     ],
     "Prod" = [
       "555546682965", # login-prod
       "472911866628", # login-sms-prod
       "461353137281", # login-analytics-prod
-      "217680906704", # login-secops-prod
+      "217680906704" # login-secops-prod
     ],
     "Sandbox" = [
       "894947205914", # login-sandbox
       "035466892286", # login-sms-sandbox
       "138431511372", # login-secops-dev
-      "034795980528", # login-interviews
-    ],
+      "034795980528" # login-interviews
+    ]
   }
 
   group_role_map = {
     "appdev" = [
       { "PowerUser"         = [ "Sandbox" ] },
-      { "ReadOnly"          = [ "Sandbox" ] }
+      { "ReadOnly"          = [ "Sandbox" ] },
+      { "Terraform"         = [ "Sandbox" ] }
     ],
     "analytics" = [
       { "Analytics"         = [ "Sandbox", "Prod" ] }
     ],
     "apponcall" = [
       { "PowerUser"         = [ "Sandbox", "Prod" ] },
-      { "ReadOnly"          = [ "Sandbox", "Prod" ] }
+      { "ReadOnly"          = [ "Sandbox", "Prod" ] },
+      { "Terraform"         = [ "Sandbox" ] }
     ],
     "bizops" = [
-      { "ReportsReadOnly"   = [ "Sandbox", "Prod" ] },
+      { "ReportsReadOnly"   = [ "Sandbox", "Prod" ] }
     ],
     "devops" = [
       { "FullAdministrator" = [ "Prod", "Sandbox", "Master" ] },
       { "ReadOnly"          = [ "Prod", "Sandbox" ] },
+      { "Terraform"         = [ "Prod", "Sandbox", "Master" ] },
       { "KMSAdministrator"  = [ "Sandbox" ] }
     ],
     "finops" = [
-      { "BillingReadOnly"   = [ "Sandbox", "Prod" ] },
+      { "BillingReadOnly"   = [ "Sandbox", "Prod" ] }
     ],
     "secops" = [
       { "FullAdministrator" = [ "Sandbox", "Prod", "Master" ] },
@@ -78,6 +81,7 @@ module "main" {
     "FullAdministrator",
     "PowerUser",
     "ReadOnly",
+    "Terraform",
     "BillingReadOnly",
     "ReportsReadOnly",
     "KMSAdministrator",
@@ -100,12 +104,16 @@ module "main" {
     "christopher.billas" = ["bizops", "finops"],
     "clinton.troxel"     = ["appdev"],
     "douglas.price"      = ["appdev", "bizops"],
+    "jeff.shultz"        = ["analytics"],
+    "john.yuda"          = ["analytics"],
     "jonathan.hooper"    = ["appdev", "apponcall", "keymasters"],
     "jonathan.pirro"     = ["devops"],
+    "julia.elman"        = ["analytics"],
     "justin.grevich"     = ["devops"],
     "likhitha.patha"     = ["bizops"],
     "michael.antiporta"  = ["analytics"],
     "mossadeq.zia"       = ["devops", "secops", "keymasters"],
+    "phil.lam"           = ["analytics"],
     "paul.hirsch"        = ["devops"],
     "rajat.varuni"       = ["secops", "soc", "keymasters"],
     "shade.jenifer"      = ["appdev", "apponcall"]

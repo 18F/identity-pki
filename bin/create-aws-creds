@@ -23,7 +23,7 @@ Flags:
   -p    Only create temp password
 
 To work properly, USERNAME must:
-  - be an entry in terraform/master/module/iam_users.tf
+  - be an entry in the user_map variable in terraform/master/global/main.tf
   - be an actual IAM user in the login-master account
 
 This script must be run with an active AWS STS session (via the API

@@ -422,7 +422,7 @@ node['elk']['indextypes'].each do |index|
         'filters' => [
           { 'filtertype' => 'pattern',
             'kind' => 'prefix',
-            'value' => "#{index}-" },
+            'value' => "#{index}" },
           { 'filtertype' => 'age',
             'source' => 'creation_date',
             'direction' => 'older',
@@ -440,6 +440,40 @@ node['elk']['indextypes'].each do |index|
     action :create
   end
 end
+
+node['elk']['extendeddayindextypes'].each do |index|
+  logretentionconfig = {
+    'actions' => {
+      1 => {
+        'action' => "delete_indices",
+        'description' => "Delete indices older than #{node['elk']['extendedretentiondays']} days",
+        'options' => {
+          'ignore_empty_list' => true,
+          'continue_if_exception' => true,
+          'disable_action' => false
+        },
+        'filters' => [
+          { 'filtertype' => 'pattern',
+            'kind' => 'prefix',
+            'value' => "#{index}" },
+          { 'filtertype' => 'age',
+            'source' => 'creation_date',
+            'direction' => 'older',
+            'unit' => 'days',
+            'unit_count' => node['elk']['extendedretentiondays'] }
+        ]
+      }
+    }
+  }
+
+  elasticsearch_curator_action "#{index}_retention" do
+    config logretentionconfig
+    minute '0'
+    hour '2'
+    action :create
+  end
+end
+
 
 # set up ssl proxy frontend for kibana
 include_recipe 'apache2'

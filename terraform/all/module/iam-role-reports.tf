@@ -39,10 +39,38 @@ module "reports-assumerole" {
           sid    = "RROGetObjects"
           effect = "Allow"
           actions = [
-            "s3:GetObject"
+            "s3:GetObject",
+            "s3:GetAccountPublicAccessBlock",
+            "s3:GetBucketEncryption",
+            "s3:GetBucketPublicAccessBlock",
+            "s3:GetBucketVersioning",
           ]
           resources = [
             "${var.reports_bucket_arn}/*"
+          ]
+        },
+        {
+          sid = "RROCloudWatch"
+          effect = "Allow"
+          actions = [
+            "application-autoscaling:DescribeScalingPolicies",
+            "autoscaling:DescribePolicies",
+            "autoscaling:DescribeScalingPolicies",
+            "cloudwatch:DescribeAlarms",
+            "cloudwatch:GetDashboard",
+            "cloudwatch:ListDashboards",
+            "iam:GetAccountSummary",
+            "iam:ListAccountAliases",
+            "logs:DescribeLogGroups",
+            "logs:DescribeQueryDefinitions",
+            "logs:DescribeMetricFilters",
+            "logs:FilterLogEvents",
+            "resource-groups:ListGroups",
+            "sns:ListSubscriptions",
+            "sns:ListTopics",
+          ]
+          resources = [
+            "*"
           ]
         }
       ]

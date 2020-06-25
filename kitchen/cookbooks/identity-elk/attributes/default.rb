@@ -38,8 +38,14 @@ default['elk']['retentiondays'] = 30
 
 # indexes to prune.  Can be figured out with curl 'localhost:9200/_cat/indices?v'
 default['elk']['indextypes'] = [
-  'logstash',
+  'logstash-2',
+  'logstash-cloudwatch',
   'filebeat'
+]
+
+default['elk']['extendedretentiondays'] = 90
+default['elk']['extendeddayindextypes'] = [
+  'logstash-cloudtrail',
 ]
 
 # Set this to false in environments that use new-style bucket names.

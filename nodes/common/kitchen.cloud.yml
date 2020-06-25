@@ -40,9 +40,6 @@ ami_id = ENV.fetch('KITCHEN_RAILS_AMI', lt_ami_id)
 
 vpc_name = "login-vpc-#{environment}"
 
-# set default AWS profile to sandbox account
-ENV['AWS_PROFILE'] ||= 'identitysandbox.gov'
-
 # TODO: Make a standard instance profile name for each instance so we don't need
 # this hash.
 iam_profiles = {
