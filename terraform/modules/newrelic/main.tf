@@ -2,7 +2,7 @@
 # Once we get tf 0.13.* going, we can get rid of all the count and [0] silliness
 
 provider "newrelic" {
-  version = "~> 2.0.0"
+  version = ">= 2.1"
   region = "US"
 }
 
@@ -86,72 +86,68 @@ resource "newrelic_alert_policy_channel" "high" {
 resource "newrelic_nrql_alert_condition" "es_cluster_red" {
   count = var.enabled
   policy_id = newrelic_alert_policy.high[0].id
-
   name        = "${var.env_name}_es_cluster_red"
-  type        = "static"
+  description = "Alert when the ES cluster in ${var.env_name} is red"
   runbook_url = "https://login-handbook.app.cloud.gov/articles/appdev-troubleshooting-production.html#ssh-into-the-elk-server"
   enabled     = true
-
-  critical {
-    threshold_duration      = 300
-    operator      = "above"
-    threshold     = "1"
-    threshold_occurrences = "all"
-  }
+  value_function = "single_value"
+  violation_time_limit = "TWELVE_HOURS"
 
   nrql {
     query       = "SELECT count(*) from ElasticSearchHealthSample where label.environment = '${var.env_name}' and es_status = 'red'"
-    since_value = "3"
+    evaluation_offset = 3
   }
 
-  value_function = "single_value"
+  critical {
+    operator      = "above"
+    threshold     = 1
+    threshold_duration      = 300
+    threshold_occurrences = "at_least_once"
+  }
 }
 
 resource "newrelic_nrql_alert_condition" "es_cluster_yellow" {
   count = var.enabled
   policy_id = newrelic_alert_policy.low[0].id
-
   name        = "${var.env_name}_es_cluster_yellow"
-  type        = "static"
+  description = "Alert when the ES cluster in ${var.env_name} is yellow"
   runbook_url = "https://login-handbook.app.cloud.gov/articles/appdev-troubleshooting-production.html#ssh-into-the-elk-server"
   enabled     = true
-
-  critical {
-    threshold_duration      = 300
-    operator      = "above"
-    threshold     = "1"
-    threshold_occurrences = "all"
-  }
+  value_function = "single_value"
+  violation_time_limit = "TWELVE_HOURS"
 
   nrql {
     query       = "SELECT count(*) from ElasticSearchHealthSample where label.environment = '${var.env_name}' and es_status = 'yellow'"
-    since_value = "3"
+    evaluation_offset = 3
   }
 
-  value_function = "single_value"
+  critical {
+    operator      = "above"
+    threshold     = 1
+    threshold_duration      = 300
+    threshold_occurrences = "at_least_once"
+  }
 }
-
 
 resource "newrelic_nrql_alert_condition" "es_no_logs" {
   count = var.enabled
   policy_id = newrelic_alert_policy.high[0].id
-
   name        = "${var.env_name}_es_no_logs"
-  type        = "static"
+  description = "Alert when the ES cluster has unusually low log volume"
   runbook_url = "https://login-handbook.app.cloud.gov/articles/appdev-troubleshooting-production.html#ssh-into-the-elk-server"
   enabled     = true
-
-  critical {
-    threshold_duration      = 120
-    operator      = "below"
-    threshold     = "4000"
-    threshold_occurrences = "all"
-  }
+  value_function = "single_value"
+  violation_time_limit = "TWELVE_HOURS"
 
   nrql {
     query       = "SELECT average(es_documents_in_last_ten_minutes) from LogstashHealthSample where label.environment = '${var.env_name}'"
-    evaluation_offset = "3"
+    evaluation_offset = 3
   }
 
-  value_function = "single_value"
+  critical {
+    operator      = "below"
+    threshold     = 4000
+    threshold_duration      = 120
+    threshold_occurrences = "at_least_once"
+  }
 }
