@@ -133,7 +133,7 @@ resource "newrelic_nrql_alert_condition" "es_no_logs" {
   count = var.enabled
   policy_id = newrelic_alert_policy.high[0].id
   name        = "${var.env_name}_es_no_logs"
-  description = "Alert when the ES cluster has unusually low log volume"
+  description = "Alert when the ${var.env_name} ES cluster has unusually low log volume"
   runbook_url = "https://login-handbook.app.cloud.gov/articles/appdev-troubleshooting-production.html#ssh-into-the-elk-server"
   enabled     = true
   value_function = "single_value"
@@ -147,6 +147,36 @@ resource "newrelic_nrql_alert_condition" "es_no_logs" {
   critical {
     operator      = "below"
     threshold     = 4000
+    threshold_duration      = 120
+    threshold_occurrences = "at_least_once"
+  }
+}
+
+resource "newrelic_nrql_alert_condition" "es_disk_space" {
+  count = var.enabled
+  policy_id = newrelic_alert_policy.low[0].id
+  name        = "${var.env_name}_es_disk_space"
+  description = "Alert when nodes in the ${var.env_name} ES cluster are low on disk space"
+  runbook_url = "https://login-handbook.app.cloud.gov/articles/appdev-troubleshooting-production.html#ssh-into-the-elk-server"
+  enabled     = true
+  value_function = "single_value"
+  violation_time_limit = "TWELVE_HOURS"
+
+  nrql {
+    query       = "SELECT max(es_diskpercentused) from ElasticSearchHealthSample where label.environment = '${var.env_name}'"
+    evaluation_offset = 3
+  }
+
+  warning {
+    operator      = "above"
+    threshold     = 70
+    threshold_duration      = 120
+    threshold_occurrences = "at_least_once"
+  }
+
+  critical {
+    operator      = "above"
+    threshold     = 85
     threshold_duration      = 120
     threshold_occurrences = "at_least_once"
   }
