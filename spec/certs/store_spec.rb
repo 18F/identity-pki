@@ -24,6 +24,7 @@ describe 'Certificate store in config/certs' do
     expect(CertificateStore.instance.certificates).to_not be_empty
 
     invalid_certs = CertificateStore.instance.certificates.filter do |cert|
+      cert.token({})
       !cert.valid?
     end
 
