@@ -12,7 +12,7 @@ _DATE_
 Note that not all Login employees will have access to everything listed here.
 
 - AWS IAM
-  - [ ] Prod, nonprod AWS accounts
+  - [ ] Remove from `user_map` in `terraform/master`
    _user name_
   - [ ] Quicksight
   - [ ] Analytics
@@ -20,11 +20,8 @@ Note that not all Login employees will have access to everything listed here.
 
 - Internal tools and services
   - [ ] SSH
-      Remove all SSH keys and groups from the [relevant databag file](https://github.com/18F/identity-devops-private/tree/master/chef/data_bags/users),
-      but do not delete it. This allows us to avoid reusing user UIDs.
+      Remove all SSH keys and groups from the [relevant databag file](https://github.com/18F/identity-devops-private/tree/master/chef/data_bags/users)
   - [ ] Kibana
-      _user name_
-  - [ ] Nessus Server
       _user name_
 
 - Github
@@ -32,6 +29,6 @@ Note that not all Login employees will have access to everything listed here.
      _user name_
   - [ ] Request removal from the 18F org in #admins-github (if leaving TTS/USDS) https://gsa-tts.slack.com/archives/C02KXM98G
   - Note that CircleCI, CodeClimate, and Snyk rights are removed via GitHub integrations
-  
+
 - [ ] [Remove New Relic Access](https://account.newrelic.com/accounts/1376370/users)
 - [ ] [Remove OpsGenie Access](https://login-gov.app.opsgenie.com/settings/users/)
