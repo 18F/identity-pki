@@ -21,8 +21,6 @@ Note that not all Login employees will have access to everything listed here.
 - Internal tools and services
   - [ ] SSH
       Remove all SSH keys and groups from the [relevant databag file](https://github.com/18F/identity-devops-private/tree/master/chef/data_bags/users)
-  - [ ] Kibana
-      _user name_
 
 - Github
   - [ ] Remove rights on the [identity teams](https://github.com/orgs/18F/teams/identity-core/members)

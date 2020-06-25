@@ -11,5 +11,6 @@ labels: administration
 - Also, please note that not all items below will be applicable to every team-member, you can remove items that don't apply.
 
 ## Tasks to be completed by DevOps
-- [ ] Add the new team member to [New Relic](https://account.newrelic.com/accounts/1376370/users/new)
-- [ ] Invite the new team member to [Opsgenie](https://login-gov.app.opsgenie.com/settings/users/)
+
+- [ ] For AppDev, DevOps, and SecOps members add the new team member to [New Relic](https://account.newrelic.com/accounts/1376370/users/new)
+- [ ] For on-call AppDev, DevOps, and SecOps members invite the new team member to [Opsgenie](https://login-gov.app.opsgenie.com/settings/users/)
