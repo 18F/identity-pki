@@ -14,13 +14,10 @@ terraform {
 module "main" {
   source = "../module"
 
-  iam_account_alias = "login-analytics"
-  account_roles_map = {
-    iam_appdev_enabled    = false
-    iam_analytics_enabled = true
-    iam_power_enabled     = false
-    iam_socadmin_enabled  = true
-    iam_terraform_enabled = false
-    iam_kmsadmin_enabled  = false
-  }
+  env_name                 = "prod"
+  #redshift_master_password = var.redshift_master_password
+  redshift_node_type       = "dc2.8xlarge"
+  redshift_cluster_type    = "multi-node"
+  redshift_number_of_nodes = 4
+  analytics_version        = "account_migration_v16"
 }

@@ -25,7 +25,6 @@ module "main" {
     "Prod" = [
       "555546682965", # login-prod
       "472911866628", # login-sms-prod
-      "461353137281", # login-analytics-prod
       "217680906704" # login-secops-prod
     ],
     "Sandbox" = [
@@ -33,6 +32,9 @@ module "main" {
       "035466892286", # login-sms-sandbox
       "138431511372", # login-secops-dev
       "034795980528" # login-interviews
+    ],
+    "Analytics" = [
+      "461353137281" # login-analytics
     ]
   }
 
@@ -43,7 +45,7 @@ module "main" {
       { "Terraform"         = [ "Sandbox" ] }
     ],
     "analytics" = [
-      { "Analytics"         = [ "Sandbox", "Prod" ] }
+      { "Analytics"         = [ "Sandbox", "Prod", "Analytics" ] }
     ],
     "apponcall" = [
       { "PowerUser"         = [ "Sandbox", "Prod" ] },
@@ -54,10 +56,10 @@ module "main" {
       { "ReportsReadOnly"   = [ "Sandbox", "Prod" ] }
     ],
     "devops" = [
-      { "FullAdministrator" = [ "Prod", "Sandbox", "Master" ] },
+      { "FullAdministrator" = [ "Prod", "Sandbox", "Master", "Analytics" ] },
       { "ReadOnly"          = [ "Prod", "Sandbox" ] },
       { "Terraform"         = [ "Prod", "Sandbox", "Master" ] },
-      { "KMSAdministrator"  = [ "Sandbox" ] }
+      { "KMSAdministrator"  = [ "Sandbox", "Analytics" ] }
     ],
     "finops" = [
       { "BillingReadOnly"   = [ "Sandbox", "Prod" ] }
@@ -68,7 +70,7 @@ module "main" {
       { "KMSAdministrator"  = [ "Sandbox" ] }
     ],
     "soc" = [
-      { "SOCAdministrator"  = [ "Sandbox", "Prod", "Master" ] }
+      { "SOCAdministrator"  = [ "Sandbox", "Prod", "Master", "Analytics" ] }
     ],
     "keymasters" = [
       { "KMSAdministrator"  = [ "Prod" ] }

@@ -1,3 +1,7 @@
+provider "external" { version = "~> 1.2" }
+provider "null" { version = "~> 2.1.2" }
+provider "template" { version = "~> 2.1.2" }
+
 data "aws_caller_identity" "current" {
 }
 
@@ -43,25 +47,21 @@ resource "aws_redshift_cluster" "redshift" {
   cluster_identifier           = "tf-${var.env_name}-redshift-cluster"
   database_name                = "analytics"
   master_username              = "awsuser"
-  master_password              = var.redshift_master_password
-  node_type                    = var.env_name == "prod" ? "dc2.8xlarge" : "dc2.large"
-  cluster_type                 = var.env_name == "prod" ? "multi-node" : "single-node"
-  number_of_nodes              = var.env_name == "prod" ? var.num_redshift_nodes : 1
+  #master_password              = var.redshift_master_password
+  node_type                    = var.redshift_node_type
+  cluster_type                 = var.redshift_cluster_type
+  number_of_nodes              = var.redshift_number_of_nodes
   cluster_subnet_group_name    = aws_redshift_subnet_group.redshift_subnet_group.name
   publicly_accessible          = true
   iam_roles                    = [aws_iam_role.redshift_role.arn]
-  enable_logging               = true
   encrypted                    = true
   cluster_parameter_group_name = aws_redshift_parameter_group.redshift_configuration.name
-  bucket_name                  = aws_s3_bucket.redshift_logs_bucket.id
-
-  vpc_security_group_ids = [
-    aws_security_group.redshift_security_group.id,
-  ]
-
-  iam_roles = [
-    aws_iam_role.redshift_role.arn,
-  ]
+  vpc_security_group_ids       = [aws_security_group.redshift_security_group.id]
+  logging {
+    enable      = true
+    bucket_name = aws_s3_bucket.redshift_logs_bucket.id
+  }
+  
 }
 
 resource "aws_vpc_endpoint" "private-s3" {
@@ -623,7 +623,7 @@ resource "aws_lambda_function" "analytics_lambda" {
     variables = {
       env            = var.env_name
       redshift_host  = aws_redshift_cluster.redshift.endpoint
-      encryption_key = var.kms_key_id
+      encryption_key = var.lambda_kms_key_id
       acct_id        = data.aws_caller_identity.current.account_id
       source_bucket  = "login-gov-${var.env_name}-logs"
       dest_bucket    = aws_s3_bucket.redshift_export_bucket.id
@@ -655,7 +655,7 @@ resource "aws_lambda_function" "analytics_lambda_hot" {
       env            = var.env_name
       region         = var.region
       redshift_host  = aws_redshift_cluster.redshift.endpoint
-      encryption_key = var.kms_key_id
+      encryption_key = var.lambda_kms_key_id
       acct_id        = data.aws_caller_identity.current.account_id
       source_bucket  = "login-gov-${var.env_name}-logs"
       dest_bucket    = aws_s3_bucket.redshift_export_bucket.id
@@ -816,3 +816,6 @@ resource "aws_network_acl" "analytics_redshift" {
   }
 }
 
+output "iam_role_arn" {
+  value = aws_iam_role.redshift_role.arn
+}
