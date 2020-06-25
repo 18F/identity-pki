@@ -64,13 +64,41 @@ resource "aws_s3_bucket" "cloudtrail" {
 
   policy = data.aws_iam_policy_document.cloudtrail.json
 
+  versioning {
+    enabled = true
+  }
+
   lifecycle_rule {
     id      = "logexpire"
     enabled = true
     prefix  = ""
 
-    expiration {
+    transition {
       days = 90
+      storage_class = "STANDARD_IA" 
+    }
+
+    transition {
+      days = 365
+      storage_class = "GLACIER"
+    }
+
+    expiration {
+      days = 2190
+    }
+
+    noncurrent_version_transition {
+      days = 90 
+      storage_class = "STANDARD_IA"
+    }
+
+    noncurrent_version_transition {
+      days = 365
+      storage_class = "GLACIER"
+    }
+
+    noncurrent_version_expiration {
+      days = 2190
     }
   }
 
@@ -90,7 +118,7 @@ resource "aws_s3_bucket" "cloudtrail" {
 
 resource "aws_cloudwatch_log_group" "cloudtrail_default" {
   name = "CloudTrail/DefaultLogGroup"
-  retention_in_days = 30
+  retention_in_days = 90
 }
 
 resource "aws_iam_role" "cloudtrail_cloudwatch_logs" {
