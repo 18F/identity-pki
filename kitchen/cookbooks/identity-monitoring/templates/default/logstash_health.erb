@@ -63,12 +63,42 @@ for sincedb in Dir["/usr/share/logstash/.sincedb*"] do
 end
 
 # get total number of log events in the system
-# curl -sk https://elasticsearch.login.gov.internal:9200/_cat/count/logstash*?format=JSON
-#documents = client.cat.count.XXX
+docs = client.count index: 'logstash*'
+healthdata['es_total_document_count'] = docs['count']
 
 
-# get total disk space used by all indexes
-# curl -sk https://elasticsearch.login.gov.internal:9200/_cat/allocation?v
+# get total disk space used in cluster
+data = client.cat.allocation(format: 'JSON', bytes: 'gb')
+diskspace = 0
+data.each do |l|
+	diskspace = diskspace + l['disk.used'].to_i
+end
+healthdata['es_total_cluster_gb_disk_used'] = diskspace
+
+
+# get total disk space used by primary indexes
+data = client.cat.allocation(format: 'JSON', bytes: 'mb')
+diskspace = 0
+data.each do |l|
+	diskspace = diskspace + l['disk.used'].to_i
+end
+healthdata['es_total_logs_gb_disk_used'] = diskspace/1000
+
+
+# get number of cloudtrail messages
+docs = client.count index: 'logstash-cloudtrail*'
+healthdata['es_cloudtrail_document_count'] = docs['count']
+
+
+# get number of cloudwatch messages
+docs = client.count index: 'logstash-cloudwatch*'
+healthdata['es_cloudwatch_document_count'] = docs['count']
+
+
+# get number of logstash messages
+docs = client.count index: 'logstash-2*'
+healthdata['es_logstash_document_count'] = docs['count']
+
 
 
 data = {
