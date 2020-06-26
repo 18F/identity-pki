@@ -6,7 +6,8 @@
   "default_attributes": {
     "elk": {
       "legacy_log_bucket_name": false,
-      "retentiondays": 14,
+      "retentiondays": 5,
+      "extendedretentiondays": 7,
       "users": [
         "tspencer"
       ]
