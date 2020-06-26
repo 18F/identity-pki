@@ -21,6 +21,6 @@ module "main" {
     iam_power_enabled     = false
     iam_socadmin_enabled  = true
     iam_terraform_enabled = false
-    iam_kmsadmin_enabled  = false
+    iam_kmsadmin_enabled  = true
   }
 }

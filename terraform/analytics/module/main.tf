@@ -5,6 +5,11 @@ provider "template" { version = "~> 2.1.2" }
 data "aws_caller_identity" "current" {
 }
 
+data "aws_s3_bucket_object" "redshift_secret" {
+  bucket = var.redshift_secrets_bucket
+  key    = "redshift_secret.yml"
+}
+
 resource "aws_vpc" "analytics_vpc" {
   cidr_block           = var.vpc_cidr_block
   enable_dns_support   = true
@@ -47,7 +52,7 @@ resource "aws_redshift_cluster" "redshift" {
   cluster_identifier           = "tf-${var.env_name}-redshift-cluster"
   database_name                = "analytics"
   master_username              = "awsuser"
-  #master_password              = var.redshift_master_password
+  master_password              = lookup(yamldecode("${data.aws_s3_bucket_object.redshift_secret.body}"), "redshift_password")
   node_type                    = var.redshift_node_type
   cluster_type                 = var.redshift_cluster_type
   number_of_nodes              = var.redshift_number_of_nodes
@@ -334,6 +339,9 @@ resource "aws_lambda_permission" "allow_bucket_staging" {
   function_name = aws_lambda_function.analytics_lambda.arn
   principal     = "s3.amazonaws.com"
   source_arn    = "arn:aws:s3:::login-gov-${var.env_name}-${data.aws_caller_identity.current.account_id}-export-logs"
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 # Bucket used for storing S3 access logs in Analytics account
@@ -612,10 +620,13 @@ resource "aws_lambda_function" "analytics_lambda" {
   handler       = "function.lambda_handler"
   runtime       = "python3.6"
   timeout       = 300
-  memory_size   = 1536
+  memory_size   = 3008
 
   vpc_config {
-    subnet_ids         = [aws_subnet.lambda_subnet.id]
+    subnet_ids         = [
+      aws_subnet.lambda_subnet.id,
+      aws_subnet.redshift_subnet.id,
+    ]
     security_group_ids = [aws_security_group.lambda_security_group.id]
   }
 
@@ -643,10 +654,13 @@ resource "aws_lambda_function" "analytics_lambda_hot" {
   handler       = "function_2.lambda_handler"
   runtime       = "python3.6"
   timeout       = 300
-  memory_size   = 3008
+  memory_size   = 1536
 
   vpc_config {
-    subnet_ids         = [aws_subnet.lambda_subnet.id]
+    subnet_ids         = [
+      aws_subnet.lambda_subnet.id,
+      aws_subnet.redshift_subnet.id,
+    ]
     security_group_ids = [aws_security_group.lambda_security_group.id]
   }
 
@@ -677,9 +691,12 @@ resource "aws_cloudwatch_event_rule" "every_five_minutes" {
   name                = "${var.env_name}-every-5-minutes"
   description         = "Fires every five minutes"
   schedule_expression = "rate(5 minutes)"
+  is_enabled          = var.cloudwatch_5min_enabled
 }
 
 resource "aws_cloudwatch_event_target" "cloudwatch_notification" {
+  count = var.cloudwatch_5min_enabled == true ? 1 : 0
+
   rule      = aws_cloudwatch_event_rule.every_five_minutes.name
   target_id = "analytics_lambda_hot"
   arn       = aws_lambda_function.analytics_lambda_hot.arn
@@ -687,7 +704,7 @@ resource "aws_cloudwatch_event_target" "cloudwatch_notification" {
 
 resource "aws_lambda_permission" "allow_execution_from_cloudwatch" {
   statement_id  = "AllowExecutionFromCloudWatch"
-  action        = "lambda:InvokeFunction"
+  action        = var.cloudwatch_5min_enabled == true ? "lambda:InvokeFunction" : "lambda:DisableInvokeFunction"
   function_name = aws_lambda_function.analytics_lambda_hot.function_name
   principal     = "events.amazonaws.com"
   source_arn    = aws_cloudwatch_event_rule.every_five_minutes.arn

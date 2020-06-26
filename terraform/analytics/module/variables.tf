@@ -5,6 +5,10 @@ variable "env_name" {
 
 #variable "redshift_master_password" {}
 
+variable "redshift_secrets_bucket" {
+  default = "login-gov-prod-461353137281-redshift-secrets"
+}
+
 variable "analytics_version" {}
 
 variable "redshift_node_type" {
@@ -56,6 +60,12 @@ variable "manage_state_bucket" {
 Whether to manage the TF remote state bucket and lock table.
 Set this to false if you want to skip this for bootstrapping.
 EOM
+  type        = bool
+  default     = true
+}
+
+variable "cloudwatch_5min_enabled" {
+  description = "Whether or not to enable the every-5-minutes CloudWatch event rule."
   type        = bool
   default     = true
 }
