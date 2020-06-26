@@ -17,6 +17,7 @@ def emit_metrics (healthdata)
 	puts JSON.generate(data)
 end
 
+
 client = Elasticsearch::Client.new \
   url: 'https://elasticsearch.login.gov.internal:9200',
   transport_options: { ssl: { verify: false } }
@@ -24,6 +25,40 @@ client = Elasticsearch::Client.new \
 healthdata = {}
 healthdata['event_type'] = 'LogstashHealthSample'
 
+# get disk space info
+ohai = Ohai::System.new
+ohai.all_plugins
+percentstring = ohai['filesystem']['by_mountpoint']['/var']['percent_used']
+healthdata['logstash_var_diskpercent'] = percentstring.to_i
+percentstring = ohai['filesystem']['by_mountpoint']['/']['percent_used']
+healthdata['logstash_root_diskpercent'] = percentstring.to_i
+
+
+# get logstash process existence info
+proc = Sys::ProcTable.ps.select { |p| p['cmdline'] =~ /data_cloudwatchlogstash/ }
+healthdata['logstash_cloudwatch_proc_exists'] = ! proc.empty?
+proc = Sys::ProcTable.ps.select { |p| p['cmdline'] =~ /data_cloudtraillogstash/ }
+healthdata['logstash_cloudtrail_proc_exists'] = ! proc.empty?
+proc = Sys::ProcTable.ps.select { |p| p['cmdline'] =~ /data_logstash/ }
+healthdata['logstash_proc_exists'] = ! proc.empty?
+
+
+# get sincedb info to see where we are in the log buckets
+for sincedb in Dir["/usr/share/logstash/.sincedb*"] do
+	f = File.open(sincedb).read
+	begin
+		timestamp = DateTime.parse(f)
+		name = 'logstash_' + File.basename(sincedb).tr('.', '') + '_time'
+		healthdata[name] = timestamp.strftime('%s')
+	rescue
+	end
+end
+
+###############################################################
+# ES queries only beyond here so that if ES is down, we can bail
+# early and not have to wrap everything in a big block
+
+# get ES cluster health from the logstash/kibana perspective
 begin
 	rawhealthdata = client.cluster.health
 rescue
@@ -35,9 +70,12 @@ end
 
 if rawhealthdata.has_key?('error')
 	healthdata['logstash_es_working'] = false
+	emit_metrics healthdata
+	exit
 else
 	healthdata['logstash_es_working'] = true
 end
+
 
 # get # of documents created in the last 10 minutes
 docs = client.count(
@@ -54,32 +92,6 @@ docs = client.count(
 )
 healthdata['es_documents_in_last_ten_minutes'] = docs['count']
 
-# get disk space info
-ohai = Ohai::System.new
-ohai.all_plugins
-percentstring = ohai['filesystem']['by_mountpoint']['/var']['percent_used']
-healthdata['logstash_var_diskpercent'] = percentstring.to_i
-percentstring = ohai['filesystem']['by_mountpoint']['/']['percent_used']
-healthdata['logstash_root_diskpercent'] = percentstring.to_i
-
-# get logstash process existence info
-proc = Sys::ProcTable.ps.select { |p| p['cmdline'] =~ /data_cloudwatchlogstash/ }
-healthdata['logstash_cloudwatch_proc_exists'] = ! proc.empty?
-proc = Sys::ProcTable.ps.select { |p| p['cmdline'] =~ /data_cloudtraillogstash/ }
-healthdata['logstash_cloudtrail_proc_exists'] = ! proc.empty?
-proc = Sys::ProcTable.ps.select { |p| p['cmdline'] =~ /data_logstash/ }
-healthdata['logstash_proc_exists'] = ! proc.empty?
-
-# get sincedb info to see where we are in the log buckets
-for sincedb in Dir["/usr/share/logstash/.sincedb*"] do
-	f = File.open(sincedb).read
-	begin
-		timestamp = DateTime.parse(f)
-		name = 'logstash_' + File.basename(sincedb).tr('.', '') + '_time'
-		healthdata[name] = timestamp.strftime('%s')
-	rescue
-	end
-end
 
 # get total number of log events in the system
 docs = client.count index: 'logstash*'
