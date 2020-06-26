@@ -121,14 +121,66 @@ docs = client.count index: 'logstash-cloudtrail*'
 healthdata['es_cloudtrail_document_count'] = docs['count']
 
 
+# get number of cloudtrail messages in last 10 minutes
+docs = client.count(
+  index: 'logstash-cloudtrail*',
+  body: {
+    query: {
+      range: {
+        "@timestamp": {
+          "gte": "now-10m",
+          "lte": "now"
+        }
+      }
+    }
+  }
+)
+healthdata['es_cloudtrail_documents_in_last_ten_minutes'] = docs['count']
+
+
 # get number of cloudwatch messages
 docs = client.count index: 'logstash-cloudwatch*'
 healthdata['es_cloudwatch_document_count'] = docs['count']
 
 
+# get number of cloudwatch messages in last 10 minutes
+docs = client.count(
+  index: 'logstash-cloudwatch*',
+  body: {
+    query: {
+      range: {
+        "@timestamp": {
+          "gte": "now-10m",
+          "lte": "now"
+        }
+      }
+    }
+  }
+)
+healthdata['es_cloudwatch_documents_in_last_ten_minutes'] = docs['count']
+
+
 # get number of logstash messages
 docs = client.count index: 'logstash-2*'
 healthdata['es_logstash_document_count'] = docs['count']
+
+
+# get number of logstash messages in last 10 minutes
+docs = client.count(
+  index: 'logstash-2*',
+  body: {
+    query: {
+      range: {
+        "@timestamp": {
+          "gte": "now-10m",
+          "lte": "now"
+        }
+      }
+    }
+  }
+)
+healthdata['es_logstash_documents_in_last_ten_minutes'] = docs['count']
+
 
 emit_metrics healthdata
 
