@@ -1,9 +1,9 @@
 name: No Logs
 type: flatline
-index: logstash-2*
-alert_text: logs from logstash in the <%= @env %> ELK instance seem to have stopped entirely!
+index: logstash-cloudwatch*
+alert_text: logs from cloudwatch in the <%= @env %> ELK instance seem to have stopped entirely!
 owner: <%= @env %>
-threshold: 30000
+threshold: 2600
 realert:
     hours: 2
 doc_type: _doc
