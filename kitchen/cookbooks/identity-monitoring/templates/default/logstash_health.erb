@@ -6,6 +6,17 @@ require 'ohai'
 require 'sys/proctable'
 require 'date'
 
+def emit_metrics (healthdata)
+	data = {
+	  name: 'logstash_health',
+	  protocol_version: '1',
+	  integration_version: '1.0.0',
+	  metrics: [ healthdata ]
+	}
+
+	puts JSON.generate(data)
+end
+
 client = Elasticsearch::Client.new \
   url: 'https://elasticsearch.login.gov.internal:9200',
   transport_options: { ssl: { verify: false } }
@@ -13,7 +24,15 @@ client = Elasticsearch::Client.new \
 healthdata = {}
 healthdata['event_type'] = 'LogstashHealthSample'
 
-rawhealthdata = client.cluster.health
+begin
+	rawhealthdata = client.cluster.health
+rescue
+	# If ES is down entirely, there should be an exception here:  tell NR that it's not working
+	healthdata['logstash_es_working'] = false
+	emit_metrics healthdata
+	exit
+end
+
 if rawhealthdata.has_key?('error')
 	healthdata['logstash_es_working'] = false
 else
@@ -99,13 +118,5 @@ healthdata['es_cloudwatch_document_count'] = docs['count']
 docs = client.count index: 'logstash-2*'
 healthdata['es_logstash_document_count'] = docs['count']
 
+emit_metrics healthdata
 
-
-data = {
-  name: 'logstash_health',
-  protocol_version: '1',
-  integration_version: '1.0.0',
-  metrics: [ healthdata ]
-}
-
-puts JSON.generate(data)
