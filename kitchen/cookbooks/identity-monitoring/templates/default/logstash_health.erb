@@ -62,6 +62,14 @@ for sincedb in Dir["/usr/share/logstash/.sincedb*"] do
 	end
 end
 
+# get total number of log events in the system
+# curl -sk https://elasticsearch.login.gov.internal:9200/_cat/count/logstash*?format=JSON
+#documents = client.cat.count.XXX
+
+
+# get total disk space used by all indexes
+# curl -sk https://elasticsearch.login.gov.internal:9200/_cat/allocation?v
+
 
 data = {
   name: 'logstash_health',

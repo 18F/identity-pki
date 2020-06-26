@@ -2,7 +2,7 @@
 
 require 'elasticsearch'
 require 'json'
-require 'ohai'
+require 'socket'
 
 healthdata = {}
 healthdata['event_type'] = 'ElasticSearchHealthSample'
@@ -17,19 +17,15 @@ rawhealthdata.keys.each do |k|
 end
 
 # get disk space info
-ohai = Ohai::System.new
-ohai.all_plugins
-begin
-  percentstring = ohai['filesystem']['by_mountpoint']['/var/lib/elasticsearch']['percent_used']
-  healthdata['es_diskpercentused'] = percentstring.to_i
-rescue
-  begin
-    percentstring = ohai['filesystem']['by_mountpoint']['/var']['percent_used']
-    healthdata['es_diskpercentused'] = percentstring.to_i
-  rescue
-    healthdata['es_diskpercentused'] = -1
-  end    
-end
+diskdata = client.cat.allocation(format: 'JSON')
+hostname = Socket.gethostname
+mydiskdata = diskdata.select { |d| d['node'] == hostname }
+healthdata['es_diskpercentused'] = mydiskdata.first['disk.percent']
+healthdata['es_diskused'] = mydiskdata.first['disk.used']
+healthdata['es_diskavail'] = mydiskdata.first['disk.avail']
+healthdata['es_disktotal'] = mydiskdata.first['disk.total']
+healthdata['es_shards'] = mydiskdata.first['shards']
+
 
 data = {
   name: 'elasticsearch_health',
