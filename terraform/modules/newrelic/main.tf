@@ -102,7 +102,7 @@ resource "newrelic_nrql_alert_condition" "es_cluster_red" {
     operator      = "above"
     threshold     = 1
     threshold_duration      = 300
-    threshold_occurrences = "at_least_once"
+    threshold_occurrences = "AT_LEAST_ONCE"
   }
 }
 
@@ -125,7 +125,7 @@ resource "newrelic_nrql_alert_condition" "es_cluster_yellow" {
     operator      = "above"
     threshold     = 1
     threshold_duration      = 300
-    threshold_occurrences = "at_least_once"
+    threshold_occurrences = "AT_LEAST_ONCE"
   }
 }
 
@@ -148,7 +148,7 @@ resource "newrelic_nrql_alert_condition" "es_no_logs" {
     operator      = "below"
     threshold     = 4000
     threshold_duration      = 120
-    threshold_occurrences = "at_least_once"
+    threshold_occurrences = "AT_LEAST_ONCE"
   }
 }
 
@@ -171,13 +171,13 @@ resource "newrelic_nrql_alert_condition" "es_disk_space" {
     operator      = "above"
     threshold     = 70
     threshold_duration      = 120
-    threshold_occurrences = "at_least_once"
+    threshold_occurrences = "AT_LEAST_ONCE"
   }
 
   critical {
     operator      = "above"
     threshold     = 85
     threshold_duration      = 120
-    threshold_occurrences = "at_least_once"
+    threshold_occurrences = "AT_LEAST_ONCE"
   }
 }
