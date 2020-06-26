@@ -20,4 +20,7 @@ module "main" {
   redshift_cluster_type    = "multi-node"
   redshift_number_of_nodes = 4
   analytics_version        = "account_migration_v16"
+  lambda_memory_size     = 512
+  lambda_hot_memory_size = 3008
+  lambda_hot_timeout     = 900
 }

@@ -69,3 +69,23 @@ variable "cloudwatch_5min_enabled" {
   type        = bool
   default     = true
 }
+
+variable "lambda_memory_size" {
+  description = "memory_size value for the analytics_lambda_memory_size function."
+  default = 3008 
+}
+
+variable "lambda_hot_memory_size" {
+  description = "memory_size value for the analytics_lambda_hot_memory_size function."
+  default = 1536 
+}
+
+variable "lambda_timeout" {
+  description = "timeout value for the analytics_lambda_timeout function."
+  default = 300 
+}
+
+variable "lambda_hot_timeout" {
+  description = "timeout value for the analytics_lambda_hot_timeout function."
+  default = 300 
+}

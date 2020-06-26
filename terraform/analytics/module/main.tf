@@ -619,14 +619,11 @@ resource "aws_lambda_function" "analytics_lambda" {
   role          = aws_iam_role.lambda_role.arn
   handler       = "function.lambda_handler"
   runtime       = "python3.6"
-  timeout       = 300
-  memory_size   = 3008
+  timeout       = var.lambda_timeout
+  memory_size   = var.lambda_memory_size
 
   vpc_config {
-    subnet_ids         = [
-      aws_subnet.lambda_subnet.id,
-      aws_subnet.redshift_subnet.id,
-    ]
+    subnet_ids = var.env_name == "staging" ? [aws_subnet.lambda_subnet.id,aws_subnet.redshift_subnet.id] : [aws_subnet.lambda_subnet.id]
     security_group_ids = [aws_security_group.lambda_security_group.id]
   }
 
@@ -653,14 +650,11 @@ resource "aws_lambda_function" "analytics_lambda_hot" {
   role          = aws_iam_role.lambda_role.arn
   handler       = "function_2.lambda_handler"
   runtime       = "python3.6"
-  timeout       = 300
-  memory_size   = 1536
+  timeout       = var.lambda_hot_timeout
+  memory_size   = var.lambda_hot_memory_size
 
   vpc_config {
-    subnet_ids         = [
-      aws_subnet.lambda_subnet.id,
-      aws_subnet.redshift_subnet.id,
-    ]
+    subnet_ids = var.env_name == "staging" ? [aws_subnet.lambda_subnet.id,aws_subnet.redshift_subnet.id] : [aws_subnet.lambda_subnet.id]
     security_group_ids = [aws_security_group.lambda_security_group.id]
   }
 
@@ -713,7 +707,10 @@ resource "aws_lambda_permission" "allow_execution_from_cloudwatch" {
 # ---------------- NACLs ------------------
 resource "aws_network_acl" "analytics_redshift" {
   vpc_id     = aws_vpc.analytics_vpc.id
-  subnet_ids = [aws_subnet.redshift_subnet.id, aws_subnet.lambda_subnet.id]
+  subnet_ids = [
+    aws_subnet.redshift_subnet.id,
+    aws_subnet.lambda_subnet.id
+  ]
 
   # allow ephemeral ports out of VPC
   egress {
@@ -829,7 +826,7 @@ resource "aws_network_acl" "analytics_redshift" {
   }
 
   tags = {
-    Name = "${var.env_name}-analytics"
+    Name = "login-analytics_network_acl-${var.env_name}"
   }
 }
 
