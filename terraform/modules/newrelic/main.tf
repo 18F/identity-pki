@@ -155,10 +155,10 @@ resource "newrelic_nrql_alert_condition" "es_no_logs" {
   }
 }
 
-resource "newrelic_nrql_alert_condition" "es_disk_space" {
+resource "newrelic_nrql_alert_condition" "es_low_disk_space" {
   count = var.enabled
   policy_id = newrelic_alert_policy.low[0].id
-  name        = "${var.env_name}_es_disk_space"
+  name        = "${var.env_name}_low_es_disk_space"
   description = "Alert when nodes in the ${var.env_name} ES cluster are low on disk space"
   runbook_url = "https://login-handbook.app.cloud.gov/articles/appdev-troubleshooting-production.html#ssh-into-the-elk-server"
   enabled     = true
@@ -175,6 +175,22 @@ resource "newrelic_nrql_alert_condition" "es_disk_space" {
     threshold     = 70
     threshold_duration      = 120
     threshold_occurrences = "AT_LEAST_ONCE"
+  }
+}
+
+resource "newrelic_nrql_alert_condition" "es_critical_disk_space" {
+  count = var.enabled
+  policy_id = newrelic_alert_policy.high[0].id
+  name        = "${var.env_name}_critical_es_disk_space"
+  description = "Alert when nodes in the ${var.env_name} ES cluster are critically low on disk space"
+  runbook_url = "https://login-handbook.app.cloud.gov/articles/appdev-troubleshooting-production.html#ssh-into-the-elk-server"
+  enabled     = true
+  value_function = "single_value"
+  violation_time_limit = "TWELVE_HOURS"
+
+  nrql {
+    query       = "SELECT max(es_diskpercentused) from ElasticSearchHealthSample where label.environment = '${var.env_name}'"
+    evaluation_offset = 3
   }
 
   critical {
