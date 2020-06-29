@@ -2,7 +2,7 @@
 # Once we get tf 0.13.* going, we can get rid of all the count and [0] silliness
 
 provider "newrelic" {
-  version = ">= 2.1"
+  version = ">= 2.1.2"
   region = "US"
 }
 
@@ -19,6 +19,7 @@ resource "newrelic_alert_policy" "low" {
 }
 
 # Creates an opsgenie alert channel.
+# NOTE:  This apikey needs to be uploaded with --content-type text/plain
 data "aws_s3_bucket_object" "opsgenie_apikey" {
   count = var.enabled
   bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
@@ -33,10 +34,12 @@ resource "newrelic_alert_channel" "opsgenie" {
   config {
     api_key    = data.aws_s3_bucket_object.opsgenie_apikey[0].body
     tags       = var.env_name
+    region     = "US"
   }
 }
 
 # Creates a Slack alert channel.
+# NOTE:  These slack secrets need to be uploaded with --content-type text/plain
 data "aws_s3_bucket_object" "slackchannel" {
   count = var.enabled
   bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
