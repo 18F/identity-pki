@@ -104,7 +104,7 @@ resource "newrelic_nrql_alert_condition" "es_cluster_red" {
 
   critical {
     operator      = "above"
-    threshold     = 0
+    threshold     = 1
     threshold_duration      = 300
     threshold_occurrences = "AT_LEAST_ONCE"
   }
@@ -127,7 +127,7 @@ resource "newrelic_nrql_alert_condition" "es_cluster_yellow" {
 
   critical {
     operator      = "above"
-    threshold     = 0
+    threshold     = 1
     threshold_duration      = 300
     threshold_occurrences = "AT_LEAST_ONCE"
   }
