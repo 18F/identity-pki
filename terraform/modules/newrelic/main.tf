@@ -170,7 +170,7 @@ resource "newrelic_nrql_alert_condition" "es_low_disk_space" {
     evaluation_offset = 3
   }
 
-  warning {
+  critical {
     operator      = "above"
     threshold     = 70
     threshold_duration      = 120
