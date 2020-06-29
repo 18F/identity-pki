@@ -35,6 +35,7 @@ resource "newrelic_alert_channel" "opsgenie" {
     api_key    = data.aws_s3_bucket_object.opsgenie_apikey[0].body
     tags       = var.env_name
     region     = "US"
+    # recipients = "timothy.spencer@gsa.gov"
   }
 }
 
@@ -103,7 +104,7 @@ resource "newrelic_nrql_alert_condition" "es_cluster_red" {
 
   critical {
     operator      = "above"
-    threshold     = 1
+    threshold     = 0
     threshold_duration      = 300
     threshold_occurrences = "AT_LEAST_ONCE"
   }
@@ -126,7 +127,7 @@ resource "newrelic_nrql_alert_condition" "es_cluster_yellow" {
 
   critical {
     operator      = "above"
-    threshold     = 1
+    threshold     = 0
     threshold_duration      = 300
     threshold_occurrences = "AT_LEAST_ONCE"
   }

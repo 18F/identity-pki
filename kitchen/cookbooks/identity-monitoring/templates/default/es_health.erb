@@ -4,6 +4,18 @@ require 'elasticsearch'
 require 'json'
 require 'socket'
 
+
+def emit_metrics (healthdata)
+	data = {
+	  name: 'logstash_health',
+	  protocol_version: '1',
+	  integration_version: '1.0.0',
+	  metrics: [ healthdata ]
+	}
+
+	puts JSON.generate(data)
+end
+
 healthdata = {}
 healthdata['event_type'] = 'ElasticSearchHealthSample'
 
@@ -11,9 +23,16 @@ healthdata['event_type'] = 'ElasticSearchHealthSample'
 client = Elasticsearch::Client.new \
   url: 'https://localhost:9200',
   transport_options: { ssl: { verify: false } }
-rawhealthdata = client.cluster.health
-rawhealthdata.keys.each do |k|
-  healthdata['es_' + k] = rawhealthdata[k]
+
+begin
+  rawhealthdata = client.cluster.health
+  rawhealthdata.keys.each do |k|
+    healthdata['es_' + k] = rawhealthdata[k]
+  end
+rescue
+  healthdata['es_status'] = 'red'
+  emit_metrics healthdata
+  exit
 end
 
 # get disk space info
@@ -27,11 +46,4 @@ healthdata['es_disktotal'] = mydiskdata.first['disk.total']
 healthdata['es_shards'] = mydiskdata.first['shards']
 
 
-data = {
-  name: 'elasticsearch_health',
-  protocol_version: '1',
-  integration_version: '1.0.0',
-  metrics: [ healthdata ]
-}
-
-puts JSON.generate(data)
+emit_metrics healthdata
