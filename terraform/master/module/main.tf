@@ -72,13 +72,41 @@ resource "aws_s3_bucket" "cloudtrail" {
 
   policy = data.aws_iam_policy_document.cloudtrail.json
 
+  versioning {
+    enabled = true
+  }
+
   lifecycle_rule {
     id      = "logexpire"
     enabled = true
     prefix  = ""
 
+    transition {
+      days = 90
+      storage_class = "STANDARD_IA" 
+    }
+
+    transition {
+      days = 365
+      storage_class = "GLACIER"
+    }
+
     expiration {
-      days = 30
+      days = 2190
+    }
+
+    noncurrent_version_transition {
+      days = 90 
+      storage_class = "STANDARD_IA"
+    }
+
+    noncurrent_version_transition {
+      days = 365
+      storage_class = "GLACIER"
+    }
+
+    noncurrent_version_expiration {
+      days = 2190
     }
   }
 
@@ -93,7 +121,8 @@ resource "aws_s3_bucket" "cloudtrail" {
 
 # create cloudwatch log group for cloudtrail
 resource "aws_cloudwatch_log_group" "cloudtrail" {
-  name = "CloudTrail/logs"
+  name = "CloudTrail/DefaultLogGroup"
+  retention_in_days = 90
 }
 
 data "aws_iam_policy_document" "cloudtrail_assume" {
@@ -125,7 +154,8 @@ data "aws_iam_policy_document" "cloudwatch_perms_cloudtrail" {
       "logs:PutLogEvents",
     ]
     resources = [
-      "${aws_cloudwatch_log_group.cloudtrail.arn}:log-stream:*",
+      replace(aws_cloudwatch_log_group.cloudtrail.arn, "*",
+        "log-stream:${data.aws_caller_identity.current.account_id}_CloudTrail_${var.region}*")
     ]
   }
 }
@@ -142,6 +172,8 @@ resource "aws_cloudtrail" "cloudtrail" {
   is_multi_region_trail         = true
   name                          = "login-gov-cloudtrail"
   s3_bucket_name                = aws_s3_bucket.cloudtrail.id
+  cloud_watch_logs_group_arn = aws_cloudwatch_log_group.cloudtrail.arn
+  cloud_watch_logs_role_arn = aws_iam_role.cloudtrail_cloudwatch.arn
 }
 
 # Module that manages the terraform remote state bucket and creates the S3 logs bucket
