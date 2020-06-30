@@ -11,18 +11,12 @@ _DATE_
 
 Note that not all Login employees will have access to everything listed here.
 
-- AWS IAM
-  - [ ] Remove from `user_map` in `terraform/master`
-   _user name_
-  - [ ] Quicksight
-  - [ ] Analytics
-  - [ ] Master credential
+- [ ] Remove from `user_map` in `terraform/master`
+ _user name_
 
-- Internal tools and services
-  - [ ] SSH
-      Remove all SSH keys and groups from the [relevant databag file](https://github.com/18F/identity-devops-private/tree/master/chef/data_bags/users)
-
-s
+- [ ] SSH
+    Remove all SSH keys and groups from the [relevant databag file](https://github.com/18F/identity-devops-private/tree/master/chef/data_bags/users)
 
 - [ ] [Remove New Relic Access](https://account.newrelic.com/accounts/1376370/users)
+
 - [ ] [Remove OpsGenie Access](https://login-gov.app.opsgenie.com/settings/users/)
