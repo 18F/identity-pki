@@ -35,7 +35,7 @@ resource "newrelic_alert_channel" "opsgenie" {
     api_key    = data.aws_s3_bucket_object.opsgenie_apikey[0].body
     tags       = var.env_name
     region     = "US"
-    # recipients = "timothy.spencer@gsa.gov"
+    recipients = "timothy.spencer@gsa.gov"
   }
 }
 
@@ -174,7 +174,7 @@ resource "newrelic_nrql_alert_condition" "es_low_disk_space" {
   critical {
     operator      = "above"
     threshold     = 70
-    threshold_duration      = 120
+    threshold_duration      = 300
     threshold_occurrences = "AT_LEAST_ONCE"
   }
 }
@@ -197,7 +197,53 @@ resource "newrelic_nrql_alert_condition" "es_critical_disk_space" {
   critical {
     operator      = "above"
     threshold     = 85
-    threshold_duration      = 120
+    threshold_duration      = 300
     threshold_occurrences = "AT_LEAST_ONCE"
+  }
+}
+
+resource "newrelic_nrql_alert_condition" "no_es_metrics" {
+  count = var.enabled
+  policy_id = newrelic_alert_policy.high[0].id
+  name        = "${var.env_name}_es_no_metrics"
+  description = "Alert when there are no metrics coming from the ${var.env_name} ES cluster"
+  runbook_url = "https://login-handbook.app.cloud.gov/articles/appdev-troubleshooting-production.html#ssh-into-the-elk-server"
+  enabled     = true
+  value_function = "single_value"
+  violation_time_limit = "TWELVE_HOURS"
+
+  nrql {
+    query       = "SELECT count(*) from ElasticSearchHealthSample where label.environment = '${var.env_name}'"
+    evaluation_offset = 3
+  }
+
+  critical {
+    operator              = "below"
+    threshold             = 1
+    threshold_duration    = 120
+    threshold_occurrences = "ALL"
+  }
+}
+
+resource "newrelic_nrql_alert_condition" "no_logstash_metrics" {
+  count = var.enabled
+  policy_id = newrelic_alert_policy.high[0].id
+  name        = "${var.env_name}_ls_no_metrics"
+  description = "Alert when there are no metrics coming from the ${var.env_name} logstash host: logstash host may be down"
+  runbook_url = "https://login-handbook.app.cloud.gov/articles/appdev-troubleshooting-production.html#ssh-into-the-elk-server"
+  enabled     = true
+  value_function = "single_value"
+  violation_time_limit = "TWELVE_HOURS"
+
+  nrql {
+    query       = "SELECT count(*) from LogstashHealthSample where label.environment = '${var.env_name}'"
+    evaluation_offset = 3
+  }
+
+  critical {
+    operator              = "below"
+    threshold             = 1
+    threshold_duration    = 840
+    threshold_occurrences = "ALL"
   }
 }
