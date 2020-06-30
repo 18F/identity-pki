@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# This sets up a logtstash process on an elk host that will slurp in archived log
+# This sets up a logtstash process on an elk host that will slurp in cloudtrail
 # data from a specified time in the past until today into a special index that
 # we can search.
 #
@@ -8,12 +8,12 @@
 usage() {
 	echo
 	echo "usage:  $0 <indexname> <daysago>"
-	echo "  indexname is the index to send the archived data into"
+	echo "  indexname is the index to send the cloudtrail data into"
 	echo "  daysago is how many days back to go"
 	echo "usage:  $0 -d"
 	echo "  this stops the backfill"
 	echo
-	echo "examples:  $0 imported-2020-06-19-90days 90"
+	echo "examples:  $0 importedcloudtrail-2020-06-19-90days 90"
 	echo "           $0 -d"
 	echo
 	echo "this script must be run on an elk system that has a working cloudtrail logstash"
@@ -49,32 +49,10 @@ chown logstash /usr/share/logstash/.sincedb_backfilllogstash
 mkdir -p /etc/logstash/backfilllogstashconf.d /srv/tmp/backfilllogstash /var/log/backfilllogstash
 chmod 700 /srv/tmp/backfilllogstash
 chown logstash /srv/tmp/backfilllogstash
-
-cat <<EOF > /etc/logstash/backfilllogstashconf.d/30-ESoutput.conf
-output {
-  elasticsearch {
-    cacert => "/etc/elasticsearch/root-ca.pem"
-    hosts => ["elasticsearch.login.gov.internal"]
-    ssl => true
-    ssl_certificate_verification => true
-    index => "$1"
-  }
-}
-EOF
-
-BUCKET=$(grep 'bucket => "' /etc/logstash/cloudtraillogstashconf.d/30-s3output.conf | sed 's/.*"\(.*\)"/\1/')
-cat <<EOF >  /etc/logstash/backfilllogstashconf.d/30-backfillin.conf
-input {
-   s3 {
-     region => "us-west-2"
-     bucket => "$BUCKET"
-     proxy_uri => "http://obproxy.login.gov.internal:3128"
-     codec => "json_lines"
-     sincedb_path => "/usr/share/logstash/.sincedb_backfilllogstash"
-   }
-}
-EOF
-
+cp -rp /etc/logstash/cloudtraillogstashconf.d/* /etc/logstash/backfilllogstashconf.d/
+rm -f /etc/logstash/backfilllogstashconf.d/30-s3output.conf /etc/logstash/backfilllogstashconf.d/70-elblogsin.conf
+sed -i "s/index => \"logstash-cloudtrail-.*\"/index => \"$1\"/" /etc/logstash/backfilllogstashconf.d/30-ESoutput.conf
+sed -i "s/sincedb_cloudtraillogstash/sincedb_backfilllogstash/g" /etc/logstash/backfilllogstashconf.d/30-cloudtrailin.conf
 
 mkdir -p /etc/sv/backfilllogstash/log
 ln -s /etc/sv/backfilllogstash/ /etc/service/backfilllogstash
