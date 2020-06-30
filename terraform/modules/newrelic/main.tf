@@ -35,7 +35,6 @@ resource "newrelic_alert_channel" "opsgenie" {
     api_key    = data.aws_s3_bucket_object.opsgenie_apikey[0].body
     tags       = var.env_name
     region     = "US"
-    recipients = "timothy.spencer@gsa.gov"
   }
 }
 
