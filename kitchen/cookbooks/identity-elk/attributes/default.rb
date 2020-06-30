@@ -34,7 +34,7 @@ default['filebeat']['config']['output']['logstash']['save_topology'] = false
 default['filebeat']['config']['output']['logstash']['tls']['certificate_authorities'] = [ "/etc/ssl/certs/ca-certificates.crt" ]
 
 # how many days to keep logs around in ELK
-default['elk']['retentiondays'] = 30
+default['elk']['retentiondays'] = 90
 
 # indexes to prune.  Can be figured out with curl 'localhost:9200/_cat/indices?v'
 default['elk']['indextypes'] = [
