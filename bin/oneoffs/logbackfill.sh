@@ -83,6 +83,15 @@ sed 's/cloudtraillogstash/backfilllogstash/g' /etc/sv/cloudtraillogstash/log/run
 chmod +x  /etc/service/backfilllogstash/run  /etc/service/backfilllogstash/log/run
 
 
+# create index and make sure it can work (bump fields up)
+curl -X PUT -sk "https://elasticsearch.login.gov.internal:9200/$1"
+curl -X PUT -sk "https://elasticsearch.login.gov.internal:9200/$1/_settings" -H 'Content-Type: application/json' -d'
+{
+  "index.mapping.total_fields.limit": 5000
+}
+'
+
+
 # launch logstash with config
 sleep 6
 sv start /etc/service/backfilllogstash
