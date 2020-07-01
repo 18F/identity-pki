@@ -246,3 +246,26 @@ resource "newrelic_nrql_alert_condition" "no_logstash_metrics" {
     threshold_occurrences = "ALL"
   }
 }
+
+resource "newrelic_nrql_alert_condition" "no_log_archives" {
+  count = var.enabled
+  policy_id = newrelic_alert_policy.high[0].id
+  name        = "${var.env_name}_ls_no_metrics"
+  description = "Alert when there are no logs being archived to the s3 log archival bucket in ${var.env_name}: logstash host may be down"
+  runbook_url = "https://login-handbook.app.cloud.gov/articles/appdev-troubleshooting-production.html#ssh-into-the-elk-server"
+  enabled     = true
+  value_function = "single_value"
+  violation_time_limit = "TWELVE_HOURS"
+
+  nrql {
+    query       = "SELECT latest(logstash_files_archived_to_s3_in_last_ten_minutes) from LogstashHealthSample where label.environment = '${var.env_name}'"
+    evaluation_offset = 3
+  }
+
+  critical {
+    operator              = "below"
+    threshold             = 2
+    threshold_duration    = 840
+    threshold_occurrences = "ALL"
+  }
+}
