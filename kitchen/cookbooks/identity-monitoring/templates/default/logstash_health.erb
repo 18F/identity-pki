@@ -60,7 +60,7 @@ end
 # We are finding the number of log part files uploaded in the last 10 minutes
 awsinfo = Net::HTTP.get('169.254.169.254', '/latest/dynamic/instance-identity/document')
 awsdata = JSON.parse(awsinfo)
-client = Aws::S3::Client.new(region: awsdata['region'])
+s3client = Aws::S3::Client.new(region: awsdata['region'])
 today = Date.today.strftime("%Y-%m-%d")
 yday = Date.today - 1
 yesterday = yday.strftime("%Y-%m-%d")
@@ -83,7 +83,7 @@ allparams = [{
 recenteventcount = 0
 begin
   allparams.each do |params|
-    client.list_objects(params).each do |files|
+    s3client.list_objects(params).each do |files|
       recentevents = files['contents'].select { |f| f['last_modified'] > Time.now - 10*60 }
       recenteventcount = recenteventcount + recentevents.length
     end

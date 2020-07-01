@@ -89,9 +89,9 @@ resource "newrelic_alert_policy_channel" "high" {
 resource "newrelic_nrql_alert_condition" "es_cluster_red" {
   count = var.enabled
   policy_id = newrelic_alert_policy.high[0].id
-  name        = "${var.env_name}_es_cluster_red"
+  name        = "${var.env_name}: elasticsearch status is red"
   description = "Alert when the ES cluster in ${var.env_name} is red"
-  runbook_url = "https://login-handbook.app.cloud.gov/articles/appdev-troubleshooting-production.html#ssh-into-the-elk-server"
+  runbook_url = "https://login-handbook.app.cloud.gov/articles/devops-elk.html#problems-with-elasticsearch"
   enabled     = true
   value_function = "single_value"
   violation_time_limit = "TWELVE_HOURS"
@@ -112,9 +112,9 @@ resource "newrelic_nrql_alert_condition" "es_cluster_red" {
 resource "newrelic_nrql_alert_condition" "es_cluster_yellow" {
   count = var.enabled
   policy_id = newrelic_alert_policy.low[0].id
-  name        = "${var.env_name}_es_cluster_yellow"
+  name        = "${var.env_name}: elasticsearch status is yellow"
   description = "Alert when the ES cluster in ${var.env_name} is yellow"
-  runbook_url = "https://login-handbook.app.cloud.gov/articles/appdev-troubleshooting-production.html#ssh-into-the-elk-server"
+  runbook_url = "https://login-handbook.app.cloud.gov/articles/devops-elk.html#problems-with-elasticsearch"
   enabled     = true
   value_function = "single_value"
   violation_time_limit = "TWELVE_HOURS"
@@ -135,9 +135,9 @@ resource "newrelic_nrql_alert_condition" "es_cluster_yellow" {
 resource "newrelic_nrql_alert_condition" "es_no_logs" {
   count = var.enabled
   policy_id = newrelic_alert_policy.high[0].id
-  name        = "${var.env_name}_es_no_logs"
+  name        = "${var.env_name}: elasticsearch low log volume"
   description = "Alert when the ${var.env_name} ES cluster has unusually low log volume"
-  runbook_url = "https://login-handbook.app.cloud.gov/articles/appdev-troubleshooting-production.html#ssh-into-the-elk-server"
+  runbook_url = "https://login-handbook.app.cloud.gov/articles/devops-elk.html#problems-with-elasticsearch"
   enabled     = true
   value_function = "single_value"
   violation_time_limit = "TWELVE_HOURS"
@@ -158,9 +158,9 @@ resource "newrelic_nrql_alert_condition" "es_no_logs" {
 resource "newrelic_nrql_alert_condition" "es_low_disk_space" {
   count = var.enabled
   policy_id = newrelic_alert_policy.low[0].id
-  name        = "${var.env_name}_low_es_disk_space"
+  name        = "${var.env_name}: elasticsearch low disk space"
   description = "Alert when nodes in the ${var.env_name} ES cluster are low on disk space"
-  runbook_url = "https://login-handbook.app.cloud.gov/articles/appdev-troubleshooting-production.html#ssh-into-the-elk-server"
+  runbook_url = "https://login-handbook.app.cloud.gov/articles/devops-elk.html#disk-space-woes"
   enabled     = true
   value_function = "single_value"
   violation_time_limit = "TWELVE_HOURS"
@@ -181,9 +181,9 @@ resource "newrelic_nrql_alert_condition" "es_low_disk_space" {
 resource "newrelic_nrql_alert_condition" "es_critical_disk_space" {
   count = var.enabled
   policy_id = newrelic_alert_policy.high[0].id
-  name        = "${var.env_name}_critical_es_disk_space"
+  name        = "${var.env_name}: elasticsearch critical disk space"
   description = "Alert when nodes in the ${var.env_name} ES cluster are critically low on disk space"
-  runbook_url = "https://login-handbook.app.cloud.gov/articles/appdev-troubleshooting-production.html#ssh-into-the-elk-server"
+  runbook_url = "https://login-handbook.app.cloud.gov/articles/devops-elk.html#disk-space-woes"
   enabled     = true
   value_function = "single_value"
   violation_time_limit = "TWELVE_HOURS"
@@ -204,9 +204,9 @@ resource "newrelic_nrql_alert_condition" "es_critical_disk_space" {
 resource "newrelic_nrql_alert_condition" "no_es_metrics" {
   count = var.enabled
   policy_id = newrelic_alert_policy.high[0].id
-  name        = "${var.env_name}_es_no_metrics"
+  name        = "${var.env_name}: no metrics coming from elasticsearch"
   description = "Alert when there are no metrics coming from the ${var.env_name} ES cluster"
-  runbook_url = "https://login-handbook.app.cloud.gov/articles/appdev-troubleshooting-production.html#ssh-into-the-elk-server"
+  runbook_url = "https://login-handbook.app.cloud.gov/articles/devops-alerting.html#setting-up-new-custom-metrics-to-send-to-newrelic"
   enabled     = true
   value_function = "single_value"
   violation_time_limit = "TWELVE_HOURS"
@@ -227,9 +227,9 @@ resource "newrelic_nrql_alert_condition" "no_es_metrics" {
 resource "newrelic_nrql_alert_condition" "no_logstash_metrics" {
   count = var.enabled
   policy_id = newrelic_alert_policy.high[0].id
-  name        = "${var.env_name}_ls_no_metrics"
+  name        = "${var.env_name}: no metrics coming from logstash"
   description = "Alert when there are no metrics coming from the ${var.env_name} logstash host: logstash host may be down"
-  runbook_url = "https://login-handbook.app.cloud.gov/articles/appdev-troubleshooting-production.html#ssh-into-the-elk-server"
+  runbook_url = "https://login-handbook.app.cloud.gov/articles/devops-alerting.html#setting-up-new-custom-metrics-to-send-to-newrelic"
   enabled     = true
   value_function = "single_value"
   violation_time_limit = "TWELVE_HOURS"
@@ -250,9 +250,9 @@ resource "newrelic_nrql_alert_condition" "no_logstash_metrics" {
 resource "newrelic_nrql_alert_condition" "no_log_archives" {
   count = var.enabled
   policy_id = newrelic_alert_policy.high[0].id
-  name        = "${var.env_name}_ls_no_metrics"
+  name        = "${var.env_name}: no ELK log files being archived"
   description = "Alert when there are no logs being archived to the s3 log archival bucket in ${var.env_name}: logstash host may be down"
-  runbook_url = "https://login-handbook.app.cloud.gov/articles/appdev-troubleshooting-production.html#ssh-into-the-elk-server"
+  runbook_url = "https://login-handbook.app.cloud.gov/articles/devops-elk.html#how-to-reindex-from-archived-data"
   enabled     = true
   value_function = "single_value"
   violation_time_limit = "TWELVE_HOURS"
