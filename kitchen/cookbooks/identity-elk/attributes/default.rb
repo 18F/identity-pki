@@ -48,9 +48,6 @@ default['elk']['extendeddayindextypes'] = [
   'logstash-cloudtrail',
 ]
 
-# Set this to false in environments that use new-style bucket names.
-default['elk']['legacy_log_bucket_name'] = true
-
 # get a modern version of java
 default['java']['jdk_version'] = '8'
 
@@ -111,12 +108,7 @@ default['elk']['logstash']['cloudwatch']['waf']['enable'] = false
 default['elk']['chef_zero_client_configuration'] = '/etc/login.gov/repos/identity-devops/kitchen/chef-client.rb'
 
 # change this per env to transition over to the account-specific logbuckets
-#default['elk']['aws_logging_bucket'] = "login-gov-logs-${node.chef_environment}.${aws_account_id}-#{Chef::Recipe::AwsMetadata.get_aws_region}"
-if node['elk']['legacy_log_bucket_name']
-  default['elk']['aws_logging_bucket'] = "login-gov-#{node.chef_environment}-logs"
-else
-  default['elk']['aws_logging_bucket'] = "login-gov-logs-#{node.chef_environment}.#{Chef::Recipe::AwsMetadata.get_aws_account_id}-#{Chef::Recipe::AwsMetadata.get_aws_region}"
-end
+default['elk']['aws_logging_bucket'] = "login-gov-logs-#{node.chef_environment}.#{Chef::Recipe::AwsMetadata.get_aws_account_id}-#{Chef::Recipe::AwsMetadata.get_aws_region}"
 default['elk']['elb_logging_bucket'] = "login-gov.elb-logs.#{Chef::Recipe::AwsMetadata.get_aws_account_id}-#{Chef::Recipe::AwsMetadata.get_aws_region}"
 default['elk']['waf_logging_bucket'] = "login-gov.waf-logs-#{node.chef_environment}.#{Chef::Recipe::AwsMetadata.get_aws_account_id}-#{Chef::Recipe::AwsMetadata.get_aws_region}"
 default['elk']['analytics_logging_bucket'] = "login-gov.reports.#{Chef::Recipe::AwsMetadata.get_aws_account_id}-#{Chef::Recipe::AwsMetadata.get_aws_region}"
