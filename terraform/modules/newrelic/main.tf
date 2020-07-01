@@ -33,7 +33,7 @@ resource "newrelic_alert_channel" "opsgenie" {
 
   config {
     api_key    = data.aws_s3_bucket_object.opsgenie_apikey[0].body
-    tags       = var.env_name
+    tags       = "${var.env_name} environment"
     region     = "US"
   }
 }
