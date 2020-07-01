@@ -14,13 +14,8 @@ terraform {
 module "main" {
   source = "../module"
 
-  iam_account_alias = "login-analytics"
-  account_roles_map = {
-    iam_appdev_enabled    = false
-    iam_analytics_enabled = true
-    iam_power_enabled     = false
-    iam_socadmin_enabled  = true
-    iam_terraform_enabled = false
-    iam_kmsadmin_enabled  = true
-  }
+  env_name                 = "staging"
+#  redshift_master_password = var.redshift_master_password
+  analytics_version        = "cacraig-06282018-staging-setup-5"
+  cloudwatch_5min_enabled = false
 }

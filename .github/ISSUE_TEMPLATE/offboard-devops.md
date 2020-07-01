@@ -6,71 +6,17 @@ labels: administration
 ---
 
 ### Remove NAME-OF-PERSON's access from the following services:
+
 _DATE_
 
-- AWS IAM
-   - [ ] Prod, nonprod AWS accounts
-   _user name_
-   - [ ] Quicksight
-   - [ ] Analytics
-   - [ ] Master credential
+Note that not all Login employees will have access to everything listed here.
 
-- Internal mgmt tools and services
-   - [ ] SSH
-      Remove all SSH keys and groups from the [relevant databag file](https://github.com/18F/identity-devops-private/tree/master/chef/data_bags/users),
-      but do not delete it. This allows us to avoid reusing user UIDs.
-   - [ ] Kibana
-      _user name_
-   - [ ] Nessus Server
-      _user name_
+- [ ] Remove from `user_map` in `terraform/master`
+ _user name_
 
-- Proofers/Partners
-   - [ ] Equifax
-     _user name_
-   - [ ] AAMVA
-     _user name_
-   - [ ] Acuant
-     _user name_
+- [ ] SSH
+    Remove all SSH keys and groups from the [relevant databag file](https://github.com/18F/identity-devops-private/tree/master/chef/data_bags/users)
 
-- Github
-   - [ ] Remove rights on the [identity teams](https://github.com/orgs/18F/teams/identity-core/members)
-     _user name_
-   - [ ] Update [team.yaml](https://github.com/18F/identity-private/blob/master/team/team.yml)! Regenerate [Team.md]() for the wiki
-   - [ ] Request removal from the 18F org in #admins-github (if leaving TTS/USDS) https://gsa-tts.slack.com/archives/C02KXM98G
+- [ ] [Remove New Relic Access](https://account.newrelic.com/accounts/1376370/users)
 
-- Github integrations
-   - [ ] CircleCi
-   - [ ] CodeClimate
-   - [ ] Snyk
-
-- Jira
-  - [ ] Create a ticket in the Jira AdminTasks project requesting that the user
-        be removed from the Login.gov project (and deactivated if they are no
-        longer working for GSA).
-        https://cm-jira.usa.gov/secure/CreateIssue!default.jspa
-
-- [ ] New Relic
-   - [ ] https://account.newrelic.com/accounts/1376370/users
-     _user name_
-
-- [ ] OpsGenie
-   - [ ] https://login-gov.app.opsgenie.com/settings/users/
-     _user name_
-
-- [ ] Statuspage.io
-   - [ ] https://manage.statuspage.io/organizations/tg65vnybbdwq/team
-     _user name_
-
-- Slack
-   - [ ] https://goo.gl/forms/mKATdB9QuNo7AXVY2 -- submit user modification
-
-- GSA Google Group membership  @login.gov
-   - [ ] Remove from identity-devops@, hello@, security@.
-
-- HubSpot
-   - [ ] https://app.hubspot.com/settings/5531666/users
-     _user name_
-
-
-#### Final Step
-- Leaving GSA/TTS https://handbook.tts.gsa.gov/leaving-tts/
+- [ ] [Remove OpsGenie Access](https://login-gov.app.opsgenie.com/settings/users/)

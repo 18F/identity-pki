@@ -22,6 +22,7 @@ module "kmsadmin-assumerole" {
             "kms:Create*",
             "kms:Describe*",
             "kms:Enable*",
+            "kms:Encrypt*",
             "kms:List*",
             "kms:Put*",
             "kms:Update*",
