@@ -5,6 +5,8 @@ require 'json'
 require 'ohai'
 require 'sys/proctable'
 require 'date'
+require 'aws-sdk'
+require 'net/http'
 
 def emit_metrics (healthdata)
 	data = {
