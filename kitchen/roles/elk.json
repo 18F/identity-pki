@@ -9,7 +9,8 @@
   "chef_type": "role",
   "run_list": [
     "role[base]",
-    "recipe[identity-elk]"
+    "recipe[identity-elk]",
+    "recipe[identity-monitoring::logstash_metrics]"
   ],
   "env_run_lists": {
   }

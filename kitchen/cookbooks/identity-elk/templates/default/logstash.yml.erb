@@ -25,3 +25,7 @@ path.logs: <%= @path_logs %>
 xpack.monitoring.enabled: <%= @xpack_monitoring_enabled %>
 xpack.monitoring.elasticsearch.hosts: ['<%= @xpack_monitoring_elasticsearch_url %>']
 xpack.monitoring.elasticsearch.ssl.certificate_authority: <%= @xpack_monitoring_elasticsearch_ssl_ca %>
+
+# give us some queue space to buffer things if there is a temporary failure
+queue.type: persisted
+queue.max_bytes: 4gb

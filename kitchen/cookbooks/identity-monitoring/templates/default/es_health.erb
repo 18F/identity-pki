@@ -2,24 +2,48 @@
 
 require 'elasticsearch'
 require 'json'
+require 'socket'
 
+
+def emit_metrics (healthdata)
+	data = {
+	  name: 'logstash_health',
+	  protocol_version: '1',
+	  integration_version: '1.0.0',
+	  metrics: [ healthdata ]
+	}
+
+	puts JSON.generate(data)
+end
+
+healthdata = {}
+healthdata['event_type'] = 'ElasticSearchHealthSample'
+
+# Get ES health data
 client = Elasticsearch::Client.new \
   url: 'https://localhost:9200',
   transport_options: { ssl: { verify: false } }
 
-healthdata = {}
-rawhealthdata = client.cluster.health
-rawhealthdata.keys.each do |k|
-  healthdata['es_' + k] = rawhealthdata[k]
+begin
+  rawhealthdata = client.cluster.health
+  rawhealthdata.keys.each do |k|
+    healthdata['es_' + k] = rawhealthdata[k]
+  end
+rescue
+  healthdata['es_status'] = 'red'
+  emit_metrics healthdata
+  exit
 end
-healthdata['event_type'] = 'ElasticSearchHealthSample'
 
-data = {
-  name: 'elasticsearch_health',
-  protocol_version: '1',
-  integration_version: '1.0.0',
-  metrics: [ healthdata ]
-}
+# get disk space info
+diskdata = client.cat.allocation(format: 'JSON')
+hostname = Socket.gethostname
+mydiskdata = diskdata.select { |d| d['node'] == hostname }
+healthdata['es_diskpercentused'] = mydiskdata.first['disk.percent']
+healthdata['es_diskused'] = mydiskdata.first['disk.used']
+healthdata['es_diskavail'] = mydiskdata.first['disk.avail']
+healthdata['es_disktotal'] = mydiskdata.first['disk.total']
+healthdata['es_shards'] = mydiskdata.first['shards']
 
-puts JSON.generate(data)
 
+emit_metrics healthdata

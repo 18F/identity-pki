@@ -5,6 +5,10 @@ gem_package "elasticsearch" do
   gem_binary node.fetch('login_dot_gov').fetch('rbenv_shims_gem')
 end
 
+gem_package "ohai" do
+  gem_binary node['login_dot_gov']['rbenv_shims_gem']
+end
+
 es_health_path = "/#{Chef::Config['file_cache_path']}/es_health"
 
 template es_health_path do

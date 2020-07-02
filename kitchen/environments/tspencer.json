@@ -5,7 +5,8 @@
   "chef_type": "environment",
   "default_attributes": {
     "elk": {
-      "retentiondays": 14,
+      "retentiondays": 5,
+      "extendedretentiondays": 7,
       "users": [
         "tspencer"
       ]
@@ -13,8 +14,7 @@
     "login_dot_gov": {
       "idp_run_migrations": true,
       "allow_unsafe_migrations": true,
-      "idp_sync_static": true
-
+      "idp_sync_static": false
     }
   },
   "override_attributes": {

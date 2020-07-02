@@ -1,0 +1,229 @@
+#!<%= @ruby %>
+
+require 'elasticsearch'
+require 'json'
+require 'ohai'
+require 'sys/proctable'
+require 'date'
+require 'aws-sdk'
+require 'net/http'
+
+def emit_metrics (healthdata)
+	data = {
+	  name: 'logstash_health',
+	  protocol_version: '1',
+	  integration_version: '1.0.0',
+	  metrics: [ healthdata ]
+	}
+
+	puts JSON.generate(data)
+end
+
+
+client = Elasticsearch::Client.new \
+  url: 'https://elasticsearch.login.gov.internal:9200',
+  transport_options: { ssl: { verify: false } }
+
+healthdata = {}
+healthdata['event_type'] = 'LogstashHealthSample'
+
+# get disk space info
+ohai = Ohai::System.new
+ohai.all_plugins
+percentstring = ohai['filesystem']['by_mountpoint']['/var']['percent_used']
+healthdata['logstash_var_diskpercent'] = percentstring.to_i
+percentstring = ohai['filesystem']['by_mountpoint']['/']['percent_used']
+healthdata['logstash_root_diskpercent'] = percentstring.to_i
+
+
+# get logstash process existence info
+proc = Sys::ProcTable.ps.select { |p| p['cmdline'] =~ /data_cloudwatchlogstash/ }
+healthdata['logstash_cloudwatch_proc_exists'] = ! proc.empty?
+proc = Sys::ProcTable.ps.select { |p| p['cmdline'] =~ /data_cloudtraillogstash/ }
+healthdata['logstash_cloudtrail_proc_exists'] = ! proc.empty?
+proc = Sys::ProcTable.ps.select { |p| p['cmdline'] =~ /data_logstash/ }
+healthdata['logstash_proc_exists'] = ! proc.empty?
+
+
+# get sincedb info to see where we are in the log buckets
+for sincedb in Dir["/usr/share/logstash/.sincedb*"] do
+	f = File.open(sincedb).read
+	begin
+		timestamp = DateTime.parse(f)
+		name = 'logstash_' + File.basename(sincedb).tr('.', '') + '_time'
+		healthdata[name] = timestamp.strftime('%s')
+	rescue
+	end
+end
+
+# check log archival bucket to ensure that logs are being archived.
+# We are finding the number of log part files uploaded in the last 10 minutes
+awsinfo = Net::HTTP.get('169.254.169.254', '/latest/dynamic/instance-identity/document')
+awsdata = JSON.parse(awsinfo)
+s3client = Aws::S3::Client.new(region: awsdata['region'])
+today = Date.today.strftime("%Y-%m-%d")
+yday = Date.today - 1
+yesterday = yday.strftime("%Y-%m-%d")
+
+# get the bucket from the existing config
+conf = File.read('/etc/logstash/cloudtraillogstashconf.d/30-s3output.conf')
+bucket = /bucket => "(.*)"$/.match(conf)[1]
+
+# Look at today and yesterday's buckets so that we don't alert on day
+# boundaries.
+allparams = [{
+    bucket: bucket,
+    prefix: "elk/#{today}/",
+  },
+  {
+    bucket: bucket,
+    prefix: "elk/#{yesterday}/",
+  }
+]
+recenteventcount = 0
+begin
+  allparams.each do |params|
+    s3client.list_objects(params).each do |files|
+      recentevents = files['contents'].select { |f| f['last_modified'] > Time.now - 10*60 }
+      recenteventcount = recenteventcount + recentevents.length
+    end
+  end
+  healthdata['logstash_files_archived_to_s3_in_last_ten_minutes'] = recenteventcount
+rescue
+  # Something is wrong:  The bucket doesn't exist or couldn't be parsed out of the
+  # config, last_modified is not a proper time, etc.  This should get some attention.
+  healthdata['logstash_files_archived_to_s3_in_last_ten_minutes'] = 0
+end
+
+
+
+###############################################################
+# ES queries only beyond here so that if ES is down, we can bail
+# early and not have to wrap everything in a big block
+
+# get ES cluster health from the logstash/kibana perspective
+begin
+	rawhealthdata = client.cluster.health
+rescue
+	# If ES is down entirely, there should be an exception here:  tell NR that it's not working
+	healthdata['logstash_es_working'] = false
+	emit_metrics healthdata
+	exit
+end
+
+if rawhealthdata.has_key?('error')
+	healthdata['logstash_es_working'] = false
+	emit_metrics healthdata
+	exit
+else
+	healthdata['logstash_es_working'] = true
+end
+
+
+# get # of documents created in the last 10 minutes
+docs = client.count(
+  body: {
+    query: {
+      range: {
+        "@timestamp": {
+          "gte": "now-10m",
+          "lte": "now"
+        }
+      }
+    }
+  }
+)
+healthdata['es_documents_in_last_ten_minutes'] = docs['count']
+
+
+# get total number of log events in the system
+docs = client.count index: 'logstash*'
+healthdata['es_total_document_count'] = docs['count']
+
+
+# get total disk space used in cluster
+data = client.cat.allocation(format: 'JSON', bytes: 'gb')
+diskspace = 0
+data.each do |l|
+	diskspace = diskspace + l['disk.used'].to_i
+end
+healthdata['es_total_cluster_gb_disk_used'] = diskspace
+
+
+# get total disk space used by primary indexes
+data = client.cat.allocation(format: 'JSON', bytes: 'mb')
+diskspace = 0
+data.each do |l|
+	diskspace = diskspace + l['disk.used'].to_i
+end
+healthdata['es_total_logs_gb_disk_used'] = diskspace/1000
+
+
+# get number of cloudtrail messages
+docs = client.count index: 'logstash-cloudtrail*'
+healthdata['es_cloudtrail_document_count'] = docs['count']
+
+
+# get number of cloudtrail messages in last 10 minutes
+docs = client.count(
+  index: 'logstash-cloudtrail*',
+  body: {
+    query: {
+      range: {
+        "@timestamp": {
+          "gte": "now-10m",
+          "lte": "now"
+        }
+      }
+    }
+  }
+)
+healthdata['es_cloudtrail_documents_in_last_ten_minutes'] = docs['count']
+
+
+# get number of cloudwatch messages
+docs = client.count index: 'logstash-cloudwatch*'
+healthdata['es_cloudwatch_document_count'] = docs['count']
+
+
+# get number of cloudwatch messages in last 10 minutes
+docs = client.count(
+  index: 'logstash-cloudwatch*',
+  body: {
+    query: {
+      range: {
+        "@timestamp": {
+          "gte": "now-10m",
+          "lte": "now"
+        }
+      }
+    }
+  }
+)
+healthdata['es_cloudwatch_documents_in_last_ten_minutes'] = docs['count']
+
+
+# get number of logstash messages
+docs = client.count index: 'logstash-2*'
+healthdata['es_logstash_document_count'] = docs['count']
+
+
+# get number of logstash messages in last 10 minutes
+docs = client.count(
+  index: 'logstash-2*',
+  body: {
+    query: {
+      range: {
+        "@timestamp": {
+          "gte": "now-10m",
+          "lte": "now"
+        }
+      }
+    }
+  }
+)
+healthdata['es_logstash_documents_in_last_ten_minutes'] = docs['count']
+
+
+emit_metrics healthdata
+
