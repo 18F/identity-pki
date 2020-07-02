@@ -81,7 +81,8 @@ resource "aws_db_instance" "idp-read-replica" {
   maintenance_window = var.rds_maintenance_window
   storage_encrypted  = true
   username           = var.rds_username
-  storage_type       = var.rds_storage_type_idp
+  storage_type       = var.rds_storage_type_idp_replica
+  allocated_storage  = var.rds_storage_idp_replica
   iops               = var.rds_iops_idp_replica
 
   # enhanced monitoring
