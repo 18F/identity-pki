@@ -5,7 +5,6 @@
   "chef_type": "environment",
   "default_attributes": {
     "elk": {
-      "legacy_log_bucket_name": false,
       "retentiondays": 5,
       "extendedretentiondays": 7,
       "users": [

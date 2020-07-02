@@ -3,7 +3,7 @@ type: flatline
 index: logstash-cloudwatch*
 alert_text: logs from cloudwatch in the <%= @env %> ELK instance seem to have stopped entirely!
 owner: <%= @env %>
-threshold: 2600
+threshold: <%= @thresholds['cloudwatch'] %>
 realert:
     hours: 2
 doc_type: _doc

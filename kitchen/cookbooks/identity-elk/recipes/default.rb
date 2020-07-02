@@ -547,7 +547,8 @@ end
       :env => node.chef_environment,
       :emails => node['elk']['elastalert']['emails'],
       :webhook => ConfigLoader.load_config(node, "slackwebhook"),
-      :slackchannel => slackchannel
+      :slackchannel => slackchannel,
+      :thresholds => node['elk']['elastalert']['logvolumethresholds']
     })
     notifies :restart, 'runit_service[elastalert]'
   end

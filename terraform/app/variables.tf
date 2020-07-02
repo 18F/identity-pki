@@ -619,3 +619,8 @@ variable "newrelic_alerts_enabled" {
   default     = 0
 }
 
+variable "events_in_last_ten_minutes_threshold" {
+  description = "if the number of new events in ELK in the last 10 minutes falls below this, and newrelic_alerts_enabled is set, alert"
+  default     = 4000
+}
+
