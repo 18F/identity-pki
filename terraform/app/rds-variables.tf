@@ -51,6 +51,11 @@ variable "rds_storage_type_idp" {
   default     = "standard"
 }
 
+variable "rds_storage_type_idp_replica" {
+  description = "The type of EBS storage (magnetic, SSD, PIOPS) used by the IdP database read replica"
+  default     = "standard"
+}
+
 variable "rds_iops_idp" {
   description = "If PIOPS storage is used, the number of IOPS provisioned"
 
@@ -73,6 +78,10 @@ variable "rds_storage_app" {
 }
 
 variable "rds_storage_idp" {
+  default = "8"
+}
+
+variable "rds_storage_idp_replica" {
   default = "8"
 }
 
