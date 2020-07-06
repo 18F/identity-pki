@@ -270,7 +270,7 @@ Actual branch:   $rev_name
 "
 
         # check is fatal for strict environments
-        if [ -z "${DEPLOY_WEIRD_BRANCH-}" ]; then
+        if [ "$strict_check" == 1 ] && [ -z "${DEPLOY_WEIRD_BRANCH-}" ]; then
             echo_red >&2 "Error: Strict environment. Branch name must be stages/$ENVIRONMENT"
             echo_red >&2 "(set DEPLOY_WEIRD_BRANCH=1 to skip this check in current environment)"
             return 2
