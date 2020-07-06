@@ -256,34 +256,7 @@ esac
 check_release_versioning() {
     local strict_check rev_name
     echo >&2 "DEPLOY: Checking whether environment versioning is recommended"
-
-    case "$TF_DIR" in
-        app|sms)
-            # versioning enabled
-            ;;
-        *)
-            # versioning not enabled
-            return
-            ;;
-    esac
-
-    case "$ENVIRONMENT" in
-        # strict checks in these user-facing environments
-        prod|staging|int)
-            strict_check=1
-            ;;
-
-        # limited checks in these testing environments
-        dev|pt|dm)
-            strict_check=
-            ;;
-
-        # no checking in other environments
-        *)
-            return
-            ;;
-    esac
-
+    strict_check="${STRICT_ENVIRONMENT-}"
     rev_name="$(git rev-parse --abbrev-ref HEAD)"
     # make sure we're on stages/$ENVIRONMENT
     if [ "$rev_name" != "stages/$ENVIRONMENT" ]; then
@@ -431,6 +404,8 @@ load_env_devops_private_style() {
         done <<< "$tfvars_names"
     fi
 
+    check_release_versioning
+
     # Check that current version of terraform is supported by our environment. This
     # array should be set in the environment-specific variables.
     check_terraform_version 'ID_SUPPORTED_TERRAFORM_VERSIONS' "${ID_SUPPORTED_TERRAFORM_VERSIONS[@]}" >&2
@@ -491,9 +466,6 @@ import_remote_state_resources() {
 # Be sure ruby is working and bundler is setup since some terraform modules
 # rely on erb templates and ruby to be working.
 run bundle check >&2
-
-check_release_versioning
-
 
 if [ -n "$MODULE_STYLE" ]; then
     style_description="module, separate subdirectory style"
