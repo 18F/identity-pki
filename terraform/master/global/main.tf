@@ -99,8 +99,10 @@ module "main" {
   user_map = {
     "aaron.chapman"      = ["appdev", "apponcall"],
     "akhlaq.khan"        = ["analytics", "finops", "bizops"],
+    "alex.mathews"       = ["appdev"],
     "amit.freeman"       = ["devops"],
     "amos.stone"         = ["analytics"],
+    "andrew.duthie"      = ["appdev"],
     "brett.mcparland"    = ["secops", "soc"],
     "brian.crissup"      = ["devops", "keymasters"],
     "christopher.billas" = ["bizops", "finops"],
@@ -117,7 +119,6 @@ module "main" {
     "mossadeq.zia"       = ["devops", "secops", "keymasters"],
     "phil.lam"           = ["analytics"],
     "paul.hirsch"        = ["devops"],
-    "rajat.varuni"       = ["secops", "soc", "keymasters"],
     "shade.jenifer"      = ["appdev", "apponcall"]
     "silke.dannemann"    = ["bizops"],
     "steve.urciuoli"     = ["appdev", "apponcall", "keymasters"],
