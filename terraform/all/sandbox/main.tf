@@ -16,7 +16,10 @@ module "main" {
 
   iam_account_alias            = "login-sandbox"
   dashboard_logos_bucket_write = true
+  reports_bucket_arn   = "arn:aws:s3:::login-gov.reports.894947205914-us-west-2"
   account_roles_map = {
-    iam_kmsadmin_enabled         = true
+    iam_reports_enabled   = true
+    iam_kmsadmin_enabled  = true
+    iam_analytics_enabled = true
   }
 }
