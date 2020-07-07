@@ -405,8 +405,6 @@ load_env_devops_private_style() {
         done <<< "$tfvars_names"
     fi
 
-    check_release_versioning
-
     # Check that current version of terraform is supported by our environment. This
     # array should be set in the environment-specific variables.
     check_terraform_version 'ID_SUPPORTED_TERRAFORM_VERSIONS' "${ID_SUPPORTED_TERRAFORM_VERSIONS[@]}" >&2
@@ -475,6 +473,8 @@ else
     style_description="shared, identity-devops-private, symlink style"
     load_env_devops_private_style
 fi
+
+check_release_versioning
 
 echo_blue >&2 "Finished loading environment variables"
 echo_blue >&2 "The .terraform directory for $TF_DIR is: $style_description"
