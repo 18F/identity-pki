@@ -78,7 +78,7 @@ Instance ID or by EC2 instance "Name" tag.
 Sessions are opened as the "ssm-user"
 
 When there are multiple instances found with the same name tag (like
-asg-dev-jumphost), an interactive prompt will appear by default. There are
+asg-dev-idp), an interactive prompt will appear by default. There are
 several options to choose systematically: --newest, --oldest, --any.
 
 Examples:

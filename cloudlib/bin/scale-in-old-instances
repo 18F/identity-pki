@@ -26,8 +26,8 @@ Remove scale-in protection from older servers in the Auto Scaling Group named
 
 For example:
 
-  # Remove scale-in protection from old staging jumphosts
-  #{basename} staging jumphost
+  # Remove scale-in protection from old staging idp
+  #{basename} staging idp
 
 Options:
     EOM

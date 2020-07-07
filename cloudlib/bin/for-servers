@@ -44,8 +44,8 @@ Examples:
     # SSH to servers in INT VPC, run hostname
     #{basename} -e int hostname
 
-    # SSH to jumphost servers in all environments, run uname -a
-    #{basename} -n '*jumphost*' uname -a
+    # SSH to idp servers in all environments, run uname -a
+    #{basename} -n '*idp*' uname -a
 
     # SSH to all dev ASG IDP servers, run hostname -f
     #{basename} -e dev -n 'asg-*-idp' hostname -f
@@ -87,10 +87,6 @@ Options:
     opts.on('-n', '--name GLOB', 'Find servers Name matching GLOB') do |val|
       find_opts[:name_globs] ||= []
       find_opts[:name_globs] << val
-    end
-
-    opts.on('-j', '--[no-]jumphost', 'Whether to use a jumphost') do |val|
-      cl_ssh_options[:use_jumphost] = val
     end
 
     opts.on('-o', '--ssh-opt OPT',

@@ -27,13 +27,13 @@ desired count to COUNT. If --max or --min is given, set those counts instead.
 For example:
 
     # get current counts
-    #{basename} int jumphost
+    #{basename} int idp
 
     # set desired count to 2
-    #{basename} int jumphost 2
+    #{basename} int idp 2
 
     # set max size to 4
-    #{basename} int jumphost --max 2
+    #{basename} int idp --max 2
     EOM
 
     opts.on('-h', '--help', 'Display this message') do
