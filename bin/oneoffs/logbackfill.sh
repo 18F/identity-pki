@@ -6,21 +6,21 @@
 #
 
 usage() {
-	echo
-	echo "usage:  $0 <indexname> <daysago>"
-	echo "  indexname is the index to send the archived data into"
-	echo "  daysago is how many days back to go"
-	echo "usage:  $0 -d"
-	echo "  this stops the backfill"
-	echo
-	echo "examples:  $0 imported-2020-06-19-90days 90"
-	echo "           $0 -d"
-	echo
-	echo "This script must be run on an elk system that has a working cloudtrail logstash"
-  echo "going so that it can copy it's config.  To use an alternate bucket to restore"
-  echo "from, set the BUCKET_NAME environment variable.  To use an alternate subfolder in the"
-  echo "bucket (instead of elk/), set the BUCKET_PREFIX environment variable."
-	exit 1
+  echo
+  echo "usage:  $0 <indexname> <daysago>"
+  echo "  indexname is the index to send the archived data into"
+  echo "  daysago is how many days back to go"
+  echo "usage:  $0 -d"
+  echo "  this stops the backfill"
+  echo
+  echo "examples:  $0 imported-2020-06-19-90days 90"
+  echo "           $0 -d"
+  echo
+  echo "This script must be run on an elk system that has a working cloudtrail logstash"
+	echo "going so that it can copy it's config.  To use an alternate bucket to restore"
+	echo "from, set the BUCKET_NAME environment variable.  To use an alternate subfolder in the"
+	echo "bucket (instead of elk/), set the BUCKET_PREFIX environment variable."
+  exit 1
 }
 
 if [ "$1" = "-d" ] ; then
@@ -65,11 +65,11 @@ output {
 EOF
 
 if [ -z "${BUCKET_NAME}" ]; then
-       BUCKET_NAME=$(grep 'bucket => "' /etc/logstash/cloudtraillogstashconf.d/30-s3output.conf | sed 's/.*"\(.*\)"/\1/')
+  BUCKET_NAME=$(grep 'bucket => "' /etc/logstash/cloudtraillogstashconf.d/30-s3output.conf | sed 's/.*"\(.*\)"/\1/')
 fi
 
 if [ -z "${BUCKET_PREFIX}" ]; then
-       BUCKET_PREFIX='elk'
+  BUCKET_PREFIX='elk'
 fi
 
 cat <<EOF >  /etc/logstash/backfilllogstashconf.d/30-backfillin.conf
