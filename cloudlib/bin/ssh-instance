@@ -79,7 +79,7 @@ by EC2 instance "Name" tag.
 If USER is not specified, it defaults to $GSA_USERNAME.
 
 When there are multiple instances found with the same name tag (like
-asg-dev-jumphost), an interactive prompt will appear by default. There are
+asg-dev-idp), an interactive prompt will appear by default. There are
 several options to choose systematically: --newest, --oldest, --any.
 
 Examples:
@@ -125,10 +125,6 @@ Options:
       cl_ssh_options[:username] = val
     end
 
-    opts.on('--jumphost-login USER', 'Jumphost SSH login username') do |val|
-      cl_ssh_options[:jumphost_username] = val
-    end
-
     opts.on('-1', '--any', 'SSH to random server matching name') do
       options[:pick_strategy] = :random
     end
@@ -143,15 +139,6 @@ Options:
 
     opts.on('-P', '--prompt', 'Pick server interactively if ambiguous') do
       options[:pick_strategy] = :prompt
-    end
-
-    opts.on('-j', '--[no-]jumphost', 'Whether to use a jumphost') do |val|
-      cl_ssh_options[:use_jumphost] = val
-    end
-
-    opts.on('--jumphost-id INSTANCE',
-            'Specify instance ID of jumphost') do |val|
-      cl_ssh_options[:jumphost_instance_id] = val
     end
 
     opts.on('-L', '--local-forward OPT',

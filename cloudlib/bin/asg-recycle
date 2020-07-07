@@ -39,8 +39,8 @@ minutes in this case.
 
 For example:
 
-    # recycle instances in the "int-jumphost" ASG by doubling and then returning
-    #{basename} int jumphost
+    # recycle instances in the "int-idp" ASG by doubling and then returning
+    #{basename} int idp
 
     # (DESTRUCTIVE) immediately set desired count to 0, then set it to 2 after
     # two minutes

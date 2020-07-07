@@ -8,7 +8,6 @@ module Cloudlib
 
     KnownHostsPath = File.expand_path('~/.ssh/known_hosts_cloudlib').freeze
     StrictHostKeyChecking = 'yes' # trust on first use
-    JumphostName = 'jumphost'
 
     class SSHError < Cloudlib::Error; end
 
@@ -73,15 +72,12 @@ module Cloudlib
         cl.instance_label(instance)
       end
 
-      # @param [Boolean, nil] use_jumphost Whether to try to find a jumphost to
-      #   SSH through. If set to nil, auto determine based on instance name.
       # @param [Array<String>] ssh_opts SSH options passed at the command line
       #   with "-o". The "-o" is included in the list for each option.
       # @param [Array<String>] local_forwards SSH options related to forwarding
       #   local ports. The "-L" is included in the list for each forward.
       def ssh_cmdline(username: nil, command: nil, port: 22, pkcs11_lib: nil,
-                      strict_host_key_checking: nil, use_jumphost: nil,
-                      jumphost_username: nil, jumphost_instance_id: nil,
+                      strict_host_key_checking: nil,
                       verbose: false, quiet: false,
                       ssh_opts: [], local_forwards: [])
 
@@ -91,21 +87,6 @@ module Cloudlib
         end
 
         name_tag = cl.name_tag(instance)
-
-        if use_jumphost.nil?
-          if name_tag.include?(JumphostName)
-            use_jumphost = false
-          else
-            log.debug('Automatically using jumphost')
-            use_jumphost = true
-          end
-        end
-
-        if jumphost_instance_id && !use_jumphost
-          raise ArgumentError.new(
-            'Must be using jumphost to pass jumphost instance ID'
-          )
-        end
 
         cmd = ['ssh', '-l', username]
         cmd += ['-v'] if verbose
@@ -140,37 +121,13 @@ module Cloudlib
           '-o', 'HashKnownHosts=no',
         ]
 
-        if use_jumphost
-          log.debug('Finding a jumphost to use')
+        # Proxy over SSM session
+        cmd += [
+          '-o',
+          "ProxyCommand=sh -c 'aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters portNumber=%p'"
+        ]
 
-          begin
-            jumphost = @cl.find_jumphost(instance_id: jumphost_instance_id)
-          rescue NotFound
-            log.error('Failed to find jumphost! Try with --no-jumphost ?')
-            raise
-          end
-
-          log.debug("Found #{@cl.instance_label(jumphost)}")
-
-          jumphost_ssh_single = self.class.new(instance: jumphost)
-
-          netcat_host = instance.private_ip_address + ':' + port.to_s
-
-          jumphost_username ||= username
-
-          proxycommand = jumphost_ssh_single.ssh_cmdline(
-            username: jumphost_username, port: port, pkcs11_lib: pkcs11_lib,
-            use_jumphost: false, verbose: verbose, quiet: quiet,
-            ssh_opts: ['-W', netcat_host] + ssh_opts, local_forwards: []
-          )
-
-          cmd += ['-o', 'ProxyCommand=' + proxycommand.join(' ')]
-
-          cmd << instance.instance_id
-        else
-          cmd << instance.public_ip_address
-        end
-
+        cmd << instance.instance_id
         cmd += local_forwards
         cmd += ssh_opts
 

@@ -65,8 +65,8 @@ Examples:
     # SSH to servers in INT VPC
     #{basename} -e int
 
-    # SSH to jumphost servers in all environments
-    #{basename} -n '*jumphost*'
+    # SSH to idp servers in all environments
+    #{basename} -n '*idp*'
 
     # SSH to all dev ASG IDP servers
     #{basename} -e dev -n 'asg-*-idp'
