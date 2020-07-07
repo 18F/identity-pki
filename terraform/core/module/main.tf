@@ -4,3 +4,8 @@
 provider "external" { version = "~> 1.2" }
 provider "null" { version = "~> 2.1.2" }
 provider "template" { version = "~> 2.1.2" }
+
+provider "aws" {
+  region = "us-east-1"
+  alias  = "us-east-1"
+}
