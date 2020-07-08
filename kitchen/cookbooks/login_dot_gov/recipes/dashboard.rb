@@ -148,6 +148,10 @@ nginx_redirects = [
   {
     'server_name' => "#{node.chef_environment}-identity-oidc-sinatra.app.cloud.gov",
     'redirect_server' => "sp-oidc-sinatra.#{node.chef_environment}.#{domain_name}"
+  },
+  {
+    'server_name' => "#{node.chef_environment}-identity-oidc-sinatra.app.cloud.gov",
+    'redirect_server' => "sp.#{node.chef_environment}.#{domain_name}"
   }
 ]
 
