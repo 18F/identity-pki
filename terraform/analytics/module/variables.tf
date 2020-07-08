@@ -3,7 +3,10 @@ variable "env_name" {
   default     = ""
 }
 
-#variable "redshift_master_password" {}
+variable "login_account_id" {
+  description = "Account number for the AWS account for the main login.gov (prod/staging) environments."
+  default     = "555546682965"
+}
 
 variable "redshift_secrets_bucket" {
   default = "login-gov-prod-461353137281-redshift-secrets"

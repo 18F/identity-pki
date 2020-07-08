@@ -633,7 +633,7 @@ resource "aws_lambda_function" "analytics_lambda" {
       redshift_host  = aws_redshift_cluster.redshift.endpoint
       encryption_key = var.lambda_kms_key_id
       acct_id        = data.aws_caller_identity.current.account_id
-      source_bucket  = "login-gov-${var.env_name}-logs"
+      source_bucket  = "login-gov-logs-${var.env_name}.${var.login_account_id}-${var.region}"
       dest_bucket    = aws_s3_bucket.redshift_export_bucket.id
       parquet_bucket = aws_s3_bucket.parquet_export_bucket.id
       hot_bucket     = aws_s3_bucket.analytics_export_bucket.id
@@ -665,7 +665,7 @@ resource "aws_lambda_function" "analytics_lambda_hot" {
       redshift_host  = aws_redshift_cluster.redshift.endpoint
       encryption_key = var.lambda_kms_key_id
       acct_id        = data.aws_caller_identity.current.account_id
-      source_bucket  = "login-gov-${var.env_name}-logs"
+      source_bucket  = "login-gov-logs-${var.env_name}.${var.login_account_id}-${var.region}"
       dest_bucket    = aws_s3_bucket.redshift_export_bucket.id
       parquet_bucket = aws_s3_bucket.parquet_export_bucket.id
       hot_bucket     = aws_s3_bucket.analytics_export_bucket.id
@@ -678,7 +678,7 @@ resource "aws_lambda_permission" "allow_bucket" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.analytics_lambda.arn
   principal     = "s3.amazonaws.com"
-  source_arn    = "arn:aws:s3:::login-gov-${var.env_name}-logs"
+  source_arn    = "arn:aws:s3:::login-gov-logs-${var.env_name}.${var.login_account_id}-${var.region}"
 }
 
 resource "aws_cloudwatch_event_rule" "every_five_minutes" {
