@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 require 'optparse'
 require 'rbconfig'
@@ -104,7 +105,12 @@ Options:
     exit 1
   end
 
-  instances = Cloudlib::EC2.cli_find_servers(find_opts)
+  instances = Cloudlib::EC2.cli_find_servers(
+    env: find_opts[:env],
+    name_globs: find_opts[:name_globs],
+    states: find_opts[:states],
+    instance_ids: find_opts[:instance_ids]
+  )
 
   # TODO: add ability to pass through options to ssh-instance, or prepopulate
   # the SSH command line and don't use ssh-instance
