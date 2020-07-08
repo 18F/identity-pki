@@ -40,6 +40,7 @@ default['elk']['retentiondays'] = 90
 default['elk']['indextypes'] = [
   'logstash-2',
   'logstash-cloudwatch',
+  'logstash-cloudtrail',
   'filebeat'
 ]
 
