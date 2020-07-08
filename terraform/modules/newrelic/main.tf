@@ -1,9 +1,38 @@
 # this file sets up newrelic alerts for metrics
 # Once we get tf 0.13.* going, we can get rid of all the count and [0] silliness
 
+# NOTE:  these s3 objects need to be uploaded with --content-type text/plain
+
+# This is a key that starts with NRAA
+# see https://registry.terraform.io/providers/newrelic/newrelic/latest/docs#argument-reference
+# This is created on https://rpm.newrelic.com/accounts/{accountID}/integrations?page=api_keys
+data "aws_s3_bucket_object" "newrelic_apikey" {
+  bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
+  key    = "common/newrelic_apikey"
+}
+
+# This is a key that starts with NRAK.
+# See https://registry.terraform.io/providers/newrelic/newrelic/latest/docs#argument-reference
+# You can create this by going to https://account.newrelic.com/accounts/{accountID}/users/{yourUserID}
+# and clicking on the API tab and creating a key.
+data "aws_s3_bucket_object" "newrelic_admin_apikey" {
+  bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
+  key    = "common/newrelic_admin_apikey"
+}
+
+# This is the NewRelic account ID
+# see https://registry.terraform.io/providers/newrelic/newrelic/latest/docs#argument-reference
+data "aws_s3_bucket_object" "newrelic_account_id" {
+  bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
+  key    = "common/newrelic_account_id"
+}
+
 provider "newrelic" {
   version = ">= 2.1.2"
   region = "US"
+  account_id = data.aws_s3_bucket_object.newrelic_account_id.body
+  api_key = data.aws_s3_bucket_object.newrelic_apikey.body
+  admin_api_key = data.aws_s3_bucket_object.newrelic_admin_apikey.body
 }
 
 data "aws_caller_identity" "current" {}
@@ -21,9 +50,8 @@ resource "newrelic_alert_policy" "low" {
 # Creates an opsgenie alert channel.
 # NOTE:  This apikey needs to be uploaded with --content-type text/plain
 data "aws_s3_bucket_object" "opsgenie_apikey" {
-  count = var.enabled
   bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
-  key    = "${var.env_name}/opsgenie_apikey"
+  key    = "common/opsgenie_apikey"
 }
 
 resource "newrelic_alert_channel" "opsgenie" {
@@ -32,7 +60,7 @@ resource "newrelic_alert_channel" "opsgenie" {
   type = "opsgenie"
 
   config {
-    api_key    = data.aws_s3_bucket_object.opsgenie_apikey[0].body
+    api_key    = data.aws_s3_bucket_object.opsgenie_apikey.body
     tags       = "${var.env_name} environment"
     region     = "US"
   }
@@ -41,12 +69,10 @@ resource "newrelic_alert_channel" "opsgenie" {
 # Creates a Slack alert channel.
 # NOTE:  These slack secrets need to be uploaded with --content-type text/plain
 data "aws_s3_bucket_object" "slackchannel" {
-  count = var.enabled
   bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
   key    = "${var.env_name}/slackchannel"
 }
 data "aws_s3_bucket_object" "slackwebhook" {
-  count = var.enabled
   bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
   key    = "${var.env_name}/slackwebhook"
 }
@@ -57,8 +83,8 @@ resource "newrelic_alert_channel" "slack" {
   type = "slack"
 
   config {
-    channel = data.aws_s3_bucket_object.slackchannel[0].body
-    url     = data.aws_s3_bucket_object.slackwebhook[0].body
+    channel = data.aws_s3_bucket_object.slackchannel.body
+    url     = data.aws_s3_bucket_object.slackwebhook.body
   }
 }
 
