@@ -97,3 +97,9 @@ variable "cloudtrail_logging_bucket" {
   description = "Manually-specified bucket used by aws_s3_bucket.cloudtrail for logging."
   default     = ""
 }
+
+variable "ttl_verification_record" {
+  description = "TTL value for the SES verification TXT record."
+  type        = string
+  default     = "1800"
+}
