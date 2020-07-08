@@ -127,6 +127,8 @@ Chef.event_handler do
     cmd = Mixlib::ShellOut.new('curl', '-sSIk', 'https://localhost', timeout: prewarm_timeout)
     cmd.run_command
     cmd.error!
-    Chef::Log.info("Success:\n" + cmd.stdout)
+    Chef::Log.info("Success:\n") if cmd.stdout.include?('HTTP/1.1 200 OK')
+    Chef::Log.info(cmd.stdout)
+    raise ShellCommandFailed unless cmd.stdout.include?('HTTP/1.1 200 OK')
   end
 end
