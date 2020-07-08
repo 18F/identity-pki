@@ -13,6 +13,10 @@ aws_account_id="472911866628"
 TERRAFORM_STATE_BUCKET_REGION="us-west-2"
 TERRAFORM_STATE_BUCKET="login-gov.tf-state.$aws_account_id-$TERRAFORM_STATE_BUCKET_REGION"
 
+# set to '0' to alert if deploying outside of bootstrap_main_git_ref_default
+# ONLY set this to '1' in strict environments (int/staging/prod)
+export STRICT_ENVIRONMENT=1
+
 # used by `deploy` to pass to configure_state_bucket.sh
 ID_state_lock_table=terraform_locks
 

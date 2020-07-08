@@ -256,34 +256,8 @@ esac
 check_release_versioning() {
     local strict_check rev_name
     echo >&2 "DEPLOY: Checking whether environment versioning is recommended"
-
-    case "$TF_DIR" in
-        app|sms)
-            # versioning enabled
-            ;;
-        *)
-            # versioning not enabled
-            return
-            ;;
-    esac
-
-    case "$ENVIRONMENT" in
-        # strict checks in these user-facing environments
-        prod|staging|int)
-            strict_check=1
-            ;;
-
-        # limited checks in these testing environments
-        dev|pt|dm)
-            strict_check=
-            ;;
-
-        # no checking in other environments
-        *)
-            return
-            ;;
-    esac
-
+    strict_check="${STRICT_ENVIRONMENT-}"
+    [ -z "$strict_check" ] && return
     rev_name="$(git rev-parse --abbrev-ref HEAD)"
     # make sure we're on stages/$ENVIRONMENT
     if [ "$rev_name" != "stages/$ENVIRONMENT" ]; then
@@ -296,9 +270,9 @@ Actual branch:   $rev_name
 "
 
         # check is fatal for strict environments
-        if [ -n "$strict_check" ] && [ -z "${DEPLOY_WEIRD_BRANCH-}" ]; then
-            echo_red >&2 "error: branch name must be stages/$ENVIRONMENT"
-            echo_red >&2 "set DEPLOY_WEIRD_BRANCH=1 to skip this check"
+        if [ "$strict_check" == 1 ] && [ -z "${DEPLOY_WEIRD_BRANCH-}" ]; then
+            echo_red >&2 "Error: Strict environment. Branch name must be stages/$ENVIRONMENT"
+            echo_red >&2 "(set DEPLOY_WEIRD_BRANCH=1 to skip this check in current environment)"
             return 2
         fi
     else
@@ -492,9 +466,6 @@ import_remote_state_resources() {
 # rely on erb templates and ruby to be working.
 run bundle check >&2
 
-check_release_versioning
-
-
 if [ -n "$MODULE_STYLE" ]; then
     style_description="module, separate subdirectory style"
     load_env_module_style
@@ -502,6 +473,8 @@ else
     style_description="shared, identity-devops-private, symlink style"
     load_env_devops_private_style
 fi
+
+check_release_versioning
 
 echo_blue >&2 "Finished loading environment variables"
 echo_blue >&2 "The .terraform directory for $TF_DIR is: $style_description"
