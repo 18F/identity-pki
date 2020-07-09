@@ -239,6 +239,7 @@ ruby_block 'generate_elk_cert' do
     end
     ENV['CLOUDTRAIL_SINCEDBDATE'] = startfrom
   end
+end
 
 # create the common outputs and services for all logstash instances
 %w{ logstash cloudtraillogstash cloudwatchlogstash }.each do |lsname|
