@@ -205,12 +205,12 @@ template "/etc/logstash/logstash.yml" do
   })
 end
 
-# create the common outputs and services for all logstash instances
+# set things up for logstash config
 include_recipe 'runit'
 chef_gem 'elasticsearch'
-%w{ logstash cloudtraillogstash cloudwatchlogstash }.each do |lsname|
-  # set up sincedb entries so we don't rescan everything from the beginning of time
-  if lsname == 'cloudtraillogstash'
+ruby_block 'generate_elk_cert' do
+  block do
+    startfrom = Time.now.strftime('%F 00:00:00 +0000')
     # if we can get to ES, try to get the latest log entry timestamp
     require 'elasticsearch'
 
@@ -235,12 +235,19 @@ chef_gem 'elasticsearch'
       latest = Time.parse(tstamp)
       startfrom = latest.strftime('%F %H:%m:%S +0000')
     rescue
-      startfrom = Time.now.strftime('%F 00:00:00 +0000')
+        startfrom = Time.now.strftime('%F 00:00:00 +0000')
     end
+    ENV['CLOUDTRAIL_SINCEDBDATE'] = startfrom
+  end
+
+# create the common outputs and services for all logstash instances
+%w{ logstash cloudtraillogstash cloudwatchlogstash }.each do |lsname|
+  # set up sincedb entries so we don't rescan everything from the beginning of time
+  if lsname == cloudtraillogstash
+    startfrom = ENV['CLOUDTRAIL_SINCEDBDATE']
   else
     startfrom = Time.now.strftime('%F 00:00:00 +0000')
   end
-
   template "/usr/share/logstash/.sincedb_#{lsname}" do
     source 'sincedb.erb'
     owner 'logstash'
