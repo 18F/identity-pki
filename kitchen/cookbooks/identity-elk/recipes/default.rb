@@ -246,17 +246,12 @@ end
 # create the common outputs and services for all logstash instances
 %w{ logstash cloudtraillogstash cloudwatchlogstash }.each do |lsname|
   # set up sincedb entries so we don't rescan everything from the beginning of time
-  if lsname == 'cloudtraillogstash'
-    startfrom = ENV['CLOUDTRAIL_SINCEDBDATE']
-  else
-    startfrom = Time.now.strftime('%F 00:00:00 +0000')
-  end
   template "/usr/share/logstash/.sincedb_#{lsname}" do
     source 'sincedb.erb'
     owner 'logstash'
     group 'logstash'
     variables ({
-      :startfrom => startfrom
+      :lsname => lsname
     })
     not_if { File.exists?("/usr/share/logstash/.sincedb_#{lsname}") }
   end
