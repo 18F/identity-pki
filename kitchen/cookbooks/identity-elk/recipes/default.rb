@@ -244,7 +244,7 @@ end
 # create the common outputs and services for all logstash instances
 %w{ logstash cloudtraillogstash cloudwatchlogstash }.each do |lsname|
   # set up sincedb entries so we don't rescan everything from the beginning of time
-  if lsname == cloudtraillogstash
+  if lsname == 'cloudtraillogstash'
     startfrom = ENV['CLOUDTRAIL_SINCEDBDATE']
   else
     startfrom = Time.now.strftime('%F 00:00:00 +0000')
