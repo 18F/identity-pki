@@ -6,20 +6,23 @@ Welcome! This repository is used by the login.gov DevOps team. It contains the i
 
 If you're needing a feature/access/etc. change/update, or want to report a bug, please file us an Issue using the appropriate template. Be sure to follow the [DevOps Issue Acceptance Criteria](https://login-handbook.app.cloud.gov/articles/devops-acceptance-criteria.html) when creating a new issue for us!
 
-All of our outstanding issues are located in the Login.gov Infrastructure project in 18F's GitHub organization. New issues will be added to our Backlog to be pulled into subsequent sprints, as per our Sprint Ceremonies. If you require an issue to be addressed/resolved during the current sprint, please ping @login-devops-oncall in the #login-devops Slack channel to discuss.
-
-## Documentation Links
-
-- [Setting Up aws-vault](https://login-handbook.app.cloud.gov/articles/devops-setting-up-aws-vault.html)
-- [Personal Sandbox Environment Setup](https://login-handbook.app.cloud.gov/articles/devops-personal-sandbox-env.html)
-- AWS Switch-Role Access
+All of our outstanding issues are located in the [Login.gov Infrastructure](https://github.com/orgs/18F/projects/5) project board in 18F's GitHub organization. New issues will be added to our **Backlog** to be pulled into subsequent sprints, as per our [Sprint Ceremonies](https://login-handbook.app.cloud.gov/articles/devops-ceremonies.html). If you require an issue to be addressed/resolved during the current sprint, please ping [`@login-devops-oncall` in the `#login-devops` Slack channel](https://gsa-tts.slack.com/archives/C16RSBG49) to discuss.
 
 ## Want To Contribute To This Repo?
 
 If you'd like to open pull requests in `identity-devops`, you'll need the following prerequisites configured:
 
-- An AWS IAM user account with AssumeRole access to run Terraform commands
+- An AWS IAM user account with `AssumeRole` access to run Terraform commands
 - A personal sandbox environment set up properly in AWS
 - Your GitHub account has been added to an 18F group with access to open PRs in this repo
 
-Be sure to follow our PR Acceptance Criteria when opening PRs.
+Be sure to follow our [PR Acceptance Criteria](https://login-handbook.app.cloud.gov/articles/devops-acceptance-criteria.html#pull-requests) when opening PRs.
+
+## Documentation Links
+
+- [Setting Up aws-vault](https://login-handbook.app.cloud.gov/articles/devops-setting-up-aws-vault.html)
+- [Personal Sandbox Environment Setup](https://login-handbook.app.cloud.gov/articles/devops-personal-sandbox-env.html)
+- [Deploying DevOps Code](https://login-handbook.app.cloud.gov/articles/devops-deploy-devops-code.html)
+- [Making Changes via Terraform](https://login-handbook.app.cloud.gov/articles/devops-making-changes-via-terraform.html)
+
+Check the [Login.gov Handbook](https://login-handbook.app.cloud.gov/#devops) for more!
