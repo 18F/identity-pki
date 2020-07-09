@@ -209,10 +209,44 @@ end
 include_recipe 'runit'
 %w{ logstash cloudtraillogstash cloudwatchlogstash }.each do |lsname|
   # set up sincedb entries so we don't rescan everything from the beginning of time
+  if lsname == 'cloudtraillogstash'
+    # if we can get to ES, try to get the latest log entry timestamp
+    require 'elasticsearch'
+
+    begin
+      client = Elasticsearch::Client.new \
+        url: 'https://elasticsearch.login.gov.internal:9200',
+        transport_options: { ssl: { verify: false } }
+
+      # get last cloudtrail log we indexed
+      lastlog = client.search(
+        index: 'logstash-cloudtrail-*',
+        body: {
+          size: 1,
+          query: {
+            match: { type: 'cloudtrail' }
+          },
+          sort: [{'@timestamp':{order: 'desc'}}]
+        }
+      )
+
+      tstamp = lastlog['hits']['hits'][0]['_source']['@timestamp']
+      latest = Time.parse(tstamp)
+      startfrom = latest.strftime('%F %H:%m:%S +0000')
+    rescue
+      startfrom = Time.now.strftime('%F 00:00:00 +0000')
+    end
+  else
+    startfrom = Time.now.strftime('%F 00:00:00 +0000')
+  end
+
   template "/usr/share/logstash/.sincedb_#{lsname}" do
     source 'sincedb.erb'
     owner 'logstash'
     group 'logstash'
+    variables ({
+      :startfrom => startfrom
+    })
     not_if { File.exists?("/usr/share/logstash/.sincedb_#{lsname}") }
   end
 
