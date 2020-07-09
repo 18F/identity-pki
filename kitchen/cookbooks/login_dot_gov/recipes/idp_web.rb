@@ -124,9 +124,14 @@ prewarm_timeout = node.fetch('login_dot_gov').fetch('passenger_prewarm_timeout')
 Chef.event_handler do
   on :run_completed do
     Chef::Log.info('Pre-warming passenger by sending an HTTP request')
-    cmd = Mixlib::ShellOut.new('curl', '-sSIk', 'https://localhost', timeout: prewarm_timeout)
+    cmd = Mixlib::ShellOut.new('curl', '-sk', 'https://localhost/api/health', timeout: prewarm_timeout)
     cmd.run_command
     cmd.error!
-    Chef::Log.info("Success:\n" + cmd.stdout)
+    Chef::Log.info(cmd.stdout)
+    if JSON.parse(cmd.stdout)["all_checks_healthy"]
+      Chef::Log.info("Success; health checks passed!")
+    else
+      raise ShellCommandFailed
+    end
   end
 end
