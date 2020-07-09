@@ -127,8 +127,11 @@ Chef.event_handler do
     cmd = Mixlib::ShellOut.new('curl', '-sk', 'https://localhost/api/health', timeout: prewarm_timeout)
     cmd.run_command
     cmd.error!
-    Chef::Log.info("Success:") if JSON.parse(cmd.stdout)["all_checks_healthy"]
-    Chef::Log.info("\n" + cmd.stdout)
-    raise ShellCommandFailed unless JSON.parse(cmd.stdout)["all_checks_healthy"]
+    Chef::Log.info(cmd.stdout)
+    if JSON.parse(cmd.stdout)["all_checks_healthy"]
+      Chef::Log.info("Success; health checks passed!")
+    else
+      raise ShellCommandFailed
+    end
   end
 end
