@@ -209,7 +209,7 @@ end
 include_recipe 'runit'
 chef_gem 'elasticsearch'
 gem_package 'elasticsearch'
-ruby_block 'generate_elk_cert' do
+ruby_block 'find_cloudtrail_startfrom' do
   block do
     require 'elasticsearch'
 
