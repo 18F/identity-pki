@@ -207,7 +207,7 @@ end
 
 # set things up for logstash config
 include_recipe 'runit'
-chef_gem 'elasticsearch'
+gem_package 'elasticsearch'
 ruby_block 'generate_elk_cert' do
   block do
     startfrom = Time.now.strftime('%F 00:00:00 +0000')
