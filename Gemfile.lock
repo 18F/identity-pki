@@ -977,6 +977,14 @@ GEM
     domain_name (0.5.20190701)
       unf (>= 0.0.5, < 1.0.0)
     ed25519 (1.2.4)
+    elasticsearch (7.8.0)
+      elasticsearch-api (= 7.8.0)
+      elasticsearch-transport (= 7.8.0)
+    elasticsearch-api (7.8.0)
+      multi_json
+    elasticsearch-transport (7.8.0)
+      faraday (~> 1)
+      multi_json
     equatable (0.6.1)
     erubi (1.9.0)
     erubis (2.7.0)
@@ -1159,6 +1167,7 @@ DEPENDENCIES
   berkshelf (~> 7.0.8)
   chef (~> 15.10.12)
   colorize
+  elasticsearch
   erubis (~> 2)
   pry
   rake
