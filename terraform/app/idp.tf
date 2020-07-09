@@ -35,21 +35,21 @@ resource "aws_db_instance" "idp" {
 
   # If you want to destroy your database, you need to do this in two phases:
   # 1. Uncomment `skip_final_snapshot=true` and
-  #    comment `prevent_destroy=true` and `deletion_protection = false` below.
+  #    comment `prevent_destroy=true` and `deletion_protection = true` below.
   # 2. Perform a terraform/deploy "apply" with the additional
   #    argument of "-target=aws_db_instance.idp" to mark the database
   #    as not requiring a final snapshot.
   # 3. Perform a terraform/deploy "destroy" as needed.
   #
-  skip_final_snapshot = true
+  #skip_final_snapshot = true
   lifecycle {
-    prevent_destroy = false
+    prevent_destroy = true
 
     # we set the password by hand so it doesn't end up in the state file
     ignore_changes = [password]
   }
 
-  deletion_protection = false
+  deletion_protection = true
 }
 
 output "idp_db_endpoint" {
@@ -95,7 +95,7 @@ resource "aws_db_instance" "idp-read-replica" {
   enabled_cloudwatch_logs_exports = ["postgresql"]
 
   # uncomment this if deleting the read replica / environment
-  skip_final_snapshot = true
+  #skip_final_snapshot = true
 }
 
 output "idp_db_endpoint_replica" {
