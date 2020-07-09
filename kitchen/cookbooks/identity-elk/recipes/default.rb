@@ -205,14 +205,54 @@ template "/etc/logstash/logstash.yml" do
   })
 end
 
-# create the common outputs and services for all logstash instances
+# set things up for logstash config
 include_recipe 'runit'
+chef_gem 'elasticsearch'
+gem_package 'elasticsearch'
+ruby_block 'find_cloudtrail_startfrom' do
+  block do
+    require 'elasticsearch'
+
+    startfrom = Time.now.strftime('%F 00:00:00 +0000')
+
+    # if we can get to ES, try to get the latest log entry timestamp
+    begin
+      client = Elasticsearch::Client.new \
+        url: 'https://elasticsearch.login.gov.internal:9200',
+        transport_options: { ssl: { verify: false } }
+
+      # get last cloudtrail log we indexed
+      lastlog = client.search(
+        index: 'logstash-cloudtrail-*',
+        body: {
+          size: 1,
+          query: {
+            match: { type: 'cloudtrail' }
+          },
+          sort: [{'@timestamp':{order: 'desc'}}]
+        }
+      )
+      tstamp = lastlog['hits']['hits'][0]['_source']['@timestamp']
+      latest = Time.parse(tstamp)
+
+      startfrom = latest.strftime('%F %H:%m:%S +0000')
+    rescue
+      startfrom = Time.now.strftime('%F 00:00:00 +0000')
+    end
+    ENV['CLOUDTRAIL_SINCEDBDATE'] = startfrom
+  end
+end
+
+# create the common outputs and services for all logstash instances
 %w{ logstash cloudtraillogstash cloudwatchlogstash }.each do |lsname|
   # set up sincedb entries so we don't rescan everything from the beginning of time
   template "/usr/share/logstash/.sincedb_#{lsname}" do
     source 'sincedb.erb'
     owner 'logstash'
     group 'logstash'
+    variables ({
+      :lsname => lsname
+    })
     not_if { File.exists?("/usr/share/logstash/.sincedb_#{lsname}") }
   end
 

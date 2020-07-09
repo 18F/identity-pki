@@ -1,1 +1,1 @@
-<%= Time.now.strftime('%F 00:00:00 +0000') %>
+<%= if @lsname == 'cloudtraillogstash' ; ENV['CLOUDTRAIL_SINCEDBDATE'] else Time.now.strftime('%F 00:00:00 +0000') end %>
