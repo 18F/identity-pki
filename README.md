@@ -10,13 +10,13 @@ All of our outstanding issues are located in the [Login.gov Infrastructure](http
 
 ## Want To Contribute To This Repo?
 
-If you'd like to open pull requests in `identity-devops`, you'll need the following prerequisites configured:
+Pull requests are welcome! If possible, please test out your new code before opening a PR. For the most effective testing, you'll want to have the following configured:
 
 - An AWS IAM user account with `AssumeRole` access to run Terraform commands
 - A personal sandbox environment set up properly in AWS
 - Your GitHub account has been added to an 18F group with access to open PRs in this repo
 
-Be sure to follow our [PR Acceptance Criteria](https://login-handbook.app.cloud.gov/articles/devops-acceptance-criteria.html#pull-requests) when opening PRs.
+Lastly, be sure to follow our [PR Acceptance Criteria](https://login-handbook.app.cloud.gov/articles/devops-acceptance-criteria.html#pull-requests) when opening PRs. If you need assistance with testing your work, please let us know in the PR body.
 
 ## Documentation Links
 
