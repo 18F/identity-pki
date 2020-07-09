@@ -25,6 +25,3 @@ gem 'chef', '~> 15.10.12'
 
 # used for modules/bootstrap templates
 gem 'erubis', '~> 2'
-
-# used for the logstash/elk stuff
-gem 'elasticsearch'
