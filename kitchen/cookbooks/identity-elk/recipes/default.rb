@@ -207,6 +207,9 @@ end
 
 # create the common outputs and services for all logstash instances
 include_recipe 'runit'
+gem_package 'elasticsearch' do
+  action :install
+end
 %w{ logstash cloudtraillogstash cloudwatchlogstash }.each do |lsname|
   # set up sincedb entries so we don't rescan everything from the beginning of time
   if lsname == 'cloudtraillogstash'
