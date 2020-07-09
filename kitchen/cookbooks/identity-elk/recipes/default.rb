@@ -240,8 +240,6 @@ ruby_block 'find_cloudtrail_startfrom' do
       startfrom = Time.now.strftime('%F 00:00:00 +0000')
     end
     ENV['CLOUDTRAIL_SINCEDBDATE'] = startfrom
-    # XXX for debugging
-    File.write("/var/tmp/.ctsincedb", startfrom)
   end
 end
 
