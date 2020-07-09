@@ -1,3 +1,5 @@
+# -- Variables --
+
 variable "domain" {
   description = "DNS domain to use as the root domain, e.g. 'login.gov.'"
 }
@@ -41,70 +43,113 @@ variable "mx_record_map" {
   }
 }
 
+variable "prod_records" {
+  description = "Additional Route53 mappings for the prod login.gov account."
+  type        = list(any)
+  default     = []
+}
+
+# -- Locals --
+
+locals {
+
+  cloudfront_aliases = [
+    { name = "",           alias_name = var.static_cloudfront_name     },
+    { name = "www",        alias_name = var.static_cloudfront_name     },
+    { name = "design",     alias_name = var.design_cloudfront_name     },
+    { name = "developers", alias_name = var.developers_cloudfront_name },
+  ]
+
+  records = [
+    {
+      type = "TXT"
+      record_set = [
+        {
+          "name" = "",
+          "ttl" = "900",
+          "records" = ["google-site-verification=${var.google_site_verification_txt}", "v=spf1 include:amazonses.com include:_spf.google.com ~all"],
+        },
+        {
+          "name" = "mail",
+          "ttl" = "900",
+          "records" = ["v=spf1 include:amazonses.com ~all"],
+        },
+        {
+          "name" = "mail-east",
+          "ttl" = "3600",
+          "records" = ["v=spf1 include:amazonses.com ~all"],
+        },
+        {
+          "name" = "_dmarc",
+          "ttl" = "900",
+          "records" = ["v=DMARC1; p=reject; pct=100; fo=1; ri=3600; rua=mailto:gsalogin@rua.agari.com,mailto:dmarc-reports@login.gov,mailto:reports@dmarc.cyber.dhs.gov; ruf=mailto:dmarc-forensics@login.gov"],
+        }
+      ]
+    },
+    {
+      type = "MX",
+      record_set = [
+        {
+          "name" = "",
+          "ttl" = "3600",
+          "records" = split(",", var.mx_record_map[var.mx_provider]),
+        },
+        {
+          "name" = "mail",
+          "ttl" = "900",
+          "records" = ["10 feedback-smtp.us-west-2.amazonses.com"] # NB us-west-2 only,
+        },
+        {
+          "name" = "mail-east",
+          "ttl" = "3600",
+          "records" = ["10 feedback-smtp.us-east-1.amazonses.com"] # NB us-east-1 only,
+        },
+      ]
+    }
+  ]
+
+}
+
+# -- Resources --
+
 resource "aws_route53_zone" "primary" {
   # domain, ensuring it has a trailing "."
   name = replace(var.domain, "/\\.?$/", ".")
 }
 
-output "primary_zone_id" {
-  value = aws_route53_zone.primary.zone_id
-}
+resource "aws_route53_record" "a" {
+  for_each = {
+    for a in local.cloudfront_aliases :
+      a.name == "" ? "a_root" : "a_${a.name}" => a
+    }
 
-output "primary_domain" {
-  value = var.domain
-}
-
-output "primary_name_servers" {
-  value = [
-    aws_route53_zone.primary.name_servers[0],
-    aws_route53_zone.primary.name_servers[1],
-    aws_route53_zone.primary.name_servers[2],
-    aws_route53_zone.primary.name_servers[3],
-  ]
-}
-
-resource "aws_route53_record" "a_root" {
-  name    = var.domain
+  name    = join(".", [each.value.name, var.domain])
   type    = "A"
   zone_id = aws_route53_zone.primary.zone_id
   alias {
     evaluate_target_health = false
-    name                   = var.static_cloudfront_name
+    name                   = each.value.alias_name
     zone_id                = var.cloudfront_zone_id
   }
 }
 
-resource "aws_route53_record" "a_www" {
-  name    = "www.${var.domain}"
-  type    = "A"
-  zone_id = aws_route53_zone.primary.zone_id
-  alias {
-    evaluate_target_health = false
-    name                   = var.static_cloudfront_name
-    zone_id                = var.cloudfront_zone_id
-  }
-}
+resource "aws_route53_record" "record" {
+  for_each = { for n in flatten([
+      for entry in flatten([local.records, var.prod_records]) : [
+        for r in entry.record_set : {
+          type = entry.type,
+          name = r.name,
+          ttl = r.ttl,
+          records = r.records
+        }
+      ]
+    ]) : n.name == "" ? "${n.type}_main" : "${n.type}_${n.name}" => n }
 
-resource "aws_route53_record" "a_design" {
-  name    = "design.${var.domain}"
-  type    = "A"
+  name    = join(".", [each.value.name, var.domain])
+  type    = each.value.type
+  ttl     = each.value.ttl
+  records = each.value.records
   zone_id = aws_route53_zone.primary.zone_id
-  alias {
-    evaluate_target_health = false
-    name                   = var.design_cloudfront_name
-    zone_id                = var.cloudfront_zone_id
-  }
-}
-
-resource "aws_route53_record" "a_developers" {
-  name    = "developers.${var.domain}"
-  type    = "A"
-  zone_id = aws_route53_zone.primary.zone_id
-  alias {
-    evaluate_target_health = false
-    name                   = var.developers_cloudfront_name
-    zone_id                = var.cloudfront_zone_id
-  }
 }
 
 resource "aws_route53_record" "acme_partners" {
@@ -119,175 +164,21 @@ resource "aws_route53_record" "acme_partners" {
   }
 }
 
-resource "aws_route53_record" "mx_google" {
-  name    = var.domain
-  records = split(",", var.mx_record_map[var.mx_provider])
-  ttl     = "3600"
-  type    = "MX"
-  zone_id = aws_route53_zone.primary.zone_id
+# -- Outputs --
+
+output "primary_zone_id" {
+  description = "ID for the primary Route53 zone."
+  value       = aws_route53_zone.primary.zone_id
 }
 
-# Root TXT records, including SPF.
-# TODO: remove GSA? All mail should be from SES or Google.
-resource "aws_route53_record" "txt" {
-  name    = var.domain
-  records = ["google-site-verification=${var.google_site_verification_txt}", "v=spf1 include:amazonses.com include:_spf.google.com ~all"]
-  ttl     = "900"
-  type    = "TXT"
-  zone_id = aws_route53_zone.primary.zone_id
+output "primary_domain" {
+  description = "DNS domain to use as the root domain, e.g. 'login.gov.'"
+  value       = var.domain
 }
 
-# Add a record under login.gov saying it's OK to send reports for
-# identitysandbox.gov to login.gov.
-# https://space.dmarcian.com/what-is-external-destination-verification/
-resource "aws_route53_record" "txt_dmarc_authorization" {
-  count   = var.domain == "login.gov" ? 1 : 0
-  name    = "identitysandbox.gov._report._dmarc.${var.domain}"
-  records = ["v=DMARC1"]
-  ttl     = "3600"
-  type    = "TXT"
-  zone_id = aws_route53_zone.primary.zone_id
-}
-
-# Add a record under login.gov saying it's OK to send reports for
-# connect.gov to login.gov.
-# https://space.dmarcian.com/what-is-external-destination-verification/
-resource "aws_route53_record" "txt_dmarc_authorization_connect_gov" {
-  count   = var.domain == "login.gov" ? 1 : 0
-  name    = "connect.gov._report._dmarc.${var.domain}"
-  records = ["v=DMARC1"]
-  ttl     = "3600"
-  type    = "TXT"
-  zone_id = aws_route53_zone.primary.zone_id
-}
-
-# This record is only used for the prod login.gov G Suite DKIM signing.
-resource "aws_route53_record" "google_dkim_txt" {
-  count   = var.domain == "login.gov" ? 1 : 0
-  name = "google._domainkey.${var.domain}"
-  records = ["v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkcuOOdgaWfHIKM1ILlzPOHBPJKLxU9+1+ufIprNdjrD+QQ6/uJtc/tP5s1MUwYU/fld2Y1QwXC5JHdE6JXP31XwCtvbfIwn/Dr/EaRB3PomOp0SNbTtFMmvuxPF87HidvzDH3cWXcmyjMx6XU1i9O3nBs66Z+8i4gfh/PZdjJs6wcNp9urJjCo23KYzbiNAn\" \"7FJjbD4g3NucMvkBXHIsOMLvb7WzIekpxL2bjz6XlDfK1t4VTLv4IqIlLMfhYGwwaWPhgyra7qezYkp6a2XSoLWxPWRbfb1bNmVUJ7vBeB6NdFnr9n/7TqbhDVEo9/XyO1MIsuNTTZuhurlZqoXx0QIDAQAB"]
-  ttl = "3600"
-  type = "TXT"
-  zone_id = aws_route53_zone.primary.zone_id
-}
-
-resource "aws_route53_record" "mail_in_txt" {
-  name    = "mail.${var.domain}"
-  zone_id = aws_route53_zone.primary.zone_id
-  ttl     = "900"
-  type    = "TXT"
-  records = ["v=spf1 include:amazonses.com ~all"]
-}
-
-resource "aws_route53_record" "mail_in_txt_east" {
-  name    = "mail-east.${var.domain}"
-  zone_id = aws_route53_zone.primary.zone_id
-  ttl     = "3600"
-  type    = "TXT"
-  records = ["v=spf1 include:amazonses.com ~all"]
-}
-
-resource "aws_route53_record" "mail_in_mx" {
-  name    = "mail.${var.domain}"
-  zone_id = aws_route53_zone.primary.zone_id
-  ttl     = "900"
-  type    = "MX"
-  records = ["10 feedback-smtp.us-west-2.amazonses.com"] # NB us-west-2 only
-}
-
-resource "aws_route53_record" "mail_in_mx_east" {
-  name    = "mail-east.${var.domain}"
-  zone_id = aws_route53_zone.primary.zone_id
-  ttl     = "3600"
-  type    = "MX"
-  records = ["10 feedback-smtp.us-east-1.amazonses.com"] # NB us-east-1 only
-}
-
-resource "aws_route53_record" "main_dmarc" {
-  name    = "_dmarc.${var.domain}"
-  zone_id = aws_route53_zone.primary.zone_id
-  ttl     = "900"
-  type    = "TXT"
-  records = ["v=DMARC1; p=reject; pct=100; fo=1; ri=3600; rua=mailto:gsalogin@rua.agari.com,mailto:dmarc-reports@login.gov,mailto:reports@dmarc.cyber.dhs.gov; ruf=mailto:dmarc-forensics@login.gov"]
-}
-
-resource "aws_route53_record" "acme_challenge" {
-  count   = var.domain == "login.gov" ? 1 : 0
-  name    = "_acme-challenge.${var.domain}"
-  zone_id = aws_route53_zone.primary.zone_id
-  ttl     = "120"
-  type    = "TXT"
-  records = ["g_ybuPyxTGP-JeDhOA-AyjIlJEwsZU5fd0dr7zvpFsg"]
-}
-
-resource "aws_route53_record" "acme_challenge_www" {
-  count   = var.domain == "login.gov" ? 1 : 0
-  name    = "_acme-challenge.www.${var.domain}"
-  zone_id = aws_route53_zone.primary.zone_id
-  ttl     = "120"
-  type    = "TXT"
-  records = ["L1XfURLRizB_sP022sBOoQGaulRl34R9B3xEZxTTFfs"]
-}
-
-resource "aws_route53_record" "acme_partners_txt" {
-  count   = var.domain == "login.gov" ? 1 : 0
-  name    = "_acme-challenge.partners.${var.domain}"
-  zone_id = aws_route53_zone.primary.zone_id
-  ttl     = "120"
-  type    = "TXT"
-  records = ["l0DvBtdqJcAcfwmje4YpBglqymSl5xVFseBiMiZf3hE"]
-}
-
-resource "aws_route53_record" "hubspot_cname1" {
-  count   = var.domain == "login.gov" ? 1 : 0
-  name    = "hs1._domainkey.${var.domain}"
-  zone_id = aws_route53_zone.primary.zone_id
-  ttl     = "900"
-  type    = "CNAME"
-  records = ["login-gov.hs01a.dkim.hubspotemail.net."]
-}
-
-resource "aws_route53_record" "hubspot_cname2" {
-  count   = var.domain == "login.gov" ? 1 : 0
-  name    = "hs2._domainkey.${var.domain}"
-  zone_id = aws_route53_zone.primary.zone_id
-  ttl     = "900"
-  type    = "CNAME"
-  records = ["login-gov.hs01b.dkim.hubspotemail.net."]
-}
-
-resource "aws_route53_record" "hubspot_txt" {
-  count   = var.domain == "login.gov" ? 1 : 0
-  name    = "smtpapi._domainkey.${var.domain}"
-  zone_id = aws_route53_zone.primary.zone_id
-  ttl     = "900"
-  type    = "TXT"
-  records = ["L1XfURLRizB_sP022sBOoQGaulRl34R9B3xEZxTTFk=rsa; t=s; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDPtW5iwpXVPiH5FzJ7Nrl8USzuY9zqqzjE0D1r04xDN6qwziDnmgcFNNfMewVKN2D1O+2J9N14hRprzByFwfQW76yojh54Xu3uSbQ3JP0A7k8o8GutRF8zbFUA8n0ZH2y0cIEjMliXY4W4LwPA7m4q0ObmvSjhd6\"\"3O9d8z1XkUBwIDAQAB"]
-}
-
-resource "aws_route53_record" "out_mail_49_a" {
-  count   = var.domain == "login.gov" ? 1 : 0
-  name    = "out-49.mail.${var.domain}"
-  zone_id = aws_route53_zone.primary.zone_id
-  type    = "A"
-  ttl     = "86400"
-  records = ["54.240.62.49"]
-}
-
-resource "aws_route53_record" "out_mail_50_a" {
-  count   = var.domain == "login.gov" ? 1 : 0
-  name    = "out-50.mail.${var.domain}"
-  zone_id = aws_route53_zone.primary.zone_id
-  type    = "A"
-  ttl     = "86400"
-  records = ["54.240.62.50"]
-}
-
-resource "aws_route53_record" "test_dev_login_a" {
-  count   = var.domain == "login.gov" ? 1 : 0
-  name    = "test.dev.${var.domain}"
-  zone_id = aws_route53_zone.primary.zone_id
-  type    = "A"
-  ttl     = "300"
-  records = ["54.202.194.128"]
+output "primary_name_servers" {
+  description = "Nameservers within the primary Route53 zone."
+  value       = [
+    for num in range(4) : element(aws_route53_zone.primary.name_servers, num)
+  ]
 }
