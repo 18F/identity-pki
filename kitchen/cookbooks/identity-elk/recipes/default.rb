@@ -276,14 +276,6 @@ end
     mode '0700'
   end
 
-  template "/etc/logstash/#{lsname}conf.d/10-lsnodename.conf" do
-    source '10-lsnodename.conf.erb'
-    variables ({
-      :lsname => lsname
-    })
-    notifies :run, "execute[restart_#{lsname}]", :delayed
-  end
-
   template "/etc/logstash/#{lsname}conf.d/30-s3output.conf" do
     source '30-s3output.conf.erb'
     variables ({
@@ -312,6 +304,7 @@ end
     default_logger true
     sv_timeout 20
     options ({
+      :lsname => lsname,
       :home => '/usr/share/logstash',
       :max_heap => "#{(node['memory']['total'].to_i * 0.25).floor / 1024}M",
       :min_heap => "#{(node['memory']['total'].to_i * 0.25).floor / 1024}M",
