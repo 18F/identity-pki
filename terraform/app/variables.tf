@@ -22,8 +22,8 @@ variable "force_destroy_idp_static_bucket" {
 
 variable "enable_idp_cdn" {
   description = "Enable CloudFront distribution serving from S3 bucket (enable_idp_static_bucket must be true)"
-  type    = bool
-  default = false
+  type        = bool
+  default     = false
 }
 
 # unallocated: "172.16.33.96/28"   # 172.16.33.96  - 172.16.33.111
@@ -349,6 +349,11 @@ variable "asg_jumphost_desired" {
   default = 0
 }
 
+# Temporary - Remove after scrub completed
+variable "asg_scrubhost_desired" {
+  default = 0
+}
+
 variable "asg_idp_min" {
   default = 0
 }
@@ -443,7 +448,7 @@ variable "idpxtra_sticky_ttl" {
   description = "Seconds to keep a client stuck to idpxtra after match"
   type        = number
   # Default - 1 hour.  Set to 0 to disable sticky target group.
-  default     = 3600
+  default = 3600
 }
 
 variable "idp_web_acl_id" {
