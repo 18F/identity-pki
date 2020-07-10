@@ -24,37 +24,37 @@ module "main" {
       type = "TXT",
       record_set = [
         {
-          "name"    = "identitysandbox.gov._report._dmarc",
+          "name"    = "identitysandbox.gov._report._dmarc.",
           "records" = ["v=DMARC1"],
           "ttl"     = "3600",
         },
         {
-          "name"    = "connect.gov._report._dmarc",
+          "name"    = "connect.gov._report._dmarc.",
           "records" = ["v=DMARC1"],
           "ttl"     = "3600",
         },
         {
-          "name"    = "google._domainkey",
-          "records" = ["v=DKIM1; k=rsa; p=v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkcuOOdgaWfHIKM1ILlzPOHBPJKLxU9+1+ufIprNdjrD+QQ6/uJtc/tP5s1MUwYU/fld2Y1QwXC5JHdE6JXP31XwCtvbfIwn/Dr/EaRB3PomOp0SNbTtFMmvuxPF87HidvzDH3cWXcmyjMx6XU1i9O3nBs66Z+8i4gfh/PZdjJs6wcNp9urJjCo23KYzbiNAn\"\"7FJjbD4g3NucMvkBXHIsOMLvb7WzIekpxL2bjz6XlDfK1t4VTLv4IqIlLMfhYGwwaWPhgyra7qezYkp6a2XSoLWxPWRbfb1bNmVUJ7vBeB6NdFnr9n/7TqbhDVEo9/XyO1MIsuNTTZuhurlZqoXx0QIDAQAB"],
-          "ttl"     = "900",
+          "name"    = "google._domainkey.",
+          "records" = ["v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkcuOOdgaWfHIKM1ILlzPOHBPJKLxU9+1+ufIprNdjrD+QQ6/uJtc/tP5s1MUwYU/fld2Y1QwXC5JHdE6JXP31XwCtvbfIwn/Dr/EaRB3PomOp0SNbTtFMmvuxPF87HidvzDH3cWXcmyjMx6XU1i9O3nBs66Z+8i4gfh/PZdjJs6wcNp9urJjCo23KYzbiNAn\" \"7FJjbD4g3NucMvkBXHIsOMLvb7WzIekpxL2bjz6XlDfK1t4VTLv4IqIlLMfhYGwwaWPhgyra7qezYkp6a2XSoLWxPWRbfb1bNmVUJ7vBeB6NdFnr9n/7TqbhDVEo9/XyO1MIsuNTTZuhurlZqoXx0QIDAQAB"],
+          "ttl"     = "3600",
         },
         {
-          "name"    = "_acme-challenge",
+          "name"    = "_acme-challenge.",
           "records" = ["g_ybuPyxTGP-JeDhOA-AyjIlJEwsZU5fd0dr7zvpFsg"],
           "ttl"     = "120",
         },
         {
-          "name"    = "_acme-challenge.www",
+          "name"    = "_acme-challenge.www.",
           "records" = ["L1XfURLRizB_sP022sBOoQGaulRl34R9B3xEZxTTFfs"],
           "ttl"     = "120",
         },
         {
-          "name"    = "_acme-challenge.partners",
+          "name"    = "_acme-challenge.partners.",
           "records" = ["l0DvBtdqJcAcfwmje4YpBglqymSl5xVFseBiMiZf3hE"],
           "ttl"     = "120",
         },
         {
-          "name"    = "smtpapi._domainkey",
+          "name"    = "smtpapi._domainkey.",
           "records" = ["L1XfURLRizB_sP022sBOoQGaulRl34R9B3xEZxTTFk=rsa; t=s; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDPtW5iwpXVPiH5FzJ7Nrl8USzuY9zqqzjE0D1r04xDN6qwziDnmgcFNNfMewVKN2D1O+2J9N14hRprzByFwfQW76yojh54Xu3uSbQ3JP0A7k8o8GutRF8zbFUA8n0ZH2y0cIEjMliXY4W4LwPA7m4q0ObmvSjhd6\"\"3O9d8z1XkUBwIDAQAB"],
           "ttl"     = "900",
         },
@@ -64,12 +64,12 @@ module "main" {
       type = "CNAME",
       record_set = [
         {
-          "name"    = "hs1._domainkey",
+          "name"    = "hs1._domainkey.",
           "records" = ["login-gov.hs01a.dkim.hubspotemail.net."],
           "ttl"     = "900",
         },
         {
-          "name"    = "hs2._domainkey",
+          "name"    = "hs2._domainkey.",
           "records" = ["login-gov.hs01b.dkim.hubspotemail.net."],
           "ttl"     = "900",
         },
@@ -79,17 +79,17 @@ module "main" {
       type = "A",
       record_set = [
         {
-          "name"    = "out-49.mail",
+          "name"    = "out-49.mail.",
           "records" = ["54.240.62.49"],
           "ttl"     = "86400",
         },
         {
-          "name"    = "out-50.mail",
+          "name"    = "out-50.mail.",
           "records" = ["54.240.62.50"],
           "ttl"     = "86400",
         },
         {
-          "name"    = "test.dev",
+          "name"    = "test.dev.",
           "records" = ["54.202.194.128"],
           "ttl"     = "300",
         },
