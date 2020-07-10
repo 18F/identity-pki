@@ -14,7 +14,7 @@ export LOGSTASH_OPTS="-f /etc/logstash/logstashconf.d"
 export LOGSTASH_OPTS="$LOGSTASH_OPTS -w <%= @options[:workers] %>"
 export LOGSTASH_OPTS="$LOGSTASH_OPTS --path.data $LOGSTASH_HOME/data_logstash"
 export LOGSTASH_OPTS="$LOGSTASH_OPTS --path.settings /etc/logstash/"
-export LOGSTASH_OPTS="$LOGSTASH_OPTS --node.name '<%= @options[:lsname] %>'"
+export LOGSTASH_OPTS="$LOGSTASH_OPTS --node.name <%= @options[:lsname] %>"
 <% if @options[:debug] -%>
 export LOGSTASH_OPTS="$LOGSTASH_OPTS --log.level=debug"
 <% end -%>
