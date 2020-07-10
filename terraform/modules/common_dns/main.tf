@@ -46,7 +46,6 @@ variable "mx_record_map" {
 variable "prod_records" {
   description = "Additional Route53 mappings for the prod login.gov account."
   type        = list(any)
-  default     = []
 }
 
 # -- Locals --

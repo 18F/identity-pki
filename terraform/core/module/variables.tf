@@ -103,3 +103,9 @@ variable "ttl_verification_record" {
   type        = string
   default     = "1800"
 }
+
+variable "prod_records" {
+  description = "Additional Route53 mappings for the prod login.gov account."
+  type        = list(any)
+  default     = []
+}
