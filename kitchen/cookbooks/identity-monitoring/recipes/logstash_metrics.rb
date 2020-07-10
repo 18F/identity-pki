@@ -45,5 +45,37 @@ newrelic_infra_integration 'logstash_health' do
   })
 end
 
+logstash_archive_health_path = "/#{Chef::Config['file_cache_path']}/logstash_archive_health"
+
+template logstash_archive_health_path do
+  mode '0755'
+  variables ({
+    ruby: node['login_dot_gov']['rbenv_shims_ruby']
+  })
+end
+
+newrelic_infra_integration 'logstash_archive_health' do
+  integration_name 'logstash_archive_health'
+  remote_url "file://#{logstash_archive_health_path}"
+  install_method 'binary'
+  instances(
+    [
+      {
+        name: 'logstash_archive_health',
+        command: "logstash_archive_health",
+        arguments: {
+          check: 'node'
+        },
+        labels: {
+          environment: node.chef_environment
+        }
+      }
+    ]
+  )
+  commands ({
+    logstash_archive_health: []
+  })
+end
+
 include_recipe 'newrelic-infra'
 
