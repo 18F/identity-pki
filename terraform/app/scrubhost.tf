@@ -68,10 +68,14 @@ resource "aws_iam_role_policy" "scrub-permissions-cloudwatch-full" {
 # Danger: This set of permissions allows deleting log streams
 data "aws_iam_policy_document" "cloudwatch_scrub" {
   statement {
-    sid       = "AllowCloudWatchLogsFull"
-    effect    = "Allow"
-    actions   = ["logs:*"]
-    resources = ["arn:aws:logs:*:*:*"]
+    sid    = "AllowCloudWatchLogsFull"
+    effect = "Allow"
+    actions = [
+      "logs:*"
+    ]
+    resources = [
+      "arn:aws:logs:*:*:*"
+    ]
   }
 }
 
@@ -165,7 +169,7 @@ module "scrubhost_launch_template" {
   ami_id_map     = var.ami_id_map
   default_ami_id = local.account_default_ami_id
 
-  instance_type             = var.instance_type_jumphost
+  instance_type             = var.instance_type_scrubhost
   iam_instance_profile_name = aws_iam_instance_profile.scrub-permissions.name
   security_group_ids        = [aws_security_group.base.id, aws_security_group.scrubhost.id]
 

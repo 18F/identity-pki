@@ -299,6 +299,10 @@ variable "instance_type_jumphost" {
   default = "t3.medium"
 }
 
+variable "instance_type_scrubhost" {
+  default = "t3.medium"
+}
+
 variable "instance_type_migration" {
   default = "t3.medium"
 }
