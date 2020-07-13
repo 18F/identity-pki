@@ -104,7 +104,7 @@ task :hotfix do
   set_version(release_version, "Release version #{release_version}")
   sh "git tag 'v#{release_version}'"
 
-  # No post-release version for hotfixes!
+  puts "Remember to create a PR for visibility, but do NOT merge it!"
 end
 
 def run_chefspec(path)
