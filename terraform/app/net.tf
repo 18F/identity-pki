@@ -487,7 +487,7 @@ resource "aws_security_group" "jumphost" {
     protocol = "tcp"
     self     = true
   }
-  
+
   # locust distributed
   ingress {
     from_port = 5557
@@ -1261,6 +1261,16 @@ resource "aws_security_group" "obproxy" {
     ] # This IP range includes AAMVA's failover, but is not exclusively controlled by AAMVA
   }
 
+  # Allow egress to Experian
+  egress {
+    from_port = 8443
+    to_port   = 8443
+    protocol  = "tcp"
+    cidr_blocks = [
+      "167.107.58.9/32",
+    ]
+  }
+
   ingress {
     from_port   = 3128
     to_port     = 3128
@@ -1298,4 +1308,3 @@ module "vpc_flow_cloudwatch_filters" {
   env_name      = var.env_name
   alarm_actions = [var.slack_events_sns_hook_arn]
 }
-
