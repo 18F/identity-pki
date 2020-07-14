@@ -13,6 +13,10 @@ if node.fetch('login_dot_gov').fetch('http_proxy')
   node.default['newrelic_infra']['config']['proxy'] = node.fetch('login_dot_gov').fetch('http_proxy')
 end
 
+node.default['newrelic_infra']['config']['collector_url'] = 'https://gov-infra-api.newrelic.com'
+node.default['newrelic_infra']['config']['identity_url'] = 'https://gov-identity-api.newrelic.com'
+node.default['newrelic_infra']['config']['command_channel_url'] = 'https://gov-infrastructure-command-api.newrelic.com'
+
 node.default['newrelic_infra']['config']['custom_attributes'] = {
   'lg_env' => node.chef_environment,
   'lg_domain' => node.fetch('login_dot_gov').fetch('domain_name'),

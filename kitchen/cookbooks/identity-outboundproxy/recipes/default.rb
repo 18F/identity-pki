@@ -56,8 +56,8 @@ template '/etc/squid/squid.conf' do
     notifies :restart, 'service[squid]', :delayed
 end
 
-template '/etc/squid/domain-whitelist.conf' do
-    source 'domain-whitelist.conf.erb'
+template '/etc/squid/domain-allowlist.conf' do
+    source 'domain-allowlist.conf.erb'
     mode '0644'
     owner 'root'
     group 'root'
@@ -68,8 +68,16 @@ template '/etc/squid/domain-whitelist.conf' do
     notifies :restart, 'service[squid]', :delayed
 end
 
-template '/etc/squid/ip-whitelist.conf' do
-    source 'ip-whitelist.conf.erb'
+template '/etc/squid/domain-denylist.conf' do
+    source 'domain-denylist.conf.erb'
+    mode '0644'
+    owner 'root'
+    group 'root'
+    notifies :restart, 'service[squid]', :delayed
+end
+
+template '/etc/squid/ip-allowlist.conf' do
+    source 'ip-allowlist.conf.erb'
     mode '0644'
     owner 'root'
     group 'root'
