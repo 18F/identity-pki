@@ -11,6 +11,7 @@ _DATE_
 
 Note that not all Login employees will have access to everything listed here.
 
+- [ ] If user has a personal sandbox, ensure it has been destroyed
 - [ ] Remove from `user_map` in `terraform/master`
  _user name_
 

@@ -12,5 +12,8 @@ labels: administration
 
 ## Tasks to be completed by DevOps
 
+- [ ] For AppDev, DevOps, SecOps, or other users requiring AWS access:
+      - Add _user name_ key and group list to `terraform/master/global/main.tf` and complete `tf-deploy master/global apply`
+      - Set initial AWS password, initiate video call, and share password via private Google Sheet
 - [ ] For AppDev, DevOps, and SecOps members add the new team member to [New Relic](https://account.newrelic.com/accounts/1376370/users/new)
 - [ ] For on-call AppDev, DevOps, and SecOps members invite the new team member to [Opsgenie](https://login-gov.app.opsgenie.com/settings/users/)
