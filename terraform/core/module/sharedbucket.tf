@@ -378,3 +378,58 @@ output "s3_log_bucket" {
   value = aws_s3_bucket.s3-logs.id
 }
 
+# waf logbucket for account. each env has a subdirectory under it.
+resource "aws_s3_bucket" "waf_logbucket" {
+  #acl    = "private"
+  bucket = "login-gov.waf-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+
+  versioning {
+    enabled = true
+  }
+
+  logging {
+    target_bucket = aws_s3_bucket.s3-logs.id
+    target_prefix = "login-gov.waf.${data.aws_caller_identity.current.account_id}-${var.region}/"
+  }
+
+
+# TODO: determine if these rules should be reinstated, given what the bucket already contains
+# 
+#  lifecycle_rule {
+#    id      = "logexpire"
+#    prefix  = ""
+#    enabled = true
+#
+#    transition {
+#      days          = 90
+#      storage_class = "STANDARD_IA"
+#    }
+#
+#    transition {
+#      days          = 365
+#      storage_class = "GLACIER"
+#    }
+#
+#    expiration {
+#      days = 2190 # 6 years
+#    }
+#  }
+
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
+}
+
+# TODO: Determine if this is needed, or would break things with Kinesis/Firehose.
+#resource "aws_s3_bucket_public_access_block" "waf" {
+#  bucket = aws_s3_bucket.waf_logbucket.id
+#
+#  block_public_acls       = true
+#  block_public_policy     = true
+#  ignore_public_acls      = true
+#  restrict_public_buckets = true
+#}
