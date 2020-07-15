@@ -40,6 +40,3 @@ newrelic_infra_integration 'elasticsearch_health' do
     es_health: []
   })
 end
-
-include_recipe 'newrelic-infra'
-

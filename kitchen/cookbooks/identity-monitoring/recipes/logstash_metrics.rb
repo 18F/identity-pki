@@ -44,6 +44,3 @@ newrelic_infra_integration 'logstash_health' do
     logstash_health: []
   })
 end
-
-include_recipe 'newrelic-infra'
-
