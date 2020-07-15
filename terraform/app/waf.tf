@@ -268,48 +268,11 @@ resource "aws_kinesis_firehose_delivery_stream" "waf_s3_stream" {
 
   s3_configuration {
     role_arn   = aws_iam_role.firehose_role[0].arn
-    bucket_arn = aws_s3_bucket.waf_logbucket.arn
+    bucket_arn = "arn:aws:s3:::login-gov.waf-logs.${data.aws_caller_identity.current.account_id}-${var.region}/${var.env_name}"
     cloudwatch_logging_options {
       enabled         = true
       log_group_name  = "/aws/kinesisfirehose/aws-waf-logs-${var.env_name}-idp-waf-firehose-s3-stream"
       log_stream_name = "s3delivery"
-    }
-  }
-}
-
-resource "aws_s3_bucket" "waf_logbucket" {
-  acl    = "private"
-  bucket = "login-gov.waf-logs-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
-
-  versioning {
-    enabled = true
-  }
-
-  lifecycle_rule {
-    id      = "logexpire"
-    prefix  = ""
-    enabled = true
-
-    transition {
-      days          = 90
-      storage_class = "STANDARD_IA"
-    }
-
-    transition {
-      days          = 365
-      storage_class = "GLACIER"
-    }
-
-    expiration {
-      days = 2190 # 6 years
-    }
-  }
-
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm = "AES256"
-      }
     }
   }
 }
@@ -354,8 +317,8 @@ resource "aws_iam_role_policy" "firehose_role_policy" {
       ],
       "Effect": "Allow",
       "Resource": [
-        "${aws_s3_bucket.waf_logbucket.arn}",
-        "${aws_s3_bucket.waf_logbucket.arn}/*"
+        "arn:aws:s3:::login-gov.waf-logs.${data.aws_caller_identity.current.account_id}-${var.region}/${var.env_name}",
+        "arn:aws:s3:::login-gov.waf-logs.${data.aws_caller_identity.current.account_id}-${var.region}/${var.env_name}/*"
       ]
     }
   ]

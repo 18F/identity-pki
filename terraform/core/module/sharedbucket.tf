@@ -378,3 +378,40 @@ output "s3_log_bucket" {
   value = aws_s3_bucket.s3-logs.id
 }
 
+# waf logbucket for account. each env has a subdirectory under it.
+resource "aws_s3_bucket" "waf_logbucket" {
+  acl    = "private"
+  bucket = "login-gov.waf-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+
+  versioning {
+    enabled = true
+  }
+
+  lifecycle_rule {
+    id      = "logexpire"
+    prefix  = ""
+    enabled = true
+
+    transition {
+      days          = 90
+      storage_class = "STANDARD_IA"
+    }
+
+    transition {
+      days          = 365
+      storage_class = "GLACIER"
+    }
+
+    expiration {
+      days = 2190 # 6 years
+    }
+  }
+
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
+}
