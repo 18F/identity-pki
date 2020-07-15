@@ -22,11 +22,11 @@ variable "rds_engine" {
 }
 
 variable "rds_engine_version" {
-  default = "9.6.15"
+  default = "9.6.18"
 }
 
 variable "rds_engine_version_replica" {
-  default     = "9.6.15"
+  default     = "9.6.18"
   description = "RDS requires that replicas be upgraded *before* primaries"
 }
 
