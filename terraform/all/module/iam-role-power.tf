@@ -446,6 +446,16 @@ module "poweruser-assumerole" {
           ]
         },
         {
+          sid    = "Macie2"
+          effect = "Allow"
+          actions = [
+            "macie2:*",
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
           sid    = "S3"
           effect = "Allow"
           actions = [
@@ -522,6 +532,16 @@ module "poweruser-assumerole" {
           actions = [
             "waf:*",
             "waf-regional:*",
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
+          sid    = "WAFv2"
+          effect = "Allow"
+          actions = [
+            "wafv2:*",
           ]
           resources = [
             "*",

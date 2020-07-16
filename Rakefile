@@ -27,6 +27,12 @@ task :help do
   puts %x[rake -T]
 end
 
+def set_version(version, message)
+  File.write('VERSION.txt', "#{version}\n")
+  sh 'git add VERSION.txt'
+  sh "git commit -m '#{message}'"
+end
+
 desc 'Cut a release and bump the release version in VERSION.txt'
 task :release do
   version_re = /\A((?<pre>\w+)-)?(?<major>\d+)(\.(?<hf>\d+))?\z/
@@ -51,12 +57,6 @@ task :release do
 
   puts "Cutting release: #{current_raw.inspect} -> #{release_version.to_s.inspect}.\n"
 
-  def set_version(version, message)
-    File.write('VERSION.txt', "#{version}\n")
-    sh 'git add VERSION.txt'
-    sh "git commit -m '#{message}'"
-  end
-
   puts "Cutting #{release_version.inspect} release."
   set_version(release_version, "Release version #{release_version}")
   sh "git tag 'v#{release_version}'"
@@ -73,7 +73,7 @@ end
 
 desc 'Cut a hotfix and bump the release version in VERSION.txt'
 task :hotfix do
-  version_re = /\A((?<pre>\w+)-)?(?<major>\d+)\z/
+  version_re = /\A((?<pre>\w+)-)?(?<major>\d+)(\.(?<hf>\d+))?\z/
   current_raw = File.read('VERSION.txt').strip
   match = version_re.match(current_raw)
   unless match
@@ -82,12 +82,20 @@ task :hotfix do
   end
 
   pre = match[:pre]
-  major = Integer(match[:major])
+  major = match[:major]
+  hf = Integer(match[:hf]) if match[:hf]
 
+  # Retain pre-release name if set
   if pre
-    release_version = major
+    release_version = "#{pre}-#{major}"
   else
-    release_version = major + 1
+    release_version = major
+  end
+  
+  if hf
+    release_version = "#{release_version}.#{hf + 1}"
+  else
+    release_version = "#{release_version}.1"
   end
 
   puts "Cutting release: #{current_raw.inspect} -> #{release_version.to_s.inspect}.\n"
@@ -96,10 +104,7 @@ task :hotfix do
   set_version(release_version, "Release version #{release_version}")
   sh "git tag 'v#{release_version}'"
 
-  post_release_version = "pre-#{release_version + 1}"
-  puts "Setting version to #{post_release_version.inspect} post release."
-  set_version(post_release_version,
-              "Post release version #{post_release_version}")
+  puts "Remember to create a PR for visibility, but do NOT merge it!"
 end
 
 def run_chefspec(path)

@@ -475,6 +475,19 @@ module "readonly-assumerole" {
           ]
         },
         {
+          sid    = "Macie2"
+          effect = "Allow"
+          actions = [
+            "macie2:BatchGetCustomDataIdentifiers",
+            "macie2:Describe*",
+            "macie2:Get*",
+            "macie2:List*",
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
           sid    = "Organizations"
           effect = "Allow"
           actions = [
@@ -754,6 +767,17 @@ module "readonly-assumerole" {
             "waf:Get*",
             "waf-regional:List*",
             "waf-regional:Get*",
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
+          sid    = "WAFv2"
+          effect = "Allow"
+          actions = [
+            "wafv2:List*",
+            "wafv2:Get*",
           ]
           resources = [
             "*",

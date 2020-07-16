@@ -23,6 +23,7 @@ action :create do
       'production' => {
         'agent_enabled' => node['login_dot_gov']['agent_enabled'],
         'app_name' => new_resource.app_name,
+        'host' => node['login_dot_gov']['new_relic_host'],
         'audit_log' => {
           'enabled' => node['login_dot_gov']['audit_log_enabled'],
         },

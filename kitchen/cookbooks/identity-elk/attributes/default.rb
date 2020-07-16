@@ -116,7 +116,7 @@ default['elk']['chef_zero_client_configuration'] = '/etc/login.gov/repos/identit
 # change this per env to transition over to the account-specific logbuckets
 default['elk']['aws_logging_bucket'] = "login-gov-logs-#{node.chef_environment}.#{Chef::Recipe::AwsMetadata.get_aws_account_id}-#{Chef::Recipe::AwsMetadata.get_aws_region}"
 default['elk']['elb_logging_bucket'] = "login-gov.elb-logs.#{Chef::Recipe::AwsMetadata.get_aws_account_id}-#{Chef::Recipe::AwsMetadata.get_aws_region}"
-default['elk']['waf_logging_bucket'] = "login-gov.waf-logs-#{node.chef_environment}.#{Chef::Recipe::AwsMetadata.get_aws_account_id}-#{Chef::Recipe::AwsMetadata.get_aws_region}"
+default['elk']['waf_logging_bucket'] = "login-gov.waf-logs.#{Chef::Recipe::AwsMetadata.get_aws_account_id}-#{Chef::Recipe::AwsMetadata.get_aws_region}/#{node.chef_environment}/"
 default['elk']['analytics_logging_bucket'] = "login-gov.reports.#{Chef::Recipe::AwsMetadata.get_aws_account_id}-#{Chef::Recipe::AwsMetadata.get_aws_region}"
 
 # use this to turn off analytics logging support

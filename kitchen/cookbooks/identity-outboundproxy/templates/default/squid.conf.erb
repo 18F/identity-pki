@@ -7,6 +7,9 @@ acl SSL_ports port 443
 # CONNECT AAMVA
 acl SSL_ports port 18449
 
+# CONNECT Experian
+acl SSL_ports port 8443
+
 # FTP
 acl Safe_ports port 21
 # HTTP
@@ -24,8 +27,9 @@ acl localhost src 127.0.0.1/32 ::1
 acl to_localhost dst 127.0.0.0/8 0.0.0.0/32 ::1
 acl vpc src <%= @vpc_cidr or raise 'no @vpc_cidr' %>
 
-acl urls dstdomain "/etc/squid/domain-whitelist.conf"
-acl ips dst "/etc/squid/ip-whitelist.conf"
+acl urls dstdomain "/etc/squid/domain-allowlist.conf"
+acl deny-urls dstdomain "/etc/squid/domain-denylist.conf"
+acl ips dst "/etc/squid/ip-allowlist.conf"
 
 # Order matters for http_access rules! The first matching rule will apply, so
 # put allow rules as late as possible.
@@ -42,11 +46,13 @@ http_access allow purge localhost
 http_access deny purge
 
 # Allow clients in VPC to connect to whitelisted domains and IP addresses
+http_access deny vpc deny-urls
 http_access allow vpc urls
 http_access allow vpc ips
 http_access deny vpc all
 
 # Allow clients on localhost to connect to whitelisted domains and IP addresses
+http_access deny localhost deny-urls
 http_access allow localhost urls
 http_access allow localhost ips
 

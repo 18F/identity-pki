@@ -30,6 +30,7 @@ module "socadmin-assumerole" {
             "iam:Generate*",
             "inspector:*",
             "macie:*",
+            "macie2:*",
             "organizations:List*",
             "organizations:Describe*",
             "s3:HeadBucket",
@@ -40,7 +41,8 @@ module "socadmin-assumerole" {
             "ssm:*",
             "sns:*",
             "trustedadvisor:*",
-            "waf:*"
+            "waf:*",
+            "wafv2:*"
           ]
           resources = [
             "*"

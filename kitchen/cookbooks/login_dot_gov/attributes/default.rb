@@ -99,6 +99,7 @@ default['login_dot_gov']['passenger_prewarm_timeout']                 = 30
 default['login_dot_gov']['agent_enabled']                             = true
 default['login_dot_gov']['app_name']                                  = 'login.gov'
 default['login_dot_gov']['audit_log_enabled']                         = false
+default['login_dot_gov']['new_relic_host']                            = 'gov-collector.newrelic.com'
 default['login_dot_gov']['auto_instrument']                           = false
 default['login_dot_gov']['capture_error_source']                      = true
 default['login_dot_gov']['error_collector_enabled']                   = true

@@ -119,6 +119,14 @@ EOF
     fi
 }
 
+set_newrelic_enpoints() {
+if ! grep "^NEW_RELIC_HOST=" /etc/environment >/dev/null; then
+        run tee -a /etc/environment >&2 <<EOF
+NEW_RELIC_HOST=gov-collector.newrelic.com
+EOF
+    fi
+}
+
 maybe_complete_lifecycle_hook() {
     local result="$1"
 
@@ -286,6 +294,8 @@ if [ -n "$proxy_server" ]; then
 else
     echo >&2 "No proxy set in $INFO_DIR/proxy_server"
 fi
+
+set_newrelic_enpoints
 
 echo "==========================================================="
 echo "provision.sh: downloading SSH key and cloning repo"

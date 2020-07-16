@@ -78,4 +78,3 @@ newrelic_infra_integration 'logstash_archive_health' do
 end
 
 include_recipe 'newrelic-infra'
-
