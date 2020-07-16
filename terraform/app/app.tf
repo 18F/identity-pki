@@ -1,7 +1,7 @@
 resource "aws_db_instance" "default" {
-  allocated_storage    = var.rds_storage_app
-  apply_immediately    = true
   count                = var.apps_enabled
+
+  allocated_storage    = var.rds_storage_app
   db_subnet_group_name = aws_db_subnet_group.default.id
   depends_on = [
     aws_security_group.db,
@@ -18,7 +18,9 @@ resource "aws_db_instance" "default" {
   username       = var.rds_username
 
   # we want to push these via Terraform now
+  auto_minor_version_upgrade  = false
   allow_major_version_upgrade = true
+  apply_immediately           = true
 
   tags = {
     Name = "${var.name}-${var.env_name}-app"
