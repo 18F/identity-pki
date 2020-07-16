@@ -17,3 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
+
+nessus_key = ConfigLoader.load_config(node, "nessus_agent_key", common: true).chomp!
+nessus_host = ConfigLoader.load_config(node, "nessus_host", common: true).chomp!
+
+execute 'register_with_nessus' do
+  command "/opt/nessus_agent/sbin/nessuscli agent link --key=\"#{nessus_key}\" --name=\"#{node['hostname']}\" --groups=\"#{node.chef_environment}\" --host=\"#{nessus_host}\" --port=8834 && touch /root/nessus_is_registered"
+  not_if { ::File.exist?('/root/nessus_is_registered') }
+end

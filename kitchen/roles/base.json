@@ -48,7 +48,8 @@
     "recipe[identity-elk::metricbeat]",
     "recipe[login_dot_gov::resolve]",
     "recipe[identity_base_config::ruby]",
-    "recipe[identity-monitoring]"
+    "recipe[identity-monitoring]",
+    "recipe[identity-nessus]"
   ],
   "env_run_lists": {}
 }
