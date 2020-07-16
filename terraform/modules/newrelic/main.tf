@@ -284,7 +284,7 @@ resource "newrelic_nrql_alert_condition" "no_log_archives" {
   violation_time_limit = "TWELVE_HOURS"
 
   nrql {
-    query       = "SELECT latest(logstash_files_archived_to_s3_in_last_ten_minutes) from LogstashHealthSample where label.environment = '${var.env_name}'"
+    query       = "SELECT latest(logstash_files_archived_to_s3_in_last_ten_minutes) from LogstashArchiveHealthSample where label.environment = '${var.env_name}'"
     evaluation_offset = 3
   }
 

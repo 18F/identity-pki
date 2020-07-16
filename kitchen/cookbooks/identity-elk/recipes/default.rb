@@ -304,6 +304,7 @@ end
     default_logger true
     sv_timeout 20
     options ({
+      :lsname => lsname,
       :home => '/usr/share/logstash',
       :max_heap => "#{(node['memory']['total'].to_i * 0.25).floor / 1024}M",
       :min_heap => "#{(node['memory']['total'].to_i * 0.25).floor / 1024}M",

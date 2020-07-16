@@ -1,0 +1,61 @@
+#!<%= @ruby %>
+
+require 'json'
+require 'date'
+require 'aws-sdk'
+require 'net/http'
+
+def emit_metrics (healthdata)
+	data = {
+	  name: 'logstash_health',
+	  protocol_version: '1',
+	  integration_version: '1.0.0',
+	  metrics: [ healthdata ]
+	}
+
+	puts JSON.generate(data)
+end
+
+healthdata = {}
+healthdata['event_type'] = 'LogstashArchiveHealthSample'
+
+# check log archival bucket to ensure that logs are being archived.
+# We are finding the number of log part files uploaded in the last 10 minutes
+awsinfo = Net::HTTP.get('169.254.169.254', '/latest/dynamic/instance-identity/document')
+awsdata = JSON.parse(awsinfo)
+s3client = Aws::S3::Client.new(region: awsdata['region'])
+today = Date.today.strftime("%Y-%m-%d")
+yday = Date.today - 1
+yesterday = yday.strftime("%Y-%m-%d")
+
+# get the bucket from the existing config
+conf = File.read('/etc/logstash/cloudtraillogstashconf.d/30-s3output.conf')
+bucket = /bucket => "(.*)"$/.match(conf)[1]
+
+# Look at today and yesterday's buckets so that we don't alert on day
+# boundaries.
+allparams = [{
+    bucket: bucket,
+    prefix: "elk/#{today}/",
+  },
+  {
+    bucket: bucket,
+    prefix: "elk/#{yesterday}/",
+  }
+]
+recenteventcount = 0
+begin
+  allparams.each do |params|
+    s3client.list_objects(params).each do |files|
+      recentevents = files['contents'].select { |f| f['last_modified'] > Time.now - 10*60 }
+      recenteventcount = recenteventcount + recentevents.length
+    end
+  end
+  healthdata['logstash_files_archived_to_s3_in_last_ten_minutes'] = recenteventcount
+rescue
+  # Something is wrong:  The bucket doesn't exist or couldn't be parsed out of the
+  # config, last_modified is not a proper time, etc.  This should get some attention.
+  healthdata['logstash_files_archived_to_s3_in_last_ten_minutes'] = 0
+end
+
+emit_metrics healthdata
