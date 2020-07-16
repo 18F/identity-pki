@@ -49,7 +49,7 @@
     "recipe[login_dot_gov::resolve]",
     "recipe[identity_base_config::ruby]",
     "recipe[identity-monitoring]",
-    "recipe[identity_nessus]"
+    "recipe[identity-nessus]"
   ],
   "env_run_lists": {}
 }
