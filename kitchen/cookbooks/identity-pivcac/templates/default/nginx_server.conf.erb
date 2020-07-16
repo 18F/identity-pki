@@ -1,3 +1,14 @@
+# Set HSTS header only if not already set by app. Some clients get unhappy if
+# you set multiple Strict-Transport-Security headers.
+# https://serverfault.com/a/598106
+map $upstream_http_strict_transport_security $sts_value {
+  '' "max-age=31536000; preload";
+}
+
+# Always add a HSTS header - This is still inside the http block, so will not
+# conflict with headers set in nginx.conf
+add_header Strict-Transport-Security $sts_value always;
+
 server {
     listen        443;
     ssl on;
@@ -25,7 +36,7 @@ server {
     location / {
         root           /usr/local/var/www;
 
-	proxy_pass http://localhost:3001;
+        proxy_pass http://localhost:3001;
 
         proxy_set_header X-Real-Host $host;
         proxy_set_header X-Real-Ip $remote_addr;
