@@ -9,6 +9,8 @@ resource "aws_iam_account_alias" "standard_alias" {
   account_alias = var.iam_account_alias
 }
 
+data "aws_caller_identity" "current" {}
+
 # allow assuming of roles from login-master
 data "aws_iam_policy_document" "master_account_assumerole" {
   statement {
