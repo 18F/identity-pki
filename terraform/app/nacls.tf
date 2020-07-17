@@ -130,7 +130,6 @@ module "jumphost-base-nacl-rules" {
   ssh_cidr_blocks = flatten([
     var.jumphost1_subnet_cidr_block,
     var.jumphost2_subnet_cidr_block,
-    var.app_sg_ssh_cidr_blocks,
     var.ci_sg_ssh_cidr_blocks,
   ])
 }

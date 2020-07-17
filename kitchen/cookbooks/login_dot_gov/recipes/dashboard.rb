@@ -10,25 +10,10 @@ domain_name = node.fetch('login_dot_gov').fetch('domain_name')
 
 include_recipe 'login_dot_gov::dhparam'
 
-base_dir = "/srv/#{app_name}"
-deploy_dir = "#{base_dir}/current/public"
-
-basic_auth_enabled = !!ConfigLoader.load_config_or_nil(node, "basic_auth_user_name")
-
-security_group_exceptions = begin
-  JSON.parse(ConfigLoader.load_config(node, "security_group_exceptions"))
-rescue JSON::ParserError
-  []
-end
-
-idp_url = "https://idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
-if basic_auth_enabled
-  basic_auth_username = ConfigLoader.load_config(node, "basic_auth_user_name")
-  basic_auth_password = ConfigLoader.load_config(node, "basic_auth_password")
-  idp_sp_url = "https://#{basic_auth_username}:#{basic_auth_password}@idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}/api/service_provider"
-else
-  idp_sp_url = "https://idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}/api/service_provider"
-end
+base_dir      = "/srv/#{app_name}"
+deploy_dir    = "#{base_dir}/current/public"
+idp_url       = "https://idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
+idp_sp_url    = "https://idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}/api/service_provider"
 dashboard_url = "https://dashboard.#{node.chef_environment}.#{node.fetch('login_dot_gov').fetch('domain_name')}"
 
 # deploy_branch defaults to stages/<env>
@@ -113,13 +98,6 @@ execute "rbenv exec bundle exec rake db:create db:migrate db:seed --trace" do
   user node['login_dot_gov']['system_user']
 end
 
-if basic_auth_enabled
-  basic_auth_config 'generate basic auth config' do
-    password  "#{basic_auth_password}"
-    user_name "#{basic_auth_username}"
-  end
-end
-
 # Create a self-signed certificate for ALB to talk to. ALB does not verify
 # hostnames or care about certificate expiration.
 key_path = "/etc/ssl/private/#{app_name}-key.pem"
@@ -134,9 +112,7 @@ link cert_path do
   to node.fetch('instance_certificate').fetch('cert_path')
 end
 
-# add nginx conf for app server
-# TODO: JJG convert security_group_exceptions to hash so we can keep a note in both chef and nginx
-#       configs as to why we added the exception.
+# nginx conf for app server
 
 # 302 all sample app URLs to cloud.gov
 # TODO: remove when we can get cloud.gov SSL certs allowing traffic from identitysandbox.gov
@@ -164,7 +140,6 @@ template "/opt/nginx/conf/sites.d/dashboard.login.gov.conf" do
     app: app_name,
     domain: "#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
     passenger_ruby: lazy { Dir.chdir(deploy_dir) { shell_out!(%w{rbenv which ruby}).stdout.chomp } },
-    security_group_exceptions: ConfigLoader.load_config(node, "security_group_exceptions"),
     server_name: "#{app_name}.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
     nginx_redirects: nginx_redirects
   })

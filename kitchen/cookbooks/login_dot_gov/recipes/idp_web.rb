@@ -1,40 +1,4 @@
-if node.chef_environment != "prod" && ConfigLoader.load_config_or_nil(node, "basic_auth_password")
-  basic_auth_enabled = true
-else
-  basic_auth_enabled = false
-end
-
 domain_name = node.fetch('login_dot_gov').fetch('domain_name')
-
-security_group_exceptions = begin
-  JSON.parse(ConfigLoader.load_config(node, "security_group_exceptions"))
-rescue JSON::ParserError
-  []
-end
-
-if basic_auth_enabled
-  basic_auth_config 'generate basic auth config' do
-    password ConfigLoader.load_config(node, "basic_auth_password")
-    user_name ConfigLoader.load_config(node, "basic_auth_user_name")
-  end
-else
-  if %w(prod staging).include?(node.chef_environment)
-    Chef::Log.info 'Basic auth disabled'
-    # ensure that prod/staging are always run with login.gov as domain name
-    unless domain_name == 'login.gov'
-      Chef::Log.fatal 'prod/staging are supposed to be under login.gov'
-      raise "Unexpected login_dot_gov domain_name attribute: #{domain_name.inspect}"
-    end
-  elsif domain_name == 'identitysandbox.gov'
-    Chef::Log.info 'Basic auth disabled and domain is sandbox'
-  else
-    # Raise exception if basic auth credentials are missing in other envs
-    Chef::Log.fatal 'No basic auth credentials found'
-    Chef::Log.fatal 'Only prod and staging may operate without basic auth'
-    raise 'Only prod and staging may operate without basic auth outside identitysandbox.gov'
-  end
-end
-
 app_name = 'idp'
 
 # deploy_branch defaults to stages/<env>
@@ -45,9 +9,7 @@ deploy_branch = node.fetch('login_dot_gov').fetch('deploy_branch').fetch("identi
 base_dir = '/srv/idp'
 deploy_dir = "#{base_dir}/current/public"
 
-# add nginx conf for app server
-# TODO: JJG convert security_group_exceptions to hash so we can keep a note in both chef and nginx
-#       configs as to why we added the exception.
+# nginx conf for idp
 # Prod uses secure.login.gov, all others use idp.*
 if node.chef_environment == 'prod'
   server_name = 'secure.login.gov'
@@ -83,10 +45,8 @@ template '/opt/nginx/conf/sites.d/idp_web.conf' do
   source 'nginx_server.conf.erb'
   variables({
     app: app_name,
-    basic_auth: basic_auth_enabled,
     idp_web: true,
     passenger_ruby: lazy { Dir.chdir(deploy_dir) { shell_out!(%w{rbenv which ruby}).stdout.chomp } },
-    security_group_exceptions: security_group_exceptions,
     server_aliases: nil,
     server_name: server_name,
     nginx_redirects: nginx_redirects
