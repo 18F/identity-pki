@@ -1,6 +1,5 @@
 resource "aws_db_instance" "idp" {
   allocated_storage       = var.rds_storage_idp
-  apply_immediately       = true
   backup_retention_period = var.rds_backup_retention_period
   backup_window           = var.rds_backup_window
   db_subnet_group_name    = aws_db_subnet_group.default.id
@@ -18,7 +17,9 @@ resource "aws_db_instance" "idp" {
   iops                    = var.rds_iops_idp
 
   # we want to push these via Terraform now
+  auto_minor_version_upgrade  = false
   allow_major_version_upgrade = true
+  apply_immediately           = true
 
   tags = {
     Name = "${var.name}-${var.env_name}"
@@ -68,16 +69,17 @@ resource "aws_db_instance" "idp-read-replica" {
     description = "Read replica of idp database"
   }
 
-  engine         = var.rds_engine
-  engine_version = var.rds_engine_version_replica
-  instance_class = var.rds_instance_class_replica
+  engine               = var.rds_engine
+  engine_version       = var.rds_engine_version_replica
+  instance_class       = var.rds_instance_class_replica
+  parameter_group_name = aws_db_parameter_group.force_ssl.name
 
   multi_az = false
 
+  auto_minor_version_upgrade  = false
   allow_major_version_upgrade = true
-  parameter_group_name        = aws_db_parameter_group.force_ssl.name
-
-  apply_immediately  = true
+  apply_immediately           = true
+  
   maintenance_window = var.rds_maintenance_window
   storage_encrypted  = true
   username           = var.rds_username
