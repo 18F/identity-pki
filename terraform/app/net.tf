@@ -518,7 +518,6 @@ resource "aws_security_group" "jumphost" {
     protocol  = "tcp"
 
     # Remote Access (FIXME rename variable to 'external_ssh_cidr_blocks'?)
-    cidr_blocks = var.app_sg_ssh_cidr_blocks
   }
 
   # need 8834 to comm with Nessus Server
