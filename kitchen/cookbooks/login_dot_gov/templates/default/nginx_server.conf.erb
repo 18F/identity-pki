@@ -51,25 +51,7 @@ server {
     location / {
         # Avoid ssl stripping attack
         add_header Strict-Transport-Security $sts_value;
-
-        <%- if @basic_auth %>
-        # Basic Auth Config
-        satisfy any;
-        <%- @security_group_exceptions.each do |sge| %>
-        allow <%= sge %>;
-        <%- end %>
-        auth_basic "Restricted";
-        auth_basic_user_file /opt/nginx/conf/htpasswd;
-        <%- end %>
     }
-
-    <%- if @basic_auth %>
-    # Skip basic auth for /healthcheck* and /api/health*
-    location /healthcheck {
-    }
-    location /api/health {
-    }
-    <%- end %>
 
     # Content expiry rules
     # Content pages set to no-cache
