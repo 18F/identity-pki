@@ -1,6 +1,7 @@
 production:
   agent_enabled: true
   app_name: pivcac.<%= LoginGov::Hostdata.env %>.<%= LoginGov::Hostdata.domain %>
+  host: gov-collector.newrelic.com
   audit_log:
     enabled: false
   error_collector:
