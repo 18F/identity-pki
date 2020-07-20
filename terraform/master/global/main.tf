@@ -70,6 +70,7 @@ module "main" {
       { "KMSAdministrator"  = [ "Sandbox" ] }
     ],
     "soc" = [
+      { "ReadOnly"          = [ "Sandbox", "Prod", "Master", "Analytics" ] },
       { "SOCAdministrator"  = [ "Sandbox", "Prod", "Master", "Analytics" ] }
     ],
     "keymasters" = [
