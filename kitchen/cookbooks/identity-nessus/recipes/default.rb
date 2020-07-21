@@ -25,4 +25,5 @@ execute 'register_with_nessus' do
   command "/opt/nessus_agent/sbin/nessuscli agent link --key=\"#{nessus_key}\" --name=\"#{node['hostname']}\" --groups=\"#{node.chef_environment}\" --host=\"#{nessus_host}\" --port=8834 && touch /root/nessus_is_registered"
   not_if { ::File.exist?('/root/nessus_is_registered') }
   ignore_failure true
+  sensitive      true
 end
