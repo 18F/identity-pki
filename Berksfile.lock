@@ -4,8 +4,8 @@ DEPENDENCIES
   apt (~> 7.0)
   aws_metadata
     git: https://github.com/18F/identity-cookbooks
-    revision: 8cf6e1ea58d2925cc27a6a2c91259c161a0b9686
-    ref: 8cf6e1e
+    revision: 96521bb0ac8bf99fcd18dea167350f2522adf20c
+    ref: 96521bb
     rel: aws_metadata
   aws_s3
     path: kitchen/cookbooks/aws_s3
@@ -21,13 +21,13 @@ DEPENDENCIES
     revision: 7007851c91e1404a43f1c914471a2d6c817eea8e
   cloudhsm
     git: https://github.com/18F/identity-cookbooks
-    revision: 8cf6e1ea58d2925cc27a6a2c91259c161a0b9686
-    ref: 8cf6e1e
+    revision: 96521bb0ac8bf99fcd18dea167350f2522adf20c
+    ref: 96521bb
     rel: cloudhsm
   config_loader
     git: https://github.com/18F/identity-cookbooks
-    revision: 8cf6e1ea58d2925cc27a6a2c91259c161a0b9686
-    ref: 8cf6e1e
+    revision: 96521bb0ac8bf99fcd18dea167350f2522adf20c
+    ref: 96521bb
     rel: config_loader
   deploy_resource (~> 1.0)
   elasticsearch (~> 4.2.0)
@@ -49,13 +49,13 @@ DEPENDENCIES
     path: kitchen/cookbooks/identity-pivcac
   identity_base_config
     git: https://github.com/18F/identity-cookbooks
-    revision: 8cf6e1ea58d2925cc27a6a2c91259c161a0b9686
-    ref: 8cf6e1e
+    revision: 96521bb0ac8bf99fcd18dea167350f2522adf20c
+    ref: 96521bb
     rel: identity_base_config
   identity_shared_attributes
     git: https://github.com/18F/identity-cookbooks
-    revision: 8cf6e1ea58d2925cc27a6a2c91259c161a0b9686
-    ref: 8cf6e1e
+    revision: 96521bb0ac8bf99fcd18dea167350f2522adf20c
+    ref: 96521bb
     rel: identity_shared_attributes
   instance_certificate
     path: kitchen/cookbooks/instance_certificate
@@ -72,8 +72,8 @@ DEPENDENCIES
     revision: d27d80791bad236f43d0231606ff842a8349879f
   passenger
     git: https://github.com/18F/identity-cookbooks
-    revision: 8cf6e1ea58d2925cc27a6a2c91259c161a0b9686
-    ref: 8cf6e1e
+    revision: 96521bb0ac8bf99fcd18dea167350f2522adf20c
+    ref: 96521bb
     rel: passenger
   runit (~> 5.1.3)
   service_discovery
@@ -81,8 +81,8 @@ DEPENDENCIES
   ssh-keys
   static_eip
     git: https://github.com/18F/identity-cookbooks
-    revision: 8cf6e1ea58d2925cc27a6a2c91259c161a0b9686
-    ref: 8cf6e1e
+    revision: 96521bb0ac8bf99fcd18dea167350f2522adf20c
+    ref: 96521bb
     rel: static_eip
   sudo
   users
