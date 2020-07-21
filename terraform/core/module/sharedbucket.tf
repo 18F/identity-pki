@@ -1,6 +1,7 @@
 data "aws_caller_identity" "current" {
 }
 
+# Policy for shared-data bucket
 data "aws_iam_policy_document" "shared" {
   statement {
     principals {
@@ -30,26 +31,112 @@ data "aws_iam_policy_document" "shared" {
   }
 }
 
-resource "aws_s3_account_public_access_block" "public_access_block" {
-  count = (var.allow_public_buckets ? 1 : 0)
-
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
+# Policy covering uploads to the lambda functions bucket
+data "aws_iam_policy_document" "lambda-functions" {
+  # Allow CircleCI role to upload under /circleci/*
+  statement {
+    sid    = "AllowCircleCIPuts"
+    effect = "Allow"
+    principals {
+      type        = "AWS"
+      identifiers = [aws_iam_user.circleci.arn]
+    }
+    actions = [
+      "s3:PutObject",
+    ]
+    resources = [
+      "arn:aws:s3:::login-gov.lambda-functions.${data.aws_caller_identity.current.account_id}-${var.region}/circleci/*",
+    ]
+  }
 }
 
-resource "aws_s3_bucket" "shared" {
-  bucket        = "login-gov-shared-data-${data.aws_caller_identity.current.account_id}"
-  force_destroy = true
-  policy        = data.aws_iam_policy_document.shared.json
-
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm = "aws:kms"
-      }
+# policy allowing SES to upload files to the email bucket under /inbound/*
+data "aws_iam_policy_document" "ses-upload" {
+  statement {
+    sid    = "AllowSESPuts"
+    effect = "Allow"
+    principals {
+      type        = "Service"
+      identifiers = ["ses.amazonaws.com"]
     }
+    actions = [
+      "s3:PutObject",
+    ]
+    resources = [
+      "arn:aws:s3:::login-gov.email.${data.aws_caller_identity.current.account_id}-${var.region}/inbound/*",
+    ]
+    condition {
+      test     = "StringEquals"
+      variable = "aws:Referer"
+      values   = [data.aws_caller_identity.current.account_id]
+    }
+  }
+}
+
+module "s3_shared" {
+  #source = "github.com/18F/identity-terraform//s3_bucket_block?ref=2dcb55a8699a6330aca14f3aa43b53729decd8cf"
+  source = "../../../../identity-terraform/s3_bucket_block"
+  
+  bucket_prefix = "login-gov"
+  bucket_data = {
+    "shared-data" = {
+      policy = data.aws_iam_policy_document.shared.json
+    },
+    "email" = {
+      policy          = data.aws_iam_policy_document.ses-upload.json
+      lifecycle_rules = [
+        {
+          id              = "expireinbound"
+          enabled         = true
+          prefix          = "/inbound/"
+          transitions     = [
+            {
+              days          = 30
+              storage_class = "STANDARD_IA"
+            }
+          ]
+          expiration_days = 365
+        }
+      ],
+    },
+    "lambda-functions" = {
+      policy             = data.aws_iam_policy_document.lambda-functions.json
+      lifecycle_rules    = [
+        {
+          id          = "inactive"
+          enabled     = true
+          prefix      = "/"
+          transitions = [
+            {
+              days          = 180
+              storage_class = "STANDARD_IA"
+            }
+          ]
+        }
+      ],
+    },
+    "tf-state"          = {
+      public_access_block = true
+    },
+    "reports" = {
+      lifecycle_rules = [
+        {
+          id          = "aging"
+          enabled     = true
+          prefix      = "/"
+          transitions = [
+            {
+              days          = 30
+              storage_class = "STANDARD_IA"
+            }
+          ]
+        }
+      ],
+      public_access_block = true
+    },
+    "waf_logbucket"     = {
+      public_access_block = true
+    },
   }
 }
 
@@ -69,8 +156,79 @@ module "elb-logs" {
   lifecycle_days_expire      = 2190 # 6 years
 }
 
+resource "aws_s3_account_public_access_block" "public_access_block" {
+  count = (var.allow_public_buckets ? 1 : 0)
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+resource "aws_iam_user" "circleci" {
+  name = "bot=circleci"
+  path = "/system/"
+}
+
+# This is the terraform state lock file used by terraform including by this
+# terraform file itself. Obviously this is a circular dependency like the AWS
+# S3 bucket, so there is a major chicken/egg bootstrapping problem.
+#
+# The bin/configure_state_bucket.sh script should create this table
+# automatically as part of running bin/tf-deploy, but you can also create this table
+# manually.
+#
+# Then import the existing table into the core terraform state
+# using the deploy wrapper (with terraform_locks as the table name in this
+# example):
+#
+#     bin/tf-deploy core/<ACCOUNT> import aws_dynamodb_table.tf-lock-table terraform_locks
+#
+# Under the hood this is running:
+#
+#     terraform import aws_dynamodb_table.tf-lock-table terraform_locks
+#
+resource "aws_dynamodb_table" "tf-lock-table" {
+  count          = var.manage_state_bucket ? 1 : 0
+  name           = var.state_lock_table
+  read_capacity  = 2
+  write_capacity = 1
+  hash_key       = "LockID"
+
+  attribute {
+    name = "LockID"
+    type = "S"
+  }
+
+  # TODO newer AWS provider only
+  #server_side_encryption {
+  #  enabled = true
+  #}
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
 output "elb_log_bucket" {
   value = module.elb-logs.bucket_name
+}
+
+
+
+
+resource "aws_s3_bucket" "shared" {
+  bucket        = "login-gov-shared-data-${data.aws_caller_identity.current.account_id}"
+  force_destroy = true
+  policy        = data.aws_iam_policy_document.shared.json
+
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "aws:kms"
+      }
+    }
+  }
 }
 
 # Bucket used for storing S3 access logs
@@ -110,29 +268,6 @@ resource "aws_s3_bucket" "s3-logs" {
       apply_server_side_encryption_by_default {
         sse_algorithm = "aws:kms"
       }
-    }
-  }
-}
-
-# policy allowing SES to upload files to the email bucket under /inbound/*
-data "aws_iam_policy_document" "ses-upload" {
-  statement {
-    sid    = "AllowSESPuts"
-    effect = "Allow"
-    principals {
-      type        = "Service"
-      identifiers = ["ses.amazonaws.com"]
-    }
-    actions = [
-      "s3:PutObject",
-    ]
-    resources = [
-      "arn:aws:s3:::login-gov.email.${data.aws_caller_identity.current.account_id}-${var.region}/inbound/*",
-    ]
-    condition {
-      test     = "StringEquals"
-      variable = "aws:Referer"
-      values   = [data.aws_caller_identity.current.account_id]
     }
   }
 }
@@ -208,30 +343,6 @@ resource "aws_s3_bucket" "lambda-functions" {
   }
 }
 
-resource "aws_iam_user" "circleci" {
-  name = "bot=circleci"
-  path = "/system/"
-}
-
-# Policy covering uploads to the lambda functions bucket
-data "aws_iam_policy_document" "lambda-functions" {
-  # Allow CircleCI role to upload under /circleci/*
-  statement {
-    sid    = "AllowCircleCIPuts"
-    effect = "Allow"
-    principals {
-      type        = "AWS"
-      identifiers = [aws_iam_user.circleci.arn]
-    }
-    actions = [
-      "s3:PutObject",
-    ]
-    resources = [
-      "arn:aws:s3:::login-gov.lambda-functions.${data.aws_caller_identity.current.account_id}-${var.region}/circleci/*",
-    ]
-  }
-}
-
 # This is the terraform state bucket used by terraform including by this
 # terraform file itself. Obviously this is a circular dependency, so there is a
 # major chicken/egg bootstrapping problem.
@@ -288,46 +399,6 @@ resource "aws_s3_bucket_public_access_block" "tf-state" {
   restrict_public_buckets = true
 }
 
-# This is the terraform state lock file used by terraform including by this
-# terraform file itself. Obviously this is a circular dependency like the AWS
-# S3 bucket, so there is a major chicken/egg bootstrapping problem.
-#
-# The bin/configure_state_bucket.sh script should create this table
-# automatically as part of running bin/tf-deploy, but you can also create this table
-# manually.
-#
-# Then import the existing table into the core terraform state
-# using the deploy wrapper (with terraform_locks as the table name in this
-# example):
-#
-#     bin/tf-deploy core/<ACCOUNT> import aws_dynamodb_table.tf-lock-table terraform_locks
-#
-# Under the hood this is running:
-#
-#     terraform import aws_dynamodb_table.tf-lock-table terraform_locks
-#
-resource "aws_dynamodb_table" "tf-lock-table" {
-  count          = var.manage_state_bucket ? 1 : 0
-  name           = var.state_lock_table
-  read_capacity  = 2
-  write_capacity = 1
-  hash_key       = "LockID"
-
-  attribute {
-    name = "LockID"
-    type = "S"
-  }
-
-  # TODO newer AWS provider only
-  #server_side_encryption {
-  #  enabled = true
-  #}
-
-  lifecycle {
-    prevent_destroy = true
-  }
-}
-
 # Bucket used for storing generated reports
 resource "aws_s3_bucket" "reports" {
   bucket = "login-gov.reports.${data.aws_caller_identity.current.account_id}-${var.region}"
@@ -373,63 +444,3 @@ resource "aws_s3_bucket_public_access_block" "reports" {
   ignore_public_acls      = true
   restrict_public_buckets = true
 }
-
-output "s3_log_bucket" {
-  value = aws_s3_bucket.s3-logs.id
-}
-
-# waf logbucket for account. each env has a subdirectory under it.
-resource "aws_s3_bucket" "waf_logbucket" {
-  #acl    = "private"
-  bucket = "login-gov.waf-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
-
-  versioning {
-    enabled = true
-  }
-
-  logging {
-    target_bucket = aws_s3_bucket.s3-logs.id
-    target_prefix = "login-gov.waf.${data.aws_caller_identity.current.account_id}-${var.region}/"
-  }
-
-
-# TODO: determine if these rules should be reinstated, given what the bucket already contains
-# 
-#  lifecycle_rule {
-#    id      = "logexpire"
-#    prefix  = ""
-#    enabled = true
-#
-#    transition {
-#      days          = 90
-#      storage_class = "STANDARD_IA"
-#    }
-#
-#    transition {
-#      days          = 365
-#      storage_class = "GLACIER"
-#    }
-#
-#    expiration {
-#      days = 2190 # 6 years
-#    }
-#  }
-
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm = "AES256"
-      }
-    }
-  }
-}
-
-# TODO: Determine if this is needed, or would break things with Kinesis/Firehose.
-#resource "aws_s3_bucket_public_access_block" "waf" {
-#  bucket = aws_s3_bucket.waf_logbucket.id
-#
-#  block_public_acls       = true
-#  block_public_policy     = true
-#  ignore_public_acls      = true
-#  restrict_public_buckets = true
-#}
