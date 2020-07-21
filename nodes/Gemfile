@@ -1,9 +1,9 @@
 source 'https://rubygems.org'
 
-gem 'berkshelf', '~> 7.0.9'
+gem 'berkshelf', '~> 7.1.0'
 
 # For Chefspec: https://github.com/sethvargo/chefspec
-gem 'chefspec', '>= 9.0.0'
+gem 'chefspec', '>= 9.2.0'
 
 # For Test Kitchen: https://github.com/test-kitchen/test-kitchen
 gem 'test-kitchen', '~> 2.5'
@@ -20,11 +20,11 @@ gem 'kitchen-transport-speedy', '~> 0.1'
 # gem 'kitchen-transport-sshtar'
 # gem 'kitchen-transport-rsync'
 
-gem 'chef', '~> 15.10.12'
+gem 'chef', '~> 15.12.22'
 
 # These are needed to build multipart cloud init data for test kitchen
 gem 'mime'
 gem 'erubis', '~> 2'
 
 # EC2 API used for various lookups inside the kitchen.cloud.yml
-gem 'aws-sdk-ec2', '~> 1.0'
+gem 'aws-sdk-ec2', '~> 1'
