@@ -152,7 +152,7 @@ RSpec.describe IdentifyController, type: :controller do
             expect(given_subject).to eq expected_subject
           end
 
-          context 'when the root certificate is found in dod_root_identifiers' do
+          context 'when a DoD root certificate is found in certificate chain' do
             before(:each) do
               allow(Figaro.env).to receive(:dod_root_identifiers).and_return(
                 root_cert_key_ids.join(',')
