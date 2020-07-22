@@ -118,6 +118,7 @@ module "main" {
     "justin.grevich"     = ["devops"],
     "likhitha.patha"     = ["bizops"],
     "michael.antiporta"  = ["analytics"],
+    "mitchell.henke"     = ["appdev"],
     "mossadeq.zia"       = ["devops", "secops", "keymasters"],
     "phil.lam"           = ["analytics"],
     "paul.hirsch"        = ["devops"],
