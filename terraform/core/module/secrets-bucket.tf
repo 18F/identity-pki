@@ -1,7 +1,7 @@
 # Create the main citadel secrets bucket
 module "main_secrets_bucket" {
   source              = "../../modules/secrets_bucket"
-  logs_bucket         = aws_s3_bucket.s3-logs.id
+  logs_bucket         = module.s3_shared.log_bucket
   secrets_bucket_type = "secrets"
   bucket_name_prefix  = "login-gov"
 }
