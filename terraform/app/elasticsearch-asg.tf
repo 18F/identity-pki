@@ -45,7 +45,7 @@ module "elasticsearch_launch_template" {
     main_git_ref = module.elasticsearch_user_data.main_git_ref
   }
 
-  block_device_mappings = [
+  block_device_mappings = length(regexall("i3", var.instance_type_es)) > 0 ? [] : [
     {
       device_name = "/dev/sdg"
       ebs = [
