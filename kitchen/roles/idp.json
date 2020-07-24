@@ -13,6 +13,7 @@
     "recipe[passenger::daemon]",
     "recipe[login_dot_gov::idp_base]",
     "recipe[login_dot_gov::idp_web]",
+    "recipe[login_dot_gov::idp_prewarm]",
     "recipe[login_dot_gov::idp_worker]"
   ],
   "env_run_lists": {
