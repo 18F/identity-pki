@@ -104,7 +104,7 @@ module "main" {
     "amit.freeman"       = ["devops"],
     "amos.stone"         = ["analytics"],
     "andrew.duthie"      = ["appdev"],
-    "anthony.martini"    = ["appdev"],
+    "anthony.martini"    = ["secops"],
     "brett.mcparland"    = ["secops", "soc"],
     "brian.crissup"      = ["devops", "keymasters"],
     "christopher.billas" = ["bizops", "finops"],
