@@ -1,0 +1,71 @@
+#!/bin/bash
+
+# Cut a new release, create a PR, and add the release to GitHub
+
+set -eu
+
+. "$(dirname "$0")/lib/common.sh"
+
+usage() {
+    cat >&2 << EOM
+
+Usage: ${0} [-m 'PR TITLE'] [-r GITHUB_REVIEWERS] [-p] [-x]
+
+EOM
+}
+
+if [[ ! $(brew list | grep hub) ]] ; then
+  brew install hub || raise "hub not installed!"
+fi
+
+declare {PUSH,PR_TITLE,GH_REVS}=
+ACTION='open'
+SAVE_BRANCH=false
+while getopts r:m:pxb opt
+do
+    case "${opt}" in
+        r) GH_REVS="${OPTARG}"    ;;
+        m) PR_TITLE=("${OPTARG}") ;;
+        p) PUSH=true              ;;
+        x) ACTION='merge'         ;;
+        b) SAVE_BRANCH=true       ;;
+    esac
+done
+
+[[ -z ${PR_TITLE} ]] && PR_TITLE=("$(git show -s --format=%s)")
+
+if [[ -z ${GH_REVS} ]] ; then
+  if [ -f ~/.login-revs ] ; then
+    GH_REVS=$(cat ~/.login-revs |
+      grep -m 1 "$(basename $(git rev-parse --show-toplevel))" |
+      awk '{print $2}')
+  else
+    GH_REVS="$(git config user.name)"
+  fi
+fi
+
+if [[ "${ACTION}" == 'open' ]] ; then
+  if [[ "${PUSH}" == true ]] ; then
+    run git add --all
+    run git commit -m "'${PR_TITLE[@]}'"
+    run git push --set-upstream origin $(git_current_branch)
+  fi
+  
+  run hub pull-request -p -r "${GH_REVS}" -m "'${PR_TITLE[@]}'" -e
+else
+  OLD_BRANCH=$(git_current_branch)
+  run git checkout master
+  run git pull origin master
+  run git checkout ${OLD_BRANCH} 
+  run git rebase master 
+  run git push --force-with-lease 
+  run git merge master --no-edit 
+  run git checkout master 
+  run git merge --no-edit --no-ff ${OLD_BRANCH} 
+  run git push origin master
+  if [[ "${SAVE_BRANCH}" == false ]]; then
+    run git checkout master 
+    run git pull origin master
+    run git branch -d ${OLD_BRANCH}
+  fi
+fi

@@ -478,14 +478,6 @@ git_current_branch() {
   echo ${REF#refs/heads/}
 }
 
-#### get list of GH_REVS per the repo ####
-gh_revs() {
-  GH_REVS=$(cat ~/.login-revs |
-    grep "$(basename $(git rev-parse --show-toplevel))" |
-    awk '{print $2}')
-  [[ -z ${GH_REVS} ]] && GH_REVS="${LOGIN_REVS}-"
-}
-
 #### create/checkout new git branch named ${1} ####
 newb() {
   gom
