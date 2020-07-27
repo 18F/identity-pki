@@ -96,9 +96,9 @@ resource "aws_autoscaling_group" "idpxtra" {
   # Place in shared public blocks accross 3 AZs
   # TODO - See https://github.com/18F/identity-devops/issues/2084
   vpc_zone_identifier = [
-    aws_subnet.publicsubnet1.id,
-    aws_subnet.publicsubnet2.id,
-    aws_subnet.publicsubnet3.id,
+    aws_subnet.privatesubnet1.id,
+    aws_subnet.privatesubnet2.id,
+    aws_subnet.privatesubnet3.id,
   ]
 
   # possible choices: EC2, ELB
