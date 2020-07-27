@@ -433,3 +433,34 @@ Repo root for $BASENAME: $repo_root_after_cd"
         prompt_yn
     fi
 }
+
+
+## determine env (and AWS_PROFILE) from arg ##
+env_get() {
+  AV_PROFILE='sandbox-admin'
+  EC2_ENV=${1:-$(echo $GSA_USERNAME)}
+  [[ "${EC2_ENV}" =~ "staging|prod" ]] && AV_PROFILE='prod-admin'
+}
+
+## integrates with ykman for YubiKey OTP MFA ##
+mfa_get() {
+  local DUR="${1:-1}h"
+  local ttl_time=$(aws-vault list --sessions | awk '{print $1}') 
+  if [[ -z ${ttl_time} ]] || [[ ${ttl_time} -lt $(date +%s) ]]
+  then
+    ttl="--duration=${DUR}" 
+    [[ -n $(command -v ykman) ]] && yk="--mfa-token=$(ykman oath code --single aws/login-master | awk '{print $NF}')" 
+  fi
+}
+
+## strip off aws-vault exec stuff if running a long AWS_VAULT session ##
+run_av() {
+  if [[ -z ${AWS_VAULT} ]]
+  then
+    declare {ttl,yk}=
+    mfa_get
+    run aws-vault exec ${AV_PROFILE} ${ttl} ${yk} -- "$@"
+  else
+    run "$@"
+  fi
+}
