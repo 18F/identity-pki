@@ -24,24 +24,6 @@ badopt() {
   break 1
 }
 
-# set a variable AND print its declaration to the console
-run_var() {
-  VAR=${1}
-  shift
-  if [ -t 1 ]; then
-    echo -ne "\\033[1;36m"
-  fi
-
-  echo -e >&2 "+ $VAR=\$($*)"
-
-  if [ -t 1 ]; then
-    echo -ne '\033[m'
-  fi
-  T=$($@)
-  # Set variable value by reference to avoid ; shenanigans
-  eval "${VAR}=\"\${T}\""
-}
-
 # parse space/tab-separated column output and space with pipe marks
 mdout() {
   echo "|$@|" | column -t | tr -s ' ' '|' | sed 's/ *| */@| /g'   | column -s '@' -t

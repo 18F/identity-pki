@@ -455,12 +455,46 @@ mfa_get() {
 
 ## strip off aws-vault exec stuff if running a long AWS_VAULT session ##
 run_av() {
-  if [[ -z ${AWS_VAULT} ]]
-  then
+  local AV_PROFILE=${1}
+  shift 1
+  if [[ $(env | grep 'AWS_VAULT=') ]] ; then
+    run "$@"
+  else
     declare {ttl,yk}=
     mfa_get
     run aws-vault exec ${AV_PROFILE} ${ttl} ${yk} -- "$@"
-  else
-    run "$@"
   fi
+}
+
+#### get current working branch; copied from oh-my-zsh/lib/git.zsh ####
+git_current_branch() {
+  local REF
+  REF=$(git symbolic-ref --quiet HEAD 2>/dev/null)
+  local RET=$?
+  if [[ $RET != 0 ]]; then
+    [[ $RET == 128 ]] && return  # no git repo.
+    REF=$(git rev-parse --short HEAD 2>/dev/null) || return
+  fi
+  echo ${REF#refs/heads/}
+}
+
+#### get list of GH_REVS per the repo ####
+gh_revs() {
+  GH_REVS=$(cat ~/.login-revs |
+    grep "$(basename $(git rev-parse --show-toplevel))" |
+    awk '{print $2}')
+  [[ -z ${GH_REVS} ]] && GH_REVS="${LOGIN_REVS}-"
+}
+
+#### create/checkout new git branch named ${1} ####
+newb() {
+  gom
+  run git checkout -b "${1}"
+}
+
+get_profile_name () {
+  ACCOUNT=${1:-$(aws sts get-caller-identity | jq -r '.Account')}
+  awk '{a[i++]=$0} END {for (j=i-1; j>=0;) print a[j--] }' ~/.aws/config |
+                         awk -v account="$ACCOUNT" -v RS= '$0 ~ account' |
+                              tail -n 1 | sed -E 's/\[profile (.*)\]/\1/'
 }

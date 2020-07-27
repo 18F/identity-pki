@@ -1,0 +1,83 @@
+#!/bin/bash
+
+# Generate list of 2 newest AMIs in each account
+
+set -eu
+
+. "$(dirname "$0")/lib/common.sh"
+
+usage() {
+    cat >&2 << EOM
+Usage: ${0} [-s|-p]
+
+Runs aws ec2 describe-images in both the sandbox and prod
+accounts, and outputs a Markdown-formatted table containing
+information about the last-created AMIs for each type
+in each account.
+
+Flags:
+  -s | --sandbox : Only list AMIs in login-sandbox
+  -p | --prod    : Only list AMIs in login-prod
+  -h | --help    : Display this usage info
+
+If in an active AWS_VAULT session, only the images in that
+account will be listed (flags will be ignored if any
+are set) since the script cannot jump between profiles
+in an AWS_VAULT session.
+
+Example output:
+
+| AMI                    | Date                 | Account  | Description       | 
+| -----                  | -----                | -----    | -----             | 
+| ami-06caaf2dfa83c916a  | 2020-07-26 07:34:42  | sandbox  | rails-1595747102  | 
+| ami-0d7fa0b06192e40be  | 2020-07-26 07:26:07  | sandbox  | base-1595747084   | 
+| ami-08f2f56c85f56615f  | 2020-07-21 18:25:58  | prod     | rails-1595344038  | 
+| ami-0a37be06240f1d943  | 2020-07-21 18:20:19  | prod     | rails-1595344038  | 
+
+EOM
+}
+# parse space/tab-separated column output and space with pipe marks
+mdout() {
+  echo -e "|$@|" | column -t | tr -s ' ' '|' |
+  sed 's/ *| */@| /g' | column -s '@' -t
+}
+
+PROFILE_LIST='sandbox prod'
+DATA=()
+HEADERS="|AMI Date Account Description|"
+
+[ $# -gt 1 ] && raise 'Must provide <2 arguments'
+verify_root_repo
+
+while [[ "$#" -gt 0 ]]; do
+  case "${1}" in 
+    -s|--sandbox) PROFILE_LIST='sandbox'      ;;
+    -p|--prod)    PROFILE_LIST='prod'         ;;
+    -h|--help)    usage && exit 0             ;;
+    *) raise "Unknown parameter passed: ${1}" ;;
+  esac
+  shift
+done
+
+if [[ $(env | grep 'AWS_VAULT=') ]] ; then
+  PROFILE_LIST=$(grep "\"$(aws sts get-caller-identity | jq -r '.Account')\"" \
+                 "${GIT_DIR}/terraform/master/global/main.tf" |
+                 grep "# login-" | sed -E 's/^.*# login-([a-z]+)$/\1/')
+  echo "AWS_VAULT session detected; getting images in ${PROFILE_LIST} account only."
+fi
+
+for PROFILE in $PROFILE_LIST ; do
+  ACCOUNT=$(grep "# login-${PROFILE}" "${GIT_DIR}/terraform/master/global/main.tf" | sed -E 's/^.*\"([0-9]+)\".*$/\1/')
+  ROLE=$(get_profile_name ${ACCOUNT})
+  DATA+=$(echo -e "\n$(run_av ${ROLE} aws ec2 describe-images \
+                --owners self \
+                --query 'Images[*].[ImageId,CreationDate,Name]' \
+                --output text | sort -rk2 | head -n 2 |
+                sed -E "s/login\.gov (base|rails) (role )?hardened (base )?image Ubuntu 18\.04 /$PROFILE \1\-/g" |
+                sed -E "s/([0-9\:]+)\.000Z/\1/g" |
+                sed -E 's/^/\|/g;s/$/\|/g')\n")
+done
+NUM_COLS=$(echo "${DATA[@]}" | awk '{print NF}' | sort -nu | tail -n 1)
+echo
+mdout "${HEADERS}\n$(echo "|$(printf "%${NUM_COLS}s" | sed 's/ /----- |/g')")\n${DATA}" | tr 'T' ' '
+echo
