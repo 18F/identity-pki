@@ -15,7 +15,7 @@ Calculates the current, and next, releases, based on the contents of VERSION.txt
 and runs 'rake release' to cut a new release. Once the tags are pushed to origin,
 creates both a pull request and a GitHub Release for the version update.
 
-By default, is echo with no arguments. If a specific NEW_VERSION and/or
+By default, should be run with no arguments. If a specific NEW_VERSION and/or
 OLD_VERSION is desired for this script, those can be specified via the first
 and second arguments, respectively. (Useful if building from a hotfix /
 oddly-named version.)

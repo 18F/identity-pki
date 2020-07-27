@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Cut a new release, create a PR, and add the release to GitHub
+# Powerful/quick way to create pull requests easily using hub pull-request
 
 set -eu
 
@@ -9,7 +9,26 @@ set -eu
 usage() {
     cat >&2 << EOM
 
-Usage: ${0} [-m 'PR TITLE'] [-r GITHUB_REVIEWERS] [-p] [-x]
+Usage: ${0} [-m 'PR TITLE'] [-r GITHUB_REVIEWERS] [-p] [-x] [-b]
+
+Runs \`hub pull-request\` with validation and custom args.
+
+Arguments:
+  -m : Sets the title of the PR (and commit message if using -p).
+       MUST BE ENCLOSED IN '' MARKS
+  -r : Comma-separated list of GitHub usernames who will be added
+       as reviewers for the PR. (see note)
+  -p : Also add all changes, commit, and push/set upstream to origin
+
+  -x : Instead of opening a PR, merge and delete the current branch.
+  -b : Run with -x to preserve the local branch after merging
+
+Note:
+  If desired, custom GH_REVS can be set using a file, '.login-revs',
+  placed in one's home directory. Each line should contain the name
+  of the repo, a space, and then the CS-list of names, e.g.:
+
+  REPO_NAME grace.hopper,ada.lovelace
 
 EOM
 }
@@ -51,7 +70,7 @@ if [[ "${ACTION}" == 'open' ]] ; then
     run git push --set-upstream origin $(git_current_branch)
   fi
   
-  run hub pull-request -p -r "${GH_REVS}" -m "'${PR_TITLE[@]}'" -e
+  run hub pull-request -p -r "${GH_REVS}" -m "${PR_TITLE[@]}" -e
 else
   OLD_BRANCH=$(git_current_branch)
   run git checkout master
