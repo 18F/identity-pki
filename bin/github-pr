@@ -30,6 +30,12 @@ Note:
 
   REPO_NAME grace.hopper,ada.lovelace
 
+Defaults:
+  - If PR_TITLE is not declared, will use the name of the most recent
+    commit as the PR title.
+  - If GH_REVS is not declared -- and ~/.login-revs does not exist --
+    will use your git user.name instead.
+
 EOM
 }
 
