@@ -73,12 +73,8 @@ data "aws_iam_policy_document" "ses-upload" {
   }
 }
 
-module "s3_shared" {
-  #source = "github.com/18F/identity-terraform//s3_bucket_block?ref=2dcb55a8699a6330aca14f3aa43b53729decd8cf"
-  source = "../../../../identity-terraform/s3_bucket_block"
-  
-  bucket_prefix = "login-gov"
-  bucket_data = {
+locals {
+  s3_bucket_data = {
     "shared-data" = {
       policy = data.aws_iam_policy_document.shared.json
     },
@@ -98,6 +94,7 @@ module "s3_shared" {
           expiration_days = 365
         }
       ],
+      force_destroy = false
     },
     "lambda-functions" = {
       policy             = data.aws_iam_policy_document.lambda-functions.json
@@ -114,8 +111,10 @@ module "s3_shared" {
           ]
         }
       ],
+      force_destroy = false
     },
     "tf-state"          = {
+      force_destroy       = false
       public_access_block = true
     },
     "reports" = {
@@ -132,12 +131,20 @@ module "s3_shared" {
           ]
         }
       ],
+      force_destroy       = false
       public_access_block = true
     },
-    "waf_logbucket"     = {
-      public_access_block = true
+    "waf-logs"     = {
     },
   }
+}
+
+module "s3_shared" {
+  #source = "github.com/18F/identity-terraform//s3_bucket_block?ref=2dcb55a8699a6330aca14f3aa43b53729decd8cf"
+  source = "../../../../identity-terraform/s3_bucket_block"
+  
+  bucket_prefix = "login-gov"
+  bucket_data = local.s3_bucket_data
 }
 
 # Create a common bucket for storing ELB/ALB access logs

@@ -16,7 +16,7 @@ module "sandbox_ses" {
 
   domain       = var.root_domain
   enabled      = var.sandbox_ses_inbound_enabled
-  email_bucket = element(module.s3_shared.buckets, index(module.s3_shared.buckets, "email"))
+  email_bucket = module.s3_shared.buckets["email"]
 }
 
 output "primary_zone_id" {
