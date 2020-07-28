@@ -41,7 +41,7 @@ SKIP_GIT_CLONE="${SKIP_GIT_CLONE-}"
 SKIP_GIT_PULL="${SKIP_GIT_PULL-}"
 
 # shellcheck source=/dev/null
-. "$(dirname "$0")/lib/common.sh"
+. "$(dirname "$0")/../lib/common.sh"
 
 # Determine the likely URL for identity-devops-private based on the "origin"
 # git remote of the current repository (just by appending -private).

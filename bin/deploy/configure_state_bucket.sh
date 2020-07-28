@@ -3,7 +3,7 @@
 set -eu
 
 # shellcheck source=/dev/null
-. "$(dirname "$0")/lib/common.sh"
+. "$(dirname "$0")/../lib/common.sh"
 
 usage() {
   cat >&2 <<EOM
