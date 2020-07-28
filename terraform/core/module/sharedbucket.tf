@@ -12,7 +12,7 @@ data "aws_iam_policy_document" "shared" {
       "s3:ListBucket",
     ]
     resources = [
-      "arn:aws:s3:::login-gov-shared-data-${data.aws_caller_identity.current.account_id}",
+      "arn:aws:s3:::login-gov.shared-data.${data.aws_caller_identity.current.account_id}",
     ]
   }
 
@@ -26,7 +26,7 @@ data "aws_iam_policy_document" "shared" {
       "s3:GetObject",
     ]
     resources = [
-      "arn:aws:s3:::login-gov-shared-data-${data.aws_caller_identity.current.account_id}/*",
+      "arn:aws:s3:::login-gov.shared-data.${data.aws_caller_identity.current.account_id}/*",
     ]
   }
 }
@@ -115,7 +115,6 @@ locals {
     },
     "tf-state"          = {
       force_destroy       = false
-      public_access_block = true
     },
     "reports" = {
       lifecycle_rules = [
@@ -132,10 +131,8 @@ locals {
         }
       ],
       force_destroy       = false
-      public_access_block = true
     },
-    "waf-logs"     = {
-    },
+    "waf-logs"     = {},
   }
 }
 
