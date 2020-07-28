@@ -58,9 +58,6 @@ resource "aws_network_acl" "allow" {
     aws_subnet.publicsubnet1.id,
     aws_subnet.publicsubnet2.id,
     aws_subnet.publicsubnet3.id,
-    aws_subnet.privatesubnet1.id,
-    aws_subnet.privatesubnet2.id,
-    aws_subnet.privatesubnet3.id,
   ]
 }
 
@@ -189,6 +186,9 @@ resource "aws_network_acl" "idp" {
   subnet_ids = [
     aws_subnet.idp1.id,
     aws_subnet.idp2.id,
+    aws_subnet.privatesubnet1.id,
+    aws_subnet.privatesubnet2.id,
+    aws_subnet.privatesubnet3.id,
   ]
 }
 

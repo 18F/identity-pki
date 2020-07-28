@@ -1161,6 +1161,7 @@ resource "aws_subnet" "publicsubnet3" {
 resource "aws_subnet" "privatesubnet1" {
   availability_zone = "${var.region}a"
   cidr_block        = var.private1_subnet_cidr_block
+  map_public_ip_on_launch = true
 
   tags = {
     Name = "${var.name}-private1_subnet-${var.env_name}"
@@ -1173,6 +1174,7 @@ resource "aws_subnet" "privatesubnet1" {
 resource "aws_subnet" "privatesubnet2" {
   availability_zone = "${var.region}b"
   cidr_block        = var.private2_subnet_cidr_block
+  map_public_ip_on_launch = true
 
   tags = {
     Name = "${var.name}-private2_subnet-${var.env_name}"
@@ -1185,6 +1187,7 @@ resource "aws_subnet" "privatesubnet2" {
 resource "aws_subnet" "privatesubnet3" {
   availability_zone = "${var.region}c"
   cidr_block        = var.private3_subnet_cidr_block
+  map_public_ip_on_launch = true
 
   tags = {
     Name = "${var.name}-private3_subnet-${var.env_name}"
