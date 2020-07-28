@@ -1,0 +1,61 @@
+#!/bin/bash
+
+# Cut a new release, create a PR, and add the release to GitHub
+
+set -eu
+
+. "$(dirname "$0")/lib/common.sh"
+
+usage() {
+    cat >&2 << EOM
+
+Usage: ${0} [NEW_VERSION] [OLD_VERSION]
+
+Calculates the current, and next, releases, based on the contents of VERSION.txt,
+and runs 'rake release' to cut a new release. Once the tags are pushed to origin,
+creates both a pull request and a GitHub Release for the version update.
+
+By default, should be run with no arguments. If a specific NEW_VERSION and/or
+OLD_VERSION is desired for this script, those can be specified via the first
+and second arguments, respectively. (Useful if building from a hotfix /
+oddly-named version.)
+
+EOM
+}
+
+[ $# -gt 2 ] && raise 'Must provide <3 arguments'
+verify_root_repo
+
+if [[ ! $(brew list | grep hub) ]] ; then
+  brew install hub || raise "hub not installed!"
+fi
+
+run git checkout master
+run git pull origin master
+
+NEW_RELEASE=${1:-$(cat VERSION.txt | sed -E 's/pre\-//')}
+OLD_RELEASE=${2:-$(($(echo ${NEW_RELEASE} | sed -E 's/\..+//')-1))}
+
+PR_LIST=$(hub pr list -b master -s merged -o updated -L 100 -f "- %i %t%n")
+RELEASE_PRS=$(echo "${PR_LIST}" |
+    sed "/${OLD_RELEASE}/q" |
+    grep -v "$NEW_RELEASE\|$OLD_RELEASE")
+
+run git checkout -b release/v${NEW_RELEASE}
+run rake release
+run git push origin release/v${NEW_RELEASE}
+run git push --tags
+
+run ${GIT_DIR}/bin/github-pr -m "$(cat <<EOF
+Release v${NEW_RELEASE}
+
+${RELEASE_PRS}
+EOF
+)"
+
+run hub release create v${NEW_RELEASE} -m "$(cat <<EOF
+Release v${NEW_RELEASE}
+
+${RELEASE_PRS}
+EOF
+)"

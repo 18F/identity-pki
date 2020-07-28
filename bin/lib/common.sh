@@ -433,3 +433,60 @@ Repo root for $BASENAME: $repo_root_after_cd"
         prompt_yn
     fi
 }
+
+
+## determine env (and AWS_PROFILE) from arg ##
+env_get() {
+  AV_PROFILE='sandbox-admin'
+  EC2_ENV=${1:-$(echo $GSA_USERNAME)}
+  [[ "${EC2_ENV}" =~ "staging|prod" ]] && AV_PROFILE='prod-admin'
+}
+
+## integrates with ykman for YubiKey OTP MFA ##
+mfa_get() {
+  local DUR="${1:-1}h"
+  local ttl_time=$(aws-vault list --sessions | awk '{print $1}') 
+  if [[ -z ${ttl_time} ]] || [[ ${ttl_time} -lt $(date +%s) ]]
+  then
+    ttl="--duration=${DUR}" 
+    [[ -n $(command -v ykman) ]] && yk="--mfa-token=$(ykman oath code --single aws/login-master | awk '{print $NF}')" 
+  fi
+}
+
+## strip off aws-vault exec stuff if running a long AWS_VAULT session ##
+run_av() {
+  local AV_PROFILE=${1}
+  shift 1
+  if [[ $(env | grep 'AWS_VAULT=') ]] ; then
+    run "$@"
+  else
+    declare {ttl,yk}=
+    mfa_get
+    run aws-vault exec ${AV_PROFILE} ${ttl} ${yk} -- "$@"
+  fi
+}
+
+#### get current working branch; copied from oh-my-zsh/lib/git.zsh ####
+git_current_branch() {
+  local REF
+  REF=$(git symbolic-ref --quiet HEAD 2>/dev/null)
+  local RET=$?
+  if [[ $RET != 0 ]]; then
+    [[ $RET == 128 ]] && return  # no git repo.
+    REF=$(git rev-parse --short HEAD 2>/dev/null) || return
+  fi
+  echo ${REF#refs/heads/}
+}
+
+#### create/checkout new git branch named ${1} ####
+newb() {
+  gom
+  run git checkout -b "${1}"
+}
+
+get_profile_name () {
+  ACCOUNT=${1:-$(aws sts get-caller-identity | jq -r '.Account')}
+  awk '{a[i++]=$0} END {for (j=i-1; j>=0;) print a[j--] }' ~/.aws/config |
+                         awk -v account="$ACCOUNT" -v RS= '$0 ~ account' |
+                              tail -n 1 | sed -E 's/\[profile (.*)\]/\1/'
+}

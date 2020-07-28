@@ -1,0 +1,71 @@
+#!/bin/bash
+
+# Output a streamlined, truncated terraform plan
+
+set -eu
+
+. "$(dirname "$0")/lib/common.sh"
+
+usage() {
+    cat >&2 << EOM
+Usage: ${0} TF_DIR TF_ENV
+
+Runs 'terraform plan' via tf-deploy, then processes
+the output for easier change visibility:
+
+1. Removes all color codes
+2. Extracts only the lines beginning with change symbols (- # + ~ > ->)
+3. Takes any large user_data blocks being changed
+   and replaces them with a * character
+
+Arguments:
+- TF_DIR
+    Which directory under terraform/ to use (app/all/core/etc.)
+    Will default to 'app' if not declared.
+- TF_ENV
+    Which environment to use, whether account-specific or env-specific.
+    Will default to 'sandbox' if not declared, or to GSA_USERNAME
+    if TF_DIR is 'app'.
+
+Examples:
+
+${0}                ==>   tf-deploy GSA_USERNAME app plan
+${0} core           ==>   tf-deploy core/sandbox plan
+${0} master         ==>   tf-deploy master/global plan
+${0} all analytics  ==>   tf-deploy all/analytics plan
+${0} app int        ==>   tf-deploy int app plan
+
+EOM
+}
+
+process_plan () {
+  "$@" | sed $'s,\x1b\\[[0-9;]*[a-zA-Z],,g' |
+  grep --color=auto -E '(^\s+[-\#\+\~\>]|\s->)\s' |
+  sed -E 's/(user_data += ").*"/\1\*"/'
+}
+
+[ $# -gt 2 ] && raise 'Must provide <2 arguments'
+
+TF_DIR="${1-app}"
+TF_ENV="${2-sandbox}"
+verify_root_repo
+
+GIT_DIR=$(git rev-parse --show-toplevel)
+
+if ! [[ $(find "${GIT_DIR}/terraform" -name "${TF_DIR}" -type d -maxdepth 1) ]] ; then
+  raise "TF_DIR ${TF_DIR} not found in ${GIT_DIR}/terraform/"
+else
+  if [[ "${TF_DIR}" == 'app' ]] ; then
+    if [[ -z ${TF_ENV} ]] || [[ ${TF_ENV} == 'sandbox' ]] ; then
+      [[ -z ${GSA_USERNAME} ]] && raise 'TF_ENV undeclared + GSA_USERNAME not set'
+      TF_ENV=${GSA_USERNAME}
+    fi
+    process_plan tf-deploy "${TF_ENV}" "${TF_DIR}" plan
+  else
+    [[ "${TF_DIR}" == 'master' ]] && TF_ENV='global'
+    if ! [[ $(find "${GIT_DIR}/terraform/${TF_DIR}" -name "${TF_ENV}" -type d -maxdepth 1) ]] ; then
+      raise "TF_ENV ${TF_ENV} not found in ${GIT_DIR}/terraform/${TF_DIR}"
+    fi
+    process_plan tf-deploy "${TF_DIR}/${TF_ENV}" plan
+  fi
+fi

@@ -18,35 +18,10 @@ alias gpl="run hub pr list"
 alias gi="run hub issue"
 
 ######## functions ########
-#### get current working branch; copied from oh-my-zsh/lib/git.zsh ####
-git_current_branch() {
-  local REF
-  REF=$(git symbolic-ref --quiet HEAD 2>/dev/null)
-  local RET=$?
-  if [[ $RET != 0 ]]; then
-    [[ $RET == 128 ]] && return  # no git repo.
-    REF=$(git rev-parse --short HEAD 2>/dev/null) || return
-  fi
-  echo ${REF#refs/heads/}
-}
-
-#### get list of GH_REVS per the repo ####
-gh_revs() {
-  GH_REVS=$(cat ~/.login-revs |
-    grep "$(basename $(git rev-parse --show-toplevel))" |
-    awk '{print $2}')
-  [[ -z ${GH_REVS} ]] && GH_REVS="${LOGIN_REVS}-"
-}
 
 #### cd to ${GITHUB_PARENT_DIR}/identity-${1} ####
 gid() {
   run cd "${GITHUB_PARENT_DIR}/identity-${1}"
-}
-
-#### create/checkout new git branch named ${1} ####
-newb() {
-  gom
-  run git checkout -b "${1}"
 }
 
 #### open specified PR in browser

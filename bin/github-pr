@@ -1,0 +1,96 @@
+#!/bin/bash
+
+# Powerful/quick way to create pull requests easily using hub pull-request
+
+set -eu
+
+. "$(dirname "$0")/lib/common.sh"
+
+usage() {
+    cat >&2 << EOM
+
+Usage: ${0} [-m 'PR TITLE'] [-r GITHUB_REVIEWERS] [-p] [-x] [-b]
+
+Runs \`hub pull-request\` with validation and custom args.
+
+Arguments:
+  -m : Sets the title of the PR (and commit message if using -p).
+       MUST BE ENCLOSED IN '' MARKS
+  -r : Comma-separated list of GitHub usernames who will be added
+       as reviewers for the PR. (see note)
+  -p : Also add all changes, commit, and push/set upstream to origin
+
+  -x : Instead of opening a PR, merge and delete the current branch.
+  -b : Run with -x to preserve the local branch after merging
+
+Note:
+  If desired, custom GH_REVS can be set using a file, '.login-revs',
+  placed in one's home directory. Each line should contain the name
+  of the repo, a space, and then the CS-list of names, e.g.:
+
+  REPO_NAME grace.hopper,ada.lovelace
+
+Defaults:
+  - If PR_TITLE is not declared, will use the name of the most recent
+    commit as the PR title.
+  - If GH_REVS is not declared -- and ~/.login-revs does not exist --
+    will use your git user.name instead.
+
+EOM
+}
+
+if [[ ! $(brew list | grep hub) ]] ; then
+  brew install hub || raise "hub not installed!"
+fi
+
+declare {PUSH,PR_TITLE,GH_REVS}=
+ACTION='open'
+SAVE_BRANCH=false
+while getopts r:m:pxb opt
+do
+    case "${opt}" in
+        r) GH_REVS="${OPTARG}"    ;;
+        m) PR_TITLE=("${OPTARG}") ;;
+        p) PUSH=true              ;;
+        x) ACTION='merge'         ;;
+        b) SAVE_BRANCH=true       ;;
+    esac
+done
+
+[[ -z ${PR_TITLE} ]] && PR_TITLE=("$(git show -s --format=%s)")
+
+if [[ -z ${GH_REVS} ]] ; then
+  if [ -f ~/.login-revs ] ; then
+    GH_REVS=$(cat ~/.login-revs |
+      grep -m 1 "$(basename $(git rev-parse --show-toplevel))" |
+      awk '{print $2}')
+  else
+    GH_REVS="$(git config user.name)"
+  fi
+fi
+
+if [[ "${ACTION}" == 'open' ]] ; then
+  if [[ "${PUSH}" == true ]] ; then
+    run git add --all
+    run git commit -m "'${PR_TITLE[@]}'"
+    run git push --set-upstream origin $(git_current_branch)
+  fi
+  
+  run hub pull-request -p -r "${GH_REVS}" -m "${PR_TITLE[@]}" -e
+else
+  OLD_BRANCH=$(git_current_branch)
+  run git checkout master
+  run git pull origin master
+  run git checkout ${OLD_BRANCH} 
+  run git rebase master 
+  run git push --force-with-lease 
+  run git merge master --no-edit 
+  run git checkout master 
+  run git merge --no-edit --no-ff ${OLD_BRANCH} 
+  run git push origin master
+  if [[ "${SAVE_BRANCH}" == false ]]; then
+    run git checkout master 
+    run git pull origin master
+    run git branch -d ${OLD_BRANCH}
+  fi
+fi
