@@ -137,7 +137,7 @@ locals {
 }
 
 module "s3_shared" {
-  source = "github.com/18F/identity-terraform//s3_bucket_block?ref=202b66150fff03be4cea77ed1bedfad7c0a72e03"
+  source = "github.com/18F/identity-terraform//s3_bucket_block?ref=5936d2aa33f5835bf7576e74061185cae61da4d9"
   #source = "../../../../identity-terraform/s3_bucket_block"
   
   bucket_prefix = "login-gov"
