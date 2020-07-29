@@ -439,16 +439,10 @@ variable "idp_cpu_autoscaling_target" {
 }
 
 variable "idpxtra_client_ids" {
-  description = "List of IdP SP client ID values to be routed to idpxtra pool"
-  type        = list(string)
-  default     = []
-}
-
-variable "idpxtra_sticky_ttl" {
-  description = "Seconds to keep a client stuck to idpxtra after match"
-  type        = number
-  # Default - 1 hour.  Set to 0 to disable sticky target group.
-  default = 3600
+  description = "Map of friendly names (keys) to client ID/OIDC arns (values) to be routed to idpxtra pool"
+  # Example: {"sba_dlap" = "urn:gov:gsa:openidconnect.profiles:sp:sso:sba:dlap"}
+  type        = map(string)
+  default     = {}
 }
 
 variable "idp_web_acl_id" {
