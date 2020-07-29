@@ -212,11 +212,11 @@ variable "elasticache_redis_node_type" {
 
 variable "elasticache_redis_engine_version" {
   description = "Engine version used for redis elasticache. Changes may incur downtime."
-  default     = "3.2.10"
+  default     = "5.0.6"
 }
 
 variable "elasticache_redis_parameter_group_name" {
-  default = "default.redis3.2"
+  default = "default.redis5.0"
 }
 
 variable "elasticsearch_volume_size" {
