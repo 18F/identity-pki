@@ -27,3 +27,19 @@ execute 'register_with_nessus' do
   ignore_failure true
   sensitive      true
 end
+
+systemd_unit 'nessus-cleanup.service' do
+  content('Unit' => {
+            'Description' => 'Delete my own nessus client registration at shutdown/termination',
+            'DefaultDependencies' => 'no',
+            'Before' => 'shutdown.target halt.target',
+          },
+          'Service' => {
+            'Type' => 'oneshot',
+            'ExecStart' => "/opt/nessus_agent/sbin/nessuscli agent unlink",
+          },
+          'Install' => {
+            'WantedBy' => 'halt.target shutdown.target',
+          })
+  action [:create, :enable]
+end
