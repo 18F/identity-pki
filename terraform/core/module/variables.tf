@@ -109,3 +109,13 @@ variable "prod_records" {
   type        = list(any)
   default     = []
 }
+
+variable "slack_sns_email" {
+  description = "Email for SNS topic for Slack notifications."
+  type        = string
+}
+
+variable "slack_sns_name" {
+  description = "Name for SNS topic for Slack notifications."
+  type        = string
+}

@@ -18,3 +18,12 @@ resource "aws_sns_topic_subscription" "opsgenie_devops_high" {
   endpoint  = "https://api.opsgenie.com/v1/json/cloudwatch?apiKey=a0afabc6-eca0-477d-b05a-0e6dc6990729"
 }
 
+module "sns_identity_events_use1" {
+  source = "../../modules/slack_sns/"
+  providers = {
+    aws = aws.us-east-1
+  }
+
+  sns_subscription_email_address_list = [var.slack_sns_email]
+  sns_topic_display_name              = var.slack_sns_name
+}

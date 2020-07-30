@@ -17,13 +17,13 @@ variable "sns_subscription_protocol" {
 variable "sns_topic_name" {
   description = "SNS topic name"
   type        = string
-  default     = "identity-events"
+  default     = "login-events"
 }
 
 variable "sns_topic_display_name" {
   description = "SNS topic display name"
   type        = string
-  default     = "identity-events"
+  default     = "SlackSNS"
 }
 
 data "template_file" "aws_cf_sns_stack" {

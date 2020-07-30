@@ -11,5 +11,16 @@
         ]
       }
     }
+  },
+  "Outputs": {
+    "SlackSNSTopic": {
+      "Description": "ARN of the SNS topic",
+      "Value": {
+        "Ref": "SNSTopic"
+      },
+      "Export": {
+        "Name": "slack_sns_topic"
+      }
+    }
   }
 }
