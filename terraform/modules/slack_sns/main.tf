@@ -1,8 +1,6 @@
 # Hack to allow email-based SNS subscription creation in Terraform using CloudFormation:
 # https://medium.com/@raghuram.arumalla153/aws-sns-topic-subscription-with-email-protocol-using-terraform-ed05f4f19b73
 
-# -- Variables --
-
 variable "sns_subscription_email_address_list" {
   description = "List of email addresses"
   type        = list(string)
@@ -15,9 +13,9 @@ variable "sns_subscription_protocol" {
 }
 
 variable "sns_topic_name" {
-  description = "SNS topic name"
+  description = "SNS topic name. Letters, numbers, and hyphens ONLY."
   type        = string
-  default     = "login-events"
+  default     = "slack-events"
 }
 
 variable "sns_topic_display_name" {
@@ -38,9 +36,14 @@ data "template_file" "aws_cf_sns_stack" {
 }
 
 resource "aws_cloudformation_stack" "tf_sns_topic" {
-  name = "identity-events-SNS"
+  name = var.sns_topic_name
   template_body = data.template_file.aws_cf_sns_stack.rendered
   tags = {
-    name = "identity-events-SNS"
+    name = var.sns_topic_name
   }
+}
+
+output "sns_topic_arn" {
+  description = "ARN of the SNS topic."
+  value = aws_cloudformation_stack.tf_sns_topic.outputs["SlackSNSTopic"]
 }

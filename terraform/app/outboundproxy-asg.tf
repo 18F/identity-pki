@@ -177,6 +177,6 @@ module "outboundproxy_cloudwatch_filters" {
   source = "github.com/18F/identity-terraform//squid_cloudwatch_filters?ref=19a1a7d7a5c3e2177f62d96a553fed53ac2c251c"
 
   env_name      = var.env_name
-  alarm_actions = [var.slack_events_sns_hook_arn] # notify slack on denied requests
+  alarm_actions = [var.sns_slack_usw2_arn] # notify slack on denied requests
 }
 

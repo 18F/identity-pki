@@ -19,7 +19,7 @@
         "Ref": "SNSTopic"
       },
       "Export": {
-        "Name": "slack_sns_topic"
+        "Name": "SlackSNSTopic"
       }
     }
   }
