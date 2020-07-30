@@ -64,6 +64,16 @@ module "main" {
       type = "CNAME",
       record_set = [
         {
+          "name"    = "_acme-challenge.demo.",
+          "records" = ["_acme-challenge.demo.login.gov.external-domains-production.cloud.gov."],
+          "ttl"     = "900",
+        },
+        {
+          "name"    = "demo.",
+          "records" = ["demo.login.gov.external-domains-production.cloud.gov."],
+          "ttl"     = "900",
+        },
+        {
           "name"    = "hs1._domainkey.",
           "records" = ["login-gov.hs01a.dkim.hubspotemail.net."],
           "ttl"     = "900",
