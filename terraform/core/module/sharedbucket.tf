@@ -1,85 +1,10 @@
 data "aws_caller_identity" "current" {
 }
 
-# Policy for shared-data bucket
-data "aws_iam_policy_document" "shared" {
-  statement {
-    principals {
-      type        = "AWS"
-      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/KMSAdministrator"]
-    }
-    actions = [
-      "s3:ListBucket",
-    ]
-    resources = [
-      "arn:aws:s3:::login-gov.shared-data.${data.aws_caller_identity.current.account_id}",
-    ]
-  }
-
-  statement {
-    principals {
-      type        = "AWS"
-      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/KMSAdministrator"]
-    }
-    actions = [
-      "s3:PutObject",
-      "s3:GetObject",
-    ]
-    resources = [
-      "arn:aws:s3:::login-gov.shared-data.${data.aws_caller_identity.current.account_id}/*",
-    ]
-  }
-}
-
-# Policy covering uploads to the lambda functions bucket
-data "aws_iam_policy_document" "lambda-functions" {
-  # Allow CircleCI role to upload under /circleci/*
-  statement {
-    sid    = "AllowCircleCIPuts"
-    effect = "Allow"
-    principals {
-      type        = "AWS"
-      identifiers = [aws_iam_user.circleci.arn]
-    }
-    actions = [
-      "s3:PutObject",
-    ]
-    resources = [
-      "arn:aws:s3:::login-gov.lambda-functions.${data.aws_caller_identity.current.account_id}-${var.region}/circleci/*",
-    ]
-  }
-}
-
-# policy allowing SES to upload files to the email bucket under /inbound/*
-data "aws_iam_policy_document" "ses-upload" {
-  statement {
-    sid    = "AllowSESPuts"
-    effect = "Allow"
-    principals {
-      type        = "Service"
-      identifiers = ["ses.amazonaws.com"]
-    }
-    actions = [
-      "s3:PutObject",
-    ]
-    resources = [
-      "arn:aws:s3:::login-gov.email.${data.aws_caller_identity.current.account_id}-${var.region}/inbound/*",
-    ]
-    condition {
-      test     = "StringEquals"
-      variable = "aws:Referer"
-      values   = [data.aws_caller_identity.current.account_id]
-    }
-  }
-}
-
 locals {
   s3_bucket_data = {
-    "shared-data" = {
-      policy = data.aws_iam_policy_document.shared.json
-    },
+    "shared-data" = {},
     "email" = {
-      policy          = data.aws_iam_policy_document.ses-upload.json
       lifecycle_rules = [
         {
           id              = "expireinbound"
@@ -97,7 +22,6 @@ locals {
       force_destroy = false
     },
     "lambda-functions" = {
-      policy             = data.aws_iam_policy_document.lambda-functions.json
       lifecycle_rules    = [
         {
           id          = "inactive"
@@ -142,6 +66,86 @@ module "s3_shared" {
   
   bucket_prefix = "login-gov"
   bucket_data = local.s3_bucket_data
+}
+
+# Policy for shared-data bucket
+resource "aws_s3_bucket_policy" "shared" {
+  bucket = module.s3_shared.buckets["shared-data"]
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/KMSAdministrator"
+      },
+      "Action": "s3:ListBucket",
+      "Resource": "arn:aws:s3:::${module.s3_shared.buckets["shared-data"]}"
+    },
+    {
+      "Sid": "",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/KMSAdministrator"
+      },
+      "Action": [
+        "s3:PutObject",
+        "s3:GetObject"
+      ],
+      "Resource": "arn:aws:s3:::${module.s3_shared.buckets["shared-data"]}/*"
+    }
+  ]
+}
+POLICY
+}
+
+# Policy covering uploads to the lambda functions bucket
+resource "aws_s3_bucket_policy" "lambda-functions" {
+  bucket = module.s3_shared.buckets["lambda-functions"]
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowCircleCIPuts",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "${aws_iam_user.circleci.arn}"
+      },
+      "Action": "s3:PutObject",
+      "Resource": "arn:aws:s3:::${module.s3_shared.buckets["lambda-functions"]}/circleci/*"
+    }
+  ]
+}
+POLICY
+}
+
+# policy allowing SES to upload files to the email bucket under /inbound/*
+resource "aws_s3_bucket_policy" "ses-upload" {
+  bucket = module.s3_shared.buckets["email"]
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowSESPuts",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ses.amazonaws.com"
+      },
+      "Action": "s3:PutObject",
+      "Resource": "arn:aws:s3:::${module.s3_shared.buckets["email"]}/inbound/*",
+      "Condition": {
+        "StringEquals": {
+          "aws:Referer": "${data.aws_caller_identity.current.account_id}"
+        }
+      }
+    }
+  ]
+}
+POLICY
 }
 
 # Create a common bucket for storing ELB/ALB access logs
