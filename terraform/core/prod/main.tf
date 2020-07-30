@@ -47,7 +47,7 @@ module "main" {
           "name"    = "_acme-challenge.www.",
           "records" = ["L1XfURLRizB_sP022sBOoQGaulRl34R9B3xEZxTTFfs"],
           "ttl"     = "120",
-        },   
+        },
         {
           "name"    = "_acme-challenge.partners.",
           "records" = ["l0DvBtdqJcAcfwmje4YpBglqymSl5xVFseBiMiZf3hE"],
