@@ -38,12 +38,6 @@ resource "aws_alb_target_group" "idpxtra" {
   protocol = "HTTPS"
   vpc_id   = aws_vpc.default.id
 
-  stickiness {
-    type            = "lb_cookie"
-    cookie_duration = var.idpxtra_sticky_ttl
-    enabled         = var.idpxtra_sticky_ttl == 0 ? false : true
-  }
-
   deregistration_delay = 120
 
   tags = {
@@ -52,14 +46,13 @@ resource "aws_alb_target_group" "idpxtra" {
   }
 }
 
-resource "aws_lb_listener_rule" "idpxtra_client_id" {
-  # Using list instead of map to automatically set priority
-  count = length(var.idpxtra_client_ids)
+resource "aws_lb_listener_rule" "idpxtra_client_id_query" {
+  # Match against query string
+  for_each = var.idpxtra_client_ids
 
   depends_on = [aws_alb_target_group.idpxtra]
 
   listener_arn = aws_alb_listener.idp-ssl.id
-  priority     = 100 + count.index
 
   action {
     type             = "forward"
@@ -70,7 +63,29 @@ resource "aws_lb_listener_rule" "idpxtra_client_id" {
   condition {
     query_string {
       key   = "client_id"
-      value = var.idpxtra_client_ids[count.index]
+      value = each.value
+    }
+  }
+}
+
+resource "aws_lb_listener_rule" "idpxtra_client_id_cookie" {
+  # Match against cookie
+  for_each = var.idpxtra_client_ids
+
+  depends_on = [aws_alb_target_group.idpxtra]
+
+  listener_arn = aws_alb_listener.idp-ssl.id
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_alb_target_group.idpxtra.arn
+  }
+
+  # Match client_id portion of query string
+  condition {
+    http_header {
+      http_header_name = "cookie"
+      values           = ["*sp_issuer=${each.value}*"]
     }
   }
 }
