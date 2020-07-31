@@ -44,12 +44,12 @@ class IdentifyController < ApplicationController
     token = if cert_pem
               process_cert(cert_pem)
             else
-              process_error
+              certificate_none_error
             end
     CGI.escape(token)
   end
 
-  def process_error
+  def certificate_none_error
     logger.warn('No certificate found in headers.')
     TokenService.box(error: 'certificate.none', nonce: nonce)
   end
@@ -70,8 +70,12 @@ class IdentifyController < ApplicationController
     x509_cert = OpenSSL::X509::Certificate.new(raw_cert)
     cert = Certificate.new(x509_cert)
 
-    cert.token(nonce: nonce, has_eku: self.certificate_has_eku?(x509_cert))
+    cert.token(nonce: nonce, has_eku: IdentifyController.certificate_has_eku?(x509_cert))
   rescue OpenSSL::X509::CertificateError => error
+    certificate_bad_error(error)
+  end
+
+  def certificate_bad_error(error)
     logger.warn("CertificateError: #{error.message}")
     TokenService.box(error: 'certificate.bad', nonce: nonce)
   end
