@@ -63,19 +63,19 @@ class IdentifyController < ApplicationController
 
   # :reek:UtilityFunction
   def process_cert(raw_cert)
-    x509 = OpenSSL::X509::Certificate.new(raw_cert)
+    x509_cert = OpenSSL::X509::Certificate.new(raw_cert)
     cert = Certificate.new(x509)
 
-    cert.token(nonce: nonce, has_eku: certificate_has_eku?(x509))
+    cert.token(nonce: nonce, has_eku: self.certificate_has_eku?(x509_cert))
   rescue OpenSSL::X509::CertificateError => error
     logger.warn("CertificateError: #{error.message}")
     TokenService.box(error: 'certificate.bad', nonce: nonce)
   end
 
-  def certificate_has_eku?(x509)
-    x509.extensions.each do |ext|
+  def self.certificate_has_eku?(x509_cert)
+    x509_cert.extensions.each do |ext|
       return true if ext.to_s =~ /^extendedKeyUsage/
-      end
+    end
     false
   end
 
