@@ -544,7 +544,7 @@ locals {
   bootstrap_main_git_ref_default   = var.bootstrap_main_git_ref_default != "" ? var.bootstrap_main_git_ref_default : "stages/${var.env_name}"
   account_default_ami_id           = data.aws_caller_identity.current.account_id == "555546682965" ? var.default_ami_id_prod : var.default_ami_id_sandbox
   account_rails_ami_id             = data.aws_caller_identity.current.account_id == "555546682965" ? var.rails_ami_id_prod : var.rails_ami_id_sandbox
-  high_priority_alarm_actions      = var.page_devops == 1 ? [var.high_priority_sns_hook, var.sns_slack_usw2_arn] : [var.sns_slack_usw2_arn]
+  high_priority_alarm_actions      = var.page_devops == 1 ? [var.high_priority_sns_hook, var.slack_events_sns_hook_arn] : [var.slack_events_sns_hook_arn]
 }
 
 # These variables are used to toggle whether certain services are enabled.
@@ -604,8 +604,8 @@ variable "db_restore_role_arns" {
   description = "Name of role used to restore db data to another env (e.g. arn:aws:iam::555546682965:role/dm_idp_iam_role)"
 }
 
-variable "sns_slack_usw2_arn" {
-  description = "ARN of SNS topic (in us-west-2) that will notify the #identity-events/#identity-otherevents channels in Slack"
+variable "slack_events_sns_hook_arn" {
+  description = "ARN of SNS topic that will notify the #identity-events/#identity-otherevents channels in Slack"
 }
 
 variable "kms_log_kinesis_shards" {
