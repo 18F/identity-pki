@@ -16,6 +16,13 @@ class Certificate
 
   def_delegators :@cert_policies, :allowed_by_policy?, :critical_policies_recognized?
 
+  def has_eku?
+    @x509_cert.extensions.each do |ext|
+      return true if ext.to_s =~ /^extendedKeyUsage/
+    end
+    false
+  end
+
   def trusted_root?
     CertificateStore.trusted_ca_root_identifiers.include?(key_id)
   end
