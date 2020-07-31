@@ -9,3 +9,4 @@ module "main_secrets_bucket" {
 output "main_secrets_bucket" {
   value = module.main_secrets_bucket.bucket_name
 }
+
