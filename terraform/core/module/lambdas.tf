@@ -38,7 +38,7 @@ module "audit-github-alerts" {
   
   enabled              = var.lambda_audit_github_enabled
   function_name        = var.lambda_audit_github_enabled == 1 ? aws_lambda_function.audit-github[0].function_name : ""
-  alarm_actions        = [var.slack_events_sns_hook_arn]
+  alarm_actions        = [module.sns_slack_usw2.sns_topic_arn]
   error_rate_threshold = 1 # percent
 }
 
@@ -154,7 +154,7 @@ module "audit-aws-alerts" {
 
   enabled              = var.lambda_audit_aws_enabled
   function_name        = var.lambda_audit_aws_enabled == 1 ? aws_lambda_function.audit-aws[0].function_name : ""
-  alarm_actions        = [var.slack_events_sns_hook_arn]
+  alarm_actions        = [module.sns_slack_usw2.sns_topic_arn]
   error_rate_threshold = 1 # percent
 }
 
