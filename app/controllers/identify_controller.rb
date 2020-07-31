@@ -44,10 +44,14 @@ class IdentifyController < ApplicationController
     token = if cert_pem
               process_cert(cert_pem)
             else
-              logger.warn('No certificate found in headers.')
-              TokenService.box(error: 'certificate.none', nonce: nonce)
+              process_error
             end
     CGI.escape(token)
+  end
+
+  def process_error
+    logger.warn('No certificate found in headers.')
+    TokenService.box(error: 'certificate.none', nonce: nonce)
   end
 
   # :reek:DuplicateMethodCall
@@ -64,7 +68,7 @@ class IdentifyController < ApplicationController
   # :reek:UtilityFunction
   def process_cert(raw_cert)
     x509_cert = OpenSSL::X509::Certificate.new(raw_cert)
-    cert = Certificate.new(x509)
+    cert = Certificate.new(x509_cert)
 
     cert.token(nonce: nonce, has_eku: self.certificate_has_eku?(x509_cert))
   rescue OpenSSL::X509::CertificateError => error
