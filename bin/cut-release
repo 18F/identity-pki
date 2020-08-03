@@ -44,7 +44,6 @@ RELEASE_PRS=$(echo "${PR_LIST}" |
 run git checkout -b release/v${NEW_RELEASE}
 run rake release
 run git push origin release/v${NEW_RELEASE}
-run git push --tags
 
 run ${GIT_DIR}/bin/github-pr -m "$(cat <<EOF
 Release v${NEW_RELEASE}
