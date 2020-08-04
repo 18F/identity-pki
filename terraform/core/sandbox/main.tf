@@ -15,7 +15,7 @@ module "main" {
   source = "../module"
 
   state_lock_table            = "terraform_locks"
-  slack_events_sns_hook_arn   = "arn:aws:sns:us-west-2:894947205914:identity-events"
+  slack_sns_name              = "slack-sandbox-events" 
   root_domain                 = "identitysandbox.gov"
   mx_provider                 = "amazon-ses-inbound.us-west-2"
   sandbox_ses_inbound_enabled = 1

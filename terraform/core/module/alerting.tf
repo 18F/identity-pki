@@ -1,7 +1,7 @@
-// For now not much is here. Subscriptions of type "email" are not supported
-// in Terraform, because creating one does not create an ARN immediately. If we
-//  move to something that takes requests in HTTPS form (like OpsGenie) we
-// should add those subscriptions here.
+data "aws_s3_bucket_object" "slack_sns_email" {
+  bucket = module.main_secrets_bucket.bucket_name
+  key    = "slack_sns_email"
+}
 
 resource "aws_sns_topic" "devops_high_priority" {
   name = "devops_high_priority"
@@ -18,3 +18,9 @@ resource "aws_sns_topic_subscription" "opsgenie_devops_high" {
   endpoint  = "https://api.opsgenie.com/v1/json/cloudwatch?apiKey=a0afabc6-eca0-477d-b05a-0e6dc6990729"
 }
 
+module "sns_slack" {
+  source = "../../modules/slack_sns/"
+
+  sns_subscription_email_address_list = [data.aws_s3_bucket_object.slack_sns_email.body]
+  sns_topic_display_name              = var.slack_sns_name
+}
