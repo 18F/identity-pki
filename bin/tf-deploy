@@ -378,11 +378,11 @@ load_env_module_style() {
 
 
 # Load and validate environment variables from identity-devops-private using
-# bin/load-env.sh and bin/get-tfvars-for-env
+# bin/deploy/load-env.sh and bin/deploy/get-tfvars-for-env
 load_env_devops_private_style() {
     echo >&2 "DEPLOY: Loading shared-style environment variables..."
     verify_not_module_style
-    . bin/load-env.sh "$ENVIRONMENT"
+    . bin/deploy/load-env.sh "$ENVIRONMENT"
 
     if [ -z "${TF_VAR_account_id-}" ]; then
         echo_red >&2 "Expected to find TF_VAR_account_id in private env"
@@ -395,7 +395,7 @@ load_env_devops_private_style() {
         echo >&2 "Looks like this environment has switched to using .tfvars files"
 
         # read a list of .tfvars files printed by get-tfvars-for-env
-        tfvars_names="$(bin/get-tfvars-for-env "$aws_account_id" "$ENVIRONMENT")"
+        tfvars_names="$(bin/deploy/get-tfvars-for-env "$aws_account_id" "$ENVIRONMENT")"
 
         # render an array prefixing each filename with -var-file
         # in bash 4 we could use mapfile instead
@@ -515,7 +515,7 @@ fi
 
 echo >&2 "Configuring state bucket $TERRAFORM_STATE_BUCKET with path $STATE"
 
-run bin/configure_state_bucket.sh "$style_option" "$TERRAFORM_STATE_BUCKET" \
+run bin/deploy/configure_state_bucket.sh "$style_option" "$TERRAFORM_STATE_BUCKET" \
     "$STATE" "$TF_DIR_FULL" "$TERRAFORM_STATE_BUCKET_REGION" "$ID_state_lock_table"
 
 echo >&2 "+ cd terraform/$TF_DIR_FULL"
@@ -581,7 +581,7 @@ if [[ "${TF_CMD[0]}" =~ ^(apply|destroy)$ ]] ; then
         TF_DEPLOY_INFO=$(echo "${TF_VERSION_INFO}" | sed '$!s/$/\\n/' | tr -d '\n')
         TF_PATH=${TF_DIR_FULL}
     else
-        TF_DEPLOY_INFO=$(bin/get-version-info.sh "${ENVIRONMENT}" 2>/dev/null | sed '$!s/$/\\n/' | tr -d '\n')
+        TF_DEPLOY_INFO=$(bin/deploy/get-version-info.sh "${ENVIRONMENT}" 2>/dev/null | sed '$!s/$/\\n/' | tr -d '\n')
         TF_PATH="${TF_DIR_FULL}/${ENVIRONMENT}"
     fi
 

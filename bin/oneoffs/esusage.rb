@@ -21,20 +21,25 @@ totallines = 0
 totaldiskspace = Filesize.from("0B")
 
 ARGF.each do |line|
-	# get line
-	data = line.split(/\s+/)
+    # get line
+    data = line.split(/\s+/)
 
-	# skip if not in last 30 days
-	datestring = data[2].split(/-/).last
-	indexdate = Date.strptime(datestring, '%Y.%m.%d')
-	next if indexdate < Date.today - 30
+    # skip if not in last 30 days
+    datestring = data[2].split(/-/).last
+    begin
+        indexdate = Date.strptime(datestring, '%Y.%m.%d')
+    rescue
+        puts "Could not parse date in #{datestring}"
+        next
+    end
+    next if indexdate < Date.today - 30
 
-	# add log lines
-	totallines = totallines + data[6].to_i
+    # add log lines
+    totallines = totallines + data[6].to_i
 
-	# add disk space
-	diskspace = Filesize.from(data[9])
-	totaldiskspace = totaldiskspace + diskspace
+    # add disk space
+    diskspace = Filesize.from(data[9])
+    totaldiskspace = totaldiskspace + diskspace
 end
 
 puts "total log messages handled in the last 30 days: #{totallines}"

@@ -111,7 +111,7 @@ echo "Gathering data from ${IDPTOP}"
 bin/scp-instance ${IDPTOP}:~/*-pocust.txt "${ODIR}/"
 
 echo "Getting applied terraform/app version"
-bin/get-version-info.sh ${ENV} > "${ODIR}/terraform-app-version.txt"
+bin/deploy/get-version-info.sh ${ENV} > "${ODIR}/terraform-app-version.txt"
 
 if [ ! -z "${LOCUST_MASTER}" ]; then
   echo "Footprinting ${LOCUST_MASTER}"
