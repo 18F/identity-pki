@@ -2,7 +2,7 @@ data "aws_caller_identity" "current" {
 }
 
 locals {
-  s3_buckets_uw2 = {
+  s3_bucket_data = {
     "shared-data" = {},
     "email" = {
       lifecycle_rules = [
@@ -60,79 +60,12 @@ locals {
   }
 }
 
-module "s3_shared_uw2" {
+module "s3_shared" {
   source = "github.com/18F/identity-terraform//s3_bucket_block?ref=5936d2aa33f5835bf7576e74061185cae61da4d9"
   #source = "../../../../identity-terraform/s3_bucket_block"
   
   bucket_prefix = "login-gov"
-  bucket_data = local.s3_buckets_uw2
-}
-
-# Policy for shared-data bucket
-resource "aws_s3_bucket_policy" "shared" {
-  bucket = module.s3_shared_uw2.buckets["shared-data"]
-  policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "",
-      "Effect": "Allow",
-      "Principal": {
-        "AWS": "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/KMSAdministrator"
-      },
-      "Action": "s3:ListBucket",
-      "Resource": "arn:aws:s3:::${module.s3_shared_uw2.buckets["shared-data"]}"
-    },
-    {
-      "Sid": "",
-      "Effect": "Allow",
-      "Principal": {
-        "AWS": "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/KMSAdministrator"
-      },
-      "Action": [
-        "s3:PutObject",
-        "s3:GetObject"
-      ],
-      "Resource": "arn:aws:s3:::${module.s3_shared_uw2.buckets["shared-data"]}/*"
-    }
-  ]
-}
-POLICY
-}
-
-# Policy covering uploads to the lambda functions bucket
-module "s3_policies_uw2" {
-  source = "../../modules/shared_bucket_policies"
-  
-  lambda_bucket = module.s3_shared_uw2.buckets["lambda-functions"]
-  circleci_arn = aws_iam_user.circleci.arn
-}
-
-# policy allowing SES to upload files to the email bucket under /inbound/*
-resource "aws_s3_bucket_policy" "ses-upload" {
-  bucket = module.s3_shared_uw2.buckets["email"]
-  policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "AllowSESPuts",
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "ses.amazonaws.com"
-      },
-      "Action": "s3:PutObject",
-      "Resource": "arn:aws:s3:::${module.s3_shared_uw2.buckets["email"]}/inbound/*",
-      "Condition": {
-        "StringEquals": {
-          "aws:Referer": "${data.aws_caller_identity.current.account_id}"
-        }
-      }
-    }
-  ]
-}
-POLICY
+  bucket_data = local.s3_bucket_data
 }
 
 # Policy for shared-data bucket
