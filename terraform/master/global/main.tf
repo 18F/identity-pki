@@ -3,7 +3,7 @@ provider "aws" {
   allowed_account_ids = ["340731855345"] # require login-master
   profile             = "login-master"
 
-  version = "~> 2.29"
+  version = "~> 2.70.0"
 }
 
 # Stub remote config
