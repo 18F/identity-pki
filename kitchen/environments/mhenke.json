@@ -1,0 +1,23 @@
+{
+  "name": "mhenke",
+  "description": "Mitchell's personal environment",
+  "json_class": "Chef::Environment",
+  "chef_type": "environment",
+  "default_attributes": {
+    "elk": {
+      "retentiondays": 14,
+      "users": [
+        "mhenke"
+      ]
+    },
+    "login_dot_gov": {
+      "idp_run_migrations": true,
+      "allow_unsafe_migrations": true,
+      "idp_sync_static": false,
+      "deploy_branch_default": "master"
+    }
+  },
+  "override_attributes": {
+
+  }
+}
