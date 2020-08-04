@@ -90,7 +90,7 @@ resource "aws_config_config_rule" "iam-user-unused-credentials-check" {
   description      = "Checks whether your AWS Identity and Access Management (IAM) users have passwords or active access keys that have not been used within the specified number of days you provided."
   input_parameters = <<EOP
     {
-        "maxCredentialUsageAge" : 90
+        "maxCredentialUsageAge": "90"
     }
 
     EOP
