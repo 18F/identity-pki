@@ -16,7 +16,7 @@ class Certificate
 
   def_delegators :@cert_policies, :allowed_by_policy?, :critical_policies_recognized?
 
-  def has_eku?
+  def auth_cert?
     @x509_cert.extensions.each do |ext|
       return true if ext.to_s =~ /^extendedKeyUsage.+1\.3\.6\.1\.5\.2\.3\.4/
     end

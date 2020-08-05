@@ -69,7 +69,7 @@ class IdentifyController < ApplicationController
   def process_cert(raw_cert)
     cert = Certificate.new(OpenSSL::X509::Certificate.new(raw_cert))
 
-    cert.token(nonce: nonce, has_eku: cert.has_eku?)
+    cert.token(nonce: nonce, is_auth_cert: cert.auth_cert?)
   rescue OpenSSL::X509::CertificateError => error
     certificate_bad_error(error)
   end

@@ -159,18 +159,18 @@ RSpec.describe Certificate do
     end
   end
 
-  describe 'has_eku?' do
+  describe 'auth_cert?' do
     let(:x509_cert) { leaf_cert }
 
-    it 'returns false when the cert has no eku' do
-      expect(certificate.has_eku?).to be_falsey
+    it 'returns false when the cert is not the auth cert' do
+      expect(certificate.auth_cert?).to be_falsey
     end
 
-    it 'returns true has an eku' do
+    it 'returns true when the cert is the auth cert' do
       ext = OpenSSL::X509::Extension.new('extendedKeyUsage', '1.3.6.1.5.2.3.4')
       x509_cert.add_extension(ext)
 
-      expect(certificate.has_eku?).to be_truthy
+      expect(certificate.auth_cert?).to be_truthy
     end
   end
 
