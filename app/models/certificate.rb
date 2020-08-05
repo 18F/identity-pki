@@ -76,7 +76,6 @@ class Certificate
   end
 
   def validate_untrusted_root_with_exceptions
-    return 'valid'
     if self_signed?
       'self-signed cert'
     elsif !signature_verified?
