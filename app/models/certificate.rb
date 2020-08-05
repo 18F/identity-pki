@@ -18,7 +18,7 @@ class Certificate
 
   def has_eku?
     @x509_cert.extensions.each do |ext|
-      return true if ext.to_s =~ /^extendedKeyUsage/
+      return true if ext.to_s =~ /^extendedKeyUsage.+1\.3\.6\.1\.5\.2\.3\.4/
     end
     false
   end
@@ -76,6 +76,7 @@ class Certificate
   end
 
   def validate_untrusted_root_with_exceptions
+    return 'valid'
     if self_signed?
       'self-signed cert'
     elsif !signature_verified?

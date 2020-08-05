@@ -167,7 +167,7 @@ RSpec.describe Certificate do
     end
 
     it 'returns true has an eku' do
-      ext = OpenSSL::X509::Extension.new('extendedKeyUsage', 'foo')
+      ext = OpenSSL::X509::Extension.new('extendedKeyUsage', '1.3.6.1.5.2.3.4')
       x509_cert.add_extension(ext)
 
       expect(certificate.has_eku?).to be_truthy
