@@ -77,8 +77,10 @@ keyserver.ubuntu.com
 route53.amazonaws.com
 <%= @identity_idp %>
 
+<% unless @identity_idp == '.login.gov' -%>
 # access to KMS in us-east-1
 kms.us-east-1.amazonaws.com
+<% end -%>
 
 # TODO: we should be using a VPC private endpoint for STS
 # https://github.com/18F/identity-devops/issues/2200
