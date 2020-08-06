@@ -159,6 +159,21 @@ RSpec.describe Certificate do
     end
   end
 
+  describe 'auth_cert?' do
+    let(:x509_cert) { leaf_cert }
+
+    it 'returns false when the cert is not the auth cert' do
+      expect(certificate.auth_cert?).to be_falsey
+    end
+
+    it 'returns true when the cert is the auth cert' do
+      ext = OpenSSL::X509::Extension.new('extendedKeyUsage', '1.3.6.1.5.2.3.4')
+      x509_cert.add_extension(ext)
+
+      expect(certificate.auth_cert?).to be_truthy
+    end
+  end
+
   describe '#ocsp_http_url' do
     let(:x509_cert) { leaf_cert }
 

@@ -16,6 +16,10 @@ class Certificate
 
   def_delegators :@cert_policies, :allowed_by_policy?, :critical_policies_recognized?
 
+  def auth_cert?
+    @x509_cert.extensions.any? { |ext| ext.to_s =~ /^extendedKeyUsage.+1\.3\.6\.1\.5\.2\.3\.4/ }
+  end
+
   def trusted_root?
     CertificateStore.trusted_ca_root_identifiers.include?(key_id)
   end
