@@ -581,9 +581,9 @@ resource "aws_security_group" "idp" {
     cidr_blocks = [
       aws_subnet.idp1.cidr_block,
       aws_subnet.idp2.cidr_block,
-      aws_subnet.publicsubnet1.cidr_block,
-      aws_subnet.publicsubnet2.cidr_block,
-      aws_subnet.publicsubnet3.cidr_block,
+      aws_subnet.privatesubnet1.cidr_block,
+      aws_subnet.privatesubnet2.cidr_block,
+      aws_subnet.privatesubnet3.cidr_block,
     ]
   }
 
@@ -896,9 +896,9 @@ resource "aws_security_group" "web" {
     cidr_blocks = [
       var.idp1_subnet_cidr_block,
       var.idp2_subnet_cidr_block,
-      var.public1_subnet_cidr_block,
-      var.public2_subnet_cidr_block,
-      var.public3_subnet_cidr_block,
+      var.private1_subnet_cidr_block,
+      var.private2_subnet_cidr_block,
+      var.private3_subnet_cidr_block,
     ]
   }
   egress {
@@ -908,9 +908,9 @@ resource "aws_security_group" "web" {
     cidr_blocks = [
       var.idp1_subnet_cidr_block,
       var.idp2_subnet_cidr_block,
-      var.public1_subnet_cidr_block,
-      var.public2_subnet_cidr_block,
-      var.public3_subnet_cidr_block,
+      var.private1_subnet_cidr_block,
+      var.private2_subnet_cidr_block,
+      var.private3_subnet_cidr_block,
     ]
   }
 
