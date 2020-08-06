@@ -81,11 +81,14 @@ resource "aws_lb_listener_rule" "idpxtra_client_id_cookie" {
     target_group_arn = aws_alb_target_group.idpxtra.arn
   }
 
-  # Match client_id portion of query string
+  # Match ARN (raw or urlencoded) in cookie
   condition {
     http_header {
       http_header_name = "cookie"
-      values           = ["*sp_issuer=${each.value}*"]
+      values = [
+        "*sp_issuer=${each.value}*",
+        "*sp_issuer=${urlencode(each.value)}*"
+      ]
     }
   }
 }
