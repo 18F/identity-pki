@@ -1,5 +1,5 @@
 data "aws_s3_bucket_object" "slack_sns_email" {
-  bucket = module.main_secrets_bucket.bucket_name
+  bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
   key    = "slack_sns_email"
 }
 
