@@ -59,6 +59,7 @@ resource "aws_s3_bucket_public_access_block" "config_recorder" {
 }
 
 resource "aws_s3_bucket_policy" "config_recorder" {
+  depends_on = [aws_s3_bucket.config_recorder]
   bucket = aws_s3_bucket.config_recorder.id
   policy = <<POLICY
 {
@@ -126,7 +127,7 @@ data "aws_iam_policy_document" "config_recorder_assume" {
 }
 
 resource "aws_iam_role_policy_attachment" "config_recorder_managed_policy" {
-  role       = aws_iam_role.config_recorder.arn
+  role       = aws_iam_role.config_recorder.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSConfigRole"
 }
 
