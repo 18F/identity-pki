@@ -2,7 +2,7 @@ provider "aws" {
   region              = "us-west-2"
   allowed_account_ids = ["034795980528"] # require login-interviews
   profile             = "login-interviews"
-  version             = "~> 2.37.0"
+  version             = "~> 2.67.0"
 }
 
 # Stub remote config
