@@ -110,7 +110,7 @@ if [[ "${WRITE_CONFIG}" == true ]] ; then
     for ROLE in "${ROLE_ARNS[@]}" ; do
       #echo $ROLE
       ROLE_NAME=$(echo $ROLE | awk -F'+' '{print $1}')
-      ROLE_ARN=$(echo $ROLE | awk -F'+' '{print $2}')
+      ROLE_ARN=$(echo $ROLE | awk -F'+' '{printf "%s/%s",$2,$3}')
       if [[ $(grep "${ROLE_ARN}" ~/.aws/config) ]] ; then
         echo_yellow "${ROLE_ARN} already in config file; skipping."
       elif [[ $(grep "${ROLE_NAME}" ~/.aws/config) ]] ; then
@@ -118,8 +118,12 @@ if [[ "${WRITE_CONFIG}" == true ]] ; then
       else
         define ROLE_BLOCK <<EOF
 [profile ${ROLE_NAME}]
-role_arn = ${ROLE_ARN}
-parent_profile = ${MAIN_PROFILE}
+output=json
+region=us-west-2
+source_profile=${MAIN_PROFILE}
+mfa_serial=${MFA_ARN}
+role_arn=${ROLE_ARN}
+
 EOF
         echo "${ROLE_BLOCK}" | tee -a ~/.aws/config
       fi
