@@ -115,4 +115,10 @@ resource "aws_iam_role_policy" "elasticsearch-ssm-access" {
   policy = data.aws_iam_policy_document.ssm_access_role_policy.json
 }
 
+resource "aws_iam_role_policy" "elasticsearch-sns-publish-alerts" {
+  name   = "${var.env_name}-elasticsearch-sns-publish-alerts"
+  role   = aws_iam_role.elasticsearch.id
+  policy = data.aws_iam_policy_document.sns-publish-alerts-policy.json
+}
+
 # </end> base-permissions policies

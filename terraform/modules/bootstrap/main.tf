@@ -1,3 +1,5 @@
+data "aws_caller_identity" "current" {}
+
 variable "env" {
   description = "Environment (prod/int/dev)"
 }
@@ -84,6 +86,11 @@ variable "override_asg_name" {
   default     = ""
 }
 
+variable "sns_topic_arn" {
+  description = "ARN to send alerts alerts to, ultimately triggering Slack or other message"
+  default     = ""
+}
+
 locals {
   asg_name = var.override_asg_name != "" ? var.override_asg_name : "${var.env}-${var.role}"
 }
@@ -146,6 +153,7 @@ data "external" "cloud-init-base-template" {
   query = {
     erb_template   = file("${path.module}/cloud-init.base.yaml.erb")
     domain         = var.domain
+    sns_topic_arn  = var.sns_topic_arn
     env            = var.env
     role           = var.role
     proxy_server   = local.proxy_server

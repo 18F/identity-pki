@@ -51,6 +51,12 @@ resource "aws_iam_role_policy" "scrub-permissions-ssm-access" {
   policy = data.aws_iam_policy_document.ssm_access_role_policy.json
 }
 
+resource "aws_iam_role_policy" "scrub-sns-publish-alerts" {
+  name   = "${var.env_name}-scrub-sns-publish-alerts"
+  role   = aws_iam_role.scrub-permissions.id
+  policy = data.aws_iam_policy_document.sns-publish-alerts-policy.json
+}
+
 # Log bucket access for storing scrubbed logs
 resource "aws_iam_role_policy" "scrub-permissions-logbucket-access" {
   name   = "${var.env_name}-scrub-permissions-logbucket-access"
@@ -88,9 +94,10 @@ resource "aws_iam_instance_profile" "scrub-permissions" {
 module "scrubhost_user_data" {
   source = "../modules/bootstrap/"
 
-  role   = "scrubhost"
-  env    = var.env_name
-  domain = var.root_domain
+  role          = "scrubhost"
+  env           = var.env_name
+  domain        = var.root_domain
+  sns_topic_arn = var.slack_events_sns_hook_arn
 
   chef_download_url    = var.chef_download_url
   chef_download_sha256 = var.chef_download_sha256

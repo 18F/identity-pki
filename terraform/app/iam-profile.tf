@@ -62,6 +62,13 @@ resource "aws_iam_role_policy" "base-permissions-ssm-access" {
   policy = data.aws_iam_policy_document.ssm_access_role_policy.json
 }
 
+# allow all instances to send a dying SNS notice
+resource "aws_iam_role_policy" "base-permissions-sns-publish-alerts" {
+  name   = "${var.env_name}-base-permissions-sns-publish-alerts"
+  role   = aws_iam_role.base-permissions.id
+  policy = data.aws_iam_policy_document.sns-publish-alerts-policy.json
+}
+
 # IAM instance profile using the citadel client role
 resource "aws_iam_instance_profile" "base-permissions" {
   name = "${var.env_name}-base-permissions"

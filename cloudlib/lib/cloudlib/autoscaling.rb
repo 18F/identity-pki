@@ -14,17 +14,24 @@ module Cloudlib
     attr_reader :autoscaling
     attr_reader :pastel
     attr_reader :prompt
+    attr_reader :default_spindown_delay
+    attr_reader :default_migration_delay
 
     def self.new_resource
       Aws::AutoScaling::Resource.new
     end
 
     RecycleScheduledActionName = 'RecycleOnce.asg-recycle'
+    DelayedScheduleActionName = 'DelayedScaleOutOnce.asg-recycle'
 
     def initialize
       @autoscaling = self.class.new_resource
       @pastel = Pastel.new
       @prompt = TTY::Prompt.new(output: STDERR)
+
+      # A few useful defaults
+      @default_spindown_delay = 900
+      @default_migration_delay = 300
     end
 
     # Print information about the given auto scaling group.
@@ -260,8 +267,10 @@ module Cloudlib
     # @param [Integer] new_size The desired capacity to set immediately
     # @param [Integer] return_to_size The desired capacity to set in the
     #   scheduled action
-    # @param [Integer] spindown_delay How long in the future (seconds) to
-    #   create the scheduled action to set the return_to_size
+    # @param [Integer] spinup_delay How long in the future (seconds) to
+    #   create the scheduled action to set the new_size (Immediate if not set.)
+    # @param [Integer] spindown_delay How long in the future (seconds) after
+    #   spin up to create the scheduled action to set the return_to_size
     # @param [Boolean] print_summary Whether to print a human readable summary
     #   of actions
     # @param [Boolean] skip_zero Whether to keep going if the target desired
@@ -269,9 +278,10 @@ module Cloudlib
     # @param [Boolean] interactive
     #
     def start_recycle(asg_name, new_size: nil, return_to_size: nil,
-                      skip_zero: false, spindown_delay: nil,
+                      skip_zero: false, spindown_delay: nil, spinup_delay: nil,
                       print_summary: true, interactive: true)
       log.info "Starting ASG recycle of #{asg_name.inspect}"
+
 
       # Load current ASG size data and print it
       data = print_asg_info(asg_name, prompt_for_recycle: true)
@@ -292,7 +302,12 @@ module Cloudlib
       # which allow us to set a health check grace period of 0 and have no
       # grace period whatsoever. Use a default spin-down delay of 15 minutes in
       # this case.
-      spindown_delay ||= [health_grace_period * 2, 900].max
+      spindown_delay ||= [health_grace_period * 2, default_spindown_delay].max
+
+      spinup_delay ||= 0
+
+      # Adjust spindown to offset from spinup
+      spindown_delay += spinup_delay
 
       # warn if not using default return-to size
       if return_to_size
@@ -336,6 +351,7 @@ module Cloudlib
         raise Error.new("ASG #{asg_name.inspect} " + message)
       end
 
+      spinup_time = Time.now + spinup_delay
       spindown_time = Time.now + spindown_delay
 
       log.info("ASG recycle of #{asg_name.inspect}: new_size" +
@@ -353,14 +369,21 @@ module Cloudlib
         end
         [
           "Recycling #{asg_name}:",
-          "Will #{direction} #{new_size} instances immediately",
-          "Will return to   #{return_to_size} instances in " +
+          "Will #{direction} #{new_size} instances in " +
+          "#{spinup_delay}s (at #{spinup_time.strftime('%F %T')})",
+          "Will return to #{return_to_size} instances in " +
             "#{spindown_delay}s (at #{spindown_time.strftime('%F %T')})",
         ].each { |line| puts pastel.bold.blue(line) }
       end
 
       if new_size != current_size
-        set_desired_capacity(asg_name, new_size)
+        if spinup_delay != 0
+          create_scheduled_action(asg_name, DelayedScheduleActionName,
+                                  start_time: spinup_time,
+                                  desired_capacity: new_size)
+        else
+          set_desired_capacity(asg_name, new_size)
+        end
       else
         log.info("Current desired capacity is already #{current_size.inspect}")
       end
@@ -375,11 +398,13 @@ module Cloudlib
     # @param [String] env
     # @param [Hash] recycle_opts Options passed directly to `#start_recycle`
     # @param [Boolean] interactive Whether to prompt for confirmation
+    # @param [Boolean] skip_migration Do not auto-manage a migration instance
     #
-    def recycle_all_asgs_in_env(env, recycle_opts: {}, interactive: true)
+    def recycle_all_asgs_in_env(env, recycle_opts: {}, interactive: true,
+                                skip_migration: false)
       prefix = env + '-'
       asgs = list_autoscaling_groups(name_prefix: prefix, skip_stateful: true,
-                                     skip_zero: true)
+                                     skip_zero: true, skip_utility: true)
       if asgs.empty?
         log.error("No ASGs found prefixed #{prefix.inspect} -- wrong account?")
         raise NotFound.new("No auto scaling groups found for #{env.inspect}")
@@ -396,7 +421,24 @@ module Cloudlib
       # calls, but that's future work
       asgs.each do |group|
         puts pastel.bold.green("\nRecycling #{group.name}")
-        start_recycle(group.name, **recycle_opts)
+
+        # Manage pre-recycle migration for IdP
+        if group.name.end_with?('-idp') && !skip_migration
+          puts pastel.bold.yellow('Launching migration instance prior to idp spin up')
+          start_recycle("#{env}-migration",
+                        new_size: 1,
+                        return_to_size: 0,
+                        spindown_delay: recycle_opts[:spindown_delay])
+          idp_opts = recycle_opts.dup
+
+          # Set a default spinup delay
+          if idp_opts[:spinup_delay].nil?
+            idp_opts[:spinup_delay] = default_migration_delay
+          end
+          start_recycle(group.name, **idp_opts)
+        else
+          start_recycle(group.name, **recycle_opts)
+        end
       end
 
       puts pastel.bold.green('All Done')
@@ -432,14 +474,17 @@ module Cloudlib
     # @param [String, nil] name_prefix
     # @param [Boolean] skip_stateful Whether to skip groups that have the
     #   "stateful" tag set
+    # @param [Boolean] skip_utility Whether to skip groups that have the
+    #   "utility" tag set
     # @param [Boolean] skip_zero Whether to skip groups that have desired count
     #   set to 0
     # @return [Array<Aws::AutoScaling::AutoScalingGroup>]
     def list_autoscaling_groups(name_prefix: nil, skip_stateful: false,
-                                skip_zero: false)
+                                skip_zero: false, skip_utility: false)
       msg = 'describe-auto-scaling-groups'
       msg += " with prefix #{name_prefix.inspect}" if name_prefix
       msg += ', skipping stateful groups' if skip_stateful
+      msg += ', skipping utility groups' if skip_utility
       msg += ', skipping empty groups' if skip_zero
       log.debug(msg)
 
@@ -453,6 +498,17 @@ module Cloudlib
         groups.reject! do |g|
           if g.tags.any? { |t| t.key == 'stateful' }
             log.warn("Skipped #{g.name.inspect} because stateful tag is set")
+            true
+          end
+        end
+      end
+
+      # Utility instances (e.g. - migration instances) should not be included
+      # in some bulk operations
+      if skip_utility
+        groups.reject! do |g|
+          if g.tags.any? { |t| t.key == 'utility' }
+            log.warn("Skipped #{g.name.inspect} because utility tag is set")
             true
           end
         end

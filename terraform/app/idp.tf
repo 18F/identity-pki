@@ -79,7 +79,7 @@ resource "aws_db_instance" "idp-read-replica" {
   auto_minor_version_upgrade  = false
   allow_major_version_upgrade = true
   apply_immediately           = true
-  
+
   maintenance_window = var.rds_maintenance_window
   storage_encrypted  = true
   username           = var.rds_username
@@ -287,6 +287,12 @@ resource "aws_iam_role_policy" "idp-ssm-access" {
   policy = data.aws_iam_policy_document.ssm_access_role_policy.json
 }
 
+resource "aws_iam_role_policy" "idp-sns-publish-alerts" {
+  name   = "${var.env_name}-idp-sns-publish-alerts"
+  role   = aws_iam_role.idp.id
+  policy = data.aws_iam_policy_document.sns-publish-alerts-policy.json
+}
+
 # This policy allows writing to the S3 reports bucket
 data "aws_iam_policy_document" "put_reports_to_s3" {
   statement {
@@ -363,9 +369,10 @@ EOM
 module "idp_user_data" {
   source = "../modules/bootstrap/"
 
-  role   = "idp"
-  env    = var.env_name
-  domain = var.root_domain
+  role          = "idp"
+  env           = var.env_name
+  domain        = var.root_domain
+  sns_topic_arn = var.slack_events_sns_hook_arn
 
   chef_download_url    = var.chef_download_url
   chef_download_sha256 = var.chef_download_sha256

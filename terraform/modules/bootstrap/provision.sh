@@ -133,7 +133,7 @@ maybe_complete_lifecycle_hook() {
     if [ -n "$asg_name" ] && [ -n "$asg_lifecycle_hook_name" ]; then
         echo >&2 "Completing ASG lifecycle hook with result: $result"
         complete_lifecycle_hook "$asg_name" "$asg_lifecycle_hook_name" \
-            "$result"
+            "$result" "$sns_topic_arn"
     else
         echo >&2 "No lifecycle hook was specified, nothing to notify."
     fi
@@ -148,7 +148,7 @@ maybe_lifecycle_hook_heartbeat() {
     fi
 }
 
-# usage: complete_lifecycle_hook ASG_NAME ASG_LIFECYCLE_HOOK_NAME RESULT
+# usage: complete_lifecycle_hook ASG_NAME ASG_LIFECYCLE_HOOK_NAME RESULT SNS_TOPIC
 #
 # Notify the specified lifecycle hook with RESULT.
 #
@@ -157,17 +157,28 @@ complete_lifecycle_hook() {
     asg_name="$1"
     asg_lifecycle_hook_name="$2"
     result="$3"
+    sns_topic_arn="$4"
 
     local instance_id az
     instance_id="$(ec2metadata --instance-id)"
     az="$(ec2metadata --availability-zone)"
 
+    # send a notice that the instance was abandoned
+    if [ -n "${sns_topic_arn}" -a "${result}" == "ABANDON" ]; then
+        message="Instance ${instance_id} for ASG ${asg_name} was ABANDONED.  Fatal error in provisioning."
+        run aws sns publish \
+            --region "${az::-1}" \
+            --topic-arn "${sns_topic_arn}" \
+            --message "${message}" \
+            --subject "${asg_name} instance ABANDONED"
+    fi
+
     run aws autoscaling complete-lifecycle-action \
         --region "${az::-1}" \
-        --auto-scaling-group-name "$asg_name" \
-        --lifecycle-hook-name "$asg_lifecycle_hook_name" \
-        --instance-id "$instance_id" \
-        --lifecycle-action-result "$result"
+        --auto-scaling-group-name "${asg_name}" \
+        --lifecycle-hook-name "${asg_lifecycle_hook_name}" \
+        --instance-id "${instance_id}" \
+        --lifecycle-action-result "${result}"
 }
 
 # usage: lifecycle_hook_heartbeat ASG_NAME ASG_LIFECYCLE_HOOK_NAME
@@ -287,6 +298,9 @@ export HOME=/root
 proxy_server="$(cat "$INFO_DIR/proxy_server" || true)"
 proxy_port="$(cat "$INFO_DIR/proxy_port" || true)"
 no_proxy_hosts="$(cat "$INFO_DIR/no_proxy_hosts" || true)"
+
+# Read SNS Topic for notifications
+sns_topic_arn="$(cat "$INFO_DIR/sns_topic_arn" || true)"
 
 #set proxy if provided
 if [ -n "$proxy_server" ]; then
