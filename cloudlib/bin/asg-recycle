@@ -31,7 +31,7 @@ normal number after 10 minutes.
 If the idp role is specified, a migration instance will be started.
 5 minutes (default) later the idp desired instance size will be set to 2x, and
 finally returned to original count after the default spindown of 15 minutes.
-To disable spooling in a migration instance use the -n / --no-migration flag.
+To disable spooling in a migration instance use the -s / --skip-migration flag.
 
 Use -i/--immediate to configure the desired number of instances set immediately
 Use -t/--return-to to configure the desired number of instances after spin down
