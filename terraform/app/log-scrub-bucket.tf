@@ -18,7 +18,8 @@ resource "aws_s3_bucket" "log_scrub_bucket" {
   server_side_encryption_configuration {
     rule {
       apply_server_side_encryption_by_default {
-        sse_algorithm = "aws:kms"
+        # CloudWatch export to S3 does not support KMS
+        sse_algorithm = "AES256"
       }
     }
   }
@@ -42,33 +43,42 @@ resource "aws_s3_bucket_public_access_block" "log_scrub_bucket" {
 data "aws_iam_policy_document" "log_scrub_bucket_write_policy" {
   # Allow CloudWatch to export logs to this bucket
   statement {
+    sid = "allowCloudWatchGetAcl"
     actions = [
-      "s3:GetBucketAcl"
+      "s3:GetBucketAcl",
     ]
     principals {
       type = "Service"
       identifiers = [
-        "logs.${var.region}.amazonaws.com"
+        "logs.${var.region}.amazonaws.com",
       ]
     }
     resources = [
-      "arn:aws:s3:::login-gov-idp-static-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
+      "arn:aws:s3:::login-gov-log-scrub-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}",
     ]
   }
 
   statement {
+    sid = "allowCloudWatchPutObject"
     actions = [
-      "s3:PutObject"
+      "s3:PutObject",
     ]
     principals {
       type = "Service"
       identifiers = [
-        "logs.${var.region}.amazonaws.com"
+        "logs.${var.region}.amazonaws.com",
       ]
     }
     resources = [
-      "arn:aws:s3:::login-gov-idp-static-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}/*"
+      "arn:aws:s3:::login-gov-log-scrub-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}/*",
     ]
+    condition {
+      test     = "StringEquals"
+      variable = "s3:x-amz-acl"
+      values = [
+        "bucket-owner-full-control",
+      ]
+    }
   }
 }
 
@@ -81,8 +91,8 @@ data "aws_iam_policy_document" "log_scrub_bucket_read_policy" {
       "s3:Get*"
     ]
     resources = [
-      "arn:aws:s3:::login-gov-idp-static-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}",
-      "arn:aws:s3:::login-gov-idp-static-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}/*"
+      "arn:aws:s3:::login-gov-log-scrub-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}",
+      "arn:aws:s3:::login-gov-log-scrub-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}/*"
     ]
   }
 }
