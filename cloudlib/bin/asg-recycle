@@ -147,7 +147,7 @@ For example:
     end
 
     as.start_recycle(asg_name, **recycle_opts)
-    puts as.pastel.bold.blue('Done')
+    puts as.pastel.bold.blue('Done! Watch #login-events / #login-otherevents for abandoned/failed launches')
   end
 end
 
