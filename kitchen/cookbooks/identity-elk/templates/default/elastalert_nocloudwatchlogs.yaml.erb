@@ -10,10 +10,6 @@ doc_type: _doc
 timeframe:
     minutes: 20
 use_count_query: true
-filter:
-- query:
-    query_string:
-      query: "*"
 alert:
 <% if ! @emails.empty? %>
 - "email"
