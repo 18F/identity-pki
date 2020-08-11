@@ -5,8 +5,8 @@
 # instances get explicitly added to a DNS record by terraform.
 default['es']['domain'] = 'elasticsearch.login.gov.internal'
 default['es']['sg_version'] = 'search-guard-7'
-default['es']['sg_zip'] = '7.4.2-40.0.0'
-default['es']['sg_zip_sum'] = 'f6eaa321e564803384b39cd8ef5b5667dbb6d052425cfc8b5ef64a9a20dd6b7f'
+default['es']['sg_zip'] = '7.4.2-41.0.0'
+default['es']['sg_zip_sum'] = '3a79cdd09888ee4f8f58c9a6351a532da11c5f0a42f4f772508f84123eda516c'
 default['es']['sg_tls'] = '1.7.tar.gz'
 default['es']['sg_tls_sum'] = '284492779edf037348375994a0f320cc1425bda149d56c3db0031014241e7110'
 
