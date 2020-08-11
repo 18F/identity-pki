@@ -109,7 +109,7 @@ module "main" {
     "brian.crissup"      = ["devops", "keymasters"],
     "christopher.billas" = ["bizops", "finops"],
     "clinton.troxel"     = ["appdev"],
-    "douglas.price"      = ["appdev", "bizops"],
+    "douglas.price"      = ["appdev", "apponcall", "bizops"],
     "jeff.shultz"        = ["analytics"],
     "john.yuda"          = ["analytics"],
     "jonathan.hooper"    = ["appdev", "apponcall", "keymasters"],
