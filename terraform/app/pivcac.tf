@@ -1,9 +1,10 @@
 module "pivcac_user_data" {
   source = "../modules/bootstrap/"
 
-  role   = "pivcac"
-  env    = var.env_name
-  domain = var.root_domain
+  role          = "pivcac"
+  env           = var.env_name
+  domain        = var.root_domain
+  sns_topic_arn = var.slack_events_sns_hook_arn
 
   chef_download_url    = var.chef_download_url
   chef_download_sha256 = var.chef_download_sha256
@@ -112,6 +113,12 @@ resource "aws_iam_role_policy" "pivcac-ssm-access" {
   name   = "${var.env_name}-pivcac-ssm-access"
   role   = aws_iam_role.pivcac.id
   policy = data.aws_iam_policy_document.ssm_access_role_policy.json
+}
+
+resource "aws_iam_role_policy" "pivcac-sns-publish-alerts" {
+  name   = "${var.env_name}-pivcac-sns-publish-alerts"
+  role   = aws_iam_role.pivcac.id
+  policy = data.aws_iam_policy_document.sns-publish-alerts-policy.json
 }
 
 resource "aws_autoscaling_group" "pivcac" {

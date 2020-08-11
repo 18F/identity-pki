@@ -2,7 +2,7 @@ provider "aws" {
   region              = "us-west-2"
   allowed_account_ids = ["555546682965"] # require identity-prod
   profile             = "login.gov"
-  version             = "~> 2.37.0"
+  version             = "~> 2.67.0"
 }
 
 # Stub remote config
@@ -14,10 +14,10 @@ terraform {
 module "main" {
   source = "../module"
 
-  lambda_audit_github_enabled   = 0
-  lambda_audit_aws_enabled      = 0
-  state_lock_table              = "terraform_locks"
-  slack_events_sns_hook_arn     = "arn:aws:sns:us-west-2:555546682965:slack-identity-events"
+  lambda_audit_github_enabled = 0
+  lambda_audit_aws_enabled    = 0
+  state_lock_table            = "terraform_locks"
+  slack_sns_name              = "slack-prod-events" 
 
   prod_records = [
     {
