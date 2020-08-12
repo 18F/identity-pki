@@ -57,6 +57,14 @@ resource "aws_iam_role_policy" "scrub-sns-publish-alerts" {
   policy = data.aws_iam_policy_document.sns-publish-alerts-policy.json
 }
 
+# Read only access to log-scrub bucket - destination for CloudWatch raw
+# exports
+resource "aws_iam_role_policy" "scrub-permissions-log-scrub-bucket" {
+  name   = "${var.env_name}-scrub-permissions-log-scrub-bucket"
+  role   = aws_iam_role.scrub-permissions.id
+  policy = data.aws_iam_policy_document.log_scrub_bucket_read_policy.json
+}
+
 # Log bucket access for storing scrubbed logs
 resource "aws_iam_role_policy" "scrub-permissions-logbucket-access" {
   name   = "${var.env_name}-scrub-permissions-logbucket-access"
