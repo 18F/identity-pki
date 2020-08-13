@@ -574,11 +574,6 @@ variable "pivcac_service_enabled" {
   description = "Whether to run the microservice for PIV/CAC authentication"
 }
 
-variable "kmslogging_enabled" {
-  default     = 0
-  description = "Whether to enable KMS logging data"
-}
-
 # This is needed so the application can download its secrets
 
 variable "app_secrets_bucket_name_prefix" {
