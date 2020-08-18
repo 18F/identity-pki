@@ -8,7 +8,7 @@
   },
   "chef_type": "role",
   "run_list": [
-    "role[base]",
+    "role[base]"
   ],
   "env_run_lists": {
   }
