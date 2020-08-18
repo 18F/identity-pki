@@ -226,6 +226,35 @@ resource "aws_security_group" "secretsmanager_endpoint" {
   vpc_id = aws_vpc.default.id
 }
 
+resource "aws_security_group" "sns_endpoint" {
+  description = "Allow inbound from all servers"
+
+  # allow outbound to the VPC
+  egress {
+    from_port   = 0
+    to_port     = 65535
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr_block]
+  }
+
+  ingress {
+    from_port = 0
+    to_port   = 65535
+    protocol  = "tcp"
+    security_groups = [
+      aws_security_group.base.id,
+    ]
+  }
+
+  name = "${var.name}-sns_endpoint-${var.env_name}"
+
+  tags = {
+    Name = "${var.name}-sns_endpoint-${var.env_name}"
+  }
+
+  vpc_id = aws_vpc.default.id
+}
+
 resource "aws_vpc_endpoint" "kms" {
   vpc_id            = aws_vpc.default.id
   service_name      = "com.amazonaws.${var.region}.kms"
@@ -370,3 +399,20 @@ resource "aws_vpc_endpoint" "secretsmanager" {
   private_dns_enabled = true
 }
 
+resource "aws_vpc_endpoint" "sns" {
+  vpc_id            = aws_vpc.default.id
+  service_name      = "com.amazonaws.${var.region}.sns"
+  vpc_endpoint_type = "Interface"
+
+  security_group_ids = [
+    aws_security_group.sns_endpoint.id,
+  ]
+
+  subnet_ids = [
+    aws_subnet.privatesubnet1.id,
+    aws_subnet.privatesubnet2.id,
+    aws_subnet.privatesubnet3.id,
+  ]
+
+  private_dns_enabled = true
+}
