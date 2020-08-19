@@ -108,6 +108,7 @@ module "main" {
     "brett.mcparland"    = ["secops", "soc"],
     "brian.crissup"      = ["devops", "keymasters"],
     "christopher.billas" = ["bizops", "finops"],
+    "chris.manger"       = ["bizops", "finops"],
     "clinton.troxel"     = ["appdev"],
     "douglas.price"      = ["appdev", "apponcall", "bizops"],
     "jeff.shultz"        = ["analytics"],
