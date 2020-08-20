@@ -120,7 +120,10 @@ resource "aws_security_group" "app" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["192.30.252.0/22"]
+    cidr_blocks = [
+        "192.30.252.0/22",
+        "140.82.112.0/20"
+    ]
   }
 
   ingress {
@@ -254,7 +257,10 @@ resource "aws_security_group" "elk" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["192.30.252.0/22"]
+    cidr_blocks = [
+        "192.30.252.0/22",
+        "140.82.112.0/20"
+    ]
   }
 
   # need to get packages and stuff (conditionally)
@@ -452,7 +458,10 @@ resource "aws_security_group" "jumphost" {
     protocol  = "tcp"
 
     # github
-    cidr_blocks = ["192.30.252.0/22"]
+    cidr_blocks = [
+        "192.30.252.0/22",
+        "140.82.112.0/20"
+    ]
   }
 
   # TODO split out ELB security group from jumphost SG
@@ -604,7 +613,10 @@ resource "aws_security_group" "idp" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["192.30.252.0/22"]
+    cidr_blocks = [
+        "192.30.252.0/22",
+        "140.82.112.0/20"
+    ]
   }
 
   # need 8834 to comm with Nessus Server
@@ -747,7 +759,10 @@ resource "aws_security_group" "migration" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["192.30.252.0/22"]
+    cidr_blocks = [
+        "192.30.252.0/22",
+        "140.82.112.0/20"
+    ]
   }
 
   # need 8834 to comm with Nessus Server
@@ -825,7 +840,10 @@ resource "aws_security_group" "pivcac" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["192.30.252.0/22"]
+    cidr_blocks = [
+        "192.30.252.0/22",
+        "140.82.112.0/20"
+    ]
   }
 
   #s3 gateway
@@ -1230,7 +1248,10 @@ resource "aws_security_group" "obproxy" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["192.30.252.0/22"]
+    cidr_blocks = [
+        "192.30.252.0/22",
+        "140.82.112.0/20"
+    ]
   }
 
   #s3 gateway
