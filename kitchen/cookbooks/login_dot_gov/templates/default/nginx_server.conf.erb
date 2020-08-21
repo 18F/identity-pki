@@ -89,7 +89,7 @@ server {
     ## Very large upload limits
 
     # Combined async image uploads - Require very large cap
-    location /api/verify/images/ {
+    location /api/verify/images {
       client_max_body_size 30M;
     }
 
