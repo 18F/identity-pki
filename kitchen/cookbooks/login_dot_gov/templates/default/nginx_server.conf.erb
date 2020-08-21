@@ -84,51 +84,38 @@ server {
         <%- end %>
     }
 
-    location /verify/doc_auth/front_image {
+    # TODO - The following matches result in inconsistent headers!  Should refactor to use include blocks
+
+    ## Very large upload limits
+
+    # Combined async image uploads - Require very large cap
+    location /api/verify/images/ {
+      client_max_body_size 30M;
+    }
+
+    # Fallback (noscript) combined uploads
+    location ~ ^/verify(capture_doc|doc_auth)/document_capture/ {
+      client_max_body_size 30M;
+    }
+
+    ## Large upload limits
+
+    location ~ ^/verify/capture_doc/(capture_mobile_back_image|mobile_front_image|selfie)/ {
       client_max_body_size 10M;
     }
-    location /verify/doc_auth/back_image {
+
+    location ~ ^/verify/doc_auth/(back_image|front_image|mobile_back_image|mobile_front_image|selfie)/ {
       client_max_body_size 10M;
     }
-    location /verify/doc_auth/mobile_front_image {
+
+    location ~ ^/verify/recovery/(back_image|front_image|mobile_back_image|mobile_front_image|selfie)/ {
       client_max_body_size 10M;
     }
-    location /verify/doc_auth/mobile_back_image {
+
+    location ~ /api/v1/(facematch|liveness) {
       client_max_body_size 10M;
     }
-    location /verify/recovery/front_image {
-      client_max_body_size 10M;
-    }
-    location /verify/recovery/back_image {
-      client_max_body_size 10M;
-    }
-    location /verify/recovery/mobile_front_image {
-      client_max_body_size 10M;
-    }
-    location /verify/recovery/mobile_back_image {
-      client_max_body_size 10M;
-    }
-    location /verify/capture_doc/mobile_front_image {
-      client_max_body_size 10M;
-    }
-    location /verify/capture_doc/capture_mobile_back_image {
-      client_max_body_size 10M;
-    }
-    location /verify/doc_auth/selfie {
-      client_max_body_size 10M;
-    }
-    location /verify/capture_doc/selfie {
-      client_max_body_size 10M;
-    }
-    location /verify/recovery/selfie {
-      client_max_body_size 10M;
-    }
-    location /api/v1/liveness {
-      client_max_body_size 10M;
-    }
-    location /api/v1/facematch {
-      client_max_body_size 10M;
-    }
+
     location ^~ /AssureIDService/Document/ {
       client_max_body_size 10M;
     }
