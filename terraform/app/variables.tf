@@ -311,6 +311,12 @@ variable "instance_type_pivcac" {
   default = "t3.medium"
 }
 
+variable "use_spot_instances" {
+  description = "Use spot instances for roles suitable for spot use"
+  type        = number
+  default     = 0
+}
+
 variable "name" {
   default = "login"
 }

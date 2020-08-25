@@ -1,7 +1,7 @@
 # Dedicated IdP pool for Small Business Administration
 module "idpxtra_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=19a1a7d7a5c3e2177f62d96a553fed53ac2c251c"
-
+  #source = "github.com/18F/identity-terraform//launch_template?ref=19a1a7d7a5c3e2177f62d96a553fed53ac2c251c"
+  source = "../../../identity-terraform/launch_template"
   role           = "idpxtra"
   env            = var.env_name
   root_domain    = var.root_domain
@@ -9,6 +9,7 @@ module "idpxtra_launch_template" {
   default_ami_id = local.account_rails_ami_id
 
   instance_type             = var.instance_type_idp
+  use_spot_instances        = var.use_spot_instances
   iam_instance_profile_name = aws_iam_instance_profile.idp.name
   security_group_ids        = [aws_security_group.idp.id, aws_security_group.base.id]
 

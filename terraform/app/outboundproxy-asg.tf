@@ -86,8 +86,8 @@ resource "aws_iam_role_policy" "obproxy-sns-publish-alerts" {
 }
 
 module "outboundproxy_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=19a1a7d7a5c3e2177f62d96a553fed53ac2c251c"
-
+  #source = "github.com/18F/identity-terraform//launch_template?ref=19a1a7d7a5c3e2177f62d96a553fed53ac2c251c"
+  source = "../../../identity-terraform/launch_template"
   role           = "outboundproxy"
   env            = var.env_name
   root_domain    = var.root_domain
@@ -95,6 +95,7 @@ module "outboundproxy_launch_template" {
   default_ami_id = local.account_default_ami_id
 
   instance_type             = var.instance_type_outboundproxy
+  use_spot_instances        = var.use_spot_instances
   iam_instance_profile_name = aws_iam_instance_profile.obproxy.name
   security_group_ids        = [aws_security_group.obproxy.id, aws_security_group.base.id]
   user_data                 = module.outboundproxy_user_data.rendered_cloudinit_config
