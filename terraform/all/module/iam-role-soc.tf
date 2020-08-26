@@ -24,6 +24,7 @@ module "socadmin-assumerole" {
             "cloudwatch:*",
             "logs:*",
             "config:*",
+            "ec2:DescribeRegions",
             "elasticloadbalancing:*",
             "guardduty:*",
             "iam:Get*",
