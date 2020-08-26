@@ -24,6 +24,7 @@ module "socadmin-assumerole" {
             "cloudwatch:*",
             "logs:*",
             "config:*",
+            "ec2:DescribeRegions",
             "elasticloadbalancing:*",
             "guardduty:*",
             "iam:Get*",
@@ -43,7 +44,8 @@ module "socadmin-assumerole" {
             "sns:*",
             "trustedadvisor:*",
             "waf:*",
-            "wafv2:*"
+            "wafv2:*",
+            "waf-regional:*",
           ]
           resources = [
             "*"
