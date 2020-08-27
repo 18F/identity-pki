@@ -39,7 +39,7 @@ module "migration_user_data" {
 }
 
 module "migration_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=19a1a7d7a5c3e2177f62d96a553fed53ac2c251c"
+  source = "github.com/18F/identity-terraform//launch_template?ref=cae8dcdaf37e9e423480561de27ccfa1e882b5ea"
 
   role           = "migration"
   env            = var.env_name
@@ -115,7 +115,7 @@ resource "aws_autoscaling_group" "migration" {
 }
 
 module "migration_lifecycle_hooks" {
-  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=19a1a7d7a5c3e2177f62d96a553fed53ac2c251c"
+  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=cae8dcdaf37e9e423480561de27ccfa1e882b5ea"
   asg_name = aws_autoscaling_group.migration.name
 }
 

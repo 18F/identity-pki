@@ -28,14 +28,14 @@ module "app_user_data" {
 }
 
 module "app_lifecycle_hooks" {
-  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=19a1a7d7a5c3e2177f62d96a553fed53ac2c251c"
+  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=cae8dcdaf37e9e423480561de27ccfa1e882b5ea"
   asg_name = element(concat(aws_autoscaling_group.app.*.name, [""]), 0)
   enabled  = var.apps_enabled
 }
 
 module "app_launch_template" {
-  #source = "github.com/18F/identity-terraform//launch_template?ref=19a1a7d7a5c3e2177f62d96a553fed53ac2c251c"
-  source = "../../../identity-terraform/launch_template"
+  source = "github.com/18F/identity-terraform//launch_template?ref=cae8dcdaf37e9e423480561de27ccfa1e882b5ea"
+  #source = "../../../identity-terraform/launch_template"
 
   role           = "app"
   env            = var.env_name
@@ -110,7 +110,7 @@ resource "aws_autoscaling_group" "app" {
 }
 
 module "app_recycle" {
-  source = "github.com/18F/identity-terraform//asg_recycle?ref=19a1a7d7a5c3e2177f62d96a553fed53ac2c251c"
+  source = "github.com/18F/identity-terraform//asg_recycle?ref=cae8dcdaf37e9e423480561de27ccfa1e882b5ea"
 
   # switch to count when that's a thing that we can do
   # https://github.com/hashicorp/terraform/issues/953
