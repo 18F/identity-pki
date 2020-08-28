@@ -56,9 +56,7 @@ module "terraform-assumerole" {
           sid       = "Cloudfront"
           effect    = "Allow"
           actions   = [
-            "cloudfront:CreateCloudFrontOriginAccessIdentity",
-            "cloudfront:DeleteCloudFrontOriginAccessIdentity",
-            "cloudfront:GetCloudFrontOriginAccessIdentity",
+            "cloudfront:*",
           ]
           resources = [
             "*",
@@ -388,49 +386,7 @@ module "terraform-assumerole" {
           sid       = "S3"
           effect    = "Allow"
           actions   = [
-            "s3:CreateBucket",
-            "s3:DeleteBucket",
-            "s3:DeleteBucketPolicy",
-            "s3:DeleteObject",
-            "s3:DeleteObjectVersion",
-            "s3:GetAccelerateConfiguration",
-            "s3:GetBucketCors",
-            "s3:GetBucketEncryption",
-            "s3:GetBucketLifecycle",
-            "s3:GetBucketLocation",
-            "s3:GetBucketLogging",
-            "s3:GetBucketObjectLockConfiguration",
-            "s3:GetBucketPolicy",
-            "s3:GetBucketReplication",
-            "s3:GetBucketRequestPayment",
-            "s3:GetBucketTagging",
-            "s3:GetBucketVersioning",
-            "s3:GetBucketWebsite",
-            "s3:GetEncryptionConfiguration",
-            "s3:GetLifecycleConfiguration",
-            "s3:GetObject",
-            "s3:GetObjectAcl",
-            "s3:GetObjectTagging",
-            "s3:GetObjectVersionForReplication",
-            "s3:GetReplicationConfiguration",
-            "s3:ListBucket",
-            "s3:ListBucketVersions",
-            "s3:ListAllMyBuckets",
-            "s3:ListObjectsV2",
-            "s3:ListObjectVersions",
-            "s3:PutAccelerateConfiguration",
-            "s3:PutBucketAcl",
-            "s3:PutBucketEncryption",
-            "s3:PutBucketLifecycle",
-            "s3:PutBucketLogging",
-            "s3:PutBucketPolicy",
-            "s3:PutBucketTagging",
-            "s3:PutBucketVersioning",
-            "s3:PutBucketWebsite",
-            "s3:PutEncryptionConfiguration",
-            "s3:PutLifecycleConfiguration",
-            "s3:PutObject",
-            "s3:PutReplicationConfiguration",
+            "s3:*",
           ]
           resources = [
             "*",
@@ -469,6 +425,16 @@ module "terraform-assumerole" {
             "sqs:SetQueueAttributes",
             "sqs:TagQueue",
             "sqs:UntagQueue",
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
+          sid    = "SSM"
+          effect = "Allow"
+          actions = [
+            "ssm:*",
           ]
           resources = [
             "*",
