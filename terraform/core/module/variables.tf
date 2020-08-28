@@ -84,16 +84,6 @@ variable "lambda_audit_aws_enabled" {
   description = "Whether to run the audit-aws lambda in this account"
 }
 
-variable "cloudtrail_event_selectors" {
-  description = "Map of event_selectors used by default CloudTrail."
-  type        = list(any)
-}
-
-variable "cloudtrail_logging_bucket" {
-  description = "Manually-specified bucket used by aws_s3_bucket.cloudtrail for logging."
-  default     = ""
-}
-
 variable "ttl_verification_record" {
   description = "TTL value for the SES verification TXT record."
   type        = string

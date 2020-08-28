@@ -111,7 +111,7 @@ resource "aws_s3_bucket" "cloudtrail" {
   }
 
   logging {
-    target_bucket = var.cloudtrail_logging_bucket != "" ? var.cloudtrail_logging_bucket : "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+    target_bucket = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
     target_prefix = "login-gov-cloudtrail-${data.aws_caller_identity.current.account_id}"
   }
 }

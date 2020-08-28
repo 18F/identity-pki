@@ -73,3 +73,8 @@ variable "account_roles_map" {
   description = "Map of roles that are enabled/disabled in current account."
   type        = map
 }
+
+variable "cloudtrail_event_selectors" {
+  description = "Map of event_selectors used by default CloudTrail."
+  type        = list(any)
+}
