@@ -71,7 +71,7 @@ resource "aws_autoscaling_group" "elk" {
 
   # https://github.com/18F/identity-devops-private/issues/631
   health_check_type         = "EC2"
-  health_check_grace_period = 0
+  health_check_grace_period = 1
 
   termination_policies = ["OldestInstance"]
 
