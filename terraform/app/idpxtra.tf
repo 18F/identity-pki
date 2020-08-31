@@ -120,7 +120,6 @@ resource "aws_autoscaling_group" "idpxtra" {
     aws_subnet.privatesubnet3.id,
   ]
 
-  # possible choices: EC2, ELB
   health_check_type         = "ELB"
   health_check_grace_period = 1
 
