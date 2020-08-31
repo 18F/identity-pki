@@ -444,9 +444,6 @@ resource "aws_autoscaling_group" "idp" {
   # possible choices: EC2, ELB
   health_check_type = "ELB"
 
-  # The grace period starts after lifecycle hooks are done and the instance
-  # is InService. Having a grace period is dangerous because the ASG
-  # considers instances in the grace period to be healthy.
   health_check_grace_period = 1
 
   termination_policies = ["OldestInstance"]
