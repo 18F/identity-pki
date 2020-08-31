@@ -37,9 +37,6 @@ locals {
       ],
       force_destroy = false
     },
-    "tf-state"          = {
-      force_destroy       = false
-    },
     "reports" = {
       lifecycle_rules = [
         {
@@ -61,11 +58,12 @@ locals {
 }
 
 module "s3_shared" {
-  source = "github.com/18F/identity-terraform//s3_bucket_block?ref=5936d2aa33f5835bf7576e74061185cae61da4d9"
+  source = "github.com/18F/identity-terraform//s3_bucket_block?ref=d0934d1b73bc521df2d255fec3e319478dc55f8a"
   #source = "../../../../identity-terraform/s3_bucket_block"
   
   bucket_prefix = "login-gov"
   bucket_data = local.s3_bucket_data
+  log_bucket = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
 }
 
 # Policy for shared-data bucket
@@ -176,46 +174,6 @@ resource "aws_s3_account_public_access_block" "public_access_block" {
 resource "aws_iam_user" "circleci" {
   name = "bot=circleci"
   path = "/system/"
-}
-
-# This is the terraform state lock file used by terraform including by this
-# terraform file itself. Obviously this is a circular dependency like the AWS
-# S3 bucket, so there is a major chicken/egg bootstrapping problem.
-#
-# The bin/configure_state_bucket.sh script should create this table
-# automatically as part of running bin/tf-deploy, but you can also create this table
-# manually.
-#
-# Then import the existing table into the core terraform state
-# using the deploy wrapper (with terraform_locks as the table name in this
-# example):
-#
-#     bin/tf-deploy core/<ACCOUNT> import aws_dynamodb_table.tf-lock-table terraform_locks
-#
-# Under the hood this is running:
-#
-#     terraform import aws_dynamodb_table.tf-lock-table terraform_locks
-#
-resource "aws_dynamodb_table" "tf-lock-table" {
-  count          = var.manage_state_bucket ? 1 : 0
-  name           = var.state_lock_table
-  read_capacity  = 2
-  write_capacity = 1
-  hash_key       = "LockID"
-
-  attribute {
-    name = "LockID"
-    type = "S"
-  }
-
-  # TODO newer AWS provider only
-  #server_side_encryption {
-  #  enabled = true
-  #}
-
-  lifecycle {
-    prevent_destroy = true
-  }
 }
 
 output "elb_log_bucket" {

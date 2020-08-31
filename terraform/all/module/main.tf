@@ -33,3 +33,24 @@ data "aws_iam_policy_document" "master_account_assumerole" {
     }
   }
 }
+
+module "tf-state" {
+  source = "github.com/18F/identity-terraform//state_bucket?ref=d111d1df1e47671313430b6f1492735ae45767bf"
+  region = var.region
+}
+
+locals {
+  s3_log_bucket = module.tf-state.s3_log_bucket
+}
+
+module "main_secrets_bucket" {
+  source              = "../../modules/secrets_bucket"
+  logs_bucket         = local.s3_log_bucket
+  secrets_bucket_type = "secrets"
+  bucket_name_prefix  = "login-gov"
+  region              = var.region
+}
+
+output "main_secrets_bucket" {
+  value = module.main_secrets_bucket.bucket_name
+}
