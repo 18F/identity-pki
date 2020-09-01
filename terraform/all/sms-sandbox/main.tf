@@ -28,7 +28,7 @@ module "main" {
         {
           type = "AWS::S3::Object"
           values = [
-            "login-gov.tf-state.035466892286-us-west-2/",
+            "arn:aws:s3:::login-gov.tf-state.035466892286-us-west-2/",
           ]
         }
       ]
