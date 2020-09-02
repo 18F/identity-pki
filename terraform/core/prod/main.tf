@@ -126,7 +126,7 @@ module "main" {
   mx_provider                   = "google-g-suite"
   lambda_audit_github_debug     = 0
 
-  bucket_list = [
+  bucket_list_uw2 = [
     "555546682965-awsmacietrail-dataevent",
     "aws-athena-query-results-555546682965-us-west-2",
     "cf-templates-iccjd8v5q7bo-us-west-2",
@@ -135,7 +135,6 @@ module "main" {
     "importfireeyethreatfeedi-gdthreatfeedoutputbucket-7kom7besttlo",
     "importfireeyethreatfeedt-gdthreatfeedoutputbucket-1j2fdxqvqlcby",
     "login-dot-gov-analytics-terraform-state",
-    "login-dot-gov-bad-perms-test",
     "login-dot-gov-security-logs",
     "login-gov-analytics-dependencies",
     "login-gov-analytics-migration",
@@ -158,14 +157,11 @@ module "main" {
     "login-gov-qa-analytics-logs",
     "login-gov-redshift-int-secrets",
     "login-gov-s3bucket-access-logging",
-    "login-gov-shared-data-555546682965",
     "login-gov-staging-redshift-secrets",
     "login-gov.app-secrets.555546682965-us-west-2",
     "login-gov.email.555546682965-us-west-2",
     "login-gov.shared-secrets",
-    "login-gov.super-secrets",
     "login-gov.waf-logs.555546682965-us-west-2",
-    "login_dot_gov_tf_state",
     "tf-fraud-bucket-depployments",
     "tf-redshift-bucket-deployments",
     "tf-redshift-bucket-deployments-hot",
@@ -173,5 +169,10 @@ module "main" {
     "tf-redshift-bucket-dm-deployments",
     "tf-redshift-bucket-prod-deployments",
     "tf-redshift-bucket-staging-deployments",
+  ]
+
+  bucket_list_ue1 = [
+    "login-dot-gov-bad-perms-test",
+    "login_dot_gov_tf_state",
   ]
 }
