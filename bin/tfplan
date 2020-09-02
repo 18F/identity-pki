@@ -8,7 +8,7 @@ set -eu
 
 usage() {
     cat >&2 << EOM
-Usage: ${0} TF_DIR TF_ENV
+Usage: $(basename "$0") [-p] [-m] TF_DIR TF_ENV
 
 Runs 'terraform plan' via tf-deploy, then processes
 the output for easier change visibility:
@@ -27,13 +27,21 @@ Arguments:
     Will default to 'sandbox' if not declared, or to GSA_USERNAME
     if TF_DIR is 'app'.
 
+Flags:
+  -m : Only list the specific resource(s) being changed
+       (no additional output)
+  -p : If using Sublime Text, pastes the command output to
+       a new tab/window in Sublime Text using the subl
+       binary.
+
 Examples:
 
-${0}                ==>   tf-deploy GSA_USERNAME app plan
-${0} core           ==>   tf-deploy core/sandbox plan
-${0} master         ==>   tf-deploy master/global plan
-${0} all analytics  ==>   tf-deploy all/analytics plan
-${0} app int        ==>   tf-deploy int app plan
+$(basename "$0")                ==>   tf-deploy GSA_USERNAME app plan
+$(basename "$0") core           ==>   tf-deploy core/sandbox plan
+$(basename "$0") -m master      ==>   tf-deploy master/global plan | grep -E '^ +# [a-z]'
+$(basename "$0") all analytics  ==>   tf-deploy all/analytics plan
+$(basename "$0") -p app int     ==>   tf-deploy int app plan |
+                                      pbcopy ; subl -b --command new_file --command paste
 
 EOM
 }
@@ -43,6 +51,17 @@ process_plan () {
   grep --color=auto -E '(^\s+[-\#\+\~\>]|\s->)\s' |
   sed -E 's/(user_data += ").*"/\1\*"/'
 }
+
+declare {MODULES_ONLY,PASTE}=
+while getopts mp opt
+do
+    case "${opt}" in
+        m) MODULES_ONLY=true ;;
+        p) PASTE=true        ;;
+        *) usage && exit 1 ;;
+    esac
+done
+shift $((OPTIND-1))
 
 [ $# -gt 2 ] && raise 'Must provide <2 arguments'
 
@@ -60,12 +79,26 @@ else
       [[ -z ${GSA_USERNAME} ]] && raise 'TF_ENV undeclared + GSA_USERNAME not set'
       TF_ENV=${GSA_USERNAME}
     fi
-    process_plan tf-deploy "${TF_ENV}" "${TF_DIR}" plan
+    PLAN=$(process_plan tf-deploy "${TF_ENV}" "${TF_DIR}" plan)
   else
     [[ "${TF_DIR}" == 'master' ]] && TF_ENV='global'
     if ! [[ $(find "${GIT_DIR}/terraform/${TF_DIR}" -name "${TF_ENV}" -type d -maxdepth 1) ]] ; then
       raise "TF_ENV ${TF_ENV} not found in ${GIT_DIR}/terraform/${TF_DIR}"
     fi
-    process_plan tf-deploy "${TF_DIR}/${TF_ENV}" plan
+    PLAN=$(process_plan tf-deploy "${TF_DIR}/${TF_ENV}" plan)
   fi
+fi
+
+if [[ "${MODULES_ONLY}" == true ]] ; then
+  PLAN=$(echo "${PLAN}" | grep -E '^ +# [a-z]' --color=never)
+fi
+
+if [[ "${PASTE}" == true ]] ; then
+  if [[ $(which subl) ]] ; then
+    echo "${PLAN}" | pbcopy ; subl -b --command new_file --command paste
+  else
+    echo 'subl binary not found, printing to STDOUT.'
+  fi
+else
+  echo "${PLAN}"
 fi

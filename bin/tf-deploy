@@ -22,7 +22,8 @@ usage: $basename [OPTIONS] ENV_NAME TERRAFORM_DIR [TERRAFORM_COMMANDS...]
 usage: $basename [OPTIONS] TERRAFORM_DIR/ENV_NAME [TERRAFORM_COMMANDS...]
 
 Run TERRAFORM_COMMANDS against environment ENV_NAME using the configuration in
-TERRAFORM_DIR.
+TERRAFORM_DIR. Sends a message to the environment's appropriate Slack channel
+if the command run is "apply" or "destroy".
 
 Arguments:
 
@@ -46,6 +47,9 @@ Options:
                             remote state S3 bucket and DynamoDB table that are
                             used to manage TF remote state, which are
                             automatically created by configure_state_bucket.sh.
+    -t, --test              Skip sending a message to Slack whether or not
+                            the operation is successful. Useful when testing
+                            errors that "plan" does not detect.
 
 For older terraform directories that use identity-devops-private, env-specific
 config variables will be loaded automatically from identity-devops-private.
@@ -134,12 +138,15 @@ verify_repo_root_unchanged "$repo_root_before_cd" "$basename"
 ORIGIN_REMOTE_NAME="${ORIGIN_REMOTE_NAME-origin}"
 
 # Parse options
-IMPORT_REMOTE_STATE=
+declare {IMPORT_REMOTE_STATE,TEST_ONLY}=
 while [ $# -gt 0 ] && [[ $1 == -* ]]; do
     case "$1" in
         -h|--help)
             usage
             exit 0
+            ;;
+        -t|--test)
+            TEST_ONLY=1
             ;;
         --import-remote-state)
             IMPORT_REMOTE_STATE=1
@@ -581,7 +588,7 @@ main_branch=$(git rev-parse --abbrev-ref HEAD)
 main_version=$(cat VERSION.txt)
 EOM
 
-if [[ "${TF_CMD[0]}" =~ ^(apply|destroy)$ ]] ; then
+if [[ "${TF_CMD[0]}" =~ ^(apply|destroy)$ ]] && [[ -z ${TEST_ONLY} ]] ; then
 
     if [ -n "$MODULE_STYLE" ] ; then
         TF_DEPLOY_INFO=$(echo "${TF_VERSION_INFO}" | sed '$!s/$/\\n/' | tr -d '\n')
