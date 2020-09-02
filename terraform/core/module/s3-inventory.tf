@@ -2,7 +2,7 @@
 # https://github.com/18F/identity-devops/issues/2657
 
 module "s3_inventory_uw2" {
-  source = "github.com/18F/identity-terraform//s3_batch_inventory?ref=6f8addf89f72e7cf1327023794897ef799668544"
+  source = "github.com/18F/identity-terraform//s3_batch_inventory?ref=2643d71568554cfd9abae37bad703f0482ba9c99"
   #source = "../../../../identity-terraform/s3_batch_inventory"
 
   log_bucket   = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
@@ -61,7 +61,7 @@ resource "aws_s3_bucket" "s3_logs_ue1" {
 
 
 module "s3_inventory_ue1" {
-  source = "github.com/18F/identity-terraform//s3_batch_inventory?ref=6f8addf89f72e7cf1327023794897ef799668544"
+  source = "github.com/18F/identity-terraform//s3_batch_inventory?ref=2643d71568554cfd9abae37bad703f0482ba9c99"
   #source = "../../../../identity-terraform/s3_batch_inventory"
   providers = {
     aws = aws.us-east-1
