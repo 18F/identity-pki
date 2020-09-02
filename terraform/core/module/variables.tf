@@ -100,3 +100,15 @@ variable "slack_sns_name" {
   description = "Name for SNS topic for Slack notifications."
   type        = string
 }
+
+variable "bucket_list_uw2" {
+  description = "List of us-west-2 buckets to add S3 Inventory Management to."
+  type        = list(any)
+  default     = []
+}
+
+variable "bucket_list_ue1" {
+  description = "List of us-west-2 buckets to add S3 Inventory Management to."
+  type        = list(any)
+  default     = []
+}
