@@ -393,38 +393,6 @@ resource "aws_security_group" "jumphost" {
     cidr_blocks = [var.vpc_cidr_block]
   }
 
-  # allow analytics redshift cluster to get into jumphost.
-  # 127.0.0.1/32 is used as a meaningless default CIDR block in case
-  # var.env_name is not a valid key to the redshift_cidr_block map.
-  # TODO: remove this once peering connection is fully set up
-  egress {
-    from_port = 5439
-    to_port   = 5439
-    protocol  = "tcp"
-    # TF-UPGRADE-TODO: In Terraform v0.10 and earlier, it was sometimes necessary to
-    # force an interpolation expression to be interpreted as a list by wrapping it
-    # in an extra set of list brackets. That form was supported for compatibility in
-    # v0.11, but is no longer supported in Terraform v0.12.
-    #
-    # If the expression in the following list itself returns a list, remove the
-    # brackets to avoid interpretation as a list of lists. If the expression
-    # returns a single list item then leave it as-is and remove this TODO comment.
-    cidr_blocks = [lookup(var.redshift_cidr_block, var.env_name, "127.0.0.1/32")]
-  }
-
-  # Allow egress to redshift in analytics VPC through peering connection
-  egress {
-    from_port = 5439
-    to_port   = 5439
-    protocol  = "tcp"
-
-    # We'd like to refer to the analytics redshift security group ID, but it
-    # might not exist yet. Terraform is not able to handle conditionals in a
-    # good way (we have to set some security group ID here), so use the null
-    # security group ID if the analytics group is empty string.
-    security_groups = [var.analytics_redshift_security_group_id != "" ? var.analytics_redshift_security_group_id : aws_security_group.null.id]
-  }
-
   # need 80/443 to get packages/gems/etc
   egress {
     from_port   = 80
