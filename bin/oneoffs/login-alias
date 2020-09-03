@@ -1,10 +1,13 @@
 #!/bin/bash
+
+set -eu
+
 . "$(dirname "$0")/../lib/common.sh"
 
 usage() {
   cat >&2 <<EOM
 
-Usage: $0 [ flags ]
+Usage: $(basename "$0") [ flags ]
 
     flags    ::= a(ll)
                  g(ithubrc)
@@ -21,6 +24,7 @@ used by/calling various tools within identity-devops. Steps:
 2. Verify AWS/GSA/KITCHEN env vars and prompt for any
    not yet set (force with -e)
 3. Update \$PATH to include 'identity-devops/bin'
+   and 'identity-devops/bin/lib'
 4. Add \$HOME/.login-functions and \$HOME/.githubrc to
    your shell's rc file (skip if already present)
 
@@ -39,7 +43,7 @@ append_with_rc() {
   cat "$(dirname "$0")/../lib/dotfiles/${RC}" >> "$HOME/.${RC}"
 
   if ! grep -qs "^$TEXT$" "${SHELL_RC}"; then
-    echo && echo_cyan "Adding \`${TEXT}\` to ${SHELL_RC}..."
+    echo && echo "Adding \`${TEXT}\` to ${SHELL_RC}..."
     run printf "%s\n" "$TEXT" >> "${SHELL_RC}"
   fi
   echo
@@ -47,22 +51,22 @@ append_with_rc() {
 
 clear_env_vars () {
   if ! prompt_yn "Clear out ALL env vars?"; then
-    echo_cyan "Not clearing env vars."
+    echo "Not clearing env vars."
     echo
     return
   else
-    echo_cyan "Clearing env vars..."
+    echo "Clearing env vars..."
     for ENV_VAR in $(echo "${ENV_VARS[@]}" | tr '\n' ' ') ; do
       unset $ENV_VAR
       echo "$ENV_VAR unset."
     done
   fi
-  unset ENV_VARS
+  ENV_VARS=()
 }
 
 verify_env_vars() {
   local VARS="$@"
-  echo_cyan "Verifying env vars..."
+  echo "Verifying env vars..."
   for ENV_VAR in $(echo "${VARS[@]}" | tr '\n' ' ') ; do
     VAR_VAL=$(eval echo \$$ENV_VAR)
     if [[ -z "$VAR_VAL" ]]; then
@@ -76,20 +80,21 @@ verify_env_vars() {
       printf "%s\n" "$TEXT" >> "$HOME/.${FILE}"
     fi
   done
-  echo_cyan "Env vars verified and added to ${HOME}/.${FILE} file."
+  echo "Env vars verified and added to ${HOME}/.${FILE} file."
   echo
 }
 
 create_rc_file() {
   if [[ ! -f "$HOME/.${FILE}" ]] ; then
-    echo && echo_cyan "Creating new \$HOME/.${FILE}..."
+    echo && echo "Creating new \$HOME/.${FILE}..."
     run touch "$HOME/.${FILE}"
   fi
 
   if [[ "${FILE}" == "login-functions" ]] ; then
-    ID_DIR="$(cd $(dirname "${BASH_SOURCE[0]}") && pwd | sed 's/oneoffs//')"
+    ID_DIR="$(cd $(dirname "${BASH_SOURCE[0]}") && pwd | sed 's/\/oneoffs//')"
+    run echo ". ${ID_DIR}/lib/common.sh" >> "$HOME/.login-functions"
     if [[ ! $(echo ${PATH} | grep ${ID_DIR}) ]] ; then
-      echo_cyan "Adding '${ID_DIR}' to \$PATH..."
+      echo "Adding '${ID_DIR}' to \$PATH..."
       run echo "export PATH=${ID_DIR}:\$PATH" >> "$HOME/.login-functions"
     fi
   fi
@@ -102,12 +107,12 @@ rebuild_rc_file() {
   if [[ -f "$HOME/.${FILE}" ]] ; then
     if [[ $AUTORUN = false ]] ; then
       if ! prompt_yn "\$HOME/.${FILE} already exists; recreate?"; then
-        echo_cyan "Skipping recreation of \$HOME/.${FILE}."
+        echo "Skipping recreation of \$HOME/.${FILE}."
         echo
         return
       fi
     fi
-    echo && echo_cyan "Removing old \$HOME/.${FILE} file..."
+    echo && echo "Removing old \$HOME/.${FILE} file..."
     run rm -f "$HOME/.${FILE}"
   fi
   create_rc_file
@@ -116,6 +121,7 @@ rebuild_rc_file() {
 
 AUTORUN=false
 CLEAR_VARS=false
+ENV_VARS=()
 FILES=$(ls $(dirname "${BASH_SOURCE[0]}")/../lib/dotfiles)
 echo
 
@@ -144,6 +150,7 @@ while getopts aglser opt ; do
       echo "Output of run() suppressed."
       [[ ${AUTORUN} = false ]] && exit 0
     ;;
+    *) usage && exit 1 ;;
   esac
 done
 
@@ -159,7 +166,7 @@ for FILE in $(echo "${FILES[@]}"  | tr '\n' ' ') ; do
                 "KITCHEN_EC2_SSH_KEY")
     ;;
     'subfunctions')
-      ENV_VARS=()
+      ENV_VARS=("")
     ;;
   esac
   if [[ ${CLEAR_VARS} = true ]] ; then

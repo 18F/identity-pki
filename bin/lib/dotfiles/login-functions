@@ -54,19 +54,22 @@ TBD
 
 EOF
   [[ $# == 0 ]] && badopt
-  while getopts apd opt
+  declare {TF_SL,TEST_RUN}=
+  while getopts apdst opt
   do
     case $opt in
-      a) TF_CMD='apply'   ;;
-      p) TF_CMD='plan'    ;;
-      d) TF_CMD='destroy' ;;
-      *) badopt ${opt}    ;;
+      a) TF_CMD="apply"      ;;
+      p) TF_CMD="plan"       ;;
+      d) TF_CMD="destroy"    ;;
+      s) TF_CMD="state"      ;;
+      t) TEST_RUN="-t"       ;;
+      *) badopt ${opt}       ;;
     esac
   done
-  shift
+  [[ "${TF_CMD}" == "state" ]] && TF_SL="list"
+  shift $((OPTIND-1))
   TF_DIR="${1-app}"
   EC2_ENV="${2-sandbox}"
-  shift
   case $TF_DIR in
     all|core) AV_PROFILE="${EC2_ENV}-admin" ;;
     app) env_get "${1}" ;;
@@ -77,9 +80,9 @@ EOF
     sms) AV_PROFILE="sms-${EC2_ENV}-admin" ;;
   esac
   if [[ "${TF_DIR}" == 'app' ]] ; then
-    run_av tf-deploy ${EC2_ENV} ${TF_DIR} ${TF_CMD}
+    run_av tf-deploy ${TEST_RUN} ${EC2_ENV} ${TF_DIR} ${TF_CMD} ${TF_SL}
   else
-    run_av tf-deploy ${TF_DIR}/${EC2_ENV} ${TF_CMD}
+    run_av tf-deploy ${TEST_RUN} ${TF_DIR}/${EC2_ENV} ${TF_CMD} ${TF_SL}
   fi
 }
 
