@@ -25,6 +25,11 @@ provider "template" {
   version = "~> 2.1.2"
 }
 
+provider "github" {
+  version = "~> 2.9"
+}
+data "github_ip_ranges" "ips" {}
+
 terraform {
   backend "s3" {
   }
