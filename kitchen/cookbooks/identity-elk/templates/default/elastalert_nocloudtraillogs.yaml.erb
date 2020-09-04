@@ -7,8 +7,11 @@ threshold: <%= @thresholds['cloudtrail'] %>
 realert:
     hours: 2
 doc_type: _doc
+# This timeframe is somewhat large, but cloudtrail logs are slow to arrive,
+# so sometimes we run dry.  This helps by looking back a bit further.  It means we won't get
+# alerted as quickly, but we need to make sure we don't cry wolf here with false-positives.
 timeframe:
-    minutes: 20
+    minutes: 60
 use_count_query: true
 alert:
 <% if ! @emails.empty? %>
