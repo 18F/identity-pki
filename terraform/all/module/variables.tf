@@ -78,3 +78,13 @@ variable "cloudtrail_event_selectors" {
   description = "Map of event_selectors used by default CloudTrail."
   type        = list(any)
 }
+
+variable "slack_sns_topics" {
+  description = "List of SNS topics that each SNS-to-Slack Lambda will subscribe to."
+  type        = list(string) 
+  default = [
+    "slack-events",
+    "slack-otherevents",
+    "slack-soc",
+  ]
+}
