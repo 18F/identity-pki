@@ -17,8 +17,8 @@ resource "aws_sns_topic" "slack_events" {
 }
 
 module "slack_login_events" {
-  source = "github.com/18F/identity-terraform//slack_lambda?ref=a5e12e94d6038477782a370395702aa7f250562c"
-  #source = "../../../identity-terraform/launch_template"
+  #source = "github.com/18F/identity-terraform//slack_lambda?ref=a5e12e94d6038477782a370395702aa7f250562c"
+  source = "../../../identity-terraform/slack_lambda"
   
   lambda_name        = "snstoslack_login_events"
   lambda_description = "Sends messages to #login-events Slack channel via SNS subscription."
@@ -34,8 +34,8 @@ resource "aws_sns_topic" "slack_otherevents" {
 }
 
 module "slack_login_otherevents" {
-  source = "github.com/18F/identity-terraform//slack_lambda?ref=a5e12e94d6038477782a370395702aa7f250562c"
-  #source = "../../../identity-terraform/launch_template"
+  #source = "github.com/18F/identity-terraform//slack_lambda?ref=a5e12e94d6038477782a370395702aa7f250562c"
+  source = "../../../identity-terraform/slack_lambda"
   
   lambda_name        = "snstoslack_login_otherevents"
   lambda_description = "Sends messages to #login-otherevents Slack channel via SNS subscription."
@@ -51,8 +51,8 @@ resource "aws_sns_topic" "slack_soc" {
 }
 
 module "slack_login_soc" {
-  source = "github.com/18F/identity-terraform//slack_lambda?ref=a5e12e94d6038477782a370395702aa7f250562c"
-  #source = "../../../identity-terraform/launch_template"
+  #source = "github.com/18F/identity-terraform//slack_lambda?ref=a5e12e94d6038477782a370395702aa7f250562c"
+  source = "../../../identity-terraform/slack_lambda"
   
   lambda_name        = "snstoslack_login_soc"
   lambda_description = "Sends messages to #login-soc Slack channel via SNS subscription."
