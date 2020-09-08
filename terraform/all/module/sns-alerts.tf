@@ -5,9 +5,9 @@ data "aws_s3_bucket_object" "slack_webhook" {
 
 # TODO: decide if we use common/ for each account, or use the
 # common_account_name logic as used above for the slack_webhook object
-data "aws_s3_bucket_object" "opsgenie_apikey" {
+data "aws_s3_bucket_object" "opsgenie_sns_apikey" {
   bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
-  key    = "common/opsgenie_apikey"
+  key    = "common/opsgenie_sns_apikey"
 }
 
 # TODO: use for_each to create resources AND modules
@@ -69,6 +69,7 @@ resource "aws_sns_topic" "opsgenie_alert" {
 
 resource "aws_sns_topic_subscription" "opsgenie_alert" {
   topic_arn = aws_sns_topic.opsgenie_alert.arn
+  endpoint_auto_confirms = true
   protocol  = "https"
-  endpoint  = "https://api.opsgenie.com/v1/json/cloudwatch?apiKey=${data.aws_s3_bucket_object.opsgenie_apikey.body}"
+  endpoint  = "https://api.opsgenie.com/v1/json/cloudwatch?apiKey=${data.aws_s3_bucket_object.opsgenie_sns_apikey.body}"
 }
