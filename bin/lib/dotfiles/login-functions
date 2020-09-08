@@ -86,6 +86,14 @@ EOF
   fi
 }
 
+#### run terraform plan with trimmed-down output ####
+tpc() {
+  plan=$(td -p "${@}")
+  echo $plan | sed $'s,\x1b\\[[0-9;]*[a-zA-Z],,g' |
+               grep --color=auto -E '(^\s+[-\#\+\~\>]|\s->)\s' |
+               sed -E 's/(user_data += ").*"/\1\*"/'
+}
+
 #### quick SSM access ; requires session-manager-plugin to work! ####
 ssc() {
   local SSM_CMD
