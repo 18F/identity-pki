@@ -1,5 +1,7 @@
-# attach rds_delete_prevent and region_restriction to all roles
 locals {
+  common_account_name = var.iam_account_alias == "login-master" ? "global" : replace(var.iam_account_alias, "login-", "")
+  
+  # attach rds_delete_prevent and region_restriction to all roles  
   custom_policy_arns = [
     aws_iam_policy.rds_delete_prevent.arn,
     aws_iam_policy.region_restriction.arn,
@@ -79,12 +81,13 @@ variable "cloudtrail_event_selectors" {
   type        = list(any)
 }
 
-variable "slack_sns_topics" {
-  description = "List of SNS topics that each SNS-to-Slack Lambda will subscribe to."
-  type        = list(string) 
-  default = [
-    "slack-events",
-    "slack-otherevents",
-    "slack-soc",
-  ]
+variable "slack_username" {
+  description = "Default username for SNS-to-Slack alert to display in Slack channels."
+  type = string
+  default = "SNSToSlack Notifier"
+}
+variable "slack_icon" {
+  description = "Default icon for SNS-to-Slack alert to display in Slack channels."
+  type = string
+  default = ":login-dot-gov:"
 }
