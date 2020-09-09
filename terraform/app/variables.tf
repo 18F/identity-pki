@@ -624,3 +624,7 @@ variable "events_in_last_ten_minutes_threshold" {
   default     = 4000
 }
 
+variable "keep_legacy_bucket" {
+  description = "Whether or not to preserve the login-gov-ENV-logs bucket. Should only be used in staging and prod."
+  default     = false
+}
