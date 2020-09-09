@@ -461,11 +461,10 @@ env_get() {
 ## integrates with ykman for YubiKey OTP MFA ##
 mfa_get() {
   local DUR="${1:-1}h"
-  local ttl_time=$(aws-vault list --sessions | awk '{print $1}') 
-  if [[ -z ${ttl_time} ]] || [[ ${ttl_time} -lt $(date +%s) ]]
-  then
-  ttl="--duration=${DUR}" 
-  [[ -n $(command -v ykman) ]] && yk="--mfa-token=$(ykman oath code --single aws/login-master | awk '{print $NF}')" 
+  local ttl_time=$(aws-vault list --sessions | awk -F: '{print $2}')
+  if [[ -z ${ttl_time} ]] ; then
+    ttl="--duration=${DUR}" 
+    [[ -n $(command -v ykman) ]] && yk="--mfa-token=$(ykman oath code --single aws/login-master | awk '{print $NF}')" 
   fi
 }
 
