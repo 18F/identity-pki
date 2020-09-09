@@ -17,7 +17,7 @@ resource "aws_sns_topic" "slack_events" {
 }
 
 module "slack_login_events" {
-  source = "github.com/18F/identity-terraform//slack_lambda?ref=9d6dae89d9bdefbb95cd016cfa717b2c56ebb21d"
+  source = "github.com/18F/identity-terraform//slack_lambda?ref=d4c787fe7b2a7b7809c463b1c36245ff9b4c856c"
   #source = "../../../../identity-terraform/slack_lambda"
   
   lambda_name        = "snstoslack_login_events"
@@ -34,7 +34,7 @@ resource "aws_sns_topic" "slack_otherevents" {
 }
 
 module "slack_login_otherevents" {
-  source = "github.com/18F/identity-terraform//slack_lambda?ref=9d6dae89d9bdefbb95cd016cfa717b2c56ebb21d"
+  source = "github.com/18F/identity-terraform//slack_lambda?ref=d4c787fe7b2a7b7809c463b1c36245ff9b4c856c"
   #source = "../../../../identity-terraform/slack_lambda"
   
   lambda_name        = "snstoslack_login_otherevents"
@@ -51,7 +51,7 @@ resource "aws_sns_topic" "slack_soc" {
 }
 
 module "slack_login_soc" {
-  source = "github.com/18F/identity-terraform//slack_lambda?ref=9d6dae89d9bdefbb95cd016cfa717b2c56ebb21d"
+  source = "github.com/18F/identity-terraform//slack_lambda?ref=d4c787fe7b2a7b7809c463b1c36245ff9b4c856c"
   #source = "../../../../identity-terraform/slack_lambda"
   
   lambda_name        = "snstoslack_login_soc"
