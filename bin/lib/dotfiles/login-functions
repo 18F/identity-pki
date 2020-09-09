@@ -72,7 +72,7 @@ EOF
   EC2_ENV="${2-sandbox}"
   case $TF_DIR in
     all|core) AV_PROFILE="${EC2_ENV}-admin" ;;
-    app) env_get "${1}" ;;
+    app) env_get "${EC2_ENV}" ;;
     master)
       AV_PROFILE='master-admin'
       EC2_ENV="global"
