@@ -4,6 +4,7 @@
 provider "external" { version = "~> 1.2" }
 provider "null" { version = "~> 2.1.2" }
 provider "template" { version = "~> 2.1.2" }
+provider "archive" { version = "~> 1.3" }
 
 resource "aws_iam_account_alias" "standard_alias" {
   account_alias = var.iam_account_alias
