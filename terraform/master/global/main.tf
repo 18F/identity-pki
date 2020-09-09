@@ -103,7 +103,7 @@ module "main" {
     "alex.mathews"       = ["appdev", "apponcall"],
     "amit.freeman"       = ["devops"],
     "amos.stone"         = ["analytics"],
-    "andrew.duthie"      = ["appdev"],
+    "andrew.duthie"      = ["appdev", "apponcall"],
     "anthony.martini"    = ["secops"],
     "brett.mcparland"    = ["secops", "soc"],
     "brian.crissup"      = ["devops", "keymasters"],
