@@ -1,0 +1,37 @@
+#!/usr/bin/env ruby -s
+require 'json'
+require 'set'
+
+StartingUID = 2600
+
+def next_uid(data_bag_path)
+  uids = load_uids(data_bag_path).to_set
+
+  id = StartingUID
+  id += 1 while uids.include?(id)
+
+  id
+end
+
+def log(message)
+  STDERR.puts(message)
+end
+
+def load_uids(data_bag_path)
+  files = Dir.entries(data_bag_path).find_all { |s| s.end_with?('.json') }
+
+  files.map { |filename|
+    # only print info if -v is set
+    log "Reading #{filename.inspect}" if $v
+    path = File.join(data_bag_path, filename)
+    entry = JSON.parse(File.read(path))
+    uid = entry.fetch('uid')
+    log "Loaded #{entry.fetch('id').inspect}, uid #{uid.inspect}" if $v
+    uid
+  }
+end
+
+if __FILE__ == $0
+  uid = next_uid(ARGV.fetch(0, File.dirname($0) + '/../../identity-devops-private/chef/data_bags/users'))
+  puts "Next UID: #{uid}"
+end
