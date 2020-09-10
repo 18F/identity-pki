@@ -1,6 +1,7 @@
 package test
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
@@ -9,6 +10,7 @@ import (
 
 	aws_sdk "github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/autoscaling"
+	"github.com/aws/aws-sdk-go/service/ssm"
 	"github.com/gruntwork-io/terratest/modules/aws"
 	http_helper "github.com/gruntwork-io/terratest/modules/http-helper"
 	"github.com/stretchr/testify/assert"
@@ -82,7 +84,7 @@ func TestIdpRecycle(t *testing.T) {
 }
 
 // // XXX would be great to actually do a new account and so on.
-// func TestIdpAccount(t *testing.T) {
+// func TestIdpAccountcreation(t *testing.T) {
 // 	t.Parallel()
 // 	XXX
 // }
@@ -107,17 +109,52 @@ func TestIdpRecycle(t *testing.T) {
 // whatever new stuff is out there.
 func TestElkRecycle(t *testing.T) {
 	ASGRecycle(t, elkAsgName)
-	instances := aws.GetInstanceIdsForAsg(t, elkAsgName, region)
 
 	// we should only have one elk instance
-	assert.Equal(t, int(len(instances)), 1)
+	instancestrings := aws.GetInstanceIdsForAsg(t, elkAsgName, region)
+	assert.Equal(t, int(len(instancestrings)), 1)
 
-	fmt.Println(instances)
+	var instances []*string
+	for _, instance := range instancestrings {
+		instances = append(instances, aws_sdk.String(instance))
+	}
 
 	// Wait for SSM to get active
-	// aws.WaitForSsmInstance(t, region, instanceid, 60, 15*time.Second)
+	aws.WaitForSsmInstance(t, region, instancestrings[0], 900*time.Second)
 
 	// ssm in and make sure that the chef run is done?
+	elkssm := aws.NewSsmClient(t, region)
+	input := &ssm.SendCommandInput{
+		DocumentName: aws_sdk.String("AWS-RunShellScript"),
+		Parameters: map[string][]*string{
+			"commands": {
+				aws_sdk.String("cat /var/lib/cloud/data/status.json"),
+			},
+		},
+		InstanceIds: instances,
+	}
+	output, err := elkssm.SendCommand(input)
+	require.NoError(t, err)
+
+	// Wait until it's done
+	cmdinvocation := &ssm.GetCommandInvocationInput{
+		CommandId:  output.Command.CommandId,
+		InstanceId: instances[0],
+	}
+	err = elkssm.WaitUntilCommandExecuted(cmdinvocation)
+
+	// get output of command
+	cmdoutput, err := elkssm.GetCommandInvocation(cmdinvocation)
+	assert.Equal(t, *cmdoutput.ResponseCode, int64(0))
+
+	// Make sure that the cloud-init run completed properly
+	var cwstatus map[string]map[string]map[string]interface{}
+	err = json.Unmarshal([]byte(*cmdoutput.StandardOutputContent), &cwstatus)
+	for _, v := range cwstatus["v1"] {
+		if errors, ok := v["errors"]; ok {
+			assert.Empty(t, errors)
+		}
+	}
 }
 
 // // XXX AWS ES is what is running in my environment, so cannot test this now.
@@ -128,28 +165,107 @@ func TestElkRecycle(t *testing.T) {
 func TestFilebeat(t *testing.T) {
 	t.Parallel()
 
-	instances := aws.GetInstanceIdsForAsg(t, elkAsgName, region)
-	assert.Greater(t, int(len(instances)), 0)
-	// instanceid := instances[0].instanceIdXXX
+	// we should only have one elk instance
+	instancestrings := aws.GetInstanceIdsForAsg(t, elkAsgName, region)
+	assert.Equal(t, int(len(instancestrings)), 1)
+
+	var instances []*string
+	for _, instance := range instancestrings {
+		instances = append(instances, aws_sdk.String(instance))
+	}
 
 	// Wait for SSM to get active
-	// aws.WaitForSsmInstance(t, region, instanceid, 60, 15*time.Second)
+	aws.WaitForSsmInstance(t, region, instancestrings[0], 900*time.Second)
 
-	// ssm in and turn on http.enabled and query curl -XGET 'localhost:5066/stats?pretty'
-	// and parse out errors and other things
+	// ssm in and query curl -XGET 'localhost:5066/stats?pretty'
+	elkssm := aws.NewSsmClient(t, region)
+	input := &ssm.SendCommandInput{
+		DocumentName: aws_sdk.String("AWS-RunShellScript"),
+		Parameters: map[string][]*string{
+			"commands": {
+				aws_sdk.String("/usr/bin/curl -XGET localhost:5066/stats?pretty"),
+			},
+		},
+		InstanceIds: instances,
+	}
+	output, err := elkssm.SendCommand(input)
+	require.NoError(t, err)
+
+	// Wait until it's done
+	cmdinvocation := &ssm.GetCommandInvocationInput{
+		CommandId:  output.Command.CommandId,
+		InstanceId: instances[0],
+	}
+	err = elkssm.WaitUntilCommandExecuted(cmdinvocation)
+
+	// get output of command
+	cmdoutput, err := elkssm.GetCommandInvocation(cmdinvocation)
+	assert.Equal(t, *cmdoutput.ResponseCode, int64(0))
+
+	// Make sure that we are are successfully logging to logstash
+	var cwstatus map[string]map[string]map[string]map[string]int64
+	err = json.Unmarshal([]byte(*cmdoutput.StandardOutputContent), &cwstatus)
+	// check for zero errors
+	assert.Equal(t, cwstatus["libbeat"]["output"]["write"]["errors"], int64(0))
+	// check for greater than zero bytes sent to logstash
+	assert.Greater(t, cwstatus["libbeat"]["output"]["write"]["bytes"], int64(0))
 }
 
 func TestLogstash(t *testing.T) {
 	t.Parallel()
 
+	// we should only have one elk instance
+	instancestrings := aws.GetInstanceIdsForAsg(t, elkAsgName, region)
+	assert.Equal(t, int(len(instancestrings)), 1)
+
+	var instances []*string
+	for _, instance := range instancestrings {
+		instances = append(instances, aws_sdk.String(instance))
+	}
+
+	// Wait for SSM to get active
+	aws.WaitForSsmInstance(t, region, instancestrings[0], 900*time.Second)
+
+	// ssm in and query curl -XGET 'localhost:5066/stats?pretty'
+	elkssm := aws.NewSsmClient(t, region)
+	input := &ssm.SendCommandInput{
+		DocumentName: aws_sdk.String("AWS-RunShellScript"),
+		Parameters: map[string][]*string{
+			"commands": {
+				aws_sdk.String("/usr/bin/curl -XGET localhost:9600/_node/stats/events"),
+			},
+		},
+		InstanceIds: instances,
+	}
+	output, err := elkssm.SendCommand(input)
+	require.NoError(t, err)
+
+	// Wait until it's done
+	cmdinvocation := &ssm.GetCommandInvocationInput{
+		CommandId:  output.Command.CommandId,
+		InstanceId: instances[0],
+	}
+	err = elkssm.WaitUntilCommandExecuted(cmdinvocation)
+
+	// get output of command
+	cmdoutput, err := elkssm.GetCommandInvocation(cmdinvocation)
+	assert.Equal(t, *cmdoutput.ResponseCode, int64(0))
+	var cwstatus map[string]interface{}
+	err = json.Unmarshal([]byte(*cmdoutput.StandardOutputContent), &cwstatus)
+
+	// check for zero errors
+	events := cwstatus["events"].(map[string]interface{})
+	assert.Greater(t, events["out"].(float64), float64(0))
+	// check for green status
+	assert.Equal(t, cwstatus["status"], "green")
 }
 
 func TestElastalert(t *testing.T) {
 	t.Parallel()
-
+	// XXX need to probably query ES for some stats here.
 }
 
 func TestElasticsearch(t *testing.T) {
 	t.Parallel()
-
+	// XXX do we need more here?  If logstash is working, ES is working, right?
 }

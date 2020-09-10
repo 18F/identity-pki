@@ -14,6 +14,6 @@ export ENV_NAME="$1"
 export IDP_HOSTNAME="$2"
 export REGION="us-west-2"
 
-go test -v -timeout 30m -run TestElkRecycle
-#go test -v -timeout 30m
+#go test -v -timeout 30m -run TestLogstash
+go test -v -timeout 30m
 
