@@ -22,6 +22,42 @@ var region = os.Getenv("REGION")
 var env_name = os.Getenv("ENV_NAME")
 var elkAsgName = env_name + "-elk"
 
+func RunCommandOnInstances(t *testing.T, instancestrings []string, command string) *ssm.GetCommandInvocationOutput {
+	var instances []*string
+	for _, instance := range instancestrings {
+		instances = append(instances, aws_sdk.String(instance))
+	}
+
+	// Wait for SSM to get active
+	aws.WaitForSsmInstance(t, region, instancestrings[0], 900*time.Second)
+
+	// ssm in and do the command
+	myssm := aws.NewSsmClient(t, region)
+	input := &ssm.SendCommandInput{
+		DocumentName: aws_sdk.String("AWS-RunShellScript"),
+		Parameters: map[string][]*string{
+			"commands": {
+				aws_sdk.String(command),
+			},
+		},
+		InstanceIds: instances,
+	}
+	output, err := myssm.SendCommand(input)
+	require.NoError(t, err)
+
+	// Wait until it's done
+	cmdinvocation := &ssm.GetCommandInvocationInput{
+		CommandId:  output.Command.CommandId,
+		InstanceId: instances[0],
+	}
+	err = myssm.WaitUntilCommandExecuted(cmdinvocation)
+
+	// return output of command
+	cmdoutput, err := myssm.GetCommandInvocation(cmdinvocation)
+	require.NoError(t, err)
+	return cmdoutput
+}
+
 func ASGRecycle(t *testing.T, asgName string) {
 	asgClient := aws.NewAsgClient(t, region)
 	input := &autoscaling.DescribeAutoScalingGroupsInput{
@@ -114,42 +150,13 @@ func TestElkRecycle(t *testing.T) {
 	instancestrings := aws.GetInstanceIdsForAsg(t, elkAsgName, region)
 	assert.Equal(t, int(len(instancestrings)), 1)
 
-	var instances []*string
-	for _, instance := range instancestrings {
-		instances = append(instances, aws_sdk.String(instance))
-	}
-
-	// Wait for SSM to get active
-	aws.WaitForSsmInstance(t, region, instancestrings[0], 900*time.Second)
-
-	// ssm in and make sure that the chef run is done?
-	elkssm := aws.NewSsmClient(t, region)
-	input := &ssm.SendCommandInput{
-		DocumentName: aws_sdk.String("AWS-RunShellScript"),
-		Parameters: map[string][]*string{
-			"commands": {
-				aws_sdk.String("cat /var/lib/cloud/data/status.json"),
-			},
-		},
-		InstanceIds: instances,
-	}
-	output, err := elkssm.SendCommand(input)
-	require.NoError(t, err)
-
-	// Wait until it's done
-	cmdinvocation := &ssm.GetCommandInvocationInput{
-		CommandId:  output.Command.CommandId,
-		InstanceId: instances[0],
-	}
-	err = elkssm.WaitUntilCommandExecuted(cmdinvocation)
-
-	// get output of command
-	cmdoutput, err := elkssm.GetCommandInvocation(cmdinvocation)
+	cmdoutput := RunCommandOnInstances(t, instancestrings, "cat /var/lib/cloud/data/status.json")
 	assert.Equal(t, *cmdoutput.ResponseCode, int64(0))
 
 	// Make sure that the cloud-init run completed properly
 	var cwstatus map[string]map[string]map[string]interface{}
-	err = json.Unmarshal([]byte(*cmdoutput.StandardOutputContent), &cwstatus)
+	err := json.Unmarshal([]byte(*cmdoutput.StandardOutputContent), &cwstatus)
+	require.NoError(t, err)
 	for _, v := range cwstatus["v1"] {
 		if errors, ok := v["errors"]; ok {
 			assert.Empty(t, errors)
@@ -169,42 +176,14 @@ func TestFilebeat(t *testing.T) {
 	instancestrings := aws.GetInstanceIdsForAsg(t, elkAsgName, region)
 	assert.Equal(t, int(len(instancestrings)), 1)
 
-	var instances []*string
-	for _, instance := range instancestrings {
-		instances = append(instances, aws_sdk.String(instance))
-	}
-
-	// Wait for SSM to get active
-	aws.WaitForSsmInstance(t, region, instancestrings[0], 900*time.Second)
-
-	// ssm in and query curl -XGET 'localhost:5066/stats?pretty'
-	elkssm := aws.NewSsmClient(t, region)
-	input := &ssm.SendCommandInput{
-		DocumentName: aws_sdk.String("AWS-RunShellScript"),
-		Parameters: map[string][]*string{
-			"commands": {
-				aws_sdk.String("/usr/bin/curl -XGET localhost:5066/stats?pretty"),
-			},
-		},
-		InstanceIds: instances,
-	}
-	output, err := elkssm.SendCommand(input)
-	require.NoError(t, err)
-
-	// Wait until it's done
-	cmdinvocation := &ssm.GetCommandInvocationInput{
-		CommandId:  output.Command.CommandId,
-		InstanceId: instances[0],
-	}
-	err = elkssm.WaitUntilCommandExecuted(cmdinvocation)
-
-	// get output of command
-	cmdoutput, err := elkssm.GetCommandInvocation(cmdinvocation)
+	cmdoutput := RunCommandOnInstances(t, instancestrings, "/usr/bin/curl -XGET localhost:5066/stats?pretty")
 	assert.Equal(t, *cmdoutput.ResponseCode, int64(0))
 
 	// Make sure that we are are successfully logging to logstash
 	var cwstatus map[string]map[string]map[string]map[string]int64
-	err = json.Unmarshal([]byte(*cmdoutput.StandardOutputContent), &cwstatus)
+	err := json.Unmarshal([]byte(*cmdoutput.StandardOutputContent), &cwstatus)
+	require.NoError(t, err)
+
 	// check for zero errors
 	assert.Equal(t, cwstatus["libbeat"]["output"]["write"]["errors"], int64(0))
 	// check for greater than zero bytes sent to logstash
@@ -218,40 +197,12 @@ func TestLogstash(t *testing.T) {
 	instancestrings := aws.GetInstanceIdsForAsg(t, elkAsgName, region)
 	assert.Equal(t, int(len(instancestrings)), 1)
 
-	var instances []*string
-	for _, instance := range instancestrings {
-		instances = append(instances, aws_sdk.String(instance))
-	}
+	cmdoutput := RunCommandOnInstances(t, instancestrings, "/usr/bin/curl -XGET localhost:9600/_node/stats/events")
 
-	// Wait for SSM to get active
-	aws.WaitForSsmInstance(t, region, instancestrings[0], 900*time.Second)
-
-	// ssm in and query curl -XGET 'localhost:5066/stats?pretty'
-	elkssm := aws.NewSsmClient(t, region)
-	input := &ssm.SendCommandInput{
-		DocumentName: aws_sdk.String("AWS-RunShellScript"),
-		Parameters: map[string][]*string{
-			"commands": {
-				aws_sdk.String("/usr/bin/curl -XGET localhost:9600/_node/stats/events"),
-			},
-		},
-		InstanceIds: instances,
-	}
-	output, err := elkssm.SendCommand(input)
-	require.NoError(t, err)
-
-	// Wait until it's done
-	cmdinvocation := &ssm.GetCommandInvocationInput{
-		CommandId:  output.Command.CommandId,
-		InstanceId: instances[0],
-	}
-	err = elkssm.WaitUntilCommandExecuted(cmdinvocation)
-
-	// get output of command
-	cmdoutput, err := elkssm.GetCommandInvocation(cmdinvocation)
 	assert.Equal(t, *cmdoutput.ResponseCode, int64(0))
 	var cwstatus map[string]interface{}
-	err = json.Unmarshal([]byte(*cmdoutput.StandardOutputContent), &cwstatus)
+	err := json.Unmarshal([]byte(*cmdoutput.StandardOutputContent), &cwstatus)
+	require.NoError(t, err)
 
 	// check for zero errors
 	events := cwstatus["events"].(map[string]interface{})
