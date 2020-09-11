@@ -186,7 +186,7 @@ class Certificate
     TokenService.box(
       extra.merge(
         subject: subject_s,
-        issuer: issuer,
+        issuer: issuer.to_s,
         uuid: piv.uuid,
         card_type: card_type
       )
