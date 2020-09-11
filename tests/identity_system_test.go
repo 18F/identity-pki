@@ -159,7 +159,7 @@ func TestElkRecycle(t *testing.T) {
 	require.NoError(t, err)
 	for _, v := range cwstatus["v1"] {
 		if errors, ok := v["errors"]; ok {
-			assert.Empty(t, errors)
+			assert.Empty(t, errors, "there were errors in one of the cloud-init phases")
 		}
 	}
 }
@@ -177,7 +177,7 @@ func TestFilebeat(t *testing.T) {
 	assert.Equal(t, int(len(instancestrings)), 1)
 
 	cmdoutput := RunCommandOnInstances(t, instancestrings, "/usr/bin/curl -XGET localhost:5066/stats?pretty")
-	assert.Equal(t, int64(0), *cmdoutput.ResponseCode)
+	assert.Equal(t, int64(0), *cmdoutput.ResponseCode, "we were not able to get status information from filebeat")
 
 	// Make sure that we are are successfully logging to logstash
 	var cwstatus map[string]map[string]map[string]map[string]int64
@@ -185,9 +185,9 @@ func TestFilebeat(t *testing.T) {
 	require.NoError(t, err)
 
 	// check for zero errors
-	assert.Equal(t, int64(0), cwstatus["libbeat"]["output"]["write"]["errors"])
+	assert.Equal(t, int64(0), cwstatus["libbeat"]["output"]["write"]["errors"], "there are errors trying to send to logstash")
 	// check for greater than zero bytes sent to logstash
-	assert.Greater(t, cwstatus["libbeat"]["output"]["write"]["bytes"], int64(0))
+	assert.Greater(t, cwstatus["libbeat"]["output"]["write"]["bytes"], int64(0), "no data has been sent to logstash")
 }
 
 func TestLogstash(t *testing.T) {
@@ -206,9 +206,9 @@ func TestLogstash(t *testing.T) {
 
 	// check for zero errors
 	events := cwstatus["events"].(map[string]interface{})
-	assert.Greater(t, events["out"].(float64), float64(0))
+	assert.Greater(t, events["out"].(float64), float64(0), "there are errors trying to send to elasticsearch")
 	// check for green status
-	assert.Equal(t, "green", cwstatus["status"])
+	assert.Equal(t, "green", cwstatus["status"], "the status is not green")
 }
 
 func TestElastalert(t *testing.T) {
