@@ -302,3 +302,23 @@ data "aws_iam_policy_document" "pivcac_public_cert_bucket_policy" {
   }
 }
 
+# TODO - The following should be switched to count gated in TF 13
+# and asg_name and elb_name should be set from introspection.
+#
+# This temp solution will create alarms using the expected names.
+# If they are not present the alerts will not fire.
+module "pivcac_insufficent_instances_alerts" {
+  source = "../modules/asg_insufficent_instances_alerts"
+
+  asg_name = "${var.env_name}-pivcac"
+
+  alarm_actions = local.high_priority_alarm_actions
+}
+
+module "pivcac_unhealthy_instances_alerts" {
+  source = "../modules/elb_unhealthy_instances_alerts"
+
+  asg_name      = "${var.env_name}-pivcac"
+  elb_name      = "${var.env_name}-pivcac"
+  alarm_actions = local.high_priority_alarm_actions
+}

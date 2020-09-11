@@ -53,3 +53,20 @@ module "elb_http_alerts" {
   alarm_actions = local.high_priority_alarm_actions
 }
 
+module "idp_insufficent_instances_alerts" {
+  source = "../modules/asg_insufficent_instances_alerts"
+
+  asg_name = aws_autoscaling_group.idp.name
+
+  alarm_actions = local.high_priority_alarm_actions
+}
+
+module "idp_unhealthy_instances_alerts" {
+  source = "../modules/alb_unhealthy_instances_alerts"
+
+  asg_name                = aws_autoscaling_group.idp.name
+  alb_arn_suffix          = aws_alb.idp.arn_suffix
+  target_group_arn_suffix = aws_alb_target_group.idp-ssl.arn_suffix
+
+  alarm_actions = local.high_priority_alarm_actions
+}
