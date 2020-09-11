@@ -73,7 +73,7 @@ func ASGRecycle(t *testing.T, asgName string) {
 
 	// Make sure we are actually at that size
 	asgInstances := aws.GetInstanceIdsForAsg(t, asgName, region)
-	assert.Equal(t, int64(len(asgInstances)), asgSize)
+	assert.Equal(t, int64(len(asgInstances)), asgSize, "ASG size is not proper for "+asgName)
 
 	// set the size to 2x
 	updateinput := &autoscaling.UpdateAutoScalingGroupInput{
@@ -151,7 +151,7 @@ func TestElkRecycle(t *testing.T) {
 	assert.Equal(t, int(len(instancestrings)), 1)
 
 	cmdoutput := RunCommandOnInstances(t, instancestrings, "cat /var/lib/cloud/data/status.json")
-	assert.Equal(t, *cmdoutput.ResponseCode, int64(0))
+	assert.Equal(t, int64(0), *cmdoutput.ResponseCode, "could not cat /var/lib/cloud/data/status.json to gather cloud-init status information")
 
 	// Make sure that the cloud-init run completed properly
 	var cwstatus map[string]map[string]map[string]interface{}
@@ -174,7 +174,7 @@ func TestFilebeat(t *testing.T) {
 
 	// we should only have one elk instance
 	instancestrings := aws.GetInstanceIdsForAsg(t, elkAsgName, region)
-	assert.Equal(t, int(len(instancestrings)), 1)
+	assert.Equal(t, int(len(instancestrings)), 1, "there should only be one elk node")
 
 	cmdoutput := RunCommandOnInstances(t, instancestrings, "/usr/bin/curl -XGET localhost:5066/stats?pretty")
 	assert.Equal(t, int64(0), *cmdoutput.ResponseCode, "we were not able to get status information from filebeat")
@@ -195,11 +195,11 @@ func TestLogstash(t *testing.T) {
 
 	// we should only have one elk instance
 	instancestrings := aws.GetInstanceIdsForAsg(t, elkAsgName, region)
-	assert.Equal(t, int(len(instancestrings)), 1)
+	assert.Equal(t, 1, int(len(instancestrings)), "there should only be one elk node")
 
 	cmdoutput := RunCommandOnInstances(t, instancestrings, "/usr/bin/curl -XGET localhost:9600/_node/stats/events")
+	assert.Equal(t, int64(0), *cmdoutput.ResponseCode, "we were not able to get status information from logstash")
 
-	assert.Equal(t, *cmdoutput.ResponseCode, int64(0))
 	var cwstatus map[string]interface{}
 	err := json.Unmarshal([]byte(*cmdoutput.StandardOutputContent), &cwstatus)
 	require.NoError(t, err)
