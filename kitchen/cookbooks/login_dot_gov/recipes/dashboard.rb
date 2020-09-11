@@ -90,6 +90,11 @@ deploy "#{base_dir}" do
   #user node.fetch('login_dot_gov').fetch('system_user')
 end
 
+execute "chown-data-www" do
+  command "chown -R #{node['login_dot_gov']['system_user']}: #{base_dir}"
+  action :nothing
+end
+
 execute "rbenv exec bundle exec rake db:create db:migrate db:seed --trace" do
   cwd "#{base_dir}/current"
   environment({
@@ -120,14 +125,6 @@ nginx_redirects = [
   {
     'server_name' => "#{node.chef_environment}-identity-saml-sinatra.app.cloud.gov",
     'redirect_server' => "sp-sinatra.#{node.chef_environment}.#{domain_name}"
-  },
-  {
-    'server_name' => "#{node.chef_environment}-identity-oidc-sinatra.app.cloud.gov",
-    'redirect_server' => "sp-oidc-sinatra.#{node.chef_environment}.#{domain_name}"
-  },
-  {
-    'server_name' => "#{node.chef_environment}-identity-oidc-sinatra.app.cloud.gov",
-    'redirect_server' => "sp.#{node.chef_environment}.#{domain_name}"
   }
 ]
 

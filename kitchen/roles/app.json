@@ -2,16 +2,13 @@
   "name": "app",
   "description": "",
   "json_class": "Chef::Role",
-  "default_attributes": {
-  },
-  "override_attributes": {
-  },
+  "default_attributes": {},
+  "override_attributes": {},
   "chef_type": "role",
   "run_list": [
     "role[base]",
     "recipe[passenger::daemon]",
-    "recipe[login_dot_gov::dashboard]"
+    "recipe[login_dot_gov::app_selector]"
   ],
-  "env_run_lists": {
-  }
+  "env_run_lists": {}
 }
