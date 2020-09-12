@@ -68,5 +68,7 @@ module "idp_unhealthy_instances_alerts" {
   alb_arn_suffix          = aws_alb.idp.arn_suffix
   target_group_arn_suffix = aws_alb_target_group.idp-ssl.arn_suffix
 
-  alarm_actions = local.high_priority_alarm_actions
+  # Send Slack notice only instead of page - Insufficent instance
+  # alerts will let us know if things are getting bad.
+  alarm_actions = var.slack_events_sns_hook_arn
 }
