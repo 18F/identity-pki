@@ -321,7 +321,5 @@ module "pivcac_unhealthy_instances_alerts" {
   asg_name = "${var.env_name}-pivcac"
   elb_name = "${var.env_name}-pivcac"
 
-  # Send Slack notice only instead of page - Insufficent instance
-  # alerts will let us know if things are getting bad.
-  alarm_actions = var.slack_events_sns_hook_arn
+  alarm_actions = local.low_priority_alarm_actions
 }
