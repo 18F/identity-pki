@@ -19,14 +19,15 @@ resource "aws_cloudwatch_metric_alarm" "unhealthy-instances-elb" {
   alarm_description = "${var.asg_name}: Previously healthy instances have fallen ill"
   namespace         = "AWS/ELB"
 
+  metric_name = "UnHealthyHostCount"
   dimensions = {
     LoadBalancerName = var.elb_name
   }
 
-  statistic           = "Max"
+  statistic           = "Maximum"
   comparison_operator = "GreaterThanThreshold"
   threshold           = 0
-  period              = 900
+  period              = 300
   evaluation_periods  = 1
 
   treat_missing_data = "notBreaching"

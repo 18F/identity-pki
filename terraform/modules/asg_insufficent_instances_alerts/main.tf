@@ -29,7 +29,6 @@ resource "aws_cloudwatch_metric_alarm" "insufficient-instances" {
       metric_name = "GroupMinSize"
       period      = "60"
       stat        = "Minimum"
-      unit        = "Count"
       dimensions = {
         AutoScalingGroupName = var.asg_name
       }
@@ -43,7 +42,6 @@ resource "aws_cloudwatch_metric_alarm" "insufficient-instances" {
       metric_name = "GroupInServiceInstances"
       period      = "60"
       stat        = "Minimum"
-      unit        = "Count"
       dimensions = {
         AutoScalingGroupName = var.asg_name
       }
