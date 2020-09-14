@@ -180,20 +180,3 @@ module "logbucket_config" {
   region               = var.region
   inventory_bucket_arn = local.inventory_bucket_arn
 }
-
-resource "aws_s3_bucket_notification" "analytics_lambda_log_notify" {
-  # NB: an S3 bucket can have only one bucket notification
-  # https://github.com/terraform-providers/terraform-provider-aws/issues/1715
-
-  count  = var.analytics_lambda_arn_for_s3_notify == "" ? 0 : 1
-  bucket = aws_s3_bucket.logbucket.id
-
-  lambda_function {
-    # this comes from aws_lambda_function.analytics_lambda.arn in the
-    # terraform-analytics directory
-    lambda_function_arn = var.analytics_lambda_arn_for_s3_notify
-    events              = ["s3:ObjectCreated:*"]
-    filter_suffix       = ".txt"
-  }
-}
-
