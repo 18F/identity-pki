@@ -94,6 +94,9 @@ RSpec.describe IdentifyController, type: :controller do
         let(:root_key) { root_cert_and_key.last }
 
         let(:client_subject) { 'CN=other,OU=someplace,O=somewhere' }
+        let(:client_issuer) do
+          '/O=somewhere/OU=someplace/CN=something'
+        end
 
         let(:expired_at) { Time.zone.now + 1.week }
 
@@ -153,6 +156,8 @@ RSpec.describe IdentifyController, type: :controller do
             given_subject = token_contents['subject'].split(/\s*,\s*/).sort
             expected_subject = client_subject.split(/\s*,\s*/).sort
             expect(given_subject).to eq expected_subject
+
+            expect(token_contents['issuer']).to eq(client_issuer)
           end
 
           context 'when a DoD root certificate is found in certificate chain' do
@@ -168,6 +173,7 @@ RSpec.describe IdentifyController, type: :controller do
               get :create, params: { nonce: '123', redirect_uri: 'http://example.com/' }
 
               expect(token_contents['card_type']).to eq 'cac'
+              expect(token_contents['issuer']).to eq client_issuer
             end
           end
 
