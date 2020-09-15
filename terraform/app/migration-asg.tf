@@ -39,7 +39,7 @@ module "migration_user_data" {
 }
 
 module "migration_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=cae8dcdaf37e9e423480561de27ccfa1e882b5ea"
+  source = "github.com/18F/identity-terraform//launch_template?ref=476ab4456e547e125dcd53cb6131419b54f1f476"
 
   role           = "migration"
   env            = var.env_name
@@ -112,12 +112,12 @@ resource "aws_autoscaling_group" "migration" {
 }
 
 module "migration_lifecycle_hooks" {
-  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=cae8dcdaf37e9e423480561de27ccfa1e882b5ea"
+  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=476ab4456e547e125dcd53cb6131419b54f1f476"
   asg_name = aws_autoscaling_group.migration.name
 }
 
 module "migration_recycle" {
-  #source = "github.com/18F/identity-terraform//asg_recycle?ref=cae8dcdaf37e9e423480561de27ccfa1e882b5ea"
+  #source = "github.com/18F/identity-terraform//asg_recycle?ref=476ab4456e547e125dcd53cb6131419b54f1f476"
   source  = "../../../identity-terraform//asg_recycle"
   enabled = var.asg_auto_recycle_enabled
 
