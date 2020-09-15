@@ -295,3 +295,117 @@ resource "newrelic_nrql_alert_condition" "no_log_archives" {
     threshold_occurrences = "ALL"
   }
 }
+
+data "newrelic_entity" "pivcac" {
+  count = var.enabled
+  name = "pivcac.${var.env_name}.${var.root_domain}"
+  domain = "APM"
+  type = "APPLICATION"
+}
+
+data "newrelic_entity" "idp" {
+  count = var.enabled
+  name = "${var.env_name}.${var.root_domain}"
+  domain = "APM"
+  type = "APPLICATION"
+}
+
+resource "newrelic_alert_condition" "pivcac_low_throughput" {
+  count       = var.enabled
+  policy_id   = newrelic_alert_policy.high[0].id
+  name        = "${var.env_name}: PIVCAC LOW Throughput (web)"
+  runbook_url = "https://github.com/18F/identity-private/wiki/Runbook:-low-throughput-in-New-Relic"
+  enabled     = true
+  type        = "apm_app_metric"
+  metric      = "throughput_web"
+  condition_scope = "application"
+  entities        = [data.newrelic_entity.pivcac[0].application_id]
+
+  term {
+    duration      = 5
+    operator      = "below"
+    priority      = "critical"
+    threshold     = var.pivcac_threshold
+    time_function = "all"
+  }
+}
+
+resource "newrelic_alert_condition" "low_throughput" {
+  count = var.enabled
+  policy_id = newrelic_alert_policy.high[0].id
+  name        = "${var.env_name}: LOW Throughput (web)"
+  runbook_url = "https://github.com/18F/identity-private/wiki/Runbook:-low-throughput-in-New-Relic"
+  enabled     = true
+  type        = "apm_app_metric"
+  metric      = "throughput_web"
+  condition_scope = "application"
+  entities        = [data.newrelic_entity.idp[0].application_id]
+
+  term {
+    duration      = 5
+    operator      = "below"
+    priority      = "critical"
+    threshold     = var.web_threshold
+    time_function = "all"
+  }
+
+  term {
+    duration      = 15
+    operator      = "below"
+    priority      = "warning"
+    threshold     = var.web_warn_threshold
+    time_function = "all"
+  }
+}
+
+resource "newrelic_synthetics_monitor" "wwwlogingov" {
+  count = var.www_enabled
+  name = "${var.env_name} www.login.gov monitor"
+  type = "SIMPLE"
+  frequency = 5
+  status = "ENABLED"
+  locations = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
+
+  uri                       = "https://www.login.gov"
+  validation_string         = "secure access to government services"
+  verify_ssl                = true
+}
+
+resource "newrelic_synthetics_monitor" "logingov" {
+  count = var.www_enabled
+  name = "${var.env_name} login.gov static site monitor"
+  type = "SIMPLE"
+  frequency = 5
+  status = "ENABLED"
+  locations = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
+
+  uri                       = "https://login.gov"
+  validation_string         = "secure access to government services"
+  verify_ssl                = true
+}
+
+data "newrelic_synthetics_monitor" "wwwlogingov" {
+  count = var.www_enabled
+  name = "${var.env_name} www.login.gov monitor"
+}
+
+data "newrelic_synthetics_monitor" "logingov" {
+  count = var.www_enabled
+  name = "${var.env_name} login.gov static site monitor"
+}
+
+resource "newrelic_synthetics_alert_condition" "wwwlogingov" {
+  count = var.www_enabled
+  policy_id = newrelic_alert_policy.high[0].id
+
+  name        = "https://www.login.gov ping failure"
+  monitor_id  = data.newrelic_synthetics_monitor.wwwlogingov[0].id
+}
+
+resource "newrelic_synthetics_alert_condition" "logingov" {
+  count = var.www_enabled
+  policy_id = newrelic_alert_policy.high[0].id
+
+  name        = "https://login.gov ping failure"
+  monitor_id  = data.newrelic_synthetics_monitor.logingov[0].id
+}
