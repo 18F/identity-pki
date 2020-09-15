@@ -59,20 +59,12 @@ done
 
 [[ -z ${PR_TITLE} ]] && PR_TITLE=("$(git show -s --format=%s)")
 
-if [[ -z ${GH_REVS} ]] ; then
-  if [ -f ~/.login-revs ] ; then
-    GH_REVS=$(cat ~/.login-revs |
-      grep -m 1 "$(basename $(git rev-parse --show-toplevel))" |
-      awk '{print $2}')
-  else
-    GH_REVS="$(git config user.name)"
-  fi
-fi
+gh_revs
 
 if [[ "${ACTION}" == 'open' ]] ; then
   if [[ "${PUSH}" == true ]] ; then
     run git add --all
-    run git commit -m "'${PR_TITLE[@]}'"
+    run git commit -m "${PR_TITLE[@]}"
     run git push --set-upstream origin $(git_current_branch)
   fi
   
