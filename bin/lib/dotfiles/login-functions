@@ -2,7 +2,7 @@
 . "$(dirname "$0")/.subfunctions"
 
 ############# login.gov aliases/functions #############
-if [[ ! $(brew cask list | grep aws-vault) ]] ; then
+if [[ ! $(brew list --cask | grep aws-vault) ]] ; then
   brew cask install aws-vault || { echo "aws-vault not installed!" && exit 1 ; }
 fi
 
@@ -31,19 +31,23 @@ EOF
     AV_CMD="${OPTARG}" 
   done
   shift
-  declare {ttl,yk}=
-  mfa_get
-  case "${AV_CMD}" in
-    (l) run aws-vault login ${AV_PROFILE} ${ttl} ${yk} ;;
-    (c) run_av "$@" ;;
-    (v)
-        run aws-vault remove master --sessions-only
-        declare {ttl,yk}=
-        mfa_get "$@"
-        run aws-vault exec ${AV_PROFILE} --no-session ${ttl} ${yk}
-    ;;
-    (*) badopt ;;
-  esac
+  if [[ "${AV_CMD}" == "v" ]] ; then
+    session_get
+    [[ -z ${SESSION_PROFILE} ]] || run aws-vault remove ${SESSION_PROFILE} --sessions-only
+    mfa_get "$@"
+    run aws-vault exec ${AV_PROFILE} --no-session ${ttl} ${yk}
+  else
+    session_get
+    if [[ "${SESSION_PROFILE}" != "master" ]] && [[ ! -z "${SESSION_PROFILE}" ]] ; then
+      run aws-vault remove ${SESSION_PROFILE} --sessions-only
+    fi
+    mfa_get
+    case "${AV_CMD}" in
+      (l) run aws-vault login ${AV_PROFILE} ${ttl} ${yk} ;;
+      (c) run_av "$@" ;;
+      (*) badopt ;;
+    esac
+  fi
 }
 
 #### run tf-deploy with common Terraform commands and any AWS profile/TF directory ####

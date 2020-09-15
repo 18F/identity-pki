@@ -19,6 +19,12 @@ alias gi="run hub issue"
 
 ######## functions ########
 
+#### create/checkout new git branch named ${1} ####
+newb() {
+  gom
+  run git checkout -b "${1}"
+}
+
 #### cd to ${GITHUB_PARENT_DIR}/identity-${1} ####
 gid() {
   run cd "${GITHUB_PARENT_DIR}/identity-${1}"
@@ -85,7 +91,7 @@ gpr() {
 
 #### create issues ####
 ghi() {
-  local ASSIGNEE
+  local ASSIGNEE=
   local TEMPLATE="feature_request"
   while getopts a:bon opt ; do
     case "${opt}" in
@@ -96,8 +102,8 @@ ghi() {
       *) badopt ;;
     esac
   done
-  run hub issue create --edit "${ASSIGNEE}" \
-    -F "${GITHUB_PARENT_DIR}/identity-devops/.github/ISSUE_TEMPLATE/${TEMPLATE}.md"
+  run hub issue create --edit \
+    -F "${GITHUB_PARENT_DIR}/identity-devops/.github/ISSUE_TEMPLATE/${TEMPLATE}.md" "${ASSIGNEE}"
 }
 
 #### pull branch up to current version ####
