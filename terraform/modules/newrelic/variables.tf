@@ -1,5 +1,22 @@
 
-variable "enabled" {}
+variable "enabled" {
+  description = "turn on common newrelic alerting services"
+}
+
+variable "www_enabled" {
+  description = "this should only be set in the prod environment, as it creates monitors for the static site"
+  default = 0
+}
+
+variable "elk_enabled" {
+  description = "set this to 1 if you want to alert on ELK problems"
+  default = 0
+}
+
+variable "idp_enabled" {
+  description = "set this to 1 if you want to alert on idp problems"
+  default = 0
+}
 
 variable "env_name" {}
 
@@ -24,11 +41,6 @@ variable "web_threshold" {
 variable "web_warn_threshold" {
   description = "If the number of queries in 15 minutes to the main app falls below this number, we warn"
   default = 475
-}
-
-variable "www_enabled" {
-  description = "this should only be set in the prod environment, as it creates monitors for the static site"
-  default = 0
 }
 
 variable "root_domain" {

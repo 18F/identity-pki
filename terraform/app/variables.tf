@@ -616,7 +616,19 @@ variable "kms_log_kinesis_shards" {
 }
 
 variable "newrelic_alerts_enabled" {
-  description = "whether or not to enable newrelic alerting for this environment"
+  description = "turn on common newrelic alerting services.  Required if any other newrelic stuff is enabled."
+  default     = 0
+}
+variable "www_newrelic_alerts_enabled" {
+  description = "this should only be set in the prod environment, as it creates monitors for the static site"
+  default     = 0
+}
+variable "elk_newrelic_alerts_enabled" {
+  description = "set this to 1 if you want to alert on ELK problems"
+  default     = 0
+}
+variable "idp_newrelic_alerts_enabled" {
+  description = "set this to 1 if you want to alert on idp problems"
   default     = 0
 }
 
