@@ -1,6 +1,6 @@
 data "aws_s3_bucket_object" "slack_webhook" {
   bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
-  key    = "${local.common_account_name}/tfslackwebhook"
+  key    = "${local.common_account_name}/slackwebhook"
 }
 
 # TODO: decide if we use common/ for each account, or use the
