@@ -69,8 +69,10 @@ slack_notify () {
   
   local BUCKET="s3://login-gov.secrets.${AWS_ACCT_NUM}-${AWS_REGION}/${TF_ENV}"
   
-  SLACK_CHANNEL=$(aws s3 cp "${BUCKET}/tfslackchannel" -) || ((KEYS++))
-  SLACK_WEBHOOK=$(aws s3 cp "${BUCKET}/tfslackwebhook" -) || ((KEYS++))
+  if ! SLACK_CHANNEL=$(aws s3 cp "${BUCKET}/tfslackchannel" - 2>/dev/null) ; then
+    SLACK_CHANNEL=$(aws s3 cp "${BUCKET}/slackchannel" -) || ((KEYS++))
+  fi
+  SLACK_WEBHOOK=$(aws s3 cp "${BUCKET}/slackwebhook" -) || ((KEYS++))
   if [[ "${KEYS}" -gt 0 ]]; then
     echo 'Slack channel/webhook missing from S3 bucket!'
     return 1
