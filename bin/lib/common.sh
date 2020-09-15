@@ -458,11 +458,20 @@ env_get() {
   [[ "${EC2_ENV}" =~ "staging|prod" ]] && AV_PROFILE='prod-admin'
 }
 
+## identify currently-active session, if one exists
+session_get() {
+  ACTIVE_SESSION=$(aws-vault list | tail -n +3 | grep sts)
+  SESSION_PROFILE=$(echo ${ACTIVE_SESSION} | awk '{print $1}')
+  SESSION_TTL=$(echo ${ACTIVE_SESSION} | awk -F: '{print $NF}')
+}
+
 ## integrates with ykman for YubiKey OTP MFA ##
 mfa_get() {
+  ttl=
+  yk=
   local DUR="${1:-1}h"
-  local ttl_time=$(aws-vault list --sessions | awk -F: '{print $2}')
-  if [[ -z ${ttl_time} ]] ; then
+  session_get
+  if [[ ! $(echo $SESSION_TTL | grep -v \-) ]] ; then
     ttl="--duration=${DUR}" 
     [[ -n $(command -v ykman) ]] && yk="--mfa-token=$(ykman oath code --single aws/login-master | awk '{print $NF}')" 
   fi
@@ -474,7 +483,6 @@ run_av() {
   if [[ $(env | grep 'AWS_VAULT=') ]] ; then
     run "${run_me_av[@]}"
   else
-    declare {ttl,yk}=
     mfa_get
     run aws-vault exec ${AV_PROFILE} ${ttl} ${yk} -- "${run_me_av[@]}"
   fi
@@ -492,15 +500,22 @@ git_current_branch() {
   echo ${REF#refs/heads/}
 }
 
-#### create/checkout new git branch named ${1} ####
-newb() {
-  gom
-  run git checkout -b "${1}"
-}
-
 get_profile_name () {
   ACCOUNT=${1:-$(aws sts get-caller-identity | jq -r '.Account')}
   awk '{a[i++]=$0} END {for (j=i-1; j>=0;) print a[j--] }' ~/.aws/config |
              awk -v account="$ACCOUNT" -v RS= '$0 ~ account' |
                 tail -n 1 | sed -E 's/\[profile (.*)\]/\1/'
+}
+
+#### use ~/.login-revs to set $GH_REVS var; used in bin/github-pr ####
+gh_revs() {
+  if [[ -z ${GH_REVS} ]] ; then
+    if [ -f ~/.login-revs ] ; then
+      GH_REVS=$(cat ~/.login-revs |
+        grep -m 1 "$(basename $(git rev-parse --show-toplevel))" |
+        awk '{print $2}')
+    else
+      GH_REVS="$(git config user.name)"
+    fi
+  fi
 }
