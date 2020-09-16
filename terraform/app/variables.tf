@@ -637,6 +637,21 @@ variable "events_in_last_ten_minutes_threshold" {
   default     = 4000
 }
 
+variable "pivcac_threshold" {
+  description = "If the number of queries to the pivcac services in 5 minutes falls below this number, we alert."
+  default = 20
+}
+
+variable "web_threshold" {
+  description = "If the number of queries in 5 minutes to the main app falls below this number, we alert"
+  default = 300
+}
+
+variable "web_warn_threshold" {
+  description = "If the number of queries in 15 minutes to the main app falls below this number, we warn"
+  default = 475
+}
+
 variable "keep_legacy_bucket" {
   description = "Whether or not to preserve the login-gov-ENV-logs bucket. Should only be used in staging and prod."
   default     = false

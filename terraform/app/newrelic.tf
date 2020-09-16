@@ -12,4 +12,7 @@ module "newrelic" {
   env_name      = var.env_name
   events_in_last_ten_minutes_threshold = var.events_in_last_ten_minutes_threshold
   root_domain   = var.root_domain
+  pivcac_threshold   = var.pivcac_threshold
+  web_threshold      = var.web_threshold
+  web_warn_threshold = var.web_warn_threshold
 }
