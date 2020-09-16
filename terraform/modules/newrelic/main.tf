@@ -28,7 +28,6 @@ data "aws_s3_bucket_object" "newrelic_account_id" {
 }
 
 provider "newrelic" {
-  version = ">= 2.1.2"
   region = "US"
   account_id = data.aws_s3_bucket_object.newrelic_account_id.body
   api_key = data.aws_s3_bucket_object.newrelic_apikey.body

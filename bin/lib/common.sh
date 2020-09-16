@@ -452,9 +452,9 @@ Repo root for $BASENAME: $repo_root_after_cd"
 ## determine env (and AWS_PROFILE) from arg ##
 env_get() {
   AV_PROFILE='sandbox-admin'
-  if [[ ${TF_DIR} == 'app' ]] ; then
-    EC2_ENV="${1}"
-    [[ "${EC2_ENV}" == "sandbox" ]] && EC2_ENV="$(echo $GSA_USERNAME)"
+  if [[ ${TF_DIR} == 'app' ]] || [[ -z ${TF_DIR} ]] ; then
+    EC2_ENV="${1-sandbox}"
+    [[ ${EC2_ENV} == 'sandbox' ]] && EC2_ENV=$(echo $GSA_USERNAME)
   else
     EC2_ENV="${1-sandbox}"
   fi

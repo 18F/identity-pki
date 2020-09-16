@@ -88,6 +88,7 @@ EOF
   else
     run_av tf-deploy ${TEST_RUN} ${TF_DIR}/${EC2_ENV} ${TF_CMD} ${TF_SL}
   fi
+  unset TF_DIR
 }
 
 #### run terraform plan with trimmed-down output ####
@@ -219,14 +220,11 @@ Flags:
 EOF
   [[ $# < 1 ]] && badopt
   local ES_CMD CURL_CMD
-  TF_DIR="app"
   env_get ${2}
-  echo $EC2_ENV
   INSTANCES=$(run_av aws ec2 describe-instances \
       --filters "Name=tag:Name,Values=asg-${EC2_ENV}-elasticsearch" "Name=instance-state-name,Values=running" \
       --query "Reservations[*].Instances[*].{Instance:InstanceId,time:LaunchTime,IP:PrivateIpAddress}" \
       --output text 2>/dev/null)
-      echo $INSTANCES
   NEWEST_INSTANCE=$(echo ${INSTANCES} | sort -k3 | head -n 1 | awk '{print $2}')
   COUNT=$(echo ${INSTANCES} | wc -l | tr -d ' ')
   NEW_COUNT=$(($COUNT / 2))
