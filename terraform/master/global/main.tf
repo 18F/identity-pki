@@ -128,6 +128,7 @@ module "main" {
     "steve.urciuoli"     = ["appdev", "apponcall", "keymasters"],
     "steven.harms"       = ["devops", "secops"],
     "thomas.black"       = ["bizops"],
+    "tiffanyj.andrews"   = ["analytics"],
     "timothy.spencer"    = ["devops", "secops"],
     "zach.margolis"      = ["appdev", "apponcall"],
   }
