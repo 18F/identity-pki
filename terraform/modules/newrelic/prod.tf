@@ -42,3 +42,67 @@ resource "newrelic_synthetics_alert_condition" "logingov" {
   name        = "https://login.gov ping failure"
   monitor_id  = newrelic_synthetics_monitor.logingov[0].id
 }
+
+
+# also set up some dashboards here, since this should only ever be enabled once
+resource "newrelic_dashboard" "ELK" {
+  count = var.www_enabled
+  title = "ELK!"
+  editable = "read_only"
+
+  widget {
+    title = "ELK log volume per environment"
+    visualization = "faceted_line_chart"
+    nrql = "SELECT average(es_documents_in_last_ten_minutes)/10 from LogstashHealthSample FACET label.environment TIMESERIES 2 minute"
+    row = 1
+    column = 1
+  }
+
+  widget {
+    title = "Cloudtrail log volume per environment"
+    visualization = "faceted_line_chart"
+    nrql = "SELECT average(es_cloudtrail_documents_in_last_ten_minutes)/10 from LogstashHealthSample FACET label.environment TIMESERIES 2 minutes"
+    row = 2
+    column = 1
+  }
+
+  widget {
+    title = "Elasticsearch Cluster Status"
+    visualization = "facet_table"
+    nrql = "SELECT latest(es_status) FROM ElasticSearchHealthSample FACET label.environment"
+    row = 1
+    column = 3
+  }
+
+ widget {
+    title = "% Disk used on fullest node"
+    visualization = "facet_table"
+    nrql = "SELECT max(numeric(es_diskpercentused)) as 'disk % used' FROM ElasticSearchHealthSample since 10 minutes ago where es_diskpercentused IS NOT NULL facet label.environment"
+    row = 1
+    column = 4
+  }
+
+ widget {
+    title = "GB used for storing logs in ELK"
+    visualization = "facet_bar_chart"
+    nrql = "SELECT latest(es_total_logs_gb_disk_used) from LogstashHealthSample FACET label.environment"
+    row = 3
+    column = 1
+  }
+
+ widget {
+    title = "Events currently stored in ELK"
+    visualization = "facet_bar_chart"
+    nrql = "SELECT latest(es_total_document_count) from LogstashHealthSample FACET label.environment"
+    row = 3
+    column = 2
+  }
+
+ widget {
+    title = "Log message files archived to s3 in the last 10 minutes"
+    visualization = "faceted_line_chart"
+    nrql = "SELECT average(logstash_files_archived_to_s3_in_last_ten_minutes) from LogstashArchiveHealthSample where logstash_files_archived_to_s3_in_last_ten_minutes IS NOT NULL TIMESERIES 2 minutes FACET label.environment"
+    row = 3
+    column = 3
+  }
+}
