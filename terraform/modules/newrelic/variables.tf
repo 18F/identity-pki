@@ -1,3 +1,7 @@
+variable "opsgenie_key_file" {
+  description = "the name of the file in the secrets/common bucket to use for sending opsgenie alerts for this environment"
+  default = "opsgenie_low_apikey"
+}
 
 variable "enabled" {
   description = "turn on common newrelic alerting services"
@@ -18,6 +22,16 @@ variable "idp_enabled" {
   default = 0
 }
 
+variable "enduser_enabled" {
+  description = "set this to 1 if you want to enable enduser alerting"
+  default = 0
+}
+
+variable "dashboard_enabled" {
+  description = "set this to 1 if you want to alert during business hours on dashboard problems"
+  default = 0
+}
+
 variable "env_name" {}
 
 variable "region" {
@@ -33,6 +47,21 @@ variable "pivcac_threshold" {
   default = 20
 }
 
+variable "apdex_threshold" {
+  description = "If the apdex falls below this number for 5 minutes, we alert."
+  default = 0.8
+}
+
+variable "error_threshold" {
+  description = "If the error rate goes above this percentage rate for 5 minutes, we alert.  Default is 5%"
+  default = 5
+}
+
+variable "error_warn_threshold" {
+  description = "If the error rate goes above this percentage rate for 5 minutes, we warn.  Default is 3.5%"
+  default = 3.5
+}
+
 variable "web_threshold" {
   description = "If the number of queries in 5 minutes to the main app falls below this number, we alert"
   default = 300
@@ -41,6 +70,26 @@ variable "web_threshold" {
 variable "web_warn_threshold" {
   description = "If the number of queries in 15 minutes to the main app falls below this number, we warn"
   default = 475
+}
+
+variable "response_time" {
+  description = "If the response time is above this number (seconds) on the average over the course of 5 minutes, alert"
+  default = 2
+}
+
+variable "response_time_warn" {
+  description = "If the response time is above this number (seconds) on the average over the course of 5 minutes, warn"
+  default = 1
+}
+
+variable "datastore_threshold" {
+  description = "If any datastore query latency is above this (seconds?), alert"
+  default = 2
+}
+
+variable "datastore_warn_threshold" {
+  description = "If any datastore query latency is above this (seconds?), warn"
+  default = 1
 }
 
 variable "root_domain" {

@@ -56,6 +56,7 @@ resource "newrelic_dashboard" "ELK" {
     nrql = "SELECT average(es_documents_in_last_ten_minutes)/10 from LogstashHealthSample FACET label.environment TIMESERIES 2 minute"
     row = 1
     column = 1
+    width = 1
   }
 
   widget {
@@ -64,6 +65,7 @@ resource "newrelic_dashboard" "ELK" {
     nrql = "SELECT average(es_cloudtrail_documents_in_last_ten_minutes)/10 from LogstashHealthSample FACET label.environment TIMESERIES 2 minutes"
     row = 2
     column = 1
+    width = 1
   }
 
   widget {
@@ -71,38 +73,82 @@ resource "newrelic_dashboard" "ELK" {
     visualization = "facet_table"
     nrql = "SELECT latest(es_status) FROM ElasticSearchHealthSample FACET label.environment"
     row = 1
-    column = 3
+    column = 2
+    height = 2
   }
 
- widget {
+  widget {
     title = "% Disk used on fullest node"
     visualization = "facet_table"
     nrql = "SELECT max(numeric(es_diskpercentused)) as 'disk % used' FROM ElasticSearchHealthSample since 10 minutes ago where es_diskpercentused IS NOT NULL facet label.environment"
     row = 1
-    column = 4
+    column = 3
+    height = 2
   }
 
- widget {
-    title = "GB used for storing logs in ELK"
-    visualization = "facet_bar_chart"
-    nrql = "SELECT latest(es_total_logs_gb_disk_used) from LogstashHealthSample FACET label.environment"
-    row = 3
-    column = 1
-  }
-
- widget {
-    title = "Events currently stored in ELK"
-    visualization = "facet_bar_chart"
-    nrql = "SELECT latest(es_total_document_count) from LogstashHealthSample FACET label.environment"
-    row = 3
-    column = 2
-  }
-
- widget {
+  widget {
     title = "Log message files archived to s3 in the last 10 minutes"
     visualization = "faceted_line_chart"
     nrql = "SELECT average(logstash_files_archived_to_s3_in_last_ten_minutes) from LogstashArchiveHealthSample where logstash_files_archived_to_s3_in_last_ten_minutes IS NOT NULL TIMESERIES 2 minutes FACET label.environment"
     row = 3
+    column = 1
+  }
+
+  widget {
+    title = "GB used for storing logs in ELK"
+    visualization = "facet_bar_chart"
+    nrql = "SELECT latest(es_total_logs_gb_disk_used) from LogstashHealthSample FACET label.environment"
+    row = 3
+    column = 2
+  }
+
+  widget {
+    title = "Events currently stored in ELK"
+    visualization = "facet_bar_chart"
+    nrql = "SELECT latest(es_total_document_count) from LogstashHealthSample FACET label.environment"
+    row = 3
     column = 3
+  }
+}
+
+resource "newrelic_dashboard" "prod_errors" {
+  count = var.www_enabled
+  title = "Errors for prod.login.gov"
+  editable = "read_only"
+
+  widget {
+    title = "Errors by Service Provider"
+    visualization = "faceted_area_chart"
+    nrql = "SELECT count(*) FROM TransactionError FACET service_provider WHERE entityGuid = 'MTM3NjM3MHxBUE18QVBQTElDQVRJT058NTIxMzY4NTg' AND appName = 'prod.login.gov' SINCE 6 hours ago TIMESERIES UNTIL now"
+    row = 1
+    column = 1
+    width = 1
+  }
+
+ widget {
+    title = "Errors by Endpoint"
+    visualization = "faceted_area_chart"
+    nrql = "SELECT count(*) FROM TransactionError FACET transactionName WHERE entityGuid = 'MTM3NjM3MHxBUE18QVBQTElDQVRJT058NTIxMzY4NTg' AND appName = 'prod.login.gov' SINCE 6 HOURS AGO TIMESERIES"
+    row = 1
+    column = 2
+    width = 1
+  }
+
+ widget {
+    title = "Errors by IAL level"
+    visualization = "faceted_area_chart"
+    nrql = "SELECT count(*) FROM TransactionError FACET CASES (WHERE transactionName LIKE 'Controller/idv/%' AS IAL2, WHERE transactionName NOT LIKE 'Controller/idv/%' AS IAL1) WHERE appName = 'prod.login.gov' SINCE 6 HOURS AGO TIMESERIES"
+    row = 2
+    column = 1
+    width = 1
+  }
+
+ widget {
+    title = "Errors Count"
+    visualization = "facet_table"
+    nrql = "SELECT COUNT(*), uniques(error.message) FROM TransactionError WHERE appName = 'prod.login.gov' FACET error.class SINCE 6 hours ago"
+    row = 2
+    column = 2
+    width = 2
   }
 }

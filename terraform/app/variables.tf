@@ -631,6 +631,16 @@ variable "idp_newrelic_alerts_enabled" {
   description = "set this to 1 if you want to alert on idp problems"
   default     = 0
 }
+variable "idp_enduser_newrelic_alerts_enabled" {
+  description = "set this to 1 if you want to alert on enduser idp problems"
+  default     = 0
+}
+
+variable "opsgenie_key_file" {
+  description = "the name of the file in the secrets/common bucket to use for sending opsgenie alerts in newrelic for this environment"
+  default = "opsgenie_low_apikey" # This sends alerts during business hours
+  # default = "opsgenie_apikey"   # This sends alerts 7x24
+}
 
 variable "events_in_last_ten_minutes_threshold" {
   description = "if the number of new events in ELK in the last 10 minutes falls below this, and newrelic_alerts_enabled is set, alert"
@@ -638,12 +648,12 @@ variable "events_in_last_ten_minutes_threshold" {
 }
 
 variable "pivcac_threshold" {
-  description = "If the number of queries to the pivcac services in 5 minutes falls below this number, we alert."
+  description = "If the number of queries to the pivcac services in 5 minutes falls below this number, we generate a newrelic alert."
   default = 20
 }
 
 variable "web_threshold" {
-  description = "If the number of queries in 5 minutes to the main app falls below this number, we alert"
+  description = "If the number of queries in 5 minutes to the main app falls below this number, we generate a newrelic alert"
   default = 300
 }
 
