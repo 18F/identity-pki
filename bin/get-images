@@ -68,8 +68,8 @@ fi
 
 for PROFILE in $PROFILE_LIST ; do
   ACCOUNT=$(grep "# login-${PROFILE}" "${GIT_DIR}/terraform/master/global/main.tf" | sed -E 's/^.*\"([0-9]+)\".*$/\1/')
-  ROLE=$(get_profile_name ${ACCOUNT})
-  DATA+=$(echo -e "\n$(run_av ${ROLE} aws ec2 describe-images \
+  AV_PROFILE=$(get_profile_name ${ACCOUNT})
+  DATA+=$(echo -e "\n$(run_av aws ec2 describe-images \
                 --owners self \
                 --query 'Images[*].[ImageId,CreationDate,Name]' \
                 --output text | sort -rk2 | head -n 2 |
