@@ -20,10 +20,8 @@ class CertificateChainService
     if step <= 6
       process_certificate_chain(issuer_ca_cert, chain_array, step)
     end
-    # return chain_array
   end
 
-  # :reek:FeatureEnvy
   def start_processing(x509_cert, step)
     puts "///////////////////////////////////////"
     puts "///////////// [ CA Step: #{step} ] /////////////"
@@ -46,8 +44,6 @@ class CertificateChainService
     nil
   end
 
-
-
   def select_certificates(s3_client, continuation_token = nil, certs = [], &block)
     loop do
       resp = fetch_object_list(s3_client, continuation_token)
@@ -58,10 +54,6 @@ class CertificateChainService
     end
   end
 
-  # Used by #process_unknown_certs
-
-
-
   def process_unknown_cert(x509_cert, chain = [])
     begin
       walk_certificate_chain(x509_cert) do |issuing_cert|
@@ -71,7 +63,7 @@ class CertificateChainService
       puts e.message
       puts "------------------------------"
     end
-    # CertificateStore.instance.add_certificates(chain)
+
     summarize_chain(chain)
     chain
   end
@@ -80,8 +72,6 @@ class CertificateChainService
     # CertificateStore.instance.remove_untrusted_certificates
     puts certs.select(&:valid?).map(&:to_pem).join("\n\n")
   end
-
-  # Used by #process_unknown_cert
 
   # start with the *.p7c pointed to by the URL and follow the chain of certs
   # until we either find one we have in our issuer list or we get to a self-signed
@@ -99,9 +89,6 @@ class CertificateChainService
     puts "  found #{count} #{'cert'.pluralize(count)}\n\n"
   end
 
-  # Used by #select_certificates
-
-  # :reek:UtilityFunction
   def fetch_object_list(s3_client, continuation_token)
     s3_client.list_objects_v2(
       bucket: ENV['AWS_CERT_LOG_BUCKET'], max_keys: 200,
@@ -113,7 +100,6 @@ class CertificateChainService
     response.contents.map { |meta| process_certificate(s3_client, meta) }.select(&block)
   end
 
-  # :reek:UtilityFunction
   def process_certificate(s3_client, object_meta)
     object_resp = s3_client.get_object(
       bucket: ENV['AWS_CERT_LOG_BUCKET'], key: object_meta.key
@@ -121,9 +107,6 @@ class CertificateChainService
     Certificate.new(OpenSSL::X509::Certificate.new(object_resp.body.read))
   end
 
-  # Used by #walk_certificate_chain
-
-  # :reek:UtilityFunction
   def process_tree(stack, chain = [])
     while stack.any?
       new_certs = yield stack.shift
@@ -133,7 +116,6 @@ class CertificateChainService
     chain
   end
 
-  # :reek:UtilityFunction
   def process_p7c(p7c, next_certs = [])
     p7c.certificates.each do |issuing_x509_certificate|
       issuing_cert = Certificate.new(issuing_x509_certificate)
@@ -148,7 +130,6 @@ class CertificateChainService
   def get_cert_issuer(cert)
     ca_issuer_url = cert.issuer_metadata[:ca_issuer_url]
 
-    #puts "  fetching <#{ca_issuer_url}>"
     response = get_response(ca_issuer_url)
     case response
     when Net::HTTPSuccess then
@@ -158,9 +139,6 @@ class CertificateChainService
     end
   end
 
-  # Used by #get_cert_issuer
-
-  # :reek:FeatureEnvy
   def get_response(url)
     url = URI.parse(url)
     http = Net::HTTP.new(url.host, url.port)
