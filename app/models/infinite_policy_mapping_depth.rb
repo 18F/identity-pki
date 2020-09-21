@@ -7,7 +7,6 @@ class InfinitePolicyMappingDepth
     true
   end
 
-  # :reek:UtilityFunction
   def <=>(other)
     if other.any?
       0

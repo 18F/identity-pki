@@ -3,7 +3,6 @@ class TokenService
   RANDOM_BYTES = 8
 
   class << self
-    # :reek:DuplicateMethodCall
     def box(data)
       # The RANDOM_BYTES are there to introduce some entropy since we aren't putting a lot
       # of information into the token. Ruby hashes serialize in the order the keys are
@@ -30,7 +29,6 @@ class TokenService
 
     private
 
-    # :reek:ControlParameter - controlled by hmac_header
     def authentic?(token, hmac_header)
       secret = Figaro.env.piv_cac_verify_token_secret
       # TODO: once everything is deployed and configured and working, we'll
@@ -44,7 +42,6 @@ class TokenService
         hmac == build_hmac(secret, token, nonce)
     end
 
-    # :reek:UtilityFunction
     def build_hmac(secret, token, nonce)
       Base64.urlsafe_encode64(OpenSSL::HMAC.digest('SHA256', secret, [token, nonce].join('+')))
     end
@@ -67,7 +64,6 @@ class TokenService
       end
     end
 
-    # :reek:UtilityFunction
     def bloom_filter_spec
       env = Figaro.env
       size = (env.nonce_bloom_filter_size || 100_000).to_i
@@ -78,7 +74,6 @@ class TokenService
         seed: 123_456_789 }
     end
 
-    # :reek:UtilityFunction
     def bloom_filter_server
       { url: Figaro.env.nonce_bloom_filter_server || 'redis://localhost/' }
     end
@@ -110,7 +105,6 @@ class TokenService
       key[0...32]
     end
 
-    # :reek:UtilityFunction
     def key_salt_and_pepper(ordinal = nil)
       env = Figaro.env
       if ordinal
@@ -128,7 +122,6 @@ class TokenService
       (salt_endings & pepper_endings).sort_by(&:to_i)
     end
 
-    # :reek:UtilityFunction
     def gather_env_key_endings(prefix)
       range = prefix.length..-1
       ENV.

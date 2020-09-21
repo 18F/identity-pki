@@ -38,7 +38,6 @@ class IdentifyController < ApplicationController
     render_bad_request("Missing #{exception.param} param")
   end
 
-  # :reek:UtilityFunction
   def token_for_referrer
     cert_pem = client_cert
     token = if cert_pem
@@ -54,7 +53,6 @@ class IdentifyController < ApplicationController
     TokenService.box(error: 'certificate.none', nonce: nonce)
   end
 
-  # :reek:DuplicateMethodCall
   def client_cert
     cert_pem = request.headers[CERT_HEADER] || request.headers.env['rack.peer_cert']
     return unless cert_pem
@@ -65,7 +63,6 @@ class IdentifyController < ApplicationController
     end
   end
 
-  # :reek:UtilityFunction
   def process_cert(raw_cert)
     cert = Certificate.new(OpenSSL::X509::Certificate.new(raw_cert))
 
@@ -95,7 +92,6 @@ class IdentifyController < ApplicationController
     end
   end
 
-  # :reek:UtilityFunction
   def allowed_referrer?(uri)
     allowed_host = Figaro.env.identity_idp_host
     !allowed_host || uri.host == allowed_host

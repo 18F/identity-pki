@@ -78,12 +78,10 @@ class CertificatePolicies
 
   attr_reader :certificate
 
-  # :reek:UtilityFunction
   def get_extension(oid)
     certificate.x509_cert.extensions.detect { |record| record.oid == oid }&.value
   end
 
-  # :reek:UtilityFunction
   def required_policies
     JSON.parse(Figaro.env.required_policies || '[]')
   end
