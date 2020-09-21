@@ -11,7 +11,6 @@
 /config/application.yml
 /config/certs/*.p7c
 /config/certs/*.cer
-/config/certs/*.pem
 
 # Ignore the default SQLite database.
 /db/*.sqlite3
