@@ -95,7 +95,8 @@ elasticsearch_configure "elasticsearch" do
     'searchguard.authcz.admin_dn' => ["CN=admin.login.gov.internal,OU=#{node.chef_environment},O=login.gov,L=Washington\\, DC,C=US"],
     'xpack.monitoring.collection.enabled' => true,
     'xpack.monitoring.history.duration' => "30d",
-    'xpack.security.enabled' => false
+    'xpack.security.enabled' => false,
+    'indices.query.bool.max_clause_count' => 2048
   })
   java_home '/usr/lib/jvm/java-8-openjdk-amd64'
   logging({:"action" => 'INFO'})
