@@ -88,7 +88,6 @@ class OCSPService
     retry
   end
 
-  # :reek:UtilityFunction
   def make_single_http_request!(uri, request)
     http = Net::HTTP.new(uri.hostname, uri.port)
     env = Figaro.env
@@ -97,7 +96,6 @@ class OCSPService
     http.post(uri.path.presence || '/', request, 'content-type' => 'application/ocsp-request')
   end
 
-  # :reek:UtilityFunction
   def process_http_response_body(body)
     OpenSSL::OCSP::Response.new(body) if body.present?
   end

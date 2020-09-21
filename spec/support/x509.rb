@@ -55,9 +55,6 @@ module X509Helpers
     hash
   end
 
-  # :reek:ControlParameter
-  # :reek:BooleanParameter
-  # :reek:LongParameterList
   def create_ocsp_response(request_der, cert_collection, status_enum = :valid, valid_ocsp = true)
     request = OpenSSL::OCSP::Request.new(request_der)
     status = OCSP_STATUS[status_enum]
@@ -78,8 +75,6 @@ module X509Helpers
     end.join('')
   end
 
-  # :reek:ControlParameter
-  # :reek:LongParameterList
   def create_bad_ocsp_response(request_der, cert_collection, status_enum = :valid, factor = :nonce)
     request = OpenSSL::OCSP::Request.new(request_der)
     status = OCSP_STATUS[status_enum]

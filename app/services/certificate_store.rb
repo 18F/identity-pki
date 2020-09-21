@@ -2,7 +2,6 @@ require 'openssl'
 require 'rgl/dijkstra'
 require 'rgl/adjacency'
 
-# :reek:TooManyMethods :reek:TooManyInstanceVariables
 class CertificateStore # rubocop:disable Metrics/ClassLength
   include Singleton
 
@@ -41,7 +40,6 @@ class CertificateStore # rubocop:disable Metrics/ClassLength
     @graph.add_edge(from, to) if from && to
   end
 
-  # :reek:FeatureEnvy
   def store
     OpenSSL::X509::Store.new.tap do |obj|
       obj.purpose = OpenSSL::X509::PURPOSE_ANY
@@ -112,7 +110,6 @@ class CertificateStore # rubocop:disable Metrics/ClassLength
 
   private
 
-  # :reek:DuplicateMethodCall
   def trusted_certificate_ids
     # start with the trusted roots and work down
     trusted = trusted_ca_root_identifiers
@@ -124,7 +121,6 @@ class CertificateStore # rubocop:disable Metrics/ClassLength
     trusted
   end
 
-  # :reek:FeatureEnvy
   def key_ids_signed_by(trusted)
     select do |cert|
       !trusted.include?(cert.key_id) && trusted.include?(cert.signing_key_id) && cert.valid?
@@ -135,7 +131,6 @@ class CertificateStore # rubocop:disable Metrics/ClassLength
     raw.split(END_CERTIFICATE).map(&method(:cert_from_pem)).compact.select(&:ca_capable?)
   end
 
-  # :reek:UtilityFunction
   def cert_from_pem(pem)
     Certificate.new(OpenSSL::X509::Certificate.new(pem + END_CERTIFICATE)) if pem.strip.present?
   end
