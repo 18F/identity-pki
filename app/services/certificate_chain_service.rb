@@ -69,7 +69,6 @@ class CertificateChainService
   end
 
   def output_certs(certs)
-    # CertificateStore.instance.remove_untrusted_certificates
     puts certs.select(&:valid?).map(&:to_pem).join("\n\n")
   end
 
