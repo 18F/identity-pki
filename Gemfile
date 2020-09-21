@@ -3,7 +3,7 @@ git_source(:github) { |repo_name| "https://github.com/#{repo_name}.git" }
 
 ruby '~> 2.6.5'
 
-gem 'rails', '~> 5.2', '>= 5.2.4.3'
+gem 'rails', '~> 5.2', '>= 5.2.4.4'
 
 gem 'activerecord-import', '>= 1.0.2'
 gem 'aws-sdk', require: false
@@ -45,7 +45,7 @@ group :test do
   gem 'axe-matchers', '~> 1.3.4'
   gem 'codeclimate-test-reporter', '>= 1.0.9', require: false
   gem 'database_cleaner'
-  gem 'factory_bot_rails', '>= 5.1.1'
+  gem 'factory_bot_rails', '>= 5.2.0'
   gem 'fakefs', require: 'fakefs/safe'
   gem 'rails-controller-testing', '>= 1.0.4'
   gem 'shoulda-matchers', '~> 3.1', '>= 3.1.3', require: false
