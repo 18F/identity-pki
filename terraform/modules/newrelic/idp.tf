@@ -229,8 +229,7 @@ resource "newrelic_nrql_alert_condition" "enduser_response_time" {
 #   violation_time_limit = "TWELVE_HOURS"
 
 #   nrql {
-#     query = "SELECT percentage(count(*), WHERE error is true and name LIKE 'Controller/idv/%' and appName = '${var.env_name}.${var.root_domain}') 
-# FROM Transaction WHERE name LIKE 'Controller/idv/%' and appName = '${var.env_name}.${var.root_domain}' FACET name"
+#     query = "SELECT percentage(count(*), WHERE error is true and name LIKE 'Controller/idv/%' and appName = '${var.env_name}.${var.root_domain}') FROM Transaction WHERE name LIKE 'Controller/idv/%' and appName = '${var.env_name}.${var.root_domain}' FACET name"
 #     evaluation_offset = 3
 #   }
 
