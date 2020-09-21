@@ -18,4 +18,5 @@ module "newrelic" {
   web_threshold      = var.web_threshold
   web_warn_threshold = var.web_warn_threshold
   opsgenie_key_file  = var.opsgenie_key_file
+  error_dashboard_site = "${var.env_name}.${var.root_domain}"
 }
