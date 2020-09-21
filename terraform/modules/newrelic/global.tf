@@ -113,13 +113,13 @@ resource "newrelic_dashboard" "ELK" {
 
 resource "newrelic_dashboard" "prod_errors" {
   count = var.www_enabled
-  title = "Errors for prod.login.gov"
+  title = "Errors for ${var.error_dashboard_site}"
   editable = "read_only"
 
   widget {
     title = "Errors by Service Provider"
     visualization = "faceted_area_chart"
-    nrql = "SELECT count(*) FROM TransactionError FACET service_provider WHERE entityGuid = 'MTM3NjM3MHxBUE18QVBQTElDQVRJT058NTIxMzY4NTg' AND appName = 'prod.login.gov' SINCE 6 hours ago TIMESERIES UNTIL now"
+    nrql = "SELECT count(*) FROM TransactionError FACET service_provider WHERE entityGuid = 'MTM3NjM3MHxBUE18QVBQTElDQVRJT058NTIxMzY4NTg' AND appName = '${error_dashboard_site}' SINCE 6 hours ago TIMESERIES UNTIL now"
     row = 1
     column = 1
     width = 1
@@ -128,7 +128,7 @@ resource "newrelic_dashboard" "prod_errors" {
  widget {
     title = "Errors by Endpoint"
     visualization = "faceted_area_chart"
-    nrql = "SELECT count(*) FROM TransactionError FACET transactionName WHERE entityGuid = 'MTM3NjM3MHxBUE18QVBQTElDQVRJT058NTIxMzY4NTg' AND appName = 'prod.login.gov' SINCE 6 HOURS AGO TIMESERIES"
+    nrql = "SELECT count(*) FROM TransactionError FACET transactionName WHERE entityGuid = 'MTM3NjM3MHxBUE18QVBQTElDQVRJT058NTIxMzY4NTg' AND appName = '${error_dashboard_site}' SINCE 6 HOURS AGO TIMESERIES"
     row = 1
     column = 2
     width = 1
@@ -137,7 +137,7 @@ resource "newrelic_dashboard" "prod_errors" {
  widget {
     title = "Errors by IAL level"
     visualization = "faceted_area_chart"
-    nrql = "SELECT count(*) FROM TransactionError FACET CASES (WHERE transactionName LIKE 'Controller/idv/%' AS IAL2, WHERE transactionName NOT LIKE 'Controller/idv/%' AS IAL1) WHERE appName = 'prod.login.gov' SINCE 6 HOURS AGO TIMESERIES"
+    nrql = "SELECT count(*) FROM TransactionError FACET CASES (WHERE transactionName LIKE 'Controller/idv/%' AS IAL2, WHERE transactionName NOT LIKE 'Controller/idv/%' AS IAL1) WHERE appName = '${error_dashboard_site}' SINCE 6 HOURS AGO TIMESERIES"
     row = 2
     column = 1
     width = 1
@@ -146,7 +146,7 @@ resource "newrelic_dashboard" "prod_errors" {
  widget {
     title = "Errors Count"
     visualization = "facet_table"
-    nrql = "SELECT COUNT(*), uniques(error.message) FROM TransactionError WHERE appName = 'prod.login.gov' FACET error.class SINCE 6 hours ago"
+    nrql = "SELECT COUNT(*), uniques(error.message) FROM TransactionError WHERE appName = '${error_dashboard_site}' FACET error.class SINCE 6 hours ago"
     row = 2
     column = 2
     width = 2

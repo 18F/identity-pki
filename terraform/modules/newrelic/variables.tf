@@ -95,3 +95,8 @@ variable "datastore_warn_threshold" {
 variable "root_domain" {
   description = "the domain under which the environment lives under"
 }
+
+variable "error_dashboard_site" {
+  description = "The name of the newrelic app name to put on the error dashboard"
+  default = "prod.login.gov"
+}
