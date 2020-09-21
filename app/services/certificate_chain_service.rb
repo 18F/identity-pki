@@ -1,12 +1,7 @@
 class CertificateChainService
-  def call
-    # load 'app/services/certificate_chain_service.rb'
-    # CertificateChainService.new.call
-
-    ca_id = '49:54:91:4C:69:44:3B:C4:F8:02:2C:F4:F8:2D:33:56:89:75:98:10'
-    ca_issuer_url = 'http://rootweb.managed.entrust.com/AIA/CertsIssuedToEMSRootCA.p7c'
-
-    process_unknown_certs(ca_id, ca_issuer_url)
+  # @param [Certificate]
+  def call(cert)
+    process_unknown_certs(cert.signing_key_id, cert.ca_issuer_http_url)
   end
 
   def process_unknown_certs(ca_id, ca_issuer_url, new_certs = [])
@@ -48,6 +43,7 @@ class CertificateChainService
       issuing_cert = Certificate.new(issuing_x509_certificate)
       return issuing_cert if issuing_cert.key_id == ca_id
     end
+    nil
   end
 
 
