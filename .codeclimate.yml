@@ -2,7 +2,7 @@ plugins:
   brakeman:
     enabled: true
   reek:
-    enabled: true
+    enabled: false
   rubocop:
     enabled: true
     channel: rubocop-0-78

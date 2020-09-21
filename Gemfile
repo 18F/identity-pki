@@ -36,7 +36,6 @@ group :development do
   gem 'overcommit', require: false
   gem 'rack-mini-profiler', '>= 1.0.2', require: false
   gem 'rails-erd', '>= 1.6.0'
-  gem 'reek'
   gem 'rubocop', require: false
   gem 'rubocop-rails', '>= 2.4.1', require: false
 end

@@ -116,7 +116,6 @@ class OCSPResponse
     OpenSSL::OCSP::V_CERTSTATUS_UNKNOWN => 'unknown',
   }.freeze
 
-  # :reek:UtilityFunction
   def status_description(status)
     (certid, status_code, reason_code) = status
     reason_code = status_code == OpenSSL::OCSP::V_CERTSTATUS_REVOKED ? reason_code : '-'
