@@ -26,10 +26,3 @@ variable "group_role_map" {
   description = "Roles map for IAM groups, along with account types per role to grant access to."
   type = map(list(map(list(string))))
 }
-
-variable "auditor_accounts" {
-  description = "Map of non-Login.gov AWS accounts we allow Security Auditor access to"
-  # Unlike our master account, these are accounts we do not control!
-  type        = map(string)
-  default     = {}
-}

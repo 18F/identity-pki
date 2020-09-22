@@ -90,11 +90,6 @@ module "main" {
     "SOCAdministrator",
   ]
 
-  auditor_accounts = {
-    master        = "340731855345" # Include master for testing
-    techportfolio = "133032889584" # TTS Tech Portfolio
-  }
-
   # User to group mappings - Groups defined in ../module/iam_groups.tf
   user_map = {
     "aaron.chapman"      = ["appdev", "apponcall"],
