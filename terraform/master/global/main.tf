@@ -101,7 +101,6 @@ module "main" {
     "anthony.martini"    = ["secops"],
     "brett.mcparland"    = ["secops", "soc"],
     "brian.crissup"      = ["devops", "keymasters"],
-    "christopher.billas" = ["bizops", "finops"],
     "chris.manger"       = ["bizops", "finops"],
     "clinton.troxel"     = ["appdev"],
     "douglas.price"      = ["appdev", "apponcall", "bizops"],
@@ -117,8 +116,6 @@ module "main" {
     "mossadeq.zia"       = ["devops", "secops", "keymasters"],
     "phil.lam"           = ["analytics"],
     "paul.hirsch"        = ["devops"],
-    "shade.jenifer"      = ["appdev", "apponcall"]
-    "silke.dannemann"    = ["bizops"],
     "steve.urciuoli"     = ["appdev", "apponcall", "keymasters"],
     "steven.harms"       = ["devops", "secops"],
     "thomas.black"       = ["bizops"],
