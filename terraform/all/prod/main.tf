@@ -5,12 +5,6 @@ provider "aws" {
   version             = "~> 2.67.0"
 }
 
-# Stub remote config
-terraform {
-  backend "s3" {
-  }
-}
-
 module "main" {
   source = "../module"
 

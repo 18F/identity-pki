@@ -1,6 +1,32 @@
+terraform {
+  backend "s3" {}
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+      version = "~> 2.67.0"
+    }
+    external = {
+      source = "hashicorp/external"
+      version = "~> 1.2.0"
+    }
+    github = {
+      source = "hashicorp/github"
+      version = "~> 2.9"
+    }
+    null = {
+      source = "hashicorp/null"
+      version = "~> 2.1.2"
+    }
+    template = {
+      source = "hashicorp/template"
+      version = "~> 2.1.2"
+    }
+  }
+  required_version = ">= 0.13"
+}
+
 provider "aws" {
   region  = var.region
-  version = "~> 2.67.0"
 }
 
 provider "aws" {
@@ -13,27 +39,7 @@ provider "aws" {
   region = var.region
 }
 
-provider "external" {
-  version = "~> 1.2.0"
-}
-
-provider "null" {
-  version = "~> 2.1.2"
-}
-
-provider "template" {
-  version = "~> 2.1.2"
-}
-
-provider "github" {
-  version = "~> 2.9"
-}
-data "github_ip_ranges" "ips" {}
-
-terraform {
-  backend "s3" {
-  }
-  required_version = ">= 0.12"
+data "github_ip_ranges" "ips" {
 }
 
 data "aws_caller_identity" "current" {

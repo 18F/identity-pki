@@ -1,5 +1,14 @@
 # this file sets up newrelic alerts for metrics
 # Once we get tf 0.13.* going, we can get rid of all the count and [0] silliness
+terraform {
+  required_providers {
+    newrelic = {
+      source = "newrelic/newrelic"
+      version = "~> 2.1.2"
+    }
+  }
+  required_version = ">= 0.13"
+}
 
 # NOTE:  these s3 objects need to be uploaded with --content-type text/plain
 
