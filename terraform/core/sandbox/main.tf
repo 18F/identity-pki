@@ -53,7 +53,6 @@ module "main" {
     "login-gov-cloudtrail-894947205914",
     "login-gov-doc",
     "login-gov-jjg-analytics-secrets",
-    "login-gov-jjg-logs",
     "login-gov-kinesis-failed-events",
     "login-gov-public-artifacts-us-west-2",
     "login-gov-s3-object-logging-dev",
