@@ -79,6 +79,7 @@ variable "account_roles_map" {
 variable "cloudtrail_event_selectors" {
   description = "Map of event_selectors used by default CloudTrail."
   type        = list(any)
+  default     = []
 }
 
 variable "slack_username" {
