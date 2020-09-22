@@ -217,29 +217,29 @@ resource "newrelic_nrql_alert_condition" "enduser_response_time" {
   }
 }
 
-# # alert created by mhenke, commented out until he refines the query a bit more and makes a runbook
-# resource "newrelic_nrql_alert_condition" "proofing_flow_errors" {
-#   count = var.enabled
-#   policy_id = newrelic_alert_policy.high[0].id
-#   name        = "${var.env_name}: high rate of errors in proofing flow"
-#   enabled     = true
-#   description = "Alerting when errors in proofing flow get above 5% in the past 5 minutes"
-#   value_function = "single_value"
-#   runbook_url = "XXX"
-#   violation_time_limit = "TWELVE_HOURS"
+# alert created by mhenke, commented out until he refines the query a bit more and makes a runbook
+resource "newrelic_nrql_alert_condition" "proofing_flow_errors" {
+  count = var.enabled
+  policy_id = newrelic_alert_policy.high[0].id
+  name        = "${var.env_name}: high rate of errors in proofing flow"
+  enabled     = true
+  description = "Alerting when errors in proofing flow get above 10% for the past 5 minutes"
+  value_function = "single_value"
+  runbook_url = "https://github.com/18F/identity-private/wiki/Runbook:-high-proofing-flow-error-rate"
+  violation_time_limit = "TWELVE_HOURS"
 
-#   nrql {
-#     query = "SELECT percentage(count(*), WHERE error is true and name LIKE 'Controller/idv/%' and appName = '${var.env_name}.${var.root_domain}') FROM Transaction WHERE name LIKE 'Controller/idv/%' and appName = '${var.env_name}.${var.root_domain}' FACET name"
-#     evaluation_offset = 3
-#   }
+  nrql {
+    query = "SELECT percentage(count(*), WHERE error is true and name LIKE 'Controller/idv/%' and appName = '${var.env_name}.${var.root_domain}') FROM Transaction WHERE name LIKE 'Controller/idv/%' and appName = '${var.env_name}.${var.root_domain}' FACET name"
+    evaluation_offset = 3
+  }
 
-#   critical {
-#     operator              = "above"
-#     threshold             = 5
-#     threshold_duration    = 300
-#     threshold_occurrences = "at_least_once"
-#   }
-# }
+  critical {
+    operator              = "above"
+    threshold             = 10
+    threshold_duration    = 300
+    threshold_occurrences = "ALL"
+  }
+}
 
 resource "newrelic_alert_condition" "enduser_error_percentage" {
   count = var.enduser_enabled
