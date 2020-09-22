@@ -1,5 +1,12 @@
-# AWS provider is inherited from per-env main.tf rather than defined here, due
-# to https://github.com/hashicorp/terraform/issues/13018
+terraform {
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+      version = "~> 2.67.0"
+    }
+  }
+  required_version = ">= 0.13"
+}
 
 locals {
   password_length = 32
@@ -10,7 +17,7 @@ data "aws_caller_identity" "current" {
 
 module "iam_account" {
   source        = "terraform-aws-modules/iam/aws//modules/iam-account"
-  version       = "~> 2.0"
+  version       = "~> 2.21.0"
   account_alias = "login-master"
 
   allow_users_to_change_password = true
