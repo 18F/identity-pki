@@ -79,13 +79,13 @@ else
       [[ -z ${GSA_USERNAME} ]] && raise 'TF_ENV undeclared + GSA_USERNAME not set'
       TF_ENV=${GSA_USERNAME}
     fi
-    PLAN=$(process_plan tf-deploy "${TF_ENV}" "${TF_DIR}" plan)
+    PLAN=$(process_plan "$(dirname "$0")/tf-deploy" "${TF_ENV}" "${TF_DIR}" plan)
   else
     [[ "${TF_DIR}" == 'master' ]] && TF_ENV='global'
     if ! [[ $(find "${GIT_DIR}/terraform/${TF_DIR}" -name "${TF_ENV}" -type d -maxdepth 1) ]] ; then
       raise "TF_ENV ${TF_ENV} not found in ${GIT_DIR}/terraform/${TF_DIR}"
     fi
-    PLAN=$(process_plan tf-deploy "${TF_DIR}/${TF_ENV}" plan)
+    PLAN=$(process_plan "$(dirname "$0")/tf-deploy" "${TF_DIR}/${TF_ENV}" plan)
   fi
 fi
 
