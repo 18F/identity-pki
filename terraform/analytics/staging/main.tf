@@ -2,7 +2,6 @@ provider "aws" {
   region              = "us-west-2"
   allowed_account_ids = ["461353137281"] # require analytics
   profile             = "analytics"
-  version             = "~> 2.67.0"
 }
 
 # Stub remote config

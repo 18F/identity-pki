@@ -2,7 +2,6 @@ provider "aws" {
   region              = "us-west-2"
   allowed_account_ids = ["217680906704"] # require login-secops-prod
   profile             = "login-secops-prod"
-  version             = "~> 2.67.0"
 }
 
 # Stub remote config
