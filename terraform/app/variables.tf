@@ -615,6 +615,11 @@ variable "kms_log_kinesis_shards" {
   default     = 1
 }
 
+variable "events_in_last_ten_minutes_alert_threshold" {
+  description = "if the number of new events in ELK in the last 10 minutes falls below this, and newrelic_alerts_enabled is set, alert"
+  default     = 4000
+}
+
 variable "newrelic_alerts_enabled" {
   description = "turn on common newrelic alerting services.  Required if any other newrelic stuff is enabled."
   default     = 0
@@ -642,17 +647,12 @@ variable "opsgenie_key_file" {
   # default = "opsgenie_apikey"   # This sends alerts 7x24
 }
 
-variable "events_in_last_ten_minutes_threshold" {
-  description = "if the number of new events in ELK in the last 10 minutes falls below this, and newrelic_alerts_enabled is set, alert"
-  default     = 4000
-}
-
-variable "pivcac_threshold" {
+variable "pivcac_alert_threshold" {
   description = "If the number of queries to the pivcac services in 5 minutes falls below this number, we generate a newrelic alert."
   default = 20
 }
 
-variable "web_threshold" {
+variable "web_alert_threshold" {
   description = "If the number of queries in 5 minutes to the main app falls below this number, we generate a newrelic alert"
   default = 300
 }
