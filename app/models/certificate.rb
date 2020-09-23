@@ -92,7 +92,6 @@ class Certificate
     "Subject: #{subject}\nIssuer: #{issuer}\n#{@x509_cert.to_pem}"
   end
 
-  # :reek:UtilityFunction
   def signature_verified?
     signing_cert = CertificateStore.instance[signing_key_id]
     UnrecognizedCertificateAuthority.find_or_create_for_certificate(self) unless signing_cert
@@ -168,17 +167,14 @@ class Certificate
     CertificateLoggerService.log_certificate(self)
   end
 
-  # :reek:UtilityFunction
   def get_extension(oid)
     @x509_cert.extensions.detect { |record| record.oid == oid }&.value
   end
 
-  # :reek:UtilityFunction
   def extract_http_url(list)
     list&.detect { |line| line.start_with?('URI:http') }&.sub(/^URI:/, '')
   end
 
-  # :reek:UtilityFunction
   def token_for_valid_certificate(extra)
     subject_s = subject.to_s(OpenSSL::X509::Name::RFC2253)
     piv = PivCac.find_or_create_by(dn: subject_s)
@@ -186,6 +182,7 @@ class Certificate
     TokenService.box(
       extra.merge(
         subject: subject_s,
+        issuer: issuer.to_s,
         uuid: piv.uuid,
         card_type: card_type
       )
@@ -208,12 +205,10 @@ class Certificate
     cert_store.x509_certificate_chain(self).map(&:key_id)
   end
 
-  # :reek:UtilityFunction
   def cert_store
     CertificateStore.instance
   end
 
-  # :reek:UtilityFunction
   def token_for_invalid_certificate(extra)
     # figure out the reason for being invalid
     reason = validate_cert
