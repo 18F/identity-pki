@@ -38,21 +38,21 @@ variable "region" {
   default = "us-west-2"
 }
 
-variable "events_in_last_ten_minutes_threshold" {
+variable "events_in_last_ten_minutes_alert_threshold" {
   default = 4000
 }
 
-variable "pivcac_threshold" {
+variable "pivcac_alert_threshold" {
   description = "If the number of queries to the pivcac services in 5 minutes falls below this number, we alert."
   default = 20
 }
 
-variable "apdex_threshold" {
+variable "apdex_alert_threshold" {
   description = "If the apdex falls below this number for 5 minutes, we alert."
   default = 0.8
 }
 
-variable "error_threshold" {
+variable "error_alert_threshold" {
   description = "If the error rate goes above this percentage rate for 5 minutes, we alert.  Default is 5%"
   default = 5
 }
@@ -62,7 +62,7 @@ variable "error_warn_threshold" {
   default = 3.5
 }
 
-variable "web_threshold" {
+variable "web_alert_threshold" {
   description = "If the number of queries in 5 minutes to the main app falls below this number, we alert"
   default = 300
 }
@@ -72,7 +72,7 @@ variable "web_warn_threshold" {
   default = 475
 }
 
-variable "response_time" {
+variable "response_time_alert" {
   description = "If the response time is above this number (seconds) on the average over the course of 5 minutes, alert"
   default = 2
 }
@@ -82,7 +82,7 @@ variable "response_time_warn" {
   default = 1
 }
 
-variable "datastore_threshold" {
+variable "datastore_alert_threshold" {
   description = "If any datastore query latency is above this (seconds?), alert"
   default = 2
 }

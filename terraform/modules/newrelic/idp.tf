@@ -39,7 +39,7 @@ resource "newrelic_alert_condition" "pivcac_low_throughput" {
     duration      = 5
     operator      = "below"
     priority      = "critical"
-    threshold     = var.pivcac_threshold
+    threshold     = var.pivcac_alert_threshold
     time_function = "all"
   }
 }
@@ -59,7 +59,7 @@ resource "newrelic_alert_condition" "low_throughput" {
     duration      = 5
     operator      = "below"
     priority      = "critical"
-    threshold     = var.web_threshold
+    threshold     = var.web_alert_threshold
     time_function = "all"
   }
 
@@ -86,7 +86,7 @@ resource "newrelic_alert_condition" "low_apdex" {
     duration      = 5
     operator      = "below"
     priority      = "critical"
-    threshold     = var.apdex_threshold
+    threshold     = var.apdex_alert_threshold
     time_function = "all"
   }
 }
@@ -105,7 +105,7 @@ resource "newrelic_alert_condition" "error_rate" {
     duration      = 5
     operator      = "above"
     priority      = "critical"
-    threshold     = var.error_threshold
+    threshold     = var.error_alert_threshold
     time_function = "all"
   }
 
@@ -175,7 +175,7 @@ resource "newrelic_alert_condition" "enduser_datastore_slow_queries" {
     duration      = 10
     operator      = "above"
     priority      = "critical"
-    threshold     = var.datastore_threshold
+    threshold     = var.datastore_alert_threshold
     time_function = "all"
   }
 
@@ -255,7 +255,7 @@ resource "newrelic_alert_condition" "enduser_error_percentage" {
     duration      = 5
     operator      = "above"
     priority      = "critical"
-    threshold     = var.error_threshold
+    threshold     = var.error_alert_threshold
     time_function = "all"
   }
 

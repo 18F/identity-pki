@@ -63,7 +63,7 @@ resource "newrelic_nrql_alert_condition" "es_no_logs" {
 
   critical {
     operator      = "below"
-    threshold     = var.events_in_last_ten_minutes_threshold
+    threshold     = var.events_in_last_ten_minutes_alert_threshold
     threshold_duration      = 120
     threshold_occurrences = "AT_LEAST_ONCE"
   }

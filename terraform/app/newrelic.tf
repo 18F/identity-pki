@@ -12,10 +12,10 @@ module "newrelic" {
   dashboard_enabled = var.apps_enabled
   region        = var.region
   env_name      = var.env_name
-  events_in_last_ten_minutes_threshold = var.events_in_last_ten_minutes_threshold
+  events_in_last_ten_minutes_alert_threshold = var.events_in_last_ten_minutes_alert_threshold
   root_domain   = var.root_domain
-  pivcac_threshold   = var.pivcac_threshold
-  web_threshold      = var.web_threshold
+  pivcac_threshold   = var.pivcac_alert_threshold
+  web_threshold      = var.web_alert_threshold
   web_warn_threshold = var.web_warn_threshold
   opsgenie_key_file  = var.opsgenie_key_file
   error_dashboard_site = "${var.env_name}.${var.root_domain}"
