@@ -9,7 +9,7 @@ module "newrelic" {
   elk_enabled   = var.elk_newrelic_alerts_enabled
   idp_enabled   = var.idp_newrelic_alerts_enabled
   enduser_enabled   = var.idp_enduser_newrelic_alerts_enabled
-  dashboard_enabled = var.apps_enabled
+  dashboard_enabled = var.dashboard_newrelic_alerts_enabled
   region        = var.region
   env_name      = var.env_name
   events_in_last_ten_minutes_alert_threshold = var.events_in_last_ten_minutes_alert_threshold
