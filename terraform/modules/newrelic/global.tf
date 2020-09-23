@@ -1,8 +1,8 @@
 # These are meant to be enabled in prod only, so that the static
-# sites are monitored there.  Enable these by setting www_enabled to 1.
+# sites are monitored there.  Enable these by setting staticsite_alerts_enabled to 1.
 
 resource "newrelic_synthetics_monitor" "wwwlogingov" {
-  count = var.www_enabled
+  count = var.staticsite_alerts_enabled
   name = "${var.env_name} www.login.gov monitor"
   type = "SIMPLE"
   frequency = 5
@@ -15,7 +15,7 @@ resource "newrelic_synthetics_monitor" "wwwlogingov" {
 }
 
 resource "newrelic_synthetics_monitor" "logingov" {
-  count = var.www_enabled
+  count = var.staticsite_alerts_enabled
   name = "${var.env_name} login.gov static site monitor"
   type = "SIMPLE"
   frequency = 5
@@ -28,7 +28,7 @@ resource "newrelic_synthetics_monitor" "logingov" {
 }
 
 resource "newrelic_synthetics_alert_condition" "wwwlogingov" {
-  count = var.www_enabled
+  count = var.staticsite_alerts_enabled
   policy_id = newrelic_alert_policy.high[0].id
 
   name        = "https://www.login.gov ping failure"
@@ -36,7 +36,7 @@ resource "newrelic_synthetics_alert_condition" "wwwlogingov" {
 }
 
 resource "newrelic_synthetics_alert_condition" "logingov" {
-  count = var.www_enabled
+  count = var.staticsite_alerts_enabled
   policy_id = newrelic_alert_policy.high[0].id
 
   name        = "https://login.gov ping failure"
@@ -46,7 +46,7 @@ resource "newrelic_synthetics_alert_condition" "logingov" {
 
 # also set up some dashboards here, since this should only ever be enabled once
 resource "newrelic_dashboard" "ELK" {
-  count = var.www_enabled
+  count = var.staticsite_alerts_enabled
   title = "ELK!"
   editable = "read_only"
 

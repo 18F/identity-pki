@@ -7,7 +7,7 @@ variable "enabled" {
   description = "turn on common newrelic alerting services"
 }
 
-variable "www_enabled" {
+variable "staticsite_alerts_enabled" {
   description = "this should only be set in the prod environment, as it creates monitors for the static site"
   default = 0
 }

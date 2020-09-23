@@ -152,7 +152,7 @@ resource "newrelic_synthetics_monitor" "api_health" {
   verify_ssl                = true
 }
 resource "newrelic_synthetics_alert_condition" "api_health" {
-  count = var.www_enabled
+  count = var.staticsite_alerts_enabled
   policy_id = newrelic_alert_policy.businesshours[0].id
 
   name        = "https://${local.idp_domain_name}/ ping failure"

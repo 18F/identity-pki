@@ -5,7 +5,7 @@ module "newrelic" {
   source = "../modules/newrelic/"
 
   enabled       = var.newrelic_alerts_enabled
-  www_enabled   = var.www_newrelic_alerts_enabled
+  staticsite_alerts_enabled   = var.staticsite_newrelic_alerts_enabled
   elk_enabled   = var.elk_newrelic_alerts_enabled
   idp_enabled   = var.idp_newrelic_alerts_enabled
   enduser_enabled   = var.idp_enduser_newrelic_alerts_enabled
