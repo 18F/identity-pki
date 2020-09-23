@@ -2,23 +2,12 @@ provider "aws" {
   region              = "us-west-2"
   allowed_account_ids = ["035466892286"] # require login-sms-sandbox
   profile             = "sms.identitysandbox.gov"
-
-  #assume_role {
-  #  role_arn     = "arn:aws:iam::ACCOUNT_ID:role/ROLE_NAME"
-  #  session_name = "SESSION_NAME"
-  #  external_id  = "EXTERNAL_ID"
-  #}
-
-  version = "~> 2.29"
 }
 
 # Stub remote config
 terraform {
   backend "s3" {
   }
-
-  # allowed terraform version
-  required_version = "~> 0.12"
 }
 
 module "account_pinpoint" {
