@@ -2,17 +2,12 @@ provider "aws" {
   region              = "us-east-1"
   allowed_account_ids = ["472911866628"] # require login-sms-prod
   profile             = "sms.login.gov"
-
-  version = "~> 2.29"
 }
 
 # Stub remote config
 terraform {
   backend "s3" {
   }
-
-  # allowed terraform version
-  required_version = "~> 0.12"
 }
 
 module "main" {

@@ -352,8 +352,8 @@ assert_file_exists() {
 #   - https://releases.hashicorp.com/terraform/
 #
 KNOWN_TF_VERSIONS=(
-  "v0.12.19"
   "v0.12.24"
+  "v0.13.2"
 )
 
 # usage: check_terraform_version SUPPORTED_VERSION...
@@ -452,10 +452,11 @@ Repo root for $BASENAME: $repo_root_after_cd"
 ## determine env (and AWS_PROFILE) from arg ##
 env_get() {
   AV_PROFILE='sandbox-admin'
-  if [[ ${TF_DIR} == 'app' ]] ; then
-  EC2_ENV="${1:-$(echo $GSA_USERNAME)}"
+  if [[ ${TF_DIR} == 'app' ]] || [[ -z ${TF_DIR} ]] ; then
+    EC2_ENV="${1-sandbox}"
+    [[ ${EC2_ENV} == 'sandbox' ]] && EC2_ENV=$(echo $GSA_USERNAME)
   else
-  EC2_ENV="${1-sandbox}"
+    EC2_ENV="${1-sandbox}"
   fi
   [[ "${EC2_ENV}" =~ "staging|prod" ]] && AV_PROFILE='prod-admin'
 }

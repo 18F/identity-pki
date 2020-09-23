@@ -88,6 +88,7 @@ EOF
   else
     run_av tf-deploy ${TEST_RUN} ${TF_DIR}/${EC2_ENV} ${TF_CMD} ${TF_SL}
   fi
+  unset TF_DIR
 }
 
 #### run terraform plan with trimmed-down output ####
