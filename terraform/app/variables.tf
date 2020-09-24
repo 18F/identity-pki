@@ -615,14 +615,56 @@ variable "kms_log_kinesis_shards" {
   default     = 1
 }
 
-variable "newrelic_alerts_enabled" {
-  description = "whether or not to enable newrelic alerting for this environment"
-  default     = 0
-}
-
-variable "events_in_last_ten_minutes_threshold" {
+variable "events_in_last_ten_minutes_alert_threshold" {
   description = "if the number of new events in ELK in the last 10 minutes falls below this, and newrelic_alerts_enabled is set, alert"
   default     = 4000
+}
+
+variable "newrelic_alerts_enabled" {
+  description = "turn on common newrelic alerting services.  Required if any other newrelic stuff is enabled."
+  default     = 0
+}
+variable "staticsite_newrelic_alerts_enabled" {
+  description = "this should only be set in the prod environment, as it creates monitors for the static site"
+  default     = 0
+}
+variable "elk_newrelic_alerts_enabled" {
+  description = "set this to 1 if you want to alert on ELK problems"
+  default     = 0
+}
+variable "idp_newrelic_alerts_enabled" {
+  description = "set this to 1 if you want to alert on idp problems"
+  default     = 0
+}
+variable "idp_enduser_newrelic_alerts_enabled" {
+  description = "set this to 1 if you want to alert on enduser idp problems"
+  default     = 0
+}
+variable "dashboard_newrelic_alerts_enabled" {
+  description = "set this to 1 if you want to alert during business hours on dashboard problems"
+  default = 0
+}
+
+
+variable "opsgenie_key_file" {
+  description = "the name of the file in the secrets/common bucket to use for sending opsgenie alerts in newrelic for this environment"
+  default = "opsgenie_low_apikey" # This sends alerts during business hours
+  # default = "opsgenie_apikey"   # This sends alerts 7x24
+}
+
+variable "pivcac_alert_threshold" {
+  description = "If the number of queries to the pivcac services in 5 minutes falls below this number, we generate a newrelic alert."
+  default = 20
+}
+
+variable "web_alert_threshold" {
+  description = "If the number of queries in 5 minutes to the main app falls below this number, we generate a newrelic alert"
+  default = 300
+}
+
+variable "web_warn_threshold" {
+  description = "If the number of queries in 15 minutes to the main app falls below this number, we warn"
+  default = 475
 }
 
 variable "keep_legacy_bucket" {
