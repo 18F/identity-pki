@@ -43,27 +43,19 @@ verify_root_repo() {
 
 # send a notification in Slack, pulling appropriate key(s) from bucket to do so
 slack_notify () {
-  local AWS_ACCT_NUM=$(aws sts get-caller-identity | jq -r '.Account')
-  local TF_ENV=${GSA_USERNAME}
-  local AWS_REGION='us-west-2'
-  local COLOR='good'
-  local SLACK_USER='Login.gov Slack Notifier'
-  local SLACK_EMOJI=':login-gov:'
-  local PRE_TEXT='This is only a test.'
-  local TEXT='This is only a message.'
-  local KEYS=0
+  local AWS_ACCT_NUM TF_ENV AWS_REGION COLOR SLACK_USER SLACK_EMOJI PRE_TEXT TEXT KEYS
   
   while getopts n:t:r:c:u:e:p:m: opt
   do
     case "${opt}" in
       n) AWS_ACCT_NUM="${OPTARG}" ;;
-      t) TF_ENV="${OPTARG}" ;;
-      r) AWS_REGION="${OPTARG}" ;;
-      c) COLOR="${OPTARG}" ;;
-      u) SLACK_USER="${OPTARG}" ;;
-      e) SLACK_EMOJI="${OPTARG}" ;;
-      p) PRE_TEXT="${OPTARG}" ;;
-      m) TEXT="${OPTARG}" ;;
+      t) TF_ENV="${OPTARG}"       ;;
+      r) AWS_REGION="${OPTARG}"   ;;
+      c) COLOR="${OPTARG}"        ;;
+      u) SLACK_USER="${OPTARG}"   ;;
+      e) SLACK_EMOJI="${OPTARG}"  ;;
+      p) PRE_TEXT="${OPTARG}"     ;;
+      m) TEXT="${OPTARG}"         ;;
     esac
   done
   
