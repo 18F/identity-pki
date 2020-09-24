@@ -132,7 +132,7 @@ data "aws_iam_policy_document" "config_recorder_assume" {
 
 resource "aws_iam_role_policy_attachment" "config_recorder_managed_policy" {
   role       = aws_iam_role.config_recorder.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSConfigRole"
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWS_ConfigRole"
 }
 
 resource "aws_config_delivery_channel" "default" {
