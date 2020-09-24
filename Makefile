@@ -23,16 +23,12 @@ check: lint test
 lint:
 	@echo "--- rubocop ---"
 	bundle exec rubocop
-	@echo "--- reek ---"
-	bundle exec reek
 	@echo "--- fasterer ---"
 	bundle exec fasterer
 
 lintfix:
 	@echo "--- rubocop fix ---"
 	bundle exec rubocop -R -a
-	@echo "--- reek fix ---"
-	bundle exec reek -t
 
 test: $(CONFIG)
 	bundle exec rspec

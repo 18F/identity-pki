@@ -11,7 +11,6 @@ class PolicyMappingService
 
   attr_reader :certificate
 
-  # :reek:FeatureEnvy :reek:TooManyStatements
   def chain(set = [])
     # walk from the cert to a root - we can do this safely because we've already
     # constructed a path from the leaf cert to a trusted root elsewhere
@@ -27,7 +26,6 @@ class PolicyMappingService
     end
   end
 
-  # :reek:UtilityFunction
   def new_mapping
     Hash.new { |_, key| key }
   end
@@ -44,7 +42,6 @@ class PolicyMappingService
     end
   end
 
-  # :reek:UtilityFunction
   def import_mapping(mapping, cert, allowed_depth)
     policy = CertificatePolicies.new(cert)
 
