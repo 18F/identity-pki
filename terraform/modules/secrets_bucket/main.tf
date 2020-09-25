@@ -35,11 +35,11 @@ resource "aws_s3_bucket" "secrets" {
   }
 }
 
-resource "aws_s3_bucket_public_access_block" "secrets" {
-  bucket = aws_s3_bucket.secrets.id
+module "secrets_bucket_config" {
+  source = "github.com/18F/identity-terraform//s3_config?ref=36ecdc74c3436585568fab7abddb3336cec35d93"
 
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
+  bucket_name_prefix   = var.bucket_name_prefix
+  bucket_name          = var.secrets_bucket_type
+  region               = var.region
+  inventory_bucket_arn = var.inventory_bucket_arn
 }

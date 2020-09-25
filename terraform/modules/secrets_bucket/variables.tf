@@ -25,3 +25,7 @@ variable "force_destroy" {
   description = "Allow destroy even if bucket contains objects"
 }
 
+variable "inventory_bucket_arn" {
+  description = "ARN of the S3 bucket used for collecting the S3 Inventory reports."
+  type        = string
+}
