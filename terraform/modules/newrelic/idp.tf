@@ -217,7 +217,6 @@ resource "newrelic_nrql_alert_condition" "enduser_response_time" {
   }
 }
 
-# alert created by mhenke, commented out until he refines the query a bit more and makes a runbook
 resource "newrelic_nrql_alert_condition" "proofing_flow_errors" {
   count = var.enabled
   policy_id = newrelic_alert_policy.high[0].id
@@ -236,6 +235,29 @@ resource "newrelic_nrql_alert_condition" "proofing_flow_errors" {
   critical {
     operator              = "above"
     threshold             = 10
+    threshold_duration    = 300
+    threshold_occurrences = "ALL"
+  }
+}
+
+resource "newrelic_nrql_alert_condition" "service_provider_errors" {
+  count = var.enabled
+  policy_id = newrelic_alert_policy.high[0].id
+  name        = "${var.env_name}: high rate of errors for service provider"
+  enabled     = true
+  description = "Alerting when errors for individual service provider get above 3% for the past 5 minutes"
+  value_function = "single_value"
+  runbook_url = "https://github.com/18F/identity-private/wiki/Runbook:-high-service-provider-error-rate"
+  violation_time_limit = "TWELVE_HOURS"
+
+  nrql {
+    query = "SELECT percentage(count(*), WHERE error is true and appName = '${var.env_name}.${var.root_domain}') FROM Transaction WHERE appName = '${var.env_name}.${var.root_domain}' FACET service_provider"
+    evaluation_offset = 3
+  }
+
+  critical {
+    operator              = "above"
+    threshold             = 3
     threshold_duration    = 300
     threshold_occurrences = "ALL"
   }
