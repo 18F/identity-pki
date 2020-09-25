@@ -68,6 +68,11 @@ module "main" {
           "ttl"     = "900",
         },
         {
+          "name"    = "_acme-challenge.developer.",
+          "records" = ["_acme-challenge.developer.login.gov.external-domains-production.cloud.gov."],
+          "ttl"     = "900",
+        },
+        {
           "name"    = "_acme-challenge.handbook.",
           "records" = ["_acme-challenge.handbook.login.gov.external-domains-production.cloud.gov."],
           "ttl"     = "900",
@@ -75,6 +80,11 @@ module "main" {
         {
           "name"    = "demo.",
           "records" = ["demo.login.gov.external-domains-production.cloud.gov."],
+          "ttl"     = "900",
+        },
+        {
+          "name"    = "developer.",
+          "records" = ["developer.login.gov.external-domains-production.cloud.gov."],
           "ttl"     = "900",
         },
         {
