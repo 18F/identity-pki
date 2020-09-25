@@ -3,6 +3,10 @@ data "aws_ip_ranges" "route53" {
   services = ["route53"]
 }
 
+locals {
+  net_ssm_parameter_prefix  = "/${var.env_name}/network/"
+}
+
 # When adding a new subnet, be sure to add an association with a network ACL,
 # or it will use the default NACL, which causes problems since the default
 # network ACL is special and is handled weirdly by AWS and Terraform.
@@ -1118,6 +1122,12 @@ resource "aws_vpc" "default" {
   }
 }
 
+resource "aws_ssm_parameter" "net_vpcid" {
+  name = "${local.net_ssm_parameter_prefix}vpc/id"
+  type  = "String"
+  value = aws_vpc.default.id
+}
+
 # create public and private subnets
 resource "aws_subnet" "publicsubnet1" {
   availability_zone       = "${var.region}a"
@@ -1171,6 +1181,12 @@ resource "aws_subnet" "privatesubnet1" {
   vpc_id = aws_vpc.default.id
 }
 
+resource "aws_ssm_parameter" "net_subnet_private1" {
+  name = "${local.net_ssm_parameter_prefix}subnet/private1/id"
+  type  = "String"
+  value = aws_subnet.privatesubnet1.id
+}
+
 resource "aws_subnet" "privatesubnet2" {
   availability_zone = "${var.region}b"
   cidr_block        = var.private2_subnet_cidr_block
@@ -1184,6 +1200,12 @@ resource "aws_subnet" "privatesubnet2" {
   vpc_id = aws_vpc.default.id
 }
 
+resource "aws_ssm_parameter" "net_subnet_private2" {
+  name = "${local.net_ssm_parameter_prefix}subnet/private2/id"
+  type  = "String"
+  value = aws_subnet.privatesubnet2.id
+}
+
 resource "aws_subnet" "privatesubnet3" {
   availability_zone = "${var.region}c"
   cidr_block        = var.private3_subnet_cidr_block
@@ -1195,6 +1217,12 @@ resource "aws_subnet" "privatesubnet3" {
   }
 
   vpc_id = aws_vpc.default.id
+}
+
+resource "aws_ssm_parameter" "net_subnet_private3" {
+  name = "${local.net_ssm_parameter_prefix}subnet/private3/id"
+  type  = "String"
+  value = aws_subnet.privatesubnet3.id
 }
 
 resource "aws_security_group" "obproxy" {
