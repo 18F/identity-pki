@@ -154,3 +154,9 @@ resource "aws_ssm_parameter" "kms_key_alias" {
   type  = "String"
   value = local.doc_capture_key_alias_name
 }
+
+resource "aws_ssm_parameter" "kms_key_arn" {
+  name = "${local.doc_capture_ssm_parameter_prefix}kms/arn"
+  type  = "String"
+  value = aws_kms_key.idp_doc_capture.arn
+}
