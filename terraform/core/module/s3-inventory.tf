@@ -2,7 +2,7 @@
 # https://github.com/18F/identity-devops/issues/2657
 
 module "s3_inventory_uw2" {
-  source = "github.com/18F/identity-terraform//s3_batch_inventory?ref=d71f88635f4902f23be0e503e75dcaf77bcd86a9"
+  source = "github.com/18F/identity-terraform//s3_batch_inventory?ref=191bd2f84be5b6e35fe8dc350009e17c44b8be52"
   #source = "../../../../identity-terraform/s3_batch_inventory"
 
   log_bucket   = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
@@ -60,10 +60,9 @@ resource "aws_s3_bucket" "s3_logs_ue1" {
   }
 }
 
-
 module "s3_inventory_ue1" {
-  source = "github.com/18F/identity-terraform//s3_batch_inventory?ref=d71f88635f4902f23be0e503e75dcaf77bcd86a9"
-  #source = "../../../../identity-terraform/s3_batch_inventory"
+  source    = "github.com/18F/identity-terraform//s3_batch_inventory?ref=191bd2f84be5b6e35fe8dc350009e17c44b8be52"
+  #source   = "../../../../identity-terraform/s3_batch_inventory"
   providers = {
     aws = aws.us-east-1
   }
@@ -73,4 +72,16 @@ module "s3_inventory_ue1" {
   bucket_prefix = "login-gov"
   bucket_list   = var.bucket_list_ue1
   sse_algorithm = "AES256"
+}
+
+module "s3_logs_ue1_config" {
+  source    = "github.com/18F/identity-terraform//s3_config?ref=191bd2f84be5b6e35fe8dc350009e17c44b8be52"
+  providers = {
+    aws = aws.us-east-1
+  }
+
+  bucket_name_prefix   = "login-gov"
+  bucket_name          = "s3-logs"
+  region               = "us-east-1"
+  inventory_bucket_arn = "arn:aws:s3:::${module.s3_inventory_ue1.inventory_bucket}"
 }

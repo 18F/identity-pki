@@ -2,7 +2,8 @@ data "aws_caller_identity" "current" {
 }
 
 locals {
-  bucket_name = "${var.bucket_name_prefix}.${var.secrets_bucket_type}.${data.aws_caller_identity.current.account_id}-${var.region}"
+  bucket_name          = "${var.bucket_name_prefix}.${var.secrets_bucket_type}.${data.aws_caller_identity.current.account_id}-${var.region}"
+  inventory_bucket_arn = "arn:aws:s3:::${var.bucket_name_prefix}.s3-inventory.${data.aws_caller_identity.current.account_id}-${var.region}"
 }
 
 resource "aws_s3_bucket" "secrets" {
@@ -41,5 +42,5 @@ module "secrets_bucket_config" {
   bucket_name_prefix   = var.bucket_name_prefix
   bucket_name          = var.secrets_bucket_type
   region               = var.region
-  inventory_bucket_arn = var.inventory_bucket_arn
+  inventory_bucket_arn = local.inventory_bucket_arn
 }
