@@ -552,6 +552,7 @@ locals {
   account_rails_ami_id             = data.aws_caller_identity.current.account_id == "555546682965" ? var.rails_ami_id_prod : var.rails_ami_id_sandbox
   high_priority_alarm_actions      = var.page_devops == 1 ? [var.high_priority_sns_hook, var.slack_events_sns_hook_arn] : [var.slack_events_sns_hook_arn]
   low_priority_alarm_actions       = [var.slack_events_sns_hook_arn]
+  inventory_bucket_arn             = "arn:aws:s3:::login-gov.s3-inventory.${data.aws_caller_identity.current.account_id}-${var.region}"
 }
 
 # These variables are used to toggle whether certain services are enabled.

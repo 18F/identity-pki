@@ -75,6 +75,14 @@ data "aws_iam_policy_document" "elasticsearch_bucket_policy" {
   }
 }
 
+module "elasticsearch_bucket_config" {
+  source = "github.com/18F/identity-terraform//s3_config?ref=36ecdc74c3436585568fab7abddb3336cec35d93"
+
+  bucket_name_override = aws_s3_bucket.elasticsearch_snapshot_bucket.id
+  region               = var.region
+  inventory_bucket_arn = local.inventory_bucket_arn
+}
+
 # These policies are all duplicated from base-permissions
 
 resource "aws_iam_role_policy" "elasticsearch-secrets" {

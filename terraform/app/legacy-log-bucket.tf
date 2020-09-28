@@ -39,3 +39,12 @@ resource "aws_s3_bucket" "legacy_log_bucket" {
     }
   }
 }
+
+module "legacy_log_bucket_config" {
+  count  = var.keep_legacy_bucket ? 1 : 0
+  source = "github.com/18F/identity-terraform//s3_config?ref=36ecdc74c3436585568fab7abddb3336cec35d93"
+
+  bucket_name_override = aws_s3_bucket.legacy_log_bucket[0].id
+  region               = var.region
+  inventory_bucket_arn = local.inventory_bucket_arn
+}

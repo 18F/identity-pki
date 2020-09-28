@@ -64,13 +64,12 @@ resource "aws_s3_bucket" "idp_doc_capture" {
   }
 }
 
-resource "aws_s3_bucket_public_access_block" "idp_doc_capture" {
-  bucket = aws_s3_bucket.idp_doc_capture.id
+module "idp_doc_capture_bucket_config" {
+  source = "github.com/18F/identity-terraform//s3_config?ref=36ecdc74c3436585568fab7abddb3336cec35d93"
 
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
+  bucket_name_override = aws_s3_bucket.idp_doc_capture.id
+  region               = var.region
+  inventory_bucket_arn = local.inventory_bucket_arn
 }
 
 #IDP Role access to S3 bucket and KMS key and Lambda functions
