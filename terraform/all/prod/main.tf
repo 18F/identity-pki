@@ -4,6 +4,12 @@ provider "aws" {
   profile             = "login.gov"
 }
 
+# Stub remote config
+terraform {
+  backend "s3" {
+  }
+}
+
 module "main" {
   source = "../module"
 
