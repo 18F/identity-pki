@@ -116,6 +116,13 @@ resource "aws_s3_bucket" "cloudtrail" {
   }
 }
 
+module "cloudtrail_bucket_config" {
+  source = "github.com/18F/identity-terraform//s3_config?ref=36ecdc74c3436585568fab7abddb3336cec35d93"
+
+  bucket_name_override = aws_s3_bucket.cloudtrail.id
+  inventory_bucket_arn = module.tf-state.inventory_bucket_arn
+}
+
 resource "aws_cloudwatch_log_group" "cloudtrail_default" {
   name = "CloudTrail/DefaultLogGroup"
   retention_in_days = 90

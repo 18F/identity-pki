@@ -201,6 +201,15 @@ data "aws_iam_policy_document" "partner_logos_bucket_policy" {
   }
 }
 
+module "partner_logos_bucket_config" {
+  count  = var.apps_enabled
+  source = "github.com/18F/identity-terraform//s3_config?ref=36ecdc74c3436585568fab7abddb3336cec35d93"
+
+  bucket_name_override = aws_s3_bucket.partner_logos_bucket[0].id
+  region               = var.region
+  inventory_bucket_arn = local.inventory_bucket_arn
+}
+
 resource "aws_iam_role_policy" "app-s3-logos-access" {
   name   = "${var.env_name}-app-s3-logos-access"
   role   = aws_iam_role.app.id

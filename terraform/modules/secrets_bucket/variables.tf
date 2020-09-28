@@ -24,4 +24,3 @@ variable "force_destroy" {
   default     = false
   description = "Allow destroy even if bucket contains objects"
 }
-

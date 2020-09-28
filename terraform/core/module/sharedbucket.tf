@@ -58,12 +58,13 @@ locals {
 }
 
 module "s3_shared" {
-  source = "github.com/18F/identity-terraform//s3_bucket_block?ref=cae8dcdaf37e9e423480561de27ccfa1e882b5ea"
+  source = "github.com/18F/identity-terraform//s3_bucket_block?ref=5bc8e66b0c4f3c26d7c42f442797f95599a44ee1"
   #source = "../../../../identity-terraform/s3_bucket_block"
   
-  bucket_prefix = "login-gov"
-  bucket_data = local.s3_bucket_data
-  log_bucket = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+  bucket_prefix        = "login-gov"
+  bucket_data          = local.s3_bucket_data
+  log_bucket           = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+  inventory_bucket_arn = "arn:aws:s3:::login-gov.s3-inventory.${data.aws_caller_identity.current.account_id}-${var.region}"
 }
 
 # Policy for shared-data bucket
