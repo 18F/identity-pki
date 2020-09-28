@@ -7,6 +7,7 @@ threshold: <%= @thresholds['cloudtrail'] %>
 realert:
     hours: 2
 doc_type: _doc
+scan_entire_timeframe: true
 # This timeframe is somewhat large, but cloudtrail logs are slow to arrive,
 # so sometimes we run dry.  This helps by looking back a bit further.  It means we won't get
 # alerted as quickly, but we need to make sure we don't cry wolf here with false-positives.
