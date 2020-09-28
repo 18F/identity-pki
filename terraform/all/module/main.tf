@@ -45,8 +45,8 @@ data "aws_iam_policy_document" "master_account_assumerole" {
 }
 
 module "tf-state" {
-  #source = "github.com/18F/identity-terraform//state_bucket?ref=457f31090209a648df29766805c6f94da8e8c52d"
-  source = "../../../../identity-terraform/state_bucket"
+  source = "github.com/18F/identity-terraform//state_bucket?ref=11c2bc6e4b495416e4eb9fc6fbfdfa78e7f200e8"
+  #source = "../../../../identity-terraform/state_bucket"
 
   region             = var.region
   bucket_name_prefix = "login-gov"
@@ -60,7 +60,6 @@ module "main_secrets_bucket" {
   secrets_bucket_type  = "secrets"
   bucket_name_prefix   = "login-gov"
   region               = var.region
-  inventory_bucket_arn = module.tf-state.inventory_bucket_arn
 }
 
 output "main_secrets_bucket" {

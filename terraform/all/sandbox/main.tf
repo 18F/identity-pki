@@ -34,10 +34,8 @@ module "main" {
             "arn:aws:s3:::894947205914-awsmacietrail-dataevent/",
             "arn:aws:s3:::cf-templates-1am4wkz4zazy5-us-west-2/",
             "arn:aws:s3:::codebuild-imagebaserole-outputbucket-k3ulvdsui2sy/",
-            "arn:aws:s3:::config-bucket-894947205914/",
             "arn:aws:s3:::dev-s3-access-logs/",
             "arn:aws:s3:::login-gov-cloudformation/",
-            "arn:aws:s3:::login-gov-cloudtrail-894947205914/",
             "arn:aws:s3:::login-gov.internal-certs.894947205914-us-west-2/",
           ]
         },

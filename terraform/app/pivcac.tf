@@ -262,7 +262,7 @@ resource "aws_s3_bucket" "pivcac_public_cert_bucket" {
 }
 
 module "s3_config" {
-  for_each = toset(["pivcac-cert","pivcac-public-cert"])
+  for_each = toset(["pivcac","pivcac-public-cert"])
   source   = "github.com/18F/identity-terraform//s3_config?ref=36ecdc74c3436585568fab7abddb3336cec35d93"
 
   bucket_name_override = "login-gov-${each.key}-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
