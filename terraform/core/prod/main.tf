@@ -139,7 +139,6 @@ module "main" {
     "555546682965-awsmacietrail-dataevent",
     "aws-athena-query-results-555546682965-us-west-2",
     "cf-templates-iccjd8v5q7bo-us-west-2",
-    "config-bucket-555546682965",
     "configruleslogingov",
     "importfireeyethreatfeedi-gdthreatfeedoutputbucket-7kom7besttlo",
     "importfireeyethreatfeedt-gdthreatfeedoutputbucket-1j2fdxqvqlcby",
