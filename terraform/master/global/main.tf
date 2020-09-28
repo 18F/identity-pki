@@ -111,7 +111,6 @@ module "main" {
     "julia.elman"        = ["analytics"],
     "justin.grevich"     = ["devops"],
     "kendrick.daniel"    = ["bizops"],
-    "likhitha.patha"     = ["bizops"],
     "michael.antiporta"  = ["analytics"],
     "mitchell.henke"     = ["appdev", "apponcall"],
     "mossadeq.zia"       = ["devops", "secops", "keymasters"],
