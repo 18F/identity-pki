@@ -673,6 +673,13 @@ resource "aws_security_group" "idp" {
   vpc_id = aws_vpc.default.id
 }
 
+resource "aws_ssm_parameter" "net_idp_securitygroup" {
+  name = "${local.net_ssm_parameter_prefix}securitygroup/idp/id"
+  type  = "String"
+  value = aws_security_group.idp.id
+}
+
+
 # You can't change the security group used by a CloudHSM cluster, so you have
 # to import the security group under this ID in order to have terraform manage
 # it. (Yes, this is all a huge pain.)
