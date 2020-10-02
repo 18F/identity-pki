@@ -3,16 +3,17 @@ type: flatline
 index: logstash-cloudtrail*
 alert_text: logs from cloudtrail in the <%= @env %> ELK instance seem to have stopped entirely!
 owner: <%= @env %>
-threshold: <%= @thresholds['cloudtrail'] %>
-realert:
-    hours: 2
 doc_type: _doc
-scan_entire_timeframe: true
-# This timeframe is somewhat large, but cloudtrail logs are slow to arrive,
-# so sometimes we run dry.  This helps by looking back a bit further.  It means we won't get
-# alerted as quickly, but we need to make sure we don't cry wolf here with false-positives.
+# cloudtrail logs can take up to 15m before they are available hence we need to calculate that
+# into how we alert on this metric. The query delay causes elastalert to search 15m back where
+# we can guarantee that most if not all the logs are present in the search results.
+query_delay:
+    minutes: 15
+realert:
+    minutes: 5
+threshold: <%= @thresholds['cloudtrail'] %>
 timeframe:
-    minutes: 60
+    minutes: 5
 use_count_query: true
 alert:
 <% if ! @emails.empty? %>
