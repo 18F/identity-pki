@@ -30,18 +30,9 @@ fi
 verify_root_repo
 echo
 
-declare {IAM_USER,WRITE_CONFIG}=
+IAM_USER=${1-}
 ENV_USER=${AWS_IAM_USER-}
 FOUND_USER=$(aws iam get-user 2>/dev/null | jq -r '.[].UserName')
-
-while test $# -gt 0
-do
-  case "${1}" in
-    -c) WRITE_CONFIG=true ;;
-     *) IAM_USER="${1-}" ;;
-  esac
-  shift
-done
 
 if [[ -z "${IAM_USER}" ]] ; then
   if [[ -z "${ENV_USER}" ]] ; then
@@ -91,15 +82,10 @@ for POLICY in $(echo ${FOUND_POLICIES[@]} |
 done
 
 echo "${ROLE_ARNS[@]}" | tr ' ' '\n' | sed -E 's/\+/ /g' |
-              sort -k3 | sed -E 's/role /role\//' | column -t
+                sed -E 's/role /role\//' | column -t | sort -t: -k4 -u
+echo
 
-if [[ "${WRITE_CONFIG}" == true ]] ; then
-  if [[ "${FOUND_USER}" != "${IAM_USER}" ]] ; then
-    echo_yellow "Will not add role(s) to ~/.aws/config ;"
-    echo_yellow "current user '${FOUND_USER}' != '${IAM_USER}'."
-    exit 0
-  fi
-  echo 
+if [[ "${FOUND_USER}" == "${IAM_USER}" ]] ; then
   if prompt_yn "Add roles to ~/.aws/config file?" ; then
     echo_blue "Generating config and adding to file..."
     echo
@@ -107,25 +93,25 @@ if [[ "${WRITE_CONFIG}" == true ]] ; then
     MFA_ARN=$(aws iam list-mfa-devices \
               --user-name "${FOUND_USER}" |
               jq -r '.[][0].SerialNumber')
-    for ROLE in "${ROLE_ARNS[@]}" ; do
+    for ROLE in $(echo "${ROLE_ARNS[@]}" | tr ' ' '\n' | sed -E 's/\+/ /g' |
+                sed -E 's/role /role\//' | column -t | sort -t: -k4 | sed -E 's/ +/\+/g') ; do
       #echo $ROLE
       ROLE_NAME=$(echo $ROLE | awk -F'+' '{print $1}')
-      ROLE_ARN=$(echo $ROLE | awk -F'+' '{printf "%s/%s",$2,$3}')
+      ROLE_ARN=$(echo $ROLE | awk -F'+' '{print $2}')
       if [[ $(grep "${ROLE_ARN}" ~/.aws/config) ]] ; then
         echo_yellow "${ROLE_ARN} already in config file; skipping."
-      elif [[ $(grep "${ROLE_NAME}" ~/.aws/config) ]] ; then
+      elif [[ $(grep "profile ${ROLE_NAME}" ~/.aws/config) ]] ; then
         echo_yellow "${ROLE_NAME} already in config file; skipping."
       else
         define ROLE_BLOCK <<EOF
 [profile ${ROLE_NAME}]
-output=json
-region=us-west-2
-source_profile=${MAIN_PROFILE}
-mfa_serial=${MFA_ARN}
-role_arn=${ROLE_ARN}
+role_arn = ${ROLE_ARN}
+role_session_name = ${FOUND_USER}
+include_profile = ${MAIN_PROFILE}
+region = us-west-2
 
 EOF
-        echo "${ROLE_BLOCK}" | tee -a ~/.aws/config
+        echo -e "${ROLE_BLOCK}\n" | tee -a ~/.aws/config
       fi
     done
     echo
