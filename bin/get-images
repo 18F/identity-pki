@@ -81,3 +81,36 @@ NUM_COLS=$(echo "${DATA[@]}" | awk '{print NF}' | sort -nu | tail -n 1)
 echo
 mdout "${HEADERS}\n$(echo "|$(printf "%${NUM_COLS}s" | sed 's/ /----- |/g')")\n${DATA}" | tr 'T' ' '
 echo
+
+if prompt_yn "Update AMI values in terraform/app/variables.tf ?" ; then
+  echo
+  for LINE in "${DATA[@]}" ; do
+    LINE=$(echo ${LINE} | tr -d '\n' | tr '|' ' ')
+    RAILS_AMI_ID=$(echo ${LINE} | awk '{print $1}')
+    RAILS_AMI_DATE=$(echo ${LINE} | awk '{print $2}' | sed -E 's/([0-9-]+)T.+/\1/')
+    AMI_ACCT=$(echo ${LINE} | awk '{print $3}')
+    BASE_AMI_ID=$(echo ${LINE} | awk '{print $5}')
+    BASE_AMI_DATE=$(echo ${LINE} | awk '{print $6}' | sed -E 's/([0-9-]+)T.+/\1/')
+    sed -i '' -E "/\"default_ami_id_${AMI_ACCT}\"/{n;s/ami-[0-9a-f]{17}\" \# [0-9-]{10}/${BASE_AMI_ID}\" \# ${BASE_AMI_DATE}/;}" terraform/app/variables.tf
+    [[ $(git diff -U0 | grep ${BASE_AMI_ID}) ]] && echo "Updated \`default_ami_id_${AMI_ACCT}\` to \`${BASE_AMI_ID}\`."
+    sed -i '' -E "/\"rails_ami_id_${AMI_ACCT}\"/{n;s/ami-[0-9a-f]{17}\" \# [0-9-]{10}/${RAILS_AMI_ID}\" \# ${RAILS_AMI_DATE}/;}" terraform/app/variables.tf
+    [[ $(git diff -U0 | grep ${RAILS_AMI_ID}) ]] && echo "Updated \`rails_ami_id_${AMI_ACCT}\` to \`${RAILS_AMI_ID}\`."
+  done
+fi
+
+if prompt_yn "Create a PR for the AMI updates?" ; then
+  echo
+  DIFF_COUNT=$(git diff --numstat | awk '{print $1}')
+  if [[ ${DIFF_COUNT} != 4 ]] ; then
+    echo "4 lines should be changed for an AMI update; found ${DIFF_COUNT} changed lines instead. Verify and try again."
+    exit 0
+  fi
+  run git checkout -b "ami/$(date -j '+%Y%m%d')"
+  run ${GIT_DIR}/bin/github-pr -pm "$(cat <<EOF
+AMI update, $(date -j '+%Y-%m-%d')
+
+$(mdout "${HEADERS}\n$(echo "|$(printf "%${NUM_COLS}s" | sed 's/ /----- |/g')")\n${DATA}" | tr 'T' ' ')
+
+EOF
+)"
+fi
