@@ -43,8 +43,28 @@ mdout() {
 }
 
 PROFILE_LIST='sandbox prod'
-DATA=()
 HEADERS="|AMI Date Account Description|"
+
+get_ami_info() {
+  echo -e "\nLooking up current AMIs in \`login-sandbox\` and \`login-prod\`...\n"
+  DATA=()
+  for PROFILE in $PROFILE_LIST ; do
+    ACCOUNT=$(grep "# login-${PROFILE}" "${GIT_DIR}/terraform/master/global/main.tf" | sed -E 's/^.*\"([0-9]+)\".*$/\1/')
+    AV_PROFILE=$(get_profile_name ${ACCOUNT})
+    DATA+=$(echo -e "\n$(run_av aws ec2 describe-images \
+                --owners self \
+                --query 'Images[*].[ImageId,CreationDate,Name]' \
+                --output text | sort -rk2 | head -n 2 |
+                sed -E "s/login\.gov (base|rails) (role )?hardened (base )?image Ubuntu 18\.04 /$PROFILE \1\-/g" |
+                sed -E "s/([0-9\:]+)\.000Z/\1/g" |
+                sed -E 's/^/\|/g;s/$/\|/g')\n")
+  done
+  NUM_COLS=$(echo "${DATA[@]}" | awk '{print NF}' | sort -nu | tail -n 1)
+}
+
+get_ami_dates() {
+  echo "$DATA[@]" | tail -n+2 | awk '{print $3,$2}' | awk -F'T' '{print $1}' | uniq
+}
 
 [ $# -gt 1 ] && raise 'Must provide <2 arguments'
 verify_root_repo
@@ -66,36 +86,51 @@ if [[ $(env | grep 'AWS_VAULT=') ]] ; then
   echo "AWS_VAULT session detected; getting images in ${PROFILE_LIST} account only."
 fi
 
-for PROFILE in $PROFILE_LIST ; do
-  ACCOUNT=$(grep "# login-${PROFILE}" "${GIT_DIR}/terraform/master/global/main.tf" | sed -E 's/^.*\"([0-9]+)\".*$/\1/')
-  AV_PROFILE=$(get_profile_name ${ACCOUNT})
-  DATA+=$(echo -e "\n$(run_av aws ec2 describe-images \
-                --owners self \
-                --query 'Images[*].[ImageId,CreationDate,Name]' \
-                --output text | sort -rk2 | head -n 2 |
-                sed -E "s/login\.gov (base|rails) (role )?hardened (base )?image Ubuntu 18\.04 /$PROFILE \1\-/g" |
-                sed -E "s/([0-9\:]+)\.000Z/\1/g" |
-                sed -E 's/^/\|/g;s/$/\|/g')\n")
-done
-NUM_COLS=$(echo "${DATA[@]}" | awk '{print NF}' | sort -nu | tail -n 1)
+get_ami_info
+
+if [[ $(get_ami_dates | wc -l | tr -d ' ') == 2 ]] ; then
+  SANDBOX_DATE="$(get_ami_dates | head -n 1 | awk '{print $2}')-00:00:00"
+  PROD_DATE="$(get_ami_dates | tail -n 1 | awk '{print $2}')-00:00:00"
+  if [[ $(date -jf "%Y-%m-%d-%T" $SANDBOX_DATE +%s) > $(date -jf "%Y-%m-%d-%T" $PROD_DATE +%s) ]] ; then
+    echo -e "\nDetected \`prod\` AMIs are older than detected \`sandbox\` AMIs:\n"
+    get_ami_dates
+    echo
+    if prompt_yn "Create new \`prod\` AMIs using \`copy-image\` and \`share-image\` ?" ; then
+      for ROLE in base rails ; do
+        for PROFILE in prod sandbox ; do
+          ACCOUNT=$(grep "# login-${PROFILE}" "${GIT_DIR}/terraform/master/global/main.tf" | sed -E 's/^.*\"([0-9]+)\".*$/\1/')
+          AV_PROFILE=$(get_profile_name ${ACCOUNT})
+          if [[ ${PROFILE} == "prod" ]] ; then
+            run_av ${GIT_DIR}/bin/copy-image.sh --role ${ROLE}
+          elif [[ ${PROFILE} == "sandbox" ]] ; then
+            run_av ${GIT_DIR}/bin/share-image.sh --role ${ROLE}
+          fi
+        done
+      done
+      echo -e "\nNew \`prod\` AMIs created! Updating current AMI table...\n"
+      get_ami_info
+    fi
+  fi
+fi
 echo
-mdout "${HEADERS}\n$(echo "|$(printf "%${NUM_COLS}s" | sed 's/ /----- |/g')")\n${DATA}" | tr 'T' ' '
+
+mdout "${HEADERS}\n$(echo "|$(printf "%${NUM_COLS}s" |
+         sed 's/ /----- |/g')")\n${DATA}" | tr 'T' ' '
 echo
 
 if prompt_yn "Update AMI values in terraform/app/variables.tf ?" ; then
   echo
-  for LINE in "${DATA[@]}" ; do
-    LINE=$(echo ${LINE} | tr -d '\n' | tr '|' ' ')
-    RAILS_AMI_ID=$(echo ${LINE} | awk '{print $1}')
-    RAILS_AMI_DATE=$(echo ${LINE} | awk '{print $2}' | sed -E 's/([0-9-]+)T.+/\1/')
-    AMI_ACCT=$(echo ${LINE} | awk '{print $3}')
-    BASE_AMI_ID=$(echo ${LINE} | awk '{print $5}')
-    BASE_AMI_DATE=$(echo ${LINE} | awk '{print $6}' | sed -E 's/([0-9-]+)T.+/\1/')
-    sed -i '' -E "/\"default_ami_id_${AMI_ACCT}\"/{n;s/ami-[0-9a-f]{17}\" \# [0-9-]{10}/${BASE_AMI_ID}\" \# ${BASE_AMI_DATE}/;}" terraform/app/variables.tf
-    [[ $(git diff -U0 | grep ${BASE_AMI_ID}) ]] && echo "Updated \`default_ami_id_${AMI_ACCT}\` to \`${BASE_AMI_ID}\`."
-    sed -i '' -E "/\"rails_ami_id_${AMI_ACCT}\"/{n;s/ami-[0-9a-f]{17}\" \# [0-9-]{10}/${RAILS_AMI_ID}\" \# ${RAILS_AMI_DATE}/;}" terraform/app/variables.tf
-    [[ $(git diff -U0 | grep ${RAILS_AMI_ID}) ]] && echo "Updated \`rails_ami_id_${AMI_ACCT}\` to \`${RAILS_AMI_ID}\`."
+  for LINE in $(echo "${DATA[@]}" | tail -n +2 | tr -d '|' |
+                awk '{print $1"+"$2"+"$3"+"$4}') ; do
+    AMI_ID=$(echo ${LINE} | awk -F+ '{print $1}')
+    AMI_DATE=$(echo ${LINE} | awk -F+ '{print $2}' | sed -E 's/([0-9-]+)T.+/\1/')
+    AMI_ACCT=$(echo ${LINE} | awk -F+ '{print $3}')
+    AMI_TYPE=$(echo ${LINE} | awk -F+ '{print $4}' | sed -E 's/([a-z]+).+/\1/')
+    [[ ${AMI_TYPE} == "base" ]] && AMI_TYPE='default'
+    sed -i '' -E "/\"${AMI_TYPE}_ami_id_${AMI_ACCT}\"/{n;s/ami-[0-9a-f]{17}\" \# [0-9-]{10}/${AMI_ID}\" \# ${AMI_DATE}/;}" terraform/app/variables.tf
+    [[ $(git diff -U0 | grep ${AMI_ID}) ]] && echo "Updated \`${AMI_TYPE}_ami_id_${AMI_ACCT}\` to \`${AMI_ID}\`."
   done
+  echo
 fi
 
 if prompt_yn "Create a PR for the AMI updates?" ; then
@@ -114,3 +149,4 @@ $(mdout "${HEADERS}\n$(echo "|$(printf "%${NUM_COLS}s" | sed 's/ /----- |/g')")\
 EOF
 )"
 fi
+echo
