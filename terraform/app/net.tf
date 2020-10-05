@@ -1345,3 +1345,15 @@ module "vpc_flow_cloudwatch_filters" {
   env_name      = var.env_name
   alarm_actions = [var.slack_events_sns_hook_arn]
 }
+
+resource "aws_ssm_parameter" "net_outboundproxy" {
+  name = "${local.net_ssm_parameter_prefix}outboundproxy/url"
+  type  = "String"
+  value = "http://${var.proxy_server}:${var.proxy_port}"
+}
+
+resource "aws_ssm_parameter" "net_noproxy" {
+  name = "${local.net_ssm_parameter_prefix}outboundproxy/no_proxy"
+  type  = "String"
+  value = var.no_proxy_hosts
+}

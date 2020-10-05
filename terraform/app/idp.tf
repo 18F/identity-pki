@@ -293,6 +293,26 @@ resource "aws_iam_role_policy" "idp-sns-publish-alerts" {
   policy = data.aws_iam_policy_document.sns-publish-alerts-policy.json
 }
 
+resource "aws_iam_role_policy" "idp-lambda-functions" {
+  name   = "${var.env_name}-idp-lambda-functions"
+  role   = aws_iam_role.idp.id
+  policy = data.aws_iam_policy_document.call_idp_functions.json
+}
+
+data "aws_iam_policy_document" "call_idp_functions" {
+  statement {
+    sid    = "IDPLambdaFunctions"
+    effect = "Allow"
+    actions = [
+      "lambda:InvokeFunction",
+      "lambda:InvokeAsync"
+    ]
+    resources = [
+      "arn:aws:lambda:${var.region}:${data.aws_caller_identity.current.account_id}:function:${var.env_name}-idp-functions-*",
+    ]
+  }
+}
+
 # This policy allows writing to the S3 reports bucket
 data "aws_iam_policy_document" "put_reports_to_s3" {
   statement {
