@@ -67,7 +67,7 @@ fi
 # Name=tag:Role,Values=$AMI_ROLE 
 if [ -z $AMI_ID ]; then
     # Find latest image
-    AMI_ID=$(aws ec2 describe-images --owners $SRC_ACCT_ID --filters Name=name,Values=*$AMI_ROLE* --query 'sort_by(Images, &CreationDate)[-1].ImageId' --output text)
+    AMI_ID=$(aws ec2 describe-images --owners $SRC_ACCT_ID --filters "Name=name,Values=login.gov $AMI_ROLE*" --query 'sort_by(Images, &CreationDate)[-1].ImageId' --output text)
 fi
 
 echo -e $(aws ec2 describe-images --image-ids $AMI_ID --query 'Images[*].[ImageId,CreationDate,Name]' --output table)
