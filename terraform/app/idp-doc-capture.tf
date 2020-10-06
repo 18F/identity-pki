@@ -1,8 +1,7 @@
 locals {
   doc_capture_s3_bucket_name_prefix = "login-gov-idp-doc-capture"
-  doc_capture_lambda_name_prefix    = "${var.env_name}-idp-doc-capture-"
-  doc_capture_ssm_parameter_prefix  = "/${var.env_name}/idp/lambda/upload/"
   doc_capture_key_alias_name        = "alias/${var.env_name}-idp-doc-capture"
+  doc_capture_ssm_parameter_prefix  = "/${var.env_name}/idp/doc-capture/"
   doc_capture_domain_name           = var.env_name == "prod" ? "secure.${var.root_domain}" : "idp.${var.env_name}.${var.root_domain}"
 }
 
@@ -72,7 +71,7 @@ module "idp_doc_capture_bucket_config" {
   inventory_bucket_arn = local.inventory_bucket_arn
 }
 
-#IDP Role access to S3 bucket and KMS key and Lambda functions
+#IDP Role access to S3 bucket and KMS key
 resource "aws_iam_role_policy" "idp_doc_capture" {
   name   = "${var.env_name}-idp-doc-capture"
   role   = aws_iam_role.idp.id
@@ -109,43 +108,6 @@ data "aws_iam_policy_document" "idp_doc_capture" {
       "${aws_s3_bucket.idp_doc_capture.arn}/*"
     ]
   }
-
-  statement {
-    sid    = "ExecuteLambdaFunctions"
-    effect = "Allow"
-    actions = [
-      "lambda:InvokeFunction"
-    ]
-    resources = [
-      "arn:aws:lambda:${var.region}:${data.aws_caller_identity.current.account_id}:function:${local.doc_capture_lambda_name_prefix}*"
-    ]
-  }
-}
-
-module "idp_doc_capture_acuant_lambda" {
-  source             = "../modules/idp_doc_capture_lambda"
-  lambda_name        = "${local.doc_capture_lambda_name_prefix}acuant-upload"
-  lambda_timeout     = 90
-  lambda_memory      = 128
-  lambda_package     = "../../lambda/idp-doc-capture/acuant/lambda_function.zip"
-  lambda_description = "IDP Lambda function to upload doc files to Acuant"
-  kms_key_arn        = aws_kms_key.idp_doc_capture.arn
-  s3_bucket_arn      = aws_s3_bucket.idp_doc_capture.arn
-  s3_bucket_name     = aws_s3_bucket.idp_doc_capture.id
-  ssm_parameter_name = "${local.doc_capture_ssm_parameter_prefix}lambda/acuant"
-}
-
-module "idp_doc_capture_experian_lambda" {
-  source             = "../modules/idp_doc_capture_lambda"
-  lambda_name        = "${local.doc_capture_lambda_name_prefix}experian-upload"
-  lambda_timeout     = 90
-  lambda_memory      = 128
-  lambda_package     = "../../lambda/idp-doc-capture/experian/lambda_function.zip"
-  lambda_description = "IDP Lambda function to upload doc files to Experian"
-  kms_key_arn        = aws_kms_key.idp_doc_capture.arn
-  s3_bucket_arn      = aws_s3_bucket.idp_doc_capture.arn
-  s3_bucket_name     = aws_s3_bucket.idp_doc_capture.id
-  ssm_parameter_name = "${local.doc_capture_ssm_parameter_prefix}lambda/experian"
 }
 
 resource "aws_ssm_parameter" "kms_key_alias" {
