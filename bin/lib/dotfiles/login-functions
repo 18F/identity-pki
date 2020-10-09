@@ -9,6 +9,8 @@ fi
 ######## aliases ########
 alias bb="git checkout stages/${GSA_USERNAME}"
 alias laptop='bash <(curl -s https://raw.githubusercontent.com/18F/laptop/master/laptop)'
+alias ac='aws-vault clear'
+alias al='aws-vault list'
 
 #### fast aws-vault commands ####
 av() {
@@ -16,7 +18,7 @@ av() {
 TBD
 EOF
   [[ $# == 0 ]] && badopt
-  while getopts i:l:s:p:a:o:m: opt
+  while getopts i:l:s:p:a:d:o:m:x: opt
   do
     case "${opt}" in
       i) AV_PROFILE='sandbox-admin'     ;;
@@ -24,30 +26,25 @@ EOF
       s) AV_PROFILE='sms-sandbox-admin' ;;
       p) AV_PROFILE='sms-prod-admin'    ;;
       a) AV_PROFILE='analytics-admin'   ;;
-      o) AV_PROFILE='secops-admin'      ;;
+      t) AV_PROFILE='interviews-admin'  ;;
+      d) AV_PROFILE='secops-dev-admin'  ;;
+      o) AV_PROFILE='secops-prod-admin' ;;
       m) AV_PROFILE='master-admin'      ;;
+      x) AV_PROFILE='x' && shift 1   ;;
       h|*) badopt ;;
     esac
     AV_CMD="${OPTARG}" 
   done
-  shift
-  if [[ "${AV_CMD}" == "v" ]] ; then
-    session_get
-    [[ -z ${SESSION_PROFILE} ]] || run aws-vault remove ${SESSION_PROFILE} --sessions-only
-    mfa_get "$@"
-    run aws-vault exec ${AV_PROFILE} --no-session ${ttl} ${yk}
-  else
-    session_get
-    if [[ "${SESSION_PROFILE}" != "master" ]] && [[ ! -z "${SESSION_PROFILE}" ]] ; then
-      run aws-vault remove ${SESSION_PROFILE} --sessions-only
-    fi
-    mfa_get
-    case "${AV_CMD}" in
-      (l) run aws-vault login ${AV_PROFILE} ${ttl} ${yk} ;;
-      (c) run_av "$@" ;;
-      (*) badopt ;;
-    esac
+  if [[ ${AV_PROFILE} == 'x' ]] ; then
+    AV_PROFILE="${1}"
   fi
+  shift
+  case "${AV_CMD}" in
+    v) run aws-vault exec ${AV_PROFILE} --no-session --duration "${1:-1}h" ;;
+    l) run aws-vault login ${AV_PROFILE} ${ttl} ${yk} ;;
+    c) run_av "$@" ;;
+    *) badopt ;;
+  esac
 }
 
 #### run tf-deploy with common Terraform commands and any AWS profile/TF directory ####

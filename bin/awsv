@@ -1,0 +1,87 @@
+#!/bin/bash
+
+# Quickly run aws-vault commands
+
+set -eu
+
+. "$(dirname "$0")/lib/common.sh"
+
+usage() {
+  cat >&2 <<EOM
+
+usage: $(basename "$0") [ACCOUNT]|[-x PROFILENAME] CMD|-v DUR|-l SERVICE
+
+Execute aws-vault commands with far less typing. Automatically
+determines the correct profile in your ~/.aws/config to use
+based on the presence of an env var, \$LOGIN_IAM_PROFILE, which
+it will prompt you to set if it isn't already set in your current
+shell/env. Defaults to using \`sandbox\` as the ACCOUNT.
+
+Examples:
+  $(basename "$0") sandbox CMD  ==>  aws-vault exec sandbox-\$LOGIN_IAM_PROFILE -- CMD
+  $(basename "$0") prod -v 2    ==>  aws-vault exec prod-\$LOGIN_IAM_PROFILE --no-session --duration 2h
+  $(basename "$0") sms-prod -l  ==>  aws-vault login sms-prod-\$LOGIN_IAM_PROFILE
+
+Flags:
+  -x PROFILENAME : Use a specific profile name, rather than \$ACCOUNT-\$LOGIN_IAM_PROFILE
+  -v [DUR]       : Equivalent to \`--no-session --duration \${DUR}h\`.
+                   If DUR is not set, defaults to 1h.
+  -l [SERVICE]   : Runs \`login\` instead of \`exec\`, opening the console in a browser window.
+                   If SERVICE is set, redirects to https://console.aws.amazon.com/\${SERVICE}
+  -h             : Display this help
+
+EOM
+}
+
+verify_profile () {
+  AV_ROLE="${1}-${2}"
+  if [[ ! $(grep "profile ${AV_ROLE}" ~/.aws/config) ]] ; then
+    raise "Profile ${AV_ROLE} not found in ~/.aws/config ; verify the name and try again!"
+  fi
+}
+
+declare {AV_ROLE,DUR}=
+VAULT_CMD='exec'
+SERVICE='console'
+ACCOUNT="${1:-sandbox}"
+shift
+
+while getopts x:l:vh opt
+do
+  case "${opt}" in
+    x) AV_ROLE="${OPTARG}" ;;
+    l) 
+       SERVICE="${OPTARG}"
+       VAULT_CMD="login"
+    ;;
+    v)
+      DUR="${OPTARG:-1}"
+      VAULT_CMD="session"
+    ;;
+    h)
+      usage
+      exit 0
+    ;;
+  esac
+done
+shift
+
+while [[ -z ${LOGIN_IAM_PROFILE} ]] ; do
+  read -r -p "LOGIN_IAM_PROFILE not set; please specify (i.e. ACCOUNT-LOGIN_IAM_PROFILE):" ENTRY
+  verify_profile "${ACCOUNT}" "${ENTRY}"
+  run export LOGIN_IAM_PROFILE="${ENTRY}"
+done
+  
+case "${VAULT_CMD}" in
+  exec)
+    run aws-vault exec ${AV_ROLE} -- "$@"
+  ;;
+  login)
+    run aws-vault login ${AV_ROLE} --stdout |
+        sed -E "s/%2Fconsole%2F/%2F${SERVICE}%2F/" |
+        xargs -t /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome 2>/dev/null
+  ;;
+  session)
+    run aws-vault exec ${AV_ROLE} --no-session --duration ${DUR}h
+  ;;
+esac

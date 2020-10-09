@@ -454,33 +454,13 @@ env_get() {
   [[ "${EC2_ENV}" =~ "staging|prod" ]] && AV_PROFILE='prod-admin'
 }
 
-## identify currently-active session, if one exists
-session_get() {
-  ACTIVE_SESSION=$(aws-vault list | tail -n +3 | grep sts)
-  SESSION_PROFILE=$(echo ${ACTIVE_SESSION} | awk '{print $1}')
-  SESSION_TTL=$(echo ${ACTIVE_SESSION} | awk -F: '{print $NF}')
-}
-
-## integrates with ykman for YubiKey OTP MFA ##
-mfa_get() {
-  ttl=
-  yk=
-  local DUR="${1:-1}h"
-  session_get
-  if [[ ! $(echo $SESSION_TTL | grep -v \-) ]] ; then
-    ttl="--duration=${DUR}" 
-    [[ -n $(command -v ykman) ]] && yk="--mfa-token=$(ykman oath code --single aws/login-master | awk '{print $NF}')" 
-  fi
-}
-
 ## strip off aws-vault exec stuff if running a long AWS_VAULT session ##
 run_av() {
   run_me_av=("$@")
   if [[ $(env | grep 'AWS_VAULT=') ]] ; then
     run "${run_me_av[@]}"
   else
-    mfa_get
-    run aws-vault exec ${AV_PROFILE} ${ttl} ${yk} -- "${run_me_av[@]}"
+    run aws-vault exec ${AV_PROFILE} -- "${run_me_av[@]}"
   fi
 }
 
