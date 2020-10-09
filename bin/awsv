@@ -60,7 +60,8 @@ set_iam_profile () {
 
 verify_ykman
 
-declare {AV_ROLE,SET_ROLE,DUR,SERVICE}=
+declare {AV_ROLE,SET_ROLE,SERVICE}=
+DUR=1
 VAULT_CMD='exec'
 
 while getopts x:lc:v:h opt
