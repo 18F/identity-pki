@@ -9,26 +9,26 @@ set -eu
 usage() {
   cat >&2 <<EOM
 
-usage: $(basename "$0") [ACCOUNT]|[-x PROFILENAME] CMD|-v DUR|-l SERVICE
+usage: $(basename "$0") [ACCOUNT]|[-x PROFILE] CMD|-v DUR|-l SERVICE
 
 Execute aws-vault commands with far less typing. Automatically
 determines the correct profile in your ~/.aws/config to use
-based on the presence of an env var, \$LOGIN_IAM_PROFILE, which
-it will prompt you to set if it isn't already set in your current
-shell/env. Defaults to using \`sandbox\` as the ACCOUNT.
+based on the presence of an env var, \$LOGIN_IAM_PROFILE,
+which it will prompt you to set if it isn't already set in your
+current shell/env.
 
 Examples:
   $(basename "$0") sandbox CMD  ==>  aws-vault exec sandbox-\$LOGIN_IAM_PROFILE -- CMD
-  $(basename "$0") prod -v 2    ==>  aws-vault exec prod-\$LOGIN_IAM_PROFILE --no-session --duration 2h
-  $(basename "$0") sms-prod -l  ==>  aws-vault login sms-prod-\$LOGIN_IAM_PROFILE
+  $(basename "$0") -v 2 prod    ==>  aws-vault exec prod-\$LOGIN_IAM_PROFILE --no-session --duration 2h
+  $(basename "$0") -l sms-prod  ==>  aws-vault login sms-prod-\$LOGIN_IAM_PROFILE
 
 Flags:
-  -x PROFILENAME : Use a specific profile name, rather than \$ACCOUNT-\$LOGIN_IAM_PROFILE
-  -v [DUR]       : Equivalent to \`--no-session --duration \${DUR}h\`.
-                   If DUR is not set, defaults to 1h.
-  -l [SERVICE]   : Runs \`login\` instead of \`exec\`, opening the console in a browser window.
-                   If SERVICE is set, redirects to https://console.aws.amazon.com/\${SERVICE}
-  -h             : Display this help
+  -x PROFILE : Use a specific profile name, rather than \$ACCOUNT-\$LOGIN_IAM_PROFILE
+  -v [DUR]   : Equivalent to \`--no-session --duration \${DUR}h\`.
+               If DUR is not set, defaults to 1h.
+  -l         : Runs \`login\` instead of \`exec\`, opening the console in a browser window.
+  -c SERVICE : Same as -l but redirects to https://console.aws.amazon.com/\${SERVICE}
+  -h         : Display this help
 
 EOM
 }
@@ -41,7 +41,7 @@ verify_profile () {
 }
 
 verify_ykman () {
-  if [[ ! $(which ykman) ]] || [[ -z $(ykman oath list) ]] ; then
+  if [[ -z $(which ykman) ]] || [[ -z $(ykman oath list) ]] ; then
     raise "ykman not configured correctly ; verify and try again"
   elif [[ -z $AWS_VAULT_PROMPT ]] || [[ -z $YKMAN_OATH_CREDENTIAL_NAME ]] ; then
     raise "\$AWS_VAULT_PROMPT and/or \$YKMAN_OATH_CREDENTIAL_NAME not set ; verify and try again"
@@ -49,31 +49,40 @@ verify_ykman () {
 }
 
 set_iam_profile () {
-  while [[ -z ${LOGIN_IAM_PROFILE} ]] ; do
-    read -r -p "LOGIN_IAM_PROFILE not set; please specify (i.e. ACCOUNT-LOGIN_IAM_PROFILE):" ENTRY
-    verify_profile "${ACCOUNT}-${ENTRY}"
-    run export LOGIN_IAM_PROFILE="${ENTRY}"
+  while [[ -z "${LOGIN_IAM_PROFILE-}" ]] ; do
+    read -r -p "LOGIN_IAM_PROFILE not set; please specify (i.e. ACCOUNT-LOGIN_IAM_PROFILE): " PROFILE
+    verify_profile "${ACCOUNT}-${PROFILE}"
+    run export LOGIN_IAM_PROFILE=${PROFILE}
+    echo "Add this line to your .rc file of choice to avoid having to set this in the future:"
+    echo -e "\nexport LOGIN_IAM_PROFILE=${PROFILE}\n"
   done
 }
 
 verify_ykman
 
-declare {AV_ROLE,DUR}=
+declare {AV_ROLE,SET_ROLE,DUR,SERVICE}=
 VAULT_CMD='exec'
-SERVICE='console'
-ACCOUNT="${1:-sandbox}"
-shift
 
-while getopts x:l:vh opt
+while getopts x:lc:v:h opt
 do
   case "${opt}" in
-    x) AV_ROLE="${OPTARG}" ;;
+    x)
+       SET_ROLE="${OPTARG}"
+       shift 2
+    ;;
     l) 
+       SERVICE='console'
+       shift 1
+       VAULT_CMD="login"
+    ;;
+    c)
        SERVICE="${OPTARG}"
+       shift 2
        VAULT_CMD="login"
     ;;
     v)
-      DUR="${OPTARG:-1}"
+      DUR="${OPTARG}"
+      shift 2
       VAULT_CMD="session"
     ;;
     h)
@@ -82,10 +91,14 @@ do
     ;;
   esac
 done
-shift
 
-[[ -z ${LOGIN_IAM_PROFILE} ]] && set_iam_profile
-verify_profile "${ACCOUNT}-${LOGIN_IAM_PROFILE}"
+if [[ -z "${SET_ROLE}" ]] ; then
+  ACCOUNT="${1}"
+  shift
+  [[ -z "${LOGIN_IAM_PROFILE-}" ]] && set_iam_profile
+  SET_ROLE="${ACCOUNT}-${LOGIN_IAM_PROFILE}"
+fi
+verify_profile "${SET_ROLE}"
 
 case "${VAULT_CMD}" in
   exec)

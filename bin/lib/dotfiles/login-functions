@@ -30,7 +30,7 @@ EOF
       d) AV_PROFILE='secops-dev-admin'  ;;
       o) AV_PROFILE='secops-prod-admin' ;;
       m) AV_PROFILE='master-admin'      ;;
-      x) AV_PROFILE='x' && shift 1   ;;
+      x) AV_PROFILE='x' && shift 1      ;;
       h|*) badopt ;;
     esac
     AV_CMD="${OPTARG}" 
@@ -41,7 +41,10 @@ EOF
   shift
   case "${AV_CMD}" in
     v) run aws-vault exec ${AV_PROFILE} --no-session --duration "${1:-1}h" ;;
-    l) run aws-vault login ${AV_PROFILE} ${ttl} ${yk} ;;
+    l) run aws-vault login ${AV_PROFILE} --stdout |
+        sed -E "s/%2Fconsole%2F/%2F${1:-console}%2F/" |
+        xargs -t /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome 2>/dev/null
+    ;;
     c) run_av "$@" ;;
     *) badopt ;;
   esac
