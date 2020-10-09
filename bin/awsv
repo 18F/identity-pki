@@ -34,11 +34,29 @@ EOM
 }
 
 verify_profile () {
-  AV_ROLE="${1}-${2}"
+  AV_ROLE="${1}"
   if [[ ! $(grep "profile ${AV_ROLE}" ~/.aws/config) ]] ; then
     raise "Profile ${AV_ROLE} not found in ~/.aws/config ; verify the name and try again!"
   fi
 }
+
+verify_ykman () {
+  if [[ ! $(which ykman) ]] || [[ -z $(ykman oath list) ]] ; then
+    raise "ykman not configured correctly ; verify and try again"
+  elif [[ -z $AWS_VAULT_PROMPT ]] || [[ -z $YKMAN_OATH_CREDENTIAL_NAME ]] ; then
+    raise "\$AWS_VAULT_PROMPT and/or \$YKMAN_OATH_CREDENTIAL_NAME not set ; verify and try again"
+  fi
+}
+
+set_iam_profile () {
+  while [[ -z ${LOGIN_IAM_PROFILE} ]] ; do
+    read -r -p "LOGIN_IAM_PROFILE not set; please specify (i.e. ACCOUNT-LOGIN_IAM_PROFILE):" ENTRY
+    verify_profile "${ACCOUNT}-${ENTRY}"
+    run export LOGIN_IAM_PROFILE="${ENTRY}"
+  done
+}
+
+verify_ykman
 
 declare {AV_ROLE,DUR}=
 VAULT_CMD='exec'
@@ -66,12 +84,9 @@ do
 done
 shift
 
-while [[ -z ${LOGIN_IAM_PROFILE} ]] ; do
-  read -r -p "LOGIN_IAM_PROFILE not set; please specify (i.e. ACCOUNT-LOGIN_IAM_PROFILE):" ENTRY
-  verify_profile "${ACCOUNT}" "${ENTRY}"
-  run export LOGIN_IAM_PROFILE="${ENTRY}"
-done
-  
+[[ -z ${LOGIN_IAM_PROFILE} ]] && set_iam_profile
+verify_profile "${ACCOUNT}-${LOGIN_IAM_PROFILE}"
+
 case "${VAULT_CMD}" in
   exec)
     run aws-vault exec ${AV_ROLE} -- "$@"
