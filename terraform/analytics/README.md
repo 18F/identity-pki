@@ -1,4 +1,4 @@
-## terraform-analytics
+## terraform-analytics DEPRECATED
 
 These scripts set up redshift and a lambda function for the analytics pipeline,
 This infrastructure is deployed inside of its own VPC and should have zero impact

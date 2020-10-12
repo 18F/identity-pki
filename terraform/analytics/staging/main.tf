@@ -14,7 +14,4 @@ module "main" {
   source = "../module"
 
   env_name                 = "staging"
-#  redshift_master_password = var.redshift_master_password
-  analytics_version        = "cacraig-06282018-staging-setup-5"
-  cloudwatch_5min_enabled = false
 }

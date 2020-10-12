@@ -43,7 +43,7 @@ module "main" {
       { "Terraform"         = [ "Sandbox" ] }
     ],
     "analytics" = [
-      { "Analytics"         = [ "Sandbox", "Prod", "Analytics" ] }
+      { "Analytics"         = [ "Sandbox", "Prod" ] }
     ],
     "apponcall" = [
       { "PowerUser"         = [ "Sandbox", "Prod" ] },

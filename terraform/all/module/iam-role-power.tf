@@ -172,16 +172,6 @@ module "poweruser-assumerole" {
           ]
         },
         {
-          sid    = "Redshift"
-          effect = "Allow"
-          actions = [
-            "redshift:*",
-          ]
-          resources = [
-            "*",
-          ]
-        },
-        {
           sid    = "Route53"
           effect = "Allow"
           actions = [

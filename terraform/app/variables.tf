@@ -116,58 +116,6 @@ variable "proxy_enabled_roles" {
   }
 }
 
-#FIXME referrer must define+use SG resource reference
-variable "redshift_sg_id" {
-  type = map(string)
-  default = {
-    dev     = "sg-6a8d8710"
-    int     = "sg-aef2a8d4"
-    dm      = "sg-4c156f36"
-    staging = "sg-cf5416b5"
-    prod    = "sg-12807b6f"
-  }
-}
-
-#FIXME referrer must use EIP resource reference
-variable "redshift_cidr_block" {
-  type = map(string)
-  default = {
-    dev     = "34.214.42.173/32"
-    int     = "34.211.57.255/32"
-    dm      = "54.148.147.138/32"
-    staging = "54.68.178.165/32"
-    prod    = "52.13.170.174/32"
-  }
-}
-
-# TODO: Using an _enabled integer variable is not necessary in TF 0.12;
-# update/remove vars as necessary so that certain resources are not dependent
-# on using 'count'.
-variable "analytics_vpc_peering_enabled" {
-  description = "Whether to enable VPC peering with the analytics VPC. Set this to 1 once it exists."
-  default     = 0
-}
-
-variable "analytics_cidr_block" {
-  description = "Analytics VPC CIDR block"
-  default     = ""
-}
-
-variable "analytics_vpc_id" {
-  description = "Analytics VPC ID for peer side of connection"
-  default     = ""
-}
-
-variable "analytics_redshift_security_group_id" {
-  description = "Security group ID of redshift in the peered analytics VPC"
-  default     = ""
-}
-
-variable "analytics_lambda_arn_for_s3_notify" {
-  description = "The ARN of the analytics lambda that should be notified when new files are uploaded to the logstash S3 logs bucket. If empty, no lambda will be notified. This should be the same as aws_lambda_function.analytics_lambda.arn in the terraform/analytics directory."
-  default     = ""
-}
-
 variable "identity_sms_aws_account_id" {
   description = "Account ID of the AWS account used for Pinpoint and SMS sending (identity-sms-*)"
 }
