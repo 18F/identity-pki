@@ -160,10 +160,11 @@ for FILE in $(echo "${FILES[@]}"  | tr '\n' ' ') ; do
       ENV_VARS=("GITHUB_PARENT_DIR")
     ;;
     'login-functions')
-      ENV_VARS=("AWS_PROFILE" \
+      ENV_VARS=("AWS_VAULT_PROMPT" \
                 "GSA_USERNAME" \
                 "KITCHEN_EC2_SSH_KEYPAIR_ID" \
-                "KITCHEN_EC2_SSH_KEY")
+                "KITCHEN_EC2_SSH_KEY" \
+                "YKMAN_OATH_CREDENTIAL_NAME")
     ;;
     'subfunctions')
       ENV_VARS=("")
