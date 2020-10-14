@@ -15,6 +15,15 @@ terraform {
   required_version = ">= 0.13"
 }
 
+provider "aws" {
+  region  = var.region
+}
+
+provider "aws" {
+  region = "us-east-1"
+  alias  = "use1"
+}
+
 resource "aws_iam_account_alias" "standard_alias" {
   account_alias = var.iam_account_alias
 }
