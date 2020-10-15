@@ -5,8 +5,10 @@ gem_package "elasticsearch" do
   gem_binary node.fetch('login_dot_gov').fetch('rbenv_shims_gem')
 end
 
+# TODO remove version pinning once we upgrade the base image to use ruby 2.6
 gem_package "ohai" do
   gem_binary node['login_dot_gov']['rbenv_shims_gem']
+  version '16.5.6'
 end
 
 es_health_path = "/#{Chef::Config['file_cache_path']}/es_health"
