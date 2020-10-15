@@ -10,7 +10,7 @@ variable "alarm_actions" {
 
 resource "aws_cloudwatch_metric_alarm" "insufficient-instances" {
   alarm_name        = "${var.asg_name}-insufficient-instances"
-  alarm_description = "The number of healthy instances has fallen below the minimum number of instances for the autoscaling group"
+  alarm_description = "The number of healthy instances has fallen two or more instances under the minimum number for the autoscaling group"
 
   # Using derived metric to allow setting min manually if needed
   metric_query {
@@ -49,7 +49,8 @@ resource "aws_cloudwatch_metric_alarm" "insufficient-instances" {
   }
 
   comparison_operator = "GreaterThanThreshold"
-  threshold           = 0
+  # Allow a dip of one under minimum
+  threshold           = 1
   evaluation_periods  = 1
   treat_missing_data  = "notBreaching"
 
