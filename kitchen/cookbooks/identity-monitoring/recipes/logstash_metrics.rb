@@ -7,6 +7,7 @@ end
 
 gem_package "ohai" do
   gem_binary node['login_dot_gov']['rbenv_shims_gem']
+  version '16.5.6'
 end
 
 gem_package "sys-proctable" do
