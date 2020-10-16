@@ -33,6 +33,7 @@ elif ! [[ $(git cat-file -t ${COMMIT_ID}) ]] ; then
   raise "Commit ID ${COMMIT_ID} not found; verify and try again."
 fi
 
+VERSION_TAG=$(echo ${VERSION_TAG} | sed 's/v//g')
 HF_VERSION=$(git tag | grep "${VERSION_TAG}" | sort | tail -n 1 | awk -F. '{print $2}')
 [[ -z ${HF_VERSION} ]] && HF_VERSION=0
 ((HF_VERSION++))
@@ -41,7 +42,7 @@ HOTFIX="${VERSION_TAG}.${HF_VERSION}"
 run git checkout master
 run git pull origin master
 
-run git checkout ${VERSION_TAG}
+run git checkout v${VERSION_TAG}
 run git checkout -b release/v${HOTFIX}
 run git cherry-pick -m 1 ${COMMIT_ID}
 run rake hotfix
