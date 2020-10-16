@@ -9,6 +9,13 @@ module "s3_inventory_uw2" {
   inventory_bucket_arn = "arn:aws:s3:::login-gov.s3-inventory.${data.aws_caller_identity.current.account_id}-us-west-2"
 }
 
+#module "s3_it_uw2" {
+#  #source = "github.com/18F/identity-terraform//s3_batch_inventory?ref=3940e6369dc4fda1992b10e49d06f0e6920f5cae"
+#  source = "../../../../identity-terraform/s3_batch_it"
+#
+#  bucket_list          = var.bucket_list_uw2
+#}
+
 module "s3_config_ue1" {
   source = "github.com/18F/identity-terraform//state_bucket?ref=897cd9f749ead05a97b0f904a5dedfe83d9a9566"
   #source = "../../../../identity-terraform/state_bucket"
