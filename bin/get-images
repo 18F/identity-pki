@@ -9,15 +9,20 @@ set -eu
 PROFILE_LIST='sandbox prod'
 HEADERS="|AMI Date Account Description|"
 DATA=()
+USER_AMIS=
 
 usage() {
     cat >&2 << EOM
-Usage: ${0} [-c|-u|-o]
+Usage: ${0} [-c|-u|-o|-b BASE_SANDBOX_AMI|-r RAILS_SANDBOX_AMI]
 
-Runs \`aws ec2 describe-images\` in both the sandbox and prod
+1. Runs \`aws ec2 describe-images\` in both the sandbox and prod
 accounts, and outputs a Markdown-formatted table containing
 information about the last-created AMIs for each type
-in each account. If the \`prod\` AMIs are older than the most
+in each account.
+2. For the \`sandbox\` account, will look up the
+most recently-completed login-image CodeBuild jobs and will
+grab the IDs of the generated AMIs from those.
+3. If the \`prod\` AMIs are older than the most
 recent \`sandbox\` AMIs, will prompt to create new \`prod\` AMIs
 using \`copy-image.sh\` and \`share-image.sh\`, and then will
 regenerate the table.
@@ -35,6 +40,15 @@ following flags:
   -u | --update-amis : Update \`ami_id\` values in \`terraform/app/variables.tf\`
   -o | --open-pr     : Open a PR with the new \`ami_id\` values
   -h | --help)       : Display this usage info
+
+If you have custom \`sandbox\` AMI IDs you want this script to use as
+the basis for, those can be specified thusly:
+
+  -b | --base-ami BASE_AMI_ID
+  -r | --rails-ami RAILS_AMI_ID
+
+(If only one is specified, the script will look up the other in CodeBuild
+as per its original operation.)
 
 The script will error out if:
 - there is an active \`\$AWS_VAULT\` session running (as it needs access
@@ -62,22 +76,25 @@ mdout() {
 
 get_ami_info() {
   for PROFILE in $PROFILE_LIST ; do
-    echo && echo_green "Looking up current AMIs in \`login-${PROFILE}\`..." && echo
     ACCOUNT=$(grep "# login-${PROFILE}" "${GIT_DIR}/terraform/master/global/main.tf" | sed -E 's/^.*\"([0-9]+)\".*$/\1/')
     AV_PROFILE=$(get_profile_name ${ACCOUNT})
     case ${PROFILE} in
       sandbox)
         PIPELINE_AMIS=()
         for TYPE in base rails ; do
-          echo && echo_purple "Finding most recent AMI built by login-image-${TYPE} in CodeBuild..." && echo
-          BUILD=$(run_av aws codebuild list-builds-for-project \
-                  --project login-image-${TYPE} \
-                  --output text | head -n 1 | awk -F: '{print $NF}')
-          PIPELINE_AMIS+=($(run_av aws cloudtrail lookup-events --lookup-attributes AttributeKey=EventName,AttributeValue=CreateImage |
-                    jq -r --arg build "$BUILD" '.Events[].CloudTrailEvent|
-                      fromjson|
-                      select(.userIdentity.arn|
-                      contains($build)).responseElements.imageId'))
+          if [[ $(echo "${USER_AMIS}" | grep ${TYPE}) ]] ; then
+            PIPELINE_AMIS+=($(echo "${USER_AMIS}" | tr ' ' '\n' | grep ${TYPE} | awk -F, '{print $NF}'))
+          else
+            echo && echo_purple "Finding most recent AMI built by login-image-${TYPE} in CodeBuild..." && echo
+            BUILD=$(run_av aws codebuild list-builds-for-project \
+                    --project login-image-${TYPE} \
+                    --output text | head -n 1 | awk -F: '{print $NF}')
+            PIPELINE_AMIS+=($(run_av aws cloudtrail lookup-events --lookup-attributes AttributeKey=EventName,AttributeValue=CreateImage |
+                      jq -r --arg build "$BUILD" '.Events[].CloudTrailEvent|
+                        fromjson|
+                        select(.userIdentity.arn|
+                        contains($build)).responseElements.imageId'))
+          fi
         done
         IMAGES=$(echo "${PIPELINE_AMIS[*]}")
       ;;
@@ -88,6 +105,7 @@ get_ami_info() {
                 --output text | sort -rk2 | head -n 2 | awk '{print $1}')
       ;;
     esac
+    echo && echo_green "Generating \`login-${PROFILE}\` AMI data..." && echo
     DATA+=$(echo -e "\n$(run_av aws ec2 describe-images \
                 --image-ids ${IMAGES} \
                 --query 'Images[*].[ImageId,CreationDate,Name]' \
@@ -104,7 +122,8 @@ get_ami_info() {
 }
 
 get_ami_dates() {
-  echo "$DATA[@]" | tail -n+2 | awk '{print $3,$2}' | awk -F'T' '{print $1}' | uniq
+  DATES=$(echo "$DATA[@]" | tail -n+2 | awk '{print $3,$2}' | awk -F'T' '{print $1}')
+  for TYPE in sandbox prod ; do echo "${DATES}" | grep -m 1 ${TYPE} ; done
 }
 
 create_prod_amis() {
@@ -172,7 +191,6 @@ EOF
   echo
 }
 
-[ $# -gt 1 ] && raise 'Must provide 1 argument only'
 verify_root_repo
 
 if [[ $(env | grep 'AWS_VAULT=') ]] ; then
@@ -184,6 +202,8 @@ while [[ "$#" -gt 0 ]]; do
     -c|--create-amis) create_prod_amis && exit 0 ;;
     -u|--update-amis) update_ami_ids && exit 0   ;;
     -o|--open-pr)     open_ami_pr && exit 0      ;;
+    -b|--base-ami)    shift && USER_AMIS+="base,${1} "   ;;
+    -r|--rails-ami)   shift && USER_AMIS+="rails,${1} "  ;;
     -h|--help)        usage && exit 0            ;;
     *) raise "Unknown parameter passed: ${1}"    ;;
   esac
