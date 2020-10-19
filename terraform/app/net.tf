@@ -631,6 +631,18 @@ resource "aws_security_group" "idp" {
     cidr_blocks = [var.nessusserver_ip]
   }
 
+  # inbound from lambda functions
+  ingress {
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
+    cidr_blocks = [
+      var.private1_subnet_cidr_block,
+      var.private2_subnet_cidr_block,
+      var.private3_subnet_cidr_block,
+    ]
+  }
+  
   name = "${var.name}-idp-${var.env_name}"
 
   tags = {
