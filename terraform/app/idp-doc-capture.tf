@@ -123,10 +123,20 @@ resource "aws_ssm_parameter" "kms_key_arn" {
 }
 
 # starter value only
-# real key will be populated by hand
-resource "aws_ssm_parameter" "idp_key" {
-  name = "${local.doc_capture_ssm_parameter_prefix}idp/key"
-  description = "IDP callback key"
+# real key will be populated manually
+resource "aws_ssm_parameter" "address_proof_token" {
+  name = "${local.doc_capture_ssm_parameter_prefix}address_proof_result_token"
+  description = "Address proof token"
+  type  = "SecureString"
+  overwrite = false
+  value = "Starter value"
+}
+
+# starter value only
+# real key will be populated manually
+resource "aws_ssm_parameter" "resolution_proof_token" {
+  name = "${local.doc_capture_ssm_parameter_prefix}resolution_proof_result_token"
+  description = "Resolution proof token"
   type  = "SecureString"
   overwrite = false
   value = "Starter value"
