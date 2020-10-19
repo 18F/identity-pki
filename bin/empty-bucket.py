@@ -9,7 +9,7 @@ import boto3
 @click.argument('bucket')
 def delete_all_versions(bucket):
     """Deletes all versions of all objects from the given bucket"""
-    if raw_input("This will delete all the contents of the %s bucket.  Are you sure? (y/n): " % bucket) != "y":
+    if input("This will delete all the contents of the %s bucket.  Are you sure? (y/n): " % bucket) != "y":
         return
     s3 = boto3.resource('s3')
     bucket = s3.Bucket(bucket)
