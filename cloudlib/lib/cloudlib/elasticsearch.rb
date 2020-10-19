@@ -83,8 +83,15 @@ module Cloudlib
     def make_drain_command(environment)
       ips = ips_to_drain(environment)
       ips_joined = ips.join(',')
+      node_count = cluster_instances(environment).count
       settings_hash = { 'transient':
-        {'cluster.routing.allocation.exclude._ip': ips_joined}}
+        {
+          'cluster.routing.allocation.exclude._ip': ips_joined,
+          'cluster.routing.allocation.cluster_concurrent_rebalance': node_count,
+          'cluster.routing.allocation.node_concurrent_recoveries': node_count,
+          'indices.recovery.max_bytes_per_sec': '20000mb'
+        }
+      }
       make_settings_command(settings_hash)
     end
 
