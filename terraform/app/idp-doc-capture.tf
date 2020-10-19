@@ -121,3 +121,13 @@ resource "aws_ssm_parameter" "kms_key_arn" {
   type  = "String"
   value = aws_kms_key.idp_doc_capture.arn
 }
+
+# starter value only
+# real key will be populated by hand
+resource "aws_ssm_parameter" "idp_key" {
+  name = "${local.doc_capture_ssm_parameter_prefix}idp/key"
+  description = "IDP callback key"
+  type  = "SecureString"
+  overwrite = false
+  value = "Starter value"
+}
