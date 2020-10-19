@@ -61,12 +61,35 @@ mdout() {
 }
 
 get_ami_info() {
-  echo -e "\nLooking up current AMIs in \`login-sandbox\` and \`login-prod\`...\n"
   for PROFILE in $PROFILE_LIST ; do
+    echo && echo_green "Looking up current AMIs in \`login-${PROFILE}\`..." && echo
     ACCOUNT=$(grep "# login-${PROFILE}" "${GIT_DIR}/terraform/master/global/main.tf" | sed -E 's/^.*\"([0-9]+)\".*$/\1/')
     AV_PROFILE=$(get_profile_name ${ACCOUNT})
-    DATA+=$(echo -e "\n$(run_av aws ec2 describe-images \
+    case ${PROFILE} in
+      sandbox)
+        PIPELINE_AMIS=()
+        for TYPE in base rails ; do
+          echo && echo_purple "Finding most recent AMI built by login-image-${TYPE} in CodeBuild..." && echo
+          BUILD=$(run_av aws codebuild list-builds-for-project \
+                  --project login-image-${TYPE} \
+                  --output text | head -n 1 | awk -F: '{print $NF}')
+          PIPELINE_AMIS+=($(run_av aws cloudtrail lookup-events --lookup-attributes AttributeKey=EventName,AttributeValue=CreateImage |
+                    jq -r --arg build "$BUILD" '.Events[].CloudTrailEvent|
+                      fromjson|
+                      select(.userIdentity.arn|
+                      contains($build)).responseElements.imageId'))
+        done
+        IMAGES=$(echo "${PIPELINE_AMIS[*]}")
+      ;;
+      prod)
+        IMAGES=$(run_av aws ec2 describe-images \
                 --owners self \
+                --query 'Images[*].[ImageId,CreationDate]' \
+                --output text | sort -rk2 | head -n 2 | awk '{print $1}')
+      ;;
+    esac
+    DATA+=$(echo -e "\n$(run_av aws ec2 describe-images \
+                --image-ids ${IMAGES} \
                 --query 'Images[*].[ImageId,CreationDate,Name]' \
                 --output text | sort -rk2 | head -n 2 |
                 sed -E "s/login\.gov (base|rails) (role )?hardened (base )?image Ubuntu 18\.04 /$PROFILE \1\-/g" |
