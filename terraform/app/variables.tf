@@ -103,6 +103,22 @@ variable "vpc_cidr_block" { # 172.16.32.0   - 172.16.35.255
   default = "172.16.32.0/22"
 }
 
+# Nonoverlapping subnet calculation tables
+variable "net_regions" {
+  description = "Map of region to offset value"
+  type = map(number)
+  default = {
+    us-east-1 = 16,
+    us-east-2 = 32,
+    us-west-1 = 48,
+    us-west-2 = 64
+  }
+}
+
+environments
+az
+purpose
+
 # proxy settings
 variable "proxy_server" {
   default = "obproxy.login.gov.internal"
