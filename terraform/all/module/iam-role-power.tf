@@ -118,6 +118,8 @@ module "poweruser-assumerole" {
             "iam:PassRole",
             "iam:DeleteRolePolicy",
             "iam:DeleteInstanceProfile",
+            "iam:Tag*",
+            "iam:Untag*",
             "iam:UploadServerCertificate",
           ]
           resources = [
