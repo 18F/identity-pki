@@ -1,10 +1,11 @@
 # Create a TLS certificate with ACM
 module "acm-cert-idp-static-cdn" {
-  source = "github.com/18F/identity-terraform//acm_certificate?ref=476ab4456e547e125dcd53cb6131419b54f1f476"
+  count     = var.enable_idp_cdn ? 1 : 0
+  source    = "github.com/18F/identity-terraform//acm_certificate?ref=e32c0a8e89bed6071029922b06df1accd499571b"
   providers = {
     aws = aws.use1
   }
-  enabled            = var.enable_idp_cdn ? 1 : 0
+  
   domain_name        = "static.${local.idp_domain_name}"
   validation_zone_id = var.route53_id
 }
@@ -14,7 +15,7 @@ resource "aws_cloudfront_distribution" "idp_static_cdn" {
 
   depends_on = [
     aws_s3_bucket.idp_static_bucket[0],
-    module.acm-cert-idp-static-cdn.finished_id
+    module.acm-cert-idp-static-cdn[0].finished_id
   ]
 
   origin {
@@ -53,7 +54,7 @@ resource "aws_cloudfront_distribution" "idp_static_cdn" {
   }
 
   viewer_certificate {
-    acm_certificate_arn      = module.acm-cert-idp-static-cdn.cert_arn
+    acm_certificate_arn      = module.acm-cert-idp-static-cdn[0].cert_arn
     # TLS version should align with idp-alg setting
     minimum_protocol_version = "TLSv1"
     ssl_support_method       = "sni-only"
