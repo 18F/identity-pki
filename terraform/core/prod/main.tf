@@ -134,10 +134,4 @@ module "main" {
   google_site_verification_txt  = "x8WM0Sy9Q4EmkHypuULXjTibNOJmPEoOxDGUmBppws8"
   mx_provider                   = "google-g-suite"
   lambda_audit_github_debug     = 0
-
-  bucket_list_uw2 = [
-    "login-gov-prod-analytics",
-    "login-gov-global-trail",
-    "login-dot-gov-security-logs",
-  ]
 }
