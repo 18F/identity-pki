@@ -54,9 +54,10 @@ module "main" {
       { "ReportsReadOnly"   = [ "Sandbox", "Prod" ] }
     ],
     "devops" = [
-      { "FullAdministrator" = [ "Prod", "Sandbox", "Master", "Analytics" ] },
-      { "ReadOnly"          = [ "Prod", "Sandbox" ] },
-      { "Terraform"         = [ "Prod", "Sandbox", "Master" ] },
+      { "FullAdministrator" = [ "Sandbox", "Prod", "Master", "Analytics" ] },
+      { "PowerUser"         = [ "Sandbox", "Prod" ] },
+      { "ReadOnly"          = [ "Sandbox", "Prod" ] },
+      { "Terraform"         = [ "Sandbox", "Prod", "Master" ] },
       { "KMSAdministrator"  = [ "Sandbox", "Analytics" ] }
     ],
     "finops" = [

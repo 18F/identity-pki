@@ -249,6 +249,8 @@ module "terraform-assumerole" {
             "iam:PassRole",
             "iam:PutRolePolicy",
             "iam:RemoveRoleFromInstanceProfile",
+            "iam:TagRole",
+            "iam:UntagRole",
           ]
           resources = [
             "*",
