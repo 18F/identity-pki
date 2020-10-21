@@ -1,0 +1,66 @@
+#!/bin/bash
+
+# Cut a new release, create a PR, and add the release to GitHub
+
+set -eu
+
+. "$(dirname "$0")/lib/common.sh"
+
+usage() {
+    cat >&2 << EOM
+
+Usage: ${0} VERSION_TAG COMMIT_ID
+
+Creates a hotfix from the specified VERSION_TAG from COMMIT_ID
+and creates a release using \`rake hotfix\`.
+
+EOM
+}
+
+[ $# != 2 ] && raise 'Must provide 2 arguments'
+verify_root_repo
+
+if [[ ! $(brew list | grep hub) ]] ; then
+  brew install hub || raise "hub not installed!"
+fi
+
+VERSION_TAG=${1}
+COMMIT_ID=${2}
+
+if ! [[ $(git tag | grep ${VERSION_TAG}) ]] ; then
+  raise "Version tag ${VERSION_TAG} not found; verify and try again."
+elif ! [[ $(git cat-file -t ${COMMIT_ID}) ]] ; then
+  raise "Commit ID ${COMMIT_ID} not found; verify and try again."
+fi
+
+VERSION_TAG=$(echo ${VERSION_TAG} | sed 's/v//g')
+HF_VERSION=$(git tag | grep "${VERSION_TAG}" | sort | tail -n 1 | awk -F. '{print $2}')
+[[ -z ${HF_VERSION} ]] && HF_VERSION=0
+((HF_VERSION++))
+HOTFIX="${VERSION_TAG}.${HF_VERSION}"
+
+run git checkout master
+run git pull origin master
+
+run git checkout v${VERSION_TAG}
+run git checkout -b release/v${HOTFIX}
+run git cherry-pick -m 1 ${COMMIT_ID}
+run rake hotfix
+run git push origin release/v${HOTFIX}
+run git push origin v${HOTFIX} # push w/remote tags
+
+HF_MESSAGE=$(git log --format='- %t | %s' -n 1 ${COMMIT_ID})
+
+run ${GIT_DIR}/bin/github-pr -m "$(cat <<EOF
+Release v${HOTFIX} (hotfix)
+
+${HF_MESSAGE}
+EOF
+)"
+
+run hub release create v${HOTFIX} -m "$(cat <<EOF
+Release v${HOTFIX} (hotfix)
+
+${HF_MESSAGE}
+EOF
+)"
