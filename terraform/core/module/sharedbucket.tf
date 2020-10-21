@@ -58,10 +58,10 @@ locals {
 }
 
 module "s3_shared" {
-  source = "github.com/18F/identity-terraform//s3_bucket_block?ref=5bc8e66b0c4f3c26d7c42f442797f95599a44ee1"
+  source = "github.com/18F/identity-terraform//s3_bucket_block?ref=897cd9f749ead05a97b0f904a5dedfe83d9a9566"
   #source = "../../../../identity-terraform/s3_bucket_block"
   
-  bucket_prefix        = "login-gov"
+  bucket_name_prefix   = "login-gov"
   bucket_data          = local.s3_bucket_data
   log_bucket           = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
   inventory_bucket_arn = "arn:aws:s3:::login-gov.s3-inventory.${data.aws_caller_identity.current.account_id}-${var.region}"
@@ -152,12 +152,12 @@ POLICY
 #   login-gov.elb-logs.<ACCOUNT_ID>-<AWS_REGION>
 module "elb-logs" {
   # can't use variable for ref -- see https://github.com/hashicorp/terraform/issues/17994
-  source = "github.com/18F/identity-terraform//elb_access_logs_bucket?ref=cafa07ecec6afd11d98765b288572462371ed741"
+  source = "github.com/18F/identity-terraform//elb_access_logs_bucket?ref=897cd9f749ead05a97b0f904a5dedfe83d9a9566"
 
   region                     = var.region
   bucket_name_prefix         = "login-gov"
   use_prefix_for_permissions = false
-
+  inventory_bucket_arn       = "arn:aws:s3:::login-gov.s3-inventory.${data.aws_caller_identity.current.account_id}-${var.region}"
   lifecycle_days_standard_ia = 60   # 2 months
   lifecycle_days_glacier     = 365  # 1 year
   lifecycle_days_expire      = 2190 # 6 years

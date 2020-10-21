@@ -27,8 +27,10 @@ resource "aws_alb_listener" "app" {
 
 # Create a TLS certificate with ACM
 module "acm-cert-apps-combined" {
-  source      = "github.com/18F/identity-terraform//acm_certificate?ref=476ab4456e547e125dcd53cb6131419b54f1f476"
-  enabled     = var.apps_enabled * var.acm_certs_enabled
+  count  = var.apps_enabled
+  source = "github.com/18F/identity-terraform//acm_certificate?ref=897cd9f749ead05a97b0f904a5dedfe83d9a9566"
+  #source = "../../../identity-terraform/acm_certificate"
+
   domain_name = "sp.${var.env_name}.${var.root_domain}"
   subject_alternative_names = [
     "app.${var.env_name}.${var.root_domain}",
@@ -42,10 +44,10 @@ module "acm-cert-apps-combined" {
 }
 
 resource "aws_alb_listener" "app-ssl" {
-  depends_on = [module.acm-cert-apps-combined.finished_id] # don't use cert until valid
+  depends_on = [module.acm-cert-apps-combined[0].finished_id] # don't use cert until valid
 
   count             = var.apps_enabled
-  certificate_arn   = module.acm-cert-apps-combined.cert_arn
+  certificate_arn   = module.acm-cert-apps-combined[0].cert_arn
   load_balancer_arn = aws_alb.app[0].id
   port              = "443"
   protocol          = "HTTPS"

@@ -5,7 +5,7 @@ terraform {
   required_providers {
     aws = {
       source = "hashicorp/aws"
-      version = "~> 2.67.0"
+      version = "~> 3.11.0"
     }
     archive = {
       source = "hashicorp/archive"
@@ -54,7 +54,7 @@ data "aws_iam_policy_document" "master_account_assumerole" {
 }
 
 module "tf-state" {
-  source = "github.com/18F/identity-terraform//state_bucket?ref=11c2bc6e4b495416e4eb9fc6fbfdfa78e7f200e8"
+  source = "github.com/18F/identity-terraform//state_bucket?ref=897cd9f749ead05a97b0f904a5dedfe83d9a9566"
   #source = "../../../../identity-terraform/state_bucket"
 
   region             = var.region
