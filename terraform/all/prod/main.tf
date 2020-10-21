@@ -21,6 +21,11 @@ module "main" {
     iam_analytics_enabled = true
   }
 
+  legacy_bucket_list = [
+    "login-gov-prod-analytics",
+    "login-gov-global-trail"
+  ]
+
   cloudtrail_event_selectors    = [
     {
       include_management_events = false

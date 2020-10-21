@@ -87,8 +87,18 @@ variable "slack_username" {
   type = string
   default = "SNSToSlack Notifier"
 }
+
 variable "slack_icon" {
   description = "Default icon for SNS-to-Slack alert to display in Slack channels."
   type = string
   default = ":login-dot-gov:"
+}
+
+variable "legacy_bucket_list" {
+  description = <<EOM
+List of ad-hoc / legacy S3 buckets created outside of Terraform / unmanaged
+by the identity-devops repo, now configured with Intelligent Tiering storage.
+EOM
+  type        = list(string)
+  default     = []
 }
