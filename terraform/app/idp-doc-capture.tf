@@ -117,7 +117,7 @@ resource "aws_ssm_parameter" "kms_key_alias" {
 }
 
 resource "aws_ssm_parameter" "kms_key_arn" {
-  name = "${local.doc_capture_ssm_parameter_prefix}kms/arn"
+  name  = "${local.doc_capture_ssm_parameter_prefix}kms/arn"
   type  = "String"
   value = aws_kms_key.idp_doc_capture.arn
 }
@@ -125,19 +125,31 @@ resource "aws_ssm_parameter" "kms_key_arn" {
 # starter value only
 # real key will be populated manually
 resource "aws_ssm_parameter" "address_proof_token" {
-  name = "${local.doc_capture_ssm_parameter_prefix}address_proof_result_token"
+  name        = "${local.doc_capture_ssm_parameter_prefix}address_proof_result_token"
   description = "Address proof token"
-  type  = "SecureString"
-  overwrite = false
-  value = "Starter value"
+  type        = "SecureString"
+  overwrite   = false
+  value       = "Starter value"
+
+  lifecycle {
+    ignore_changes = [
+      value
+    ]
+  }
 }
 
 # starter value only
 # real key will be populated manually
 resource "aws_ssm_parameter" "resolution_proof_token" {
-  name = "${local.doc_capture_ssm_parameter_prefix}resolution_proof_result_token"
+  name        = "${local.doc_capture_ssm_parameter_prefix}resolution_proof_result_token"
   description = "Resolution proof token"
-  type  = "SecureString"
-  overwrite = false
-  value = "Starter value"
+  type        = "SecureString"
+  overwrite   = false
+  value       = "Starter value"
+
+  lifecycle {
+    ignore_changes = [
+      value
+    ]
+  }
 }
