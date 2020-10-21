@@ -58,7 +58,7 @@ locals {
 }
 
 module "s3_shared" {
-  source = "github.com/18F/identity-terraform//s3_bucket_block?ref=a6f5146ab88384decacb034516cf6412f0e1ad01"
+  source = "github.com/18F/identity-terraform//s3_bucket_block?ref=897cd9f749ead05a97b0f904a5dedfe83d9a9566"
   #source = "../../../../identity-terraform/s3_bucket_block"
   
   bucket_name_prefix   = "login-gov"
@@ -152,7 +152,7 @@ POLICY
 #   login-gov.elb-logs.<ACCOUNT_ID>-<AWS_REGION>
 module "elb-logs" {
   # can't use variable for ref -- see https://github.com/hashicorp/terraform/issues/17994
-  source = "github.com/18F/identity-terraform//elb_access_logs_bucket?ref=d77d0c4f7f99982256a3fd35883073cb260d2425"
+  source = "github.com/18F/identity-terraform//elb_access_logs_bucket?ref=897cd9f749ead05a97b0f904a5dedfe83d9a9566"
 
   region                     = var.region
   bucket_name_prefix         = "login-gov"

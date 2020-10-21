@@ -54,7 +54,7 @@ data "aws_iam_policy_document" "master_account_assumerole" {
 }
 
 module "tf-state" {
-  source = "github.com/18F/identity-terraform//state_bucket?ref=81728230c6ba080948e0da9681bb50d61a131cdb"
+  source = "github.com/18F/identity-terraform//state_bucket?ref=897cd9f749ead05a97b0f904a5dedfe83d9a9566"
   #source = "../../../../identity-terraform/state_bucket"
 
   region             = var.region

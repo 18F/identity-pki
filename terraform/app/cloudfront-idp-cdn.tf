@@ -1,7 +1,7 @@
 # Create a TLS certificate with ACM
 module "acm-cert-idp-static-cdn" {
   count     = var.enable_idp_cdn ? 1 : 0
-  source    = "github.com/18F/identity-terraform//acm_certificate?ref=e32c0a8e89bed6071029922b06df1accd499571b"
+  source    = "github.com/18F/identity-terraform//acm_certificate?ref=897cd9f749ead05a97b0f904a5dedfe83d9a9566"
   providers = {
     aws = aws.use1
   }
