@@ -395,8 +395,8 @@ variable "idp_cpu_autoscaling_target" {
 variable "idpxtra_client_ids" {
   description = "Map of friendly names (keys) to client ID/OIDC arns (values) to be routed to idpxtra pool"
   # Example: {"sba_dlap" = "urn:gov:gsa:openidconnect.profiles:sp:sso:sba:dlap"}
-  type        = map(string)
-  default     = {}
+  type    = map(string)
+  default = {}
 }
 
 variable "idp_web_acl_id" {
@@ -464,22 +464,22 @@ variable "bootstrap_private_git_clone_url" {
 # though they will have different IDs. They should be updated here at the same
 # time, and then released to environments in sequence.
 variable "default_ami_id_sandbox" {
-  default     = "ami-09b5495ba9f9b52f8" # 2020-10-04 Ubuntu 18.04
+  default     = "ami-09bb7319fb62603d8" # 2020-10-20 Ubuntu 18.04
   description = "default AMI ID for environments in the sandbox account"
 }
 
 variable "default_ami_id_prod" {
-  default     = "ami-093934c418293b54d" # 2020-10-06 Ubuntu 18.04
+  default     = "ami-0aa1cc1d7ed27af48" # 2020-10-20 Ubuntu 18.04
   description = "default AMI ID for environments in the prod account"
 }
 
 variable "rails_ami_id_sandbox" {
-  default     = "ami-06c5e8361ab633ef7" # 2020-10-04 Ubuntu 18.04
+  default     = "ami-0096a988511fa8a18" # 2020-10-20 Ubuntu 18.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the sandbox account"
 }
 
 variable "rails_ami_id_prod" {
-  default     = "ami-0e0dee26425f14a41" # 2020-10-06 Ubuntu 18.04
+  default     = "ami-09c19b8a8bfba8208" # 2020-10-20 Ubuntu 18.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the prod account"
 }
 
@@ -591,29 +591,29 @@ variable "idp_enduser_newrelic_alerts_enabled" {
 }
 variable "dashboard_newrelic_alerts_enabled" {
   description = "set this to 1 if you want to alert during business hours on dashboard problems"
-  default = 0
+  default     = 0
 }
 
 
 variable "opsgenie_key_file" {
   description = "the name of the file in the secrets/common bucket to use for sending opsgenie alerts in newrelic for this environment"
-  default = "opsgenie_low_apikey" # This sends alerts during business hours
+  default     = "opsgenie_low_apikey" # This sends alerts during business hours
   # default = "opsgenie_apikey"   # This sends alerts 7x24
 }
 
 variable "pivcac_alert_threshold" {
   description = "If the number of queries to the pivcac services in 5 minutes falls below this number, we generate a newrelic alert."
-  default = 20
+  default     = 20
 }
 
 variable "web_alert_threshold" {
   description = "If the number of queries in 5 minutes to the main app falls below this number, we generate a newrelic alert"
-  default = 300
+  default     = 300
 }
 
 variable "web_warn_threshold" {
   description = "If the number of queries in 15 minutes to the main app falls below this number, we warn"
-  default = 475
+  default     = 475
 }
 
 variable "keep_legacy_bucket" {
