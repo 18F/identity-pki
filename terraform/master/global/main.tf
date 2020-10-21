@@ -55,7 +55,6 @@ module "main" {
     ],
     "devops" = [
       { "FullAdministrator" = [ "Sandbox", "Prod", "Master", "Analytics" ] },
-      { "PowerUser"         = [ "Sandbox", "Prod" ] },
       { "ReadOnly"          = [ "Sandbox", "Prod" ] },
       { "Terraform"         = [ "Sandbox", "Prod", "Master" ] },
       { "KMSAdministrator"  = [ "Sandbox", "Analytics" ] }
