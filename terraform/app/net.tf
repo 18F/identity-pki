@@ -1115,6 +1115,18 @@ resource "aws_ssm_parameter" "net_vpcid" {
   value = aws_vpc.default.id
 }
 
+# use route53 for dns query logging
+resource "aws_route53_resolver_query_log_config" "vpc" {
+  name = "${var.name}-vpc-${var.env_name}"
+  destination_arn = aws_cloudwatch_log_group.dns_query_log.arn 
+
+}
+
+resource "aws_route53_resolver_query_log_config_association" "vpc" {
+  resolver_query_log_config_id = aws_route53_resolver_query_log_config.vpc.id
+  resource_id = aws_vpc.default.id
+}
+
 # create public and private subnets
 resource "aws_subnet" "publicsubnet1" {
   availability_zone       = "${var.region}a"
