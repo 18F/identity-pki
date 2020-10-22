@@ -399,24 +399,6 @@ variable "idpxtra_client_ids" {
   default = {}
 }
 
-variable "idp_web_acl_id" {
-  default     = "eb5d2b12-a361-4fa0-88f2-8f632f6a9819"
-  description = "WAF Web ACL ID to attach to this environment's ALBs (shouldn't need to be changed). Only used when enable_waf=true."
-  # Get this from https://console.aws.amazon.com/waf/home?region=us-west-2#/webacls
-  # or `aws waf-regional list-web-acls`
-}
-
-variable "enable_waf" {
-  default     = 0
-  description = "Enable WAF to filter ingress traffic."
-  # See ../../doc/technical/waf.md
-}
-
-variable "waf_whitelisted_ips" {
-  default     = []
-  description = "Array of IPs that are added to the WAF whitelist."
-}
-
 # Several variables used by the modules/bootstrap/ module for running
 # provision.sh to clone git repos and run chef.
 variable "bootstrap_main_git_ref_default" {

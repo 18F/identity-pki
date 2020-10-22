@@ -52,8 +52,7 @@ locals {
         }
       ],
       force_destroy       = false
-    },
-    "waf-logs"     = {},
+    }
   }
 }
 

@@ -49,18 +49,3 @@ output "snitest-cloudfront-domain" {
     0,
   )
 }
-
-output "waf-id" {
-  value = element(concat(aws_wafregional_web_acl.idp_web_acl.*.id, [""]), 0)
-}
-
-output "waf-firehose-arn" {
-  value = element(
-    concat(
-      aws_kinesis_firehose_delivery_stream.waf_s3_stream.*.arn,
-      [""],
-    ),
-    0,
-  )
-}
-
