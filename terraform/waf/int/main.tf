@@ -13,7 +13,7 @@ terraform {
 module "main" {
   source = "../module"
 
-  env           = "crissupb"
+  env           = "int"
   region        = "us-west-2"
   waf_override  = "count"
   associate_alb = false
