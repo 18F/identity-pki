@@ -29,7 +29,7 @@ resource "newrelic_synthetics_monitor" "logingov" {
 
 resource "newrelic_synthetics_alert_condition" "wwwlogingov" {
   count = var.staticsite_alerts_enabled
-  policy_id = newrelic_alert_policy.high.id
+  policy_id = newrelic_alert_policy.high[0].id
 
   name        = "https://www.login.gov ping failure"
   monitor_id  = newrelic_synthetics_monitor.wwwlogingov[0].id
@@ -37,7 +37,7 @@ resource "newrelic_synthetics_alert_condition" "wwwlogingov" {
 
 resource "newrelic_synthetics_alert_condition" "logingov" {
   count = var.staticsite_alerts_enabled
-  policy_id = newrelic_alert_policy.high.id
+  policy_id = newrelic_alert_policy.high[0].id
 
   name        = "https://login.gov ping failure"
   monitor_id  = newrelic_synthetics_monitor.logingov[0].id

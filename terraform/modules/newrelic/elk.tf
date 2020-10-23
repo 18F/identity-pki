@@ -2,7 +2,7 @@
 
 resource "newrelic_nrql_alert_condition" "es_cluster_red" {
   count = var.elk_enabled
-  policy_id = newrelic_alert_policy.high.id
+  policy_id = newrelic_alert_policy.high[0].id
   name        = "${var.env_name}: elasticsearch status is red"
   description = "Alert when the ES cluster in ${var.env_name} is red"
   runbook_url = "https://login-handbook.app.cloud.gov/articles/devops-elk.html#problems-with-elasticsearch"
@@ -25,7 +25,7 @@ resource "newrelic_nrql_alert_condition" "es_cluster_red" {
 
 resource "newrelic_nrql_alert_condition" "es_cluster_yellow" {
   count = var.elk_enabled
-  policy_id = newrelic_alert_policy.low.id
+  policy_id = newrelic_alert_policy.low[0].id
   name        = "${var.env_name}: elasticsearch status is yellow"
   description = "Alert when the ES cluster in ${var.env_name} is yellow"
   runbook_url = "https://login-handbook.app.cloud.gov/articles/devops-elk.html#problems-with-elasticsearch"
@@ -48,7 +48,7 @@ resource "newrelic_nrql_alert_condition" "es_cluster_yellow" {
 
 resource "newrelic_nrql_alert_condition" "es_no_logs" {
   count = var.elk_enabled
-  policy_id = newrelic_alert_policy.high.id
+  policy_id = newrelic_alert_policy.high[0].id
   name        = "${var.env_name}: elasticsearch low log volume"
   description = "Alert when the ${var.env_name} ES cluster has unusually low log volume"
   runbook_url = "https://login-handbook.app.cloud.gov/articles/devops-elk.html#problems-with-elasticsearch"
@@ -63,7 +63,7 @@ resource "newrelic_nrql_alert_condition" "es_no_logs" {
 
   critical {
     operator      = "below"
-    threshold     = var.ten_min_alert_events
+    threshold     = var.events_in_last_ten_minutes_alert_threshold
     threshold_duration      = 120
     threshold_occurrences = "AT_LEAST_ONCE"
   }
@@ -71,7 +71,7 @@ resource "newrelic_nrql_alert_condition" "es_no_logs" {
 
 resource "newrelic_nrql_alert_condition" "es_low_disk_space" {
   count = var.elk_enabled
-  policy_id = newrelic_alert_policy.low.id
+  policy_id = newrelic_alert_policy.low[0].id
   name        = "${var.env_name}: elasticsearch low disk space"
   description = "Alert when nodes in the ${var.env_name} ES cluster are low on disk space"
   runbook_url = "https://login-handbook.app.cloud.gov/articles/devops-elk.html#disk-space-woes"
@@ -94,7 +94,7 @@ resource "newrelic_nrql_alert_condition" "es_low_disk_space" {
 
 resource "newrelic_nrql_alert_condition" "es_critical_disk_space" {
   count = var.elk_enabled
-  policy_id = newrelic_alert_policy.high.id
+  policy_id = newrelic_alert_policy.high[0].id
   name        = "${var.env_name}: elasticsearch critical disk space"
   description = "Alert when nodes in the ${var.env_name} ES cluster are critically low on disk space"
   runbook_url = "https://login-handbook.app.cloud.gov/articles/devops-elk.html#disk-space-woes"
@@ -117,7 +117,7 @@ resource "newrelic_nrql_alert_condition" "es_critical_disk_space" {
 
 resource "newrelic_nrql_alert_condition" "no_es_metrics" {
   count = var.elk_enabled
-  policy_id = newrelic_alert_policy.high.id
+  policy_id = newrelic_alert_policy.high[0].id
   name        = "${var.env_name}: no metrics coming from elasticsearch"
   description = "Alert when there are no metrics coming from the ${var.env_name} ES cluster"
   runbook_url = "https://login-handbook.app.cloud.gov/articles/devops-alerting.html#setting-up-new-custom-metrics-to-send-to-newrelic"
@@ -140,7 +140,7 @@ resource "newrelic_nrql_alert_condition" "no_es_metrics" {
 
 resource "newrelic_nrql_alert_condition" "no_logstash_metrics" {
   count = var.elk_enabled
-  policy_id = newrelic_alert_policy.high.id
+  policy_id = newrelic_alert_policy.high[0].id
   name        = "${var.env_name}: no metrics coming from logstash"
   description = "Alert when there are no metrics coming from the ${var.env_name} logstash host: logstash host may be down"
   runbook_url = "https://login-handbook.app.cloud.gov/articles/devops-alerting.html#setting-up-new-custom-metrics-to-send-to-newrelic"
@@ -163,7 +163,7 @@ resource "newrelic_nrql_alert_condition" "no_logstash_metrics" {
 
 resource "newrelic_nrql_alert_condition" "no_log_archives" {
   count = var.elk_enabled
-  policy_id = newrelic_alert_policy.high.id
+  policy_id = newrelic_alert_policy.high[0].id
   name        = "${var.env_name}: no ELK log files being archived"
   description = "Alert when there are no logs being archived to the s3 log archival bucket in ${var.env_name}: logstash host may be down"
   runbook_url = "https://login-handbook.app.cloud.gov/articles/devops-elk.html#how-to-reindex-from-archived-data"
