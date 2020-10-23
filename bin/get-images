@@ -172,7 +172,7 @@ open_ami_pr() {
       echo "4 lines should be changed for an AMI update; found ${DIFF_COUNT} changed lines instead. Verify and try again."
       exit 0
     fi
-    if [[ ! $(brew list | grep hub) ]] ; then
+    if [[ ! $(brew list --formula | grep hub) ]] ; then
       brew install hub || raise "hub not installed!"
     fi
   

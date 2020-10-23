@@ -2,7 +2,7 @@
 . "$(dirname "$0")/.subfunctions"
 
 ############### github aliases/functions ###############
-if [[ ! $(brew list | grep hub) ]] ; then
+if [[ ! $(brew list --formula | grep hub) ]] ; then
   brew install hub || { echo "hub not installed!" && exit 1 ; }
 fi
 

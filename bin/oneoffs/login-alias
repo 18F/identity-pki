@@ -9,13 +9,6 @@ usage() {
 
 Usage: $(basename "$0") [ flags ]
 
-    flags    ::= a(ll)
-                 g(ithubrc)
-                 l(ogin-alias)
-                 s(ubfunctions)
-                 r(emove run)
-                 e(nv vars)
-
 Adds various aliases, functions, and environment variables
 used by/calling various tools within identity-devops. Steps:
 
@@ -28,9 +21,21 @@ used by/calling various tools within identity-devops. Steps:
 4. Add \$HOME/.login-functions and \$HOME/.githubrc to
    your shell's rc file (skip if already present)
 
-Optional:
-  -r        Do NOT print commands to the console via run()
-  -e        Reset ALL environment variables
+Flags:
+
+  -a  : Run script and auto-confirm each prompt
+        (can also be run with any additional flags below)
+  -g  : Only verify/recreate .githubrc and its
+        associated env vars
+  -l  : Only verify/recreate .login-functions and its
+        associated env vars
+  -s  : Only verify/recreate .subfunctions and its
+        associated env vars
+  -r  : Sets env var USE_RUN to 0, which will disable
+        printing of commands (via \`run()\`) to the
+        console output
+  -e  : Reset ALL environment variables (can limit
+        scope with -g, -l, and/or -s)
 
 EOM
 }
@@ -68,7 +73,7 @@ verify_env_vars() {
   local VARS="$@"
   echo "Verifying env vars..."
   for ENV_VAR in $(echo "${VARS[@]}" | tr '\n' ' ') ; do
-    VAR_VAL=$(eval echo \$$ENV_VAR)
+    VAR_VAL=$(env | grep $ENV_VAR | awk -F= '{print $NF}')
     if [[ -z "$VAR_VAL" ]]; then
       read -r -p "$ENV_VAR not set; enter desired value: " VAR_VAL
     else

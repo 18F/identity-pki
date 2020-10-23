@@ -1,0 +1,112 @@
+#!/bin/bash
+
+# Quickly run Elasticsearch rebalancing/rotation steps
+
+set -eu
+
+. "$(dirname "$0")/lib/common.sh"
+
+usage() {
+    cat >&2 << EOM
+Usage: ${0} <FLAG> [ENV]
+
+Quickly runs each of the steps needed for Elasticsearch recycles,
+as specified by the flag provided. These correspond to most
+of the commands used with \`cl elastic\`, but use SSM instead
+of SSH to connect to the newest instance and post \`curl\` commands
+to the Elasticsearch cluster.
+
+Flags:
+  -s     : Check cluster health via _cluster/health?pretty
+  -g     : See if SearchGuard shards are yellow
+  -d     : Exclude IPs of older nodes and begin node drain
+  -w     : Watch shard relocations in progress
+  -u     : Update minimum_master_nodes to current count / 2
+  -r NUM : Decrease ASG size to NUM and scale in old instance(s)
+  -c     : Remove routing allocation IP exclusion (set by -d)
+  -h     : Display this help
+
+If no ENV is provided, will default to using \$GSA_USERNAME.
+
+EOM
+}
+
+verify_root_repo
+
+declare {ES_CMD,CURL_CMD}=
+
+while getopts sgwducr:h opt ; do
+  case "${opt}" in
+    s)
+       CURL_CMD='check_status'
+       ES_CMD='curl -k https://localhost:9200/_cluster/health?pretty'
+    ;;
+    g)
+       CURL_CMD='check_indices'
+       ES_CMD='wget --no-check-certificate -q -O - "https://localhost:9200/_cat/shards?v" | grep searchguard'
+    ;;
+    w)
+       CURL_CMD='watch_relocations'
+       ES_CMD="watch \"wget --no-check-certificate -q -O - \'https://localhost:9200/_cat/shards?v\' | grep RELO\""
+    ;;
+    d) CURL_CMD='drain_old_nodes'              ;;
+    u) CURL_CMD='update_minimum_masters'       ;;
+    c) CURL_CMD='clear_node_drain'             ;;
+    r)
+       ES_CMD='recycle'
+       NEW_COUNT="${OPTARG}"
+       shift 1
+    ;;
+    h|*) usage && exit ;;
+  esac
+done
+shift
+
+EC2_ENV=${1-$(echo ${GSA_USERNAME})}
+[[ -z ${EC2_ENV} ]] && raise 'EC2_ENV and/or default of GSA_USERNAME not set or specified'
+
+PROFILE='sandbox'
+[[ ${EC2_ENV} == 'prod' ]] && PROFILE='prod'
+ACCOUNT=$(grep "# login-${PROFILE}" "${GIT_DIR}/terraform/master/global/main.tf" | sed -E 's/^.*\"([0-9]+)\".*$/\1/')
+AV_PROFILE=$(get_profile_name ${ACCOUNT})
+
+echo
+echo_purple "Getting asg-${EC2_ENV}-elasticsearch instances..."
+INSTANCES=$(run_av aws ec2 describe-instances \
+    --filters "Name=tag:Name,Values=asg-${EC2_ENV}-elasticsearch" "Name=instance-state-name,Values=running" \
+    --query "Reservations[*].Instances[*].{Instance:InstanceId,time:LaunchTime,IP:PrivateIpAddress}" \
+    --output text 2>/dev/null)
+[[ -z ${INSTANCES} ]] && raise "No Elasticsearch instances found in \`${EC2_ENV}\` environment"
+
+NEWEST_INSTANCE=$(echo "${INSTANCES}" | sort -k3 | head -n 1 | awk '{print $2}')
+COUNT=$(echo "${INSTANCES}" | wc -l | tr -d ' ')
+FINAL_COUNT=$(($COUNT / 2))
+OLD_IPS=$(echo "${INSTANCES}" | sort -k3 | head -n ${FINAL_COUNT} | awk '{print $1}' | tr '\n' ',' | sed -E 's/,$//')
+
+if [[ -z ${ES_CMD} ]] ; then
+  case $CURL_CMD in
+    drain_old_nodes)
+      CMD="{\"transient\" :{\"cluster.routing.allocation.exclude._ip\":\"${OLD_IPS}\", "
+      CMD+="\"indices.recovery.max_bytes_per_sec\":\"10000mb\", "
+      CMD+="\"cluster.routing.allocation.cluster_concurrent_rebalance\":\"2\", "
+      CMD+="\"cluster.routing.allocation.node_concurrent_recoveries\":\"2\"}}"
+    ;;
+    update_minimum_masters) CMD="{\"persistent\":{\"discovery.zen.minimum_master_nodes\":\"${FINAL_COUNT}\"}}" ;;
+    clear_node_drain)       CMD="{\"transient\":{\"cluster.routing.allocation.exclude._ip\":\"\"}}"            ;;
+  esac
+  ES_CMD="curl -k -X PUT https://localhost:9200/_cluster/settings -H \'Content-Type: application/json\' -d \'${CMD}\'"
+fi
+    
+if [[ ${ES_CMD} == 'recycle' ]] ; then
+  DIFF_COUNT=$(($COUNT - $NEW_COUNT))
+  echo_green "Resizing asg-${EC2_ENV}-elasticsearch to ${NEW_COUNT}..."
+  run_av asg-size -q ${EC2_ENV} elasticsearch ${NEW_COUNT} && \
+  echo_green "Scaling in ${DIFF_COUNT} instance(s)..."
+  run_av scale-in-old-instances -q ${EC2_ENV} elasticsearch
+else
+  echo_green "Connecting to instance ${NEWEST_INSTANCE} in asg-${EC2_ENV}-elasticsearch to run \`${CURL_CMD}\` command..."
+  run_av aws ssm start-session \
+    --document-name AWS-StartInteractiveCommand \
+    --parameters command="'${ES_CMD}'" \
+    --target "${NEWEST_INSTANCE}"
+fi
