@@ -541,7 +541,7 @@ variable "kms_log_kinesis_shards" {
   default     = 1
 }
 
-variable "events_in_last_ten_minutes_alert_threshold" {
+variable "ten_min_alert_events" {
   description = "if the number of new events in ELK in the last 10 minutes falls below this, and newrelic_alerts_enabled is set, alert"
   default     = 4000
 }

@@ -3,10 +3,6 @@ variable "opsgenie_key_file" {
   default = "opsgenie_low_apikey"
 }
 
-variable "enabled" {
-  description = "turn on common newrelic alerting services"
-}
-
 variable "staticsite_alerts_enabled" {
   description = "this should only be set in the prod environment, as it creates monitors for the static site"
   default = 0
@@ -38,7 +34,7 @@ variable "region" {
   default = "us-west-2"
 }
 
-variable "events_in_last_ten_minutes_alert_threshold" {
+variable "ten_min_alert_events" {
   default = 4000
 }
 

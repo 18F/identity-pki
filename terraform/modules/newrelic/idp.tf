@@ -1,6 +1,5 @@
 # These monitor the idp and pivcac services.
-# enable these with setting these to 1:
-#   var.enabled (turns on devops idp alerting)
+# enable these with setting these to 1: (turns on devops idp alerting)
 #   var.dashboard_enabled (if the dashboard is there, alrt on it too)
 #   var.enduser_enabled (enable alerts for the enduser team)
 
@@ -11,29 +10,26 @@ locals {
 }
 
 data "newrelic_entity" "pivcac" {
-  count = var.enabled
   name = "pivcac.${var.env_name}.${var.root_domain}"
   domain = "APM"
   type = "APPLICATION"
 }
 
 data "newrelic_entity" "idp" {
-  count = var.enabled
   name = "${var.env_name}.${var.root_domain}"
   domain = "APM"
   type = "APPLICATION"
 }
 
 resource "newrelic_alert_condition" "pivcac_low_throughput" {
-  count       = var.enabled
-  policy_id   = newrelic_alert_policy.high[0].id
+  policy_id   = newrelic_alert_policy.high.id
   name        = "${var.env_name}: PIVCAC LOW Throughput (web)"
   runbook_url = "https://github.com/18F/identity-private/wiki/Runbook:-low-throughput-in-New-Relic"
   enabled     = true
   type        = "apm_app_metric"
   metric      = "throughput_web"
   condition_scope = "application"
-  entities        = [data.newrelic_entity.pivcac[0].application_id]
+  entities        = [data.newrelic_entity.pivcac.application_id]
 
   term {
     duration      = 5
@@ -45,15 +41,14 @@ resource "newrelic_alert_condition" "pivcac_low_throughput" {
 }
 
 resource "newrelic_alert_condition" "low_throughput" {
-  count = var.enabled
-  policy_id = newrelic_alert_policy.high[0].id
+  policy_id = newrelic_alert_policy.high.id
   name        = "${var.env_name}: LOW Throughput (web)"
   runbook_url = "https://github.com/18F/identity-private/wiki/Runbook:-low-throughput-in-New-Relic"
   enabled     = true
   type        = "apm_app_metric"
   metric      = "throughput_web"
   condition_scope = "application"
-  entities        = [data.newrelic_entity.idp[0].application_id]
+  entities        = [data.newrelic_entity.idp.application_id]
 
   term {
     duration      = 5
@@ -73,14 +68,13 @@ resource "newrelic_alert_condition" "low_throughput" {
 }
 
 resource "newrelic_alert_condition" "low_apdex" {
-  count       = var.enabled
-  policy_id   = newrelic_alert_policy.businesshours[0].id
+  policy_id   = newrelic_alert_policy.businesshours.id
   name        = "${var.env_name}: Apdex low"
   enabled     = true
   type        = "apm_app_metric"
   metric      = "apdex"
   condition_scope = "application"
-  entities        = [data.newrelic_entity.idp[0].application_id]
+  entities        = [data.newrelic_entity.idp.application_id]
 
   term {
     duration      = 5
@@ -92,14 +86,13 @@ resource "newrelic_alert_condition" "low_apdex" {
 }
 
 resource "newrelic_alert_condition" "error_rate" {
-  count = var.enabled
-  policy_id = newrelic_alert_policy.businesshours[0].id
+  policy_id = newrelic_alert_policy.businesshours.id
   name        = "${var.env_name}: High idp error rate"
   enabled     = true
   type        = "apm_app_metric"
   metric      = "error_percentage"
   condition_scope = "application"
-  entities        = [data.newrelic_entity.idp[0].application_id]
+  entities        = [data.newrelic_entity.idp.application_id]
 
   term {
     duration      = 5
@@ -132,15 +125,13 @@ resource "newrelic_synthetics_monitor" "dashboard" {
 }
 resource "newrelic_synthetics_alert_condition" "dashboard" {
   count = var.dashboard_enabled
-  policy_id = newrelic_alert_policy.businesshours[0].id
+  policy_id = newrelic_alert_policy.businesshours.id
 
   name        = "https://dashboard.${var.env_name}.${var.root_domain}/ ping failure"
   monitor_id  = newrelic_synthetics_monitor.dashboard[0].id
 }
 
-
 resource "newrelic_synthetics_monitor" "api_health" {
-  count = var.enabled
   name = "${var.env_name} /api/health check"
   type = "SIMPLE"
   frequency = 5
@@ -153,10 +144,10 @@ resource "newrelic_synthetics_monitor" "api_health" {
 }
 resource "newrelic_synthetics_alert_condition" "api_health" {
   count = var.staticsite_alerts_enabled
-  policy_id = newrelic_alert_policy.businesshours[0].id
+  policy_id = newrelic_alert_policy.businesshours.id
 
   name        = "https://${local.idp_domain_name}/ ping failure"
-  monitor_id  = newrelic_synthetics_monitor.api_health[0].id
+  monitor_id  = newrelic_synthetics_monitor.api_health.id
 }
 
 resource "newrelic_alert_condition" "enduser_datastore_slow_queries" {
@@ -167,7 +158,7 @@ resource "newrelic_alert_condition" "enduser_datastore_slow_queries" {
   type        = "apm_app_metric"
   metric      = "user_defined"
   condition_scope = "application"
-  entities        = [data.newrelic_entity.idp[0].application_id]
+  entities        = [data.newrelic_entity.idp.application_id]
   user_defined_metric = "Datastore/all"
   user_defined_value_function = "max"
 
@@ -218,8 +209,7 @@ resource "newrelic_nrql_alert_condition" "enduser_response_time" {
 }
 
 resource "newrelic_nrql_alert_condition" "proofing_flow_errors" {
-  count = var.enabled
-  policy_id = newrelic_alert_policy.high[0].id
+  policy_id = newrelic_alert_policy.high.id
   name        = "${var.env_name}: high rate of errors in proofing flow"
   enabled     = true
   description = "Alerting when errors in proofing flow get above 10% for the past 5 minutes"
@@ -241,8 +231,7 @@ resource "newrelic_nrql_alert_condition" "proofing_flow_errors" {
 }
 
 resource "newrelic_nrql_alert_condition" "service_provider_errors" {
-  count = var.enabled
-  policy_id = newrelic_alert_policy.high[0].id
+  policy_id = newrelic_alert_policy.high.id
   name        = "${var.env_name}: high rate of errors for service provider"
   enabled     = true
   description = "Alerting when errors for individual service provider get above 3% for the past 5 minutes"
@@ -271,7 +260,7 @@ resource "newrelic_alert_condition" "enduser_error_percentage" {
   type        = "apm_app_metric"
   metric      = "error_percentage"
   condition_scope = "application"
-  entities        = [data.newrelic_entity.idp[0].application_id]
+  entities        = [data.newrelic_entity.idp.application_id]
 
   term {
     duration      = 5
@@ -291,7 +280,6 @@ resource "newrelic_alert_condition" "enduser_error_percentage" {
 }
 
 resource "newrelic_dashboard" "error_dashboard" {
-  count = var.enabled
   title = "Errors for ${var.error_dashboard_site}"
   editable = "read_only"
 
