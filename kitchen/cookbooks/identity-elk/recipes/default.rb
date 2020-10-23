@@ -389,6 +389,7 @@ end
 # TODO: This is better to not be ingested at all via filebeat config.
 [
   'idp-events', 
+  'idp-telephony-events',
   'idp-production',
   'nginx-access',
   'nginx-error',
