@@ -629,7 +629,7 @@ execute "bin/logstash-plugin install /usr/share/logstash-input-cloudwatch_logs/l
 end
 
 enabled_log_groups = []
-%w{ audit-aws audit-github flowlog kms postgresql waf }.each do |log_group|
+%w{ audit-aws audit-github flowlog kms postgresql }.each do |log_group|
   if node.fetch('elk').fetch('logstash').fetch('cloudwatch').fetch(log_group).fetch('enable')
     enabled_log_groups << log_group
   end
@@ -654,16 +654,6 @@ template "/etc/logstash/cloudwatchlogstashconf.d/60-analyticslogsin.conf" do
     :aws_region => node['ec2']['placement_availability_zone'][0..-2],
     :proxy_uri => proxy_uri,
     :env => node.chef_environment
-  })
-  notifies :run, 'execute[restart_cloudwatchlogstash]', :delayed
-end
-
-template "/etc/logstash/cloudwatchlogstashconf.d/80-waflogsin.conf" do
-  source '80-waflogsin.conf.erb'
-  variables ({
-    :waf_logging_bucket => node.fetch('elk').fetch('waf_logging_bucket'),
-    :aws_region => node['ec2']['placement_availability_zone'][0..-2],
-    :proxy_uri => proxy_uri
   })
   notifies :run, 'execute[restart_cloudwatchlogstash]', :delayed
 end
