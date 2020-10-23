@@ -152,10 +152,13 @@ resource "newrelic_alert_channel" "opsgenie_enduser" {
 # Creates a Slack alert channel.
 # NOTE:  These slack secrets need to be uploaded with --content-type text/plain
 data "aws_s3_bucket_object" "slackchannel" {
+  count = var.enabled
   bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
   key    = "${var.env_name}/slackchannel"
 }
+
 data "aws_s3_bucket_object" "slackwebhook" {
+  count = var.enabled
   bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
   key    = "${var.env_name}/slackwebhook"
 }
@@ -166,8 +169,8 @@ resource "newrelic_alert_channel" "slack" {
   type = "slack"
 
   config {
-    channel = data.aws_s3_bucket_object.slackchannel.body
-    url     = data.aws_s3_bucket_object.slackwebhook.body
+    channel = data.aws_s3_bucket_object.slackchannel[count.index].body
+    url     = data.aws_s3_bucket_object.slackwebhook[count.index].body
   }
 }
 

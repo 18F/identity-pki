@@ -21,6 +21,10 @@ terraform {
       source = "hashicorp/template"
       version = "~> 2.1.2"
     }
+    newrelic = {
+      source = "newrelic/newrelic"
+      version = "~> 2.1.2"
+    }
   }
   required_version = ">= 0.13"
 }
