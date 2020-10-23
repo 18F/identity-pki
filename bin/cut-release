@@ -26,7 +26,7 @@ EOM
 [ $# -gt 2 ] && raise 'Must provide <3 arguments'
 verify_root_repo
 
-if [[ ! $(brew list | grep hub) ]] ; then
+if [[ ! $(brew list --formula | grep hub) ]] ; then
   brew install hub || raise "hub not installed!"
 fi
 
