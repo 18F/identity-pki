@@ -124,7 +124,6 @@ describe file('/var/log/filebeat/filebeat') do
 #  its('content') { should include '/var/log/clamav/freshclam.log' }
   its('content') { should include '/var/log/cloud-init-output.log' }
   its('content') { should include '/var/log/cloud-init.log' }
-  its('content') { should include '/var/log/dnsmasq.log' }
   its('content') { should include '/var/log/dpkg.log' }
 # TODO: perhaps remove this from common since it seems to only be present on ELK instances
 #  its('content') { should include '/var/log/fontconfig.log' }

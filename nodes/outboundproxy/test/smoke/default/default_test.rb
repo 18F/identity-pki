@@ -98,7 +98,6 @@ describe command("grep 'Harvester started for file' /var/log/filebeat/filebea* |
   its('stdout') { should include '/var/log/clamav/freshclam.log' }
   its('stdout') { should include '/var/log/cloud-init-output.log' }
   its('stdout') { should include '/var/log/cloud-init.log' }
-  its('stdout') { should include '/var/log/dnsmasq.log' }
   its('stdout') { should include '/var/log/dpkg.log' }
 # TODO: perhaps remove this from common since it seems to only be present on ELK instances  
 #  its('stdout') { should include '/var/log/fontconfig.log' }
