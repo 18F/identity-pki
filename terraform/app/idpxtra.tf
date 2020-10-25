@@ -94,6 +94,27 @@ resource "aws_lb_listener_rule" "idpxtra_client_id_cookie" {
   }
 }
 
+resource "aws_lb_listener_rule" "idpxtra_sp_network" {
+  # Match against CIDR
+  for_each = var.idpxtra_sp_networks
+
+  depends_on = [aws_alb_target_group.idpxtra]
+
+  listener_arn = aws_alb_listener.idp-ssl.id
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_alb_target_group.idpxtra.arn
+  }
+
+  # Match source IP CIDR block
+  condition {
+    source_ip {
+      values = each.value
+    }
+  }
+}
+
 resource "aws_autoscaling_group" "idpxtra" {
   name = "${var.env_name}-idpxtra"
 

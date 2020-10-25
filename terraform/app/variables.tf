@@ -399,6 +399,13 @@ variable "idpxtra_client_ids" {
   default = {}
 }
 
+variable "idpxtra_sp_networks" {
+  description = "Map of friendly names to lists of CIDR blocks to route to idpxtra pool, used for SP to IdP token and other requests"
+  type    = map(list(string))
+  # Example: {"sba_dlap" = ["5.5.5.0/24", "7.7.5.1/32"]}
+  default = {}
+}
+
 # Several variables used by the modules/bootstrap/ module for running
 # provision.sh to clone git repos and run chef.
 variable "bootstrap_main_git_ref_default" {
