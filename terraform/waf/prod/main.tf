@@ -15,7 +15,7 @@ module "main" {
 
   env           = "prod"
   region        = "us-west-2"
-  waf_override  = "count"
+  enforce       = false
   associate_alb = false
 }
 

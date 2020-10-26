@@ -15,6 +15,6 @@ module "main" {
 
   env           = "dev"
   region        = "us-west-2"
-  waf_override  = "none"
-  associate_alb = "false"
+  enforce       = true
+  associate_alb = false
 }

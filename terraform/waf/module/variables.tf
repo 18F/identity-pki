@@ -13,14 +13,14 @@ variable "env" {
   description = "Environment name"
 }
 
-variable "waf_override" {
-  description = "Values should be none for block or count for count"
-  default = "count"
-  type = string
+variable "enforce" {
+  description = "Set to true to enforce WAF rules or false to just count traffic matching rules"
+  type        = bool
+  default     = false
 }
 
 variable "associate_alb" {
   description = "Associate alb with acl"
-  type = bool
-  default = true
+  type        = bool
+  default     = true
 }

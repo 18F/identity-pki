@@ -15,6 +15,6 @@ module "main" {
 
   env           = "crissupb"
   region        = "us-west-2"
-  waf_override  = "none"
-  associate_alb = "true"
+  enforce       = true
+  associate_alb = true
 }

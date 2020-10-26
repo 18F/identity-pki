@@ -106,9 +106,9 @@ data "aws_iam_policy_document" "firehose_policy" {
       "s3:List*",
       "s3:Put*"
     ]
-    resources= [
+    resources = [
       aws_s3_bucket.waf_logs.arn,
       "${aws_s3_bucket.waf_logs.arn}/*"
-  ]
+    ]
   }
 }

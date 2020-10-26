@@ -1,3 +1,7 @@
+locals {
+  waf_override = var.enforce ? "none" : "count"
+}
+
 data "aws_lb" "idp" {
   name = "login-idp-alb-${var.env}"
 }
@@ -21,7 +25,7 @@ module "waf-webaclv2" {
   }
 
   create_logging_configuration = true
-  log_destination_configs = [aws_kinesis_firehose_delivery_stream.waf_logs.arn]
+  log_destination_configs      = [aws_kinesis_firehose_delivery_stream.waf_logs.arn]
 
   rules = [
     {
@@ -29,7 +33,7 @@ module "waf-webaclv2" {
       priority = "0"
 
       # set override_action to "none" to block
-      override_action = var.waf_override
+      override_action = local.waf_override
 
       visibility_config = {
         metric_name = "${local.name_prefix}-AWSManagedRulesAmazonIpReputationList-metric"
@@ -44,7 +48,7 @@ module "waf-webaclv2" {
       name     = "AWSManagedRulesCommonRuleSet"
       priority = "1"
 
-      override_action = var.waf_override
+      override_action = local.waf_override
       visibility_config = {
         metric_name = "${local.name_prefix}-AWSManagedRulesCommonRuleSet-metric"
       }
@@ -59,7 +63,7 @@ module "waf-webaclv2" {
       name     = "AWSManagedRulesKnownBadInputsRuleSet"
       priority = "2"
 
-      override_action = var.waf_override
+      override_action = local.waf_override
 
       visibility_config = {
         metric_name = "${local.name_prefix}-AWSManagedRulesKnownBadInputsRuleSet-metric"
@@ -74,7 +78,7 @@ module "waf-webaclv2" {
       name     = "AWSManagedRulesLinuxRuleSet"
       priority = "3"
 
-      override_action = var.waf_override
+      override_action = local.waf_override
 
       visibility_config = {
         metric_name = "${local.name_prefix}-AWSManagedRulesLinuxRuleSet-metric"
@@ -89,7 +93,7 @@ module "waf-webaclv2" {
       name     = "AWSManagedRulesSQLiRuleSet"
       priority = "4"
 
-      override_action = var.waf_override
+      override_action = local.waf_override
 
       visibility_config = {
         metric_name = "${local.name_prefix}-AWSManagedRulesSQLiRuleSet-metric"
