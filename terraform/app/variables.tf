@@ -400,6 +400,8 @@ variable "idpxtra_client_ids" {
 }
 
 variable "idpxtra_sp_networks" {
+  # WARNING - ANY IP matching these lists will get routed to idpxtra, including
+  #           users.  Use this feature only when really needed or for explicit testing!
   description = "Map of friendly names to lists of CIDR blocks to route to idpxtra pool, used for SP to IdP token and other requests"
   type    = map(list(string))
   # Example: {"sba_dlap" = ["5.5.5.0/24", "7.7.5.1/32"]}
