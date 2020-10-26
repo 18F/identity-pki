@@ -117,7 +117,7 @@ resource "aws_s3_bucket" "cloudtrail" {
 }
 
 module "cloudtrail_bucket_config" {
-  source = "github.com/18F/identity-terraform//s3_config?ref=36ecdc74c3436585568fab7abddb3336cec35d93"
+  source = "github.com/18F/identity-terraform//s3_config?ref=897cd9f749ead05a97b0f904a5dedfe83d9a9566"
 
   bucket_name_override = aws_s3_bucket.cloudtrail.id
   inventory_bucket_arn = module.tf-state.inventory_bucket_arn

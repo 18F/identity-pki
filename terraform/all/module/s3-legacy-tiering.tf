@@ -35,7 +35,7 @@ resource "aws_s3_bucket" "legacy_bucket" {
 
 module "s3_inv_block" {
   for_each = toset(var.legacy_bucket_list)
-  source   = "github.com/18F/identity-terraform//s3_config?ref=847c2168dc7dabb4c53b2ae93e944e05f04dbcd7"
+  source   = "github.com/18F/identity-terraform//s3_config?ref=897cd9f749ead05a97b0f904a5dedfe83d9a9566"
 
   bucket_name_override = each.key
   region               = var.region
