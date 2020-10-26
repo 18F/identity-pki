@@ -374,7 +374,9 @@ module "terraform-assumerole" {
           actions   = [
             "route53:ChangeResourceRecordSets",
             "route53:CreateHostedZone",
+            "route53:CreateResolverQueryLogConfig",
             "route53:DeleteHostedZone",
+            "route53:DeleteResolverQueryLogConfig",
             "route53:GetChange",
             "route53:GetHostedZone",
             "route53:ListResourceRecordSets",

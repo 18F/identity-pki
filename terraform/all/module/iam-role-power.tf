@@ -181,8 +181,10 @@ module "poweruser-assumerole" {
             "route53:List*",
             "route53:UpdateHostedZoneComment",
             "route53:CreateHostedZone",
+            "route53:CreateResolverQueryLogConfig",
             "route53:ChangeResourceRecordSets",
             "route53:DeleteHostedZone",
+            "route53:DeleteResolverQueryLogConfig",
             "route53:TestDNSAnswer",
           ]
           resources = [
@@ -222,6 +224,7 @@ module "poweruser-assumerole" {
             "acm:DescribeCertificate",
             "acm:ListCertificates",
             "acm:ListTagsForCertificate",
+            "acm:RequestCertificate",
           ]
           resources = [
             "*",
