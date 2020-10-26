@@ -52,8 +52,7 @@ data "aws_iam_policy_document" "cloudtrail_cloudwatch_logs" {
       "logs:PutLogEvents"
     ]
     resources = [
-      replace(aws_cloudwatch_log_group.cloudtrail_default.arn, "*",
-        "log-stream:${data.aws_caller_identity.current.account_id}_CloudTrail_${var.region}*")
+      "${aws_cloudwatch_log_group.cloudtrail_default.arn}:log-stream:${data.aws_caller_identity.current.account_id}_CloudTrail_${var.region}*"
     ]
   }
 }
@@ -147,19 +146,19 @@ resource "aws_cloudtrail" "cloudtrail" {
   is_multi_region_trail         = true
   is_organization_trail         = false
   s3_bucket_name                = aws_s3_bucket.cloudtrail.id
-  cloud_watch_logs_group_arn = aws_cloudwatch_log_group.cloudtrail_default.arn
-  cloud_watch_logs_role_arn = aws_iam_role.cloudtrail_cloudwatch_logs.arn
+  cloud_watch_logs_group_arn    = "${aws_cloudwatch_log_group.cloudtrail_default.arn}:*"
+  cloud_watch_logs_role_arn     = aws_iam_role.cloudtrail_cloudwatch_logs.arn
 
   dynamic "event_selector" {
     for_each = var.cloudtrail_event_selectors
     content {
       include_management_events  = lookup(event_selector.value, "include_management_events", false)
-      read_write_type    = lookup(event_selector.value, "read_write_type", "ReadOnly")
+      read_write_type            = lookup(event_selector.value, "read_write_type", "ReadOnly")
 
       dynamic "data_resource" {
         for_each = flatten(list(lookup(event_selector.value, "data_resources", [])))
         content {
-          type = lookup(data_resource.value, "type", null)
+          type   = lookup(data_resource.value, "type", null)
           values = lookup(data_resource.value, "values", [])
         }
       }
