@@ -74,7 +74,7 @@ module "main" {
 #    "sj2019-us-east-1-894947205914",
 #    "spinnaker-config-wren",
 #    "testingbucketgas",
-  ]
+#  ]
 
   cloudtrail_event_selectors  = [
     {
