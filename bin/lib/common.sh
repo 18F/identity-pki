@@ -344,9 +344,8 @@ assert_file_exists() {
 #   - https://releases.hashicorp.com/terraform/
 #
 KNOWN_TF_VERSIONS=(
-  "v0.12.24"
-  "v0.13.2"
   "v0.13.4"
+  "v0.13.5"
 )
 
 # usage: check_terraform_version SUPPORTED_VERSION...
