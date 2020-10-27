@@ -381,6 +381,12 @@ module "terraform-assumerole" {
             "route53:GetHostedZone",
             "route53:ListResourceRecordSets",
             "route53:ListTagsForResource",
+            "route53domains:Get*",
+            "route53domains:List*",
+            "route53resolver:Get*",
+            "route53resolver:List*",
+            "route53resolver:CreateResolverQueryLogConfig",
+            "route53resolver:DeleteResolverQueryLogConfig",
           ]
           resources = [
             "*",
