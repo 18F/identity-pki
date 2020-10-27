@@ -16,6 +16,16 @@ module "terraform-assumerole" {
       policy_description = "Policy 1 for Terraform role"
       policy_document    = [
         {
+          sid       = "AccessAnalyzer"
+          effect    = "Allow"
+          actions   = [
+            "access-analyzer:*",
+          ]
+          resources = [
+            "*",
+          ]
+        },    
+        {
           sid       = "Acm"
           effect    = "Allow"
           actions   = [
@@ -63,6 +73,16 @@ module "terraform-assumerole" {
           ]
         },
         {
+          sid    = "CloudTrail"
+          effect = "Allow"
+          actions = [
+            "cloudtrail:*",
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
           sid       = "Cloudwatch"
           effect    = "Allow"
           actions   = [
@@ -73,6 +93,29 @@ module "terraform-assumerole" {
             "cloudwatch:ListTagsForResource",
             "cloudwatch:PutDashboard",
             "cloudwatch:PutMetricAlarm",
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
+          sid    = "CodeTools"
+          effect = "Allow"
+          actions = [
+            "codebuild:*",
+            "codepipeline:*",
+            "codecommit:*",
+            "codedeploy:*"
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
+          sid    = "Config"
+          effect = "Allow"
+          actions = [
+            "config:*",
           ]
           resources = [
             "*",
@@ -168,6 +211,7 @@ module "terraform-assumerole" {
             "elasticache:DescribeCacheClusters",
             "elasticache:DescribeCacheSubnetGroups",
             "elasticache:DescribeReplicationGroups",
+            "elasticache:ListTagsForResource",
           ]
           resources = [
             "*",
