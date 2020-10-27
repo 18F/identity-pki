@@ -48,16 +48,6 @@ verify_ykman () {
   fi
 }
 
-set_iam_profile () {
-  while [[ -z "${LOGIN_IAM_PROFILE-}" ]] ; do
-    read -r -p "LOGIN_IAM_PROFILE not set; please specify (i.e. ACCOUNT-LOGIN_IAM_PROFILE): " PROFILE
-    verify_profile "${ACCOUNT}-${PROFILE}"
-    run export LOGIN_IAM_PROFILE=${PROFILE}
-    echo "Add this line to your .rc file of choice to avoid having to set this in the future:"
-    echo -e "\nexport LOGIN_IAM_PROFILE=${PROFILE}\n"
-  done
-}
-
 verify_ykman
 
 declare {AV_ROLE,SET_ROLE,SERVICE}=
