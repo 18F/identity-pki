@@ -181,11 +181,13 @@ module "poweruser-assumerole" {
             "route53:List*",
             "route53:UpdateHostedZoneComment",
             "route53:CreateHostedZone",
-            "route53:CreateResolverQueryLogConfig",
             "route53:ChangeResourceRecordSets",
             "route53:DeleteHostedZone",
-            "route53:DeleteResolverQueryLogConfig",
             "route53:TestDNSAnswer",
+            "route53domains:Get*",
+            "route53domains:List*",
+            "route53resolver:Get*",
+            "route53resolver:List*",
           ]
           resources = [
             "*",
