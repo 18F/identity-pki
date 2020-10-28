@@ -1,5 +1,5 @@
 resource "aws_cloudwatch_metric_alarm" "ddos_alert" {
-  alarm_name                = "DDoS Alert"
+  alarm_name                = "${var.env_name} DDoS Alert"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "1"
   metric_name               = "MetricName"
@@ -7,7 +7,7 @@ resource "aws_cloudwatch_metric_alarm" "ddos_alert" {
   period                    = "300"
   statistic                 = "Minimum"
   threshold                 = "1"
-  alarm_description         = "This Alarm is executed when a DDoS attack is detected"
+  alarm_description         = "DDoS attack detected in ${var.env_name}"
   insufficient_data_actions = []
   alarm_actions             = [var.slack_events_sns_hook_arn]
 }
