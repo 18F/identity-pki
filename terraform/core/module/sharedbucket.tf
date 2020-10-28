@@ -114,6 +114,24 @@ resource "aws_s3_bucket_policy" "lambda-functions" {
       },
       "Action": "s3:PutObject",
       "Resource": "arn:aws:s3:::${module.s3_shared.buckets["lambda-functions"]}/circleci/*"
+    },
+    {
+      "Sid": "AllowProdAccountRead",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::555546682965:root"
+      }
+      "Action": ["s3:GetObject", "s3:GetObjectVersion"]
+      "Resource": "arn:aws:s3:::${module.s3_shared.buckets["lambda-functions"]}/circleci/*"
+    },
+    {
+      "Sid": "AllowProdAccountBucketRead",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::555546682965:root"
+      }
+      "Action": ["s3:ListBucket", "s3:GetBucketAcl", "s3:GetBucketLocation"]
+      "Resource": "arn:aws:s3:::${module.s3_shared.buckets["lambda-functions"]}"
     }
   ]
 }
