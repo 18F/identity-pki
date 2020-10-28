@@ -1,12 +1,12 @@
 module "terraform-assumerole" {
   source = "github.com/18F/identity-terraform//iam_assumerole?ref=master"
 
-  role_name                = "Terraform"
-  enabled                  = lookup(
-                                merge(local.role_enabled_defaults,var.account_roles_map),
-                                "iam_terraform_enabled",
-                                lookup(local.role_enabled_defaults,"iam_terraform_enabled")
-                              )
+  role_name = "Terraform"
+  enabled = lookup(
+    merge(local.role_enabled_defaults, var.account_roles_map),
+    "iam_terraform_enabled",
+    lookup(local.role_enabled_defaults, "iam_terraform_enabled")
+  )
   master_assumerole_policy = local.master_assumerole_policy
   custom_policy_arns       = local.custom_policy_arns
 
@@ -14,21 +14,21 @@ module "terraform-assumerole" {
     {
       policy_name        = "Terraform1"
       policy_description = "Policy 1 for Terraform role"
-      policy_document    = [
+      policy_document = [
         {
-          sid       = "AccessAnalyzer"
-          effect    = "Allow"
-          actions   = [
+          sid    = "AccessAnalyzer"
+          effect = "Allow"
+          actions = [
             "access-analyzer:*",
           ]
           resources = [
             "*",
           ]
-        },    
+        },
         {
-          sid       = "Acm"
-          effect    = "Allow"
-          actions   = [
+          sid    = "Acm"
+          effect = "Allow"
+          actions = [
             "acm:DeleteCertificate",
             "acm:DescribeCertificate",
             "acm:ListTagsForCertificate",
@@ -39,9 +39,9 @@ module "terraform-assumerole" {
           ]
         },
         {
-          sid       = "Autoscaling"
-          effect    = "Allow"
-          actions   = [
+          sid    = "Autoscaling"
+          effect = "Allow"
+          actions = [
             "autoscaling:CreateAutoScalingGroup",
             "autoscaling:DeleteAutoScalingGroup",
             "autoscaling:DeleteLifecycleHook",
@@ -63,9 +63,9 @@ module "terraform-assumerole" {
           ]
         },
         {
-          sid       = "Cloudfront"
-          effect    = "Allow"
-          actions   = [
+          sid    = "Cloudfront"
+          effect = "Allow"
+          actions = [
             "cloudfront:*",
           ]
           resources = [
@@ -83,9 +83,9 @@ module "terraform-assumerole" {
           ]
         },
         {
-          sid       = "Cloudwatch"
-          effect    = "Allow"
-          actions   = [
+          sid    = "Cloudwatch"
+          effect = "Allow"
+          actions = [
             "cloudwatch:DeleteAlarms",
             "cloudwatch:DeleteDashboards",
             "cloudwatch:DescribeAlarms",
@@ -122,9 +122,9 @@ module "terraform-assumerole" {
           ]
         },
         {
-          sid       = "Dynamodb"
-          effect    = "Allow"
-          actions   = [
+          sid    = "Dynamodb"
+          effect = "Allow"
+          actions = [
             "dynamodb:CreateTable",
             "dynamodb:DeleteItem",
             "dynamodb:DeleteTable",
@@ -143,9 +143,9 @@ module "terraform-assumerole" {
           ]
         },
         {
-          sid       = "Ec2"
-          effect    = "Allow"
-          actions   = [
+          sid    = "Ec2"
+          effect = "Allow"
+          actions = [
             "ec2:AttachInternetGateway",
             "ec2:AuthorizeSecurityGroupEgress",
             "ec2:AuthorizeSecurityGroupIngress",
@@ -201,9 +201,9 @@ module "terraform-assumerole" {
           ]
         },
         {
-          sid       = "Elasticache"
-          effect    = "Allow"
-          actions   = [
+          sid    = "Elasticache"
+          effect = "Allow"
+          actions = [
             "elasticache:CreateCacheSubnetGroup",
             "elasticache:CreateReplicationGroup",
             "elasticache:DeleteReplicationGroup",
@@ -218,9 +218,9 @@ module "terraform-assumerole" {
           ]
         },
         {
-          sid       = "Elasticloadbalancing"
-          effect    = "Allow"
-          actions   = [
+          sid    = "Elasticloadbalancing"
+          effect = "Allow"
+          actions = [
             "elasticloadbalancing:AddTags",
             "elasticloadbalancing:ApplySecurityGroupsToLoadBalancer",
             "elasticloadbalancing:AttachLoadBalancerToSubnets",
@@ -228,19 +228,24 @@ module "terraform-assumerole" {
             "elasticloadbalancing:CreateListener",
             "elasticloadbalancing:CreateLoadBalancer",
             "elasticloadbalancing:CreateLoadBalancerListeners",
+            "elasticloadbalancing:CreateRule",
             "elasticloadbalancing:CreateTargetGroup",
             "elasticloadbalancing:DeleteListener",
             "elasticloadbalancing:DeleteLoadBalancer",
+            "elasticloadbalancing:DeleteRule",
             "elasticloadbalancing:DeleteTargetGroup",
             "elasticloadbalancing:DescribeListeners",
             "elasticloadbalancing:DescribeLoadBalancerAttributes",
             "elasticloadbalancing:DescribeLoadBalancers",
+            "elasticloadbalancing:DescribeRules",
             "elasticloadbalancing:DescribeTags",
             "elasticloadbalancing:DescribeTargetGroupAttributes",
             "elasticloadbalancing:DescribeTargetGroups",
             "elasticloadbalancing:ModifyLoadBalancerAttributes",
+            "elasticloadbalancing:ModifyRule",
             "elasticloadbalancing:ModifyTargetGroup",
             "elasticloadbalancing:ModifyTargetGroupAttributes",
+            "elasticloadbalancing:SetRulePriorities",
             "elasticloadbalancing:SetSecurityGroups",
           ]
           resources = [
@@ -248,9 +253,9 @@ module "terraform-assumerole" {
           ]
         },
         {
-          sid       = "Events"
-          effect    = "Allow"
-          actions   = [
+          sid    = "Events"
+          effect = "Allow"
+          actions = [
             "events:DeleteRule",
             "events:DescribeRule",
             "events:EnableRule",
@@ -271,9 +276,9 @@ module "terraform-assumerole" {
       policy_description = "Policy 2 for Terraform role"
       policy_document = [
         {
-          sid       = "Iam"
-          effect    = "Allow"
-          actions   = [
+          sid    = "Iam"
+          effect = "Allow"
+          actions = [
             "iam:AddRoleToInstanceProfile",
             "iam:AttachRolePolicy",
             "iam:CreateInstanceProfile",
@@ -301,9 +306,9 @@ module "terraform-assumerole" {
           ]
         },
         {
-          sid       = "Kinesis"
-          effect    = "Allow"
-          actions   = [
+          sid    = "Kinesis"
+          effect = "Allow"
+          actions = [
             "kinesis:AddTagsToStream",
             "kinesis:CreateStream",
             "kinesis:DeleteStream",
@@ -319,9 +324,9 @@ module "terraform-assumerole" {
           ]
         },
         {
-          sid       = "Kms"
-          effect    = "Allow"
-          actions   = [
+          sid    = "Kms"
+          effect = "Allow"
+          actions = [
             "kms:CreateAlias",
             "kms:CreateGrant",
             "kms:CreateKey",
@@ -345,9 +350,9 @@ module "terraform-assumerole" {
           ]
         },
         {
-          sid       = "Lambda"
-          effect    = "Allow"
-          actions   = [
+          sid    = "Lambda"
+          effect = "Allow"
+          actions = [
             "lambda:CreateEventSourceMapping*",
             "lambda:CreateFunction*",
             "lambda:DeleteEventSourceMapping*",
@@ -361,9 +366,9 @@ module "terraform-assumerole" {
           ]
         },
         {
-          sid       = "Logs"
-          effect    = "Allow"
-          actions   = [
+          sid    = "Logs"
+          effect = "Allow"
+          actions = [
             "logs:CreateLogDelivery",
             "logs:CreateLogGroup",
             "logs:CreateLogStream",
@@ -390,9 +395,9 @@ module "terraform-assumerole" {
           ]
         },
         {
-          sid       = "Rds"
-          effect    = "Allow"
-          actions   = [
+          sid    = "Rds"
+          effect = "Allow"
+          actions = [
             "rds:AddTagsToResource",
             "rds:CreateDBInstance",
             "rds:CreateDBParameterGroup",
@@ -413,9 +418,9 @@ module "terraform-assumerole" {
           ]
         },
         {
-          sid       = "Route53"
-          effect    = "Allow"
-          actions   = [
+          sid    = "Route53"
+          effect = "Allow"
+          actions = [
             "route53:ChangeResourceRecordSets",
             "route53:CreateHostedZone",
             "route53:CreateResolverQueryLogConfig",
@@ -437,9 +442,9 @@ module "terraform-assumerole" {
           ]
         },
         {
-          sid       = "S3"
-          effect    = "Allow"
-          actions   = [
+          sid    = "S3"
+          effect = "Allow"
+          actions = [
             "s3:*",
           ]
           resources = [
@@ -447,9 +452,9 @@ module "terraform-assumerole" {
           ]
         },
         {
-          sid       = "Sns"
-          effect    = "Allow"
-          actions   = [
+          sid    = "Sns"
+          effect = "Allow"
+          actions = [
             "sns:CreateTopic",
             "sns:DeleteTopic",
             "sns:GetSubscriptionAttributes",
@@ -464,9 +469,9 @@ module "terraform-assumerole" {
           ]
         },
         {
-          sid       = "Sqs"
-          effect    = "Allow"
-          actions   = [
+          sid    = "Sqs"
+          effect = "Allow"
+          actions = [
             "sqs:CreateQueue",
             "sqs:DeleteQueue",
             "sqs:GetQueueAttributes",
@@ -495,9 +500,9 @@ module "terraform-assumerole" {
           ]
         },
         {
-          sid       = "Sts"
-          effect    = "Allow"
-          actions   = [
+          sid    = "Sts"
+          effect = "Allow"
+          actions = [
             "sts:GetCallerIdentity",
           ]
           resources = [
