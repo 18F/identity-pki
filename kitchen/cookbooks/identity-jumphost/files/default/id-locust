@@ -71,10 +71,10 @@ TEST_FILE="${REPO_DIR}/load_testing/${TEST}.locustfile.py"
 [[ -f "${TEST_FILE}" ]] || raise "Test '${TEST_FILE}' not found"
 
 case "${2}" in
-       -*) raise "Invalid environment name: ${2}"         ;;
-  staging) TARGET='https://idp.staging.login.gov/'        ;;
-     prod) TARGET='https://secure.login.gov/'             ;;
-        *) TARGET="https://idp.${2}.identitysandbox.gov/" ;;
+       -*) raise "Invalid environment name: ${2}"        ;;
+  staging) TARGET='https://idp.staging.login.gov'        ;;
+     prod) TARGET='https://secure.login.gov'             ;;
+        *) TARGET="https://idp.${2}.identitysandbox.gov" ;;
 esac
 shift 2
 
@@ -133,4 +133,3 @@ else
              --run-time "${RUN_TIME}" \
              2>&1 | tee "${TEST_DIR}/${START_TIME}-${TEST}.log"
 fi
-
