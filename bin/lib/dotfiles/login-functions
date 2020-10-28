@@ -50,50 +50,12 @@ EOF
   esac
 }
 
-#### run tf-deploy with common Terraform commands and any AWS profile/TF directory ####
-td() {
-  read -r -d '' usage <<'EOF'
-
-TBD
-
-EOF
-  [[ $# == 0 ]] && badopt
-  declare {TF_SL,TEST_RUN}=
-  while getopts apdst opt
-  do
-    case $opt in
-      a) TF_CMD="apply"      ;;
-      p) TF_CMD="plan"       ;;
-      d) TF_CMD="destroy"    ;;
-      s) TF_CMD="state"      ;;
-      t) TEST_RUN="-t"       ;;
-      *) badopt ${opt}       ;;
-    esac
-  done
-  [[ "${TF_CMD}" == "state" ]] && TF_SL="list"
-  shift $((OPTIND-1))
-  TF_DIR="${1-app}"
-  EC2_ENV="${2-sandbox}"
-  case $TF_DIR in
-    all|core) AV_PROFILE="${EC2_ENV}-admin" ;;
-    app) env_get "${EC2_ENV}" ;;
-    master)
-      AV_PROFILE='master-admin'
-      EC2_ENV="global"
-    ;;
-    sms) AV_PROFILE="sms-${EC2_ENV}-admin" ;;
-  esac
-  if [[ "${TF_DIR}" == 'app' ]] ; then
-    run_av tf-deploy ${TEST_RUN} ${EC2_ENV} ${TF_DIR} ${TF_CMD} ${TF_SL}
-  else
-    run_av tf-deploy ${TEST_RUN} ${TF_DIR}/${EC2_ENV} ${TF_CMD} ${TF_SL}
-  fi
-  unset TF_DIR
-}
-
 #### run terraform plan with trimmed-down output ####
 tpc() {
-  plan=$(td -p "${@}")
+  local TF_ARGS
+  [[ -z ${1} ]] || TF_ARGS+="-d ${1} "
+  [[ -z ${2} ]] || TF_ARGS+="-e ${2} "
+  plan=$(td "${TF_ARGS}"-p)
   echo $plan | sed $'s,\x1b\\[[0-9;]*[a-zA-Z],,g' |
                grep --color=auto -E '(^\s+[-\#\+\~\>]|\s->)\s' |
                sed -E 's/(user_data += ").*"/\1\*"/'

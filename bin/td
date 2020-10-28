@@ -1,0 +1,102 @@
+#!/bin/bash
+
+#### run tf-deploy with common Terraform commands and any AWS profile/TF directory ####
+
+set -eu
+
+. "$(dirname "$0")/lib/common.sh"
+
+usage() {
+    cat >&2 << EOM
+Usage: ${0} [-d TF_DIR|-e TF_ENV] -a|-p|-x|-t|-c OPTIONS
+                                  -s COMMAND
+                                  -i RESOURCE_ADDRESS RESOURCE_ID
+
+Wrapper script to pass aws-vault-enabled Terraform commands to bin/tf-deploy,
+using whatever 'Terraform' role(s) you have in your ~/.aws/config file.
+You MUST pass one command flag so that it knows what to do!
+
+Dir/env flags (optional):
+  -d TF_DIR : Directory in terraform/ to use.
+              Defaults to 'app' if not set.
+  -e TF_ENV : Terraform environment to use.
+              Defaults to \$GSA_USERNAME if not set, or 'sandbox'
+              if TF_DIR has been set differently by -d
+
+Common command flags:
+  -a : \`apply\`
+  -p : \`plan\`
+  -x : \`destroy\`
+  The above commands can be run with any additional arguments, e.g.
+  -target, -auto-approve, etc., if desired
+
+State command flags (arguments must be provided):
+  -s COMMAND    : \`state '\$COMMAND'\`
+  -i ADDRESS ID : \`import \$RESOURCE_ADDRESS \$RESOURCE_ID\`
+
+Other commands (optional:
+  -c OPTIONS : Runs \`tfplan\` using any OPTIONS provided.
+               Set OPTIONS without using dashes (e.g. m/p/mp)
+  -h         : Displays this help
+
+EOM
+}
+
+verify_root_repo
+declare {ARGS,TEST_RUN,TF_CMD,TF_DIR,TF_ENV,TF_PROFILE,AV_PROFILE}=
+
+while getopts d:e:apxsicth opt
+do
+  case $opt in
+    d) TF_DIR="${OPTARG}"  ;;
+    e) TF_ENV="${OPTARG}" ;;
+    a) TF_CMD="apply"      ;;
+    p) TF_CMD="plan"       ;;
+    x) TF_CMD="destroy"    ;;
+    s) TF_CMD="state"      ;;
+    i) TF_CMD="import"     ;;
+    c) TF_CMD="tfplan"     ;;
+    t) TEST_RUN="-t"       ;;
+    h|*) usage && exit 0   ;;
+  esac
+done
+shift $((OPTIND-1))
+
+[[ -z ${TF_CMD} ]] && raise 'TF_CMD not specified'
+[[ -z ${TF_DIR} ]] && TF_DIR='app'
+if [[ -z ${TF_ENV} ]] ; then
+  if [[ ${TF_DIR} == 'app' ]] ; then
+    TF_ENV=${GSA_USERNAME}
+  else
+    TF_ENV='sandbox'
+  fi
+fi
+
+if [[ ${TF_DIR} == 'app' ]] ; then
+  [[ -z ${TF_ENV} ]] && raise 'TF_ENV and/or default of GSA_USERNAME not set or specified'
+  TF_PROFILE='sandbox'
+  [[ "${TF_ENV}" =~ '(staging|prod)' ]] && TF_PROFILE='prod'
+else
+  if [[ ${TF_DIR} == 'master' ]] ; then
+    TF_ENV='global'
+    TF_PROFILE='master'
+  elif [[ -z $(find "${GIT_DIR}/terraform/" -type d -maxdepth 1 -name "${TF_DIR}") ]] ; then
+    raise "\`${TF_DIR}\` not found in ${GIT_DIR}/terraform/"
+  elif [[ -z $(find "${GIT_DIR}/terraform/${TF_DIR}" -type d -maxdepth 1 -name "${TF_ENV}") ]] ; then
+    raise "\`${TF_ENV}\` not found in ${GIT_DIR}/terraform/${TF_DIR}"
+  else
+    TF_PROFILE=${TF_ENV}
+  fi
+fi
+get_arn_role ${TF_PROFILE} 'Terraform'
+
+if [[ ${TF_CMD} == 'tfplan' ]] ; then
+  [[ -z "$@" ]] || ARGS="-$@"
+  run aws-vault exec ${AV_PROFILE} -- $(dirname "$0")/${TF_CMD} ${ARGS} ${TF_DIR} ${TF_ENV}
+else  
+  if [[ "${TF_DIR}" == 'app' ]] ; then
+    run aws-vault exec ${AV_PROFILE} -- $(dirname "$0")/tf-deploy ${TEST_RUN} ${TF_ENV} ${TF_DIR} ${TF_CMD} "$@"
+  else
+    run aws-vault exec ${AV_PROFILE} -- $(dirname "$0")/tf-deploy ${TEST_RUN} ${TF_DIR}/${TF_ENV} ${TF_CMD} "$@"
+  fi
+fi

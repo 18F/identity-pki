@@ -19,7 +19,7 @@ module "main" {
     iam_power_enabled     = false
     iam_readonly_enabled  = false
     iam_socadmin_enabled  = true
-    iam_terraform_enabled = false
+    iam_terraform_enabled = true
     iam_billing_enabled   = true
   }
 }
