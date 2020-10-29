@@ -3,13 +3,14 @@ locals {
 }
 
 module "kms_logging" {
-  source = "github.com/18F/identity-terraform//kms_log?ref=476ab4456e547e125dcd53cb6131419b54f1f476"
+  source = "github.com/18F/identity-terraform//kms_log?ref=8a86163517a0b358436b5298bf48eb7790b8e008"
   #source = "../../../identity-terraform/kms_log"
 
   env_name                  = var.env_name
   sns_topic_dead_letter_arn = var.slack_events_sns_hook_arn
   kinesis_shard_count       = var.kms_log_kinesis_shards
   ec2_kms_arns              = local.kms_arns
+  alarm_sns_topic_arn       = var.slack_events_sns_hook_arn
 }
 
 module "kms_keymaker_uw2" {
