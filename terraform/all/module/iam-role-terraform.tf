@@ -63,6 +63,17 @@ module "terraform-assumerole" {
           ]
         },
         {
+          sid    = "CloudFormation"
+          effect = "Allow"
+          actions = [
+            "cloudformation:DescribeStacks",
+            "cloudformation:GetTemplate",
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
           sid    = "Cloudfront"
           effect = "Allow"
           actions = [
@@ -292,6 +303,7 @@ module "terraform-assumerole" {
             "iam:GetPolicyVersion",
             "iam:GetRole",
             "iam:GetRolePolicy",
+            "iam:GetUser",
             "iam:ListAccountAliases",
             "iam:ListAttachedRolePolicies",
             "iam:ListInstanceProfilesForRole",
@@ -474,6 +486,18 @@ module "terraform-assumerole" {
           effect = "Allow"
           actions = [
             "securityhub:GetEnabledStandards",
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
+          sid    = "SES"
+          effect = "Allow"
+          actions = [
+            "ses:GetIdentityVerificationAttributes",
+            "ses:GetIdentityDkimAttributes",
+            "ses:DescribeReceiptRule",
           ]
           resources = [
             "*",

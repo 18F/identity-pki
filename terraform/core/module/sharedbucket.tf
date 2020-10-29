@@ -57,7 +57,7 @@ locals {
 }
 
 module "s3_shared" {
-  source = "github.com/18F/identity-terraform//s3_bucket_block?ref=21a2ce16cf1dbf85822c9005d72f8d17cb9dbe4b"
+  source = "github.com/18F/identity-terraform//s3_bucket_block?ref=a94d4a7e87da7c1d0af632933d29ee89fd223fb7"
   #source = "../../../../identity-terraform/s3_bucket_block"
   
   bucket_name_prefix   = "login-gov"
@@ -120,8 +120,11 @@ resource "aws_s3_bucket_policy" "lambda-functions" {
       "Effect": "Allow",
       "Principal": {
         "AWS": "arn:aws:iam::555546682965:root"
-      }
-      "Action": ["s3:GetObject", "s3:GetObjectVersion"]
+      },
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+      ],
       "Resource": "arn:aws:s3:::${module.s3_shared.buckets["lambda-functions"]}/circleci/*"
     },
     {
@@ -129,8 +132,12 @@ resource "aws_s3_bucket_policy" "lambda-functions" {
       "Effect": "Allow",
       "Principal": {
         "AWS": "arn:aws:iam::555546682965:root"
-      }
-      "Action": ["s3:ListBucket", "s3:GetBucketAcl", "s3:GetBucketLocation"]
+      },
+      "Action": [
+        "s3:ListBucket",
+        "s3:GetBucketAcl",
+        "s3:GetBucketLocation"
+      ],
       "Resource": "arn:aws:s3:::${module.s3_shared.buckets["lambda-functions"]}"
     }
   ]
