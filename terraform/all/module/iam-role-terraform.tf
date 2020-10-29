@@ -63,6 +63,17 @@ module "terraform-assumerole" {
           ]
         },
         {
+          sid    = "CloudFormation"
+          effect = "Allow"
+          actions = [
+            "cloudformation:DescribeStacks",
+            "cloudformation:GetTemplate",
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
           sid    = "Cloudfront"
           effect = "Allow"
           actions = [
@@ -283,22 +294,29 @@ module "terraform-assumerole" {
             "iam:AttachRolePolicy",
             "iam:CreateInstanceProfile",
             "iam:CreatePolicy",
+            "iam:CreatePolicyVersion",
             "iam:CreateRole",
             "iam:DeleteInstanceProfile",
             "iam:DeleteRole",
             "iam:DeleteRolePolicy",
             "iam:GetInstanceProfile",
+            "iam:GetGroup",
             "iam:GetPolicy",
             "iam:GetPolicyVersion",
             "iam:GetRole",
             "iam:GetRolePolicy",
+            "iam:GetUser",
             "iam:ListAccountAliases",
             "iam:ListAttachedRolePolicies",
+            "iam:ListAttachedUserPolicies",
+            "iam:ListEntitiesForPolicy",
             "iam:ListInstanceProfilesForRole",
+            "iam:ListPolicyVersions",
             "iam:PassRole",
             "iam:PutRolePolicy",
             "iam:RemoveRoleFromInstanceProfile",
             "iam:TagRole",
+            "iam:UpdateAccountPasswordPolicy",
             "iam:UntagRole",
           ]
           resources = [
@@ -359,6 +377,7 @@ module "terraform-assumerole" {
             "lambda:DeleteFunction*",
             "lambda:GetEventSourceMapping*",
             "lambda:GetFunction*",
+            "lambda:GetPolicy",
             "lambda:ListVersionsByFunction*",
           ]
           resources = [
@@ -389,6 +408,16 @@ module "terraform-assumerole" {
             "logs:PutMetricFilter",
             "logs:PutSubscriptionFilter",
             "logs:TagLogGroup",
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
+          sid    = "Pinpoint"
+          effect = "Allow"
+          actions = [
+            "mobiletargeting:*",
           ]
           resources = [
             "*",
@@ -463,6 +492,28 @@ module "terraform-assumerole" {
             "sns:SetTopicAttributes",
             "sns:Subscribe",
             "sns:Unsubscribe",
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
+          sid    = "SecurityHub"
+          effect = "Allow"
+          actions = [
+            "securityhub:GetEnabledStandards",
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
+          sid    = "SES"
+          effect = "Allow"
+          actions = [
+            "ses:GetIdentityVerificationAttributes",
+            "ses:GetIdentityDkimAttributes",
+            "ses:DescribeReceiptRule",
           ]
           resources = [
             "*",

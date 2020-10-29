@@ -80,6 +80,8 @@ else
   if [[ ${TF_DIR} == 'master' ]] ; then
     TF_ENV='global'
     TF_PROFILE='master'
+  elif [[ ${TF_DIR} == 'sms' ]] ; then
+    TF_PROFILE="sms-${TF_ENV}"
   elif [[ -z $(find "${GIT_DIR}/terraform/" -type d -maxdepth 1 -name "${TF_DIR}") ]] ; then
     raise "\`${TF_DIR}\` not found in ${GIT_DIR}/terraform/"
   elif [[ -z $(find "${GIT_DIR}/terraform/${TF_DIR}" -type d -maxdepth 1 -name "${TF_ENV}") ]] ; then

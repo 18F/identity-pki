@@ -50,7 +50,7 @@ resource "aws_s3_bucket" "config_recorder" {
 }
 
 module "config_bucket_config" {
-  source = "github.com/18F/identity-terraform//s3_config?ref=897cd9f749ead05a97b0f904a5dedfe83d9a9566"
+  source = "github.com/18F/identity-terraform//s3_config?ref=21a2ce16cf1dbf85822c9005d72f8d17cb9dbe4b"
 
   bucket_name_override = aws_s3_bucket.config_recorder.id
   inventory_bucket_arn = module.tf-state.inventory_bucket_arn
