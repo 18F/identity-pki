@@ -270,7 +270,7 @@ module "appdev-assumerole" {
         },
         {
           sid    = "S3LogosWrite"
-          effect = "${var.dashboard_logos_bucket_write == true ? "Allow" : "Deny"}"
+          effect = var.dashboard_logos_bucket_write == true ? "Allow" : "Deny"
           actions = [
             "s3:PutObject",
             "s3:AbortMultipartUpload",

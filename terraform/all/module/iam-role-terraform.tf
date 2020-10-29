@@ -359,6 +359,7 @@ module "terraform-assumerole" {
             "lambda:DeleteFunction*",
             "lambda:GetEventSourceMapping*",
             "lambda:GetFunction*",
+            "lambda:GetPolicy",
             "lambda:ListVersionsByFunction*",
           ]
           resources = [
@@ -463,6 +464,16 @@ module "terraform-assumerole" {
             "sns:SetTopicAttributes",
             "sns:Subscribe",
             "sns:Unsubscribe",
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
+          sid    = "SecurityHub"
+          effect = "Allow"
+          actions = [
+            "securityhub:GetEnabledStandards",
           ]
           resources = [
             "*",
