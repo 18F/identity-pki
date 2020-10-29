@@ -175,6 +175,7 @@ module "terraform-assumerole" {
             "ec2:DeleteFlowLogs",
             "ec2:DeleteInternetGateway",
             "ec2:DeleteLaunchTemplate",
+            "ec2:DeleteLaunchTemplateVersion",
             "ec2:DeleteNetworkAcl",
             "ec2:DeleteNetworkAclEntry",
             "ec2:DeleteRoute",
@@ -298,11 +299,15 @@ module "terraform-assumerole" {
             "iam:CreatePolicy",
             "iam:CreatePolicyVersion",
             "iam:CreateRole",
+            "iam:CreateServiceLinkedRole",
+            "iam:DeleteAccountPasswordPolicy",
             "iam:DeleteInstanceProfile",
+            "iam:DeletePolicyVersion",
             "iam:DeleteRole",
             "iam:DeleteRolePolicy",
-            "iam:GetInstanceProfile",
+            "iam:GetAccountPasswordPolicy",
             "iam:GetGroup",
+            "iam:GetInstanceProfile",
             "iam:GetPolicy",
             "iam:GetPolicyVersion",
             "iam:GetRole",
@@ -318,8 +323,8 @@ module "terraform-assumerole" {
             "iam:PutRolePolicy",
             "iam:RemoveRoleFromInstanceProfile",
             "iam:TagRole",
-            "iam:UpdateAccountPasswordPolicy",
             "iam:UntagRole",
+            "iam:UpdateAccountPasswordPolicy",
           ]
           resources = [
             "*",
@@ -331,6 +336,7 @@ module "terraform-assumerole" {
           actions = [
             "kinesis:AddTagsToStream",
             "kinesis:CreateStream",
+            "kinesis:DecreaseStreamRetentionPeriod",
             "kinesis:DeleteStream",
             "kinesis:DescribeStream",
             "kinesis:EnableEnhancedMonitoring",
@@ -373,6 +379,7 @@ module "terraform-assumerole" {
           sid    = "Lambda"
           effect = "Allow"
           actions = [
+            "lambda:AddPermission",
             "lambda:CreateEventSourceMapping*",
             "lambda:CreateFunction*",
             "lambda:DeleteEventSourceMapping*",
@@ -381,6 +388,8 @@ module "terraform-assumerole" {
             "lambda:GetFunction*",
             "lambda:GetPolicy",
             "lambda:ListVersionsByFunction*",
+            "lambda:PublishVersion",
+            "lambda:UpdateFunctionConfiguration",
           ]
           resources = [
             "*",
@@ -402,14 +411,20 @@ module "terraform-assumerole" {
             "logs:DescribeLogGroups",
             "logs:DescribeLogStreams",
             "logs:DescribeMetricFilters",
+            "logs:DescribeQueries",
+            "logs:DescribeResourcePolicies",
             "logs:DescribeSubscriptionFilters",
+            "logs:GetLogDelivery",
             "logs:ListTagsLogGroup",
             "logs:PutDestination",
             "logs:PutDestinationPolicy",
             "logs:PutLogEvents",
             "logs:PutMetricFilter",
+            "logs:PutResourcePolicy",
+            "logs:PutRetentionPolicy",
             "logs:PutSubscriptionFilter",
             "logs:TagLogGroup",
+            "logs:UpdateLogDelivery"
           ]
           resources = [
             "*",
@@ -431,6 +446,7 @@ module "terraform-assumerole" {
           actions = [
             "rds:AddTagsToResource",
             "rds:CreateDBInstance",
+            "rds:CreateDBInstanceReadReplica",
             "rds:CreateDBParameterGroup",
             "rds:CreateDBSubnetGroup",
             "rds:DeleteDBInstance",
@@ -441,6 +457,7 @@ module "terraform-assumerole" {
             "rds:ListTagsForResource",
             "rds:ModifyDBInstance",
             "rds:ModifyDBParameterGroup",
+            "rds:RebootDBInstance",
             "rds:DeleteDBParameterGroup",
             "rds:DeleteDBSubnetGroup",
           ]
@@ -454,19 +471,19 @@ module "terraform-assumerole" {
           actions = [
             "route53:ChangeResourceRecordSets",
             "route53:CreateHostedZone",
-            "route53:CreateResolverQueryLogConfig",
             "route53:DeleteHostedZone",
-            "route53:DeleteResolverQueryLogConfig",
             "route53:GetChange",
             "route53:GetHostedZone",
             "route53:ListResourceRecordSets",
             "route53:ListTagsForResource",
             "route53domains:Get*",
             "route53domains:List*",
+            "route53resolver:AssociateResolver*",
+            "route53resolver:DisassociateResolver*",
             "route53resolver:Get*",
             "route53resolver:List*",
-            "route53resolver:CreateResolverQueryLogConfig",
-            "route53resolver:DeleteResolverQueryLogConfig",
+            "route53resolver:PutResolverRulePolicy",
+            "route53resolver:*ResolverQueryLogConfig*",
           ]
           resources = [
             "*",
@@ -490,6 +507,7 @@ module "terraform-assumerole" {
             "sns:DeleteTopic",
             "sns:GetSubscriptionAttributes",
             "sns:GetTopicAttributes",
+            "sns:ListSubscriptionsByTopic",
             "sns:ListTagsForResource",
             "sns:SetTopicAttributes",
             "sns:Subscribe",
