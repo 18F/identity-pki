@@ -316,6 +316,7 @@ module "terraform-assumerole" {
             "iam:PutRolePolicy",
             "iam:RemoveRoleFromInstanceProfile",
             "iam:TagRole",
+            "iam:UpdateAccountPasswordPolicy",
             "iam:UntagRole",
           ]
           resources = [
@@ -407,6 +408,16 @@ module "terraform-assumerole" {
             "logs:PutMetricFilter",
             "logs:PutSubscriptionFilter",
             "logs:TagLogGroup",
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
+          sid    = "Pinpoint"
+          effect = "Allow"
+          actions = [
+            "mobiletargeting:*",
           ]
           resources = [
             "*",
