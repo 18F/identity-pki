@@ -204,6 +204,7 @@ module "terraform-assumerole" {
             "ec2:ModifySubnetAttribute",
             "ec2:ModifyVpcAttribute",
             "ec2:ReplaceNetworkAclAssociation",
+            "ec2:RevokeSecurityGroupIngress",
             "ec2:RevokeSecurityGroupEgress",
             "ec2:RunInstances",
           ]
