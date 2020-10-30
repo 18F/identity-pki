@@ -19,6 +19,17 @@ resource "aws_security_group" "kms_endpoint" {
     ]
   }
 
+  ingress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = [
+      var.private1_subnet_cidr_block,
+      var.private2_subnet_cidr_block,
+      var.private3_subnet_cidr_block,
+    ]
+  }
+
   name = "${var.name}-kms_endpoint-${var.env_name}"
 
   tags = {
@@ -46,6 +57,17 @@ resource "aws_security_group" "ssm_endpoint" {
     security_groups = [
       aws_security_group.base.id,
       aws_security_group.jumphost.id, # TODO remove
+    ]
+  }
+
+  ingress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = [
+      var.private1_subnet_cidr_block,
+      var.private2_subnet_cidr_block,
+      var.private3_subnet_cidr_block,
     ]
   }
 
