@@ -134,7 +134,7 @@ create_prod_amis() {
     for LINE in $(echo "${DATA[@]}" | tail -n +2 | head -n 2 | tr -d '|' |
                       awk '{print $1"+"$4}') ; do
        AMI_ID=$(echo ${LINE} | awk -F+ '{print $1}')
-       AMI_TYPE=$(echo ${LINE} | awk -F+ '{print $4}' | sed -E 's/([a-z]+).+/\1/')
+       AMI_TYPE=$(echo ${LINE} | awk -F+ '{print $2}' | sed -E 's/([a-z]+).+/\1/')
        for PROFILE in sandbox prod ; do
          ACCOUNT=$(grep "# login-${PROFILE}" "${GIT_DIR}/terraform/master/global/main.tf" | sed -E 's/^.*\"([0-9]+)\".*$/\1/')
          AV_PROFILE=$(get_profile_name ${ACCOUNT})
