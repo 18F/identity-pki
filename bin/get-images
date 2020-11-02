@@ -9,7 +9,7 @@ set -eu
 PROFILE_LIST='sandbox prod'
 HEADERS="|AMI Date Account Description|"
 DATA=()
-USER_AMIS=
+declare {TASK,USER_AMIS}=
 
 usage() {
     cat >&2 << EOM
@@ -76,11 +76,11 @@ mdout() {
 
 get_ami_info() {
   for PROFILE in $PROFILE_LIST ; do
+    PIPELINE_AMIS=()
     ACCOUNT=$(grep "# login-${PROFILE}" "${GIT_DIR}/terraform/master/global/main.tf" | sed -E 's/^.*\"([0-9]+)\".*$/\1/')
     AV_PROFILE=$(get_profile_name ${ACCOUNT})
     case ${PROFILE} in
       sandbox)
-        PIPELINE_AMIS=()
         for TYPE in base rails ; do
           if [[ $(echo "${USER_AMIS}" | grep ${TYPE}) ]] ; then
             PIPELINE_AMIS+=($(echo "${USER_AMIS}" | tr ' ' '\n' | grep ${TYPE} | awk -F, '{print $NF}'))
@@ -96,15 +96,18 @@ get_ami_info() {
                         contains($build)).responseElements.imageId'))
           fi
         done
-        IMAGES=$(echo "${PIPELINE_AMIS[*]}")
       ;;
       prod)
-        IMAGES=$(run_av aws ec2 describe-images \
-                --owners self \
-                --query 'Images[*].[ImageId,CreationDate]' \
-                --output text | sort -rk2 | head -n 2 | awk '{print $1}')
+        for TYPE in base rails ; do
+          PIPELINE_AMIS+="$(run_av aws ec2 describe-images \
+                  --owners self \
+                  --filters "Name=name,Values=login.gov $TYPE*" \
+                  --query 'Images[*].[ImageId,CreationDate]' \
+                  --output text | sort -rk2 | head -n 1 | awk '{print $1}') "
+        done
       ;;
     esac
+    IMAGES=$(echo "${PIPELINE_AMIS[*]}")
     echo && echo_green "Generating \`login-${PROFILE}\` AMI data..." && echo
     DATA+=$(echo -e "\n$(run_av aws ec2 describe-images \
                 --image-ids ${IMAGES} \
@@ -128,21 +131,21 @@ get_ami_dates() {
 
 create_prod_amis() {
  if prompt_yn "Create new \`prod\` AMIs using \`copy-image\` and \`share-image\` ?" ; then
-   for ROLE in base rails ; do
-     for PROFILE in prod sandbox ; do
-       ACCOUNT=$(grep "# login-${PROFILE}" "${GIT_DIR}/terraform/master/global/main.tf" | sed -E 's/^.*\"([0-9]+)\".*$/\1/')
-       AV_PROFILE=$(get_profile_name ${ACCOUNT})
-       if [[ ${PROFILE} == "prod" ]] ; then
-         run_av ${GIT_DIR}/bin/copy-image.sh --role ${ROLE}
-       elif [[ ${PROFILE} == "sandbox" ]] ; then
-         run_av ${GIT_DIR}/bin/share-image.sh --role ${ROLE}
-       fi
-     done
-   done
-   echo -e "\nNew \`prod\` AMIs created! Updating current AMI table...\n"
-   DATA=()
-   get_ami_info
- fi
+    for LINE in $(echo "${DATA[@]}" | tail -n +2 | head -n 2 | tr -d '|' |
+                      awk '{print $1"+"$4}') ; do
+       AMI_ID=$(echo ${LINE} | awk -F+ '{print $1}')
+       AMI_TYPE=$(echo ${LINE} | awk -F+ '{print $4}' | sed -E 's/([a-z]+).+/\1/')
+       for PROFILE in sandbox prod ; do
+         ACCOUNT=$(grep "# login-${PROFILE}" "${GIT_DIR}/terraform/master/global/main.tf" | sed -E 's/^.*\"([0-9]+)\".*$/\1/')
+         AV_PROFILE=$(get_profile_name ${ACCOUNT})
+         if [[ ${PROFILE} == "sandbox" ]] ; then
+           run_av ${GIT_DIR}/bin/share-image.sh --role ${AMI_TYPE} --ami ${AMI_ID}
+         elif [[ ${PROFILE} == "prod" ]] ; then
+           run_av ${GIT_DIR}/bin/copy-image.sh --role ${AMI_TYPE} --ami ${AMI_ID}
+         fi
+       done
+    done
+  fi
 }
 
 update_ami_ids() {
@@ -199,18 +202,23 @@ fi
 
 while [[ "$#" -gt 0 ]]; do
   case "${1}" in
-    -c|--create-amis) create_prod_amis && exit 0 ;;
-    -u|--update-amis) update_ami_ids && exit 0   ;;
-    -o|--open-pr)     open_ami_pr && exit 0      ;;
-    -b|--base-ami)    shift && USER_AMIS+="base,${1} "   ;;
-    -r|--rails-ami)   shift && USER_AMIS+="rails,${1} "  ;;
-    -h|--help)        usage && exit 0            ;;
-    *) raise "Unknown parameter passed: ${1}"    ;;
+    -c|--create-amis) TASK='create'                     ;;
+    -u|--update-amis) TASK='update'                     ;;
+    -o|--open-pr)     TASK='open'                       ;;
+    -b|--base-ami)    shift && USER_AMIS+="base,${1} "  ;;
+    -r|--rails-ami)   shift && USER_AMIS+="rails,${1} " ;;
+    -h|--help)        usage && exit 0                   ;;
+    *) raise "Unknown parameter passed: ${1}"           ;;
   esac
   shift
 done
 
 get_ami_info
+case "${TASK}" in
+  create) create_prod_amis && exit 0 ;;
+  update) update_ami_ids && exit 0 ;;
+  open) open_ami_pr && exit 0 ;;
+esac
 
 if [[ $(get_ami_dates | wc -l | tr -d ' ') == 2 ]] ; then
   SANDBOX_DATE="$(get_ami_dates | head -n 1 | awk '{print $2}')-00:00:00"
@@ -220,6 +228,9 @@ if [[ $(get_ami_dates | wc -l | tr -d ' ') == 2 ]] ; then
     get_ami_dates
     echo
     create_prod_amis
+    echo -e "\nNew \`prod\` AMIs created! Updating current AMI table...\n"
+    DATA=()
+    get_ami_info
   fi
 fi
 
