@@ -114,7 +114,7 @@ module "main" {
     "michael.antiporta"  = ["analytics"],
     "mitchell.henke"     = ["appdev", "apponcall"],
     "mossadeq.zia"       = ["devops", "secops", "keymasters"],
-    "oren.kanner"        = ["appdev", "bizops"],
+    "oren.kanner"        = ["appdev", "apponcall", "bizops"],
     "phil.lam"           = ["analytics"],
     "paul.hirsch"        = ["devops"],
     "sierra.toler"       = ["bizops"],
