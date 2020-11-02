@@ -83,7 +83,13 @@ get_ami_info() {
       sandbox)
         for TYPE in base rails ; do
           if [[ $(echo "${USER_AMIS}" | grep ${TYPE}) ]] ; then
-            PIPELINE_AMIS+=($(echo "${USER_AMIS}" | tr ' ' '\n' | grep ${TYPE} | awk -F, '{print $NF}'))
+            TEST_AMI=$(echo "${USER_AMIS}" | tr ' ' '\n' | grep ${TYPE} | awk -F, '{print $NF}')
+            echo && echo_purple "Verifying ${TYPE} AMI ${TEST_AMI}..."
+            if [[ $(run_av aws ec2 describe-images --image-ids ${TEST_AMI}) ]] ; then
+              PIPELINE_AMIS+=(${TEST_AMI})
+            else
+              raise "AMI ID ${TEST_AMI} invalid; check and try again"
+            fi
           else
             echo && echo_purple "Finding most recent AMI built by login-image-${TYPE} in CodeBuild..." && echo
             BUILD=$(run_av aws codebuild list-builds-for-project \
@@ -99,6 +105,7 @@ get_ami_info() {
       ;;
       prod)
         for TYPE in base rails ; do
+          echo && echo_purple "Getting most recent ${TYPE} prod AMI..."
           PIPELINE_AMIS+="$(run_av aws ec2 describe-images \
                   --owners self \
                   --filters "Name=name,Values=login.gov $TYPE*" \
@@ -107,8 +114,8 @@ get_ami_info() {
         done
       ;;
     esac
+    echo && echo_green "Generating \`login-${PROFILE}\` AMI data..."
     IMAGES=$(echo "${PIPELINE_AMIS[*]}")
-    echo && echo_green "Generating \`login-${PROFILE}\` AMI data..." && echo
     DATA+=$(echo -e "\n$(run_av aws ec2 describe-images \
                 --image-ids ${IMAGES} \
                 --query 'Images[*].[ImageId,CreationDate,Name]' \
