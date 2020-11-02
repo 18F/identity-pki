@@ -23,9 +23,10 @@ module "main" {
   }
 
 ## TODO: confirm list of buckets to add to Intelligent Tiering,
-## and remove those we don't need, before uncommenting this list.
+## and remove those we don't need, before uncommenting
+## the rest of this list.
 
-#  legacy_bucket_list = [
+legacy_bucket_list = [
 #    "894947205914-awsmacietrail-dataevent",
 #    "894947205914-tf",
 #    "aws-athena-query-results-894947205914-us-west-2",
@@ -68,13 +69,14 @@ module "main" {
 #    "login-gov-test-coverage",
 #    "login-gov.crissupb-idp-waf-logs.894947205914-us-west-2",
 #    "login-gov.scripts.lambda",
+  "login-gov.waf-logs.894947205914-us-west-2",
 #    "login-test-backup",
 #    "overbridgeconfigbucket-us-west-2-894947205914",
 #    "pauldoom-cw-cleanup",
 #    "sj2019-us-east-1-894947205914",
 #    "spinnaker-config-wren",
 #    "testingbucketgas",
-#  ]
+]
 
   cloudtrail_event_selectors  = [
     {
