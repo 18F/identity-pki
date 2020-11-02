@@ -23,7 +23,8 @@ module "main" {
 
   legacy_bucket_list = [
     "login-gov-prod-analytics",
-    "login-gov-global-trail"
+    "login-gov-global-trail",
+    "login-gov.waf-logs.555546682965-us-west-2",
   ]
 
   cloudtrail_event_selectors    = [
