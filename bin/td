@@ -92,13 +92,18 @@ else
 fi
 get_arn_role ${TF_PROFILE} 'Terraform'
 
+if [[ "${TF_CMD}" =~ ^(tfplan|apply|plan|destroy)$ ]] ; then
+  ARGS=$(echo " $@" | sed 's/ /&-/g')
+else
+  ARGS="$@"
+fi
+
 if [[ ${TF_CMD} == 'tfplan' ]] ; then
-  [[ -z "$@" ]] || ARGS="-$@"
   run aws-vault exec ${AV_PROFILE} -- $(dirname "$0")/${TF_CMD} ${ARGS} ${TF_DIR} ${TF_ENV}
 else  
   if [[ "${TF_DIR}" == 'app' ]] ; then
-    run aws-vault exec ${AV_PROFILE} -- $(dirname "$0")/tf-deploy ${TEST_RUN} ${TF_ENV} ${TF_DIR} ${TF_CMD} "$@"
+    run aws-vault exec ${AV_PROFILE} -- $(dirname "$0")/tf-deploy ${TEST_RUN} ${TF_ENV} ${TF_DIR} ${TF_CMD} ${ARGS}
   else
-    run aws-vault exec ${AV_PROFILE} -- $(dirname "$0")/tf-deploy ${TEST_RUN} ${TF_DIR}/${TF_ENV} ${TF_CMD} "$@"
+    run aws-vault exec ${AV_PROFILE} -- $(dirname "$0")/tf-deploy ${TEST_RUN} ${TF_DIR}/${TF_ENV} ${TF_CMD} ${ARGS}
   fi
 fi
