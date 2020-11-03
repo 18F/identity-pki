@@ -163,6 +163,7 @@ module "terraform-assumerole" {
             "ec2:CreateFlowLogs",
             "ec2:CreateInternetGateway",
             "ec2:CreateLaunchTemplate",
+            "ec2:CreateLaunchTemplateVersion",
             "ec2:CreateNetworkAcl",
             "ec2:CreateNetworkAclEntry",
             "ec2:CreateRoute",
