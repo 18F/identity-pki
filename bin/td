@@ -8,8 +8,8 @@ set -eu
 
 usage() {
     cat >&2 << EOM
-Usage: ${0} [-d TF_DIR|-e TF_ENV] -a|-p|-x|-t|-c OPTIONS
-                                  -s COMMAND
+Usage: ${0} [-d TF_DIR|-e TF_ENV] -a|-p|-x|-t|-o|-c ARGS
+                                  -s COMMAND | -f LOCK_ID
                                   -i RESOURCE_ADDRESS RESOURCE_ID
 
 Wrapper script to pass aws-vault-enabled Terraform commands to bin/tf-deploy,
@@ -27,37 +27,45 @@ Common command flags:
   -a : \`apply\`
   -p : \`plan\`
   -x : \`destroy\`
-  The above commands can be run with any additional arguments, e.g.
-  -target, -auto-approve, etc., if desired
+  The above commands can be run with arguments if desired.
+  Arguments must be specified WITHOUT hyphens,
+  e.g. target= instead of -target=
 
-State command flags (arguments must be provided):
+State command flags (arguments MUST be provided):
   -s COMMAND    : \`state '\$COMMAND'\`
+  -f LOCK_ID    : \`force-unlock '\$LOCK_ID'\`
   -i ADDRESS ID : \`import \$RESOURCE_ADDRESS \$RESOURCE_ID\`
 
 Other commands (optional:
-  -c OPTIONS : Runs \`tfplan\` using any OPTIONS provided.
-               Set OPTIONS without using dashes (e.g. m/p/mp)
-  -h         : Displays this help
+  -c ARGS : Runs \`tfplan\` using any ARGS provided.
+            Specify ARGS without using dashes (e.g. m/p/mp)
+  -o : Use \`ACCOUNT-admin\` instead of \`ACCOUNT-terraform\`
+       (to only be used if encountering permissions issues
+        with the active Terraform role)
+  -h : Displays this help
 
 EOM
 }
 
 verify_root_repo
 declare {ARGS,TEST_RUN,TF_CMD,TF_DIR,TF_ENV,TF_PROFILE,AV_PROFILE}=
+TF_ROLE='Terraform'
 
-while getopts d:e:apxsicth opt
+while getopts d:e:apxsictoh opt
 do
   case $opt in
-    d) TF_DIR="${OPTARG}"  ;;
-    e) TF_ENV="${OPTARG}" ;;
-    a) TF_CMD="apply"      ;;
-    p) TF_CMD="plan"       ;;
-    x) TF_CMD="destroy"    ;;
-    s) TF_CMD="state"      ;;
-    i) TF_CMD="import"     ;;
-    c) TF_CMD="tfplan"     ;;
-    t) TEST_RUN="-t"       ;;
-    h|*) usage && exit 0   ;;
+    d) TF_DIR="${OPTARG}"          ;;
+    e) TF_ENV="${OPTARG}"          ;;
+    a) TF_CMD="apply"              ;;
+    p) TF_CMD="plan"               ;;
+    x) TF_CMD="destroy"            ;;
+    s) TF_CMD="state"              ;;
+    i) TF_CMD="import"             ;;
+    f) TF_CMD="force-unlock"       ;;
+    c) TF_CMD="tfplan"             ;;
+    o) TF_ROLE="FullAdministrator" ;;
+    t) TEST_RUN="-t"               ;;
+    h|*) usage && exit 0           ;;
   esac
 done
 shift $((OPTIND-1))
@@ -90,12 +98,11 @@ else
     TF_PROFILE=${TF_ENV}
   fi
 fi
-get_arn_role ${TF_PROFILE} 'Terraform'
+get_arn_role ${TF_PROFILE} ${TF_ROLE}
 
-if [[ "${TF_CMD}" =~ ^(tfplan|apply|plan|destroy)$ ]] ; then
+ARGS="$@"
+if [[ ! -z ${ARGS} ]] && [[ "${TF_CMD}" =~ ^(tfplan|apply|plan|destroy)$ ]] ; then
   ARGS=$(echo " $@" | sed 's/ /&-/g')
-else
-  ARGS="$@"
 fi
 
 if [[ ${TF_CMD} == 'tfplan' ]] ; then
