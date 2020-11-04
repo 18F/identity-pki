@@ -13,6 +13,7 @@ end
 def main
   recycle_opts = {}
   skip_migration = false
+  skip_idpxtra = false
 
   basename = File.basename($0)
 
@@ -102,6 +103,10 @@ For example:
             'Do not run migration instance before starting IdP recycle') do
       skip_migration = true
     end
+   
+    opts.on('-X', '--skip-idpxtra', 'Do not include IDPXtra in IDP role recycle') do
+      skip_idpxtra = true
+    end
 
     opts.on('--delay-for-migration SEC',
             'Wait after migration start to spin up IdPs (Default: 300)') do |val|
@@ -147,6 +152,12 @@ For example:
     end
 
     as.start_recycle(asg_name, **recycle_opts)
+
+    if !skip_idpxtra && role == 'idp'
+      puts as.pastel.bold.yellow('Recycling idpxtra instance in parralel with idp')
+      as.start_recycle("#{env}-idpxtra", skip_zero: true, **recycle_opts)
+    end
+
     puts as.pastel.bold.blue('Done! Watch #login-events / #login-otherevents for abandoned/failed launches')
   end
 end
