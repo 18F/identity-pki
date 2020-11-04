@@ -206,3 +206,21 @@ resource "aws_autoscaling_policy" "idpxtra-cpu" {
     disable_scale_in = var.idp_cpu_autoscaling_disable_scale_in == 1 ? true : false
   }
 }
+
+module "idpxtra_insufficent_instances_alerts" {
+  source = "../modules/asg_insufficent_instances_alerts"
+
+  asg_name = aws_autoscaling_group.idpxtra.name
+
+  alarm_actions = local.high_priority_alarm_actions
+}
+
+module "idpxtra_unhealthy_instances_alerts" {
+  source = "../modules/alb_unhealthy_instances_alerts"
+
+  asg_name                = aws_autoscaling_group.idpxtra.name
+  alb_arn_suffix          = aws_alb.idp.arn_suffix
+  target_group_arn_suffix = aws_alb_target_group.idpxtra.arn_suffix
+
+  alarm_actions = local.low_priority_alarm_actions
+}
