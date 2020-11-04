@@ -1,17 +1,18 @@
 {
   "name": "pt",
   "description": "",
-  "cookbook_versions": {
-  },
+  "cookbook_versions": {},
   "json_class": "Chef::Environment",
   "chef_type": "environment",
   "default_attributes": {
     "login_dot_gov": {
-      "auto_eip_enabled_roles": ["jumphost", "outboundproxy"],
+      "auto_eip_enabled_roles": [
+        "jumphost",
+        "outboundproxy"
+      ],
       "lockdown": "true"
     },
-    "ssh_keys": {
-    },
+    "ssh_keys": {},
     "elk": {
       "users": [
         "jgrevich",
@@ -32,7 +33,5 @@
       }
     }
   },
-  "override_attributes": {
-
-  }
+  "override_attributes": {}
 }
