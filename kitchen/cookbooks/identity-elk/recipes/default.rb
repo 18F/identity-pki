@@ -393,7 +393,8 @@ end
   'idp-production',
   'nginx-access',
   'nginx-error',
-  'nginx-fancy-drop'
+  'nginx-fancy-drop',
+  'squid-access'
 ].each do |config|
   cookbook_file "/etc/logstash/logstashconf.d/#{config}.conf" do
     group  'logstash'
