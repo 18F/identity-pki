@@ -61,7 +61,7 @@ module "pivcac_recycle" {
   # https://github.com/hashicorp/terraform/issues/953
   enabled = var.asg_auto_recycle_enabled * var.pivcac_service_enabled
 
-  use_daily_business_hours_schedule = var.asg_auto_recycle_use_business_schedule
+  use_daily_business_hours_schedule = var.asg_recycle_business_hours
 
   asg_name = element(concat(aws_autoscaling_group.pivcac.*.name, [""]), 0)
   normal_desired_capacity = element(
@@ -131,8 +131,8 @@ resource "aws_autoscaling_group" "pivcac" {
   }
 
   min_size         = 0
-  max_size         = var.pivcac_nodes * 2
-  desired_capacity = var.pivcac_nodes
+  max_size         = var.asg_pivcac_desired * 2
+  desired_capacity = var.asg_pivcac_desired
 
   wait_for_capacity_timeout = 0
 

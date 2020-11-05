@@ -1,8 +1,7 @@
 variable "enable_rds_idp_read_replica" {
   description = "Whether to create an RDS read replica of the IDP database"
   default     = false
-  # TODO: TF 0.12
-  # type = bool
+  type        = bool
 }
 
 variable "rds_backup_retention_period" {
@@ -58,16 +57,12 @@ variable "rds_storage_type_idp_replica" {
 
 variable "rds_iops_idp" {
   description = "If PIOPS storage is used, the number of IOPS provisioned"
-
-  # Terraform doesn't distinguish between 0 and unset / TODO TF 0.12
-  default = 0
+  default     = 0
 }
 
 variable "rds_iops_idp_replica" {
   description = "If PIOPS storage is used, the number of IOPS provisioned for the read replica"
-
-  # Terraform doesn't distinguish between 0 and unset / TODO TF 0.12
-  default = 0
+  default     = 0
 }
 
 variable "rds_password" {
@@ -78,11 +73,11 @@ variable "rds_storage_app" {
 }
 
 variable "rds_storage_idp" {
-  default = "8"
+  default = "26"
 }
 
 variable "rds_storage_idp_replica" {
-  default = "8"
+  default = "26"
 }
 
 variable "rds_username" {

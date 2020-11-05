@@ -380,8 +380,6 @@ load_env_module_style() {
         return 3
     fi
 
-    MOVED_TO_TFVARS=
-
     # verify that current_tf_version is within versions supported
     # by terraform-switch
     check_terraform_version 'KNOWN_TF_VERSIONS' "${KNOWN_TF_VERSIONS[@]}" >&2
@@ -404,19 +402,15 @@ load_env_devops_private_style() {
 
     aws_account_id="$TF_VAR_account_id"
 
-    if [ -n "$MOVED_TO_TFVARS" ]; then
-        echo >&2 "Looks like this environment has switched to using .tfvars files"
-
-        # read a list of .tfvars files printed by get-tfvars-for-env
-        tfvars_names="$(bin/deploy/get-tfvars-for-env "$aws_account_id" "$ENVIRONMENT")"
-
-        # render an array prefixing each filename with -var-file
-        # in bash 4 we could use mapfile instead
-        tf_vars_opts=()
-        while IFS= read -r line; do
-            tf_vars_opts+=( "-var-file" "$line" )
-        done <<< "$tfvars_names"
-    fi
+    echo >&2 "Looks like this environment has switched to using .tfvars files"
+    # read a list of .tfvars files printed by get-tfvars-for-env
+    tfvars_names="$(bin/deploy/get-tfvars-for-env "$aws_account_id" "$ENVIRONMENT")"
+    # render an array prefixing each filename with -var-file
+    # in bash 4 we could use mapfile instead
+    tf_vars_opts=()
+    while IFS= read -r line; do
+      tf_vars_opts+=( "-var-file" "$line" )   
+    done <<< "$tfvars_names"
 
     # Check that current version of terraform is supported by our environment. This
     # array should be set in the environment-specific variables.
@@ -553,7 +547,7 @@ run terraform get >&2
 # plan/apply etc. (Only do this for terraform subcommands that accept
 # -var-file. For terraform apply you can't pass vars if you also pass a plan
 # file, so allow the caller to disable loading vars with ID_SKIP_LOADING_VARS.)
-if [ -n "$MOVED_TO_TFVARS" ] && [ -z "${ID_SKIP_LOADING_VARS-}" ]; then
+if [ -z "${ID_SKIP_LOADING_VARS-}" ]; then
     tf_subcommand="${TF_CMD[0]-}"
 
     # these are the subcommands that accept -var-file
