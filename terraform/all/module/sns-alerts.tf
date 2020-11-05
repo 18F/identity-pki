@@ -17,7 +17,7 @@ resource "aws_sns_topic" "slack_events" {
 }
 
 module "slack_login_events" {
-  source = "github.com/18F/identity-terraform//slack_lambda?ref=21a2ce16cf1dbf85822c9005d72f8d17cb9dbe4b"
+  source = "github.com/18F/identity-terraform//slack_lambda?ref=96156eb1cec8900b05ca7f507f80a37bbaa1ea4f"
   #source = "../../../../identity-terraform/slack_lambda"
   
   lambda_name        = "snstoslack_login_events"
@@ -34,7 +34,7 @@ resource "aws_sns_topic" "slack_otherevents" {
 }
 
 module "slack_login_otherevents" {
-  source = "github.com/18F/identity-terraform//slack_lambda?ref=21a2ce16cf1dbf85822c9005d72f8d17cb9dbe4b"
+  source = "github.com/18F/identity-terraform//slack_lambda?ref=96156eb1cec8900b05ca7f507f80a37bbaa1ea4f"
   #source = "../../../../identity-terraform/slack_lambda"
   
   lambda_name        = "snstoslack_login_otherevents"
@@ -51,7 +51,7 @@ resource "aws_sns_topic" "slack_soc" {
 }
 
 module "slack_login_soc" {
-  source = "github.com/18F/identity-terraform//slack_lambda?ref=21a2ce16cf1dbf85822c9005d72f8d17cb9dbe4b"
+  source = "github.com/18F/identity-terraform//slack_lambda?ref=96156eb1cec8900b05ca7f507f80a37bbaa1ea4f"
   #source = "../../../../identity-terraform/slack_lambda"
   
   lambda_name        = "snstoslack_login_soc"
@@ -71,7 +71,7 @@ resource "aws_sns_topic_subscription" "opsgenie_alert" {
   topic_arn = aws_sns_topic.opsgenie_alert.arn
   endpoint_auto_confirms = true
   protocol  = "https"
-  endpoint  = "https://api.opsgenie.com/v1/json/cloudwatch?apiKey=${data.aws_s3_bucket_object.opsgenie_sns_apikey.body}"
+  endpoint  = "https://api.opsgenie.com/v1/json/cloudwatchevents?apiKey=${data.aws_s3_bucket_object.opsgenie_sns_apikey.body}"
 }
 
 # us-east-1
@@ -84,7 +84,7 @@ module "slack_login_events_use1" {
   providers = {
     aws = aws.use1
   }
-  source = "github.com/18F/identity-terraform//slack_lambda?ref=21a2ce16cf1dbf85822c9005d72f8d17cb9dbe4b"
+  source = "github.com/18F/identity-terraform//slack_lambda?ref=96156eb1cec8900b05ca7f507f80a37bbaa1ea4f"
   #source = "../../../../identity-terraform/slack_lambda"
   
   lambda_name        = "snstoslack_login_events"
@@ -105,7 +105,7 @@ module "slack_login_otherevents_use1" {
   providers = {
     aws = aws.use1
   }
-  source = "github.com/18F/identity-terraform//slack_lambda?ref=21a2ce16cf1dbf85822c9005d72f8d17cb9dbe4b"
+  source = "github.com/18F/identity-terraform//slack_lambda?ref=96156eb1cec8900b05ca7f507f80a37bbaa1ea4f"
   #source = "../../../../identity-terraform/slack_lambda"
   
   lambda_name        = "snstoslack_login_otherevents"
@@ -126,7 +126,7 @@ module "slack_login_soc_use1" {
   providers = {
     aws = aws.use1
   }
-  source = "github.com/18F/identity-terraform//slack_lambda?ref=21a2ce16cf1dbf85822c9005d72f8d17cb9dbe4b"
+  source = "github.com/18F/identity-terraform//slack_lambda?ref=96156eb1cec8900b05ca7f507f80a37bbaa1ea4f"
   #source = "../../../../identity-terraform/slack_lambda"
   
   lambda_name        = "snstoslack_login_soc"
