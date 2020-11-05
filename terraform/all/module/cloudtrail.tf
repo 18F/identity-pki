@@ -124,7 +124,7 @@ module "cloudtrail_bucket_config" {
 
 resource "aws_cloudwatch_log_group" "cloudtrail_default" {
   name = "CloudTrail/DefaultLogGroup"
-  retention_in_days = 90
+  retention_in_days = 365
 }
 
 resource "aws_iam_role" "cloudtrail_cloudwatch_logs" {
