@@ -50,6 +50,11 @@ Options:
     -t, --test              Skip sending a message to Slack whether or not
                             the operation is successful. Useful when testing
                             errors that "plan" does not detect.
+    -z, --zero-out-hosts    In addition to the other loaded .tfvars files,
+                            load the tf_zero.tfvars file which overrides all
+                            asg_*_min / asg_*_desired values with 0. Can be
+                            used anytime, but is necessary when (re)building an
+                            environment from scratch.
 
 For older terraform directories that use identity-devops-private, env-specific
 config variables will be loaded automatically from identity-devops-private.
@@ -138,7 +143,7 @@ verify_repo_root_unchanged "$repo_root_before_cd" "$basename"
 ORIGIN_REMOTE_NAME="${ORIGIN_REMOTE_NAME-origin}"
 
 # Parse options
-declare {IMPORT_REMOTE_STATE,TEST_ONLY}=
+declare {IMPORT_REMOTE_STATE,TEST_ONLY,EXTRA_ENV}=
 while [ $# -gt 0 ] && [[ $1 == -* ]]; do
     case "$1" in
         -h|--help)
@@ -147,6 +152,9 @@ while [ $# -gt 0 ] && [[ $1 == -* ]]; do
             ;;
         -t|--test)
             TEST_ONLY=1
+            ;;
+        -z|--zero-out-hosts)
+            EXTRA_ENV="tf_zero"
             ;;
         --import-remote-state)
             IMPORT_REMOTE_STATE=1
@@ -265,6 +273,9 @@ check_release_versioning() {
     echo >&2 "DEPLOY: Checking whether environment versioning is recommended"
     strict_check="${STRICT_ENVIRONMENT-}"
     [ -z "$strict_check" ] && return
+
+    # Prevent tf_create / tf_destroy from being run on strict envs
+    EXTRA_ENV=
 
     # Instead of requiring stages/prod, stages/sms-prod, etc we squeeze
     # like-environments together.
@@ -391,6 +402,7 @@ load_env_module_style() {
 # Load and validate environment variables from identity-devops-private using
 # bin/deploy/load-env.sh and bin/deploy/get-tfvars-for-env
 load_env_devops_private_style() {
+    local strict_check
     echo >&2 "DEPLOY: Loading shared-style environment variables..."
     verify_not_module_style
     . bin/deploy/load-env.sh "$ENVIRONMENT"
@@ -403,8 +415,11 @@ load_env_devops_private_style() {
     aws_account_id="$TF_VAR_account_id"
 
     echo >&2 "Looks like this environment has switched to using .tfvars files"
+
+    strict_check="${STRICT_ENVIRONMENT-}"
+    [[ -z "${strict_check}" ]] || EXTRA_ENV=
     # read a list of .tfvars files printed by get-tfvars-for-env
-    tfvars_names="$(bin/deploy/get-tfvars-for-env "$aws_account_id" "$ENVIRONMENT")"
+    tfvars_names="$(bin/deploy/get-tfvars-for-env "$aws_account_id" "$ENVIRONMENT" "$EXTRA_ENV")"
     # render an array prefixing each filename with -var-file
     # in bash 4 we could use mapfile instead
     tf_vars_opts=()
