@@ -238,6 +238,17 @@ resource "aws_network_acl_rule" "idp-ingress-cloudhsm" {
   cidr_block     = var.vpc_cidr_block
 }
 
+resource "aws_network_acl_rule" "idp-ingress-proxy" {
+  network_acl_id = aws_network_acl.idp.id
+  egress         = false
+  from_port      = 1024
+  to_port        = 65535
+  protocol       = "tcp"
+  rule_number    = 47
+  rule_action    = "allow"
+  cidr_block     = var.vpc_cidr_block
+}
+
 # ------------- end idp rules --------------------
 
 resource "aws_network_acl" "alb" {
