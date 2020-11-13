@@ -143,9 +143,9 @@ resource "aws_ssm_parameter" "kms_key_arn" {
   value = aws_kms_key.idp_doc_capture.arn
 }
 
-# starter value only
-# real key will be populated manually
-resource "aws_ssm_parameter" "something" {
+# starter values only
+# real keys will be populated manually
+resource "aws_ssm_parameter" "doc_capture_secrets" {
   count       = length(local.doc_capture_secrets)
   name        = "${local.doc_capture_ssm_parameter_prefix}${local.doc_capture_secrets[count.index].name}"
   description = "${local.doc_capture_secrets[count.index].description}"
