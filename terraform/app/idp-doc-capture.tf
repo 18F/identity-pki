@@ -122,27 +122,13 @@ resource "aws_ssm_parameter" "kms_key_arn" {
   value = aws_kms_key.idp_doc_capture.arn
 }
 
-# starter value only
-# real key will be populated manually
-resource "aws_ssm_parameter" "address_proof_token" {
-  name        = "${local.doc_capture_ssm_parameter_prefix}address_proof_result_token"
-  description = "Address proof token"
-  type        = "SecureString"
-  overwrite   = false
-  value       = "Starter value"
+# starter values only
+# real keys will be populated manually
+resource "aws_ssm_parameter" "doc_capture_secrets" {
+  for_each = var.doc_capture_secrets
 
-  lifecycle {
-    ignore_changes = [
-      value
-    ]
-  }
-}
-
-# starter value only
-# real key will be populated manually
-resource "aws_ssm_parameter" "resolution_proof_token" {
-  name        = "${local.doc_capture_ssm_parameter_prefix}resolution_proof_result_token"
-  description = "Resolution proof token"
+  name        = each.key
+  description = each.value
   type        = "SecureString"
   overwrite   = false
   value       = "Starter value"

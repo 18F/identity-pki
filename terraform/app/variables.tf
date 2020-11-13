@@ -403,7 +403,7 @@ variable "idpxtra_sp_networks" {
   # WARNING - ANY IP matching these lists will get routed to idpxtra, including
   #           users.  Use this feature only when really needed or for explicit testing!
   description = "Map of friendly names to lists of CIDR blocks to route to idpxtra pool, used for SP to IdP token and other requests"
-  type    = map(list(string))
+  type        = map(list(string))
   # Example: {"sba_dlap" = ["5.5.5.0/24", "7.7.5.1/32"]}
   default = {}
 }
@@ -605,4 +605,30 @@ variable "web_warn_threshold" {
 variable "keep_legacy_bucket" {
   description = "Whether or not to preserve the login-gov-ENV-logs bucket. Should only be used in staging and prod."
   default     = false
+}
+
+variable "doc_capture_secrets" {
+  description = "Map of key name/descriptions of empty SSM parameter store items to create"
+  type        = map(string)
+  default = {
+    aamva_private_key                  = "AAMVA private key",
+    aamva_public_key                   = "AAMVA public key",
+    acuant_assure_id_password          = "Acuant AssureID password",
+    acuant_assure_id_subscription_id   = "Accuant AssureID subscription ID",
+    acuant_assure_id_url               = "Acuant AssureID URL",
+    acuant_assure_id_username          = "Acuant AssureID username",
+    acuant_facial_match_url            = "Acuant facial match URL",
+    acuant_passlive_url                = "Acuant passlive URL",
+    acuant_timeout                     = "Acuant timeout",
+    address_proof_result_token         = "Address proof result API authentication token, corresponds to address_proof_result_lambda_token in IDP",
+    document_proof_result_token        = "Document proof result API authentication token, corresponds to document_proof_result_lambda_token in IDP",
+    lexisnexis_account_id              = "LexisNexis account ID",
+    lexisnexis_base_url                = "LexisNexis base URL",
+    lexisnexis_instant_verify_workflow = "LexisNexis InstantVerify workflow name",
+    lexisnexis_password                = "LexisNexis password",
+    lexisnexis_phone_finder_workflow   = "LexisNexis PhoneFinder workflow name",
+    lexisnexis_request_mode            = "LexisNexis request mode",
+    lexisnexis_username                = "LexisNexis username",
+    resolution_proof_result_token      = "Resolution proof result API authentication token, corresponds to resolution_proof_result_lambda_token in IDP",
+  }
 }
