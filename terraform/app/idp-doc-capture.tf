@@ -3,27 +3,6 @@ locals {
   doc_capture_key_alias_name        = "alias/${var.env_name}-idp-doc-capture"
   doc_capture_ssm_parameter_prefix  = "/${var.env_name}/idp/doc-capture/"
   doc_capture_domain_name           = var.env_name == "prod" ? "secure.${var.root_domain}" : "idp.${var.env_name}.${var.root_domain}"
-  doc_capture_secrets               = [
-    { name = "aamva_private_key", description = "AAMVA private key" },
-    { name = "aamva_public_key", description = "AAMVA public key" },
-    { name = "acuant_assure_id_password", description = "Acuant AssureID password" },
-    { name = "acuant_assure_id_subscription_id", description = "Accuant AssureID subscription ID" },
-    { name = "acuant_assure_id_url", description = "Acuant AssureID URL" },
-    { name = "acuant_assure_id_username", description = "Acuant AssureID username" },
-    { name = "acuant_facial_match_url", description = "Acuant facial match URL" },
-    { name = "acuant_passlive_url", description = "Acuant passlive URL" },
-    { name = "acuant_timeout", description = "Acuant timeout" },
-    { name = "address_proof_result_token", description = "Address proof result API authentication token" },
-    { name = "document_proof_result_token", description = "Document proof result API authentication token" },
-    { name = "lexisnexis_account_id", description = "LexisNexis account ID" },
-    { name = "lexisnexis_base_url", description = "LexisNexis base URL" },
-    { name = "lexisnexis_instant_verify_workflow", description = "LexisNexis InstantVerify workflow name" },
-    { name = "lexisnexis_password", description = "LexisNexis password" },
-    { name = "lexisnexis_phone_finder_workflow", description = "LexisNexis PhoneFinder workflow name" },
-    { name = "lexisnexis_request_mode", description = "LexisNexis request mode" },
-    { name = "lexisnexis_username", description = "LexisNexis username" },
-    { name = "resolution_proof_result_token", description = "Resolution proof result API authentication token" },
-  ]
 }
 
 resource "aws_kms_key" "idp_doc_capture" {
@@ -146,9 +125,10 @@ resource "aws_ssm_parameter" "kms_key_arn" {
 # starter values only
 # real keys will be populated manually
 resource "aws_ssm_parameter" "doc_capture_secrets" {
-  count       = length(local.doc_capture_secrets)
-  name        = "${local.doc_capture_ssm_parameter_prefix}${local.doc_capture_secrets[count.index].name}"
-  description = "${local.doc_capture_secrets[count.index].description}"
+  for_each = var.doc_capture_secrets
+
+  name        = each.key
+  description = each.value
   type        = "SecureString"
   overwrite   = false
   value       = "Starter value"
