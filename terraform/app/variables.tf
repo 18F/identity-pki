@@ -620,8 +620,8 @@ variable "doc_capture_secrets" {
     acuant_facial_match_url            = "Acuant facial match URL",
     acuant_passlive_url                = "Acuant passlive URL",
     acuant_timeout                     = "Acuant timeout",
-    address_proof_result_token         = "Address proof result API authentication token",
-    document_proof_result_token        = "Document proof result API authentication token",
+    address_proof_result_token         = "Address proof result API authentication token, corresponds to address_proof_result_lambda_token in IDP",
+    document_proof_result_token        = "Document proof result API authentication token, corresponds to document_proof_result_lambda_token in IDP",
     lexisnexis_account_id              = "LexisNexis account ID",
     lexisnexis_base_url                = "LexisNexis base URL",
     lexisnexis_instant_verify_workflow = "LexisNexis InstantVerify workflow name",
@@ -629,6 +629,6 @@ variable "doc_capture_secrets" {
     lexisnexis_phone_finder_workflow   = "LexisNexis PhoneFinder workflow name",
     lexisnexis_request_mode            = "LexisNexis request mode",
     lexisnexis_username                = "LexisNexis username",
-    resolution_proof_result_token      = "Resolution proof result API authentication token",
+    resolution_proof_result_token      = "Resolution proof result API authentication token, corresponds to resolution_proof_result_lambda_token in IDP",
   }
 }
