@@ -16,7 +16,12 @@ terraform {
 }
 
 provider "aws" {
-  region  = var.region
+  region = var.region
+}
+
+provider "aws" {
+  region = "us-west-2"
+  alias  = "usw2"
 }
 
 provider "aws" {
@@ -57,6 +62,7 @@ module "tf-state" {
   source = "github.com/18F/identity-terraform//state_bucket?ref=21a2ce16cf1dbf85822c9005d72f8d17cb9dbe4b"
   #source = "../../../../identity-terraform/state_bucket"
 
+  remote_state_enabled = 0
   region             = var.region
   bucket_name_prefix = "login-gov"
   sse_algorithm      = "AES256"

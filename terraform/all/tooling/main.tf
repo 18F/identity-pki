@@ -1,7 +1,7 @@
 provider "aws" {
   region              = "us-west-2"
-  allowed_account_ids = ["034795980528"] # require login-interviews
-  profile             = "login-interviews"
+  allowed_account_ids = ["034795980528"] # require login-tooling
+  profile             = "login-tooling"
 }
 
 # Stub remote config
@@ -13,7 +13,7 @@ terraform {
 module "main" {
   source                       = "../module"
 
-  iam_account_alias  = "login-interviews"
+  iam_account_alias  = "login-tooling"
   account_roles_map = {
     iam_appdev_enabled = false
   }

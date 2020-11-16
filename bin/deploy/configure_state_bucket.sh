@@ -64,6 +64,20 @@ aws() {
   env aws "$@"
 }
 
+prompt_and_add_key() {
+  local ENTRY=
+  local KEY=$1
+  local DESCRIPTION=$2
+  while [ -z $ENTRY ] ; do
+    read -r -p "Enter the ${DESCRIPTION}: " ENTRY
+  done
+  echo $ENTRY > $KEY
+  aws s3 cp $KEY "s3://$BUCKET/$KEY" \
+          --no-guess-mime-type \
+          --content-type="text/plain"
+  rm $KEY
+}
+
 # Ensure remote state S3 bucket and dynamodb table exist.
 # If not, create them.
 check_or_create_remote_state_resources() {
@@ -82,6 +96,13 @@ check_or_create_remote_state_resources() {
       log "Enabling versioning on the s3 bucket"
       aws s3api put-bucket-versioning --bucket "$BUCKET" \
           --versioning-configuration Status=Enabled
+
+      # The first time the bucket is created, prompt for the values
+      # for the Slack webhook and OpsGenie API key, and then
+      # add them as S3 keys to the bucket.
+      log "Ready to add Slack webhook and OpsGenie API key to bucket."
+      prompt_and_add_key 'slackwebhook' 'Slack webhook URL'
+      prompt_and_add_key 'opsgenie_sns_apikey' 'OpsGenie API key'
 
   elif [ "$ret" -ne 0 ]; then
       exit "$ret"
