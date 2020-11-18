@@ -23,12 +23,13 @@ resource "aws_cloudwatch_event_target" "slack_root_user_accessed" {
     provider = aws.use1
     rule = aws_cloudwatch_event_rule.root_user_accessed.name
     target_id = "SendToSlack"
-    arn = aws_sns_topic.slack_use1["login-soc-events"].arn
+    arn = aws_sns_topic.slack_use1["soc"].arn
 }
 
 resource "aws_cloudwatch_event_target" "opsgenie_root_user_accessed" {
+    count = var.opsgenie_key_ready ? 1 : 0
     provider = aws.use1
     rule = aws_cloudwatch_event_rule.root_user_accessed.name
     target_id = "SendToOpsgenie"
-    arn = aws_sns_topic.opsgenie_alert_use1.arn
+    arn = module.opsgenie_sns[0].use1_sns_topic_arn
 }

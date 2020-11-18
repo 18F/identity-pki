@@ -13,7 +13,7 @@ usage() {
 
 Usage: ${0}
 
-Deletes the \`terraform_locks\` DynamoDB table and the \`tf-state\` S3 bucket
+Deletes the \`terraform_locks\` DynamoDB table and any leftover S3 buckets
 from an account. Should only be used when resetting an account back to a
 clean slate and then repopulating it with the resources from terraform/all.
 
@@ -26,17 +26,24 @@ verify_root_repo
 AWS_ACCOUNT_NUM=$(aws sts get-caller-identity | jq -r '.Account')
 AWS_ACCT_NAME=$(aws iam list-account-aliases | jq -r '.AccountAliases[]')
 
-if ! prompt_yn "Delete state bucket and DynamoDB table from AWS account ${AWS_ACCOUNT_NUM} (${AWS_ACCT_NAME}) ? " ; then
+if [[ $(grep -E "# login-.*(prod|sandbox)" "terraform/master/global/main.tf" |
+            sed -E 's/^.*\"([0-9]+)\".*$/\1/' | grep "${AWS_ACCOUNT_NUM}" ) ]] ; then
+  raise 'Cannot delete a sandbox/prod account!'
+fi
+
+if ! prompt_yn "Delete S3 buckets and DynamoDB table from AWS account ${AWS_ACCOUNT_NUM} (${AWS_ACCT_NAME}) ? " ; then
   echo_blue "Exiting."
   exit 0
 else
-  run aws s3 rm s3://login-gov.tf-state.${AWS_ACCOUNT_NUM}-us-west-2/ --recursive
-  run python -c "import boto3 ;\
+  for BUCKET in $(aws s3api list-buckets --output text --query 'Buckets[*].Name'); do
+    run aws s3 rm s3://${BUCKET} --recursive
+    run python -c "import boto3 ;\
       session = boto3.Session() ;\
       s3 = session.resource(service_name='s3') ;\
-      bucket = s3.Bucket('login-gov.tf-state.${AWS_ACCOUNT_NUM}-us-west-2') ;\
+      bucket = s3.Bucket('${BUCKET}') ;\
       bucket.object_versions.delete()"
-  run aws s3api delete-bucket --bucket login-gov.tf-state.${AWS_ACCOUNT_NUM}-us-west-2
+    run aws s3api delete-bucket --bucket ${BUCKET}
+  done
   run aws dynamodb delete-table --table-name terraform_locks
   echo_blue "Waiting for deletion of \`terraform_locks\` to complete..."
   run aws dynamodb wait table-not-exists --table-name terraform_locks

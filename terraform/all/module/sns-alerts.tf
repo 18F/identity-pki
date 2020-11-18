@@ -1,10 +1,3 @@
-# TODO: decide if we use common/ for each account, or use the
-# common_account_name logic as used above for the slack_webhook object
-data "aws_s3_bucket_object" "opsgenie_sns_apikey" {
-  bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
-  key    = "common/opsgenie_sns_apikey"
-}
-
 # do not put the actual webhook url value in terraform
 resource "aws_ssm_parameter" "slack_webhook" {
   name = "/account/slack/webhook/url"
@@ -19,11 +12,11 @@ resource "aws_ssm_parameter" "slack_webhook" {
 }
 
 locals {
-  slack_channel_list = [
-    "login-events",
-    "login-otherevents",
-    "login-soc-events",
-  ]
+  slack_channel_map = {
+    "events"      = "login-events"
+    "otherevents" = "login-otherevents"
+    "soc"         = "login-soc-events"
+  }
 }
 
 ## Terraform providers cannot be generated, so we need a separate block for each region,
@@ -33,65 +26,56 @@ locals {
 ## us-west-2
 
 resource "aws_sns_topic" "slack_usw2" {
-  for_each = toset(local.slack_channel_list)
+  for_each = toset(keys(local.slack_channel_map))
 
-  name = "sns-slack-${each.key}"
+  name = "slack-${each.key}"
 }
 
 module "slack_lambda_usw2" {
-  for_each = toset(local.slack_channel_list)
+  for_each = local.slack_channel_map
   source = "github.com/18F/identity-terraform//slack_lambda?ref=7de782c072b4a2b869f986d710e5e2bcf6023f0f"
   #source = "../../../../identity-terraform/slack_lambda"
   
-  lambda_name        = "SNSToSlack-${each.key}"
-  lambda_description = "Sends messages to #${each.key} Slack channel via SNS subscription."
-  slack_webhook_url_parameter  = aws_ssm_parameter.slack_webhook.name
-  slack_channel      = each.key
-  slack_username     = var.slack_username
-  slack_icon         = var.slack_icon
-  slack_topic_arn    = aws_sns_topic.slack_usw2[each.key].arn
+  lambda_name                 = "snstoslack_login_${each.key}"
+  lambda_description          = "Sends messages to #login-${each.key} Slack channel via SNS subscription."
+  slack_webhook_url_parameter = aws_ssm_parameter.slack_webhook.name
+  slack_channel               = each.value
+  slack_username              = var.slack_username
+  slack_icon                  = var.slack_icon
+  slack_topic_arn             = aws_sns_topic.slack_usw2[each.key].arn
 }
 
-resource "aws_sns_topic" "opsgenie_alert_usw2" {
-  name = "opsgenie-alert"
-}
-
-resource "aws_sns_topic_subscription" "opsgenie_alert_usw2" {
-  topic_arn = aws_sns_topic.opsgenie_alert_usw2.arn
-  endpoint_auto_confirms = true
-  protocol  = "https"
-  endpoint  = "https://api.opsgenie.com/v1/json/cloudwatchevents?apiKey=${data.aws_s3_bucket_object.opsgenie_sns_apikey.body}"
+module "opsgenie_sns" {
+  count = var.opsgenie_key_ready ? 1 : 0
+  source = "../../modules/opsgenie_sns"
+  providers = {
+    aws.usw2 = aws.usw2
+    aws.use1 = aws.use1
+  }
 }
 
 ## us-east-1
 
 resource "aws_sns_topic" "slack_use1" {
-  for_each = toset(local.slack_channel_list)
+  provider = aws.use1
+  for_each = local.slack_channel_map
 
-  name = "sns-slack-${each.key}"
+  name = "slack-${each.key}"
 }
 
 module "slack_lambda_use1" {
-  for_each = toset(local.slack_channel_list)
+  for_each = local.slack_channel_map
   source = "github.com/18F/identity-terraform//slack_lambda?ref=7de782c072b4a2b869f986d710e5e2bcf6023f0f"
   #source = "../../../../identity-terraform/slack_lambda"
+  providers = {
+    aws = aws.use1
+  }
   
-  lambda_name        = "SNSToSlack-${each.key}"
-  lambda_description = "Sends messages to #${each.key} Slack channel via SNS subscription."
+  lambda_name        = "snstoslack_login_${each.key}"
+  lambda_description = "Sends messages to #login-${each.key} Slack channel via SNS subscription."
   slack_webhook_url_parameter  = aws_ssm_parameter.slack_webhook.name
-  slack_channel      = each.key
+  slack_channel      = each.value
   slack_username     = var.slack_username
   slack_icon         = var.slack_icon
   slack_topic_arn    = aws_sns_topic.slack_use1[each.key].arn
-}
-
-resource "aws_sns_topic" "opsgenie_alert_use1" {
-  name = "opsgenie-alert"
-}
-
-resource "aws_sns_topic_subscription" "opsgenie_alert_use1" {
-  topic_arn = aws_sns_topic.opsgenie_alert_use1.arn
-  endpoint_auto_confirms = true
-  protocol  = "https"
-  endpoint  = "https://api.opsgenie.com/v1/json/cloudwatchevents?apiKey=${data.aws_s3_bucket_object.opsgenie_sns_apikey.body}"
 }
