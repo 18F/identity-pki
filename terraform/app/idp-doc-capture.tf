@@ -122,12 +122,14 @@ resource "aws_ssm_parameter" "kms_key_arn" {
   value = aws_kms_key.idp_doc_capture.arn
 }
 
-# starter values only
-# real keys will be populated manually
+# Creates parameters but you need to set the values!
+# Only parameters used by all IdP functions should be included
+# TODO - Consider refactoring to place all IdP functions config
+#        under a path like `/ENV/idp/functions`
 resource "aws_ssm_parameter" "doc_capture_secrets" {
   for_each = var.doc_capture_secrets
 
-  name        = each.key
+  name        = "${local.doc_capture_ssm_parameter_prefix}${each.key}"
   description = each.value
   type        = "SecureString"
   overwrite   = false
