@@ -89,7 +89,11 @@ slack_notify () {
   if ! SLACK_CHANNEL=$(aws s3 cp "${BUCKET}/tfslackchannel" - 2>/dev/null) ; then
     SLACK_CHANNEL=$(aws s3 cp "${BUCKET}/slackchannel" -) || ((KEYS++))
   fi
-  SLACK_WEBHOOK=$(aws ssm get-parameter --name '/account/slack/webhook/url' --output text --with-decryption --query 'Parameter.Value')
+  SLACK_WEBHOOK=$(aws ssm get-parameter --name '/account/slack/webhook/url' --output text --with-decryption --query 'Parameter.Value') || ((KEYS++))
+  if [[ "${KEYS}" -gt 0 ]]; then
+    echo 'Slack channel/webhook missing from SSM parameter'
+    return 1
+  fi
   
   define PAYLOAD_JSON <<EOM
 {
