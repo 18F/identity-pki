@@ -607,7 +607,7 @@ variable "keep_legacy_bucket" {
   default     = false
 }
 
-variable "doc_capture_secrets" {
+variable "idp_function_parameters" {
   description = "Map of key name/descriptions of empty SSM parameter store items to create"
   type        = map(string)
   default = {
