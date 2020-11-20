@@ -83,9 +83,9 @@ resource "aws_iam_instance_profile" "ssm-access" {
 }
 
 resource "aws_ssm_parameter" "account_alarm_sns_topic" {
-  name = "/account/${var.region}/alert/sns/arn"
-  type = "String"
-  value = var.slack_events_sns_hook_arn
+  name        = "/account/${var.region}/alert/sns/arn"
+  type        = "String"
+  value       = var.slack_events_sns_hook_arn
   description = "Alarm notification topic"
+  overwrite   = true
 }
-
