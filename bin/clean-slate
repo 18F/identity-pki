@@ -26,9 +26,9 @@ verify_root_repo
 AWS_ACCOUNT_NUM=$(aws sts get-caller-identity | jq -r '.Account')
 AWS_ACCT_NAME=$(aws iam list-account-aliases | jq -r '.AccountAliases[]')
 
-if [[ $(grep -E "# login-.*(prod|sandbox)" "terraform/master/global/main.tf" |
+if [[ $(grep -E "# login-.*(prod|sandbox|master)" "terraform/master/global/main.tf" |
             sed -E 's/^.*\"([0-9]+)\".*$/\1/' | grep "${AWS_ACCOUNT_NUM}" ) ]] ; then
-  raise 'Cannot delete a sandbox/prod account!'
+  raise 'Cannot delete sandbox/prod/master accounts!'
 fi
 
 if ! prompt_yn "Delete S3 buckets and DynamoDB table from AWS account ${AWS_ACCOUNT_NUM} (${AWS_ACCT_NAME}) ? " ; then
