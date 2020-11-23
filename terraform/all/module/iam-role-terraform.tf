@@ -294,12 +294,15 @@ module "terraform-assumerole" {
           effect = "Allow"
           actions = [
             "iam:AddRoleToInstanceProfile",
+            "iam:AddUserToGroup",
             "iam:AttachRolePolicy",
+            "iam:AttachUserPolicy",
             "iam:CreateInstanceProfile",
             "iam:CreatePolicy",
             "iam:CreatePolicyVersion",
             "iam:CreateRole",
             "iam:CreateServiceLinkedRole",
+            "iam:CreateUser",
             "iam:DeleteAccessKey",
             "iam:DeleteAccountPasswordPolicy",
             "iam:DeleteInstanceProfile",
