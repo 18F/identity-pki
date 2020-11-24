@@ -226,6 +226,7 @@ module "terraform-assumerole" {
             "elasticache:DescribeCacheSubnetGroups",
             "elasticache:DescribeReplicationGroups",
             "elasticache:ListTagsForResource",
+            "elasticache:ModifyCacheSubnetGroup",
           ]
           resources = [
             "*",
@@ -383,6 +384,7 @@ module "terraform-assumerole" {
             "kms:PutKeyPolicy",
             "kms:ScheduleKeyDeletion",
             "kms:TagResource",
+            "kms:UpdateAlias",
             "kms:UpdateKeyDescription",
           ]
           resources = [
@@ -403,6 +405,7 @@ module "terraform-assumerole" {
             "lambda:GetPolicy",
             "lambda:ListVersionsByFunction*",
             "lambda:PublishVersion",
+            "lambda:UpdateEventSourceMapping",
             "lambda:UpdateFunctionCode",
             "lambda:UpdateFunctionConfiguration",
           ]
@@ -472,6 +475,7 @@ module "terraform-assumerole" {
             "rds:ListTagsForResource",
             "rds:ModifyDBInstance",
             "rds:ModifyDBParameterGroup",
+            "rds:ModifyDBSubnetGroup",
             "rds:RebootDBInstance",
             "rds:DeleteDBParameterGroup",
             "rds:DeleteDBSubnetGroup",

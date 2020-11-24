@@ -391,6 +391,8 @@ load_env_module_style() {
         return 3
     fi
 
+    MOVED_TO_TFVARS=
+
     # verify that current_tf_version is within versions supported
     # by terraform-switch
     check_terraform_version 'KNOWN_TF_VERSIONS' "${KNOWN_TF_VERSIONS[@]}" >&2
@@ -414,18 +416,20 @@ load_env_devops_private_style() {
 
     aws_account_id="$TF_VAR_account_id"
 
-    echo >&2 "Looks like this environment has switched to using .tfvars files"
+    if [ -n "$MOVED_TO_TFVARS" ]; then
+        echo >&2 "Looks like this environment has switched to using .tfvars files"
+        strict_check="${STRICT_ENVIRONMENT-}"
+        [[ -z "${strict_check}" ]] || EXTRA_ENV=
+        # read a list of .tfvars files printed by get-tfvars-for-env
+        tfvars_names="$(bin/deploy/get-tfvars-for-env "$aws_account_id" "$ENVIRONMENT" "$EXTRA_ENV")"
 
-    strict_check="${STRICT_ENVIRONMENT-}"
-    [[ -z "${strict_check}" ]] || EXTRA_ENV=
-    # read a list of .tfvars files printed by get-tfvars-for-env
-    tfvars_names="$(bin/deploy/get-tfvars-for-env "$aws_account_id" "$ENVIRONMENT" "$EXTRA_ENV")"
-    # render an array prefixing each filename with -var-file
-    # in bash 4 we could use mapfile instead
-    tf_vars_opts=()
-    while IFS= read -r line; do
-      tf_vars_opts+=( "-var-file" "$line" )   
-    done <<< "$tfvars_names"
+        # render an array prefixing each filename with -var-file
+        # in bash 4 we could use mapfile instead
+        tf_vars_opts=()
+        while IFS= read -r line; do
+            tf_vars_opts+=( "-var-file" "$line" )
+        done <<< "$tfvars_names"
+    fi
 
     # Check that current version of terraform is supported by our environment. This
     # array should be set in the environment-specific variables.
@@ -493,6 +497,7 @@ if [ -n "$MODULE_STYLE" ]; then
     load_env_module_style
 else
     style_description="shared, identity-devops-private, symlink style"
+    MOVED_TO_TFVARS=1
     load_env_devops_private_style
 fi
 
@@ -562,7 +567,7 @@ run terraform get >&2
 # plan/apply etc. (Only do this for terraform subcommands that accept
 # -var-file. For terraform apply you can't pass vars if you also pass a plan
 # file, so allow the caller to disable loading vars with ID_SKIP_LOADING_VARS.)
-if [ -z "${ID_SKIP_LOADING_VARS-}" ]; then
+if [ -n "$MOVED_TO_TFVARS" ] && [ -z "${ID_SKIP_LOADING_VARS-}" ]; then
     tf_subcommand="${TF_CMD[0]-}"
 
     # these are the subcommands that accept -var-file
@@ -587,17 +592,17 @@ echo_blue >&2 "Running terraform..."
 
 # Run main terraform command. This is the only command that should print to
 # stdout (reassigned to FD 3)
-run terraform "${TF_CMD[@]}" >&3 || DEPLOY_FAIL=true
+run terraform "${TF_CMD[@]}" >&3
+[[ "${?}" != 0 ]] && DEPLOY_FAIL='true'
 
 # if running apply or destroy, notify success/fail in Slack
-cd "${repo_root_before_cd}"
-define TF_VERSION_INFO <<EOM
+if [[ "${TF_CMD[0]}" =~ ^(apply|destroy)$ ]] && [[ -z ${TEST_ONLY} ]] ; then
+    cd "${repo_root_before_cd}"
+    define TF_VERSION_INFO <<EOM
 main_commit=$(git log -n 1 --pretty=format:"%H")
 main_branch=$(git rev-parse --abbrev-ref HEAD)
 main_version=$(cat VERSION.txt)
 EOM
-
-if [[ "${TF_CMD[0]}" =~ ^(apply|destroy)$ ]] && [[ -z ${TEST_ONLY} ]] ; then
 
     if [ -n "$MODULE_STYLE" ] ; then
         TF_DEPLOY_INFO=$(echo "${TF_VERSION_INFO}" | sed '$!s/$/\\n/' | tr -d '\n')
@@ -628,6 +633,6 @@ if [[ "${TF_CMD[0]}" =~ ^(apply|destroy)$ ]] && [[ -z ${TEST_ONLY} ]] ; then
         -e "${TF_SLACK_EMOJI}" \
         -p "${SLACK_PRETEXT}" \
         -m "${SLACK_MESSAGE}"
-fi
 
-[ "$DEPLOY_FAIL" == 'true' ] && exit 1
+    if [ "$DEPLOY_FAIL" == 'true' ] ; then exit 1 ; fi
+fi
