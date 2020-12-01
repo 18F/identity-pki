@@ -24,13 +24,6 @@ resource "aws_s3_bucket_object" "db_host_app" {
   content_type = "text/plain"
 }
 
-#resource "aws_s3_bucket_object" "db_host_idp" {
-#  bucket       = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
-#  key          = "${var.env_name}/db_host_idp"
-#  content      = aws_db_instance.idp.address
-#  content_type = "text/plain"
-#}
-
 resource "aws_s3_bucket_object" "dir_key" {
   for_each = toset(compact(local.app_dir_keys))
 

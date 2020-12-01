@@ -84,7 +84,7 @@ fi
 if [[ ${TF_DIR} == 'app' ]] ; then
   [[ -z ${TF_ENV} ]] && raise 'TF_ENV and/or default of GSA_USERNAME not set or specified'
   TF_PROFILE='sandbox'
-  [[ "${TF_ENV}" =~ '(staging|prod)' ]] && TF_PROFILE='prod'
+  [[ "${TF_ENV}" =~ (staging|prod) ]] && TF_PROFILE='prod'
 else
   if [[ ${TF_DIR} == 'master' ]] ; then
     TF_ENV='global'
