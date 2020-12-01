@@ -41,4 +41,4 @@ for KEY in $(ave aws s3 ls s3://login-gov.app-secrets.${AWS_ACCT_NUM}-${AWS_REGI
     ave aws s3 cp - s3://login-gov.app-secrets.${AWS_ACCT_NUM}-${AWS_REGION}/$GSA_USERNAME/$KEY/v1/application.yml
     done
 
-ave ${BASEPATH}/tf-deploy -t ${TF_ENV} app apply -auto-approve
+ave ${BASEPATH}/tf-deploy ${TF_ENV} app apply -auto-approve

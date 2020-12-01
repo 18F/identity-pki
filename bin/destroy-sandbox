@@ -64,7 +64,7 @@ for BUCKET in $(ave aws s3 ls | grep 'secrets.' | awk '{print $NF}') ; do
     select(.Key|contains($name))|{Key, VersionId}],Quiet: false}')"
 done
 
-ave ${BASEPATH}/tf-deploy -t ${TF_ENV} app destroy -auto-approve
+ave ${BASEPATH}/tf-deploy ${TF_ENV} app destroy -auto-approve
 
 for DB in idp app; do
   run mv ${APP_DIR}/${DB}.tf.bak ${APP_DIR}/${DB}.tf
