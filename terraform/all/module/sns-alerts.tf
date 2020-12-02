@@ -24,6 +24,14 @@ resource "aws_sns_topic" "slack_events" {
   name = "slack-events"
 }
 
+resource "aws_ssm_parameter" "account_alarm_slack_events" {
+  name        = "/account/${var.region}/alert/sns/arn_slack_events"
+  type        = "String"
+  value       = aws_sns_topic.slack_events.arn
+  description = "Alarm notification topic for #login-events"
+  overwrite   = true
+}
+
 module "slack_login_events" {
   source = "github.com/18F/identity-terraform//slack_lambda?ref=7de782c072b4a2b869f986d710e5e2bcf6023f0f"
   #source = "../../../../identity-terraform/slack_lambda"
@@ -39,6 +47,14 @@ module "slack_login_events" {
 
 resource "aws_sns_topic" "slack_otherevents" {
   name = "slack-otherevents"
+}
+
+resource "aws_ssm_parameter" "account_alarm_slack_otherevents" {
+  name        = "/account/${var.region}/alert/sns/arn_slack_otherevents"
+  type        = "String"
+  value       = aws_sns_topic.slack_otherevents.arn
+  description = "Alarm notification topic for #login-otherevents"
+  overwrite   = true
 }
 
 module "slack_login_otherevents" {
