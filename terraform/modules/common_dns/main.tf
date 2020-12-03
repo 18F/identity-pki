@@ -30,6 +30,11 @@ variable "google_site_verification_txt" {
   default     = ""
 }
 
+variable "google_site_verification_txt_v2" {
+  description = "Google site verification text to put in TXT record, second record to gain access to original account"
+  default     = ""
+}
+
 variable "mx_provider" {
   description = "Which provider to use for MX records (see mx_record_map)"
 }
@@ -66,7 +71,11 @@ locals {
         {
           "name" = "",
           "ttl" = "900",
-          "records" = ["google-site-verification=${var.google_site_verification_txt}", "v=spf1 include:amazonses.com include:_spf.google.com ~all"],
+          "records" = [
+            "google-site-verification=${var.google_site_verification_txt}",
+            "google-site-verification=${var.google_site_verification_txt_v2}",
+            "v=spf1 include:amazonses.com include:_spf.google.com ~all"
+          ],
         },
         {
           "name" = "mail.",

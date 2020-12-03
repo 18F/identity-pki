@@ -55,6 +55,11 @@ variable "google_site_verification_txt" {
   default     = ""
 }
 
+variable "google_site_verification_txt_v2" {
+  description = "Google secondary site verification text to put in TXT record"
+  default     = ""
+}
+
 variable "mx_provider" {
   description = "Name of the MX provider to set up records for, see common_dns module"
 }
