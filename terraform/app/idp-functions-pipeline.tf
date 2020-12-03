@@ -1,5 +1,5 @@
 module "idp-lambda-functions" {
-  source = "github.com/18F/identity-terraform//lambda_pipeline?ref=67a0c013469df923a01d2a6f88b4d3608fa35e86"
+  source = "github.com/18F/identity-terraform//lambda_pipeline?ref=1d3e0b9f291beb797a58ed2e29284d6cc18caffa"
   #source = "../../../identity-terraform/lambda_pipeline"
 
   region = var.region
