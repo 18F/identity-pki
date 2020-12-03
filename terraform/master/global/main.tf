@@ -101,7 +101,6 @@ module "main" {
     "brian.crissup"      = ["devops", "keymasters"],
     "chris.manger"       = ["bizops", "finops"],
     "clinton.troxel"     = ["appdev"],
-    "colin.murphy"       = ["bizops"],
     "diondra.humphries"  = ["bizops"],
     "douglas.price"      = ["appdev", "apponcall", "bizops"],
     "jeff.shultz"        = ["analytics"],
@@ -110,7 +109,6 @@ module "main" {
     "jonathan.pirro"     = ["devops"],
     "julia.elman"        = ["analytics"],
     "justin.grevich"     = ["devops"],
-    "kendrick.daniel"    = ["bizops"],
     "michael.antiporta"  = ["analytics"],
     "mitchell.henke"     = ["appdev", "apponcall"],
     "mossadeq.zia"       = ["devops", "secops", "keymasters"],
@@ -124,6 +122,7 @@ module "main" {
     "thomas.black"       = ["bizops"],
     "tiffanyj.andrews"   = ["analytics"],
     "timothy.spencer"    = ["devops", "secops"],
+    "vivek.chugh"        = ["devops"],
     "zach.margolis"      = ["appdev", "apponcall"],
   }
 }
