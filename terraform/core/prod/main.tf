@@ -126,12 +126,13 @@ module "main" {
     }
   ]
 
-  root_domain                   = "login.gov"
-  static_cloudfront_name        = "db1mat7gaslfp.cloudfront.net"
-  design_cloudfront_name        = "d28khhcfeuwd3y.cloudfront.net"
-  developers_cloudfront_name    = "d26qb7on2m22yd.cloudfront.net"
-  acme_partners_cloudfront_name = "dbahbj6k864a6.cloudfront.net"
-  google_site_verification_txt  = "x8WM0Sy9Q4EmkHypuULXjTibNOJmPEoOxDGUmBppws8"
-  mx_provider                   = "google-g-suite"
-  lambda_audit_github_debug     = 0
+  root_domain                      = "login.gov"
+  static_cloudfront_name           = "db1mat7gaslfp.cloudfront.net"
+  design_cloudfront_name           = "d28khhcfeuwd3y.cloudfront.net"
+  developers_cloudfront_name       = "d26qb7on2m22yd.cloudfront.net"
+  acme_partners_cloudfront_name    = "dbahbj6k864a6.cloudfront.net"
+  google_site_verification_txt     = "x8WM0Sy9Q4EmkHypuULXjTibNOJmPEoOxDGUmBppws8"
+  google_site_verification_txt_v2  = "XpAHhjdX8tbSoncavYqzKuquO0ystD12VzLmXR10CK0"
+  mx_provider                      = "google-g-suite"
+  lambda_audit_github_debug        = 0
 }
