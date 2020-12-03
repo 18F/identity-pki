@@ -110,7 +110,7 @@ resource "aws_s3_bucket" "cloudtrail" {
   }
 
   logging {
-    target_bucket = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+    target_bucket = module.tf-state.s3_log_bucket
     target_prefix = "login-gov-cloudtrail-${data.aws_caller_identity.current.account_id}"
   }
 }
