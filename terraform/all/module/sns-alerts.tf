@@ -31,6 +31,16 @@ resource "aws_sns_topic" "slack_usw2" {
   name = "slack-${each.key}"
 }
 
+resource "aws_ssm_parameter" "account_alarm_slack_usw2" {
+  for_each = local.slack_channel_map
+  
+  name        = "/account/us-west-2/alert/sns/arn_slack_${each.key}"
+  type        = "String"
+  value       = aws_sns_topic.slack_usw2[each.key].arn
+  description = "Alarm notification topic for #${each.value}"
+  overwrite   = true
+}
+
 module "slack_lambda_usw2" {
   for_each = local.slack_channel_map
   source = "github.com/18F/identity-terraform//slack_lambda?ref=7de782c072b4a2b869f986d710e5e2bcf6023f0f"
@@ -61,6 +71,16 @@ resource "aws_sns_topic" "slack_use1" {
   for_each = local.slack_channel_map
 
   name = "slack-${each.key}"
+}
+
+resource "aws_ssm_parameter" "account_alarm_slack_use1" {
+  for_each = local.slack_channel_map
+  
+  name        = "/account/us-east-1/alert/sns/arn_slack_${each.key}"
+  type        = "String"
+  value       = aws_sns_topic.slack_use1[each.key].arn
+  description = "Alarm notification topic for #${each.value}"
+  overwrite   = true
 }
 
 module "slack_lambda_use1" {
