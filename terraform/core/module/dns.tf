@@ -1,15 +1,14 @@
 module "common_dns" {
   source = "../../modules/common_dns/"
 
-  domain                          = var.root_domain
-  static_cloudfront_name          = var.static_cloudfront_name
-  design_cloudfront_name          = var.design_cloudfront_name
-  developers_cloudfront_name      = var.developers_cloudfront_name
-  acme_partners_cloudfront_name   = var.acme_partners_cloudfront_name
-  google_site_verification_txt    = var.google_site_verification_txt
-  google_site_verification_txt_v2 = var.google_site_verification_txt_v2
-  prod_records                    = var.prod_records
-  mx_provider                     = var.mx_provider
+  domain                        = var.root_domain
+  static_cloudfront_name        = var.static_cloudfront_name
+  design_cloudfront_name        = var.design_cloudfront_name
+  developers_cloudfront_name    = var.developers_cloudfront_name
+  acme_partners_cloudfront_name = var.acme_partners_cloudfront_name
+  google_site_verification_txt  = var.google_site_verification_txt
+  prod_records                  = var.prod_records
+  mx_provider                   = var.mx_provider
 }
 
 module "sandbox_ses" {
