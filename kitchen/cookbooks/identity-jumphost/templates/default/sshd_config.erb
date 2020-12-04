@@ -110,4 +110,5 @@ Ciphers aes128-ctr,aes192-ctr,aes256-ctr
 ClientAliveInterval 900
 ClientAliveCountMax 0
 
-MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,umac-128@openssh.com
+# these now are kept good by just using the FIPS module, which will not allow bad HMACs
+#MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,umac-128@openssh.com
