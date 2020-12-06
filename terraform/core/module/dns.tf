@@ -29,4 +29,7 @@ output "primary_name_servers" {
   value       = [module.common_dns.primary_name_servers]
 }
 
-
+output "primary_domain_mx_servers" {
+  description = "List of MXes for domain"
+  value       = module.common_dns.primary_domain_mx_servers
+}

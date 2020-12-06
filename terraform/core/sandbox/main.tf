@@ -18,6 +18,8 @@ module "main" {
   root_domain                 = "identitysandbox.gov"
   mx_provider                 = "amazon-ses-inbound.us-west-2"
   sandbox_ses_inbound_enabled = 1
+  mta_sts_report_mailboxes    = [SOME ADDRESS HERE]
+  mta_sts_mode                = "testing"
 
   bucket_list_uw2 = [
     "894947205914-awsmacietrail-dataevent",

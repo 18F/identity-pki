@@ -59,6 +59,24 @@ variable "mx_provider" {
   description = "Name of the MX provider to set up records for, see common_dns module"
 }
 
+variable "mta_sts_max_age" {
+  description = "Age (TTL) in seconds to cache MTA-STS policy - Must be between 86400 (1 day) and 31557600 (about 1 year)"
+  type = number
+  # Default - 1 week
+  default = 604800
+}
+
+variable "mta_sts_mode" {
+  description = "MTA-STS mode - Allowed values: testing, enforce, none"
+  type = string
+  default = "testing"
+}
+
+variable "mta_sts_report_mailboxes" {
+  description = "List of email addresses to receive MTS-STS TLS reports"
+  type = list(string)
+}
+
 variable "sandbox_ses_inbound_enabled" {
   description = "Whether to enable identitysandbox.gov style SES inbound processing"
   default     = 0

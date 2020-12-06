@@ -181,3 +181,8 @@ output "primary_name_servers" {
     for num in range(4) : element(aws_route53_zone.primary.name_servers, num)
   ]
 }
+
+output "primary_domain_mx_servers" {
+  description = "List of MXes for domain"
+  value = split(",", var.mx_record_map[var.mx_provider])
+}

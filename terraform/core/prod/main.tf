@@ -133,5 +133,7 @@ module "main" {
   acme_partners_cloudfront_name = "dbahbj6k864a6.cloudfront.net"
   google_site_verification_txt  = "XpAHhjdX8tbSoncavYqzKuquO0ystD12VzLmXR10CK0" # associated with zachary.margolis@gsa.gov
   mx_provider                   = "google-g-suite"
+  mta_sts_report_mailboxes      = ["tls.reports@gsa.gov", SOMETHING ELSE]
+  mta_sts_mode                  = "testing"
   lambda_audit_github_debug     = 0
 }
