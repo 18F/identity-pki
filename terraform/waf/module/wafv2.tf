@@ -57,7 +57,12 @@ module "waf-webaclv2" {
         name          = "AWSManagedRulesCommonRuleSet"
         vendor_name   = "AWS"
         excluded_rule = [
-          "GenericRFI_BODY"
+          "GenericRFI_BODY",
+          "GenericRFI_QUERYARGUMENTS",
+          "SizeRestrictions_QUERYSTRING",
+          "EC2MetaDataSSRF_QUERYARGUMENTS",
+          "EC2MetaDataSSRF_BODY",
+          "NoUserAgent_HEADER"
         ]
       }
     },
