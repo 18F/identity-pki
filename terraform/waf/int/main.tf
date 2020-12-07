@@ -16,5 +16,5 @@ module "main" {
   env           = "int"
   region        = "us-west-2"
   enforce       = false
-  associate_alb = false
+  associate_alb = true
 }
