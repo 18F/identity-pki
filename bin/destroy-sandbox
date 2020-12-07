@@ -24,9 +24,12 @@ verify_sandbox_env
 get_arn_role 'sandbox' 'Terraform'
 
 APP_DIR="${GIT_DIR}/terraform/app"
+LAMBDA_STACK="${TF_ENV}-idp-functions"
 
-ave aws cloudformation delete-stack --stack-name "${TF_ENV}-idp-functions"
-ave aws cloudformation wait stack-delete-complete --stack-name "${TF_ENV}-idp-functions"
+if [[ $(ave aws cloudformation describe-stacks --stack-name ${LAMBDA_STACK}) ]] ; then
+  ave aws cloudformation delete-stack --stack-name ${LAMBDA_STACK}
+  ave aws cloudformation wait stack-delete-complete --stack-name ${LAMBDA_STACK}
+fi
 
 for DB in idp app ; do
   cp ${APP_DIR}/${DB}.tf ${APP_DIR}/${DB}.tf.bak
@@ -36,7 +39,8 @@ for DB in idp app ; do
   sed -i '' -E 's/#(skip_final_snapshot = true)/\1/g' ${APP_DIR}/${DB}.tf
 done
 
-ave ${BASEPATH}/tf-deploy -t -z ${TF_ENV} app apply -auto-approve
+ave ${BASEPATH}/tf-deploy -t -z ${TF_ENV} app apply -auto-approve \
+  -target=aws_db_instance.idp -target=aws_db_instance.default
 
 if [[ $(cat ${PRIVATE_REPO}/vars/${TF_ENV}.tfvars |
                   grep asg_elasticsearch_desired |
@@ -67,9 +71,8 @@ for BUCKET in $(ave aws s3 ls | grep 'secrets.' | awk '{print $NF}') ; do
     select(.Key|contains($name))|{Key, VersionId}],Quiet: false}')"
 done
 
-ave ${BASEPATH}/tf-deploy ${TF_ENV} app destroy -auto-approve
+ave ${BASEPATH}/tf-deploy -t ${TF_ENV} app destroy -auto-approve
 
 for DB in idp app; do
   run mv ${APP_DIR}/${DB}.tf.bak ${APP_DIR}/${DB}.tf
 done
-
