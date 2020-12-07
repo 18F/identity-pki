@@ -14,11 +14,11 @@ module "main" {
   source = "../module"
 
   state_lock_table            = "terraform_locks"
-  slack_sns_name              = "slack-sandbox-events" 
+  slack_sns_name              = "slack-sandbox-events"
   root_domain                 = "identitysandbox.gov"
   mx_provider                 = "amazon-ses-inbound.us-west-2"
   sandbox_ses_inbound_enabled = 1
-  mta_sts_report_mailboxes    = [SOME ADDRESS HERE]
+  mta_sts_report_mailboxes    = ["tls-reports@login.gov"]
   mta_sts_mode                = "testing"
 
   bucket_list_uw2 = [

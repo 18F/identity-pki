@@ -15,22 +15,22 @@ module "acm-cert-mta-sts-cdn" {
 }
 
 locals {
-  mta_sts_mx_block = join("\n", [ for v in module.common_dns.primary_domain_mx_servers : "mx: ${v}"])
-  mta_sts_policy = <<EOF
+  mta_sts_mx_block         = join("\n", [for v in module.common_dns.primary_domain_mx_servers : "mx: ${v}"])
+  mta_sts_policy           = <<EOF
 version: STSv1
 mode: ${var.mta_sts_mode}
 ${local.mta_sts_mx_block}
 max_age: ${var.mta_sts_max_age}
 EOF
-  mta_sts_policy_md5 = md5(local.mta_sts_policy)
-  mta_sts_report_addresses = join(",", [ for v in var.mta_sts_report_mailboxes : "mailto:${v}"])
+  mta_sts_policy_md5       = md5(local.mta_sts_policy)
+  mta_sts_report_addresses = join(",", [for v in var.mta_sts_report_mailboxes : "mailto:${v}"])
 }
 
 resource "aws_s3_bucket_object" "mta_sts_txt_file" {
-  bucket   = aws_s3_bucket.account_static_bucket.id
-  key      = "mta-sts/.well-known/mta-sts.txt"
+  bucket = aws_s3_bucket.account_static_bucket.id
+  key    = "mta-sts/.well-known/mta-sts.txt"
   # Contents of .well-known/mta-sts.txt must follow https://tools.ietf.org/html/rfc8461#section-3.2
-  content  = local.mta_sts_policy
+  content = local.mta_sts_policy
 }
 
 resource "aws_cloudfront_distribution" "mta_sts_cdn" {
@@ -108,17 +108,17 @@ resource "aws_route53_record" "cname_cloudfront_mta_sts" {
 }
 
 resource "aws_route53_record" "txt_mta_sts" {
-  name = "_mta_sts.${var.root_domain}"
-  ttl = "300"
-  type = "TXT"
+  name    = "_mta_sts.${var.root_domain}"
+  ttl     = "300"
+  type    = "TXT"
   records = ["v=STSv1; id=${local.mta_sts_policy_md5}"]
   zone_id = module.common_dns.primary_zone_id
 }
 
 resource "aws_route53_record" "txt_smtp_tls" {
-  name = "_smtp._tls.${var.root_domain}"
-  ttl = "300"
-  type = "TXT"
+  name    = "_smtp._tls.${var.root_domain}"
+  ttl     = "300"
+  type    = "TXT"
   records = ["v=TLSRPTv1; rua=${local.mta_sts_report_addresses}"]
   zone_id = module.common_dns.primary_zone_id
 }
