@@ -66,6 +66,7 @@ module "terraform-assumerole" {
           sid    = "CloudFormation"
           effect = "Allow"
           actions = [
+            "cloudformation:DeleteStack",
             "cloudformation:DescribeStacks",
             "cloudformation:GetTemplate",
           ]

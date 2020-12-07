@@ -25,6 +25,9 @@ get_arn_role 'sandbox' 'Terraform'
 
 APP_DIR="${GIT_DIR}/terraform/app"
 
+ave aws cloudformation delete-stack --stack-name "${TF_ENV}-idp-functions"
+ave aws cloudformation wait stack-delete-complete --stack-name "${TF_ENV}-idp-functions"
+
 for DB in idp app ; do
   cp ${APP_DIR}/${DB}.tf ${APP_DIR}/${DB}.tf.bak
   for TASK in prevent_destroy deletion_protection ; do
