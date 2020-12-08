@@ -14,10 +14,12 @@ module "main" {
   source = "../module"
 
   state_lock_table            = "terraform_locks"
-  slack_sns_name              = "slack-sandbox-events" 
+  slack_sns_name              = "slack-sandbox-events"
   root_domain                 = "identitysandbox.gov"
   mx_provider                 = "amazon-ses-inbound.us-west-2"
   sandbox_ses_inbound_enabled = 1
+  mta_sts_report_mailboxes    = ["tls-reports@login.gov"]
+  mta_sts_mode                = "testing"
 
   bucket_list_uw2 = [
     "894947205914-awsmacietrail-dataevent",
@@ -49,7 +51,6 @@ module "main" {
     "login-gov-app-deployment-crissupb-894947205914-us-west-2",
     "login-gov-auth",
     "login-gov-backup-tmp-secrets",
-    "login-gov-bleachbyte-logs",
     "login-gov-cloudformation",
     "login-gov-doc",
     "login-gov-jjg-analytics-secrets",
