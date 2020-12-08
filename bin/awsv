@@ -48,8 +48,6 @@ verify_ykman () {
   fi
 }
 
-verify_ykman
-
 declare {AV_ROLE,SET_ROLE,SERVICE}=
 DUR=1
 VAULT_CMD='exec'
@@ -90,6 +88,8 @@ if [[ -z "${SET_ROLE}" ]] ; then
   SET_ROLE="${ACCOUNT}-${LOGIN_IAM_PROFILE}"
 fi
 verify_profile "${SET_ROLE}"
+
+[[ -z $(aws-vault list --sessions) ]] && verify_ykman
 
 case "${VAULT_CMD}" in
   exec)
