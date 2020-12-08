@@ -30,7 +30,10 @@ resource "aws_s3_bucket_object" "mta_sts_txt_file" {
   bucket = aws_s3_bucket.account_static_bucket.id
   key    = "mta-sts/.well-known/mta-sts.txt"
   # Contents of .well-known/mta-sts.txt must follow https://tools.ietf.org/html/rfc8461#section-3.2
-  content = local.mta_sts_policy
+  content      = local.mta_sts_policy
+  content_type = "text/plain"
+  # 15 minute cache TTL
+  cache_control = "max-age=900"
 }
 
 resource "aws_cloudfront_distribution" "mta_sts_cdn" {
@@ -51,6 +54,7 @@ resource "aws_cloudfront_distribution" "mta_sts_cdn" {
 
   enabled         = true
   is_ipv6_enabled = true
+  aliases         = list("mta-sts.${var.root_domain}")
 
   # Throwaway default
   default_root_object = "/index.html"

@@ -51,7 +51,6 @@ module "main" {
     "login-gov-app-deployment-crissupb-894947205914-us-west-2",
     "login-gov-auth",
     "login-gov-backup-tmp-secrets",
-    "login-gov-bleachbyte-logs",
     "login-gov-cloudformation",
     "login-gov-doc",
     "login-gov-jjg-analytics-secrets",
