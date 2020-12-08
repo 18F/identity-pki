@@ -57,11 +57,19 @@ module "waf-webaclv2" {
         name          = "AWSManagedRulesCommonRuleSet"
         vendor_name   = "AWS"
         excluded_rule = [
+          # AWS description: "Inspects the values of the request body and blocks requests attempting to 
+          # exploit RFI (Remote File Inclusion) in web applications. Examples include patterns like ://."
           "GenericRFI_BODY",
+          # AWS description: "Inspects the values of all query parameters and blocks requests attempting to 
+          # exploit RFI (Remote File Inclusion) in web applications. Examples include patterns like ://."
           "GenericRFI_QUERYARGUMENTS",
+          # AWS description: "Verifies that the URI query string length is within the standard boundary for applications."
           "SizeRestrictions_QUERYSTRING",
+          # AWS description: "Inspects for attempts to exfiltrate Amazon EC2 metadata from the request query arguments."
           "EC2MetaDataSSRF_QUERYARGUMENTS",
+          # AWS description: "Inspects for attempts to exfiltrate Amazon EC2 metadata from the request cookie."
           "EC2MetaDataSSRF_BODY",
+          # AWS description: "Blocks requests with no HTTP User-Agent header."
           "NoUserAgent_HEADER"
         ]
       }
