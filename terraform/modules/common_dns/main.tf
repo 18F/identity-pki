@@ -53,9 +53,9 @@ variable "prod_records" {
 locals {
 
   cloudfront_aliases = [
-    { name = "",           alias_name = var.static_cloudfront_name     },
-    { name = "www.",        alias_name = var.static_cloudfront_name     },
-    { name = "design.",     alias_name = var.design_cloudfront_name     },
+    { name = "", alias_name = var.static_cloudfront_name },
+    { name = "www.", alias_name = var.static_cloudfront_name },
+    { name = "design.", alias_name = var.design_cloudfront_name },
     { name = "developers.", alias_name = var.developers_cloudfront_name },
   ]
 
@@ -64,23 +64,23 @@ locals {
       type = "TXT"
       record_set = [
         {
-          "name" = "",
-          "ttl" = "900",
+          "name"    = "",
+          "ttl"     = "900",
           "records" = ["google-site-verification=${var.google_site_verification_txt}", "v=spf1 include:amazonses.com include:_spf.google.com ~all"],
         },
         {
-          "name" = "mail.",
-          "ttl" = "900",
+          "name"    = "mail.",
+          "ttl"     = "900",
           "records" = ["v=spf1 include:amazonses.com ~all"],
         },
         {
-          "name" = "mail-east.",
-          "ttl" = "3600",
+          "name"    = "mail-east.",
+          "ttl"     = "3600",
           "records" = ["v=spf1 include:amazonses.com ~all"],
         },
         {
-          "name" = "_dmarc.",
-          "ttl" = "900",
+          "name"    = "_dmarc.",
+          "ttl"     = "900",
           "records" = ["v=DMARC1; p=reject; pct=100; fo=1; ri=3600; rua=mailto:dmarc-reports@login.gov,mailto:reports@dmarc.cyber.dhs.gov; ruf=mailto:dmarc-forensics@login.gov"],
         }
       ]
@@ -89,18 +89,18 @@ locals {
       type = "MX",
       record_set = [
         {
-          "name" = "",
-          "ttl" = "3600",
+          "name"    = "",
+          "ttl"     = "3600",
           "records" = split(",", var.mx_record_map[var.mx_provider]),
         },
         {
-          "name" = "mail.",
-          "ttl" = "900",
+          "name"    = "mail.",
+          "ttl"     = "900",
           "records" = ["10 feedback-smtp.us-west-2.amazonses.com"] # NB us-west-2 only,
         },
         {
-          "name" = "mail-east.",
-          "ttl" = "3600",
+          "name"    = "mail-east.",
+          "ttl"     = "3600",
           "records" = ["10 feedback-smtp.us-east-1.amazonses.com"] # NB us-east-1 only,
         },
       ]
@@ -119,8 +119,8 @@ resource "aws_route53_zone" "primary" {
 resource "aws_route53_record" "a" {
   for_each = {
     for a in local.cloudfront_aliases :
-      a.name == "" ? "a_root" : "a_${trimsuffix(a.name,".")}" => a
-    }
+    a.name == "" ? "a_root" : "a_${trimsuffix(a.name, ".")}" => a
+  }
 
   name    = join("", [each.value.name, var.domain])
   type    = "A"
@@ -134,15 +134,15 @@ resource "aws_route53_record" "a" {
 
 resource "aws_route53_record" "record" {
   for_each = { for n in flatten([
-      for entry in flatten([local.records, var.prod_records]) : [
-        for r in entry.record_set : {
-          type = entry.type,
-          name = r.name,
-          ttl = r.ttl,
-          records = r.records
-        }
-      ]
-    ]) : n.name == "" ? "${n.type}_main" : "${n.type}_${trimsuffix(n.name,".")}" => n }
+    for entry in flatten([local.records, var.prod_records]) : [
+      for r in entry.record_set : {
+        type    = entry.type,
+        name    = r.name,
+        ttl     = r.ttl,
+        records = r.records
+      }
+    ]
+  ]) : n.name == "" ? "${n.type}_main" : "${n.type}_${trimsuffix(n.name, ".")}" => n }
 
   name    = join("", [each.value.name, var.domain])
   type    = each.value.type
@@ -177,12 +177,14 @@ output "primary_domain" {
 
 output "primary_name_servers" {
   description = "Nameservers within the primary Route53 zone."
-  value       = [
+  value = [
     for num in range(4) : element(aws_route53_zone.primary.name_servers, num)
   ]
 }
 
 output "primary_domain_mx_servers" {
   description = "List of MXes for domain"
-  value = split(",", var.mx_record_map[var.mx_provider])
+  value = [for v in split(",", var.mx_record_map[var.mx_provider]) :
+    regex("^[0-9 ]*([^\\s]+?)\\.?$", v)[0]
+  ]
 }
