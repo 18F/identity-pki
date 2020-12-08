@@ -3,6 +3,7 @@
 repo_root = File.dirname(__FILE__)
 
 local_mode true
+fips false
 
 log_location STDOUT
 log_level :info

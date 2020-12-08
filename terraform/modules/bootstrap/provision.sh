@@ -291,8 +291,9 @@ repos_dir=/etc/login.gov/repos
 
 assert_root
 
-# berks needs $HOME to be set for some reason
+# berks needs $HOME to be set for some reason, and we need to disable FIPS for it to run.
 export HOME=/root
+export CHEF_FIPS=''
 
 # Read proxy variables from /etc/login.gov/info
 proxy_server="$(cat "$INFO_DIR/proxy_server" || true)"

@@ -247,6 +247,7 @@ execute 'convert PEM formatted keypair to p12' do
     -inkey admin.key \
     -name admin \
     -out admin.p12 \
+    -certpbe NONE \
     -passin pass:not-a-secret \
     -passout pass:not-a-secret"
   cwd '/etc/elasticsearch'
