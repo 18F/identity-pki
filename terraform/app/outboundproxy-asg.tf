@@ -182,7 +182,7 @@ resource "aws_autoscaling_group" "outboundproxy" {
 # total requests and denied requests. It also creates an alarm on denied
 # requests that notifies to the specified alarm SNS ARN.
 module "outboundproxy_cloudwatch_filters" {
-  source     = "github.com/18F/identity-terraform//squid_cloudwatch_filters?ref=6352e5b8edc328e0fd6cfa21616514b0790f014a"
+  source     = "github.com/18F/identity-terraform//squid_cloudwatch_filters?ref=2754bf224ef9398a7f327150f1d1a14ecdb7d3fd"
   depends_on = [aws_cloudwatch_log_group.squid_access_log]
 
   env_name      = var.env_name
