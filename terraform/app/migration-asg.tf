@@ -123,8 +123,8 @@ module "migration_recycle" {
   # Migration instances must preceed IdP instances.  The following are 10 minute
   # shifted versions of the default schedules.  Migration instances stay up 30 minutes
   # in case a long running migration task is in the set.
-  spinup_recurrence   = var.asg_auto_recycle_use_business_schedule == 1 ? "50 16 * * 1-5" : "50 4,10,16,22 * * *"
-  spindown_recurrence = var.asg_auto_recycle_use_business_schedule == 1 ? "20 17 * * 1-5" : "20 5,11,17,22 * * *"
+  spinup_recurrence   = var.asg_recycle_business_hours == 1 ? "50 16 * * 1-5" : "50 4,10,16,22 * * *"
+  spindown_recurrence = var.asg_recycle_business_hours == 1 ? "20 17 * * 1-5" : "20 5,11,17,22 * * *"
 
   asg_name = aws_autoscaling_group.migration.name
   # Hard set 1 instance for spin up and none for spin down

@@ -16,7 +16,12 @@ terraform {
 }
 
 provider "aws" {
-  region  = var.region
+  region = var.region
+}
+
+provider "aws" {
+  region = "us-west-2"
+  alias  = "usw2"
 }
 
 provider "aws" {
@@ -54,9 +59,10 @@ data "aws_iam_policy_document" "master_account_assumerole" {
 }
 
 module "tf-state" {
-  source = "github.com/18F/identity-terraform//state_bucket?ref=21a2ce16cf1dbf85822c9005d72f8d17cb9dbe4b"
+  source = "github.com/18F/identity-terraform//state_bucket?ref=eb59e91f104f452620eef752fe632f35863d881c"
   #source = "../../../../identity-terraform/state_bucket"
 
+  remote_state_enabled = 0
   region             = var.region
   bucket_name_prefix = "login-gov"
   sse_algorithm      = "AES256"
@@ -64,6 +70,7 @@ module "tf-state" {
 
 module "main_secrets_bucket" {
   source              = "../../modules/secrets_bucket"
+  depends_on = [module.tf-state.s3_log_bucket]
   
   logs_bucket          = module.tf-state.s3_log_bucket
   secrets_bucket_type  = "secrets"

@@ -29,7 +29,7 @@ module "main" {
       "894947205914", # login-sandbox
       "035466892286", # login-sms-sandbox
       "138431511372", # login-secops-dev
-      "034795980528" # login-interviews
+      "034795980528" # login-tooling
     ],
     "Analytics" = [
       "461353137281" # login-analytics
@@ -68,6 +68,7 @@ module "main" {
       { "KMSAdministrator"  = [ "Sandbox" ] }
     ],
     "soc" = [
+      { "Auditor"           = [ "Sandbox", "Prod", "Master", "Analytics" ] },
       { "ReadOnly"          = [ "Sandbox", "Prod", "Master", "Analytics" ] },
       { "SOCAdministrator"  = [ "Sandbox", "Prod", "Master", "Analytics" ] }
     ],
@@ -100,7 +101,6 @@ module "main" {
     "brian.crissup"      = ["devops", "keymasters"],
     "chris.manger"       = ["bizops", "finops"],
     "clinton.troxel"     = ["appdev"],
-    "colin.murphy"       = ["bizops"],
     "diondra.humphries"  = ["bizops"],
     "douglas.price"      = ["appdev", "apponcall", "bizops"],
     "jeff.shultz"        = ["analytics"],
@@ -109,7 +109,6 @@ module "main" {
     "jonathan.pirro"     = ["devops"],
     "julia.elman"        = ["analytics"],
     "justin.grevich"     = ["devops"],
-    "kendrick.daniel"    = ["bizops"],
     "michael.antiporta"  = ["analytics"],
     "mitchell.henke"     = ["appdev", "apponcall"],
     "mossadeq.zia"       = ["devops", "secops", "keymasters"],
@@ -123,6 +122,7 @@ module "main" {
     "thomas.black"       = ["bizops"],
     "tiffanyj.andrews"   = ["analytics"],
     "timothy.spencer"    = ["devops", "secops"],
+    "vivek.chugh"        = ["devops"],
     "zach.margolis"      = ["appdev", "apponcall"],
   }
 }

@@ -113,7 +113,7 @@ module "app_recycle" {
   # https://github.com/hashicorp/terraform/issues/953
   enabled = var.asg_auto_recycle_enabled * var.apps_enabled
 
-  use_daily_business_hours_schedule = var.asg_auto_recycle_use_business_schedule
+  use_daily_business_hours_schedule = var.asg_recycle_business_hours
 
   # This weird element() stuff is so we can refer to these attributes even
   # when the app autoscaling group has count=0. Reportedly this hack will not

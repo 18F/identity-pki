@@ -1,5 +1,5 @@
 module "idp-lambda-functions" {
-  source = "github.com/18F/identity-terraform//lambda_pipeline?ref=67a0c013469df923a01d2a6f88b4d3608fa35e86"
+  source = "github.com/18F/identity-terraform//lambda_pipeline?ref=d990dbcd98327fb5cd9835dd0d7d39f1460959ab"
   #source = "../../../identity-terraform/lambda_pipeline"
 
   region = var.region
@@ -12,4 +12,5 @@ module "idp-lambda-functions" {
   project_artifacts_s3_bucket = "login-gov.lambda-functions.894947205914-us-west-2"
   parameter_application_functions = "${var.env_name}/idp/lambda/application-functions"
   vpc_arn = aws_vpc.default.arn
+  pipeline_failure_notification_arn = var.slack_events_sns_hook_arn
 }

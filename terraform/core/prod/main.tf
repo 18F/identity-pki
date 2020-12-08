@@ -16,7 +16,7 @@ module "main" {
   lambda_audit_github_enabled = 0
   lambda_audit_aws_enabled    = 0
   state_lock_table            = "terraform_locks"
-  slack_sns_name              = "slack-prod-events" 
+  slack_sns_name              = "slack-prod-events"
 
   prod_records = [
     {
@@ -131,7 +131,9 @@ module "main" {
   design_cloudfront_name        = "d28khhcfeuwd3y.cloudfront.net"
   developers_cloudfront_name    = "d26qb7on2m22yd.cloudfront.net"
   acme_partners_cloudfront_name = "dbahbj6k864a6.cloudfront.net"
-  google_site_verification_txt  = "x8WM0Sy9Q4EmkHypuULXjTibNOJmPEoOxDGUmBppws8"
+  google_site_verification_txt  = "XpAHhjdX8tbSoncavYqzKuquO0ystD12VzLmXR10CK0" # associated with zachary.margolis@gsa.gov
   mx_provider                   = "google-g-suite"
+  mta_sts_report_mailboxes      = ["tls.reports@gsa.gov", "tls-reports@login.gov"]
+  mta_sts_mode                  = "testing"
   lambda_audit_github_debug     = 0
 }

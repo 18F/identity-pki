@@ -13,12 +13,6 @@
 # may exit your shell.
 # See: https://github.com/18F/identity-devops/pull/252
 
-# Increment this to make breaking changes in the environment config. The
-# load-env.sh script will bail out if the environment does not set a variable
-# $ID_ENV_COMPAT_VERSION >= this value, which provides a way to ensure that new
-# scripts get run with a new enough environment config.
-ENFORCED_ENV_COMPAT_VERSION=4
-
 BASENAME="$(basename "${BASH_SOURCE[0]}")"
 DIRNAME="$(dirname "${BASH_SOURCE[0]}")"
 
@@ -49,25 +43,6 @@ do so.
 EOM
 }
 
-# Make sure the loaded environment is new enough.
-enforce_environment_compat_version() {
-    if [ -z "${ID_ENV_COMPAT_VERSION-}" ]; then
-        echo_red "$BASENAME: error: \$ID_ENV_COMPAT_VERSION not set by env"
-        echo_red "This ought to be set in identity-devops-private/env/*.sh"
-        echo_red "Maybe check if that repo is up-to-date?"
-        return 1
-    fi
-
-    if [ "$ID_ENV_COMPAT_VERSION" -lt "$ENFORCED_ENV_COMPAT_VERSION" ]; then
-        echo_red "$BASENAME: error: \$ID_ENV_COMPAT_VERSION set by env is old"
-        echo_red "This means your identity-devops-private clone is outdated."
-        echo_red "Try updating that repo to latest master?"
-        echo_red "\$ID_ENV_COMPAT_VERSION: $ID_ENV_COMPAT_VERSION"
-        echo_red "\$ENFORCED_ENV_COMPAT_VERSION: $ENFORCED_ENV_COMPAT_VERSION"
-        return 1
-    fi
-}
-
 if [ $# -ne 1 ]; then
     usage
 
@@ -87,8 +62,6 @@ if [ -n "$ID_ENV_FILE" ]; then
 
     # shellcheck source=/dev/null
     . "$ID_ENV_FILE"
-
-    enforce_environment_compat_version || return 4 2>/dev/null || exit 4
 
     return 0 2>/dev/null || exit 0
 fi
@@ -120,8 +93,6 @@ else
     echo_red >&2 "Please create env file $TF_VAR_env_name.sh in $ID_ENV_DIR"
     return 4 2>/dev/null || exit 4
 fi
-
-enforce_environment_compat_version || return 4 2>/dev/null || exit 4
 
 if [ -n "${ENV_DEBUG-}" ]; then
     env

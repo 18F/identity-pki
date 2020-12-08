@@ -56,7 +56,9 @@ module "waf-webaclv2" {
       managed_rule_group_statement = {
         name          = "AWSManagedRulesCommonRuleSet"
         vendor_name   = "AWS"
-        excluded_rule = []
+        excluded_rule = [
+          "GenericRFI_BODY"
+        ]
       }
     },
     {

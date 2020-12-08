@@ -48,10 +48,10 @@ EOM
 }
 
 verify_root_repo
-declare {ARGS,TEST_RUN,TF_CMD,TF_DIR,TF_ENV,TF_PROFILE,AV_PROFILE}=
+declare {ARGS,RUN_FLAG,TF_CMD,TF_DIR,TF_ENV,TF_PROFILE,AV_PROFILE}=
 TF_ROLE='Terraform'
 
-while getopts d:e:apxsictoh opt
+while getopts d:e:apxsifctzoh opt
 do
   case $opt in
     d) TF_DIR="${OPTARG}"          ;;
@@ -64,7 +64,8 @@ do
     f) TF_CMD="force-unlock"       ;;
     c) TF_CMD="tfplan"             ;;
     o) TF_ROLE="FullAdministrator" ;;
-    t) TEST_RUN="-t"               ;;
+    t) RUN_FLAG+="-t "             ;;
+    z) RUN_FLAG+="-z "             ;;
     h|*) usage && exit 0           ;;
   esac
 done
@@ -83,7 +84,7 @@ fi
 if [[ ${TF_DIR} == 'app' ]] ; then
   [[ -z ${TF_ENV} ]] && raise 'TF_ENV and/or default of GSA_USERNAME not set or specified'
   TF_PROFILE='sandbox'
-  [[ "${TF_ENV}" =~ '(staging|prod)' ]] && TF_PROFILE='prod'
+  [[ "${TF_ENV}" =~ (staging|prod) ]] && TF_PROFILE='prod'
 else
   if [[ ${TF_DIR} == 'master' ]] ; then
     TF_ENV='global'
@@ -109,8 +110,8 @@ if [[ ${TF_CMD} == 'tfplan' ]] ; then
   run aws-vault exec ${AV_PROFILE} -- $(dirname "$0")/${TF_CMD} ${ARGS} ${TF_DIR} ${TF_ENV}
 else  
   if [[ "${TF_DIR}" == 'app' ]] ; then
-    run aws-vault exec ${AV_PROFILE} -- $(dirname "$0")/tf-deploy ${TEST_RUN} ${TF_ENV} ${TF_DIR} ${TF_CMD} ${ARGS}
+    run aws-vault exec ${AV_PROFILE} -- $(dirname "$0")/tf-deploy ${RUN_FLAG} ${TF_ENV} ${TF_DIR} ${TF_CMD} ${ARGS}
   else
-    run aws-vault exec ${AV_PROFILE} -- $(dirname "$0")/tf-deploy ${TEST_RUN} ${TF_DIR}/${TF_ENV} ${TF_CMD} ${ARGS}
+    run aws-vault exec ${AV_PROFILE} -- $(dirname "$0")/tf-deploy ${RUN_FLAG} ${TF_DIR}/${TF_ENV} ${TF_CMD} ${ARGS}
   fi
 fi

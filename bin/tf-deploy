@@ -50,6 +50,11 @@ Options:
     -t, --test              Skip sending a message to Slack whether or not
                             the operation is successful. Useful when testing
                             errors that "plan" does not detect.
+    -z, --zero-out-hosts    In addition to the other loaded .tfvars files,
+                            load the tf_zero.tfvars file which overrides all
+                            asg_*_min / asg_*_desired values with 0. Can be
+                            used anytime, but is necessary when (re)building an
+                            environment from scratch.
 
 For older terraform directories that use identity-devops-private, env-specific
 config variables will be loaded automatically from identity-devops-private.
@@ -138,7 +143,7 @@ verify_repo_root_unchanged "$repo_root_before_cd" "$basename"
 ORIGIN_REMOTE_NAME="${ORIGIN_REMOTE_NAME-origin}"
 
 # Parse options
-declare {IMPORT_REMOTE_STATE,TEST_ONLY}=
+declare {IMPORT_REMOTE_STATE,TEST_ONLY,EXTRA_ENV}=
 while [ $# -gt 0 ] && [[ $1 == -* ]]; do
     case "$1" in
         -h|--help)
@@ -147,6 +152,9 @@ while [ $# -gt 0 ] && [[ $1 == -* ]]; do
             ;;
         -t|--test)
             TEST_ONLY=1
+            ;;
+        -z|--zero-out-hosts)
+            EXTRA_ENV="tf_zero"
             ;;
         --import-remote-state)
             IMPORT_REMOTE_STATE=1
@@ -265,6 +273,9 @@ check_release_versioning() {
     echo >&2 "DEPLOY: Checking whether environment versioning is recommended"
     strict_check="${STRICT_ENVIRONMENT-}"
     [ -z "$strict_check" ] && return
+
+    # Prevent tf_create / tf_destroy from being run on strict envs
+    EXTRA_ENV=
 
     # Instead of requiring stages/prod, stages/sms-prod, etc we squeeze
     # like-environments together.
@@ -393,6 +404,7 @@ load_env_module_style() {
 # Load and validate environment variables from identity-devops-private using
 # bin/deploy/load-env.sh and bin/deploy/get-tfvars-for-env
 load_env_devops_private_style() {
+    local strict_check
     echo >&2 "DEPLOY: Loading shared-style environment variables..."
     verify_not_module_style
     . bin/deploy/load-env.sh "$ENVIRONMENT"
@@ -406,9 +418,10 @@ load_env_devops_private_style() {
 
     if [ -n "$MOVED_TO_TFVARS" ]; then
         echo >&2 "Looks like this environment has switched to using .tfvars files"
-
+        strict_check="${STRICT_ENVIRONMENT-}"
+        [[ -z "${strict_check}" ]] || EXTRA_ENV=
         # read a list of .tfvars files printed by get-tfvars-for-env
-        tfvars_names="$(bin/deploy/get-tfvars-for-env "$aws_account_id" "$ENVIRONMENT")"
+        tfvars_names="$(bin/deploy/get-tfvars-for-env "$aws_account_id" "$ENVIRONMENT" "$EXTRA_ENV")"
 
         # render an array prefixing each filename with -var-file
         # in bash 4 we could use mapfile instead
@@ -484,6 +497,7 @@ if [ -n "$MODULE_STYLE" ]; then
     load_env_module_style
 else
     style_description="shared, identity-devops-private, symlink style"
+    MOVED_TO_TFVARS=1
     load_env_devops_private_style
 fi
 
@@ -578,17 +592,17 @@ echo_blue >&2 "Running terraform..."
 
 # Run main terraform command. This is the only command that should print to
 # stdout (reassigned to FD 3)
-run terraform "${TF_CMD[@]}" >&3 || DEPLOY_FAIL=true
+run terraform "${TF_CMD[@]}" >&3
+[[ "${?}" != 0 ]] && DEPLOY_FAIL='true'
 
 # if running apply or destroy, notify success/fail in Slack
-cd "${repo_root_before_cd}"
-define TF_VERSION_INFO <<EOM
+if [[ "${TF_CMD[0]}" =~ ^(apply|destroy)$ ]] && [[ -z ${TEST_ONLY} ]] ; then
+    cd "${repo_root_before_cd}"
+    define TF_VERSION_INFO <<EOM
 main_commit=$(git log -n 1 --pretty=format:"%H")
 main_branch=$(git rev-parse --abbrev-ref HEAD)
 main_version=$(cat VERSION.txt)
 EOM
-
-if [[ "${TF_CMD[0]}" =~ ^(apply|destroy)$ ]] && [[ -z ${TEST_ONLY} ]] ; then
 
     if [ -n "$MODULE_STYLE" ] ; then
         TF_DEPLOY_INFO=$(echo "${TF_VERSION_INFO}" | sed '$!s/$/\\n/' | tr -d '\n')
@@ -619,6 +633,6 @@ if [[ "${TF_CMD[0]}" =~ ^(apply|destroy)$ ]] && [[ -z ${TEST_ONLY} ]] ; then
         -e "${TF_SLACK_EMOJI}" \
         -p "${SLACK_PRETEXT}" \
         -m "${SLACK_MESSAGE}"
-fi
 
-[ "$DEPLOY_FAIL" == 'true' ] && exit 1
+    if [ "$DEPLOY_FAIL" == 'true' ] ; then exit 1 ; fi
+fi

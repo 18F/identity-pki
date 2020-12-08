@@ -1332,7 +1332,8 @@ resource "aws_security_group" "obproxy" {
 }
 
 module "vpc_flow_cloudwatch_filters" {
-  source = "github.com/18F/identity-terraform//vpc_flow_cloudwatch_filters?ref=476ab4456e547e125dcd53cb6131419b54f1f476"
+  source     = "github.com/18F/identity-terraform//vpc_flow_cloudwatch_filters?ref=476ab4456e547e125dcd53cb6131419b54f1f476"
+  depends_on = [aws_cloudwatch_log_group.flow_log_group]
 
   env_name      = var.env_name
   alarm_actions = [var.slack_events_sns_hook_arn]

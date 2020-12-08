@@ -117,7 +117,7 @@ module "outboundproxy_recycle" {
   # https://github.com/hashicorp/terraform/issues/953
   enabled = var.asg_auto_recycle_enabled
 
-  use_daily_business_hours_schedule = var.asg_auto_recycle_use_business_schedule
+  use_daily_business_hours_schedule = var.asg_recycle_business_hours
 
   asg_name                = aws_autoscaling_group.outboundproxy.name
   normal_desired_capacity = aws_autoscaling_group.outboundproxy.desired_capacity
@@ -182,7 +182,8 @@ resource "aws_autoscaling_group" "outboundproxy" {
 # total requests and denied requests. It also creates an alarm on denied
 # requests that notifies to the specified alarm SNS ARN.
 module "outboundproxy_cloudwatch_filters" {
-  source = "github.com/18F/identity-terraform//squid_cloudwatch_filters?ref=476ab4456e547e125dcd53cb6131419b54f1f476"
+  source     = "github.com/18F/identity-terraform//squid_cloudwatch_filters?ref=6352e5b8edc328e0fd6cfa21616514b0790f014a"
+  depends_on = [aws_cloudwatch_log_group.squid_access_log]
 
   env_name      = var.env_name
   alarm_actions = [var.slack_events_sns_hook_arn] # notify slack on denied requests

@@ -10,8 +10,13 @@ terraform {
   }
 }
 
+variable "opsgenie_key_ready" {
+  default = true
+}
+
 module "main" {
   source = "../module"
+  opsgenie_key_ready = var.opsgenie_key_ready
 
   iam_account_alias = "login-analytics"
   account_roles_map = {

@@ -55,6 +55,7 @@ fi
 
 account_id="$1"
 env_name="$2"
+custom_env="$3"
 
 ID_ENV_DIR="$(run "$DIRNAME/get-private-env.sh")"
 
@@ -85,3 +86,5 @@ if [ "$env_name" = "global" ]; then
 fi
 
 print_var_file "$env_name.tfvars"
+
+[ -z "$custom_env" ] || print_var_file "${custom_env}.tfvars"

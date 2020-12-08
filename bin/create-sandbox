@@ -1,0 +1,44 @@
+#!/bin/bash
+
+#### build up a sandbox environment from scratch ####
+
+set -eu
+
+BASEPATH="$(dirname "$0")"
+. "${BASEPATH}/lib/common.sh"
+. "${BASEPATH}/lib/sandbox-lib.sh"
+
+usage() {
+    cat >&2 << EOM
+Usage: ${0} 
+
+Creates a full terraform-app sandbox environment in the login-sandbox account,
+using \$GSA_USERNAME for the name. 
+
+EOM
+}
+
+verify_root_repo
+verify_private_repo
+verify_sandbox_env
+get_arn_role 'sandbox' 'Terraform'
+
+AWS_ACCT_NUM=$(ave aws sts get-caller-identity | jq -r '.Account')
+AWS_REGION=$(ave aws configure get region --profile ${AV_PROFILE})
+SOURCE_ENV='int'
+
+ave ${BASEPATH}/tf-deploy -t -z ${TF_ENV} app apply -auto-approve
+
+for KEY in $(cat bin/lib/build-keys) ; do
+  ave aws s3 cp s3://login-gov.secrets.${AWS_ACCT_NUM}-${AWS_REGION}/${SOURCE_ENV}/${KEY} \
+            s3://login-gov.secrets.${AWS_ACCT_NUM}-${AWS_REGION}/$GSA_USERNAME/${KEY}
+done
+
+for KEY in $(ave aws s3 ls s3://login-gov.app-secrets.${AWS_ACCT_NUM}-${AWS_REGION}/${SOURCE_ENV}/ |
+         awk '{print $NF}' | tr -d '/') ; do
+  ave aws s3 cp s3://login-gov.app-secrets.${AWS_ACCT_NUM}-${AWS_REGION}/int/$KEY/v1/application.yml - |
+    sed -E "s/$SOURCE_ENV(\.|-)/$GSA_USERNAME\1/" |
+    ave aws s3 cp - s3://login-gov.app-secrets.${AWS_ACCT_NUM}-${AWS_REGION}/$GSA_USERNAME/$KEY/v1/application.yml
+    done
+
+ave ${BASEPATH}/tf-deploy ${TF_ENV} app apply -auto-approve
