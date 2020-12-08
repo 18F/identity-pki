@@ -1,0 +1,78 @@
+#!/bin/bash
+
+#### tear down/destroy a sandbox environment ####
+
+set -eu
+
+BASEPATH="$(dirname "$0")"
+. "${BASEPATH}/lib/common.sh"
+. "${BASEPATH}/lib/sandbox-lib.sh"
+
+usage() {
+    cat >&2 << EOM
+Usage: ${0} 
+
+Runs all necessary commands to prep a sandbox environment for teardown,
+and then runs terraform-destroy on it.
+
+EOM
+}
+
+verify_root_repo
+verify_private_repo
+verify_sandbox_env
+get_arn_role 'sandbox' 'Terraform'
+
+APP_DIR="${GIT_DIR}/terraform/app"
+LAMBDA_STACK="${TF_ENV}-idp-functions"
+
+if [[ $(ave aws cloudformation describe-stacks --stack-name ${LAMBDA_STACK}) ]] ; then
+  ave aws cloudformation delete-stack --stack-name ${LAMBDA_STACK}
+  ave aws cloudformation wait stack-delete-complete --stack-name ${LAMBDA_STACK}
+fi
+
+for DB in idp app ; do
+  cp ${APP_DIR}/${DB}.tf ${APP_DIR}/${DB}.tf.bak
+  for TASK in prevent_destroy deletion_protection ; do
+    sed -i '' -E "s/(${TASK} = )true/\1false/g" ${APP_DIR}/${DB}.tf
+  done
+  sed -i '' -E 's/#(skip_final_snapshot = true)/\1/g' ${APP_DIR}/${DB}.tf
+done
+
+ave ${BASEPATH}/tf-deploy -t -z ${TF_ENV} app apply -auto-approve \
+  -target=aws_db_instance.idp -target=aws_db_instance.default
+
+if [[ $(cat ${PRIVATE_REPO}/vars/${TF_ENV}.tfvars |
+                  grep asg_elasticsearch_desired |
+                      awk '{print $NF}') != '0' ]] &&
+   [[ ! -z $(ave aws autoscaling describe-auto-scaling-groups \
+               --auto-scaling-group-names ${TF_ENV}-elasticsearch |
+               jq -r '.AutoScalingGroups[].Instances[]') ]] ; then
+  ave ${BASEPATH}/scale-in-old-instances -qf ${TF_ENV} elasticsearch
+fi
+
+for BUCKET in $(ave aws s3 ls |grep ${TF_ENV} | awk '{print $NF}'); do
+  ave aws s3 rm s3://${BUCKET} --recursive
+  ave python -c "import boto3 ;\
+    session = boto3.Session() ;\
+    s3 = session.resource(service_name='s3') ;\
+    bucket = s3.Bucket('${BUCKET}') ;\
+    bucket.object_versions.delete()"
+done
+
+for BUCKET in $(ave aws s3 ls | grep 'secrets.' | awk '{print $NF}') ; do
+  ave aws s3api delete-objects \
+      --bucket ${BUCKET} \
+      --delete "$(ave aws s3api list-object-versions \
+      --bucket ${BUCKET} \
+      --output=json \
+      --query='{Objects: Versions[].{Key:Key,VersionId:VersionId}}' |
+  jq --arg name "${TF_ENV}" '{Objects:[.[][]|
+    select(.Key|contains($name))|{Key, VersionId}],Quiet: false}')"
+done
+
+ave ${BASEPATH}/tf-deploy -t ${TF_ENV} app destroy -auto-approve
+
+for DB in idp app; do
+  run mv ${APP_DIR}/${DB}.tf.bak ${APP_DIR}/${DB}.tf
+done

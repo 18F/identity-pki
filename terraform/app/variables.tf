@@ -148,7 +148,8 @@ variable "route53_id" {
 }
 
 variable "apps_enabled" {
-  default = 0
+  description = "Whether or not to build the dashboard/app RDS database + app hosts."
+  default     = 1
 }
 
 variable "elasticache_redis_node_type" {
@@ -293,7 +294,7 @@ variable "asg_auto_recycle_enabled" {
   description = "Whether to automatically recycle IdP/app/outboundproxy servers every 6 hours"
 }
 
-variable "asg_auto_recycle_use_business_schedule" {
+variable "asg_recycle_business_hours" {
   default     = 0
   description = "If set to 1, recycle only once/day during business hours Mon-Fri, not every 6 houts"
 }
@@ -364,16 +365,16 @@ variable "asg_migration_max" {
   default = 8
 }
 
-variable "pivcac_nodes" {
+variable "asg_pivcac_desired" {
   default = 2
 }
 
 variable "asg_outboundproxy_desired" {
-  default = 0
+  default = 3
 }
 
 variable "asg_outboundproxy_min" {
-  default = 0
+  default = 1
 }
 
 variable "asg_outboundproxy_max" {
@@ -512,7 +513,7 @@ variable "alb_http_port_80_enabled" {
 }
 
 variable "pivcac_service_enabled" {
-  default     = 0
+  default     = 1
   description = "Whether to run the microservice for PIV/CAC authentication"
 }
 
@@ -524,10 +525,11 @@ variable "app_secrets_bucket_name_prefix" {
 }
 
 # This variable is used to allow access to 80/443 on the general internet
-# Set it to "127.0.0.1/32" to turn access off, "0.0.0.0/0" to allow it.
+# Set it to "0.0.0.0/0" to allow access
 variable "outbound_subnets" {
   #default = ["0.0.0.0/0"]
-  default = ["127.0.0.1/32"] # use localhost as hack since TF doesn't handle empty list well
+  #default = ["127.0.0.1/32"] # use localhost as hack since TF doesn't handle empty list well
+  default = ["172.16.32.0/22"]
   type    = list(string)
 }
 
@@ -631,4 +633,9 @@ variable "doc_capture_secrets" {
     lexisnexis_username                = "LexisNexis username",
     resolution_proof_result_token      = "Resolution proof result API authentication token, corresponds to resolution_proof_result_lambda_token in IDP",
   }
+}
+
+variable "tf_slack_channel" {
+  description = "Slack channel to send events to. If set, overrides the default of #login-ENV-events."
+  default     = ""
 }

@@ -61,7 +61,7 @@ module "pivcac_recycle" {
   # https://github.com/hashicorp/terraform/issues/953
   enabled = var.asg_auto_recycle_enabled * var.pivcac_service_enabled
 
-  use_daily_business_hours_schedule = var.asg_auto_recycle_use_business_schedule
+  use_daily_business_hours_schedule = var.asg_recycle_business_hours
 
   asg_name = element(concat(aws_autoscaling_group.pivcac.*.name, [""]), 0)
   normal_desired_capacity = element(
@@ -131,8 +131,8 @@ resource "aws_autoscaling_group" "pivcac" {
   }
 
   min_size         = 0
-  max_size         = var.pivcac_nodes * 2
-  desired_capacity = var.pivcac_nodes
+  max_size         = var.asg_pivcac_desired * 2
+  desired_capacity = var.asg_pivcac_desired
 
   wait_for_capacity_timeout = 0
 
@@ -261,11 +261,23 @@ resource "aws_s3_bucket" "pivcac_public_cert_bucket" {
   }
 }
 
-module "s3_config" {
-  for_each = toset(["pivcac","pivcac-public-cert"])
-  source   = "github.com/18F/identity-terraform//s3_config?ref=36ecdc74c3436585568fab7abddb3336cec35d93"
+module "pivcac_cert_bucket_config" {
+  source = "github.com/18F/identity-terraform//s3_config?ref=4cfc81f0b4137cbeba4733c2f344ea0c02f067de"
+  #source = "../../../identity-terraform/s3_config"
+  depends_on = [aws_s3_bucket.pivcac_cert_bucket]
 
-  bucket_name_override = "login-gov-${each.key}-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
+  bucket_name_override = aws_s3_bucket.pivcac_cert_bucket.id
+  region               = var.region
+  inventory_bucket_arn = local.inventory_bucket_arn
+}
+
+
+module "pivcac_public_cert_bucket_config" {
+  source = "github.com/18F/identity-terraform//s3_config?ref=4cfc81f0b4137cbeba4733c2f344ea0c02f067de"
+  #source = "../../../identity-terraform/s3_config"
+  depends_on = [aws_s3_bucket.pivcac_public_cert_bucket]
+
+  bucket_name_override = aws_s3_bucket.pivcac_public_cert_bucket.id
   region               = var.region
   inventory_bucket_arn = local.inventory_bucket_arn
 }

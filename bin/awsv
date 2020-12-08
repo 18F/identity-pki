@@ -40,13 +40,17 @@ verify_profile () {
   fi
 }
 
-verify_ykman () {
-  if [[ -z $(which ykman) ]] || [[ -z $(ykman oath list) ]] ; then
-    raise "ykman not configured correctly ; verify and try again"
-  elif [[ -z $AWS_VAULT_PROMPT ]] || [[ -z $YKMAN_OATH_CREDENTIAL_NAME ]] ; then
-    raise "\$AWS_VAULT_PROMPT and/or \$YKMAN_OATH_CREDENTIAL_NAME not set ; verify and try again"
+if [[ -z $(aws-vault list --sessions) ]] || [[ $(aws-vault list --sessions |
+                                                 awk -F: '{print $NF}' |
+                                                 cut -c1-1) == '-' ]] ; then
+  if [[ ! -z ${YKMAN_OATH_CREDENTIAL_NAME} ]] ; then
+    for TEST in 'which ykman' 'ykman oath list' 'echo $AWS_VAULT_PROMPT' ; do
+      if [[ ! $(eval "${TEST}") ]] ; then
+        raise "\`${TEST}\` failed ; verify ykman config and try again"
+      fi
+    done
   fi
-}
+fi
 
 declare {AV_ROLE,SET_ROLE,SERVICE}=
 DUR=1
@@ -57,21 +61,17 @@ do
   case "${opt}" in
     x)
        SET_ROLE="${OPTARG}"
-       shift 2
     ;;
     l) 
        SERVICE='console'
-       shift 1
        VAULT_CMD="login"
     ;;
     c)
        SERVICE="${OPTARG}"
-       shift 2
        VAULT_CMD="login"
     ;;
     v)
       DUR="${OPTARG}"
-      shift 2
       VAULT_CMD="session"
     ;;
     h)
@@ -80,6 +80,7 @@ do
     ;;
   esac
 done
+shift $((OPTIND-1))
 
 if [[ -z "${SET_ROLE}" ]] ; then
   ACCOUNT="${1}"
@@ -88,8 +89,6 @@ if [[ -z "${SET_ROLE}" ]] ; then
   SET_ROLE="${ACCOUNT}-${LOGIN_IAM_PROFILE}"
 fi
 verify_profile "${SET_ROLE}"
-
-[[ -z $(aws-vault list --sessions) ]] && verify_ykman
 
 case "${VAULT_CMD}" in
   exec)

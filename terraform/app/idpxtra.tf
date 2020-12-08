@@ -178,7 +178,7 @@ module "idpxtra_recycle" {
   # https://github.com/hashicorp/terraform/issues/953
   enabled = var.asg_auto_recycle_enabled
 
-  use_daily_business_hours_schedule = var.asg_auto_recycle_use_business_schedule
+  use_daily_business_hours_schedule = var.asg_recycle_business_hours
 
   asg_name                = aws_autoscaling_group.idpxtra.name
   normal_desired_capacity = aws_autoscaling_group.idpxtra.desired_capacity
