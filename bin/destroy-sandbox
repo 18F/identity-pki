@@ -39,8 +39,7 @@ for DB in idp app ; do
   sed -i '' -E 's/#(skip_final_snapshot = true)/\1/g' ${APP_DIR}/${DB}.tf
 done
 
-ave ${BASEPATH}/tf-deploy -t -z ${TF_ENV} app apply -auto-approve \
-  -target=aws_db_instance.idp -target=aws_db_instance.default
+ave ${BASEPATH}/tf-deploy -t -z ${TF_ENV} app apply -auto-approve
 
 if [[ $(cat ${PRIVATE_REPO}/vars/${TF_ENV}.tfvars |
                   grep asg_elasticsearch_desired |
