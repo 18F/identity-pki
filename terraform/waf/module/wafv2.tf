@@ -59,17 +59,23 @@ module "waf-webaclv2" {
         excluded_rule = [
           # AWS description: "Inspects the values of the request body and blocks requests attempting to 
           # exploit RFI (Remote File Inclusion) in web applications. Examples include patterns like ://."
+          # For request details see issue https://github.com/18F/identity-devops/issues/3085
           "GenericRFI_BODY",
           # AWS description: "Inspects the values of all query parameters and blocks requests attempting to 
           # exploit RFI (Remote File Inclusion) in web applications. Examples include patterns like ://."
+          # For request details see issue https://github.com/18F/identity-devops/issues/3100
           "GenericRFI_QUERYARGUMENTS",
           # AWS description: "Verifies that the URI query string length is within the standard boundary for applications."
+          # For request details see issue https://github.com/18F/identity-devops/issues/3100
           "SizeRestrictions_QUERYSTRING",
           # AWS description: "Inspects for attempts to exfiltrate Amazon EC2 metadata from the request query arguments."
+          # For request details see issue https://github.com/18F/identity-devops/issues/3100
           "EC2MetaDataSSRF_QUERYARGUMENTS",
           # AWS description: "Inspects for attempts to exfiltrate Amazon EC2 metadata from the request cookie."
+          # For request details see issue https://github.com/18F/identity-devops/issues/3100
           "EC2MetaDataSSRF_BODY",
           # AWS description: "Blocks requests with no HTTP User-Agent header."
+          # For request details see issue https://github.com/18F/identity-devops/issues/3100
           "NoUserAgent_HEADER"
         ]
       }
