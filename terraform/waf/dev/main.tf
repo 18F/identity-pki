@@ -16,5 +16,4 @@ module "main" {
   env           = "dev"
   region        = "us-west-2"
   enforce       = true
-  associate_alb = true
 }

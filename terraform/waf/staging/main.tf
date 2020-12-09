@@ -16,7 +16,6 @@ module "main" {
   env           = "staging"
   region        = "us-west-2"
   enforce       = false
-  associate_alb = false
 }
 
 
