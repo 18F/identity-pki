@@ -112,7 +112,7 @@ resource "aws_route53_record" "cname_cloudfront_mta_sts" {
 }
 
 resource "aws_route53_record" "txt_mta_sts" {
-  name    = "_mta_sts.${var.root_domain}"
+  name    = "_mta-sts.${var.root_domain}"
   ttl     = "300"
   type    = "TXT"
   records = ["v=STSv1; id=${local.mta_sts_policy_md5}"]
