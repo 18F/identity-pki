@@ -72,7 +72,7 @@ default['elk']['elastalert']['version'] = 'v0.2.4'
 default['elk']['elastalert']['logvolumethresholds'] = {
   'logstash' => 30000,
   'cloudtrail' => 5000,
-  'cloudwatch' => 2600
+  'cloudwatch' => 2300
 }
 # If the list of emails is empty, then do not email.
 default['elk']['elastalert']['emails'] = []
