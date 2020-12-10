@@ -22,7 +22,7 @@ group :development, :test do
   gem 'bullet', '>= 6.0.2'
   gem 'pry-byebug'
   gem 'rspec-rails', '>= 3.8.3'
-  gem 'thin', '>= 1.7.2'
+  gem 'thin', '>= 1.8.0'
 end
 
 group :development do
