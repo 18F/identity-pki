@@ -283,7 +283,7 @@ resource "aws_wafv2_web_acl" "idp" {
   visibility_config {
     cloudwatch_metrics_enabled = true
     metric_name                = "${local.web_acl_name}-metric"
-    sampled_requests_enabled   = false
+    sampled_requests_enabled   = true
   }
 
   tags = {
