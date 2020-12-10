@@ -1,0 +1,57 @@
+auditbeat.modules:
+- module: auditd
+  audit_rule_files: [ '${path.config}/audit.rules.d/*.conf' ]
+  audit_rules: |
+    -a always,exit -F arch=b32 -S all -F key=32bit-abi
+    -a always,exit -F arch=b64 -S execve,execveat -k exec
+    ## External access (warning: these can be expensive to audit).
+    #-a always,exit -F arch=b64 -S accept,bind,connect -F key=external-access
+    -w /etc/group -p wa -k identity
+    -w /etc/passwd -p wa -k identity
+    -w /etc/gshadow -p wa -k identity
+    -a always,exit -F arch=b64 -S open,creat,truncate,ftruncate,openat,open_by_handle_at -F exit=-EACCES -k access
+    -a always,exit -F arch=b64 -S open,creat,truncate,ftruncate,openat,open_by_handle_at -F exit=-EPERM -k access
+
+- module: file_integrity
+  paths:
+  - /bin
+  - /usr/bin
+  - /sbin
+  - /usr/sbin
+  - /etc
+
+- module: system
+  datasets:
+    - package # Installed, updated, and removed packages
+
+  period: 2m # The frequency at which the datasets check for changes
+
+- module: system
+  datasets:
+    - host    # General host information, e.g. uptime, IPs
+    - login   # User logins, logouts, and system boots.
+    - process # Started and stopped processes
+    - socket  # Opened and closed sockets
+    - user    # User information
+
+  state.period: 12h
+  user.detect_password_changes: true
+  login.wtmp_file_pattern: /var/log/wtmp*
+  login.btmp_file_pattern: /var/log/btmp*
+
+setup.template.settings:
+  index.number_of_shards: 1
+
+output.logstash:
+  hosts:
+  <% @logstash_hosts.each do |hosts| -%>
+    <%= "- #{hosts}" %>
+  <% end -%>
+  ssl.certificate_authorities:
+  <% @logstash_ssl_certificate_authorities.each do |ca| -%>
+    <%= "- #{ca}" %>
+  <% end %>
+
+processors:
+  - add_host_metadata: ~
+  - add_cloud_metadata: ~
