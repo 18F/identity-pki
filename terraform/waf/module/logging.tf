@@ -1,14 +1,16 @@
 locals {
   #stream name must start with "aws-waf-logs"
-  kinesis_firehose_name = "aws-waf-logs-${var.env}-idp"
+  kinesis_firehose_name   = "aws-waf-logs-${var.env}-idp"
+  s3_inventory_bucket_arn = "arn:${data.aws_partition.current.partition}:s3:::login-gov.s3-inventory.${data.aws_caller_identity.current.account_id}-${var.region}"
 }
+
 resource "aws_s3_bucket" "waf_logs" {
-  bucket = "login-gov.${local.name_prefix}-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+  bucket = "login-gov.${local.web_acl_name}-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
   acl    = "private"
 
   logging {
     target_bucket = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
-    target_prefix = "/${var.env}/s3-access-logs/${local.name_prefix}-logs/"
+    target_prefix = "/${var.env}/s3-access-logs/${local.web_acl_name}-logs/"
   }
 
   tags = {
@@ -47,8 +49,15 @@ resource "aws_s3_bucket" "waf_logs" {
   }
 }
 
+module "waf_log_bucket_config" {
+  source = "github.com/18F/identity-terraform//s3_config?ref=2754bf224ef9398a7f327150f1d1a14ecdb7d3fd"
+
+  bucket_name_override = aws_s3_bucket.waf_logs.id
+  inventory_bucket_arn = local.s3_inventory_bucket_arn
+}
+
 resource "aws_cloudwatch_log_group" "kinesis_waf_logs" {
-  name              = "/aws/kinesisfirehose/${local.name_prefix}-logs"
+  name              = "/aws/kinesisfirehose/${local.web_acl_name}-logs"
   retention_in_days = 365
 }
 
@@ -71,7 +80,7 @@ resource "aws_kinesis_firehose_delivery_stream" "waf_logs" {
 }
 
 resource "aws_iam_role" "firehose" {
-  name = "${local.name_prefix}-logs-firehose"
+  name = "${local.web_acl_name}-logs-firehose"
 
   assume_role_policy = <<EOF
 {

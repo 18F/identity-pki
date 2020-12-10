@@ -1,129 +1,304 @@
 locals {
-  waf_override = var.enforce ? "none" : "count"
+  rule_settings = {
+    override_action = var.enforce ? "none" : "count"
+  }
 }
 
 data "aws_lb" "idp" {
   name = "login-idp-alb-${var.env}"
 }
 
-module "waf-webaclv2" {
-  # https://registry.terraform.io/modules/umotif-public/waf-webaclv2/aws/latest
-  source  = "umotif-public/waf-webaclv2/aws"
-  version = "1.5.0"
+resource "aws_wafv2_web_acl" "idp" {
+  name        = local.web_acl_name
+  description = "ACL for ${local.web_acl_name}"
+  scope       = "REGIONAL"
 
-  name_prefix = local.name_prefix
-  alb_arn     = data.aws_lb.idp.arn
-
-  scope = "REGIONAL"
-
-  create_alb_association = var.associate_alb
-
-  allow_default_action = true
-
-  visibility_config = {
-    metric_name = "${local.name_prefix}-main-metrics"
+  default_action {
+    allow {}
   }
 
-  create_logging_configuration = true
-  log_destination_configs      = [aws_kinesis_firehose_delivery_stream.waf_logs.arn]
+  rule {
+    name     = "IdpBlockIpAddresses"
+    priority = 0
 
-  rules = [
-    {
-      name     = "AWSManagedRulesAmazonIpReputationList"
-      priority = "0"
-
-      # set override_action to "none" to block
-      override_action = local.waf_override
-
-      visibility_config = {
-        metric_name = "${local.name_prefix}-AWSManagedRulesAmazonIpReputationList-metric"
-      }
-      managed_rule_group_statement = {
-        name          = "AWSManagedRulesAmazonIpReputationList"
-        vendor_name   = "AWS"
-        excluded_rule = []
-      }
-    },
-    {
-      name     = "AWSManagedRulesCommonRuleSet"
-      priority = "1"
-
-      override_action = local.waf_override
-      visibility_config = {
-        metric_name = "${local.name_prefix}-AWSManagedRulesCommonRuleSet-metric"
+    action {
+      dynamic "block" {
+        for_each = length(lookup(local.rule_settings, "override_action", {})) == 0 || lookup(local.rule_settings, "override_action", {}) == "none" ? [1] : []
+        content {}
       }
 
-      managed_rule_group_statement = {
-        name          = "AWSManagedRulesCommonRuleSet"
-        vendor_name   = "AWS"
-        excluded_rule = [
-          # AWS description: "Inspects the values of the request body and blocks requests attempting to 
-          # exploit RFI (Remote File Inclusion) in web applications. Examples include patterns like ://."
-          # For request details see issue https://github.com/18F/identity-devops/issues/3085
-          "GenericRFI_BODY",
-          # AWS description: "Inspects the values of all query parameters and blocks requests attempting to 
-          # exploit RFI (Remote File Inclusion) in web applications. Examples include patterns like ://."
-          # For request details see issue https://github.com/18F/identity-devops/issues/3100
-          "GenericRFI_QUERYARGUMENTS",
-          # AWS description: "Verifies that the URI query string length is within the standard boundary for applications."
-          # For request details see issue https://github.com/18F/identity-devops/issues/3100
-          "SizeRestrictions_QUERYSTRING",
-          # AWS description: "Inspects for attempts to exfiltrate Amazon EC2 metadata from the request query arguments."
-          # For request details see issue https://github.com/18F/identity-devops/issues/3100
-          "EC2MetaDataSSRF_QUERYARGUMENTS",
-          # AWS description: "Inspects for attempts to exfiltrate Amazon EC2 metadata from the request cookie."
-          # For request details see issue https://github.com/18F/identity-devops/issues/3100
-          "EC2MetaDataSSRF_BODY",
-          # AWS description: "Blocks requests with no HTTP User-Agent header."
-          # For request details see issue https://github.com/18F/identity-devops/issues/3100
-          "NoUserAgent_HEADER"
-        ]
-      }
-    },
-    {
-      name     = "AWSManagedRulesKnownBadInputsRuleSet"
-      priority = "2"
-
-      override_action = local.waf_override
-
-      visibility_config = {
-        metric_name = "${local.name_prefix}-AWSManagedRulesKnownBadInputsRuleSet-metric"
-      }
-      managed_rule_group_statement = {
-        name          = "AWSManagedRulesKnownBadInputsRuleSet"
-        vendor_name   = "AWS"
-        excluded_rule = []
-      }
-    },
-    {
-      name     = "AWSManagedRulesLinuxRuleSet"
-      priority = "3"
-
-      override_action = local.waf_override
-
-      visibility_config = {
-        metric_name = "${local.name_prefix}-AWSManagedRulesLinuxRuleSet-metric"
-      }
-      managed_rule_group_statement = {
-        name          = "AWSManagedRulesLinuxRuleSet"
-        vendor_name   = "AWS"
-        excluded_rule = []
-      }
-    },
-    {
-      name     = "AWSManagedRulesSQLiRuleSet"
-      priority = "4"
-
-      override_action = local.waf_override
-
-      visibility_config = {
-        metric_name = "${local.name_prefix}-AWSManagedRulesSQLiRuleSet-metric"
-      }
-      managed_rule_group_statement = {
-        name          = "AWSManagedRulesSQLiRuleSet"
-        vendor_name   = "AWS"
-        excluded_rule = []
+      dynamic "count" {
+        for_each = lookup(local.rule_settings, "override_action", {}) == "count" ? [1] : []
+        content {}
       }
     }
+
+    statement {
+      ip_set_reference_statement {
+        arn = aws_wafv2_ip_set.block_list.arn
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "${local.web_acl_name}-IdpBlockIpAddresses-metric"
+      sampled_requests_enabled   = true
+    }
+  }
+
+  rule {
+    name     = "AWSManagedRulesAmazonIpReputationList"
+    priority = 1
+
+    override_action {
+      dynamic "none" {
+        for_each = length(lookup(local.rule_settings, "override_action", {})) == 0 || lookup(local.rule_settings, "override_action", {}) == "none" ? [1] : []
+        content {}
+      }
+
+      dynamic "count" {
+        for_each = lookup(local.rule_settings, "override_action", {}) == "count" ? [1] : []
+        content {}
+      }
+    }
+
+    statement {
+      managed_rule_group_statement {
+        name        = "AWSManagedRulesAmazonIpReputationList"
+        vendor_name = "AWS"
+
+        dynamic "excluded_rule" {
+          for_each = var.ip_reputation_ruleset_exclusions
+
+          content {
+            name = excluded_rule.value
+          }
+        }
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "${local.web_acl_name}-AWSManagedRulesAmazonIpReputationList-metric"
+      sampled_requests_enabled   = true
+    }
+  }
+
+  rule {
+    name     = "AWSManagedRulesCommonRuleSet"
+    priority = 2
+
+    override_action {
+      dynamic "none" {
+        for_each = length(lookup(local.rule_settings, "override_action", {})) == 0 || lookup(local.rule_settings, "override_action", {}) == "none" ? [1] : []
+        content {}
+      }
+
+      dynamic "count" {
+        for_each = lookup(local.rule_settings, "override_action", {}) == "count" ? [1] : []
+        content {}
+      }
+    }
+
+    statement {
+      managed_rule_group_statement {
+        name        = "AWSManagedRulesCommonRuleSet"
+        vendor_name = "AWS"
+
+        dynamic "excluded_rule" {
+          for_each = var.common_ruleset_exclusions
+
+          content {
+            name = excluded_rule.value
+          }
+        }
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "${local.web_acl_name}-AWSManagedRulesCommonRuleSet-metric"
+      sampled_requests_enabled   = true
+    }
+  }
+
+  rule {
+    name     = "AWSManagedRulesKnownBadInputsRuleSet"
+    priority = 3
+
+    override_action {
+      dynamic "none" {
+        for_each = length(lookup(local.rule_settings, "override_action", {})) == 0 || lookup(local.rule_settings, "override_action", {}) == "none" ? [1] : []
+        content {}
+      }
+
+      dynamic "count" {
+        for_each = lookup(local.rule_settings, "override_action", {}) == "count" ? [1] : []
+        content {}
+      }
+    }
+
+    statement {
+      managed_rule_group_statement {
+        name        = "AWSManagedRulesKnownBadInputsRuleSet"
+        vendor_name = "AWS"
+
+        dynamic "excluded_rule" {
+          for_each = var.known_bad_input_ruleset_exclusions
+
+          content {
+            name = excluded_rule.value
+          }
+        }
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "${local.web_acl_name}-AWSManagedRulesKnownBadInputsRuleSet-metric"
+      sampled_requests_enabled   = true
+    }
+  }
+
+  rule {
+    name     = "AWSManagedRulesLinuxRuleSet"
+    priority = 4
+
+    override_action {
+      dynamic "none" {
+        for_each = length(lookup(local.rule_settings, "override_action", {})) == 0 || lookup(local.rule_settings, "override_action", {}) == "none" ? [1] : []
+        content {}
+      }
+
+      dynamic "count" {
+        for_each = lookup(local.rule_settings, "override_action", {}) == "count" ? [1] : []
+        content {}
+      }
+    }
+
+    statement {
+      managed_rule_group_statement {
+        name        = "AWSManagedRulesLinuxRuleSet"
+        vendor_name = "AWS"
+
+        dynamic "excluded_rule" {
+          for_each = var.linux_ruleset_exclusions
+
+          content {
+            name = excluded_rule.value
+          }
+        }
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "${local.web_acl_name}-AWSManagedRulesLinuxRuleSet-metric"
+      sampled_requests_enabled   = true
+    }
+  }
+
+  rule {
+    name     = "AWSManagedRulesSQLiRuleSet"
+    priority = 5
+
+    override_action {
+      dynamic "none" {
+        for_each = length(lookup(local.rule_settings, "override_action", {})) == 0 || lookup(local.rule_settings, "override_action", {}) == "none" ? [1] : []
+        content {}
+      }
+
+      dynamic "count" {
+        for_each = lookup(local.rule_settings, "override_action", {}) == "count" ? [1] : []
+        content {}
+      }
+    }
+
+    statement {
+      managed_rule_group_statement {
+        name        = "AWSManagedRulesSQLiRuleSet"
+        vendor_name = "AWS"
+
+        dynamic "excluded_rule" {
+          for_each = var.sql_injection_ruleset_exclusions
+
+          content {
+            name = excluded_rule.value
+          }
+        }
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "${local.web_acl_name}-AWSManagedRulesSQLiRuleSet-metric"
+      sampled_requests_enabled   = true
+    }
+  }
+
+  rule {
+    name     = "IdpOtpSendRateLimited"
+    priority = 6
+
+    action {
+      dynamic "block" {
+        for_each = length(lookup(local.rule_settings, "override_action", {})) == 0 || lookup(local.rule_settings, "override_action", {}) == "none" ? [1] : []
+        content {}
+      }
+
+      dynamic "count" {
+        for_each = lookup(local.rule_settings, "override_action", {}) == "count" ? [1] : []
+        content {}
+      }
+    }
+
+    statement {
+      rate_based_statement {
+        limit              = var.otp_send_rate_limit_per_ip
+        aggregate_key_type = "IP"
+
+        scope_down_statement {
+          byte_match_statement {
+            field_to_match {
+              uri_path {}
+            }
+            positional_constraint = "CONTAINS"
+            search_string         = "/otp/send"
+            text_transformation {
+              priority = 0
+              type     = "LOWERCASE"
+            }
+          }
+        }
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "${local.web_acl_name}-IdpOtpSendRateLimited-metric"
+      sampled_requests_enabled   = true
+    }
+  }
+
+  visibility_config {
+    cloudwatch_metrics_enabled = true
+    metric_name                = "${local.web_acl_name}-metric"
+    sampled_requests_enabled   = true
+  }
+
+  tags = {
+    environment = var.env
+  }
+}
+
+resource "aws_wafv2_web_acl_logging_configuration" "idp" {
+  log_destination_configs = [
+    aws_kinesis_firehose_delivery_stream.waf_logs.arn
   ]
+  resource_arn = aws_wafv2_web_acl.idp.arn
+}
+
+resource "aws_wafv2_web_acl_association" "idp" {
+  resource_arn = data.aws_lb.idp.arn
+  web_acl_arn  = aws_wafv2_web_acl.idp.arn
 }

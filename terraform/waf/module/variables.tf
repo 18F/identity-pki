@@ -1,8 +1,10 @@
 locals {
-  name_prefix = "${var.env}-idp-waf"
+  web_acl_name = "${var.env}-idp-waf"
 }
 
 data "aws_caller_identity" "current" {}
+
+data "aws_partition" "current" {}
 
 variable "region" {
   description = "AWS Region"
@@ -14,13 +16,72 @@ variable "env" {
 }
 
 variable "enforce" {
-  description = "Set to true to enforce WAF rules or false to just count traffic matching rules"
+  description = "Set to true to enforce WAF ACL rules or false to just count traffic matching rules"
   type        = bool
   default     = false
 }
 
-variable "associate_alb" {
-  description = "Associate alb with acl"
-  type        = bool
-  default     = true
+# description of rules in each AWS managed ruleset 
+# https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-list.html
+variable "ip_reputation_ruleset_exclusions" {
+  description = "List of rules to exclude for AWSManagedRulesAmazonIpReputationList"
+  type        = list(string)
+  default     = []
+}
+
+variable "common_ruleset_exclusions" {
+  description = "List of rules to exclude for AWSManagedRulesCommonRuleSet"
+  type        = list(string)
+  default = [
+    # AWS description: "Inspects the values of the request body and blocks requests attempting to 
+    # exploit RFI (Remote File Inclusion) in web applications. Examples include patterns like ://."
+    # For request details see issue https://github.com/18F/identity-devops/issues/3085
+    "GenericRFI_BODY",
+    # AWS description: "Inspects the values of all query parameters and blocks requests attempting to 
+    # exploit RFI (Remote File Inclusion) in web applications. Examples include patterns like ://."
+    # For request details see issue https://github.com/18F/identity-devops/issues/3100
+    "GenericRFI_QUERYARGUMENTS",
+    # AWS description: "Verifies that the URI query string length is within the standard boundary for applications."
+    # For request details see issue https://github.com/18F/identity-devops/issues/3100
+    "SizeRestrictions_QUERYSTRING",
+    # AWS description: "Inspects for attempts to exfiltrate Amazon EC2 metadata from the request query arguments."
+    # For request details see issue https://github.com/18F/identity-devops/issues/3100
+    "EC2MetaDataSSRF_QUERYARGUMENTS",
+    # AWS description: "Inspects for attempts to exfiltrate Amazon EC2 metadata from the request cookie."
+    # For request details see issue https://github.com/18F/identity-devops/issues/3100
+    "EC2MetaDataSSRF_BODY",
+    # AWS description: "Blocks requests with no HTTP User-Agent header."
+    # For request details see issue https://github.com/18F/identity-devops/issues/3100
+    "NoUserAgent_HEADER",
+  ]
+}
+
+variable "known_bad_input_ruleset_exclusions" {
+  description = "List of rules to exclude for AWSManagedRulesKnownBadInputsRuleSet"
+  type        = list(string)
+  default     = []
+}
+
+variable "linux_ruleset_exclusions" {
+  description = "List of rules to exclude for AWSManagedRulesLinuxRuleSet"
+  type        = list(string)
+  default     = []
+}
+
+variable "sql_injection_ruleset_exclusions" {
+  description = "List of rules to exclude for AWSManagedRulesSQLiRuleSet"
+  type        = list(string)
+  default     = []
+}
+
+variable "otp_send_rate_limit_per_ip" {
+  description = "OTP send rate limit per ip over 5 minutes, minimum value 100"
+  type        = number
+  default     = 100
+}
+
+variable "ip_block_list" {
+  description = "IP addresses to block"
+  type        = list(string)
+  default     = []
 }

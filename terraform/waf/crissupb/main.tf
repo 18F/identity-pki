@@ -16,5 +16,4 @@ module "main" {
   env           = "crissupb"
   region        = "us-west-2"
   enforce       = true
-  associate_alb = true
 }
