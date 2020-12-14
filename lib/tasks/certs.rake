@@ -25,6 +25,7 @@ namespace :certs do
         puts "- Expiration: #{cert.not_after}"
         puts "  Subject: #{cert.subject}"
         puts "  Issuer: #{cert.issuer}"
+        puts "  Key ID: #{cert.key_id}"
       end
       exit 1
     end
