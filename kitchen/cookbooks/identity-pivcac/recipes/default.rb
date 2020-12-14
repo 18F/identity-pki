@@ -6,8 +6,6 @@ when '16.04'
     not_if 'pip show certbot && pip show certbot_dns_route53'
   end
 when '18.04'
-    #package 'certbot'
-    #package 'python3-pip'
     execute 'set http proxy' do
       command "snap set system proxy.http=http://obproxy.login.gov.internal:3128"
     end
@@ -23,9 +21,6 @@ when '18.04'
     execute 'install certbot route53 plugin from snap' do
       command 'snap install certbot-dns-route53 --stable --classic'
     end
-    # execute 'install certbot_dns_route53' do
-    #   command 'pip3 install certbot certbot-dns-route53'  #match certbot version from ubuntu
-    # end
 else
   raise "Unexpected platform_version: #{node[:platform_version].inspect}"
 end
