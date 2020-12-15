@@ -94,6 +94,8 @@ jobs:
           docker build -t logindotgov/pki:$CIRCLE_TAG -f Dockerfile .
           echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
           docker push logindotgov/pki:$CIRCLE_TAG
+
+commands:
   install-deps:
     steps:
       - restore-cache:
