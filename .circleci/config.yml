@@ -95,22 +95,6 @@ jobs:
           echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
           docker push logindotgov/pki:$CIRCLE_TAG
 
-commands:
-  install-deps:
-    steps:
-      - restore-cache:
-          keys:
-            - v2-identity-pki-bundle-{{ checksum "Gemfile.lock" }}
-      - run:
-          name: Install dependencies
-          command: |
-            gem install bundler
-            bundle check || bundle install --deployment --jobs=4 --retry=3 --without deploy development doc production --path vendor/bundle
-      - save-cache:
-          key: v2-identity-pki-bundle-{{ checksum "Gemfile.lock" }}
-          paths:
-            - vendor/bundle
-
   check-expiring-certs-config:
     docker:
       # Specify the Ruby version you desire here
@@ -149,6 +133,22 @@ commands:
           fail_only: true
           failure_message: ":piv-card::red_circle::scream: identity-pki has certs expiring within 30 days"
           include_project_field: false
+
+commands:
+  install-deps:
+    steps:
+      - restore-cache:
+          keys:
+            - v2-identity-pki-bundle-{{ checksum "Gemfile.lock" }}
+      - run:
+          name: Install dependencies
+          command: |
+            gem install bundler
+            bundle check || bundle install --deployment --jobs=4 --retry=3 --without deploy development doc production --path vendor/bundle
+      - save-cache:
+          key: v2-identity-pki-bundle-{{ checksum "Gemfile.lock" }}
+          paths:
+            - vendor/bundle
 
 workflows:
   version: 2
