@@ -1,7 +1,7 @@
 # download Slack hook/channel files for id-rails-console
 %w(slackwebhook slackchannel).each do |f|
   file "/etc/login.gov/keys/#{f}" do
-    content ConfigLoader.load_config(node, f)
+    content ConfigLoader.load_config(node, f, common:true)
   end
 end
 
