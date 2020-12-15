@@ -137,7 +137,7 @@ jobs:
 commands:
   install-deps:
     steps:
-      - restore-cache:
+      - restore_cache:
           keys:
             - v2-identity-pki-bundle-{{ checksum "Gemfile.lock" }}
       - run:
