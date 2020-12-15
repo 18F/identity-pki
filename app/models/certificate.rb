@@ -44,8 +44,7 @@ class Certificate
       signing_key_id == other.signing_key_id
   end
 
-  def expired?
-    now = Time.zone.now
+  def expired?(now = Time.zone.now)
     not_before > now || now > not_after # expiration bounds
   end
 
