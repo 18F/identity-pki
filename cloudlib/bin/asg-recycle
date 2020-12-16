@@ -154,7 +154,7 @@ For example:
     as.start_recycle(asg_name, **recycle_opts)
 
     if !skip_idpxtra && role == 'idp'
-      puts as.pastel.bold.yellow('Recycling idpxtra instance in parralel with idp')
+      puts as.pastel.bold.yellow('Recycling idpxtra instance in parallel with idp')
       as.start_recycle("#{env}-idpxtra", skip_zero: true, **recycle_opts)
     end
 
