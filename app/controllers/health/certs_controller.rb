@@ -8,7 +8,7 @@ module Health
       result = health_checker.check_certs(deadline: deadline)
 
       render json: result.as_json,
-             status: result.healthy? ? :ok : :internal_server_error
+             status: result.healthy? ? :ok : :service_unavailable
     end
 
     private

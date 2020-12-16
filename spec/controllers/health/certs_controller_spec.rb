@@ -24,10 +24,10 @@ RSpec.describe Health::CertsController do
     context 'with expiring certs' do
       let(:certificates_store) { [expiring_cert] }
 
-      it 'returns a 500' do
+      it 'returns a 503' do
         action
 
-        expect(response.status).to eq(500)
+        expect(response.status).to eq(503)
 
         body = JSON.parse(response.body, symbolize_names: true)
         expect(body).to include(healthy: false)
