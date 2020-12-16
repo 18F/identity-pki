@@ -279,7 +279,7 @@ handle_error() {
     echo >&2 "Sleeping 15 seconds before sending ABANDON signal..."
     sleep 15
 
-    maybe_complete_lifecycle_hook ABANDON
+    maybe_complete_lifecycle_hook ABANDON || /sbin/shutdown now
 }
 
 trap handle_error EXIT
