@@ -1,9 +1,22 @@
 # do not put the actual webhook url value in terraform
 resource "aws_ssm_parameter" "slack_webhook" {
-  name = "/account/slack/webhook/url"
-  type = "SecureString"
+  name        = "/account/slack/webhook/url"
+  type        = "SecureString"
   description = "Slack webhook url for notifications"
-  value = "Starter"
+  value       = "Starter"
+  lifecycle {
+    ignore_changes = [
+      value
+    ]
+  }
+}
+
+resource "aws_ssm_parameter" "slack_webhook_east1" {
+  provider    = aws.use1
+  name        = local.slack_webhook_ssm_param_name
+  type        = "SecureString"
+  description = "Slack webhook url for notifications"
+  value       = "Starter"
   lifecycle {
     ignore_changes = [
       value
@@ -17,6 +30,7 @@ locals {
     "otherevents" = "login-otherevents"
     "soc"         = "login-soc-events"
   }
+  slack_webhook_ssm_param_name = "/account/slack/webook/url"
 }
 
 ## Terraform providers cannot be generated, so we need a separate block for each region,
@@ -33,7 +47,7 @@ resource "aws_sns_topic" "slack_usw2" {
 
 resource "aws_ssm_parameter" "account_alarm_slack_usw2" {
   for_each = local.slack_channel_map
-  
+
   name        = "/account/us-west-2/alert/sns/arn_slack_${each.key}"
   type        = "String"
   value       = aws_sns_topic.slack_usw2[each.key].arn
@@ -43,12 +57,12 @@ resource "aws_ssm_parameter" "account_alarm_slack_usw2" {
 
 module "slack_lambda_usw2" {
   for_each = local.slack_channel_map
-  source = "github.com/18F/identity-terraform//slack_lambda?ref=7de782c072b4a2b869f986d710e5e2bcf6023f0f"
+  source   = "github.com/18F/identity-terraform//slack_lambda?ref=cd5456b66db13a623db31f788d2c357e5d9cbdd7"
   #source = "../../../../identity-terraform/slack_lambda"
-  
+
   lambda_name                 = "snstoslack_login_${each.key}"
   lambda_description          = "Sends messages to #login-${each.key} Slack channel via SNS subscription."
-  slack_webhook_url_parameter = aws_ssm_parameter.slack_webhook.name
+  slack_webhook_url_parameter = local.slack_webhook_ssm_param_name
   slack_channel               = each.value
   slack_username              = var.slack_username
   slack_icon                  = var.slack_icon
@@ -56,7 +70,7 @@ module "slack_lambda_usw2" {
 }
 
 module "opsgenie_sns" {
-  count = var.opsgenie_key_ready ? 1 : 0
+  count  = var.opsgenie_key_ready ? 1 : 0
   source = "../../modules/opsgenie_sns"
   providers = {
     aws.usw2 = aws.usw2
@@ -75,7 +89,7 @@ resource "aws_sns_topic" "slack_use1" {
 
 resource "aws_ssm_parameter" "account_alarm_slack_use1" {
   for_each = local.slack_channel_map
-  
+
   name        = "/account/us-east-1/alert/sns/arn_slack_${each.key}"
   type        = "String"
   value       = aws_sns_topic.slack_use1[each.key].arn
@@ -85,17 +99,17 @@ resource "aws_ssm_parameter" "account_alarm_slack_use1" {
 
 module "slack_lambda_use1" {
   for_each = local.slack_channel_map
-  source = "github.com/18F/identity-terraform//slack_lambda?ref=7de782c072b4a2b869f986d710e5e2bcf6023f0f"
+  source   = "github.com/18F/identity-terraform//slack_lambda?ref=cd5456b66db13a623db31f788d2c357e5d9cbdd7"
   #source = "../../../../identity-terraform/slack_lambda"
   providers = {
     aws = aws.use1
   }
-  
-  lambda_name        = "snstoslack_login_${each.key}"
-  lambda_description = "Sends messages to #login-${each.key} Slack channel via SNS subscription."
-  slack_webhook_url_parameter  = aws_ssm_parameter.slack_webhook.name
-  slack_channel      = each.value
-  slack_username     = var.slack_username
-  slack_icon         = var.slack_icon
-  slack_topic_arn    = aws_sns_topic.slack_use1[each.key].arn
+
+  lambda_name                 = "snstoslack_login_${each.key}"
+  lambda_description          = "Sends messages to #login-${each.key} Slack channel via SNS subscription."
+  slack_webhook_url_parameter = local.slack_webhook_ssm_param_name
+  slack_channel               = each.value
+  slack_username              = var.slack_username
+  slack_icon                  = var.slack_icon
+  slack_topic_arn             = aws_sns_topic.slack_use1[each.key].arn
 }
