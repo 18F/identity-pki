@@ -15,6 +15,13 @@ RSpec.describe CertificateStore do
   let(:intermediate_certs) { certificates_in_collection(cert_collection, :type, :intermediate) }
   let(:leaf_certs) { certificates_in_collection(cert_collection, :type, :leaf) }
 
+  describe '#load_certs!' do
+    it 'loads the certs in a directory' do
+      expect { certificate_store.load_certs!(dir: Rails.root.join('config/certs')) }.
+        to(change { certificate_store.certificates.count })
+    end
+  end
+
   describe 'with loaded certificates' do
     let(:ca_file_path) { data_file_path('certs.pem') }
 
