@@ -28,6 +28,7 @@ class CertificateStore # rubocop:disable Metrics/ClassLength
     Dir.chdir(dir) do
       Dir.glob(File.join('**', '*.pem')).each do |file|
         next if file == 'all_certs_deploy.pem'
+
         add_pem_file(file)
       end
     end
@@ -82,6 +83,7 @@ class CertificateStore # rubocop:disable Metrics/ClassLength
   def x509_certificate_chain_to_root(cert, cert_root_id)
     signing_key_id = cert.signing_key_id
     return [] unless signing_key_id
+
     @certificates.values_at(
       *@graph.dijkstra_shortest_path(Hash.new(1), signing_key_id, cert_root_id)
     )
@@ -138,10 +140,8 @@ class CertificateStore # rubocop:disable Metrics/ClassLength
   end
 
   def extract_certs(raw)
-    raw.split(END_CERTIFICATE).map(&method(:cert_from_pem)).compact.select(&:ca_capable?)
-  end
-
-  def cert_from_pem(pem)
-    Certificate.new(OpenSSL::X509::Certificate.new(pem + END_CERTIFICATE)) if pem.strip.present?
+    raw.split(END_CERTIFICATE).map do |pem|
+      Certificate.new(OpenSSL::X509::Certificate.new(pem + END_CERTIFICATE)) if pem.strip.present?
+    end.compact.select(&:ca_capable?)
   end
 end
