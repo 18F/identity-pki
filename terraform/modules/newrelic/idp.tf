@@ -8,7 +8,7 @@ locals {
   # In prod, the TLS cert has only "secure.<domain>"
   # In other environments, the TLS cert has "idp.<env>.<domain>" and "<env>.<domain>"
   idp_domain_name = var.env_name == "prod" ? "secure.${var.root_domain}" : "idp.${var.env_name}.${var.root_domain}"
-  pivcac_domain_name = "abcdef.pivcac.${var.env_name}.${var.root_domain}"
+  pivcac_domain_name = "omg-r-u-srsly-expired.pivcac.${var.env_name}.${var.root_domain}"
 }
 
 data "newrelic_entity" "pivcac" {
