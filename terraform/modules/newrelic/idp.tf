@@ -8,6 +8,7 @@ locals {
   # In prod, the TLS cert has only "secure.<domain>"
   # In other environments, the TLS cert has "idp.<env>.<domain>" and "<env>.<domain>"
   idp_domain_name = var.env_name == "prod" ? "secure.${var.root_domain}" : "idp.${var.env_name}.${var.root_domain}"
+  pivcac_domain_name = "abcdef.pivcac.${var.env_name}.${var.root_domain}"
 }
 
 data "newrelic_entity" "pivcac" {
@@ -191,6 +192,18 @@ resource "newrelic_synthetics_alert_condition" "api_health" {
 
   name       = "https://${local.idp_domain_name}/ ping failure"
   monitor_id = newrelic_synthetics_monitor.api_health[0].id
+}
+
+resource "newrelic_synthetics_monitor" "pivcac_certs_health" {
+  count     = var.enabled
+  name      = "${var.env_name} PIV/CAC /api/health/certs check"
+  type      = "SIMPLE"
+  frequency = 5
+  status    = "ENABLED"
+  locations = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
+  uri               = "https://${local.pivcac_domain_name}/api/health/certs.json?source=newrelic"
+  validation_string = "\"healthy\":true"
+  verify_ssl        = true
 }
 
 resource "newrelic_alert_condition" "enduser_datastore_slow_queries" {
