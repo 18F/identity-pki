@@ -23,6 +23,16 @@ class CertificateStore # rubocop:disable Metrics/ClassLength
     instance.reset
   end
 
+  # load all of the files in config/certs
+  def load_certs!
+    Dir.chdir(Figaro.env.certificate_store_directory) do
+      Dir.glob(File.join('**', '*.pem')).each do |file|
+        next if file == 'all_certs_deploy.pem'
+        add_pem_file(file)
+      end
+    end
+  end
+
   def_delegators :@certificates, :[], :count, :empty?, :map
   def_delegators :certificates, :each, :select
   def_delegators CertificateStore,

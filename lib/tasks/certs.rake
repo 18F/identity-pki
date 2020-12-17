@@ -15,10 +15,9 @@ namespace :certs do
   task print_expiring: :environment do
     deadline = 30.days.from_now
 
-    puts "checking deadline #{deadline}"
-
-    expiring_certs = CertificateStore.instance.select do |cert|
-      puts "checking cert #{cert.subject}"
+    cert_store = CertificateStore.instance
+    cert_store.load_certs!
+    expiring_certs = cert_store.select do |cert|
       cert.expired?(deadline)
     end
 
