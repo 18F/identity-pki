@@ -198,7 +198,7 @@ resource "newrelic_synthetics_monitor" "pivcac_certs_health" {
   count     = var.enabled
   name      = "${var.env_name} PIV/CAC /api/health/certs check"
   type      = "SIMPLE"
-  frequency = 5
+  frequency = 60
   status    = "ENABLED"
   locations = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
   uri               = "https://${local.pivcac_domain_name}/api/health/certs.json?source=newrelic"
