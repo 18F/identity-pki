@@ -166,11 +166,11 @@ workflows:
   daily-30d-expiring-cert:
     jobs:
       - check-expiring-certs-config
-    triggers:
-      - schedule:
-          # Once a day at 12pm
-          cron: "0 12 * * *"
-          filters:
-            branches:
-              only:
-                - master
+    # triggers:
+    #   - schedule:
+    #       # Once a day at 12pm
+    #       cron: "0 12 * * *"
+    #       filters:
+    #         branches:
+    #           only:
+    #             - master
