@@ -78,6 +78,11 @@ module "main" {
           "ttl"     = "900",
         },
         {
+          "name"    = "_acme-challenge.sam-landing.",
+          "records" = ["_acme-challenge.sam-landing.login.gov.external-domains-production.cloud.gov."],
+          "ttl"     = "900",
+        },
+        {
           "name"    = "demo.",
           "records" = ["demo.login.gov.external-domains-production.cloud.gov."],
           "ttl"     = "900",
@@ -90,6 +95,11 @@ module "main" {
         {
           "name"    = "handbook.",
           "records" = ["handbook.login.gov.external-domains-production.cloud.gov."],
+          "ttl"     = "900",
+        },
+        {
+          "name"    = "sam-landing.",
+          "records" = ["sam-landing.login.gov.external-domains-production.cloud.gov."],
           "ttl"     = "900",
         },
         {
