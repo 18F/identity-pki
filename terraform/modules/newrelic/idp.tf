@@ -1,13 +1,15 @@
 # These monitor the idp and pivcac services.
 # enable these with setting these to 1:
 #   var.enabled (turns on devops idp alerting)
-#   var.dashboard_enabled (if the dashboard is there, alrt on it too)
+#   var.dashboard_enabled (if the dashboard is there, alert on it too)
 #   var.enduser_enabled (enable alerts for the enduser team)
+#   var.pivcac_service_enabled (if pivcac is there, alert on it too)
 
 locals {
   # In prod, the TLS cert has only "secure.<domain>"
   # In other environments, the TLS cert has "idp.<env>.<domain>" and "<env>.<domain>"
   idp_domain_name = var.env_name == "prod" ? "secure.${var.root_domain}" : "idp.${var.env_name}.${var.root_domain}"
+  pivcac_domain_name = "omg-r-u-srsly-expired.pivcac.${var.env_name}.${var.root_domain}"
 }
 
 data "newrelic_entity" "pivcac" {
@@ -191,6 +193,26 @@ resource "newrelic_synthetics_alert_condition" "api_health" {
 
   name       = "https://${local.idp_domain_name}/ ping failure"
   monitor_id = newrelic_synthetics_monitor.api_health[0].id
+}
+
+resource "newrelic_synthetics_monitor" "pivcac_certs_health" {
+  count     = var.pivcac_service_enabled
+  name      = "${var.env_name} PIV/CAC /api/health/certs check"
+  type      = "SIMPLE"
+  frequency = 60
+  status    = "ENABLED"
+  locations = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
+  uri               = "https://${local.pivcac_domain_name}/api/health/certs.json?source=newrelic"
+  validation_string = "\"healthy\":true"
+  verify_ssl        = true
+}
+
+resource "newrelic_synthetics_alert_condition" "pivcac_certs_health" {
+  count     = var.pivcac_service_enabled
+  policy_id = newrelic_alert_policy.high[0].id
+
+  name       = "${var.env_name} certs expiring failure"
+  monitor_id = newrelic_synthetics_monitor.pivcac_certs_health[0].id
 }
 
 resource "newrelic_alert_condition" "enduser_datastore_slow_queries" {
