@@ -10,4 +10,27 @@ namespace :certs do
       File.delete(file)
     end
   end
+
+  desc 'Print expiring certs'
+  task print_expiring: :environment do
+    deadline = 30.days.from_now
+
+    cert_store = CertificateStore.instance
+    cert_store.load_certs!(dir: Rails.root.join('config/certs'))
+
+    expiring_certs = cert_store.select do |cert|
+      cert.expired?(deadline)
+    end
+
+    if expiring_certs.present?
+      puts "Expiring Certs found, deadline: #{deadline}"
+      expiring_certs.each do |cert|
+        puts "- Expiration: #{cert.not_after}"
+        puts "  Subject: #{cert.subject}"
+        puts "  Issuer: #{cert.issuer}"
+        puts "  Key ID: #{cert.key_id}"
+      end
+      exit 1
+    end
+  end
 end
