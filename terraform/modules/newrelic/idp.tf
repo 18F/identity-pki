@@ -208,7 +208,7 @@ resource "newrelic_synthetics_monitor" "pivcac_certs_health" {
 }
 
 resource "newrelic_synthetics_alert_condition" "pivcac_certs_health" {
-  count     = var.pivcac_service_enabled
+  count     = var.pivcac_service_enabled * var.enabled
   policy_id = newrelic_alert_policy.high[0].id
 
   name       = "${var.env_name} certs expiring failure"

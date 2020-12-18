@@ -5,6 +5,7 @@ variable "opsgenie_key_file" {
 
 variable "enabled" {
   description = "turn on common newrelic alerting services"
+  default = 0
 }
 
 variable "staticsite_alerts_enabled" {
