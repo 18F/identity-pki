@@ -19,7 +19,7 @@ module "main" {
   mx_provider                 = "amazon-ses-inbound.us-west-2"
   sandbox_ses_inbound_enabled = 1
   mta_sts_report_mailboxes    = ["tls-reports@login.gov"]
-  mta_sts_mode                = "testing"
+  mta_sts_mode                = "enforce"
 
   bucket_list_uw2 = [
     "894947205914-awsmacietrail-dataevent",
