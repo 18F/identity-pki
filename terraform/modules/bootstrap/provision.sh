@@ -279,7 +279,7 @@ handle_error() {
     echo >&2 "Sleeping 15 seconds before sending ABANDON signal..."
     sleep 15
 
-    maybe_complete_lifecycle_hook ABANDON
+    maybe_complete_lifecycle_hook ABANDON || /sbin/shutdown now
 }
 
 trap handle_error EXIT
@@ -400,7 +400,7 @@ run "$embedded_bin/chef-client" --local-mode -c "./chef-client.rb" --no-color
 
 run rm -rf /tmp/bundler
 
-maybe_complete_lifecycle_hook CONTINUE
+maybe_complete_lifecycle_hook CONTINUE || true
 
 echo "==========================================================="
 echo "All done! provision.sh finished for $repo_basename"

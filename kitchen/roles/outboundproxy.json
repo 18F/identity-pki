@@ -9,6 +9,7 @@
     "chef_type": "role",
     "run_list": [
       "role[base]",
+      "recipe[login_dot_gov::common_scripts]",
       "recipe[login_dot_gov::static_eip]",
       "recipe[identity-outboundproxy]"
     ],
