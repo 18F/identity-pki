@@ -9,6 +9,7 @@ detectors:
   TooManyMethods:
     exclude:
       - Certificate
+      - CertificateStore
 directories:
   'spec':
     DuplicateMethodCall:
