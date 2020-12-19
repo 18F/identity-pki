@@ -123,6 +123,6 @@ resource "aws_route53_record" "txt_smtp_tls" {
   name    = "_smtp._tls.${var.root_domain}"
   ttl     = "300"
   type    = "TXT"
-  records = ["v=TLSRPTv1; rua=${local.mta_sts_report_addresses}"]
+  records = ["v=TLSRPTv1;rua=${local.mta_sts_report_addresses}"]
   zone_id = module.common_dns.primary_zone_id
 }
