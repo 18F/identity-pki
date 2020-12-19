@@ -73,6 +73,7 @@ class CertificateStore # rubocop:disable Metrics/ClassLength
   end
 
   def x509_certificate_chain(cert)
+    alert_on_expired_cert(cert)
     trusted_ca_root_identifiers.each do |cert_root_id|
       sequence = x509_certificate_chain_to_root(cert, cert_root_id)
       return sequence if sequence&.any? && sequence&.all?
@@ -143,5 +144,17 @@ class CertificateStore # rubocop:disable Metrics/ClassLength
     raw.split(END_CERTIFICATE).map do |pem|
       Certificate.new(OpenSSL::X509::Certificate.new(pem + END_CERTIFICATE)) if pem.strip.present?
     end.compact.select(&:ca_capable?)
+  end
+
+  def alert_on_expired_cert(cert)
+    now = Time.zone.now
+    return if cert.not_after >= now
+
+    NewRelic::Agent.notice_error("\
+Certificate Expired. \
+Expiration: #{cert.not_after}, \
+Subject: #{cert.subject}, \
+Issuer: #{cert.issuer}, \
+Key ID: #{cert.key_id}")
   end
 end

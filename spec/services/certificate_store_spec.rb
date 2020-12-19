@@ -22,6 +22,54 @@ RSpec.describe CertificateStore do
     end
   end
 
+  describe '#x509_certificate_chain' do
+    let(:expired_cert) do
+      root_ca, root_key = create_root_certificate(
+        dn: 'CN=something',
+        serial: 1
+      )
+      create_leaf_certificate(
+        ca: root_ca,
+        ca_key: root_key,
+        dn: 'CN=else',
+        serial: 1,
+        not_after: Time.zone.now - 1.day,
+        not_before: Time.zone.now - 1.week
+      )
+    end
+    let(:good_cert) do
+      root_ca, root_key = create_root_certificate(
+        dn: 'CN=something',
+        serial: 1
+      )
+      create_leaf_certificate(
+        ca: root_ca,
+        ca_key: root_key,
+        dn: 'CN=else',
+        serial: 1,
+        not_after: Time.zone.now + 1.day,
+        not_before: Time.zone.now - 1.week
+      )
+    end
+    let(:key_id) { 'NOT:A:REAL:CERTIFICATE:KEY:ID' }
+
+    it 'alerts on an expired cert' do
+      allow(expired_cert).to receive(:signing_key_id).and_return(key_id)
+      allow(expired_cert).to receive(:key_id).and_return(key_id)
+      expect(NewRelic::Agent).to receive(:notice_error)
+
+      certificate_store.x509_certificate_chain(expired_cert)
+    end
+
+    it 'does not alert on an unexpired cert' do
+      allow(good_cert).to receive(:signing_key_id).and_return(key_id)
+      allow(good_cert).to receive(:key_id).and_return(key_id)
+      expect(NewRelic::Agent).to_not receive(:notice_error)
+
+      certificate_store.x509_certificate_chain(good_cert)
+    end
+  end
+
   describe 'with loaded certificates' do
     let(:ca_file_path) { data_file_path('certs.pem') }
 
