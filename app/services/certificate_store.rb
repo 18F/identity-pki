@@ -2,7 +2,6 @@ require 'openssl'
 require 'rgl/dijkstra'
 require 'rgl/adjacency'
 
-# :reek:TooManyMethods
 class CertificateStore # rubocop:disable Metrics/ClassLength
   include Singleton
 
@@ -148,14 +147,14 @@ class CertificateStore # rubocop:disable Metrics/ClassLength
   end
 
   def alert_on_expired_cert(cert)
-    return if !Certificate.new(cert).expired?
+    return unless Certificate.new(cert).expired?
 
     NewRelic::Agent.notice_error(
       <<-STR.squish
-        Certificate Expired. 
-        Expiration: #{cert.not_after}, 
-        Subject: #{cert.subject}, 
-        Issuer: #{cert.issuer}, 
+        Certificate Expired:
+        Expiration: #{cert.not_after},
+        Subject: #{cert.subject},
+        Issuer: #{cert.issuer},
         Key ID: #{cert.key_id}
       STR
     )
