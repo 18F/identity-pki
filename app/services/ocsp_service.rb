@@ -81,9 +81,12 @@ class OCSPService
 
   def make_single_http_request(uri, request, retries = 1)
     make_single_http_request!(uri, request)
-  rescue Errno::ECONNRESET
+  rescue Errno::ECONNRESET, Timeout::Error => e
     retries -= 1
-    return if retries.negative?
+    if retries.negative?
+      log_ocsp_error(:ocsp_timeout, e)
+      return
+    end
     sleep(1)
     retry
   end
@@ -98,5 +101,18 @@ class OCSPService
 
   def process_http_response_body(body)
     OpenSSL::OCSP::Response.new(body) if body.present?
+  rescue OpenSSL::OCSP::OCSPError => e
+    log_ocsp_error(:ocsp_response_error, e)
+    nil
+  end
+
+  def log_ocsp_error(error_type, exception)
+    info = {
+      error_type: error_type,
+      ocsp_url_for_subject: ocsp_url_for_subject,
+      key_id: subject.key_id,
+    }
+    Rails.logger.warn("OCSP error: #{info.to_json}")
+    NewRelic::Agent.notice_error(exception)
   end
 end

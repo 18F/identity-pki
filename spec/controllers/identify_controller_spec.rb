@@ -285,21 +285,20 @@ RSpec.describe IdentifyController, type: :controller do
             stub_request(:post, 'http://ocsp.example.com/').to_timeout
           end
 
-          it 'returns a token as timeout' do
+          it 'returns a valid response after checking CRLs' do
             ca = CertificateAuthority.find_or_create_for_certificate(
                 Certificate.new(root_cert)
             )
 
             @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
-            expect(CertificateLoggerService).to receive(:log_certificate)
 
             get :create, params: { nonce: '123', redirect_uri: 'http://example.com/' }
             expect(response).to have_http_status(:found)
             expect(response.has_header?('Location')).to be_truthy
             expect(token).to be_truthy
 
-            expect(token_contents['error']).to eq 'certificate.timeout'
-            expect(token_contents['key_id']).to be_present
+            expect(token_contents['error']).to be_nil
+            expect(token_contents['uuid']).to be_present
             expect(token_contents['nonce']).to eq '123'
           end
         end
@@ -310,21 +309,20 @@ RSpec.describe IdentifyController, type: :controller do
               to_return(status: 200, body: 'not-a-valid-cert', headers: {})
           end
 
-          it 'returns a token as ocsp error' do
+          it 'returns a valid response after checking CRLs' do
             ca = CertificateAuthority.find_or_create_for_certificate(
                 Certificate.new(root_cert)
             )
 
             @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
-            expect(CertificateLoggerService).to receive(:log_certificate)
 
             get :create, params: { nonce: '123', redirect_uri: 'http://example.com/' }
             expect(response).to have_http_status(:found)
             expect(response.has_header?('Location')).to be_truthy
             expect(token).to be_truthy
 
-            expect(token_contents['error']).to eq 'certificate.ocsp_error'
-            expect(token_contents['key_id']).to be_present
+            expect(token_contents['error']).to be_nil
+            expect(token_contents['uuid']).to be_present
             expect(token_contents['nonce']).to eq '123'
           end
         end
