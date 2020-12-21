@@ -147,8 +147,7 @@ class CertificateStore # rubocop:disable Metrics/ClassLength
   end
 
   def alert_on_expired_cert(cert)
-    now = Time.zone.now
-    return if cert.not_after >= now
+    return if !Certificate.new(cert).expired?
 
     NewRelic::Agent.notice_error(
       <<-STR.squish
