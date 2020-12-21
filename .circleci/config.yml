@@ -2,7 +2,11 @@
 #
 # Check https://circleci.com/docs/2.0/language-ruby/ for more details
 #
-version: 2
+version: 2.1
+
+orbs:
+  slack: circleci/slack@3.4.2
+
 jobs:
   build:
     docker:
@@ -27,19 +31,7 @@ jobs:
 
     steps:
       - checkout
-
-      - restore-cache:
-          keys:
-            - v2-identity-pki-bundle-{{ checksum "Gemfile.lock" }}
-      - run:
-          name: Install dependencies
-          command: |
-            gem install bundler
-            bundle check || bundle install --deployment --jobs=4 --retry=3 --without deploy development doc production --path vendor/bundle
-      - save-cache:
-          key: v2-identity-pki-bundle-{{ checksum "Gemfile.lock" }}
-          paths:
-            - vendor/bundle
+      - install-deps
 
       - run:
           name: Install Code Climate Test Reporter
@@ -101,6 +93,62 @@ jobs:
           docker build -t logindotgov/pki:$CIRCLE_TAG -f Dockerfile .
           echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
           docker push logindotgov/pki:$CIRCLE_TAG
+
+  check-expiring-certs-config:
+    docker:
+      # Specify the Ruby version you desire here
+      - image: circleci/ruby:2.6-node-browsers
+        environment:
+          RAILS_ENV: test
+          CC_TEST_REPORTER_ID: c88a6f4af1fbf80e0fc9a5593ebff124b2f940645b1eacb5adb681522bbf650e
+          COVERAGE: true
+          # PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      - image: circleci/postgres:9.5-alpine
+        environment:
+          POSTGRES_USER: circleci
+
+      - image: redis:4.0.1
+
+    working_directory: ~/identity-pki
+
+    steps:
+      - checkout
+      - install-deps
+      - run:
+          name: Test Setup
+          command: |
+            cp config/application.yml.example config/application.yml
+            bundle exec rake db:setup --trace
+      - run:
+          name: Check for expiring certs
+          command: |
+            bundle exec rake certs:print_expiring
+
+      - slack/status:
+          fail_only: true
+          failure_message: ":piv-card::red_circle::scream: identity-pki has certs expiring within 30 days"
+          include_project_field: false
+
+commands:
+  install-deps:
+    steps:
+      - restore_cache:
+          keys:
+            - v2-identity-pki-bundle-{{ checksum "Gemfile.lock" }}
+      - run:
+          name: Install dependencies
+          command: |
+            gem install bundler
+            bundle check || bundle install --deployment --jobs=4 --retry=3 --without deploy development doc production --path vendor/bundle
+      - save_cache:
+          key: v2-identity-pki-bundle-{{ checksum "Gemfile.lock" }}
+          paths:
+            - vendor/bundle
+
 workflows:
   version: 2
   release:
@@ -115,3 +163,14 @@ workflows:
           filters:
             tags:
               only: "/^[0-9]{4}-[0-9]{2}-[0-9]{2,}.*/"
+  daily-30d-expiring-cert:
+    jobs:
+      - check-expiring-certs-config
+    triggers:
+      - schedule:
+          # Once a day at 12pm
+          cron: "0 12 * * *"
+          filters:
+            branches:
+              only:
+                - master

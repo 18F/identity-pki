@@ -278,6 +278,16 @@ RSpec.describe OCSPService do
 
     let(:status) { :invalid }
 
+    before do
+      described_class.clear_ocsp_response_cache
+      allow(IO).to receive(:binread).with(ca_file_path).and_return(ca_file_content)
+      allow(Figaro.env).to receive(:trusted_ca_root_identifiers).and_return(
+        root_cert_key_ids.join(',')
+      )
+      certificate_store.clear_root_identifiers
+      certificate_store.add_pem_file(ca_file_path)
+    end
+
     context "that isn't an OCSP response at all" do
       before(:each) do
         stub_request(:post, 'http://ocsp.example.com/').

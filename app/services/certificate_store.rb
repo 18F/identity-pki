@@ -23,6 +23,17 @@ class CertificateStore # rubocop:disable Metrics/ClassLength
     instance.reset
   end
 
+  # load all of the files in config/certs
+  def load_certs!(dir: Figaro.env.certificate_store_directory)
+    Dir.chdir(dir) do
+      Dir.glob(File.join('**', '*.pem')).each do |file|
+        next if file == 'all_certs_deploy.pem'
+
+        add_pem_file(file)
+      end
+    end
+  end
+
   def_delegators :@certificates, :[], :count, :empty?, :map
   def_delegators :certificates, :each, :select
   def_delegators CertificateStore,
@@ -72,6 +83,7 @@ class CertificateStore # rubocop:disable Metrics/ClassLength
   def x509_certificate_chain_to_root(cert, cert_root_id)
     signing_key_id = cert.signing_key_id
     return [] unless signing_key_id
+
     @certificates.values_at(
       *@graph.dijkstra_shortest_path(Hash.new(1), signing_key_id, cert_root_id)
     )
@@ -128,10 +140,8 @@ class CertificateStore # rubocop:disable Metrics/ClassLength
   end
 
   def extract_certs(raw)
-    raw.split(END_CERTIFICATE).map(&method(:cert_from_pem)).compact.select(&:ca_capable?)
-  end
-
-  def cert_from_pem(pem)
-    Certificate.new(OpenSSL::X509::Certificate.new(pem + END_CERTIFICATE)) if pem.strip.present?
+    raw.split(END_CERTIFICATE).map do |pem|
+      Certificate.new(OpenSSL::X509::Certificate.new(pem + END_CERTIFICATE)) if pem.strip.present?
+    end.compact.select(&:ca_capable?)
   end
 end
