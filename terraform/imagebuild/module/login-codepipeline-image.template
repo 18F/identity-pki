@@ -58,15 +58,13 @@
             "Type": "String",
             "MinLength" : 0,
             "MaxLength" : 255,
-            "AllowedPattern" : "^[a-zA-Z][-a-zA-Z0-9]*$",
-            "Default" : "login-image-codesync"
+            "Default" : ""
         },
         "Git2S3OutputBucket": {
             "Description": "Optional: Name of S3 bucket containing Git2S3 output for this build project. If left blank, MUST use Git2S3StackName instead.",
             "Type": "String",
             "MinLength" : 0,
             "MaxLength" : 255,
-            "AllowedPattern" : "^[a-zA-Z][-a-zA-Z0-9]*$",
             "Default" : ""
         }
     },

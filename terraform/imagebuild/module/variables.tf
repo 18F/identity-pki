@@ -32,3 +32,19 @@ variable "image_build_vpc_cidr" {
 variable "artifact_bucket" {
   default = "login-gov-public-artifacts-us-west-2"
 }
+
+variable "packer_config" {
+  description = "Map of key/value pairs for Packer configs consistent in all AMI types."
+  type = map(string)
+  default = {
+    encryption              = "false"
+    root_vol_size           = "40"
+    data_vol_size           = "100"
+    deregister_existing_ami = "false"
+    delete_ami_snapshots    = "false"
+    chef_version            = "15.10.12"
+    os_version              = "Ubuntu 18.04"
+    ami_owner_id            = "679593333241",
+    ami_filter_name         = "ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*"
+  }
+}

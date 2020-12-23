@@ -13,9 +13,12 @@ terraform {
 module "git2s3_src" {
   source = "../../modules/cfn_artifacts" 
 
-  git2s3_stack_name = "CodeSync-IdentityBaseImage"
-  prod_account_id   = "555546682965"
-  artifact_bucket   = "login-gov-public-artifacts-us-west-2"
+  git2s3_stack_name    = "CodeSync-IdentityBaseImage"
+  external_account_ids = [
+    "555546682965",
+    "034795980528",
+  ]
+  artifact_bucket      = "login-gov-public-artifacts-us-west-2"
 }
 
 module "main" {
