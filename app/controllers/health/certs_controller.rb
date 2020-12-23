@@ -3,8 +3,6 @@ module Health
     newrelic_ignore_apdex
 
     def index
-      deadline = params[:deadline].present? ? Time.zone.parse(params[:deadline]) : 30.days.from_now
-
       result = health_checker.check_certs(deadline: deadline)
 
       render json: result.as_json,
@@ -15,6 +13,12 @@ module Health
 
     def health_checker
       @health_checker ||= HealthChecker.new
+    end
+
+    def deadline
+      DurationParser.new(params[:deadline]).parse&.from_now ||
+        Time.zone.parse(params[:deadline].to_s) ||
+        30.days.from_now
     end
   end
 end
