@@ -8,3 +8,7 @@ plugins:
     channel: rubocop-0-78
     config:
       file: .rubocop.yml
+
+checks:
+  method-complexity:
+    enabled: false
