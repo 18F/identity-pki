@@ -1,13 +1,17 @@
 namespace :certs do
-  desc 'Remove invalid certs'
+  desc 'Remove invalid certs, set EXPIRING=true to also remove certs expiring within 30 days'
   task remove_invalid: :environment do
+    remove_expiring = (ENV['EXPIRING'] == 'true')
+    deadline = 30.days.from_now
+
     Dir.glob(File.join('config', 'certs', '**', '*.pem')).each do |file|
       raw_cert = File.read(file)
       cert = Certificate.new(OpenSSL::X509::Certificate.new(raw_cert))
-      next if cert.valid?
 
-      warn "Removing invalid cert at #{file}"
-      File.delete(file)
+      if !cert.valid? || (remove_expiring && cert.expired?(deadline))
+        warn "Removing invalid cert at #{file}"
+        File.delete(file)
+      end
     end
   end
 
