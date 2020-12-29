@@ -52,11 +52,7 @@ fi
 
 for BUCKET in $(ave aws s3 ls |grep ${TF_ENV} | awk '{print $NF}'); do
   ave aws s3 rm s3://${BUCKET} --recursive
-  ave python -c "import boto3 ;\
-    session = boto3.Session() ;\
-    s3 = session.resource(service_name='s3') ;\
-    bucket = s3.Bucket('${BUCKET}') ;\
-    bucket.object_versions.delete()"
+  ave ${BASEPATH}/empty-bucket.py ${BUCKET}
 done
 
 for BUCKET in $(ave aws s3 ls | grep 'secrets.' | awk '{print $NF}') ; do

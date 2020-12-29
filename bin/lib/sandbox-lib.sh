@@ -17,15 +17,15 @@ verify_private_repo() {
   fi
   echo_cyan "Found at ${PRIVATE_REPO}"
   export PROTECTED_ENVS=$(grep -rnw 'STRICT_ENVIRONMENT' ${PRIVATE_REPO} |
-                        sed -E 's/\.\/env\/([a-z0-9]+)\.sh.+/\1/')
+                        sed -E 's/.+\/env\/([a-z0-9]+)\.sh.+/\1/')
 }
 
 verify_env_files() {
   for FILE in "${GIT_DIR}/kitchen/environments/${GSA_USERNAME}.json" \
               "${PRIVATE_REPO}/vars/${GSA_USERNAME}.tfvars" \
-              "${PRIVATE_REPO}/chef/environments/bleachbyte.json" \
-              "${PRIVATE_REPO}/chef/data_bags/users/bleachbyte.json" \
-              "${PRIVATE_REPO}/env/bleachbyte.sh" ; do
+              "${PRIVATE_REPO}/chef/environments/${GSA_USERNAME}.json" \
+              "${PRIVATE_REPO}/chef/data_bags/users/${GSA_USERNAME}.json" \
+              "${PRIVATE_REPO}/env/${GSA_USERNAME}.sh" ; do
     echo_blue "Verifying ${FILE}..."
     FILENAME=$(echo ${FILE} | awk -F/ '{print $NF}')
     FILEPATH=$(echo ${FILE} | awk -F/ '{$NF=""; print $0}')
