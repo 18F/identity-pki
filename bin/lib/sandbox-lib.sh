@@ -27,8 +27,6 @@ verify_private_repo() {
            set \$ID_PRIVATE_DIR env var with correct path"
   fi
   echo_cyan "identity-devops-private dir located."
-  export PROTECTED_ENVS=$(grep -rnw 'STRICT_ENVIRONMENT' ${PRIVATE_REPO} |
-                        sed -E 's/.+\/env\/([a-z0-9]+)\.sh.+/\1/')
 }
 
 verify_env_files() {
@@ -48,7 +46,7 @@ verify_sandbox_env() {
   TF_ENV=${1:-$(echo ${GSA_USERNAME})}
   if [[ -z ${TF_ENV} ]] ; then
     raise "GSA_USERNAME not set; verify and try again"
-  elif [[ $(echo ${PROTECTED_ENVS} | grep ${TF_ENV}) ]] ; then
+  elif [[ $(grep -w 'STRICT_ENVIRONMENT' ${PRIVATE_REPO}/env/${TF_ENV}.sh) ]] ; then
     raise "Cannot run this script against protected environment ${TF_ENV}"
   fi
   echo_cyan "Using '${TF_ENV}' environment."
@@ -58,7 +56,6 @@ verify_sandbox_env() {
 initialize() {
   echo
   echo_green "Initializing..."
-  
   verify_root_repo
   verify_private_repo
   verify_sandbox_env ${1:-}
