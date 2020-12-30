@@ -52,7 +52,7 @@ verify_sandbox_env() {
     raise "Cannot be run against the login-prod account!"
   fi
   echo_cyan "Using '${TF_ENV}' environment."
-  #verify_env_files
+  verify_env_files
 }
 
 initialize() {
