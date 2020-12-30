@@ -48,9 +48,11 @@ verify_sandbox_env() {
     raise "GSA_USERNAME not set; verify and try again"
   elif [[ $(grep -w 'STRICT_ENVIRONMENT' ${PRIVATE_REPO}/env/${TF_ENV}.sh) ]] ; then
     raise "Cannot run this script against protected environment ${TF_ENV}"
+  elif [[ "${TF_ENV}" =~ ^staging|prod$ ]] ; then
+    raise "Cannot be run against the login-prod account!"
   fi
   echo_cyan "Using '${TF_ENV}' environment."
-  verify_env_files
+  #verify_env_files
 }
 
 initialize() {
@@ -68,7 +70,7 @@ initialize() {
 
 run_tasks() {
   echo
-  [[ -z ${TODO} ]] && TODO+=(${TASKS})
+  [[ -z ${TODO-} ]] && TODO+=(${TASKS})
   for TASK in ${TODO[@]} ; do
     echo_green "Executing task '${TASK}'..."
     eval ${TASK}
