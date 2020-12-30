@@ -10,35 +10,123 @@ BASEPATH="$(dirname "$0")"
 
 usage() {
     cat >&2 << EOM
-Usage: ${0} 
+Usage: ${0} [-asdiph] [ENV]
 
-Creates a full terraform-app sandbox environment in the login-sandbox account,
-using \$GSA_USERNAME for the name. 
+Runs all necessary commands to create a full terraform-app environment,
+\${TF_ENV}, in the login-sandbox account. Designed to run with no
+specified flags/arguments.
+
+The tasks in this script can also be individually executed
+using the following flags:
+
+  -a : Duplicate all v1/application.yml files for \`int\`,
+       within the login-gov.app-secrets bucket, for \${TF_ENV},
+       replacing all instances of \`int\` within with \${TF_ENV} 
+  -s : Copy all files listed in ./lib/build-keys from the int/ dir
+       within the login-gov.secrets bucket to a \${TF_ENV}/ dir in
+       the same bucket
+  -d : Run \`terraform apply -auto-approve\` against \${TF_ENV},
+       setting the min and desired counts for the idp and pivcac
+       autoscaling groups to 0
+  -i : Psuedo run of \`asg-recycle \${TF_ENV} idp\`; recycles a
+       migration host, and sets a scheduled action to bring the
+       idp ASG to its default/tfvars-specified min/desired values
+       after 5 minutes.
+  -p : Similar to -i, but runs against the pivcac ASG, and
+       does not spin up a migration host beforehand; it
+       DOES still schedule the action for 5min in the future
+  -h : Displays this help
+
+This script will default to using \${GSA_USERNAME} for the
+value of \${TF_ENV}, unless a different one is specified
+as a final argument.
 
 EOM
 }
 
-verify_root_repo
-verify_private_repo
-verify_sandbox_env
-get_arn_role 'sandbox' 'Terraform'
+get_asg_num() {
+  TYPE=${1}
+  VALUES=()
+  for COUNT in min desired ; do
+    NUM=$(cat ${PRIVATE_REPO}/vars/${TF_ENV}.tfvars |
+               grep asg_${TYPE}_${COUNT} | awk '{print $NF}')
+    if [[ -z ${NUM} ]] ; then
+      NUM=$(cat ${APP_DIR}/variables.tf | grep -A1 asg_${TYPE}_${COUNT} |
+                tail -n 1 | awk '{print $NF}')
+    fi
+    VALUES+=(${NUM})
+  done
+  echo ${VALUES[@]}
+}
 
-AWS_ACCT_NUM=$(ave aws sts get-caller-identity | jq -r '.Account')
-AWS_REGION=$(ave aws configure get region --profile ${AV_PROFILE})
+post_sandbox_build() {
+  ave aws autoscaling put-scheduled-update-group-action \
+  --auto-scaling-group-name ${TF_ENV}-${1} \
+  --scheduled-action-name ${TF_ENV}-sandbox-postbuild \
+  --start-time $(date -ju -v+5M +%Y-%m-%dT%TZ) \
+  --min-size ${2} --desired-capacity ${3}
+}
+
+app_secrets() {
+  BUCKET="login-gov.app-secrets.${AWS_ACCT_NUM}-${AWS_REGION}"
+  for KEY in $(ave aws s3 ls s3://${BUCKET}/${SOURCE_ENV}/ |
+      awk '{print $NF}' | tr -d '/') ; do
+        ave aws s3 cp s3://${BUCKET}/${SOURCE_ENV}/${KEY}/v1/application.yml - |
+          sed -E "s/${SOURCE_ENV}(\.|-)/${TF_ENV}\1/" |
+          ave aws s3 cp - s3://${BUCKET}/${TF_ENV}/${KEY}/v1/application.yml >/dev/null
+  done
+}
+
+regular_secrets() {
+  BUCKET="login-gov.secrets.${AWS_ACCT_NUM}-${AWS_REGION}"
+  for KEY in $(cat bin/lib/build-keys) ; do
+      ave aws s3 cp s3://${BUCKET}/${SOURCE_ENV}/${KEY} \
+                s3://${BUCKET}/${TF_ENV}/${KEY} >/dev/null
+  done
+}
+
+tf_deploy() {
+  ave ${BASEPATH}/tf-deploy ${TF_ENV} app apply -auto-approve \
+    -var 'asg_idp_min=0' -var 'asg_idp_desired=0' \
+    -var 'asg_pivcac_min=0' -var 'asg_pivcac_desired=0'
+}
+
+# after a completed apply, do a pseudo idp-recycle,
+# then bring idp and pivcac to normal numbers
+idp_recycle() {
+  COUNTS=($(get_asg_num idp))
+  echo_blue "Spinning up a migration host before scaling out idp hosts..."
+  ave ${BASEPATH}/asg-recycle -q -i 1 -t 0 ${TF_ENV} migration
+  post_sandbox_build idp ${COUNTS[@]}
+}
+
+pivcac_recycle() {
+  post_sandbox_build pivcac $(get_asg_num pivcac)
+}
+
+TASKS=(
+  'app_secrets'
+  'regular_secrets'
+  'tf_deploy'
+  'idp_recycle'
+  'pivcac_recycle'
+)
+TODO=()
+while getopts asdiph opt
+do
+  case $opt in
+    a) TODO+=(${TASKS[0]}) ;;
+    s) TODO+=(${TASKS[1]}) ;;
+    d) TODO+=(${TASKS[2]}) ;;
+    i) TODO+=(${TASKS[3]}) ;;
+    p) TODO+=(${TASKS[4]}) ;;
+    h) usage && exit 0 ;;
+    *) usage && exit 1 ;;
+  esac
+done
+shift $((OPTIND-1))
+initialize ${1:-}
+
 SOURCE_ENV='int'
 
-#ave ${BASEPATH}/tf-deploy -t -z ${TF_ENV} app apply -auto-approve
-
-for KEY in $(cat bin/lib/build-keys) ; do
-  ave aws s3 cp s3://login-gov.secrets.${AWS_ACCT_NUM}-${AWS_REGION}/${SOURCE_ENV}/${KEY} \
-            s3://login-gov.secrets.${AWS_ACCT_NUM}-${AWS_REGION}/$GSA_USERNAME/${KEY}
-done
-
-for KEY in $(ave aws s3 ls s3://login-gov.app-secrets.${AWS_ACCT_NUM}-${AWS_REGION}/${SOURCE_ENV}/ |
-         awk '{print $NF}' | tr -d '/') ; do
-  ave aws s3 cp s3://login-gov.app-secrets.${AWS_ACCT_NUM}-${AWS_REGION}/int/$KEY/v1/application.yml - |
-    sed -E "s/$SOURCE_ENV(\.|-)/$GSA_USERNAME\1/" |
-    ave aws s3 cp - s3://login-gov.app-secrets.${AWS_ACCT_NUM}-${AWS_REGION}/$GSA_USERNAME/$KEY/v1/application.yml
-    done
-
-ave ${BASEPATH}/tf-deploy ${TF_ENV} app apply -auto-approve
+run_tasks
