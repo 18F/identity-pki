@@ -519,3 +519,19 @@ gh_revs() {
     fi
   fi
 }
+
+#### verify that python3 is active and that boto3 is installed
+boto3_check() {
+  echo_blue "Verifying Python 3 / boto3..."
+  if ! [[ $($(which python) --version | grep 'Python 3') ]] ; then
+    raise 'Current Python version is not 3.x; change version and retry'
+  elif ! [[ $($(which pip) list | grep boto3) ]] ; then
+    if ! prompt_yn "boto3 library not found; install via pip?" ; then
+      raise 'Install boto3 library and retry'
+    else
+      $(which pip) install boto3
+    fi
+  else
+    echo_cyan "Python 3 active + boto3 library installed."
+  fi
+}

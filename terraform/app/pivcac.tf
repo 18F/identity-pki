@@ -130,8 +130,8 @@ resource "aws_autoscaling_group" "pivcac" {
     version = "$Latest"
   }
 
-  min_size         = 0
-  max_size         = var.asg_pivcac_desired * 2
+  min_size         = var.asg_pivcac_min == 0 ? 0 : var.asg_pivcac_min
+  max_size         = var.asg_pivcac_max == 0 ? var.asg_pivcac_desired * 2 : var.asg_pivcac_max
   desired_capacity = var.asg_pivcac_desired
 
   wait_for_capacity_timeout = 0

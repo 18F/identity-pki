@@ -365,8 +365,16 @@ variable "asg_migration_max" {
   default = 8
 }
 
+variable "asg_pivcac_min" {
+  default = 0
+}
+
 variable "asg_pivcac_desired" {
   default = 2
+}
+
+variable "asg_pivcac_max" {
+  default = 4
 }
 
 variable "asg_outboundproxy_desired" {
