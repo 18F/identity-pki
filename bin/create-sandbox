@@ -62,29 +62,6 @@ EOM
   exit 0
 }
 
-get_asg_num() {
-  TYPE=${1}
-  VALUES=()
-  for COUNT in min desired ; do
-    NUM=$(cat ${PRIVATE_REPO}/vars/${TF_ENV}.tfvars |
-               grep asg_${TYPE}_${COUNT} | awk '{print $NF}')
-    if [[ -z ${NUM} ]] ; then
-      NUM=$(cat ${APP_DIR}/variables.tf | grep -A1 asg_${TYPE}_${COUNT} |
-                tail -n 1 | awk '{print $NF}')
-    fi
-    VALUES+=(${NUM})
-  done
-  echo ${VALUES[@]}
-}
-
-post_sandbox_build() {
-  ave aws autoscaling put-scheduled-update-group-action \
-  --auto-scaling-group-name ${TF_ENV}-${1} \
-  --scheduled-action-name ${TF_ENV}-sandbox-postbuild \
-  --start-time $(date -ju -v+5M +%Y-%m-%dT%TZ) \
-  --min-size ${2} --desired-capacity ${3}
-}
-
 app_secrets() {
   BUCKET="login-gov.app-secrets.${AWS_ACCT_NUM}-${AWS_REGION}"
   for KEY in $(ave aws s3 ls s3://${BUCKET}/${SOURCE_ENV}/ |
@@ -104,22 +81,7 @@ regular_secrets() {
 }
 
 tf_deploy() {
-  ave ${BASEPATH}/tf-deploy ${TF_ENV} app apply -auto-approve \
-    -var 'asg_idp_min=0' -var 'asg_idp_desired=0' \
-    -var 'asg_pivcac_min=0' -var 'asg_pivcac_desired=0'
-}
-
-# after a completed apply, do a pseudo idp-recycle,
-# then bring idp and pivcac to normal numbers
-idp_recycle() {
-  COUNTS=($(get_asg_num idp))
-  echo_blue "Spinning up a migration host before scaling out idp hosts..."
-  ave ${BASEPATH}/asg-recycle -q -i 1 -t 0 ${TF_ENV} migration
-  post_sandbox_build idp ${COUNTS[@]}
-}
-
-pivcac_recycle() {
-  post_sandbox_build pivcac $(get_asg_num pivcac)
+  ave ${BASEPATH}/tf-deploy ${TF_ENV} app apply -auto-approve
 }
 
 TASKS=(
@@ -130,14 +92,12 @@ TASKS=(
   "pivcac_recycle"
 )
 TODO=()
-while getopts asdiph opt
+while getopts asdh opt
 do
   case $opt in
     a) TODO+=("${TASKS[0]}") ;;
     s) TODO+=("${TASKS[1]}") ;;
     d) TODO+=("${TASKS[2]}") ;;
-    i) TODO+=("${TASKS[3]}") ;;
-    p) TODO+=("${TASKS[4]}") ;;
     h) man_page ;;
     *) usage && exit 1 ;;
   esac

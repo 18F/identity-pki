@@ -55,6 +55,26 @@ verify_sandbox_env() {
   verify_env_files
 }
 
+# get the value of a particular Terraform variable,
+# using tfvars file(s) for precedence
+get_tf_var() {
+  local VAR_NAME=${1}
+  local VAR_ENV=${2:-$(echo ${TF_ENV})}
+  local VAR_VAL
+  
+  for VAR_SRC in "${PRIVATE_REPO}/vars/${TF_ENV}.tfvars" \
+                 "${PRIVATE_REPO}/vars/account_global_${AWS_ACCT_NUM}.tfvars" ; do
+    if [[ -z ${VAR_VAL} ]] || [[ ${VAR_VAL} == "" ]] ; then
+      VAR_VAL=$(cat ${VAR_SRC} | grep ${VAR_NAME} | awk '{print $NF}')
+    fi
+  done
+  if [[ -z ${VAR_VAL} ]] || [[ ${VAR_VAL} == "" ]] ; then
+    VAR_VAL=$(cat ${APP_DIR}/variables.tf | grep -A1 ${VAR_NAME} |
+                tail -n 1 | awk '{print $NF}')
+  fi
+  echo ${VAR_VAL}
+}
+
 initialize() {
   echo
   echo_green "Initializing..."

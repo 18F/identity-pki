@@ -80,9 +80,7 @@ allow_db_destroy() {
 }
 
 scale_in_es() {
-  if [[ $(cat ${PRIVATE_REPO}/vars/${TF_ENV}.tfvars |
-                    grep asg_elasticsearch_desired |
-                        awk '{print $NF}') != '0' ]] &&
+  if [[ $(get_tf_var asg_elasticsearch_desired) != '0' ]] &&
      [[ ! -z $(ave aws autoscaling describe-auto-scaling-groups \
                  --auto-scaling-group-names ${TF_ENV}-elasticsearch |
                  jq -r '.AutoScalingGroups[].Instances[]') ]] ; then
