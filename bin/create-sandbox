@@ -9,7 +9,24 @@ BASEPATH="$(dirname "$0")"
 . "${BASEPATH}/lib/sandbox-lib.sh"
 
 usage() {
+  cat >&2 << EOM
+
+Usage: ${0} [-asdiph] [ENV] (defaults to \$GSA_USERNAME if not specified)
+
+Flags (will run all if no flags specified):
+  -a : Copy S3 app-secrets v1/application.yml files from int to ENV
+  -s : Copy S3 secrets listed in ./lib/build-keys from int to ENV
+  -d : Run terraform-apply with IDP/PIVCAC ASGs zeroed out
+  -i : Spinup/count reset of IDP ASG (w/migration) 5min in future
+  -p : Spinup/count reset of PIVCAC ASG 5 min in future
+  -h : Detailed help
+
+EOM
+}
+
+man_page() {
     cat >&2 << EOM
+    
 Usage: ${0} [-asdiph] [ENV]
 
 Runs all necessary commands to create a full terraform-app environment,
@@ -42,6 +59,7 @@ value of \${TF_ENV}, unless a different one is specified
 as a final argument.
 
 EOM
+  exit 0
 }
 
 get_asg_num() {
@@ -105,22 +123,22 @@ pivcac_recycle() {
 }
 
 TASKS=(
-  'app_secrets'
-  'regular_secrets'
-  'tf_deploy'
-  'idp_recycle'
-  'pivcac_recycle'
+  "app_secrets"
+  "regular_secrets"
+  "tf_deploy"
+  "idp_recycle"
+  "pivcac_recycle"
 )
 TODO=()
 while getopts asdiph opt
 do
   case $opt in
-    a) TODO+=(${TASKS[0]}) ;;
-    s) TODO+=(${TASKS[1]}) ;;
-    d) TODO+=(${TASKS[2]}) ;;
-    i) TODO+=(${TASKS[3]}) ;;
-    p) TODO+=(${TASKS[4]}) ;;
-    h) usage && exit 0 ;;
+    a) TODO+=("${TASKS[0]}") ;;
+    s) TODO+=("${TASKS[1]}") ;;
+    d) TODO+=("${TASKS[2]}") ;;
+    i) TODO+=("${TASKS[3]}") ;;
+    p) TODO+=("${TASKS[4]}") ;;
+    h) man_page ;;
     *) usage && exit 1 ;;
   esac
 done

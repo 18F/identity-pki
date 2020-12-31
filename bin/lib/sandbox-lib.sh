@@ -70,8 +70,8 @@ initialize() {
 
 run_tasks() {
   echo
-  [[ -z ${TODO-} ]] && TODO+=(${TASKS})
-  for TASK in ${TODO[@]} ; do
+  [[ -z ${TODO-} ]] && TODO+=("${TASKS[@]}")
+  for TASK in "${TODO[@]}" ; do
     echo_green "Executing task '${TASK}'..."
     eval ${TASK}
     echo_green "Task completed successfully."

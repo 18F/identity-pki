@@ -10,6 +10,24 @@ BASEPATH="$(dirname "$0")"
 
 usage() {
     cat >&2 << EOM
+
+Usage: ${0} [-ldebkxh] [ENV] (defaults to \$GSA_USERNAME if not specified)
+
+Flags (will run all if no flags specified):
+  -l : Delete ENV-idp-functions CloudFormation stack if it exists
+  -d : Remove deletion/prevent_destroy/final snapshot from RDS dbs
+  -e : Scale in ElasticSearch instances
+  -b : Empties all S3 buckets with ENV in the bucket name
+  -k : Delete all ENV-named S3 keys in secrets/app-secrets buckets
+  -x : terraform-destroy + reset db .tf files
+  -h : Detailed help
+
+EOM
+}
+
+man_page() {
+    cat >&2 << EOM
+    
 Usage: ${0} [-ldebkxh] [ENV]
 
 Runs all necessary commands to prep and destroy an existing
@@ -38,6 +56,7 @@ value of \${TF_ENV}, unless a different one is specified
 as a final argument.
 
 EOM
+  exit 0
 }
 
 delete_lambdas() {
@@ -105,25 +124,25 @@ tf_destroy() {
 }
 
 TASKS=(
-  'delete_lambdas'
-  'allow_db_destroy'
-  'scale_in_es'
-  'empty_buckets'
-  'delete_env_keys'
-  'tf_destroy'
+  "delete_lambdas"
+  "allow_db_destroy"
+  "scale_in_es"
+  "empty_buckets"
+  "delete_env_keys"
+  "tf_destroy"
 )
 
 TODO=()
 while getopts ldebkxh opt
 do
   case $opt in
-    l) TODO+=(${TASKS[0]}) ;;
-    d) TODO+=(${TASKS[1]}) ;;
-    e) TODO+=(${TASKS[2]}) ;;
-    b) TODO+=(${TASKS[3]}) ;;
-    k) TODO+=(${TASKS[4]}) ;;
-    x) TODO+=(${TASKS[5]}) ;;
-    h) usage && exit 0 ;;
+    l) TODO+=("${TASKS[0]}") ;;
+    d) TODO+=("${TASKS[1]}") ;;
+    e) TODO+=("${TASKS[2]}") ;;
+    b) TODO+=("${TASKS[3]}") ;;
+    k) TODO+=("${TASKS[4]}") ;;
+    x) TODO+=("${TASKS[5]}") ;;
+    h) man_page ;;
     *) usage && exit 1 ;;
   esac
 done
