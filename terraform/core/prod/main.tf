@@ -144,6 +144,6 @@ module "main" {
   google_site_verification_txt  = "XpAHhjdX8tbSoncavYqzKuquO0ystD12VzLmXR10CK0" # associated with zachary.margolis@gsa.gov
   mx_provider                   = "google-g-suite"
   mta_sts_report_mailboxes      = ["tls.reports@gsa.gov", "tls-reports@login.gov"]
-  mta_sts_mode                  = "testing"
+  mta_sts_mode                  = "enforce"
   lambda_audit_github_debug     = 0
 }
