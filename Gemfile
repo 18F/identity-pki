@@ -21,7 +21,7 @@ gem 'rgl'
 group :development, :test do
   gem 'bullet', '>= 6.0.2'
   gem 'pry-byebug'
-  gem 'rspec-rails', '>= 3.8.3'
+  gem 'rspec-rails', '>= 4.0.1'
   gem 'thin', '>= 1.8.0'
 end
 
@@ -44,9 +44,9 @@ group :test do
   gem 'axe-matchers', '~> 1.3.4'
   gem 'codeclimate-test-reporter', '>= 1.0.9', require: false
   gem 'database_cleaner'
-  gem 'factory_bot_rails', '>= 5.2.0'
+  gem 'factory_bot_rails', '>= 6.1.0'
   gem 'fakefs', require: 'fakefs/safe'
-  gem 'rails-controller-testing', '>= 1.0.4'
+  gem 'rails-controller-testing', '>= 1.0.5'
   gem 'shoulda-matchers', '~> 3.1', '>= 3.1.3', require: false
   gem 'simplecov', '>= 0.13.0'
   gem 'timecop'
