@@ -118,19 +118,16 @@ module "main" {
       type = "A",
       record_set = [
         {
+          # Outbound SES SMTP - a62-49.smtp-out.us-west-2.amazonses.com.
           "name"    = "out-49.mail.",
           "records" = ["54.240.62.49"],
           "ttl"     = "86400",
         },
         {
+          # Outbound SES SMTP - a62-50.smtp-out.us-west-2.amazonses.com.
           "name"    = "out-50.mail.",
           "records" = ["54.240.62.50"],
           "ttl"     = "86400",
-        },
-        {
-          "name"    = "test.dev.",
-          "records" = ["54.202.194.128"],
-          "ttl"     = "300",
         },
       ]
     }
