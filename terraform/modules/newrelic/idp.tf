@@ -195,24 +195,44 @@ resource "newrelic_synthetics_alert_condition" "api_health" {
   monitor_id = newrelic_synthetics_monitor.api_health[0].id
 }
 
-resource "newrelic_synthetics_monitor" "pivcac_certs_health" {
+resource "newrelic_synthetics_monitor" "pivcac_certs_health_7d" {
   count     = var.pivcac_service_enabled
-  name      = "${var.env_name} PIV/CAC /api/health/certs check"
+  name      = "${var.env_name} PIV/CAC /api/health/certs check (7 days)"
   type      = "SIMPLE"
   frequency = 60
   status    = "ENABLED"
   locations = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
-  uri               = "https://${local.pivcac_domain_name}/api/health/certs.json?source=newrelic"
+  uri               = "https://${local.pivcac_domain_name}/api/health/certs.json?deadline=7d&source=newrelic"
   validation_string = "\"healthy\":true"
   verify_ssl        = true
 }
 
-resource "newrelic_synthetics_alert_condition" "pivcac_certs_health" {
+resource "newrelic_synthetics_monitor" "pivcac_certs_health_30d" {
+  count     = var.pivcac_service_enabled
+  name      = "${var.env_name} PIV/CAC /api/health/certs check (30 days)"
+  type      = "SIMPLE"
+  frequency = 60
+  status    = "ENABLED"
+  locations = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
+  uri               = "https://${local.pivcac_domain_name}/api/health/certs.json?deadline=30d&source=newrelic"
+  validation_string = "\"healthy\":true"
+  verify_ssl        = true
+}
+
+resource "newrelic_synthetics_alert_condition" "pivcac_certs_health_7d" {
   count     = var.pivcac_service_enabled * var.enabled
   policy_id = newrelic_alert_policy.high[0].id
 
   name       = "${var.env_name} certs expiring failure"
-  monitor_id = newrelic_synthetics_monitor.pivcac_certs_health[0].id
+  monitor_id = newrelic_synthetics_monitor.pivcac_certs_health_7d[0].id
+}
+
+resource "newrelic_synthetics_alert_condition" "pivcac_certs_health_30d" {
+  count     = var.pivcac_service_enabled * var.enabled
+  policy_id = newrelic_alert_policy.businesshours[0].id
+
+  name       = "${var.env_name} certs expiring failure"
+  monitor_id = newrelic_synthetics_monitor.pivcac_certs_health_30d[0].id
 }
 
 resource "newrelic_alert_condition" "enduser_datastore_slow_queries" {
