@@ -126,9 +126,11 @@ server {
       add_header Strict-Transport-Security $sts_value;
       client_max_body_size 10M;
     }
+
     location ^~ /service_providers/ {
       add_header Strict-Transport-Security $sts_value;
       client_max_body_size 2M;
+      error_page 413 =303 https://<%= @server_name %>/413_logo.html;
     }
 }
 
