@@ -88,13 +88,10 @@ class Certificate
 
   def signature_verified?
     # Use HTTP stuff to download PKCS7 bundles
-    signing_cert = CertificateStore.instance[signing_key_id] || IssuingCaService.fetch_signing_key_for_cert(self)
+    signing_cert = CertificateStore.instance[signing_key_id] ||
+                   IssuingCaService.fetch_signing_key_for_cert(self)
     UnrecognizedCertificateAuthority.find_or_create_for_certificate(self) unless signing_cert
     signing_cert && verify(signing_cert.public_key) && signing_cert.valid?
-  end
-
-  def download_certificate_from_issuing_ca
-
   end
 
   def signing_key_in_store?
@@ -131,8 +128,6 @@ class Certificate
 
   def token(extra)
     if valid?(is_leaf: true)
-      # Log if stored certificate does not have valid policies
-      CertificateLoggerService.log_certificate(self) if !valid_policies?
       token_for_valid_certificate(extra)
     else
       token_for_invalid_certificate(extra)
@@ -179,6 +174,10 @@ class Certificate
   end
 
   def token_for_valid_certificate(extra)
+    # Log the certificate if it is valid, but we would reject it for policy
+    # failures without the intermediate certs in the store
+    CertificateLoggerService.log_certificate(self) if !valid_policies?
+
     subject_s = subject.to_s(OpenSSL::X509::Name::RFC2253)
     piv = PivCac.find_or_create_by(dn: subject_s)
     Rails.logger.info('Returning a token for a valid certificate.')
@@ -213,6 +212,8 @@ class Certificate
   end
 
   def token_for_invalid_certificate(extra)
+    CertificateLoggerService.log_certificate(self)
+
     # figure out the reason for being invalid
     reason = validate_cert(is_leaf: true)
 

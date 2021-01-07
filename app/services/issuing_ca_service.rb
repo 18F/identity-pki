@@ -1,7 +1,8 @@
 class IssuingCaService
   # TODO: Only allow downloading bundles from allowed domains
   # Do this for all of the stored certs
-  CA_ISSUER_HOST_ALLOW_LIST = ['sspweb.managed.entrust.com']
+  CA_ISSUER_HOST_ALLOW_LIST = Figaro.env.ca_issuer_host_allow_list.split(',')
+
   class UnexpectedPKCS7Response < StandardError; end
 
   CA_RESPONSE_CACHE_EXPIRATION = 60.minutes
