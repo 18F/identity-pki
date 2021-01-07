@@ -6,7 +6,8 @@ class IssuingCaService
   CA_RESPONSE_CACHE_EXPIRATION = 60.minutes
 
   def self.fetch_signing_key_for_cert(cert)
-    return nil unless cert.aia && cert.aia['CA Issuers'].is_a?(Array)
+    return nil if cert.aia.blank? || !cert.aia['CA Issuers'].is_a?(Array)
+
     ca_issuers = cert.aia['CA Issuers'].map do |issuer|
       issuer = issuer.to_s
       next unless issuer.starts_with?('URI')
@@ -54,11 +55,11 @@ class IssuingCaService
     if response.kind_of?(Net::HTTPSuccess)
       OpenSSL::PKCS7.new(response.body).certificates
     else
-      handle_exception(UnexpectedPKCS7Response.new(response.body))
+      NewRelic::Agent.notice_error(UnexpectedPKCS7Response.new(response.body))
       []
     end
   rescue OpenSSL::PKCS7::PKCS7Error, ArgumentError, Errno::ECONNREFUSED, Net::ReadTimeout => e
-    handle_exception(e)
+    NewRelic::Agent.notice_error(e)
     []
   end
 
@@ -71,9 +72,5 @@ class IssuingCaService
 
     Rails.logger.info("CA Issuer Host Not Allowed: #{host}")
     false
-  end
-
-  def self.handle_exception(exception)
-    NewRelic::Agent.notice_error(exception)
   end
 end
