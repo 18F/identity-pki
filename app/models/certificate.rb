@@ -57,7 +57,7 @@ class Certificate
       'expired'
     elsif trusted_root?
       # The other checks are all irrelevant if we trust the root.
-      raise 'trusted root missing from store' if CertificateStore.instance[key_id].blank?
+      raise "trusted root missing from store #{key_id}" if CertificateStore.instance[key_id].blank?
       'valid'
     else
       validate_untrusted_root(is_leaf: is_leaf)
