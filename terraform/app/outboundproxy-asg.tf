@@ -180,12 +180,26 @@ resource "aws_autoscaling_group" "outboundproxy" {
 
 # This module creates cloudwatch logs filters that create metrics for squid
 # total requests and denied requests. It also creates an alarm on denied
+# creates alarm on total requests following below a threshold
 # requests that notifies to the specified alarm SNS ARN.
 module "outboundproxy_cloudwatch_filters" {
-  source     = "github.com/18F/identity-terraform//squid_cloudwatch_filters?ref=2754bf224ef9398a7f327150f1d1a14ecdb7d3fd"
+  source     = "github.com/18F/identity-terraform//squid_cloudwatch_filters?ref=5c5d1524d790459fe66cbf983d29c357521fa794"
   depends_on = [aws_cloudwatch_log_group.squid_access_log]
 
   env_name      = var.env_name
   alarm_actions = [var.slack_events_sns_hook_arn] # notify slack on denied requests
 }
 
+resource "aws_autoscaling_policy" "outboundproxy" {
+  name                      = "${var.env_name}-obproxy-cpu"
+  autoscaling_group_name    = aws_autoscaling_group.outboundproxy.name
+  estimated_instance_warmup = 360
+
+  policy_type = "TargetTrackingScaling"
+  target_tracking_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ASGAverageCPUUtilization"
+    }
+    target_value = 45
+  }
+}
