@@ -3,8 +3,6 @@ require 'rails_helper'
 RSpec.describe IssuingCaService do
   before do
     allow(described_class).to receive(:ca_issuer_host_allow_list).and_return(['example.com'])
-
-    described_class.clear_ca_certificates_response_cache!
   end
 
   let(:certificate_set) do
