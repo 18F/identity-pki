@@ -122,6 +122,13 @@ resource "aws_iam_role_policy" "pivcac-sns-publish-alerts" {
   policy = data.aws_iam_policy_document.sns-publish-alerts-policy.json
 }
 
+# Allow publishing traces to X-Ray
+resource "aws_iam_role_policy" "pivcac-xray-publish" {
+  name   = "${var.env_name}-pivcac-xray-publish"
+  role   = aws_iam_role.pivcac.id
+  policy = data.aws_iam_policy_document.xray-publish-policy.json
+}
+
 resource "aws_autoscaling_group" "pivcac" {
   name = "${var.env_name}-pivcac"
 

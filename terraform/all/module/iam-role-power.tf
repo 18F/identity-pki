@@ -1,12 +1,12 @@
 module "poweruser-assumerole" {
   source = "github.com/18F/identity-terraform//iam_assumerole?ref=master"
 
-  role_name                = "PowerUser"
-  enabled                  = lookup(
-                                merge(local.role_enabled_defaults,var.account_roles_map),
-                                "iam_power_enabled",
-                                lookup(local.role_enabled_defaults,"iam_power_enabled")
-                              )
+  role_name = "PowerUser"
+  enabled = lookup(
+    merge(local.role_enabled_defaults, var.account_roles_map),
+    "iam_power_enabled",
+    lookup(local.role_enabled_defaults, "iam_power_enabled")
+  )
   master_assumerole_policy = local.master_assumerole_policy
   custom_policy_arns       = local.custom_policy_arns
 
@@ -539,6 +539,16 @@ module "poweruser-assumerole" {
           effect = "Allow"
           actions = [
             "wafv2:*",
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
+          sid    = "XRay"
+          effect = "Allow"
+          actions = [
+            "xray:*",
           ]
           resources = [
             "*",

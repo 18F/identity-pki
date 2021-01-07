@@ -1,5 +1,5 @@
 resource "aws_db_instance" "default" {
-  count                = var.apps_enabled
+  count = var.apps_enabled
 
   allocated_storage    = var.rds_storage_app
   db_subnet_group_name = aws_db_subnet_group.default.id
@@ -183,7 +183,7 @@ data "aws_iam_policy_document" "partner_logos_bucket_policy" {
       "s3:GetObjectAcl",
       "s3:GetObjectVersionAcl",
       "s3:ListBucket",
-      "s3:DeleteObject", 
+      "s3:DeleteObject",
     ]
     principals {
       type = "AWS"
@@ -236,4 +236,11 @@ resource "aws_iam_role_policy" "app-s3-logos-access" {
     ]
 }
 EOM
+}
+
+# Allow publishing traces to X-Ray
+resource "aws_iam_role_policy" "app-xray-publish" {
+  name   = "${var.env_name}-app-xray-publish"
+  role   = aws_iam_role.app.id
+  policy = data.aws_iam_policy_document.xray-publish-policy.json
 }

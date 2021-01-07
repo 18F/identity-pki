@@ -2,27 +2,27 @@ terraform {
   backend "s3" {}
   required_providers {
     aws = {
-      source = "hashicorp/aws"
+      source  = "hashicorp/aws"
       version = "~> 3.11.0"
     }
     external = {
-      source = "hashicorp/external"
+      source  = "hashicorp/external"
       version = "~> 1.2.0"
     }
     github = {
-      source = "hashicorp/github"
+      source  = "hashicorp/github"
       version = "~> 2.9"
     }
     null = {
-      source = "hashicorp/null"
+      source  = "hashicorp/null"
       version = "~> 2.1.2"
     }
     template = {
-      source = "hashicorp/template"
+      source  = "hashicorp/template"
       version = "~> 2.1.2"
     }
     newrelic = {
-      source = "newrelic/newrelic"
+      source  = "newrelic/newrelic"
       version = "~> 2.1.2"
     }
   }
@@ -30,7 +30,7 @@ terraform {
 }
 
 provider "aws" {
-  region  = var.region
+  region = var.region
 }
 
 provider "aws" {
@@ -107,6 +107,23 @@ data "aws_iam_policy_document" "sns-publish-alerts-policy" {
     ]
     resources = [
       var.slack_events_sns_hook_arn,
+    ]
+  }
+}
+
+# Allow publishing traces to X-Ray
+data "aws_iam_policy_document" "xray-publish-policy" {
+  statement {
+    sid = "allowXRayPublish"
+    actions = [
+      "xray:PutTraceSegments",
+      "xray:PutTelemetryRecords",
+      "xray:GetSamplingRules",
+      "xray:GetSamplingTargets",
+      "xray:GetSamplingStatisticSummaries"
+    ]
+    resources = [
+      "*",
     ]
   }
 }
