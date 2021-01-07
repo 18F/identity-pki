@@ -86,6 +86,7 @@ test:
 
 production:
   aws_region:
+  ca_issuer_host_allow_list: ''
   client_cert_escaped: 'true'
   certificate_store_directory: 'config/certs'
   nonce_bloom_filter_enabled: 'false'
