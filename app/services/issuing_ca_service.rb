@@ -57,7 +57,7 @@ class IssuingCaService
       handle_exception(UnexpectedPKCS7Response.new(response.body))
       []
     end
-  rescue OpenSSL::PKCS7::PKCS7Error, ArgumentError => e
+  rescue OpenSSL::PKCS7::PKCS7Error, ArgumentError, Errno::ECONNREFUSED, Net::ReadTimeout => e
     handle_exception(e)
     []
   end
