@@ -64,7 +64,7 @@ class Certificate
     end
   end
 
-  def validate_untrusted_root(is_leaf: )
+  def validate_untrusted_root(is_leaf:)
     if self_signed?
       'self-signed cert'
     elsif !signature_verified?
