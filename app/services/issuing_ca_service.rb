@@ -1,6 +1,4 @@
 class IssuingCaService
-  # TODO: Only allow downloading bundles from allowed domains
-  # Do this for all of the stored certs
   CA_ISSUER_HOST_ALLOW_LIST = Figaro.env.ca_issuer_host_allow_list.split(',')
 
   class UnexpectedPKCS7Response < StandardError; end
@@ -46,6 +44,10 @@ class IssuingCaService
     @ca_certificates_response_cache.set(key, nil, expires_in: CA_RESPONSE_CACHE_EXPIRATION)
   end
 
+  def self.clear_ca_certificates_response_cache!
+    @ca_certificates_response_cache&.reset
+  end
+
   def self.fetch_certificates(issuer_uri)
     http = Net::HTTP.new(issuer_uri.hostname, issuer_uri.port)
     response = http.get(issuer_uri.path)
@@ -60,8 +62,12 @@ class IssuingCaService
     []
   end
 
+  def self.ca_issuer_host_allow_list
+    CA_ISSUER_HOST_ALLOW_LIST
+  end
+
   def self.allowed_host?(host)
-    return true if CA_ISSUER_HOST_ALLOW_LIST.include?(host)
+    return true if ca_issuer_host_allow_list.include?(host)
 
     Rails.logger.info("CA Issuer Host Not Allowed: #{host}")
     false

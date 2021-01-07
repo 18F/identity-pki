@@ -81,6 +81,8 @@ test:
   database_username: ''
   secret_key_base: ''
   certificate_store_directory: 'config/test-certs'
+  ca_issuer_host_allow_list: 'uri1.example.com,uri2.example.com'
+
 
 production:
   aws_region:
