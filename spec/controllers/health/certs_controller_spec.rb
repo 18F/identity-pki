@@ -9,7 +9,7 @@ RSpec.describe Health::CertsController do
     it 'renders a status as JSON' do
       action
 
-      expect(response.content_type).to eq('application/json')
+      expect(response.media_type).to eq('application/json')
       expect(JSON.parse(response.body, symbolize_names: true)).to include(:healthy)
     end
 
