@@ -1,6 +1,8 @@
 {
   "template": "cloudwatchlogstash",
-  "index_patterns": ["logstash-cloudwatch-*"],
+  "index_patterns": [
+    "logstash-cloudwatch-*"
+  ],
   "settings": {},
   "mappings": {
     "properties": {
@@ -157,7 +159,7 @@
             "scaling_factor": 1000
           },
           "buffers": {
-            "type": "byte"
+            "type": "integer"
           },
           "buffers_percent": {
             "type": "text",
@@ -234,7 +236,7 @@
             "scaling_factor": 1000
           },
           "sync_files": {
-            "type": "byte"
+            "type": "integer"
           },
           "time_zone": {
             "type": "text",
