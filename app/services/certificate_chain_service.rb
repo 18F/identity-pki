@@ -33,26 +33,25 @@ class CertificateChainService
   # @return [Array<Certificate>]
   def process_certificate_chain(ca_cert, chain_array = [], step = 0)
     chain_array << ca_cert
-    issuer_key_id = ca_cert.signing_key_id
-    issuer_ca_issuer_url = ca_cert.issuer_metadata[:ca_issuer_url]
-    issuer_ca_cert = get_cert_from_issuer(issuer_key_id, issuer_ca_issuer_url)
+    issuer_ca_cert = get_cert_from_issuer(ca_cert.signing_key_id, ca_cert.issuer_metadata[:ca_issuer_url])
     step += 1
-    if step <= 6
+    if step <= 6 && !issuer_ca_cert.trusted_root?
       process_certificate_chain(issuer_ca_cert, chain_array, step)
     end
     chain_array
   end
 
-  # @api privatse
-  def print_cert(x509_cert, step)
+  # @api private
+  # @param [Certificate] cert
+  def print_cert(cert, step)
     puts "///////////////////////////////////////"
     puts "///////////// [ CA Step: #{step} ] /////////////"
     puts "///////////////////////////////////////"
-    puts "#{x509_cert.to_pem}"
-    puts "key_id: #{x509_cert.key_id}"
-    puts "signing_key_id: #{x509_cert.signing_key_id}"
-    puts "ca_issuer_dn: #{x509_cert.issuer_metadata[:dn]}"
-    puts "ca_issuer_url: #{x509_cert.issuer_metadata[:ca_issuer_url]}"
+    puts "#{cert.to_pem}"
+    puts "key_id: #{cert.key_id}"
+    puts "signing_key_id: #{cert.signing_key_id}"
+    puts "ca_issuer_dn: #{cert.issuer_metadata[:dn]}"
+    puts "ca_issuer_url: #{cert.issuer_metadata[:ca_issuer_url]}"
   end
 
   def get_cert_from_issuer(ca_id, ca_issuer_url)
