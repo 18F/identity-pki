@@ -52,31 +52,34 @@ class Certificate
     signing_key_id == key_id
   end
 
-  def validate_cert
+  def validate_cert(is_leaf: false)
     if expired?
       'expired'
     elsif trusted_root?
       # The other checks are all irrelevant if we trust the root.
+      raise "trusted root missing from store #{key_id}" if CertificateStore.instance[key_id].blank?
       'valid'
     else
-      validate_untrusted_root
+      validate_untrusted_root(is_leaf: is_leaf)
     end
   end
 
-  def validate_untrusted_root
+  def validate_untrusted_root(is_leaf:)
     if self_signed?
       'self-signed cert'
     elsif !signature_verified?
       'unverified'
     elsif revoked?
       'revoked'
+    elsif is_leaf && !signing_key_in_store? && !valid_policies?
+      'bad policy'
     else
       'valid'
     end
   end
 
-  def valid?
-    validate_cert == 'valid'
+  def valid?(is_leaf: false)
+    validate_cert(is_leaf: is_leaf) == 'valid'
   end
 
   def pem_filename
@@ -88,9 +91,15 @@ class Certificate
   end
 
   def signature_verified?
-    signing_cert = CertificateStore.instance[signing_key_id]
+    # Use HTTP stuff to download PKCS7 bundles
+    signing_cert = CertificateStore.instance[signing_key_id] ||
+                   IssuingCaService.fetch_signing_key_for_cert(self)
     UnrecognizedCertificateAuthority.find_or_create_for_certificate(self) unless signing_cert
     signing_cert && verify(signing_cert.public_key) && signing_cert.valid?
+  end
+
+  def signing_key_in_store?
+    CertificateStore.instance[signing_key_id].present?
   end
 
   def ca_capable?
@@ -122,8 +131,7 @@ class Certificate
   end
 
   def token(extra)
-    maybe_log_certificate
-    if valid?
+    if valid?(is_leaf: true)
       token_for_valid_certificate(extra)
     else
       token_for_invalid_certificate(extra)
@@ -155,12 +163,11 @@ class Certificate
     to_text + "\n\n" + to_pem
   end
 
-  private
-
-  def maybe_log_certificate
-    return if valid? && critical_policies_recognized? && allowed_by_policy?
-    CertificateLoggerService.log_certificate(self)
+  def valid_policies?
+    critical_policies_recognized? && allowed_by_policy?
   end
+
+  private
 
   def get_extension(oid)
     @x509_cert.extensions.detect { |record| record.oid == oid }&.value
@@ -171,6 +178,10 @@ class Certificate
   end
 
   def token_for_valid_certificate(extra)
+    # Log the certificate if it is valid, but we would reject it for policy
+    # failures without the intermediate certs in the store
+    CertificateLoggerService.log_certificate(self) if !valid_policies?
+
     subject_s = subject.to_s(OpenSSL::X509::Name::RFC2253)
     piv = PivCac.find_or_create_by(dn: subject_s)
     Rails.logger.info('Returning a token for a valid certificate.')
@@ -205,8 +216,10 @@ class Certificate
   end
 
   def token_for_invalid_certificate(extra)
+    CertificateLoggerService.log_certificate(self)
+
     # figure out the reason for being invalid
-    reason = validate_cert
+    reason = validate_cert(is_leaf: true)
 
     Rails.logger.warn("Certificate invalid: #{reason}")
     TokenService.box(extra.merge(error: "certificate.#{reason}", key_id: key_id))
