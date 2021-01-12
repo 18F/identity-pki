@@ -10,8 +10,7 @@ class CertificateChainService
   # @param [Certificate]
   # @return [Array<Certificate>]
   def debug(cert)
-    process_unknown_certs(cert.signing_key_id, cert.ca_issuer_http_url).
-      each_with_index { |cert, step| print_cert(cert.x509_cert, step) }
+    call(cert).each_with_index { |cert, step| print_cert(cert, step) }
   end
 
   # Finds the missing certs in the chain and writes them to the config/certs repo
