@@ -106,3 +106,11 @@ variable "error_dashboard_site" {
   description = "The name of the newrelic app name to put on the error dashboard"
   default = "prod.login.gov"
 }
+
+variable "staticsite_fixed_string" {
+  description = "Text that must be in the response for all monitored static sites"
+  type        = string
+  # The following should be set in the login.gov brochure site at all times:
+  #  <meta sys-status="login.gov site up and running">
+  default = "login.gov site up and running"
+}
