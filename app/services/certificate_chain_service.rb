@@ -2,7 +2,7 @@ class CertificateChainService
   # Gets the chain of Cerificates between this cert and the root
   # @param [Certificate]
   # @return [Array<Certificate>]
-  def call(cert)
+  def chain(cert)
     process_unknown_certs(cert.signing_key_id, cert.ca_issuer_http_url)
   end
 
@@ -10,13 +10,13 @@ class CertificateChainService
   # @param [Certificate]
   # @return [Array<Certificate>]
   def debug(cert)
-    call(cert).each_with_index { |cert, step| print_cert(cert, step) }
+    chain(cert).each_with_index { |cert, step| print_cert(cert, step) }
   end
 
   # Finds the missing certs in the chain and writes them to the config/certs repo
   # @param [Certificate]
   def write_missing(cert)
-    missing = call(cert).reject { |cert| CertificateStore.instance[cert.key_id] }
+    missing = chain(cert).reject { |cert| CertificateStore.instance[cert.key_id] }
 
     missing.each do |cert|
       File.open(File.join('config/certs', cert.pem_filename), 'w') { |f| f.puts cert.to_pem }
