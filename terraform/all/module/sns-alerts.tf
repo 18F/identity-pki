@@ -30,7 +30,7 @@ locals {
     "otherevents" = "login-otherevents"
     "soc"         = "login-soc-events"
   }
-  slack_webhook_ssm_param_name = "/account/slack/webook/url"
+  slack_webhook_ssm_param_name = "/account/slack/webhook/url"
 }
 
 ## Terraform providers cannot be generated, so we need a separate block for each region,
