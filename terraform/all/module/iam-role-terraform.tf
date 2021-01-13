@@ -427,6 +427,7 @@ module "terraform-assumerole" {
             "logs:DeleteLogDelivery",
             "logs:DeleteLogGroup",
             "logs:DeleteMetricFilter",
+            "logs:DeleteRetentionPolicy",
             "logs:DeleteSubscriptionFilter",
             "logs:DescribeDestinations",
             "logs:DescribeLogGroups",
@@ -445,6 +446,7 @@ module "terraform-assumerole" {
             "logs:PutRetentionPolicy",
             "logs:PutSubscriptionFilter",
             "logs:TagLogGroup",
+            "logs:UntagLogGroup",
             "logs:UpdateLogDelivery"
           ]
           resources = [
