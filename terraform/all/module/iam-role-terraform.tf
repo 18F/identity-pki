@@ -601,7 +601,17 @@ module "terraform-assumerole" {
           resources = [
             "*",
           ]
-        }
+        },
+        {
+          sid    = "XRay"
+          effect = "Allow"
+          actions = [
+            "xray:*",
+          ]
+          resources = [
+            "*",
+          ]
+        },
       ]
     }
   ]
