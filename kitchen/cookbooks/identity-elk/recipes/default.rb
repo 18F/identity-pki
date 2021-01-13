@@ -312,7 +312,7 @@ end
       :java_opts => '-Dio.netty.native.workdir=/etc/logstash/tmp -XX:HeapDumpPath=/dev/null',
       :tmpdir => "/srv/tmp/#{lsname}",
       :ipv4_only => false,
-      :workers => 2,
+      :workers => node['elk']['logstash']['workers_count'],
       :debug => false,
       :user => 'logstash',
       :group => 'logstash',
