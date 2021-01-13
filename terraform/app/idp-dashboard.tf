@@ -1,7 +1,6 @@
 locals {
   auth_metric_namespace = "${var.env_name}/idp-authentication"
   ialx_metric_namespace = "${var.env_name}/idp-ialx"
-  retention_days        = (var.env_name == "prod" || var.env_name == "staging" ? "1827" : "30")
   dashboard_name        = "${var.env_name}-idp-workload"
 }
 
@@ -170,21 +169,6 @@ variable "idp_telephony_auth_filters" {
   }
 }
 
-resource "aws_cloudwatch_log_group" "idp_events" {
-  name              = "${var.env_name}_/srv/idp/shared/log/events.log"
-  retention_in_days = local.retention_days
-}
-
-resource "aws_cloudwatch_log_group" "idp_kms" {
-  name              = "${var.env_name}_/srv/idp/shared/log/kms.log"
-  retention_in_days = local.retention_days
-}
-
-resource "aws_cloudwatch_log_group" "idp_telephony" {
-  name              = "${var.env_name}_/srv/idp/shared/log/telephony.log"
-  retention_in_days = local.retention_days
-}
-
 resource "aws_cloudwatch_log_metric_filter" "idp_events_auth" {
   for_each       = var.idp_events_auth_filters
   name           = each.value["name"]
@@ -213,7 +197,7 @@ resource "aws_cloudwatch_log_metric_filter" "idp_kms_auth" {
   for_each       = var.idp_kms_auth_filters
   name           = each.value["name"]
   pattern        = each.value["pattern"]
-  log_group_name = aws_cloudwatch_log_group.idp_kms.name
+  log_group_name = aws_cloudwatch_log_group.kms_log.name
   metric_transformation {
     name      = each.value["name"]
     namespace = local.auth_metric_namespace
