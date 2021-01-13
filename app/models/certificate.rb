@@ -82,6 +82,10 @@ class Certificate
     validate_cert(is_leaf: is_leaf) == 'valid'
   end
 
+  def pem_filename
+    "#{subject.to_s(OpenSSL::X509::Name::COMPAT)}.pem"
+  end
+
   def to_pem
     "Subject: #{subject}\nIssuer: #{issuer}\n#{@x509_cert.to_pem}"
   end
