@@ -15,12 +15,8 @@ class CertificateChainService
 
   # Finds the missing certs in the chain and writes them to the config/certs repo
   # @param [Certificate]
-  def write_missing(cert)
-    missing = chain(cert).reject { |cert| CertificateStore.instance[cert.key_id] }
-
-    missing.each do |cert|
-      File.open(File.join('config/certs', cert.pem_filename), 'w') { |f| f.puts cert.to_pem }
-    end
+  def missing(cert)
+    chain(cert).reject { |cert| CertificateStore.instance[cert.key_id] }
   end
 
   # @return [Array<Certificate>]

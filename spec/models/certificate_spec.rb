@@ -159,6 +159,14 @@ RSpec.describe Certificate do
     end
   end
 
+  describe '#pem_filename' do
+    let(:x509_cert) { leaf_cert }
+
+    it 'formats the subject to match our naming conventions' do
+      expect(certificate.pem_filename).to eq('DC=com DC=example OU=foo CN=bar 0.pem')
+    end
+  end
+
   describe 'to_pem' do
     let(:pem) { certificate.to_pem.split(/\n/) }
     let(:x509_cert) { leaf_cert }
