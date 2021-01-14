@@ -144,6 +144,27 @@ RSpec.describe Certificate do
         expect(certificate.signature_verified?).to be_truthy
       end
     end
+
+    context 'for a intermediate certificate fetched from the IssuingCaService' do
+      it 'is valid if the policy OIDs are recognized and allowed' do
+        # Simulate the intermediate cert not being present in the certificate store
+        intermediate_cert = CertificateStore.instance.delete(certificate.signing_key_id)
+
+        expect(IssuingCaService).to receive(
+          :fetch_signing_key_for_cert,
+        ).with(certificate).and_return(intermediate_cert)
+
+        expect(certificate.signature_verified?).to be_truthy
+      end
+    end
+  end
+
+  describe '#pem_filename' do
+    let(:x509_cert) { leaf_cert }
+
+    it 'formats the subject to match our naming conventions' do
+      expect(certificate.pem_filename).to eq('DC=com DC=example OU=foo CN=bar 0.pem')
+    end
   end
 
   describe 'to_pem' do
@@ -355,13 +376,36 @@ RSpec.describe Certificate do
       certificate_store.add_pem_file(ca_file_path)
     end
 
-    it 'verifies the certificate' do
-      expect(certificate.valid?).to be_truthy
+    context 'when its intermediate certs are in the CertificateStore' do
+      it 'verifies the certificate' do
+        expect(certificate.valid?(is_leaf: true)).to be_truthy
+      end
+
+      it 'logs the cert in S3 when creating a token' do
+        expect(CertificateLoggerService).to receive(:log_certificate).with(certificate)
+        certificate.token({})
+      end
     end
 
-    it 'logs the cert in S3 when creating a token' do
-      expect(CertificateLoggerService).to receive(:log_certificate).with(certificate)
-      certificate.token({})
+    context 'when its intermediate certs must be fetched from a CA issuer URL' do
+      it 'does not verify the certificate' do
+        intermediate_cert = CertificateStore.instance.delete(certificate.signing_key_id)
+        expect(IssuingCaService).to receive(
+          :fetch_signing_key_for_cert,
+        ).with(certificate).and_return(intermediate_cert)
+
+        expect(certificate.valid?(is_leaf: true)).to be_falsey
+      end
+
+      it 'logs the cert in S3 when creating a token' do
+        intermediate_cert = CertificateStore.instance.delete(certificate.signing_key_id)
+        expect(IssuingCaService).to receive(
+          :fetch_signing_key_for_cert,
+        ).twice.with(certificate).and_return(intermediate_cert)
+
+        expect(CertificateLoggerService).to receive(:log_certificate).with(certificate)
+        certificate.token({})
+      end
     end
   end
 end

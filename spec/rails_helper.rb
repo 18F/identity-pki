@@ -31,6 +31,7 @@ RSpec.configure do |config|
     CertificateStore.instance.clear_root_identifiers
     Certificate.clear_revocation_cache
     OCSPService.clear_ocsp_response_cache
+    IssuingCaService.clear_ca_certificates_response_cache!
   end
 
   config.before(:each, type: :controller) do
