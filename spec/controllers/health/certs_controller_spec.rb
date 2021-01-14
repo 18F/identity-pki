@@ -9,7 +9,7 @@ RSpec.describe Health::CertsController do
     it 'renders a status as JSON' do
       action
 
-      expect(response.content_type).to eq('application/json')
+      expect(response.media_type).to eq('application/json')
       expect(JSON.parse(response.body, symbolize_names: true)).to include(:healthy)
     end
 
@@ -53,13 +53,27 @@ RSpec.describe Health::CertsController do
           expect(JSON.parse(response.body, symbolize_names: true)).to include(healthy: true)
         end
 
-        context 'with a deadline param' do
+        context 'with a deadline param as a timestamp' do
           let(:deadline) { '2020-01-01' }
 
           it 'checks certs with that deadline' do
             expect(health_checker).to receive(:check_certs).
               with(deadline: Time.zone.parse(deadline)).
               and_call_original
+
+            action
+          end
+        end
+
+        context 'with a deadline param as an interval' do
+          let(:deadline) { '7d' }
+
+          it 'checks certs with that deadline' do
+            expect(health_checker).to receive(:check_certs).and_wrap_original do |impl, args|
+              expect(args[:deadline].to_i).to be_within(1).of(7.days.from_now.to_i)
+
+              impl.call(args)
+            end
 
             action
           end
