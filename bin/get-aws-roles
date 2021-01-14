@@ -105,10 +105,11 @@ if [[ "${FOUND_USER}" == "${IAM_USER}" ]] ; then
       else
         define ROLE_BLOCK <<EOF
 [profile ${ROLE_NAME}]
-role_arn = ${ROLE_ARN}
-role_session_name = ${FOUND_USER}
-include_profile = ${MAIN_PROFILE}
-region = us-west-2
+role_arn=${ROLE_ARN}
+role_session_name=${FOUND_USER}
+include_profile=${MAIN_PROFILE}
+source_profile=${MAIN_PROFILE}
+region=us-west-2
 
 EOF
         echo -e "${ROLE_BLOCK}\n" | tee -a ~/.aws/config
