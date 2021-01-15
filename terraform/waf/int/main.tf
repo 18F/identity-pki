@@ -15,5 +15,5 @@ module "main" {
 
   env           = "int"
   region        = "us-west-2"
-  enforce       = false
+  enforce       = true
 }
