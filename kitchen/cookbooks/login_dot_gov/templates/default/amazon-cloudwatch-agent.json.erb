@@ -267,6 +267,7 @@
                 }
         },
         "metrics": {
+                "namespace": "<%= @environmentName %>/EC2",
                 "append_dimensions": {
                         "AutoScalingGroupName": "${aws:AutoScalingGroupName}",
                         "InstanceId": "${aws:InstanceId}",
@@ -275,7 +276,6 @@
                 "metrics_collected": {
                         "cpu": {
                                 "measurement": [
-                                        "cpu_usage_idle",
                                         "cpu_usage_iowait",
                                         "cpu_usage_user",
                                         "cpu_usage_system"
@@ -284,16 +284,24 @@
                                 "resources": [
                                         "*"
                                 ],
-                                "totalcpu": false
+                                "totalcpu": true
                         },
                         "disk": {
+                                "drop_device": true,
                                 "measurement": [
                                         "used_percent",
                                         "inodes_free"
                                 ],
-                                "metrics_collection_interval": 60,
+                                "metrics_collection_interval": 300,
                                 "resources": [
-                                        "*"
+                                        "/",
+                                        "/var",
+                                        "/var/log",
+                                        "/var/log/audit",
+                                        "/var/tmp",
+                                        "/home",
+                                        "/srv",
+                                        "/tmp"
                                 ]
                         },
                         "diskio": {
@@ -306,7 +314,8 @@
                                 ],
                                 "metrics_collection_interval": 60,
                                 "resources": [
-                                        "*"
+                                        "nvme1n1p1",
+                                        "nvme0n1"
                                 ]
                         },
                         "mem": {
