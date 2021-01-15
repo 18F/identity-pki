@@ -31,7 +31,7 @@ After (re)generating the table, it will prompt to:
 
 1. Update the \`ami_id\` values in \`terraform/app/variables.tf\`
 2. Create a PR with the newly-updated PR values (after checking
-out \`master\` first)
+out \`main\` first)
 
 To run only 1 of the specified options, use one of the
 following flags:
@@ -186,8 +186,8 @@ open_ami_pr() {
       brew install hub || raise "hub not installed!"
     fi
   
-    run git checkout master
-    run git pull origin master
+    run git checkout main
+    run git pull origin main
     run git checkout -b "ami/$(date -j '+%Y%m%d')" && \
     run ${GIT_DIR}/bin/github-pr -pm "$(cat <<EOF
 AMI update, $(date -j '+%Y-%m-%d')

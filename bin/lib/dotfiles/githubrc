@@ -9,8 +9,8 @@ fi
 ######## aliases ########
 alias gs="run git status"
 alias gl="run git log --pretty=oneline --no-abbrev-commit -n 10"
-alias gpom="run git pull origin master"
-alias gom="run git checkout master && gpom"
+alias gpom="run git pull origin main"
+alias gom="run git checkout main && gpom"
 alias bc="git rev-parse HEAD | tr -d '\n' | pbcopy"
 alias gil="run open https://github.com/issues/assigned"
 alias gbi="run open https://github.com/orgs/18F/projects/5?card_filter_query=assignee%3A${GSA_USERNAME}"
@@ -48,7 +48,7 @@ gpb() {
   run git push --set-upstream origin $(git_current_branch)
 }
 
-#### delete either current branch or branch name = ${1}; end on master ####
+#### delete either current branch or branch name = ${1}; end on main ####
 delb() {
   local branch=$1
   [ -z ${1} ] && branch=$(git_current_branch)
@@ -60,8 +60,8 @@ delb() {
 gmpr () {
   local branch=$(git_current_branch)
   local save_branch=false
-  if [[ "${branch}" == 'master' ]] ; then
-    echo "Cannot be run from master branch!"
+  if [[ "${branch}" == 'main' ]] ; then
+    echo "Cannot be run from main branch!"
     break 1
   fi
   while getopts n opt ; do
@@ -69,15 +69,15 @@ gmpr () {
       n) save_branch=true ;;
     esac
   done
-  run git checkout master && \
-  run git pull origin master && \
+  run git checkout main && \
+  run git pull origin main && \
   run git checkout $branch && \
-  run git rebase master && \
+  run git rebase main && \
   run git push --force-with-lease && \
-  run git merge master --no-edit && \
-  run git checkout master && \
+  run git merge main --no-edit && \
+  run git checkout main && \
   run git merge --no-edit --no-ff $branch && \
-  run git push origin master
+  run git push origin main
   [[ "${save_branch}" == 'true' ]] || delb $branch
 }
 
@@ -126,7 +126,7 @@ ggc() {
 gv() {
   NEW_RELEASE=${1:-$(cat VERSION.txt | sed -E 's/pre\-//')}
   OLD_RELEASE=$(($(echo ${NEW_RELEASE} | sed -E 's/\..+//')-1))
-  run_var PR_LIST hub pr list -b master -s merged -o updated -L 100 -f "- %i %t%n"
+  run_var PR_LIST hub pr list -b main -s merged -o updated -L 100 -f "- %i %t%n"
   if [[ $(echo "${PR_LIST}" | grep "${NEW_RELEASE}") ]] ; then
     RELEASE_PRS=$(echo "${PR_LIST}" |
       sed -n "/${NEW_RELEASE}/,/${OLD_RELEASE}/p;/${OLD_RELEASE}/q;" |
@@ -155,8 +155,8 @@ grpr() {
   local PR_LIST
   gv
   gh_revs
-  run git checkout master && \
-  run git pull origin master && \
+  run git checkout main && \
+  run git pull origin main && \
   run git checkout -b release/v${NEW_RELEASE}
   run rake release && \
   run git push origin release/v${NEW_RELEASE}

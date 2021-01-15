@@ -17,7 +17,7 @@
       "retrieve-ssh-host-keys": true
     },
     "login_dot_gov": {
-      "deploy_branch_default": "master"
+      "deploy_branch_default": "main"
     },
     "pivcac": {
       "letsencrypt_use_staging": true
