@@ -13,4 +13,5 @@ terraform {
 module "main" {
   source = "../module"
 
+  trigger_source = "CloudWatch"
 }

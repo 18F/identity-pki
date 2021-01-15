@@ -75,6 +75,7 @@ resource "aws_cloudformation_stack" "image_codepipeline_stack" {
   parameters    = {
     CodeBuildStackName = aws_cloudformation_stack.image_codebuild_stack[each.key].name
     Git2S3OutputBucket = local.git2s3_bucket
+    TriggerSource      = var.trigger_source
   }
   capabilities = ["CAPABILITY_IAM"]
 }

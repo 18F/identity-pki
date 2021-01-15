@@ -24,5 +24,4 @@ module "git2s3_src" {
 module "main" {
   source = "../module"
   depends_on = [module.git2s3_src.output_bucket]
-
 }

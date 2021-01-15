@@ -9,7 +9,8 @@
                         "default": "Pipeline Configuration"
                     },
                     "Parameters": [
-                        "ArtifactBucketName"
+                        "ArtifactBucketName",
+                        "TriggerSource"
                     ]
                 },
                 {
@@ -26,6 +27,9 @@
             "ParameterLabels": {
                 "ArtifactBucketName": {
                     "default": "Artifact S3 bucket name"
+                },
+                "TriggerSource": {
+                    "default": "Pipeline trigger source"
                 },
                 "Git2S3StackName": {
                     "default": "Git2S3 stack name *"
@@ -66,6 +70,16 @@
             "MinLength" : 0,
             "MaxLength" : 255,
             "Default" : ""
+        },
+        "TriggerSource": {
+            "AllowedValues": [
+                "S3",
+                "CloudWatch",
+                "Both"
+            ],
+            "Description": "Source trigger for the pipeline. Choose S3 (triggered for each new push to origin), CloudWatch (triggered weekly), or both.",
+            "Type": "String",
+            "Default" : "Both"
         }
     },
     "Conditions": {
@@ -101,6 +115,46 @@
                                 ""
                             ]
                         }
+                    ]
+                }
+            ]
+        },
+        "UseS3AsSourceTrigger": {
+            "Fn::Or": [
+                {
+                    "Fn::Equals": [
+                        {
+                            "Ref": "TriggerSource"
+                        },
+                        "S3"
+                    ]
+                },
+                {
+                    "Fn::Equals": [
+                        {
+                            "Ref": "TriggerSource"
+                        },
+                        "Both"
+                    ]
+                }
+            ]
+        },
+        "UseCloudWatchScheduler": {
+            "Fn::Or": [
+                {
+                    "Fn::Equals": [
+                        {
+                            "Ref": "TriggerSource"
+                        },
+                        "CloudWatch"
+                    ]
+                },
+                {
+                    "Fn::Equals": [
+                        {
+                            "Ref": "TriggerSource"
+                        },
+                        "Both"
                     ]
                 }
             ]
@@ -219,7 +273,14 @@
                                     {"Fn::ImportValue" : {"Fn::Sub" : "${Git2S3StackName}-OutputBucket"}}
                                 ]
                             },
-                            "S3ObjectKey": {"Fn::ImportValue" : {"Fn::Sub" : "${CodeBuildStackName}-SourceFileName"}}
+                            "S3ObjectKey": {"Fn::ImportValue" : {"Fn::Sub" : "${CodeBuildStackName}-SourceFileName"}},
+                            "PollForSourceChanges": {
+                                "Fn::If": [
+                                    "UseS3AsSourceTrigger",
+                                    "true",
+                                    "false"
+                                ]
+                            }
                         },
                         "RunOrder": 1
                     }]
@@ -249,6 +310,81 @@
                     "Type": "S3",
                     "Location": {"Ref": "ArtifactBucket"}
                 }
+            }
+        },
+        "CloudWatchPipelineRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [{
+                        "Sid": "",
+                        "Effect": "Allow",
+                        "Principal": {
+                            "Service": ["events.amazonaws.com"]
+                        },
+                        "Action": "sts:AssumeRole"
+                    }]
+                },
+                "Path": "/"
+            }
+        },
+        "CloudWatchPipelineRolePolicy": {
+            "DependsOn": [
+                "CodePipeline"
+            ],
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "CloudWatchPipelineRolePolicy",
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": [
+                                "codepipeline:StartPipelineExecution"
+                            ],
+                            "Resource": {
+                                "Fn::Sub": "arn:aws:codepipeline:${AWS::Region}:${AWS::AccountId}:${CodePipeline}"
+                            },
+                            "Effect": "Allow"
+                        }
+                    ]
+                },
+                "Roles": [{"Ref": "CloudWatchPipelineRole"}]
+            }
+        },
+        "CloudWatchPipelineTrigger":{
+            "DependsOn": [
+                "CodePipeline"
+            ],
+            "Type": "AWS::Events::Rule",
+            "Properties": {
+                "Name" : {
+                    "Fn::Sub": "Run-${AWS::StackName}"
+                },
+                "Description" : {
+                    "Fn::Sub": "Runs ${CodeBuildStackName} build weekly."
+                },
+                "ScheduleExpression" : "cron(0 7 ? * 1 *)",
+                "State" : {
+                    "Fn::If": [
+                        "UseCloudWatchScheduler",
+                        "ENABLED",
+                        "DISABLED"
+                    ]
+                },
+                "Targets" : [
+                    {
+                        "Arn" : {
+                            "Fn::Sub": "arn:aws:codepipeline:${AWS::Region}:${AWS::AccountId}:${CodePipeline}"
+                        },
+                        "Id" : "InvokeCodePipeline",
+                        "RoleArn" : {
+                            "Fn::GetAtt": [
+                                "CloudWatchPipelineRole",
+                                "Arn"
+                            ]
+                        }
+                    }
+                ]
             }
         }
     },
