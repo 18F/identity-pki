@@ -80,6 +80,6 @@ class IssuingCaService
   def self.certificate_store_issuers
     CertificateStore.instance.certificates.map do |certificate|
       ca_issuers_for_cert(certificate)
-    end.flatten.compact.uniq
+    end.flatten.uniq
   end
 end
