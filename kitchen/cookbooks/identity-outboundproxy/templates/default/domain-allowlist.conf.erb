@@ -170,8 +170,14 @@ ssp4.eva.orc.com
 ssp-ocsp.symauth.com
 ssp-ocsp.verisign.com
 
-# push notification domains for service providers
-# The below domains are being populated dynamically by querying the dashboard service providers
+## PUSH NOTIFICATION domains for service providers
+#
+# Static - For prod and staging the FQDNs for push notifications must be explicitly
+# defined here.
+rcs-apps-stage.fra.dot.gov
+webapps.dol.gov
+
+# Dynamic - Automatically generated in `int` and `dev` by querying the dashboard service providers
 <% @push_notification_domains.each do |domain| -%>
 <%= domain %>
 <% end -%>
