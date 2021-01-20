@@ -91,7 +91,7 @@ TASKS=(
   "tf_deploy"
 )
 TODO=()
-while getopts asdh opt
+while getopts casdh opt
 do
   case $opt in
     c) TODO+=("${TASKS[0]}") ;;
