@@ -39,6 +39,25 @@ resource "aws_codebuild_project" "auto_terraform_plan" {
 
   source {
     type = "CODEPIPELINE"
+    buildspec = <<EOT
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - "apt install unzip -y"
+      - "wget https://releases.hashicorp.com/terraform/0.13.5/terraform_0.13.5_linux_amd64.zip"
+      - "unzip terraform_0.13.5_linux_amd64.zip"
+      - "mv terraform /usr/local/bin/"
+
+  build:
+    commands:
+      - bin/tf-deploy $TF_DIR plan
+
+  post_build:
+    commands:
+      - echo terraform plan completed on `date`
+    EOT
   }
   source_version = var.gitref
 
@@ -75,22 +94,6 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
     name = "Source"
 
     action {
-      name             = "identity-autotf"
-      category         = "Source"
-      owner            = "ThirdParty"
-      provider         = "GitHub"
-      version          = "1"
-      output_artifacts = ["${local.clean_tf_dir}_autotf_output"]
-
-      configuration = {
-        Owner      = "18F"
-        Repo       = "identity-autotf"
-        Branch     = var.gitref
-        OAuthToken = data.aws_s3_bucket_object.identity_devops_oauthkey.body
-      }
-    }
-
-    action {
       name             = "identity-devops"
       category         = "Source"
       owner            = "ThirdParty"
@@ -117,7 +120,7 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
       owner            = "AWS"
       provider         = "CodeBuild"
       version          = "1"
-      input_artifacts  = ["${local.clean_tf_dir}_autotf_output", "${local.clean_tf_dir}_source_output"]
+      input_artifacts  = ["${local.clean_tf_dir}_source_output"]
       # output_artifacts = ["${local.clean_tf_dir}_build_output"]
 
       configuration = {
