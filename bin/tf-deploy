@@ -592,8 +592,11 @@ echo_blue >&2 "Running terraform..."
 
 # Run main terraform command. This is the only command that should print to
 # stdout (reassigned to FD 3)
-run terraform "${TF_CMD[@]}" >&3
-[[ "${?}" != 0 ]] && DEPLOY_FAIL='true'
+if run terraform "${TF_CMD[@]}" >&3 ; then
+    DEPLOY_FAIL='false'
+else
+    DEPLOY_FAIL='true'
+fi
 
 # if running apply or destroy, notify success/fail in Slack
 if [[ "${TF_CMD[0]}" =~ ^(apply|destroy)$ ]] && [[ -z ${TEST_ONLY} ]] ; then
