@@ -163,7 +163,12 @@ Options:
     exit 1
   end
 
-  instances = Cloudlib::EC2.cli_find_servers(find_opts)
+  begin
+    instances = Cloudlib::EC2.cli_find_servers(find_opts)
+  rescue Cloudlib::NotFound
+    log.info("No servers found")
+    instances = []
+  end
 
   instance_data = Cloudlib::ListServers.data_for_instances(
     instances, **data_for_instances_opts
