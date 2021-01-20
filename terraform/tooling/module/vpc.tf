@@ -27,12 +27,6 @@ resource "aws_internet_gateway" "auto_terraform" {
   vpc_id = aws_vpc.auto_terraform.id
 }
 
-resource "aws_route" "default" {
-  route_table_id         = aws_vpc.auto_terraform.main_route_table_id
-  destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = aws_internet_gateway.auto_terraform.id
-}
-
 resource "aws_vpc_endpoint" "private-s3" {
   vpc_id          = aws_vpc.auto_terraform.id
   service_name    = "com.amazonaws.${var.region}.s3"
