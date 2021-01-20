@@ -40,9 +40,9 @@ resource "aws_db_instance" "default" {
   #    as not requiring a final snapshot.
   # 3. Perform a terraform/deploy "destroy" as needed.
   #
-  skip_final_snapshot = true
+  #skip_final_snapshot = true
   lifecycle {
-    prevent_destroy = false
+    prevent_destroy = true
 
     # we set the password by hand so it doesn't end up in the state file
     ignore_changes = [password]
