@@ -34,15 +34,15 @@ specified flags/arguments.
 The tasks in this script can also be individually executed
 using the following flags:
 
+  -c : Clear out and delete any CloudWatch log groups accidentally
+       left over from a previous environment purge, if any exist
   -a : Duplicate all v1/application.yml files for \`int\`,
        within the login-gov.app-secrets bucket, for \${TF_ENV},
        replacing all instances of \`int\` within with \${TF_ENV} 
   -s : Copy all files listed in ./lib/build-keys from the int/ dir
        within the login-gov.secrets bucket to a \${TF_ENV}/ dir in
        the same bucket
-  -d : Run \`terraform apply -auto-approve\` against \${TF_ENV},
-       setting the min and desired counts for the idp and pivcac
-       autoscaling groups to 0
+  -d : Run \`terraform apply -auto-approve\` against \${TF_ENV}
   -h : Displays this help
 
 This script will default to using \${GSA_USERNAME} for the
@@ -51,6 +51,15 @@ as a final argument.
 
 EOM
   exit 0
+}
+
+clear_log_groups() {
+  for LOG_GROUP in $(ave aws logs describe-log-groups |
+    jq --arg TF "${TF_ENV}" -r '.logGroups[]|
+    select(.logGroupName|startswith($TF)).logGroupName') ; do
+      ave aws logs delete-log-group \
+        --log-group-name ${LOG_GROUP}
+  done
 }
 
 app_secrets() {
@@ -76,17 +85,19 @@ tf_deploy() {
 }
 
 TASKS=(
+  "clear_log_groups"
   "app_secrets"
   "regular_secrets"
   "tf_deploy"
 )
 TODO=()
-while getopts asdh opt
+while getopts casdh opt
 do
   case $opt in
-    a) TODO+=("${TASKS[0]}") ;;
-    s) TODO+=("${TASKS[1]}") ;;
-    d) TODO+=("${TASKS[2]}") ;;
+    c) TODO+=("${TASKS[0]}") ;;
+    a) TODO+=("${TASKS[1]}") ;;
+    s) TODO+=("${TASKS[2]}") ;;
+    d) TODO+=("${TASKS[3]}") ;;
     h) man_page ;;
     *) usage && exit 1 ;;
   esac
