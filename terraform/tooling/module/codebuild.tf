@@ -51,6 +51,8 @@ resource "aws_iam_role_policy" "auto_terraform" {
     {
       "Effect":"Allow",
       "Action": [
+        "s3:ListObjects",
+        "s3:ListBucket",
         "s3:GetObject",
         "s3:GetObjectVersion",
         "s3:GetBucketVersioning",
