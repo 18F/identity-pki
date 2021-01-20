@@ -6,7 +6,7 @@
 
 set -eu
 
-. "$(dirname "$0")/lib/common.sh"
+. "$(dirname "$0")/../lib/common.sh"
 
 usage() {
     cat >&2 << EOM
@@ -29,7 +29,11 @@ EOM
 clone_if_new() {
   local REPO=${1}
   if [ -d identity-${REPO} ] ; then
-    echo_blue "identity-${REPO} dir exists; skipping git clone."
+    cd identity-${REPO} >/dev/null
+    if git rev-parse --is-inside-work-tree >/dev/null ; then
+      echo_blue "identity-${REPO} exists; skipping git clone."
+    fi
+    cd - >/dev/null
   else
     run git clone git@github.com:18F/identity-${REPO}.git
   fi
@@ -79,6 +83,7 @@ else
       run git checkout master
     fi
     cd - >/dev/null
+    echo
   done
 fi
 
