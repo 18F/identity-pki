@@ -1,0 +1,90 @@
+#!/bin/bash
+
+# Clone all `18F/identity` repos that identity-devops is dependent upon.
+# Will prompt to also clone the identity-APP repos and create a
+# stages/$GSA_USERNAME branch on each one.
+
+set -eu
+
+. "$(dirname "$0")/../lib/common.sh"
+
+usage() {
+    cat >&2 << EOM
+
+Usage: ${0}
+
+Runs \`git clone\` for all repos in the 18F GitHub org which the
+identity-devops repo is dependent upon. All local clones are
+placed in the parent directory from where identity-devops
+resides on the system.
+
+If desired, will also clone all of the identity-APP repos (as
+used in the login_dot_gov cookbook) and create a personal
+branch, \`stages/\$GSA_USERNAME\`, on each one, before
+checking said repo back out to \`master\`.
+
+EOM
+}
+
+clone_if_new() {
+  local REPO=${1}
+  if [ -d identity-${REPO} ] ; then
+    cd identity-${REPO} >/dev/null
+    if git rev-parse --is-inside-work-tree >/dev/null ; then
+      echo_blue "identity-${REPO} exists; skipping git clone."
+    fi
+    cd - >/dev/null
+  else
+    run git clone git@github.com:18F/identity-${REPO}.git
+  fi
+}
+
+[ $# -gt 0 ] && raise 'No arguments needed'
+verify_root_repo
+which ag >/dev/null || raise 'Silver Searcher (ag) not found; install with Homebrew'
+
+GIT_TOPLEVEL=$(echo ${GIT_DIR} | sed -E 's/\/[^/]*$/\//')
+ALL_REPOS=$($(which ag) --ignore '*.md' \
+           --nobreak \
+           --noheading \
+           -ow "github\.com\/18F\/identity\-.*" |
+           sed -E 's/^.+\:[0-9]+\:github\.com\/18F\/identity-([a-z-]+).*$/\1/' |
+           sort -u)
+OPS_REPOS=$(echo "${ALL_REPOS}" | grep -v devops)
+APP_REPOS=($($(which ag) --nobreak --noheading \
+            'app_name = ' kitchen/cookbooks/login_dot_gov/recipes/*.rb |
+            awk -F"'" '{print $2}' | sed 's/sp-//' | sort -u | tr '\n' ' ') 'pki')
+for APP in "${APP_REPOS[@]}" ; do
+  OPS_REPOS=$(echo "${OPS_REPOS}" | grep -v ${APP})
+done
+
+run cd ${GIT_TOPLEVEL}
+
+for OP_REPO in $(echo ${OPS_REPOS} | tr '\n' ' ') ; do
+  clone_if_new ${OP_REPO}
+done
+
+echo
+if ! prompt_yn "Create \`stages/${GSA_USERNAME}\` branches for the identity-APP repos? " ; then
+  echo_blue "Exiting."
+  exit 0
+else
+  for APP in "${APP_REPOS[@]}" ; do
+    clone_if_new ${APP}
+    cd "identity-${APP}" >/dev/null
+    if [[ $(git branch 2>/dev/null | grep stages/${GSA_USERNAME}) ]] || \
+       [[ $(git branch --remote 2>/dev/null | grep stages/${GSA_USERNAME}) ]] ; then
+         echo_blue "\`stages/${GSA_USERNAME}\` local/remote branches exist; skipping pull."
+    else
+      run git checkout master
+      run git pull origin master
+      run git checkout -b stages/${GSA_USERNAME}
+      run git push origin -u stages/${GSA_USERNAME}
+      run git checkout master
+    fi
+    cd - >/dev/null
+    echo
+  done
+fi
+
+cd ${GIT_DIR}
