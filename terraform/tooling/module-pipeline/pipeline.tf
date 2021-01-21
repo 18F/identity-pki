@@ -2,7 +2,7 @@ locals {
   clean_tf_dir = replace(var.tf_dir, "/[/.-]/", "_")
 }
 
-# How to build the thing
+# How to run a terraform plan
 resource "aws_codebuild_project" "auto_terraform_plan" {
   name           = "auto_terraform_${local.clean_tf_dir}_plan"
   description    = "auto-terraform ${var.tf_dir}"
@@ -45,10 +45,7 @@ version: 0.2
 phases:
   install:
     commands:
-      - "apt install unzip -y"
-      - "wget https://releases.hashicorp.com/terraform/0.13.5/terraform_0.13.5_linux_amd64.zip"
-      - "unzip terraform_0.13.5_linux_amd64.zip"
-      - "mv terraform /usr/local/bin/"
+      - aws s3 cp s3://${var.auto_tf_bucket_id}/terraform_0.13.5_linux_amd64 /usr/local/bin/terraform
 
   build:
     commands:
