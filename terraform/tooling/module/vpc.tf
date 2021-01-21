@@ -33,15 +33,22 @@ resource "aws_vpc_endpoint" "private-s3" {
   route_table_ids = [aws_vpc.auto_terraform.main_route_table_id]
 }
 
+resource "aws_vpc_endpoint" "logs" {
+  vpc_id             = aws_vpc.auto_terraform.id
+  service_name       = "com.amazonaws.${var.region}.logs"
+  vpc_endpoint_type  = "Interface"
+  security_group_ids = [aws_security_group.auto_terraform.id]
+}
+
 resource "aws_security_group" "auto_terraform" {
   name        = "auto_terraform"
   description = "Allow terraform to work"
   vpc_id      = aws_vpc.auto_terraform.id
 
   egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
     cidr_blocks = data.github_ip_ranges.ips.git
   }
 
