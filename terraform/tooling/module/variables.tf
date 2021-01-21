@@ -1,3 +1,8 @@
+variable "vpc_cidr" {
+  description = "cidr block used by the VPC"
+  default = "10.0.0.0/16"
+}
+
 variable "region" {
   description = "AWS region, used for S3 bucket names"
 }
