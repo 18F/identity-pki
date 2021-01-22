@@ -60,9 +60,7 @@ resource "aws_iam_role_policy" "auto_terraform" {
       ],
       "Resource": [
         "${aws_s3_bucket.codepipeline_bucket.arn}",
-        "${aws_s3_bucket.codepipeline_bucket.arn}/*",
-        "arn:aws:s3:::login-gov.tf-state.${data.aws_caller_identity.current.account_id}-${var.region}",
-        "arn:aws:s3:::login-gov.tf-state.${data.aws_caller_identity.current.account_id}-${var.region}/*"
+        "${aws_s3_bucket.codepipeline_bucket.arn}/*"
       ]
     },
     {

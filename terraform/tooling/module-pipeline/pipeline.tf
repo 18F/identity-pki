@@ -6,7 +6,7 @@ locals {
 resource "aws_codebuild_project" "auto_terraform_plan" {
   name           = "auto_terraform_${local.clean_tf_dir}_plan"
   description    = "auto-terraform ${var.tf_dir}"
-  build_timeout = "5"
+  build_timeout = "30"
   service_role  = var.auto_tf_role_arn
 
   artifacts {
