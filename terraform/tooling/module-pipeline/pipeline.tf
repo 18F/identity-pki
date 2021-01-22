@@ -45,11 +45,16 @@ version: 0.2
 phases:
   install:
     commands:
-      - aws s3 cp s3://${var.auto_tf_bucket_id}/terraform_0.13.5_linux_amd64 /usr/local/bin/terraform
+      - aws s3 cp s3://${var.auto_tf_bucket_id}/terraform_0.13.5_linux_amd64 /usr/local/bin/terraform --no-progress
+      - chmod +x /usr/local/bin/terraform
 
   build:
     commands:
-      - bin/tf-deploy $TF_DIR plan
+      - cd terraform/$TF_DIR
+      - . ./env-vars.sh
+      - # XXX should we init things here? or just do it one time by hand?  ./bin/deploy/configure_state_bucket.sh
+      - terraform init -backend-config=bucket=$TERRAFORM_STATE_BUCKET -backend-config=key=$ID_state_module_prefix -backend-config=dynamodb_table=$ID_state_lock_table -backend-config=region=$TERRAFORM_STATE_BUCKET_REGION
+      - terraform plan
 
   post_build:
     commands:
@@ -118,7 +123,6 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
       provider         = "CodeBuild"
       version          = "1"
       input_artifacts  = ["${local.clean_tf_dir}_source_output"]
-      # output_artifacts = ["${local.clean_tf_dir}_build_output"]
 
       configuration = {
         ProjectName = "auto_terraform_${local.clean_tf_dir}_plan"
@@ -148,19 +152,15 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
   #   name = "Deploy"
 
   #   action {
-  #     name            = "Deploy"
-  #     category        = "Deploy"
-  #     owner           = "AWS"
-  #     provider        = "CloudFormation"
-  #     input_artifacts = ["${local.clean_tf_dir}_build_output"]
-  #     version         = "1"
+  #     name             = "Build"
+  #     category         = "Build"
+  #     owner            = "AWS"
+  #     provider         = "CodeBuild"
+  #     version          = "1"
+  #     input_artifacts  = ["${local.clean_tf_dir}_source_output"]
 
   #     configuration = {
-  #       ActionMode     = "REPLACE_ON_FAILURE"
-  #       Capabilities   = "CAPABILITY_AUTO_EXPAND,CAPABILITY_IAM"
-  #       OutputFileName = "CreateStackOutput.json"
-  #       StackName      = "MyStack"
-  #       TemplatePath   = "build_output::sam-templated.yaml"
+  #       ProjectName = "auto_terraform_${local.clean_tf_dir}"
   #     }
   #   }
   # }
@@ -169,19 +169,16 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
   #   name = "Test"
 
   #   action {
-  #     name            = "Test"
-  #     category        = "Test"
-  #     owner           = "AWS"
-  #     provider        = "CloudFormation"
-  #     input_artifacts = ["${local.clean_tf_dir}_build_output"]
-  #     version         = "1"
+  #   action {
+  #     name             = "Build"
+  #     category         = "Test"
+  #     owner            = "AWS"
+  #     provider         = "CodeBuild"
+  #     version          = "1"
+  #     input_artifacts  = ["${local.clean_tf_dir}_source_output"]
 
   #     configuration = {
-  #       ActionMode     = "REPLACE_ON_FAILURE"
-  #       Capabilities   = "CAPABILITY_AUTO_EXPAND,CAPABILITY_IAM"
-  #       OutputFileName = "CreateStackOutput.json"
-  #       StackName      = "MyStack"
-  #       TemplatePath   = "build_output::sam-templated.yaml"
+  #       ProjectName = "auto_terraform_${local.clean_tf_dir}_test"
   #     }
   #   }
   # }
