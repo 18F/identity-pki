@@ -1,6 +1,6 @@
 variable "vpc_cidr" {
   description = "cidr block used by the VPC"
-  default = "10.0.0.0/16"
+  default = "10.0.0.0/20"
 }
 
 variable "region" {
@@ -11,12 +11,8 @@ output "auto_tf_vpc_id" {
   value = aws_vpc.auto_terraform.id
 }
 
-output "auto_tf_subnet1_id" {
-  value = aws_subnet.auto_terraform1.id
-}
-
-output "auto_tf_subnet2_id" {
-  value = aws_subnet.auto_terraform2.id
+output "auto_tf_subnet_id" {
+  value = aws_subnet.auto_terraform_private.id
 }
 
 output "auto_tf_role_arn" {

@@ -14,12 +14,8 @@ variable "auto_tf_vpc_id" {
   description = "VPC id for this to run in"
 }
 
-variable "auto_tf_subnet1_id" {
-  description = "subnet1 id"
-}
-
-variable "auto_tf_subnet2_id" {
-  description = "subnet2 id"
+variable "auto_tf_subnet_id" {
+  description = "subnet id"
 }
 
 variable "auto_tf_role_arn" {

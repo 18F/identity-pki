@@ -2,37 +2,75 @@ resource "aws_vpc" "auto_terraform" {
   cidr_block = var.vpc_cidr
   enable_dns_support = true
   enable_dns_hostnames = true
+  tags = {
+    Name = "auto_terraform"
+  }
 }
 
-resource "aws_subnet" "auto_terraform1" {
+resource "aws_subnet" "auto_terraform_private" {
   vpc_id     = aws_vpc.auto_terraform.id
   cidr_block = "10.0.1.0/24"
 
   tags = {
-    Name = "auto_terraform1"
+    Name = "auto_terraform private"
   }
 }
 
-resource "aws_subnet" "auto_terraform2" {
+resource "aws_subnet" "auto_terraform_public" {
   vpc_id     = aws_vpc.auto_terraform.id
   cidr_block = "10.0.2.0/24"
 
   tags = {
-    Name = "auto_terraform2"
+    Name = "auto_terraform public"
   }
 }
 
 resource "aws_internet_gateway" "auto_terraform" {
+  vpc_id = aws_vpc.auto_terraform.id
+
   tags = {
     Name = "auto_terraform"
   }
-  vpc_id = aws_vpc.auto_terraform.id
 }
 
-resource "aws_route" "default" {
-  route_table_id         = aws_vpc.auto_terraform.main_route_table_id
-  gateway_id             = aws_internet_gateway.auto_terraform.id
-  destination_cidr_block = "0.0.0.0/0"
+resource "aws_eip" "nat_gateway" {
+  vpc = true
+}
+
+resource "aws_nat_gateway" "auto_terraform" {
+  depends_on = [aws_internet_gateway.auto_terraform]
+  allocation_id = aws_eip.nat_gateway.id
+  subnet_id     = aws_subnet.auto_terraform_public.id
+
+  tags = {
+    Name = "auto_terraform"
+  }
+}
+
+resource "aws_route_table" "auto_terraform_public" {
+  vpc_id = aws_vpc.auto_terraform.id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.auto_terraform.id
+  }
+}
+
+resource "aws_route_table_association" "auto_terraform_public" {
+  subnet_id = aws_subnet.auto_terraform_public.id
+  route_table_id = aws_route_table.auto_terraform_public.id
+}
+
+resource "aws_route_table" "auto_terraform_private" {
+  vpc_id = aws_vpc.auto_terraform.id
+  route {
+    cidr_block = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.auto_terraform.id
+  }
+}
+
+resource "aws_route_table_association" "auto_terraform_private" {
+  subnet_id = aws_subnet.auto_terraform_private.id
+  route_table_id = aws_route_table.auto_terraform_private.id
 }
 
 resource "aws_vpc_endpoint" "private-s3" {
@@ -46,7 +84,7 @@ resource "aws_vpc_endpoint" "logs" {
   service_name        = "com.amazonaws.${var.region}.logs"
   vpc_endpoint_type   = "Interface"
   security_group_ids  = [aws_security_group.logs.id]
-  subnet_ids          = [aws_subnet.auto_terraform1.id, aws_subnet.auto_terraform2.id]
+  subnet_ids          = [aws_subnet.auto_terraform_public.id]
   private_dns_enabled = true
 }
 

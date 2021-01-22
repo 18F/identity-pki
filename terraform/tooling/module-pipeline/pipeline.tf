@@ -67,8 +67,7 @@ phases:
     vpc_id = var.auto_tf_vpc_id
 
     subnets = [
-      var.auto_tf_subnet1_id,
-      var.auto_tf_subnet2_id,
+      var.auto_tf_subnet_id,
     ]
 
     security_group_ids = [

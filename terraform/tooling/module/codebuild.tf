@@ -74,8 +74,7 @@ resource "aws_iam_role_policy" "auto_terraform" {
       "Condition": {
         "StringEquals": {
           "ec2:Subnet": [
-            "${aws_subnet.auto_terraform1.arn}",
-            "${aws_subnet.auto_terraform2.arn}"
+            "${aws_subnet.auto_terraform_private.arn}"
           ],
           "ec2:AuthorizedService": "codebuild.amazonaws.com"
         }
