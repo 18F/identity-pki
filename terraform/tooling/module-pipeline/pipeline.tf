@@ -52,6 +52,7 @@ phases:
     commands:
       - cd terraform/$TF_DIR
       - . ./env-vars.sh
+      - export AWS_STS_REGIONAL_ENDPOINTS=regional
       - # XXX should we init things here? or just do it one time by hand?  ./bin/deploy/configure_state_bucket.sh
       - terraform init -backend-config=bucket=$TERRAFORM_STATE_BUCKET -backend-config=key=$ID_state_module_prefix -backend-config=dynamodb_table=$ID_state_lock_table -backend-config=region=$TERRAFORM_STATE_BUCKET_REGION
       - terraform plan

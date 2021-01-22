@@ -18,6 +18,7 @@ resource "aws_subnet" "auto_terraform_private" {
 
 resource "aws_subnet" "auto_terraform_public" {
   vpc_id     = aws_vpc.auto_terraform.id
+  availability_zone = data.aws_availability_zones.available.names[0]
   cidr_block = "10.0.2.0/24"
 
   tags = {
@@ -77,24 +78,50 @@ resource "aws_vpc_endpoint" "private-s3" {
   vpc_id          = aws_vpc.auto_terraform.id
   service_name    = "com.amazonaws.${var.region}.s3"
   route_table_ids = [aws_vpc.auto_terraform.main_route_table_id]
+
+  tags = {
+    Name = "auto_terraform_s3"
+  }
 }
 
 resource "aws_vpc_endpoint" "logs" {
   vpc_id              = aws_vpc.auto_terraform.id
   service_name        = "com.amazonaws.${var.region}.logs"
   vpc_endpoint_type   = "Interface"
-  security_group_ids  = [aws_security_group.logs.id]
+  security_group_ids  = [aws_security_group.allowssl.id]
   subnet_ids          = [aws_subnet.auto_terraform_public.id]
   private_dns_enabled = true
+
+  tags = {
+    Name = "auto_terraform_logs"
+  }
 }
 
-resource "aws_security_group" "logs" {
+data "aws_vpc_endpoint_service" "sts" {
+  service      = "sts"
+  service_type = "Interface"
+}
+
+resource "aws_vpc_endpoint" "sts" {
+  vpc_id              = aws_vpc.auto_terraform.id
+  service_name        = data.aws_vpc_endpoint_service.sts.service_name
+  vpc_endpoint_type   = "Interface"
+  security_group_ids  = [aws_security_group.allowssl.id]
+  subnet_ids          = [aws_subnet.auto_terraform_public.id]
+  private_dns_enabled = true
+
+  tags = {
+    Name = "auto_terraform_sts"
+  }
+}
+
+resource "aws_security_group" "allowssl" {
   name        = "auto_terraform_logs"
   description = "Allow logging to work"
   vpc_id      = aws_vpc.auto_terraform.id
 
   ingress {
-    description = "allow cloudwatch traffic"
+    description = "allow ssl traffic"
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
@@ -128,11 +155,11 @@ resource "aws_security_group" "auto_terraform" {
   }
 
   egress {
-    description     = "allow traffic to VPC cloudwatch endpoint"
+    description     = "allow traffic to VPC interface endpoints"
     from_port       = 443
     to_port         = 443
     protocol        = "tcp"
-    security_groups = [aws_security_group.logs.id]
+    security_groups = [aws_security_group.allowssl.id]
   }
 
 
