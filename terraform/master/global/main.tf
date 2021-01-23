@@ -103,6 +103,7 @@ module "main" {
     "clinton.troxel"     = ["appdev"],
     "diondra.humphries"  = ["bizops"],
     "douglas.price"      = ["appdev", "apponcall", "bizops"],
+    "janet.evans"        = ["analytics"],
     "jeff.shultz"        = ["analytics"],
     "john.yuda"          = ["analytics"],
     "jonathan.hooper"    = ["appdev", "apponcall", "keymasters"],

@@ -10,9 +10,7 @@ resource "newrelic_synthetics_monitor" "wwwlogingov" {
   locations = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
 
   uri                       = "https://www.login.gov"
-  # The following should be set in the login.gov brochure site at all times:
-  #  <meta sys-status="login.gov site up and running">
-  validation_string         = "login.gov site up and running"
+  validation_string         = var.staticsite_fixed_string
   verify_ssl                = true
 }
 
@@ -25,7 +23,7 @@ resource "newrelic_synthetics_monitor" "logingov" {
   locations = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
 
   uri                       = "https://login.gov"
-  validation_string         = "secure access to government services"
+  validation_string         = var.staticsite_fixed_string
   verify_ssl                = true
 }
 

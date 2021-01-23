@@ -1,5 +1,5 @@
 {
-  "name": "bleachbyte",
+  "name": "vivek",
   "description": "",
   "json_class": "Chef::Environment",
   "chef_type": "environment",
@@ -7,25 +7,17 @@
     "elk": {
       "retentiondays": 14,
       "users": [
-        "bleachbyte"
+        "vivek"
       ]
     },
     "login_dot_gov": {
       "deploy_branch_default": "master",
-      "deploy_branch": {
-        "identity-idp": "margolis-idp-migration-first-run"
-      },
       "idp_run_migrations": true,
       "allow_unsafe_migrations": true,
-      "idp_sync_static": true
-    },
-    "identity-jumphost": {
-      "loadtest": {
-        "enabled": true
-      }
+      "idp_sync_static": false
     }
   },
   "override_attributes": {
-
+  
   }
 }

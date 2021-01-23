@@ -121,7 +121,7 @@ describe service('metricbeat') do
   it { should be_enabled }
 end
 
-describe service('auditbeat') do
-  it { should be_installed }
-  it { should be_enabled }
-end
+# describe service('auditbeat') do
+#  it { should be_installed }
+#  it { should be_enabled }
+# end

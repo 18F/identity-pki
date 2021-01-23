@@ -9,7 +9,22 @@ BASEPATH="$(dirname "$0")"
 . "${BASEPATH}/lib/sandbox-lib.sh"
 
 usage() {
+  cat >&2 << EOM
+
+Usage: ${0} [-asdh] [ENV] (defaults to \$GSA_USERNAME if not specified)
+
+Flags (will run all if no flags specified):
+  -a : Copy S3 app-secrets v1/application.yml files from int to ENV
+  -s : Copy S3 secrets listed in ./lib/build-keys from int to ENV
+  -d : Run terraform-apply with IDP/PIVCAC ASGs zeroed out
+  -h : Detailed help
+
+EOM
+}
+
+man_page() {
     cat >&2 << EOM
+    
 Usage: ${0} [-asdiph] [ENV]
 
 Runs all necessary commands to create a full terraform-app environment,
@@ -19,22 +34,15 @@ specified flags/arguments.
 The tasks in this script can also be individually executed
 using the following flags:
 
+  -c : Clear out and delete any CloudWatch log groups accidentally
+       left over from a previous environment purge, if any exist
   -a : Duplicate all v1/application.yml files for \`int\`,
        within the login-gov.app-secrets bucket, for \${TF_ENV},
        replacing all instances of \`int\` within with \${TF_ENV} 
   -s : Copy all files listed in ./lib/build-keys from the int/ dir
        within the login-gov.secrets bucket to a \${TF_ENV}/ dir in
        the same bucket
-  -d : Run \`terraform apply -auto-approve\` against \${TF_ENV},
-       setting the min and desired counts for the idp and pivcac
-       autoscaling groups to 0
-  -i : Psuedo run of \`asg-recycle \${TF_ENV} idp\`; recycles a
-       migration host, and sets a scheduled action to bring the
-       idp ASG to its default/tfvars-specified min/desired values
-       after 5 minutes.
-  -p : Similar to -i, but runs against the pivcac ASG, and
-       does not spin up a migration host beforehand; it
-       DOES still schedule the action for 5min in the future
+  -d : Run \`terraform apply -auto-approve\` against \${TF_ENV}
   -h : Displays this help
 
 This script will default to using \${GSA_USERNAME} for the
@@ -42,29 +50,16 @@ value of \${TF_ENV}, unless a different one is specified
 as a final argument.
 
 EOM
+  exit 0
 }
 
-get_asg_num() {
-  TYPE=${1}
-  VALUES=()
-  for COUNT in min desired ; do
-    NUM=$(cat ${PRIVATE_REPO}/vars/${TF_ENV}.tfvars |
-               grep asg_${TYPE}_${COUNT} | awk '{print $NF}')
-    if [[ -z ${NUM} ]] ; then
-      NUM=$(cat ${APP_DIR}/variables.tf | grep -A1 asg_${TYPE}_${COUNT} |
-                tail -n 1 | awk '{print $NF}')
-    fi
-    VALUES+=(${NUM})
+clear_log_groups() {
+  for LOG_GROUP in $(ave aws logs describe-log-groups |
+    jq --arg TF "${TF_ENV}" -r '.logGroups[]|
+    select(.logGroupName|startswith($TF)).logGroupName') ; do
+      ave aws logs delete-log-group \
+        --log-group-name ${LOG_GROUP}
   done
-  echo ${VALUES[@]}
-}
-
-post_sandbox_build() {
-  ave aws autoscaling put-scheduled-update-group-action \
-  --auto-scaling-group-name ${TF_ENV}-${1} \
-  --scheduled-action-name ${TF_ENV}-sandbox-postbuild \
-  --start-time $(date -ju -v+5M +%Y-%m-%dT%TZ) \
-  --min-size ${2} --desired-capacity ${3}
 }
 
 app_secrets() {
@@ -86,41 +81,24 @@ regular_secrets() {
 }
 
 tf_deploy() {
-  ave ${BASEPATH}/tf-deploy ${TF_ENV} app apply -auto-approve \
-    -var 'asg_idp_min=0' -var 'asg_idp_desired=0' \
-    -var 'asg_pivcac_min=0' -var 'asg_pivcac_desired=0'
-}
-
-# after a completed apply, do a pseudo idp-recycle,
-# then bring idp and pivcac to normal numbers
-idp_recycle() {
-  COUNTS=($(get_asg_num idp))
-  echo_blue "Spinning up a migration host before scaling out idp hosts..."
-  ave ${BASEPATH}/asg-recycle -q -i 1 -t 0 ${TF_ENV} migration
-  post_sandbox_build idp ${COUNTS[@]}
-}
-
-pivcac_recycle() {
-  post_sandbox_build pivcac $(get_asg_num pivcac)
+  ave ${BASEPATH}/tf-deploy ${TF_ENV} app apply -auto-approve
 }
 
 TASKS=(
-  'app_secrets'
-  'regular_secrets'
-  'tf_deploy'
-  'idp_recycle'
-  'pivcac_recycle'
+  "clear_log_groups"
+  "app_secrets"
+  "regular_secrets"
+  "tf_deploy"
 )
 TODO=()
-while getopts asdiph opt
+while getopts casdh opt
 do
   case $opt in
-    a) TODO+=(${TASKS[0]}) ;;
-    s) TODO+=(${TASKS[1]}) ;;
-    d) TODO+=(${TASKS[2]}) ;;
-    i) TODO+=(${TASKS[3]}) ;;
-    p) TODO+=(${TASKS[4]}) ;;
-    h) usage && exit 0 ;;
+    c) TODO+=("${TASKS[0]}") ;;
+    a) TODO+=("${TASKS[1]}") ;;
+    s) TODO+=("${TASKS[2]}") ;;
+    d) TODO+=("${TASKS[3]}") ;;
+    h) man_page ;;
     *) usage && exit 1 ;;
   esac
 done

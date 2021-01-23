@@ -386,6 +386,13 @@ EOM
 
 }
 
+# Allow publishing traces to X-Ray
+resource "aws_iam_role_policy" "idp-xray-publish" {
+  name   = "${var.env_name}-idp-xray-publish"
+  role   = aws_iam_role.idp.id
+  policy = data.aws_iam_policy_document.xray-publish-policy.json
+}
+
 module "idp_user_data" {
   source = "../modules/bootstrap/"
 
