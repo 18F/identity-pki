@@ -47,12 +47,18 @@ phases:
     commands:
       - aws s3 cp s3://${var.auto_tf_bucket_id}/terraform_0.13.5_linux_amd64 /usr/local/bin/terraform --no-progress
       - chmod +x /usr/local/bin/terraform
+      - aws sts get-caller-identity
 
   build:
     commands:
       - cd terraform/$TF_DIR
       - . ./env-vars.sh
+      - unset AWS_PROFILE
       - export AWS_STS_REGIONAL_ENDPOINTS=regional
+      - roledata=$(aws sts assume-role --role-arn "arn:aws:iam::$aws_account_id:role/Terraform" --role-session-name "auto-tf-plan")
+      - export AWS_ACCESS_KEY_ID=$(echo $roledata | jq -r .Credentials.AccessKeyId)
+      - export AWS_SECRET_ACCESS_KEY=$(echo $roledata | jq -r .Credentials.SecretAccessKey)
+      - export AWS_SESSION_TOKEN=$(echo $roledata | jq -r .Credentials.SessionToken)
       - # XXX should we init things here? or just do it one time by hand?  ./bin/deploy/configure_state_bucket.sh
       - terraform init -backend-config=bucket=$TERRAFORM_STATE_BUCKET -backend-config=key=$ID_state_module_prefix -backend-config=dynamodb_table=$ID_state_lock_table -backend-config=region=$TERRAFORM_STATE_BUCKET_REGION
       - terraform plan
