@@ -43,7 +43,7 @@ variable "idp_events_auth_filters" {
     },
     login_failure_email_or_password = {
       name         = "login-failure-email-or-password"
-      pattern      = "{ ($.name = \"Email and Password Authentication\") }"
+      pattern      = "{ ($.name = \"Email and Password Authentication\") && $.properties.event_properties.success = false }"
       metric_value = 1
     },
     rate_limit_triggered = {
@@ -513,7 +513,7 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
                 "metrics": [
                     [ "${var.env_name}/idp-authentication", "user-marked-authenticated", { "label": "authenticated [sum:$${SUM}, max:$${MAX}]" } ],
                     [ ".", "user-registration-complete", { "label": "registration-complete [sum:$${SUM}, max:$${MAX}]" } ],
-                    [ ".", "remembered-device-used", { "label": "remembered-device [sum:$${SUM}, max:$${MAX}]" } ],
+                    [ ".", "remembered-device-used-for-authentication", { "label": "remembered-device [sum:$${SUM}, max:$${MAX}]" } ],
                     [ ".", "rate-limit-triggered", { "label": "rate-limited [sum:$${SUM}, max:$${MAX}]" } ],
                     [ ".", "login-failure-email-or-password", { "label": "fail-email-pass [sum:$${SUM}, max:$${MAX}]" } ],
                     [ ".", "login-failure-mfa-sms", { "label": "fail-mfa-sms [sum:$${SUM}, max:$${MAX}]" } ],
