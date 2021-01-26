@@ -26,6 +26,25 @@ class IssuingCaService
     nil
   end
 
+  def self.fetch_ca_repository_certs_for_cert(cert)
+    return nil if cert.sia.blank? || !cert.sia['CA Repository'].is_a?(Array)
+
+    repository_uris = cert.sia['CA Repository'].map do |repo|
+      repo = repo.to_s
+      next unless repo.starts_with?('URI')
+      repo = repo.gsub(/^URI:/, '')
+      uri = URI.parse(repo)
+      next unless uri.scheme == 'http'
+      uri
+    end.compact
+
+    repository_uris.map do |repository_uri|
+      IssuingCaService.fetch_certificates(repository_uri).map do |x509_cert|
+        Certificate.new(x509_cert)
+      end
+    end.flatten
+  end
+
   def self.fetch_issuing_certificate(ca_issuer_uri, signing_key_id)
     @ca_certificates_response_cache ||= MiniCache::Store.new
     key = [ca_issuer_uri.to_s, signing_key_id].inspect

@@ -130,6 +130,15 @@ class Certificate
       end
   end
 
+  def sia
+    @sia ||= get_extension('subjectInfoAccess')&.
+      split(/\n/)&.
+      map { |line| line.split(/\s*-\s*/, 2) }&.
+      each_with_object(Hash.new { |hash, key| hash[key] = [] }) do |(key, value), memo|
+        memo[key] << value
+      end
+  end
+
   def token(extra)
     if valid?(is_leaf: true)
       token_for_valid_certificate(extra)
@@ -165,6 +174,10 @@ class Certificate
 
   def valid_policies?
     critical_policies_recognized? && allowed_by_policy?
+  end
+
+  def sha1_fingerprint
+    OpenSSL::Digest::SHA1.new(x509_cert.to_der).to_s
   end
 
   private
