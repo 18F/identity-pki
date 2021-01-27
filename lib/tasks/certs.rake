@@ -93,9 +93,7 @@ namespace :certs do
 
     Array.wrap(matching_certs[*input]).each do |matching_cert|
       path = Pathname.new("./config/certs") + matching_cert.pem_filename
-      unique_path = nil
 
-      n = 0
       if File.exist?(path)
         path = Pathname.new("./config/certs") + matching_cert.pem_filename.
           gsub(/.pem$/, " #{matching_cert.not_after.to_i}.pem")
