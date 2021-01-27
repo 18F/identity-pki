@@ -95,8 +95,9 @@ namespace :certs do
       path = Pathname.new("./config/certs") + matching_cert.pem_filename
 
       if File.exist?(path)
-        path = Pathname.new("./config/certs") + matching_cert.pem_filename.
-          gsub(/.pem$/, " #{matching_cert.not_after.to_i}.pem")
+        path = Pathname.new("./config/certs") + matching_cert.pem_filename(
+          suffix: " #{matching_cert.not_after.to_i}"
+        )
       end
       puts "Writing certificate to #{path}"
       File.write(path, matching_cert.to_pem)
