@@ -122,21 +122,13 @@ class Certificate
   end
 
   def aia
-    @aia ||= get_extension('authorityInfoAccess')&.
-      split(/\n/)&.
-      map { |line| line.split(/\s*-\s*/, 2) }&.
-      each_with_object(Hash.new { |hash, key| hash[key] = [] }) do |(key, value), memo|
-        memo[key] << value
-      end || {}
+    aia_hash = parse_extension_to_hash(get_extension('authorityInfoAccess')) || {}
+    @aia ||= aia_hash
   end
 
   def subject_info_access
-    @subject_info_access ||= get_extension('subjectInfoAccess')&.
-      split(/\n/)&.
-      map { |line| line.split(/\s*-\s*/, 2) }&.
-      each_with_object(Hash.new { |hash, key| hash[key] = [] }) do |(key, value), memo|
-        memo[key] << value
-      end || {}
+    sia_hash = parse_extension_to_hash(get_extension('subjectInfoAccess')) || {}
+    @subject_info_access ||= sia_hash
   end
 
   def token(extra)
@@ -236,5 +228,15 @@ class Certificate
 
     Rails.logger.warn("Certificate invalid: #{reason}")
     TokenService.box(extra.merge(error: "certificate.#{reason}", key_id: key_id))
+  end
+
+  def parse_extension_to_hash(extension)
+    return nil if extension.blank?
+
+    extension.split(/\n/)&.
+      map { |line| line.split(/\s*-\s*/, 2) }&.
+      each_with_object(Hash.new { |hash, key| hash[key] = [] }) do |(key, value), memo|
+      memo[key] << value
+    end
   end
 end
