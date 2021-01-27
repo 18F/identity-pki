@@ -12,7 +12,7 @@ RSpec.describe IssuingCaService do
   end
 
   describe '.fetch_signing_key_for_cert' do
-    context 'when the the signing key is available at the issuer url' do
+    context 'when the signing key is available at the issuer url' do
       it 'returns the certificate' do
         certificate = certificates_in_collection(certificate_set, :type, :leaf).first
         signing_cert = certificates_in_collection(certificate_set, :type, :intermediate).first
@@ -91,6 +91,22 @@ RSpec.describe IssuingCaService do
         allow(certificate).to receive(:aia).and_return({})
         fetched_cert = described_class.fetch_signing_key_for_cert(certificate)
         expect(fetched_cert).to eq nil
+      end
+    end
+  end
+
+  describe '.fetch_ca_repository_certs_for_cert' do
+    context 'when the cert has a subject information access extension with Repository CA' do
+      it 'returns the certificate' do
+        certificate = certificates_in_collection(certificate_set, :type, :intermediate).first
+        sibling_cert = certificates_in_collection(certificate_set, :type, :intermediate).last
+
+        pkcs7_bundle = build_pkc7_bundle(sibling_cert.x509_cert)
+        stub_request(:get, 'http://example.com').to_return(body: pkcs7_bundle.to_der)
+
+        fetched_certs = described_class.fetch_ca_repository_certs_for_cert(certificate)
+
+        expect(fetched_certs).to eq([sibling_cert])
       end
     end
   end
