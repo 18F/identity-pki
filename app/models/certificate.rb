@@ -127,7 +127,7 @@ class Certificate
       map { |line| line.split(/\s*-\s*/, 2) }&.
       each_with_object(Hash.new { |hash, key| hash[key] = [] }) do |(key, value), memo|
         memo[key] << value
-      end
+      end || {}
   end
 
   def subject_info_access
