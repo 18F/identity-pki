@@ -63,7 +63,7 @@ namespace :certs do
 
     raise "Signing cert #{cert.signing_key_id} is not in store and could not be downloaded" if signing_cert.nil?
 
-    puts "Signing Cert subject information access (SIA) extensions: #{signing_cert.sia.inspect}"
+    puts "Signing Cert subject information access (SIA) extensions: #{signing_cert.subject_info_access.inspect}"
 
     repository_certs = IssuingCaService.fetch_ca_repository_certs_for_cert(signing_cert)
     raise "Signing cert #{cert.signing_key_id} is not in store and could not be downloaded" if signing_cert.nil?

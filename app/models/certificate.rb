@@ -130,8 +130,8 @@ class Certificate
       end
   end
 
-  def sia
-    @sia ||= get_extension('subjectInfoAccess')&.
+  def subject_info_access
+    @subject_info_access ||= get_extension('subjectInfoAccess')&.
       split(/\n/)&.
       map { |line| line.split(/\s*-\s*/, 2) }&.
       each_with_object(Hash.new { |hash, key| hash[key] = [] }) do |(key, value), memo|
