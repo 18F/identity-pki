@@ -122,13 +122,15 @@ class Certificate
   end
 
   def aia
-    aia_hash = parse_extension_to_hash(get_extension('authorityInfoAccess')) || {}
-    @aia ||= aia_hash
+    @aia ||= begin
+      parse_extension_to_hash(get_extension('authorityInfoAccess')) || {}
+    end
   end
 
   def subject_info_access
-    sia_hash = parse_extension_to_hash(get_extension('subjectInfoAccess')) || {}
-    @subject_info_access ||= sia_hash
+    @subject_info_access ||= begin
+      parse_extension_to_hash(get_extension('subjectInfoAccess')) || {}
+    end
   end
 
   def token(extra)
