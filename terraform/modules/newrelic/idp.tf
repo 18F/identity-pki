@@ -298,7 +298,7 @@ resource "newrelic_nrql_alert_condition" "proofing_flow_errors" {
   policy_id            = newrelic_alert_policy.high[0].id
   name                 = "${var.env_name}: high rate of errors in proofing flow"
   enabled              = true
-  description          = "Alerting when errors in proofing flow get above 10% for the past 5 minutes"
+  description          = "Alerting when errors in proofing flow get above 1% for the past 5 minutes"
   value_function       = "single_value"
   runbook_url          = "https://github.com/18F/identity-private/wiki/Runbook:-high-proofing-flow-error-rate"
   violation_time_limit = "TWELVE_HOURS"
@@ -310,7 +310,7 @@ resource "newrelic_nrql_alert_condition" "proofing_flow_errors" {
 
   critical {
     operator              = "above"
-    threshold             = 10
+    threshold             = 1
     threshold_duration    = 300
     threshold_occurrences = "ALL"
   }
@@ -321,7 +321,7 @@ resource "newrelic_nrql_alert_condition" "service_provider_errors" {
   policy_id            = newrelic_alert_policy.high[0].id
   name                 = "${var.env_name}: high rate of errors for service provider"
   enabled              = true
-  description          = "Alerting when errors for individual service provider get above 3% for the past 5 minutes"
+  description          = "Alerting when errors for individual service provider get above 1% for the past 5 minutes"
   value_function       = "single_value"
   runbook_url          = "https://github.com/18F/identity-private/wiki/Runbook:-high-service-provider-error-rate"
   violation_time_limit = "TWELVE_HOURS"
@@ -333,7 +333,7 @@ resource "newrelic_nrql_alert_condition" "service_provider_errors" {
 
   critical {
     operator              = "above"
-    threshold             = 3
+    threshold             = 1
     threshold_duration    = 300
     threshold_occurrences = "ALL"
   }
