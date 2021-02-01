@@ -60,7 +60,7 @@ server {
     }
 
     # Mutable assets set to no-cache
-    location ^~ /AcuantImageProcessingWorker\.min\.js$ {
+    location ~* /AcuantImageProcessingWorker\.min\.js$ {
       expires -1;
       add_header Strict-Transport-Security $sts_value;
     }
