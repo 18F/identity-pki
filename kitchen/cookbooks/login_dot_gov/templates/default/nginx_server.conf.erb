@@ -102,21 +102,6 @@ server {
 
     ## Large upload limits
 
-    location ~ ^/verify/capture_doc/(capture_mobile_back_image|mobile_front_image|selfie) {
-      add_header Strict-Transport-Security $sts_value;
-      client_max_body_size 10M;
-    }
-
-    location ~ ^/verify/doc_auth/(back_image|front_image|mobile_back_image|mobile_front_image|selfie) {
-      add_header Strict-Transport-Security $sts_value;
-      client_max_body_size 10M;
-    }
-
-    location ~ ^/verify/recovery/(back_image|front_image|mobile_back_image|mobile_front_image|selfie) {
-      add_header Strict-Transport-Security $sts_value;
-      client_max_body_size 10M;
-    }
-
     location ~ /api/v1/(facematch|liveness) {
       add_header Strict-Transport-Security $sts_value;
       client_max_body_size 10M;
