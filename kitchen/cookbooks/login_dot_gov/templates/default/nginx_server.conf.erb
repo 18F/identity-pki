@@ -95,7 +95,7 @@ server {
     }
 
     # Fallback (noscript) combined uploads
-    location ~ ^/verify/(capture_doc|doc_auth)/document_capture {
+    location ~ ^(/(en|es|fr))?/verify/(capture_doc|doc_auth)/document_capture {
       add_header Strict-Transport-Security $sts_value;
       client_max_body_size 30M;
     }
