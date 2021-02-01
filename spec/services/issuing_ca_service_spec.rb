@@ -95,6 +95,18 @@ RSpec.describe IssuingCaService do
     end
   end
 
+  describe '.certificate_store_issuers' do
+    it 'allowed hosts configuration contains all certificate store issuers' do
+      CertificateStore.reset
+      CertificateStore.instance.load_certs!(dir: Rails.root.join('config/certs'))
+      configuration = YAML.load_file('config/application.yml.example')
+      prod_issuer_allow_list = configuration.dig('production', 'ca_issuer_host_allow_list').split(',').sort.to_set
+      stored_issuers = described_class.certificate_store_issuers.map(&:host).sort.to_set
+
+      expect(stored_issuers - prod_issuer_allow_list).to be_empty
+    end
+  end
+
   describe '.fetch_ca_repository_certs_for_cert' do
     context 'when the cert has a subject information access extension with Repository CA' do
       it 'returns the certificate' do
