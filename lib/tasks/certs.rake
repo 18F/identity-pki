@@ -70,6 +70,7 @@ namespace :certs do
 
     matching_certs = repository_certs.select do |repo_cert|
       repo_cert.key_id != cert.key_id &&
+        repo_cert.ca_capable? &&
         DidYouMean::JaroWinkler.distance(repo_cert.subject.to_s, cert.subject.to_s) > 0.95
     end
     raise "No matching certs in the signing cert's CA repository" if matching_certs.empty?
