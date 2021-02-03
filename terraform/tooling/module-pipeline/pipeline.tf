@@ -47,7 +47,6 @@ phases:
     commands:
       - aws s3 cp s3://${var.auto_tf_bucket_id}/terraform_0.13.5_linux_amd64 /usr/local/bin/terraform --no-progress
       - chmod +x /usr/local/bin/terraform
-      - aws sts get-caller-identity
 
   build:
     commands:

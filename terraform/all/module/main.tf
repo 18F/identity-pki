@@ -58,6 +58,30 @@ data "aws_iam_policy_document" "master_account_assumerole" {
   }
 }
 
+# used for assuming of Terraform role from tooling
+data "aws_iam_policy_document" "autotf_assumerole" {
+  statement {
+    sid = "AssumeTerraformRoleFromToolingAccount"
+    actions = [
+      "sts:AssumeRole"
+    ]
+    principals {
+      type = "AWS"
+      identifiers = [
+        "arn:aws:iam::${var.tooling_account_id}:role/auto_terraform"
+      ]
+    }
+  }
+}
+resource "aws_iam_policy" "autotf_assumerole" {
+  name        = "autotf_assumerole"
+  path        = "/"
+  description = "Allow tooling auto_terraform role to assume the Terraform role"
+
+  policy = data.aws_iam_policy_document.autotf_assumerole.json
+}
+
+
 module "tf-state" {
   source = "github.com/18F/identity-terraform//state_bucket?ref=eb59e91f104f452620eef752fe632f35863d881c"
   #source = "../../../../identity-terraform/state_bucket"

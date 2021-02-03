@@ -8,7 +8,7 @@ module "terraform-assumerole" {
     lookup(local.role_enabled_defaults, "iam_terraform_enabled")
   )
   master_assumerole_policy = local.master_assumerole_policy
-  custom_policy_arns       = local.custom_policy_arns
+  custom_policy_arns       = concat(local.custom_policy_arns, [aws_iam_policy.autotf_assumerole.arn])
 
   iam_policies = [
     {
