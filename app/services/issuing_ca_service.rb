@@ -17,7 +17,7 @@ class IssuingCaService
   end
 
   def self.fetch_ca_repository_certs_for_cert(cert)
-    return nil if cert.subject_info_access.blank? || !cert.subject_info_access['CA Repository'].is_a?(Array)
+    return [] if cert.subject_info_access.blank? || !cert.subject_info_access['CA Repository'].is_a?(Array)
 
     repository_uris = cert.subject_info_access['CA Repository'].map do |repo|
       repo = repo.to_s
