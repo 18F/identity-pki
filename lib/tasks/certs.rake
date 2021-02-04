@@ -69,7 +69,7 @@ namespace :certs do
     raise "Signing cert #{cert.signing_key_id} is not in store and could not be downloaded" if signing_cert.nil?
 
     matching_certs = repository_certs.select do |repo_cert|
-      repo_cert.key_id != cert.key_id &&
+      repo_cert.serial != cert.serial &&
         repo_cert.ca_capable? &&
         DidYouMean::JaroWinkler.distance(repo_cert.subject.to_s, cert.subject.to_s) > 0.95
     end
