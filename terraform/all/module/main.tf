@@ -61,15 +61,14 @@ data "aws_iam_policy_document" "master_account_assumerole" {
 # used for assuming of Terraform role from tooling and login-master
 data "aws_iam_policy_document" "autotf_assumerole" {
   statement {
-    sid = "AssumeTerraformRoleFromToolingAccount"
+    sid = "AssumeTerraformRoleFromMasterAccount"
     actions = [
       "sts:AssumeRole"
     ]
     principals {
       type = "AWS"
       identifiers = [
-        "arn:aws:iam::${var.master_account_id}:root",
-        "arn:aws:iam::${var.tooling_account_id}:role/auto_terraform"
+        "arn:aws:iam::${var.master_account_id}:root"
       ]
     }
     condition {
@@ -77,6 +76,18 @@ data "aws_iam_policy_document" "autotf_assumerole" {
       variable = "aws:MultiFactorAuthPresent"
       values = [
         "true"
+      ]
+    }
+  }
+  statement {
+    sid = "AssumeTerraformRoleFromToolingAccount"
+    actions = [
+      "sts:AssumeRole"
+    ]
+    principals {
+      type = "AWS"
+      identifiers = [
+        "arn:aws:iam::${var.tooling_account_id}:role/auto_terraform"
       ]
     }
   }
