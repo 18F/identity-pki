@@ -74,6 +74,16 @@ namespace :certs do
         DidYouMean::JaroWinkler.distance(repo_cert.subject.to_s, cert.subject.to_s) > 0.95
     end
     raise "No matching certs in the signing cert's CA repository" if matching_certs.empty?
+
+    puts "Expiring Certificate:"
+    puts "  Expiration: #{cert.not_after}"
+    puts "  Subject: #{cert.subject}"
+    puts "  Issuer: #{cert.issuer}"
+    puts "  SHA1 Fingerpint: #{cert.sha1_fingerprint}"
+    puts "  Key ID: #{cert.key_id}"
+
+    puts ""
+    puts "Potential Replacement Certificates:"
     matching_certs.each_with_index do |matching_cert, index|
       puts "- Index: #{index}"
       puts "  Expiration: #{matching_cert.not_after}"
