@@ -45,8 +45,13 @@ version: 0.2
 phases:
   install:
     commands:
-      - aws s3 cp s3://${var.auto_tf_bucket_id}/terraform_0.13.5_linux_amd64 /usr/local/bin/terraform --no-progress
-      - chmod +x /usr/local/bin/terraform
+      - pushd /tmp/
+      - aws s3 cp s3://${var.auto_tf_bucket_id}/terraform_0.13.5-bundle2021020522_linux_amd64.zip /tmp/ --no-progress
+      - unzip /tmp/terraform_0.13.5-bundle2021020522_linux_amd64.zip
+      - mv terraform /usr/local/bin/
+      - popd
+      - mkdir -p terraform/$TF_DIR/.terraform
+      - mv /tmp/plugins terraform/$TF_DIR/.terraform/
 
   build:
     commands:
