@@ -239,6 +239,14 @@ RSpec.describe Certificate do
     end
   end
 
+  describe '#sha1_fingerprint' do
+    let(:x509_cert) { leaf_cert }
+
+    it 'returns a string' do
+      expect(certificate.sha1_fingerprint).to be_a(String)
+    end
+  end
+
   describe 'a root cert' do
     let(:x509_cert) { root_cert }
 
