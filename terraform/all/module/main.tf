@@ -80,7 +80,7 @@ data "aws_iam_policy_document" "autotf_assumerole" {
     }
   }
   statement {
-    sid = "AssumeTerraformRoleFromToolingAccount"
+    sid = "AssumeTerraformRoleFromAutotfRole"
     actions = [
       "sts:AssumeRole"
     ]

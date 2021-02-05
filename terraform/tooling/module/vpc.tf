@@ -84,6 +84,16 @@ resource "aws_vpc_endpoint" "private-s3" {
   }
 }
 
+resource "aws_vpc_endpoint" "private-dynamodb" {
+  vpc_id          = aws_vpc.auto_terraform.id
+  service_name    = "com.amazonaws.${var.region}.dynamodb"
+  route_table_ids = [aws_vpc.auto_terraform.main_route_table_id]
+
+  tags = {
+    Name = "auto_terraform_dynamodb"
+  }
+}
+
 resource "aws_vpc_endpoint" "logs" {
   vpc_id              = aws_vpc.auto_terraform.id
   service_name        = "com.amazonaws.${var.region}.logs"
@@ -152,6 +162,14 @@ resource "aws_security_group" "auto_terraform" {
     to_port         = 443
     protocol        = "tcp"
     prefix_list_ids = [aws_vpc_endpoint.private-s3.prefix_list_id]
+  }
+
+  egress {
+    description     = "allow traffic to VPC dynamodb endpoint so we can get code"
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
+    prefix_list_ids = [aws_vpc_endpoint.private-dynamodb.prefix_list_id]
   }
 
   egress {
