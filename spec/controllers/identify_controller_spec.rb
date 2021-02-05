@@ -368,7 +368,7 @@ RSpec.describe IdentifyController, type: :controller do
 
         context 'when the nonce param is missing' do
           it 'returns a bad request' do
-            get :create, params: {}
+            get :create, params: { redirect_uri: 'http://example.com/' }
             expect(response).to have_http_status(:bad_request)
           end
         end
