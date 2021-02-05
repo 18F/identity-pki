@@ -36,6 +36,7 @@ action :create do
           'ignore_errors' => [
             'ActionController::RoutingError',
             'ActionController::BadRequest',
+            'ActionDispatch::Http::MimeNegotiation::InvalidType',
           ].join(','),
         },
         'license_key' => license_key,
