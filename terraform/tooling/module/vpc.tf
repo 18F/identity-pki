@@ -94,6 +94,19 @@ resource "aws_vpc_endpoint" "private-dynamodb" {
   }
 }
 
+resource "aws_vpc_endpoint" "ec2" {
+  vpc_id              = aws_vpc.auto_terraform.id
+  service_name        = "com.amazonaws.${var.region}.ec2"
+  vpc_endpoint_type   = "Interface"
+  security_group_ids  = [aws_security_group.allowssl.id]
+  subnet_ids          = [aws_subnet.auto_terraform_public.id]
+  private_dns_enabled = true
+
+  tags = {
+    Name = "auto_terraform_ec2"
+  }
+}
+
 resource "aws_vpc_endpoint" "logs" {
   vpc_id              = aws_vpc.auto_terraform.id
   service_name        = "com.amazonaws.${var.region}.logs"
@@ -125,12 +138,46 @@ resource "aws_vpc_endpoint" "sts" {
   }
 }
 
+resource "aws_vpc_endpoint" "sns" {
+  vpc_id              = aws_vpc.auto_terraform.id
+  service_name        = "com.amazonaws.${var.region}.sns"
+  vpc_endpoint_type   = "Interface"
+  security_group_ids  = [aws_security_group.allowssl.id]
+  subnet_ids          = [aws_subnet.auto_terraform_public.id]
+  private_dns_enabled = true
+
+  tags = {
+    Name = "auto_terraform_sns"
+  }
+}
+
+resource "aws_vpc_endpoint" "ssm" {
+  vpc_id              = aws_vpc.auto_terraform.id
+  service_name        = "com.amazonaws.${var.region}.ssm"
+  vpc_endpoint_type   = "Interface"
+  security_group_ids  = [aws_security_group.allowssl.id]
+  subnet_ids          = [aws_subnet.auto_terraform_public.id]
+  private_dns_enabled = true
+
+  tags = {
+    Name = "auto_terraform_ssm"
+  }
+}
+
 resource "aws_security_group" "allowssl" {
   name        = "auto_terraform_logs"
   description = "Allow logging to work"
   vpc_id      = aws_vpc.auto_terraform.id
 
   ingress {
+    description = "allow ssl traffic"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [aws_vpc.auto_terraform.cidr_block]
+  }
+
+  egress {
     description = "allow ssl traffic"
     from_port   = 443
     to_port     = 443

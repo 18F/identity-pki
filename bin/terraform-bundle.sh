@@ -7,7 +7,9 @@
 # The versions of all these things were just gathered by searching for
 # required_providers in the identity-devops repo.
 #
-# This script requires a working docker setup, as well as jq.
+# This script requires a working docker setup so that it can get go and jq.
+# It is meant to be run with aws-vault, like:
+#    aws-vault exec tooling-admin -- bin/terraform-bundle.sh
 #
 set -e
 
@@ -31,7 +33,7 @@ go install ./tools/terraform-bundle
 # configure terraform-bundle to download the proper versions of everything
 cat <<EOFEOF > /tmp/terraform-bundle.hcl
 terraform {
-  version = "0.13.5"
+  version = "${TERRAFORM_VERSION}"
 }
 
 # Define which provider plugins are to be included
@@ -67,5 +69,8 @@ terraform-bundle package -os=linux -arch=amd64 /tmp/terraform-bundle.hcl
 EOF
 
 # copy the bundled terraform stuff up to the auto-tf bucket
-ACCOUNT=$(aws sts get-caller-identity | jq -r .Account)
+docker pull stedolan/jq
+ACCOUNT=$(aws sts get-caller-identity | docker run -i stedolan/jq -r '.Account')
+echo
+echo "uploading /tmp/terraform-bundle.$$/terraform_${TERRAFORM_VERSION}-bundle*_linux_amd64.zip"
 aws s3 cp /tmp/terraform-bundle.$$/terraform_${TERRAFORM_VERSION}-bundle*_linux_amd64.zip "s3://auto-tf-bucket-$ACCOUNT/"
