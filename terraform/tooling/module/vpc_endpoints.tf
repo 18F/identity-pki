@@ -22,7 +22,7 @@ resource "aws_vpc_endpoint" "ec2" {
   vpc_id              = aws_vpc.auto_terraform.id
   service_name        = "com.amazonaws.${var.region}.ec2"
   vpc_endpoint_type   = "Interface"
-  security_group_ids  = [aws_security_group.auto_terraform.id]
+  security_group_ids  = [aws_security_group.vpc_endpoints.id]
   subnet_ids          = [aws_subnet.auto_terraform_public.id]
   private_dns_enabled = true
 
@@ -35,7 +35,7 @@ resource "aws_vpc_endpoint" "logs" {
   vpc_id              = aws_vpc.auto_terraform.id
   service_name        = "com.amazonaws.${var.region}.logs"
   vpc_endpoint_type   = "Interface"
-  security_group_ids  = [aws_security_group.auto_terraform.id]
+  security_group_ids  = [aws_security_group.vpc_endpoints.id]
   subnet_ids          = [aws_subnet.auto_terraform_public.id]
   private_dns_enabled = true
 
@@ -53,7 +53,7 @@ resource "aws_vpc_endpoint" "sts" {
   vpc_id              = aws_vpc.auto_terraform.id
   service_name        = data.aws_vpc_endpoint_service.sts.service_name
   vpc_endpoint_type   = "Interface"
-  security_group_ids  = [aws_security_group.auto_terraform.id]
+  security_group_ids  = [aws_security_group.vpc_endpoints.id]
   subnet_ids          = [aws_subnet.auto_terraform_public.id]
   private_dns_enabled = true
 
@@ -66,7 +66,7 @@ resource "aws_vpc_endpoint" "sns" {
   vpc_id              = aws_vpc.auto_terraform.id
   service_name        = "com.amazonaws.${var.region}.sns"
   vpc_endpoint_type   = "Interface"
-  security_group_ids  = [aws_security_group.auto_terraform.id]
+  security_group_ids  = [aws_security_group.vpc_endpoints.id]
   subnet_ids          = [aws_subnet.auto_terraform_public.id]
   private_dns_enabled = true
 
@@ -79,11 +79,29 @@ resource "aws_vpc_endpoint" "ssm" {
   vpc_id              = aws_vpc.auto_terraform.id
   service_name        = "com.amazonaws.${var.region}.ssm"
   vpc_endpoint_type   = "Interface"
-  security_group_ids  = [aws_security_group.auto_terraform.id]
+  security_group_ids  = [aws_security_group.vpc_endpoints.id]
   subnet_ids          = [aws_subnet.auto_terraform_public.id]
   private_dns_enabled = true
 
   tags = {
     Name = "auto_terraform_ssm"
+  }
+}
+
+resource "aws_security_group" "vpc_endpoints" {
+  name        = "vpc_endpoints"
+  description = "Allow auto_terraform to contact vpc endpoints"
+  vpc_id      = aws_vpc.auto_terraform.id
+
+  ingress {
+    description = "allow auto_terraform to contact vpc endpoints"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    security_groups = [aws_security_group.auto_terraform.id]
+  }
+
+  tags = {
+    Name = "vpc_endpoints"
   }
 }
