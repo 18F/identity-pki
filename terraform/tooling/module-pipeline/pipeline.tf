@@ -46,8 +46,8 @@ phases:
   install:
     commands:
       - cd /tmp/
-      - aws s3 cp s3://${var.auto_tf_bucket_id}/terraform_0.13.5-bundle2021020523_linux_amd64.zip /tmp/ --no-progress
-      - unzip /tmp/terraform_0.13.5-bundle2021020523_linux_amd64.zip
+      - aws s3 cp s3://${var.auto_tf_bucket_id}/terraform_0.13.5-bundle2021020601_linux_amd64.zip /tmp/ --no-progress
+      - unzip /tmp/terraform_0.13.5-bundle2021020601_linux_amd64.zip
       - mv terraform /usr/local/bin/
       - cd $CODEBUILD_SRC_DIR
       - mkdir -p terraform/$TF_DIR/.terraform
@@ -65,7 +65,7 @@ phases:
       - export AWS_SESSION_TOKEN=$(echo $roledata | jq -r .Credentials.SessionToken)
       - # XXX should we init things here? or just do it one time by hand?  ./bin/deploy/configure_state_bucket.sh
       - terraform init -backend-config=bucket=$TERRAFORM_STATE_BUCKET -backend-config=key=terraform-$TF_DIR.tfstate -backend-config=dynamodb_table=$ID_state_lock_table -backend-config=region=$TERRAFORM_STATE_BUCKET_REGION
-      - TF_LOG=DEBUG terraform plan
+      - terraform plan
 
   post_build:
     commands:
