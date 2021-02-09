@@ -12,14 +12,32 @@ class IdentifyController < ApplicationController
   rescue_from ActionController::ParameterMissing, with: :render_missing_param_error
 
   def create
-    if referrer
-      # given a valid certificate from the client, return a token
-      referrer.query = "token=#{token_for_referrer}"
+    respond_to do |format|
+      format.html do
+        if referrer
+          # given a valid certificate from the client, return a token
+          referrer.query = "token=#{token_for_referrer}"
 
-      # redirect to referer OR redirect to a preconfigured URL template
-      redirect_to referrer.to_s
-    else
-      render_bad_request('No referrer')
+          # redirect to referer OR redirect to a preconfigured URL template
+          redirect_to referrer.to_s
+        else
+          render_bad_request('No referrer')
+        end
+      end
+
+      format.json do
+        if referrer
+          token = token_for_referrer
+          referrer.query = "token=#{token}"
+
+          response_body = { token: token, redirect_to: referrer.to_s }
+
+          render json: response_body.to_json, status: :ok
+        else
+          logger.warn("No referrer, returning Bad Request.")
+          render json: { error: "Invalid request" }, status: :bad_request
+        end
+      end
     end
   end
 
