@@ -44,11 +44,11 @@ resource "aws_s3_bucket" "idp_doc_capture" {
 
   lifecycle_rule {
     id      = "delete"
-    prefix  = "/"
     enabled = true
 
     expiration {
       days = 1
+      expired_object_delete_marker = true
     }
     noncurrent_version_expiration {
       days = 1
