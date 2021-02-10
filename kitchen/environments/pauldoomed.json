@@ -1,0 +1,27 @@
+{
+  "name": "pauldoomed",
+  "description": "",
+  "json_class": "Chef::Environment",
+  "chef_type": "environment",
+  "default_attributes": {
+    "elk": {
+      "retentiondays": 14,
+      "users": [
+        "pauldoom"
+      ]
+    },
+    "login_dot_gov": {
+      "idp_run_migrations": true,
+      "allow_unsafe_migrations": true,
+      "idp_sync_static": true
+    },
+    "passenger": {
+      "production": {
+        "limit_connections": false
+      }
+    }
+  },
+  "override_attributes": {
+  
+  }
+}
