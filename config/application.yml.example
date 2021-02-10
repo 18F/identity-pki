@@ -11,7 +11,7 @@ aws_http_timeout: '5'
 http_read_timeout: '5'
 http_open_timeout: '5'
 
-ca_issuer_host_allow_list: "repo.fpki.gov,crl.disa.mil,http.fpki.gov,ssp-aia.symauth.com,pki.treasury.gov,rootweb.managed.entrust.com,aia1.ssp-strong-id.net,pki.treas.gov,crls.pki.state.gov,sspweb.managed.entrust.com"
+ca_issuer_host_allow_list: 'repo.fpki.gov,crl.disa.mil,http.fpki.gov,ssp-aia.symauth.com,pki.treasury.gov,rootweb.managed.entrust.com,aia1.ssp-strong-id.net,pki.treas.gov,crls.pki.state.gov,sspweb.managed.entrust.com'
 
 # Trusted roots:
 # AD:0C:7A:75:5C:E5:F3:98:C4:79:98:0E:AC:28:FD:97:F4:E7:02:FC - Federal Common Policy
@@ -86,7 +86,7 @@ test:
 
 production:
   aws_region:
-  ca_issuer_host_allow_list: ''
+  ca_issuer_host_allow_list: 'repo.fpki.gov,crl.disa.mil,http.fpki.gov,ssp-aia.symauth.com,pki.treasury.gov,rootweb.managed.entrust.com,aia1.ssp-strong-id.net,pki.treas.gov,crls.pki.state.gov,sspweb.managed.entrust.com'
   client_cert_escaped: 'true'
   certificate_store_directory: 'config/certs'
   nonce_bloom_filter_enabled: 'false'

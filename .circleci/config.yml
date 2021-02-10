@@ -68,19 +68,6 @@ jobs:
       - deploy:
           command: |
             ./cc-test-reporter sum-coverage --output - --parts $CIRCLE_NODE_TOTAL coverage/codeclimate.*.json | ./cc-test-reporter upload-coverage --debug --input -
-  build-latest-container:
-    working_directory: ~/identity-pki
-    docker:
-      - image: circleci/ruby:2.6
-    steps:
-      - checkout
-      - setup_remote_docker
-      - run: |
-          rev=$(git rev-parse --short HEAD)
-          docker build -t logindotgov/pki:latest -t logindotgov/pki:"${rev}" -f Dockerfile .
-          echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-          docker push logindotgov/pki:"${rev}"
-          docker push logindotgov/pki:latest
   build-release-container:
     working_directory: ~/identity-pki
     docker:
@@ -154,9 +141,6 @@ workflows:
   release:
     jobs:
       - build
-      - build-latest-container:
-          requires:
-            - build
       - build-release-container:
           requires:
             - build

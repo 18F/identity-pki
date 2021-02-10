@@ -6,19 +6,9 @@ class IssuingCaService
   CA_RESPONSE_CACHE_EXPIRATION = 60.minutes
 
   def self.fetch_signing_key_for_cert(cert)
-    return nil if cert.aia.blank? || !cert.aia['CA Issuers'].is_a?(Array)
-
-    ca_issuers = cert.aia['CA Issuers'].map do |issuer|
-      issuer = issuer.to_s
-      next unless issuer.starts_with?('URI')
-      issuer = issuer.gsub(/^URI:/, '')
-      uri = URI.parse(issuer)
-      next unless uri.scheme == 'http'
-      next unless allowed_host?(uri.host)
-      uri
-    end.compact
-
+    ca_issuers = ca_issuers_for_cert(cert)
     ca_issuers.each do |ca_issuer_uri|
+      next unless allowed_host?(ca_issuer_uri.host)
       signing_cert = fetch_issuing_certificate(ca_issuer_uri, cert.signing_key_id)
       return signing_cert if signing_cert.present?
     end
@@ -43,6 +33,28 @@ class IssuingCaService
     end
 
     @ca_certificates_response_cache.set(key, nil, expires_in: CA_RESPONSE_CACHE_EXPIRATION)
+  end
+
+  def self.ca_issuers_for_cert(cert)
+    return [] if cert.aia.blank? || !cert.aia['CA Issuers'].is_a?(Array)
+
+    cert.aia['CA Issuers'].map do |issuer|
+      convert_uri(issuer)
+    end.compact
+  end
+
+  def self.fetch_ca_repository_certs_for_cert(cert)
+    return [] if cert.subject_info_access.blank? || !cert.subject_info_access['CA Repository'].is_a?(Array)
+
+    repository_uris = cert.subject_info_access['CA Repository'].map do |repo|
+      convert_uri(repo)
+    end.compact
+
+    repository_uris.map do |repository_uri|
+      IssuingCaService.fetch_certificates(repository_uri).map do |x509_cert|
+        Certificate.new(x509_cert)
+      end
+    end.flatten
   end
 
   def self.clear_ca_certificates_response_cache!
@@ -72,5 +84,20 @@ class IssuingCaService
 
     Rails.logger.info("CA Issuer Host Not Allowed: #{host}")
     false
+  end
+
+  def self.certificate_store_issuers
+    CertificateStore.instance.certificates.map do |certificate|
+      ca_issuers_for_cert(certificate)
+    end.flatten.uniq
+  end
+
+  def self.convert_uri(uri)
+    uri = uri.to_s
+    return nil unless uri.starts_with?('URI')
+    uri = uri.gsub(/^URI:/, '')
+    uri = URI.parse(uri)
+    return nil unless uri.scheme == 'http'
+    uri
   end
 end
