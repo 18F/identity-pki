@@ -136,12 +136,20 @@ RSpec.describe Certificate do
     end
 
     context 'for a valid intermediate certificate' do
+      let(:x509_cert) { intermediate_cert }
+
       it 'has valid intermediates' do
         expect(intermediate_certs.all?(&:valid?)).to be_truthy
       end
 
       it 'is valid' do
         expect(certificate.signature_verified?).to be_truthy
+      end
+
+      it 'has subjectInfoAccess information' do
+        expect(certificate.subject_info_access).to_not be_nil
+        expect(certificate.subject_info_access).to have_key 'CA Repository'
+        expect(certificate.subject_info_access['CA Repository'].count).to eq 1
       end
     end
 
@@ -228,6 +236,14 @@ RSpec.describe Certificate do
       it 'returns nil' do
         expect(certificate.ca_issuer_http_url).to be_nil
       end
+    end
+  end
+
+  describe '#sha1_fingerprint' do
+    let(:x509_cert) { leaf_cert }
+
+    it 'returns a string' do
+      expect(certificate.sha1_fingerprint).to be_a(String)
     end
   end
 

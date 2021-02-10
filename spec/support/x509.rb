@@ -11,6 +11,12 @@ module X509Helpers
     false,
   ].freeze
 
+  SUBJECT_INFO_ACCESS_EXTENSION = [
+    'subjectInfoAccess',
+    'caRepository;URI:http://example.com/',
+    false,
+  ].freeze
+
   CA_CONFIG = OpenSSL::Config.parse(<<~SSL_CONFIG)
     oid_section = new_oids
      [ new_oids ]
@@ -182,6 +188,7 @@ module X509Helpers
       ['basicConstraints', 'CA:TRUE', true],
       ['keyUsage', 'keyCertSign, cRLSign', true],
       AUTHORITY_INFO_ACCESS_EXTENSION,
+      SUBJECT_INFO_ACCESS_EXTENSION,
       ['subjectKeyIdentifier', 'hash', false],
       ['authorityKeyIdentifier', 'keyid:always', false],
     ]

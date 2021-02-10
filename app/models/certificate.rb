@@ -82,8 +82,8 @@ class Certificate
     validate_cert(is_leaf: is_leaf) == 'valid'
   end
 
-  def pem_filename
-    "#{subject.to_s(OpenSSL::X509::Name::COMPAT)}.pem"
+  def pem_filename(suffix: nil)
+    "#{subject.to_s(OpenSSL::X509::Name::COMPAT)}#{suffix}.pem"
   end
 
   def to_pem
@@ -122,12 +122,11 @@ class Certificate
   end
 
   def aia
-    @aia ||= get_extension('authorityInfoAccess')&.
-      split(/\n/)&.
-      map { |line| line.split(/\s*-\s*/, 2) }&.
-      each_with_object(Hash.new { |hash, key| hash[key] = [] }) do |(key, value), memo|
-        memo[key] << value
-      end
+    @aia ||= parse_extension_to_hash(get_extension('authorityInfoAccess')) || {}
+  end
+
+  def subject_info_access
+    @subject_info_access ||= parse_extension_to_hash(get_extension('subjectInfoAccess')) || {}
   end
 
   def token(extra)
@@ -165,6 +164,10 @@ class Certificate
 
   def valid_policies?
     critical_policies_recognized? && allowed_by_policy?
+  end
+
+  def sha1_fingerprint
+    OpenSSL::Digest::SHA1.new(x509_cert.to_der).to_s
   end
 
   private
@@ -223,5 +226,15 @@ class Certificate
 
     Rails.logger.warn("Certificate invalid: #{reason}")
     TokenService.box(extra.merge(error: "certificate.#{reason}", key_id: key_id))
+  end
+
+  def parse_extension_to_hash(extension)
+    return nil if extension.blank?
+
+    extension.split(/\n/)&.
+      map { |line| line.split(/\s*-\s*/, 2) }&.
+      each_with_object(Hash.new { |hash, key| hash[key] = [] }) do |(key, value), memo|
+      memo[key] << value
+    end
   end
 end

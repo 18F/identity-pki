@@ -39,13 +39,22 @@ class IssuingCaService
     return [] if cert.aia.blank? || !cert.aia['CA Issuers'].is_a?(Array)
 
     cert.aia['CA Issuers'].map do |issuer|
-      issuer = issuer.to_s
-      next unless issuer.starts_with?('URI')
-      issuer = issuer.gsub(/^URI:/, '')
-      uri = URI.parse(issuer)
-      next unless uri.scheme == 'http'
-      uri
+      convert_uri(issuer)
     end.compact
+  end
+
+  def self.fetch_ca_repository_certs_for_cert(cert)
+    return [] if cert.subject_info_access.blank? || !cert.subject_info_access['CA Repository'].is_a?(Array)
+
+    repository_uris = cert.subject_info_access['CA Repository'].map do |repo|
+      convert_uri(repo)
+    end.compact
+
+    repository_uris.map do |repository_uri|
+      IssuingCaService.fetch_certificates(repository_uri).map do |x509_cert|
+        Certificate.new(x509_cert)
+      end
+    end.flatten
   end
 
   def self.clear_ca_certificates_response_cache!
@@ -81,5 +90,14 @@ class IssuingCaService
     CertificateStore.instance.certificates.map do |certificate|
       ca_issuers_for_cert(certificate)
     end.flatten.uniq
+  end
+
+  def self.convert_uri(uri)
+    uri = uri.to_s
+    return nil unless uri.starts_with?('URI')
+    uri = uri.gsub(/^URI:/, '')
+    uri = URI.parse(uri)
+    return nil unless uri.scheme == 'http'
+    uri
   end
 end
