@@ -1,3 +1,7 @@
+# We could probably remove these VPC endpoints and just let the
+# networkfw handle all this, but VPC endpoints are cheaper than
+# going through the internet gateway.
+
 resource "aws_vpc_endpoint" "private-s3" {
   vpc_id          = aws_vpc.auto_terraform.id
   service_name    = "com.amazonaws.${var.region}.s3"

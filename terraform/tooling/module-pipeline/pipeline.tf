@@ -1,3 +1,5 @@
+# This is where a pipeline and codebuild stuff is set up.
+
 locals {
   clean_tf_dir = replace(var.tf_dir, "/[/.-]/", "_")
 }

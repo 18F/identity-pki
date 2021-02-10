@@ -1,3 +1,6 @@
+# The networkfirewall is required because not all services that terraform needs
+# to operate on can be a VPC endpoint, so we are locking this environment
+# down using the networkfw.
 
 resource "aws_networkfirewall_rule_group" "networkfw" {
   capacity    = 100

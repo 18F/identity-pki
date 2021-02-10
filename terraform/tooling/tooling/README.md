@@ -4,6 +4,8 @@ This directory contains the code that sets up the global stuff that all pipeline
 in `module`, and then calls `module-pipeline` with arguments for each tf dir you want
 to build.
 
+![auto_terraform Diagram](auto_terraform.png)
+
 Codebuild notices changes in the branch you specify and thus will deploy that tf dir to whatever
 env in the account you have specified.  You can go look at the pipelines in the tooling account
 to see how they are doing.
@@ -20,11 +22,12 @@ since it will be the lever that can move anything in the login.gov system.
 
 * It was a huge PITA to figure out how to grant access to the terraform role from
   the auto-tf role.
-* Some endpoints cannot be turned into VPC endpoints.  Grr.  So we need to set up
+* Some endpoints cannot be turned into VPC endpoints.  Grr.  So we set up
   a Network Firewall for them.
     * iam.amazonaws.com
     * sts.us-east-1.amazonaws.com
     * access-analyzer.us-west-2.amazonaws.com
 * If the build fails because it takes too long or you stop the build,
   it just kills everything immediately rather than gracefully letting terraform
-  unlock itself and so on.
+  unlock itself.  So if a build takes too long, you may need to unlock
+  it by hand in dynamo.

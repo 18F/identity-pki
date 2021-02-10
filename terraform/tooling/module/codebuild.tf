@@ -1,3 +1,6 @@
+# This is where the global codebuild/codepipeline stuff is set up that the
+# actual pipelines use.
+
 resource "aws_iam_role" "auto_terraform" {
   name = "auto_terraform"
 
