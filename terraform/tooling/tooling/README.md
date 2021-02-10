@@ -4,7 +4,7 @@ This directory contains the code that sets up the global stuff that all pipeline
 in `module`, and then calls `module-pipeline` with arguments for each tf dir you want
 to build.
 
-![auto_terraform Diagram](auto_terraform.png)
+![auto_terraform Diagram](./auto_terraform.png)
 
 Codebuild notices changes in the branch you specify and thus will deploy that tf dir to whatever
 env in the account you have specified.  You can go look at the pipelines in the tooling account
