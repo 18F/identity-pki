@@ -3,7 +3,7 @@ apt_package 'nodejs' do
 end
 
 apt_package 'yarn' do
-  version node['login_dot_gov']['dashboard']['yarn_version']
+  version node['login_dot_gov']['yarn_version']
 end
 
 # setup postgres root config resource
