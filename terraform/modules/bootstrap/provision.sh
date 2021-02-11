@@ -314,8 +314,8 @@ set_newrelic_enpoints
 
 echo "==========================================================="
 echo "provision.sh: updating repo keys"
-run curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
-run apt-key adv --refresh-keys --keyserver-options http-proxy="http://$proxy_server:$proxy_port" --keyserver keyserver.ubuntu.com
+curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - || true
+apt-key adv --refresh-keys --keyserver-options http-proxy="http://$proxy_server:$proxy_port" --keyserver keyserver.ubuntu.com || true
 
 echo "==========================================================="
 echo "provision.sh: downloading SSH key and cloning repo"
