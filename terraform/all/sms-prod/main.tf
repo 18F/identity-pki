@@ -16,6 +16,7 @@ module "main" {
   iam_account_alias  = "login-sms-prod"
   account_roles_map = {
     iam_appdev_enabled = false
+    iam_auto_terraform_enabled = false
   }
 
   cloudtrail_event_selectors  = [
