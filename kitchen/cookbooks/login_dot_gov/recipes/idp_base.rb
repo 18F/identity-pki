@@ -2,6 +2,10 @@ apt_package 'nodejs' do
   action :upgrade
 end
 
+apt_package 'yarn' do
+  version node['login_dot_gov']['yarn_version']
+end
+
 if node.fetch('login_dot_gov').fetch('cloudhsm_enabled')
   Chef::Log.info('CloudHSM is enabled')
   include_recipe 'login_dot_gov::cloudhsm'
