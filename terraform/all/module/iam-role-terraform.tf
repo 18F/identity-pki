@@ -473,6 +473,7 @@ locals {
         "logs:DescribeSubscriptionFilters",
         "logs:GetLogDelivery",
         "logs:ListTagsLogGroup",
+        "logs:ListLogDeliveries",
         "logs:PutDestination",
         "logs:PutDestinationPolicy",
         "logs:PutLogEvents",
@@ -648,6 +649,17 @@ locals {
       resources = [
         "*",
       ]
+    },
+    {
+      sid    = "NetworkFirewall"
+      effect = "Allow"
+      actions = [
+        "network-firewall:*",
+      ]
+      resources = [
+        "*",
+      ]
     }
+
   ]
 }
