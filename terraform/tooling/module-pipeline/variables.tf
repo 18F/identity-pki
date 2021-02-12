@@ -50,3 +50,8 @@ data "aws_s3_bucket_object" "identity_devops_oauthkey" {
   bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
   key    = "common/identity_devops_oauthkey"
 }
+
+variable "tfbundle" {
+  description = "name of the tfbundle that you want the system to deploy with in the auto_tf_bucket"
+  default = "terraform_0.13.5-bundle2021020601_linux_amd64.zip"
+}
