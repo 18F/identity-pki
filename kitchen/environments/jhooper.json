@@ -1,25 +1,24 @@
 {
-  "name": "bleachbyte",
-  "description": "",
+  "name": "jhooper",
+  "description": "Hooper's personal environment",
   "json_class": "Chef::Environment",
   "chef_type": "environment",
   "default_attributes": {
     "elk": {
       "retentiondays": 14,
       "users": [
-        "bleachbyte"
+        "jhooper"
       ]
     },
     "login_dot_gov": {
       "deploy_branch_default": "master",
+      "deploy_branch": {
+        "identity-idp": "stages/jhooper",
+        "identity-pivcac": "stages/jhooper"
+      },
       "idp_run_migrations": true,
       "allow_unsafe_migrations": true,
-      "idp_sync_static": true
-    },
-    "identity-jumphost": {
-      "loadtest": {
-        "enabled": true
-      }
+      "idp_sync_static": false
     }
   },
   "override_attributes": {

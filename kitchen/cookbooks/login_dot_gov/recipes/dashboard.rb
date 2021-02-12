@@ -2,6 +2,10 @@ apt_package 'nodejs' do
   action :upgrade
 end
 
+apt_package 'yarn' do
+  version node['login_dot_gov']['yarn_version']
+end
+
 # setup postgres root config resource
 psql_config 'configure postgres root cert'
 
