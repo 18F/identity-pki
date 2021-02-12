@@ -21,5 +21,6 @@ module "main" {
     iam_socadmin_enabled  = true
     iam_terraform_enabled = true
     iam_billing_enabled   = true
+    iam_auto_terraform_enabled = false
   }
 }

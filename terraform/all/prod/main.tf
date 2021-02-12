@@ -19,6 +19,7 @@ module "main" {
     iam_reports_enabled   = true
     iam_kmsadmin_enabled  = true
     iam_analytics_enabled = true
+    iam_auto_terraform_enabled = false
   }
 
   legacy_bucket_list = [

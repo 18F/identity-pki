@@ -61,7 +61,7 @@ phases:
       - . ./env-vars.sh
       - unset AWS_PROFILE
       - export AWS_STS_REGIONAL_ENDPOINTS=regional
-      - roledata=$(aws sts assume-role --role-arn "arn:aws:iam::$aws_account_id:role/Terraform" --role-session-name "auto-tf-plan")
+      - roledata=$(aws sts assume-role --role-arn "arn:aws:iam::$aws_account_id:role/AutoTerraform" --role-session-name "auto-tf-plan")
       - export AWS_ACCESS_KEY_ID=$(echo $roledata | jq -r .Credentials.AccessKeyId)
       - export AWS_SECRET_ACCESS_KEY=$(echo $roledata | jq -r .Credentials.SecretAccessKey)
       - export AWS_SESSION_TOKEN=$(echo $roledata | jq -r .Credentials.SessionToken)
