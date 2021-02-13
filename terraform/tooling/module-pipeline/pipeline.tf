@@ -65,9 +65,21 @@ phases:
       - export AWS_ACCESS_KEY_ID=$(echo $roledata | jq -r .Credentials.AccessKeyId)
       - export AWS_SECRET_ACCESS_KEY=$(echo $roledata | jq -r .Credentials.SecretAccessKey)
       - export AWS_SESSION_TOKEN=$(echo $roledata | jq -r .Credentials.SessionToken)
+      - 
       - # XXX should we init things here? or just do it one time by hand?  ./bin/deploy/configure_state_bucket.sh
       - terraform init -backend-config=bucket=$TERRAFORM_STATE_BUCKET -backend-config=key=terraform-$TF_DIR.tfstate -backend-config=dynamodb_table=$ID_state_lock_table -backend-config=region=$TERRAFORM_STATE_BUCKET_REGION
-      - terraform plan
+      - terraform plan -detailed-exitcode
+      - 
+      - if [ $? -eq 0 ] ; then
+      -   # No changes, stop pipeline
+      -   aws codepipeline stop-pipeline-execution --pipeline-name auto_terraform_${local.clean_tf_dir}_plan –-pipeline-execution-id $CODEBUILD_BUILD_ID --no-abandon --reason "no changes:  stopping"
+      - elif [ $? -eq 1 ] ; then
+      -   # There was an error:  fail this job
+      -   exit 1
+      - else
+      -   # There are changes that need applying:  exit cleanly to proceed to the next step
+      -   exit 0
+      - fi
 
   post_build:
     commands:
