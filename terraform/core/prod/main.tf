@@ -143,4 +143,6 @@ module "main" {
   mta_sts_report_mailboxes      = ["tls.reports@gsa.gov", "tls-reports@login.gov"]
   mta_sts_mode                  = "enforce"
   lambda_audit_github_debug     = 0
+
+  slack_events_sns_hook_arn = "arn:aws:sns:us-west-2:555546682965:slack-events"
 }

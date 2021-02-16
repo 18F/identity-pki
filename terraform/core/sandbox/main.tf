@@ -73,5 +73,7 @@ module "main" {
     "identitysandbox-gov-cloudtrail-east-s3",
     "sj2019-us-east-1-894947205914",
   ]
+
+  slack_events_sns_hook_arn = "arn:aws:sns:us-west-2:894947205914:slack-otherevents"
 }
 
