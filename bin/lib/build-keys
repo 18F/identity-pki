@@ -3,8 +3,6 @@ dashboard_api_token
 db_password_app
 db_username_app
 dhparam
-equifax_gpg_public_key
-equifax_ssh_privkey
 newrelic_license_key
 oidc.key
 oidc.pub
@@ -15,4 +13,4 @@ saml2020.key.enc
 secret_key_base_dashboard
 secret_key_base_rails
 slackchannel
-slackwebhook 
+slackwebhook
