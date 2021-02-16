@@ -72,7 +72,8 @@ phases:
       - |
         if [ $? -eq 0 ] ; then
           # No changes:  stop pipeline
-          aws codepipeline stop-pipeline-execution --pipeline-name auto_terraform_${local.clean_tf_dir}_plan –-pipeline-execution-id $CODEBUILD_BUILD_ID --no-abandon --reason "no changes:  stopping"
+          EXE_ID=$(echo $CODEBUILD_BUILD_ID | awk -F: '{print $2}')
+          aws codepipeline stop-pipeline-execution --pipeline-name auto_terraform_${local.clean_tf_dir}_plan --pipeline-execution-id "$EXE_ID" --no-abandon --reason no_changes
         elif [ $? -eq 1 ] ; then
           # Error:  fail the build
           exit 1
@@ -195,6 +196,85 @@ phases:
 }
 
 
+# How to run a terraform plan
+resource "aws_codebuild_project" "auto_terraform_test" {
+  name           = "auto_terraform_${local.clean_tf_dir}_test"
+  description    = "auto-terraform ${var.tf_dir}"
+  build_timeout = "30"
+  service_role  = var.auto_tf_role_arn
+
+  artifacts {
+    type = "CODEPIPELINE"
+  }
+
+  cache {
+    type  = "LOCAL"
+    modes = ["LOCAL_DOCKER_LAYER_CACHE", "LOCAL_SOURCE_CACHE"]
+  }
+
+  environment {
+    compute_type                = "BUILD_GENERAL1_SMALL"
+    image                       = "aws/codebuild/standard:5.0"
+    type                        = "LINUX_CONTAINER"
+    image_pull_credentials_type = "CODEBUILD"
+
+    environment_variable {
+      name  = "TF_DIR"
+      value = var.tf_dir
+    }
+  }
+
+  logs_config {
+    cloudwatch_logs {
+      group_name  = "auto-terraform"
+      stream_name = "${var.tf_dir}-${var.gitref}"
+    }
+  }
+
+  source {
+    type = "CODEPIPELINE"
+    buildspec = <<EOT
+version: 0.2
+
+phases:
+  build:
+    commands:
+      - cd terraform/$TF_DIR/
+      - . ./env-vars.sh
+      - |
+        if [ -x tests/test.sh ] ; then
+          echo "tests found:  "
+          cd tests
+          ./test.sh
+        else
+          echo "no tests found:  continuing"
+          exit 0
+        fi
+
+  post_build:
+    commands:
+      - echo test completed on `date`
+    EOT
+  }
+  source_version = var.gitref
+
+  vpc_config {
+    vpc_id = var.auto_tf_vpc_id
+
+    subnets = [
+      var.auto_tf_subnet_id,
+    ]
+
+    security_group_ids = [
+      var.auto_tf_sg_id,
+    ]
+  }
+
+  tags = {
+    Environment = "Tooling"
+  }
+}
+
 # pipeline that does the plan/approve/deploy/test
 resource "aws_codepipeline" "auto_tf_pipeline" {
   name     = "${local.clean_tf_dir}_pipeline"
@@ -282,21 +362,21 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
     }
   }
 
-  # stage {
-  #   name = "Test"
+  stage {
+    name = "Test"
 
-  #   action {
-  #   action {
-  #     name             = "Build"
-  #     category         = "Test"
-  #     owner            = "AWS"
-  #     provider         = "CodeBuild"
-  #     version          = "1"
-  #     input_artifacts  = ["${local.clean_tf_dir}_source_output"]
+    action {
+    action {
+      name             = "Build"
+      category         = "Test"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      version          = "1"
+      input_artifacts  = ["${local.clean_tf_dir}_source_output"]
 
-  #     configuration = {
-  #       ProjectName = "auto_terraform_${local.clean_tf_dir}_test"
-  #     }
-  #   }
-  # }
+      configuration = {
+        ProjectName = "auto_terraform_${local.clean_tf_dir}_test"
+      }
+    }
+  }
 }
