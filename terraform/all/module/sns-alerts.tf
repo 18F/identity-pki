@@ -93,7 +93,7 @@ resource "aws_ssm_parameter" "account_alarm_slack_use1" {
   name        = "/account/us-east-1/alert/sns/arn_slack_${each.key}"
   type        = "String"
   value       = aws_sns_topic.slack_use1[each.key].arn
-  description = "Alarm notification topic for #${each.value}"
+  description = "Alarm notification topic for #${each.value} "
   overwrite   = true
 }
 
