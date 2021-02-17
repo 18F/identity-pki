@@ -13,7 +13,7 @@ module "auto-terraform-assumerole" {
   iam_policies = [
     {
       policy_name        = "AutoTerraform1"
-      policy_description = "Policy 1 for AutoTerraform role"
+      policy_description = "Policy 1 for AutoTerraform role "
       policy_document = local.Terraform1
     },
     {
