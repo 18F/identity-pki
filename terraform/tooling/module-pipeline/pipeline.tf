@@ -366,7 +366,6 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
     name = "Test"
 
     action {
-    action {
       name             = "Build"
       category         = "Test"
       owner            = "AWS"
