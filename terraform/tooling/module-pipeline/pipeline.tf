@@ -74,7 +74,7 @@ phases:
         cat -n /codebuild/output/tmp/script.sh
         echo "XXXXXXXXXXXXXXXXXXXX"
         set -x
-        if [ "$EXITCODE" == "" ] ; then
+        if [ "$EXITCODE" = "" ] ; then
           echo "Message:  No changes: stop pipeline"
           EXE_ID=$(echo $CODEBUILD_BUILD_ID | awk -F: '{print $2}')
           aws codepipeline stop-pipeline-execution --pipeline-name auto_terraform_${local.clean_tf_dir}_plan --pipeline-execution-id "$EXE_ID" --no-abandon --reason no_changes
