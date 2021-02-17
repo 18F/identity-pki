@@ -70,16 +70,19 @@ phases:
       - terraform init -backend-config=bucket=$TERRAFORM_STATE_BUCKET -backend-config=key=terraform-$TF_DIR.tfstate -backend-config=dynamodb_table=$ID_state_lock_table -backend-config=region=$TERRAFORM_STATE_BUCKET_REGION
       - terraform plan -detailed-exitcode -lock-timeout=120s || export EXITCODE=$?
       - |
+        echo "XXXXXXXXXXXXXXXXXXX"
+        cat /codebuild/output/tmp/script.sh
+        echo "XXXXXXXXXXXXXXXXXXX"
         if [ "$EXITCODE" == "" ] ; then
-          echo No changes: stop pipeline ;
-          EXE_ID=$(echo $CODEBUILD_BUILD_ID | awk -F: '{print $2}') ;
+          echo "Message:  No changes: stop pipeline"
+          EXE_ID=$(echo $CODEBUILD_BUILD_ID | awk -F: '{print $2}')
           aws codepipeline stop-pipeline-execution --pipeline-name auto_terraform_${local.clean_tf_dir}_plan --pipeline-execution-id "$EXE_ID" --no-abandon --reason no_changes
         elif [ "$EXITCODE" -eq "1" ] ; then
-          echo Error: fail the build ;
-          exit 1 ;
+          echo "Message:  Error: fail the build"
+          exit 1
         else
-          echo There are changes: proceed to the next step ;
-          exit 0 ;
+          echo "Message:  There are changes: proceed to the next step"
+          exit 0
         fi
 
   post_build:
