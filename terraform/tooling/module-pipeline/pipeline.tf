@@ -71,18 +71,19 @@ phases:
       - terraform plan -detailed-exitcode -lock-timeout=120s || export EXITCODE=$?
       - |
         echo "XXXXXXXXXXXXXXXXXXX"
-        cat /codebuild/output/tmp/script.sh
+        cat -n /codebuild/output/tmp/script.sh
         echo "XXXXXXXXXXXXXXXXXXX"
+        set -x
         if [ "$EXITCODE" == "" ] ; then
           echo "Message:  No changes: stop pipeline"
           EXE_ID=$(echo $CODEBUILD_BUILD_ID | awk -F: '{print $2}')
           aws codepipeline stop-pipeline-execution --pipeline-name auto_terraform_${local.clean_tf_dir}_plan --pipeline-execution-id "$EXE_ID" --no-abandon --reason no_changes
         elif [ "$EXITCODE" -eq "1" ] ; then
           echo "Message:  Error: fail the build"
-          exit 1
+          (exit 1)
         else
           echo "Message:  There are changes: proceed to the next step"
-          exit 0
+          (exit 0)
         fi
 
   post_build:
