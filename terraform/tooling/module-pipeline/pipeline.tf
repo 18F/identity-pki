@@ -76,10 +76,10 @@ phases:
           aws codepipeline stop-pipeline-execution --pipeline-name auto_terraform_${local.clean_tf_dir}_plan --pipeline-execution-id "$EXE_ID" --no-abandon --reason no_changes
         elif [ "$EXITCODE" -eq "1" ] ; then
           echo Error: fail the build ;
-          exit 1
+          exit 1 ;
         else
           echo There are changes: proceed to the next step ;
-          exit 0
+          exit 0 ;
         fi
 
   post_build:
