@@ -70,9 +70,9 @@ phases:
       - terraform init -backend-config=bucket=$TERRAFORM_STATE_BUCKET -backend-config=key=terraform-$TF_DIR.tfstate -backend-config=dynamodb_table=$ID_state_lock_table -backend-config=region=$TERRAFORM_STATE_BUCKET_REGION
       - terraform plan -detailed-exitcode -lock-timeout=120s || export EXITCODE=$?
       - |
-        echo "XXXXXXXXXXXXXXXXXXX"
+        echo "XXXXXXXXXXXXXXXXXXXX"
         cat -n /codebuild/output/tmp/script.sh
-        echo "XXXXXXXXXXXXXXXXXXX"
+        echo "XXXXXXXXXXXXXXXXXXXX"
         set -x
         if [ "$EXITCODE" == "" ] ; then
           echo "Message:  No changes: stop pipeline"
