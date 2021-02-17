@@ -45,6 +45,28 @@ resource "aws_sns_topic" "slack_usw2" {
   name = "slack-${each.key}"
 }
 
+resource "aws_sns_topic_policy" "slack_usw2" {
+  for_each = local.slack_channel_map
+  arn      = aws_sns_topic.slack_usw2[each.key].arn
+  policy   = data.aws_iam_policy_document.sns_topic_policy_usw2[each.key].json
+}
+
+data "aws_iam_policy_document" "sns_topic_policy_usw2" {
+  for_each = local.slack_channel_map
+  statement {
+    sid     = "Allow_Publish_Events"
+    effect  = "Allow"
+    actions = ["SNS:Publish"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["events.amazonaws.com"]
+    }
+
+    resources = ["arn:aws:sns:us-west-2:${data.aws_caller_identity.current.account_id}:slack-${each.key}"]
+  }
+}
+
 resource "aws_ssm_parameter" "account_alarm_slack_usw2" {
   for_each = local.slack_channel_map
 
@@ -85,6 +107,29 @@ resource "aws_sns_topic" "slack_use1" {
   for_each = local.slack_channel_map
 
   name = "slack-${each.key}"
+}
+
+resource "aws_sns_topic_policy" "slack_use1" {
+  provider = aws.use1
+  for_each = local.slack_channel_map
+  arn      = aws_sns_topic.slack_use1[each.key].arn
+  policy   = data.aws_iam_policy_document.sns_topic_policy_use1[each.key].json
+}
+
+data "aws_iam_policy_document" "sns_topic_policy_use1" {
+  for_each = local.slack_channel_map
+  statement {
+    sid     = "Allow_Publish_Events"
+    effect  = "Allow"
+    actions = ["SNS:Publish"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["events.amazonaws.com"]
+    }
+
+    resources = ["arn:aws:sns:us-east-1:${data.aws_caller_identity.current.account_id}:slack-${each.key}"]
+  }
 }
 
 resource "aws_ssm_parameter" "account_alarm_slack_use1" {
