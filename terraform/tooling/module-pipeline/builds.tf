@@ -87,7 +87,7 @@ phases:
 
   post_build:
     commands:
-      - echo ============== Terraform plan completed on `date`
+      - echo "================================ Terraform plan completed on `date`
     EOT
   }
   source_version = var.gitref
