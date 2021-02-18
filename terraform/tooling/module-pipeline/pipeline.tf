@@ -75,11 +75,10 @@ phases:
       - |
         if [ "$EXITCODE" = "" ] ; then
           echo "================================  No changes: stop pipeline"
-          EXE_ID=$(echo $CODEBUILD_BUILD_ID | awk -F: '{print $2}')
           export AWS_ACCESS_KEY_ID=$ORIG_AWS_ACCESS_KEY_ID
           export AWS_SECRET_ACCESS_KEY=$ORIG_AWS_SECRET_ACCESS_KEY
           export AWS_SESSION_TOKEN=$ORIG_AWS_SESSION_TOKEN
-          aws codepipeline stop-pipeline-execution --pipeline-name auto_terraform_${local.clean_tf_dir}_plan --pipeline-execution-id "$EXE_ID" --no-abandon --reason no_changes
+          aws codebuild stop-build --id $CODEBUILD_BUILD_ID
         elif [ "$EXITCODE" -eq "1" ] ; then
           echo "================================ Error: fail the build"
           (exit 1)
