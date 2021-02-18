@@ -67,7 +67,23 @@ phases:
       - 
       - # XXX should we init things here? or just do it one time by hand?  ./bin/deploy/configure_state_bucket.sh
       - terraform init -backend-config=bucket=$TERRAFORM_STATE_BUCKET -backend-config=key=terraform-$TF_DIR.tfstate -backend-config=dynamodb_table=$ID_state_lock_table -backend-config=region=$TERRAFORM_STATE_BUCKET_REGION
-      - terraform plan -lock-timeout=120s
+      - terraform plan -detailed-exitcode -lock-timeout=120s || export EXITCODE=$?
+      - |
+        if [ "$EXITCODE" = "" ] ; then
+          echo "================================  No changes: stop pipeline"
+          export AWS_ACCESS_KEY_ID=$ORIG_AWS_ACCESS_KEY_ID
+          export AWS_SECRET_ACCESS_KEY=$ORIG_AWS_SECRET_ACCESS_KEY
+          export AWS_SESSION_TOKEN=$ORIG_AWS_SESSION_TOKEN
+          env | cat -n
+          EXE_ID=$(echo $CODEBUILD_BUILD_ID | awk -F: '{print $2}')
+          aws codepipeline stop-pipeline-execution --pipeline-name auto_terraform_${local.clean_tf_dir}_plan --pipeline-execution-id "$EXE_ID" --abandon --reason "no changes"
+        elif [ "$EXITCODE" -eq "1" ] ; then
+          echo "================================ Error: fail the build"
+          (exit 1)
+        else
+          echo "================================ There are changes: proceed to the next step"
+          (exit 0)
+        fi
 
   post_build:
     commands:

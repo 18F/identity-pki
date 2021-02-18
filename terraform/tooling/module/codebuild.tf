@@ -41,10 +41,10 @@ resource "aws_iam_role_policy" "auto_terraform" {
     {
       "Effect": "Allow",
       "Resource": [
-        "arn:aws:codebuild:${var.region}:${data.aws_caller_identity.current.account_id}:project/auto_terraform*"
+        "arn:aws:codepipeline:${var.region}:${data.aws_caller_identity.current.account_id}:auto_terraform*"
       ],
       "Action": [
-        "codebuild:StopBuild"
+        "codepipeline:StopPipelineExecution"
       ]
     },
     {
