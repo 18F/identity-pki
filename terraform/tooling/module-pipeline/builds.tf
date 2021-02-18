@@ -57,9 +57,6 @@ phases:
       - . ./env-vars.sh
       - unset AWS_PROFILE
       - export AWS_STS_REGIONAL_ENDPOINTS=regional
-      - export ORIG_AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
-      - export ORIG_AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-      - export ORIG_AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN
       - roledata=$(aws sts assume-role --role-arn "arn:aws:iam::$aws_account_id:role/AutoTerraform" --role-session-name "auto-tf-plan")
       - export AWS_ACCESS_KEY_ID=$(echo $roledata | jq -r .Credentials.AccessKeyId)
       - export AWS_SECRET_ACCESS_KEY=$(echo $roledata | jq -r .Credentials.SecretAccessKey)
@@ -67,8 +64,10 @@ phases:
       - 
       - # XXX should we init things here? or just do it one time by hand?  ./bin/deploy/configure_state_bucket.sh
       - terraform init -backend-config=bucket=$TERRAFORM_STATE_BUCKET -backend-config=key=terraform-$TF_DIR.tfstate -backend-config=dynamodb_table=$ID_state_lock_table -backend-config=region=$TERRAFORM_STATE_BUCKET_REGION
-      - terraform plan -lock-timeout=120s > "$CODEBUILD_SRC_DIR_${local.clean_tf_dir}_plan_output/plan.out"
-      - env | cat -n
+      - terraform plan -lock-timeout=120s 2>&1 > "$CODEBUILD_SRC_DIR_${local.clean_tf_dir}_plan_output/plan.out"
+      - cat -n "$CODEBUILD_SRC_DIR_${local.clean_tf_dir}_plan_output/plan.out"
+      - env | sort | cat -n
+      - find /codebuild -type d
 
   post_build:
     commands:
