@@ -74,7 +74,8 @@ phases:
           export AWS_ACCESS_KEY_ID=$ORIG_AWS_ACCESS_KEY_ID
           export AWS_SECRET_ACCESS_KEY=$ORIG_AWS_SECRET_ACCESS_KEY
           export AWS_SESSION_TOKEN=$ORIG_AWS_SESSION_TOKEN
-          EXE_ID=$(aws codepipeline get-pipeline-state --region ${var.region} --name $CODEBUILD_INITIATOR --query 'stageStates[?actionStates[?latestExecution.externalExecutionId==`'$CODEBUILD_BUILD_ID'`]].latestExecution.pipelineExecutionId' --output text
+          EXE_NAME=$(echo $CODEBUILD_INITIATOR | awk -F/ '{print $2}')
+          EXE_ID=$(aws codepipeline get-pipeline-state --region ${var.region} --name $EXE_NAME | jq -r ".stageStates[] | select(.actionStates[].latestExecution.externalExecutionId == \"$CODEBUILD_BUILD_ID\") | .latestExecution.pipelineExecutionId")
 )
           aws codepipeline stop-pipeline-execution --pipeline-name auto_terraform_${local.clean_tf_dir}_plan --pipeline-execution-id "$EXE_ID" --abandon --reason "no changes"
         elif [ "$EXITCODE" -eq "1" ] ; then
