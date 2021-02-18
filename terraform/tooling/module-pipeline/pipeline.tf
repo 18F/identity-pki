@@ -61,6 +61,9 @@ phases:
       - . ./env-vars.sh
       - unset AWS_PROFILE
       - export AWS_STS_REGIONAL_ENDPOINTS=regional
+      - export ORIG_AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+      - export ORIG_AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+      - export ORIG_AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN
       - roledata=$(aws sts assume-role --role-arn "arn:aws:iam::$aws_account_id:role/AutoTerraform" --role-session-name "auto-tf-plan")
       - export AWS_ACCESS_KEY_ID=$(echo $roledata | jq -r .Credentials.AccessKeyId)
       - export AWS_SECRET_ACCESS_KEY=$(echo $roledata | jq -r .Credentials.SecretAccessKey)
@@ -73,6 +76,9 @@ phases:
         if [ "$EXITCODE" = "" ] ; then
           echo "================================  No changes: stop pipeline"
           EXE_ID=$(echo $CODEBUILD_BUILD_ID | awk -F: '{print $2}')
+          export AWS_ACCESS_KEY_ID=$ORIG_AWS_ACCESS_KEY_ID
+          export AWS_SECRET_ACCESS_KEY=$ORIG_AWS_SECRET_ACCESS_KEY
+          export AWS_SESSION_TOKEN=$ORIG_AWS_SESSION_TOKEN
           aws codepipeline stop-pipeline-execution --pipeline-name auto_terraform_${local.clean_tf_dir}_plan --pipeline-execution-id "$EXE_ID" --no-abandon --reason no_changes
         elif [ "$EXITCODE" -eq "1" ] ; then
           echo "================================ Error: fail the build"
