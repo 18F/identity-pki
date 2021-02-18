@@ -77,7 +77,7 @@ phases:
           EXE_NAME=$(echo $CODEBUILD_INITIATOR | awk -F/ '{print $2}')
           EXE_ID=$(aws codepipeline get-pipeline-state --region "${var.region}" --name "$EXE_NAME" | jq -r ".stageStates[] | select(.actionStates[].latestExecution.externalExecutionId == \"$CODEBUILD_BUILD_ID\") | .latestExecution.pipelineExecutionId")
 )
-          aws codepipeline stop-pipeline-execution --pipeline-name "auto_terraform_${local.clean_tf_dir}_plan" --pipeline-execution-id "$EXE_ID" --abandon --reason no_changes
+          # aws codepipeline stop-pipeline-execution --pipeline-name "auto_terraform_${local.clean_tf_dir}_plan" --pipeline-execution-id "$EXE_ID" --abandon --reason no_changes
         elif [ "$EXITCODE" -eq "1" ] ; then
           echo "================================ Error: fail the build"
           (exit 1)
