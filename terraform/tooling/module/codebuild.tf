@@ -40,6 +40,15 @@ resource "aws_iam_role_policy" "auto_terraform" {
     },
     {
       "Effect": "Allow",
+      "Resource": [
+        "arn:aws:codepipeline:${var.region}:${data.aws_caller_identity.current.account_id}:auto_terraform*"
+      ],
+      "Action": [
+        "codepipeline:StopPipelineExecution"
+      ]
+    },
+    {
+      "Effect": "Allow",
       "Action": [
         "ec2:CreateNetworkInterface",
         "ec2:DescribeDhcpOptions",
