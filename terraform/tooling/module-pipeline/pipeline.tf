@@ -75,10 +75,10 @@ phases:
           EXE_ID=$(echo $CODEBUILD_BUILD_ID | awk -F: '{print $2}')
           aws codepipeline stop-pipeline-execution --pipeline-name auto_terraform_${local.clean_tf_dir}_plan --pipeline-execution-id "$EXE_ID" --no-abandon --reason no_changes
         elif [ "$EXITCODE" -eq "1" ] ; then
-          echo "================================  Error: fail the build"
+          echo "================================ Error: fail the build"
           (exit 1)
         else
-          echo "================================  There are changes: proceed to the next step"
+          echo "================================ There are changes: proceed to the next step"
           (exit 0)
         fi
 
