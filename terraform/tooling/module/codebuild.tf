@@ -45,6 +45,7 @@ resource "aws_iam_role_policy" "auto_terraform" {
       ],
       "Action": [
         "codepipeline:StopPipelineExecution",
+        "codepipeline:GetPipeline",
         "codepipeline:GetPipelineState"
       ]
     },
