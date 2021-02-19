@@ -29,3 +29,7 @@ resource "aws_sns_topic" "autoscaling_events" {
   name              = "autoscaling-launch-events"
   kms_master_key_id = "alias/aws/sns"
 }
+
+resource "aws_sns_topic" "rds_snapshot_events" {
+  name              = "rds-snapshot-events"
+}
