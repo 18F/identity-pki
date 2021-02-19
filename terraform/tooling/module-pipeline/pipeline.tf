@@ -118,6 +118,7 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
 
       configuration = {
         ProjectName = "auto_terraform_${local.clean_tf_dir}_apply"
+        PrimarySource = "${local.clean_tf_dir}_source_output"
       }
     }
   }
