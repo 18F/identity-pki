@@ -83,7 +83,7 @@ module "slack_lambda_usw2" {
   #source = "../../../../identity-terraform/slack_lambda"
 
   lambda_name                 = "snstoslack_login_${each.key}"
-  lambda_description          = "Sends messages to #login-${each.key} Slack channel via SNS subscription. "
+  lambda_description          = "Sends messages to #login-${each.key} Slack channel via SNS subscription."
   slack_webhook_url_parameter = local.slack_webhook_ssm_param_name
   slack_channel               = each.value
   slack_username              = var.slack_username
