@@ -55,8 +55,3 @@ variable "tfbundle" {
   description = "name of the tfbundle that you want the system to deploy with in the auto_tf_bucket"
   default = "terraform_0.13.5-bundle2021020601_linux_amd64.zip"
 }
-
-variable "output_path" {
-  description = "where the output artifacts get put"
-  default = "/plan_output"
-}

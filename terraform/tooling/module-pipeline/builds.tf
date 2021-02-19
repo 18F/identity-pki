@@ -9,7 +9,6 @@ resource "aws_codebuild_project" "auto_terraform_plan" {
 
   artifacts {
     type = "CODEPIPELINE"
-    path = var.output_path
   }
 
   cache {
@@ -65,14 +64,17 @@ phases:
       - 
       - # XXX should we init things here? or just do it one time by hand?  ./bin/deploy/configure_state_bucket.sh
       - terraform init -backend-config=bucket=$TERRAFORM_STATE_BUCKET -backend-config=key=terraform-$TF_DIR.tfstate -backend-config=dynamodb_table=$ID_state_lock_table -backend-config=region=$TERRAFORM_STATE_BUCKET_REGION
-      - env | sort | cat -n
-      - echo  "$CODEBUILD_SRC_DIR_${local.clean_tf_dir}_plan_output/plan.out"
-      - terraform plan -lock-timeout=120s 2>&1 > "$CODEBUILD_SRC_DIR_${local.clean_tf_dir}_plan_output/plan.out"
-      - cat -n "$CODEBUILD_SRC_DIR_${local.clean_tf_dir}_plan_output/plan.out"
+      - terraform plan -lock-timeout=120s 2>&1 > /plan.out
+      - cat -n /plan.out
 
   post_build:
     commands:
       - echo "================================ Terraform plan completed on `date`"
+
+artifacts:
+  files:
+    - /plan.out
+
     EOT
   }
   source_version = var.gitref
