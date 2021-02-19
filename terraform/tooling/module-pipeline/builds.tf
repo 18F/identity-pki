@@ -229,6 +229,10 @@ resource "aws_codebuild_project" "auto_terraform_test" {
 version: 0.2
 
 phases:
+  install:
+    runtime-versions:
+      golang: 1.15
+
   build:
     commands:
       - cd terraform/$TF_DIR/
