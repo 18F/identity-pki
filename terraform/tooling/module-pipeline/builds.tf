@@ -1,4 +1,8 @@
 # This file contains all the codebuild jobs that are used by the pipeline
+variable "output_path" {
+  description = "where the output artifacts get put"
+  default = "/plan_output"
+}
 
 # How to run a terraform plan
 resource "aws_codebuild_project" "auto_terraform_plan" {
@@ -9,6 +13,7 @@ resource "aws_codebuild_project" "auto_terraform_plan" {
 
   artifacts {
     type = "CODEPIPELINE"
+    path = var.output_path
   }
 
   cache {
@@ -64,10 +69,10 @@ phases:
       - 
       - # XXX should we init things here? or just do it one time by hand?  ./bin/deploy/configure_state_bucket.sh
       - terraform init -backend-config=bucket=$TERRAFORM_STATE_BUCKET -backend-config=key=terraform-$TF_DIR.tfstate -backend-config=dynamodb_table=$ID_state_lock_table -backend-config=region=$TERRAFORM_STATE_BUCKET_REGION
-      - terraform plan -lock-timeout=120s 2>&1 > "$CODEBUILD_SRC_DIR_${local.clean_tf_dir}_plan_output/plan.out"
-      - cat -n "$CODEBUILD_SRC_DIR_${local.clean_tf_dir}_plan_output/plan.out"
+      - terraform plan -lock-timeout=120s 2>&1 > "${var.output_path}/plan.out"
+      - echo  "${var.output_path}/plan.out"
+      - cat -n "${var.output_path}/plan.out"
       - env | sort | cat -n
-      - find /codebuild -type d
 
   post_build:
     commands:
