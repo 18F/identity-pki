@@ -1,6 +1,7 @@
 package test
 
 import (
+	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -46,6 +47,7 @@ func FindStatusForPipeline(t *testing.T, pipeline string, stage string) string {
 		assert.Equal(t, len(sourceStageStatus), 1)
 
 		if sourceStageStatus[0] == "InProgress" {
+			fmt.Printf("sleeping until %s stage is no longer InProgress...\n", stage)
 			time.Sleep(2)
 		} else {
 			break
