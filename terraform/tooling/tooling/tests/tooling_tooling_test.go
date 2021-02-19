@@ -68,3 +68,7 @@ func TestToolingtoolingPipelineCanPlan(t *testing.T) {
 	assert.Equal(t, "Succeeded", status)
 	time.Sleep(1)
 }
+
+func TestFailure(t *testing.T) {
+	assert.Equal(t, "yes", "no")
+}
