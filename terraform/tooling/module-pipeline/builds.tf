@@ -64,7 +64,7 @@ phases:
       - 
       - # XXX should we init things here? or just do it one time by hand?  ./bin/deploy/configure_state_bucket.sh
       - terraform init -backend-config=bucket=$TERRAFORM_STATE_BUCKET -backend-config=key=terraform-$TF_DIR.tfstate -backend-config=dynamodb_table=$ID_state_lock_table -backend-config=region=$TERRAFORM_STATE_BUCKET_REGION
-      - terraform plan -lock-timeout=120s -out /plan.tfplan 2>&1 > /plan.out
+      - terraform plan -lock-timeout=180s -out /plan.tfplan 2>&1 > /plan.out
       - cat -n /plan.out
 
   post_build:
@@ -161,7 +161,7 @@ phases:
       - 
       - # XXX should we init things here? or just do it one time by hand?  ./bin/deploy/configure_state_bucket.sh
       - terraform init -backend-config=bucket=$TERRAFORM_STATE_BUCKET -backend-config=key=terraform-$TF_DIR.tfstate -backend-config=dynamodb_table=$ID_state_lock_table -backend-config=region=$TERRAFORM_STATE_BUCKET_REGION
-      - terraform apply -auto-approve -lock-timeout=120s $CODEBUILD_SRC_DIR_${local.clean_tf_dir}_plan_output/plan.tfplan
+      - terraform apply -auto-approve -lock-timeout=180s $CODEBUILD_SRC_DIR_${local.clean_tf_dir}_plan_output/plan.tfplan
 
   post_build:
     commands:
