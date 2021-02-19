@@ -1,8 +1,4 @@
 # This file contains all the codebuild jobs that are used by the pipeline
-variable "output_path" {
-  description = "where the output artifacts get put"
-  default = "/plan_output"
-}
 
 # How to run a terraform plan
 resource "aws_codebuild_project" "auto_terraform_plan" {
