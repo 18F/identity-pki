@@ -235,9 +235,9 @@ phases:
       - . ./env-vars.sh
       - |
         if [ -x tests/test.sh ] ; then
-          echo "tests found:  "
+          echo "tests found:  executing"
           cd tests
-          ./test.sh
+          sh -x ./test.sh
         else
           echo "no tests found:  continuing"
           exit 0

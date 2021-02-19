@@ -54,6 +54,8 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
     }
   }
 
+  # XXX Implement build/test/destroy of env in the scratch environment
+
   # stage {
   #   name = "BuildTestEnv"
 
