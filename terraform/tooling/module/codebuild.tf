@@ -44,7 +44,6 @@ resource "aws_iam_role_policy" "auto_terraform" {
         "arn:aws:codepipeline:${var.region}:${data.aws_caller_identity.current.account_id}:auto_terraform*"
       ],
       "Action": [
-        "codepipeline:StopPipelineExecution",
         "codepipeline:GetPipeline",
         "codepipeline:GetPipelineState"
       ]
