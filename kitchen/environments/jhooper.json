@@ -12,10 +12,6 @@
     },
     "login_dot_gov": {
       "deploy_branch_default": "master",
-      "deploy_branch": {
-        "identity-idp": "stages/jhooper",
-        "identity-pivcac": "stages/jhooper"
-      },
       "idp_run_migrations": true,
       "allow_unsafe_migrations": true,
       "idp_sync_static": false
