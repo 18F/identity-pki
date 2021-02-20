@@ -34,7 +34,7 @@ resource "aws_route_table" "auto_terraform_private" {
   vpc_id = aws_vpc.auto_terraform.id
   route {
     cidr_block = "0.0.0.0/0"
-    vpc_endpoint_id = data.aws_vpc_endpoint.networkfw.id
+    nat_gateway_id = aws_nat_gateway.auto_terraform.id
   }
 
   tags = {
@@ -76,7 +76,7 @@ resource "aws_route_table" "auto_terraform_public" {
   vpc_id = aws_vpc.auto_terraform.id
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.auto_terraform.id
+    vpc_endpoint_id = data.aws_vpc_endpoint.networkfw.id
   }
 
   tags = {

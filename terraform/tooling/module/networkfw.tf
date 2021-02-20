@@ -67,7 +67,7 @@ resource "aws_route_table" "auto_terraform_fw" {
   vpc_id = aws_vpc.auto_terraform.id
   route {
     cidr_block = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.auto_terraform.id
+    gateway_id = aws_internet_gateway.auto_terraform.id
   }
 
   tags = {

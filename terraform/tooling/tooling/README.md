@@ -20,13 +20,8 @@ since it will be the lever that can move anything in the login.gov system.
 
 ## Issues
 
-* It was a huge PITA to figure out how to grant access to the terraform role from
-  the auto-tf role.
 * Some endpoints cannot be turned into VPC endpoints.  Grr.  So we set up
   a Network Firewall for them.
-    * iam.amazonaws.com
-    * sts.us-east-1.amazonaws.com
-    * access-analyzer.us-west-2.amazonaws.com
 * If the build fails because it takes too long or you stop the build,
   it just kills everything immediately rather than gracefully letting terraform
   unlock itself.  So if a build takes too long, you may need to unlock
