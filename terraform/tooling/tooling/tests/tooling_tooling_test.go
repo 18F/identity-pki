@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"testing"
 	"time"
@@ -67,4 +68,12 @@ func TestToolingtoolingPipelineCanPlan(t *testing.T) {
 	status := FindStatusForPipeline(t, "auto_terraform_tooling_tooling_pipeline", "Plan")
 	assert.Equal(t, "Succeeded", status)
 	time.Sleep(1)
+}
+
+func TestNetworkFirewall(t *testing.T) {
+	_, err := http.Get("https://www.gsa.gov/")
+	require.Error(t, err, "The network firewall seems to be allowing through traffic to http://www.gsa.gov/, which means it is not blocking websites.")
+
+	_, err = http.Get("https://github.com/")
+	require.NoError(t, err, "The network firewall is blocking traffic to github.com, which it should be allowing.")
 }
