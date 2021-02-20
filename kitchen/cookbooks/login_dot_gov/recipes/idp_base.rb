@@ -1,3 +1,4 @@
+# Static resource compilation requirements
 apt_package 'nodejs' do
   action :upgrade
 end
@@ -6,6 +7,14 @@ apt_package 'yarn' do
   version node['login_dot_gov']['yarn_version']
 end
 
+# Required for Canvas - Used in static resource compilation
+package 'libcairo2-dev'
+package 'libpango1.0-dev'
+package 'libjpeg-dev'
+package 'libgif-dev'
+package 'librsvg2-dev'
+
+# CloudHSM support - Unused
 if node.fetch('login_dot_gov').fetch('cloudhsm_enabled')
   Chef::Log.info('CloudHSM is enabled')
   include_recipe 'login_dot_gov::cloudhsm'
