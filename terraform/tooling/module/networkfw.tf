@@ -15,6 +15,7 @@ resource "aws_networkfirewall_rule_group" "networkfw" {
         targets              = [
           ".amazonaws.com",
           "proxy.golang.org",
+          "storage.googleapis.com",
           "github.com"
         ]
       }
