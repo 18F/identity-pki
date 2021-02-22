@@ -45,7 +45,6 @@ module "main" {
     "ingest-threat-feed-into-gdthreatfeedoutputbucket-172rf8w89zof0",
     "ingestthreatfeedsintogua-gdthreatfeedoutputbucket-11crg9yz9gmez",
     "lg-af-test-bucket",
-    "login-dot-gov-devops.894947205914-us-west-2",
     "login-dot-gov-secops.894947205914-us-west-2",
     "login-dot-gov-tf-state-894947205914",
     "login-gov-app-deployment-crissupb-894947205914-us-west-2",
@@ -64,7 +63,6 @@ module "main" {
     "login-test-backup",
     "overbridgeconfigbucket-us-west-2-894947205914",
     "pauldoom-cw-cleanup",
-    "spinnaker-config-wren",
     "testingbucketgas",
   ]
 
