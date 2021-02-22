@@ -1,14 +1,6 @@
 # This is where all the VPC and networking stuff is set up for the codebuild/pipeline
 # stuff to use.
 #
-# It mainly sets up a private subnet which codebuild runs in, a public subnet
-# where a NAT gateway lives, and an internet gateway that the NAT gateway sends
-# it's traffic to the world.  There is also a firewall subnet in the networkfw.tf
-# file which the private subnet sends it's traffic through a Network Firewall.
-# The Network Firewall then sends it's stuff to the NAT gateway and thus to the
-# rest of the world.  We need the networkfw so that terraform can access services
-# which cannot be VPC endpoints like iam.amazonaws.com and also allow out traffic
-# to github.com.
 
 resource "aws_vpc" "auto_terraform" {
   cidr_block = var.vpc_cidr
