@@ -14,6 +14,7 @@ resource "aws_networkfirewall_rule_group" "networkfw" {
         target_types         = ["HTTP_HOST", "TLS_SNI"]
         targets              = [
           ".amazonaws.com",
+          "proxy.golang.org",
           "github.com"
         ]
       }
