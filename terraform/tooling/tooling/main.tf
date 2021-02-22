@@ -37,6 +37,7 @@ module "main" {
 #   auto_tf_pipeline_role_arn = module.main.auto_tf_pipeline_role_arn
 # }
 
+
 # deploy the all/tooling target to the tooling account on the tspencer/notbrickhouseautomation branch
 module "alltooling" {
   region = "us-west-2"
@@ -57,6 +58,7 @@ module "alltooling" {
   auto_tf_bucket_id = module.main.auto_tf_bucket_id
   auto_tf_pipeline_role_arn = module.main.auto_tf_pipeline_role_arn
 }
+
 
 # deploy the tooling/tooling target to the tooling account on the tspencer/notbrickhouseautomation branch
 # XXX not sure, but this might not work super well if a pipeline is reconfigured while running.

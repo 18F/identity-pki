@@ -29,7 +29,6 @@ resource "aws_subnet" "auto_terraform_private" {
   }
 }
 
-
 resource "aws_route_table" "auto_terraform_private" {
   vpc_id = aws_vpc.auto_terraform.id
   route {
@@ -98,6 +97,24 @@ resource "aws_internet_gateway" "auto_terraform" {
     Name = "auto_terraform"
   }
 }
+
+resource "aws_route_table" "auto_terraform_igw" {
+  vpc_id = aws_vpc.auto_terraform.id
+  route {
+    cidr_block = aws_subnet.auto_terraform_public.cidr_block
+    vpc_endpoint_id = data.aws_vpc_endpoint.networkfw.id
+  }
+
+  tags = {
+    Name = "auto_terraform route back to nat gateway"
+  }
+}
+
+resource "aws_route_table_association" "auto_terraform_igw" {
+  gateway_id     = aws_internet_gateway.auto_terraform.id
+  route_table_id = aws_route_table.auto_terraform_igw.id
+}
+
 
 # security groups
 resource "aws_security_group" "auto_terraform" {
