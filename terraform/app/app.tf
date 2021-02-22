@@ -245,20 +245,20 @@ resource "aws_iam_role_policy" "app-xray-publish" {
   policy = data.aws_iam_policy_document.xray-publish-policy.json
 }
 
-data "aws_sns_topic" "autoscaling_events_data" {
-  name = "autoscaling_events"
-}
+# data "aws_sns_topic" "autoscaling_events_data" {
+#   name = "autoscaling_events"
+# }
 
-resource "aws_autoscaling_notification" "application" {
-  group_names = [
-    aws_autoscaling_group.idp.name,
-    aws_autoscaling_group.idpxtra.name,
-    aws_autoscaling_group.pivcac.name,
-  ]
+# resource "aws_autoscaling_notification" "application" {
+#   group_names = [
+#     aws_autoscaling_group.idp.name,
+#     aws_autoscaling_group.idpxtra.name,
+#     aws_autoscaling_group.pivcac.name,
+#   ]
 
-  notifications = [
-    "autoscaling:EC2_INSTANCE_LAUNCH",
-  ]
+#   notifications = [
+#     "autoscaling:EC2_INSTANCE_LAUNCH",
+#   ]
 
-  topic_arn = data.aws_sns_topic.autoscaling_events_data.arn
-}
+#   topic_arn = data.aws_sns_topic.autoscaling_events_data.arn
+# }
