@@ -58,7 +58,7 @@ output "idp_db_endpoint" {
 }
 
 data "aws_sns_topic" "rds_snapshot_events" {
-  name = "rds_snapshot_events"
+  name = "rds-snapshot-events"
 }
 
 resource "aws_db_event_subscription" "idp" {
