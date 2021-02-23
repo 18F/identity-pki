@@ -107,6 +107,24 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
   #   }
   # }
 
+  # # Approval step
+  # stage {
+  #   name = "Approve"
+
+  #   action {
+  #     name     = "Approval"
+  #     category = "Approval"
+  #     owner    = "AWS"
+  #     provider = "Manual"
+  #     version  = "1"
+
+  #   #   configuration = {
+  #   #     NotificationArn = "arn:aws:sns:${var.region}:${data.aws_caller_identity.current.account_id}:${var.events_sns_topic}"
+  #   #     CustomData = "${var.tf_dir} on ${var.gitref} needs approval for rollout to ${var.account}"
+  #   #   }
+  #   }
+  # }
+
   stage {
     name = "Apply"
 

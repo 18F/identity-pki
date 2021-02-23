@@ -155,7 +155,8 @@ locals {
         "codebuild:*",
         "codepipeline:*",
         "codecommit:*",
-        "codedeploy:*"
+        "codedeploy:*",
+        "codestar-notifications:*"
       ]
       resources = [
         "*",
