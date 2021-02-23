@@ -7,7 +7,7 @@ locals {
 
 # pipeline that does the plan/approve/deploy/test
 resource "aws_codepipeline" "auto_tf_pipeline" {
-  name     = "auto_terraform_${local.clean_tf_dir}_${var.env_name}_pipeline"
+  name     = "auto_terraform_${local.clean_tf_dir}_${var.env_name}"
   role_arn = var.auto_tf_pipeline_role_arn
 
   artifact_store {
