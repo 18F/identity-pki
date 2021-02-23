@@ -59,7 +59,7 @@ phases:
   build:
     commands:
       - cd terraform/$TF_DIR
-      - . ./env-vars.sh
+      - if [ -f ./env-vars.sh ] ; then . ./env-vars.sh ; fi
       - unset AWS_PROFILE
       - export AWS_STS_REGIONAL_ENDPOINTS=regional
       - roledata=$(aws sts assume-role --role-arn "arn:aws:iam::$aws_account_id:role/AutoTerraform" --role-session-name "auto-tf-plan")
@@ -156,7 +156,7 @@ phases:
   build:
     commands:
       - cd terraform/$TF_DIR
-      - . ./env-vars.sh
+      - if [ -f ./env-vars.sh ] ; then . ./env-vars.sh ; fi
       - unset AWS_PROFILE
       - export AWS_STS_REGIONAL_ENDPOINTS=regional
       - roledata=$(aws sts assume-role --role-arn "arn:aws:iam::${var.account}:role/AutoTerraform" --role-session-name "auto-tf-apply")
@@ -241,7 +241,7 @@ phases:
   build:
     commands:
       - cd terraform/$TF_DIR/
-      - . ./env-vars.sh
+      - if [ -f ./env-vars.sh ] ; then . ./env-vars.sh ; fi
       - |
         if [ -x tests/test.sh ] ; then
           echo "tests found:  executing"
