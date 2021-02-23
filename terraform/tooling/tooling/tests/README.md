@@ -36,7 +36,7 @@ assume that role in the `test.sh` script before running terratest.
 ## Updating dependencies
 
 We want our tests to be fully contained and not require external resources
-to build and run.  To that end, we are vendoring the goland dependencies
+to build and run.  To that end, we are vendoring the golang dependencies
 in the `tests` dir.
 
 To update that, just say `go mod vendor`, and it should update the

@@ -61,7 +61,6 @@ module "alltooling" {
 
 
 # deploy the tooling/tooling target to the tooling account on the tspencer/notbrickhouseautomation branch
-# XXX not sure, but this might not work super well if a pipeline is reconfigured while running.
 module "toolingtooling" {
   region = "us-west-2"
   source = "../module-pipeline"
