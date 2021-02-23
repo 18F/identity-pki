@@ -1,5 +1,10 @@
 # This file contains all the codebuild jobs that are used by the pipeline
 
+# This lets us set the vars files if somebody gives us an env_name
+locals {
+  vars_files = (var.env_name == "" ? "" : "-var-file /identity-devops-private/vars/base.tfvars -var-file /identity-devops-private/vars/account_global_${var.account}.tfvars -var-file /identity-devops-private/vars/${var.env_name}.tfvars")
+}
+
 # How to run a terraform plan
 resource "aws_codebuild_project" "auto_terraform_plan" {
   name           = "auto_terraform_${local.clean_tf_dir}_plan"
@@ -64,7 +69,7 @@ phases:
       - 
       - # XXX should we init things here? or just do it one time by hand?  ./bin/deploy/configure_state_bucket.sh
       - terraform init -backend-config=bucket=$TERRAFORM_STATE_BUCKET -backend-config=key=terraform-$TF_DIR.tfstate -backend-config=dynamodb_table=$ID_state_lock_table -backend-config=region=$TERRAFORM_STATE_BUCKET_REGION
-      - terraform plan -lock-timeout=180s -out /plan.tfplan 2>&1 > /plan.out
+      - terraform plan -lock-timeout=180s -out /plan.tfplan ${local.vars_files} 2>&1 > /plan.out
       - cat -n /plan.out
 
   post_build:
@@ -154,14 +159,14 @@ phases:
       - . ./env-vars.sh
       - unset AWS_PROFILE
       - export AWS_STS_REGIONAL_ENDPOINTS=regional
-      - roledata=$(aws sts assume-role --role-arn "arn:aws:iam::$aws_account_id:role/AutoTerraform" --role-session-name "auto-tf-apply")
+      - roledata=$(aws sts assume-role --role-arn "arn:aws:iam::${var.account}:role/AutoTerraform" --role-session-name "auto-tf-apply")
       - export AWS_ACCESS_KEY_ID=$(echo $roledata | jq -r .Credentials.AccessKeyId)
       - export AWS_SECRET_ACCESS_KEY=$(echo $roledata | jq -r .Credentials.SecretAccessKey)
       - export AWS_SESSION_TOKEN=$(echo $roledata | jq -r .Credentials.SessionToken)
       - 
       - # XXX should we init things here? or just do it one time by hand?  ./bin/deploy/configure_state_bucket.sh
       - terraform init -backend-config=bucket=$TERRAFORM_STATE_BUCKET -backend-config=key=terraform-$TF_DIR.tfstate -backend-config=dynamodb_table=$ID_state_lock_table -backend-config=region=$TERRAFORM_STATE_BUCKET_REGION
-      - terraform apply -auto-approve -lock-timeout=180s $CODEBUILD_SRC_DIR_${local.clean_tf_dir}_plan_output/plan.tfplan
+      - terraform apply -auto-approve -lock-timeout=180s ${local.vars_files} $CODEBUILD_SRC_DIR_${local.clean_tf_dir}_plan_output/plan.tfplan
 
   post_build:
     commands:
