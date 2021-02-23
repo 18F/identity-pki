@@ -142,3 +142,16 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
     }
   }
 }
+
+# notifications!
+resource "aws_codestarnotifications_notification_rule" "pipeline" {
+  detail_type    = "BASIC"
+  event_type_ids = ["codepipeline-pipeline-pipeline-execution-failed", "codepipeline-pipeline-pipeline-execution-started", "codepipeline-pipeline-pipeline-execution-succeeded"]
+
+  name     = "auto_terraform_${local.clean_tf_dir}_event_notifications"
+  resource = aws_codepipeline.auto_tf_pipeline.arn
+
+  target {
+    address = "arn:aws:sns:${var.region}:${data.aws_caller_identity.current.account_id}:${var.events_sns_topic}"
+  }
+}

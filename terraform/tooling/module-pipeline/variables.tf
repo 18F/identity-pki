@@ -56,3 +56,8 @@ variable "tfbundle" {
   description = "name of the tfbundle that you want the system to deploy with in the auto_tf_bucket"
   default = "terraform_0.13.5-bundle2021020601_linux_amd64.zip"
 }
+
+variable "events_sns_topic" {
+  description = "name of the sns topic to send events to"
+  default = "slack-otherevents"
+}
