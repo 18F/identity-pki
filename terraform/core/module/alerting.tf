@@ -24,3 +24,8 @@ module "sns_slack" {
   sns_subscription_email_address_list = [data.aws_s3_bucket_object.slack_sns_email.body]
   sns_topic_display_name              = var.slack_sns_name
 }
+
+resource "aws_sns_topic" "autoscaling_events" {
+  name              = "autoscaling-launch-events"
+  kms_master_key_id = "alias/aws/sns"
+}

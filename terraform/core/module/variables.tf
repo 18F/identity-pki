@@ -130,3 +130,8 @@ variable "bucket_list_ue1" {
   type        = list(any)
   default     = []
 }
+
+variable "slack_events_sns_hook_arn" {
+  description = "Slack sns topic"
+  type = string
+}
