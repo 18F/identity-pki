@@ -2,7 +2,7 @@
 
 # This lets us set the vars files if somebody gives us an env_name
 locals {
-  vars_files = (var.env_name == "" ? "" : "-var-file /identity-devops-private/vars/base.tfvars -var-file /identity-devops-private/vars/account_global_${var.account}.tfvars -var-file /identity-devops-private/vars/${var.env_name}.tfvars")
+  vars_files = (var.env_name == "" ? "" : "-var-file $CODEBUILD_SRC_DIR_${local.clean_tf_dir}_private_output/vars/base.tfvars -var-file $CODEBUILD_SRC_DIR_${local.clean_tf_dir}_private_output/vars/account_global_${var.account}.tfvars -var-file $CODEBUILD_SRC_DIR_${local.clean_tf_dir}_private_output/vars/${var.env_name}.tfvars")
 }
 
 # How to run a terraform plan

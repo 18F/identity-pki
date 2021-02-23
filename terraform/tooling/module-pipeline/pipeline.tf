@@ -33,7 +33,21 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
         OAuthToken = data.aws_s3_bucket_object.identity_devops_oauthkey.body
       }
     }
+    action {
+      name             = "identity-devops-private"
+      category         = "Source"
+      owner            = "ThirdParty"
+      provider         = "GitHub"
+      version          = "1"
+      output_artifacts = ["${local.clean_tf_dir}_private_output"]
 
+      configuration = {
+        Owner      = "18F"
+        Repo       = "identity-devops-private"
+        Branch     = "master"
+        OAuthToken = data.aws_s3_bucket_object.identity_devops_oauthkey.body
+      }
+    }
   }
 
   stage {
@@ -45,11 +59,12 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
       owner            = "AWS"
       provider         = "CodeBuild"
       version          = "1"
-      input_artifacts  = ["${local.clean_tf_dir}_source_output"]
+      input_artifacts  = ["${local.clean_tf_dir}_source_output", "${local.clean_tf_dir}_private_output"]
       output_artifacts = ["${local.clean_tf_dir}_plan_output"]
 
       configuration = {
         ProjectName = "auto_terraform_${local.clean_tf_dir}_plan"
+        PrimarySource = "${local.clean_tf_dir}_source_output"
       }
     }
   }
@@ -134,7 +149,7 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
       owner            = "AWS"
       provider         = "CodeBuild"
       version          = "1"
-      input_artifacts  = ["${local.clean_tf_dir}_source_output", "${local.clean_tf_dir}_plan_output"]
+      input_artifacts  = ["${local.clean_tf_dir}_source_output", "${local.clean_tf_dir}_plan_output", "${local.clean_tf_dir}_private_output"]
 
       configuration = {
         ProjectName = "auto_terraform_${local.clean_tf_dir}_apply"
