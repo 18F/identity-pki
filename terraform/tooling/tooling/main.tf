@@ -82,7 +82,7 @@ module "toolingtooling" {
 }
 
 # deploy the tspencer environment to the sandbox account on the tspencer/notbrickhouseautomation branch
-module "toolingtooling" {
+module "tspencer" {
   region = "us-west-2"
   source = "../module-pipeline"
 
