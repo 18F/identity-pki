@@ -60,7 +60,7 @@ data "aws_iam_policy_document" "sns_topic_policy_usw2" {
 
     principals {
       type        = "Service"
-      identifiers = ["events.amazonaws.com"]
+      identifiers = ["events.amazonaws.com", "codestar-notifications.amazonaws.com"]
     }
 
     resources = ["arn:aws:sns:us-west-2:${data.aws_caller_identity.current.account_id}:slack-${each.key}"]
