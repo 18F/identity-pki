@@ -41,6 +41,15 @@ resource "aws_iam_role_policy" "auto_terraform" {
     {
       "Effect": "Allow",
       "Resource": [
+        "arn:aws:codestar-notifications:${var.region}:${data.aws_caller_identity.current.account_id}:notificationrule*"
+      ],
+      "Action": [
+        "codestar-notifications:DescribeNotificationRule"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Resource": [
         "arn:aws:codepipeline:${var.region}:${data.aws_caller_identity.current.account_id}:auto_terraform*"
       ],
       "Action": [
