@@ -52,7 +52,7 @@ func TestToolingtoolingPipelineExists(t *testing.T) {
 	svc := codepipeline.New(aws_session)
 
 	input := &codepipeline.GetPipelineInput{
-		Name: aws_sdk.String("auto_terraform_tooling_tooling"),
+		Name: aws_sdk.String("auto_terraform_tooling_tooling_"),
 	}
 	_, err := svc.GetPipeline(input)
 	require.NoError(t, err)
