@@ -1,0 +1,18 @@
+[Unit]
+Description=newrelic-infra
+After=syslog.target network.target
+
+[Service]
+Type=simple
+Environment=
+ExecStart=/usr/bin/newrelic-infra -config=/etc/newrelic-infra/agent.yaml
+User=newrelic_infra
+KillSignal=TERM
+MemoryLimit=1G
+Restart=always
+RestartSec=20
+StartLimitInterval=0
+StartLimitBurst=5
+
+[Install]
+WantedBy=multi-user.target

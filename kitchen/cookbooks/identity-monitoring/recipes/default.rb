@@ -25,3 +25,24 @@ node.default['newrelic_infra']['config']['custom_attributes'] = {
 
 include_recipe 'newrelic-infra'
 
+# kinda a terrible hack until the newrelic people fix their cookbook
+directory '/var/run/newrelic-infra' do
+	owner 'newrelic_infra'
+end
+directory '/tmp/nr-integrations' do
+	owner 'newrelic_infra'
+end
+
+cookbook_file '/etc/systemd/system/newrelic-infra.service' do
+	mode '0644'
+	source 'newrelic-infra.service'
+	owner 'root'
+	group 'root'
+	action :create
+	notifies :run, 'execute[reload_systemd]', :immediately
+end
+
+execute 'reload_systemd' do
+	command "chown -R newrelic_infra /var/db/newrelic-infra ; systemctl daemon-reload ; systemctl restart newrelic-infra"
+	action :nothing
+end
