@@ -16,16 +16,6 @@ import (
 
 var aws_session, err = aws.NewAuthenticatedSession(os.Getenv("AWS_REGION"))
 
-func TestToolingtoolingPipelineExists(t *testing.T) {
-	svc := codepipeline.New(aws_session)
-
-	input := &codepipeline.GetPipelineInput{
-		Name: aws_sdk.String("auto_terraform_tooling_tooling_pipeline"),
-	}
-	_, err := svc.GetPipeline(input)
-	require.NoError(t, err)
-}
-
 func FindStatusForPipeline(t *testing.T, pipeline string, stage string) string {
 	svc := codepipeline.New(aws_session)
 
@@ -58,17 +48,27 @@ func FindStatusForPipeline(t *testing.T, pipeline string, stage string) string {
 	return (sourceStageStatus[0])
 }
 
+func TestToolingtoolingPipelineExists(t *testing.T) {
+	svc := codepipeline.New(aws_session)
+
+	input := &codepipeline.GetPipelineInput{
+		Name: aws_sdk.String("auto_terraform_tooling_tooling"),
+	}
+	_, err := svc.GetPipeline(input)
+	require.NoError(t, err)
+}
+
 func TestToolingtoolingPipelineCanGetSource(t *testing.T) {
 	status := FindStatusForPipeline(t, "auto_terraform_tooling_tooling_", "Source")
 	assert.Equal(t, "Succeeded", status)
 	time.Sleep(1)
 }
 
-func TestToolingtoolingPipelineCanPlan(t *testing.T) {
-	status := FindStatusForPipeline(t, "auto_terraform_tooling_tooling_", "Plan")
-	assert.Equal(t, "Succeeded", status)
-	time.Sleep(1)
-}
+// func TestToolingtoolingPipelineCanPlan(t *testing.T) {
+// 	status := FindStatusForPipeline(t, "auto_terraform_tooling_tooling_", "Plan")
+// 	assert.Equal(t, "Succeeded", status)
+// 	time.Sleep(1)
+// }
 
 func TestNetworkFirewall(t *testing.T) {
 	_, err := http.Get("https://www.gsa.gov/")
