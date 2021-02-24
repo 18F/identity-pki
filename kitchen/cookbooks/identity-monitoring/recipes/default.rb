@@ -16,6 +16,9 @@ end
 node.default['newrelic_infra']['config']['collector_url'] = 'https://gov-infra-api.newrelic.com'
 node.default['newrelic_infra']['config']['identity_url'] = 'https://gov-identity-api.newrelic.com'
 node.default['newrelic_infra']['config']['command_channel_url'] = 'https://gov-infrastructure-command-api.newrelic.com'
+node.default['newrelic_infra']['features']['manage_service_account'] = true
+node.default['newrelic_infra']['user']['name'] = 'newrelic_infra'
+node.default['newrelic_infra']['group']['name'] = 'newrelic_infra'
 
 node.default['newrelic_infra']['config']['custom_attributes'] = {
   'lg_env' => node.chef_environment,
@@ -23,5 +26,4 @@ node.default['newrelic_infra']['config']['custom_attributes'] = {
   'lg_role' => node.fetch('roles').first || 'unknown',
 }
 
-ENV['NRIA_MODE'] = 'UNPRIVILEGED'
 include_recipe 'newrelic-infra'
