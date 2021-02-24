@@ -23,5 +23,5 @@ node.default['newrelic_infra']['config']['custom_attributes'] = {
   'lg_role' => node.fetch('roles').first || 'unknown',
 }
 
+ENV['NRIA_MODE'] = 'UNPRIVILEGED'
 include_recipe 'newrelic-infra'
-
