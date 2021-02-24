@@ -51,27 +51,6 @@ action :create do
     user node['login_dot_gov']['system_user']
   end
 
-  file "#{new_resource.name}/keys/equifax_rsa" do
-    action :create
-    content ConfigLoader.load_config(node, "equifax_ssh_privkey")
-    manage_symlink_source true
-    subscribes :create, 'resource[git]', :immediately
-    owner node.fetch('login_dot_gov').fetch('system_user')
-    group node.fetch('login_dot_gov').fetch('web_system_user')
-    mode '0640'
-    sensitive true
-  end
-
-  file "#{new_resource.name}/keys/equifax_gpg.pub" do
-    action :create
-    content ConfigLoader.load_config(node, "equifax_gpg_public_key")
-    manage_symlink_source true
-    subscribes :create, 'resource[git]', :immediately
-    owner node.fetch('login_dot_gov').fetch('system_user')
-    group node.fetch('login_dot_gov').fetch('web_system_user')
-    sensitive true
-  end
-
   # create symlinks if requested
   if new_resource.symlink_from
 
