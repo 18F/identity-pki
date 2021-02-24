@@ -16,9 +16,6 @@ end
 node.default['newrelic_infra']['config']['collector_url'] = 'https://gov-infra-api.newrelic.com'
 node.default['newrelic_infra']['config']['identity_url'] = 'https://gov-identity-api.newrelic.com'
 node.default['newrelic_infra']['config']['command_channel_url'] = 'https://gov-infrastructure-command-api.newrelic.com'
-node.default['newrelic_infra']['features']['manage_service_account'] = true
-node.default['newrelic_infra']['user']['name'] = 'newrelic_infra'
-node.default['newrelic_infra']['group']['name'] = 'newrelic_infra'
 
 node.default['newrelic_infra']['config']['custom_attributes'] = {
   'lg_env' => node.chef_environment,
@@ -27,3 +24,25 @@ node.default['newrelic_infra']['config']['custom_attributes'] = {
 }
 
 include_recipe 'newrelic-infra'
+
+# kinda a terrible hack until the newrelic people fix https://github.com/newrelic/infrastructure-agent-chef/blob/master/recipes/agent_linux.rb#L111
+directory '/var/run/newrelic-infra' do
+	owner 'newrelic_infra'
+end
+directory '/tmp/nr-integrations' do
+	owner 'newrelic_infra'
+end
+
+cookbook_file '/etc/systemd/system/newrelic-infra.service' do
+	mode '0644'
+	source 'newrelic-infra.service'
+	owner 'root'
+	group 'root'
+	action :create
+	notifies :run, 'execute[reload_systemd]', :immediately
+end
+
+execute 'reload_systemd' do
+	command "chown -R newrelic_infra /var/db/newrelic-infra ; systemctl daemon-reload ; systemctl restart newrelic-infra"
+	action :nothing
+end
