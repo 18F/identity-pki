@@ -59,13 +59,13 @@ func FindStatusForPipeline(t *testing.T, pipeline string, stage string) string {
 }
 
 func TestToolingtoolingPipelineCanGetSource(t *testing.T) {
-	status := FindStatusForPipeline(t, "auto_terraform_tooling_tooling_pipeline", "Source")
+	status := FindStatusForPipeline(t, "auto_terraform_tooling_tooling_", "Source")
 	assert.Equal(t, "Succeeded", status)
 	time.Sleep(1)
 }
 
 func TestToolingtoolingPipelineCanPlan(t *testing.T) {
-	status := FindStatusForPipeline(t, "auto_terraform_tooling_tooling_pipeline", "Plan")
+	status := FindStatusForPipeline(t, "auto_terraform_tooling_tooling_", "Plan")
 	assert.Equal(t, "Succeeded", status)
 	time.Sleep(1)
 }
