@@ -25,7 +25,7 @@ node.default['newrelic_infra']['config']['custom_attributes'] = {
 
 include_recipe 'newrelic-infra'
 
-# kinda a terrible hack until the newrelic people fix https://github.com/newrelic/infrastructure-agent-chef/blob/master/recipes/agent_linux.rb#L111
+# kinda a terrible hack until the newrelic people fix their cookbook
 directory '/var/run/newrelic-infra' do
 	owner 'newrelic_infra'
 end
