@@ -54,7 +54,7 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
     name = "Plan"
 
     action {
-      name             = "Build"
+      name             = "Plan"
       category         = "Test"
       owner            = "AWS"
       provider         = "CodeBuild"
