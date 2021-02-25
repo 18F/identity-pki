@@ -258,14 +258,6 @@ application release_path do
   end
 end
 
-# create GPG binary key for use w/o importing
-execute "gpg --dearmor < /srv/idp/shared/keys/equifax_gpg.pub > /srv/idp/shared/keys/equifax_gpg.pub.bin"
-link "#{release_path}/keys/equifax_gpg.pub.bin" do
-  to "#{shared_path}/keys/equifax_gpg.pub.bin"
-  owner node.fetch('login_dot_gov').fetch('system_user')
-  group node.fetch('login_dot_gov').fetch('system_user')
-end
-
 # symlink chef release to current dir
 link '/srv/idp/current' do
   to '/srv/idp/releases/chef'

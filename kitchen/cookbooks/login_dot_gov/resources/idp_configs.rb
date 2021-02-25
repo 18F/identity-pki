@@ -73,8 +73,6 @@ action :create do
       'keys/oidc.pub',
       'keys/saml2019.key.enc',
       'keys/saml2020.key.enc',
-      'keys/equifax_rsa',
-      'keys/equifax_gpg.pub',
     ].each do |filename|
       link "#{new_resource.symlink_from}/#{filename}" do
         to "#{new_resource.name}/#{filename}"
