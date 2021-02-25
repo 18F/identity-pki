@@ -24,9 +24,10 @@ fi
 
 ENV_NAME="$1"
 case ${ENV_NAME} in
-  staging) COMMON_NAME='staging.login.gov'               ;;
-  prod)    COMMON_NAME='login.gov'                       ;;
-  *)       COMMON_NAME="${ENV_NAME}.identitysandbox.gov" ;;
+  staging)   COMMON_NAME='staging.login.gov'               ;;
+  prod)      COMMON_NAME='login.gov'                       ;;
+  localhost) COMMON_NAME='localhost'                       ;;
+  *)         COMMON_NAME="${ENV_NAME}.identitysandbox.gov" ;;
 esac
 
 DATE_TODAY=$(date -j +%s)
