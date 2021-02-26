@@ -14,12 +14,5 @@ module IdentityPki
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
-
-    config.lograge.custom_options = lambda do |event|
-      event.payload[:timestamp] = Time.zone.now.iso8601
-      event.payload[:uuid] = SecureRandom.uuid
-      event.payload[:pid] = Process.pid
-      event.payload.except(:params, :headers, :request, :response)
-    end
   end
 end

@@ -1136,12 +1136,7 @@ GEM
     listen (3.3.1)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
-    lograge (0.11.2)
-      actionpack (>= 4)
-      activesupport (>= 4)
-      railties (>= 4)
-      request_store (~> 1.0)
-    loofah (2.9.0)
+    loofah (2.7.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     lumberjack (1.2.8)
@@ -1231,8 +1226,6 @@ GEM
       ffi (~> 1.0)
     redis (4.2.4)
     regexp_parser (1.8.2)
-    request_store (1.5.0)
-      rack (>= 1.4)
     rexml (3.2.4)
     rgl (0.5.6)
       lazy_priority_queue (~> 0.1.0)
@@ -1345,7 +1338,6 @@ DEPENDENCIES
   guard-rspec
   health_check (>= 3.0.0)
   identity-hostdata!
-  lograge
   mini_cache
   newrelic_rpm
   overcommit
