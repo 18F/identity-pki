@@ -29,7 +29,7 @@ RSpec.describe CertificateAuthority, type: :model do
   let(:expected_revoked_serials_list) { revoked_serials_list.map(&:to_s).sort }
 
   subject { authority }
-  it { is_expected.to validate_uniqueness_of(:key) }
+  it { is_expected.to validate_uniqueness_of(:key).case_insensitive }
   it { is_expected.to validate_presence_of(:dn) }
   it { is_expected.to validate_presence_of(:valid_not_after) }
   it { is_expected.to validate_presence_of(:valid_not_before) }
