@@ -47,7 +47,7 @@ resource "aws_alb_listener" "idp-ssl" {
   load_balancer_arn = aws_alb.idp.id
   port              = "443"
   protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-TLS-1-1-2017-01"
+  ssl_policy        = "ELBSecurityPolicy-TLS-1-2-2017-01"
 
   default_action {
     target_group_arn = aws_alb_target_group.idp-ssl.id
