@@ -5,9 +5,9 @@ RSpec.describe PivCac, type: :model do
 
   subject { piv_cac }
   it { is_expected.to validate_presence_of :uuid }
-  it { is_expected.to validate_uniqueness_of(:uuid).case_insensitive }
+  it { is_expected.to validate_uniqueness_of :uuid }
   it { is_expected.to validate_presence_of :dn_signature }
-  it { is_expected.to validate_uniqueness_of(:dn_signature).case_insensitive }
+  it { is_expected.to validate_uniqueness_of :dn_signature }
 
   describe '#find_or_create_by' do
     it 'returns nil when dn is not provided' do
