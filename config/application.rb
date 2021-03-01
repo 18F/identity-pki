@@ -4,7 +4,6 @@ require 'active_record/railtie'
 require 'action_controller/railtie'
 require 'action_view/railtie'
 require 'action_text/engine'
-require 'rails/test_unit/railtie'
 require 'identity/logging/railtie'
 
 # Require the gems listed in Gemfile, including any gems
