@@ -32,7 +32,7 @@ RSpec.describe Certificate do
 
   before(:each) do
     described_class.clear_revocation_cache
-    OCSPService.clear_ocsp_response_cache
+    OcspService.clear_ocsp_response_cache
     stub_request(:post, 'http://ocsp.example.com/').
       with(
         headers: {

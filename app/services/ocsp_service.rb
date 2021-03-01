@@ -2,7 +2,7 @@ require 'net/http'
 require 'openssl'
 require 'uri'
 
-class OCSPService
+class OcspService
   attr_reader :subject, :authority, :request
 
   OCSP_RESPONSE_CACHE_EXPIRATION = 5.minutes
@@ -18,9 +18,9 @@ class OCSPService
     return OpenStruct.new(revoked?: CertificateAuthority.revoked?(subject)) if no_request
 
     # we want to cache the call for a few minutes so we don't hammer on the same request
-    OCSPService.ocsp_response(ocsp_url_for_subject, authority.certificate, subject) do
+    OcspService.ocsp_response(ocsp_url_for_subject, authority.certificate, subject) do
       response = make_http_request(ocsp_url_for_subject, request.to_der)
-      OCSPResponse.new(self, response)
+      OcspResponse.new(self, response)
     end
   end
 

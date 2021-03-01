@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe CertificateLoggerService do
   let(:service) { described_class }
   let(:certificate) { Certificate.new(x509_cert) }
-  let(:ocsp_response) { OCSPResponse.new(service_request, response) }
+  let(:ocsp_response) { OcspResponse.new(service_request, response) }
 
   let(:cert_collection) do
     create_certificate_set(
@@ -31,7 +31,7 @@ RSpec.describe CertificateLoggerService do
   end
 
   let(:service_request) do
-    service = OCSPService.new(certificate)
+    service = OcspService.new(certificate)
     service.send(:build_request)
     service
   end
@@ -58,7 +58,7 @@ RSpec.describe CertificateLoggerService do
     allow(Figaro.env).to receive(:trusted_ca_root_identifiers).and_return(root_cert_key_id)
     certificate_store.clear_root_identifiers
     certificate_store.add_pem_file(ca_file_path)
-    allow(OCSPService).to receive(:new).and_return(service_request)
+    allow(OcspService).to receive(:new).and_return(service_request)
   end
 
   after(:each) do

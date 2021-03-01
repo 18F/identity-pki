@@ -19,7 +19,7 @@ RSpec.describe IdentifyController, type: :controller do
 
   before(:each) do
     Certificate.clear_revocation_cache
-    OCSPService.clear_ocsp_response_cache
+    OcspService.clear_ocsp_response_cache
   end
 
   describe 'GET /' do
@@ -133,7 +133,7 @@ RSpec.describe IdentifyController, type: :controller do
 
         context 'when the web server sends the escaped cert' do
           before(:each) do
-            allow(OCSPService).to receive(:new).and_return(ocsp_responder)
+            allow(OcspService).to receive(:new).and_return(ocsp_responder)
           end
 
           it 'returns a token with a uuid and subject' do
@@ -213,7 +213,7 @@ RSpec.describe IdentifyController, type: :controller do
 
         context 'when the web server sends an unescaped cert' do
           before(:each) do
-            allow(OCSPService).to receive(:new).and_return(ocsp_responder)
+            allow(OcspService).to receive(:new).and_return(ocsp_responder)
           end
 
           it 'returns a token with a uuid and subject' do

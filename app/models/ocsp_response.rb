@@ -1,4 +1,4 @@
-class OCSPResponse
+class OcspResponse
   extend Forwardable
 
   attr_reader :response
