@@ -9,7 +9,7 @@ GIT
 GIT
   remote: https://github.com/18F/identity-logging.git
   revision: 7a341c9784275f44b0b0c3456a00a51fa79f4241
-  branch: v0.1.0
+  tag: v0.1.0
   specs:
     identity-logging (0.1.0)
       lograge (>= 0.11.2)
