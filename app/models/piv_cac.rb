@@ -7,8 +7,8 @@ class PivCac < ApplicationRecord
 
   before_validation :create_uuid, on: :create
 
-  validates :dn_signature, presence: true, uniqueness: { case_sensitive: false }
-  validates :uuid, presence: true, uniqueness: { case_sensitive: false }
+  validates :dn_signature, presence: true, uniqueness: true, case_sensitive: false
+  validates :uuid, presence: true, uniqueness: true, case_sensitive: false
 
   def dn=(raw)
     self.dn_signature = PivCac.make_dn_signature(raw)
