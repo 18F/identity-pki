@@ -10,7 +10,7 @@ describe Deploy::Activate do
   let(:config_dir) { Rails.root.join('config') }
 
   around(:each) do |ex|
-    LoginGov::Hostdata.reset!
+    Identity::Hostdata.reset!
 
     @logger = Logger.new('/dev/null')
 
@@ -22,7 +22,7 @@ describe Deploy::Activate do
   end
 
   let(:logger) { @logger }
-  let(:s3_client) { LoginGov::Hostdata::FakeS3Client.new }
+  let(:s3_client) { Identity::Hostdata::FakeS3Client.new }
   let(:set_up_files!) {}
 
   let(:subject) { Deploy::Activate.new(logger: logger, s3_client: s3_client) }
@@ -117,7 +117,7 @@ describe Deploy::Activate do
     end
   end
 
-  let(:s3_empty) { LoginGov::Hostdata::FakeS3Client.new }
+  let(:s3_empty) { Identity::Hostdata::FakeS3Client.new }
   let(:notfound_subject) {
     Deploy::Activate.new(logger: logger, s3_client: s3_empty) }
   context 'in a deployed production environment with no extra cert bundle' do

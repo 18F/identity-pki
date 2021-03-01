@@ -13,7 +13,7 @@ module Deploy
     end
 
     def run
-      LoginGov::Hostdata.s3(logger: logger, s3_client: s3_client).download_configs(
+      Identity::Hostdata.s3(logger: logger, s3_client: s3_client).download_configs(
         '/%<env>s/pivcac/v1/application.yml' => env_yaml_path
       )
 
@@ -27,14 +27,14 @@ module Deploy
     private
 
     def download_extra_certs_from_s3
-      ec2_data = LoginGov::Hostdata::EC2.load
+      ec2_data = Identity::Hostdata::EC2.load
       aws_region = ec2_data.region
       aws_account_id = ec2_data.account_id
 
       begin
-        LoginGov::Hostdata::S3.new(
+        Identity::Hostdata::S3.new(
           bucket: "login-gov.secrets.#{aws_account_id}-#{aws_region}",
-          env: LoginGov::Hostdata.env,
+          env: Identity::Hostdata.env,
           region: aws_region,
           logger: logger,
           s3_client: s3_client,

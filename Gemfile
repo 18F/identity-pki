@@ -10,7 +10,7 @@ gem 'aws-sdk', require: false
 gem 'bloomfilter-rb'
 gem 'figaro'
 gem 'health_check', '>= 3.0.0'
-gem 'identity-hostdata', github: '18F/identity-hostdata', branch: 'master'
+gem 'identity-hostdata', github: '18F/identity-hostdata', tag: 'v1.0.1'
 gem 'identity-logging', github: '18F/identity-logging', tag: 'v0.1.0'
 gem 'mini_cache'
 gem 'newrelic_rpm'
