@@ -83,3 +83,8 @@ external access to prevent supply chain attacks, the better.
   source code from github like everybody else does.  Instead, you must create a
   [personal access token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token)
   using a special shared github account.  Grr.
+* The CodePipeline notifications stuff is ugly.  It just emits a json blob
+  rather than allowing you to format it.  Strangely, an approval task can
+  have it's output formatted.  There has to be a better way to do this,
+  and I hope it's not "write a lambda that looks for $SOMETHING and emits
+  a useful message instead of the json blob".
