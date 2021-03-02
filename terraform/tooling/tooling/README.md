@@ -27,16 +27,35 @@ to bring auto-terraform into our ATO boundary.
 
 ## Security aspects you should think about when changing stuff here
 
+This is a tremendously powerful tool.  Once fully deployed, this system will
+be able to change/delete pretty much everything in the whole login.gov world.
+As such, we need to be SUPER careful about the tools used here, how they are
+used, etc.  This system should be as simple and self-contained as possible,
+with as few permissions granted as we can make it.
+
+For example, to try to reduce our dependency on external resources, we are
+vendoring terratest go dependencies into this repo, and we are using a 
+[terraform bundle](https://github.com/hashicorp/terraform/tree/master/tools/terraform-bundle)
+to try to insulate us from supply chain attacks and from external services
+being down.
+
+### IAM
+
 The IAM permissions for the role that is assumed when running terraform can be found
 in `terraform/all/module/iam-role-terraform.tf`.  The role that contains the
 permissions for the codepipeline and codebuild role can be found in
 `terraform/tooling/module/codebuild.tf`.  These powers are pretty extensive already,
 but try to not expand them unless you need it.
 
-There is an OATH token which is in an s3 bucket which is used to auth with github.
+### GitHub Auth
+
+There is an [personal access token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token)
+which is in an s3 bucket which is used to auth with github.
 If this gets deployed in a new place, that token will need to get copied over into
 the `common/identity_devops_oauthkey` file in the secrets bucket.
 Be aware that the token must be uploaded with `--content-type text/plain`.
+
+### External Connectivity
 
 Since Terraform requires a lot of AWS endpoints, we did as many as possible as VPC
 endpoints that live in the public subnet in the auto-terraform VPC.  But not all
