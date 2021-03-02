@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe OCSPResponse do
+RSpec.describe OcspResponse do
   let(:ocsp_response) { described_class.new(service_request, response) }
   let(:certificate) { Certificate.new(x509_cert) }
 
@@ -32,7 +32,7 @@ RSpec.describe OCSPResponse do
   let(:valid_ocsp) { true }
 
   let(:service_request) do
-    service = OCSPService.new(certificate)
+    service = OcspService.new(certificate)
     service.send(:build_request)
     service
   end

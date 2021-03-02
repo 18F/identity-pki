@@ -30,7 +30,7 @@ RSpec.configure do |config|
     CertificateStore.reset
     CertificateStore.instance.clear_root_identifiers
     Certificate.clear_revocation_cache
-    OCSPService.clear_ocsp_response_cache
+    OcspService.clear_ocsp_response_cache
     IssuingCaService.clear_ca_certificates_response_cache!
   end
 

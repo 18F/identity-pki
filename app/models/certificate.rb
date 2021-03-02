@@ -25,7 +25,7 @@ class Certificate
   end
 
   def revoked?
-    Certificate.revocation_status?(self) { OCSPService.new(self).call.revoked? }
+    Certificate.revocation_status?(self) { OcspService.new(self).call.revoked? }
   end
 
   def self.revocation_status?(certificate, &block)

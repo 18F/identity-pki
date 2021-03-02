@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe OCSPService do
+RSpec.describe OcspService do
   let(:ocsp_service) { described_class.new(cert) }
   let(:certificate_store) { CertificateStore.instance }
 
