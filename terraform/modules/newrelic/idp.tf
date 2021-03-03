@@ -195,6 +195,26 @@ resource "newrelic_synthetics_alert_condition" "api_health" {
   monitor_id = newrelic_synthetics_monitor.api_health[0].id
 }
 
+resource "newrelic_synthetics_monitor" "outbound_proxy_health" {
+  count     = var.enabled
+  name      = "${var.env_name} /api/health/outbound check"
+  type      = "SIMPLE"
+  frequency = 5
+  status    = "ENABLED"
+  locations = ["AWS_US_EAST_1"]
+
+  uri               = "https://${local.idp_domain_name}/api/health"
+  validation_string = "\"healthy\":true"
+  verify_ssl        = true
+}
+resource "newrelic_synthetics_alert_condition" "outbound_proxy_health" {
+  count     = var.enabled
+  policy_id = newrelic_alert_policy.businesshours[0].id
+
+  name       = "https://${local.idp_domain_name}/ ping failure"
+  monitor_id = newrelic_synthetics_monitor.outbound_proxy_health[0].id
+}
+
 resource "newrelic_synthetics_monitor" "pivcac_certs_health_7d" {
   count     = var.pivcac_service_enabled
   name      = "${var.env_name} PIV/CAC /api/health/certs check (7 days)"
