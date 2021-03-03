@@ -203,7 +203,7 @@ resource "newrelic_synthetics_monitor" "outbound_proxy_health" {
   status    = "ENABLED"
   locations = ["AWS_US_EAST_1"]
 
-  uri               = "https://${local.idp_domain_name}/api/health"
+  uri               = "https://${local.idp_domain_name}/api/health/outbound"
   validation_string = "\"healthy\":true"
   verify_ssl        = true
 }
@@ -211,7 +211,7 @@ resource "newrelic_synthetics_alert_condition" "outbound_proxy_health" {
   count     = var.enabled
   policy_id = newrelic_alert_policy.businesshours[0].id
 
-  name       = "https://${local.idp_domain_name}/ ping failure"
+  name       = "https://${local.idp_domain_name}/api/health/outbound ping failure"
   monitor_id = newrelic_synthetics_monitor.outbound_proxy_health[0].id
 }
 
