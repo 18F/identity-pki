@@ -16,6 +16,7 @@ module "git2s3_src" {
   git2s3_stack_name    = "CodeSync-IdentityBaseImage"
   external_account_ids = [
     "555546682965",
+    "917793222841",
     "034795980528",
   ]
   artifact_bucket      = "login-gov-public-artifacts-us-west-2"
