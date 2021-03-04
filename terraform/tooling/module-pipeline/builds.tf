@@ -35,7 +35,7 @@ resource "aws_codebuild_project" "auto_terraform_plan" {
 
   logs_config {
     cloudwatch_logs {
-      group_name  = "auto-terraform"
+      group_name  = "auto-terraform/${var.tf_dir}-${var.gitref}/plan"
       stream_name = "${var.tf_dir}-${var.gitref}"
     }
   }
@@ -132,7 +132,7 @@ resource "aws_codebuild_project" "auto_terraform_apply" {
 
   logs_config {
     cloudwatch_logs {
-      group_name  = "auto-terraform"
+      group_name  = "auto-terraform/${var.tf_dir}-${var.gitref}/apply"
       stream_name = "${var.tf_dir}-${var.gitref}"
     }
   }
@@ -223,7 +223,7 @@ resource "aws_codebuild_project" "auto_terraform_test" {
 
   logs_config {
     cloudwatch_logs {
-      group_name  = "auto-terraform"
+      group_name  = "auto-terraform/${var.tf_dir}-${var.gitref}/test"
       stream_name = "${var.tf_dir}-${var.gitref}"
     }
   }
