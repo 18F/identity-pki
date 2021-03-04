@@ -2,6 +2,10 @@
 # to operate on can be a VPC endpoint, so we are locking this environment
 # down using the networkfw.
 
+locals {
+  yaml_data = yamldecode(file("validdomain.yaml"))
+}
+
 resource "aws_networkfirewall_rule_group" "networkfw" {
   capacity    = 100
   description = "Permits TLS traffic to selected endpoints"
@@ -12,10 +16,7 @@ resource "aws_networkfirewall_rule_group" "networkfw" {
       rules_source_list {
         generated_rules_type = "ALLOWLIST"
         target_types         = ["HTTP_HOST", "TLS_SNI"]
-        targets              = [
-          ".amazonaws.com",
-          "github.com"
-        ]
+        targets              = local.yaml_data.domainAllowList
       }
     }
   }
@@ -91,19 +92,26 @@ data "aws_vpc_endpoint" "networkfw" {
   depends_on = [aws_networkfirewall_firewall.networkfw]
 }
 
+resource "aws_cloudwatch_log_group" "fw_log_group_alerts" {
+  name = "auto-terraform/networkfw_alerts"
+}
+resource "aws_cloudwatch_log_group" "fw_log_group_flows" {
+  name = "auto-terraform/networkfw_flows"
+}
+
 resource "aws_networkfirewall_logging_configuration" "networkfw" {
   firewall_arn = aws_networkfirewall_firewall.networkfw.arn
   logging_configuration {
     log_destination_config {
       log_destination = {
-        logGroup = "auto-terraform"
+        logGroup = "auto-terraform/networkfw_alerts"
       }
       log_destination_type = "CloudWatchLogs"
       log_type             = "ALERT"
     }
     log_destination_config {
       log_destination = {
-        logGroup = "auto-terraform"
+        logGroup = "auto-terraform/networkfw_flows"
       }
       log_destination_type = "CloudWatchLogs"
       log_type             = "FLOW"
