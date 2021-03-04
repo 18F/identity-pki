@@ -78,7 +78,10 @@ external access to prevent supply chain attacks, the better.
 * CodePipeline is kind of dumb.  You cannot decline to continue if there
   are no changes in a terraform plan or whatever, or have any conditional
   action at all.  Even stopping the pipeline from within the codebuild job
-  will result in a failed pipeline run and generate an alert.  Grr.
+  will result in a failed pipeline run and generate an alert.
+  This may lead to lots of pipelines executing terraform all at once,
+  if we have a lot of pipelines tracking master,
+  so they may all fight for the lock.  This is non-optimal.  Grr.
 * CodePipeline is kind of dumb.  You cannot use a deploy key to download
   source code from github like everybody else does.  Instead, you must create a
   [personal access token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token)
