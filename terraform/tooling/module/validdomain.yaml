@@ -2,3 +2,4 @@
 domainAllowList:
 - .amazonaws.com
 - github.com
+- api.github.com
