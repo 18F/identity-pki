@@ -3,6 +3,7 @@
 # This lets us set the vars files if somebody gives us an env_name
 locals {
   vars_files = (var.env_name == "" ? "" : "-var-file $CODEBUILD_SRC_DIR_${local.clean_tf_dir}_private_output/vars/base.tfvars -var-file $CODEBUILD_SRC_DIR_${local.clean_tf_dir}_private_output/vars/account_global_${var.account}.tfvars -var-file $CODEBUILD_SRC_DIR_${local.clean_tf_dir}_private_output/vars/${var.env_name}.tfvars")
+  envstr = (var.env_name != "" ? "" : "the ${var.env_name} environment in ")
 }
 
 # How to run a terraform plan
@@ -255,8 +256,7 @@ phases:
   post_build:
     commands:
       - echo test completed on `date`
-      - if [ -n "${var.env_name}" ] ; then export ENVSTR="the ${var.env_name} environment in" ; fi
-      - curl -X POST -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/18F/identity-devops/statuses/$CODEBUILD_RESOLVED_SOURCE_VERSION -d '{"state":"success", "description":"${var.gitref} in ${var.tf_dir} got deployed to $ENVSTR ${var.account}"}'
+      - curl -X POST -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/18F/identity-devops/statuses/$CODEBUILD_RESOLVED_SOURCE_VERSION -d '{"state":"success", "description":"${var.gitref} in ${var.tf_dir} got deployed to ${local.envstr}${var.account}"}'
 
     EOT
   }
