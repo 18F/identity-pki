@@ -256,7 +256,8 @@ phases:
   post_build:
     commands:
       - echo test completed on `date`
-      - curl -X POST -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/18F/identity-devops/statuses/$CODEBUILD_RESOLVED_SOURCE_VERSION -d '{"state":"success", "description":"${var.gitref} in ${var.tf_dir} got deployed to ${local.envstr}${var.account}"}'
+      - |
+        curl -X POST -H 'Accept: application/vnd.github.v3+json' https://api.github.com/repos/18F/identity-devops/statuses/$CODEBUILD_RESOLVED_SOURCE_VERSION -d '{"state":"success", "description":"${var.gitref} in ${var.tf_dir} got deployed to ${local.envstr}${var.account}"}'
 
     EOT
   }
