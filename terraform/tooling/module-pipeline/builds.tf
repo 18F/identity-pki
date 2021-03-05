@@ -255,6 +255,9 @@ phases:
   post_build:
     commands:
       - echo test completed on `date`
+      - if [ -n "${var.env_name}" ] ; then export ENVSTR="the ${var.env_name} environment in" ; fi
+      - curl -X POST -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/18F/identity-devops/statuses/$CODEBUILD_RESOLVED_SOURCE_VERSION -d '{"state":"success", "description":"${var.gitref} in ${var.tf_dir} got deployed to $ENVSTR ${var.account}"}'
+
     EOT
   }
   source_version = var.gitref
