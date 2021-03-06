@@ -3,7 +3,7 @@
 # down using the networkfw.
 
 locals {
-  yaml_data = yamldecode(file("../module/validdomain.yaml"))
+  yaml_data = yamldecode(file("${path.module}/validdomain.yaml"))
 }
 
 resource "aws_networkfirewall_rule_group" "networkfw" {
