@@ -61,6 +61,7 @@ resource "aws_nat_gateway" "auto_terraform" {
   tags = {
     Name = "auto_terraform"
   }
+  depends_on = [aws_internet_gateway.auto_terraform]
 }
 
 resource "aws_route_table" "auto_terraform_public" {
@@ -88,6 +89,7 @@ resource "aws_internet_gateway" "auto_terraform" {
   tags = {
     Name = "auto_terraform"
   }
+  depends_on = [aws_vpc.auto_terraform]
 }
 
 resource "aws_route_table" "auto_terraform_igw" {

@@ -1,6 +1,6 @@
 variable "vpc_cidr" {
   description = "cidr block used by the VPC"
-  default = "10.65.0.0/16"
+  default = "10.65.0.0/17"
 }
 
 variable "auto_tf_fw_subnet_cidr" {
