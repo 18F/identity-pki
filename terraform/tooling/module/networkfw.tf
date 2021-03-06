@@ -57,7 +57,7 @@ resource "aws_networkfirewall_firewall" "networkfw" {
 
 resource "aws_subnet" "auto_terraform_fw" {
   vpc_id     = aws_vpc.auto_terraform.id
-  cidr_block = "10.0.3.0/28"
+  cidr_block = var.auto_tf_fw_subnet_cidr
 
   tags = {
     Name = "auto_terraform firewall"

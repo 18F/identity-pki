@@ -14,7 +14,7 @@ resource "aws_vpc" "auto_terraform" {
 # resources in the private subnet where auto_tf stuff runs
 resource "aws_subnet" "auto_terraform_private" {
   vpc_id     = aws_vpc.auto_terraform.id
-  cidr_block = "10.0.1.0/24"
+  cidr_block = var.auto_tf_private_subnet_cidr
 
   tags = {
     Name = "auto_terraform private"
@@ -43,7 +43,7 @@ resource "aws_route_table_association" "auto_terraform_private" {
 resource "aws_subnet" "auto_terraform_public" {
   vpc_id     = aws_vpc.auto_terraform.id
   availability_zone = data.aws_availability_zones.available.names[0]
-  cidr_block = "10.0.2.0/24"
+  cidr_block = var.auto_tf_public_subnet_cidr
 
   tags = {
     Name = "auto_terraform public"
