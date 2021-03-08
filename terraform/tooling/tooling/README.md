@@ -81,7 +81,9 @@ external access to prevent supply chain attacks, the better.
   will result in a failed pipeline run and generate an alert.
   This may lead to lots of pipelines executing terraform all at once,
   if we have a lot of pipelines tracking master,
-  so they may all fight for the lock.  This is non-optimal.  Grr.
+  so they may all fight for the lock.  The ability for codepipeline to
+  trigger on subdirectories is on the roadmap, so this should be fixed
+  in the future.
 * CodePipeline is kind of dumb.  You cannot use a deploy key to download
   source code from github like everybody else does.  Instead, you must create a
   [personal access token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token)
