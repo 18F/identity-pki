@@ -37,7 +37,7 @@ locals {
 ## at least for now. TODO: look into using terragrunt / another application to iterate
 ## through regions, rather than duplicating the code.
 
-## us-west-2
+## us-west-2 
 
 resource "aws_sns_topic" "slack_usw2" {
   for_each = toset(keys(local.slack_channel_map))
