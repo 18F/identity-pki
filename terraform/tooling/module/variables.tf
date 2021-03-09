@@ -1,6 +1,6 @@
 variable "vpc_cidr" {
   description = "cidr block used by the VPC"
-  default = "10.65.0.0/17"
+  default = "10.65.0.0/16"
 }
 
 variable "auto_tf_fw_subnet_cidr" {
@@ -18,6 +18,11 @@ variable "auto_tf_private_subnet_cidr" {
   default = "10.65.6.0/24"
 }
 
+variable "auto_tf_vpcendpoints_subnet_cidr" {
+  description = "cidr block used to house VPC endpoints"
+  default = "10.65.8.0/24"
+}
+
 variable "region" {
   description = "AWS region, used for S3 bucket names"
 }
@@ -27,7 +32,7 @@ output "auto_tf_vpc_id" {
 }
 
 output "auto_tf_subnet_id" {
-  value = aws_subnet.auto_terraform_private.id
+  value = aws_subnet.auto_terraform_private_a.id
 }
 
 output "auto_tf_role_arn" {

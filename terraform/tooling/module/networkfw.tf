@@ -47,7 +47,7 @@ resource "aws_networkfirewall_firewall" "networkfw" {
   firewall_policy_arn = aws_networkfirewall_firewall_policy.networkfw.arn
   vpc_id              = aws_vpc.auto_terraform.id
   subnet_mapping {
-    subnet_id = aws_subnet.auto_terraform_fw.id
+    subnet_id = aws_subnet.auto_terraform_fw_a.id
   }
 
   tags = {
@@ -55,7 +55,7 @@ resource "aws_networkfirewall_firewall" "networkfw" {
   }
 }
 
-resource "aws_subnet" "auto_terraform_fw" {
+resource "aws_subnet" "auto_terraform_fw_a" {
   vpc_id     = aws_vpc.auto_terraform.id
   cidr_block = var.auto_tf_fw_subnet_cidr
 
@@ -77,7 +77,7 @@ resource "aws_route_table" "auto_terraform_fw" {
 }
 
 resource "aws_route_table_association" "auto_terraform_fw" {
-  subnet_id = aws_subnet.auto_terraform_fw.id
+  subnet_id = aws_subnet.auto_terraform_fw_a.id
   route_table_id = aws_route_table.auto_terraform_fw.id
 }
 

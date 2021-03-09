@@ -1,6 +1,6 @@
 # Auto-Terraform
 
-This directory contains the code that sets up the global stuff that all pipelines need
+This directory contains the code that sets up the global resources that all pipelines need
 in `module`, and then calls `module-pipeline` with arguments for each tf dir you want
 to build.
 

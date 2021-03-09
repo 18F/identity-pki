@@ -12,7 +12,7 @@ resource "aws_vpc" "auto_terraform" {
 }
 
 # resources in the private subnet where auto_tf stuff runs
-resource "aws_subnet" "auto_terraform_private" {
+resource "aws_subnet" "auto_terraform_private_a" {
   vpc_id     = aws_vpc.auto_terraform.id
   cidr_block = var.auto_tf_private_subnet_cidr
 
@@ -34,13 +34,13 @@ resource "aws_route_table" "auto_terraform_private" {
 }
 
 resource "aws_route_table_association" "auto_terraform_private" {
-  subnet_id = aws_subnet.auto_terraform_private.id
+  subnet_id = aws_subnet.auto_terraform_private_a.id
   route_table_id = aws_route_table.auto_terraform_private.id
 }
 
 
 # resources in the public subnet where NAT lives
-resource "aws_subnet" "auto_terraform_public" {
+resource "aws_subnet" "auto_terraform_public_a" {
   vpc_id     = aws_vpc.auto_terraform.id
   availability_zone = data.aws_availability_zones.available.names[0]
   cidr_block = var.auto_tf_public_subnet_cidr
@@ -56,7 +56,7 @@ resource "aws_eip" "nat_gateway" {
 
 resource "aws_nat_gateway" "auto_terraform" {
   allocation_id = aws_eip.nat_gateway.id
-  subnet_id     = aws_subnet.auto_terraform_public.id
+  subnet_id     = aws_subnet.auto_terraform_public_a.id
 
   tags = {
     Name = "auto_terraform"
@@ -77,7 +77,7 @@ resource "aws_route_table" "auto_terraform_public" {
 }
 
 resource "aws_route_table_association" "auto_terraform_public" {
-  subnet_id = aws_subnet.auto_terraform_public.id
+  subnet_id = aws_subnet.auto_terraform_public_a.id
   route_table_id = aws_route_table.auto_terraform_public.id
 }
 
@@ -95,7 +95,7 @@ resource "aws_internet_gateway" "auto_terraform" {
 resource "aws_route_table" "auto_terraform_igw" {
   vpc_id = aws_vpc.auto_terraform.id
   route {
-    cidr_block = aws_subnet.auto_terraform_public.cidr_block
+    cidr_block = aws_subnet.auto_terraform_public_a.cidr_block
     vpc_endpoint_id = data.aws_vpc_endpoint.networkfw.id
   }
 

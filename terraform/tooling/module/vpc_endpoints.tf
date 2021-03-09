@@ -2,6 +2,15 @@
 # networkfw handle all this, but VPC endpoints are cheaper than
 # going through the internet gateway.
 
+resource "aws_subnet" "auto_terraform_vpcendpoints" {
+  vpc_id     = aws_vpc.auto_terraform.id
+  cidr_block = var.auto_tf_vpcendpoints_subnet_cidr
+
+  tags = {
+    Name = "auto_terraform firewall"
+  }
+}
+
 resource "aws_vpc_endpoint" "private-s3" {
   vpc_id          = aws_vpc.auto_terraform.id
   service_name    = "com.amazonaws.${var.region}.s3"
@@ -27,7 +36,7 @@ resource "aws_vpc_endpoint" "ec2" {
   service_name        = "com.amazonaws.${var.region}.ec2"
   vpc_endpoint_type   = "Interface"
   security_group_ids  = [aws_security_group.vpc_endpoints.id]
-  subnet_ids          = [aws_subnet.auto_terraform_public.id]
+  subnet_ids          = [aws_subnet.auto_terraform_vpcendpoints.id]
   private_dns_enabled = true
 
   tags = {
@@ -40,7 +49,7 @@ resource "aws_vpc_endpoint" "logs" {
   service_name        = "com.amazonaws.${var.region}.logs"
   vpc_endpoint_type   = "Interface"
   security_group_ids  = [aws_security_group.vpc_endpoints.id]
-  subnet_ids          = [aws_subnet.auto_terraform_public.id]
+  subnet_ids          = [aws_subnet.auto_terraform_vpcendpoints.id]
   private_dns_enabled = true
 
   tags = {
@@ -58,7 +67,7 @@ resource "aws_vpc_endpoint" "sts" {
   service_name        = data.aws_vpc_endpoint_service.sts.service_name
   vpc_endpoint_type   = "Interface"
   security_group_ids  = [aws_security_group.vpc_endpoints.id]
-  subnet_ids          = [aws_subnet.auto_terraform_public.id]
+  subnet_ids          = [aws_subnet.auto_terraform_vpcendpoints.id]
   private_dns_enabled = true
 
   tags = {
@@ -71,7 +80,7 @@ resource "aws_vpc_endpoint" "sns" {
   service_name        = "com.amazonaws.${var.region}.sns"
   vpc_endpoint_type   = "Interface"
   security_group_ids  = [aws_security_group.vpc_endpoints.id]
-  subnet_ids          = [aws_subnet.auto_terraform_public.id]
+  subnet_ids          = [aws_subnet.auto_terraform_vpcendpoints.id]
   private_dns_enabled = true
 
   tags = {
@@ -84,7 +93,7 @@ resource "aws_vpc_endpoint" "ssm" {
   service_name        = "com.amazonaws.${var.region}.ssm"
   vpc_endpoint_type   = "Interface"
   security_group_ids  = [aws_security_group.vpc_endpoints.id]
-  subnet_ids          = [aws_subnet.auto_terraform_public.id]
+  subnet_ids          = [aws_subnet.auto_terraform_vpcendpoints.id]
   private_dns_enabled = true
 
   tags = {
