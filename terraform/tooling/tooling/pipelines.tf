@@ -69,7 +69,7 @@ module "toolingtooling" {
   auto_tf_pipeline_role_arn = module.main.auto_tf_pipeline_role_arn
 }
 
-# deploy the tspencer environment to the sandbox account on the tspencer/notbrickhouseautomation branch
+# deploy the tspencer environment to the sandbox account on the tspencer/notbrickhouseautomation branch!
 module "tspencer" {
   region = "us-west-2"
   source = "../module-pipeline"
