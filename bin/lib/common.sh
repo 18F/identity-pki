@@ -53,7 +53,7 @@ get_arn_role() {
   fi
   ACCOUNT=$(grep "# login-${PROFILE}" "${GIT_DIR}/terraform/master/global/main.tf" |
             sed -E 's/^.*\"([0-9]+)\".*$/\1/')
-  AV_PROFILE=$(tac ~/.aws/config | tail -n +$(tac ~/.aws/config | grep -n "$ACCOUNT.*$ROLE" |
+  AV_PROFILE=$(tail -r ~/.aws/config | tail -n +$(tail -r ~/.aws/config | grep -n "$ACCOUNT.*$ROLE" |
                awk -F: '{print $1}') | grep -m 1 '\[profile' | sed -E 's/\[profile ([a-z-]+)\]/\1/')
 }
 

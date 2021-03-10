@@ -68,7 +68,7 @@ sg_config:
       #do_not_fail_on_forbidden: false
       #kibana:
         # Kibana multitenancy - NOT FREE FOR COMMERCIAL USE
-        # see https://github.com/floragunncom/search-guard-docs/blob/master/multitenancy.md
+        # see https://github.com/floragunncom/search-guard-docs/blob/main/multitenancy.md
         # To make this work you need to install https://github.com/floragunncom/search-guard-module-kibana-multitenancy/wiki
         #multitenancy_enabled: true
         #server_username: kibanaserver

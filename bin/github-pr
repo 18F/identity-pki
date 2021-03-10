@@ -71,18 +71,18 @@ if [[ "${ACTION}" == 'open' ]] ; then
   run hub pull-request -p -r "${GH_REVS}" -m "${PR_TITLE[@]}" -e
 else
   OLD_BRANCH=$(git_current_branch)
-  run git checkout master
-  run git pull origin master
-  run git checkout ${OLD_BRANCH} 
-  run git rebase master 
-  run git push --force-with-lease 
-  run git merge master --no-edit 
-  run git checkout master 
+  run git checkout main
+  run git pull origin main
+  run git checkout ${OLD_BRANCH}
+  run git rebase main
+  run git push --force-with-lease
+  run git merge main --no-edit
+  run git checkout main
   run git merge --no-edit --no-ff ${OLD_BRANCH} 
-  run git push origin master
+  run git push origin main
   if [[ "${SAVE_BRANCH}" == false ]]; then
-    run git checkout master 
-    run git pull origin master
+    run git checkout main
+    run git pull origin main
     run git branch -d ${OLD_BRANCH}
   fi
 fi
