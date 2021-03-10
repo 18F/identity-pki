@@ -21,7 +21,7 @@ resides on the system.
 If desired, will also clone all of the identity-APP repos (as
 used in the login_dot_gov cookbook) and create a personal
 branch, \`stages/\$GSA_USERNAME\`, on each one, before
-checking said repo back out to \`master\`.
+checking said repo back out to \`main\`.
 
 EOM
 }
@@ -47,8 +47,8 @@ verify_stages_branch() {
     local CURRENT_BRANCH=$(git_current_branch)
     local REPO_NAME=$(git rev-parse --show-toplevel)
     echo_blue "Creating \`stages/${GSA_USERNAME}\` branch for ${REPO_NAME}..."
-    run git checkout master
-    run git pull origin master
+    run git checkout main
+    run git pull origin main
     run git checkout -b stages/${GSA_USERNAME}
     run git push origin -u stages/${GSA_USERNAME}
     run git checkout ${CURRENT_BRANCH}
