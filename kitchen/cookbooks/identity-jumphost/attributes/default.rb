@@ -14,4 +14,4 @@ default['identity-jumphost']['retrieve-ssh-host-keys'] = false
 
 # add locust testing to hosts
 default['identity-jumphost']['loadtest']['enabled'] = false
-default['identity-jumphost']['loadtest']['branch'] = 'master'
+default['identity-jumphost']['loadtest']['branch'] = 'main'

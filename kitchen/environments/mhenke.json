@@ -14,7 +14,7 @@
       "idp_run_migrations": true,
       "allow_unsafe_migrations": true,
       "idp_sync_static": false,
-      "deploy_branch_default": "master"
+      "deploy_branch_default": "main"
     }
   },
   "override_attributes": {

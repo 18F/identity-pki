@@ -35,7 +35,7 @@ certificates from a specific set of nodes.
 ## Boilerplate
 
 Boilerplate and test structure for the cookbook.  See the [cookbook
-structure](https://github.com/18F/identity-devops/tree/master/doc/technical/cookbook-structure.md)
+structure](https://github.com/18F/identity-devops/tree/main/doc/technical/cookbook-structure.md)
 documentation.
 
 ├── Berksfile
