@@ -30,9 +30,6 @@ if [[ ! $(brew list --formula | grep hub) ]] ; then
   brew install hub || raise "hub not installed!"
 fi
 
-#run git checkout main
-#run git pull origin main
-
 declare {MANUAL,NEW_RELEASE,NEW_VERSION_PR,BREAKING_PRS,REGULAR_PRS}=
 if [[ $# -eq 0 ]] ; then
   NEW_RELEASE=$(cat VERSION.txt | sed -E 's/pre\-//')
@@ -42,7 +39,6 @@ else
 fi
 OLD_RELEASE=${2:-$(($(echo ${NEW_RELEASE} | sed -E 's/\..+//')-1))}
 
-<<<<<<< HEAD
 PR_LIST=$(hub pr list -b main -s merged -o updated -L 300 -f "- %i %t | %L%n" |
           sed -E 's/\| $//')
 

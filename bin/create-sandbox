@@ -105,6 +105,6 @@ done
 shift $((OPTIND-1))
 initialize ${1:-}
 
-SOURCE_ENV='int'
+SOURCE_ENV='dev'
 
 run_tasks

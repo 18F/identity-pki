@@ -446,7 +446,7 @@ variable "bootstrap_main_git_clone_url" {
 }
 
 variable "bootstrap_private_git_ref" {
-  default     = "master"
+  default     = "main"
   description = "Git ref in identity-devops-private for provision.sh to check out."
 }
 
@@ -464,22 +464,22 @@ variable "bootstrap_private_git_clone_url" {
 # though they will have different IDs. They should be updated here at the same
 # time, and then released to environments in sequence.
 variable "default_ami_id_sandbox" {
-  default     = "ami-0570bae40f2fd3158" # 2021-02-24 Ubuntu 18.04
+  default     = "ami-06284f5fd88a59847" # 2021-03-10 Ubuntu 18.04
   description = "default AMI ID for environments in the sandbox account"
 }
 
 variable "default_ami_id_prod" {
-  default     = "ami-0d46e7ae144fe201d" # 2021-02-24 Ubuntu 18.04
+  default     = "ami-06a3045a3be17c127" # 2021-03-10 Ubuntu 18.04
   description = "default AMI ID for environments in the prod account"
 }
 
 variable "rails_ami_id_sandbox" {
-  default     = "ami-09c820e317d9fae04" # 2021-02-24 Ubuntu 18.04
+  default     = "ami-05782204dc2851138" # 2021-03-10 Ubuntu 18.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the sandbox account"
 }
 
 variable "rails_ami_id_prod" {
-  default     = "ami-0daa13666f9d87f79" # 2021-02-24 Ubuntu 18.04
+  default     = "ami-030fda37d77aa019e" # 2021-03-10 Ubuntu 18.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the prod account"
 }
 

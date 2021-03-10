@@ -23,7 +23,7 @@ module "main" {
     "Prod" = [
       "555546682965", # login-prod
       "472911866628", # login-sms-prod
-      "217680906704" # login-secops-prod
+      "217680906704"  # login-secops-prod
     ],
     "Sandbox" = [
       "894947205914", # login-sandbox
@@ -39,42 +39,42 @@ module "main" {
 
   group_role_map = {
     "appdev" = [
-      { "PowerUser"         = [ "Sandbox" ] },
-      { "ReadOnly"          = [ "Sandbox" ] },
-      { "Terraform"         = [ "Sandbox" ] }
+      { "PowerUser" = ["Sandbox"] },
+      { "ReadOnly" = ["Sandbox"] },
+      { "Terraform" = ["Sandbox"] }
     ],
     "analytics" = [
-      { "Analytics"         = [ "Sandbox", "Prod" ] }
+      { "Analytics" = ["Sandbox", "Prod"] }
     ],
     "apponcall" = [
-      { "PowerUser"         = [ "Sandbox", "Prod" ] },
-      { "ReadOnly"          = [ "Sandbox", "Prod" ] },
-      { "Terraform"         = [ "Sandbox" ] }
+      { "PowerUser" = ["Sandbox", "Prod"] },
+      { "ReadOnly" = ["Sandbox", "Prod"] },
+      { "Terraform" = ["Sandbox"] }
     ],
     "bizops" = [
-      { "ReportsReadOnly"   = [ "Sandbox", "Prod" ] }
+      { "ReportsReadOnly" = ["Sandbox", "Prod"] }
     ],
     "devops" = [
-      { "FullAdministrator" = [ "Sandbox", "Prod", "Master", "Analytics" ] },
-      { "ReadOnly"          = [ "Sandbox", "Prod" ] },
-      { "Terraform"         = [ "Sandbox", "Prod", "Master" ] },
-      { "KMSAdministrator"  = [ "Sandbox", "Analytics" ] }
+      { "FullAdministrator" = ["Sandbox", "Prod", "Master", "Analytics"] },
+      { "ReadOnly" = ["Sandbox", "Prod"] },
+      { "Terraform" = ["Sandbox", "Prod", "Master"] },
+      { "KMSAdministrator" = ["Sandbox", "Analytics"] }
     ],
     "finops" = [
-      { "BillingReadOnly"   = [ "Sandbox", "Prod" ] }
+      { "BillingReadOnly" = ["Sandbox", "Prod"] }
     ],
     "secops" = [
-      { "FullAdministrator" = [ "Sandbox", "Prod", "Master" ] },
-      { "ReadOnly"          = [ "Sandbox", "Prod" ] },
-      { "KMSAdministrator"  = [ "Sandbox" ] }
+      { "FullAdministrator" = ["Sandbox", "Prod", "Master"] },
+      { "ReadOnly" = ["Sandbox", "Prod"] },
+      { "KMSAdministrator" = ["Sandbox"] }
     ],
     "soc" = [
-      { "Auditor"           = [ "Sandbox", "Prod", "Master", "Analytics" ] },
-      { "ReadOnly"          = [ "Sandbox", "Prod", "Master", "Analytics" ] },
-      { "SOCAdministrator"  = [ "Sandbox", "Prod", "Master", "Analytics" ] }
+      { "Auditor" = ["Sandbox", "Prod", "Master", "Analytics"] },
+      { "ReadOnly" = ["Sandbox", "Prod", "Master", "Analytics"] },
+      { "SOCAdministrator" = ["Sandbox", "Prod", "Master", "Analytics"] }
     ],
     "keymasters" = [
-      { "KMSAdministrator"  = [ "Prod" ] }
+      { "KMSAdministrator" = ["Prod"] }
     ]
   }
 
@@ -93,40 +93,37 @@ module "main" {
 
   # User to group mappings - Groups defined in ../module/iam_groups.tf
   user_map = {
-    "aaron.chapman"      = ["appdev", "apponcall"],
-    "akhlaq.khan"        = ["analytics", "finops", "bizops"],
-    "alex.mathews"       = ["appdev", "apponcall"],
-    "amit.freeman"       = ["devops"],
-    "amos.stone"         = ["analytics"],
-    "andrew.duthie"      = ["appdev", "apponcall"],
-    "brett.mcparland"    = ["secops", "soc"],
-    "brian.crissup"      = ["devops", "keymasters"],
-    "chris.manger"       = ["bizops", "finops"],
-    "clinton.troxel"     = ["appdev"],
-    "diondra.humphries"  = ["bizops"],
-    "douglas.price"      = ["appdev", "apponcall", "bizops"],
-    "janet.evans"        = ["analytics"],
-    "jeff.shultz"        = ["analytics"],
-    "john.yuda"          = ["analytics"],
-    "jonathan.hooper"    = ["appdev", "apponcall", "keymasters"],
-    "jonathan.pirro"     = ["devops"],
-    "julia.elman"        = ["analytics"],
-    "justin.grevich"     = ["devops"],
-    "kendrick.daniel"    = ["appdev"],
-    "michael.antiporta"  = ["analytics"],
-    "mitchell.henke"     = ["appdev", "apponcall"],
-    "mossadeq.zia"       = ["devops", "secops", "keymasters"],
-    "oren.kanner"        = ["appdev", "apponcall", "bizops"],
-    "phil.lam"           = ["analytics"],
-    "paul.hirsch"        = ["devops"],
-    "sierra.toler"       = ["bizops"],
-    "stephanie.rivera"   = ["bizops"],
-    "steve.urciuoli"     = ["appdev", "apponcall", "keymasters"],
-    "steven.harms"       = ["devops", "secops"],
-    "thomas.black"       = ["bizops"],
-    "tiffanyj.andrews"   = ["analytics"],
-    "timothy.spencer"    = ["devops", "secops"],
-    "vivek.chugh"        = ["devops"],
-    "zach.margolis"      = ["appdev", "apponcall"],
+    "aaron.chapman"     = ["appdev", "apponcall"],
+    "akhlaq.khan"       = ["analytics", "finops", "bizops"],
+    "alex.mathews"      = ["appdev", "apponcall"],
+    "amit.freeman"      = ["devops"],
+    "amos.stone"        = ["analytics"],
+    "andrew.duthie"     = ["appdev", "apponcall"],
+    "brett.mcparland"   = ["secops", "soc"],
+    "brian.crissup"     = ["devops", "keymasters"],
+    "chris.manger"      = ["bizops", "finops"],
+    "clinton.troxel"    = ["appdev"],
+    "diondra.humphries" = ["bizops"],
+    "douglas.price"     = ["appdev", "apponcall", "bizops"],
+    "janet.evans"       = ["analytics"],
+    "jonathan.hooper"   = ["appdev", "apponcall", "keymasters"],
+    "jonathan.pirro"    = ["devops"],
+    "julia.elman"       = ["analytics"],
+    "justin.grevich"    = ["devops"],
+    "kendrick.daniel"   = ["appdev"],
+    "michael.antiporta" = ["analytics"],
+    "mitchell.henke"    = ["appdev", "apponcall"],
+    "mossadeq.zia"      = ["devops", "secops", "keymasters"],
+    "oren.kanner"       = ["appdev", "apponcall", "bizops"],
+    "paul.hirsch"       = ["devops"],
+    "sierra.toler"      = ["bizops"],
+    "stephanie.rivera"  = ["bizops"],
+    "steve.urciuoli"    = ["appdev", "apponcall", "keymasters"],
+    "steven.harms"      = ["devops", "secops"],
+    "thomas.black"      = ["bizops"],
+    "tiffanyj.andrews"  = ["analytics"],
+    "timothy.spencer"   = ["devops", "secops"],
+    "vivek.chugh"       = ["devops"],
+    "zach.margolis"     = ["appdev", "apponcall"],
   }
 }
