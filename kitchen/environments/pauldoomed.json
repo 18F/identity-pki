@@ -1,26 +1,28 @@
 {
-  "name": "solipet",
-  "description": "Doug Price's personal development environment",
+  "name": "pauldoomed",
+  "description": "",
   "json_class": "Chef::Environment",
   "chef_type": "environment",
   "default_attributes": {
     "elk": {
       "retentiondays": 14,
       "users": [
-        "solipet"
+        "pauldoom"
       ]
     },
     "login_dot_gov": {
       "deploy_branch_default": "main",
-      "deploy_branch": {
-        "identity-idp": "stages/solipet"
-      },
       "idp_run_migrations": true,
       "allow_unsafe_migrations": true,
-      "idp_sync_static": false
+      "idp_sync_static": true
+    },
+    "passenger": {
+      "production": {
+        "limit_connections": false
+      }
     }
   },
   "override_attributes": {
-
+  
   }
 }

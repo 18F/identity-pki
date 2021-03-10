@@ -39,8 +39,8 @@ HF_VERSION=$(git tag | grep "${VERSION_TAG}" | sort | tail -n 1 | awk -F. '{prin
 ((HF_VERSION++))
 HOTFIX="${VERSION_TAG}.${HF_VERSION}"
 
-run git checkout master
-run git pull origin master
+run git checkout main
+run git pull origin main
 
 run git checkout v${VERSION_TAG}
 run git checkout -b release/v${HOTFIX}

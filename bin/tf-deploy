@@ -353,7 +353,7 @@ supported by the devops team for client use.
 Please consider running \`rake release\` to edit VERSION.txt and create a
 tagged release.
 
-See https://github.com/18F/identity-devops/tree/master/doc/process/releases.md
+See https://github.com/18F/identity-devops/tree/main/doc/process/releases.md
 for more details about our release tools.
 
 The current version in VERSION.txt is: $(cat VERSION.txt)

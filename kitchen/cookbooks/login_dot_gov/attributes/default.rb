@@ -64,7 +64,7 @@ default['login_dot_gov']['cloudhsm_enabled']                          = false
 default['login_dot_gov']['auto_eip_enabled_roles'] = []
 
 # The gitref that we check out when deploying
-default['login_dot_gov']['gitref']                          = 'master'
+default['login_dot_gov']['gitref']                          = 'main'
 
 # used to turn off app startup and migrations and other things so that we can
 # run idp_base to generate a mostly-populated AMI with packer
