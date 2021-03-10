@@ -140,9 +140,9 @@ git_pull() {
 
     local cur_branch
     cur_branch="$(run git -C "$dir" symbolic-ref --short HEAD)"
-    if [ "$cur_branch" != "master" ]; then
+    if [ "$cur_branch" != "main" ]; then
         echo_yellow >&2 \
-            "Warning: current $basename branch is $cur_branch, not master"
+            "Warning: current $basename branch is $cur_branch, not main"
     fi
 
     if run git -C "$dir" pull --ff-only --no-rebase; then

@@ -446,7 +446,7 @@ variable "bootstrap_main_git_clone_url" {
 }
 
 variable "bootstrap_private_git_ref" {
-  default     = "master"
+  default     = "main"
   description = "Git ref in identity-devops-private for provision.sh to check out."
 }
 
