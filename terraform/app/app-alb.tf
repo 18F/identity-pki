@@ -51,7 +51,7 @@ resource "aws_alb_listener" "app-ssl" {
   load_balancer_arn = aws_alb.app[0].id
   port              = "443"
   protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-TLS-1-1-2017-01"
+  ssl_policy        = "ELBSecurityPolicy-TLS-1-2-2017-01"
 
   default_action {
     target_group_arn = aws_alb_target_group.app-ssl[0].id
