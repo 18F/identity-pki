@@ -63,11 +63,6 @@ module "main" {
       type = "CNAME",
       record_set = [
         {
-          "name"    = "_acme-challenge.demo.",
-          "records" = ["_acme-challenge.demo.login.gov.external-domains-production.cloud.gov."],
-          "ttl"     = "900",
-        },
-        {
           "name"    = "_acme-challenge.developer.",
           "records" = ["_acme-challenge.developer.login.gov.external-domains-production.cloud.gov."],
           "ttl"     = "900",
@@ -80,11 +75,6 @@ module "main" {
         {
           "name"    = "_acme-challenge.sam-landing.",
           "records" = ["_acme-challenge.sam-landing.login.gov.external-domains-production.cloud.gov."],
-          "ttl"     = "900",
-        },
-        {
-          "name"    = "demo.",
-          "records" = ["demo.login.gov.external-domains-production.cloud.gov."],
           "ttl"     = "900",
         },
         {
