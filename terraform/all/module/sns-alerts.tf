@@ -60,7 +60,11 @@ data "aws_iam_policy_document" "sns_topic_policy_usw2" {
 
     principals {
       type        = "Service"
-      identifiers = ["events.amazonaws.com", "codestar-notifications.amazonaws.com"]
+      identifiers = [
+        "events.amazonaws.com",
+        "cloudwatch.amazonaws.com",
+        "codestar-notifications.amazonaws.com"
+      ]
     }
 
     resources = ["arn:aws:sns:us-west-2:${data.aws_caller_identity.current.account_id}:slack-${each.key}"]
@@ -125,7 +129,10 @@ data "aws_iam_policy_document" "sns_topic_policy_use1" {
 
     principals {
       type        = "Service"
-      identifiers = ["events.amazonaws.com"]
+      identifiers = [
+        "events.amazonaws.com",
+        "cloudwatch.amazonaws.com"
+      ]
     }
 
     resources = ["arn:aws:sns:us-east-1:${data.aws_caller_identity.current.account_id}:slack-${each.key}"]
