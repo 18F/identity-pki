@@ -13,13 +13,13 @@ terraform {
 module "main" {
   source = "../module"
 
-  iam_account_alias  = "login-sms-prod"
+  iam_account_alias = "login-sms-prod"
   account_roles_map = {
-    iam_appdev_enabled = false
+    iam_appdev_enabled         = false
     iam_auto_terraform_enabled = false
   }
 
-  cloudtrail_event_selectors  = [
+  cloudtrail_event_selectors = [
     {
       include_management_events = false
       read_write_type           = "WriteOnly"
@@ -32,6 +32,6 @@ module "main" {
           ]
         }
       ]
-    }   
+    }
   ]
 }

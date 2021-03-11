@@ -4,11 +4,11 @@
 terraform {
   required_providers {
     aws = {
-      source = "hashicorp/aws"
+      source  = "hashicorp/aws"
       version = "~> 3.11.0"
     }
     archive = {
-      source = "hashicorp/archive"
+      source  = "hashicorp/archive"
       version = "~> 1.3"
     }
   }
@@ -79,19 +79,19 @@ module "tf-state" {
   #source = "../../../../identity-terraform/state_bucket"
 
   remote_state_enabled = 0
-  region             = var.region
-  bucket_name_prefix = "login-gov"
-  sse_algorithm      = "AES256"
+  region               = var.region
+  bucket_name_prefix   = "login-gov"
+  sse_algorithm        = "AES256"
 }
 
 module "main_secrets_bucket" {
-  source              = "../../modules/secrets_bucket"
+  source     = "../../modules/secrets_bucket"
   depends_on = [module.tf-state.s3_log_bucket]
-  
-  logs_bucket          = module.tf-state.s3_log_bucket
-  secrets_bucket_type  = "secrets"
-  bucket_name_prefix   = "login-gov"
-  region               = var.region
+
+  logs_bucket         = module.tf-state.s3_log_bucket
+  secrets_bucket_type = "secrets"
+  bucket_name_prefix  = "login-gov"
+  region              = var.region
 }
 
 output "main_secrets_bucket" {

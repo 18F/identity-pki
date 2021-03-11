@@ -13,12 +13,12 @@ terraform {
 module "main" {
   source = "../module"
 
-  iam_account_alias    = "login-prod"
-  reports_bucket_arn   = "arn:aws:s3:::login-gov.reports.555546682965-us-west-2"
+  iam_account_alias  = "login-prod"
+  reports_bucket_arn = "arn:aws:s3:::login-gov.reports.555546682965-us-west-2"
   account_roles_map = {
-    iam_reports_enabled   = true
-    iam_kmsadmin_enabled  = true
-    iam_analytics_enabled = true
+    iam_reports_enabled        = true
+    iam_kmsadmin_enabled       = true
+    iam_analytics_enabled      = true
     iam_auto_terraform_enabled = false
   }
 
@@ -28,11 +28,11 @@ module "main" {
     "login-gov.waf-logs.555546682965-us-west-2",
   ]
 
-  cloudtrail_event_selectors    = [
+  cloudtrail_event_selectors = [
     {
       include_management_events = false
       read_write_type           = "WriteOnly"
-      
+
       data_resources = [
         {
           type = "AWS::S3::Object"
@@ -76,7 +76,7 @@ module "main" {
     {
       include_management_events = true
       read_write_type           = "All"
-      
+
       data_resources = [
         {
           type = "AWS::S3::Object"
@@ -92,7 +92,7 @@ module "main" {
           ]
         },
       ]
-    },    
+    },
   ]
 }
 

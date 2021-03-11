@@ -63,7 +63,7 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
       output_artifacts = ["${local.clean_tf_dir}_plan_output"]
 
       configuration = {
-        ProjectName = "auto_terraform_${local.clean_tf_dir}_plan"
+        ProjectName   = "auto_terraform_${local.clean_tf_dir}_plan"
         PrimarySource = "${local.clean_tf_dir}_source_output"
       }
     }
@@ -144,15 +144,15 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
     name = "Apply"
 
     action {
-      name             = "Apply"
-      category         = "Build"
-      owner            = "AWS"
-      provider         = "CodeBuild"
-      version          = "1"
-      input_artifacts  = ["${local.clean_tf_dir}_source_output", "${local.clean_tf_dir}_plan_output", "${local.clean_tf_dir}_private_output"]
+      name            = "Apply"
+      category        = "Build"
+      owner           = "AWS"
+      provider        = "CodeBuild"
+      version         = "1"
+      input_artifacts = ["${local.clean_tf_dir}_source_output", "${local.clean_tf_dir}_plan_output", "${local.clean_tf_dir}_private_output"]
 
       configuration = {
-        ProjectName = "auto_terraform_${local.clean_tf_dir}_apply"
+        ProjectName   = "auto_terraform_${local.clean_tf_dir}_apply"
         PrimarySource = "${local.clean_tf_dir}_source_output"
       }
     }
@@ -162,12 +162,12 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
     name = "Test"
 
     action {
-      name             = "Build"
-      category         = "Test"
-      owner            = "AWS"
-      provider         = "CodeBuild"
-      version          = "1"
-      input_artifacts  = ["${local.clean_tf_dir}_source_output"]
+      name            = "Build"
+      category        = "Test"
+      owner           = "AWS"
+      provider        = "CodeBuild"
+      version         = "1"
+      input_artifacts = ["${local.clean_tf_dir}_source_output"]
 
       configuration = {
         ProjectName = "auto_terraform_${local.clean_tf_dir}_test"

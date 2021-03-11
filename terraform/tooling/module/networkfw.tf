@@ -77,16 +77,16 @@ resource "aws_route_table" "auto_terraform_fw" {
 }
 
 resource "aws_route_table_association" "auto_terraform_fw" {
-  subnet_id = aws_subnet.auto_terraform_fw_a.id
+  subnet_id      = aws_subnet.auto_terraform_fw_a.id
   route_table_id = aws_route_table.auto_terraform_fw.id
 }
 
 data "aws_vpc_endpoint" "networkfw" {
-  vpc_id       = aws_vpc.auto_terraform.id
+  vpc_id = aws_vpc.auto_terraform.id
 
   tags = {
     "AWSNetworkFirewallManaged" = "true"
-    "Firewall" = aws_networkfirewall_firewall.networkfw.arn
+    "Firewall"                  = aws_networkfirewall_firewall.networkfw.arn
   }
 
   depends_on = [aws_networkfirewall_firewall.networkfw]

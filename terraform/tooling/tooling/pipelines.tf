@@ -39,11 +39,11 @@ module "alltooling" {
   account = "034795980528"
 
   # pass in global config using module composition (https://www.terraform.io/docs/modules/composition.html)
-  auto_tf_vpc_id = module.main.auto_tf_vpc_id
-  auto_tf_subnet_id = module.main.auto_tf_subnet_id
-  auto_tf_role_arn = module.main.auto_tf_role_arn
-  auto_tf_sg_id = module.main.auto_tf_sg_id
-  auto_tf_bucket_id = module.main.auto_tf_bucket_id
+  auto_tf_vpc_id            = module.main.auto_tf_vpc_id
+  auto_tf_subnet_id         = module.main.auto_tf_subnet_id
+  auto_tf_role_arn          = module.main.auto_tf_role_arn
+  auto_tf_sg_id             = module.main.auto_tf_sg_id
+  auto_tf_bucket_id         = module.main.auto_tf_bucket_id
   auto_tf_pipeline_role_arn = module.main.auto_tf_pipeline_role_arn
 }
 
@@ -61,11 +61,11 @@ module "toolingtooling" {
   account = "034795980528"
 
   # pass in global config using module composition (https://www.terraform.io/docs/modules/composition.html)
-  auto_tf_vpc_id = module.main.auto_tf_vpc_id
-  auto_tf_subnet_id = module.main.auto_tf_subnet_id
-  auto_tf_role_arn = module.main.auto_tf_role_arn
-  auto_tf_sg_id = module.main.auto_tf_sg_id
-  auto_tf_bucket_id = module.main.auto_tf_bucket_id
+  auto_tf_vpc_id            = module.main.auto_tf_vpc_id
+  auto_tf_subnet_id         = module.main.auto_tf_subnet_id
+  auto_tf_role_arn          = module.main.auto_tf_role_arn
+  auto_tf_sg_id             = module.main.auto_tf_sg_id
+  auto_tf_bucket_id         = module.main.auto_tf_bucket_id
   auto_tf_pipeline_role_arn = module.main.auto_tf_pipeline_role_arn
 }
 
@@ -84,10 +84,10 @@ module "tspencer" {
   account = "894947205914"
 
   # pass in global config using module composition (https://www.terraform.io/docs/modules/composition.html)
-  auto_tf_vpc_id = module.main.auto_tf_vpc_id
-  auto_tf_subnet_id = module.main.auto_tf_subnet_id
-  auto_tf_role_arn = module.main.auto_tf_role_arn
-  auto_tf_sg_id = module.main.auto_tf_sg_id
-  auto_tf_bucket_id = module.main.auto_tf_bucket_id
+  auto_tf_vpc_id            = module.main.auto_tf_vpc_id
+  auto_tf_subnet_id         = module.main.auto_tf_subnet_id
+  auto_tf_role_arn          = module.main.auto_tf_role_arn
+  auto_tf_sg_id             = module.main.auto_tf_sg_id
+  auto_tf_bucket_id         = module.main.auto_tf_bucket_id
   auto_tf_pipeline_role_arn = module.main.auto_tf_pipeline_role_arn
 }

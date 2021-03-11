@@ -15,12 +15,12 @@ module "main" {
 
   iam_account_alias = "login-master"
   account_roles_map = {
-    iam_appdev_enabled    = false
-    iam_power_enabled     = false
-    iam_readonly_enabled  = false
-    iam_socadmin_enabled  = true
-    iam_terraform_enabled = true
-    iam_billing_enabled   = true
+    iam_appdev_enabled         = false
+    iam_power_enabled          = false
+    iam_readonly_enabled       = false
+    iam_socadmin_enabled       = true
+    iam_terraform_enabled      = true
+    iam_billing_enabled        = true
     iam_auto_terraform_enabled = false
   }
 }

@@ -107,10 +107,10 @@ resource "aws_security_group" "vpc_endpoints" {
   vpc_id      = aws_vpc.auto_terraform.id
 
   ingress {
-    description = "allow auto_terraform to contact vpc endpoints"
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
+    description     = "allow auto_terraform to contact vpc endpoints"
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
     security_groups = [aws_security_group.auto_terraform.id]
   }
 

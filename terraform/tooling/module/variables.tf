@@ -1,26 +1,26 @@
 variable "vpc_cidr" {
   description = "cidr block used by the VPC"
-  default = "10.65.0.0/16"
+  default     = "10.65.0.0/16"
 }
 
 variable "auto_tf_fw_subnet_cidr" {
   description = "cidr block used by the network firewall"
-  default = "10.65.1.0/24"
+  default     = "10.65.1.0/24"
 }
 
 variable "auto_tf_public_subnet_cidr" {
   description = "cidr block used by the subnet that talks to the world"
-  default = "10.65.3.0/24"
+  default     = "10.65.3.0/24"
 }
 
 variable "auto_tf_private_subnet_cidr" {
   description = "cidr block used by the auto_terraform system to do terraform runs"
-  default = "10.65.6.0/24"
+  default     = "10.65.6.0/24"
 }
 
 variable "auto_tf_vpcendpoints_subnet_cidr" {
   description = "cidr block used to house VPC endpoints"
-  default = "10.65.8.0/24"
+  default     = "10.65.8.0/24"
 }
 
 variable "region" {

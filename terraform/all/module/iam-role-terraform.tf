@@ -14,12 +14,12 @@ module "autotf-terraform-assumerole" {
     {
       policy_name        = "AutoTerraform1"
       policy_description = "Policy 1 for AutoTerraform role"
-      policy_document = local.Terraform1
+      policy_document    = local.Terraform1
     },
     {
       policy_name        = "AutoTerraform2"
       policy_description = "Policy 2 for AutoTerraform role"
-      policy_document = local.Terraform2
+      policy_document    = local.Terraform2
     }
   ]
 }
@@ -41,12 +41,12 @@ module "terraform-assumerole" {
     {
       policy_name        = "Terraform1"
       policy_description = "Policy 1 for Terraform role"
-      policy_document = local.Terraform1
+      policy_document    = local.Terraform1
     },
     {
       policy_name        = "Terraform2"
       policy_description = "Policy 2 for Terraform role"
-      policy_document = local.Terraform2
+      policy_document    = local.Terraform2
     }
   ]
 }

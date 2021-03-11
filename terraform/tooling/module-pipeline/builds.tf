@@ -3,13 +3,13 @@
 # This lets us set the vars files if somebody gives us an env_name
 locals {
   vars_files = (var.env_name == "" ? "" : "-var-file $CODEBUILD_SRC_DIR_${local.clean_tf_dir}_private_output/vars/base.tfvars -var-file $CODEBUILD_SRC_DIR_${local.clean_tf_dir}_private_output/vars/account_global_${var.account}.tfvars -var-file $CODEBUILD_SRC_DIR_${local.clean_tf_dir}_private_output/vars/${var.env_name}.tfvars")
-  envstr = (var.env_name == "" ? "" : "the ${var.env_name} environment in ")
+  envstr     = (var.env_name == "" ? "" : "the ${var.env_name} environment in ")
 }
 
 # How to run a terraform plan
 resource "aws_codebuild_project" "auto_terraform_plan" {
-  name           = "auto_terraform_${local.clean_tf_dir}_plan"
-  description    = "auto-terraform ${var.tf_dir}"
+  name          = "auto_terraform_${local.clean_tf_dir}_plan"
+  description   = "auto-terraform ${var.tf_dir}"
   build_timeout = "30"
   service_role  = var.auto_tf_role_arn
 
@@ -42,7 +42,7 @@ resource "aws_codebuild_project" "auto_terraform_plan" {
   }
 
   source {
-    type = "CODEPIPELINE"
+    type      = "CODEPIPELINE"
     buildspec = <<EOT
 version: 0.2
 
@@ -105,8 +105,8 @@ artifacts:
 
 # How to run a terraform apply
 resource "aws_codebuild_project" "auto_terraform_apply" {
-  name           = "auto_terraform_${local.clean_tf_dir}_apply"
-  description    = "auto-terraform ${var.tf_dir}"
+  name          = "auto_terraform_${local.clean_tf_dir}_apply"
+  description   = "auto-terraform ${var.tf_dir}"
   build_timeout = "30"
   service_role  = var.auto_tf_role_arn
 
@@ -139,7 +139,7 @@ resource "aws_codebuild_project" "auto_terraform_apply" {
   }
 
   source {
-    type = "CODEPIPELINE"
+    type      = "CODEPIPELINE"
     buildspec = <<EOT
 version: 0.2
 
@@ -196,8 +196,8 @@ phases:
 
 # How to run tests
 resource "aws_codebuild_project" "auto_terraform_test" {
-  name           = "auto_terraform_${local.clean_tf_dir}_test"
-  description    = "auto-terraform ${var.tf_dir}"
+  name          = "auto_terraform_${local.clean_tf_dir}_test"
+  description   = "auto-terraform ${var.tf_dir}"
   build_timeout = "30"
   service_role  = var.auto_tf_role_arn
 
@@ -230,7 +230,7 @@ resource "aws_codebuild_project" "auto_terraform_test" {
   }
 
   source {
-    type = "CODEPIPELINE"
+    type      = "CODEPIPELINE"
     buildspec = <<EOT
 version: 0.2
 
