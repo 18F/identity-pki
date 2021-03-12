@@ -1,24 +1,25 @@
 locals {
   common_account_name = var.iam_account_alias == "login-master" ? "global" : replace(var.iam_account_alias, "login-", "")
-  
+
   # attach rds_delete_prevent and region_restriction to all roles  
   custom_policy_arns = [
     aws_iam_policy.rds_delete_prevent.arn,
     aws_iam_policy.region_restriction.arn,
   ]
-  
+
   master_assumerole_policy = data.aws_iam_policy_document.master_account_assumerole.json
-  
+
   role_enabled_defaults = {
-    iam_appdev_enabled    = true
-    iam_analytics_enabled = false
-    iam_power_enabled     = true
-    iam_readonly_enabled  = true
-    iam_socadmin_enabled  = true
-    iam_terraform_enabled = true
-    iam_billing_enabled   = true
-    iam_reports_enabled   = false
-    iam_kmsadmin_enabled  = false
+    iam_appdev_enabled         = true
+    iam_analytics_enabled      = false
+    iam_power_enabled          = true
+    iam_readonly_enabled       = true
+    iam_socadmin_enabled       = true
+    iam_terraform_enabled      = true
+    iam_auto_terraform_enabled = true
+    iam_billing_enabled        = true
+    iam_reports_enabled        = false
+    iam_kmsadmin_enabled       = false
   }
 }
 
@@ -47,6 +48,11 @@ EOM
 variable "master_account_id" {
   default     = "340731855345"
   description = "AWS Account ID for master account"
+}
+
+variable "tooling_account_id" {
+  default     = "034795980528"
+  description = "AWS Account ID for tooling account"
 }
 
 variable "auditor_accounts" {
@@ -84,14 +90,14 @@ variable "cloudtrail_event_selectors" {
 
 variable "slack_username" {
   description = "Default username for SNS-to-Slack alert to display in Slack channels."
-  type = string
-  default = "SNSToSlack Notifier"
+  type        = string
+  default     = "SNSToSlack Notifier"
 }
 
 variable "slack_icon" {
   description = "Default icon for SNS-to-Slack alert to display in Slack channels."
-  type = string
-  default = ":login-dot-gov:"
+  type        = string
+  default     = ":login-dot-gov:"
 }
 
 variable "legacy_bucket_list" {
@@ -109,6 +115,6 @@ Whether or not the OpsGenie API key is present in this account's secrets
 bucket. Defaults to TRUE; set to FALSE only when building from scratch,
 as the key will need to be uploaded into the bucket once it has been created.
 EOM
-  type = bool
-  default = true
+  type        = bool
+  default     = true
 }

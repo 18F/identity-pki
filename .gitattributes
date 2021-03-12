@@ -5,3 +5,5 @@
 *.py*	text eol=lf
 *.*rb	text eol=lf
 *.tf	text eol=lf
+*.png	binary
+

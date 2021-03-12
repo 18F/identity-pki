@@ -37,7 +37,7 @@ locals {
 ## at least for now. TODO: look into using terragrunt / another application to iterate
 ## through regions, rather than duplicating the code.
 
-## us-west-2
+## us-west-2 
 
 resource "aws_sns_topic" "slack_usw2" {
   for_each = toset(keys(local.slack_channel_map))
@@ -62,7 +62,8 @@ data "aws_iam_policy_document" "sns_topic_policy_usw2" {
       type        = "Service"
       identifiers = [
         "events.amazonaws.com",
-        "cloudwatch.amazonaws.com"
+        "cloudwatch.amazonaws.com",
+        "codestar-notifications.amazonaws.com"
       ]
     }
 
@@ -82,8 +83,8 @@ resource "aws_ssm_parameter" "account_alarm_slack_usw2" {
 
 module "slack_lambda_usw2" {
   for_each = local.slack_channel_map
-  source   = "github.com/18F/identity-terraform//slack_lambda?ref=06d80f2308c4832e8139dc8e36690f79fea5cf22"
-  #source = "../../../../identity-terraform/slack_lambda"
+  source   = "github.com/18F/identity-terraform//slack_lambda?ref=44228e8cad11197e88517fcad0c7530716955b7f"
+  # source = "../../../../identity-terraform/slack_lambda"
 
   lambda_name                 = "snstoslack_login_${each.key}"
   lambda_description          = "Sends messages to #login-${each.key} Slack channel via SNS subscription."
