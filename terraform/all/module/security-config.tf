@@ -58,8 +58,8 @@ module "config_bucket_config" {
 
 resource "aws_s3_bucket_policy" "config_recorder" {
   depends_on = [aws_s3_bucket.config_recorder]
-  bucket = aws_s3_bucket.config_recorder.id
-  policy = <<POLICY
+  bucket     = aws_s3_bucket.config_recorder.id
+  policy     = <<POLICY
 {
     "Version": "2012-10-17",
     "Statement": [
@@ -104,7 +104,7 @@ resource "aws_config_configuration_recorder" "default" {
   name     = "default"
   role_arn = aws_iam_role.config_recorder.arn
   recording_group {
-    all_supported = true
+    all_supported                 = true
     include_global_resource_types = true
   }
 }
@@ -131,6 +131,43 @@ data "aws_iam_policy_document" "config_recorder_assume" {
 resource "aws_iam_role_policy_attachment" "config_recorder_managed_policy" {
   role       = aws_iam_role.config_recorder.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWS_ConfigRole"
+}
+
+resource "aws_iam_role_policy_attachment" "config_recorder_s3_policy" {
+  role       = aws_iam_role.config_recorder.name
+  policy_arn = data.aws_iam_policy_document.config_recorder_s3.json
+}
+
+data "aws_iam_policy_document" "config_recorder_s3" {
+  statement {
+    sid    = "s3put"
+    effect = "Allow"
+    actions = [
+      "s3:PutObject",
+      "s3:PutObjectAcl"
+    ]
+    resources = [
+      "arn:aws:s3:::${local.config_recorder_s3_bucket_name}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"
+    ]
+    condition {
+      test     = "StringLike"
+      variable = "s3:x-amz-acl"
+
+      values = [
+        "bucket-owner-full-control",
+      ]
+    }
+  }
+  statement {
+    sid    = "s3acl"
+    effect = "Allow"
+    actions = [
+      "s3:GetBucketAcl"
+    ]
+    resources = [
+      "arn:aws:s3:::${local.config_recorder_s3_bucket_name}"
+    ]
+  }
 }
 
 resource "aws_config_delivery_channel" "default" {
