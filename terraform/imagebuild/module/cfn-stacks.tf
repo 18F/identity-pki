@@ -60,8 +60,7 @@ resource "aws_cloudformation_stack" "image_codebuild_stack" {
     NetworkStackName   = aws_cloudformation_stack.image_network_stack.name
     ProjectName        = "login-image-${each.key}"
     RoleName           = each.key
-    #SourceFileName     = "18F/identity-base-image/branch/master/18F_identity-base-image_branch_master.zip"
-    SourceFileName     = "18F/identity-base-image/branch/jp/re-FIPS/18F_identity-base-image_branch_jp_re-FIPS.zip"
+    SourceFileName     = "18F/identity-base-image/branch/main/18F_identity-base-image_branch_main.zip"
     Git2S3OutputBucket = local.git2s3_bucket
   }
   capabilities = ["CAPABILITY_IAM"]
