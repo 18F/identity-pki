@@ -36,24 +36,24 @@ resource "newrelic_alert_condition" "pivcac_low_throughput" {
 }
 
 resource "newrelic_synthetics_monitor" "pivcac_certs_health_7d" {
-  count     = var.pivcac_service_enabled
-  name      = "${var.env_name} PIV/CAC /api/health/certs check (7 days)"
-  type      = "SIMPLE"
-  frequency = 60
-  status    = "ENABLED"
-  locations = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
+  count             = var.pivcac_service_enabled
+  name              = "${var.env_name} PIV/CAC /api/health/certs check (7 days)"
+  type              = "SIMPLE"
+  frequency         = 60
+  status            = "ENABLED"
+  locations         = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
   uri               = "https://${local.pivcac_domain_name}/api/health/certs.json?deadline=7d&source=newrelic"
   validation_string = "\"healthy\":true"
   verify_ssl        = true
 }
 
 resource "newrelic_synthetics_monitor" "pivcac_certs_health_30d" {
-  count     = var.pivcac_service_enabled
-  name      = "${var.env_name} PIV/CAC /api/health/certs check (30 days)"
-  type      = "SIMPLE"
-  frequency = 60
-  status    = "ENABLED"
-  locations = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
+  count             = var.pivcac_service_enabled
+  name              = "${var.env_name} PIV/CAC /api/health/certs check (30 days)"
+  type              = "SIMPLE"
+  frequency         = 60
+  status            = "ENABLED"
+  locations         = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
   uri               = "https://${local.pivcac_domain_name}/api/health/certs.json?deadline=30d&source=newrelic"
   validation_string = "\"healthy\":true"
   verify_ssl        = true
