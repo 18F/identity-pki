@@ -32,6 +32,11 @@ variable "sandbox_account_id" {
   default     = "894947205914"
 }
 
+variable "alpha_account_id" {
+  description = "account id for the alpha account"
+  default     = "917793222841"
+}
+
 output "auto_tf_vpc_id" {
   value = aws_vpc.auto_terraform.id
 }
