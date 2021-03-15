@@ -277,7 +277,27 @@
                             ]]}],
                         "Action": [
                             "s3:GetObject",
-                            "s3:GetobjectVersion"
+                            "s3:GetObjectVersion"
+                        ]
+                    }]
+                },
+                "Roles": [{"Ref": "CodeBuildRole"}]
+            }
+        },
+        "CodeBuildSecretsCommonPolicy": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "CodeBuildSecretsCommonPolicy",
+                "PolicyDocument": {
+                    "Statement": [{
+                        "Effect": "Allow",
+                        "Resource": [
+                            {"Fn::Sub": "arn:aws:s3:::login-gov.secrets.${AWS::AccountId}-${AWS::Region}/common/GeoIP2-City.mmdb"},
+                            {"Fn::Sub": "arn:aws:s3:::login-gov.secrets.${AWS::AccountId}-${AWS::Region}/common/pwned-passwords.txt"}
+                        ],
+                        "Action": [
+                            "s3:GetObject",
+                            "s3:GetObjectVersion"
                         ]
                     }]
                 },
@@ -469,8 +489,8 @@
                                 "s3:Get*"
                             ],
                             "Resource": [
-                                {"Fn::Join": ["", ["arn:aws:s3:::login-gov.secrets.", {"Ref": "AWS::AccountId"}, "-*/common/*"]]},
-                                {"Fn::Join": ["", ["arn:aws:s3:::login-gov.secrets.", {"Ref": "AWS::AccountId"}, "-*/common/"]]}
+                                {"Fn::Sub": "arn:aws:s3:::login-gov.secrets.${AWS::AccountId}-${AWS::Region}/common/*"},
+                                {"Fn::Sub": "arn:aws:s3:::login-gov.secrets.${AWS::AccountId}-${AWS::Region}/common/"}
                             ]
                         },
                         {
@@ -478,8 +498,8 @@
                             "Effect": "Allow",
                             "Action": "s3:ListBucket",
                             "Resource": [
-                                {"Fn::Join": ["", ["arn:aws:s3:::login-gov.secrets.", {"Ref": "AWS::AccountId"}, "-*"]]},
-                                {"Fn::Join": ["", ["arn:aws:s3:::login-gov.app-secrets.", {"Ref": "AWS::AccountId"}, "-*"]]}
+                                {"Fn::Sub": "arn:aws:s3:::login-gov.secrets.${AWS::AccountId}-${AWS::Region}*"},
+                                {"Fn::Sub": "arn:aws:s3:::login-gov.app-secrets.${AWS::AccountId}-${AWS::Region}*"}
                             ],
                             "Condition": {
                                 "StringEquals": {
