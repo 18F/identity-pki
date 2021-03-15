@@ -27,6 +27,11 @@ variable "region" {
   description = "AWS region, used for S3 bucket names"
 }
 
+variable "sandbox_account_id" {
+  description = "account id for the sandbox account"
+  default     = "894947205914"
+}
+
 output "auto_tf_vpc_id" {
   value = aws_vpc.auto_terraform.id
 }

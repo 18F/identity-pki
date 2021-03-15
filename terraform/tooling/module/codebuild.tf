@@ -27,6 +27,14 @@ resource "aws_iam_role_policy" "auto_terraform" {
 {
   "Version": "2012-10-17",
   "Statement": [
+   {
+      "Sid": "AssumeAutoTerraform",
+      "Effect": "Allow",
+      "Action": "sts:AssumeRole",
+      "Resource": [
+          "arn:aws:iam::${var.sandbox_account_id}:role/AutoTerraform"
+      ]
+    },
     {
       "Effect": "Allow",
       "Resource": [
