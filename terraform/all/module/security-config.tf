@@ -133,9 +133,15 @@ resource "aws_iam_role_policy_attachment" "config_recorder_managed_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWS_ConfigRole"
 }
 
+resource "aws_iam_policy" "config_recorder_s3" {
+  name        = "ConfigRecorderPolicy"
+  description = "Policy to allow s3 changes to be recorded"
+  policy = data.aws_iam_policy_document.config_recorder_s3.json
+}
+
 resource "aws_iam_role_policy_attachment" "config_recorder_s3_policy" {
   role       = aws_iam_role.config_recorder.name
-  policy_arn = data.aws_iam_policy_document.config_recorder_s3.json
+  policy_arn = aws_iam_policy.config_recorder_s3.arn
 }
 
 data "aws_iam_policy_document" "config_recorder_s3" {
