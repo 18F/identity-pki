@@ -207,7 +207,12 @@
                             "ec2:DescribeSecurityGroups",
                             "ec2:DescribeVpcs"
                     ],
-                        "Resource": "*"
+                        "Resource": "*",
+                        "Condition": {
+                            "StringEquals": {
+                                "ec2:AuthorizedService": "codebuild.amazonaws.com"
+                            }
+                        }
                     },
                     {
                         "Effect": "Allow",
@@ -420,9 +425,13 @@
                             "ec2:StopInstances",
                             "ec2:TerminateInstances"
                         ],
-                        "Resource": "*"
-                    }
-                ]
+                        "Resource": "*",
+                        "Condition": {
+                            "StringEquals": {
+                                "ec2:AuthorizedService": "codebuild.amazonaws.com"
+                            }
+                        }
+                    ]
                 },
                 "Roles": [{"Ref": "CodeBuildRole"}]
             }
