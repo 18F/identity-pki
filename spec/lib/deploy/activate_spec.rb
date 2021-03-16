@@ -3,7 +3,7 @@ require 'fakefs/spec_helpers'
 require 'identity/hostdata/fake_s3_client'
 require Rails.root.join('lib', 'deploy', 'activate.rb')
 
-TRUSTED_ROOT_COUNT = 3
+TRUSTED_ROOT_COUNT = 4
 DOD_ROOT_COUNT = 3
 
 describe Deploy::Activate do
