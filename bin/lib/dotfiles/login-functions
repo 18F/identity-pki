@@ -164,3 +164,18 @@ EOF
                             awk '{print $1, $2, $3, $4, $6, $12}' |
                             column -t
 }
+
+### get secrets bucket ###
+get_secrets() {
+  PROFILE=${1}
+  GIT_DIR=$(git rev-parse --show-toplevel)
+  if [ "$(echo ${GIT_DIR} | awk -F/ '{print $NF}')" != 'identity-devops' ]
+  then
+    echo "Must run in identity-devops"
+    false
+  else
+    ACCOUNT=$(grep "# login-${PROFILE}" "${GIT_DIR}/terraform/master/global/main.tf" |
+              sed -E 's/^.*\"([0-9]+)\".*$/\1/')
+    echo "s3://login-gov.secrets.${ACCOUNT}-us-west-2/"
+  fi
+}
