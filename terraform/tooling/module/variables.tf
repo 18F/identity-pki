@@ -37,6 +37,16 @@ variable "alpha_account_id" {
   default     = "917793222841"
 }
 
+variable "secopsdev_account_id" {
+  description = "account id for the secopsdev account"
+  default     = "138431511372"
+}
+
+variable "sms-sandbox_account_id" {
+  description = "account id for the sms-sandbox account"
+  default     = "035466892286"
+}
+
 output "auto_tf_vpc_id" {
   value = aws_vpc.auto_terraform.id
 }
