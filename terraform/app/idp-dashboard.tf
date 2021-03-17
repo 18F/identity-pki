@@ -40,12 +40,12 @@ variable "idp_events_auth_filters" {
     },
     multi_factor_authentication_setup_success = {
       name         = "multi-factor-authentication-setup-success"
-      pattern      = "{ ($.name = \"Multi-Factor Authentication Setup\") && $.properties.event_properties.success = true }"
+      pattern      = "{ ($.name = \"Multi-Factor Authentication Setup\") && $.properties.event_properties.success is true }"
       metric_value = 1
     },
     login_failure_email_or_password = {
       name         = "login-failure-email-or-password"
-      pattern      = "{ ($.name = \"Email and Password Authentication\") && $.properties.event_properties.success = false }"
+      pattern      = "{ ($.name = \"Email and Password Authentication\") && $.properties.event_properties.success is false }"
       metric_value = 1
     },
     rate_limit_triggered = {
