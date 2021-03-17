@@ -175,7 +175,7 @@ module "smssandbox" {
 }
 
 # deploy the sms/sandbox-east target to the sms-sandbox account on the main branch
-module "smssandbox" {
+module "smssandboxeast" {
   region = "us-west-2"
   source = "../module-pipeline"
 
