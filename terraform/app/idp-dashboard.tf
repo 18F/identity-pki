@@ -791,7 +791,17 @@ resource "aws_cloudwatch_dashboard" "idp_external_service" {
                 "region": "us-west-2",
                 "period": 300,
                 "stat": "p99",
-                "title": "AWS 99th Percentile Response Times"
+                "title": "AWS 99th Percentile Response Times",
+                "yAxis": {
+                    "left": {
+                        "showUnits": false,
+                        "label": "Seconds"
+                    },
+                    "right": {
+                        "label": "",
+                        "showUnits": false
+                    }
+                }
             }
         },
         {
