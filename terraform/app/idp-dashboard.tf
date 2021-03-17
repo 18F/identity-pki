@@ -1,7 +1,9 @@
 locals {
   auth_metric_namespace = "${var.env_name}/idp-authentication"
   ialx_metric_namespace = "${var.env_name}/idp-ialx"
+  external_service_namespace = "${var.env_name}/idp-external-service"
   dashboard_name        = "${var.env_name}-idp-workload"
+  external_service_dashboard_name = "${var.env_name}-idp-external-service"
 }
 
 variable "idp_events_auth_filters" {
@@ -166,6 +168,73 @@ variable "idp_telephony_auth_filters" {
       pattern      = "{ $.adapter = \"pinpoint\" && $.success is false && $.channel = \"voice\" && $.delivery_status != \"THROTTLED\" }"
       metric_value = 1
     },
+  }
+}
+
+variable "idp_external_service_filters" {
+  type = map(object({
+    name         = string
+    pattern      = string
+    metric_value = string
+  }))
+  default = {
+    aws_kms_decrypt_response_time = {
+      name         = "aws-kms-decrypt-response-time"
+      pattern      = "[service=\"Aws::KMS::Client\", status, response_time_seconds, retries, operation=decrypt, error]"
+      metric_value = "$response_time_seconds"
+    },
+    aws_kms_encrypt_response_time = {
+      name         = "aws-kms-encrypt-response-time"
+      pattern      = "[service=\"Aws::KMS::Client\", status, response_time_seconds, retries, operation=encrypt, error]"
+      metric_value = "$response_time_seconds"
+    },
+    aws_pinpoint_send_messages_response_time = {
+      name         = "aws-pinpoint-send-messages-response-time"
+      pattern      = "[service=\"Aws::Pinpoint::Client\", status, response_time_seconds, retries, operation=send_messages, error]"
+      metric_value = "$response_time_seconds"
+    },
+    aws_pinpoint_voice_send_voice_message_response_time = {
+      name         = "aws-pinpoint-voice-send-voice-message-response-time"
+      pattern      = "[service=\"Aws::PinpointSMSVoice::Client\", status, response_time_seconds, retries, operation=send_voice_message, error]"
+      metric_value = "$response_time_seconds"
+    },
+    aws_pinpoint_phone_number_validate_response_time = {
+      name         = "aws-pinpoint-phone-number-validate-response-time"
+      pattern      = "[service=\"Aws::Pinpoint::Client\", status, response_time_seconds, retries, operation=phone_number_validate, error]"
+      metric_value = "$response_time_seconds"
+    },
+    aws_ses_send_raw_email_response_time = {
+      name         = "aws-ses-send-raw-email-response-time"
+      pattern      = "[service=\"Aws::SES::Client\", status, response_time_seconds, retries, operation=send_raw_email, error]"
+      metric_value = "$response_time_seconds"
+    },
+    aws_s3_put_object_response_time = {
+      name         = "aws-s3-put-object-response-time"
+      pattern      = "[service=\"Aws::S3::Client\", status, response_time_seconds, retries, operation=put_object, error]"
+      metric_value = "$response_time_seconds"
+    },
+    aws_sts_assume_role_response_time = {
+      name         = "aws-sts-assume-role-response-time"
+      pattern      = "[service=\"Aws::STS::Client\", status, response_time_seconds, retries, operation=assume_role, error]"
+      metric_value = "$response_time_seconds"
+    },
+    aws_lambda_invoke_response_time = {
+      name         = "aws-lambda-invoke-response-time"
+      pattern      = "[service=\"Aws::Lambda::Client\", status, response_time_seconds, retries, operation=invoke, error]"
+      metric_value = "$response_time_seconds"
+    },
+  }
+}
+
+resource "aws_cloudwatch_log_metric_filter" "idp_external_service" {
+  for_each       = var.idp_external_service_filters
+  name           = each.value["name"]
+  pattern        = each.value["pattern"]
+  log_group_name = aws_cloudwatch_log_group.idp_production.name
+  metric_transformation {
+    name      = each.value["name"]
+    namespace = local.external_service_namespace
+    value     = each.value["metric_value"]
   }
 }
 
@@ -687,6 +756,85 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
                         "showUnits": false,
                         "label": "Requests"
                     }
+                }
+            }
+        }
+    ]
+}
+EOF
+}
+
+resource "aws_cloudwatch_dashboard" "idp_external_service" {
+  dashboard_name = local.external_service_dashboard_name
+  dashboard_body = <<EOF
+{
+    "widgets": [
+        {
+            "type": "metric",
+            "x": 0,
+            "y": 0,
+            "width": 24,
+            "height": 12,
+            "properties": {
+                "metrics": [
+                    [ "mhenke/idp-external-service", "aws-kms-decrypt-response-time", { "label": "KMS Decrypt" } ],
+                    [ ".", "aws-kms-encrypt-response-time", { "label": "KMS Encrypt" } ],
+                    [ ".", "aws-pinpoint-phone-number-validate-response-time", { "label": "Pinpoint Validate Phone" } ],
+                    [ ".", "aws-pinpoint-send-messages-response-time", { "label": "Pinpoint Send SMS" } ],
+                    [ ".", "aws-pinpoint-voice-send-voice-message-response-time", { "label": "Pinpoint Send Voice" } ],
+                    [ ".", "aws-s3-put-object-response-time", { "label": "S3 Put Object" } ],
+                    [ ".", "aws-ses-send-raw-email-response-time", { "label": "SES Send Email" } ],
+                    [ ".", "aws-sts-assume-role-response-time", { "label": "STS Assume Role" } ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "us-west-2",
+                "period": 300,
+                "stat": "p99",
+                "title": "AWS 99th Percentile Response Times",
+                "yAxis": {
+                    "left": {
+                        "showUnits": false,
+                        "label": "Seconds"
+                    },
+                    "right": {
+                        "label": "",
+                        "showUnits": false
+                    }
+                }
+            }
+        },
+        {
+            "type": "metric",
+            "x": 0,
+            "y": 12,
+            "width": 24,
+            "height": 12,
+            "properties": {
+                "metrics": [
+                    [ "mhenke/idp-external-service", "aws-kms-decrypt-response-time", { "label": "KMS Decrypt", "yAxis": "right" } ],
+                    [ ".", "aws-kms-encrypt-response-time", { "label": "KMS Encrypt", "yAxis": "right" } ],
+                    [ ".", "aws-pinpoint-phone-number-validate-response-time", { "label": "Pinpoint Validate Phone" } ],
+                    [ ".", "aws-pinpoint-send-messages-response-time", { "label": "Pinpoint Send SMS" } ],
+                    [ ".", "aws-pinpoint-voice-send-voice-message-response-time", { "label": "Pinpoint Send Voice" } ],
+                    [ ".", "aws-s3-put-object-response-time", { "label": "S3 Put Object" } ],
+                    [ ".", "aws-ses-send-raw-email-response-time", { "label": "SES Send Email" } ],
+                    [ ".", "aws-sts-assume-role-response-time", { "label": "STS Assume Role" } ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "us-west-2",
+                "period": 60,
+                "stat": "SampleCount",
+                "title": "AWS Requests",
+                "setPeriodToTimeRange": true,
+                "yAxis": {
+                    "left": {
+                        "showUnits": true
+                    }
+                },
+                "legend": {
+                    "position": "bottom"
                 }
             }
         }
