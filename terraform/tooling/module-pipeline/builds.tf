@@ -63,7 +63,7 @@ phases:
       - if [ -f ./env-vars.sh ] ; then . ./env-vars.sh ; fi
       - unset AWS_PROFILE
       - export AWS_STS_REGIONAL_ENDPOINTS=regional
-      - roledata=$(aws sts assume-role --role-arn "arn:aws:iam::$aws_account_id:role/AutoTerraform" --role-session-name "auto-tf-plan")
+      - roledata=$(aws sts assume-role --role-arn "arn:aws:iam::${var.account}:role/AutoTerraform" --role-session-name "auto-tf-plan-${local.clean_tf_dir}")
       - export AWS_ACCESS_KEY_ID=$(echo $roledata | jq -r .Credentials.AccessKeyId)
       - export AWS_SECRET_ACCESS_KEY=$(echo $roledata | jq -r .Credentials.SecretAccessKey)
       - export AWS_SESSION_TOKEN=$(echo $roledata | jq -r .Credentials.SessionToken)
@@ -160,7 +160,7 @@ phases:
       - if [ -f ./env-vars.sh ] ; then . ./env-vars.sh ; fi
       - unset AWS_PROFILE
       - export AWS_STS_REGIONAL_ENDPOINTS=regional
-      - roledata=$(aws sts assume-role --role-arn "arn:aws:iam::${var.account}:role/AutoTerraform" --role-session-name "auto-tf-apply")
+      - roledata=$(aws sts assume-role --role-arn "arn:aws:iam::${var.account}:role/AutoTerraform" --role-session-name "auto-tf-apply-${local.clean_tf_dir}")
       - export AWS_ACCESS_KEY_ID=$(echo $roledata | jq -r .Credentials.AccessKeyId)
       - export AWS_SECRET_ACCESS_KEY=$(echo $roledata | jq -r .Credentials.SecretAccessKey)
       - export AWS_SESSION_TOKEN=$(echo $roledata | jq -r .Credentials.SessionToken)
