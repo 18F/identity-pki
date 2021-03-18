@@ -3,3 +3,4 @@ domainAllowList:
 - .amazonaws.com
 - github.com
 - api.github.com
+- synthetics.newrelic.com

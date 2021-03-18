@@ -44,7 +44,7 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
       configuration = {
         Owner      = "18F"
         Repo       = "identity-devops-private"
-        Branch     = "master"
+        Branch     = "main"
         OAuthToken = data.aws_s3_bucket_object.identity_devops_oauthkey.body
       }
     }

@@ -114,6 +114,18 @@ locals {
     var.role,
     var.proxy_enabled_roles["unknown"],
   ) == 1 ? var.no_proxy_hosts : ""
+
+  apt_proxy_data = <<EOF
+ - path: /etc/apt/apt.conf.d/proxy.conf
+   content: |
+     Acquire::http::Proxy "http://${var.proxy_server}:${var.proxy_port}";
+     Acquire::https::Proxy "http://${var.proxy_server}:${var.proxy_port}";
+EOF
+  apt_proxy_stanza = lookup(
+    var.proxy_enabled_roles,
+    var.role,
+    var.proxy_enabled_roles["unknown"],
+  ) == 1 ? local.apt_proxy_data : ""
 }
 
 output "main_git_ref" {
@@ -137,21 +149,17 @@ output "rendered_cloudinit_config" {
   value = data.template_cloudinit_config.bootstrap.rendered
 }
 
-data "external" "set-hostname-template" {
-  program = ["ruby", "${path.module}/erb_template.rb"]
-
-  query = {
-    erb_template    = file("${path.module}/cloud-init.hostname.yaml.erb")
+data "template_file" "set-hostname-template" {
+  template = file("${path.module}/cloud-init.hostname.yaml.tpl")
+  vars = {
     hostname_prefix = var.role
     domain          = "${var.env}.${var.domain}"
   }
 }
 
-data "external" "cloud-init-base-template" {
-  program = ["ruby", "${path.module}/erb_template.rb"]
-
-  query = {
-    erb_template   = file("${path.module}/cloud-init.base.yaml.erb")
+data "template_file" "cloud-init-base-template" {
+  template = file("${path.module}/cloud-init.base.yaml.tpl")
+  vars = {
     domain         = var.domain
     sns_topic_arn  = var.sns_topic_arn
     env            = var.env
@@ -159,6 +167,7 @@ data "external" "cloud-init-base-template" {
     proxy_server   = local.proxy_server
     proxy_port     = local.proxy_port
     no_proxy_hosts = local.no_proxy_hosts
+    apt_proxy_stanza = local.apt_proxy_stanza
   }
 }
 
@@ -181,14 +190,14 @@ data "external" "cloud-init-base-template" {
 # Currently we run identity-devops-private first. Because the identity-devops
 # cookbooks are so complicated and take so long to run, it's useful to have
 # unix accounts set up early so we can SSH in to diagnose failures.
-data "external" "cloud-init-provision-private-template" {
-  program = ["ruby", "${path.module}/erb_template.rb"]
-
-  query = {
-    erb_template = file("${path.module}/cloud-init.provision.yaml.erb")
+data "template_file" "cloud-init-provision-private-template" {
+  template = file("${path.module}/cloud-init.provision.yaml.tpl")
+  vars = {
     # This will cause /run/<provision_phase_name> to be created if this
     # completes successfully.
     provision_phase_name = "private-provisioning"
+    kitchen_subdir       = ""
+    berksfile_toplevel   = ""
     chef_download_sha256 = var.chef_download_sha256
     chef_download_url    = var.chef_download_url
     git_clone_url        = var.private_git_clone_url
@@ -196,19 +205,19 @@ data "external" "cloud-init-provision-private-template" {
     s3_ssh_key_url       = var.private_s3_ssh_key_url
     asg_name             = local.asg_name
     lifecycle_hook_name  = var.private_lifecycle_hook_name
+    run_aide             = "echo not running aideinit"
+
   }
 }
 
-data "external" "cloud-init-provision-main-template" {
-  program = ["ruby", "${path.module}/erb_template.rb"]
-
-  query = {
-    erb_template = file("${path.module}/cloud-init.provision.yaml.erb")
+data "template_file" "cloud-init-provision-main-template" {
+  template = file("${path.module}/cloud-init.provision.yaml.tpl")
+  vars = {
     # This will cause /run/<provision_phase_name> to be created if this
     # completes successfully.
     provision_phase_name = "main-provisioning"
-    kitchen_subdir       = "kitchen"
-    berksfile_toplevel   = "true"
+    kitchen_subdir       = "--kitchen-subdir kitchen"
+    berksfile_toplevel   = "--berksfile-toplevel"
     chef_download_sha256 = var.chef_download_sha256
     chef_download_url    = var.chef_download_url
     git_clone_url        = var.main_git_clone_url
@@ -216,7 +225,7 @@ data "external" "cloud-init-provision-main-template" {
     s3_ssh_key_url       = var.main_s3_ssh_key_url
     asg_name             = local.asg_name
     lifecycle_hook_name  = var.main_lifecycle_hook_name
-    run_aide             = "true"
+    run_aide             = "aideinit --force --yes && touch /var/tmp/ran-aideinit"
   }
 }
 
@@ -228,7 +237,7 @@ data "template_cloudinit_config" "bootstrap" {
   part {
     filename     = "set-hostname.yaml"
     content_type = "text/cloud-config"
-    content      = data.external.set-hostname-template.result.rendered
+    content      = data.template_file.set-hostname-template.rendered
   }
 
   part {
@@ -240,19 +249,19 @@ data "template_cloudinit_config" "bootstrap" {
   part {
     filename     = "base.yaml"
     content_type = "text/cloud-config"
-    content      = data.external.cloud-init-base-template.result.rendered
+    content      = data.template_file.cloud-init-base-template.rendered
   }
 
   part {
     filename     = "provision-private.yaml"
     content_type = "text/cloud-config"
-    content      = data.external.cloud-init-provision-private-template.result.rendered
+    content      = data.template_file.cloud-init-provision-private-template.rendered
   }
 
   part {
     filename     = "provision-main.yaml"
     content_type = "text/cloud-config"
-    content      = data.external.cloud-init-provision-main-template.result.rendered
+    content      = data.template_file.cloud-init-provision-main-template.rendered
   }
 }
 
