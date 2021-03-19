@@ -1,6 +1,7 @@
 require 'rails_helper'
 require 'fakefs/spec_helpers'
 require 'identity/hostdata/fake_s3_client'
+require 'openssl'
 require Rails.root.join('lib', 'deploy', 'activate.rb')
 
 TRUSTED_ROOT_COUNT = 4
@@ -86,6 +87,17 @@ describe Deploy::Activate do
       expect(combined_application_yml['production']['secret_key_base']).to eq('this is a secret')
       # production key from applicaiton.yml.example, not overwritten
       expect(combined_application_yml['production']['client_cert_escaped']).to eq('true')
+    end
+
+    it 'FPKI fingerprint matches https://fpki.idmanagement.gov/common/obtain-and-verify/' do
+      path = File.join(config_dir, 'certs',
+                       'c=US, O=U.S. Government, OU=FPKI, CN=Federal Common Policy CA G2.pem')
+      expect(File.exist?(path)).to eq(true)
+
+      cert = OpenSSL::X509::Certificate.new File.read path
+      expect(OpenSSL::Digest::SHA256.new(cert.to_der).to_s).to eq(
+        '5f9aecc24616b2191372600dd80f6dd320c8ca5a0ceb7f09c985ebf0696934fc'
+      )
     end
 
     it 'sets the correct permissions on the YAML files' do
