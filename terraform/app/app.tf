@@ -2,6 +2,8 @@ resource "aws_db_instance" "default" {
   count = var.apps_enabled
 
   allocated_storage    = var.rds_storage_app
+  backup_retention_period = var.rds_backup_retention_period
+  backup_window           = var.rds_backup_window
   db_subnet_group_name = aws_db_subnet_group.default.id
   depends_on = [
     aws_security_group.db,
