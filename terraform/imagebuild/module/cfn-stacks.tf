@@ -18,6 +18,7 @@ resource "aws_cloudformation_stack" "image_network_stack" {
     PublicSubnet1CIDR  = var.image_build_public_cidr
     VPCCIDR            = var.image_build_vpc_cidr
   }
+  capabilities = ["CAPABILITY_IAM"]
 }
 
 resource "aws_s3_bucket_object" "packer_config" {

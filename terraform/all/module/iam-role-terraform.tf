@@ -396,6 +396,7 @@ locals {
         "iam:TagRole",
         "iam:UntagRole",
         "iam:UpdateAccountPasswordPolicy",
+        "iam:UpdateAssumeRolePolicy",
       ]
       resources = [
         "*",

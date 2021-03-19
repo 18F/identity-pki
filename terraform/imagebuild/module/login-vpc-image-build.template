@@ -389,7 +389,7 @@
                         "IpProtocol": "TCP",
                         "FromPort": "22",
                         "ToPort": "22",
-                        "CidrIp": "0.0.0.0/0"
+                        "CidrIp": {"Fn::Sub": "${EIPNatGateway1}/32"}
                     }
                 ],
                 "SecurityGroupEgress": [
@@ -476,6 +476,60 @@
                 "ServiceName": {"Fn::Sub": "com.amazonaws.${AWS::Region}.s3"},
                 "VpcId": {"Ref": "VPC"}
             }   
+        },
+        "FlowLogsCloudWatchGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+                "LogGroupName": {"Fn::Sub": "${AWS::StackName}-FlowLogs"}
+            }
+        },
+        "FlowLogsRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [{
+                        "Sid": "",
+                        "Effect": "Allow",
+                        "Principal": {
+                            "Service": ["vpc-flow-logs.amazonaws.com"]
+                        },
+                        "Action": "sts:AssumeRole"
+                    }]
+                }
+            }
+        },
+        "FlowLogsRolePolicy": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "FlowLogsRolePolicy",
+                "PolicyDocument": {
+                    "Statement": [{
+                        "Effect": "Allow",
+                        "Resource": [
+                            {"Fn::GetAtt": ["FlowLogsCloudWatchGroup", "Arn"]}
+                        ],
+                        "Action": [
+                            "logs:CreateLogGroup",
+                            "logs:CreateLogStream",
+                            "logs:PutLogEvents",
+                            "logs:DescribeLogGroups",
+                            "logs:DescribeLogStreams"
+                        ]
+                    }]
+                },
+                "Roles": [{"Ref": "FlowLogsRole"}]
+            }
+        },
+        "CodeBuildVPCFlowLogs": {
+            "Type": "AWS::EC2::FlowLog",
+            "Properties": {
+                  "DeliverLogsPermissionArn": {"Fn::GetAtt": ["FlowLogsRole", "Arn"]},
+                  "LogGroupName": {"Ref": "FlowLogsCloudWatchGroup"},
+                  "ResourceId": {"Ref": "VPC"},
+                  "ResourceType": "VPC",
+                  "MaxAggregationInterval": 60,
+                  "TrafficType": "ALL"
+            }
         }
     },
     "Outputs": {

@@ -220,7 +220,10 @@
                             "s3:GetObjectVersion",
                             "s3:GetBucketVersioning"
                         ],
-                        "Resource": "*",
+                        "Resource": [
+                            {"Fn::Sub": "arn:aws:s3:::${ArtifactBucket}"},
+                            {"Fn::Sub": "arn:aws:s3:::${ArtifactBucket}/*"}
+                        ],
                         "Effect": "Allow"
                     }, {
                         "Action": [
@@ -236,7 +239,13 @@
                             "codebuild:BatchGetBuilds",
                             "codebuild:StartBuild"
                         ],
-                        "Resource": "*",
+                        "Resource": [
+                          {"Fn::Join": [ "", [
+                              "arn:aws:codebuild:",
+                              {"Fn::Sub": "${AWS::Region}:${AWS::AccountId}:project/"},
+                              {"Fn::ImportValue": {"Fn::Sub": "${CodeBuildStackName}-ProjectName"}}
+                          ]]}
+                        ],
                         "Effect": "Allow"
                     }]
                 },

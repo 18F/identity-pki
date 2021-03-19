@@ -183,7 +183,10 @@
                         "Sid": "",
                         "Effect": "Allow",
                         "Principal": {
-                            "Service": ["codebuild.amazonaws.com"]
+                            "Service": [
+                                "codebuild.amazonaws.com",
+                                "ec2.amazonaws.com"
+                            ]
                         },
                         "Action": "sts:AssumeRole"
                     }]
@@ -196,39 +199,47 @@
             "Properties": {
                 "PolicyName": "CodeBuildVpcPolicy",
                 "PolicyDocument": {
-                "Statement": [{
-                        "Effect": "Allow",
-                        "Action": [
-                            "ec2:CreateNetworkInterface",
-                            "ec2:DescribeDhcpOptions",
-                            "ec2:DescribeNetworkInterfaces",
-                            "ec2:DeleteNetworkInterface",
-                            "ec2:DescribeSubnets",
-                            "ec2:DescribeSecurityGroups",
-                            "ec2:DescribeVpcs"
-                    ],
-                        "Resource": "*"
-                    },
-                    {
-                        "Effect": "Allow",
-                        "Action": [
-                            "ec2:CreateNetworkInterfacePermission"
-                        ],
-                        "Resource": {"Fn::Sub": "arn:aws:ec2:${AWS::Region}:${AWS::AccountId}:network-interface/*"},
-                        "Condition": {
-                            "StringEquals": {
-                                "ec2:Subnet": [
-                                    {"Fn::Join": [ "", [
-                                        "arn:aws:ec2:",
-                                        {"Fn::Sub": "${AWS::Region}:${AWS::AccountId}:subnet/"},
-                                        {"Fn::ImportValue": {"Fn::Sub": "${NetworkStackName}-PrivateSubnet1ID"}}
-                                    ]]}],
-                                "ec2:AuthorizedService": "codebuild.amazonaws.com"
+                        "Statement": [
+                            {
+                                "Effect": "Allow", 
+                                "Action": [
+                                    "ec2:DescribeDhcpOptions",
+                                    "ec2:DescribeNetworkInterfaces",
+                                    "ec2:DescribeSubnets",
+                                    "ec2:DescribeSecurityGroups",
+                                    "ec2:DescribeVpcs",
+                                    "ec2:CreateNetworkInterface",
+                                    "ec2:DeleteNetworkInterface"
+                                ], 
+                                "Resource": "*" 
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "ec2:CreateNetworkInterfacePermission"
+                                ],
+                                "Resource": "*",
+                                "Condition": {
+                                    "StringEquals": {
+                                        "ec2:Subnet": [
+                                            {"Fn::Join": [ "", [
+                                                "arn:aws:ec2:",
+                                                {"Fn::Sub": "${AWS::Region}:${AWS::AccountId}:subnet/"},
+                                                {"Fn::ImportValue": {"Fn::Sub": "${NetworkStackName}-PrivateSubnet1ID"}}
+                                            ]]},
+                                            {"Fn::Join": [ "", [
+                                                "arn:aws:ec2:",
+                                                {"Fn::Sub": "${AWS::Region}:${AWS::AccountId}:subnet/"},
+                                                {"Fn::ImportValue": {"Fn::Sub": "${NetworkStackName}-PublicSubnet1ID"}}
+                                            ]]}
+                                        ],
+                                        "ec2:AuthorizedService": "codebuild.amazonaws.com"
+                                    }
+                                }
                             }
-                        }
-                    }
-                ]},
-                "Roles": [{"Ref": "CodeBuildRole"}]
+                        ]
+                    },
+                    "Roles": [{"Ref": "CodeBuildRole"}]
             }
         },
         "CodeBuildLogPolicy": {
@@ -244,7 +255,9 @@
                         "Action": [
                             "logs:CreateLogGroup",
                             "logs:CreateLogStream",
-                            "logs:PutLogEvents"
+                            "logs:PutLogEvents",
+                            "logs:DescribeLogGroups",
+                            "logs:DescribeLogStreams"
                         ]
                     }]
                 },
@@ -272,7 +285,27 @@
                             ]]}],
                         "Action": [
                             "s3:GetObject",
-                            "s3:GetobjectVersion"
+                            "s3:GetObjectVersion"
+                        ]
+                    }]
+                },
+                "Roles": [{"Ref": "CodeBuildRole"}]
+            }
+        },
+        "CodeBuildSecretsCommonPolicy": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "CodeBuildSecretsCommonPolicy",
+                "PolicyDocument": {
+                    "Statement": [{
+                        "Effect": "Allow",
+                        "Resource": [
+                            {"Fn::Sub": "arn:aws:s3:::login-gov.secrets.${AWS::AccountId}-${AWS::Region}/common/GeoIP2-City.mmdb"},
+                            {"Fn::Sub": "arn:aws:s3:::login-gov.secrets.${AWS::AccountId}-${AWS::Region}/common/pwned-passwords.txt"}
+                        ],
+                        "Action": [
+                            "s3:GetObject",
+                            "s3:GetObjectVersion"
                         ]
                     }]
                 },
@@ -386,22 +419,72 @@
                 "PolicyDocument": {  
                 "Statement": [
                     {
-                        "Sid": "Ec2GeneralAllow",
+                        "Sid": "Ec2KeypairAccess",
+                        "Effect": "Allow",
+                        "Action": [
+                            "ec2:CreateKeypair",
+                            "ec2:DeleteKeypair"
+                        ],
+                        "Resource": {"Fn::Sub": "arn:aws:ec2:${AWS::Region}:${AWS::AccountId}:key-pair/*"},
+                        "Condition": {
+                            "StringLike": {
+                                "ec2:KeyPairName": "packer*"
+                            }
+                        }
+                    },
+                    {
+                        "Sid": "Ec2CreateConditionals",
+                        "Effect": "Allow",
+                        "Action": [
+                            "ec2:RunInstances",
+                            "ec2:StartInstances"
+                        ],
+                        "Resource": [
+                            {"Fn::Sub": "arn:aws:ec2:${AWS::Region}:${AWS::AccountId}:instance/*"},
+                            {"Fn::Sub": "arn:aws:ec2:${AWS::Region}:${AWS::AccountId}:subnet/*"}
+                        ],
+                        "Condition": {
+                            "StringEquals": {
+                                "ec2:Subnet": [
+                                    {"Fn::Join": [ "", [
+                                        "arn:aws:ec2:",
+                                        {"Fn::Sub": "${AWS::Region}:${AWS::AccountId}:subnet/"},
+                                        {"Fn::ImportValue": {"Fn::Sub": "${NetworkStackName}-PublicSubnet1ID"}}
+                                    ]]}
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "Sid": "Ec2ModifyConditionals",
                         "Effect": "Allow",
                         "Action": [
                             "ec2:AttachVolume",
-                            "ec2:AuthorizeSecurityGroupIngress",
+                            "ec2:DeleteVolume",
+                            "ec2:DetachVolume",
+                            "ec2:ModifyInstanceAttribute",
+                            "ec2:StopInstances",
+                            "ec2:TerminateInstances"
+                        ],
+                        "Resource": [
+                            {"Fn::Sub": "arn:aws:ec2:${AWS::Region}:${AWS::AccountId}:instance/*"}
+                        ],
+                        "Condition": {
+                            "StringEquals": {
+                                "ec2:InstanceProfile": {"Fn::GetAtt" : ["CodeBuildPackerProfile", "Arn"] }
+                            }
+                        }
+                    },
+                    {
+                        "Sid": "Ec2GeneralAllow",
+                        "Effect": "Allow",
+                        "Action": [
                             "ec2:CopyImage",
                             "ec2:CreateImage",
-                            "ec2:CreateKeypair",
-                            "ec2:CreateSecurityGroup",
                             "ec2:CreateSnapshot",
                             "ec2:CreateTags",
                             "ec2:CreateVolume",
-                            "ec2:DeleteKeypair",
-                            "ec2:DeleteSecurityGroup",
                             "ec2:DeleteSnapshot",
-                            "ec2:DeleteVolume",
                             "ec2:DeregisterImage",
                             "ec2:DescribeImageAttribute",
                             "ec2:DescribeImages",
@@ -412,30 +495,11 @@
                             "ec2:DescribeSubnets",
                             "ec2:DescribeTags",
                             "ec2:DescribeVolumes",
-                            "ec2:DetachVolume",
-                            "ec2:GetPasswordData",
                             "ec2:ModifyImageAttribute",
                             "ec2:ModifySnapshotAttribute",
-                            "ec2:RegisterImage",
-                            "ec2:RunInstances",
-                            "ec2:StartInstances"
+                            "ec2:RegisterImage"
                         ],
                         "Resource": "*"
-                    },
-                    {
-                        "Sid": "Ec2InstanceConditionals",
-                        "Effect": "Allow",
-                        "Action": [
-                            "ec2:ModifyInstanceAttribute",
-                            "ec2:StopInstances",
-                            "ec2:TerminateInstances"
-                        ],
-                        "Resource": {"Fn::Sub": "arn:aws:ec2:${AWS::Region}:${AWS::AccountId}:instance/*"},
-                        "Condition": {
-                            "StringEquals": {
-                                "ec2:InstanceProfile": {"Fn::GetAtt" : ["CodeBuildPackerProfile", "Arn"] }
-                            }
-                        }
                     }
                 ]
                 },
