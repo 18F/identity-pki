@@ -222,7 +222,28 @@
                         ],
                         "Resource": [
                             {"Fn::Sub": "arn:aws:s3:::${ArtifactBucket}"},
-                            {"Fn::Sub": "arn:aws:s3:::${ArtifactBucket}/*"}
+                            {"Fn::Sub": "arn:aws:s3:::${ArtifactBucket}/*"},
+                            {
+                                "Fn::If": [
+                                    "SpecifyOutputBucket",
+                                        {"Fn::Sub": "arn:aws:s3:::${Git2S3OutputBucket}"},
+                                        {"Fn::Join": [ "", [
+                                            "arn:aws:s3:::",
+                                            {"Fn::ImportValue" : {"Fn::Sub" : "${Git2S3StackName}-OutputBucket"}}
+                                        ]]}
+                                ]
+                            },
+                            {
+                                "Fn::If": [
+                                    "SpecifyOutputBucket",
+                                        {"Fn::Sub": "arn:aws:s3:::${Git2S3OutputBucket}/*"},
+                                        {"Fn::Join": [ "", [
+                                            "arn:aws:s3:::",
+                                            {"Fn::ImportValue" : {"Fn::Sub" : "${Git2S3StackName}-OutputBucket"}},
+                                            "/*"
+                                        ]]}
+                                ]
+                            }
                         ],
                         "Effect": "Allow"
                     }, {

@@ -433,29 +433,6 @@
                         }
                     },
                     {
-                        "Sid": "Ec2CreateConditionals",
-                        "Effect": "Allow",
-                        "Action": [
-                            "ec2:RunInstances",
-                            "ec2:StartInstances"
-                        ],
-                        "Resource": [
-                            {"Fn::Sub": "arn:aws:ec2:${AWS::Region}:${AWS::AccountId}:instance/*"},
-                            {"Fn::Sub": "arn:aws:ec2:${AWS::Region}:${AWS::AccountId}:subnet/*"}
-                        ],
-                        "Condition": {
-                            "StringEquals": {
-                                "ec2:Subnet": [
-                                    {"Fn::Join": [ "", [
-                                        "arn:aws:ec2:",
-                                        {"Fn::Sub": "${AWS::Region}:${AWS::AccountId}:subnet/"},
-                                        {"Fn::ImportValue": {"Fn::Sub": "${NetworkStackName}-PublicSubnet1ID"}}
-                                    ]]}
-                                ]
-                            }
-                        }
-                    },
-                    {
                         "Sid": "Ec2ModifyConditionals",
                         "Effect": "Allow",
                         "Action": [
@@ -497,7 +474,9 @@
                             "ec2:DescribeVolumes",
                             "ec2:ModifyImageAttribute",
                             "ec2:ModifySnapshotAttribute",
-                            "ec2:RegisterImage"
+                            "ec2:RegisterImage",
+                            "ec2:RunInstances",
+                            "ec2:StartInstances"
                         ],
                         "Resource": "*"
                     }
