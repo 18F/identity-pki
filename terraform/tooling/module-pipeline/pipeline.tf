@@ -34,7 +34,7 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
       }
     }
     action {
-      name             = "identity-devops-private"
+      name             = "identity_devops_private"
       category         = "Source"
       owner            = "ThirdParty"
       provider         = "GitHub"
