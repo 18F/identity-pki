@@ -1,6 +1,6 @@
 # cloud-config
 
-# This file is an ERB template.
+# This file is a terraform template.
 
 # Run apt update / upgrade
 repo_update: true

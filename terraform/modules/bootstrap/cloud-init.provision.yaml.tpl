@@ -1,6 +1,6 @@
 # cloud-config
 
-# This file is an ERB template.
+# This file is a terraform template.
 
 # This is boilerplate cloud init config to run provision.sh with the specified
 # arguments.  provision.sh handles cloning a git repository and running
