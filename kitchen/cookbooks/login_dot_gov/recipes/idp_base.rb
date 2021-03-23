@@ -105,17 +105,11 @@ application release_path do
   # unless deploy_branch.identity-#{app_name} is specifically set otherwise
   default_branch = node.fetch('login_dot_gov').fetch('deploy_branch_default')
   deploy_branch = node.fetch('login_dot_gov').fetch('deploy_branch').fetch("identity-#{app_name}", default_branch)
-  
+
   git do
     repository 'https://github.com/18F/identity-idp.git'
     user node['login_dot_gov']['system_user']
     revision deploy_branch
-  end
-
-  # custom resource to install the IdP config files (app.yml, saml.crt, saml.key)
-  login_dot_gov_idp_configs shared_path do
-    not_if { node['login_dot_gov']['setup_only'] }
-    symlink_from release_path
   end
 
   # custom resource to configure new relic (newrelic.yml)
