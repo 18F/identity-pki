@@ -84,16 +84,14 @@
             "Default" : ""
         },
         "ProjectName": {
-            "Description": "Required: CodeBuild project name",
-            "Type": "String",
-            "MinLength": 1,
-            "MaxLength": 255,
-            "Default": "login-image-base"
+            "Description": "SSM PARAMETER / Required: CodeBuild project name",
+            "Type": "AWS::SSM::Parameter::Value<String>",
+            "Default": "CodeBuildProject-base"
         },
         "SourceFileName": {
-            "Description": "Required: Path to the source zip file in the S3 bucket",
-            "Type": "String",
-            "Default": "18F/identity-base-image/18F_identity-base-image.zip"
+            "Description": "SSM PARAMETER / Required: Path to the source zip file in the S3 bucket.",
+            "Type": "AWS::SSM::Parameter::Value<String>",
+            "Default": "ImageCreationSourceFile"
         },
         "AccountAlias": {
             "Description": "Required: Account alias either sandbox or prod",
@@ -647,22 +645,6 @@
         }
     },
     "Outputs": {
-        "SourceFileName": {
-            "Value": {
-                "Ref": "SourceFileName"
-            },
-            "Export": {
-                "Name": {"Fn::Sub": "${AWS::StackName}-SourceFileName"}
-            }
-        },
-        "ProjectName": {
-            "Value": {
-                "Ref": "ProjectName"
-            },
-            "Export": {
-                "Name": {"Fn::Sub": "${AWS::StackName}-ProjectName"}
-            }
-        },
         "PackerAWSRole": {
             "Value": {
                 "Ref": "CodeBuildPackerProfile"
