@@ -1,0 +1,431 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "This template creates a CodePipeline project for login ami",
+    "Metadata": {
+        "AWS::CloudFormation::Interface": {
+            "ParameterGroups": [
+                {
+                    "Label": {
+                        "default": "Pipeline Configuration"
+                    },
+                    "Parameters": [
+                        "ArtifactBucketName",
+                        "TriggerSource"
+                    ]
+                },
+                {
+                    "Label": {
+                        "default": "Stack References"
+                    },
+                    "Parameters": [
+                        "CodeBuildStackName",
+                        "Git2S3StackName",
+                        "Git2S3OutputBucket"
+                    ]
+                }
+            ],
+            "ParameterLabels": {
+                "ArtifactBucketName": {
+                    "default": "Artifact S3 bucket name"
+                },
+                "TriggerSource": {
+                    "default": "Pipeline trigger source"
+                },
+                "Git2S3StackName": {
+                    "default": "Git2S3 stack name *"
+                },
+                "Git2S3OutputBucket": {
+                    "default": "Git2S3 stack OutputBucket name *"
+                },
+                "CodeBuildStackName": {
+                    "default": "CodeBuild stack name *"
+                }
+            }
+        }
+    },
+    "Parameters": {
+        "ArtifactBucketName": {
+            "Description": "Optional: Bucket Name where the artifact output should be placed, if left blank a bucket name will be automatically generated.",
+            "Default": "",
+            "Type": "String"
+        },
+        "CodeBuildStackName": {
+            "Description": "Required: Name of an active CloudFormation stack that contains the CodeBuild resources, that will be used be this stack.",
+            "Type": "String",
+            "MinLength" : 1,
+            "MaxLength" : 255,
+            "AllowedPattern" : "^[a-zA-Z][-a-zA-Z0-9]*$",
+            "Default" : "login-image-base"
+        },
+        "Git2S3StackName": {
+            "Description": "Optional: Active CFN stack containing Git2S3 Resources for this build project. If left blank, MUST use Git2S3OutputBucket instead.",
+            "Type": "String",
+            "MinLength" : 0,
+            "MaxLength" : 255,
+            "Default" : ""
+        },
+        "Git2S3OutputBucket": {
+            "Description": "Optional: Name of S3 bucket containing Git2S3 output for this build project. If left blank, MUST use Git2S3StackName instead.",
+            "Type": "String",
+            "MinLength" : 0,
+            "MaxLength" : 255,
+            "Default" : ""
+        },
+        "TriggerSource": {
+            "AllowedValues": [
+                "S3",
+                "CloudWatch",
+                "Both"
+            ],
+            "Description": "Source trigger for the pipeline. Choose S3 (triggered for each new push to origin), CloudWatch (triggered weekly), or both.",
+            "Type": "String",
+            "Default" : "Both"
+        }
+    },
+    "Conditions": {
+        "AutoGenArtifactBucketName": {
+            "Fn::Not": [
+                {
+                    "Fn::Equals": [
+                        {
+                            "Ref": "ArtifactBucketName"
+                        },
+                        ""
+                    ]
+                }
+            ]
+        },
+        "SpecifyOutputBucket": {
+            "Fn::And": [
+                {
+                    "Fn::Equals": [
+                        {
+                            "Ref": "Git2S3StackName"
+                        },
+                        ""
+                    ]
+                },
+                {
+                    "Fn::Not": [
+                        {
+                            "Fn::Equals": [
+                                {
+                                    "Ref": "Git2S3OutputBucket"
+                                },
+                                ""
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        "UseS3AsSourceTrigger": {
+            "Fn::Or": [
+                {
+                    "Fn::Equals": [
+                        {
+                            "Ref": "TriggerSource"
+                        },
+                        "S3"
+                    ]
+                },
+                {
+                    "Fn::Equals": [
+                        {
+                            "Ref": "TriggerSource"
+                        },
+                        "Both"
+                    ]
+                }
+            ]
+        },
+        "UseCloudWatchScheduler": {
+            "Fn::Or": [
+                {
+                    "Fn::Equals": [
+                        {
+                            "Ref": "TriggerSource"
+                        },
+                        "CloudWatch"
+                    ]
+                },
+                {
+                    "Fn::Equals": [
+                        {
+                            "Ref": "TriggerSource"
+                        },
+                        "Both"
+                    ]
+                }
+            ]
+        }
+    },
+    "Resources": {
+        "ArtifactBucket": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+                "BucketName": {
+                    "Fn::If": [
+                        "AutoGenArtifactBucketName",
+                        {
+                            "Ref": "ArtifactBucketName"
+                        },
+                        {
+                            "Ref": "AWS::NoValue"
+                        }
+                    ]
+                },
+                "VersioningConfiguration": {
+                    "Status": "Enabled"
+                },
+                "LifecycleConfiguration": {
+                    "Rules": [ 
+                        {
+                            "Id": "DeleteArtifactOutput",
+                            "NoncurrentVersionExpirationInDays": "7",
+                            "Status": "Enabled"
+                        }
+                    ]
+                },
+                "Tags": []
+            }
+        },
+        "CodePipelineRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [{
+                        "Sid": "",
+                        "Effect": "Allow",
+                        "Principal": {
+                            "Service": ["codepipeline.amazonaws.com"]
+                        },
+                        "Action": "sts:AssumeRole"
+                    }]
+                },
+                "Path": "/"
+            }
+        },
+        "CodePipelineRolePolicy": {
+            "DependsOn": [
+                "ArtifactBucket"
+            ],
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "CodePipelineRolePolicy",
+                "PolicyDocument": {
+                    "Statement": [{
+                        "Action": [
+                            "s3:GetObject",
+                            "s3:GetObjectVersion",
+                            "s3:GetBucketVersioning"
+                        ],
+                        "Resource": [
+                            {"Fn::Sub": "arn:aws:s3:::${ArtifactBucket}"},
+                            {"Fn::Sub": "arn:aws:s3:::${ArtifactBucket}/*"},
+                            {
+                                "Fn::If": [
+                                    "SpecifyOutputBucket",
+                                        {"Fn::Sub": "arn:aws:s3:::${Git2S3OutputBucket}"},
+                                        {"Fn::Join": [ "", [
+                                            "arn:aws:s3:::",
+                                            {"Fn::ImportValue" : {"Fn::Sub" : "${Git2S3StackName}-OutputBucket"}}
+                                        ]]}
+                                ]
+                            },
+                            {
+                                "Fn::If": [
+                                    "SpecifyOutputBucket",
+                                        {"Fn::Sub": "arn:aws:s3:::${Git2S3OutputBucket}/*"},
+                                        {"Fn::Join": [ "", [
+                                            "arn:aws:s3:::",
+                                            {"Fn::ImportValue" : {"Fn::Sub" : "${Git2S3StackName}-OutputBucket"}},
+                                            "/*"
+                                        ]]}
+                                ]
+                            }
+                        ],
+                        "Effect": "Allow"
+                    }, {
+                        "Action": [
+                            "s3:PutObject"
+                        ],
+                        "Resource": [
+                            {"Fn::Sub": "arn:aws:s3:::${ArtifactBucket}"},
+                            {"Fn::Sub": "arn:aws:s3:::${ArtifactBucket}/*"}
+                        ],
+                        "Effect": "Allow"
+                    }, {
+                        "Action": [
+                            "codebuild:BatchGetBuilds",
+                            "codebuild:StartBuild"
+                        ],
+                        "Resource": [
+                          {"Fn::Join": [ "", [
+                              "arn:aws:codebuild:",
+                              {"Fn::Sub": "${AWS::Region}:${AWS::AccountId}:project/"},
+                              {"Fn::ImportValue": {"Fn::Sub": "${CodeBuildStackName}-ProjectName"}}
+                          ]]}
+                        ],
+                        "Effect": "Allow"
+                    }]
+                },
+                "Roles": [{"Ref": "CodePipelineRole"}]
+            }
+        },
+        "CodePipeline": {
+            "DependsOn": [
+                "CodePipelineRolePolicy",
+                "CodePipelineRole",
+                "ArtifactBucket"
+            ],
+            "Type": "AWS::CodePipeline::Pipeline",
+            "Properties": {
+                "RoleArn": {"Fn::GetAtt": ["CodePipelineRole", "Arn"] },
+                "Stages": [{
+                    "Name": "Source",
+                    "Actions": [{
+                        "Name": "SourceAction",
+                        "ActionTypeId": {
+                            "Category": "Source",
+                            "Owner": "AWS",
+                            "Version": "1",
+                            "Provider": "S3"
+                        },
+                        "OutputArtifacts": [{
+                            "Name": "ImageSource"
+                        }],
+                        "Configuration": {
+                            "S3Bucket": {
+                                "Fn::If": [
+                                    "SpecifyOutputBucket",
+                                    {"Ref" : "Git2S3OutputBucket"},
+                                    {"Fn::ImportValue" : {"Fn::Sub" : "${Git2S3StackName}-OutputBucket"}}
+                                ]
+                            },
+                            "S3ObjectKey": {"Fn::ImportValue" : {"Fn::Sub" : "${CodeBuildStackName}-SourceFileName"}},
+                            "PollForSourceChanges": {
+                                "Fn::If": [
+                                    "UseS3AsSourceTrigger",
+                                    "true",
+                                    "false"
+                                ]
+                            }
+                        },
+                        "RunOrder": 1
+                    }]
+                }, {
+                    "Name": "Build",
+                    "Actions": [{
+                        "Name": "CodeBuild",
+                        "InputArtifacts": [{
+                            "Name": "ImageSource"
+                        }],
+                        "ActionTypeId": {
+                            "Category": "Build",
+                            "Owner": "AWS",
+                            "Version": "1",
+                            "Provider": "CodeBuild"
+                        },
+                        "OutputArtifacts": [{
+                            "Name": "AmiOutput"
+                        }],
+                        "Configuration": {
+                            "ProjectName": {"Fn::ImportValue" : {"Fn::Sub" : "${CodeBuildStackName}-ProjectName"}}
+                        },
+                        "RunOrder": 1
+                    }]
+                }],
+                "ArtifactStore": {
+                    "Type": "S3",
+                    "Location": {"Ref": "ArtifactBucket"}
+                }
+            }
+        },
+        "CloudWatchPipelineRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [{
+                        "Sid": "",
+                        "Effect": "Allow",
+                        "Principal": {
+                            "Service": ["events.amazonaws.com"]
+                        },
+                        "Action": "sts:AssumeRole"
+                    }]
+                },
+                "Path": "/"
+            }
+        },
+        "CloudWatchPipelineRolePolicy": {
+            "DependsOn": [
+                "CodePipeline"
+            ],
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "CloudWatchPipelineRolePolicy",
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": [
+                                "codepipeline:StartPipelineExecution"
+                            ],
+                            "Resource": {
+                                "Fn::Sub": "arn:aws:codepipeline:${AWS::Region}:${AWS::AccountId}:${CodePipeline}"
+                            },
+                            "Effect": "Allow"
+                        }
+                    ]
+                },
+                "Roles": [{"Ref": "CloudWatchPipelineRole"}]
+            }
+        },
+        "CloudWatchPipelineTrigger":{
+            "DependsOn": [
+                "CodePipeline"
+            ],
+            "Type": "AWS::Events::Rule",
+            "Properties": {
+                "Name" : {
+                    "Fn::Sub": "Run-${AWS::StackName}"
+                },
+                "Description" : {
+                    "Fn::Sub": "Runs ${CodeBuildStackName} build weekly."
+                },
+                "ScheduleExpression" : "cron(0 7 ? * 1 *)",
+                "State" : {
+                    "Fn::If": [
+                        "UseCloudWatchScheduler",
+                        "ENABLED",
+                        "DISABLED"
+                    ]
+                },
+                "Targets" : [
+                    {
+                        "Arn" : {
+                            "Fn::Sub": "arn:aws:codepipeline:${AWS::Region}:${AWS::AccountId}:${CodePipeline}"
+                        },
+                        "Id" : "InvokeCodePipeline",
+                        "RoleArn" : {
+                            "Fn::GetAtt": [
+                                "CloudWatchPipelineRole",
+                                "Arn"
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "Outputs": {
+        "CodePipelineName": {
+            "Value": {
+                "Ref": "CodePipeline"
+            },
+            "Export": {
+                "Name": {"Fn::Sub": "${AWS::StackName}-CodePipelineName"}
+            }
+        }
+    }
+}

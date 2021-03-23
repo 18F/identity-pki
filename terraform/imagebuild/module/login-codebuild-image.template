@@ -1,0 +1,675 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "This template creates a CodeBuild project for login ami",
+    "Metadata": {
+        "AWS::CloudFormation::Interface": {
+            "ParameterGroups": [
+                {
+                    "Label": {
+                        "default": "Build Configuration"
+                    },
+                    "Parameters": [
+                        "OutputBucketName",
+                        "ProjectName",
+                        "AccountAlias",
+                        "RoleName",
+                        "SourceFileName"
+                    ]
+                },
+                {
+                    "Label": {
+                        "default": "Stack References"
+                    },
+                    "Parameters": [
+                        "NetworkStackName",
+                        "Git2S3StackName",
+                        "Git2S3OutputBucket"
+                    ]
+                }
+            ],
+            "ParameterLabels": {
+                "OutputBucketName": {
+                    "default": "Artifact S3 bucket name"
+                },
+                "Git2S3StackName": {
+                    "default": "Git2S3 stack name *"
+                },
+                "Git2S3OutputBucket": {
+                    "default": "Git2S3 stack OutputBucket name *"
+                },
+                "NetworkStackName": {
+                    "default": "Network stack name *"
+                },
+                "ProjectName": {
+                    "default": "Build project name *"
+                },
+                "SourceFileName": {
+                    "default": "Source file name *"
+                },
+                "AccountAlias": {
+                    "default": "Account alias *"
+                },
+                "RoleName": {
+                    "default": "Role Name *"
+                }
+            }
+        }
+    },
+    "Parameters": {
+        "OutputBucketName": {
+            "Description": "Optional: Bucket Name where the zip file output should be placed, if left blank a bucket name will be automatically generated.",
+            "Default": "",
+            "Type": "String"
+        },
+        "NetworkStackName": {
+            "Description": "Required: Name of an active CloudFormation stack that contains the networking resources, that will be used be this stack.",
+            "Type": "String",
+            "MinLength": 1,
+            "MaxLength": 255,
+            "AllowedPattern": "^[a-zA-Z][-a-zA-Z0-9]*$",
+            "Default": "login-image-creation"
+        },
+        "Git2S3StackName": {
+            "Description": "Optional: Active CFN stack containing Git2S3 Resources for this build project. If left blank, MUST use Git2S3OutputBucket instead.",
+            "Type": "String",
+            "MinLength" : 0,
+            "MaxLength" : 255,
+            "Default" : ""
+        },
+        "Git2S3OutputBucket": {
+            "Description": "Optional: Name of S3 bucket containing Git2S3 output for this build project. If left blank, MUST use Git2S3StackName instead.",
+            "Type": "String",
+            "MinLength" : 0,
+            "MaxLength" : 255,
+            "Default" : ""
+        },
+        "ProjectName": {
+            "Description": "Required: CodeBuild project name",
+            "Type": "String",
+            "MinLength": 1,
+            "MaxLength": 255,
+            "Default": "login-image-base"
+        },
+        "SourceFileName": {
+            "Description": "Required: Path to the source zip file in the S3 bucket",
+            "Type": "String",
+            "Default": "18F/identity-base-image/18F_identity-base-image.zip"
+        },
+        "AccountAlias": {
+            "Description": "Required: Account alias either sandbox or prod",
+            "Type": "String",
+            "Default": "sandbox"
+        },
+        "RoleName": {
+            "Description": "Required: Role name values can be base, rails",
+            "Type": "String",
+            "AllowedValues": ["base", "rails"],
+            "Default": "base"
+        }
+    },
+    "Conditions": {
+        "AutoGenOutputBucketName": {
+            "Fn::Not": [
+                {
+                    "Fn::Equals": [
+                        {
+                            "Ref": "OutputBucketName"
+                        },
+                        ""
+                    ]
+                }
+            ]
+        },
+        "SpecifyOutputBucket": {
+            "Fn::And": [
+                {
+                    "Fn::Equals": [
+                        {
+                            "Ref": "Git2S3StackName"
+                        },
+                        ""
+                    ]
+                },
+                {
+                    "Fn::Not": [
+                        {
+                            "Fn::Equals": [
+                                {
+                                    "Ref": "Git2S3OutputBucket"
+                                },
+                                ""
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "Resources": {
+        "OutputBucket": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+                "BucketName": {
+                    "Fn::If": [
+                        "AutoGenOutputBucketName",
+                        {
+                            "Ref": "OutputBucketName"
+                        },
+                        {
+                            "Ref": "AWS::NoValue"
+                        }
+                    ]
+                },
+                "VersioningConfiguration": {
+                    "Status": "Enabled"
+                },
+                "LifecycleConfiguration": {
+                    "Rules": [ 
+                        {
+                            "Id": "DeleteBuildOutput",
+                            "NoncurrentVersionExpirationInDays": "7",
+                            "Status": "Enabled"
+                        }
+                    ]
+                },
+                "Tags": []
+            }
+        },
+        "CodeBuildRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [{
+                        "Sid": "",
+                        "Effect": "Allow",
+                        "Principal": {
+                            "Service": [
+                                "codebuild.amazonaws.com",
+                                "ec2.amazonaws.com"
+                            ]
+                        },
+                        "Action": "sts:AssumeRole"
+                    }]
+                },
+                "Path": "/"
+            }
+        },
+        "CodeBuildVpcPolicy": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "CodeBuildVpcPolicy",
+                "PolicyDocument": {
+                        "Statement": [
+                            {
+                                "Effect": "Allow", 
+                                "Action": [
+                                    "ec2:DescribeDhcpOptions",
+                                    "ec2:DescribeNetworkInterfaces",
+                                    "ec2:DescribeSubnets",
+                                    "ec2:DescribeSecurityGroups",
+                                    "ec2:DescribeVpcs",
+                                    "ec2:CreateNetworkInterface",
+                                    "ec2:DeleteNetworkInterface"
+                                ], 
+                                "Resource": "*" 
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "ec2:CreateNetworkInterfacePermission"
+                                ],
+                                "Resource": "*",
+                                "Condition": {
+                                    "StringEquals": {
+                                        "ec2:Subnet": [
+                                            {"Fn::Join": [ "", [
+                                                "arn:aws:ec2:",
+                                                {"Fn::Sub": "${AWS::Region}:${AWS::AccountId}:subnet/"},
+                                                {"Fn::ImportValue": {"Fn::Sub": "${NetworkStackName}-PrivateSubnet1ID"}}
+                                            ]]},
+                                            {"Fn::Join": [ "", [
+                                                "arn:aws:ec2:",
+                                                {"Fn::Sub": "${AWS::Region}:${AWS::AccountId}:subnet/"},
+                                                {"Fn::ImportValue": {"Fn::Sub": "${NetworkStackName}-PublicSubnet1ID"}}
+                                            ]]}
+                                        ],
+                                        "ec2:AuthorizedService": "codebuild.amazonaws.com"
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    "Roles": [{"Ref": "CodeBuildRole"}]
+            }
+        },
+        "CodeBuildLogPolicy": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "CodeBuildLogPolicy",
+                "PolicyDocument": {
+                    "Statement": [{
+                        "Effect": "Allow",
+                        "Resource": [
+                            {"Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/*"}
+                        ],
+                        "Action": [
+                            "logs:CreateLogGroup",
+                            "logs:CreateLogStream",
+                            "logs:PutLogEvents",
+                            "logs:DescribeLogGroups",
+                            "logs:DescribeLogStreams"
+                        ]
+                    }]
+                },
+                "Roles": [{"Ref": "CodeBuildRole"}]
+            }
+        },
+        "CodeBuildSourcePolicy": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "CodeBuildSourcePolicy",
+                "PolicyDocument": {
+                    "Statement": [{
+                        "Effect": "Allow",
+                        "Resource": [
+                            {"Fn::Join": [ "", [
+                                "arn:aws:s3:::",
+                                {
+                                    "Fn::If": [
+                                        "SpecifyOutputBucket",
+                                        {"Ref" : "Git2S3OutputBucket"},
+                                        {"Fn::ImportValue": {"Fn::Sub": "${Git2S3StackName}-OutputBucket"}}
+                                    ]
+                                },
+                                "/*"
+                            ]]}],
+                        "Action": [
+                            "s3:GetObject",
+                            "s3:GetObjectVersion"
+                        ]
+                    }]
+                },
+                "Roles": [{"Ref": "CodeBuildRole"}]
+            }
+        },
+        "CodeBuildSecretsCommonPolicy": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "CodeBuildSecretsCommonPolicy",
+                "PolicyDocument": {
+                    "Statement": [{
+                        "Effect": "Allow",
+                        "Resource": [
+                            {"Fn::Sub": "arn:aws:s3:::login-gov.secrets.${AWS::AccountId}-${AWS::Region}/common/GeoIP2-City.mmdb"},
+                            {"Fn::Sub": "arn:aws:s3:::login-gov.secrets.${AWS::AccountId}-${AWS::Region}/common/pwned-passwords.txt"}
+                        ],
+                        "Action": [
+                            "s3:GetObject",
+                            "s3:GetObjectVersion"
+                        ]
+                    }]
+                },
+                "Roles": [{"Ref": "CodeBuildRole"}]
+            }
+        },
+        "CodeBuildPipelinePolicy": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "CodeBuildPipelinePolicy",
+                "PolicyDocument": {       
+                    "Statement": [{
+                        "Effect": "Allow",
+                        "Resource": [
+                            {"Fn::Sub": "arn:aws:s3:::*-artifact*"}
+                        ],
+                        "Action": [
+                            "s3:PutObject",
+                            "s3:GetObject",
+                            "s3:GetObjectVersion"
+                        ]
+                    }]
+                },
+                "Roles": [{"Ref": "CodeBuildRole"}]
+            }
+        },
+        "CodeBuildOutputPolicy": {
+            "DependsOn": ["OutputBucket"],
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "CodeBuildOutputPolicy",
+                "PolicyDocument": {  
+                    "Statement": [{
+                        "Effect": "Allow",
+                        "Resource": [
+                            {"Fn::Sub": "arn:aws:s3:::${OutputBucket}/*"}
+                        ],
+                        "Action": [
+                            "s3:PutObject"
+                        ]
+                    }]
+                },
+                "Roles": [{"Ref": "CodeBuildRole"}]
+            }
+        },
+        "CodeBuildParameterPolicy": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "CodeBuildParameterPolicy",
+                "PolicyDocument": {  
+                "Statement": [{
+                    "Effect": "Allow",
+                    "Action": [
+                        "ssm:GetParameters"
+                    ],
+                    "Resource":[
+                        {"Fn::Sub": "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/CodeBuild/*"}
+                    ]
+                    }]
+                },
+                "Roles": [{"Ref": "CodeBuildRole"}]
+            }
+        },
+        "CodeBuildCloudWatchEventsPolicy": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "CodeBuildCloudWatchEventsPolicy",
+                "PolicyDocument": {  
+                "Statement": [{
+                        "Effect": "Allow",
+                        "Action": [
+                            "events:PutEvents"
+                        ],
+                        "Resource": "*"
+                    }
+                ]},
+                "Roles": [{"Ref": "CodeBuildRole"}]
+            }
+        },
+        "CodeBuildIAMPolicy": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "CodeBuildIAMPolicy",
+                "PolicyDocument": {  
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "iam:PassRole",
+                                "iam:GetRole"
+                            ],
+                            "Resource": {"Fn::GetAtt": ["CodeBuildPackerRole", "Arn"]}
+                    },
+                    {
+                        "Effect": "Allow",
+                        "Action": [
+                            "iam:GetInstanceProfile"
+                        ],
+                        "Resource": {"Fn::GetAtt": ["CodeBuildPackerProfile", "Arn"]}
+                    }]
+                },
+                "Roles": [
+                    {"Ref": "CodeBuildRole"}
+                ]
+            }
+        },
+        "CodeBuildPackerPolicy": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "CodeBuildPackerPolicy",
+                "PolicyDocument": {  
+                "Statement": [
+                    {
+                        "Sid": "Ec2KeypairAccess",
+                        "Effect": "Allow",
+                        "Action": [
+                            "ec2:CreateKeypair",
+                            "ec2:DeleteKeypair"
+                        ],
+                        "Resource": {"Fn::Sub": "arn:aws:ec2:${AWS::Region}:${AWS::AccountId}:key-pair/*"},
+                        "Condition": {
+                            "StringLike": {
+                                "ec2:KeyPairName": "packer*"
+                            }
+                        }
+                    },
+                    {
+                        "Sid": "Ec2ModifyConditionals",
+                        "Effect": "Allow",
+                        "Action": [
+                            "ec2:AttachVolume",
+                            "ec2:DeleteVolume",
+                            "ec2:DetachVolume",
+                            "ec2:ModifyInstanceAttribute",
+                            "ec2:StopInstances",
+                            "ec2:TerminateInstances"
+                        ],
+                        "Resource": [
+                            {"Fn::Sub": "arn:aws:ec2:${AWS::Region}:${AWS::AccountId}:instance/*"}
+                        ],
+                        "Condition": {
+                            "StringEquals": {
+                                "ec2:InstanceProfile": {"Fn::GetAtt" : ["CodeBuildPackerProfile", "Arn"] }
+                            }
+                        }
+                    },
+                    {
+                        "Sid": "Ec2GeneralAllow",
+                        "Effect": "Allow",
+                        "Action": [
+                            "ec2:CopyImage",
+                            "ec2:CreateImage",
+                            "ec2:CreateSnapshot",
+                            "ec2:CreateTags",
+                            "ec2:CreateVolume",
+                            "ec2:DeleteSnapshot",
+                            "ec2:DeregisterImage",
+                            "ec2:DescribeImageAttribute",
+                            "ec2:DescribeImages",
+                            "ec2:DescribeInstances",
+                            "ec2:DescribeRegions",
+                            "ec2:DescribeSecurityGroups",
+                            "ec2:DescribeSnapshots",
+                            "ec2:DescribeSubnets",
+                            "ec2:DescribeTags",
+                            "ec2:DescribeVolumes",
+                            "ec2:ModifyImageAttribute",
+                            "ec2:ModifySnapshotAttribute",
+                            "ec2:RegisterImage",
+                            "ec2:RunInstances",
+                            "ec2:StartInstances"
+                        ],
+                        "Resource": "*"
+                    }
+                ]
+                },
+                "Roles": [{"Ref": "CodeBuildRole"}]
+            }
+        },
+        "CodeBuildPackerRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [{
+                        "Sid": "",
+                        "Effect": "Allow",
+                        "Principal": {
+                            "Service": [
+                                "ec2.amazonaws.com",
+                                "codebuild.amazonaws.com"
+                            ]
+                        },
+                        "Action": "sts:AssumeRole"
+                    }]
+                },
+                "Path": "/"
+            }
+        },
+        "CodeBuildPackerS3Policy": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "CodeBuildPackerS3Policy",
+                "PolicyDocument": {
+                    "Statement": [
+                        {    
+                            "Sid": "AllowBucketAndObjects",
+                            "Effect": "Allow",
+                            "Action": [
+                                "s3:List*",
+                                "s3:Get*"
+                            ],
+                            "Resource": [
+                                {"Fn::Join": ["", ["arn:aws:s3:::login-gov.secrets.", {"Ref": "AWS::AccountId"}, "-*/common/*"]]},
+                                {"Fn::Join": ["", ["arn:aws:s3:::login-gov.secrets.", {"Ref": "AWS::AccountId"}, "-*/common/"]]}
+                            ]
+                        },
+                        {
+                            "Sid": "AllowRootAndTopListing",
+                            "Effect": "Allow",
+                            "Action": "s3:ListBucket",
+                            "Resource": [
+                                {"Fn::Join": ["", ["arn:aws:s3:::login-gov.secrets.", {"Ref": "AWS::AccountId"}, "-*"]]},
+                                {"Fn::Join": ["", ["arn:aws:s3:::login-gov.app-secrets.", {"Ref": "AWS::AccountId"}, "-*"]]}
+                            ],
+                            "Condition": {
+                                "StringEquals": {
+                                    "s3:delimiter": "/",
+                                    "s3:prefix": [
+                                        "common/",
+                                        ""
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "Sid": "AllowSubListing",
+                            "Effect": "Allow",
+                            "Action": "s3:ListBucket",
+                            "Resource": [
+                                {"Fn::Join": ["", ["arn:aws:s3:::login-gov.secrets.", {"Ref": "AWS::AccountId"}, "-*"]]},
+                                {"Fn::Join": ["", ["arn:aws:s3:::login-gov.app-secrets.", {"Ref": "AWS::AccountId"}, "-*"]]}
+                            ],
+                            "Condition": {
+                                "StringLike": {
+                                    "s3:prefix": [
+                                        "common/"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "Sid": "SoftwareArtifacts",
+                            "Effect": "Allow",
+                            "Action": [
+                                "s3:GetObject",
+                                "s3:ListBucket"
+                            ],
+                            "Resource": [
+                                "arn:aws:s3:::login-gov-public-artifacts-us-west-2",
+                                "arn:aws:s3:::login-gov-public-artifacts-us-west-2/*"
+                            ]
+                        }
+                    ]
+                },
+                "Roles": [
+                    {"Ref": "CodeBuildPackerRole"}
+                ]
+            }
+        },
+        "CodeBuildPackerProfile": {
+            "Type": "AWS::IAM::InstanceProfile",
+            "Properties": {
+                "Roles": [
+                    {"Ref": "CodeBuildPackerRole"}
+                ]
+            }
+        },
+        "BuildProject": {
+            "DependsOn": [
+                "OutputBucket",
+                "CodeBuildRole",
+                "CodeBuildPackerProfile"
+            ],
+            "Type": "AWS::CodeBuild::Project",
+            "Properties": {
+                "Name": {"Ref": "ProjectName"},
+                "Description": "Template to create resources for CodeBuild Project integrated with Git2S3",
+                "Source": {
+                    "Location": {"Fn::Join": [ "", [
+                        "arn:aws:s3:::",
+                        {
+                            "Fn::If": [
+                                "SpecifyOutputBucket",
+                                {"Ref" : "Git2S3OutputBucket"},
+                                {"Fn::ImportValue": {"Fn::Sub": "${Git2S3StackName}-OutputBucket"}}
+                            ]
+                        },
+                        "/",
+                        {"Ref": "SourceFileName"}
+                    ]]},
+                    "Type": "S3"
+                },
+                "Environment": {
+                    "Type": "LINUX_CONTAINER",
+                    "ComputeType": "BUILD_GENERAL1_MEDIUM",
+                    "Image": "aws/codebuild/standard:4.0",
+                    "EnvironmentVariables": [
+                    {
+                        "Name": "ROLE",
+                        "Value": {"Ref": "RoleName"}
+                    },
+                    {
+                        "Name": "ACCOUNT",
+                        "Value": {"Ref": "AccountAlias"}
+                    },
+                    {
+                        "Name": "PACKER_AWS_ROLE",
+                        "Value": {"Ref": "CodeBuildPackerProfile"}
+                    }
+                    ]
+                },
+                "Artifacts": {
+                    "Type": "S3",
+                    "Location": { "Ref": "OutputBucket" }
+                },
+                "ServiceRole": { "Ref": "CodeBuildRole" },
+                "Tags": [],
+                "TimeoutInMinutes": "60",
+                "VpcConfig": {
+                    "VpcId": {"Fn::ImportValue": {"Fn::Sub": "${NetworkStackName}-VPCID"}},
+                    "Subnets": [
+                        {"Fn::ImportValue": {"Fn::Sub": "${NetworkStackName}-PrivateSubnet1ID"}}
+                    ],
+                    "SecurityGroupIds": [
+                        {"Fn::ImportValue": {"Fn::Sub": "${NetworkStackName}-PrivateSecurityGroupId"}} 
+                    ]
+                }
+            }
+        }
+    },
+    "Outputs": {
+        "SourceFileName": {
+            "Value": {
+                "Ref": "SourceFileName"
+            },
+            "Export": {
+                "Name": {"Fn::Sub": "${AWS::StackName}-SourceFileName"}
+            }
+        },
+        "ProjectName": {
+            "Value": {
+                "Ref": "ProjectName"
+            },
+            "Export": {
+                "Name": {"Fn::Sub": "${AWS::StackName}-ProjectName"}
+            }
+        },
+        "PackerAWSRole": {
+            "Value": {
+                "Ref": "CodeBuildPackerProfile"
+            },
+            "Export": {
+                "Name": {"Fn::Sub": "${AWS::StackName}-CodeBuildPackerProfile"}
+            }
+        }
+    }
+}
