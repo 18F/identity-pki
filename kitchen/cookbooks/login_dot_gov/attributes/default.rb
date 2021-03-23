@@ -96,21 +96,6 @@ default['login_dot_gov']['static_bucket'] = "login-gov-idp-static-" \
 # how long to wait for curl localhost to finish at end of bootstrapping
 default['login_dot_gov']['passenger_prewarm_timeout']                 = 30
 
-# new relic
-default['login_dot_gov']['agent_enabled']                             = true
-default['login_dot_gov']['app_name']                                  = 'login.gov'
-default['login_dot_gov']['audit_log_enabled']                         = false
-default['login_dot_gov']['new_relic_host']                            = 'gov-collector.newrelic.com'
-default['login_dot_gov']['auto_instrument']                           = false
-default['login_dot_gov']['capture_error_source']                      = true
-default['login_dot_gov']['error_collector_enabled']                   = true
-default['login_dot_gov']['log_level']                                 = 'info'
-default['login_dot_gov']['monitor_mode']                              = true
-default['login_dot_gov']['transaction_tracer_enabled']                = true
-default['login_dot_gov']['record_sql']                                = 'obfuscated'
-default['login_dot_gov']['stack_trace_threshold']                     = 0.500
-default['login_dot_gov']['transaction_threshold']                     = 'apdex_f'
-
 # Read proxy configuration from files placed by cloud-init, if present. If the
 # files are empty or not present, set the variables to nil.
 proxy_server = read_env_file('/etc/login.gov/info/proxy_server')
