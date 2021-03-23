@@ -10,7 +10,8 @@
                     },
                     "Parameters": [
                         "ArtifactBucketName",
-                        "TriggerSource"
+                        "TriggerSource",
+                        "SourceFileName"
                     ]
                 },
                 {
@@ -18,7 +19,7 @@
                         "default": "Stack References"
                     },
                     "Parameters": [
-                        "CodeBuildStackName",
+                        "CodeBuildProjectName",
                         "Git2S3StackName",
                         "Git2S3OutputBucket"
                     ]
@@ -27,6 +28,9 @@
             "ParameterLabels": {
                 "ArtifactBucketName": {
                     "default": "Artifact S3 bucket name"
+                },
+                "SourceFileName": {
+                    "default": "Source file name *"
                 },
                 "TriggerSource": {
                     "default": "Pipeline trigger source"
@@ -37,8 +41,8 @@
                 "Git2S3OutputBucket": {
                     "default": "Git2S3 stack OutputBucket name *"
                 },
-                "CodeBuildStackName": {
-                    "default": "CodeBuild stack name *"
+                "CodeBuildProjectName": {
+                    "default": "CodeBuild project name *"
                 }
             }
         }
@@ -49,13 +53,10 @@
             "Default": "",
             "Type": "String"
         },
-        "CodeBuildStackName": {
-            "Description": "Required: Name of an active CloudFormation stack that contains the CodeBuild resources, that will be used be this stack.",
-            "Type": "String",
-            "MinLength" : 1,
-            "MaxLength" : 255,
-            "AllowedPattern" : "^[a-zA-Z][-a-zA-Z0-9]*$",
-            "Default" : "login-image-base"
+        "CodeBuildProjectName": {
+            "Description": "SSM PARAMETER / Required: CodeBuild project name",
+            "Type": "AWS::SSM::Parameter::Value<String>",
+            "Default": "CodeBuildProject-base"
         },
         "Git2S3StackName": {
             "Description": "Optional: Active CFN stack containing Git2S3 Resources for this build project. If left blank, MUST use Git2S3OutputBucket instead.",
@@ -70,6 +71,11 @@
             "MinLength" : 0,
             "MaxLength" : 255,
             "Default" : ""
+        },
+        "SourceFileName": {
+            "Description": "SSM PARAMETER / Required: Path to the source zip file in the S3 bucket.",
+            "Type": "AWS::SSM::Parameter::Value<String>",
+            "Default": "ImageCreationSourceFile"
         },
         "TriggerSource": {
             "AllowedValues": [
@@ -263,7 +269,7 @@
                         "Resource": [
                           {"Fn::Join": [ "", [
                               "arn:aws:codebuild:",
-                              {"Fn::Sub": "${AWS::Region}:${AWS::AccountId}:project/${CodeBuildStackName}"}
+                              {"Fn::Sub": "${AWS::Region}:${AWS::AccountId}:project/${CodeBuildProjectName}"}
                           ]]}
                         ],
                         "Effect": "Allow"
@@ -302,7 +308,7 @@
                                     {"Fn::ImportValue" : {"Fn::Sub" : "${Git2S3StackName}-OutputBucket"}}
                                 ]
                             },
-                            "S3ObjectKey": "18F/identity-base-image/branch/main/18F_identity-base-image_branch_main.zip",
+                            "S3ObjectKey": { "Ref": "SourceFileName" },
                             "PollForSourceChanges": {
                                 "Fn::If": [
                                     "UseS3AsSourceTrigger",
@@ -331,7 +337,7 @@
                         }],
                         "Configuration": {
                             "ProjectName": {
-                                "Ref": "CodeBuildStackName"
+                                "Ref": "CodeBuildProjectName"
                             }
                         },
                         "RunOrder": 1
@@ -392,7 +398,7 @@
                     "Fn::Sub": "Run-${AWS::StackName}"
                 },
                 "Description" : {
-                    "Fn::Sub": "Runs ${CodeBuildStackName} build weekly."
+                    "Fn::Sub": "Runs ${CodeBuildProjectName} build weekly."
                 },
                 "ScheduleExpression" : "cron(0 7 ? * 1 *)",
                 "State" : {

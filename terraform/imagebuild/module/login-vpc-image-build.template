@@ -453,7 +453,6 @@
         },
         "S3Endpoint": {
             "Type": "AWS::EC2::VPCEndpoint",
-            "DeletionPolicy": "Delete",
             "Properties" : {
                 "PolicyDocument": {
                     "Version": "2012-10-17",

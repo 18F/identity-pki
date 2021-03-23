@@ -33,6 +33,12 @@ variable "artifact_bucket" {
   default = "login-gov-public-artifacts-us-west-2"
 }
 
+variable "code_branch" {
+  description = "Name of the identity-base-image branch used for builds/pipelines."
+  type        = string
+  default     = "main"
+}
+
 variable "packer_config" {
   description = "Map of key/value pairs for Packer configs consistent in all AMI types."
   type = map(string)
