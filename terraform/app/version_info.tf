@@ -6,7 +6,7 @@ locals {
 }
 
 data "external" "version_info" {
-  program = ["${path.module}/version_info.sh", path.module, local.privatedir]
+  program = ["bash", "${path.module}/version_info.sh", path.module, local.privatedir]
 }
 
 provider "aws" {

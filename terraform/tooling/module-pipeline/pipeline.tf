@@ -23,6 +23,7 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
       category         = "Source"
       owner            = "ThirdParty"
       provider         = "GitHub"
+      namespace        = "Source"
       version          = "1"
       output_artifacts = ["${local.clean_tf_dir}_source_output"]
 
@@ -39,6 +40,7 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
       owner            = "ThirdParty"
       provider         = "GitHub"
       version          = "1"
+      namespace        = "PrivateSource"
       output_artifacts = ["${local.clean_tf_dir}_private_output"]
 
       configuration = {
@@ -65,6 +67,14 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
       configuration = {
         ProjectName   = "auto_terraform_${local.clean_tf_dir}_plan"
         PrimarySource = "${local.clean_tf_dir}_source_output"
+        EnvironmentVariables = <<EOF
+[
+  {"name": "IDCOMMIT", "value": "#{Source.CommitId}"},
+  {"name": "IDBRANCH", "value": "#{Source.BranchName}"},
+  {"name": "IDPRIVATECOMMIT", "value": "#{PrivateSource.CommitId}"},
+  {"name": "IDPRIVATEBRANCH", "value": "#{PrivateSource.BranchName}"}
+]
+EOF
       }
     }
   }
@@ -154,6 +164,14 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
       configuration = {
         ProjectName   = "auto_terraform_${local.clean_tf_dir}_apply"
         PrimarySource = "${local.clean_tf_dir}_source_output"
+        EnvironmentVariables = <<EOF
+[
+  {"name": "IDCOMMIT", "value": "#{Source.CommitId}"},
+  {"name": "IDBRANCH", "value": "#{Source.BranchName}"},
+  {"name": "IDPRIVATECOMMIT", "value": "#{PrivateSource.CommitId}"},
+  {"name": "IDPRIVATEBRANCH", "value": "#{PrivateSource.BranchName}"}
+]
+EOF
       }
     }
   }
@@ -171,6 +189,14 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
 
       configuration = {
         ProjectName = "auto_terraform_${local.clean_tf_dir}_test"
+        EnvironmentVariables = <<EOF
+[
+  {"name": "IDCOMMIT", "value": "#{Source.CommitId}"},
+  {"name": "IDBRANCH", "value": "#{Source.BranchName}"},
+  {"name": "IDPRIVATECOMMIT", "value": "#{PrivateSource.CommitId}"},
+  {"name": "IDPRIVATEBRANCH", "value": "#{PrivateSource.BranchName}"}
+]
+EOF
       }
     }
   }
