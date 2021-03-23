@@ -185,7 +185,7 @@ phases:
       - 
       - # XXX should we init things here? or just do it one time by hand?  ./bin/deploy/configure_state_bucket.sh
       - terraform init -backend-config=bucket=${local.state_bucket} -backend-config=key=${local.tf_config_key} -backend-config=dynamodb_table=terraform_locks -backend-config=region=${var.state_bucket_region}
-      - terraform apply -auto-approve -lock-timeout=180s ${local.vars_files} $CODEBUILD_SRC_DIR_${local.clean_tf_dir}_plan_output/plan.tfplan
+      - terraform apply -auto-approve -lock-timeout=180s $CODEBUILD_SRC_DIR_${local.clean_tf_dir}_plan_output/plan.tfplan
 
   post_build:
     commands:
