@@ -34,6 +34,14 @@ resource "aws_codebuild_project" "auto_terraform_plan" {
       name  = "TF_DIR"
       value = var.tf_dir
     }
+    environment_variable {
+      name  = "TF_VAR_env_name"
+      value = var.env_name
+    }
+    environment_variable {
+      name  = "TF_VAR_account_id"
+      value = var.account
+    }
   }
 
   logs_config {
@@ -131,6 +139,14 @@ resource "aws_codebuild_project" "auto_terraform_apply" {
       name  = "TF_DIR"
       value = var.tf_dir
     }
+    environment_variable {
+      name  = "TF_VAR_env_name"
+      value = var.env_name
+    }
+    environment_variable {
+      name  = "TF_VAR_account_id"
+      value = var.account
+    }
   }
 
   logs_config {
@@ -221,6 +237,14 @@ resource "aws_codebuild_project" "auto_terraform_test" {
     environment_variable {
       name  = "TF_DIR"
       value = var.tf_dir
+    }
+    environment_variable {
+      name  = "TF_VAR_env_name"
+      value = var.env_name
+    }
+    environment_variable {
+      name  = "TF_VAR_account_id"
+      value = var.account
     }
   }
 
