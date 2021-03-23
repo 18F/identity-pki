@@ -14,13 +14,13 @@ variable "ami_types" {
 variable "image_build_private_cidr" {
   description = "CIDR block for the public subnet 1"
   type        = string
-  default     = "10.0.1.0/24"
+  default     = "10.0.11.0/24"
 }
 
 variable "image_build_public_cidr" {
   description = "CIDR block for the public subnet 1"
   type        = string
-  default     = "10.0.11.0/24"
+  default     = "10.0.1.0/24"
 }
 
 variable "image_build_vpc_cidr" {

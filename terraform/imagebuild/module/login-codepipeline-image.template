@@ -263,8 +263,7 @@
                         "Resource": [
                           {"Fn::Join": [ "", [
                               "arn:aws:codebuild:",
-                              {"Fn::Sub": "${AWS::Region}:${AWS::AccountId}:project/"},
-                              {"Fn::ImportValue": {"Fn::Sub": "${CodeBuildStackName}-ProjectName"}}
+                              {"Fn::Sub": "${AWS::Region}:${AWS::AccountId}:project/${CodeBuildStackName}"}
                           ]]}
                         ],
                         "Effect": "Allow"
@@ -303,7 +302,7 @@
                                     {"Fn::ImportValue" : {"Fn::Sub" : "${Git2S3StackName}-OutputBucket"}}
                                 ]
                             },
-                            "S3ObjectKey": {"Fn::ImportValue" : {"Fn::Sub" : "${CodeBuildStackName}-SourceFileName"}},
+                            "S3ObjectKey": "18F/identity-base-image/branch/main/18F_identity-base-image_branch_main.zip",
                             "PollForSourceChanges": {
                                 "Fn::If": [
                                     "UseS3AsSourceTrigger",
@@ -331,7 +330,9 @@
                             "Name": "AmiOutput"
                         }],
                         "Configuration": {
-                            "ProjectName": {"Fn::ImportValue" : {"Fn::Sub" : "${CodeBuildStackName}-ProjectName"}}
+                            "ProjectName": {
+                                "Ref": "CodeBuildStackName"
+                            }
                         },
                         "RunOrder": 1
                     }]

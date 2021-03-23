@@ -73,7 +73,7 @@ resource "aws_cloudformation_stack" "image_codepipeline_stack" {
   name          = join("", ["CodePipeline-Image", title(each.key), "Role"])
   template_body = file("${path.module}/login-codepipeline-image.template")
   parameters    = {
-    CodeBuildStackName = aws_cloudformation_stack.image_codebuild_stack[each.key].name
+    CodeBuildStackName = "login-image-${each.key}"
     Git2S3OutputBucket = local.git2s3_bucket
     TriggerSource      = var.trigger_source
   }
