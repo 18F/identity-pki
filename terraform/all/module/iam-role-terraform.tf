@@ -203,6 +203,7 @@ locals {
       actions = [
         "ec2:AllocateAddress",
         "ec2:AssociateRouteTable",
+        "ec2:AssociateAddress",
         "ec2:AttachInternetGateway",
         "ec2:AuthorizeSecurityGroupEgress",
         "ec2:AuthorizeSecurityGroupIngress",
@@ -510,6 +511,30 @@ locals {
       resources = [
         "*",
       ]
+    },
+    {
+        sid     = "NetworkFirewall"
+        effect  = "Allow"
+        actions = [
+            "network-firewall:Describe*",
+            "network-firewall:CreateRuleGroup",
+            "network-firewall:CreateFirewallPolicy",
+            "network-firewall:DeleteFirewallPolicy",
+            "network-firewall:DeleteRuleGroup",
+            "network-firewall:ListRuleGroups",
+            "network-firewall:CreateFirewall",
+            "network-firewall:DeleteFirewall",
+            "network-firewall:AssociateFirewallPolicy",
+            "network-firewall:List*",
+            "network-firewall:Put*",
+            "network-firewall:DeleteRuleGroup",
+            "network-firewall:DeleteResourcePolicy",
+            "network-firewall:Associate*",
+            "network-firewall:UpdateLoggingConfiguration"
+          ]
+        resources = [
+            "*",
+        ] 
     },
     {
       sid    = "Pinpoint"
