@@ -104,9 +104,11 @@ locals {
       sid    = "CloudFormation"
       effect = "Allow"
       actions = [
+        "cloudformation:CreateStack",
         "cloudformation:DeleteStack",
-        "cloudformation:DescribeStacks",
+        "cloudformation:DescribeStack*",
         "cloudformation:GetTemplate",
+        "cloudformation:UpdateStack",
       ]
       resources = [
         "*",
@@ -197,6 +199,8 @@ locals {
       sid    = "Ec2"
       effect = "Allow"
       actions = [
+        "ec2:AllocateAddress",
+        "ec2:AssociateRouteTable",
         "ec2:AttachInternetGateway",
         "ec2:AuthorizeSecurityGroupEgress",
         "ec2:AuthorizeSecurityGroupIngress",
@@ -208,6 +212,7 @@ locals {
         "ec2:CreateNetworkAcl",
         "ec2:CreateNetworkAclEntry",
         "ec2:CreateRoute",
+        "ec2:CreateRouteTable",
         "ec2:CreateSecurityGroup",
         "ec2:CreateSubnet",
         "ec2:CreateTags",
@@ -221,6 +226,7 @@ locals {
         "ec2:DeleteNetworkAcl",
         "ec2:DeleteNetworkAclEntry",
         "ec2:DeleteRoute",
+        "ec2:DeleteRouteTable",
         "ec2:DeleteSecurityGroup",
         "ec2:DeleteSubnet",
         "ec2:DeleteVpc",
@@ -249,14 +255,15 @@ locals {
         "ec2:DetachInternetGateway",
         "ec2:DetachNetworkInterface",
         "ec2:DisassociateAddress",
+        "ec2:DisassociateRouteTable",
         "ec2:GetTransitGatewayRouteTableAssociations",
         "ec2:ModifySubnetAttribute",
         "ec2:ModifyVpcAttribute",
         "ec2:ReleaseAddress",
         "ec2:ReplaceNetworkAclAssociation",
         "ec2:ReplaceRouteTableAssociation",
-        "ec2:RevokeSecurityGroupIngress",
         "ec2:RevokeSecurityGroupEgress",
+        "ec2:RevokeSecurityGroupIngress",
         "ec2:RunInstances",
       ]
       resources = [
@@ -305,6 +312,7 @@ locals {
         "elasticloadbalancing:DescribeTags",
         "elasticloadbalancing:DescribeTargetGroupAttributes",
         "elasticloadbalancing:DescribeTargetGroups",
+        "elasticloadbalancing:ModifyListener",
         "elasticloadbalancing:ModifyLoadBalancerAttributes",
         "elasticloadbalancing:ModifyRule",
         "elasticloadbalancing:ModifyTargetGroup",
@@ -388,6 +396,7 @@ locals {
         "iam:TagRole",
         "iam:UntagRole",
         "iam:UpdateAccountPasswordPolicy",
+        "iam:UpdateAssumeRolePolicy",
       ]
       resources = [
         "*",

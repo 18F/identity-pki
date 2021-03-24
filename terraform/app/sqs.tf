@@ -130,6 +130,7 @@ data "aws_iam_policy_document" "idp_kms_sqs" {
     effect = "Allow"
     actions = [
       "sqs:SendMessage",
+      "sqs:GetQueueUrl",
     ]
     resources = [
       aws_sqs_queue.risc_notifications[0].arn
