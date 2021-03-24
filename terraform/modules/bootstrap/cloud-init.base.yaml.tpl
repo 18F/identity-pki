@@ -42,14 +42,14 @@ write_files:
      }
 
  - path: /etc/login.gov/info/proxy_server
-   content: "${proxy_server}\n"
+   content: "${proxy_server}"
  - path: /etc/login.gov/info/proxy_port
-   content: "${proxy_port}\n"
+   content: "${proxy_port}"
  - path: /etc/login.gov/info/no_proxy_hosts
-   content: "${no_proxy_hosts}\n"
+   content: "${no_proxy_hosts}"
 
  - path: /etc/login.gov/info/http_proxy
-   content: "http://${proxy_server}:${proxy_port}\n"
+   content: "${proxy_url}"
 
 ${apt_proxy_stanza}
  - path: /etc/ssh/ssh_known_hosts

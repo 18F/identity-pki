@@ -103,17 +103,22 @@ locals {
     var.proxy_enabled_roles,
     var.role,
     var.proxy_enabled_roles["unknown"],
-  ) == 1 ? var.proxy_server : ""
+  ) == 1 ? "${var.proxy_server}\\n" : ""
   proxy_port = lookup(
     var.proxy_enabled_roles,
     var.role,
     var.proxy_enabled_roles["unknown"],
-  ) == 1 ? var.proxy_port : ""
+  ) == 1 ? "${var.proxy_port}\\n" : ""
   no_proxy_hosts = lookup(
     var.proxy_enabled_roles,
     var.role,
     var.proxy_enabled_roles["unknown"],
-  ) == 1 ? var.no_proxy_hosts : ""
+  ) == 1 ? "${var.no_proxy_hosts}\\n" : ""
+  proxy_url = lookup(
+    var.proxy_enabled_roles,
+    var.role,
+    var.proxy_enabled_roles["unknown"],
+  ) == 1 ? "http://${var.proxy_server}:${var.proxy_port}\\n" : ""
 
   apt_proxy_data = <<EOF
  - path: /etc/apt/apt.conf.d/proxy.conf
@@ -168,6 +173,7 @@ data "template_file" "cloud-init-base-template" {
     proxy_port     = local.proxy_port
     no_proxy_hosts = local.no_proxy_hosts
     apt_proxy_stanza = local.apt_proxy_stanza
+    proxy_url      = local.proxy_url
   }
 }
 
