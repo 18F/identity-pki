@@ -1,42 +1,37 @@
 locals {
-  yaml_data = yamldecode(file("validdomain.yaml"))
+  yaml_data = yamldecode(file("../modules/firewall/validdomain.yaml"))
 }
 
 
 #################################################################
-################# Network Implementation  #######################
+################# Firewall Implementation Start  ################
 #################################################################
-
-resource "aws_subnet" "nat" {
-  for_each          = toset(var.az_zones)
-  availability_zone = each.key
-  cidr_block        = var.nat_cidr_blocks[each.key]
-  vpc_id            = aws_vpc.default.id
-  map_public_ip_on_launch = true
-  tags = {
-    Name = "${var.name}-NAT-Subnet-${each.key}"
-  }
-}
-
-resource "aws_nat_gateway" "gw" {
-  for_each      = toset(var.az_zones)  
-  allocation_id = var.eip_allocation_blocks[each.key]
-  subnet_id     = aws_subnet.nat[each.key].id
-  tags = {
-    Name = "${var.name}-NAT-Gateway-${each.key}"
-  }
-}
-
 resource "aws_subnet" "firewall" {
   for_each          = toset(var.az_zones)
   availability_zone = each.key
   cidr_block        = var.firewall_cidr_blocks[each.key]
-  vpc_id            = aws_vpc.default.id
+  vpc_id            = var.vpc_id
   tags = {
-    Name = "${var.name}-Firewall-Subnet-${each.key}"
+    Name = "${var.name}-firewall-subnet-${each.key}"
   }
 }
 
+resource "aws_networkfirewall_firewall" "firewall" {
+  for_each            = toset(var.az_zones)
+  firewall_policy_arn = aws_networkfirewall_firewall_policy.fwpolicy[each.key].arn
+  name                = "${var.env_name}-Firewall-${each.key}"
+  # vpc_id              = aws_vpc.default.id
+  vpc_id = var.vpc_id
+  subnet_mapping {
+  subnet_id          = aws_subnet.firewall[each.key].id
+    
+  }
+}
+########### Networking Implementation End ###################
+
+#################################################################
+########### Network Firewall Policy Start ###############
+#################################################################
 resource "aws_networkfirewall_firewall_policy" "fwpolicy" {
   for_each          = toset(var.az_zones)
   name              = "fw-policy-${each.key}"
@@ -51,18 +46,6 @@ resource "aws_networkfirewall_firewall_policy" "fwpolicy" {
     }
   }
 }
-
-
-resource "aws_networkfirewall_firewall" "firewall" {
-  for_each            = toset(var.az_zones)
-  firewall_policy_arn = aws_networkfirewall_firewall_policy.fwpolicy[each.key].arn
-  name                = "${var.env_name}-Firewall-${each.key}"
-  vpc_id              = aws_vpc.default.id
-  subnet_mapping {
-    subnet_id          = aws_subnet.firewall[each.key].id
-  }
-}
-
 resource "aws_networkfirewall_logging_configuration" "fwlogging" {
   for_each            = toset(var.az_zones)
   firewall_arn = aws_networkfirewall_firewall.firewall[each.key].arn
@@ -84,44 +67,7 @@ resource "aws_networkfirewall_logging_configuration" "fwlogging" {
     }
   }
   }
-
-resource "aws_route_table" "firewall" {
-  for_each = toset(var.az_zones)
-  vpc_id   = aws_vpc.default.id
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.default.id
-  }
-  tags = {
-    Name = "${var.name}-Firewall-Route-Table-${each.key}"
-  }
-}
-
-resource "aws_route_table_association" "firewall" {
-  for_each       = toset(var.az_zones)
-  route_table_id = aws_route_table.firewall[each.key].id
-  subnet_id      = aws_subnet.firewall[each.key].id
-}
-
-resource "aws_route_table" "nat" {
-  for_each = toset(var.az_zones)
-  vpc_id   = aws_vpc.default.id
-  route {
-    cidr_block      = "0.0.0.0/0"
-    vpc_endpoint_id = tolist(aws_networkfirewall_firewall.firewall[each.key].firewall_status[0].sync_states)[0].attachment[0].endpoint_id
-  }
-  tags = {
-    Name = "${var.name}-NAT-Route-Table-${each.key}"
-  }
-}
-
-resource "aws_route_table_association" "nat" {
-  for_each       = toset(var.az_zones)
-  subnet_id      = aws_subnet.nat[each.key].id
-  route_table_id = aws_route_table.nat[each.key].id
-}
-
-
+############## Network Firewall Policy End###################
 
 #################################################################
 ################ Common Firewall Rules - Start ##################
@@ -205,11 +151,49 @@ resource "aws_cloudwatch_metric_alarm" "blocked_alert" {
 ####### Common Firewall Rules - end ###############
 
 #############################################################
-############ IGW Routing Table Configuration - Start ########
+###### Firewall, NAT and IGW Routing Table Config - Start ###
 #############################################################
+resource "aws_route_table" "firewall" {
+  for_each = toset(var.az_zones)
+  vpc_id   = var.vpc_id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = var.gateway_id
+  }
+  tags = {
+    Name = "${var.name}-Firewall-Route-Table-${each.key}"
+  }
+}
+resource "aws_route_table_association" "firewall" {
+  for_each       = toset(var.az_zones)
+  route_table_id = aws_route_table.firewall[each.key].id
+  subnet_id      = aws_subnet.firewall[each.key].id
+}
+resource "aws_route_table" "nat" {
+  for_each = toset(var.az_zones)
+  vpc_id   = var.vpc_id
+  route {
+    cidr_block      = "0.0.0.0/0"
+    vpc_endpoint_id = tolist(aws_networkfirewall_firewall.firewall[each.key].firewall_status[0].sync_states)[0].attachment[0].endpoint_id
+  }
+  tags = {
+    Name = "${var.name}-nat-route-table-${each.key}"
+  }
+}
+
+resource "aws_route_table_association" "nat" {
+  subnet_id      = var.nat_subnet_id_usw2a
+  route_table_id = aws_route_table.nat["us-west-2a"].id
+}
+
+resource "aws_route_table_association" "nat2b" {
+  subnet_id = var.nat_subnet_id_usw2b
+  route_table_id = aws_route_table.nat["us-west-2b"].id
+}
+
 
 resource "aws_route_table" "igwroutetable" {
-  vpc_id = aws_vpc.default.id
+  vpc_id = var.vpc_id
 
   route {
     cidr_block = var.firewall_cidr_block_aza
@@ -237,7 +221,7 @@ resource "aws_route_table" "igwroutetable" {
 }
 
 resource "aws_route_table_association" "igwgwassociation" {
-  gateway_id     = aws_internet_gateway.default.id
+  gateway_id     = var.gateway_id
   route_table_id = aws_route_table.igwroutetable.id
 }
 ####### Routing Tables Configuration - end ########
