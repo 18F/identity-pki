@@ -65,8 +65,8 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
       output_artifacts = ["${local.clean_tf_dir}_plan_output"]
 
       configuration = {
-        ProjectName   = "auto_terraform_${local.clean_tf_dir}_plan"
-        PrimarySource = "${local.clean_tf_dir}_source_output"
+        ProjectName          = "auto_terraform_${local.clean_tf_dir}_plan"
+        PrimarySource        = "${local.clean_tf_dir}_source_output"
         EnvironmentVariables = <<EOF
 [
   {"name": "IDCOMMIT", "value": "#{Source.CommitId}"},
@@ -162,8 +162,8 @@ EOF
       input_artifacts = ["${local.clean_tf_dir}_source_output", "${local.clean_tf_dir}_plan_output", "${local.clean_tf_dir}_private_output"]
 
       configuration = {
-        ProjectName   = "auto_terraform_${local.clean_tf_dir}_apply"
-        PrimarySource = "${local.clean_tf_dir}_source_output"
+        ProjectName          = "auto_terraform_${local.clean_tf_dir}_apply"
+        PrimarySource        = "${local.clean_tf_dir}_source_output"
         EnvironmentVariables = <<EOF
 [
   {"name": "IDCOMMIT", "value": "#{Source.CommitId}"},
@@ -188,7 +188,7 @@ EOF
       input_artifacts = ["${local.clean_tf_dir}_source_output"]
 
       configuration = {
-        ProjectName = "auto_terraform_${local.clean_tf_dir}_test"
+        ProjectName          = "auto_terraform_${local.clean_tf_dir}_test"
         EnvironmentVariables = <<EOF
 [
   {"name": "IDCOMMIT", "value": "#{Source.CommitId}"},
