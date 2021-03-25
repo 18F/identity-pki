@@ -1331,6 +1331,75 @@ resource "aws_security_group" "obproxy" {
   vpc_id = aws_vpc.default.id
 }
 
+resource "aws_security_group" "worker" {
+  description = "Worker role"
+
+  # allow outbound to the VPC
+  egress {
+    from_port   = 0
+    to_port     = 65535
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr_block]
+  }
+
+  # need to get packages and stuff (conditionally)
+  egress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = var.outbound_subnets
+  }
+
+  # need to get packages and stuff (conditionally)
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = var.outbound_subnets
+  }
+
+  # github
+  egress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = data.github_ip_ranges.ips.git
+  }
+
+  # need 8834 to comm with Nessus Server
+  egress {
+    from_port   = 8834
+    to_port     = 8834
+    protocol    = "tcp"
+    cidr_blocks = [var.nessusserver_ip]
+  }
+
+  #s3 gateway
+  egress {
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
+    prefix_list_ids = [aws_vpc_endpoint.private-s3.prefix_list_id]
+  }
+
+  # need 8834 to comm with Nessus Server
+  ingress {
+    from_port   = 8834
+    to_port     = 8834
+    protocol    = "tcp"
+    cidr_blocks = [var.nessusserver_ip]
+  }
+
+  name = "${var.name}-worker-${var.env_name}"
+
+  tags = {
+    Name = "${var.name}-worker_security_group-${var.env_name}"
+    role = "idp"
+  }
+
+  vpc_id = aws_vpc.default.id
+}
+
 module "vpc_flow_cloudwatch_filters" {
   source     = "github.com/18F/identity-terraform//vpc_flow_cloudwatch_filters?ref=476ab4456e547e125dcd53cb6131419b54f1f476"
   depends_on = [aws_cloudwatch_log_group.flow_log_group]

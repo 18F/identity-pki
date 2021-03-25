@@ -260,6 +260,10 @@ variable "instance_type_pivcac" {
   default = "t3.medium"
 }
 
+variable "instance_type_worker" {
+  default = "t3.medium"
+}
+
 variable "use_spot_instances" {
   description = "Use spot instances for roles suitable for spot use"
   type        = number
@@ -387,6 +391,18 @@ variable "asg_outboundproxy_min" {
 
 variable "asg_outboundproxy_max" {
   default = 9
+}
+
+variable "asg_worker_min" {
+  default = 0
+}
+
+variable "asg_worker_desired" {
+  default = 0
+}
+
+variable "asg_worker_max" {
+  default = 8
 }
 
 variable "idp_cpu_autoscaling_enabled" {
