@@ -670,6 +670,7 @@ variable "idp_sqs_notifications_enabled" {
   default     = true
 }
 
+######## Network Firewall Variable Block - Start ##########
 variable "az_zones" {
   description = "The list of availability zones"
   default = ["us-west-2a", "us-west-2b"]
@@ -729,3 +730,9 @@ variable "rules_type" {
   default = "ALLOWLIST"
 }
 
+variable "validdomainfile"{
+  description = "The name of the yaml file in the firewall modules directory containing the list of allowed domains in the firewall"
+  default = "validdomain.yaml"
+}
+
+######## Network Firewall Variable Block - End ##########

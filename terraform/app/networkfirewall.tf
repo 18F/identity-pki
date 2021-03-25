@@ -19,4 +19,5 @@ module "firewall" {
   nat_subnet_id_usw2a                        = aws_subnet.nat["us-west-2a"].id
   nat_subnet_id_usw2b                        = aws_subnet.nat["us-west-2b"].id
   gateway_id                                 = aws_internet_gateway.default.id 
+  validdomainfile                            = var.validdomainfile
 }

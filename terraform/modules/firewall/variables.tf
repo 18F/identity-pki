@@ -74,3 +74,7 @@ variable "nat_subnet_id_usw2b" {
 variable "gateway_id" {
   type = string
 }
+
+variable "validdomainfile" {
+  type = string
+}

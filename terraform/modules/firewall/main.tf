@@ -1,7 +1,6 @@
 locals {
-  yaml_data = yamldecode(file("../modules/firewall/validdomain.yaml"))
+  yaml_data = yamldecode(file("${path.module}/${var.validdomainfile}"))
 }
-
 
 #################################################################
 ################# Firewall Implementation Start  ################
@@ -27,10 +26,9 @@ resource "aws_networkfirewall_firewall" "firewall" {
     
   }
 }
-########### Networking Implementation End ###################
 
 #################################################################
-########### Network Firewall Policy Start ###############
+########### Network Firewall Policy Start #######################
 #################################################################
 resource "aws_networkfirewall_firewall_policy" "fwpolicy" {
   for_each          = toset(var.az_zones)
@@ -67,7 +65,7 @@ resource "aws_networkfirewall_logging_configuration" "fwlogging" {
     }
   }
   }
-############## Network Firewall Policy End###################
+############## Network Firewall Policy End ######################
 
 #################################################################
 ################ Common Firewall Rules - Start ##################
@@ -87,7 +85,6 @@ resource "aws_networkfirewall_rule_group" "fqdn_allow" {
     }
   }
 }
-
 resource "aws_networkfirewall_rule_group" "fqdn_deny" {
   capacity = 1000
   name     = "fqdn-deny"
@@ -128,7 +125,6 @@ resource "aws_cloudwatch_log_metric_filter" "blockedrequest" {
   }
 }
 
-
 resource "aws_cloudwatch_log_group" "fw_log_group_alert" {
   name = "${var.env_name}_/aws/network-firewall/alert"
   }
@@ -147,8 +143,7 @@ resource "aws_cloudwatch_metric_alarm" "blocked_alert" {
   alarm_actions             =[var.slack_events_sns_hook_arn]
 }
 
-
-####### Common Firewall Rules - end ###############
+####### Common Firewall Rules - end #########################
 
 #############################################################
 ###### Firewall, NAT and IGW Routing Table Config - Start ###
