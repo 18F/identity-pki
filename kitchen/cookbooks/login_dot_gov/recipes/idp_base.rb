@@ -112,13 +112,6 @@ application release_path do
     revision deploy_branch
   end
 
-  # custom resource to configure new relic (newrelic.yml)
-  login_dot_gov_newrelic_config shared_path do
-    not_if { node['login_dot_gov']['setup_only'] }
-    app_name "#{node.chef_environment}.#{node.fetch('login_dot_gov').fetch('domain_name')}"
-    symlink_from release_path
-  end
-
   # TODO: figure out why this hack is needed and remove it.
   # For some reason we are ending up with a root-owned directory
   # ~ubuntu/.bundle/cache but only when running kitchen-ec2. This causes the
@@ -216,7 +209,7 @@ application release_path do
 
   execute 'newrelic log deploy' do
     cwd '/srv/idp/releases/chef'
-    command 'bundle exec newrelic deployments -r "$(git rev-parse HEAD)"'
+    command 'bundle exec rails newrelic:deployment'
     user node['login_dot_gov']['system_user']
     group node['login_dot_gov']['system_user']
   end
