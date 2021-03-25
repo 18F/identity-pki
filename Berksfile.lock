@@ -32,7 +32,6 @@ DEPENDENCIES
   deploy_resource (~> 1.0)
   elasticsearch (~> 4.2.0)
   elasticsearch-curator (~> 0.3.0)
-  filebeat (~> 2.1.0)
   git
   hostname
   identity-elk
@@ -133,12 +132,6 @@ GRAPH
     poise-python (>= 0.0.0)
     yum (>= 0.0.0)
     yum-epel (>= 0.0.0)
-  filebeat (2.1.0)
-    elastic_repo (>= 1.1.1)
-    homebrew (~> 4.2)
-    runit (>= 0.0.0)
-    windows (>= 0.0.0)
-    yum-plugin-versionlock (>= 0.1.2)
   git (10.1.0)
   homebrew (4.3.0)
   hostname (0.4.2)
@@ -152,7 +145,6 @@ GRAPH
     cron (>= 0.0.0)
     elasticsearch (>= 0.0.0)
     elasticsearch-curator (>= 0.0.0)
-    filebeat (>= 0.0.0)
     java (~> 4.3.0)
     keytool (>= 0.0.0)
     login_dot_gov (>= 0.0.0)

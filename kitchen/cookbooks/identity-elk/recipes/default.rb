@@ -549,8 +549,6 @@ template '/etc/apache2/htpasswd' do
 end
 apache_site 'kibanaproxy'
 
-include_recipe 'identity-elk::filebeat'
-
 # === set up elastalert ===
 include_recipe 'login_dot_gov::python3'
 
