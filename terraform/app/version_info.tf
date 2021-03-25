@@ -1,12 +1,12 @@
-module "version_info_main" {
-  source = "../modules/version_info"
+
+locals {
+  # This module expects to find the private configuration checked out in a separate
+  # repository located (from the root of this repo) at ../{repo-name}-private/.
+  privatedir = "${path.module}/../../../identity-devops-private/"
 }
 
-# This module expects to find the private configuration checked out in a separate
-# repository located (from the root of this repo) at ../{repo-name}-private/.
-module "version_info_private" {
-  source = "../modules/version_info"
-  version_info_path = "${path.module}/../../../identity-devops-private/"
+data "external" "version_info" {
+  program = ["bash", "${path.module}/version_info.sh", path.module, local.privatedir]
 }
 
 provider "aws" {
@@ -19,12 +19,10 @@ resource "aws_s3_bucket_object" "version_info" {
   key      = "terraform-app/version_info/${var.env_name}.txt"
   bucket   = var.version_info_bucket
   content  = <<EOF
-main_commit=${module.version_info_main.version_info["commit"]}
-main_branch=${module.version_info_main.version_info["branch"]}
+main_commit=${data.external.version_info.result.identity-devops-commit}
+main_branch=${data.external.version_info.result.identity-devops-branch}
 main_version=${trimspace(file("${path.module}/../../VERSION.txt"))}
-private_commit=${module.version_info_private.version_info["commit"]}
-private_branch=${module.version_info_private.version_info["branch"]}
+private_commit=${data.external.version_info.result.identity-devops-private-commit}
+private_branch=${data.external.version_info.result.identity-devops-private-branch}
 EOF
-
 }
-

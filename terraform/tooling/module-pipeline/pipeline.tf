@@ -23,6 +23,7 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
       category         = "Source"
       owner            = "ThirdParty"
       provider         = "GitHub"
+      namespace        = "Source"
       version          = "1"
       output_artifacts = ["${local.clean_tf_dir}_source_output"]
 
@@ -34,17 +35,18 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
       }
     }
     action {
-      name             = "identity-devops-private"
+      name             = "identity_devops_private"
       category         = "Source"
       owner            = "ThirdParty"
       provider         = "GitHub"
       version          = "1"
+      namespace        = "PrivateSource"
       output_artifacts = ["${local.clean_tf_dir}_private_output"]
 
       configuration = {
         Owner      = "18F"
         Repo       = "identity-devops-private"
-        Branch     = "master"
+        Branch     = "main"
         OAuthToken = data.aws_s3_bucket_object.identity_devops_oauthkey.body
       }
     }
@@ -63,8 +65,16 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
       output_artifacts = ["${local.clean_tf_dir}_plan_output"]
 
       configuration = {
-        ProjectName   = "auto_terraform_${local.clean_tf_dir}_plan"
-        PrimarySource = "${local.clean_tf_dir}_source_output"
+        ProjectName          = "auto_terraform_${local.clean_tf_dir}_plan"
+        PrimarySource        = "${local.clean_tf_dir}_source_output"
+        EnvironmentVariables = <<EOF
+[
+  {"name": "IDCOMMIT", "value": "#{Source.CommitId}"},
+  {"name": "IDBRANCH", "value": "#{Source.BranchName}"},
+  {"name": "IDPRIVATECOMMIT", "value": "#{PrivateSource.CommitId}"},
+  {"name": "IDPRIVATEBRANCH", "value": "#{PrivateSource.BranchName}"}
+]
+EOF
       }
     }
   }
@@ -152,8 +162,16 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
       input_artifacts = ["${local.clean_tf_dir}_source_output", "${local.clean_tf_dir}_plan_output", "${local.clean_tf_dir}_private_output"]
 
       configuration = {
-        ProjectName   = "auto_terraform_${local.clean_tf_dir}_apply"
-        PrimarySource = "${local.clean_tf_dir}_source_output"
+        ProjectName          = "auto_terraform_${local.clean_tf_dir}_apply"
+        PrimarySource        = "${local.clean_tf_dir}_source_output"
+        EnvironmentVariables = <<EOF
+[
+  {"name": "IDCOMMIT", "value": "#{Source.CommitId}"},
+  {"name": "IDBRANCH", "value": "#{Source.BranchName}"},
+  {"name": "IDPRIVATECOMMIT", "value": "#{PrivateSource.CommitId}"},
+  {"name": "IDPRIVATEBRANCH", "value": "#{PrivateSource.BranchName}"}
+]
+EOF
       }
     }
   }
@@ -170,7 +188,15 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
       input_artifacts = ["${local.clean_tf_dir}_source_output"]
 
       configuration = {
-        ProjectName = "auto_terraform_${local.clean_tf_dir}_test"
+        ProjectName          = "auto_terraform_${local.clean_tf_dir}_test"
+        EnvironmentVariables = <<EOF
+[
+  {"name": "IDCOMMIT", "value": "#{Source.CommitId}"},
+  {"name": "IDBRANCH", "value": "#{Source.BranchName}"},
+  {"name": "IDPRIVATECOMMIT", "value": "#{PrivateSource.CommitId}"},
+  {"name": "IDPRIVATEBRANCH", "value": "#{PrivateSource.BranchName}"}
+]
+EOF
       }
     }
   }

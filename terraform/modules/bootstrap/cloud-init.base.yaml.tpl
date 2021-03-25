@@ -1,6 +1,6 @@
 # cloud-config
 
-# This file is an ERB template.
+# This file is a terraform template.
 
 # Run apt update / upgrade
 repo_update: true
@@ -13,27 +13,19 @@ no_ssh_fingerprints: true
 # make it so that we don't do DSA keys, which do not work with FIPS
 ssh_genkeytypes: ['rsa', 'ecdsa']
 
-<%
-def append_if_nonempty(string, suffix)
-  return nil unless string
-  return '' if string.empty?
-  string + suffix
-end
-
-%>
 
 write_files:
  - path: /etc/login.gov/info/env
-   content: "<%= env %>\n"
+   content: "${env}\n"
 
  - path: /etc/login.gov/info/sns_topic_arn
-   content: "<%= sns_topic_arn %>\n"  
+   content: "${sns_topic_arn}\n"  
 
  - path: /etc/login.gov/info/domain
-   content: "<%= domain %>\n"
+   content: "${domain}\n"
 
  - path: /etc/login.gov/info/role
-   content: "<%= role %>\n"
+   content: "${role}\n"
 
  - path: /etc/login.gov/info/auto-scaled
    content: "true\n"
@@ -41,31 +33,25 @@ write_files:
  - path: /etc/login.gov/info/chef-attributes.json
    content: |
      {
-       "run_list": ["role[<%= role %>]"],
+       "run_list": ["role[${role}]"],
        "provisioner": {
          "name": "cloud-init",
          "auto-scaled": true,
-         "role": "<%= role %>"
+         "role": "${role}"
        }
      }
 
  - path: /etc/login.gov/info/proxy_server
-   content: "<%= append_if_nonempty(proxy_server, '\n') %>"
+   content: "${proxy_server}"
  - path: /etc/login.gov/info/proxy_port
-   content: "<%= append_if_nonempty(proxy_port, '\n') %>"
+   content: "${proxy_port}"
  - path: /etc/login.gov/info/no_proxy_hosts
-   content: "<%= append_if_nonempty(no_proxy_hosts, '\n') %>"
+   content: "${no_proxy_hosts}"
 
  - path: /etc/login.gov/info/http_proxy
-   content: <%= ((proxy_server && !proxy_server.empty?) ? "http://#{proxy_server}:#{proxy_port}\n" : '').to_json %>
+   content: "${proxy_url}"
 
-<% if proxy_server && !proxy_server.empty? %>
- - path: /etc/apt/apt.conf.d/proxy.conf
-   content: |
-     Acquire::http::Proxy "<%= "http://#{proxy_server}:#{proxy_port}" %>";
-     Acquire::https::Proxy "<%= "http://#{proxy_server}:#{proxy_port}" %>";
-<% end %>
-
+${apt_proxy_stanza}
  - path: /etc/ssh/ssh_known_hosts
    content: |
      # https://help.github.com/articles/github-s-ssh-key-fingerprints/
