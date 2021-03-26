@@ -10,7 +10,7 @@ locals {
 
 # How to run a terraform plan
 resource "aws_codebuild_project" "auto_terraform_plan" {
-  name          = "auto_terraform_${local.clean_tf_dir}_plan"
+  name          = "auto_terraform_${local.clean_tf_dir}_${var.env_name}_plan"
   description   = "auto-terraform ${var.tf_dir}"
   build_timeout = "30"
   service_role  = var.auto_tf_role_arn
@@ -46,7 +46,7 @@ resource "aws_codebuild_project" "auto_terraform_plan" {
 
   logs_config {
     cloudwatch_logs {
-      group_name  = "auto-terraform/${var.tf_dir}-${var.gitref}/plan"
+      group_name  = "auto-terraform/${var.tf_dir}-${var.env_name}-${var.gitref}/plan"
       stream_name = "${var.tf_dir}-${var.gitref}"
     }
   }
@@ -72,7 +72,7 @@ phases:
       - cd terraform/$TF_DIR
       - unset AWS_PROFILE
       - export AWS_STS_REGIONAL_ENDPOINTS=regional
-      - roledata=$(aws sts assume-role --role-arn "arn:aws:iam::${var.account}:role/AutoTerraform" --role-session-name "auto-tf-plan-${local.clean_tf_dir}")
+      - roledata=$(aws sts assume-role --role-arn "arn:aws:iam::${var.account}:role/AutoTerraform" --role-session-name "auto-tf-plan-${local.clean_tf_dir}-${var.env_name}")
       - export AWS_ACCESS_KEY_ID=$(echo $roledata | jq -r .Credentials.AccessKeyId)
       - export AWS_SECRET_ACCESS_KEY=$(echo $roledata | jq -r .Credentials.SecretAccessKey)
       - export AWS_SESSION_TOKEN=$(echo $roledata | jq -r .Credentials.SessionToken)
@@ -115,7 +115,7 @@ artifacts:
 
 # How to run a terraform apply
 resource "aws_codebuild_project" "auto_terraform_apply" {
-  name          = "auto_terraform_${local.clean_tf_dir}_apply"
+  name          = "auto_terraform_${local.clean_tf_dir}_${var.env_name}_apply"
   description   = "auto-terraform ${var.tf_dir}"
   build_timeout = "30"
   service_role  = var.auto_tf_role_arn
@@ -151,7 +151,7 @@ resource "aws_codebuild_project" "auto_terraform_apply" {
 
   logs_config {
     cloudwatch_logs {
-      group_name  = "auto-terraform/${var.tf_dir}-${var.gitref}/apply"
+      group_name  = "auto-terraform/${var.tf_dir}-${var.env_name}-${var.gitref}/apply"
       stream_name = "${var.tf_dir}-${var.gitref}"
     }
   }
@@ -177,7 +177,7 @@ phases:
       - cd terraform/$TF_DIR
       - unset AWS_PROFILE
       - export AWS_STS_REGIONAL_ENDPOINTS=regional
-      - roledata=$(aws sts assume-role --role-arn "arn:aws:iam::${var.account}:role/AutoTerraform" --role-session-name "auto-tf-apply-${local.clean_tf_dir}")
+      - roledata=$(aws sts assume-role --role-arn "arn:aws:iam::${var.account}:role/AutoTerraform" --role-session-name "auto-tf-apply-${local.clean_tf_dir}-${var.env_name}")
       - export AWS_ACCESS_KEY_ID=$(echo $roledata | jq -r .Credentials.AccessKeyId)
       - export AWS_SECRET_ACCESS_KEY=$(echo $roledata | jq -r .Credentials.SecretAccessKey)
       - export AWS_SESSION_TOKEN=$(echo $roledata | jq -r .Credentials.SessionToken)
@@ -185,7 +185,7 @@ phases:
       - 
       - # XXX should we init things here? or just do it one time by hand?  ./bin/deploy/configure_state_bucket.sh
       - terraform init -backend-config=bucket=${local.state_bucket} -backend-config=key=${local.tf_config_key} -backend-config=dynamodb_table=terraform_locks -backend-config=region=${var.state_bucket_region}
-      - terraform apply -auto-approve -lock-timeout=180s $CODEBUILD_SRC_DIR_${local.clean_tf_dir}_plan_output/plan.tfplan
+      - terraform apply -auto-approve -lock-timeout=180s $CODEBUILD_SRC_DIR_${local.clean_tf_dir}_${var.env_name}_plan_output/plan.tfplan
 
   post_build:
     commands:
@@ -214,7 +214,7 @@ phases:
 
 # How to run tests
 resource "aws_codebuild_project" "auto_terraform_test" {
-  name          = "auto_terraform_${local.clean_tf_dir}_test"
+  name          = "auto_terraform_${local.clean_tf_dir}_${var.env_name}_test"
   description   = "auto-terraform ${var.tf_dir}"
   build_timeout = "30"
   service_role  = var.auto_tf_role_arn
@@ -250,7 +250,7 @@ resource "aws_codebuild_project" "auto_terraform_test" {
 
   logs_config {
     cloudwatch_logs {
-      group_name  = "auto-terraform/${var.tf_dir}-${var.gitref}/test"
+      group_name  = "auto-terraform/${var.tf_dir}-${var.env_name}-${var.gitref}/test"
       stream_name = "${var.tf_dir}-${var.gitref}"
     }
   }
