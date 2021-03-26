@@ -25,7 +25,7 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
       provider         = "GitHub"
       namespace        = "Source"
       version          = "1"
-      output_artifacts = ["${local.clean_tf_dir}_source_output"]
+      output_artifacts = ["${local.clean_tf_dir}_${var.env_name}_source_output"]
 
       configuration = {
         Owner      = "18F"
@@ -41,7 +41,7 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
       provider         = "GitHub"
       version          = "1"
       namespace        = "PrivateSource"
-      output_artifacts = ["${local.clean_tf_dir}_private_output"]
+      output_artifacts = ["${local.clean_tf_dir}_${var.env_name}_private_output"]
 
       configuration = {
         Owner      = "18F"
@@ -61,12 +61,12 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
       owner            = "AWS"
       provider         = "CodeBuild"
       version          = "1"
-      input_artifacts  = ["${local.clean_tf_dir}_source_output", "${local.clean_tf_dir}_private_output"]
-      output_artifacts = ["${local.clean_tf_dir}_plan_output"]
+      input_artifacts  = ["${local.clean_tf_dir}_${var.env_name}_source_output", "${local.clean_tf_dir}_${var.env_name}_private_output"]
+      output_artifacts = ["${local.clean_tf_dir}_${var.env_name}_plan_output"]
 
       configuration = {
-        ProjectName          = "auto_terraform_${local.clean_tf_dir}_plan"
-        PrimarySource        = "${local.clean_tf_dir}_source_output"
+        ProjectName          = "auto_terraform_${local.clean_tf_dir}_${var.env_name}_plan"
+        PrimarySource        = "${local.clean_tf_dir}_${var.env_name}_source_output"
         EnvironmentVariables = <<EOF
 [
   {"name": "IDCOMMIT", "value": "#{Source.CommitId}"},
@@ -159,11 +159,11 @@ EOF
       owner           = "AWS"
       provider        = "CodeBuild"
       version         = "1"
-      input_artifacts = ["${local.clean_tf_dir}_source_output", "${local.clean_tf_dir}_plan_output", "${local.clean_tf_dir}_private_output"]
+      input_artifacts = ["${local.clean_tf_dir}_${var.env_name}_source_output", "${local.clean_tf_dir}_${var.env_name}_plan_output", "${local.clean_tf_dir}_${var.env_name}_private_output"]
 
       configuration = {
-        ProjectName          = "auto_terraform_${local.clean_tf_dir}_apply"
-        PrimarySource        = "${local.clean_tf_dir}_source_output"
+        ProjectName          = "auto_terraform_${local.clean_tf_dir}_${var.env_name}_apply"
+        PrimarySource        = "${local.clean_tf_dir}_${var.env_name}_source_output"
         EnvironmentVariables = <<EOF
 [
   {"name": "IDCOMMIT", "value": "#{Source.CommitId}"},
@@ -185,10 +185,10 @@ EOF
       owner           = "AWS"
       provider        = "CodeBuild"
       version         = "1"
-      input_artifacts = ["${local.clean_tf_dir}_source_output"]
+      input_artifacts = ["${local.clean_tf_dir}_${var.env_name}_source_output"]
 
       configuration = {
-        ProjectName          = "auto_terraform_${local.clean_tf_dir}_test"
+        ProjectName          = "auto_terraform_${local.clean_tf_dir}_${var.env_name}_test"
         EnvironmentVariables = <<EOF
 [
   {"name": "IDCOMMIT", "value": "#{Source.CommitId}"},
@@ -207,7 +207,7 @@ resource "aws_codestarnotifications_notification_rule" "pipeline" {
   detail_type    = "BASIC"
   event_type_ids = ["codepipeline-pipeline-pipeline-execution-failed", "codepipeline-pipeline-pipeline-execution-succeeded"]
 
-  name     = "auto_terraform_${local.clean_tf_dir}_event_notifications"
+  name     = "auto_terraform_${local.clean_tf_dir}_${var.env_name}_event_notifications"
   resource = aws_codepipeline.auto_tf_pipeline.arn
 
   target {
