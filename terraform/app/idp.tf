@@ -386,11 +386,31 @@ EOM
 
 }
 
+
 # Allow publishing traces to X-Ray
 resource "aws_iam_role_policy" "idp-xray-publish" {
   name   = "${var.env_name}-idp-xray-publish"
   role   = aws_iam_role.idp.id
   policy = data.aws_iam_policy_document.xray-publish-policy.json
+}
+
+data "aws_iam_policy_document" "publish_risc_notifications" {
+  statement {
+    sid    = "PutToRiscNotifications"
+    effect = "Allow"
+    actions = [
+      "events:PutEvents",
+    ]
+    resources = [
+      "arn:aws:events:us-west-2:${data.aws_caller_identity.current.account_id}:event-bus/${var.env_name}-risc-notifications",
+    ]
+  }
+}
+
+resource "aws_iam_role_policy" "publish_risc_notifications" {
+  name   = "${var.env_name}-idp-risc-notifications"
+  role   = aws_iam_role.idp.id
+  policy = data.aws_iam_policy_document.publish_risc_notifications.json
 }
 
 module "idp_user_data" {

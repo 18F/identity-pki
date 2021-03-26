@@ -1,0 +1,130 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: RISC Notifications
+Parameters:
+  EventBusName:
+    Type: String
+  EventBusArn:
+    Type: String
+  NotificationName:
+    Type: String
+  NotificationEndpointUrl:
+    Type: String
+  NotificationRateLimit:
+    Type: Number
+    Default: 10
+  NotificationSource:
+    Type: String
+  NotificationState:
+    Type: String
+    Default: ENABLED
+    AllowedValues:
+      - ENABLED
+      - DISABLED
+  AuthType:
+    Type: String
+    Default: BASIC 
+    AllowedValues:
+      - BASIC
+      - API_KEY
+  BasicAuthUserName:
+    Type: String
+    Default: "na"
+  ApiKeyName:
+    Type: String
+    Default: "x-api-key"
+
+Conditions:
+  ApiKeyAuth: !Equals [ !Ref AuthType, "API_KEY" ]
+  BasicAuth: !Equals [ !Ref AuthType, "BASIC" ]
+
+Resources:
+  Connection:
+    Type: AWS::Events::Connection
+    Properties:
+      Name: !Ref NotificationName
+      Description: !Sub "Connection to ${NotificationName}"
+      AuthorizationType: !Ref AuthType
+      AuthParameters:
+        Fn::If: 
+          - ApiKeyAuth
+          -
+            ApiKeyAuthParameters:
+              ApiKeyName: !Ref ApiKeyName
+              # do not set a real key value in this template
+              # update the secrets manager secret with the real value 
+              # after deployment
+              ApiKeyValue: "na"
+          -
+            BasicAuthParameters:
+              Username: !Ref BasicAuthUserName
+              # do not set a real password in this template
+              # update the secrets manager secret with the real value 
+              # after deployment
+              Password: "na"
+
+  Destination:
+    Type: AWS::Events::ApiDestination
+    Properties:
+      ConnectionArn: !GetAtt Connection.Arn
+      Description: !Ref NotificationName
+      HttpMethod: POST 
+      InvocationEndpoint: !Ref NotificationEndpointUrl
+      InvocationRateLimitPerSecond: !Ref NotificationRateLimit
+      Name: !Ref NotificationName
+
+  Rule:
+    Type: AWS::Events::Rule
+    Properties: 
+      Description: !Sub "RISC Notification for ${NotificationName}"
+      EventBusName: !Ref EventBusName
+      EventPattern:
+        account:
+          - !Ref AWS::AccountId
+        source:
+          - !Ref NotificationSource
+      Name: !Ref NotificationName
+      State: !Ref NotificationState
+      Targets: 
+        - Arn: !GetAtt Destination.Arn
+          Id: "APIDestination"
+          InputPath: "$.detail"
+          RoleArn: !GetAtt Role.Arn
+          HttpParameters:
+            HeaderParameters:
+              Content-Type: "application/secevent+jwt"
+  
+  Role:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - events.amazonaws.com
+              Action:
+                - "sts:AssumeRole"
+      Policies:
+        - PolicyName: apidestination 
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: "events:InvokeApiDestination"
+                Resource: !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:api-destination/${NotificationName}/*"
+              
+  Archive:
+    Type: AWS::Events::Archive
+    Properties:
+      ArchiveName: !Ref NotificationName
+      Description: !Sub "Archive of events for ${NotificationName}"
+      RetentionDays: 7
+      SourceArn: !Ref EventBusArn
+          
+Outputs:
+  DestinationArn:
+    Description: Arn for destination
+    Value: !GetAtt Destination.Arn
+    Export:
+      Name: destinationarn
