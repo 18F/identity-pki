@@ -44,7 +44,7 @@ if [[ -z $(aws-vault list --sessions) ]] || [[ $(aws-vault list --sessions |
                                                  awk -F: '{print $NF}' |
                                                  cut -c1-1) == '-' ]] ; then
   if [[ ! -z ${YKMAN_OATH_CREDENTIAL_NAME} ]] ; then
-    for TEST in 'which ykman' 'ykman oath list' 'echo $AWS_VAULT_PROMPT' ; do
+    for TEST in 'which ykman' 'ykman oath accounts list' 'echo $AWS_VAULT_PROMPT' ; do
       if [[ ! $(eval "${TEST}") ]] ; then
         raise "\`${TEST}\` failed ; verify ykman config and try again"
       fi
