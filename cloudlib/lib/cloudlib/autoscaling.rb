@@ -32,6 +32,9 @@ module Cloudlib
       # A few useful defaults
       @default_spindown_delay = 900
       @default_migration_delay = 300
+
+      # Flag for pre-migration in progress
+      @pre_migrating = false
     end
 
     # Print information about the given auto scaling group.
@@ -423,14 +426,17 @@ module Cloudlib
         puts pastel.bold.green("\nRecycling #{group.name}")
 
         # Manage pre-recycle migration for IdP
-        if group.name.end_with?('-idp') && !skip_migration
-          puts pastel.bold.yellow('Launching migration instance prior to idp spin up')
-          start_recycle("#{env}-migration",
-                        new_size: 1,
-                        return_to_size: 0,
-                        spindown_delay: recycle_opts[:spindown_delay])
-          idp_opts = recycle_opts.dup
+        if group.name.match?(/-(idp|idpxtra|worker)$/) && !skip_migration
+          if not @pre_migrating
+            puts pastel.bold.yellow('Launching migration instance prior to spin up')
+            start_recycle("#{env}-migration",
+                          new_size: 1,
+                          return_to_size: 0,
+                          spindown_delay: recycle_opts[:spindown_delay])
+            @pre_migrating = true
+          end
 
+          idp_opts = recycle_opts.dup
           # Set a default spinup delay
           if idp_opts[:spinup_delay].nil?
             idp_opts[:spinup_delay] = default_migration_delay
