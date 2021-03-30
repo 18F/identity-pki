@@ -663,9 +663,3 @@ variable "tf_slack_channel" {
   description = "Slack channel to send events to. If set, overrides the default of #login-ENV-events."
   default     = ""
 }
-
-variable "idp_sqs_notifications_enabled" {
-  description = "Allow creation of IDP SQS resources"
-  type        = bool
-  default     = true
-}
