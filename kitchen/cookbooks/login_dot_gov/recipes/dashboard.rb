@@ -54,7 +54,6 @@ deploy "#{base_dir}" do
 
   symlink_before_migrate({
     'config/database.yml' => 'config/database.yml',
-    'config/newrelic.yml' => 'config/newrelic.yml',
     'config/application.yml' => 'config/application.yml',
     #'log' => 'log',
   })
