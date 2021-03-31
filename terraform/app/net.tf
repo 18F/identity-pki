@@ -220,6 +220,7 @@ resource "aws_security_group" "db" {
       aws_security_group.idp.id,
       aws_security_group.migration.id,
       aws_security_group.pivcac.id,
+      aws_security_group.worker.id,
     ]
   }
 

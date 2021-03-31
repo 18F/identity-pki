@@ -98,6 +98,14 @@
                                                 "timestamp_format": "%Y-%m-%dT%H:%M:%S.%fZ"
 
                                         },
+                                                                                {
+                                                "file_path": "/srv/idp/shared/log/workers.log",
+                                                "log_group_name": "<%= @environmentName %>_/srv/idp/shared/log/workers.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC",
+                                                "timestamp_format": "%Y-%m-%dT%H:%M:%S.%fZ"
+
+                                        },
                                         {
                                                 "file_path": "/srv/pki-rails/shared/log/newrelic_agent.log",
                                                 "log_group_name": "<%= @environmentName %>_/srv/pki-rails/shared/log/newrelic_agent.log",
