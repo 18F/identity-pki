@@ -14,6 +14,7 @@ def main
   recycle_opts = {}
   skip_migration = false
   skip_idpxtra = false
+  skip_worker = false
 
   basename = File.basename($0)
 
