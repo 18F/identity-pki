@@ -9,14 +9,6 @@ locals {
   # In prod, the TLS cert has only "secure.<domain>"
   # In other environments, the TLS cert has "idp.<env>.<domain>" and "<env>.<domain>"
   idp_domain_name = var.env_name == "prod" ? "secure.${var.root_domain}" : "idp.${var.env_name}.${var.root_domain}"
-  pivcac_domain_name = "omg-r-u-srsly-expired.pivcac.${var.env_name}.${var.root_domain}"
-}
-
-data "newrelic_entity" "pivcac" {
-  count  = var.enabled
-  name   = "pivcac.${var.env_name}.${var.root_domain}"
-  domain = "APM"
-  type   = "APPLICATION"
 }
 
 data "newrelic_entity" "idp" {
@@ -24,33 +16,6 @@ data "newrelic_entity" "idp" {
   name   = "${var.env_name}.${var.root_domain}"
   domain = "APM"
   type   = "APPLICATION"
-}
-
-data "newrelic_entity" "dashboard" {
-  count  = var.dashboard_enabled
-  name   = "dashboard.${var.env_name}.${var.root_domain}"
-  domain = "APM"
-  type   = "APPLICATION"
-}
-
-resource "newrelic_alert_condition" "pivcac_low_throughput" {
-  count           = var.enabled
-  policy_id       = newrelic_alert_policy.high[0].id
-  name            = "${var.env_name}: PIVCAC LOW Throughput (web)"
-  runbook_url     = "https://github.com/18F/identity-private/wiki/Runbook:-low-throughput-in-New-Relic"
-  enabled         = true
-  type            = "apm_app_metric"
-  metric          = "throughput_web"
-  condition_scope = "application"
-  entities        = [data.newrelic_entity.pivcac[0].application_id]
-
-  term {
-    duration      = 5
-    operator      = "below"
-    priority      = "critical"
-    threshold     = var.pivcac_alert_threshold
-    time_function = "all"
-  }
 }
 
 resource "newrelic_alert_condition" "low_throughput" {
@@ -127,54 +92,6 @@ resource "newrelic_alert_condition" "error_rate" {
   }
 }
 
-resource "newrelic_synthetics_monitor" "dashboard" {
-  count     = var.dashboard_enabled
-  name      = "${var.env_name} dashboard site monitor"
-  type      = "SIMPLE"
-  frequency = 5
-  status    = "ENABLED"
-  locations = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
-
-  uri               = "https://dashboard.${var.env_name}.${var.root_domain}/"
-  validation_string = "Use the dashboard to manage your login.gov test integrations."
-  verify_ssl        = true
-}
-
-resource "newrelic_synthetics_alert_condition" "dashboard" {
-  count     = var.dashboard_enabled
-  policy_id = newrelic_alert_policy.businesshours[0].id
-
-  name       = "https://dashboard.${var.env_name}.${var.root_domain}/ ping failure"
-  monitor_id = newrelic_synthetics_monitor.dashboard[0].id
-}
-
-resource "newrelic_alert_condition" "dashboard_error_rate" {
-  count           = var.dashboard_enabled
-  policy_id       = newrelic_alert_policy.businesshours[0].id
-  name            = "${var.env_name}: High dashboard error rate"
-  enabled         = true
-  type            = "apm_app_metric"
-  metric          = "error_percentage"
-  condition_scope = "application"
-  entities        = [data.newrelic_entity.dashboard[0].application_id]
-
-  term {
-    duration      = 5
-    operator      = "above"
-    priority      = "critical"
-    threshold     = var.error_alert_threshold
-    time_function = "all"
-  }
-
-  term {
-    duration      = 5
-    operator      = "above"
-    priority      = "warning"
-    threshold     = var.error_warn_threshold
-    time_function = "all"
-  }
-}
-
 resource "newrelic_synthetics_monitor" "api_health" {
   count     = var.enabled
   name      = "${var.env_name} /api/health check"
@@ -188,10 +105,10 @@ resource "newrelic_synthetics_monitor" "api_health" {
   verify_ssl        = true
 }
 resource "newrelic_synthetics_alert_condition" "api_health" {
-  count     = var.staticsite_alerts_enabled
-  policy_id = newrelic_alert_policy.businesshours[0].id
+  count     = var.idp_enabled
+  policy_id = newrelic_alert_policy.high[0].id
 
-  name       = "https://${local.idp_domain_name}/ ping failure"
+  name       = "https://${local.idp_domain_name}/api/health failure"
   monitor_id = newrelic_synthetics_monitor.api_health[0].id
 }
 
@@ -211,48 +128,8 @@ resource "newrelic_synthetics_alert_condition" "outbound_proxy_health" {
   count     = var.enabled
   policy_id = newrelic_alert_policy.businesshours[0].id
 
-  name       = "https://${local.idp_domain_name}/api/health/outbound ping failure"
+  name       = "https://${local.idp_domain_name}/api/health/outbound failure"
   monitor_id = newrelic_synthetics_monitor.outbound_proxy_health[0].id
-}
-
-resource "newrelic_synthetics_monitor" "pivcac_certs_health_7d" {
-  count     = var.pivcac_service_enabled
-  name      = "${var.env_name} PIV/CAC /api/health/certs check (7 days)"
-  type      = "SIMPLE"
-  frequency = 60
-  status    = "ENABLED"
-  locations = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
-  uri               = "https://${local.pivcac_domain_name}/api/health/certs.json?deadline=7d&source=newrelic"
-  validation_string = "\"healthy\":true"
-  verify_ssl        = true
-}
-
-resource "newrelic_synthetics_monitor" "pivcac_certs_health_30d" {
-  count     = var.pivcac_service_enabled
-  name      = "${var.env_name} PIV/CAC /api/health/certs check (30 days)"
-  type      = "SIMPLE"
-  frequency = 60
-  status    = "ENABLED"
-  locations = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
-  uri               = "https://${local.pivcac_domain_name}/api/health/certs.json?deadline=30d&source=newrelic"
-  validation_string = "\"healthy\":true"
-  verify_ssl        = true
-}
-
-resource "newrelic_synthetics_alert_condition" "pivcac_certs_health_7d" {
-  count     = var.pivcac_service_enabled * var.enabled
-  policy_id = newrelic_alert_policy.high[0].id
-
-  name       = "${var.env_name} certs expiring failure"
-  monitor_id = newrelic_synthetics_monitor.pivcac_certs_health_7d[0].id
-}
-
-resource "newrelic_synthetics_alert_condition" "pivcac_certs_health_30d" {
-  count     = var.pivcac_service_enabled * var.enabled
-  policy_id = newrelic_alert_policy.businesshours[0].id
-
-  name       = "${var.env_name} certs expiring failure"
-  monitor_id = newrelic_synthetics_monitor.pivcac_certs_health_30d[0].id
 }
 
 resource "newrelic_alert_condition" "enduser_datastore_slow_queries" {
