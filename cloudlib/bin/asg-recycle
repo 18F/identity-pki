@@ -103,7 +103,11 @@ For example:
             'Do not run migration instance before starting IdP recycle') do
       skip_migration = true
     end
-   
+
+    opts.on('-W', '--skip-worker', 'Do not include Worker in IDP role recycle') do
+      skip_worker = true
+    end
+
     opts.on('-X', '--skip-idpxtra', 'Do not include IDPXtra in IDP role recycle') do
       skip_idpxtra = true
     end
@@ -138,8 +142,8 @@ For example:
     asg_name = "#{env}-#{role}"
 
     # Manage pre-migration
-    if !skip_migration && role == 'idp'
-      puts as.pastel.bold.yellow('Launching migration instance prior to idp spin up')
+    if !skip_migration && (role == 'idp' || role == 'idpxtra' || role == 'worker')
+      puts as.pastel.bold.yellow("Launching migration instance prior to #{role} spin up")
       as.start_recycle("#{env}-migration",
                        new_size: 1,
                        return_to_size: 0,
@@ -156,6 +160,11 @@ For example:
     if !skip_idpxtra && role == 'idp'
       puts as.pastel.bold.yellow('Recycling idpxtra instance in parallel with idp')
       as.start_recycle("#{env}-idpxtra", skip_zero: true, **recycle_opts)
+    end
+
+    if !skip_worker && role == 'idp'
+      puts as.pastel.bold.yellow('Recycling worker instance in parallel with idp')
+      as.start_recycle("#{env}-worker", skip_zero: true, **recycle_opts)
     end
 
     puts as.pastel.bold.blue('Done! Watch #login-events / #login-otherevents for abandoned/failed launches')
