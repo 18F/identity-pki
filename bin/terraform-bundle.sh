@@ -59,7 +59,7 @@ providers {
   }
   newrelic = {
     source = "newrelic/newrelic"
-    versions = ["~> 2.1.2"]
+    versions = ["~> 2.21.0"]
   }
 }
 EOFEOF
