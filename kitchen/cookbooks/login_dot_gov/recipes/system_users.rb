@@ -20,3 +20,10 @@ user node.fetch('login_dot_gov').fetch('web_system_user') do
   system true
   gid node.fetch('login_dot_gov').fetch('web_system_user')
 end
+
+# change permissions on ssm homedir to satisfy CIS benchmark
+directory "/home/ssm-user" do
+  mode '750'
+  owner 'ssm-user'
+  group 'users'
+end
