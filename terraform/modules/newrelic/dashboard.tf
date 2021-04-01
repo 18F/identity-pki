@@ -11,6 +11,26 @@ data "newrelic_entity" "dashboard" {
   type   = "APPLICATION"
 }
 
+resource "newrelic_alert_condition" "dashboard_low_throughput" {
+  count           = var.dashboard_enabled
+  policy_id       = newrelic_alert_policy.high[0].id
+  name            = "${var.env_name}: DASHBOARD LOW Throughput (web)"
+  runbook_url     = "https://github.com/18F/identity-private/wiki/Runbook:-low-throughput-in-New-Relic"
+  enabled         = true
+  type            = "apm_app_metric"
+  metric          = "throughput_web"
+  condition_scope = "application"
+  entities        = [data.newrelic_entity.dashboard[0].application_id]
+
+  term {
+    duration      = 5
+    operator      = "below"
+    priority      = "critical"
+    threshold     = var.web_alert_threshold
+    time_function = "all"
+  }
+}
+
 resource "newrelic_synthetics_monitor" "dashboard" {
   count     = var.dashboard_enabled
   name      = "${var.env_name} dashboard site monitor"
