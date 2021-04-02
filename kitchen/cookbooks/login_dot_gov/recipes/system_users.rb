@@ -22,6 +22,11 @@ user node.fetch('login_dot_gov').fetch('web_system_user') do
 end
 
 # change permissions on ssm homedir to satisfy CIS benchmark
+user 'ssm-user' do
+  shell '/bin/sh'
+  system true
+  home '/home/ssm-user'
+end
 directory "/home/ssm-user" do
   mode '750'
 end
