@@ -31,7 +31,7 @@ DESIREDSIZE=$(expr $CURRENTSIZE + 1)
 if [ "$(uname -s)" = "Darwin" ] ; then
 	THEFUTURE=$(date -v +"$MIGRATIONDELAY"M +%Y-%m-%dT%H:%M:%SZ)
 else
-	THEFUTURE=$(date -d "$MIGRATIONDELAY" minutes +%Y-%m-%dT%H:%M:%SZ)
+	THEFUTURE=$(date -d "$MIGRATIONDELAY minutes" +%Y-%m-%dT%H:%M:%SZ)
 fi
 echo "============= Scheduling migration host launch and teardown"
 aws autoscaling put-scheduled-update-group-action --scheduled-action-name "migrate-$ENV_NAME" --auto-scaling-group-name "${ENV_NAME}-migration" --desired-capacity "$DESIREDSIZE"
