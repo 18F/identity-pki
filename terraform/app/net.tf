@@ -176,6 +176,7 @@ resource "aws_security_group" "cache" {
     security_groups = [
       aws_security_group.app.id,
       aws_security_group.idp.id,
+      aws_security_group.worker.id,
     ]
   }
 
@@ -186,6 +187,7 @@ resource "aws_security_group" "cache" {
     security_groups = [
       aws_security_group.app.id,
       aws_security_group.idp.id,
+      aws_security_group.worker.id,
     ]
   }
 
