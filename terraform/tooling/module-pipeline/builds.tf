@@ -211,6 +211,89 @@ phases:
   }
 }
 
+# How to run a terraform node reycle
+resource "aws_codebuild_project" "auto_terraform_noderecycle" {
+  name          = "auto_terraform_${local.clean_tf_dir}_${var.env_name}_noderecycle"
+  description   = "auto-terraform ${var.tf_dir} node recycle"
+  build_timeout = "30"
+  service_role  = var.auto_tf_role_arn
+
+  artifacts {
+    type = "CODEPIPELINE"
+  }
+
+  cache {
+    type  = "LOCAL"
+    modes = ["LOCAL_DOCKER_LAYER_CACHE", "LOCAL_SOURCE_CACHE"]
+  }
+
+  environment {
+    compute_type                = "BUILD_GENERAL1_SMALL"
+    image                       = "aws/codebuild/standard:5.0"
+    type                        = "LINUX_CONTAINER"
+    image_pull_credentials_type = "CODEBUILD"
+
+  logs_config {
+    cloudwatch_logs {
+      group_name  = "auto-terraform/${var.tf_dir}-${var.env_name}-${var.gitref}/noderecycle"
+      stream_name = "${var.tf_dir}-${var.gitref}"
+    }
+  }
+
+  source {
+    type      = "CODEPIPELINE"
+    buildspec = <<EOT
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo "nothing to install yet"
+
+  build:
+    commands:
+      - cd terraform/${var.tf_dir}
+      - unset AWS_PROFILE
+      - export AWS_STS_REGIONAL_ENDPOINTS=regional
+      - roledata=$(aws sts assume-role --role-arn "arn:aws:iam::${var.account}:role/AutoTerraform" --role-session-name "auto-tf-apply-${local.clean_tf_dir}-${var.env_name}")
+      - export AWS_ACCESS_KEY_ID=$(echo $roledata | jq -r .Credentials.AccessKeyId)
+      - export AWS_SECRET_ACCESS_KEY=$(echo $roledata | jq -r .Credentials.SecretAccessKey)
+      - export AWS_SESSION_TOKEN=$(echo $roledata | jq -r .Credentials.SessionToken)
+      - export AWS_REGION="${var.region}"
+      - 
+      - |
+        if [ -x recycle.sh ] ; then
+          echo "recycle found:  executing"
+          sh -x ./recycle.sh ${var.env_name}
+        else
+          echo "no recycle found:  continuing"
+          exit 0
+        fi
+
+  post_build:
+    commands:
+      - echo terraform node recycle completed on `date`
+    EOT
+  }
+  source_version = var.gitref
+
+  vpc_config {
+    vpc_id = var.auto_tf_vpc_id
+
+    subnets = [
+      var.auto_tf_subnet_id,
+    ]
+
+    security_group_ids = [
+      var.auto_tf_sg_id,
+    ]
+  }
+
+  tags = {
+    Environment = "Tooling"
+  }
+}
+
 
 # How to run tests
 resource "aws_codebuild_project" "auto_terraform_test" {

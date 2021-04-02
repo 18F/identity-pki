@@ -176,6 +176,24 @@ EOF
     }
   }
 
+
+  stage {
+    name = "Node Recycle"
+
+    action {
+      name            = "Node Recycle"
+      category        = "Build"
+      owner           = "AWS"
+      provider        = "CodeBuild"
+      version         = "1"
+
+      configuration = {
+        ProjectName = "auto_terraform_${local.clean_tf_dir}_${var.env_name}_noderecycle"
+      }
+    }
+  }
+
+
   stage {
     name = "Test"
 
