@@ -35,8 +35,12 @@ aws autoscaling describe-auto-scaling-groups | jq -r ".AutoScalingGroups[] | .Au
 done
 
 # wait until recycles are done
+# XXX this loop works, but it jest kinda growed up ugly as the edge cases were discovered.
 FAILURE=false
 for i in refreshes* ; do
+	if [ "$i" = "refreshes*" ] ; then
+		continue
+	fi
 	ASG=$(echo "$i" | sed 's/^refreshes-//')
 	REFRESHID=$(jq -r .InstanceRefreshId < "$i")
 	echo "============= checking $ASG $REFRESHID"
