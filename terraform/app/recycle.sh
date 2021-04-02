@@ -52,7 +52,7 @@ for i in refreshes* ; do
 			*)
 				# show the status here while we are waiting
 				aws autoscaling describe-instance-refreshes  --auto-scaling-group-name "$ASG" --instance-refresh-ids "$REFRESHID"
-				sleep 30
+				sleep 60
 				;;
 		esac
 	done
@@ -60,5 +60,6 @@ for i in refreshes* ; do
 done
 
 if [ "$FAILURE" = "true" ] ; then
+	echo "node recycle FAILED, investigate reasons above"
 	exit 1
 fi
