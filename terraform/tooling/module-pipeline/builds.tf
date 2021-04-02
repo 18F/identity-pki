@@ -264,7 +264,7 @@ phases:
       - |
         if [ -x recycle.sh ] ; then
           echo "recycle found:  executing"
-          sh -x ./recycle.sh ${var.env_name}
+          sh ./recycle.sh ${var.env_name}
         else
           echo "no recycle found:  continuing"
           exit 0
