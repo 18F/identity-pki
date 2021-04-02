@@ -23,9 +23,10 @@ end
 
 # change permissions on ssm homedir to satisfy CIS benchmark
 user 'ssm-user' do
-  shell '/bin/sh'
+  shell  '/bin/sh'
+  gid    'users'
   system true
-  home '/home/ssm-user'
+  home   '/home/ssm-user'
 end
 directory "/home/ssm-user" do
   mode '750'
