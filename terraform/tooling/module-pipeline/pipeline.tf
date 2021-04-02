@@ -186,6 +186,7 @@ EOF
       owner           = "AWS"
       provider        = "CodeBuild"
       version         = "1"
+      input_artifacts = ["${local.clean_tf_dir}_${var.env_name}_source_output"]
 
       configuration = {
         ProjectName = "auto_terraform_${local.clean_tf_dir}_${var.env_name}_noderecycle"

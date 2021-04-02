@@ -11,7 +11,12 @@ fi
 
 ENV_NAME="$1"
 
+# healthy percentage required during an instance refresh
+# Chose 50 because in prod, we seem to have our systems running at around 25% CPU at peak
+MINHEALTHYPCT=50
+
 # this is a egrep pattern for excluding types of ASGs from being recycled
+# migrations hosts seem to be problematic?
 IGNORE="^${ENV_NAME}-migration$"
 
 # clean up
@@ -19,8 +24,8 @@ cd /tmp/ || exit 1
 rm -rf refreshes*
 
 # start recycles up
-aws autoscaling describe-auto-scaling-groups | jq -r ".AutoScalingGroups[] | .AutoScalingGroupName | select(test(\"^${ENV_NAME}-\"))" | egrep -v "$IGNORE" | while read line ; do
-	aws autoscaling start-instance-refresh --auto-scaling-group-name "$line" > "/tmp/refreshes-$line"
+aws autoscaling describe-auto-scaling-groups | jq -r ".AutoScalingGroups[] | .AutoScalingGroupName | select(test(\"^${ENV_NAME}-\"))" | grep -Ev "$IGNORE" | while read line ; do
+	aws autoscaling start-instance-refresh --preferences MinHealthyPercentage="$MINHEALTHYPCT" --auto-scaling-group-name "$line" > "/tmp/refreshes-$line"
 	if [ "$?" -eq "0" ] ; then
 		echo "$line instance refresh initiated"
 	else
@@ -42,6 +47,7 @@ for i in refreshes* ; do
 
 		case "$STATUS" in
 			"Successful")
+				echo "$ASG recycle succeeded"
 				STOP=true
 				;;
 			"Failed")

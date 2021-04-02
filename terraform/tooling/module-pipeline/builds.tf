@@ -260,7 +260,6 @@ phases:
       - export AWS_SECRET_ACCESS_KEY=$(echo $roledata | jq -r .Credentials.SecretAccessKey)
       - export AWS_SESSION_TOKEN=$(echo $roledata | jq -r .Credentials.SessionToken)
       - export AWS_REGION="${var.region}"
-      - 
       - |
         if [ -x recycle.sh ] ; then
           echo "recycle found:  executing"
