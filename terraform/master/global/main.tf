@@ -96,7 +96,6 @@ module "main" {
     "aaron.chapman"     = ["appdev", "apponcall"],
     "akhlaq.khan"       = ["analytics", "finops", "bizops"],
     "alex.mathews"      = ["appdev", "apponcall"],
-    "amit.freeman"      = ["devops"],
     "amos.stone"        = ["analytics"],
     "andrew.duthie"     = ["appdev", "apponcall"],
     "brett.mcparland"   = ["secops", "soc"],
