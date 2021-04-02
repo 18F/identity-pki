@@ -29,7 +29,8 @@ user 'ssm-user' do
 end
 
 sudo 'ssm-user' do
-  user 'ssm-user'
+  users 'ssm-user'
+  nopasswd true
 end
 
 # change permissions on ssm homedir to satisfy CIS benchmark
