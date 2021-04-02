@@ -25,7 +25,6 @@ end
 user 'ssm-user' do
   shell  '/bin/sh'
   gid    'users'
-  system true
   home   '/home/ssm-user'
 end
 directory "/home/ssm-user" do
