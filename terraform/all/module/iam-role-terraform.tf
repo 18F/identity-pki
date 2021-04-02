@@ -86,6 +86,7 @@ locals {
         "autoscaling:DeletePolicy",
         "autoscaling:DeleteScheduledAction",
         "autoscaling:DescribeAutoScalingGroups",
+        "autoscaling:DescribeInstanceRefreshes",
         "autoscaling:DescribeLifecycleHooks",
         "autoscaling:DescribePolicies",
         "autoscaling:DescribeScheduledActions",
@@ -94,6 +95,7 @@ locals {
         "autoscaling:PutScalingPolicy",
         "autoscaling:PutScheduledUpdateGroupAction",
         "autoscaling:SetInstanceProtection",
+        "autoscaling:StartInstanceRefresh",
         "autoscaling:UpdateAutoScalingGroup",
       ]
       resources = [
