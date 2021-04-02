@@ -38,9 +38,13 @@ done
 # XXX this loop works, but it jest kinda growed up ugly as the edge cases were discovered.
 FAILURE=false
 for i in refreshes* ; do
+	# handle case where all refreshes fail.
 	if [ "$i" = "refreshes*" ] ; then
-		continue
+		echo "all refreshes FAILED.  Something is probably wrong."
+		exit 1
 	fi
+
+	# otherwise, loop through the different instance refreshes and check the status
 	ASG=$(echo "$i" | sed 's/^refreshes-//')
 	REFRESHID=$(jq -r .InstanceRefreshId < "$i")
 	echo "============= checking $ASG $REFRESHID"
