@@ -215,7 +215,7 @@ phases:
 resource "aws_codebuild_project" "auto_terraform_noderecycle" {
   name          = "auto_terraform_${local.clean_tf_dir}_${var.env_name}_noderecycle"
   description   = "auto-terraform ${var.tf_dir} node recycle"
-  build_timeout = "30"
+  build_timeout = "60"
   service_role  = var.auto_tf_role_arn
 
   artifacts {
@@ -232,6 +232,7 @@ resource "aws_codebuild_project" "auto_terraform_noderecycle" {
     image                       = "aws/codebuild/standard:5.0"
     type                        = "LINUX_CONTAINER"
     image_pull_credentials_type = "CODEBUILD"
+  }
 
   logs_config {
     cloudwatch_logs {

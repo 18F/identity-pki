@@ -178,10 +178,10 @@ EOF
 
 
   stage {
-    name = "Node Recycle"
+    name = "NodeRecycle"
 
     action {
-      name            = "Node Recycle"
+      name            = "NodeRecycle"
       category        = "Build"
       owner           = "AWS"
       provider        = "CodeBuild"
