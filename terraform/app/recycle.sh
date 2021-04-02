@@ -28,13 +28,14 @@ IGNORE="^${ENV_NAME}-migration$"
 # already one running.  We return to zero at the end, though.
 CURRENTSIZE=$(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names "$ENV_NAME"-migration | jq .AutoScalingGroups[0].DesiredCapacity)
 DESIREDSIZE=$(expr $CURRENTSIZE + 1)
+NOW=$(date +%Y-%m-%dT%H:%M:%SZ)
 if [ "$(uname -s)" = "Darwin" ] ; then
 	THEFUTURE=$(date -v +"$MIGRATIONDELAY"M +%Y-%m-%dT%H:%M:%SZ)
 else
 	THEFUTURE=$(date -d "$MIGRATIONDELAY minutes" +%Y-%m-%dT%H:%M:%SZ)
 fi
 echo "============= Scheduling migration host launch and teardown"
-aws autoscaling put-scheduled-update-group-action --scheduled-action-name "migrate-$ENV_NAME" --auto-scaling-group-name "${ENV_NAME}-migration" --desired-capacity "$DESIREDSIZE"
+aws autoscaling put-scheduled-update-group-action --scheduled-action-name "migrate-$ENV_NAME" --auto-scaling-group-name "${ENV_NAME}-migration" --start-time "$NOW" --desired-capacity "$DESIREDSIZE"
 aws autoscaling put-scheduled-update-group-action --scheduled-action-name "end-migrate-$ENV_NAME" --auto-scaling-group-name "${ENV_NAME}-migration" --start-time "$THEFUTURE" --desired-capacity 0
 
 # Sleep to give time for migrations to complete
