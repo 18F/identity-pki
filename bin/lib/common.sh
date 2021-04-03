@@ -43,6 +43,15 @@ set_iam_profile () {
   done
 }
 
+# look up account number for ACCOUNT
+get_acct_num() {
+  local ACCT_NAME=${1:-$(aws sts get-caller-identity | jq -r '.Account')}
+  verify_root_repo
+  grep "# login-${ACCT_NAME}" "${GIT_DIR}/terraform/master/global/main.tf" |
+            sed -E 's/^.*\"([0-9]+)\".*$/\1/'
+}
+
+
 # get profile from role name/ARN
 get_arn_role() {
   PROFILE=${1}
@@ -51,8 +60,7 @@ get_arn_role() {
     set_iam_profile
     ROLE=${LOGIN_IAM_PROFILE}
   fi
-  ACCOUNT=$(grep "# login-${PROFILE}" "${GIT_DIR}/terraform/master/global/main.tf" |
-            sed -E 's/^.*\"([0-9]+)\".*$/\1/')
+  ACCOUNT=$(get_acct_num ${PROFILE})
   AV_PROFILE=$(tail -r ~/.aws/config | tail -n +$(tail -r ~/.aws/config | grep -n "$ACCOUNT.*$ROLE" |
                awk -F: '{print $1}') | grep -m 1 '\[profile' | sed -E 's/\[profile ([a-z-]+)\]/\1/')
 }
