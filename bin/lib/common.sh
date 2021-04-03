@@ -533,7 +533,7 @@ get_profile_name () {
 
 #### use ~/.login-revs to set $GH_REVS var; used in bin/github-pr ####
 gh_revs() {
-  if [[ -z ${GH_REVS} ]] ; then
+  if [[ -z $(env | grep GH_REVS) ]] ; then
     if [ -f ~/.login-revs ] ; then
       GH_REVS=$(cat ~/.login-revs |
         grep -m 1 "$(basename $(git rev-parse --show-toplevel))" |
