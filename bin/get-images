@@ -118,7 +118,6 @@ update_vars() {
     sed -i '' -E "/\"${AMI_TYPE}_ami_id_${AMI_ACCT}\"/{n;s/ami-[0-9a-f]{17}\" \# [0-9-]{10}/${AMI_ID}\" \# ${AMI_DATE}/;}" terraform/app/variables.tf
     [[ $(git diff -U0 | grep ${AMI_ID}) ]] && echo_green "Updated \`${AMI_TYPE}_ami_id_${AMI_ACCT}\` to \`${AMI_ID}\`."
   done
-  echo
 }
 
 open_pr() {
@@ -194,3 +193,4 @@ for TASK in ${TASK_LIST} ; do
     open)   open_pr      ;;
   esac
 done
+echo
