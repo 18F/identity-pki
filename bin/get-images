@@ -75,7 +75,7 @@ mdout() {
 
 get_ami_info() {
   for PROFILE in ${PROFILE_LIST} ; do
-    "Getting \`login-${PROFILE}\` AMI data..."
+    echo "Getting \`login-${PROFILE}\` AMI data..."
     PIPELINE_AMIS=()
     AV_PROFILE=$(get_profile_name $(get_acct_num ${PROFILE}))
 
