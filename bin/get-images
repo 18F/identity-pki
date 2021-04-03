@@ -170,11 +170,6 @@ update_vars() {
 
 open_pr() {
   [[ ${#DATA[@]} -eq 0 ]] && get_ami_info
-  DIFF_COUNT=$(git diff --numstat | awk '{print $1}')
-  if [[ ${DIFF_COUNT} != 4 ]] ; then
-    echo "4 lines should be changed for an AMI update; found ${DIFF_COUNT} changed lines instead. Verify and try again."
-    exit 0
-  fi
   if [[ ! $(brew list --formula | grep hub) ]] ; then
     brew install hub || raise "hub not installed!"
   fi
@@ -220,9 +215,19 @@ do
   esac
 done
 shift $((OPTIND-1))
+echo
 
 if ! [[ "${PROFILE_LIST}" =~ (sandbox|prod) ]] ; then
   raise "Cannot update vars/open a PR for new AMI IDs in non-core accounts!"
+fi
+
+if [[ "${TASK_LIST}" =~ (open) ]] ; then
+  DIFF_COUNT=$(git diff --numstat | awk '{print $1}')
+  if ! [[ -z $(git diff --name-only | grep -v 'terraform/app/variables.tf') ]] ; then
+    raise "Cannot create PR; additional changes found outside of terraform/app/variables.tf file."
+  elif [[ ${DIFF_COUNT} != 4 ]] ; then
+    raise "4 lines should be changed for an AMI update PR; ${DIFF_COUNT} lines changed instead. Verify and try again."
+  fi
 fi
 
 get_ami_info
