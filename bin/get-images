@@ -7,6 +7,20 @@ set -eu
 . "$(dirname "$0")/lib/common.sh"
 
 usage() {
+  cat >&2 << EOM
+
+Usage: ${0} [-asdh] [ENV] (defaults to \$GSA_USERNAME if not specified)
+
+Flags (will run all if no flags specified):
+  -a : Copy S3 app-secrets v1/application.yml files from int to ENV
+  -s : Copy S3 secrets listed in ./lib/build-keys from int to ENV
+  -d : Run terraform-apply with IDP/PIVCAC ASGs zeroed out
+  -h : Detailed help
+
+EOM
+}
+
+man_page() {
     cat >&2 << EOM
 Usage: ${0} [-c|-u|-o|-b BASE_SANDBOX_AMI|-r RAILS_SANDBOX_AMI]
 
