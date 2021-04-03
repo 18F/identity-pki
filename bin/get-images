@@ -38,10 +38,20 @@ Designed to run with no specified flags/arguments; however,
 individual commands/parameters for the script can be specified
 with the following flags:
 
+  -u : Update \`ami_id\` values in \`terraform/app/variables.tf\`
+  -o : Create a new branch, \`ami/DATE\` branch, commit the
+       changes to \`terraform/app/variables.tf\`, and open a
+       PR with the generated table data for the body
+  -s : Only update the \`login-sandbox\` AMI IDs
+  -p : Only update the \`login-prod\` AMI IDs
+  -b : Only update the \`base\` AMI IDs
+  -r : Only update the \`rails\` AMI IDs
+  -h : Display this help
+
 The script will error out if:
 - there is an active \`\$AWS_VAULT\` session running (as it needs access
   to multiple AWS profiles to get the AMI IDs)
-- the \`hub\` cask is not installed
+- the \`hub\` cask is not installed (for creating a PR)
 - if, when attempting to create a PR, there are other local changes besides
   the updates to \`terraform/app/variables.tf\`
 
@@ -134,6 +144,10 @@ EOF
 }
 
 ##### main script
+
+if [[ $(env | grep 'AWS_VAULT=') ]] ; then
+  raise "Cannot run with an active AWS_VAULT session; clear the session and try again!"
+fi
 
 verify_root_repo
 

@@ -1,6 +1,22 @@
 #!/bin/bash
 # Common shell functions.
 
+ave() {
+  local run_me=("$@")
+  if [[ $USE_RUN -gt 0 ]] ; then
+    if [ -t 1 ]; then
+      echo -ne "\\033[1;36m"
+    fi
+  
+    echo >&2 "+ ${run_me[@]}"
+  
+    if [ -t 1 ]; then
+      echo -ne '\033[m'
+    fi
+  fi
+  aws-vault exec ${AV_PROFILE} -- "${run_me[@]}"
+}
+
 # echo full command before executing, then do it anyway
 USE_RUN=1
 run() {
