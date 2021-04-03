@@ -2,7 +2,7 @@
 
 # Power tool set for AMI data
 
-set -eu
+set -euo pipefail
 
 . "$(dirname "$0")/lib/common.sh"
 
@@ -86,7 +86,7 @@ mdout() {
 
 get_ami_info() {
   for PROFILE in ${PROFILE_LIST} ; do
-    echo "Generating \`login-${PROFILE}\` AMI data..."
+    echo -e "\nGenerating \`login-${PROFILE}\` AMI data..."
     PIPELINE_AMIS=()
     ACCOUNT=$(get_acct_num ${PROFILE})
     AV_PROFILE=$(get_profile_name ${ACCOUNT})
@@ -116,26 +116,30 @@ get_ami_info() {
 }
 
 create_amis() {
-  echo "Ready to build new AMI(s) for:"
+  echo -e "\nReady to build new AMI(s) for:"
   for PROFILE in ${PROFILE_LIST} ; do
     for TYPE in ${TYPE_LIST} ; do
       echo_cyan "- ${PROFILE}-${TYPE}"
     done
   done
+  echo
   if prompt_yn "Continue ?" ; then
     for PROFILE in ${PROFILE_LIST} ; do
       ACCOUNT=$(get_acct_num ${PROFILE})
       AV_PROFILE=$(get_profile_name ${ACCOUNT})
       for TYPE in ${TYPE_LIST} ; do
+        echo
         PIPELINE=$(run_av aws codepipeline list-pipelines |
                         jq -r '.pipelines[].name' | grep -i ${TYPE})
         if [[ -z ${PIPELINE} ]] ; then
           echo_yellow "No pipeline found for \`${TYPE}\`-role AMIs in \`login-${PROFILE}\`; skipping."
         else
           run_av aws codepipeline start-pipeline-execution --name ${PIPELINE}
+          echo
           echo_green "${PIPELINE} execution started in \`login-${PROFILE}\`!"
           echo "Check the AWS CodePipeline/CodeBuild console for build progress."
         fi
+        echo
       done
     done
   fi
@@ -144,10 +148,32 @@ create_amis() {
 
 build_branch() {
   for PROFILE in ${PROFILE_LIST} ; do
-    echo "Updating the source branch for CodeBuild/CodePipeline in \`login-${PROFILE}\` to \`${BUILD_BRANCH}\`."
+    echo -e "\nUpdating the source branch for CodeBuild/CodePipeline in \`login-${PROFILE}\` to \`${BUILD_BRANCH}\`."
     if prompt_yn "Continue?" ; then
-      $(dirname "$0")/td -d imagebuild -e ${PROFILE} -at "var 'code_branch=jp/${BUILD_BRANCH}'"
+      $(dirname "$0")/td -d imagebuild -e ${PROFILE} -at "var 'code_branch=${BUILD_BRANCH}'"
     fi
+    ACCOUNT=$(get_acct_num ${PROFILE})
+    AV_PROFILE=$(get_profile_name ${ACCOUNT})
+    for TYPE in ${TYPE_LIST} ; do
+      STACKS=$(run_av aws cloudformation list-stacks |
+                      jq -r '.StackSummaries[]|select(.StackStatus == "DELETE_COMPLETE"|not).StackName' |
+                      grep -i ${TYPE} | tr '\n' ' ')
+      for STACK in ${STACKS} ; do
+        STACK_PARAMS=$(run_av aws cloudformation describe-stacks \
+                        --stack-name ${STACK} \
+                        --query 'Stacks[].Parameters[].ParameterKey' \
+                        --output text)                 
+        PARAM_ARG=$(for PARAM in $(echo "${STACK_PARAMS}" | tr -s '\t' ' '); do
+                      echo "ParameterKey=$PARAM,UsePreviousValue=true"
+                    done | tr '\n' ' ')
+        run_av aws cloudformation update-stack \
+          --stack-name ${STACK} \
+          --use-previous-template \
+          --capabilities CAPABILITY_IAM \
+          --parameters ${PARAM_ARG}
+        run_av aws cloudformation wait stack-update-complete --stack-name ${STACK}
+      done
+    done
   done
   create_amis
 }
@@ -200,16 +226,13 @@ PROFILE_LIST='sandbox prod'
 TYPE_LIST='base rails'
 TASK_LIST='update open'
 HEADERS="|AMI Date Account Description|"
-BUILD_BRANCH='main'
+BUILD_BRANCH=
 DATA=()
 
 while getopts b:cuoa:t:h opt
 do
   case $opt in
-    b) 
-       BUILD_BRANCH="${OPTARG}"
-       build_branch
-    ;;
+    b) BUILD_BRANCH="${OPTARG}" ;;
     c) create_amis              ;;
     u) TASK_LIST='update'       ;;
     o) TASK_LIST='open'         ;;
@@ -221,6 +244,8 @@ do
 done
 shift $((OPTIND-1))
 echo
+
+[[ -z ${BUILD_BRANCH} ]] || build_branch
 
 if ! [[ "${PROFILE_LIST}" =~ (sandbox|prod) ]] ; then
   raise "Cannot update vars/open a PR for new AMI IDs in non-core accounts!"
