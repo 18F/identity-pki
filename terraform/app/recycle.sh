@@ -14,7 +14,7 @@ ENV_NAME="$1"
 # How many minutes to give migrations a head start before doing all the recycles
 MIGRATIONDELAY=5
 # How many minutes to wait for a migration to get done and thus be torn down
-MIGRATIONDURATION=10
+MIGRATIONDURATION=20
 
 # healthy percentage required during an instance refresh
 # Chose 50 because in prod, we seem to have our systems running at around 25% CPU at peak
