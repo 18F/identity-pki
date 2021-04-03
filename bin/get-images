@@ -80,15 +80,16 @@ get_ami_info() {
     AV_PROFILE=$(get_profile_name $(get_acct_num ${PROFILE}))
 
     for TYPE in ${TYPE_LIST} ; do
-      BUILD=$(run_av aws codebuild list-builds-for-project \
+      BUILD=$(ave aws codebuild list-builds-for-project \
               --project login-image-${TYPE} | jq -r '.ids[0]' | awk -F: '{print $NF}')
-      PIPELINE_AMIS+=($(run_av aws cloudtrail lookup-events --lookup-attributes AttributeKey=EventName,AttributeValue=CreateImage |
-                jq -r --arg build "$BUILD" '.Events[].CloudTrailEvent|
-                  fromjson|
-                  select(.userIdentity.arn|
-                  contains($build)).responseElements.imageId'))
+      PIPELINE_AMIS+=($(aws-vault exec ${AV_PROFILE} -- aws cloudtrail lookup-events \
+                        --lookup-attributes AttributeKey=EventName,AttributeValue=CreateImage |
+                        jq -r --arg build "$BUILD" '.Events[].CloudTrailEvent|
+                          fromjson|
+                          select(.userIdentity.arn|
+                          contains($build)).responseElements.imageId'))
     done
-    DATA+=$(echo -e "\n$(run_av aws ec2 describe-images \
+    DATA+=$(echo -e "\n$(ave aws ec2 describe-images \
                 --image-ids $(echo "${PIPELINE_AMIS[*]}") \
                 --query 'Images[*].[ImageId,CreationDate,Name]' \
                 --output text | sort -rk2 | head -n 2 |
