@@ -75,7 +75,7 @@ mdout() {
 
 get_ami_info() {
   for PROFILE in ${PROFILE_LIST} ; do
-    echo -e "\nGenerating \`login-${PROFILE}\` AMI data..."
+    "Getting \`login-${PROFILE}\` AMI data..."
     PIPELINE_AMIS=()
     AV_PROFILE=$(get_profile_name $(get_acct_num ${PROFILE}))
 
@@ -96,16 +96,17 @@ get_ami_info() {
                 sed -E "s/login\.gov (base|rails) (role )?hardened (base )?image Ubuntu 18\.04 /$PROFILE \1\-/g" |
                 sed -E "s/([0-9\:]+)\.000Z/\1/g" |
                 sed -E 's/^/\|/g;s/$/\|/g')\n")
+    echo
   done
   NUM_COLS=$(echo "${DATA[@]}" | awk '{print NF}' | sort -nu | tail -n 1)
+  echo_green "AMI data generated:"
   echo
   mdout "${HEADERS}\n$(echo "|$(printf "%${NUM_COLS}s" |
          sed 's/ /----- |/g')")\n${DATA}" | tr 'T' ' '
-  echo
 }
 
 update_vars() {
-  echo
+  echo "Updating values in \`terraform/app/variables.tf\`..."
   [[ ${#DATA[@]} -eq 0 ]] && get_ami_info
   for LINE in $(echo "${DATA[@]}" | tail -n +2 | tr -d '|' |
                 awk '{print $1"+"$2"+"$3"+"$4}') ; do
@@ -115,7 +116,7 @@ update_vars() {
     AMI_TYPE=$(echo ${LINE} | awk -F+ '{print $4}' | sed -E 's/([a-z]+).+/\1/')
     [[ ${AMI_TYPE} == "base" ]] && AMI_TYPE='default'
     sed -i '' -E "/\"${AMI_TYPE}_ami_id_${AMI_ACCT}\"/{n;s/ami-[0-9a-f]{17}\" \# [0-9-]{10}/${AMI_ID}\" \# ${AMI_DATE}/;}" terraform/app/variables.tf
-    [[ $(git diff -U0 | grep ${AMI_ID}) ]] && echo "Updated \`${AMI_TYPE}_ami_id_${AMI_ACCT}\` to \`${AMI_ID}\`."
+    [[ $(git diff -U0 | grep ${AMI_ID}) ]] && echo_green "Updated \`${AMI_TYPE}_ami_id_${AMI_ACCT}\` to \`${AMI_ID}\`."
   done
   echo
 }
@@ -130,12 +131,18 @@ open_pr() {
   if [[ ! $(brew list --formula | grep hub) ]] ; then
     brew install hub || raise "hub not installed!"
   fi
- 
+
+  AMI_BRANCH="ami/$(date -j '+%Y%m%d')"
+  PR_TITLE="AMI update, $(date -j '+%Y-%m-%d')"
+  gh_revs
   run git checkout main
   run git pull origin main
-  run git checkout -b "ami/$(date -j '+%Y%m%d')" && \
-  run ${GIT_DIR}/bin/github-pr -pm "$(cat <<EOF
-AMI update, $(date -j '+%Y-%m-%d')
+  run git checkout -b ${AMI_BRANCH}
+  run git add --all
+  run git commit -m \"'${PR_TITLE}'\"
+  run git push --set-upstream origin ${AMI_BRANCH}
+  hub pull-request -p -r "${GH_REVS}" -e -m "$(cat <<EOF
+${PR_TITLE}
 
 $(mdout "${HEADERS}\n$(echo "|$(printf "%${NUM_COLS}s" | sed 's/ /----- |/g')")\n${DATA}" | tr 'T' ' ')
 
@@ -173,7 +180,6 @@ do
   esac
 done
 shift $((OPTIND-1))
-echo
 
 if [[ "${TASK_LIST}" =~ (open) ]] ; then
   if ! [[ -z $(git diff --name-only | grep -v 'terraform/app/variables.tf') ]] ; then
