@@ -75,7 +75,7 @@ mdout() {
 
 get_ami_info() {
   for PROFILE in ${PROFILE_LIST} ; do
-    echo "Getting \`login-${PROFILE}\` AMI data..."
+    echo -e "\nGetting \`login-${PROFILE}\` AMI data..."
     PIPELINE_AMIS=()
     AV_PROFILE=$(get_profile_name $(get_acct_num ${PROFILE}))
 
@@ -96,9 +96,9 @@ get_ami_info() {
                 sed -E "s/login\.gov (base|rails) (role )?hardened (base )?image Ubuntu 18\.04 /$PROFILE \1\-/g" |
                 sed -E "s/([0-9\:]+)\.000Z/\1/g" |
                 sed -E 's/^/\|/g;s/$/\|/g')\n")
-    echo
   done
   NUM_COLS=$(echo "${DATA[@]}" | awk '{print NF}' | sort -nu | tail -n 1)
+  echo
   echo_green "AMI data generated:"
   echo
   mdout "${HEADERS}\n$(echo "|$(printf "%${NUM_COLS}s" |
@@ -106,7 +106,7 @@ get_ami_info() {
 }
 
 update_vars() {
-  echo "Updating values in \`terraform/app/variables.tf\`..."
+  echo -e "\nUpdating values in \`terraform/app/variables.tf\`..."
   [[ ${#DATA[@]} -eq 0 ]] && get_ami_info
   for LINE in $(echo "${DATA[@]}" | tail -n +2 | tr -d '|' |
                 awk '{print $1"+"$2"+"$3"+"$4}') ; do
@@ -131,8 +131,8 @@ open_pr() {
   if [[ ! $(brew list --formula | grep hub) ]] ; then
     brew install hub || raise "hub not installed!"
   fi
-
   AMI_BRANCH="ami/$(date -j '+%Y%m%d')"
+  echo -e "\nCreating \`${AMI_BRANCH}\` branch + opening pull request..."
   PR_TITLE="AMI update, $(date -j '+%Y-%m-%d')"
   gh_revs
   run git checkout main
