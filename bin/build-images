@@ -1,0 +1,100 @@
+#!/bin/bash
+
+# Power tool set for AMI data
+
+set -euo pipefail
+
+. "$(dirname "$0")/lib/common.sh"
+
+usage() {
+  cat >&2 << EOM
+
+Usage: ${0} 
+
+EOM
+}
+
+man_page() {
+    cat >&2 << EOM
+Usage: ${0} 
+
+EOM
+}
+
+build_branch() {
+  local STACKS=()
+  echo "Updating the \`login-${ACCOUNT}\` imagebuild deployment to build from \`${BUILD_BRANCH}\` on identity-base-image."
+  if prompt_yn "Continue?" ; then
+    $(dirname "$0")/td -d imagebuild -e ${ACCOUNT} -at "var 'code_branch=${BUILD_BRANCH}'"  
+    echo_green "\`ImageCreationSourceFile\` parameter in \`login-${ACCOUNT}\` updated to \`${BUILD_BRANCH}\`."
+    echo -e "\nUpdating CloudFormation stacks to pull in new parameter value."
+    for TYPE in ${TYPE_LIST} ; do
+      STACKS+=$(run_av aws cloudformation list-stacks |
+                      jq -r '.StackSummaries[]|select(.StackStatus == "DELETE_COMPLETE"|not).StackName' |
+                      grep -i ${TYPE} | tr '\n' ' ')
+    done
+    for STACK in ${STACKS} ; do
+      STACK_PARAMS=$(run_av aws cloudformation describe-stacks \
+                      --stack-name ${STACK} \
+                      --query 'Stacks[].Parameters[].ParameterKey' \
+                      --output text)                 
+      PARAM_ARG=$(for PARAM in $(echo "${STACK_PARAMS}" | tr -s '\t' ' '); do
+                    echo "ParameterKey=$PARAM,UsePreviousValue=true"
+                  done | tr '\n' ' ')
+      run_av aws cloudformation update-stack \
+        --stack-name ${STACK} \
+        --use-previous-template \
+        --capabilities CAPABILITY_IAM \
+        --parameters ${PARAM_ARG}
+    done
+    for STACK in ${STACKS} ; do
+      run_av aws cloudformation wait stack-update-complete --stack-name ${STACK}
+    done
+    echo_green "CloudFormation stacks updated."
+  fi
+}
+
+TYPE_LIST='base rails'
+declare {ACCOUNT,BUILD_BRANCH}=
+
+verify_root_repo
+while getopts :a:b:t:h opt
+do
+  case $opt in
+    a) ACCOUNT="${OPTARG}"      ;;
+    b) BUILD_BRANCH="${OPTARG}" ;;
+    t) TYPE_LIST="${OPTARG}"    ;;
+    h) man_page                 ;;
+    *) usage && exit 1          ;;
+  esac
+done
+shift $((OPTIND-1))
+echo
+
+[[ -z ${ACCOUNT} ]] && raise 'AWS account must be specified with -a option'
+
+AV_PROFILE=$(get_profile_name $(get_acct_num ${ACCOUNT}))
+
+[[ -z ${BUILD_BRANCH} ]] || build_branch
+
+echo -e "\nReady to build new AMI(s) for:"
+for TYPE in ${TYPE_LIST} ; do
+  echo_cyan "- ${ACCOUNT}-${TYPE}"
+done
+echo
+if prompt_yn "Continue?" ; then
+  for TYPE in ${TYPE_LIST} ; do
+    echo
+    PIPELINE=$(run_av aws codepipeline list-pipelines |
+                    jq -r '.pipelines[].name' | grep -i ${TYPE})
+    if [[ -z ${PIPELINE} ]] ; then
+      echo_yellow "No pipeline found for \`${TYPE}\`-role AMIs in \`login-${ACCOUNT}\`; skipping."
+    else
+      run_av aws codepipeline start-pipeline-execution --name ${PIPELINE}
+      echo
+      echo_green "${PIPELINE} execution started in \`login-${ACCOUNT}\`!"
+      echo "Check the AWS CodePipeline/CodeBuild console for build progress."
+    fi
+    echo
+  done
+fi

@@ -9,12 +9,15 @@ set -euo pipefail
 usage() {
   cat >&2 << EOM
 
-Usage: ${0} [-asdh] [ENV] (defaults to \$GSA_USERNAME if not specified)
+Usage: ${0} [-uospbr]
 
 Flags (will run all if no flags specified):
-  -a : Copy S3 app-secrets v1/application.yml files from int to ENV
-  -s : Copy S3 secrets listed in ./lib/build-keys from int to ENV
-  -d : Run terraform-apply with IDP/PIVCAC ASGs zeroed out
+  -u : Update \`ami_id\` values in \`terraform/app/variables.tf\`
+  -o : Create \`ami/DATE\` branch + open a PR with \`ami_id\` changes
+  -s : Update \`login-sandbox\` AMIs
+  -p : Update \`login-prod\` AMIs
+  -b : update \`base\` AMIs
+  -r : update \`rails\` AMIs
   -h : Detailed help
 
 EOM
@@ -22,42 +25,18 @@ EOM
 
 man_page() {
     cat >&2 << EOM
-Usage: ${0} [-c|-u|-o|-b BASE_SANDBOX_AMI|-r RAILS_SANDBOX_AMI]
+Usage: ${0} [-uospbr]
 
-1. Runs \`aws ec2 describe-images\` in both the sandbox and prod
-accounts, and outputs a Markdown-formatted table containing
-information about the last-created AMIs for each type
-in each account.
-2. For the \`sandbox\` account, will look up the
-most recently-completed login-image CodeBuild jobs and will
-grab the IDs of the generated AMIs from those.
-3. If the \`prod\` AMIs are older than the most
-recent \`sandbox\` AMIs, will prompt to create new \`prod\` AMIs
-using \`copy-image.sh\` and \`share-image.sh\`, and then will
-regenerate the table.
+Obtains information (ID / date / type / description) on
+the most recent AMIs in each account (\`sandbox\` / \`prod\`)
+that were generated via the terraform/imagebuild deployment
+infrastructure (i.e. CodeBuild / CodePipeline), then updates
+the corresponding values in \`terraform/app/variables.tf\`,
+and creates a branch/pull request with the new AMI IDs.
 
-After (re)generating the table, it will prompt to:
-
-1. Update the \`ami_id\` values in \`terraform/app/variables.tf\`
-2. Create a PR with the newly-updated PR values (after checking
-out \`main\` first)
-
-To run only 1 of the specified options, use one of the
-following flags:
-
-  -c | --create-amis : Create new \`prod\` AMIs
-  -u | --update-amis : Update \`ami_id\` values in \`terraform/app/variables.tf\`
-  -o | --open-pr     : Open a PR with the new \`ami_id\` values
-  -h | --help)       : Display this usage info
-
-If you have custom \`sandbox\` AMI IDs you want this script to use as
-the basis for, those can be specified thusly:
-
-  -b | --base-ami BASE_AMI_ID
-  -r | --rails-ami RAILS_AMI_ID
-
-(If only one is specified, the script will look up the other in CodeBuild
-as per its original operation.)
+Designed to run with no specified flags/arguments; however,
+individual commands/parameters for the script can be specified
+with the following flags:
 
 The script will error out if:
 - there is an active \`\$AWS_VAULT\` session running (as it needs access
@@ -88,9 +67,8 @@ get_ami_info() {
   for PROFILE in ${PROFILE_LIST} ; do
     echo -e "\nGenerating \`login-${PROFILE}\` AMI data..."
     PIPELINE_AMIS=()
-    ACCOUNT=$(get_acct_num ${PROFILE})
-    AV_PROFILE=$(get_profile_name ${ACCOUNT})
-    
+    AV_PROFILE=$(get_profile_name $(get_acct_num ${PROFILE}))
+
     for TYPE in ${TYPE_LIST} ; do
       BUILD=$(run_av aws codebuild list-builds-for-project \
               --project login-image-${TYPE} | jq -r '.ids[0]' | awk -F: '{print $NF}')
@@ -113,69 +91,6 @@ get_ami_info() {
   mdout "${HEADERS}\n$(echo "|$(printf "%${NUM_COLS}s" |
          sed 's/ /----- |/g')")\n${DATA}" | tr 'T' ' '
   echo
-}
-
-create_amis() {
-  echo -e "\nReady to build new AMI(s) for:"
-  for PROFILE in ${PROFILE_LIST} ; do
-    for TYPE in ${TYPE_LIST} ; do
-      echo_cyan "- ${PROFILE}-${TYPE}"
-    done
-  done
-  echo
-  if prompt_yn "Continue ?" ; then
-    for PROFILE in ${PROFILE_LIST} ; do
-      ACCOUNT=$(get_acct_num ${PROFILE})
-      AV_PROFILE=$(get_profile_name ${ACCOUNT})
-      for TYPE in ${TYPE_LIST} ; do
-        echo
-        PIPELINE=$(run_av aws codepipeline list-pipelines |
-                        jq -r '.pipelines[].name' | grep -i ${TYPE})
-        if [[ -z ${PIPELINE} ]] ; then
-          echo_yellow "No pipeline found for \`${TYPE}\`-role AMIs in \`login-${PROFILE}\`; skipping."
-        else
-          run_av aws codepipeline start-pipeline-execution --name ${PIPELINE}
-          echo
-          echo_green "${PIPELINE} execution started in \`login-${PROFILE}\`!"
-          echo "Check the AWS CodePipeline/CodeBuild console for build progress."
-        fi
-        echo
-      done
-    done
-  fi
-  exit 0
-}
-
-build_branch() {
-  for PROFILE in ${PROFILE_LIST} ; do
-    echo -e "\nUpdating the source branch for CodeBuild/CodePipeline in \`login-${PROFILE}\` to \`${BUILD_BRANCH}\`."
-    if prompt_yn "Continue?" ; then
-      $(dirname "$0")/td -d imagebuild -e ${PROFILE} -at "var 'code_branch=${BUILD_BRANCH}'"
-    fi
-    ACCOUNT=$(get_acct_num ${PROFILE})
-    AV_PROFILE=$(get_profile_name ${ACCOUNT})
-    for TYPE in ${TYPE_LIST} ; do
-      STACKS=$(run_av aws cloudformation list-stacks |
-                      jq -r '.StackSummaries[]|select(.StackStatus == "DELETE_COMPLETE"|not).StackName' |
-                      grep -i ${TYPE} | tr '\n' ' ')
-      for STACK in ${STACKS} ; do
-        STACK_PARAMS=$(run_av aws cloudformation describe-stacks \
-                        --stack-name ${STACK} \
-                        --query 'Stacks[].Parameters[].ParameterKey' \
-                        --output text)                 
-        PARAM_ARG=$(for PARAM in $(echo "${STACK_PARAMS}" | tr -s '\t' ' '); do
-                      echo "ParameterKey=$PARAM,UsePreviousValue=true"
-                    done | tr '\n' ' ')
-        run_av aws cloudformation update-stack \
-          --stack-name ${STACK} \
-          --use-previous-template \
-          --capabilities CAPABILITY_IAM \
-          --parameters ${PARAM_ARG}
-        run_av aws cloudformation wait stack-update-complete --stack-name ${STACK}
-      done
-    done
-  done
-  create_amis
 }
 
 update_vars() {
@@ -229,27 +144,21 @@ HEADERS="|AMI Date Account Description|"
 BUILD_BRANCH=
 DATA=()
 
-while getopts b:cuoa:t:h opt
+while getopts uospbrh opt
 do
   case $opt in
-    b) BUILD_BRANCH="${OPTARG}" ;;
-    c) create_amis              ;;
-    u) TASK_LIST='update'       ;;
-    o) TASK_LIST='open'         ;;
-    a) PROFILE_LIST="${OPTARG}" ;;
-    t) TYPE_LIST="${OPTARG}"    ;;
-    h) man_page                 ;;
-    *) usage && exit 1          ;;
+    u) TASK_LIST='update'     ;;
+    o) TASK_LIST='open'       ;;
+    s) PROFILE_LIST='sandbox' ;;
+    p) PROFILE_LIST='prod'    ;;
+    b) TYPE_LIST='base'       ;;
+    r) TYPE_LIST='rails'      ;;
+    h) man_page               ;;
+    *) usage && exit 1        ;;
   esac
 done
 shift $((OPTIND-1))
 echo
-
-[[ -z ${BUILD_BRANCH} ]] || build_branch
-
-if ! [[ "${PROFILE_LIST}" =~ (sandbox|prod) ]] ; then
-  raise "Cannot update vars/open a PR for new AMI IDs in non-core accounts!"
-fi
 
 if [[ "${TASK_LIST}" =~ (open) ]] ; then
   if ! [[ -z $(git diff --name-only | grep -v 'terraform/app/variables.tf') ]] ; then
