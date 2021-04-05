@@ -664,12 +664,6 @@ variable "tf_slack_channel" {
   default     = ""
 }
 
-variable "idp_sqs_notifications_enabled" {
-  description = "Allow creation of IDP SQS resources"
-  type        = bool
-  default     = true
-}
-
 ######## Network Firewall Variable Block - Start ##########
 variable "az_zones" {
   description = "The list of availability zones"
