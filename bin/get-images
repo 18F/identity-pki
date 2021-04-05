@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Power tool set for AMI data
+# Grab AMI data and build a PR with it!
 
 set -euo pipefail
 

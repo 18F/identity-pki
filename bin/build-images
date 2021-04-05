@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Power tool set for AMI data
+# Activate imagebuild pipelines + switch base-image branch if desired
 
 set -euo pipefail
 
