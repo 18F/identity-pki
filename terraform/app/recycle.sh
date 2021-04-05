@@ -11,13 +11,40 @@ fi
 
 ENV_NAME="$1"
 
+# How many minutes to give migrations a head start before doing all the recycles
+MIGRATIONDELAY=5
+# How many minutes to wait for a migration to get done and thus be torn down
+MIGRATIONDURATION=20
+
 # healthy percentage required during an instance refresh
 # Chose 50 because in prod, we seem to have our systems running at around 25% CPU at peak
 MINHEALTHYPCT=50
 
-# this is a egrep pattern for excluding types of ASGs from being recycled
-# migrations hosts seem to be problematic?
+# This is a egrep pattern for excluding types of ASGs from being recycled.
+# Migrations hosts need to be done separately.  You can add more with |.
 IGNORE="^${ENV_NAME}-migration$"
+
+
+# run a migrations host first to make sure that everything is ready for
+# the new hosts.  We are adding one to the current size in case there's
+# already one running.  We return to zero at the end, though.
+CURRENTSIZE=$(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names "$ENV_NAME"-migration | jq .AutoScalingGroups[0].DesiredCapacity)
+DESIREDSIZE=$(expr $CURRENTSIZE + 1)
+if [ "$(uname -s)" = "Darwin" ] ; then
+	NOW=$(TZ=Zulu date -v +15S +%Y-%m-%dT%H:%M:%SZ)
+	THEFUTURE=$(TZ=Zulu date -v +"$MIGRATIONDURATION"M +%Y-%m-%dT%H:%M:%SZ)
+else
+	NOW=$(TZ=Zulu date -d "15 seconds" +%Y-%m-%dT%H:%M:%SZ)
+	THEFUTURE=$(TZ=Zulu date -d "$MIGRATIONDURATION minutes" +%Y-%m-%dT%H:%M:%SZ)
+fi
+echo "============= Scheduling migration host launch and teardown"
+aws autoscaling put-scheduled-update-group-action --scheduled-action-name "migrate-$ENV_NAME" --auto-scaling-group-name "${ENV_NAME}-migration" --start-time "$NOW" --desired-capacity "$DESIREDSIZE"
+aws autoscaling put-scheduled-update-group-action --scheduled-action-name "end-migrate-$ENV_NAME" --auto-scaling-group-name "${ENV_NAME}-migration" --start-time "$THEFUTURE" --desired-capacity 0
+
+# Sleep to give time for migrations to complete
+SLEEPDELAY=$(expr "$MIGRATIONDELAY" "*" 60)
+echo "sleeping for $SLEEPDELAY seconds to give time for migrations to complete..."
+sleep "$SLEEPDELAY"
 
 # clean up
 cd /tmp/ || exit 1
@@ -60,6 +87,12 @@ for i in refreshes* ; do
 				;;
 			"Failed")
 				echo "$ASG failed to recycle"
+				STOP=true
+				FAILURE=true
+				;;
+			"Cancelled")
+				echo "$ASG reycle was canceled for some reason:"
+				aws autoscaling describe-instance-refreshes  --auto-scaling-group-name "$ASG" --instance-refresh-ids "$REFRESHID"
 				STOP=true
 				FAILURE=true
 				;;
