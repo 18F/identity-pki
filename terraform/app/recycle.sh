@@ -31,11 +31,11 @@ IGNORE="^${ENV_NAME}-migration$"
 CURRENTSIZE=$(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names "$ENV_NAME"-migration | jq .AutoScalingGroups[0].DesiredCapacity)
 DESIREDSIZE=$(expr $CURRENTSIZE + 1)
 if [ "$(uname -s)" = "Darwin" ] ; then
-	NOW=$(date -v +15S +%Y-%m-%dT%H:%M:%SZ)
-	THEFUTURE=$(date -v +"$MIGRATIONDURATION"M +%Y-%m-%dT%H:%M:%SZ)
+	NOW=$(TZ=Zulu date -v +15S +%Y-%m-%dT%H:%M:%SZ)
+	THEFUTURE=$(TZ=Zulu date -v +"$MIGRATIONDURATION"M +%Y-%m-%dT%H:%M:%SZ)
 else
-	NOW=$(date -d "15 seconds" +%Y-%m-%dT%H:%M:%SZ)
-	THEFUTURE=$(date -d "$MIGRATIONDURATION minutes" +%Y-%m-%dT%H:%M:%SZ)
+	NOW=$(TZ=Zulu date -d "15 seconds" +%Y-%m-%dT%H:%M:%SZ)
+	THEFUTURE=$(TZ=Zulu date -d "$MIGRATIONDURATION minutes" +%Y-%m-%dT%H:%M:%SZ)
 fi
 echo "============= Scheduling migration host launch and teardown"
 aws autoscaling put-scheduled-update-group-action --scheduled-action-name "migrate-$ENV_NAME" --auto-scaling-group-name "${ENV_NAME}-migration" --start-time "$NOW" --desired-capacity "$DESIREDSIZE"
