@@ -2,4 +2,5 @@
 # Add one line per application sandbox specifying the `identity-devops`
 # branch to deploy from
 pauldoomed: stages/pauldoomed
+mhenke: stages/mhenke
 #tspencer: stages/tspencer
