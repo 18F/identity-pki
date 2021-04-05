@@ -1,5 +1,5 @@
 locals {
-  yaml_data = yamldecode(file("${path.module}/${var.validdomainfile}"))
+  yaml_data = yamldecode(file("${path.cwd}/${var.validdomainfile}"))
 }
 
 #################################################################
