@@ -777,7 +777,7 @@ resource "aws_cloudwatch_dashboard" "idp_external_service" {
             "height": 12,
             "properties": {
                 "metrics": [
-                    [ "mhenke/idp-external-service", "aws-kms-decrypt-response-time", { "label": "KMS Decrypt" } ],
+                    [ "${var.env_name}/idp-external-service", "aws-kms-decrypt-response-time", { "label": "KMS Decrypt" } ],
                     [ ".", "aws-kms-encrypt-response-time", { "label": "KMS Encrypt" } ],
                     [ ".", "aws-pinpoint-phone-number-validate-response-time", { "label": "Pinpoint Validate Phone" } ],
                     [ ".", "aws-pinpoint-send-messages-response-time", { "label": "Pinpoint Send SMS" } ],
@@ -812,7 +812,7 @@ resource "aws_cloudwatch_dashboard" "idp_external_service" {
             "height": 12,
             "properties": {
                 "metrics": [
-                    [ "mhenke/idp-external-service", "aws-kms-decrypt-response-time", { "label": "KMS Decrypt", "yAxis": "right" } ],
+                    [ "${var.env_name}/idp-external-service", "aws-kms-decrypt-response-time", { "label": "KMS Decrypt", "yAxis": "right" } ],
                     [ ".", "aws-kms-encrypt-response-time", { "label": "KMS Encrypt", "yAxis": "right" } ],
                     [ ".", "aws-pinpoint-phone-number-validate-response-time", { "label": "Pinpoint Validate Phone" } ],
                     [ ".", "aws-pinpoint-send-messages-response-time", { "label": "Pinpoint Send SMS" } ],
