@@ -3,7 +3,7 @@ git_source(:github) { |repo_name| "https://github.com/#{repo_name}.git" }
 
 ruby '~> 2.6.5'
 
-gem 'rails', '~> 6.1.2'
+gem 'rails', '~> 6.1.3'
 
 gem 'activerecord-import', '>= 1.0.2'
 gem 'aws-sdk', require: false
@@ -12,7 +12,6 @@ gem 'figaro'
 gem 'health_check', '>= 3.0.0'
 gem 'identity-hostdata', github: '18F/identity-hostdata', tag: 'v1.0.1'
 gem 'identity-logging', github: '18F/identity-logging', tag: 'v0.1.0'
-gem 'mimemagic', '0.3.5', github: 'mimemagicrb/mimemagic', ref: '40dd02bb6b442535f97c35326c0383bc67'
 gem 'mini_cache'
 gem 'newrelic_rpm'
 gem 'pg'
