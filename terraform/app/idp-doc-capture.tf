@@ -71,6 +71,13 @@ module "idp_doc_capture_bucket_config" {
   inventory_bucket_arn = local.inventory_bucket_arn
 }
 
+#Worker Role access to S3 bucket and KMS key
+resource "aws_iam_role_policy" "worker_doc_capture" {
+  name   = "${var.env_name}-worker-doc-capture"
+  role   = aws_iam_role.worker.id
+  policy = data.aws_iam_policy_document.idp_doc_capture.json
+}
+
 #IDP Role access to S3 bucket and KMS key
 resource "aws_iam_role_policy" "idp_doc_capture" {
   name   = "${var.env_name}-idp-doc-capture"
