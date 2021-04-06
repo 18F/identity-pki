@@ -1,0 +1,104 @@
+#!/bin/bash
+
+# Activate imagebuild pipelines + switch base-image branch if desired
+
+set -euo pipefail
+
+. "$(dirname "$0")/lib/common.sh"
+
+usage() {
+  cat >&2 << EOM
+
+Usage: ${0} -a AWS_ACCOUNT [-b BRANCH|-t TYPE]
+
+Runs \`aws codepipeline start-pipeline-execution\` for
+each type of AMI in the login-\$AWS_ACCOUNT account.
+
+Flags:
+
+  -b BRANCH : Update the identity-base-image branch
+              used for builds to \$BRANCH, via
+              tf-deploy and aws cloudformation
+  -t TYPE   : Only update the stacks/build project/
+              pipeline for \$TYPE AMIs (base/rails)
+  -h        : Display this help
+
+EOM
+}
+
+build_branch() {
+  local STACKS=()
+  echo -e "\nUpdating the \`login-${ACCOUNT}\` imagebuild deployment to build from \`${BUILD_BRANCH}\` on identity-base-image."
+  if prompt_yn "Continue?" ; then
+    $(dirname "$0")/td -d imagebuild -e ${ACCOUNT} -at "var 'code_branch=${BUILD_BRANCH}'"  
+    echo
+    echo_green "\`ImageCreationSourceFile\` parameter in \`login-${ACCOUNT}\` updated to \`${BUILD_BRANCH}\`."
+    echo "Updating CloudFormation stacks to pull in new parameter value; StackIDs specified below."
+    for TYPE in ${TYPE_LIST} ; do
+      STACKS+=$(aws-vault exec ${AV_PROFILE} -- aws cloudformation list-stacks |
+                      jq -r '.StackSummaries[]|select(.StackStatus == "DELETE_COMPLETE"|not).StackName' |
+                      grep -i ${TYPE} | tr '\n' ' ')
+    done
+    for STACK in ${STACKS} ; do
+      STACK_PARAMS=$(aws-vault exec ${AV_PROFILE} -- aws cloudformation describe-stacks \
+                      --stack-name ${STACK} \
+                      --query 'Stacks[].Parameters[].ParameterKey' \
+                      --output text)                 
+      PARAM_ARG=$(for PARAM in $(echo "${STACK_PARAMS}" | tr -s '\t' ' '); do
+                    echo "ParameterKey=$PARAM,UsePreviousValue=true"
+                  done | tr '\n' ' ')
+      aws-vault exec ${AV_PROFILE} -- aws cloudformation update-stack \
+        --stack-name ${STACK} \
+        --use-previous-template \
+        --capabilities CAPABILITY_IAM \
+        --parameters ${PARAM_ARG} --output text
+    done
+    echo -e "\nWaiting for stack updates to complete..."
+    for STACK in ${STACKS} ; do
+      ave aws cloudformation wait stack-update-complete --stack-name ${STACK}
+    done
+    echo_green "CloudFormation stacks updated."
+  fi
+}
+
+TYPE_LIST='base rails'
+declare {ACCOUNT,BUILD_BRANCH}=
+
+verify_root_repo
+while getopts :a:b:t:h opt
+do
+  case $opt in
+    a) ACCOUNT="${OPTARG}"      ;;
+    b) BUILD_BRANCH="${OPTARG}" ;;
+    t) TYPE_LIST="${OPTARG}"    ;;
+    h) usage && exit 0          ;;
+    *) raise 'Invalid option'   ;;
+  esac
+done
+shift $((OPTIND-1))
+
+if [[ -z ${ACCOUNT} ]] ; then
+  raise 'AWS account must be specified with -a flag'
+elif ! [[ "${TYPE_LIST}" =~ (base|rails) ]] ; then
+  raise "TYPE must be \`base\` or \`rails\`; remove -t flag to use both"
+fi
+
+AV_PROFILE=$(get_profile_name $(get_acct_num ${ACCOUNT}))
+
+[[ -z ${BUILD_BRANCH} ]] || build_branch
+
+echo -e "\nReady to build new AMI(s) for:"
+for TYPE in ${TYPE_LIST} ; do
+  echo_cyan "- ${ACCOUNT}-${TYPE}"
+done
+echo
+if prompt_yn "Continue?" ; then
+  for TYPE in ${TYPE_LIST} ; do
+    PIPELINE=$(aws-vault exec ${AV_PROFILE} -- aws codepipeline list-pipelines |
+                    jq -r '.pipelines[].name' | grep -i ${TYPE})
+    ave aws codepipeline start-pipeline-execution --name ${PIPELINE} >/dev/null
+  done
+  echo_green "Pipeline execution(s) started in \`login-${ACCOUNT}\`!"
+  echo "Check the AWS CodePipeline/CodeBuild console for build progress."
+  echo
+fi

@@ -1,21 +1,5 @@
 #!/bin/bash
 
-ave() {
-  local run_me=("$@")
-  if [[ $USE_RUN -gt 0 ]] ; then
-    if [ -t 1 ]; then
-      echo -ne "\\033[1;36m"
-    fi
-  
-    echo >&2 "+ ${run_me[@]}"
-  
-    if [ -t 1 ]; then
-      echo -ne '\033[m'
-    fi
-  fi
-  aws-vault exec ${AV_PROFILE} -- "${run_me[@]}"
-}
-
 verify_private_repo() {
   PRIVATE_REPO=${ID_PRIVATE_DIR-}
   if [[ -z ${PRIVATE_REPO} ]] ; then

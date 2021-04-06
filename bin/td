@@ -103,7 +103,7 @@ get_arn_role ${TF_PROFILE} ${TF_ROLE}
 
 ARGS="$@"
 if [[ ! -z ${ARGS} ]] && [[ "${TF_CMD}" =~ ^(tfplan|apply|plan|destroy)$ ]] ; then
-  ARGS=$(echo " $@" | sed 's/ /&-/g')
+  ARGS=$(echo " $@" | sed 's/ /&-/g' | sed "s/-'/'/g;s/'//g")
 fi
 
 if [[ ${TF_CMD} == 'tfplan' ]] ; then
