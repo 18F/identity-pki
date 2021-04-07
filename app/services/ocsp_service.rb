@@ -79,7 +79,7 @@ class OcspService
     end
   end
 
-  def make_single_http_request(uri, request, retries = 1)
+  def make_single_http_request(uri, request, retries = 0)
     make_single_http_request!(uri, request)
   rescue Errno::ECONNRESET, Timeout::Error => e
     retries -= 1
