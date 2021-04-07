@@ -4,3 +4,4 @@ domainAllowList:
 - github.com
 - api.github.com
 - synthetics.newrelic.com
+- login.newrelic.com
