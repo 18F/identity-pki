@@ -13,20 +13,21 @@ def log
 end
 
 def main
-  scale_in_options = {}
-
   basename = File.basename($0)
 
   optparse = OptionParser.new do |opts|
     opts.banner = <<-EOM
 usage: #{basename} [OPTIONS] ENV ROLE
 
-Remove scale-in protection from older servers in the Auto Scaling Group named
+Remove scale-in protection from new servers in the Auto Scaling Group named
 <ENV>-<ROLE> sufficient to reduce server count to the ASG's desired capacity.
+
+THIS IS FOR CANCELLING DEPLOYMENTS - You probably want to use
+scale-in-old-instances, not this.
 
 For example:
 
-  # Remove scale-in protection from old staging idp
+  # Remove scale-in protection from NEW staging idp
   #{basename} staging idp
 
 Options:
@@ -44,10 +45,6 @@ Options:
     opts.on('-q', '--quiet', 'Be quieter (can pass multiple times)') do
       Cloudlib.log_level += 1
     end
-
-    opts.on('-f', '--force', "Don't interactively prompt for confirmation") do
-      scale_in_options[:prompt_continue] = false
-    end
   end
 
   args = optparse.parse!
@@ -59,9 +56,9 @@ Options:
 
   asg_name = "#{args.fetch(0)}-#{args.fetch(1)}"
 
-  log.info("Finding older servers in #{asg_name} to remove scale-in protection")
+  log.info("Finding newer servers in #{asg_name} to remove scale-in protection")
 
-  Cloudlib::AutoScaling.new.scale_in_instances(asg_name, **scale_in_options)
+  Cloudlib::AutoScaling.new.scale_in_instances(asg_name, oldest_first: false)
 
   log.info('All done')
 end

@@ -144,13 +144,17 @@ module Cloudlib
     # @param [Aws::AutoScaling::AutoScalingGroup] asg
     # @param [Integer] Desired count of instances after scaling in
     #
-    def find_instances_to_scale_in(asg, desired_capacity)
+    def find_instances_to_scale_in(asg, desired_capacity, oldest_first: true)
       asg_instance_info = {}
       asg.instances.each {|i| asg_instance_info[i.instance_id] = i }
 
       ec2 = Cloudlib::EC2.new
       instances = ec2.list_instances_by_ids(asg.instances.map(&:instance_id), in_vpc: false)
-      instances.sort_by!(&:launch_time).reverse!
+      if oldest_first
+        instances.sort_by!(&:launch_time).reverse!
+      else
+        instances.sort_by!(&:launch_time)
+      end
 
       log.info('To keep:')
 
@@ -224,21 +228,21 @@ module Cloudlib
     # @param [String] asg_name
     # @param [Boolean] prompt_continue Whether to prompt before proceeding
     #
-    def scale_in_old_instances(asg_name, prompt_continue: true)
+    def scale_in_instances(asg_name, prompt_continue: true, oldest_first: true)
       log.info("Looking up ASG #{asg_name.inspect}")
       asg = get_autoscaling_group_by_name(asg_name)
 
       log.info("#{asg_name} desired count: #{asg.desired_capacity}")
       log.info("#{asg_name} running count: #{asg.instances.count}")
 
-      to_scale_in = find_instances_to_scale_in(asg, asg.desired_capacity)
+      to_scale_in = find_instances_to_scale_in(asg, asg.desired_capacity, oldest_first: oldest_first)
 
       if to_scale_in.empty?
         log.info("No instances require removal of scale-in protection")
         return
       end
 
-      log.warn("Will remove scale-in protection from #{to_scale_in.count} older instances: " + to_scale_in.map(&:instance_id).join(' '))
+      log.warn("Will remove scale-in protection from #{to_scale_in.count} instances: " + to_scale_in.map(&:instance_id).join(' '))
 
       if prompt_continue
         unless prompt.yes?('Continue?', default: false)
