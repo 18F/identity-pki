@@ -584,3 +584,50 @@ resource "aws_vpc_endpoint" "sts" {
 
   private_dns_enabled = true
 }
+
+resource "aws_vpc_endpoint" "events" {
+  vpc_id            = aws_vpc.default.id
+  service_name      = "com.amazonaws.${var.region}.events"
+  vpc_endpoint_type = "Interface"
+
+  security_group_ids = [
+    aws_security_group.events_endpoint.id,
+  ]
+
+  subnet_ids = [
+    aws_subnet.privatesubnet1.id,
+    aws_subnet.privatesubnet2.id,
+    aws_subnet.privatesubnet3.id,
+  ]
+
+  private_dns_enabled = true
+}
+
+resource "aws_security_group" "events_endpoint" {
+  description = "Allow inbound from idp servers"
+
+  # allow outbound to the VPC
+  egress {
+    from_port   = 0
+    to_port     = 65535
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr_block]
+  }
+
+  ingress {
+    from_port = 443
+    to_port   = 443
+    protocol  = "tcp"
+    security_groups = [
+      aws_security_group.idp.id,
+    ]
+  }
+
+  name = "${var.name}-events_endpoint-${var.env_name}"
+
+  tags = {
+    Name = "${var.name}-events_endpoint-${var.env_name}"
+  }
+
+  vpc_id = aws_vpc.default.id
+}
