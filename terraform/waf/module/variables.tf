@@ -56,6 +56,9 @@ variable "common_ruleset_exclusions" {
     # AWS description: "Inspects the value of query arguments and blocks common cross-site scripting (XSS) patterns using the built-in XSS detection rule in AWS WAF. Example patterns include scripts like <script>alert("hello")</script>."
     # For request details see issue https://github.com/18F/identity-devops/issues/3117
     "CrossSiteScripting_QUERYARGUMENTS",
+    # AWS description: "Verifies that the request body size is at most 10,240 bytes."
+    # For request details see issue https://github.com/18F/identity-devops/issues/3178
+    "SizeRestrictions_BODY",
   ]
 }
 
