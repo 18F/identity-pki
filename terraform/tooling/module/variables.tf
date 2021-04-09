@@ -23,6 +23,12 @@ variable "auto_tf_vpcendpoints_subnet_cidr" {
   default     = "10.65.8.0/24"
 }
 
+variable "dns_domain" {
+  description = "Domain to place all externally available tooling resources under"
+  type        = string
+  default     = "gitlab.identitysandbox.gov"
+}
+
 variable "region" {
   description = "AWS region, used for S3 bucket names"
 }
