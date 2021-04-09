@@ -13,9 +13,27 @@ terraform {
 module "main" {
   source = "../module"
 
-  state_lock_table            = "terraform_locks"
-  slack_sns_name              = "slack-sandbox-events"
-  root_domain                 = "identitysandbox.gov"
+  state_lock_table = "terraform_locks"
+  slack_sns_name   = "slack-sandbox-events"
+  root_domain      = "identitysandbox.gov"
+  prod_records = [
+    {
+      type = "NS",
+      record_set = [
+        {
+          "name" = "gitlab.",
+          "records" = [
+            "ns-10.awsdns-01.com.",
+            "ns-751.awsdns-29.net.",
+            "ns-1788.awsdns-31.co.uk.",
+            "ns-1074.awsdns-06.org.",
+          ],
+          "ttl" = "900",
+        },
+      ]
+    }
+  ]
+
   mx_provider                 = "amazon-ses-inbound.us-west-2"
   sandbox_ses_inbound_enabled = 1
   mta_sts_report_mailboxes    = ["tls.reports@gsa.gov", "tls-reports@login.gov"]
