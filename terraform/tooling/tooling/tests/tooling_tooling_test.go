@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"testing"
@@ -76,4 +77,12 @@ func TestNetworkFirewall(t *testing.T) {
 
 	_, err = http.Get("https://github.com/")
 	require.NoError(t, err, "The network firewall is blocking traffic to github.com, which it should be allowing.")
+}
+
+// DNS Test
+func TestGitLabDnsSubdomain(t *testing.T) {
+	// TODO - Make this dymanic
+	dns_domain := "gitlab.identitysandbox.gov"
+	_, err := net.LookupNS(dns_domain)
+	require.NoError(t, err, fmt.Sprintf("Where is my NS record set for %s", dns_domain))
 }
