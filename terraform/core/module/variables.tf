@@ -32,22 +32,22 @@ variable "root_domain" {
 
 variable "static_cloudfront_name" {
   description = "Static site Cloudfront DNS name, e.g. abcd.cloudfront.net"
-  default     = "todo.cloudfront.net"
+  default     = "login.gov"
 }
 
 variable "design_cloudfront_name" {
   description = "Design site Cloudfront DNS name, e.g. abcd.cloudfront.net"
-  default     = "todo.cloudfront.net"
+  default     = "login.gov"
 }
 
 variable "developers_cloudfront_name" {
   description = "Developers site Cloudfront DNS name, e.g. abcd.cloudfront.net"
-  default     = "todo.cloudfront.net"
+  default     = "login.gov"
 }
 
 variable "acme_partners_cloudfront_name" {
   description = "Partners site Cloudfront DNS name, e.g. abcd.cloudfront.net"
-  default     = "todo.cloudfront.net"
+  default     = "login.gov"
 }
 
 variable "google_site_verification_txt" {
@@ -133,5 +133,5 @@ variable "bucket_list_ue1" {
 
 variable "slack_events_sns_hook_arn" {
   description = "Slack sns topic"
-  type = string
+  type        = string
 }
