@@ -32,22 +32,22 @@ variable "root_domain" {
 
 variable "static_cloudfront_name" {
   description = "Static site Cloudfront DNS name, e.g. abcd.cloudfront.net"
-  default     = "login.gov"
+  default     = "int.identitysandbox.gov"
 }
 
 variable "design_cloudfront_name" {
   description = "Design site Cloudfront DNS name, e.g. abcd.cloudfront.net"
-  default     = "login.gov"
+  default     = "int.identitysandbox.gov"
 }
 
 variable "developers_cloudfront_name" {
   description = "Developers site Cloudfront DNS name, e.g. abcd.cloudfront.net"
-  default     = "login.gov"
+  default     = "int.identitysandbox.govv"
 }
 
 variable "acme_partners_cloudfront_name" {
   description = "Partners site Cloudfront DNS name, e.g. abcd.cloudfront.net"
-  default     = "login.gov"
+  default     = "int.identitysandbox.gov"
 }
 
 variable "google_site_verification_txt" {
