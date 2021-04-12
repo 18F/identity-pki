@@ -95,6 +95,7 @@ module "main" {
   user_map = {
     "aaron.chapman"     = ["appdev", "apponcall"],
     "akhlaq.khan"       = ["analytics", "finops", "bizops"],
+    "alex.kritikos"     = ["devops"],
     "alex.mathews"      = ["appdev", "apponcall"],
     "amos.stone"        = ["analytics"],
     "andrew.duthie"     = ["appdev", "apponcall"],
