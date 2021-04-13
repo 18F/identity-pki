@@ -43,7 +43,7 @@ variable "packer_config" {
   description = "Map of key/value pairs for Packer configs consistent in all AMI types."
   type = map(string)
   default = {
-    encryption              = "false"
+    encryption              = "true"
     root_vol_size           = "40"
     data_vol_size           = "100"
     deregister_existing_ami = "false"
