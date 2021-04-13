@@ -9,7 +9,6 @@ version          '0.1.34'
 
 depends          'java', '~> 4.3.0'
 depends          'elasticsearch'
-depends          'filebeat'
 depends          'runit'
 depends          'elasticsearch-curator'
 depends          'acme'

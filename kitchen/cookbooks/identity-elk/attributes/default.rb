@@ -10,30 +10,6 @@ default['es']['sg_zip_sum'] = '3a79cdd09888ee4f8f58c9a6351a532da11c5f0a42f4f7725
 default['es']['sg_tls'] = '1.7.tar.gz'
 default['es']['sg_tls_sum'] = '284492779edf037348375994a0f320cc1425bda149d56c3db0031014241e7110'
 
-default['filebeat']['version'] = '7.4.2'
-default['metricbeat']['version'] = '7.4.2'
-default['auditbeat']['version'] = '7.4.2'
-
-# logfiles to watch
-default['filebeat']['logfiles'] = [
-  '/srv/*/shared/log/*.log',
-  '/var/lib/docker/aufs/mnt/*/var/log/*/*.log',
-  '/var/log/*.log',
-  '/var/log/*/*.log',
-  '/var/log/*/*/*.log',
-  '/var/log/*/current',
-  '/var/log/messages',
-  '/var/log/syslog'
-]
-
-# set filebeat to do logstash output
-default['filebeat']['config']['output']['logstash']['enable'] = true
-default['filebeat']['config']['output']['logstash']['hosts'] = [ 'logstash.login.gov.internal:5044' ]
-default['filebeat']['config']['output']['logstash']['index'] = 'filebeat'
-default['filebeat']['config']['output']['logstash']['loadbalance'] = true
-default['filebeat']['config']['output']['logstash']['save_topology'] = false
-default['filebeat']['config']['output']['logstash']['tls']['certificate_authorities'] = [ "/etc/ssl/certs/ca-certificates.crt" ]
-
 # how many days to keep logs around in ELK
 default['elk']['retentiondays'] = 90
 
@@ -41,8 +17,7 @@ default['elk']['retentiondays'] = 90
 default['elk']['indextypes'] = [
   'logstash-2',
   'logstash-cloudwatch',
-  'logstash-cloudtrail',
-  'filebeat'
+  'logstash-cloudtrail'
 ]
 
 default['elk']['extendedretentiondays'] = 90
