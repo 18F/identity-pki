@@ -25,8 +25,7 @@ RSpec.configure do |config|
   end
 
   config.before(:each) do
-    I18n.locale = :en
-    allow(Figaro.env).to receive(:domain_name).and_return('127.0.0.1')
+    allow(IdentityConfig.store).to receive(:domain_name).and_return('127.0.0.1')
     CertificateStore.reset
     CertificateStore.instance.clear_root_identifiers
     Certificate.clear_revocation_cache
@@ -35,6 +34,6 @@ RSpec.configure do |config|
   end
 
   config.before(:each, type: :controller) do
-    @request.host = Figaro.env.domain_name
+    @request.host = IdentityConfig.store.domain_name
   end
 end

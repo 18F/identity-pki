@@ -30,7 +30,7 @@ class TokenService
     private
 
     def authentic?(token, hmac_header)
-      secret = Figaro.env.piv_cac_verify_token_secret
+      secret = IdentityConfig.store.piv_cac_verify_token_secret
       # TODO: once everything is deployed and configured and working, we'll
       # switch to requiring the secret be configured
       # return true if secret.blank?
@@ -65,17 +65,16 @@ class TokenService
     end
 
     def bloom_filter_spec
-      env = Figaro.env
-      size = (env.nonce_bloom_filter_size || 100_000).to_i
-      { identifier: env.nonce_bloom_filter_prefix || 'nonce',
-        ttl: env.nonce_bloom_filter_ttl || TOKEN_LIFESPAN,
-        hashes: env.nonce_bloom_filter_hash_count || 4,
-        size: size,
+      env = IdentityConfig.store
+      { identifier: env.nonce_bloom_filter_prefix,
+        ttl: env.nonce_bloom_filter_ttl,
+        hashes: env.nonce_bloom_filter_hash_count,
+        size: env.nonce_bloom_filter_size,
         seed: 123_456_789 }
     end
 
     def bloom_filter_server
-      { url: Figaro.env.nonce_bloom_filter_server || 'redis://localhost/' }
+      { url: IdentityConfig.store.nonce_bloom_filter_server }
     end
 
     def message_encryptor
@@ -106,13 +105,13 @@ class TokenService
     end
 
     def key_salt_and_pepper(ordinal = nil)
-      env = Figaro.env
+      env = IdentityConfig.store
       if ordinal
         [env.send(:"token_encryption_key_salt_#{ordinal}!"),
          env.send(:"token_encryption_key_pepper_#{ordinal}!")]
       else
-        [env.token_encryption_key_salt!,
-         env.token_encryption_key_pepper!]
+        [env.token_encryption_key_salt,
+         env.token_encryption_key_pepper]
       end
     end
 

@@ -1,5 +1,5 @@
 class IssuingCaService
-  CA_ISSUER_HOST_ALLOW_LIST = Figaro.env.ca_issuer_host_allow_list.split(',')
+  CA_ISSUER_HOST_ALLOW_LIST = IdentityConfig.store.ca_issuer_host_allow_list
 
   class UnexpectedPKCS7Response < StandardError; end
 

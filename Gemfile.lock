@@ -1109,8 +1109,6 @@ GEM
       colorize (~> 0.7)
       ruby_parser (>= 3.14.1)
     ffi (1.13.1)
-    figaro (1.2.0)
-      thor (>= 0.14.0, < 2)
     formatador (0.2.5)
     get_process_mem (0.2.7)
       ffi (~> 1.0)
@@ -1348,7 +1346,6 @@ DEPENDENCIES
   factory_bot_rails (>= 5.2.0)
   fakefs
   fasterer
-  figaro
   guard-rspec
   health_check (>= 3.0.0)
   identity-hostdata!
