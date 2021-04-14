@@ -30,7 +30,7 @@ build_branch() {
   local STACKS=()
   echo -e "\nUpdating the \`login-${ACCOUNT}\` imagebuild deployment to build from \`${BUILD_BRANCH}\` on identity-base-image."
   if prompt_yn "Continue?" ; then
-    $(dirname "$0")/td -d imagebuild -e ${ACCOUNT} -at "var 'code_branch=${BUILD_BRANCH}'"  
+    $(dirname "$0")/td -d imagebuild -e ${ACCOUNT} -at "var 'code_branch=${BUILD_BRANCH}'" || raise "Terraform deploy failed; investigate!"
     echo
     echo_green "\`ImageCreationSourceFile\` parameter in \`login-${ACCOUNT}\` updated to \`${BUILD_BRANCH}\`."
     echo "Updating CloudFormation stacks to pull in new parameter value; StackIDs specified below."
