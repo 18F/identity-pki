@@ -83,7 +83,7 @@ get_ami_info() {
       BUILD=$(ave aws codebuild list-builds-for-project \
               --project login-image-${TYPE} | jq -r '.ids[0]' | awk -F: '{print $NF}')
       PIPELINE_AMIS+=($(aws-vault exec ${AV_PROFILE} -- aws cloudtrail lookup-events \
-                        --lookup-attributes AttributeKey=EventName,AttributeValue=CreateImage |
+                        --lookup-attributes AttributeKey=EventName,AttributeValue=CopyImage |
                         jq -r --arg build "$BUILD" '.Events[].CloudTrailEvent|
                           fromjson|
                           select(.userIdentity.arn|

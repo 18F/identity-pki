@@ -2,7 +2,7 @@
 
 #### run tf-deploy with common Terraform commands and any AWS profile/TF directory ####
 
-set -eu
+set -euo pipefail
 
 . "$(dirname "$0")/lib/common.sh"
 
