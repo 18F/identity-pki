@@ -162,23 +162,30 @@ PROFILE_LIST='sandbox prod'
 TYPE_LIST='base rails'
 TASK_LIST='update open'
 HEADERS="|AMI Date Account Description|"
-BUILD_BRANCH=
+declare {BUILD_BRANCH,CUSTOM_BASE,CUSTOM_RAILS}=
 DATA=()
 
-while getopts uospbrh opt
+while getopts uoa:t:b:r:h opt
 do
   case $opt in
-    u) TASK_LIST='update'     ;;
-    o) TASK_LIST='open'       ;;
-    s) PROFILE_LIST='sandbox' ;;
-    p) PROFILE_LIST='prod'    ;;
-    b) TYPE_LIST='base'       ;;
+    u) TASK_LIST='update'       ;;
+    o) TASK_LIST='open'         ;;
+    a) PROFILE_LIST="${OPTARG}" ;;
+    p) PROFILE_LIST='prod'      ;;
+    b)
+       TYPE_LIST='base'
+       CUSTOM_BASE="${OPTARG-base}"
+       [[ ${CUSTOM_BASE} == 'base' ]] || TYPE_LIST="base_${CUSTOM_BASE}"
+    ;;
     r) TYPE_LIST='rails'      ;;
     h) man_page               ;;
     *) usage && exit 1        ;;
   esac
 done
 shift $((OPTIND-1))
+
+echo ${TYPE_LIST}
+exit
 
 if [[ "${TASK_LIST}" =~ (open) ]] ; then
   if ! [[ -z $(git diff --name-only | grep -v 'terraform/app/variables.tf') ]] ; then
