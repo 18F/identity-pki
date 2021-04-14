@@ -111,11 +111,6 @@ legacy_bucket_list = [
         {
           type = "AWS::Lambda::Function"
           values = [
-            "arn:aws:lambda:us-west-2:894947205914:function:AWSWAFSecurityAutomations-LambdaWAFBadBotParserFun-ET6X7V1I3DM0",
-            "arn:aws:lambda:us-west-2:894947205914:function:AWSWAFSecurityAutomations-LambdaWAFCustomResourceF-HKDTQ8JTMFG1",
-            "arn:aws:lambda:us-west-2:894947205914:function:AWSWAFSecurityAutomations-LambdaWAFLogParserFuncti-146DZLZUWOJB8",
-            "arn:aws:lambda:us-west-2:894947205914:function:AWSWAFSecurityAutomations-LambdaWAFReputationLists-1R1JGJLKECSJ8",
-            "arn:aws:lambda:us-west-2:894947205914:function:AWSWAFSecurityAutomations-SolutionHelper-1S5I50MC6C8RO",
             "arn:aws:lambda:us-west-2:894947205914:function:CodeSync-IdentityBaseImag-DeleteBucketContentsLamb-1FRT9DA59TRRO",
             "arn:aws:lambda:us-west-2:894947205914:function:CodeSync-IdentityBaseImage-CopyZipsFunction-1DRZ0M4JN6212",
             "arn:aws:lambda:us-west-2:894947205914:function:CodeSync-IdentityBaseImage-CreateSSHKeyLambda-WYHZYK8MNCVP",
@@ -138,8 +133,7 @@ legacy_bucket_list = [
             "arn:aws:lambda:us-west-2:894947205914:function:identity-idp-account-reset-notifications",
             "arn:aws:lambda:us-west-2:894947205914:function:markjordantest",
             "arn:aws:lambda:us-west-2:894947205914:function:s3-config",
-            "arn:aws:lambda:us-west-2:894947205914:function:storeToS3-tmp-test",
-            "arn:aws:lambda:us-west-2:894947205914:function:waf-alerts-WafLambdaFunction"
+            "arn:aws:lambda:us-west-2:894947205914:function:storeToS3-tmp-test"
           ]
         },
       ]
