@@ -367,21 +367,6 @@
                 "Roles": [{"Ref": "CodeBuildRole"}]
             }
         },
-        "CodeBuildCloudtrailLookupPolicy": {
-            "Type": "AWS::IAM::Policy",
-            "Properties": {
-                "PolicyName": "CodeBuildCloudtrailLookupPolicy",
-                "PolicyDocument": {  
-                "Statement": [{
-                    "Effect": "Allow",
-                    "Action": [
-                        "cloudtrail:LookupEvents"
-                    ],
-                    "Resource": "*"
-                }],
-                "Roles": [{"Ref": "CodeBuildRole"}]
-            }
-        },
         "CodeBuildCloudWatchEventsPolicy": {
             "Type": "AWS::IAM::Policy",
             "Properties": {
