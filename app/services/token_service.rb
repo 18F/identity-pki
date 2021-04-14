@@ -4,7 +4,7 @@ class TokenService
 
   class << self
     def box(data, encryptor = nil)
-      encryptor = message_encryptor if encryptor.nil?
+      encryptor ||= message_encryptor
       # The RANDOM_BYTES are there to introduce some entropy since we aren't putting a lot
       # of information into the token. Ruby hashes serialize in the order the keys are
       # introduced, so the data is sandwiched between two random strings, though that is
