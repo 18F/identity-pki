@@ -26,6 +26,8 @@ nonce_bloom_filter_size: '100_000'
 nonce_bloom_filter_ttl: '300'
 piv_cac_verify_token_secret: ''
 secret_key_base: ''
+token_encryption_key_pepper_old: ''
+token_encryption_key_salt_old: ''
 
 # Trusted roots:
 # AD:0C:7A:75:5C:E5:F3:98:C4:79:98:0E:AC:28:FD:97:F4:E7:02:FC - Federal Common Policy
@@ -72,6 +74,8 @@ development:
   nonce_bloom_filter_enabled: 'true'
   token_encryption_key_salt: 23df6c812fb1ca9c17debee3a91aba30bc0e85c38b414ee59a9e3d3eb5ec5c0221e2558cac8a808375711cb1450a9db40b8aec74f147e4a3e15dc3c304f1b23e
   token_encryption_key_pepper: c6b4a68a3adf0ff2069d5240bb71532c7a8c0dbb77bba5f9070e2d8ab1ebcc918cc8d8cdbb04fa34ed71126fac3e02d9c85280ae0f7c42d22b678e3e5eb67cfe
+  token_encryption_key_salt_old: de+hXqHqjAIIKq+mgdbUdTfvOZQP7ya1MPsUKgy1/ueEl+Yw1w7ZzaObENqDD4DhrWD3zXUgI3UQm9ZISzOwpEk8lq/azWg8Pw9lPL1yBUR2easxcgbAl6gjPB+8fAFD
+  token_encryption_key_pepper_old: 1HkCB/IADCORWlBAUmeM9S+KBBv0eWzxJG8NM6+A1/f7K3KoVpa2HTED4pTNf8DGp834etYxOL+NdjvH88Lk1s5u401Hu3d3nPbnI11nWTfhaBCz6foOfS/3KGBd/8hz
   certificate_store_directory: 'config/certs'
 
 test:
@@ -82,6 +86,8 @@ test:
   nonce_bloom_filter_enabled: 'true'
   token_encryption_key_salt: 23df6c812fb1ca9c17debee3a91aba30bc0e85c38b414ee59a9e3d3eb5ec5c0221e2558cac8a808375711cb1450a9db40b8aec74f147e4a3e15dc3c304f1b23e
   token_encryption_key_pepper: c6b4a68a3adf0ff2069d5240bb71532c7a8c0dbb77bba5f9070e2d8ab1ebcc918cc8d8cdbb04fa34ed71126fac3e02d9c85280ae0f7c42d22b678e3e5eb67cfe
+  token_encryption_key_salt_old: de+hXqHqjAIIKq+mgdbUdTfvOZQP7ya1MPsUKgy1/ueEl+Yw1w7ZzaObENqDD4DhrWD3zXUgI3UQm9ZISzOwpEk8lq/azWg8Pw9lPL1yBUR2easxcgbAl6gjPB+8fAFD
+  token_encryption_key_pepper_old: 1HkCB/IADCORWlBAUmeM9S+KBBv0eWzxJG8NM6+A1/f7K3KoVpa2HTED4pTNf8DGp834etYxOL+NdjvH88Lk1s5u401Hu3d3nPbnI11nWTfhaBCz6foOfS/3KGBd/8hz
   certificate_store_directory: 'config/test-certs'
   ca_issuer_host_allow_list: 'uri1.example.com,uri2.example.com'
 
