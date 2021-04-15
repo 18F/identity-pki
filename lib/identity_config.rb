@@ -72,6 +72,8 @@ class IdentityConfig
     config.add(:secret_key_base)
     config.add(:token_encryption_key_pepper)
     config.add(:token_encryption_key_salt)
+    config.add(:token_encryption_key_pepper_old)
+    config.add(:token_encryption_key_salt_old)
     final_env = config.add(:trusted_ca_root_identifiers, type: :comma_separated_string_list)
 
     @store = RedactedStruct.new('IdentityConfig', *final_env.keys, keyword_init: true).
