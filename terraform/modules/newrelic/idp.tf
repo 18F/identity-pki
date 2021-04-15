@@ -162,13 +162,13 @@ resource "newrelic_alert_condition" "enduser_datastore_slow_queries" {
 }
 
 resource "newrelic_nrql_alert_condition" "enduser_response_time" {
-  count                = var.enduser_enabled
-  policy_id            = newrelic_alert_policy.enduser[0].id
-  name                 = "${var.env_name}: Response time is too high"
-  enabled              = true
-  description          = "Alerting when the 95th percentile of transaction response times are over 2s, warn when it's over 1s."
-  value_function       = "single_value"
-  violation_time_limit = "TWELVE_HOURS"
+  count                        = var.enduser_enabled
+  policy_id                    = newrelic_alert_policy.enduser[0].id
+  name                         = "${var.env_name}: Response time is too high"
+  enabled                      = true
+  description                  = "Alerting when the 95th percentile of transaction response times are over 2s, warn when it's over 1s."
+  value_function               = "single_value"
+  violation_time_limit_seconds = 43200
 
   nrql {
     query             = "SELECT percentile(duration, 95) FROM Transaction  WHERE appName = '${var.env_name}.${var.root_domain}'"
@@ -191,14 +191,14 @@ resource "newrelic_nrql_alert_condition" "enduser_response_time" {
 }
 
 resource "newrelic_nrql_alert_condition" "proofing_flow_errors" {
-  count                = var.enabled
-  policy_id            = newrelic_alert_policy.high[0].id
-  name                 = "${var.env_name}: high rate of errors in proofing flow"
-  enabled              = true
-  description          = "Alerting when errors in proofing flow get above 1% for the past 5 minutes"
-  value_function       = "single_value"
-  runbook_url          = "https://github.com/18F/identity-private/wiki/Runbook:-high-proofing-flow-error-rate"
-  violation_time_limit = "TWELVE_HOURS"
+  count                        = var.enabled
+  policy_id                    = newrelic_alert_policy.high[0].id
+  name                         = "${var.env_name}: high rate of errors in proofing flow"
+  enabled                      = true
+  description                  = "Alerting when errors in proofing flow get above 1% for the past 5 minutes"
+  value_function               = "single_value"
+  runbook_url                  = "https://github.com/18F/identity-private/wiki/Runbook:-high-proofing-flow-error-rate"
+  violation_time_limit_seconds = 43200
 
   nrql {
     query             = "SELECT percentage(count(*), WHERE error is true and name LIKE 'Controller/idv/%' and appName = '${var.env_name}.${var.root_domain}') FROM Transaction WHERE name LIKE 'Controller/idv/%' and appName = '${var.env_name}.${var.root_domain}' FACET name"
@@ -214,14 +214,14 @@ resource "newrelic_nrql_alert_condition" "proofing_flow_errors" {
 }
 
 resource "newrelic_nrql_alert_condition" "service_provider_errors" {
-  count                = var.enabled
-  policy_id            = newrelic_alert_policy.high[0].id
-  name                 = "${var.env_name}: high rate of errors for service provider"
-  enabled              = true
-  description          = "Alerting when errors for individual service provider get above 1% for the past 5 minutes"
-  value_function       = "single_value"
-  runbook_url          = "https://github.com/18F/identity-private/wiki/Runbook:-high-service-provider-error-rate"
-  violation_time_limit = "TWELVE_HOURS"
+  count                        = var.enabled
+  policy_id                    = newrelic_alert_policy.high[0].id
+  name                         = "${var.env_name}: high rate of errors for service provider"
+  enabled                      = true
+  description                  = "Alerting when errors for individual service provider get above 1% for the past 5 minutes"
+  value_function               = "single_value"
+  runbook_url                  = "https://github.com/18F/identity-private/wiki/Runbook:-high-service-provider-error-rate"
+  violation_time_limit_seconds = 43200
 
   nrql {
     query             = "SELECT percentage(count(*), WHERE error is true and appName = '${var.env_name}.${var.root_domain}') FROM Transaction WHERE appName = '${var.env_name}.${var.root_domain}' FACET service_provider"
