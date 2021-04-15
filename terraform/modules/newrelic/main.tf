@@ -4,7 +4,7 @@ terraform {
   required_providers {
     newrelic = {
       source  = "newrelic/newrelic"
-      version = ">= 2.8.0"
+      version = ">= 2.21.0"
     }
   }
   required_version = ">= 0.13"
@@ -12,21 +12,12 @@ terraform {
 
 # NOTE:  these s3 objects need to be uploaded with --content-type text/plain
 
-# This is a key that starts with NRAA
-# see https://registry.terraform.io/providers/newrelic/newrelic/latest/docs#argument-reference
-# This is created on https://rpm.newrelic.com/accounts/{accountID}/integrations?page=api_keys
+# This is a key that starts with NRAK.
+# see https://docs.newrelic.com/docs/apis/get-started/intro-apis/new-relic-api-keys/#user-api-key
+# This is created at https://one.newrelic.com/launcher/api-keys-ui.api-keys-launcher
 data "aws_s3_bucket_object" "newrelic_apikey" {
   bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
   key    = "common/newrelic_apikey"
-}
-
-# This is a key that starts with NRAK.
-# See https://registry.terraform.io/providers/newrelic/newrelic/latest/docs#argument-reference
-# You can create this by going to https://account.newrelic.com/accounts/{accountID}/users/{yourUserID}
-# and clicking on the API tab and creating a key.
-data "aws_s3_bucket_object" "newrelic_admin_apikey" {
-  bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
-  key    = "common/newrelic_admin_apikey"
 }
 
 # This is the NewRelic account ID
@@ -37,10 +28,9 @@ data "aws_s3_bucket_object" "newrelic_account_id" {
 }
 
 provider "newrelic" {
-  region        = "US"
-  account_id    = data.aws_s3_bucket_object.newrelic_account_id.body
-  api_key       = data.aws_s3_bucket_object.newrelic_apikey.body
-  admin_api_key = data.aws_s3_bucket_object.newrelic_admin_apikey.body
+  region     = "US"
+  account_id = data.aws_s3_bucket_object.newrelic_account_id.body
+  api_key    = data.aws_s3_bucket_object.newrelic_apikey.body
 }
 
 data "aws_caller_identity" "current" {}
