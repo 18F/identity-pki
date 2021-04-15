@@ -74,7 +74,7 @@ class IdentityConfig
     config.add(:token_encryption_key_salt)
     final_env = config.add(:trusted_ca_root_identifiers, type: :comma_separated_string_list)
 
-    @store = Struct.new('IdentityConfig', *final_env.keys, keyword_init: true).
+    @store = RedactedStruct.new('IdentityConfig', *final_env.keys, keyword_init: true).
       new(**final_env)
   end
 end

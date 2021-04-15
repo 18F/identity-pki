@@ -16,6 +16,7 @@ gem 'newrelic_rpm'
 gem 'pg'
 gem 'pry-rails'
 gem 'puma', '~> 3.12', '>= 3.12.6'
+gem 'redacted_struct', '~> 1.0'
 gem 'rgl'
 
 group :development, :test do
