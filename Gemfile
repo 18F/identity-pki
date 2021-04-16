@@ -3,7 +3,7 @@ git_source(:github) { |repo_name| "https://github.com/#{repo_name}.git" }
 
 ruby '~> 2.6.5'
 
-gem 'rails', '~> 6.1.2'
+gem 'rails', '~> 6.1.3'
 
 gem 'activerecord-import', '>= 1.0.2'
 gem 'aws-sdk', require: false
