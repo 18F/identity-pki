@@ -99,7 +99,7 @@ RSpec.describe IssuingCaService do
     it 'allowed hosts configuration contains all certificate store issuers' do
       CertificateStore.reset
       CertificateStore.instance.load_certs!(dir: Rails.root.join('config/certs'))
-      configuration = YAML.load_file('config/application.yml.example')
+      configuration = YAML.load_file('config/application.yml.default')
       prod_issuer_allow_list = configuration.dig('production', 'ca_issuer_host_allow_list').split(',').sort.to_set
       stored_issuers = described_class.certificate_store_issuers.map(&:host).sort.to_set
 

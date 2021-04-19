@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/18F/identity-hostdata.git
-  revision: 0f8d4626709d6031acdfe0b024faefede928f8aa
-  tag: v1.0.1
+  revision: 29c9b463c4e5243e0c98fd2d87374fbb87b9f0cc
+  tag: v3.0.0
   specs:
-    identity-hostdata (1.0.1)
+    identity-hostdata (3.0.0)
       aws-sdk-s3 (~> 1.8)
 
 GIT
@@ -1379,4 +1379,4 @@ RUBY VERSION
    ruby 2.6.5p114
 
 BUNDLED WITH
-   2.1.4
+   2.2.16
