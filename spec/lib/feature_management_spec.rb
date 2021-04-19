@@ -5,12 +5,12 @@ RSpec.describe FeatureManagement do
 
   describe '#nonce_bloom_filter_enabled?' do
     it 'is true when enabled' do
-      allow(Figaro.env).to receive(:nonce_bloom_filter_enabled).and_return('true')
+      allow(IdentityConfig.store).to receive(:nonce_bloom_filter_enabled).and_return(true)
       expect(subject.nonce_bloom_filter_enabled?).to eq true
     end
 
     it 'is false when not enabled' do
-      allow(Figaro.env).to receive(:nonce_bloom_filter_enabled).and_return('false')
+      allow(IdentityConfig.store).to receive(:nonce_bloom_filter_enabled).and_return(false)
       expect(subject.nonce_bloom_filter_enabled?).to eq false
     end
   end

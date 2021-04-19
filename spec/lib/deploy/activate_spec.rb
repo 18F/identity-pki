@@ -85,7 +85,7 @@ describe Deploy::Activate do
       )
       # overridden production key from s3
       expect(combined_application_yml['production']['secret_key_base']).to eq('this is a secret')
-      # production key from applicaiton.yml.example, not overwritten
+      # production key from application.yml.example, not overwritten
       expect(combined_application_yml['production']['client_cert_escaped']).to eq('true')
     end
 

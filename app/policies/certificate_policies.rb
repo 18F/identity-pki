@@ -83,6 +83,6 @@ class CertificatePolicies
   end
 
   def required_policies
-    JSON.parse(Figaro.env.required_policies || '[]')
+    IdentityConfig.store.required_policies
   end
 end

@@ -18,7 +18,7 @@ class CertificateLoggerService
 
     def bucket
       @bucket ||= begin
-        bucket_name = Figaro.env.client_cert_logger_s3_bucket_name
+        bucket_name = IdentityConfig.store.client_cert_logger_s3_bucket_name
         Aws::S3::Resource.new.bucket(bucket_name) if bucket_name.present?
       end
     end
