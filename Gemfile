@@ -8,7 +8,6 @@ gem 'rails', '~> 6.1.3'
 gem 'activerecord-import', '>= 1.0.2'
 gem 'aws-sdk', require: false
 gem 'bloomfilter-rb'
-gem 'figaro'
 gem 'health_check', '>= 3.0.0'
 gem 'identity-hostdata', github: '18F/identity-hostdata', tag: 'v1.0.1'
 gem 'identity-logging', github: '18F/identity-logging', tag: 'v0.1.0'
@@ -17,6 +16,7 @@ gem 'newrelic_rpm'
 gem 'pg'
 gem 'pry-rails'
 gem 'puma', '~> 3.12', '>= 3.12.6'
+gem 'redacted_struct', '~> 1.0'
 gem 'rgl'
 
 group :development, :test do

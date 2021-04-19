@@ -24,7 +24,7 @@ class CertificateStore # rubocop:disable Metrics/ClassLength
   end
 
   # load all of the files in config/certs
-  def load_certs!(dir: Figaro.env.certificate_store_directory)
+  def load_certs!(dir: IdentityConfig.store.certificate_store_directory)
     Dir.chdir(dir) do
       Dir.glob(File.join('**', '*.pem')).each do |file|
         next if file == 'all_certs_deploy.pem'
@@ -107,12 +107,12 @@ class CertificateStore # rubocop:disable Metrics/ClassLength
 
   def self.trusted_ca_root_identifiers
     @trusted_ca_root_identifiers ||=
-      (Figaro.env.trusted_ca_root_identifiers || '').split(',').map(&:strip).select(&:present?)
+      IdentityConfig.store.trusted_ca_root_identifiers.map(&:strip).select(&:present?)
   end
 
   def self.dod_root_identifiers
     @dod_root_identifiers ||=
-      (Figaro.env.dod_root_identifiers || '').split(',').map(&:strip).select(&:present?)
+      IdentityConfig.store.dod_root_identifiers.map(&:strip).select(&:present?)
   end
 
   def self.clear_root_identifiers

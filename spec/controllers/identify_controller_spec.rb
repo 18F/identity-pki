@@ -30,7 +30,7 @@ RSpec.describe IdentifyController, type: :controller do
 
     describe 'with a bad referrer' do
       before(:each) do
-        allow(Figaro.env).to receive(:identity_idp_host).and_return('example.org')
+        allow(IdentityConfig.store).to receive(:identity_idp_host).and_return('example.org')
       end
 
       it 'returns http bad request' do
@@ -41,7 +41,7 @@ RSpec.describe IdentifyController, type: :controller do
 
     describe 'with a malformed referrer' do
       before(:each) do
-        allow(Figaro.env).to receive(:identity_idp_host).and_return('example.org')
+        allow(IdentityConfig.store).to receive(:identity_idp_host).and_return('example.org')
       end
 
       it 'returns http bad request' do
@@ -54,7 +54,7 @@ RSpec.describe IdentifyController, type: :controller do
 
     describe 'with a good referrer' do
       before(:each) do
-        allow(Figaro.env).to receive(:identity_idp_host).and_return('example.com')
+        allow(IdentityConfig.store).to receive(:identity_idp_host).and_return('example.com')
       end
 
       it 'with no certificate returns a redirect with a token' do
@@ -124,8 +124,8 @@ RSpec.describe IdentifyController, type: :controller do
         before(:each) do
           # create signing cert
           allow(IO).to receive(:binread).with(ca_file_path).and_return(ca_file_content)
-          allow(Figaro.env).to receive(:trusted_ca_root_identifiers).and_return(
-            root_cert_key_ids.join(',')
+          allow(IdentityConfig.store).to receive(:trusted_ca_root_identifiers).and_return(
+            root_cert_key_ids
           )
           certificate_store.clear_root_identifiers
           certificate_store.add_pem_file(ca_file_path)
@@ -137,7 +137,7 @@ RSpec.describe IdentifyController, type: :controller do
           end
 
           it 'returns a token with a uuid and subject' do
-            allow(Figaro.env).to receive(:client_cert_escaped).and_return('true')
+            allow(IdentityConfig.store).to receive(:client_cert_escaped).and_return(true)
             allow_any_instance_of(Certificate).to receive(:auth_cert?).and_return(true)
             @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
 
@@ -162,8 +162,8 @@ RSpec.describe IdentifyController, type: :controller do
 
           context 'when a DoD root certificate is found in certificate chain' do
             before(:each) do
-              allow(Figaro.env).to receive(:dod_root_identifiers).and_return(
-                root_cert_key_ids.join(',')
+              allow(IdentityConfig.store).to receive(:dod_root_identifiers).and_return(
+                root_cert_key_ids
               )
             end
 
@@ -179,7 +179,7 @@ RSpec.describe IdentifyController, type: :controller do
 
           context 'when the root certificate is not found in dod_root_identifiers' do
             before(:each) do
-              allow(Figaro.env).to receive(:dod_root_identifiers).and_return('')
+              allow(IdentityConfig.store).to receive(:dod_root_identifiers).and_return([])
             end
 
             it 'returns a token with a card_type of piv' do
@@ -192,7 +192,7 @@ RSpec.describe IdentifyController, type: :controller do
           end
 
           it 'allows the use of the REFERRER header to specify the referrer' do
-            allow(Figaro.env).to receive(:client_cert_escaped).and_return('true')
+            allow(IdentityConfig.store).to receive(:client_cert_escaped).and_return(true)
             @request.headers['Referer'] = 'http://example.com/'
             @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
 
@@ -217,7 +217,7 @@ RSpec.describe IdentifyController, type: :controller do
           end
 
           it 'returns a token with a uuid and subject' do
-            allow(Figaro.env).to receive(:client_cert_escaped).and_return('false')
+            allow(IdentityConfig.store).to receive(:client_cert_escaped).and_return(false)
             @request.headers['X-Client-Cert'] = client_cert_pem.split(/\n/).join("\n\t")
             expect(CertificateLoggerService).to_not receive(:log_certificate)
 
