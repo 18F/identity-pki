@@ -4,8 +4,8 @@ DEPENDENCIES
   apt (~> 7.0)
   aws_metadata
     git: https://github.com/18F/identity-cookbooks
-    revision: 4b70c89a61a94b1a17f3e3b56d218a41d0b14a85
-    ref: 4b70c89
+    revision: 8c5bfd791f9944c6bcc2b97eda0eeefd8baa5aa0
+    ref: 8c5bfd7
     rel: aws_metadata
   aws_s3
     path: kitchen/cookbooks/aws_s3
@@ -17,17 +17,18 @@ DEPENDENCIES
   chef_proxy_env
     path: kitchen/cookbooks/chef_proxy_env
   citadel_fork
-    git: https://github.com/18f/citadel-build.git
-    revision: 7007851c91e1404a43f1c914471a2d6c817eea8e
+    git: https://github.com/18f/citadel-build
+    revision: f175d16e6354f0ec227940b98f478c0c020e3207
+    ref: f175d16
   cloudhsm
     git: https://github.com/18F/identity-cookbooks
-    revision: 4b70c89a61a94b1a17f3e3b56d218a41d0b14a85
-    ref: 4b70c89
+    revision: 8c5bfd791f9944c6bcc2b97eda0eeefd8baa5aa0
+    ref: 8c5bfd7
     rel: cloudhsm
   config_loader
     git: https://github.com/18F/identity-cookbooks
-    revision: 4b70c89a61a94b1a17f3e3b56d218a41d0b14a85
-    ref: 4b70c89
+    revision: 8c5bfd791f9944c6bcc2b97eda0eeefd8baa5aa0
+    ref: 8c5bfd7
     rel: config_loader
   deploy_resource (~> 1.0)
   elasticsearch (~> 4.2.0)
@@ -48,13 +49,13 @@ DEPENDENCIES
     path: kitchen/cookbooks/identity-pivcac
   identity_base_config
     git: https://github.com/18F/identity-cookbooks
-    revision: 4b70c89a61a94b1a17f3e3b56d218a41d0b14a85
-    ref: 4b70c89
+    revision: 8c5bfd791f9944c6bcc2b97eda0eeefd8baa5aa0
+    ref: 8c5bfd7
     rel: identity_base_config
   identity_shared_attributes
     git: https://github.com/18F/identity-cookbooks
-    revision: 4b70c89a61a94b1a17f3e3b56d218a41d0b14a85
-    ref: 4b70c89
+    revision: 8c5bfd791f9944c6bcc2b97eda0eeefd8baa5aa0
+    ref: 8c5bfd7
     rel: identity_shared_attributes
   instance_certificate
     path: kitchen/cookbooks/instance_certificate
@@ -64,15 +65,14 @@ DEPENDENCIES
   monit
   motd
   newrelic_meetme_plugin
-  ohai
   openssl
   ossec
     git: https://github.com/sous-chefs/ossec
     revision: 093c6cdf8a5790327f07a93a07bb3904715dc078
   passenger
     git: https://github.com/18F/identity-cookbooks
-    revision: 4b70c89a61a94b1a17f3e3b56d218a41d0b14a85
-    ref: 4b70c89
+    revision: 8c5bfd791f9944c6bcc2b97eda0eeefd8baa5aa0
+    ref: 8c5bfd7
     rel: passenger
   runit (~> 5.1.3)
   service_discovery
@@ -80,8 +80,8 @@ DEPENDENCIES
   ssh-keys
   static_eip
     git: https://github.com/18F/identity-cookbooks
-    revision: 4b70c89a61a94b1a17f3e3b56d218a41d0b14a85
-    ref: 4b70c89
+    revision: 8c5bfd791f9944c6bcc2b97eda0eeefd8baa5aa0
+    ref: 8c5bfd7
     rel: static_eip
   sudo
   users
@@ -100,7 +100,7 @@ GRAPH
   apt (7.4.0)
   ark (5.1.0)
     seven_zip (>= 0.0.0)
-  aws_metadata (0.2.0)
+  aws_metadata (0.3.0)
   aws_s3 (0.2.0)
     aws_metadata (>= 0.0.0)
   bash-completion (0.1.0)
@@ -112,7 +112,7 @@ GRAPH
     aws_metadata (>= 0.0.0)
   chef-sugar (5.1.12)
   chef_proxy_env (0.1.1)
-  citadel_fork (9.1.1)
+  citadel_fork (9.2.0)
   cloudhsm (0.0.8)
   compat_resource (12.19.1)
   config_loader (0.2.2)
@@ -120,7 +120,6 @@ GRAPH
     citadel_fork (>= 0.0.0)
   cron (6.4.0)
   deploy_resource (1.0.3)
-  elastic_repo (1.2.1)
   elasticsearch (4.2.0)
     apt (>= 0.0.0)
     ark (>= 0.0.0)
@@ -133,7 +132,7 @@ GRAPH
     yum (>= 0.0.0)
     yum-epel (>= 0.0.0)
   git (10.1.0)
-  homebrew (4.3.0)
+  homebrew (5.2.0)
   hostname (0.4.2)
     hostsfile (>= 0.0.0)
   hostsfile (3.0.1)
@@ -201,7 +200,6 @@ GRAPH
     apt (>= 0.0.0)
     python (>= 0.0.0)
     yum (>= 0.0.0)
-  ohai (5.3.0)
   openssl (8.5.5)
   ossec (1.2.2)
     yum-atomic (>= 0.0.0)
@@ -242,11 +240,10 @@ GRAPH
   ssh-keys (1.2.7)
   static_eip (0.2.1)
   sudo (5.4.6)
-  users (5.6.0)
+  users (6.0.2)
   windows (7.0.2)
-  yum (6.0.0)
+  yum (6.1.0)
   yum-atomic (0.2.0)
     compat_resource (>= 12.14.6)
     yum-epel (>= 0.0.0)
   yum-epel (4.1.1)
-  yum-plugin-versionlock (0.4.0)
