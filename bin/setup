@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require 'pathname'
 require 'fileutils'
+require 'yaml'
 include FileUtils
 
 # path to your application root.
@@ -29,9 +30,9 @@ chdir APP_ROOT do
            |___/          |___/
   ]
 
-  puts "== Copying application.yml =="
-  run "test -L config/application.yml || cp config/application.yml.example config/application.yml"
-
+  puts '== Setting up config overrides =='
+  default_application_yml = { 'development' => { 'config_key' => nil } }
+  File.write('config/application.yml', default_application_yml.to_yaml) unless File.exists?('config/application.yml')
 
   puts '== Installing dependencies =='
   system! 'gem install bundler --conservative'
