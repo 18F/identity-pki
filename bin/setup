@@ -34,7 +34,6 @@ chdir APP_ROOT do
   default_application_yml = { 'development' => { 'config_key' => nil } }
   File.write('config/application.yml', default_application_yml.to_yaml) unless File.exists?('config/application.yml')
 
-
   puts '== Installing dependencies =='
   system! 'gem install bundler --conservative'
   run 'gem install foreman --conservative && gem update foreman'

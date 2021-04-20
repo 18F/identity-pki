@@ -6,7 +6,6 @@ require 'action_controller/railtie'
 require 'action_view/railtie'
 require 'identity/logging/railtie'
 require_relative '../lib/identity_config'
-require_relative '../lib/identity_config_reader'
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
@@ -17,16 +16,10 @@ module IdentityPki
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 5.1
 
-    configuration = IdentityConfigReader.new.read_configuration(
+    configuration = Identity::Hostdata::ConfigReader.new.read_configuration(
       write_copy_to: Rails.root.join('tmp/application.yml')
     )
-
-    root_config = configuration.except(['development', 'production', 'test'])
-    environment_config = root_config[Rails.env]
-    merged_config = root_config.merge(environment_config)
-    merged_config.symbolize_keys!
-
-    IdentityConfig.build_store(merged_config)
+    IdentityConfig.build_store(configuration)
 
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
