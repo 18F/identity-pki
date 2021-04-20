@@ -17,7 +17,7 @@ module IdentityPki
     config.load_defaults 5.1
 
     configuration = Identity::Hostdata::ConfigReader.new.read_configuration(
-      write_copy_to: Rails.root.join('tmp/application.yml')
+      Rails.env, write_copy_to: Rails.root.join('tmp/application.yml')
     )
     IdentityConfig.build_store(configuration)
 
