@@ -13,7 +13,7 @@ resource "aws_cloudformation_stack" "risc_notifications" {
     aws_cloudwatch_event_bus.risc_notifications
   ]
   for_each      = var.risc_notifications
-  name          = "${var.env_name}-${each.value["partner_name"]}"
+  name          = "${var.env_name}-risc-${each.value["partner_name"]}"
   template_body = file("${path.module}/risc_notification.template")
   parameters = {
     EventBusName            = local.eventbus_name
