@@ -33,15 +33,15 @@ resource "newrelic_alert_condition" "low_throughput" {
     duration      = 5
     operator      = "below"
     priority      = "critical"
-    threshold     = var.web_alert_threshold
+    threshold     = var.web_low_traffic_alert_threshold
     time_function = "all"
   }
 
   term {
-    duration      = 15
+    duration      = 5
     operator      = "below"
     priority      = "warning"
-    threshold     = var.web_warn_threshold
+    threshold     = var.web_low_traffic_warn_threshold
     time_function = "all"
   }
 }

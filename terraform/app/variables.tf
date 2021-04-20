@@ -613,19 +613,14 @@ variable "opsgenie_key_file" {
   # default = "opsgenie_apikey"   # This sends alerts 7x24
 }
 
-variable "pivcac_alert_threshold" {
-  description = "If the number of queries to the pivcac services in 5 minutes falls below this number, we generate a newrelic alert."
+variable "web_low_traffic_alert_threshold" {
+  description = "If the number of queries in 5 minutes falls below this number, we alert"
+  default     = 10
+}
+
+variable "web_low_traffic_warn_threshold" {
+  description = "If the number of queries in 5 minutes falls below this number, we warn"
   default     = 20
-}
-
-variable "web_alert_threshold" {
-  description = "If the number of queries in 5 minutes to the main app falls below this number, we generate a newrelic alert"
-  default     = 300
-}
-
-variable "web_warn_threshold" {
-  description = "If the number of queries in 15 minutes to the main app falls below this number, we warn"
-  default     = 475
 }
 
 variable "keep_legacy_bucket" {

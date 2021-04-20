@@ -15,9 +15,8 @@ module "newrelic" {
   env_name                                   = var.env_name
   events_in_last_ten_minutes_alert_threshold = var.events_in_last_ten_minutes_alert_threshold
   root_domain                                = var.root_domain
-  pivcac_alert_threshold                     = var.pivcac_alert_threshold
-  web_alert_threshold                        = var.web_alert_threshold
-  web_warn_threshold                         = var.web_warn_threshold
+  web_low_traffic_alert_threshold            = var.web_low_traffic_alert_threshold
+  web_low_traffic_warn_threshold             = var.web_low_traffic_warn_threshold
   opsgenie_key_file                          = var.opsgenie_key_file
   error_dashboard_site                       = "${var.env_name}.${var.root_domain}"
 }
