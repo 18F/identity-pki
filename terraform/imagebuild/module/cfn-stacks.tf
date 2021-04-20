@@ -8,7 +8,6 @@ data "aws_s3_bucket_object" "git2s3_output_bucket" {
 locals {
   aws_alias       = trimprefix(data.aws_iam_account_alias.current.account_alias, "login-")
   git2s3_bucket   = trimspace(data.aws_s3_bucket_object.git2s3_output_bucket.body)
-  code_branch_fix = replace(var.code_branch, "/[!/:@[`{~]/", "_")
 }
 
 resource "aws_cloudformation_stack" "image_network_stack" {
@@ -26,7 +25,7 @@ resource "aws_ssm_parameter" "source_file_name" {
   name        = "ImageCreationSourceFile"
   type        = "String"
   description = "Path/name of the branch-specific source ZIP file placed in the CodeSync bucket."
-  value       = "18F/identity-base-image/branch/${var.code_branch}/18F_identity-base-image_branch_${local.code_branch_fix}.zip"
+  value       = "18F/identity-base-image/${var.code_branch}/18F_identity-base-image.zip"
 }
 
 resource "aws_ssm_parameter" "project_name" {
