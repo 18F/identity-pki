@@ -65,7 +65,11 @@ Example output:
 | ami-0a37be06240f1d943  | 2020-07-21 18:20:19  | prod     | rails-1595344038  | 
 
 EOM
+
+exit 0
 }
+
+needs_arg() { if [ -z "$OPTARG" ]; then raise "No arg for --$OPT option"; fi; }
 
 # parse space/tab-separated column output and space with pipe marks
 mdout() {
@@ -74,12 +78,19 @@ mdout() {
 }
 
 get_ami_info() {
-  for PROFILE in ${PROFILE_LIST} ; do
-    echo -e "\nGetting \`login-${PROFILE}\` AMI data..."
-    PIPELINE_AMIS=()
-    AV_PROFILE=$(get_profile_name $(get_acct_num ${PROFILE}))
+  PROFILE=${1}
+  shift
+  echo -e "\nGetting \`login-${PROFILE}\` AMI data..."
+  PIPELINE_AMIS=()
+  AV_PROFILE=$(get_profile_name $(get_acct_num ${PROFILE}))
 
-    for TYPE in ${TYPE_LIST} ; do
+  for TYPE in "$@" ; do
+    if [[ ${TYPE} =~ '_ami-' ]] ; then
+      IMAGE=$(echo ${TYPE} | awk -F_ '{print $2}')
+      TYPE=$(echo ${TYPE} | awk -F_ '{print $1}')
+      echo_yellow "Using ${IMAGE} for \`${TYPE}\` AMI."
+      PIPELINE_AMIS+=(${IMAGE})
+    else
       BUILD=$(ave aws codebuild list-builds-for-project \
               --project login-image-${TYPE} | jq -r '.ids[0]' | awk -F: '{print $NF}')
       PIPELINE_AMIS+=($(aws-vault exec ${AV_PROFILE} -- aws cloudtrail lookup-events \
@@ -88,15 +99,18 @@ get_ami_info() {
                           fromjson|
                           select(.userIdentity.arn|
                           contains($build)).responseElements.imageId'))
-    done
-    DATA+=$(echo -e "\n$(ave aws ec2 describe-images \
-                --image-ids $(echo "${PIPELINE_AMIS[*]}") \
-                --query 'Images[*].[ImageId,CreationDate,Name]' \
-                --output text | sort -rk2 | head -n 2 |
-                sed -E "s/login\.gov (base|rails) (role )?hardened (base )?image Ubuntu 18\.04 /$PROFILE \1\-/g" |
-                sed -E "s/([0-9\:]+)\.000Z/\1/g" |
-                sed -E 's/^/\|/g;s/$/\|/g')\n")
+    fi
   done
+  DATA+=$(echo -e "\n$(ave aws ec2 describe-images \
+              --image-ids $(echo "${PIPELINE_AMIS[*]}") \
+              --query 'Images[*].[ImageId,CreationDate,Name]' \
+              --output text | sort -rk2 | head -n 2 |
+              sed -E "s/login\.gov (base|rails) (role )?hardened (base )?image Ubuntu 18\.04 /$PROFILE \1\-/g" |
+              sed -E "s/([0-9\:]+)\.000Z/\1/g" |
+              sed -E 's/^/\|/g;s/$/\|/g')\n")
+}
+
+data_table() {
   NUM_COLS=$(echo "${DATA[@]}" | awk '{print NF}' | sort -nu | tail -n 1)
   echo
   echo_green "AMI data generated:"
@@ -158,30 +172,39 @@ fi
 
 verify_root_repo
 
-PROFILE_LIST='sandbox prod'
-TYPE_LIST='base rails'
-TASK_LIST='update open'
 HEADERS="|AMI Date Account Description|"
-BUILD_BRANCH=
+TASK_LIST='update open'
+SANDBOX_AMIS='sandbox '
+PROD_AMIS='prod '
 DATA=()
 
-while getopts uoa:t:b:r:h opt
-do
-  case $opt in
-    u) TASK_LIST='update'          ;;
-    o) TASK_LIST='open'            ;;
-    a) PROFILE_LIST="${OPTARG}"    ;;
-    t) TYPE_LIST="${OPTARG}"       ;;
-    b) TYPE_LIST="base_${OPTARG}"  ;;
-    r) TYPE_LIST="rails_${OPTARG}" ;;
-    h) man_page                    ;;
-    *) usage && exit 1             ;;
+while getopts luoh-: OPT; do
+  # support long options: https://stackoverflow.com/a/28466267/519360
+  if [ "$OPT" = "-" ]; then   # long option: reformulate OPT and OPTARG
+    OPT="${OPTARG%%=*}"       # extract long option name
+    OPTARG="${OPTARG#$OPT}"   # extract long option argument (may be empty)
+    OPTARG="${OPTARG#=}"      # if long option argument, remove assigning `=`
+  fi
+  
+  case "$OPT" in
+    sb|sandbox-base)  needs_arg; SANDBOX_AMIS+="base_$OPTARG " ;;
+    sr|sandbox-rails) needs_arg; SANDBOX_AMIS+="rails_$OPTARG " ;;
+    pb|prod-base)  needs_arg; PROD_AMIS+="base_$OPTARG" ;;
+    pr|prod-rails) needs_arg; PROD_AMIS+="rails_$OPTARG" ;;
+    l) TASK_LIST=                         ;;
+    u) TASK_LIST='update'                 ;;
+    o) TASK_LIST='open'                   ;;
+    h) man_page ;;
+    ??* )          raise "Illegal option --$OPT" ;;  # bad long option
+    ? )            exit 2 ;;  # bad short option (error reported via getopts)
   esac
 done
-shift $((OPTIND-1))
+shift $((OPTIND-1)) # remove parsed options and args from $@ list
 
-echo ${TYPE_LIST}
-exit
+for TYPE in base rails ; do
+  [[ $SANDBOX_AMIS =~ $TYPE ]] || SANDBOX_AMIS+="${TYPE} "
+  [[ $PROD_AMIS =~ $TYPE ]] || PROD_AMIS+="${TYPE} "
+done
 
 if [[ "${TASK_LIST}" =~ (open) ]] ; then
   if ! [[ -z $(git diff --name-only | grep -v 'terraform/app/variables.tf') ]] ; then
@@ -189,7 +212,10 @@ if [[ "${TASK_LIST}" =~ (open) ]] ; then
   fi
 fi
 
-get_ami_info
+get_ami_info $SANDBOX_AMIS
+get_ami_info $PROD_AMIS
+data_table
+
 for TASK in ${TASK_LIST} ; do
   case "${TASK}" in
     update) update_vars  ;;
