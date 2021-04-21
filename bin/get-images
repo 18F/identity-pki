@@ -12,13 +12,16 @@ usage() {
 Usage: ${0} [-uospbr]
 
 Flags (will run all if no flags specified):
+  -l : Show AMI data output table only
   -u : Update \`ami_id\` values in \`terraform/app/variables.tf\`
   -o : Create \`ami/DATE\` branch + open a PR with \`ami_id\` changes
-  -s : Update \`login-sandbox\` AMIs
-  -p : Update \`login-prod\` AMIs
-  -b : update \`base\` AMIs
-  -r : update \`rails\` AMIs
   -h : Detailed help
+
+Manually set AMIs for specific account and/or type:
+  --sb=<AMI_ID> | --sandbox-base=<AMI_ID>
+  --sr=<AMI_ID> | --sandbox-rails=<AMI_ID>
+  --pb=<AMI_ID> | --prod-base=<AMI_ID>
+  --pr=<AMI_ID> | --prod-rails=<AMI_ID>
 
 EOM
 }
@@ -27,31 +30,48 @@ man_page() {
     cat >&2 << EOM
 Usage: ${0} [-uospbr]
 
-Obtains information (ID / date / type / description) on
+1. Obtains information (ID / date / type / description) on
 the most recent AMIs in each account (\`sandbox\` / \`prod\`)
 that were generated via the terraform/imagebuild deployment
-infrastructure (i.e. CodeBuild / CodePipeline), then updates
-the corresponding values in \`terraform/app/variables.tf\`,
-and creates a branch/pull request with the new AMI IDs.
+infrastructure (i.e. CodeBuild / CodePipeline)
+2. Verifies that the AMIs are valid (via \`aws ec2 describe-images\`)
+3. Updates the corresponding values in \`terraform/app/variables.tf\`,
+4. Creates a branch/pull request with the new AMI IDs.
 
 Designed to run with no specified flags/arguments; however,
 individual commands/parameters for the script can be specified
 with the following flags:
 
+  -l : Only generate the AMI data table, then exit
   -u : Update \`ami_id\` values in \`terraform/app/variables.tf\`
   -o : Create a new branch, \`ami/DATE\` branch, commit the
        changes to \`terraform/app/variables.tf\`, and open a
        PR with the generated table data for the body
-  -s : Only update the \`login-sandbox\` AMI IDs
-  -p : Only update the \`login-prod\` AMI IDs
   -b : Only update the \`base\` AMI IDs
   -r : Only update the \`rails\` AMI IDs
   -h : Display this help
+
+If specific AMI IDs are declared as arguments, with appropriate
+flags, the script will use that/those AMI(s) instead of the most
+recent CodeBuild artifact(s) -- ideal in case there is an error
+with a recent build, and the previous build/another AMI should
+be used instead:
+
+  --sb=<AMI_ID> | --sandbox-base=<AMI_ID>
+  --sr=<AMI_ID> | --sandbox-rails=<AMI_ID>
+  --pb=<AMI_ID> | --prod-base=<AMI_ID>
+  --pr=<AMI_ID> | --prod-rails=<AMI_ID>
+
+The script will then proceed normally, checking CodeBuild for
+whichever AMIs are _not_ manually specified using one or more of
+these flags, generating the data table, etc.
 
 The script will error out if:
 - there is an active \`\$AWS_VAULT\` session running (as it needs access
   to multiple AWS profiles to get the AMI IDs)
 - the \`hub\` cask is not installed (for creating a PR)
+- if, when manually declaring AMIs, the \`=\` sign is not provided, or
+  a space is used as a separator instead
 - if, when attempting to create a PR, there are other local changes besides
   the updates to \`terraform/app/variables.tf\`
 
