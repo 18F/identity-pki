@@ -88,20 +88,21 @@ get_ami_info() {
     if [[ ${TYPE} =~ '_ami-' ]] ; then
       IMAGE=$(echo ${TYPE} | awk -F_ '{print $2}')
       TYPE=$(echo ${TYPE} | awk -F_ '{print $1}')
-      echo_yellow "Using ${IMAGE} for \`${TYPE}\` AMI."
-      PIPELINE_AMIS+=(${IMAGE})
+      echo_yellow "Using manually-specified ID \`${IMAGE}\` for \`${TYPE}\` AMI."
     else
-      BUILD=$(ave aws codebuild list-builds-for-project \
+      BUILD=$(aws-vault exec ${AV_PROFILE} -- aws codebuild list-builds-for-project \
               --project login-image-${TYPE} | jq -r '.ids[0]' | awk -F: '{print $NF}')
-      PIPELINE_AMIS+=($(aws-vault exec ${AV_PROFILE} -- aws cloudtrail lookup-events \
+      IMAGE=$(aws-vault exec ${AV_PROFILE} -- aws cloudtrail lookup-events \
                         --lookup-attributes AttributeKey=EventName,AttributeValue=CopyImage |
                         jq -r --arg build "$BUILD" '.Events[].CloudTrailEvent|
                           fromjson|
                           select(.userIdentity.arn|
-                          contains($build)).responseElements.imageId'))
+                          contains($build)).responseElements.imageId')
+      echo_cyan "Using CodeBuild artifact \`${IMAGE}\` for \`${TYPE}\` AMI."
     fi
+    PIPELINE_AMIS+=(${IMAGE})
   done
-  DATA+=$(echo -e "\n$(ave aws ec2 describe-images \
+  DATA+=$(echo -e "\n$(aws-vault exec ${AV_PROFILE} -- aws ec2 describe-images \
               --image-ids $(echo "${PIPELINE_AMIS[*]}") \
               --query 'Images[*].[ImageId,CreationDate,Name]' \
               --output text | sort -rk2 | head -n 2 |
