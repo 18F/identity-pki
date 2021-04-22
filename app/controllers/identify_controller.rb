@@ -56,7 +56,7 @@ class IdentifyController < ApplicationController
   def client_cert
     cert_pem = request.headers[CERT_HEADER] || request.headers.env['rack.peer_cert']
     return unless cert_pem
-    if Figaro.env.client_cert_escaped == 'true'
+    if IdentityConfig.store.client_cert_escaped
       CGI.unescape(cert_pem)
     else
       cert_pem.delete("\t")
@@ -93,7 +93,7 @@ class IdentifyController < ApplicationController
   end
 
   def allowed_referrer?(uri)
-    allowed_host = Figaro.env.identity_idp_host
+    allowed_host = IdentityConfig.store.identity_idp_host
     !allowed_host || uri.host == allowed_host
   end
 end

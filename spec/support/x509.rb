@@ -243,7 +243,7 @@ module X509Helpers
     unless info[:no_policies]
       extensions << [
         'certificatePolicies',
-        JSON.parse(Figaro.env.required_policies).first,
+        IdentityConfig.store.required_policies.first,
         false,
       ]
     end
