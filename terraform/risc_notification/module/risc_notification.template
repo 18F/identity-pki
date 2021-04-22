@@ -127,4 +127,4 @@ Outputs:
     Description: Arn for destination
     Value: !GetAtt Destination.Arn
     Export:
-      Name: destinationarn
+      Name: !Sub "${NotificationName}-destinationarn"
