@@ -268,6 +268,14 @@ resource "newrelic_dashboard" "error_dashboard" {
   title    = "Errors for ${var.error_dashboard_site}"
   editable = "read_only"
 
+  lifecycle {
+    ignore_changes = [
+      # Ignore changes to the editable attribute - This gets set
+      # to `editable_by_owner` in NewRelic.
+      editable,
+    ]
+  }
+
   widget {
     title         = "Errors by Service Provider"
     visualization = "faceted_area_chart"
