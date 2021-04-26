@@ -10,7 +10,8 @@
         "jumphost",
         "outboundproxy"
       ],
-      "lockdown": "true"
+      "lockdown": "true",
+      "idp_sync_static": false
     },
     "ssh_keys": {},
     "elk": {
