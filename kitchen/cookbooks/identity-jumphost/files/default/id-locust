@@ -21,7 +21,7 @@ list_tests() {
 
 usage() {
   cat >&2 <<EOM
-usage: $(basename "$0") TEST_NAME ENV [-u USERS] [-h HATCH_RATE] [-n NUM_USERS]
+usage: $(basename "$0") TEST_NAME ENV [-u USERS] [-r SPAWN_RATE] [-n NUM_USERS]
 
   TEST_NAME : name of the test, i.e. load_testing/TEST_NAME.locustfile.py
   ENV : environment where test will be pointed, in the format:
@@ -31,7 +31,7 @@ usage: $(basename "$0") TEST_NAME ENV [-u USERS] [-h HATCH_RATE] [-n NUM_USERS]
 Optional arguments:
     
     -u : --users=       (defaults to 1)
-    -h : --hatch-rate     (defaults to 1)
+    -r : --spawn-rate     (defaults to 1)
     -n : NUM_USERS=     (defaults to 100)
     -t : --run-time   (defaults to '10s')
     -m : --master      (distributed mode)
@@ -83,13 +83,13 @@ RUN_TIME="60s"
 MASTER_ADDRESS=
 EXTRA_OPTIONS=
 declare {MASTER,WORKER}=false
-declare {USERS,HATCH_RATE,NUM_USERS}=1
+declare {USERS,SPAWN_RATE,NUM_USERS}=1
 
 while getopts u:h:n:t:w:m opt
 do
   case "${opt}" in
     u) USERS=${OPTARG}    ;;
-    h) HATCH_RATE=${OPTARG} ;;
+    r) SPAWN_RATE=${OPTARG} ;;
     n) NUM_USERS=${OPTARG}  ;;
     t) RUN_TIME=${OPTARG}   ;;
     m) MASTER=true          ;;
@@ -127,7 +127,7 @@ else
             --host "${TARGET}" \
              --locustfile "${TEST_FILE}" \
              --users "${USERS}" \
-             --hatch-rate "${HATCH_RATE}" \
+             --spawn-rate "${SPAWN_RATE}" \
              --headless \
              --csv "${TEST_DIR}/${START_TIME}-${TEST}" \
              --run-time "${RUN_TIME}" \
