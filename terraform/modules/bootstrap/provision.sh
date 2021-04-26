@@ -194,8 +194,6 @@ lifecycle_hook_heartbeat() {
     asg_lifecycle_hook_name="$2"
 
     local instance_id az v2_token
-    #instance_id="$(ec2metadata --instance-id)"
-    #az="$(ec2metadata --availability-zone)"
     v2_token=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 60"`
     instance_id=`curl -sSf http://169.254.169.254/latest/meta-data/instance-id -H "X-aws-ec2-metadata-token: $v2_token"`
     region="$(curl -sSf http://169.254.169.254/latest/meta-data/placement/region -H "X-aws-ec2-metadata-token: $v2_token")"
