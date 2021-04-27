@@ -254,8 +254,17 @@ install_tf_version() {
             run gpg --import <<< "$TF_GPG_KEY_CONTENT"
         fi
 
-        run gpg --batch --status-fd 1 --verify "$checksum_file"{.${TF_GPG_KEY_ID}.sig,} \
-            | grep '^\[GNUPG:\] VALIDSIG '"$TF_GPG_KEY_FINGERPRINT"
+        GPG_CHECK=$(run gpg --batch --status-fd 1 --verify "$checksum_file"{.${TF_GPG_KEY_ID}.sig,})
+        
+        if ! [[ $(echo "${GPG_CHECK}" | grep '^\[GNUPG:\] VALIDSIG '"$TF_GPG_KEY_FINGERPRINT") ]] ; then
+            echo
+            echo_red >&2 "$(basename "$0"): error, key not verified w/trusted signature"
+            echo >&2 "Set ID_TF_SKIP_GPG=1 if you want to skip the signature check,"
+            echo >&2 "or add trust with your own GPG key by running:"
+            echo_cyan >&2 "gpg --lsign-key ${TF_GPG_KEY_FINGERPRINT}"
+            echo
+            return 1
+        fi
 
         echo >&2 "OK, finished verifying"
     fi
@@ -378,7 +387,7 @@ main() {
     fi
 
     if ! which gpg >/dev/null; then
-        echo >&2 "$(basename "$0"): error, gpg not found"
+        echo_red >&2 "$(basename "$0"): error, gpg not found"
         echo >&2 "Set ID_TF_SKIP_GPG=1 if you want to skip the signature check"
         return 1
     fi
