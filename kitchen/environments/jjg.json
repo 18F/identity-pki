@@ -8,6 +8,9 @@
       "users": [
         "jgrevich"
       ]
+    },
+    "login_dot_gov": {
+      "idp_sync_static": true
     }
   },
   "override_attributes": {

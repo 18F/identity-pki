@@ -13,7 +13,8 @@
     "login_dot_gov": {
       "deploy_branch_default": "main",
       "allow_unsafe_migrations": true,
-      "idp_run_migrations": true
+      "idp_run_migrations": true,
+      "idp_sync_static": true
     }
   },
   "override_attributes": {

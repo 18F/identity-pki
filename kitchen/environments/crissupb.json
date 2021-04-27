@@ -9,7 +9,8 @@
     "login_dot_gov": {
       "deploy_branch_default": "main",
       "idp_run_migrations": true,
-      "allow_unsafe_migrations": true
+      "allow_unsafe_migrations": true,
+      "idp_sync_static": true
     },
     "elk": {
       "retentiondays": 14,

@@ -17,7 +17,8 @@
       "deploy_branch": {
         "identity-idp": "stages/zmargolis",
         "identity-pivcac": "stages/zmargolis"
-      }
+      },
+      "idp_sync_static": true
     }
   },
   "override_attributes": {
