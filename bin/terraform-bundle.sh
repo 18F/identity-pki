@@ -13,7 +13,7 @@
 #
 set -e
 
-TERRAFORM_VERSION="0.13.5"
+TERRAFORM_VERSION="0.13.7"
 GOLANG_VERSION="1.15"
 
 rm -rf /tmp/terraform-bundle.$$
