@@ -194,7 +194,7 @@ fi
 log --blue "Calling terraform init"
 
 # https://github.com/hashicorp/terraform/issues/12762
-case "$(CHECKPOINT_DISABLE=1 terraform --version | awk '{print $NF}')" in
+case "$(CHECKPOINT_DISABLE=1 terraform --version | awk '{print $NF}' | sed 1q)" in
   *v0.13.7)
     terraform init \
       -backend-config="bucket=${BUCKET}" \
