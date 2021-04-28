@@ -36,6 +36,7 @@ SUDO_LN=
 
 # Hashicorp GPG key fingerprint
 TF_GPG_KEY_ID='72D7468F'
+TF_OLD_GPG_FINGERPRINT=91A6E7F85D05C65630BEF18951852D87348FFC4C
 TF_GPG_KEY_FINGERPRINT=C874011F0AB405110D02105534365D9472D7468F
 TF_GPG_KEY_CONTENT='-----BEGIN PGP PUBLIC KEY BLOCK-----
 
@@ -246,6 +247,16 @@ install_tf_version() {
         echo "\$ID_TF_SKIP_GPG is set, skipping GPG verification"
     else
         echo >&2 "Checking GPG signature"
+
+        if run gpg --batch --list-keys "$TF_OLD_GPG_FINGERPRINT"; then
+            echo_yellow >&2 "Warning: found compromised GPG fingerprint $TF_OLD_GPG_FINGERPRINT in keychain."
+            if prompt_yn "Remove this key automatically?"; then
+                gpg --batch --delete-secret-and-public-key --yes "$TF_OLD_GPG_FINGERPRINT"
+            else
+                echo_red >&2 "Remove $TF_OLD_GPG_FINGERPRINT from GPG keychain, then re-run this script."
+                return 1
+            fi
+        fi
 
         if ! run gpg --batch --list-keys "$TF_GPG_KEY_FINGERPRINT"; then
             #echo >&2 "Fetching Hashicorp GPG key"
