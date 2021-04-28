@@ -22,7 +22,7 @@ resource "newrelic_alert_condition" "low_throughput" {
   count           = var.enabled
   policy_id       = newrelic_alert_policy.high[0].id
   name            = "${var.env_name}: LOW Throughput (web)"
-  runbook_url     = "https://github.com/18F/identity-private/wiki/Runbook:-low-throughput-in-New-Relic"
+  runbook_url     = "https://github.com/18F/identity-devops/wiki/Runbook:-low-throughput-in-New-Relic"
   enabled         = true
   type            = "apm_app_metric"
   metric          = "throughput_web"
@@ -197,7 +197,7 @@ resource "newrelic_nrql_alert_condition" "proofing_flow_errors" {
   enabled                      = true
   description                  = "Alerting when errors in proofing flow get above 1% for the past 5 minutes"
   value_function               = "single_value"
-  runbook_url                  = "https://github.com/18F/identity-private/wiki/Runbook:-high-proofing-flow-error-rate"
+  runbook_url                  = "https://github.com/18F/identity-devops/wiki/Runbook:-high-proofing-flow-error-rate"
   violation_time_limit_seconds = 43200
 
   nrql {
@@ -220,7 +220,7 @@ resource "newrelic_nrql_alert_condition" "service_provider_errors" {
   enabled                      = true
   description                  = "Alerting when errors for individual service provider get above 1% for the past 5 minutes"
   value_function               = "single_value"
-  runbook_url                  = "https://github.com/18F/identity-private/wiki/Runbook:-high-service-provider-error-rate"
+  runbook_url                  = "https://github.com/18F/identity-devops/wiki/Runbook:-high-service-provider-error-rate"
   violation_time_limit_seconds = 43200
 
   nrql {
