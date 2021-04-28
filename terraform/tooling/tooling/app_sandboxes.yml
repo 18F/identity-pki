@@ -1,6 +1,7 @@
 ---
 # Add one line per application sandbox specifying the `identity-devops`
 # branch to deploy from
+akrito: stages/akrito
 pauldoomed: stages/pauldoomed
 mhenke: stages/mhenke
 orenyk: stages/orenyk
