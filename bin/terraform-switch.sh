@@ -24,9 +24,6 @@ TF_DOWNLOAD_URL="https://releases.hashicorp.com/terraform"
 # Set this to skip installing TF symlink to TERRAFORM_SYMLINK
 ID_TF_SKIP_SYMLINK="${ID_TF_SKIP_SYMLINK-}"
 
-# Set this to skip GPG verification
-ID_TF_SKIP_GPG="${ID_TF_SKIP_GPG-}"
-
 # Set this to skip the terraform plugin cache check
 ID_TF_SKIP_PLUGIN_CACHE="${ID_TF_SKIP_PLUGIN_CACHE-}"
 
@@ -243,42 +240,28 @@ install_tf_version() {
         "${download_prefix}/${checksum_file}"{,.${TF_GPG_KEY_ID}.sig} \
         "${download_prefix}/${download_basename}"
 
-    if [ -n "$ID_TF_SKIP_GPG" ]; then
-        echo "\$ID_TF_SKIP_GPG is set, skipping GPG verification"
-    else
-        echo >&2 "Checking GPG signature"
+    echo >&2 "Checking GPG signature"
 
-        if run gpg --batch --list-keys "$TF_OLD_GPG_FINGERPRINT"; then
-            echo_yellow >&2 "Warning: found compromised GPG fingerprint $TF_OLD_GPG_FINGERPRINT in keychain."
-            if prompt_yn "Remove this key automatically?"; then
-                gpg --batch --delete-secret-and-public-key --yes "$TF_OLD_GPG_FINGERPRINT"
-            else
-                echo_red >&2 "Remove $TF_OLD_GPG_FINGERPRINT from GPG keychain, then re-run this script."
-                return 1
-            fi
-        fi
-
-        if ! run gpg --batch --list-keys "$TF_GPG_KEY_FINGERPRINT"; then
-            #echo >&2 "Fetching Hashicorp GPG key"
-            #run gpg --recv-keys "$TF_GPG_KEY_FINGERPRINT"
-            echo >&2 "Importing Hashicorp GPG key"
-            run gpg --import <<< "$TF_GPG_KEY_CONTENT"
-        fi
-
-        GPG_CHECK=$(run gpg --batch --status-fd 1 --verify "$checksum_file"{.${TF_GPG_KEY_ID}.sig,})
-        
-        if ! [[ $(echo "${GPG_CHECK}" | grep '^\[GNUPG:\] VALIDSIG '"$TF_GPG_KEY_FINGERPRINT") ]] ; then
-            echo
-            echo_red >&2 "$(basename "$0"): error, key not verified w/trusted signature"
-            echo >&2 "Set ID_TF_SKIP_GPG=1 if you want to skip the signature check,"
-            echo >&2 "or add trust with your own GPG key by running:"
-            echo_cyan >&2 "gpg --lsign-key ${TF_GPG_KEY_FINGERPRINT}"
-            echo
-            return 1
-        fi
-
-        echo >&2 "OK, finished verifying"
+    if run gpg --batch --list-keys "$TF_OLD_GPG_FINGERPRINT"; then
+        echo_yellow >&2 "Found compromised GPG fingerprint $TF_OLD_GPG_FINGERPRINT in keychain; removing."
+        gpg --batch --delete-secret-and-public-key --yes "$TF_OLD_GPG_FINGERPRINT"
     fi
+
+    if ! run gpg --batch --list-keys "$TF_GPG_KEY_FINGERPRINT"; then
+        #echo >&2 "Fetching Hashicorp GPG key"
+        #run gpg --recv-keys "$TF_GPG_KEY_FINGERPRINT"
+        echo >&2 "Importing Hashicorp GPG key"
+        run gpg --import <<< "$TF_GPG_KEY_CONTENT"
+    fi
+
+    GPG_CHECK=$(run gpg --batch --status-fd 1 --verify "$checksum_file"{.${TF_GPG_KEY_ID}.sig,})
+    echo "${GPG_CHECK}"
+    if ! [[ $(echo "${GPG_CHECK}" | grep -E '^\[GNUPG:\] VALIDSIG [0-9A-F\ -]+ '"$TF_GPG_KEY_FINGERPRINT") ]] ; then
+        echo_red >&2 "$(basename "$0"): error, no VALIDSIG for GPG key $TF_GPG_KEY_FINGERPRINT"
+        return 1
+    fi
+
+    echo >&2 "OK, finished verifying"
 
     echo >&2 "Checking SHA256 checksum"
     csum="$(run grep "${TF_OS}_${TF_ARCH}.zip" "$checksum_file")"
@@ -398,8 +381,7 @@ main() {
     fi
 
     if ! which gpg >/dev/null; then
-        echo_red >&2 "$(basename "$0"): error, gpg not found"
-        echo >&2 "Set ID_TF_SKIP_GPG=1 if you want to skip the signature check"
+        echo_red >&2 "$(basename "$0"): error, gpg binary not found"
         return 1
     fi
 
