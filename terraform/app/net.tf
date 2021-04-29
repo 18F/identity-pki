@@ -65,6 +65,16 @@ resource "aws_security_group" "base" {
     security_groups = [aws_security_group.obproxy.id]
   }
 
+####### net new add to allow 443 traffic to egress to NAT CIDR - Start #####
+  egress {
+    description     = "allow egress from NAT CIDR blocks"
+    protocol        = "tcp"
+    from_port       = 443
+    to_port         = 443
+    cidr_blocks     =  [var.nat_cidr_block_aza,var.nat_cidr_block_azb]
+  }
+####### net new add to allow 443 traffic to egress to NAT CIDR - End #####
+
   # allow ICMP to/from the whole VPC
   ingress {
     protocol    = "icmp"
@@ -98,7 +108,7 @@ resource "aws_security_group" "app" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr_block]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   # need to get packages and stuff (conditionally)
@@ -107,7 +117,7 @@ resource "aws_security_group" "app" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = var.outbound_subnets
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   # need to get packages and stuff (conditionally)
@@ -116,7 +126,7 @@ resource "aws_security_group" "app" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = var.outbound_subnets
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   # github
@@ -131,7 +141,8 @@ resource "aws_security_group" "app" {
     from_port       = 80
     to_port         = 80
     protocol        = "tcp"
-    security_groups = [aws_security_group.app-alb.id]
+    # security_groups = [aws_security_group.app-alb.id]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
@@ -139,6 +150,7 @@ resource "aws_security_group" "app" {
     to_port         = 443
     protocol        = "tcp"
     security_groups = [aws_security_group.app-alb.id]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
@@ -531,7 +543,7 @@ resource "aws_security_group" "idp" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = var.outbound_subnets
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   # need to get packages and stuff (conditionally)
@@ -540,7 +552,7 @@ resource "aws_security_group" "idp" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = var.outbound_subnets
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   # Allow egress to CloudHSM
@@ -802,7 +814,8 @@ resource "aws_security_group" "pivcac" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = var.outbound_subnets
+    # cidr_blocks = var.outbound_subnets
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   # need to get packages and stuff (conditionally)
@@ -811,7 +824,15 @@ resource "aws_security_group" "pivcac" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = var.outbound_subnets
+    # cidr_blocks = var.outbound_subnets
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  egress {
+    description = "Outbound https to NAT CIDR block"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [var.nat_cidr_block_aza,var.nat_cidr_block_azb]
   }
 
   # github
@@ -938,7 +959,7 @@ resource "aws_security_group" "app-alb" {
   # bootstrapping cycle and will still remove unmanaged rules.
   # https://github.com/terraform-providers/terraform-provider-aws/issues/3095
   egress {
-    description = "Permit HTTP to public subnets for app"
+    description = "Permit HTTP to public subnets for app and firewall"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
@@ -949,7 +970,7 @@ resource "aws_security_group" "app-alb" {
     ]
   }
   egress {
-    description = "Permit HTTPS to public subnets for app"
+    description = "Permit HTTPS to public subnets for app and firewall"
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
@@ -1033,7 +1054,7 @@ resource "aws_subnet" "idp1" {
   availability_zone       = "${var.region}a"
   cidr_block              = var.idp1_subnet_cidr_block
   depends_on              = [aws_internet_gateway.default]
-  map_public_ip_on_launch = true
+  map_public_ip_on_launch = false
 
   tags = {
     Name = "${var.name}-idp1_subnet-${var.env_name}"
@@ -1046,8 +1067,7 @@ resource "aws_subnet" "idp2" {
   availability_zone       = "${var.region}b"
   cidr_block              = var.idp2_subnet_cidr_block
   depends_on              = [aws_internet_gateway.default]
-  map_public_ip_on_launch = true
-
+  map_public_ip_on_launch = false
   tags = {
     Name = "${var.name}-idp2_subnet-${var.env_name}"
   }
@@ -1097,7 +1117,7 @@ resource "aws_subnet" "alb3" {
 resource "aws_vpc_endpoint" "private-s3" {
   vpc_id          = aws_vpc.default.id
   service_name    = "com.amazonaws.${var.region}.s3"
-  route_table_ids = [aws_vpc.default.main_route_table_id]
+  route_table_ids = [aws_vpc.default.main_route_table_id,aws_route_table.idp1.id,aws_route_table.idp2.id]
 }
 
 resource "aws_vpc" "default" {
@@ -1173,8 +1193,7 @@ resource "aws_subnet" "publicsubnet3" {
 resource "aws_subnet" "privatesubnet1" {
   availability_zone = "${var.region}a"
   cidr_block        = var.private1_subnet_cidr_block
-  map_public_ip_on_launch = true
-
+  map_public_ip_on_launch = false
   tags = {
     Name = "${var.name}-private1_subnet-${var.env_name}"
     type = "private"
@@ -1192,7 +1211,7 @@ resource "aws_ssm_parameter" "net_subnet_private1" {
 resource "aws_subnet" "privatesubnet2" {
   availability_zone = "${var.region}b"
   cidr_block        = var.private2_subnet_cidr_block
-  map_public_ip_on_launch = true
+  map_public_ip_on_launch = false
 
   tags = {
     Name = "${var.name}-private2_subnet-${var.env_name}"
@@ -1211,7 +1230,7 @@ resource "aws_ssm_parameter" "net_subnet_private2" {
 resource "aws_subnet" "privatesubnet3" {
   availability_zone = "${var.region}c"
   cidr_block        = var.private3_subnet_cidr_block
-  map_public_ip_on_launch = true
+  map_public_ip_on_launch = false
 
   tags = {
     Name = "${var.name}-private3_subnet-${var.env_name}"
@@ -1421,4 +1440,85 @@ resource "aws_ssm_parameter" "net_noproxy" {
   name = "${local.net_ssm_parameter_prefix}outboundproxy/no_proxy"
   type  = "String"
   value = var.no_proxy_hosts
+}
+
+resource "aws_subnet" "nat" {
+  for_each          = toset(var.az_zones)
+  availability_zone = each.key
+  cidr_block        = var.nat_cidr_blocks[each.key]
+  vpc_id            = aws_vpc.default.id
+  map_public_ip_on_launch = true
+  tags = {
+    Name = "${var.name}-NAT-Subnet-${each.key}"
+  }
+}
+
+resource "aws_nat_gateway" "gw" {
+  for_each      = toset(var.az_zones)  
+  allocation_id = var.eip_allocation_blocks[each.key]
+  subnet_id     = aws_subnet.nat[each.key].id
+  tags = {
+    Name = "${var.name}-NAT-Gateway-${each.key}"
+  }
+}
+
+resource "aws_route_table" "idp1" {
+  vpc_id = aws_vpc.default.id
+  route {
+    cidr_block           = "0.0.0.0/0"
+    nat_gateway_id       = aws_nat_gateway.gw["us-west-2a"].id
+  }
+    tags = {
+    Name = "${var.name}-application-route-table-west2a-${var.env_name}"
+  }
+}
+
+resource "aws_route_table_association" "idp1" {
+  route_table_id = aws_route_table.idp1.id
+  subnet_id      = aws_subnet.idp1.id
+}
+
+resource "aws_route_table" "idp2" {
+  vpc_id = aws_vpc.default.id
+  route {
+    cidr_block           = "0.0.0.0/0"
+    nat_gateway_id       = aws_nat_gateway.gw["us-west-2b"].id
+  }
+  tags = {
+    Name = "${var.name}-application-route-table-west2b-${var.env_name}"
+  }
+}
+resource "aws_route_table_association" "idp2" {
+  route_table_id = aws_route_table.idp2.id
+  subnet_id      = aws_subnet.idp2.id
+}
+
+resource "aws_route_table" "privatesubnet1" {
+  vpc_id = aws_vpc.default.id
+  route {
+    cidr_block           = "0.0.0.0/0"
+    nat_gateway_id       = aws_nat_gateway.gw["us-west-2a"].id
+  }
+    tags = {
+    Name = "${var.name}-privatesubnet1-route-table-west2a-${var.env_name}"
+  }
+}
+resource "aws_route_table_association" "privatesubnet1" {
+  route_table_id = aws_route_table.privatesubnet1.id
+  subnet_id      = aws_subnet.privatesubnet1.id
+}
+resource "aws_route_table" "privatesubnet2" {
+  vpc_id = aws_vpc.default.id
+  route {
+    cidr_block           = "0.0.0.0/0"
+    nat_gateway_id       = aws_nat_gateway.gw["us-west-2b"].id
+  }
+    tags = {
+    Name = "${var.name}-privatesubnet2-route-table-west2b-${var.env_name}"
+  }
+}
+
+resource "aws_route_table_association" "privatesubnet2" {
+  route_table_id = aws_route_table.privatesubnet2.id
+  subnet_id      = aws_subnet.privatesubnet2.id
 }
