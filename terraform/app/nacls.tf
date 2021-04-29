@@ -202,16 +202,6 @@ module "idp-base-nacl-rules" {
     var.ci_sg_ssh_cidr_blocks,
   ])
 }
-resource "aws_network_acl_rule" "egress-all" {
-  network_acl_id = aws_network_acl.idp.id
-  egress         = true
-  from_port      = 0
-  to_port        = 65535
-  protocol       = "all"
-  rule_number    = 35
-  rule_action    = "allow"
-  cidr_block     = "0.0.0.0/0"
-}
 
 resource "aws_network_acl_rule" "idp-ingress-http" {
   network_acl_id = aws_network_acl.idp.id
