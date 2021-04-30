@@ -60,64 +60,63 @@ data "aws_iam_policy_document" "kms_awsmacietrail_dataevent" {
 }
 
 data "aws_iam_policy_document" "s3_awsmacietrail_dataevent" {
-  Version = "2012-10-17"
-  Statement = {
-    Sid = "Deny non-HTTPS access"
-    Effect = "Deny"
-    Principal = "*"
-    Action = "s3:*"
-    Resource = "arn:aws:s3:::917793222841-awsmacietrail-dataevent/*"
-    Condition {
+  statement {
+    sid = "Deny non-HTTPS access"
+    effect = "Deny"
+    principal = "*"
+    action = "s3:*"
+    resource = "arn:aws:s3:::917793222841-awsmacietrail-dataevent/*"
+    condition {
       test = "Bool"
       variable = "aws:SecureTransport"
       value = "false"
     }
   }
-  Statement = {
-    Sid = "Deny incorrect encryption header. This is optional"
-    Effect = "Deny"
-    Principal = {
-      Service = "macie.amazonaws.com"
+  statement {
+    sid = "Deny incorrect encryption header. This is optional"
+    effect = "Deny"
+    principal = {
+      service = "macie.amazonaws.com"
     }
-    Action = "s3:PutObject"
-    Resource = "arn:aws:s3:::917793222841-awsmacietrail-dataevent/*"
-    Condition {
+    action = "s3:PutObject"
+    resource = "arn:aws:s3:::917793222841-awsmacietrail-dataevent/*"
+    condition {
       test = "StringNotEquals"
       variable = "s3:x-amz-server-side-encryption-aws-kms-key-id"
       value = "arn:aws:kms:us-west-2:917793222841:key/82338288-a8af-4a2c-96d5-98df8bed932e"
     }
   }
-  Statement = {
-    Sid = "Deny unencrypted object uploads. This is optional"
-    Effect = "Deny"
-    Principal = {
-      Service = "macie.amazonaws.com"
+  statement {
+    sid = "Deny unencrypted object uploads. This is optional"
+    effect = "Deny"
+    principal = {
+      service = "macie.amazonaws.com"
     }
-    Action = "s3:PutObject"
-    Resource = "arn:aws:s3:::917793222841-awsmacietrail-dataevent/*"
-    Condition {
+    action = "s3:PutObject"
+    resource = "arn:aws:s3:::917793222841-awsmacietrail-dataevent/*"
+    condition {
       test = "StringNotEquals"
       variable = "s3:x-amz-server-side-encryption"
       value = "aws:kms"
     }
   }
-  Statement = {
-    Sid = "Allow Macie to upload objects to the bucket"
-    Effect = "Allow"
-    Principal = {
-      Service = "macie.amazonaws.com"
+  statement {
+    sid = "Allow Macie to upload objects to the bucket"
+    effect = "Allow"
+    principal = {
+      service = "macie.amazonaws.com"
     }
-    Action = "s3:PutObject"
-    Resource = "arn:aws:s3:::917793222841-awsmacietrail-dataevent/*"
+    action = "s3:PutObject"
+    resource = "arn:aws:s3:::917793222841-awsmacietrail-dataevent/*"
   }
-  Statement = {
-    Sid = "Allow Macie to use the getBucketLocation operation"
-    Effect = "Allow"
-    Principal = {
-      Service = "macie.amazonaws.com"
+  statement {
+    sid = "Allow Macie to use the getBucketLocation operation"
+    effect = "Allow"
+    principal = {
+      service = "macie.amazonaws.com"
     }
-    Action = "s3:GetBucketLocation"
-    Resource = "arn:aws:s3:::917793222841-awsmacietrail-dataevent"
+    action = "s3:GetBucketLocation"
+    resource = "arn:aws:s3:::917793222841-awsmacietrail-dataevent"
   }
   
   statement {
@@ -136,5 +135,4 @@ data "aws_iam_policy_document" "s3_awsmacietrail_dataevent" {
       "*",
     ]
   }
-
 }
