@@ -21,6 +21,7 @@ cookbook 'runit', '~>5.1.3'
 cookbook 'elasticsearch-curator', '~> 0.3.0'
 cookbook 'elasticsearch', '~> 4.2.0'
 cookbook 'ossec', '~> 1.2.0', git: 'https://github.com/sous-chefs/ossec'
+cookbook 'seven_zip', '~3.2.0' #can remove version constraint after upgrading chef to v16 
 
 # This is a super wacky hack to allow us to symlink this Berksfile into the
 # various nodes/*/ directories. It feels like there ought to be a better way to
