@@ -1,6 +1,7 @@
 # This resource writes deploy.json for a given application, containing useful
 # information about the git revision and server.
 require 'time'
+require 'net/http'
 
 property :path, String, name_property: true
 
@@ -12,6 +13,10 @@ property :branch, [String, NilClass], default: nil
 property :devops_dir, String, default: '/etc/login.gov/repos/identity-devops'
 
 action :create do
+  c = Chef::HTTP.new('http://169.254.169.254')
+  v2_token = c.put("/latest/api/token", nil, { 'X-aws-ec2-metadata-token-ttl-seconds': "60" })
+  instance_id = c.get('http://169.254.169.254/latest/meta-data/instance-id', { 'X-aws-ec2-metadata-token' => v2_token })
+
   deploy_dir = ::File.dirname(new_resource.path)
 
   file new_resource.path do
@@ -32,7 +37,7 @@ action :create do
         ).iso8601,
         'chef_run_timestamp' => ::Time.new.strftime('%Y%m%d%H%M%S'),
         'fqdn' => node.fetch('fqdn'),
-        'instance_id' => node.fetch('ec2').fetch('instance_id'),
+        'instance_id' => instance_id,
       }
 
       # set deprecated attribute names
