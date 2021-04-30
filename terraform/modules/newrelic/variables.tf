@@ -73,6 +73,11 @@ variable "web_low_traffic_warn_threshold" {
   default     = 20
 }
 
+variable "pivcac_low_traffic_alert_threshold" {
+  description = "If the number of queries in 5 minutes falls below this number, we alert"
+  default     = 5
+}
+
 variable "response_time_alert" {
   description = "If the response time is above this number (seconds) on the average over the course of 5 minutes, alert"
   default     = 2
