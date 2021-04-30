@@ -14,6 +14,7 @@ module "newrelic" {
   region                                     = var.region
   env_name                                   = var.env_name
   events_in_last_ten_minutes_alert_threshold = var.events_in_last_ten_minutes_alert_threshold
+  pivcac_low_traffic_alert_threshold         = var.pivcac_low_traffic_alert_threshold
   root_domain                                = var.root_domain
   web_low_traffic_alert_threshold            = var.web_low_traffic_alert_threshold
   web_low_traffic_warn_threshold             = var.web_low_traffic_warn_threshold

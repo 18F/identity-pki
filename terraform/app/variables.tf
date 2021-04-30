@@ -623,6 +623,11 @@ variable "web_low_traffic_warn_threshold" {
   default     = 20
 }
 
+variable "pivcac_low_traffic_alert_threshold" {
+  description = "If the number of queries in 5 minutes falls below this number, we alert"
+  default     = 5
+}
+
 variable "keep_legacy_bucket" {
   description = "Whether or not to preserve the login-gov-ENV-logs bucket. Should only be used in staging and prod."
   default     = false
