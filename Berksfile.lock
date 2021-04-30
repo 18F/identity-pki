@@ -4,8 +4,8 @@ DEPENDENCIES
   apt (~> 7.0)
   aws_metadata
     git: https://github.com/18F/identity-cookbooks
-    revision: 8c5bfd791f9944c6bcc2b97eda0eeefd8baa5aa0
-    ref: 8c5bfd7
+    revision: da765c008bcbf1ab475e42dd9a7ece4c8fd34dbe
+    ref: da765c0
     rel: aws_metadata
   aws_s3
     path: kitchen/cookbooks/aws_s3
@@ -18,17 +18,16 @@ DEPENDENCIES
     path: kitchen/cookbooks/chef_proxy_env
   citadel_fork
     git: https://github.com/18f/citadel-build
-    revision: f175d16e6354f0ec227940b98f478c0c020e3207
-    ref: f175d16
+    revision: 966c53b48ab4f707546a8ed0cdc76c46858d8e56
   cloudhsm
     git: https://github.com/18F/identity-cookbooks
-    revision: 8c5bfd791f9944c6bcc2b97eda0eeefd8baa5aa0
-    ref: 8c5bfd7
+    revision: da765c008bcbf1ab475e42dd9a7ece4c8fd34dbe
+    ref: da765c0
     rel: cloudhsm
   config_loader
     git: https://github.com/18F/identity-cookbooks
-    revision: 8c5bfd791f9944c6bcc2b97eda0eeefd8baa5aa0
-    ref: 8c5bfd7
+    revision: da765c008bcbf1ab475e42dd9a7ece4c8fd34dbe
+    ref: da765c0
     rel: config_loader
   deploy_resource (~> 1.0)
   elasticsearch (~> 4.2.0)
@@ -49,13 +48,13 @@ DEPENDENCIES
     path: kitchen/cookbooks/identity-pivcac
   identity_base_config
     git: https://github.com/18F/identity-cookbooks
-    revision: 8c5bfd791f9944c6bcc2b97eda0eeefd8baa5aa0
-    ref: 8c5bfd7
+    revision: da765c008bcbf1ab475e42dd9a7ece4c8fd34dbe
+    ref: da765c0
     rel: identity_base_config
   identity_shared_attributes
     git: https://github.com/18F/identity-cookbooks
-    revision: 8c5bfd791f9944c6bcc2b97eda0eeefd8baa5aa0
-    ref: 8c5bfd7
+    revision: da765c008bcbf1ab475e42dd9a7ece4c8fd34dbe
+    ref: da765c0
     rel: identity_shared_attributes
   instance_certificate
     path: kitchen/cookbooks/instance_certificate
@@ -71,8 +70,8 @@ DEPENDENCIES
     revision: 093c6cdf8a5790327f07a93a07bb3904715dc078
   passenger
     git: https://github.com/18F/identity-cookbooks
-    revision: 8c5bfd791f9944c6bcc2b97eda0eeefd8baa5aa0
-    ref: 8c5bfd7
+    revision: da765c008bcbf1ab475e42dd9a7ece4c8fd34dbe
+    ref: da765c0
     rel: passenger
   runit (~> 5.1.3)
   service_discovery
@@ -80,8 +79,8 @@ DEPENDENCIES
   ssh-keys
   static_eip
     git: https://github.com/18F/identity-cookbooks
-    revision: 8c5bfd791f9944c6bcc2b97eda0eeefd8baa5aa0
-    ref: 8c5bfd7
+    revision: da765c008bcbf1ab475e42dd9a7ece4c8fd34dbe
+    ref: da765c0
     rel: static_eip
   sudo
   users
@@ -234,8 +233,7 @@ GRAPH
     aws_metadata (>= 0.0.0)
     aws_s3 (>= 0.0.0)
     canonical_hostname (>= 0.0.0)
-  seven_zip (3.2.0)
-    windows (>= 0.0.0)
+  seven_zip (4.0.0)
   squid (4.4.0)
   ssh-keys (1.2.7)
   static_eip (0.2.1)
