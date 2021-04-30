@@ -80,7 +80,7 @@ resource "aws_iam_role_policy" "worker-sns-publish-alerts" {
 }
 
 module "worker_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=476ab4456e547e125dcd53cb6131419b54f1f476"
+  source = "github.com/18F/identity-terraform//launch_template?ref=6a7ba69828a2507cf1fcaa225a1df8f501321929"
   #source = "../../../identity-terraform/launch_template"
   role           = "worker"
   env            = var.env_name

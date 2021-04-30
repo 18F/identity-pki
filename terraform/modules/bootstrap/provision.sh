@@ -159,22 +159,25 @@ complete_lifecycle_hook() {
     result="$3"
     sns_topic_arn="$4"
 
-    local instance_id az
-    instance_id="$(ec2metadata --instance-id)"
-    az="$(ec2metadata --availability-zone)"
+    local instance_id az v2_token
+    #instance_id="$(ec2metadata --instance-id)"
+    #az="$(ec2metadata --availability-zone)"
+    v2_token=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 60"`
+    instance_id=`curl -sSf http://169.254.169.254/latest/meta-data/instance-id -H "X-aws-ec2-metadata-token: $v2_token"`
+    region="$(curl -sSf http://169.254.169.254/latest/meta-data/placement/region -H "X-aws-ec2-metadata-token: $v2_token")"
 
     # send a notice that the instance was abandoned
     if [ -n "${sns_topic_arn}" -a "${result}" == "ABANDON" ]; then
         message="Instance ${instance_id} for ASG ${asg_name} was ABANDONED.  Fatal error in provisioning."
         run aws sns publish \
-            --region "${az::-1}" \
+            --region "${region}" \
             --topic-arn "${sns_topic_arn}" \
             --message "${message}" \
             --subject "${asg_name} instance ABANDONED"
     fi
 
     run aws autoscaling complete-lifecycle-action \
-        --region "${az::-1}" \
+        --region "${region}" \
         --auto-scaling-group-name "${asg_name}" \
         --lifecycle-hook-name "${asg_lifecycle_hook_name}" \
         --instance-id "${instance_id}" \
@@ -190,12 +193,13 @@ lifecycle_hook_heartbeat() {
     asg_name="$1"
     asg_lifecycle_hook_name="$2"
 
-    local instance_id az
-    instance_id="$(ec2metadata --instance-id)"
-    az="$(ec2metadata --availability-zone)"
+    local instance_id az v2_token
+    v2_token=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 60"`
+    instance_id=`curl -sSf http://169.254.169.254/latest/meta-data/instance-id -H "X-aws-ec2-metadata-token: $v2_token"`
+    region="$(curl -sSf http://169.254.169.254/latest/meta-data/placement/region -H "X-aws-ec2-metadata-token: $v2_token")"
 
     run aws autoscaling record-lifecycle-action-heartbeat \
-        --region "${az::-1}" \
+        --region "${region}" \
         --auto-scaling-group-name "$asg_name" \
         --lifecycle-hook-name "$asg_lifecycle_hook_name" \
         --instance-id "$instance_id"
