@@ -90,11 +90,14 @@ else
     TF_ENV='global'
     TF_PROFILE='master'
   elif [[ ${TF_DIR} == 'sms' ]] ; then
-    TF_PROFILE="sms-${TF_ENV}"
+    TF_PROFILE=$(echo "sms-${TF_ENV}" | sed -E 's/-east//')
   elif [[ -z $(find "${GIT_DIR}/terraform/" -type d -maxdepth 1 -name "${TF_DIR}") ]] ; then
     raise "\`${TF_DIR}\` not found in ${GIT_DIR}/terraform/"
   elif [[ -z $(find "${GIT_DIR}/terraform/${TF_DIR}" -type d -maxdepth 1 -name "${TF_ENV}") ]] ; then
     raise "\`${TF_ENV}\` not found in ${GIT_DIR}/terraform/${TF_DIR}"
+  elif [[ ! $(get_acct_num ${TF_ENV}) ]] ; then
+    TF_PROFILE='sandbox'
+    [[ ${TF_ENV} == 'staging' ]] && TF_PROFILE='prod'
   else
     TF_PROFILE=${TF_ENV}
   fi

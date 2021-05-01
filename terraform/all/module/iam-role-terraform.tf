@@ -331,6 +331,7 @@ locals {
       effect = "Allow"
       actions = [
         "events:DeleteRule",
+        "events:DescribeEventBus",
         "events:DescribeRule",
         "events:EnableRule",
         "events:ListTagsForResource",
@@ -342,7 +343,18 @@ locals {
       resources = [
         "*",
       ]
-    }
+    },
+    {
+      sid    = "Firehose"
+      effect = "Allow"
+      actions = [
+        "firehose:DescribeDeliveryStream",
+        "firehose:ListTagsForDeliveryStream",
+      ]
+      resources = [
+        "*",
+      ]
+    },
   ]
 
   Terraform2 = [
@@ -388,6 +400,7 @@ locals {
         "iam:ListInstanceProfilesForRole",
         "iam:ListMFADevices",
         "iam:ListPolicyVersions",
+        "iam:ListRolePolicies",
         "iam:ListSigningCertificates",
         "iam:ListSSHPublicKeys",
         "iam:ListVirtualMFADevices",
@@ -672,6 +685,20 @@ locals {
         "*",
       ]
     },
+    {
+      sid    = "WAFV2"
+      effect = "Allow"
+      actions = [
+        "wafv2:GetIPSet",
+        "wafv2:ListTagsForResource",
+        "wafv2:GetWebACL",
+        "wafv2:GetWebACLForResource",
+        "wafv2:GetLoggingConfiguration",
+      ]
+      resources = [
+        "*",
+      ]
+    },    
     {
       sid    = "NetworkFirewall"
       effect = "Allow"
