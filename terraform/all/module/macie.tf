@@ -125,21 +125,4 @@ data "aws_iam_policy_document" "s3_awsmacietrail_dataevent" {
     actions = ["s3:GetBucketLocation"]
     resources = ["arn:aws:s3:::917793222841-awsmacietrail-dataevent"]
   }
-  
-  statement {
-    sid    = "Allow FullAdministrator to administer the bucket"
-    effect = "Allow"
-    principals {
-      type = "AWS"
-      identifiers = [
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/FullAdministrator"
-      ]
-    }
-    actions = [
-      "s3:*",
-    ]
-    resources = [
-      "*",
-    ]
-  }
 }
