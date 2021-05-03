@@ -1,3 +1,7 @@
+# Creates the S3 buckets and KMS CMK required to enable Macie2 in every
+# account. This does not imply that Macie2 will be enabled in every account,
+# only that the resources exist.
+
 resource "aws_kms_key" "awsmacietrail_dataevent" {
   description             = "Macie v2"
   deletion_window_in_days = 7
