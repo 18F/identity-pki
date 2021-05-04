@@ -25,10 +25,35 @@ resource "aws_s3_bucket" "awsmacietrail_dataevent" {
       }
     }
   }
+  
   policy = data.aws_iam_policy_document.s3_awsmacietrail_dataevent.json
+  
   logging {
-    target_bucket = "dev-s3-access-logs"
+    target_bucket = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
     target_prefix = "${data.aws_caller_identity.current.account_id}-awsmacietrail-dataevent"
+  }
+  
+  versioning {
+    enabled = true
+  }
+  
+  lifecycle_rule {
+    id      = "expire"
+    prefix  = "/"
+    enabled = true
+
+    transition {
+      storage_class = "INTELLIGENT_TIERING"
+    }
+    noncurrent_version_transition {
+      storage_class = "INTELLIGENT_TIERING"
+    }
+    expiration {
+      days = 2190
+    }
+    noncurrent_version_expiration {
+      days = 2190
+    }
   }
 }
 
