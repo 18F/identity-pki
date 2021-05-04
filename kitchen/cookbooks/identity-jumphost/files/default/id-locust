@@ -83,7 +83,8 @@ RUN_TIME="60s"
 MASTER_ADDRESS=
 EXTRA_OPTIONS=
 declare {MASTER,WORKER}=false
-declare {USERS,SPAWN_RATE,NUM_USERS}=1
+declare {USERS,SPAWN_RATE}=1
+declare NUM_USERS=100
 
 while getopts u:h:n:t:w:m opt
 do
