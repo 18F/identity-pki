@@ -26,6 +26,10 @@ resource "aws_s3_bucket" "awsmacietrail_dataevent" {
     }
   }
   policy = data.aws_iam_policy_document.s3_awsmacietrail_dataevent.json
+  logging {
+    target_bucket = "dev-s3-access-logs"
+    target_prefix = "${data.aws_caller_identity.current.account_id}-awsmacietrail-dataevent"
+  }
 }
 
 // Recommended policies per the Macie console
