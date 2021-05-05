@@ -11,13 +11,6 @@
       "idp_run_migrations": true,
       "allow_unsafe_migrations": true,
       "idp_sync_static": true
-    },
-    "elk": {
-      "retentiondays": 14,
-      "users": [
-        "jgrevich",
-        "crissupb"
-      ]
     }
   },
   "override_attributes": {

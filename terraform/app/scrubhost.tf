@@ -1,3 +1,85 @@
+data "aws_iam_policy_document" "logbucketpolicy" {
+  # allow scrubhosts to read from ELB log buckets
+  statement {
+    actions = [
+      "s3:ListBucket",
+      "s3:ListObjects",
+    ]
+    resources = [
+      "arn:aws:s3:::login-gov-${var.env_name}-proxylogs",
+      "arn:aws:s3:::login-gov-proxylogs-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}",
+      "arn:aws:s3:::login-gov.elb-logs.${data.aws_caller_identity.current.account_id}-${var.region}",
+      "arn:aws:s3:::login-gov.reports.${data.aws_caller_identity.current.account_id}-${var.region}",
+      "arn:aws:s3:::login-gov-cloudtrail-${data.aws_caller_identity.current.account_id}",
+    ]
+  }
+  statement {
+    actions = [
+      "s3:GetObject",
+      "s3:ListObjects",
+    ]
+    resources = [
+      "arn:aws:s3:::login-gov-${var.env_name}-proxylogs/*",
+      "arn:aws:s3:::login-gov-proxylogs-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}/*",
+      "arn:aws:s3:::login-gov.elb-logs.${data.aws_caller_identity.current.account_id}-${var.region}/${var.env_name}/*",
+      "arn:aws:s3:::login-gov.reports.${data.aws_caller_identity.current.account_id}-${var.region}/*",
+      "arn:aws:s3:::login-gov-cloudtrail-${data.aws_caller_identity.current.account_id}/*",
+    ]
+  }
+
+  statement {
+    actions = [
+      "logs:Describe*",
+      "logs:Get*",
+      "logs:TestMetricFilter",
+      "logs:FilterLogEvents",
+    ]
+    resources = ["*"]
+  }
+  statement {
+    actions = [
+      "rds:DescribeDBLogFiles",
+      "rds:DownloadDBLogFilePortion",
+    ]
+    resources = [
+      aws_db_instance.idp.arn,
+    ]
+  }
+  statement {
+    actions = [
+      "s3:ListBucket",
+    ]
+    resources = [
+      "arn:aws:s3:::login-gov-${var.env_name}-logs",
+      "arn:aws:s3:::login-gov-logs-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}",
+    ]
+  }
+  statement {
+    actions = [
+      "s3:PutObject",
+      "s3:GetObject",
+      "s3:PutObjectAcl",
+    ]
+    resources = [
+      "arn:aws:s3:::login-gov-${var.env_name}-logs/*",
+      "arn:aws:s3:::login-gov-logs-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}/*",
+    ]
+  }
+  statement {
+    actions = [
+      "s3:List*",
+      "s3:GetObject",
+    ]
+    resources = [
+      "arn:aws:s3:::login-gov-${var.env_name}-analytics-logs/*",
+      "arn:aws:s3:::login-gov-${var.env_name}-analytics-logs",
+      "arn:aws:s3:::login-gov-analytics-logs-${var.env_name}.*/*",
+      "arn:aws:s3:::login-gov-analytics-logs-${var.env_name}.*",
+    ]
+  }
+}
+
+
 # If we used named policies I could have just referenced them, but Inline it is!
 resource "aws_iam_role" "scrub-permissions" {
   name               = "${var.env_name}-scrub-permissions"

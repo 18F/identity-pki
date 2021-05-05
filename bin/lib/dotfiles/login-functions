@@ -140,7 +140,6 @@ EOF
     case "${OPTARG}" in
       A) EC2_TYPE='ALL'                     ;;
       a) EC2_TYPE='app'                     ;;
-      e) EC2_TYPE='elasticsearch'           ;;
       i) EC2_TYPE='idp'                     ;;
       x) EC2_TYPE='idpxtra'                 ;;
       j) EC2_TYPE='jumphost'                ;;

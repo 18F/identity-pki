@@ -45,8 +45,6 @@ vpc_name = "login-vpc-#{environment}"
 iam_profiles = {
     "jumphost" => "#{environment}-base-permissions",
     "idp" => "#{environment}_idp_instance_profile",
-    "elasticsearch" => "#{environment}_elasticsearch_instance_profile",
-    "elk" => "#{environment}_elk_instance_profile",
     "app" => "#{environment}-base-permissions",
     "outboundproxy" => "#{environment}_obproxy_instance_profile",
     "pivcac" => "#{environment}_pivcac_instance_profile",
@@ -61,8 +59,6 @@ subnets = {
     "jumphost" => "login-jumphost1_subnet-#{environment}",
     "idp" => "login-idp1_subnet-#{environment}",
     "pivcac" => "login-idp1_subnet-#{environment}",
-    "elasticsearch" => "login-elasticsearch_subnet-#{environment}-*",
-    "elk" => "login-elk_subnet-#{environment}-*",
     "app" => "login-public1_subnet-#{environment}",
     "outboundproxy" => "login-public1_subnet-#{environment}",
     "migration" => "login-idp1_subnet-#{environment}",
@@ -75,28 +71,6 @@ subnet = subnets.fetch(role)
 # By default we look up security groups based on the "role" tag
 security_group_tag_name = "role"
 security_group_tag_value = role
-
-# Roles that reuse another role's group (contrary to best practice)
-# TODO: move these to their own security groups
-sg_steal_roles = {
-  'elasticsearch' => 'elk',
-}
-if sg_steal_roles.include?(role)
-  security_group_tag_value = sg_steal_roles.fetch(role)
-end
-
-# We want to discover real elasticsearch nodes, unless we're running the
-# elasticsearch integration test.
-es_tag_value = "elasticsearch"
-if role == "elasticsearch"
-  es_tag_value = "test-kitchen-elasticsearch"
-end
-# We want to discover real elk nodes, unless we're running the elk integration
-# test.
-elk_tag_value = "elk"
-if role == "elk"
-  elk_tag_value = "test-kitchen-elk"
-end
 
 # Enable the proxy unless env var is set to disable
 if ENV['KITCHEN_DISABLE_PROXY'] || role == "outboundproxy"
@@ -254,8 +228,6 @@ if user_data.length > 16_384
   user_data = gzip(user_data)
 end
 
-instance_type = role == 'elk' ? 'r5d.2xlarge' : 'c5.xlarge'
-
 %>
 
 <%=
@@ -337,12 +309,6 @@ instance_type = role == 'elk' ? 'r5d.2xlarge' : 'c5.xlarge'
             "provisioner" => {
                 "name" => "kitchen-ec2",
                 "auto-scaled" => true
-            },
-            "elk" => {
-                "es_tag_key" => "prefix",
-                "es_tag_value" => es_tag_value,
-                "elk_tag_key" => "prefix",
-                "elk_tag_value" => elk_tag_value
             }
         }
     }]

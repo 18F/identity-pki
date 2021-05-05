@@ -42,7 +42,6 @@
     "recipe[identity_base_config]",
     "recipe[ssh-keys]",
     "recipe[sudo]",
-    "recipe[identity-elk::logcleanup]",
     "recipe[login_dot_gov::resolve]",
     "recipe[identity_base_config::ruby]",
     "recipe[identity-monitoring]",

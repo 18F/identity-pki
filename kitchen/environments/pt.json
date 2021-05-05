@@ -14,14 +14,6 @@
       "idp_sync_static": false
     },
     "ssh_keys": {},
-    "elk": {
-      "users": [
-        "jgrevich",
-        "jhooper",
-        "mzia",
-        "steveu"
-      ]
-    },
     "identity-jumphost": {
       "loadtest": {
         "enabled": true

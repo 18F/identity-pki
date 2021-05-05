@@ -4,11 +4,6 @@
   "json_class": "Chef::Environment",
   "chef_type": "environment",
   "default_attributes": {
-    "elk": {
-      "users": [
-        "jgrevich"
-      ]
-    },
     "login_dot_gov": {
       "idp_sync_static": true
     }

@@ -4,12 +4,6 @@
   "json_class": "Chef::Environment",
   "chef_type": "environment",
   "default_attributes": {
-    "elk": {
-      "retentiondays": 14,
-      "users": [
-        "zmargolis"
-      ]
-    },
     "login_dot_gov": {
       "idp_run_migrations": true,
       "allow_unsafe_migrations": true,
