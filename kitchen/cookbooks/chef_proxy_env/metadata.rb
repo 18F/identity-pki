@@ -5,7 +5,7 @@ license 'All Rights Reserved'
 description 'Sets Chef proxy configuration using config in files'
 long_description 'This is useful for setting uniform proxy configuration regardless of how chef-client.rb is generated.'
 version '0.1.1'
-chef_version '>= 12.15.19' if respond_to?(:chef_version)
+chef_version '>= 16.13.16' if respond_to?(:chef_version)
 
 # The `issues_url` points to the location where issues for this cookbook are
 # tracked.  A `View Issues` link will be displayed on this cookbook's page when
