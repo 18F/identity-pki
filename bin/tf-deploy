@@ -636,6 +636,7 @@ EOM
         -e "${TF_SLACK_EMOJI}" \
         -p "${SLACK_PRETEXT}" \
         -m "${SLACK_MESSAGE}"
-
-    if [ "$DEPLOY_FAIL" == 'true' ] ; then exit 1 ; fi
 fi
+
+if [ "$DEPLOY_FAIL" == 'true' ] ; then exit 1 ; fi
+
