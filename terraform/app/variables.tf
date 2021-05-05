@@ -125,19 +125,6 @@ variable "identity_sms_iam_role_name_idp" {
   default     = "idp-pinpoint"
 }
 
-# CIDR block that is carved up for both the ASG elasticsearch instances and the
-# elasticsearch ELBs.
-# Range: 172.16.32.128 -> 172.16.32.191
-variable "elasticsearch_cidr_block" {
-  default = "172.16.34.128/26"
-}
-
-# CIDR block that is carved up for both the ASG elk instances and the elk ELBs.
-# Range: 172.16.34.192 -> 172.16.34.255
-variable "elk_cidr_block" {
-  default = "172.16.34.192/26"
-}
-
 variable "ami_id_map" {
   type        = map(string)
   description = "Mapping from server role to an AMI ID, overrides the default_ami_id if key present"
@@ -166,13 +153,6 @@ variable "elasticache_redis_engine_version" {
 
 variable "elasticache_redis_parameter_group_name" {
   default = "default.redis5.0"
-}
-
-variable "elasticsearch_volume_size" {
-  description = "EBS volume size for elasticsearch hosts"
-
-  # allowed values: 300 - 1000
-  default = 300
 }
 
 # prod/test environment flags
@@ -226,14 +206,6 @@ variable "env_name" {
 
 variable "instance_type_app" {
   default = "t3.medium"
-}
-
-variable "instance_type_elk" {
-  default = "t3.large"
-}
-
-variable "instance_type_es" {
-  default = "t3.large"
 }
 
 variable "instance_type_idp" {
@@ -335,14 +307,6 @@ variable "asg_idpxtra_desired" {
 
 variable "asg_idpxtra_max" {
   default = 8
-}
-
-variable "asg_elasticsearch_desired" {
-  default = 0
-}
-
-variable "asg_elk_desired" {
-  default = 0
 }
 
 variable "asg_app_min" {
@@ -576,21 +540,12 @@ variable "kms_log_kinesis_shards" {
   default     = 1
 }
 
-variable "events_in_last_ten_minutes_alert_threshold" {
-  description = "if the number of new events in ELK in the last 10 minutes falls below this, and newrelic_alerts_enabled is set, alert"
-  default     = 4000
-}
-
 variable "newrelic_alerts_enabled" {
   description = "turn on common newrelic alerting services.  Required if any other newrelic stuff is enabled."
   default     = 0
 }
 variable "staticsite_newrelic_alerts_enabled" {
   description = "this should only be set in the prod environment, as it creates monitors for the static site"
-  default     = 0
-}
-variable "elk_newrelic_alerts_enabled" {
-  description = "set this to 1 if you want to alert on ELK problems"
   default     = 0
 }
 variable "idp_newrelic_alerts_enabled" {

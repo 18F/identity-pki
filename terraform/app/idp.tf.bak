@@ -36,21 +36,21 @@ resource "aws_db_instance" "idp" {
 
   # If you want to destroy your database, you need to do this in two phases:
   # 1. Uncomment `skip_final_snapshot=true` and
-  #    comment `prevent_destroy=true` and `deletion_protection = false` below.
+  #    comment `prevent_destroy=true` and `deletion_protection = true` below.
   # 2. Perform a terraform/deploy "apply" with the additional
   #    argument of "-target=aws_db_instance.idp" to mark the database
   #    as not requiring a final snapshot.
   # 3. Perform a terraform/deploy "destroy" as needed.
   #
-  skip_final_snapshot = true
+  #skip_final_snapshot = true
   lifecycle {
-    prevent_destroy = false
+    prevent_destroy = true
 
     # we set the password by hand so it doesn't end up in the state file
     ignore_changes = [password]
   }
 
-  deletion_protection = false
+  deletion_protection = true
 }
 
 output "idp_db_endpoint" {
@@ -97,7 +97,7 @@ resource "aws_db_instance" "idp-read-replica" {
   enabled_cloudwatch_logs_exports = ["postgresql"]
 
   # uncomment this if deleting the read replica / environment
-  skip_final_snapshot = true
+  #skip_final_snapshot = true
 }
 
 output "idp_db_endpoint_replica" {
@@ -145,12 +145,6 @@ resource "aws_db_parameter_group" "force_ssl" {
   parameter {
     name  = "log_min_duration_statement"
     value = "250" # 250 ms
-  }
-
-  # Log lock waits
-  parameter {
-    name = "log_lock_waits"
-    value = "1"
   }
 
   lifecycle {
@@ -297,6 +291,26 @@ resource "aws_iam_role_policy" "idp-sns-publish-alerts" {
   name   = "${var.env_name}-idp-sns-publish-alerts"
   role   = aws_iam_role.idp.id
   policy = data.aws_iam_policy_document.sns-publish-alerts-policy.json
+}
+
+resource "aws_iam_role_policy" "idp-lambda-functions" {
+  name   = "${var.env_name}-idp-lambda-functions"
+  role   = aws_iam_role.idp.id
+  policy = data.aws_iam_policy_document.call_idp_functions.json
+}
+
+data "aws_iam_policy_document" "call_idp_functions" {
+  statement {
+    sid    = "IDPLambdaFunctions"
+    effect = "Allow"
+    actions = [
+      "lambda:InvokeFunction",
+      "lambda:InvokeAsync"
+    ]
+    resources = [
+      "arn:aws:lambda:${var.region}:${data.aws_caller_identity.current.account_id}:function:${var.env_name}-idp-functions-*",
+    ]
+  }
 }
 
 # This policy allows writing to the S3 reports bucket

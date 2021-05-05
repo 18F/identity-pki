@@ -144,7 +144,6 @@ EOF
       i) EC2_TYPE='idp'                     ;;
       x) EC2_TYPE='idpxtra'                 ;;
       j) EC2_TYPE='jumphost'                ;;
-      k) EC2_TYPE='elk'                     ;;
       m) EC2_TYPE='migration'               ;;
       o) EC2_TYPE='outboundproxy'           ;;
       p) EC2_TYPE='pivcac'                  ;;

@@ -6,7 +6,6 @@ module "newrelic" {
 
   enabled                                    = var.newrelic_alerts_enabled
   staticsite_alerts_enabled                  = var.staticsite_newrelic_alerts_enabled
-  elk_enabled                                = var.elk_newrelic_alerts_enabled
   idp_enabled                                = var.idp_newrelic_alerts_enabled
   pivcac_service_enabled                     = var.pivcac_service_enabled
   enduser_enabled                            = var.idp_enduser_newrelic_alerts_enabled

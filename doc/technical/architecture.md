@@ -31,14 +31,3 @@ encryption and decryption scoped to each environment.
 The IDP servers are the user facing servers that run the main identity-idp code.
 See the [identity-idp](https://github.com/18F/identity-idp) repository for more
 details.
-
-## ELK Server
-
-This server runs logstash and kibana and connects to our elasticsearch cluster
-on the backend.
-
-## Elasticsearch Servers
-
-These servers run elasticsearch and are the backing storage for our ELK stack.
-Logs are also sent to S3 by logstash, so this is not the single source of the
-log data, but is used by the kibana dashboard.
