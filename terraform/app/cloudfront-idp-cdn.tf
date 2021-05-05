@@ -1,3 +1,7 @@
+locals {
+  cfn_domain_name = var.env_name == "prod" ? "secure.${var.root_domain}" : "idp.${var.env_name}.${var.root_domain}"
+}
+
 data "aws_sns_topic" "cloudfront_alarm" {
   name = "devops_high_priority"
 }
@@ -107,4 +111,25 @@ resource "aws_cloudwatch_metric_alarm" "cloudfront_alert" {
       DistributionId = aws_cloudfront_distribution.idp_static_cdn[count.index].id
         }
 }
+
+resource "newrelic_synthetics_monitor" "api_health" {
+  count     = var.enabled
+  name      = "${var.env_name} /api/health check"
+  type      = "SIMPLE"
+  frequency = 5
+  status    = "ENABLED"
+  locations = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
+
+  uri               = "https://${local.cfn_domain_name}/api/health"
+  validation_string = "\"all_checks_healthy\":true"
+  verify_ssl        = true
+}
+resource "newrelic_synthetics_alert_condition" "api_health" {
+  count     = var.idp_enabled
+  policy_id = newrelic_alert_policy.high[0].id
+
+  name       = "https://${local.cfn_domain_name}/api/health failure"
+  monitor_id = newrelic_synthetics_monitor.api_health[0].id
+}
+
 
