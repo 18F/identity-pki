@@ -80,7 +80,7 @@ data "aws_iam_policy_document" "kms_awsmacietrail_dataevent" {
     principals {
       type = "AWS"
       identifiers = [
-        "arnarn:aws:iam::111122223333:root"
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
       ]
     }
     actions = [
