@@ -193,6 +193,26 @@
                         }
                     ]
                 },
+                "InventoryConfigurations": [
+                    {
+                        "Id": "FullBucketDailyInventory",
+                        "Destination": {
+                            "BucketArn": {
+                                "Fn::Sub": "arn:aws:s3:::login-gov.s3-inventory.${AWS::AccountId}-${AWS::Region}"
+                            },
+                            "Format": "CSV",
+                            "Prefix": "InventoryDestinationPrefix"
+                        },
+                        "Enabled": true,
+                        "IncludedObjectVersions": "All",
+                        "ScheduleFrequency": "Daily",
+                        "OptionalFields": [
+                            "LastModifiedDate",
+                            "ETag",
+                            "EncryptionStatus"
+                        ]
+                    }
+                ],
                 "Tags": []
             }
         },
