@@ -124,53 +124,7 @@ data "aws_iam_policy_document" "s3_awsmacietrail_dataevent" {
     }
   }
   statement {
-    sid = "Deny incorrect encryption header. This is optional"
-    effect = "Deny"
-    principals {
-      type = "Service"
-      identifiers = [
-        "macie.amazonaws.com"
-      ]
-    }
-    actions = [
-      "s3:PutObject"
-    ]
-    resources = [
-      "arn:aws:s3:::${local.macie_s3_bucket_name}/*"
-    ]
-    condition {
-      test = "StringNotEquals"
-      variable = "s3:x-amz-server-side-encryption-aws-kms-key-id"
-      values = [
-        aws_kms_key.awsmacietrail_dataevent.arn
-      ]
-    }
-  }
-  statement {
-    sid = "Deny unencrypted object uploads. This is optional"
-    effect = "Deny"
-    principals {
-      type = "Service"
-      identifiers = [
-        "macie.amazonaws.com"
-      ]
-    }
-    actions = [
-      "s3:PutObject"
-    ]
-    resources = [
-      "arn:aws:s3:::${local.macie_s3_bucket_name}/*"
-    ]
-    condition {
-      test = "StringNotEquals"
-      variable = "s3:x-amz-server-side-encryption"
-      values = [
-        "aws:kms"
-      ]
-    }
-  }
-  statement {
-    sid = "Allow Macie to upload objects to the bucket"
+    sid = "Allow encrypted Macie uploads."
     effect = "Allow"
     principals {
       type = "Service"
@@ -184,6 +138,20 @@ data "aws_iam_policy_document" "s3_awsmacietrail_dataevent" {
     resources = [
       "arn:aws:s3:::${local.macie_s3_bucket_name}/*"
     ]
+    condition {
+      test = "StringEquals"
+      variable = "s3:x-amz-server-side-encryption-aws-kms-key-id"
+      values = [
+        aws_kms_key.awsmacietrail_dataevent.arn
+      ]
+    }
+    condition {
+      test = "StringEquals"
+      variable = "s3:x-amz-server-side-encryption"
+      values = [
+        "aws:kms"
+      ]
+    }
   }
   statement {
     sid = "Allow Macie to use the getBucketLocation operation"
