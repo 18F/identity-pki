@@ -1,6 +1,6 @@
 provider "aws" {
   region              = "us-west-2"
-  allowed_account_ids = ["917793222841"] # require login-tooling
+  allowed_account_ids = ["917793222841"] # require login-alpha
   profile             = "login-alpha"
 }
 
@@ -14,9 +14,10 @@ variable "code_branch" {
   default = "main"
 }
 
-module "main" {
-  source = "../module"
-
-  trigger_source = "CloudWatch"
-  code_branch    = var.code_branch
-}
+##### uncomment to test deployments in login-alpha #####
+#module "main" {
+#  source = "../module"
+#
+#  trigger_source = "CloudWatch"
+#  code_branch    = var.code_branch
+#}

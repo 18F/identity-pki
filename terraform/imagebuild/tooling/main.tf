@@ -14,9 +14,10 @@ variable "code_branch" {
   default = "main"
 }
 
-module "main" {
-  source = "../module"
-
-  trigger_source = "CloudWatch"
-  code_branch    = var.code_branch
-}
+##### uncomment to test deployments in login-tooling #####
+#module "main" {
+#  source = "../module"
+#
+#  trigger_source = "CloudWatch"
+#  code_branch    = var.code_branch
+#}
