@@ -2,6 +2,11 @@
 # account. This does not imply that Macie2 will be enabled in every account,
 # only that the resources exist.
 
+locals {
+  macie_s3_bucket_name = "login-gov.awsmacietrail-dataevent.${data.aws_caller_identity.current.account_id}-${var.region}"
+}
+
+
 resource "aws_kms_key" "awsmacietrail_dataevent" {
   description             = "Macie v2"
   deletion_window_in_days = 7
@@ -15,7 +20,7 @@ resource "aws_kms_alias" "awsmacietrail_dataevent" {
 }
 
 resource "aws_s3_bucket" "awsmacietrail_dataevent" {
-  bucket = "${data.aws_caller_identity.current.account_id}-awsmacietrail-dataevent"
+  bucket = local.macie_s3_bucket_name
   acl = "private"
   server_side_encryption_configuration {
     rule {
@@ -30,7 +35,7 @@ resource "aws_s3_bucket" "awsmacietrail_dataevent" {
   
   logging {
     target_bucket = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
-    target_prefix = "${data.aws_caller_identity.current.account_id}-awsmacietrail-dataevent"
+    target_prefix = local.macie_s3_bucket_name
   }
   
   versioning {
@@ -108,7 +113,7 @@ data "aws_iam_policy_document" "s3_awsmacietrail_dataevent" {
       "s3:*"
     ]
     resources = [
-      "arn:aws:s3:::917793222841-awsmacietrail-dataevent/*"
+      "arn:aws:s3:::${local.macie_s3_bucket_name}/*"
     ]
     condition {
       test = "Bool"
@@ -131,13 +136,13 @@ data "aws_iam_policy_document" "s3_awsmacietrail_dataevent" {
       "s3:PutObject"
     ]
     resources = [
-      "arn:aws:s3:::917793222841-awsmacietrail-dataevent/*"
+      "arn:aws:s3:::${local.macie_s3_bucket_name}/*"
     ]
     condition {
       test = "StringNotEquals"
       variable = "s3:x-amz-server-side-encryption-aws-kms-key-id"
       values = [
-        "arn:aws:kms:us-west-2:917793222841:key/82338288-a8af-4a2c-96d5-98df8bed932e"
+        aws_kms_key.awsmacietrail_dataevent.arn
       ]
     }
   }
@@ -154,7 +159,7 @@ data "aws_iam_policy_document" "s3_awsmacietrail_dataevent" {
       "s3:PutObject"
     ]
     resources = [
-      "arn:aws:s3:::917793222841-awsmacietrail-dataevent/*"
+      "arn:aws:s3:::${local.macie_s3_bucket_name}/*"
     ]
     condition {
       test = "StringNotEquals"
@@ -177,7 +182,7 @@ data "aws_iam_policy_document" "s3_awsmacietrail_dataevent" {
       "s3:PutObject"
     ]
     resources = [
-      "arn:aws:s3:::917793222841-awsmacietrail-dataevent/*"
+      "arn:aws:s3:::${local.macie_s3_bucket_name}/*"
     ]
   }
   statement {
@@ -193,7 +198,7 @@ data "aws_iam_policy_document" "s3_awsmacietrail_dataevent" {
       "s3:GetBucketLocation"
     ]
     resources = [
-      "arn:aws:s3:::917793222841-awsmacietrail-dataevent"
+      "arn:aws:s3:::${local.macie_s3_bucket_name}"
     ]
   }
 }
