@@ -77,7 +77,7 @@ data "aws_iam_policy_document" "kms_awsmacietrail_dataevent" {
     ]
   }
   statement {
-    sid = "Enable IAM policies"
+    sid = "Allow root to administer the key. This enables IAM policies."
     effect = "Allow"
     principals {
       type = "AWS"
