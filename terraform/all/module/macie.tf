@@ -64,7 +64,9 @@ data "aws_iam_policy_document" "kms_awsmacietrail_dataevent" {
     effect = "Allow"
     principals {
       type = "Service"
-      identifiers = ["macie.amazonaws.com"]
+      identifiers = [
+        "macie.amazonaws.com"
+      ]
     }
     actions = [
       "kms:GenerateDataKey",
@@ -98,14 +100,22 @@ data "aws_iam_policy_document" "s3_awsmacietrail_dataevent" {
     effect = "Deny"
     principals {
       type = "*"
-      identifiers = ["*"]
+      identifiers = [
+        "*"
+      ]
     }
-    actions = ["s3:*"]
-    resources = ["arn:aws:s3:::917793222841-awsmacietrail-dataevent/*"]
+    actions = [
+      "s3:*"
+    ]
+    resources = [
+      "arn:aws:s3:::917793222841-awsmacietrail-dataevent/*"
+    ]
     condition {
       test = "Bool"
       variable = "aws:SecureTransport"
-      values = ["false"]
+      values = [
+        "false"
+      ]
     }
   }
   statement {
@@ -113,14 +123,22 @@ data "aws_iam_policy_document" "s3_awsmacietrail_dataevent" {
     effect = "Deny"
     principals {
       type = "Service"
-      identifiers = ["macie.amazonaws.com"]
+      identifiers = [
+        "macie.amazonaws.com"
+      ]
     }
-    actions = ["s3:PutObject"]
-    resources = ["arn:aws:s3:::917793222841-awsmacietrail-dataevent/*"]
+    actions = [
+      "s3:PutObject"
+    ]
+    resources = [
+      "arn:aws:s3:::917793222841-awsmacietrail-dataevent/*"
+    ]
     condition {
       test = "StringNotEquals"
       variable = "s3:x-amz-server-side-encryption-aws-kms-key-id"
-      values = ["arn:aws:kms:us-west-2:917793222841:key/82338288-a8af-4a2c-96d5-98df8bed932e"]
+      values = [
+        "arn:aws:kms:us-west-2:917793222841:key/82338288-a8af-4a2c-96d5-98df8bed932e"
+      ]
     }
   }
   statement {
@@ -128,14 +146,22 @@ data "aws_iam_policy_document" "s3_awsmacietrail_dataevent" {
     effect = "Deny"
     principals {
       type = "Service"
-      identifiers = ["macie.amazonaws.com"]
+      identifiers = [
+        "macie.amazonaws.com"
+      ]
     }
-    actions = ["s3:PutObject"]
-    resources = ["arn:aws:s3:::917793222841-awsmacietrail-dataevent/*"]
+    actions = [
+      "s3:PutObject"
+    ]
+    resources = [
+      "arn:aws:s3:::917793222841-awsmacietrail-dataevent/*"
+    ]
     condition {
       test = "StringNotEquals"
       variable = "s3:x-amz-server-side-encryption"
-      values = ["aws:kms"]
+      values = [
+        "aws:kms"
+      ]
     }
   }
   statement {
@@ -143,19 +169,31 @@ data "aws_iam_policy_document" "s3_awsmacietrail_dataevent" {
     effect = "Allow"
     principals {
       type = "Service"
-      identifiers = ["macie.amazonaws.com"]
+      identifiers = [
+        "macie.amazonaws.com"
+      ]
     }
-    actions = ["s3:PutObject"]
-    resources = ["arn:aws:s3:::917793222841-awsmacietrail-dataevent/*"]
+    actions = [
+      "s3:PutObject"
+    ]
+    resources = [
+      "arn:aws:s3:::917793222841-awsmacietrail-dataevent/*"
+    ]
   }
   statement {
     sid = "Allow Macie to use the getBucketLocation operation"
     effect = "Allow"
     principals {
       type = "Service"
-      identifiers = ["macie.amazonaws.com"]
+      identifiers = [
+        "macie.amazonaws.com"
+      ]
     }
-    actions = ["s3:GetBucketLocation"]
-    resources = ["arn:aws:s3:::917793222841-awsmacietrail-dataevent"]
+    actions = [
+      "s3:GetBucketLocation"
+    ]
+    resources = [
+      "arn:aws:s3:::917793222841-awsmacietrail-dataevent"
+    ]
   }
 }
