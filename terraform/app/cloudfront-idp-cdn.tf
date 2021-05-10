@@ -97,7 +97,7 @@ resource "aws_route53_record" "cname_cloudfront_idp" {
 
 resource "aws_cloudwatch_metric_alarm" "cloudfront_alert" {
   count                     = var.enable_idp_cdn ? 1 : 0
-  alarm_name                = "CloudFront 4xx Errors"
+  alarm_name                = "CloudFront ${env_name} 4xx Errors"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "1"
   metric_name               = "4xxErrorRate"
@@ -112,7 +112,7 @@ resource "aws_cloudwatch_metric_alarm" "cloudfront_alert" {
         }
 }
 
-resource "newrelic_synthetics_monitor" "api_health" {
+resource "newrelic_synthetics_monitor" "cloudfront_health" {
   count     = var.enabled
   name      = "${var.env_name} /api/health check"
   type      = "SIMPLE"
@@ -120,15 +120,15 @@ resource "newrelic_synthetics_monitor" "api_health" {
   status    = "ENABLED"
   locations = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
 
-  uri               = "https://${local.cfn_domain_name}/api/health"
+  uri               = "https://static.${local.idp_domain_name}/packs/manifest.json"
   validation_string = "\"all_checks_healthy\":true"
   verify_ssl        = true
 }
-resource "newrelic_synthetics_alert_condition" "api_health" {
+resource "newrelic_synthetics_alert_condition" "cloud_health" {
   count     = var.idp_enabled
   policy_id = newrelic_alert_policy.high[0].id
 
-  name       = "https://${local.cfn_domain_name}/api/health failure"
+  name       = "https://static.${local.idp_domain_name}/packs/manifest.json health failure"
   monitor_id = newrelic_synthetics_monitor.api_health[0].id
 }
 
