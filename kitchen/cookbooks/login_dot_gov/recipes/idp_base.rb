@@ -1,8 +1,3 @@
-# Static resource compilation requirements
-apt_package 'nodejs' do
-  action :upgrade
-end
-
 # Required for Canvas - Used in static resource compilation
 package 'libcairo2-dev'
 package 'libpango1.0-dev'
@@ -46,10 +41,6 @@ remote_file '/usr/local/share/aws/rds-combined-ca-bundle.pem' do
   owner 'root'
   sensitive true # nothing sensitive but using to remove unnecessary output
   source 'https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem'
-end
-
-execute 'update-alternatives --install /usr/bin/node nodejs /usr/bin/nodejs 100' do
-  not_if { ::File.exists? '/usr/bin/node' }
 end
 
 directory release_path do
