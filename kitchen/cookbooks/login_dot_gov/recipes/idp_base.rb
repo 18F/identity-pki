@@ -3,10 +3,6 @@ apt_package 'nodejs' do
   action :upgrade
 end
 
-apt_package 'yarn' do
-  version node['login_dot_gov']['yarn_version']
-end
-
 # Required for Canvas - Used in static resource compilation
 package 'libcairo2-dev'
 package 'libpango1.0-dev'
