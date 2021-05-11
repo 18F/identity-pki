@@ -1,4 +1,5 @@
 resource_name :publish_certificate
+provides :publish_certificate
 
 property :name, String, default: 'Publish a local certificate to s3'
 property :cert_path, String
