@@ -6,7 +6,7 @@
 
 require 'spec_helper'
 
-describe 'instance_certificate::generatecert' do
+describe 'instance_certificate::generate' do
   context 'When overriding the subject' do
     let(:chef_run) do
       runner = ChefSpec::ServerRunner.new(

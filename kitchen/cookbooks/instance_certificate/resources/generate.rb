@@ -1,4 +1,5 @@
-resource_name :generatecert
+resource_name :generate
+provides :generate
 
 property :name, String, default: 'generate and install instance key and certificate'
 property :cert_path, String, identity: true
@@ -15,7 +16,7 @@ def default_subject
 end
 
 
-default_action :generatecert
+default_action :generate
 
 load_current_value do
   current_value_does_not_exist! unless cert_path && ::File.exist?(cert_path)
@@ -29,7 +30,7 @@ load_current_value do
   valid_days(((cert.not_after - cert.not_before) / 3600 / 24).round)
 end
 
-action :generatecert do
+action :generate do
 
   # Make sure the certificate directories exist
   directory ::File.dirname(new_resource.key_path)
