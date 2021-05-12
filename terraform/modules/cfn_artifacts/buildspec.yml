@@ -8,7 +8,7 @@ phases:
       - echo "Installing Chef and Berkshelf"
       - apt-get -y update
       - apt-get -y install build-essential libxml2-dev libxslt-dev autoconf
-      - curl -LO https://omnitruck.chef.io/install.sh && bash ./install.sh -v 15.10.12 && rm install.sh
+      - curl -LO https://omnitruck.chef.io/install.sh && bash ./install.sh -v 16.13.16 && rm install.sh
       - /opt/chef/embedded/bin/gem install berkshelf --no-document
       - ln -s /opt/chef/embedded/bin/berks /usr/local/bin/berks
       - echo "Vendor cookbooks"

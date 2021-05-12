@@ -1,4 +1,5 @@
 resource_name :psql_config
+provides :psql_config
 
 property :name, String, default: '/usr/local/share/aws'
 

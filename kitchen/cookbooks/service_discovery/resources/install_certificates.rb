@@ -1,4 +1,5 @@
 resource_name :install_certificates
+provides :install_certificates
 
 property :name, String, default: 'Discover the given services and install their certificates in a directory'
 property :service_tag_key, String

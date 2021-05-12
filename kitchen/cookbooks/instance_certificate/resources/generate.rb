@@ -1,4 +1,5 @@
 resource_name :generate
+provides :generate
 
 property :name, String, default: 'generate and install instance key and certificate'
 property :cert_path, String, identity: true

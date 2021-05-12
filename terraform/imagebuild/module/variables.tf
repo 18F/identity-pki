@@ -48,7 +48,7 @@ variable "packer_config" {
     data_vol_size           = "100"
     deregister_existing_ami = "false"
     delete_ami_snapshots    = "false"
-    chef_version            = "15.10.12"
+    chef_version            = "16.13.16"
     os_version              = "Ubuntu 18.04"
     ami_owner_id            = "679593333241",
     ami_filter_name         = "ubuntu-pro-fips/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-202-eaa0674e-0ac1-4b3d-9076-ec16636760e8-ami-0c3a78fa8fb3b0ed8.4"
