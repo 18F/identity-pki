@@ -317,11 +317,6 @@ fi
 set_newrelic_enpoints
 
 echo "==========================================================="
-echo "provision.sh: updating repo keys"
-curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - || true
-apt-key adv --refresh-keys --keyserver-options http-proxy="http://$proxy_server:$proxy_port" --keyserver hkps://keyserver.ubuntu.com:443 || true
-
-echo "==========================================================="
 echo "provision.sh: downloading SSH key and cloning repo"
 
 if [[ "$s3_ssh_key_url" != s3://* ]]; then

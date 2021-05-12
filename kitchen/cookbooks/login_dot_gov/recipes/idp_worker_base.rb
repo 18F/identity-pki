@@ -4,8 +4,6 @@ psql_config 'configure postgres CA bundle root cert'
 release_path    = '/srv/idp/releases/chef'
 shared_path     = '/srv/idp/shared'
 
-package 'jq'
-
 # create dir for AWS PostgreSQL combined CA cert bundle
 directory '/usr/local/share/aws' do
   owner 'root'

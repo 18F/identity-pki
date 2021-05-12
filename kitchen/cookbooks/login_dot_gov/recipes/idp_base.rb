@@ -1,19 +1,3 @@
-# Static resource compilation requirements
-apt_package 'nodejs' do
-  action :upgrade
-end
-
-apt_package 'yarn' do
-  version node['login_dot_gov']['yarn_version']
-end
-
-# Required for Canvas - Used in static resource compilation
-package 'libcairo2-dev'
-package 'libpango1.0-dev'
-package 'libjpeg-dev'
-package 'libgif-dev'
-package 'librsvg2-dev'
-
 # CloudHSM support - Unused
 if node.fetch('login_dot_gov').fetch('cloudhsm_enabled')
   Chef::Log.info('CloudHSM is enabled')
@@ -27,12 +11,6 @@ psql_config 'configure postgres CA bundle root cert'
 
 release_path    = '/srv/idp/releases/chef'
 shared_path     = '/srv/idp/shared'
-
-package 'jq'
-case node[:platform_version]
-when '16.04'
-  package 'libcurl4-openssl-dev'
-end
 
 # create dir for AWS PostgreSQL combined CA cert bundle
 directory '/usr/local/share/aws' do
@@ -50,10 +28,6 @@ remote_file '/usr/local/share/aws/rds-combined-ca-bundle.pem' do
   owner 'root'
   sensitive true # nothing sensitive but using to remove unnecessary output
   source 'https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem'
-end
-
-execute 'update-alternatives --install /usr/bin/node nodejs /usr/bin/nodejs 100' do
-  not_if { ::File.exists? '/usr/bin/node' }
 end
 
 directory release_path do
