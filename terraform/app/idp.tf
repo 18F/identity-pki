@@ -147,6 +147,12 @@ resource "aws_db_parameter_group" "force_ssl" {
     value = "250" # 250 ms
   }
 
+  # Log lock waits
+  parameter {
+    name = "log_lock_waits"
+    value = "1"
+  }
+
   lifecycle {
     create_before_destroy = true
   }
