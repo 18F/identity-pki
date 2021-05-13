@@ -1,10 +1,7 @@
-locals {
-  cfn_domain_name = var.env_name == "prod" ? "secure.${var.root_domain}" : "idp.${var.env_name}.${var.root_domain}"
-}
-
 data "aws_sns_topic" "cloudfront_alarm" {
   name = "devops_high_priority"
 }
+
 # Create a TLS certificate with ACM
 module "acm-cert-idp-static-cdn" {
   count     = var.enable_idp_cdn ? 1 : 0
@@ -97,7 +94,7 @@ resource "aws_route53_record" "cname_cloudfront_idp" {
 
 resource "aws_cloudwatch_metric_alarm" "cloudfront_alert" {
   count                     = var.enable_idp_cdn ? 1 : 0
-  alarm_name                = "CloudFront ${env_name} 4xx Errors"
+  alarm_name                = "CloudFront ${var.env_name} 4xx Errors"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "1"
   metric_name               = "4xxErrorRate"
@@ -111,25 +108,3 @@ resource "aws_cloudwatch_metric_alarm" "cloudfront_alert" {
       DistributionId = aws_cloudfront_distribution.idp_static_cdn[count.index].id
         }
 }
-
-resource "newrelic_synthetics_monitor" "cloudfront_health" {
-  count     = var.enabled
-  name      = "${var.env_name} /api/health check"
-  type      = "SIMPLE"
-  frequency = 5
-  status    = "ENABLED"
-  locations = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
-
-  uri               = "https://static.${local.idp_domain_name}/packs/manifest.json"
-  validation_string = "\"all_checks_healthy\":true"
-  verify_ssl        = true
-}
-resource "newrelic_synthetics_alert_condition" "cloud_health" {
-  count     = var.idp_enabled
-  policy_id = newrelic_alert_policy.high[0].id
-
-  name       = "https://static.${local.idp_domain_name}/packs/manifest.json health failure"
-  monitor_id = newrelic_synthetics_monitor.api_health[0].id
-}
-
-
