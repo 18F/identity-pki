@@ -79,6 +79,13 @@ aws dynamodb query \
 --projection-expression "#U, #TS, Correlated" \
 --output text
 
+read -p "Do you need to review the CloudWatch Logs? " -n 1 -r
+echo   
+if [[ ! $REPLY =~ ^[Yy]$ ]]
+then
+    exit 1
+fi
+
 echo
 echo "CW Logs Query Results"
 
