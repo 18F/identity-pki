@@ -99,8 +99,6 @@ describe command("grep 'Harvester started for file' /var/log/filebeat/filebea* |
   its('stdout') { should include '/var/log/cloud-init-output.log' }
   its('stdout') { should include '/var/log/cloud-init.log' }
   its('stdout') { should include '/var/log/dpkg.log' }
-# TODO: perhaps remove this from common since it seems to only be present on ELK instances  
-#  its('stdout') { should include '/var/log/fontconfig.log' }
   its('stdout') { should include '/var/log/grubfix.log' }
   its('stdout') { should include '/var/log/kern.log' }
 # NOTE: this does not seem to be used on the jumphost

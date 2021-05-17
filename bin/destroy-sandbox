@@ -16,7 +16,6 @@ Usage: ${0} [-ldebkxh] [ENV] (defaults to \$GSA_USERNAME if not specified)
 Flags (will run all if no flags specified):
   -l : Delete ENV-idp-functions CloudFormation stack if it exists
   -d : Remove deletion/prevent_destroy/final snapshot from RDS dbs
-  -e : Scale in ElasticSearch instances
   -b : Empties all S3 buckets with ENV in the bucket name
   -k : Delete all ENV-named S3 keys in secrets/app-secrets buckets
   -x : terraform-destroy + reset db .tf files
@@ -41,8 +40,6 @@ using the following flags:
        if it currently exists
   -d : Remove deletion protection and prevent_destroy settings from
        app and idp databases, and set skip_final_snapshot to true
-  -e : Scales in Elasticsearch instances within the environment,
-       if they exist / if asg_elasticsearch_desired > 0
   -b : Empties all S3 buckets with \${TF_ENV} in the bucket name,
        and deletes all object versions as well.
   -k : Delete all S3 keys in the secrets/app-secrets buckets that
@@ -77,15 +74,6 @@ allow_db_destroy() {
     sed -i '' -E 's/#(skip_final_snapshot = true)/\1/g' ${APP_DIR}/${DB}.tf
   done
   ave ${BASEPATH}/tf-deploy -t -z ${TF_ENV} app apply -auto-approve
-}
-
-scale_in_es() {
-  if [[ $(get_tf_var asg_elasticsearch_desired) != '0' ]] &&
-     [[ ! -z $(ave aws autoscaling describe-auto-scaling-groups \
-                 --auto-scaling-group-names ${TF_ENV}-elasticsearch |
-                 jq -r '.AutoScalingGroups[].Instances[]') ]] ; then
-    ave ${BASEPATH}/scale-in-old-instances -qf ${TF_ENV} elasticsearch
-  fi
 }
 
 empty_buckets() {
@@ -124,22 +112,20 @@ tf_destroy() {
 TASKS=(
   "delete_lambdas"
   "allow_db_destroy"
-  "scale_in_es"
   "empty_buckets"
   "delete_env_keys"
   "tf_destroy"
 )
 
 TODO=()
-while getopts ldebkxh opt
+while getopts ldbkxh opt
 do
   case $opt in
     l) TODO+=("${TASKS[0]}") ;;
     d) TODO+=("${TASKS[1]}") ;;
-    e) TODO+=("${TASKS[2]}") ;;
-    b) TODO+=("${TASKS[3]}") ;;
-    k) TODO+=("${TASKS[4]}") ;;
-    x) TODO+=("${TASKS[5]}") ;;
+    b) TODO+=("${TASKS[2]}") ;;
+    k) TODO+=("${TASKS[3]}") ;;
+    x) TODO+=("${TASKS[4]}") ;;
     h) man_page ;;
     *) usage && exit 1 ;;
   esac

@@ -6,14 +6,12 @@ module "newrelic" {
 
   enabled                                    = var.newrelic_alerts_enabled
   staticsite_alerts_enabled                  = var.staticsite_newrelic_alerts_enabled
-  elk_enabled                                = var.elk_newrelic_alerts_enabled
   idp_enabled                                = var.idp_newrelic_alerts_enabled
   pivcac_service_enabled                     = var.pivcac_service_enabled
   enduser_enabled                            = var.idp_enduser_newrelic_alerts_enabled
   dashboard_enabled                          = var.dashboard_newrelic_alerts_enabled
   region                                     = var.region
   env_name                                   = var.env_name
-  events_in_last_ten_minutes_alert_threshold = var.events_in_last_ten_minutes_alert_threshold
   pivcac_low_traffic_alert_threshold         = var.pivcac_low_traffic_alert_threshold
   root_domain                                = var.root_domain
   web_low_traffic_alert_threshold            = var.web_low_traffic_alert_threshold

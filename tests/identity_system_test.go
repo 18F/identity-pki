@@ -20,7 +20,6 @@ import (
 var idp_hostname = os.Getenv("IDP_HOSTNAME")
 var region = os.Getenv("REGION")
 var env_name = os.Getenv("ENV_NAME")
-var elkAsgName = env_name + "-elk"
 
 func RunCommandOnInstances(t *testing.T, instancestrings []string, command string) *ssm.GetCommandInvocationOutput {
 	var instances []*string
@@ -140,83 +139,3 @@ func TestIdpRecycle(t *testing.T) {
 // 		},
 // 	)
 // }
-
-// This does an ASG recycle of the ELK node to make sure that everything works with
-// whatever new stuff is out there.
-func TestElkRecycle(t *testing.T) {
-	ASGRecycle(t, elkAsgName)
-
-	// we should only have one elk instance
-	instancestrings := aws.GetInstanceIdsForAsg(t, elkAsgName, region)
-	assert.Equal(t, int(len(instancestrings)), 1)
-
-	cmdoutput := RunCommandOnInstances(t, instancestrings, "cat /var/lib/cloud/data/status.json")
-	assert.Equal(t, int64(0), *cmdoutput.ResponseCode, "could not cat /var/lib/cloud/data/status.json to gather cloud-init status information")
-
-	// Make sure that the cloud-init run completed properly
-	var cwstatus map[string]map[string]map[string]interface{}
-	err := json.Unmarshal([]byte(*cmdoutput.StandardOutputContent), &cwstatus)
-	require.NoError(t, err)
-	for _, v := range cwstatus["v1"] {
-		if errors, ok := v["errors"]; ok {
-			assert.Empty(t, errors, "there were errors in one of the cloud-init phases")
-		}
-	}
-}
-
-// // XXX AWS ES is what is running in my environment, so cannot test this now.
-// func TestESRecycle(t *testing.T) {
-// 	ASGRecycle(t, env_name + "-elasticsearch")
-// }
-
-func TestFilebeat(t *testing.T) {
-	t.Parallel()
-
-	// we should only have one elk instance
-	instancestrings := aws.GetInstanceIdsForAsg(t, elkAsgName, region)
-	assert.Equal(t, int(len(instancestrings)), 1, "there should only be one elk node")
-
-	cmdoutput := RunCommandOnInstances(t, instancestrings, "/usr/bin/curl -XGET localhost:5066/stats?pretty")
-	assert.Equal(t, int64(0), *cmdoutput.ResponseCode, "we were not able to get status information from filebeat")
-
-	// Make sure that we are are successfully logging to logstash
-	var cwstatus map[string]map[string]map[string]map[string]int64
-	err := json.Unmarshal([]byte(*cmdoutput.StandardOutputContent), &cwstatus)
-	require.NoError(t, err)
-
-	// check for zero errors
-	assert.Equal(t, int64(0), cwstatus["libbeat"]["output"]["write"]["errors"], "there are errors trying to send to logstash")
-	// check for greater than zero bytes sent to logstash
-	assert.Greater(t, cwstatus["libbeat"]["output"]["write"]["bytes"], int64(0), "no data has been sent to logstash")
-}
-
-func TestLogstash(t *testing.T) {
-	t.Parallel()
-
-	// we should only have one elk instance
-	instancestrings := aws.GetInstanceIdsForAsg(t, elkAsgName, region)
-	assert.Equal(t, 1, int(len(instancestrings)), "there should only be one elk node")
-
-	cmdoutput := RunCommandOnInstances(t, instancestrings, "/usr/bin/curl -XGET localhost:9600/_node/stats/events")
-	assert.Equal(t, int64(0), *cmdoutput.ResponseCode, "we were not able to get status information from logstash")
-
-	var cwstatus map[string]interface{}
-	err := json.Unmarshal([]byte(*cmdoutput.StandardOutputContent), &cwstatus)
-	require.NoError(t, err)
-
-	// check for zero errors
-	events := cwstatus["events"].(map[string]interface{})
-	assert.Greater(t, events["out"].(float64), float64(0), "there are errors trying to send to elasticsearch")
-	// check for green status
-	assert.Equal(t, "green", cwstatus["status"], "the status is not green")
-}
-
-func TestElastalert(t *testing.T) {
-	t.Parallel()
-	// XXX need to probably query ES for some stats here.
-}
-
-func TestElasticsearch(t *testing.T) {
-	t.Parallel()
-	// XXX do we need more here?  If logstash is working, ES is working, right?
-}

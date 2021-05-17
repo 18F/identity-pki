@@ -6,15 +6,6 @@
   "json_class": "Chef::Environment",
   "chef_type": "environment",
   "default_attributes": {
-    "elk": {
-      "retentiondays": 14,
-      "users": [
-        "jgrevich",
-        "jhooper",
-        "mzia",
-        "steveu"
-      ]
-    },
     "identity-outboundproxy": {
       "use_dashboard_dynamic_updates": true
     },

@@ -1,4 +1,0 @@
-{
-  "template": "logstash",
-  "index_patterns": ["logstash-2*"]
-}

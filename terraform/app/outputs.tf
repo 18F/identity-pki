@@ -18,10 +18,6 @@ output "aws_idp_sg_id" {
   value = "SECURITY_GROUP_ID=${aws_security_group.idp.id}"
 }
 
-output "elk" {
-  value = "https://elk.login.gov.internal:8443/"
-}
-
 output "idp_db_address" {
   value = "idp-postgres.login.gov.internal"
 }

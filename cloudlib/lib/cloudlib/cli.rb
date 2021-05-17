@@ -3,7 +3,6 @@
 require 'thor'
 
 require_relative 'commands/base'
-require_relative 'commands/elasticsearch'
 require_relative 'commands/lambda'
 
 module Cloudlib
@@ -25,10 +24,6 @@ module Cloudlib
       Cloudlib.log_level += 1 if options['quiet']
       Cloudlib.log_level = options['log-level'] if options['log-level']
     end
-
-
-    desc 'elasticsearch COMMAND [ARGS...]', 'Manage Elasticsearch clusters'
-    subcommand 'elasticsearch', Cloudlib::Commands::Elasticsearch
 
     desc 'lambda COMMAND [ARGS...]', 'Manage/deploy AWS lambdas'
     subcommand 'lambda', Cloudlib::Commands::Lambda

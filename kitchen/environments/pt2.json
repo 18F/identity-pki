@@ -19,14 +19,6 @@
         "enabled": true
       }
     },
-    "elk": {
-      "users": [
-        "jgrevich",
-        "jhooper",
-        "mzia",
-        "steveu"
-      ]
-    },
     "passenger": {
       "production": {
         "limit_connections": false

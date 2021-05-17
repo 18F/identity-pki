@@ -4,12 +4,6 @@
   "json_class": "Chef::Environment",
   "chef_type": "environment",
   "default_attributes": {
-    "elk": {
-      "retentiondays": 14,
-      "users": [
-        "vivek"
-      ]
-    },
     "login_dot_gov": {
       "deploy_branch_default": "main",
       "idp_run_migrations": true,

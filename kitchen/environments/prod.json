@@ -13,14 +13,6 @@
     },
     "ssh_keys": {
     },
-    "elk": {
-      "users": [
-        "jgrevich",
-        "jhooper",
-        "mzia",
-        "steveu"
-      ]
-    },
     "identity-jumphost": {
       "retrieve-ssh-host-keys": true
     }

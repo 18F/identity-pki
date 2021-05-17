@@ -14,7 +14,7 @@ echo "{\"name\":\"myfavoritecow\"}" >> kitchen/roles/myfavoritecow.json
 Each instance in our infrastructure has a “role”.  Some examples are, “idp” for
 our front of house identity provider servers that clients communicate with from
 the outside, “worker” for the hosts that process background jobs including SMS
-and email, and “elk” for the hosts that run logstash and kibana.
+and email, and “outboundproxy” for the hosts that serve as Internet proxies for other hosts in the environment.
 
 The role is not just a concept, it is explicitly defined as a Chef Role, which
 is a collection of Chef Recipes (blocks of special purpose ruby code that

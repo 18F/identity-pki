@@ -13,11 +13,6 @@ variable "staticsite_alerts_enabled" {
   default     = 0
 }
 
-variable "elk_enabled" {
-  description = "set this to 1 if you want to alert on ELK problems"
-  default     = 0
-}
-
 variable "idp_enabled" {
   description = "set this to 1 if you want to alert on idp problems"
   default     = 0
@@ -42,10 +37,6 @@ variable "env_name" {}
 
 variable "region" {
   default = "us-west-2"
-}
-
-variable "events_in_last_ten_minutes_alert_threshold" {
-  default = 4000
 }
 
 variable "apdex_alert_threshold" {

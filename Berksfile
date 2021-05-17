@@ -18,8 +18,6 @@ cookbook 'sudo'
 cookbook 'users'
 cookbook 'apache2', '~> 5.2'
 cookbook 'runit', '~>5.1.3'
-cookbook 'elasticsearch-curator', '~> 0.3.0'
-cookbook 'elasticsearch', '~> 4.2.0'
 cookbook 'ossec', '~> 1.2.0', git: 'https://github.com/sous-chefs/ossec'
 cookbook 'seven_zip', '~3.2.0' #can remove version constraint after upgrading chef to v16 
 
@@ -45,7 +43,6 @@ cookbook 'identity-outboundproxy', path: prefixed('kitchen/cookbooks/identity-ou
 cookbook 'aws_s3', path: prefixed('kitchen/cookbooks/aws_s3')
 cookbook 'canonical_hostname', path: prefixed('kitchen/cookbooks/canonical_hostname')
 cookbook 'chef_proxy_env', path: prefixed('kitchen/cookbooks/chef_proxy_env')
-cookbook 'identity-elk', path: prefixed('kitchen/cookbooks/identity-elk')
 cookbook 'identity-jumphost', path: prefixed('kitchen/cookbooks/identity-jumphost')
 cookbook 'identity-nessus', path: prefixed('kitchen/cookbooks/identity-nessus')
 cookbook 'identity-pivcac', path: prefixed('kitchen/cookbooks/identity-pivcac')
