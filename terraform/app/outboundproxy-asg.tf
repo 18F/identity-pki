@@ -86,7 +86,7 @@ resource "aws_iam_role_policy" "obproxy-sns-publish-alerts" {
 }
 
 module "outboundproxy_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=6a7ba69828a2507cf1fcaa225a1df8f501321929"
+  source = "github.com/18F/identity-terraform//launch_template?ref=112a146d2e51b99732ebd6c334cbfc4cc100cc50"
   #source = "../../../identity-terraform/launch_template"
   role           = "outboundproxy"
   env            = var.env_name
