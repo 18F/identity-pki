@@ -87,6 +87,16 @@ resource "aws_security_group" "base" {
     protocol        = "tcp"
     prefix_list_ids = [aws_vpc_endpoint.private-s3.prefix_list_id]
   }
+
+  # GARBAGE TEMP - Allow direct access to api.snapcraft.io until Ubuntu Advantage stops
+  #                hanging on repeated calls to pull the livestream agent from snap
+  egress {
+    description = "allow egress to api.snapcraft.io"
+    protocol    = "tcp"
+    from_port   = 443
+    to_port     = 443
+    cidr_blocks = ["91.189.92.0/24"]
+  }
 }
 
 resource "aws_security_group" "app" {
