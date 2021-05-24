@@ -2,6 +2,7 @@ locals {
   auth_metric_namespace = "${var.env_name}/idp-authentication"
   ialx_metric_namespace = "${var.env_name}/idp-ialx"
   external_service_namespace = "${var.env_name}/idp-external-service"
+  worker_namespace = "${var.env_name}/idp-worker"
   dashboard_name        = "${var.env_name}-idp-workload"
   external_service_dashboard_name = "${var.env_name}-idp-external-service"
 }
@@ -226,6 +227,36 @@ variable "idp_external_service_filters" {
   }
 }
 
+variable "idp_worker_filters" {
+  type = map(object({
+    name         = string
+    pattern      = string
+    metric_value = string
+  }))
+  default = {
+    idp_worker_perform_time = {
+      name         = "perform-time-milliseconds"
+      pattern      = "{ $.name = \"perform.active_job\" && $.queue_name = \"*DelayedJob*\" }"
+      metric_value = "$.duration_ms"
+    },
+    idp_worker_queue_time = {
+      name         = "queue-time-milliseconds"
+      pattern      = "{ $.name = \"perform_start.active_job\" && $.queue_name = \"*DelayedJob*\" }"
+      metric_value = "$.queued_duration_ms"
+    },
+    idp_worker_perform_success = {
+      name         = "perform-success"
+      pattern      = "{ $.name = \"perform.active_job\" && $.exception_class NOT EXISTS && $.queue_name = \"*DelayedJob*\" }"
+      metric_value = 1
+    },
+    idp_worker_perform_failure = {
+      name         = "perform-failure"
+      pattern      = "{ $.name = \"perform.active_job\" && $.exception_class = * && $.queue_name = \"*DelayedJob*\" }"
+      metric_value = 1
+    },
+  }
+}
+
 resource "aws_cloudwatch_log_metric_filter" "idp_external_service" {
   for_each       = var.idp_external_service_filters
   name           = each.value["name"]
@@ -282,6 +313,18 @@ resource "aws_cloudwatch_log_metric_filter" "idp_telephony_auth" {
   metric_transformation {
     name      = each.value["name"]
     namespace = local.auth_metric_namespace
+    value     = each.value["metric_value"]
+  }
+}
+
+resource "aws_cloudwatch_log_metric_filter" "idp_worker" {
+  for_each       = var.idp_worker_filters
+  name           = each.value["name"]
+  pattern        = each.value["pattern"]
+  log_group_name = aws_cloudwatch_log_group.idp_workers.name
+  metric_transformation {
+    name      = each.value["name"]
+    namespace = local.worker_namespace
     value     = each.value["metric_value"]
   }
 }

@@ -41,3 +41,8 @@ resource "aws_cloudwatch_log_group" "idp_telephony" {
   name              = "${var.env_name}_/srv/idp/shared/log/telephony.log"
   retention_in_days = local.retention_days
 }
+
+resource "aws_cloudwatch_log_group" "idp_workers" {
+  name              = "${var.env_name}_/srv/idp/shared/log/workers.log"
+  retention_in_days = local.retention_days
+}
