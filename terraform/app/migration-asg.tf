@@ -39,7 +39,7 @@ module "migration_user_data" {
 }
 
 module "migration_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=6a7ba69828a2507cf1fcaa225a1df8f501321929"
+  source = "github.com/18F/identity-terraform//launch_template?ref=819b7265d0ae14df6bf64159e2c8f116c2804c35"
 
   role           = "migration"
   env            = var.env_name
