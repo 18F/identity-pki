@@ -33,7 +33,7 @@ module "jumphost_lifecycle_hooks" {
 }
 
 module "jumphost_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=112a146d2e51b99732ebd6c334cbfc4cc100cc50"
+  source = "github.com/18F/identity-terraform//launch_template?ref=819b7265d0ae14df6bf64159e2c8f116c2804c35"
   #source = "../../../identity-terraform/launch_template"
   role           = "jumphost"
   env            = var.env_name
