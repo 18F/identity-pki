@@ -893,7 +893,7 @@ variable "idp_ial2_sp_dashboards" {
 }
 
 resource "aws_cloudwatch_dashboard" "idp_ial2_sp_dashboards" {
-  for_each       = var.idp_ial2_sp_dashboards[var.env_name]
+  for_each       = lookup(var.idp_ial2_sp_dashboards, var.env_name, {})
 
   dashboard_name = "${var.env_name}-${each.value["name"]}"
 
