@@ -315,7 +315,7 @@ resource "newrelic_dashboard" "error_dashboard" {
 
 resource "newrelic_synthetics_monitor" "cloudfront_health" {
   count     = var.enabled
-  name      = "${var.env_name} /api/health check"
+  name      = "${var.env_name} static /packs/manifest.json check"
   type      = "SIMPLE"
   frequency = 5
   status    = "ENABLED"
