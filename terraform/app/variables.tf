@@ -633,3 +633,8 @@ variable "gitlab_servicename" {
   description = "the service_name of the gitlab privatelink"
   default = ""
 }
+
+variable "gitlab_hostname" {
+  description = "name to write into the internal dns zone"
+  default = "gitlab"
+}

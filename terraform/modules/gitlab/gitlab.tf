@@ -51,3 +51,11 @@ resource "aws_security_group" "gitlab" {
     Name = "${var.env_name}-gitlab"
   }
 }
+
+resource "aws_route53_record" "gitlab" {
+  zone_id = var.route53_zone_id
+  name    = var.gitlab_hostname
+  type    = "CNAME"
+  ttl     = "300"
+  records = [aws_vpc_endpoint.gitlab.dns_entry[0]["dns_name"]]
+}

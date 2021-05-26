@@ -11,4 +11,6 @@ module "gitlab" {
   name                     = var.name
   env_name                 = var.env_name
   allowed_security_groups  = [aws_security_group.base.id]
+  route53_zone_id          = aws_route53_zone.internal.zone_id
+  dns_name                 = var.gitlab_hostname
 }
