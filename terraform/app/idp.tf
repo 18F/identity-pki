@@ -153,6 +153,16 @@ resource "aws_db_parameter_group" "force_ssl" {
     value = "1"
   }
 
+  # Log autovacuum task that take more than 1 sec
+  parameter {
+    name = "rds.force_autovacuum_logging_level"
+    value = "log"
+  }
+  parameter {
+    name = "log_autovacuum_min_duration"
+    value = 1000
+  }
+
   lifecycle {
     create_before_destroy = true
   }
