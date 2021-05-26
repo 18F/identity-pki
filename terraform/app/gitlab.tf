@@ -1,5 +1,6 @@
 # This enables the gitlab privatelink endpoint in the VPC so that
-# we can get to 
+# we can get to gitlab from the environments that have
+# `gitlab_enabled` turned on.
 module "gitlab" {
   count      = var.gitlab_enabled ? 1 : 0
   depends_on = [aws_internet_gateway.default]
