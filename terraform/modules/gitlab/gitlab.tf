@@ -39,7 +39,7 @@ resource "aws_security_group" "gitlab" {
   #   security_groups = var.allowed_security_groups
   # }
 
-  # this allows the gitlab runners to git pull
+  # this allows everybody to git pull
   ingress {
     from_port       = 22
     to_port         = 22
@@ -54,7 +54,7 @@ resource "aws_security_group" "gitlab" {
 
 resource "aws_route53_record" "gitlab" {
   zone_id = var.route53_zone_id
-  name    = var.gitlab_hostname
+  name    = var.dns_name
   type    = "CNAME"
   ttl     = "300"
   records = [aws_vpc_endpoint.gitlab.dns_entry[0]["dns_name"]]
