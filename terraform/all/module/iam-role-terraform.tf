@@ -604,6 +604,7 @@ locals {
         "sns:GetTopicAttributes",
         "sns:ListSubscriptionsByTopic",
         "sns:ListTagsForResource",
+        "sns:ListTopics",
         "sns:SetTopicAttributes",
         "sns:Subscribe",
         "sns:Unsubscribe",
