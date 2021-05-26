@@ -6,6 +6,9 @@
   "default_attributes": {
     "login_dot_gov": {
       "deploy_branch_default": "main",
+      "deploy_branch": {
+        "identity-dashboard": "stages/akrito"
+      },
       "idp_run_migrations": true,
       "allow_unsafe_migrations": true,
       "idp_sync_static": true

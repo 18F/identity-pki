@@ -23,6 +23,8 @@ module "main" {
   }
 
   legacy_bucket_list = [
+    "login-gov-logs-prod.555546682965-us-west-2",
+    "login-gov-logs-staging.555546682965-us-west-2",
     "login-gov-prod-analytics",
     "login-gov-global-trail",
     "login-gov.waf-logs.555546682965-us-west-2",
