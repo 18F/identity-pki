@@ -604,7 +604,7 @@ resource "aws_vpc_endpoint" "events" {
 }
 
 resource "aws_security_group" "events_endpoint" {
-  description = "Allow inbound from idp and app servers"
+  description = "Allow inbound from idp servers"
 
   # allow outbound to the VPC
   egress {
