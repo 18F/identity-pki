@@ -604,7 +604,7 @@ resource "aws_vpc_endpoint" "events" {
 }
 
 resource "aws_security_group" "events_endpoint" {
-  description = "Allow inbound from idp servers"
+  description = "Allow inbound from idp and app servers"
 
   # allow outbound to the VPC
   egress {
@@ -620,6 +620,7 @@ resource "aws_security_group" "events_endpoint" {
     protocol  = "tcp"
     security_groups = [
       aws_security_group.idp.id,
+      aws_security_group.app.id,
     ]
   }
 
