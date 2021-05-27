@@ -620,6 +620,7 @@ resource "aws_security_group" "events_endpoint" {
     protocol  = "tcp"
     security_groups = [
       aws_security_group.idp.id,
+      aws_security_group.app.id,
     ]
   }
 
