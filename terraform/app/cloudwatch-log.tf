@@ -1,5 +1,5 @@
 locals {
-    retention_days        = (var.env_name == "prod" || var.env_name == "staging" ? "3653" : "30")
+  retention_days = (var.env_name == "prod" || var.env_name == "staging" ? "3653" : "30")
 }
 
 resource "aws_cloudwatch_log_group" "kms_log" {
@@ -19,13 +19,23 @@ resource "aws_cloudwatch_log_group" "squid_access_log" {
 }
 
 resource "aws_cloudwatch_log_group" "dns_query_log" {
-  name = "${var.env_name}/dns/query" 
+  name              = "${var.env_name}/dns/query"
   retention_in_days = 365
 
   tags = {
     environment = var.env_name
   }
 }
+
+resource "aws_cloudwatch_log_group" "ubuntu_advantage" {
+  name              = "${var.env_name}_/var/log/ubuntu-advantage.log"
+  retention_in_days = local.retention_days
+
+  tags = {
+    environment = var.env_name
+  }
+}
+
 
 resource "aws_cloudwatch_log_group" "idp_events" {
   name              = "${var.env_name}_/srv/idp/shared/log/events.log"
@@ -46,3 +56,4 @@ resource "aws_cloudwatch_log_group" "idp_workers" {
   name              = "${var.env_name}_/srv/idp/shared/log/workers.log"
   retention_in_days = local.retention_days
 }
+
