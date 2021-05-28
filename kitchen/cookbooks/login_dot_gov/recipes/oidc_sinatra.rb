@@ -34,15 +34,9 @@ deploy "/srv/#{app_name}" do
       content ConfigLoader.load_config(node, 'sp-oidc-sinatra/v1/application.yml')
     end
 
-    execute 'deploy activate step' do
+    execute 'build assets' do
       cwd release_path
-      command 'id && env && ./deploy/activate'
-      environment({
-        'RACK_ENV' => 'production',
-        'HOME' => nil
-      })
-      user node.fetch('login_dot_gov').fetch('system_user')
-      group node.fetch('login_dot_gov').fetch('system_user')
+      command "yarn install --cache-folder .cache/yarn && make copy_vendor"
     end
   end
 
