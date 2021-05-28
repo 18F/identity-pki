@@ -89,6 +89,10 @@ variable "private3_subnet_cidr_block" { # 172.16.35.128 - 172.16.35.191
   default = "172.16.35.128/26"
 }
 
+variable "gitlab_subnet_cidr_block" { # 172.16.35.192 - 172.16.35.223
+  default = "172.16.35.192/27"
+}
+
 variable "vpc_cidr_block" { # 172.16.32.0   - 172.16.35.255
   default = "172.16.32.0/22"
 }
@@ -617,4 +621,20 @@ variable "doc_capture_secrets" {
 variable "tf_slack_channel" {
   description = "Slack channel to send events to. If set, overrides the default of #login-ENV-events."
   default     = ""
+}
+
+variable "gitlab_enabled" {
+  description = "whether to turn on the privatelink to gitlab so that systems can git clone and so on"
+  type        = bool
+  default     = false
+}
+
+variable "gitlab_servicename" {
+  description = "the service_name of the gitlab privatelink"
+  default = ""
+}
+
+variable "gitlab_hostname" {
+  description = "name to write into the internal dns zone"
+  default = "gitlab"
 }
