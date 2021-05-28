@@ -136,7 +136,7 @@ log_group_name = /var/log/cloud-init.log
 datetime_format = %Y-%m-%dT%H:%M%s+00:00
 time_zone = UTC
 
-[syslog]                     
+[syslog]
 datetime_format = %b %d %H:%M:%S
 file = /var/log/syslog
 buffer_duration = 5000
@@ -163,7 +163,7 @@ initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/var/log/audit/audit.log
 time_zone = UTC
 
-[maillog] 
+[maillog]
 datetime_format = %b %d %H:%M:%S
 file = /var/log/mail.log
 buffer_duration = 5000
@@ -172,7 +172,7 @@ initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/var/log/mail.log
 time_zone = UTC
 
-[kernlog] 
+[kernlog]
 datetime_format = %b %d %H:%M:%S
 file = /var/log/kern.log
 buffer_duration = 5000
@@ -181,7 +181,7 @@ initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/var/log/kern.log
 time_zone = UTC
 
-[nginx_access] 
+[nginx_access]
 datetime_format = %d/%b/%Y:%H:%M:%S %z
 file = /var/log/nginx/access.log
 buffer_duration = 5000
@@ -190,7 +190,7 @@ initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/var/log/nginx/access.log
 time_zone = UTC
 
-[nginx_error] 
+[nginx_error]
 datetime_format = %Y/%m/%d %H:%M:%S
 file = /var/log/nginx/error.log
 buffer_duration = 5000
@@ -199,7 +199,7 @@ initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/var/log/nginx/error.log
 time_zone = UTC
 
-[nginx_machine_access] 
+[nginx_machine_access]
 datetime_format = %d/%b/%Y:%H:%M:%S %z
 file = /var/log/nginx/machine.access.log
 buffer_duration = 5000
@@ -208,7 +208,7 @@ initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/var/log/nginx/machine.access.log
 time_zone = UTC
 
-[idp_events] 
+[idp_events]
 datetime_format = %Y-%m-%dT%H:%M:%S.%fZ
 file = /srv/idp/shared/log/events.log
 buffer_duration = 5000
@@ -217,7 +217,7 @@ initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/srv/idp/shared/log/events.log
 time_zone = UTC
 
-[idp_newrelic_agent] 
+[idp_newrelic_agent]
 datetime_format = %Y-%m-%d %H:%M:%S %z
 file = /srv/idp/shared/log/newrelic_agent.log
 buffer_duration = 5000
@@ -226,7 +226,7 @@ initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/srv/idp/shared/log/newrelic_agent.log
 time_zone = UTC
 
-[idp_production] 
+[idp_production]
 datetime_format = %Y-%m-%dT%H:%M:%S.%fZ
 file = /srv/idp/shared/log/production.log
 buffer_duration = 5000
@@ -235,7 +235,7 @@ initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/srv/idp/shared/log/production.log
 time_zone = UTC
 
-[pivcac_newrelic_agent] 
+[pivcac_newrelic_agent]
 datetime_format = %Y-%m-%d %H:%M:%S %z
 file = /srv/pki-rails/shared/log/newrelic_agent.log
 buffer_duration = 5000
@@ -244,7 +244,7 @@ initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/srv/pki-rails/shared/log/newrelic_agent.log
 time_zone = UTC
 
-[pivcac_production] 
+[pivcac_production]
 datetime_format = %Y-%m-%dT%H:%M:%S.%fZ
 file = /srv/pki-rails/shared/log/production.log
 buffer_duration = 5000
@@ -253,7 +253,7 @@ initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/srv/pki-rails/shared/log/production.log
 time_zone = UTC
 
-[dashboard_events] 
+[dashboard_events]
 datetime_format = %Y-%m-%dT%H:%M:%S.%fZ
 file = /srv/dashboard/shared/log/events.log
 buffer_duration = 5000
@@ -262,7 +262,7 @@ initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/srv/dashboard/shared/log/events.log
 time_zone = UTC
 
-[dashboard_newrelic_agent] 
+[dashboard_newrelic_agent]
 datetime_format = %Y-%m-%d %H:%M:%S %z
 file = /srv/dashboard/shared/log/newrelic_agent.log
 buffer_duration = 5000
@@ -271,7 +271,7 @@ initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/srv/dashboard/shared/log/newrelic_agent.log
 time_zone = UTC
 
-[dashboard_production] 
+[dashboard_production]
 datetime_format = %Y-%m-%dT%H:%M:%S.%fZ
 file = /srv/dashboard/shared/log/production.log
 buffer_duration = 5000
@@ -280,7 +280,7 @@ initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/srv/dashboard/shared/log/production.log
 time_zone = UTC
 
-[sp-oidc-sinatra_events] 
+[sp-oidc-sinatra_events]
 datetime_format = %Y-%m-%dT%H:%M:%S.%fZ
 file = /srv/sp-oidc-sinatra/shared/log/events.log
 buffer_duration = 5000
@@ -289,7 +289,7 @@ initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/srv/sp-oidc-sinatra/shared/log/events.log
 time_zone = UTC
 
-[sp-oidc-sinatra_production] 
+[sp-oidc-sinatra_production]
 datetime_format = %Y-%m-%dT%H:%M:%S.%fZ
 file = /srv/sp-oidc-sinatra/shared/log/production.log
 buffer_duration = 5000
@@ -298,7 +298,7 @@ initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/srv/sp-oidc-sinatra/shared/log/production.log
 time_zone = UTC
 
-[sp-rails_events] 
+[sp-rails_events]
 datetime_format = %Y-%m-%dT%H:%M:%S.%fZ
 file = /srv/sp-rails/shared/log/events.log
 buffer_duration = 5000
@@ -307,7 +307,7 @@ initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/srv/sp-rails/shared/log/events.log
 time_zone = UTC
 
-[sp-rails_production] 
+[sp-rails_production]
 datetime_format = %Y-%m-%dT%H:%M:%S.%fZ
 file = /srv/sp-rails/shared/log/production.log
 buffer_duration = 5000
@@ -316,7 +316,7 @@ initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/srv/sp-rails/shared/log/production.log
 time_zone = UTC
 
-[sp-sinatra_events] 
+[sp-sinatra_events]
 datetime_format = %Y-%m-%dT%H:%M:%S.%fZ
 file = /srv/sp-sinatra/shared/log/events.log
 buffer_duration = 5000
@@ -325,7 +325,7 @@ initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/srv/sp-sinatra/shared/log/events.log
 time_zone = UTC
 
-[sp-sinatra_production] 
+[sp-sinatra_production]
 datetime_format = %Y-%m-%dT%H:%M:%S.%fZ
 file = /srv/sp-sinatra/shared/log/production.log
 buffer_duration = 5000
@@ -430,7 +430,15 @@ initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/var/log/apt/history.log
 time_zone = UTC
 
-[idp_kms] 
+[ubuntuadvantage]
+file = /var/log/ubuntu-advantage.log
+buffer_duration = 5000
+log_stream_name = {hostname}
+initial_position = start_of_file
+log_group_name = <%= @environmentName %>_/var/log/ubuntu-advantage.log
+time_zone = UTC
+
+[idp_kms]
 datetime_format = %Y-%m-%dT%H:%M:%S.%f
 file = /srv/idp/shared/log/kms.log
 buffer_duration = 5000
@@ -439,7 +447,7 @@ initial_position = start_of_file
 log_group_name = <%= @environmentName %>_/srv/idp/shared/log/kms.log
 time_zone = UTC
 
-[idp_telephony] 
+[idp_telephony]
 datetime_format = %Y-%m-%dT%H:%M:%S.%f
 file = /srv/idp/shared/log/telephony.log
 buffer_duration = 5000
