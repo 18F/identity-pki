@@ -29,7 +29,7 @@ exit 1
 # default values
 context='password-digest'
 hours='24H'
-env='prod_'
+env='prod'
 
 if [[ "$#" -eq 0 ]]; then
 	echo "Error:  missing arguments"
@@ -41,7 +41,7 @@ while [[ "$#" -gt 0 ]]; do
         --uuid) uuid="$2"; shift ;;
 		--context) context="$2"; shift ;;
 		--hours) hours="$2H"; shift ;;
-		--env) env="$2_";;
+		--env) env="$2"; shift;;
         *) echo "Unknown argument passed: $1"; usage ;;
     esac
     shift
@@ -72,7 +72,7 @@ echo "Query datetime between $start_time and $end_time"
 
 echo "DDB Table Query Results"
 aws dynamodb query \
---table-name prod-kms-logging \
+--table-name $env-kms-logging \
 --key-condition-expression "#U = :uuid_context AND #TS BETWEEN :st AND :et" \
 --expression-attribute-values "{\":uuid_context\":{\"S\":$key}, \":st\":{\"S\":$start_time}, \":et\":{\"S\":$end_time}}" \
 --expression-attribute-names '{"#U":"UUID", "#TS":"Timestamp"}' \
@@ -89,7 +89,7 @@ fi
 echo
 echo "CW Logs Query Results"
 
-query_id=$(aws logs start-query --log-group-name prod_/srv/idp/shared/log/kms.log \
+query_id=$(aws logs start-query --log-group-name $env'_/srv/idp/shared/log/kms.log' \
 --start-time $epoch_start \
 --end-time $epoch_end \
 --query-string "fields @timestamp | \
