@@ -211,6 +211,7 @@ data "template_file" "cloud-init-provision-private-template" {
     s3_ssh_key_url       = var.private_s3_ssh_key_url
     asg_name             = local.asg_name
     lifecycle_hook_name  = var.private_lifecycle_hook_name
+    run_remove_advantage = "echo not removing advantage client yet"
     run_aide             = "echo not running aideinit"
 
   }
@@ -231,6 +232,7 @@ data "template_file" "cloud-init-provision-main-template" {
     s3_ssh_key_url       = var.main_s3_ssh_key_url
     asg_name             = local.asg_name
     lifecycle_hook_name  = var.main_lifecycle_hook_name
+    run_remove_advantage = "apt remove -y ubuntu-advantage-pro ubuntu-advantage-tools"
     run_aide             = "aideinit --force --yes && touch /var/tmp/ran-aideinit"
   }
 }
