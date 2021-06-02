@@ -90,6 +90,7 @@ locals {
         "autoscaling:DescribeLifecycleHooks",
         "autoscaling:DescribePolicies",
         "autoscaling:DescribeScheduledActions",
+        "autoscaling:DisableMetricsCollection",
         "autoscaling:EnableMetricsCollection",
         "autoscaling:PutLifecycleHook",
         "autoscaling:PutScalingPolicy",
