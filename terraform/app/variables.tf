@@ -448,22 +448,22 @@ variable "bootstrap_private_git_clone_url" {
 # though they will have different IDs. They should be updated here at the same
 # time, and then released to environments in sequence.
 variable "default_ami_id_sandbox" {
-  default     = "ami-08b97d31fbf5ee33a" # 2021-05-26 Ubuntu 18.04
+  default     = "ami-05f660abca7dc667e" # 2021-06-02 Ubuntu 18.04
   description = "default AMI ID for environments in the sandbox account"
 }
 
 variable "default_ami_id_prod" {
-  default     = "ami-077b01e693b193b7f" # 2021-05-26 Ubuntu 18.04
+  default     = "ami-0aa29738608170527" # 2021-06-02 Ubuntu 18.04
   description = "default AMI ID for environments in the prod account"
 }
 
 variable "rails_ami_id_sandbox" {
-  default     = "ami-0d2593281106fd1c3" # 2021-05-25 Ubuntu 18.04
+  default     = "ami-0ca19ec4a82bd04bf" # 2021-06-02 Ubuntu 18.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the sandbox account"
 }
 
 variable "rails_ami_id_prod" {
-  default     = "ami-01a672b8137711844" # 2021-05-26 Ubuntu 18.04
+  default     = "ami-09e729762dd1f49f4" # 2021-06-02 Ubuntu 18.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the prod account"
 }
 
