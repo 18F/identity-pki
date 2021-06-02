@@ -257,16 +257,33 @@ resource "aws_wafv2_web_acl" "idp" {
         limit              = var.otp_send_rate_limit_per_ip
         aggregate_key_type = "IP"
 
-        scope_down_statement {
-          byte_match_statement {
-            field_to_match {
-              uri_path {}
+        scope_down_statement { 
+          or_statement {
+            statement {
+              byte_match_statement {
+                field_to_match {
+                  uri_path {}
+                }
+                positional_constraint = "CONTAINS"
+                search_string         = "/otp/send"
+                text_transformation {
+                  priority = 0
+                  type     = "LOWERCASE"
+                }
+              }
             }
-            positional_constraint = "CONTAINS"
-            search_string         = "/otp/send"
-            text_transformation {
-              priority = 0
-              type     = "LOWERCASE"
+            statement {
+              byte_match_statement {
+                field_to_match {
+                  uri_path {}
+                }
+                positional_constraint = "CONTAINS"
+                search_string         = "/sign_up/verify_email"
+                text_transformation {
+                  priority = 0
+                  type     = "LOWERCASE"
+                }
+              }
             }
           }
         }
