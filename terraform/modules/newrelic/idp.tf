@@ -190,18 +190,18 @@ resource "newrelic_nrql_alert_condition" "enduser_response_time" {
   }
 }
 
-resource "newrelic_nrql_alert_condition" "proofing_flow_errors" {
+resource "newrelic_nrql_alert_condition" "controller_action_errors" {
   count                        = var.enabled
   policy_id                    = newrelic_alert_policy.high[0].id
-  name                         = "${var.env_name}: high rate of errors in proofing flow"
+  name                         = "${var.env_name}: high rate of errors in controller action"
   enabled                      = true
-  description                  = "Alerting when errors in proofing flow get above 1% for the past 5 minutes"
+  description                  = "Alerting when errors in controller action name get above 1% for the past 5 minutes"
   value_function               = "single_value"
-  runbook_url                  = "https://github.com/18F/identity-devops/wiki/Runbook:-high-proofing-flow-error-rate"
+  runbook_url                  = "https://github.com/18F/identity-devops/wiki/Runbook:-controller-action-error-rate"
   violation_time_limit_seconds = 43200
 
   nrql {
-    query             = "SELECT percentage(count(*), WHERE http.statusCode >= 500 and name LIKE 'Controller/idv/%' and appName = '${var.env_name}.${var.root_domain}') FROM Transaction WHERE name LIKE 'Controller/idv/%' and appName = '${var.env_name}.${var.root_domain}' FACET name"
+    query             = "SELECT percentage(count(*), WHERE http.statusCode >= 500 and appName = '${var.env_name}.${var.root_domain}') FROM Transaction WHERE appName = '${var.env_name}.${var.root_domain}' FACET name"
     evaluation_offset = 3
   }
 
