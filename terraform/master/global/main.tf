@@ -110,7 +110,6 @@ module "main" {
     "jonathan.pirro"    = ["devops"],
     "julia.elman"       = ["analytics"],
     "justin.grevich"    = ["devops"],
-    "kendrick.daniel"   = ["appdev"],
     "michael.antiporta" = ["analytics"],
     "mitchell.henke"    = ["appdev", "apponcall"],
     "mossadeq.zia"      = ["devops", "secops", "keymasters"],
