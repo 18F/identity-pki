@@ -246,12 +246,12 @@ variable "idp_worker_filters" {
     },
     idp_worker_perform_success = {
       name         = "perform-success"
-      pattern      = "{ $.name = \"perform.active_job\" && $.exception_class NOT EXISTS && $.queue_name = \"*DelayedJob*\" }"
+      pattern      = "{ $.name = \"perform.active_job\" && $.exception_message NOT EXISTS && $.queue_name = \"*DelayedJob*\" }"
       metric_value = 1
     },
     idp_worker_perform_failure = {
       name         = "perform-failure"
-      pattern      = "{ $.name = \"perform.active_job\" && $.exception_class = * && $.queue_name = \"*DelayedJob*\" }"
+      pattern      = "{ $.name = \"perform.active_job\" && $.exception_message = * && $.queue_name = \"*DelayedJob*\" }"
       metric_value = 1
     },
   }
