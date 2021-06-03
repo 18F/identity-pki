@@ -13,7 +13,7 @@ terraform {
 module "main" {
   source = "../module"
 
-  env           = "prod"
+  env_name = "prod"
 }
 
 

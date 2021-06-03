@@ -13,5 +13,5 @@ terraform {
 module "main" {
   source = "../module"
 
-  env           = "int"
+  env_name = "int"
 }
