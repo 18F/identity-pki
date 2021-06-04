@@ -13,7 +13,7 @@ terraform {
 module "main" {
   source = "../module"
 
-  env           = "staging"
+  env_name = "staging"
 }
 
 
