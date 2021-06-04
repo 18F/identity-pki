@@ -37,6 +37,8 @@ module "socadmin-assumerole" {
             "macie2:*",
             "organizations:List*",
             "organizations:Describe*",
+            "rds:Describe*",
+            "rds:List*",
             "s3:HeadBucket",
             "s3:List*",
             "s3:Get*",
