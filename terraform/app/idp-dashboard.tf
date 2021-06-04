@@ -330,6 +330,8 @@ resource "aws_cloudwatch_log_metric_filter" "idp_worker" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "idp_worker_alive_alarm" {
+  count = var.idp_worker_alarms_enabled
+
   alarm_name                = "${var.env_name} IDP Workers Alive Alert"
   comparison_operator       = "LessThanThreshold"
   evaluation_periods        = "6"
@@ -347,6 +349,8 @@ resource "aws_cloudwatch_metric_alarm" "idp_worker_alive_alarm" {
 
 # There should be no failures, so alert on any failure
 resource "aws_cloudwatch_metric_alarm" "idp_worker_failure_alarm" {
+  count = var.idp_worker_alarms_enabled
+
   alarm_name                = "${var.env_name} IDP Workers Failure Alert"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "1"
@@ -363,6 +367,8 @@ resource "aws_cloudwatch_metric_alarm" "idp_worker_failure_alarm" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "idp_worker_queue_time_alarm" {
+  count = var.idp_worker_alarms_enabled
+
   alarm_name                = "${var.env_name} IDP Workers Queue Time Alert"
   comparison_operator       = "GreaterThanThreshold"
   evaluation_periods        = "1"
@@ -379,6 +385,8 @@ resource "aws_cloudwatch_metric_alarm" "idp_worker_queue_time_alarm" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "idp_worker_perform_time_alarm" {
+  count = var.idp_worker_alarms_enabled
+
   alarm_name                = "${var.env_name} IDP Workers Perform Time Alert"
   comparison_operator       = "GreaterThanThreshold"
   evaluation_periods        = "1"

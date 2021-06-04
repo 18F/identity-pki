@@ -373,6 +373,12 @@ variable "asg_worker_max" {
   default = 8
 }
 
+# Enables worker alarms
+variable "idp_worker_alarms_enabled" {
+  default     = 0
+  description = "Whether to set up alarms for IDP workers"
+}
+
 variable "idp_cpu_autoscaling_enabled" {
   default = 1
 }
