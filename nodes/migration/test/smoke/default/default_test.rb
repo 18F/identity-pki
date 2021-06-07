@@ -115,7 +115,6 @@ describe file('/var/log/filebeat/filebeat') do
   its('content') { should include '/srv/idp/shared/log/newrelic_agent.log' }
   its('content') { should include '/var/log/nginx/access.log' }
   its('content') { should include '/var/log/nginx/error.log' }
-  its('content') { should include '/var/log/nginx/fancy_access.log' }
   its('content') { should include '/srv/idp/shared/log/production.log' }
 end
 
