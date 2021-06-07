@@ -107,7 +107,6 @@ end
 describe file('/var/log/filebeat/filebeat') do
   its('content') { should include '/var/log/nginx/access.log' }
   its('content') { should include '/var/log/nginx/error.log' }
-  its('content') { should include '/var/log/nginx/fancy_access.log' }
 # TODO: add once we have a test for the piv-cac cron tasks.
 #  its('content') { should include '/srv/pki-rails/shared/log/cron.log' }
   its('content') { should include '/srv/pki-rails/shared/log/production.log' }

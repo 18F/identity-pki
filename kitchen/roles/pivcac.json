@@ -3,6 +3,12 @@
   "description": "Top level role for PIV/CAC instances",
   "json_class": "Chef::Role",
   "default_attributes": {
+    "passenger": {
+      "production": {
+        "log_alb_headers": false,
+        "log_client_ssl": true
+      }
+    }
   },
   "override_attributes": {
   },
