@@ -16,6 +16,17 @@ module "poweruser-assumerole" {
       policy_description = "Policy 1 for Power User"
       policy_document = [
         {
+          sid    = "Athena"
+          effect = "Allow"
+          actions = [
+            "athena:*",
+            "glue:*",
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
           sid    = "Autoscaling"
           effect = "Allow"
           actions = [
