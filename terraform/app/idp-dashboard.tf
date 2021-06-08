@@ -177,52 +177,70 @@ variable "idp_external_service_filters" {
     name         = string
     pattern      = string
     metric_value = string
+    dimensions   = map(string)
   }))
   default = {
     aws_kms_decrypt_response_time = {
       name         = "aws-kms-decrypt-response-time"
       pattern      = "[service=\"Aws::KMS::Client\", status, response_time_seconds, retries, operation=decrypt, error]"
       metric_value = "$response_time_seconds"
+      dimensions = {}
     },
     aws_kms_encrypt_response_time = {
       name         = "aws-kms-encrypt-response-time"
       pattern      = "[service=\"Aws::KMS::Client\", status, response_time_seconds, retries, operation=encrypt, error]"
       metric_value = "$response_time_seconds"
+      dimensions = {}
     },
     aws_pinpoint_send_messages_response_time = {
       name         = "aws-pinpoint-send-messages-response-time"
       pattern      = "[service=\"Aws::Pinpoint::Client\", status, response_time_seconds, retries, operation=send_messages, error]"
       metric_value = "$response_time_seconds"
+      dimensions = {}
     },
     aws_pinpoint_voice_send_voice_message_response_time = {
       name         = "aws-pinpoint-voice-send-voice-message-response-time"
       pattern      = "[service=\"Aws::PinpointSMSVoice::Client\", status, response_time_seconds, retries, operation=send_voice_message, error]"
       metric_value = "$response_time_seconds"
+      dimensions = {}
     },
     aws_pinpoint_phone_number_validate_response_time = {
       name         = "aws-pinpoint-phone-number-validate-response-time"
       pattern      = "[service=\"Aws::Pinpoint::Client\", status, response_time_seconds, retries, operation=phone_number_validate, error]"
       metric_value = "$response_time_seconds"
+      dimensions = {}
     },
     aws_ses_send_raw_email_response_time = {
       name         = "aws-ses-send-raw-email-response-time"
       pattern      = "[service=\"Aws::SES::Client\", status, response_time_seconds, retries, operation=send_raw_email, error]"
       metric_value = "$response_time_seconds"
+      dimensions = {}
     },
     aws_s3_put_object_response_time = {
       name         = "aws-s3-put-object-response-time"
       pattern      = "[service=\"Aws::S3::Client\", status, response_time_seconds, retries, operation=put_object, error]"
       metric_value = "$response_time_seconds"
+      dimensions = {}
     },
     aws_sts_assume_role_response_time = {
       name         = "aws-sts-assume-role-response-time"
       pattern      = "[service=\"Aws::STS::Client\", status, response_time_seconds, retries, operation=assume_role, error]"
       metric_value = "$response_time_seconds"
+      dimensions = {}
     },
     aws_lambda_invoke_response_time = {
       name         = "aws-lambda-invoke-response-time"
       pattern      = "[service=\"Aws::Lambda::Client\", status, response_time_seconds, retries, operation=invoke, error]"
       metric_value = "$response_time_seconds"
+      dimensions = {}
+    },
+    faraday_response_time = {
+      name         = "faraday-response-time"
+      pattern      = "{ $.name = \"request_metric.faraday\" }"
+      metric_value = "$.duration_seconds"
+      dimensions = {
+        Service = "$.service"
+      },
     },
   }
 }
@@ -263,9 +281,10 @@ resource "aws_cloudwatch_log_metric_filter" "idp_external_service" {
   pattern        = each.value["pattern"]
   log_group_name = aws_cloudwatch_log_group.idp_production.name
   metric_transformation {
-    name      = each.value["name"]
-    namespace = local.external_service_namespace
-    value     = each.value["metric_value"]
+    name       = each.value["name"]
+    namespace  = local.external_service_namespace
+    value      = each.value["metric_value"]
+    dimensions = each.value["dimensions"]
   }
 }
 
