@@ -839,6 +839,7 @@ resource "aws_cloudwatch_dashboard" "idp_external_service" {
             "height": 12,
             "properties": {
                 "metrics": [
+                    [ { "expression": "SEARCH('{${var.env_name}/idp-external-service,Service} \"faraday-response-time\"', 'p99', 300)", "label": "$${PROP('Dim.Service')}", "id": "e1" } ],
                     [ "${var.env_name}/idp-external-service", "aws-kms-decrypt-response-time", { "label": "KMS Decrypt" } ],
                     [ ".", "aws-kms-encrypt-response-time", { "label": "KMS Encrypt" } ],
                     [ ".", "aws-pinpoint-phone-number-validate-response-time", { "label": "Pinpoint Validate Phone" } ],
@@ -853,7 +854,7 @@ resource "aws_cloudwatch_dashboard" "idp_external_service" {
                 "region": "us-west-2",
                 "period": 300,
                 "stat": "p99",
-                "title": "AWS 99th Percentile Response Times",
+                "title": "99th Percentile Response Times",
                 "yAxis": {
                     "left": {
                         "showUnits": false,
@@ -874,6 +875,7 @@ resource "aws_cloudwatch_dashboard" "idp_external_service" {
             "height": 12,
             "properties": {
                 "metrics": [
+                    [ { "expression": "SEARCH('{${var.env_name}/idp-external-service,Service} \"faraday-response-time\"', 'SampleCount', 60)", "label": "$${PROP('Dim.Service')}", "id": "e1" } ],
                     [ "${var.env_name}/idp-external-service", "aws-kms-decrypt-response-time", { "label": "KMS Decrypt", "yAxis": "right" } ],
                     [ ".", "aws-kms-encrypt-response-time", { "label": "KMS Encrypt", "yAxis": "right" } ],
                     [ ".", "aws-pinpoint-phone-number-validate-response-time", { "label": "Pinpoint Validate Phone" } ],
@@ -888,7 +890,7 @@ resource "aws_cloudwatch_dashboard" "idp_external_service" {
                 "region": "us-west-2",
                 "period": 60,
                 "stat": "SampleCount",
-                "title": "AWS Requests",
+                "title": "Request Counts",
                 "setPeriodToTimeRange": true,
                 "yAxis": {
                     "left": {
@@ -904,6 +906,8 @@ resource "aws_cloudwatch_dashboard" "idp_external_service" {
 }
 EOF
 }
+
+
 
 variable "idp_ial2_sp_dashboards" {
   type = map(map(object({
