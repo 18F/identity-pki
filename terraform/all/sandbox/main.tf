@@ -22,6 +22,10 @@ module "main" {
     iam_analytics_enabled = true
   }
 
+  # TODO: Remove this as soon as service provider logos no longer
+  # require a public bucket
+  s3_block_all_public_access = false
+
   ## TODO: confirm list of buckets to add to Intelligent Tiering,
   ## and remove those we don't need, before uncommenting
   ## the rest of this list.
