@@ -224,7 +224,7 @@ resource "newrelic_nrql_alert_condition" "service_provider_errors" {
   violation_time_limit_seconds = 43200
 
   nrql {
-    query             = "SELECT percentage(count(*), WHERE error is true and appName = '${var.env_name}.${var.root_domain}') FROM Transaction WHERE appName = '${var.env_name}.${var.root_domain}' FACET service_provider"
+    query             = "SELECT percentage(count(*), WHERE error is true and http.statusCode >= 500 and appName = '${var.env_name}.${var.root_domain}') FROM Transaction WHERE appName = '${var.env_name}.${var.root_domain}' FACET service_provider"
     evaluation_offset = 3
   }
 
