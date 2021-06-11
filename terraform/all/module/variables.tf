@@ -65,6 +65,12 @@ variable "auditor_accounts" {
   }
 }
 
+variable "s3_block_all_public_access" {
+  description = "Set to true to disable all S3 public access, account wide"
+  type        = bool
+  default     = true
+}
+
 variable "dashboard_logos_bucket_write" {
   description = "Permit AppDev role write access to static logos buckets"
   type        = bool
