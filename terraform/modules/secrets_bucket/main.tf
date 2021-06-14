@@ -2,12 +2,11 @@ data "aws_caller_identity" "current" {
 }
 
 locals {
-  bucket_name          = "${var.bucket_name_prefix}.${var.secrets_bucket_type}.${data.aws_caller_identity.current.account_id}-${var.region}"
   inventory_bucket_arn = "arn:aws:s3:::${var.bucket_name_prefix}.s3-inventory.${data.aws_caller_identity.current.account_id}-${var.region}"
 }
 
 resource "aws_s3_bucket" "secrets" {
-  bucket        = local.bucket_name
+  bucket        = var.bucket_name
   acl           = "private"
   force_destroy = var.force_destroy
 
@@ -24,7 +23,7 @@ resource "aws_s3_bucket" "secrets" {
 
   logging {
     target_bucket = var.logs_bucket
-    target_prefix = "${local.bucket_name}/"
+    target_prefix = "${var.bucket_name}/"
   }
 
   server_side_encryption_configuration {

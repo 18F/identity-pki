@@ -19,3 +19,9 @@ provider "aws" {
   region = "us-east-1"
   alias  = "us-east-1"
 }
+
+locals {
+  bucket_name_prefix = "login-gov"
+  app_secrets_bucket_type = "app-secrets"
+  cert_secrets_bucket_type = "internal-certs"
+}

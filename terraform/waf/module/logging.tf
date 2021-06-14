@@ -9,8 +9,8 @@ resource "aws_s3_bucket" "waf_logs" {
   acl    = "private"
 
   logging {
-    target_bucket = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
-    target_prefix = "/${var.env}/s3-access-logs/${local.web_acl_name}-logs/"
+    target_bucket = "login-gov.s3-access-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+    target_prefix = "login-gov.${local.web_acl_name}-logs.${data.aws_caller_identity.current.account_id}-${var.region}/"
   }
 
   tags = {

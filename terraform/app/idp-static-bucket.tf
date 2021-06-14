@@ -8,8 +8,8 @@ resource "aws_s3_bucket" "idp_static_bucket" {
   force_destroy = var.force_destroy_idp_static_bucket
 
   logging {
-    target_bucket = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
-    target_prefix = "/${var.env_name}/s3-access-logs/login-gov-idp-static/"
+    target_bucket = "login-gov.s3-access-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+    target_prefix = "login-gov-idp-static-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}/"
   }
 
   tags = {

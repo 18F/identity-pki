@@ -57,12 +57,12 @@ locals {
 }
 
 module "s3_shared" {
-  source = "github.com/18F/identity-terraform//s3_bucket_block?ref=a94d4a7e87da7c1d0af632933d29ee89fd223fb7"
+  source = "github.com/18F/identity-terraform//s3_bucket_block?ref=d8a22e70ba73cb8918ca77498096a159b6c4a7b0"
   #source = "../../../../identity-terraform/s3_bucket_block"
   
   bucket_name_prefix   = "login-gov"
   bucket_data          = local.s3_bucket_data
-  log_bucket           = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+  log_bucket           = "login-gov.s3-access-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
   inventory_bucket_arn = "arn:aws:s3:::login-gov.s3-inventory.${data.aws_caller_identity.current.account_id}-${var.region}"
 }
 

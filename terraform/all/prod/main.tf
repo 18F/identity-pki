@@ -69,7 +69,7 @@ module "main" {
             "arn:aws:s3:::login-gov-tspencer-secrets/",
             "arn:aws:s3:::login-gov.elb-logs.555546682965-us-west-2/",
             "arn:aws:s3:::login-gov.email.555546682965-us-west-2/",
-            "arn:aws:s3:::login-gov.s3-logs.555546682965-us-west-2/",
+            "arn:aws:s3:::login-gov.s3-access-logs.555546682965-us-west-2/",
             "arn:aws:s3:::tf-fraud-bucket-depployments/",
           ]
         },
