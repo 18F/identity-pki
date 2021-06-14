@@ -79,7 +79,7 @@ locals {
 }
 
 module "tf-state" {
-  source = "github.com/18F/identity-terraform//state_bucket?ref=3c539757336b2dc8a7f3083367089a50c2a37a87"
+  source = "github.com/18F/identity-terraform//state_bucket?ref=eaabb7c80efcbce9fab28575ef4111e1e8eaa346"
   #source = "../../../../identity-terraform/state_bucket"
 
   remote_state_enabled = 0
