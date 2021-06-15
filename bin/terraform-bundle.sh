@@ -40,7 +40,7 @@ terraform {
 # Define which provider plugins are to be included
 providers {
   aws = {
-    versions = ["~> 3.11.0", "~> 3.27.0"]
+    versions = ["~> 3.45.0", "~> 3.27.0", "~> 3.11.0"]
   }
   archive = {
     versions = ["~> 1.3"]
