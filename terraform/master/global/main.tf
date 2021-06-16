@@ -10,6 +10,10 @@ terraform {
   }
 }
 
+locals {
+  users_yaml = yamldecode(file("${path.module}/users.yaml"))
+}
+
 module "main" {
   source = "../module"
 
@@ -92,37 +96,5 @@ module "main" {
   ]
 
   # User to group mappings - Groups defined in ../module/iam_groups.tf
-  user_map = {
-    "aaron.chapman"     = ["appdev", "apponcall"],
-    "akhlaq.khan"       = ["analytics", "finops", "bizops"],
-    "alex.kritikos"     = ["devops"],
-    "alex.mathews"      = ["appdev", "apponcall"],
-    "amos.stone"        = ["analytics"],
-    "andrew.duthie"     = ["appdev", "apponcall"],
-    "brett.mcparland"   = ["secops", "soc"],
-    "brian.crissup"     = ["devops", "keymasters"],
-    "chris.manger"      = ["bizops", "finops"],
-    "clinton.troxel"    = ["appdev"],
-    "diondra.humphries" = ["bizops"],
-    "douglas.price"     = ["appdev", "apponcall", "bizops"],
-    "janet.evans"       = ["analytics"],
-    "jonathan.hooper"   = ["appdev", "apponcall", "keymasters"],
-    "jonathan.pirro"    = ["devops"],
-    "julia.elman"       = ["analytics"],
-    "justin.grevich"    = ["devops"],
-    "michael.antiporta" = ["analytics"],
-    "mitchell.henke"    = ["appdev", "apponcall", "devops"],
-    "mossadeq.zia"      = ["devops", "secops", "keymasters"],
-    "oren.kanner"       = ["appdev", "apponcall", "bizops"],
-    "paul.hirsch"       = ["devops"],
-    "sierra.toler"      = ["bizops"],
-    "stephanie.rivera"  = ["bizops"],
-    "steve.urciuoli"    = ["appdev", "apponcall", "keymasters"],
-    "steven.harms"      = ["devops", "secops"],
-    "thomas.black"      = ["bizops"],
-    "tiffanyj.andrews"  = ["analytics"],
-    "timothy.spencer"   = ["devops", "secops"],
-    "vivek.chugh"       = ["devops"],
-    "zach.margolis"     = ["appdev", "apponcall"],
-  }
+  user_map = local.users_yaml.users
 }
