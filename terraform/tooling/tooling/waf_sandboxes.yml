@@ -1,0 +1,7 @@
+---
+# Add one line per WAF enabled application environment specifying the
+# `identity-devops`branch to deploy from
+crissupb: stages/crissupb
+pauldoomed: stages/pauldoomed
+# dev: main
+# int: main
