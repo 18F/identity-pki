@@ -5,8 +5,6 @@ resource "aws_s3_bucket_object" "packer_config" {
   key          = "packer_config/${local.aws_alias}/${each.key}.18.json"
   content      = <<JSON
 {
-  "aws_access_key": "",
-  "aws_secret_key": "",
   "aws_region": "${var.region}",
   "encryption": "${var.packer_config["encryption"]}",
   "root_vol_size": "${var.packer_config["root_vol_size"]}",

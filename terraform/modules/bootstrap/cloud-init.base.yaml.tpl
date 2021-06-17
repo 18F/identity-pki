@@ -2,10 +2,6 @@
 
 # This file is a terraform template.
 
-# Run apt update / upgrade
-repo_update: true
-repo_upgrade: all
-
 # Don't attempt to print SSH authorized_keys fingerprints, since we delete the
 # ubuntu user. https://github.com/18F/identity-devops-private/issues/1168
 no_ssh_fingerprints: true
