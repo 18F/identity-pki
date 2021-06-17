@@ -68,7 +68,6 @@ module "main" {
     #    "login-gov-kinesis-failed-events",
     "login-gov-logs-dev.894947205914-us-west-2",
     "login-gov-logs-int.894947205914-us-west-2",
-    #    "login-gov-public-artifacts-us-west-2",
     #    "login-gov-rds-backup-pt2.894947205914-us-west-2",
     #    "login-gov-s3-object-logging-dev",
     #    "login-gov-test-coverage",
