@@ -10,6 +10,10 @@ terraform {
   }
 }
 
+variable "code_branch" {
+  default = "main"
+}
+
 module "git2s3_src" {
   source = "../../modules/cfn_artifacts" 
 
@@ -23,6 +27,8 @@ module "git2s3_src" {
 }
 
 module "main" {
-  source = "../module"
+  source     = "../module"
   depends_on = [module.git2s3_src.output_bucket]
+
+  code_branch    = var.code_branch
 }

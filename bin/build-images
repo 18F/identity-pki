@@ -37,7 +37,7 @@ build_branch() {
     for TYPE in ${TYPE_LIST} ; do
       STACKS+=$(aws-vault exec ${AV_PROFILE} -- aws cloudformation list-stacks |
                       jq -r '.StackSummaries[]|select(.StackStatus == "DELETE_COMPLETE"|not).StackName' |
-                      grep -i ${TYPE} | tr '\n' ' ')
+                      grep -i ${TYPE}Role | tr '\n' ' ')
     done
     for STACK in ${STACKS} ; do
       STACK_PARAMS=$(aws-vault exec ${AV_PROFILE} -- aws cloudformation describe-stacks \
