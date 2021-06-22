@@ -31,3 +31,38 @@ resource "aws_cloudformation_stack" "risc_notifications" {
     "CAPABILITY_IAM"
   ]
 }
+
+resource "aws_iam_role" "risc_notification_destination" {
+  name               = "${var.env_name}-risc-notification-destination"
+  assume_role_policy = data.aws_iam_policy_document.risc_notification_destination.json
+}
+
+data "aws_iam_policy_document" "risc_notification_destination_assume" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    principals {
+      type = "Service"
+      identifiers = [
+        "events.amazonaws.com"
+      ]
+    }
+  }
+}
+
+data "aws_iam_policy_document" "risc_notification_destination" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "events:InvokeApiDestination"
+    ]
+    resources = [
+      "arn:aws:events:${var.region}:${data.aws_caller_identity.current.account_id}:api-destination/${var.env_name}-risc-*"
+    ]
+  }
+}
+
+resource "aws_iam_role_policy" "risc_notification_destination" {
+  name   = "${var.env_name}-app-risc-notification-apidestination"
+  role   = aws_iam_role.risc_notification_destination.id
+  policy = data.aws_iam_policy_document.risc_notification_destination.json
+}
