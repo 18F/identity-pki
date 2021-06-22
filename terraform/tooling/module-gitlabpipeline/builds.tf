@@ -1,7 +1,7 @@
 # This file contains all the codebuild jobs that are used by the pipeline
 
 locals {
-  vars_files    = "-var-file $CODEBUILD_SRC_DIR_gitlab_${var.cluster_name}_private_output/vars/base.tfvars -var-file $CODEBUILD_SRC_DIR_gitlab_${var.cluster_name}_private_output/vars/account_global_${var.account}.tfvars -var-file $CODEBUILD_SRC_DIR_gitlab_${var.cluster_name}_private_output/vars/gitlab_${var.cluster_name}.tfvars"
+  vars_files    = "-var-file $CODEBUILD_SRC_DIR_gitlab_${var.cluster_name}_private_output/vars/gitlab_${var.cluster_name}.tfvars"
   state_bucket  = "login-dot-gov-eks.${var.account}-${var.state_bucket_region}"
   tf_config_key = "tf-state/${var.cluster_name}"
 }
@@ -69,7 +69,6 @@ phases:
       - export AWS_REGION=${var.region}
       - 
       - aws eks update-kubeconfig --name "${var.cluster_name}"
-      - kubectl version
       - terraform init -backend-config=bucket=${local.state_bucket} -backend-config=key=${local.tf_config_key} -backend-config=dynamodb_table=eks_terraform_locks -backend-config=region=${var.state_bucket_region}
       - terraform plan -lock-timeout=180s -out /plan.tfplan ${local.vars_files} 2>&1 | cat -n | tee /plan.out
 
@@ -169,7 +168,7 @@ phases:
       - terraform init -backend-config=bucket=${local.state_bucket} -backend-config=key=${local.tf_config_key} -backend-config=dynamodb_table=eks_terraform_locks -backend-config=region=${var.state_bucket_region}
       - terraform apply -auto-approve -lock-timeout=180s $CODEBUILD_SRC_DIR_gitlab_${var.cluster_name}_plan_output/plan.tfplan
       - aws eks update-kubeconfig --name "$TF_VAR_cluster_name"
-      - kubectl exec -it deployment.apps/teleport-cluster -n teleport -- tctl create -f < ./teleport-roles.yaml
+      - kubectl exec -it deployment.apps/teleport-cluster -n teleport -- tctl create -f < ../teleport-roles.yaml
 
 
   post_build:

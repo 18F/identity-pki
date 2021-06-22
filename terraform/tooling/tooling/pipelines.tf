@@ -320,7 +320,7 @@ module "gitlabtest" {
   # This is the environment to deploy to
   cluster_name = "gitlabtest"
   # This is the gitref to check out in identity-devops
-  gitref = "main"
+  gitref = "tspencer/autotfgitlab"
   # This is the account to deploy this gitlab instance into
   account = "034795980528"
 
