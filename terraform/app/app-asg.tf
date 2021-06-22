@@ -174,7 +174,7 @@ data "aws_iam_policy_document" "app_risc_eventbridge" {
     actions = [
       "events:PutRule",
       "events:DeleteRule",
-      "events:PutTargest",
+      "events:PutTargets",
       "events:RemoveTargets",
       "events:EnableRule",
       "events:DisableRule",
@@ -224,7 +224,7 @@ data "aws_iam_policy_document" "app_risc_eventbridge" {
       "secretsmanager:UpdateSecret"
     ]
     resources = [
-      "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:events!connection/dev-*"
+      "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:events!connection/${var.env_name}-*"
     ]
   }
 }
