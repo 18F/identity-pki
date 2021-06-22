@@ -71,7 +71,7 @@ phases:
       - aws eks update-kubeconfig --name "${var.cluster_name}"
       - kubectl version
       - terraform init -backend-config=bucket=${local.state_bucket} -backend-config=key=${local.tf_config_key} -backend-config=dynamodb_table=eks_terraform_locks -backend-config=region=${var.state_bucket_region}
-      - terraform plan -lock-timeout=180s -out /plan.tfplan ${local.vars_files} 2>&1 | tee /plan.out
+      - terraform plan -lock-timeout=180s -out /plan.tfplan ${local.vars_files} 2>&1 | cat -n | tee /plan.out
 
   post_build:
     commands:
