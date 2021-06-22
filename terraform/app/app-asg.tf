@@ -221,7 +221,8 @@ data "aws_iam_policy_document" "app_risc_eventbridge" {
       "secretsmanager:CreateSecret",
       "secretsmanager:DeleteSecret",
       "secretsmanager:ListSecretVersionIds",
-      "secretsmanager:UpdateSecret"
+      "secretsmanager:UpdateSecret",
+      "secretsmanager:GetSecretValue"
     ]
     resources = [
       "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:events!connection/${var.env_name}-*"
