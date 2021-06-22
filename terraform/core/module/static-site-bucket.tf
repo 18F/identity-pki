@@ -20,8 +20,8 @@ resource "aws_s3_bucket" "account_static_bucket" {
   bucket = "login-gov-account-static.${data.aws_caller_identity.current.account_id}-${var.region}"
 
   logging {
-    target_bucket = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
-    target_prefix = "/${var.root_domain}/s3-access-logs/login-gov-account-static/"
+    target_bucket = "login-gov.s3-access-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+    target_prefix = "login-gov-account-static.${data.aws_caller_identity.current.account_id}-${var.region}/"
   }
 
   tags = {
