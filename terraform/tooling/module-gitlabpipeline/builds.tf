@@ -32,6 +32,10 @@ resource "aws_codebuild_project" "auto_tf_gitlab_plan" {
       name  = "TF_VAR_cluster_name"
       value = var.cluster_name
     }
+    environment_variable {
+      name  = "TF_VAR_domain"
+      value = var.domain
+    }
   }
 
   logs_config {
@@ -128,6 +132,10 @@ resource "aws_codebuild_project" "auto_tf_gitlab_apply" {
       name  = "TF_VAR_cluster_name"
       value = var.cluster_name
     }
+    environment_variable {
+      name  = "TF_VAR_domain"
+      value = var.domain
+    }
   }
 
   logs_config {
@@ -220,8 +228,8 @@ resource "aws_codebuild_project" "auto_tf_gitlab_test" {
     image_pull_credentials_type = "CODEBUILD"
 
     environment_variable {
-      name  = "TF_VAR_cluster_name"
-      value = var.cluster_name
+      name  = "REGION"
+      value = var.region
     }
   }
 
@@ -244,8 +252,16 @@ phases:
 
   build:
     commands:
+      - unset AWS_PROFILE
+      - export AWS_STS_REGIONAL_ENDPOINTS=regional
+      - roledata=$(aws sts assume-role --role-arn "arn:aws:iam::${var.account}:role/AutoTerraform" --role-session-name "auto-tf-gitlab-apply-${var.cluster_name}")
+      - export AWS_ACCESS_KEY_ID=$(echo $roledata | jq -r .Credentials.AccessKeyId)
+      - export AWS_SECRET_ACCESS_KEY=$(echo $roledata | jq -r .Credentials.SecretAccessKey)
+      - export AWS_SESSION_TOKEN=$(echo $roledata | jq -r .Credentials.SessionToken)
+      - export AWS_REGION="${var.region}"
+      - aws eks update-kubeconfig --name "${var.cluster_name}"
       - cd tests
-      - sh -x ./test.sh
+      - ./test.sh ${var.cluster_name} ${var.domain}
 
   post_build:
     commands:

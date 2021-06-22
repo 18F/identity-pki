@@ -45,6 +45,10 @@ variable "cluster_name" {
   default     = ""
 }
 
+variable "domain" {
+  description = "DNS domain under which the cluster is constructed"
+}
+
 variable "account" {
   description = "account to deploy to"
 }
