@@ -228,6 +228,15 @@ data "aws_iam_policy_document" "app_risc_eventbridge" {
       "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:events!connection/${var.env_name}-*"
     ]
   }
+  statement {
+    effect = "Allow"
+    actions = [
+      "iam:PassRole"
+    ]
+    resources = [
+      "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.env_name}-risc-notification-destination"
+    ]
+  }
 }
 
 

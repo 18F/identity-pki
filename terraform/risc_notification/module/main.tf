@@ -34,7 +34,7 @@ resource "aws_cloudformation_stack" "risc_notifications" {
 
 resource "aws_iam_role" "risc_notification_destination" {
   name               = "${var.env_name}-risc-notification-destination"
-  assume_role_policy = data.aws_iam_policy_document.risc_notification_destination.json
+  assume_role_policy = data.aws_iam_policy_document.risc_notification_destination_assume.json
 }
 
 data "aws_iam_policy_document" "risc_notification_destination_assume" {
