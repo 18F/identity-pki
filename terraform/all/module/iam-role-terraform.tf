@@ -286,6 +286,7 @@ locals {
         "elasticache:DescribeReplicationGroups",
         "elasticache:ListTagsForResource",
         "elasticache:ModifyCacheSubnetGroup",
+        "elasticache:ModifyReplicationGroup"
       ]
       resources = [
         "*",
