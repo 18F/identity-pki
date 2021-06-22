@@ -15,6 +15,10 @@ variable "logs_bucket" {
   description = "Name of the bucket to store access logs in"
 }
 
+variable "bucket_name" {
+  description = "Bucket Name"
+}
+
 variable "use_kms" {
   default     = true
   description = "Whether to encrypt the bucket with KMS"

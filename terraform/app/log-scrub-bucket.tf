@@ -5,8 +5,8 @@ resource "aws_s3_bucket" "log_scrub_bucket" {
   force_destroy = true
 
   logging {
-    target_bucket = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
-    target_prefix = "/${var.env_name}/s3-access-logs/login-gov-log-scrub/"
+    target_bucket = "login-gov.s3-access-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+    target_prefix = "login-gov-log-scrub-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}/"
   }
 
   tags = {

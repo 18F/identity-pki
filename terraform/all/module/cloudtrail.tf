@@ -111,7 +111,7 @@ resource "aws_s3_bucket" "cloudtrail" {
 
   logging {
     target_bucket = module.tf-state.s3_log_bucket
-    target_prefix = "login-gov-cloudtrail-${data.aws_caller_identity.current.account_id}"
+    target_prefix = "login-gov-cloudtrail-${data.aws_caller_identity.current.account_id}/"
   }
 }
 

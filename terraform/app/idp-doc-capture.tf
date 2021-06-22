@@ -22,8 +22,8 @@ resource "aws_s3_bucket" "idp_doc_capture" {
   acl           = "private"
 
   logging {
-    target_bucket = "login-gov.s3-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
-    target_prefix = "/${var.env_name}/s3-access-logs/l${local.doc_capture_s3_bucket_name_prefix}/"
+    target_bucket = "login-gov.s3-access-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+    target_prefix = "${local.doc_capture_s3_bucket_name_prefix}-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}/"
   }
 
   tags = {
