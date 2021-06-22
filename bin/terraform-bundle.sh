@@ -61,6 +61,19 @@ providers {
     source = "newrelic/newrelic"
     versions = ["2.21.1", "~> 2.21.0", "~> 2.8.0", "~> 2.1.2"]
   }
+  kubectl = {
+    source = "gavinbunney/kubectl"
+    versions = ["1.11.1"]
+  }
+  helm = {
+    versions = ["2.1.2"]
+  }
+  kubernetes = {
+    versions = ["2.0.3"]
+  }
+  tls = {
+    versions = ["3.1.0"]
+  }
 }
 EOFEOF
 
