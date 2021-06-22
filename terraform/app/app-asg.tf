@@ -197,7 +197,7 @@ data "aws_iam_policy_document" "app_risc_eventbridge" {
       "events:DescribeConnection",
       "events:DeleteConnection",
       "events:UpdateConnection"
-    ] 
+    ]
     resources = [
       "arn:aws:events:${var.region}:${data.aws_caller_identity.current.account_id}:connection/${var.env_name}-risc-*",
       "arn:aws:events:${var.region}:${data.aws_caller_identity.current.account_id}:api-destination/${var.env_name}-risc-*"
@@ -213,22 +213,23 @@ data "aws_iam_policy_document" "app_risc_eventbridge" {
       "*"
     ]
   }
+  statement {
+    effect = "Allow"
+    actions = [
+      "secretsmanager:DescribeSecret",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:CreateSecret",
+      "secretsmanager:DeleteSecret",
+      "secretsmanager:ListSecretVersionIds",
+      "secretsmanager:UpdateSecret"
+    ]
+    resources = [
+      "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:events!connection/dev-*"
+    ]
+  }
 }
 
-statement {
-  effect = "Allow"
-  actions = [
-    "secretsmanager:DescribeSecret",
-    "secretsmanager:PutSecretValue",
-    "secretsmanager:CreateSecret",
-    "secretsmanager:DeleteSecret",
-    "secretsmanager:ListSecretVersionIds",
-    "secretsmanager:UpdateSecret"
-  ]
-  resources = [
-    "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:events!connection/dev-*"
-  ]
-}
+
 
 resource "aws_iam_role_policy" "app_risc_eventbridge" {
   name   = "${var.env_name}-app-risc-eventbridge"
