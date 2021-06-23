@@ -322,7 +322,7 @@ module "gitlabtest" {
   # this is the dns domain that the cluster is put under
   domain = "gitlab.identitysandbox.gov"
   # This is the gitref to check out in identity-devops
-  gitref = "tspencer/autotfgitlab"
+  gitref = "main"
   # This is the account to deploy this gitlab instance into
   account = "034795980528"
 
