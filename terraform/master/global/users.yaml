@@ -39,6 +39,7 @@ users:
   jonathan.hooper:
     - appdev
     - apponcall
+    - devops
     - keymasters
   jonathan.pirro:
     - devops
