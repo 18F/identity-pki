@@ -334,3 +334,26 @@ module "gitlabtest" {
   auto_tf_bucket_id         = module.main.auto_tf_bucket_id
   auto_tf_pipeline_role_arn = module.main.auto_tf_pipeline_role_arn
 }
+
+# deploy the gitlabdemo gitlab cluster to the tooling account on the stages/gitlabdemo branch!
+module "gitlabdemo" {
+  region = "us-west-2"
+  source = "../module-gitlabpipeline"
+
+  # This is the environment to deploy to
+  cluster_name = "gitlabdemo"
+  # this is the dns domain that the cluster is put under
+  domain = "gitlab.identitysandbox.gov"
+  # This is the gitref to check out in identity-devops
+  gitref = "stages/gitlabdemo"
+  # This is the account to deploy this gitlab instance into
+  account = "034795980528"
+
+  # pass in global config using module composition (https://www.terraform.io/docs/modules/composition.html)
+  auto_tf_vpc_id            = module.main.auto_tf_vpc_id
+  auto_tf_subnet_id         = module.main.auto_tf_subnet_id
+  auto_tf_role_arn          = module.main.auto_tf_role_arn
+  auto_tf_sg_id             = module.main.auto_tf_sg_id
+  auto_tf_bucket_id         = module.main.auto_tf_bucket_id
+  auto_tf_pipeline_role_arn = module.main.auto_tf_pipeline_role_arn
+}
