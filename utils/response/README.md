@@ -12,9 +12,13 @@ SecurityResponse is a python utility that quarantines a compromised EC2 instance
 The utility takes the following arguments:
 
 '-i' -> instance_id, required=True
+
 '-g' -> security group id (sgid), required=False
+
 '-r' -> region, required=True
+
 '-b' -> bucket required=True
+
 
 Example:
 
