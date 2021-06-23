@@ -6,3 +6,7 @@ domainAllowList:
 - synthetics.newrelic.com
 - login.newrelic.com
 - api.newrelic.com
+# this is for the teleport helm charts
+- timothy-spencer.github.io
+# This is so we can test gitlab out
+- .gitlab.identitysandbox.gov

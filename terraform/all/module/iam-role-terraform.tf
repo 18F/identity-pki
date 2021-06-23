@@ -252,8 +252,7 @@ locals {
         "ec2:DescribeVpcAttribute",
         "ec2:DescribeVpcClassicLink",
         "ec2:DescribeVpcClassicLinkDnsSupport",
-        "ec2:DescribeVpcEndpoints",
-        "ec2:DescribeVpcEndpointServices",
+        "ec2:DescribeVpcEndpoint*",
         "ec2:DescribeVpcs",
         "ec2:DetachInternetGateway",
         "ec2:DetachNetworkInterface",
@@ -393,6 +392,8 @@ locals {
         "iam:GetRole",
         "iam:GetRolePolicy",
         "iam:GetUser",
+        "iam:GetUserPolicy",
+        "iam:GetOpenIDConnectProvider",
         "iam:ListAccessKeys",
         "iam:ListAccountAliases",
         "iam:ListAttachedRolePolicies",
@@ -563,6 +564,16 @@ locals {
       ]
     },
     {
+      sid    = "Secrets"
+      effect = "Allow"
+      actions = [
+        "secretsmanager:GetSecretValue"
+      ]
+      resources = [
+        "*",
+      ]
+    },
+    {
       sid    = "Route53"
       effect = "Allow"
       actions = [
@@ -571,6 +582,7 @@ locals {
         "route53:DeleteHostedZone",
         "route53:GetChange",
         "route53:GetHostedZone",
+        "route53:ListHostedZones",
         "route53:ListResourceRecordSets",
         "route53:ListTagsForResource",
         "route53domains:Get*",
@@ -711,7 +723,16 @@ locals {
       resources = [
         "*",
       ]
+    },
+    {
+      sid    = "EKS"
+      effect = "Allow"
+      actions = [
+        "eks:*",
+      ]
+      resources = [
+        "*",
+      ]
     }
-
   ]
 }
