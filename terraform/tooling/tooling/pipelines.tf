@@ -335,7 +335,7 @@ module "gitlabtest" {
   auto_tf_pipeline_role_arn = module.main.auto_tf_pipeline_role_arn
 }
 
-# deploy the gitlabdemo gitlab cluster to the tooling account on the main branch!
+# deploy the gitlabdemo gitlab cluster to the tooling account on the stages/gitlabdemo branch!
 module "gitlabdemo" {
   region = "us-west-2"
   source = "../module-gitlabpipeline"
