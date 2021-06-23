@@ -3,5 +3,5 @@
 # `identity-devops`branch to deploy from
 crissupb: stages/crissupb
 pauldoomed: stages/pauldoomed
-# dev: main
+dev: main
 # int: main
