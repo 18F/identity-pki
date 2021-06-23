@@ -312,7 +312,7 @@ module "waf_sandboxes" {
   auto_tf_pipeline_role_arn = module.main.auto_tf_pipeline_role_arn
 }
 
-# deploy the gitlabtest gitlab cluster to the tooling account on the main branch!
+# deploy the gitlabtest gitlab cluster to the tooling account on the stages/gitlabtest branch!
 module "gitlabtest" {
   region = "us-west-2"
   source = "../module-gitlabpipeline"
@@ -322,7 +322,7 @@ module "gitlabtest" {
   # this is the dns domain that the cluster is put under
   domain = "gitlab.identitysandbox.gov"
   # This is the gitref to check out in identity-devops
-  gitref = "main"
+  gitref = "stages/gitlabtest"
   # This is the account to deploy this gitlab instance into
   account = "034795980528"
 
@@ -335,7 +335,7 @@ module "gitlabtest" {
   auto_tf_pipeline_role_arn = module.main.auto_tf_pipeline_role_arn
 }
 
-# deploy the gitlabdemo gitlab cluster to the tooling account on the stages/gitlabdemo branch!
+# deploy the gitlabdemo gitlab cluster to the tooling account on the main branch!
 module "gitlabdemo" {
   region = "us-west-2"
   source = "../module-gitlabpipeline"
@@ -345,7 +345,7 @@ module "gitlabdemo" {
   # this is the dns domain that the cluster is put under
   domain = "gitlab.identitysandbox.gov"
   # This is the gitref to check out in identity-devops
-  gitref = "stages/gitlabdemo"
+  gitref = "main"
   # This is the account to deploy this gitlab instance into
   account = "034795980528"
 
