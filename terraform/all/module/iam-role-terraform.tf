@@ -349,6 +349,7 @@ locals {
       sid    = "Firehose"
       effect = "Allow"
       actions = [
+        "firehose:CreateDeliveryStream",
         "firehose:DescribeDeliveryStream",
         "firehose:ListTagsForDeliveryStream",
       ]
@@ -704,11 +705,16 @@ locals {
       sid    = "WAFV2"
       effect = "Allow"
       actions = [
+        "wafv2:AssociateWebACL",
+        "wafv2:CreateIPSet",
+        "wafv2:CreateWebACL",
         "wafv2:GetIPSet",
-        "wafv2:ListTagsForResource",
+        "wafv2:GetLoggingConfiguration",
         "wafv2:GetWebACL",
         "wafv2:GetWebACLForResource",
-        "wafv2:GetLoggingConfiguration",
+        "wafv2:ListTagsForResource",
+        "wafv2:PutLoggingConfiguration",
+        "wafv2:TagResource",
       ]
       resources = [
         "*",
