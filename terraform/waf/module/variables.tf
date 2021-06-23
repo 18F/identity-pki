@@ -59,6 +59,7 @@ variable "common_ruleset_exclusions" {
     # AWS description: "Verifies that the request body size is at most 10,240 bytes."
     # For request details see issue https://github.com/18F/identity-devops/issues/3178
     "SizeRestrictions_BODY",
+    "CrossSiteScripting_BODY",
   ]
 }
 
