@@ -1,4 +1,4 @@
-SecurityResponse is a python utility that quarantines a compromised EC2 instance. It does the following
+SecurityResponse is a python script that quarantines a compromised EC2 instance. It does the following
 - Removes instance from ASG, if the instance is part of an Auto Scaling Group
 - Prepares an EBS snapshot of the instance
 - Takes snapshot of the attached EBS volumes
@@ -9,7 +9,7 @@ SecurityResponse is a python utility that quarantines a compromised EC2 instance
 - Creates a tag notifying that the instance is quarantined
 
 
-The utility takes the following arguments:
+The script takes the following arguments:
 
 '-i' -> instance_id, required=True
 
@@ -24,5 +24,5 @@ The utility takes the following arguments:
 
 Example:
 
-$ python3 SecurityResponse.py -i i-06a0c710b7a697e82 -g sg-05075f7fe14d76a9a -r us-west-2 -b login-gov-idp-doc-capture.894947205914-us-west-2 -t arn:aws:sns:us-west-2:035466892286:slack-login-otherevents
+$ ./SecurityResponse.py -i i-06a0c710b7a697e82 -g sg-05075f7fe14d76a9a -r us-west-2 -b login-gov-idp-doc-capture.894947205914-us-west-2 -t arn:aws:sns:us-west-2:035466892286:slack-login-otherevents
 
