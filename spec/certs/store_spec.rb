@@ -9,8 +9,8 @@ describe 'Certificate store in config/certs' do
               'ocsp.managed.entrust.com',
               'ocsp1.ssp-strong-id.net',
               'ocsp.pki.state.gov',
-              'nfiocsp.managed.entrust.com', # TODO: Add to PIV host allow list
-              'ssp-ocsp.digicert.com', # TODO: Add to PIV host allow list
+              'nfiocsp.managed.entrust.com',
+              'ssp-ocsp.digicert.com',
               ]
     )
 
