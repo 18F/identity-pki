@@ -8,7 +8,10 @@ describe 'Certificate store in config/certs' do
               'ssp-ocsp.symauth.com',
               'ocsp.managed.entrust.com',
               'ocsp1.ssp-strong-id.net',
-              'ocsp.pki.state.gov']
+              'ocsp.pki.state.gov',
+              'nfiocsp.managed.entrust.com', # TODO: Add to PIV host allow list
+              'ssp-ocsp.digicert.com', # TODO: Add to PIV host allow list
+              ]
     )
 
     Dir.glob(File.join('config', 'certs', '**', '*.pem')).each do |file|
