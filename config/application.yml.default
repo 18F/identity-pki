@@ -9,7 +9,7 @@ aws_http_timeout: '5'
 http_read_timeout: '5'
 http_open_timeout: '5'
 
-ca_issuer_host_allow_list: 'repo.fpki.gov,crl.disa.mil,http.fpki.gov,ssp-aia.symauth.com,pki.treasury.gov,rootweb.managed.entrust.com,aia1.ssp-strong-id.net,pki.treas.gov,crls.pki.state.gov,sspweb.managed.entrust.com'
+ca_issuer_host_allow_list: 'repo.fpki.gov,crl.disa.mil,http.fpki.gov,ssp-aia.symauth.com,pki.treasury.gov,rootweb.managed.entrust.com,aia1.ssp-strong-id.net,pki.treas.gov,crls.pki.state.gov,sspweb.managed.entrust.com,nfirootweb.managed.entrust.com,ssp-aia.digicert.com'
 client_cert_logger_s3_bucket_name: ''
 database_host: ''
 database_password: ''
