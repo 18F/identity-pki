@@ -1,4 +1,4 @@
-# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
   #
   # Licensed under the Apache License, Version 2.0 (the "License").
   # You may not use this file except in compliance with the License.
@@ -115,8 +115,8 @@ def detach_from_asg(asgClient, instance_id):
     else:
         message = 'Instance ' + instance_id + ' does not seem to be part of an ASG.'
     print(message)
-
-    #send_sns_message(message)
+    if SNS_TOPIC:
+        send_sns_message(message)
 
 
 # Preparing instance for snapshot of EBS volumes attached to the instance
@@ -170,7 +170,8 @@ def snapshot(ec2Client, instance_id):
 
     #we have all the metadata here, so let's capture the VPC_ID for later use as a global
     VPC_ID = instance_describe_metadata['Reservations'][0]['Instances'][0]['VpcId']
-    #send_sns_message(message)
+    if SNS_TOPIC:
+        send_sns_message(message)
     print(message)
 
 
@@ -190,8 +191,8 @@ def set_termination_protection(ec2Client, instance_id):
         message = "Unable to set Termination protection for instance" + instance_id + str(e['ErrorMessage'])
 
     print(message)
-
-    #send_sns_message(message)
+    if SNS_TOPIC:
+        send_sns_message(message)
 
 
 # Creating isolation security group
@@ -223,7 +224,8 @@ def create_isolate_sg(ec2Client, VPC_ID, instance_id):
     except ValueError as e:
         message = 'Unable to create security group ' + str(e['ErrorMessage'])
     print(message)
-    #send_sns_message(message)
+    if SNS_TOPIC:
+        send_sns_message(message)
     return isolateSGCreate['GroupId']
 
 
@@ -262,7 +264,8 @@ def set_tags(ec2Client, instance_id):
         message = "Unable to create tag for the instance" + str(e['ErrorMessage'])
     print(message)
 
-    #send_sns_message(message)
+    if SNS_TOPIC:
+        send_sns_message(message)
 
 
 # Taking console screenshot of the instance and uploading it to S3 bucket
@@ -281,7 +284,8 @@ def console_screenshot(ec2Client, instance_id):
         message = "Unable to capture console screenshot" + str(e['ErrorMessage'])
     print(message)
 
-    #send_sns_message(message)
+    if SNS_TOPIC:
+        send_sns_message(message)
 
 
 def upload_to_s3(data, filename):
@@ -293,18 +297,19 @@ def upload_to_s3(data, filename):
         message = "Unable to upload file to s3 bucket" + str(e['ErrorMessage'])
     print(message)
 
-    #send_sns_message(message)
+    if SNS_TOPIC:
+        send_sns_message(message)
 
 
-"""def send_sns_message(message):
+def send_sns_message(message):
     print('Publishing message to SNS')
     try:
-        sns_client = boto3.client('sns')
+        sns_client = boto3.client('sns', region_name=AREGION)
         sns_client.publish(TargetArn=SNS_TOPIC, Message=message)
         message = "Successfully send message to SNS"
     except ValueError as e:
         message = "unable to send SNS message" + str(e['ErrorMessage'])
-    print(message)"""
+    print(message)
 
 
 #Test to see if SSM has the instance in its managed instance list:
@@ -375,7 +380,8 @@ def ssm_send_commands(ssm, instance_id):
         message = "SSM Run Command was queued, but failed to execute before timeout! OS level commands were _NOT_ performed."
 
     print(message)
-    #send_sns_message(message)
+    if SNS_TOPIC:
+        send_sns_message(message)
 
 #remove an EC2 instance profile if it is attached, otherwise just continue on
 #Note that this is running under the assumption at writing that only one instance profile can be attached at a time
@@ -412,9 +418,13 @@ if __name__ == "__main__":
     parser.add_argument('-g', '--sgid', required=False, help='security group id')
     parser.add_argument('-r', '--region', required=True, help='region')
     parser.add_argument('-b', '--bucket', required=True, help='bucket')
+    parser.add_argument('-t', '--topic', required=False, help='topic')
+
+    
 
     args = parser.parse_args()
-    #print(args)
+    SNS_TOPIC = args.topic
+    AREGION=args.region
 
     instance_id = args.iid
     instanceid_is_valid(instance_id)

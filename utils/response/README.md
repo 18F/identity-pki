@@ -19,8 +19,10 @@ The utility takes the following arguments:
 
 '-b' -> bucket required=True
 
+'-t' -> SNS topic arn (for slack)
+
 
 Example:
 
-$ python3 SecurityResponse.py -i i-06a0c710b7a697e82 -g sg-05075f7fe14d76a9a -r us-west-2 -b login-gov-idp-doc-capture.894947205914-us-west-2
+$ python3 SecurityResponse.py -i i-06a0c710b7a697e82 -g sg-05075f7fe14d76a9a -r us-west-2 -b login-gov-idp-doc-capture.894947205914-us-west-2 -t arn:aws:sns:us-west-2:035466892286:slack-login-otherevents
 
