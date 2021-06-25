@@ -9,19 +9,7 @@ module "autotf-terraform-assumerole" {
   )
   master_assumerole_policy = data.aws_iam_policy_document.autotf_assumerole.json
   custom_policy_arns       = local.custom_policy_arns
-
-  iam_policies = [
-    {
-      policy_name        = "AutoTerraform1"
-      policy_description = "Policy 1 for AutoTerraform role"
-      policy_document    = local.Terraform1
-    },
-    {
-      policy_name        = "AutoTerraform2"
-      policy_description = "Policy 2 for AutoTerraform role"
-      policy_document    = local.Terraform2
-    }
-  ]
+  iam_policies             = local.terraform_iam_policies
 }
 
 
@@ -36,17 +24,7 @@ module "terraform-assumerole" {
   )
   master_assumerole_policy = local.master_assumerole_policy
   custom_policy_arns       = local.custom_policy_arns
-
-  iam_policies = [
-    {
-      policy_document    = local.Terraform1
-    },
-    {
-      policy_name        = "Terraform2"
-      policy_description = "Policy 2 for Terraform role"
-      policy_document    = local.Terraform2
-    }
-  ]
+  iam_policies             = local.terraform_iam_policies
 }
 
 locals {
@@ -292,7 +270,13 @@ locals {
           resources = [
             "*",
           ]
-        },
+        }
+      ]
+    },
+    {
+      policy_name        = "Terraform2"
+      policy_description = "Policy 2 for Terraform role"
+      policy_document = [
         {
           sid    = "Elasticloadbalancing"
           effect = "Allow"
@@ -359,12 +343,6 @@ locals {
             "*",
           ]
         },
-      ]
-    }
-    {
-      policy_name        = "Terraform1"
-      policy_description = "Policy 1 for Terraform role"
-      policy_document = [
         {
           sid    = "Iam"
           effect = "Allow"
@@ -604,6 +582,12 @@ locals {
             "*",
           ]
         },
+      ]
+    },
+    {
+      policy_name        = "Terraform3"
+      policy_description = "Policy 3 for Terraform role"
+      policy_document = [
         {
           sid    = "S3"
           effect = "Allow"
