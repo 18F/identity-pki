@@ -20,6 +20,11 @@ module "autotf-terraform-assumerole" {
       policy_name        = "AutoTerraform2"
       policy_description = "Policy 2 for AutoTerraform role"
       policy_document    = local.Terraform2
+    },
+    {
+      policy_name        = "AutoTerraform3"
+      policy_description = "Policy 3 for AutoTerraform role"
+      policy_document    = local.Terraform3
     }
   ]
 }
@@ -47,7 +52,12 @@ module "terraform-assumerole" {
       policy_name        = "Terraform2"
       policy_description = "Policy 2 for Terraform role"
       policy_document    = local.Terraform2
-    }
+    },
+    {
+      policy_name        = "Terraform3"
+      policy_description = "Policy 3 for Terraform role"
+      policy_document    = local.Terraform3
+    },    
   ]
 }
 
@@ -290,7 +300,9 @@ locals {
       resources = [
         "*",
       ]
-    },
+    }
+  ]
+  Terraform2 = [
     {
       sid    = "Elasticloadbalancing"
       effect = "Allow"
@@ -357,9 +369,6 @@ locals {
         "*",
       ]
     },
-  ]
-
-  Terraform2 = [
     {
       sid    = "Iam"
       effect = "Allow"
@@ -599,6 +608,8 @@ locals {
         "*",
       ]
     },
+  ]
+  Terraform3 = [
     {
       sid    = "S3"
       effect = "Allow"
