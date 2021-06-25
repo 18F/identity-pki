@@ -7,7 +7,7 @@
 # information that is already present in the main.tf. Ideally we would find
 # some way to share instead.
 
-aws_account_id=""
+aws_account_id="894947205914"
 
 # Bucket where terraform state is stored
 TERRAFORM_STATE_BUCKET_REGION="us-west-2"
