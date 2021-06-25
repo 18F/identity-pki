@@ -1,28 +1,24 @@
-module "autotf-terraform-assumerole" {
-  source = "github.com/18F/identity-terraform//iam_assumerole?ref=main"
-
-  role_name = "AutoTerraform"
-  enabled = lookup(
-    merge(local.role_enabled_defaults, var.account_roles_map),
-    "iam_auto_terraform_enabled",
-    lookup(local.role_enabled_defaults, "iam_auto_terraform_enabled")
-  )
-  master_assumerole_policy = data.aws_iam_policy_document.autotf_assumerole.json
-  custom_policy_arns       = local.custom_policy_arns
-  iam_policies             = local.terraform_iam_policies
-}
-
-
 module "terraform-assumerole" {
+  for_each = {
+    "AutoTerraform" = {
+      policy = data.aws_iam_policy_document.autotf_assumerole.json
+      enable = "iam_auto_terraform_enabled"
+    },
+    "Terraform" = {
+      policy = local.master_assumerole_policy
+      enable = "iam_terraform_enabled"
+    }
+  }
+
   source = "github.com/18F/identity-terraform//iam_assumerole?ref=main"
 
-  role_name = "Terraform"
+  role_name = each.key
   enabled = lookup(
     merge(local.role_enabled_defaults, var.account_roles_map),
-    "iam_terraform_enabled",
-    lookup(local.role_enabled_defaults, "iam_terraform_enabled")
+    each.value["enable"],
+    lookup(local.role_enabled_defaults, each.value["enable"])
   )
-  master_assumerole_policy = local.master_assumerole_policy
+  master_assumerole_policy = each.value["policy"]
   custom_policy_arns       = local.custom_policy_arns
   iam_policies             = local.terraform_iam_policies
 }
