@@ -535,17 +535,6 @@ module "poweruser-assumerole" {
           ]
         },
         {
-          sid    = "WAF"
-          effect = "Allow"
-          actions = [
-            "waf:*",
-            "waf-regional:*",
-          ]
-          resources = [
-            "*",
-          ]
-        },
-        {
           sid    = "WAFv2"
           effect = "Allow"
           actions = [
