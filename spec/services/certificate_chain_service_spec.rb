@@ -27,6 +27,9 @@ RSpec.describe CertificateChainService do
     stub_p7c('http://crls.pki.state.gov/AIA/CertsIssuedToDoSPIVCA2.p7c')
     stub_p7c('http://crls.pki.state.gov/AIA/CertsIssuedToDoSADRootCA.p7c')
     stub_p7c('http://http.fpki.gov/fcpca/caCertsIssuedTofcpca.p7c')
+    stub_p7c('http://repo.fpki.gov/bridge/caCertsIssuedTofbcag4.p7c')
+    stub_p7c('http://aia.certipath.com/CertiPathBridgeCA-G3.p7c')
+    stub_p7c('http://crl.boeing.com/crl/BoeingPCAG3.p7c')
   end
 
   describe '#debug' do
