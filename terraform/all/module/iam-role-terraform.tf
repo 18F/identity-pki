@@ -63,6 +63,11 @@ module "terraform-assumerole" {
       policy_description = "Policy 3 for Terraform role"
       policy_document    = local.Terraform3
     },
+    {
+      policy_name        = "Terraform4"
+      policy_description = "Policy 4 for Terraform role"
+      policy_document    = local.Terraform4
+    }
   ]
 }
 
