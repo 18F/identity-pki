@@ -5,6 +5,7 @@ namespace :certs do
     deadline = 30.days.from_now
 
     Dir.glob(File.join('config', 'certs', '**', '*.pem')).each do |file|
+      warn file
       raw_cert = File.read(file)
       cert = Certificate.new(OpenSSL::X509::Certificate.new(raw_cert))
 
