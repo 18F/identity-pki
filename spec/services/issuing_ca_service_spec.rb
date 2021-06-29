@@ -100,7 +100,7 @@ RSpec.describe IssuingCaService do
       CertificateStore.reset
       CertificateStore.instance.load_certs!(dir: Rails.root.join('config/certs'))
       configuration = YAML.load_file('config/application.yml.default')
-      prod_issuer_allow_list = configuration.dig('production', 'ca_issuer_host_allow_list').split(',').sort.to_set
+      prod_issuer_allow_list = configuration.dig('ca_issuer_host_allow_list').split(',').sort.to_set
       stored_issuers = described_class.certificate_store_issuers.map(&:host).sort.to_set
 
       expect(stored_issuers - prod_issuer_allow_list).to be_empty
