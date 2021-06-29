@@ -25,6 +25,11 @@ module "autotf-terraform-assumerole" {
       policy_name        = "AutoTerraform3"
       policy_description = "Policy 3 for AutoTerraform role"
       policy_document    = local.Terraform3
+    },
+    {
+      policy_name        = "AutoTerraform4"
+      policy_description = "Policy 4 for AutoTerraform role"
+      policy_document    = local.Terraform4
     }
   ]
 }
@@ -57,7 +62,12 @@ module "terraform-assumerole" {
       policy_name        = "Terraform3"
       policy_description = "Policy 3 for Terraform role"
       policy_document    = local.Terraform3
-    },    
+    },
+    {
+      policy_name        = "Terraform4"
+      policy_description = "Policy 4 for Terraform role"
+      policy_document    = local.Terraform4
+    }
   ]
 }
 
@@ -304,133 +314,6 @@ locals {
   ]
   Terraform2 = [
     {
-      sid    = "Elasticloadbalancing"
-      effect = "Allow"
-      actions = [
-        "elasticloadbalancing:AddTags",
-        "elasticloadbalancing:ApplySecurityGroupsToLoadBalancer",
-        "elasticloadbalancing:AttachLoadBalancerToSubnets",
-        "elasticloadbalancing:ConfigureHealthCheck",
-        "elasticloadbalancing:CreateListener",
-        "elasticloadbalancing:CreateLoadBalancer",
-        "elasticloadbalancing:CreateLoadBalancerListeners",
-        "elasticloadbalancing:CreateRule",
-        "elasticloadbalancing:CreateTargetGroup",
-        "elasticloadbalancing:DeleteListener",
-        "elasticloadbalancing:DeleteLoadBalancer",
-        "elasticloadbalancing:DeleteRule",
-        "elasticloadbalancing:DeleteTargetGroup",
-        "elasticloadbalancing:DescribeListeners",
-        "elasticloadbalancing:DescribeLoadBalancerAttributes",
-        "elasticloadbalancing:DescribeLoadBalancers",
-        "elasticloadbalancing:DescribeRules",
-        "elasticloadbalancing:DescribeTags",
-        "elasticloadbalancing:DescribeTargetGroupAttributes",
-        "elasticloadbalancing:DescribeTargetGroups",
-        "elasticloadbalancing:ModifyListener",
-        "elasticloadbalancing:ModifyLoadBalancerAttributes",
-        "elasticloadbalancing:ModifyRule",
-        "elasticloadbalancing:ModifyTargetGroup",
-        "elasticloadbalancing:ModifyTargetGroupAttributes",
-        "elasticloadbalancing:SetRulePriorities",
-        "elasticloadbalancing:SetSecurityGroups",
-      ]
-      resources = [
-        "*",
-      ]
-    },
-    {
-      sid    = "Events"
-      effect = "Allow"
-      actions = [
-        "events:DeleteRule",
-        "events:DescribeEventBus",
-        "events:DescribeRule",
-        "events:EnableRule",
-        "events:ListTagsForResource",
-        "events:ListTargetsByRule",
-        "events:PutRule",
-        "events:PutTargets",
-        "events:RemoveTargets",
-      ]
-      resources = [
-        "*",
-      ]
-    },
-    {
-      sid    = "Firehose"
-      effect = "Allow"
-      actions = [
-        "firehose:CreateDeliveryStream",
-        "firehose:DescribeDeliveryStream",
-        "firehose:ListTagsForDeliveryStream",
-      ]
-      resources = [
-        "*",
-      ]
-    },
-    {
-      sid    = "Iam"
-      effect = "Allow"
-      actions = [
-        "iam:AddRoleToInstanceProfile",
-        "iam:AddUserToGroup",
-        "iam:AttachRolePolicy",
-        "iam:AttachUserPolicy",
-        "iam:CreateInstanceProfile",
-        "iam:CreatePolicy",
-        "iam:CreatePolicyVersion",
-        "iam:CreateRole",
-        "iam:CreateServiceLinkedRole",
-        "iam:CreateUser",
-        "iam:DeleteAccessKey",
-        "iam:DeleteAccountPasswordPolicy",
-        "iam:DeleteInstanceProfile",
-        "iam:DeleteLoginProfile",
-        "iam:DeletePolicy",
-        "iam:DeletePolicyVersion",
-        "iam:DeleteRole",
-        "iam:DeleteRolePolicy",
-        "iam:DeleteUser",
-        "iam:DetachRolePolicy",
-        "iam:DetachUserPolicy",
-        "iam:GetAccountPasswordPolicy",
-        "iam:GetGroup",
-        "iam:GetInstanceProfile",
-        "iam:GetPolicy",
-        "iam:GetPolicyVersion",
-        "iam:GetRole",
-        "iam:GetRolePolicy",
-        "iam:GetUser",
-        "iam:GetUserPolicy",
-        "iam:GetOpenIDConnectProvider",
-        "iam:ListAccessKeys",
-        "iam:ListAccountAliases",
-        "iam:ListAttachedRolePolicies",
-        "iam:ListAttachedUserPolicies",
-        "iam:ListEntitiesForPolicy",
-        "iam:ListGroupsForUser",
-        "iam:ListInstanceProfilesForRole",
-        "iam:ListMFADevices",
-        "iam:ListPolicyVersions",
-        "iam:ListRolePolicies",
-        "iam:ListSigningCertificates",
-        "iam:ListSSHPublicKeys",
-        "iam:ListVirtualMFADevices",
-        "iam:PassRole",
-        "iam:PutRolePolicy",
-        "iam:RemoveRoleFromInstanceProfile",
-        "iam:RemoveUserFromGroup",
-        "iam:TagRole",
-        "iam:UntagRole",
-        "iam:UpdateAccountPasswordPolicy",
-        "iam:UpdateAssumeRolePolicy",
-      ]
-      resources = [
-        "*",
-      ]
-    },
-    {
       sid    = "Kinesis"
       effect = "Allow"
       actions = [
@@ -611,6 +494,135 @@ locals {
   ]
   Terraform3 = [
     {
+      sid    = "Elasticloadbalancing"
+      effect = "Allow"
+      actions = [
+        "elasticloadbalancing:AddTags",
+        "elasticloadbalancing:ApplySecurityGroupsToLoadBalancer",
+        "elasticloadbalancing:AttachLoadBalancerToSubnets",
+        "elasticloadbalancing:ConfigureHealthCheck",
+        "elasticloadbalancing:CreateListener",
+        "elasticloadbalancing:CreateLoadBalancer",
+        "elasticloadbalancing:CreateLoadBalancerListeners",
+        "elasticloadbalancing:CreateRule",
+        "elasticloadbalancing:CreateTargetGroup",
+        "elasticloadbalancing:DeleteListener",
+        "elasticloadbalancing:DeleteLoadBalancer",
+        "elasticloadbalancing:DeleteRule",
+        "elasticloadbalancing:DeleteTargetGroup",
+        "elasticloadbalancing:DescribeListeners",
+        "elasticloadbalancing:DescribeLoadBalancerAttributes",
+        "elasticloadbalancing:DescribeLoadBalancers",
+        "elasticloadbalancing:DescribeRules",
+        "elasticloadbalancing:DescribeTags",
+        "elasticloadbalancing:DescribeTargetGroupAttributes",
+        "elasticloadbalancing:DescribeTargetGroups",
+        "elasticloadbalancing:ModifyListener",
+        "elasticloadbalancing:ModifyLoadBalancerAttributes",
+        "elasticloadbalancing:ModifyRule",
+        "elasticloadbalancing:ModifyTargetGroup",
+        "elasticloadbalancing:ModifyTargetGroupAttributes",
+        "elasticloadbalancing:SetRulePriorities",
+        "elasticloadbalancing:SetSecurityGroups",
+      ]
+      resources = [
+        "*",
+      ]
+    },
+    {
+      sid    = "Events"
+      effect = "Allow"
+      actions = [
+        "events:DeleteRule",
+        "events:DescribeEventBus",
+        "events:DescribeRule",
+        "events:EnableRule",
+        "events:ListTagsForResource",
+        "events:ListTargetsByRule",
+        "events:PutRule",
+        "events:PutTargets",
+        "events:RemoveTargets",
+      ]
+      resources = [
+        "*",
+      ]
+    },
+    {
+      sid    = "Firehose"
+      effect = "Allow"
+      actions = [
+        "firehose:CreateDeliveryStream",
+        "firehose:DescribeDeliveryStream",
+        "firehose:ListTagsForDeliveryStream",
+      ]
+      resources = [
+        "*",
+      ]
+    },
+    {
+      sid    = "Iam"
+      effect = "Allow"
+      actions = [
+        "iam:AddRoleToInstanceProfile",
+        "iam:AddUserToGroup",
+        "iam:AttachRolePolicy",
+        "iam:AttachUserPolicy",
+        "iam:CreateInstanceProfile",
+        "iam:CreatePolicy",
+        "iam:CreatePolicyVersion",
+        "iam:CreateRole",
+        "iam:CreateServiceLinkedRole",
+        "iam:CreateUser",
+        "iam:DeleteAccessKey",
+        "iam:DeleteAccountPasswordPolicy",
+        "iam:DeleteInstanceProfile",
+        "iam:DeleteLoginProfile",
+        "iam:DeletePolicy",
+        "iam:DeletePolicyVersion",
+        "iam:DeleteRole",
+        "iam:DeleteRolePolicy",
+        "iam:DeleteUser",
+        "iam:DetachRolePolicy",
+        "iam:DetachUserPolicy",
+        "iam:GetAccountPasswordPolicy",
+        "iam:GetGroup",
+        "iam:GetInstanceProfile",
+        "iam:GetPolicy",
+        "iam:GetPolicyVersion",
+        "iam:GetRole",
+        "iam:GetRolePolicy",
+        "iam:GetUser",
+        "iam:GetUserPolicy",
+        "iam:GetOpenIDConnectProvider",
+        "iam:ListAccessKeys",
+        "iam:ListAccountAliases",
+        "iam:ListAttachedRolePolicies",
+        "iam:ListAttachedUserPolicies",
+        "iam:ListEntitiesForPolicy",
+        "iam:ListGroupsForUser",
+        "iam:ListInstanceProfilesForRole",
+        "iam:ListMFADevices",
+        "iam:ListPolicyVersions",
+        "iam:ListRolePolicies",
+        "iam:ListSigningCertificates",
+        "iam:ListSSHPublicKeys",
+        "iam:ListVirtualMFADevices",
+        "iam:PassRole",
+        "iam:PutRolePolicy",
+        "iam:RemoveRoleFromInstanceProfile",
+        "iam:RemoveUserFromGroup",
+        "iam:TagRole",
+        "iam:UntagRole",
+        "iam:UpdateAccountPasswordPolicy",
+        "iam:UpdateAssumeRolePolicy",
+      ]
+      resources = [
+        "*",
+      ]
+    }
+  ]
+  Terraform4 = [
+    {
       sid    = "S3"
       effect = "Allow"
       actions = [
@@ -730,7 +742,7 @@ locals {
       resources = [
         "*",
       ]
-    },    
+    },
     {
       sid    = "NetworkFirewall"
       effect = "Allow"
