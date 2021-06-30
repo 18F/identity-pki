@@ -20,9 +20,6 @@ users:
   brett.mcparland:
     - secops
     - soc
-  brian.crissup:
-    - devops
-    - keymasters
   chris.manger:
     - bizops
     - finops
