@@ -87,14 +87,6 @@
       "outboundproxy": {
         "valid_ips": "34.216.215.128/26"
       }
-    },
-    "crissupb": {
-      "jumphost": {
-        "valid_ips": "34.216.215.128/26"
-      },
-      "outboundproxy": {
-        "valid_ips": "34.216.215.128/26"
-      }
     }
   }
 }

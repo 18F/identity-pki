@@ -29,9 +29,9 @@ variable "risc_notifications" {
   default = {
     test_destination = {
       partner_name            = "test-risc"
-      notification_url        = "https://q8zvrjf2kc.execute-api.us-west-2.amazonaws.com/test/postmessage"
+      notification_url        = "https://"
       notification_rate_limit = 10
-      notification_source     = "risc.notifications.crissupb"
+      notification_source     = "risc.notifications"
       notification_state      = "ENABLED"
       basic_auth_user_name    = "na"
       api_key_name            = "x-api-key"
