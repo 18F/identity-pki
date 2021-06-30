@@ -64,7 +64,6 @@ RSpec.describe IdentifyController, type: :controller do
         expect(token).to be_truthy
         expect(token_contents['error']).to eq 'certificate.none'
         expect(token_contents['nonce']).to eq '123'
-        expect(token_contents['is_auth_cert']).to be_falsey
       end
 
       it 'with bad certificate content' do
@@ -138,7 +137,6 @@ RSpec.describe IdentifyController, type: :controller do
 
           it 'returns a token with a uuid and subject' do
             allow(IdentityConfig.store).to receive(:client_cert_escaped).and_return(true)
-            allow_any_instance_of(Certificate).to receive(:auth_cert?).and_return(true)
             @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
 
             expect(CertificateLoggerService).to_not receive(:log_certificate)
@@ -149,7 +147,6 @@ RSpec.describe IdentifyController, type: :controller do
             expect(token).to be_truthy
 
             expect(token_contents['nonce']).to eq '123'
-            expect(token_contents['is_auth_cert']).to be_truthy
 
             # N.B.: we do this split/sort because DNs match without respect to
             # ordering of components. OpenSSL::X509::Name doesn't match correctly.
