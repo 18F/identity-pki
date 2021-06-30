@@ -9,7 +9,7 @@ resource "aws_db_instance" "idp" {
   instance_class          = var.rds_instance_class
   maintenance_window      = var.rds_maintenance_window
   multi_az                = true
-  parameter_group_name    = aws_db_parameter_group.force_ssl.name
+  parameter_group_name    = module.idp_rds_usw2.rds_parameter_group_name
   password                = var.rds_password # change this by hand after creation
   storage_encrypted       = true
   username                = var.rds_username
@@ -72,7 +72,7 @@ resource "aws_db_instance" "idp-read-replica" {
   engine               = var.rds_engine
   engine_version       = var.rds_engine_version_replica
   instance_class       = var.rds_instance_class_replica
-  parameter_group_name = aws_db_parameter_group.force_ssl.name
+  parameter_group_name = module.idp_rds_usw2.rds_parameter_group_name
 
   multi_az = false
 
@@ -107,65 +107,28 @@ output "idp_db_endpoint_replica" {
   value = element(concat(aws_db_instance.idp-read-replica.*.endpoint, [""]), 0)
 }
 
-resource "aws_db_parameter_group" "force_ssl" {
-  name_prefix = "${var.name}-${var.env_name}-idp-${var.rds_engine}${replace(var.rds_engine_version_short, ".", "")}-"
-
-  # Before changing this value, make sure the parameters are correct for the
-  # version you are upgrading to.  See
-  # http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_WorkingWithParamGroups.html.
-  family = "${var.rds_engine}${var.rds_engine_version_short}"
-
-  parameter {
-    name         = "rds.force_ssl"
-    value        = "1"
-    apply_method = "pending-reboot"
+module "idp_rds_usw2" {
+  source = "../modules/idp_rds"
+  providers = {
+    aws = aws.usw2
   }
+  env_name = var.env_name
+  name = var.name
+  rds_engine = var.rds_engine
+  rds_engine_version = var.rds_engine_version
+  rds_engine_version_short = var.rds_engine_version_short
+}
 
-  # Setting to 30 minutes, RDS requires value in ms
-  # https://aws.amazon.com/blogs/database/best-practices-for-amazon-rds-postgresql-replication/
-  parameter {
-    name  = "max_standby_archive_delay"
-    value = "1800000"
+module "idp_rds_use1" {
+  source = "../modules/idp_rds"
+  providers = {
+    aws = aws.use1
   }
-
-  # Setting to 30 minutes, RDS requires value in ms
-  # https://aws.amazon.com/blogs/database/best-practices-for-amazon-rds-postgresql-replication/
-  parameter {
-    name  = "max_standby_streaming_delay"
-    value = "1800000"
-  }
-
-  # Log all Data Definition Layer changes (ALTER, CREATE, etc.)
-  parameter {
-    name  = "log_statement"
-    value = "ddl"
-  }
-
-  # Log all slow queries that take longer than specified time in ms
-  parameter {
-    name  = "log_min_duration_statement"
-    value = "250" # 250 ms
-  }
-
-  # Log lock waits
-  parameter {
-    name = "log_lock_waits"
-    value = "1"
-  }
-
-  # Log autovacuum task that take more than 1 sec
-  parameter {
-    name = "rds.force_autovacuum_logging_level"
-    value = "log"
-  }
-  parameter {
-    name = "log_autovacuum_min_duration"
-    value = 1000
-  }
-
-  lifecycle {
-    create_before_destroy = true
-  }
+  env_name = var.env_name
+  name = var.name
+  rds_engine = var.rds_engine
+  rds_engine_version = var.rds_engine_version
+  rds_engine_version_short = var.rds_engine_version_short
 }
 
 # Multi-AZ redis cluster, used for session storage
