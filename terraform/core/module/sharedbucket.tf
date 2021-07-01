@@ -187,15 +187,6 @@ module "elb-logs" {
   lifecycle_days_expire      = 2190 # 6 years
 }
 
-resource "aws_s3_account_public_access_block" "public_access_block" {
-  count = (var.allow_public_buckets ? 1 : 0)
-
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
-}
-
 resource "aws_iam_user" "circleci" {
   name = "bot=circleci"
   path = "/system/"
