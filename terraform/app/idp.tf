@@ -62,7 +62,7 @@ data "aws_sns_topic" "rds_snapshot_events" {
 }
 
 resource "aws_db_event_subscription" "idp" {
-  name      = "snapshot_create_events"
+  name      = "snapshot-create-events"
   sns_topic = data.aws_sns_topic.rds_snapshot_events.arn
 
   source_type = "db-snapshot"
