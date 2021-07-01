@@ -2,5 +2,5 @@
 # Add one line per WAF enabled application environment specifying the
 # `identity-devops`branch to deploy from
 pauldoomed: stages/pauldoomed
-# dev: main
+dev: main
 # int: main
