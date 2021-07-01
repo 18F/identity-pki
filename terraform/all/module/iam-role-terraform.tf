@@ -731,6 +731,9 @@ locals {
         "wafv2:AssociateWebACL",
         "wafv2:CreateIPSet",
         "wafv2:CreateWebACL",
+        "wafv2:DeleteWebACL",
+        "wafv2:DeleteIPSet",
+        "wafv2:DisassociateWebACL",
         "wafv2:GetIPSet",
         "wafv2:GetLoggingConfiguration",
         "wafv2:GetWebACL",
@@ -738,6 +741,7 @@ locals {
         "wafv2:ListTagsForResource",
         "wafv2:PutLoggingConfiguration",
         "wafv2:TagResource",
+        "wafv2:UpdateWebACL",
       ]
       resources = [
         "*",
