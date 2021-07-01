@@ -132,6 +132,22 @@ resource "aws_route53_record" "a" {
   }
 }
 
+resource "aws_route53_record" "aaaa" {
+  for_each = {
+    for aaaa in local.cloudfront_aliases :
+    aaaa.name == "" ? "aaaa_root" : "aaaa_${trimsuffix(aaaa.name, ".")}" => aaaa
+  }
+
+  name    = join("", [each.value.name, var.domain])
+  type    = "AAAA"
+  zone_id = aws_route53_zone.primary.zone_id
+  alias {
+    evaluate_target_health = false
+    name                   = each.value.alias_name
+    zone_id                = var.cloudfront_zone_id
+  }
+}
+
 resource "aws_route53_record" "record" {
   for_each = { for n in flatten([
     for entry in flatten([local.records, var.prod_records]) : [
