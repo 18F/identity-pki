@@ -1307,3 +1307,25 @@ resource "aws_ssm_parameter" "net_noproxy" {
   type  = "String"
   value = var.no_proxy_hosts
 }
+
+resource "aws_security_group" "quarantine" {
+  name        = "${var.env_name}-quarantine"
+  description = "Quarantine security group to access quarantined ec2 instances"
+  vpc_id      = aws_vpc.default.id
+
+    # allow 443 in from CIDR and on egress 
+  ingress {
+    description     = "allow 443 from VPC"
+    protocol        = "tcp"
+    from_port       = 443
+    to_port         = 443
+    cidr_blocks = [var.vpc_cidr_block]
+  }
+  tags = {
+    Name = "${var.env_name}-quarantine"
+    description = "Quarantine Security Group"
+  }
+}
+
+
+

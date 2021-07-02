@@ -57,6 +57,7 @@ resource "aws_security_group" "ssm_endpoint" {
     security_groups = [
       aws_security_group.base.id,
       aws_security_group.jumphost.id, # TODO remove
+      aws_security_group.quarantine.id, 
     ]
   }
 
@@ -92,6 +93,7 @@ resource "aws_security_group" "ssmmessages_endpoint" {
     security_groups = [
       aws_security_group.base.id,
       aws_security_group.jumphost.id, # TODO remove
+      aws_security_group.quarantine.id,
     ]
   }
 
@@ -146,6 +148,7 @@ resource "aws_security_group" "ec2messages_endpoint" {
     security_groups = [
       aws_security_group.base.id,
       aws_security_group.jumphost.id, # TODO remove
+      aws_security_group.quarantine.id, 
     ]
   }
 
