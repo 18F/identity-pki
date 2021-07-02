@@ -165,7 +165,7 @@ resource "aws_autoscaling_group" "worker" {
 resource "aws_autoscaling_policy" "worker" {
   name                      = "${var.env_name}-worker-cpu"
   autoscaling_group_name    = aws_autoscaling_group.worker.name
-  estimated_instance_warmup = 360
+  estimated_instance_warmup = 900
 
   policy_type = "TargetTrackingScaling"
   target_tracking_configuration {
