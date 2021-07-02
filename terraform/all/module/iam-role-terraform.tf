@@ -448,6 +448,7 @@ locals {
         "rds:DescribeDBParameterGroups",
         "rds:DescribeDBParameters",
         "rds:DescribeDBSubnetGroups",
+        "rds:DescribeEventSubscriptions",
         "rds:ListTagsForResource",
         "rds:ModifyDBInstance",
         "rds:ModifyDBParameterGroup",
