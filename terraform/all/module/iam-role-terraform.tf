@@ -439,7 +439,11 @@ locals {
         "rds:CreateDBInstanceReadReplica",
         "rds:CreateDBParameterGroup",
         "rds:CreateDBSubnetGroup",
+        "rds:CreateEventSubscription",
         "rds:DeleteDBInstance",
+        "rds:DeleteDBParameterGroup",
+        "rds:DeleteDBSubnetGroup",
+        "rds:DeleteEventSubscription",
         "rds:DescribeDBInstances",
         "rds:DescribeDBParameterGroups",
         "rds:DescribeDBParameters",
@@ -449,8 +453,6 @@ locals {
         "rds:ModifyDBParameterGroup",
         "rds:ModifyDBSubnetGroup",
         "rds:RebootDBInstance",
-        "rds:DeleteDBParameterGroup",
-        "rds:DeleteDBSubnetGroup",
       ]
       resources = [
         "*",
