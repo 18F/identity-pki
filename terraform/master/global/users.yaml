@@ -1,8 +1,5 @@
 ---
 users:
-  aaron.chapman:
-    - appdev
-    - apponcall
   akhlaq.khan:
     - analytics
     - finops
