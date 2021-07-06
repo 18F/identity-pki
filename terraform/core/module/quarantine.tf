@@ -1,6 +1,9 @@
 # Creates the S3 buckets and KMS CMK required for quarantine bucket for ec2 instances 
 # that have been compromised. 
 
+data "aws_caller_identity" "current" {
+}
+
 locals {
   quarantine_s3_bucket_name = "login-gov.quarantine-ec2.${data.aws_caller_identity.current.account_id}-${var.region}"
 }
@@ -80,7 +83,7 @@ data "aws_iam_policy_document" "s3_quarantine-ec2" {
     test = "StringNotLike"
     variable = "aws:PrincipalArn"
     values = [
-    "arn:aws:iam::*:role/FullAdministrator"]
+    "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/FullAdministrator"]
     }
   
     condition {
