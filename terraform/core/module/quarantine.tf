@@ -1,8 +1,4 @@
-# Creates the S3 buckets and KMS CMK required for quarantine bucket for ec2 instances 
-# that have been compromised. 
-
-data "aws_caller_identity" "current" {
-}
+# Creates the S3 bucket and KMS Key required for the quarantine bucket 
 
 locals {
   quarantine_s3_bucket_name = "login-gov.quarantine-ec2.${data.aws_caller_identity.current.account_id}-${var.region}"
@@ -67,32 +63,24 @@ resource "aws_s3_bucket" "quarantine-ec2" {
 data "aws_iam_policy_document" "s3_quarantine-ec2" {
   
   statement {
-    sid = "Denys3AccessExceptFullAdmin"
-    effect = "Deny"
+    sid = "S3AccessFullAdmin"
+    effect = "Allow"
 
     actions = [
-    "s3:*"
+    "s3:Get*",
+    "s3:PutObject*",
+    "s3:List*",
     ]
+    principals {
+      type = "AWS"
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/FullAdministrator"]
+    }
+    
 
     resources = [
     "arn:aws:s3:::${local.quarantine_s3_bucket_name}",
     "arn:aws:s3:::${local.quarantine_s3_bucket_name}/*",
     ]
-
-    condition {
-    test = "StringNotLike"
-    variable = "aws:PrincipalArn"
-    values = [
-    "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/FullAdministrator"]
-    }
-  
-    condition {
-    test = "StringEquals"
-    variable = "s3:x-amz-server-side-encryption"
-    values = [
-        "aws:kms"
-      ]
-    }
   }
 }
   
