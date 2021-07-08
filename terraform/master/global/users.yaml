@@ -41,6 +41,8 @@ users:
     - analytics
   justin.grevich:
     - devops
+  malick.diarra:
+    - appdev
   michael.antiporta:
     - analytics
   mitchell.henke:
