@@ -11,7 +11,7 @@ locals {
 resource "aws_s3_bucket_object" "tfslackchannel" {
   bucket       = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
   key          = "${var.env_name}/tfslackchannel"
-  content      = var.tf_slack_channel == "" ? "#login-otherevents" : var.tf_slack_channel
+  content      = var.tf_slack_channel
   content_type = "text/plain"
 }
 

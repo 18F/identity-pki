@@ -124,3 +124,9 @@ EOM
   type        = bool
   default     = true
 }
+
+variable "tf_slack_channel" {
+  description = "Slack channel where Terraform change notifications should be sent."
+  type        = string
+  default     = "#login-change"
+}
