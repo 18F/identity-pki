@@ -7,10 +7,6 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 3.27.0"
     }
-    github = {
-      source  = "hashicorp/github"
-      version = "~> 2.9"
-    }
   }
   required_version = ">= 0.13"
 }

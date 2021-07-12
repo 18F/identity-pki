@@ -769,6 +769,30 @@ locals {
       resources = [
         "*",
       ]
+    },
+    {
+      sid    = "ECR"
+      effect = "Allow"
+      actions = [
+        "ecr:CreateRepository",
+        "ecr:DeleteRepository",
+        "ecr:DeleteRepositoryPolicy",
+        "ecr:Describe*",
+        "ecr:GetLifecyclePolicy",
+        "ecr:GetLifecyclePolicyPreview",
+        "ecr:GetRegistryPolicy",
+        "ecr:GetRepositoryPolicy",
+        "ecr:ListTagsForResource",
+        "ecr:PutImageScanningConfiguration",
+        "ecr:PutImageTagMutability",
+        "ecr:PutLifecyclePolicy",
+        "ecr:PutRegistryPolicy",
+        "ecr:PutReplicationConfiguration",
+        "ecr:SetRepositoryPolicy",
+      ]
+      resources = [
+        "*",
+      ]
     }
   ]
 }
