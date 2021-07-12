@@ -394,6 +394,8 @@ assert_file_exists() {
 #
 KNOWN_TF_VERSIONS=(
   "v0.13.7"
+  "v0.14.11"
+  "v1.0.2"
 )
 
 # usage: check_terraform_version SUPPORTED_VERSION...
