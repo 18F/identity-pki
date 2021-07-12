@@ -6,10 +6,6 @@ dhparam
 newrelic_license_key
 oidc.key
 oidc.pub
-saml2019.crt
-saml2019.key.enc
-saml2020.crt
-saml2020.key.enc
 saml2021.crt
 saml2021.key.enc
 secret_key_base_dashboard
