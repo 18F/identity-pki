@@ -61,17 +61,6 @@ data "aws_sns_topic" "rds_snapshot_events" {
   name = "rds-snapshot-events"
 }
 
-resource "aws_db_event_subscription" "idp" {
-  name      = "snapshot-create-events"
-  sns_topic = data.aws_sns_topic.rds_snapshot_events.arn
-
-  source_type = "db-snapshot"
-
-  event_categories = [
-    "creation",
-  ]
-}
-
 # Optional read replica of the primary idp database
 resource "aws_db_instance" "idp-read-replica" {
   count               = var.enable_rds_idp_read_replica ? 1 : 0

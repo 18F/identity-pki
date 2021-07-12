@@ -33,3 +33,14 @@ resource "aws_sns_topic" "autoscaling_events" {
 resource "aws_sns_topic" "rds_snapshot_events" {
   name              = "rds-snapshot-events"
 }
+
+resource "aws_db_event_subscription" "idp" {
+  name      = "snapshot-create-events"
+  sns_topic = aws_sns_topic.rds_snapshot_events.arn
+
+  source_type = "db-snapshot"
+
+  event_categories = [
+    "creation",
+  ]
+}
