@@ -625,8 +625,8 @@ variable "doc_capture_secrets" {
 }
 
 variable "tf_slack_channel" {
-  description = "Slack channel to send events to. If set, overrides the default of #login-ENV-events."
-  default     = ""
+  description = "Slack channel to send events to."
+  default     = "#login-personal-events"
 }
 
 variable "gitlab_enabled" {

@@ -73,32 +73,8 @@ data "aws_iam_policy_document" "autotf_assumerole" {
     }
   }
 }
+
 locals {
   bucket_name_prefix = "login-gov"
   secrets_bucket_type = "secrets"
-}
-
-module "tf-state" {
-  source = "github.com/18F/identity-terraform//state_bucket?ref=eaabb7c80efcbce9fab28575ef4111e1e8eaa346"
-  #source = "../../../../identity-terraform/state_bucket"
-
-  remote_state_enabled = 0
-  region               = var.region
-  bucket_name_prefix   = "login-gov"
-  sse_algorithm        = "AES256"
-}
-
-module "main_secrets_bucket" {
-  source     = "../../modules/secrets_bucket"
-  depends_on = [module.tf-state.s3_log_bucket]
-
-  bucket_name         = "${local.bucket_name_prefix}.${local.secrets_bucket_type}.${data.aws_caller_identity.current.account_id}-${var.region}"
-  logs_bucket         = "login-gov.s3-access-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
-  secrets_bucket_type = local.secrets_bucket_type
-  bucket_name_prefix  = local.bucket_name_prefix
-  region              = var.region
-}
-
-output "main_secrets_bucket" {
-  value = module.main_secrets_bucket.bucket_name
 }
