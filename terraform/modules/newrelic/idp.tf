@@ -263,53 +263,66 @@ resource "newrelic_alert_condition" "enduser_error_percentage" {
   }
 }
 
-resource "newrelic_dashboard" "error_dashboard" {
-  count    = var.enabled
-  title    = "Errors for ${var.error_dashboard_site}"
-  editable = "read_only"
+resource "newrelic_one_dashboard" "error_dashboard" {
+  count = var.enabled
+  
+  name        = "Errors for ${var.error_dashboard_site}"
+  permissions = "public_read_only"
 
-  lifecycle {
-    ignore_changes = [
-      # Ignore changes to the editable attribute - This gets set
-      # to `editable_by_owner` in NewRelic.
-      editable,
-    ]
-  }
+  page {
+    name = "Errors for ${var.error_dashboard_site}"
 
-  widget {
-    title         = "Errors by Service Provider"
-    visualization = "faceted_area_chart"
-    nrql          = "SELECT count(*) FROM TransactionError FACET service_provider WHERE appName = '${var.error_dashboard_site}' TIMESERIES"
-    row           = 1
-    column        = 1
-    width         = 1
-  }
+    widget_area {
+      title  = "Errors by Service Provider"
+      row    = 1
+      column = 1
+      height = 3
+      width  = 4
 
-  widget {
-    title         = "Errors by Endpoint"
-    visualization = "faceted_area_chart"
-    nrql          = "SELECT count(*) FROM TransactionError FACET transactionName WHERE appName = '${var.error_dashboard_site}' TIMESERIES"
-    row           = 1
-    column        = 2
-    width         = 1
-  }
+      nrql_query {
+        account_id = 1376370
+        query      = "SELECT count(*) FROM TransactionError FACET service_provider WHERE appName = '${var.error_dashboard_site}' TIMESERIES"
+      }
+    }
 
-  widget {
-    title         = "Errors by IAL level"
-    visualization = "faceted_area_chart"
-    nrql          = "SELECT count(*) FROM TransactionError FACET CASES (WHERE transactionName LIKE 'Controller/idv/%' AS IAL2, WHERE transactionName NOT LIKE 'Controller/idv/%' AS IAL1) WHERE appName = '${var.error_dashboard_site}' TIMESERIES"
-    row           = 2
-    column        = 1
-    width         = 1
-  }
+    widget_area {
+      title = "Errors by Endpoint"
+      row = 1
+      column = 5
+      height = 3
+      width = 4
 
-  widget {
-    title         = "Errors Count"
-    visualization = "facet_table"
-    nrql          = "SELECT COUNT(*), uniques(error.message) FROM TransactionError WHERE appName = '${var.error_dashboard_site}' FACET error.class"
-    row           = 2
-    column        = 2
-    width         = 2
+      nrql_query {
+        account_id = 1376370
+        query      = "SELECT count(*) FROM TransactionError FACET transactionName WHERE appName = '${var.error_dashboard_site}' TIMESERIES"
+      }
+    }
+
+    widget_area {
+      title = "Errors by IAL level"
+      row = 4
+      column = 1
+      height = 3
+      width = 4
+
+      nrql_query {
+        account_id = 1376370
+        query      = "SELECT count(*) FROM TransactionError FACET CASES (WHERE transactionName LIKE 'Controller/idv/%' AS IAL2, WHERE transactionName NOT LIKE 'Controller/idv/%' AS IAL1) WHERE appName = '${var.error_dashboard_site}' TIMESERIES"
+      }
+    }
+
+    widget_table {
+      title = "Errors Count"
+      row = 4
+      column = 5
+      height = 3
+      width = 8
+
+      nrql_query {
+        account_id = 1376370
+        query      = "SELECT COUNT(*), uniques(error.message) FROM TransactionError WHERE appName = '${var.error_dashboard_site}' FACET error.class"
+      }
+    }
   }
 }
 
