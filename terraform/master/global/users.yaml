@@ -28,8 +28,6 @@ users:
     - appdev
     - apponcall
     - bizops
-  janet.evans:
-    - analytics
   jonathan.hooper:
     - appdev
     - apponcall
@@ -60,8 +58,6 @@ users:
   paul.hirsch:
     - devops
   sierra.toler:
-    - bizops
-  stephanie.rivera:
     - bizops
   steve.urciuoli:
     - appdev
