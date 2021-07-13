@@ -57,7 +57,6 @@ resource "aws_security_group" "ssm_endpoint" {
     security_groups = [
       aws_security_group.base.id,
       aws_security_group.jumphost.id, # TODO remove
-      aws_security_group.quarantine.id, 
     ]
   }
 
@@ -69,11 +68,13 @@ resource "aws_security_group" "ssm_endpoint" {
       var.private1_subnet_cidr_block,
       var.private2_subnet_cidr_block,
       var.private3_subnet_cidr_block,
+      var.idp1_subnet_cidr_block,
+      var.idp2_subnet_cidr_block,
     ]
   }
 
   vpc_id = aws_vpc.default.id
-}
+  }
 
 resource "aws_security_group" "ssmmessages_endpoint" {
   description = "Allow inbound from all servers"
@@ -93,7 +94,19 @@ resource "aws_security_group" "ssmmessages_endpoint" {
     security_groups = [
       aws_security_group.base.id,
       aws_security_group.jumphost.id, # TODO remove
-      aws_security_group.quarantine.id,
+    ]
+  }
+
+  ingress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = [
+      var.idp1_subnet_cidr_block,
+      var.idp2_subnet_cidr_block,
+      var.private1_subnet_cidr_block,
+      var.private2_subnet_cidr_block,
+      var.private3_subnet_cidr_block,
     ]
   }
 
@@ -148,7 +161,18 @@ resource "aws_security_group" "ec2messages_endpoint" {
     security_groups = [
       aws_security_group.base.id,
       aws_security_group.jumphost.id, # TODO remove
-      aws_security_group.quarantine.id, 
+    ]
+  }
+  ingress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = [
+      var.private1_subnet_cidr_block,
+      var.private2_subnet_cidr_block,
+      var.private3_subnet_cidr_block,
+      var.idp1_subnet_cidr_block,
+      var.idp2_subnet_cidr_block,
     ]
   }
 
@@ -179,6 +203,18 @@ resource "aws_security_group" "logs_endpoint" {
     security_groups = [
       aws_security_group.base.id,
       aws_security_group.jumphost.id, # TODO remove
+    ]
+  }
+  ingress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = [
+      var.private1_subnet_cidr_block,
+      var.private2_subnet_cidr_block,
+      var.private3_subnet_cidr_block,
+      var.idp1_subnet_cidr_block,
+      var.idp2_subnet_cidr_block,
     ]
   }
 
@@ -635,3 +671,4 @@ resource "aws_security_group" "events_endpoint" {
 
   vpc_id = aws_vpc.default.id
 }
+

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3 
-
-  # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
   #
   # Licensed under the Apache License, Version 2.0 (the "License").
   # You may not use this file except in compliance with the License.
@@ -14,7 +13,6 @@
   # permissions and limitations under the License.
 
 
-
 import boto3
 import re
 import logging
@@ -25,7 +23,6 @@ import random
 import string
 import time
 import argparse
-
 
 ###### Creating global variables
 # OSLevelCommands are the commands which will be attempted on the host OS of the instance in the event that SSM is configured and functional.
@@ -148,7 +145,7 @@ def snapshot(ec2Client, instance_id):
         f.close()
     data = open('/tmp/' + metadata_file, 'rb')
 
-    upload_to_s3(data, metadata_file)
+    upload_to_s3(data, metadata_file, instance_id)
 
     # Taking snapshot of attached EBS Volume(s)
     if 'BlockDeviceMappings' in target_instance_data and len(target_instance_data['BlockDeviceMappings']) > 0:
@@ -281,7 +278,7 @@ def console_screenshot(ec2Client, instance_id):
         )
         file_name = 'console_screenshot-' + instance_id + '.jpg'
         screenshot = base64.b64decode(response['ImageData'])
-        upload_to_s3(screenshot, file_name)
+        upload_to_s3(screenshot, file_name, instance_id)
         message = "Sucessfuly captured console screenshot. Object name: " + file_name
     except ValueError as e:
         message = "Unable to capture console screenshot" + str(e['ErrorMessage'])
@@ -291,10 +288,13 @@ def console_screenshot(ec2Client, instance_id):
         send_sns_message(message)
 
 
-def upload_to_s3(data, filename):
+def upload_to_s3(data, filename, iid):
     try:
         s3 = boto3.resource('s3')
-        response = s3.Bucket(BUCKET_NAME).put_object(Key=RUNIDPREFIX+filename, Body=data, ServerSideEncryption='AES256', ACL='bucket-owner-full-control')
+        curdt = datetime.datetime.now()
+        s3prefix = str(curdt.year)+"-"+str(curdt.hour)+"-"+str(curdt.minute)+":"+str(curdt.second)+"-"+iid+"/"
+        response = s3.Bucket(BUCKET_NAME).put_object(Key=s3prefix+filename,
+                                                     Body=data, ServerSideEncryption='AES256', ACL='bucket-owner-full-control')
         message = "Successfully uploaded file to bucket " + BUCKET_NAME
     except ValueError as e:
         message = "Unable to upload file to s3 bucket" + str(e['ErrorMessage'])
@@ -415,28 +415,38 @@ def attach_EC2_SSM_execution_IAM_role(ec2Client, instance_id):
 
 if __name__ == "__main__":
 
+    ACCOUNT_ID = boto3.client('sts').get_caller_identity().get('Account')
+
     # Define Argument Parser
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--iid', required=True, help='instance id')
     parser.add_argument('-g', '--sgid', required=False, help='security group id')
-    parser.add_argument('-r', '--region', required=True, help='region')
-    parser.add_argument('-b', '--bucket', required=True, help='bucket')
+    parser.add_argument('-r', '--region', required=False, help='region')
+    parser.add_argument('-b', '--bucket', required=False, help='bucket')
     parser.add_argument('-t', '--topic', required=False, help='topic')
 
-    
-
     args = parser.parse_args()
-    SNS_TOPIC = args.topic
-    AREGION=args.region
+
+    AREGION = 'us-west-2'
+    if args.region:
+        AREGION=args.region
+
 
     instance_id = args.iid
     instanceid_is_valid(instance_id)
 
-    ec2Client = boto3.client('ec2', region_name=args.region)
-    asgClient = boto3.client('autoscaling', region_name=args.region)
-    ssmClient = boto3.client('ssm', region_name=args.region)
+    ec2Client = boto3.client('ec2', region_name=AREGION)
+    asgClient = boto3.client('autoscaling', region_name=AREGION)
+    ssmClient = boto3.client('ssm', region_name=AREGION)
 
-    BUCKET_NAME = args.bucket
+    BUCKET_NAME = "login-gov.quarantine-ec2."+ACCOUNT_ID+"-"+AREGION
+    if args.bucket:
+        BUCKET_NAME = args.bucket
+
+    SNS_TOPIC = "arn:aws:sns:"+AREGION+":"+ACCOUNT_ID+":slack-events"
+    if args.topic:
+        SNS_TOPIC = args.topic
+
     console_screenshot(ec2Client, instance_id)
 
     snapshot(ec2Client, instance_id)
@@ -449,7 +459,22 @@ if __name__ == "__main__":
     isolateSG = args.sgid
     #print(isolateSG)
     if not isolateSG:
+        #findSG
+        """group_name = '*-quarantine'
+        response = ec2Client.describe_security_groups(
+            Filters=[
+                dict(Name='tag:description', Values=[group_name])
+            ]
+        )
+        try:
+            isolateSG = response['SecurityGroups'][0]['GroupId']
+        except:
+            pass
+        if not isolateSG:
+            isolateSG = create_isolate_sg(ec2Client, VPC_ID, instance_id)"""
         isolateSG = create_isolate_sg(ec2Client, VPC_ID, instance_id)
+    
+    print(isolateSG)
     isolate_instance(ec2Client, instance_id, VPC_ID, isolateSG)
 
     set_tags(ec2Client, instance_id)
