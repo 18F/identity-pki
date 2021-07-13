@@ -420,7 +420,7 @@ if __name__ == "__main__":
     # Define Argument Parser
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--iid', required=True, help='instance id')
-    parser.add_argument('-g', '--sgid', required=False, help='security group id')
+    parser.add_argument('-g', '--sgid', required=True, help='security group id')
     parser.add_argument('-r', '--region', required=False, help='region')
     parser.add_argument('-b', '--bucket', required=False, help='bucket')
     parser.add_argument('-t', '--topic', required=False, help='topic')

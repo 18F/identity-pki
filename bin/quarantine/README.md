@@ -13,16 +13,22 @@ The script takes the following arguments:
 
 '-i' -> instance_id, required=True
 
-'-g' -> security group id (sgid), required=False
+'-g' -> security group id (sgid), required=True
 
-'-r' -> region, required=True
+'-r' -> region, required=False, default=us-west-2
 
-'-b' -> bucket required=True
+'-b' -> bucket required=False, default=login-gov.quarantine-ec2."+ACCOUNT_ID+"-"+us-west-2
 
-'-t' -> SNS topic arn (for slack)
+'-t' -> SNS topic arn, required=False default=arn:aws:sns:"+us-west-2+":"+ACCOUNT_ID+":slack-events
 
+
+Usage:
+
+SecurityResponse.py [-h] -i IID -g SGID [-r REGION] [-b BUCKET] [-t TOPIC]
+SecurityResponse.py: the following arguments are required: -i/--iid, -g/--sgid
 
 Example:
+$ ./SecurityResponse.py -i i-06a0c710b7a697e82 -g sg-05075f7fe14d76a9a 
 
-$ ./SecurityResponse.py -i i-06a0c710b7a697e82 -g sg-05075f7fe14d76a9a -r us-west-2 -b login-gov-idp-doc-capture.894947205914-us-west-2 -t arn:aws:sns:us-west-2:035466892286:slack-login-otherevents
+
 
