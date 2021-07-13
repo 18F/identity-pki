@@ -15,7 +15,8 @@ variable "code_branch" {
 }
 
 module "git2s3_src" {
-  source = "../../modules/cfn_artifacts" 
+  #source = "../../../../identity-terraform/git2s3_artifacts"
+  source = "github.com/18F/identity-terraform//git2s3_artifacts?ref=a6e95935119d9de98ce6348ccdfaa972f818b99e"
 
   git2s3_stack_name    = "CodeSync-IdentityBaseImage"
   external_account_ids = [
@@ -23,7 +24,9 @@ module "git2s3_src" {
     "917793222841",
     "034795980528",
   ]
-  artifact_bucket      = "login-gov-public-artifacts-us-west-2"
+  #artifact_bucket      = "login-gov-public-artifacts-us-west-2"
+  bucket_name_prefix = "login-gov"
+  sse_algorithm      = "AES256"
 }
 
 module "main" {

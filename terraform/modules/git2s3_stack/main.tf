@@ -15,11 +15,34 @@ variable "external_account_ids" {
 }
 
 locals {
-  git2s3_output_bucket = chomp(data.aws_cloudformation_stack.git2s3.outputs["OutputBucketName"])
+  git2s3_output_bucket = chomp(aws_cloudformation_stack.git2s3.outputs["OutputBucketName"])
 }
 
-data "aws_cloudformation_stack" "git2s3" {
-  name = var.git2s3_stack_name
+data "github_ip_ranges" "ips" {
+}
+
+#data "aws_cloudformation_stack" "git2s3" {
+#  name = var.git2s3_stack_name
+#}
+
+resource "aws_cloudformation_stack" "git2s3" {
+  name          = "CodeSync-IdentityBaseImage"
+  template_body = file("${path.module}/git2s3.template")
+  parameters    = {
+    AllowedIps          = data.github_ip_ranges.ips.git
+    QSS3BucketName      = "aws-quickstart"
+    OutputBucketName    = ""
+    ScmHostnameOverride = ""
+    ExcludeGit          = "True"
+    VPCId               = ""
+    CustomDomainName    = ""
+    QSS3BucketRegion    = "us-east-1"
+    ApiSecret           = ""
+    QSS3KeyPrefix       = "quickstart-git2s3/"
+    VPCCidrRange        = ""
+    SubnetIds           = ""
+  }
+  capabilities = ["CAPABILITY_IAM"]
 }
 
 data "aws_iam_policy_document" "git2s3_output_bucket" {

@@ -97,6 +97,17 @@ locals {
       ]
     },
     {
+      sid    = "ApiGateway"
+      effect = "Allow"
+      actions = [
+        "apigateway:GET",
+        "apigateway:PATCH",
+      ]
+      resources = [
+        "*",
+      ]
+    },
+    {
       sid    = "Autoscaling"
       effect = "Allow"
       actions = [
