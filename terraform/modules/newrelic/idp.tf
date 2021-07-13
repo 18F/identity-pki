@@ -326,57 +326,6 @@ resource "newrelic_one_dashboard" "error_dashboard" {
   }
 }
 
-
-resource "newrelic_dashboard" "error_dashboard" {
-  count    = var.enabled
-  title    = "Errors for ${var.error_dashboard_site}"
-  editable = "read_only"
-
-  lifecycle {
-    ignore_changes = [
-      # Ignore changes to the editable attribute - This gets set
-      # to `editable_by_owner` in NewRelic.
-      editable,
-    ]
-  }
-
-  widget {
-    title         = "Errors by Service Provider"
-    visualization = "faceted_area_chart"
-    nrql          = "SELECT count(*) FROM TransactionError FACET service_provider WHERE appName = '${var.error_dashboard_site}' TIMESERIES"
-    row           = 1
-    column        = 1
-    width         = 1
-  }
-
-  widget {
-    title         = "Errors by Endpoint"
-    visualization = "faceted_area_chart"
-    nrql          = "SELECT count(*) FROM TransactionError FACET transactionName WHERE appName = '${var.error_dashboard_site}' TIMESERIES"
-    row           = 1
-    column        = 2
-    width         = 1
-  }
-
-  widget {
-    title         = "Errors by IAL level"
-    visualization = "faceted_area_chart"
-    nrql          = "SELECT count(*) FROM TransactionError FACET CASES (WHERE transactionName LIKE 'Controller/idv/%' AS IAL2, WHERE transactionName NOT LIKE 'Controller/idv/%' AS IAL1) WHERE appName = '${var.error_dashboard_site}' TIMESERIES"
-    row           = 2
-    column        = 1
-    width         = 1
-  }
-
-  widget {
-    title         = "Errors Count"
-    visualization = "facet_table"
-    nrql          = "SELECT COUNT(*), uniques(error.message) FROM TransactionError WHERE appName = '${var.error_dashboard_site}' FACET error.class"
-    row           = 2
-    column        = 2
-    width         = 2
-  }
-}
-
 resource "newrelic_synthetics_monitor" "cloudfront_health" {
   count     = var.enabled
   name      = "${var.env_name} static /packs/manifest.json check"
