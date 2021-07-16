@@ -578,6 +578,7 @@ variable "opsgenie_key_file" {
   # default = "opsgenie_apikey"   # This sends alerts 7x24
 }
 
+## CloudWatch Alarm Defaults
 variable "web_low_traffic_alert_threshold" {
   description = "If the number of queries in 5 minutes falls below this number, we alert"
   default     = 10
@@ -591,6 +592,12 @@ variable "web_low_traffic_warn_threshold" {
 variable "pivcac_low_traffic_alert_threshold" {
   description = "If the number of queries in 5 minutes falls below this number, we alert"
   default     = 5
+}
+
+variable "idv_final_resolution_success_minimum_threshold" {
+  description = "Minimum number of successful proofs in an hour"
+  type        = number
+  default     = 0
 }
 
 variable "keep_legacy_bucket" {
@@ -637,10 +644,10 @@ variable "gitlab_enabled" {
 
 variable "gitlab_servicename" {
   description = "the service_name of the gitlab privatelink"
-  default = ""
+  default     = ""
 }
 
 variable "gitlab_hostname" {
   description = "name to write into the internal dns zone"
-  default = "gitlab"
+  default     = "gitlab"
 }

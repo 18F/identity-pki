@@ -70,3 +70,25 @@ module "idp_unhealthy_instances_alerts" {
 
   alarm_actions = local.low_priority_alarm_actions
 }
+
+resource "aws_cloudwatch_metric_alarm" "idv_final_resolution_success_minimum" {
+  count = var.idv_final_resolution_success_minimum_threshold > 0 ? 1 : 0
+
+  alarm_name        = "${var.env_name}-idv_final_resolution_success_minimum"
+  alarm_description = "${var.env_name}: Less than ${var.idv_final_resolution_success_minimum_threshold} users have completed IDV in the last hour"
+  namespace         = "${var.env_name}/idp-ialx"
+
+  metric_name = "idv-final-resolution-success"
+
+  statistic           = "Sum"
+  comparison_operator = "LessThanThreshold"
+  threshold           = var.idv_final_resolution_success_minimum_threshold
+  period              = 3600
+  evaluation_periods  = 1
+
+  treat_missing_data = "Breaching"
+
+  alarm_actions = local.low_priority_alarm_actions
+  ok_actions    = local.low_priority_alarm_actions
+}
+
