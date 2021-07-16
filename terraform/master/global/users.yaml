@@ -37,6 +37,8 @@ users:
     - keymasters
   jonathan.pirro:
     - devops
+  joshua.alley:
+    - appdev
   julia.elman:
     - analytics
   justin.grevich:
