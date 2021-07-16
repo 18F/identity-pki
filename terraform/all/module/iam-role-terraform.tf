@@ -292,6 +292,7 @@ locals {
         "ec2:GetTransitGatewayRouteTableAssociations",
         "ec2:ModifySubnetAttribute",
         "ec2:ModifyVpcAttribute",
+        "ec2:ModifyVpcEndpoint*",
         "ec2:ReleaseAddress",
         "ec2:ReplaceNetworkAclAssociation",
         "ec2:ReplaceRouteTableAssociation",
