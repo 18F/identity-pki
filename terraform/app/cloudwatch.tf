@@ -86,7 +86,7 @@ resource "aws_cloudwatch_metric_alarm" "idv_final_resolution_success_minimum" {
   period              = 3600
   evaluation_periods  = 1
 
-  treat_missing_data = "Breaching"
+  treat_missing_data = "breaching"
 
   alarm_actions = local.low_priority_alarm_actions
   ok_actions    = local.low_priority_alarm_actions
