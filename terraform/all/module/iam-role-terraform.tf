@@ -793,7 +793,7 @@ locals {
         "ecr:GetLifecyclePolicyPreview",
         "ecr:GetRegistryPolicy",
         "ecr:GetRepositoryPolicy",
-        "ecr:ListTagsForResource",
+        "ecr:List*",
         "ecr:PutImageScanningConfiguration",
         "ecr:PutImageTagMutability",
         "ecr:PutLifecyclePolicy",
