@@ -60,6 +60,9 @@ resource "aws_security_group" "ssm_endpoint" {
     ]
   }
 
+# Adding ingress rule below to allow ssm access via port 443 from private and idp subnets
+# This rule was created to avoid circular dependencies and allow quarantine hosts to be managed via ssm
+
   ingress {
     from_port = 443
     to_port = 443
@@ -96,6 +99,9 @@ resource "aws_security_group" "ssmmessages_endpoint" {
       aws_security_group.jumphost.id, # TODO remove
     ]
   }
+
+# Adding ingress rule below to allow ssm access via port 443 from private and idp subnets
+# This rule was created to avoid circular dependencies and allow quarantine hosts to be managed via ssm
 
   ingress {
     from_port = 443
@@ -163,6 +169,9 @@ resource "aws_security_group" "ec2messages_endpoint" {
       aws_security_group.jumphost.id, # TODO remove
     ]
   }
+# Adding ingress rule below to allow ssm access via port 443 from private and idp subnets
+# This rule was created to avoid circular dependencies and allow quarantine hosts to be managed via ssm
+
   ingress {
     from_port = 443
     to_port = 443
@@ -205,6 +214,10 @@ resource "aws_security_group" "logs_endpoint" {
       aws_security_group.jumphost.id, # TODO remove
     ]
   }
+
+# Adding ingress rule below to allow ssm access via port 443 from private and idp subnets
+# This rule was created to avoid circular dependencies and allow quarantine hosts to be managed via ssm
+
   ingress {
     from_port = 443
     to_port = 443

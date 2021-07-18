@@ -1,5 +1,6 @@
-#!/usr/bin/env python3 
- # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+#!/usr/bin/env python3
+
+  # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
   #
   # Licensed under the Apache License, Version 2.0 (the "License").
   # You may not use this file except in compliance with the License.
@@ -49,40 +50,6 @@ def instanceid_is_valid(instance_id):
             "Instance ID \"%s\" is invalid. Must enter valid EC2 Instance ID, e.g.: \"i-1a2b3c4d678\"" % instance_id)
         sys.exit()
 
-
-
-# Following is used to import Cloudformation exports, as that's the method for passing these uniquely generated items.
-"""def retrieve_cft_exports():
-    try:
-        global BUCKET_NAME
-        global SNS_TOPIC
-        global SSMIAMRoleForSNS
-        global SSMEC2IAMPROFILE
-        cft_client = boto3.client('cloudformation')
-        thisCFTExports = cft_client.list_exports()
-        BUCKET_NAME = ''
-        SNS_TOPIC = ''
-        SSMIAMRoleForSNS = ''
-# This is not elagant coding, but it does demonstrate how to pull each value from the API call return:
-        for eachExport in thisCFTExports['Exports']:
-            if eachExport['Name'] == 'SecResponseRepositoryS3Bucket':
-                BUCKET_NAME = eachExport['Value']
-            elif eachExport['Name'] == 'SecResponseMechanismSNSTopic':
-                SNS_TOPIC = eachExport['Value']
-            elif eachExport['Name'] == 'SSMIAMRoleForSNS':
-                SSMIAMRoleForSNS = eachExport['Value']
-            elif eachExport['Name'] == 'SecurityResponseEC2InstanceRoleProfile':
-                SSMEC2IAMPROFILE = eachExport['Value']
-        if BUCKET_NAME == '' or SNS_TOPIC == '' or SSMIAMRoleForSNS == '' or SSMEC2IAMPROFILE == '' :
-            message = 'Unable to determine and import required cloudformation exports.'
-            send_sns_message(message)
-            sys.exit()
-        message = 'Successfully determined S3 bucket and SNS topic as: ' + BUCKET_NAME + ' and ' + SNS_TOPIC
-        print(message)
-    except ValueError as e:
-        message = "Unable to determine storage and messaging locations." +  + str(e['ErrorMessage'])
-        print(message)
-        sys.exit()"""
 
 # Checking to see if instance is part of an ASG. If it is then remove it from ASG
 def detach_from_asg(asgClient, instance_id):
@@ -195,45 +162,9 @@ def set_termination_protection(ec2Client, instance_id):
         send_sns_message(message)
 
 
-# Creating isolation security group
-def create_isolate_sg(ec2Client, VPC_ID, instance_id):
-    print("Creating isolation security group")
-    isolateSGCreate=''
-    try:
-        isolateSGCreate = ec2Client.create_security_group(
-            VpcId=VPC_ID,
-            GroupName='SecurityContainmentSG-' + instance_id + "-" + _random_string(),
-            Description='Isolation SG created during response process.'
-        )
-
-        # By default, an open outbound rule is created with SG. Removing that rule
-        response = ec2Client.revoke_security_group_egress(
-            GroupId=isolateSGCreate['GroupId'],
-            IpPermissions=[
-                {
-                    'IpProtocol': '-1',
-                    'IpRanges': [
-                        {
-                            'CidrIp': '0.0.0.0/0'
-                        },
-                    ]
-                },
-            ]
-        )
-        message = "Isolation security group created"
-    except ValueError as e:
-        message = 'Unable to create security group ' + str(e['ErrorMessage'])
-    print(message)
-    if SNS_TOPIC:
-        send_sns_message(message)
-    return isolateSGCreate['GroupId']
-
-
-
 # Attach isolation SG to instance
 def isolate_instance(ec2Client, instance_id, VPC_ID, isolateSG):
     try:
-        #isolateSG = create_isolate_sg(ec2Client, VPC_ID, instance_id)
         response = ec2Client.modify_instance_attribute(
             InstanceId=instance_id,
             Groups=[isolateSG]
@@ -294,7 +225,8 @@ def upload_to_s3(data, filename, iid):
         curdt = datetime.datetime.now()
         s3prefix = str(curdt.year)+"-"+str(curdt.hour)+"-"+str(curdt.minute)+":"+str(curdt.second)+"-"+iid+"/"
         response = s3.Bucket(BUCKET_NAME).put_object(Key=s3prefix+filename,
-                                                     Body=data, ServerSideEncryption='AES256', ACL='bucket-owner-full-control')
+                                                     Body=data, ServerSideEncryption='aws:kms',
+                                                     SSEKMSKeyId=KEYID, ACL='bucket-owner-full-control')
         message = "Successfully uploaded file to bucket " + BUCKET_NAME
     except ValueError as e:
         message = "Unable to upload file to s3 bucket" + str(e['ErrorMessage'])
@@ -415,7 +347,7 @@ def attach_EC2_SSM_execution_IAM_role(ec2Client, instance_id):
 
 if __name__ == "__main__":
 
-    ACCOUNT_ID = boto3.client('sts').get_caller_identity().get('Account')
+    account_id = boto3.client('sts').get_caller_identity().get('Account')
 
     # Define Argument Parser
     parser = argparse.ArgumentParser()
@@ -424,6 +356,7 @@ if __name__ == "__main__":
     parser.add_argument('-r', '--region', required=False, help='region')
     parser.add_argument('-b', '--bucket', required=False, help='bucket')
     parser.add_argument('-t', '--topic', required=False, help='topic')
+    #parser.add_argument('-k', '--keyid', required=True, help='key id')
 
     args = parser.parse_args()
 
@@ -431,6 +364,7 @@ if __name__ == "__main__":
     if args.region:
         AREGION=args.region
 
+    
 
     instance_id = args.iid
     instanceid_is_valid(instance_id)
@@ -438,14 +372,48 @@ if __name__ == "__main__":
     ec2Client = boto3.client('ec2', region_name=AREGION)
     asgClient = boto3.client('autoscaling', region_name=AREGION)
     ssmClient = boto3.client('ssm', region_name=AREGION)
+    kmsClient = boto3.client('kms',region_name=AREGION)
 
-    BUCKET_NAME = "login-gov.quarantine-ec2."+ACCOUNT_ID+"-"+AREGION
+    
+    kmskeys = kmsClient.list_keys()
+
+    for cmk in kmskeys["Keys"]:
+        #print(cmk)
+        key_info = kmsClient.describe_key(KeyId=cmk["KeyId"])
+        #print(key_info)
+        if key_info["KeyMetadata"]["Description"] == 'KMS Key for the quarantine S3 bucket':
+            KEYID = cmk["KeyId"]
+            #print(KEYID)
+            break
+
+    
+    #KEYID = args.keyid
+
+    BUCKET_NAME = "login-gov.quarantine-ec2."+account_id+"-"+AREGION
     if args.bucket:
         BUCKET_NAME = args.bucket
 
-    SNS_TOPIC = "arn:aws:sns:"+AREGION+":"+ACCOUNT_ID+":slack-events"
+    SNS_TOPIC = "arn:aws:sns:"+AREGION+":"+account_id+":slack-events"
     if args.topic:
         SNS_TOPIC = args.topic
+
+    
+    try:
+        instance_describe_metadata = ec2Client.describe_instances(
+            InstanceIds=[
+                instance_id
+            ],
+        )
+    except ValueError as e:
+        message = 'Unable to get instance metadata' + str(e['ErrorMessage'])
+    VPC_ID = instance_describe_metadata['Reservations'][0]['Instances'][0]['VpcId']
+   
+
+
+    isolateSG = args.sgid
+
+    #print(isolateSG)
+    isolate_instance(ec2Client, instance_id, VPC_ID, isolateSG)
 
     console_screenshot(ec2Client, instance_id)
 
@@ -456,27 +424,7 @@ if __name__ == "__main__":
     except:
         pass
 
-    isolateSG = args.sgid
-    #print(isolateSG)
-    if not isolateSG:
-        #findSG
-        """group_name = '*-quarantine'
-        response = ec2Client.describe_security_groups(
-            Filters=[
-                dict(Name='tag:description', Values=[group_name])
-            ]
-        )
-        try:
-            isolateSG = response['SecurityGroups'][0]['GroupId']
-        except:
-            pass
-        if not isolateSG:
-            isolateSG = create_isolate_sg(ec2Client, VPC_ID, instance_id)"""
-        isolateSG = create_isolate_sg(ec2Client, VPC_ID, instance_id)
     
-    print(isolateSG)
-    isolate_instance(ec2Client, instance_id, VPC_ID, isolateSG)
-
     set_tags(ec2Client, instance_id)
 
     message = 'Security Response mechanism complete for instance: ' + instance_id
