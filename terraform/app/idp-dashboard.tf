@@ -996,6 +996,11 @@ variable "idp_ial2_sp_dashboards" {
         name         = "IAL2-Monitoring-SSA"
         issuer       = "urn:gov:gsa:SAML:2.0.profiles:sp:sso:SSA:mySSAsp"
         protocol     = "SAML"
+      },
+      ssa_dashboard = {
+        name         = "IAL2-Monitoring-PBGC"
+        issuer       = "urn:gov:gsa:SAML:2.0.profiles.profiles:sp:sso:pbgc:mypba"
+        protocol     = "SAML"
       }
    },
     mhenke = {
