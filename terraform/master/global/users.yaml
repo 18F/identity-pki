@@ -22,6 +22,8 @@ users:
     - finops
   clinton.troxel:
     - appdev
+  dave.zvenyach:
+    - analytics
   diondra.humphries:
     - bizops
   douglas.price:
