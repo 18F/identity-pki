@@ -20,17 +20,19 @@ module "terraform-assumerole" {
   )
   master_assumerole_policy = each.value["policy"]
   custom_policy_arns       = local.custom_policy_arns
-  iam_policies             = local.terraform_iam_policies
+  iam_policies             = [
+    for pol in local.terraform_iam_policies : {
+      policy_name        = "${each.key}${index(local.terraform_iam_policies,pol) + 1}"
+      policy_description = "Policy ${index(local.terraform_iam_policies,pol) + 1} for ${each.key} role"
+      policy_document    = pol
+    }
+  ]
 }
 
 locals {
   terraform_iam_policies = [
-    {
-      policy_name = "Terraform1"
-      policy_description = "Policy 1 for Terraform role"
-      policy_document = [
+      [
         {
-          policy_description = ""
           sid    = "AccessAnalyzer"
           effect = "Allow"
           actions = [
@@ -280,13 +282,8 @@ locals {
             "*",
           ]
         }
-      ]
-    },
-    {
-      policy_name = "Terraform2"
-      policy_description = "Policy 2 for Terraform role"
-      policy_description = ""
-      policy_document = [
+      ],
+      [
         {
           sid    = "Kinesis"
           effect = "Allow"
@@ -468,13 +465,8 @@ locals {
             "*",
           ]
         },
-      ]
-    },
-    {
-      policy_name = "Terraform3"
-      policy_description = "Policy 3 for Terraform role"
-      policy_description = ""
-      policy_document = [
+      ],
+      [
         {
           sid    = "Elasticloadbalancing"
           effect = "Allow"
@@ -602,13 +594,8 @@ locals {
             "*",
           ]
         }
-      ]
-    },
-    {
-      policy_name = "Terraform4"
-      policy_description = "Policy 4 for Terraform role"
-      policy_description = ""
-      policy_document = [
+      ],
+      [
         {
           sid    = "S3"
           effect = "Allow"
@@ -779,6 +766,5 @@ locals {
           ]
         }
       ]
-    }
-  ]
+    ]
 }
