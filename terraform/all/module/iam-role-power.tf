@@ -554,6 +554,21 @@ module "poweruser-assumerole" {
             "*",
           ]
         },
+        {
+          sid    = "ECR"
+          effect = "Allow"
+          actions = [
+            "ecr:Describe*",
+            "ecr:GetLifecyclePolicy",
+            "ecr:GetLifecyclePolicyPreview",
+            "ecr:GetRegistryPolicy",
+            "ecr:GetRepositoryPolicy",
+            "ecr:List*",
+          ]
+          resources = [
+            "*",
+          ]
+        }
       ]
     }
   ]
