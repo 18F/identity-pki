@@ -70,6 +70,7 @@ check_or_create_remote_state_resources() {
   echo >&2 "+ aws s3api head-bucket --bucket $BUCKET"
   output="$(env aws s3api head-bucket --bucket "$BUCKET" 2>&1)" \
       && ret=$? || ret=$?
+      echo $ret
 
   if grep -F "Not Found" <<< "$output" >/dev/null; then
       log "$output"

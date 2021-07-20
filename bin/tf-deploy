@@ -613,6 +613,7 @@ EOM
     else
         TF_DEPLOY_INFO=$(bin/deploy/get-version-info.sh "${ENVIRONMENT}" 2>/dev/null | sed '$!s/$/\\n/' | tr -d '\n')
         TF_PATH="${TF_DIR_FULL}/${ENVIRONMENT}"
+        MODULE_STYLE=0
     fi
 
     TF_SLACK_EMOJI=':terraform:'
@@ -635,7 +636,8 @@ EOM
         -u "${TF_SLACK_USER}" \
         -e "${TF_SLACK_EMOJI}" \
         -p "${SLACK_PRETEXT}" \
-        -m "${SLACK_MESSAGE}"
+        -m "${SLACK_MESSAGE}" \
+        -y "${MODULE_STYLE}"
 fi
 
 if [ "$DEPLOY_FAIL" == 'true' ] ; then exit 1 ; fi
