@@ -94,7 +94,7 @@ verify_root_repo() {
 slack_notify () {
   local AWS_ACCT_NUM TF_ENV AWS_REGION COLOR SLACK_USER SLACK_EMOJI PRE_TEXT TEXT KEYS
   
-  while getopts n:t:r:c:u:e:p:m: opt
+  while getopts n:t:r:c:u:e:p:m:y: opt
   do
     case "${opt}" in
       n) AWS_ACCT_NUM="${OPTARG}" ;;
@@ -105,13 +105,22 @@ slack_notify () {
       e) SLACK_EMOJI="${OPTARG}"  ;;
       p) PRE_TEXT="${OPTARG}"     ;;
       m) TEXT="${OPTARG}"         ;;
+      y) TF_TYPE="${OPTARG}"      ;;
     esac
   done
   
-  local BUCKET="s3://login-gov.secrets.${AWS_ACCT_NUM}-${AWS_REGION}/${TF_ENV}"
+  local BUCKET="s3://login-gov.secrets.${AWS_ACCT_NUM}-${AWS_REGION}"
+  if [[ ${TF_TYPE} == 0 ]] ; then
+    BUCKET="${BUCKET}/${TF_ENV}"
+  fi
   
   if ! SLACK_CHANNEL=$(aws s3 cp "${BUCKET}/tfslackchannel" - 2>/dev/null) ; then
-    SLACK_CHANNEL=$(aws s3 cp "${BUCKET}/slackchannel" -) || ((KEYS++))
+    if [[ ${TF_TYPE} == 0 ]] ; then
+      BUCKET="s3://login-gov.secrets.${AWS_ACCT_NUM}-${AWS_REGION}"
+      SLACK_CHANNEL=$(aws s3 cp "${BUCKET}/tfslackchannel" -) || ((KEYS++))
+    else
+      SLACK_CHANNEL=$(aws s3 cp "${BUCKET}/slackchannel" -) || ((KEYS++))
+    fi
   fi
   SLACK_WEBHOOK=$(aws ssm get-parameter --name '/account/slack/webhook/url' --output text --with-decryption --query 'Parameter.Value') || ((KEYS++))
   if [[ "${KEYS}" -gt 0 ]]; then
