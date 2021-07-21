@@ -1,6 +1,7 @@
 all_certs_deploy.pem
 dashboard_api_token
 db_password_app
+db_password_idp
 db_username_app
 dhparam
 newrelic_license_key
