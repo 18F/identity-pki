@@ -51,7 +51,7 @@ NOTE: If running in distributed mode:
 Examples:
 
     $(basename "$0") sign_up pt
-    $(basename "$0") sign_up int -u 10 -h 25 -t 10m
+    $(basename "$0") sign_up int -u 10 -r 25 -t 10m
     $(basename "$0") sign_in dev -h 10 -n 120
 
     # Pass through options to Locust
@@ -86,7 +86,7 @@ declare {MASTER,WORKER}=false
 declare {USERS,SPAWN_RATE}=1
 declare NUM_USERS=100
 
-while getopts u:h:n:t:w:m opt
+while getopts u:r:n:t:m:w opt
 do
   case "${opt}" in
     u) USERS=${OPTARG}    ;;
