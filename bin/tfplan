@@ -33,8 +33,6 @@ Flags:
   -p : If using Sublime Text, pastes the command output to
        a new tab/window in Sublime Text using the subl
        binary.
-  -b : Both the full and module-only output will be
-       listed.
 
 Examples:
 
@@ -54,26 +52,13 @@ process_plan () {
   sed -E 's/(user_data += ").*"/\1\*"/'
 }
 
-print_plan () {
-  if [[ "${MODULES_ONLY}" == true ]] ; then
-    echo "${PLAN}" | grep -E '^ +# [a-z]' --color=never
-    if [[ "${DUAL_OUTPUT}" == true ]] ; then
-      echo
-      echo "${PLAN}"
-    fi
-  else
-    echo "${PLAN}"
-  fi
-}
-
-declare {MODULES_ONLY,PASTE,DUAL_OUTPUT}=
-while getopts mpb opt
+declare {MODULES_ONLY,PASTE}=
+while getopts mp opt
 do
     case "${opt}" in
-        m) MODULES_ONLY=true                     ;;
-        p) PASTE=true                            ;;
-        b) DUAL_OUTPUT=true && MODULES_ONLY=true ;;
-        *) usage && exit 1                       ;;
+        m) MODULES_ONLY=true ;;
+        p) PASTE=true        ;;
+        *) usage && exit 1 ;;
     esac
 done
 shift $((OPTIND-1))
@@ -104,12 +89,16 @@ else
   fi
 fi
 
+if [[ "${MODULES_ONLY}" == true ]] ; then
+  PLAN=$(echo "${PLAN}" | grep -E '^ +# [a-z]' --color=never)
+fi
+
 if [[ "${PASTE}" == true ]] ; then
   if [[ $(which subl) ]] ; then
-    print_plan | pbcopy ; subl -b --command new_file --command paste
+    echo "${PLAN}" | pbcopy ; subl -b --command new_file --command paste
   else
     echo 'subl binary not found, printing to STDOUT.'
   fi
 else
-  print_plan
+  echo "${PLAN}"
 fi
