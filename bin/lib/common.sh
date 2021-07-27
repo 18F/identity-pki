@@ -509,7 +509,7 @@ env_get() {
   else
     EC2_ENV="${1-sandbox}"
   fi
-  [[ "${EC2_ENV}" =~ "staging|prod" ]] && AV_PROFILE='prod-admin'
+  [[ "${EC2_ENV}" =~ "staging|prod|dm" ]] && AV_PROFILE='prod-admin'
 }
 
 ## strip off aws-vault exec stuff if running a long AWS_VAULT session ##
