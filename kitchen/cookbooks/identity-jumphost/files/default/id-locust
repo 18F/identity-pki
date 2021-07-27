@@ -52,7 +52,7 @@ Examples:
 
     $(basename "$0") sign_up pt
     $(basename "$0") sign_up int -u 10 -r 25 -t 10m
-    $(basename "$0") sign_in dev -h 10 -n 120
+    $(basename "$0") sign_in dev -r 10 -n 120
 
     # Pass through options to Locust
     $(basename "$0") sign_up pt -u 100 -t 10m -- --step-load --step-users 10 --step-time 1m
@@ -86,7 +86,7 @@ declare {MASTER,WORKER}=false
 declare {USERS,SPAWN_RATE}=1
 declare NUM_USERS=100
 
-while getopts u:r:n:t:m:w opt
+while getopts u:r:n:t:mw: opt
 do
   case "${opt}" in
     u) USERS=${OPTARG}    ;;
