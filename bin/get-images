@@ -97,6 +97,10 @@ mdout() {
   sed 's/ *| */@| /g' | column -s '@' -t
 }
 
+get_pipeline_data() {
+  local ROLE=${1}
+}
+
 get_ami_info() {
   PROFILE=${1}
   shift
@@ -110,9 +114,23 @@ get_ami_info() {
       TYPE=$(echo ${TYPE} | awk -F_ '{print $1}')
       echo_yellow "Using manually-specified ID \`${IMAGE}\` for \`${TYPE}\` AMI."
     else
-      BUILD=$(aws-vault exec ${AV_PROFILE} -- aws codebuild list-builds-for-project \
-              --project login-image-${TYPE} | jq -r '.ids[0]' | awk -F: '{print $NF}')
-      IMAGE=$(aws-vault exec ${AV_PROFILE} -- aws cloudtrail lookup-events \
+      BUILD=
+      PIPE_NAME=$(ave aws codepipeline list-pipelines | jq -r '.pipelines[].name' | grep -i ${TYPE})
+      PIPE_DATA=$(ave aws codepipeline list-action-executions --pipeline-name ${PIPE_NAME} --max-items 2)
+      while [[ -z ${BUILD} ]] ; do
+        PIPE_TOKEN=$(echo ${PIPE_DATA} | jq -r '.NextToken')
+        PIPE_BUILD=$(echo ${PIPE_DATA} | jq -r '.actionExecutionDetails[]|select(.stageName == "Build")')
+        if ! [[ $(echo $PIPE_BUILD | jq -r .status) == "Succeeded" ]] ; then
+          PIPE_DATA=$(ave aws codepipeline list-action-executions \
+            --pipeline-name CodePipeline-ImageBaseRole-CodePipeline-P8D1D3UMYIYC \
+            --max-items 2 --starting-token ${PIPE_TOKEN})
+        else
+          BUILD=$(echo ${PIPE_BUILD} |
+            jq -r '.output.executionResult.externalExecutionId' |
+            awk -F: '{print $NF}')
+        fi
+      done
+      IMAGE=$(ave aws cloudtrail lookup-events \
                         --lookup-attributes AttributeKey=EventName,AttributeValue=CopyImage |
                         jq -r --arg build "$BUILD" '.Events[].CloudTrailEvent|
                           fromjson|
@@ -122,7 +140,7 @@ get_ami_info() {
     fi
     PIPELINE_AMIS+=(${IMAGE})
   done
-  DATA+=$(echo -e "\n$(aws-vault exec ${AV_PROFILE} -- aws ec2 describe-images \
+  DATA+=$(echo -e "\n$(ave aws ec2 describe-images \
               --image-ids $(echo "${PIPELINE_AMIS[*]}") \
               --query 'Images[*].[ImageId,CreationDate,Name]' \
               --output text | sort -rk2 | head -n 2 |
@@ -151,7 +169,9 @@ update_vars() {
     AMI_TYPE=$(echo ${LINE} | awk -F+ '{print $4}' | sed -E 's/([a-z]+).+/\1/')
     [[ ${AMI_TYPE} == "base" ]] && AMI_TYPE='default'
     sed -i '' -E "/\"${AMI_TYPE}_ami_id_${AMI_ACCT}\"/{n;s/ami-[0-9a-f]{17}\" \# [0-9-]{10}/${AMI_ID}\" \# ${AMI_DATE}/;}" terraform/app/variables.tf
-    [[ $(git diff -U0 | grep ${AMI_ID}) ]] && echo_green "Updated \`${AMI_TYPE}_ami_id_${AMI_ACCT}\` to \`${AMI_ID}\`."
+    if [[ $(git diff -U0 | grep ${AMI_ID}) ]] ; then
+      echo_green "Updated \`${AMI_TYPE}_ami_id_${AMI_ACCT}\` to \`${AMI_ID}\`."
+    fi
   done
 }
 
