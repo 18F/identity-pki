@@ -122,7 +122,7 @@ get_ami_info() {
         PIPE_BUILD=$(echo ${PIPE_DATA} | jq -r '.actionExecutionDetails[]|select(.stageName == "Build")')
         if ! [[ $(echo $PIPE_BUILD | jq -r .status) == "Succeeded" ]] ; then
           PIPE_DATA=$(ave aws codepipeline list-action-executions \
-            --pipeline-name CodePipeline-ImageBaseRole-CodePipeline-P8D1D3UMYIYC \
+            --pipeline-name ${PIPE_NAME} \
             --max-items 2 --starting-token ${PIPE_TOKEN})
         else
           BUILD=$(echo ${PIPE_BUILD} |
