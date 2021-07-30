@@ -115,13 +115,13 @@ get_ami_info() {
       echo_yellow "Using manually-specified ID \`${IMAGE}\` for \`${TYPE}\` AMI."
     else
       BUILD=
-      PIPE_NAME=$(ave aws codepipeline list-pipelines | jq -r '.pipelines[].name' | grep -i ${TYPE})
+      PIPE_NAME=$(ave -r aws codepipeline list-pipelines | jq -r '.pipelines[].name' | grep -i ${TYPE})
       PIPE_DATA=$(ave aws codepipeline list-action-executions --pipeline-name ${PIPE_NAME} --max-items 2)
       while [[ -z ${BUILD} ]] ; do
         PIPE_TOKEN=$(echo ${PIPE_DATA} | jq -r '.NextToken')
         PIPE_BUILD=$(echo ${PIPE_DATA} | jq -r '.actionExecutionDetails[]|select(.stageName == "Build")')
         if ! [[ $(echo $PIPE_BUILD | jq -r .status) == "Succeeded" ]] ; then
-          PIPE_DATA=$(ave aws codepipeline list-action-executions \
+          PIPE_DATA=$(ave -r aws codepipeline list-action-executions \
             --pipeline-name ${PIPE_NAME} \
             --max-items 2 --starting-token ${PIPE_TOKEN})
         else
@@ -130,7 +130,7 @@ get_ami_info() {
             awk -F: '{print $NF}')
         fi
       done
-      IMAGE=$(ave aws cloudtrail lookup-events \
+      IMAGE=$(ave -r aws cloudtrail lookup-events \
                         --lookup-attributes AttributeKey=EventName,AttributeValue=CopyImage |
                         jq -r --arg build "$BUILD" '.Events[].CloudTrailEvent|
                           fromjson|
@@ -140,7 +140,7 @@ get_ami_info() {
     fi
     PIPELINE_AMIS+=(${IMAGE})
   done
-  DATA+=$(echo -e "\n$(ave aws ec2 describe-images \
+  DATA+=$(echo -e "\n$(ave -r aws ec2 describe-images \
               --image-ids $(echo "${PIPELINE_AMIS[*]}") \
               --query 'Images[*].[ImageId,CreationDate,Name]' \
               --output text | sort -rk2 | head -n 2 |

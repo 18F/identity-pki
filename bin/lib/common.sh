@@ -2,8 +2,13 @@
 # Common shell functions.
 
 ave() {
+  local ECHO_RUN=true
+  if [[ ${1} == '-r' ]] ; then
+    ECHO_RUN=false
+    shift 1
+  fi
   local run_me=("$@")
-  if [[ $USE_RUN -gt 0 ]] ; then
+  if [[ ${ECHO_RUN} == true ]] ; then
     if [ -t 1 ]; then
       echo -ne "\\033[1;36m"
     fi
@@ -18,10 +23,8 @@ ave() {
 }
 
 # echo full command before executing, then do it anyway
-USE_RUN=1
 run() {
   run_me=("$@")
-  if [[ $USE_RUN -gt 0 ]] ; then
     if [ -t 1 ]; then
       echo -ne "\\033[1;36m"
     fi
@@ -31,7 +34,6 @@ run() {
     if [ -t 1 ]; then
       echo -ne '\033[m'
     fi
-  fi
   "${run_me[@]}"
 }
 

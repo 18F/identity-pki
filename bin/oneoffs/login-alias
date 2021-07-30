@@ -150,8 +150,8 @@ while getopts aglser opt ; do
     s) AUTORUN=true ; FILES="subfunctions" ;;
     e) CLEAR_VARS=true ;;
     r)
-      export USE_RUN=0
-      sed -i '' -E "s/(USE_RUN=)1/\10/" "$HOME/.subfunctions"
+      unset USE_RUN
+      sed -i '' '/USE_RUN/d' "$HOME/.subfunctions"
       echo "Output of run() suppressed."
       [[ ${AUTORUN} = false ]] && exit 0
     ;;
