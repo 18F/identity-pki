@@ -1,6 +1,6 @@
 #!/bin/bash
 
-USE_RUN=1
+export USE_RUN=1
 
 # print $usage and return 1
 badopt() {
