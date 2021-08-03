@@ -1307,3 +1307,37 @@ resource "aws_ssm_parameter" "net_noproxy" {
   type  = "String"
   value = var.no_proxy_hosts
 }
+resource "aws_security_group" "quarantine" {
+  name        = "${var.env_name}-quarantine"
+  description = "Quarantine security group to access quarantined ec2 instances"
+  vpc_id      = aws_vpc.default.id
+  
+    ingress {
+    description     = "allow 443 from VPC"
+    protocol        = "tcp"
+    from_port       = 443
+    to_port         = 443
+    cidr_blocks = [var.vpc_cidr_block]
+  }
+  egress {
+    description     = "allow egress to VPC S3 endpoint"
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
+    prefix_list_ids = [aws_vpc_endpoint.private-s3.prefix_list_id]
+  }
+
+    egress {
+    description     = "allow egress to endpoints"
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
+    security_groups = [aws_security_group.ec2messages_endpoint.id, aws_security_group.ssmmessages_endpoint.id, aws_security_group.ssm_endpoint.id,aws_security_group.logs_endpoint.id]
+  }
+
+    tags = {
+      Name = "${var.env_name}-quarantine"
+      description = "Quarantine Security Group"
+  }
+}
+
