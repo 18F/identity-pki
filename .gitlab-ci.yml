@@ -1,0 +1,11 @@
+sync_from_github:
+  image: alpine/git:latest
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+  script:
+    - cd .git
+    - git config --bool core.bare true
+    - git remote add --mirror=fetch github https://identity-servers:"$github_identity_servers_access_key"@github.com/18F/"$CI_PROJECT_NAME".git
+    - git remote add --mirror=push gitlab https://identity-servers:"$gitlab_identity_servers_access_key"@gitlab-"$CLUSTER_NAME".gitlab.identitysandbox.gov/lg/"$CI_PROJECT_NAME".git
+    - git fetch github --prune --prune-tags
+    - git push gitlab --prune
