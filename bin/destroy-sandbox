@@ -17,8 +17,8 @@ Flags (will run all if no flags specified):
   -l : Delete ENV-idp-functions CloudFormation stack if it exists
   -d : Remove deletion/prevent_destroy/final snapshot from RDS dbs
   -b : Empties all S3 buckets with ENV in the bucket name
-  -k : Delete all ENV-named S3 keys in secrets/app-secrets buckets
   -x : terraform-destroy + reset db .tf files
+  -k : Delete all ENV-named S3 keys in secrets/app-secrets buckets
   -h : Detailed help
 
 EOM
@@ -42,10 +42,10 @@ using the following flags:
        app and idp databases, and set skip_final_snapshot to true
   -b : Empties all S3 buckets with \${TF_ENV} in the bucket name,
        and deletes all object versions as well.
-  -k : Delete all S3 keys in the secrets/app-secrets buckets that
-       have \${TF_ENV} in their name.
   -x : Run \`terraform destroy -auto-approve\` against the
        environment, skipping the attempt to send a message to Slack.
+  -k : Delete all S3 keys in the secrets/app-secrets buckets that
+       have \${TF_ENV} in their name.
   -h : Displays this help
 
 This script will default to using \${GSA_USERNAME} for the
@@ -88,6 +88,14 @@ empty_buckets() {
   done
 }
 
+tf_destroy() {
+  ave ${BASEPATH}/tf-deploy -t ${TF_ENV} app destroy -auto-approve
+  for DB in idp app worker; do
+    FILE="${APP_DIR}/${DB}.tf"
+    [[ -f "${FILE}.bak" ]] && run mv ${FILE}.bak ${FILE}
+  done
+}
+
 delete_env_keys() {
   for BUCKET in $(ave aws s3 ls | grep 'secrets.' | awk '{print $NF}') ; do
     ave aws s3api delete-objects \
@@ -101,20 +109,12 @@ delete_env_keys() {
   done
 }
 
-tf_destroy() {
-  ave ${BASEPATH}/tf-deploy -t ${TF_ENV} app destroy -auto-approve
-  for DB in idp app worker; do
-    FILE="${APP_DIR}/${DB}.tf"
-    [[ -f "${FILE}.bak" ]] && run mv ${FILE}.bak ${FILE}
-  done
-}
-
 TASKS=(
   "delete_lambdas"
   "allow_db_destroy"
   "empty_buckets"
-  "delete_env_keys"
   "tf_destroy"
+  "delete_env_keys"
 )
 
 TODO=()
@@ -124,8 +124,8 @@ do
     l) TODO+=("${TASKS[0]}") ;;
     d) TODO+=("${TASKS[1]}") ;;
     b) TODO+=("${TASKS[2]}") ;;
-    k) TODO+=("${TASKS[3]}") ;;
-    x) TODO+=("${TASKS[4]}") ;;
+    x) TODO+=("${TASKS[3]}") ;;
+    k) TODO+=("${TASKS[4]}") ;;
     h) man_page ;;
     *) usage && exit 1 ;;
   esac

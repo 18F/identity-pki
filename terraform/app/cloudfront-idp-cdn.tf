@@ -5,7 +5,8 @@ data "aws_sns_topic" "cloudfront_alarm" {
 # Create a TLS certificate with ACM
 module "acm-cert-idp-static-cdn" {
   count     = var.enable_idp_cdn ? 1 : 0
-  source    = "github.com/18F/identity-terraform//acm_certificate?ref=21a2ce16cf1dbf85822c9005d72f8d17cb9dbe4b"
+  #source    = "github.com/18F/identity-terraform//acm_certificate?ref=21a2ce16cf1dbf85822c9005d72f8d17cb9dbe4b"
+  source = "../../../identity-terraform/acm_certificate"
   providers = {
     aws = aws.use1
   }
@@ -34,7 +35,7 @@ resource "aws_cloudfront_distribution" "idp_static_cdn" {
 
   enabled         = true
   is_ipv6_enabled = true
-  aliases         = list("static.${local.idp_domain_name}")
+  aliases         = ["static.${local.idp_domain_name}"]
 
   # Throwaway default
   default_root_object = "/index.html"
