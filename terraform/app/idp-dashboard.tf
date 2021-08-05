@@ -5,6 +5,35 @@ locals {
   worker_namespace = "${var.env_name}/idp-worker"
   dashboard_name        = "${var.env_name}-idp-workload"
   external_service_dashboard_name = "${var.env_name}-idp-external-service"
+  pivcac_dashboard_widget = var.pivcac_service_enabled == 0 ? "" : <<EOF
+        {
+            "type": "metric",
+            "x": 0,
+            "y": 38,
+            "width": 12,
+            "height": 6,
+            "properties": {
+                "metrics": [
+                    [ "AWS/AutoScaling", "GroupInServiceInstances", "AutoScalingGroupName", "${aws_autoscaling_group.pivcac[0].name}", { "color": "#2ca02c", "label": "InService" } ],
+                    [ ".", "GroupTerminatingInstances", ".", ".", { "color": "#d62728", "label": "Terminating" } ],
+                    [ ".", "GroupPendingInstances", ".", ".", { "color": "#ff7f0e", "label": "Pending" } ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "us-west-2",
+                "yAxis": {
+                    "left": {
+                        "min": 0,
+                        "label": "Count (max)",
+                        "showUnits": false
+                    }
+                },
+                "title": "${var.env_name} PIVCAC - Autoscaling Group Instance State",
+                "period": 60,
+                "stat": "Average"
+            }
+        },
+EOF
 }
 
 variable "idp_events_auth_filters" {
@@ -506,33 +535,7 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
                 "stat": "p99"
             }
         },
-        {
-            "type": "metric",
-            "x": 0,
-            "y": 38,
-            "width": 12,
-            "height": 6,
-            "properties": {
-                "metrics": [
-                    [ "AWS/AutoScaling", "GroupInServiceInstances", "AutoScalingGroupName", "${aws_autoscaling_group.pivcac[0].name}", { "color": "#2ca02c", "label": "InService" } ],
-                    [ ".", "GroupTerminatingInstances", ".", ".", { "color": "#d62728", "label": "Terminating" } ],
-                    [ ".", "GroupPendingInstances", ".", ".", { "color": "#ff7f0e", "label": "Pending" } ]
-                ],
-                "view": "timeSeries",
-                "stacked": false,
-                "region": "us-west-2",
-                "yAxis": {
-                    "left": {
-                        "min": 0,
-                        "label": "Count (max)",
-                        "showUnits": false
-                    }
-                },
-                "title": "${var.env_name} PIVCAC - Autoscaling Group Instance State",
-                "period": 60,
-                "stat": "Average"
-            }
-        },
+        ${local.pivcac_dashboard_widget}
         {
             "type": "metric",
             "x": 0,
