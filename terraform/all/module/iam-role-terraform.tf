@@ -764,6 +764,16 @@ locals {
           resources = [
             "*",
           ]
+        },
+        {
+          sid    = "DLM"
+          effect = "Allow"
+          actions = [
+            "dlm:*",
+          ]
+          resources = [
+            "*",
+          ]
         }
       ]
     ]
