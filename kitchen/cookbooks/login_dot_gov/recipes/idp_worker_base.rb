@@ -161,8 +161,9 @@ systemd_unit 'idp-worker.service' do
 [Unit]
 Description=IDP Worker Runner Service (idp-worker)
 
+# Can remove bin/rake jobs:work when delayed_job is removed
 [Service]
-ExecStart=/bin/bash -c 'bin/rake jobs:work'
+ExecStart=/bin/bash -c 'bundle exec good_job start || bin/rake jobs:work'
 EnvironmentFile=/etc/environment
 WorkingDirectory=#{release_path}
 User=#{system_user}
