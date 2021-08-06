@@ -1,6 +1,6 @@
 This repo has a set of Utilities which can be classified as the "Break Glass Utilities"
 
-SecurityResponse
+**SecurityResponse**
 
 SecurityResponse is a python script that quarantines a compromised EC2 instance. It does the following
 - Removes instance from ASG, if the instance is part of an Auto Scaling Group
@@ -32,15 +32,21 @@ SecurityResponse.py [-h] -i IID -g SGID [-r REGION] [-b BUCKET] [-t TOPIC]
 SecurityResponse.py: the following arguments are required: -i/--iid, -g/--sgid
 
 Example:
-$ ./SecurityResponse.py -i i-06a0c710b7a697e82 -g sg-05075f7fe14d76a9a 
+*$ ./SecurityResponse.py -i i-06a0c710b7a697e82 -g sg-05075f7fe14d76a9a* 
 
-VPC Kill Switch 
+**VPC Kill Switch** 
 
 VPC kill switch, cuts the connectivity of the VPC to the Internet. This is the BIG RED BUTTON utility, that should only be used when VPC needs to be disconnected from the Big I in case of a major catastrophe. PLEASE USE THIS UTILITY IN WORST CASE SCENARIO ONLY.
 
 Usage:
 
-vpc_kill_switch.py [-h] [-v VPCID] [-r REGION]
-the -r is already defaulted to us-west-2.  -v is the VPC ID whose connectivity you want to disconnect from the Big I
+vpc_kill_switch.py [-h] [-v VPCID] [-vn vpcname] [-r REGION]
 
-./vpc_kill_switch.py -v vpc-1234567890123
+-v is the VPC ID whose connectivity you want to disconnect from the Big I
+-vn is the VPC Name whose connectivity you want to disconnect from the Big I
+-r is the Region which defaults to us-west-2
+
+You can specify either the VPC ID or VPC Name 
+
+*./vpc_kill_switch.py -v vpc-1234567890123*
+*./vpc_kill_switch.py -vn login-acme-vpc*
