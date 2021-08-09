@@ -18,8 +18,7 @@ users:
     - secops
     - soc
   chris.kirshak:
-    - devops
-    - secops
+    - socreadonly
   chris.manger:
     - bizops
     - finops
@@ -58,6 +57,7 @@ users:
     - devops
     - secops
     - keymasters
+    - socreadonly
   oren.kanner:
     - appdev
     - apponcall
@@ -75,6 +75,7 @@ users:
   steven.harms:
     - devops
     - secops
+    - socreadonly
   thomas.black:
     - bizops
   tianna.woodson:
