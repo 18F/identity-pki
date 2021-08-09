@@ -651,3 +651,13 @@ variable "gitlab_hostname" {
   description = "name to write into the internal dns zone"
   default     = "gitlab"
 }
+
+variable "idp_ial2_sp_dashboards" {  
+  type = map(object({
+    name         = string
+    issuer       = string
+    protocol     = string
+  }))
+  description = "Map of values for widgets on IAL2 SP dashboard"
+  default = {}
+}
