@@ -1,0 +1,8 @@
+# Dropped off by chef
+# Systemd target for idp-workers
+[Unit]
+Description=idp-workers
+Requires=<%= @worker_service_descriptors %>
+
+[Install]
+WantedBy=multi-user.target
