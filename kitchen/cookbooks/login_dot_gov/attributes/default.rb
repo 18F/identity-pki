@@ -125,6 +125,4 @@ default['login_dot_gov']['dashboard']['sp_private_key']          = "-----BEGIN R
 default['login_dot_gov']['dashboard']['sp_private_key_password'] = 'foobar'
 
 # worker hosts
-# worker count is 66% of total memory / 192MB for each worker (171M + some
-# head room).
-default['login_dot_gov']['worker_count'] = (node.fetch('memory').fetch('total').to_i * 0.66).to_i / 1024 / 192
+default['login_dot_gov']['worker_count'] = node.fetch('cpu').fetch('total') * 2
