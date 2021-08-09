@@ -17,6 +17,9 @@ users:
   brett.mcparland:
     - secops
     - soc
+  chris.kirshak:
+    - devops
+    - secops
   chris.manger:
     - bizops
     - finops
@@ -61,6 +64,8 @@ users:
     - bizops
   paul.hirsch:
     - devops
+  russ.beye:
+    - appdev
   sierra.toler:
     - bizops
   steve.urciuoli:
