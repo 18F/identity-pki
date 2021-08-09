@@ -29,6 +29,10 @@ variable "rds_engine_version_replica" {
   description = "RDS requires that replicas be upgraded *before* primaries"
 }
 
+variable "rds_engine_version_worker_jobs" {
+  default = "9.6.21"
+}
+
 variable "rds_engine_version_short" {
   default = "9.6"
 }
@@ -38,6 +42,10 @@ variable "rds_instance_class" {
 }
 
 variable "rds_instance_class_replica" {
+  default = "db.t3.micro"
+}
+
+variable "rds_instance_class_worker_jobs" {
   default = "db.t3.micro"
 }
 
@@ -55,6 +63,11 @@ variable "rds_storage_type_idp_replica" {
   default     = "standard"
 }
 
+variable "rds_storage_type_idp_worker_jobs" {
+  description = "The type of EBS storage (magnetic, SSD, PIOPS) used by the IdP worker jobs"
+  default     = "standard"
+}
+
 variable "rds_iops_idp" {
   description = "If PIOPS storage is used, the number of IOPS provisioned"
   default     = 0
@@ -62,6 +75,11 @@ variable "rds_iops_idp" {
 
 variable "rds_iops_idp_replica" {
   description = "If PIOPS storage is used, the number of IOPS provisioned for the read replica"
+  default     = 0
+}
+
+variable "rds_iops_idp_worker_jobs" {
+  description = "If PIOPS storage is used, the number of IOPS provisioned for the IdP worker jobs"
   default     = 0
 }
 
@@ -77,6 +95,10 @@ variable "rds_storage_idp" {
 }
 
 variable "rds_storage_idp_replica" {
+  default = "26"
+}
+
+variable "rds_storage_idp_worker_jobs" {
   default = "26"
 }
 
