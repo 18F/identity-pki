@@ -139,7 +139,7 @@ def main():
     if args.environment:
         vpc_name = f"login-vpc-{args.environment}"
         vpc_id = get_vpc_id(vpc_name, region=args.region)
-    elif args.vpc_name:
+    elif args.vpcname:
         vpc_name = args.vpcname
         vpc_id = get_vpc_id(vpc_name, region=args.region)
     else:
