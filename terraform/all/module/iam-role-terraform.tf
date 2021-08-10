@@ -539,8 +539,10 @@ locals {
           actions = [
             "iam:AddRoleToInstanceProfile",
             "iam:AddUserToGroup",
+            "iam:AttachGroupPolicy",
             "iam:AttachRolePolicy",
             "iam:AttachUserPolicy",
+            "iam:CreateGroup",
             "iam:CreateInstanceProfile",
             "iam:CreatePolicy",
             "iam:CreatePolicyVersion",
