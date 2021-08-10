@@ -254,22 +254,22 @@ variable "idp_worker_filters" {
   default = {
     idp_worker_perform_time = {
       name         = "perform-time-milliseconds"
-      pattern      = "{ $.name = \"perform.active_job\" && $.queue_name = \"*DelayedJob*\" }"
+      pattern      = "{ $.name = \"perform.active_job\" && $.queue_name = \"*GoodJob*\" }"
       metric_value = "$.duration_ms"
     },
     idp_worker_queue_time = {
       name         = "queue-time-milliseconds"
-      pattern      = "{ $.name = \"perform_start.active_job\" && $.queue_name = \"*DelayedJob*\" }"
+      pattern      = "{ $.name = \"perform_start.active_job\" && $.queue_name = \"*GoodJob*\" }"
       metric_value = "$.queued_duration_ms"
     },
     idp_worker_perform_success = {
       name         = "perform-success"
-      pattern      = "{ $.name = \"perform.active_job\" && $.exception_message NOT EXISTS && $.queue_name = \"*DelayedJob*\" }"
+      pattern      = "{ $.name = \"perform.active_job\" && $.exception_message NOT EXISTS && $.queue_name = \"*GoodJob*\" }"
       metric_value = 1
     },
     idp_worker_perform_failure = {
       name         = "perform-failure"
-      pattern      = "{ $.name = \"perform.active_job\" && $.exception_message = * && $.queue_name = \"*DelayedJob*\" }"
+      pattern      = "{ $.name = \"perform.active_job\" && $.exception_message = * && $.queue_name = \"*GoodJob*\" }"
       metric_value = 1
     },
   }
