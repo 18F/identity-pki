@@ -77,6 +77,10 @@ module "main" {
       { "ReadOnly" = ["Sandbox", "Prod", "Master", "Analytics"] },
       { "SOCAdministrator" = ["Sandbox", "Prod", "Master", "Analytics"] }
     ],
+    "socreadonly" = [
+      { "ReadOnly" = ["Sandbox", "Prod", "Master", "Analytics"] },
+      { "Terraform" = ["Sandbox"] }
+    ],
     "keymasters" = [
       { "KMSAdministrator" = ["Prod"] }
     ]
