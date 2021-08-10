@@ -551,6 +551,7 @@ locals {
             "iam:CreateUser",
             "iam:DeleteAccessKey",
             "iam:DeleteAccountPasswordPolicy",
+            "iam:DeleteGroup",
             "iam:DeleteInstanceProfile",
             "iam:DeleteLoginProfile",
             "iam:DeletePolicy",
