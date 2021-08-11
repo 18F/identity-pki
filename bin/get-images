@@ -31,7 +31,7 @@ man_page() {
 Usage: ${0} [-uospbr]
 
 1. Obtains information (ID / date / type / description) on
-the most recent AMIs in each account (\`sandbox\` / \`prod\`)
+the most recent AMIs in each account (\`sandbox\` / \`prod\` / \`tooling\`)
 that were generated via the terraform/imagebuild deployment
 infrastructure (i.e. CodeBuild / CodePipeline)
 2. Verifies that the AMIs are valid (via \`aws ec2 describe-images\`)
@@ -217,6 +217,7 @@ HEADERS="|AMI Date Account Description|"
 TASK_LIST='update open'
 SANDBOX_AMIS='sandbox '
 PROD_AMIS='prod '
+TOOLING_AMIS='tooling '
 DATA=()
 
 while getopts luoh-: OPT; do
@@ -245,6 +246,7 @@ shift $((OPTIND-1)) # remove parsed options and args from $@ list
 for TYPE in base rails ; do
   [[ $SANDBOX_AMIS =~ $TYPE ]] || SANDBOX_AMIS+="${TYPE} "
   [[ $PROD_AMIS =~ $TYPE ]] || PROD_AMIS+="${TYPE} "
+  [[ $TOOLING_AMIS =~ $TYPE ]] || TOOLING_AMIS+="${TYPE} "
 done
 
 if [[ "${TASK_LIST}" =~ (open) ]] ; then
@@ -255,6 +257,7 @@ fi
 
 get_ami_info $SANDBOX_AMIS
 get_ami_info $PROD_AMIS
+get_ami_info $TOOLING_AMIS
 data_table
 
 for TASK in ${TASK_LIST} ; do
