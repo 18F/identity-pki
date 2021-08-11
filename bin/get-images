@@ -13,8 +13,10 @@ Usage: ${0} [-uospbr]
 
 Flags (will run all if no flags specified):
   -l : Show AMI data output table only
-  -u : Update \`ami_id\` values in \`terraform/app/variables.tf\`
-  -o : Create \`ami/DATE\` branch + open a PR with \`ami_id\` changes
+  -u : Update ami_id values in terraform/app/variables.tf
+  -o : Create ami/DATE branch + open a PR with ami_id changes
+  -b : Only update the base AMI IDs
+  -r : Only update the rails AMI IDs
   -h : Detailed help
 
 Manually set AMIs for specific account and/or type:
@@ -31,11 +33,11 @@ man_page() {
 Usage: ${0} [-uospbr]
 
 1. Obtains information (ID / date / type / description) on
-the most recent AMIs in each account (\`sandbox\` / \`prod\` / \`tooling\`)
+the most recent AMIs in each account (sandbox / prod / tooling)
 that were generated via the terraform/imagebuild deployment
 infrastructure (i.e. CodeBuild / CodePipeline)
-2. Verifies that the AMIs are valid (via \`aws ec2 describe-images\`)
-3. Updates the corresponding values in \`terraform/app/variables.tf\`,
+2. Verifies that the AMIs are valid (via aws ec2 describe-images)
+3. Updates the corresponding values in terraform/app/variables.tf,
 4. Creates a branch/pull request with the new AMI IDs.
 
 Designed to run with no specified flags/arguments; however,
@@ -43,12 +45,12 @@ individual commands/parameters for the script can be specified
 with the following flags:
 
   -l : Only generate the AMI data table, then exit
-  -u : Update \`ami_id\` values in \`terraform/app/variables.tf\`
-  -o : Create a new branch, \`ami/DATE\` branch, commit the
-       changes to \`terraform/app/variables.tf\`, and open a
+  -u : Update ami_id values in terraform/app/variables.tf
+  -o : Create a new branch, ami/DATE branch, commit the
+       changes to terraform/app/variables.tf, and open a
        PR with the generated table data for the body
-  -b : Only update the \`base\` AMI IDs
-  -r : Only update the \`rails\` AMI IDs
+  -b : Only update the base AMI IDs
+  -r : Only update the rails AMI IDs
   -h : Display this help
 
 If specific AMI IDs are declared as arguments, with appropriate
@@ -61,19 +63,21 @@ be used instead:
   --sr=<AMI_ID> | --sandbox-rails=<AMI_ID>
   --pb=<AMI_ID> | --prod-base=<AMI_ID>
   --pr=<AMI_ID> | --prod-rails=<AMI_ID>
+  --tb=<AMI_ID> | --tooling-base=<AMI_ID>
+  --tr=<AMI_ID> | --tooling-rails=<AMI_ID>
 
 The script will then proceed normally, checking CodeBuild for
 whichever AMIs are _not_ manually specified using one or more of
 these flags, generating the data table, etc.
 
 The script will error out if:
-- there is an active \`\$AWS_VAULT\` session running (as it needs access
+- there is an active \$AWS_VAULT session running (as it needs access
   to multiple AWS profiles to get the AMI IDs)
-- the \`hub\` cask is not installed (for creating a PR)
-- if, when manually declaring AMIs, the \`=\` sign is not provided, or
+- the hub cask is not installed (for creating a PR)
+- if, when manually declaring AMIs, the = sign is not provided, or
   a space is used as a separator instead
 - if, when attempting to create a PR, there are other local changes besides
-  the updates to \`terraform/app/variables.tf\`
+  the updates to terraform/app/variables.tf
 
 Example output:
 
@@ -97,14 +101,10 @@ mdout() {
   sed 's/ *| */@| /g' | column -s '@' -t
 }
 
-get_pipeline_data() {
-  local ROLE=${1}
-}
-
 get_ami_info() {
   PROFILE=${1}
   shift
-  echo -e "\nGetting \`login-${PROFILE}\` AMI data..."
+  echo -e "\nGetting login-${PROFILE} AMI data..."
   PIPELINE_AMIS=()
   AV_PROFILE=$(get_profile_name $(get_acct_num ${PROFILE}))
 
@@ -112,22 +112,26 @@ get_ami_info() {
     if [[ ${TYPE} =~ '_ami-' ]] ; then
       IMAGE=$(echo ${TYPE} | awk -F_ '{print $2}')
       TYPE=$(echo ${TYPE} | awk -F_ '{print $1}')
-      echo_yellow "Using manually-specified ID \`${IMAGE}\` for \`${TYPE}\` AMI."
+      echo_yellow "Using manually-specified ID ${IMAGE} for ${TYPE} AMI."
     else
       BUILD=
       PIPE_NAME=$(ave -r aws codepipeline list-pipelines | jq -r '.pipelines[].name' | grep -i ${TYPE})
       PIPE_DATA=$(ave aws codepipeline list-action-executions --pipeline-name ${PIPE_NAME} --max-items 2)
       while [[ -z ${BUILD} ]] ; do
-        PIPE_TOKEN=$(echo ${PIPE_DATA} | jq -r '.NextToken')
         PIPE_BUILD=$(echo ${PIPE_DATA} | jq -r '.actionExecutionDetails[]|select(.stageName == "Build")')
-        if ! [[ $(echo $PIPE_BUILD | jq -r .status) == "Succeeded" ]] ; then
-          PIPE_DATA=$(ave -r aws codepipeline list-action-executions \
-            --pipeline-name ${PIPE_NAME} \
-            --max-items 2 --starting-token ${PIPE_TOKEN})
+        if ! [[ $(echo $PIPE_BUILD | jq -r .status | head -n 1) == "Succeeded" ]] ; then
+          PIPE_TOKEN=$(echo ${PIPE_DATA} | jq -r '.NextToken')
+          if [[ ${PIPE_TOKEN} == 'null' ]] || [[ -z ${PIPE_TOKEN} ]]; then
+            raise "${PIPE_NAME} has no successful runs; run bin/build-images and verify completion!"
+          else
+            PIPE_DATA=$(ave -r aws codepipeline list-action-executions \
+              --pipeline-name ${PIPE_NAME} \
+              --max-items 2 --starting-token ${PIPE_TOKEN})
+          fi
         else
           BUILD=$(echo ${PIPE_BUILD} |
             jq -r '.output.executionResult.externalExecutionId' |
-            awk -F: '{print $NF}')
+            awk -F: '{print $NF}' | head -n 1)
         fi
       done
       IMAGE=$(ave -r aws cloudtrail lookup-events \
@@ -136,7 +140,7 @@ get_ami_info() {
                           fromjson|
                           select(.userIdentity.arn|
                           contains($build)).responseElements.imageId')
-      echo_cyan "Using CodeBuild artifact \`${IMAGE}\` for \`${TYPE}\` AMI."
+      echo_cyan "Using CodeBuild artifact ${IMAGE} for ${TYPE} AMI."
     fi
     PIPELINE_AMIS+=(${IMAGE})
   done
@@ -159,7 +163,7 @@ data_table() {
 }
 
 update_vars() {
-  echo -e "\nUpdating values in \`terraform/app/variables.tf\`..."
+  echo -e "\nUpdating values in terraform/app/variables.tf..."
   [[ ${#DATA[@]} -eq 0 ]] && get_ami_info
   for LINE in $(echo "${DATA[@]}" | tail -n +2 | tr -d '|' |
                 awk '{print $1"+"$2"+"$3"+"$4}') ; do
@@ -170,7 +174,7 @@ update_vars() {
     [[ ${AMI_TYPE} == "base" ]] && AMI_TYPE='default'
     sed -i '' -E "/\"${AMI_TYPE}_ami_id_${AMI_ACCT}\"/{n;s/ami-[0-9a-f]{17}\" \# [0-9-]{10}/${AMI_ID}\" \# ${AMI_DATE}/;}" terraform/app/variables.tf
     if [[ $(git diff -U0 | grep ${AMI_ID}) ]] ; then
-      echo_green "Updated \`${AMI_TYPE}_ami_id_${AMI_ACCT}\` to \`${AMI_ID}\`."
+      echo_green "Updated ${AMI_TYPE}_ami_id_${AMI_ACCT} to ${AMI_ID}."
     fi
   done
 }
@@ -186,7 +190,7 @@ open_pr() {
     brew install hub || raise "hub not installed!"
   fi
   AMI_BRANCH="ami/$(date -j '+%Y%m%d')"
-  echo -e "\nCreating \`${AMI_BRANCH}\` branch + opening pull request..."
+  echo -e "\nCreating ${AMI_BRANCH} branch + opening pull request..."
   PR_TITLE="AMI update, $(date -j '+%Y-%m-%d')"
   gh_revs
   run git checkout main
@@ -215,12 +219,13 @@ verify_root_repo
 
 HEADERS="|AMI Date Account Description|"
 TASK_LIST='update open'
+TYPE_LIST='base rails'
 SANDBOX_AMIS='sandbox '
 PROD_AMIS='prod '
 TOOLING_AMIS='tooling '
 DATA=()
 
-while getopts luoh-: OPT; do
+while getopts luobrh-: OPT; do
   # support long options: https://stackoverflow.com/a/28466267/519360
   if [ "$OPT" = "-" ]; then   # long option: reformulate OPT and OPTARG
     OPT="${OPTARG%%=*}"       # extract long option name
@@ -229,21 +234,25 @@ while getopts luoh-: OPT; do
   fi
   
   case "$OPT" in
-    sb|sandbox-base)  needs_arg; SANDBOX_AMIS+="base_$OPTARG " ;;
+    sb|sandbox-base)  needs_arg; SANDBOX_AMIS+="base_$OPTARG "  ;;
     sr|sandbox-rails) needs_arg; SANDBOX_AMIS+="rails_$OPTARG " ;;
-    pb|prod-base)  needs_arg; PROD_AMIS+="base_$OPTARG" ;;
-    pr|prod-rails) needs_arg; PROD_AMIS+="rails_$OPTARG" ;;
-    l) TASK_LIST=                         ;;
-    u) TASK_LIST='update'                 ;;
-    o) TASK_LIST='open'                   ;;
+    pb|prod-base)     needs_arg; PROD_AMIS+="base_$OPTARG"      ;;
+    pr|prod-rails)    needs_arg; PROD_AMIS+="rails_$OPTARG"     ;;
+    tb|tooling-base)  needs_arg; TOOLING_AMIS+="base_$OPTARG"   ;;
+    tr|tooling-rails) needs_arg; TOOLING_AMIS+="rails_$OPTARG"  ;;
+    l) TASK_LIST=         ;;
+    u) TASK_LIST='update' ;;
+    o) TASK_LIST='open'   ;;
+    b) TYPE_LIST='base'   ;;
+    r) TYPE_LIST='rails'  ;;
     h) man_page ;;
-    ??* )          raise "Illegal option --$OPT" ;;  # bad long option
-    ? )            exit 2 ;;  # bad short option (error reported via getopts)
+    ??* ) raise "Illegal option --$OPT" ;;  # bad long option
+    ? )   exit 2 ;;  # bad short option (error reported via getopts)
   esac
 done
 shift $((OPTIND-1)) # remove parsed options and args from $@ list
 
-for TYPE in base rails ; do
+for TYPE in ${TYPE_LIST} ; do
   [[ $SANDBOX_AMIS =~ $TYPE ]] || SANDBOX_AMIS+="${TYPE} "
   [[ $PROD_AMIS =~ $TYPE ]] || PROD_AMIS+="${TYPE} "
   [[ $TOOLING_AMIS =~ $TYPE ]] || TOOLING_AMIS+="${TYPE} "
