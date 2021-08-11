@@ -79,6 +79,12 @@ resource "aws_iam_role_policy" "worker-sns-publish-alerts" {
   policy = data.aws_iam_policy_document.sns-publish-alerts-policy.json
 }
 
+resource "aws_iam_role_policy" "worker-upload-s3-reports" {
+  name   = "${var.env_name}-worker-s3-reports"
+  role   = aws_iam_role.worker.id
+  policy = data.aws_iam_policy_document.put_reports_to_s3.json
+}
+
 module "worker_launch_template" {
   source = "github.com/18F/identity-terraform//launch_template?ref=6a7ba69828a2507cf1fcaa225a1df8f501321929"
   #source = "../../../identity-terraform/launch_template"
