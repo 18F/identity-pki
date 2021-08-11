@@ -86,6 +86,9 @@ variable "rds_iops_idp_worker_jobs" {
 variable "rds_password" {
 }
 
+variable "rds_password_worker_jobs" {
+}
+
 variable "rds_storage_app" {
   default = "8"
 }
@@ -103,6 +106,9 @@ variable "rds_storage_idp_worker_jobs" {
 }
 
 variable "rds_username" {
+}
+
+variable "rds_username_worker_jobs" {
 }
 
 variable "rds_maintenance_window" {

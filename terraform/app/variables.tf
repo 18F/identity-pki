@@ -362,11 +362,11 @@ variable "asg_outboundproxy_max" {
 }
 
 variable "asg_worker_min" {
-  default = 0
+  default = 1
 }
 
 variable "asg_worker_desired" {
-  default = 0
+  default = 1
 }
 
 variable "asg_worker_max" {

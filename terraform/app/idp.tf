@@ -104,50 +104,6 @@ resource "aws_db_instance" "idp-read-replica" {
   #skip_final_snapshot = true
 }
 
-# Optional idp worker jobs database
-resource "aws_db_instance" "idp-worker-jobs" {
-  count               = var.asg_worker_desired ? 1 : 0
-
-  identifier = "${var.env_name}-idp-worker-jobs"
-
-  tags = {
-    Name        = "${var.env_name}-worker-jobs"
-    description = "IDP worker jobs"
-  }
-
-  backup_retention_period = var.rds_backup_retention_period
-  backup_window           = var.rds_backup_window
-  engine                  = var.rds_engine
-  engine_version          = var.rds_engine_version_worker_jobs
-  instance_class          = var.rds_instance_class_worker_jobs
-  parameter_group_name    = module.idp_rds_usw2.rds_parameter_group_name
-
-  multi_az = true
-
-  auto_minor_version_upgrade  = false
-  allow_major_version_upgrade = true
-  apply_immediately           = true
-
-  maintenance_window = var.rds_maintenance_window
-  storage_encrypted  = true
-  username           = var.rds_username
-  storage_type       = var.rds_storage_type_idp_worker_jobs
-  allocated_storage  = var.rds_storage_idp_worker_jobs
-  iops               = var.rds_iops_idp_worker_jobs
-
-  # enhanced monitoring
-  monitoring_interval = var.rds_enhanced_monitoring_enabled == 1 ? 60 : 0
-  monitoring_role_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.rds_monitoring_role_name}"
-
-  vpc_security_group_ids = [aws_security_group.db.id]
-
-  # send logs to cloudwatch
-  enabled_cloudwatch_logs_exports = ["postgresql"]
-
-  # uncomment this if deleting the read replica / environment
-  #skip_final_snapshot = true
-}
-
 output "idp_db_endpoint_replica" {
   # This weird element() stuff is so we can refer to these attributes even
   # when the resource has count=0. Reportedly this hack will not
