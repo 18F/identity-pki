@@ -181,3 +181,41 @@ resource "aws_autoscaling_policy" "worker" {
     target_value = var.idp_cpu_autoscaling_target
   }
 }
+
+# idp worker jobs database
+resource "aws_db_instance" "idp-worker-jobs" {
+  allocated_storage       = var.rds_storage_idp_worker_jobs
+  backup_retention_period = var.rds_backup_retention_period
+  backup_window           = var.rds_backup_window
+  db_subnet_group_name    = aws_db_subnet_group.default.id
+  engine                  = var.rds_engine
+  engine_version          = var.rds_engine_version_worker_jobs
+  identifier              = "${var.env_name}-idp-worker-jobs"
+  instance_class          = var.rds_instance_class_worker_jobs
+  maintenance_window      = var.rds_maintenance_window
+  multi_az                = true
+  parameter_group_name    = module.idp_rds_usw2.rds_parameter_group_name
+  password                = var.rds_password_worker_jobs # change this by hand after creation
+  storage_encrypted       = true
+  username                = var.rds_username_worker_jobs
+  storage_type            = var.rds_storage_type_idp_worker_jobs
+  iops                    = var.rds_iops_idp_worker_jobs
+
+  # we want to push these via Terraform now
+  auto_minor_version_upgrade  = false
+  allow_major_version_upgrade = true
+  apply_immediately           = true
+
+  # enhanced monitoring
+  monitoring_interval = var.rds_enhanced_monitoring_enabled == 1 ? 60 : 0
+  monitoring_role_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.rds_monitoring_role_name}"
+
+  vpc_security_group_ids = [aws_security_group.db.id]
+
+  # send logs to cloudwatch
+  enabled_cloudwatch_logs_exports = ["postgresql"]
+
+  tags = {
+    Name = "${var.name}-${var.env_name}"
+  }
+}
