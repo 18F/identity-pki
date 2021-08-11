@@ -106,7 +106,7 @@ resource "aws_db_instance" "idp-read-replica" {
 
 # Optional idp worker jobs database
 resource "aws_db_instance" "idp-worker-jobs" {
-  count               = var.asg_worker_desired ? 1 : 0
+  count               = var.asg_worker_desired > 0 ? 1 : 0
 
   identifier = "${var.env_name}-idp-worker-jobs"
 
