@@ -63,7 +63,7 @@ variable "asg_auto_recycle_enabled" {
 
 # Auto scaling group desired counts
 variable "asg_gitlab_desired" {
-  default = 0
+  default = 1
 }
 
 variable "asg_outboundproxy_desired" {
@@ -91,7 +91,7 @@ variable "asg_recycle_business_hours" {
 # Several variables used by the modules/bootstrap/ module for running
 # provision.sh to clone git repos and run chef.
 variable "bootstrap_main_git_ref_default" {
-  default     = ""
+  default     = "main"
   description = <<EOM
 Git ref in identity-devops for provision.sh to check out. If set, this
 overrides the default "stages/<env>" value in locals. This var will be
