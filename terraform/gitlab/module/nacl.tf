@@ -75,7 +75,7 @@ resource "aws_network_acl" "gitlab" {
 
 # Uses up to rule number 25 + number of ssh_cidr_blocks
 module "gitlab-base-nacl-rules" {
-  source         = "../modules/base_nacl_rules"
+  source         = "../../modules/base_nacl_rules"
   network_acl_id = aws_network_acl.gitlab.id
   ssh_cidr_blocks = flatten([
     var.gitlab1_subnet_cidr_block,

@@ -1,5 +1,5 @@
 module "outboundproxy_user_data" {
-  source = "../modules/bootstrap/"
+  source = "../../modules/bootstrap/"
 
   role          = "outboundproxy"
   env           = var.env_name

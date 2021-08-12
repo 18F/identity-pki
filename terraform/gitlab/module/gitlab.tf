@@ -1,6 +1,6 @@
 
 module "gitlab_user_data" {
-  source = "../modules/bootstrap/"
+  source = "../../modules/bootstrap/"
 
   role          = "gitlab"
   env           = var.env_name

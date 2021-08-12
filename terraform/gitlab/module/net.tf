@@ -17,12 +17,6 @@ locals {
 #
 # See https://www.terraform.io/docs/providers/aws/r/default_network_acl.html
 
-resource "aws_elasticache_subnet_group" "idp" {
-  name        = "${var.name}-idp-cache-${var.env_name}"
-  description = "Redis Subnet Group"
-  subnet_ids  = [aws_subnet.db1.id, aws_subnet.db2.id]
-}
-
 resource "aws_internet_gateway" "default" {
   tags = {
     Name = "${var.name}-gateway-${var.env_name}"
@@ -514,7 +508,7 @@ resource "aws_security_group" "obproxy" {
     from_port       = 22
     to_port         = 22
     protocol        = "tcp"
-    security_groups = [aws_security_group.jumphost.id]
+    security_groups = [aws_security_group.gitlab.id]
   }
 
   ingress {
