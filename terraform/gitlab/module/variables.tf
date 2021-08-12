@@ -181,6 +181,7 @@ variable "region" {
 
 variable "nessusserver_ip" {
   description = "Nessus server's public IP"
+  default = "44.230.151.136/32"
 }
 
 variable "proxy_server" {
