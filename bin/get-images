@@ -81,12 +81,14 @@ The script will error out if:
 
 Example output:
 
-| AMI                    | Date                 | Account  | Description       | 
-| -----                  | -----                | -----    | -----             | 
-| ami-06caaf2dfa83c916a  | 2020-07-26 07:34:42  | sandbox  | rails-1595747102  | 
-| ami-0d7fa0b06192e40be  | 2020-07-26 07:26:07  | sandbox  | base-1595747084   | 
-| ami-08f2f56c85f56615f  | 2020-07-21 18:25:58  | prod     | rails-1595344038  | 
-| ami-0a37be06240f1d943  | 2020-07-21 18:20:19  | prod     | rails-1595344038  | 
+| AMI                    | Date                 | Account  | Description           | 
+| -----                  | -----                | -----    | -----                 | 
+| ami-096da794c97c82252  | 2021-08-09 21:11:56  | sandbox  | rails-20210809203848  | 
+| ami-0b80f8d69529ba0a6  | 2021-08-09 20:53:03  | sandbox  | base-20210809203135   | 
+| ami-0f9ede873dff2b00b  | 2021-08-08 07:33:49  | prod     | rails-20210808070419  | 
+| ami-04249a1f1f1564ada  | 2021-08-08 07:25:36  | prod     | base-20210808070324   | 
+| ami-0ce182f9367c288a1  | 2021-08-11 22:15:34  | tooling  | rails-20210811214505  | 
+| ami-037fbabb417fa077e  | 2021-08-11 22:09:28  | tooling  | base-20210811214536   | 
 
 EOM
 
@@ -99,6 +101,13 @@ needs_arg() { if [ -z "$OPTARG" ]; then raise "No arg for --$OPT option"; fi; }
 mdout() {
   echo -e "|$@|" | column -t | tr -s ' ' '|' |
   sed 's/ *| */@| /g' | column -s '@' -t
+}
+
+next_build() {
+  PIPE_DATA=$(ave -r aws codepipeline list-action-executions \
+    --pipeline-name ${PIPE_NAME} \
+    --max-items 1 --starting-token ${PIPE_TOKEN})
+  PIPE_TOKEN=$(echo ${PIPE_DATA} | jq -r '.NextToken')
 }
 
 get_ami_info() {
@@ -116,24 +125,33 @@ get_ami_info() {
     else
       BUILD=
       PIPE_NAME=$(ave -r aws codepipeline list-pipelines | jq -r '.pipelines[].name' | grep -i ${TYPE})
-      PIPE_DATA=$(ave aws codepipeline list-action-executions --pipeline-name ${PIPE_NAME} --max-items 2)
+      PIPE_DATA=$(ave aws codepipeline list-action-executions \
+        --pipeline-name ${PIPE_NAME} --max-items 1)
+      PIPE_TOKEN=$(echo ${PIPE_DATA} | jq -r '.NextToken')
+
+      # check actionExecutionDetails of most recent CodePipeline action
+      # if stageName is Build -- and Succeeded -- get the externalExecutionId to look up the AMI ID
+      # if not -- and/or if the build Failed -- go to the next action
       while [[ -z ${BUILD} ]] ; do
-        PIPE_BUILD=$(echo ${PIPE_DATA} | jq -r '.actionExecutionDetails[]|select(.stageName == "Build")')
-        if ! [[ $(echo $PIPE_BUILD | jq -r .status | head -n 1) == "Succeeded" ]] ; then
-          PIPE_TOKEN=$(echo ${PIPE_DATA} | jq -r '.NextToken')
-          if [[ ${PIPE_TOKEN} == 'null' ]] || [[ -z ${PIPE_TOKEN} ]]; then
-            raise "${PIPE_NAME} has no successful runs; run bin/build-images and verify completion!"
+        PIPE_BUILD=$(echo ${PIPE_DATA} | jq -r '.actionExecutionDetails[]')
+        if [[ $(echo $PIPE_BUILD | jq -r '.stageName') == 'Build' ]] ; then
+          if [[ $(echo $PIPE_BUILD | jq -r '.status') == "Succeeded" ]] ; then
+            BUILD=$(echo ${PIPE_BUILD} |
+              jq -r '.output.executionResult.externalExecutionId' |
+              awk -F: '{print $NF}')
           else
-            PIPE_DATA=$(ave -r aws codepipeline list-action-executions \
-              --pipeline-name ${PIPE_NAME} \
-              --max-items 2 --starting-token ${PIPE_TOKEN})
+            if [[ ${PIPE_TOKEN} == 'null' ]] || [[ -z ${PIPE_TOKEN} ]]; then
+              # fail entirely if there are no more builds to check
+              raise "${PIPE_NAME} has no successful runs; run bin/build-images and verify completion!"
+            else
+              next_build
+            fi
           fi
         else
-          BUILD=$(echo ${PIPE_BUILD} |
-            jq -r '.output.executionResult.externalExecutionId' |
-            awk -F: '{print $NF}' | head -n 1)
+          next_build
         fi
       done
+
       IMAGE=$(ave -r aws cloudtrail lookup-events \
                         --lookup-attributes AttributeKey=EventName,AttributeValue=CopyImage |
                         jq -r --arg build "$BUILD" '.Events[].CloudTrailEvent|
