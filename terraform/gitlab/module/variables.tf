@@ -91,7 +91,7 @@ variable "asg_recycle_business_hours" {
 # Several variables used by the modules/bootstrap/ module for running
 # provision.sh to clone git repos and run chef.
 variable "bootstrap_main_git_ref_default" {
-  default     = "main"
+  default     = "gitlab-ec2-starterpack"
   description = <<EOM
 Git ref in identity-devops for provision.sh to check out. If set, this
 overrides the default "stages/<env>" value in locals. This var will be
