@@ -5,11 +5,16 @@
   "default_attributes": {
   },
   "override_attributes": {
+    "identity-jumphost": {
+      "retrieve-ssh-host-keys": false,
+      "loadtest": "disabled"
+    }
   },
   "chef_type": "role",
   "run_list": [
     "role[base]",
     "recipe[login_dot_gov::static_eip]",
+    "recipe[identity-jumphost]",
     "recipe[login_dot_gov::common_scripts]"
   ],
   "env_run_lists": {
