@@ -17,7 +17,8 @@
     "role[base]",
     "recipe[login_dot_gov::static_eip]",
     "recipe[identity-jumphost]",
-    "recipe[login_dot_gov::common_scripts]"
+    "recipe[login_dot_gov::common_scripts]",
+    "recipe[identity-gitlab]"
   ],
   "env_run_lists": {
   }
