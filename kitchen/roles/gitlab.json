@@ -7,7 +7,9 @@
   "override_attributes": {
     "identity-jumphost": {
       "retrieve-ssh-host-keys": false,
-      "loadtest": "disabled"
+      "loadtest": {
+        "enabled": false
+      }
     }
   },
   "chef_type": "role",
