@@ -31,6 +31,6 @@ execute 'grab_gitlab_repo' do
   ignore_failure true
 end
 
-execute 'install_gitlab' do
-  command "EXTERNAL_URL='https://#{node.chef_environment}.gitlab.identitysandbox.gov' apt-get install gitlab-ee"
+package 'gitlab-ee' do
+  environment 'EXTERNAL_URL', 'https://#{node.chef_environment}.gitlab.identitysandbox.gov'
 end
