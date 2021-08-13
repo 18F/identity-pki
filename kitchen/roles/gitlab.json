@@ -1,0 +1,17 @@
+{
+  "name": "gitlab",
+  "description": "",
+  "json_class": "Chef::Role",
+  "default_attributes": {
+  },
+  "override_attributes": {
+  },
+  "chef_type": "role",
+  "run_list": [
+    "role[base]",
+    "recipe[login_dot_gov::static_eip]",
+    "recipe[login_dot_gov::common_scripts]"
+  ],
+  "env_run_lists": {
+  }
+}
