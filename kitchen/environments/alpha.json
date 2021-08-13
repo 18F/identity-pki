@@ -5,7 +5,7 @@
   "chef_type": "environment",
   "default_attributes": {
     "login_dot_gov": {
-      "deploy_branch_default": "main",
+      "deploy_branch_default": "main"
     }
   },
   "override_attributes": {
