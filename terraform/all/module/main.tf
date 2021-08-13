@@ -77,4 +77,5 @@ data "aws_iam_policy_document" "autotf_assumerole" {
 locals {
   bucket_name_prefix = "login-gov"
   secrets_bucket_type = "secrets"
+  cert_secrets_bucket_type = "internal-certs"
 }
