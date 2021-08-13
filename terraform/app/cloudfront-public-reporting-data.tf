@@ -51,7 +51,7 @@ resource "aws_cloudfront_distribution" "public_reporting_data_cdn" {
 
   viewer_certificate {
     acm_certificate_arn      = module.acm-cert-public-reporting-data-cdn.cert_arn
-    minimum_protocol_version = "TLSv1.2"
+    minimum_protocol_version = "TLSv1.2_2018"
     ssl_support_method       = "sni-only"
   }
 
