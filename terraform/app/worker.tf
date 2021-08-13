@@ -224,6 +224,8 @@ resource "aws_db_instance" "idp-worker-jobs" {
   tags = {
     Name = "${var.name}-${var.env_name}"
   }
+
+  #skip_final_snapshot = true
 }
 
 output "idp_db_endpoint_worker_jobs" {
