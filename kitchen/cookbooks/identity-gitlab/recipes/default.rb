@@ -24,7 +24,8 @@ nessus_host = ConfigLoader.load_config(node, "nessus_host", common: true).chomp!
 package 'postfix'
 package 'openssh-server'
 package 'ca-certificates'
-package 'tzdata perl'
+package 'tzdata'
+package 'perl'
 
 execute 'grab_gitlab_repo' do
   command 'curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.deb.sh | sudo bash'
