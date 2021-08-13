@@ -32,5 +32,5 @@ execute 'grab_gitlab_repo' do
 end
 
 execute 'install_gitlab' do
-  command 'EXTERNAL_URL="https://gitlab.example.com" apt-get install gitlab-ee'
+  command "EXTERNAL_URL='https://#{node.chef_environment}.gitlab.identitysandbox.gov' apt-get install gitlab-ee"
 end
