@@ -32,5 +32,5 @@ execute 'grab_gitlab_repo' do
   ignore_failure true
 end
 
-ENV['EXTERNAL_URL'] = "https://#{node.chef_environment}.gitlab.identitysandbox.gov"
+ENV['EXTERNAL_URL'] = "https://gitlab.#{node.chef_environment}.gitlab.identitysandbox.gov"
 package 'gitlab-ee'
