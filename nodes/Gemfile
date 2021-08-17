@@ -10,7 +10,6 @@ gem 'test-kitchen', '~> 2.5'
 gem 'kitchen-ec2', '~> 3.0.1'
 gem 'kitchen-vagrant'
 gem 'kitchen-inspec', '~> 1.1.0'
-gem 'inspec', '~> 4.7.24'
 gem 'rspec-retry'
 
 # The default test-kitchen SSH transport is unusably slow
