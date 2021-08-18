@@ -20,14 +20,14 @@ e.g.
 
 ### Cookbooks
 
-- `toaster` - identity-nessus needs toaster to brown your bagel.
+- `toaster` - identity-gitlab needs toaster to brown your bagel.
 
 ## Attributes
 
 TODO: List your cookbook attributes here.
 
 e.g.
-### identity-nessus::default
+### identity-gitlab::default
 
 <table>
   <tr>
@@ -37,7 +37,7 @@ e.g.
     <th>Default</th>
   </tr>
   <tr>
-    <td><tt>['identity-nessus']['bacon']</tt></td>
+    <td><tt>['identity-gitlab']['bacon']</tt></td>
     <td>Boolean</td>
     <td>whether to include bacon</td>
     <td><tt>true</tt></td>
@@ -46,18 +46,18 @@ e.g.
 
 ## Usage
 
-### identity-nessus::default
+### identity-gitlab::default
 
 TODO: Write usage instructions for each cookbook.
 
 e.g.
-Just include `identity-nessus` in your node's `run_list`:
+Just include `identity-gitlab` in your node's `run_list`:
 
 ```json
 {
   "name":"my_node",
   "run_list": [
-    "recipe[identity-nessus]"
+    "recipe[identity-gitlab]"
   ]
 }
 ```

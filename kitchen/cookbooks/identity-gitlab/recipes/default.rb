@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: identity-nessus
+# Cookbook Name:: identity-gitlab
 # Recipe:: default
 #
 # Copyright 2017, YOUR_COMPANY_NAME
@@ -17,9 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
-nessus_key = ConfigLoader.load_config(node, "nessus_agent_key", common: true).chomp!
-nessus_host = ConfigLoader.load_config(node, "nessus_host", common: true).chomp!
 
 package 'postfix'
 package 'openssh-server'

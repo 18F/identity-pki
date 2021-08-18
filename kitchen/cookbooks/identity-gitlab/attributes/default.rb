@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: identity-nessus
+# Cookbook Name:: identity-gitlab
 # Attributes:: default
 #
 
