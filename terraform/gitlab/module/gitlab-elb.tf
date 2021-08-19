@@ -15,18 +15,18 @@ resource "aws_elb" "gitlab" {
   }
 
   listener {
-    instance_port     = 22
+    instance_port     = 443
     instance_protocol = "tcp"
-    lb_port           = 22
+    lb_port           = 443
     lb_protocol       = "tcp"
   }
 
   health_check {
+    target              = "HTTPS:443/health_check"
     healthy_threshold   = 3
-    unhealthy_threshold = 2
-    timeout             = 5
-    target              = "TCP:26"
-    interval            = 15
+    unhealthy_threshold = 3
+    interval            = 10
+    timeout             = 3
   }
 
   internal            = false

@@ -164,7 +164,7 @@ variable "env_name" {
 }
 
 variable "instance_type_gitlab" {
-  default = "t3.medium"
+  default = "c5.xlarge"
 }
 
 variable "instance_type_outboundproxy" {
