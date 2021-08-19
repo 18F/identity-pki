@@ -30,4 +30,4 @@ execute 'grab_gitlab_repo' do
 end
 
 ENV['EXTERNAL_URL'] = "https://gitlab.#{node.chef_environment}.gitlab.identitysandbox.gov"
-package 'gitlab-ee'
+# package 'gitlab-ee'
