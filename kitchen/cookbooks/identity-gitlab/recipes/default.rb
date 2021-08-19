@@ -29,5 +29,37 @@ execute 'grab_gitlab_repo' do
   ignore_failure true
 end
 
-# ENV['EXTERNAL_URL'] = "https://gitlab.#{node.chef_environment}.gitlab.identitysandbox.gov"
 package 'gitlab-ee'
+
+directory '/etc/gitlab/ssl'
+
+remote_file "Copy cert" do 
+  path "/etc/gitlab/ssl/#{node['fqdn']}.crt" 
+  source "file:///etc/ssl/certs/server.crt"
+  owner 'root'
+  group 'root'
+  mode 0644
+end
+remote_file "Copy key" do 
+  path "/etc/gitlab/ssl/#{node['fqdn']}.key" 
+  source "file:///etc/ssl/private/server.key"
+  owner 'root'
+  group 'root'
+  mode 0600
+end
+
+template '/etc/gitlab/gitlab.rb' do
+    source 'gitlab.rb.erb'
+    owner 'root'
+    group 'root'
+    mode '0644'
+    variables ({
+        external_url: "https://gitlab.#{node.chef_environment}.gitlab.identitysandbox.gov"
+    })
+    notifies :run, 'execute[reconfigure_gitlab]', :delayed
+end
+
+execute 'reconfigure_gitlab' do
+  command '/usr/bin/gitlab-ctl reconfigure'
+  action :nothing
+end
