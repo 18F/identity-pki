@@ -43,8 +43,6 @@ cookbook_file '/etc/systemd/system/newrelic-infra.service' do
 end
 
 execute 'reload_systemd' do
-	command "chown -R newrelic_infra: /tmp/nr-integrations /var/db/newrelic-infra /var/run/newrelic-infra"
+	command "chown -R newrelic_infra: /tmp/nr-integrations /var/db/newrelic-infra /var/run/newrelic-infra ; systemctl daemon-reload ; systemctl restart newrelic-infra"
 	action :nothing
-  notifies :reload, 'poise_service[newrelic-infra]', :delayed
-  notifies :restart, 'poise_service[newrelic-infra]', :delayed
 end
