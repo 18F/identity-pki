@@ -33,15 +33,18 @@ package 'gitlab-ee'
 
 directory '/etc/gitlab/ssl'
 
+external_fqdn = "gitlab.#{node.chef_environment}.gitlab.identitysandbox.gov"
+external_url = "https://#{external_fqdn}"
+
 remote_file "Copy cert" do 
-  path "/etc/gitlab/ssl/#{node['fqdn']}.crt" 
+  path "/etc/gitlab/ssl/#{external_fqdn}.crt"
   source "file:///etc/ssl/certs/server.crt"
   owner 'root'
   group 'root'
   mode 0644
 end
 remote_file "Copy key" do 
-  path "/etc/gitlab/ssl/#{node['fqdn']}.key" 
+  path "/etc/gitlab/ssl/#{external_fqdn}.key"
   source "file:///etc/ssl/private/server.key"
   owner 'root'
   group 'root'
@@ -54,7 +57,7 @@ template '/etc/gitlab/gitlab.rb' do
     group 'root'
     mode '0644'
     variables ({
-        external_url: "https://gitlab.#{node.chef_environment}.gitlab.identitysandbox.gov"
+        external_url: external_url
     })
     notifies :run, 'execute[reconfigure_gitlab]', :delayed
 end
