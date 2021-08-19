@@ -55,6 +55,12 @@ resource "aws_iam_role_policy" "worker-describe_instances" {
   policy = data.aws_iam_policy_document.describe_instances_role_policy.json
 }
 
+resource "aws_iam_role_policy" "worker-ses-email" {
+  name   = "${var.env_name}-worker-ses-email"
+  role   = aws_iam_role.worker.id
+  policy = data.aws_iam_policy_document.ses_email_role_policy.json
+}
+
 resource "aws_iam_role_policy" "worker-cloudwatch-logs" {
   name   = "${var.env_name}-worker-cloudwatch-logs"
   role   = aws_iam_role.worker.id
