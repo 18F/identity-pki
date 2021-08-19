@@ -18,16 +18,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-# package 'postfix'
-# package 'openssh-server'
-# package 'ca-certificates'
-# package 'tzdata'
-# package 'perl'
+package 'postfix'
+package 'openssh-server'
+package 'ca-certificates'
+package 'tzdata'
+package 'perl'
 
-# execute 'grab_gitlab_repo' do
-#   command 'curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.deb.sh | sudo bash'
-#   ignore_failure true
-# end
+execute 'grab_gitlab_repo' do
+  command 'curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.deb.sh | sudo bash'
+  ignore_failure true
+end
 
 # ENV['EXTERNAL_URL'] = "https://gitlab.#{node.chef_environment}.gitlab.identitysandbox.gov"
-# package 'gitlab-ee'
+package 'gitlab-ee'
