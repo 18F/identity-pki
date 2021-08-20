@@ -71,6 +71,9 @@ For example:
     # a migration instance spun up prior to idp spin up
     #{basename} int ALL
 
+    # recycle a migration instance up and then down to recycle config
+    #{basename} int migration
+
     EOM
 
     opts.on('-h', '--help', 'Display this message') do
@@ -143,7 +146,7 @@ For example:
     asg_name = "#{env}-#{role}"
 
     # Manage pre-migration
-    if !skip_migration && (role == 'idp' || role == 'idpxtra' || role == 'worker')
+    if !skip_migration && (role == 'idp' || role == 'idpxtra' || role == 'worker' || role == 'migration')
       puts as.pastel.bold.yellow("Launching migration instance prior to #{role} spin up")
       as.start_recycle("#{env}-migration",
                        new_size: 1,
@@ -156,7 +159,9 @@ For example:
       end
     end
 
-    as.start_recycle(asg_name, **recycle_opts)
+    if role != 'migration'
+      as.start_recycle(asg_name, **recycle_opts)
+    end
 
     if !skip_idpxtra && role == 'idp'
       puts as.pastel.bold.yellow('Recycling idpxtra instance in parallel with idp')
