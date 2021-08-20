@@ -1,3 +1,17 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 3.52.0"
+      configuration_aliases = [
+        aws.usw2,
+        aws.use1
+      ]
+    }
+  }
+  required_version = ">= 1.0.2"
+}
+
 variable "region" {
   description = "Region the secrets bucket has been created in"
   default     = "us-west-2"
@@ -9,14 +23,6 @@ data "aws_caller_identity" "current" {
 data "aws_s3_bucket_object" "opsgenie_sns_apikey" {
   bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
   key    = "common/opsgenie_sns_apikey"
-}
-
-provider "aws" {
-  alias = "usw2"
-}
-
-provider "aws" {
-  alias = "use1"
 }
 
 ## Terraform providers cannot be generated, so we need a separate block for each region,
@@ -50,7 +56,6 @@ data "aws_iam_policy_document" "opsgenie_sns_topic_policy_usw2" {
     resources = [aws_sns_topic.opsgenie_alert_usw2.arn]
   }
 }
-
 
 resource "aws_sns_topic_subscription" "opsgenie_alert_usw2" {
   provider               = aws.usw2

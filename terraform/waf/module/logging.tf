@@ -50,7 +50,7 @@ resource "aws_s3_bucket" "waf_logs" {
 }
 
 module "waf_log_bucket_config" {
-  source = "github.com/18F/identity-terraform//s3_config?ref=2754bf224ef9398a7f327150f1d1a14ecdb7d3fd"
+  source = "github.com/18F/identity-terraform//s3_config?ref=d1c01411db0bce308da5942a86bd2d548d902813"
 
   bucket_name_override = aws_s3_bucket.waf_logs.id
   inventory_bucket_arn = local.s3_inventory_bucket_arn

@@ -116,7 +116,7 @@ resource "aws_s3_bucket" "cloudtrail" {
 }
 
 module "cloudtrail_bucket_config" {
-  source = "github.com/18F/identity-terraform//s3_config?ref=21a2ce16cf1dbf85822c9005d72f8d17cb9dbe4b"
+  source = "github.com/18F/identity-terraform//s3_config?ref=d1c01411db0bce308da5942a86bd2d548d902813"
 
   bucket_name_override = aws_s3_bucket.cloudtrail.id
   inventory_bucket_arn = module.tf-state.inventory_bucket_arn
@@ -156,7 +156,7 @@ resource "aws_cloudtrail" "cloudtrail" {
       read_write_type            = lookup(event_selector.value, "read_write_type", "ReadOnly")
 
       dynamic "data_resource" {
-        for_each = flatten(list(lookup(event_selector.value, "data_resources", [])))
+        for_each = flatten(lookup(event_selector.value, "data_resources", []))
         content {
           type   = lookup(data_resource.value, "type", null)
           values = lookup(data_resource.value, "values", [])

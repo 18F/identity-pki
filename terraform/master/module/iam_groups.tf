@@ -1,7 +1,7 @@
 # Groups and group policy attachments
 
 module "iam_groups" {
-  source = "github.com/18F/identity-terraform//iam_assumegroup?ref=1460720310fb16f2effa84dee3d97c19bf36bc4e"
+  source = "github.com/18F/identity-terraform//iam_assumegroup?ref=d1c01411db0bce308da5942a86bd2d548d902813"
   #source = "../../../../identity-terraform/iam_assumegroup"
 
   group_role_map    = var.group_role_map

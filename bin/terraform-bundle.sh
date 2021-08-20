@@ -13,7 +13,7 @@
 #
 set -e
 
-TERRAFORM_VERSION="0.13.7"
+TERRAFORM_VERSION="1.0.2"
 GOLANG_VERSION="1.15"
 
 rm -rf /tmp/terraform-bundle.$$
@@ -40,7 +40,7 @@ terraform {
 # Define which provider plugins are to be included
 providers {
   aws = {
-    versions = ["~> 3.45.0", "~> 3.27.0", "~> 3.11.0"]
+    versions = ["~> 3.52.0"]
   }
   archive = {
     versions = ["~> 1.3"]

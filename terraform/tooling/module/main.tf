@@ -1,14 +1,11 @@
-# AWS provider is inherited from per-env main.tf rather than defined here, due
-# to https://github.com/hashicorp/terraform/issues/13018
-
 terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 3.27.0"
+      version = "~> 3.52.0"
     }
   }
-  required_version = ">= 0.13"
+  required_version = ">= 1.0.2"
 }
 
 data "aws_caller_identity" "current" {}

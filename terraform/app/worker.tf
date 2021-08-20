@@ -92,7 +92,7 @@ resource "aws_iam_role_policy" "worker-upload-s3-reports" {
 }
 
 module "worker_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=6a7ba69828a2507cf1fcaa225a1df8f501321929"
+  source = "github.com/18F/identity-terraform//launch_template?ref=d1c01411db0bce308da5942a86bd2d548d902813"
   #source = "../../../identity-terraform/launch_template"
   role           = "worker"
   env            = var.env_name
@@ -112,12 +112,12 @@ module "worker_launch_template" {
 }
 
 module "worker_lifecycle_hooks" {
-  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=476ab4456e547e125dcd53cb6131419b54f1f476"
+  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=d1c01411db0bce308da5942a86bd2d548d902813"
   asg_name = aws_autoscaling_group.worker.name
 }
 
 module "worker_recycle" {
-  source = "github.com/18F/identity-terraform//asg_recycle?ref=476ab4456e547e125dcd53cb6131419b54f1f476"
+  source = "github.com/18F/identity-terraform//asg_recycle?ref=d1c01411db0bce308da5942a86bd2d548d902813"
 
   # switch to count when that's a thing that we can do
   # https://github.com/hashicorp/terraform/issues/953
@@ -188,6 +188,30 @@ resource "aws_autoscaling_policy" "worker" {
   }
 }
 
+module "idp_worker_jobs_rds_usw2" {
+  source = "../modules/idp_rds"
+  providers = {
+    aws = aws.usw2
+  }
+  env_name           = var.env_name
+  name               = var.name
+  suffix             = "-worker-jobs"
+  rds_engine         = var.rds_engine
+  rds_engine_version = var.rds_engine_version_worker_jobs
+}
+
+module "idp_worker_jobs_rds_use1" {
+  source = "../modules/idp_rds"
+  providers = {
+    aws = aws.use1
+  }
+  env_name           = var.env_name
+  name               = var.name
+  suffix             = "-worker-jobs"
+  rds_engine         = var.rds_engine
+  rds_engine_version = var.rds_engine_version_worker_jobs
+}
+
 # idp worker jobs database
 resource "aws_db_instance" "idp-worker-jobs" {
   allocated_storage       = var.rds_storage_idp_worker_jobs
@@ -200,7 +224,7 @@ resource "aws_db_instance" "idp-worker-jobs" {
   instance_class          = var.rds_instance_class_worker_jobs
   maintenance_window      = var.rds_maintenance_window
   multi_az                = true
-  parameter_group_name    = module.idp_rds_usw2.rds_parameter_group_name
+  parameter_group_name    = module.idp_worker_jobs_rds_usw2.rds_parameter_group_name
   password                = var.rds_password_worker_jobs # change this by hand after creation
   storage_encrypted       = true
   username                = var.rds_username_worker_jobs
@@ -226,6 +250,12 @@ resource "aws_db_instance" "idp-worker-jobs" {
   }
 
   skip_final_snapshot = true
+  lifecycle {
+    prevent_destroy = false
+    # we set the password by hand so it doesn't end up in the state file
+    ignore_changes = [password]
+  }
+  deletion_protection = false
 }
 
 output "idp_db_endpoint_worker_jobs" {

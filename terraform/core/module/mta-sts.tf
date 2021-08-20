@@ -5,7 +5,8 @@
 
 # Create a TLS certificate with ACM
 module "acm-cert-mta-sts-cdn" {
-  source = "github.com/18F/identity-terraform//acm_certificate?ref=21a2ce16cf1dbf85822c9005d72f8d17cb9dbe4b"
+  #source = "../../../../identity-terraform//acm_certificate"
+  source = "github.com/18F/identity-terraform//acm_certificate?ref=d1c01411db0bce308da5942a86bd2d548d902813"
   providers = {
     aws = aws.us-east-1
   }
@@ -54,7 +55,7 @@ resource "aws_cloudfront_distribution" "mta_sts_cdn" {
 
   enabled         = true
   is_ipv6_enabled = true
-  aliases         = list("mta-sts.${var.root_domain}")
+  aliases         = ["mta-sts.${var.root_domain}"]
 
   # Throwaway default
   default_root_object = "/index.html"

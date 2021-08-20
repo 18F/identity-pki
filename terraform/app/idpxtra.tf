@@ -1,6 +1,6 @@
 # Dedicated IdP pool for Small Business Administration
 module "idpxtra_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=6a7ba69828a2507cf1fcaa225a1df8f501321929"
+  source = "github.com/18F/identity-terraform//launch_template?ref=d1c01411db0bce308da5942a86bd2d548d902813"
   #source = "../../../identity-terraform/launch_template"
   role           = "idpxtra"
   env            = var.env_name
@@ -167,12 +167,12 @@ resource "aws_autoscaling_group" "idpxtra" {
 }
 
 module "idpxtra_lifecycle_hooks" {
-  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=476ab4456e547e125dcd53cb6131419b54f1f476"
+  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=d1c01411db0bce308da5942a86bd2d548d902813"
   asg_name = aws_autoscaling_group.idpxtra.name
 }
 
 module "idpxtra_recycle" {
-  source = "github.com/18F/identity-terraform//asg_recycle?ref=476ab4456e547e125dcd53cb6131419b54f1f476"
+  source = "github.com/18F/identity-terraform//asg_recycle?ref=d1c01411db0bce308da5942a86bd2d548d902813"
 
   # switch to count when that's a thing that we can do
   # https://github.com/hashicorp/terraform/issues/953
