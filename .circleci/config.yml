@@ -11,7 +11,7 @@ jobs:
   build:
     docker:
       # Specify the Ruby version you desire here
-      - image: circleci/ruby:2.6-node-browsers
+      - image: circleci/ruby:2.7-node-browsers
         environment:
           RAILS_ENV: test
           CC_TEST_REPORTER_ID: c88a6f4af1fbf80e0fc9a5593ebff124b2f940645b1eacb5adb681522bbf650e
@@ -71,7 +71,7 @@ jobs:
   build-release-container:
     working_directory: ~/identity-pki
     docker:
-      - image: circleci/ruby:2.6
+      - image: circleci/ruby:2.7
     steps:
       - checkout
       - setup_remote_docker
@@ -84,7 +84,7 @@ jobs:
   check-expiring-certs-config:
     docker:
       # Specify the Ruby version you desire here
-      - image: circleci/ruby:2.6-node-browsers
+      - image: circleci/ruby:2.7-node-browsers
         environment:
           RAILS_ENV: test
           CC_TEST_REPORTER_ID: c88a6f4af1fbf80e0fc9a5593ebff124b2f940645b1eacb5adb681522bbf650e
