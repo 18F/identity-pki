@@ -30,11 +30,7 @@ variable "rds_engine_version_replica" {
 }
 
 variable "rds_engine_version_worker_jobs" {
-  default = "9.6.21"
-}
-
-variable "rds_engine_version_short" {
-  default = "9.6"
+  default = "13.3"
 }
 
 variable "rds_instance_class" {
@@ -65,7 +61,7 @@ variable "rds_storage_type_idp_replica" {
 
 variable "rds_storage_type_idp_worker_jobs" {
   description = "The type of EBS storage (magnetic, SSD, PIOPS) used by the IdP worker jobs"
-  default     = "standard"
+  default     = "gp2"
 }
 
 variable "rds_iops_idp" {
@@ -127,4 +123,3 @@ variable "rds_dashboard_idp_vertical_annotations" {
   description = "A raw JSON array of vertical annotations to add to all cloudwatch dashboard widgets"
   default     = "[]"
 }
-
