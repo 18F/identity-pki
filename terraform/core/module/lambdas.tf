@@ -16,7 +16,7 @@ resource "aws_lambda_function" "audit-github" {
   description   = "18F/identity-lambda-functions: GithubAuditor -- auditor of Github teams and membership"
   role          = aws_iam_role.lambda-audit-github[0].arn
   handler       = "main.IdentityAudit::GithubAuditor.process"
-  runtime       = "ruby2.5"
+  runtime       = "ruby2.7"
   timeout       = 30 # seconds
 
   environment {
@@ -132,7 +132,7 @@ resource "aws_lambda_function" "audit-aws" {
   description   = "18F/identity-lambda-functions: AwsIamAuditor -- auditor of AWS IAM users and 2FA setup"
   role          = aws_iam_role.lambda-audit-aws[0].arn
   handler       = "main.IdentityAudit::AwsIamAuditor.process"
-  runtime       = "ruby2.5"
+  runtime       = "ruby2.7"
   timeout       = 30 # seconds
 
   environment {
