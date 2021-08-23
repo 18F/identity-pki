@@ -1,17 +1,16 @@
 This repo has a set of Utilities which can be classified as the "Break Glass Utilities"
 
-**SecurityResponse**
+**quarantine-instance**
 
-SecurityResponse is a python script that quarantines a compromised EC2 instance. It does the following
+quarantine-instance is a python script that quarantines a compromised EC2 instance. It does the following
 - Removes instance from ASG, if the instance is part of an Auto Scaling Group
 - Prepares an EBS snapshot of the instance
 - Takes snapshot of the attached EBS volumes
 - Gets instance's console screenshot and puts them into an S3 bucket
-- Sets termination protection for the instance (exclusing spot instances as that is not supported on spot instances)
+- Sets termination protection for the instance (excluding spot instances as that is not supported on spot instances)
 - Gets instance metadata
 - Attaches instance to isolation security group. If isolation security group is not specified, it creates an isolation security group. 
 - Creates a tag notifying that the instance is quarantined
-
 
 The script takes the following arguments:
 
@@ -28,11 +27,14 @@ The script takes the following arguments:
 
 Usage:
 
-SecurityResponse.py [-h] -i IID -g SGID [-r REGION] [-b BUCKET] [-t TOPIC]
-SecurityResponse.py: the following arguments are required: -i/--iid, -g/--sgid
+./quarantine-instance [-h] -i IID -g SGID [-r REGION] [-b BUCKET] [-t TOPIC]
+./quarantine-instance: The following arguments are required: -i/--iid, -g/--sgid
+
+**PLEASE NOTE: You need to be logged in as the admin of your environment to run the script**
 
 Example:
-*$ ./SecurityResponse.py -i i-06a0c710b7a697e82 -g sg-05075f7fe14d76a9a* 
+*$ aws-vault exec sandbox-admin*
+*$ ./quarantine-instance -i i-06a0c710b7a697e82 -g sg-05075f7fe14d76a9a* 
 
 **VPC Kill Switch** 
 
@@ -40,7 +42,7 @@ VPC kill switch, cuts the connectivity of the VPC to the Internet. This is the B
 
 Usage:
 
-vpc_kill_switch.py [-h] [-v VPCID] [-vn vpcname] [-r REGION]
+vpc-kill-switch [-h] [-v VPCID] [-vn vpcname] [-r REGION]
 
 -v is the VPC ID whose connectivity you want to disconnect from the Big I
 -vn is the VPC Name whose connectivity you want to disconnect from the Big I
@@ -48,5 +50,9 @@ vpc_kill_switch.py [-h] [-v VPCID] [-vn vpcname] [-r REGION]
 
 You can specify either the VPC ID or VPC Name 
 
-*./vpc_kill_switch.py -v vpc-1234567890123*
-*./vpc_kill_switch.py -vn login-acme-vpc*
+**PLEASE NOTE: You need to be logged in as the admin of your environment to run the script**
+*$ aws-vault exec sandbox-admin* 
+
+**Example:**
+*./vpc-kill-switch -v vpc-1234567890123*
+*./vpc-kill-switch -vn login-acme-vpc*
