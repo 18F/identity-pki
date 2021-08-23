@@ -140,10 +140,10 @@ namespace :certs do
         puts "  SHA1 Fingerpint: #{repo_cert.sha1_fingerprint}"
         puts "  Key ID: #{repo_cert.key_id}"
         puts "  In Certificate Store: #{CertificateStore.instance[repo_cert.key_id].present?}"
-        puts "Would you like to save this cert? Type yes to save."
+        puts "Would you like to save this cert? Type (y)es to save."
         input = STDIN.gets.strip
 
-        if input == 'yes'
+        if input == 'yes' || input == 'y'
           path = Pathname.new("./config/certs") + repo_cert.pem_filename
 
           if File.exist?(path)
@@ -153,6 +153,7 @@ namespace :certs do
           end
           puts "Writing certificate to #{path}"
           File.write(path, repo_cert.to_pem)
+          CertificateStore.instance.load_certs!
         end
       end
     end
