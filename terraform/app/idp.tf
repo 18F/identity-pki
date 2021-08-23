@@ -120,7 +120,6 @@ module "idp_rds_usw2" {
   name = var.name
   rds_engine = var.rds_engine
   rds_engine_version = var.rds_engine_version
-  rds_engine_version_short = var.rds_engine_version_short
 }
 
 module "idp_rds_use1" {
@@ -132,7 +131,6 @@ module "idp_rds_use1" {
   name = var.name
   rds_engine = var.rds_engine
   rds_engine_version = var.rds_engine_version
-  rds_engine_version_short = var.rds_engine_version_short
 }
 
 # Multi-AZ redis cluster, used for session storage

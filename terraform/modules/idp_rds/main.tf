@@ -1,12 +1,17 @@
 data "aws_caller_identity" "current" {}
 
+locals {
+  # PostgreSQL parameter group family names changed from X.Y to just X after major version 9
+  rds_engine_version_short = length(regexall("^9\\.", var.rds_engine_version)) > 0 ? join(".", [for v in [0, 1] : split(".", var.rds_engine_version)[v]]) : split(".", var.rds_engine_version)[0]
+}
+
 resource "aws_db_parameter_group" "force_ssl" {
-  name_prefix = "${var.name}-${var.env_name}-idp-${var.rds_engine}${replace(var.rds_engine_version_short, ".", "")}-"
+  name_prefix = "${var.name}-${var.env_name}-idp${var.suffix}-${var.rds_engine}${replace(local.rds_engine_version_short, ".", "")}-"
 
   # Before changing this value, make sure the parameters are correct for the
   # version you are upgrading to.  See
   # http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_WorkingWithParamGroups.html.
-  family = "${var.rds_engine}${var.rds_engine_version_short}"
+  family = "${var.rds_engine}${local.rds_engine_version_short}"
 
   parameter {
     name         = "rds.force_ssl"
@@ -42,23 +47,23 @@ resource "aws_db_parameter_group" "force_ssl" {
 
   # Log lock waits
   parameter {
-    name = "log_lock_waits"
+    name  = "log_lock_waits"
     value = "1"
   }
 
   # Log lock waits
   parameter {
-    name = "log_lock_waits"
+    name  = "log_lock_waits"
     value = "1"
   }
 
   # Log autovacuum task that take more than 1 sec
   parameter {
-    name = "rds.force_autovacuum_logging_level"
+    name  = "rds.force_autovacuum_logging_level"
     value = "log"
   }
   parameter {
-    name = "log_autovacuum_min_duration"
+    name  = "log_autovacuum_min_duration"
     value = 1000
   }
 
@@ -70,21 +75,21 @@ resource "aws_db_parameter_group" "force_ssl" {
 # kms key for db encryption.  currently usw2 uses the default aws/rds key.
 # need cmk for cross region copying
 resource "aws_kms_key" "idp_rds" {
-  description             = "IDP RDS DB Key"
+  description             = "IDP${var.suffix} RDS DB Key"
   deletion_window_in_days = 30
   enable_key_rotation     = true
-  policy              = data.aws_iam_policy_document.idp_rds.json
+  policy                  = data.aws_iam_policy_document.idp_rds.json
 }
 
 data "aws_iam_policy_document" "idp_rds" {
   statement {
-    sid = "Enable IAM User Permissions"
+    sid    = "Enable IAM User Permissions"
     effect = "Allow"
     actions = [
       "kms:*",
     ]
     principals {
-      type        = "AWS"
+      type = "AWS"
       identifiers = [
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
       ]
@@ -95,7 +100,7 @@ data "aws_iam_policy_document" "idp_rds" {
   }
 
   statement {
-    sid = "Allow access for Key Administrators"
+    sid    = "Allow access for Key Administrators"
     effect = "Allow"
     actions = [
       "kms:Create*",
@@ -117,7 +122,7 @@ data "aws_iam_policy_document" "idp_rds" {
       "*",
     ]
     principals {
-      type        = "AWS"
+      type = "AWS"
       identifiers = [
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/FullAdministrator"
       ]
@@ -125,7 +130,7 @@ data "aws_iam_policy_document" "idp_rds" {
   }
 
   statement {
-    sid = "Allow RDS Access"
+    sid    = "Allow RDS Access"
     effect = "Allow"
     actions = [
       "kms:Encrypt",
@@ -138,7 +143,7 @@ data "aws_iam_policy_document" "idp_rds" {
       "*",
     ]
     principals {
-      type        = "AWS"
+      type = "AWS"
       identifiers = [
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS",
       ]
@@ -146,7 +151,7 @@ data "aws_iam_policy_document" "idp_rds" {
   }
 
   statement {
-    sid = "Allow attachment of resources"
+    sid    = "Allow attachment of resources"
     effect = "Allow"
     actions = [
       "kms:CreateGrant",
@@ -157,7 +162,7 @@ data "aws_iam_policy_document" "idp_rds" {
       "*",
     ]
     principals {
-      type        = "AWS"
+      type = "AWS"
       identifiers = [
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS",
       ]
@@ -174,7 +179,7 @@ data "aws_iam_policy_document" "idp_rds" {
 }
 
 resource "aws_kms_alias" "idp_rds" {
-  name          = "alias/${var.env_name}-idp-rds"
+  name          = "alias/${var.env_name}-idp${var.suffix}-rds"
   target_key_id = aws_kms_key.idp_rds.key_id
 }
 
