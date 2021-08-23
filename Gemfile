@@ -43,7 +43,6 @@ end
 
 group :test do
   gem 'axe-matchers', '~> 1.3.4'
-  gem 'codeclimate-test-reporter', '>= 1.0.9', require: false
   gem 'database_cleaner'
   gem 'factory_bot_rails', '>= 5.2.0'
   gem 'fakefs', require: 'fakefs/safe'

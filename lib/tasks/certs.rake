@@ -117,4 +117,45 @@ namespace :certs do
     puts ''
     puts 'Double check https://fpki.idmanagement.gov/notifications/#notifications for new and revoked certs'
   end
+
+  # This task uses existing certificates' CA Repository information from the subject information
+  # access extension to see if existing certs have issued any certificates that we do not have.
+  # The find_replacement task is helpful for expiring certificates, but this task is useful
+  # when a certificate authority has issued new certificates that are not replacements.
+  # Currently, the task only fetches certs issued by our trusted root certificates, but could be
+  # modified to go deeper in the issuing tree.
+  desc 'Find certs issued by existing certs'
+  task find_new: :environment do
+    root_keys = IdentityConfig.store.trusted_ca_root_identifiers + IdentityConfig.store.dod_root_identifiers
+    root_keys.each do |key_id|
+      root_cert = CertificateStore.instance[key_id]
+      repository_certs = IssuingCaService.fetch_ca_repository_certs_for_cert(root_cert)
+
+      repository_certs.each do |repo_cert|
+        next if CertificateStore.instance.certificates.any? { |x| x.serial == repo_cert.serial }
+
+        puts "  Expiration: #{repo_cert.not_after}"
+        puts "  Subject: #{repo_cert.subject}"
+        puts "  Issuer: #{repo_cert.issuer}"
+        puts "  SHA1 Fingerpint: #{repo_cert.sha1_fingerprint}"
+        puts "  Key ID: #{repo_cert.key_id}"
+        puts "  In Certificate Store: #{CertificateStore.instance[repo_cert.key_id].present?}"
+        puts "Would you like to save this cert? Type (y)es to save."
+        input = STDIN.gets.strip
+
+        if input == 'yes' || input == 'y'
+          path = Pathname.new("./config/certs") + repo_cert.pem_filename
+
+          if File.exist?(path)
+            path = Pathname.new("./config/certs") + repo_cert.pem_filename(
+              suffix: " #{repo_cert.not_after.to_i}"
+            )
+          end
+          puts "Writing certificate to #{path}"
+          File.write(path, repo_cert.to_pem)
+          CertificateStore.instance.load_certs!
+        end
+      end
+    end
+  end
 end
