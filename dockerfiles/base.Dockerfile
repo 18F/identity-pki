@@ -1,5 +1,5 @@
 # Base for all IdP images
-FROM ruby:2.6-slim
+FROM ruby:2.7-slim
 
 # Enable package fetch over https and add a few core tools
 RUN apt-get update \
@@ -9,13 +9,13 @@ RUN apt-get update \
     && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
     && apt-get update \
     && apt-get install -y --no-install-recommends \
-       apt-transport-https \
-       curl \
-       git \
-       postgresql-client \
-       libpq-dev \
-       nodejs \
-       yarn \
+    apt-transport-https \
+    curl \
+    git \
+    postgresql-client \
+    libpq-dev \
+    nodejs \
+    yarn \
     && rm -rf /var/lib/apt/lists/*
 
 # Add application user 
