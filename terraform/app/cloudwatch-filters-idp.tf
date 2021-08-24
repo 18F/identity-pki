@@ -205,12 +205,12 @@ idp_external_service_filters = {
 idp_worker_filters = {
     idp_worker_perform_time = {
       name         = "perform-time-milliseconds"
-      pattern      = "{ $.name = \"perform.active_job\" && $.queue_name = \"*GoodJob*\" }"
+      pattern      = "{ $.name = \"perform.active_job\" && $.queue_name = \"*GoodJob*\" && $.queue_name != \"*long_running*\" }"
       metric_value = "$.duration_ms"
     },
     idp_worker_queue_time = {
       name         = "queue-time-milliseconds"
-      pattern      = "{ $.name = \"perform_start.active_job\" && $.queue_name = \"*GoodJob*\" }"
+      pattern      = "{ $.name = \"perform_start.active_job\" && $.queue_name = \"*GoodJob*\" && $.queue_name != \"*long_running*\" }"
       metric_value = "$.queued_duration_ms"
     },
     idp_worker_perform_success = {
