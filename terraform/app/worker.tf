@@ -55,6 +55,12 @@ resource "aws_iam_role_policy" "worker-describe_instances" {
   policy = data.aws_iam_policy_document.describe_instances_role_policy.json
 }
 
+resource "aws_iam_role_policy" "worker-ses-email" {
+  name   = "${var.env_name}-worker-ses-email"
+  role   = aws_iam_role.worker.id
+  policy = data.aws_iam_policy_document.ses_email_role_policy.json
+}
+
 resource "aws_iam_role_policy" "worker-cloudwatch-logs" {
   name   = "${var.env_name}-worker-cloudwatch-logs"
   role   = aws_iam_role.worker.id
@@ -77,6 +83,12 @@ resource "aws_iam_role_policy" "worker-sns-publish-alerts" {
   name   = "${var.env_name}-worker-sns-publish-alerts"
   role   = aws_iam_role.worker.id
   policy = data.aws_iam_policy_document.sns-publish-alerts-policy.json
+}
+
+resource "aws_iam_role_policy" "worker-upload-s3-reports" {
+  name   = "${var.env_name}-worker-s3-reports"
+  role   = aws_iam_role.worker.id
+  policy = data.aws_iam_policy_document.put_reports_to_s3.json
 }
 
 module "worker_launch_template" {
@@ -174,4 +186,91 @@ resource "aws_autoscaling_policy" "worker" {
     }
     target_value = var.idp_cpu_autoscaling_target
   }
+}
+
+module "idp_worker_jobs_rds_usw2" {
+  source = "../modules/idp_rds"
+  providers = {
+    aws = aws.usw2
+  }
+  env_name           = var.env_name
+  name               = var.name
+  suffix             = "-worker-jobs"
+  rds_engine         = var.rds_engine
+  rds_engine_version = var.rds_engine_version_worker_jobs
+}
+
+module "idp_worker_jobs_rds_use1" {
+  source = "../modules/idp_rds"
+  providers = {
+    aws = aws.use1
+  }
+  env_name           = var.env_name
+  name               = var.name
+  suffix             = "-worker-jobs"
+  rds_engine         = var.rds_engine
+  rds_engine_version = var.rds_engine_version_worker_jobs
+}
+
+# idp worker jobs database
+resource "aws_db_instance" "idp-worker-jobs" {
+  allocated_storage       = var.rds_storage_idp_worker_jobs
+  backup_retention_period = var.rds_backup_retention_period
+  backup_window           = var.rds_backup_window
+  db_subnet_group_name    = aws_db_subnet_group.default.id
+  engine                  = var.rds_engine
+  engine_version          = var.rds_engine_version_worker_jobs
+  identifier              = "${var.env_name}-idp-worker-jobs"
+  instance_class          = var.rds_instance_class_worker_jobs
+  maintenance_window      = var.rds_maintenance_window
+  multi_az                = true
+  parameter_group_name    = module.idp_worker_jobs_rds_usw2.rds_parameter_group_name
+  password                = var.rds_password_worker_jobs # change this by hand after creation
+  storage_encrypted       = true
+  username                = var.rds_username_worker_jobs
+  storage_type            = var.rds_storage_type_idp_worker_jobs
+  iops                    = var.rds_iops_idp_worker_jobs
+
+  # we want to push these via Terraform now
+  auto_minor_version_upgrade  = false
+  allow_major_version_upgrade = true
+  apply_immediately           = true
+
+  # enhanced monitoring
+  monitoring_interval = var.rds_enhanced_monitoring_enabled == 1 ? 60 : 0
+  monitoring_role_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.rds_monitoring_role_name}"
+
+  vpc_security_group_ids = [aws_security_group.db.id]
+
+  # send logs to cloudwatch
+  enabled_cloudwatch_logs_exports = ["postgresql"]
+
+  tags = {
+    Name = "${var.name}-${var.env_name}"
+  }
+
+  # If you want to destroy your database, you need to do this in two phases:
+  # 1. Uncomment `skip_final_snapshot=true` and
+  #    comment `prevent_destroy=true` and `deletion_protection = true` below.
+  # 2. Perform a terraform/deploy "apply" with the additional
+  #    argument of "-target=aws_db_instance.idp" to mark the database
+  #    as not requiring a final snapshot.
+  # 3. Perform a terraform/deploy "destroy" as needed.
+  #
+  #skip_final_snapshot = true
+  lifecycle {
+    prevent_destroy = false
+
+    # we set the password by hand so it doesn't end up in the state file
+    ignore_changes = [password]
+  }
+
+  deletion_protection = false
+}
+
+output "idp_db_endpoint_worker_jobs" {
+  # This weird element() stuff is so we can refer to these attributes even
+  # when the resource has count=0. Reportedly this hack will not
+  # be necessary in TF 0.12.
+  value = element(concat(aws_db_instance.idp-worker-jobs.*.endpoint, [""]), 0)
 }

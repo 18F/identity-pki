@@ -362,11 +362,11 @@ variable "asg_outboundproxy_max" {
 }
 
 variable "asg_worker_min" {
-  default = 0
+  default = 1
 }
 
 variable "asg_worker_desired" {
-  default = 0
+  default = 1
 }
 
 variable "asg_worker_max" {
@@ -454,22 +454,22 @@ variable "bootstrap_private_git_clone_url" {
 # though they will have different IDs. They should be updated here at the same
 # time, and then released to environments in sequence.
 variable "default_ami_id_sandbox" {
-  default     = "ami-08734722bf81964a3" # 2021-07-26 Ubuntu 18.04
+  default     = "ami-07a48851f6015486b" # 2021-08-16 Ubuntu 18.04
   description = "default AMI ID for environments in the sandbox account"
 }
 
 variable "default_ami_id_prod" {
-  default     = "ami-06f124d3d02b77d48" # 2021-07-26 Ubuntu 18.04
+  default     = "ami-01b9ec3d8fb584db3" # 2021-08-16 Ubuntu 18.04
   description = "default AMI ID for environments in the prod account"
 }
 
 variable "rails_ami_id_sandbox" {
-  default     = "ami-074dbba4bccdad529" # 2021-07-26 Ubuntu 18.04
+  default     = "ami-01324deb7ff9775ce" # 2021-08-16 Ubuntu 18.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the sandbox account"
 }
 
 variable "rails_ami_id_prod" {
-  default     = "ami-037d4f73295615f3c" # 2021-07-26 Ubuntu 18.04
+  default     = "ami-0779260922055a7d9" # 2021-08-16 Ubuntu 18.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the prod account"
 }
 
@@ -650,4 +650,14 @@ variable "gitlab_servicename" {
 variable "gitlab_hostname" {
   description = "name to write into the internal dns zone"
   default     = "gitlab"
+}
+
+variable "idp_ial2_sp_dashboards" {  
+  type = map(object({
+    name         = string
+    issuer       = string
+    protocol     = string
+  }))
+  description = "Map of values for widgets on IAL2 SP dashboard"
+  default = {}
 }

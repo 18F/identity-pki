@@ -29,8 +29,8 @@ variable "rds_engine_version_replica" {
   description = "RDS requires that replicas be upgraded *before* primaries"
 }
 
-variable "rds_engine_version_short" {
-  default = "9.6"
+variable "rds_engine_version_worker_jobs" {
+  default = "13.3"
 }
 
 variable "rds_instance_class" {
@@ -38,6 +38,10 @@ variable "rds_instance_class" {
 }
 
 variable "rds_instance_class_replica" {
+  default = "db.t3.micro"
+}
+
+variable "rds_instance_class_worker_jobs" {
   default = "db.t3.micro"
 }
 
@@ -55,6 +59,11 @@ variable "rds_storage_type_idp_replica" {
   default     = "standard"
 }
 
+variable "rds_storage_type_idp_worker_jobs" {
+  description = "The type of EBS storage (magnetic, SSD, PIOPS) used by the IdP worker jobs"
+  default     = "gp2"
+}
+
 variable "rds_iops_idp" {
   description = "If PIOPS storage is used, the number of IOPS provisioned"
   default     = 0
@@ -65,7 +74,15 @@ variable "rds_iops_idp_replica" {
   default     = 0
 }
 
+variable "rds_iops_idp_worker_jobs" {
+  description = "If PIOPS storage is used, the number of IOPS provisioned for the IdP worker jobs"
+  default     = 0
+}
+
 variable "rds_password" {
+}
+
+variable "rds_password_worker_jobs" {
 }
 
 variable "rds_storage_app" {
@@ -80,7 +97,14 @@ variable "rds_storage_idp_replica" {
   default = "26"
 }
 
+variable "rds_storage_idp_worker_jobs" {
+  default = "26"
+}
+
 variable "rds_username" {
+}
+
+variable "rds_username_worker_jobs" {
 }
 
 variable "rds_maintenance_window" {
@@ -99,4 +123,3 @@ variable "rds_dashboard_idp_vertical_annotations" {
   description = "A raw JSON array of vertical annotations to add to all cloudwatch dashboard widgets"
   default     = "[]"
 }
-

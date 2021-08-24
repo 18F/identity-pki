@@ -539,8 +539,10 @@ locals {
           actions = [
             "iam:AddRoleToInstanceProfile",
             "iam:AddUserToGroup",
+            "iam:AttachGroupPolicy",
             "iam:AttachRolePolicy",
             "iam:AttachUserPolicy",
+            "iam:CreateGroup",
             "iam:CreateInstanceProfile",
             "iam:CreatePolicy",
             "iam:CreatePolicyVersion",
@@ -549,6 +551,7 @@ locals {
             "iam:CreateUser",
             "iam:DeleteAccessKey",
             "iam:DeleteAccountPasswordPolicy",
+            "iam:DeleteGroup",
             "iam:DeleteInstanceProfile",
             "iam:DeleteLoginProfile",
             "iam:DeletePolicy",
@@ -760,6 +763,16 @@ locals {
             "ecr:PutRegistryPolicy",
             "ecr:PutReplicationConfiguration",
             "ecr:SetRepositoryPolicy",
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
+          sid    = "DLM"
+          effect = "Allow"
+          actions = [
+            "dlm:*",
           ]
           resources = [
             "*",

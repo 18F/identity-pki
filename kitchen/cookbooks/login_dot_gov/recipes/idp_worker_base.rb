@@ -151,15 +151,16 @@ else
   service_state = [:create, :disable, :stop]
 end
 
-systemd_unit 'idp-worker.service' do
-  action [:create, :enable, :start]
+systemd_unit 'idp-worker@.service' do
+  action [:create]
 
   content <<-EOM
 # Dropped off by chef
 # Systemd unit for idp-worker
 
 [Unit]
-Description=IDP Worker Runner Service (idp-worker)
+Description=IDP Worker Runner Service (idp-worker) - %i
+PartOf=idp-workers.target
 
 [Service]
 ExecStart=/bin/bash -c 'bundle exec good_job start'
@@ -171,7 +172,7 @@ Group=#{system_user}
 Restart=on-failure
 StandardOutput=syslog
 StandardError=syslog
-SyslogIdentifier=idp-worker
+SyslogIdentifier=idp-workers
 
 # attempt graceful stop first
 KillSignal=SIGINT
@@ -179,4 +180,25 @@ KillSignal=SIGINT
 [Install]
 WantedBy=multi-user.target
   EOM
+end
+
+worker_service_descriptors = ''
+node.fetch('login_dot_gov').fetch('worker_count').times do |i|
+  worker_service_descriptors << "idp-worker@#{i}.service "
+end
+
+template '/etc/systemd/system/idp-workers.target' do
+  variables(worker_service_descriptors: worker_service_descriptors.strip)
+end
+
+execute 'reload daemon to pickup the target file' do
+  command "systemctl daemon-reload"
+end
+
+execute 'enable worker target' do
+  command "systemctl enable idp-workers.target"
+end
+
+execute 'start worker target' do
+  command "systemctl start idp-workers.target"
 end

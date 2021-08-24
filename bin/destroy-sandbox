@@ -66,7 +66,7 @@ delete_lambdas() {
 }
 
 allow_db_destroy() {
-  for DB in idp app ; do
+  for DB in idp app worker ; do
     cp ${APP_DIR}/${DB}.tf ${APP_DIR}/${DB}.tf.bak
     for TASK in prevent_destroy deletion_protection ; do
       sed -i '' -E "s/(${TASK} = )true/\1false/g" ${APP_DIR}/${DB}.tf
@@ -103,7 +103,7 @@ delete_env_keys() {
 
 tf_destroy() {
   ave ${BASEPATH}/tf-deploy -t ${TF_ENV} app destroy -auto-approve
-  for DB in idp app; do
+  for DB in idp app worker; do
     FILE="${APP_DIR}/${DB}.tf"
     [[ -f "${FILE}.bak" ]] && run mv ${FILE}.bak ${FILE}
   done

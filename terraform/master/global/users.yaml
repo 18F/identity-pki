@@ -17,6 +17,8 @@ users:
   brett.mcparland:
     - secops
     - soc
+  chris.kirshak:
+    - socreadonly
   chris.manger:
     - bizops
     - finops
@@ -55,12 +57,15 @@ users:
     - devops
     - secops
     - keymasters
+    - socreadonly
   oren.kanner:
     - appdev
     - apponcall
     - bizops
   paul.hirsch:
     - devops
+  russ.beye:
+    - appdev
   sierra.toler:
     - bizops
   steve.urciuoli:
@@ -70,6 +75,7 @@ users:
   steven.harms:
     - devops
     - secops
+    - socreadonly
   thomas.black:
     - bizops
   tianna.woodson:
