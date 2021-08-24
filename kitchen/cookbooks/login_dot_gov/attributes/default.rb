@@ -125,4 +125,4 @@ default['login_dot_gov']['dashboard']['sp_private_key']          = "-----BEGIN R
 default['login_dot_gov']['dashboard']['sp_private_key_password'] = 'foobar'
 
 # worker hosts
-default['login_dot_gov']['worker_count'] = node.fetch('cpu').fetch('total') * 2
+default['login_dot_gov']['worker_count'] = 1 # number of separate worker processes to run, threading is handled by idp good_job_queues, good_job_max_threads config
