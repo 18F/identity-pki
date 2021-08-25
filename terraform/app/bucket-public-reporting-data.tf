@@ -42,11 +42,12 @@ resource "aws_s3_bucket" "public_reporting_data" {
     }
   }
 
-  # Allow CORS for anything in parent domain
+  # Allow CORS for main Login Data site, Cloud.gov preview/other sites, and local development.
+  # This is all public data accessed anonymously.
   cors_rule {
     allowed_headers = ["*"]
     allowed_methods = ["GET"]
-    allowed_origins = ["https://*.${var.root_domain}"]
+    allowed_origins = ["https://data.login.gov", "https://*.app.cloud.gov", "http://localhost:3000"]
     expose_headers  = ["ETag"]
   }
 }
