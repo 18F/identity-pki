@@ -51,7 +51,7 @@ verify_root_repo
 declare {ARGS,RUN_FLAG,TF_CMD,TF_DIR,TF_ENV,TF_PROFILE,AV_PROFILE}=
 TF_ROLE='Terraform'
 
-while getopts d:e:apxsifctzoh opt
+while getopts d:e:apxsifctlzoh opt
 do
   case $opt in
     d) TF_DIR="${OPTARG}"          ;;
@@ -65,6 +65,7 @@ do
     c) TF_CMD="tfplan"             ;;
     o) TF_ROLE="FullAdministrator" ;;
     t) RUN_FLAG+="-t "             ;;
+    l) RUN_FLAG+="-l "             ;;
     z) RUN_FLAG+="-z "             ;;
     h|*) usage && exit 0           ;;
   esac

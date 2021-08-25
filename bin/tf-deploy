@@ -55,6 +55,10 @@ Options:
                             asg_*_min / asg_*_desired values with 0. Can be
                             used anytime, but is necessary when (re)building an
                             environment from scratch.
+    -l, --local-lockfile    Skip copying .terraform.lock.hcl from the repo root,
+                            and use/regenerate the one in the specified
+                            Terraform directory. (See the HACK below for more
+                            information on this.)
 
 For older terraform directories that use identity-devops-private, env-specific
 config variables will be loaded automatically from identity-devops-private.
@@ -144,6 +148,7 @@ ORIGIN_REMOTE_NAME="${ORIGIN_REMOTE_NAME-origin}"
 
 # Parse options
 declare {IMPORT_REMOTE_STATE,TEST_ONLY,EXTRA_ENV}=
+LOCAL_LOCKFILE=0
 while [ $# -gt 0 ] && [[ $1 == -* ]]; do
     case "$1" in
         -h|--help)
@@ -152,6 +157,9 @@ while [ $# -gt 0 ] && [[ $1 == -* ]]; do
             ;;
         -t|--test)
             TEST_ONLY=1
+            ;;
+        -l|--local-lockfile)
+            LOCAL_LOCKFILE=1
             ;;
         -z|--zero-out-hosts)
             EXTRA_ENV="tf_zero"
@@ -540,10 +548,45 @@ else
     style_option="--shared-style"
 fi
 
+########### HACK for provider lock file ###########
+
+# Since we can't symlink one .terraform.lock.hcl file to every Terraform
+# directory, this copies over the repo root's .terraform.lock.hcl file into
+# TF_DIR_FULL, which terraform init will read -- but not update -- since
+# it defaults to using -lockfile=readonly in the configure_state_bucket.sh
+# script. This copy is removed at the end of the script. See:
+# - https://github.com/hashicorp/terraform/issues/27158
+# - https://github.com/hashicorp/terraform/issues/27241
+#
+# TODO: add support for using `providers lock` in order to upgrade the
+# universal lock file when necessary, without having to manually
+# re-tool that file any time hash updates are required. (This should
+# only be necessary when updating provider versions.)
+
+if [ -f "terraform/${TF_DIR_FULL}/.terraform.lock.hcl" ]; then
+    if [ "${LOCAL_LOCKFILE}" == 0 ] ; then
+        echo_yellow >&2 "A local provider lock file already exists in ${TF_DIR_FULL}"
+        if prompt_yn "Overwrite with the repo-root .terraform.lock.hcl file?"; then
+            rm "terraform/${TF_DIR_FULL}/.terraform.lock.hcl"
+        else
+            LOCAL_LOCKFILE=1
+        fi
+    fi
+fi
+
+if [ "${LOCAL_LOCKFILE}" == 0 ] ; then
+    echo >&2 "Copying .terraform.lock.hcl to ${TF_DIR_FULL}"
+    cp "${repo_root_before_cd}/.terraform.lock.hcl" "terraform/${TF_DIR_FULL}/"
+else
+    echo >&2 "Using local .terraform.lock.hcl in ${TF_DIR_FULL}"
+fi
+
+########### HACK for provider lock file ###########
+
 echo >&2 "Configuring state bucket $TERRAFORM_STATE_BUCKET with path $STATE"
 
 run bin/deploy/configure_state_bucket.sh "$style_option" "$TERRAFORM_STATE_BUCKET" \
-    "$STATE" "$TF_DIR_FULL" "$TERRAFORM_STATE_BUCKET_REGION" "$ID_state_lock_table"
+    "$STATE" "$TF_DIR_FULL" "$TERRAFORM_STATE_BUCKET_REGION" "$ID_state_lock_table" "$LOCAL_LOCKFILE"
 
 echo >&2 "+ cd terraform/$TF_DIR_FULL"
 cd "terraform/$TF_DIR_FULL"
@@ -596,6 +639,11 @@ if run terraform "${TF_CMD[@]}" >&3 ; then
     DEPLOY_FAIL='false'
 else
     DEPLOY_FAIL='true'
+fi
+
+# remove copy of .terraform.lock.hcl after completing operation
+if [ "${LOCAL_LOCKFILE}" == 0 ] ; then
+    rm .terraform.lock.hcl
 fi
 
 # if running apply or destroy, notify success/fail in Slack

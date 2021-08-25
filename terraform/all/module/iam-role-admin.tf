@@ -1,5 +1,5 @@
 module "fulladmin-assumerole" {
-  source = "github.com/18F/identity-terraform//iam_assumerole?ref=d1c01411db0bce308da5942a86bd2d548d902813"
+  source = "github.com/18F/identity-terraform//iam_assumerole?ref=4c2fac72c84aa99590cc5690e04e55fc7a98872f"
 
   role_name                = "FullAdministrator"
   master_assumerole_policy = local.master_assumerole_policy

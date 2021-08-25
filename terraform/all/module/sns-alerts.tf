@@ -151,7 +151,7 @@ resource "aws_ssm_parameter" "account_alarm_slack_use1" {
 
 module "slack_lambda_use1" {
   for_each = local.slack_channel_map
-  #source   = "github.com/18F/identity-terraform//slack_lambda?ref=d1c01411db0bce308da5942a86bd2d548d902813"
+  #source   = "github.com/18F/identity-terraform//slack_lambda?ref=4c2fac72c84aa99590cc5690e04e55fc7a98872f"
   source = "../../../../identity-terraform/slack_lambda"
   providers = {
     aws = aws.use1

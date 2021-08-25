@@ -86,7 +86,7 @@ resource "aws_iam_role_policy" "obproxy-sns-publish-alerts" {
 }
 
 module "outboundproxy_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=d1c01411db0bce308da5942a86bd2d548d902813"
+  source = "github.com/18F/identity-terraform//launch_template?ref=4c2fac72c84aa99590cc5690e04e55fc7a98872f"
   #source = "../../../identity-terraform/launch_template"
   role           = "outboundproxy"
   env            = var.env_name
@@ -106,12 +106,12 @@ module "outboundproxy_launch_template" {
 }
 
 module "obproxy_lifecycle_hooks" {
-  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=d1c01411db0bce308da5942a86bd2d548d902813"
+  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=4c2fac72c84aa99590cc5690e04e55fc7a98872f"
   asg_name = aws_autoscaling_group.outboundproxy.name
 }
 
 module "outboundproxy_recycle" {
-  source = "github.com/18F/identity-terraform//asg_recycle?ref=d1c01411db0bce308da5942a86bd2d548d902813"
+  source = "github.com/18F/identity-terraform//asg_recycle?ref=4c2fac72c84aa99590cc5690e04e55fc7a98872f"
 
   # switch to count when that's a thing that we can do
   # https://github.com/hashicorp/terraform/issues/953

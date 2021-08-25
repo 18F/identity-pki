@@ -6,7 +6,7 @@
 # Create a TLS certificate with ACM
 module "acm-cert-mta-sts-cdn" {
   #source = "../../../../identity-terraform//acm_certificate"
-  source = "github.com/18F/identity-terraform//acm_certificate?ref=d1c01411db0bce308da5942a86bd2d548d902813"
+  source = "github.com/18F/identity-terraform//acm_certificate?ref=4c2fac72c84aa99590cc5690e04e55fc7a98872f"
   providers = {
     aws = aws.us-east-1
   }
