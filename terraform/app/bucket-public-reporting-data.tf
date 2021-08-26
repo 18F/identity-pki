@@ -1,6 +1,7 @@
 # S3 bucket for publishing public data
 resource "aws_s3_bucket" "public_reporting_data" {
-  bucket = "login-gov-public-reporting-data-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
+  # Name truncated as "login-gov-public-reporting-data-ENV.ACCOUNT-REGION is > 63 chars
+  bucket = "login-gov-pubdata-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
 
   force_destroy = var.force_destroy_idp_static_bucket
 
@@ -10,7 +11,7 @@ resource "aws_s3_bucket" "public_reporting_data" {
   }
 
   tags = {
-    Name = "login-gov-public-reporting-data-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
+    Name = "login-gov-pubdata-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
   }
 
   website {
@@ -77,8 +78,8 @@ data "aws_iam_policy_document" "public_reporting_data_policy" {
       ]
     }
     resources = [
-      "arn:aws:s3:::login-gov-public-reporting-data-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}",
-      "arn:aws:s3:::login-gov-public-reporting-data-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}/*"
+      "arn:aws:s3:::login-gov-pubdata-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}",
+      "arn:aws:s3:::login-gov-pubdata-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}/*"
     ]
   }
 
@@ -92,7 +93,7 @@ data "aws_iam_policy_document" "public_reporting_data_policy" {
       identifiers = [aws_cloudfront_origin_access_identity.cloudfront_oai.iam_arn]
     }
     resources = [
-      "arn:aws:s3:::login-gov-public-reporting-data-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}/*"
+      "arn:aws:s3:::login-gov-pubdata-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}/*"
     ]
   }
 }
