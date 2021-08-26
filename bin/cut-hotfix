@@ -45,7 +45,7 @@ run git pull origin main
 run git checkout v${VERSION_TAG}
 run git checkout -b release/v${HOTFIX}
 run git cherry-pick -m 1 ${COMMIT_ID}
-run rake hotfix
+run bundle exec rake hotfix
 run git push origin release/v${HOTFIX}
 run git push origin v${HOTFIX} # push w/remote tags
 
