@@ -65,7 +65,7 @@ fi
 REGULAR_PRS=$(echo "${RELEASE_PRS}" | grep -v BREAKING)
 
 run git checkout -b release/v${NEW_RELEASE}
-run rake release
+run bundle exec rake release
 run git push origin release/v${NEW_RELEASE}
 run git push origin v${NEW_RELEASE} # push w/remote tags
 
