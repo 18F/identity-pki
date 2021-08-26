@@ -43,23 +43,24 @@ providers {
     versions = ["~> 3.52.0"]
   }
   archive = {
-    versions = ["~> 1.3"]
+    versions = ["~> 2.2.0"]
   }
   external = {
-    versions = ["~> 1.2.0"]
+    versions = ["~> 2.1.0"]
   }
   github = {
-    versions = ["~> 2.9"]
+    source = "integrations/github"
+    versions = ["~> 4.13.0"]
   }
   null = {
-    versions = ["~> 2.1.2"]
+    versions = ["~> 3.1.0"]
   }
   template = {
-    versions = ["~> 2.1.2"]
+    versions = ["~> 2.2.0"]
   }
   newrelic = {
     source = "newrelic/newrelic"
-    versions = ["2.21.1", "~> 2.21.0", "~> 2.8.0", "~> 2.1.2"]
+    versions = ["~> 2.24.1"]
   }
   kubectl = {
     source = "gavinbunney/kubectl"

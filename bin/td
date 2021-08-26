@@ -8,8 +8,23 @@ set -euo pipefail
 
 usage() {
     cat >&2 << EOM
-Usage: ${0} [-d TF_DIR|-e TF_ENV] -a|-p|-x|-t|-o|-c ARGS
-                                  -s COMMAND | -f LOCK_ID
+
+Usage: ${0} [-d TF_DIR|-e TF_ENV]  (specify command with flag below:)
+
+  -a : apply                  -f LOCK_ID    : force-unlock '\$LOCK_ID'
+  -p : plan                   -i ADDRESS ID : import \$RESOURCE_ADDRESS \$RESOURCE_ID
+  -x : destroy                -c ARGS : Runs tfplan using ARGS provided
+  -v CMD : providers '\$CMD'  -o : Use ACCOUNT-admin instead of ACCOUNT-terraform   
+  -s CMD : state '\$CMD'      -h : Display help 
+
+EOM
+}
+
+man_page() {
+    cat >&2 << EOM
+
+Usage: ${0} [-d TF_DIR|-e TF_ENV] -a|-p|-x|-t|-o|-c ARGS|-v TF_PROVIDER_COMMAND
+                                  -s STATE_COMMAND | -f LOCK_ID
                                   -i RESOURCE_ADDRESS RESOURCE_ID
 
 Wrapper script to pass aws-vault-enabled Terraform commands to bin/tf-deploy,
@@ -24,22 +39,23 @@ Dir/env flags (optional):
               if TF_DIR has been set differently by -d
 
 Common command flags:
-  -a : \`apply\`
-  -p : \`plan\`
-  -x : \`destroy\`
+  -a : apply
+  -p : plan
+  -x : destroy
   The above commands can be run with arguments if desired.
   Arguments must be specified WITHOUT hyphens,
   e.g. target= instead of -target=
 
 State command flags (arguments MUST be provided):
-  -s COMMAND    : \`state '\$COMMAND'\`
-  -f LOCK_ID    : \`force-unlock '\$LOCK_ID'\`
-  -i ADDRESS ID : \`import \$RESOURCE_ADDRESS \$RESOURCE_ID\`
+  -v COMMAND    : providers '\$COMMAND'
+  -s COMMAND    : state '\$COMMAND'
+  -f LOCK_ID    : force-unlock '\$LOCK_ID'
+  -i ADDRESS ID : import \$RESOURCE_ADDRESS \$RESOURCE_ID
 
 Other commands (optional:
-  -c ARGS : Runs \`tfplan\` using any ARGS provided.
+  -c ARGS : Runs tfplan using any ARGS provided.
             Specify ARGS without using dashes (e.g. m/p/mp)
-  -o : Use \`ACCOUNT-admin\` instead of \`ACCOUNT-terraform\`
+  -o : Use ACCOUNT-admin instead of ACCOUNT-terraform
        (to only be used if encountering permissions issues
         with the active Terraform role)
   -h : Displays this help
@@ -51,7 +67,7 @@ verify_root_repo
 declare {ARGS,RUN_FLAG,TF_CMD,TF_DIR,TF_ENV,TF_PROFILE,AV_PROFILE}=
 TF_ROLE='Terraform'
 
-while getopts d:e:apxsifctlzoh opt
+while getopts d:e:apxsifcvtlzoh opt
 do
   case $opt in
     d) TF_DIR="${OPTARG}"          ;;
@@ -63,11 +79,12 @@ do
     i) TF_CMD="import"             ;;
     f) TF_CMD="force-unlock"       ;;
     c) TF_CMD="tfplan"             ;;
+    v) TF_CMD="providers"          ;;
     o) TF_ROLE="FullAdministrator" ;;
     t) RUN_FLAG+="-t "             ;;
     l) RUN_FLAG+="-l "             ;;
     z) RUN_FLAG+="-z "             ;;
-    h|*) usage && exit 0           ;;
+    h|*) man_page && exit 0           ;;
   esac
 done
 shift $((OPTIND-1))
@@ -93,9 +110,9 @@ else
   elif [[ ${TF_DIR} == 'sms' ]] ; then
     TF_PROFILE=$(echo "sms-${TF_ENV}" | sed -E 's/-east//')
   elif [[ -z $(find "${GIT_DIR}/terraform/" -type d -maxdepth 1 -name "${TF_DIR}") ]] ; then
-    raise "\`${TF_DIR}\` not found in ${GIT_DIR}/terraform/"
+    raise "${TF_DIR} not found in ${GIT_DIR}/terraform/"
   elif [[ -z $(find "${GIT_DIR}/terraform/${TF_DIR}" -type d -maxdepth 1 -name "${TF_ENV}") ]] ; then
-    raise "\`${TF_ENV}\` not found in ${GIT_DIR}/terraform/${TF_DIR}"
+    raise "${TF_ENV} not found in ${GIT_DIR}/terraform/${TF_DIR}"
   elif [[ ! $(get_acct_num ${TF_ENV}) ]] ; then
     TF_PROFILE='sandbox'
     [[ "${TF_ENV}" =~ (staging|dm) ]] && TF_PROFILE='prod'
