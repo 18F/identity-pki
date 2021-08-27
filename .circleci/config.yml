@@ -3,7 +3,7 @@ jobs:
   build-base-image:
     working_directory: ~/identity-devops
     docker:
-      - image: circleci/ruby:2.6 # this doesn't matter, just using for consistency.
+      - image: circleci/ruby:2.7 # this doesn't matter, just using for consistency.
     steps:
       - checkout
       - setup_remote_docker:
@@ -17,7 +17,7 @@ jobs:
   build-build-image:
     working_directory: ~/identity-devops/dockerfiles
     docker:
-      - image: circleci/ruby:2.6 # this doesn't matter, just using for consistency.
+      - image: circleci/ruby:2.7 # this doesn't matter, just using for consistency.
     steps:
       - checkout
       - setup_remote_docker:
