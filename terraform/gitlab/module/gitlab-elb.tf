@@ -5,8 +5,7 @@ resource "aws_elb" "gitlab" {
     aws_subnet.gitlab2.id,
   ]
 
-  # TODO move the gitlab ELB to its own security group
-  security_groups = [aws_security_group.gitlab.id]
+  security_groups = [aws_security_group.gitlab-lb.id]
 
   access_logs {
     bucket        = "login-gov.elb-logs.${data.aws_caller_identity.current.account_id}-${var.region}"

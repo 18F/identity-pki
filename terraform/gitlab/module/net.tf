@@ -45,15 +45,6 @@ resource "aws_security_group" "base" {
     Name = "${var.env_name}-base"
   }
 
-  # allow SSH in from gitlab
-  ingress {
-    description     = "allow SSH in from gitlab"
-    protocol        = "tcp"
-    from_port       = 22
-    to_port         = 22
-    security_groups = [aws_security_group.gitlab.id]
-  }
-
   # allow TCP egress to outbound proxy
   egress {
     description     = "allow egress to outbound proxy"
@@ -125,22 +116,6 @@ resource "aws_security_group" "gitlab" {
     cidr_blocks = [var.vpc_cidr_block]
   }
 
-  # need 80/443 to get packages/gems/etc
-  egress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # need 80/443 to get packages/gems/etc
-  egress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
   # need 8834 to comm with Nessus Server
   egress {
     from_port   = 8834
@@ -149,6 +124,7 @@ resource "aws_security_group" "gitlab" {
     cidr_blocks = [var.nessusserver_ip]
   }
 
+  # TODO: Can we use HTTPS for provisioning instead?
   # github
   egress {
     from_port = 22
@@ -159,77 +135,18 @@ resource "aws_security_group" "gitlab" {
     cidr_blocks = local.github_ipv4
   }
 
-  # TODO split out ELB security group from gitlab SG
-  egress {
-    from_port = 22 # ELB
-
-    to_port  = 22
-    protocol = "tcp"
-    self     = true
-  }
-  egress {
-    from_port = 26 # ELB healthcheck
-
-    to_port  = 26
-    protocol = "tcp"
-    self     = true
-  }
-
-  #s3 gateway
-  egress {
-    from_port       = 443
-    to_port         = 443
-    protocol        = "tcp"
-    prefix_list_ids = [aws_vpc_endpoint.private-s3.prefix_list_id]
-  }
-
-  # locust distributed
-  egress {
-    from_port = 5557
-
-    to_port  = 5557
-    protocol = "tcp"
-    self     = true
-  }
-
-  # locust distributed
-  ingress {
-    from_port = 5557
-
-    to_port  = 5557
-    protocol = "tcp"
-    self     = true
-  }
-
-  ingress {
-    from_port = 22 # ELB
-
-    to_port  = 22
-    protocol = "tcp"
-    self     = true
-  }
-  ingress {
-    from_port = 26 # ELB healthcheck
-
-    to_port  = 26
-    protocol = "tcp"
-    self     = true
-  }
-
   ingress {
     from_port = 22
     to_port   = 22
     protocol  = "tcp"
-
-    # Remote Access (FIXME rename variable to 'external_ssh_cidr_blocks'?)
+    security_groups = [aws_security_group.gitlab-lb.id]
   }
 
-  # need 8834 to comm with Nessus Server
   ingress {
-    from_port   = 8834
-    to_port     = 8834
-    protocol    = "tcp"
-    cidr_blocks = [var.nessusserver_ip]
+    from_port = 443
+    to_port   = 443
+    protocol  = "tcp"
+    security_groups = [aws_security_group.gitlab-lb.id]
   }
 
   name = "${var.name}-gitlab-${var.env_name}"
@@ -237,6 +154,41 @@ resource "aws_security_group" "gitlab" {
   tags = {
     Name = "${var.name}-gitlab_security_group-${var.env_name}"
     role = "gitlab"
+  }
+
+  vpc_id = aws_vpc.default.id
+}
+
+resource "aws_security_group" "gitlab-lb" {
+  description = "Allow inbound gitlab traffic from allowlisted IPs"
+
+  # TODO: limit this to what is actually needed
+  # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
+  egress {
+    from_port   = 0
+    to_port     = 65535
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr_block]
+  }
+
+  ingress {
+    from_port = 22
+    to_port   = 22
+    protocol  = "tcp"
+    cidr_blocks = var.allowed_gitlab_cidr_blocks_v4
+  }
+
+  ingress {
+    from_port = 443
+    to_port   = 443
+    protocol  = "tcp"
+    cidr_blocks = var.allowed_gitlab_cidr_blocks_v4
+  }
+
+  name = "${var.name}-gitlab-lb-${var.env_name}"
+
+  tags = {
+    Name = "${var.name}-gitlab-lb_security_group-${var.env_name}"
   }
 
   vpc_id = aws_vpc.default.id

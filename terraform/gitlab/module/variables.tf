@@ -49,6 +49,12 @@ variable "private3_subnet_cidr_block" { # 172.16.35.128 - 172.16.35.191
   default = "172.16.35.128/26"
 }
 
+variable "allowed_gitlab_cidr_blocks_v4" { # 159.142.0.0 - 159.142.255.255
+  default = [
+    "159.142.0.0/16",
+  ]
+}
+
 variable "ami_id_map" {
   type        = map(string)
   description = "Mapping from server role to an AMI ID, overrides the default_ami_id if key present"

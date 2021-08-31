@@ -106,29 +106,6 @@ resource "aws_network_acl_rule" "gitlab-elb-healthcheck2" {
   rule_action    = "allow"
 }
 
-# port to run locust in distributed mode
-resource "aws_network_acl_rule" "gitlab-locust-distributed1" {
-  network_acl_id = aws_network_acl.gitlab.id
-  egress         = false
-  from_port      = 5557
-  to_port        = 5557
-  protocol       = "tcp"
-  cidr_block     = var.gitlab1_subnet_cidr_block
-  rule_number    = 52
-  rule_action    = "allow"
-}
-
-resource "aws_network_acl_rule" "gitlab-locust-distributed2" {
-  network_acl_id = aws_network_acl.gitlab.id
-  egress         = false
-  from_port      = 5557
-  to_port        = 5557
-  protocol       = "tcp"
-  cidr_block     = var.gitlab2_subnet_cidr_block
-  rule_number    = 53
-  rule_action    = "allow"
-}
-
 resource "aws_network_acl" "alb" {
   vpc_id     = aws_vpc.default.id
   subnet_ids = [aws_subnet.alb1.id, aws_subnet.alb2.id, aws_subnet.alb3.id]
@@ -183,3 +160,13 @@ resource "aws_network_acl_rule" "alb-ingress-tcp-https" {
   cidr_block     = "0.0.0.0/0"
 }
 
+resource "aws_network_acl_rule" "gitlab-ingress-https" {
+  network_acl_id = aws_network_acl.gitlab.id
+  egress         = false
+  from_port      = 443
+  to_port        = 443
+  protocol       = "tcp"
+  rule_number    = 45
+  rule_action    = "allow"
+  cidr_block     = var.vpc_cidr_block
+}
