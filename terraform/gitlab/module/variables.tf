@@ -234,3 +234,72 @@ variable "use_spot_instances" {
 variable "vpc_cidr_block" { # 172.16.32.0   - 172.16.35.255
   default = "172.16.32.0/22"
 }
+
+#######################################################################
+# RDS Variables
+variable "rds_storage_gitlab" {
+  default = "200"
+}
+
+# Changing engine or engine_version requires also changing any relevant uses of
+# aws_db_parameter_group, which has a family attribute that tightly couples its
+# parameter to the engine and version.
+
+variable "rds_engine" {
+  default = "postgres"
+}
+
+variable "rds_engine_version" {
+  default = "13.3"
+}
+
+variable "rds_engine_version_short" {
+  default = "13"
+}
+
+variable "rds_instance_class" {
+  default = "db.t3.medium"
+}
+
+variable "rds_backup_retention_period" {
+  default = "34"
+}
+
+variable "rds_backup_window" {
+  default = "08:00-08:34"
+}
+
+variable "rds_maintenance_window" {
+  default = "Sun:08:34-Sun:09:08"
+}
+
+variable "rds_password" {
+  # XXX delete once up
+  default = "nTxX9dTwrN$,F{r%6:+AFx^K6>+sp<<x"
+}
+
+variable "rds_username" {
+  default = "gitlab"
+}
+
+variable "rds_storage_type_gitlab" {
+  # possible storage types:
+  # standard (magnetic)
+  # gp2 (general SSD)
+  # io1 (provisioned IOPS SSD)
+  description = "The type of EBS storage (magnetic, SSD, PIOPS) used by the gitlab database"
+  default     = "gp2"
+}
+
+variable "rds_iops_gitlab" {
+  description = "If PIOPS storage is used, the number of IOPS provisioned"
+  default     = 0
+}
+
+variable "db1_subnet_cidr_block" { # 172.16.33.32 - 172.16.33.47
+  default = "172.16.33.32/28"
+}
+
+variable "db2_subnet_cidr_block" { # 172.16.33.48 - 172.16.33.63
+  default = "172.16.33.48/28"
+}
