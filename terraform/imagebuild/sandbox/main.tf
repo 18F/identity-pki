@@ -16,7 +16,7 @@ variable "code_branch" {
 
 module "git2s3_src" {
   #source = "../../../../identity-terraform/git2s3_artifacts"
-  source = "github.com/18F/identity-terraform//git2s3_artifacts?ref=b3e4c3a6e07e37ad95b471fbacdabb03851f1181"
+  source = "github.com/18F/identity-terraform//git2s3_artifacts?ref=4c89d0487c41812020dcb10e31ba9def60517b83"
 
   git2s3_stack_name    = "CodeSync-IdentityBaseImage"
   external_account_ids = [

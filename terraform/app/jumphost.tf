@@ -28,12 +28,12 @@ module "jumphost_user_data" {
 }
 
 module "jumphost_lifecycle_hooks" {
-  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=4c2fac72c84aa99590cc5690e04e55fc7a98872f"
+  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=4c89d0487c41812020dcb10e31ba9def60517b83"
   asg_name = aws_autoscaling_group.jumphost.name
 }
 
 module "jumphost_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=4c2fac72c84aa99590cc5690e04e55fc7a98872f"
+  source = "github.com/18F/identity-terraform//launch_template?ref=4c89d0487c41812020dcb10e31ba9def60517b83"
   #source = "../../../identity-terraform/launch_template"
   role           = "jumphost"
   env            = var.env_name

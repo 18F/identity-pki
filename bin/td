@@ -11,11 +11,11 @@ usage() {
 
 Usage: ${0} [-d TF_DIR|-e TF_ENV]  (specify command with flag below:)
 
-  -a : apply                  -f LOCK_ID    : force-unlock '\$LOCK_ID'
-  -p : plan                   -i ADDRESS ID : import \$RESOURCE_ADDRESS \$RESOURCE_ID
-  -x : destroy                -c ARGS : Runs tfplan using ARGS provided
-  -v CMD : providers '\$CMD'  -o : Use ACCOUNT-admin instead of ACCOUNT-terraform   
-  -s CMD : state '\$CMD'      -h : Display help 
+  -a : apply                 -f LOCK_ID    : force-unlock '\$LOCK_ID'
+  -p : plan                  -i ADDRESS ID : import \$RESOURCE_ADDRESS \$RESOURCE_ID
+  -x : destroy               -c ARGS : Runs tfplan using ARGS provided
+  -v CMD : providers <CMD>   -o : Use ACCOUNT-admin instead of ACCOUNT-terraform   
+  -s CMD : state <CMD>       -h : Display help 
 
 EOM
 }
@@ -84,7 +84,8 @@ do
     t) RUN_FLAG+="-t "             ;;
     l) RUN_FLAG+="-l "             ;;
     z) RUN_FLAG+="-z "             ;;
-    h|*) man_page && exit 0           ;;
+    h) man_page && exit 0          ;;
+    *) usage && exit 1             ;;
   esac
 done
 shift $((OPTIND-1))
