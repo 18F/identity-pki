@@ -51,13 +51,18 @@ remote_file "Copy key" do
   mode 0600
 end
 
+db_password = ConfigLoader.load_config(node, "gitlab_db_password", common: false).chomp!
+db_host = ConfigLoader.load_config(node, "gitlab_db_host", common: false).chomp!
+
 template '/etc/gitlab/gitlab.rb' do
     source 'gitlab.rb.erb'
     owner 'root'
     group 'root'
-    mode '0644'
+    mode '0600'
     variables ({
-        external_url: external_url
+        external_url: external_url,
+        db_password: db_password,
+        db_host: db_host
     })
     notifies :run, 'execute[reconfigure_gitlab]', :delayed
 end
@@ -65,4 +70,12 @@ end
 execute 'reconfigure_gitlab' do
   command '/usr/bin/gitlab-ctl reconfigure'
   action :nothing
+end
+
+remote_file "rds_ca_bundle" do
+  path "/etc/gitlab/ssl/rds_ca_bundle.pem"
+  source "https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem"
+  owner 'root'
+  group 'root'
+  mode 0644
 end
