@@ -21,7 +21,7 @@ resource "aws_elb" "gitlab" {
   }
 
   health_check {
-    target              = "HTTPS:443/health_check"
+    target              = "HTTPS:443/-/health"
     healthy_threshold   = 3
     unhealthy_threshold = 3
     interval            = 10
