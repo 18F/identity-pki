@@ -274,8 +274,6 @@ variable "rds_maintenance_window" {
 }
 
 variable "rds_password" {
-  # XXX delete once up
-  default = "nTxX9dTwrN$,F{r%6:+AFx^K6>+sp<<x"
 }
 
 variable "rds_username" {
