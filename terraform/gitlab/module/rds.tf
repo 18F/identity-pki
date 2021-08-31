@@ -52,6 +52,10 @@ resource "aws_db_instance" "gitlab" {
   deletion_protection = true
 }
 
+output "gitlab_db_endpoint" {
+  value = aws_db_instance.gitlab.endpoint
+}
+
 module "gitlab_rds_usw2" {
   source = "../../modules/idp_rds"
   providers = {

@@ -274,6 +274,7 @@ variable "rds_maintenance_window" {
 }
 
 variable "rds_password" {
+  default = ""
 }
 
 variable "rds_username" {
