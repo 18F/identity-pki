@@ -2,10 +2,6 @@ locals {
   web_acl_name = "${var.env}-idp-waf"
 }
 
-data "aws_caller_identity" "current" {}
-
-data "aws_partition" "current" {}
-
 variable "region" {
   description = "AWS Region"
   default     = "us-west-2"
