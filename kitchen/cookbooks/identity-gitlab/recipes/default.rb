@@ -43,6 +43,7 @@ remote_file "Copy cert" do
   group 'root'
   mode 0644
 end
+
 remote_file "Copy key" do 
   path "/etc/gitlab/ssl/#{external_fqdn}.key"
   source "file:///etc/ssl/private/server.key"
