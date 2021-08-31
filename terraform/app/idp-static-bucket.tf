@@ -56,7 +56,7 @@ resource "aws_s3_bucket" "idp_static_bucket" {
 
 module "idp_static_bucket_config" {
   count  = var.enable_idp_static_bucket ? 1 : 0
-  source = "github.com/18F/identity-terraform//s3_config?ref=4c89d0487c41812020dcb10e31ba9def60517b83"
+  source = "github.com/18F/identity-terraform//s3_config?ref=da46bc0d5442ac1b6403d48ed5d022aa88530e39"
 
   bucket_name_override = aws_s3_bucket.idp_static_bucket[0].id
   region               = var.region

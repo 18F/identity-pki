@@ -28,7 +28,7 @@ resource "aws_alb_listener" "app" {
 # Create a TLS certificate with ACM
 module "acm-cert-apps-combined" {
   count  = var.apps_enabled
-  source = "github.com/18F/identity-terraform//acm_certificate?ref=4c89d0487c41812020dcb10e31ba9def60517b83"
+  source = "github.com/18F/identity-terraform//acm_certificate?ref=da46bc0d5442ac1b6403d48ed5d022aa88530e39"
   #source = "../../../identity-terraform/acm_certificate"
 
   domain_name = "sp.${var.env_name}.${var.root_domain}"
