@@ -232,7 +232,7 @@ external_url '<%= @external_url %>'
 
 ### Monitoring settings
 ###! IP whitelist controlling access to monitoring endpoints
-# gitlab_rails['monitoring_whitelist'] = ['127.0.0.0/8', '::1/128']
+gitlab_rails['monitoring_whitelist'] = ['172.16.0.0/12', '::1/128']
 
 ### Shutdown settings
 ###! Defines an interval to block healthcheck,
