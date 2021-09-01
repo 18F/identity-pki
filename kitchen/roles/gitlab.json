@@ -1,0 +1,24 @@
+{
+  "name": "gitlab",
+  "description": "",
+  "json_class": "Chef::Role",
+  "default_attributes": {
+  },
+  "override_attributes": {
+    "identity-jumphost": {
+      "retrieve-ssh-host-keys": false,
+      "loadtest": {
+        "enabled": false
+      }
+    }
+  },
+  "chef_type": "role",
+  "run_list": [
+    "role[base]",
+    "recipe[login_dot_gov::static_eip]",
+    "recipe[login_dot_gov::common_scripts]",
+    "recipe[identity-gitlab]"
+  ],
+  "env_run_lists": {
+  }
+}
