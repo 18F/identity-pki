@@ -66,7 +66,6 @@ module "gitlab_rds_usw2" {
   name = var.name
   rds_engine = var.rds_engine
   rds_engine_version = var.rds_engine_version
-  rds_engine_version_short = var.rds_engine_version_short
 }
 
 resource "aws_db_subnet_group" "gitlab" {

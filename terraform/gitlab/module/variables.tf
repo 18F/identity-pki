@@ -253,10 +253,6 @@ variable "rds_engine_version" {
   default = "13.3"
 }
 
-variable "rds_engine_version_short" {
-  default = "13"
-}
-
 variable "rds_instance_class" {
   default = "db.t3.medium"
 }
