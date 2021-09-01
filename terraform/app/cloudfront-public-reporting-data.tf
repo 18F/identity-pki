@@ -1,6 +1,6 @@
 # Create a TLS certificate with ACM
 module "acm-cert-public-reporting-data-cdn" {
-  source = "github.com/18F/identity-terraform//acm_certificate?ref=21a2ce16cf1dbf85822c9005d72f8d17cb9dbe4b"
+  source = "github.com/18F/identity-terraform//acm_certificate?ref=af60fa023799d7f14c9f0f78ebaeb0bb6b2d7b5c"
   providers = {
     aws = aws.use1
   }
@@ -26,7 +26,7 @@ resource "aws_cloudfront_distribution" "public_reporting_data_cdn" {
 
   enabled         = true
   is_ipv6_enabled = true
-  aliases         = list("public-reporting-data.${var.env_name}.${var.root_domain}")
+  aliases         = ["public-reporting-data.${var.env_name}.${var.root_domain}"]
 
   # Throwaway default
   default_root_object = "/index.html"

@@ -29,12 +29,12 @@ module "gitlab_user_data" {
 }
 
 module "gitlab_lifecycle_hooks" {
-  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=476ab4456e547e125dcd53cb6131419b54f1f476"
+  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=af60fa023799d7f14c9f0f78ebaeb0bb6b2d7b5c"
   asg_name = aws_autoscaling_group.gitlab.name
 }
 
 module "gitlab_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=6a7ba69828a2507cf1fcaa225a1df8f501321929"
+  source = "github.com/18F/identity-terraform//launch_template?ref=af60fa023799d7f14c9f0f78ebaeb0bb6b2d7b5c"
   #source = "../../../identity-terraform/launch_template"
   role           = "gitlab"
   env            = var.env_name

@@ -54,7 +54,7 @@ resource "aws_s3_bucket" "public_reporting_data" {
 }
 
 module "public_reporting_data_config" {
-  source = "github.com/18F/identity-terraform//s3_config?ref=36ecdc74c3436585568fab7abddb3336cec35d93"
+  source = "github.com/18F/identity-terraform//s3_config?ref=af60fa023799d7f14c9f0f78ebaeb0bb6b2d7b5c"
 
   bucket_name_override = aws_s3_bucket.public_reporting_data.id
   region               = var.region

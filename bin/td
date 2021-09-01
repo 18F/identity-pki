@@ -108,6 +108,8 @@ else
   if [[ ${TF_DIR} == 'master' ]] ; then
     TF_ENV='global'
     TF_PROFILE='master'
+  elif [[ ${TF_DIR} == 'gitlab' ]] ; then
+    TF_PROFILE='tooling'
   elif [[ ${TF_DIR} == 'sms' ]] ; then
     TF_PROFILE=$(echo "sms-${TF_ENV}" | sed -E 's/-east//')
   elif [[ -z $(find "${GIT_DIR}/terraform/" -type d -maxdepth 1 -name "${TF_DIR}") ]] ; then
