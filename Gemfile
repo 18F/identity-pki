@@ -14,7 +14,7 @@ gem 'rest-client', '~> 2.0'
 
 gem 'semantic'
 gem 'subprocess'
-gem 'terminal-table', '~> 1.8'
+gem 'terminal-table', '~> 3.0'
 gem 'thor', '~> 0.19'
 gem 'tty-prompt', '~> 0.14'
 

@@ -5,6 +5,7 @@ require 'optparse'
 
 Dir.chdir(File.dirname(__FILE__)) { require 'bundler/setup' }
 require_relative '../lib/cloudlib'
+require_relative '../lib/cloudlib/monitor_deploy'
 
 def log
   Cloudlib.cli_log
@@ -15,6 +16,7 @@ def main
   skip_migration = false
   skip_idpxtra = false
   skip_worker = false
+  monitor = false
 
   basename = File.basename($0)
 
@@ -71,8 +73,11 @@ For example:
     # a migration instance spun up prior to idp spin up
     #{basename} int ALL
 
-    # recycle a migration instance up and then down to recycle config
+    # Recycle a migration instance up and then down to recycle config
     #{basename} int migration
+
+    # Recycle IDP instances and then monitor deploy
+    # #{basename} prod idp --monitor
 
     EOM
 
@@ -114,6 +119,10 @@ For example:
 
     opts.on('-X', '--skip-idpxtra', 'Do not include IDPXtra in IDP role recycle') do
       skip_idpxtra = true
+    end
+
+    opts.on('-m', '--monitor', 'Monitor deploy after recycle') do
+      monitor = true
     end
 
     opts.on('--delay-for-migration SEC',
@@ -174,6 +183,11 @@ For example:
     end
 
     puts as.pastel.bold.blue('Done! Watch #login-events / #login-otherevents for abandoned/failed launches')
+
+    # This is an infinite loop so it must go last
+    if monitor
+      Cloudlib::MonitorDeploy.get_and_monitor_deploys(env: env, role: role)
+    end
   end
 end
 
