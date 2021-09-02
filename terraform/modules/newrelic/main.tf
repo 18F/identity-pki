@@ -7,7 +7,7 @@ terraform {
       version = ">= 2.21.0"
     }
   }
-  required_version = ">= 1.0.2"
+  required_version = ">= 0.13.7"
 }
 
 # NOTE:  these s3 objects need to be uploaded with --content-type text/plain

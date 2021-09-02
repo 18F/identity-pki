@@ -116,7 +116,7 @@ fi
 if [[ ! -d ${GIT_DIR}/terraform/${TF_DIR} ]] ; then
   raise "terraform/${TF_DIR} not found"
 elif [[ ! -d ${GIT_DIR}/terraform/${TF_DIR}/${TF_ENV} ]] ; then
-  raise "terraform/${TF_DIR}/${TF_ENV} not found"
+  [[ ${TF_DIR} == "app" ]] || raise "terraform/${TF_DIR}/${TF_ENV} not found"
 fi
 
 case ${TF_DIR} in
