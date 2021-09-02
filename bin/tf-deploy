@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+trap remove_local_lockfile EXIT
+
 # function to exit process with error message
 die() { echo_red "$*" >&2 ; exit 1; }
 
@@ -174,6 +176,13 @@ while [ $# -gt 0 ] && [[ $1 == -* ]]; do
     esac
     shift
 done
+
+remove_local_lockfile(){
+    if [ "${LOCAL_LOCKFILE}" == 0 ] ; then
+        cd "${repo_root_before_cd}"
+        rm "terraform/${TF_DIR_FULL}/.terraform.lock.hcl"
+    fi
+}
 
 # This is a bit of a mess since we handle both old identity-devops-private
 # style config and new module-style config. Once we deprecate the former, we can
@@ -639,11 +648,6 @@ if run terraform "${TF_CMD[@]}" >&3 ; then
     DEPLOY_FAIL='false'
 else
     DEPLOY_FAIL='true'
-fi
-
-# remove copy of .terraform.lock.hcl after completing operation
-if [ "${LOCAL_LOCKFILE}" == 0 ] ; then
-    rm .terraform.lock.hcl
 fi
 
 # if running apply or destroy, notify success/fail in Slack
