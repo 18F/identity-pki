@@ -1,6 +1,6 @@
 # Create a TLS certificate with ACM
 module "acm-cert-public-reporting-data-cdn" {
-  source = "github.com/18F/identity-terraform//acm_certificate?ref=91eadab865ca59a2998387681ca83ac401b7c352"
+  source = "github.com/18F/identity-terraform//acm_certificate?ref=8f0abe0e3708e2c1ef1c1653ae2b57b378bf8dbf"
   providers = {
     aws = aws.use1
   }

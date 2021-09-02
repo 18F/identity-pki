@@ -1,5 +1,5 @@
 module "infra-functions" {
-  source = "github.com/18F/identity-terraform//lambda_pipeline?ref=91eadab865ca59a2998387681ca83ac401b7c352"
+  source = "github.com/18F/identity-terraform//lambda_pipeline?ref=8f0abe0e3708e2c1ef1c1653ae2b57b378bf8dbf"
   #source = "../../../identity-terraform/lambda_pipeline"
 
   region                            = var.region

@@ -1,5 +1,5 @@
 module "billing-assumerole" {
-  source = "github.com/18F/identity-terraform//iam_assumerole?ref=91eadab865ca59a2998387681ca83ac401b7c352"
+  source = "github.com/18F/identity-terraform//iam_assumerole?ref=8f0abe0e3708e2c1ef1c1653ae2b57b378bf8dbf"
 
   role_name                = "BillingReadOnly"
   enabled                  = lookup(

@@ -261,7 +261,7 @@ resource "aws_security_group" "scrubhost" {
 }
 
 module "scrubhost_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=91eadab865ca59a2998387681ca83ac401b7c352"
+  source = "github.com/18F/identity-terraform//launch_template?ref=8f0abe0e3708e2c1ef1c1653ae2b57b378bf8dbf"
 
   role           = "scrubhost"
   env            = var.env_name
