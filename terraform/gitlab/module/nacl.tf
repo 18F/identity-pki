@@ -170,3 +170,15 @@ resource "aws_network_acl_rule" "gitlab-ingress-https" {
   rule_action    = "allow"
   cidr_block     = var.vpc_cidr_block
 }
+
+# TODO: Move the ELB to its own subnets
+resource "aws_network_acl_rule" "elb-ingress-https" {
+  network_acl_id = aws_network_acl.gitlab.id
+  egress         = false
+  from_port      = 443
+  to_port        = 443
+  protocol       = "tcp"
+  rule_number    = 46
+  rule_action    = "allow"
+  cidr_block     = var.allowed_gitlab_cidr_blocks_v4.0
+}
