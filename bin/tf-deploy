@@ -564,21 +564,14 @@ else
     style_option="--shared-style"
 fi
 
-if [ "${LOCAL_LOCKFILE}" == 1 ] && [ -L "terraform/${TF_DIR_FULL}/.terraform.lock.hcl" ] ; then
-    echo_yellow >&2 "A symlink to the repo-root provider lock file already exists in ${TF_DIR_FULL}"
-    if prompt_yn "Overwrite with a new .terraform.lock.hcl file?"; then
-        rm "terraform/${TF_DIR_FULL}/.terraform.lock.hcl"
-    else
-        LOCAL_LOCKFILE=0
-    fi
-fi
-
-if [ "${LOCAL_LOCKFILE}" == 0 ] && [ ! -L "terraform/${TF_DIR_FULL}/.terraform.lock.hcl" ] ; then
-    echo_yellow >&2 "The provider lock file in ${TF_DIR_FULL} is not a symlink to the repo-root file."
-    if prompt_yn "Replace with symlink to repo-root .terraform.lock.hcl file?"; then
-        rm "terraform/${TF_DIR_FULL}/.terraform.lock.hcl"
-    else
-        LOCAL_LOCKFILE=1
+if [ "${LOCAL_LOCKFILE}" == 1 ] ; then
+    if [ -L "terraform/${TF_DIR_FULL}/.terraform.lock.hcl" ] ; then
+        echo_yellow >&2 "A symlink to the repo-root provider lock file already exists in ${TF_DIR_FULL}"
+        if prompt_yn "Create a new .terraform.lock.hcl file?"; then
+            rm "terraform/${TF_DIR_FULL}/.terraform.lock.hcl"
+        else
+            LOCAL_LOCKFILE=0
+        fi
     fi
 fi
 

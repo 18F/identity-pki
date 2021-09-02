@@ -3,7 +3,7 @@
 
 provider "registry.terraform.io/hashicorp/aws" {
   version     = "3.52.0"
-  constraints = "~> 3.52.0"
+  constraints = ">= 3.52.0"
   hashes = [
     "h1:Fy/potyWfS8NVumHqWi6STgaQUX66diUmgZDfFNBeXU=",
     "zh:04a4f8a1b34292fd6a72c1efe03f6f10186ecbdc318df36d462d0be1c21ce72d",
@@ -22,7 +22,7 @@ provider "registry.terraform.io/hashicorp/aws" {
 
 provider "registry.terraform.io/hashicorp/external" {
   version     = "2.1.0"
-  constraints = "~> 2.1.0"
+  constraints = ">= 2.1.0"
   hashes = [
     "h1:LTl5CGW8wiIEe16AC4MtXN/95xWWNDbap70zJsBTk0w=",
     "zh:0d83ffb72fbd08986378204a7373d8c43b127049096eaf2765bfdd6b00ad9853",
@@ -41,7 +41,7 @@ provider "registry.terraform.io/hashicorp/external" {
 
 provider "registry.terraform.io/hashicorp/null" {
   version     = "3.1.0"
-  constraints = "~> 3.1.0"
+  constraints = ">= 3.1.0"
   hashes = [
     "h1:xhbHC6in3nQryvTQBWKxebi3inG5OCgHgc4fRxL0ymc=",
     "zh:02a1675fd8de126a00460942aaae242e65ca3380b5bb192e8773ef3da9073fd2",
@@ -60,7 +60,7 @@ provider "registry.terraform.io/hashicorp/null" {
 
 provider "registry.terraform.io/hashicorp/template" {
   version     = "2.2.0"
-  constraints = "~> 2.2.0"
+  constraints = ">= 2.2.0"
   hashes = [
     "h1:0wlehNaxBX7GJQnPfQwTNvvAf38Jm0Nv7ssKGMaG6Og=",
     "zh:01702196f0a0492ec07917db7aaa595843d8f171dc195f4c988d2ffca2a06386",
@@ -78,7 +78,7 @@ provider "registry.terraform.io/hashicorp/template" {
 
 provider "registry.terraform.io/integrations/github" {
   version     = "4.13.0"
-  constraints = "~> 4.13.0"
+  constraints = ">= 4.13.0"
   hashes = [
     "h1:R873oiMWoTrzio/Dyhf/r8BwJ/KPc1FkYdRBu6ffrO4=",
     "zh:21d2761fa1e302fb79661f6692258a41ff9ce2c9c324dce4f7c661325afc6b37",
@@ -99,7 +99,7 @@ provider "registry.terraform.io/integrations/github" {
 
 provider "registry.terraform.io/newrelic/newrelic" {
   version     = "2.24.1"
-  constraints = ">= 2.21.0, ~> 2.24.1"
+  constraints = ">= 2.24.1"
   hashes = [
     "h1:/6GJjGiAhXEIJNDxKKagxntFTTW7jtnDWRNm4tkt2O4=",
     "zh:07e2a93fc666e31dc990b60b8bd5b7ad3676f10d70b1bbee763e8d542cc64691",
@@ -123,7 +123,7 @@ provider "registry.terraform.io/newrelic/newrelic" {
 
 provider "registry.terraform.io/hashicorp/archive" {
   version     = "2.2.0"
-  constraints = "~> 2.2.0"
+  constraints = ">= 2.2.0"
   hashes = [
     "h1:2K5LQkuWRS2YN1/YoNaHn9MAzjuTX8Gaqy6i8Mbfv8Y=",
     "zh:06bd875932288f235c16e2237142b493c2c2b6aba0e82e8c85068332a8d2a29e",
