@@ -13,7 +13,7 @@ module "s3_config_ue1" {
   source = "github.com/18F/identity-terraform//state_bucket?ref=af60fa023799d7f14c9f0f78ebaeb0bb6b2d7b5c"
   #source = "../../../../identity-terraform/state_bucket"
   providers = {
-    aws = aws.us-east-1
+    aws = aws.use1
   }
 
   remote_state_enabled = 0
@@ -26,7 +26,7 @@ module "s3_inventory_ue1" {
   source    = "github.com/18F/identity-terraform//s3_batch_inventory?ref=af60fa023799d7f14c9f0f78ebaeb0bb6b2d7b5c"
   #source   = "../../../../identity-terraform/s3_batch_inventory"
   providers = {
-    aws = aws.us-east-1
+    aws = aws.use1
   }
 
   bucket_list          = var.bucket_list_ue1

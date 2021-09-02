@@ -10,7 +10,7 @@ module "ses_east_1" {
   source = "github.com/18F/identity-terraform//ses_dkim_r53?ref=af60fa023799d7f14c9f0f78ebaeb0bb6b2d7b5c"
   #source = "../../../../identity-terraform/ses_dkim_r53"
   providers = {
-    aws = aws.us-east-1
+    aws = aws.use1
   }
 
   domain = var.root_domain

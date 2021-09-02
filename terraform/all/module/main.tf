@@ -1,31 +1,3 @@
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 3.52.0"
-    }
-    archive = {
-      source  = "hashicorp/archive"
-      version = "~> 2.2.0"
-    }
-  }
-  required_version = ">= 1.0.2"
-}
-
-provider "aws" {
-  region = var.region
-}
-
-provider "aws" {
-  region = "us-west-2"
-  alias  = "usw2"
-}
-
-provider "aws" {
-  region = "us-east-1"
-  alias  = "use1"
-}
-
 resource "aws_iam_account_alias" "standard_alias" {
   account_alias = var.iam_account_alias
 }

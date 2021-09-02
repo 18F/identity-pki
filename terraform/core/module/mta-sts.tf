@@ -8,7 +8,7 @@ module "acm-cert-mta-sts-cdn" {
   #source = "../../../../identity-terraform//acm_certificate"
   source = "github.com/18F/identity-terraform//acm_certificate?ref=af60fa023799d7f14c9f0f78ebaeb0bb6b2d7b5c"
   providers = {
-    aws = aws.us-east-1
+    aws = aws.use1
   }
 
   domain_name        = "mta-sts.${var.root_domain}"
