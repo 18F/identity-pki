@@ -18,6 +18,21 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+gitaly_ebs_volume = ConfigLoader.load_config(node, "gitaly_ebs_volume", common: false).chomp!
+
+aws_ebs_volume 'gitaly' do
+  volume_id gitaly_ebs_volume
+  device '/dev/sdi'
+  action :attach
+end
+
+filesystem 'gitaly' do
+  fstype "ext4"
+  device "/dev/sdi"
+  mount "/var/opt/gitlab/git-data"
+  action [:create, :enable, :mount]
+end
+
 package 'postfix'
 package 'openssh-server'
 package 'ca-certificates'

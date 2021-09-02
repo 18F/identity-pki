@@ -2,6 +2,7 @@ DEPENDENCIES
   apache2 (~> 5.2)
   application_ruby (~> 4.0.1)
   apt (~> 7.0)
+  aws (~> 9.0.0)
   aws_metadata
     git: https://github.com/18F/identity-cookbooks
     revision: c92b5ebf8a4280bb6f72f482d0074dc4d7666b46
@@ -30,8 +31,11 @@ DEPENDENCIES
     ref: c92b5eb
     rel: config_loader
   deploy_resource (~> 1.0)
+  filesystem (~> 3.0.5)
   git
   hostname
+  identity-gitlab
+    path: kitchen/cookbooks/identity-gitlab
   identity-jumphost
     path: kitchen/cookbooks/identity-jumphost
   identity-monitoring
@@ -93,6 +97,7 @@ GRAPH
     poise-ruby (~> 2.1)
     poise-service (~> 1.0)
   apt (7.4.0)
+  aws (9.0.0)
   aws_metadata (0.3.0)
   aws_s3 (0.2.0)
     aws_metadata (>= 0.0.0)
@@ -111,10 +116,14 @@ GRAPH
     aws_metadata (>= 0.0.0)
     citadel_fork (>= 0.0.0)
   deploy_resource (1.0.3)
+  filesystem (3.0.5)
+    lvm (>= 1.1)
   git (10.1.0)
   hostname (0.4.2)
     hostsfile (>= 0.0.0)
   hostsfile (3.0.1)
+  identity-gitlab (0.0.3)
+    config_loader (>= 0.0.0)
   identity-jumphost (0.1.2)
     login_dot_gov (>= 0.0.0)
     squid (~> 4.0)
@@ -149,6 +158,7 @@ GRAPH
     static_eip (>= 0.2.0)
     sudo (>= 0.0.1)
     users (>= 0.0.1)
+  lvm (5.0.7)
   mingw (2.1.1)
     seven_zip (>= 0.0.0)
   monit (1.0.0)

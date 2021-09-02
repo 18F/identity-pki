@@ -20,6 +20,8 @@ cookbook 'apache2', '~> 5.2'
 cookbook 'runit', '~>5.1.3'
 cookbook 'ossec', '~> 1.2.0', git: 'https://github.com/sous-chefs/ossec'
 cookbook 'seven_zip', '~3.2.0' #can remove version constraint after upgrading chef to v16
+cookbook 'aws', '~> 9.0.0'
+cookbook 'filesystem', '~> 3.0.5'
 
 # This is a super wacky hack to allow us to symlink this Berksfile into the
 # various nodes/*/ directories. It feels like there ought to be a better way to
