@@ -24,9 +24,5 @@ Vagrantfile
 # new-style subdir .terraform dirs
 /terraform/*/*/.terraform/
 
-# local .terraform.lock.hcl files
-/terraform/*/.terraform.lock.hcl
-/terraform/*/*/.terraform.lock.hcl
-
 /nodes/*/Gemfile.lock
 /nodes/*/Berksfile.lock
