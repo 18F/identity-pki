@@ -1,0 +1,62 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'optparse'
+
+Dir.chdir(File.dirname(__FILE__)) { require 'bundler/setup' }
+require_relative '../lib/cloudlib'
+require_relative '../lib/cloudlib/monitor_deploy'
+
+def main
+  basename = File.basename($0)
+
+  optparse = OptionParser.new do |opts|
+    opts.banner = <<-EOM
+usage: #{basename} [OPTIONS] ENVIRONMENT ROLE
+
+Monitor an ongoing deploy by repeatedly querying CloudWatch.
+
+By default, will do an infinite loop waiting until two unique deploy SHAs are in CloudWatch logs.
+Once at least two SHAs are identified, the script will infinitely loop querying the error rate
+of both SHAs for comparison. To exit at any point, press Ctrl + C.
+
+For example:
+
+    # starts monitoring for idp deploys in int
+    #{basename} int idp
+    EOM
+
+    opts.on('-h', '--help', 'Display this message') do
+      STDERR.puts opts
+      exit
+    end
+
+    opts.on('-v', '--verbose', 'Be more verbose') do
+      Cloudlib.log_level -= 1 if Cloudlib.log_level > 0
+    end
+
+    opts.on('-q', '--quiet', 'Be quieter (can pass multiple times)') do
+      Cloudlib.log_level += 1
+    end
+  end
+
+  args = optparse.parse!
+
+  if args.length == 2
+    env, role = args
+  else
+    STDERR.puts optparse
+    exit 1
+  end
+
+  Cloudlib::MonitorDeploy.get_and_monitor_deploys(env: env, role: role)
+end
+
+if __FILE__ == $0
+  begin
+    main
+  rescue TTY::Reader::InputInterrupt
+    STDERR.puts 'OK, aborted'
+    exit 2
+  end
+end
