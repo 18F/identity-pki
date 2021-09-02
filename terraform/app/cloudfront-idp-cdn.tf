@@ -5,7 +5,7 @@ data "aws_sns_topic" "cloudfront_alarm" {
 # Create a TLS certificate with ACM
 module "acm-cert-idp-static-cdn" {
   count     = var.enable_idp_cdn ? 1 : 0
-  source    = "github.com/18F/identity-terraform//acm_certificate?ref=8f0abe0e3708e2c1ef1c1653ae2b57b378bf8dbf"
+  source    = "github.com/18F/identity-terraform//acm_certificate?ref=9caa801ce247fa38e0ef21ef37f8ce135e8372c1"
   #source = "../../../identity-terraform/acm_certificate"
   providers = {
     aws = aws.use1

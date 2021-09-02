@@ -1,1 +1,1 @@
-/Users/jonathanmpirro/GitHub/18F/identity-devops/versions.tf
+../../../versions.tf

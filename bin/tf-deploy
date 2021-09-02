@@ -178,9 +178,9 @@ while [ $# -gt 0 ] && [[ $1 == -* ]]; do
 done
 
 remove_local_lockfile(){
-    if [ "${LOCAL_LOCKFILE}" == 0 ] ; then
-        cd "${repo_root_before_cd}"
-        rm "terraform/${TF_DIR_FULL}/.terraform.lock.hcl"
+    local TF_LOCK_FILE="${repo_root_before_cd}/terraform/${TF_DIR_FULL}/.terraform.lock.hcl"
+    if [ -f ${TF_LOCK_FILE} ] && [ "${LOCAL_LOCKFILE}" == 0 ] ; then
+        rm "${TF_LOCK_FILE}"
     fi
 }
 
