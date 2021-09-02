@@ -573,7 +573,7 @@ if [ "${LOCAL_LOCKFILE}" == 1 ] && [ -L "terraform/${TF_DIR_FULL}/.terraform.loc
     fi
 fi
 
-if [ "${LOCAL_LOCKFILE}" == 0 ] && [ -f "terraform/${TF_DIR_FULL}/.terraform.lock.hcl" ] ; then
+if [ "${LOCAL_LOCKFILE}" == 0 ] && [ ! -L "terraform/${TF_DIR_FULL}/.terraform.lock.hcl" ] ; then
     echo_yellow >&2 "The provider lock file in ${TF_DIR_FULL} is not a symlink to the repo-root file."
     if prompt_yn "Replace with symlink to repo-root .terraform.lock.hcl file?"; then
         rm "terraform/${TF_DIR_FULL}/.terraform.lock.hcl"
