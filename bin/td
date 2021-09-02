@@ -9,11 +9,12 @@ set -euo pipefail
 usage() {
     cat >&2 << EOM
 
-Usage: ${0} [-d TF_DIR|-e TF_ENV]  (specify command with flag below:)
+Usage: ${0} [-d TF_DIR|-e TF_ENV] CMD
+ (or specify command with flag below:)
 
-  -a : apply                 -f LOCK_ID    : force-unlock '\$LOCK_ID'
+  -a : apply                 -f LOCK_ID : force-unlock '\$LOCK_ID'
   -p : plan                  -i ADDRESS ID : import \$RESOURCE_ADDRESS \$RESOURCE_ID
-  -x : destroy               -c ARGS : Runs tfplan using ARGS provided
+  -x : destroy               -c ARGS : bin/tfplan ARGS
   -v CMD : providers <CMD>   -o : Use ACCOUNT-admin instead of ACCOUNT-terraform   
   -s CMD : state <CMD>       -h : Display help 
 
@@ -90,44 +91,60 @@ do
 done
 shift $((OPTIND-1))
 
-[[ -z ${TF_CMD} ]] && raise 'TF_CMD not specified'
-[[ -z ${TF_DIR} ]] && TF_DIR='app'
-if [[ -z ${TF_ENV} ]] ; then
-  if [[ ${TF_DIR} == 'app' ]] ; then
-    TF_ENV=${GSA_USERNAME}
+if [[ -z ${TF_CMD} ]] ; then
+  if [[ -z "$@" ]] ; then
+    raise 'TF_CMD not specified'
   else
-    TF_ENV='sandbox'
+    TF_CMD="$@"
   fi
 fi
 
-if [[ ${TF_DIR} == 'app' ]] ; then
-  [[ -z ${TF_ENV} ]] && raise 'TF_ENV and/or default of GSA_USERNAME not set or specified'
-  TF_PROFILE='sandbox'
-  [[ "${TF_ENV}" =~ (staging|dm|prod) ]] && TF_PROFILE='prod'
-else
-  if [[ ${TF_DIR} == 'master' ]] ; then
-    TF_ENV='global'
-    TF_PROFILE='master'
-  elif [[ ${TF_DIR} == 'gitlab' ]] ; then
-    TF_PROFILE='tooling'
-  elif [[ ${TF_DIR} == 'sms' ]] ; then
-    TF_PROFILE=$(echo "sms-${TF_ENV}" | sed -E 's/-east//')
-  elif [[ -z $(find "${GIT_DIR}/terraform/" -type d -maxdepth 1 -name "${TF_DIR}") ]] ; then
-    raise "${TF_DIR} not found in ${GIT_DIR}/terraform/"
-  elif [[ -z $(find "${GIT_DIR}/terraform/${TF_DIR}" -type d -maxdepth 1 -name "${TF_ENV}") ]] ; then
-    raise "${TF_ENV} not found in ${GIT_DIR}/terraform/${TF_DIR}"
-  elif [[ ! $(get_acct_num ${TF_ENV}) ]] ; then
-    TF_PROFILE='sandbox'
-    [[ "${TF_ENV}" =~ (staging|dm) ]] && TF_PROFILE='prod'
-  else
-    TF_PROFILE=${TF_ENV}
-  fi
+[[ -z ${TF_DIR} ]] && TF_DIR='app'
+
+# default TF_ENV, if left blank
+if [[ -z ${TF_ENV} ]] ; then
+  case ${TF_DIR} in
+    app|risc_notification|waf) TF_ENV=${GSA_USERNAME} ;;
+    gitlab) TF_ENV='alpha'                            ;;
+    tooling) TF_ENV='tooling'                         ;;
+    master) TF_ENV='global'                           ;;
+    *) TF_ENV='sandbox'                               ;;
+  esac
 fi
+
+# verify DIR/ENV pair exists
+if [[ ! -d ${GIT_DIR}/terraform/${TF_DIR} ]] ; then
+  raise "terraform/${TF_DIR} not found"
+elif [[ ! -d ${GIT_DIR}/terraform/${TF_DIR}/${TF_ENV} ]] ; then
+  raise "terraform/${TF_DIR}/${TF_ENV} not found"
+fi
+
+case ${TF_DIR} in
+  app|risc_notification|waf)
+    TF_PROFILE='sandbox'
+    if [[ -z ${TF_ENV} ]] ; then
+      raise 'TF_ENV and/or default of GSA_USERNAME not set or specified'
+    elif [[ "${TF_ENV}" =~ (staging|dm|prod) ]] ; then
+      TF_PROFILE='prod'
+    fi
+  ;;
+  master) TF_PROFILE='master'  ;;
+  gitlab) TF_PROFILE='tooling' ;;
+  sms) TF_PROFILE=$(echo "sms-${TF_ENV}" |
+        sed -E 's/-east//')
+  ;;
+  *) TF_PROFILE=${TF_ENV} ;;
+esac
+
 get_arn_role ${TF_PROFILE} ${TF_ROLE}
 
 ARGS="$@"
-if [[ ! -z ${ARGS} ]] && [[ "${TF_CMD}" =~ ^(tfplan|apply|plan|destroy)$ ]] ; then
-  ARGS=$(echo " $@" | sed 's/ /&-/g' | sed "s/-'/'/g;s/'//g")
+if [[ ! -z ${ARGS} ]] ; then
+  if [[ "${TF_CMD}" == "${ARGS}" ]] ; then
+    ARGS=
+  elif [[ "${TF_CMD}" =~ ^(tfplan|apply|plan|destroy)$ ]] ; then
+    ARGS=$(echo " $@" | sed 's/ /&-/g' | sed "s/-'/'/g;s/'//g")
+  fi
 fi
 
 if [[ ${TF_CMD} == 'tfplan' ]] ; then
