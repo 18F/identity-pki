@@ -20,6 +20,8 @@
 
 gitaly_ebs_volume = ConfigLoader.load_config(node, "gitaly_ebs_volume", common: false).chomp!
 
+include_recipe 'aws'
+
 aws_ebs_volume 'gitaly' do
   volume_id gitaly_ebs_volume
   device '/dev/sdi'
