@@ -1,5 +1,5 @@
 module "analytics-assumerole" {
-  source = "github.com/18F/identity-terraform//iam_assumerole?ref=fe5cedbab370a69079261adb5e0ff1f7cd51acf8"
+  source = "github.com/18F/identity-terraform//iam_assumerole?ref=b68c41068a53acbb981eeb37e1eb0a36a6487ac7"
 
   role_name                = "Analytics"
   enabled                  = lookup(

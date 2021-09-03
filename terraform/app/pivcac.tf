@@ -28,7 +28,7 @@ module "pivcac_user_data" {
 }
 
 module "pivcac_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=fe5cedbab370a69079261adb5e0ff1f7cd51acf8"
+  source = "github.com/18F/identity-terraform//launch_template?ref=b68c41068a53acbb981eeb37e1eb0a36a6487ac7"
   #source = "../../../identity-terraform/launch_template"
   role           = "pivcac"
   env            = var.env_name
@@ -49,13 +49,13 @@ module "pivcac_launch_template" {
 }
 
 module "pivcac_lifecycle_hooks" {
-  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=fe5cedbab370a69079261adb5e0ff1f7cd51acf8"
+  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=b68c41068a53acbb981eeb37e1eb0a36a6487ac7"
   asg_name = element(concat(aws_autoscaling_group.pivcac.*.name, [""]), 0)
   enabled  = var.pivcac_service_enabled
 }
 
 module "pivcac_recycle" {
-  source = "github.com/18F/identity-terraform//asg_recycle?ref=fe5cedbab370a69079261adb5e0ff1f7cd51acf8"
+  source = "github.com/18F/identity-terraform//asg_recycle?ref=b68c41068a53acbb981eeb37e1eb0a36a6487ac7"
 
   # switch to count when that's a thing that we can do
   # https://github.com/hashicorp/terraform/issues/953
@@ -269,7 +269,7 @@ resource "aws_s3_bucket" "pivcac_public_cert_bucket" {
 }
 
 module "pivcac_cert_bucket_config" {
-  source = "github.com/18F/identity-terraform//s3_config?ref=fe5cedbab370a69079261adb5e0ff1f7cd51acf8"
+  source = "github.com/18F/identity-terraform//s3_config?ref=b68c41068a53acbb981eeb37e1eb0a36a6487ac7"
   #source = "../../../identity-terraform/s3_config"
   depends_on = [aws_s3_bucket.pivcac_cert_bucket]
 
@@ -280,7 +280,7 @@ module "pivcac_cert_bucket_config" {
 
 
 module "pivcac_public_cert_bucket_config" {
-  source = "github.com/18F/identity-terraform//s3_config?ref=fe5cedbab370a69079261adb5e0ff1f7cd51acf8"
+  source = "github.com/18F/identity-terraform//s3_config?ref=b68c41068a53acbb981eeb37e1eb0a36a6487ac7"
   #source = "../../../identity-terraform/s3_config"
   depends_on = [aws_s3_bucket.pivcac_public_cert_bucket]
 
