@@ -4,6 +4,7 @@
 locals {
   vars_files    = (var.env_name == "" ? "" : "-var-file $CODEBUILD_SRC_DIR_${local.clean_tf_dir}_${var.env_name}_private_output/vars/base.tfvars -var-file $CODEBUILD_SRC_DIR_${local.clean_tf_dir}_${var.env_name}_private_output/vars/account_global_${var.account}.tfvars -var-file $CODEBUILD_SRC_DIR_${local.clean_tf_dir}_${var.env_name}_private_output/vars/${var.env_name}.tfvars")
   envstr        = (var.env_name == "" ? "" : "the ${var.env_name} environment in ")
+  tf_top_dir    = (var.env_name == "" ? "app" : "${regex("[a-z]+/??",var.tf_dir)}/module")
   state_bucket  = "login-gov.tf-state.${var.account}-${var.state_bucket_region}"
   tf_config_key = (var.env_name == "" ? "terraform-${var.tf_dir}.tfstate" : "terraform-app/terraform-${var.env_name}.tfstate")
 }
@@ -70,6 +71,7 @@ phases:
   build:
     commands:
       - cp .terraform.lock.hcl terraform/$TF_DIR
+      - cp versions.tf terraform/${var.tf_top_dir}
       - cd terraform/$TF_DIR
       - unset AWS_PROFILE
       - export AWS_STS_REGIONAL_ENDPOINTS=regional
@@ -176,6 +178,7 @@ phases:
   build:
     commands:
       - cp .terraform.lock.hcl terraform/$TF_DIR
+      - cp versions.tf terraform/${var.tf_top_dir}
       - cd terraform/$TF_DIR
       - unset AWS_PROFILE
       - export AWS_STS_REGIONAL_ENDPOINTS=regional
