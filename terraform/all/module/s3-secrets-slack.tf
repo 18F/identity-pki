@@ -1,5 +1,5 @@
 module "tf-state" {
-  source = "github.com/18F/identity-terraform//state_bucket?ref=9caa801ce247fa38e0ef21ef37f8ce135e8372c1"
+  source = "github.com/18F/identity-terraform//state_bucket?ref=fe5cedbab370a69079261adb5e0ff1f7cd51acf8"
   #source = "../../../../identity-terraform/state_bucket"
 
   remote_state_enabled = 0
