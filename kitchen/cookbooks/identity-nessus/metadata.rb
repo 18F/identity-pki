@@ -8,3 +8,4 @@ version          '0.0.3'
 
 depends 'config_loader'
 depends 'aws'
+depends 'filesystem'

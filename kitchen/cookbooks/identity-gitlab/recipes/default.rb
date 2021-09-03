@@ -28,6 +28,8 @@ aws_ebs_volume 'gitaly' do
   action :attach
 end
 
+include_recipe 'filesystem'
+
 filesystem 'gitaly' do
   fstype "ext4"
   device "/dev/sdi"
