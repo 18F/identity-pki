@@ -70,7 +70,6 @@ check_or_create_remote_state_resources() {
   echo >&2 "+ aws s3api head-bucket --bucket $BUCKET"
   output="$(env aws s3api head-bucket --bucket "$BUCKET" 2>&1)" \
       && ret=$? || ret=$?
-      echo $ret
 
   if grep -F "Not Found" <<< "$output" >/dev/null; then
       log "$output"
@@ -135,7 +134,7 @@ while [ $# -gt 0 ] && [[ $1 == -* ]]; do
   shift
 done
 
-if [ $# -ne 5 ] ; then
+if [ $# -ne 6 ] ; then
   usage
   exit 1
 fi
@@ -145,6 +144,8 @@ STATE=$2
 TF_DIR=$3
 REGION=$4
 LOCK_TABLE=$5
+USE_LOCKFILE=$6
+TF_READ_LOCKFILE=
 
 if [ -n "$MODULE_STYLE" ]; then
   log --blue "Setting up TF state (local, module style .terraform)"
@@ -194,7 +195,16 @@ fi
 
 log --blue "Calling terraform init"
 
-terraform init \
+# by default, use the .terraform.lock.hcl
+# which is copied from the repo root, or
+# use tf-deploy -l if desiring to
+# (re)generate this file locally
+
+if [ "$USE_LOCKFILE" == 0 ] ; then
+  TF_READ_LOCKFILE="-lockfile=readonly "
+fi
+
+terraform init ${TF_READ_LOCKFILE}\
     -backend-config="bucket=${BUCKET}" \
     -backend-config="key=${STATE}" \
     -backend-config="dynamodb_table=$LOCK_TABLE" \

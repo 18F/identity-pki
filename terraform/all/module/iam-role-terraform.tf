@@ -10,7 +10,7 @@ module "terraform-assumerole" {
     }
   }
 
-  source = "github.com/18F/identity-terraform//iam_assumerole?ref=main"
+  source = "github.com/18F/identity-terraform//iam_assumerole?ref=b68c41068a53acbb981eeb37e1eb0a36a6487ac7"
 
   role_name = each.key
   enabled = lookup(
@@ -498,6 +498,7 @@ locals {
             "elasticloadbalancing:ModifyTargetGroupAttributes",
             "elasticloadbalancing:SetRulePriorities",
             "elasticloadbalancing:SetSecurityGroups",
+            "elasticloadbalancing:SetWebACL",
           ]
           resources = [
             "*",
@@ -507,6 +508,10 @@ locals {
           sid    = "Events"
           effect = "Allow"
           actions = [
+            "events:CreateArchive",
+            "events:CreateConnection",
+            "events:CreateEventBus",
+            "events:DeleteEventBus",
             "events:DeleteRule",
             "events:DescribeEventBus",
             "events:DescribeRule",

@@ -36,7 +36,7 @@ resource "aws_s3_bucket" "secrets" {
 }
 
 module "secrets_bucket_config" {
-  source = "github.com/18F/identity-terraform//s3_config?ref=fd5c107827a775f2b8d2db214fff13fe89c9456a"
+  source = "github.com/18F/identity-terraform//s3_config?ref=b68c41068a53acbb981eeb37e1eb0a36a6487ac7"
   depends_on = [aws_s3_bucket.secrets]
 
   bucket_name_prefix   = var.bucket_name_prefix

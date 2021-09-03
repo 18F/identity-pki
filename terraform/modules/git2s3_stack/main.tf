@@ -21,10 +21,6 @@ locals {
 data "github_ip_ranges" "ips" {
 }
 
-#data "aws_cloudformation_stack" "git2s3" {
-#  name = var.git2s3_stack_name
-#}
-
 resource "aws_cloudformation_stack" "git2s3" {
   name          = "CodeSync-IdentityBaseImage"
   template_body = file("${path.module}/git2s3.template")

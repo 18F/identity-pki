@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+trap fix_local_lockfile EXIT
+
 # function to exit process with error message
 die() { echo_red "$*" >&2 ; exit 1; }
 
@@ -55,6 +57,10 @@ Options:
                             asg_*_min / asg_*_desired values with 0. Can be
                             used anytime, but is necessary when (re)building an
                             environment from scratch.
+    -l, --local-lockfile    Skip copying .terraform.lock.hcl from the repo root,
+                            and use/regenerate the one in the specified
+                            Terraform directory. (See the HACK below for more
+                            information on this.)
 
 For older terraform directories that use identity-devops-private, env-specific
 config variables will be loaded automatically from identity-devops-private.
@@ -144,6 +150,7 @@ ORIGIN_REMOTE_NAME="${ORIGIN_REMOTE_NAME-origin}"
 
 # Parse options
 declare {IMPORT_REMOTE_STATE,TEST_ONLY,EXTRA_ENV}=
+LOCAL_LOCKFILE=0
 while [ $# -gt 0 ] && [[ $1 == -* ]]; do
     case "$1" in
         -h|--help)
@@ -152,6 +159,9 @@ while [ $# -gt 0 ] && [[ $1 == -* ]]; do
             ;;
         -t|--test)
             TEST_ONLY=1
+            ;;
+        -l|--local-lockfile)
+            LOCAL_LOCKFILE=1
             ;;
         -z|--zero-out-hosts)
             EXTRA_ENV="tf_zero"
@@ -166,6 +176,20 @@ while [ $# -gt 0 ] && [[ $1 == -* ]]; do
     esac
     shift
 done
+
+fix_local_lockfile(){
+    local LOCKFILE_DIR="${repo_root_before_cd}/terraform/${TF_DIR_FULL}"
+    if [ "${LOCAL_LOCKFILE}" == 0 ] && [ ! -L "${LOCKFILE_DIR}/.terraform.lock.hcl" ]; then
+        cd "${LOCKFILE_DIR}"
+        [ -f ".terraform.lock.hcl" ] && rm "${LOCKFILE_DIR}/.terraform.lock.hcl"
+        if [ -n "$MODULE_STYLE" ]; then
+            ln -s ../../../.terraform.lock.hcl .terraform.lock.hcl
+        else
+            ln -s ../../.terraform.lock.hcl .terraform.lock.hcl
+        fi
+        cd - >/dev/null
+    fi
+}
 
 # This is a bit of a mess since we handle both old identity-devops-private
 # style config and new module-style config. Once we deprecate the former, we can
@@ -540,10 +564,23 @@ else
     style_option="--shared-style"
 fi
 
+if [ "${LOCAL_LOCKFILE}" == 1 ] ; then
+    if [ -L "terraform/${TF_DIR_FULL}/.terraform.lock.hcl" ] ; then
+        echo_yellow >&2 "A symlink to the repo-root provider lock file already exists in ${TF_DIR_FULL}"
+        if prompt_yn "Create a new .terraform.lock.hcl file?"; then
+            rm "terraform/${TF_DIR_FULL}/.terraform.lock.hcl"
+        else
+            LOCAL_LOCKFILE=0
+        fi
+    fi
+fi
+
+fix_local_lockfile
+
 echo >&2 "Configuring state bucket $TERRAFORM_STATE_BUCKET with path $STATE"
 
 run bin/deploy/configure_state_bucket.sh "$style_option" "$TERRAFORM_STATE_BUCKET" \
-    "$STATE" "$TF_DIR_FULL" "$TERRAFORM_STATE_BUCKET_REGION" "$ID_state_lock_table"
+    "$STATE" "$TF_DIR_FULL" "$TERRAFORM_STATE_BUCKET_REGION" "$ID_state_lock_table" "$LOCAL_LOCKFILE"
 
 echo >&2 "+ cd terraform/$TF_DIR_FULL"
 cd "terraform/$TF_DIR_FULL"

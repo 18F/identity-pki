@@ -1,6 +1,6 @@
 # Users and group memberships
 module "master_users" {
-  source = "github.com/18F/identity-terraform//iam_masterusers?ref=4633da3b308b43ff75df3ac43bca8b434cca9039"
+  source = "github.com/18F/identity-terraform//iam_masterusers?ref=b68c41068a53acbb981eeb37e1eb0a36a6487ac7"
   #source = "../../../../identity-terraform/iam_masterusers"
 
   user_map         = var.user_map

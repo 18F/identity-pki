@@ -4,10 +4,9 @@ terraform {
   required_providers {
     newrelic = {
       source  = "newrelic/newrelic"
-      version = ">= 2.21.0"
     }
   }
-  required_version = ">= 0.13"
+  required_version = ">= 0.13.7"
 }
 
 # NOTE:  these s3 objects need to be uploaded with --content-type text/plain
