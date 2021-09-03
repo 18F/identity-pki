@@ -32,6 +32,8 @@ users:
     - appdev
     - apponcall
     - bizops
+  jessica.dembe:
+    - appdev
   jonathan.hooper:
     - appdev
     - apponcall
