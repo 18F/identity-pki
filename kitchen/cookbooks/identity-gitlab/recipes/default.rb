@@ -62,6 +62,7 @@ end
 
 db_password = ConfigLoader.load_config(node, "gitlab_db_password", common: false).chomp!
 db_host = ConfigLoader.load_config(node, "gitlab_db_host", common: false).chomp!
+root_password = ConfigLoader.load_config(node, "gitlab_root_password", common: false).chomp!
 
 template '/etc/gitlab/gitlab.rb' do
     source 'gitlab.rb.erb'
@@ -71,7 +72,8 @@ template '/etc/gitlab/gitlab.rb' do
     variables ({
         external_url: external_url,
         db_password: db_password,
-        db_host: db_host
+        db_host: db_host,
+        root_password: root_password
     })
     notifies :run, 'execute[reconfigure_gitlab]', :delayed
 end
