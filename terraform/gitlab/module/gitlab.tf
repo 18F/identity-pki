@@ -62,8 +62,8 @@ resource "aws_autoscaling_group" "gitlab" {
     version = "$Latest"
   }
 
-  min_size         = 0
-  max_size         = 4 # TODO count subnets or Region's AZ width
+  min_size         = 1
+  max_size         = 1 # TODO count subnets or Region's AZ width
   desired_capacity = var.asg_gitlab_desired
 
   wait_for_capacity_timeout = 0 # 0 == ignore
@@ -75,7 +75,6 @@ resource "aws_autoscaling_group" "gitlab" {
   # https://github.com/18F/identity-devops-private/issues/259
   vpc_zone_identifier = [
     aws_subnet.gitlab1.id,
-    aws_subnet.gitlab2.id,
   ]
 
   health_check_type         = "EC2"

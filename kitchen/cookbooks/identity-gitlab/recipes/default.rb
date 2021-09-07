@@ -19,20 +19,22 @@
 #
 
 gitaly_ebs_volume = ConfigLoader.load_config(node, "gitaly_ebs_volume", common: false).chomp!
+<<<<<<< Updated upstream
 
 include_recipe 'aws'
+=======
+gitaly_device = "/dev/xvdi"
+>>>>>>> Stashed changes
 
-aws_ebs_volume 'gitaly' do
-  volume_id gitaly_ebs_volume
-  device '/dev/sdi'
-  action :attach
+execute "mount_gitaly_volume" do
+  command "aws ec2 detach-volume --device #{gitaly_device} --instance-id #{node['ec2']['instance_id']} --volume-id #{gitaly_ebs_volume} --region us-west-2"
 end
 
 include_recipe 'filesystem'
 
 filesystem 'gitaly' do
   fstype "ext4"
-  device "/dev/sdi"
+  device gitaly_device
   mount "/var/opt/gitlab/git-data"
   action [:create, :enable, :mount]
 end
