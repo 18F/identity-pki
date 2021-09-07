@@ -319,3 +319,21 @@ resource "aws_wafv2_web_acl_association" "idp" {
   resource_arn = data.aws_lb.idp.arn
   web_acl_arn  = aws_wafv2_web_acl.idp.arn
 }
+
+  resource "aws_cloudwatch_metric_alarm" "wafv2_blocked_alert" {
+  alarm_name                = "WAFv2 ${var.env_name} Blocked Requests"
+  comparison_operator       = "GreaterThanOrEqualToThreshold"
+  evaluation_periods        = "1"
+  metric_name               = "BlockedRequests"
+  namespace                 = "AWS/WAFv2"
+  period                    = "60"
+  statistic                 = "Sum"
+  threshold                 = "1"
+  alarm_description         = "This Alarm is executed WAFv2 Blocked requests exceed threshold"
+  alarm_actions             = [data.aws_sns_topic.cloudfront_alarm.arn]
+  dimensions = {
+        Rule   = "ALL"
+        Region = "us-west-2"                                               
+        WebACL = "${var.env}-idp-waf"                                      
+        }
+}
