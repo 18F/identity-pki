@@ -162,28 +162,6 @@ resource "aws_iam_role_policy" "gitlab-sns-publish-alerts" {
   policy = data.aws_iam_policy_document.sns-publish-alerts-policy.json
 }
 
-# IAM instance profile using the citadel client role
-resource "aws_iam_instance_profile" "gitlab" {
-  name = "${var.env_name}-gitlab"
-  role = aws_iam_role.gitlab.name
-}
-
-# Policy allowing EC2 instances to describe and associate EIPs. This allows
-# instances in an ASG to automatically grab an existing static IP address.
-data "aws_iam_policy_document" "auto_eip_policy" {
-  statement {
-    sid    = "AllowEIPDescribeAndAssociate"
-    effect = "Allow"
-    actions = [
-      "ec2:DescribeAddresses",
-      "ec2:AssociateAddress",
-    ]
-    resources = [
-      "*",
-    ]
-  }
-}
-
 resource "aws_iam_role_policy" "gitlab-ebsvolume" {
   name   = "${var.env_name}-gitlab-ebsvolume"
   role   = aws_iam_role.gitlab.id
