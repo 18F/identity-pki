@@ -39,7 +39,7 @@ module "migration_user_data" {
 }
 
 module "migration_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=6a7ba69828a2507cf1fcaa225a1df8f501321929"
+  source = "github.com/18F/identity-terraform//launch_template?ref=b68c41068a53acbb981eeb37e1eb0a36a6487ac7"
 
   role           = "migration"
   env            = var.env_name
@@ -112,12 +112,12 @@ resource "aws_autoscaling_group" "migration" {
 }
 
 module "migration_lifecycle_hooks" {
-  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=476ab4456e547e125dcd53cb6131419b54f1f476"
+  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=b68c41068a53acbb981eeb37e1eb0a36a6487ac7"
   asg_name = aws_autoscaling_group.migration.name
 }
 
 module "migration_recycle" {
-  source = "github.com/18F/identity-terraform//asg_recycle?ref=476ab4456e547e125dcd53cb6131419b54f1f476"
+  source = "github.com/18F/identity-terraform//asg_recycle?ref=b68c41068a53acbb981eeb37e1eb0a36a6487ac7"
   enabled = var.asg_auto_recycle_enabled
 
   # Migration instances must preceed IdP instances.  The following are 10 minute

@@ -1,12 +1,21 @@
-# AWS provider is inherited from per-env main.tf rather than defined here, due
-# to https://github.com/hashicorp/terraform/issues/13018
+data "aws_caller_identity" "current" {
+}
 
-terraform {
-  required_providers {
-    aws = {
-      source = "hashicorp/aws"
-      version = "~> 3.45.0"
-    }
+module "git2s3_src" {
+  count = data.aws_caller_identity.current.account_id == "894947205914" ? 1 : 0
+  #source = "../../../../identity-terraform/git2s3_artifacts"
+  source = "github.com/18F/identity-terraform//git2s3_artifacts?ref=b68c41068a53acbb981eeb37e1eb0a36a6487ac7"
+  providers = {
+    aws = aws.usw2
   }
-  required_version = ">= 0.13"
+
+  git2s3_stack_name    = "CodeSync-IdentityBaseImage"
+  external_account_ids = [
+    "555546682965",
+    "917793222841",
+    "034795980528",
+  ]
+  #artifact_bucket      = "login-gov-public-artifacts-us-west-2"
+  bucket_name_prefix = "login-gov"
+  sse_algorithm      = "AES256"
 }

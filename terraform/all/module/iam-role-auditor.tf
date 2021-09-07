@@ -25,7 +25,7 @@ data "aws_iam_policy_document" "assume_auditor_role_policy" {
 }
 
 module "auditor-assumerole" {
-  source = "github.com/18F/identity-terraform//iam_assumerole?ref=main"
+  source = "github.com/18F/identity-terraform//iam_assumerole?ref=b68c41068a53acbb981eeb37e1eb0a36a6487ac7"
 
   role_name = "Auditor"
   enabled   = length(var.auditor_accounts) > 0

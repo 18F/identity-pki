@@ -92,7 +92,7 @@ resource "aws_iam_role_policy" "worker-upload-s3-reports" {
 }
 
 module "worker_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=6a7ba69828a2507cf1fcaa225a1df8f501321929"
+  source = "github.com/18F/identity-terraform//launch_template?ref=b68c41068a53acbb981eeb37e1eb0a36a6487ac7"
   #source = "../../../identity-terraform/launch_template"
   role           = "worker"
   env            = var.env_name
@@ -112,12 +112,12 @@ module "worker_launch_template" {
 }
 
 module "worker_lifecycle_hooks" {
-  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=476ab4456e547e125dcd53cb6131419b54f1f476"
+  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=b68c41068a53acbb981eeb37e1eb0a36a6487ac7"
   asg_name = aws_autoscaling_group.worker.name
 }
 
 module "worker_recycle" {
-  source = "github.com/18F/identity-terraform//asg_recycle?ref=476ab4456e547e125dcd53cb6131419b54f1f476"
+  source = "github.com/18F/identity-terraform//asg_recycle?ref=b68c41068a53acbb981eeb37e1eb0a36a6487ac7"
 
   # switch to count when that's a thing that we can do
   # https://github.com/hashicorp/terraform/issues/953
@@ -249,22 +249,12 @@ resource "aws_db_instance" "idp-worker-jobs" {
     Name = "${var.name}-${var.env_name}"
   }
 
-  # If you want to destroy your database, you need to do this in two phases:
-  # 1. Uncomment `skip_final_snapshot=true` and
-  #    comment `prevent_destroy=true` and `deletion_protection = true` below.
-  # 2. Perform a terraform/deploy "apply" with the additional
-  #    argument of "-target=aws_db_instance.idp" to mark the database
-  #    as not requiring a final snapshot.
-  # 3. Perform a terraform/deploy "destroy" as needed.
-  #
-  #skip_final_snapshot = true
+  skip_final_snapshot = true
   lifecycle {
     prevent_destroy = false
-
     # we set the password by hand so it doesn't end up in the state file
     ignore_changes = [password]
   }
-
   deletion_protection = false
 }
 

@@ -4,6 +4,7 @@
 locals {
   vars_files    = (var.env_name == "" ? "" : "-var-file $CODEBUILD_SRC_DIR_${local.clean_tf_dir}_${var.env_name}_private_output/vars/base.tfvars -var-file $CODEBUILD_SRC_DIR_${local.clean_tf_dir}_${var.env_name}_private_output/vars/account_global_${var.account}.tfvars -var-file $CODEBUILD_SRC_DIR_${local.clean_tf_dir}_${var.env_name}_private_output/vars/${var.env_name}.tfvars")
   envstr        = (var.env_name == "" ? "" : "the ${var.env_name} environment in ")
+  tf_top_dir    = (var.env_name == "" ? "${regex("[a-z]+/??",var.tf_dir)}/module" : "app")
   state_bucket  = "login-gov.tf-state.${var.account}-${var.state_bucket_region}"
   tf_config_key = (var.env_name == "" ? "terraform-${var.tf_dir}.tfstate" : "terraform-app/terraform-${var.env_name}.tfstate")
 }
@@ -69,6 +70,8 @@ phases:
 
   build:
     commands:
+      - cp .terraform.lock.hcl terraform/$TF_DIR
+      - cp versions.tf terraform/${local.tf_top_dir}
       - cd terraform/$TF_DIR
       - unset AWS_PROFILE
       - export AWS_STS_REGIONAL_ENDPOINTS=regional
@@ -78,8 +81,8 @@ phases:
       - export AWS_SESSION_TOKEN=$(echo $roledata | jq -r .Credentials.SessionToken)
       - export AWS_REGION=${var.region}
       - 
-      - # XXX should we init things here? or just do it one time by hand?  ./bin/deploy/configure_state_bucket.sh
-      - terraform init -backend-config=bucket=${local.state_bucket} -backend-config=key=${local.tf_config_key} -backend-config=dynamodb_table=terraform_locks -backend-config=region=${var.state_bucket_region}
+      - terraform init -plugin-dir=.terraform/plugins -lockfile=readonly -backend-config=bucket=${local.state_bucket} -backend-config=key=${local.tf_config_key} -backend-config=dynamodb_table=terraform_locks -backend-config=region=${var.state_bucket_region}
+      - terraform providers lock -fs-mirror=.terraform/plugins
       - terraform plan -lock-timeout=180s -out /plan.tfplan ${local.vars_files} 2>&1 > /plan.out
       - cat -n /plan.out
 
@@ -174,6 +177,8 @@ phases:
 
   build:
     commands:
+      - cp .terraform.lock.hcl terraform/$TF_DIR
+      - cp versions.tf terraform/${local.tf_top_dir}
       - cd terraform/$TF_DIR
       - unset AWS_PROFILE
       - export AWS_STS_REGIONAL_ENDPOINTS=regional
@@ -183,8 +188,8 @@ phases:
       - export AWS_SESSION_TOKEN=$(echo $roledata | jq -r .Credentials.SessionToken)
       - export AWS_REGION="${var.region}"
       - 
-      - # XXX should we init things here? or just do it one time by hand?  ./bin/deploy/configure_state_bucket.sh
-      - terraform init -backend-config=bucket=${local.state_bucket} -backend-config=key=${local.tf_config_key} -backend-config=dynamodb_table=terraform_locks -backend-config=region=${var.state_bucket_region}
+      - terraform init -plugin-dir=.terraform/plugins -lockfile=readonly -backend-config=bucket=${local.state_bucket} -backend-config=key=${local.tf_config_key} -backend-config=dynamodb_table=terraform_locks -backend-config=region=${var.state_bucket_region}
+      - terraform providers lock -fs-mirror=.terraform/plugins
       - terraform apply -auto-approve -lock-timeout=180s $CODEBUILD_SRC_DIR_${local.clean_tf_dir}_${var.env_name}_plan_output/plan.tfplan
 
   post_build:

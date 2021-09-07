@@ -1,34 +1,3 @@
-# AWS provider is inherited from per-env main.tf rather than defined here, due
-# to https://github.com/hashicorp/terraform/issues/13018
-
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 3.45.0"
-    }
-    archive = {
-      source  = "hashicorp/archive"
-      version = "~> 1.3"
-    }
-  }
-  required_version = ">= 0.13"
-}
-
-provider "aws" {
-  region = var.region
-}
-
-provider "aws" {
-  region = "us-west-2"
-  alias  = "usw2"
-}
-
-provider "aws" {
-  region = "us-east-1"
-  alias  = "use1"
-}
-
 resource "aws_iam_account_alias" "standard_alias" {
   account_alias = var.iam_account_alias
 }
