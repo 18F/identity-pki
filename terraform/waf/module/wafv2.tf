@@ -320,7 +320,7 @@ resource "aws_wafv2_web_acl_association" "idp" {
   web_acl_arn  = aws_wafv2_web_acl.idp.arn
 }
 
-  resource "aws_cloudwatch_metric_alarm" "wafv2_blocked_alert" {
+resource "aws_cloudwatch_metric_alarm" "wafv2_blocked_alert" {
   alarm_name                = "WAFv2 ${var.env_name} Blocked Requests"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "1"
