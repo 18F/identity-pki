@@ -19,12 +19,7 @@
 #
 
 gitaly_ebs_volume = ConfigLoader.load_config(node, "gitaly_ebs_volume", common: false).chomp!
-<<<<<<< Updated upstream
-
-include_recipe 'aws'
-=======
 gitaly_device = "/dev/xvdi"
->>>>>>> Stashed changes
 
 execute "mount_gitaly_volume" do
   command "aws ec2 attach-volume --device #{gitaly_device} --instance-id #{node['ec2']['instance_id']} --volume-id #{gitaly_ebs_volume} --region us-west-2"
