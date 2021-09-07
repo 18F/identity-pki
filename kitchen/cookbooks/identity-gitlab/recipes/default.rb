@@ -27,7 +27,7 @@ gitaly_device = "/dev/xvdi"
 >>>>>>> Stashed changes
 
 execute "mount_gitaly_volume" do
-  command "aws ec2 detach-volume --device #{gitaly_device} --instance-id #{node['ec2']['instance_id']} --volume-id #{gitaly_ebs_volume} --region us-west-2"
+  command "aws ec2 attach-volume --device #{gitaly_device} --instance-id #{node['ec2']['instance_id']} --volume-id #{gitaly_ebs_volume} --region us-west-2"
 end
 
 include_recipe 'filesystem'
