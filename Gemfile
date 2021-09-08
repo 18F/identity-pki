@@ -20,7 +20,7 @@ gem 'tty-prompt', '~> 0.14'
 
 gem 'terraform_landscape', '~> 0.1'
 
-gem 'berkshelf', '~> 7.1.0'
+gem 'berkshelf', '~> 7.2.2'
 gem 'chef', '~> 16.13.16'
 
 # used for modules/bootstrap templates
