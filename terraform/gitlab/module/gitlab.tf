@@ -44,7 +44,7 @@ module "gitlab_launch_template" {
 
   instance_type             = var.instance_type_gitlab
   use_spot_instances        = var.use_spot_instances
-  iam_instance_profile_name = aws_iam_instance_profile.base-permissions.name
+  iam_instance_profile_name = aws_iam_instance_profile.gitlab.name
   security_group_ids        = [aws_security_group.gitlab.id, aws_security_group.base.id]
 
   user_data = module.gitlab_user_data.rendered_cloudinit_config
@@ -62,8 +62,8 @@ resource "aws_autoscaling_group" "gitlab" {
     version = "$Latest"
   }
 
-  min_size         = 0
-  max_size         = 4 # TODO count subnets or Region's AZ width
+  min_size         = 1
+  max_size         = 1 # TODO count subnets or Region's AZ width
   desired_capacity = var.asg_gitlab_desired
 
   wait_for_capacity_timeout = 0 # 0 == ignore
@@ -75,7 +75,6 @@ resource "aws_autoscaling_group" "gitlab" {
   # https://github.com/18F/identity-devops-private/issues/259
   vpc_zone_identifier = [
     aws_subnet.gitlab1.id,
-    aws_subnet.gitlab2.id,
   ]
 
   health_check_type         = "EC2"
@@ -96,4 +95,102 @@ resource "aws_autoscaling_group" "gitlab" {
 
   # We manually terminate instances in prod
   protect_from_scale_in = var.asg_prevent_auto_terminate == 1 ? true : false
+}
+
+resource "aws_iam_instance_profile" "gitlab" {
+  name = "${var.env_name}_gitlab_instance_profile"
+  role = aws_iam_role.gitlab.name
+}
+
+resource "aws_iam_role" "gitlab" {
+  name               = "${var.env_name}_gitlab_iam_role"
+  assume_role_policy = data.aws_iam_policy_document.assume_role_from_vpc.json
+}
+
+# Role policy that associates it with the secrets_role_policy
+resource "aws_iam_role_policy" "gitlab-secrets" {
+  name   = "${var.env_name}-gitlab-secrets"
+  role   = aws_iam_role.gitlab.id
+  policy = data.aws_iam_policy_document.secrets_role_policy.json
+}
+
+# Role policy that associates it with the certificates_role_policy
+resource "aws_iam_role_policy" "gitlab-certificates" {
+  name   = "${var.env_name}-gitlab-certificates"
+  role   = aws_iam_role.gitlab.id
+  policy = data.aws_iam_policy_document.certificates_role_policy.json
+}
+
+# Role policy that associates it with the describe_instances_role_policy
+resource "aws_iam_role_policy" "gitlab-describe_instances" {
+  name   = "${var.env_name}-gitlab-describe_instances"
+  role   = aws_iam_role.gitlab.id
+  policy = data.aws_iam_policy_document.describe_instances_role_policy.json
+}
+
+resource "aws_iam_role_policy" "gitlab-cloudwatch-logs" {
+  name   = "${var.env_name}-gitlab-cloudwatch-logs"
+  role   = aws_iam_role.gitlab.id
+  policy = data.aws_iam_policy_document.cloudwatch-logs.json
+}
+
+resource "aws_iam_role_policy" "gitlab-cloudwatch-agent" {
+  name   = "${var.env_name}-gitlab-cloudwatch-agent"
+  role   = aws_iam_role.gitlab.id
+  policy = data.aws_iam_policy_document.cloudwatch-agent.json
+}
+
+# allow all the base instances to grab an EIP
+resource "aws_iam_role_policy" "gitlab-auto-eip" {
+  name   = "${var.env_name}-gitlab-auto-eip"
+  role   = aws_iam_role.gitlab.id
+  policy = data.aws_iam_policy_document.auto_eip_policy.json
+}
+
+# allow SSM service core functionality
+resource "aws_iam_role_policy" "gitlab-ssm-access" {
+  name   = "${var.env_name}-gitlab-ssm-access"
+  role   = aws_iam_role.gitlab.id
+  policy = data.aws_iam_policy_document.ssm_access_role_policy.json
+}
+
+# allow all instances to send a dying SNS notice
+resource "aws_iam_role_policy" "gitlab-sns-publish-alerts" {
+  name   = "${var.env_name}-gitlab-sns-publish-alerts"
+  role   = aws_iam_role.gitlab.id
+  policy = data.aws_iam_policy_document.sns-publish-alerts-policy.json
+}
+
+resource "aws_iam_role_policy" "gitlab-ebsvolume" {
+  name   = "${var.env_name}-gitlab-ebsvolume"
+  role   = aws_iam_role.gitlab.id
+  policy = <<EOM
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ec2:AttachVolume",
+                "ec2:DetachVolume"
+            ],
+            "Resource": "arn:aws:ec2:*:*:instance/*",
+            "Condition": {
+                "StringEquals": {"aws:ResourceTag/domain": "${var.env_name}.${var.root_domain}"}
+            }
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ec2:AttachVolume",
+                "ec2:DetachVolume"
+            ],
+            "Resource": "arn:aws:ec2:*:*:volume/*",
+            "Condition": {
+                "StringEquals": {"aws:ResourceTag/Name": "${var.name}-gitaly-${var.env_name}"}
+            }
+        }
+    ]
+}
+EOM
 }

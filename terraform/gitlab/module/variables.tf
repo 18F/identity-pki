@@ -298,3 +298,11 @@ variable "db1_subnet_cidr_block" { # 172.16.33.32 - 172.16.33.47
 variable "db2_subnet_cidr_block" { # 172.16.33.48 - 172.16.33.63
   default = "172.16.33.48/28"
 }
+
+variable "gitlab_az" {
+  description = "AZ that gitlab needs to live in so that it can find the EBS volume"
+  # NOTE:  If you change this, you need to change the vpc_zone_identifier in aws_autoscaling_group.gitlab
+  #        so that it is aws_subnet.gitlab2.id or whatever subnet is in the AZ.  I can't think of an easy
+  #        way to turn this into a variable.
+  default = "us-west-2a"
+}

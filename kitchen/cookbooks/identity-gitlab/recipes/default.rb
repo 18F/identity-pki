@@ -18,6 +18,22 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+gitaly_ebs_volume = ConfigLoader.load_config(node, "gitaly_ebs_volume", common: false).chomp!
+gitaly_device = "/dev/xvdi"
+
+execute "mount_gitaly_volume" do
+  command "aws ec2 attach-volume --device #{gitaly_device} --instance-id #{node['ec2']['instance_id']} --volume-id #{gitaly_ebs_volume} --region #{node['ec2']['region']}"
+end
+
+include_recipe 'filesystem'
+
+filesystem 'gitaly' do
+  fstype "ext4"
+  device gitaly_device
+  mount "/var/opt/gitlab/git-data"
+  action [:create, :enable, :mount]
+end
+
 package 'postfix'
 package 'openssh-server'
 package 'ca-certificates'
