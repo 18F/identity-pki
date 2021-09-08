@@ -10,11 +10,12 @@
 usage () {
 cat >&2 << EOM
 
-usage:  ./kms-matching.sh --uuid <uuid> --context <context> --hours <hours> --env <environment>
+usage:  ./kms-matching.sh --uuid <uuid> --context <context> --hours <hours> --env <environment> [--nologs]
   uuid is the user id from the notification
   context is either password-digest or pii-encryption defaults to password-digest
   hours is the numbers to search from the current time defaults to 24
   environment is the environment name to search default is prod
+  nologs skips the option to query CloudWatch Logs for further analysis
 
   examples:  ./kms-matching.sh -uuid 38d96999-9999-9999-9999-888888888888
              searches for the uuid provided with password-digest as the context for 24 hours in prod logs
@@ -30,6 +31,7 @@ exit 1
 context='password-digest'
 hours='24H'
 env='prod'
+nologs=0
 
 if [[ "$#" -eq 0 ]]; then
 	echo "Error:  missing arguments"
@@ -42,6 +44,7 @@ while [[ "$#" -gt 0 ]]; do
 		--context) context="$2"; shift ;;
 		--hours) hours="$2H"; shift ;;
 		--env) env="$2"; shift;;
+        --nologs) nologs=1; shift;;
         *) echo "Unknown argument passed: $1"; usage ;;
     esac
     shift
@@ -79,11 +82,16 @@ aws dynamodb query \
 --projection-expression "#U, #TS, Correlated" \
 --output text
 
+if [[ $nologs == 1 ]]
+then
+  exit 0
+fi
+
 read -p "Do you need to review the CloudWatch Logs? " -n 1 -r
 echo   
 if [[ ! $REPLY =~ ^[Yy]$ ]]
 then
-    exit 1
+    exit 0
 fi
 
 echo
