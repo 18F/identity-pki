@@ -79,7 +79,7 @@ end
 db_password = ConfigLoader.load_config(node, "gitlab_db_password", common: false).chomp!
 db_host = ConfigLoader.load_config(node, "gitlab_db_host", common: false).chomp!
 root_password = ConfigLoader.load_config(node, "gitlab_root_password", common: false).chomp!
-redis_host = ConfigLoader.load_config(node, "gitlab_redis_host", common: false).chomp!
+redis_host = ConfigLoader.load_config(node, "gitlab_redis_endpoint", common: false).chomp!
 
 template '/etc/gitlab/gitlab.rb' do
     source 'gitlab.rb.erb'
