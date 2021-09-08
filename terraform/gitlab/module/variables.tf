@@ -299,10 +299,28 @@ variable "db2_subnet_cidr_block" { # 172.16.33.48 - 172.16.33.63
   default = "172.16.33.48/28"
 }
 
+# gitaly EBS volume config here
 variable "gitlab_az" {
   description = "AZ that gitlab needs to live in so that it can find the EBS volume"
   # NOTE:  If you change this, you need to change the vpc_zone_identifier in aws_autoscaling_group.gitlab
   #        so that it is aws_subnet.gitlab2.id or whatever subnet is in the AZ.  I can't think of an easy
   #        way to turn this into a variable.
   default = "us-west-2a"
+}
+
+# elasticache redis config here
+variable "elasticache_redis_node_type" {
+  description = "Instance type used for redis elasticache. Changes incur downtime."
+
+  # allowed values: t2.micro-medium, m3.medium-2xlarge, m4|r3|r4.large-
+  default = "cache.t3.micro"
+}
+
+variable "elasticache_redis_engine_version" {
+  description = "Engine version used for redis elasticache. Changes may incur downtime."
+  default     = "6.x"
+}
+
+variable "elasticache_redis_parameter_group_name" {
+  default = "default.redis6.x"
 }

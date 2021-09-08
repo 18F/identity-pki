@@ -495,3 +495,39 @@ resource "aws_ssm_parameter" "net_noproxy" {
   type  = "String"
   value = var.no_proxy_hosts
 }
+
+resource "aws_security_group" "cache" {
+  description = "Allow inbound and outbound redis traffic with app subnet in vpc"
+
+  egress {
+    from_port = 6379
+    to_port   = 6379
+    protocol  = "tcp"
+    security_groups = [
+      aws_security_group.gitlab.id,
+    ]
+  }
+
+  ingress {
+    from_port = 6379
+    to_port   = 6379
+    protocol  = "tcp"
+    security_groups = [
+      aws_security_group.gitlab.id,
+    ]
+  }
+
+  name = "${var.name}-cache-${var.env_name}"
+
+  tags = {
+    Name = "${var.name}-cache_security_group-${var.env_name}"
+  }
+
+  vpc_id = aws_vpc.default.id
+}
+
+resource "aws_elasticache_subnet_group" "gitlab" {
+  name        = "${var.name}-gitlab-cache-${var.env_name}"
+  description = "Redis Subnet Group"
+  subnet_ids  = [aws_subnet.db1.id, aws_subnet.db2.id]
+}
