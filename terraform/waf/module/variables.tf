@@ -95,13 +95,13 @@ variable "ip_block_list" {
   default     = []
 }
 
-variable "waf_period" {
+variable "waf_alert_blocked_period" {
   description = "The period in seconds over which the specified statistic for cloudwatch alarm applied."
   type = string
   default = "60"
 }
 
-variable "waf_threshold" {
+variable "waf_alert_blocked_threshold" {
   description = "The value against which the specified statistic is compared for cloudwatch alarm."
   type = string
   default = "1"
