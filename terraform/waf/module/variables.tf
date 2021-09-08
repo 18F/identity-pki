@@ -94,3 +94,15 @@ variable "ip_block_list" {
   type        = list(string)
   default     = []
 }
+
+variable "waf_period" {
+  description = "The period in seconds over which the specified statistic for cloudwatch alarm applied."
+  type = string
+  default = "60"
+}
+
+variable "waf_threshold" {
+  description = "The value against which the specified statistic is compared for cloudwatch alarm."
+  type = string
+  default = "1"
+}

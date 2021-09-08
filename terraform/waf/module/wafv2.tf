@@ -326,9 +326,9 @@ resource "aws_cloudwatch_metric_alarm" "wafv2_blocked_alert" {
   evaluation_periods        = "1"
   metric_name               = "BlockedRequests"
   namespace                 = "AWS/WAFv2"
-  period                    = "60"
+  period                    = var.waf_period
   statistic                 = "Sum"
-  threshold                 = "1"
+  threshold                 = var.waf_threshold
   alarm_description         = "This Alarm is executed WAFv2 Blocked requests exceed threshold"
   alarm_actions             = [data.aws_sns_topic.cloudfront_alarm.arn]
   dimensions = {
