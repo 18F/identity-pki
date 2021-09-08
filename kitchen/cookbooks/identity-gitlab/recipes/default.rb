@@ -79,6 +79,7 @@ end
 db_password = ConfigLoader.load_config(node, "gitlab_db_password", common: false).chomp!
 db_host = ConfigLoader.load_config(node, "gitlab_db_host", common: false).chomp!
 root_password = ConfigLoader.load_config(node, "gitlab_root_password", common: false).chomp!
+redis_host = ConfigLoader.load_config(node, "gitlab_redis_endpoint", common: false).chomp!
 
 template '/etc/gitlab/gitlab.rb' do
     source 'gitlab.rb.erb'
@@ -89,7 +90,8 @@ template '/etc/gitlab/gitlab.rb' do
         external_url: external_url,
         db_password: db_password,
         db_host: db_host,
-        root_password: root_password
+        root_password: root_password,
+        redis_host: redis_host
     })
     notifies :run, 'execute[reconfigure_gitlab]', :delayed
 end
