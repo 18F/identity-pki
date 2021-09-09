@@ -96,13 +96,20 @@ variable "ip_block_list" {
 }
 
 variable "waf_alert_blocked_period" {
-  description = "The period in seconds over which the specified statistic for cloudwatch alarm applied."
-  type = string
-  default = "60"
+  description = "Window (period) in seconds to for evaluating blocks"
+  type        = string
+  default     = "60"
 }
 
 variable "waf_alert_blocked_threshold" {
-  description = "The value against which the specified statistic is compared for cloudwatch alarm."
-  type = string
-  default = "1"
+  description = "Alert will fire if the number of blocks within the window is >= this value"
+  type        = string
+  default     = "5"
 }
+
+variable "waf_alert_actions" {
+  description = "List of SNS ARNs to deliver messages to upon alert"
+  type        = list(string)
+  default     = []
+}
+

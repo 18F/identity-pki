@@ -13,9 +13,11 @@ terraform {
 module "main" {
   source = "../module"
 
-  env           = "staging"
-  region        = "us-west-2"
-  enforce       = true
+  env     = "staging"
+  region  = "us-west-2"
+  enforce = true
+
+  waf_alert_actions = ["arn:aws:sns:us-west-2:555546682965:slack-otherevents"]
 }
 
 

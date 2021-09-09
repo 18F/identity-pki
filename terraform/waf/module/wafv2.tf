@@ -257,7 +257,7 @@ resource "aws_wafv2_web_acl" "idp" {
         limit              = var.otp_send_rate_limit_per_ip
         aggregate_key_type = "IP"
 
-        scope_down_statement { 
+        scope_down_statement {
           or_statement {
             statement {
               byte_match_statement {
@@ -321,19 +321,19 @@ resource "aws_wafv2_web_acl_association" "idp" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "wafv2_blocked_alert" {
-  alarm_name                = "WAFv2 ${var.env_name} Blocked Requests"
-  comparison_operator       = "GreaterThanOrEqualToThreshold"
-  evaluation_periods        = "1"
-  metric_name               = "BlockedRequests"
-  namespace                 = "AWS/WAFv2"
-  period                    = var.waf_alert_blocked_period
-  statistic                 = "Sum"
-  threshold                 = var.waf_alert_blocked_threshold
-  alarm_description         = "This Alarm is executed WAFv2 Blocked requests exceed threshold"
-  alarm_actions             = [data.aws_sns_topic.cloudfront_alarm.arn]
+  alarm_name          = "WAFv2 ${var.env} Blocked Requests Threshold Exceeded"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "BlockedRequests"
+  namespace           = "AWS/WAFv2"
+  period              = var.waf_alert_blocked_period
+  statistic           = "Sum"
+  threshold           = var.waf_alert_blocked_threshold
+  alarm_description   = "More than ${var.waf_alert_blocked_threshold} WAF blocks occured in ${var.waf_alert_blocked_period} seconds"
+  alarm_actions       = var.waf_alert_actions
   dimensions = {
-        Rule   = "ALL"
-        Region = "us-west-2"                                               
-        WebACL = "${var.env}-idp-waf"                                      
-        }
+    Rule   = "ALL"
+    Region = var.region
+    WebACL = "${var.env}-idp-waf"
+  }
 }

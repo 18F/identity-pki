@@ -13,9 +13,12 @@ terraform {
 module "main" {
   source = "../module"
 
-  env           = "prod"
-  region        = "us-west-2"
-  enforce       = true
+  env     = "prod"
+  region  = "us-west-2"
+  enforce = true
+
+  waf_alert_actions           = ["arn:aws:sns:us-west-2:555546682965:slack-events"]
+  waf_alert_blocked_threshold = "25"
 }
 
 
