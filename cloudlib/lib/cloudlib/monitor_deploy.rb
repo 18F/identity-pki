@@ -73,7 +73,7 @@ module Cloudlib
         min_timestamp = Time.parse("#{min_timestamp}Z")
 
         Deploy.new(sha: sha, tag: tag, min_timestamp: min_timestamp)
-      end
+      end.uniq { |x| x.sha }
     end
 
     def self.monitor_deploys(deploys:, env:, role:)
