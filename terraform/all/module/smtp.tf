@@ -50,14 +50,10 @@ data "aws_s3_bucket_object" "ses-smtp-username" {
   count = var.smtp_user_ready ? 1 : 0
   bucket       = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
   key          = "common/ses_smtp_username"
-  # content      = aws_iam_access_key.gitlab-ses.id
-  # content_type = "text/plain"
 }
 
 data "aws_s3_bucket_object" "ses-smtp-password" {
   count = var.smtp_user_ready ? 1 : 0
   bucket       = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
   key          = "common/ses_smtp_password"
-  # content      = aws_iam_access_key.gitlab-ses.ses_smtp_password_v4
-  # content_type = "text/plain"
 }
