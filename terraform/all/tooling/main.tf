@@ -22,4 +22,5 @@ module "main" {
   account_roles_map = {
     iam_appdev_enabled = false
   }
+  smtp_user_ready = true
 }

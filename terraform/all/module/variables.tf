@@ -130,3 +130,14 @@ variable "tf_slack_channel" {
   type        = string
   default     = "#login-change"
 }
+
+variable "smtp_user_ready" {
+  description = <<EOM
+Whether or not the SMTP user is present in this account, and the SMTP username
+and password are in this account's secrets bucket. Defaults to FALSE; set to
+TRUE after the user has been created and the secrets have been uploaded to the
+bucket.
+EOM
+  type        = bool
+  default     = false
+}
