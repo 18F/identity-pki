@@ -1,39 +1,52 @@
-version: 2
+version: 2.1
+
 jobs:
-  build-base-image:
-    working_directory: ~/identity-devops
+  setup:
     docker:
-      - image: circleci/ruby:2.7 # this doesn't matter, just using for consistency.
+      - image: cimg/ruby:2.7
+    working_directory: /tmp/identity-devops
     steps:
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
-      - run: |
-          rev=$(git rev-parse --short HEAD)
-          docker build -t logindotgov/base:latest -t logindotgov/base:"${rev}" -f dockerfiles/base.Dockerfile dockerfiles
-          echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-          docker push logindotgov/base:"${rev}"
-          docker push logindotgov/base:latest
-  build-build-image:
-    working_directory: ~/identity-devops/dockerfiles
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+
+  tfsec-check:
     docker:
-      - image: circleci/ruby:2.7 # this doesn't matter, just using for consistency.
+      - image: tfsec/tfsec-ci
+    working_directory: /tmp/identity-devops
+    parameters:
+      folder:
+        type: string
     steps:
-      - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
-      - run: |
-          rev=$(git rev-parse --short HEAD)
-          docker build -t logindotgov/build:latest -t logindotgov/build:"${rev}" -f dockerfiles/build.Dockerfile dockerfiles
-          echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-          docker push logindotgov/build:"${rev}"
-          docker push logindotgov/build:latest
+      - attach_workspace:
+          at: .
+      # Used to advise for now - Remove the --soft-fail when ready to ENFORCE :ed209:
+      - run: tfsec --no-color --soft-fail terraform/<< parameters.folder >>
+
 workflows:
   version: 2
-  release:
-    # we have to build them in this order as the build image is required by the base image.
+  sast:
     jobs:
-      - build-base-image
-      - build-build-image:
+      - setup
+      - tfsec-check:
           requires:
-            - build-base-image
+            - setup
+          matrix:
+            parameters:
+              folder:
+                # Scanning top level modules to avoid extreme duplication
+                - all/module
+                - app
+                - core/module
+                - gitlab/module
+                - imagebuild/module
+                - master/module
+                - modules
+                - sms/module
+                - tooling/module
+                - tooling/module-gitlabpipeline
+                - tooling/module-pipeline
+                - waf/module
+
