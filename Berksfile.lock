@@ -79,8 +79,8 @@ DEPENDENCIES
   ssh-keys
   static_eip
     git: https://github.com/18F/identity-cookbooks
-    revision: c92b5ebf8a4280bb6f72f482d0074dc4d7666b46
-    ref: c92b5eb
+    revision: 100bc65635b9f8ba2527a7e6c9714de755629570
+    ref: 100bc65
     rel: static_eip
   sudo
   users
