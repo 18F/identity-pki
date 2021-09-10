@@ -321,7 +321,7 @@ resource "aws_wafv2_web_acl_association" "idp" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "wafv2_blocked_alert" {
-  alarm_name          = "WAFv2 ${var.env} Blocked Requests Threshold Exceeded"
+  alarm_name          = "${var.env}-wafv2-blocks-exceeded"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
   metric_name         = "BlockedRequests"
