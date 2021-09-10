@@ -257,7 +257,7 @@ resource "aws_wafv2_web_acl" "idp" {
         limit              = var.otp_send_rate_limit_per_ip
         aggregate_key_type = "IP"
 
-        scope_down_statement { 
+        scope_down_statement {
           or_statement {
             statement {
               byte_match_statement {
@@ -318,4 +318,22 @@ resource "aws_wafv2_web_acl_logging_configuration" "idp" {
 resource "aws_wafv2_web_acl_association" "idp" {
   resource_arn = data.aws_lb.idp.arn
   web_acl_arn  = aws_wafv2_web_acl.idp.arn
+}
+
+resource "aws_cloudwatch_metric_alarm" "wafv2_blocked_alert" {
+  alarm_name          = "${var.env}-wafv2-blocks-exceeded"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "BlockedRequests"
+  namespace           = "AWS/WAFV2"
+  period              = var.waf_alert_blocked_period
+  statistic           = "Sum"
+  threshold           = var.waf_alert_blocked_threshold
+  alarm_description   = "More than ${var.waf_alert_blocked_threshold} WAF blocks occured in ${var.waf_alert_blocked_period} seconds"
+  alarm_actions       = var.waf_alert_actions
+  dimensions = {
+    Rule   = "ALL"
+    Region = var.region
+    WebACL = "${var.env}-idp-waf"
+  }
 }

@@ -94,3 +94,22 @@ variable "ip_block_list" {
   type        = list(string)
   default     = []
 }
+
+variable "waf_alert_blocked_period" {
+  description = "Window (period) in seconds to for evaluating blocks"
+  type        = string
+  default     = "60"
+}
+
+variable "waf_alert_blocked_threshold" {
+  description = "Alert will fire if the number of blocks within the window is >= this value"
+  type        = string
+  default     = "5"
+}
+
+variable "waf_alert_actions" {
+  description = "List of SNS ARNs to deliver messages to upon alert"
+  type        = list(string)
+  default     = []
+}
+
