@@ -82,6 +82,7 @@ application release_path do
 
   git do
     repository 'https://github.com/18F/identity-idp.git'
+    depth 1
     user node['login_dot_gov']['system_user']
     revision deploy_branch
   end

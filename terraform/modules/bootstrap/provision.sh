@@ -337,21 +337,10 @@ mkdir -vp "$repos_dir"
 echo "cd $repos_dir"
 cd "$repos_dir"
 
-# GIT_SSH_COMMAND is only supported in git 2.3+
-# We can switch to only using it once we are on Ubuntu >= 16.04
-if [ "$(git --version)" = "git version 1.9.1" ]; then
-    echo >&2 "Creating ssh-with-key as git SSH wrapper"
-    git_ssh_wrapper="/usr/local/bin/ssh-with-key"
-    cat > "$git_ssh_wrapper" <<'EOM'
-#!/bin/sh
-set -eux
-exec ssh -i "$SSH_KEY_PATH" "$@"
-EOM
-    chmod -c +x "$git_ssh_wrapper"
-    run env GIT_SSH="$git_ssh_wrapper" SSH_KEY_PATH="$ssh_key_path" \
-        git clone "$git_clone_url"
+if [ -n "$git_ref" ]; then
+    run env GIT_SSH_COMMAND="ssh -i '$ssh_key_path'" git clone --depth 1 --branch "$git_ref" "$git_clone_url"
 else
-    run env GIT_SSH_COMMAND="ssh -i '$ssh_key_path'" git clone "$git_clone_url"
+    run env GIT_SSH_COMMAND="ssh -i '$ssh_key_path'" git clone --depth 1 "$git_clone_url"
 fi
 
 repo_basename="$(basename "$git_clone_url" .git)"
