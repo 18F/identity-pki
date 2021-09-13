@@ -81,6 +81,12 @@ db_host = ConfigLoader.load_config(node, "gitlab_db_host", common: false).chomp!
 root_password = ConfigLoader.load_config(node, "gitlab_root_password", common: false).chomp!
 redis_host = ConfigLoader.load_config(node, "gitlab_redis_endpoint", common: false).chomp!
 
+ses_username = ConfigLoader.load_config(node, "ses_smtp_username", common: true).chomp!
+ses_password = ConfigLoader.load_config(node, "ses_smtp_password", common: true).chomp!
+aws_region = Chef::Recipe::AwsMetadata.get_aws_region
+smtp_address = "email-smtp.#{aws_region}.amazonaws.com"
+email_from = "gitlab@#{external_fqdn}"
+
 template '/etc/gitlab/gitlab.rb' do
     source 'gitlab.rb.erb'
     owner 'root'
@@ -91,7 +97,10 @@ template '/etc/gitlab/gitlab.rb' do
         db_password: db_password,
         db_host: db_host,
         root_password: root_password,
-        redis_host: redis_host
+        redis_host: redis_host,
+        smtp_address: smtp_address,
+        smtp_domain: external_fqdn,
+        email_from: email_from
     })
     notifies :run, 'execute[reconfigure_gitlab]', :delayed
 end

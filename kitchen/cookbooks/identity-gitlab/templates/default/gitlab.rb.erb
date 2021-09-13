@@ -79,11 +79,11 @@ external_url '<%= @external_url %>'
 ###! **Use smtp instead of sendmail/postfix.**
 
 # gitlab_rails['smtp_enable'] = true
-# gitlab_rails['smtp_address'] = "smtp.server"
-# gitlab_rails['smtp_port'] = 465
-# gitlab_rails['smtp_user_name'] = "smtp user"
-# gitlab_rails['smtp_password'] = "smtp password"
-# gitlab_rails['smtp_domain'] = "example.com"
+gitlab_rails['smtp_address'] = "<%= @smtp_address %>"
+gitlab_rails['smtp_port'] = 587
+gitlab_rails['smtp_user_name'] = "<%= @ses_username %>"
+gitlab_rails['smtp_password'] = "<%= @ses_password %>"
+gitlab_rails['smtp_domain'] = "<%= @smtp_domain %>"
 # gitlab_rails['smtp_authentication'] = "login"
 # gitlab_rails['smtp_enable_starttls_auto'] = true
 # gitlab_rails['smtp_tls'] = false
@@ -102,8 +102,8 @@ external_url '<%= @external_url %>'
 
 ##! If your SMTP server does not like the default 'From: gitlab@gitlab.example.com'
 ##! can change the 'From' with this setting.
-# gitlab_rails['gitlab_email_from'] = 'example@example.com'
-# gitlab_rails['gitlab_email_display_name'] = 'Example'
+gitlab_rails['gitlab_email_from'] = '<%= @email_from %>'
+gitlab_rails['gitlab_email_display_name'] = 'Login.gov GitLab'
 # gitlab_rails['gitlab_email_reply_to'] = 'noreply@example.com'
 # gitlab_rails['gitlab_email_subject_suffix'] = ''
 # gitlab_rails['gitlab_email_smime_enabled'] = false
