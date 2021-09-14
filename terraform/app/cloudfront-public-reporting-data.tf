@@ -42,6 +42,13 @@ resource "aws_cloudfront_distribution" "public_reporting_data_cdn" {
       cookies {
         forward = "none"
       }
+
+      headers_config {
+        header_behavior = "whitelist"
+        headers {
+          items = ["Access-Control-Allow-Origin"]
+        }
+      }
     }
 
     min_ttl                = 0
