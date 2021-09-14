@@ -46,7 +46,11 @@ resource "aws_cloudfront_distribution" "public_reporting_data_cdn" {
       headers_config {
         header_behavior = "whitelist"
         headers {
-          items = ["Access-Control-Allow-Origin"]
+          items = [
+            "Access-Control-Allow-Origin",
+            "Access-Control-Request-Headers",
+            "Origin",
+          ]
         }
       }
     }
