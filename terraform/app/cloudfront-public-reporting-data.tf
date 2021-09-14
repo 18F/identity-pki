@@ -32,8 +32,8 @@ resource "aws_cloudfront_distribution" "public_reporting_data_cdn" {
   default_root_object = "/index.html"
 
   default_cache_behavior {
-    allowed_methods  = ["HEAD", "GET"]
-    cached_methods   = ["HEAD", "GET"]
+    allowed_methods  = ["HEAD", "GET", "OPTIONS"]
+    cached_methods   = ["HEAD", "GET", "OPTIONS"]
     target_origin_id = "public-reporting-data-${var.env_name}"
 
     forwarded_values {
