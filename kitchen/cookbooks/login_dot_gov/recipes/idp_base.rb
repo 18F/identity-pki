@@ -116,35 +116,6 @@ application release_path do
     user 'root'
   end
 
-  ## Fixup and sync system and NGINX MIME types
-  nginx_mime_types = '/opt/nginx/conf/mime.types'
-  local_mime_types = '/usr/local/etc/mime.types'
-
-  if File.exist?(nginx_mime_types)
-    # Add types not included in NGINX default
-    ruby_block 'addMissingMimeTypes' do
-      block do
-        fe = Chef::Util::FileEdit.new(nginx_mime_types)
-        fe.insert_line_after_match(
-          /^\s*application\/vnd\.wap\.wmlc\s+wmlc;\s*$/,
-          '    application/wasm                                 wasm;')
-        fe.write_file
-      end
-      # Assume none of the above have been added if application/wasm has not
-      not_if { File.readlines(nginx_mime_types).grep(/application\/wasm/).any? }
-    end
-
-    # Convert NGINX MIME types into a seondary mime.types file to ensure
-    # AWS s3 sync gets the types right
-    Chef::Log.info("Re-creating #{local_mime_types} from #{nginx_mime_types}")
-
-    execute "egrep '^ +' #{nginx_mime_types} | " \
-            "awk '{ print $1 \" \" $2 }' | " \
-            "cut -d ';' -f 1 > #{local_mime_types}"
-  else
-    Chef::Log.info("No #{nginx_mime_types} - synced asset MIME types may be wrong")
-  end
-
   # Run the activate script from the repo, which is used to download app
   # configs and set things up for the app to run. This has to run before
   # deploy/build because rake assets:precompile needs the full database configs
@@ -203,34 +174,6 @@ application release_path do
 
   else
     Chef::Log.info('Skipping idp migrations, idp_run_migrations is falsy')
-  end
-
-  static_bucket = node.fetch('login_dot_gov').fetch('static_bucket')
-  if static_bucket && node.fetch('login_dot_gov').fetch('idp_sync_static')
-
-    Chef::Log.info("Syncronizing IdP assets and packs to #{static_bucket}")
-
-    execute 'deploy sync static assets step' do
-      # Sync based on size only (not create time) and ignore sprockets manifest
-      command "aws s3 sync --size-only --exclude '.sprockets-manifest-*.json' #{release_path}/public/assets s3://#{static_bucket}/assets"
-      user node['login_dot_gov']['system_user']
-      group node['login_dot_gov']['system_user']
-      ignore_failure node.fetch('login_dot_gov').fetch('idp_sync_static_ignore_failure')
-    end
-
-    execute 'deploy sync static packs step' do
-      command "aws s3 sync --size-only #{release_path}/public/packs s3://#{static_bucket}/packs"
-      user node['login_dot_gov']['system_user']
-      group node['login_dot_gov']['system_user']
-      ignore_failure node.fetch('login_dot_gov').fetch('idp_sync_static_ignore_failure')
-    end
-  else
-    Chef::Log.info('Skipping assets sync - idp_sync_static or static_bucket are falsy')
-  end
-
-  if File.exist?("/etc/init.d/passenger")
-    notifies(:restart, "service[passenger]")
-    not_if { node['login_dot_gov']['setup_only'] }
   end
 end
 

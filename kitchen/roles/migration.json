@@ -13,11 +13,8 @@
   "chef_type": "role",
   "run_list": [
     "role[base]",
-    "recipe[login_dot_gov::static_eip]",
-    "recipe[passenger::daemon]",
     "recipe[login_dot_gov::idp_base]",
-    "recipe[login_dot_gov::idp_web]",
-    "recipe[login_dot_gov::idp_jobs]",
+    "recipe[login_dot_gov::idp_migration]",
     "recipe[login_dot_gov::common_scripts]"
   ],
   "env_run_lists": {
