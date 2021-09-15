@@ -379,6 +379,10 @@ variable "idp_worker_alarms_enabled" {
   description = "Whether to set up alarms for IDP workers"
 }
 
+variable "worker_cpu_autoscaling_enabled" {
+  default = 1
+}
+
 variable "idp_cpu_autoscaling_enabled" {
   default = 1
 }
