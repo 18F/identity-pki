@@ -475,3 +475,55 @@ resource "aws_vpc_endpoint" "sts" {
 
   private_dns_enabled = true
 }
+
+resource "aws_security_group" "smtp_endpoint" {
+  description = "Allow inbound from all servers"
+
+  # allow outbound to the VPC
+  egress {
+    from_port   = 0
+    to_port     = 65535
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr_block]
+  }
+
+  ingress {
+    from_port = 0
+    to_port   = 65535
+    protocol  = "tcp"
+    security_groups = [
+      aws_security_group.base.id,
+    ]
+  }
+
+  ingress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = [
+      var.private1_subnet_cidr_block,
+      var.private2_subnet_cidr_block,
+      var.private3_subnet_cidr_block,
+    ]
+  }
+
+  vpc_id = aws_vpc.default.id
+}
+
+data "aws_vpc_endpoint_service" "email-smtp" {
+  service      = "email-smtp"
+  service_type = "Interface"
+}
+
+resource "aws_vpc_endpoint" "email-smtp" {
+  vpc_id              = aws_vpc.default.id
+  service_name        = data.aws_vpc_endpoint_service.email-smtp.service_name
+  vpc_endpoint_type   = "Interface"
+  security_group_ids  = [aws_security_group.smtp_endpoint.id]
+  subnet_ids = [
+    aws_subnet.privatesubnet1.id,
+    aws_subnet.privatesubnet2.id,
+    aws_subnet.privatesubnet3.id,
+  ]
+  private_dns_enabled = true
+}
