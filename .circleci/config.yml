@@ -12,20 +12,7 @@ jobs:
           paths:
             - .
 
-  tfsec-check:
-    docker:
-      - image: tfsec/tfsec-ci
-    working_directory: /tmp/identity-devops
-    parameters:
-      folder:
-        type: string
-    steps:
-      - attach_workspace:
-          at: .
-      # Used to advise for now - Remove the --soft-fail when ready to ENFORCE :ed209:
-      - run: tfsec --no-color --soft-fail terraform/<< parameters.folder >>
-
-  tfsec-check:
+  tfsec-check-soft:
     docker:
       - image: tfsec/tfsec-ci
     working_directory: /tmp/identity-devops
@@ -76,6 +63,7 @@ workflows:
             - setup
           matrix:
             parameters:
+              # Add folders that should be vuln free and STAY THAT WAY
               folder:
                 - imagebuild/module
                 - master/module
