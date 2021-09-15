@@ -25,12 +25,38 @@ jobs:
       # Used to advise for now - Remove the --soft-fail when ready to ENFORCE :ed209:
       - run: tfsec --no-color --soft-fail terraform/<< parameters.folder >>
 
+  tfsec-check:
+    docker:
+      - image: tfsec/tfsec-ci
+    working_directory: /tmp/identity-devops
+    parameters:
+      folder:
+        type: string
+    steps:
+      - attach_workspace:
+          at: .
+      # Used to advise for now - Remove the --soft-fail when ready to ENFORCE :ed209:
+      - run: tfsec --no-color --soft-fail terraform/<< parameters.folder >>
+
+  tfsec-check-enforce:
+    docker:
+      - image: tfsec/tfsec-ci
+    working_directory: /tmp/identity-devops
+    parameters:
+      folder:
+        type: string
+    steps:
+      - attach_workspace:
+          at: .
+      # Used to advise for now - Remove the --soft-fail when ready to ENFORCE :ed209:
+      - run: tfsec --no-color terraform/<< parameters.folder >>
+
 workflows:
   version: 2
   sast:
     jobs:
       - setup
-      - tfsec-check:
+      - tfsec-check-soft:
           requires:
             - setup
           matrix:
@@ -41,12 +67,17 @@ workflows:
                 - app
                 - core/module
                 - gitlab/module
-                - imagebuild/module
-                - master/module
                 - modules
                 - sms/module
                 - tooling/module
+                - waf/module
+      - tfsec-check-enforce:
+          requires:
+            - setup
+          matrix:
+            parameters:
+              folder:
+                - imagebuild/module
+                - master/module
                 - tooling/module-gitlabpipeline
                 - tooling/module-pipeline
-                - waf/module
-
