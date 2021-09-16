@@ -21,6 +21,13 @@ resource "aws_elb" "gitlab" {
     ssl_certificate_id = aws_acm_certificate.gitlab.arn
   }
 
+  listener {
+    instance_port      = 22
+    instance_protocol  = "tcp"
+    lb_port            = 22
+    lb_protocol        = "tcp"
+  }
+
   health_check {
     target              = "HTTPS:443/-/health"
     healthy_threshold   = 3

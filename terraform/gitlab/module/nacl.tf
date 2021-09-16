@@ -182,3 +182,14 @@ resource "aws_network_acl_rule" "elb-ingress-https" {
   rule_action    = "allow"
   cidr_block     = var.allowed_gitlab_cidr_blocks_v4.0
 }
+
+resource "aws_network_acl_rule" "elb-ingress-ssh" {
+  network_acl_id = aws_network_acl.gitlab.id
+  egress         = false
+  from_port      = 22
+  to_port        = 22
+  protocol       = "tcp"
+  rule_number    = 52
+  rule_action    = "allow"
+  cidr_block     = var.allowed_gitlab_cidr_blocks_v4.0
+}
