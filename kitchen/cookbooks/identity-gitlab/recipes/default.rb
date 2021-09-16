@@ -105,7 +105,18 @@ template '/etc/gitlab/gitlab.rb' do
     notifies :run, 'execute[reconfigure_gitlab]', :delayed
 end
 
+template '/etc/ssh/sshd_config' do
+  source 'sshd_config.erb'
+  mode  '0600'
+  notifies :run, 'execute[restart_sshd]', :delayed
+end
+
 execute 'reconfigure_gitlab' do
   command '/usr/bin/gitlab-ctl reconfigure'
+  action :nothing
+end
+
+execute 'restart_sshd' do
+  command 'service ssh reload'
   action :nothing
 end
