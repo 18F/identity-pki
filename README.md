@@ -24,5 +24,6 @@ Lastly, be sure to follow our [PR Acceptance Criteria](https://handbook.login.go
 - [Personal Sandbox Environment Setup](https://github.com/18F/identity-devops/wiki/Building-a-Personal-Sandbox-Environment)
 - [Deploying DevOps Code](https://github.com/18F/identity-devops/wiki/Deploying-Infrastructure-Code)
 - [Making Changes via Terraform](https://github.com/18F/identity-devops/wiki/Making-Changes-via-Terraform)
+- [Runbook: Infrastructure CI/CD](https://github.com/18F/identity-devops/wiki/Runbook:-Infrastructure-CI-CD)
 
 Check the [Login.gov Handbook](https://handbook.login.gov/#infrastructure) for more!
