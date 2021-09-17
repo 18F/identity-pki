@@ -205,7 +205,7 @@ data "aws_iam_policy_document" "partner_logos_bucket_policy" {
 
 module "partner_logos_bucket_config" {
   count  = var.apps_enabled
-  source = "github.com/18F/identity-terraform//s3_config?ref=b68c41068a53acbb981eeb37e1eb0a36a6487ac7"
+  source = "github.com/18F/identity-terraform//s3_config?ref=7e11ebe24e3a9cbc34d1413cf4d20b3d71390d5b"
   #source = "../../../identity-terraform/s3_config"
 
   bucket_name_override = aws_s3_bucket.partner_logos_bucket[0].id

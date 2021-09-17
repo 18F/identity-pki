@@ -42,7 +42,7 @@ resource "aws_s3_bucket" "legacy_log_bucket" {
 
 module "legacy_log_bucket_config" {
   count  = var.keep_legacy_bucket ? 1 : 0
-  source = "github.com/18F/identity-terraform//s3_config?ref=b68c41068a53acbb981eeb37e1eb0a36a6487ac7"
+  source = "github.com/18F/identity-terraform//s3_config?ref=7e11ebe24e3a9cbc34d1413cf4d20b3d71390d5b"
 
   bucket_name_override = aws_s3_bucket.legacy_log_bucket[0].id
   region               = var.region
