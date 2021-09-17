@@ -92,7 +92,7 @@ resource "aws_iam_role_policy" "worker-upload-s3-reports" {
 }
 
 module "worker_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=b68c41068a53acbb981eeb37e1eb0a36a6487ac7"
+  source = "github.com/18F/identity-terraform//launch_template?ref=7e11ebe24e3a9cbc34d1413cf4d20b3d71390d5b"
   #source = "../../../identity-terraform/launch_template"
   role           = "worker"
   env            = var.env_name
@@ -112,12 +112,12 @@ module "worker_launch_template" {
 }
 
 module "worker_lifecycle_hooks" {
-  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=b68c41068a53acbb981eeb37e1eb0a36a6487ac7"
+  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=7e11ebe24e3a9cbc34d1413cf4d20b3d71390d5b"
   asg_name = aws_autoscaling_group.worker.name
 }
 
 module "worker_recycle" {
-  source = "github.com/18F/identity-terraform//asg_recycle?ref=b68c41068a53acbb981eeb37e1eb0a36a6487ac7"
+  source = "github.com/18F/identity-terraform//asg_recycle?ref=7e11ebe24e3a9cbc34d1413cf4d20b3d71390d5b"
 
   # switch to count when that's a thing that we can do
   # https://github.com/hashicorp/terraform/issues/953

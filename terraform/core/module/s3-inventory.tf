@@ -2,7 +2,7 @@
 # https://github.com/18F/identity-devops/issues/2657
 
 module "s3_inventory_uw2" {
-  source = "github.com/18F/identity-terraform//s3_batch_inventory?ref=b68c41068a53acbb981eeb37e1eb0a36a6487ac7"
+  source = "github.com/18F/identity-terraform//s3_batch_inventory?ref=7e11ebe24e3a9cbc34d1413cf4d20b3d71390d5b"
   #source = "../../../../identity-terraform/s3_batch_inventory"
 
   bucket_list          = var.bucket_list_uw2
@@ -10,7 +10,7 @@ module "s3_inventory_uw2" {
 }
 
 module "s3_config_ue1" {
-  source = "github.com/18F/identity-terraform//state_bucket?ref=b68c41068a53acbb981eeb37e1eb0a36a6487ac7"
+  source = "github.com/18F/identity-terraform//state_bucket?ref=7e11ebe24e3a9cbc34d1413cf4d20b3d71390d5b"
   #source = "../../../../identity-terraform/state_bucket"
   providers = {
     aws = aws.use1
@@ -23,7 +23,7 @@ module "s3_config_ue1" {
 }
 
 module "s3_inventory_ue1" {
-  source    = "github.com/18F/identity-terraform//s3_batch_inventory?ref=b68c41068a53acbb981eeb37e1eb0a36a6487ac7"
+  source    = "github.com/18F/identity-terraform//s3_batch_inventory?ref=7e11ebe24e3a9cbc34d1413cf4d20b3d71390d5b"
   #source   = "../../../../identity-terraform/s3_batch_inventory"
   providers = {
     aws = aws.use1

@@ -6,7 +6,6 @@ terraform {
       source  = "newrelic/newrelic"
     }
   }
-  required_version = ">= 0.13.7"
 }
 
 # NOTE:  these s3 objects need to be uploaded with --content-type text/plain

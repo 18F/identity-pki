@@ -200,7 +200,7 @@ as TERRAFORM_SYMLINK to set the symlink install location, or TERRAFORM_DOT_D to
 override the location used instead of ~/.terraform.d/.
 
 For example:
-    $(basename "$0") 0.13.7
+    $(basename "$0") 1.0.2
 
 Known Terraform versions:
 EOM
