@@ -52,7 +52,7 @@ workflows:
   lint:
     jobs:
       - setup
-      - tffmt:
+      - tf-fmt-check:
           requires:
             - setup
   sast:
