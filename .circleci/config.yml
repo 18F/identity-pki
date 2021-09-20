@@ -11,10 +11,19 @@ jobs:
           root: .
           paths:
             - .
-
+  tf-fmt-check:
+    docker:
+      # TODO - Pin this!
+      - image: hashicorp/terraform
+    working_directory: /tmp/identity-devops
+    steps:
+      - attach_workspace:
+          at: .
+      - run: terraform fmt -recursive -diff -check ./terraform
   tfsec-check-soft:
     docker:
-      - image: tfsec/tfsec-ci
+      # TODO - Pin this!
+      - image: aquasec/tfsec-ci
     working_directory: /tmp/identity-devops
     parameters:
       folder:
@@ -27,7 +36,7 @@ jobs:
 
   tfsec-check-enforce:
     docker:
-      - image: tfsec/tfsec-ci
+      - image: aquasec/tfsec-ci
     working_directory: /tmp/identity-devops
     parameters:
       folder:
@@ -40,6 +49,12 @@ jobs:
 
 workflows:
   version: 2
+  lint:
+    jobs:
+      - setup
+      - tffmt:
+          requires:
+            - setup
   sast:
     jobs:
       - setup
