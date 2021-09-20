@@ -9,6 +9,7 @@
   "chef_type": "role",
   "run_list": [
     "role[base]",
+    "recipe[login_dot_gov::passenger_service]",
     "recipe[login_dot_gov::idp_worker_base]",
     "recipe[login_dot_gov::common_scripts]"
   ],

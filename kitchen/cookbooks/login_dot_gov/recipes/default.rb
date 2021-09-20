@@ -1,6 +1,5 @@
 include_recipe "login_dot_gov::system_users"
 include_recipe "login_dot_gov::ssh"
-include_recipe "passenger::daemon"
 include_recipe "login_dot_gov::dashboard"
 include_recipe "login_dot_gov::idp_base"
 include_recipe "login_dot_gov::idp_web"

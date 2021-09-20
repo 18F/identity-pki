@@ -63,7 +63,6 @@ cookbook 'cloudhsm', '>= 0.0.7', git: 'https://github.com/18F/identity-cookbooks
 cookbook 'config_loader', '>= 0.2.2', git: 'https://github.com/18F/identity-cookbooks', rel: 'config_loader', ref: IdentityCookbooksRef
 cookbook 'identity_base_config', '>= 0.1.2', git: 'https://github.com/18F/identity-cookbooks', rel: 'identity_base_config', ref: IdentityCookbooksRef
 cookbook 'identity_shared_attributes', '>= 0.1.2', git: 'https://github.com/18F/identity-cookbooks', rel: 'identity_shared_attributes', ref: IdentityCookbooksRef
-cookbook 'passenger', git: 'https://github.com/18F/identity-cookbooks', rel: 'passenger', ref: IdentityCookbooksRef
 cookbook 'static_eip', '>= 0.2.1', git: 'https://github.com/18F/identity-cookbooks', rel: 'static_eip', ref: IdentityCookbooksRef
 
 # We have to reference this special citadel-build repository for two reasons:

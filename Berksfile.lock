@@ -67,11 +67,6 @@ DEPENDENCIES
   ossec
     git: https://github.com/sous-chefs/ossec
     revision: 093c6cdf8a5790327f07a93a07bb3904715dc078
-  passenger
-    git: https://github.com/18F/identity-cookbooks
-    revision: 100bc65635b9f8ba2527a7e6c9714de755629570
-    ref: 100bc65
-    rel: passenger
   runit (~> 5.1.3)
   service_discovery
     path: kitchen/cookbooks/service_discovery
@@ -176,8 +171,7 @@ GRAPH
   ossec (1.2.2)
     yum-atomic (>= 0.0.0)
   packagecloud (1.0.1)
-  passenger (0.0.10)
-    identity_shared_attributes (>= 0.0.1)
+  passenger (0.0.1)
   poise (2.8.2)
   poise-archive (1.5.0)
     poise (~> 2.6)

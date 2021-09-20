@@ -119,7 +119,6 @@ template "/opt/nginx/conf/sites.d/pivcac.conf" do
     server_name: node.fetch('pivcac').fetch('wildcard'),
     ssl_domain: node.fetch('pivcac').fetch('domain')
   })
-
 end
 
 %w{config log}.each do |dir|
