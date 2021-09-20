@@ -15,7 +15,7 @@ variable "code_branch" {
 }
 
 module "main" {
-  source     = "../module"
+  source = "../module"
 
-  code_branch    = var.code_branch
+  code_branch = var.code_branch
 }

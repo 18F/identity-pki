@@ -4,13 +4,13 @@ data "aws_sns_topic" "cloudfront_alarm" {
 
 # Create a TLS certificate with ACM
 module "acm-cert-idp-static-cdn" {
-  count     = var.enable_idp_cdn ? 1 : 0
-  source    = "github.com/18F/identity-terraform//acm_certificate?ref=7e11ebe24e3a9cbc34d1413cf4d20b3d71390d5b"
+  count  = var.enable_idp_cdn ? 1 : 0
+  source = "github.com/18F/identity-terraform//acm_certificate?ref=7e11ebe24e3a9cbc34d1413cf4d20b3d71390d5b"
   #source = "../../../identity-terraform/acm_certificate"
   providers = {
     aws = aws.use1
   }
-  
+
   domain_name        = "static.${local.idp_domain_name}"
   validation_zone_id = var.route53_id
 }
@@ -59,7 +59,7 @@ resource "aws_cloudfront_distribution" "idp_static_cdn" {
   }
 
   viewer_certificate {
-    acm_certificate_arn      = module.acm-cert-idp-static-cdn[0].cert_arn
+    acm_certificate_arn = module.acm-cert-idp-static-cdn[0].cert_arn
     # TLS version should align with idp-alg setting
     minimum_protocol_version = "TLSv1"
     ssl_support_method       = "sni-only"
@@ -94,18 +94,18 @@ resource "aws_route53_record" "cname_cloudfront_idp" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "cloudfront_alert" {
-  count                     = var.enable_idp_cdn ? 1 : 0
-  alarm_name                = "CloudFront ${var.env_name} 4xx Errors"
-  comparison_operator       = "GreaterThanOrEqualToThreshold"
-  evaluation_periods        = "1"
-  metric_name               = "4xxErrorRate"
-  namespace                 = "AWS/CloudFront"
-  period                    = "300"
-  statistic                 = "Minimum"
-  threshold                 = "1"
-  alarm_description         = "This Alarm is executed when 4xx errors appear on the CF Distribution"
-  alarm_actions             = [data.aws_sns_topic.cloudfront_alarm.arn]
+  count               = var.enable_idp_cdn ? 1 : 0
+  alarm_name          = "CloudFront ${var.env_name} 4xx Errors"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "4xxErrorRate"
+  namespace           = "AWS/CloudFront"
+  period              = "300"
+  statistic           = "Minimum"
+  threshold           = "1"
+  alarm_description   = "This Alarm is executed when 4xx errors appear on the CF Distribution"
+  alarm_actions       = [data.aws_sns_topic.cloudfront_alarm.arn]
   dimensions = {
-      DistributionId = aws_cloudfront_distribution.idp_static_cdn[count.index].id
-        }
+    DistributionId = aws_cloudfront_distribution.idp_static_cdn[count.index].id
+  }
 }

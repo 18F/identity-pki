@@ -182,7 +182,7 @@ resource "aws_network_acl" "idp" {
     Name = "${var.env_name}-idp"
   }
 
-  vpc_id     = aws_vpc.default.id
+  vpc_id = aws_vpc.default.id
   subnet_ids = [
     aws_subnet.idp1.id,
     aws_subnet.idp2.id,

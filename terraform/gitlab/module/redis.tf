@@ -12,7 +12,7 @@ resource "aws_elasticache_replication_group" "gitlab" {
   subnet_group_name             = aws_elasticache_subnet_group.gitlab.name
   port                          = 6379
   transit_encryption_enabled    = true
-  
+
   # note that t2.* instances don't support automatic failover
   automatic_failover_enabled = true
 

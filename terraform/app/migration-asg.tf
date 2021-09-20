@@ -117,7 +117,7 @@ module "migration_lifecycle_hooks" {
 }
 
 module "migration_recycle" {
-  source = "github.com/18F/identity-terraform//asg_recycle?ref=7e11ebe24e3a9cbc34d1413cf4d20b3d71390d5b"
+  source  = "github.com/18F/identity-terraform//asg_recycle?ref=7e11ebe24e3a9cbc34d1413cf4d20b3d71390d5b"
   enabled = var.asg_auto_recycle_enabled
 
   # Migration instances must preceed IdP instances.  The following are 10 minute

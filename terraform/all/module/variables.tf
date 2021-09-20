@@ -85,7 +85,7 @@ variable "reports_bucket_arn" {
 
 variable "account_roles_map" {
   description = "Map of roles that are enabled/disabled in current account."
-  type        = map
+  type        = map(any)
 }
 
 variable "cloudtrail_event_selectors" {

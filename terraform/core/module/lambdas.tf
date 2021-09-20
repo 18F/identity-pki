@@ -35,7 +35,7 @@ resource "aws_lambda_function" "audit-github" {
 # Alert on errors
 module "audit-github-alerts" {
   source = "github.com/18F/identity-terraform//lambda_alerts?ref=7e11ebe24e3a9cbc34d1413cf4d20b3d71390d5b"
-  
+
   enabled              = var.lambda_audit_github_enabled
   function_name        = var.lambda_audit_github_enabled == 1 ? aws_lambda_function.audit-github[0].function_name : ""
   alarm_actions        = [module.sns_slack.sns_topic_arn]
@@ -161,7 +161,7 @@ module "audit-aws-alerts" {
 resource "aws_iam_role" "lambda-audit-aws" {
   count = var.lambda_audit_aws_enabled
 
-  name = "lambda-audit-aws"
+  name               = "lambda-audit-aws"
   assume_role_policy = data.aws_iam_policy_document.lambda-assume-role-policy.json
 }
 

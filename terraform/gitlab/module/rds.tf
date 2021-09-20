@@ -1,10 +1,10 @@
 # RDS resources for gitlab live here
 
 resource "aws_db_instance" "gitlab" {
-  allocated_storage       = var.rds_storage_gitlab
-  engine                  = var.rds_engine
-  engine_version          = var.rds_engine_version
-  instance_class          = var.rds_instance_class
+  allocated_storage = var.rds_storage_gitlab
+  engine            = var.rds_engine
+  engine_version    = var.rds_engine_version
+  instance_class    = var.rds_instance_class
 
   backup_retention_period = var.rds_backup_retention_period
   backup_window           = var.rds_backup_window
@@ -62,9 +62,9 @@ module "gitlab_rds_usw2" {
   providers = {
     aws = aws.usw2
   }
-  env_name = var.env_name
-  name = var.name
-  rds_engine = var.rds_engine
+  env_name           = var.env_name
+  name               = var.name
+  rds_engine         = var.rds_engine
   rds_engine_version = var.rds_engine_version
 }
 

@@ -7,7 +7,7 @@ resource "aws_iam_account_password_policy" "strict" {
   max_password_age               = 90
   allow_users_to_change_password = true
   password_reuse_prevention      = 24
-  hard_expiry                    = false  # Default noted in case we change later
+  hard_expiry                    = false # Default noted in case we change later
 }
 
 # FedRAMP Requirements (https://github.com/18F/identity-security-private/issues/1932)

@@ -4,7 +4,7 @@
 locals {
   vars_files    = (var.env_name == "" ? "" : "-var-file $CODEBUILD_SRC_DIR_${local.clean_tf_dir}_${var.env_name}_private_output/vars/base.tfvars -var-file $CODEBUILD_SRC_DIR_${local.clean_tf_dir}_${var.env_name}_private_output/vars/account_global_${var.account}.tfvars -var-file $CODEBUILD_SRC_DIR_${local.clean_tf_dir}_${var.env_name}_private_output/vars/${var.env_name}.tfvars")
   envstr        = (var.env_name == "" ? "" : "the ${var.env_name} environment in ")
-  tf_top_dir    = (var.env_name == "" ? "${regex("[a-z]+/??",var.tf_dir)}/module" : "app")
+  tf_top_dir    = (var.env_name == "" ? "${regex("[a-z]+/??", var.tf_dir)}/module" : "app")
   state_bucket  = "login-gov.tf-state.${var.account}-${var.state_bucket_region}"
   tf_config_key = (var.env_name == "" ? "terraform-${var.tf_dir}.tfstate" : "terraform-app/terraform-${var.env_name}.tfstate")
 }

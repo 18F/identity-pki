@@ -37,8 +37,8 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
       output_artifacts = ["gitlab_${var.cluster_name}_private_output"]
 
       configuration = {
-        Owner = "18F"
-        Repo  = "identity-devops-private"
+        Owner      = "18F"
+        Repo       = "identity-devops-private"
         Branch     = "main"
         OAuthToken = data.aws_s3_bucket_object.identity_devops_oauthkey.body
       }

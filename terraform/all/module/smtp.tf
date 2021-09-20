@@ -15,7 +15,7 @@
 # bin/tf-deploy all/tooling import 'module.main.aws_iam_access_key.ses-smtp[0]' $ACCESSKEYID
 
 resource "aws_iam_user_policy" "ses-smtp" {
-  count = var.smtp_user_ready ? 1 : 0
+  count  = var.smtp_user_ready ? 1 : 0
   name   = "ses-smtp"
   user   = aws_iam_user.ses-smtp[0].name
   policy = data.aws_iam_policy_document.ses_email_user_policy.json
@@ -24,7 +24,7 @@ resource "aws_iam_user_policy" "ses-smtp" {
 # Create one user per account, since each user accesses the same SMTP endpoint.
 resource "aws_iam_user" "ses-smtp" {
   count = var.smtp_user_ready ? 1 : 0
-  name = "ses-smtp"
+  name  = "ses-smtp"
 }
 
 data "aws_iam_policy_document" "ses_email_user_policy" {
@@ -43,17 +43,17 @@ data "aws_iam_policy_document" "ses_email_user_policy" {
 
 resource "aws_iam_access_key" "ses-smtp" {
   count = var.smtp_user_ready ? 1 : 0
-  user = aws_iam_user.ses-smtp[0].name
+  user  = aws_iam_user.ses-smtp[0].name
 }
 
 data "aws_s3_bucket_object" "ses-smtp-username" {
-  count = var.smtp_user_ready ? 1 : 0
-  bucket       = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
-  key          = "common/ses_smtp_username"
+  count  = var.smtp_user_ready ? 1 : 0
+  bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
+  key    = "common/ses_smtp_username"
 }
 
 data "aws_s3_bucket_object" "ses-smtp-password" {
-  count = var.smtp_user_ready ? 1 : 0
-  bucket       = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
-  key          = "common/ses_smtp_password"
+  count  = var.smtp_user_ready ? 1 : 0
+  bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
+  key    = "common/ses_smtp_password"
 }

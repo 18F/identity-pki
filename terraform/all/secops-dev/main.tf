@@ -15,15 +15,15 @@ variable "opsgenie_key_ready" {
 }
 
 module "main" {
-  source                       = "../module"
+  source             = "../module"
   opsgenie_key_ready = var.opsgenie_key_ready
 
-  iam_account_alias  = "login-secops-dev"
+  iam_account_alias = "login-secops-dev"
   account_roles_map = {
     iam_appdev_enabled = false
   }
-  
-  cloudtrail_event_selectors  = [
+
+  cloudtrail_event_selectors = [
     {
       include_management_events = false
       read_write_type           = "WriteOnly"
@@ -36,6 +36,6 @@ module "main" {
           ]
         }
       ]
-    }   
+    }
   ]
 }

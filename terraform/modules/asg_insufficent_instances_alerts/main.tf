@@ -50,9 +50,9 @@ resource "aws_cloudwatch_metric_alarm" "insufficient-instances" {
 
   comparison_operator = "GreaterThanThreshold"
   # Allow a dip of one under minimum
-  threshold           = 1
-  evaluation_periods  = 1
-  treat_missing_data  = "notBreaching"
+  threshold          = 1
+  evaluation_periods = 1
+  treat_missing_data = "notBreaching"
 
   alarm_actions = var.alarm_actions
   ok_actions    = var.alarm_actions

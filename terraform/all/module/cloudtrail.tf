@@ -25,7 +25,7 @@ data "aws_iam_policy_document" "cloudtrail" {
     condition {
       test     = "StringEquals"
       variable = "s3:x-amz-acl"
-      values   = [
+      values = [
         "bucket-owner-full-control"
       ]
     }
@@ -58,7 +58,7 @@ data "aws_iam_policy_document" "cloudtrail_cloudwatch_logs" {
 }
 
 resource "aws_s3_bucket" "cloudtrail" {
-  bucket = "login-gov-cloudtrail-${data.aws_caller_identity.current.account_id}"
+  bucket        = "login-gov-cloudtrail-${data.aws_caller_identity.current.account_id}"
   force_destroy = true
 
   policy = data.aws_iam_policy_document.cloudtrail.json
@@ -73,12 +73,12 @@ resource "aws_s3_bucket" "cloudtrail" {
     prefix  = ""
 
     transition {
-      days = 90
-      storage_class = "STANDARD_IA" 
+      days          = 90
+      storage_class = "STANDARD_IA"
     }
 
     transition {
-      days = 365
+      days          = 365
       storage_class = "GLACIER"
     }
 
@@ -87,12 +87,12 @@ resource "aws_s3_bucket" "cloudtrail" {
     }
 
     noncurrent_version_transition {
-      days = 90 
+      days          = 90
       storage_class = "STANDARD_IA"
     }
 
     noncurrent_version_transition {
-      days = 365
+      days          = 365
       storage_class = "GLACIER"
     }
 
@@ -123,7 +123,7 @@ module "cloudtrail_bucket_config" {
 }
 
 resource "aws_cloudwatch_log_group" "cloudtrail_default" {
-  name = "CloudTrail/DefaultLogGroup"
+  name              = "CloudTrail/DefaultLogGroup"
   retention_in_days = 365
 }
 
@@ -152,8 +152,8 @@ resource "aws_cloudtrail" "cloudtrail" {
   dynamic "event_selector" {
     for_each = var.cloudtrail_event_selectors
     content {
-      include_management_events  = lookup(event_selector.value, "include_management_events", false)
-      read_write_type            = lookup(event_selector.value, "read_write_type", "ReadOnly")
+      include_management_events = lookup(event_selector.value, "include_management_events", false)
+      read_write_type           = lookup(event_selector.value, "read_write_type", "ReadOnly")
 
       dynamic "data_resource" {
         for_each = flatten(lookup(event_selector.value, "data_resources", []))

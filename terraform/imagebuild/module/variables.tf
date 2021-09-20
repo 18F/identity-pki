@@ -5,7 +5,7 @@ variable "region" {
 variable "ami_types" {
   description = "Names of the types of AMIs being created (base/rails by default)."
   type        = list(string)
-  default     = [
+  default = [
     "base",
     "rails"
   ]
@@ -41,7 +41,7 @@ variable "code_branch" {
 
 variable "packer_config" {
   description = "Map of key/value pairs for Packer configs consistent in all AMI types."
-  type = map(string)
+  type        = map(string)
   default = {
     encryption              = "true"
     root_vol_size           = "40"
@@ -60,6 +60,6 @@ variable "trigger_source" {
 Which service can trigger the CodePipeline which runs the ImageBuild CodeBuild project.
 Options are 'S3', 'CloudWatch', or 'Both'.
 DESC
-  type = string
-  default = "Both"
+  type        = string
+  default     = "Both"
 }

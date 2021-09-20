@@ -4,10 +4,10 @@ data "aws_ip_ranges" "route53" {
 }
 
 locals {
-  net_ssm_parameter_prefix  = "/${var.env_name}/network/"
-  ip_regex = "^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}\\/(?:[0-2][0-9]|[3][0-2])"
+  net_ssm_parameter_prefix = "/${var.env_name}/network/"
+  ip_regex                 = "^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}\\/(?:[0-2][0-9]|[3][0-2])"
   github_ipv4 = compact([
-    for ip in data.github_ip_ranges.ips.git : try(regex(local.ip_regex, ip),"")
+    for ip in data.github_ip_ranges.ips.git : try(regex(local.ip_regex, ip), "")
   ])
 }
 
@@ -525,16 +525,16 @@ resource "aws_security_group" "idp" {
 
   # inbound from lambda functions
   ingress {
-    from_port       = 443
-    to_port         = 443
-    protocol        = "tcp"
+    from_port = 443
+    to_port   = 443
+    protocol  = "tcp"
     cidr_blocks = [
       var.private1_subnet_cidr_block,
       var.private2_subnet_cidr_block,
       var.private3_subnet_cidr_block,
     ]
   }
-  
+
   name = "${var.name}-idp-${var.env_name}"
 
   tags = {
@@ -546,7 +546,7 @@ resource "aws_security_group" "idp" {
 }
 
 resource "aws_ssm_parameter" "net_idp_securitygroup" {
-  name = "${local.net_ssm_parameter_prefix}securitygroup/idp/id"
+  name  = "${local.net_ssm_parameter_prefix}securitygroup/idp/id"
   type  = "String"
   value = aws_security_group.idp.id
 }
@@ -1002,21 +1002,21 @@ resource "aws_vpc" "default" {
 }
 
 resource "aws_ssm_parameter" "net_vpcid" {
-  name = "${local.net_ssm_parameter_prefix}vpc/id"
+  name  = "${local.net_ssm_parameter_prefix}vpc/id"
   type  = "String"
   value = aws_vpc.default.id
 }
 
 # use route53 for dns query logging
 resource "aws_route53_resolver_query_log_config" "vpc" {
-  name = "${var.name}-vpc-${var.env_name}"
-  destination_arn = aws_cloudwatch_log_group.dns_query_log.arn 
+  name            = "${var.name}-vpc-${var.env_name}"
+  destination_arn = aws_cloudwatch_log_group.dns_query_log.arn
 
 }
 
 resource "aws_route53_resolver_query_log_config_association" "vpc" {
   resolver_query_log_config_id = aws_route53_resolver_query_log_config.vpc.id
-  resource_id = aws_vpc.default.id
+  resource_id                  = aws_vpc.default.id
 }
 
 # create public and private subnets
@@ -1060,8 +1060,8 @@ resource "aws_subnet" "publicsubnet3" {
 }
 
 resource "aws_subnet" "privatesubnet1" {
-  availability_zone = "${var.region}a"
-  cidr_block        = var.private1_subnet_cidr_block
+  availability_zone       = "${var.region}a"
+  cidr_block              = var.private1_subnet_cidr_block
   map_public_ip_on_launch = true
 
   tags = {
@@ -1073,14 +1073,14 @@ resource "aws_subnet" "privatesubnet1" {
 }
 
 resource "aws_ssm_parameter" "net_subnet_private1" {
-  name = "${local.net_ssm_parameter_prefix}subnet/private1/id"
+  name  = "${local.net_ssm_parameter_prefix}subnet/private1/id"
   type  = "String"
   value = aws_subnet.privatesubnet1.id
 }
 
 resource "aws_subnet" "privatesubnet2" {
-  availability_zone = "${var.region}b"
-  cidr_block        = var.private2_subnet_cidr_block
+  availability_zone       = "${var.region}b"
+  cidr_block              = var.private2_subnet_cidr_block
   map_public_ip_on_launch = true
 
   tags = {
@@ -1092,14 +1092,14 @@ resource "aws_subnet" "privatesubnet2" {
 }
 
 resource "aws_ssm_parameter" "net_subnet_private2" {
-  name = "${local.net_ssm_parameter_prefix}subnet/private2/id"
+  name  = "${local.net_ssm_parameter_prefix}subnet/private2/id"
   type  = "String"
   value = aws_subnet.privatesubnet2.id
 }
 
 resource "aws_subnet" "privatesubnet3" {
-  availability_zone = "${var.region}c"
-  cidr_block        = var.private3_subnet_cidr_block
+  availability_zone       = "${var.region}c"
+  cidr_block              = var.private3_subnet_cidr_block
   map_public_ip_on_launch = true
 
   tags = {
@@ -1111,7 +1111,7 @@ resource "aws_subnet" "privatesubnet3" {
 }
 
 resource "aws_ssm_parameter" "net_subnet_private3" {
-  name = "${local.net_ssm_parameter_prefix}subnet/private3/id"
+  name  = "${local.net_ssm_parameter_prefix}subnet/private3/id"
   type  = "String"
   value = aws_subnet.privatesubnet3.id
 }
@@ -1301,13 +1301,13 @@ module "vpc_flow_cloudwatch_filters" {
 }
 
 resource "aws_ssm_parameter" "net_outboundproxy" {
-  name = "${local.net_ssm_parameter_prefix}outboundproxy/url"
+  name  = "${local.net_ssm_parameter_prefix}outboundproxy/url"
   type  = "String"
   value = "http://${var.proxy_server}:${var.proxy_port}"
 }
 
 resource "aws_ssm_parameter" "net_noproxy" {
-  name = "${local.net_ssm_parameter_prefix}outboundproxy/no_proxy"
+  name  = "${local.net_ssm_parameter_prefix}outboundproxy/no_proxy"
   type  = "String"
   value = var.no_proxy_hosts
 }
@@ -1315,12 +1315,12 @@ resource "aws_security_group" "quarantine" {
   name        = "${var.env_name}-quarantine"
   description = "Quarantine security group to access quarantined ec2 instances"
   vpc_id      = aws_vpc.default.id
-  
-    ingress {
-    description     = "allow 443 from VPC"
-    protocol        = "tcp"
-    from_port       = 443
-    to_port         = 443
+
+  ingress {
+    description = "allow 443 from VPC"
+    protocol    = "tcp"
+    from_port   = 443
+    to_port     = 443
     cidr_blocks = [var.vpc_cidr_block]
   }
   egress {
@@ -1331,17 +1331,17 @@ resource "aws_security_group" "quarantine" {
     prefix_list_ids = [aws_vpc_endpoint.private-s3.prefix_list_id]
   }
 
-    egress {
+  egress {
     description     = "allow egress to endpoints"
     from_port       = 443
     to_port         = 443
     protocol        = "tcp"
-    security_groups = [aws_security_group.ec2messages_endpoint.id, aws_security_group.ssmmessages_endpoint.id, aws_security_group.ssm_endpoint.id,aws_security_group.logs_endpoint.id]
+    security_groups = [aws_security_group.ec2messages_endpoint.id, aws_security_group.ssmmessages_endpoint.id, aws_security_group.ssm_endpoint.id, aws_security_group.logs_endpoint.id]
   }
 
-    tags = {
-      Name = "${var.env_name}-quarantine"
-      description = "Quarantine Security Group"
+  tags = {
+    Name        = "${var.env_name}-quarantine"
+    description = "Quarantine Security Group"
   }
 }
 

@@ -265,7 +265,7 @@ resource "newrelic_alert_condition" "enduser_error_percentage" {
 
 resource "newrelic_one_dashboard" "error_dashboard" {
   count = var.enabled
-  
+
   name        = "Errors for ${var.error_dashboard_site}"
   permissions = "public_read_only"
 
@@ -286,11 +286,11 @@ resource "newrelic_one_dashboard" "error_dashboard" {
     }
 
     widget_area {
-      title = "Errors by Endpoint"
-      row = 1
+      title  = "Errors by Endpoint"
+      row    = 1
       column = 5
       height = 3
-      width = 4
+      width  = 4
 
       nrql_query {
         account_id = 1376370
@@ -299,11 +299,11 @@ resource "newrelic_one_dashboard" "error_dashboard" {
     }
 
     widget_area {
-      title = "Errors by IAL level"
-      row = 4
+      title  = "Errors by IAL level"
+      row    = 4
       column = 1
       height = 3
-      width = 4
+      width  = 4
 
       nrql_query {
         account_id = 1376370
@@ -312,11 +312,11 @@ resource "newrelic_one_dashboard" "error_dashboard" {
     }
 
     widget_table {
-      title = "Errors Count"
-      row = 4
+      title  = "Errors Count"
+      row    = 4
       column = 5
       height = 3
-      width = 8
+      width  = 8
 
       nrql_query {
         account_id = 1376370

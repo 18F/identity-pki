@@ -1,5 +1,5 @@
 locals {
-  ddos_alarm_topics = var.opsgenie_key_ready ? [aws_sns_topic.slack_usw2["events"].arn,module.opsgenie_sns[0].usw2_sns_topic_arn] : [aws_sns_topic.slack_usw2["events"].arn]
+  ddos_alarm_topics = var.opsgenie_key_ready ? [aws_sns_topic.slack_usw2["events"].arn, module.opsgenie_sns[0].usw2_sns_topic_arn] : [aws_sns_topic.slack_usw2["events"].arn]
 }
 
 resource "aws_cloudwatch_metric_alarm" "ddos_alert" {

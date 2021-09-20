@@ -31,7 +31,7 @@ resource "aws_sns_topic" "autoscaling_events" {
 }
 
 resource "aws_sns_topic" "rds_snapshot_events" {
-  name              = "rds-snapshot-events"
+  name = "rds-snapshot-events"
 }
 
 resource "aws_db_event_subscription" "idp" {
