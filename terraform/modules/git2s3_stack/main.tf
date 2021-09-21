@@ -24,7 +24,7 @@ data "github_ip_ranges" "ips" {
 resource "aws_cloudformation_stack" "git2s3" {
   name          = "CodeSync-IdentityBaseImage"
   template_body = file("${path.module}/git2s3.template")
-  parameters    = {
+  parameters = {
     AllowedIps          = data.github_ip_ranges.ips.git
     QSS3BucketName      = "aws-quickstart"
     OutputBucketName    = ""
@@ -45,7 +45,7 @@ data "aws_iam_policy_document" "git2s3_output_bucket" {
   statement {
     effect = "Allow"
     principals {
-      type = "AWS"
+      type        = "AWS"
       identifiers = formatlist("arn:aws:iam::%s:root", var.external_account_ids)
     }
     actions = [
@@ -68,7 +68,7 @@ data "aws_iam_policy_document" "artifact_bucket" {
   statement {
     effect = "Allow"
     principals {
-      type = "AWS"
+      type        = "AWS"
       identifiers = formatlist("arn:aws:iam::%s:root", var.external_account_ids)
     }
     actions = [
@@ -83,7 +83,7 @@ data "aws_iam_policy_document" "artifact_bucket" {
   statement {
     effect = "Allow"
     principals {
-      type = "AWS"
+      type        = "AWS"
       identifiers = formatlist("arn:aws:iam::%s:root", var.external_account_ids)
     }
     actions = [

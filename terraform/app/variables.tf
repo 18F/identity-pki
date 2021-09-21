@@ -656,12 +656,12 @@ variable "gitlab_hostname" {
   default     = "gitlab"
 }
 
-variable "idp_ial2_sp_dashboards" {  
+variable "idp_ial2_sp_dashboards" {
   type = map(object({
-    name         = string
-    issuer       = string
-    protocol     = string
+    name     = string
+    issuer   = string
+    protocol = string
   }))
   description = "Map of values for widgets on IAL2 SP dashboard"
-  default = {}
+  default     = {}
 }

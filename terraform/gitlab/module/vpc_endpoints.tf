@@ -19,13 +19,13 @@ resource "aws_security_group" "ssm_endpoint" {
     ]
   }
 
-# Adding ingress rule below to allow ssm access via port 443 from private and idp subnets
-# This rule was created to avoid circular dependencies and allow quarantine hosts to be managed via ssm
+  # Adding ingress rule below to allow ssm access via port 443 from private and idp subnets
+  # This rule was created to avoid circular dependencies and allow quarantine hosts to be managed via ssm
 
   ingress {
     from_port = 443
-    to_port = 443
-    protocol = "tcp"
+    to_port   = 443
+    protocol  = "tcp"
     cidr_blocks = [
       var.private1_subnet_cidr_block,
       var.private2_subnet_cidr_block,
@@ -57,13 +57,13 @@ resource "aws_security_group" "ssmmessages_endpoint" {
     ]
   }
 
-# Adding ingress rule below to allow ssm access via port 443 from private and idp subnets
-# This rule was created to avoid circular dependencies and allow quarantine hosts to be managed via ssm
+  # Adding ingress rule below to allow ssm access via port 443 from private and idp subnets
+  # This rule was created to avoid circular dependencies and allow quarantine hosts to be managed via ssm
 
   ingress {
     from_port = 443
-    to_port = 443
-    protocol = "tcp"
+    to_port   = 443
+    protocol  = "tcp"
     cidr_blocks = [
       var.private1_subnet_cidr_block,
       var.private2_subnet_cidr_block,
@@ -124,13 +124,13 @@ resource "aws_security_group" "ec2messages_endpoint" {
       aws_security_group.gitlab.id, # TODO remove
     ]
   }
-# Adding ingress rule below to allow ssm access via port 443 from private and idp subnets
-# This rule was created to avoid circular dependencies and allow quarantine hosts to be managed via ssm
+  # Adding ingress rule below to allow ssm access via port 443 from private and idp subnets
+  # This rule was created to avoid circular dependencies and allow quarantine hosts to be managed via ssm
 
   ingress {
     from_port = 443
-    to_port = 443
-    protocol = "tcp"
+    to_port   = 443
+    protocol  = "tcp"
     cidr_blocks = [
       var.private1_subnet_cidr_block,
       var.private2_subnet_cidr_block,
@@ -168,13 +168,13 @@ resource "aws_security_group" "logs_endpoint" {
     ]
   }
 
-# Adding ingress rule below to allow ssm access via port 443 from private and idp subnets
-# This rule was created to avoid circular dependencies and allow quarantine hosts to be managed via ssm
+  # Adding ingress rule below to allow ssm access via port 443 from private and idp subnets
+  # This rule was created to avoid circular dependencies and allow quarantine hosts to be managed via ssm
 
   ingress {
     from_port = 443
-    to_port = 443
-    protocol = "tcp"
+    to_port   = 443
+    protocol  = "tcp"
     cidr_blocks = [
       var.private1_subnet_cidr_block,
       var.private2_subnet_cidr_block,
@@ -446,8 +446,8 @@ resource "aws_security_group" "sts_endpoint" {
 
   ingress {
     from_port = 443
-    to_port = 443
-    protocol = "tcp"
+    to_port   = 443
+    protocol  = "tcp"
     cidr_blocks = [
       var.private1_subnet_cidr_block,
       var.private2_subnet_cidr_block,
@@ -498,8 +498,8 @@ resource "aws_security_group" "smtp_endpoint" {
 
   ingress {
     from_port = 443
-    to_port = 443
-    protocol = "tcp"
+    to_port   = 443
+    protocol  = "tcp"
     cidr_blocks = [
       var.private1_subnet_cidr_block,
       var.private2_subnet_cidr_block,
@@ -516,10 +516,10 @@ data "aws_vpc_endpoint_service" "email-smtp" {
 }
 
 resource "aws_vpc_endpoint" "email-smtp" {
-  vpc_id              = aws_vpc.default.id
-  service_name        = data.aws_vpc_endpoint_service.email-smtp.service_name
-  vpc_endpoint_type   = "Interface"
-  security_group_ids  = [aws_security_group.smtp_endpoint.id]
+  vpc_id             = aws_vpc.default.id
+  service_name       = data.aws_vpc_endpoint_service.email-smtp.service_name
+  vpc_endpoint_type  = "Interface"
+  security_group_ids = [aws_security_group.smtp_endpoint.id]
   subnet_ids = [
     aws_subnet.privatesubnet1.id,
     aws_subnet.privatesubnet2.id,

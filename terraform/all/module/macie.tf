@@ -11,7 +11,7 @@ resource "aws_kms_key" "awsmacietrail_dataevent" {
   description             = "Macie v2"
   deletion_window_in_days = 7
   enable_key_rotation     = true
-  policy = data.aws_iam_policy_document.kms_awsmacietrail_dataevent.json
+  policy                  = data.aws_iam_policy_document.kms_awsmacietrail_dataevent.json
 }
 
 resource "aws_kms_alias" "awsmacietrail_dataevent" {
@@ -21,27 +21,27 @@ resource "aws_kms_alias" "awsmacietrail_dataevent" {
 
 resource "aws_s3_bucket" "awsmacietrail_dataevent" {
   bucket = local.macie_s3_bucket_name
-  acl = "private"
+  acl    = "private"
   server_side_encryption_configuration {
     rule {
       apply_server_side_encryption_by_default {
         kms_master_key_id = aws_kms_key.awsmacietrail_dataevent.arn
-        sse_algorithm = "aws:kms"
+        sse_algorithm     = "aws:kms"
       }
     }
   }
-  
+
   policy = data.aws_iam_policy_document.s3_awsmacietrail_dataevent.json
-  
+
   logging {
     target_bucket = "login-gov.s3-access-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
     target_prefix = "${local.macie_s3_bucket_name}/"
   }
-  
+
   versioning {
     enabled = true
   }
-  
+
   lifecycle_rule {
     id      = "expire"
     prefix  = "/"
@@ -82,7 +82,7 @@ data "aws_iam_policy_document" "kms_awsmacietrail_dataevent" {
     ]
   }
   statement {
-    sid = "Allow root to administer the key. This enables IAM policies."
+    sid    = "Allow root to administer the key. This enables IAM policies."
     effect = "Allow"
     principals {
       type = "AWS"
@@ -101,7 +101,7 @@ data "aws_iam_policy_document" "kms_awsmacietrail_dataevent" {
 
 data "aws_iam_policy_document" "s3_awsmacietrail_dataevent" {
   statement {
-    sid = "Deny non-HTTPS access"
+    sid    = "Deny non-HTTPS access"
     effect = "Deny"
     principals {
       type = "*"
@@ -116,7 +116,7 @@ data "aws_iam_policy_document" "s3_awsmacietrail_dataevent" {
       "arn:aws:s3:::${local.macie_s3_bucket_name}/*"
     ]
     condition {
-      test = "Bool"
+      test     = "Bool"
       variable = "aws:SecureTransport"
       values = [
         "false"
@@ -124,7 +124,7 @@ data "aws_iam_policy_document" "s3_awsmacietrail_dataevent" {
     }
   }
   statement {
-    sid = "Allow encrypted Macie uploads."
+    sid    = "Allow encrypted Macie uploads."
     effect = "Allow"
     principals {
       type = "Service"
@@ -139,14 +139,14 @@ data "aws_iam_policy_document" "s3_awsmacietrail_dataevent" {
       "arn:aws:s3:::${local.macie_s3_bucket_name}/*"
     ]
     condition {
-      test = "StringEquals"
+      test     = "StringEquals"
       variable = "s3:x-amz-server-side-encryption-aws-kms-key-id"
       values = [
         aws_kms_key.awsmacietrail_dataevent.arn
       ]
     }
     condition {
-      test = "StringEquals"
+      test     = "StringEquals"
       variable = "s3:x-amz-server-side-encryption"
       values = [
         "aws:kms"
@@ -154,7 +154,7 @@ data "aws_iam_policy_document" "s3_awsmacietrail_dataevent" {
     }
   }
   statement {
-    sid = "Allow Macie to use the getBucketLocation operation"
+    sid    = "Allow Macie to use the getBucketLocation operation"
     effect = "Allow"
     principals {
       type = "Service"

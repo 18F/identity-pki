@@ -13,7 +13,7 @@ terraform {
 module "main" {
   source = "../module"
 
-  env           = "pt"
-  region        = "us-west-2"
-  enforce       = false
+  env     = "pt"
+  region  = "us-west-2"
+  enforce = false
 }

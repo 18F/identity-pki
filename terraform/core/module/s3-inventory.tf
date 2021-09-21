@@ -23,7 +23,7 @@ module "s3_config_ue1" {
 }
 
 module "s3_inventory_ue1" {
-  source    = "github.com/18F/identity-terraform//s3_batch_inventory?ref=7e11ebe24e3a9cbc34d1413cf4d20b3d71390d5b"
+  source = "github.com/18F/identity-terraform//s3_batch_inventory?ref=7e11ebe24e3a9cbc34d1413cf4d20b3d71390d5b"
   #source   = "../../../../identity-terraform/s3_batch_inventory"
   providers = {
     aws = aws.use1

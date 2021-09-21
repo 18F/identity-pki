@@ -67,7 +67,7 @@ locals {
     },
   }
 
-idp_events_ialx_filters = {
+  idp_events_ialx_filters = {
     idv_final_resolution_success = {
       name         = "idv-final-resolution-success"
       pattern      = "{ ($.name = \"IdV: final resolution\") && ($.properties.event_properties.success is true) }"
@@ -80,7 +80,7 @@ idp_events_ialx_filters = {
     },
   }
 
-idp_kms_auth_filters = {
+  idp_kms_auth_filters = {
     kms_encrypt_session = {
       name         = "kms-encrypt-session"
       pattern      = "{ ($.kms.action = \"encrypt\" && $.kms.encryption_context.context = \"session-encryption\") }"
@@ -103,7 +103,7 @@ idp_kms_auth_filters = {
     },
   }
 
-idp_telephony_auth_filters = {
+  idp_telephony_auth_filters = {
     pinpoint_telephony_sms_sent = {
       name         = "pinpoint-telephony-sms-sent"
       pattern      = "{ $.adapter = \"pinpoint\" && $.success is true && $.channel = \"sms\" }"
@@ -137,60 +137,60 @@ idp_telephony_auth_filters = {
   }
 
 
-idp_external_service_filters = {
+  idp_external_service_filters = {
     aws_kms_decrypt_response_time = {
       name         = "aws-kms-decrypt-response-time"
       pattern      = "[service=\"Aws::KMS::Client\", status, response_time_seconds, retries, operation=decrypt, error]"
       metric_value = "$response_time_seconds"
-      dimensions = {}
+      dimensions   = {}
     },
     aws_kms_encrypt_response_time = {
       name         = "aws-kms-encrypt-response-time"
       pattern      = "[service=\"Aws::KMS::Client\", status, response_time_seconds, retries, operation=encrypt, error]"
       metric_value = "$response_time_seconds"
-      dimensions = {}
+      dimensions   = {}
     },
     aws_pinpoint_send_messages_response_time = {
       name         = "aws-pinpoint-send-messages-response-time"
       pattern      = "[service=\"Aws::Pinpoint::Client\", status, response_time_seconds, retries, operation=send_messages, error]"
       metric_value = "$response_time_seconds"
-      dimensions = {}
+      dimensions   = {}
     },
     aws_pinpoint_voice_send_voice_message_response_time = {
       name         = "aws-pinpoint-voice-send-voice-message-response-time"
       pattern      = "[service=\"Aws::PinpointSMSVoice::Client\", status, response_time_seconds, retries, operation=send_voice_message, error]"
       metric_value = "$response_time_seconds"
-      dimensions = {}
+      dimensions   = {}
     },
     aws_pinpoint_phone_number_validate_response_time = {
       name         = "aws-pinpoint-phone-number-validate-response-time"
       pattern      = "[service=\"Aws::Pinpoint::Client\", status, response_time_seconds, retries, operation=phone_number_validate, error]"
       metric_value = "$response_time_seconds"
-      dimensions = {}
+      dimensions   = {}
     },
     aws_ses_send_raw_email_response_time = {
       name         = "aws-ses-send-raw-email-response-time"
       pattern      = "[service=\"Aws::SES::Client\", status, response_time_seconds, retries, operation=send_raw_email, error]"
       metric_value = "$response_time_seconds"
-      dimensions = {}
+      dimensions   = {}
     },
     aws_s3_put_object_response_time = {
       name         = "aws-s3-put-object-response-time"
       pattern      = "[service=\"Aws::S3::Client\", status, response_time_seconds, retries, operation=put_object, error]"
       metric_value = "$response_time_seconds"
-      dimensions = {}
+      dimensions   = {}
     },
     aws_sts_assume_role_response_time = {
       name         = "aws-sts-assume-role-response-time"
       pattern      = "[service=\"Aws::STS::Client\", status, response_time_seconds, retries, operation=assume_role, error]"
       metric_value = "$response_time_seconds"
-      dimensions = {}
+      dimensions   = {}
     },
     aws_lambda_invoke_response_time = {
       name         = "aws-lambda-invoke-response-time"
       pattern      = "[service=\"Aws::Lambda::Client\", status, response_time_seconds, retries, operation=invoke, error]"
       metric_value = "$response_time_seconds"
-      dimensions = {}
+      dimensions   = {}
     },
     faraday_response_time = {
       name         = "faraday-response-time"
@@ -202,7 +202,7 @@ idp_external_service_filters = {
     },
   }
 
-idp_worker_filters = {
+  idp_worker_filters = {
     idp_worker_perform_time = {
       name         = "perform-time-milliseconds"
       pattern      = "{ $.name = \"perform.active_job\" && $.queue_name = \"*GoodJob*\" && $.queue_name != \"*long_running*\" }"

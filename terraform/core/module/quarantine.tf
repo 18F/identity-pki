@@ -18,27 +18,27 @@ resource "aws_kms_alias" "quarantine-ec2" {
 
 resource "aws_s3_bucket" "quarantine-ec2" {
   bucket = local.quarantine_s3_bucket_name
-  acl = "private"
+  acl    = "private"
   server_side_encryption_configuration {
     rule {
       apply_server_side_encryption_by_default {
         kms_master_key_id = aws_kms_key.quarantine-ec2.arn
-        sse_algorithm = "aws:kms"
+        sse_algorithm     = "aws:kms"
       }
     }
   }
-  
+
   policy = data.aws_iam_policy_document.s3_quarantine-ec2.json
-  
+
   logging {
     target_bucket = "login-gov.s3-access-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
     target_prefix = "${local.quarantine_s3_bucket_name}/"
   }
-  
+
   versioning {
     enabled = true
   }
-  
+
   lifecycle_rule {
     id      = "expire"
     prefix  = "/"
@@ -61,26 +61,26 @@ resource "aws_s3_bucket" "quarantine-ec2" {
 
 
 data "aws_iam_policy_document" "s3_quarantine-ec2" {
-  
+
   statement {
-    sid = "S3AccessFullAdmin"
+    sid    = "S3AccessFullAdmin"
     effect = "Allow"
 
     actions = [
-    "s3:Get*",
-    "s3:PutObject*",
-    "s3:List*",
+      "s3:Get*",
+      "s3:PutObject*",
+      "s3:List*",
     ]
     principals {
-      type = "AWS"
+      type        = "AWS"
       identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/FullAdministrator"]
     }
-    
+
 
     resources = [
-    "arn:aws:s3:::${local.quarantine_s3_bucket_name}",
-    "arn:aws:s3:::${local.quarantine_s3_bucket_name}/*",
+      "arn:aws:s3:::${local.quarantine_s3_bucket_name}",
+      "arn:aws:s3:::${local.quarantine_s3_bucket_name}/*",
     ]
   }
 }
-  
+

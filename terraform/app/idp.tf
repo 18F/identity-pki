@@ -116,9 +116,9 @@ module "idp_rds_usw2" {
   providers = {
     aws = aws.usw2
   }
-  env_name = var.env_name
-  name = var.name
-  rds_engine = var.rds_engine
+  env_name           = var.env_name
+  name               = var.name
+  rds_engine         = var.rds_engine
   rds_engine_version = var.rds_engine_version
 }
 
@@ -127,9 +127,9 @@ module "idp_rds_use1" {
   providers = {
     aws = aws.use1
   }
-  env_name = var.env_name
-  name = var.name
-  rds_engine = var.rds_engine
+  env_name           = var.env_name
+  name               = var.name
+  rds_engine         = var.rds_engine
   rds_engine_version = var.rds_engine_version
 }
 

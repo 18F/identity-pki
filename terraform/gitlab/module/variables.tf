@@ -187,7 +187,7 @@ variable "region" {
 
 variable "nessusserver_ip" {
   description = "Nessus server's public IP"
-  default = "44.230.151.136/32"
+  default     = "44.230.151.136/32"
 }
 
 variable "proxy_server" {
@@ -214,7 +214,7 @@ variable "proxy_enabled_roles" {
 
 variable "root_domain" {
   description = "DNS domain to use as the root domain, e.g. login.gov"
-  default = "gitlab.identitysandbox.gov"
+  default     = "gitlab.identitysandbox.gov"
 }
 
 variable "route53_id" {

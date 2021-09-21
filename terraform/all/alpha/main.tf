@@ -11,7 +11,7 @@ terraform {
 }
 
 module "main" {
-  source                       = "../module"
+  source = "../module"
 
   opsgenie_key_ready = false
   iam_account_alias  = "login-alpha"

@@ -24,5 +24,5 @@ variable "user_map" {
 
 variable "group_role_map" {
   description = "Roles map for IAM groups, along with account types per role to grant access to."
-  type = map(list(map(list(string))))
+  type        = map(list(map(list(string))))
 }

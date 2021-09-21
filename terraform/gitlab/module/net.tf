@@ -4,10 +4,10 @@ data "aws_ip_ranges" "route53" {
 }
 
 locals {
-  net_ssm_parameter_prefix  = "/${var.env_name}/network/"
-  ip_regex = "^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}\\/(?:[0-2][0-9]|[3][0-2])"
+  net_ssm_parameter_prefix = "/${var.env_name}/network/"
+  ip_regex                 = "^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}\\/(?:[0-2][0-9]|[3][0-2])"
   github_ipv4 = compact([
-    for ip in data.github_ip_ranges.ips.git : try(regex(local.ip_regex, ip),"")
+    for ip in data.github_ip_ranges.ips.git : try(regex(local.ip_regex, ip), "")
   ])
 }
 
@@ -136,16 +136,16 @@ resource "aws_security_group" "gitlab" {
   }
 
   ingress {
-    from_port = 22
-    to_port   = 22
-    protocol  = "tcp"
+    from_port       = 22
+    to_port         = 22
+    protocol        = "tcp"
     security_groups = [aws_security_group.gitlab-lb.id]
   }
 
   ingress {
-    from_port = 443
-    to_port   = 443
-    protocol  = "tcp"
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
     security_groups = [aws_security_group.gitlab-lb.id]
   }
 
@@ -172,16 +172,16 @@ resource "aws_security_group" "gitlab-lb" {
   }
 
   ingress {
-    from_port = 22
-    to_port   = 22
-    protocol  = "tcp"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
     cidr_blocks = var.allowed_gitlab_cidr_blocks_v4
   }
 
   ingress {
-    from_port = 443
-    to_port   = 443
-    protocol  = "tcp"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
     cidr_blocks = var.allowed_gitlab_cidr_blocks_v4
   }
 
@@ -275,7 +275,7 @@ resource "aws_vpc" "default" {
 }
 
 resource "aws_ssm_parameter" "net_vpcid" {
-  name = "${local.net_ssm_parameter_prefix}vpc/id"
+  name  = "${local.net_ssm_parameter_prefix}vpc/id"
   type  = "String"
   value = aws_vpc.default.id
 }
@@ -321,8 +321,8 @@ resource "aws_subnet" "publicsubnet3" {
 }
 
 resource "aws_subnet" "privatesubnet1" {
-  availability_zone = "${var.region}a"
-  cidr_block        = var.private1_subnet_cidr_block
+  availability_zone       = "${var.region}a"
+  cidr_block              = var.private1_subnet_cidr_block
   map_public_ip_on_launch = true
 
   tags = {
@@ -334,14 +334,14 @@ resource "aws_subnet" "privatesubnet1" {
 }
 
 resource "aws_ssm_parameter" "net_subnet_private1" {
-  name = "${local.net_ssm_parameter_prefix}subnet/private1/id"
+  name  = "${local.net_ssm_parameter_prefix}subnet/private1/id"
   type  = "String"
   value = aws_subnet.privatesubnet1.id
 }
 
 resource "aws_subnet" "privatesubnet2" {
-  availability_zone = "${var.region}b"
-  cidr_block        = var.private2_subnet_cidr_block
+  availability_zone       = "${var.region}b"
+  cidr_block              = var.private2_subnet_cidr_block
   map_public_ip_on_launch = true
 
   tags = {
@@ -353,14 +353,14 @@ resource "aws_subnet" "privatesubnet2" {
 }
 
 resource "aws_ssm_parameter" "net_subnet_private2" {
-  name = "${local.net_ssm_parameter_prefix}subnet/private2/id"
+  name  = "${local.net_ssm_parameter_prefix}subnet/private2/id"
   type  = "String"
   value = aws_subnet.privatesubnet2.id
 }
 
 resource "aws_subnet" "privatesubnet3" {
-  availability_zone = "${var.region}c"
-  cidr_block        = var.private3_subnet_cidr_block
+  availability_zone       = "${var.region}c"
+  cidr_block              = var.private3_subnet_cidr_block
   map_public_ip_on_launch = true
 
   tags = {
@@ -372,7 +372,7 @@ resource "aws_subnet" "privatesubnet3" {
 }
 
 resource "aws_ssm_parameter" "net_subnet_private3" {
-  name = "${local.net_ssm_parameter_prefix}subnet/private3/id"
+  name  = "${local.net_ssm_parameter_prefix}subnet/private3/id"
   type  = "String"
   value = aws_subnet.privatesubnet3.id
 }
@@ -485,13 +485,13 @@ resource "aws_security_group" "obproxy" {
 }
 
 resource "aws_ssm_parameter" "net_outboundproxy" {
-  name = "${local.net_ssm_parameter_prefix}outboundproxy/url"
+  name  = "${local.net_ssm_parameter_prefix}outboundproxy/url"
   type  = "String"
   value = "http://${var.proxy_server}:${var.proxy_port}"
 }
 
 resource "aws_ssm_parameter" "net_noproxy" {
-  name = "${local.net_ssm_parameter_prefix}outboundproxy/no_proxy"
+  name  = "${local.net_ssm_parameter_prefix}outboundproxy/no_proxy"
   type  = "String"
   value = var.no_proxy_hosts
 }

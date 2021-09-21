@@ -13,12 +13,12 @@ terraform {
 module "main" {
   source = "../module"
 
-  iam_account_alias  = "login-sms-sandbox"
+  iam_account_alias = "login-sms-sandbox"
   account_roles_map = {
     iam_appdev_enabled = false
   }
 
-  cloudtrail_event_selectors  = [
+  cloudtrail_event_selectors = [
     {
       include_management_events = false
       read_write_type           = "WriteOnly"
@@ -31,6 +31,6 @@ module "main" {
           ]
         }
       ]
-    }   
+    }
   ]
 }

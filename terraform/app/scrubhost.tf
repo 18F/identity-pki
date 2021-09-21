@@ -241,12 +241,12 @@ resource "aws_security_group" "scrubhost" {
 
   # github
   egress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
+    from_port = 22
+    to_port   = 22
+    protocol  = "tcp"
     cidr_blocks = [
-        "192.30.252.0/22",
-        "140.82.112.0/20"
+      "192.30.252.0/22",
+      "140.82.112.0/20"
     ]
   }
 

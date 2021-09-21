@@ -3,7 +3,7 @@
 resource "aws_cloudwatch_dashboard" "pinpoint" {
   # The dashboard named "CloudWatch-Default" gets displayed on the CloudWatch
   # front page for the account. This will default us to the West dashboard.
-  dashboard_name = "CloudWatch-Default%{ if var.region != "us-west-2" }-${var.region}%{ endif }"
+  dashboard_name = "CloudWatch-Default%{if var.region != "us-west-2"}-${var.region}%{endif}"
 
   dashboard_body = <<EOF
 {

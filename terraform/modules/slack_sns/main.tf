@@ -27,16 +27,16 @@ variable "sns_topic_display_name" {
 data "template_file" "aws_cf_sns_stack" {
   template = file("${path.module}/cf_aws_sns_email_stack.json.tpl")
   vars = {
-    sns_topic_name        = var.sns_topic_name
-    sns_display_name      = var.sns_topic_display_name
+    sns_topic_name   = var.sns_topic_name
+    sns_display_name = var.sns_topic_display_name
     sns_subscription_list = join(",", formatlist("{\"Endpoint\": \"%s\",\"Protocol\": \"%s\"}",
-    var.sns_subscription_email_address_list,
+      var.sns_subscription_email_address_list,
     var.sns_subscription_protocol))
   }
 }
 
 resource "aws_cloudformation_stack" "tf_sns_topic" {
-  name = var.sns_topic_name
+  name          = var.sns_topic_name
   template_body = data.template_file.aws_cf_sns_stack.rendered
   tags = {
     name = var.sns_topic_name
@@ -45,5 +45,5 @@ resource "aws_cloudformation_stack" "tf_sns_topic" {
 
 output "sns_topic_arn" {
   description = "ARN of the SNS topic."
-  value = aws_cloudformation_stack.tf_sns_topic.outputs["SlackSNSTopic"]
+  value       = aws_cloudformation_stack.tf_sns_topic.outputs["SlackSNSTopic"]
 }

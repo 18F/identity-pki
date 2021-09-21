@@ -175,7 +175,7 @@ resource "aws_autoscaling_group" "worker" {
 }
 
 resource "aws_autoscaling_policy" "worker" {
-  count = var.worker_cpu_autoscaling_enabled
+  count                     = var.worker_cpu_autoscaling_enabled
   name                      = "${var.env_name}-worker-cpu"
   autoscaling_group_name    = aws_autoscaling_group.worker.name
   estimated_instance_warmup = 900

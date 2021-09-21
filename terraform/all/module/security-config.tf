@@ -136,7 +136,7 @@ resource "aws_iam_role_policy_attachment" "config_recorder_managed_policy" {
 resource "aws_iam_policy" "config_recorder_s3" {
   name        = "ConfigRecorderPolicy"
   description = "Policy to allow s3 changes to be recorded"
-  policy = data.aws_iam_policy_document.config_recorder_s3.json
+  policy      = data.aws_iam_policy_document.config_recorder_s3.json
 }
 
 resource "aws_iam_role_policy_attachment" "config_recorder_s3_policy" {

@@ -1,12 +1,12 @@
 module "reports-assumerole" {
   source = "github.com/18F/identity-terraform//iam_assumerole?ref=7e11ebe24e3a9cbc34d1413cf4d20b3d71390d5b"
 
-  role_name                = "ReportsReadOnly"
-  enabled                  = lookup(
-                                merge(local.role_enabled_defaults,var.account_roles_map),
-                                "iam_reports_enabled",
-                                lookup(local.role_enabled_defaults,"iam_reports_enabled")
-                              )
+  role_name = "ReportsReadOnly"
+  enabled = lookup(
+    merge(local.role_enabled_defaults, var.account_roles_map),
+    "iam_reports_enabled",
+    lookup(local.role_enabled_defaults, "iam_reports_enabled")
+  )
   master_assumerole_policy = local.master_assumerole_policy
   custom_policy_arns       = local.custom_policy_arns
 
@@ -50,7 +50,7 @@ module "reports-assumerole" {
           ]
         },
         {
-          sid = "RROCloudWatch"
+          sid    = "RROCloudWatch"
           effect = "Allow"
           actions = [
             "application-autoscaling:DescribeScalingPolicies",

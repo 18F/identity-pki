@@ -13,5 +13,5 @@ terraform {
 module "main" {
   source = "../module"
 
-  env_name      = "zmargolis"
+  env_name = "zmargolis"
 }

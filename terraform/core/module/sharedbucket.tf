@@ -7,10 +7,10 @@ locals {
     "email" = {
       lifecycle_rules = [
         {
-          id              = "expireinbound"
-          enabled         = true
-          prefix          = "/inbound/"
-          transitions     = [
+          id      = "expireinbound"
+          enabled = true
+          prefix  = "/inbound/"
+          transitions = [
             {
               days          = 30
               storage_class = "STANDARD_IA"
@@ -22,11 +22,11 @@ locals {
       force_destroy = false
     },
     "lambda-functions" = {
-      lifecycle_rules    = [
+      lifecycle_rules = [
         {
-          id          = "inactive"
-          enabled     = true
-          prefix      = "/"
+          id      = "inactive"
+          enabled = true
+          prefix  = "/"
           transitions = [
             {
               days          = 180
@@ -40,9 +40,9 @@ locals {
     "reports" = {
       lifecycle_rules = [
         {
-          id          = "aging"
-          enabled     = true
-          prefix      = "/"
+          id      = "aging"
+          enabled = true
+          prefix  = "/"
           transitions = [
             {
               days          = 30
@@ -51,7 +51,7 @@ locals {
           ]
         }
       ],
-      force_destroy       = false
+      force_destroy = false
     }
   }
 }
@@ -59,7 +59,7 @@ locals {
 module "s3_shared" {
   source = "github.com/18F/identity-terraform//s3_bucket_block?ref=7e11ebe24e3a9cbc34d1413cf4d20b3d71390d5b"
   #source = "../../../../identity-terraform/s3_bucket_block"
-  
+
   bucket_name_prefix   = "login-gov"
   bucket_data          = local.s3_bucket_data
   log_bucket           = "login-gov.s3-access-logs.${data.aws_caller_identity.current.account_id}-${var.region}"

@@ -9,7 +9,7 @@ module "git2s3_src" {
     aws = aws.usw2
   }
 
-  git2s3_stack_name    = "CodeSync-IdentityBaseImage"
+  git2s3_stack_name = "CodeSync-IdentityBaseImage"
   external_account_ids = [
     "555546682965",
     "917793222841",

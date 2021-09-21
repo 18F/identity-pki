@@ -15,11 +15,11 @@ variable "allowed_security_groups" {
 }
 
 variable "route53_zone_id" {
-	description = "the zone id that you want to write the dns_name into"
+  description = "the zone id that you want to write the dns_name into"
 }
 
 variable "dns_name" {
-	description = "dns name for the privatelink endpoint"
+  description = "dns name for the privatelink endpoint"
 }
 
 variable "name" {}

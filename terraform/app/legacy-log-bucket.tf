@@ -3,9 +3,9 @@
 resource "aws_s3_bucket" "legacy_log_bucket" {
   count = var.keep_legacy_bucket ? 1 : 0
 
-  bucket = "login-gov-${var.env_name}-logs"
+  bucket        = "login-gov-${var.env_name}-logs"
   force_destroy = true
-  acl = "log-delivery-write"  
+  acl           = "log-delivery-write"
 
   server_side_encryption_configuration {
     rule {
@@ -25,12 +25,12 @@ resource "aws_s3_bucket" "legacy_log_bucket" {
     prefix  = ""
 
     transition {
-      days = 90
-      storage_class = "STANDARD_IA" 
+      days          = 90
+      storage_class = "STANDARD_IA"
     }
 
     transition {
-      days = 365
+      days          = 365
       storage_class = "GLACIER"
     }
 

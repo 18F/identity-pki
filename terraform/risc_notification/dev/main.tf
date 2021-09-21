@@ -14,8 +14,8 @@ module "main" {
   source = "../module"
 
   env_name = "dev"
-  
-  risc_notifications = {  
+
+  risc_notifications = {
     dashboard = {
       partner_name            = "dashboard"
       notification_url        = "https://dashboard.dev.identitysandbox.gov/api/security_events"
