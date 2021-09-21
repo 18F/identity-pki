@@ -9,6 +9,15 @@ module "acm-cert-public-reporting-data-cdn" {
   validation_zone_id = var.route53_id
 }
 
+data "aws_cloudfront_cache_policy" "managed_cors_s3origin" {
+  # Per https://aws.amazon.com/premiumsupport/knowledge-center/no-access-control-allow-origin-error/,
+  # used to resolve issue with cached CORS headers when using the same data site from
+  # multiple front ends.
+  #
+  # See https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-origin-request-policies.html
+  name = "CORS-S3Origin"
+}
+
 resource "aws_cloudfront_distribution" "public_reporting_data_cdn" {
 
   depends_on = [
@@ -36,22 +45,13 @@ resource "aws_cloudfront_distribution" "public_reporting_data_cdn" {
     cached_methods   = ["HEAD", "GET", "OPTIONS"]
     target_origin_id = "public-reporting-data-${var.env_name}"
 
+    cache_policy_id = data.aws_cloudfront_cache_policy.managed_cors_s3origin.id
+
     forwarded_values {
       query_string = false
 
       cookies {
         forward = "none"
-      }
-
-      headers_config {
-        header_behavior = "whitelist"
-        headers {
-          items = [
-            "Access-Control-Allow-Origin",
-            "Access-Control-Request-Headers",
-            "Origin",
-          ]
-        }
       }
     }
 
