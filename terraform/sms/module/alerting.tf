@@ -19,10 +19,9 @@ resource "aws_cloudwatch_metric_alarm" "pinpoint_spend_limit_critical" {
   alarm_name        = "${var.env} SMS spend limit CRITICAL"
   alarm_description = <<EOM
 Pinpoint SMS spending has reached 90% of the monthly limit!
-Once this is exceeded, all SMS messages will be rejected.
+Once this is exceeded, all SMS messages will be rejected. [TF]
 
 Runbook: TODO
-(Alarm managed by Terraform)
 EOM
 
 
@@ -44,10 +43,9 @@ resource "aws_cloudwatch_metric_alarm" "pinpoint_spend_limit_warning" {
   alarm_name        = "${var.env} SMS spend limit WARNING"
   alarm_description = <<EOM
 Pinpoint SMS spending has reached 80% of the monthly limit!
-Once this is exceeded, all SMS messages will be rejected.
+Once this is exceeded, all SMS messages will be rejected. [TF]
 
 Runbook: TODO
-(Alarm managed by Terraform)
 EOM
   namespace         = "AWS/SNS"
   metric_name       = "SMSMonthToDateSpentUSD"
@@ -68,10 +66,9 @@ resource "aws_cloudwatch_metric_alarm" "pinpoint_spend_limit_daily_warning" {
   alarm_description = <<EOM
 Pinpoint SMS spending over the past day is on track to exceed the monthly limit
 if daily spending is projected monthly.
-Once this is exceeded, all SMS messages will be rejected.
+Once this is exceeded, all SMS messages will be rejected. [TF]
 
 Runbook: TODO
-(Alarm managed by Terraform)
 EOM
 
 
@@ -104,7 +101,7 @@ EOM
 
 resource "aws_cloudwatch_metric_alarm" "pinpoint_temporary_errors" {
   alarm_name        = "${var.env} SMS temporary errors"
-  alarm_description = "Pinpoint SMS errors exceed alarm threshold (Managed by Terraform)"
+  alarm_description = "Pinpoint SMS errors exceed alarm threshold [TF]"
   namespace         = "AWS/Pinpoint"
   metric_name       = "DirectSendMessageTemporaryFailure"
 
@@ -126,7 +123,7 @@ resource "aws_cloudwatch_metric_alarm" "pinpoint_temporary_errors" {
 
 resource "aws_cloudwatch_metric_alarm" "pinpoint_permanent_errors" {
   alarm_name        = "${var.env} SMS permanent errors"
-  alarm_description = "Pinpoint SMS errors exceed alarm threshold (Managed by Terraform)"
+  alarm_description = "Pinpoint SMS errors exceed alarm threshold [TF]"
   namespace         = "AWS/Pinpoint"
   metric_name       = "DirectSendMessagePermanentFailure"
 
@@ -148,7 +145,7 @@ resource "aws_cloudwatch_metric_alarm" "pinpoint_permanent_errors" {
 
 resource "aws_cloudwatch_metric_alarm" "pinpoint_throttled_errors" {
   alarm_name        = "${var.env} SMS throttled errors"
-  alarm_description = "Pinpoint SMS errors exceed alarm threshold (Managed by Terraform)"
+  alarm_description = "Pinpoint SMS errors exceed alarm threshold [TF]"
   namespace         = "AWS/Pinpoint"
   metric_name       = "DirectSendMessageThrottled"
 
