@@ -64,12 +64,21 @@ module "main" {
       { "Terraform" = ["Sandbox", "Prod", "Master"] },
       { "KMSAdministrator" = ["Sandbox", "Analytics"] }
     ],
+    "devopsnonprod" = [
+      { "FullAdministrator" = ["Sandbox"] },
+      { "Terraform" = ["Sandbox"] }
+    ],
     "finops" = [
       { "BillingReadOnly" = ["Sandbox", "Prod"] }
     ],
     "secops" = [
       { "FullAdministrator" = ["Sandbox", "Prod", "Master"] },
       { "ReadOnly" = ["Sandbox", "Prod"] },
+      { "KMSAdministrator" = ["Sandbox"] }
+    ],
+    "secopsnonprod" = [
+      { "FullAdministrator" = ["Sandbox"] },
+      { "ReadOnly" = ["Sandbox"] },
       { "KMSAdministrator" = ["Sandbox"] }
     ],
     "soc" = [
