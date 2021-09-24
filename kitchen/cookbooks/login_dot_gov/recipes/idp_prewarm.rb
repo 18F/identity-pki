@@ -12,6 +12,7 @@ Chef.event_handler do
     Chef::Log.info(cmd.stdout)
     if JSON.parse(cmd.stdout)["all_checks_healthy"]
       Chef::Log.info("Success; health checks passed!")
+      Chef::Log.info("Time to pass health check: #{`awk '{print $1}' /proc/uptime`.chomp} seconds")
     else
       raise ShellCommandFailed
     end
