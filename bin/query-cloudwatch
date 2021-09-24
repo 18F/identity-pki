@@ -126,16 +126,21 @@ class QueryCloudwatch
       groups: [],
       slice: parse_duration('1w'),
       format: :csv,
+      to: Time.now,
     )
 
     OptionParser.new do |opts|
       opts.banner = <<~TXT
-        Usage: #{$PROGRAM_NAME} [OPTIONS] < query.txt
+        Usage
+        =======================
+
+          #{$PROGRAM_NAME} [OPTIONS]
 
         Script to query cloudwatch, splits a query up across multiple timeframes and combines
         results (useful for querying a log period of time)
 
-        Examples:
+        Examples
+        =======================
 
         Query last 7 days shorthand with multiple logs, query in STDIN
 
@@ -152,6 +157,25 @@ class QueryCloudwatch
           --to "2020-12-31T23:59:59-00:00" \\
           --query "fields @timestamp | limit 9999"
 
+        Timestamps
+        =======================
+
+        * Can be anything Ruby's Time.parse understands:
+
+          "2021-01-01T00:00:00-07:00"
+          "2021-01-01 00:00:00 -0700"
+
+        * Can be represented as duration shorthands:
+
+          10m - 10 minutes ago
+          9h  - 9 hours ago
+          8d  - 8 days ago
+          7w  - 7 weeks ago
+          6m  - 6 months ago
+          5y  - 5 years ago
+
+        Options
+        =======================
       TXT
 
       opts.on('--env ENV', '(optional)') do |env|
@@ -170,17 +194,20 @@ class QueryCloudwatch
         config.groups += [groups]
       end
 
-      opts.on('--from DURATION', 'shorthand for querying a duration, ex 1d, 1w, 1m, 1y') do |duration|
-        config.start = parse_duration(duration).ago
-        config.to = Time.now
+      opts.on('--from STR', '--start STR', 'query start, see Timestamps above for examples') do |str|
+        if (duration = parse_duration(str))
+          config.start = duration.ago
+        else
+          config.start = Time.parse(str)
+        end
       end
 
-      opts.on('--start START', Time, 'specify query start time, ex "2021-01-01T00:00:00-07:00"') do |start|
-        config.start = start
-      end
-
-      opts.on('--to TO', Time, 'specify query end time, ex "2021-01-01T00:00:00-07:00"') do |to|
-        config.to = to
+      opts.on('--to STR', '--end STR', '(optional, defaults to now) query end, see Timestamps above for examples') do |str|
+        if (duration = parse_duration(str))
+          config.to = duration.ago
+        else
+          config.to = Time.parse(str)
+        end
       end
 
       opts.on('--query QUERY', 'Cloudwatch Insights query') do |query|
@@ -217,8 +244,8 @@ class QueryCloudwatch
       errors << "ERROR: missing log groups --group or (--app and --env and --log)"
     end
 
-    if !config.start && !config.to
-      errors << "ERROR: missing time range --from or (--start and --to)"
+    if !config.start
+      errors << "ERROR: missing time range --from or --start"
     end
 
     if !config.query
@@ -267,9 +294,6 @@ class QueryCloudwatch
 
       return duration if duration
     end
-
-    puts "ERROR: Unknown duration format #{value}"
-    exit 1
   end
 end
 
