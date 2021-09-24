@@ -160,6 +160,12 @@ resource "aws_iam_role" "idp" {
   assume_role_policy = data.aws_iam_policy_document.assume_role_from_vpc.json
 }
 
+resource "aws_iam_role_policy" "idp-artifacts" {
+  name   = "${var.env_name}-idp-artifacts"
+  role   = aws_iam_role.idp.id
+  policy = data.aws_iam_policy_document.artifacts_role_policy.json
+}
+
 resource "aws_iam_role_policy" "idp-secrets" {
   name   = "${var.env_name}-idp-secrets"
   role   = aws_iam_role.idp.id

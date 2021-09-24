@@ -79,12 +79,28 @@ application release_path do
   # unless deploy_branch.identity-#{app_name} is specifically set otherwise
   default_branch = node.fetch('login_dot_gov').fetch('deploy_branch_default')
   deploy_branch = node.fetch('login_dot_gov').fetch('deploy_branch').fetch("identity-#{app_name}", default_branch)
+  git_sha = shell_out("git ls-remote https://github.com/18F/identity-idp.git #{deploy_branch} | awk '{print $1}'").stdout.chomp
+  idp_artifacts_enabled = node['login_dot_gov']['idp_artifacts']
+  artifacts_bucket = node['login_dot_gov']['artifacts_bucket']
+  s3_artifact = "s3://#{artifacts_bucket}/#{node.chef_environment}/#{git_sha}.idp.tar.gz"
+  artifacts_downloaded = lambda { File.exist?('/srv/idp/releases/artifacts-downloaded') }
+
+  # Attempts to download and extract an IDP artifact with the most recent SHA on the deploy branch
+  # into `/srv/idp/releases/chef`.
+  if idp_artifacts_enabled
+    execute 'download artifacts' do
+      cwd '/srv/idp/releases'
+      command "aws s3 cp #{s3_artifact} idp.tar.gz && tar -xzf idp.tar.gz && touch /srv/idp/releases/artifacts-downloaded"
+      ignore_failure true
+    end
+  end
 
   git do
     repository 'https://github.com/18F/identity-idp.git'
     depth 1
     user node['login_dot_gov']['system_user']
     revision deploy_branch
+    not_if { artifacts_downloaded.call }
   end
 
   # TODO: figure out why this hack is needed and remove it.
@@ -101,7 +117,9 @@ application release_path do
   end
 
   # The build step runs bundle install, yarn install, rake assets:precompile,
-  # etc.
+  # etc. When installing from artifacts, bundle install has a different step
+  # so that it will expect gems to be vendored in a different directory
+  # rather than installed.
   execute 'deploy build step' do
     cwd '/srv/idp/releases/chef'
 
@@ -110,10 +128,22 @@ application release_path do
     # so we use sudo instead to get all the login secondary groups.
     # https://github.com/chef/chef/issues/6162
     command [
-      'sudo', '-H', '-u', node.fetch('login_dot_gov').fetch('system_user'),
-      './deploy/build'
+      'sudo', '-H', '-u', node.fetch('login_dot_gov').fetch('system_user'), './deploy/build'
     ]
     user 'root'
+    only_if { !idp_artifacts_enabled || !artifacts_downloaded.call }
+  end
+
+  # If artifact was downloaded, we instruct the IDP to install its Ruby/JS dependencies
+  # using the vendored dependencies without any HTTP requests.
+  execute 'deploy build step with artifacts' do
+    cwd '/srv/idp/releases/chef'
+
+    command [
+      'sudo', 'IDP_LOCAL_DEPENDENCIES=true', '-H', '-u', node.fetch('login_dot_gov').fetch('system_user'), './deploy/build'
+    ]
+    user 'root'
+    only_if { idp_artifacts_enabled && artifacts_downloaded.call }
   end
 
   # Run the activate script from the repo, which is used to download app
@@ -151,6 +181,7 @@ application release_path do
       './deploy/build-post-config'
     ]
     user 'root'
+    not_if { artifacts_downloaded.call }
   end
 
   execute 'newrelic log deploy' do
