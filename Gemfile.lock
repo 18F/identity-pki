@@ -1,6 +1,12 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    activesupport (6.1.4.1)
+      concurrent-ruby (~> 1.0, >= 1.0.2)
+      i18n (>= 1.6, < 2)
+      minitest (>= 5.1)
+      tzinfo (~> 2.0)
+      zeitwerk (~> 2.3)
     addressable (2.8.0)
       public_suffix (>= 2.0.2, < 5.0)
     aws-eventstream (1.1.1)
@@ -1188,6 +1194,8 @@ GEM
     http-cookie (1.0.3)
       domain_name (~> 0.5)
     httpclient (2.8.3)
+    i18n (1.8.10)
+      concurrent-ruby (~> 1.0)
     iniparse (1.5.0)
     inspec-core (4.36.4)
       addressable (~> 2.4)
@@ -1230,6 +1238,7 @@ GEM
       mime-types-data (~> 3.2015)
     mime-types-data (3.2021.0225)
     minitar (0.9)
+    minitest (5.14.4)
     mixlib-archive (1.1.7)
       mixlib-log
     mixlib-authentication (3.0.10)
@@ -1364,6 +1373,8 @@ GEM
       pastel (~> 0.8)
       strings (~> 0.2.0)
       tty-screen (~> 0.8)
+    tzinfo (2.0.4)
+      concurrent-ruby (~> 1.0)
     unf (0.1.4)
       unf_ext
     unf_ext (0.0.7.7)
@@ -1391,11 +1402,13 @@ GEM
       winrm (~> 2.0)
     wisper (2.0.1)
     wmi-lite (1.0.5)
+    zeitwerk (2.4.2)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
+  activesupport
   aws-sdk (~> 3.0)
   aws-sdk-secretsmanager (~> 1.20)
   berkshelf (~> 7.2.2)
