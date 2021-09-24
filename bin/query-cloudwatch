@@ -110,7 +110,7 @@ class QueryCloudwatch
 
       ranges << [
         current,
-        next_val,
+        [next_val, config.to].min,
       ]
 
       current = next_val
@@ -214,7 +214,7 @@ class QueryCloudwatch
         config.query = query
       end
 
-      opts.on('--slice SLICE', 'query slice size duration, defaults to 1w') do |slice|
+      opts.on('--slice SLICE', '(optional) query slice size duration, defaults to 1w') do |slice|
         config.slice = parse_duration(slice)
       end
 
