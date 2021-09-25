@@ -5,6 +5,7 @@ group :development do
   gem 'pry'
 end
 
+gem 'activesupport'
 gem 'aws-sdk', '~> 3.0'
 gem 'aws-sdk-secretsmanager', '~> 1.20'
 
