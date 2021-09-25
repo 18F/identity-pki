@@ -107,7 +107,7 @@ fi
 # default TF_ENV, if left blank
 if [[ -z ${TF_ENV} ]] ; then
   case ${TF_DIR} in
-    app|risc_notification|waf) TF_ENV=${GSA_USERNAME} ;;
+    app|waf) TF_ENV=${GSA_USERNAME} ;;
     gitlab) TF_ENV='alpha'                            ;;
     tooling) TF_ENV='tooling'                         ;;
     master) TF_ENV='global'                           ;;
@@ -123,7 +123,7 @@ elif [[ ! -d ${GIT_DIR}/terraform/${TF_DIR}/${TF_ENV} ]] ; then
 fi
 
 case ${TF_DIR} in
-  app|risc_notification|waf)
+  app|waf)
     TF_PROFILE='sandbox'
     if [[ -z ${TF_ENV} ]] ; then
       raise 'TF_ENV and/or default of GSA_USERNAME not set or specified'
