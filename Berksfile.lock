@@ -1,5 +1,4 @@
 DEPENDENCIES
-  apache2 (~> 5.2)
   application_ruby (~> 4.0.1)
   apt (~> 7.0)
   aws_metadata
@@ -81,7 +80,6 @@ DEPENDENCIES
   users
 
 GRAPH
-  apache2 (5.2.1)
   application (5.2.0)
     poise (~> 2.4)
     poise-service (~> 1.0)

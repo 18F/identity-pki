@@ -16,7 +16,6 @@ cookbook 'openssl'
 cookbook 'ssh-keys'
 cookbook 'sudo'
 cookbook 'users'
-cookbook 'apache2', '~> 5.2'
 cookbook 'runit', '~>5.1.3'
 cookbook 'ossec', '~> 1.2.0', git: 'https://github.com/sous-chefs/ossec'
 cookbook 'seven_zip', '~3.2.0' #can remove version constraint after upgrading chef to v16
