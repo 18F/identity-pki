@@ -68,10 +68,6 @@ resource "aws_autoscaling_group" "gitlab" {
 
   wait_for_capacity_timeout = 0 # 0 == ignore
 
-  # TODO use certificates instead of host keys
-  # see http://man.openbsd.org/ssh-keygen#CERTIFICATES and Issue #621
-  load_balancers = [aws_elb.gitlab.name]
-
   # https://github.com/18F/identity-devops-private/issues/259
   vpc_zone_identifier = [
     aws_subnet.gitlab1.id,
@@ -100,6 +96,11 @@ resource "aws_autoscaling_group" "gitlab" {
 resource "aws_iam_instance_profile" "gitlab" {
   name = "${var.env_name}_gitlab_instance_profile"
   role = aws_iam_role.gitlab.name
+}
+
+resource "aws_autoscaling_attachment" "gitlab" {
+  autoscaling_group_name = aws_autoscaling_group.gitlab.id
+  elb                    = aws_elb.gitlab.id
 }
 
 resource "aws_iam_role" "gitlab" {
@@ -189,8 +190,34 @@ resource "aws_iam_role_policy" "gitlab-ebsvolume" {
             "Condition": {
                 "StringEquals": {"aws:ResourceTag/Name": "${var.name}-gitaly-${var.env_name}"}
             }
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ec2:AttachVolume",
+                "ec2:DetachVolume"
+            ],
+            "Resource": "arn:aws:ec2:*:*:volume/*",
+            "Condition": {
+                "StringEquals": {"aws:ResourceTag/Name": "${var.name}-gitlab-${var.env_name}"}
+            }
         }
     ]
 }
 EOM
+}
+
+resource "aws_ebs_volume" "gitlab" {
+  # XXX gitlab only can live in one AZ because of the EBS volume.
+  availability_zone = var.gitlab_az
+  size              = 20
+  encrypted         = true
+
+  tags = {
+    Name = "${var.name}-gitlab-${var.env_name}"
+  }
+}
+
+output "gitlab_volume_id" {
+  value = aws_ebs_volume.gitlab.id
 }

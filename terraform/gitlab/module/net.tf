@@ -149,10 +149,73 @@ resource "aws_security_group" "gitlab" {
     security_groups = [aws_security_group.gitlab-lb.id]
   }
 
+  name = "${var.name}-gitlabserver-${var.env_name}"
+
+  tags = {
+    Name = "${var.name}-gitlabserver_security_group-${var.env_name}"
+    role = "gitlab"
+  }
+
+  vpc_id = aws_vpc.default.id
+}
+
+resource "aws_security_group" "gitlab_runner" {
+  description = "gitlab runner security group"
+
+  # need 8834 to comm with Nessus Server
+  egress {
+    from_port   = 8834
+    to_port     = 8834
+    protocol    = "tcp"
+    cidr_blocks = [var.nessusserver_ip]
+  }
+
+  # TODO: Can we use HTTPS for provisioning instead?
+  # github
+  egress {
+    from_port = 22
+    to_port   = 22
+    protocol  = "tcp"
+
+    # github
+    cidr_blocks = local.github_ipv4
+  }
+
+  # allow SSM
+  egress {
+    from_port = 443
+    to_port   = 443
+    protocol  = "tcp"
+    cidr_blocks = [
+      var.private1_subnet_cidr_block,
+      var.private2_subnet_cidr_block,
+      var.private3_subnet_cidr_block
+    ]
+  }
+
+  # allow internal gitlab lb access
+  egress {
+    from_port = 443
+    to_port   = 443
+    protocol  = "tcp"
+    cidr_blocks = [
+      var.gitlab1_subnet_cidr_block,
+      var.gitlab1_subnet_cidr_block
+    ]
+  }
+
+  # can talk to the proxy
+  egress {
+    from_port   = 3128
+    to_port     = 3128
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr_block]
+  }
+
   name = "${var.name}-gitlab-${var.env_name}"
 
   tags = {
-    Name = "${var.name}-gitlab_security_group-${var.env_name}"
+    Name = "${var.name}-gitlab_runner_security_group-${var.env_name}"
     role = "gitlab"
   }
 
@@ -160,7 +223,7 @@ resource "aws_security_group" "gitlab" {
 }
 
 resource "aws_security_group" "gitlab-lb" {
-  description = "Allow inbound gitlab traffic from allowlisted IPs"
+  description = "Allow inbound gitlab traffic from allowlisted IPs and runners"
 
   # TODO: limit this to what is actually needed
   # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
@@ -183,6 +246,19 @@ resource "aws_security_group" "gitlab-lb" {
     to_port     = 443
     protocol    = "tcp"
     cidr_blocks = var.allowed_gitlab_cidr_blocks_v4
+  }
+
+  # these are the EIPs for the NAT which is being used by the obproxies
+  # This is needed so that the outbound proxies can access the external lb.
+  ingress {
+    from_port = 443
+    to_port   = 443
+    protocol  = "tcp"
+    cidr_blocks = [
+      "${aws_eip.nat_a.public_ip}/32",
+      "${aws_eip.nat_b.public_ip}/32",
+      "${aws_eip.nat_c.public_ip}/32"
+    ]
   }
 
   name = "${var.name}-gitlab-lb-${var.env_name}"
@@ -280,6 +356,148 @@ resource "aws_ssm_parameter" "net_vpcid" {
   value = aws_vpc.default.id
 }
 
+# create NAT subnets and gateways
+resource "aws_subnet" "nat_a" {
+  availability_zone       = "${var.region}a"
+  cidr_block              = var.nat_a_subnet_cidr_block
+  map_public_ip_on_launch = false
+
+  tags = {
+    Name = "${var.name}-nat_a_subnet-${var.env_name}"
+    type = "public"
+  }
+
+  vpc_id = aws_vpc.default.id
+}
+
+resource "aws_eip" "nat_a" {
+  vpc = true
+}
+
+resource "aws_nat_gateway" "nat_a" {
+  allocation_id = aws_eip.nat_a.id
+  subnet_id     = aws_subnet.nat_a.id
+
+  tags = {
+    Name = "${var.env_name}-nat_a"
+  }
+
+  # To ensure proper ordering, it is recommended to add an explicit dependency
+  # on the Internet Gateway for the VPC.
+  depends_on = [aws_internet_gateway.default]
+}
+
+resource "aws_route_table" "nat_a" {
+  vpc_id = aws_vpc.default.id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.default.id
+  }
+
+  tags = {
+    Name = "${var.env_name} nat_a"
+  }
+}
+
+resource "aws_route_table_association" "nat_a" {
+  subnet_id      = aws_subnet.nat_a.id
+  route_table_id = aws_route_table.nat_a.id
+}
+
+resource "aws_subnet" "nat_b" {
+  availability_zone       = "${var.region}b"
+  cidr_block              = var.nat_b_subnet_cidr_block
+  map_public_ip_on_launch = false
+
+  tags = {
+    Name = "${var.name}-nat_b_subnet-${var.env_name}"
+    type = "public"
+  }
+
+  vpc_id = aws_vpc.default.id
+}
+
+resource "aws_eip" "nat_b" {
+  vpc = true
+}
+
+resource "aws_nat_gateway" "nat_b" {
+  allocation_id = aws_eip.nat_b.id
+  subnet_id     = aws_subnet.nat_b.id
+
+  tags = {
+    Name = "${var.env_name}-nat_b"
+  }
+
+  # To ensure proper ordering, it is recommended to add an explicit dependency
+  # on the Internet Gateway for the VPC.
+  depends_on = [aws_internet_gateway.default]
+}
+
+resource "aws_route_table" "nat_b" {
+  vpc_id = aws_vpc.default.id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.default.id
+  }
+
+  tags = {
+    Name = "${var.env_name} nat_b"
+  }
+}
+
+resource "aws_route_table_association" "nat_b" {
+  subnet_id      = aws_subnet.nat_b.id
+  route_table_id = aws_route_table.nat_b.id
+}
+
+resource "aws_subnet" "nat_c" {
+  availability_zone       = "${var.region}c"
+  cidr_block              = var.nat_c_subnet_cidr_block
+  map_public_ip_on_launch = false
+
+  tags = {
+    Name = "${var.name}-nat_c_subnet-${var.env_name}"
+    type = "public"
+  }
+
+  vpc_id = aws_vpc.default.id
+}
+
+resource "aws_eip" "nat_c" {
+  vpc = true
+}
+
+resource "aws_nat_gateway" "nat_c" {
+  allocation_id = aws_eip.nat_c.id
+  subnet_id     = aws_subnet.nat_c.id
+
+  tags = {
+    Name = "${var.env_name}-nat_c"
+  }
+
+  # To ensure proper ordering, it is recommended to add an explicit dependency
+  # on the Internet Gateway for the VPC.
+  depends_on = [aws_internet_gateway.default]
+}
+
+resource "aws_route_table" "nat_c" {
+  vpc_id = aws_vpc.default.id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.default.id
+  }
+
+  tags = {
+    Name = "${var.env_name} nat_c"
+  }
+}
+
+resource "aws_route_table_association" "nat_c" {
+  subnet_id      = aws_subnet.nat_c.id
+  route_table_id = aws_route_table.nat_c.id
+}
+
 # create public and private subnets
 resource "aws_subnet" "publicsubnet1" {
   availability_zone       = "${var.region}a"
@@ -292,6 +510,23 @@ resource "aws_subnet" "publicsubnet1" {
   }
 
   vpc_id = aws_vpc.default.id
+}
+
+resource "aws_route_table" "publicsubnet1" {
+  vpc_id = aws_vpc.default.id
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.nat_a.id
+  }
+
+  tags = {
+    Name = "${var.env_name}-publicsubnet1"
+  }
+}
+
+resource "aws_route_table_association" "publicsubnet1" {
+  subnet_id      = aws_subnet.publicsubnet1.id
+  route_table_id = aws_route_table.publicsubnet1.id
 }
 
 resource "aws_subnet" "publicsubnet2" {
@@ -307,6 +542,23 @@ resource "aws_subnet" "publicsubnet2" {
   vpc_id = aws_vpc.default.id
 }
 
+resource "aws_route_table" "publicsubnet2" {
+  vpc_id = aws_vpc.default.id
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.nat_b.id
+  }
+
+  tags = {
+    Name = "${var.env_name}-publicsubnet2"
+  }
+}
+
+resource "aws_route_table_association" "publicsubnet2" {
+  subnet_id      = aws_subnet.publicsubnet2.id
+  route_table_id = aws_route_table.publicsubnet2.id
+}
+
 resource "aws_subnet" "publicsubnet3" {
   availability_zone       = "${var.region}c"
   cidr_block              = var.public3_subnet_cidr_block
@@ -318,6 +570,23 @@ resource "aws_subnet" "publicsubnet3" {
   }
 
   vpc_id = aws_vpc.default.id
+}
+
+resource "aws_route_table" "publicsubnet3" {
+  vpc_id = aws_vpc.default.id
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.nat_c.id
+  }
+
+  tags = {
+    Name = "${var.env_name}-publicsubnet3"
+  }
+}
+
+resource "aws_route_table_association" "publicsubnet3" {
+  subnet_id      = aws_subnet.publicsubnet3.id
+  route_table_id = aws_route_table.publicsubnet3.id
 }
 
 resource "aws_subnet" "privatesubnet1" {
@@ -397,7 +666,7 @@ resource "aws_security_group" "obproxy" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # need 80/443 to get packages/gems/etc
+  # need 80/443 to get packages/gems/etc as well as ssm
   egress {
     from_port   = 443
     to_port     = 443
@@ -458,13 +727,6 @@ resource "aws_security_group" "obproxy" {
     to_port     = 3128
     protocol    = "tcp"
     cidr_blocks = [var.vpc_cidr_block]
-  }
-
-  ingress {
-    from_port       = 22
-    to_port         = 22
-    protocol        = "tcp"
-    security_groups = [aws_security_group.gitlab.id]
   }
 
   ingress {

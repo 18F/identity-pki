@@ -659,7 +659,7 @@ gitlab_rails['monitoring_whitelist'] = ['172.16.0.0/12', '::1/128']
 ####! **Only applicable on initial setup, changing these settings after database
 ####!   is created and seeded won't yield any change.**
 gitlab_rails['initial_root_password'] = "<%= @root_password %>"
-# gitlab_rails['initial_shared_runners_registration_token'] = "token"
+gitlab_rails['initial_shared_runners_registration_token'] = "<%= @runner_token %>"
 
 #### Toggle if root password should be printed to STDOUT during initialization
 # gitlab_rails['display_initial_root_password'] = false

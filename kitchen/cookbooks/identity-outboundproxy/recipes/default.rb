@@ -63,7 +63,8 @@ template '/etc/squid/domain-allowlist.conf' do
     group 'root'
     variables ({
         identity_idp: ".#{domain_name}",
-        push_notification_domains: push_notification_domains
+        push_notification_domains: push_notification_domains,
+        gitlab_url: "gitlab.#{node.chef_environment}.#{domain_name}"
     })
     notifies :restart, 'service[squid]', :delayed
 end

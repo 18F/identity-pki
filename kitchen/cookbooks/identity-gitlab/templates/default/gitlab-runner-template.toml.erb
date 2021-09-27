@@ -1,0 +1,9 @@
+check_interval = 0
+
+[session_server]
+  session_timeout = 1800
+
+[[runners]]
+  name = "<%= @runner_name %>"
+  url = "<%= @external_url %>"
+  executor = "shell"

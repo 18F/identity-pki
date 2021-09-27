@@ -183,6 +183,39 @@ resource "aws_network_acl_rule" "elb-ingress-https" {
   cidr_block     = var.allowed_gitlab_cidr_blocks_v4.0
 }
 
+resource "aws_network_acl_rule" "elb-ingress-https-obproxy1" {
+  network_acl_id = aws_network_acl.gitlab.id
+  egress         = false
+  from_port      = 443
+  to_port        = 443
+  protocol       = "tcp"
+  rule_number    = 47
+  rule_action    = "allow"
+  cidr_block     = "${aws_eip.nat_a.public_ip}/32"
+}
+
+resource "aws_network_acl_rule" "elb-ingress-https-obproxy2" {
+  network_acl_id = aws_network_acl.gitlab.id
+  egress         = false
+  from_port      = 443
+  to_port        = 443
+  protocol       = "tcp"
+  rule_number    = 48
+  rule_action    = "allow"
+  cidr_block     = "${aws_eip.nat_b.public_ip}/32"
+}
+
+resource "aws_network_acl_rule" "elb-ingress-https-obproxy3" {
+  network_acl_id = aws_network_acl.gitlab.id
+  egress         = false
+  from_port      = 443
+  to_port        = 443
+  protocol       = "tcp"
+  rule_number    = 49
+  rule_action    = "allow"
+  cidr_block     = "${aws_eip.nat_c.public_ip}/32"
+}
+
 resource "aws_network_acl_rule" "elb-ingress-ssh" {
   network_acl_id = aws_network_acl.gitlab.id
   egress         = false

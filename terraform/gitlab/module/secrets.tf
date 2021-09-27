@@ -72,6 +72,77 @@ data "aws_iam_policy_document" "secrets_role_policy" {
   }
 }
 
+data "aws_iam_policy_document" "common_secrets_role_policy" {
+  statement {
+    sid    = "AllowBucketAndObjects"
+    effect = "Allow"
+    actions = [
+      "s3:Get*",
+      "s3:List*",
+    ]
+
+    resources = [
+      "arn:aws:s3:::login-gov.secrets.${data.aws_caller_identity.current.account_id}-*/common/",
+      "arn:aws:s3:::login-gov.secrets.${data.aws_caller_identity.current.account_id}-*/common/*"
+    ]
+  }
+
+  # allow ls to work
+  statement {
+    sid    = "AllowRootAndTopListing"
+    effect = "Allow"
+    actions = [
+      "s3:ListBucket",
+    ]
+    condition {
+      test     = "StringEquals"
+      variable = "s3:prefix"
+      values   = ["", "common/", "${var.env_name}/"]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "s3:delimiter"
+      values   = ["/"]
+    }
+    resources = [
+      "arn:aws:s3:::login-gov.secrets.${data.aws_caller_identity.current.account_id}-*",
+    ]
+  }
+
+  # allow subdirectory ls
+  statement {
+    sid    = "AllowSubListing"
+    effect = "Allow"
+    actions = [
+      "s3:ListBucket",
+    ]
+    condition {
+      test     = "StringLike"
+      variable = "s3:prefix"
+      values   = ["common/", "${var.env_name}/*"]
+    }
+    resources = [
+      "arn:aws:s3:::login-gov.secrets.${data.aws_caller_identity.current.account_id}-*",
+    ]
+  }
+
+  # Allow notifying ASG lifecycle hooks. This isn't a great place for this
+  # permission since not actually related, but it's useful to put here because
+  # all of our ASG instances need it.
+  statement {
+    sid    = "AllowCompleteLifecycleHook"
+    effect = "Allow"
+    actions = [
+      "autoscaling:CompleteLifecycleAction",
+      "autoscaling:RecordLifecycleActionHeartbeat",
+    ]
+    resources = [
+      "arn:aws:autoscaling:*:*:autoScalingGroup:*:autoScalingGroupName/${var.env_name}-*",
+    ]
+  }
+}
+
+
 # Role that instances can use to access stuff in citadel. Add this as the role
 # for an aws_iam_instance_profile. Note that terraform < 0.9 has a "roles"
 # attribute on aws_iam_instance_profile even though there is a 1:1 mapping

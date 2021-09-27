@@ -49,6 +49,18 @@ variable "private3_subnet_cidr_block" { # 172.16.35.128 - 172.16.35.191
   default = "172.16.35.128/26"
 }
 
+variable "nat_a_subnet_cidr_block" { # 172.16.35.192 - 172.16.35.207
+  default = "172.16.35.192/28"
+}
+
+variable "nat_b_subnet_cidr_block" { # 172.16.35.208 - 172.16.35.223
+  default = "172.16.35.208/28"
+}
+
+variable "nat_c_subnet_cidr_block" { # 172.16.35.224 - 172.16.35.239
+  default = "172.16.35.224/28"
+}
+
 variable "allowed_gitlab_cidr_blocks_v4" { # 159.142.0.0 - 159.142.255.255
   default = [
     "159.142.0.0/16",
@@ -69,6 +81,10 @@ variable "asg_auto_recycle_enabled" {
 
 # Auto scaling group desired counts
 variable "asg_gitlab_desired" {
+  default = 1
+}
+
+variable "asg_gitlab_runner_desired" {
   default = 1
 }
 
@@ -170,6 +186,10 @@ variable "env_name" {
 }
 
 variable "instance_type_gitlab" {
+  default = "c5.xlarge"
+}
+
+variable "instance_type_gitlab_runner" {
   default = "c5.xlarge"
 }
 

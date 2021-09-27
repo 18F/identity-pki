@@ -45,17 +45,6 @@ resource "aws_elb" "gitlab" {
   }
 }
 
-resource "aws_route53_record" "gitlab-elb-internal" {
-  zone_id = aws_route53_zone.internal.zone_id
-  name    = "gitlab"
-  type    = "A"
-  alias {
-    name                   = aws_elb.gitlab.dns_name
-    zone_id                = aws_elb.gitlab.zone_id
-    evaluate_target_health = true
-  }
-}
-
 resource "aws_route53_record" "gitlab-elb-public" {
   zone_id = var.route53_id
   name    = "gitlab.${var.env_name}"

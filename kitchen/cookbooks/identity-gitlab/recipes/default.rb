@@ -18,19 +18,37 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+# This volume thing is ugly, but xvdg works, but xvdh does not create
+# the /dev/xvdh symlink.  So we are just hardcoding the nvme devices
+# it maps to directly.  WTF Ubuntu?
 gitaly_ebs_volume = ConfigLoader.load_config(node, "gitaly_ebs_volume", common: false).chomp!
-gitaly_device = "/dev/xvdi"
+gitaly_device = "/dev/xvdg"
+gitaly_real_device = "/dev/nvme2n1"
+gitlab_ebs_volume = ConfigLoader.load_config(node, "gitlab_ebs_volume", common: false).chomp!
+gitlab_device = "/dev/xvdh"
+gitlab_real_device = "/dev/nvme3n1"
 
 execute "mount_gitaly_volume" do
   command "aws ec2 attach-volume --device #{gitaly_device} --instance-id #{node['ec2']['instance_id']} --volume-id #{gitaly_ebs_volume} --region #{node['ec2']['region']}"
+end
+
+execute "mount_gitlab_volume" do
+  command "aws ec2 attach-volume --device #{gitlab_device} --instance-id #{node['ec2']['instance_id']} --volume-id #{gitlab_ebs_volume} --region #{node['ec2']['region']}"
 end
 
 include_recipe 'filesystem'
 
 filesystem 'gitaly' do
   fstype "ext4"
-  device gitaly_device
+  device gitaly_real_device
   mount "/var/opt/gitlab/git-data"
+  action [:create, :enable, :mount]
+end
+
+filesystem 'gitlab' do
+  fstype "ext4"
+  device gitlab_real_device
+  mount "/etc/gitlab"
   action [:create, :enable, :mount]
 end
 
@@ -79,6 +97,7 @@ end
 db_password = ConfigLoader.load_config(node, "gitlab_db_password", common: false).chomp!
 db_host = ConfigLoader.load_config(node, "gitlab_db_host", common: false).chomp!
 root_password = ConfigLoader.load_config(node, "gitlab_root_password", common: false).chomp!
+runner_token = ConfigLoader.load_config(node, "gitlab_runner_token", common: false).chomp!
 redis_host = ConfigLoader.load_config(node, "gitlab_redis_endpoint", common: false).chomp!
 
 ses_username = ConfigLoader.load_config(node, "ses_smtp_username", common: true).chomp!
@@ -100,7 +119,10 @@ template '/etc/gitlab/gitlab.rb' do
         redis_host: redis_host,
         smtp_address: smtp_address,
         smtp_domain: external_fqdn,
-        email_from: email_from
+        email_from: email_from,
+        ses_username: ses_username,
+        ses_password: ses_password,
+        runner_token: runner_token
     })
     notifies :run, 'execute[reconfigure_gitlab]', :delayed
 end
