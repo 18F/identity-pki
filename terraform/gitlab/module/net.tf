@@ -149,7 +149,7 @@ resource "aws_security_group" "gitlab" {
     security_groups = [aws_security_group.gitlab-lb.id]
   }
 
-  name = "${var.name}-gitlabserver-${var.env_name}"
+  name = "${var.name}-gitlab-${var.env_name}"
 
   tags = {
     Name = "${var.name}-gitlabserver_security_group-${var.env_name}"
@@ -212,7 +212,7 @@ resource "aws_security_group" "gitlab_runner" {
     cidr_blocks = [var.vpc_cidr_block]
   }
 
-  name = "${var.name}-gitlab-${var.env_name}"
+  name = "${var.name}-gitlabrunner-${var.env_name}"
 
   tags = {
     Name = "${var.name}-gitlab_runner_security_group-${var.env_name}"
@@ -223,7 +223,7 @@ resource "aws_security_group" "gitlab_runner" {
 }
 
 resource "aws_security_group" "gitlab-lb" {
-  description = "Allow inbound gitlab traffic from allowlisted IPs and runners"
+  description = "Allow inbound gitlab traffic from allowlisted IPs"
 
   # TODO: limit this to what is actually needed
   # allow outbound to the VPC so that we can get to db/redis/logstash/etc.

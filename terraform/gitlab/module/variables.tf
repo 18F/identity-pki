@@ -156,7 +156,7 @@ variable "bootstrap_private_git_clone_url" {
 # though they will have different IDs. They should be updated here at the same
 # time, and then released to environments in sequence.
 variable "default_ami_id_tooling" {
-  default     = "ami-093c76c703b7b07b5" # 2021-09-24 Ubuntu 18.04
+  default     = "ami-037fbabb417fa077e" # 2021-08-09 Ubuntu 18.04
   description = "default AMI ID for environments in the tooling account"
 }
 
@@ -207,7 +207,7 @@ variable "region" {
 
 variable "nessusserver_ip" {
   description = "Nessus server's public IP"
-  default     = "44.230.151.136/32"
+  default = "44.230.151.136/32"
 }
 
 variable "proxy_server" {
@@ -234,7 +234,7 @@ variable "proxy_enabled_roles" {
 
 variable "root_domain" {
   description = "DNS domain to use as the root domain, e.g. login.gov"
-  default     = "gitlab.identitysandbox.gov"
+  default = "gitlab.identitysandbox.gov"
 }
 
 variable "route53_id" {
