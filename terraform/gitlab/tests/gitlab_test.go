@@ -82,9 +82,6 @@ func ASGRecycle(t *testing.T, asgName string) {
 	// wait until everything is done scaling up
 	aws.WaitForCapacity(t, asgName, region, 60, 15*time.Second)
 
-	// XXX This happens too quickly?  Do we need to do some sort of healthcheck here,
-	//     or is that taken care of by the lifecycle stuff?
-
 	// scale back down
 	updateinput = &autoscaling.UpdateAutoScalingGroupInput{
 		AutoScalingGroupName: aws_sdk.String(asgName),
