@@ -13,5 +13,6 @@ default['pivcac']['temporary_bundle_path'] = "/root/#{node.fetch('pivcac').fetch
 default['pivcac']['letsencrypt_email'] = 'identity-devops@login.gov'
 default['pivcac']['letsencrypt_use_staging'] = false # for testing
 default['pivcac']['letsencrypt_path'] = '/etc/letsencrypt'
+default['pivcac']['letsencrypt_preferred'] = "ISRG Root X1"
 
 default['pivcac']['chef_zero_client_configuration'] = '/etc/login.gov/repos/identity-devops/kitchen/chef-client.rb'
