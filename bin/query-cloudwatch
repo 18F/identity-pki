@@ -167,12 +167,12 @@ class QueryCloudwatch
 
         * Can be represented as duration shorthands:
 
-          10m - 10 minutes ago
-          9h  - 9 hours ago
-          8d  - 8 days ago
-          7w  - 7 weeks ago
-          6m  - 6 months ago
-          5y  - 5 years ago
+          10min - 10 minutes ago
+          9h    - 9 hours ago
+          8d    - 8 days ago
+          7w    - 7 weeks ago
+          6mon  - 6 months ago
+          5y    - 5 years ago
 
         Options
         =======================
@@ -271,14 +271,14 @@ class QueryCloudwatch
     "#{env}_/srv/#{app}/shared/log/#{log}"
   end
 
-  # @param [String] value a string such as 1m, 2h, 3d, 4w, 5m, 6y
+  # @param [String] value a string such as 1min, 2h, 3d, 4w, 5mon, 6y
   # @return [ActiveSupport::Duration]
   def parse_duration(value)
     if (match = value.match(/^(?<number>\d+)(?<unit>\D)$/))
       number = Integer(match[:number], 10)
 
       duration = case match[:unit]
-      when 'm'
+      when 'min'
         number.minutes
       when 'h'
         number.hours
@@ -286,7 +286,7 @@ class QueryCloudwatch
         number.days
       when 'w'
         number.weeks
-      when 'm'
+      when 'mon'
         number.months
       when 'y'
         number.years
