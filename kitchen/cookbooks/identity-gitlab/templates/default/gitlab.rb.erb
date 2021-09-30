@@ -513,26 +513,34 @@ gitlab_rails['monitoring_whitelist'] = ['172.16.0.0/12', '::1/128']
 
 ### OmniAuth Settings
 ###! Docs: https://docs.gitlab.com/ee/integration/omniauth.html
-# gitlab_rails['omniauth_enabled'] = nil
-# gitlab_rails['omniauth_allow_single_sign_on'] = ['saml']
-# gitlab_rails['omniauth_sync_email_from_provider'] = 'saml'
-# gitlab_rails['omniauth_sync_profile_from_provider'] = ['saml']
-# gitlab_rails['omniauth_sync_profile_attributes'] = ['email']
-# gitlab_rails['omniauth_auto_sign_in_with_provider'] = 'saml'
-# gitlab_rails['omniauth_block_auto_created_users'] = true
+gitlab_rails['omniauth_enabled'] = true
+gitlab_rails['omniauth_allow_single_sign_on'] = ['saml']
+gitlab_rails['omniauth_sync_email_from_provider'] = 'saml'
+gitlab_rails['omniauth_sync_profile_from_provider'] = ['saml']
+gitlab_rails['omniauth_sync_profile_attributes'] = ['email']
+gitlab_rails['omniauth_auto_sign_in_with_provider'] = 'saml'
+gitlab_rails['omniauth_block_auto_created_users'] = true
 # gitlab_rails['omniauth_auto_link_ldap_user'] = false
-# gitlab_rails['omniauth_auto_link_saml_user'] = false
-# gitlab_rails['omniauth_auto_link_user'] = ['saml']
+gitlab_rails['omniauth_auto_link_saml_user'] = true
+gitlab_rails['omniauth_auto_link_user'] = ['saml']
 # gitlab_rails['omniauth_external_providers'] = ['twitter', 'google_oauth2']
 # gitlab_rails['omniauth_allow_bypass_two_factor'] = ['google_oauth2']
-# gitlab_rails['omniauth_providers'] = [
-#   {
-#     "name" => "google_oauth2",
-#     "app_id" => "YOUR APP ID",
-#     "app_secret" => "YOUR APP SECRET",
-#     "args" => { "access_type" => "offline", "approval_prompt" => "" }
-#   }
-# ]
+gitlab_rails['omniauth_providers'] = [
+  {
+    'name' => 'saml',
+    'label' => 'Login.gov',
+    'icon' => 'https://login.gov/favicon.ico',
+    'args' => {
+      'assertion_consumer_service_url' => '<%= @saml_assertion_consumer_service_url %>',
+      'idp_cert_fingerprint' => '<%= @saml_idp_cert_fingerprint %>',
+      'idp_sso_target_url' => '<%= @saml_idp_sso_target_url %>',
+      'issuer' => '<%= @saml_issuer %>',
+      'name_identifier_format' => '<%= @saml_name_identifier_format %>',
+      'certificate' => '<%= @saml_certificate %>',
+      'private_key' => '<%= @saml_private_key %>',
+    }
+  }
+]
 
 ### FortiAuthenticator authentication settings
 # gitlab_rails['forti_authenticator_enabled'] = false

@@ -106,6 +106,17 @@ aws_region = Chef::Recipe::AwsMetadata.get_aws_region
 smtp_address = "email-smtp.#{aws_region}.amazonaws.com"
 email_from = "gitlab@#{external_fqdn}"
 
+# Login.gov SAML parameters
+saml_params = {
+  saml_assertion_consumer_service_url: "#{external_url}/users/auth/saml/callback",
+  saml_idp_cert_fingerprint: ConfigLoader.load_config(node, "saml_idp_cert_fingerprint", common: false).chomp!,
+  saml_idp_sso_target_url: 'https://idp.int.identitysandbox.gov/api/saml/auth2021',
+  saml_issuer: "urn:gov:gsa:openidconnect.profiles:sp:sso:login_gov:gitlab_#{node.chef_environment}",
+  saml_name_identifier_format: 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
+  saml_certificate: ConfigLoader.load_config(node, "saml_certificate", common: false).chomp!,
+  saml_private_key: ConfigLoader.load_config(node, "saml_private_key", common: false).chomp!,
+}
+
 template '/etc/gitlab/gitlab.rb' do
     source 'gitlab.rb.erb'
     owner 'root'
@@ -122,8 +133,8 @@ template '/etc/gitlab/gitlab.rb' do
         email_from: email_from,
         ses_username: ses_username,
         ses_password: ses_password,
-        runner_token: runner_token
-    })
+        runner_token: runner_token,
+    }.merge(saml_params))
     notifies :run, 'execute[reconfigure_gitlab]', :delayed
 end
 
