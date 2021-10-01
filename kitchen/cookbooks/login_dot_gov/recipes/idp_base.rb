@@ -151,7 +151,8 @@ application release_path do
 
     command "test -f /srv/idp/shared/geo_data/GeoLite2-City.mmdb && test -f /srv/idp/shared/pwned_passwords/pwned_passwords.txt && \
     ln -s /srv/idp/shared/geo_data/GeoLite2-City.mmdb ./geo_data/GeoLite2-City.mmdb && \
-    ln -s /srv/idp/shared/pwned_passwords/pwned_passwords.txt ./pwned_passwords/pwned_passwords.txt"
+    ln -s /srv/idp/shared/pwned_passwords/pwned_passwords.txt ./pwned_passwords/pwned_passwords.txt && \
+    chmod -c 644 ./geo_data/GeoLite2-City.mmdb ./pwned_passwords/pwned_passwords.txt"
 
     ignore_failure true
   end
