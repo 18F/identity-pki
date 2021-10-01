@@ -583,6 +583,36 @@ variable "opsgenie_key_file" {
 }
 
 ## CloudWatch Alarm Defaults
+variable "idv_final_resolution_success_minimum_threshold" {
+  description = "Minimum number of successful proofs in an hour"
+  type        = number
+  default     = 0
+}
+
+variable "pivcac_low_traffic_alert_threshold" {
+  description = "If the number of queries in 5 minutes falls below this number, we alert"
+  default     = 5
+}
+
+variable "sms_error_rate_alert_threshold" {
+  description = "If more than this number of SMS attempts error in a minute, we alert"
+  default     = 1
+}
+
+variable "sms_send_rate_alert_threshold" {
+  description = "If more than this number of SMS deliveries is exeeded in a minute, we alert"
+  default     = 100
+}
+
+variable "voice_error_rate_alert_threshold" {
+  description = "If more than this number of voice attempts error in a minute, we alert"
+  default     = 1
+}
+variable "voice_send_rate_alert_threshold" {
+  description = "If more than this number of voice OTP deliveries is exeeded in a minute, we alert"
+  default     = 10
+}
+
 variable "web_low_traffic_alert_threshold" {
   description = "If the number of queries in 5 minutes falls below this number, we alert"
   default     = 10
@@ -591,17 +621,6 @@ variable "web_low_traffic_alert_threshold" {
 variable "web_low_traffic_warn_threshold" {
   description = "If the number of queries in 5 minutes falls below this number, we warn"
   default     = 20
-}
-
-variable "pivcac_low_traffic_alert_threshold" {
-  description = "If the number of queries in 5 minutes falls below this number, we alert"
-  default     = 5
-}
-
-variable "idv_final_resolution_success_minimum_threshold" {
-  description = "Minimum number of successful proofs in an hour"
-  type        = number
-  default     = 0
 }
 
 variable "keep_legacy_bucket" {
