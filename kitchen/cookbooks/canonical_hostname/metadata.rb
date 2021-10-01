@@ -5,7 +5,7 @@ license 'All Rights Reserved'
 description 'Installs/Configures canonical_hostname'
 long_description 'Installs/Configures canonical_hostname'
 version '0.2.0'
-chef_version '~> 17.5.22' if respond_to?(:chef_version)
+chef_version '>= 16.13.16' if respond_to?(:chef_version)
 
 gem 'aws-sdk-ec2', '~> 1.0'
 

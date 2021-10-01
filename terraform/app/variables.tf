@@ -458,7 +458,7 @@ variable "bootstrap_private_git_clone_url" {
 # though they will have different IDs. They should be updated here at the same
 # time, and then released to environments in sequence.
 variable "default_ami_id_sandbox" {
-  default     = "ami-080a71f17d5dd8b48" # 2021-09-24 Ubuntu 18.04
+  default     = "ami-0f457edc8f2df0703" # 2021-10-01 Ubuntu 18.04
   description = "default AMI ID for environments in the sandbox account"
 }
 
@@ -468,7 +468,7 @@ variable "default_ami_id_prod" {
 }
 
 variable "rails_ami_id_sandbox" {
-  default     = "ami-053ccf532a52925c1" # 2021-09-24 Ubuntu 18.04
+  default     = "ami-0dd31dc3f8a2168c2" # 2021-10-01 Ubuntu 18.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the sandbox account"
 }
 
@@ -583,6 +583,36 @@ variable "opsgenie_key_file" {
 }
 
 ## CloudWatch Alarm Defaults
+variable "idv_final_resolution_success_minimum_threshold" {
+  description = "Minimum number of successful proofs in an hour"
+  type        = number
+  default     = 0
+}
+
+variable "pivcac_low_traffic_alert_threshold" {
+  description = "If the number of queries in 5 minutes falls below this number, we alert"
+  default     = 5
+}
+
+variable "sms_error_rate_alert_threshold" {
+  description = "If more than this number of SMS attempts error in a minute, we alert"
+  default     = 1
+}
+
+variable "sms_send_rate_alert_threshold" {
+  description = "If more than this number of SMS deliveries is exeeded in a minute, we alert"
+  default     = 100
+}
+
+variable "voice_error_rate_alert_threshold" {
+  description = "If more than this number of voice attempts error in a minute, we alert"
+  default     = 1
+}
+variable "voice_send_rate_alert_threshold" {
+  description = "If more than this number of voice OTP deliveries is exeeded in a minute, we alert"
+  default     = 10
+}
+
 variable "web_low_traffic_alert_threshold" {
   description = "If the number of queries in 5 minutes falls below this number, we alert"
   default     = 10
@@ -591,17 +621,6 @@ variable "web_low_traffic_alert_threshold" {
 variable "web_low_traffic_warn_threshold" {
   description = "If the number of queries in 5 minutes falls below this number, we warn"
   default     = 20
-}
-
-variable "pivcac_low_traffic_alert_threshold" {
-  description = "If the number of queries in 5 minutes falls below this number, we alert"
-  default     = 5
-}
-
-variable "idv_final_resolution_success_minimum_threshold" {
-  description = "Minimum number of successful proofs in an hour"
-  type        = number
-  default     = 0
 }
 
 variable "keep_legacy_bucket" {
