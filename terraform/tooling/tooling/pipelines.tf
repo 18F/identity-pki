@@ -367,8 +367,6 @@ module "gitlabbravo" {
   tf_dir = "gitlab/bravo"
   # This is the gitref to check out in identity-devops
   gitref = "stages/gitlabbravo"
-  # This is the environment to deploy to
-  env_name = "bravo"
   # This is the account to deploy tf_dir into
   account = "034795980528"
 
