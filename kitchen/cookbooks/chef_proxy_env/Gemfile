@@ -7,4 +7,4 @@ gem 'test-kitchen'
 gem 'kitchen-ec2'
 gem 'kitchen-inspec'
 
-gem 'chef', '~> 17.5.22'
+gem 'chef', '~> 16.13.16'

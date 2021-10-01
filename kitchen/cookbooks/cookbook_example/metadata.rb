@@ -5,6 +5,6 @@ license 'All Rights Reserved'
 description 'Installs/Configures cookbook_example'
 long_description 'Installs/Configures cookbook_example'
 version '0.1.0'
-chef_version '~> 17.5.22' if respond_to?(:chef_version)
+chef_version '>= 16.13.16' if respond_to?(:chef_version)
 
 depends 'config_loader'

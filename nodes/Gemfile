@@ -19,7 +19,7 @@ gem 'kitchen-transport-speedy', '~> 0.1'
 # gem 'kitchen-transport-sshtar'
 # gem 'kitchen-transport-rsync'
 
-gem 'chef', '~> 17.5.22'
+gem 'chef', '~> 16.13.16'
 
 # These are needed to build multipart cloud init data for test kitchen
 gem 'mime'
