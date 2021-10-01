@@ -9,7 +9,6 @@ cookbook 'deploy_resource', '~> 1.0'
 cookbook 'git'
 cookbook 'hostname'
 cookbook 'letsencrypt', '~> 1.0.0'
-cookbook 'monit'
 cookbook 'motd'
 cookbook 'newrelic_meetme_plugin'
 cookbook 'openssl'
@@ -56,7 +55,7 @@ cookbook 'identity-monitoring', path: prefixed('kitchen/cookbooks/identity-monit
 # When updating this gitref, you MUST also run `berks update` and commit
 # the changes to Berksfile.lock. Otherwise the old gitref will continue to be
 # used by Chef.
-IdentityCookbooksRef = '100bc65635b9f8ba2527a7e6c9714de755629570'
+IdentityCookbooksRef = '60db2ca15fe95d8c7c3ebf9c691dce4ac200da6a'
 cookbook 'aws_metadata', '>= 0.3.0', git: 'https://github.com/18F/identity-cookbooks', rel: 'aws_metadata', ref: IdentityCookbooksRef
 cookbook 'cloudhsm', '>= 0.0.7', git: 'https://github.com/18F/identity-cookbooks', rel: 'cloudhsm', ref: IdentityCookbooksRef
 cookbook 'config_loader', '>= 0.2.2', git: 'https://github.com/18F/identity-cookbooks', rel: 'config_loader', ref: IdentityCookbooksRef
@@ -77,4 +76,3 @@ cookbook 'static_eip', '>= 0.2.1', git: 'https://github.com/18F/identity-cookboo
 #
 # Once the pull requests are merged and a new citadel version is released we can
 # get rid of this.
-cookbook 'citadel_fork', '~> 9.2.0', git: 'https://github.com/18f/citadel-build'

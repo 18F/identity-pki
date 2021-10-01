@@ -97,6 +97,8 @@ default['login_dot_gov']['static_bucket'] = "login-gov-idp-static-" \
 
 default['login_dot_gov']['artifacts_bucket'] = "login-gov.app-artifacts." \
                                                "#{aws_account_id}-#{aws_region}"
+default['login_dot_gov']['secrets_bucket'] = "login-gov.secrets." \
+                                               "#{aws_account_id}-#{aws_region}"
 
 # how long to wait for curl localhost to finish at end of bootstrapping
 default['login_dot_gov']['passenger_prewarm_timeout']                 = 30
