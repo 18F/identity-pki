@@ -366,6 +366,9 @@ phases:
           echo "tests found:  executing"
           cd tests
           sh -x ./test.sh ${local.recycletest_env} ${var.recycletest_domain}
+        elif [ -x ../tests/test.sh ] ; then
+          echo "tests found in dir above us:  executing"
+          sh -x ../tests/test.sh ${local.recycletest_env} ${var.recycletest_domain}
         else
           echo "no tests found:  continuing"
           exit 0
