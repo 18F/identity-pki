@@ -16,7 +16,7 @@ module "main" {
   bootstrap_main_git_ref_default = "stages/gitlabbravo"
   env_name                       = "bravo"
   region                         = "us-west-2"
-  slack_events_sns_hook_arn      = "arn:aws:sns:us-west-2:034795980528:slack-events"
+  slack_events_sns_hook_arn      = "arn:aws:sns:us-west-2:034795980528:slack-otherevents"
   #enforce                       = true
 }
 
