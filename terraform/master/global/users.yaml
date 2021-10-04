@@ -90,6 +90,8 @@ users:
   timothy.spencer:
     - devops
     - secops
+  vlad.toussaint:
+    - devopsnonprod
   vivek.chugh:
     - devops
   zach.margolis:
