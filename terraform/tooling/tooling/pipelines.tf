@@ -367,6 +367,10 @@ module "gitlabbravo" {
   tf_dir = "gitlab/bravo"
   # This is the gitref to check out in identity-devops
   gitref = "stages/gitlabbravo"
+  # this is the environment that we will recycle/test
+  recycletest_env_name = "bravo"
+  # this is the dns domain that we need to test
+  recycletest_domain = "gitlab.identitysandbox.gov"
   # This is the account to deploy tf_dir into
   account = "034795980528"
 
