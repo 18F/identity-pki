@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -x
 #
 # This script recycles all autoscaling groups in an environment.
 #
