@@ -270,7 +270,7 @@ phases:
       - |
         if [ -x recycle.sh ] ; then
           echo "recycle found:  executing"
-          sh ./recycle.sh ${var.recycletest_env}
+          sh ./recycle.sh ${local.recycletest_env}
         else
           echo "no recycle found:  continuing"
           exit 0
