@@ -5,7 +5,7 @@ license 'All Rights Reserved'
 description 'Installs/Configures aws_s3'
 long_description 'Installs/Configures aws_s3'
 version '0.2.0'
-chef_version '>= 16.13.16' if respond_to?(:chef_version)
+chef_version '>= 16.16.7' if respond_to?(:chef_version)
 
 gem 'aws-sdk-s3', '~> 1.46'
 

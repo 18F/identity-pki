@@ -13,7 +13,6 @@
     "amazon": ">= 0.0.1"
   },
   "dependencies": {
-    "application_ruby": ">= 0.0.1",
     "cloudhsm": ">= 0.0.8",
     "config_loader": ">= 0.0.1",
     "deploy_resource": "~> 1.0",
