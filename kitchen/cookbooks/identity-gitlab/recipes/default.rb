@@ -153,3 +153,8 @@ execute 'restart_sshd' do
   command 'service ssh reload'
   action :nothing
 end
+
+execute 'update_gitlab_settings' do
+  command "gitlab-rails runner 'ApplicationSetting.last.update(signup_enabled: false)'"
+  action :run
+end
