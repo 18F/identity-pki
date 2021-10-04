@@ -1,5 +1,4 @@
 DEPENDENCIES
-  application_ruby (~> 4.0.1)
   apt (~> 7.0)
   aws_metadata
     git: https://github.com/18F/identity-cookbooks
@@ -76,14 +75,6 @@ DEPENDENCIES
   users
 
 GRAPH
-  application (5.2.0)
-    poise (~> 2.4)
-    poise-service (~> 1.0)
-  application_ruby (4.0.1)
-    application (~> 5.0)
-    poise (~> 2.0)
-    poise-ruby (~> 2.1)
-    poise-service (~> 1.0)
   apt (7.4.0)
   ark (6.0.3)
     seven_zip (>= 3.1)
@@ -137,7 +128,6 @@ GRAPH
     canonical_hostname (>= 0.0.0)
   letsencrypt (1.0.3)
   login_dot_gov (0.0.63)
-    application_ruby (>= 0.0.1)
     cloudhsm (>= 0.0.8)
     config_loader (>= 0.0.1)
     deploy_resource (~> 1.0)
@@ -161,17 +151,6 @@ GRAPH
     yum-atomic (>= 0.0.0)
   packagecloud (1.0.1)
   passenger (0.0.1)
-  poise (2.8.2)
-  poise-archive (1.5.0)
-    poise (~> 2.6)
-  poise-languages (2.1.2)
-    poise (~> 2.5)
-    poise-archive (~> 1.0)
-  poise-ruby (2.4.0)
-    poise (~> 2.0)
-    poise-languages (~> 2.0)
-  poise-service (1.5.2)
-    poise (~> 2.0)
   python (1.4.6)
     build-essential (>= 0.0.0)
     yum-epel (>= 0.0.0)

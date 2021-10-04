@@ -23,6 +23,8 @@ remote_file '/usr/local/share/aws/rds-combined-ca-bundle.pem' do
 end
 
 directory release_path do
+  owner node['login_dot_gov']['system_user']
+  group node['login_dot_gov']['system_user']
   recursive true
 end
 
@@ -60,64 +62,51 @@ end
 
 app_name = 'idp'
 
-# TODO: JJG consider migrating to chef deploy resource to stay in line with capistrano style:
-# https://docs.chef.io/resource_deploy.html
-application release_path do
-  owner node['login_dot_gov']['system_user']
-  group node['login_dot_gov']['system_user']
+# deploy_branch defaults to stages/<env>
+# unless deploy_branch.identity-#{app_name} is specifically set otherwise
+default_branch = node.fetch('login_dot_gov').fetch('deploy_branch_default')
+deploy_branch = node.fetch('login_dot_gov').fetch('deploy_branch').fetch("identity-#{app_name}", default_branch)
 
-  # deploy_branch defaults to stages/<env>
-  # unless deploy_branch.identity-#{app_name} is specifically set otherwise
-  default_branch = node.fetch('login_dot_gov').fetch('deploy_branch_default')
-  deploy_branch = node.fetch('login_dot_gov').fetch('deploy_branch').fetch("identity-#{app_name}", default_branch)
+git release_path do
+  repository 'https://github.com/18F/identity-idp.git'
+  depth 1
+  user node['login_dot_gov']['system_user']
+  revision deploy_branch
+end
 
-  git do
-    repository 'https://github.com/18F/identity-idp.git'
-    depth 1
-    user node['login_dot_gov']['system_user']
-    revision deploy_branch
+if ENV['TEST_KITCHEN']
+  directory '/home/ubuntu/.bundle/cache' do
+    action :delete
+    recursive true
   end
+end
 
-  if ENV['TEST_KITCHEN']
-    directory '/home/ubuntu/.bundle/cache' do
-      action :delete
-      recursive true
-    end
-  end
+# worker
+execute 'config idp bundler' do
+  command "rbenv exec bundle config build.nokogiri --use-system-libraries"
+  cwd release_path
+end
 
-  # worker
-  execute 'config idp bundler' do
-    command "rbenv exec bundle config build.nokogiri --use-system-libraries"
-    cwd release_path
-  end
-  
-  execute 'run idp bundle' do
-    command "rbenv exec bundle install --deployment --jobs 4 --path '/srv/idp/shared/bundle' --binstubs  '/srv/idp/shared/bundle/bin' --without 'deploy development doc test'"
-    cwd release_path
-  end
+execute 'run idp bundle' do
+  command "rbenv exec bundle install --deployment --jobs 4 --path '/srv/idp/shared/bundle' --binstubs  '/srv/idp/shared/bundle/bin' --without 'deploy development doc test'"
+  cwd release_path
+end
 
-  # Run the activate script from the repo, which is used to download app
-  # configs and set things up for the app to run. This has to run before
-  # deploy/build because rake assets:precompile needs the full database configs
-  # to be present.
-  execute 'deploy activate step' do
-    cwd release_path
-    # We need to have a secondary group of "github" in order to read the github
-    # SSH key, but chef doesn't set secondary sgids when executing processes,
-    # so we use sudo instead to get all the login secondary groups.
-    # https://github.com/chef/chef/issues/6162
-    command [
-      'sudo', '-H', '-u', node.fetch('login_dot_gov').fetch('system_user'),
-      './deploy/activate'
-    ]
-    user 'root'
-  end
-
-  rails do
-    rails_env node['login_dot_gov']['rails_env']
-    not_if { node['login_dot_gov']['setup_only'] }
-    precompile_assets false
-  end
+# Run the activate script from the repo, which is used to download app
+# configs and set things up for the app to run. This has to run before
+# deploy/build because rake assets:precompile needs the full database configs
+# to be present.
+execute 'deploy activate step' do
+  cwd release_path
+  # We need to have a secondary group of "github" in order to read the github
+  # SSH key, but chef doesn't set secondary sgids when executing processes,
+  # so we use sudo instead to get all the login secondary groups.
+  # https://github.com/chef/chef/issues/6162
+  command [
+    'sudo', '-H', '-u', node.fetch('login_dot_gov').fetch('system_user'),
+    './deploy/activate'
+  ]
+  user 'root'
 end
 
 # symlink chef release to current dir

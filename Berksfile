@@ -1,6 +1,5 @@
 source 'https://api.berkshelf.com'
 
-cookbook 'application_ruby', '~> 4.0.1'
 cookbook 'apt', '~> 7.0'
 cookbook 'bash-completion'
 cookbook 'build-essential', '~> 8.0'

@@ -69,43 +69,39 @@ login_dot_gov_deploy_info "#{deploy_dir}/api/deploy.json" do
   branch deploy_branch
 end
 
-application release_path do
-  owner node['login_dot_gov']['system_user']
-  group node['login_dot_gov']['system_user']
+## Fixup and sync system and NGINX MIME types
+nginx_mime_types = '/opt/nginx/conf/mime.types'
+local_mime_types = '/usr/local/etc/mime.types'
 
-  ## Fixup and sync system and NGINX MIME types
-  nginx_mime_types = '/opt/nginx/conf/mime.types'
-  local_mime_types = '/usr/local/etc/mime.types'
-
-  if File.exist?(nginx_mime_types)
-    # Add types not included in NGINX default
-    ruby_block 'addMissingMimeTypes' do
-      block do
-        fe = Chef::Util::FileEdit.new(nginx_mime_types)
-        fe.insert_line_after_match(
-          /^\s*application\/vnd\.wap\.wmlc\s+wmlc;\s*$/,
-          '    application/wasm                                 wasm;')
-        fe.write_file
-      end
-      # Assume none of the above have been added if application/wasm has not
-      not_if { File.readlines(nginx_mime_types).grep(/application\/wasm/).any? }
+if File.exist?(nginx_mime_types)
+  # Add types not included in NGINX default
+  ruby_block 'addMissingMimeTypes' do
+    block do
+      fe = Chef::Util::FileEdit.new(nginx_mime_types)
+      fe.insert_line_after_match(
+        /^\s*application\/vnd\.wap\.wmlc\s+wmlc;\s*$/,
+        '    application/wasm                                 wasm;')
+      fe.write_file
     end
-
-    # Convert NGINX MIME types into a seondary mime.types file to ensure
-    # AWS s3 sync gets the types right
-    Chef::Log.info("Re-creating #{local_mime_types} from #{nginx_mime_types}")
-
-    execute "egrep '^ +' #{nginx_mime_types} | " \
-      "awk '{ print $1 \" \" $2 }' | " \
-      "cut -d ';' -f 1 > #{local_mime_types}"
-  else
-    Chef::Log.info("No #{nginx_mime_types} - synced asset MIME types may be wrong")
+    # Assume none of the above have been added if application/wasm has not
+    not_if { File.readlines(nginx_mime_types).grep(/application\/wasm/).any? }
   end
 
-  if File.exist?("/etc/init.d/passenger")
-    notifies(:restart, "service[passenger]")
-    not_if { node['login_dot_gov']['setup_only'] }
-  end
+  # Convert NGINX MIME types into a seondary mime.types file to ensure
+  # AWS s3 sync gets the types right
+  Chef::Log.info("Re-creating #{local_mime_types} from #{nginx_mime_types}")
+
+  execute "egrep '^ +' #{nginx_mime_types} | " \
+    "awk '{ print $1 \" \" $2 }' | " \
+    "cut -d ';' -f 1 > #{local_mime_types}"
+else
+  Chef::Log.info("No #{nginx_mime_types} - synced asset MIME types may be wrong")
+end
+
+file '/etc/init.d/passenger' do
+  action :nothing
+  notifies(:restart, "service[passenger]")
+  only_if { ::File.exist?('/etc/init.d/passenger') && !node['login_dot_gov']['setup_only'] }
 end
 
 # allow other execute permissions on all directories within the application folder
