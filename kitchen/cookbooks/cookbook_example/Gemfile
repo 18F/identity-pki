@@ -11,4 +11,4 @@ gem 'kitchen-ec2'
 gem 'kitchen-vagrant'
 gem 'kitchen-inspec'
 
-gem 'chef', '= 16.16.7'
+gem 'chef', '~> 17.5.22'
