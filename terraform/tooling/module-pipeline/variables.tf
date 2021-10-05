@@ -44,6 +44,16 @@ variable "env_name" {
   default     = ""
 }
 
+variable "recycletest_env_name" {
+  description = "environment to recycle/test"
+  default     = ""
+}
+
+variable "recycletest_domain" {
+  description = "DNS domain used for testing"
+  default     = ""
+}
+
 variable "account" {
   description = "account to deploy to"
 }
