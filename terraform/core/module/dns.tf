@@ -19,6 +19,17 @@ module "sandbox_ses" {
   email_bucket = module.s3_shared.buckets["email"]
 }
 
+module "dnssec" {
+  source = "../../modules/common_dns/"
+  providers = {
+    aws = aws.use1
+  }
+
+  domain = var.root_domain  
+  root_zone_id = module.common_dns.primary_zone_id
+
+}
+
 output "primary_zone_id" {
   description = "ID for the primary Route53 zone."
   value       = module.common_dns.primary_zone_id
