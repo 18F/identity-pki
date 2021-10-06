@@ -55,27 +55,7 @@ resource "aws_s3_bucket" "kinesis_firehose_stream_bucket" {
       days          = 90
       storage_class = "STANDARD_IA"
     }
-
-    transition {
-      days          = 365
-      storage_class = "GLACIER"
-    }
-
     expiration {
-      days = 2190
-    }
-
-    noncurrent_version_transition {
-      days          = 90
-      storage_class = "STANDARD_IA"
-    }
-
-    noncurrent_version_transition {
-      days          = 365
-      storage_class = "GLACIER"
-    }
-
-    noncurrent_version_expiration {
       days = 2190
     }
   }
