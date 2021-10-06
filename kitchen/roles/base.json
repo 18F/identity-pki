@@ -37,7 +37,6 @@
     "recipe[build-essential]",
     "recipe[cacert]",
     "recipe[git]",
-    "recipe[hostname]",
     "recipe[motd]",
     "recipe[identity_base_config]",
     "recipe[ssh-keys]",
