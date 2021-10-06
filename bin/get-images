@@ -181,6 +181,8 @@ data_table() {
 }
 
 update_vars() {
+  echo -e "\nUpdating values in variables.tf file(s)..."
+  local UPDATED_VARS=0
   local TF_VARS_PATH
   [[ ${#DATA[@]} -eq 0 ]] && get_ami_info
   for LINE in $(echo "${DATA[@]}" | tail -n +2 | tr -d '|' |
@@ -198,6 +200,12 @@ update_vars() {
     sed -i '' -E "/\"${AMI_TYPE}_ami_id_${AMI_ACCT}\"/{n;s/ami-[0-9a-f]{17}\" \# [0-9-]{10}/${AMI_ID}\" \# ${AMI_DATE}/;}" "terraform/${TF_VARS_PATH}/variables.tf"
     if [[ $(git diff -U0 | grep ${AMI_ID}) ]] ; then
       echo_green "Updated ${AMI_TYPE}_ami_id_${AMI_ACCT} to ${AMI_ID}."
+      ((UPDATED_VARS++))
+    fi
+    if [[ ${UPDATED_VARS} == 0 ]] ; then
+      echo_yellow "All values in file(s) are up to date; no changes necessary."
+    else
+      echo_green "${UPDATED_VARS} value(s) updated."
     fi
   done
 }
