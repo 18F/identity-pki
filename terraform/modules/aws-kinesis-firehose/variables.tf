@@ -1,6 +1,6 @@
 variable "region" {
-  description = "AWS region identifier,e.g. us-east-1"
-  default = "us-east-1"
+  description = "AWS region identifier"
+  default = "us-west-2"
 }
 
 variable "kinesis_firehose_stream_name" {
