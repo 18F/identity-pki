@@ -181,7 +181,6 @@ data_table() {
 }
 
 update_vars() {
-  echo -e "\nUpdating values in variables.tf file(s)..."
   local TF_VARS_PATH
   [[ ${#DATA[@]} -eq 0 ]] && get_ami_info
   for LINE in $(echo "${DATA[@]}" | tail -n +2 | tr -d '|' |
