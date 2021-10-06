@@ -97,7 +97,14 @@ data "aws_iam_policy_document" "ec2-tags" {
     ]
 
     resources = [
-      "arn:aws:ec2:*:*:instance/*"
+      "arn:aws:ec2:${var.region}:${data.aws_caller_identity.current.account_id}:instance/*"
     ]
+    condition {
+      test     = "StringEquals"
+      variable = "ec2:ResourceTag/domain"
+      values = [
+        "${var.env_name}.${var.root_domain}"
+      ]
+    }
   }
 }
