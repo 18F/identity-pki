@@ -86,3 +86,18 @@ data "aws_iam_policy_document" "xray-publish-policy" {
     ]
   }
 }
+
+# Allow Tagging EC2 instances
+data "aws_iam_policy_document" "ec2-tags" {
+  statement {
+    sid = "allowEC2Tags"
+    actions = [
+      "ec2:DescribeTags",
+      "ec2:CreateTags",
+    ]
+
+    resources = [
+      "arn:aws:ec2:*:*:instance/*"
+    ]
+  }
+}

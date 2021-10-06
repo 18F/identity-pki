@@ -93,6 +93,11 @@ if idp_artifacts_enabled
   end
 end
 
+execute 'tag instance' do
+  command "aws ec2 create-tags --region #{node['ec2']['region']} --resources #{node['ec2']['instance_id']} --tags Key=gitsha:idp,Value=#{git_sha}"
+  only_if { artifacts_downloaded.call }
+end
+
 git release_path do
   repository 'https://github.com/18F/identity-idp.git'
   depth 1
