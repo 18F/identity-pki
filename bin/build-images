@@ -16,11 +16,9 @@ each type of AMI in the login-\$AWS_ACCOUNT account.
 
 Flags:
 
-  -u        : Updates terraform/imagebuild for the
-              specified account via tf-deploy
   -b BRANCH : Update the identity-base-image branch
               used for builds to \$BRANCH, via tf-deploy
-              and aws cloudformation (implies -u)
+              and aws cloudformation
   -t TYPE   : Only update the stacks/build project/
               pipeline for \$TYPE AMIs (base/rails)
   -h        : Display this help
@@ -33,6 +31,8 @@ get_build_branch() {
   CURRENT_BRANCH=$(ave -r aws ssm get-parameter \
     --name ImageCreationSourceFile --output text --with-decryption --query 'Parameter.Value' |
     sed -E 's/18F\/identity-base-image\/([A-Za-z0-9\/-]+)\/18F_identity-base-image\.zip/\1/')
+  echo_cyan "- Branch: ${CURRENT_BRANCH}"
+  echo
 }
 
 run_terraform() {
@@ -44,15 +44,14 @@ run_terraform() {
 
 update_build_branch() {
   local STACKS=()
-  echo
+  echo -e "Ready to update imagebuild/${ACCOUNT} via tf-deploy."
   if [[ ${CURRENT_BRANCH} == ${BUILD_BRANCH} ]] ; then
-    echo_yellow "NOTE: \`ImageCreationSourceFile\` already set to \`${BUILD_BRANCH}\`;"
+    echo_yellow "NOTE: Current imagebuild branch already set to \`${BUILD_BRANCH}\`;"
     echo_yellow "will NOT run update-stack operations after apply is complete."
   else
-    echo_cyan "- Current branch: ${CURRENT_BRANCH}"
     echo_cyan "- Desired branch: ${BUILD_BRANCH}"
   fi
-  echo -e "\nReady to update imagebuild/${ACCOUNT} via tf-deploy."
+  echo
   if prompt_yn "Continue?" ; then
     TF_APPLY_CMD="var 'code_branch=${BUILD_BRANCH}'"
     run_terraform
@@ -88,23 +87,18 @@ update_build_branch() {
   fi
 }
 
-declare {ACCOUNT,BUILD_BRANCH,RUN_TF,TF_APPLY_CMD,CURRENT_BRANCH}=
+declare {ACCOUNT,BUILD_BRANCH,TF_APPLY_CMD,CURRENT_BRANCH}=
 TYPE_LIST='base rails'
-RUN_TF=false
 
 verify_root_repo
-while getopts :a:t:ub:h opt
+while getopts :a:t:b:h opt
 do
   case $opt in
-    a) ACCOUNT="${OPTARG}"            ;;
-    t) TYPE_LIST="${OPTARG}"          ;;
-    u) RUN_TF=true                    ;;
-    b)
-       BUILD_BRANCH="${OPTARG}"
-       RUN_TF=true
-    ;;
-    h) usage && exit 0                ;;
-    *) raise 'Invalid option'         ;;
+    a) ACCOUNT="${OPTARG}"      ;;
+    t) TYPE_LIST="${OPTARG}"    ;;
+    b) BUILD_BRANCH="${OPTARG}" ;;
+    h) usage && exit 0          ;;
+    *) raise 'Invalid option'   ;;
   esac
 done
 shift $((OPTIND-1))
@@ -116,26 +110,22 @@ elif ! [[ "${TYPE_LIST}" =~ (base|rails) ]] ; then
 fi
 
 AV_PROFILE=$(get_profile_name $(get_acct_num ${ACCOUNT}))
+get_build_branch
 
-if [[ ${RUN_TF} == true ]] ; then
-  get_build_branch
-  if [[ -z ${BUILD_BRANCH} ]] ; then
-    if [[ ${CURRENT_BRANCH} == 'main' ]] ; then
-      run_terraform
+if ! [[ -z ${BUILD_BRANCH} ]] ; then
+  update_build_branch
+else
+  if [[ ${CURRENT_BRANCH} != 'main' ]] ; then
+    echo_yellow "Current imagebuild branch is \`${CURRENT_BRANCH}\`, not \`main\`;" 
+    echo_yellow "additionally, no custom branch was specified via -b flag."
+    echo
+    if prompt_yn "Update imagebuild/${ACCOUNT} to use \`main\` branch instead?" ; then
+      echo
+      BUILD_BRANCH='main'
+      update_build_branch
     else
-      echo
-      echo_yellow "Current imagebuild branch is \`${CURRENT_BRANCH}\`, not \`main\`;" 
-      echo_yellow "however, no custom branch was specified via -b flag."
-      echo
-      if prompt_yn "Continue updating imagebuild/${ACCOUNT} with \`${CURRENT_BRANCH}\` branch?" ; then
-        TF_APPLY_CMD="var 'code_branch=${CURRENT_BRANCH}'"
-        run_terraform
-      else
-        echo_yellow "Update of imagebuild/${ACCOUNT} canceled."
-      fi
+      echo_green "Continuing with imagebuild branch \`${CURRENT_BRANCH}\`."
     fi
-  else
-    update_build_branch
   fi
 fi
 
