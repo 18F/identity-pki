@@ -1,5 +1,7 @@
 ---
 users:
+  aaron.manne:
+    - devopsnonprod
   akhlaq.khan:
     - analytics
     - finops
