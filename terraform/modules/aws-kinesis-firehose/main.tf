@@ -8,6 +8,7 @@ resource "aws_kinesis_firehose_delivery_stream" "kinesis_firehose_stream" {
     buffer_size    = 128
     s3_backup_mode = "Enabled"
     prefix         = "logs/"
+    compression_format = "UNCOMPRESSED"
 
     s3_backup_configuration {
       role_arn   = aws_iam_role.kinesis_firehose_stream_role.arn
@@ -90,8 +91,9 @@ resource "aws_s3_bucket" "kinesis_firehose_stream_bucket" {
 }
 
 resource "aws_cloudwatch_log_subscription_filter" "cloudwatch_subscription_filter" {
+  count          = length(var.cloudwatch_log_group_name)
   name           = var.cloudwatch_subscription_filter_name
-  log_group_name = var.cloudwatch_log_group_name
+  log_group_name = var.cloudwatch_log_group_name[count.index]
   filter_pattern = var.cloudwatch_filter_pattern
 
   destination_arn = aws_kinesis_firehose_delivery_stream.kinesis_firehose_stream.arn

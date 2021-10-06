@@ -26,7 +26,7 @@ variable "cloudwatch_subscription_filter_name" {
 
 variable "cloudwatch_log_group_name" {
   description = "The cloudwatch log group name"
-  type        = string
+  type        = list
 }
 
 variable "cloudwatch_filter_pattern" {
