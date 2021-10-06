@@ -9,7 +9,7 @@ set -euo pipefail
 usage() {
   cat >&2 << EOM
 
-Usage: ${0} -a AWS_ACCOUNT [-u|-b BRANCH|-t TYPE]
+Usage: ${0} -a AWS_ACCOUNT [-b BRANCH|-t TYPE]
 
 Runs \`aws codepipeline start-pipeline-execution\` for
 each type of AMI in the login-\$AWS_ACCOUNT account.
