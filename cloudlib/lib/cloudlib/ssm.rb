@@ -65,21 +65,21 @@ module Cloudlib
           'ssm',
           'start-session',
           '--target', instance.instance_id ,
-          '--parameters', { gsausername: [gsa_username] }.to_json,
-          '--document', document_name,
+          '--parameters', { gsausername: [local_gsa_username] }.to_json,
+          '--document',  document_name,
         ]
         log.debug('exec: ' + cmd.inspect)
         exec(*cmd)
       end
 
-      def gsa_username
+      def local_gsa_username
         ENV['GSA_USERNAME'].tap do |str|
           raise 'missing $GSA_USERNAME' if !str || str.empty?
         end
       end
 
       def document_name
-        "ssm-document-#{gsa_username}"
+        "#{@cl.env}-ssm-document-gsa-username"
       end
     end
   end
