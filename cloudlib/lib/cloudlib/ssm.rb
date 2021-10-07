@@ -60,9 +60,67 @@ module Cloudlib
       #
       # @return DOES NOT RETURN
       def ssm_session_exec
-        cmd = ['aws', 'ssm', 'start-session', '--target', instance.instance_id]
+        ensure_document
+
+        cmd = [
+          'aws',
+          'ssm',
+          'start-session',
+          '--target', instance.instance_id ,
+          '--parameters', { gsausername: [gsa_username] }.to_json,
+          '--document', document_name,
+        ]
         log.debug('exec: ' + cmd.inspect)
         exec(*cmd)
+      end
+
+      def gsa_username
+        ENV['GSA_USERNAME'].tap do |str|
+          raise 'missing $GSA_USERNAME' if !str || str.empty?
+        end
+      end
+
+      def document_name
+        "ssm-document-#{gsa_username}"
+      end
+
+      # Creates a document that can be used for an SSM session
+      def ensure_document
+        return if system('aws', 'ssm', 'get-document', '--name', document_name, out: '/dev/null', err: '/dev/null')
+
+        Tempfile.create(['document', '.yaml']) do |tmp|
+          tmp = OpenStruct.new(path: '/tmp/policy.yaml')
+          File.open(tmp.path, 'w') do |f|
+            f.puts(<<~YAML)
+              ---
+              schemaVersion: '1.0'
+              description: SSM session user GSA_USERNAME
+              sessionType: InteractiveCommands
+              parameters:
+                gsausername: # not allowed to have underscores :[
+                  type: String
+                  description: The GSA_USERNAME of the person calling the script.
+                  allowedPattern: "^[a-zA-Z0-9-_/]+$"
+              properties:
+                linux:
+                  commands: "GSA_USERNAME={{ gsausername }} /bin/bash"
+                  runAsElevated: false
+            YAML
+          end
+
+          cmd = [
+            'aws',
+            'ssm',
+            'create-document',
+            '--name', document_name,
+            '--document-format', 'YAML',
+            '--document-type', 'Session',
+            '--content', "file://#{tmp.path}",
+            '--target-type', '/AWS::EC2::Instance',
+          ]
+          log.debug('system: ' + cmd.join(' '))
+          system(*cmd)
+        end
       end
     end
   end

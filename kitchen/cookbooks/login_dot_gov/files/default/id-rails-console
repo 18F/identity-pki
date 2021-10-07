@@ -63,7 +63,12 @@ if [ ${missing_keys} -gt 0 ]; then
     exit 1
 fi
 
-TEXT=':rails: _rails console_ :rails: for `'"$(logname)"'` on `'"$(hostname)"'` :\n*'"${USE_CASE}"'*'
+USERNAME=$(logname)
+if [ -z "$USERNAME" ];
+    USERNAME="$GSA_USERNAME"
+fi
+
+TEXT=':rails: _rails console_ :rails: for `'"${USERNAME}"'` on `'"$(hostname)"'` :\n*'"${USE_CASE}"'*'
 PAYLOAD='payload={"channel": "'"${CHANNEL}"'", "username": "id-rails-console", "text": "'"${TEXT}"'", "icon_emoji": ":dopetopus:"}'
 curl -X POST --data-urlencode "${PAYLOAD}" $WEBHOOK
 
