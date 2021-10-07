@@ -32,7 +32,7 @@ runner_name = node['hostname']
 # https://docs.gitlab.com/runner/register/#requirements
 # Then put it in the secrets bucket for your env:
 # aws s3 cp /tmp/gitlab_runner_token s3://<secretsbucket>/<env>/gitlab_runner_token
-runner_token = ConfigLoader.load_config(node, "gitlab_runner_token", common: false).chomp!
+runner_token = ConfigLoader.load_config(node, "gitlab_runner_token", common: false).chomp
 
 directory '/etc/gitlab'
 
