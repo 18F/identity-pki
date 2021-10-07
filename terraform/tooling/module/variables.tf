@@ -61,6 +61,10 @@ output "auto_tf_subnet_id" {
   value = aws_subnet.auto_terraform_private_a.id
 }
 
+output "auto_tf_subnet_arn" {
+  value = aws_subnet.auto_terraform_private_a.arn
+}
+
 output "auto_tf_role_arn" {
   value = aws_iam_role.auto_terraform.arn
 }

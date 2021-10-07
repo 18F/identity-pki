@@ -305,11 +305,121 @@ phases:
 
 
 # How to run tests
+# Policy with the minimal set of perms for testing
+resource "aws_iam_role_policy" "codebuild_test" {
+  name        = "${local.recycletest_env}_auto_tf_test_policy"
+  role        = aws_iam_role.codebuild_test.name
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Resource": [
+        "arn:aws:codestar-notifications:${var.region}:${data.aws_caller_identity.current.account_id}:notificationrule*"
+      ],
+      "Action": [
+        "codestar-notifications:DescribeNotificationRule"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Resource": [
+        "arn:aws:codepipeline:${var.region}:${data.aws_caller_identity.current.account_id}:auto_terraform*"
+      ],
+      "Action": [
+        "codepipeline:GetPipeline",
+        "codepipeline:GetPipelineState"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents",
+        "autoscaling:Describe*",
+        "ec2:CreateNetworkInterface",
+        "ec2:DescribeDhcpOptions",
+        "ec2:DescribeNetworkInterfaces",
+        "ec2:DeleteNetworkInterface",
+        "ec2:DescribeSubnets",
+        "ec2:DescribeSecurityGroups",
+        "ec2:DescribeVpcs"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Effect":"Allow",
+      "Action": [
+        "s3:ListObjects",
+        "s3:ListBucket",
+        "s3:GetObject",
+        "s3:GetObjectVersion",
+        "s3:GetBucketVersioning",
+        "s3:PutObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::auto-tf-bucket-${data.aws_caller_identity.current.account_id}",
+        "arn:aws:s3:::auto-tf-bucket-${data.aws_caller_identity.current.account_id}/*"
+      ]
+    },
+    {
+      "Effect":"Allow",
+      "Action": [
+        "autoscaling:UpdateAutoScalingGroup"
+      ],
+      "Resource": [
+        "arn:aws:autoscaling:${var.region}:${data.aws_caller_identity.current.account_id}:autoScalingGroup::autoScalingGroupName/${local.recycletest_env}-gitlab_runner"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:CreateNetworkInterfacePermission"
+      ],
+      "Resource": [
+        "arn:aws:ec2:${var.region}:${data.aws_caller_identity.current.account_id}:network-interface/*"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "ec2:Subnet": [
+            "${var.auto_tf_subnet_arn}"
+          ],
+          "ec2:AuthorizedService": "codebuild.amazonaws.com"
+        }
+      }
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role" "codebuild_test" {
+  name = "${local.recycletest_env}_codebuild_test"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "codebuild.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
 resource "aws_codebuild_project" "auto_terraform_test" {
   name          = "auto_terraform_${local.clean_tf_dir}_${var.env_name}_test"
   description   = "auto-terraform ${var.tf_dir}"
   build_timeout = "30"
-  service_role  = var.auto_tf_role_arn
+  service_role  = aws_iam_role.codebuild_test.arn
 
   artifacts {
     type = "CODEPIPELINE"
