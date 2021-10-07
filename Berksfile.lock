@@ -2,8 +2,8 @@ DEPENDENCIES
   apt (~> 7.0)
   aws_metadata
     git: https://github.com/18F/identity-cookbooks
-    revision: 93e1c7c7977c6efa63106c99297affd9fcaaa80d
-    ref: 93e1c7c
+    revision: efd36b6331c085b1d7e955f89e9db49af7cfd7f2
+    ref: efd36b6
     rel: aws_metadata
   aws_s3
     path: kitchen/cookbooks/aws_s3
@@ -16,13 +16,13 @@ DEPENDENCIES
     path: kitchen/cookbooks/chef_proxy_env
   cloudhsm
     git: https://github.com/18F/identity-cookbooks
-    revision: 93e1c7c7977c6efa63106c99297affd9fcaaa80d
-    ref: 93e1c7c
+    revision: efd36b6331c085b1d7e955f89e9db49af7cfd7f2
+    ref: efd36b6
     rel: cloudhsm
   config_loader
     git: https://github.com/18F/identity-cookbooks
-    revision: 93e1c7c7977c6efa63106c99297affd9fcaaa80d
-    ref: 93e1c7c
+    revision: efd36b6331c085b1d7e955f89e9db49af7cfd7f2
+    ref: efd36b6
     rel: config_loader
   deploy_resource (~> 1.0)
   filesystem (~> 3.0.5)
@@ -41,13 +41,13 @@ DEPENDENCIES
     path: kitchen/cookbooks/identity-pivcac
   identity_base_config
     git: https://github.com/18F/identity-cookbooks
-    revision: 93e1c7c7977c6efa63106c99297affd9fcaaa80d
-    ref: 93e1c7c
+    revision: efd36b6331c085b1d7e955f89e9db49af7cfd7f2
+    ref: efd36b6
     rel: identity_base_config
   identity_shared_attributes
     git: https://github.com/18F/identity-cookbooks
-    revision: 93e1c7c7977c6efa63106c99297affd9fcaaa80d
-    ref: 93e1c7c
+    revision: efd36b6331c085b1d7e955f89e9db49af7cfd7f2
+    ref: efd36b6
     rel: identity_shared_attributes
   instance_certificate
     path: kitchen/cookbooks/instance_certificate
@@ -65,8 +65,8 @@ DEPENDENCIES
   ssh-keys
   static_eip
     git: https://github.com/18F/identity-cookbooks
-    revision: 93e1c7c7977c6efa63106c99297affd9fcaaa80d
-    ref: 93e1c7c
+    revision: efd36b6331c085b1d7e955f89e9db49af7cfd7f2
+    ref: efd36b6
     rel: static_eip
   sudo
   users
