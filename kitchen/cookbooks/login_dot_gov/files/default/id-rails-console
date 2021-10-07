@@ -7,20 +7,11 @@ missing_keys=0
 
 ENV_VARS=("app=$app")
 
-# Pass through ALLOW_CONSOLE_DB_WRITE_ACCESS, if set
-if [ -n "${ALLOW_CONSOLE_DB_WRITE_ACCESS-}" ]; then
-    ENV_VARS=(
-        "${ENV_VARS[@]}"
-        "ALLOW_CONSOLE_DB_WRITE_ACCESS=$ALLOW_CONSOLE_DB_WRITE_ACCESS"
-    )
-fi
-
-
 usage() {
     cat >&2 <<EOM
-usage: $(basename "$0") [APP]
+usage: $(basename "$0") [APP] [--write]
 
-Run a Rails console for APP (default "idp"). 
+Run a Rails console for APP (default "idp").
 
 This involves using sudo to change to the app service user, default $APP_USER.
 (Override by setting APP_USER). You will be prompted to provide a justification
@@ -38,11 +29,24 @@ if [ $# -ge 1 ]; then
             usage
             exit
             ;;
+        -w|--write)
+            ALLOW_CONSOLE_DB_WRITE_ACCESS="true"
+            shift
+            ;;
         *)
             app="$1"
             ;;
     esac
 fi
+
+# Pass through ALLOW_CONSOLE_DB_WRITE_ACCESS, if set
+if [ -n "${ALLOW_CONSOLE_DB_WRITE_ACCESS-}" ]; then
+    ENV_VARS=(
+        "${ENV_VARS[@]}"
+        "ALLOW_CONSOLE_DB_WRITE_ACCESS=$ALLOW_CONSOLE_DB_WRITE_ACCESS"
+    )
+fi
+
 
 while true; do
     read -r -p "Please provide an explanation for this Rails console: " USE_CASE
@@ -59,7 +63,17 @@ if [ ${missing_keys} -gt 0 ]; then
     exit 1
 fi
 
-TEXT=':rails: _rails console_ :rails: for `'"$(logname)"'` on `'"$(hostname)"'` :\n*'"${USE_CASE}"'*'
+USERNAME=$(logname) || true
+if [ -z "$USERNAME" ]; then
+    USERNAME="$GSA_USERNAME"
+fi
+
+MODE="readonly"
+if [ -n "${ALLOW_CONSOLE_DB_WRITE_ACCESS-}" ]; then
+    MODE="readwrite"
+fi
+
+TEXT=':rails: _rails console_ :rails: for `'"${USERNAME}"'` on `'"$(hostname)"'` ('"${MODE}"') :\n*'"${USE_CASE}"'*'
 PAYLOAD='payload={"channel": "'"${CHANNEL}"'", "username": "id-rails-console", "text": "'"${TEXT}"'", "icon_emoji": ":dopetopus:"}'
 curl -X POST --data-urlencode "${PAYLOAD}" $WEBHOOK
 

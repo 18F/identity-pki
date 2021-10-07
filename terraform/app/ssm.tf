@@ -81,3 +81,28 @@ resource "aws_iam_instance_profile" "ssm-access" {
   name = "${var.env_name}-ssm-access"
   role = aws_iam_role.ssm-access.name
 }
+
+resource "aws_ssm_document" "ssm-document-gsa-username" {
+  name          = "${var.env_name}-ssm-document-gsa-username"
+  document_type = "Session"
+
+  version_name = "1.0.0"
+  target_type  = "/AWS::EC2::Instance"
+
+  document_format = "YAML"
+  content         = <<DOC
+---
+schemaVersion: '1.0'
+description: SSM session user GSA_USERNAME
+sessionType: InteractiveCommands
+parameters:
+  gsausername: # not allowed to have underscores :[
+    type: String
+    description: The GSA_USERNAME of the person calling the script.
+    allowedPattern: "^[a-zA-Z0-9-_/]+$"
+properties:
+  linux:
+    commands: "GSA_USERNAME={{ gsausername }} /bin/bash"
+    runAsElevated: false
+  DOC
+}
