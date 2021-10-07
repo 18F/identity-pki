@@ -10,7 +10,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_sms_send_rate_high_alarm" {
   statistic                 = "Sum"
   threshold                 = var.sms_send_rate_alert_threshold
   alarm_description         = "${var.env_name} IdP sent more than ${var.sms_send_rate_alert_threshold} SMS messages in 1 minute"
-  treat_missing_data        = "breaching"
+  treat_missing_data        = "notBreaching"
   insufficient_data_actions = []
   alarm_actions             = local.high_priority_alarm_actions
 }
@@ -26,7 +26,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_voice_send_rate_high_alarm" {
   statistic                 = "Sum"
   threshold                 = var.voice_send_rate_alert_threshold
   alarm_description         = "${var.env_name} IdP sent more than ${var.voice_send_rate_alert_threshold} voice messages in 1 minute"
-  treat_missing_data        = "breaching"
+  treat_missing_data        = "notBreaching"
   insufficient_data_actions = []
   alarm_actions             = local.high_priority_alarm_actions
 }
@@ -43,7 +43,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_sms_error_rate_high_alarm" {
   statistic                 = "Sum"
   threshold                 = var.sms_error_rate_alert_threshold
   alarm_description         = "${var.env_name} IdP experienced more than ${var.sms_error_rate_alert_threshold} SMS non-throttled message failures in 1 minute"
-  treat_missing_data        = "breaching"
+  treat_missing_data        = "notBreaching"
   insufficient_data_actions = []
   alarm_actions             = local.high_priority_alarm_actions
 }
@@ -59,7 +59,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_sms_throttled_rate_high_alarm" {
   statistic                 = "Sum"
   threshold                 = var.sms_error_rate_alert_threshold
   alarm_description         = "${var.env_name} IdP experienced more than ${var.sms_error_rate_alert_threshold} SMS throttled message failures in 1 minute"
-  treat_missing_data        = "breaching"
+  treat_missing_data        = "notBreaching"
   insufficient_data_actions = []
   alarm_actions             = local.high_priority_alarm_actions
 }
@@ -75,7 +75,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_voice_error_rate_high_alarm" {
   statistic                 = "Sum"
   threshold                 = var.voice_error_rate_alert_threshold
   alarm_description         = "${var.env_name} IdP experienced more than ${var.voice_error_rate_alert_threshold} voice non-throttled message failures in 1 minute"
-  treat_missing_data        = "breaching"
+  treat_missing_data        = "notBreaching"
   insufficient_data_actions = []
   alarm_actions             = local.high_priority_alarm_actions
 }
@@ -91,7 +91,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_voice_throttled_rate_high_alarm" {
   statistic                 = "Sum"
   threshold                 = var.voice_error_rate_alert_threshold
   alarm_description         = "${var.env_name} IdP experienced more than ${var.voice_error_rate_alert_threshold} voice throttled message failures in 1 minute"
-  treat_missing_data        = "breaching"
+  treat_missing_data        = "notBreaching"
   insufficient_data_actions = []
   alarm_actions             = local.high_priority_alarm_actions
 }
