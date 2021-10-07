@@ -375,7 +375,7 @@ variable "asg_worker_max" {
 
 # Enables worker alarms
 variable "idp_worker_alarms_enabled" {
-  default     = 0
+  default     = 1
   description = "Whether to set up alarms for IDP workers"
 }
 
