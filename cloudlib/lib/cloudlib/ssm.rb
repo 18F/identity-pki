@@ -89,7 +89,6 @@ module Cloudlib
         return if system('aws', 'ssm', 'get-document', '--name', document_name, out: '/dev/null', err: '/dev/null')
 
         Tempfile.create(['document', '.yaml']) do |tmp|
-          tmp = OpenStruct.new(path: '/tmp/policy.yaml')
           File.open(tmp.path, 'w') do |f|
             f.puts(<<~YAML)
               ---

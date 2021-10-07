@@ -63,12 +63,17 @@ if [ ${missing_keys} -gt 0 ]; then
     exit 1
 fi
 
-USERNAME=$(logname)
-if [ -z "$USERNAME" ];
+USERNAME=$(logname) || true
+if [ -z "$USERNAME" ]; then
     USERNAME="$GSA_USERNAME"
 fi
 
-TEXT=':rails: _rails console_ :rails: for `'"${USERNAME}"'` on `'"$(hostname)"'` :\n*'"${USE_CASE}"'*'
+MODE="readonly"
+if [ -n "${ALLOW_CONSOLE_DB_WRITE_ACCESS-}" ]; then
+    MODE="readwrite"
+fi
+
+TEXT=':rails: _rails console_ :rails: for `'"${USERNAME}"'` on `'"$(hostname)"'` ('"${MODE}"') :\n*'"${USE_CASE}"'*'
 PAYLOAD='payload={"channel": "'"${CHANNEL}"'", "username": "id-rails-console", "text": "'"${TEXT}"'", "icon_emoji": ":dopetopus:"}'
 curl -X POST --data-urlencode "${PAYLOAD}" $WEBHOOK
 
