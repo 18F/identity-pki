@@ -60,9 +60,26 @@ module Cloudlib
       #
       # @return DOES NOT RETURN
       def ssm_session_exec
-        cmd = ['aws', 'ssm', 'start-session', '--target', instance.instance_id]
+        cmd = [
+          'aws',
+          'ssm',
+          'start-session',
+          '--target', instance.instance_id ,
+          '--parameters', { gsausername: [gsa_username] }.to_json,
+          '--document', document_name,
+        ]
         log.debug('exec: ' + cmd.inspect)
         exec(*cmd)
+      end
+
+      def gsa_username
+        ENV['GSA_USERNAME'].tap do |str|
+          raise 'missing $GSA_USERNAME' if !str || str.empty?
+        end
+      end
+
+      def document_name
+        "ssm-document-#{gsa_username}"
       end
     end
   end
