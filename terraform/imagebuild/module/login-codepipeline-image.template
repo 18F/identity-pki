@@ -83,7 +83,7 @@
                 "CloudWatch",
                 "Both"
             ],
-            "Description": "Source trigger for the pipeline. Choose S3 (triggered for each new push to origin), CloudWatch (triggered weekly), or both.",
+            "Description": "Source trigger for the pipeline. Choose S3 (triggered for each new push to origin/ImageCreationSourceFile), CloudWatch (triggered daily), or both.",
             "Type": "String",
             "Default" : "Both"
         }
@@ -418,9 +418,9 @@
                     "Fn::Sub": "Run-${AWS::StackName}"
                 },
                 "Description" : {
-                    "Fn::Sub": "Runs ${CodeBuildProjectName} build weekly."
+                    "Fn::Sub": "Runs ${CodeBuildProjectName} build daily."
                 },
-                "ScheduleExpression" : "cron(0 7 ? * 1 *)",
+                "ScheduleExpression" : "cron(0 7 * * ? *)",
                 "State" : {
                     "Fn::If": [
                         "UseCloudWatchScheduler",
