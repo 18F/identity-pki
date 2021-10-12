@@ -1,9 +1,5 @@
 module "common_dns" {
   source = "../../modules/common_dns/"
-  providers = {
-    aws.usw2 = aws.usw2
-    aws.use1 = aws.use1
-  }
 
   domain                        = var.root_domain
   static_cloudfront_name        = var.static_cloudfront_name
@@ -13,7 +9,18 @@ module "common_dns" {
   google_site_verification_txt  = var.google_site_verification_txt
   prod_records                  = var.prod_records
   mx_provider                   = var.mx_provider
-  alarm_actions                 = [module.sns_slack.sns_topic_arn]
+}
+
+module "dnssec" {
+  source = "../../modules/dnssec/"
+  providers = {
+    aws.usw2 = aws.usw2
+    aws.use1 = aws.use1
+  }
+
+  dnssec_zone_name = var.root_domain
+  dnssec_zone_id   = module.common_dns.primary_zone_id
+  alarm_actions    = [module.sns_slack.sns_topic_arn]
 }
 
 module "sandbox_ses" {
