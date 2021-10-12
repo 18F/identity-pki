@@ -76,3 +76,8 @@ output "auto_tf_pipeline_role_arn" {
 output "auto_tf_bucket_id" {
   value = aws_s3_bucket.codepipeline_bucket.id
 }
+
+variable "events_sns_topic" {
+  description = "name of the sns topic to send events to"
+  default     = "slack-otherevents"
+}
