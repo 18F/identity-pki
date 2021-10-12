@@ -1,3 +1,10 @@
+locals {
+  # May want to consider refactoring this by removing pivcac_service_enabled,
+  # seeing as it's used in basically every environment now -- it just serves
+  # as an additional variable to track, at this point.
+  pivcac_dnssec_on = var.pivcac_service_enabled + var.pivcac_dnssec_enabled == 2 ? 1 : 0
+}
+
 resource "aws_route53_zone" "pivcac_zone" {
   name  = "pivcac.${var.env_name}.${var.root_domain}"
   count = var.pivcac_service_enabled
@@ -58,3 +65,17 @@ resource "aws_iam_role_policy" "pivcac_update_route53" {
   count  = var.pivcac_service_enabled
 }
 
+##### DNSSEC #####
+
+module "dnssec" {
+  count     = local.pivcac_dnssec_on
+  source    = "../modules/dnssec/"
+  providers = {
+    aws.usw2 = aws.usw2
+    aws.use1 = aws.use1
+  }
+
+  dnssec_zone_name = aws_route53_zone.pivcac_zone[0].name
+  dnssec_zone_id   = aws_route53_zone.pivcac_zone[0].id
+  alarm_actions    = local.low_priority_alarm_actions
+}

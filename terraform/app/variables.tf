@@ -519,6 +519,11 @@ variable "pivcac_service_enabled" {
   description = "Whether to run the microservice for PIV/CAC authentication"
 }
 
+variable "pivcac_dnssec_enabled" {
+  default     = 1
+  description = "Whether to enable/enforce DNSSEC on the Route53 zone used by the PIV/CAC service"
+}
+
 # This is needed so the application can download its secrets
 
 variable "app_secrets_bucket_name_prefix" {
