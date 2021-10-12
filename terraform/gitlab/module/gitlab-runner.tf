@@ -50,7 +50,7 @@ module "gitlab_runner_launch_template" {
   user_data = module.gitlab_runner_user_data.rendered_cloudinit_config
 
   template_tags = {
-    "main_git_ref" = module.gitlab_runner_user_data.main_git_ref
+    main_git_ref = module.gitlab_runner_user_data.main_git_ref
   }
 }
 

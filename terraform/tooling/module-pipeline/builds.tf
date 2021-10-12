@@ -436,7 +436,6 @@ EOF
 }
 
 resource "aws_iam_role" "codebuild_test" {
-  # XXX the env is not always set?
   name = "${local.recycletest_env}_codebuild_test"
 
   assume_role_policy = <<EOF
