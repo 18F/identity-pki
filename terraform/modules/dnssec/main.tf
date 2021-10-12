@@ -97,7 +97,7 @@ resource "aws_kms_alias" "dnssec" {
   target_key_id = aws_kms_key.dnssec[each.key].key_id
 }
 
-resource "aws_route53_key_signing_key" "primary" {
+resource "aws_route53_key_signing_key" "dnssec" {
   for_each = var.dnssec_ksks
 
   hosted_zone_id             = var.dnssec_zone_id
@@ -105,7 +105,7 @@ resource "aws_route53_key_signing_key" "primary" {
   name                       = "${var.dnssec_zone_name}-ksk-${each.key}"
 }
 
-resource "aws_route53_hosted_zone_dnssec" "primary" {
+resource "aws_route53_hosted_zone_dnssec" "dnssec" {
   hosted_zone_id = var.dnssec_zone_id
 }
 
