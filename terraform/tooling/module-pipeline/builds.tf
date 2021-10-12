@@ -307,8 +307,8 @@ phases:
 # How to run tests
 # Policy with the minimal set of perms for testing
 resource "aws_iam_role_policy" "codebuild_test" {
-  name        = "${local.recycletest_env}_auto_tf_test_policy"
-  role        = aws_iam_role.codebuild_test.name
+  name = "${local.recycletest_env}_auto_tf_test_policy"
+  role = aws_iam_role.codebuild_test.name
 
   policy = <<EOF
 {
