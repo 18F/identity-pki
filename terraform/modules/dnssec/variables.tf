@@ -19,11 +19,11 @@ variable "dnssec_ksks" {
   # This will decommission "Key A" but leave "Key B" intact.  "Key C"
   # will be added and propagated.  Remember that the registrar must
   # be updated to remove the old and add the new keys!
-  type    = map(string)
+  type = map(string)
   default = {
     "20211005" = "red",
     "20211006" = "green",
-  #  "20210406" = "blue"
+    #  "20210406" = "blue"
   }
 }
 
