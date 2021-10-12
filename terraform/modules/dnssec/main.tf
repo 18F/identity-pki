@@ -7,15 +7,15 @@ data "aws_caller_identity" "current" {
 
 data "aws_iam_policy_document" "ksk_policy" {
   statement {
-    sid      = "Allow Route 53 DNSSEC Service"
-    effect   = "Allow"
-    actions  = [
+    sid     = "Allow Route 53 DNSSEC Service"
+    effect  = "Allow"
+    actions = [
       "kms:DescribeKey",
       "kms:GetPublicKey",
       "kms:Sign",
     ]
     principals {
-      type        = "Service"
+      type = "Service"
       identifiers = [
         "dnssec-route53.amazonaws.com"
       ]
@@ -31,7 +31,7 @@ data "aws_iam_policy_document" "ksk_policy" {
       "kms:CreateGrant"
     ]
     principals {
-      type        = "Service"
+      type = "Service"
       identifiers = [
         "dnssec-route53.amazonaws.com"
       ]
@@ -48,9 +48,9 @@ data "aws_iam_policy_document" "ksk_policy" {
     }
   }
   statement {
-    sid      = "IAM User Permissions"
-    effect   = "Allow"
-    actions  = [
+    sid     = "IAM User Permissions"
+    effect  = "Allow"
+    actions = [
       "kms:*"
     ]
     principals {

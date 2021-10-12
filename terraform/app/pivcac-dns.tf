@@ -68,8 +68,8 @@ resource "aws_iam_role_policy" "pivcac_update_route53" {
 ##### DNSSEC #####
 
 module "dnssec" {
-  count     = local.pivcac_dnssec_on
-  source    = "../modules/dnssec/"
+  count  = local.pivcac_dnssec_on
+  source = "../modules/dnssec/"
   providers = {
     aws.usw2 = aws.usw2
     aws.use1 = aws.use1
