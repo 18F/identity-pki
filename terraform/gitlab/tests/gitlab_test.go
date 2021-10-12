@@ -98,6 +98,8 @@ func ASGRecycle(t *testing.T, asgName string) {
 // to make sure that it was able to come up and get registered.
 func TestRunnerRecycle(t *testing.T) {
 	asgName := env_name + "-gitlab_runner"
+	// XXX I don't think we need this because the test should be automatically run after a noderecycle
+	//     in auto-tf
 	// ASGRecycle(t, asgName)
 
 	// make sure first runner is registered

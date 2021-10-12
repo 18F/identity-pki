@@ -338,7 +338,27 @@ resource "aws_iam_role_policy" "codebuild_test" {
       "Action": [
         "ssm:SendCommand"
       ],
-      "Resource": "*",
+      "Resource":[
+        "arn:aws:ssm:${var.region}::document/*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ssm:GetCommandInvocation"
+      ],
+      "Resource":[
+        "arn:aws:ssm:us-west-2:${data.aws_caller_identity.current.account_id}:*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ssm:SendCommand"
+      ],
+      "Resource":[
+        "arn:aws:ec2:${var.region}:${data.aws_caller_identity.current.account_id}:instance/*"
+      ],
       "Condition": {
           "StringLike": { "ssm:resourceTag/Name": "asg-${local.recycletest_env}-gitlab_runner" }
       }
