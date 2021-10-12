@@ -336,6 +336,23 @@ resource "aws_iam_role_policy" "codebuild_test" {
     {
       "Effect": "Allow",
       "Action": [
+        "ssm:SendCommand"
+      ],
+      "Resource": "*",
+      "Condition": {
+          "StringLike": { "ssm:resourceTag/Name": "asg-${local.recycletest_env}-gitlab_runner" }
+      }
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ssm:GetInventory"
+      ],
+      "Resource": "arn:aws:ssm:${var.region}:${data.aws_caller_identity.current.account_id}:*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
         "logs:CreateLogGroup",
         "logs:CreateLogStream",
         "logs:PutLogEvents",
@@ -368,11 +385,13 @@ resource "aws_iam_role_policy" "codebuild_test" {
     {
       "Effect":"Allow",
       "Action": [
-        "autoscaling:UpdateAutoScalingGroup"
+        "autoscaling:UpdateAutoScalingGroup",
+        "autoscaling:DescribeAutoScalingGroups"
       ],
-      "Resource": [
-        "arn:aws:autoscaling:${var.region}:${data.aws_caller_identity.current.account_id}:autoScalingGroup::autoScalingGroupName/${local.recycletest_env}-gitlab_runner"
-      ]
+      "Resource": "*",
+      "Condition": {
+          "StringEquals": { "autoscaling:ResourceTag/environment": "${local.recycletest_env}" }
+      }
     },
     {
       "Effect": "Allow",
@@ -397,6 +416,7 @@ EOF
 }
 
 resource "aws_iam_role" "codebuild_test" {
+  # XXX the env is not always set?
   name = "${local.recycletest_env}_codebuild_test"
 
   assume_role_policy = <<EOF

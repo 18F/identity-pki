@@ -50,7 +50,7 @@ module "gitlab_runner_launch_template" {
   user_data = module.gitlab_runner_user_data.rendered_cloudinit_config
 
   template_tags = {
-    main_git_ref = module.gitlab_runner_user_data.main_git_ref
+    "main_git_ref" = module.gitlab_runner_user_data.main_git_ref
   }
 }
 
@@ -87,6 +87,11 @@ resource "aws_autoscaling_group" "gitlab_runner" {
   tag {
     key                 = "domain"
     value               = "${var.env_name}.${var.root_domain}"
+    propagate_at_launch = false
+  }
+  tag {
+    key                 = "environment"
+    value               = var.env_name
     propagate_at_launch = false
   }
 

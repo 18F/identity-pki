@@ -38,6 +38,8 @@ module "alltooling" {
   gitref = "main"
   # This is the account to deploy tf_dir into
   account = "034795980528"
+  # This is needed so that we don't have name collisions
+  recycletest_env_name = "alltooling"
 
   # pass in global config using module composition (https://www.terraform.io/docs/modules/composition.html)
   auto_tf_vpc_id            = module.main.auto_tf_vpc_id
@@ -61,6 +63,8 @@ module "toolingtooling" {
   gitref = "main"
   # This is the account to deploy tf_dir into
   account = "034795980528"
+  # This is needed so that we don't have name collisions
+  recycletest_env_name = "toolingtooling"
 
   # pass in global config using module composition (https://www.terraform.io/docs/modules/composition.html)
   auto_tf_vpc_id            = module.main.auto_tf_vpc_id
@@ -83,6 +87,8 @@ module "allsandbox" {
   gitref = "main"
   # This is the account to deploy tf_dir into
   account = "894947205914"
+  # This is needed so that we don't have name collisions
+  recycletest_env_name = "allsandbox"
 
   # pass in global config using module composition (https://www.terraform.io/docs/modules/composition.html)
   auto_tf_vpc_id            = module.main.auto_tf_vpc_id
@@ -105,6 +111,8 @@ module "allalpha" {
   gitref = "stages/alphainfra"
   # This is the account to deploy tf_dir into
   account = "917793222841"
+  # This is needed so that we don't have name collisions
+  recycletest_env_name = "allalpha"
 
   # pass in global config using module composition (https://www.terraform.io/docs/modules/composition.html)
   auto_tf_vpc_id            = module.main.auto_tf_vpc_id
@@ -149,6 +157,8 @@ module "allsms-sandbox" {
   gitref = "main"
   # This is the account to deploy tf_dir into
   account = "035466892286"
+  # This is needed so that we don't have name collisions
+  recycletest_env_name = "allsms-sandbox"
 
   # pass in global config using module composition (https://www.terraform.io/docs/modules/composition.html)
   auto_tf_vpc_id            = module.main.auto_tf_vpc_id
@@ -171,6 +181,8 @@ module "smssandbox" {
   gitref = "main"
   # This is the account to deploy tf_dir into
   account = "035466892286"
+  # This is needed so that we don't have name collisions
+  recycletest_env_name = "smssandbox"
 
   # pass in global config using module composition (https://www.terraform.io/docs/modules/composition.html)
   auto_tf_vpc_id            = module.main.auto_tf_vpc_id
@@ -193,6 +205,8 @@ module "smssandboxeast" {
   gitref = "main"
   # This is the account to deploy tf_dir into
   account = "035466892286"
+  # This is needed so that we don't have name collisions
+  recycletest_env_name = "smssandboxeast"
 
   # pass in global config using module composition (https://www.terraform.io/docs/modules/composition.html)
   auto_tf_vpc_id            = module.main.auto_tf_vpc_id
@@ -315,6 +329,8 @@ module "waf_sandboxes" {
   gitref = each.value
   # This is the account to deploy tf_dir into
   account = "894947205914"
+  # This is needed so that we don't have name collisions
+  recycletest_env_name = "${each.key}-waf_sandbox"
 
   # pass in global config using module composition (https://www.terraform.io/docs/modules/composition.html)
   auto_tf_vpc_id            = module.main.auto_tf_vpc_id

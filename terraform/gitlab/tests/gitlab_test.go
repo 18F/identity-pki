@@ -98,9 +98,9 @@ func ASGRecycle(t *testing.T, asgName string) {
 // to make sure that it was able to come up and get registered.
 func TestRunnerRecycle(t *testing.T) {
 	asgName := env_name + "-gitlab_runner"
-	ASGRecycle(t, asgName)
+	// ASGRecycle(t, asgName)
 
-	// make sure runner is registered
+	// make sure first runner is registered
 	instances := aws.GetInstanceIdsForAsg(t, asgName, region)
 	firstinstance := instances[0:1]
 	cmd := "gitlab-runner status"
