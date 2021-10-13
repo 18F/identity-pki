@@ -1,6 +1,6 @@
 variable "region" {
   description = "AWS region identifier"
-  default = "us-west-2"
+  default     = "us-west-2"
 }
 
 variable "kinesis_firehose_stream_name" {
@@ -26,7 +26,7 @@ variable "cloudwatch_subscription_filter_name" {
 
 variable "cloudwatch_log_group_name" {
   description = "The cloudwatch log group name"
-  type        = list
+  type        = list(any)
 }
 
 variable "cloudwatch_filter_pattern" {
