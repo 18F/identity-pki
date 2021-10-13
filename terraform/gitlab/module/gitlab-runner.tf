@@ -89,6 +89,11 @@ resource "aws_autoscaling_group" "gitlab_runner" {
     value               = "${var.env_name}.${var.root_domain}"
     propagate_at_launch = false
   }
+  tag {
+    key                 = "environment"
+    value               = var.env_name
+    propagate_at_launch = false
+  }
 
   # We manually terminate instances in prod
   protect_from_scale_in = var.asg_prevent_auto_terminate == 1 ? true : false
