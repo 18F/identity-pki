@@ -58,7 +58,7 @@ data "aws_iam_policy_document" "cloudwatch_logs_assume_policy" {
   statement {
     effect    = "Allow"
     actions   = ["firehose:*"]
-    resources = [aws_kinesis_firehose_delivery_stream.kinesis_firehose_stream.arn]
+    resources = [aws_kinesis_firehose_delivery_stream.cloudwatch-exporter.arn]
   }
 }
 

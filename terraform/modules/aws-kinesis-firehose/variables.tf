@@ -33,3 +33,16 @@ variable "cloudwatch_filter_pattern" {
   description = "The cloudwatch filter pattern"
   type        = string
 }
+
+variable "expiration_days" {
+  description = "Expiration Days for S3 bucket"
+  default     = "90"
+  type        = string
+
+}
+
+variable "bucket_name_prefix" {
+  description = "Bucket name prefix"
+  default     = "login.gov"
+  type        = string
+}

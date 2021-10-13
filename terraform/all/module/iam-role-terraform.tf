@@ -554,6 +554,8 @@ locals {
           "firehose:DeleteDeliveryStream",
           "firehose:DescribeDeliveryStream",
           "firehose:ListTagsForDeliveryStream",
+          "firehose:DeleteDeliveryStream",
+          "firehose:List*"
         ]
         resources = [
           "*",

@@ -1,4 +1,10 @@
-resource "aws_kinesis_firehose_delivery_stream" "kinesis_firehose_stream" {
+data "aws_caller_identity" "current" {
+}
+
+locals {
+  inventory_bucket_arn = "arn:aws:s3:::login-gov.s3-inventory.${data.aws_caller_identity.current.account_id}-${var.region}"
+}
+resource "aws_kinesis_firehose_delivery_stream" "cloudwatch-exporter" {
   name        = var.kinesis_firehose_stream_name
   destination = "extended_s3"
 
@@ -53,12 +59,12 @@ resource "aws_s3_bucket" "kinesis_firehose_stream_bucket" {
   }
 
   lifecycle_rule {
-    id      = "expire_files_in_90_days"
+    id      = "expire_files"
     enabled = true
     prefix  = ""
 
     expiration {
-      days = 90
+      days = var.expiration_days
     }
   }
 
@@ -73,13 +79,21 @@ resource "aws_s3_bucket" "kinesis_firehose_stream_bucket" {
 
 }
 
+module "kinesis_firehose_stream_bucket_config" {
+  source               = "github.com/18F/identity-terraform//s3_config?ref=7e11ebe24e3a9cbc34d1413cf4d20b3d71390d5b"
+  depends_on           = [aws_s3_bucket.kinesis_firehose_stream_bucket]
+  bucket_name_override = aws_s3_bucket.kinesis_firehose_stream_bucket.id
+  region               = var.region
+  inventory_bucket_arn = local.inventory_bucket_arn
+}
+
 resource "aws_cloudwatch_log_subscription_filter" "cloudwatch_subscription_filter" {
   count          = length(var.cloudwatch_log_group_name)
   name           = var.cloudwatch_subscription_filter_name
   log_group_name = var.cloudwatch_log_group_name[count.index]
   filter_pattern = var.cloudwatch_filter_pattern
 
-  destination_arn = aws_kinesis_firehose_delivery_stream.kinesis_firehose_stream.arn
+  destination_arn = aws_kinesis_firehose_delivery_stream.cloudwatch-exporter.arn
   distribution    = "ByLogStream"
 
   role_arn = aws_iam_role.cloudwatch_logs_role.arn
