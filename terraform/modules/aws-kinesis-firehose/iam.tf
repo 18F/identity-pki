@@ -49,7 +49,7 @@ data "aws_iam_policy_document" "cloudwatch_logs_assume_role" {
 
     principals {
       type        = "Service"
-      identifiers = ["logs.us-west-2.amazonaws.com"]
+      identifiers = ["logs.${var.region}.amazonaws.com"]
     }
   }
 }

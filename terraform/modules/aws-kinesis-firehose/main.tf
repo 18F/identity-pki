@@ -39,6 +39,12 @@ resource "aws_cloudwatch_log_stream" "kinesis_firehose_stream_logging_stream" {
   name           = "S3Delivery"
 }
 
+resource "aws_kms_key" "kinesis_firehose_stream_bucket" {
+  description             = "KMS key for ${var.bucket_name}"
+  deletion_window_in_days = 7
+  enable_key_rotation     = true
+}
+
 resource "aws_s3_bucket" "kinesis_firehose_stream_bucket" {
   bucket = var.bucket_name
   acl    = "private"
@@ -47,23 +53,20 @@ resource "aws_s3_bucket" "kinesis_firehose_stream_bucket" {
   }
 
   lifecycle_rule {
-    id      = "logexpire"
+    id      = "expire_files_in_90_days"
     enabled = true
     prefix  = ""
 
-    transition {
-      days          = 90
-      storage_class = "STANDARD_IA"
-    }
     expiration {
-      days = 2190
+      days = 90
     }
   }
 
   server_side_encryption_configuration {
     rule {
       apply_server_side_encryption_by_default {
-        sse_algorithm = "AES256"
+        kms_master_key_id = aws_kms_key.kinesis_firehose_stream_bucket.arn
+        sse_algorithm = "aws:kms"
       }
     }
   }
