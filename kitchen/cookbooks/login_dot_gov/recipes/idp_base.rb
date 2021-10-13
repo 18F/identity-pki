@@ -93,12 +93,22 @@ if idp_artifacts_enabled
   end
 end
 
+execute 'tag instance from artifact sha' do
+  command "aws ec2 create-tags --region #{node['ec2']['region']} --resources #{node['ec2']['instance_id']} --tags Key=gitsha:idp,Value=#{git_sha}"
+  only_if { artifacts_downloaded.call }
+end
+
 git release_path do
   repository 'https://github.com/18F/identity-idp.git'
   depth 1
   user node['login_dot_gov']['system_user']
   revision deploy_branch
   not_if { artifacts_downloaded.call }
+end
+
+execute 'tag instance from git repo sha' do
+  command "aws ec2 create-tags --region #{node['ec2']['region']} --resources #{node['ec2']['instance_id']} --tags Key=gitsha:idp,Value=$(cd #{release_path} && git rev-parse HEAD)"
+  only_if { idp_artifacts_enabled && !artifacts_downloaded.call }
 end
 
 # TODO: figure out why this hack is needed and remove it.

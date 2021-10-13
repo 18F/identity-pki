@@ -280,6 +280,12 @@ resource "aws_iam_role_policy" "idp-sns-publish-alerts" {
   policy = data.aws_iam_policy_document.sns-publish-alerts-policy.json
 }
 
+resource "aws_iam_role_policy" "idp-ec2-tags" {
+  name   = "${var.env_name}-idp-ec2-tags"
+  role   = aws_iam_role.idp.id
+  policy = data.aws_iam_policy_document.ec2-tags.json
+}
+
 # This policy allows writing to the S3 reports bucket
 data "aws_iam_policy_document" "put_reports_to_s3" {
   statement {

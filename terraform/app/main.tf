@@ -86,3 +86,25 @@ data "aws_iam_policy_document" "xray-publish-policy" {
     ]
   }
 }
+
+# Allow Tagging EC2 instances
+data "aws_iam_policy_document" "ec2-tags" {
+  statement {
+    sid = "allowEC2Tags"
+    actions = [
+      "ec2:DescribeTags",
+      "ec2:CreateTags",
+    ]
+
+    resources = [
+      "arn:aws:ec2:${var.region}:${data.aws_caller_identity.current.account_id}:instance/*"
+    ]
+    condition {
+      test     = "StringEquals"
+      variable = "ec2:ResourceTag/domain"
+      values = [
+        "${var.env_name}.${var.root_domain}"
+      ]
+    }
+  }
+}
