@@ -397,7 +397,8 @@ locals {
           "logs:PutSubscriptionFilter",
           "logs:TagLogGroup",
           "logs:UntagLogGroup",
-          "logs:UpdateLogDelivery"
+          "logs:UpdateLogDelivery",
+          "logs:DeleteLogStream"
         ]
         resources = [
           "*",
