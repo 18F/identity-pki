@@ -539,6 +539,7 @@ locals {
         effect = "Allow"
         actions = [
           "firehose:CreateDeliveryStream",
+          "firehose:DeleteDeliveryStream",
           "firehose:DescribeDeliveryStream",
           "firehose:ListTagsForDeliveryStream",
         ]
