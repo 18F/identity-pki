@@ -371,6 +371,7 @@ locals {
           "logs:DeleteDestination",
           "logs:DeleteLogDelivery",
           "logs:DeleteLogGroup",
+          "logs:DeleteLogStream",
           "logs:DeleteMetricFilter",
           "logs:DeleteRetentionPolicy",
           "logs:DeleteSubscriptionFilter",
