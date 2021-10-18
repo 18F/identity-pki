@@ -72,6 +72,7 @@ locals {
         actions = [
           "autoscaling:AttachLoadBalancers",
           "autoscaling:CreateAutoScalingGroup",
+          "autoscaling:CreateOrUpdateTags",
           "autoscaling:DeleteAutoScalingGroup",
           "autoscaling:DeleteLifecycleHook",
           "autoscaling:DeletePolicy",
