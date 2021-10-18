@@ -7,7 +7,7 @@ long_description 'Installs/Configures canonical_hostname'
 version '0.2.0'
 chef_version '~> 17.5.22' if respond_to?(:chef_version)
 
-gem 'aws-sdk-ec2', '~> 1.0'
+gem 'aws-sdk-ec2', '1.270.0'
 
 depends 'aws_metadata'
 

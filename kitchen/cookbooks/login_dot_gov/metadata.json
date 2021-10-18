@@ -13,7 +13,6 @@
     "amazon": ">= 0.0.1"
   },
   "dependencies": {
-    "cloudhsm": ">= 0.0.8",
     "config_loader": ">= 0.0.1",
     "deploy_resource": "~> 1.0",
     "identity_shared_attributes": ">= 0.0.1",
