@@ -16,6 +16,7 @@ end
 node.default['newrelic_infra']['config']['collector_url'] = 'https://gov-infra-api.newrelic.com'
 node.default['newrelic_infra']['config']['identity_url'] = 'https://gov-identity-api.newrelic.com'
 node.default['newrelic_infra']['config']['command_channel_url'] = 'https://gov-infrastructure-command-api.newrelic.com'
+node.default['newrelic_infra']['apt']['action'] = :nothing
 
 node.default['newrelic_infra']['config']['custom_attributes'] = {
   'lg_env' => node.chef_environment,
