@@ -46,3 +46,8 @@ variable "bucket_name_prefix" {
   default     = "login.gov"
   type        = string
 }
+
+variable "env_name" {
+  description = "Environment Name"
+  type        = string
+}

@@ -21,6 +21,7 @@ data "aws_iam_policy_document" "kinesis_firehose_access_bucket_assume_policy" {
       "s3:ListBucket",
       "s3:ListBucketMultipartUploads",
       "s3:PutObject",
+      "s3:PutObjectAcl"
     ]
 
     resources = [
@@ -28,10 +29,22 @@ data "aws_iam_policy_document" "kinesis_firehose_access_bucket_assume_policy" {
       "${aws_s3_bucket.kinesis_firehose_stream_bucket.arn}/*",
     ]
   }
+    statement {
+    effect = "Allow"
+
+    actions = [
+      "logs:PutLogEvents"
+    ]
+
+    resources = [
+     aws_cloudwatch_log_group.kinesis_firehose_stream_logging_group.arn
+    ]
+  }
+
 }
 
 resource "aws_iam_role" "kinesis_firehose_stream_role" {
-  name               = "kinesis_firehose_stream_role"
+  name               = "${var.env_name}-kinesis_firehose_stream_role"
   assume_role_policy = data.aws_iam_policy_document.kinesis_firehose_stream_assume_role.json
 }
 
@@ -63,7 +76,7 @@ data "aws_iam_policy_document" "cloudwatch_logs_assume_policy" {
 }
 
 resource "aws_iam_role" "cloudwatch_logs_role" {
-  name               = "cloudwatch_logs_role"
+  name               = "${var.env_name}-cloudwatch_logs_role"
   assume_role_policy = data.aws_iam_policy_document.cloudwatch_logs_assume_role.json
 }
 

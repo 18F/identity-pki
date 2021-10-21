@@ -13,7 +13,7 @@ resource "aws_kinesis_firehose_delivery_stream" "cloudwatch-exporter" {
     bucket_arn         = aws_s3_bucket.kinesis_firehose_stream_bucket.arn
     buffer_size        = 128
     s3_backup_mode     = "Enabled"
-    prefix             = "logs/"
+    prefix             = "logs/firehose-stream-"
     compression_format = "UNCOMPRESSED"
 
     s3_backup_configuration {
