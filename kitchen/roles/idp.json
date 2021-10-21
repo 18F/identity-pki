@@ -2,10 +2,8 @@
   "name": "idp",
   "description": "",
   "json_class": "Chef::Role",
-  "default_attributes": {
-  },
-  "override_attributes": {
-  },
+  "default_attributes": {},
+  "override_attributes": {},
   "chef_type": "role",
   "run_list": [
     "role[base]",
@@ -14,9 +12,9 @@
     "recipe[login_dot_gov::idp_base]",
     "recipe[login_dot_gov::idp_web]",
     "recipe[login_dot_gov::idp_prewarm]",
+    "recipe[login_dot_gov::idp_pt]",
     "recipe[login_dot_gov::idp_jobs]",
     "recipe[login_dot_gov::common_scripts]"
   ],
-  "env_run_lists": {
-  }
+  "env_run_lists": {}
 }
