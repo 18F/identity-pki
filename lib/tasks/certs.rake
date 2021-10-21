@@ -95,14 +95,15 @@ namespace :certs do
     end
 
     puts ''
-    puts 'Which cert(s) would you like to download? Use the format 1,2 if selecting multiple.'
+    puts 'Which cert(s) would you like to download? Use the format 1,2 if selecting multiple or ALL for all'
     puts 'Press enter to skip'
-    input = STDIN.gets.strip.split(',').map(&:to_i)
+    raw_input = STDIN.gets.strip
+    input = raw_input == 'ALL' ? 0...matching_certs.length : raw_input.split(',').map(&:to_i)
     puts ''
 
     return if input.blank?
 
-    Array.wrap(matching_certs[*input]).each do |matching_cert|
+    Array.wrap(matching_certs.values_at(*input)).each do |matching_cert|
       path = Pathname.new("./config/certs") + matching_cert.pem_filename
 
       if File.exist?(path)
