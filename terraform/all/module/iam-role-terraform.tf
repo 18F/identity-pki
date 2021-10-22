@@ -72,6 +72,7 @@ locals {
         actions = [
           "autoscaling:AttachLoadBalancers",
           "autoscaling:CreateAutoScalingGroup",
+          "autoscaling:CreateOrUpdateTags",
           "autoscaling:DeleteAutoScalingGroup",
           "autoscaling:DeleteLifecycleHook",
           "autoscaling:DeletePolicy",
@@ -371,6 +372,7 @@ locals {
           "logs:DeleteDestination",
           "logs:DeleteLogDelivery",
           "logs:DeleteLogGroup",
+          "logs:DeleteLogStream",
           "logs:DeleteMetricFilter",
           "logs:DeleteRetentionPolicy",
           "logs:DeleteSubscriptionFilter",
@@ -539,6 +541,7 @@ locals {
         effect = "Allow"
         actions = [
           "firehose:CreateDeliveryStream",
+          "firehose:DeleteDeliveryStream",
           "firehose:DescribeDeliveryStream",
           "firehose:ListTagsForDeliveryStream",
         ]

@@ -23,6 +23,10 @@ variable "auto_tf_subnet_id" {
   description = "subnet id"
 }
 
+variable "auto_tf_subnet_arn" {
+  description = "subnet arn"
+}
+
 variable "auto_tf_role_arn" {
   description = "auto_tf role ARN"
 }

@@ -7,8 +7,8 @@ data "aws_caller_identity" "current" {
 
 data "aws_iam_policy_document" "ksk_policy" {
   statement {
-    sid     = "Allow Route 53 DNSSEC Service"
-    effect  = "Allow"
+    sid    = "Allow Route 53 DNSSEC Service"
+    effect = "Allow"
     actions = [
       "kms:DescribeKey",
       "kms:GetPublicKey",
@@ -25,8 +25,8 @@ data "aws_iam_policy_document" "ksk_policy" {
     ]
   }
   statement {
-    sid     = "Allow Route 53 DNSSEC Service to CreateGrant"
-    effect  = "Allow"
+    sid    = "Allow Route 53 DNSSEC Service to CreateGrant"
+    effect = "Allow"
     actions = [
       "kms:CreateGrant"
     ]
@@ -48,8 +48,8 @@ data "aws_iam_policy_document" "ksk_policy" {
     }
   }
   statement {
-    sid     = "IAM User Permissions"
-    effect  = "Allow"
+    sid    = "IAM User Permissions"
+    effect = "Allow"
     actions = [
       "kms:*"
     ]
@@ -111,7 +111,7 @@ resource "aws_route53_hosted_zone_dnssec" "dnssec" {
 
 resource "aws_cloudwatch_metric_alarm" "dnssec_ksks_action_req" {
   alarm_name        = "${var.dnssec_zone_name}-dnssec_ksks_action_req"
-  alarm_description = "1+ DNSSEC KSKs require attention in <24h"
+  alarm_description = "1+ DNSSEC KSKs require attention in <24h - https://github.com/18F/identity-devops/wiki/Runbook:-DNS#dnssec_ksks_action_req"
   namespace         = "AWS/Route53"
   metric_name       = "DNSSECKSKActionRequired"
 
@@ -131,7 +131,7 @@ resource "aws_cloudwatch_metric_alarm" "dnssec_ksks_action_req" {
 
 resource "aws_cloudwatch_metric_alarm" "dnssec_ksk_age" {
   alarm_name        = "${var.dnssec_zone_name}-dnssec_ksk_age"
-  alarm_description = "1+ DNSSEC KSKs are >${var.dnssec_ksk_max_days} days old"
+  alarm_description = "1+ DNSSEC KSKs are >${var.dnssec_ksk_max_days} days old - https://github.com/18F/identity-devops/wiki/Runbook:-DNS#dnssec_ksk_age"
   namespace         = "AWS/Route53"
   metric_name       = "DNSSECKSKAge"
 
@@ -151,7 +151,7 @@ resource "aws_cloudwatch_metric_alarm" "dnssec_ksk_age" {
 resource "aws_cloudwatch_metric_alarm" "dnssec_errors" {
   # https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/dns-configuring-dnssec-troubleshoot.html
   alarm_name        = "${var.dnssec_zone_name}-dnssec_errors"
-  alarm_description = "DNSSEC encountered 1+ errors in <24h"
+  alarm_description = "DNSSEC encountered 1+ errors in <24h - https://github.com/18F/identity-devops/wiki/Runbook:-DNS#dnssec_errors"
   namespace         = "AWS/Route53"
   metric_name       = "DNSSECErrors"
 

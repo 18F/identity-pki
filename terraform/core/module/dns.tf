@@ -45,3 +45,6 @@ output "primary_domain_mx_servers" {
   description = "List of MXes for domain"
   value       = module.common_dns.primary_domain_mx_servers
 }
+output "primary_zone_dnssec_ksks" {
+  value = module.dnssec.root_zone_dnssec_ksks
+}
