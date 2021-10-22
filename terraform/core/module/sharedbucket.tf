@@ -7,16 +7,12 @@ locals {
     "email" = {
       lifecycle_rules = [
         {
-          id      = "expireinbound"
-          enabled = true
-          prefix  = "/inbound/"
-          transitions = [
-            {
-              days          = 30
-              storage_class = "STANDARD_IA"
-            }
-          ]
-          expiration_days = 365
+          id          = "expireinbound"
+          enabled     = true
+          prefix      = "/inbound/"
+          transitions = []
+          # Keep email 90 days then delete
+          expiration_days = 90
         }
       ],
       force_destroy = false
@@ -169,6 +165,31 @@ resource "aws_s3_bucket_policy" "ses-upload" {
   ]
 }
 POLICY
+}
+
+# policy allowing download of files from the email bucket under /inbound/*
+data "aws_iam_policy_document" "ses-download-policy" {
+  statement {
+    actions = [
+      "s3:GetObject",
+      "s3:ListBucket",
+    ]
+    principals {
+      type = "AWS"
+      identifiers = [
+        aws_iam_user.circleci.arn
+      ]
+    }
+    resources = [
+      "arn:aws:s3:::${module.s3_shared.buckets["email"]}/inbound/",
+      "arn:aws:s3:::${module.s3_shared.buckets["email"]}/inbound/*"
+    ]
+  }
+}
+
+resource "aws_s3_bucket_policy" "ses-download" {
+  bucket = module.s3_shared.buckets["email"]
+  policy = data.aws_iam_policy_document.ses-download-policy.json
 }
 
 # Create a common bucket for storing ELB/ALB access logs

@@ -23,14 +23,6 @@ module "dnssec" {
   alarm_actions    = [module.sns_slack.sns_topic_arn]
 }
 
-module "sandbox_ses" {
-  source = "../../modules/sandbox_ses/"
-
-  domain       = var.root_domain
-  enabled      = var.sandbox_ses_inbound_enabled
-  email_bucket = module.s3_shared.buckets["email"]
-}
-
 output "primary_zone_id" {
   description = "ID for the primary Route53 zone."
   value       = module.common_dns.primary_zone_id

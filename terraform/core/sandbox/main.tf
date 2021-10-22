@@ -42,6 +42,7 @@ module "main" {
 
   mx_provider                 = "amazon-ses-inbound.us-west-2"
   sandbox_ses_inbound_enabled = 1
+  sandbox_ses_email_users     = ["smoketest-dev", "smoketest-int", "smoketest-staging", "smoketest-prod"]
   mta_sts_report_mailboxes    = ["tls.reports@gsa.gov", "tls-reports@login.gov"]
   mta_sts_mode                = "enforce"
 
@@ -95,3 +96,4 @@ module "main" {
 output "primary_zone_dnssec_ksks" {
   value = module.main.primary_zone_dnssec_ksks
 }
+
