@@ -29,7 +29,7 @@ data "aws_iam_policy_document" "kinesis_firehose_access_bucket_assume_policy" {
       "${aws_s3_bucket.kinesis_firehose_stream_bucket.arn}/*",
     ]
   }
-    statement {
+  statement {
     effect = "Allow"
 
     actions = [
@@ -37,34 +37,34 @@ data "aws_iam_policy_document" "kinesis_firehose_access_bucket_assume_policy" {
     ]
 
     resources = [
-     aws_cloudwatch_log_group.kinesis_firehose_stream_logging_group.arn
+      aws_cloudwatch_log_group.kinesis_firehose_stream_logging_group.arn
     ]
-    }
-    statement {
-    
+  }
+  statement {
+
     effect = "Allow"
     actions = [
-    "kms:Decrypt",
+      "kms:Decrypt",
     "kms:GenerateDataKey"]
-    
+
     resources = [
-     aws_kms_key.kinesis_firehose_stream_bucket.arn
+      aws_kms_key.kinesis_firehose_stream_bucket.arn
     ]
-        condition {
+    condition {
       test     = "StringEquals"
       variable = "kms:ViaService"
       values = [
-         "s3.${var.region}.amazonaws.com"
+        "s3.${var.region}.amazonaws.com"
       ]
     }
-      condition {
+    condition {
       test     = "StringLike"
       variable = "kms:EncryptionContext:aws:s3:arn"
-      values   = [  aws_s3_bucket.kinesis_firehose_stream_bucket.arn,
+      values = [aws_s3_bucket.kinesis_firehose_stream_bucket.arn,
       "${aws_s3_bucket.kinesis_firehose_stream_bucket.arn}/*"]
-      }
     }
   }
+}
 
 resource "aws_iam_role" "kinesis_firehose_stream_role" {
   name               = "${var.env_name}-kinesis_firehose_stream_role"
