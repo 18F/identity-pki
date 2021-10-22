@@ -11,6 +11,18 @@ module "common_dns" {
   mx_provider                   = var.mx_provider
 }
 
+module "dnssec" {
+  source = "../../modules/dnssec/"
+  providers = {
+    aws.usw2 = aws.usw2
+    aws.use1 = aws.use1
+  }
+
+  dnssec_zone_name = var.root_domain
+  dnssec_zone_id   = module.common_dns.primary_zone_id
+  alarm_actions    = [module.sns_slack.sns_topic_arn]
+}
+
 module "sandbox_ses" {
   source = "../../modules/sandbox_ses/"
 
@@ -32,4 +44,7 @@ output "primary_name_servers" {
 output "primary_domain_mx_servers" {
   description = "List of MXes for domain"
   value       = module.common_dns.primary_domain_mx_servers
+}
+output "primary_zone_dnssec_ksks" {
+  value = module.dnssec.root_zone_dnssec_ksks
 }
