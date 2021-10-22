@@ -39,9 +39,32 @@ data "aws_iam_policy_document" "kinesis_firehose_access_bucket_assume_policy" {
     resources = [
      aws_cloudwatch_log_group.kinesis_firehose_stream_logging_group.arn
     ]
+    }
+    statement {
+    
+    effect = "Allow"
+    actions = [
+    "kms:Decrypt",
+    "kms:GenerateDataKey"]
+    
+    resources = [
+     aws_kms_key.kinesis_firehose_stream_bucket.arn
+    ]
+        condition {
+      test     = "StringEquals"
+      variable = "kms:ViaService"
+      values = [
+         "s3.${var.region}.amazonaws.com"
+      ]
+    }
+      condition {
+      test     = "StringLike"
+      variable = "kms:EncryptionContext:aws:s3:arn"
+      values   = [  aws_s3_bucket.kinesis_firehose_stream_bucket.arn,
+      "${aws_s3_bucket.kinesis_firehose_stream_bucket.arn}/*"]
+      }
+    }
   }
-
-}
 
 resource "aws_iam_role" "kinesis_firehose_stream_role" {
   name               = "${var.env_name}-kinesis_firehose_stream_role"
