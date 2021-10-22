@@ -466,6 +466,7 @@ locals {
           "route53:DisableHostedZoneDNSSEC",
           "route53:EnableHostedZoneDNSSEC",
           "route53:GetChange",
+          "route53:GetDNSSEC",
           "route53:GetHostedZone",
           "route53:ListHostedZones",
           "route53:ListResourceRecordSets",
