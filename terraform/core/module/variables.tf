@@ -72,6 +72,12 @@ variable "sandbox_ses_inbound_enabled" {
   default     = 0
 }
 
+variable "sandbox_ses_email_users" {
+  description = "List of additional users (besides admin) to accept - user@domain will be allowed and delivers to inbox/user/"
+  type        = list(string)
+  default     = []
+}
+
 variable "lambda_identity_lambda_functions_gitrev" {
   default     = "07af04c7bb53fde03ed9a705953b1881490d8c05"
   description = "Initial gitrev of identity-lambda-functions to deploy (updated outside of terraform)"
