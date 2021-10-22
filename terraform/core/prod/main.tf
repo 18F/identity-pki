@@ -136,3 +136,7 @@ module "main" {
 
   slack_events_sns_hook_arn = "arn:aws:sns:us-west-2:555546682965:slack-events"
 }
+
+output "primary_zone_dnssec_ksks" {
+  value = module.main.primary_zone_dnssec_ksks
+}
