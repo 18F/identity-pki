@@ -141,8 +141,9 @@ resource "aws_s3_bucket_policy" "lambda-functions" {
 POLICY
 }
 
-# policy allowing SES to upload files to the email bucket under /inbound/*
-resource "aws_s3_bucket_policy" "ses-upload" {
+# Policy allowing SES to upload files to the email bucket under /inbound/*
+# and automation accounts to fetch from it 
+resource "aws_s3_bucket_policy" "email-bucket" {
   bucket = module.s3_shared.buckets["email"]
   policy = <<POLICY
 {
@@ -161,35 +162,28 @@ resource "aws_s3_bucket_policy" "ses-upload" {
           "aws:Referer": "${data.aws_caller_identity.current.account_id}"
         }
       }
-    }
+    },
+    {
+      "Sid": "AllowEmailList",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "${aws_iam_user.circleci.arn}"
+      },
+      "Action": "s3:ListBucket",
+      "Resource": "arn:aws:s3:::${module.s3_shared.buckets["email"]}"
+    },
+    {
+      "Sid": "AllowEmailDownload",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "${aws_iam_user.circleci.arn}"
+      },
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::${module.s3_shared.buckets["email"]}/inbound/*"
+    }  
   ]
 }
 POLICY
-}
-
-# policy allowing download of files from the email bucket under /inbound/*
-data "aws_iam_policy_document" "ses-download-policy" {
-  statement {
-    actions = [
-      "s3:GetObject",
-      "s3:ListBucket",
-    ]
-    principals {
-      type = "AWS"
-      identifiers = [
-        aws_iam_user.circleci.arn
-      ]
-    }
-    resources = [
-      "arn:aws:s3:::${module.s3_shared.buckets["email"]}/inbound/",
-      "arn:aws:s3:::${module.s3_shared.buckets["email"]}/inbound/*"
-    ]
-  }
-}
-
-resource "aws_s3_bucket_policy" "ses-download" {
-  bucket = module.s3_shared.buckets["email"]
-  policy = data.aws_iam_policy_document.ses-download-policy.json
 }
 
 # Create a common bucket for storing ELB/ALB access logs
