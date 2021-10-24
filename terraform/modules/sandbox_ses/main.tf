@@ -1,6 +1,4 @@
 # This terraform module contains inbound SES email configuration used
-
-
 resource "aws_ses_receipt_rule" "admin-at" {
   count = var.enabled
 

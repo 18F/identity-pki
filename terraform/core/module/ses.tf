@@ -35,5 +35,5 @@ module "sandbox_ses" {
   domain       = var.root_domain
   enabled      = var.sandbox_ses_inbound_enabled
   email_users  = var.sandbox_ses_email_users
-  email_bucket = module.s3_shared.buckets["email"]
+  email_bucket = module.s3_email.buckets["email"]
 }
