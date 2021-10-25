@@ -668,6 +668,9 @@ locals {
         sid    = "SES"
         effect = "Allow"
         actions = [
+          "ses:CreateReceiptRule",
+          "ses:DeleteReceiptRule",
+          "ses:DescribeReceiptRule",
           "ses:GetIdentityVerificationAttributes",
           "ses:GetIdentityDkimAttributes",
           "ses:DescribeReceiptRule",

@@ -4,19 +4,6 @@ data "aws_caller_identity" "current" {
 locals {
   s3_bucket_data = {
     "shared-data" = {},
-    "email" = {
-      lifecycle_rules = [
-        {
-          id          = "expireinbound"
-          enabled     = true
-          prefix      = "/inbound/"
-          transitions = []
-          # Keep email 90 days then delete
-          expiration_days = 90
-        }
-      ],
-      force_destroy = false
-    },
     "lambda-functions" = {
       lifecycle_rules = [
         {
@@ -50,6 +37,22 @@ locals {
       force_destroy = false
     }
   }
+
+  s3_email_data = {
+    "email" = {
+      lifecycle_rules = [
+        {
+          id          = "expireinbound"
+          enabled     = true
+          prefix      = "/inbound/"
+          transitions = []
+          # Keep email 90 days then delete
+          expiration_days = 90
+        }
+      ],
+      force_destroy = false
+    }
+  }
 }
 
 module "s3_shared" {
@@ -60,6 +63,19 @@ module "s3_shared" {
   bucket_data          = local.s3_bucket_data
   log_bucket           = "login-gov.s3-access-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
   inventory_bucket_arn = "arn:aws:s3:::login-gov.s3-inventory.${data.aws_caller_identity.current.account_id}-${var.region}"
+}
+
+module "s3_email" {
+  source = "github.com/18F/identity-terraform//s3_bucket_block?ref=7e11ebe24e3a9cbc34d1413cf4d20b3d71390d5b"
+  #source = "../../../../identity-terraform/s3_bucket_block"
+
+  bucket_name_prefix   = "login-gov"
+  bucket_data          = local.s3_email_data
+  log_bucket           = "login-gov.s3-access-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+  inventory_bucket_arn = "arn:aws:s3:::login-gov.s3-inventory.${data.aws_caller_identity.current.account_id}-${var.region}"
+  # Use AWS256 - Nothing sensitive should land here and it sidesteps the
+  # need to give SES access to the KMS key used for the bucket
+  sse_algorithm = "AES256"
 }
 
 # Policy for shared-data bucket
@@ -141,9 +157,10 @@ resource "aws_s3_bucket_policy" "lambda-functions" {
 POLICY
 }
 
-# policy allowing SES to upload files to the email bucket under /inbound/*
-resource "aws_s3_bucket_policy" "ses-upload" {
-  bucket = module.s3_shared.buckets["email"]
+# Policy allowing SES to upload files to the email bucket under /inbound/*
+# and automation accounts to fetch from it 
+resource "aws_s3_bucket_policy" "email-bucket" {
+  bucket = module.s3_email.buckets["email"]
   policy = <<POLICY
 {
   "Version": "2012-10-17",
@@ -155,41 +172,38 @@ resource "aws_s3_bucket_policy" "ses-upload" {
         "Service": "ses.amazonaws.com"
       },
       "Action": "s3:PutObject",
-      "Resource": "arn:aws:s3:::${module.s3_shared.buckets["email"]}/inbound/*",
+      "Resource": "arn:aws:s3:::${module.s3_email.buckets["email"]}/inbound/*",
       "Condition": {
         "StringEquals": {
           "aws:Referer": "${data.aws_caller_identity.current.account_id}"
         }
       }
-    }
+    },
+    {
+      "Sid": "AllowEmailList",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "${aws_iam_user.circleci.arn}"
+      },
+      "Action": "s3:ListBucket",
+      "Resource": "arn:aws:s3:::${module.s3_email.buckets["email"]}"
+    },
+    {
+      "Sid": "AllowEmailDownload",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "${aws_iam_user.circleci.arn}"
+      },
+      "Action": [
+        "s3:DeleteObject",
+        "s3:DeleteObjectVersion",
+        "s3:GetObject"
+      ],
+      "Resource": "arn:aws:s3:::${module.s3_email.buckets["email"]}/inbound/*"
+    }  
   ]
 }
 POLICY
-}
-
-# policy allowing download of files from the email bucket under /inbound/*
-data "aws_iam_policy_document" "ses-download-policy" {
-  statement {
-    actions = [
-      "s3:GetObject",
-      "s3:ListBucket",
-    ]
-    principals {
-      type = "AWS"
-      identifiers = [
-        aws_iam_user.circleci.arn
-      ]
-    }
-    resources = [
-      "arn:aws:s3:::${module.s3_shared.buckets["email"]}/inbound/",
-      "arn:aws:s3:::${module.s3_shared.buckets["email"]}/inbound/*"
-    ]
-  }
-}
-
-resource "aws_s3_bucket_policy" "ses-download" {
-  bucket = module.s3_shared.buckets["email"]
-  policy = data.aws_iam_policy_document.ses-download-policy.json
 }
 
 # Create a common bucket for storing ELB/ALB access logs
