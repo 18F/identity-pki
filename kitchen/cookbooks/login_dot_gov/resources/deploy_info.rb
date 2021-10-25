@@ -36,7 +36,8 @@ action :create do
           Integer(`cd #{deploy_dir} && git show -s --format=%ct HEAD`)
         ).iso8601,
         'chef_run_timestamp' => ::Time.new.strftime('%Y%m%d%H%M%S'),
-        'fqdn' => node.fetch('fqdn'),
+        # Temporarily disable FQDN attribute
+        # 'fqdn' => node.fetch('fqdn'),
         'instance_id' => instance_id,
       }
 
