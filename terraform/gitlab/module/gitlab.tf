@@ -73,6 +73,10 @@ resource "aws_autoscaling_group" "gitlab" {
     aws_subnet.gitlab1.id,
   ]
 
+  load_balancers = [
+    "${var.env_name}-gitlab",
+  ]
+
   health_check_type         = "EC2"
   health_check_grace_period = 1
   termination_policies      = ["OldestInstance"]
