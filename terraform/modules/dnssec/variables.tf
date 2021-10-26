@@ -21,9 +21,9 @@ variable "dnssec_ksks" {
   # be updated to remove the old and add the new keys!
   type = map(string)
   default = {
-    "20211005" = "red",
+    # "20211005" = "red",
     "20211006" = "green",
-    #  "20210406" = "blue"
+    # "20210406" = "blue"
   }
 }
 

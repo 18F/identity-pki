@@ -106,6 +106,9 @@ resource "aws_route53_key_signing_key" "dnssec" {
 }
 
 resource "aws_route53_hosted_zone_dnssec" "dnssec" {
+  depends_on = [
+    aws_route53_key_signing_key.dnssec
+  ]
   hosted_zone_id = var.dnssec_zone_id
 }
 
