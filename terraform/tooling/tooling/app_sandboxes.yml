@@ -3,7 +3,7 @@
 # branch to deploy from
 akrito: stages/akrito
 pauldoomed: stages/pauldoomed
-jmdembe: stages/jmdembe
+jmdembe: main
 #mhenke: stages/mhenke
 orenyk: stages/orenyk
 solipet: main
