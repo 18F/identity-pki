@@ -24,6 +24,16 @@ variable "root_domain" {
   description = "DNS domain to use as the root domain, e.g. login.gov"
 }
 
+variable "dnssec_ksks" {
+  description = "Map of Key Signing Keys (KSKs) to provision for each zone"
+  # To safely rotate see https://github.com/18F/identity-devops/wiki/Runbook:-DNS#ksk-rotation
+  type = map(string)
+  default = {
+    "20211006" = "green",
+    # "YYYYMMDD" = "blue"
+  }
+}
+
 variable "static_cloudfront_name" {
   description = "Static site Cloudfront DNS name, e.g. abcd.cloudfront.net"
 }

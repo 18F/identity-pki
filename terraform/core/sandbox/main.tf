@@ -16,6 +16,13 @@ module "main" {
   state_lock_table = "terraform_locks"
   slack_sns_name   = "slack-sandbox-events"
   root_domain      = "identitysandbox.gov"
+
+  # To safely rotate see https://github.com/18F/identity-devops/wiki/Runbook:-DNS#ksk-rotation
+  dnssec_ksks = {
+    "20211006" = "green",
+    # "YYYYMMDD" = "blue"
+  }
+
   # TODO - Remove the need for these.  Set to the same as prod
   # for now to ensure we control the target
   static_cloudfront_name        = "db1mat7gaslfp.cloudfront.net"

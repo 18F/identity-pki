@@ -21,6 +21,7 @@ module "dnssec" {
   dnssec_zone_name = var.root_domain
   dnssec_zone_id   = module.common_dns.primary_zone_id
   alarm_actions    = [module.sns_slack.sns_topic_arn]
+  dnssec_ksks      = var.dnssec_ksks # Require setting explicity for top level zones
 }
 
 output "primary_zone_id" {
@@ -37,6 +38,7 @@ output "primary_domain_mx_servers" {
   description = "List of MXes for domain"
   value       = module.common_dns.primary_domain_mx_servers
 }
+
 output "primary_zone_dnssec_ksks" {
   value = module.dnssec.root_zone_dnssec_ksks
 }
