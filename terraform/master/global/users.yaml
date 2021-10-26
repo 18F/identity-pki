@@ -130,6 +130,11 @@ users:
       - apponcall
     gitlab_groups:
       - lg
+  ryan.d.brown:
+    aws_groups:
+      - devopsnonprod
+    gitlab_groups:
+      - lg
   sierra.toler:
     aws_groups:
       - bizops
