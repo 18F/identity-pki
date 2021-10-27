@@ -232,7 +232,7 @@ open_pr() {
   run git pull origin main
   run git checkout -b ${AMI_BRANCH}
   run git add --all
-  run git commit -m \"'${PR_TITLE}'\"
+  run git commit -m "'${PR_TITLE}'"
   run git push --set-upstream origin ${AMI_BRANCH}
   hub pull-request -p -r "${GH_REVS}" -e -m "$(cat <<EOF
 ${PR_TITLE}
