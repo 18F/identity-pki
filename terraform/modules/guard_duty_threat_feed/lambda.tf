@@ -1,7 +1,7 @@
 resource "aws_lambda_function" "guard_duty_threat_feed_lambda" {
-  filename      = "${var.guard_duty_threat_feed_code}"
+  filename      = var.guard_duty_threat_feed_code
   function_name = "${var.guard_duty_threat_feed_name}-function"
-  role          = "${aws_iam_role.guard_duty_threat_feed_lambda_role.arn}"
+  role          = aws_iam_role.guard_duty_threat_feed_lambda_role.arn
   description   = "GuardDuty Threat Feed Function"
   handler       = "lambda_function.lambda_handler"
 
@@ -23,8 +23,8 @@ resource "aws_lambda_function" "guard_duty_threat_feed_lambda" {
 
 resource "aws_lambda_permission" "guard_duty_threat_feed_lambda_permission" {
   statement_id  = "${var.guard_duty_threat_feed_name}-lambda-permission"
-  function_name = "${aws_lambda_function.guard_duty_threat_feed_lambda.function_name}"
+  function_name = aws_lambda_function.guard_duty_threat_feed_lambda.function_name
   action        = "lambda:InvokeFunction"
   principal     = "events.amazonaws.com"
-  source_arn    = "${aws_cloudwatch_event_rule.guard_duty_threat_feed_rule.arn}"
+  source_arn    = aws_cloudwatch_event_rule.guard_duty_threat_feed_rule.arn
 }
