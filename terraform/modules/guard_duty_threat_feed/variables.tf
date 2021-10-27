@@ -22,15 +22,17 @@ variable "frequency" {
 
 variable "guard_duty_threat_feed_public_key" {
   type        = string
+  sensitive   = true
   description = "Enter the public key value contents (This will be stored in a secured parameter store)"
 }
 
 variable "guard_duty_threat_feed_private_key" {
   type        = string
+  sensitive   = true
   description = "Enter the private key value contents (This will be stored in a secured parameter store)"
 }
 
 variable "guard_duty_threat_feed_code" {
   type        = string
-  description = "Enter the path of the compressed lambda source code. e.g: (../guard/src/guard-duty-threat-feed.zip)"
+  description = "Enter the path of the compressed lambda source code. e.g: (../../modules/guard_duty_threat_feed/src/guard-duty-threat-feed.zip)"
 }
