@@ -327,10 +327,12 @@ locals {
           "kms:GenerateDataKey",
           "kms:GetKeyPolicy",
           "kms:GetKeyRotationStatus",
+          "kms:GetPublicKey",
           "kms:ListAliases",
           "kms:ListResourceTags",
           "kms:PutKeyPolicy",
           "kms:ScheduleKeyDeletion",
+          "kms:Sign",
           "kms:TagResource",
           "kms:UpdateAlias",
           "kms:UpdateKeyDescription",
@@ -454,14 +456,22 @@ locals {
         sid    = "Route53"
         effect = "Allow"
         actions = [
+          "route53:ActivateKeySigningKey",
           "route53:ChangeResourceRecordSets",
           "route53:CreateHostedZone",
+          "route53:CreateKeySigningKey",
+          "route53:DeactivateKeySigningKey",
           "route53:DeleteHostedZone",
+          "route53:DeleteKeySigningKey",
+          "route53:DisableHostedZoneDNSSEC",
+          "route53:EnableHostedZoneDNSSEC",
           "route53:GetChange",
+          "route53:GetDNSSEC",
           "route53:GetHostedZone",
           "route53:ListHostedZones",
           "route53:ListResourceRecordSets",
           "route53:ListTagsForResource",
+          "route53domains:DeleteTagsForDomain",
           "route53domains:Get*",
           "route53domains:List*",
           "route53resolver:AssociateResolver*",
@@ -658,6 +668,9 @@ locals {
         sid    = "SES"
         effect = "Allow"
         actions = [
+          "ses:CreateReceiptRule",
+          "ses:DeleteReceiptRule",
+          "ses:DescribeReceiptRule",
           "ses:GetIdentityVerificationAttributes",
           "ses:GetIdentityDkimAttributes",
           "ses:DescribeReceiptRule",

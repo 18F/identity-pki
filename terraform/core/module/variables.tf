@@ -24,6 +24,16 @@ variable "root_domain" {
   description = "DNS domain to use as the root domain, e.g. login.gov"
 }
 
+variable "dnssec_ksks" {
+  description = "Map of Key Signing Keys (KSKs) to provision for each zone"
+  # To safely rotate see https://github.com/18F/identity-devops/wiki/Runbook:-DNS#ksk-rotation
+  type = map(string)
+  default = {
+    "20211006" = "green",
+    # "YYYYMMDD" = "blue"
+  }
+}
+
 variable "static_cloudfront_name" {
   description = "Static site Cloudfront DNS name, e.g. abcd.cloudfront.net"
 }
@@ -70,6 +80,12 @@ variable "mta_sts_report_mailboxes" {
 variable "sandbox_ses_inbound_enabled" {
   description = "Whether to enable identitysandbox.gov style SES inbound processing"
   default     = 0
+}
+
+variable "sandbox_ses_email_users" {
+  description = "List of additional users (besides admin) to accept - user@domain will be allowed and delivers to inbox/user/"
+  type        = list(string)
+  default     = []
 }
 
 variable "lambda_identity_lambda_functions_gitrev" {

@@ -1,26 +1,4 @@
 # This terraform module contains inbound SES email configuration used
-
-variable "domain" {
-  description = "DNS domain to use as the root domain, e.g. 'login.gov'"
-}
-
-variable "email_bucket" {
-  description = "Bucket used to store inbound SES mail"
-}
-variable "email_bucket_prefix" {
-  description = "Prefix in the bucket to upload email under"
-  default     = "inbound/"
-}
-
-variable "rule_set_name" {
-  default = "default-rule-set"
-}
-
-variable "enabled" {
-  description = "Hack for module-wide count, which TF doesn't support"
-  default     = 0
-}
-
 resource "aws_ses_receipt_rule" "admin-at" {
   count = var.enabled
 
@@ -68,6 +46,30 @@ resource "aws_ses_receipt_rule" "drop-no-reply" {
 
   stop_action {
     position = 1
+    scope    = "RuleSet"
+  }
+}
+
+
+resource "aws_ses_receipt_rule" "email_users" {
+  for_each = {
+    for user in var.email_users : user => "${user}@${var.domain}"
+  }
+
+  name          = "${each.key}-at-store"
+  rule_set_name = var.rule_set_name
+  recipients    = [each.value]
+  enabled       = true
+  scan_enabled  = true
+  tls_policy    = "Require"
+
+  s3_action {
+    bucket_name       = var.email_bucket
+    object_key_prefix = "${var.email_bucket_prefix}${each.key}/"
+    position          = 1
+  }
+  stop_action {
+    position = 2
     scope    = "RuleSet"
   }
 }

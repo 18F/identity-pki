@@ -123,7 +123,14 @@ module "main" {
     }
   ]
 
-  root_domain                   = "login.gov"
+  root_domain = "login.gov"
+
+  # To safely rotate see https://github.com/18F/identity-devops/wiki/Runbook:-DNS#ksk-rotation
+  dnssec_ksks = {
+    "20211006" = "green",
+    # "YYYYMMDD" = "blue"
+  }
+
   static_cloudfront_name        = "db1mat7gaslfp.cloudfront.net"
   design_cloudfront_name        = "d28khhcfeuwd3y.cloudfront.net"
   developers_cloudfront_name    = "d26qb7on2m22yd.cloudfront.net"
@@ -135,4 +142,8 @@ module "main" {
   lambda_audit_github_debug     = 0
 
   slack_events_sns_hook_arn = "arn:aws:sns:us-west-2:555546682965:slack-events"
+}
+
+output "primary_zone_dnssec_ksks" {
+  value = module.main.primary_zone_dnssec_ksks
 }

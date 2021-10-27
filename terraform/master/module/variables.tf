@@ -19,7 +19,7 @@ variable "role_list" {
 
 variable "user_map" {
   description = "Map of users to group memberships."
-  type        = map(list(string))
+  type        = map(map(list(string)))
 }
 
 variable "group_role_map" {
