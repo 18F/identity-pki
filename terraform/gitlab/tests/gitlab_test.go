@@ -1,6 +1,8 @@
 package test
 
 import (
+	// "crypto/sha256"
+	// "encoding/hex"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -205,17 +207,17 @@ func TestGitlabS3artifacts(t *testing.T) {
 	// If we can figure out how they generate their path, revive the code below.
 	// I thought I'd figured it out, but apparently not.
 
-	// // calculate md5 of job.log
+	// // calculate sha256 of job.log
 	// data := []byte(*result.StandardOutputContent)
-	// md5data := md5.Sum(data)
-	// joblogmd5 := hex.EncodeToString(md5data[:])
+	// sha256data := sha256.Sum256(data)
+	// joblogsha256 := hex.EncodeToString(sha256data[:])
 
 	// // find job.log artifact in s3 and make sure they are the same
 	// time := time.Now()
 	// datestring := time.Format("2006_01_02")
-	// s3joblogpath := "/" + joblogmd5[0:2] + "/" +
-	// 	joblogmd5[2:4] + "/" +
-	// 	joblogmd5 + "/" +
+	// s3joblogpath := "/" + joblogsha256[0:2] + "/" +
+	// 	joblogsha256[2:4] + "/" +
+	// 	joblogsha256 + "/" +
 	// 	datestring + "/" +
 	// 	projectid + "/" +
 	// 	jobid +
@@ -223,7 +225,7 @@ func TestGitlabS3artifacts(t *testing.T) {
 	// s3joblog, err := aws.GetS3ObjectContentsE(t, region, "gitlab-"+env_name+"-artifacts", s3joblogpath)
 	// require.NoError(t, err, "could not get "+s3joblogpath)
 	// data = []byte(s3joblog)
-	// md5data = md5.Sum(data)
-	// s3joblogmd5 := hex.EncodeToString(md5data[:])
-	// require.Equal(t, joblogmd5, s3joblogmd5)
+	// sha256data = sha256.Sum256(data)
+	// s3joblogsha256 := hex.EncodeToString(sha256data[:])
+	// require.Equal(t, joblogsha256, s3joblogsha256)
 }
