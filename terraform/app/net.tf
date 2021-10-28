@@ -1250,6 +1250,18 @@ resource "aws_security_group" "worker" {
     cidr_blocks = var.outbound_subnets
   }
 
+  # gpo
+  egress {
+    description = "Permit SFTP access to GPO for file transfer of USPS confirmations and undeliverable address codes"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [
+      "162.140.252.160/32",
+      "162.140.64.26/32",
+    ]
+  }
+
   # github
   egress {
     from_port   = 22

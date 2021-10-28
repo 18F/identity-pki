@@ -55,9 +55,6 @@ default['identity-ruby']['rbenv_root']                                = '/opt/ru
 default['login_dot_gov']['rbenv_shims_ruby'] = default.fetch('identity-ruby').fetch('rbenv_root') + '/shims/ruby'
 default['login_dot_gov']['rbenv_shims_gem'] = default.fetch('identity-ruby').fetch('rbenv_root') + '/shims/gem'
 
-# don't enable CloudHSM by default
-default['login_dot_gov']['cloudhsm_enabled']                          = false
-
 # Allocate a static EIP on startup for auto scaled instances that have one of
 # these as their primary role (e.g. 'outboundproxy', 'jumphost').
 # The instance run list must also include the login_dot_gov::static_eip recipe.
@@ -135,5 +132,5 @@ default['login_dot_gov']['dashboard']['sp_private_key_password'] = 'foobar'
 # passenger
 default['passenger']['production']['user'] = node.fetch(:identity_shared_attributes).fetch(:production_user)
 
-# worker hosts
-default['login_dot_gov']['worker_count'] = 1 # number of separate worker processes to run, threading is handled by idp good_job_queues, good_job_max_threads config
+# worker process count
+default['login_dot_gov']['worker_count'] = node.fetch('cpu').fetch('total') / 2

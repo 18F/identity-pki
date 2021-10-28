@@ -42,6 +42,12 @@ resource "aws_cloudwatch_log_group" "idp_events" {
   retention_in_days = local.retention_days
 }
 
+# Log group for reimported scrubbed messages in case of PII spill
+resource "aws_cloudwatch_log_group" "idp_events_scrubbed" {
+  name              = "${var.env_name}_scrubbed_/srv/idp/shared/log/events.log"
+  retention_in_days = local.retention_days
+}
+
 resource "aws_cloudwatch_log_group" "idp_production" {
   name              = "${var.env_name}_/srv/idp/shared/log/production.log"
   retention_in_days = local.retention_days

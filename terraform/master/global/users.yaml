@@ -1,101 +1,186 @@
 ---
 users:
   aaron.manne:
-    - devopsnonprod
+    aws_groups:
+      - devopsnonprod
   akhlaq.khan:
-    - analytics
-    - finops
-    - bizops
+    aws_groups:
+      - analytics
+      - finops
+      - bizops
   alex.kritikos:
-    - devops
+    aws_groups:
+      - devops
+    gitlab_groups:
+      - lg
   alex.mathews:
-    - appdev
-    - apponcall
+    aws_groups:
+      - appdev
+      - apponcall
+    gitlab_groups:
+      - lg
   amos.stone:
-    - analytics
+    aws_groups:
+      - analytics
   andrew.duthie:
-    - appdev
-    - apponcall
+    aws_groups:
+      - appdev
+      - apponcall
+    gitlab_groups:
+      - lg
   brett.mcparland:
-    - secops
-    - soc
+    aws_groups:
+      - secops
+      - soc
   chris.kirshak:
-    - socreadonly
+    aws_groups:
+      - socreadonly
   chris.manger:
-    - bizops
-    - finops
+    aws_groups:
+      - bizops
+      - finops
   clinton.troxel:
-    - appdev
+    aws_groups:
+      - appdev
+    gitlab_groups:
+      - lg
   dave.zvenyach:
-    - analytics
+    aws_groups:
+      - analytics
   diondra.humphries:
-    - bizops
+    aws_groups:
+      - bizops
   douglas.price:
-    - appdev
-    - apponcall
-    - bizops
+    aws_groups:
+      - appdev
+      - apponcall
+      - bizops
+    gitlab_groups:
+      - lg
   jessica.dembe:
-    - appdev
+    aws_groups:
+      - appdev
+    gitlab_groups:
+      - lg
   jonathan.hooper:
-    - appdev
-    - apponcall
-    - devops
-    - keymasters
+    aws_groups:
+      - appdev
+      - apponcall
+      - devops
+      - keymasters
+    gitlab_groups:
+      - lg
   jonathan.pirro:
-    - devops
+    aws_groups:
+      - devops
+    gitlab_groups:
+      - lg
   joshua.alley:
-    - appdev
-    - apponcall
+    aws_groups:
+      - appdev
+      - apponcall
+    gitlab_groups:
+      - lg
   julia.elman:
-    - analytics
+    aws_groups:
+      - analytics
   justin.grevich:
-    - devops
+    aws_groups:
+      - devops
+    gitlab_groups:
+      - lg
   malick.diarra:
-    - appdev
+    aws_groups:
+      - appdev
+    gitlab_groups:
+      - lg
   michael.antiporta:
-    - analytics
+    aws_groups:
+      - analytics
   mitchell.henke:
-    - appdev
-    - apponcall
-    - devops
+    aws_groups:
+      - appdev
+      - apponcall
+      - devops
+    gitlab_groups:
+      - lg
   mossadeq.zia:
-    - devops
-    - secops
-    - keymasters
-    - socreadonly
+    aws_groups:
+      - devops
+      - secops
+      - keymasters
+      - socreadonly
+    gitlab_groups:
+      - lg
   oren.kanner:
-    - appdev
-    - apponcall
-    - bizops
+    aws_groups:
+      - appdev
+      - apponcall
+      - bizops
+    gitlab_groups:
+      - lg
   paul.hirsch:
-    - devops
+    aws_groups:
+      - devops
+    gitlab_groups:
+      - lg
   russ.beye:
-    - appdev
-    - apponcall
+    aws_groups:
+      - appdev
+      - apponcall
+    gitlab_groups:
+      - lg
+  ryan.d.brown:
+    aws_groups:
+      - devopsnonprod
+    gitlab_groups:
+      - lg
   sierra.toler:
-    - bizops
+    aws_groups:
+      - bizops
   steve.urciuoli:
-    - appdev
-    - apponcall
-    - keymasters
+    aws_groups:
+      - appdev
+      - apponcall
+      - keymasters
+    gitlab_groups:
+      - lg
   steven.harms:
-    - devops
-    - secops
-    - socreadonly
+    aws_groups:
+      - devops
+      - secops
+      - socreadonly
+    gitlab_groups:
+      - lg
   thomas.black:
-    - bizops
+    aws_groups:
+      - bizops
   tianna.woodson:
-    - appdev
-    - apponcall
+    aws_groups:
+      - appdev
+      - apponcall
+    gitlab_groups:
+      - lg
   tiffanyj.andrews:
-    - analytics
+    aws_groups:
+      - analytics
   timothy.spencer:
-    - devops
-    - secops
+    aws_groups:
+      - devops
+      - secops
+    gitlab_groups:
+      - lg
   vlad.toussaint:
-    - devopsnonprod
+    aws_groups:
+      - devopsnonprod
   vivek.chugh:
-    - devops
+    aws_groups:
+      - devops
+    gitlab_groups:
+      - lg
   zach.margolis:
-    - appdev
-    - apponcall
+    aws_groups:
+      - appdev
+      - apponcall
+    gitlab_groups:
+      - lg

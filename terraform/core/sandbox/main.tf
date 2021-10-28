@@ -16,6 +16,13 @@ module "main" {
   state_lock_table = "terraform_locks"
   slack_sns_name   = "slack-sandbox-events"
   root_domain      = "identitysandbox.gov"
+
+  # To safely rotate see https://github.com/18F/identity-devops/wiki/Runbook:-DNS#ksk-rotation
+  dnssec_ksks = {
+    "20211006" = "green",
+    # "YYYYMMDD" = "blue"
+  }
+
   # TODO - Remove the need for these.  Set to the same as prod
   # for now to ensure we control the target
   static_cloudfront_name        = "db1mat7gaslfp.cloudfront.net"
@@ -42,6 +49,7 @@ module "main" {
 
   mx_provider                 = "amazon-ses-inbound.us-west-2"
   sandbox_ses_inbound_enabled = 1
+  sandbox_ses_email_users     = ["smoketest-dev", "smoketest-int", "smoketest-staging", "smoketest-prod"]
   mta_sts_report_mailboxes    = ["tls.reports@gsa.gov", "tls-reports@login.gov"]
   mta_sts_mode                = "enforce"
 
@@ -90,5 +98,9 @@ module "main" {
   ]
 
   slack_events_sns_hook_arn = "arn:aws:sns:us-west-2:894947205914:slack-otherevents"
+}
+
+output "primary_zone_dnssec_ksks" {
+  value = module.main.primary_zone_dnssec_ksks
 }
 
