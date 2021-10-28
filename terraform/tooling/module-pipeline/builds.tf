@@ -510,6 +510,8 @@ phases:
     commands:
       - cd terraform/$TF_DIR/
       - if [ -f ./env-vars.sh ] ; then . ./env-vars.sh ; fi
+      - aws s3 cp s3://auto-tf-bucket-${data.aws_caller_identity.current.account_id}/GITLAB_API_TOKEN-${local.recycletest_env} /tmp/ ; true
+      - if [ -f /tmp/GITLAB_API_TOKEN ] ; then export GITLAB_API_TOKEN=$(cat /tmp/GITLAB_API_TOKEN) ; fi
       - |
         if [ -x tests/test.sh ] ; then
           echo "tests found:  executing"
