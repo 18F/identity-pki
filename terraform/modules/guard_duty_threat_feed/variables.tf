@@ -3,7 +3,8 @@ variable "guard_duty_threat_feed_name" {
 }
 
 variable "account_id" {
-  type = string
+  type        = string
+  description = "AWS Account ID"
 }
 
 variable "aws_region" {
