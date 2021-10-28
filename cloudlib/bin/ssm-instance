@@ -11,9 +11,9 @@ def log
   Cloudlib.cli_log
 end
 
-def ssm_instance(instance:)
+def ssm_instance(instance:, use_document:)
   log.info("SSM session to #{Cloudlib::EC2.instance_label(instance)}")
-  single = Cloudlib::SSM::Single.new(instance: instance)
+  single = Cloudlib::SSM::Single.new(instance: instance, use_document: use_document)
   single.ssm_session_exec
 end
 
@@ -64,7 +64,10 @@ def get_instance_by_name(name_tag, states: ['running'], pick_strategy: nil)
 end
 
 def main(args)
-  options = {pick_strategy: nil}
+  options = {
+    pick_strategy: nil,
+    use_document: true,
+  }
 
   basename = File.basename($0)
 
@@ -120,6 +123,11 @@ Options:
       options[:pick_strategy] = :oldest
     end
 
+    opts.on('--[no-]document', 'Create SSM session with a document, defaults to true') do |v|
+      options[:use_document] = v
+    end
+
+
     opts.on('-P', '--prompt', 'Pick server interactively if ambiguous') do
       options[:pick_strategy] = :prompt
     end
@@ -149,7 +157,7 @@ Options:
     )
   end
 
-  ssm_instance(instance: instance)
+  ssm_instance(instance: instance, use_document: options[:use_document])
 end
 
 if __FILE__ == $0
