@@ -9,6 +9,26 @@ data "aws_iam_policy_document" "kinesis_firehose_stream_assume_role" {
     }
   }
 }
+data "aws_iam_policy_document" "kinesis_s3_kms" {
+  statement {
+    sid    = "Enable IAM User Permissions"
+    effect = "Allow"
+    actions = [
+      "kms:*",
+    ]
+    principals {
+      type = "AWS"
+      identifiers = [
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/FullAdministrator"
+      ]
+    }
+    resources = [
+      "*",
+    ]
+  }
+}
+
 
 data "aws_iam_policy_document" "kinesis_firehose_access_bucket_assume_policy" {
   statement {

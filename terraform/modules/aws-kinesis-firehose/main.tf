@@ -49,6 +49,12 @@ resource "aws_kms_key" "kinesis_firehose_stream_bucket" {
   description             = "KMS key for ${var.bucket_name}"
   deletion_window_in_days = 7
   enable_key_rotation     = true
+  policy                  = data.aws_iam_policy_document.kinesis_s3_kms.json
+}
+
+resource "aws_kms_alias" "kinesis_firehose_stream_bucket" {
+  name          = "alias/${var.env_name}-kms-s3-log-cache-bucket"
+  target_key_id = aws_kms_key.kinesis_firehose_stream_bucket.key_id
 }
 
 resource "aws_s3_bucket" "kinesis_firehose_stream_bucket" {
