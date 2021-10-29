@@ -360,7 +360,10 @@ resource "aws_iam_role_policy" "codebuild_test" {
         "arn:aws:ec2:${var.region}:${data.aws_caller_identity.current.account_id}:instance/*"
       ],
       "Condition": {
-          "StringLike": { "ssm:resourceTag/Name": "asg-${local.recycletest_env}-gitlab_runner" }
+          "StringLike": { "ssm:resourceTag/Name": [
+            "asg-${local.recycletest_env}-gitlab_runner",
+            "asg-${local.recycletest_env}-gitlab"
+          ]}
       }
     },
     {
