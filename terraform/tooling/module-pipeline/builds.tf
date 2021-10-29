@@ -509,6 +509,13 @@ phases:
   build:
     commands:
       - cd terraform/$TF_DIR/
+      - unset AWS_PROFILE
+      - export AWS_STS_REGIONAL_ENDPOINTS=regional
+      - roledata=$(aws sts assume-role --role-arn "arn:aws:iam::${var.account}:role/AutoTerraform" --role-session-name "auto-tf-apply-${local.clean_tf_dir}-${var.env_name}")
+      - export AWS_ACCESS_KEY_ID=$(echo $roledata | jq -r .Credentials.AccessKeyId)
+      - export AWS_SECRET_ACCESS_KEY=$(echo $roledata | jq -r .Credentials.SecretAccessKey)
+      - export AWS_SESSION_TOKEN=$(echo $roledata | jq -r .Credentials.SessionToken)
+      - export AWS_REGION="${var.region}"
       - if [ -f ./env-vars.sh ] ; then . ./env-vars.sh ; fi
       - aws s3 cp s3://auto-tf-bucket-${data.aws_caller_identity.current.account_id}/GITLAB_API_TOKEN-${local.recycletest_env} /tmp/GITLAB_API_TOKEN ; true
       - if [ -f /tmp/GITLAB_API_TOKEN ] ; then export GITLAB_API_TOKEN=$(cat /tmp/GITLAB_API_TOKEN) ; fi
