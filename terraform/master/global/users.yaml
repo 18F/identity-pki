@@ -57,6 +57,11 @@ users:
       - bizops
     gitlab_groups:
       - lg
+  james.tranovich:
+    aws_groups:
+      - devopsnonprod
+    gitlab_groups:
+      - lg
   jessica.dembe:
     aws_groups:
       - appdev
@@ -87,6 +92,16 @@ users:
   justin.grevich:
     aws_groups:
       - devops
+    gitlab_groups:
+      - lg
+  kevin.dayton:
+    aws_groups:
+      - appdev
+    gitlab_groups:
+      - lg
+  logan.mcdonald:
+    aws_groups:
+      - devopsnonprod
     gitlab_groups:
       - lg
   malick.diarra:
