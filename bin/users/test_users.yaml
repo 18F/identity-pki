@@ -1,0 +1,16 @@
+---
+users:
+  no.groups.for.me:
+    aws_groups:
+      - devopsnonprod
+  no.gitlab.for.me:
+    aws_groups:
+      - analytics
+      - finops
+      - bizops
+  gitlab.and.group.please:
+    aws_groups:
+      - devops
+      - appdev
+    gitlab_groups:
+      - lg
