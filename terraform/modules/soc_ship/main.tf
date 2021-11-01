@@ -1,5 +1,5 @@
 locals {
-  soc_destination_arn = "arn:aws:logs:us-east-1:752281881774:destination:elp-cloudtrail-lg"
+  soc_destination_arn = "arn:aws:logs:us-west-2:752281881774:destination:elp-cloudtrail-lg"
 }
 
 resource "aws_cloudwatch_log_subscription_filter" "cloudwatch_subscription_filter" {
