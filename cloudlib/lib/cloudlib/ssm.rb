@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'subprocess'
+require 'active_support/json'
 
 module Cloudlib
   module SSM

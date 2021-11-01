@@ -71,9 +71,10 @@ module Cloudlib
         tag = row.find { |x| x.field == 'git_tag' }&.value
         min_timestamp = row.find { |x| x.field == 'min_timestamp' }&.value
         min_timestamp = Time.parse("#{min_timestamp}Z")
+        next unless sha
 
         Deploy.new(sha: sha, tag: tag, min_timestamp: min_timestamp)
-      end.uniq { |x| x.sha }
+      end.compact.uniq { |x| x.sha }
     end
 
     def self.monitor_deploys(deploys:, env:, role:)
