@@ -184,14 +184,22 @@ func TestGitlabS3artifacts(t *testing.T) {
 
 		var jobresult []map[string]interface{}
 		json.Unmarshal([]byte(*result.StandardOutputContent), &jobresult)
-		jobid = fmt.Sprintf("%.0f", jobresult[0]["id"])
 
-		if jobresult[0]["status"] == "failed" {
+		i := 0
+		for z, job := range jobresult {
+			if job["status"] == "failed" {
+				jobid = fmt.Sprintf("%.0f", job["id"])
+				i = z
+				break
+			}
+		}
+		if jobresult[i]["status"] == "failed" {
 			// There is a job, it is done, we can look for the logs now
 			break
 		}
-		fmt.Printf("first job status is %s, waiting until it is done\n", jobresult[0]["status"])
-		time.Sleep(5)
+
+		fmt.Printf("no jobs are done, waiting until there is one\n")
+		time.Sleep(10)
 	}
 
 	// Download artifact
