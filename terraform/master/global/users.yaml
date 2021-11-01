@@ -134,6 +134,11 @@ users:
       - bizops
     gitlab_groups:
       - lg
+  parissa.eggleston:
+    aws_groups:
+      - appdev
+    gitlab_groups:
+      - lg
   paul.hirsch:
     aws_groups:
       - devops
