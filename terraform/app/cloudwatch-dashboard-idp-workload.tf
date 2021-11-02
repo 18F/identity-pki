@@ -504,7 +504,7 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
                 "period": 60,
                 "stat": "Average"
             }
-        },
+        }
     ]
 }
 EOF
