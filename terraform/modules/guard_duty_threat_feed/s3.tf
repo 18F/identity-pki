@@ -8,4 +8,7 @@ resource "aws_s3_bucket" "guard_duty_threat_feed_s3_bucket" {
       }
     }
   }
+  lifecycle {
+    prevent_destroy = true
+  }
 }

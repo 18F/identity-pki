@@ -7,15 +7,15 @@ resource "aws_lambda_function" "guard_duty_threat_feed_lambda" {
 
   source_code_hash = filebase64sha256("${var.guard_duty_threat_feed_code}")
   memory_size      = "3008"
-  runtime          = "python3.9"
+  runtime          = "python3.8"
   timeout          = "300"
 
   environment {
     variables = {
       LOG_LEVEL      = "INFO",
-      DAYS_REQUESTED = "${var.days_requested}",
-      PUBLIC_KEY     = "${aws_ssm_parameter.guard_duty_threat_feed_public_key.arn}",
-      PRIVATE_KEY    = "${aws_ssm_parameter.guard_duty_threat_feed_private_key.arn}",
+      DAYS_REQUESTED = "${var.guard_duty_days_requested}",
+      PUBLIC_KEY     = "${aws_ssm_parameter.guard_duty_threat_feed_public_key.name}",
+      PRIVATE_KEY    = "${aws_ssm_parameter.guard_duty_threat_feed_private_key.name}",
       OUTPUT_BUCKET  = "${aws_s3_bucket.guard_duty_threat_feed_s3_bucket.id}"
     }
   }

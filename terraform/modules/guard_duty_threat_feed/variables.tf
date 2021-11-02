@@ -11,12 +11,12 @@ variable "aws_region" {
   type = string
 }
 
-variable "days_requested" {
+variable "guard_duty_days_requested" {
   type    = number
   default = 7
 }
 
-variable "frequency" {
+variable "guard_duty_frequency" {
   type    = number
   default = 6
 }
