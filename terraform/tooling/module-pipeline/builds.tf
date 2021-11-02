@@ -360,7 +360,25 @@ resource "aws_iam_role_policy" "codebuild_test" {
         "arn:aws:ec2:${var.region}:${data.aws_caller_identity.current.account_id}:instance/*"
       ],
       "Condition": {
-          "StringLike": { "ssm:resourceTag/Name": "asg-${local.recycletest_env}-gitlab_runner" }
+          "StringLike": { "ssm:resourceTag/Name": [
+            "asg-${local.recycletest_env}-gitlab"
+          ]
+        }
+      }
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ssm:SendCommand"
+      ],
+      "Resource":[
+        "arn:aws:ec2:${var.region}:${data.aws_caller_identity.current.account_id}:instance/*"
+      ],
+      "Condition": {
+          "StringLike": { "ssm:resourceTag/Name": [
+            "asg-${local.recycletest_env}-gitlab_runner"
+          ]
+        }
       }
     },
     {
@@ -398,6 +416,7 @@ resource "aws_iam_role_policy" "codebuild_test" {
         "s3:PutObject"
       ],
       "Resource": [
+        "arn:aws:s3:::gitlab-${local.recycletest_env}-*",
         "arn:aws:s3:::auto-tf-bucket-${data.aws_caller_identity.current.account_id}",
         "arn:aws:s3:::auto-tf-bucket-${data.aws_caller_identity.current.account_id}/*"
       ]
@@ -511,6 +530,12 @@ phases:
       - cd terraform/$TF_DIR/
       - if [ -f ./env-vars.sh ] ; then . ./env-vars.sh ; fi
       - |
+        unset AWS_PROFILE
+        aws s3 cp s3://gitlab-${local.recycletest_env}-config/GITLAB_API_TOKEN /tmp/GITLAB_API_TOKEN
+        if [ -f /tmp/GITLAB_API_TOKEN ] ; then
+          echo "reading GITLAB_API_TOKEN"
+          export GITLAB_API_TOKEN=$(cat /tmp/GITLAB_API_TOKEN)
+        fi
         if [ -x tests/test.sh ] ; then
           echo "tests found:  executing"
           cd tests

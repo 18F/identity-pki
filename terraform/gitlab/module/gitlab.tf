@@ -57,6 +57,13 @@ module "gitlab_launch_template" {
 resource "aws_autoscaling_group" "gitlab" {
   name = "${var.env_name}-gitlab"
 
+  # There is some sort of flapping going on here unless you set this
+  lifecycle {
+    ignore_changes = [
+      load_balancers,
+    ]
+  }
+
   launch_template {
     id      = module.gitlab_launch_template.template_id
     version = "$Latest"
