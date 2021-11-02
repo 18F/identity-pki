@@ -1,14 +1,8 @@
-
-locals {
-  count = data.aws_caller_identity.current.account_id == "894947205914" ? 1 : 0
-}
-
-module "kinesis-firehose" {
-  count                               = local.count
+module "soc-ship" {
   source                              = "../modules/soc_ship"
   region                              = "us-west-2"
   cloudwatch_subscription_filter_name = "lg-log-ship-to-soc"
-  cloudwatch_log_group_name           = ["CloudTrail/DefaultLogGroup"]
-  cloudwatch_filter_pattern           = " "
+  cloudwatch_log_group_name           = var.cloudwatch_log_group_name
   env_name                            = var.env_name
+  soc_destination_arn                 = var.soc_destination_arn
 }

@@ -8,17 +8,16 @@ variable "cloudwatch_subscription_filter_name" {
   type        = string
 }
 
-variable "cloudwatch_log_group_name" {
-  description = "The cloudwatch log group name"
-  type        = list(any)
-}
-
-variable "cloudwatch_filter_pattern" {
-  description = "The cloudwatch filter pattern"
-  type        = string
-}
-
 variable "env_name" {
   description = "Environment Name"
   type        = string
+}
+
+variable "soc_destination_arn" {
+  description = "string"
+  type        = string
+}
+
+variable "cloudwatch_log_group_name" {
+  type = map(string)
 }

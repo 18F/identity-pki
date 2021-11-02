@@ -695,3 +695,15 @@ variable "idp_ial2_sp_dashboards" {
   description = "Map of values for widgets on IAL2 SP dashboard"
   default     = {}
 }
+
+variable "soc_destination_arn" {
+  type    = string
+  default = "arn:aws:logs:us-west-2:752281881774:destination:elp-cloudtrail-lg" #Pointing to POC SOC arn. Please check before deploying
+}
+
+variable "cloudwatch_log_group_name" {
+  type = map(string)
+  default = {
+    "CloudTrail/DefaultLogGroup" = " " # map of logs to be shipped,with filter pattern, key is log name, value is filter pattern with " " denoting send all events
+  }
+}

@@ -14,7 +14,7 @@ data "aws_iam_policy_document" "cloudwatch_logs_assume_policy" {
   statement {
     effect    = "Allow"
     actions   = ["firehose:*"]
-    resources = [local.soc_destination_arn]
+    resources = [var.soc_destination_arn]
   }
 }
 
