@@ -34,19 +34,6 @@ runner_name = node['hostname']
 # aws s3 cp /tmp/gitlab_runner_token s3://<secretsbucket>/<env>/gitlab_runner_token
 runner_token = ConfigLoader.load_config(node, "gitlab_runner_token", common: false).chomp
 
-directory '/etc/gitlab'
-
-template '/etc/gitlab/gitlab-runner-template.toml' do
-    source 'gitlab-runner-template.toml.erb'
-    owner 'root'
-    group 'root'
-    mode '0600'
-    variables ({
-        external_url: external_url,
-		runner_name: runner_name
-    })
-    notifies :run, 'execute[configure_gitlab_runner]', :delayed
-end
 
 directory '/etc/systemd/system/gitlab-runner.service.d'
 
@@ -63,23 +50,30 @@ execute 'systemctl_daemon_config' do
 	action :nothing
 end
 
+docker_service 'default' do
+  action [:create, :start]
+end
+
 execute 'configure_gitlab_runner' do
-  command "gitlab-runner register \
+	command "gitlab-runner register \
 	  --non-interactive \
-	  --config /etc/gitlab-runner/config.toml \
-	  --template-config /etc/gitlab/gitlab-runner-template.toml \
-	  --url #{external_url} \
-	  --registration-token #{runner_token} \
-	  --request-concurrency 4 \
-	  --name #{runner_name} \
-	  --executor shell
+	  --name '#{runner_name}'' \
+	  --url '#{external_url}'' \
+	  --registration-token '#{runner_token}'' \
+	  --executor docker \
+	  --docker-image alpine:latest \
+	  --description 'docker-runner-#{runner_name}' \
+	  --tag-list docker,aws \
+	  --run-untagged=true \
+	  --locked=false \
+	  --access-level=not_protected
   "
   sensitive true
   action :nothing
-  notifies :run, 'execute[restart_gitlab]', :immediate
+  notifies :run, 'execute[restart_runner]', :immediate
 end
 
-execute 'restart_gitlab' do
+execute 'restart_runner' do
 	command 'systemctl restart gitlab-runner'
 	action :nothing
 end
