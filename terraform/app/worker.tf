@@ -162,6 +162,8 @@ resource "aws_autoscaling_group" "worker" {
   # We manually terminate instances in prod
   protect_from_scale_in = var.asg_prevent_auto_terminate == 1 ? true : false
 
+  enabled_metrics = var.asg_enabled_metrics
+
   launch_template {
     id      = module.worker_launch_template.template_id
     version = "$Latest"
