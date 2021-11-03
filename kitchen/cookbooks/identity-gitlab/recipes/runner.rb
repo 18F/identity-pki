@@ -51,7 +51,8 @@ execute 'systemctl_daemon_config' do
 end
 
 docker_service 'default' do
-  action [:create, :start]
+  # action [:create, :start]
+  action [:create]
   # XXX take this out eventually
   ignore_failure true
 end
