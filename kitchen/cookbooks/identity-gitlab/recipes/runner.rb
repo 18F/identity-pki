@@ -53,6 +53,8 @@ end
 docker_service 'default' do
   # action [:create, :start]
   action [:create]
+  ipv6 false
+  ipv6_forward false
   # XXX take this out eventually
   ignore_failure true
 end
