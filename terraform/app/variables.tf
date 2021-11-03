@@ -712,3 +712,8 @@ variable "send_logs_to_s3" {
   type = string
   default = "0"    #change value to 1, if you want to send logs to s3
 }
+
+
+variable "cloudwatch_log_group_name_to_s3" {
+  type = list(string)
+}

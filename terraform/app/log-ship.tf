@@ -7,6 +7,7 @@ module "log-ship-s3-soc" {
   bucket_name                           = "login-gov-log-cache-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
   cloudwatch_subscription_filter_name   = "log-ship"
   cloudwatch_log_group_name             = var.cloudwatch_log_group_name
+  cloudwatch_log_group_name_to_s3       = var.cloudwatch_log_group_name_to_s3
   env_name                              = var.env_name
   soc_destination_arn                   = var.soc_destination_arn
 }
