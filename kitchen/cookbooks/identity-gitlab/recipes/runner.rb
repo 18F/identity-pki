@@ -52,6 +52,8 @@ end
 
 docker_service 'default' do
   action [:create, :start]
+  # XXX take this out eventually
+  ignore_failure true
 end
 
 execute 'configure_gitlab_runner' do
@@ -71,9 +73,13 @@ execute 'configure_gitlab_runner' do
   sensitive true
   action :nothing
   notifies :run, 'execute[restart_runner]', :immediate
+  # XXX take this out eventually
+  ignore_failure true
 end
 
 execute 'restart_runner' do
 	command 'systemctl restart gitlab-runner'
 	action :nothing
+  # XXX take this out eventually
+  ignore_failure true
 end
