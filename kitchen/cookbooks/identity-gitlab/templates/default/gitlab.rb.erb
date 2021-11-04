@@ -523,7 +523,7 @@ gitlab_rails['object_store']['objects']['pages']['bucket'] = 'gitlab-<%= node.ch
 ### OmniAuth Settings
 ###! Docs: https://docs.gitlab.com/ee/integration/omniauth.html
 gitlab_rails['omniauth_enabled'] = true
-gitlab_rails['omniauth_allow_single_sign_on'] = ['saml']
+gitlab_rails['omniauth_allow_single_sign_on'] = false
 gitlab_rails['omniauth_sync_email_from_provider'] = 'saml'
 gitlab_rails['omniauth_sync_profile_from_provider'] = ['saml']
 gitlab_rails['omniauth_sync_profile_attributes'] = ['email']
