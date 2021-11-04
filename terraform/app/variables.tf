@@ -379,10 +379,6 @@ variable "idp_worker_alarms_enabled" {
   description = "Whether to set up alarms for IDP workers"
 }
 
-variable "worker_cpu_autoscaling_enabled" {
-  default = 1
-}
-
 variable "idp_cpu_autoscaling_enabled" {
   default = 1
 }
@@ -393,6 +389,16 @@ variable "idp_cpu_autoscaling_disable_scale_in" { # we're not ready for auto sca
 
 variable "idp_cpu_autoscaling_target" {
   default = 40
+}
+
+variable "worker_cpu_autoscaling_enabled" {
+  # Off by default due to extreme burstiness of report jobs
+  default = 0
+}
+
+variable "worker_cpu_autoscaling_target" {
+  # Allow workers higher CPU saturation if CPU autoscaling is on
+  default = 90
 }
 
 variable "idpxtra_client_ids" {
