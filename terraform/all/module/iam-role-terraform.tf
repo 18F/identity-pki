@@ -397,7 +397,8 @@ locals {
           "logs:PutSubscriptionFilter",
           "logs:TagLogGroup",
           "logs:UntagLogGroup",
-          "logs:UpdateLogDelivery"
+          "logs:UpdateLogDelivery",
+          "logs:DeleteLogStream"
         ]
         resources = [
           "*",
@@ -554,6 +555,8 @@ locals {
           "firehose:DeleteDeliveryStream",
           "firehose:DescribeDeliveryStream",
           "firehose:ListTagsForDeliveryStream",
+          "firehose:DeleteDeliveryStream",
+          "firehose:List*"
         ]
         resources = [
           "*",
