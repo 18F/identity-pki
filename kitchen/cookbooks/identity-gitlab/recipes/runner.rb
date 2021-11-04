@@ -54,6 +54,8 @@ docker_service 'default' do
   action [:create]
   ipv6 false
   ipv6_forward false
+  http_proxy 'http://obproxy.login.gov.internal:3128'
+  https_proxy 'http://obproxy.login.gov.internal:3128'
 end
 
 execute 'configure_gitlab_runner' do
