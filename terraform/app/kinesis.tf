@@ -1,5 +1,5 @@
 module "kinesis-firehose" {
-  source                                = "../modules/aws-kinesis-firehose"
+  source                                = "../modules/send_logs_to_s3"
   region                                = "us-west-2"
   kinesis_firehose_stream_name          = "cw-kinesis-s3-${var.env_name}-${var.region}"
   kinesis_firehose_stream_backup_prefix = "backup/"
@@ -9,5 +9,4 @@ module "kinesis-firehose" {
   cloudwatch_filter_pattern             = " "
   env_name                              = var.env_name
 }
-
 
