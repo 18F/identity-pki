@@ -56,6 +56,7 @@ docker_service 'default' do
   ipv6_forward false
   http_proxy 'http://obproxy.login.gov.internal:3128'
   https_proxy 'http://obproxy.login.gov.internal:3128'
+  icc true
 end
 
 execute 'configure_gitlab_runner' do
