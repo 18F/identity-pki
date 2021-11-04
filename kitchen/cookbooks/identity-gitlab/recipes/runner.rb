@@ -74,8 +74,13 @@ execute 'configure_gitlab_runner' do
 	  --access-level=not_protected
   "
   sensitive true
-  action :nothing
   notifies :run, 'execute[restart_runner]', :immediate
+end
+
+group 'docker' do
+	append true
+	members ['gitlab-runner']
+	action :modify
 end
 
 execute 'restart_runner' do
