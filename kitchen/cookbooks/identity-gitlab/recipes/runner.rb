@@ -67,7 +67,6 @@ execute 'configure_gitlab_runner' do
 	  --registration-token '#{runner_token}' \
 	  --executor docker \
 	  --docker-image alpine:latest \
-	  --description 'docker-runner-#{runner_name}' \
 	  --tag-list 'docker,aws' \
 	  --run-untagged=true \
 	  --locked=false \
