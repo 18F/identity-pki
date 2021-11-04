@@ -14,6 +14,7 @@ cookbook 'users'
 cookbook 'ossec', '~> 1.2.0', git: 'https://github.com/sous-chefs/ossec'
 cookbook 'seven_zip', '~3.2.0' #can remove version constraint after upgrading chef to v16
 cookbook 'filesystem', '~> 3.0.5'
+cookbook 'docker', '~> 10.1.0'
 
 # This is a super wacky hack to allow us to symlink this Berksfile into the
 # various nodes/*/ directories. It feels like there ought to be a better way to

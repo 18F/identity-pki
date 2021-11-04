@@ -19,6 +19,7 @@ DEPENDENCIES
     ref: 879b902
     rel: config_loader
   deploy_resource (~> 1.0)
+  docker (~> 10.1.0)
   filesystem (~> 3.0.5)
   git
   identity-gitlab
@@ -81,12 +82,14 @@ GRAPH
   config_loader (0.3.0)
     aws_metadata (>= 0.0.0)
   deploy_resource (1.0.3)
+  docker (10.1.0)
   filesystem (3.0.5)
     lvm (>= 1.1)
   git (11.0.1)
     ark (>= 0.0.0)
   identity-gitlab (0.0.3)
     config_loader (>= 0.0.0)
+    docker (>= 0.0.0)
     filesystem (>= 0.0.0)
   identity-jumphost (0.1.2)
     login_dot_gov (>= 0.0.0)
