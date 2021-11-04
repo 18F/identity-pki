@@ -243,7 +243,7 @@ func TestGitlabS3artifacts(t *testing.T) {
 func TestDockerWorking(t *testing.T) {
 	asgName := env_name + "-gitlab_runner"
 
-	// make sure first runner is registered
+	// make sure we can pull an image
 	instances := aws.GetInstanceIdsForAsg(t, asgName, region)
 	firstinstance := instances[0:1]
 	cmd := "docker pull alpine:latest"
