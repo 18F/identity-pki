@@ -15,11 +15,11 @@ Before granting production access:
 
 ## Tasks to be completed by DevOps
 
-- [ ] Edit `terraform/master/global/main.tf` and change the user's group access to the appropriate production enabled group:
+- [ ] Edit `terraform/master/global/users.yaml` and change the user's group access to the appropriate production enabled group:
       - AppDev: Use `apponcall`
       - DevOps: Use `devops`
       - SecOps: Use `secops`
-      - Add _user name_ key and group list to `terraform/master/global/main.tf` and complete `tf-deploy master/global apply`
+      - Add _user name_ key and group list to `terraform/master/global/users.yaml` and complete `tf-deploy master/global apply`
       - Set initial AWS password and check the box for **Require password reset**
       - Initiate video call
       - Share password via private Google Sheet
