@@ -237,3 +237,16 @@ func TestGitlabS3artifacts(t *testing.T) {
 	// s3joblogsha256 := hex.EncodeToString(sha256data[:])
 	// require.Equal(t, joblogsha256, s3joblogsha256)
 }
+
+// This does a basic smoke test
+// to make sure that docker is working.
+func TestDockerWorking(t *testing.T) {
+	asgName := env_name + "-gitlab_runner"
+
+	// make sure we can pull an image
+	instances := aws.GetInstanceIdsForAsg(t, asgName, region)
+	firstinstance := instances[0:1]
+	cmd := "docker pull alpine:latest"
+	result := RunCommandOnInstances(t, firstinstance, cmd)
+	require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed: "+*result.StandardOutputContent)
+}
