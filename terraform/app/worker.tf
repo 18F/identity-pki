@@ -193,7 +193,7 @@ resource "aws_autoscaling_policy" "worker" {
     predefined_metric_specification {
       predefined_metric_type = "ASGAverageCPUUtilization"
     }
-    target_value = var.idp_cpu_autoscaling_target
+    target_value = var.worker_cpu_autoscaling_target
   }
 }
 

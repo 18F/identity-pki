@@ -71,7 +71,7 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
             "height": 6,
             "properties": {
                 "metrics": [
-                    [ "AWS/ApplicationELB", "TargetResponseTime", "TargetGroup", "${aws_alb_target_group.idp.arn_suffix}", "LoadBalancer", "${aws_alb.idp.arn_suffix}", { "stat": "p90", "label": "p90" } ],
+                    [ "AWS/ApplicationELB", "TargetResponseTime", "TargetGroup", "${aws_alb_target_group.idp-ssl.arn_suffix}", "LoadBalancer", "${aws_alb.idp.arn_suffix}", { "stat": "p90", "label": "p90" } ],
                     [ "...", { "label": "p99" } ],
                     [ "...", { "stat": "Maximum", "visible": false } ]
                 ],

@@ -125,8 +125,9 @@ locals {
       metric_value = 1
     },
     pinpoint_telephony_sms_failed_other = {
+      # PERMANENT_FAILURE occurs when a person's phone number is opted out of SMS
       name         = "pinpoint-telephony-sms-failed-other"
-      pattern      = "{ $.adapter = \"pinpoint\" && $.success is false && $.channel = \"sms\" && $.delivery_status != \"THROTTLED\" }"
+      pattern      = "{ $.adapter = \"pinpoint\" && $.success is false && $.channel = \"sms\" && $.delivery_status != \"THROTTLED\" && $.delivery_status != \"PERMANENT_FAILURE\"}"
       metric_value = 1
     },
     pinpoint_telephony_voice_failed_other = {

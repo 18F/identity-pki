@@ -10,7 +10,11 @@ resource "aws_cloudwatch_metric_alarm" "idp_worker_alive_alarm" {
   period                    = "60" # 6 minutes because heartbeat job is queued every 5 minutes, and queue is checked every 5 seconds
   statistic                 = "Sum"
   threshold                 = "1"
-  alarm_description         = "This alarm is executed when no worker jobs have run for 6 minutes"
+  alarm_description         = <<EOM
+This alarm is executed when no worker jobs have run for 6 minutes
+
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Asynchronous-Workers
+EOM
   treat_missing_data        = "breaching"
   insufficient_data_actions = []
   alarm_actions             = local.high_priority_alarm_actions
@@ -29,7 +33,11 @@ resource "aws_cloudwatch_metric_alarm" "idp_worker_failure_alarm" {
   period                    = "60"
   statistic                 = "Sum"
   threshold                 = "1"
-  alarm_description         = "This alarm is executed when a worker job fails"
+  alarm_description         = <<EOM
+This alarm is executed when a worker job fails
+
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Asynchronous-Workers
+EOM
   treat_missing_data        = "missing"
   insufficient_data_actions = []
   alarm_actions             = local.high_priority_alarm_actions
@@ -47,7 +55,11 @@ resource "aws_cloudwatch_metric_alarm" "idp_worker_queue_time_alarm" {
   period                    = "60"
   statistic                 = "Maximum"
   threshold                 = "10000" # Job queue is checked every 5 seconds
-  alarm_description         = "This alarm is executed when job queue time exceeds allowable limits"
+  alarm_description         = <<EOM
+This alarm is executed when job queue time exceeds allowable limits
+
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Asynchronous-Workers
+EOM
   treat_missing_data        = "missing"
   insufficient_data_actions = []
   alarm_actions             = local.high_priority_alarm_actions
@@ -65,7 +77,11 @@ resource "aws_cloudwatch_metric_alarm" "idp_worker_perform_time_alarm" {
   period                    = "60"
   statistic                 = "Maximum"
   threshold                 = "50000"
-  alarm_description         = "This alarm is executed when job perform time exceeds allowable limits"
+  alarm_description         = <<EOM
+This alarm is executed when job perform time exceeds allowable limits
+
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Asynchronous-Workers
+EOM
   treat_missing_data        = "missing"
   insufficient_data_actions = []
   alarm_actions             = local.high_priority_alarm_actions
