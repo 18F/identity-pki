@@ -61,12 +61,12 @@ resource "aws_iam_role" "config_access_key_rotation_remediation_role" {
 }
 
 resource "aws_iam_role" "config_access_key_rotation_lambda_role" {
-  name                = "${var.config_access_key_rotation_name}-lambda-role"
-  path                = "/"
-  assume_role_policy  = data.aws_iam_policy_document.config_access_key_rotation_lambda_policy.json
+  name               = "${var.config_access_key_rotation_name}-lambda-role"
+  path               = "/"
+  assume_role_policy = data.aws_iam_policy_document.config_access_key_rotation_lambda_policy.json
   managed_policy_arns = [
-      "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
-      "arn:aws:iam::aws:policy/AWSLambdaInvocation-DynamoDB"
+    "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+    "arn:aws:iam::aws:policy/AWSLambdaInvocation-DynamoDB"
   ]
 
   inline_policy {
