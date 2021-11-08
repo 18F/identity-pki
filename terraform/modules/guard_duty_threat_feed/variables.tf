@@ -1,14 +1,11 @@
 variable "guard_duty_threat_feed_name" {
-  type = string
-}
-
-variable "account_id" {
+  description = "Name of the GuardDuty threat feed, used to name other resources"
   type        = string
-  description = "AWS Account ID"
+  default     = "gd-threat-feed"
 }
 
-variable "aws_region" {
-  type = string
+variable "region" {
+  default = "us-west-2"
 }
 
 variable "guard_duty_days_requested" {
@@ -21,19 +18,16 @@ variable "guard_duty_frequency" {
   default = 6
 }
 
-variable "guard_duty_threat_feed_public_key" {
-  type        = string
-  sensitive   = true
-  description = "Enter the public key value contents (This will be stored in a secured parameter store)"
-}
-
-variable "guard_duty_threat_feed_private_key" {
-  type        = string
-  sensitive   = true
-  description = "Enter the private key value contents (This will be stored in a secured parameter store)"
-}
-
 variable "guard_duty_threat_feed_code" {
   type        = string
-  description = "Enter the path of the compressed lambda source code. e.g: (../../modules/guard_duty_threat_feed/src/guard-duty-threat-feed.zip)"
+  description = "Path of the compressed lambda source code."
+  default     = "../src/guard-duty-threat-feed.zip"
+}
+
+variable "logs_bucket" {
+  description = "Name of the bucket to store access logs in"
+}
+
+variable "inventory_bucket_arn" {
+  description = "ARN of the bucket used for S3 Inventory"
 }
