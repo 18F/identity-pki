@@ -34,19 +34,6 @@ runner_name = node['hostname']
 # aws s3 cp /tmp/gitlab_runner_token s3://<secretsbucket>/<env>/gitlab_runner_token
 runner_token = ConfigLoader.load_config(node, "gitlab_runner_token", common: false).chomp
 
-directory '/etc/gitlab'
-
-template '/etc/gitlab/gitlab-runner-template.toml' do
-    source 'gitlab-runner-template.toml.erb'
-    owner 'root'
-    group 'root'
-    mode '0600'
-    variables ({
-        external_url: external_url,
-		runner_name: runner_name
-    })
-    notifies :run, 'execute[configure_gitlab_runner]', :delayed
-end
 
 directory '/etc/systemd/system/gitlab-runner.service.d'
 
@@ -63,23 +50,39 @@ execute 'systemctl_daemon_config' do
 	action :nothing
 end
 
-execute 'configure_gitlab_runner' do
-  command "gitlab-runner register \
-	  --non-interactive \
-	  --config /etc/gitlab-runner/config.toml \
-	  --template-config /etc/gitlab/gitlab-runner-template.toml \
-	  --url #{external_url} \
-	  --registration-token #{runner_token} \
-	  --request-concurrency 4 \
-	  --name #{runner_name} \
-	  --executor shell
-  "
-  sensitive true
-  action :nothing
-  notifies :run, 'execute[restart_gitlab]', :immediate
+docker_service 'default' do
+  action [:create]
+  ipv6 false
+  ipv6_forward false
+  http_proxy 'http://obproxy.login.gov.internal:3128'
+  https_proxy 'http://obproxy.login.gov.internal:3128'
+  icc true
 end
 
-execute 'restart_gitlab' do
+execute 'configure_gitlab_runner' do
+	command "gitlab-runner register \
+	  --non-interactive \
+	  --name '#{runner_name}' \
+	  --url '#{external_url}' \
+	  --registration-token '#{runner_token}' \
+	  --executor docker \
+	  --docker-image alpine:latest \
+	  --tag-list 'docker,aws' \
+	  --run-untagged=true \
+	  --locked=false \
+	  --access-level=not_protected
+  "
+  sensitive true
+  notifies :run, 'execute[restart_runner]', :immediate
+end
+
+group 'docker' do
+	append true
+	members ['gitlab-runner']
+	action :modify
+end
+
+execute 'restart_runner' do
 	command 'systemctl restart gitlab-runner'
 	action :nothing
 end

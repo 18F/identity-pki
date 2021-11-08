@@ -3,6 +3,7 @@ users:
   aaron.manne:
     aws_groups:
       - devopsnonprod
+      - socreadonly
   akhlaq.khan:
     aws_groups:
       - analytics
@@ -57,6 +58,11 @@ users:
       - bizops
     gitlab_groups:
       - lg
+  james.tranovich:
+    aws_groups:
+      - devopsnonprod
+    gitlab_groups:
+      - lg
   jessica.dembe:
     aws_groups:
       - appdev
@@ -89,6 +95,16 @@ users:
       - devops
     gitlab_groups:
       - lg
+  kevin.dayton:
+    aws_groups:
+      - appdev
+    gitlab_groups:
+      - lg
+  logan.mcdonald:
+    aws_groups:
+      - devopsnonprod
+    gitlab_groups:
+      - lg
   malick.diarra:
     aws_groups:
       - appdev
@@ -119,6 +135,11 @@ users:
       - bizops
     gitlab_groups:
       - lg
+  parissa.eggleston:
+    aws_groups:
+      - appdev
+    gitlab_groups:
+      - lg
   paul.hirsch:
     aws_groups:
       - devops
@@ -128,6 +149,11 @@ users:
     aws_groups:
       - appdev
       - apponcall
+    gitlab_groups:
+      - lg
+  ryan.d.brown:
+    aws_groups:
+      - devopsnonprod
     gitlab_groups:
       - lg
   sierra.toler:

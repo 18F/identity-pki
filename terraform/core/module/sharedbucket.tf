@@ -183,7 +183,7 @@ resource "aws_s3_bucket_policy" "email-bucket" {
       "Sid": "AllowEmailList",
       "Effect": "Allow",
       "Principal": {
-        "AWS": "${aws_iam_user.circleci.arn}"
+        "AWS": "arn:aws:iam::894947205914:user/circle-ci-test-coverage"
       },
       "Action": "s3:ListBucket",
       "Resource": "arn:aws:s3:::${module.s3_email.buckets["email"]}"
@@ -192,7 +192,7 @@ resource "aws_s3_bucket_policy" "email-bucket" {
       "Sid": "AllowEmailDownload",
       "Effect": "Allow",
       "Principal": {
-        "AWS": "${aws_iam_user.circleci.arn}"
+        "AWS": "arn:aws:iam::894947205914:user/circle-ci-test-coverage"
       },
       "Action": [
         "s3:DeleteObject",

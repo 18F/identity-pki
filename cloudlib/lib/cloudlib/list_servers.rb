@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'active_support/core_ext/object'
 
 module Cloudlib
   # module containing some useful functions for slicing and dicing a server
@@ -22,6 +23,7 @@ module Cloudlib
       'launch-time' => proc { |i| i.launch_time.to_s },
       'uptime' => proc { |i| pretty_time(Time.now - i.launch_time) },
       'AZ' => proc { |i| i.placement.availability_zone },
+      'sha' => proc { |i| (Cloudlib::EC2.fetch_tag(i, 'gitsha:idp', allow_nil: true) || '')[0..8] },
     }.freeze
 
     HEADER_ALIASES = {
@@ -41,6 +43,10 @@ module Cloudlib
       uptime
     ].freeze
 
+    OPTIONAL_HEADERS = %w[
+      sha
+    ].freeze
+
     LONG_HEADERS = %w[
       instance-id
       image-id
@@ -57,9 +63,9 @@ module Cloudlib
     def self.data_for_instances(instances, headers: nil, long_headers: false)
       unless headers
         if long_headers
-          headers = LONG_HEADERS
+          headers = LONG_HEADERS + OPTIONAL_HEADERS
         else
-          headers = DEFAULT_HEADERS
+          headers = DEFAULT_HEADERS + OPTIONAL_HEADERS
         end
       end
       headers = headers.dup
@@ -74,13 +80,25 @@ module Cloudlib
 
       data = instances.map { |i|
         headers.map { |header|
-          get_header_function(header).call(i)
-        }
+          [header, get_header_function(header).call(i)]
+        }.to_h
       }
+
+      OPTIONAL_HEADERS.map do |header|
+        value_exists = data.any? { |x| x[header].present? }
+
+        unless value_exists
+          headers.delete(header)
+
+          data.each do |x|
+            x.delete(header)
+          end
+        end
+      end
 
       return {
         header: headers,
-        rows: data,
+        rows: data.map(&:values),
       }
     end
 

@@ -379,10 +379,6 @@ variable "idp_worker_alarms_enabled" {
   description = "Whether to set up alarms for IDP workers"
 }
 
-variable "worker_cpu_autoscaling_enabled" {
-  default = 1
-}
-
 variable "idp_cpu_autoscaling_enabled" {
   default = 1
 }
@@ -393,6 +389,16 @@ variable "idp_cpu_autoscaling_disable_scale_in" { # we're not ready for auto sca
 
 variable "idp_cpu_autoscaling_target" {
   default = 40
+}
+
+variable "worker_cpu_autoscaling_enabled" {
+  # Off by default due to extreme burstiness of report jobs
+  default = 0
+}
+
+variable "worker_cpu_autoscaling_target" {
+  # Allow workers higher CPU saturation if CPU autoscaling is on
+  default = 90
 }
 
 variable "idpxtra_client_ids" {
@@ -458,22 +464,22 @@ variable "bootstrap_private_git_clone_url" {
 # though they will have different IDs. They should be updated here at the same
 # time, and then released to environments in sequence.
 variable "default_ami_id_sandbox" {
-  default     = "ami-0773b1412835e8fae" # 2021-10-26 Ubuntu 18.04
+  default     = "ami-0730cd0ba0e5d81c9" # 2021-11-04 Ubuntu 18.04
   description = "default AMI ID for environments in the sandbox account"
 }
 
 variable "default_ami_id_prod" {
-  default     = "ami-031e62daae4555223" # 2021-10-24 Ubuntu 18.04
+  default     = "ami-0d1de1fbb298b74ff" # 2021-10-31 Ubuntu 18.04
   description = "default AMI ID for environments in the prod account"
 }
 
 variable "rails_ami_id_sandbox" {
-  default     = "ami-061c0f4696a408d59" # 2021-10-26 Ubuntu 18.04
+  default     = "ami-0da235a7444db2574" # 2021-11-04 Ubuntu 18.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the sandbox account"
 }
 
 variable "rails_ami_id_prod" {
-  default     = "ami-04a32c051a9fa78a4" # 2021-10-24 Ubuntu 18.04
+  default     = "ami-02b1590f016614697" # 2021-11-04 Ubuntu 18.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the prod account"
 }
 

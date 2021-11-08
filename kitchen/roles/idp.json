@@ -13,7 +13,6 @@
     "recipe[login_dot_gov::idp_web]",
     "recipe[login_dot_gov::idp_prewarm]",
     "recipe[login_dot_gov::idp_pt]",
-    "recipe[login_dot_gov::idp_jobs]",
     "recipe[login_dot_gov::common_scripts]"
   ],
   "env_run_lists": {}

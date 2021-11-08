@@ -13,7 +13,7 @@ labels: administration
 ## Tasks to be completed by DevOps
 
 - [ ] For AppDev, DevOps, SecOps, or other users requiring AWS access:
-      - Add _user name_ key and group list to `terraform/master/global/main.tf` using the following pre-prod groups:
+      - Add _user name_ key and group list to `terraform/master/global/users.yaml` using the following pre-prod groups:
         - AppDev: Add to the `appdev` group
         - DevOps/SRE: Add to the `devopsnonprod` group
         - SecOps: Add to the `secopsnonprod` group
