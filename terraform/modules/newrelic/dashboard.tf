@@ -40,7 +40,7 @@ resource "newrelic_synthetics_monitor" "dashboard" {
   locations = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
 
   uri               = "https://dashboard.${var.env_name}.${var.root_domain}/"
-  validation_string = "Use the dashboard to manage your login.gov test integrations."
+  validation_string = "Use the dashboard to manage your Login.gov test integrations."
   verify_ssl        = true
 }
 
