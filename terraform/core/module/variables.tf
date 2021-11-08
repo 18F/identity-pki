@@ -137,23 +137,23 @@ variable "slack_events_sns_hook_arn" {
   type        = string
 }
 
-variable "guard_duty_threat_feed_name" {
+variable "guardduty_threat_feed_name" {
   description = "Name of the GuardDuty threat feed, used to name other resources"
   type        = string
   default     = "gd-threat-feed"
 }
 
-variable "guard_duty_days_requested" {
+variable "guardduty_days_requested" {
   type    = number
   default = 7
 }
 
-variable "guard_duty_frequency" {
+variable "guardduty_frequency" {
   type    = number
   default = 6
 }
 
-variable "guard_duty_threat_feed_code" {
+variable "guardduty_threat_feed_code" {
   type        = string
   description = "Path of the compressed lambda source code."
   default     = "src/guard-duty-threat-feed.zip"

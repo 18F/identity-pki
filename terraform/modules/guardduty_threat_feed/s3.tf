@@ -1,8 +1,8 @@
 locals {
-  gd_s3_bucket = "login-gov.gd-${var.guard_duty_threat_feed_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
+  gd_s3_bucket = "login-gov.gd-${var.guardduty_threat_feed_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
 }
 
-resource "aws_s3_bucket" "guard_duty_threat_feed_s3_bucket" {
+resource "aws_s3_bucket" "guardduty_threat_feed_s3_bucket" {
   bucket = local.gd_s3_bucket
   acl    = "private"
 
@@ -12,7 +12,7 @@ resource "aws_s3_bucket" "guard_duty_threat_feed_s3_bucket" {
   }
 
   tags = {
-    feed = var.guard_duty_threat_feed_name
+    feed = var.guardduty_threat_feed_name
   }
 
   server_side_encryption_configuration {
@@ -47,9 +47,9 @@ resource "aws_s3_bucket" "guard_duty_threat_feed_s3_bucket" {
   }
 }
 
-module "guard_duty_threat_feed_s3_bucket_config" {
+module "guardduty_threat_feed_s3_bucket_config" {
   source = "github.com/18F/identity-terraform//s3_config?ref=7e11ebe24e3a9cbc34d1413cf4d20b3d71390d5b"
 
-  bucket_name_override = aws_s3_bucket.guard_duty_threat_feed_s3_bucket.id
+  bucket_name_override = aws_s3_bucket.guardduty_threat_feed_s3_bucket.id
   inventory_bucket_arn = var.inventory_bucket_arn
 }
