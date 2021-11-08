@@ -15,8 +15,8 @@ data "aws_iam_policy_document" "guard_duty_threat_feed_policy" {
 
 data "aws_iam_policy_document" "guard_duty_threat_feed_access" {
   statement {
-    sid = "${var.guard_duty_threat_feed_name}-guardduty-access"
-    effect   = "Allow"
+    sid    = "${var.guard_duty_threat_feed_name}-guardduty-access"
+    effect = "Allow"
     actions = [
       "guardduty:ListDetectors",
       "guardduty:CreateThreatIntelSet",
@@ -29,8 +29,8 @@ data "aws_iam_policy_document" "guard_duty_threat_feed_access" {
     ]
   }
   statement {
-    sid = "${var.guard_duty_threat_feed_name}-iam-access"
-    effect   = "Allow"
+    sid    = "${var.guard_duty_threat_feed_name}-iam-access"
+    effect = "Allow"
     actions = [
       "iam:PutRolePolicy",
       "iam:DeleteRolePolicy"
@@ -40,8 +40,8 @@ data "aws_iam_policy_document" "guard_duty_threat_feed_access" {
     ]
   }
   statement {
-    sid = "${var.guard_duty_threat_feed_name}-s3-bucket-access"
-    effect   = "Allow"
+    sid    = "${var.guard_duty_threat_feed_name}-s3-bucket-access"
+    effect = "Allow"
     actions = [
       "s3:ListBucket"
     ]
@@ -50,8 +50,8 @@ data "aws_iam_policy_document" "guard_duty_threat_feed_access" {
     ]
   }
   statement {
-    sid = "${var.guard_duty_threat_feed_name}-s3-object-access"
-    effect   = "Allow"
+    sid    = "${var.guard_duty_threat_feed_name}-s3-object-access"
+    effect = "Allow"
     actions = [
       "s3:GetObject",
       "s3:PutObject"
@@ -61,8 +61,8 @@ data "aws_iam_policy_document" "guard_duty_threat_feed_access" {
     ]
   }
   statement {
-    sid = "${var.guard_duty_threat_feed_name}-parameter-access"
-    effect   = "Allow"
+    sid    = "${var.guard_duty_threat_feed_name}-parameter-access"
+    effect = "Allow"
     actions = [
       "ssm:GetParameters"
     ]
@@ -90,7 +90,7 @@ resource "aws_iam_role_policy_attachment" "guard_duty_threat_feed_access_policie
 }
 
 resource "aws_iam_role" "guard_duty_threat_feed_lambda_role" {
-  name                = "${var.guard_duty_threat_feed_name}-lambda-role"
-  path                = "/"
-  assume_role_policy  = data.aws_iam_policy_document.guard_duty_threat_feed_policy.json
+  name               = "${var.guard_duty_threat_feed_name}-lambda-role"
+  path               = "/"
+  assume_role_policy = data.aws_iam_policy_document.guard_duty_threat_feed_policy.json
 }
