@@ -655,10 +655,12 @@ gitlab_rails['omniauth_providers'] = [
 # gitlab_rails['extra_matomo_disable_cookies'] = false
 
 ##! Docs: https://docs.gitlab.com/omnibus/settings/environment-variables.html
-# gitlab_rails['env'] = {
+gitlab_rails['env'] = {
+  'http_proxy' => "http://obproxy.login.gov.internal:3128",
+  'https_proxy' => "http://obproxy.login.gov.internal:3128",
 #   'BUNDLE_GEMFILE' => "/opt/gitlab/embedded/service/gitlab-rails/Gemfile",
 #   'PATH' => "/opt/gitlab/bin:/opt/gitlab/embedded/bin:/bin:/usr/bin"
-# }
+}
 
 # gitlab_rails['rack_attack_git_basic_auth'] = {
 #   'enabled' => false,
@@ -2098,7 +2100,9 @@ redis['enable'] = false
 # gitaly['log_directory'] = "/var/log/gitlab/gitaly"
 # gitaly['bin_path'] = "/opt/gitlab/embedded/bin/gitaly"
 # gitaly['env_directory'] = "/opt/gitlab/etc/gitaly/env"
-# gitaly['env'] = {
+gitaly['env'] = {
+  'http_proxy' => "http://obproxy.login.gov.internal:3128",
+  'https_proxy' => "http://obproxy.login.gov.internal:3128",
 #  'PATH' => "/opt/gitlab/bin:/opt/gitlab/embedded/bin:/bin:/usr/bin",
 #  'HOME' => '/var/opt/gitlab',
 #  'TZ' => ':/etc/localtime',
@@ -2106,7 +2110,7 @@ redis['enable'] = false
 #  'ICU_DATA' => "/opt/gitlab/embedded/share/icu/current",
 #  'SSL_CERT_DIR' => "/opt/gitlab/embedded/ssl/certs/",
 #  'WRAPPER_JSON_LOGGING' => true
-# }
+}
 
 ##! internal_socket_dir is the directory that will contain internal gitaly sockets,
 ##! separate from socket_path which is the socket that external clients listen on
