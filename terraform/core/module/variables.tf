@@ -15,11 +15,6 @@ EOM
   default     = true
 }
 
-variable "master_account_id" {
-  default     = "340731855345"
-  description = "AWS Account ID for master account"
-}
-
 variable "root_domain" {
   description = "DNS domain to use as the root domain, e.g. login.gov"
 }
@@ -142,33 +137,24 @@ variable "slack_events_sns_hook_arn" {
   type        = string
 }
 
-variable "guard_duty_threat_feed_name" {
-  type = string
+variable "guardduty_threat_feed_name" {
+  description = "Name of the GuardDuty threat feed, used to name other resources"
+  type        = string
+  default     = "gd-threat-feed"
 }
 
-variable "guard_duty_days_requested" {
+variable "guardduty_days_requested" {
   type    = number
   default = 7
 }
 
-variable "guard_duty_frequency" {
+variable "guardduty_frequency" {
   type    = number
   default = 6
 }
 
-variable "guard_duty_threat_feed_public_key" {
+variable "guardduty_threat_feed_code" {
   type        = string
-  sensitive   = true
-  description = "Enter the public key value contents (This will be stored in a secured parameter store)"
-}
-
-variable "guard_duty_threat_feed_private_key" {
-  type        = string
-  sensitive   = true
-  description = "Enter the private key value contents (This will be stored in a secured parameter store)"
-}
-
-variable "guard_duty_threat_feed_code" {
-  type        = string
-  description = "Enter the path of the compressed lambda source code. e.g: (../../modules/guard_duty_threat_feed/src/guard-duty-threat-feed.zip)"
+  description = "Path of the compressed lambda source code."
+  default     = "src/guard-duty-threat-feed.zip"
 }

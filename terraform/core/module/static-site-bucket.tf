@@ -20,7 +20,7 @@ resource "aws_s3_bucket" "account_static_bucket" {
   bucket = "login-gov-account-static.${data.aws_caller_identity.current.account_id}-${var.region}"
 
   logging {
-    target_bucket = "login-gov.s3-access-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+    target_bucket = local.s3_logs_bucket
     target_prefix = "login-gov-account-static.${data.aws_caller_identity.current.account_id}-${var.region}/"
   }
 
@@ -70,7 +70,7 @@ module "account_static_bucket_config" {
 
   bucket_name_override = aws_s3_bucket.account_static_bucket.id
   region               = var.region
-  inventory_bucket_arn = "arn:aws:s3:::login-gov.s3-inventory.${data.aws_caller_identity.current.account_id}-${var.region}"
+  inventory_bucket_arn = local.inventory_bucket_uw2_arn
 }
 
 data "aws_iam_policy_document" "account_static_bucket_policy" {
