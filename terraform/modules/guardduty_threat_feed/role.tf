@@ -19,7 +19,7 @@ data "aws_iam_policy_document" "guardduty_threat_feed_policy" {
 
 data "aws_iam_policy_document" "guardduty_threat_feed_access" {
   statement {
-    sid    = "${local.guardduty_feedname_iam} GuardDuty access"
+    sid    = "${local.guardduty_feedname_iam}GuardDutyAccess"
     effect = "Allow"
     actions = [
       "guardduty:ListDetectors",
@@ -33,7 +33,7 @@ data "aws_iam_policy_document" "guardduty_threat_feed_access" {
     ]
   }
   statement {
-    sid    = "${local.guardduty_feedname_iam} IAM access"
+    sid    = "${local.guardduty_feedname_iam}IAMAccess"
     effect = "Allow"
     actions = [
       "iam:PutRolePolicy",
@@ -44,7 +44,7 @@ data "aws_iam_policy_document" "guardduty_threat_feed_access" {
     ]
   }
   statement {
-    sid    = "${local.guardduty_feedname_iam} S3 bucket access"
+    sid    = "${local.guardduty_feedname_iam}S3BucketAccess"
     effect = "Allow"
     actions = [
       "s3:ListBucket"
@@ -54,7 +54,7 @@ data "aws_iam_policy_document" "guardduty_threat_feed_access" {
     ]
   }
   statement {
-    sid    = "${local.guardduty_feedname_iam} S3 object access"
+    sid    = "${local.guardduty_feedname_iam}S3ObjectAccess"
     effect = "Allow"
     actions = [
       "s3:GetObject",
@@ -65,7 +65,7 @@ data "aws_iam_policy_document" "guardduty_threat_feed_access" {
     ]
   }
   statement {
-    sid    = "${local.guardduty_feedname_iam} SSM parameter access"
+    sid    = "${local.guardduty_feedname_iam}SSMParameterAccess"
     effect = "Allow"
     actions = [
       "ssm:GetParameters"
@@ -78,7 +78,7 @@ data "aws_iam_policy_document" "guardduty_threat_feed_access" {
 }
 
 resource "aws_iam_policy" "guardduty_threat_feed_access" {
-  name        = "${var.guardduty_threat_feed_name}-lambda-policy"
+  name        = "${local.guardduty_feedname_iam}-lambda-policy"
   description = "Policy for ${var.guardduty_threat_feed_name}-lambda access"
   policy      = data.aws_iam_policy_document.guardduty_threat_feed_access.json
 }

@@ -1,11 +1,11 @@
 resource "aws_lambda_function" "guardduty_threat_feed_lambda" {
-  filename      = var.guardduty_threat_feed_code
+  filename      = "${path.module}/${var.guardduty_threat_feed_code}"
   function_name = "${var.guardduty_threat_feed_name}-function"
   role          = aws_iam_role.guardduty_threat_feed_lambda_role.arn
   description   = "GuardDuty Threat Feed Function"
   handler       = "lambda_function.lambda_handler"
 
-  source_code_hash = filebase64sha256("${var.guardduty_threat_feed_code}")
+  source_code_hash = filebase64sha256("${path.module}/${var.guardduty_threat_feed_code}")
   memory_size      = "3008"
   runtime          = "python3.8"
   timeout          = "300"

@@ -21,7 +21,7 @@ variable "guardduty_frequency" {
 variable "guardduty_threat_feed_code" {
   type        = string
   description = "Path of the compressed lambda source code."
-  default     = "../src/guard-duty-threat-feed.zip"
+  default     = "src/guard-duty-threat-feed.zip"
 }
 
 variable "logs_bucket" {
