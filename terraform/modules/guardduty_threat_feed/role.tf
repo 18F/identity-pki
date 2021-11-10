@@ -1,4 +1,8 @@
 # Setup IAM role for Lambda
+locals {
+  guardduty_feedname_iam = replace(var.guardduty_threat_feed_name, "/[^a-zA-Z0-9 ]/", "")
+}
+
 data "aws_caller_identity" "current" {
 }
 
@@ -15,7 +19,7 @@ data "aws_iam_policy_document" "guardduty_threat_feed_policy" {
 
 data "aws_iam_policy_document" "guardduty_threat_feed_access" {
   statement {
-    sid    = "${var.guardduty_threat_feed_name}-guardduty-access"
+    sid    = "${local.guardduty_feedname_iam}GuardDutyAccess"
     effect = "Allow"
     actions = [
       "guardduty:ListDetectors",
@@ -29,7 +33,7 @@ data "aws_iam_policy_document" "guardduty_threat_feed_access" {
     ]
   }
   statement {
-    sid    = "${var.guardduty_threat_feed_name}-iam-access"
+    sid    = "${local.guardduty_feedname_iam}IAMAccess"
     effect = "Allow"
     actions = [
       "iam:PutRolePolicy",
@@ -40,7 +44,7 @@ data "aws_iam_policy_document" "guardduty_threat_feed_access" {
     ]
   }
   statement {
-    sid    = "${var.guardduty_threat_feed_name}-s3-bucket-access"
+    sid    = "${local.guardduty_feedname_iam}S3BucketAccess"
     effect = "Allow"
     actions = [
       "s3:ListBucket"
@@ -50,7 +54,7 @@ data "aws_iam_policy_document" "guardduty_threat_feed_access" {
     ]
   }
   statement {
-    sid    = "${var.guardduty_threat_feed_name}-s3-object-access"
+    sid    = "${local.guardduty_feedname_iam}S3ObjectAccess"
     effect = "Allow"
     actions = [
       "s3:GetObject",
@@ -61,7 +65,7 @@ data "aws_iam_policy_document" "guardduty_threat_feed_access" {
     ]
   }
   statement {
-    sid    = "${var.guardduty_threat_feed_name}-parameter-access"
+    sid    = "${local.guardduty_feedname_iam}SSMParameterAccess"
     effect = "Allow"
     actions = [
       "ssm:GetParameters"
@@ -74,7 +78,7 @@ data "aws_iam_policy_document" "guardduty_threat_feed_access" {
 }
 
 resource "aws_iam_policy" "guardduty_threat_feed_access" {
-  name        = "${var.guardduty_threat_feed_name}-lambda-policy"
+  name        = "${local.guardduty_feedname_iam}-lambda-policy"
   description = "Policy for ${var.guardduty_threat_feed_name}-lambda access"
   policy      = data.aws_iam_policy_document.guardduty_threat_feed_access.json
 }
