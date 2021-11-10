@@ -1,6 +1,6 @@
 # Setup IAM role for Lambda
 locals {
-  guardduty_feedname_iam = replace(var.guardduty_threat_feed_name,"/[^a-zA-Z0-9 ]/","")
+  guardduty_feedname_iam = replace(var.guardduty_threat_feed_name, "/[^a-zA-Z0-9 ]/", "")
 }
 
 data "aws_caller_identity" "current" {
