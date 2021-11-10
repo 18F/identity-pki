@@ -4,15 +4,15 @@
 
 __Status__: Implemented in [][impl]
 
-#### Context
+## Context
 
 We needed authentication for the new release pipeline on our hosted Gitlab. The categories of criteria for which system to use were security, user experience, compliance, and operator experience.
 
-#### Decision
+## Decision
 
-We will use login.gov to authenticate users to our hosted Gitlab. In addition to login.gov as the primary auth system, we will provide a secondary fallback, as well as an administrator breakglass solution.
+We will use login.gov SAML to authenticate users to our hosted Gitlab. In addition to login.gov as the primary auth system, we will provide a secondary fallback, as well as an administrator breakglass solution.
 
-#### Consequences
+## Consequences
 
 Positive consequences of this decision include a great developer and operator experience, use of a FedRAMP Moderate tool, less time spent learning how to integrate with an unknown toolset, and a clear separation of authentication and authorization.
 
@@ -20,8 +20,8 @@ There is a security implication that if the secure.login.gov is compromized, it 
 
 There is also an availability consequence – how do we get secure.login.gov back online if the release pipeline for it is also inaccessible? This is the motivation for designing administrator breakglass and secondary fallbacks into the system from the start. Even if our secondary authentication is inaccessible, it is always possible for an administrator to access Gitlab to initiate builds and deployments of patches for the system.
 
-#### Alternatives Considered
+## Alternatives Considered
 
-Primary alternatives considered were SecureAuth or a PIV proxy TKTK.
+Primary alternatives considered were SecureAuth or a PIV proxy.
 
-[impl]: 
+[impl]: https://github.com/18F/identity-devops/pull/3815
