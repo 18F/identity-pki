@@ -18,7 +18,7 @@ Perhaps the most comprehensive tool for OSCAL authoring is IBM's [compliance-tre
 
 James' commentary:
 
-    I believe `compliance-trestle` seems too heavy-weight for our needs right now, but it could be that we eventually evolve our OSCAL documenting process to something that would require the full power of `compliance-trestle`. I am also unsure of the benefit of using Markdown (in lieu of straight-up OSCAL yaml) and suggest avoiding that particular approach until we need it.
+> I believe `compliance-trestle` seems too heavy-weight for our needs right now, but it could be that we eventually evolve our OSCAL documenting process to something that would require the full power of `compliance-trestle`. I am also unsure of the benefit of using Markdown (in lieu of straight-up OSCAL yaml) and suggest avoiding that particular approach until we need it.
 
 # GovReady-Q
 
@@ -26,7 +26,7 @@ James' commentary:
 
 James' commentary:
 
-    Looks like a thin wrapper around a commercial service (GovReady). There are some interesting approaches to compliance application and authoring tools but I think this is fundamentally the wrong direction to take for this project: I would prefer not to have a separate web service but rather bake in compliance assessment into our processes from the start.
+> Looks like a thin wrapper around a commercial service (GovReady). There are some interesting approaches to compliance application and authoring tools but I think this is fundamentally the wrong direction to take for this project: I would prefer not to have a separate web service but rather bake in compliance assessment into our processes from the start.
 
 # oscalkit
 
@@ -34,7 +34,7 @@ James' commentary:
 
 James' commentary:
 
-    Again a project that is backed by a commercial company (GoComply). This project still relies on older (obsolete) OSCAL standard definitions and thus is not quite completely up to date. Nonetheless, it is one of the few open source tools that provides basic validation of OSCAL documents (unfortunately only against JSON or XML schemas).
+> Again a project that is backed by a commercial company (GoComply). This project still relies on older (obsolete) OSCAL standard definitions and thus is not quite completely up to date. Nonetheless, it is one of the few open source tools that provides basic validation of OSCAL documents (unfortunately only against JSON or XML schemas).
 
 # Miscellany
 
