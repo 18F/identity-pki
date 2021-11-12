@@ -440,7 +440,7 @@ module "gitlabbravo" {
   auto_tf_pipeline_role_arn = module.main.auto_tf_pipeline_role_arn
 }
 
-# deploy the alpha gitlab environment to the tooling account on the stages/gitlabcharlie branch!
+# deploy the charlie gitlab environment to the tooling account on the stages/gitlabcharlie branch!
 module "gitlabcharlie" {
   region = "us-west-2"
   source = "../module-pipeline"
