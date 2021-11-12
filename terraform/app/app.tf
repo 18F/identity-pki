@@ -44,7 +44,7 @@ resource "aws_db_instance" "default" {
   #
   skip_final_snapshot = true
   lifecycle {
-    prevent_destroy = false
+    prevent_destroy = true
 
     # we set the password by hand so it doesn't end up in the state file
     ignore_changes = [password]
