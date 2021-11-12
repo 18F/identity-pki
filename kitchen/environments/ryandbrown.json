@@ -1,5 +1,5 @@
 {
-  "name": "TEMPLATE",
+  "name": "ryandbrown",
   "description": "",
   "json_class": "Chef::Environment",
   "chef_type": "environment",
@@ -12,6 +12,6 @@
     }
   },
   "override_attributes": {
-  
+
   }
 }

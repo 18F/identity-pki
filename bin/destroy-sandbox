@@ -26,7 +26,7 @@ EOM
 
 man_page() {
     cat >&2 << EOM
-    
+
 Usage: ${0} [-ldebkxh] [ENV]
 
 Runs all necessary commands to prep and destroy an existing
@@ -80,7 +80,7 @@ empty_buckets() {
   boto3_check
   for BUCKET in $(ave aws s3 ls |grep ${TF_ENV} | awk '{print $NF}'); do
     ave aws s3 rm s3://${BUCKET} --recursive
-    ave python -c "import boto3 ;\
+    ave python3 -c "import boto3 ;\
       session = boto3.Session() ;\
       s3 = session.resource(service_name='s3') ;\
       bucket = s3.Bucket('${BUCKET}') ;\
