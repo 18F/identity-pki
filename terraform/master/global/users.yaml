@@ -194,6 +194,9 @@ users:
   vlad.toussaint:
     aws_groups:
       - devopsnonprod
+      - socreadonly
+    gitlab_groups:
+      - lg
   vivek.chugh:
     aws_groups:
       - devops

@@ -27,6 +27,9 @@ var testResolveUsersData = []struct {
 			"alexandra.thegreat": {
 				Email: "alexandra.thegreat@gsa.gov",
 			},
+			"root": {
+				Email: "admin@example.com",
+			},
 		},
 		AuthorizedUsers: &AuthorizedUsers{
 			Users: map[string]*AuthUser{
@@ -122,6 +125,7 @@ var testResolveMembersData = []struct {
 			"lg": map[string]bool{
 				"lg_dev": true,
 				"ex_dev": true,
+				"root": true,
 			},
 		},
 		AuthGroups: map[string]map[string]bool{

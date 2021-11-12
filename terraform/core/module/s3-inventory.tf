@@ -6,7 +6,7 @@ module "s3_inventory_uw2" {
   #source = "../../../../identity-terraform/s3_batch_inventory"
 
   bucket_list          = var.bucket_list_uw2
-  inventory_bucket_arn = "arn:aws:s3:::login-gov.s3-inventory.${data.aws_caller_identity.current.account_id}-us-west-2"
+  inventory_bucket_arn = local.inventory_bucket_uw2_arn
 }
 
 module "s3_config_ue1" {
