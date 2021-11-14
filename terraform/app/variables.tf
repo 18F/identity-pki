@@ -704,6 +704,6 @@ variable "soc_destination_arn" {
 variable "cloudwatch_log_group_name" {
   type = map(string)
   default = {
-    "CloudTrail/DefaultLogGroup" = " " # map of logs to be shipped,with filter pattern, key is log name, value is filter pattern with " " denoting send all events
+     # map of logs to be shipped,with filter pattern, key is log name, value is filter pattern with " " denoting send all events
   }
 }
