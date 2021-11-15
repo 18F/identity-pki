@@ -43,7 +43,7 @@ data "aws_iam_policy_document" "config_access_key_rotation_ssm_access" {
     sid       = "${local.accesskeyrotation_name_iam}SNSAccess"
     effect    = "Allow"
     actions   = ["sns:Publish"]
-    resources = [aws_sns_topic.config_access_key_rotation_topic.arn] # Changes the sns topic to the existing topic
+    resources = ["${data.aws_sns_topic.config_access_key_rotation_topic.arn}"]
   }
 }
 
