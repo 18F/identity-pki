@@ -2,3 +2,8 @@ include:
   project: 'lg/identity-gitlab'
   ref: 'main'
   file: '.gitlab-ci-sync.yml'
+
+sync_users_and_groups:
+  image: mirror.gcr.io/library/golang:latest
+  script:
+    - ./bin/users/sync.sh --fqdn=$CI_SERVER_HOST
