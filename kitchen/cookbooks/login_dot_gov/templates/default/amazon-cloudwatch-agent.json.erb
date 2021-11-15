@@ -26,7 +26,6 @@
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
                                                 "timestamp_format": "%b %-d %H:%M:%S"
-
                                         },
                                         {
                                                 "file_path": "/var/log/audit/audit.log",
@@ -35,6 +34,13 @@
                                                 "timezone": "UTC"
                                         },
                                         {
+                                                "file_path": "/var/log/auth.log",
+                                                "log_group_name": "<%= @environmentName %>_/var/log/auth.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC",
+                                                "timestamp_format": "%b %-d %H:%M:%S"
+                                        },
+                                        {                                                                                                                   │    [[inputs.logfile.file_config]]
                                                 "file_path": "/var/log/kern.log",
                                                 "log_group_name": "<%= @environmentName %>_/var/log/kern.log",
                                                 "log_stream_name": "{local_hostname}",
@@ -48,7 +54,6 @@
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
                                                 "timestamp_format": "%b %-d %H:%M:%S"
-                                                
                                         },
                                         {
                                                 "file_path": "/var/log/nginx/access.log",
