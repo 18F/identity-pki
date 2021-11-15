@@ -246,6 +246,7 @@ resource "aws_iam_role_policy" "gitlab-s3buckets" {
         "Action": ["s3:ListBucket"],
         "Resource": [
           "arn:aws:s3:::gitlab-${var.env_name}-artifacts",
+          "arn:aws:s3:::gitlab-${var.env_name}-backups",
           "arn:aws:s3:::gitlab-${var.env_name}-external-diffs",
           "arn:aws:s3:::gitlab-${var.env_name}-lfs-objects",
           "arn:aws:s3:::gitlab-${var.env_name}-uploads",
@@ -264,6 +265,7 @@ resource "aws_iam_role_policy" "gitlab-s3buckets" {
         ],
         "Resource": [
           "arn:aws:s3:::gitlab-${var.env_name}-artifacts/*",
+          "arn:aws:s3:::gitlab-${var.env_name}-backups/*",
           "arn:aws:s3:::gitlab-${var.env_name}-external-diffs/*",
           "arn:aws:s3:::gitlab-${var.env_name}-lfs-objects/*",
           "arn:aws:s3:::gitlab-${var.env_name}-uploads/*",
@@ -281,6 +283,7 @@ EOM
 locals {
   gitlab_buckets = [
     "gitlab-${var.env_name}-artifacts",
+    "gitlab-${var.env_name}-backups",
     "gitlab-${var.env_name}-external-diffs",
     "gitlab-${var.env_name}-lfs-objects",
     "gitlab-${var.env_name}-uploads",
