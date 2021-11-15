@@ -61,8 +61,8 @@ module "s3_shared" {
 
   bucket_name_prefix   = "login-gov"
   bucket_data          = local.s3_bucket_data
-  log_bucket           = "login-gov.s3-access-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
-  inventory_bucket_arn = "arn:aws:s3:::login-gov.s3-inventory.${data.aws_caller_identity.current.account_id}-${var.region}"
+  log_bucket           = local.s3_logs_bucket
+  inventory_bucket_arn = local.inventory_bucket_uw2_arn
 }
 
 module "s3_email" {
@@ -71,8 +71,8 @@ module "s3_email" {
 
   bucket_name_prefix   = "login-gov"
   bucket_data          = local.s3_email_data
-  log_bucket           = "login-gov.s3-access-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
-  inventory_bucket_arn = "arn:aws:s3:::login-gov.s3-inventory.${data.aws_caller_identity.current.account_id}-${var.region}"
+  log_bucket           = local.s3_logs_bucket
+  inventory_bucket_arn = local.inventory_bucket_uw2_arn
   # Use AWS256 - Nothing sensitive should land here and it sidesteps the
   # need to give SES access to the KMS key used for the bucket
   sse_algorithm = "AES256"
@@ -216,7 +216,7 @@ module "elb-logs" {
   region                     = var.region
   bucket_name_prefix         = "login-gov"
   use_prefix_for_permissions = false
-  inventory_bucket_arn       = "arn:aws:s3:::login-gov.s3-inventory.${data.aws_caller_identity.current.account_id}-${var.region}"
+  inventory_bucket_arn       = local.inventory_bucket_uw2_arn
   lifecycle_days_standard_ia = 60   # 2 months
   lifecycle_days_glacier     = 365  # 1 year
   lifecycle_days_expire      = 2190 # 6 years

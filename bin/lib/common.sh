@@ -12,9 +12,9 @@ ave() {
     if [ -t 1 ]; then
       echo -ne "\\033[1;36m"
     fi
-  
+
     echo >&2 "+ ${run_me[@]}"
-  
+
     if [ -t 1 ]; then
       echo -ne '\033[m'
     fi
@@ -28,9 +28,9 @@ run() {
     if [ -t 1 ]; then
       echo -ne "\\033[1;36m"
     fi
-  
+
     echo >&2 "+ ${run_me[@]}"
-  
+
     if [ -t 1 ]; then
       echo -ne '\033[m'
     fi
@@ -95,7 +95,7 @@ verify_root_repo() {
 # send a notification in Slack, pulling appropriate key(s) from bucket to do so
 slack_notify () {
   local AWS_ACCT_NUM TF_ENV AWS_REGION COLOR SLACK_USER SLACK_EMOJI PRE_TEXT TEXT KEYS
-  
+
   while getopts n:t:r:c:u:e:p:m:y: opt
   do
     case "${opt}" in
@@ -110,12 +110,12 @@ slack_notify () {
       y) TF_TYPE="${OPTARG}"      ;;
     esac
   done
-  
+
   local BUCKET="s3://login-gov.secrets.${AWS_ACCT_NUM}-${AWS_REGION}"
   if [[ ${TF_TYPE} == 0 ]] ; then
     BUCKET="${BUCKET}/${TF_ENV}"
   fi
-  
+
   if ! SLACK_CHANNEL=$(aws s3 cp "${BUCKET}/tfslackchannel" - 2>/dev/null) ; then
     if [[ ${TF_TYPE} == 0 ]] ; then
       BUCKET="s3://login-gov.secrets.${AWS_ACCT_NUM}-${AWS_REGION}"
@@ -129,7 +129,7 @@ slack_notify () {
     echo 'Slack channel/webhook missing from SSM parameter'
     return 1
   fi
-  
+
   define PAYLOAD_JSON <<EOM
 {
   "channel": "${SLACK_CHANNEL}",
@@ -155,12 +155,12 @@ verify_iam_user () {
   local WHO_AM_I=${1}
   local IAM_USERS_FILE="terraform/master/global/users.yaml"
   local MASTER_ACCOUNT_ID=340731855345
-  
+
   echo_blue "Verifying IAM user ${WHO_AM_I}... "
   if [[ ! $(grep -E "^\s*${WHO_AM_I}\s*:" "${GIT_DIR}/${IAM_USERS_FILE}") ]] ; then
     echo_yellow "WARNING: User '${WHO_AM_I}' not found in ${IAM_USERS_FILE}"
   fi
-  
+
   if [[ $(aws sts get-caller-identity | jq -r '.Account') != "${MASTER_ACCOUNT_ID}" ]] ; then
     raise "This script must be run with a login-master AWS profile"
   fi
@@ -557,9 +557,9 @@ gh_revs() {
 #### verify that python3 is active and that boto3 is installed
 boto3_check() {
   echo_blue "Verifying Python 3 / boto3..."
-  if ! [[ $($(which python) --version | grep 'Python 3') ]] ; then
+  if ! [[ $($(pyenv which python) --version | grep '3.') ]] || [ $($(which python) --version | grep 'Python 3') ]] ; then
     raise 'Current Python version is not 3.x; change version and retry'
-  elif ! [[ $($(which pip) list | grep boto3) ]] ; then
+  elif ! [[ $($(pyenv which pip) list | grep boto3) ]] || [[ $($(which pip) list | grep boto3) ]] ; then
     if ! prompt_yn "boto3 library not found; install via pip?" ; then
       raise 'Install boto3 library and retry'
     else

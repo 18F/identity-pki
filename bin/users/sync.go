@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 )
 
 const gitlabTokenEnvVar = "GITLAB_API_TOKEN"
@@ -28,6 +29,8 @@ var allowedRoles = map[string]bool{
 var ignoredUsers = []string{
 	"support",
 	"alert",
+	"root",
+	"admin@example.com", // Default email for root
 }
 
 type AuthUser struct {
@@ -261,7 +264,11 @@ func resolveUsers(
 	// Copy and clean existingUsers so we don't mangle it unexpectedly
 	ignoreMap := make(map[string]bool)
 	for _, v := range ignoredUsers {
-		ignoreMap[fmt.Sprintf("%v@%v", v, fqdn)] = true
+		if strings.Contains(v, "@") {
+			ignoreMap[v] = true
+		} else {
+			ignoreMap[fmt.Sprintf("%v@%v", v, fqdn)] = true
+		}
 	}
 	for username, user := range existingUsers {
 		if _, ok := ignoreMap[user.Email]; !ok {
@@ -320,8 +327,14 @@ func resolveMembers(
 
 	membersToCreate := map[string]map[string]bool{}
 
+	
 	for gname, members := range memberships {
 		membersToCreate[gname] = make(map[string]bool)
+
+		// Ignore machine users
+		for _, username := range ignoredUsers {
+			delete(members, username)
+		}
 		for username, _ := range authGroups[gname] {
 			// Remove authorized members from maybeDelete
 			if _, ok := members[username]; ok {
