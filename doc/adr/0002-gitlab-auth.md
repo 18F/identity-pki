@@ -2,7 +2,7 @@
 
 > Use Login for authenticating users on our CI/CD tooling.
 
-__Status__: Implemented in [][impl]
+__Status__: Implemented in [https://github.com/18F/identity-devops/pull/3815][impl]
 
 ## Context
 
