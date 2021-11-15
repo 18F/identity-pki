@@ -24,5 +24,5 @@ resource "aws_lambda_permission" "config_access_key_rotation_lambda_permission" 
   function_name = aws_lambda_function.config_access_key_rotation_lambda.function_name
   action        = "lambda:InvokeFunction"
   principal     = "sns.amazonaws.com"
-  source_arn    = aws_sns_topic.config_access_key_rotation_topic.arn # Adjust with existing sns topic
+  source_arn    = "${data.aws_sns_topic.config_access_key_rotation_topic.arn}"
 }
