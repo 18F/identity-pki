@@ -38,7 +38,7 @@ resource "aws_ssm_document" "config_access_key_rotation_ssm_doc" {
           DocumentName: AWS-PublishSNSNotification
           RuntimeParameters:
             TopicArn: "${aws_sns_topic.config_access_key_rotation_topic.arn}"
-            Message: Account "{{global:ACCOUNT_ID}}" User "{{resolveUsername.configUserName}}" needs to rotate their Access Key
+            Message: {"Account": "{{global:ACCOUNT_ID}}", "User": "{{resolveUsername.configUserName}}", "Reason": "needs to rotate their Access Key"}
     outputs:
       - resolveUsername.configUserName
 DOC

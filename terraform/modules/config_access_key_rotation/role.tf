@@ -1,4 +1,3 @@
-# Setup IAM role for Lambda
 data "aws_iam_policy_document" "config_access_key_rotation_ssm_policy" {
   statement {
     actions = ["sts:AssumeRole"]
@@ -22,77 +21,49 @@ data "aws_iam_policy_document" "config_access_key_rotation_lambda_policy" {
 }
 
 resource "aws_iam_role" "config_access_key_rotation_remediation_role" {
-  name                = "${var.config_access_key_rotation_name}-role"
-  path                = "/"
-  assume_role_policy  = data.aws_iam_policy_document.config_access_key_rotation_ssm_policy.json
-  managed_policy_arns = ["arn:aws:iam::aws:policy/service-role/AmazonSSMAutomationRole"]
-
-  inline_policy {
-    name = "${var.config_access_key_rotation_name}-resource-policy"
-
-    policy = jsonencode(
-      {
-        Version = "2012-10-17"
-        Statement = [
-          {
-            Effect   = "Allow"
-            Action   = "config:ListDiscoveredResources"
-            Resource = "*"
-          }
-        ]
-    })
-  }
-
-  inline_policy {
-    name = "${var.config_access_key_rotation_name}-sns-policy"
-
-    policy = jsonencode(
-      {
-        Version = "2012-10-17"
-        Statement = [
-          {
-            Effect   = "Allow"
-            Action   = "sns:Publish"
-            Resource = "${aws_sns_topic.config_access_key_rotation_topic.arn}"
-          }
-        ]
-    })
-  }
+  name               = "${var.config_access_key_rotation_name}-ssm-role"
+  path               = "/"
+  assume_role_policy = data.aws_iam_policy_document.config_access_key_rotation_ssm_policy.json
 }
 
 resource "aws_iam_role" "config_access_key_rotation_lambda_role" {
   name               = "${var.config_access_key_rotation_name}-lambda-role"
   path               = "/"
   assume_role_policy = data.aws_iam_policy_document.config_access_key_rotation_lambda_policy.json
-  managed_policy_arns = [
-    "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
-    "arn:aws:iam::aws:policy/AWSLambdaInvocation-DynamoDB"
-  ]
+}
 
-  inline_policy {
-    name = "${var.config_access_key_rotation_name}-lambda-policy"
-
-    policy = jsonencode(
-      {
-        Version = "2012-10-17"
-        Statement = [
-          {
-            Action = [
-              "dynamodb:PutItem",
-              "dynamodb:BatchWriteItem"
-            ]
-            Effect   = "Allow"
-            Resource = "*"
-          },
-          {
-            Action = [
-              "ses:SendEmail",
-              "ses:SendRawEmail"
-            ]
-            Effect   = "Allow"
-            Resource = "*"
-          }
-        ]
-    })
+data "aws_iam_policy_document" "config_access_key_rotation_ssm_access" {
+  statement {
+    sid       = "${local.accesskeyrotation_name_iam}ResourceAccess"
+    effect    = "Allow"
+    actions   = ["config:ListDiscoveredResources"]
+    resources = ["*"]
   }
+  statement {
+    sid       = "${local.accesskeyrotation_name_iam}SNSAccess"
+    effect    = "Allow"
+    actions   = ["sns:Publish"]
+    resources = [aws_sns_topic.config_access_key_rotation_topic.arn] # Changes the sns topic to the existing topic
+  }
+}
+
+resource "aws_iam_policy" "config_access_key_rotation_ssm_access" {
+  name        = "${var.config_access_key_rotation_name}-ssm-policy"
+  description = "Policy for ${var.config_access_key_rotation_name}-ssm access"
+  policy      = data.aws_iam_policy_document.config_access_key_rotation_ssm_access.json
+}
+
+resource "aws_iam_role_policy_attachment" "config_access_key_rotation_remediation" {
+  role       = aws_iam_role.config_access_key_rotation_remediation_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonSSMAutomationRole"
+}
+
+resource "aws_iam_role_policy_attachment" "config_access_key_rotation_ssm_access" {
+  role       = aws_iam_role.config_access_key_rotation_remediation_role.name
+  policy_arn = aws_iam_policy.config_access_key_rotation_ssm_access.arn
+}
+
+resource "aws_iam_role_policy_attachment" "config_access_key_rotation_lambda" {
+  role       = aws_iam_role.config_access_key_rotation_lambda_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }

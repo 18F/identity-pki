@@ -12,8 +12,3 @@ output "config_access_key_rotation_rule" {
   description = "The AWS Config Rule that was enabled"
   value       = aws_config_config_rule.config_access_key_rotation_rule.name
 }
-
-output "config_access_key_rotation_topic" {
-  description = "The SNS Topic that was created"
-  value       = aws_sns_topic.config_access_key_rotation_topic.arn
-}

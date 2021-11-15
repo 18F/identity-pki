@@ -1,26 +1,17 @@
 variable "config_access_key_rotation_name" {
-  type = string
-}
-
-variable "account_id" {
+  description = "Name of the Config access key rotation, used to name other resources"
   type        = string
-  description = "AWS Account ID"
+  default     = "cfg-access-key-rotation"
 }
 
-variable "aws_region" {
-  type        = string
-  description = "AWS Region"
-}
-
-variable "config_access_key_rotation_accounts" {
-  type        = list(string)
-  description = "Enter the account ID's for the iam policy principal."
+variable "region" {
+  default = "us-west-2"
 }
 
 variable "config_access_key_rotation_frequency" {
   type        = string
   description = "The frequency that you want AWS Config to run evaluations for the rule."
-  default     = "One_Hour"
+  default     = "Six_Hours"
 }
 
 variable "config_access_key_rotation_max_key_age" {
@@ -31,5 +22,6 @@ variable "config_access_key_rotation_max_key_age" {
 
 variable "config_access_key_rotation_code" {
   type        = string
-  description = "Enter the path of the compressed lambda source code. e.g: (../keys/src/config-access-key-rotation.zip)"
+  description = "Path of the compressed lambda source code."
+  default     = "src/config-access-key-rotation.zip"
 }
