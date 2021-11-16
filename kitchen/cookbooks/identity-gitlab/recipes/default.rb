@@ -29,6 +29,7 @@ gitlab_device = "/dev/xvdh"
 gitlab_real_device = "/dev/nvme3n1"
 aws_region = node['ec2']['region']
 backup_s3_bucket = "gitlab-#{node.chef_environment}-backup"
+postgres_version = "13"
 
 execute "mount_gitaly_volume" do
   command "aws ec2 attach-volume --device #{gitaly_device} --instance-id #{node['ec2']['instance_id']} --volume-id #{gitaly_ebs_volume} --region #{aws_region}"
@@ -127,6 +128,7 @@ template '/etc/gitlab/gitlab.rb' do
     variables ({
         aws_region: aws_region,
         backup_s3_bucket: backup_s3_bucket,
+        postgres_version: postgres_version,
         external_url: external_url,
         db_password: db_password,
         db_host: db_host,
