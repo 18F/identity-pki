@@ -323,7 +323,6 @@ gitlab_rails['object_store']['objects']['dependency_proxy']['bucket'] = 'gitlab-
 gitlab_rails['object_store']['objects']['terraform_state']['bucket'] = 'gitlab-<%= node.chef_environment %>-terraform-state'
 gitlab_rails['object_store']['objects']['pages']['bucket'] = 'gitlab-<%= node.chef_environment %>-pages'
 
-
 ### Job Artifacts
 # gitlab_rails['artifacts_enabled'] = true
 # gitlab_rails['artifacts_path'] = "/var/opt/gitlab/gitlab-rails/shared/artifacts"
@@ -578,15 +577,15 @@ gitlab_rails['omniauth_providers'] = [
 ###! The duration in seconds to keep backups before they are allowed to be deleted
 # gitlab_rails['backup_keep_time'] = 604800
 
-# gitlab_rails['backup_upload_connection'] = {
-#   'provider' => 'AWS',
-#   'region' => 'eu-west-1',
-#   'aws_access_key_id' => 'AKIAKIAKI',
-#   'aws_secret_access_key' => 'secret123',
-#   # # If IAM profile use is enabled, remove aws_access_key_id and aws_secret_access_key
-#   'use_iam_profile' => false
-# }
-# gitlab_rails['backup_upload_remote_directory'] = 'my.s3.bucket'
+gitlab_rails['backup_upload_connection'] = {
+	'provider' => 'AWS',
+	'region' => 'eu-west-1',
+	#   'aws_access_key_id' => 'AKIAKIAKI',
+  #   'aws_secret_access_key' => 'secret123',
+  #   # # If IAM profile use is enabled, remove aws_access_key_id and aws_secret_access_key
+  'use_iam_profile' => true
+}
+gitlab_rails['backup_upload_remote_directory'] = 'gitlab-<%= node.chef_environment %>-backup'
 # gitlab_rails['backup_multipart_chunk_size'] = 104857600
 
 ###! **Turns on AWS Server-Side Encryption with Amazon S3-Managed Keys for
