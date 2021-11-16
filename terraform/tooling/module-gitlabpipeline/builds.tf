@@ -64,6 +64,7 @@ phases:
   build:
     commands:
       - cd terraform/
+      - unset AWS_PROFILE
       - export AWS_STS_REGIONAL_ENDPOINTS=regional
       - roledata=$(aws sts assume-role --role-arn "arn:aws:iam::${var.account}:role/AutoTerraform" --role-session-name "auto-tf-gitlab-plan-${var.cluster_name}")
       - export AWS_ACCESS_KEY_ID=$(echo $roledata | jq -r .Credentials.AccessKeyId)
@@ -163,6 +164,7 @@ phases:
   build:
     commands:
       - cd terraform
+      - unset AWS_PROFILE
       - export AWS_STS_REGIONAL_ENDPOINTS=regional
       - roledata=$(aws sts assume-role --role-arn "arn:aws:iam::${var.account}:role/AutoTerraform" --role-session-name "auto-tf-gitlab-apply-${var.cluster_name}")
       - export AWS_ACCESS_KEY_ID=$(echo $roledata | jq -r .Credentials.AccessKeyId)
@@ -250,6 +252,7 @@ phases:
 
   build:
     commands:
+      - unset AWS_PROFILE
       - export AWS_STS_REGIONAL_ENDPOINTS=regional
       - roledata=$(aws sts assume-role --role-arn "arn:aws:iam::${var.account}:role/AutoTerraform" --role-session-name "auto-tf-gitlab-apply-${var.cluster_name}")
       - export AWS_ACCESS_KEY_ID=$(echo $roledata | jq -r .Credentials.AccessKeyId)
