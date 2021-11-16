@@ -66,16 +66,14 @@ execute 'configure_gitlab_runner' do
 	  --url '#{external_url}' \
 	  --registration-token '#{runner_token}' \
 	  --executor docker \
+	  --env HTTP_PROXY=http://obproxy.login.gov.internal:3128 \
+	  --env HTTPS_PROXY=http://obproxy.login.gov.internal:3128 \
 	  --docker-image alpine:latest \
 	  --tag-list 'docker,aws' \
 	  --run-untagged=true \
 	  --locked=false \
 	  --access-level=not_protected
   "
-  environment ({
-  	'HTTP_PROXY' => 'http://obproxy.login.gov.internal:3128',
-  	'HTTPS_PROXY' => 'http://obproxy.login.gov.internal:3128',
-  })
   sensitive true
   notifies :run, 'execute[restart_runner]', :immediate
 end
