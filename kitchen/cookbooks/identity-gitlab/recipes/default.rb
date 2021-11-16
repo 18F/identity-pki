@@ -162,5 +162,5 @@ end
 
 cron_d 'gitlab_backup_create' do
   predefined_value "@daily"
-  command gitlab-backup create
+  command "gitlab-backup create"
 end
