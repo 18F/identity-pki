@@ -1,4 +1,4 @@
-module github.com/18F/identity-gitlab
+module github.com/18F/identity-devops/terraform/gitlab/tests
 
 go 1.16
 
