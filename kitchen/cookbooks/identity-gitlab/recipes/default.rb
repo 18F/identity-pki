@@ -27,14 +27,13 @@ gitaly_real_device = "/dev/nvme2n1"
 gitlab_ebs_volume = ConfigLoader.load_config(node, "gitlab_ebs_volume", common: false).chomp
 gitlab_device = "/dev/xvdh"
 gitlab_real_device = "/dev/nvme3n1"
-aws_region = "#{node['ec2']['region']}"
 
 execute "mount_gitaly_volume" do
-  command "aws ec2 attach-volume --device #{gitaly_device} --instance-id #{node['ec2']['instance_id']} --volume-id #{gitaly_ebs_volume} --region #{aws_region}"
+  command "aws ec2 attach-volume --device #{gitaly_device} --instance-id #{node['ec2']['instance_id']} --volume-id #{gitaly_ebs_volume} --region #{node['ec2']['region']}"
 end
 
 execute "mount_gitlab_volume" do
-  command "aws ec2 attach-volume --device #{gitlab_device} --instance-id #{node['ec2']['instance_id']} --volume-id #{gitlab_ebs_volume} --region #{aws_region}"
+  command "aws ec2 attach-volume --device #{gitlab_device} --instance-id #{node['ec2']['instance_id']} --volume-id #{gitlab_ebs_volume} --region #{node['ec2']['region']}"
 end
 
 include_recipe 'filesystem'
@@ -124,7 +123,6 @@ template '/etc/gitlab/gitlab.rb' do
     group 'root'
     mode '0600'
     variables ({
-        aws_region: aws_region,
         backup_s3_bucket: backup_s3_bucket,
         external_url: external_url,
         db_password: db_password,
