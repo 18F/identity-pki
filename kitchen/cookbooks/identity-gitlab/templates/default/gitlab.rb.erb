@@ -585,7 +585,7 @@ gitlab_rails['backup_upload_connection'] = {
   #   # # If IAM profile use is enabled, remove aws_access_key_id and aws_secret_access_key
   'use_iam_profile' => true
 }
-gitlab_rails['backup_upload_remote_directory'] = 'gitlab-<%= node.chef_environment %>-backup'
+gitlab_rails['backup_upload_remote_directory'] = '<%= @backup_s3_bucket %>'
 # gitlab_rails['backup_multipart_chunk_size'] = 104857600
 
 ###! **Turns on AWS Server-Side Encryption with Amazon S3-Managed Keys for
