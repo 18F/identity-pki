@@ -28,7 +28,7 @@ gitlab_ebs_volume = ConfigLoader.load_config(node, "gitlab_ebs_volume", common: 
 gitlab_device = "/dev/xvdh"
 gitlab_real_device = "/dev/nvme3n1"
 aws_region = node['ec2']['region']
-backup_s3_bucket = "gitlab-#{node.chef_environment}-backup"
+backup_s3_bucket = "gitlab-#{node.chef_environment}-backups"
 postgres_version = "13"
 
 execute "mount_gitaly_volume" do
