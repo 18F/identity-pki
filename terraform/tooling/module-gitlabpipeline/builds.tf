@@ -64,14 +64,13 @@ phases:
   build:
     commands:
       - cd terraform/
-      - unset AWS_PROFILE
       - export AWS_STS_REGIONAL_ENDPOINTS=regional
       - roledata=$(aws sts assume-role --role-arn "arn:aws:iam::${var.account}:role/AutoTerraform" --role-session-name "auto-tf-gitlab-plan-${var.cluster_name}")
       - export AWS_ACCESS_KEY_ID=$(echo $roledata | jq -r .Credentials.AccessKeyId)
       - export AWS_SECRET_ACCESS_KEY=$(echo $roledata | jq -r .Credentials.SecretAccessKey)
       - export AWS_SESSION_TOKEN=$(echo $roledata | jq -r .Credentials.SessionToken)
       - export AWS_REGION=${var.region}
-      - 
+      -
       - aws eks update-kubeconfig --name "${var.cluster_name}"
       - terraform init -backend-config=bucket=${local.state_bucket} -backend-config=key=${local.tf_config_key} -backend-config=dynamodb_table=eks_terraform_locks -backend-config=region=${var.state_bucket_region}
       - terraform plan -lock-timeout=180s -out /plan.tfplan ${local.vars_files} 2>&1 | cat -n | tee /plan.out
@@ -164,14 +163,13 @@ phases:
   build:
     commands:
       - cd terraform
-      - unset AWS_PROFILE
       - export AWS_STS_REGIONAL_ENDPOINTS=regional
       - roledata=$(aws sts assume-role --role-arn "arn:aws:iam::${var.account}:role/AutoTerraform" --role-session-name "auto-tf-gitlab-apply-${var.cluster_name}")
       - export AWS_ACCESS_KEY_ID=$(echo $roledata | jq -r .Credentials.AccessKeyId)
       - export AWS_SECRET_ACCESS_KEY=$(echo $roledata | jq -r .Credentials.SecretAccessKey)
       - export AWS_SESSION_TOKEN=$(echo $roledata | jq -r .Credentials.SessionToken)
       - export AWS_REGION="${var.region}"
-      - 
+      -
       - aws eks update-kubeconfig --name "${var.cluster_name}"
       - terraform init -backend-config=bucket=${local.state_bucket} -backend-config=key=${local.tf_config_key} -backend-config=dynamodb_table=eks_terraform_locks -backend-config=region=${var.state_bucket_region}
       - terraform apply -auto-approve -lock-timeout=180s $CODEBUILD_SRC_DIR_gitlab_${var.cluster_name}_plan_output/plan.tfplan
@@ -252,7 +250,6 @@ phases:
 
   build:
     commands:
-      - unset AWS_PROFILE
       - export AWS_STS_REGIONAL_ENDPOINTS=regional
       - roledata=$(aws sts assume-role --role-arn "arn:aws:iam::${var.account}:role/AutoTerraform" --role-session-name "auto-tf-gitlab-apply-${var.cluster_name}")
       - export AWS_ACCESS_KEY_ID=$(echo $roledata | jq -r .Credentials.AccessKeyId)
