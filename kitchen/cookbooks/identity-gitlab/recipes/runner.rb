@@ -72,6 +72,10 @@ execute 'configure_gitlab_runner' do
 	  --locked=false \
 	  --access-level=not_protected
   "
+  environment ({
+  	'HTTP_PROXY' => 'http://obproxy.login.gov.internal:3128',
+  	'HTTPS_PROXY' => 'http://obproxy.login.gov.internal:3128',
+  })
   sensitive true
   notifies :run, 'execute[restart_runner]', :immediate
 end
