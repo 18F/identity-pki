@@ -2,8 +2,4 @@
 
 If you are new here, start with the [Getting Started Guide](getting-started.md).
 
-This directory contains documentation for `identity-devops`.
-
-When adding new documentation here, please keep file and directory
-names sufficiently descriptive that we can minimize the number of
-index pages or README links that we have to maintain.
+Most documentation for `identity-devops` lives in the [wiki](https://github.com/18F/identity-devops/wiki). This directory contains documentation that we want to keep in source control for `identity-devops`.

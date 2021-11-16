@@ -3,12 +3,13 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/xanzy/go-gitlab"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
 	"os"
 	"strings"
+
+	"github.com/xanzy/go-gitlab"
+	"gopkg.in/yaml.v2"
 )
 
 const gitlabTokenEnvVar = "GITLAB_API_TOKEN"
@@ -309,7 +310,7 @@ func resolveGroups(
 		groupsToDelete[k] = v
 	}
 
-	for ag, _ := range authGroups {
+	for ag := range authGroups {
 		if _, ok := gitlabGroups[ag]; ok {
 			delete(groupsToDelete, ag)
 			continue
@@ -327,7 +328,6 @@ func resolveMembers(
 
 	membersToCreate := map[string]map[string]bool{}
 
-	
 	for gname, members := range memberships {
 		membersToCreate[gname] = make(map[string]bool)
 
@@ -335,7 +335,7 @@ func resolveMembers(
 		for _, username := range ignoredUsers {
 			delete(members, username)
 		}
-		for username, _ := range authGroups[gname] {
+		for username := range authGroups[gname] {
 			// Remove authorized members from maybeDelete
 			if _, ok := members[username]; ok {
 				delete(members, username)
@@ -393,7 +393,7 @@ func unblockUsers(gitc *gitlab.Client, usersToUnblock map[string]*gitlab.User) e
 }
 
 func createUsers(gitc *gitlab.Client, usersToCreate map[string]bool) error {
-	for username, _ := range usersToCreate {
+	for username := range usersToCreate {
 		if check {
 			log.Fatalf("User %v should exist, but doesn't.", username)
 		}
@@ -421,7 +421,7 @@ func createUsers(gitc *gitlab.Client, usersToCreate map[string]bool) error {
 }
 
 func createGroups(gitc *gitlab.Client, groupsToCreate map[string]bool) error {
-	for gname, _ := range groupsToCreate {
+	for gname := range groupsToCreate {
 		if check {
 			log.Fatalf("Group %v should exist, but doesn't.", gname)
 		}
@@ -460,7 +460,7 @@ func deleteGroups(gitc *gitlab.Client, groupsToDelete map[string]*gitlab.Group) 
 
 func createMemberships(gitc *gitlab.Client, membersToCreate map[string]map[string]bool) error {
 	for groupName, members := range membersToCreate {
-		for memberName, _ := range members {
+		for memberName := range members {
 			if check {
 				log.Fatalf("Member %v should exist in %v, but doesn't.", memberName, groupName)
 			}
@@ -484,7 +484,7 @@ func createMemberships(gitc *gitlab.Client, membersToCreate map[string]map[strin
 
 func deleteMemberships(gitc *gitlab.Client, membersToDelete map[string]map[string]bool) error {
 	for groupName, members := range membersToDelete {
-		for memberName, _ := range members {
+		for memberName := range members {
 			if check {
 				log.Fatalf("Member %v shouldn't exist in %v, but does.", memberName, groupName)
 			}
@@ -493,7 +493,7 @@ func deleteMemberships(gitc *gitlab.Client, membersToDelete map[string]map[strin
 				continue
 			}
 			groupID := idCache[fmt.Sprintf("group:%v", groupName)]
-			userID :=  idCache[fmt.Sprintf("user:%v", memberName)]
+			userID := idCache[fmt.Sprintf("user:%v", memberName)]
 			_, err := gitc.GroupMembers.RemoveGroupMember(groupID, userID)
 			if err != nil {
 				return err

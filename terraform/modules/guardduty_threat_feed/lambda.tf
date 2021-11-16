@@ -1,11 +1,17 @@
+data "archive_file" "guardduty_lambda_function" {
+  type        = "zip"
+  source_file = "${path.module}/lambda_function.py"
+  output_path = "${path.module}/${var.guardduty_threat_feed_code}"
+}
+
 resource "aws_lambda_function" "guardduty_threat_feed_lambda" {
-  filename      = "${path.module}/${var.guardduty_threat_feed_code}"
+  filename      = data.archive_file.guardduty_lambda_function.output_path
   function_name = "${var.guardduty_threat_feed_name}-function"
   role          = aws_iam_role.guardduty_threat_feed_lambda_role.arn
   description   = "GuardDuty Threat Feed Function"
   handler       = "lambda_function.lambda_handler"
 
-  source_code_hash = filebase64sha256("${path.module}/${var.guardduty_threat_feed_code}")
+  source_code_hash = data.archive_file.guardduty_lambda_function.output_base64sha256
   memory_size      = "3008"
   runtime          = "python3.8"
   timeout          = "300"
