@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -249,4 +250,25 @@ func TestDockerWorking(t *testing.T) {
 	cmd := "docker pull alpine:latest"
 	result := RunCommandOnInstances(t, firstinstance, cmd)
 	require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed: "+*result.StandardOutputContent)
+}
+
+// This makes sure that the proper ssh key is installed
+func TestSshKey(t *testing.T) {
+	asgName := env_name + "-gitlab"
+
+	// make sure the keys are the same
+	instances := aws.GetInstanceIdsForAsg(t, asgName, region)
+	firstinstance := instances[0:1]
+	cmd := "tar xOzf /etc/gitlab/etc_ssh.tar.gz ssh/ssh_host_ecdsa_key.pub"
+	tarfileresult := RunCommandOnInstances(t, firstinstance, cmd)
+	require.Equal(t, int64(0), *tarfileresult.ResponseCode, cmd+" failed: "+*tarfileresult.StandardOutputContent)
+	cmd = "cat /etc/ssh/ssh_host_ecdsa_key.pub"
+	fileresult := RunCommandOnInstances(t, firstinstance, cmd)
+	require.Equal(t, int64(0), *fileresult.ResponseCode, cmd+" failed: "+*fileresult.StandardOutputContent)
+	require.Equal(t, *tarfileresult.StandardOutputContent, *fileresult.StandardOutputContent, "ssh key is not the same as the archived ssh key")
+
+	// check against live sshd
+	cmd = "ssh-keyscan localhost | grep ecdsa | awk '{print $3}'"
+	result := RunCommandOnInstances(t, firstinstance, cmd)
+	require.Contains(t, *tarfileresult.StandardOutputContent, strings.TrimSpace(*result.StandardOutputContent), "archived ssh key was not the same as the running sshd key")
 }
