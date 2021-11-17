@@ -710,5 +710,5 @@ variable "cloudwatch_log_group_name" {
 
 variable "send_cw_to_soc" {
   type    = string
-  default = "1"
+  default = "0"
 }
