@@ -698,7 +698,7 @@ variable "idp_ial2_sp_dashboards" {
 
 variable "soc_destination_arn" {
   type    = string
-  default = "arn:aws:logs:us-west-2:752281881774:destination:elp-cloudtrail-lg" #Pointing to POC SOC arn. Please check before deploying
+  default = "arn:aws:logs:us-west-2:752281881774:destination:elp-os-lg" #Pointing to  SOC arn. Please check before deploying
 }
 
 variable "cloudwatch_log_group_name" {
@@ -706,4 +706,9 @@ variable "cloudwatch_log_group_name" {
   default = {
     # map of logs to be shipped,with filter pattern, key is log name, value is filter pattern with " " denoting send all events
   }
+}
+
+variable "send_cw_to_soc" {
+  type    = string
+  default = "1"
 }
