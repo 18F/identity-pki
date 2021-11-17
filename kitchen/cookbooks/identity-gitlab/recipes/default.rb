@@ -138,10 +138,23 @@ template '/etc/gitlab/gitlab.rb' do
     notifies :run, 'execute[reconfigure_gitlab]', :delayed
 end
 
+execute 'restore_ssh_keys' do
+  command 'tar zxvf /etc/gitlab/etc_ssh.tar.gz'
+  cwd '/etc'
+  only_if File.exists('/etc/gitlab/etc_ssh.tar.gz')
+  notifies :run, 'execute[restart_sshd]', :delayed
+end
+
 template '/etc/ssh/sshd_config' do
   source 'sshd_config.erb'
   mode  '0600'
   notifies :run, 'execute[restart_sshd]', :delayed
+end
+
+execute 'backup_ssh_keys' do
+  command 'tar czf /etc/gitlab/etc_ssh.tar.gz ssh'
+  cwd '/etc'
+  only_if !File.exists('/etc/gitlab/etc_ssh.tar.gz')
 end
 
 execute 'reconfigure_gitlab' do
