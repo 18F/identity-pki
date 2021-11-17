@@ -1,7 +1,7 @@
 module "log-ship-to-soc-cloudtrail-logs" {
   source                              = "../../modules/log_ship_to_soc"
   region                              = "us-west-2"
-  cloudwatch_subscription_filter_name = "log-ship"
+  cloudwatch_subscription_filter_name = "log-ship-to-soc"
   cloudwatch_log_group_name = {
     "CloudTrail/DefaultLogGroup" = " "
   }
