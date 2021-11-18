@@ -99,8 +99,8 @@ resource "aws_s3_bucket" "gitlab_buckets" {
   }
 }
 
-resource "aws_s3control_bucket_lifecycle_configuration" "backups" {
-  bucket = aws_s3control_bucket.gitlab_buckets["gitlab-${var.env_name}-backups"].arn
+resource "aws_s3_control_bucket_lifecycle_configuration" "backups" {
+  bucket = aws_s3_bucket.gitlab_buckets["gitlab-${var.env_name}-backups"].arn
 
   rule {
     expiration {
