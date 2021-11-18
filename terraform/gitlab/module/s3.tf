@@ -105,16 +105,13 @@ resource "aws_s3control_bucket_lifecycle_configuration" "backups" {
   rule {
     expiration {
       days = 30
+
+      abort_incomplete_multipart_upload_days {
+        days_after_initiation = 30
+      }
     }
 
-    abort_incomplete_multipart_upload_days {
-      days = 30
-    }
-
-    noncurrent_version_expiration {
-      days = 1
-    }
-
-    id = "expire-backups"
+    id     = "expire-backups"
+    status = enabled
   }
 }
