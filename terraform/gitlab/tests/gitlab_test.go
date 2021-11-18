@@ -119,6 +119,7 @@ func TestRunnerRunning(t *testing.T) {
 func TestGitlabS3buckets(t *testing.T) {
 	bucketlist := [...]string{
 		"gitlab-" + env_name + "-artifacts",
+		"gitlab-" + env_name + "-backups",
 		"gitlab-" + env_name + "-external-diffs",
 		"gitlab-" + env_name + "-lfs-objects",
 		"gitlab-" + env_name + "-uploads",
