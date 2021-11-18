@@ -111,7 +111,7 @@ resource "aws_s3control_bucket_lifecycle_configuration" "backups" {
       }
     }
 
-    id     = "expire-backups"
-    status = enabled
+    id      = "expire-backups"
+    enabled = true
   }
 }
