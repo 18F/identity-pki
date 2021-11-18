@@ -85,7 +85,7 @@ end
 case node[:platform_version]
 when '16.04'
   template '/etc/network/interfaces.d/lo:1.cfg' do
-    source 'lo:1.cfg.erb'
+    source 'lo1.cfg.erb'
     variables({
       :eip => node['cloud']['public_ipv4']
     })
