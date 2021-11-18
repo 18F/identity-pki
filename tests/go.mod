@@ -1,4 +1,4 @@
-module github.com/18F/identity-devops
+module github.com/18F/identity-devops/tests
 
 go 1.15
 

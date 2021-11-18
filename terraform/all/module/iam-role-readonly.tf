@@ -360,6 +360,7 @@ module "readonly-assumerole" {
           sid    = "Inspector"
           effect = "Allow"
           actions = [
+            "inspector:Describe*",
             "inspector:List*",
             "inspector:PreviewAgents",
             "inspector:Get*",
