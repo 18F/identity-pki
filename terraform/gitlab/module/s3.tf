@@ -102,16 +102,14 @@ resource "aws_s3_bucket" "gitlab_buckets" {
 resource "aws_s3control_bucket_lifecycle_configuration" "backups" {
   bucket = aws_s3_bucket.gitlab_buckets["gitlab-${var.env_name}-backups"].arn
 
+
   rule {
-    expiration {
-      days = 30
-
-      abort_incomplete_multipart_upload_days {
-        days_after_initiation = 30
-      }
-    }
-
     id      = "expire-backups"
     enabled = true
+
+    expiration {
+      days = 30
+      expired_object_delete_marker = true
+    }
   }
 }
