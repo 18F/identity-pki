@@ -90,3 +90,50 @@ data "aws_iam_policy_document" "auto_eip_policy" {
     ]
   }
 }
+
+# Policy to allow gitlab access to s3 buckets
+resource "aws_iam_role_policy" "gitlab-s3buckets" {
+  name   = "${var.env_name}-gitlab-s3buckets"
+  role   = aws_iam_role.gitlab.id
+  policy = <<EOM
+{
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": ["s3:ListBucket"],
+        "Resource": [
+          "arn:aws:s3:::gitlab-${var.env_name}-artifacts",
+          "arn:aws:s3:::gitlab-${var.env_name}-backups",
+          "arn:aws:s3:::gitlab-${var.env_name}-external-diffs",
+          "arn:aws:s3:::gitlab-${var.env_name}-lfs-objects",
+          "arn:aws:s3:::gitlab-${var.env_name}-uploads",
+          "arn:aws:s3:::gitlab-${var.env_name}-packages",
+          "arn:aws:s3:::gitlab-${var.env_name}-dependency-proxy",
+          "arn:aws:s3:::gitlab-${var.env_name}-terraform-state",
+          "arn:aws:s3:::gitlab-${var.env_name}-pages"
+        ]
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "s3:PutObject",
+          "s3:GetObject",
+          "s3:DeleteObject"
+        ],
+        "Resource": [
+          "arn:aws:s3:::gitlab-${var.env_name}-artifacts/*",
+          "arn:aws:s3:::gitlab-${var.env_name}-backups/*",
+          "arn:aws:s3:::gitlab-${var.env_name}-external-diffs/*",
+          "arn:aws:s3:::gitlab-${var.env_name}-lfs-objects/*",
+          "arn:aws:s3:::gitlab-${var.env_name}-uploads/*",
+          "arn:aws:s3:::gitlab-${var.env_name}-packages/*",
+          "arn:aws:s3:::gitlab-${var.env_name}-dependency-proxy/*",
+          "arn:aws:s3:::gitlab-${var.env_name}-terraform-state/*",
+          "arn:aws:s3:::gitlab-${var.env_name}-pages/*"
+        ]
+      }
+    ]
+}
+EOM
+}
