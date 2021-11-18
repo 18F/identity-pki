@@ -105,7 +105,6 @@ resource "aws_s3control_bucket_lifecycle_configuration" "backups" {
 
   rule {
     id      = "expire-backups"
-    enabled = true
 
     expiration {
       days = 30
