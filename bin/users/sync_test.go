@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/xanzy/go-gitlab"
 	"testing"
+
+	"github.com/xanzy/go-gitlab"
 
 	"github.com/google/go-cmp/cmp"
 )
@@ -33,13 +34,13 @@ var testResolveUsersData = []struct {
 		},
 		AuthorizedUsers: &AuthorizedUsers{
 			Users: map[string]*AuthUser{
-				"john.doe": &AuthUser{
+				"john.doe": {
 					Aws_groups: []string{"notadev", "atall"},
 				},
-				"alexandra.thegreat": &AuthUser{
+				"alexandra.thegreat": {
 					Aws_groups: []string{"luthier", "devops"},
 				},
-				"new.engineer": &AuthUser{
+				"new.engineer": {
 					Aws_groups: []string{"appdev"},
 				},
 			},
@@ -83,14 +84,14 @@ var testResolveGroupsData = []struct {
 	{
 		Name: "Create/Delete Groups",
 		GitlabGroups: map[string]*gitlab.Group{
-			"lg":        &gitlab.Group{},
-			"vestigial": &gitlab.Group{},
+			"lg":        {},
+			"vestigial": {},
 		},
 		AuthGroups: map[string]map[string]bool{
-			"lg": map[string]bool{
+			"lg": {
 				"user1": true,
 			},
-			"new_admin_group": map[string]bool{
+			"new_admin_group": {
 				"user2": true,
 			},
 		},
@@ -98,7 +99,7 @@ var testResolveGroupsData = []struct {
 			"new_admin_group": true,
 		},
 		WantToDelete: map[string]*gitlab.Group{
-			"vestigial": &gitlab.Group{},
+			"vestigial": {},
 		},
 	},
 }
@@ -122,25 +123,25 @@ var testResolveMembersData = []struct {
 	{
 		Name: "Create/Delete Members",
 		Memberships: map[string]map[string]bool{
-			"lg": map[string]bool{
+			"lg": {
 				"lg_dev": true,
 				"ex_dev": true,
-				"root": true,
+				"root":   true,
 			},
 		},
 		AuthGroups: map[string]map[string]bool{
-			"lg": map[string]bool{
+			"lg": {
 				"lg_dev":  true,
 				"new_dev": true,
 			},
 		},
 		WantToCreate: map[string]map[string]bool{
-			"lg": map[string]bool{
+			"lg": {
 				"new_dev": true,
 			},
 		},
 		WantToDelete: map[string]map[string]bool{
-			"lg": map[string]bool{
+			"lg": {
 				"ex_dev": true,
 			},
 		},
@@ -158,7 +159,7 @@ func TestResolveMembers(t *testing.T) {
 
 func TestGetAuthorizedGroups(t *testing.T) {
 	want := map[string]map[string]bool{
-		"lg": map[string]bool{
+		"lg": {
 			"gitlab.and.group.please": true,
 		},
 	}

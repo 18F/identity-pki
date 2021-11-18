@@ -1,7 +1,6 @@
 package test
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
@@ -50,6 +49,7 @@ func RunCommandOnInstances(t *testing.T, instancestrings []string, command strin
 		InstanceId: instances[0],
 	}
 	err = myssm.WaitUntilCommandExecuted(cmdinvocation)
+	require.NoError(t, err)
 
 	// return output of command
 	cmdoutput, err := myssm.GetCommandInvocation(cmdinvocation)

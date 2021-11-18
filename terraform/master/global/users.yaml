@@ -95,6 +95,9 @@ users:
       - devops
     gitlab_groups:
       - lg
+  kelsey.sinclair:
+    aws_groups:
+      - bizops
   kevin.dayton:
     aws_groups:
       - appdev
@@ -128,6 +131,9 @@ users:
       - socreadonly
     gitlab_groups:
       - lg
+  nathan.wick:
+    aws_groups:
+      - bizops
   oren.kanner:
     aws_groups:
       - appdev
@@ -135,11 +141,20 @@ users:
       - bizops
     gitlab_groups:
       - lg
+  page.levendis:
+    aws_groups:
+      - bizops
   parissa.eggleston:
     aws_groups:
       - appdev
     gitlab_groups:
       - lg
+  patricia.bryan:
+    aws_groups:
+      - bizops
+  patrick.carberry:
+    aws_groups:
+      - bizops
   paul.hirsch:
     aws_groups:
       - devops
