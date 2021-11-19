@@ -22,6 +22,7 @@
 # the /dev/xvdh symlink.  So we are just hardcoding the nvme devices
 # it maps to directly.  WTF Ubuntu?
 gitaly_ebs_volume = ConfigLoader.load_config(node, "gitaly_ebs_volume", common: false).chomp
+config_s3_bucket = "gitlab-#{node.chef_environment}-config"
 gitaly_device = "/dev/xvdg"
 gitaly_real_device = "/dev/nvme2n1"
 gitlab_ebs_volume = ConfigLoader.load_config(node, "gitlab_ebs_volume", common: false).chomp
@@ -179,4 +180,20 @@ end
 cron_d 'gitlab_backup_create' do
   predefined_value "@daily"
   command "gitlab-backup create"
+end
+
+bash 'generate_root_token' do
+  user 'root'
+  cwd  '/tmp'
+  code <<-EOH
+    object_exists=$(aws s3api head-object --bucket #{config_s3_bucket} --key GITLAB_API_TOKEN || true)
+    if [ -z "$object_exists" ]; then
+      echo "Generating Gitlab root token"
+      export GITLAB_API_TOKEN=$(echo openssl rand -base64 20 | head -c 20)
+      echo $GITLAB_API_TOKEN | aws s3 cp - s3://$bucket/$key
+      sudo gitlab-rails runner "token = User.find_by_username('root').personal_access_tokens.create(scopes: [:api], name: 'Automation token'); token.set_token('$GITLAB_API_TOKEN'); token.save!"
+    else
+      echo "Gitlab root token found in S3"
+    fi
+  EOH
 end
