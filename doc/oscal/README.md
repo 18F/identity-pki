@@ -1,3 +1,32 @@
+# Suggested OSCAL workflow
+
+We currently have one [OSCAL profile](./profiles/nist-sp-800-53-rev5-moderate/profile.json) that adheres to a few NIST controls.
+
+Here is a suggested compliance documentation workflow that uses [compliance-trestle](https://github.com/IBM/compliance-trestle):
+
+- Add a control (say, `ac-8`) to the [profile](./profiles/nist-sp-800-53-rev5-moderate/profile.json).
+  - Currently we only support NIST 800 53 controls.
+  - ([CIS](https://www.cisecurity.org/controls/) support is forthcoming.)
+- Run `make generate` to have `trestle` generate the corresponding control statement in Markdown.
+  - Ideally this step would be automated via a CI pipeline.
+- Fill out the implementation detail stubs for that control.
+  - It is OK to leave them blank initially if we are unsure.
+  - We will backfill missing implementation descriptions as we go along.
+  - If we need to link to existing code, please link to high level artifacts with a general description.
+    - Please avoid linking directly to lines of code as these will change over time.
+  - For example, please link to the `identity-gitlab` cookbook instead of line 8 of `http-proxy.conf.erb`.
+- Run `make assemble` to have `trestle` generate the "system security plan" (a bit of a misnomer but it is an hard-coded `trestle` workflow).
+  - The resulting [SSP](./system-security-plans/nist-sp-800-53-rev5-moderate/system-security-plan.json) is an OSCAL documentation with our compliance implementation notes.
+
+## Notes
+
+- We are using JSON primarily because `trestle` YAML support is spotty. We hope this changes in the future.
+- We do not need a lot of features that `trestle` currently offers and we intend to use a small subset of `trestle` features to get us used to a compliance documentation workflow and we will only expand upon this workflow when we have to.
+  - This workflow is intentionally primitive: we generate only the control documentation and fill out the implementation details.
+  - We do not support profile authoring or editing or adding items in the control statement.
+  - This also means that we do not (currently) have plans to actually use the SSP OSCAL file but the SSP is nonetheless is intended to be a final compliance artifact.
+- We also plan to automate link checking and validation via CI pipelines.
+
 # Research summary
 
 As of November 2021, we are exploring the use of [OSCAL](https://pages.nist.gov/OSCAL/) (Open Security Controls Assessment Language) as a way to automate controls documentation and thereby make the compliance process easier for everyone involved.

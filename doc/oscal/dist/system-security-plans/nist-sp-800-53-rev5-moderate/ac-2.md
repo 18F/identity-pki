@@ -56,19 +56,19 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-Add control implementation description here for item ac-2_smt.a
+We have done this because A.
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-Add control implementation description here for item ac-2_smt.b
+We also have done this because B.
 
 ______________________________________________________________________
 
 ## Implementation c.
 
-Add control implementation description here for item ac-2_smt.c
+We might have done this.
 
 ______________________________________________________________________
 
