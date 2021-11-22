@@ -1,6 +1,10 @@
 resource "aws_s3_bucket" "backups" {
-  bucket = "gitlab-${var.env_name}-backups"
-  acl    = "private"
+  bucket                  = "gitlab-${var.env_name}-backups"
+  acl                     = "private"
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 
   versioning {
     enabled = true
@@ -35,8 +39,12 @@ resource "aws_s3_bucket" "backups" {
 }
 
 resource "aws_s3_bucket" "config" {
-  bucket = "gitlab-${var.env_name}-config"
-  acl    = "private"
+  bucket                  = "gitlab-${var.env_name}-config"
+  acl                     = "private"
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 
   versioning {
     enabled = true
@@ -72,8 +80,12 @@ locals {
 resource "aws_s3_bucket" "gitlab_buckets" {
   for_each = toset(local.gitlab_buckets)
 
-  bucket = each.key
-  acl    = "private"
+  bucket                  = each.key
+  acl                     = "private"
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 
   versioning {
     enabled = true
