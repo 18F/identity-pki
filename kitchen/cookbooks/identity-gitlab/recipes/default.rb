@@ -30,6 +30,7 @@ gitlab_device = "/dev/xvdh"
 gitlab_real_device = "/dev/nvme3n1"
 backup_s3_bucket = "gitlab-#{node.chef_environment}-backups"
 postgres_version = "13"
+time = Time.now.strftime("%F-%T").gsub(':','')
 
 execute "mount_gitaly_volume" do
   command "aws ec2 attach-volume --device #{gitaly_device} --instance-id #{node['ec2']['instance_id']} --volume-id #{gitaly_ebs_volume} --region #{aws_region}"
@@ -180,4 +181,9 @@ end
 cron_d 'gitlab_backup_create' do
   predefined_value "@daily"
   command "gitlab-backup create"
+end
+
+cron_d 'gitlab_backup_secrets_create' do
+  predefined_value "@daily"
+  command "aws s3 cp /etc/gitlab/gitlab-secrets.json s3://#{backup_s3_bucket}/gitlab-secrets.json_`date +\%Y-\%m-\%d`"
 end
