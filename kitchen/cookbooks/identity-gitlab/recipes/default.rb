@@ -21,39 +21,15 @@
 # This volume thing is ugly, but xvdg works, but xvdh does not create
 # the /dev/xvdh symlink.  So we are just hardcoding the nvme devices
 # it maps to directly.  WTF Ubuntu?
-
-aws_region = Chef::Recipe::AwsMetadata.get_aws_region
-backup_s3_bucket = "gitlab-#{node.chef_environment}-backups"
-config_s3_bucket = "gitlab-#{node.chef_environment}-config"
-db_host = ConfigLoader.load_config(node, "gitlab_db_host", common: false).chomp
-db_password = ConfigLoader.load_config(node, "gitlab_db_password", common: false).chomp
-email_from = "gitlab@#{external_fqdn}"
-external_fqdn = "gitlab.#{node.chef_environment}.gitlab.identitysandbox.gov"
-external_url = "https://#{external_fqdn}"
-gitaly_device = "/dev/xvdg"
 gitaly_ebs_volume = ConfigLoader.load_config(node, "gitaly_ebs_volume", common: false).chomp
+config_s3_bucket = "gitlab-#{node.chef_environment}-config"
+gitaly_device = "/dev/xvdg"
 gitaly_real_device = "/dev/nvme2n1"
-gitlab_device = "/dev/xvdh"
 gitlab_ebs_volume = ConfigLoader.load_config(node, "gitlab_ebs_volume", common: false).chomp
+gitlab_device = "/dev/xvdh"
 gitlab_real_device = "/dev/nvme3n1"
+backup_s3_bucket = "gitlab-#{node.chef_environment}-backups"
 postgres_version = "13"
-redis_host = ConfigLoader.load_config(node, "gitlab_redis_endpoint", common: false).chomp
-root_password = ConfigLoader.load_config(node, "gitlab_root_password", common: false).chomp
-runner_token = ConfigLoader.load_config(node, "gitlab_runner_token", common: false).chomp
-ses_password = ConfigLoader.load_config(node, "ses_smtp_password", common: true).chomp
-ses_username = ConfigLoader.load_config(node, "ses_smtp_username", common: true).chomp
-smtp_address = "email-smtp.#{aws_region}.amazonaws.com"
-
-# Login.gov SAML parameters
-saml_params = {
-  saml_assertion_consumer_service_url: "#{external_url}/users/auth/saml/callback",
-  saml_idp_cert_fingerprint: ConfigLoader.load_config(node, "saml_idp_cert_fingerprint", common: false).chomp,
-  saml_idp_sso_target_url: 'https://idp.int.identitysandbox.gov/api/saml/auth2021',
-  saml_issuer: "urn:gov:gsa:openidconnect.profiles:sp:sso:login_gov:gitlab_#{node.chef_environment}",
-  saml_name_identifier_format: 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
-  saml_certificate: ConfigLoader.load_config(node, "saml_certificate", common: false).chomp,
-  saml_private_key: ConfigLoader.load_config(node, "saml_private_key", common: false).chomp,
-}
 
 execute "mount_gitaly_volume" do
   command "aws ec2 attach-volume --device #{gitaly_device} --instance-id #{node['ec2']['instance_id']} --volume-id #{gitaly_ebs_volume} --region #{aws_region}"
@@ -94,6 +70,9 @@ package 'gitlab-ee'
 
 directory '/etc/gitlab/ssl'
 
+external_fqdn = "gitlab.#{node.chef_environment}.gitlab.identitysandbox.gov"
+external_url = "https://#{external_fqdn}"
+
 remote_file "Copy cert" do
   path "/etc/gitlab/ssl/#{external_fqdn}.crt"
   source "file:///etc/ssl/certs/server.crt"
@@ -117,6 +96,29 @@ remote_file "rds_ca_bundle" do
   group 'root'
   mode 0644
 end
+
+db_password = ConfigLoader.load_config(node, "gitlab_db_password", common: false).chomp
+db_host = ConfigLoader.load_config(node, "gitlab_db_host", common: false).chomp
+root_password = ConfigLoader.load_config(node, "gitlab_root_password", common: false).chomp
+runner_token = ConfigLoader.load_config(node, "gitlab_runner_token", common: false).chomp
+redis_host = ConfigLoader.load_config(node, "gitlab_redis_endpoint", common: false).chomp
+
+ses_username = ConfigLoader.load_config(node, "ses_smtp_username", common: true).chomp
+ses_password = ConfigLoader.load_config(node, "ses_smtp_password", common: true).chomp
+aws_region = Chef::Recipe::AwsMetadata.get_aws_region
+smtp_address = "email-smtp.#{aws_region}.amazonaws.com"
+email_from = "gitlab@#{external_fqdn}"
+
+# Login.gov SAML parameters
+saml_params = {
+  saml_assertion_consumer_service_url: "#{external_url}/users/auth/saml/callback",
+  saml_idp_cert_fingerprint: ConfigLoader.load_config(node, "saml_idp_cert_fingerprint", common: false).chomp,
+  saml_idp_sso_target_url: 'https://idp.int.identitysandbox.gov/api/saml/auth2021',
+  saml_issuer: "urn:gov:gsa:openidconnect.profiles:sp:sso:login_gov:gitlab_#{node.chef_environment}",
+  saml_name_identifier_format: 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
+  saml_certificate: ConfigLoader.load_config(node, "saml_certificate", common: false).chomp,
+  saml_private_key: ConfigLoader.load_config(node, "saml_private_key", common: false).chomp,
+}
 
 template '/etc/gitlab/gitlab.rb' do
     source 'gitlab.rb.erb'
@@ -178,20 +180,4 @@ end
 cron_d 'gitlab_backup_create' do
   predefined_value "@daily"
   command "gitlab-backup create"
-end
-
-bash 'generate_root_token' do
-  user 'root'
-  cwd  '/tmp'
-  code <<-EOH
-    object_exists=$(aws s3api head-object --bucket #{config_s3_bucket} --key GITLAB_API_TOKEN || true)
-    if [ -z "$object_exists" ]; then
-      echo "Generating Gitlab root token"
-      export GITLAB_API_TOKEN=$(openssl rand -base64 20 | shasum | head -c 20)
-      echo $GITLAB_API_TOKEN | aws s3 cp - s3://$bucket/$key
-      sudo gitlab-rails runner "token = User.find_by_username('root').personal_access_tokens.create(scopes: [:api], name: 'Automation token'); token.set_token('$GITLAB_API_TOKEN'); token.save!"
-    else
-      echo "Gitlab root token found in S3"
-    fi
-  EOH
 end
