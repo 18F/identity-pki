@@ -464,22 +464,22 @@ variable "bootstrap_private_git_clone_url" {
 # though they will have different IDs. They should be updated here at the same
 # time, and then released to environments in sequence.
 variable "default_ami_id_sandbox" {
-  default     = "ami-0730cd0ba0e5d81c9" # 2021-11-04 Ubuntu 18.04
+  default     = "ami-08ee5c052884206b0" # 2021-11-18 Ubuntu 18.04
   description = "default AMI ID for environments in the sandbox account"
 }
 
 variable "default_ami_id_prod" {
-  default     = "ami-0d1de1fbb298b74ff" # 2021-10-31 Ubuntu 18.04
+  default     = "ami-05447c26cf873fb29" # 2021-11-14 Ubuntu 18.04
   description = "default AMI ID for environments in the prod account"
 }
 
 variable "rails_ami_id_sandbox" {
-  default     = "ami-0da235a7444db2574" # 2021-11-04 Ubuntu 18.04
+  default     = "ami-0a9d3dcf1168f89dd" # 2021-11-18 Ubuntu 18.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the sandbox account"
 }
 
 variable "rails_ami_id_prod" {
-  default     = "ami-02b1590f016614697" # 2021-11-04 Ubuntu 18.04
+  default     = "ami-06764b92ed81f7c25" # 2021-11-14 Ubuntu 18.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the prod account"
 }
 
@@ -694,4 +694,21 @@ variable "idp_ial2_sp_dashboards" {
   }))
   description = "Map of values for widgets on IAL2 SP dashboard"
   default     = {}
+}
+
+variable "soc_destination_arn" {
+  type    = string
+  default = "arn:aws:logs:us-west-2:752281881774:destination:elp-os-lg" #Pointing to  SOC arn. Please check before deploying
+}
+
+variable "cloudwatch_log_group_name" {
+  type = map(string)
+  default = {
+    # map of logs to be shipped,with filter pattern, key is log name, value is filter pattern with " " denoting send all events
+  }
+}
+
+variable "send_cw_to_soc" {
+  type    = string
+  default = "0"
 }
