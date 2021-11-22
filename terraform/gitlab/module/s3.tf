@@ -7,18 +7,18 @@ resource "aws_s3_bucket" "backups" {
   }
 
   lifecycle_rule {
-      abort_incomplete_multipart_upload_days = 1
-      id                                     = "expire-backups"
-      enabled                                = true
+    abort_incomplete_multipart_upload_days = 1
+    id                                     = "expire-backups"
+    enabled                                = true
 
-      expiration {
-        days = 30
-      }
-
-      noncurrent_version_expiration {
-        days = 1
-      }
+    expiration {
+      days = 30
     }
+
+    noncurrent_version_expiration {
+      days = 1
+    }
+  }
 
   server_side_encryption_configuration {
     rule {
