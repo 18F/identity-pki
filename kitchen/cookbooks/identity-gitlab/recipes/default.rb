@@ -26,7 +26,6 @@ backup_s3_bucket = "gitlab-#{node.chef_environment}-backups"
 config_s3_bucket = "gitlab-#{node.chef_environment}-config"
 db_host = ConfigLoader.load_config(node, "gitlab_db_host", common: false).chomp
 db_password = ConfigLoader.load_config(node, "gitlab_db_password", common: false).chomp
-email_from = "gitlab@#{external_fqdn}"
 external_fqdn = "gitlab.#{node.chef_environment}.gitlab.identitysandbox.gov"
 gitaly_device = "/dev/xvdg"
 gitaly_ebs_volume = ConfigLoader.load_config(node, "gitaly_ebs_volume", common: false).chomp
@@ -43,6 +42,7 @@ ses_username = ConfigLoader.load_config(node, "ses_smtp_username", common: true)
 smtp_address = "email-smtp.#{aws_region}.amazonaws.com"
 
 #must come after external_fqdn
+email_from = "gitlab@#{external_fqdn}"
 external_url = "https://#{external_fqdn}"
 
 # Login.gov SAML parameters
@@ -94,8 +94,6 @@ end
 package 'gitlab-ee'
 
 directory '/etc/gitlab/ssl'
-
-
 
 remote_file "Copy cert" do
   path "/etc/gitlab/ssl/#{external_fqdn}.crt"
