@@ -28,7 +28,6 @@ db_host = ConfigLoader.load_config(node, "gitlab_db_host", common: false).chomp
 db_password = ConfigLoader.load_config(node, "gitlab_db_password", common: false).chomp
 email_from = "gitlab@#{external_fqdn}"
 external_fqdn = "gitlab.#{node.chef_environment}.gitlab.identitysandbox.gov"
-external_url = "https://#{external_fqdn}"
 gitaly_device = "/dev/xvdg"
 gitaly_ebs_volume = ConfigLoader.load_config(node, "gitaly_ebs_volume", common: false).chomp
 gitaly_real_device = "/dev/nvme2n1"
@@ -42,6 +41,9 @@ runner_token = ConfigLoader.load_config(node, "gitlab_runner_token", common: fal
 ses_password = ConfigLoader.load_config(node, "ses_smtp_password", common: true).chomp
 ses_username = ConfigLoader.load_config(node, "ses_smtp_username", common: true).chomp
 smtp_address = "email-smtp.#{aws_region}.amazonaws.com"
+
+#must come after external_fqdn
+external_url = "https://#{external_fqdn}"
 
 # Login.gov SAML parameters
 saml_params = {
