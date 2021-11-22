@@ -185,3 +185,8 @@ cron_d 'gitlab_backup_secrets_create' do
   predefined_value "@daily"
   command "aws s3 cp /etc/gitlab/gitlab-secrets.json s3://#{backup_s3_bucket}/gitlab-secrets.json_`date +\%Y-\%m-\%d`"
 end
+
+cron_d 'gitlab_backup_gitlabrb_create' do
+  predefined_value "@daily"
+  command "aws s3 cp /etc/gitlab/gitlab.rb s3://#{backup_s3_bucket}/gitlab.rb_`date +\%Y-\%m-\%d`"
+end
