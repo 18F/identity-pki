@@ -176,13 +176,23 @@ execute 'update_gitlab_settings' do
   action :run
 end
 
+file '/etc/gitlab/backup.sh' do
+  content <<-EOF
+    #!/bin/bash
+    # backup github environment
+    gitlab-backup create
+    aws s3 cp /etc/gitlab/gitlab-secrets.json s3://#{backup_s3_bucket}/gitlab-secrets.json
+    aws s3 cp /etc/gitlab/gitlab.rb s3://#{backup_s3_bucket}/gitlab.rb
+    aws s3 cp /etc/ssh/ s3://#{backup_s3_bucket}/ssh --recursive --exclude "*" --include "ssh_host_*"
+    aws s3 cp /etc/gitlab/ssl s3://#{backup_s3_bucket}/ssl --recursive
+    EOF
+  owner 'root'
+  group 'root'
+  mode '0755'
+  action :create
+end
+
 cron_d 'gitlab_backup_create' do
   predefined_value "@daily"
-  command %W{
-    gitlab-backup create;
-    aws s3 cp /etc/gitlab/gitlab-secrets.json s3://#{backup_s3_bucket}/gitlab-secrets.json;
-    aws s3 cp /etc/gitlab/gitlab.rb s3://#{backup_s3_bucket}/gitlab.rb;
-    aws s3 cp /etc/ssh/ s3://#{backup_s3_bucket}/ssh --recursive --exclude "*" --include "ssh_host_*";
-    aws s3 cp /etc/gitlab/ssl s3://#{backup_s3_bucket}/ssl --recursive
-  }.join(' ')
+  command /etc/gitlab/backup.sh
 end

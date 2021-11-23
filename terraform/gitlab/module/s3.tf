@@ -32,6 +32,10 @@ resource "aws_s3_bucket" "backups" {
     Name        = "gitlab-${var.env_name}-config"
     Environment = "${var.env_name}"
   }
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "aws_s3_bucket_public_access_block" "backups_access_block" {
