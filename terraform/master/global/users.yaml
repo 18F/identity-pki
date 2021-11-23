@@ -186,13 +186,6 @@ users:
       - keymasters
     gitlab_groups:
       - lg
-  steven.harms:
-    aws_groups:
-      - devops
-      - secops
-      - socreadonly
-    gitlab_groups:
-      - lg
   thomas.black:
     aws_groups:
       - bizops
