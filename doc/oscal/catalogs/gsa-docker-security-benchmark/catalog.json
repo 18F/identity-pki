@@ -1,9 +1,9 @@
 {
   "catalog": {
-    "uuid": "a269bc5e-6f56-465c-9fe5-66e417d6de0b",
+    "uuid": "0bd29eeb-f215-4ca6-916d-5d48bee205e3",
     "metadata": {
       "title": "GSA Docker Security Benchmark",
-      "last-modified": "2021-11-22T16:20:06.108855-08:00",
+      "last-modified": "2021-11-23T11:50:28.085769-08:00",
       "version": "0.0.1",
       "oscal-version": "1.0.0",
       "remarks": "This catalog is extracted from the GSA Docker Security Benchmark and may not fully comply with CIS baselines."
@@ -12,7 +12,7 @@
       {
         "id": "s1",
         "class": "section",
-        "title": "Host Configuration",
+        "title": "General Configuration",
         "props": [
           {
             "name": "label",
@@ -23,7 +23,7 @@
           {
             "id": "s1_smt",
             "name": "objective",
-            "prose": "This section covers security recommendations that you should follow to prepare the host machine that you plan to use for executing containerized workloads. Securing the Docker host and following your infrastructure security best practices would build a solid and secure foundation for executing containerized workloads."
+            "prose": "This section contains general host recommendations for systems running Docker."
           }
         ],
         "controls": [
@@ -1090,7 +1090,7 @@
           {
             "id": "s4_smt",
             "name": "objective",
-            "prose": "Container base images and build files govern the fundamentals of how a container instance from a particular image would behave. Ensuring that you are using proper base images and appropriate build files can be very important for building your containerized infrastructure."
+            "prose": "Container base images and build files govern the fundamentals of how a container instance from a particular image would behave. Ensuring that you are using proper base images and appropriatebuild files can be very important for building your containerized infrastructure. Below are some of the recommendations that you should follow for container base images and build files to ensure that your containerized infrastructure is secure."
           }
         ],
         "controls": [
@@ -2138,6 +2138,197 @@
                 "id": "s7.9_smt",
                 "name": "objective",
                 "prose": "You should run the command below to rotate a certificate.\n\n```\ndocker swarm ca --rotate\n```"
+              }
+            ],
+            "controls": []
+          }
+        ]
+      },
+      {
+        "id": "s8",
+        "class": "section",
+        "title": "Docker Enterprise Configuration",
+        "props": [
+          {
+            "name": "label",
+            "value": "8"
+          }
+        ],
+        "parts": [
+          {
+            "id": "s8_smt",
+            "name": "objective",
+            "prose": "This section contains recommendations for securing Docker Enterprise components."
+          }
+        ],
+        "controls": [
+          {
+            "id": "s8.1.1",
+            "class": "section",
+            "title": "Configure the LDAP authentication service",
+            "props": [
+              {
+                "name": "label",
+                "value": "8.1.1"
+              }
+            ],
+            "parts": [
+              {
+                "id": "s8.1.1_smt",
+                "name": "objective",
+                "prose": "You can configure LDAP integration via the UCP \"Admin Settings\" UI by following the instructions [here](https://docs.docker.com/datacenter/ucp/2.2/guides/admin/configure/external-auth/). LDAP integration can also be enabled via a configuration file by following the instructions [here](https://docs.docker.com/datacenter/ucp/2.2/guides/admin/configure/external-auth/enable-ldap-config-file/)."
+              }
+            ],
+            "controls": []
+          },
+          {
+            "id": "s8.1.2",
+            "class": "section",
+            "title": "Use external certificates",
+            "props": [
+              {
+                "name": "label",
+                "value": "8.1.2"
+              }
+            ],
+            "parts": [
+              {
+                "id": "s8.1.2_smt",
+                "name": "objective",
+                "prose": "You can configure your own certificates for UCP either during installation or after installation via the UCP \"Admin Settings\" user interface.\n\n**Customize certificates during installation:**\n\n1. Create a volume named `ucp-controller-server-certs` on your primary UCP Manager installation node:\n\n ```\n docker volume create ucp-controller-server-certs\n ```\n\n2. Copy your external certificate authority's public certificate file (ca.pem) and your signed certificate (cert.pem) and key (key.pem) files to the root directory of the volume\n\n ```\n cp ca.pem cert.pem key.pem $(docker volume inspect --format '{{ .Mountpoint }}' ucp-controller-server-certs)/\n ```\n\n3. Run the UCP installation command with the `--external-server-cert` flag\n\n**Customize certificates post-installation via the \"Admin Settings\" UI:**\n\nRefer to the instructions at [https://docs.docker.com/datacenter/ucp/2.2/guides/admin/configure/use-your-own-tls-certificates/#configure-ucp-to-use-your-own-tls-certificates-and-keys](https://docs.docker.com/datacenter/ucp/2.2/guides/admin/configure/use-your-own-tls-certificates/#configure-ucp-to-use-your-own-tls-certificates-and-keys) for configuring your own certificates via the UCP UI."
+              }
+            ],
+            "controls": []
+          },
+          {
+            "id": "s8.1.3",
+            "class": "section",
+            "title": "Enforce the use of client certificate bundles for unprivileged users",
+            "props": [
+              {
+                "name": "label",
+                "value": "8.1.3"
+              }
+            ],
+            "parts": [
+              {
+                "id": "s8.1.3_smt",
+                "name": "objective",
+                "prose": "Client certificate bundles can be created in one of two ways:\n\n**User Management UI**\n\nUCP Administrators can provision client certificate bundles on behalf of users by navigating to the USER MANAGEMENT | USERS interface in UCP, selecting the user from the list, clicking on the \"Configure\" button from the right-hand navigation, and selecting \"Client Bundle\" from the drop-down. The \"New Client Bundle\" link can be selected to create a client bundle. This will trigger a download of the bundle as a .zip file. \n\n**Self-Provision**\n\nUsers with access to the UCP console can create client certificate bundles themselves. After logging into the console, the user can select their username drop-down from the top-left corner of the navigation page and select the \"My Profile\" option. From there, the \"New Client Bundle\" link can be selected to create a client bundle and this will trigger a download of the bundle as a .zip file."
+              }
+            ],
+            "controls": []
+          },
+          {
+            "id": "s8.1.4",
+            "class": "section",
+            "title": "Configure applicable cluster role-based access control policies",
+            "props": [
+              {
+                "name": "label",
+                "value": "8.1.4"
+              }
+            ],
+            "parts": [
+              {
+                "id": "s8.1.4_smt",
+                "name": "objective",
+                "prose": "UCP RBAC components can be configured as required via the UCP \"User Management\" UI."
+              }
+            ],
+            "controls": []
+          },
+          {
+            "id": "s8.1.4",
+            "class": "section",
+            "title": "Configure applicable cluster role-based access control policies",
+            "props": [
+              {
+                "name": "label",
+                "value": "8.1.4"
+              }
+            ],
+            "parts": [
+              {
+                "id": "s8.1.4_smt",
+                "name": "objective",
+                "prose": "UCP RBAC components can be configured as required via the UCP \"User Management\" UI."
+              }
+            ],
+            "controls": []
+          },
+          {
+            "id": "s8.1.5",
+            "class": "section",
+            "title": "Enable signed image enforcement",
+            "props": [
+              {
+                "name": "label",
+                "value": "8.1.5"
+              }
+            ],
+            "parts": [
+              {
+                "id": "s8.1.5_smt",
+                "name": "objective",
+                "prose": "Running untrusted containers poses a risk to the operation of your Docker platform. Combined with the Docker Content Trust recommendations in Section 4, signed image enforcement in UCP gives you more control over the validity and origination of your Docker images prior to deployment. Signed image enforcement can prohibit images that are unsigned, have malformed signatures, and/or compromised signatures from being deployed."
+              }
+            ],
+            "controls": []
+          },
+          {
+            "id": "s8.1.6",
+            "class": "section",
+            "title": "Set the Per-User Session Limit to a value of '3' or lower",
+            "props": [
+              {
+                "name": "label",
+                "value": "8.1.6"
+              }
+            ],
+            "parts": [
+              {
+                "id": "s8.1.6_smt",
+                "name": "objective",
+                "prose": "As a Docker Enterprise Administrator, execute the following commands from a machine with connectivity to the UCP management console. Replace `[ucp_url]` with your UCP URL, `[ucp_username]` with the username of a Docker Enterprise Administrator and `[ucp_password]` with the password of a Docker Enterprise Administrator.\n\n**Step 1:** Retrieve a UCP API token\n\nLinux (requires curl and jq):\n\n $ AUTHTOKEN=$(curl -sk -d '{\"username\":\"[ucp_username]\",\"password\":\"[ucp_password]\"}' https://[ucp_url]/auth/login | jq -r .auth_token)\n\n**Step 2:** Retrieve and save UCP config\n\nLinux (requires curl):\n\n $ curl -sk -H \"Authorization: Bearer $AUTHTOKEN\" https://[ucp_url]/api/ucp/config-toml > ucp-config.toml\n\n**Step 3:** Open the `ucp-config.toml` file, set the `per_user_limit` entry under the `[auth.sessions]` section to a value of '3' or lower, but greater than '0'. Save the file.\n\n**Step 4:** Execute the following command to update UCP with the new configuration:\n\nLinux (requires curl):\n\n $ curl -sk -H \"Authorization: Bearer $AUTHTOKEN\" --upload-file ucp-config.toml https://[ucp_url]/api/ucp/config-toml"
+              }
+            ],
+            "controls": []
+          },
+          {
+            "id": "s8.1.7",
+            "class": "section",
+            "title": "Set the \"Lifetime Minutes\" and \"Renewal Threshold Minutes\" values to '15' or lower and '0' respectively",
+            "props": [
+              {
+                "name": "label",
+                "value": "8.1.7"
+              }
+            ],
+            "parts": [
+              {
+                "id": "s8.1.7_smt",
+                "name": "objective",
+                "prose": "As a Docker Enterprise Administrator, execute the following commands from a machine with connectivity to the UCP management console. Replace `[ucp_url]` with your UCP URL, `[ucp_username]` with the username of a Docker Enterprise Administrator and `[ucp_password]` with the password of a Docker Enterprise Administrator.\n\n**Step 1:** Retrieve a UCP API token\n\nLinux (requires curl and jq):\n\n $ AUTHTOKEN=$(curl -sk -d '{\"username\":\"[ucp_username]\",\"password\":\"[ucp_password]\"}' https://[ucp_url]/auth/login | jq -r .auth_token)\n\n**Step 2:** Retrieve and save UCP config\n\nLinux (requires curl):\n\n $ curl -sk -H \"Authorization: Bearer $AUTHTOKEN\" https://[ucp_url]/api/ucp/config-toml > ucp-config.toml\n\n**Step 3:** Open the `ucp-config.toml` file, set the `lifetime_minutes` and `renewal_threshold_minutes` entries under the `[auth.sessions]` section to values of '15' or lower and '0' respectively. Save the file.\n\n**Step 4:** Execute the following command to update UCP with the new configuration:\n\nLinux (requires curl):\n\n $ curl -sk -H \"Authorization: Bearer $AUTHTOKEN\" --upload-file ucp-config.toml https://[ucp_url]/api/ucp/config-toml"
+              }
+            ],
+            "controls": []
+          },
+          {
+            "id": "s8.2.1",
+            "class": "section",
+            "title": "Enable image vulnerability scanning",
+            "props": [
+              {
+                "name": "label",
+                "value": "8.2.1"
+              }
+            ],
+            "parts": [
+              {
+                "id": "s8.2.1_smt",
+                "name": "objective",
+                "prose": "You can navigate to DTR \"Settings\" UI and select the \"Security\" tab to access the image scanning configuration. Select the \"Enable Scanning\" slider to enable this functionality. You can also enable the Image Scanning capability via the DTR API using the cURL command as follows:\n\n $ curl -X POST \"https:///api/v0/meta/settings\" -H \"accept: application/json\" -H \"content-type: application/json\" -d \"{ \\\"scanningEnabled\\\": true}\""
               }
             ],
             "controls": []

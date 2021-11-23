@@ -130,6 +130,9 @@ for control in cis:
         current["controls"] = []
     current["controls"].append(section(control))
 
+# append the final section.
+groups.append(current)
+
 # finally, generate the catalog.
 metadata = Metadata(
     title="GSA Docker Security Benchmark",
