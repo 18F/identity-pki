@@ -135,13 +135,13 @@ resource "newrelic_synthetics_alert_condition" "outbound_proxy_health" {
 resource "newrelic_alert_condition" "enduser_datastore_slow_queries" {
   count                       = var.enduser_enabled
   policy_id                   = newrelic_alert_policy.enduser[0].id
-  name                        = "${var.env_name}: All datastores slow queries"
+  name                        = "${var.env_name}: Web datastores slow queries"
   enabled                     = true
   type                        = "apm_app_metric"
   metric                      = "user_defined"
   condition_scope             = "application"
   entities                    = [data.newrelic_entity.idp[0].application_id]
-  user_defined_metric         = "Datastore/all"
+  user_defined_metric         = "Datastore/allWeb"
   user_defined_value_function = "max"
 
   term {
