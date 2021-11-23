@@ -134,6 +134,11 @@ users:
   nathan.wick:
     aws_groups:
       - bizops
+  nick.kramer:
+    aws_groups:
+      - devopsnonprod
+    gitlab_groups:
+      - lg
   oren.kanner:
     aws_groups:
       - appdev
