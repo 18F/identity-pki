@@ -38,6 +38,14 @@ resource "aws_s3_bucket" "backups" {
   }
 }
 
+resource "aws_s3_bucket_public_access_block" "backups_access_block" {
+  bucket                  = aws_s3_bucket.backups.id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
 resource "aws_s3_bucket" "config" {
   bucket                  = "gitlab-${var.env_name}-config"
   acl                     = "private"
@@ -64,6 +72,14 @@ resource "aws_s3_bucket" "config" {
   }
 }
 
+resource "aws_s3_bucket_public_access_block" "config_access_block" {
+  bucket                  = aws_s3_bucket.config.id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
 locals {
   gitlab_buckets = [
     "gitlab-${var.env_name}-artifacts",
@@ -87,6 +103,7 @@ resource "aws_s3_bucket" "gitlab_buckets" {
   ignore_public_acls      = true
   restrict_public_buckets = true
 
+
   versioning {
     enabled = true
   }
@@ -97,4 +114,13 @@ resource "aws_s3_bucket" "gitlab_buckets" {
       }
     }
   }
+}
+
+resource "aws_s3_bucket_public_access_block" "gitlab_buckets_access_block" {
+  for_each                = toset(local.gitlab_buckets)
+  bucket                  = aws_s3_bucket.gitlab_buckets[each.key].id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }
