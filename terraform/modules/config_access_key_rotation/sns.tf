@@ -1,5 +1,5 @@
 data "aws_sns_topic" "config_access_key_rotation_topic" {
-  name = local.sns_topic_name
+  name = var.slack_events_sns_topic
 }
 
 resource "aws_sns_topic_subscription" "config_access_key_rotation_lambda_target" {
