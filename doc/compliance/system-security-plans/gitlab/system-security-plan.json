@@ -1,0 +1,109 @@
+{
+  "system-security-plan": {
+    "uuid": "657a7a5e-de9a-4d81-9e41-c0b43ed86472",
+    "metadata": {
+      "title": "REPLACE_ME",
+      "last-modified": "2021-11-23T14:15:08.774984-08:00",
+      "version": "REPLACE_ME",
+      "oscal-version": "1.0.0"
+    },
+    "import-profile": {
+      "href": "REPLACE_ME"
+    },
+    "system-characteristics": {
+      "system-ids": [
+        {
+          "id": "REPLACE_ME"
+        }
+      ],
+      "system-name": "REPLACE_ME",
+      "description": "REPLACE_ME",
+      "security-sensitivity-level": "REPLACE_ME",
+      "system-information": {
+        "information-types": [
+          {
+            "title": "REPLACE_ME",
+            "description": "REPLACE_ME",
+            "confidentiality-impact": {
+              "base": "REPLACE_ME"
+            },
+            "integrity-impact": {
+              "base": "REPLACE_ME"
+            },
+            "availability-impact": {
+              "base": "REPLACE_ME"
+            }
+          }
+        ]
+      },
+      "security-impact-level": {
+        "security-objective-confidentiality": "REPLACE_ME",
+        "security-objective-integrity": "REPLACE_ME",
+        "security-objective-availability": "REPLACE_ME"
+      },
+      "status": {
+        "state": "operational"
+      },
+      "authorization-boundary": {
+        "description": "REPLACE_ME"
+      }
+    },
+    "system-implementation": {
+      "users": [
+        {
+          "uuid": "415c7854-e01b-4ae7-ae91-adec20290876"
+        }
+      ],
+      "components": [
+        {
+          "uuid": "d0970ac7-abf2-41f9-86d5-86fe23a41903",
+          "type": "REPLACE_ME",
+          "title": "REPLACE_ME",
+          "description": "The System",
+          "status": {
+            "state": "under-development"
+          }
+        }
+      ]
+    },
+    "control-implementation": {
+      "description": "This is the control implementation for the system.",
+      "implemented-requirements": [
+        {
+          "uuid": "ecbcafa4-0390-4220-94c1-81930721ce15",
+          "control-id": "ac-2",
+          "statements": [
+            {
+              "statement-id": "ac-2_smt.l.",
+              "uuid": "1d848a3c-b2c2-4e25-a5b8-03499c8180cc",
+              "by-components": [
+                {
+                  "component-uuid": "d0970ac7-abf2-41f9-86d5-86fe23a41903",
+                  "uuid": "1ab0e0c2-43b4-4c55-b0bf-596a460e5f89",
+                  "description": "Add control implementation description here for item ac-2_smt.l"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "uuid": "964f5a0a-9654-41ae-9d32-433f91c140a8",
+          "control-id": "cm-6",
+          "statements": [
+            {
+              "statement-id": "cm-6_smt.d.",
+              "uuid": "4d2b3241-14e0-4939-a105-3d7f0e96860c",
+              "by-components": [
+                {
+                  "component-uuid": "d0970ac7-abf2-41f9-86d5-86fe23a41903",
+                  "uuid": "b3a06542-d600-4860-b508-4327f6e1701e",
+                  "description": "Add control implementation description here for item cm-6_smt.d"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
