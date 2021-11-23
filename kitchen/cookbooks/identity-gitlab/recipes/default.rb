@@ -179,18 +179,10 @@ end
 cron_d 'gitlab_backup_create' do
   predefined_value "@daily"
   command %W{
-    gitlab-backup create
-    aws s3 cp /etc/gitlab/gitlab-secrets.json s3://#{backup_s3_bucket}/gitlab-secrets.json_`date +\%Y-\%m-\%d`
-    aws s3 cp /etc/gitlab/gitlab.rb s3://#{backup_s3_bucket}/gitlab.rb_`date +\%Y-\%m-\%d`
-    aws s3 cp /etc/ssh/ s3://#{backup_s3_bucket}/ssh --recursive --exclude "*" --include "ssh_host_*"
+    gitlab-backup create;
+    aws s3 cp /etc/gitlab/gitlab-secrets.json s3://#{backup_s3_bucket}/gitlab-secrets.json;
+    aws s3 cp /etc/gitlab/gitlab.rb s3://#{backup_s3_bucket}/gitlab.rb;
+    aws s3 cp /etc/ssh/ s3://#{backup_s3_bucket}/ssh --recursive --exclude "*" --include "ssh_host_*";
     aws s3 cp /etc/gitlab/ssl s3://#{backup_s3_bucket}/ssl --recursive
   }.join(' ')
-end
-
-cron_d 'gitlab_backup_secrets_create' do
-  action :delete
-end
-
-cron_d 'gitlab_backup_gitlabrb_create' do
-  action :delete
 end
