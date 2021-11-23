@@ -29,7 +29,7 @@ An example may be illustrative.
 
 - We are using JSON primarily because `trestle` YAML support is spotty. This may change in the future.
 - We do not need a lot of features that `trestle` offers and are currently using a small subset of these features.
-  - This workflow is intentionally primitive: for instance, we generate only the control documentation and fill out the implementation details. Optionally we could generate an OSCAL SSP but its usefulness is yet to be determined.
+  - This workflow is intentionally primitive: for instance, we generate only the control documentation and fill out the implementation details.
   - We do not support profile authoring or editing or adding items in the control statement.
   - This also means that we do not (currently) have plans to actually use the SSP OSCAL file but the SSP is nonetheless is intended to be a final compliance artifact.
 - The use of "System Security Plan" here is somewhat of a misnomer but is a byproduct of `compliance-trestle` and its [opinionated directory structure](https://ibm.github.io/compliance-trestle/cli/#opinionated-directory-structure).
