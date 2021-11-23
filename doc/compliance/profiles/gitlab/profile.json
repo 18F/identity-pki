@@ -2,7 +2,7 @@
   "profile": {
     "uuid": "b7ac2bb6-75ec-411e-a162-378f50ac4ea3",
     "metadata": {
-      "title": "Gitlab profile to meet certain NIST SP 800 53 rev5 moderate controls.",
+      "title": "Gitlab profile for NIST SP 800 53 rev5 moderate and GSA CIS Docker Benchmark v1.2.0 controls.",
       "last-modified": "2021-11-17T15:46:14.402466-08:00",
       "version": "0.0.0",
       "oscal-version": "1.0.0"
