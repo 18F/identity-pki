@@ -31,12 +31,13 @@ header_names = [
     # rest are ignored
 ]
 
-# extracted manually from CIS Docker Benchmark v1.3.1
+# GSA uses CIS Docker Benchmark v1.2. These descriptions (typos and all) are
+# copied verbatim from the official CIS 1.2.0 PDF.
 top_level = [
     {
         "id": "1",
-        "title": "Host Configuration",
-        "prose": "This section covers security recommendations that you should follow to prepare the host machine that you plan to use for executing containerized workloads. Securing the Docker host and following your infrastructure security best practices would build a solid and secure foundation for executing containerized workloads.",
+        "title": "General Configuration",
+        "prose": "This section contains general host recommendations for systems running Docker.",
     },
     {
         "id": "2",
@@ -51,7 +52,7 @@ top_level = [
     {
         "id": "4",
         "title": "Container Images and Build File Configuration",
-        "prose": "Container base images and build files govern the fundamentals of how a container instance from a particular image would behave. Ensuring that you are using proper base images and appropriate build files can be very important for building your containerized infrastructure.",
+        "prose": "Container base images and build files govern the fundamentals of how a container instance from a particular image would behave. Ensuring that you are using proper base images and appropriatebuild files can be very important for building your containerized infrastructure. Below are some of the recommendations that you should follow for container base images and build files to ensure that your containerized infrastructure is secure.",
     },
     {
         "id": "5",
@@ -68,9 +69,11 @@ top_level = [
         "title": "Docker Swarm Configuration",
         "prose": "This section lists the recommendations that alter and secure the behavior of the Docker Swarm. If you are not using Docker Swarm then the recommendations in this section do not apply.",
     },
-    # strangely enough, this section is not listed in official CIS benchmarks.
-    # not sure where these CIS controls come from, yet.
-    {"id": "8", "title": "Unknown.", "prose": "Unknown.",},
+    {
+        "id": "8",
+        "title": "Docker Enterprise Configuration",
+        "prose": "This section contains recommendations for securing Docker Enterprise components.",
+    },
 ]
 
 fd = csv.reader(open(filename, "r"))
