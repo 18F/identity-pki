@@ -90,7 +90,7 @@ resource "aws_s3_bucket" "gitlab_buckets" {
 
 resource "aws_s3_bucket_public_access_block" "gitlab_buckets_access_block" {
   for_each = toset(local.gitlab_buckets)
-  bucket = aws_s3_bucket.[each.key].id
+  bucket = aws_s3_bucket.gitlab_buckets[each.key].id
   block_public_acls       = true
   block_public_policy     = true
   ignore_public_acls      = true
