@@ -13,9 +13,9 @@ terraform {
 module "main" {
   source = "../module"
 
-  slack_events_sns_topic = var.slack_events_sns_topic
+  slack_events_sns_topic = "slack-events"
   iam_account_alias      = "login-master"
-  account_roles_map      = {
+  account_roles_map = {
     iam_appdev_enabled         = false
     iam_power_enabled          = false
     iam_readonly_enabled       = false

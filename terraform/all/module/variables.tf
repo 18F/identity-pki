@@ -169,5 +169,5 @@ variable "config_access_key_rotation_code" {
 variable "slack_events_sns_topic" {
   type        = string
   description = "Name of the SNS topic for slack."
-  default     = "slack-events"
+  default     = "slack-otherevents"
 }
