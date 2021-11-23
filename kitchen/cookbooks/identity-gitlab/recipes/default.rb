@@ -21,19 +21,47 @@
 # This volume thing is ugly, but xvdg works, but xvdh does not create
 # the /dev/xvdh symlink.  So we are just hardcoding the nvme devices
 # it maps to directly.  WTF Ubuntu?
-gitaly_ebs_volume = ConfigLoader.load_config(node, "gitaly_ebs_volume", common: false).chomp
+aws_region = Chef::Recipe::AwsMetadata.get_aws_region
+backup_s3_bucket = "gitlab-#{node.chef_environment}-backups"
+config_s3_bucket = "gitlab-#{node.chef_environment}-config"
+db_host = ConfigLoader.load_config(node, "gitlab_db_host", common: false).chomp
+db_password = ConfigLoader.load_config(node, "gitlab_db_password", common: false).chomp
+external_fqdn = "gitlab.#{node.chef_environment}.gitlab.identitysandbox.gov"
 gitaly_device = "/dev/xvdg"
+gitaly_ebs_volume = ConfigLoader.load_config(node, "gitaly_ebs_volume", common: false).chomp
 gitaly_real_device = "/dev/nvme2n1"
-gitlab_ebs_volume = ConfigLoader.load_config(node, "gitlab_ebs_volume", common: false).chomp
 gitlab_device = "/dev/xvdh"
+gitlab_ebs_volume = ConfigLoader.load_config(node, "gitlab_ebs_volume", common: false).chomp
 gitlab_real_device = "/dev/nvme3n1"
+postgres_version = "13"
+redis_host = ConfigLoader.load_config(node, "gitlab_redis_endpoint", common: false).chomp
+root_password = ConfigLoader.load_config(node, "gitlab_root_password", common: false).chomp
+runner_token = ConfigLoader.load_config(node, "gitlab_runner_token", common: false).chomp
+ses_password = ConfigLoader.load_config(node, "ses_smtp_password", common: true).chomp
+ses_username = ConfigLoader.load_config(node, "ses_smtp_username", common: true).chomp
+smtp_address = "email-smtp.#{aws_region}.amazonaws.com"
+
+#must come after external_fqdn
+email_from = "gitlab@#{external_fqdn}"
+external_url = "https://#{external_fqdn}"
+
+# Login.gov SAML parameters
+saml_params = {
+  saml_assertion_consumer_service_url: "#{external_url}/users/auth/saml/callback",
+  saml_idp_cert_fingerprint: ConfigLoader.load_config(node, "saml_idp_cert_fingerprint", common: false).chomp,
+  saml_idp_sso_target_url: 'https://idp.int.identitysandbox.gov/api/saml/auth2021',
+  saml_issuer: "urn:gov:gsa:openidconnect.profiles:sp:sso:login_gov:gitlab_#{node.chef_environment}",
+  saml_name_identifier_format: 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
+  saml_certificate: ConfigLoader.load_config(node, "saml_certificate", common: false).chomp,
+  saml_private_key: ConfigLoader.load_config(node, "saml_private_key", common: false).chomp,
+}
 
 execute "mount_gitaly_volume" do
-  command "aws ec2 attach-volume --device #{gitaly_device} --instance-id #{node['ec2']['instance_id']} --volume-id #{gitaly_ebs_volume} --region #{node['ec2']['region']}"
+  command "aws ec2 attach-volume --device #{gitaly_device} --instance-id #{node['ec2']['instance_id']} --volume-id #{gitaly_ebs_volume} --region #{aws_region}"
 end
 
 execute "mount_gitlab_volume" do
-  command "aws ec2 attach-volume --device #{gitlab_device} --instance-id #{node['ec2']['instance_id']} --volume-id #{gitlab_ebs_volume} --region #{node['ec2']['region']}"
+  command "aws ec2 attach-volume --device #{gitlab_device} --instance-id #{node['ec2']['instance_id']} --volume-id #{gitlab_ebs_volume} --region #{aws_region}"
 end
 
 include_recipe 'filesystem'
@@ -67,10 +95,7 @@ package 'gitlab-ee'
 
 directory '/etc/gitlab/ssl'
 
-external_fqdn = "gitlab.#{node.chef_environment}.gitlab.identitysandbox.gov"
-external_url = "https://#{external_fqdn}"
-
-remote_file "Copy cert" do 
+remote_file "Copy cert" do
   path "/etc/gitlab/ssl/#{external_fqdn}.crt"
   source "file:///etc/ssl/certs/server.crt"
   owner 'root'
@@ -78,7 +103,7 @@ remote_file "Copy cert" do
   mode 0644
 end
 
-remote_file "Copy key" do 
+remote_file "Copy key" do
   path "/etc/gitlab/ssl/#{external_fqdn}.key"
   source "file:///etc/ssl/private/server.key"
   owner 'root'
@@ -94,35 +119,15 @@ remote_file "rds_ca_bundle" do
   mode 0644
 end
 
-db_password = ConfigLoader.load_config(node, "gitlab_db_password", common: false).chomp
-db_host = ConfigLoader.load_config(node, "gitlab_db_host", common: false).chomp
-root_password = ConfigLoader.load_config(node, "gitlab_root_password", common: false).chomp
-runner_token = ConfigLoader.load_config(node, "gitlab_runner_token", common: false).chomp
-redis_host = ConfigLoader.load_config(node, "gitlab_redis_endpoint", common: false).chomp
-
-ses_username = ConfigLoader.load_config(node, "ses_smtp_username", common: true).chomp
-ses_password = ConfigLoader.load_config(node, "ses_smtp_password", common: true).chomp
-aws_region = Chef::Recipe::AwsMetadata.get_aws_region
-smtp_address = "email-smtp.#{aws_region}.amazonaws.com"
-email_from = "gitlab@#{external_fqdn}"
-
-# Login.gov SAML parameters
-saml_params = {
-  saml_assertion_consumer_service_url: "#{external_url}/users/auth/saml/callback",
-  saml_idp_cert_fingerprint: ConfigLoader.load_config(node, "saml_idp_cert_fingerprint", common: false).chomp,
-  saml_idp_sso_target_url: 'https://idp.int.identitysandbox.gov/api/saml/auth2021',
-  saml_issuer: "urn:gov:gsa:openidconnect.profiles:sp:sso:login_gov:gitlab_#{node.chef_environment}",
-  saml_name_identifier_format: 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
-  saml_certificate: ConfigLoader.load_config(node, "saml_certificate", common: false).chomp,
-  saml_private_key: ConfigLoader.load_config(node, "saml_private_key", common: false).chomp,
-}
-
 template '/etc/gitlab/gitlab.rb' do
     source 'gitlab.rb.erb'
     owner 'root'
     group 'root'
     mode '0600'
     variables ({
+        aws_region: aws_region,
+        backup_s3_bucket: backup_s3_bucket,
+        postgres_version: postgres_version,
         external_url: external_url,
         db_password: db_password,
         db_host: db_host,
@@ -169,4 +174,15 @@ end
 execute 'update_gitlab_settings' do
   command "gitlab-rails runner 'ApplicationSetting.last.update(signup_enabled: false)'"
   action :run
+end
+
+cron_d 'gitlab_backup_create' do
+  predefined_value "@daily"
+  command %W{
+    gitlab-backup create;
+    aws s3 cp /etc/gitlab/gitlab-secrets.json s3://#{backup_s3_bucket}/gitlab-secrets.json;
+    aws s3 cp /etc/gitlab/gitlab.rb s3://#{backup_s3_bucket}/gitlab.rb;
+    aws s3 cp /etc/ssh/ s3://#{backup_s3_bucket}/ssh --recursive --exclude "*" --include "ssh_host_*";
+    aws s3 cp /etc/gitlab/ssl s3://#{backup_s3_bucket}/ssl --recursive
+  }.join(' ')
 end
