@@ -102,9 +102,11 @@ def section(d):
     prose = d["prose"]
     return {
         "id": f"s{id}",
+        "class": "section",
         "title": title,
         "props": [{"name": "label", "value": id,}],
         "parts": [{"id": f"s{id}_smt", "name": "objective", "prose": prose}],
+        "controls": [],
     }
 
 
@@ -122,8 +124,8 @@ for control in cis:
             groups.append(current)
         current_toplevel = toplevel
         current = section(top_level[current_toplevel - 1])
-        current["groups"] = []
-    current["groups"].append(section(control))
+        current["controls"] = []
+    current["controls"].append(section(control))
 
 # finally, generate the catalog.
 metadata = Metadata(

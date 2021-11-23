@@ -18,6 +18,16 @@
             ]
           }
         ]
+      },
+      {
+        "href": "trestle://catalogs/gsa-docker-security-benchmark/catalog.json",
+        "include-controls": [
+          {
+            "with-ids": [
+              "s1.1.1"
+            ]
+          }
+        ]
       }
     ]
   }
