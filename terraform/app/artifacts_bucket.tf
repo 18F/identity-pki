@@ -1,14 +1,11 @@
 # this policy can allow any node/host to access the s3 artifacts bucket
-data "aws_iam_policy_document" "artifacts_role_policy" {
+data "aws_iam_policy_document" "download_artifacts_role_policy" {
   statement {
-    sid    = "AllowBucketAndObjects"
+    sid    = "AllowBucketAndObjectsDownload"
     effect = "Allow"
     actions = [
       "s3:Get*",
       "s3:List*",
-      "s3:PutObject",
-      "s3:AbortMultipartUpload",
-      "s3:CreateMultipartUpload"
     ]
 
     resources = [
@@ -55,6 +52,25 @@ data "aws_iam_policy_document" "artifacts_role_policy" {
     }
     resources = [
       "arn:aws:s3:::login-gov.app-artifacts.${data.aws_caller_identity.current.account_id}-*",
+    ]
+  }
+}
+
+data "aws_iam_policy_document" "upload_artifacts_role_policy" {
+  statement {
+    sid    = "AllowBucketAndObjectsUpload"
+    effect = "Allow"
+    actions = [
+      "s3:PutObject",
+      "s3:AbortMultipartUpload",
+      "s3:CreateMultipartUpload"
+    ]
+
+    resources = [
+      "arn:aws:s3:::login-gov.app-artifacts.${data.aws_caller_identity.current.account_id}-*/${var.env_name}/",
+      "arn:aws:s3:::login-gov.app-artifacts.${data.aws_caller_identity.current.account_id}-*/${var.env_name}/*",
+      "arn:aws:s3:::login-gov.app-artifacts.${data.aws_caller_identity.current.account_id}-*/common/",
+      "arn:aws:s3:::login-gov.app-artifacts.${data.aws_caller_identity.current.account_id}-*/common/*",
     ]
   }
 }
