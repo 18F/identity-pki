@@ -188,6 +188,11 @@ resource "aws_autoscaling_group" "pivcac" {
     value               = "${var.env_name}.${var.root_domain}"
     propagate_at_launch = true
   }
+
+  depends_on = [
+    aws_autoscaling_group.outboundproxy,
+    aws_autoscaling_group.migration,
+  ]
 }
 
 resource "aws_elb" "pivcac" {
