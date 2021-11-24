@@ -1,5 +1,20 @@
 version: 2.1
 
+commands:
+  bundle-install:
+    steps:
+      - restore_cache:
+          keys:
+            - v1-identity-devops-bundle-{{ checksum "Gemfile.lock" }}
+      - run:
+          name: Install dependencies
+          command: |
+            bundle check || bundle install --deployment --jobs=4 --retry=3  --path vendor/bundle
+      - save_cache:
+          key: v1-identity-devops-bundle-{{ checksum "Gemfile.lock" }}
+          paths:
+            - vendor/bundle
+
 jobs:
   setup:
     docker:
@@ -46,6 +61,16 @@ jobs:
           at: .
       # Used to advise for now - Remove the --soft-fail when ready to ENFORCE :ed209:
       - run: tfsec --no-color terraform/<< parameters.folder >>
+  ruby_test:
+    docker:
+      - image: cimg/ruby:2.7
+    working_directory: /tmp/identity-devops
+    steps:
+      - attach_workspace:
+          at: .
+      - bundle-install
+      - run: bundle exec rspec cloudlib/spec
+
 
 workflows:
   version: 2
@@ -84,3 +109,9 @@ workflows:
                 - master/module
                 - tooling/module-gitlabpipeline
                 - tooling/module-pipeline
+  tests:
+    jobs:
+      - setup
+      - ruby_test:
+          requires:
+            - setup
