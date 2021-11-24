@@ -77,12 +77,6 @@ resource "aws_iam_role_policy" "migration-idp-application-secrets" {
   policy = data.aws_iam_policy_document.application_secrets_role_policy.json
 }
 
-# resource "aws_iam_role_policy" "idp-ses-email" {
-#   name   = "${var.env_name}-idp-ses-email"
-#   role   = aws_iam_role.migration.id
-#   policy = data.aws_iam_policy_document.ses_email_role_policy.json
-# }
-
 resource "aws_iam_role_policy" "migration-cloudwatch-logs" {
   name   = "${var.env_name}-migration-cloudwatch-logs"
   role   = aws_iam_role.migration.id
@@ -94,12 +88,6 @@ resource "aws_iam_role_policy" "migration-cloudwatch-agent" {
   role   = aws_iam_role.migration.id
   policy = data.aws_iam_policy_document.cloudwatch-agent.json
 }
-
-# resource "aws_iam_role_policy" "idp-upload-s3-reports" {
-#   name   = "${var.env_name}-idp-s3-reports"
-#   role   = aws_iam_role.migration.id
-#   policy = data.aws_iam_policy_document.put_reports_to_s3.json
-# }
 
 resource "aws_iam_role_policy" "migration-ssm-access" {
   name   = "${var.env_name}-migration-ssm-access"
@@ -118,51 +106,3 @@ resource "aws_iam_role_policy" "migration-ec2-tags" {
   role   = aws_iam_role.migration.id
   policy = data.aws_iam_policy_document.ec2-tags.json
 }
-
-# This policy allows writing to the S3 reports bucket
-# data "aws_iam_policy_document" "put_reports_to_s3" {
-#   statement {
-#     sid    = "PutObjectsToReportsS3Bucket"
-#     effect = "Allow"
-#     actions = [
-#       "s3:PutObject",
-#     ]
-#     resources = [
-#       "arn:aws:s3:::login-gov.reports.${data.aws_caller_identity.current.account_id}-${var.region}/${var.env_name}/*",
-#     ]
-#   }
-# 
-#   # allow listing objects so we can see what we've uploaded
-#   statement {
-#     sid    = "ListBucket"
-#     effect = "Allow"
-#     actions = [
-#       "s3:ListBucket",
-#     ]
-#     resources = [
-#       "arn:aws:s3:::login-gov.reports.${data.aws_caller_identity.current.account_id}-${var.region}",
-#     ]
-#   }
-# }
-
-# Allow assuming cross-account role for Pinpoint APIs. This is in a separate
-# account for accounting purposes since it's on a separate contract.
-# resource "aws_iam_role_policy" "idp-pinpoint-assumerole" {
-#   name   = "${var.env_name}-idp-pinpoint-assumerole"
-#   role   = aws_iam_role.idp.id
-#   policy = <<EOM
-# {
-#   "Version": "2012-10-17",
-#   "Statement": [
-#     {
-#       "Effect": "Allow",
-#       "Action": "sts:AssumeRole",
-#       "Resource": [
-#         "arn:aws:iam::${var.identity_sms_aws_account_id}:role/${var.identity_sms_iam_role_name_idp}"
-#       ]
-#     }
-#   ]
-# }
-# EOM
-# 
-# }
