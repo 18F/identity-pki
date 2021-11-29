@@ -1,16 +1,31 @@
-# cm-7.5 - \[catalog\] Authorized Software — Allow-by-exception
+# cm-7.5 - \[catalog\] Authorized Software / Whitelisting
 
 ## Control Statement
 
-- \[a\] Identify organization-defined software programs authorized to execute on the system;
+The organization:
 
-- \[b\] Employ a deny-all, permit-by-exception policy to allow the execution of authorized software programs on the system; and
+- \[a\] Identifies organization-defined software programs authorized to execute on the information system;
 
-- \[c\] Review and update the list of authorized software programs organization-defined frequency.
+- \[b\] Employs a deny-all, permit-by-exception policy to allow the execution of authorized software programs on the information system; and
+
+- \[c\] Reviews and updates the list of authorized software programs organization-defined frequency.
+
+## Control Objective
+
+Determine if the organization:
+
+- \[a_obj\] Identifies/defines software programs authorized to execute on the information system;
+
+- \[b_obj\] employs a deny-all, permit-by-exception policy to allow the execution of authorized software programs on the information system;
+
+- \[c_obj\]
+
+  - \[1\] defines the frequency to review and update the list of authorized software programs on the information system; and
+  - \[2\] reviews and updates the list of authorized software programs with the organization-defined frequency.
 
 ## Control guidance
 
-Authorized software programs can be limited to specific versions or from a specific source. To facilitate a comprehensive authorized software process and increase the strength of protection for attacks that bypass application level authorized software, software programs may be decomposed into and monitored at different levels of detail. These levels include applications, application programming interfaces, application modules, scripts, system processes, system services, kernel functions, registries, drivers, and dynamic link libraries. The concept of permitting the execution of authorized software may also be applied to user actions, system ports and protocols, IP addresses/ranges, websites, and MAC addresses. Organizations consider verifying the integrity of authorized software programs using digital signatures, cryptographic checksums, or hash functions. Verification of authorized software can occur either prior to execution or at system startup. The identification of authorized URLs for websites is addressed in [CA-3(5)](#ca-3.5) and [SC-7](#sc-7).
+The process used to identify software programs that are authorized to execute on organizational information systems is commonly referred to as whitelisting. In addition to whitelisting, organizations consider verifying the integrity of white-listed software programs using, for example, cryptographic checksums, digital signatures, or hash functions. Verification of white-listed software can occur either prior to execution or at system startup.
 
 ______________________________________________________________________
 
