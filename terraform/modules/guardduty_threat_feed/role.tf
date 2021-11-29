@@ -1,8 +1,3 @@
-# Setup IAM role for Lambda
-locals {
-  guardduty_feedname_iam = replace(var.guardduty_threat_feed_name, "/[^a-zA-Z0-9 ]/", "")
-}
-
 data "aws_caller_identity" "current" {
 }
 
@@ -78,7 +73,7 @@ data "aws_iam_policy_document" "guardduty_threat_feed_access" {
 }
 
 resource "aws_iam_policy" "guardduty_threat_feed_access" {
-  name        = "${local.guardduty_feedname_iam}-lambda-policy"
+  name        = "${var.guardduty_threat_feed_name}-lambda-policy"
   description = "Policy for ${var.guardduty_threat_feed_name}-lambda access"
   policy      = data.aws_iam_policy_document.guardduty_threat_feed_access.json
 }
