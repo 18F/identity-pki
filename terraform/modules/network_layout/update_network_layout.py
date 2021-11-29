@@ -5,25 +5,24 @@ import argparse
 import json
 import yaml
 
-# Each section has a maximum of 16 slots available
-MAX_SLOTS = 16
-
 def load_yaml_file(filename):
     with open(filename, 'r') as dfile:
         return yaml.safe_load(dfile)
 
 def sanity_check_schema(schema_data):
     errs = []
-    for t in ['environments', 'purposes', 'regions', 'zones']:
-        if t not in slot_map:
-             errs.append(f"Missing section: {t}")
-             continue
-        
-        l = len(network_layout)
+
+    required = set(['environments', 'purposes', 'regions', 'zones'])
+    present = set(schema_data.keys())
+    if present != required:
+        errs.append("Missing sections: " + ", ".join(required - present))
+
+    for (k, m) in {"environments": 32, "purposes": 32, "regions": 8, "zones": 8}.items():
+        l = len(schema_data[k])
         if l < 1:
-            errs.append(f"Section {t} must have at least one entry")
-        if l > MAX_SLOTS:
-            errs.append(f"Section {t} has {l} entries, exceeding the limit of {MAX_SLOTS}")
+            errs.append(f"Section {k} must have at least one entry")
+        if l > m:
+            errs.append(f"Section {k} has {l} entries, exceeding the limit of {m}")
 
     return errs
 
@@ -54,6 +53,6 @@ def main():
     if errs:
         raise RuntimeError(f'Errors processing {schema_file}: {"\n".join(errs)}')
 
-    
+
 if __name__ == '__main__':
     main
