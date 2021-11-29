@@ -86,10 +86,14 @@ cis = list()
 headers = next(fd)
 for line in fd:
     extract = line[: len(header_names)]
+    # don't allow mustache markup in prose. this messes up trestle since it
+    # tries to do variable substitution.
+    prose = extract[header_names.index("parameter")]
+    prose = prose.replace("{{", "<").replace("}}", ">")
     datum = {
         "id": extract[header_names.index("cis_id")],
         "title": extract[header_names.index("title")],
-        "prose": extract[header_names.index("parameter")],
+        "prose": prose,
     }
     cis.append(datum)
 
