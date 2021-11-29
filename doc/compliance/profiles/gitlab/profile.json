@@ -9,14 +9,13 @@
     },
     "imports": [
       {
-        "href": "https://github.com/usnistgov/oscal-content/raw/master/nist.gov/SP800-53/rev5/json/NIST_SP-800-53_rev5_MODERATE-baseline-resolved-profile_catalog.json",
+        "href": "https://github.com/usnistgov/oscal-content/raw/master/nist.gov/SP800-53/rev4/json/NIST_SP-800-53_rev4_MODERATE-baseline-resolved-profile_catalog.json",
         "include-controls": [
           {
             "with-ids": [
               "ac-2",
               "ac-2.1",
               "ac-2.4",
-              "ac-2.5",
               "ac-3",
               "ac-5",
               "ac-6",
@@ -154,6 +153,16 @@
               "tr-1",
               "tr-2",
               "ul-2"
+            ]
+          }
+        ]
+      },
+      {
+        "href": "https://github.com/usnistgov/oscal-content/raw/master/nist.gov/SP800-53/rev5/json/NIST_SP-800-53_rev5_MODERATE-baseline-resolved-profile_catalog.json",
+        "include-controls": [
+          {
+            "with-ids": [
+              "ac-2.5"
             ]
           }
         ]

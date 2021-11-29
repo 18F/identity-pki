@@ -1,12 +1,16 @@
-# au-6.3 - \[catalog\] Correlate Audit Record Repositories
+# au-6.3 - \[catalog\] Correlate Audit Repositories
 
 ## Control Statement
 
-Analyze and correlate audit records across different repositories to gain organization-wide situational awareness.
+The organization analyzes and correlates audit records across different repositories to gain organization-wide situational awareness.
+
+## Control Objective
+
+Determine if the organization analyzes and correlates audit records across different repositories to gain organization-wide situational awareness.
 
 ## Control guidance
 
-Organization-wide situational awareness includes awareness across all three levels of risk management (i.e., organizational level, mission/business process level, and information system level) and supports cross-organization awareness.
+Organization-wide situational awareness includes awareness across all three tiers of risk management (i.e., organizational, mission/business process, and information system) and supports cross-organization awareness.
 
 ______________________________________________________________________
 

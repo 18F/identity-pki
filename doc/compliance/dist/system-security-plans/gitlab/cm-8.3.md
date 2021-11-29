@@ -2,13 +2,42 @@
 
 ## Control Statement
 
-- \[a\] Detect the presence of unauthorized hardware, software, and firmware components within the system using organization-defined automated mechanisms organization-defined frequency; and
+The organization:
 
-- \[b\] Take the following actions when unauthorized components are detected: No value found.
+- \[a\] Employs automated mechanisms organization-defined frequency to detect the presence of unauthorized hardware, software, and firmware components within the information system; and
+
+- \[b\] Takes the following actions when unauthorized components are detected: No value found.
+
+## Control Objective
+
+Determine if the organization:
+
+- \[a_obj\]
+
+  - \[1\] defines the frequency to employ automated mechanisms to detect the presence of unauthorized:
+
+    - \[a\] hardware components within the information system;
+    - \[b\] software components within the information system;
+    - \[c\] firmware components within the information system;
+
+  - \[2\] employs automated mechanisms with the organization-defined frequency to detect the presence of unauthorized:
+
+    - \[a\] hardware components within the information system;
+    - \[b\] software components within the information system;
+    - \[c\] firmware components within the information system;
+
+- \[b_obj\]
+
+  - \[1\] defines personnel or roles to be notified when unauthorized components are detected;
+  - \[2\] takes one or more of the following actions when unauthorized components are detected:
+
+    - \[a\] disables network access by such components;
+    - \[b\] isolates the components; and/or
+    - \[c\] notifies organization-defined personnel or roles.
 
 ## Control guidance
 
-Automated unauthorized component detection is applied in addition to the monitoring for unauthorized remote connections and mobile devices. Monitoring for unauthorized system components may be accomplished on an ongoing basis or by the periodic scanning of systems for that purpose. Automated mechanisms may also be used to prevent the connection of unauthorized components (see [CM-7(9)](#cm-7.9)). Automated mechanisms can be implemented in systems or in separate system components. When acquiring and implementing automated mechanisms, organizations consider whether such mechanisms depend on the ability of the system component to support an agent or supplicant in order to be detected since some types of components do not have or cannot support agents (e.g., IoT devices, sensors). Isolation can be achieved , for example, by placing unauthorized system components in separate domains or subnets or quarantining such components. This type of component isolation is commonly referred to as "sandboxing."
+This control enhancement is applied in addition to the monitoring for unauthorized remote connections and mobile devices. Monitoring for unauthorized system components may be accomplished on an ongoing basis or by the periodic scanning of systems for that purpose. Automated mechanisms can be implemented within information systems or in other separate devices. Isolation can be achieved, for example, by placing unauthorized information system components in separate domains or subnets or otherwise quarantining such components. This type of component isolation is commonly referred to as sandboxing.
 
 ______________________________________________________________________
 

@@ -2,11 +2,19 @@
 
 ## Control Statement
 
-Generate audit records containing the following additional information: organization-defined additional information.
+The information system generates audit records containing the following additional information: organization-defined additional, more detailed information.
+
+## Control Objective
+
+Determine if:
+
+- \[1\] the organization defines additional, more detailed information to be contained in audit records that the information system generates; and
+
+- \[2\] the information system generates audit records containing the organization-defined additional, more detailed information.
 
 ## Control guidance
 
-The ability to add information generated in audit records is dependent on system functionality to configure the audit record content. Organizations may consider additional information in audit records including, but not limited to, access control or flow control rules invoked and individual identities of group account users. Organizations may also consider limiting additional audit record information to only information that is explicitly needed for audit requirements. This facilitates the use of audit trails and audit logs by not including information in audit records that could potentially be misleading, make it more difficult to locate information of interest, or increase the risk to individuals' privacy.
+Detailed information that organizations may consider in audit records includes, for example, full text recording of privileged commands or the individual identities of group account users. Organizations consider limiting the additional audit information to only that information explicitly needed for specific audit requirements. This facilitates the use of audit trails and audit logs by not including information that could potentially be misleading or could make it more difficult to locate information of interest.
 
 ______________________________________________________________________
 

@@ -1,12 +1,16 @@
-# ac-6.9 - \[catalog\] Log Use of Privileged Functions
+# ac-6.9 - \[catalog\] Auditing Use of Privileged Functions
 
 ## Control Statement
 
-Log the execution of privileged functions.
+The information system audits the execution of privileged functions.
+
+## Control Objective
+
+Determine if the information system audits the execution of privileged functions.
 
 ## Control guidance
 
-The misuse of privileged functions, either intentionally or unintentionally by authorized users or by unauthorized external entities that have compromised system accounts, is a serious and ongoing concern and can have significant adverse impacts on organizations. Logging and analyzing the use of privileged functions is one way to detect such misuse and, in doing so, help mitigate the risk from insider threats and the advanced persistent threat.
+Misuse of privileged functions, either intentionally or unintentionally by authorized users, or by unauthorized external entities that have compromised information system accounts, is a serious and ongoing concern and can have significant adverse impacts on organizations. Auditing the use of privileged functions is one way to detect such misuse, and in doing so, help mitigate the risk from insider threats and the advanced persistent threat (APT).
 
 ______________________________________________________________________
 

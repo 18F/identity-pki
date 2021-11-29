@@ -1,12 +1,16 @@
-# cm-4 - \[catalog\] Impact Analyses
+# cm-4 - \[catalog\] Security Impact Analysis
 
 ## Control Statement
 
-Analyze changes to the system to determine potential security and privacy impacts prior to change implementation.
+The organization analyzes changes to the information system to determine potential security impacts prior to change implementation.
+
+## Control Objective
+
+Determine if the organization analyzes changes to the information system to determine potential security impacts prior to change implementation.
 
 ## Control guidance
 
-Organizational personnel with security or privacy responsibilities conduct impact analyses. Individuals conducting impact analyses possess the necessary skills and technical expertise to analyze the changes to systems as well as the security or privacy ramifications. Impact analyses include reviewing security and privacy plans, policies, and procedures to understand control requirements; reviewing system design documentation and operational procedures to understand control implementation and how specific system changes might affect the controls; reviewing the impact of changes on organizational supply chain partners with stakeholders; and determining how potential changes to a system create new risks to the privacy of individuals and the ability of implemented controls to mitigate those risks. Impact analyses also include risk assessments to understand the impact of the changes and determine if additional controls are required.
+Organizational personnel with information security responsibilities (e.g., Information System Administrators, Information System Security Officers, Information System Security Managers, and Information System Security Engineers) conduct security impact analyses. Individuals conducting security impact analyses possess the necessary skills/technical expertise to analyze the changes to information systems and the associated security ramifications. Security impact analysis may include, for example, reviewing security plans to understand security control requirements and reviewing system design documentation to understand control implementation and how specific changes might affect the controls. Security impact analyses may also include assessments of risk to better understand the impact of the changes and to determine if additional security controls are required. Security impact analyses are scaled in accordance with the security categories of the information systems.
 
 ______________________________________________________________________
 

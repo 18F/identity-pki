@@ -2,11 +2,15 @@
 
 ## Control Statement
 
-Determine if system components have applicable security-relevant software and firmware updates installed using organization-defined automated mechanisms organization-defined frequency.
+The organization employs automated mechanisms organization-defined frequency to determine the state of information system components with regard to flaw remediation.
 
-## Control guidance
+## Control Objective
 
-Automated mechanisms can track and determine the status of known flaws for system components.
+Determine if the organization:
+
+- \[1\] defines a frequency to employ automated mechanisms to determine the state of information system components with regard to flaw remediation; and
+
+- \[2\] employs automated mechanisms with the organization-defined frequency to determine the state of information system components with regard to flaw remediation.
 
 ______________________________________________________________________
 

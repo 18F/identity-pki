@@ -2,11 +2,35 @@
 
 ## Control Statement
 
-Automatically audit account creation, modification, enabling, disabling, and removal actions.
+The information system automatically audits account creation, modification, enabling, disabling, and removal actions, and notifies organization-defined personnel or roles.
 
-## Control guidance
+## Control Objective
 
-Account management audit records are defined in accordance with [AU-2](#au-2) and reviewed, analyzed, and reported in accordance with [AU-6](#au-6).
+Determine if:
+
+- \[1\] the information system automatically audits the following account actions:
+
+  - \[a\] creation;
+  - \[b\] modification;
+  - \[c\] enabling;
+  - \[d\] disabling;
+  - \[e\] removal;
+
+- \[2\] the organization defines personnel or roles to be notified of the following account actions:
+
+  - \[a\] creation;
+  - \[b\] modification;
+  - \[c\] enabling;
+  - \[d\] disabling;
+  - \[e\] removal;
+
+- \[3\] the information system notifies organization-defined personnel or roles of the following account actions:
+
+  - \[a\] creation;
+  - \[b\] modification;
+  - \[c\] enabling;
+  - \[d\] disabling; and
+  - \[e\] removal.
 
 ______________________________________________________________________
 

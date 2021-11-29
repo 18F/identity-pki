@@ -1,12 +1,16 @@
-# cp-9.1 - \[catalog\] Testing for Reliability and Integrity
+# cp-9.1 - \[catalog\] Testing for Reliability / Integrity
 
 ## Control Statement
 
-Test backup information organization-defined frequency to verify media reliability and information integrity.
+The organization tests backup information organization-defined frequency to verify media reliability and information integrity.
 
-## Control guidance
+## Control Objective
 
-Organizations need assurance that backup information can be reliably retrieved. Reliability pertains to the systems and system components where the backup information is stored, the operations used to retrieve the information, and the integrity of the information being retrieved. Independent and specialized tests can be used for each of the aspects of reliability. For example, decrypting and transporting (or transmitting) a random sample of backup files from the alternate storage or backup site and comparing the information to the same information at the primary processing site can provide such assurance.
+Determine if the organization:
+
+- \[1\] defines the frequency to test backup information to verify media reliability and information integrity; and
+
+- \[2\] tests backup information with the organization-defined frequency to verify media reliability and information integrity.
 
 ______________________________________________________________________
 

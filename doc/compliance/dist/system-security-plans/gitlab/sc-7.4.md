@@ -2,25 +2,38 @@
 
 ## Control Statement
 
-- \[a\] Implement a managed interface for each external telecommunication service;
+The organization:
 
-- \[b\] Establish a traffic flow policy for each managed interface;
+- \[a\] Implements a managed interface for each external telecommunication service;
 
-- \[c\] Protect the confidentiality and integrity of the information being transmitted across each interface;
+- \[b\] Establishes a traffic flow policy for each managed interface;
 
-- \[d\] Document each exception to the traffic flow policy with a supporting mission or business need and duration of that need;
+- \[c\] Protects the confidentiality and integrity of the information being transmitted across each interface;
 
-- \[e\] Review exceptions to the traffic flow policy organization-defined frequency and remove exceptions that are no longer supported by an explicit mission or business need;
+- \[d\] Documents each exception to the traffic flow policy with a supporting mission/business need and duration of that need; and
 
-- \[f\] Prevent unauthorized exchange of control plane traffic with external networks;
+- \[e\] Reviews exceptions to the traffic flow policy organization-defined frequency and removes exceptions that are no longer supported by an explicit mission/business need.
 
-- \[g\] Publish information to enable remote networks to detect unauthorized control plane traffic from internal networks; and
+## Control Objective
 
-- \[h\] Filter unauthorized control plane traffic from external networks.
+Determine if the organization:
 
-## Control guidance
+- \[a_obj\] implements a managed interface for each external telecommunication service;
 
-External telecommunications services can provide data and/or voice communications services. Examples of control plane traffic include Border Gateway Protocol (BGP) routing, Domain Name System (DNS), and management protocols. See [SP 800-189](#f5edfe51-d1f2-422e-9b27-5d0e90b49c72) for additional information on the use of the resource public key infrastructure (RPKI) to protect BGP routes and detect unauthorized BGP announcements.
+- \[b_obj\] establishes a traffic flow policy for each managed interface;
+
+- \[c_obj\] protects the confidentiality and integrity of the information being transmitted across each interface;
+
+- \[d_obj\] documents each exception to the traffic flow policy with:
+
+  - \[1\] a supporting mission/business need;
+  - \[2\] duration of that need;
+
+- \[e_obj\]
+
+  - \[1\] defines a frequency to review exceptions to traffic flow policy;
+  - \[2\] reviews exceptions to the traffic flow policy with the organization-defined frequency; and
+  - \[3\] removes traffic flow policy exceptions that are no longer supported by an explicit mission/business need
 
 ______________________________________________________________________
 
@@ -57,23 +70,5 @@ ______________________________________________________________________
 ## Implementation (e)
 
 Add control implementation description here for item sc-7.4_smt.e
-
-______________________________________________________________________
-
-## Implementation (f)
-
-Add control implementation description here for item sc-7.4_smt.f
-
-______________________________________________________________________
-
-## Implementation (g)
-
-Add control implementation description here for item sc-7.4_smt.g
-
-______________________________________________________________________
-
-## Implementation (h)
-
-Add control implementation description here for item sc-7.4_smt.h
 
 ______________________________________________________________________

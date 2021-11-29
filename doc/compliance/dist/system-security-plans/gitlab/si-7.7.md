@@ -2,11 +2,19 @@
 
 ## Control Statement
 
-Incorporate the detection of the following unauthorized changes into the organizational incident response capability: organization-defined security-relevant changes to the system.
+The organization incorporates the detection of unauthorized organization-defined security-relevant changes to the information system into the organizational incident response capability.
+
+## Control Objective
+
+Determine if the organization:
+
+- \[1\] defines unauthorized security-relevant changes to the information system; and
+
+- \[2\] incorporates the detection of unauthorized organization-defined security-relevant changes to the information system into the organizational incident response capability.
 
 ## Control guidance
 
-Integrating detection and response helps to ensure that detected events are tracked, monitored, corrected, and available for historical purposes. Maintaining historical records is important for being able to identify and discern adversary actions over an extended time period and for possible legal actions. Security-relevant changes include unauthorized changes to established configuration settings or the unauthorized elevation of system privileges.
+This control enhancement helps to ensure that detected events are tracked, monitored, corrected, and available for historical purposes. Maintaining historical records is important both for being able to identify and discern adversary actions over an extended period of time and for possible legal actions. Security-relevant changes include, for example, unauthorized changes to established configuration settings or unauthorized elevation of information system privileges.
 
 ______________________________________________________________________
 

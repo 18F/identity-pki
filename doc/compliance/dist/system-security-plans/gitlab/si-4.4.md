@@ -2,30 +2,30 @@
 
 ## Control Statement
 
-- \[a\] Determine criteria for unusual or unauthorized activities or conditions for inbound and outbound communications traffic;
+The information system monitors inbound and outbound communications traffic organization-defined frequency for unusual or unauthorized activities or conditions.
 
-- \[b\] Monitor inbound and outbound communications traffic organization-defined frequency for organization-defined unusual or unauthorized activities or conditions.
+## Control Objective
+
+Determine if the organization:
+
+- \[1\] defines a frequency to monitor:
+
+  - \[a\] inbound communications traffic for unusual or unauthorized activities or conditions;
+  - \[b\] outbound communications traffic for unusual or unauthorized activities or conditions;
+
+- \[2\] monitors, with the organization-defined frequency:
+
+  - \[a\] inbound communications traffic for unusual or unauthorized activities or conditions; and
+  - \[b\] outbound communications traffic for unusual or unauthorized activities or conditions.
 
 ## Control guidance
 
-Unusual or unauthorized activities or conditions related to system inbound and outbound communications traffic includes internal traffic that indicates the presence of malicious code or unauthorized use of legitimate code or credentials within organizational systems or propagating among system components, signaling to external systems, and the unauthorized exporting of information. Evidence of malicious code or unauthorized use of legitimate code or credentials is used to identify potentially compromised systems or system components.
+Unusual/unauthorized activities or conditions related to information system inbound and outbound communications traffic include, for example, internal traffic that indicates the presence of malicious code within organizational information systems or propagating among system components, the unauthorized exporting of information, or signaling to external information systems. Evidence of malicious code is used to identify potentially compromised information systems or information system components.
 
 ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-<!-- Please leave this section blank and enter implementation details in the parts below. -->
-
-______________________________________________________________________
-
-## Implementation (a)
-
-Add control implementation description here for item si-4.4_smt.a
-
-______________________________________________________________________
-
-## Implementation (b)
-
-Add control implementation description here for item si-4.4_smt.b
+Add control implementation description here for control si-4.4
 
 ______________________________________________________________________

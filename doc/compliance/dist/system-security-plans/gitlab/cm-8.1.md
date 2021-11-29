@@ -1,12 +1,18 @@
-# cm-8.1 - \[catalog\] Updates During Installation and Removal
+# cm-8.1 - \[catalog\] Updates During Installations / Removals
 
 ## Control Statement
 
-Update the inventory of system components as part of component installations, removals, and system updates.
+The organization updates the inventory of information system components as an integral part of component installations, removals, and information system updates.
 
-## Control guidance
+## Control Objective
 
-Organizations can improve the accuracy, completeness, and consistency of system component inventories if the inventories are updated as part of component installations or removals or during general system updates. If inventories are not updated at these key times, there is a greater likelihood that the information will not be appropriately captured and documented. System updates include hardware, software, and firmware components.
+Determine if the organization updates the inventory of information system components as an integral part of:
+
+- \[1\] component installations;
+
+- \[2\] component removals; and
+
+- \[3\] information system updates.
 
 ______________________________________________________________________
 

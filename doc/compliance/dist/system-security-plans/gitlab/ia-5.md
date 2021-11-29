@@ -2,31 +2,77 @@
 
 ## Control Statement
 
-Manage system authenticators by:
+The organization manages information system authenticators by:
 
-- \[a\] Verifying, as part of the initial authenticator distribution, the identity of the individual, group, role, service, or device receiving the authenticator;
+- \[a\] Verifying, as part of the initial authenticator distribution, the identity of the individual, group, role, or device receiving the authenticator;
 
-- \[b\] Establishing initial authenticator content for any authenticators issued by the organization;
+- \[b\] Establishing initial authenticator content for authenticators defined by the organization;
 
 - \[c\] Ensuring that authenticators have sufficient strength of mechanism for their intended use;
 
-- \[d\] Establishing and implementing administrative procedures for initial authenticator distribution, for lost or compromised or damaged authenticators, and for revoking authenticators;
+- \[d\] Establishing and implementing administrative procedures for initial authenticator distribution, for lost/compromised or damaged authenticators, and for revoking authenticators;
 
-- \[e\] Changing default authenticators prior to first use;
+- \[e\] Changing default content of authenticators prior to information system installation;
 
-- \[f\] Changing or refreshing authenticators organization-defined time period by authenticator type or when organization-defined events occur;
+- \[f\] Establishing minimum and maximum lifetime restrictions and reuse conditions for authenticators;
 
-- \[g\] Protecting authenticator content from unauthorized disclosure and modification;
+- \[g\] Changing/refreshing authenticators organization-defined time period by authenticator type;
 
-- \[h\] Requiring individuals to take, and having devices implement, specific controls to protect authenticators; and
+- \[h\] Protecting authenticator content from unauthorized disclosure and modification;
 
-- \[i\] Changing authenticators for group or role accounts when membership to those accounts changes.
+- \[i\] Requiring individuals to take, and having devices implement, specific security safeguards to protect authenticators; and
+
+- \[j\] Changing authenticators for group/role accounts when membership to those accounts changes.
+
+## Control Objective
+
+Determine if the organization manages information system authenticators by:
+
+- \[a_obj\] verifying, as part of the initial authenticator distribution, the identity of:
+
+  - \[1\] the individual receiving the authenticator;
+  - \[2\] the group receiving the authenticator;
+  - \[3\] the role receiving the authenticator; and/or
+  - \[4\] the device receiving the authenticator;
+
+- \[b_obj\] establishing initial authenticator content for authenticators defined by the organization;
+
+- \[c_obj\] ensuring that authenticators have sufficient strength of mechanism for their intended use;
+
+- \[d_obj\]
+
+  - \[1\] establishing and implementing administrative procedures for initial authenticator distribution;
+  - \[2\] establishing and implementing administrative procedures for lost/compromised or damaged authenticators;
+  - \[3\] establishing and implementing administrative procedures for revoking authenticators;
+
+- \[e_obj\] changing default content of authenticators prior to information system installation;
+
+- \[f_obj\]
+
+  - \[1\] establishing minimum lifetime restrictions for authenticators;
+  - \[2\] establishing maximum lifetime restrictions for authenticators;
+  - \[3\] establishing reuse conditions for authenticators;
+
+- \[g_obj\]
+
+  - \[1\] defining a time period (by authenticator type) for changing/refreshing authenticators;
+  - \[2\] changing/refreshing authenticators with the organization-defined time period by authenticator type;
+
+- \[h_obj\] protecting authenticator content from unauthorized:
+
+  - \[1\] disclosure;
+  - \[2\] modification;
+
+- \[i_obj\]
+
+  - \[1\] requiring individuals to take specific security safeguards to protect authenticators;
+  - \[2\] having devices implement specific security safeguards to protect authenticators; and
+
+- \[j_obj\] changing authenticators for group/role accounts when membership to those accounts changes.
 
 ## Control guidance
 
-Authenticators include passwords, cryptographic devices, biometrics, certificates, one-time password devices, and ID badges. Device authenticators include certificates and passwords. Initial authenticator content is the actual content of the authenticator (e.g., the initial password). In contrast, the requirements for authenticator content contain specific criteria or characteristics (e.g., minimum password length). Developers may deliver system components with factory default authentication credentials (i.e., passwords) to allow for initial installation and configuration. Default authentication credentials are often well known, easily discoverable, and present a significant risk. The requirement to protect individual authenticators may be implemented via control [PL-4](#pl-4) or [PS-6](#ps-6) for authenticators in the possession of individuals and by controls [AC-3](#ac-3), [AC-6](#ac-6), and [SC-28](#sc-28) for authenticators stored in organizational systems, including passwords stored in hashed or encrypted formats or files containing encrypted or hashed passwords accessible with administrator privileges.
-
-Systems support authenticator management by organization-defined settings and restrictions for various authenticator characteristics (e.g., minimum password length, validation time window for time synchronous one-time tokens, and number of allowed rejections during the verification stage of biometric authentication). Actions can be taken to safeguard individual authenticators, including maintaining possession of authenticators, not sharing authenticators with others, and immediately reporting lost, stolen, or compromised authenticators. Authenticator management includes issuing and revoking authenticators for temporary access when no longer needed.
+Individual authenticators include, for example, passwords, tokens, biometrics, PKI certificates, and key cards. Initial authenticator content is the actual content (e.g., the initial password) as opposed to requirements about authenticator content (e.g., minimum password length). In many cases, developers ship information system components with factory default authentication credentials to allow for initial installation and configuration. Default authentication credentials are often well known, easily discoverable, and present a significant security risk. The requirement to protect individual authenticators may be implemented via control PL-4 or PS-6 for authenticators in the possession of individuals and by controls AC-3, AC-6, and SC-28 for authenticators stored within organizational information systems (e.g., passwords stored in hashed or encrypted formats, files containing encrypted or hashed passwords accessible with administrator privileges). Information systems support individual authenticator management by organization-defined settings and restrictions for various authenticator characteristics including, for example, minimum password length, password composition, validation time window for time synchronous one-time tokens, and number of allowed rejections during the verification stage of biometric authentication. Specific actions that can be taken to safeguard authenticators include, for example, maintaining possession of individual authenticators, not loaning or sharing individual authenticators with others, and reporting lost, stolen, or compromised authenticators immediately. Authenticator management includes issuing and revoking, when no longer needed, authenticators for temporary access such as that required for remote maintenance. Device authenticators include, for example, certificates and passwords.
 
 ______________________________________________________________________
 
@@ -87,5 +133,11 @@ ______________________________________________________________________
 ## Implementation i.
 
 Add control implementation description here for item ia-5_smt.i
+
+______________________________________________________________________
+
+## Implementation j.
+
+Add control implementation description here for item ia-5_smt.j
 
 ______________________________________________________________________

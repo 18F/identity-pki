@@ -1,12 +1,20 @@
-# sc-7.5 - \[catalog\] Deny by Default — Allow by Exception
+# sc-7.5 - \[catalog\] Deny by Default / Allow by Exception
 
 ## Control Statement
 
-Deny network communications traffic by default and allow network communications traffic by exception No value found.
+The information system at managed interfaces denies network communications traffic by default and allows network communications traffic by exception (i.e., deny all, permit by exception).
+
+## Control Objective
+
+Determine if the information system, at managed interfaces:
+
+- \[1\] denies network traffic by default; and
+
+- \[2\] allows network traffic by exception.
 
 ## Control guidance
 
-Denying by default and allowing by exception applies to inbound and outbound network communications traffic. A deny-all, permit-by-exception network communications traffic policy ensures that only those system connections that are essential and approved are allowed. Deny by default, allow by exception also applies to a system that is connected to an external system.
+This control enhancement applies to both inbound and outbound network communications traffic. A deny-all, permit-by-exception network communications traffic policy ensures that only those connections which are essential and approved are allowed.
 
 ______________________________________________________________________
 

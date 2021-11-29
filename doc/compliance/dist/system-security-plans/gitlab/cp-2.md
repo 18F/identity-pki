@@ -2,35 +2,82 @@
 
 ## Control Statement
 
-- \[a\] Develop a contingency plan for the system that:
+The organization:
 
-  - \[1\] Identifies essential mission and business functions and associated contingency requirements;
+- \[a\] Develops a contingency plan for the information system that:
+
+  - \[1\] Identifies essential missions and business functions and associated contingency requirements;
   - \[2\] Provides recovery objectives, restoration priorities, and metrics;
   - \[3\] Addresses contingency roles, responsibilities, assigned individuals with contact information;
-  - \[4\] Addresses maintaining essential mission and business functions despite a system disruption, compromise, or failure;
-  - \[5\] Addresses eventual, full system restoration without deterioration of the controls originally planned and implemented;
-  - \[6\] Addresses the sharing of contingency information; and
-  - \[7\] Is reviewed and approved by organization-defined personnel or roles;
+  - \[4\] Addresses maintaining essential missions and business functions despite an information system disruption, compromise, or failure;
+  - \[5\] Addresses eventual, full information system restoration without deterioration of the security safeguards originally planned and implemented; and
+  - \[6\] Is reviewed and approved by organization-defined personnel or roles;
 
-- \[b\] Distribute copies of the contingency plan to organization-defined key contingency personnel (identified by name and/or by role) and organizational elements;
+- \[b\] Distributes copies of the contingency plan to organization-defined key contingency personnel (identified by name and/or by role) and organizational elements;
 
-- \[c\] Coordinate contingency planning activities with incident handling activities;
+- \[c\] Coordinates contingency planning activities with incident handling activities;
 
-- \[d\] Review the contingency plan for the system organization-defined frequency;
+- \[d\] Reviews the contingency plan for the information system organization-defined frequency;
 
-- \[e\] Update the contingency plan to address changes to the organization, system, or environment of operation and problems encountered during contingency plan implementation, execution, or testing;
+- \[e\] Updates the contingency plan to address changes to the organization, information system, or environment of operation and problems encountered during contingency plan implementation, execution, or testing;
 
-- \[f\] Communicate contingency plan changes to organization-defined key contingency personnel (identified by name and/or by role) and organizational elements;
+- \[f\] Communicates contingency plan changes to organization-defined key contingency personnel (identified by name and/or by role) and organizational elements; and
 
-- \[g\] Incorporate lessons learned from contingency plan testing, training, or actual contingency activities into contingency testing and training; and
+- \[g\] Protects the contingency plan from unauthorized disclosure and modification.
 
-- \[h\] Protect the contingency plan from unauthorized disclosure and modification.
+## Control Objective
+
+Determine if the organization:
+
+- \[a_obj\] develops and documents a contingency plan for the information system that:
+
+  - \[1_obj\] identifies essential missions and business functions and associated contingency requirements;
+  - \[2_obj\]
+
+    - \[1\] provides recovery objectives;
+    - \[2\] provides restoration priorities;
+    - \[3\] provides metrics;
+
+  - \[3_obj\]
+
+    - \[1\] addresses contingency roles;
+    - \[2\] addresses contingency responsibilities;
+    - \[3\] addresses assigned individuals with contact information;
+
+  - \[4_obj\] addresses maintaining essential missions and business functions despite an information system disruption, compromise, or failure;
+  - \[5_obj\] addresses eventual, full information system restoration without deterioration of the security safeguards originally planned and implemented;
+  - \[6_obj\]
+
+    - \[1\] defines personnel or roles to review and approve the contingency plan for the information system;
+    - \[2\] is reviewed and approved by organization-defined personnel or roles;
+
+- \[b_obj\]
+
+  - \[1\] defines key contingency personnel (identified by name and/or by role) and organizational elements to whom copies of the contingency plan are to be distributed;
+  - \[2\] distributes copies of the contingency plan to organization-defined key contingency personnel and organizational elements;
+
+- \[c_obj\] coordinates contingency planning activities with incident handling activities;
+
+- \[d_obj\]
+
+  - \[1\] defines a frequency to review the contingency plan for the information system;
+  - \[2\] reviews the contingency plan with the organization-defined frequency;
+
+- \[e_obj\] updates the contingency plan to address:
+
+  - \[1\] changes to the organization, information system, or environment of operation;
+  - \[2\] problems encountered during plan implementation, execution, and testing;
+
+- \[f_obj\]
+
+  - \[1\] defines key contingency personnel (identified by name and/or by role) and organizational elements to whom contingency plan changes are to be communicated;
+  - \[2\] communicates contingency plan changes to organization-defined key contingency personnel and organizational elements; and
+
+- \[g_obj\] protects the contingency plan from unauthorized disclosure and modification.
 
 ## Control guidance
 
-Contingency planning for systems is part of an overall program for achieving continuity of operations for organizational mission and business functions. Contingency planning addresses system restoration and implementation of alternative mission or business processes when systems are compromised or breached. Contingency planning is considered throughout the system development life cycle and is a fundamental part of the system design. Systems can be designed for redundancy, to provide backup capabilities, and for resilience. Contingency plans reflect the degree of restoration required for organizational systems since not all systems need to fully recover to achieve the level of continuity of operations desired. System recovery objectives reflect applicable laws, executive orders, directives, regulations, policies, standards, guidelines, organizational risk tolerance, and system impact level.
-
-Actions addressed in contingency plans include orderly system degradation, system shutdown, fallback to a manual mode, alternate information flows, and operating in modes reserved for when systems are under attack. By coordinating contingency planning with incident handling activities, organizations ensure that the necessary planning activities are in place and activated in the event of an incident. Organizations consider whether continuity of operations during an incident conflicts with the capability to automatically disable the system, as specified in [IR-4(5)](#ir-4.5). Incident response planning is part of contingency planning for organizations and is addressed in the [IR](#ir) (Incident Response) family.
+Contingency planning for information systems is part of an overall organizational program for achieving continuity of operations for mission/business functions. Contingency planning addresses both information system restoration and implementation of alternative mission/business processes when systems are compromised. The effectiveness of contingency planning is maximized by considering such planning throughout the phases of the system development life cycle. Performing contingency planning on hardware, software, and firmware development can be an effective means of achieving information system resiliency. Contingency plans reflect the degree of restoration required for organizational information systems since not all systems may need to fully recover to achieve the level of continuity of operations desired. Information system recovery objectives reflect applicable laws, Executive Orders, directives, policies, standards, regulations, and guidelines. In addition to information system availability, contingency plans also address other security-related events resulting in a reduction in mission and/or business effectiveness, such as malicious attacks compromising the confidentiality or integrity of information systems. Actions addressed in contingency plans include, for example, orderly/graceful degradation, information system shutdown, fallback to a manual mode, alternate information flows, and operating in modes reserved for when systems are under attack. By closely coordinating contingency planning with incident handling activities, organizations can ensure that the necessary contingency planning activities are in place and activated in the event of a security incident.
 
 ______________________________________________________________________
 
@@ -79,11 +126,5 @@ ______________________________________________________________________
 ## Implementation g.
 
 Add control implementation description here for item cp-2_smt.g
-
-______________________________________________________________________
-
-## Implementation h.
-
-Add control implementation description here for item cp-2_smt.h
 
 ______________________________________________________________________

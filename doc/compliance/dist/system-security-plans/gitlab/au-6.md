@@ -1,16 +1,31 @@
-# au-6 - \[catalog\] Audit Record Review, Analysis, and Reporting
+# au-6 - \[catalog\] Audit Review, Analysis, and Reporting
 
 ## Control Statement
 
-- \[a\] Review and analyze system audit records organization-defined frequency for indications of organization-defined inappropriate or unusual activity and the potential impact of the inappropriate or unusual activity;
+The organization:
 
-- \[b\] Report findings to organization-defined personnel or roles; and
+- \[a\] Reviews and analyzes information system audit records organization-defined frequency for indications of organization-defined inappropriate or unusual activity; and
 
-- \[c\] Adjust the level of audit record review, analysis, and reporting within the system when there is a change in risk based on law enforcement information, intelligence information, or other credible sources of information.
+- \[b\] Reports findings to organization-defined personnel or roles.
+
+## Control Objective
+
+Determine if the organization:
+
+- \[a_obj\]
+
+  - \[1\] defines the types of inappropriate or unusual activity to look for when information system audit records are reviewed and analyzed;
+  - \[2\] defines the frequency to review and analyze information system audit records for indications of organization-defined inappropriate or unusual activity;
+  - \[3\] reviews and analyzes information system audit records for indications of organization-defined inappropriate or unusual activity with the organization-defined frequency;
+
+- \[b_obj\]
+
+  - \[1\] defines personnel or roles to whom findings resulting from reviews and analysis of information system audit records are to be reported; and
+  - \[2\] reports findings to organization-defined personnel or roles.
 
 ## Control guidance
 
-Audit record review, analysis, and reporting covers information security- and privacy-related logging performed by organizations, including logging that results from the monitoring of account usage, remote access, wireless connectivity, mobile device connection, configuration settings, system component inventory, use of maintenance tools and non-local maintenance, physical access, temperature and humidity, equipment delivery and removal, communications at system interfaces, and use of mobile code or Voice over Internet Protocol (VoIP). Findings can be reported to organizational entities that include the incident response team, help desk, and security or privacy offices. If organizations are prohibited from reviewing and analyzing audit records or unable to conduct such activities, the review or analysis may be carried out by other organizations granted such authority. The frequency, scope, and/or depth of the audit record review, analysis, and reporting may be adjusted to meet organizational needs based on new information received.
+Audit review, analysis, and reporting covers information security-related auditing performed by organizations including, for example, auditing that results from monitoring of account usage, remote access, wireless connectivity, mobile device connection, configuration settings, system component inventory, use of maintenance tools and nonlocal maintenance, physical access, temperature and humidity, equipment delivery and removal, communications at the information system boundaries, use of mobile code, and use of VoIP. Findings can be reported to organizational entities that include, for example, incident response team, help desk, information security group/department. If organizations are prohibited from reviewing and analyzing audit information or unable to conduct such activities (e.g., in certain national security applications or systems), the review/analysis may be carried out by other organizations granted such authority.
 
 ______________________________________________________________________
 
@@ -29,11 +44,5 @@ ______________________________________________________________________
 ## Implementation b.
 
 Add control implementation description here for item au-6_smt.b
-
-______________________________________________________________________
-
-## Implementation c.
-
-Add control implementation description here for item au-6_smt.c
 
 ______________________________________________________________________

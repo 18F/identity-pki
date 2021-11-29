@@ -1,18 +1,41 @@
-# cp-9 - \[catalog\] System Backup
+# cp-9 - \[catalog\] Information System Backup
 
 ## Control Statement
 
-- \[a\] Conduct backups of user-level information contained in organization-defined system components organization-defined frequency consistent with recovery time and recovery point objectives;
+The organization:
 
-- \[b\] Conduct backups of system-level information contained in the system organization-defined frequency consistent with recovery time and recovery point objectives;
+- \[a\] Conducts backups of user-level information contained in the information system organization-defined frequency consistent with recovery time and recovery point objectives;
 
-- \[c\] Conduct backups of system documentation, including security- and privacy-related documentation organization-defined frequency consistent with recovery time and recovery point objectives; and
+- \[b\] Conducts backups of system-level information contained in the information system organization-defined frequency consistent with recovery time and recovery point objectives;
 
-- \[d\] Protect the confidentiality, integrity, and availability of backup information.
+- \[c\] Conducts backups of information system documentation including security-related documentation organization-defined frequency consistent with recovery time and recovery point objectives; and
+
+- \[d\] Protects the confidentiality, integrity, and availability of backup information at storage locations.
+
+## Control Objective
+
+Determine if the organization:
+
+- \[a_obj\]
+
+  - \[1\] defines a frequency, consistent with recovery time objectives and recovery point objectives as specified in the information system contingency plan, to conduct backups of user-level information contained in the information system;
+  - \[2\] conducts backups of user-level information contained in the information system with the organization-defined frequency;
+
+- \[b_obj\]
+
+  - \[1\] defines a frequency, consistent with recovery time objectives and recovery point objectives as specified in the information system contingency plan, to conduct backups of system-level information contained in the information system;
+  - \[2\] conducts backups of system-level information contained in the information system with the organization-defined frequency;
+
+- \[c_obj\]
+
+  - \[1\] defines a frequency, consistent with recovery time objectives and recovery point objectives as specified in the information system contingency plan, to conduct backups of information system documentation including security-related documentation;
+  - \[2\] conducts backups of information system documentation, including security-related documentation, with the organization-defined frequency; and
+
+- \[d_obj\] protects the confidentiality, integrity, and availability of backup information at storage locations.
 
 ## Control guidance
 
-System-level information includes system state information, operating system software, middleware, application software, and licenses. User-level information includes information other than system-level information. Mechanisms employed to protect the integrity of system backups include digital signatures and cryptographic hashes. Protection of system backup information while in transit is addressed by [MP-5](#mp-5) and [SC-8](#sc-8). System backups reflect the requirements in contingency plans as well as other organizational requirements for backing up information. Organizations may be subject to laws, executive orders, directives, regulations, or policies with requirements regarding specific categories of information (e.g., personal health information). Organizational personnel consult with the senior agency official for privacy and legal counsel regarding such requirements.
+System-level information includes, for example, system-state information, operating system and application software, and licenses. User-level information includes any information other than system-level information. Mechanisms employed by organizations to protect the integrity of information system backups include, for example, digital signatures and cryptographic hashes. Protection of system backup information while in transit is beyond the scope of this control. Information system backups reflect the requirements in contingency plans as well as other organizational requirements for backing up information.
 
 ______________________________________________________________________
 

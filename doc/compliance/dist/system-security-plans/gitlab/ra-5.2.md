@@ -1,12 +1,20 @@
-# ra-5.2 - \[catalog\] Update Vulnerabilities to Be Scanned
+# ra-5.2 - \[catalog\] Update by Frequency / Prior to New Scan / When Identified
 
 ## Control Statement
 
-Update the system vulnerabilities to be scanned No value found.
+The organization updates the information system vulnerabilities scanned No value found.
 
-## Control guidance
+## Control Objective
 
-Due to the complexity of modern software, systems, and other factors, new vulnerabilities are discovered on a regular basis. It is important that newly discovered vulnerabilities are added to the list of vulnerabilities to be scanned to ensure that the organization can take steps to mitigate those vulnerabilities in a timely manner.
+Determine if the organization:
+
+- \[1\] defines the frequency to update the information system vulnerabilities scanned;
+
+- \[2\] updates the information system vulnerabilities scanned one or more of the following:
+
+  - \[a\] with the organization-defined frequency;
+  - \[b\] prior to a new scan; and/or
+  - \[c\] when new vulnerabilities are identified and reported.
 
 ______________________________________________________________________
 

@@ -1,31 +1,27 @@
-# sc-5 - \[catalog\] Denial-of-service Protection
+# sc-5 - \[catalog\] Denial of Service Protection
 
 ## Control Statement
 
-- \[a\]  No value found the effects of the following types of denial-of-service events: organization-defined types of denial-of-service events; and
+The information system protects against or limits the effects of the following types of denial of service attacks: organization-defined types of denial of service attacks or references to sources for such information by employing organization-defined security safeguards.
 
-- \[b\] Employ the following controls to achieve the denial-of-service objective: organization-defined controls by type of denial-of-service event.
+## Control Objective
+
+Determine if:
+
+- \[1\] the organization defines types of denial of service attacks or reference to source of such information for the information system to protect against or limit the effects;
+
+- \[2\] the organization defines security safeguards to be employed by the information system to protect against or limit the effects of organization-defined types of denial of service attacks; and
+
+- \[3\] the information system protects against or limits the effects of the organization-defined denial or service attacks (or reference to source for such information) by employing organization-defined security safeguards.
 
 ## Control guidance
 
-Denial-of-service events may occur due to a variety of internal and external causes, such as an attack by an adversary or a lack of planning to support organizational needs with respect to capacity and bandwidth. Such attacks can occur across a wide range of network protocols (e.g., IPv4, IPv6). A variety of technologies are available to limit or eliminate the origination and effects of denial-of-service events. For example, boundary protection devices can filter certain types of packets to protect system components on internal networks from being directly affected by or the source of denial-of-service attacks. Employing increased network capacity and bandwidth combined with service redundancy also reduces the susceptibility to denial-of-service events.
+A variety of technologies exist to limit, or in some cases, eliminate the effects of denial of service attacks. For example, boundary protection devices can filter certain types of packets to protect information system components on internal organizational networks from being directly affected by denial of service attacks. Employing increased capacity and bandwidth combined with service redundancy may also reduce the susceptibility to denial of service attacks.
 
 ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-<!-- Please leave this section blank and enter implementation details in the parts below. -->
-
-______________________________________________________________________
-
-## Implementation a.
-
-Add control implementation description here for item sc-5_smt.a
-
-______________________________________________________________________
-
-## Implementation b.
-
-Add control implementation description here for item sc-5_smt.b
+Add control implementation description here for control sc-5
 
 ______________________________________________________________________

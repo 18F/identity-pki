@@ -2,19 +2,34 @@
 
 ## Control Statement
 
-- \[a\] Acquire, develop, and manage the system using organization-defined system development life cycle that incorporates information security and privacy considerations;
+The organization:
 
-- \[b\] Define and document information security and privacy roles and responsibilities throughout the system development life cycle;
+- \[a\] Manages the information system using organization-defined system development life cycle that incorporates information security considerations;
 
-- \[c\] Identify individuals having information security and privacy roles and responsibilities; and
+- \[b\] Defines and documents information security roles and responsibilities throughout the system development life cycle;
 
-- \[d\] Integrate the organizational information security and privacy risk management process into system development life cycle activities.
+- \[c\] Identifies individuals having information security roles and responsibilities; and
+
+- \[d\] Integrates the organizational information security risk management process into system development life cycle activities.
+
+## Control Objective
+
+Determine if the organization:
+
+- \[a_obj\]
+
+  - \[1\] defines a system development life cycle that incorporates information security considerations to be used to manage the information system;
+  - \[2\] manages the information system using the organization-defined system development life cycle;
+
+- \[b_obj\] defines and documents information security roles and responsibilities throughout the system development life cycle;
+
+- \[c_obj\] identifies individuals having information security roles and responsibilities; and
+
+- \[d_obj\] integrates the organizational information security risk management process into system development life cycle activities.
 
 ## Control guidance
 
-A system development life cycle process provides the foundation for the successful development, implementation, and operation of organizational systems. The integration of security and privacy considerations early in the system development life cycle is a foundational principle of systems security engineering and privacy engineering. To apply the required controls within the system development life cycle requires a basic understanding of information security and privacy, threats, vulnerabilities, adverse impacts, and risk to critical mission and business functions. The security engineering principles in [SA-8](#sa-8) help individuals properly design, code, and test systems and system components. Organizations include qualified personnel (e.g., senior agency information security officers, senior agency officials for privacy, security and privacy architects, and security and privacy engineers) in system development life cycle processes to ensure that established security and privacy requirements are incorporated into organizational systems. Role-based security and privacy training programs can ensure that individuals with key security and privacy roles and responsibilities have the experience, skills, and expertise to conduct assigned system development life cycle activities.
-
-The effective integration of security and privacy requirements into enterprise architecture also helps to ensure that important security and privacy considerations are addressed throughout the system life cycle and that those considerations are directly related to organizational mission and business processes. This process also facilitates the integration of the information security and privacy architectures into the enterprise architecture, consistent with the risk management strategy of the organization. Because the system development life cycle involves multiple organizations, (e.g., external suppliers, developers, integrators, service providers), acquisition and supply chain risk management functions and controls play significant roles in the effective management of the system during the life cycle.
+A well-defined system development life cycle provides the foundation for the successful development, implementation, and operation of organizational information systems. To apply the required security controls within the system development life cycle requires a basic understanding of information security, threats, vulnerabilities, adverse impacts, and risk to critical missions/business functions. The security engineering principles in SA-8 cannot be properly applied if individuals that design, code, and test information systems and system components (including information technology products) do not understand security. Therefore, organizations include qualified personnel, for example, chief information security officers, security architects, security engineers, and information system security officers in system development life cycle activities to ensure that security requirements are incorporated into organizational information systems. It is equally important that developers include individuals on the development team that possess the requisite security expertise and skills to ensure that needed security capabilities are effectively integrated into the information system. Security awareness and training programs can help ensure that individuals having key security roles and responsibilities have the appropriate experience, skills, and expertise to conduct assigned system development life cycle activities. The effective integration of security requirements into enterprise architecture also helps to ensure that important security considerations are addressed early in the system development life cycle and that those considerations are directly related to the organizational mission/business processes. This process also facilitates the integration of the information security architecture into the enterprise architecture, consistent with organizational risk management and information security strategies.
 
 ______________________________________________________________________
 

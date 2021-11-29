@@ -2,27 +2,56 @@
 
 ## Control Statement
 
-For password-based authentication:
+The information system, for password-based authentication:
 
-- \[a\] Maintain a list of commonly-used, expected, or compromised passwords and update the list organization-defined frequency and when organizational passwords are suspected to have been compromised directly or indirectly;
+- \[a\] Enforces minimum password complexity of organization-defined requirements for case sensitivity, number of characters, mix of upper-case letters, lower-case letters, numbers, and special characters, including minimum requirements for each type;
 
-- \[b\] Verify, when users create or update passwords, that the passwords are not found on the list of commonly-used, expected, or compromised passwords in IA-5(1)(a);
+- \[b\] Enforces at least the following number of changed characters when new passwords are created: organization-defined number;
 
-- \[c\] Transmit passwords only over cryptographically-protected channels;
+- \[c\] Stores and transmits only cryptographically-protected passwords;
 
-- \[d\] Store passwords using an approved salted key derivation function, preferably using a keyed hash;
+- \[d\] Enforces password minimum and maximum lifetime restrictions of organization-defined numbers for lifetime minimum, lifetime maximum;
 
-- \[e\] Require immediate selection of a new password upon account recovery;
+- \[e\] Prohibits password reuse for organization-defined number generations; and
 
-- \[f\] Allow user selection of long passwords and passphrases, including spaces and all printable characters;
+- \[f\] Allows the use of a temporary password for system logons with an immediate change to a permanent password.
 
-- \[g\] Employ automated tools to assist the user in selecting strong password authenticators; and
+## Control Objective
 
-- \[h\] Enforce the following composition and complexity rules: organization-defined composition and complexity rules.
+Determine if, for password-based authentication:
+
+- \[a_obj\]
+
+  - \[1\] the organization defines requirements for case sensitivity;
+  - \[2\] the organization defines requirements for number of characters;
+  - \[3\] the organization defines requirements for the mix of upper-case letters, lower-case letters, numbers and special characters;
+  - \[4\] the organization defines minimum requirements for each type of character;
+  - \[5\] the information system enforces minimum password complexity of organization-defined requirements for case sensitivity, number of characters, mix of upper-case letters, lower-case letters, numbers, and special characters, including minimum requirements for each type;
+
+- \[b_obj\]
+
+  - \[1\] the organization defines a minimum number of changed characters to be enforced when new passwords are created;
+  - \[2\] the information system enforces at least the organization-defined minimum number of characters that must be changed when new passwords are created;
+
+- \[c_obj\] the information system stores and transmits only encrypted representations of passwords;
+
+- \[d_obj\]
+
+  - \[1\] the organization defines numbers for password minimum lifetime restrictions to be enforced for passwords;
+  - \[2\] the organization defines numbers for password maximum lifetime restrictions to be enforced for passwords;
+  - \[3\] the information system enforces password minimum lifetime restrictions of organization-defined numbers for lifetime minimum;
+  - \[4\] the information system enforces password maximum lifetime restrictions of organization-defined numbers for lifetime maximum;
+
+- \[e_obj\]
+
+  - \[1\] the organization defines the number of password generations to be prohibited from password reuse;
+  - \[2\] the information system prohibits password reuse for the organization-defined number of generations; and
+
+- \[f_obj\] the information system allows the use of a temporary password for system logons with an immediate change to a permanent password.
 
 ## Control guidance
 
-Password-based authentication applies to passwords regardless of whether they are used in single-factor or multi-factor authentication. Long passwords or passphrases are preferable over shorter passwords. Enforced composition rules provide marginal security benefits while decreasing usability. However, organizations may choose to establish certain rules for password generation (e.g., minimum character length for long passwords) under certain circumstances and can enforce this requirement in IA-5(1)(h). Account recovery can occur, for example, in situations when a password is forgotten. Cryptographically protected passwords include salted one-way cryptographic hashes of passwords. The list of commonly used, compromised, or expected passwords includes passwords obtained from previous breach corpuses, dictionary words, and repetitive or sequential characters. The list includes context-specific words, such as the name of the service, username, and derivatives thereof.
+This control enhancement applies to single-factor authentication of individuals using passwords as individual or group authenticators, and in a similar manner, when passwords are part of multifactor authenticators. This control enhancement does not apply when passwords are used to unlock hardware authenticators (e.g., Personal Identity Verification cards). The implementation of such password mechanisms may not meet all of the requirements in the enhancement. Cryptographically-protected passwords include, for example, encrypted versions of passwords and one-way cryptographic hashes of passwords. The number of changed characters refers to the number of changes required with respect to the total number of positions in the current password. Password lifetime restrictions do not apply to temporary passwords. To mitigate certain brute force attacks against passwords, organizations may also consider salting passwords.
 
 ______________________________________________________________________
 
@@ -65,17 +94,5 @@ ______________________________________________________________________
 ## Implementation (f)
 
 Add control implementation description here for item ia-5.1_smt.f
-
-______________________________________________________________________
-
-## Implementation (g)
-
-Add control implementation description here for item ia-5.1_smt.g
-
-______________________________________________________________________
-
-## Implementation (h)
-
-Add control implementation description here for item ia-5.1_smt.h
 
 ______________________________________________________________________
