@@ -25,13 +25,11 @@
               "ac-6.9",
               "ac-6.10",
               "ac-7",
-              "ac-10",
               "ac-11",
               "ac-12",
               "ac-17",
               "ac-17.2",
               "ac-17.3",
-              "ac-17.9",
               "au-2",
               "au-3",
               "au-3.1",
@@ -141,6 +139,26 @@
               "tr-1",
               "tr-2",
               "ul-2"
+            ]
+          }
+        ]
+      },
+      {
+        "href": "https://github.com/usnistgov/oscal-content/raw/master/nist.gov/SP800-53/rev4/json/NIST_SP-800-53_rev4_catalog.json",
+        "include-controls": [
+          {
+            "with-ids": [
+              "ac-17.9"
+            ]
+          }
+        ]
+      },
+      {
+        "href": "https://github.com/usnistgov/oscal-content/raw/master/nist.gov/SP800-53/rev4/json/NIST_SP-800-53_rev4_HIGH-baseline-resolved-profile_catalog.json",
+        "include-controls": [
+          {
+            "with-ids": [
+              "ac-10"
             ]
           }
         ]
