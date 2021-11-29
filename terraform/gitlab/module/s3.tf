@@ -50,6 +50,12 @@ resource "aws_s3_bucket" "config" {
   bucket = "gitlab-${var.env_name}-config"
   acl    = "private"
 
+  # force_destroy = true
+
+  lifecycle {
+    prevent_destroy = true
+  }
+
   versioning {
     enabled = true
   }
@@ -94,6 +100,12 @@ resource "aws_s3_bucket" "gitlab_buckets" {
 
   bucket = each.key
   acl    = "private"
+
+  # force_destroy = true
+
+  lifecycle {
+    prevent_destroy = true
+  }
 
   versioning {
     enabled = true
