@@ -195,4 +195,5 @@ end
 cron_d 'gitlab_backup_create' do
   predefined_value "@daily"
   command /etc/gitlab/backup.sh
+  notifies :create, 'file[/etc/gitlab/backup.sh]', :before
 end
