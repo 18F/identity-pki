@@ -185,7 +185,7 @@ file '/etc/gitlab/backup.sh' do
     aws s3 cp /etc/gitlab/gitlab.rb s3://#{backup_s3_bucket}/gitlab.rb
     aws s3 cp /etc/ssh/ s3://#{backup_s3_bucket}/ssh --recursive --exclude "*" --include "ssh_host_*"
     aws s3 cp /etc/gitlab/ssl s3://#{backup_s3_bucket}/ssl --recursive
-    EOF
+  EOF
   owner 'root'
   group 'root'
   mode '0755'
@@ -193,7 +193,8 @@ file '/etc/gitlab/backup.sh' do
 end
 
 cron_d 'gitlab_backup_create' do
+  action :create
   predefined_value "@daily"
-  command /etc/gitlab/backup.sh
+  command '/etc/gitlab/backup.sh'
   notifies :create, 'file[/etc/gitlab/backup.sh]', :before
 end
