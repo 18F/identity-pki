@@ -9,12 +9,165 @@
     },
     "imports": [
       {
-        "href": "https://github.com/usnistgov/oscal-content/raw/master/nist.gov/SP800-53/rev5/json/NIST_SP-800-53_rev5_MODERATE-baseline-resolved-profile_catalog.json",
+        "href": "https://github.com/usnistgov/oscal-content/raw/master/nist.gov/SP800-53/rev4/json/NIST_SP-800-53_rev4_MODERATE-baseline-resolved-profile_catalog.json",
         "include-controls": [
           {
             "with-ids": [
               "ac-2",
-              "cm-6"
+              "ac-2.1",
+              "ac-2.4",
+              "ac-3",
+              "ac-5",
+              "ac-6",
+              "ac-6.1",
+              "ac-6.2",
+              "ac-6.5",
+              "ac-6.9",
+              "ac-6.10",
+              "ac-7",
+              "ac-11",
+              "ac-12",
+              "ac-17",
+              "ac-17.2",
+              "ac-17.3",
+              "au-2",
+              "au-3",
+              "au-3.1",
+              "au-5",
+              "au-6",
+              "au-6.1",
+              "au-6.3",
+              "au-7",
+              "au-7.1",
+              "ca-3",
+              "ca-7",
+              "cm-2",
+              "cm-2.3",
+              "cm-4",
+              "cm-6",
+              "cm-7",
+              "cm-8.1",
+              "cm-8.3",
+              "cp-2",
+              "cp-9",
+              "cp-9.1",
+              "cp-10",
+              "ia-2",
+              "ia-2.1",
+              "ia-2.2",
+              "ia-2.11",
+              "ia-3",
+              "ia-4",
+              "ia-5",
+              "ia-5.1",
+              "ia-5.2",
+              "ia-7",
+              "ra-3",
+              "ra-5",
+              "ra-5.1",
+              "ra-5.2",
+              "ra-5.5",
+              "sa-3",
+              "sa-5",
+              "sa-8",
+              "sa-9",
+              "sa-10",
+              "sa-11",
+              "sc-2",
+              "sc-4",
+              "sc-5",
+              "sc-7",
+              "sc-7.3",
+              "sc-7.4",
+              "sc-7.5",
+              "sc-8",
+              "sc-8.1",
+              "sc-10",
+              "sc-12",
+              "sc-13",
+              "sc-17",
+              "sc-23",
+              "si-2",
+              "si-2.2",
+              "si-3",
+              "si-3.1",
+              "si-3.2",
+              "si-4",
+              "si-4.2",
+              "si-4.4",
+              "si-4.5",
+              "si-5",
+              "si-7",
+              "si-7.7",
+              "si-10",
+              "si-11",
+              "si-12"
+            ]
+          }
+        ]
+      },
+      {
+        "href": "https://github.com/usnistgov/oscal-content/raw/master/nist.gov/SP800-53/rev4/json/NIST_SP-800-53_rev4_catalog.json",
+        "include-controls": [
+          {
+            "with-ids": [
+              "ac-17.9",
+              "ia-5.4",
+              "ia-5.6",
+              "ia-5.7",
+              "ra-5.3",
+              "ra-5.6",
+              "sa-11.1",
+              "sa-11.2",
+              "sa-11.8",
+              "sa-22",
+              "sc-6",
+              "sc-7.8",
+              "sc-7.12",
+              "sc-12.2",
+              "sc-12.3",
+              "si-2.3",
+              "si-3.7",
+              "si-4.1",
+              "si-4.23",
+              "si-6"
+            ]
+          }
+        ]
+      },
+      {
+        "href": "https://github.com/usnistgov/oscal-content/raw/master/nist.gov/SP800-53/rev4/json/NIST_SP-800-53_rev4_HIGH-baseline-resolved-profile_catalog.json",
+        "include-controls": [
+          {
+            "with-ids": [
+              "ac-10",
+              "ca-2.2",
+              "cm-2.2",
+              "cm-5.3",
+              "cm-6.1",
+              "cm-7.5"
+            ]
+          }
+        ]
+      },
+      {
+        "href": "https://github.com/usnistgov/oscal-content/raw/master/nist.gov/SP800-53/rev5/json/NIST_SP-800-53_rev5_MODERATE-baseline-resolved-profile_catalog.json",
+        "include-controls": [
+          {
+            "with-ids": [
+              "ac-2.5",
+              "sr-1",
+              "sr-2",
+              "sr-2.1",
+              "sr-3",
+              "sr-5",
+              "sr-6",
+              "sr-8",
+              "sr-10",
+              "sr-11",
+              "sr-11.1",
+              "sr-11.2",
+              "sr-12"
             ]
           }
         ]

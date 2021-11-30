@@ -2,21 +2,54 @@
 
 ## Control Statement
 
-- \[a\] Establish and document configuration settings for components employed within the system that reflect the most restrictive mode consistent with operational requirements using organization-defined common secure configurations;
+The organization:
 
-- \[b\] Implement the configuration settings;
+- \[a\] Establishes and documents configuration settings for information technology products employed within the information system using organization-defined security configuration checklists that reflect the most restrictive mode consistent with operational requirements;
 
-- \[c\] Identify, document, and approve any deviations from established configuration settings for organization-defined system components based on organization-defined operational requirements; and
+- \[b\] Implements the configuration settings;
 
-- \[d\] Monitor and control changes to the configuration settings in accordance with organizational policies and procedures.
+- \[c\] Identifies, documents, and approves any deviations from established configuration settings for organization-defined information system components based on organization-defined operational requirements; and
+
+- \[d\] Monitors and controls changes to the configuration settings in accordance with organizational policies and procedures.
+
+## Control Objective
+
+Determine if the organization:
+
+- \[a_obj\]
+
+  - \[1\] defines security configuration checklists to be used to establish and document configuration settings for the information technology products employed;
+  - \[2\] ensures the defined security configuration checklists reflect the most restrictive mode consistent with operational requirements;
+  - \[3\] establishes and documents configuration settings for information technology products employed within the information system using organization-defined security configuration checklists;
+
+- \[b_obj\] implements the configuration settings established/documented in CM-6(a);;
+
+- \[c_obj\]
+
+  - \[1\] defines information system components for which any deviations from established configuration settings must be:
+
+    - \[a\] identified;
+    - \[b\] documented;
+    - \[c\] approved;
+
+  - \[2\] defines operational requirements to support:
+
+    - \[a\] the identification of any deviations from established configuration settings;
+    - \[b\] the documentation of any deviations from established configuration settings;
+    - \[c\] the approval of any deviations from established configuration settings;
+
+  - \[3\] identifies any deviations from established configuration settings for organization-defined information system components based on organizational-defined operational requirements;
+  - \[4\] documents any deviations from established configuration settings for organization-defined information system components based on organizational-defined operational requirements;
+  - \[5\] approves any deviations from established configuration settings for organization-defined information system components based on organizational-defined operational requirements;
+
+- \[d_obj\]
+
+  - \[1\] monitors changes to the configuration settings in accordance with organizational policies and procedures; and
+  - \[2\] controls changes to the configuration settings in accordance with organizational policies and procedures.
 
 ## Control guidance
 
-Configuration settings are the parameters that can be changed in the hardware, software, or firmware components of the system that affect the security and privacy posture or functionality of the system. Information technology products for which configuration settings can be defined include mainframe computers, servers, workstations, operating systems, mobile devices, input/output devices, protocols, and applications. Parameters that impact the security posture of systems include registry settings; account, file, or directory permission settings; and settings for functions, protocols, ports, services, and remote connections. Privacy parameters are parameters impacting the privacy posture of systems, including the parameters required to satisfy other privacy controls. Privacy parameters include settings for access controls, data processing preferences, and processing and retention permissions. Organizations establish organization-wide configuration settings and subsequently derive specific configuration settings for systems. The established settings become part of the configuration baseline for the system.
-
-Common secure configurations (also known as security configuration checklists, lockdown and hardening guides, and security reference guides) provide recognized, standardized, and established benchmarks that stipulate secure configuration settings for information technology products and platforms as well as instructions for configuring those products or platforms to meet operational requirements. Common secure configurations can be developed by a variety of organizations, including information technology product developers, manufacturers, vendors, federal agencies, consortia, academia, industry, and other organizations in the public and private sectors.
-
-Implementation of a common secure configuration may be mandated at the organization level, mission and business process level, system level, or at a higher level, including by a regulatory agency. Common secure configurations include the United States Government Configuration Baseline [USGCB](#98498928-3ca3-44b3-8b1e-f48685373087) and security technical implementation guides (STIGs), which affect the implementation of [CM-6](#cm-6) and other controls such as [AC-19](#ac-19) and [CM-7](#cm-7). The Security Content Automation Protocol (SCAP) and the defined standards within the protocol provide an effective method to uniquely identify, track, and control configuration settings.
+Configuration settings are the set of parameters that can be changed in hardware, software, or firmware components of the information system that affect the security posture and/or functionality of the system. Information technology products for which security-related configuration settings can be defined include, for example, mainframe computers, servers (e.g., database, electronic mail, authentication, web, proxy, file, domain name), workstations, input/output devices (e.g., scanners, copiers, and printers), network components (e.g., firewalls, routers, gateways, voice and data switches, wireless access points, network appliances, sensors), operating systems, middleware, and applications. Security-related parameters are those parameters impacting the security state of information systems including the parameters required to satisfy other security control requirements. Security-related parameters include, for example: (i) registry settings; (ii) account, file, directory permission settings; and (iii) settings for functions, ports, protocols, services, and remote connections. Organizations establish organization-wide configuration settings and subsequently derive specific settings for information systems. The established settings become part of the systems configuration baseline. Common secure configurations (also referred to as security configuration checklists, lockdown and hardening guides, security reference guides, security technical implementation guides) provide recognized, standardized, and established benchmarks that stipulate secure configuration settings for specific information technology platforms/products and instructions for configuring those information system components to meet operational requirements. Common secure configurations can be developed by a variety of organizations including, for example, information technology product developers, manufacturers, vendors, consortia, academia, industry, federal agencies, and other organizations in the public and private sectors. Common secure configurations include the United States Government Configuration Baseline (USGCB) which affects the implementation of CM-6 and other controls such as AC-19 and CM-7. The Security Content Automation Protocol (SCAP) and the defined standards within the protocol (e.g., Common Configuration Enumeration) provide an effective method to uniquely identify, track, and control configuration settings. OMB establishes federal policy on configuration requirements for federal information systems.
 
 ______________________________________________________________________
 
