@@ -33,6 +33,10 @@ resource "aws_kinesis_firehose_delivery_stream" "cloudwatch-exporter" {
       log_stream_name = aws_cloudwatch_log_stream.kinesis_firehose_stream_logging_stream.name
     }
   }
+
+  depends_on = [
+    aws_s3_bucket.kinesis_firehose_stream_bucket
+  ]
 }
 
 resource "aws_cloudwatch_log_group" "kinesis_firehose_stream_logging_group" {
@@ -102,4 +106,10 @@ resource "aws_cloudwatch_log_subscription_filter" "cloudwatch_subscription_filte
   distribution    = "ByLogStream"
 
   role_arn = aws_iam_role.cloudwatch_logs_role.arn
+
+  depends_on = [
+    aws_kinesis_firehose_delivery_stream.cloudwatch-exporter,
+    aws_cloudwatch_log_group.kinesis_firehose_stream_logging_group,
+    aws_cloudwatch_log_stream.kinesis_firehose_stream_logging_stream,
+  ]
 }
