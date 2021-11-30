@@ -22,6 +22,7 @@ module Cloudlib
     end
 
     RecycleScheduledActionName = 'RecycleOnce.asg-recycle'
+    RecycleCanaryScheduledActionName = 'RecycleOnce.asg-recycle-canary'
     DelayedScheduleActionName = 'DelayedScaleOutOnce.asg-recycle'
 
     def initialize

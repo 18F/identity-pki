@@ -1,7 +1,3 @@
-locals {
-  gd_s3_bucket = "login-gov.gd-${var.guardduty_threat_feed_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
-}
-
 resource "aws_s3_bucket" "guardduty_threat_feed_s3_bucket" {
   bucket = local.gd_s3_bucket
   acl    = "private"

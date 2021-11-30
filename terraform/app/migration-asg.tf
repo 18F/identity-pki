@@ -1,14 +1,3 @@
-resource "aws_iam_instance_profile" "migration" {
-  name = "${var.env_name}-migration"
-  role = aws_iam_role.idp.name # for now reuse the idp's role
-}
-
-resource "aws_iam_role_policy" "migration-ssm-access" {
-  name   = "${var.env_name}-migration-ssm-access"
-  role   = aws_iam_role.idp.id # for now reuse the idp's role
-  policy = data.aws_iam_policy_document.ssm_access_role_policy.json
-}
-
 module "migration_user_data" {
   source = "../modules/bootstrap/"
 

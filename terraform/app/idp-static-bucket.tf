@@ -76,6 +76,7 @@ data "aws_iam_policy_document" "idp_static_bucket_policy" {
       type = "AWS"
       identifiers = [
         aws_iam_role.idp.arn,
+        aws_iam_role.migration.arn,
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/AppDev"
       ]
     }
