@@ -1,0 +1,84 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'optparse'
+
+Dir.chdir(File.dirname(__FILE__)) { require 'bundler/setup' }
+require_relative '../lib/cloudlib'
+require_relative '../lib/cloudlib/canary_deploy'
+
+def main
+  basename = File.basename($0)
+
+  branch = nil
+  optparse = OptionParser.new do |opts|
+    opts.banner = <<-EOM
+usage: #{basename} [OPTIONS] ENVIRONMENT
+
+Begin a canary IDP deploy. The branch for the environment being deployed must have a different IdP SHA than
+what is currently deployed, and have artifact building enabled. The branch will default to `main`
+for non-prod environments, and `stages/prod` for production. A different branch can be specified with the `-b` option.
+The branch must match the branch used by `identity-devops` for the environment specified.
+
+The script will run a migration instance, and wait for the migration to complete and upload the artifact.
+It will then create a canary instance with the new version, and monitor metrics to determine if the new
+version is safe to roll out completely. If it is, it will scale up the new version and then remove the
+instances with the old version.
+
+To exit at any point, press Ctrl + C.
+
+For example:
+
+    # starts canary deploy for int idp
+    #{basename} int
+
+    # starts canary deploy for mhenke idp using stages/mhenke
+    #{basename} mhenke -b stages/mhenke
+    EOM
+
+
+    opts.on('-h', '--help', 'Display this message') do
+      STDERR.puts opts
+      exit
+    end
+
+    opts.on('-v', '--verbose', 'Be more verbose') do
+      Cloudlib.log_level -= 1 if Cloudlib.log_level > 0
+    end
+
+    opts.on('-q', '--quiet', 'Be quieter (can pass multiple times)') do
+      Cloudlib.log_level += 1
+    end
+
+    opts.on('-b BRANCH', '--branch BRANCH', 'Branch being deployed from') do |b|
+      branch = b
+    end
+  end
+
+  args = optparse.parse!
+
+  if args.length == 1
+    env = args.first
+  else
+    STDERR.puts optparse
+    exit 1
+  end
+
+  if !branch && env == 'prod'
+    branch = 'stages/prod'
+  elsif !branch
+    branch = 'main'
+  end
+
+  Cloudlib.log_level += 1
+  Cloudlib::CanaryDeploy.new(env: env, branch: branch).deploy
+end
+
+if __FILE__ == $0
+  begin
+    main
+  rescue TTY::Reader::InputInterrupt
+    STDERR.puts 'OK, aborted'
+    exit 2
+  end
+end

@@ -13,8 +13,9 @@ terraform {
 module "main" {
   source = "../module"
 
-  iam_account_alias  = "login-prod"
-  reports_bucket_arn = "arn:aws:s3:::login-gov.reports.555546682965-us-west-2"
+  slack_events_sns_topic = "slack-events"
+  iam_account_alias      = "login-prod"
+  reports_bucket_arn     = "arn:aws:s3:::login-gov.reports.555546682965-us-west-2"
   account_roles_map = {
     iam_reports_enabled        = true
     iam_kmsadmin_enabled       = true

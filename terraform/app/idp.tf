@@ -160,10 +160,10 @@ resource "aws_iam_role" "idp" {
   assume_role_policy = data.aws_iam_policy_document.assume_role_from_vpc.json
 }
 
-resource "aws_iam_role_policy" "idp-artifacts" {
+resource "aws_iam_role_policy" "idp-download-artifacts" {
   name   = "${var.env_name}-idp-artifacts"
   role   = aws_iam_role.idp.id
-  policy = data.aws_iam_policy_document.artifacts_role_policy.json
+  policy = data.aws_iam_policy_document.download_artifacts_role_policy.json
 }
 
 resource "aws_iam_role_policy" "idp-secrets" {
@@ -333,32 +333,6 @@ resource "aws_iam_role_policy" "idp-pinpoint-assumerole" {
 EOM
 
 }
-
-# Allow sending SMS/Voice messages with Pinpoint
-# (Deprecated: TODO remove)
-resource "aws_iam_role_policy" "idp-pinpoint-send" {
-  name   = "${var.env_name}-idp-pinpoint-send"
-  role   = aws_iam_role.idp.id
-  policy = <<EOM
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "mobiletargeting:PhoneNumberValidate",
-                "mobiletargeting:SendMessages",
-                "mobiletargeting:SendUsersMessages",
-                "sms-voice:SendVoiceMessage"
-            ],
-            "Resource": "*"
-        }
-    ]
-}
-EOM
-
-}
-
 
 # Allow publishing traces to X-Ray
 resource "aws_iam_role_policy" "idp-xray-publish" {

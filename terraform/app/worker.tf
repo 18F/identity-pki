@@ -37,10 +37,10 @@ resource "aws_iam_instance_profile" "worker" {
   role = aws_iam_role.worker.name
 }
 
-resource "aws_iam_role_policy" "worker-artifacts" {
+resource "aws_iam_role_policy" "worker-download-artifacts" {
   name   = "${var.env_name}-worker-artifacts"
   role   = aws_iam_role.worker.id
-  policy = data.aws_iam_policy_document.artifacts_role_policy.json
+  policy = data.aws_iam_policy_document.download_artifacts_role_policy.json
 }
 
 resource "aws_iam_role_policy" "worker-secrets" {

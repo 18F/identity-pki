@@ -3,6 +3,7 @@ source 'https://rubygems.org'
 group :development do
   gem 'colorize'
   gem 'pry'
+  gem 'pry-byebug', '~> 3.9'
 end
 
 gem 'activesupport'
@@ -26,3 +27,8 @@ gem 'chef', '~> 17.5.22'
 
 # used for modules/bootstrap templates
 gem 'erubis', '~> 2'
+
+
+group :test do
+  gem 'rspec', '~> 3.10'
+end
