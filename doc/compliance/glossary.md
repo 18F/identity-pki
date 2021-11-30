@@ -35,7 +35,7 @@ Also seen as "overlay", a baseline defines a specific set of selected controls f
 ### Profile
 A grouping of controls referencing controls from several catalogs – it is a structured machine-readable representation of a baseline. 
 
-### Enhancement
+### Control Enhancement
 Augmentation of a control to build in additional functionality to strengthen the given control.
 
 ## Compliance Process
