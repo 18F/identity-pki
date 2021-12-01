@@ -6,7 +6,7 @@ module "kinesis-firehose" {
   bucket_name                           = "login-gov-log-cache-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
   cloudwatch_subscription_filter_name   = "cw-kinesis-s3-idp-events"
   cloudwatch_log_group_name             = ["${var.env_name}_/srv/idp/shared/log/events.log", "${var.env_name}_/srv/idp/shared/log/workers.log"]
-  cloudwatch_filter_pattern             = " "
+  cloudwatch_filter_pattern             = ""
   env_name                              = var.env_name
 }
 
