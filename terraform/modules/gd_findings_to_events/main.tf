@@ -1,27 +1,28 @@
+#create Event rule
 resource "aws_cloudwatch_event_rule" "guardduty_event_rule" {
   name        = "GuardDutyFindings"
-  description = "Capture GuardDuty high severity findings and trigger CW Log Group"
+  description = "Send GuardDuty findings to CW Log Groups"
   tags = {
     "Name" = "GuardDuty Findings"
   }
 
-  event_pattern = <<PATTERN
-{
-   "source":
-         ["aws.guardduty"],
-    "detail-type":
-        ["GuardDuty Finding"],
-    "detail":
-        {"severity":[6.9,7.0,7.1,7.2,7.3,7.4,7.5,7.6,7.7,7.8,7.9,8.0,8.1,8.2,8.3,8.4,8.5,8.6,8.7,8.8,8.9]}}
-PATTERN
+  event_pattern = jsonencode(
+    {
+      "source" : [
+        "aws.guardduty"
+      ],
+      "detail-type" : [
+        "GuardDuty Finding"
+      ]
+    }
+  )
 }
-
 #create CW Log group
 resource "aws_cloudwatch_log_group" "guard_duty_log_group" {
   name              = "GuardDutyFindings/LogGroup"
   retention_in_days = 365
   tags = {
-    "Name" = "Guard Duty findings log group name"
+    "Name" = "GuardDuty findings"
   }
 }
 
