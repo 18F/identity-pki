@@ -41,10 +41,4 @@ module "log-ship-to-soc-dns-query-log" {
 }
 
 
-module "gd-log-ship" {
-  source                              = "../modules/gd_findings_to_soc"
-  sqs_queue_url = "https://sqs.us-west-2.amazonaws.com/752281881774/elp-guardduty-lg.fifo"
-  sqs_queue_arn = "arn:aws:sqs:us-west-2:752281881774:elp-guardduty-lg.fifo"
-}
-
 

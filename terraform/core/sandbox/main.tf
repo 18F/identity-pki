@@ -100,6 +100,11 @@ module "main" {
   slack_events_sns_hook_arn = "arn:aws:sns:us-west-2:894947205914:slack-otherevents"
 }
 
+module "gd-events-to-logs" {
+  source                              = "../../modules/gd_findings_to_events_to_logs"
+}
+
+
 output "primary_zone_dnssec_ksks" {
   value = module.main.primary_zone_dnssec_ksks
 }
