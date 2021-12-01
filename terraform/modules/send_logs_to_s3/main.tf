@@ -96,6 +96,37 @@ module "kinesis_firehose_stream_bucket_config" {
   inventory_bucket_arn = local.inventory_bucket_arn
 }
 
+###### HACK #######
+# Even with depends_on, Terraform will attempt to create cloudwatch_subscription_filter
+# when the cloudwatch-exporter stream is in the CREATING status, and will fail
+# as the stream is unable to accept data unless it is in ACTIVE status.
+# This uses null_resource to wait for the DeliveryStreamStatus to equal ACTIVE,
+# and THEN create the cloudwatch_subscription_filter below.
+# see: https://github.com/hashicorp/terraform-provider-aws/issues/17049
+
+resource "null_resource" "kinesis_firehose_stream_active" {
+  provisioner "local-exec" {
+    interpreter = ["/bin/bash"]
+
+    environment = {
+      STREAM = ""
+    }
+
+    command = <<EOC
+while [[ "$STREAM" != "ACTIVE" ]] ; do
+  STREAM=$(aws firehose describe-delivery-stream \
+            --delivery-stream-name ${var.kinesis_firehose_stream_name} \
+            --query 'DeliveryStreamDescription.DeliveryStreamStatus' \
+            --output text)
+  sleep 5
+done
+EOC
+  }
+  triggers = {
+    cloudwatch_exporter_arn = aws_kinesis_firehose_delivery_stream.cloudwatch-exporter.arn
+  }
+}
+
 resource "aws_cloudwatch_log_subscription_filter" "cloudwatch_subscription_filter" {
   count          = length(var.cloudwatch_log_group_name)
   name           = var.cloudwatch_subscription_filter_name
@@ -108,6 +139,7 @@ resource "aws_cloudwatch_log_subscription_filter" "cloudwatch_subscription_filte
   role_arn = aws_iam_role.cloudwatch_logs_role.arn
 
   depends_on = [
+    null_resource.kinesis_firehose_stream_active,
     aws_kinesis_firehose_delivery_stream.cloudwatch-exporter,
     aws_cloudwatch_log_group.kinesis_firehose_stream_logging_group,
     aws_cloudwatch_log_stream.kinesis_firehose_stream_logging_stream,
