@@ -106,7 +106,7 @@ module "kinesis_firehose_stream_bucket_config" {
 
 resource "null_resource" "kinesis_firehose_stream_active" {
   provisioner "local-exec" {
-    interpreter = ["/bin/bash"]
+    interpreter = ["bash", "-c"]
 
     environment = {
       STREAM = ""
