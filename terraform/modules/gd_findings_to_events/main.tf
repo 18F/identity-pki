@@ -2,7 +2,7 @@ resource "aws_cloudwatch_event_rule" "guardduty_event_rule" {
   name        = "GuardDutyFindings"
   description = "Capture GuardDuty high severity findings and trigger CW Log Group"
   tags = {
-    "Name"            = "GuardDuty Findings"
+    "Name" = "GuardDuty Findings"
   }
 
   event_pattern = <<PATTERN
@@ -21,7 +21,7 @@ resource "aws_cloudwatch_log_group" "guard_duty_log_group" {
   name              = "GuardDutyFindings/LogGroup"
   retention_in_days = 365
   tags = {
-    "Name"            = "Guard Duty findings log group name"
+    "Name" = "Guard Duty findings log group name"
   }
 }
 
@@ -29,7 +29,7 @@ resource "aws_cloudwatch_log_group" "guard_duty_log_group" {
 resource "aws_cloudwatch_event_target" "cw_target_to_cw_logs" {
   rule      = aws_cloudwatch_event_rule.guardduty_event_rule.name
   target_id = "SendToCWLogGroup"
-  arn       = "${substr(aws_cloudwatch_log_group.guard_duty_log_group.arn,0,length(aws_cloudwatch_log_group.guard_duty_log_group.arn) - 2)}"
+  arn       = substr(aws_cloudwatch_log_group.guard_duty_log_group.arn, 0, length(aws_cloudwatch_log_group.guard_duty_log_group.arn) - 2)
 }
 
 #Provides a CW events to manage a CloudWatch log resource policy
@@ -41,7 +41,7 @@ data "aws_iam_policy_document" "cw-event-log-publishing-policy" {
       "logs:PutLogEventsBatch",
     ]
 
-    resources  = ["arn:aws:logs:*:*:*"]
+    resources = ["arn:aws:logs:*:*:*"]
     principals {
       identifiers = ["delivery.logs.amazonaws.com", "events.amazonaws.com"]
       type        = "Service"
@@ -50,6 +50,6 @@ data "aws_iam_policy_document" "cw-event-log-publishing-policy" {
 }
 
 resource "aws_cloudwatch_log_resource_policy" "cw-rule-log-publishing-policy" {
-  policy_document = "${data.aws_iam_policy_document.cw-event-log-publishing-policy.json}"
+  policy_document = data.aws_iam_policy_document.cw-event-log-publishing-policy.json
   policy_name     = "cw-rule-log-publishing-policy"
 }

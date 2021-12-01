@@ -101,9 +101,21 @@ module "main" {
 }
 
 module "gd-events-to-logs" {
-  source                              = "../../modules/gd_findings_to_events_to_logs"
+  source = "../../modules/gd_findings_to_events"
 }
 
+module "gd-log-sub-filter-sandbox" {
+  depends_on                          = [module.gd-events-to-logs]
+  source                              = "../../modules/log_ship_to_soc"
+  region                              = "us-west-2"
+  cloudwatch_subscription_filter_name = "gd-log-ship-to-soc"
+  cloudwatch_log_group_name = {
+    "GuardDutyFindings/LogGroup" = ""
+  }
+  env_name            = "sandbox-gd"
+  soc_destination_arn = "arn:aws:logs:us-west-2:752281881774:destination:elp-guardduty-lg"
+
+}
 
 output "primary_zone_dnssec_ksks" {
   value = module.main.primary_zone_dnssec_ksks
