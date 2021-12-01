@@ -38,16 +38,6 @@ module "main" {
           "ttl"     = "3600",
         },
         {
-          "name"    = "_acme-challenge.",
-          "records" = ["g_ybuPyxTGP-JeDhOA-AyjIlJEwsZU5fd0dr7zvpFsg"],
-          "ttl"     = "120",
-        },
-        {
-          "name"    = "_acme-challenge.www.",
-          "records" = ["L1XfURLRizB_sP022sBOoQGaulRl34R9B3xEZxTTFfs"],
-          "ttl"     = "120",
-        },
-        {
           "name"    = "_acme-challenge.partners.",
           "records" = ["l0DvBtdqJcAcfwmje4YpBglqymSl5xVFseBiMiZf3hE"],
           "ttl"     = "120",
