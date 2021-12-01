@@ -39,5 +39,3 @@ module "log-ship-to-soc-dns-query-log" {
   env_name            = "${var.env_name}-dns"
   soc_destination_arn = "arn:aws:logs:us-west-2:752281881774:destination:elp-dns-lg"
 }
-
-
