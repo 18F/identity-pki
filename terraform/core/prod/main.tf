@@ -154,12 +154,12 @@ module "main" {
   slack_events_sns_hook_arn = "arn:aws:sns:us-west-2:555546682965:slack-events"
 }
 
-module "gd-events-to-logs" {
+module "gd-events-to-logs-prod" {
   source = "../../modules/gd_findings_to_events"
 }
 
 module "gd-log-sub-filter-prod" {
-  depends_on                          = [module.gd-events-to-logs]
+  depends_on                          = [module.gd-events-to-logs-prod]
   source                              = "../../modules/log_ship_to_soc"
   region                              = "us-west-2"
   cloudwatch_subscription_filter_name = "gd-log-ship-to-soc"
