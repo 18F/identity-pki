@@ -198,8 +198,8 @@ file '/etc/gitlab/restore.sh' do
     # restore github environment
     aws s3 cp s3://#{backup_s3_bucket}/gitlab-secrets.json /etc/gitlab/gitlab-secrets.json
     aws s3 cp s3://#{backup_s3_bucket}/gitlab.rb /etc/gitlab/gitlab.rb
-    aws s3 cp s3://#{backup_s3_bucket}/ssh /etc/ssh/ --recursive --exclude "*" --include "ssh_host_*"
-    aws s3 cp s3://#{backup_s3_bucket}/ssl /etc/gitlab/ssl --recursive
+    # aws s3 cp s3://#{backup_s3_bucket}/ssh /etc/ssh/ --recursive --exclude "*" --include "ssh_host_*"
+    # aws s3 cp s3://#{backup_s3_bucket}/ssl /etc/gitlab/ssl --recursive
     export GITLAB_ASSUME_YES=1
     gitlab-backup restore
   EOF
