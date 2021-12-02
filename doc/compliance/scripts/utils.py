@@ -1,4 +1,4 @@
-def section(d):
+def section(d, prefix="s"):
     """
     Helper function to generate OSCAL section structure.
     """
@@ -6,7 +6,7 @@ def section(d):
     title = d["title"]
     prose = d["prose"]
     return {
-        "id": f"s{id}",
+        "id": f"{prefix}{id}",
         "class": "section",
         "title": title,
         "props": [{"name": "label", "value": id,}],

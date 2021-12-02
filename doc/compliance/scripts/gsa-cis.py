@@ -9,7 +9,7 @@ import pathlib
 import csv
 import sys
 
-from .utils import section
+from utils import section
 
 # the gsa docker benchmark csv needs to be downloaded manually from:
 # https://docs.google.com/spreadsheets/d/15HBgrHs1hp1JWpk9FOS-5wIFwFX0QCHi0b56TX8_T5Y/edit#gid=1105465601
