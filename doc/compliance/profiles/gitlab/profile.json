@@ -181,6 +181,28 @@
             ]
           }
         ]
+      },
+      {
+        "href": "trestle://catalogs/nist-800-53-rev4-appendix-j/catalog.json",
+        "include-controls": [
+          {
+            "with-ids": [
+              "AR-2",
+              "AR-3",
+              "AR-4",
+              "AR-7",
+              "AR-8",
+              "DI-1",
+              "DM-1",
+              "DM-2",
+              "DM-3",
+              "SE-2",
+              "TR-1",
+              "TR-2",
+              "UL-2"
+            ]
+          }
+        ]
       }
     ]
   }
