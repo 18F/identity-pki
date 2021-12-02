@@ -11,13 +11,13 @@ resource "aws_iam_role" "migration" {
 }
 
 resource "aws_iam_role_policy" "migration-download-artifacts" {
-  name   = "${var.env_name}-migration-artifacts"
+  name   = "${var.env_name}-migration-download-artifacts"
   role   = aws_iam_role.migration.id
   policy = data.aws_iam_policy_document.download_artifacts_role_policy.json
 }
 
 resource "aws_iam_role_policy" "migration-upload-artifacts" {
-  name   = "${var.env_name}-migration-artifacts"
+  name   = "${var.env_name}-migration-upload-artifacts"
   role   = aws_iam_role.migration.id
   policy = data.aws_iam_policy_document.upload_artifacts_role_policy.json
 }

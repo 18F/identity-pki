@@ -24,7 +24,7 @@ A layer including the catalog and profile models.
 A document-level identifier that is changed whenever the document is updated.
 
 ### Control 
-A control is a requirement, which when implemented reduces one aspect of risk in our system. There are "security controls'' and "privacy controls". The are grouped together in a "control catalog".
+A control is a requirement, which when implemented reduces one aspect of risk in our system. There are "security controls" and "privacy controls". The are grouped together in a "control catalog".
 
 ### Catalog
 This is how controls are organized by framework providers (like NIST). This allows the controls to be grouped. "Catalog documents" are human readable documents where controls are represented.
@@ -34,6 +34,9 @@ Also seen as "overlay", a baseline defines a specific set of selected controls f
 
 ### Profile
 A grouping of controls referencing controls from several catalogs – it is a structured machine-readable representation of a baseline. 
+
+### Control Enhancement
+Augmentation of a control to build in additional functionality to strengthen the given control.
 
 ## Compliance Process
 

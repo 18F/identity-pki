@@ -38,21 +38,6 @@ module "main" {
           "ttl"     = "3600",
         },
         {
-          "name"    = "_acme-challenge.",
-          "records" = ["g_ybuPyxTGP-JeDhOA-AyjIlJEwsZU5fd0dr7zvpFsg"],
-          "ttl"     = "120",
-        },
-        {
-          "name"    = "_acme-challenge.www.",
-          "records" = ["L1XfURLRizB_sP022sBOoQGaulRl34R9B3xEZxTTFfs"],
-          "ttl"     = "120",
-        },
-        {
-          "name"    = "_acme-challenge.partners.",
-          "records" = ["l0DvBtdqJcAcfwmje4YpBglqymSl5xVFseBiMiZf3hE"],
-          "ttl"     = "120",
-        },
-        {
           "name"    = "smtpapi._domainkey.",
           "records" = ["L1XfURLRizB_sP022sBOoQGaulRl34R9B3xEZxTTFk=rsa; t=s; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDPtW5iwpXVPiH5FzJ7Nrl8USzuY9zqqzjE0D1r04xDN6qwziDnmgcFNNfMewVKN2D1O+2J9N14hRprzByFwfQW76yojh54Xu3uSbQ3JP0A7k8o8GutRF8zbFUA8n0ZH2y0cIEjMliXY4W4LwPA7m4q0ObmvSjhd6\"\"3O9d8z1XkUBwIDAQAB"],
           "ttl"     = "900",
@@ -62,6 +47,11 @@ module "main" {
     {
       type = "CNAME",
       record_set = [
+        {
+          "name"    = "_acme-challenge.",
+          "records" = ["_acme-challenge.login.gov.external-domains-production.cloud.gov."],
+          "ttl"     = "900",
+        },
         {
           "name"    = "_acme-challenge.data.",
           "records" = ["_acme-challenge.data.login.gov.external-domains-production.cloud.gov."],
@@ -75,6 +65,16 @@ module "main" {
         {
           "name"    = "_acme-challenge.handbook.",
           "records" = ["_acme-challenge.handbook.login.gov.external-domains-production.cloud.gov."],
+          "ttl"     = "900",
+        },
+        {
+          "name"    = "_acme-challenge.partners.",
+          "records" = ["_acme-challenge.partners.login.gov.external-domains-production.cloud.gov."],
+          "ttl"     = "900",
+        },
+        {
+          "name"    = "_acme-challenge.www.",
+          "records" = ["_acme-challenge.www.login.gov.external-domains-production.cloud.gov."],
           "ttl"     = "900",
         },
         {
