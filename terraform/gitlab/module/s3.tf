@@ -32,6 +32,10 @@ resource "aws_s3_bucket" "backups" {
     Name        = "gitlab-${var.env_name}-config"
     Environment = "${var.env_name}"
   }
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "aws_s3_bucket_public_access_block" "backups_access_block" {
@@ -45,6 +49,12 @@ resource "aws_s3_bucket_public_access_block" "backups_access_block" {
 resource "aws_s3_bucket" "config" {
   bucket = "gitlab-${var.env_name}-config"
   acl    = "private"
+
+  # force_destroy = true
+
+  lifecycle {
+    prevent_destroy = true
+  }
 
   versioning {
     enabled = true
@@ -90,6 +100,12 @@ resource "aws_s3_bucket" "gitlab_buckets" {
 
   bucket = each.key
   acl    = "private"
+
+  # force_destroy = true
+
+  lifecycle {
+    prevent_destroy = true
+  }
 
   versioning {
     enabled = true
