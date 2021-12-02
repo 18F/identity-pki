@@ -33,6 +33,10 @@ resource "aws_kinesis_firehose_delivery_stream" "cloudwatch-exporter" {
       log_stream_name = aws_cloudwatch_log_stream.kinesis_firehose_stream_logging_stream.name
     }
   }
+
+  depends_on = [
+    aws_s3_bucket.kinesis_firehose_stream_bucket
+  ]
 }
 
 resource "aws_cloudwatch_log_group" "kinesis_firehose_stream_logging_group" {
@@ -92,6 +96,33 @@ module "kinesis_firehose_stream_bucket_config" {
   inventory_bucket_arn = local.inventory_bucket_arn
 }
 
+# HACK: use null_resource to make cloudwatch_subscription_filter wait
+# to be created until stream is in ACTIVE state
+# see: https://github.com/hashicorp/terraform-provider-aws/issues/17049
+
+resource "null_resource" "kinesis_firehose_stream_active" {
+  provisioner "local-exec" {
+    interpreter = ["bash", "-c"]
+
+    environment = {
+      STREAM = ""
+    }
+
+    command = <<EOC
+while [[ "$STREAM" != "ACTIVE" ]] ; do
+  STREAM=$(aws firehose describe-delivery-stream \
+            --delivery-stream-name ${var.kinesis_firehose_stream_name} \
+            --query 'DeliveryStreamDescription.DeliveryStreamStatus' \
+            --output text)
+  sleep 5
+done
+EOC
+  }
+  triggers = {
+    cloudwatch_exporter_arn = aws_kinesis_firehose_delivery_stream.cloudwatch-exporter.arn
+  }
+}
+
 resource "aws_cloudwatch_log_subscription_filter" "cloudwatch_subscription_filter" {
   count          = length(var.cloudwatch_log_group_name)
   name           = var.cloudwatch_subscription_filter_name
@@ -102,4 +133,11 @@ resource "aws_cloudwatch_log_subscription_filter" "cloudwatch_subscription_filte
   distribution    = "ByLogStream"
 
   role_arn = aws_iam_role.cloudwatch_logs_role.arn
+
+  depends_on = [
+    null_resource.kinesis_firehose_stream_active,
+    aws_kinesis_firehose_delivery_stream.cloudwatch-exporter,
+    aws_cloudwatch_log_group.kinesis_firehose_stream_logging_group,
+    aws_cloudwatch_log_stream.kinesis_firehose_stream_logging_stream,
+  ]
 }
