@@ -101,6 +101,7 @@ users:
   kevin.dayton:
     aws_groups:
       - appdev
+      - apponcall
     gitlab_groups:
       - lg
   logan.mcdonald:
