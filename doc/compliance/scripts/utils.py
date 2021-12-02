@@ -10,6 +10,6 @@ def section(d, prefix=""):
         "class": "section",
         "title": title,
         "props": [{"name": "label", "value": id,}],
-        "parts": [{"id": f"s{id}_smt", "name": "objective", "prose": prose}],
+        "parts": [{"id": f"{prefix}{id}_smt", "name": "objective", "prose": prose}],
         "controls": [],
     }
