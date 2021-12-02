@@ -96,12 +96,8 @@ module "kinesis_firehose_stream_bucket_config" {
   inventory_bucket_arn = local.inventory_bucket_arn
 }
 
-###### HACK #######
-# Even with depends_on, Terraform will attempt to create cloudwatch_subscription_filter
-# when the cloudwatch-exporter stream is in the CREATING status, and will fail
-# as the stream is unable to accept data unless it is in ACTIVE status.
-# This uses null_resource to wait for the DeliveryStreamStatus to equal ACTIVE,
-# and THEN create the cloudwatch_subscription_filter below.
+# HACK: use null_resource to make cloudwatch_subscription_filter wait
+# to be created until stream is in ACTIVE state
 # see: https://github.com/hashicorp/terraform-provider-aws/issues/17049
 
 resource "null_resource" "kinesis_firehose_stream_active" {
