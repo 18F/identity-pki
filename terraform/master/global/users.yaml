@@ -108,6 +108,9 @@ users:
       - devopsnonprod
     gitlab_groups:
       - lg
+  magdaline.derosena:
+    aws_groups:
+      - analytics
   malick.diarra:
     aws_groups:
       - appdev
@@ -129,6 +132,11 @@ users:
       - secops
       - keymasters
       - socreadonly
+    gitlab_groups:
+      - lg
+  nathan.berg:
+    aws_groups:
+      - appdev
     gitlab_groups:
       - lg
   nathan.wick:
