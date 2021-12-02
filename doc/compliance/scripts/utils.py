@@ -1,4 +1,4 @@
-def section(d, prefix="s"):
+def section(d, prefix=""):
     """
     Helper function to generate OSCAL section structure.
     """

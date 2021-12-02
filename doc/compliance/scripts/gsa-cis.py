@@ -112,7 +112,7 @@ for control in cis:
         current_toplevel = toplevel
         current = section(top_level[current_toplevel - 1])
         current["controls"] = []
-    current["controls"].append(section(control))
+    current["controls"].append(section(control, prefix="s"))
 
 # append the final section.
 groups.append(current)

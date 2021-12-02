@@ -104,7 +104,7 @@ for control in j:
         applicables = [level for level in top_level if level["id"] == current_toplevel]
         current = section(applicables[0])
         current["controls"] = []
-    current["controls"].append(section(control, prefix=""))
+    current["controls"].append(section(control))
 
 # append the final section.
 groups.append(current)
