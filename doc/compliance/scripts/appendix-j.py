@@ -29,42 +29,42 @@ header_names = [
 # rev4 PDF.
 top_level = [
     {
-        "id": "AP",
+        "id": "ap",
         "title": "Authority and Purpose",
         "prose": "This family ensures that organizations: (i) identify the legal bases that authorize a particular personally identifiable information (PII) collection or activity that impacts privacy; and (ii) specify in their notices the purpose(s) for which PII is collected.",
     },
     {
-        "id": "AR",
+        "id": "ar",
         "title": "Accountability, Audit, and Risk Management",
         "prose": "This family enhances public confidence through effective controls for governance, monitoring, risk management, and assessment to demonstrate that organizations are complying with applicable privacy protection requirements and minimizing overall privacy risk.",
     },
     {
-        "id": "DI",
+        "id": "di",
         "title": "Data Quality and Integrity",
         "prose": "This family enhances public confidence that any personally identifiable information (PII) collected and maintained by organizations is accurate, relevant, timely, and complete for the purpose for which it is to be used, as specified in public notices.",
     },
     {
-        "id": "DM",
+        "id": "dm",
         "title": "Data Minimization and Retention",
         "prose": "This family helps organizations implement the data minimization and retention requirements to collect, use, and retain only personally identifiable information (PII) that is relevant and necessary for the purpose for which it was originally collected. Organizations retain PII for only as long as necessary to fulfill the purpose(s) specified in public notices and in accordance with a National Archives and Records Administration (NARA)-approved record retention schedule.",
     },
     {
-        "id": "IP",
+        "id": "ip",
         "title": "Individual Participation and Redress",
         "prose": "This family addresses the need to make individuals active participants in the decision-making process regarding the collection and use of their personally identifiable information (PII). By providing individuals with access to PII and the ability to have their PII corrected or amended, as appropriate, the controls in this family enhance public confidence in organizational decisions made based on the PII.",
     },
     {
-        "id": "SE",
+        "id": "se",
         "title": "Security",
         "prose": "This family supplements the security controls in Appendix F to ensure that technical, physical, and administrative safeguards are in place to protect personally identifiable information (PII) collected or maintained by organizations against loss, unauthorized access, or disclosure, and to ensure that planning and responses to privacy incidents comply with OMB policies and guidance. The controls in this family are implemented in coordination with information security personnel and in accordance with the existing NIST Risk Management Framework.",
     },
     {
-        "id": "TR",
+        "id": "tr",
         "title": "Transparency",
         "prose": "This family ensures that organizations provide public notice of their information practices and the privacy impact of their programs and activities.",
     },
     {
-        "id": "UL",
+        "id": "ul",
         "title": "Use Limitation",
         "prose": "This family ensures that organizations only use personally identifiable information (PII) either as specified in their public notices, in a manner compatible with those specified purposes, or as otherwise permitted by law. Implementation of the controls in this family will ensure that the scope of PII use is limited accordingly.",
     },
@@ -77,11 +77,11 @@ next(fd)  # skip first line
 j = list()
 headers = next(fd)
 for line in fd:
-    control = line[header_names.index("control")]
-    guidance = line[header_names.index("guidance")]
+    control = line[header_names.index("control")].replace("    ", "\n")
+    guidance = line[header_names.index("guidance")].replace("    ", "\n")
     prose = f"{control}\n\n{guidance}"
     datum = {
-        "id": line[header_names.index("id")],
+        "id": line[header_names.index("id")].lower(),
         "title": line[header_names.index("title")],
         "prose": prose,
     }
