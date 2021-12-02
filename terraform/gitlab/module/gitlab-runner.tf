@@ -162,3 +162,69 @@ resource "aws_iam_role_policy" "gitlab_runner-sns-publish-alerts" {
   role   = aws_iam_role.gitlab_runner.id
   policy = data.aws_iam_policy_document.sns-publish-alerts-policy.json
 }
+
+# allow all instances to send a dying SNS notice
+resource "aws_iam_role_policy" "gitlab_runner-sns-publish-alerts" {
+  name   = "${var.env_name}-gitlab_runner-sns-publish-alerts"
+  role   = aws_iam_role.gitlab_runner.id
+  policy = data.aws_iam_policy_document.sns-publish-alerts-policy.json
+}
+
+# Policy to allow gitlab access to ecr
+resource "aws_iam_role_policy" "gitlab-ecr" {
+  name   = "${var.env_name}-gitlab-ecr"
+  role   = aws_iam_role.gitlab_runner.id
+  policy = <<EOM
+{
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "ecr:GetAuthorizationToken",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:GetRepositoryPolicy",
+          "ecr:DescribeRepositories",
+          "ecr:ListImages",
+          "ecr:DescribeImages",
+          "ecr:BatchGetImage",
+          "ecr:GetLifecyclePolicy",
+          "ecr:GetLifecyclePolicyPreview",
+          "ecr:ListTagsForResource",
+          "ecr:DescribeImageScanFindings"
+        ],
+        "Resource": "*",
+        "Condition": {
+            "StringEquals": {"aws:ResourceTag/gitlab_runner_access": "read"}
+        }
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "ecr:GetAuthorizationToken",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:GetRepositoryPolicy",
+          "ecr:DescribeRepositories",
+          "ecr:ListImages",
+          "ecr:DescribeImages",
+          "ecr:BatchGetImage",
+          "ecr:GetLifecyclePolicy",
+          "ecr:GetLifecyclePolicyPreview",
+          "ecr:ListTagsForResource",
+          "ecr:DescribeImageScanFindings",
+          "ecr:InitiateLayerUpload",
+          "ecr:UploadLayerPart",
+          "ecr:CompleteLayerUpload",
+          "ecr:PutImage"
+        ],
+        "Resource": "*",
+        "Condition": {
+            "StringEquals": {"aws:ResourceTag/gitlab_runner_access": "write"}
+        }
+      }
+    ]
+}
+EOM
+}
