@@ -195,11 +195,13 @@ end
 file '/etc/gitlab/restore.sh' do
   content <<-EOF
     #!/bin/bash
-    # restore github environment
-    aws s3 cp s3://#{backup_s3_bucket}/gitlab-secrets.json /etc/gitlab/gitlab-secrets.json
-    aws s3 cp s3://#{backup_s3_bucket}/gitlab.rb /etc/gitlab/gitlab.rb
+    # restore github environment, un-comment items to restore
+    # aws s3 cp s3://#{backup_s3_bucket}/gitlab-secrets.json /etc/gitlab/gitlab-secrets.json
+    # aws s3 cp s3://#{backup_s3_bucket}/gitlab.rb /etc/gitlab/gitlab.rb
     # aws s3 cp s3://#{backup_s3_bucket}/ssh /etc/ssh/ --recursive --exclude "*" --include "ssh_host_*"
     # aws s3 cp s3://#{backup_s3_bucket}/ssl /etc/gitlab/ssl --recursive
+    # aws s3 cp s3://#{backup_s3_bucket}/1637625630_2021_11_23_14.5.0-ee_gitlab_backup.tar /var/opt/gitlab/backups
+
     export GITLAB_ASSUME_YES=1
     gitlab-backup restore
   EOF
