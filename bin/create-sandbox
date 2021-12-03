@@ -11,9 +11,10 @@ BASEPATH="$(dirname "$0")"
 usage() {
   cat >&2 << EOM
 
-Usage: ${0} [-asdh] [ENV] (defaults to \$GSA_USERNAME if not specified)
+Usage: ${0} [-casdmh] [ENV] (defaults to \$GSA_USERNAME if not specified)
 
 Flags (will run all if no flags specified):
+  -c : Clear CloudWatch log groups left over from previous env destroy
   -a : Copy S3 app-secrets v1/application.yml files from dev to ENV
   -s : Copy S3 secrets listed in ./lib/build-keys from dev to ENV
   -d : Run terraform-apply + spin up 1 migration host
@@ -92,7 +93,7 @@ tf_deploy() {
 
 migration_scaling() {
   ave aws autoscaling put-scheduled-update-group-action \
-    --auto-scaling-group-name "${SOURCE_ENV}-migration" \
+    --auto-scaling-group-name "${TF_ENV}-migration" \
     --scheduled-action-name "DelayedScaleInOnce.asg-recycle" \
     --start-time "$(date -uj -v+15M '+%Y-%m-%dT%H:%M:%SZ')" \
     --desired-capacity 0
@@ -106,7 +107,7 @@ TASKS=(
   "migration_scaling"
 )
 TODO=()
-while getopts casdh opt
+while getopts casdmh opt
 do
   case $opt in
     c) TODO+=("${TASKS[0]}") ;;
