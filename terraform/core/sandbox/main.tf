@@ -19,8 +19,8 @@ module "main" {
 
   # To safely rotate see https://github.com/18F/identity-devops/wiki/Runbook:-DNS#ksk-rotation
   dnssec_ksks = {
-    "20211006" = "active",
-    # "YYYYMMDD" = "blue"
+    # "20211005" = "old",
+    "20211006" = "active"
   }
 
   # TODO - Remove the need for these.  Set to the same as prod
