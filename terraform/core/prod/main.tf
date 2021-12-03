@@ -127,8 +127,8 @@ module "main" {
 
   # To safely rotate see https://github.com/18F/identity-devops/wiki/Runbook:-DNS#ksk-rotation
   dnssec_ksks = {
-    "20211006" = "green",
-    # "YYYYMMDD" = "blue"
+    # 20211005" = "old",
+    "20211006" = "active"
   }
 
   static_cloudfront_name        = "db1mat7gaslfp.cloudfront.net"
@@ -164,3 +164,8 @@ module "gd-log-sub-filter-prod" {
 output "primary_zone_dnssec_ksks" {
   value = module.main.primary_zone_dnssec_ksks
 }
+
+output "primary_zone_active_ds_value" {
+  value = module.main.primary_zone_active_ds_value
+}
+
