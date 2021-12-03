@@ -9,6 +9,8 @@ import pathlib
 import csv
 import sys
 
+from utils import section
+
 # the gsa docker benchmark csv needs to be downloaded manually from:
 # https://docs.google.com/spreadsheets/d/15HBgrHs1hp1JWpk9FOS-5wIFwFX0QCHi0b56TX8_T5Y/edit#gid=1105465601
 # (be sure to select the "GSA Docker Security Benchmark tab")
@@ -95,24 +97,6 @@ for line in fd:
 # (lexographical) sorting but its good enough for our purposes.
 cis.sort(key=lambda item: item["id"])
 
-
-def section(d):
-    """
-    Helper function to generate OSCAL section structure.
-    """
-    id = d["id"]
-    title = d["title"]
-    prose = d["prose"]
-    return {
-        "id": f"s{id}",
-        "class": "section",
-        "title": title,
-        "props": [{"name": "label", "value": id,}],
-        "parts": [{"id": f"s{id}_smt", "name": "objective", "prose": prose}],
-        "controls": [],
-    }
-
-
 # second pass: nest control groups.
 groups = []
 current = []
@@ -128,7 +112,7 @@ for control in cis:
         current_toplevel = toplevel
         current = section(top_level[current_toplevel - 1])
         current["controls"] = []
-    current["controls"].append(section(control))
+    current["controls"].append(section(control, prefix="s"))
 
 # append the final section.
 groups.append(current)
