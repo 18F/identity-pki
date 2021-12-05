@@ -1,9 +1,9 @@
 {
   "catalog": {
-    "uuid": "0bd29eeb-f215-4ca6-916d-5d48bee205e3",
+    "uuid": "2a23da4a-4834-4768-b890-a0052564c2ca",
     "metadata": {
       "title": "GSA Docker Security Benchmark",
-      "last-modified": "2021-11-23T11:50:28.085769-08:00",
+      "last-modified": "2021-11-29T15:27:12.092084-08:00",
       "version": "0.0.1",
       "oscal-version": "1.0.0",
       "remarks": "This catalog is extracted from the GSA Docker Security Benchmark and may not fully comply with CIS baselines."
@@ -1318,7 +1318,7 @@
               {
                 "id": "s5.10_smt",
                 "name": "objective",
-                "prose": "You should run the container with only as much memory as it requires by using the `--memory` argument. \n\nFor example, you could run a container using the command below:\n```\ndocker run --interactive --tty --memory 256m centos /bin/bash\n```\nIn the example above, the container is started with a memory limit of 256 MB.\n\nNote that the output of the command below returns values in scientific notation if memory limits are in place.\n```\ndocker inspect --format='{{.Config.Memory}}' 7c5a2d4c7fe0\n```\n\nFor example, if the memory limit is set to `256 MB` for a container instance, the output of the command above would be `2.68435456e+08` and NOT 256m. You should convert this value using a scientific calculator."
+                "prose": "You should run the container with only as much memory as it requires by using the `--memory` argument. \n\nFor example, you could run a container using the command below:\n```\ndocker run --interactive --tty --memory 256m centos /bin/bash\n```\nIn the example above, the container is started with a memory limit of 256 MB.\n\nNote that the output of the command below returns values in scientific notation if memory limits are in place.\n```\ndocker inspect --format='<.Config.Memory>' 7c5a2d4c7fe0\n```\n\nFor example, if the memory limit is set to `256 MB` for a container instance, the output of the command above would be `2.68435456e+08` and NOT 256m. You should convert this value using a scientific calculator."
               }
             ],
             "controls": []
@@ -1908,7 +1908,7 @@
               {
                 "id": "s6.1_smt",
                 "name": "objective",
-                "prose": "You should keep only the images that you actually need and establish a workflow to remove old or stale images from the host. Additionally, you should use features such as pull-by-digest to get specific images from the registry.\n\nYou can follow the steps below to find unused images on the system so they can be deleted.\n\n**Step 1** Make a list of all image IDs that are currently instantiated by executing the command below:\n\n```\ndocker images --quiet | xargs docker inspect --format '{{ .Id }}: Image={{ .Config.Image }}'\n```\n\n**Step 2**: List all the images present on the system by executing the command below:\n```\ndocker images\n```\n\n**Step 3**: Compare the list of image IDs created from Step 1 and Step 2 to find out images which are currently not being instantiated.\n\n**Step 4**: Decide if you want to keep the images that are not currently in use. If they are not needed, delete them by executing the following command:\n```\ndocker rmi $IMAGE_ID\n```\n\nAlternatively, the `docker system prune` command can be used to remove dangling images which are not tagged or, if necessary, all images that are not currently used by a running container when used with the `-a` option."
+                "prose": "You should keep only the images that you actually need and establish a workflow to remove old or stale images from the host. Additionally, you should use features such as pull-by-digest to get specific images from the registry.\n\nYou can follow the steps below to find unused images on the system so they can be deleted.\n\n**Step 1** Make a list of all image IDs that are currently instantiated by executing the command below:\n\n```\ndocker images --quiet | xargs docker inspect --format '< .Id >: Image=< .Config.Image >'\n```\n\n**Step 2**: List all the images present on the system by executing the command below:\n```\ndocker images\n```\n\n**Step 3**: Compare the list of image IDs created from Step 1 and Step 2 to find out images which are currently not being instantiated.\n\n**Step 4**: Decide if you want to keep the images that are not currently in use. If they are not needed, delete them by executing the following command:\n```\ndocker rmi $IMAGE_ID\n```\n\nAlternatively, the `docker system prune` command can be used to remove dangling images which are not tagged or, if necessary, all images that are not currently used by a running container when used with the `-a` option."
               }
             ],
             "controls": []
@@ -2195,7 +2195,7 @@
               {
                 "id": "s8.1.2_smt",
                 "name": "objective",
-                "prose": "You can configure your own certificates for UCP either during installation or after installation via the UCP \"Admin Settings\" user interface.\n\n**Customize certificates during installation:**\n\n1. Create a volume named `ucp-controller-server-certs` on your primary UCP Manager installation node:\n\n ```\n docker volume create ucp-controller-server-certs\n ```\n\n2. Copy your external certificate authority's public certificate file (ca.pem) and your signed certificate (cert.pem) and key (key.pem) files to the root directory of the volume\n\n ```\n cp ca.pem cert.pem key.pem $(docker volume inspect --format '{{ .Mountpoint }}' ucp-controller-server-certs)/\n ```\n\n3. Run the UCP installation command with the `--external-server-cert` flag\n\n**Customize certificates post-installation via the \"Admin Settings\" UI:**\n\nRefer to the instructions at [https://docs.docker.com/datacenter/ucp/2.2/guides/admin/configure/use-your-own-tls-certificates/#configure-ucp-to-use-your-own-tls-certificates-and-keys](https://docs.docker.com/datacenter/ucp/2.2/guides/admin/configure/use-your-own-tls-certificates/#configure-ucp-to-use-your-own-tls-certificates-and-keys) for configuring your own certificates via the UCP UI."
+                "prose": "You can configure your own certificates for UCP either during installation or after installation via the UCP \"Admin Settings\" user interface.\n\n**Customize certificates during installation:**\n\n1. Create a volume named `ucp-controller-server-certs` on your primary UCP Manager installation node:\n\n ```\n docker volume create ucp-controller-server-certs\n ```\n\n2. Copy your external certificate authority's public certificate file (ca.pem) and your signed certificate (cert.pem) and key (key.pem) files to the root directory of the volume\n\n ```\n cp ca.pem cert.pem key.pem $(docker volume inspect --format '< .Mountpoint >' ucp-controller-server-certs)/\n ```\n\n3. Run the UCP installation command with the `--external-server-cert` flag\n\n**Customize certificates post-installation via the \"Admin Settings\" UI:**\n\nRefer to the instructions at [https://docs.docker.com/datacenter/ucp/2.2/guides/admin/configure/use-your-own-tls-certificates/#configure-ucp-to-use-your-own-tls-certificates-and-keys](https://docs.docker.com/datacenter/ucp/2.2/guides/admin/configure/use-your-own-tls-certificates/#configure-ucp-to-use-your-own-tls-certificates-and-keys) for configuring your own certificates via the UCP UI."
               }
             ],
             "controls": []
