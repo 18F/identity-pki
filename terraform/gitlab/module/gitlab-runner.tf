@@ -174,7 +174,13 @@ resource "aws_iam_role_policy" "gitlab-ecr" {
       {
         "Effect": "Allow",
         "Action": [
-          "ecr:GetAuthorizationToken",
+          "ecr:GetAuthorizationToken"
+        ],
+        "Resource": "*"
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
           "ecr:BatchCheckLayerAvailability",
           "ecr:GetDownloadUrlForLayer",
           "ecr:GetRepositoryPolicy",
@@ -195,7 +201,6 @@ resource "aws_iam_role_policy" "gitlab-ecr" {
       {
         "Effect": "Allow",
         "Action": [
-          "ecr:GetAuthorizationToken",
           "ecr:BatchCheckLayerAvailability",
           "ecr:GetDownloadUrlForLayer",
           "ecr:GetRepositoryPolicy",
