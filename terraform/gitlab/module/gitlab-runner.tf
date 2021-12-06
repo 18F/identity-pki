@@ -163,13 +163,6 @@ resource "aws_iam_role_policy" "gitlab_runner-sns-publish-alerts" {
   policy = data.aws_iam_policy_document.sns-publish-alerts-policy.json
 }
 
-# allow all instances to send a dying SNS notice
-resource "aws_iam_role_policy" "gitlab_runner-sns-publish-alerts" {
-  name   = "${var.env_name}-gitlab_runner-sns-publish-alerts"
-  role   = aws_iam_role.gitlab_runner.id
-  policy = data.aws_iam_policy_document.sns-publish-alerts-policy.json
-}
-
 # Policy to allow gitlab access to ecr
 resource "aws_iam_role_policy" "gitlab-ecr" {
   name   = "${var.env_name}-gitlab-ecr"
