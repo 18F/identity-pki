@@ -89,6 +89,7 @@ locals {
           "autoscaling:PutLifecycleHook",
           "autoscaling:PutScalingPolicy",
           "autoscaling:PutScheduledUpdateGroupAction",
+          "autoscaling:SetDesiredCapacity",
           "autoscaling:SetInstanceProtection",
           "autoscaling:StartInstanceRefresh",
           "autoscaling:UpdateAutoScalingGroup",

@@ -89,9 +89,22 @@ regular_secrets() {
 
 tf_deploy() {
   ave ${BASEPATH}/tf-deploy -m ${TF_ENV} app apply -auto-approve
+  MIGRATION_HOST_BUILT=true
 }
 
 migration_scaling() {
+  while [[ ! ${MIGRATION_HOST_BUILT} ]] ; do
+    if [[ $(ave aws autoscaling describe-auto-scaling-groups \
+        --auto-scaling-group-name "${TF_ENV}-migration" \
+        --query 'AutoScalingGroups[].DesiredCapacity' \
+        --output text) == 0 ]] ; then
+      ave aws autoscaling set-desired-capacity \
+        --auto-scaling-group-name "${TF_ENV}-migration" \
+        --desired-capacity 1
+    else
+      MIGRATION_HOST_BUILT=true
+    fi
+  done
   ave aws autoscaling put-scheduled-update-group-action \
     --auto-scaling-group-name "${TF_ENV}-migration" \
     --scheduled-action-name "DelayedScaleInOnce.asg-recycle" \
@@ -123,5 +136,6 @@ shift $((OPTIND-1))
 initialize ${1:-}
 
 SOURCE_ENV='dev'
+MIGRATION_HOST_BUILT=
 
 run_tasks
