@@ -4,9 +4,44 @@ locals {
   s3_inventory_bucket_arn = "arn:${data.aws_partition.current.partition}:s3:::login-gov.s3-inventory.${data.aws_caller_identity.current.account_id}-${var.region}"
 }
 
+# add iam policy to allow soc account to access waf log bucket.
+data "aws_iam_policy_document" "soc_account_access" {
+  statement {
+    sid = "socaccountaccess"
+
+    actions = [
+      "s3:GetBucketLocation",
+      "s3:GetBucketVersioning",
+      "s3:GetObject",
+      "s3:GetObjectVersion",
+      "s3:ListBucket",
+      "s3:ListBucketVersions",
+      "s3:GetObjectVersionAcl",
+      "s3:GetObjectVersionTagging",
+    ]
+
+    effect = "Allow"
+
+    resources = [
+      aws_s3_bucket.waf_logs.arn,
+      "${aws_s3_bucket.waf_logs.arn}/*"
+    ]
+
+    principals {
+      type = "AWS"
+      identifiers = [
+        "arn:aws:iam::752281881774:root",
+      ]
+    }
+  }
+}
+
+
 resource "aws_s3_bucket" "waf_logs" {
   bucket = "login-gov.${local.web_acl_name}-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
   acl    = "private"
+  # bucket policy to allow SOC Account access to S3 bucket. 
+  policy = data.aws_iam_policy_document.soc_account_access.json
 
   logging {
     target_bucket = "login-gov.s3-access-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
@@ -119,5 +154,16 @@ data "aws_iam_policy_document" "firehose_policy" {
       aws_s3_bucket.waf_logs.arn,
       "${aws_s3_bucket.waf_logs.arn}/*"
     ]
+  }
+}
+
+# sends notification on sqs queue to SOC Operations, for any new objects created in waf-logs S3 bucket.
+resource "aws_s3_bucket_notification" "bucket_notification" {
+  bucket = aws_s3_bucket.waf_logs.id
+
+  queue {
+    queue_arn     = "arn:aws:sqs:us-west-2:752281881774:elp-waf-lg.fifo"
+    events        = ["s3:ObjectCreated:*"]
+    filter_suffix = ".log"
   }
 }
