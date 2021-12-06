@@ -464,22 +464,22 @@ variable "bootstrap_private_git_clone_url" {
 # though they will have different IDs. They should be updated here at the same
 # time, and then released to environments in sequence.
 variable "default_ami_id_sandbox" {
-  default     = "ami-08ee5c052884206b0" # 2021-11-18 Ubuntu 18.04
+  default     = "ami-0ded2b288dfb5d8f7" # 2021-12-02 Ubuntu 18.04
   description = "default AMI ID for environments in the sandbox account"
 }
 
 variable "default_ami_id_prod" {
-  default     = "ami-05447c26cf873fb29" # 2021-11-14 Ubuntu 18.04
+  default     = "ami-09fede799a716828c" # 2021-12-03 Ubuntu 18.04
   description = "default AMI ID for environments in the prod account"
 }
 
 variable "rails_ami_id_sandbox" {
-  default     = "ami-0a9d3dcf1168f89dd" # 2021-11-18 Ubuntu 18.04
+  default     = "ami-08d586267f9483886" # 2021-12-02 Ubuntu 18.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the sandbox account"
 }
 
 variable "rails_ami_id_prod" {
-  default     = "ami-06764b92ed81f7c25" # 2021-11-14 Ubuntu 18.04
+  default     = "ami-04d942158ce047045" # 2021-12-03 Ubuntu 18.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the prod account"
 }
 
@@ -523,11 +523,6 @@ variable "alb_http_port_80_enabled" {
 variable "pivcac_service_enabled" {
   default     = 1
   description = "Whether to run the microservice for PIV/CAC authentication"
-}
-
-variable "pivcac_dnssec_enabled" {
-  default     = 1
-  description = "Whether to enable/enforce DNSSEC on the Route53 zone used by the PIV/CAC service"
 }
 
 # This is needed so the application can download its secrets

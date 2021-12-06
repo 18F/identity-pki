@@ -9,6 +9,8 @@ import pathlib
 import csv
 import sys
 
+from utils import section
+
 # the gsa docker benchmark csv needs to be downloaded manually from:
 # https://docs.google.com/spreadsheets/d/15HBgrHs1hp1JWpk9FOS-5wIFwFX0QCHi0b56TX8_T5Y/edit#gid=1105465601
 # (be sure to select the "GSA Docker Security Benchmark tab")
@@ -84,34 +86,20 @@ cis = list()
 headers = next(fd)
 for line in fd:
     extract = line[: len(header_names)]
+    # don't allow mustache markup in prose. this messes up trestle since it
+    # tries to do variable substitution.
+    prose = extract[header_names.index("parameter")]
+    prose = prose.replace("{{", "<").replace("}}", ">")
     datum = {
         "id": extract[header_names.index("cis_id")],
         "title": extract[header_names.index("title")],
-        "prose": extract[header_names.index("parameter")],
+        "prose": prose,
     }
     cis.append(datum)
 
 # the controls in the spreadsheet are not in order. this is also a buggy
 # (lexographical) sorting but its good enough for our purposes.
 cis.sort(key=lambda item: item["id"])
-
-
-def section(d):
-    """
-    Helper function to generate OSCAL section structure.
-    """
-    id = d["id"]
-    title = d["title"]
-    prose = d["prose"]
-    return {
-        "id": f"s{id}",
-        "class": "section",
-        "title": title,
-        "props": [{"name": "label", "value": id,}],
-        "parts": [{"id": f"s{id}_smt", "name": "objective", "prose": prose}],
-        "controls": [],
-    }
-
 
 # second pass: nest control groups.
 groups = []
@@ -128,7 +116,7 @@ for control in cis:
         current_toplevel = toplevel
         current = section(top_level[current_toplevel - 1])
         current["controls"] = []
-    current["controls"].append(section(control))
+    current["controls"].append(section(control, prefix="s"))
 
 # append the final section.
 groups.append(current)
