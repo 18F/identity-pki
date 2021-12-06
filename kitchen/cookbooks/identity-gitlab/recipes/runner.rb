@@ -56,6 +56,7 @@ docker_service 'default' do
   ipv6_forward false
   http_proxy 'http://obproxy.login.gov.internal:3128'
   https_proxy 'http://obproxy.login.gov.internal:3128'
+  no_proxy 'localhost,127.0.0.1'
   icc true
 end
 
@@ -68,6 +69,7 @@ execute 'configure_gitlab_runner' do
 	  --executor docker \
 	  --env HTTP_PROXY=http://obproxy.login.gov.internal:3128 \
 	  --env HTTPS_PROXY=http://obproxy.login.gov.internal:3128 \
+	  --env NO_PROXY=localhost,127.0.0.1 \
 	  --docker-image alpine:latest \
 	  --tag-list 'docker,aws' \
 	  --run-untagged=true \
