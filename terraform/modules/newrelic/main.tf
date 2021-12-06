@@ -8,16 +8,18 @@ terraform {
   }
 }
 
-# NOTE:  these s3 objects need to be uploaded with --content-type text/plain
-
-# This is a key that starts with NRAK.
+####### Due to https://github.com/newrelic/terraform-provider-newrelic/issues/1006,
+####### NEW_RELIC_API_KEY is not set via Terraform. Our current workaround is to
+####### set it in tf-deploy; this is commented out until that bug is fixed.
+# This needs to be uploaded to S3 with --content-type text/plain
+# This is a key that starts with NRAK ; created at https://one.newrelic.com/launcher/api-keys-ui.api-keys-launcher
 # see https://docs.newrelic.com/docs/apis/get-started/intro-apis/new-relic-api-keys/#user-api-key
-# This is created at https://one.newrelic.com/launcher/api-keys-ui.api-keys-launcher
-data "aws_s3_bucket_object" "newrelic_apikey" {
-  bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
-  key    = "common/newrelic_apikey"
-}
+#data "aws_s3_bucket_object" "newrelic_apikey" {
+#  bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
+#  key    = "common/newrelic_apikey"
+#}
 
+# NOTE: this S3 object needs to be uploaded with --content-type text/plain
 # This is the NewRelic account ID
 # see https://registry.terraform.io/providers/newrelic/newrelic/latest/docs#argument-reference
 data "aws_s3_bucket_object" "newrelic_account_id" {
@@ -28,7 +30,7 @@ data "aws_s3_bucket_object" "newrelic_account_id" {
 provider "newrelic" {
   region     = "US"
   account_id = data.aws_s3_bucket_object.newrelic_account_id.body
-  api_key    = data.aws_s3_bucket_object.newrelic_apikey.body
+  #api_key    = data.aws_s3_bucket_object.newrelic_apikey.body
 }
 
 data "aws_caller_identity" "current" {}

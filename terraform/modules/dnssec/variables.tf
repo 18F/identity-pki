@@ -11,19 +11,12 @@ variable "dnssec_ksk_max_days" {
 
 variable "dnssec_ksks" {
   description = "Map of Key Signing Keys (KSKs) to provision for each zone"
-  # This can be used to perform key rotation.  For example, if you
-  # start with this map:
-  #  dnssec_ksks = { "20210808" = "Key A", "20210809" = "Key B"}
-  # Two keys will be provisioned.  In 6 months you can update the map to:
-  #  dnssec_ksks = { "20210809" = "Key B", "20220209" = "Key C"}
-  # This will decommission "Key A" but leave "Key B" intact.  "Key C"
-  # will be added and propagated.  Remember that the registrar must
-  # be updated to remove the old and add the new keys!
+  # This can be used to perform key rotation following the notes in
+  # https://github.com/18F/identity-devops/wiki/Runbook:-DNS#ksk-rotation
   type = map(string)
   default = {
-    # "20211005" = "red",
-    "20211006" = "green",
-    # "20210406" = "blue"
+    # "2111005" = "old",
+    "20211006" = "active"
   }
 }
 

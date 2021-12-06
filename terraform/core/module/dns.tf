@@ -42,3 +42,8 @@ output "primary_domain_mx_servers" {
 output "primary_zone_dnssec_ksks" {
   value = module.dnssec.root_zone_dnssec_ksks
 }
+
+output "primary_zone_active_ds_value" {
+  value = module.dnssec.active_ds_value
+}
+

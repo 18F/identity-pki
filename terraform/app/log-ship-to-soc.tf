@@ -41,3 +41,4 @@ module "log-ship-to-soc-dns-query-log" {
 }
 
 
+
