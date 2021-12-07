@@ -520,11 +520,6 @@ variable "alb_http_port_80_enabled" {
   description = "Whether to have ALB listen on HTTP port 80 (not just HTTPS 443)"
 }
 
-variable "pivcac_service_enabled" {
-  default     = 1
-  description = "Whether to run the microservice for PIV/CAC authentication"
-}
-
 # This is needed so the application can download its secrets
 
 variable "app_secrets_bucket_name_prefix" {

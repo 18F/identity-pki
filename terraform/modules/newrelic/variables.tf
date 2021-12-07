@@ -28,11 +28,6 @@ variable "dashboard_enabled" {
   default     = 0
 }
 
-variable "pivcac_service_enabled" {
-  description = "set this to 1 if you want to alert during business hours on pivcac problems"
-  default     = 0
-}
-
 variable "env_name" {}
 
 variable "region" {
