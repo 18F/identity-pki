@@ -1,14 +1,3 @@
-resource "aws_iam_instance_profile" "base-permissions" {
-  name = "${var.env_name}-base-permissions"
-  role = aws_iam_role.base-permissions.name
-}
-
-# IAM instance profile using the citadel client role
-resource "aws_iam_instance_profile" "citadel-client" {
-  name = "${var.env_name}-citadel-client"
-  role = aws_iam_role.citadel-client.name
-}
-
 resource "aws_iam_instance_profile" "gitlab" {
   name = "${var.env_name}_gitlab_instance_profile"
   role = aws_iam_role.gitlab.name

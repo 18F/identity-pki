@@ -1,4 +1,3 @@
-
 module "gitlab_user_data" {
   source = "../../modules/bootstrap/"
 
