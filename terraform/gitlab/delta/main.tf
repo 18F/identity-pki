@@ -24,10 +24,6 @@ output "gitaly_volume_id" {
   value = module.main.gitaly_volume_id
 }
 
-output "gitlab_volume_id" {
-  value = module.main.gitlab_volume_id
-}
-
 output "gitlab_redis_endpoint" {
   value = module.main.gitlab_redis_endpoint
 }
