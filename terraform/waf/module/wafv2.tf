@@ -310,7 +310,7 @@ resource "aws_wafv2_web_acl" "idp" {
 
 resource "aws_wafv2_web_acl_logging_configuration" "idp" {
   log_destination_configs = [
-    aws_kinesis_firehose_delivery_stream.waf_logs.arn
+    aws_cloudwatch_log_group.kinesis_waf_logs.arn
   ]
   resource_arn = aws_wafv2_web_acl.idp.arn
 }
