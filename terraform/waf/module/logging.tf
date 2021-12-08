@@ -1,12 +1,12 @@
 
-resource "aws_cloudwatch_log_group" "kinesis_waf_logs" {
+resource "aws_cloudwatch_log_group" "cw_waf_logs" {
   name              = "aws-waf-logs-${local.web_acl_name}"
   retention_in_days = 365
 }
 
 resource "aws_cloudwatch_log_subscription_filter" "cloudwatch_subscription_filter" {
   name            = "log-ship-to-soc"
-  log_group_name  = aws_cloudwatch_log_group.kinesis_waf_logs.name
+  log_group_name  = aws_cloudwatch_log_group.cw_waf_logs.name
   filter_pattern  = ""
   destination_arn = var.soc_destination_arn
   distribution    = "ByLogStream"
