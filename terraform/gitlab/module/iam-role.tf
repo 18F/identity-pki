@@ -292,59 +292,58 @@ EOM
     "Version": "2012-10-17",
     "Statement": [
         {
+            "Sid": "SSMCoreAccess",
             "Effect": "Allow",
             "Action": [
-                "ecr:GetAuthorizationToken"
+                "ssmmessages:OpenDataChannel",
+                "ssmmessages:OpenControlChannel",
+                "ssmmessages:CreateDataChannel",
+                "ssmmessages:CreateControlChannel",
+                "ssm:UpdateInstanceInformation",
+                "ssm:UpdateInstanceAssociationStatus",
+                "ssm:UpdateAssociationStatus",
+                "ssm:PutInventory",
+                "ssm:PutConfigurePackageResult",
+                "ssm:PutComplianceItems",
+                "ssm:ListInstanceAssociations",
+                "ssm:ListAssociations",
+                "ssm:GetParameters",
+                "ssm:GetParameter",
+                "ssm:GetManifest",
+                "ssm:GetDocument",
+                "ssm:GetDeployablePatchSnapshotForInstance",
+                "ssm:DescribeDocument",
+                "ssm:DescribeAssociation",
+                "ec2messages:SendReply",
+                "ec2messages:GetMessages",
+                "ec2messages:GetEndpoint",
+                "ec2messages:FailMessage",
+                "ec2messages:DeleteMessage",
+                "ec2messages:AcknowledgeMessage"
             ],
             "Resource": "*"
         },
         {
+            "Sid": "CloudWatchAgentAccess",
             "Effect": "Allow",
             "Action": [
-                "ecr:BatchCheckLayerAvailability",
-                "ecr:GetDownloadUrlForLayer",
-                "ecr:GetRepositoryPolicy",
-                "ecr:DescribeRepositories",
-                "ecr:ListImages",
-                "ecr:DescribeImages",
-                "ecr:BatchGetImage",
-                "ecr:GetLifecyclePolicy",
-                "ecr:GetLifecyclePolicyPreview",
-                "ecr:ListTagsForResource",
-                "ecr:DescribeImageScanFindings"
+                "ec2:DescribeVolumes",
+                "ec2:DescribeTags",
+                "cloudwatch:PutMetricData"
             ],
-            "Resource": "*",
-            "Condition": {
-                "StringEquals": {
-                    "aws:ResourceTag/gitlab_runner_access": "read"
-                }
-            }
+            "Resource": "*"
         },
         {
+            "Sid": "CloudWatchLogsAccess",
             "Effect": "Allow",
             "Action": [
-                "ecr:BatchCheckLayerAvailability",
-                "ecr:GetDownloadUrlForLayer",
-                "ecr:GetRepositoryPolicy",
-                "ecr:DescribeRepositories",
-                "ecr:ListImages",
-                "ecr:DescribeImages",
-                "ecr:BatchGetImage",
-                "ecr:GetLifecyclePolicy",
-                "ecr:GetLifecyclePolicyPreview",
-                "ecr:ListTagsForResource",
-                "ecr:DescribeImageScanFindings",
-                "ecr:InitiateLayerUpload",
-                "ecr:UploadLayerPart",
-                "ecr:CompleteLayerUpload",
-                "ecr:PutImage"
+                "logs:PutLogEvents",
+                "logs:DescribeLogStreams",
+                "logs:DescribeLogGroups",
+                "logs:CreateLogStream",
+                "logs:CreateLogGroup"
             ],
-            "Resource": "*",
-            "Condition": {
-                "StringEquals": {
-                    "aws:ResourceTag/gitlab_runner_access": "write"
-                }
-            }
+            "Resource": "*"
         }
     ]
 }
