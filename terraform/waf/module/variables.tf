@@ -115,5 +115,5 @@ variable "waf_alert_actions" {
 
 variable "soc_destination_arn" {
   description = "SOC destination ARN for WAF Logs"
-  default = "arn:aws:logs:us-west-2:752281881774:destination:elp-waf-lg"
+  default     = "arn:aws:logs:us-west-2:752281881774:destination:elp-waf-lg"
 }
