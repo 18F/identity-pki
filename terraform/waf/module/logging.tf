@@ -1,5 +1,5 @@
 locals {
-  
+
   s3_inventory_bucket_arn = "arn:${data.aws_partition.current.partition}:s3:::login-gov.s3-inventory.${data.aws_caller_identity.current.account_id}-${var.region}"
 }
 
@@ -57,7 +57,7 @@ module "waf_log_bucket_config" {
 
 
 resource "aws_cloudwatch_log_group" "cw_waf_logs" {
-  name              = "aws-waf-logs-${local.web_acl_name}"   #stream name must start with "aws-waf-logs"
+  name              = "aws-waf-logs-${local.web_acl_name}" #stream name must start with "aws-waf-logs"
   retention_in_days = 365
 }
 
