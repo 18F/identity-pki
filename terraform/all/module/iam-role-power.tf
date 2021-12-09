@@ -175,6 +175,20 @@ module "poweruser-assumerole" {
           ]
         },
         {
+          sid    = "Pinpoint"
+          effect = "Allow"
+          actions = [
+            "mobiletargeting:Get*",
+            "mobiletargeting:List*",
+            "pinpoint:Get*",
+            "pinpoint:List*",
+            "pinpoint:PhoneNumberValidate",
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
           sid    = "RDS"
           effect = "Allow"
           actions = [
