@@ -131,7 +131,7 @@ module "main" {
     "20211006" = "active"
   }
 
-  static_cloudfront_name        = "e34vxyetvq1n7y.cloudfront.net"
+  static_cloudfront_name        = "db1mat7gaslfp.cloudfront.net"
   design_cloudfront_name        = "d28khhcfeuwd3y.cloudfront.net"
   developers_cloudfront_name    = "d26qb7on2m22yd.cloudfront.net"
   acme_partners_cloudfront_name = "dbahbj6k864a6.cloudfront.net"
