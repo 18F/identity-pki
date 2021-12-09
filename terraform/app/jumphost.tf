@@ -95,5 +95,7 @@ resource "aws_autoscaling_group" "jumphost" {
 
   # We manually terminate instances in prod
   protect_from_scale_in = var.asg_prevent_auto_terminate == 1 ? true : false
+
+  depends_on = [aws_autoscaling_group.outboundproxy]
 }
 
