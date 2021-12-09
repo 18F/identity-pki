@@ -16,7 +16,7 @@ resource "aws_s3_bucket" "backups" {
     }
 
     noncurrent_version_expiration {
-      days = 1
+      days = 30
     }
   }
 
