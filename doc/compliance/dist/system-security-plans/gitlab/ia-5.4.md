@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # ia-5.4 - \[catalog\] Automated Support for Password Strength Determination
 
 ## Control Statement

@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # cp-9 - \[catalog\] Information System Backup
 
 ## Control Statement

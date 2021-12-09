@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # si-3.7 - \[catalog\] Nonsignature-based Detection
 
 ## Control Statement

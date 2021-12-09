@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # ra-5 - \[catalog\] Vulnerability Scanning
 
 ## Control Statement

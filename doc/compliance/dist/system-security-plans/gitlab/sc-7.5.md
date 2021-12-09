@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # sc-7.5 - \[catalog\] Deny by Default / Allow by Exception
 
 ## Control Statement

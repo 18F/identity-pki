@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # di-1 - \[catalog\] Data Quality
 
 ## Control Statement

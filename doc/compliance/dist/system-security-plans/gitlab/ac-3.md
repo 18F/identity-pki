@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # ac-3 - \[catalog\] Access Enforcement
 
 ## Control Statement

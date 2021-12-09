@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # sc-8.1 - \[catalog\] Cryptographic or Alternate Physical Protection
 
 ## Control Statement

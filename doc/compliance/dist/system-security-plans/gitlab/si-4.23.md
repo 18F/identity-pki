@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # si-4.23 - \[catalog\] Host-based Devices
 
 ## Control Statement

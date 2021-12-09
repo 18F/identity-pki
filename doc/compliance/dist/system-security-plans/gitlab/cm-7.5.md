@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # cm-7.5 - \[catalog\] Authorized Software / Whitelisting
 
 ## Control Statement

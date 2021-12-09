@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # sr-5 - \[catalog\] Acquisition Strategies, Tools, and Methods
 
 ## Control Statement

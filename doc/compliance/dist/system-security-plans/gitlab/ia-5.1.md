@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # ia-5.1 - \[catalog\] Password-based Authentication
 
 ## Control Statement

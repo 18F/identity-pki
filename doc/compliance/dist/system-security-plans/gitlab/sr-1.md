@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # sr-1 - \[catalog\] Policy and Procedures
 
 ## Control Statement

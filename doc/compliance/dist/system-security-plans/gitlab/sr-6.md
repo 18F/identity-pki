@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # sr-6 - \[catalog\] Supplier Assessments and Reviews
 
 ## Control Statement

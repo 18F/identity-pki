@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # ia-7 - \[catalog\] Cryptographic Module Authentication
 
 ## Control Statement

@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # ac-7 - \[catalog\] Unsuccessful Logon Attempts
 
 ## Control Statement

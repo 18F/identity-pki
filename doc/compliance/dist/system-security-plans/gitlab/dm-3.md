@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # dm-3 - \[catalog\] Minimization of PII Used in Testing, Training, and Research
 
 ## Control Statement

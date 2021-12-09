@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # si-5 - \[catalog\] Security Alerts, Advisories, and Directives
 
 ## Control Statement

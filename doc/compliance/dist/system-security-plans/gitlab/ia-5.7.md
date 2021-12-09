@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # ia-5.7 - \[catalog\] No Embedded Unencrypted Static Authenticators
 
 ## Control Statement

@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # au-6.1 - \[catalog\] Process Integration
 
 ## Control Statement

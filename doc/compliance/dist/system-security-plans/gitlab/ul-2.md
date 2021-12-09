@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # ul-2 - \[catalog\] Information Sharing with Third Parties
 
 ## Control Statement

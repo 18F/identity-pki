@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # ia-2.2 - \[catalog\] Network Access to Non-privileged Accounts
 
 ## Control Statement

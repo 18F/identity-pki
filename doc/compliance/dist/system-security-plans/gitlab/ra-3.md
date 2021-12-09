@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # ra-3 - \[catalog\] Risk Assessment
 
 ## Control Statement

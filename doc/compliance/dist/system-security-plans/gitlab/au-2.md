@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # au-2 - \[catalog\] Audit Events
 
 ## Control Statement

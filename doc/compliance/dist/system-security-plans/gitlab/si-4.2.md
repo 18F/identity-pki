@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # si-4.2 - \[catalog\] Automated Tools for Real-time Analysis
 
 ## Control Statement

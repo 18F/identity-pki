@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # sr-2 - \[catalog\] Supply Chain Risk Management Plan
 
 ## Control Statement

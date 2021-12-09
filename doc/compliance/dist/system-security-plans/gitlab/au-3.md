@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # au-3 - \[catalog\] Content of Audit Records
 
 ## Control Statement

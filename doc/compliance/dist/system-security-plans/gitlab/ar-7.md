@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # ar-7 - \[catalog\] Privacy-Enhanced System Design and Development
 
 ## Control Statement

@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # cm-2.2 - \[catalog\] Automation Support for Accuracy / Currency
 
 ## Control Statement
