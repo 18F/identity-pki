@@ -357,6 +357,7 @@ locals {
           "lambda:GetPolicy",
           "lambda:ListVersionsByFunction*",
           "lambda:PublishVersion",
+          "lambda:RemovePermission",
           "lambda:UpdateEventSourceMapping",
           "lambda:UpdateFunctionCode",
           "lambda:UpdateFunctionConfiguration",

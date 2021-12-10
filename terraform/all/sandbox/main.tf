@@ -14,6 +14,7 @@ module "main" {
   source = "../module"
 
   iam_account_alias            = "login-sandbox"
+  dnssec_zone_name             = "identitysandbox.gov."
   dashboard_logos_bucket_write = true
   reports_bucket_arn           = "arn:aws:s3:::login-gov.reports.894947205914-us-west-2"
   account_roles_map = {

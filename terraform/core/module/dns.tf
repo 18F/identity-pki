@@ -12,16 +12,16 @@ module "common_dns" {
 }
 
 module "dnssec" {
-  source = "../../modules/dnssec/"
-  providers = {
-    aws.usw2 = aws.usw2
-    aws.use1 = aws.use1
-  }
+  source = "github.com/18F/identity-terraform//dnssec?ref=2804b4b09312e23eb6f2e680f24ed4f57e6aeda0"
+  #source = "../../../../identity-terraform/dnssec"
 
-  dnssec_zone_name = var.root_domain
-  dnssec_zone_id   = module.common_dns.primary_zone_id
-  alarm_actions    = [module.sns_slack.sns_topic_arn]
-  dnssec_ksks      = var.dnssec_ksks # Require setting explicity for top level zones
+  dnssec_ksks_action_req_alarm_desc = "${local.dnssec_runbook_prefix}_ksks_action_req"
+  dnssec_ksk_age_alarm_desc         = "${local.dnssec_runbook_prefix}_ksk_age"
+  dnssec_errors_alarm_desc          = "${local.dnssec_runbook_prefix}_errors"
+  dnssec_zone_name                  = var.root_domain
+  dnssec_zone_id                    = module.common_dns.primary_zone_id
+  alarm_actions                     = [module.sns_slack.sns_topic_arn]
+  dnssec_ksks                       = var.dnssec_ksks # Require setting explicity for top level zones
 }
 
 output "primary_zone_id" {

@@ -56,17 +56,16 @@ resource "aws_iam_role_policy" "pivcac_update_route53" {
 ##### DNSSEC #####
 
 module "dnssec" {
-  source = "../modules/dnssec/"
-  providers = {
-    aws.usw2 = aws.usw2
-    aws.use1 = aws.use1
-  }
+  source = "github.com/18F/identity-terraform//dnssec?ref=2804b4b09312e23eb6f2e680f24ed4f57e6aeda0"
+  #source = "../../../identity-terraform/dnssec"
 
-  dnssec_zone_name = aws_route53_zone.pivcac_zone.name
-  dnssec_zone_id   = aws_route53_zone.pivcac_zone.id
-  alarm_actions    = local.low_priority_alarm_actions
+  dnssec_ksks_action_req_alarm_desc = "${local.dnssec_runbook_prefix}_ksks_action_req"
+  dnssec_ksk_age_alarm_desc         = "${local.dnssec_runbook_prefix}_ksk_age"
+  dnssec_errors_alarm_desc          = "${local.dnssec_runbook_prefix}_errors"
+  dnssec_zone_name                  = aws_route53_zone.pivcac_zone.name
+  dnssec_zone_id                    = aws_route53_zone.pivcac_zone.id
+  alarm_actions                     = local.low_priority_alarm_actions
 }
-
 
 resource "aws_route53_record" "pivcac_zone_ds" {
   zone_id = var.route53_id
