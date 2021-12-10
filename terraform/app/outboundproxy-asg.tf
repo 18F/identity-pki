@@ -189,17 +189,3 @@ module "outboundproxy_cloudwatch_filters" {
   env_name      = var.env_name
   alarm_actions = [var.slack_events_sns_hook_arn] # notify slack on denied requests
 }
-
-resource "aws_autoscaling_policy" "outboundproxy" {
-  name                      = "${var.env_name}-obproxy-cpu"
-  autoscaling_group_name    = aws_autoscaling_group.outboundproxy.name
-  estimated_instance_warmup = 360
-
-  policy_type = "TargetTrackingScaling"
-  target_tracking_configuration {
-    predefined_metric_specification {
-      predefined_metric_type = "ASGAverageCPUUtilization"
-    }
-    target_value = 45
-  }
-}
