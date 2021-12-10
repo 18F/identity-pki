@@ -3,7 +3,7 @@
 locals {
   app_dir_keys = [
     var.apps_enabled == 1 ? "dashboard" : "",
-    var.pivcac_service_enabled == 1 ? "pivcac" : "",
+    "pivcac",
     "idp"
   ]
 }

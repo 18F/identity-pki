@@ -1,8 +1,7 @@
 # These monitor the pivcac services.
 # enable these with setting these to 1:
-#   var.enabled (turns on devops idp alerting)
+#   var.enabled (turns on devops pivcac alerting)
 #   var.enduser_enabled (enable alerts for the enduser team)
-#   var.pivcac_service_enabled (if pivcac is there, alert on it too)
 
 locals {
   pivcac_domain_name = "omg-r-u-srsly-expired.pivcac.${var.env_name}.${var.root_domain}"
@@ -36,7 +35,6 @@ resource "newrelic_alert_condition" "pivcac_low_throughput" {
 }
 
 resource "newrelic_synthetics_monitor" "pivcac_certs_health_7d" {
-  count             = var.pivcac_service_enabled
   name              = "${var.env_name} PIV/CAC /api/health/certs check (7 days)"
   type              = "SIMPLE"
   frequency         = 60
@@ -48,7 +46,6 @@ resource "newrelic_synthetics_monitor" "pivcac_certs_health_7d" {
 }
 
 resource "newrelic_synthetics_monitor" "pivcac_certs_health_30d" {
-  count             = var.pivcac_service_enabled
   name              = "${var.env_name} PIV/CAC /api/health/certs check (30 days)"
   type              = "SIMPLE"
   frequency         = 60
@@ -60,18 +57,18 @@ resource "newrelic_synthetics_monitor" "pivcac_certs_health_30d" {
 }
 
 resource "newrelic_synthetics_alert_condition" "pivcac_certs_health_7d" {
-  count     = var.pivcac_service_enabled * var.enabled
+  count     = var.enabled
   policy_id = newrelic_alert_policy.high[0].id
 
   name       = "${var.env_name} certs expiring failure"
-  monitor_id = newrelic_synthetics_monitor.pivcac_certs_health_7d[0].id
+  monitor_id = newrelic_synthetics_monitor.pivcac_certs_health_7d.id
 }
 
 resource "newrelic_synthetics_alert_condition" "pivcac_certs_health_30d" {
-  count     = var.pivcac_service_enabled * var.enabled
+  count     = var.enabled
   policy_id = newrelic_alert_policy.businesshours[0].id
 
   name       = "${var.env_name} certs expiring failure"
-  monitor_id = newrelic_synthetics_monitor.pivcac_certs_health_30d[0].id
+  monitor_id = newrelic_synthetics_monitor.pivcac_certs_health_30d.id
 }
 
