@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # se-2 - \[catalog\] Privacy Incident Response
 
 ## Control Statement

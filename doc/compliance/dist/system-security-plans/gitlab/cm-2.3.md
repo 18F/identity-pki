@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # cm-2.3 - \[catalog\] Retention of Previous Configurations
 
 ## Control Statement

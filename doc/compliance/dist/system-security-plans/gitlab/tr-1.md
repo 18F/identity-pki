@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # tr-1 - \[catalog\] Privacy Notice
 
 ## Control Statement

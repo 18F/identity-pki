@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # ca-2.2 - \[catalog\] Specialized Assessments
 
 ## Control Statement

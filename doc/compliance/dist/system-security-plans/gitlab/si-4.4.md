@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # si-4.4 - \[catalog\] Inbound and Outbound Communications Traffic
 
 ## Control Statement

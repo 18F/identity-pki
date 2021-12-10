@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # cm-4 - \[catalog\] Security Impact Analysis
 
 ## Control Statement

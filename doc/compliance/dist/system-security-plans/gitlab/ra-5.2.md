@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # ra-5.2 - \[catalog\] Update by Frequency / Prior to New Scan / When Identified
 
 ## Control Statement

@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # ar-2 - \[catalog\] Privacy Impact and Risk Assessment
 
 ## Control Statement

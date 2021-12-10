@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # si-3 - \[catalog\] Malicious Code Protection
 
 ## Control Statement

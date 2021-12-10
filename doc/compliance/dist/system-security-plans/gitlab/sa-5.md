@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # sa-5 - \[catalog\] Information System Documentation
 
 ## Control Statement

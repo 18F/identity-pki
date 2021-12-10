@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # ra-5.3 - \[catalog\] Breadth / Depth of Coverage
 
 ## Control Statement

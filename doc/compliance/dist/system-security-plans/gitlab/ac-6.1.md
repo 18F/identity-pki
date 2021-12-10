@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # ac-6.1 - \[catalog\] Authorize Access to Security Functions
 
 ## Control Statement

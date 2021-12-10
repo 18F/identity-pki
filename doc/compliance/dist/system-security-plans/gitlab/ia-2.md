@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # ia-2 - \[catalog\] Identification and Authentication (organizational Users)
 
 ## Control Statement

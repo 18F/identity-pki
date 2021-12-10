@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # si-6 - \[catalog\] Security Function Verification
 
 ## Control Statement

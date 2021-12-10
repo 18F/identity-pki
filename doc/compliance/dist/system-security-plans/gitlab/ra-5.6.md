@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # ra-5.6 - \[catalog\] Automated Trend Analyses
 
 ## Control Statement

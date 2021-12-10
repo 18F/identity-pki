@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # au-7.1 - \[catalog\] Automatic Processing
 
 ## Control Statement

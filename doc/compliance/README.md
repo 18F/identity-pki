@@ -25,6 +25,19 @@ An example may be illustrative.
 - At some time in the future, I add support for `ac-2:g` and link to the commit introducing that support.
 - Rinse and repeat for each control we want to document/expand upon.
 
+## Status
+
+To track compliance status, we have a header yaml file with a status list. The options are:
+
+- `c-not-implemented`: this control has not been met.
+- `c-not-documented`: this control has not been documented. 
+- `c-implemented`: this control has been met.
+- `c-documented`: this control has been documented.
+- `c-organization-defined`: this control should be organization defined.
+- `c-inherited`: this control is inherited from the login.gov SSP.
+
+`make status` will print out some basic metrics about control status bits.
+
 ## Notes
 
 - We are using JSON primarily because `trestle` YAML support is spotty. This may change in the future.

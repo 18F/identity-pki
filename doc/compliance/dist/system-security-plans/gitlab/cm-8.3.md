@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # cm-8.3 - \[catalog\] Automated Unauthorized Component Detection
 
 ## Control Statement

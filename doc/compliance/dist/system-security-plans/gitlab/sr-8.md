@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # sr-8 - \[catalog\] Notification Agreements
 
 ## Control Statement

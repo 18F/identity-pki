@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # sr-3 - \[catalog\] Supply Chain Controls and Processes
 
 ## Control Statement

@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # cm-6 - \[catalog\] Configuration Settings
 
 ## Control Statement

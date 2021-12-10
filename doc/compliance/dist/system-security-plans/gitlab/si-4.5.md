@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # si-4.5 - \[catalog\] System-generated Alerts
 
 ## Control Statement

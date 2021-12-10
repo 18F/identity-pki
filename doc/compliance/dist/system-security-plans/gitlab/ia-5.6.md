@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # ia-5.6 - \[catalog\] Protection of Authenticators
 
 ## Control Statement

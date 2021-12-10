@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # si-3.2 - \[catalog\] Automatic Updates
 
 ## Control Statement

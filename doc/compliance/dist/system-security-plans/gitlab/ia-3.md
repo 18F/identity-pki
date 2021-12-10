@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # ia-3 - \[catalog\] Device Identification and Authentication
 
 ## Control Statement
