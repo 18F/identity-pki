@@ -16,6 +16,16 @@ module "analytics-assumerole" {
       policy_description = "Policy for Analytics user with MFA"
       policy_document = [
         {
+          sid    = "AllBucketsList"
+          effect = "Allow"
+          actions = [
+            "s3:ListAllMyBuckets"
+          ]
+          resources = [
+            "arn:aws:s3:::*"
+          ]
+        },
+        {
           sid    = "ReportsBucketAccess"
           effect = "Allow"
           actions = [
