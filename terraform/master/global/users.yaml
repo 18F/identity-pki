@@ -157,7 +157,7 @@ users:
       - lg
   page.levendis:
     aws_groups:
-      - bizops
+      - analytics
   parissa.eggleston:
     aws_groups:
       - appdev
