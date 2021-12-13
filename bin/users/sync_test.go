@@ -258,9 +258,9 @@ func TestResolveProjects(t *testing.T) {
 		Groups: map[string]*AuthGroup{},
 		Projects: map[string]*AuthorizedProject{
 			"idp": {
-				Groups: map[string]struct{ Access int }{
+				Groups: map[string]struct{ Access *gitlab.AccessLevelValue }{
 					"appdev": {
-						Access: 40,
+						Access: gitlab.AccessLevel(40),
 					},
 				},
 			},

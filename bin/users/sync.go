@@ -48,11 +48,47 @@ type Membership struct {
 // Format of projects in YAML
 type AuthorizedProject struct {
 	Groups map[string]struct {
-		// TODO use "developer", "maintainer", not "30", "40"
-		Access int // from https://pkg.go.dev/github.com/xanzy/go-gitlab#AccessLevelValue
+		Access *gitlab.AccessLevelValue
 	}
 }
 
+func (p *AuthorizedProject) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	type alias struct {
+		Groups map[string]struct {
+			Access string
+		}
+	}
+	var tmp alias
+	if err := unmarshal(&tmp); err != nil {
+		return err
+	}
+
+	*p = AuthorizedProject{
+		Groups: make(map[string]struct{Access *gitlab.AccessLevelValue}),
+	}
+	
+	for gName, g := range tmp.Groups {
+		switch level := g.Access; level {
+		case "developer":
+			p.Groups[gName] = struct {
+				Access *gitlab.AccessLevelValue
+			}{
+				Access: gitlab.AccessLevel(gitlab.DeveloperPermissions),
+			}
+		case "maintainer":
+			p.Groups[gName] = struct {
+				Access *gitlab.AccessLevelValue
+			}{
+				Access: gitlab.AccessLevel(gitlab.MaintainerPermissions),
+			}
+		default:
+			return fmt.Errorf("Access level %v not defined", level)
+		}
+	}
+	return nil
+}
+
+	
 // Format of users in YAML
 type AuthUser struct {
 	Aws_groups    []string
@@ -223,10 +259,10 @@ func resolveProjects(gitc GitlabClientIface, existingProjects map[string]*gitlab
 			for _, share := range existingProject.SharedWithGroups {
 				if share.GroupName == gName {
 					// Ensure accessLevel is correct
-					if share.GroupAccessLevel == group.Access {
+					if gitlab.AccessLevelValue(share.GroupAccessLevel) == *group.Access {
 						foundShare = true
 					} else {
-						fatalIfDryRun("%v shouldn't be shared with %v at level %v", pathWithNamespace, share.GroupName, share.GroupAccessLevel)
+						fatalIfDryRun("%v shouldn't be shared with %v at level %v (should be %v)", pathWithNamespace, share.GroupName, share.GroupAccessLevel, group.Access)
 						_, err := gitc.DeleteSharedProjectFromGroup(existingProject.ID, share.GroupID)
 						if err != nil {
 							return err
@@ -241,7 +277,7 @@ func resolveProjects(gitc GitlabClientIface, existingProjects map[string]*gitlab
 				_, err := gitc.ShareProjectWithGroup(
 					existingProject.ID,
 					&gitlab.ShareWithGroupOptions{
-						GroupAccess: gitlab.AccessLevel(gitlab.AccessLevelValue(group.Access)),
+						GroupAccess: group.Access,
 						GroupID:     &cache.Groups[gName].ID,
 					},
 				)

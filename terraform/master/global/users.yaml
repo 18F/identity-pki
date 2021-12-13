@@ -245,18 +245,18 @@ projects:
   lg/identity-devops:
     groups:
       devops:
-        access: 40 # maintainer
+        access: maintainer
       appdev:
-        access: 30 # developer
+        access: developer
   lg/identity-idp:
     groups:
       appdev:
-        access: 40 # maintainer
+        access: maintainer
       devops:
-        access: 30 # developer
+        access: developer
   lg/identity-gitlab:
     groups:
       devops:
-        access: 40 # maintainer
+        access: maintainer
       appdev:
-        access: 30 # developer
+        access: developer
