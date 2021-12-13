@@ -610,6 +610,7 @@ locals {
           "iam:ListGroupsForUser",
           "iam:ListInstanceProfilesForRole",
           "iam:ListMFADevices",
+          "iam:ListPolicies",
           "iam:ListPolicyVersions",
           "iam:ListRolePolicies",
           "iam:ListSigningCertificates",

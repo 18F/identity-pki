@@ -12,7 +12,7 @@ module "common_dns" {
 }
 
 module "dnssec" {
-  source = "github.com/18F/identity-terraform//dnssec?ref=2804b4b09312e23eb6f2e680f24ed4f57e6aeda0"
+  source = "github.com/18F/identity-terraform//dnssec?ref=2f79e718464e1db527f22adef242ed517cca3f91"
   #source = "../../../../identity-terraform/dnssec"
 
   dnssec_ksks_action_req_alarm_desc = "${local.dnssec_runbook_prefix}_ksks_action_req"
@@ -22,6 +22,7 @@ module "dnssec" {
   dnssec_zone_id                    = module.common_dns.primary_zone_id
   alarm_actions                     = [module.sns_slack.sns_topic_arn]
   dnssec_ksks                       = var.dnssec_ksks # Require setting explicity for top level zones
+  protect_resources                 = true
 }
 
 output "primary_zone_id" {

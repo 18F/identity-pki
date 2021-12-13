@@ -15,6 +15,5 @@ module "dnssec" {
   }
 
   dnssec_zone_name = var.dns_domain
-  dnssec_zone_id   = aws_route53_zone.primary.id
   alarm_actions    = [data.aws_sns_topic.events.arn]
 }

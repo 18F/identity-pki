@@ -15,7 +15,7 @@ module "main" {
 
   opsgenie_key_ready = false
   iam_account_alias  = "login-alpha"
-  dnssec_zone_name   = "alpha.identitysandbox.gov."
+  dnssec_zone_exists = true
   account_roles_map = {
     iam_appdev_enabled = false
   }
