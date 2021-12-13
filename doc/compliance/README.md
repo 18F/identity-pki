@@ -4,7 +4,7 @@ We currently have one [OSCAL profile](./profiles/gitlab/profile.json) that adher
 
 Here is a suggested compliance documentation workflow that uses [compliance-trestle](https://github.com/IBM/compliance-trestle):
 
-- Add a control to the [gitlab profile](./profiles/gitlab/profile.json) that we will satisfy.
+- Add a control to the [Gitlab profile](./profiles/gitlab/profile.json) that we will satisfy.
 - Run `make generate` to have `trestle` generate the corresponding control statement in Markdown.
   - This Markdown file will live in `dist/system-security-plans/gitlab/`.
 - Flesh out implementation detail stubs for that control.
@@ -18,7 +18,7 @@ Here is a suggested compliance documentation workflow that uses [compliance-tres
 
 An example may be illustrative.
 
-- I add `ac-2` to the NIST import in the [gitlab profile](./profiles/gitlab/profile.json).
+- I add `ac-2` to the NIST import in the [Gitlab profile](./profiles/gitlab/profile.json).
 - `make generate` produces [ac-2.md](./dist/system-security-plans/gitlab/ac-2.md)
 - I fill out the controls except for subsection `g` which I cannot address at this time.
 - I commit and push to the repository and go through the usual code review procedures.
@@ -37,6 +37,18 @@ To track compliance status, we have a header yaml file with a status list. The o
 - `c-inherited`: this control is inherited from the login.gov SSP.
 
 `make status` will print out some basic metrics about control status bits.
+
+## Parameters
+
+A few controls require us to supply parameters to the control. These parameter choices are given in the official NIST catalog description. For instance, `sc-12.2` requires us to choose between `NIST FIPS-compliant` or `NSA-approved` symmetric keys.
+
+To provide a parameter, edit the [Gitlab profile](./profiles/gitlab/profile.json) and add the relevant parameter id to the `set-parameters` section, along with the value(s) that we think best fits the control. (Note that some controls allow more than one parameter.)
+
+For convenience, all Gitlab controls that require such parameters have the relevant parameter ids documented in its `needs-params` YAML header. If no parameter is given in the profile, the default wording is "No value found". See [sc-12.2](./dist/system-security-plans/gitlab/sc-12.2.md) for an example of both "No value found" and its required parameter list.
+
+It is also possible to override the default parameters for a control if needed.
+
+Once new parameters are set in the profile, please run `make generate` to re-generate the control Markdown with the new parameters.
 
 ## Notes
 

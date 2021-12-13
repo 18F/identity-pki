@@ -2,6 +2,8 @@
 status:
   - c-not-implemented
   - c-not-documented
+needs-params:
+  - si-4_prm_5
 ---
 
 # si-4 - \[catalog\] Information System Monitoring

@@ -2,6 +2,8 @@
 status:
   - c-not-implemented
   - c-not-documented
+needs-params:
+  - ac-7_prm_3
 ---
 
 # ac-7 - \[catalog\] Unsuccessful Logon Attempts
