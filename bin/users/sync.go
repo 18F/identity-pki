@@ -1,3 +1,7 @@
+// Sync syncs users, groups, projects, group membership and shared projects.
+// TODO:
+//   Sync attributes of objects
+
 package main
 
 import (
@@ -21,12 +25,6 @@ var userYaml string
 var apiToken string // env var
 var check bool
 
-var allowedRoles = map[string]bool{
-	"devops":        true,
-	"appdev":        true,
-	"devopsnonprod": true,
-}
-
 var ignoredUsers = []string{
 	"support",
 	"alert",
@@ -34,24 +32,59 @@ var ignoredUsers = []string{
 	"admin@example.com", // Default email for root
 }
 
+// What we care about w.r.t. GitLab authorization. These objects will be synced.
+type GitlabCache struct {
+	Users        map[string]*gitlab.User
+	Groups       map[string]*gitlab.Group
+	GroupMembers map[Membership]*gitlab.GroupMember
+	Projects     map[string]*gitlab.Project
+}
+
+type Membership struct {
+	Collection string
+	Member     string
+}
+
+// Format of projects in YAML
+type AuthorizedProject struct {
+	Groups map[string]struct {
+		// TODO use "developer", "maintainer", not "30", "40"
+		Access int // from https://pkg.go.dev/github.com/xanzy/go-gitlab#AccessLevelValue
+	}
+}
+
+// Format of users in YAML
 type AuthUser struct {
 	Aws_groups    []string
 	Gitlab_groups []string
 }
 
+// Format of groups in YAML
+type AuthGroup struct {
+	Description string
+}
+
+// Format of the YAML input
 type AuthorizedUsers struct {
-	Users map[string]*AuthUser
+	Users    map[string]*AuthUser
+	Groups   map[string]*AuthGroup
+	Projects map[string]*AuthorizedProject
 }
 
 // A mapping of user and group names to IDs, because our configs work with
 // usernames, but GitLab often wants the ID. Populate as we find more mappings.
-var idCache = map[string]int{}
+var cache = &GitlabCache{
+	Users:        map[string]*gitlab.User{},
+	Groups:       map[string]*gitlab.Group{},
+	GroupMembers: map[Membership]*gitlab.GroupMember{},
+	Projects:     map[string]*gitlab.Project{},
+}
 
 func init() {
 	flag.StringVar(&fqdn, "fqdn", "", "Required. Fully qualified domain name for the GitLab instance.")
 	flag.StringVar(&userYaml, "file", "../../terraform/master/global/users.yaml", "Input YAML.")
-	flag.BoolVar(&dryrun, "dryrun", false, "Whether to run in dryrun mode. Defaults to false.")
 	flag.BoolVar(&check, "check", false, "Only check whether a change would be made, and error if so.")
+	flag.BoolVar(&dryrun, "dryrun", false, "Synonym for -check.")
 	flag.Usage = func() {
 		fmt.Fprintf(flag.CommandLine.Output(), "sync.go: Syncs GitLab users with a YAML source of truth. Requires GITLAB_API_TOKEN to be set in the environment. Usage:\n")
 		flag.PrintDefaults()
@@ -62,6 +95,7 @@ func init() {
 func main() {
 	// Check if we have flags and env vars set
 	flag.Parse()
+	dryrun = check || dryrun
 	if fqdn == "" {
 		flag.Usage()
 	}
@@ -71,12 +105,21 @@ func main() {
 	}
 
 	// Set up GitLab connection
-	gitc, err := gitlab.NewClient(
+	rawClient, err := gitlab.NewClient(
 		apiToken,
 		gitlab.WithBaseURL(fmt.Sprintf("https://%s", fqdn)),
 	)
 	if err != nil {
 		log.Fatalf("Failed to create client: %v", err)
+	}
+	gitc := &GitlabClient{
+		client: rawClient,
+	}
+
+	// Fill cache
+	err = populateGitLabCache(gitc)
+	if err != nil {
+		log.Fatalf("Failed to query GitLab: %v", err)
 	}
 
 	//
@@ -119,10 +162,7 @@ func main() {
 	}
 	log.Printf("Found groups: %v", gitlabGroups)
 
-	authGroups := getAuthorizedGroups(authorizedUsers)
-	log.Printf("Authorized groups: %v", authGroups)
-
-	groupsToCreate, groupsToDelete := resolveGroups(gitlabGroups, authGroups)
+	groupsToCreate, groupsToDelete := resolveGroups(gitlabGroups, authorizedUsers)
 	err = createGroups(gitc, groupsToCreate)
 	if err != nil {
 		log.Fatalf("Unable to create groups: %v", err)
@@ -140,7 +180,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to list memberships: %v", err)
 	}
-	authGroups = getAuthorizedGroups(authorizedUsers)
+	authGroups := getAuthorizedGroups(authorizedUsers)
 	membersToCreate, membersToDelete := resolveMembers(groupsWithMembers, authGroups)
 	err = createMemberships(gitc, membersToCreate)
 	if err != nil {
@@ -150,6 +190,80 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to delete members: %v", err)
 	}
+
+	//
+	// Sync Project Membership
+	//
+
+	projects, err := getExistingProjects(gitc)
+	if err != nil {
+		log.Fatalf("Failed to get project memberships: %v", err)
+	}
+
+	err = resolveProjects(gitc, projects, authorizedUsers)
+	if err != nil {
+		log.Fatalf("Failed to resolve projects: %v", err)
+	}
+}
+
+func resolveProjects(gitc GitlabClientIface, existingProjects map[string]*gitlab.Project, authUsers *AuthorizedUsers) error {
+	for pathWithNamespace, authProject := range authUsers.Projects {
+
+		// Does the project exist
+		existingProject, ok := existingProjects[pathWithNamespace]
+		if !ok {
+			return fmt.Errorf("Project %v doesn't exist.", pathWithNamespace)
+		}
+
+		// Create or update shares
+		for gName, group := range authProject.Groups {
+
+			// Is the group shared with the project?
+			foundShare := false
+			for _, share := range existingProject.SharedWithGroups {
+				if share.GroupName == gName {
+					// Ensure accessLevel is correct
+					if share.GroupAccessLevel == group.Access {
+						foundShare = true
+					} else {
+						fatalIfDryRun("%v shouldn't be shared with %v at level %v", pathWithNamespace, share.GroupName, share.GroupAccessLevel)
+						_, err := gitc.DeleteSharedProjectFromGroup(existingProject.ID, share.GroupID)
+						if err != nil {
+							return err
+						}
+					}
+					break
+				}
+			}
+			// Create share if we didn't find it
+			if !foundShare {
+				fatalIfDryRun("%v should be shared with %v", pathWithNamespace, gName)
+				_, err := gitc.ShareProjectWithGroup(
+					existingProject.ID,
+					&gitlab.ShareWithGroupOptions{
+						GroupAccess: gitlab.AccessLevel(gitlab.AccessLevelValue(group.Access)),
+						GroupID:     &cache.Groups[gName].ID,
+					},
+				)
+				if err != nil {
+					return err
+				}
+			}
+		}
+
+		// Delete unauthorized shares
+		for _, share := range existingProject.SharedWithGroups {
+			if _, ok := authProject.Groups[share.GroupName]; !ok {
+				// This share shouldn't exist
+				fatalIfDryRun("%v shouldn't be shared with %v", pathWithNamespace, share.GroupName)
+				_, err := gitc.DeleteSharedProjectFromGroup(existingProject.ID, share.GroupID)
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
+	return nil
 }
 
 func getAuthorizedGroups(authUsers *AuthorizedUsers) map[string]map[string]bool {
@@ -166,8 +280,8 @@ func getAuthorizedGroups(authUsers *AuthorizedUsers) map[string]map[string]bool 
 	return groups
 }
 
-func getExistingGroups(gitc *gitlab.Client) (map[string]*gitlab.Group, error) {
-	groups, _, err := gitc.Groups.ListGroups(
+func getExistingGroups(gitc GitlabClientIface) (map[string]*gitlab.Group, error) {
+	groups, _, err := gitc.ListGroups(
 		&gitlab.ListGroupsOptions{
 			ListOptions: gitlab.ListOptions{
 				PerPage: 100,
@@ -181,13 +295,13 @@ func getExistingGroups(gitc *gitlab.Client) (map[string]*gitlab.Group, error) {
 	groupMap := make(map[string]*gitlab.Group)
 	for _, g := range groups {
 		groupMap[g.Name] = g
-		idCache[fmt.Sprintf("group:%v", g.Name)] = g.ID
+		cache.Groups[g.Name] = g
 	}
 
 	return groupMap, nil
 }
 
-func getExistingMembers(gitc *gitlab.Client) (map[string]map[string]bool, error) {
+func getExistingMembers(gitc GitlabClientIface) (map[string]map[string]bool, error) {
 	memberships := map[string]map[string]bool{}
 
 	gitlabGroups, err := getExistingGroups(gitc)
@@ -197,14 +311,7 @@ func getExistingMembers(gitc *gitlab.Client) (map[string]map[string]bool, error)
 	log.Printf("Found groups: %v", gitlabGroups)
 
 	for gname, g := range gitlabGroups {
-		members, _, err := gitc.Groups.ListGroupMembers(
-			g.ID,
-			&gitlab.ListGroupMembersOptions{
-				ListOptions: gitlab.ListOptions{
-					PerPage: 100,
-				},
-			},
-		)
+		members, err := getGroupMembers(gitc, g)
 		if err != nil {
 			return nil, err
 		}
@@ -214,6 +321,25 @@ func getExistingMembers(gitc *gitlab.Client) (map[string]map[string]bool, error)
 		}
 	}
 	return memberships, nil
+}
+
+func getExistingProjects(gitc GitlabClientIface) (map[string]*gitlab.Project, error) {
+	projectMap := map[string]*gitlab.Project{}
+	projects, _, err := gitc.ListProjects(
+		&gitlab.ListProjectsOptions{
+			ListOptions: gitlab.ListOptions{
+				PerPage: 100,
+			},
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, project := range projects {
+		projectMap[project.PathWithNamespace] = project
+	}
+	return projectMap, nil
 }
 
 func getAuthorizedUsers(f string) (*AuthorizedUsers, error) {
@@ -230,8 +356,8 @@ func getAuthorizedUsers(f string) (*AuthorizedUsers, error) {
 	return &authorizedUsers, nil
 }
 
-func getExistingUsers(gitc *gitlab.Client) (map[string]*gitlab.User, error) {
-	gitUsers, _, err := gitc.Users.ListUsers(
+func getExistingUsers(gitc GitlabClientIface) (map[string]*gitlab.User, error) {
+	gitUsers, _, err := gitc.ListUsers(
 		&gitlab.ListUsersOptions{
 			ListOptions: gitlab.ListOptions{
 				PerPage: 100,
@@ -246,7 +372,7 @@ func getExistingUsers(gitc *gitlab.Client) (map[string]*gitlab.User, error) {
 	for _, u := range gitUsers {
 		existingUsers[u.Username] = u
 		log.Printf("Found existing GitLab user: %v (%v)", u.Email, u.State)
-		idCache[fmt.Sprintf("user:%v", u.Username)] = u.ID
+		cache.Users[u.Username] = u
 	}
 
 	return existingUsers, nil
@@ -278,12 +404,9 @@ func resolveUsers(
 	}
 
 	// For each user in YAML,  mark to keep it
+	// TODO keep if they're a member of any Gitlab group
 	for username, userAttrs := range authorizedUsers.Users {
-		for _, role := range userAttrs.Aws_groups {
-			if _, ok := allowedRoles[role]; !ok {
-				// skip to the next role
-				continue
-			}
+		if len(userAttrs.Gitlab_groups) > 0 {
 			if u, ok := existingUsers[username]; ok {
 				usersToUnblock[username] = u
 				delete(usersToBlock, username)
@@ -299,8 +422,11 @@ func resolveUsers(
 // Returns sets of groups to create and delete
 func resolveGroups(
 	gitlabGroups map[string]*gitlab.Group,
-	authGroups map[string]map[string]bool,
+	authorizedUsers *AuthorizedUsers,
 ) (map[string]bool, map[string]*gitlab.Group) {
+
+	authGroups := getAuthorizedGroups(authorizedUsers)
+	log.Printf("Authorized groups: %v", authGroups)
 
 	groupsToCreate := map[string]bool{}
 	groupsToDelete := map[string]*gitlab.Group{}
@@ -310,7 +436,17 @@ func resolveGroups(
 		groupsToDelete[k] = v
 	}
 
+	// authGroups is every group with a member
 	for ag := range authGroups {
+		if _, ok := gitlabGroups[ag]; ok {
+			delete(groupsToDelete, ag)
+			continue
+		}
+		groupsToCreate[ag] = true
+	}
+
+	// Don't delete defined groups without members
+	for ag := range authorizedUsers.Groups {
 		if _, ok := gitlabGroups[ag]; ok {
 			delete(groupsToDelete, ag)
 			continue
@@ -348,21 +484,15 @@ func resolveMembers(
 	return membersToCreate, memberships
 }
 
-func blockUsers(gitc *gitlab.Client, usersToBlock map[string]*gitlab.User) error {
+func blockUsers(gitc GitlabClientIface, usersToBlock map[string]*gitlab.User) error {
 	for username, user := range usersToBlock {
 		if user.State == "blocked" {
 			continue
 		}
-		if check {
-			log.Fatalf("User %v should be blocked, but isn't.", username)
-		}
 
-		log.Printf("Blocking %v (ID %v)", user.Email, user.ID)
-		if dryrun {
-			continue
-		}
+		fatalIfDryRun("User %v should be blocked, but isn't.", username)
 
-		err := gitc.Users.BlockUser(user.ID)
+		err := gitc.BlockUser(user.ID)
 		if err != nil {
 			return err
 		}
@@ -370,21 +500,15 @@ func blockUsers(gitc *gitlab.Client, usersToBlock map[string]*gitlab.User) error
 	return nil
 }
 
-func unblockUsers(gitc *gitlab.Client, usersToUnblock map[string]*gitlab.User) error {
+func unblockUsers(gitc GitlabClientIface, usersToUnblock map[string]*gitlab.User) error {
 	for username, user := range usersToUnblock {
 		if user.State == "active" {
 			continue
 		}
-		if check {
-			log.Fatalf("User %v should be unblocked, but isn't.", username)
-		}
 
-		log.Printf("Unblocking %v (ID %v)", user.Email, user.ID)
-		if dryrun {
-			continue
-		}
+		fatalIfDryRun("User %v should be unblocked, but isn't.", username)
 
-		err := gitc.Users.UnblockUser(user.ID)
+		err := gitc.UnblockUser(user.ID)
 		if err != nil {
 			return err
 		}
@@ -392,16 +516,10 @@ func unblockUsers(gitc *gitlab.Client, usersToUnblock map[string]*gitlab.User) e
 	return nil
 }
 
-func createUsers(gitc *gitlab.Client, usersToCreate map[string]bool) error {
+func createUsers(gitc GitlabClientIface, usersToCreate map[string]bool) error {
 	for username := range usersToCreate {
-		if check {
-			log.Fatalf("User %v should exist, but doesn't.", username)
-		}
+		fatalIfDryRun("User %v should exist, but doesn't.", username)
 
-		log.Printf("Creating %v", username)
-		if dryrun {
-			return nil
-		}
 		options := &gitlab.CreateUserOptions{
 			Email:               gitlab.String(fmt.Sprintf("%v@gsa.gov", username)),
 			ForceRandomPassword: gitlab.Bool(true),
@@ -411,29 +529,24 @@ func createUsers(gitc *gitlab.Client, usersToCreate map[string]bool) error {
 			CanCreateGroup:      gitlab.Bool(false),
 		}
 
-		newUser, _, err := gitc.Users.CreateUser(options)
+		newUser, _, err := gitc.CreateUser(options)
 		if err != nil {
 			return err
 		}
-		idCache[fmt.Sprintf("user:%v", newUser.Username)] = newUser.ID
+		cache.Users[newUser.Username] = newUser
 	}
 	return nil
 }
 
-func createGroups(gitc *gitlab.Client, groupsToCreate map[string]bool) error {
+func createGroups(gitc GitlabClientIface, groupsToCreate map[string]bool) error {
 	for gname := range groupsToCreate {
-		if check {
-			log.Fatalf("Group %v should exist, but doesn't.", gname)
-		}
+		fatalIfDryRun("Group %v should exist, but doesn't.", gname)
 		log.Printf("Creating %v", gname)
-		if dryrun {
-			return nil
-		}
 		options := &gitlab.CreateGroupOptions{
 			Name: gitlab.String(gname),
 			Path: gitlab.String(gname),
 		}
-		_, _, err := gitc.Groups.CreateGroup(options)
+		_, _, err := gitc.CreateGroup(options)
 		if err != nil {
 			return err
 		}
@@ -441,16 +554,11 @@ func createGroups(gitc *gitlab.Client, groupsToCreate map[string]bool) error {
 	return nil
 }
 
-func deleteGroups(gitc *gitlab.Client, groupsToDelete map[string]*gitlab.Group) error {
+func deleteGroups(gitc GitlabClientIface, groupsToDelete map[string]*gitlab.Group) error {
 	for gname, group := range groupsToDelete {
-		if check {
-			log.Fatalf("Group %v shouldn't exist, but does.", gname)
-		}
-		log.Printf("Deleting group %v", gname)
-		if dryrun {
-			continue
-		}
-		_, err := gitc.Groups.DeleteGroup(group.ID)
+		fatalIfDryRun("Group %v shouldn't exist, but does.", gname)
+
+		_, err := gitc.DeleteGroup(group.ID)
 		if err != nil {
 			return err
 		}
@@ -458,22 +566,17 @@ func deleteGroups(gitc *gitlab.Client, groupsToDelete map[string]*gitlab.Group) 
 	return nil
 }
 
-func createMemberships(gitc *gitlab.Client, membersToCreate map[string]map[string]bool) error {
+func createMemberships(gitc GitlabClientIface, membersToCreate map[string]map[string]bool) error {
 	for groupName, members := range membersToCreate {
 		for memberName := range members {
-			if check {
-				log.Fatalf("Member %v should exist in %v, but doesn't.", memberName, groupName)
-			}
-			log.Printf("Adding %v to %v", memberName, groupName)
-			if dryrun {
-				continue
-			}
-			groupID := idCache[fmt.Sprintf("group:%v", groupName)]
+			fatalIfDryRun("Member %v should exist in %v, but doesn't.", memberName, groupName)
+
+			groupID := cache.Groups[groupName].ID
 			memberOpts := &gitlab.AddGroupMemberOptions{
-				UserID:      gitlab.Int(idCache[fmt.Sprintf("user:%v", memberName)]),
+				UserID:      gitlab.Int(cache.Users[memberName].ID),
 				AccessLevel: gitlab.AccessLevel(gitlab.DeveloperPermissions),
 			}
-			_, _, err := gitc.GroupMembers.AddGroupMember(groupID, memberOpts)
+			_, _, err := gitc.AddGroupMember(groupID, memberOpts)
 			if err != nil {
 				return err
 			}
@@ -482,23 +585,78 @@ func createMemberships(gitc *gitlab.Client, membersToCreate map[string]map[strin
 	return nil
 }
 
-func deleteMemberships(gitc *gitlab.Client, membersToDelete map[string]map[string]bool) error {
+func deleteMemberships(gitc GitlabClientIface, membersToDelete map[string]map[string]bool) error {
 	for groupName, members := range membersToDelete {
 		for memberName := range members {
-			if check {
-				log.Fatalf("Member %v shouldn't exist in %v, but does.", memberName, groupName)
-			}
-			log.Printf("Removing %v from %v", memberName, groupName)
-			if dryrun {
-				continue
-			}
-			groupID := idCache[fmt.Sprintf("group:%v", groupName)]
-			userID := idCache[fmt.Sprintf("user:%v", memberName)]
-			_, err := gitc.GroupMembers.RemoveGroupMember(groupID, userID)
+			fatalIfDryRun("Member %v shouldn't exist in %v, but does.", memberName, groupName)
+
+			groupID := cache.Groups[groupName].ID
+			userID := cache.Users[memberName].ID
+			_, err := gitc.RemoveGroupMember(groupID, userID)
 			if err != nil {
 				return err
 			}
 		}
 	}
 	return nil
+}
+
+func populateGitLabCache(gitc GitlabClientIface) error {
+	gitLabUsers, err := getExistingUsers(gitc)
+	if err != nil {
+		return err
+	}
+	cache.Users = gitLabUsers
+
+	gitLabGroups, err := getExistingGroups(gitc)
+	if err != nil {
+		return err
+	}
+	cache.Groups = gitLabGroups
+
+	for _, group := range gitLabGroups {
+		groupMembers, err := getGroupMembers(gitc, group)
+		if err != nil {
+			return err
+		}
+		for _, member := range groupMembers {
+			membership := Membership{
+				Collection: group.Name,
+				Member:     member.Username,
+			}
+			cache.GroupMembers[membership] = member
+		}
+	}
+
+	projects, err := getExistingProjects(gitc)
+	if err != nil {
+		return err
+	}
+	cache.Projects = projects
+
+	return nil
+}
+
+func getGroupMembers(gitc GitlabClientIface, group *gitlab.Group) ([]*gitlab.GroupMember, error) {
+	members, _, err := gitc.ListGroupMembers(
+		group.ID,
+		&gitlab.ListGroupMembersOptions{
+			ListOptions: gitlab.ListOptions{
+				PerPage: 100,
+			},
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	return members, nil
+}
+
+// If running with --check or --dryrun, exit and error immediately
+func fatalIfDryRun(format string, v ...interface{}) {
+	if dryrun {
+		log.Fatalf(format, v...)
+	} else {
+		log.Printf(format, v...)
+	}
 }
