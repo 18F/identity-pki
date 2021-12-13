@@ -1159,6 +1159,9 @@ GEM
     aws-sigv2 (1.1.0)
     aws-sigv4 (1.4.0)
       aws-eventstream (~> 1, >= 1.0.2)
+    bcrypt (3.1.16)
+    bcrypt-ruby (3.1.5)
+      bcrypt (>= 3.1.3)
     berkshelf (7.2.2)
       chef (>= 15.7.32)
       chef-config
@@ -1230,6 +1233,10 @@ GEM
     commander (4.6.0)
       highline (~> 2.0.0)
     concurrent-ruby (1.1.9)
+    devise (1.5.4)
+      bcrypt-ruby (~> 3.0)
+      orm_adapter (~> 0.0.3)
+      warden (~> 1.1)
     diff-lcs (1.3)
     diffy (3.4.0)
     domain_name (0.5.20190701)
@@ -1347,6 +1354,7 @@ GEM
       plist (~> 3.1)
       train-core
       wmi-lite (~> 1.0)
+    orm_adapter (0.0.7)
     parallel (1.21.0)
     parslet (1.8.2)
     pastel (0.8.0)
@@ -1454,6 +1462,8 @@ GEM
     uuidtools (2.2.0)
     vault (0.16.0)
       aws-sigv4
+    warden (1.2.9)
+      rack (>= 2.0.9)
     webrick (1.7.0)
     winrm (2.3.6)
       builder (>= 2.1.2)
@@ -1487,6 +1497,7 @@ DEPENDENCIES
   berkshelf (~> 7.2.2)
   chef (~> 17.5.22)
   colorize
+  devise
   erubis (~> 2)
   pry
   pry-byebug (~> 3.9)
