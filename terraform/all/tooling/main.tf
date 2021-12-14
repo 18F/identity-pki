@@ -17,7 +17,7 @@ variable "opsgenie_key_ready" {
 module "main" {
   source = "../module"
 
-  dnssec_zone_name       = "gitlab.identitysandbox.gov."
+  dnssec_zone_exists     = true
   slack_events_sns_topic = "slack-events"
   opsgenie_key_ready     = var.opsgenie_key_ready
   iam_account_alias      = "login-tooling"

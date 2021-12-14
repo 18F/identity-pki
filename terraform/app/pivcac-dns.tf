@@ -56,14 +56,14 @@ resource "aws_iam_role_policy" "pivcac_update_route53" {
 ##### DNSSEC #####
 
 module "dnssec" {
-  source = "github.com/18F/identity-terraform//dnssec?ref=2f79e718464e1db527f22adef242ed517cca3f91"
+  source = "github.com/18F/identity-terraform//dnssec?ref=dc5eca75fa576c8dfffa78238d14a2866e664114"
   #source = "../../../identity-terraform/dnssec"
 
   dnssec_ksks_action_req_alarm_desc = "${local.dnssec_runbook_prefix}_ksks_action_req"
   dnssec_ksk_age_alarm_desc         = "${local.dnssec_runbook_prefix}_ksk_age"
   dnssec_errors_alarm_desc          = "${local.dnssec_runbook_prefix}_errors"
   dnssec_zone_name                  = aws_route53_zone.pivcac_zone.name
-  dnssec_zone_id                  = aws_route53_zone.pivcac_zone.id
+  dnssec_zone_id                    = aws_route53_zone.pivcac_zone.id
   alarm_actions                     = local.low_priority_alarm_actions
   protect_resources                 = false
   # ^ don't create an IAM policy preventing disabling/deletion of pivcac DNSSEC stuff

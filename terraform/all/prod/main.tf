@@ -14,7 +14,7 @@ module "main" {
   source = "../module"
 
   slack_events_sns_topic = "slack-events"
-  dnssec_zone_name       = "login.gov."
+  dnssec_zone_exists     = true
   iam_account_alias      = "login-prod"
   reports_bucket_arn     = "arn:aws:s3:::login-gov.reports.555546682965-us-west-2"
   account_roles_map = {
