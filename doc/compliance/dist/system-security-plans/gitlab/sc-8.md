@@ -1,3 +1,11 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+needs-params:
+  - sc-8_prm_1
+---
+
 # sc-8 - \[catalog\] Transmission Confidentiality and Integrity
 
 ## Control Statement

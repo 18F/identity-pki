@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # ia-4 - \[catalog\] Identifier Management
 
 ## Control Statement

@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # si-3.1 - \[catalog\] Central Management
 
 ## Control Statement

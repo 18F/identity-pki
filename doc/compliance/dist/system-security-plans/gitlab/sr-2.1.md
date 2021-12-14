@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # sr-2.1 - \[catalog\] Establish Scrm Team
 
 ## Control Statement

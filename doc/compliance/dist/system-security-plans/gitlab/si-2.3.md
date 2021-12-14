@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # si-2.3 - \[catalog\] Time to Remediate Flaws / Benchmarks for Corrective Actions
 
 ## Control Statement

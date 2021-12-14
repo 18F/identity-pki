@@ -441,6 +441,11 @@ resource "aws_autoscaling_group" "idp" {
     value               = "${var.env_name}.${var.root_domain}"
     propagate_at_launch = false
   }
+
+  depends_on = [
+    aws_autoscaling_group.outboundproxy,
+    aws_autoscaling_group.migration,
+  ]
 }
 
 module "idp_lifecycle_hooks" {

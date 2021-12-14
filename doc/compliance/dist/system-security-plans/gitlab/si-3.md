@@ -1,3 +1,12 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+needs-params:
+  - si-3_prm_2
+  - si-3_prm_3
+---
+
 # si-3 - \[catalog\] Malicious Code Protection
 
 ## Control Statement

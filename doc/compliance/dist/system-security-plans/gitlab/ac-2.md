@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # ac-2 - \[catalog\] Account Management
 
 ## Control Statement

@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # ac-5 - \[catalog\] Separation of Duties
 
 ## Control Statement

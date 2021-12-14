@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # si-7.7 - \[catalog\] Integration of Detection and Response
 
 ## Control Statement

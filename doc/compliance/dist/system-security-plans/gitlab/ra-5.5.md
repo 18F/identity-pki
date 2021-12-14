@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # ra-5.5 - \[catalog\] Privileged Access
 
 ## Control Statement

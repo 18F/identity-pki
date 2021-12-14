@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # si-7 - \[catalog\] Software, Firmware, and Information Integrity
 
 ## Control Statement

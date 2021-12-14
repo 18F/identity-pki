@@ -1,3 +1,11 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+needs-params:
+  - si-5_prm_2
+---
+
 # si-5 - \[catalog\] Security Alerts, Advisories, and Directives
 
 ## Control Statement

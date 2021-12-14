@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # dm-2 - \[catalog\] Data Retention and Disposal
 
 ## Control Statement

@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # dm-1 - \[catalog\] Minimization of Personally Identifiable Information
 
 ## Control Statement

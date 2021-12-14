@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # sc-7.12 - \[catalog\] Host-based Protection
 
 ## Control Statement

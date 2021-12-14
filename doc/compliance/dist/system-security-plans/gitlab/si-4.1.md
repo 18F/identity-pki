@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # si-4.1 - \[catalog\] System-wide Intrusion Detection System
 
 ## Control Statement

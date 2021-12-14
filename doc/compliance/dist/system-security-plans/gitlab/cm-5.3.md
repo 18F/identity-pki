@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # cm-5.3 - \[catalog\] Signed Components
 
 ## Control Statement

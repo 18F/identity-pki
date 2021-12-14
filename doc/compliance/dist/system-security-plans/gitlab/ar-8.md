@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # ar-8 - \[catalog\] Accounting of Disclosures
 
 ## Control Statement

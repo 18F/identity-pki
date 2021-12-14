@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # ia-2.11 - \[catalog\] Remote Access - Separate Device
 
 ## Control Statement

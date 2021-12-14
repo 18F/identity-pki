@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # cm-2 - \[catalog\] Baseline Configuration
 
 ## Control Statement

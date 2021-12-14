@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # sc-4 - \[catalog\] Information in Shared Resources
 
 ## Control Statement

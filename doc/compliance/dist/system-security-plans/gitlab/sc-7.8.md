@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # sc-7.8 - \[catalog\] Route Traffic to Authenticated Proxy Servers
 
 ## Control Statement

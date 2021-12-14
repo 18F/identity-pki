@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # ca-3 - \[catalog\] System Interconnections
 
 ## Control Statement

@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # au-6.3 - \[catalog\] Correlate Audit Repositories
 
 ## Control Statement

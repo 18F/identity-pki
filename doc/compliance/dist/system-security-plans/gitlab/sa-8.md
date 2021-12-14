@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # sa-8 - \[catalog\] Security Engineering Principles
 
 ## Control Statement

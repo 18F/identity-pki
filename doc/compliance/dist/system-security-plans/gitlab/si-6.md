@@ -1,3 +1,12 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+needs-params:
+  - si-6_prm_2
+  - si-6_prm_6
+---
+
 # si-6 - \[catalog\] Security Function Verification
 
 ## Control Statement

@@ -1,3 +1,11 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+needs-params:
+  - sc-7_prm_1
+---
+
 # sc-7 - \[catalog\] Boundary Protection
 
 ## Control Statement

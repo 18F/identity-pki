@@ -13,13 +13,13 @@ users:
     aws_groups:
       - devops
     gitlab_groups:
-      - lg
+      - devops
   alex.mathews:
     aws_groups:
       - appdev
       - apponcall
     gitlab_groups:
-      - lg
+      - appdev
   amos.stone:
     aws_groups:
       - analytics
@@ -28,7 +28,7 @@ users:
       - appdev
       - apponcall
     gitlab_groups:
-      - lg
+      - appdev
   brett.mcparland:
     aws_groups:
       - secops
@@ -44,7 +44,7 @@ users:
     aws_groups:
       - appdev
     gitlab_groups:
-      - lg
+      - appdev
   dave.zvenyach:
     aws_groups:
       - analytics
@@ -57,17 +57,17 @@ users:
       - apponcall
       - bizops
     gitlab_groups:
-      - lg
+      - appdev
   james.tranovich:
     aws_groups:
       - devopsnonprod
     gitlab_groups:
-      - lg
+      - devops
   jessica.dembe:
     aws_groups:
       - appdev
     gitlab_groups:
-      - lg
+      - appdev
   jonathan.hooper:
     aws_groups:
       - appdev
@@ -75,18 +75,19 @@ users:
       - devops
       - keymasters
     gitlab_groups:
-      - lg
+      - appdev
+      - devops
   jonathan.pirro:
     aws_groups:
       - devops
     gitlab_groups:
-      - lg
+      - devops
   joshua.alley:
     aws_groups:
       - appdev
       - apponcall
     gitlab_groups:
-      - lg
+      - appdev
   julia.elman:
     aws_groups:
       - analytics
@@ -94,7 +95,7 @@ users:
     aws_groups:
       - devops
     gitlab_groups:
-      - lg
+      - devops
   kelsey.sinclair:
     aws_groups:
       - bizops
@@ -103,12 +104,12 @@ users:
       - appdev
       - apponcall
     gitlab_groups:
-      - lg
+      - appdev
   logan.mcdonald:
     aws_groups:
       - devopsnonprod
     gitlab_groups:
-      - lg
+      - devops
   magdaline.derosena:
     aws_groups:
       - analytics
@@ -116,7 +117,7 @@ users:
     aws_groups:
       - appdev
     gitlab_groups:
-      - lg
+      - appdev
   michael.antiporta:
     aws_groups:
       - analytics
@@ -126,7 +127,8 @@ users:
       - apponcall
       - devops
     gitlab_groups:
-      - lg
+      - appdev
+      - devops
   mossadeq.zia:
     aws_groups:
       - devops
@@ -134,12 +136,12 @@ users:
       - keymasters
       - socreadonly
     gitlab_groups:
-      - lg
+      - devops
   nathan.berg:
     aws_groups:
       - appdev
     gitlab_groups:
-      - lg
+      - devops
   nathan.wick:
     aws_groups:
       - bizops
@@ -147,22 +149,22 @@ users:
     aws_groups:
       - devopsnonprod
     gitlab_groups:
-      - lg
+      - devops
   oren.kanner:
     aws_groups:
       - appdev
       - apponcall
       - bizops
     gitlab_groups:
-      - lg
+      - appdev
   page.levendis:
     aws_groups:
-      - bizops
+      - analytics
   parissa.eggleston:
     aws_groups:
       - appdev
     gitlab_groups:
-      - lg
+      - appdev
   patricia.bryan:
     aws_groups:
       - bizops
@@ -173,18 +175,18 @@ users:
     aws_groups:
       - devops
     gitlab_groups:
-      - lg
+      - devops
   russ.beye:
     aws_groups:
       - appdev
       - apponcall
     gitlab_groups:
-      - lg
+      - appdev
   ryan.d.brown:
     aws_groups:
       - devopsnonprod
     gitlab_groups:
-      - lg
+      - devops
   sierra.toler:
     aws_groups:
       - bizops
@@ -194,7 +196,7 @@ users:
       - apponcall
       - keymasters
     gitlab_groups:
-      - lg
+      - appdev
   thomas.black:
     aws_groups:
       - bizops
@@ -203,7 +205,7 @@ users:
       - appdev
       - apponcall
     gitlab_groups:
-      - lg
+      - appdev
   tiffanyj.andrews:
     aws_groups:
       - analytics
@@ -212,21 +214,49 @@ users:
       - devops
       - secops
     gitlab_groups:
-      - lg
+      - devops
   vlad.toussaint:
     aws_groups:
       - devopsnonprod
       - socreadonly
     gitlab_groups:
-      - lg
+      - devops
   vivek.chugh:
     aws_groups:
       - devops
     gitlab_groups:
-      - lg
+      - devops
   zach.margolis:
     aws_groups:
       - appdev
       - apponcall
     gitlab_groups:
-      - lg
+      - appdev
+
+groups:
+  appdev:
+    description: "Application Developers"
+  devops:
+    description: "DevOps and SRE"
+  lg:
+    description: "Namespace for Login.gov projects"
+    
+projects:
+  lg/identity-devops:
+    groups:
+      devops:
+        access: maintainer
+      appdev:
+        access: developer
+  lg/identity-idp:
+    groups:
+      appdev:
+        access: maintainer
+      devops:
+        access: developer
+  lg/identity-gitlab:
+    groups:
+      devops:
+        access: maintainer
+      appdev:
+        access: developer

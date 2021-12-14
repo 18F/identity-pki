@@ -1,3 +1,11 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+needs-params:
+  - ra-3_prm_1
+---
+
 # ra-3 - \[catalog\] Risk Assessment
 
 ## Control Statement

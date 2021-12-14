@@ -1,9 +1,8 @@
 # These monitor the idp and pivcac services.
 # enable these with setting these to 1:
-#   var.enabled (turns on devops idp alerting)
+#   var.enabled (turns on devops idp/pivcac alerting)
 #   var.dashboard_enabled (if the dashboard is there, alert on it too)
 #   var.enduser_enabled (enable alerts for the enduser team)
-#   var.pivcac_service_enabled (if pivcac is there, alert on it too)
 
 locals {
   # In prod, the TLS cert has only "secure.<domain>"
