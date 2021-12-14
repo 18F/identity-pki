@@ -2,6 +2,8 @@
 status:
   - c-not-implemented
   - c-not-documented
+effort:
+  - medium
 ---
 
 # sa-3 - \[catalog\] System Development Life Cycle

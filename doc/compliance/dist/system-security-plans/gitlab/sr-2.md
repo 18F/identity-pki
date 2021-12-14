@@ -2,6 +2,8 @@
 status:
   - c-not-implemented
   - c-not-documented
+effort:
+  - high
 ---
 
 # sr-2 - \[catalog\] Supply Chain Risk Management Plan

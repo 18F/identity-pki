@@ -2,6 +2,8 @@
 status:
   - c-not-implemented
   - c-not-documented
+effort:
+  - medium
 ---
 
 # sr-3 - \[catalog\] Supply Chain Controls and Processes

@@ -38,6 +38,10 @@ To track compliance status, we have a header yaml file with a status list. The o
 
 `make status` will print out some basic metrics about control status bits.
 
+## Effort
+
+Some controls are tagged with an `effort` that estimates its level of difficulty. If absent, the `effort` is by default `low`. (Options are `low`, `medium`, and `high`.)
+
 ## Parameters
 
 A few controls require us to supply parameters to the control. These parameter choices are given in the official NIST catalog description. For instance, `sc-12.2` requires us to choose between `NIST FIPS-compliant` or `NSA-approved` symmetric keys.
