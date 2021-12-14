@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # ac-2.4 - \[catalog\] Automated Audit Actions
 
 ## Control Statement

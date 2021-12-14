@@ -1,3 +1,12 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+needs-params:
+  - ca-2.2_prm_2
+  - ca-2.2_prm_3
+---
+
 # ca-2.2 - \[catalog\] Specialized Assessments
 
 ## Control Statement

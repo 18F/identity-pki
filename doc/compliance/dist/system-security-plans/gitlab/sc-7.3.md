@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # sc-7.3 - \[catalog\] Access Points
 
 ## Control Statement

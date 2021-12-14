@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # cm-6.1 - \[catalog\] Automated Central Management / Application / Verification
 
 ## Control Statement

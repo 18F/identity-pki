@@ -14,3 +14,31 @@ users:
       - appdev
     gitlab_groups:
       - lg
+groups:
+  groups:
+  appdev:
+    description: "Application Developers"
+  devops:
+    description: "DevOps and SRE"
+  lg:
+    description: "Namespace for Login.gov projects"
+    
+projects:
+  lg/identity-devops:
+    groups:
+      devops:
+        access: maintainer
+      appdev:
+        access: developer
+  lg/identity-idp:
+    groups:
+      appdev:
+        access: maintainer
+      devops:
+        access: developer
+  lg/identity-gitlab:
+    groups:
+      devops:
+        access: maintainer
+      appdev:
+        access: developer

@@ -1,3 +1,11 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+needs-params:
+  - sc-6_prm_2
+---
+
 # sc-6 - \[catalog\] Resource Availability
 
 ## Control Statement

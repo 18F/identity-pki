@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # sc-7.4 - \[catalog\] External Telecommunications Services
 
 ## Control Statement

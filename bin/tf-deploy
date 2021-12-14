@@ -57,6 +57,12 @@ Options:
                             asg_*_min / asg_*_desired values with 0. Can be
                             used anytime, but is necessary when (re)building an
                             environment from scratch.
+    -m, --migration-host    In addition to the other loaded .tfvars files,
+                            load the tf_migrate.tfvars file which sets the
+                            asg_migration_desired count to 1. Can be used
+                            anytime, but is necessary when building an environment
+                            from scratch, in order to allow DB migrations
+                            to be executed by a migration host.
     -l, --local-lockfile    Skip copying .terraform.lock.hcl from the repo root,
                             and use/regenerate the one in the specified
                             Terraform directory. (See the HACK below for more
@@ -165,6 +171,9 @@ while [ $# -gt 0 ] && [[ $1 == -* ]]; do
             ;;
         -z|--zero-out-hosts)
             EXTRA_ENV="tf_zero"
+            ;;
+        -m|--migration-host)
+            EXTRA_ENV="tf_migrate"
             ;;
         --import-remote-state)
             IMPORT_REMOTE_STATE=1

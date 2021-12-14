@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # cm-8.1 - \[catalog\] Updates During Installations / Removals
 
 ## Control Statement

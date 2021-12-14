@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # ac-6.2 - \[catalog\] Non-privileged Access for Nonsecurity Functions
 
 ## Control Statement

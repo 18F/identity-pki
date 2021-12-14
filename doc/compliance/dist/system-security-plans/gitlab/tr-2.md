@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # tr-2 - \[catalog\] System of Records Notices and Privacy Act Statements
 
 ## Control Statement

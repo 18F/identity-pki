@@ -98,6 +98,8 @@ resource "aws_autoscaling_group" "migration" {
     value               = "true"
     propagate_at_launch = true
   }
+
+  depends_on = [aws_autoscaling_group.outboundproxy]
 }
 
 module "migration_lifecycle_hooks" {

@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # sa-3 - \[catalog\] System Development Life Cycle
 
 ## Control Statement

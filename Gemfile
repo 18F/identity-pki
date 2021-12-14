@@ -1,6 +1,7 @@
 source 'https://rubygems.org'
 
 group :development do
+  gem 'devise'
   gem 'colorize'
   gem 'pry'
   gem 'pry-byebug', '~> 3.9'

@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # au-5 - \[catalog\] Response to Audit Processing Failures
 
 ## Control Statement

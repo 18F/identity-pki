@@ -1,3 +1,11 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+needs-params:
+  - sc-8.1_prm_1
+---
+
 # sc-8.1 - \[catalog\] Cryptographic or Alternate Physical Protection
 
 ## Control Statement

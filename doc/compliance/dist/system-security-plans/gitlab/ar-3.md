@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # ar-3 - \[catalog\] Privacy Requirements for Contractors and Service Providers
 
 ## Control Statement

@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # ia-5.2 - \[catalog\] Pki-based Authentication
 
 ## Control Statement

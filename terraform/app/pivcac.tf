@@ -50,8 +50,7 @@ module "pivcac_launch_template" {
 
 module "pivcac_lifecycle_hooks" {
   source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=7e11ebe24e3a9cbc34d1413cf4d20b3d71390d5b"
-  asg_name = element(concat(aws_autoscaling_group.pivcac.*.name, [""]), 0)
-  enabled  = var.pivcac_service_enabled
+  asg_name = aws_autoscaling_group.pivcac.name
 }
 
 module "pivcac_recycle" {
@@ -59,15 +58,12 @@ module "pivcac_recycle" {
 
   # switch to count when that's a thing that we can do
   # https://github.com/hashicorp/terraform/issues/953
-  enabled = var.asg_auto_recycle_enabled * var.pivcac_service_enabled
+  enabled = var.asg_auto_recycle_enabled
 
   use_daily_business_hours_schedule = var.asg_recycle_business_hours
 
-  asg_name = element(concat(aws_autoscaling_group.pivcac.*.name, [""]), 0)
-  normal_desired_capacity = element(
-    concat(aws_autoscaling_group.pivcac.*.desired_capacity, [""]),
-    0,
-  )
+  asg_name                = aws_autoscaling_group.pivcac.name
+  normal_desired_capacity = aws_autoscaling_group.pivcac.desired_capacity
 }
 
 resource "aws_iam_instance_profile" "pivcac" {
@@ -143,16 +139,13 @@ resource "aws_autoscaling_group" "pivcac" {
 
   wait_for_capacity_timeout = 0
 
-  # Don't create the ASG if we don't have an ELB.
-  count = var.pivcac_service_enabled
-
   # Use the same subnet as the IDP.
   vpc_zone_identifier = [
     aws_subnet.idp1.id,
     aws_subnet.idp2.id,
   ]
 
-  load_balancers = [aws_elb.pivcac[0].id]
+  load_balancers = [aws_elb.pivcac.id]
 
   health_check_type         = "ELB"
   health_check_grace_period = 1
@@ -188,13 +181,17 @@ resource "aws_autoscaling_group" "pivcac" {
     value               = "${var.env_name}.${var.root_domain}"
     propagate_at_launch = true
   }
+
+  depends_on = [
+    aws_autoscaling_group.outboundproxy,
+    aws_autoscaling_group.migration,
+  ]
 }
 
 resource "aws_elb" "pivcac" {
   name            = "${var.env_name}-pivcac"
   security_groups = [aws_security_group.web.id]
   subnets         = [aws_subnet.alb1.id, aws_subnet.alb2.id]
-  count           = var.pivcac_service_enabled
 
   access_logs {
     bucket        = "login-gov.elb-logs.${data.aws_caller_identity.current.account_id}-${var.region}"

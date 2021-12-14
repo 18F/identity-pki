@@ -1,3 +1,11 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+needs-params:
+  - sr-8_prm_1
+---
+
 # sr-8 - \[catalog\] Notification Agreements
 
 ## Control Statement

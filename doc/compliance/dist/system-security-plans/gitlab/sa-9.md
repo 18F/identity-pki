@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # sa-9 - \[catalog\] External Information System Services
 
 ## Control Statement

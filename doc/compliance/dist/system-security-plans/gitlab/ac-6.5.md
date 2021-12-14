@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # ac-6.5 - \[catalog\] Privileged Accounts
 
 ## Control Statement

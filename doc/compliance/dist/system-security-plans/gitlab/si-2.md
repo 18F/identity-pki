@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # si-2 - \[catalog\] Flaw Remediation
 
 ## Control Statement

@@ -1,3 +1,9 @@
+---
+status:
+  - c-not-implemented
+  - c-not-documented
+---
+
 # cp-2 - \[catalog\] Contingency Plan
 
 ## Control Statement
