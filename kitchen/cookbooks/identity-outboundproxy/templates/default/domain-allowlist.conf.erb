@@ -12,7 +12,6 @@
 .s3-us-west-2.amazonaws.com
 .s3.amazonaws.com
 .s3.us-west-2.amazonaws.com
-# XXX https://packages.gitlab.com/gitlab/gitlab-ee/ubuntu/dists/bionic/InRelease redirects to cloudfront
 anontelemetry.phusionpassenger.com
 api.authy.com
 api.berkshelf.com
@@ -31,6 +30,8 @@ deb.nodesource.com
 dl.yarnpkg.com
 doesspocsp.managed.entrust.com
 downloads.nessus.org
+.ecr.us-east-1.amazonaws.com
+.ecr.us-west-2.amazonaws.com
 email.us-east-1.amazonaws.com
 email.us-west-2.amazonaws.com
 epp.gsa.gov
@@ -45,12 +46,13 @@ iam.amazonaws.com
 launchpad.net
 logs.us-east-1.amazonaws.com
 logs.us-west-2.amazonaws.com
-maven.search-guard.com
 nginx.org
 nodejs.org
 oss-binaries.phusionpassenger.com
 oss.sonatype.org
 packages.gitlab.com
+# XXX https://packages.gitlab.com/gitlab/gitlab-ee/ubuntu/dists/bionic/InRelease redirects to cloudfront
+.cloudfront.net
 pinpoint.us-east-1.amazonaws.com
 pinpoint.us-east-2.amazonaws.com
 pinpoint.us-west-2.amazonaws.com
@@ -78,10 +80,10 @@ updates.atomicorp.com
 www.atomicorp.com
 www.openssl.org
 www.tenable.com
-xray-fips.us-east-1.amazonaws.com
-xray-fips.us-west-2.amazonaws.com
 xray.us-east-1.amazonaws.com
 xray.us-west-2.amazonaws.com
+xray-fips.us-east-1.amazonaws.com
+xray-fips.us-west-2.amazonaws.com
 # ideally we wouldn't fetch GPG keys at runtime, but there's an
 # apt_repository[openjdk-r-ppa] made by the java::openjdk cookbook
 keyserver.ubuntu.com
