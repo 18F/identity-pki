@@ -1,9 +1,6 @@
 .api.letsencrypt.org
 .chef.io
-.cloudfront.net
 .ec2.archive.ubuntu.com
-.ecr.us-east-1.amazonaws.com
-.ecr.us-west-2.amazonaws.com
 .elastic.co
 .login.gov.internal
 .maven.org
@@ -36,7 +33,6 @@ email.us-east-1.amazonaws.com
 email.us-west-2.amazonaws.com
 epp.gsa.gov
 esm.ubuntu.com
-esm.ubuntu.com
 fedmz.gsa.gov
 files.pythonhosted.org
 github-production-release-asset-2e65be.s3.amazonaws.com
@@ -48,8 +44,8 @@ logs.us-east-1.amazonaws.com
 logs.us-west-2.amazonaws.com
 nginx.org
 nodejs.org
-oss-binaries.phusionpassenger.com
 oss.sonatype.org
+oss-binaries.phusionpassenger.com
 packages.gitlab.com
 # XXX https://packages.gitlab.com/gitlab/gitlab-ee/ubuntu/dists/bionic/InRelease redirects to cloudfront
 .cloudfront.net
@@ -57,6 +53,7 @@ pinpoint.us-east-1.amazonaws.com
 pinpoint.us-east-2.amazonaws.com
 pinpoint.us-west-2.amazonaws.com
 pki.treasury.gov
+repo.fpki.gov
 ppa.launchpad.net
 pypi.org
 pypi.python.org
@@ -64,13 +61,14 @@ raw.githubusercontent.com
 registry.npmjs.org
 registry.yarnpkg.com
 releases.floragunn.com
+maven.search-guard.com
 releases.hashicorp.com
-repo.fpki.gov
 repo.maven.apache.org
 repository.sonatype.org
 rubygems-proxy.torquebox.org
 s3.dualstack.us-west-2.amazonaws.com
 security.ubuntu.com
+esm.ubuntu.com
 securitycheck.phusionpassenger.com
 sms-voice.pinpoint.us-east-1.amazonaws.com
 sms-voice.pinpoint.us-east-2.amazonaws.com
@@ -89,6 +87,7 @@ xray-fips.us-west-2.amazonaws.com
 keyserver.ubuntu.com
 route53.amazonaws.com
 <%= @identity_idp %>
+
 <% unless @identity_idp == '.login.gov' -%>
 # access to KMS in us-east-1
 kms.us-east-1.amazonaws.com
@@ -98,9 +97,7 @@ kms.us-east-1.amazonaws.com
 # https://github.com/18F/identity-devops/issues/2200
 sts.amazonaws.com
 sts.us-west-2.amazonaws.com
-sts-fips.us-west-2.amazonaws.com
-sts.us-east-2.amazonaws.com
-sts-fips.us-east-2.amazonaws.com
+sts.us-east-1.amazonaws.com
 
 # LexisNexis
 #   lower env
