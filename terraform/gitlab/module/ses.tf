@@ -14,7 +14,6 @@ resource "aws_route53_record" "gitlab_amazonses_verification_record" {
   records = [aws_ses_domain_identity.gitlab.verification_token]
 }
 
-
 resource "aws_route53_record" "gitlab_amazonses_dkim_record" {
   count   = 3
   zone_id = data.aws_route53_zone.gitlab.zone_id
