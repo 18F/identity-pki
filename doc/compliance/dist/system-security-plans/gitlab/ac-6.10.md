@@ -2,6 +2,8 @@
 status:
   - c-not-implemented
   - c-not-documented
+effort:
+  - medium
 ---
 
 # ac-6.10 - \[catalog\] Prohibit Non-privileged Users from Executing Privileged Functions

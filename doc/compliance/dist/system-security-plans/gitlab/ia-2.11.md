@@ -2,6 +2,8 @@
 status:
   - c-not-implemented
   - c-not-documented
+effort:
+  - medium
 ---
 
 # ia-2.11 - \[catalog\] Remote Access - Separate Device
