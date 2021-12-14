@@ -12,7 +12,7 @@ status:
 
 - \[b\] Employ the following controls to protect against supply chain risks to the system, system component, or system service and to limit the harm or consequences from supply chain-related events: organization-defined supply chain controls; and
 
-- \[c\] Document the selected and implemented supply chain processes and controls in No value found.
+- \[c\] Document the selected and implemented supply chain processes and controls in supply chain risk management plan.
 
 ## Control guidance
 

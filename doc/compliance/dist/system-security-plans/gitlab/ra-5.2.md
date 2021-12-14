@@ -2,6 +2,8 @@
 status:
   - c-not-implemented
   - c-not-documented
+needs-params:
+  - ra-5.2_prm_1
 ---
 
 # ra-5.2 - \[catalog\] Update by Frequency / Prior to New Scan / When Identified

@@ -2,6 +2,8 @@
 status:
   - c-not-implemented
   - c-not-documented
+needs-params:
+  - ia-3_prm_2
 ---
 
 # ia-3 - \[catalog\] Device Identification and Authentication

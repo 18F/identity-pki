@@ -298,6 +298,16 @@
           }
         ]
       }
-    ]
+    ],
+    "modify": {
+      "set-parameters": [
+        {
+          "param-id": "sr-3_prm_4",
+          "values": [
+            "supply chain risk management plan"
+          ]
+        }
+      ]
+    }
   }
 }

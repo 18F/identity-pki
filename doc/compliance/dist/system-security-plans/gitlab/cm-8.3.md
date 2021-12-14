@@ -2,6 +2,8 @@
 status:
   - c-not-implemented
   - c-not-documented
+needs-params:
+  - cm-8.3_prm_3
 ---
 
 # cm-8.3 - \[catalog\] Automated Unauthorized Component Detection
