@@ -1,0 +1,69 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# cw-metrics -a asg_name -s start_time -d duration_in_seconds
+#
+# output: 
+# 
+require 'active_support/time'
+require 'aws-sdk-cloudwatch'
+require 'optparse'
+
+def get_metrics(
+  asg_name: 'pt-worker',
+  metric: 'CPUUtilization',
+  start_time: DateTime.now,
+  duration: 15,
+  statistics: ['Average']
+)
+  cw = Aws::CloudWatch::Client.new
+  cw.get_metric_statistics({
+    namespace: "AWS/EC2",
+    metric_name: metric,
+    dimensions: [
+      {
+        name: "AutoScalingGroupName",
+        value: asg_name,
+      },
+    ],
+    start_time: start_time,
+    end_time: start_time + duration.to_i.minutes, 
+    period: duration.to_i.minutes.seconds,
+    statistics: statistics
+  })
+end
+
+def main(args)
+  options = {}
+  basename = File.basename($0)
+
+  optparse = OptionParser.new do |opts|
+    opts.banner = <<-EOM
+      usage: #{basename} [OPTIONS]
+
+    EOM
+    opts.on('-h', '--help', 'Display this message') do
+      STDERR.puts opts
+      exit
+    end
+
+    opts.on('-a', '--asg ASG_NAME', 'Name of target group') do |val|
+      options[:asg_name] = val
+    end
+
+    opts.on('-s', '--start START_TIME', 'DateTime of start (e.g. 2021-12-09T01:18:00Z)') do |val|
+      options[:start_time] = DateTime.parse(val)
+    end
+
+    opts.on('-d', '--duration DURATION', 'Duration in minutes') do |val|
+      options[:duration] = val
+    end
+  end
+
+  optparse.parse!
+  get_metrics(options)
+end
+
+if __FILE__ == $0
+  main(ARGV)
+end
