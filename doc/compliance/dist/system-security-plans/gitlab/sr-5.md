@@ -2,6 +2,8 @@
 status:
   - c-not-implemented
   - c-not-documented
+effort:
+  - medium
 ---
 
 # sr-5 - \[catalog\] Acquisition Strategies, Tools, and Methods
