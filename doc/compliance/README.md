@@ -1,6 +1,6 @@
 # Suggested documentation compliance workflow
 
-We currently have one [OSCAL profile](./profiles/gitlab/profile.json) that adheres to selected controls in the NIST 800 53 (rev 5, moderate) and GSA CIS Docker Benchmark (v1.2.0) catalogs.
+We currently have one [OSCAL profile](./profiles/gitlab/profile.json) for Gitlab that adheres to selected controls in the NIST 800 53 (mostly rev 4 moderate) and GSA CIS Docker Benchmark (v1.2.0) catalogs.
 
 Here is a suggested compliance documentation workflow that uses [compliance-trestle](https://github.com/IBM/compliance-trestle):
 
@@ -34,7 +34,7 @@ To track compliance status, we have a header yaml file with a status list. The o
 - `c-implemented`: this control has been met.
 - `c-documented`: this control has been documented.
 - `c-organization-defined`: this control should be organization defined.
-- `c-inherited`: this control is inherited from the login.gov SSP.
+- `c-inherited`: this control is inherited from the login.gov SSP or from AWS. ([example](./dist/system-security-plans/gitlab/sr-10.md))
 
 `make status` will print out some basic metrics about control status bits.
 
