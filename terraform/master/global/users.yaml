@@ -57,6 +57,9 @@ users:
       - devopsnonprod
     gitlab_groups:
       - devops
+  jeffrey.holden:
+    aws_groups:
+      - analytics
   jessica.dembe:
     aws_groups:
       - appdev
