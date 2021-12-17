@@ -110,7 +110,7 @@ module "gd-log-sub-filter-sandbox" {
   region                              = "us-west-2"
   cloudwatch_subscription_filter_name = "gd-log-ship-to-soc"
   cloudwatch_log_group_name = {
-    "GuardDutyFindings/LogGroup" = ""
+    "/aws/events/gdfindings" = ""
   }
   env_name            = "sandbox-gd"
   soc_destination_arn = "arn:aws:logs:us-west-2:752281881774:destination:elp-guardduty-lg"
