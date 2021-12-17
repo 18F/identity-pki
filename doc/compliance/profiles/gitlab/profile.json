@@ -306,6 +306,12 @@
           "values": [
             "supply chain risk management plan"
           ]
+        },
+        {
+          "param-id": "sr-10_prm_1",
+          "values": [
+            "at random"
+          ]
         }
       ]
     }
