@@ -159,4 +159,47 @@ namespace :certs do
       end
     end
   end
+
+  # Using a cert downloaded from https://handbook.login.gov/articles/troubleshooting-pivcacs.html
+  # ex: rake cert:find_missing_intermediate_certs[/my/path/to/cert.pem]
+  desc 'Find missing intermediate_certs certs for a specific cert'
+  task :find_missing_intermediate_certs, [:cert_path] => [:environment] do |t, args|
+    cert = Certificate.new(OpenSSL::X509::Certificate.new(File.read(args[:cert_path])))
+    missing_certs = CertificateChainService.new.missing(cert).uniq(&:key_id)
+    missing_certs.reverse.each do |missing_cert|
+      signing_cert = CertificateStore.instance[missing_cert.signing_key_id]
+      unless signing_cert
+        put 'Could not find signing certificate for missing certificate'
+        next
+      end
+
+      found_cert = IssuingCaService.fetch_ca_repository_certs_for_cert(signing_cert).find { |x| x.key_id == missing_cert.key_id }
+      unless found_cert
+        put 'Could not find missing certificate in signing key issued certificate'
+        next
+      end
+
+
+      puts "  Expiration: #{found_cert.not_after}"
+      puts "  Subject: #{found_cert.subject}"
+      puts "  Issuer: #{found_cert.issuer}"
+      puts "  SHA1 Fingerpint: #{found_cert.sha1_fingerprint}"
+      puts "  Key ID: #{found_cert.key_id}"
+      puts "Would you like to save this cert? Type (y)es to save."
+      input = STDIN.gets.strip
+
+      if input == 'yes' || input == 'y'
+        path = Pathname.new("./config/certs") + found_cert.pem_filename
+
+        if File.exist?(path)
+          path = Pathname.new("./config/certs") + found_cert.pem_filename(
+            suffix: " #{found_cert.not_after.to_i}"
+          )
+        end
+        puts "Writing certificate to #{path}"
+        File.write(path, found_cert.to_pem)
+        CertificateStore.instance.load_certs!
+      end
+    end
+  end
 end
