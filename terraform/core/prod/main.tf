@@ -73,11 +73,6 @@ module "main" {
           "ttl"     = "900",
         },
         {
-          "name"    = "_acme-challenge.status.",
-          "records" = ["_acme-challenge.status.login.gov.external-domains-production.cloud.gov."],
-          "ttl"     = "900",
-        },
-        {
           "name"    = "_acme-challenge.www.",
           "records" = ["_acme-challenge.www.login.gov.external-domains-production.cloud.gov."],
           "ttl"     = "900",
@@ -99,7 +94,7 @@ module "main" {
         },
         {
           "name"    = "status.",
-          "records" = ["status.login.gov.external-domains-production.cloud.gov."],
+          "records" = ["8xj4141vpqw4.stspg-customer.com."],
           "ttl"     = "900",
         },
         {
