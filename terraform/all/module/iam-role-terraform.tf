@@ -743,6 +743,7 @@ locals {
           "wafv2:CreateWebACL",
           "wafv2:DeleteWebACL",
           "wafv2:DeleteIPSet",
+          "wafv2:DeleteLoggingConfiguration",
           "wafv2:DisassociateWebACL",
           "wafv2:GetIPSet",
           "wafv2:GetLoggingConfiguration",
@@ -750,8 +751,6 @@ locals {
           "wafv2:GetWebACLForResource",
           "wafv2:ListTagsForResource",
           "wafv2:PutLoggingConfiguration",
-          "wafv2:DeleteLoggingConfiguration",
-          "wafv2:GetLoggingConfiguration",
           "wafv2:TagResource",
           "wafv2:UpdateWebACL",
         ]
