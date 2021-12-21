@@ -1,11 +1,13 @@
 locals {
   common_account_name = var.iam_account_alias == "login-master" ? "global" : replace(var.iam_account_alias, "login-", "")
+  dnssec_policy_arn   = var.dnssec_zone_exists ? data.aws_iam_policy.dnssec_disable_prevent[0].arn : ""
 
   # attach rds_delete_prevent and region_restriction to all roles
-  custom_policy_arns = [
+  custom_policy_arns = compact([
     aws_iam_policy.rds_delete_prevent.arn,
     aws_iam_policy.region_restriction.arn,
-  ]
+    local.dnssec_policy_arn,
+  ])
 
   master_assumerole_policy = data.aws_iam_policy_document.master_account_assumerole.json
 
@@ -170,4 +172,13 @@ variable "slack_events_sns_topic" {
   type        = string
   description = "Name of the SNS topic for slack."
   default     = "slack-otherevents"
+}
+
+variable "dnssec_zone_exists" {
+  type        = bool
+  description = <<EOM
+Whether or not DNSSEC is enabled for the primary hosted zone. If it does, get
+the DNSSecDisablePrevent IAM policy and attach it to all roles.
+EOM
+  default     = false
 }

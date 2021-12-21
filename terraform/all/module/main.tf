@@ -43,6 +43,13 @@ data "aws_iam_policy_document" "autotf_assumerole" {
   }
 }
 
+# get DNSSEC prevent-delete policy if dnssec_zone_exists = true
+data "aws_iam_policy" "dnssec_disable_prevent" {
+  count = var.dnssec_zone_exists ? 1 : 0
+
+  name = "DNSSecDisablePrevent"
+}
+
 locals {
   bucket_name_prefix       = "login-gov"
   secrets_bucket_type      = "secrets"
