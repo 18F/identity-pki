@@ -3,6 +3,10 @@
 resource "aws_route53_zone" "primary" {
   # domain, ensuring it has a trailing "."
   name = replace(var.domain, "/\\.?$/", ".")
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "aws_route53_record" "a" {

@@ -501,6 +501,7 @@ locals {
   high_priority_alarm_actions      = var.page_devops == 1 ? [var.high_priority_sns_hook, var.slack_events_sns_hook_arn] : [var.slack_events_sns_hook_arn]
   low_priority_alarm_actions       = [var.slack_events_sns_hook_arn]
   inventory_bucket_arn             = "arn:aws:s3:::login-gov.s3-inventory.${data.aws_caller_identity.current.account_id}-${var.region}"
+  dnssec_runbook_prefix            = " - https://github.com/18F/identity-devops/wiki/Runbook:-DNS#dnssec"
 }
 
 # These variables are used to toggle whether certain services are enabled.

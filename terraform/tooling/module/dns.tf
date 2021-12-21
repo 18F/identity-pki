@@ -1,3 +1,7 @@
+locals {
+  dnssec_runbook_prefix = " - https://github.com/18F/identity-devops/wiki/Runbook:-DNS#dnssec"
+}
+
 # Tooling specific subdomain
 resource "aws_route53_zone" "primary" {
   name = var.dns_domain
@@ -8,13 +12,14 @@ data "aws_sns_topic" "events" {
 }
 
 module "dnssec" {
-  source = "../../modules/dnssec/"
-  providers = {
-    aws.usw2 = aws.usw2
-    aws.use1 = aws.use1
-  }
+  source = "github.com/18F/identity-terraform//dnssec?ref=dc5eca75fa576c8dfffa78238d14a2866e664114"
+  #source = "../../../identity-terraform/dnssec"
 
-  dnssec_zone_name = var.dns_domain
-  dnssec_zone_id   = aws_route53_zone.primary.id
-  alarm_actions    = [data.aws_sns_topic.events.arn]
+  dnssec_ksks_action_req_alarm_desc = "${local.dnssec_runbook_prefix}_ksks_action_req"
+  dnssec_ksk_age_alarm_desc         = "${local.dnssec_runbook_prefix}_ksk_age"
+  dnssec_errors_alarm_desc          = "${local.dnssec_runbook_prefix}_errors"
+  dnssec_zone_name                  = var.dns_domain
+  dnssec_zone_id                    = aws_route53_zone.primary.id
+  alarm_actions                     = [data.aws_sns_topic.events.arn]
+  protect_resources                 = true
 }

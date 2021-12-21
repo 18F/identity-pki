@@ -29,6 +29,12 @@ variable "dnssec_ksks" {
   }
 }
 
+variable "dnssec_ksk_max_days" {
+  description = "Maxium age of DNSSEC KSK before alerting due to being too old"
+  type        = number
+  default     = 366
+}
+
 variable "static_cloudfront_name" {
   description = "Static site Cloudfront DNS name, e.g. abcd.cloudfront.net"
 }
