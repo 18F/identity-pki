@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = ">= 3.52.0"
+      version = ">= 3.70.0"
     }
     archive = {
       version = ">= 2.2.0"
@@ -45,4 +45,3 @@ provider "aws" {
   alias  = "usw2"
   region = var.region
 }
-
