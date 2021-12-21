@@ -25,3 +25,14 @@ resource "aws_route53_record" "internal-ns" {
   records         = aws_route53_zone.internal.name_servers
 }
 
+# Use per-environment internal resolver for nice resolver logging
+resource "aws_route53_resolver_query_log_config" "internal" {
+  name            = "${var.name}-vpc-${var.env_name}"
+  destination_arn = aws_cloudwatch_log_group.dns_query_log.arn
+}
+
+resource "aws_route53_resolver_query_log_config_association" "internal" {
+  resolver_query_log_config_id = aws_route53_resolver_query_log_config.internal.id
+  resource_id                  = aws_vpc.default.id
+}
+
