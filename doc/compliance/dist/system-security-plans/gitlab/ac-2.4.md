@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
 ---
 
 # ac-2.4 - \[catalog\] Automated Audit Actions
@@ -42,6 +42,15 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control ac-2.4
+Users in gitlab are managed via the `sync.sh` script in
+https://github.com/18F/identity-devops/tree/main/bin/users, which
+adds and deletes the users in the system according to the
+https://github.com/18F/identity-devops/blob/main/terraform/master/global/users.yaml
+file, which is what is used to configure AWS IAM users elsewhere.
+
+This script is run periodically by https://github.com/18F/identity-devops/blob/main/.gitlab-ci.yml
+
+Job logs are kept by gitlab which show what users (if any) are
+being added/deleted, as well as group changes.
 
 ______________________________________________________________________

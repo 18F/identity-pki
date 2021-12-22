@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
 ---
 
 # ac-2.5 - \[catalog\] Inactivity Logout
@@ -18,6 +18,7 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control ac-2.5
-
+Login.gov does not have any policies requiring people to manually log
+out of gitlab when they are done but their session has not yet expired.
+It relies on the automatic controls in [AC-11](#ac-11).
 ______________________________________________________________________
