@@ -1,6 +1,7 @@
 locals {
-  externalId    = "978CE893-7812-4790-86CC-C3FF275BD7FB"
-  accountNumber = ""
+  externalId       = "3b5fe41c-f3f1-4b36-84a5-5d2a665c87c9"
+  accountNumber    = "188619942792"
+  govAccountNumber = "342570144056"
 }
 
 resource "aws_iam_role" "PrismaCloud-connect-role" {
@@ -15,6 +16,7 @@ resource "aws_iam_policy" "PrismaCloud-connect-policy" {
 
 resource "aws_iam_policy_attachment" "PrismaCloud-connect-policy-attach" {
   name       = "PrismaCloud-ro-policy-attach"
+  # roles       = [aws_iam_role.PrismaCloud-connect-role.name]
   role       = aws_iam_role.PrismaCloud-connect-role.name
   policy_arn = aws_iam_policy.PrismaCloud-connect-policy.arn
 }
@@ -30,10 +32,12 @@ data "aws_iam_policy_document" "PrismaCloud-trust" {
     effect  = "Allow"
     actions = ["sts:AssumeRole"]
     principals {
-      type        = "AWS"
-      identifiers = ["arn:aws:iam:${local.accountNumber}:root"]
+      type = "AWS"
+      identifiers = [
+        "arn:aws:iam::${local.accountNumber}:root",
+        "arn:aws-us-gov:iam::${local.govAccountNumber}:root",
+      ]
     }
-
     condition {
       test     = "StringEquals"
       variable = "sts:ExternalId"
@@ -43,7 +47,15 @@ data "aws_iam_policy_document" "PrismaCloud-trust" {
   }
 }
 
-data "aws_iam_policy_attachment" "prismacloud-policy" {
+data "aws_iam_policy_document" "prismacloud-policy" {
+  statement {
+    sid    = "ebs_read_only"
+    effect = "Allow"
+    actions = [
+      "s3:GetObject"
+    ]
+    resources = ["arn:aws:s3:::elasticbeanstalk-*/*"] ## we don't have the aws-us-gov in login-* accounts ? confirm
+  }
   statement {
     sid    = "prismacloudpolicy"
     effect = "Allow"
