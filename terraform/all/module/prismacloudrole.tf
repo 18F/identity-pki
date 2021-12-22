@@ -5,7 +5,7 @@ locals {
 }
 
 resource "aws_iam_role" "PrismaCloud-connect-role" {
-  name               = "PrismaCloudConnectRole"
+  name               = "PrismaCloudRole"
   assume_role_policy = data.aws_iam_policy_document.PrismaCloud-trust.json
 }
 resource "aws_iam_policy" "PrismaCloud-connect-policy" {
@@ -16,8 +16,7 @@ resource "aws_iam_policy" "PrismaCloud-connect-policy" {
 
 resource "aws_iam_policy_attachment" "PrismaCloud-connect-policy-attach" {
   name       = "PrismaCloud-ro-policy-attach"
-  # roles       = [aws_iam_role.PrismaCloud-connect-role.name]
-  role       = aws_iam_role.PrismaCloud-connect-role.name
+  roles      = [aws_iam_role.PrismaCloud-connect-role.name]
   policy_arn = aws_iam_policy.PrismaCloud-connect-policy.arn
 }
 
