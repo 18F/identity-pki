@@ -194,10 +194,4 @@ variable "accountNumberPrisma" {
   description = "Commericial Prisma AWS account id"
   default     = "188619942792"
 }
-
-variable "govAccountNumberPrisma" {
-  type        = string
-  description = "Gov Cloud Prisma AWS account id"
-  default     = "342570144056"
-}
  
