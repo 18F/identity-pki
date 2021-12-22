@@ -2,6 +2,8 @@
 status:
   - c-not-implemented
   - c-not-documented
+effort:
+  - medium
 ---
 
 # sr-2.1 - \[catalog\] Establish Scrm Team

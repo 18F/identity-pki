@@ -187,7 +187,7 @@ func TestGitlabS3artifacts(t *testing.T) {
 		var jobresult []map[string]interface{}
 		json.Unmarshal([]byte(*result.StandardOutputContent), &jobresult)
 
-		i := 0
+		i := -1
 		for z, job := range jobresult {
 			if job["status"] == "failed" {
 				jobid = fmt.Sprintf("%.0f", job["id"])
@@ -195,7 +195,7 @@ func TestGitlabS3artifacts(t *testing.T) {
 				break
 			}
 		}
-		if jobresult[i]["status"] == "failed" {
+		if (i != -1) && (jobresult[i]["status"] == "failed") {
 			// There is a job, it is done, we can look for the logs now
 			break
 		}

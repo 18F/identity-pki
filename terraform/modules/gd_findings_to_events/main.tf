@@ -19,7 +19,7 @@ resource "aws_cloudwatch_event_rule" "guardduty_event_rule" {
 }
 #create CW Log group
 resource "aws_cloudwatch_log_group" "guard_duty_log_group" {
-  name              = "GuardDutyFindings/LogGroup"
+  name              = "/aws/events/gdfindings"
   retention_in_days = 365
   tags = {
     "Name" = "GuardDuty findings"
@@ -30,7 +30,7 @@ resource "aws_cloudwatch_log_group" "guard_duty_log_group" {
 resource "aws_cloudwatch_event_target" "cw_target_to_cw_logs" {
   rule      = aws_cloudwatch_event_rule.guardduty_event_rule.name
   target_id = "SendToCWLogGroup"
-  arn       = substr(aws_cloudwatch_log_group.guard_duty_log_group.arn, 0, length(aws_cloudwatch_log_group.guard_duty_log_group.arn) - 2)
+  arn       = aws_cloudwatch_log_group.guard_duty_log_group.arn
 }
 
 #Provides a CW events to manage a CloudWatch log resource policy

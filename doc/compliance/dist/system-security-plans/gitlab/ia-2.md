@@ -2,6 +2,8 @@
 status:
   - c-not-implemented
   - c-not-documented
+effort:
+  - medium
 ---
 
 # ia-2 - \[catalog\] Identification and Authentication (organizational Users)

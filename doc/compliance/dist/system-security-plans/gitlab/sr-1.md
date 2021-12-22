@@ -2,6 +2,8 @@
 status:
   - c-not-implemented
   - c-not-documented
+effort:
+  - high
 ---
 
 # sr-1 - \[catalog\] Policy and Procedures

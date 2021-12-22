@@ -2,6 +2,8 @@
 status:
   - c-not-implemented
   - c-not-documented
+effort:
+  - medium
 ---
 
 # ac-6.1 - \[catalog\] Authorize Access to Security Functions

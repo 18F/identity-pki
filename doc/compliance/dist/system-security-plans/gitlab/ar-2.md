@@ -2,6 +2,8 @@
 status:
   - c-not-implemented
   - c-not-documented
+effort:
+  - medium
 ---
 
 # ar-2 - \[catalog\] Privacy Impact and Risk Assessment

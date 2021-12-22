@@ -219,6 +219,26 @@ resource "aws_wafv2_web_acl" "idp" {
         name        = "AWSManagedRulesSQLiRuleSet"
         vendor_name = "AWS"
 
+        # Exclude relaxed_uri_paths
+        scope_down_statement {
+          not_statement {
+            statement {
+              regex_pattern_set_reference_statement {
+                arn = aws_wafv2_regex_pattern_set.relaxed_uri_paths.arn
+
+                field_to_match {
+                  uri_path {}
+                }
+
+                text_transformation {
+                  priority = 0
+                  type     = "LOWERCASE"
+                }
+              }
+            }
+          }
+        }
+
         dynamic "excluded_rule" {
           for_each = var.sql_injection_ruleset_exclusions
 

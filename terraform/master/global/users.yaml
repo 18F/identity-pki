@@ -14,12 +14,6 @@ users:
       - devops
     gitlab_groups:
       - devops
-  alex.mathews:
-    aws_groups:
-      - appdev
-      - apponcall
-    gitlab_groups:
-      - appdev
   amos.stone:
     aws_groups:
       - analytics
@@ -63,6 +57,9 @@ users:
       - devopsnonprod
     gitlab_groups:
       - devops
+  jeffrey.holden:
+    aws_groups:
+      - analytics
   jessica.dembe:
     aws_groups:
       - appdev
@@ -99,12 +96,6 @@ users:
   kelsey.sinclair:
     aws_groups:
       - bizops
-  kevin.dayton:
-    aws_groups:
-      - appdev
-      - apponcall
-    gitlab_groups:
-      - appdev
   logan.mcdonald:
     aws_groups:
       - devopsnonprod
@@ -240,7 +231,7 @@ groups:
     description: "DevOps and SRE"
   lg:
     description: "Namespace for Login.gov projects"
-    
+
 projects:
   lg/identity-devops:
     groups:

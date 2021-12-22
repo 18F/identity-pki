@@ -2,6 +2,8 @@
 status:
   - c-not-implemented
   - c-not-documented
+effort:
+  - medium
 ---
 
 # cm-6.1 - \[catalog\] Automated Central Management / Application / Verification

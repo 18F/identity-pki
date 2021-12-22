@@ -2,6 +2,8 @@
 status:
   - c-not-implemented
   - c-not-documented
+effort:
+  - medium
 ---
 
 # ia-7 - \[catalog\] Cryptographic Module Authentication

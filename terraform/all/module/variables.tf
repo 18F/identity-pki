@@ -1,11 +1,13 @@
 locals {
   common_account_name = var.iam_account_alias == "login-master" ? "global" : replace(var.iam_account_alias, "login-", "")
+  dnssec_policy_arn   = var.dnssec_zone_exists ? data.aws_iam_policy.dnssec_disable_prevent[0].arn : ""
 
   # attach rds_delete_prevent and region_restriction to all roles
-  custom_policy_arns = [
+  custom_policy_arns = compact([
     aws_iam_policy.rds_delete_prevent.arn,
     aws_iam_policy.region_restriction.arn,
-  ]
+    local.dnssec_policy_arn,
+  ])
 
   master_assumerole_policy = data.aws_iam_policy_document.master_account_assumerole.json
 
@@ -171,3 +173,31 @@ variable "slack_events_sns_topic" {
   description = "Name of the SNS topic for slack."
   default     = "slack-otherevents"
 }
+
+variable "dnssec_zone_exists" {
+  type        = bool
+  description = <<EOM
+Whether or not DNSSEC is enabled for the primary hosted zone. If it does, get
+the DNSSecDisablePrevent IAM policy and attach it to all roles.
+EOM
+  default     = false
+}
+
+variable "externalId" {
+  type        = string
+  description = "sts assume role, externalId for Prisma Cloud role"
+  default     = "3b5fe41c-f3f1-4b36-84a5-5d2a665c87c9"
+}
+
+variable "accountNumberPrisma" {
+  type        = string
+  description = "Commericial Prisma AWS account id"
+  default     = "188619942792"
+}
+
+variable "govAccountNumberPrisma" {
+  type        = string
+  description = "Gov Cloud Prisma AWS account id"
+  default     = "342570144056"
+}
+ 
