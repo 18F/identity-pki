@@ -17,7 +17,7 @@ resource "aws_ecr_registry_scanning_configuration" "main" {
   rule {
     scan_frequency = "CONTINUOUS_SCAN"
     repository_filter {
-      filter      = "*prod*"
+      filter      = "*"
       filter_type = "WILDCARD"
     }
   }
