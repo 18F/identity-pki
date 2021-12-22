@@ -182,3 +182,22 @@ the DNSSecDisablePrevent IAM policy and attach it to all roles.
 EOM
   default     = false
 }
+
+variable "externalId" {
+  type        = string
+  description = "sts assume role, externalId for Prisma Cloud role"
+  default     = "3b5fe41c-f3f1-4b36-84a5-5d2a665c87c9"
+}
+
+variable "accountNumberPrisma" {
+  type        = string
+  description = "Commericial Prisma AWS account id"
+  default     = "188619942792"
+}
+
+variable "govAccountNumberPrisma" {
+  type        = string
+  description = "Gov Cloud Prisma AWS account id"
+  default     = "342570144056"
+}
+ 
