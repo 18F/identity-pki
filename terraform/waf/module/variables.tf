@@ -95,6 +95,16 @@ variable "ip_block_list" {
   default     = []
 }
 
+variable "relaxed_uri_paths" {
+  description = "Map of regexes matching paths to use less strict protections on"
+  # Use these sparingly for paths accepting files/other content that triggers
+  # false positives but has a low risk of being exploited.  Document additions!
+  type = map(string)
+  default = {
+    "docauth_image_upload" = "^/api/verify/images" # https://github.com/18F/identity-devops/issues/4092
+  }
+}
+
 variable "waf_alert_blocked_period" {
   description = "Window (period) in seconds to for evaluating blocks"
   type        = string
