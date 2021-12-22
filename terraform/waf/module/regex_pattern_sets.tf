@@ -12,6 +12,6 @@ resource "aws_wafv2_regex_pattern_set" "relaxed_uri_paths" {
   }
 
   tags = {
-    env = var.env
+    environment = var.env
   }
 }
