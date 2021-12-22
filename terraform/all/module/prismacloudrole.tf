@@ -27,9 +27,9 @@ data "aws_iam_policy_document" "PrismaCloud-trust" {
     principals {
       type = "AWS"
       identifiers = [
-        "arn:aws:iam::${var.accountNumberPrisma}:root",
-        "arn:aws-us-gov:iam::${var.govAccountNumberPrisma}:root",
+        "arn:aws:iam::${var.accountNumberPrisma}:root"
       ]
+
     }
     condition {
       test     = "StringEquals"
@@ -42,7 +42,7 @@ data "aws_iam_policy_document" "PrismaCloud-trust" {
 
 data "aws_iam_policy_document" "prismacloud-policy" {
   statement {
-    sid    = "ebs_read_only"
+    sid    = "ebsreadonly"
     effect = "Allow"
     actions = [
       "s3:GetObject"
