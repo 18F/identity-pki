@@ -1,9 +1,3 @@
-locals {
-  externalId       = "3b5fe41c-f3f1-4b36-84a5-5d2a665c87c9"
-  accountNumber    = "188619942792"
-  govAccountNumber = "342570144056"
-}
-
 resource "aws_iam_role" "PrismaCloud-connect-role" {
   name               = "PrismaCloudRole"
   assume_role_policy = data.aws_iam_policy_document.PrismaCloud-trust.json
@@ -33,14 +27,14 @@ data "aws_iam_policy_document" "PrismaCloud-trust" {
     principals {
       type = "AWS"
       identifiers = [
-        "arn:aws:iam::${local.accountNumber}:root",
-        "arn:aws-us-gov:iam::${local.govAccountNumber}:root",
+        "arn:aws:iam::${var.accountNumberPrisma}:root",
+        "arn:aws-us-gov:iam::${var.govAccountNumberPrisma}:root",
       ]
     }
     condition {
       test     = "StringEquals"
       variable = "sts:ExternalId"
-      values   = [local.externalId]
+      values   = [var.externalId]
     }
 
   }
