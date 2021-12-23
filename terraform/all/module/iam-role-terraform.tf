@@ -264,6 +264,7 @@ locals {
           "ec2:ModifyVpcEndpoint*",
           "ec2:ReleaseAddress",
           "ec2:ReplaceNetworkAclAssociation",
+          "ec2:ReplaceRoute",
           "ec2:ReplaceRouteTableAssociation",
           "ec2:RevokeSecurityGroupEgress",
           "ec2:RevokeSecurityGroupIngress",
