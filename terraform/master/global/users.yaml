@@ -29,7 +29,10 @@ users:
       - soc
   chris.kirshak:
     aws_groups:
+      - devopsnonprod
       - socreadonly
+    gitlab_groups:
+      - devops
   chris.manger:
     aws_groups:
       - bizops
