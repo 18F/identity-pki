@@ -1,4 +1,4 @@
-# Architechture Decision Record: AWS Region Use For Login.gov
+# Architecture Decision Record: AWS Region Use For Login.gov
 
 > Use US-West-2 (Oregon) as our primary region and US-East-2 (Ohio) as our alternate/disaster recovery region.
 
@@ -22,7 +22,7 @@ the chance of being unable to migrate services due to same-region dependency.
 The remaining region, US-East-2 (Ohio) is well inland, geologically stable, and sufficiently
 sized to meet our full production needs.
 
-For more on regions, see [AWS Global Infrastucture - Regions](https://aws.amazon.com/about-aws/global-infrastructure/regions_az/?p=ngi&loc=2).
+For more on regions, see [AWS Global Infrastructure - Regions](https://aws.amazon.com/about-aws/global-infrastructure/regions_az/?p=ngi&loc=2).
 
 ## Decision
 
