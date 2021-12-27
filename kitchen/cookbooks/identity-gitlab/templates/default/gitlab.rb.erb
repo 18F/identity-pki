@@ -308,7 +308,7 @@ gitlab_rails['object_store']['proxy_download'] = true
 gitlab_rails['object_store']['connection'] = {
 	'provider' => 'AWS',
 	'region' => 'us-west-2',
-	'use_iam_profile' => true
+	'use_iam_profile' => 'true'
 }
 # OPTIONAL: The following lines are only needed if server side encryption is required
 gitlab_rails['object_store']['storage_options'] = {

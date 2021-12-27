@@ -82,6 +82,32 @@ resource "aws_s3_bucket_public_access_block" "config_access_block" {
   restrict_public_buckets = true
 }
 
+resource "aws_s3_bucket" "cache" {
+  bucket = "login-gov-${var.env_name}-gitlabcache-${data.aws_caller_identity.current.account_id}-${var.region}"
+  acl    = "private"
+
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
+
+  tags = {
+    Name        = "login-gov-${var.env_name}-gitlabcache-${data.aws_caller_identity.current.account_id}-${var.region}"
+    Environment = "${var.env_name}"
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "cache_access_block" {
+  bucket                  = aws_s3_bucket.cache.id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
 locals {
   gitlab_buckets = [
     "gitlab-${var.env_name}-artifacts",

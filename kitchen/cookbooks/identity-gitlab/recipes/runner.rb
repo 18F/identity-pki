@@ -56,10 +56,15 @@ docker_service 'default' do
   ipv6_forward false
   http_proxy 'http://obproxy.login.gov.internal:3128'
   https_proxy 'http://obproxy.login.gov.internal:3128'
-  no_proxy 'localhost,127.0.0.1'
+  no_proxy 'localhost,127.0.0.1,169.254.169.254,169.254.169.123,.login.gov.internal,ec2.us-west-2.amazonaws.com,kms.us-west-2.amazonaws.com,secretsmanager.us-west-2.amazonaws.com,ssm.us-west-2.amazonaws.com,ec2messages.us-west-2.amazonaws.com,lambda.us-west-2.amazonaws.com,ssmmessages.us-west-2.amazonaws.com,sns.us-west-2.amazonaws.com,sqs.us-west-2.amazonaws.com,events.us-west-2.amazonaws.com,metadata.google.internal,sts.us-west-2.amazonaws.com'
   icc true
 end
 
+aws_region = Chef::Recipe::AwsMetadata.get_aws_region
+aws_account_id = Chef::Recipe::AwsMetadata.get_aws_account_id
+no_proxy = 'localhost,127.0.0.1,169.254.169.254,169.254.169.123,.login.gov.internal,ec2.us-west-2.amazonaws.com,kms.us-west-2.amazonaws.com,secretsmanager.us-west-2.amazonaws.com,ssm.us-west-2.amazonaws.com,ec2messages.us-west-2.amazonaws.com,lambda.us-west-2.amazonaws.com,ssmmessages.us-west-2.amazonaws.com,sns.us-west-2.amazonaws.com,sqs.us-west-2.amazonaws.com,events.us-west-2.amazonaws.com,metadata.google.internal,sts.us-west-2.amazonaws.com'
+
+# no_proxy seems to not actually work here.  Have to allow stuff in the proxy.  :-(
 execute 'configure_gitlab_runner' do
 	command "gitlab-runner register \
 	  --non-interactive \
@@ -69,11 +74,21 @@ execute 'configure_gitlab_runner' do
 	  --executor docker \
 	  --env HTTP_PROXY=http://obproxy.login.gov.internal:3128 \
 	  --env HTTPS_PROXY=http://obproxy.login.gov.internal:3128 \
-	  --env NO_PROXY=localhost,127.0.0.1 \
+	  --env http_proxy=http://obproxy.login.gov.internal:3128 \
+	  --env https_proxy=http://obproxy.login.gov.internal:3128 \
+	  --env NO_PROXY=#{no_proxy} \
+	  --env no_proxy=#{no_proxy} \
 	  --docker-image alpine:latest \
 	  --tag-list 'docker,aws' \
 	  --run-untagged=true \
 	  --locked=false \
+	  --cache-shared \
+	  --cache-type s3 \
+	  --cache-path '#{node.chef_environment}' \
+	  --cache-s3-server-address s3.amazonaws.com \
+	  --cache-s3-bucket-name 'login-gov-#{node.chef_environment}-gitlabcache-#{aws_account_id}-#{aws_region}' \
+	  --cache-s3-bucket-location '#{aws_region}' \
+	  --cache-s3-authentication_type 'iam' \
 	  --access-level=not_protected
   "
   sensitive true

@@ -715,6 +715,33 @@ EOM
 }
 EOM
   }
+
+  # allow runners to use a shared cache
+  inline_policy {
+    name   = "${var.env_name}-gitlab_runner-shared-cache"
+    policy = <<EOM
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "SharedCache",
+            "Effect": "Allow",
+            "Action": [
+                "s3:*",
+                "s3:PutObject",
+                "s3:GetObjectVersion",
+                "s3:GetObject",
+                "s3:DeleteObject"
+            ],
+            "Resource": [
+              "arn:aws:s3:::login-gov-${var.env_name}-gitlabcache-${data.aws_caller_identity.current.account_id}-${var.region}/",
+              "arn:aws:s3:::login-gov-${var.env_name}-gitlabcache-${data.aws_caller_identity.current.account_id}-${var.region}/*"
+            ]
+        }
+    ]
+}
+EOM
+  }
 }
 
 resource "aws_iam_role" "obproxy" {
