@@ -43,7 +43,7 @@ This decision will be revisited upon moving any/all services into the GovCloud p
 ## Alternatives Considered
 
 US-West-1 was considered but rejected due to the significant number of natural and 
-man made disaster risk shared with US-West-2.
+man made disaster risks shared with US-West-2.
 
 US-East-1 was considered but rejected due to its role as a sort of "super region"
 for AWS, as well as its historic performance.
