@@ -11,6 +11,23 @@ locals {
   ])
 }
 
+resource "aws_vpc" "default" {
+  cidr_block = var.vpc_cidr_block
+
+  enable_dns_support   = true
+  enable_dns_hostnames = true
+
+  tags = {
+    Name = "${var.name}-vpc-${var.env_name}"
+  }
+}
+
+resource "aws_ssm_parameter" "net_vpcid" {
+  name  = "${local.net_ssm_parameter_prefix}vpc/id"
+  type  = "String"
+  value = aws_vpc.default.id
+}
+
 # When adding a new subnet, be sure to add an association with a network ACL,
 # or it will use the default NACL, which causes problems since the default
 # network ACL is special and is handled weirdly by AWS and Terraform.
@@ -337,23 +354,6 @@ resource "aws_vpc_endpoint" "private-s3" {
   vpc_id          = aws_vpc.default.id
   service_name    = "com.amazonaws.${var.region}.s3"
   route_table_ids = [aws_vpc.default.main_route_table_id]
-}
-
-resource "aws_vpc" "default" {
-  cidr_block = var.vpc_cidr_block
-
-  enable_dns_support   = true
-  enable_dns_hostnames = true
-
-  tags = {
-    Name = "${var.name}-vpc-${var.env_name}"
-  }
-}
-
-resource "aws_ssm_parameter" "net_vpcid" {
-  name  = "${local.net_ssm_parameter_prefix}vpc/id"
-  type  = "String"
-  value = aws_vpc.default.id
 }
 
 # create NAT subnets and gateways
