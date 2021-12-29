@@ -124,3 +124,6 @@ This family will contain things like any software scanning for security issues a
 
 This family potentially has the most entangled set of controls with other systems in our boundary and will take communication with security and compliance partners to help understand how changes to this system impact SCRM. The controls here range from setting up a SCRM team to how we scan our software to mitigate risk.
 
+# Demos
+
+Some [asciinema](https://asciinema.org/) demos are provided under [demos/](./demos/). To play back these terminal sessions, please `brew install asciinema` if you have not already. You can run these demos locally by doing, for instance, `asciinema play demos/trestle-add-control.cast`. (If you wish to record a demo, `asciinema rec <file>`; control-d exits the recording.)

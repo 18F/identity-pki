@@ -21,4 +21,5 @@ ______________________________________________________________________
 Login.gov does not have any policies requiring people to manually log
 out of gitlab when they are done but their session has not yet expired.
 It relies on the automatic controls in [AC-11](#ac-11).
+
 ______________________________________________________________________
