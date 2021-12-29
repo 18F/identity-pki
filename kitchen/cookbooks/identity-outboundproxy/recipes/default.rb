@@ -41,7 +41,8 @@ end
 package 'squid'
 
 aws_vpc_cidr = Chef::Recipe::AwsMetadata.get_aws_vpc_cidr
-
+aws_account_id = Chef::Recipe::AwsMetadata.get_aws_account_id
+aws_region = Chef::Recipe::AwsMetadata.get_aws_region
 domain_name = node.fetch('login_dot_gov').fetch('domain_name')
 
 #configure squid
@@ -64,7 +65,9 @@ template '/etc/squid/domain-allowlist.conf' do
     variables ({
         identity_idp: ".#{domain_name}",
         push_notification_domains: push_notification_domains,
-        gitlab_url: "gitlab.#{node.chef_environment}.#{domain_name}"
+        gitlab_url: "gitlab.#{node.chef_environment}.#{domain_name}",
+        aws_account_id: aws_account_id,
+        aws_region: aws_region,
     })
     notifies :restart, 'service[squid]', :delayed
 end

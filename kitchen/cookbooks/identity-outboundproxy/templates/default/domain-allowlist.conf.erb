@@ -216,8 +216,8 @@ mirror.gcr.io
 gcr.io
 storage.googleapis.com
 proxy.golang.org
-login-gov-<%= node.chef_environment %>-gitlabcache-<%= Chef::Recipe::AwsMetadata.get_aws_account_id %>-<%= Chef::Recipe::AwsMetadata.get_aws_region %>.s3.dualstack.<%= Chef::Recipe::AwsMetadata.get_aws_region %>.amazonaws.com
+login-gov-<%= node.chef_environment %>-gitlabcache-<%= @aws_account_id %>-<%= @aws_region %>.s3.dualstack.<%= @aws_region %>.amazonaws.com
+<%= @aws_account_id %>.dkr.ecr.<%= @aws_region %>.amazonaws.com
 
 # GitLab CI
 chromedriver.storage.googleapis.com
-
