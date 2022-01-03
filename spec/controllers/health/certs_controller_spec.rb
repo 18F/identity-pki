@@ -72,7 +72,7 @@ RSpec.describe Health::CertsController do
             expect(health_checker).to receive(:check_certs).and_wrap_original do |impl, args|
               expect(args[:deadline].to_i).to be_within(1).of(7.days.from_now.to_i)
 
-              impl.call(args)
+              impl.call(**args)
             end
 
             action
