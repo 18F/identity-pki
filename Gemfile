@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo_name| "https://github.com/#{repo_name}.git" }
 
-ruby '~> 2.7.3'
+ruby '~> 3.0'
 
 gem 'rails', '~> 6.1.4'
 
@@ -32,7 +32,6 @@ group :development do
   gem 'brakeman', require: false
   gem 'bummr', require: false
   gem 'derailed', '>= 0.1.0'
-  gem 'fasterer', require: false
   gem 'guard-rspec', require: false
   gem 'overcommit', require: false
   gem 'rack-mini-profiler', '>= 1.0.2', require: false
