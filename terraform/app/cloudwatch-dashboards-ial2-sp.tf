@@ -1,7 +1,7 @@
 resource "aws_cloudwatch_dashboard" "idp_ial2_sp_dashboards" {
   for_each = var.idp_ial2_sp_dashboards
 
-  dashboard_name = "${var.env_name}-${each.value["name"]}"
+  dashboard_name = "${var.env_name}-SPDashboards-${each.value["agency"]}-${each.value["name"]}-IAL2Funnel"
 
   dashboard_body = jsonencode({
     "widgets" : [

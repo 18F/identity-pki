@@ -682,6 +682,7 @@ variable "idp_ial2_sp_dashboards" {
     name     = string
     issuer   = string
     protocol = string
+    agency   = string
   }))
   description = "Map of values for widgets on IAL2 SP dashboard"
   default     = {}
