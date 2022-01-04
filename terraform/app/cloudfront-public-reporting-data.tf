@@ -9,13 +9,19 @@ module "acm-cert-public-reporting-data-cdn" {
   validation_zone_id = var.route53_id
 }
 
-data "aws_cloudfront_cache_policy" "managed_cors_s3origin" {
-  # Per https://aws.amazon.com/premiumsupport/knowledge-center/no-access-control-allow-origin-error/,
-  # used to resolve issue with cached CORS headers when using the same data site from
-  # multiple front ends.
-  #
-  # See https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-origin-request-policies.html
-  name = "CORS-S3Origin"
+# Per https://aws.amazon.com/premiumsupport/knowledge-center/no-access-control-allow-origin-error/,
+# used to resolve issue with cached CORS headers when using the same data site from
+# multiple front ends.
+# See https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-origin-request-policies.html
+# 
+# UPDATE (2021-12-30): Both a cache policy AND an origin-request policy must be used;
+# the forwarded_values configuration is considered legacy at this point.
+data "aws_cloudfront_cache_policy" "managed_caching_optimized" {
+  name = "Managed-CachingOptimized"
+}
+
+data "aws_cloudfront_origin_request_policy" "managed_cors_s3origin" {
+  name = "Managed-CORS-S3Origin"
 }
 
 resource "aws_cloudfront_distribution" "public_reporting_data_cdn" {
@@ -45,15 +51,8 @@ resource "aws_cloudfront_distribution" "public_reporting_data_cdn" {
     cached_methods   = ["HEAD", "GET", "OPTIONS"]
     target_origin_id = "public-reporting-data-${var.env_name}"
 
-    cache_policy_id = data.aws_cloudfront_cache_policy.managed_cors_s3origin.id
-
-    forwarded_values {
-      query_string = false
-
-      cookies {
-        forward = "none"
-      }
-    }
+    cache_policy_id          = data.aws_cloudfront_cache_policy.managed_caching_optimized.id
+    origin_request_policy_id = data.aws_cloudfront_origin_request_policy.managed_cors_s3origin.id
 
     min_ttl                = 0
     viewer_protocol_policy = "https-only"
