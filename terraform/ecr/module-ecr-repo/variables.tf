@@ -13,7 +13,7 @@ variable "ecr_repo_name" {
 }
 
 variable "ecr_repo_tag_mutability" {
-  description = "The container tag mutability setting for the repository (MUTABLE\IMMUTABLE)"
+  description = "The container tag mutability setting for the repository (MUTABLE or IMMUTABLE)"
   default     = "MUTABLE"
   type        = string
 }
@@ -24,7 +24,7 @@ variable "tags" {
 }
 
 variable "encryption_type" {
-  description = "Encryption_type for the repository (AES256\KMS)"
+  description = "Encryption_type for the repository (AES256 or KMS)"
   default     = "AES256"
   type        = string
 }

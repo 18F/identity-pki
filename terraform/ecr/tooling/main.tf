@@ -12,33 +12,42 @@ terraform {
 
 locals {
   repos = {
-    alpine-internal = {
-      prod = "write"
-      tooling = "write"
-      
+    alpine-test = {
+      ecr_repo_tag_mutability = "MUTABLE"
+      tags = {
+        tooling = "read"
+        prod    = "read"
+        dev     = "read"
+      }
     }
-
-    nginx-internal = {
-      secondAChoice = "foobar"
-      secondBChoice = "barfoo"
+    hello-world-but-with-explosions = {
+      ecr_repo_tag_mutability = "MUTABLE"
+      tags = {
+        tooling = "write"
+        prod    = "write"
+        dev     = "write"
+      }
     }
   }
 }
 
-
 module "settings" {
   source = "../module-ecr-global-settings"
 
-  env_name                       = "tooling"
-  region                         = "us-west-2"
-  continuous_scan_filter         = "*"
-  scan_on_push_filter            = "*"
+  continuous_scan_filter = "*"
+  env                    = "tooling"
+  region                 = "us-west-2"
+  scan_on_push_filter    = "*"
 }
 
 module "repos" {
-  source = "../module-ecr-repo"
+  for_each = local.repos
+  source   = "../module-ecr-repo"
 
-  env_name                       = "tooling"
-  region                         = "us-west-2"
-
+  ecr_repo_name   = "${each.key}"
+  encryption_type = "AES256"
+  env             = "tooling"
+  kms_key         = null
+  region          = "us-west-2"
+  tags            = each.value.tags
 }
