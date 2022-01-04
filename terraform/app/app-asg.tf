@@ -34,8 +34,8 @@ module "app_lifecycle_hooks" {
 }
 
 module "app_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=7e11ebe24e3a9cbc34d1413cf4d20b3d71390d5b"
-  #source = "../../../identity-terraform/launch_template"
+  #source = "github.com/18F/identity-terraform//launch_template?ref=7e11ebe24e3a9cbc34d1413cf4d20b3d71390d5b"
+  source = "../../../identity-terraform/launch_template"
 
   role           = "app"
   env            = var.env_name

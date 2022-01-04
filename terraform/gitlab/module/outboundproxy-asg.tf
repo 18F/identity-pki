@@ -28,8 +28,8 @@ module "outboundproxy_user_data" {
 }
 
 module "outboundproxy_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=7e11ebe24e3a9cbc34d1413cf4d20b3d71390d5b"
-  #source = "../../../identity-terraform/launch_template"
+  #source = "github.com/18F/identity-terraform//launch_template?ref=7e11ebe24e3a9cbc34d1413cf4d20b3d71390d5b"
+  source = "../../../identity-terraform/launch_template"
   role           = "outboundproxy"
   env            = var.env_name
   root_domain    = var.root_domain
