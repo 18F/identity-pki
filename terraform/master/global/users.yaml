@@ -1,9 +1,5 @@
 ---
 users:
-  aaron.manne:
-    aws_groups:
-      - devopsnonprod
-      - socreadonly
   akhlaq.khan:
     aws_groups:
       - analytics
