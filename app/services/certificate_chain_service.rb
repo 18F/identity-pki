@@ -53,10 +53,15 @@ class CertificateChainService
   def get_cert_from_issuer(ca_id, ca_issuer_url)
     STDERR.puts "fetching: #{ca_issuer_url}"
     response = get_response(ca_issuer_url)
-    p7c = OpenSSL::PKCS7.new(response.body)
-    p7c.certificates.each do |issuing_x509_certificate|
-      issuing_cert = Certificate.new(issuing_x509_certificate)
+    if ca_issuer_url.ends_with?(".cer")
+      issuing_cert = Certificate.new(OpenSSL::X509::Certificate.new(response.body))
       return issuing_cert if issuing_cert.key_id == ca_id
+    else
+      p7c = OpenSSL::PKCS7.new(response.body)
+      p7c.certificates.each do |issuing_x509_certificate|
+        issuing_cert = Certificate.new(issuing_x509_certificate)
+        return issuing_cert if issuing_cert.key_id == ca_id
+      end
     end
     nil
   end

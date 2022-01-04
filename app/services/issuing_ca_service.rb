@@ -65,7 +65,11 @@ class IssuingCaService
     http = Net::HTTP.new(issuer_uri.hostname, issuer_uri.port)
     response = http.get(issuer_uri.path)
     if response.kind_of?(Net::HTTPSuccess)
-      OpenSSL::PKCS7.new(response.body).certificates
+      if issuer_uri.path.ends_with?('.cer')
+        [OpenSSL::X509::Certificate.new(response.body)]
+      else
+        OpenSSL::PKCS7.new(response.body).certificates
+      end
     else
       NewRelic::Agent.notice_error(UnexpectedPKCS7Response.new(response.body))
       []
