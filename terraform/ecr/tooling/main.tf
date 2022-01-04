@@ -44,7 +44,7 @@ module "repos" {
   for_each = local.repos
   source   = "../module-ecr-repo"
 
-  ecr_repo_name   = "${each.key}"
+  ecr_repo_name   = each.key
   encryption_type = "AES256"
   env             = "tooling"
   kms_key         = null
