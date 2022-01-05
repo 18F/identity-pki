@@ -12,20 +12,61 @@ terraform {
 
 locals {
   repos = {
-    alpine-test = {
+    alpha = {
+      name                    = "alpha/base"
       ecr_repo_tag_mutability = "MUTABLE"
       tags = {
-        tooling = "read"
-        prod    = "read"
-        dev     = "read"
+        alpha                = "write"
+        tooling              = "write"
+        gitlab_runner_access = "write"
       }
     }
-    hello-world-but-with-explosions = {
+    alpine = {
+      name                    = "alpine/git"
       ecr_repo_tag_mutability = "MUTABLE"
       tags = {
-        tooling = "write"
-        prod    = "write"
-        dev     = "write"
+        tooling              = "write"
+        gitlab_runner_access = "write"
+      }
+    }
+    fluent-bit = {
+      name                    = "amazon/aws-for-fluent-bit"
+      ecr_repo_tag_mutability = "MUTABLE"
+      tags = {
+        tooling              = "write"
+        gitlab_runner_access = "write"
+      }
+    }
+    gitaly = {
+     name                     = "gitlab-org/build/cng/gitaly"
+      ecr_repo_tag_mutability = "MUTABLE"
+      tags = {
+        tooling              = "write"
+        gitlab_runner_access = "write"
+      }
+    }
+    gitlabdemo = {
+     name                     = "gitlabdemo"
+      ecr_repo_tag_mutability = "MUTABLE"
+      tags = {
+        tooling              = "write"
+        gitlab_runner_access = "write"
+      }
+    }
+    golang = {
+     name                     = "library/golang"
+      ecr_repo_tag_mutability = "MUTABLE"
+      tags = {
+        tooling              = "write"
+        gitlab_runner_access = "write"
+      }
+    }
+    tspencertest = {
+     name                     = "tspencertest"
+      ecr_repo_tag_mutability = "MUTABLE"
+      tags = {
+        tooling              = "write"
+        gitlab_runner_access = "write"
       }
     }
   }
@@ -44,7 +85,7 @@ module "repos" {
   for_each = local.repos
   source   = "../module-ecr-repo"
 
-  ecr_repo_name   = each.key
+  ecr_repo_name   = each.value.name
   encryption_type = "AES256"
   env             = "tooling"
   kms_key         = null
