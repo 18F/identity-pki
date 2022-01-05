@@ -50,6 +50,7 @@ module "socadmin-assumerole" {
             "waf:*",
             "wafv2:*",
             "waf-regional:*",
+            "inspector2:*",
           ]
           resources = [
             "*"
