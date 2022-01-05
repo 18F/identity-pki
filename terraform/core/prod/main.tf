@@ -166,6 +166,23 @@ module "gd-log-sub-filter-prod" {
 
 }
 
+module "macie-bucket-scans-prod" {
+  source = "../../modules/macie_v2"
+  macie_scan_buckets = [
+    "login-gov-pivcac-dm.555546682965-us-west-2",
+    "login-gov-pivcac-prod.555546682965-us-west-2",
+    "login-gov-pivcac-staging.555546682965-us-west-2",
+    "login-gov-pivcac-public-cert-dm.555546682965-us-west-2",
+    "login-gov-pivcac-public-cert-prod.555546682965-us-west-2",
+    "login-gov-pivcac-public-cert-prod.555546682965-us-west-2",
+    "login-gov-log-cache-dm.555546682965-us-west-2",
+    "login-gov-log-cache-prod.555546682965-us-west-2",
+    "login-gov-log-cache-staging.555546682965-us-west-2",
+    "login-gov.app-secrets.555546682965-us-west-2",
+    "login-gov.secrets.555546682965-us-west-2",
+  ]
+}
+
 output "primary_zone_dnssec_ksks" {
   value = module.main.primary_zone_dnssec_ksks
 }
