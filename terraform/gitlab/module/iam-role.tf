@@ -387,7 +387,7 @@ resource "aws_iam_role" "gitlab_runner" {
             "ecr:GetLifecyclePolicyPreview",
             "ecr:GetRepositoryPolicy",
             "ecr:ListImages",
-            "ecr:ListTagsForResource",
+            "ecr:ListTagsForResource"
         ],
         "Resource": [
             "arn:aws:ecr:${var.region}:${data.aws_caller_identity.current.account_id}:repository/ecr-public/*",
