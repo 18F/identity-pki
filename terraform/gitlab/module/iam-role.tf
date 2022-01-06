@@ -383,10 +383,10 @@ resource "aws_iam_role" "gitlab_runner" {
             "ecr:ListTagsForResource",
             "ecr:DescribeImageScanFindings"
         ],
-        "Resource": "*",
+        "Resource": "arn:aws:ecr:${var.region}:${data.aws_caller_identity.current.account_id}:repository/*",
         "Condition": {
             "StringEquals": {
-                "aws:ResourceTag/gitlab_runner_access": "read"
+                "aws:ResourceTag/gitlab_${var.env_name}_build": "read"
             }
         }
     },
@@ -409,10 +409,10 @@ resource "aws_iam_role" "gitlab_runner" {
             "ecr:CompleteLayerUpload",
             "ecr:PutImage"
         ],
-        "Resource": "*",
+        "Resource": "arn:aws:ecr:${var.region}:${data.aws_caller_identity.current.account_id}:repository/*",
         "Condition": {
             "StringEquals": {
-                "aws:ResourceTag/gitlab_runner_access": "write"
+                "aws:ResourceTag/gitlab_${var.env_name}_build": "write"
             }
         }
     }

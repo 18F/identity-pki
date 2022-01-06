@@ -16,57 +16,77 @@ locals {
       name                    = "alpha/base"
       ecr_repo_tag_mutability = "MUTABLE"
       tags = {
-        alpha                = "write"
-        tooling              = "write"
-        gitlab_runner_access = "write"
+        gitlab_alpha_build    = "write"
+        gitlab_bravo_build    = "write"
+        gitlab_charlie_build  = "write"
+        gitlab_delta_build    = "write"
+        gitlab_echo_build     = "write"
       }
     }
     alpine = {
       name                    = "alpine/git"
       ecr_repo_tag_mutability = "MUTABLE"
       tags = {
-        tooling              = "write"
-        gitlab_runner_access = "write"
+        gitlab_alpha_build    = "write"
+        gitlab_bravo_build    = "write"
+        gitlab_charlie_build  = "write"
+        gitlab_delta_build    = "write"
+        gitlab_echo_build     = "write"
       }
     }
     fluent-bit = {
       name                    = "amazon/aws-for-fluent-bit"
       ecr_repo_tag_mutability = "MUTABLE"
       tags = {
-        tooling              = "write"
-        gitlab_runner_access = "write"
+        gitlab_alpha_build    = "write"
+        gitlab_bravo_build    = "write"
+        gitlab_charlie_build  = "write"
+        gitlab_delta_build    = "write"
+        gitlab_echo_build     = "write"
       }
     }
     gitaly = {
-     name                     = "gitlab-org/build/cng/gitaly"
+      name                    = "gitlab-org/build/cng/gitaly"
       ecr_repo_tag_mutability = "MUTABLE"
       tags = {
-        tooling              = "write"
-        gitlab_runner_access = "write"
+        gitlab_alpha_build    = "write"
+        gitlab_bravo_build    = "write"
+        gitlab_charlie_build  = "write"
+        gitlab_delta_build    = "write"
+        gitlab_echo_build     = "write"
       }
     }
     gitlabdemo = {
-     name                     = "gitlabdemo"
+      name                    = "gitlabdemo"
       ecr_repo_tag_mutability = "MUTABLE"
       tags = {
-        tooling              = "write"
-        gitlab_runner_access = "write"
+        gitlab_alpha_build    = "write"
+        gitlab_bravo_build    = "write"
+        gitlab_charlie_build  = "write"
+        gitlab_delta_build    = "write"
+        gitlab_echo_build     = "write"
       }
     }
     golang = {
-     name                     = "library/golang"
+      name                    = "library/golang"
       ecr_repo_tag_mutability = "MUTABLE"
       tags = {
-        tooling              = "write"
-        gitlab_runner_access = "write"
+        gitlab_alpha_build    = "write"
+        gitlab_bravo_build    = "write"
+        gitlab_charlie_build  = "write"
+        gitlab_delta_build    = "write"
+        gitlab_echo_build     = "write"
       }
     }
     tspencertest = {
-     name                     = "tspencertest"
+      name                    = "tspencertest"
       ecr_repo_tag_mutability = "MUTABLE"
       tags = {
-        tooling              = "write"
-        gitlab_runner_access = "write"
+        gitlab_alpha_build    = "write"
+        gitlab_bravo_build    = "write"
+        gitlab_charlie_build  = "write"
+        gitlab_delta_build    = "write"
+        gitlab_echo_build     = "write"
       }
     }
   }
@@ -85,10 +105,10 @@ module "repos" {
   for_each = local.repos
   source   = "../module-ecr-repo"
 
-  ecr_repo_name   = each.value.name
-  encryption_type = "AES256"
-  env             = "tooling"
-  kms_key         = null
-  region          = "us-west-2"
-  tags            = each.value.tags
+  ecr_repo_name             = each.value.name
+  encryption_type           = "AES256"
+  env                       = "tooling"
+  kms_key                   = null
+  region                    = "us-west-2"
+  tags                      = each.value.tags
 }
