@@ -371,12 +371,23 @@ resource "aws_iam_role" "gitlab_runner" {
     {
         "Effect": "Allow",
         "Action": [
-            "ecr:GetAuthorizationToken",
       			"ecr:BatchCheckLayerAvailability",
-      			"ecr:InitiateLayerUpload",
-      			"ecr:UploadLayerPart",
       			"ecr:CompleteLayerUpload",
-      			"ecr:PutImage"
+      			"ecr:InitiateLayerUpload",
+      			"ecr:PutImage",
+      			"ecr:UploadLayerPart",
+            "ecr:BatchCheckLayerAvailability",
+            "ecr:BatchGetImage",
+            "ecr:DescribeImages",
+            "ecr:DescribeImageScanFindings",
+            "ecr:DescribeRepositories",
+            "ecr:GetAuthorizationToken",
+            "ecr:GetDownloadUrlForLayer",
+            "ecr:GetLifecyclePolicy",
+            "ecr:GetLifecyclePolicyPreview",
+            "ecr:GetRepositoryPolicy",
+            "ecr:ListImages",
+            "ecr:ListTagsForResource",
         ],
         "Resource": [
             "arn:aws:ecr:${var.region}:${data.aws_caller_identity.current.account_id}:repository/ecr-public/*",
