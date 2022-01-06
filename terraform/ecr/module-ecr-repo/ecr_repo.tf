@@ -28,9 +28,6 @@ resource "aws_ecr_repository_policy" "ecr_repo" {
           "Action":[
               "ecr:CreateRepository",
               "ecr:ReplicateImage"
-          ],
-          "Resource": [
-              "arn:aws:ecr:${var.region}:${data.aws_caller_identity.current.account_id}:repository/${var.ecr_repo_name}"
           ]
       }
   ]
