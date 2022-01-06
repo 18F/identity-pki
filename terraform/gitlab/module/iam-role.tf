@@ -371,17 +371,32 @@ resource "aws_iam_role" "gitlab_runner" {
     {
         "Effect": "Allow",
         "Action": [
+            "ecr:GetAuthorizationToken",
+      			"ecr:BatchCheckLayerAvailability",
+      			"ecr:InitiateLayerUpload",
+      			"ecr:UploadLayerPart",
+      			"ecr:CompleteLayerUpload",
+      			"ecr:PutImage"
+        ],
+        "Resource": [
+            "arn:aws:ecr:${var.region}:${data.aws_caller_identity.current.account_id}:repository/ecr-public/*",
+            "arn:aws:ecr:${var.region}:${data.aws_caller_identity.current.account_id}:repository/quay/*"
+        ]
+    },
+    {
+        "Effect": "Allow",
+        "Action": [
             "ecr:BatchCheckLayerAvailability",
-            "ecr:GetDownloadUrlForLayer",
-            "ecr:GetRepositoryPolicy",
-            "ecr:DescribeRepositories",
-            "ecr:ListImages",
-            "ecr:DescribeImages",
             "ecr:BatchGetImage",
+            "ecr:DescribeImages",
+            "ecr:DescribeImageScanFindings",
+            "ecr:DescribeRepositories",
+            "ecr:GetDownloadUrlForLayer",
             "ecr:GetLifecyclePolicy",
             "ecr:GetLifecyclePolicyPreview",
-            "ecr:ListTagsForResource",
-            "ecr:DescribeImageScanFindings"
+            "ecr:GetRepositoryPolicy",
+            "ecr:ListImages",
+            "ecr:ListTagsForResource"
         ],
         "Resource": "arn:aws:ecr:${var.region}:${data.aws_caller_identity.current.account_id}:repository/*",
         "Condition": {
@@ -394,20 +409,20 @@ resource "aws_iam_role" "gitlab_runner" {
         "Effect": "Allow",
         "Action": [
             "ecr:BatchCheckLayerAvailability",
-            "ecr:GetDownloadUrlForLayer",
-            "ecr:GetRepositoryPolicy",
-            "ecr:DescribeRepositories",
-            "ecr:ListImages",
-            "ecr:DescribeImages",
             "ecr:BatchGetImage",
+            "ecr:CompleteLayerUpload",
+            "ecr:DescribeImages",
+            "ecr:DescribeImageScanFindings",
+            "ecr:DescribeRepositories",
+            "ecr:GetDownloadUrlForLayer",
             "ecr:GetLifecyclePolicy",
             "ecr:GetLifecyclePolicyPreview",
-            "ecr:ListTagsForResource",
-            "ecr:DescribeImageScanFindings",
+            "ecr:GetRepositoryPolicy",
             "ecr:InitiateLayerUpload",
-            "ecr:UploadLayerPart",
-            "ecr:CompleteLayerUpload",
-            "ecr:PutImage"
+            "ecr:ListImages",
+            "ecr:ListTagsForResource",
+            "ecr:PutImage",
+            "ecr:UploadLayerPart"
         ],
         "Resource": "arn:aws:ecr:${var.region}:${data.aws_caller_identity.current.account_id}:repository/*",
         "Condition": {
