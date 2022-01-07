@@ -80,7 +80,7 @@ artifacts_downloaded = lambda { File.exist?('/srv/idp/releases/artifacts-downloa
 if idp_artifacts_enabled
   execute 'download artifacts' do
     cwd '/srv/idp/releases'
-    command "aws s3 cp #{Shellwords.shellescape(s3_artifact)} idp.tar.gz && tar -xzf idp.tar.gz && touch /srv/idp/releases/artifacts-downloaded"
+    command "aws s3 cp #{Shellwords.shellescape(s3_artifact)} idp.tar.gz && tar -xzf idp.tar.gz -C chef && touch /srv/idp/releases/artifacts-downloaded"
     ignore_failure true
   end
 end
