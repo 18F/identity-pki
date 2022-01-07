@@ -251,9 +251,9 @@ resource "aws_db_instance" "idp-worker-jobs" {
   apply_immediately           = true
 
   # enhanced monitoring
-  monitoring_interval = var.rds_enhanced_monitoring_enabled == 1 ? 60 : 0
-  monitoring_role_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.rds_monitoring_role_name}"
-  performance_insights_enabled = var.performance_insights_enabled
+  monitoring_interval             = var.rds_enhanced_monitoring_enabled == 1 ? 60 : 0
+  monitoring_role_arn             = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.rds_monitoring_role_name}"
+  performance_insights_enabled    = var.performance_insights_enabled
   performance_insights_kms_key_id = data.aws_kms_key.rds_alias.arn
 
   vpc_security_group_ids = [aws_security_group.db.id]
