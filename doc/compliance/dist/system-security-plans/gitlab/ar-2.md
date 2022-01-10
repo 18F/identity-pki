@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-inherited
+  - c-documented
 effort:
   - medium
 ---
@@ -18,6 +18,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control ar-2
+The Gitlab component inherits ar-2 from the main login.gov SSP.
 
 ______________________________________________________________________

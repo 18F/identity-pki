@@ -16,6 +16,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control ar-3
+The Gitlab component inherits ar-3 from the main login.gov SSP.
 
 ______________________________________________________________________
