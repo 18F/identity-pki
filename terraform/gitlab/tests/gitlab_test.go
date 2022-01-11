@@ -275,7 +275,7 @@ func TestSshKey(t *testing.T) {
 }
 
 // This tests whether we are still fulfilling the s1.2.x auditd controls.
-func TestSTwoTen(t *testing.T) {
+func TestSOneTwo(t *testing.T) {
 	asgName := env_name + "-gitlab_runner"
 
 	instances := aws.GetInstanceIdsForAsg(t, asgName, region)
@@ -304,10 +304,9 @@ func TestSTwoTen(t *testing.T) {
 
 	instances := aws.GetInstanceIdsForAsg(t, asgName, region)
 	firstinstance := instances[0:1]
-	cmd := "ps gaxuwww | grep 'dockerd.*dm.basesize' | grep -v grep"
+	cmd := "ps gaxuwww | grep -v grep | grep 'dockerd.*dm.basesize'"
 	result := RunCommandOnInstances(t, firstinstance, cmd)
-	require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed: "+*result.StandardOutputContent)
-	require.NotContains(t, *result.StandardOutputContent, "dm.basesize", "According to compliance control s2.10, dm.basesize should not be set")
+	require.Equal(t, int64(1), *result.ResponseCode, "According to compliance control s2.10, dm.basesize should not be set")
 }
 
 // This tests whether we are still fulfilling the s2.11 control.
@@ -328,8 +327,20 @@ func TestSTwoTwelve(t *testing.T) {
 
 	instances := aws.GetInstanceIdsForAsg(t, asgName, region)
 	firstinstance := instances[0:1]
-	cmd := "ps gaxuwww | grep 'dockerd.*log_level=debug' | grep -v grep"
+	cmd := "ps gaxuwww | grep -v grep | grep 'dockerd.*log-level=debug'"
 	result := RunCommandOnInstances(t, firstinstance, cmd)
 	require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed: "+*result.StandardOutputContent)
 	require.NotContains(t, *result.StandardOutputContent, "log_level=debug", "According to compliance control s2.12, Dockerd should be logging")
+}
+
+// This tests whether we are still fulfilling the s2.13 control.
+func TestSTwoThirteen(t *testing.T) {
+	asgName := env_name + "-gitlab_runner"
+
+	instances := aws.GetInstanceIdsForAsg(t, asgName, region)
+	firstinstance := instances[0:1]
+	cmd := "ps gaxuwww | grep -v grep | grep 'dockerd.*live_restore=true'"
+	result := RunCommandOnInstances(t, firstinstance, cmd)
+	require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed: "+*result.StandardOutputContent)
+	require.NotContains(t, *result.StandardOutputContent, "live_restore=true", "According to compliance control s2.13, Dockerd should have live_restore enabled")
 }
