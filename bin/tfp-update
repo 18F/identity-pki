@@ -1,0 +1,148 @@
+#!/bin/bash
+
+#### update Terraform provider versions and (optionally) Terraform itself ####
+
+trap revert_versions EXIT
+set -euo pipefail
+
+. "$(dirname "$0")/lib/common.sh"
+
+usage() {
+    cat >&2 << EOM
+
+Usage:
+  ${0} [-t]
+to only update specific providers:
+  ${0} [-t] PROVIDER1 [PROVIDER2 ...]
+
+Flags:
+  -t : Skip checking to see if an update to Terraform is available
+  -h : Display help
+
+EOM
+}
+
+man_page() {
+    cat >&2 << EOM
+
+Usage: ${0} [-t] [PROVIDER1 PROVIDER2 ...]
+
+Updates all providers found in versions.tf via 'terraform providers lock',
+updating that file and .terraform.lock.hcl for the full repo.
+Creates a new lockfile within terraform/master/global and replaces
+the repo-wide lockfile with the newly-created one.
+
+If desired, will only update the providers whose names are specified
+as arguments (e.g. 'aws', 'github', etc.) rather than the full list.
+
+Will also check to see if the currently-running version of Terraform
+is the most up-to-date, and (upon approval) will run terraform-switch.sh,
+update the required_version in versions.tf, and add the new version
+to the KNOWN_TF_VERSIONS variable in bin/lib/common.sh as well.
+
+Flags:
+  -t : Skip the Terraform update check
+  -h : Displays this help
+
+EOM
+}
+
+# revert versions.tf.bak if it exists
+revert_versions() {
+  if [[ -f "${GIT_DIR}/versions.tf.bak" ]] ; then
+    mv "${GIT_DIR}/versions.tf.bak" "${GIT_DIR}/versions.tf"
+  fi
+}
+
+# echo and remove escaping slash(es)
+dsl() {
+  echo ${1} | tr -d '\'
+}
+
+verify_root_repo
+declare {SKIP_TF_UPDATE,TF_VERSION_INFO,NEW_TF_VERSION,OLD_VERSION,NEW_VERSION}=
+PROVIDER_LIST=()
+LOCKFILE_DIR="${GIT_DIR}/terraform/master/global"
+LOCKFILE="${LOCKFILE_DIR}/.terraform.lock.hcl"
+
+while getopts th opt
+do
+  case $opt in
+    t) SKIP_TF_UPDATE=true                           ;;
+    h) man_page && exit 0                            ;;
+    *) usage && exit 1                               ;;
+  esac
+done
+shift $((OPTIND-1))
+
+if ! [[ -z "$@" ]] ; then
+  for PROVIDER in "$@" ; do
+    if [[ ! $(grep -s "${PROVIDER}" "${GIT_DIR}/.terraform.lock.hcl") ]] ; then
+      echo_yellow "Provider '${PROVIDER}' not found in .terraform.lock.hcl; skipping."
+    else
+      PROVIDER_LIST+=($(grep -s "${PROVIDER}" "${GIT_DIR}/.terraform.lock.hcl" |
+                  awk -F'/|"' '{print $(NF-2)"\\/"$(NF-1)}'))
+    fi
+  done
+else
+  PROVIDER_LIST=($(grep 'provider' "${GIT_DIR}/.terraform.lock.hcl" |
+                  awk -F'/|"' '{print $(NF-2)"\\/"$(NF-1)}'))
+fi
+
+echo
+cp "${GIT_DIR}/versions.tf" "${GIT_DIR}/versions.tf.bak"
+echo_blue "Updating the following providers:"
+for PROVIDER in "${PROVIDER_LIST[@]}" ; do
+  echo "- $(dsl ${PROVIDER})"
+  sed -i '' -E "/$PROVIDER/{n;s/( version = \")/\1\>\= /;}" "${GIT_DIR}/versions.tf"
+done
+echo
+[[ -f "${LOCKFILE}" ]] && rm "${LOCKFILE}"
+$(dirname "$0")/td -l -d master -v lock
+
+for PROVIDER in "${PROVIDER_LIST[@]}" ; do
+  OLD_VERSION=$(grep -A1 "source  = \"${PROVIDER}\"" "${GIT_DIR}/versions.tf" |
+    tail -n+2 | sed -E 's/.+\"\>\= ([0-9\.]+)\"/\1/;s/\./\\\./g')
+  NEW_VERSION=$(grep -A1 "registry\.terraform\.io/$PROVIDER" "${LOCKFILE}" |
+                tail -n+2 | sed -E 's/.+\"([0-9\.]+)\"/\1/;s/\./\\\./g')
+  sed -i '' -E "/$PROVIDER/{n;s/>= [0-9\.]+/$NEW_VERSION/;}" "${GIT_DIR}/versions.tf"
+  if [[ "${OLD_VERSION}" == "${NEW_VERSION}" ]] ; then
+    echo_yellow "$(dsl ${PROVIDER}) is already at $(dsl ${NEW_VERSION}); skipping."
+  else
+    echo_green "Updated $(dsl ${PROVIDER}) from $(dsl ${OLD_VERSION}) to $(dsl ${NEW_VERSION})"
+  fi
+done
+rm "${GIT_DIR}/versions.tf.bak"
+
+if ! [[ -z $(diff "${GIT_DIR}/.terraform.lock.hcl" "${LOCKFILE}") ]] ; then
+  echo_blue "Regenerating and copying lockfile..."
+  rm "${LOCKFILE}"
+  $(dirname "$0")/td -l -d master -v lock
+  mv "${LOCKFILE}" .terraform.lock.hcl
+  echo_green "Repo-level .terraform.lock.hcl updated."
+  cd "${LOCKFILE_DIR}"
+  ln -s ../../../.terraform.lock.hcl .terraform.lock.hcl
+  cd - >/dev/null
+fi
+echo
+
+if [[ -z ${SKIP_TF_UPDATE} ]] ; then
+  TF_VERSION_INFO=$(terraform --version)
+  if [[ $(echo "${TF_VERSION_INFO}" | grep 'out of date!') ]] ; then
+    NEW_TF_VERSION=$(echo "${TF_VERSION_INFO}" |
+      tail -n-1 | awk '{print $2}' | sed -E 's/\.$//;s/\./\\\./g')
+    if prompt_yn "New Terraform version $(dsl ${NEW_TF_VERSION}) available; update?" ; then
+      cp "${GIT_DIR}/versions.tf" "${GIT_DIR}/versions.tf.bak"
+      run $(dirname "$0")/terraform-switch.sh $(dsl ${NEW_TF_VERSION})
+      sed -i '' -E "s/(required_version = \">= )[0-9\.]+/\1$NEW_TF_VERSION/" \
+        "${GIT_DIR}/versions.tf"
+      rm "${GIT_DIR}/versions.tf.bak"
+      echo_green "Updated required_version in versions.tf to $(dsl ${NEW_TF_VERSION})"
+      if ! [[ $(echo ${KNOWN_TF_VERSIONS[@]} | grep $(dsl ${NEW_TF_VERSION})) ]] ; then
+        sed -i '' -E "s/(KNOWN_TF_VERSIONS=\()/\1\n  \"v${NEW_TF_VERSION}\"/" \
+          $(dirname "$0")/lib/common.sh
+        echo_green "Added v$(dsl ${NEW_TF_VERSION}) to KNOWN_TF_VERSIONS in common.sh"
+      fi
+    fi
+  fi
+fi

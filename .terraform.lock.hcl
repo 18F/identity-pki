@@ -3,7 +3,7 @@
 
 provider "registry.terraform.io/hashicorp/archive" {
   version     = "2.2.0"
-  constraints = ">= 2.2.0"
+  constraints = "2.2.0"
   hashes = [
     "h1:2K5LQkuWRS2YN1/YoNaHn9MAzjuTX8Gaqy6i8Mbfv8Y=",
     "zh:06bd875932288f235c16e2237142b493c2c2b6aba0e82e8c85068332a8d2a29e",
@@ -22,7 +22,7 @@ provider "registry.terraform.io/hashicorp/archive" {
 
 provider "registry.terraform.io/hashicorp/aws" {
   version     = "3.71.0"
-  constraints = ">= 3.70.0"
+  constraints = "3.71.0"
   hashes = [
     "h1:5+M8SPZlb3FxcmAX4RykKzNrTHkpjoP1UpHcenOXcxo=",
     "zh:173134d8861a33ed60a48942ad2b96b9d06e85c506d7f927bead47a28f4ebdd2",
@@ -41,7 +41,7 @@ provider "registry.terraform.io/hashicorp/aws" {
 
 provider "registry.terraform.io/hashicorp/external" {
   version     = "2.2.0"
-  constraints = ">= 2.1.1"
+  constraints = "2.2.0"
   hashes = [
     "h1:V1XoXkVwM+Bg73BNtbMxScjTcty2jbRZzgSdHrYxQ+4=",
     "zh:094c3cfae140fbb70fb0e272b1df833b4d7467c6c819fbf59a3e8ac0922f95b6",
@@ -61,7 +61,7 @@ provider "registry.terraform.io/hashicorp/external" {
 
 provider "registry.terraform.io/hashicorp/null" {
   version     = "3.1.0"
-  constraints = ">= 3.1.0"
+  constraints = "3.1.0"
   hashes = [
     "h1:xhbHC6in3nQryvTQBWKxebi3inG5OCgHgc4fRxL0ymc=",
     "zh:02a1675fd8de126a00460942aaae242e65ca3380b5bb192e8773ef3da9073fd2",
@@ -80,7 +80,7 @@ provider "registry.terraform.io/hashicorp/null" {
 
 provider "registry.terraform.io/hashicorp/template" {
   version     = "2.2.0"
-  constraints = ">= 2.2.0"
+  constraints = "2.2.0"
   hashes = [
     "h1:0wlehNaxBX7GJQnPfQwTNvvAf38Jm0Nv7ssKGMaG6Og=",
     "zh:01702196f0a0492ec07917db7aaa595843d8f171dc195f4c988d2ffca2a06386",
@@ -98,7 +98,7 @@ provider "registry.terraform.io/hashicorp/template" {
 
 provider "registry.terraform.io/integrations/github" {
   version     = "4.19.1"
-  constraints = ">= 4.19.0"
+  constraints = "4.19.1"
   hashes = [
     "h1:T6XKV4dOLYW40hETYtzW2KXOOqHDOXhNTJbkKIntgJk=",
     "zh:141c96bc473679f4c8f783bf67f6c4a422a67fc51ed06d413359476726220fdc",
@@ -119,7 +119,7 @@ provider "registry.terraform.io/integrations/github" {
 
 provider "registry.terraform.io/newrelic/newrelic" {
   version     = "2.35.0"
-  constraints = ">= 2.34.1"
+  constraints = "2.35.0"
   hashes = [
     "h1:gyobYnos9aPuKPzJsHyarB1BUSbMCKEg+SjqMLd+QZY=",
     "zh:0d6912ffd30dc8693f32a5d26a1cf80b160bc2c12aeaa83e9efc77811b52c141",
