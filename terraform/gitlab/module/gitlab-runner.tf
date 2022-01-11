@@ -33,8 +33,8 @@ module "gitlab_runner_lifecycle_hooks" {
 }
 
 module "gitlab_runner_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=b68c41068a53acbb981eeb37e1eb0a36a6487ac7"
-  #source = "../../../identity-terraform/launch_template"
+  source = "github.com/18F/identity-terraform//launch_template?ref=d4ddcfe15733ebfd72357eddff920835dae21608"
+  # source = "../../../../identity-terraform/launch_template"
   role           = "gitlab_runner"
   env            = var.env_name
   root_domain    = var.root_domain
@@ -45,6 +45,9 @@ module "gitlab_runner_launch_template" {
   use_spot_instances        = var.use_spot_instances
   iam_instance_profile_name = aws_iam_instance_profile.gitlab_runner.name
   security_group_ids        = [aws_security_group.gitlab_runner.id, aws_security_group.base.id]
+
+  # Allow containers to access the metadata service
+  metadata_response_hop_limit = 2
 
   user_data = module.gitlab_runner_user_data.rendered_cloudinit_config
 

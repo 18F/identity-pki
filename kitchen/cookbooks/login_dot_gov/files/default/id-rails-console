@@ -68,6 +68,11 @@ if [ -z "$USERNAME" ]; then
     USERNAME="${GSA_USERNAME:-''}"
 fi
 
+if [ -z "$USERNAME" ]; then
+    echo 'Missing username, please provide one via GSA_USERNAME'
+    exit 1
+fi
+
 MODE="readonly"
 if [ -n "${ALLOW_CONSOLE_DB_WRITE_ACCESS-}" ]; then
     MODE="readwrite"

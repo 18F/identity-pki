@@ -704,3 +704,8 @@ variable "send_cw_to_soc" {
   type    = string
   default = "0"
 }
+
+variable "performance_insights_enabled" {
+  default     = "true"
+  description = "Enables Performance Insights on RDS"
+}

@@ -15,3 +15,6 @@ at documenting how it is laid out.
 
 ![Gitlab Diagram!](ec2-gitlab.png)
 
+## Artifact Build Pipeline
+
+![Image Build Pipeline!](image_build.png)

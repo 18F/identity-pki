@@ -797,6 +797,7 @@ locals {
           "ecr:GetLifecyclePolicy",
           "ecr:GetLifecyclePolicyPreview",
           "ecr:GetRegistryPolicy",
+          "ecr:GetRegistryScanningConfiguration",
           "ecr:GetRepositoryPolicy",
           "ecr:List*",
           "ecr:PutImageScanningConfiguration",
