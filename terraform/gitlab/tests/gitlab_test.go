@@ -273,3 +273,27 @@ func TestSshKey(t *testing.T) {
 	result := RunCommandOnInstances(t, firstinstance, cmd)
 	require.Contains(t, *tarfileresult.StandardOutputContent, strings.TrimSpace(*result.StandardOutputContent), "archived ssh key was not the same as the running sshd key")
 }
+
+// This tests whether we are still fulfilling the s2.1 control.
+func TestSTwoOne(t *testing.T) {
+	asgName := env_name + "-gitlab_runner"
+
+	instances := aws.GetInstanceIdsForAsg(t, asgName, region)
+	firstinstance := instances[0:1]
+	cmd := "ps gaxuwww | grep 'icc=false' | grep -v grep"
+	result := RunCommandOnInstances(t, firstinstance, cmd)
+	require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed: "+*result.StandardOutputContent)
+	require.Contains(t, *result.StandardOutputContent, "icc=false", "According to compliance control s2.1, icc should be false")
+}
+
+// This tests whether we are still fulfilling the s2.10 control.
+func TestSTwoTen(t *testing.T) {
+	asgName := env_name + "-gitlab_runner"
+
+	instances := aws.GetInstanceIdsForAsg(t, asgName, region)
+	firstinstance := instances[0:1]
+	cmd := "ps gaxuwww | grep 'dockerd.*dm.basesize' | grep -v grep"
+	result := RunCommandOnInstances(t, firstinstance, cmd)
+	require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed: "+*result.StandardOutputContent)
+	require.NotContains(t, *result.StandardOutputContent, "dm.basesize", "According to compliance control s2.10, dm.basesize should not be set")
+}
