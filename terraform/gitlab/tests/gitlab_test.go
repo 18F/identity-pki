@@ -342,5 +342,5 @@ func TestSTwoThirteen(t *testing.T) {
 	cmd := "ps gaxuwww | grep -v grep | grep 'dockerd.*live_restore=true'"
 	result := RunCommandOnInstances(t, firstinstance, cmd)
 	require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed: "+*result.StandardOutputContent)
-	require.NotContains(t, *result.StandardOutputContent, "live_restore=true", "According to compliance control s2.13, Dockerd should have live_restore enabled")
+	require.Contains(t, *result.StandardOutputContent, "live_restore=true", "According to compliance control s2.13, Dockerd should have live_restore enabled")
 }
