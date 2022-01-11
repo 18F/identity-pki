@@ -1,3 +1,8 @@
+variables:
+  REGION: us-west-2
+  CI_COMMIT_TAG: "latest"
+  CI_REGISTRY_SUFFIX: "dkr.ecr.us-west-2.amazonaws.com"
+
 include:
   project: 'lg/identity-gitlab'
   ref: 'main'
@@ -7,3 +12,51 @@ sync_users_and_groups:
   image: mirror.gcr.io/library/golang:latest
   script:
     - ./bin/users/sync.sh --fqdn=$CI_SERVER_HOST
+
+retrieve_aws_account:
+  image:
+    name: amazon/aws-cli
+    entrypoint: [""]
+  script:
+    - |-
+       AWS_ACCOUNT="$(aws sts get-caller-identity | sed -n 's/^ \+\"Account\": \"\([0-9]\+\)\".*/\1/p')"
+       echo "export AWS_ACCOUNT=\"$AWS_ACCOUNT\"" > vars.sh
+
+  artifacts:
+    paths:
+    - vars.sh
+    expire_in: 1 week
+
+build_template: &build_template
+  needs: ["retrieve_aws_account"]
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  only:
+    variables:
+      - $dockerfile
+      - $ecr_repo
+  script:
+    - . ./vars.sh
+    - export CI_REGISTRY="${AWS_ACCOUNT}.${CI_REGISTRY_SUFFIX}"
+    - mkdir -p /kaniko/.docker
+    - |-
+       KANIKOCFG="\"credsStore\":\"ecr-login\""
+       if [ "x${http_proxy}" != "x" -o "x${https_proxy}" != "x" ]; then
+         KANIKOCFG="${KANIKOCFG}, \"proxies\": { \"default\": { \"httpProxy\": \"${http_proxy}\", \"httpsProxy\": \"${https_proxy}\", \"noProxy\": \"${no_proxy}\"}}"
+       fi
+       KANIKOCFG="{ ${KANIKOCFG} }"
+       echo "${KANIKOCFG}" > /kaniko/.docker/config.json
+    - >-
+      /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/dockerfiles/${dockerfile}"
+      --destination "${CI_REGISTRY}/${ecr_repo}:${CI_COMMIT_TAG}"
+      --build-arg "http_proxy=${http_proxy}" --build-arg "https_proxy=${https_proxy}" --build-arg "no_proxy=${no_proxy}"
+
+# Build images by referencing a dockerfile (in dockerfiles/) and a destination repo
+build_base:
+  <<: *build_template
+  variables:
+    dockerfile: base.Dockerfile
+    ecr_repo: alpha/base
