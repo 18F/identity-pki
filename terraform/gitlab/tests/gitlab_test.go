@@ -283,7 +283,7 @@ func TestSOneTwo(t *testing.T) {
 	cmd := "sudo auditctl -l"
 	result := RunCommandOnInstances(t, firstinstance, cmd)
 	require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed: "+*result.StandardOutputContent)
-	require.NotContains(t, *result.StandardOutputContent, "docker", "According to compliance control s1.2.x, auditd needs to have docker stuff in it")
+	require.Contains(t, *result.StandardOutputContent, "docker", "According to compliance control s1.2.x, auditd needs to have docker stuff in it")
 }
 
 // This tests whether we are still fulfilling the s2.1 control.
@@ -292,9 +292,8 @@ func TestSTwoOne(t *testing.T) {
 
 	instances := aws.GetInstanceIdsForAsg(t, asgName, region)
 	firstinstance := instances[0:1]
-	cmd := "ps gaxuwww | grep 'icc=false' | grep -v grep"
+	cmd := "ps gaxuwww | grep -v grep | grep 'dockerd.*icc'"
 	result := RunCommandOnInstances(t, firstinstance, cmd)
-	require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed: "+*result.StandardOutputContent)
 	require.Contains(t, *result.StandardOutputContent, "icc=false", "According to compliance control s2.1, icc should be false")
 }
 
@@ -327,10 +326,9 @@ func TestSTwoTwelve(t *testing.T) {
 
 	instances := aws.GetInstanceIdsForAsg(t, asgName, region)
 	firstinstance := instances[0:1]
-	cmd := "ps gaxuwww | grep -v grep | grep 'dockerd.*log-level=debug'"
+	cmd := "ps gaxuwww | grep -v grep | grep 'dockerd.*log-level'"
 	result := RunCommandOnInstances(t, firstinstance, cmd)
-	require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed: "+*result.StandardOutputContent)
-	require.NotContains(t, *result.StandardOutputContent, "log_level=debug", "According to compliance control s2.12, Dockerd should be logging")
+	require.Contains(t, *result.StandardOutputContent, "log-level=debug", "According to compliance control s2.12, Dockerd should be logging")
 }
 
 // This tests whether we are still fulfilling the s2.13 control.
@@ -339,8 +337,7 @@ func TestSTwoThirteen(t *testing.T) {
 
 	instances := aws.GetInstanceIdsForAsg(t, asgName, region)
 	firstinstance := instances[0:1]
-	cmd := "ps gaxuwww | grep -v grep | grep 'dockerd.*live_restore=true'"
+	cmd := "ps gaxuwww | grep -v grep | grep 'dockerd.*live_restore'"
 	result := RunCommandOnInstances(t, firstinstance, cmd)
-	require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed: "+*result.StandardOutputContent)
 	require.Contains(t, *result.StandardOutputContent, "live_restore=true", "According to compliance control s2.13, Dockerd should have live_restore enabled")
 }
