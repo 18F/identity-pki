@@ -1,0 +1,42 @@
+@startuml
+actor Developer
+database gitrepo as "identity-devops"
+participant runner as "Gitlab Runner"
+participant dockerd
+participant Kaniko
+participant Proxy
+collections ECR
+collections GCR as "Docker Hub mirror"
+collections Debian
+
+Developer -> gitrepo : merge
+gitrepo -> runner : run pipeline
+runner -> dockerd : run Kaniko
+dockerd -> Proxy: pull Kaniko
+activate Proxy
+        Proxy -> ECR
+        ECR -> GCR
+        GCR --> ECR
+        ECR --> Proxy
+return Kaniko image
+dockerd -> Kaniko : start container
+activate Kaniko
+        Kaniko -> Proxy : pull base
+        activate Proxy
+        Proxy -> ECR
+        ECR -> GCR
+        GCR --> ECR
+        ECR --> Proxy
+        return base image
+        Kaniko -> Proxy : apt install foo
+        activate Proxy
+        Proxy -> Debian
+        Debian --> Proxy
+        return foo.deb
+        Kaniko -> Proxy : push image
+        activate Proxy
+        Proxy -> ECR
+        ECR --> Proxy
+        return ok
+return exit
+@enduml
