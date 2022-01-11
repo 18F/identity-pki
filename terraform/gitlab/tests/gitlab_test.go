@@ -274,6 +274,18 @@ func TestSshKey(t *testing.T) {
 	require.Contains(t, *tarfileresult.StandardOutputContent, strings.TrimSpace(*result.StandardOutputContent), "archived ssh key was not the same as the running sshd key")
 }
 
+// This tests whether we are still fulfilling the s1.2.x auditd controls.
+func TestSTwoTen(t *testing.T) {
+	asgName := env_name + "-gitlab_runner"
+
+	instances := aws.GetInstanceIdsForAsg(t, asgName, region)
+	firstinstance := instances[0:1]
+	cmd := "sudo auditctl -l"
+	result := RunCommandOnInstances(t, firstinstance, cmd)
+	require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed: "+*result.StandardOutputContent)
+	require.NotContains(t, *result.StandardOutputContent, "docker", "According to compliance control s1.2.x, auditd needs to have docker stuff in it")
+}
+
 // This tests whether we are still fulfilling the s2.1 control.
 func TestSTwoOne(t *testing.T) {
 	asgName := env_name + "-gitlab_runner"
@@ -296,4 +308,28 @@ func TestSTwoTen(t *testing.T) {
 	result := RunCommandOnInstances(t, firstinstance, cmd)
 	require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed: "+*result.StandardOutputContent)
 	require.NotContains(t, *result.StandardOutputContent, "dm.basesize", "According to compliance control s2.10, dm.basesize should not be set")
+}
+
+// This tests whether we are still fulfilling the s2.11 control.
+func TestSTwoEleven(t *testing.T) {
+	asgName := env_name + "-gitlab_runner"
+
+	instances := aws.GetInstanceIdsForAsg(t, asgName, region)
+	firstinstance := instances[0:1]
+	cmd := "ls -l /var/run/docker.sock"
+	result := RunCommandOnInstances(t, firstinstance, cmd)
+	require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed: "+*result.StandardOutputContent)
+	require.Contains(t, *result.StandardOutputContent, "srw-rw---- 1 root docker", "According to compliance control s2.11, use of docker should only be authorized for members of the docker group and root")
+}
+
+// This tests whether we are still fulfilling the s2.12 control.
+func TestSTwoTwelve(t *testing.T) {
+	asgName := env_name + "-gitlab_runner"
+
+	instances := aws.GetInstanceIdsForAsg(t, asgName, region)
+	firstinstance := instances[0:1]
+	cmd := "ps gaxuwww | grep 'dockerd.*log_level=debug' | grep -v grep"
+	result := RunCommandOnInstances(t, firstinstance, cmd)
+	require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed: "+*result.StandardOutputContent)
+	require.NotContains(t, *result.StandardOutputContent, "log_level=debug", "According to compliance control s2.12, Dockerd should be logging")
 }
