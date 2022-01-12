@@ -1,18 +1,20 @@
 resource "aws_iam_role" "obproxy" {
   name               = "${var.env_name}_obproxy_iam_role"
   assume_role_policy = <<-EOM
-    statement {
-      sid = "allowVPC"
-      actions = [
-        "sts:AssumeRole",
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Action": "sts:AssumeRole",
+          "Principal": {
+            "Service": "ec2.amazonaws.com"
+          },
+          "Effect": "Allow",
+          "Sid": "allowVPC"
+        }
       ]
-      principals {
-        type        = "Service"
-        identifiers = ["ec2.amazonaws.com"]
-      }
     }
   EOM
-
 
   inline_policy {
     name   = "${var.env_name}-obproxy-auto-eip"

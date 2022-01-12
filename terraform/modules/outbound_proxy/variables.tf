@@ -1,3 +1,13 @@
+variable "ami_id_map" {
+  type        = map(string)
+  description = "Mapping from server role to an AMI ID, overrides the default_ami_id if key present"
+  default     = {}
+}
+
+variable "account_default_ami_id" {
+  description = "account default ami"
+}
+
 # Auto scaling flags
 variable "asg_auto_recycle_enabled" {
   default     = 0
@@ -156,17 +166,17 @@ variable "no_proxy_hosts" {
   default = "localhost,127.0.0.1,169.254.169.254,169.254.169.123,.login.gov.internal,ec2.us-west-2.amazonaws.com,kms.us-west-2.amazonaws.com,secretsmanager.us-west-2.amazonaws.com,ssm.us-west-2.amazonaws.com,ec2messages.us-west-2.amazonaws.com,lambda.us-west-2.amazonaws.com,ssmmessages.us-west-2.amazonaws.com,sns.us-west-2.amazonaws.com,sqs.us-west-2.amazonaws.com,events.us-west-2.amazonaws.com,metadata.google.internal,sts.us-west-2.amazonaws.com"
 }
 
-#variable "proxy_enabled_roles" {
-#  type        = map(string)
-#  description = "Mapping from role names to integer {0,1} for whether the outbound proxy server is enabled during bootstrapping."
-#  default = {
-#    unknown       = 1
-#    outboundproxy = 0
-#    gitlab        = 1
-#  }
-#}
+variable "proxy_enabled_roles" {
+  type        = map(string)
+  description = "Mapping from role names to integer {0,1} for whether the outbound proxy server is enabled during bootstrapping."
+  default = {
+    unknown       = 1
+    outboundproxy = 0
+    gitlab        = 1
+  }
+}
 
-variable "route53_id" {
+variable "route53_internal_zone_id" {
   default = "Z096400532ZFM348WWIAA"
 }
 
@@ -174,4 +184,18 @@ variable "use_spot_instances" {
   description = "Use spot instances for roles suitable for spot use"
   type        = number
   default     = 0
+}
+
+variable "vpc_id" {
+  description = "VPC Used To Launch the Outbound Proxy"
+}
+
+variable "public_subnets" {
+  type        = list(string)
+  description = "List of public subnets to use for the outbound proxy ASG"
+}
+
+variable "base_security_group_id" {
+  type        = string
+  description = "security group used on client side for outbound proxy"
 }

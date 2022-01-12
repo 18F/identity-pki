@@ -108,7 +108,7 @@ resource "aws_security_group" "obproxy" {
     role = "outboundproxy"
   }
 
-  vpc_id = aws_vpc.default.id
+  vpc_id = var.vpc_id
 }
 
 resource "aws_ssm_parameter" "net_outboundproxy" {
