@@ -109,11 +109,11 @@ execute 'restart_runner' do
 	action :nothing
 end
 
-template '/etc/audit/rules.d/docker.rules' do
+template '/etc/audit/rules.d/30-login-gov-docker.rules' do
     source 'docker.rules.erb'
     owner 'root'
     group 'root'
-    mode '0600'
+    mode '0640'
     notifies :run, 'execute[restart_auditd]'
 end
 

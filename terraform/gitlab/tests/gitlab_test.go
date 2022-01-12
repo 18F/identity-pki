@@ -286,26 +286,30 @@ func TestSOneTwo(t *testing.T) {
 	require.Contains(t, *result.StandardOutputContent, "docker", "According to compliance control s1.2.x, auditd needs to have docker stuff in it")
 }
 
+// this is to store the dockerd proc info for s2.x so we only have to get it once.
+var dockerdproc = ""
+
+func GetDockerdProc(t *testing.T) string {
+	if dockerdproc == "" {
+		asgName := env_name + "-gitlab_runner"
+		instances := aws.GetInstanceIdsForAsg(t, asgName, region)
+		firstinstance := instances[0:1]
+		cmd := "ps gaxuwww | grep -v grep | grep dockerd"
+		result := RunCommandOnInstances(t, firstinstance, cmd)
+		require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed: "+*result.StandardOutputContent)
+		dockerdproc = *result.StandardOutputContent
+	}
+	return dockerdproc
+}
+
 // This tests whether we are still fulfilling the s2.1 control.
 func TestSTwoOne(t *testing.T) {
-	asgName := env_name + "-gitlab_runner"
-
-	instances := aws.GetInstanceIdsForAsg(t, asgName, region)
-	firstinstance := instances[0:1]
-	cmd := "ps gaxuwww | grep -v grep | grep 'dockerd.*icc'"
-	result := RunCommandOnInstances(t, firstinstance, cmd)
-	require.Contains(t, *result.StandardOutputContent, "icc=false", "According to compliance control s2.1, icc should be false")
+	require.Contains(t, GetDockerdProc(t), "--icc=false", "According to compliance control s2.1, icc should be false")
 }
 
 // This tests whether we are still fulfilling the s2.10 control.
 func TestSTwoTen(t *testing.T) {
-	asgName := env_name + "-gitlab_runner"
-
-	instances := aws.GetInstanceIdsForAsg(t, asgName, region)
-	firstinstance := instances[0:1]
-	cmd := "ps gaxuwww | grep -v grep | grep 'dockerd.*dm.basesize'"
-	result := RunCommandOnInstances(t, firstinstance, cmd)
-	require.Equal(t, int64(1), *result.ResponseCode, "According to compliance control s2.10, dm.basesize should not be set")
+	require.NotContains(t, GetDockerdProc(t), "dm.basesize", "According to compliance control s2.10, dm.basesize should not be set")
 }
 
 // This tests whether we are still fulfilling the s2.11 control.
@@ -322,22 +326,10 @@ func TestSTwoEleven(t *testing.T) {
 
 // This tests whether we are still fulfilling the s2.12 control.
 func TestSTwoTwelve(t *testing.T) {
-	asgName := env_name + "-gitlab_runner"
-
-	instances := aws.GetInstanceIdsForAsg(t, asgName, region)
-	firstinstance := instances[0:1]
-	cmd := "ps gaxuwww | grep -v grep | grep 'dockerd.*log-level'"
-	result := RunCommandOnInstances(t, firstinstance, cmd)
-	require.Contains(t, *result.StandardOutputContent, "log-level=debug", "According to compliance control s2.12, Dockerd should be logging")
+	require.Contains(t, GetDockerdProc(t), "--log-level=debug", "According to compliance control s2.12, Dockerd should be logging")
 }
 
 // This tests whether we are still fulfilling the s2.13 control.
 func TestSTwoThirteen(t *testing.T) {
-	asgName := env_name + "-gitlab_runner"
-
-	instances := aws.GetInstanceIdsForAsg(t, asgName, region)
-	firstinstance := instances[0:1]
-	cmd := "ps gaxuwww | grep -v grep | grep 'dockerd.*live_restore'"
-	result := RunCommandOnInstances(t, firstinstance, cmd)
-	require.Contains(t, *result.StandardOutputContent, "live_restore=true", "According to compliance control s2.13, Dockerd should have live_restore enabled")
+	require.Contains(t, GetDockerdProc(t), "--live-restore", "According to compliance control s2.13, Dockerd should have live_restore enabled")
 }
