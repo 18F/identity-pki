@@ -41,6 +41,9 @@ users:
   dave.zvenyach:
     aws_groups:
       - analytics
+  devon.johnson:
+    aws_groups:
+      - appdev
   diondra.humphries:
     aws_groups:
       - bizops
