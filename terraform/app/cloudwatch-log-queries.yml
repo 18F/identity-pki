@@ -1,0 +1,17 @@
+---
+waf/blocked-by-path:
+  logs:
+  - aws-waf-logs-${env}-idp-waf
+  query: |
+    filter action != "ALLOW"
+    | stats count() as count by httpRequest.httpMethod,httpRequest.uri
+    | sort count desc
+
+waf/blocked-by-rule-and-ip:
+  logs:
+  - aws-waf-logs-${env}-idp-waf
+  query: |
+    filter action != "ALLOW"
+    | stats count() as count by terminatingRuleId,httpRequest.clientIp
+    | sort count desc
+
