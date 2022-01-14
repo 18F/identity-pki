@@ -585,7 +585,7 @@ variable "opsgenie_key_file" {
 }
 
 ## CloudWatch Alarm Defaults
-variable "idv_final_resolution_success_minimum_threshold" {
+variable "idv_review_complete_success_minimum_threshold" {
   description = "Minimum number of successful proofs in an hour"
   type        = number
   default     = 0
