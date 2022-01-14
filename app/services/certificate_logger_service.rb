@@ -1,5 +1,3 @@
-require 'aws-sdk-s3'
-
 class CertificateLoggerService
   class << self
     def log_certificate(certificate)
