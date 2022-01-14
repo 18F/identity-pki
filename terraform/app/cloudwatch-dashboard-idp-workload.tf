@@ -303,7 +303,7 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
                     [ ".", "login-failure-mfa-voice", { "label": "fail-mfa-voice [sum:$${SUM}, max:$${MAX}]" } ],
                     [ ".", "login-failure-mfa-piv_cac", { "label": "fail-mfa-pivcac [sum:$${SUM}, max:$${MAX}]" } ],
                     [ ".", "login-failure-mfa-personal-key", { "label": "fail-mfa-personal-key [sum:$${SUM}, max:$${MAX}]" } ],
-                    [ "${var.env_name}/idp-ialx", "idv-final-resolution-success", { "label": "idv-final-resolution-success [sum:$${SUM}, max:$${MAX}]" } ],
+                    [ "${var.env_name}/idp-ialx", "idv-review-complete-success-success", { "label": "idv-review-complete-success-success [sum:$${SUM}, max:$${MAX}]" } ],
                     [ ".", "doc-auth-submitted-success", { "label": "doc-auth-submitted-success [sum:$${SUM}, max:$${MAX}]" } ]
                 ],
                 "view": "timeSeries",

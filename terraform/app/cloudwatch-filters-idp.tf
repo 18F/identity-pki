@@ -68,9 +68,9 @@ locals {
   }
 
   idp_events_ialx_filters = {
-    idv_final_resolution_success = {
-      name         = "idv-final-resolution-success"
-      pattern      = "{ ($.name = \"IdV: final resolution\") && ($.properties.event_properties.success is true) }"
+    idv_review_complete_success = {
+      name         = "idv-review-complete-success"
+      pattern      = "{ ($.name = \"IdV: review complete\") && ($.properties.event_properties.success is true) }"
       metric_value = 1
     },
     doc_auth_submitted_success = {
