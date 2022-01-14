@@ -1,4 +1,82 @@
 ---
+provisioning/cloud-init-output:
+  logs:
+  - /var/log/cloud-init-output.log
+  query: |
+    fields @timestamp, @logStream, @message
+    | filter @logStream like /\.${env}\.[a-z]+\.gov$/
+    #
+    ## Find IdP instances for environment
+    # | filter @logStream like /^idp/
+    #
+    ## Or pick a specific instance
+    # | filter @logStream like /i-053d9cf7cc0bb5b32/
+    #
+    ## Only select the end result (CONTINUE for Good, ABANDON for Bad)
+    # | filter @message like "--lifecycle-action-result"
+    #
+    ## Uncomment to show earliest lines first
+    # | sort @timestamp asc
+
+idp/events-by-user_id:
+  logs:
+  - ${env}_/srv/idp/shared/log/events.log
+  query: |
+    fields @timestamp, name, @message
+    # Replace anonymous-uuid with the UUID you want to search for
+    | filter properties.user_id = 'anonymous-uuid'
+    | sort @timestamp asc
+
+idp/web-requests-by-user_id:
+  logs:
+  - ${env}_/srv/idp/shared/log/production.log
+  query: |
+    fields @timestamp, concat(controller, '#', action) as name, @message
+    # Replace anonymous-uuid with the UUID you want to search for
+    | filter user_id = 'anonymous-uuid'
+    | sort @timestamp asc
+
+nginx/errors-by-source:
+  logs:
+  - ${env}_/var/log/nginx/access.log
+  query: |
+    filter status like /^5/
+    #
+    ## Only look in idp logs
+    # | filter @logStream like /^idp/
+    ## Only look in pivcac logs
+    # | filter @logStream like /^pivcac/
+    #
+    ## Group by status, path, and source IP
+    # | stats count() as count by status, uri_path, src
+    ## Or just by source IP
+    # | stats count() as count by src
+    #
+    | sort count desc
+
+outboundproxy/allowed-requests-by-destination:
+  logs:
+  - ${env}_/var/log/squid/access.log
+  query: |
+    parse @message /CONNECT (?<destination>.+:\d+) /
+    | stats count() as count by destination
+    | sort count desc
+
+outboundproxy/blocked-requests:
+  logs:
+  - ${env}_/var/log/squid/access.log
+  query: |
+    filter @message like "TCP_DENIED"
+
+outboundproxy/blocked-requests-by-destination:
+  logs:
+  - ${env}_/var/log/squid/access.log
+  query: |
+    filter @message like "TCP_DENIED"
+    | parse @message /TCP_DENIED\/403 \d+ CONNECT (?<destination>.+:\d+) /
+    | stats count() as count by destination
+    | sort count desc
+
 waf/blocked-by-path:
   logs:
   - aws-waf-logs-${env}-idp-waf
