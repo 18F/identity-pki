@@ -61,6 +61,7 @@ docker_service 'default' do
   log_level 'debug'
   live_restore true
   userland_proxy false
+  misc_opts '--no-new-privileges'
 end
 
 aws_region = Chef::Recipe::AwsMetadata.get_aws_region

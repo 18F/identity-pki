@@ -338,3 +338,8 @@ func TestSTwoThirteen(t *testing.T) {
 func TestSTwoSixteen(t *testing.T) {
 	require.Contains(t, GetDockerdProc(t), "--experimental", "According to compliance control s2.16, Dockerd should have experimental features enabled")
 }
+
+// This tests whether we are still fulfilling the s2.17 control.
+func TestSTwoSeventeen(t *testing.T) {
+	require.Contains(t, GetDockerdProc(t), "--no-new-privileges", "According to compliance control s2.17, Dockerd should have --no-new-privileges set")
+}
