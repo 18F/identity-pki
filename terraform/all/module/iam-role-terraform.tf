@@ -304,6 +304,7 @@ locals {
           "kinesis:DecreaseStreamRetentionPeriod",
           "kinesis:DeleteStream",
           "kinesis:DescribeStream",
+          "kinesis:DescribeStreamSummary",
           "kinesis:EnableEnhancedMonitoring",
           "kinesis:IncreaseStreamRetentionPeriod",
           "kinesis:ListTagsForStream",
