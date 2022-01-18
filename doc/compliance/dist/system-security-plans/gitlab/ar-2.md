@@ -1,6 +1,6 @@
 ---
 status:
-  - c-inherited
+  - c-implemented
   - c-documented
 effort:
   - medium

@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
 ---
 
 # ar-4 - \[catalog\] Privacy Monitoring and Auditing
