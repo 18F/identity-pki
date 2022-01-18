@@ -333,3 +333,8 @@ func TestSTwoTwelve(t *testing.T) {
 func TestSTwoThirteen(t *testing.T) {
 	require.Contains(t, GetDockerdProc(t), "--live-restore", "According to compliance control s2.13, Dockerd should have live_restore enabled")
 }
+
+// This tests whether we are still fulfilling the s2.16 control.
+func TestSTwoSixteen(t *testing.T) {
+	require.Contains(t, GetDockerdProc(t), "--experimental", "According to compliance control s2.16, Dockerd should have experimental features enabled")
+}
