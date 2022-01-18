@@ -362,3 +362,8 @@ func TestSTwoThree(t *testing.T) {
 func TestSTwoFour(t *testing.T) {
 	require.NotContains(t, GetDockerdProc(t), "storage-driver aufs", "According to compliance control s2.5, Dockerd should not use aufs")
 }
+
+// This tests whether we are still fulfilling the s2.8 control.
+func TestSTwoEight(t *testing.T) {
+	require.Contains(t, GetDockerdProc(t), "--userns-remap=default", "According to compliance control s2.8, Dockerd should remap uids/gids")
+}
