@@ -11,6 +11,14 @@ variable "ami_types" {
   ]
 }
 
+variable "image_build_nat_eip" {
+  description = <<EOM
+Elastic IP address for the NAT gateway.
+Must already be allocated via other means.
+EOM
+  type        = string
+}
+
 variable "image_build_private_cidr" {
   description = "CIDR block for the public subnet 1"
   type        = string
