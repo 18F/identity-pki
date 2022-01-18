@@ -108,15 +108,3 @@ execute 'restart_runner' do
 	command 'systemctl restart gitlab-runner'
 	action :nothing
 end
-
-template '/etc/audit/rules.d/30-login-gov-docker.rules' do
-    source 'docker.rules.erb'
-    owner 'root'
-    group 'root'
-    mode '0640'
-    notifies :run, 'execute[restart_auditd]'
-end
-
-execute 'restart_auditd' do
-	command "service auditd restart"
-end
