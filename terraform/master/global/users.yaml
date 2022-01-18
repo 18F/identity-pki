@@ -55,7 +55,6 @@ users:
     gitlab_groups:
       - appdev
   james.tranovich:
-    aws_groups: []
     gitlab_groups:
       - devops
   jeffrey.holden:
@@ -98,7 +97,6 @@ users:
     aws_groups:
       - bizops
   logan.mcdonald:
-    aws_groups: []
     gitlab_groups:
       - devops
   magdaline.derosena:
@@ -137,7 +135,6 @@ users:
     aws_groups:
       - bizops
   nick.kramer:
-    aws_groups: []
     gitlab_groups:
       - devops
   oren.kanner:
