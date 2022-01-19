@@ -38,16 +38,16 @@ runner_token = ConfigLoader.load_config(node, "gitlab_runner_token", common: fal
 directory '/etc/systemd/system/gitlab-runner.service.d'
 
 template '/etc/systemd/system/gitlab-runner.service.d/http-proxy.conf' do
-	source 'http-proxy.conf.erb'
-	owner 'root'
-	group 'root'
-	mode '644'
-	notifies :run, 'execute[systemctl_daemon_config]', :immediate
+  source 'http-proxy.conf.erb'
+  owner 'root'
+  group 'root'
+  mode '644'
+  notifies :run, 'execute[systemctl_daemon_config]', :immediate
 end
 
 execute 'systemctl_daemon_config' do
-	command 'systemctl daemon-reload'
-	action :nothing
+  command 'systemctl daemon-reload'
+  action :nothing
 end
 
 docker_service 'default' do
@@ -66,30 +66,31 @@ no_proxy = 'localhost,127.0.0.1,169.254.169.254,169.254.169.123,.login.gov.inter
 
 # no_proxy seems to not actually work here.  Have to allow stuff in the proxy.  :-(
 execute 'configure_gitlab_runner' do
-	command "gitlab-runner register \
-	  --non-interactive \
-	  --name '#{runner_name}' \
-	  --url '#{external_url}' \
-	  --registration-token '#{runner_token}' \
-	  --executor docker \
-	  --env HTTP_PROXY=http://obproxy.login.gov.internal:3128 \
-	  --env HTTPS_PROXY=http://obproxy.login.gov.internal:3128 \
-	  --env http_proxy=http://obproxy.login.gov.internal:3128 \
-	  --env https_proxy=http://obproxy.login.gov.internal:3128 \
-	  --env NO_PROXY=#{no_proxy} \
-	  --env no_proxy=#{no_proxy} \
-	  --docker-image alpine:latest \
-	  --tag-list 'docker,aws' \
-	  --run-untagged=true \
-	  --locked=false \
-	  --cache-shared \
-	  --cache-type s3 \
-	  --cache-path '#{node.chef_environment}' \
-	  --cache-s3-server-address s3.amazonaws.com \
-	  --cache-s3-bucket-name 'login-gov-#{node.chef_environment}-gitlabcache-#{aws_account_id}-#{aws_region}' \
-	  --cache-s3-bucket-location '#{aws_region}' \
-	  --cache-s3-authentication_type 'iam' \
-	  --access-level=not_protected
+  command "gitlab-runner register \
+    --non-interactive \
+    --name '#{runner_name}' \
+    --url '#{external_url}' \
+    --registration-token '#{runner_token}' \
+    --executor docker \
+    --env HTTP_PROXY=http://obproxy.login.gov.internal:3128 \
+    --env HTTPS_PROXY=http://obproxy.login.gov.internal:3128 \
+    --env http_proxy=http://obproxy.login.gov.internal:3128 \
+    --env https_proxy=http://obproxy.login.gov.internal:3128 \
+    --env NO_PROXY=#{no_proxy} \
+    --env no_proxy=#{no_proxy} \
+    --docker-image alpine:latest \
+    --tag-list 'docker,aws' \
+    --run-untagged=true \
+    --locked=false \
+    --cache-shared \
+    --cache-type s3 \
+    --cache-path '#{node.chef_environment}' \
+    --cache-s3-server-address s3.amazonaws.com \
+    --cache-s3-bucket-name 'login-gov-#{node.chef_environment}-gitlabcache-#{aws_account_id}-#{aws_region}' \
+    --cache-s3-bucket-location '#{aws_region}' \
+    --cache-s3-authentication_type 'iam' \
+    --access-level=not_protected \
+    --docker-memory 4096m
   "
   sensitive true
   notifies :run, 'execute[restart_runner]', :immediate

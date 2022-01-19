@@ -34,7 +34,10 @@ To track compliance status, we have a header yaml file with a status list. The o
 - `c-implemented`: this control has been met.
 - `c-documented`: this control has been documented.
 - `c-organization-defined`: this control should be organization defined.
-- `c-inherited`: this control is inherited from the login.gov SSP or from AWS. ([example](./dist/system-security-plans/gitlab/sr-10.md))
+- `c-inherited`: this control is inherited from AWS.
+  - NB: As per Mo Zia, Please note that any control that refers to the login.gov SSP should be marked as `c-implemented` instead since that control is referring to a software **implementation**. So `c-inherited` here practically only refers to the AWS level.
+  - [example](./dist/system-security-plans/gitlab/sr-10.md).
+- `c-org-help-needed`: this control needs to be implemented at the login.gov level instead of at the Gitlab level.
 
 `make status` will print out some basic metrics about control status bits.
 

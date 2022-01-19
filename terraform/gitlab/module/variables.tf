@@ -156,7 +156,7 @@ variable "bootstrap_private_git_clone_url" {
 # though they will have different IDs. They should be updated here at the same
 # time, and then released to environments in sequence.
 variable "default_ami_id_tooling" {
-  default     = "ami-0ab60ab26c39ffdef" # 2021-12-21 base-20211020070545 Ubuntu 18.04
+  default     = "ami-0b054cef11a589516" # 2022-01-13 base-20211020070545 Ubuntu 18.04
   description = "default AMI ID for environments in the tooling account"
 }
 

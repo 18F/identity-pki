@@ -23,7 +23,7 @@ users:
     aws_groups:
       - secops
       - soc
-  chris.kirshak:
+  christopher.kirshak:
     aws_groups:
       - devopsnonprod
       - socreadonly
@@ -41,6 +41,9 @@ users:
   dave.zvenyach:
     aws_groups:
       - analytics
+  devon.johnson:
+    aws_groups:
+      - appdev
   diondra.humphries:
     aws_groups:
       - bizops
@@ -52,8 +55,6 @@ users:
     gitlab_groups:
       - appdev
   james.tranovich:
-    aws_groups:
-      - devopsnonprod
     gitlab_groups:
       - devops
   jeffrey.holden:
@@ -96,8 +97,6 @@ users:
     aws_groups:
       - bizops
   logan.mcdonald:
-    aws_groups:
-      - devopsnonprod
     gitlab_groups:
       - devops
   magdaline.derosena:
@@ -136,8 +135,6 @@ users:
     aws_groups:
       - bizops
   nick.kramer:
-    aws_groups:
-      - devopsnonprod
     gitlab_groups:
       - devops
   oren.kanner:

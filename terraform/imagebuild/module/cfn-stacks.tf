@@ -5,6 +5,11 @@ data "aws_s3_bucket_object" "git2s3_output_bucket" {
   key    = "git2s3/OutputBucketName"
 }
 
+# TODO: remove when we can get the allocation ID programatically
+data "aws_eip" "nat_eip" {
+  public_ip = var.image_build_nat_eip
+}
+
 locals {
   aws_alias     = trimprefix(data.aws_iam_account_alias.current.account_alias, "login-")
   git2s3_bucket = trimspace(data.aws_s3_bucket_object.git2s3_output_bucket.body)
@@ -14,9 +19,11 @@ resource "aws_cloudformation_stack" "image_network_stack" {
   name          = "login-image-creation"
   template_body = file("${path.module}/login-vpc-image-build.template")
   parameters = {
-    PrivateSubnet1CIDR = var.image_build_private_cidr
-    PublicSubnet1CIDR  = var.image_build_public_cidr
-    VPCCIDR            = var.image_build_vpc_cidr
+    EIPNatGatewayAddress      = data.aws_eip.nat_eip.public_ip
+    EIPNatGatewayAllocationID = data.aws_eip.nat_eip.id
+    PrivateSubnet1CIDR        = var.image_build_private_cidr
+    PublicSubnet1CIDR         = var.image_build_public_cidr
+    VPCCIDR                   = var.image_build_vpc_cidr
   }
   capabilities = ["CAPABILITY_IAM"]
 }

@@ -26,8 +26,10 @@ resource "aws_db_instance" "idp" {
   }
 
   # enhanced monitoring
-  monitoring_interval = var.rds_enhanced_monitoring_enabled == 1 ? 60 : 0
-  monitoring_role_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.rds_monitoring_role_name}"
+  monitoring_interval             = var.rds_enhanced_monitoring_enabled == 1 ? 60 : 0
+  monitoring_role_arn             = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.rds_monitoring_role_name}"
+  performance_insights_enabled    = var.performance_insights_enabled
+  performance_insights_kms_key_id = data.aws_kms_key.rds_alias.arn
 
   vpc_security_group_ids = [aws_security_group.db.id]
 
@@ -92,8 +94,10 @@ resource "aws_db_instance" "idp-read-replica" {
   iops               = var.rds_iops_idp_replica
 
   # enhanced monitoring
-  monitoring_interval = var.rds_enhanced_monitoring_enabled == 1 ? 60 : 0
-  monitoring_role_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.rds_monitoring_role_name}"
+  monitoring_interval             = var.rds_enhanced_monitoring_enabled == 1 ? 60 : 0
+  monitoring_role_arn             = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.rds_monitoring_role_name}"
+  performance_insights_enabled    = var.performance_insights_enabled
+  performance_insights_kms_key_id = data.aws_kms_key.rds_alias.arn
 
   vpc_security_group_ids = [aws_security_group.db.id]
 
@@ -371,7 +375,7 @@ module "idp_user_data" {
 }
 
 module "idp_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=7e11ebe24e3a9cbc34d1413cf4d20b3d71390d5b"
+  source = "github.com/18F/identity-terraform//launch_template?ref=dbe5240c66a0931003ba3ef87ad7898008591a50"
   #source = "../../../identity-terraform/launch_template"
 
   role           = "idp"

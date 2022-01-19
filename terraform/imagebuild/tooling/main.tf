@@ -14,10 +14,10 @@ variable "code_branch" {
   default = "main"
 }
 
-##### uncomment to test deployments in login-tooling #####
 module "main" {
   source = "../module"
 
-  trigger_source = "CloudWatch"
-  code_branch    = var.code_branch
+  trigger_source      = "CloudWatch"
+  code_branch         = var.code_branch
+  image_build_nat_eip = "35.89.41.224" # TODO: make this programmable
 }

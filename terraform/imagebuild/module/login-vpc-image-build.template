@@ -23,6 +23,12 @@
                 },
                 "PrivateSubnet1CIDR": {
                     "default": "Private subnet 1 CIDR"
+                },
+                "EIPNatGatewayAddress":{
+                    "default": "Elastic IP address for NAT gateway"
+                },
+                "EIPNatGatewayAllocationID":{
+                    "default": "Allocation ID for EIPNatGatewayAddress"
                 }
             }
         }
@@ -47,6 +53,18 @@
             "ConstraintDescription": "CIDR block parameter must be in the form x.x.x.x/16-28",
             "Default": "10.0.0.0/19",
             "Description": "CIDR block for the VPC",
+            "Type": "String"
+        },
+        "EIPNatGatewayAddress": {
+            "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$",
+            "ConstraintDescription": "IP address must be in the form x.x.x.x",
+            "Description": "Elastic IP address to be associated with the NAT gateway",
+            "Type": "String"
+        },
+        "EIPNatGatewayAllocationID": {
+            "AllowedPattern": "^(eipalloc-)([0-9a-f]{8}([0-9a-f]{9})?)$",
+            "ConstraintDescription": "Allocation ID must be in the form 'eipalloc-X', where X is 8 or 17 characters.",
+            "Description": "Allocation ID of the EIPNatGatewayAddress parameter above",
             "Type": "String"
         }
     },
@@ -350,16 +368,10 @@
                 }
             }
         },
-        "EIPNatGateway1": {
-            "Type": "AWS::EC2::EIP",
-            "Properties": {
-               "Domain": "vpc"
-            }
-        },
         "NatGateway1": {
             "Type": "AWS::EC2::NatGateway",
             "Properties": {
-              "AllocationId": { "Fn::GetAtt" : ["EIPNatGateway1", "AllocationId"] },
+              "AllocationId": { "Ref": "EIPNatGatewayAllocationID" },
               "SubnetId": { "Ref": "PublicSubnet1" },
               "Tags" : [ { "Key": "Name", "Value": "NatGateway1"} ] 
             },
@@ -389,7 +401,9 @@
                         "IpProtocol": "TCP",
                         "FromPort": "22",
                         "ToPort": "22",
-                        "CidrIp": {"Fn::Sub": "${EIPNatGateway1}/32"}
+                        "CidrIp": {
+                            "Fn::Join": [ "", [{ "Ref": "EIPNatGatewayAddress" }, "/32"] ]
+                        }
                     }
                 ],
                 "SecurityGroupEgress": [

@@ -17,5 +17,6 @@ variable "code_branch" {
 module "main" {
   source = "../module"
 
-  code_branch = var.code_branch
+  code_branch         = var.code_branch
+  image_build_nat_eip = "34.216.215.164" # TODO: make this programmable
 }

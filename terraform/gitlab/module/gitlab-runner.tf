@@ -33,7 +33,7 @@ module "gitlab_runner_lifecycle_hooks" {
 }
 
 module "gitlab_runner_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=b68c41068a53acbb981eeb37e1eb0a36a6487ac7"
+  source = "github.com/18F/identity-terraform//launch_template?ref=dbe5240c66a0931003ba3ef87ad7898008591a50"
   #source = "../../../identity-terraform/launch_template"
   role           = "gitlab_runner"
   env            = var.env_name

@@ -56,17 +56,6 @@ else
 end
 
 if idp_artifacts_enabled
-  # cache_all config tells bundler to also package up git dependencies in addition to RubyGems dependencies
-  # bundle package stores the gems in a compressed and concatenated format in the vendor/cache folder
-  execute 'cache gem bundle' do
-    cwd '/srv/idp/releases/chef'
-    user node.fetch('login_dot_gov').fetch('system_user')
-    command [
-      'bundle config set --local cache_all true && bundle package',
-    ]
-    not_if { artifacts_downloaded.call }
-  end
-
   execute 'generate artifact step' do
     cwd '/srv/idp/releases'
     user 'root'
@@ -74,14 +63,7 @@ if idp_artifacts_enabled
       # The config/*.yml files and certs/sp are symlinks from the cloned identity-idp-config repo that are created during deploy/activate. They must be excluded to avoid colliding with future runs of deploy/activate for the artifact.
       # config/application.yml must be excluded because it could contain secrets. geo_data and pwned_passwords are excluded because they are large and are downloaded from S3 by the deploy/activate script.
       # tmp and node_modules/.cache are excluded because they aren't needed and are large.
-      "tar --exclude 'chef/config/agencies.yml' --exclude 'chef/config/iaa_gtcs.yml' \
-      --exclude 'chef/config/iaa_orders.yml' --exclude 'chef/config/iaa_statuses.yml' \
-      --exclude 'chef/config/integration_statuses.yml' --exclude 'chef/config/integrations.yml' \
-      --exclude 'chef/config/partner_account_statuses.yml' --exclude 'chef/config/partner_accounts.yml' \
-      --exclude  'chef/config/service_providers.yml' --exclude='chef/certs/sp' \
-      --exclude='chef/identity-idp-config' --exclude='chef/tmp' --exclude='chef/node_modules/.cache' \
-      --exclude='chef/geo_data/GeoLite2-City.mmdb' --exclude='chef/pwned_passwords/pwned_passwords.txt' \
-      --exclude='chef/config/application.yml' -cf - chef | pigz > idp.tar.gz"
+      "make -C chef build_artifact ARTIFACT_DESTINATION_FILE='../idp.tar.gz' GZIP_COMMAND=pigz"
     ]
     not_if { artifacts_downloaded.call }
   end

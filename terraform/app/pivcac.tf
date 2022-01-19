@@ -28,7 +28,7 @@ module "pivcac_user_data" {
 }
 
 module "pivcac_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=7e11ebe24e3a9cbc34d1413cf4d20b3d71390d5b"
+  source = "github.com/18F/identity-terraform//launch_template?ref=dbe5240c66a0931003ba3ef87ad7898008591a50"
   #source = "../../../identity-terraform/launch_template"
   role           = "pivcac"
   env            = var.env_name

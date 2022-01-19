@@ -17,6 +17,7 @@ variable "code_branch" {
 module "main" {
   source = "../module"
 
-  trigger_source = "CloudWatch"
-  code_branch    = var.code_branch
+  trigger_source      = "CloudWatch"
+  code_branch         = var.code_branch
+  image_build_nat_eip = "34.216.215.32" # TODO: make this programmable
 }

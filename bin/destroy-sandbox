@@ -2,6 +2,7 @@
 
 #### tear down/destroy a sandbox environment ####
 
+trap replace_db_files EXIT
 set -eu
 
 BASEPATH="$(dirname "$0")"
@@ -56,6 +57,14 @@ EOM
   exit 0
 }
 
+replace_db_files() {
+  for DB in idp app worker; do
+    FILE="${APP_DIR}/${DB}.tf"
+    [[ -f "${FILE}.bak" ]] && run mv ${FILE}.bak ${FILE}
+  done
+}
+
+
 delete_lambdas() {
   if [[ $(ave aws cloudformation describe-stacks --stack-name ${LAMBDA_STACK} 2>/dev/null) ]] ; then
     ave aws cloudformation delete-stack --stack-name ${LAMBDA_STACK}
@@ -90,10 +99,7 @@ empty_buckets() {
 
 tf_destroy() {
   ave ${BASEPATH}/tf-deploy -t ${TF_ENV} app destroy -auto-approve
-  for DB in idp app worker; do
-    FILE="${APP_DIR}/${DB}.tf"
-    [[ -f "${FILE}.bak" ]] && run mv ${FILE}.bak ${FILE}
-  done
+  replace_db_files
 }
 
 delete_env_keys() {
