@@ -275,17 +275,19 @@ func TestSshKey(t *testing.T) {
 	require.Contains(t, *tarfileresult.StandardOutputContent, strings.TrimSpace(*result.StandardOutputContent), "archived ssh key was not the same as the running sshd key")
 }
 
-// This tests whether we are still fulfilling the s1.2.x auditd controls.
-func TestSOneTwo(t *testing.T) {
-	asgName := env_name + "-gitlab_runner"
+// XXX This will be working once the new AMI gets out that has
+// XXX https://github.com/18F/identity-base-image/pull/178 in it.
+// // This tests whether we are still fulfilling the s1.2.x auditd controls.
+// func TestSOneTwo(t *testing.T) {
+// 	asgName := env_name + "-gitlab_runner"
 
-	instances := aws.GetInstanceIdsForAsg(t, asgName, region)
-	firstinstance := instances[0:1]
-	cmd := "sudo auditctl -l"
-	result := RunCommandOnInstances(t, firstinstance, cmd)
-	require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed: "+*result.StandardOutputContent)
-	require.Contains(t, *result.StandardOutputContent, "docker", "According to compliance control s1.2.x, auditd needs to have docker stuff in it")
-}
+// 	instances := aws.GetInstanceIdsForAsg(t, asgName, region)
+// 	firstinstance := instances[0:1]
+// 	cmd := "sudo auditctl -l"
+// 	result := RunCommandOnInstances(t, firstinstance, cmd)
+// 	require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed: "+*result.StandardOutputContent)
+// 	require.Contains(t, *result.StandardOutputContent, "docker", "According to compliance control s1.2.x, auditd needs to have docker stuff in it")
+// }
 
 // this is to store the dockerd proc info for s2.x so we only have to get it once.
 type DockerdProc struct {
