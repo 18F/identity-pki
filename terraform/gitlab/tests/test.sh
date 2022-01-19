@@ -10,8 +10,9 @@ if [ -z "$1" ] || [ -z "$2" ]; then
 	exit 1
 fi
 
-export ENV_NAME="$1"
+export ENV_NAME="$1"; shift
 export REGION=${REGION:="us-west-2"}
-export DOMAIN="$2"
+export DOMAIN="$2"; shift
 
-go test -v -timeout 60m
+# go test -v -timeout 30m -run TestJobContainers
+go test -v -timeout 60m "$@"
