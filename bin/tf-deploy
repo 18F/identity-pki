@@ -39,7 +39,8 @@ Arguments:
 
     TERRAFORM_COMMANDS:
         Arguments and options passed to terraform, such as "plan", "apply", or
-        "state list".
+        "state list".   Use the special command "shell" to enter a subshell
+        with a ready to use environment for Terraform to use.
 
 Options:
 
@@ -521,6 +522,26 @@ import_remote_state_resources() {
     echo_blue "Finished importing terraform remote state resources"
 }
 
+add_tfvars_to_tf_cmd() {
+    # If we are using variables from .tfvars files, splice in the -var-file options
+    # after the first element in TF_CMD, which will be the terraform command like
+    # plan/apply etc. (Only do this for terraform subcommands that accept
+    # -var-file. For terraform apply you can't pass vars if you also pass a plan
+    # file, so allow the caller to disable loading vars with ID_SKIP_LOADING_VARS.)
+    if [ -n "$MOVED_TO_TFVARS" ] && [ -z "${ID_SKIP_LOADING_VARS-}" ]; then
+        tf_subcommand="${TF_CMD[0]-}"
+
+        # these are the subcommands that accept -var-file
+        case "$tf_subcommand" in
+            apply|destroy|import|plan|refresh)
+                TF_CMD=(
+                    "$tf_subcommand" "${tf_vars_opts[@]}" "${TF_CMD[@]:1}"
+                )
+                ;;
+        esac
+    fi
+}
+
 # Be sure ruby is working and bundler is setup since some terraform modules
 # rely on erb templates and ruby to be working.
 run bundle check >&2
@@ -608,22 +629,18 @@ EOF
 echo_blue >&2 "Running terraform get"
 run terraform get >&2
 
-# If we are using variables from .tfvars files, splice in the -var-file options
-# after the first element in TF_CMD, which will be the terraform command like
-# plan/apply etc. (Only do this for terraform subcommands that accept
-# -var-file. For terraform apply you can't pass vars if you also pass a plan
-# file, so allow the caller to disable loading vars with ID_SKIP_LOADING_VARS.)
-if [ -n "$MOVED_TO_TFVARS" ] && [ -z "${ID_SKIP_LOADING_VARS-}" ]; then
-    tf_subcommand="${TF_CMD[0]-}"
-
-    # these are the subcommands that accept -var-file
-    case "$tf_subcommand" in
-        apply|destroy|import|plan|refresh)
-            TF_CMD=(
-                "$tf_subcommand" "${tf_vars_opts[@]}" "${TF_CMD[@]:1}"
-            )
-            ;;
-    esac
+if [[ "${TF_CMD[0]}" = "shell" ]]; then
+    set +e
+    echo_yellow "Starting terraform shell - Press enter without a command to exit"
+    while true; do
+        echo -n "terraform > "
+        read -a TF_CMD
+        [ -z ${TF_CMD+x} ] && break
+        add_tfvars_to_tf_cmd
+        run terraform "${TF_CMD[@]}" >&3
+    done
+    echo_yellow "Exiting terraform shell"
+    exit
 fi
 
 if [ -n "$IMPORT_REMOTE_STATE" ]; then
@@ -638,6 +655,7 @@ echo_blue >&2 "Running terraform..."
 
 # Run main terraform command. This is the only command that should print to
 # stdout (reassigned to FD 3)
+add_tfvars_to_tf_cmd
 if run terraform "${TF_CMD[@]}" >&3 ; then
     DEPLOY_FAIL='false'
 else
@@ -673,7 +691,7 @@ EOM
         SLACK_PRETEXT="tf-deploy *SUCCESSFUL* for \`${TF_PATH}\` !"
         SLACK_MESSAGE="\`\`\`${TF_DEPLOY_INFO}\`\`\`"
     fi
-    
+
     slack_notify \
         -n "${real_account_id}" \
         -t "${ENVIRONMENT}" \
