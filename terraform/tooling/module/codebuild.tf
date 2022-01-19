@@ -44,6 +44,37 @@ resource "aws_iam_role_policy" "auto_terraform" {
         "*"
       ],
       "Action": [
+        "ecr:CreateRepository",
+        "ecr:DeleteLifecyclePolicy",
+        "ecr:DeletePullThroughCacheRule",
+        "ecr:DeleteRegistryPolicy",
+        "ecr:DeleteRepositoryPolicy",
+        "ecr:DescribePullThroughCacheRules",
+        "ecr:DescribeRegistry",
+        "ecr:DescribeRepositories",
+        "ecr:GetLifecyclePolicy",
+        "ecr:GetLifecyclePolicyPreview",
+        "ecr:GetRegistryPolicy",
+        "ecr:GetRegistryScanningConfiguration",
+        "ecr:GetRepositoryPolicy",
+        "ecr:ListTagsForResource",
+        "ecr:PutImageScanningConfiguration",
+        "ecr:PutImageTagMutability",
+        "ecr:PutLifecyclePolicy",
+        "ecr:PutRegistryPolicy",
+        "ecr:PutRegistryScanningConfiguration",
+        "ecr:PutReplicationConfiguration",
+        "ecr:SetRepositoryPolicy",
+        "ecr:TagResource",
+        "ecr:UntagResource"    
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Resource": [
+        "*"
+      ],
+      "Action": [
         "logs:CreateLogGroup",
         "logs:CreateLogStream",
         "logs:PutLogEvents"
