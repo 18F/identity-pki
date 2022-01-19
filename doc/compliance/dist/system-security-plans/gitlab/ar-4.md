@@ -16,6 +16,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-The Gitlab component inherits ar-4 from the main login.gov SSP.
+The Gitlab component uses ar-4 from the main login.gov SSP.
 
 ______________________________________________________________________
