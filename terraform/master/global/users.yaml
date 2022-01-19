@@ -107,6 +107,11 @@ users:
       - appdev
     gitlab_groups:
       - appdev
+  manish.shah:
+    aws_groups:
+      - appdev
+    gitlab_groups:
+      - appdev
   michael.antiporta:
     aws_groups:
       - analytics
@@ -174,6 +179,11 @@ users:
       - devopsnonprod
     gitlab_groups:
       - devops
+  samuel.steiner:
+    aws_groups:
+      - appdev
+    gitlab_groups:
+      - appdev
   sierra.toler:
     aws_groups:
       - bizops
