@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -272,4 +273,99 @@ func TestSshKey(t *testing.T) {
 	cmd = "ssh-keyscan localhost | grep ecdsa | awk '{print $3}'"
 	result := RunCommandOnInstances(t, firstinstance, cmd)
 	require.Contains(t, *tarfileresult.StandardOutputContent, strings.TrimSpace(*result.StandardOutputContent), "archived ssh key was not the same as the running sshd key")
+}
+
+// XXX This will be working once the new AMI gets out that has
+// XXX https://github.com/18F/identity-base-image/pull/178 in it.
+// // This tests whether we are still fulfilling the s1.2.x auditd controls.
+// func TestSOneTwo(t *testing.T) {
+// 	asgName := env_name + "-gitlab_runner"
+
+// 	instances := aws.GetInstanceIdsForAsg(t, asgName, region)
+// 	firstinstance := instances[0:1]
+// 	cmd := "sudo auditctl -l"
+// 	result := RunCommandOnInstances(t, firstinstance, cmd)
+// 	require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed: "+*result.StandardOutputContent)
+// 	require.Contains(t, *result.StandardOutputContent, "docker", "According to compliance control s1.2.x, auditd needs to have docker stuff in it")
+// }
+
+// this is to store the dockerd proc info for s2.x so we only have to get it once.
+type DockerdProc struct {
+	mu          sync.Mutex
+	commandline string
+}
+
+var dockerdproc = DockerdProc{commandline: ""}
+
+func GetDockerdProc(t *testing.T) string {
+	dockerdproc.mu.Lock()
+	defer dockerdproc.mu.Unlock()
+
+	if dockerdproc.commandline == "" {
+		asgName := env_name + "-gitlab_runner"
+		instances := aws.GetInstanceIdsForAsg(t, asgName, region)
+		firstinstance := instances[0:1]
+		cmd := "ps gaxuwww | grep -v grep | grep dockerd"
+		result := RunCommandOnInstances(t, firstinstance, cmd)
+		require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed: "+*result.StandardOutputContent)
+		dockerdproc.commandline = *result.StandardOutputContent
+	}
+	return dockerdproc.commandline
+}
+
+// This tests whether we are still fulfilling the s2.1 control.
+func TestSTwoOne(t *testing.T) {
+	require.Contains(t, GetDockerdProc(t), "--icc=false", "According to compliance control s2.1, icc should be false")
+}
+
+// This tests whether we are still fulfilling the s2.10 control.
+func TestSTwoTen(t *testing.T) {
+	require.NotContains(t, GetDockerdProc(t), "dm.basesize", "According to compliance control s2.10, dm.basesize should not be set")
+}
+
+// This tests whether we are still fulfilling the s2.11 control.
+func TestSTwoEleven(t *testing.T) {
+	asgName := env_name + "-gitlab_runner"
+
+	instances := aws.GetInstanceIdsForAsg(t, asgName, region)
+	firstinstance := instances[0:1]
+	cmd := "ls -l /var/run/docker.sock"
+	result := RunCommandOnInstances(t, firstinstance, cmd)
+	require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed: "+*result.StandardOutputContent)
+	require.Contains(t, *result.StandardOutputContent, "srw-rw---- 1 root docker", "According to compliance control s2.11, use of docker should only be authorized for members of the docker group and root")
+}
+
+// This tests whether we are still fulfilling the s2.12 and s2.2 controls.
+func TestSTwoTwelve(t *testing.T) {
+	require.Contains(t, GetDockerdProc(t), "--log-level=debug", "According to compliance control s2.12 and s2.2, Dockerd should be logging at least at info level")
+}
+
+// This tests whether we are still fulfilling the s2.13 control.
+func TestSTwoThirteen(t *testing.T) {
+	require.Contains(t, GetDockerdProc(t), "--live-restore", "According to compliance control s2.13, Dockerd should have live_restore enabled")
+}
+
+// This tests whether we are still fulfilling the s2.16 control.
+func TestSTwoSixteen(t *testing.T) {
+	require.NotContains(t, GetDockerdProc(t), "--experimental", "According to compliance control s2.16, Dockerd should have experimental features disabled")
+}
+
+// This tests whether we are still fulfilling the s2.17 control.
+func TestSTwoSeventeen(t *testing.T) {
+	require.Contains(t, GetDockerdProc(t), "--no-new-privileges", "According to compliance control s2.17, Dockerd should have --no-new-privileges set")
+}
+
+// This tests whether we are still fulfilling the s2.3 control.
+func TestSTwoThree(t *testing.T) {
+	require.NotContains(t, GetDockerdProc(t), "--iptables=false", "According to compliance control s2.3, Dockerd should be able to change iptables")
+}
+
+// This tests whether we are still fulfilling the s2.5 control.
+func TestSTwoFour(t *testing.T) {
+	require.NotContains(t, GetDockerdProc(t), "storage-driver aufs", "According to compliance control s2.5, Dockerd should not use aufs")
+}
+
+// This tests whether we are still fulfilling the s2.8 control.
+func TestSTwoEight(t *testing.T) {
+	require.Contains(t, GetDockerdProc(t), "--userns-remap=default", "According to compliance control s2.8, Dockerd should remap uids/gids")
 }
