@@ -18,7 +18,7 @@ module "main" {
   enforce = true
 
   waf_alert_actions           = ["arn:aws:sns:us-west-2:555546682965:slack-events"]
-  waf_alert_blocked_threshold = "100"
+  waf_alert_blocked_threshold = "300"
 }
 
 
