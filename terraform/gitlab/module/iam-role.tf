@@ -371,22 +371,48 @@ resource "aws_iam_role" "gitlab_runner" {
     {
         "Effect": "Allow",
         "Action": [
+      			"ecr:BatchCheckLayerAvailability",
+      			"ecr:CompleteLayerUpload",
+      			"ecr:InitiateLayerUpload",
+      			"ecr:PutImage",
+      			"ecr:UploadLayerPart",
             "ecr:BatchCheckLayerAvailability",
-            "ecr:GetDownloadUrlForLayer",
-            "ecr:GetRepositoryPolicy",
-            "ecr:DescribeRepositories",
-            "ecr:ListImages",
-            "ecr:DescribeImages",
             "ecr:BatchGetImage",
+            "ecr:DescribeImages",
+            "ecr:DescribeImageScanFindings",
+            "ecr:DescribeRepositories",
+            "ecr:GetAuthorizationToken",
+            "ecr:GetDownloadUrlForLayer",
             "ecr:GetLifecyclePolicy",
             "ecr:GetLifecyclePolicyPreview",
-            "ecr:ListTagsForResource",
-            "ecr:DescribeImageScanFindings"
+            "ecr:GetRepositoryPolicy",
+            "ecr:ListImages",
+            "ecr:ListTagsForResource"
         ],
-        "Resource": "*",
+        "Resource": [
+            "arn:aws:ecr:${var.region}:${data.aws_caller_identity.current.account_id}:repository/ecr-public/*",
+            "arn:aws:ecr:${var.region}:${data.aws_caller_identity.current.account_id}:repository/quay/*"
+        ]
+    },
+    {
+        "Effect": "Allow",
+        "Action": [
+            "ecr:BatchCheckLayerAvailability",
+            "ecr:BatchGetImage",
+            "ecr:DescribeImages",
+            "ecr:DescribeImageScanFindings",
+            "ecr:DescribeRepositories",
+            "ecr:GetDownloadUrlForLayer",
+            "ecr:GetLifecyclePolicy",
+            "ecr:GetLifecyclePolicyPreview",
+            "ecr:GetRepositoryPolicy",
+            "ecr:ListImages",
+            "ecr:ListTagsForResource"
+        ],
+        "Resource": "arn:aws:ecr:${var.region}:${data.aws_caller_identity.current.account_id}:repository/*",
         "Condition": {
             "StringEquals": {
-                "aws:ResourceTag/gitlab_runner_access": "read"
+                "aws:ResourceTag/gitlab_${var.env_name}_build": "read"
             }
         }
     },
@@ -394,25 +420,25 @@ resource "aws_iam_role" "gitlab_runner" {
         "Effect": "Allow",
         "Action": [
             "ecr:BatchCheckLayerAvailability",
-            "ecr:GetDownloadUrlForLayer",
-            "ecr:GetRepositoryPolicy",
-            "ecr:DescribeRepositories",
-            "ecr:ListImages",
-            "ecr:DescribeImages",
             "ecr:BatchGetImage",
+            "ecr:CompleteLayerUpload",
+            "ecr:DescribeImages",
+            "ecr:DescribeImageScanFindings",
+            "ecr:DescribeRepositories",
+            "ecr:GetDownloadUrlForLayer",
             "ecr:GetLifecyclePolicy",
             "ecr:GetLifecyclePolicyPreview",
-            "ecr:ListTagsForResource",
-            "ecr:DescribeImageScanFindings",
+            "ecr:GetRepositoryPolicy",
             "ecr:InitiateLayerUpload",
-            "ecr:UploadLayerPart",
-            "ecr:CompleteLayerUpload",
-            "ecr:PutImage"
+            "ecr:ListImages",
+            "ecr:ListTagsForResource",
+            "ecr:PutImage",
+            "ecr:UploadLayerPart"
         ],
-        "Resource": "*",
+        "Resource": "arn:aws:ecr:${var.region}:${data.aws_caller_identity.current.account_id}:repository/*",
         "Condition": {
             "StringEquals": {
-                "aws:ResourceTag/gitlab_runner_access": "write"
+                "aws:ResourceTag/gitlab_${var.env_name}_build": "write"
             }
         }
     }
