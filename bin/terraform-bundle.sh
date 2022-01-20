@@ -20,8 +20,7 @@ rm -rf /tmp/terraform-bundle.$$
 mkdir /tmp/terraform-bundle.$$
 cd /tmp/terraform-bundle.$$
 
-# uncomment once https://github.com/docker-library/golang/issues/362 is resolved
-# export DOCKER_CONTENT_TRUST=1
+export DOCKER_CONTENT_TRUST=1
 docker pull "golang:$GOLANG_VERSION"
 docker run --rm -i -v "$PWD":/terraform-bundle "golang:$GOLANG_VERSION" <<EOF
 # Install terraform-bundle (v0.15 is required because later versions don't have terraform-bundle)
