@@ -39,11 +39,25 @@ func _TestCPUShares(t *testing.T) {
 
 }
 
+func _TestBoundHostInterface(t *testing.T) {
+	cmd := "docker ps --quiet | xargs docker inspect --format '{{ .Name }}: {{ .NetworkSettings.Ports }}'"
+
+	asgName := env_name + "-gitlab_runner"
+	instances := aws.GetInstanceIdsForAsg(t, asgName, region)
+		result := RunCommandOnInstances(t, instances, cmd)
+	t.Log(*result.StandardOutputContent)
+
+	for _, s := range strings.Split(*result.StandardOutputContent, "\n") {
+		assert.NotRegexp(t, "0\\.0\\.0\\.0|::", s)
+	}
+}
+
 func TestJobContainers(t *testing.T) {
 	// TODO: setup: start long-running job
 
 	t.Run("Require memory arg", _TestMemory)
 	t.Run("Require cpu_shares arg", _TestCPUShares)
+	t.Run("Require bound interfaces", _TestBoundHostInterface)
 
 	// TODO: teardown: cancel long-running job
 }

@@ -14,5 +14,5 @@ export ENV_NAME="$1"; shift
 export REGION=${REGION:="us-west-2"}
 export DOMAIN="$2"; shift
 
-# go test -v -timeout 30m -run TestJobContainers
+cd "$(dirname "$0")"
 go test -v -timeout 60m "$@"
