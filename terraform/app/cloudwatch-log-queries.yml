@@ -77,6 +77,25 @@ outboundproxy/blocked-requests-by-destination:
     | stats count() as count by destination
     | sort count desc
 
+rails/500s-by-controller:
+  logs:
+   - ${env}_/srv/idp/shared/log/production.log
+   - ${env}_/srv/pki-rails/shared/log/production.log
+  query: |
+    filter status =~ /^5/
+    | stats count() as events by controller
+    | sort events desc
+
+rails/500s-by-path:
+  logs:
+   - ${env}_/srv/idp/shared/log/production.log
+   - ${env}_/srv/pki-rails/shared/log/production.log
+  query: |
+    parse path /^(?<basepath>[^\\?]+)/
+    | filter status =~ /^5/
+    | stats count() as events by basepath
+    | sort events desc
+
 telephony/otp-phone-by-country:
   logs:
    - ${env}_/srv/idp/shared/log/events.log
