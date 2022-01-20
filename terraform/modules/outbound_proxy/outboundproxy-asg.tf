@@ -1,3 +1,9 @@
+locals {
+  bootstrap_main_s3_ssh_key_url    = "s3://login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}/common/id_ecdsa.identity-devops.deploy"
+  bootstrap_private_s3_ssh_key_url = "s3://login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}/common/id_ecdsa.id-do-private.deploy"
+  bootstrap_main_git_ref_default   = "stages/${var.env_name}"
+}
+
 module "outboundproxy_user_data" {
   source = "../../modules/bootstrap/"
 
@@ -34,12 +40,12 @@ module "outboundproxy_launch_template" {
   env            = var.env_name
   root_domain    = var.root_domain
   ami_id_map     = var.ami_id_map
-  default_ami_id = local.account_default_ami_id
+  default_ami_id = var.account_default_ami_id
 
   instance_type             = var.instance_type_outboundproxy
   use_spot_instances        = var.use_spot_instances
   iam_instance_profile_name = aws_iam_instance_profile.obproxy.name
-  security_group_ids        = [aws_security_group.obproxy.id, aws_security_group.base.id]
+  security_group_ids        = [aws_security_group.obproxy.id, var.base_security_group_id]
   user_data                 = module.outboundproxy_user_data.rendered_cloudinit_config
 
   template_tags = {
@@ -66,7 +72,7 @@ module "outboundproxy_recycle" {
 }
 
 resource "aws_route53_record" "obproxy" {
-  zone_id = aws_route53_zone.internal.zone_id
+  zone_id = var.route53_internal_zone_id
   name    = "obproxy.login.gov.internal"
   type    = "CNAME"
   ttl     = "300"
@@ -86,11 +92,7 @@ resource "aws_autoscaling_group" "outboundproxy" {
     create_before_destroy = true
   }
 
-  vpc_zone_identifier = [
-    aws_subnet.publicsubnet1.id,
-    aws_subnet.publicsubnet2.id,
-    aws_subnet.publicsubnet3.id,
-  ]
+  vpc_zone_identifier = var.public_subnets
 
   target_group_arns = [aws_lb_target_group.obproxy.arn]
 
