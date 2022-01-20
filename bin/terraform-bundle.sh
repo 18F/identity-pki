@@ -14,9 +14,7 @@
 set -e
 
 TERRAFORM_VERSION="1.1.3"
-GOLANG_VERSION=$(curl -s \
-  "https://raw.githubusercontent.com/hashicorp/terraform/v${TERRAFORM_VERSION}/.go-version")
-[[ ${GOLANG_VERSION} == "404: Not Found" ]] && (echo "Terraform v${TERRAFORM_VERSION} not available" ; exit 1)
+GOLANG_VERSION="1.15"
 
 rm -rf /tmp/terraform-bundle.$$
 mkdir /tmp/terraform-bundle.$$
@@ -24,17 +22,16 @@ cd /tmp/terraform-bundle.$$
 
 # uncomment once https://github.com/docker-library/golang/issues/362 is resolved
 # export DOCKER_CONTENT_TRUST=1
-docker pull golang:$GOLANG_VERSION
-docker run --rm -i -v "$PWD":/terraform-bundle golang:$GOLANG_VERSION <<EOF
-# Install terraform-bundle
+docker pull "golang:$GOLANG_VERSION"
+docker run --rm -i -v "$PWD":/terraform-bundle "golang:$GOLANG_VERSION" <<EOF
+# Install terraform-bundle (v0.15 is required because later versions don't have terraform-bundle)
 cd /tmp
-curl -L "https://github.com/hashicorp/terraform/archive/v${TERRAFORM_VERSION}.tar.gz" > tf.tgz
+curl -L "https://github.com/hashicorp/terraform/archive/v0.15.tar.gz" > tf.tgz
 tar zxpf tf.tgz
-cd "terraform-${TERRAFORM_VERSION}"
+cd "terraform-0.15"
 go install .
 go install ./tools/terraform-bundle
 
-# configure terraform-bundle to download the proper versions of everything.
 # This is used instead of the lockfile because the lockfile can only have one version of
 # the plugin in it, and we need multiple versions bundled so that auto-tf can run against
 # different branches that may not have the latest plugins yet.
