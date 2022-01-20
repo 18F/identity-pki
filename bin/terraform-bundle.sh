@@ -13,14 +13,17 @@
 #
 set -e
 
-TERRAFORM_VERSION="0.13.7"
-GOLANG_VERSION="1.15"
+TERRAFORM_VERSION="1.1.3"
+GOLANG_VERSION=$(curl -s \
+  "https://raw.githubusercontent.com/hashicorp/terraform/v${TERRAFORM_VERSION}/.go-version")
+[[ ${GOLANG_VERSION} == "404: Not Found" ]] && (echo "Terraform v${TERRAFORM_VERSION} not available" ; exit 1)
 
 rm -rf /tmp/terraform-bundle.$$
 mkdir /tmp/terraform-bundle.$$
 cd /tmp/terraform-bundle.$$
 
-export DOCKER_CONTENT_TRUST=1
+# uncomment once https://github.com/docker-library/golang/issues/362 is resolved
+# export DOCKER_CONTENT_TRUST=1
 docker pull golang:$GOLANG_VERSION
 docker run --rm -i -v "$PWD":/terraform-bundle golang:$GOLANG_VERSION <<EOF
 # Install terraform-bundle
