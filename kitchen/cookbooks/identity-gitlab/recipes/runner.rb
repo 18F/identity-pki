@@ -95,19 +95,20 @@ execute 'configure_gitlab_runner' do
     --cache-s3-bucket-location '#{aws_region}' \
     --cache-s3-authentication_type 'iam' \
     --access-level=not_protected \
-    --docker-memory 4096m
+    --docker-memory 4096m \
+    --docker-cpu-shares 1024
   "
   sensitive true
   notifies :run, 'execute[restart_runner]', :immediate
 end
 
 group 'docker' do
-	append true
-	members ['gitlab-runner']
-	action :modify
+  append true
+  members ['gitlab-runner']
+  action :modify
 end
 
 execute 'restart_runner' do
-	command 'systemctl restart gitlab-runner'
-	action :nothing
+  command 'systemctl restart gitlab-runner'
+  action :nothing
 end
