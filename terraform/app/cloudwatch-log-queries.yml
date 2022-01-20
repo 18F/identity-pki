@@ -77,6 +77,26 @@ outboundproxy/blocked-requests-by-destination:
     | stats count() as count by destination
     | sort count desc
 
+telephony/otp-phone-by-country:
+  logs:
+   - ${env}_/srv/idp/shared/log/events.log
+  query: |
+    fields @message, @timestamp
+    | filter name = 'OTP: Delivery Selection'
+    # Uncomment to only filter on authentication context
+    # | filter properties.event_properties.context = 'authentication'
+    | stats count_distinct(properties.user_id) as count by properties.event_properties.country_code
+    | sort count desc
+
+telephony/phone-setup-by-carrier-and-type:
+  logs:
+   - ${env}_/srv/idp/shared/log/events.log
+  query: |
+    fields @message, @timestamp
+    | filter ispresent(properties.event_properties.carrier)
+    | stats count() as count by properties.event_properties.carrier,properties.event_properties.phone_type
+    | sort count desc
+
 waf/blocked-by-path:
   logs:
   - aws-waf-logs-${env}-idp-waf
@@ -92,4 +112,15 @@ waf/blocked-by-rule-and-ip:
     filter action != "ALLOW"
     | stats count() as count by terminatingRuleId,httpRequest.clientIp
     | sort count desc
+
+database/postgresql-unusual-messages:
+  logs:
+  - /aws/rds/instance/login-${env}-idp/postgresql
+  - /aws/rds/instance/${env}-idp-replica/postgresql
+  - /aws/rds/instance/${env}-idp-worker-jobs/postgresql
+  query: |
+    filter @message not like /DETAIL:/
+    | filter @message not like /STATEMENT:\s+INSERT/
+    | filter @message not like /ERROR:\s+duplicate/
+    | filter @message not like /LOG:\s+(checkpoint|duration|recovery|restartpoint)/
 
