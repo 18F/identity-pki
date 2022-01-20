@@ -65,7 +65,7 @@ fi
 
 USERNAME=$(logname) || true
 if [ -z "$USERNAME" ]; then
-    USERNAME="${GSA_USERNAME:-''}"
+    USERNAME="${GSA_USERNAME:-}"
 fi
 
 if [ -z "$USERNAME" ]; then
