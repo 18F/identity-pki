@@ -38,6 +38,8 @@ ACCT_NUMBER=$(aws sts get-caller-identity --query "Account" --output text)
 TF_VERSION=$(get_terraform_version)
 REAL_TF_VERSION="${TF_VERSION:1}"
 KEEP_BUILD_DIR=0
+AV_PROFILE=$(get_profile_name $(get_acct_num tooling))
+TF_ZIP="terraform_${TF_VERSION}-bundle$(date -j +%Y%m%d%H)_linux_amd64.zip"
 
 while getopts v:kh opt
 do
@@ -50,25 +52,24 @@ do
 done
 shift $((OPTIND-1))
 
-TF_ZIP="terraform_${TF_VERSION}-bundle$(date -j +%Y%m%d%H)_linux_amd64.zip"
 echo_green "Using Terraform ${TF_VERSION}"
 
 rm -rf /tmp/terraform-bundle.$$
 mkdir /tmp/terraform-bundle.$$
 
 # prepare to install provider plugins here
-cp versions.tf.old* /tmp/terraform-bundle.$$/
-cp versions.tf /tmp/terraform-bundle.$$/
+cp versions.tf versions.tf.old* /tmp/terraform-bundle.$$/
 
-# install current provider plugins here
+# install current provider plugins
 cd /tmp/terraform-bundle.$$
 terraform init
 terraform providers mirror -platform=linux_amd64 ./plugins
 rm -rf .terraform .terraform.lock.hcl
 
-# install old provider plugins here
+# install old provider plugins
 cd /tmp/terraform-bundle.$$
 for i in versions.tf.old* ; do
+  echo_green "working on $i"
   mv "$i" versions.tf
   terraform init
   terraform providers mirror -platform=linux_amd64 ./plugins
@@ -83,5 +84,5 @@ rm tf.zip
 # pack it up and ship it off
 zip -r "${TF_ZIP}" plugins terraform
 cd -
-ave aws s3 cp /tmp/terraform-bundle.$$/"${TF_ZIP}" "s3://auto-tf-bucket-${ACCT_NUMBER}/"
+aws s3 cp /tmp/terraform-bundle.$$/"${TF_ZIP}" "s3://auto-tf-bucket-${ACCT_NUMBER}/"
 [[ ${KEEP_BUILD_DIR} == 0 ]] && rm -rf /tmp/terraform-bundle.$$
