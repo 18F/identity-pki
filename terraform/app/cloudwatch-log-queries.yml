@@ -1,22 +1,12 @@
 ---
-provisioning/cloud-init-output:
+database/idp-postgresql-unusual-messages:
   logs:
-  - /var/log/cloud-init-output.log
+  - /aws/rds/instance/login-${env}-idp/postgresql
   query: |
-    fields @timestamp, @logStream, @message
-    | filter @logStream like /\.${env}\.[a-z]+\.gov$/
-    #
-    ## Find IdP instances for environment
-    # | filter @logStream like /^idp/
-    #
-    ## Or pick a specific instance
-    # | filter @logStream like /i-053d9cf7cc0bb5b32/
-    #
-    ## Only select the end result (CONTINUE for Good, ABANDON for Bad)
-    # | filter @message like "--lifecycle-action-result"
-    #
-    ## Uncomment to show earliest lines first
-    # | sort @timestamp asc
+    filter @message not like /DETAIL:/
+    | filter @message not like /STATEMENT:\s+INSERT/
+    | filter @message not like /ERROR:\s+duplicate/
+    | filter @message not like /LOG:\s+(checkpoint|duration|recovery|restartpoint)/
 
 idp/events-by-user_id:
   logs:
@@ -77,6 +67,25 @@ outboundproxy/blocked-requests-by-destination:
     | stats count() as count by destination
     | sort count desc
 
+provisioning/cloud-init-output:
+  logs:
+  - /var/log/cloud-init-output.log
+  query: |
+    fields @timestamp, @logStream, @message
+    | filter @logStream like /\.${env}\.[a-z]+\.gov$/
+    #
+    ## Find IdP instances for environment
+    # | filter @logStream like /^idp/
+    #
+    ## Or pick a specific instance
+    # | filter @logStream like /i-053d9cf7cc0bb5b32/
+    #
+    ## Only select the end result (CONTINUE for Good, ABANDON for Bad)
+    # | filter @message like "--lifecycle-action-result"
+    #
+    ## Uncomment to show earliest lines first
+    # | sort @timestamp asc
+
 rails/500s-by-controller:
   logs:
    - ${env}_/srv/idp/shared/log/production.log
@@ -131,15 +140,4 @@ waf/blocked-by-rule-and-ip:
     filter action != "ALLOW"
     | stats count() as count by terminatingRuleId,httpRequest.clientIp
     | sort count desc
-
-database/postgresql-unusual-messages:
-  logs:
-  - /aws/rds/instance/login-${env}-idp/postgresql
-  - /aws/rds/instance/${env}-idp-replica/postgresql
-  - /aws/rds/instance/${env}-idp-worker-jobs/postgresql
-  query: |
-    filter @message not like /DETAIL:/
-    | filter @message not like /STATEMENT:\s+INSERT/
-    | filter @message not like /ERROR:\s+duplicate/
-    | filter @message not like /LOG:\s+(checkpoint|duration|recovery|restartpoint)/
 
