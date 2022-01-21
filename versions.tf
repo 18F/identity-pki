@@ -1,3 +1,7 @@
+# If you are updating plugins in here, be sure to transfer the old versions
+# over to the versions.tf.old file, so that it won't break people who are
+# running auto-tf on branches that don't have your latest/greatest stuff.
+
 terraform {
   required_providers {
     aws = {
@@ -29,7 +33,7 @@ terraform {
       version = "2.35.0"
     }
   }
-  required_version = ">= 1.1.3"
+  required_version = "1.1.3"
 }
 
 provider "aws" {
