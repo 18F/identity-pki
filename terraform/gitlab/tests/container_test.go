@@ -55,6 +55,13 @@ func _TestContainerRestartPolicy(t *testing.T) {
 	}
 }
 
+func _TestSharedProcessNamespace(t *testing.T) {
+	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{ .Name }}: PidMode={{ .HostConfig.PidMode }}'"
+	for _, s := range RunOnRunners(t, cmd) {
+		assert.NotRegexp(t, "PidMode=host", s)
+	}
+}
+
 func TestJobContainers(t *testing.T) {
 	// TODO: setup: start long-running job
 
@@ -62,6 +69,7 @@ func TestJobContainers(t *testing.T) {
 	t.Run("Require cpu_shares arg", _TestCPUShares)
 	t.Run("Require bound interfaces", _TestBoundHostInterface)
 	t.Run("Ensure on-failure restart policy <= 5", _TestContainerRestartPolicy)
+	t.Run("Ensure host process namespace is not shared", _TestSharedProcessNamespace)
 
 	// TODO: teardown: cancel long-running job
 }
