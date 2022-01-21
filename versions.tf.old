@@ -3,7 +3,11 @@
 # won't break people who happen to be a step back from main.
 # 
 # So you probably should make sure you update this whenever you update
-# versions.tf
+# versions.tf.
+#
+# If you ever need more than two versions in your tf bundle, just
+# make more files that start with "versions.tf.old", like
+# "versions.tf.old1" or whatever, and they will get slurped in too.
 
 terraform {
   required_providers {
