@@ -57,9 +57,7 @@ rm -rf /tmp/terraform-bundle.$$
 mkdir /tmp/terraform-bundle.$$
 
 # prepare to install provider plugins here
-for i in versions.tf.old* ; do
-  cp "$i" /tmp/terraform-bundle.$$/versions.tf
-done
+cp versions.tf.old* /tmp/terraform-bundle.$$/
 cp versions.tf /tmp/terraform-bundle.$$/
 
 # install current provider plugins here
