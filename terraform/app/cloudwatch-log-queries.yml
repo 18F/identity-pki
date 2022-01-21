@@ -1,35 +1,19 @@
 ---
 database/idp-postgresql-unusual-messages:
   logs:
-  - /aws/rds/instance/login-${env}-idp/postgresql
+    - /aws/rds/instance/login-${env}-idp/postgresql
   query: |
+    ## Look for unusual messages in PostgreSQL logs
     filter @message not like /DETAIL:/
     | filter @message not like /STATEMENT:\s+INSERT/
     | filter @message not like /ERROR:\s+duplicate/
     | filter @message not like /LOG:\s+(checkpoint|duration|recovery|restartpoint)/
 
-idp/events-by-user_id:
-  logs:
-  - ${env}_/srv/idp/shared/log/events.log
-  query: |
-    fields @timestamp, name, @message
-    # Replace anonymous-uuid with the UUID you want to search for
-    | filter properties.user_id = 'anonymous-uuid'
-    | sort @timestamp asc
-
-idp/web-requests-by-user_id:
-  logs:
-  - ${env}_/srv/idp/shared/log/production.log
-  query: |
-    fields @timestamp, concat(controller, '#', action) as name, @message
-    # Replace anonymous-uuid with the UUID you want to search for
-    | filter user_id = 'anonymous-uuid'
-    | sort @timestamp asc
-
 nginx/errors-by-source:
   logs:
-  - ${env}_/var/log/nginx/access.log
+    - ${env}_/var/log/nginx/access.log
   query: |
+    ## Find errors in NGINX webserver logs for all types
     filter status like /^5/
     #
     ## Only look in idp logs
@@ -46,22 +30,25 @@ nginx/errors-by-source:
 
 outboundproxy/allowed-requests-by-destination:
   logs:
-  - ${env}_/var/log/squid/access.log
+    - ${env}_/var/log/squid/access.log
   query: |
+    ## Count allowed outbound requests by destination FQDN
     parse @message /CONNECT (?<destination>.+:\d+) /
     | stats count() as count by destination
     | sort count desc
 
 outboundproxy/blocked-requests:
   logs:
-  - ${env}_/var/log/squid/access.log
+    - ${env}_/var/log/squid/access.log
   query: |
+    ## Find blocked outbound requests
     filter @message like "TCP_DENIED"
 
 outboundproxy/blocked-requests-by-destination:
   logs:
-  - ${env}_/var/log/squid/access.log
+    - ${env}_/var/log/squid/access.log
   query: |
+    ## Count blocked outbound requests by destionation FQDN
     filter @message like "TCP_DENIED"
     | parse @message /TCP_DENIED\/403 \d+ CONNECT (?<destination>.+:\d+) /
     | stats count() as count by destination
@@ -69,8 +56,9 @@ outboundproxy/blocked-requests-by-destination:
 
 provisioning/cloud-init-output:
   logs:
-  - /var/log/cloud-init-output.log
+    - /var/log/cloud-init-output.log
   query: |
+    ## Find startup/provisioning logs for instances in this environment
     fields @timestamp, @logStream, @message
     | filter @logStream like /\.${env}\.[a-z]+\.gov$/
     #
@@ -88,27 +76,50 @@ provisioning/cloud-init-output:
 
 rails/500s-by-controller:
   logs:
-   - ${env}_/srv/idp/shared/log/production.log
-   - ${env}_/srv/pki-rails/shared/log/production.log
+    - ${env}_/srv/idp/shared/log/production.log
+    - ${env}_/srv/pki-rails/shared/log/production.log
   query: |
+    ## Count Rails application server errors by controller
     filter status =~ /^5/
     | stats count() as events by controller
     | sort events desc
 
 rails/500s-by-path:
   logs:
-   - ${env}_/srv/idp/shared/log/production.log
-   - ${env}_/srv/pki-rails/shared/log/production.log
+    - ${env}_/srv/idp/shared/log/production.log
+    - ${env}_/srv/pki-rails/shared/log/production.log
   query: |
+    ## Count Rails application server errors by request path
     parse path /^(?<basepath>[^\\?]+)/
     | filter status =~ /^5/
     | stats count() as events by basepath
     | sort events desc
 
+saml/endpoint-year-by-referrer:
+  logs:
+    - ${env}_/var/log/nginx/access.log
+  query: |
+    ## Count SAML endpoint request year by referrer, sorted by oldest year
+    filter uri_path =~ /^\/api\/saml\/auth/
+    | parse uri_path /auth(?<year>\d+)$/
+    | filter http_referer not like /\.(login|identitysandbox)\.gov/
+    | stats count() as count by http_referer,year
+    | sort year asc
+
+telephony/otp-setup-by-ip:
+  logs:
+    - ${env}_/srv/idp/shared/log/events.log
+  query: |
+    ## Count one time password delivery setup grouped by user IP address per hour
+    filter name ="Multi-Factor Authentication: enter OTP visited"
+    | stats count(*) as count by properties.user_ip, bin(1h)
+    | sort count desc
+
 telephony/otp-phone-by-country:
   logs:
-   - ${env}_/srv/idp/shared/log/events.log
+    - ${env}_/srv/idp/shared/log/events.log
   query: |
+    ## Count one time password selection grouped by phone number country code
     fields @message, @timestamp
     | filter name = 'OTP: Delivery Selection'
     # Uncomment to only filter on authentication context
@@ -118,26 +129,48 @@ telephony/otp-phone-by-country:
 
 telephony/phone-setup-by-carrier-and-type:
   logs:
-   - ${env}_/srv/idp/shared/log/events.log
+    - ${env}_/srv/idp/shared/log/events.log
   query: |
+    ## Count active user phone numbers grouped by country code
     fields @message, @timestamp
     | filter ispresent(properties.event_properties.carrier)
     | stats count() as count by properties.event_properties.carrier,properties.event_properties.phone_type
     | sort count desc
 
+users/events-by-user_id:
+  logs:
+    - ${env}_/srv/idp/shared/log/events.log
+  query: |
+    ## Find all events for a given UUID
+    fields @timestamp, name, @message
+    # Replace anonymous-uuid with the UUID you want to search for
+    | filter properties.user_id = 'anonymous-uuid'
+    | sort @timestamp asc
+
+users/web-requests-by-user_id:
+  logs:
+    - ${env}_/srv/idp/shared/log/production.log
+  query: |
+    ## Find all application server requests for a given UUID
+    fields @timestamp, concat(controller, '#', action) as name, @message
+    # Replace anonymous-uuid with the UUID you want to search for
+    | filter user_id = 'anonymous-uuid'
+    | sort @timestamp asc
+
 waf/blocked-by-path:
   logs:
-  - aws-waf-logs-${env}-idp-waf
+    - aws-waf-logs-${env}-idp-waf
   query: |
+    ## Count requests blocked by WAF grouped by HTTP method and URI
     filter action != "ALLOW"
     | stats count() as count by httpRequest.httpMethod,httpRequest.uri
     | sort count desc
 
 waf/blocked-by-rule-and-ip:
   logs:
-  - aws-waf-logs-${env}-idp-waf
+    - aws-waf-logs-${env}-idp-waf
   query: |
+    ## Count requests blocked by WAF grouped by the blocking rule and client IP
     filter action != "ALLOW"
     | stats count() as count by terminatingRuleId,httpRequest.clientIp
     | sort count desc
-
