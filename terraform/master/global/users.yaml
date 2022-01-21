@@ -99,9 +99,6 @@ users:
   logan.mcdonald:
     gitlab_groups:
       - devops
-  magdaline.derosena:
-    aws_groups:
-      - analytics
   malick.diarra:
     aws_groups:
       - appdev
