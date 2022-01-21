@@ -1,0 +1,33 @@
+# This is used by bin/terraform-bundle.sh as a list of old plugins
+# to copy into the bundle along with the current one so that you
+# won't break people who happen to be a step back from main.
+# 
+# So you probably should make sure you update this whenever you update
+# versions.tf
+
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "3.70.0"
+    }
+    archive = {
+      source  = "hashicorp/archive"
+      version = "2.2.0"
+    }
+    external = {
+      source  = "hashicorp/external"
+      version = "2.1.0"
+    }
+    github = {
+      source  = "integrations/github"
+      version = "4.13.0"
+    }
+    newrelic = {
+      source  = "newrelic/newrelic"
+      version = "2.24.1"
+    }
+  }
+  required_version = "1.1.3"
+}
+

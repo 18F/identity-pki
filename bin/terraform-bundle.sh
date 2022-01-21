@@ -1,95 +1,89 @@
-#!/bin/sh
-#
-# This script creates a terraform bundle with the proper version of terraform
-# and the plugins we need and copy them up into the auto-tf bucket for use
-# by CodeBuild in doing it's auto-tf stuff.
-#
-# The versions of all these things were just gathered by searching for
-# required_providers in the identity-devops repo.
-#
-# This script requires a working docker setup so that it can get golang.
-# It is meant to be run with aws-vault, like:
-#    aws-vault exec tooling-admin -- bin/terraform-bundle.sh
-#
-set -e
+#!/bin/bash
 
-TERRAFORM_VERSION="1.1.3"
-GOLANG_VERSION="1.15"
+set -euo pipefail
+
+. "$(dirname "$0")/lib/common.sh"
+
+man_page() {
+  cat >&2 << EOM
+
+Creates a ZIP file (a la the now-deprecated terraform-bundle tool)
+containing the Terraform binary (compiled from the repo) and the
+plugins in the repo-wide lockfile, then copies them up into the
+auto-tf bucket for use by CodeBuild in doing its auto-tf stuff.
+Requires login-tooling access.
+
+- Invokes aws-vault itself, so you don't have to!
+- Designed to be run without arguments.
+EOM
+usage
+}
+
+usage() {
+  cat >&2 << EOM
+
+Usage: ${0}
+Options:
+
+  -v : TF_VERSION
+  -k : Keep /tmp/terraform-bundle dir after uploading
+  -h : Display help
+
+EOM
+}
+
+verify_root_repo
+
+ACCT_NUMBER=$(aws sts get-caller-identity --query "Account" --output text)
+TF_VERSION=$(get_terraform_version)
+REAL_TF_VERSION="${TF_VERSION:1}"
+KEEP_BUILD_DIR=0
+
+while getopts v:kh opt
+do
+  case $opt in
+    v) TF_VERSION="v${OPTARG}" ;;
+    k) KEEP_BUILD_DIR=1        ;;
+    h) man_page && exit 0      ;;
+    *) raise 'Invalid option'  ;;
+  esac
+done
+shift $((OPTIND-1))
+
+TF_ZIP="terraform_${TF_VERSION}-bundle$(date -j +%Y%m%d%H)_linux_amd64.zip"
+echo_green "Using Terraform ${TF_VERSION}"
 
 rm -rf /tmp/terraform-bundle.$$
 mkdir /tmp/terraform-bundle.$$
+
+# prepare to install provider plugins here
+for i in versions.tf.old* ; do
+  cp "$i" /tmp/terraform-bundle.$$/versions.tf
+done
+cp versions.tf /tmp/terraform-bundle.$$/
+
+# install current provider plugins here
 cd /tmp/terraform-bundle.$$
+terraform init
+terraform providers mirror -platform=linux_amd64 ./plugins
+rm -rf .terraform .terraform.lock.hcl
 
-export DOCKER_CONTENT_TRUST=1
-docker pull "golang:$GOLANG_VERSION"
-docker run --rm -i -v "$PWD":/terraform-bundle "golang:$GOLANG_VERSION" <<EOF
-# Install terraform-bundle (v0.15 is required because later versions don't have terraform-bundle)
-cd /tmp
-curl -L "https://github.com/hashicorp/terraform/archive/v0.15.tar.gz" > tf.tgz
-tar zxpf tf.tgz
-cd "terraform-0.15"
-go install .
-go install ./tools/terraform-bundle
+# install old provider plugins here
+cd /tmp/terraform-bundle.$$
+for i in versions.tf.old* ; do
+  mv "$i" versions.tf
+  terraform init
+  terraform providers mirror -platform=linux_amd64 ./plugins
+  rm -rf .terraform .terraform.lock.hcl
+done
 
-# This is used instead of the lockfile because the lockfile can only have one version of
-# the plugin in it, and we need multiple versions bundled so that auto-tf can run against
-# different branches that may not have the latest plugins yet.
-cat <<EOFEOF > /tmp/terraform-bundle.hcl
-terraform {
-  version = "${TERRAFORM_VERSION}"
-}
+# download terraform binary
+curl -s "https://releases.hashicorp.com/terraform/${REAL_TF_VERSION}/terraform_${REAL_TF_VERSION}_linux_amd64.zip" > /tmp/terraform-bundle.$$/tf.zip
+unzip tf.zip
+rm tf.zip
 
-# Define which provider plugins are to be included
-# NOTE:  You should only probably have 2-3 versions in these lists, since we want
-#        to encourage people to get up to date, but we need to be able to handle
-#        one version back at least so that auto-tf can still function even if the
-#        branch it is pointing at is a bit older than main.
-providers {
-  aws = {
-    versions = ["3.71.0", "3.70.0", "3.45.0"]
-  }
-  archive = {
-    versions = ["2.2.0"]
-  }
-  external = {
-    versions = ["2.2.0", "2.1.0"]
-  }
-  github = {
-    versions = ["4.19.1", "4.13.0"]
-  }
-  null = {
-    versions = ["3.1.0", "2.1.2"]
-  }
-  template = {
-    versions = ["2.2.0", "2.1.2"]
-  }
-  newrelic = {
-    source = "newrelic/newrelic"
-    versions = ["2.35.0", "2.24.1", "2.21.1"]
-  }
-  kubectl = {
-    source = "gavinbunney/kubectl"
-    versions = ["1.11.1"]
-  }
-  helm = {
-    versions = ["2.1.2"]
-  }
-  kubernetes = {
-    versions = ["2.0.3"]
-  }
-  tls = {
-    versions = ["3.1.0"]
-  }
-}
-EOFEOF
-
-# bundle it all up
-cd /terraform-bundle
-terraform-bundle package -os=linux -arch=amd64 /tmp/terraform-bundle.hcl
-EOF
-
-# copy the bundled terraform stuff up to the auto-tf bucket
-ACCOUNT=$(aws sts get-caller-identity --output text --query 'Account')
-echo
-echo "uploading /tmp/terraform-bundle.$$/terraform_${TERRAFORM_VERSION}-bundle*_linux_amd64.zip"
-aws s3 cp /tmp/terraform-bundle.$$/terraform_${TERRAFORM_VERSION}-bundle*_linux_amd64.zip "s3://auto-tf-bucket-$ACCOUNT/"
+# pack it up and ship it off
+zip -r "${TF_ZIP}" plugins terraform
+cd -
+ave aws s3 cp /tmp/terraform-bundle.$$/"${TF_ZIP}" "s3://auto-tf-bucket-${ACCT_NUMBER}/"
+[[ ${KEEP_BUILD_DIR} == 0 ]] && rm -rf /tmp/terraform-bundle.$$
