@@ -590,6 +590,12 @@ variable "opsgenie_key_file" {
 }
 
 ## CloudWatch Alarm Defaults
+variable "sp_redirect_initiated_minimum_threshold" {
+  description = "Minimum number of SP redirect initiations (SP returns) per 10 minutes"
+  type        = number
+  default     = 0
+}
+
 variable "idv_review_complete_success_minimum_threshold" {
   description = "Minimum number of successful proofs in an hour"
   type        = number

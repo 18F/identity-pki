@@ -293,7 +293,8 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
             "height": 6,
             "properties": {
                 "metrics": [
-                    [ "${var.env_name}/idp-authentication", "user-marked-authenticated", { "label": "authenticated [sum:$${SUM}, max:$${MAX}]" } ],
+                    [ "${var.env_name}/idp-authentication", "sp-redirect-initiated-all", { "label": "sp-return [sum:$${SUM}, max:$${MAX}]" } ],
+                    [ ".", "user-marked-authenticated", { "label": "authenticated [sum:$${SUM}, max:$${MAX}]" } ],
                     [ ".", "user-registration-complete", { "label": "registration-complete [sum:$${SUM}, max:$${MAX}]" } ],
                     [ ".", "remembered-device-used-for-authentication", { "label": "remembered-device [sum:$${SUM}, max:$${MAX}]" } ],
                     [ ".", "rate-limit-triggered", { "label": "rate-limited [sum:$${SUM}, max:$${MAX}]" } ],
@@ -302,9 +303,7 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
                     [ ".", "login-failure-mfa-totp", { "label": "fail-mfa-totp [sum:$${SUM}, max:$${MAX}]" } ],
                     [ ".", "login-failure-mfa-voice", { "label": "fail-mfa-voice [sum:$${SUM}, max:$${MAX}]" } ],
                     [ ".", "login-failure-mfa-piv_cac", { "label": "fail-mfa-pivcac [sum:$${SUM}, max:$${MAX}]" } ],
-                    [ ".", "login-failure-mfa-personal-key", { "label": "fail-mfa-personal-key [sum:$${SUM}, max:$${MAX}]" } ],
-                    [ "${var.env_name}/idp-ialx", "idv-review-complete-success-success", { "label": "idv-review-complete-success-success [sum:$${SUM}, max:$${MAX}]" } ],
-                    [ ".", "doc-auth-submitted-success", { "label": "doc-auth-submitted-success [sum:$${SUM}, max:$${MAX}]" } ]
+                    [ "${var.env_name}/idp-ialx", "idv-review-complete-success", { "label": "idv-review-complete-success [sum:$${SUM}, max:$${MAX}]" } ]
                 ],
                 "view": "timeSeries",
                 "stacked": false,

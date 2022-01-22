@@ -65,12 +65,44 @@ locals {
       pattern      = "{ ($.name = \"Multi-Factor Authentication\") && ($.properties.event_properties.success is false) && ($.properties.event_properties.multi_factor_auth_method = \"webauthn\") }"
       metric_value = 1
     },
+    login_failure_mfa_webauthn_platform = {
+      name         = "login-failure-mfa-webauthn-platform"
+      pattern      = "{ ($.name = \"Multi-Factor Authentication\") && ($.properties.event_properties.success is false) && ($.properties.event_properties.multi_factor_auth_method = \"webauthn_platform\") }"
+      metric_value = 1
+    },
+    # Defining both multidimension and single dimension sp-redirect metrics to
+    # avoid the limitation on using SEARCH in alarms.
+    # See https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/using-metric-math.html#metric-math-syntax
+    sp_redirect_initiated = {
+      name         = "sp-redirect-initiated"
+      pattern      = "{ ($.name = \"SP redirect initiated\") }"
+      metric_value = 1
+      dimensions = {
+        service_provider = "$.properties.service_provider",
+      }
+    },
+    sp_redirect_initiated_all = {
+      name         = "sp-redirect-initiated-all"
+      pattern      = "{ ($.name = \"SP redirect initiated\") }"
+      metric_value = 1
+    }
+    # TODO - Transition graphs and alarms to use this mutlidementional metric,
+    # then deprecate the login-failure-mfa-X metrics above
+    login_mutli_factor_authentication = {
+      name         = "login-mfa"
+      pattern      = "{ ($.name = \"Multi-Factor Authentication\") }"
+      metric_value = 1
+      dimensions = {
+        multi_factor_auth_method = "$.properties.event_properties.multi_factor_auth_method",
+        success                  = "$.properties.event_properties.success"
+      },
+    },
   }
 
   idp_events_ialx_filters = {
     idv_review_complete_success = {
       name         = "idv-review-complete-success"
-      pattern      = "{ ($.name = \"IdV: review complete\") && ($.properties.event_properties.success is true) }"
+      pattern      = "{ ($.name = \"IdV: review complete\") }"
       metric_value = 1
     },
     doc_auth_submitted_success = {
