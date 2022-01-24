@@ -159,6 +159,7 @@ def lambda_handler(event, context):
                             Name=name,
                             ThreatIntelSetId=setId
                         )
+                        logging.getLogger().info("Response - Updated Threat Intel Set: {}".format(response))
                         break
 
                 if not found:

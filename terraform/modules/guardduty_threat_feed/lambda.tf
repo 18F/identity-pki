@@ -1,6 +1,6 @@
 data "archive_file" "guardduty_lambda_function" {
   type        = "zip"
-  source_file = "${path.module}/lambda_function.py"
+  source_file = "${path.module}/src/lambda_function.py"
   output_path = "${path.module}/${var.guardduty_threat_feed_code}"
 }
 
