@@ -65,8 +65,8 @@ EOM
 
   metric_name = "login-mfa"
 
-  dimensions {
-    multi_factor_auth_method = "sms"
+  dimensions = {
+    multi_factor_auth_method = "sms",
     success                  = "1"
   }
 
