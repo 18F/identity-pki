@@ -379,6 +379,11 @@ variable "idp_worker_alarms_enabled" {
   description = "Whether to set up alarms for IDP workers"
 }
 
+variable "idp_external_service_alarms_enabled" {
+  default     = 0
+  description = "Whether to set up alarms for IDP external services"
+}
+
 variable "idp_cpu_autoscaling_enabled" {
   default = 1
 }
