@@ -817,6 +817,16 @@ locals {
         ]
       },
       {
+        sid    = "Macie"
+        effect = "Allow"
+        actions = [
+          "macie2:*",
+        ]
+        resources = [
+          "*",
+        ]
+      },
+      {
         sid    = "DLM"
         effect = "Allow"
         actions = [
