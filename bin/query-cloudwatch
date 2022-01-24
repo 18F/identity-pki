@@ -33,6 +33,8 @@ class QueryCloudwatch
     errors = Concurrent::Array.new
     thread_pool = Concurrent::FixedThreadPool.new(5)
 
+    rows_to_print = Queue.new
+
     config.groups.each do |group|
       time_ranges(config).each do |from, to|
         thread_pool.post do
@@ -40,7 +42,7 @@ class QueryCloudwatch
             STDERR.puts "QUERY START: #{group} (#{from}...#{to})"
             result = query_one(from: from, to: to, group: group, query: config.query)
 
-            puts format_response(result, config.format)
+            rows_to_print << format_response(result, config.format)
           rescue => e
             errors << e
             thread_pool.shutdown
@@ -49,8 +51,18 @@ class QueryCloudwatch
       end
     end
 
+    Thread.new do
+      loop do
+        row = rows_to_print.pop
+        break if row.nil?
+
+        puts row
+      end
+    end
+
     thread_pool.shutdown
     thread_pool.wait_for_termination
+    rows_to_print.close
 
     if !errors.empty?
       STDERR.puts errors
