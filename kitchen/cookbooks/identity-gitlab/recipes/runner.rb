@@ -25,6 +25,13 @@ end
 
 package 'gitlab-runner'
 
+execute 'grab_ecr_helper' do
+  command 'curl https://amazon-ecr-credential-helper-releases.s3.us-east-2.amazonaws.com/0.6.0/linux-amd64/docker-credential-ecr-login > /usr/local/bin/docker-credential-ecr-login'
+end
+file '/usr/local/bin/docker-credential-ecr-login' do
+  mode '0755'
+end
+
 external_fqdn = "gitlab.#{node.chef_environment}.gitlab.identitysandbox.gov"
 external_url = "https://#{external_fqdn}"
 runner_name = node['hostname']
@@ -83,6 +90,7 @@ execute 'configure_gitlab_runner' do
     --env https_proxy=http://obproxy.login.gov.internal:3128 \
     --env NO_PROXY=#{no_proxy} \
     --env no_proxy=#{no_proxy} \
+    --env DOCKER_AUTH_CONFIG='{ \"credsStore\": \"ecr-login\"}' \
     --docker-image alpine:latest \
     --tag-list 'docker,aws' \
     --run-untagged=true \
