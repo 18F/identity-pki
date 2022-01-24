@@ -590,21 +590,15 @@ variable "opsgenie_key_file" {
 }
 
 ## CloudWatch Alarm Defaults
-variable "sp_redirect_initiated_minimum_threshold" {
-  description = "Minimum number of SP redirect initiations (SP returns) per 10 minutes"
-  type        = number
-  default     = 0
-}
-
-variable "idv_review_complete_success_minimum_threshold" {
-  description = "Minimum number of successful proofs in an hour"
-  type        = number
-  default     = 0
-}
-
 variable "pivcac_low_traffic_alert_threshold" {
   description = "If the number of queries in 5 minutes falls below this number, we alert"
   default     = 5
+}
+
+variable "proofing_low_alert_threshold" {
+  description = "Minimum number of successful proofs in an hour"
+  type        = number
+  default     = 0
 }
 
 variable "sms_error_rate_alert_threshold" {
@@ -612,9 +606,27 @@ variable "sms_error_rate_alert_threshold" {
   default     = 1
 }
 
+variable "sms_mfa_low_alert_threshold" {
+  description = "Minimum number of successful SMS MFA sign ins per 10 minutes"
+  type        = number
+  default     = 0
+}
+
 variable "sms_send_rate_alert_threshold" {
   description = "If more than this number of SMS deliveries is exeeded in a minute, we alert"
   default     = 100
+}
+
+variable "sp_return_low_alert_threshold" {
+  description = "Minimum number of SP redirect initiations (SP returns) per 10 minutes"
+  type        = number
+  default     = 0
+}
+
+variable "user_registration_low_alert_threshold" {
+  description = "Minimum number of user registrations (sign ups) per 10 minutes"
+  type        = number
+  default     = 0
 }
 
 variable "voice_error_rate_alert_threshold" {
@@ -635,6 +647,7 @@ variable "web_low_traffic_warn_threshold" {
   description = "If the number of queries in 5 minutes falls below this number, we warn"
   default     = 20
 }
+
 
 variable "keep_legacy_bucket" {
   description = "Whether or not to preserve the login-gov-ENV-logs bucket. Should only be used in staging and prod."
