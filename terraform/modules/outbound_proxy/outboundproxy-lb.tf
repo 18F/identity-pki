@@ -1,5 +1,5 @@
 resource "aws_lb" "obproxy" {
-  name                             = "${var.env_name}-obproxy"
+  name_prefix                      = substr("${var.env_name}-obproxy", 0, 6)
   internal                         = true
   load_balancer_type               = "network"
   subnets                          = var.public_subnets
@@ -24,16 +24,16 @@ resource "aws_lb_listener" "obproxy" {
 }
 
 resource "aws_lb_target_group" "obproxy" {
-  depends_on = [aws_lb.obproxy]
-  name       = "${var.env_name}-obproxy2-target"
-  port       = 3128
-  protocol   = "TCP"
-  vpc_id     = var.vpc_id
+  depends_on  = [aws_lb.obproxy]
+  name_prefix = substr("${var.env_name}-obproxy2-target", 0, 6)
+  port        = 3128
+  protocol    = "TCP"
+  vpc_id      = var.vpc_id
 
   deregistration_delay = 120
 
   tags = {
-    prefix      = var.env_name
+    Name        = var.env_name
     health_role = "outboundproxy"
   }
 }

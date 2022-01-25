@@ -1,4 +1,5 @@
 resource "aws_security_group" "ssm_endpoint" {
+  name_prefix = "${var.name}-ssm_endpoint-${var.env_name}"
   description = "Allow inbound from all servers"
 
   # allow outbound to the VPC
@@ -31,12 +32,17 @@ resource "aws_security_group" "ssm_endpoint" {
       var.private2_subnet_cidr_block,
       var.private3_subnet_cidr_block,
     ]
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 
   vpc_id = aws_vpc.default.id
 }
 
 resource "aws_security_group" "ssmmessages_endpoint" {
+  name_prefix = "${var.name}-ssmmessages_endpoint-${var.env_name}"
   description = "Allow inbound from all servers"
 
   # allow outbound to the VPC
@@ -69,12 +75,17 @@ resource "aws_security_group" "ssmmessages_endpoint" {
       var.private2_subnet_cidr_block,
       var.private3_subnet_cidr_block,
     ]
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 
   vpc_id = aws_vpc.default.id
 }
 
 resource "aws_security_group" "ec2_endpoint" {
+  name_prefix = "${var.name}-ec2_endpoint-${var.env_name}"
   description = "Allow inbound from all servers"
 
   # allow outbound to the VPC
@@ -95,16 +106,19 @@ resource "aws_security_group" "ec2_endpoint" {
     ]
   }
 
-  name = "${var.name}-ec2_endpoint-${var.env_name}"
-
   tags = {
     Name = "${var.name}-ec2_endpoint-${var.env_name}"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 
   vpc_id = aws_vpc.default.id
 }
 
 resource "aws_security_group" "ec2messages_endpoint" {
+  name_prefix = "${var.name}-ec2messages_endpoint-${var.env_name}"
   description = "Allow inbound from all servers"
 
   # allow outbound to the VPC
@@ -138,16 +152,19 @@ resource "aws_security_group" "ec2messages_endpoint" {
     ]
   }
 
-  name = "${var.name}-ec2messages_endpoint-${var.env_name}"
-
   tags = {
     Name = "${var.name}-ec2messages_endpoint-${var.env_name}"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 
   vpc_id = aws_vpc.default.id
 }
 
 resource "aws_security_group" "logs_endpoint" {
+  name_prefix = "${var.name}-logs_endpoint-${var.env_name}"
   description = "Allow inbound from all servers"
 
   # allow outbound to the VPC
@@ -182,16 +199,19 @@ resource "aws_security_group" "logs_endpoint" {
     ]
   }
 
-  name = "${var.name}-logs_endpoint-${var.env_name}"
-
   tags = {
     Name = "${var.name}-logs_endpoint-${var.env_name}"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 
   vpc_id = aws_vpc.default.id
 }
 
 resource "aws_security_group" "monitoring_endpoint" {
+  name_prefix = "${var.name}-monitoring_endpoint-${var.env_name}"
   description = "Allow inbound from all servers"
 
   # allow outbound to the VPC
@@ -212,16 +232,19 @@ resource "aws_security_group" "monitoring_endpoint" {
     ]
   }
 
-  name = "${var.name}-monitoring_endpoint-${var.env_name}"
-
   tags = {
     Name = "${var.name}-monitoring_endpoint-${var.env_name}"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 
   vpc_id = aws_vpc.default.id
 }
 
 resource "aws_security_group" "secretsmanager_endpoint" {
+  name_prefix = "${var.name}-secretsmanager_endpoint-${var.env_name}"
   description = "Allow inbound from all servers"
 
   # allow outbound to the VPC
@@ -242,16 +265,19 @@ resource "aws_security_group" "secretsmanager_endpoint" {
     ]
   }
 
-  name = "${var.name}-secretsmanager_endpoint-${var.env_name}"
-
   tags = {
     Name = "${var.name}-secretsmanager_endpoint-${var.env_name}"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 
   vpc_id = aws_vpc.default.id
 }
 
 resource "aws_security_group" "sns_endpoint" {
+  name_prefix = "${var.name}-sns_endpoint-${var.env_name}"
   description = "Allow inbound from all servers"
 
   # allow outbound to the VPC
@@ -271,10 +297,12 @@ resource "aws_security_group" "sns_endpoint" {
     ]
   }
 
-  name = "${var.name}-sns_endpoint-${var.env_name}"
-
   tags = {
     Name = "${var.name}-sns_endpoint-${var.env_name}"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 
   vpc_id = aws_vpc.default.id
@@ -455,6 +483,10 @@ resource "aws_security_group" "sts_endpoint" {
     ]
   }
 
+  lifecycle {
+    create_before_destroy = true
+  }
+
   vpc_id = aws_vpc.default.id
 }
 
@@ -505,6 +537,10 @@ resource "aws_security_group" "smtp_endpoint" {
       var.private2_subnet_cidr_block,
       var.private3_subnet_cidr_block,
     ]
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 
   vpc_id = aws_vpc.default.id

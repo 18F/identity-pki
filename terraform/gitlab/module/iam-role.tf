@@ -1,5 +1,5 @@
 resource "aws_iam_role" "gitlab" {
-  name               = "${var.env_name}_gitlab_iam_role"
+  name_prefix        = "${var.env_name}_gitlab_iam_role"
   assume_role_policy = data.aws_iam_policy_document.assume_role_from_vpc.json
 
   inline_policy {
@@ -352,7 +352,7 @@ EOM
 }
 
 resource "aws_iam_role" "gitlab_runner" {
-  name               = "${var.env_name}_gitlab_runner_iam_role"
+  name_prefix        = "${var.env_name}_gitlab_runner_iam_role"
   assume_role_policy = data.aws_iam_policy_document.assume_role_from_vpc.json
 
   inline_policy {

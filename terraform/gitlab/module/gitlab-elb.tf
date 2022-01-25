@@ -1,5 +1,5 @@
 resource "aws_elb" "gitlab" {
-  name = "${var.env_name}-gitlab"
+  name_prefix = substr("${var.env_name}-gitlab", 0, 6)
   subnets = [
     aws_subnet.gitlab1.id,
     aws_subnet.gitlab2.id,
@@ -41,7 +41,7 @@ resource "aws_elb" "gitlab" {
   connection_draining = true
 
   tags = {
-    Name = "${var.env_name}-gitlab"
+    name_prefix = "${var.env_name}-gitlab"
   }
 }
 

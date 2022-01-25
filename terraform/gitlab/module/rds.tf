@@ -122,5 +122,9 @@ resource "aws_security_group" "db" {
     Name = "${var.name}-db_security_group-${var.env_name} gitlab"
   }
 
+  lifecycle {
+    create_before_destroy = true
+  }
+
   vpc_id = aws_vpc.default.id
 }

@@ -120,6 +120,10 @@ resource "aws_security_group" "base" {
     to_port     = 443
     cidr_blocks = ["91.189.92.0/24"]
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 # Create a security group with nothing in it that we can use to work around
@@ -136,6 +140,10 @@ resource "aws_security_group" "null" {
 
   ingress = []
   egress  = []
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_security_group" "gitlab" {
@@ -183,11 +191,15 @@ resource "aws_security_group" "gitlab" {
     security_groups = [aws_security_group.gitlab-lb.id]
   }
 
-  name = "${var.name}-gitlab-${var.env_name}"
+  name_prefix = "${var.name}-gitlab-${var.env_name}"
 
   tags = {
     Name = "${var.name}-gitlabserver_security_group-${var.env_name}"
     role = "gitlab"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 
   vpc_id = aws_vpc.default.id
@@ -246,11 +258,15 @@ resource "aws_security_group" "gitlab_runner" {
     cidr_blocks = [var.vpc_cidr_block]
   }
 
-  name = "${var.name}-gitlabrunner-${var.env_name}"
+  name_prefix = "${var.name}-gitlabrunner-${var.env_name}"
 
   tags = {
     Name = "${var.name}-gitlab_runner_security_group-${var.env_name}"
     role = "gitlab"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 
   vpc_id = aws_vpc.default.id
@@ -295,10 +311,14 @@ resource "aws_security_group" "gitlab-lb" {
     ]
   }
 
-  name = "${var.name}-gitlab-lb-${var.env_name}"
+  name_prefix = "${var.name}-gitlab-lb-${var.env_name}"
 
   tags = {
     Name = "${var.name}-gitlab-lb_security_group-${var.env_name}"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 
   vpc_id = aws_vpc.default.id
@@ -348,7 +368,7 @@ resource "aws_subnet" "alb2" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "${var.name}-alb2_subnet-${var.env_name}"
+    name = "${var.name}-alb2_subnet-${var.env_name}"
   }
 
   vpc_id = aws_vpc.default.id
@@ -361,7 +381,7 @@ resource "aws_subnet" "alb3" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "${var.name}-alb3_subnet-${var.env_name}"
+    name = "${var.name}-alb3_subnet-${var.env_name}"
   }
 
   vpc_id = aws_vpc.default.id
@@ -684,10 +704,14 @@ resource "aws_security_group" "cache" {
     ]
   }
 
-  name = "${var.name}-cache-${var.env_name}"
+  name_prefix = "${var.name}-cache-${var.env_name}"
 
   tags = {
     Name = "${var.name}-cache_security_group-${var.env_name}"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 
   vpc_id = aws_vpc.default.id

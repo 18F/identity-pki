@@ -22,7 +22,8 @@ Vagrantfile
 /terraform/*/.deploy/
 
 # new-style subdir .terraform dirs
-/terraform/*/*/.terraform/
+**/.terraform/
+.terraform/
 
 # local .terraform.lock.hcl files
 /terraform/*/.terraform.lock.hcl

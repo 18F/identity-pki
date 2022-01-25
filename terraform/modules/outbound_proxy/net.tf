@@ -12,6 +12,7 @@ locals {
 }
 
 resource "aws_security_group" "obproxy" {
+  name_prefix = "${var.name}-obproxy-${var.env_name}"
   description = "Allow inbound web traffic and whitelisted IP(s) for SSH"
 
   # TODO: limit this to what is actually needed
@@ -101,7 +102,9 @@ resource "aws_security_group" "obproxy" {
     cidr_blocks = var.ci_sg_ssh_cidr_blocks
   }
 
-  name = "${var.name}-obproxy-${var.env_name}"
+  lifecycle {
+    create_before_destroy = true
+  }
 
   tags = {
     Name = "${var.name}-obproxy-${var.env_name}"
