@@ -6,7 +6,7 @@ ruby '~> 3.0'
 gem 'rails', '~> 6.1.4'
 
 gem 'activerecord-import', '>= 1.0.2'
-gem 'aws-sdk', require: false
+gem 'aws-sdk-s3'
 gem 'bloomfilter-rb'
 gem 'health_check', '>= 3.0.0'
 gem 'identity-hostdata', github: '18F/identity-hostdata', tag: 'v3.4.1'
