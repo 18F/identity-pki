@@ -32,7 +32,7 @@ resource "aws_cloudwatch_metric_alarm" "low_proofing_activity" {
 
   alarm_name        = "${var.env_name}-low_proofing_activity"
   alarm_description = <<EOM
-${var.env_name}: Less than ${var.proofing_low_alert_threshold} users have completed ID verifcation review in the last hour
+${var.env_name}: Less than ${var.proofing_low_alert_threshold} users have completed ID verifcation in the last hour
 See https://github.com/18F/identity-devops/wiki/Runbook:-Low-User-Activity#low_proofing_activity
 EOM
 

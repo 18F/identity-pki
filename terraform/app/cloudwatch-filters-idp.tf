@@ -86,7 +86,7 @@ locals {
       pattern      = "{ ($.name = \"SP redirect initiated\") }"
       metric_value = 1
     }
-    # TODO - Transition graphs and alarms to use this mutlidementional metric,
+    # TODO - Transition graphs and alarms to use this multidimensional metric,
     # then deprecate the login-failure-mfa-X metrics above
     login_mutli_factor_authentication = {
       name         = "login-mfa"
