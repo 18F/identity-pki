@@ -28,6 +28,11 @@ variable "google_site_verification_txt" {
   default     = ""
 }
 
+variable "zendesk_verification_txt" {
+  description = "Zendesk verification text to put in TXT record"
+  default     = "52b6b9c8a85bbda2"
+}
+
 variable "mx_provider" {
   description = "Which provider to use for MX records (see mx_record_map)"
 }
@@ -62,9 +67,12 @@ locals {
       type = "TXT"
       record_set = [
         {
-          "name"    = "",
-          "ttl"     = "900",
-          "records" = ["google-site-verification=${var.google_site_verification_txt}", "v=spf1 include:amazonses.com include:_spf.google.com ~all"],
+          "name" = "",
+          "ttl"  = "900",
+          "records" = [
+            "google-site-verification=${var.google_site_verification_txt}",
+            "v=spf1 include:amazonses.com include:_spf.google.com include:mail.zendesk.com ~all"
+          ],
         },
         {
           "name"    = "mail.",
@@ -80,6 +88,11 @@ locals {
           "name"    = "_dmarc.",
           "ttl"     = "900",
           "records" = ["v=DMARC1; p=reject; pct=100; fo=1; ri=3600; rua=mailto:dmarc-reports@login.gov,mailto:reports@dmarc.cyber.dhs.gov; ruf=mailto:dmarc-forensics@login.gov"],
+        },
+        {
+          "name"    = "zendeskverification.",
+          "ttl"     = "900",
+          "records" = ["${var.zendesk_verification_txt}"],
         }
       ]
     },
