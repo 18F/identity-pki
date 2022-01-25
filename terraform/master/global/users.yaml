@@ -139,6 +139,9 @@ users:
   nick.kramer:
     gitlab_groups:
       - devops
+  olayemisi.ogunshina:
+    aws_groups:
+      - analytics
   oren.kanner:
     aws_groups:
       - appdev
