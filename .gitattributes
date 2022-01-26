@@ -6,4 +6,4 @@
 *.*rb	text eol=lf
 *.tf	text eol=lf
 *.png	binary
-
+*.linux-amd64 binary

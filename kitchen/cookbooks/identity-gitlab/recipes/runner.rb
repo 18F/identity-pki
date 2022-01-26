@@ -25,11 +25,11 @@ end
 
 package 'gitlab-runner'
 
-execute 'grab_ecr_helper' do
-  command 'curl https://amazon-ecr-credential-helper-releases.s3.us-east-2.amazonaws.com/0.6.0/linux-amd64/docker-credential-ecr-login > /usr/local/bin/docker-credential-ecr-login'
-end
-file '/usr/local/bin/docker-credential-ecr-login' do
+cookbook_file '/usr/local/bin/docker-credential-ecr-login' do
+  source 'docker-credential-ecr-login-0.6.0.linux-amd64'
   mode '0755'
+  owner 'root'
+  group 'root'
 end
 
 external_fqdn = "gitlab.#{node.chef_environment}.gitlab.identitysandbox.gov"
