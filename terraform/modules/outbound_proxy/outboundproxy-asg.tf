@@ -1,7 +1,8 @@
 locals {
-  bootstrap_main_s3_ssh_key_url    = "s3://login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}/common/id_ecdsa.identity-devops.deploy"
-  bootstrap_private_s3_ssh_key_url = "s3://login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}/common/id_ecdsa.id-do-private.deploy"
-  bootstrap_main_git_ref_default   = "stages/${var.env_name}"
+  bootstrap_main_s3_ssh_key_url    = var.bootstrap_main_s3_ssh_key_url != "" ? var.bootstrap_main_s3_ssh_key_url : "s3://login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}/common/id_ecdsa.identity-devops.deploy"
+  bootstrap_private_s3_ssh_key_url = var.bootstrap_private_s3_ssh_key_url != "" ? var.bootstrap_private_s3_ssh_key_url : "s3://login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}/common/id_ecdsa.id-do-private.deploy"
+  bootstrap_main_git_ref_default   = var.bootstrap_main_git_ref_default != "" ? var.bootstrap_main_git_ref_default : "stages/${var.env_name}"
+  account_default_ami_id           = var.default_ami_id_tooling
 }
 
 module "outboundproxy_user_data" {
@@ -34,7 +35,7 @@ module "outboundproxy_user_data" {
 }
 
 module "outboundproxy_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=b2d937956dbc7a27fbe64470fc53b852a5e0d3d2"
+  source = "github.com/18F/identity-terraform//launch_template?ref=5ac501d7dc1f05c5abe543b353f61004d8bb6463"
   #source = "../../../identity-terraform/launch_template"
   role           = "outboundproxy"
   env            = var.env_name
@@ -54,12 +55,12 @@ module "outboundproxy_launch_template" {
 }
 
 module "obproxy_lifecycle_hooks" {
-  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=7e11ebe24e3a9cbc34d1413cf4d20b3d71390d5b"
+  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=5ac501d7dc1f05c5abe543b353f61004d8bb6463"
   asg_name = aws_autoscaling_group.outboundproxy.name
 }
 
 module "outboundproxy_recycle" {
-  source = "github.com/18F/identity-terraform//asg_recycle?ref=7e11ebe24e3a9cbc34d1413cf4d20b3d71390d5b"
+  source = "github.com/18F/identity-terraform//asg_recycle?ref=5ac501d7dc1f05c5abe543b353f61004d8bb6463"
 
   # switch to count when that's a thing that we can do
   # https://github.com/hashicorp/terraform/issues/953

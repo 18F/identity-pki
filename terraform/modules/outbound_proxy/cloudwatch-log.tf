@@ -11,7 +11,7 @@ resource "aws_cloudwatch_log_group" "squid_access_log" {
 # creates alarm on total requests following below a threshold
 # requests that notifies to the specified alarm SNS ARN.
 module "outboundproxy_cloudwatch_filters" {
-  source                  = "github.com/18F/identity-terraform//squid_cloudwatch_filters?ref=7e11ebe24e3a9cbc34d1413cf4d20b3d71390d5b"
+  source                  = "github.com/18F/identity-terraform//squid_cloudwatch_filters?ref=5ac501d7dc1f05c5abe543b353f61004d8bb6463"
   depends_on              = [aws_cloudwatch_log_group.squid_access_log]
   log_group_name_override = aws_cloudwatch_log_group.squid_access_log.name
 
