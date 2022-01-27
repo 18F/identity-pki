@@ -70,9 +70,14 @@ data "aws_s3_bucket_object" "identity_devops_oauthkey" {
   key    = "common/identity_devops_oauthkey"
 }
 
-# this bundle is updated with bin/terraform-bundle.sh
+# This bundle is updated with bin/terraform-bundle.sh.
+# If a file in identity-devops/.tfbundle exists, the contents of that file will
+# be read in instead of this default value.  This lets you have a custom tfbundle exist
+# on a branch so you can try out new providers or terraform versions, or lag behind
+# if you need to as well.
+# For example:  echo 'terraform_v1.1.3-bundle2022012018_linux_amd64.zip' > .tfbundle
 variable "tfbundle" {
-  description = "name of the tfbundle that you want the system to deploy with in the auto_tf_bucket"
+  description = "default name of the tfbundle that you want the system to deploy with in the auto_tf_bucket"
   default     = "terraform_v1.1.3-bundle2022012018_linux_amd64.zip"
 }
 

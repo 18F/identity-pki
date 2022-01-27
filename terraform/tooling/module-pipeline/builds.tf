@@ -62,8 +62,14 @@ phases:
   install:
     commands:
       - cd /tmp/
-      - aws s3 cp s3://${var.auto_tf_bucket_id}/${var.tfbundle} /tmp/ --no-progress
-      - unzip /tmp/${var.tfbundle}
+      - |
+        if [ -f "$CODEBUILD_SRC_DIR/.tfbundle" ] ; then
+          export TFBUNDLE=$(cat "$CODEBUILD_SRC_DIR/.tfbundle")
+        else
+          export TFBUNDLE="${var.tfbundle}"
+        fi
+      - aws s3 cp "s3://${var.auto_tf_bucket_id}/$TFBUNDLE" /tmp/ --no-progress
+      - unzip "/tmp/$TFBUNDLE"
       - mv terraform /usr/local/bin/
       - cd $CODEBUILD_SRC_DIR
       - mkdir -p terraform/$TF_DIR/.terraform
@@ -169,8 +175,14 @@ phases:
   install:
     commands:
       - cd /tmp/
-      - aws s3 cp s3://${var.auto_tf_bucket_id}/${var.tfbundle} /tmp/ --no-progress
-      - unzip /tmp/${var.tfbundle}
+      - |
+        if [ -f "$CODEBUILD_SRC_DIR/.tfbundle" ] ; then
+          export TFBUNDLE=$(cat "$CODEBUILD_SRC_DIR/.tfbundle")
+        else
+          export TFBUNDLE="${var.tfbundle}"
+        fi
+      - aws s3 cp "s3://${var.auto_tf_bucket_id}/$TFBUNDLE" /tmp/ --no-progress
+      - unzip "/tmp/$TFBUNDLE"
       - mv terraform /usr/local/bin/
       - cd $CODEBUILD_SRC_DIR
       - mkdir -p terraform/$TF_DIR/.terraform
