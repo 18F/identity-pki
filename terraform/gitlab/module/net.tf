@@ -26,6 +26,7 @@ module "outbound_proxy" {
   s3_prefix_list_id                = aws_vpc_endpoint.private-s3.prefix_list_id
   slack_events_sns_hook_arn        = var.slack_events_sns_hook_arn
   vpc_id                           = aws_vpc.default.id
+  github_ipv4_range                = local.github_ipv4
 }
 
 resource "aws_vpc" "default" {
