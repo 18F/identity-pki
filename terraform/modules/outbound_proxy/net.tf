@@ -5,10 +5,6 @@ data "aws_ip_ranges" "route53" {
 
 locals {
   net_ssm_parameter_prefix = "/${var.env_name}/network/"
-  ip_regex                 = "^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}\\/(?:[0-2][0-9]|[3][0-2])"
-  github_ipv4 = compact([
-    for ip in data.github_ip_ranges.ips.git : try(regex(local.ip_regex, ip), "")
-  ])
 }
 
 resource "aws_security_group" "obproxy" {
@@ -45,7 +41,7 @@ resource "aws_security_group" "obproxy" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = local.github_ipv4
+    cidr_blocks = var.github_ipv4_range
   }
 
   #s3 gateway

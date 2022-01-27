@@ -199,3 +199,9 @@ variable "base_security_group_id" {
   type        = string
   description = "security group used on client side for outbound proxy"
 }
+
+variable "github_ipv4_range" {
+  type        = list(string)
+  description = "List of GitHub's IPv4 CIDR ranges."
+  default     = []
+}
