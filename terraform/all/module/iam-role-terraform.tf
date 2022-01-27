@@ -524,6 +524,7 @@ locals {
           "elasticloadbalancing:ModifyRule",
           "elasticloadbalancing:ModifyTargetGroup",
           "elasticloadbalancing:ModifyTargetGroupAttributes",
+          "elasticloadbalancing:RemoveTags",
           "elasticloadbalancing:SetRulePriorities",
           "elasticloadbalancing:SetSecurityGroups",
           "elasticloadbalancing:SetWebACL",
