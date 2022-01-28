@@ -23,12 +23,6 @@ users:
     aws_groups:
       - secops
       - soc
-  christopher.kirshak:
-    aws_groups:
-      - devopsnonprod
-      - socreadonly
-    gitlab_groups:
-      - devops
   chris.manger:
     aws_groups:
       - bizops
