@@ -52,6 +52,14 @@ template '/etc/systemd/system/gitlab-runner.service.d/http-proxy.conf' do
   notifies :run, 'execute[systemctl_daemon_config]', :immediate
 end
 
+template '/etc/systemd/system/gitlab-runner.service.d/aws-region.conf' do
+  source 'aws-region.conf.erb'
+  owner 'root'
+  group 'root'
+  mode '644'
+  notifies :run, 'execute[systemctl_daemon_config]', :immediate
+end
+
 execute 'systemctl_daemon_config' do
   command 'systemctl daemon-reload'
   action :nothing
