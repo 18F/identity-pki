@@ -140,4 +140,20 @@ module "main" {
       ]
     },
   ]
+
+  #  ssm_access_map = {
+  #    "Analytics"         = [
+  #      { "prod" = ["analyze"] },
+  #      { "staging" = ["analyze"] },
+  #    ],
+  #    "Auditor"           = [ { "*" = ["*"] } ],
+  #    "FullAdministrator" = [ { "*" = ["*"] } ],
+  #    "PowerUser"         = [ { "*" = ["*"] } ],
+  #    "ReadOnly"          = [ { "*" = ["*"] } ],
+  #    "Terraform"         = [ { "*" = ["*"] } ],
+  #    "BillingReadOnly"   = [ { "*" = ["*"] } ],
+  #    "ReportsReadOnly"   = [ { "*" = ["*"] } ],
+  #    "KMSAdministrator"  = [ { "*" = ["*"] } ],
+  #    "SOCAdministrator"  = [ { "*" = ["*"] } ],
+  #  }
 }

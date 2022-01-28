@@ -87,6 +87,7 @@ echo
 
 if [[ "${FOUND_USER}" == "${IAM_USER}" ]] ; then
   if prompt_yn "Add roles to ~/.aws/config file?" ; then
+    [[ -z ${GSA_USERNAME} ]] && raise "GSA_USERNAME not set; cannot configure SSMSessionRunAs user"
     echo_blue "Generating config and adding to file..."
     echo
     MAIN_PROFILE=${AWS_VAULT:-$(echo $AWS_PROFILE)}
@@ -107,6 +108,7 @@ if [[ "${FOUND_USER}" == "${IAM_USER}" ]] ; then
 [profile ${ROLE_NAME}]
 role_arn=${ROLE_ARN}
 role_session_name=${FOUND_USER}
+session_tags=SSMSessionRunAs=${GSA_USERNAME}
 include_profile=${MAIN_PROFILE}
 source_profile=${MAIN_PROFILE}
 region=us-west-2

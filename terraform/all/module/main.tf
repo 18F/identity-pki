@@ -25,6 +25,18 @@ data "aws_iam_policy_document" "master_account_assumerole" {
       ]
     }
   }
+  statement {
+    sid = "PassSessionTagFromMasterAccount"
+    actions = [
+      "sts:TagSession"
+    ]
+    principals {
+      type = "AWS"
+      identifiers = [
+        "arn:aws:iam::${var.master_account_id}:root"
+      ]
+    }
+  }
 }
 
 # used for assuming of AutoTerraform role from tooling

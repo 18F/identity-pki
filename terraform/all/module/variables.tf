@@ -194,4 +194,9 @@ variable "accountNumberPrisma" {
   description = "Commericial Prisma AWS account id"
   default     = "188619942792"
 }
- 
+
+variable "ssm_access_map" {
+  type        = map(list(map(list(string))))
+  description = "Map of SSM docs available to specific roles"
+  default     = {}
+}
