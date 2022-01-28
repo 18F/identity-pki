@@ -192,6 +192,7 @@ module "poweruser-assumerole" {
           sid    = "RDS"
           effect = "Allow"
           actions = [
+            "pi:*",
             "rds:*",
           ]
           resources = [
