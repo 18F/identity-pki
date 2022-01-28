@@ -24,6 +24,7 @@ module "socadmin-assumerole" {
             "cloudtrail:*",
             "cloudwatch:*",
             "config:*",
+            "detective:*",
             "ec2:DescribeRegions",
             "elasticloadbalancing:*",
             "glue:*",
