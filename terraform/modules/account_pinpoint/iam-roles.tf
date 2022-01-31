@@ -38,6 +38,7 @@ EOF
 }
 
 # Allow sending SMS/Voice messages with Pinpoint
+# Allow managing opt-in/opt-out of phone numbers
 resource "aws_iam_role_policy" "idp-pinpoint-send" {
   name   = "idp-pinpoint-send"
   role   = aws_iam_role.idp-pinpoint.id
@@ -51,7 +52,10 @@ resource "aws_iam_role_policy" "idp-pinpoint-send" {
                 "mobiletargeting:PhoneNumberValidate",
                 "mobiletargeting:SendMessages",
                 "mobiletargeting:SendUsersMessages",
-                "sms-voice:SendVoiceMessage"
+                "sms-voice:SendVoiceMessage",
+                "sns:CheckIfPhoneNumberIsOptedOut",
+                "sns:ListPhoneNumbersOptedOut",
+                "sns:OptInPhoneNumber"
             ],
             "Resource": "*"
         }
