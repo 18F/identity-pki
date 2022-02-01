@@ -18,6 +18,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+require 'aws-sdk-ec2'
+
 execute 'grab_gitlab_runner_repo' do
   command 'curl https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.deb.sh | sudo bash'
   ignore_failure true
@@ -41,6 +43,12 @@ runner_name = node['hostname']
 # aws s3 cp /tmp/gitlab_runner_token s3://<secretsbucket>/<env>/gitlab_runner_token
 runner_token = ConfigLoader.load_config(node, "gitlab_runner_token", common: false).chomp
 
+ec2 = Aws::EC2::Resource.new(region: Chef::Recipe::AwsMetadata.get_aws_region)
+ec2.instance(Chef::Recipe::AwsMetadata.get_aws_instance_id))
+
+ec2.describe_tags(:filters => { 'resource-id' => @current_resource.resource_id }).map do |tag|
+  gitlab_runner_pool_name = tag[:gitlab_runner_pool_name]
+end
 
 directory '/etc/systemd/system/gitlab-runner.service.d'
 
@@ -100,7 +108,7 @@ execute 'configure_gitlab_runner' do
     --env no_proxy=#{no_proxy} \
     --env DOCKER_AUTH_CONFIG='{ \"credsStore\": \"ecr-login\"}' \
     --docker-image alpine:latest \
-    --tag-list 'docker,aws' \
+    --tag-list 'docker,aws,#{gitlab_runner_pool_name}' \
     --run-untagged=true \
     --locked=false \
     --cache-shared \

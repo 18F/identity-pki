@@ -5,10 +5,6 @@ data "aws_ip_ranges" "route53" {
 
 locals {
   net_ssm_parameter_prefix = "/${var.env_name}/network/"
-  ip_regex                 = "^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}\\/(?:[0-2][0-9]|[3][0-2])"
-  github_ipv4 = compact([
-    for ip in data.github_ip_ranges.ips.git : try(regex(local.ip_regex, ip), "")
-  ])
 }
 
 module "outbound_proxy" {
@@ -26,7 +22,7 @@ module "outbound_proxy" {
   s3_prefix_list_id                = aws_vpc_endpoint.private-s3.prefix_list_id
   slack_events_sns_hook_arn        = var.slack_events_sns_hook_arn
   vpc_id                           = aws_vpc.default.id
-  github_ipv4_range                = local.github_ipv4
+  github_ipv4_cidr_blocks          = var.github_ipv4_cidr_blocks
 }
 
 resource "aws_vpc" "default" {
@@ -175,7 +171,7 @@ resource "aws_security_group" "gitlab" {
     protocol  = "tcp"
 
     # github
-    cidr_blocks = local.github_ipv4
+    cidr_blocks = var.github_ipv4_cidr_blocks
   }
 
   ingress {
@@ -196,73 +192,6 @@ resource "aws_security_group" "gitlab" {
 
   tags = {
     Name = "${var.name}-gitlabserver_security_group-${var.env_name}"
-    role = "gitlab"
-  }
-
-  lifecycle {
-    create_before_destroy = true
-  }
-
-  vpc_id = aws_vpc.default.id
-}
-
-resource "aws_security_group" "gitlab_runner" {
-  description = "gitlab runner security group"
-
-  # need 8834 to comm with Nessus Server
-  egress {
-    from_port   = 8834
-    to_port     = 8834
-    protocol    = "tcp"
-    cidr_blocks = [var.nessusserver_ip]
-  }
-
-  # TODO: Can we use HTTPS for provisioning instead?
-  # github
-  egress {
-    from_port = 22
-    to_port   = 22
-    protocol  = "tcp"
-
-    # github
-    cidr_blocks = local.github_ipv4
-  }
-
-  # allow SSM
-  egress {
-    from_port = 443
-    to_port   = 443
-    protocol  = "tcp"
-    cidr_blocks = [
-      var.private1_subnet_cidr_block,
-      var.private2_subnet_cidr_block,
-      var.private3_subnet_cidr_block
-    ]
-  }
-
-  # allow internal gitlab lb access
-  egress {
-    from_port = 443
-    to_port   = 443
-    protocol  = "tcp"
-    cidr_blocks = [
-      var.gitlab1_subnet_cidr_block,
-      var.gitlab1_subnet_cidr_block
-    ]
-  }
-
-  # can talk to the proxy
-  egress {
-    from_port   = 3128
-    to_port     = 3128
-    protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr_block]
-  }
-
-  name_prefix = "${var.name}-gitlabrunner-${var.env_name}"
-
-  tags = {
-    Name = "${var.name}-gitlab_runner_security_group-${var.env_name}"
     role = "gitlab"
   }
 

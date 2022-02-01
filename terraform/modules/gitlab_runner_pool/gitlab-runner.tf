@@ -1,7 +1,7 @@
-module "gitlab_user_data" {
-  source = "../../modules/bootstrap/"
+module "gitlab_runner_user_data" {
+  source = "../bootstrap/"
 
-  role          = "gitlab"
+  role          = "gitlab_runner"
   env           = var.env_name
   domain        = var.root_domain
   sns_topic_arn = var.slack_events_sns_hook_arn
@@ -27,56 +27,54 @@ module "gitlab_user_data" {
   proxy_enabled_roles = var.proxy_enabled_roles
 }
 
-module "gitlab_lifecycle_hooks" {
+module "gitlab_runner_lifecycle_hooks" {
   source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=e678ebc2c6e367b294e4d3a298da9c716d93146b"
-  asg_name = aws_autoscaling_group.gitlab.name
+  asg_name = aws_autoscaling_group.gitlab_runner.name
 }
 
-module "gitlab_launch_template" {
+module "gitlab_runner_launch_template" {
   source = "github.com/18F/identity-terraform//launch_template?ref=e678ebc2c6e367b294e4d3a298da9c716d93146b"
   #source = "../../../identity-terraform/launch_template"
-  role           = "gitlab"
+  role           = "gitlab_runner"
   env            = var.env_name
   root_domain    = var.root_domain
   ami_id_map     = var.ami_id_map
   default_ami_id = local.account_default_ami_id
 
-  instance_type             = var.instance_type_gitlab
+  instance_type             = var.instance_type_gitlab_runner
   use_spot_instances        = var.use_spot_instances
-  iam_instance_profile_name = aws_iam_instance_profile.gitlab.name
-  security_group_ids        = [aws_security_group.gitlab.id, aws_security_group.base.id]
+  iam_instance_profile_name = aws_iam_instance_profile.gitlab_runner.name
+  security_group_ids        = [aws_security_group.gitlab_runner.id, var.base_security_group_id]
 
-  user_data = module.gitlab_user_data.rendered_cloudinit_config
+  user_data = module.gitlab_runner_user_data.rendered_cloudinit_config
+
+  instance_tags = {
+    gitlab_runner_pool_name = var.gitlab_runner_pool_name,
+  }
 
   template_tags = {
-    main_git_ref = module.gitlab_user_data.main_git_ref
+    main_git_ref = module.gitlab_runner_user_data.main_git_ref,
   }
 }
 
-resource "aws_autoscaling_group" "gitlab" {
-  name_prefix = "${var.env_name}-gitlab"
-
-  # There is some sort of flapping going on here unless you set this
-  lifecycle {
-    ignore_changes = [
-      load_balancers,
-    ]
-  }
+resource "aws_autoscaling_group" "gitlab_runner" {
+  name_prefix = "${var.env_name}-gitlab_runner"
 
   launch_template {
-    id      = module.gitlab_launch_template.template_id
+    id      = module.gitlab_runner_launch_template.template_id
     version = "$Latest"
   }
 
   min_size         = 1
-  max_size         = 1 # TODO count subnets or Region's AZ width
-  desired_capacity = var.asg_gitlab_desired
+  max_size         = 4 # TODO count subnets or Region's AZ width
+  desired_capacity = var.asg_gitlab_runner_desired
 
   wait_for_capacity_timeout = 0 # 0 == ignore
 
   # https://github.com/18F/identity-devops-private/issues/259
   vpc_zone_identifier = [
-    aws_subnet.gitlab1.id,
+    var.gitlab_subnet_1_id,
+    var.gitlab_subnet_2_id,
   ]
 
   health_check_type         = "EC2"
@@ -85,8 +83,8 @@ resource "aws_autoscaling_group" "gitlab" {
 
   # tags on the instance will come from the launch template
   tag {
-    key                 = "prefix"
-    value               = "gitlab"
+    key                 = "Name"
+    value               = "gitlab_runner"
     propagate_at_launch = false
   }
   tag {
@@ -102,24 +100,4 @@ resource "aws_autoscaling_group" "gitlab" {
 
   # We manually terminate instances in prod
   protect_from_scale_in = var.asg_prevent_auto_terminate == 1 ? true : false
-}
-
-resource "aws_autoscaling_attachment" "gitlab" {
-  autoscaling_group_name = aws_autoscaling_group.gitlab.id
-  elb                    = aws_elb.gitlab.id
-}
-
-resource "aws_ebs_volume" "gitlab" {
-  # XXX gitlab only can live in one AZ because of the EBS volume.
-  availability_zone = var.gitlab_az
-  size              = 20
-  encrypted         = true
-
-  tags = {
-    Name = "${var.name}-gitlab-${var.env_name}"
-  }
-}
-
-output "gitlab_volume_id" {
-  value = aws_ebs_volume.gitlab.id
 }

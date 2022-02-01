@@ -25,6 +25,17 @@ resource "aws_default_network_acl" "default" {
     from_port  = 0
     to_port    = 0
   }
+
+  subnet_ids = [
+    aws_subnet.nat_a.id,
+    aws_subnet.nat_b.id,
+    aws_subnet.nat_c.id,
+    aws_subnet.privatesubnet1.id,
+    aws_subnet.privatesubnet2.id,
+    aws_subnet.privatesubnet3.id,
+    aws_subnet.db1.id,
+    aws_subnet.db2.id,
+  ]
 }
 
 # A default network ACL that allows all traffic

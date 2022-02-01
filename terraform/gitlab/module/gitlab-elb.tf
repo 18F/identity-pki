@@ -41,7 +41,7 @@ resource "aws_elb" "gitlab" {
   connection_draining = true
 
   tags = {
-    name_prefix = "${var.env_name}-gitlab"
+    Name = "${var.env_name}-gitlab"
   }
 }
 

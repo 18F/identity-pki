@@ -1,11 +1,80 @@
+locals {
+  bootstrap_main_s3_ssh_key_url    = var.bootstrap_main_s3_ssh_key_url != "" ? var.bootstrap_main_s3_ssh_key_url : "s3://login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}/common/id_ecdsa.identity-devops.deploy"
+  bootstrap_private_s3_ssh_key_url = var.bootstrap_private_s3_ssh_key_url != "" ? var.bootstrap_private_s3_ssh_key_url : "s3://login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}/common/id_ecdsa.id-do-private.deploy"
+  bootstrap_main_git_ref_default   = var.bootstrap_main_git_ref_default != "" ? var.bootstrap_main_git_ref_default : "stages/${var.env_name}"
+  account_default_ami_id           = var.default_ami_id_tooling
+}
+
+variable "aws_vpc" {
+  default = ""
+}
+
+variable "alb3_subnet_cidr_block" { # 172.16.33.208 - 172.16.33.223
+  default = "172.16.33.208/28"
+}
+
+variable "alb1_subnet_cidr_block" { # 172.16.33.224 - 172.16.33.239
+  default = "172.16.33.224/28"
+}
+
+variable "alb2_subnet_cidr_block" { # 172.16.33.240 - 172.16.33.255
+  default = "172.16.33.240/28"
+}
+
+variable "gitlab1_subnet_cidr_block" { # 172.16.32.32  - 172.16.32.47
+  default = "172.16.32.32/28"
+}
+
+variable "gitlab2_subnet_cidr_block" { # 172.16.32.48  - 172.16.32.63
+  default = "172.16.32.48/28"
+}
+
+variable "public1_subnet_cidr_block" { # 172.16.32.64 - 172.16.32.127
+  default = "172.16.32.64/26"
+}
+
+variable "public2_subnet_cidr_block" { # 172.16.32.128 - 172.16.32.191
+  default = "172.16.32.128/26"
+}
+
+variable "public3_subnet_cidr_block" { # 172.16.32.192 - 172.16.32.255
+  default = "172.16.32.192/26"
+}
+
+variable "private1_subnet_cidr_block" { # 172.16.35.0 - 172.16.35.63
+  default = "172.16.35.0/26"
+}
+
+variable "private2_subnet_cidr_block" { # 172.16.35.64 - 172.16.35.127
+  default = "172.16.35.64/26"
+}
+
+variable "private3_subnet_cidr_block" { # 172.16.35.128 - 172.16.35.191
+  default = "172.16.35.128/26"
+}
+
+variable "nat_a_subnet_cidr_block" { # 172.16.35.192 - 172.16.35.207
+  default = "172.16.35.192/28"
+}
+
+variable "nat_b_subnet_cidr_block" { # 172.16.35.208 - 172.16.35.223
+  default = "172.16.35.208/28"
+}
+
+variable "nat_c_subnet_cidr_block" { # 172.16.35.224 - 172.16.35.239
+  default = "172.16.35.224/28"
+}
+
+variable "allowed_gitlab_cidr_blocks_v4" { # 159.142.0.0 - 159.142.255.255
+  default = [
+    "159.142.0.0/16",
+  ]
+}
+
 variable "ami_id_map" {
   type        = map(string)
   description = "Mapping from server role to an AMI ID, overrides the default_ami_id if key present"
   default     = {}
-}
-
-variable "account_default_ami_id" {
-  description = "account default ami"
 }
 
 # Auto scaling flags
@@ -24,7 +93,7 @@ variable "asg_gitlab_runner_desired" {
 }
 
 variable "asg_outboundproxy_desired" {
-  default = 1
+  default = 3
 }
 
 variable "asg_outboundproxy_min" {
@@ -32,7 +101,7 @@ variable "asg_outboundproxy_min" {
 }
 
 variable "asg_outboundproxy_max" {
-  default = 1
+  default = 9
 }
 
 variable "asg_prevent_auto_terminate" {
@@ -48,7 +117,7 @@ variable "asg_recycle_business_hours" {
 # Several variables used by the modules/bootstrap/ module for running
 # provision.sh to clone git repos and run chef.
 variable "bootstrap_main_git_ref_default" {
-  default     = "gitlab-ec2-starterpack"
+  default     = "main"
   description = <<EOM
 Git ref in identity-devops for provision.sh to check out. If set, this
 overrides the default "stages/<env>" value in locals. This var will be
@@ -87,6 +156,13 @@ variable "bootstrap_private_git_clone_url" {
   description = "URL for provision.sh to use to clone identity-devops-private"
 }
 
+# The following two AMIs should be built at the same time and identical, even
+# though they will have different IDs. They should be updated here at the same
+# time, and then released to environments in sequence.
+variable "default_ami_id_tooling" {
+  default     = "ami-0b054cef11a589516" # 2022-01-13 base-20211020070545 Ubuntu 18.04
+  description = "default AMI ID for environments in the tooling account"
+}
 
 variable "chef_download_url" {
   description = "URL for provision.sh to download chef debian package"
@@ -113,25 +189,16 @@ variable "ci_sg_ssh_cidr_blocks" {
 variable "env_name" {
 }
 
-variable "vpc_cidr_block" { # 172.16.32.0   - 172.16.35.255
-  default = "172.16.32.0/22"
+variable "instance_type_gitlab" {
+  default = "c5.xlarge"
 }
 
-variable "root_domain" {
-  description = "DNS domain to use as the root domain, e.g. login.gov"
-  default     = "gitlab.identitysandbox.gov"
+variable "instance_type_gitlab_runner" {
+  default = "c5.xlarge"
 }
 
-# The following two AMIs should be built at the same time and identical, even
-# though they will have different IDs. They should be updated here at the same
-# time, and then released to environments in sequence.
-variable "default_ami_id_tooling" {
-  default     = "ami-0ab60ab26c39ffdef" # 2021-12-21 base-20211020070545 Ubuntu 18.04
-  description = "default AMI ID for environments in the tooling account"
-}
-
-variable "slack_events_sns_hook_arn" {
-  description = "ARN of SNS topic that will notify the #identity-events/#identity-otherevents channels in Slack"
+variable "instance_type_outboundproxy" {
+  default = "t3.medium"
 }
 
 variable "name" {
@@ -155,13 +222,6 @@ variable "proxy_port" {
   default = "3128"
 }
 
-variable "s3_prefix_list_id" {
-}
-
-variable "instance_type_outboundproxy" {
-  default = "t3.medium"
-}
-
 variable "no_proxy_hosts" {
   default = "localhost,127.0.0.1,169.254.169.254,169.254.169.123,.login.gov.internal,ec2.us-west-2.amazonaws.com,kms.us-west-2.amazonaws.com,secretsmanager.us-west-2.amazonaws.com,ssm.us-west-2.amazonaws.com,ec2messages.us-west-2.amazonaws.com,lambda.us-west-2.amazonaws.com,ssmmessages.us-west-2.amazonaws.com,sns.us-west-2.amazonaws.com,sqs.us-west-2.amazonaws.com,events.us-west-2.amazonaws.com,metadata.google.internal,sts.us-west-2.amazonaws.com"
 }
@@ -176,8 +236,17 @@ variable "proxy_enabled_roles" {
   }
 }
 
-variable "route53_internal_zone_id" {
+variable "root_domain" {
+  description = "DNS domain to use as the root domain, e.g. login.gov"
+  default     = "gitlab.identitysandbox.gov"
+}
+
+variable "route53_id" {
   default = "Z096400532ZFM348WWIAA"
+}
+
+variable "slack_events_sns_hook_arn" {
+  description = "ARN of SNS topic that will notify the #identity-events/#identity-otherevents channels in Slack"
 }
 
 variable "use_spot_instances" {
@@ -186,18 +255,32 @@ variable "use_spot_instances" {
   default     = 0
 }
 
-variable "vpc_id" {
-  description = "VPC Used To Launch the Outbound Proxy"
+variable "vpc_cidr_block" { # 172.16.32.0   - 172.16.35.255
+  default = "172.16.32.0/22"
 }
 
-variable "public_subnets" {
-  type        = list(string)
-  description = "List of public subnets to use for the outbound proxy ASG"
+variable "gitlab_runner_pool_name" {
+  description = "The name of the Runner Pool"
+  type        = string
+  default     = ""
 }
 
 variable "base_security_group_id" {
+  description = "Base security group ID"
   type        = string
-  description = "security group used on client side for outbound proxy"
+  default     = ""
+}
+
+variable "gitlab_subnet_1_id" {
+  description = "ID of gitlab Subnet 1"
+  type        = string
+  default     = ""
+}
+
+variable "gitlab_subnet_2_id" {
+  description = "ID of gitlab Subnet 2"
+  type        = string
+  default     = ""
 }
 
 variable "github_ipv4_cidr_blocks" {

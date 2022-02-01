@@ -17,9 +17,10 @@ terraform.tfstate.backup
 .vagrant
 Vagrantfile
 
-# old-style shared dir symlinks
+# Terraform State and Whatnot
 /terraform/*/.terraform
 /terraform/*/.deploy/
+.terraformrc
 
 # new-style subdir .terraform dirs
 **/.terraform/

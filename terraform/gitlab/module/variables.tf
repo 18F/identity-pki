@@ -5,6 +5,10 @@ locals {
   account_default_ami_id           = var.default_ami_id_tooling
 }
 
+variable "aws_vpc" {
+  default = ""
+}
+
 variable "alb3_subnet_cidr_block" { # 172.16.33.208 - 172.16.33.223
   default = "172.16.33.208/28"
 }
@@ -343,4 +347,10 @@ variable "elasticache_redis_engine_version" {
 
 variable "elasticache_redis_parameter_group_name" {
   default = "default.redis6.x"
+}
+
+variable "github_ipv4_cidr_blocks" {
+  type        = list(string)
+  description = "List of GitHub's IPv4 CIDR ranges."
+  default     = []
 }

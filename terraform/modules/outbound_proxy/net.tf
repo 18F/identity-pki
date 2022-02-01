@@ -41,7 +41,7 @@ resource "aws_security_group" "obproxy" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = var.github_ipv4_range
+    cidr_blocks = var.github_ipv4_cidr_blocks
   }
 
   #s3 gateway
