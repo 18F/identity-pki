@@ -108,19 +108,19 @@ resource "aws_route53_record" "public_reporting_data_aaaa" {
   }
 }
 
-resource "aws_cloudwatch_metric_alarm" "public_reporting_data_cloudfront_alert" {
-  alarm_name          = "Public Reporting Data CloudFront ${var.env_name} 4xx Errors"
-  comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = "1"
-  metric_name         = "4xxErrorRate"
-  namespace           = "AWS/CloudFront"
-  period              = "300"
-  statistic           = "Minimum"
-  threshold           = "1"
-  alarm_description   = "This Alarm is executed when 4xx errors appear on the CF Distribution"
-  alarm_actions       = [data.aws_sns_topic.cloudfront_alarm.arn]
+module "cloudfront_public_reporting_data_cdn_alarms" {
+  count  = var.cdn_public_reporting_data_alarms_enabled
+  source = "../modules/cloudfront_cdn_alarms"
+
+  providers = {
+    aws = aws.use1
+  }
+  alarm_actions = local.low_priority_alarm_actions_use1
   dimensions = {
     DistributionId = aws_cloudfront_distribution.public_reporting_data_cdn.id
+    Region         = "Global"
   }
+  threshold         = 1
+  distribution_name = "Public Reporting Data"
+  env_name          = var.env_name
 }
-

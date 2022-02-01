@@ -384,6 +384,16 @@ variable "idp_external_service_alarms_enabled" {
   description = "Whether to set up alarms for IDP external services"
 }
 
+variable "cdn_public_reporting_data_alarms_enabled" {
+  default     = 0
+  description = "Whether to enable alarms for the Public Reporting Data CDN"
+}
+
+variable "cdn_idp_static_assets_alarms_enabled" {
+  default     = 0
+  description = "Whether to enable alarms for the IDP static assets CDN"
+}
+
 variable "idp_cpu_autoscaling_enabled" {
   default = 1
 }
@@ -492,6 +502,10 @@ variable "high_priority_sns_hook" {
   description = "ARN of SNS topic for high-priority pages"
 }
 
+variable "high_priority_sns_hook_use1" {
+  description = "ARN of SNS topic for high-priority pages in US-East-1"
+}
+
 variable "page_devops" {
   default     = 0
   description = "Whether to page for high-priority Cloudwatch alarms"
@@ -505,6 +519,8 @@ locals {
   account_rails_ami_id             = data.aws_caller_identity.current.account_id == "555546682965" ? var.rails_ami_id_prod : var.rails_ami_id_sandbox
   high_priority_alarm_actions      = var.page_devops == 1 ? [var.high_priority_sns_hook, var.slack_events_sns_hook_arn] : [var.slack_events_sns_hook_arn]
   low_priority_alarm_actions       = [var.slack_events_sns_hook_arn]
+  high_priority_alarm_actions_use1 = var.page_devops == 1 ? [var.high_priority_sns_hook_use1, var.slack_events_sns_hook_arn_use1] : [var.slack_events_sns_hook_arn_use1]
+  low_priority_alarm_actions_use1  = [var.slack_events_sns_hook_arn_use1]
   inventory_bucket_arn             = "arn:aws:s3:::login-gov.s3-inventory.${data.aws_caller_identity.current.account_id}-${var.region}"
   dnssec_runbook_prefix            = " - https://github.com/18F/identity-devops/wiki/Runbook:-DNS#dnssec"
 }
@@ -554,6 +570,10 @@ variable "db_restore_role_arns" {
 
 variable "slack_events_sns_hook_arn" {
   description = "ARN of SNS topic that will notify the #identity-events/#identity-otherevents channels in Slack"
+}
+
+variable "slack_events_sns_hook_arn_use1" {
+  description = "ARN of SNS topic that will notify the #identity-events/#identity-otherevents channels in Slack from US-East-1"
 }
 
 variable "kms_log_kinesis_shards" {
