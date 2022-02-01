@@ -10,6 +10,11 @@ users:
       - devops
     gitlab_groups:
       - devops
+  alexander.bradley:
+    aws_groups:
+      - appdev
+    gitlab_groups:
+      - appdev
   amos.stone:
     aws_groups:
       - analytics
@@ -48,6 +53,9 @@ users:
       - bizops
     gitlab_groups:
       - appdev
+  goutham.kommanaboyina:
+    aws_groups:
+      - analytics
   james.tranovich:
     gitlab_groups:
       - devops
@@ -157,6 +165,9 @@ users:
       - devops
     gitlab_groups:
       - devops
+  rahul.kamarouthu:
+    aws_groups:
+      - analytics
   russ.beye:
     aws_groups:
       - appdev
