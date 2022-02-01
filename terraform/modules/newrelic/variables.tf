@@ -28,6 +28,12 @@ variable "dashboard_enabled" {
   default     = 0
 }
 
+variable "pager_alerts_enabled" {
+  description = "set this to true if you want to alert to ops-genie"
+  type        = number
+  default     = 0
+}
+
 variable "env_name" {}
 
 variable "region" {
