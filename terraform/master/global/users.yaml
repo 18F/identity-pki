@@ -122,11 +122,6 @@ users:
       - socreadonly
     gitlab_groups:
       - devops
-  nathan.berg:
-    aws_groups:
-      - appdev
-    gitlab_groups:
-      - devops
   nathan.wick:
     aws_groups:
       - bizops
