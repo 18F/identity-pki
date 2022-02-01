@@ -212,12 +212,6 @@ users:
       - secops
     gitlab_groups:
       - devops
-  vlad.toussaint:
-    aws_groups:
-      - devopsnonprod
-      - socreadonly
-    gitlab_groups:
-      - devops
   vivek.chugh:
     aws_groups:
       - devops
