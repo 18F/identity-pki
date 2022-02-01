@@ -111,8 +111,10 @@ variable "rds_maintenance_window" {
   default = "Sun:08:34-Sun:09:08"
 }
 
-variable "rds_enhanced_monitoring_enabled" {
-  default = 1
+variable "rds_enhanced_monitoring_interval" {
+  description = "How many seconds to wait before each metric sample collection - Set to 0 to disable"
+  type        = number
+  default     = 60
 }
 
 variable "rds_monitoring_role_name" {
