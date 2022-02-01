@@ -194,6 +194,7 @@ execute 'newrelic log deploy' do
   command 'bundle exec rails newrelic:deployment'
   user node['login_dot_gov']['system_user']
   group node['login_dot_gov']['system_user']
+  ignore_failure true
 end
 
 if node.fetch('login_dot_gov').fetch('idp_run_migrations')
