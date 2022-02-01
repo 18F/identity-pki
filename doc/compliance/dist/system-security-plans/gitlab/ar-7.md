@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
 ---
 
 # ar-7 - \[catalog\] Privacy-Enhanced System Design and Development
@@ -16,6 +16,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control ar-7
+The Gitlab component uses ar-7 from the main login.gov SSP.
 
 ______________________________________________________________________
