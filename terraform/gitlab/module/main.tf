@@ -1,3 +1,6 @@
+data "github_ip_ranges" "git_ipv4" {
+}
+
 data "aws_caller_identity" "current" {
 }
 

@@ -10,7 +10,7 @@ module "gitlab_build_runner_pool" {
   base_security_group_id     = aws_security_group.base.id
   bootstrap_main_git_ref_map = var.bootstrap_main_git_ref_map
   env_name                   = var.env_name
-  github_ipv4_cidr_blocks    = var.github_ipv4_cidr_blocks
+  github_ipv4_cidr_blocks    = local.github_ipv4_cidr_blocks
   gitlab_runner_pool_name    = "build-1"
   gitlab_subnet_1_id         = aws_subnet.gitlab1.id
   gitlab_subnet_2_id         = aws_subnet.gitlab2.id

@@ -3,6 +3,10 @@ locals {
   bootstrap_private_s3_ssh_key_url = var.bootstrap_private_s3_ssh_key_url != "" ? var.bootstrap_private_s3_ssh_key_url : "s3://login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}/common/id_ecdsa.id-do-private.deploy"
   bootstrap_main_git_ref_default   = var.bootstrap_main_git_ref_default != "" ? var.bootstrap_main_git_ref_default : "stages/${var.env_name}"
   account_default_ami_id           = var.default_ami_id_tooling
+
+  #  example github data -> https://api.github.com/meta
+  ip_regex                = "^[0-9./]*$"
+  github_ipv4_cidr_blocks = sort(compact(tolist([for ip in data.github_ip_ranges.git_ipv4.git[*] : ip if length(regexall(local.ip_regex, ip)) > 0])))
 }
 
 variable "aws_vpc" {
@@ -347,10 +351,4 @@ variable "elasticache_redis_engine_version" {
 
 variable "elasticache_redis_parameter_group_name" {
   default = "default.redis6.x"
-}
-
-variable "github_ipv4_cidr_blocks" {
-  type        = list(string)
-  description = "List of GitHub's IPv4 CIDR ranges."
-  default     = []
 }
