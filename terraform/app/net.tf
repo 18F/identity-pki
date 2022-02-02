@@ -1182,6 +1182,16 @@ resource "aws_security_group" "obproxy" {
     ] # This IP range includes AAMVA's failover, but is not exclusively controlled by AAMVA
   }
 
+  # Allow egress to GSA Public Bigfix Relay Server
+  egress {
+    from_port = 52311
+    to_port   = 52311
+    protocol  = "tcp"
+    cidr_blocks = [
+      "3.209.219.136/32"
+    ]
+  }
+
   # Allow egress to Experian
   egress {
     from_port = 8443
