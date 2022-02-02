@@ -16,6 +16,14 @@ apt_package 'ossec-hids-agent' do
   action :remove
 end
 
+# we need the primary role so we only enforce the blackhole rule on OBPs
+primary_role = File.read('/etc/login.gov/info/role').chomp
+
+if primary_role == 'outboundproxy'
+  # silence fireeye's attempts to an internal IP
+  execute 'ip rule add blackhole to 172.31.2.52/32'
+end
+
 # copy agent installer
 directory install_directory
 execute "aws s3 cp s3://#{bucket}/common/#{filename} #{install_directory}/"
