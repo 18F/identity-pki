@@ -35,7 +35,7 @@ module "gitlab_runner_lifecycle_hooks" {
 module "gitlab_runner_launch_template" {
   source = "github.com/18F/identity-terraform//launch_template?ref=e678ebc2c6e367b294e4d3a298da9c716d93146b"
   #source = "../../../identity-terraform/launch_template"
-  role           = "gitlab_runner"
+  role           = "gitlab-${var.gitlab_runner_pool_name}"
   env            = var.env_name
   root_domain    = var.root_domain
   ami_id_map     = var.ami_id_map
@@ -58,7 +58,7 @@ module "gitlab_runner_launch_template" {
 }
 
 resource "aws_autoscaling_group" "gitlab_runner" {
-  name_prefix = "${var.env_name}-gitlab_runner"
+  name_prefix = "${var.env_name}-gitlab-${var.gitlab_runner_pool_name}"
 
   launch_template {
     id      = module.gitlab_runner_launch_template.template_id

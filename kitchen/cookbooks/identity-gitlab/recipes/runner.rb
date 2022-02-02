@@ -34,21 +34,25 @@ cookbook_file '/usr/local/bin/docker-credential-ecr-login' do
   group 'root'
 end
 
-external_fqdn = "gitlab.#{node.chef_environment}.gitlab.identitysandbox.gov"
-external_url = "https://#{external_fqdn}"
-runner_name = node['hostname']
+node.run_state['external_fqdn'] = "gitlab.#{node.chef_environment}.gitlab.identitysandbox.gov"
+node.run_state['external_url'] = "https://#{node.run_state['external_fqdn']}"
+node.run_state['runner_name'] = node['hostname']
 # Get token by following the 'Obtain a token' instructions on
 # https://docs.gitlab.com/runner/register/#requirements
 # Then put it in the secrets bucket for your env:
 # aws s3 cp /tmp/gitlab_runner_token s3://<secretsbucket>/<env>/gitlab_runner_token
-runner_token = ConfigLoader.load_config(node, "gitlab_runner_token", common: false).chomp
+node.run_state['runner_token'] = ConfigLoader.load_config(node, "gitlab_runner_token", common: false).chomp
 
-ec2 = Aws::EC2::Resource.new(region: Chef::Recipe::AwsMetadata.get_aws_region)
-ec2.instance(Chef::Recipe::AwsMetadata.get_aws_instance_id))
+resource = Aws::EC2::Resource.new(region: Chef::Recipe::AwsMetadata.get_aws_region)
+instance = resource.instance(Chef::Recipe::AwsMetadata.get_aws_instance_id)
 
-ec2.describe_tags(:filters => { 'resource-id' => @current_resource.resource_id }).map do |tag|
-  gitlab_runner_pool_name = tag[:gitlab_runner_pool_name]
+instance.tags.each do |tag|
+  if tag.key == "gitlab_runner_pool_name"
+    node.run_state['gitlab_runner_pool_name'] = tag.value
+  end
 end
+
+# node.run_state['gitlab_runner_pool_name'] = "default_pool"
 
 directory '/etc/systemd/system/gitlab-runner.service.d'
 
@@ -88,40 +92,40 @@ docker_service 'default' do
   userns_remap 'default'
 end
 
-aws_region = Chef::Recipe::AwsMetadata.get_aws_region
-aws_account_id = Chef::Recipe::AwsMetadata.get_aws_account_id
-no_proxy = 'localhost,127.0.0.1,169.254.169.254,169.254.169.123,.login.gov.internal,ec2.us-west-2.amazonaws.com,kms.us-west-2.amazonaws.com,secretsmanager.us-west-2.amazonaws.com,ssm.us-west-2.amazonaws.com,ec2messages.us-west-2.amazonaws.com,lambda.us-west-2.amazonaws.com,ssmmessages.us-west-2.amazonaws.com,sns.us-west-2.amazonaws.com,sqs.us-west-2.amazonaws.com,events.us-west-2.amazonaws.com,metadata.google.internal,sts.us-west-2.amazonaws.com'
+node.run_state['aws_region'] = Chef::Recipe::AwsMetadata.get_aws_region
+node.run_state['aws_account_id'] = Chef::Recipe::AwsMetadata.get_aws_account_id
+node.run_state['no_proxy'] = 'localhost,127.0.0.1,169.254.169.254,169.254.169.123,.login.gov.internal,ec2.us-west-2.amazonaws.com,kms.us-west-2.amazonaws.com,secretsmanager.us-west-2.amazonaws.com,ssm.us-west-2.amazonaws.com,ec2messages.us-west-2.amazonaws.com,lambda.us-west-2.amazonaws.com,ssmmessages.us-west-2.amazonaws.com,sns.us-west-2.amazonaws.com,sqs.us-west-2.amazonaws.com,events.us-west-2.amazonaws.com,metadata.google.internal,sts.us-west-2.amazonaws.com'
 
-# no_proxy seems to not actually work here.  Have to allow stuff in the proxy.  :-(
 execute 'configure_gitlab_runner' do
-  command "gitlab-runner register \
+  command <<-EOH
+    gitlab-runner register \
     --non-interactive \
-    --name '#{runner_name}' \
-    --url '#{external_url}' \
-    --registration-token '#{runner_token}' \
+    --name "#{node.run_state['runner_name']}" \
+    --url "#{node.run_state['external_url']}" \
+    --registration-token "#{node.run_state['runner_token']}" \
     --executor docker \
     --env HTTP_PROXY=http://obproxy.login.gov.internal:3128 \
     --env HTTPS_PROXY=http://obproxy.login.gov.internal:3128 \
     --env http_proxy=http://obproxy.login.gov.internal:3128 \
     --env https_proxy=http://obproxy.login.gov.internal:3128 \
-    --env NO_PROXY=#{no_proxy} \
-    --env no_proxy=#{no_proxy} \
+    --env NO_PROXY="#{node.run_state['no_proxy']}" \
+    --env no_proxy="#{node.run_state['no_proxy']}" \
     --env DOCKER_AUTH_CONFIG='{ \"credsStore\": \"ecr-login\"}' \
     --docker-image alpine:latest \
-    --tag-list 'docker,aws,#{gitlab_runner_pool_name}' \
+    --tag-list "docker,aws,#{node.run_state['gitlab_runner_pool_name']}" \
     --run-untagged=true \
     --locked=false \
     --cache-shared \
     --cache-type s3 \
-    --cache-path '#{node.chef_environment}' \
+    --cache-path "#{node.chef_environment}" \
     --cache-s3-server-address s3.amazonaws.com \
-    --cache-s3-bucket-name 'login-gov-#{node.chef_environment}-gitlabcache-#{aws_account_id}-#{aws_region}' \
-    --cache-s3-bucket-location '#{aws_region}' \
-    --cache-s3-authentication_type 'iam' \
+    --cache-s3-bucket-name "login-gov-#{node.chef_environment}-gitlabcache-#{node.run_state['aws_account_id']}-#{node.run_state['aws_region']}" \
+    --cache-s3-bucket-location "#{node.run_state['aws_region']}" \
+    --cache-s3-authentication_type iam \
     --access-level=not_protected \
     --docker-memory 4096m \
     --docker-cpu-shares 1024
-  "
+  EOH
   sensitive true
   notifies :run, 'execute[restart_runner]', :immediate
 end
