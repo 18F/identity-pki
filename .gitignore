@@ -32,3 +32,6 @@ Vagrantfile
 
 /nodes/*/Gemfile.lock
 /nodes/*/Berksfile.lock
+
+# Lambda archives
+/terraform/sms/module/python/main.py.zip
