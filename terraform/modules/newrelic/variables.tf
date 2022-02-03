@@ -28,6 +28,12 @@ variable "dashboard_enabled" {
   default     = 0
 }
 
+variable "cdn_idp_static_assets_alarms_enabled" {
+  description = "set this to 1 to enable the IDP static assets CDN alarms"
+  type        = number
+  default     = 0
+}
+
 variable "pager_alerts_enabled" {
   description = "set this to true if you want to alert to ops-genie"
   type        = number
