@@ -104,6 +104,7 @@ users:
   malick.diarra:
     aws_groups:
       - appdev
+      - apponcall
     gitlab_groups:
       - appdev
   manish.shah:
