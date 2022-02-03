@@ -11,7 +11,7 @@ LOG_STREAM_NAME=os.environ['log_stream_name']
 
 def lambda_handler(event, context):
     seq_token = None
-    AWS_REGION = "us-west-2"
+    AWS_REGION = os.environ['region']
     client = boto3.client('logs', region_name=AWS_REGION)
     response = client.describe_log_streams(
         logGroupName=LOG_GROUP_NAME,

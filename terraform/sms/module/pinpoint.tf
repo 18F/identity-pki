@@ -7,7 +7,7 @@ resource "aws_iam_role" "pinpoint_role" {
     {
       "Action": "sts:AssumeRole",
       "Principal": {
-        "Service": "pinpoint.us-west-2.amazonaws.com"
+        "Service": "pinpoint.${data.aws_region.current.name}.amazonaws.com"
       },
       "Effect": "Allow",
       "Sid": ""

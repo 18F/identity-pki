@@ -37,7 +37,7 @@ data "aws_iam_policy_document" "custom-policy-doc" {
       "logs:Describe*"
     ]
     resources = [aws_kinesis_stream.pinpoint_kinesis_stream.arn,
-    "arn:aws:logs:us-west-2:*:*:*:*"]
+    "arn:aws:logs:${data.aws_region.current.name}:*:*:*:*"]
     effect = "Allow"
   }
 }
@@ -87,6 +87,7 @@ resource "aws_lambda_function" "pinpoint-lambda" {
       env             = "${var.env}"
       log_group_name  = aws_cloudwatch_log_group.pinpoint-logs.name
       log_stream_name = aws_cloudwatch_log_stream.SMSLogs.name
+      region          = data.aws_region.current.name
     }
   }
 }
