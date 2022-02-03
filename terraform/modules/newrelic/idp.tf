@@ -326,7 +326,7 @@ resource "newrelic_one_dashboard" "error_dashboard" {
 }
 
 resource "newrelic_synthetics_monitor" "cloudfront_health" {
-  count     = var.enabled
+  count     = var.enabled && var.cdn_idp_static_assets_alarms_enabled
   name      = "${var.env_name} static /packs/manifest.json check"
   type      = "SIMPLE"
   frequency = 5
@@ -338,7 +338,7 @@ resource "newrelic_synthetics_monitor" "cloudfront_health" {
   verify_ssl        = true
 }
 resource "newrelic_synthetics_alert_condition" "cloud_health" {
-  count     = var.idp_enabled
+  count     = var.enabled && var.cdn_idp_static_assets_alarms_enabled
   policy_id = newrelic_alert_policy.high[0].id
 
   name       = "https://static.${local.idp_domain_name}/packs/manifest.json health failure"
