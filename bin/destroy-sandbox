@@ -16,6 +16,8 @@ Usage: ${0} [-ldebkxh] [ENV] (defaults to \$GSA_USERNAME if not specified)
 
 Flags (will run all if no flags specified):
   -l : Delete ENV-idp-functions CloudFormation stack if it exists
+  -z : Zero out all \${TF_ENV} Auto Scaling Groups
+  -s : Stop and delete the CloudWatch-to-S3 Kinesis Firehose stream
   -d : Remove deletion/prevent_destroy/final snapshot from RDS dbs
   -b : Empties all S3 buckets with ENV in the bucket name
   -x : terraform-destroy + reset db .tf files
@@ -39,6 +41,10 @@ using the following flags:
 
   -l : Delete the \${TF_ENV}-idp-functions CloudFormation stack,
        if it currently exists
+  -z : Set Minimum, Desired, and Maximum numbers for all
+       Auto Scaling Groups in \${TF_ENV} to 0
+  -s : Stop and force-delete the cw-kinesis-s3 Firehose stream,
+       allowing its corresponding bucket to be emptied and deleted
   -d : Remove deletion protection and prevent_destroy settings from
        app and idp databases, and set skip_final_snapshot to true
   -b : Empties all S3 buckets with \${TF_ENV} in the bucket name,
@@ -74,6 +80,16 @@ delete_lambdas() {
   fi
 }
 
+zero_out_asgs() {
+  for ASG in $(ave aws autoscaling describe-auto-scaling-groups \
+    --query 'AutoScalingGroups[*].AutoScalingGroupName' |
+    jq -r '.[]' | grep ${TF_ENV}) ; do
+    ave aws autoscaling update-auto-scaling-group \
+      --auto-scaling-group-name ${ASG} \
+      --min-size 0 --desired-capacity 0 --max-size 0 
+  done
+}
+
 allow_db_destroy() {
   for DB in idp app worker ; do
     cp ${APP_DIR}/${DB}.tf ${APP_DIR}/${DB}.tf.bak
@@ -82,12 +98,36 @@ allow_db_destroy() {
     done
     sed -i '' -E 's/#(skip_final_snapshot = true)/\1/g' ${APP_DIR}/${DB}.tf
   done
-  ave ${BASEPATH}/tf-deploy -t -z ${TF_ENV} app apply -auto-approve
+
+  local APPLY_CMD="-target=aws_db_instance.idp -target=aws_db_instance.idp-worker-jobs"
+  
+  local TFVARS="${PRIVATE_REPO}/vars/${TF_ENV}.tfvars"
+  if [[ $(grep -E '^ *[^#]*enable_rds_idp_read_replica += true' "${TFVARS}") ]] ; then
+    APPLY_CMD+=' -target=aws_db_instance.idp-read-replica[0]'
+  fi
+  if [[ ! $(grep -E '^ *[^#]*apps_enabled += 0' "${TFVARS}") ]] ; then
+    APPLY_CMD+=' -target=aws_db_instance.default[0]'
+  fi
+
+  ave ${BASEPATH}/tf-deploy -t ${TF_ENV} app apply -auto-approve ${APPLY_CMD}
+}
+
+stop_kinesis_stream() {
+  local CW_S3_STREAM="cw-kinesis-s3-${TF_ENV}-us-west-2"
+
+  if [[ $(ave aws firehose describe-delivery-stream \
+          --delivery-stream-name "${CW_S3_STREAM}" \
+          --query 'DeliveryStreamDescription.DeliveryStreamStatus' \
+          --output text) == "ACTIVE" ]] ; then
+    ave aws firehose delete-delivery-stream \
+     --delivery-stream-name "${CW_S3_STREAM}" \
+     --allow-force-delete
+  fi
 }
 
 empty_buckets() {
   boto3_check
-  for BUCKET in $(ave aws s3 ls |grep ${TF_ENV} | awk '{print $NF}'); do
+  for BUCKET in $(ave aws s3 ls |grep ${TF_ENV} | awk '{print $NF}' | sort -r); do
     ave aws s3 rm s3://${BUCKET} --recursive
     ave python -c "import boto3 ;\
       session = boto3.Session() ;\
@@ -117,6 +157,8 @@ delete_env_keys() {
 
 TASKS=(
   "delete_lambdas"
+  "zero_out_asgs"
+  "stop_kinesis_stream"
   "allow_db_destroy"
   "empty_buckets"
   "tf_destroy"
@@ -124,14 +166,16 @@ TASKS=(
 )
 
 TODO=()
-while getopts ldbkxh opt
+while getopts lzsdbxkh opt
 do
   case $opt in
     l) TODO+=("${TASKS[0]}") ;;
-    d) TODO+=("${TASKS[1]}") ;;
-    b) TODO+=("${TASKS[2]}") ;;
-    x) TODO+=("${TASKS[3]}") ;;
-    k) TODO+=("${TASKS[4]}") ;;
+    z) TODO+=("${TASKS[1]}") ;;
+    s) TODO+=("${TASKS[2]}") ;;
+    d) TODO+=("${TASKS[3]}") ;;
+    b) TODO+=("${TASKS[4]}") ;;
+    x) TODO+=("${TASKS[5]}") ;;
+    k) TODO+=("${TASKS[6]}") ;;
     h) man_page ;;
     *) usage && exit 1 ;;
   esac
