@@ -168,10 +168,12 @@ resource "newrelic_nrql_alert_condition" "enduser_response_time" {
   description                  = "Alerting when the 95th percentile of transaction response times are over 2s, warn when it's over 1s."
   value_function               = "single_value"
   violation_time_limit_seconds = 43200
+  aggregation_window           = 60
+  aggregation_method           = "cadence"
+  aggregation_delay            = 120
 
   nrql {
-    query             = "SELECT percentile(duration, 95) FROM Transaction  WHERE appName = '${var.env_name}.${var.root_domain}'"
-    evaluation_offset = 3
+    query = "SELECT percentile(duration, 95) FROM Transaction  WHERE appName = '${var.env_name}.${var.root_domain}'"
   }
 
   critical {
@@ -198,10 +200,12 @@ resource "newrelic_nrql_alert_condition" "controller_action_errors" {
   value_function               = "single_value"
   runbook_url                  = "https://github.com/18F/identity-devops/wiki/Runbook:-controller-action-error-rate"
   violation_time_limit_seconds = 43200
+  aggregation_window           = 60
+  aggregation_method           = "cadence"
+  aggregation_delay            = 120
 
   nrql {
-    query             = "SELECT percentage(count(*), WHERE http.statusCode >= 500 and appName = '${var.env_name}.${var.root_domain}') FROM Transaction WHERE appName = '${var.env_name}.${var.root_domain}' FACET name"
-    evaluation_offset = 3
+    query = "SELECT percentage(count(*), WHERE http.statusCode >= 500 and appName = '${var.env_name}.${var.root_domain}') FROM Transaction WHERE appName = '${var.env_name}.${var.root_domain}' FACET name"
   }
 
   critical {
@@ -221,10 +225,12 @@ resource "newrelic_nrql_alert_condition" "service_provider_errors" {
   value_function               = "single_value"
   runbook_url                  = "https://github.com/18F/identity-devops/wiki/Runbook:-high-service-provider-error-rate"
   violation_time_limit_seconds = 43200
+  aggregation_window           = 60
+  aggregation_method           = "cadence"
+  aggregation_delay            = 120
 
   nrql {
-    query             = "SELECT percentage(count(*), WHERE error is true and http.statusCode >= 500 and appName = '${var.env_name}.${var.root_domain}') FROM Transaction WHERE appName = '${var.env_name}.${var.root_domain}' FACET service_provider"
-    evaluation_offset = 3
+    query = "SELECT percentage(count(*), WHERE error is true and http.statusCode >= 500 and appName = '${var.env_name}.${var.root_domain}') FROM Transaction WHERE appName = '${var.env_name}.${var.root_domain}' FACET service_provider"
   }
 
   critical {
