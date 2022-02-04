@@ -28,7 +28,7 @@ EOF
       a) AV_PROFILE='analytics-admin'   ;;
       t) AV_PROFILE='interviews-admin'  ;;
       d) AV_PROFILE='secops-dev-admin'  ;;
-      o) AV_PROFILE='secops-prod-admin' ;;
+      o) AV_PROFILE='tooling-prod-admin' ;;
       m) AV_PROFILE='master-admin'      ;;
       x) AV_PROFILE='x' && shift 1      ;;
       h|*) badopt ;;

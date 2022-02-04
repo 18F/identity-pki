@@ -1,7 +1,7 @@
 provider "aws" {
   region              = "us-west-2"
-  allowed_account_ids = ["217680906704"] # require login-secops-prod
-  profile             = "login-secops-prod"
+  allowed_account_ids = ["217680906704"] # require login-tooling-prod
+  profile             = "login-tooling-prod"
 }
 
 # Stub remote config
@@ -18,7 +18,7 @@ module "main" {
   source             = "../module"
   opsgenie_key_ready = var.opsgenie_key_ready
 
-  iam_account_alias = "login-secops-prod"
+  iam_account_alias = "login-tooling-prod"
   account_roles_map = {
     iam_appdev_enabled = false
   }

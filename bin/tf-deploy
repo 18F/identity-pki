@@ -316,7 +316,7 @@ check_release_versioning() {
     ENVIRONMENT_CLASS=$(echo $ENVIRONMENT | sed -e 's/^.*-//')
 
     rev_name="$(git rev-parse --abbrev-ref HEAD)"
-    # Reduce name - Accounts like sms-prod and secops-prod all use stages/prod
+    # Reduce name - Accounts like sms-prod and tooling-prod all use stages/prod
     # make sure we're on stages/$ENVIRONMENT_CLASS
     if [ "$rev_name" != "stages/$ENVIRONMENT_CLASS" ]; then
         echo_yellow >&2 "

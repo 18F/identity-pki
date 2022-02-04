@@ -27,7 +27,7 @@ module "main" {
     "Prod" = [
       "555546682965", # login-prod
       "472911866628", # login-sms-prod
-      "217680906704"  # login-secops-prod
+      "217680906704"  # login-tooling-prod
     ],
     "Sandbox" = [
       "894947205914", # login-sandbox
