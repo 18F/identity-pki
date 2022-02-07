@@ -174,7 +174,7 @@ module "macie-bucket-scans-prod" {
     "login-gov-pivcac-staging.555546682965-us-west-2",
     "login-gov-pivcac-public-cert-dm.555546682965-us-west-2",
     "login-gov-pivcac-public-cert-prod.555546682965-us-west-2",
-    "login-gov-pivcac-public-cert-prod.555546682965-us-west-2",
+    "login-gov-pivcac-public-cert-staging.555546682965-us-west-2",
     "login-gov-log-cache-dm.555546682965-us-west-2",
     "login-gov-log-cache-prod.555546682965-us-west-2",
     "login-gov-log-cache-staging.555546682965-us-west-2",
