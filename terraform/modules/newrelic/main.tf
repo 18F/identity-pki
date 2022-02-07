@@ -47,11 +47,6 @@ resource "newrelic_alert_policy" "low" {
   name  = "alert-low-${var.env_name}"
 }
 
-resource "newrelic_alert_policy" "businesshours" {
-  count = var.enabled
-  name  = "alert-businesshours-${var.env_name}"
-}
-
 resource "newrelic_alert_policy" "enduser" {
   count = var.enduser_enabled
   name  = "alert-enduser-${var.env_name}"
@@ -68,15 +63,6 @@ resource "newrelic_alert_policy_channel" "low" {
 resource "newrelic_alert_policy_channel" "high" {
   count     = var.enabled
   policy_id = newrelic_alert_policy.high[0].id
-  channel_ids = var.pager_alerts_enabled > 0 ? [
-    newrelic_alert_channel.opsgenie[0].id,
-    newrelic_alert_channel.slack[0].id
-  ] : [newrelic_alert_channel.slack[0].id]
-}
-
-resource "newrelic_alert_policy_channel" "businesshours" {
-  count     = var.enabled
-  policy_id = newrelic_alert_policy.businesshours[0].id
   channel_ids = var.pager_alerts_enabled > 0 ? [
     newrelic_alert_channel.opsgenie[0].id,
     newrelic_alert_channel.slack[0].id

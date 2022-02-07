@@ -47,7 +47,7 @@ resource "newrelic_alert_condition" "low_throughput" {
 
 resource "newrelic_alert_condition" "low_apdex" {
   count           = var.enabled
-  policy_id       = newrelic_alert_policy.businesshours[0].id
+  policy_id       = newrelic_alert_policy.high[0].id
   name            = "${var.env_name}: Apdex low"
   enabled         = true
   type            = "apm_app_metric"
@@ -66,7 +66,7 @@ resource "newrelic_alert_condition" "low_apdex" {
 
 resource "newrelic_alert_condition" "error_rate" {
   count           = var.enabled
-  policy_id       = newrelic_alert_policy.businesshours[0].id
+  policy_id       = newrelic_alert_policy.high[0].id
   name            = "${var.env_name}: High idp error rate"
   enabled         = true
   type            = "apm_app_metric"
@@ -125,7 +125,7 @@ resource "newrelic_synthetics_monitor" "outbound_proxy_health" {
 }
 resource "newrelic_synthetics_alert_condition" "outbound_proxy_health" {
   count     = var.enabled
-  policy_id = newrelic_alert_policy.businesshours[0].id
+  policy_id = newrelic_alert_policy.high[0].id
 
   name       = "https://${local.idp_domain_name}/api/health/outbound failure"
   monitor_id = newrelic_synthetics_monitor.outbound_proxy_health[0].id

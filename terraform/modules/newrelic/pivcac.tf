@@ -58,7 +58,7 @@ resource "newrelic_synthetics_monitor" "pivcac_certs_health_30d" {
 
 resource "newrelic_synthetics_alert_condition" "pivcac_certs_health_7d" {
   count     = var.enabled
-  policy_id = newrelic_alert_policy.high[0].id
+  policy_id = newrelic_alert_policy.low[0].id
 
   name       = "${var.env_name} certs expiring failure"
   monitor_id = newrelic_synthetics_monitor.pivcac_certs_health_7d.id
@@ -66,9 +66,8 @@ resource "newrelic_synthetics_alert_condition" "pivcac_certs_health_7d" {
 
 resource "newrelic_synthetics_alert_condition" "pivcac_certs_health_30d" {
   count     = var.enabled
-  policy_id = newrelic_alert_policy.businesshours[0].id
+  policy_id = newrelic_alert_policy.low[0].id
 
   name       = "${var.env_name} certs expiring failure"
   monitor_id = newrelic_synthetics_monitor.pivcac_certs_health_30d.id
 }
-
