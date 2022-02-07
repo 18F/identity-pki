@@ -1,9 +1,5 @@
 data "aws_region" "current" {}
 
-# ----------------------------------------------------------------------------------------------------------------------
-# AWS LAMBDA Role and Policy
-# ----------------------------------------------------------------------------------------------------------------------
-
 resource "aws_iam_role" "lambda_role" {
   name               = "${var.env}-lambda-role-${data.aws_region.current.name}"
   assume_role_policy = data.aws_iam_policy_document.lambda_role_trust.json
@@ -53,20 +49,11 @@ resource "aws_iam_role_policy_attachment" "lambda-role-attach-cust-policy" {
   policy_arn = aws_iam_policy.cust-policy.arn
 }
 
-# ----------------------------------------------------------------------------------------------------------------------
-# AWS LAMBDA EXPECTS A DEPLOYMENT PACKAGE
-# A deployment package is a ZIP archive that contains your function code and dependencies.
-# ----------------------------------------------------------------------------------------------------------------------
-
 data "archive_file" "lambda" {
   type        = "zip"
   source_file = "${path.module}/python/main.py"
   output_path = "${path.module}/python/main.py.zip"
 }
-
-# ----------------------------------------------------------------------------------------------------------------------
-# DEPLOY THE LAMBDA FUNCTION
-# ----------------------------------------------------------------------------------------------------------------------
 
 resource "aws_lambda_function" "pinpoint-lambda" {
   depends_on = [
@@ -91,10 +78,6 @@ resource "aws_lambda_function" "pinpoint-lambda" {
     }
   }
 }
-
-# ----------------------------------------------------------------------------------------------------------------------
-# Lambda function gets events from Kinesis stream
-# ----------------------------------------------------------------------------------------------------------------------
 
 resource "aws_lambda_event_source_mapping" "event_source_mapping" {
   depends_on        = [aws_kinesis_stream.pinpoint_kinesis_stream]

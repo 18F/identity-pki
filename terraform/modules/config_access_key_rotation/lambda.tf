@@ -1,11 +1,17 @@
+data "archive_file" "config_access_key_rotation_lambda_function" {
+  type        = "zip"
+  source_file = "${path.module}/src/lambda_function.py"
+  output_path = "${path.module}/${var.config_access_key_rotation_code}"
+}
+
 resource "aws_lambda_function" "config_access_key_rotation_lambda" {
-  filename      = "${path.module}/${var.config_access_key_rotation_code}"
+  filename      = data.archive_file.config_access_key_rotation_lambda_function.output_path
   function_name = "${var.config_access_key_rotation_name}-function"
   role          = aws_iam_role.config_access_key_rotation_lambda_role.arn
   description   = "IAM Access Key Rotation Function"
   handler       = "lambda_function.lambda_handler"
 
-  source_code_hash = filebase64sha256("${path.module}/${var.config_access_key_rotation_code}")
+  source_code_hash = data.archive_file.config_access_key_rotation_lambda_function.output_base64sha256
   memory_size      = "3008"
   runtime          = "python3.8"
   timeout          = "300"
