@@ -153,6 +153,7 @@ users:
   parissa.eggleston:
     aws_groups:
       - appdev
+      - apponcall
     gitlab_groups:
       - appdev
   patricia.bryan:
