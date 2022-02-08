@@ -65,7 +65,7 @@ set_iam_profile () {
 get_acct_num() {
   local ACCT_NAME=${1:-$(aws sts get-caller-identity | jq -r '.Account')}
   verify_root_repo
-  grep "# login-${ACCT_NAME}" "${GIT_DIR}/terraform/master/global/main.tf" |
+  grep -E "# login-${ACCT_NAME}$" "${GIT_DIR}/terraform/master/global/main.tf" |
             sed -E 's/^.*\"([0-9]+)\".*$/\1/'
 }
 
