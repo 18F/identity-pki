@@ -16,6 +16,7 @@ module "build_pool" {
   gitlab_subnet_1_id             = aws_subnet.gitlab1.id
   gitlab_subnet_2_id             = aws_subnet.gitlab2.id
   slack_events_sns_hook_arn      = var.slack_events_sns_hook_arn
+  enable_ecr_write               = true
 }
 
 module "test_pool" {

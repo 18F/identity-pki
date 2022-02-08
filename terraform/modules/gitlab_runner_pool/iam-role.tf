@@ -15,10 +15,52 @@ resource "aws_iam_role" "gitlab_runner" {
       ]
     }
   EOM
+  inline_policy {}
+}
 
-  inline_policy {
-    name   = "${var.env_name}-gitlab-ecr"
-    policy = <<-EOM
+resource "aws_iam_role_policy" "gitlab-ecr-write" {
+  count       = var.enable_ecr_write ? 1 : 0
+  name_prefix = "${var.env_name}-gitlab-ecr-write"
+  role        = aws_iam_role.gitlab_runner.id
+  policy      = <<-EOM
+      {
+          "Version": "2012-10-17",
+          "Statement": [
+          {
+              "Effect": "Allow",
+              "Action": [
+                  "ecr:BatchCheckLayerAvailability",
+                  "ecr:GetDownloadUrlForLayer",
+                  "ecr:GetRepositoryPolicy",
+                  "ecr:DescribeRepositories",
+                  "ecr:ListImages",
+                  "ecr:DescribeImages",
+                  "ecr:BatchGetImage",
+                  "ecr:GetLifecyclePolicy",
+                  "ecr:GetLifecyclePolicyPreview",
+                  "ecr:ListTagsForResource",
+                  "ecr:DescribeImageScanFindings",
+                  "ecr:InitiateLayerUpload",
+                  "ecr:UploadLayerPart",
+                  "ecr:CompleteLayerUpload",
+                  "ecr:PutImage"
+              ],
+              "Resource": "*",
+              "Condition": {
+                  "StringEquals": {
+                      "aws:ResourceTag/gitlab_runner_access": "write"
+                  }
+              }
+          }
+          ]
+      }
+   EOM
+}
+
+resource "aws_iam_role_policy" "gitlab-ecr" {
+  name_prefix = "${var.env_name}-gitlab-ecr"
+  role        = aws_iam_role.gitlab_runner.id
+  policy      = <<-EOM
       {
           "Version": "2012-10-17",
           "Statement": [
@@ -50,41 +92,16 @@ resource "aws_iam_role" "gitlab_runner" {
                       "aws:ResourceTag/gitlab_runner_access": "read"
                   }
               }
-          },
-          {
-              "Effect": "Allow",
-              "Action": [
-                  "ecr:BatchCheckLayerAvailability",
-                  "ecr:GetDownloadUrlForLayer",
-                  "ecr:GetRepositoryPolicy",
-                  "ecr:DescribeRepositories",
-                  "ecr:ListImages",
-                  "ecr:DescribeImages",
-                  "ecr:BatchGetImage",
-                  "ecr:GetLifecyclePolicy",
-                  "ecr:GetLifecyclePolicyPreview",
-                  "ecr:ListTagsForResource",
-                  "ecr:DescribeImageScanFindings",
-                  "ecr:InitiateLayerUpload",
-                  "ecr:UploadLayerPart",
-                  "ecr:CompleteLayerUpload",
-                  "ecr:PutImage"
-              ],
-              "Resource": "*",
-              "Condition": {
-                  "StringEquals": {
-                      "aws:ResourceTag/gitlab_runner_access": "write"
-                  }
-              }
           }
           ]
       }
     EOM
-  }
+}
 
-  inline_policy {
-    name   = "${var.env_name}-gitlab_runner-certificates"
-    policy = <<-EOM
+resource "aws_iam_role_policy" "gitlab-runner-certificates" {
+  name_prefix = "${var.env_name}-gitlab_runner-certificates"
+  role        = aws_iam_role.gitlab_runner.id
+  policy      = <<-EOM
       {
           "Version": "2012-10-17",
           "Statement": [
@@ -100,11 +117,12 @@ resource "aws_iam_role" "gitlab_runner" {
           ]
       }
   EOM
-  }
+}
 
-  inline_policy {
-    name   = "${var.env_name}-gitlab_runner-cloudwatch-agent"
-    policy = <<-EOM
+resource "aws_iam_role_policy" "gitlab-runner-cloudwatch-agent" {
+  role        = aws_iam_role.gitlab_runner.id
+  name_prefix = "${var.env_name}-gitlab_runner-cloudwatch-agent"
+  policy      = <<-EOM
       {
           "Version": "2012-10-17",
           "Statement": [
@@ -121,11 +139,12 @@ resource "aws_iam_role" "gitlab_runner" {
           ]
       }
     EOM
-  }
+}
 
-  inline_policy {
-    name   = "${var.env_name}-gitlab_runner-cloudwatch-logs"
-    policy = <<-EOM
+resource "aws_iam_role_policy" "gitlab-runner-cloudwatch-logs" {
+  role        = aws_iam_role.gitlab_runner.id
+  name_prefix = "${var.env_name}-gitlab_runner-cloudwatch-logs"
+  policy      = <<-EOM
       {
           "Version": "2012-10-17",
           "Statement": [
@@ -144,11 +163,12 @@ resource "aws_iam_role" "gitlab_runner" {
           ]
       }
     EOM
-  }
+}
 
-  inline_policy {
-    name   = "${var.env_name}-gitlab_runner-common-secrets"
-    policy = <<-EOM
+resource "aws_iam_role_policy" "gitlab-runner-common-secrets" {
+  role        = aws_iam_role.gitlab_runner.id
+  name_prefix = "${var.env_name}-gitlab_runner-common-secrets"
+  policy      = <<-EOM
       {
         "Version": "2012-10-17",
         "Statement": [
@@ -208,11 +228,12 @@ resource "aws_iam_role" "gitlab_runner" {
         ]
       }
     EOM
-  }
+}
 
-  inline_policy {
-    name   = "${var.env_name}-gitlab_runner-describe_instances"
-    policy = <<-EOM
+resource "aws_iam_role_policy" "gitlab-runner-describe-instances" {
+  role        = aws_iam_role.gitlab_runner.id
+  name_prefix = "${var.env_name}-gitlab_runner-describe_instances"
+  policy      = <<-EOM
       {
           "Version": "2012-10-17",
           "Statement": [
@@ -225,11 +246,12 @@ resource "aws_iam_role" "gitlab_runner" {
           ]
       }
     EOM
-  }
+}
 
-  inline_policy {
-    name   = "${var.env_name}-gitlab_runner-secrets"
-    policy = <<-EOM
+resource "aws_iam_role_policy" "gitlab-runner-secrets" {
+  role        = aws_iam_role.gitlab_runner.id
+  name_prefix = "${var.env_name}-gitlab_runner-secrets"
+  policy      = <<-EOM
       {
           "Version": "2012-10-17",
           "Statement": [
@@ -291,12 +313,13 @@ resource "aws_iam_role" "gitlab_runner" {
           ]
       }
       EOM
-  }
+}
 
-  # allow all instances to send a dying SNS notice
-  inline_policy {
-    name   = "${var.env_name}-gitlab_runner-sns-publish-alerts"
-    policy = <<-EOM
+# allow all instances to send a dying SNS notice
+resource "aws_iam_role_policy" "gitlab-runner-sns-publish-alerts" {
+  role        = aws_iam_role.gitlab_runner.id
+  name_prefix = "${var.env_name}-gitlab_runner-sns-publish-alerts"
+  policy      = <<-EOM
       {
           "Version": "2012-10-17",
           "Statement": [
@@ -309,12 +332,13 @@ resource "aws_iam_role" "gitlab_runner" {
           ]
       }
     EOM
-  }
+}
 
-  # allow SSM service core functionality
-  inline_policy {
-    name   = "${var.env_name}-gitlab_runner-ssm-access"
-    policy = <<-EOM
+# allow SSM service core functionality
+resource "aws_iam_role_policy" "gitlab-runner-ssm-access" {
+  role        = aws_iam_role.gitlab_runner.id
+  name_prefix = "${var.env_name}-gitlab_runner-ssm-access"
+  policy      = <<-EOM
       {
           "Version": "2012-10-17",
           "Statement": [
@@ -375,12 +399,13 @@ resource "aws_iam_role" "gitlab_runner" {
           ]
       }
     EOM
-  }
+}
 
-  # allow runners to use a shared cache
-  inline_policy {
-    name   = "${var.env_name}-gitlab_runner-shared-cache"
-    policy = <<-EOM
+# allow runners to use a shared cache
+resource "aws_iam_role_policy" "gitlab-runner-shared-cache" {
+  role        = aws_iam_role.gitlab_runner.id
+  name_prefix = "${var.env_name}-gitlab_runner-shared-cache"
+  policy      = <<-EOM
       {
           "Version": "2012-10-17",
           "Statement": [
@@ -402,5 +427,5 @@ resource "aws_iam_role" "gitlab_runner" {
           ]
       }
       EOM
-  }
 }
+

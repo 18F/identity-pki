@@ -288,3 +288,9 @@ variable "github_ipv4_cidr_blocks" {
   description = "List of GitHub's IPv4 CIDR ranges."
   default     = []
 }
+
+variable "enable_ecr_write" {
+  description = "Whether the runner may write to ECR"
+  type        = bool
+  default     = false
+}
