@@ -58,7 +58,7 @@ module "gitlab_runner_launch_template" {
 }
 
 resource "aws_autoscaling_group" "gitlab_runner" {
-  name_prefix = "${var.env_name}-gitlab-${var.gitlab_runner_pool_name}"
+  name = "${var.env_name}-gitlab-${var.gitlab_runner_pool_name}"
 
   launch_template {
     id      = module.gitlab_runner_launch_template.template_id

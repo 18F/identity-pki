@@ -54,7 +54,7 @@ module "gitlab_launch_template" {
 }
 
 resource "aws_autoscaling_group" "gitlab" {
-  name_prefix = "${var.env_name}-gitlab"
+  name = "${var.env_name}-gitlab"
 
   # There is some sort of flapping going on here unless you set this
   lifecycle {
