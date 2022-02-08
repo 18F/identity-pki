@@ -40,6 +40,12 @@ variable "pager_alerts_enabled" {
   default     = 0
 }
 
+variable "gitlab_enabled" {
+  description = "set this to true if you want to alert on gitlab problems"
+  type        = number
+  default     = 0
+}
+
 variable "env_name" {}
 
 variable "region" {

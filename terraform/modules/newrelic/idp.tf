@@ -11,14 +11,14 @@ locals {
 }
 
 data "newrelic_entity" "idp" {
-  count  = var.enabled
+  count  = var.idp_enabled
   name   = "${var.env_name}.${var.root_domain}"
   domain = "APM"
   type   = "APPLICATION"
 }
 
 resource "newrelic_alert_condition" "low_throughput" {
-  count           = var.enabled
+  count           = var.idp_enabled
   policy_id       = newrelic_alert_policy.high[0].id
   name            = "${var.env_name}: LOW Throughput (web)"
   runbook_url     = "https://github.com/18F/identity-devops/wiki/Runbook:-low-throughput-in-New-Relic"
@@ -46,7 +46,7 @@ resource "newrelic_alert_condition" "low_throughput" {
 }
 
 resource "newrelic_alert_condition" "low_apdex" {
-  count           = var.enabled
+  count           = var.idp_enabled
   policy_id       = newrelic_alert_policy.high[0].id
   name            = "${var.env_name}: Apdex low"
   enabled         = true
@@ -65,7 +65,7 @@ resource "newrelic_alert_condition" "low_apdex" {
 }
 
 resource "newrelic_alert_condition" "error_rate" {
-  count           = var.enabled
+  count           = var.idp_enabled
   policy_id       = newrelic_alert_policy.high[0].id
   name            = "${var.env_name}: High idp error rate"
   enabled         = true
@@ -92,7 +92,7 @@ resource "newrelic_alert_condition" "error_rate" {
 }
 
 resource "newrelic_synthetics_monitor" "api_health" {
-  count     = var.enabled
+  count     = var.idp_enabled
   name      = "${var.env_name} /api/health check"
   type      = "SIMPLE"
   frequency = 5
@@ -112,7 +112,7 @@ resource "newrelic_synthetics_alert_condition" "api_health" {
 }
 
 resource "newrelic_synthetics_monitor" "outbound_proxy_health" {
-  count     = var.enabled
+  count     = var.idp_enabled
   name      = "${var.env_name} /api/health/outbound check"
   type      = "SIMPLE"
   frequency = 5
@@ -124,7 +124,7 @@ resource "newrelic_synthetics_monitor" "outbound_proxy_health" {
   verify_ssl        = true
 }
 resource "newrelic_synthetics_alert_condition" "outbound_proxy_health" {
-  count     = var.enabled
+  count     = var.idp_enabled
   policy_id = newrelic_alert_policy.high[0].id
 
   name       = "https://${local.idp_domain_name}/api/health/outbound failure"
@@ -192,7 +192,7 @@ resource "newrelic_nrql_alert_condition" "enduser_response_time" {
 }
 
 resource "newrelic_nrql_alert_condition" "controller_action_errors" {
-  count                        = var.enabled
+  count                        = var.idp_enabled
   policy_id                    = newrelic_alert_policy.high[0].id
   name                         = "${var.env_name}: high rate of errors in controller action"
   enabled                      = true
@@ -217,7 +217,7 @@ resource "newrelic_nrql_alert_condition" "controller_action_errors" {
 }
 
 resource "newrelic_nrql_alert_condition" "service_provider_errors" {
-  count                        = var.enabled
+  count                        = var.idp_enabled
   policy_id                    = newrelic_alert_policy.high[0].id
   name                         = "${var.env_name}: high rate of errors for service provider"
   enabled                      = true
@@ -269,7 +269,7 @@ resource "newrelic_alert_condition" "enduser_error_percentage" {
 }
 
 resource "newrelic_one_dashboard" "error_dashboard" {
-  count = var.enabled
+  count = var.idp_enabled
 
   name        = "Errors for ${var.error_dashboard_site}"
   permissions = "public_read_only"

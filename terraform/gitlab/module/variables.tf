@@ -70,8 +70,14 @@ variable "nat_c_subnet_cidr_block" { # 172.16.35.224 - 172.16.35.239
 }
 
 variable "allowed_gitlab_cidr_blocks_v4" { # 159.142.0.0 - 159.142.255.255
+  # https://s3.amazonaws.com/nr-synthetics-assets/nat-ip-dnsname/production/ip.json
   default = [
+    # GSA VPN IPs
     "159.142.0.0/16",
+    # New Relic Synthetic IPs in Columbus, OH (US-East-2)
+    "18.217.88.49/32",
+    "18.221.231.23/32",
+    "18.217.159.174/32",
   ]
 }
 

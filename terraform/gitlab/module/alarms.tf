@@ -29,3 +29,14 @@ module "gitlab_test_pool_insufficent_instances_alerts" {
 
   alarm_actions = [var.slack_events_sns_hook_arn]
 }
+
+
+module "newrelic" {
+  source = "../../modules/newrelic/"
+
+  enabled        = 1
+  gitlab_enabled = 1
+  region         = var.region
+  env_name       = var.env_name
+  root_domain    = var.root_domain
+}

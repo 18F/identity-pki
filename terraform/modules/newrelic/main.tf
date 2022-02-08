@@ -85,7 +85,7 @@ data "aws_s3_bucket_object" "opsgenie_apikey" {
   key    = "common/${var.opsgenie_key_file}"
 }
 resource "newrelic_alert_channel" "opsgenie" {
-  count = var.enabled
+  count = (var.enabled + var.pager_alerts_enabled) >= 2 ? 1 : 0
   name  = "opsgenie-channel-${var.env_name}"
   type  = "opsgenie"
 
@@ -101,7 +101,7 @@ data "aws_s3_bucket_object" "opsgenie_low_apikey" {
   key    = "common/opsgenie_low_apikey"
 }
 resource "newrelic_alert_channel" "opsgenie_low" {
-  count = var.enabled
+  count = (var.enabled + var.pager_alerts_enabled) >= 2 ? 1 : 0
   name  = "opsgenie-low-channel-${var.env_name}"
   type  = "opsgenie"
 
@@ -118,7 +118,7 @@ data "aws_s3_bucket_object" "opsgenie_enduser_apikey" {
 }
 
 resource "newrelic_alert_channel" "opsgenie_enduser" {
-  count = var.enduser_enabled
+  count = (var.enabled + var.pager_alerts_enabled) >= 2 ? 1 : 0
   name  = "opsgenie-enduser-channel-${var.env_name}"
   type  = "opsgenie"
 
