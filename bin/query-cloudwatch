@@ -286,7 +286,7 @@ class QueryCloudwatch
   # @param [String] value a string such as 1min, 2h, 3d, 4w, 5mon, 6y
   # @return [ActiveSupport::Duration]
   def parse_duration(value)
-    if (match = value.match(/^(?<number>\d+)(?<unit>\D)$/))
+    if (match = value.match(/^(?<number>\d+)(?<unit>\D+)$/))
       number = Integer(match[:number], 10)
 
       duration = case match[:unit]
