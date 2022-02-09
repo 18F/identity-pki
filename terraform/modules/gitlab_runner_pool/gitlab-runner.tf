@@ -46,6 +46,9 @@ module "gitlab_runner_launch_template" {
   iam_instance_profile_name = aws_iam_instance_profile.gitlab_runner.name
   security_group_ids        = [aws_security_group.gitlab_runner.id, var.base_security_group_id]
 
+  # Allow containers to access the metadata service
+  metadata_response_hop_limit = 2
+
   user_data = module.gitlab_runner_user_data.rendered_cloudinit_config
 
   instance_tags = {
