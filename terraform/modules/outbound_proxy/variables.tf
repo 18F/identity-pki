@@ -119,7 +119,6 @@ variable "vpc_cidr_block" { # 172.16.32.0   - 172.16.35.255
 
 variable "root_domain" {
   description = "DNS domain to use as the root domain, e.g. login.gov"
-  default     = "gitlab.identitysandbox.gov"
 }
 
 # The following two AMIs should be built at the same time and identical, even

@@ -28,10 +28,11 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
       output_artifacts = ["${local.clean_tf_dir}_${var.env_name}_source_output"]
 
       configuration = {
-        Owner      = "18F"
-        Repo       = "identity-devops"
-        Branch     = var.gitref
-        OAuthToken = data.aws_s3_bucket_object.identity_devops_oauthkey.body
+        Owner                = "18F"
+        Repo                 = "identity-devops"
+        Branch               = var.gitref
+        OAuthToken           = data.aws_s3_bucket_object.identity_devops_oauthkey.body
+        PollForSourceChanges = "true"
       }
     }
     action {
@@ -44,10 +45,11 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
       output_artifacts = ["${local.clean_tf_dir}_${var.env_name}_private_output"]
 
       configuration = {
-        Owner      = "18F"
-        Repo       = "identity-devops-private"
-        Branch     = "main"
-        OAuthToken = data.aws_s3_bucket_object.identity_devops_oauthkey.body
+        Owner                = "18F"
+        Repo                 = "identity-devops-private"
+        Branch               = "main"
+        OAuthToken           = data.aws_s3_bucket_object.identity_devops_oauthkey.body
+        PollForSourceChanges = "true"
       }
     }
   }

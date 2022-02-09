@@ -34,7 +34,7 @@ cookbook_file '/usr/local/bin/docker-credential-ecr-login' do
   group 'root'
 end
 
-node.run_state['external_fqdn'] = "gitlab.#{node.chef_environment}.gitlab.identitysandbox.gov"
+node.run_state['external_fqdn'] = "gitlab.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
 node.run_state['external_url'] = "https://#{node.run_state['external_fqdn']}"
 node.run_state['runner_name'] = node['hostname']
 # Get token by following the 'Obtain a token' instructions on

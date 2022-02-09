@@ -23,6 +23,7 @@ module "outbound_proxy" {
   slack_events_sns_hook_arn        = var.slack_events_sns_hook_arn
   vpc_id                           = aws_vpc.default.id
   github_ipv4_cidr_blocks          = local.github_ipv4_cidr_blocks
+  root_domain                      = var.root_domain
 }
 
 resource "aws_vpc" "default" {

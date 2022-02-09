@@ -33,6 +33,7 @@ resource "aws_iam_role_policy" "auto_terraform" {
       "Action": "sts:AssumeRole",
       "Resource": [
           "arn:aws:iam::${var.sandbox_account_id}:role/AutoTerraform",
+          "arn:aws:iam::${var.toolingprod_account_id}:role/AutoTerraform",
           "arn:aws:iam::${var.alpha_account_id}:role/AutoTerraform",
           "arn:aws:iam::${var.secopsdev_account_id}:role/AutoTerraform",
           "arn:aws:iam::${var.sms-sandbox_account_id}:role/AutoTerraform"

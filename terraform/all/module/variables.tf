@@ -57,6 +57,11 @@ variable "tooling_account_id" {
   description = "AWS Account ID for tooling account"
 }
 
+variable "toolingprod_account_id" {
+  default     = "217680906704"
+  description = "AWS Account ID for tooling prod account"
+}
+
 variable "auditor_accounts" {
   description = "Map of non-Login.gov AWS accounts we allow Security Auditor access to"
   # Unlike our master account, these are accounts we do not control!

@@ -38,6 +38,11 @@ variable "sandbox_account_id" {
   default     = "894947205914"
 }
 
+variable "toolingprod_account_id" {
+  description = "account id for the tooling prod account"
+  default     = "217680906704"
+}
+
 variable "alpha_account_id" {
   description = "account id for the alpha account"
   default     = "917793222841"

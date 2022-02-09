@@ -238,7 +238,6 @@ variable "proxy_enabled_roles" {
 
 variable "root_domain" {
   description = "DNS domain to use as the root domain, e.g. login.gov"
-  default     = "gitlab.identitysandbox.gov"
 }
 
 variable "route53_id" {

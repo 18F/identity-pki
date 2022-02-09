@@ -5,6 +5,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -81,8 +82,16 @@ func TestNetworkFirewall(t *testing.T) {
 
 // DNS Test
 func TestGitLabDnsSubdomain(t *testing.T) {
-	// TODO - Make this dymanic
-	dns_domain := "gitlab.identitysandbox.gov"
+	accountid := string(aws.GetAccountId(t))
+	dns_domain := ""
+	switch {
+	case strings.HasSuffix(accountid, "06704"):
+		dns_domain = "gitlab.login.gov"
+	case strings.HasSuffix(accountid, "03479"):
+		dns_domain = "gitlab.identitysandbox.gov"
+	default:
+		assert.NotEqual(t, "", dns_domain, "account ID mapping not found")
+	}
 	_, err := net.LookupNS(dns_domain)
 	require.NoError(t, err, fmt.Sprintf("Where is my NS record set for %s", dns_domain))
 }

@@ -118,7 +118,7 @@ EOM
             "Resource": "arn:aws:ec2:*:*:instance/*",
             "Condition": {
                 "StringEquals": {
-                    "aws:ResourceTag/domain": "${var.env_name}.gitlab.identitysandbox.gov"
+                    "aws:ResourceTag/domain": "${var.env_name}.${var.root_domain}"
                 }
             }
         },

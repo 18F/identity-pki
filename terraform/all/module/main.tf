@@ -49,7 +49,8 @@ data "aws_iam_policy_document" "autotf_assumerole" {
     principals {
       type = "AWS"
       identifiers = [
-        "arn:aws:iam::${var.tooling_account_id}:role/auto_terraform"
+        "arn:aws:iam::${var.tooling_account_id}:role/auto_terraform",
+        "arn:aws:iam::${var.toolingprod_account_id}:role/auto_terraform"
       ]
     }
   }
