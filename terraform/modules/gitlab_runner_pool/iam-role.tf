@@ -15,7 +15,6 @@ resource "aws_iam_role" "gitlab_runner" {
       ]
     }
   EOM
-  inline_policy {}
 }
 
 resource "aws_iam_role_policy" "gitlab-ecr-write" {
