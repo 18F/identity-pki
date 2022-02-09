@@ -204,6 +204,7 @@ phases:
       - 
       - terraform init -plugin-dir=.terraform/plugins -lockfile=readonly -backend-config=bucket=${local.state_bucket} -backend-config=key=${local.tf_config_key} -backend-config=dynamodb_table=terraform_locks -backend-config=region=${var.state_bucket_region}
       - terraform providers lock -fs-mirror=.terraform/plugins
+      - terraform plan -lock-timeout=180s -out /plan2.tfplan  2>&1 > /plan2.out # A bit ugly, but some things are generated dynamically here that need to be around for the plan to actually be applied.
       - terraform apply -auto-approve -lock-timeout=180s $CODEBUILD_SRC_DIR_${local.clean_tf_dir}_${var.env_name}_plan_output/plan.tfplan
 
   post_build:
