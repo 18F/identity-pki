@@ -88,6 +88,7 @@ phases:
       - export AWS_SESSION_TOKEN=$(echo $roledata | jq -r .Credentials.SessionToken)
       - export AWS_REGION=${var.region}
       - 
+      - pwd
       - terraform init -plugin-dir=.terraform/plugins -lockfile=readonly -backend-config=bucket=${local.state_bucket} -backend-config=key=${local.tf_config_key} -backend-config=dynamodb_table=terraform_locks -backend-config=region=${var.state_bucket_region}
       - terraform providers lock -fs-mirror=.terraform/plugins
       - terraform plan -lock-timeout=180s -out /plan.tfplan ${local.vars_files} 2>&1 > /plan.out

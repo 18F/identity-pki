@@ -14,7 +14,7 @@ module "login-prod" {
   # This is the dir under the terraform dir to tf in identity-devops
   tf_dir = "gitlab/login-prod"
   # This is the gitref to check out in identity-devops
-  gitref = "tspencer/toolingprod"
+  gitref = "main"
   # this is the environment that we will recycle/test
   recycletest_env_name = "login-prod"
   # this is the dns domain that we need to test
@@ -40,7 +40,7 @@ module "alltoolingprod" {
   # This is the dir under the terraform dir to tf in identity-devops
   tf_dir = "all/tooling-prod"
   # This is the gitref to check out in identity-devops
-  gitref = "tspencer/toolingprod"
+  gitref = "main"
   # This is the account to deploy tf_dir into
   account = "217680906704"
   # This is needed so that we don't have name collisions
