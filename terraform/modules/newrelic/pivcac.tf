@@ -4,7 +4,7 @@
 #   var.enduser_enabled (enable alerts for the enduser team)
 
 locals {
-  pivcac_domain_name = "omg-r-u-srsly-expired.pivcac.${var.env_name}.${var.root_domain}"
+  pivcac_domain_name = "synthetics-expiration-check.pivcac.${var.env_name}.${var.root_domain}"
 }
 
 data "newrelic_entity" "pivcac" {
