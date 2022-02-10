@@ -760,3 +760,8 @@ variable "performance_insights_enabled" {
   default     = "true"
   description = "Enables Performance Insights on RDS"
 }
+
+variable "enable_cloudwatch_slos" {
+  type    = bool
+  default = false
+}
