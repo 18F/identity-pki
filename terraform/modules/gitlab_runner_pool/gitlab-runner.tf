@@ -53,6 +53,7 @@ module "gitlab_runner_launch_template" {
 
   instance_tags = {
     gitlab_runner_pool_name = var.gitlab_runner_pool_name,
+    allow_untagged_jobs     = var.allow_untagged_jobs ? "true" : "false"
   }
 
   template_tags = {

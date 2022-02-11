@@ -1,3 +1,4 @@
+# A pool that can build images and push them to ECR
 module "build_pool" {
   source = "../../modules/gitlab_runner_pool/"
 
@@ -18,8 +19,10 @@ module "build_pool" {
   slack_events_sns_hook_arn      = var.slack_events_sns_hook_arn
   root_domain                    = var.root_domain
   enable_ecr_write               = true
+  allow_untagged_jobs            = false
 }
 
+# A pool with minimal permissions
 module "test_pool" {
   source = "../../modules/gitlab_runner_pool/"
 
@@ -39,4 +42,5 @@ module "test_pool" {
   gitlab_subnet_2_id             = aws_subnet.gitlab2.id
   slack_events_sns_hook_arn      = var.slack_events_sns_hook_arn
   root_domain                    = var.root_domain
+  allow_untagged_jobs            = true
 }

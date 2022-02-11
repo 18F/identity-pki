@@ -46,13 +46,15 @@ node.run_state['runner_token'] = ConfigLoader.load_config(node, "gitlab_runner_t
 resource = Aws::EC2::Resource.new(region: Chef::Recipe::AwsMetadata.get_aws_region)
 instance = resource.instance(Chef::Recipe::AwsMetadata.get_aws_instance_id)
 
+valid_tags = [
+  'gitlab_runner_pool_name',
+  'allow_untagged_jobs',
+]
 instance.tags.each do |tag|
-  if tag.key == "gitlab_runner_pool_name"
-    node.run_state['gitlab_runner_pool_name'] = tag.value
+  if valid_tags.include? tag.key
+    node.run_state[tag.key] = tag.value
   end
 end
-
-# node.run_state['gitlab_runner_pool_name'] = "default_pool"
 
 directory '/etc/systemd/system/gitlab-runner.service.d'
 
@@ -112,8 +114,8 @@ execute 'configure_gitlab_runner' do
     --env no_proxy="#{node.run_state['no_proxy']}" \
     --env DOCKER_AUTH_CONFIG='{ \"credsStore\": \"ecr-login\"}' \
     --docker-image alpine:latest \
-    --tag-list "docker,aws,#{node.run_state['gitlab_runner_pool_name']}" \
-    --run-untagged=true \
+    --tag-list "#{node.run_state['gitlab_runner_pool_name']}" \
+    --run-untagged=#{node.run_state['allow_untagged_jobs']} \
     --locked=false \
     --cache-shared \
     --cache-type s3 \

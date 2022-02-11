@@ -47,7 +47,7 @@ resource "aws_iam_role_policy" "gitlab-ecr-write" {
               "Resource": "*",
               "Condition": {
                   "StringEquals": {
-                      "aws:ResourceTag/gitlab_runner_access": "write"
+                      "aws:ResourceTag/gitlab_${var.env_name}_${var.gitlab_runner_pool_name}": "write"
                   }
               }
           }
@@ -88,7 +88,7 @@ resource "aws_iam_role_policy" "gitlab-ecr" {
               "Resource": "*",
               "Condition": {
                   "StringEquals": {
-                      "aws:ResourceTag/gitlab_runner_access": "read"
+                      "aws:ResourceTag/gitlab_${var.env_name}_${var.gitlab_runner_pool_name}": "read"
                   }
               }
           }

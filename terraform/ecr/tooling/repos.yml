@@ -1,0 +1,31 @@
+default_read_template: &all_write_template
+  ecr_repo_tag_mutability: "MUTABLE"
+  tags:
+    gitlab_alpha_build-pool: "write"
+    gitlab_bravo_build-pool: "write"
+    gitlab_charlie_build-pool: "write"
+    gitlab_delta_build-pool: "write"
+    gitlab_echo_build-pool: "write"
+
+repos:
+  alpha:
+    name: "alpha/base"
+    <<: *all_write_template
+  alpine:
+    name: "alpine/git"
+    <<: *all_write_template
+  fluent-bit:
+    name: "amazon/aws-for-fluent-bit"
+    <<: *all_write_template
+  gitaly:
+    name: "gitlab-org/build/cng/gitaly"
+    <<: *all_write_template
+  gitlabdemo:
+    name: "gitlabdemo"
+    <<: *all_write_template
+  golang:
+    name: "library/golang"
+    <<: *all_write_template
+  tspencertest:
+    name: "tspencertest"
+    <<: *all_write_template

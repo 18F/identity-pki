@@ -293,3 +293,9 @@ variable "enable_ecr_write" {
   type        = bool
   default     = false
 }
+
+variable "allow_untagged_jobs" {
+  description = "Whether the runner should allow untagged jobs. Disable for runners with any kind of elevated permissions."
+  type        = bool
+  default     = false
+}
