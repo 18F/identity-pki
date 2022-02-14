@@ -94,7 +94,7 @@ resource "aws_route53_record" "cname_cloudfront_idp" {
 }
 
 module "cloudfront_idp_cdn_alarms" {
-  count  = var.cdn_idp_static_assets_alarms_enabled
+  count  = var.cdn_idp_static_assets_cloudwatch_alarms_enabled
   source = "../modules/cloudfront_cdn_alarms"
 
   providers = {
@@ -105,7 +105,7 @@ module "cloudfront_idp_cdn_alarms" {
     DistributionId = aws_cloudfront_distribution.idp_static_cdn[count.index].id
     Region         = "Global"
   }
-  threshold         = 1
+  threshold         = var.cdn_idp_static_assets_alert_threshold
   distribution_name = "IDP Static Assets"
   env_name          = var.env_name
 }

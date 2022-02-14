@@ -389,9 +389,19 @@ variable "cdn_public_reporting_data_alarms_enabled" {
   description = "Whether to enable alarms for the Public Reporting Data CDN"
 }
 
-variable "cdn_idp_static_assets_alarms_enabled" {
+variable "cdn_idp_static_assets_cloudwatch_alarms_enabled" {
   default     = 0
-  description = "Whether to enable alarms for the IDP static assets CDN"
+  description = "Whether to enable cloudwatch alarms for the IDP static assets CDN"
+}
+
+variable "cdn_idp_static_assets_newrelic_alarms_enabled" {
+  default     = 0
+  description = "Whether to enable newrelic alarms for the IDP static assets CDN"
+}
+
+variable "cdn_idp_static_assets_alert_threshold" {
+  default     = 5
+  description = "Threshold for percentage of failed CDN asset requests. Can be noisy in low-volume environments."
 }
 
 variable "idp_cpu_autoscaling_enabled" {

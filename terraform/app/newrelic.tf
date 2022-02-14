@@ -8,7 +8,7 @@ module "newrelic" {
   pager_alerts_enabled                 = var.new_relic_pager_alerts_enabled
   enduser_enabled                      = var.idp_enduser_newrelic_alerts_enabled
   dashboard_enabled                    = var.dashboard_newrelic_alerts_enabled
-  cdn_idp_static_assets_alarms_enabled = var.cdn_idp_static_assets_alarms_enabled
+  cdn_idp_static_assets_alarms_enabled = var.cdn_idp_static_assets_newrelic_alarms_enabled
   region                               = var.region
   env_name                             = var.env_name
   pivcac_low_traffic_alert_threshold   = var.pivcac_low_traffic_alert_threshold
