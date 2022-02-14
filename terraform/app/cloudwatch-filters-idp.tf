@@ -4,71 +4,85 @@ locals {
       name         = "user-registration-email-submitted"
       pattern      = "{ ($.name = \"User Registration: Email Submitted\") }"
       metric_value = 1
+      dimensions   = {}
     },
     remembered_device_used_for_authentication = {
       name         = "remembered-device-used-for-authentication"
       pattern      = "{ ($.name = \"Remembered device used for authentication\") }"
       metric_value = 1
+      dimensions   = {}
     },
     telephony_otp_sent = {
       name         = "telephony-otp-sent"
       pattern      = "{ ($.name = \"Telephony: OTP sent\") }"
       metric_value = 1
+      dimensions   = {}
     },
     user_marked_authenticated = {
       name         = "user-marked-authenticated"
       pattern      = "{ ($.name = \"User marked authenticated\") }"
       metric_value = 1
+      dimensions   = {}
     },
     user_registration_complete = {
       name         = "user-registration-complete"
       pattern      = "{ ($.name = \"User registration: complete\") }"
       metric_value = 1
+      dimensions   = {}
     },
     multi_factor_authentication_setup_success = {
       name         = "multi-factor-authentication-setup-success"
       pattern      = "{ ($.name = \"Multi-Factor Authentication Setup\") && $.properties.event_properties.success is true }"
       metric_value = 1
+      dimensions   = {}
     },
     login_failure_email_or_password = {
       name         = "login-failure-email-or-password"
       pattern      = "{ ($.name = \"Email and Password Authentication\") && $.properties.event_properties.success is false }"
       metric_value = 1
+      dimensions   = {}
     },
     rate_limit_triggered = {
       name         = "rate-limit-triggered"
       pattern      = "{ ($.name = \"Rate Limit Triggered\") && ($.properties.event_properties.success is false) }"
       metric_value = 1
+      dimensions   = {}
     },
     login_failure_mfa_sms = {
       name         = "login-failure-mfa-sms"
       pattern      = "{ ($.name = \"Multi-Factor Authentication\") && ($.properties.event_properties.success is false) && ($.properties.event_properties.multi_factor_auth_method = \"sms\") }"
       metric_value = 1
+      dimensions   = {}
     },
     login_failure_mfa_personal_key = {
       name         = "login-failure-mfa-personal-key"
       pattern      = "{ ($.name = \"Multi-Factor Authentication\") && ($.properties.event_properties.success is false) && ($.properties.event_properties.multi_factor_auth_method = \"personal-key\") }"
       metric_value = 1
+      dimensions   = {}
     },
     login_failure_mfa_piv_cac = {
       name         = "login-failure-mfa-piv_cac"
       pattern      = "{ ($.name = \"Multi-Factor Authentication\") && ($.properties.event_properties.success is false) && ($.properties.event_properties.multi_factor_auth_method = \"piv_cac\") }"
       metric_value = 1
+      dimensions   = {}
     },
     login_failure_mfa_totp = {
       name         = "login-failure-mfa-totp"
       pattern      = "{ ($.name = \"Multi-Factor Authentication\") && ($.properties.event_properties.success is false) && ($.properties.event_properties.multi_factor_auth_method = \"totp\") }"
       metric_value = 1
+      dimensions   = {}
     },
     login_failure_mfa_webauthn = {
       name         = "login-failure-mfa-webauthn"
       pattern      = "{ ($.name = \"Multi-Factor Authentication\") && ($.properties.event_properties.success is false) && ($.properties.event_properties.multi_factor_auth_method = \"webauthn\") }"
       metric_value = 1
+      dimensions   = {}
     },
     login_failure_mfa_webauthn_platform = {
       name         = "login-failure-mfa-webauthn-platform"
       pattern      = "{ ($.name = \"Multi-Factor Authentication\") && ($.properties.event_properties.success is false) && ($.properties.event_properties.multi_factor_auth_method = \"webauthn_platform\") }"
       metric_value = 1
+      dimensions   = {}
     },
     # Defining both multidimension and single dimension sp-redirect metrics to
     # avoid the limitation on using SEARCH in alarms.
@@ -85,10 +99,11 @@ locals {
       name         = "sp-redirect-initiated-all"
       pattern      = "{ ($.name = \"SP redirect initiated\") }"
       metric_value = 1
+      dimensions   = {}
     }
     # TODO - Transition graphs and alarms to use this multidimensional metric,
     # then deprecate the login-failure-mfa-X metrics above
-    login_mutli_factor_authentication = {
+    login_multi_factor_authentication = {
       name         = "login-mfa"
       pattern      = "{ ($.name = \"Multi-Factor Authentication\") }"
       metric_value = 1
@@ -277,9 +292,10 @@ resource "aws_cloudwatch_log_metric_filter" "idp_events_auth" {
   pattern        = each.value["pattern"]
   log_group_name = aws_cloudwatch_log_group.idp_events.name
   metric_transformation {
-    name      = each.value["name"]
-    namespace = "${var.env_name}/idp-authentication"
-    value     = each.value["metric_value"]
+    name       = each.value["name"]
+    namespace  = "${var.env_name}/idp-authentication"
+    value      = each.value["metric_value"]
+    dimensions = each.value["dimensions"]
   }
 }
 
