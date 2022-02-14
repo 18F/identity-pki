@@ -81,12 +81,6 @@ users:
       - devops
     gitlab_groups:
       - devops
-  joshua.alley:
-    aws_groups:
-      - appdev
-      - apponcall
-    gitlab_groups:
-      - appdev
   julia.elman:
     aws_groups:
       - analytics
