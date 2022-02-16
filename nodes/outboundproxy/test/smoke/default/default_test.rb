@@ -93,9 +93,6 @@ describe command("grep 'Harvester started for file' /var/log/filebeat/filebea* |
 #  its('stdout') { should include '/var/log/awsagent-update.log' }
   its('stdout') { should include '/var/log/awslogs-agent-setup.log' }
   its('stdout') { should include '/var/log/awslogs.log' }
-  its('stdout') { should include '/var/log/clamav/clamav.log' }
-# TODO: add once we have a test that updates the clamav definitions.
-  its('stdout') { should include '/var/log/clamav/freshclam.log' }
   its('stdout') { should include '/var/log/cloud-init-output.log' }
   its('stdout') { should include '/var/log/cloud-init.log' }
   its('stdout') { should include '/var/log/dpkg.log' }

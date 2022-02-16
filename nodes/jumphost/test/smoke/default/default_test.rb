@@ -96,9 +96,6 @@ describe file('/var/log/filebeat/filebeat') do
 #  its('content') { should include '/var/log/awsagent-update.log' }
   its('content') { should include '/var/log/awslogs-agent-setup.log' }
   its('content') { should include '/var/log/awslogs.log' }
-  its('content') { should include '/var/log/clamav/clamav.log' }
-# TODO: add once we have a test that updates the clamav definitions.
-  its('content') { should include '/var/log/clamav/freshclam.log' }
   its('content') { should include '/var/log/cloud-init-output.log' }
   its('content') { should include '/var/log/cloud-init.log' }
   its('content') { should include '/var/log/dpkg.log' }

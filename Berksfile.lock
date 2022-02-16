@@ -53,9 +53,6 @@ DEPENDENCIES
     path: kitchen/cookbooks/login_dot_gov
   motd
   openssl
-  ossec
-    git: https://github.com/sous-chefs/ossec
-    revision: 093c6cdf8a5790327f07a93a07bb3904715dc078
   service_discovery
     path: kitchen/cookbooks/service_discovery
   seven_zip (~ 3.2.0)
@@ -69,8 +66,8 @@ DEPENDENCIES
   users
 
 GRAPH
-  apt (7.4.0)
-  ark (6.0.3)
+  apt (7.4.2)
+  ark (6.0.4)
     seven_zip (>= 3.1)
   aws_metadata (0.3.0)
   aws_s3 (0.2.0)
@@ -80,19 +77,19 @@ GRAPH
   canonical_hostname (0.2.0)
     aws_metadata (>= 0.0.0)
   chef_proxy_env (0.1.1)
-  compat_resource (12.19.1)
   config_loader (0.3.0)
     aws_metadata (>= 0.0.0)
   deploy_resource (1.0.3)
-  docker (10.1.0)
+  docker (10.1.7)
   filesystem (3.0.5)
     lvm (>= 1.1)
   git (11.0.1)
     ark (>= 0.0.0)
-  identity-gitlab (0.0.3)
+  identity-gitlab (0.0.4)
     config_loader (>= 0.0.0)
     docker (>= 0.0.0)
     filesystem (>= 0.0.0)
+    login_dot_gov (>= 0.0.0)
   identity-jumphost (0.1.2)
     login_dot_gov (>= 0.0.0)
     squid (~> 4.0)
@@ -127,12 +124,10 @@ GRAPH
     static_eip (>= 0.2.0)
     sudo (>= 0.0.1)
     users (>= 0.0.1)
-  lvm (5.0.7)
+  lvm (5.2.2)
   motd (1.0.1)
-  newrelic-infra (0.12.1)
+  newrelic-infra (0.12.2)
   openssl (8.5.5)
-  ossec (1.2.2)
-    yum-atomic (>= 0.0.0)
   passenger (0.0.1)
   service_discovery (0.2.1)
     aws_metadata (>= 0.0.0)
@@ -140,13 +135,9 @@ GRAPH
     canonical_hostname (>= 0.0.0)
   seven_zip (3.2.0)
     windows (>= 0.0.0)
-  squid (4.4.3)
+  squid (4.4.4)
   ssh-keys (1.2.7)
   static_eip (0.2.1)
   sudo (5.4.7)
-  users (8.1.1)
+  users (8.1.2)
   windows (7.0.2)
-  yum-atomic (0.2.0)
-    compat_resource (>= 12.14.6)
-    yum-epel (>= 0.0.0)
-  yum-epel (4.1.4)

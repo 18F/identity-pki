@@ -1,26 +1,18 @@
-node.run_state['aws_region'] = Chef::Recipe::AwsMetadata.get_aws_region
-node.run_state['aws_account_id'] = Chef::Recipe::AwsMetadata.get_aws_account_id
-node.run_state['bucket'] = "login-gov.secrets.#{node.run_state['aws_account_id']}-#{node.run_state['aws_region']}"
-node.run_state['endgame_config'] =  "SensorLinuxInstaller-Login.gov--Only--Sensor.cfg"
-node.run_state['endgame_installer'] = "SensorLinuxInstaller-Login.gov--Only--Sensor"
+endgame_config =  "SensorLinuxInstaller-Login.gov--Only--Sensor.cfg"
+endgame_installer = "SensorLinuxInstaller-Login.gov--Only--Sensor"
+
 # cannot use /var/tmp since the installer is an executable
-node.run_state['install_directory'] = '/root/endgame'
+install_directory = '/root/endgame'
 
-# copy installer files
-directory node.run_state['install_directory']
-execute "aws s3 cp s3://#{node.run_state['bucket']}/common/endgame_apikey #{node.run_state['install_directory']}/"
-execute "aws s3 cp s3://#{node.run_state['bucket']}/common/#{node.run_state['endgame_config']} #{node.run_state['install_directory']}/"
-execute "aws s3 cp s3://#{node.run_state['bucket']}/common/#{node.run_state['endgame_installer']} #{node.run_state['install_directory']}/"
+# install and register agent
+eg_exe = "#{install_directory}/#{endgame_installer}"
+eg_config = "#{install_directory}/#{endgame_config}"
+eg_log = "/var/log/endgame_install.log"
+eg_options = "-l #{eg_log} -d false -k $(cat #{install_directory}/endgame_apikey) -c #{eg_config}"
 
-# make the endgame install executable
-execute "chmod +x #{node.run_state['install_directory']}/#{node.run_state['endgame_installer']}"
-
-# install agent
-node.run_state['eg_exe'] = "#{node.run_state['install_directory']}/#{node.run_state['endgame_installer']}"
-node.run_state['eg_config'] = "#{node.run_state['install_directory']}/#{node.run_state['endgame_config']}"
-node.run_state['eg_log'] = "/var/log/endgame_install.log"
-
-node.run_state['eg_options'] = "-l #{node.run_state['eg_log']} -d false -k $(cat #{node.run_state['install_directory']}/endgame_apikey) -c #{node.run_state['eg_config']}"
+# note that we are backgrounding this task since it can take ~3 minutes to
+# complete. This has been documented by the vendor and a fix has been promised
+# in a future release.
 execute 'install endgame sensor' do
-  command "#{node.run_state['eg_exe']} #{node.run_state['eg_options']}"
+  command "#{eg_exe} #{eg_options} &"
 end

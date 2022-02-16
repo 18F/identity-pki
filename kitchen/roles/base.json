@@ -28,7 +28,6 @@
     "recipe[chef_proxy_env]",
     "recipe[instance_certificate::generate]",
     "recipe[service_discovery::register]",
-    "recipe[login_dot_gov::configure_clamav]",
     "recipe[login_dot_gov::chage]",
     "recipe[login_dot_gov::ssh]",
     "recipe[login_dot_gov::users]",
@@ -40,7 +39,7 @@
     "recipe[identity_base_config::ruby]",
     "recipe[identity-monitoring]",
     "recipe[identity-nessus]",
-    "recipe[identity-soc]"
+    "recipe[identity-soc::endgame]"
   ],
   "env_run_lists": {}
 }
