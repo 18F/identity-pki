@@ -14,6 +14,7 @@ module "git2s3_src" {
     "555546682965",
     "917793222841",
     "034795980528",
+    "217680906704",
   ]
   #artifact_bucket      = "login-gov-public-artifacts-us-west-2"
   bucket_name_prefix = "login-gov"
