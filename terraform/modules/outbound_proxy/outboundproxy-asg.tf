@@ -74,7 +74,7 @@ module "outboundproxy_recycle" {
 
 resource "aws_route53_record" "obproxy" {
   zone_id = var.route53_internal_zone_id
-  name    = "obproxy.login.gov.internal"
+  name    = var.hostname
   type    = "CNAME"
   ttl     = "300"
   records = [aws_lb.obproxy.dns_name]

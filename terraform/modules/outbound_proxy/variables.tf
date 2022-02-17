@@ -204,3 +204,8 @@ variable "github_ipv4_cidr_blocks" {
   description = "List of GitHub's IPv4 CIDR ranges."
   default     = []
 }
+
+variable "hostname" {
+  type    = string
+  default = "obproxy.login.gov.internal"
+}

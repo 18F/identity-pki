@@ -1,0 +1,92 @@
+@startuml
+
+package "kitchen" {
+        package "cookbooks" {
+                package "identity-gitlab" {
+                        object "recipes/runner.rb" as runner_rb
+                        package "/templates/default" {
+                                object "gitlab.rb.erb" as gitlab_rb_erb
+                                object "http-proxy.conf.erb" as proxy_conf_erb
+                        }
+                }
+                object "login_dot_gov/attributes/default.rb" as default_rb
+        }
+}
+
+runner_rb --> proxy_conf_erb
+object "docker service" as docker_service
+docker_service --> runner_rb
+runner_rb --> default_rb
+        
+package "terraform" {
+        package "gitlab" {
+                package "module" {
+                        object "gitlab.tf" as g
+                        object "variables.tf" as t_g_m_variables
+                        object "gitlab-runner.tf" as t_g_m_gitlab_runner
+                        t_g_m_gitlab_runner --> t_g_m_variables
+                }
+        }
+        package "modules" {
+                package "outbound_proxy" {
+                        object "variables.tf" as v2
+                }
+                package "gitlab_runner_pool" {
+                        object "variables.tf" as t_m_g_variables
+                        t_m_g_variables --> t_g_m_gitlab_runner
+                        object "gitlab-runner.tf" as t_m_g_gitlab_runner {
+                                var.proxy_server
+                                var.proxy_port
+                                var.no_proxy_hosts
+                                var.proxy_url
+                                gitlab_runner_pool_name
+                        }
+                        t_m_g_gitlab_runner --> t_m_g_variables
+                }
+                package "bootstrap" {
+                        object "provision.sh" as t_m_b_provision {
+                                $INFO_DIR/proxy_server
+                                $INFO_DIR/proxy_port
+                                $INFO_DIR/no_proxy_hosts
+                        }
+                        object "base.yaml" as t_m_b_base_yaml
+                        object "main.tf" as t_m_b_main {
+                                var.proxy_server
+                                var.proxy_port
+                                var.no_proxy_hosts
+                                var.proxy_url
+                        }
+                        object "cloud-init.base.yaml.tpl" as t_m_b_cloud_init {
+                                proxy_server
+                                proxy_port
+                                no_proxy_hosts
+                                proxy_url
+                        }
+                        t_m_b_cloud_init --> t_m_b_main
+                        t_m_b_main --> t_m_b_cloud_init
+                        t_m_b_provision --> t_m_b_base_yaml
+                        default_rb --> t_m_b_base_yaml
+                        t_m_b_base_yaml --> t_m_b_main
+                        t_m_b_main --> t_m_g_gitlab_runner
+                }
+        }
+}
+
+runner_rb --> t_m_g_gitlab_runner : "pool_name"
+
+package "etc" {
+        object "profile.d/proxy-config.sh" as e_proxy_config
+        object environment
+        object "systemd/system/gitlab-runner.service.d/http-proxy.conf" as e_http_proxy
+        e_proxy_config --> t_m_b_provision
+        environment --> t_m_b_provision
+        e_http_proxy --> runner_rb
+}
+
+/'
+ ' object "nodes/common/kitchen.cloud.yml" as kitchen_cloud_yml
+ ' 
+ ' object "identity-cookbooks/identity_base_config/recipes/ruby.rb" as ruby_rb
+ '/
+
+@enduml

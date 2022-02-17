@@ -109,15 +109,3 @@ resource "aws_security_group" "obproxy" {
 
   vpc_id = var.vpc_id
 }
-
-resource "aws_ssm_parameter" "net_outboundproxy" {
-  name  = "${local.net_ssm_parameter_prefix}outboundproxy/url"
-  type  = "String"
-  value = "http://${var.proxy_server}:${var.proxy_port}"
-}
-
-resource "aws_ssm_parameter" "net_noproxy" {
-  name  = "${local.net_ssm_parameter_prefix}outboundproxy/no_proxy"
-  type  = "String"
-  value = var.no_proxy_hosts
-}

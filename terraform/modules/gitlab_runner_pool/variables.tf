@@ -299,3 +299,19 @@ variable "allow_untagged_jobs" {
   type        = bool
   default     = false
 }
+
+
+variable "aws_subnet_publicsubnet1_id" {
+}
+
+variable "aws_subnet_publicsubnet2_id" {
+}
+
+variable "aws_subnet_publicsubnet3_id" {
+}
+
+variable "route53_internal_zone_id" {
+}
+
+variable "s3_prefix_list_id" {
+}

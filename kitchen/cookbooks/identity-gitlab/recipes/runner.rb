@@ -43,6 +43,10 @@ node.run_state['runner_name'] = node['hostname']
 # aws s3 cp /tmp/gitlab_runner_token s3://<secretsbucket>/<env>/gitlab_runner_token
 node.run_state['runner_token'] = ConfigLoader.load_config(node, "gitlab_runner_token", common: false).chomp
 
+https_proxy = node['login_dot_gov']['https_proxy']
+http_proxy = node['login_dot_gov']['http_proxy']
+no_proxy = node['login_dot_gov']['no_proxy']
+
 resource = Aws::EC2::Resource.new(region: Chef::Recipe::AwsMetadata.get_aws_region)
 instance = resource.instance(Chef::Recipe::AwsMetadata.get_aws_instance_id)
 
@@ -63,6 +67,11 @@ template '/etc/systemd/system/gitlab-runner.service.d/http-proxy.conf' do
   owner 'root'
   group 'root'
   mode '644'
+  variables ({
+    http_proxy: http_proxy,
+    https_proxy: https_proxy,
+    no_proxy: no_proxy,
+  })
   notifies :run, 'execute[systemctl_daemon_config]', :immediate
 end
 
@@ -83,9 +92,9 @@ docker_service 'default' do
   action [:create]
   ipv6 false
   ipv6_forward false
-  http_proxy 'http://obproxy.login.gov.internal:3128'
-  https_proxy 'http://obproxy.login.gov.internal:3128'
-  no_proxy 'localhost,127.0.0.1,169.254.169.254,169.254.169.123,.login.gov.internal,ec2.us-west-2.amazonaws.com,kms.us-west-2.amazonaws.com,secretsmanager.us-west-2.amazonaws.com,ssm.us-west-2.amazonaws.com,ec2messages.us-west-2.amazonaws.com,lambda.us-west-2.amazonaws.com,ssmmessages.us-west-2.amazonaws.com,sns.us-west-2.amazonaws.com,sqs.us-west-2.amazonaws.com,events.us-west-2.amazonaws.com,metadata.google.internal,sts.us-west-2.amazonaws.com'
+  http_proxy http_proxy
+  https_proxy https_proxy
+  no_proxy no_proxy
   icc false
   log_level 'debug'
   live_restore true
@@ -96,7 +105,6 @@ end
 
 node.run_state['aws_region'] = Chef::Recipe::AwsMetadata.get_aws_region
 node.run_state['aws_account_id'] = Chef::Recipe::AwsMetadata.get_aws_account_id
-node.run_state['no_proxy'] = 'localhost,127.0.0.1,169.254.169.254,169.254.169.123,.login.gov.internal,ec2.us-west-2.amazonaws.com,kms.us-west-2.amazonaws.com,secretsmanager.us-west-2.amazonaws.com,ssm.us-west-2.amazonaws.com,ec2messages.us-west-2.amazonaws.com,lambda.us-west-2.amazonaws.com,ssmmessages.us-west-2.amazonaws.com,sns.us-west-2.amazonaws.com,sqs.us-west-2.amazonaws.com,events.us-west-2.amazonaws.com,metadata.google.internal,sts.us-west-2.amazonaws.com'
 
 execute 'configure_gitlab_runner' do
   command <<-EOH
@@ -106,12 +114,12 @@ execute 'configure_gitlab_runner' do
     --url "#{node.run_state['external_url']}" \
     --registration-token "#{node.run_state['runner_token']}" \
     --executor docker \
-    --env HTTP_PROXY=http://obproxy.login.gov.internal:3128 \
-    --env HTTPS_PROXY=http://obproxy.login.gov.internal:3128 \
-    --env http_proxy=http://obproxy.login.gov.internal:3128 \
-    --env https_proxy=http://obproxy.login.gov.internal:3128 \
-    --env NO_PROXY="#{node.run_state['no_proxy']}" \
-    --env no_proxy="#{node.run_state['no_proxy']}" \
+    --env HTTP_PROXY="#{http_proxy}" \
+    --env HTTPS_PROXY="#{https_proxy}" \
+    --env http_proxy="#{http_proxy}" \
+    --env https_proxy="#{https_proxy}" \
+    --env NO_PROXY="#{no_proxy}" \
+    --env no_proxy="#{no_proxy}" \
     --env DOCKER_AUTH_CONFIG='{ \"credsStore\": \"ecr-login\"}' \
     --docker-image alpine:latest \
     --tag-list "#{node.run_state['gitlab_runner_pool_name']}" \

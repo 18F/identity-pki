@@ -1,4 +1,4 @@
 [Service]
-Environment="HTTP_PROXY=http://obproxy.login.gov.internal:3128"
-Environment="HTTPS_PROXY=http://obproxy.login.gov.internal:3128/"
-Environment="NO_PROXY=localhost,127.0.0.1,169.254.169.254,169.254.169.123"
+Environment="HTTP_PROXY=<%= @http_proxy %>"
+Environment="HTTPS_PROXY=<%= @https_proxy %>"
+Environment="NO_PROXY=<%= @no_proxy %>"
