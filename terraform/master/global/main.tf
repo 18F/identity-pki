@@ -33,7 +33,7 @@ module "main" {
       "894947205914", # login-sandbox
       "035466892286", # login-sms-sandbox
       "138431511372", # login-secops-dev
-      "034795980528", # login-tooling
+      "034795980528", # login-tooling-sandbox
       "917793222841"  # login-alpha
     ],
     "Analytics" = [

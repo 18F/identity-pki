@@ -18,5 +18,5 @@ ID_state_lock_table=terraform_locks
 
 # default AWS credentials profile for this account
 if [ -z "${AWS_PROFILE-}${AWS_ACCESS_KEY_ID-}" ]; then
-    export AWS_PROFILE="login-tooling"
+    export AWS_PROFILE="login-tooling-sandbox"
 fi

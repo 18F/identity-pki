@@ -1,7 +1,7 @@
 provider "aws" {
   region              = "us-west-2"
-  allowed_account_ids = ["034795980528"] # require login-tooling
-  profile             = "login-tooling"
+  allowed_account_ids = ["034795980528"] # require login-tooling-sandbox
+  profile             = "login-tooling-sandbox"
 }
 
 # Stub remote config
@@ -20,7 +20,7 @@ module "main" {
   dnssec_zone_exists     = true
   slack_events_sns_topic = "slack-events"
   opsgenie_key_ready     = var.opsgenie_key_ready
-  iam_account_alias      = "login-tooling"
+  iam_account_alias      = "login-tooling-sandbox"
   account_roles_map = {
     iam_appdev_enabled = false
   }
