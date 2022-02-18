@@ -4,6 +4,7 @@ data "aws_caller_identity" "current" {
 module "outbound_proxy" {
   source = "../outbound_proxy"
 
+  proxy_for                        = var.gitlab_runner_pool_name
   account_default_ami_id           = var.default_ami_id_tooling
   ami_id_map                       = var.ami_id_map
   base_security_group_id           = var.base_security_group_id

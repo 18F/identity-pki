@@ -49,6 +49,10 @@ module "outboundproxy_launch_template" {
   security_group_ids        = [aws_security_group.obproxy.id, var.base_security_group_id]
   user_data                 = module.outboundproxy_user_data.rendered_cloudinit_config
 
+  instance_tags = {
+    proxy_for = var.proxy_for
+  }
+
   template_tags = {
     main_git_ref = module.outboundproxy_user_data.main_git_ref
   }

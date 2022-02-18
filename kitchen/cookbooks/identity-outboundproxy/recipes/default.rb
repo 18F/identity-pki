@@ -57,8 +57,21 @@ template '/etc/squid/squid.conf' do
     notifies :restart, 'service[squid]', :delayed
 end
 
+# Find alternative domain allowlists
+# TODO: We use this same pattern in runner.rb. Refactor into a lib?
+resource = Aws::EC2::Resource.new(region: Chef::Recipe::AwsMetadata.get_aws_region)
+instance = resource.instance(Chef::Recipe::AwsMetadata.get_aws_instance_id)
+valid_tags = [
+  'proxy_for',
+]
+instance.tags.each do |tag|
+  if valid_tags.include? tag.key
+    node.run_state[tag.key] = tag.value
+  end
+end
+
 template '/etc/squid/domain-allowlist.conf' do
-    source 'domain-allowlist.conf.erb'
+    source ["default/#{node.run_state['proxy_for']}-domain-allowlist.conf.erb", 'default/domain-allowlist.conf.erb']
     mode '0644'
     owner 'root'
     group 'root'

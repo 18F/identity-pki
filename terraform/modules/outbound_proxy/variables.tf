@@ -209,3 +209,9 @@ variable "hostname" {
   type    = string
   default = "obproxy.login.gov.internal"
 }
+
+variable "proxy_for" {
+  type        = string
+  description = "What the proxy is for, e.g. idp, gitlab, gitlab-runner-test-pool."
+  default     = "default"
+}

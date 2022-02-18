@@ -24,6 +24,7 @@ module "outbound_proxy" {
   vpc_id                           = aws_vpc.default.id
   github_ipv4_cidr_blocks          = local.github_ipv4_cidr_blocks
   root_domain                      = var.root_domain
+  proxy_for                        = "gitlab"
 }
 
 resource "aws_vpc" "default" {

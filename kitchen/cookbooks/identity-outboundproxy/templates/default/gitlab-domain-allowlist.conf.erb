@@ -1,0 +1,25 @@
+<%= render 'domain-allowlist.conf.erb' %>
+
+gitlab.com
+packages.gitlab.com
+# XXX https://packages.gitlab.com/gitlab/gitlab-ee/ubuntu/dists/bionic/InRelease redirects to cloudfront
+.cloudfront.net
+
+<%= @gitlab_url %>
+download.docker.com
+.docker.io
+.cloudflare.docker.com
+mirror.gcr.io
+gcr.io
+storage.googleapis.com
+proxy.golang.org
+login-gov-<%= node.chef_environment %>-gitlabcache-<%= @aws_account_id %>-<%= @aws_region %>.s3.dualstack.<%= @aws_region %>.amazonaws.com
+<%= @aws_account_id %>.dkr.ecr.<%= @aws_region %>.amazonaws.com
+amazon-ecr-credential-helper-releases.s3.us-east-2.amazonaws.com
+
+# Kaniko
+deb.debian.org
+security.debian.org
+
+# GitLab CI
+chromedriver.storage.googleapis.com
