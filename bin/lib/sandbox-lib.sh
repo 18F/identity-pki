@@ -65,7 +65,7 @@ initialize() {
   verify_root_repo
   verify_private_repo
   verify_sandbox_env ${1:-}
-  get_arn_role 'sandbox' 'Terraform'
+  get_iam 'app' 'sandbox' 'Terraform'
   
   APP_DIR="${GIT_DIR}/terraform/app"
   AWS_ACCT_NUM=$(ave aws sts get-caller-identity | jq -r '.Account')

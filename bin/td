@@ -108,11 +108,11 @@ fi
 # default TF_ENV, if left blank
 if [[ -z ${TF_ENV} ]] ; then
   case ${TF_DIR} in
-    app|waf) TF_ENV=${GSA_USERNAME} ;;
-    gitlab) TF_ENV='alpha'                            ;;
-    tooling) TF_ENV='tooling'                         ;;
-    master) TF_ENV='global'                           ;;
-    *) TF_ENV='sandbox'                               ;;
+        app|waf) TF_ENV=${GSA_USERNAME}     ;;
+         gitlab) TF_ENV='alpha'             ;;
+    tooling|sms) TF_ENV="${TF_DIR}-sandbox" ;;
+         master) TF_ENV='global'            ;;
+              *) TF_ENV='sandbox'           ;;
   esac
 fi
 
@@ -123,24 +123,19 @@ elif [[ ! -d ${GIT_DIR}/terraform/${TF_DIR}/${TF_ENV} ]] ; then
   [[ ${TF_DIR} == "app" ]] || raise "terraform/${TF_DIR}/${TF_ENV} not found"
 fi
 
-case ${TF_DIR} in
-  app|waf)
-    TF_PROFILE='sandbox'
-    if [[ -z ${TF_ENV} ]] ; then
-      raise 'TF_ENV and/or default of GSA_USERNAME not set or specified'
-    elif [[ "${TF_ENV}" =~ (staging|dm|prod) ]] ; then
-      TF_PROFILE='prod'
-    fi
-  ;;
-  master) TF_PROFILE='master'  ;;
-  gitlab) TF_PROFILE='tooling' ;;
-  sms) TF_PROFILE=$(echo "sms-${TF_ENV}" |
-        sed -E 's/-east//')
-  ;;
-  *) TF_PROFILE=${TF_ENV} ;;
-esac
+# set TF_PROFILE for get_iam to look up
+if [[ ${TF_DIR} == "app" ]] ; then
+  TF_PROFILE='sandbox'
+  if [[ -z ${TF_ENV} ]] ; then
+    raise 'TF_ENV and/or default of GSA_USERNAME not set or specified'
+  elif [[ "${TF_ENV}" =~ (staging|dm|prod) ]] ; then
+    TF_PROFILE='prod'
+  fi
+else
+  TF_PROFILE=${TF_ENV}
+fi
 
-get_arn_role ${TF_PROFILE} ${TF_ROLE}
+get_iam ${TF_DIR} ${TF_PROFILE} ${TF_ROLE}
 
 ARGS="$@"
 if [[ ! -z ${ARGS} ]] ; then

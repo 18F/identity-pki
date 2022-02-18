@@ -115,7 +115,7 @@ get_ami_info() {
   shift
   echo -e "\nGetting login-${PROFILE} AMI data..."
   PIPELINE_AMIS=()
-  AV_PROFILE=$(get_profile_name $(get_acct_num ${PROFILE}))
+  get_iam 'imagebuild' "${PROFILE}"
 
   for TYPE in "$@" ; do
     if [[ ${TYPE} =~ '_ami-' ]] ; then
@@ -259,6 +259,7 @@ SANDBOX_AMIS='sandbox '
 PROD_AMIS='prod '
 TOOLING_AMIS='tooling '
 DATA=()
+AV_PROFILE=
 
 while getopts luobrh-: OPT; do
   # support long options: https://stackoverflow.com/a/28466267/519360

@@ -87,7 +87,7 @@ update_build_branch() {
   fi
 }
 
-declare {ACCOUNT,BUILD_BRANCH,TF_APPLY_CMD,CURRENT_BRANCH}=
+declare {ACCOUNT,BUILD_BRANCH,TF_APPLY_CMD,CURRENT_BRANCH,AV_PROFILE}=
 TYPE_LIST='base rails'
 
 verify_root_repo
@@ -109,7 +109,7 @@ elif ! [[ "${TYPE_LIST}" =~ (base|rails) ]] ; then
   raise "TYPE must be \`base\` or \`rails\`; remove -t flag to use both"
 fi
 
-AV_PROFILE=$(get_profile_name $(get_acct_num ${ACCOUNT}))
+get_iam 'imagebuild' "${ACCOUNT}"
 get_build_branch
 
 if ! [[ -z ${BUILD_BRANCH} ]] ; then

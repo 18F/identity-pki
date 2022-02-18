@@ -50,37 +50,28 @@ define() {
   read -r -d '' ${1} || true
 }
 
-# set the $LOGIN_IAM_PROFILE var if not already set
-set_iam_profile () {
-  while [[ -z "${LOGIN_IAM_PROFILE-}" ]] ; do
-    read -r -p "LOGIN_IAM_PROFILE not set; please specify (i.e. ACCOUNT-LOGIN_IAM_PROFILE): " PROFILE
-    verify_profile "${ACCOUNT}-${PROFILE}"
-    run export LOGIN_IAM_PROFILE=${PROFILE}
-    echo "Add this line to your .rc file of choice to avoid having to set this in the future:"
-    echo -e "\nexport LOGIN_IAM_PROFILE=${PROFILE}\n"
-  done
-}
+# get top profile for ID_ACCT out of aws/config
+# Provide ROLE for specific 'role/ROLE' profile
+get_iam() {
+  local ID_TOP=${1}
+  local ID_ACCT=${2}
+  local ID_ROLE=${3:-}
 
-# look up account number for ACCOUNT
-get_acct_num() {
-  local ACCT_NAME=${1:-$(aws sts get-caller-identity | jq -r '.Account')}
   verify_root_repo
-  grep -E "# login-${ACCT_NAME}$" "${GIT_DIR}/terraform/master/global/main.tf" |
-            sed -E 's/^.*\"([0-9]+)\".*$/\1/'
-}
-
-
-# get profile from role name/ARN
-get_arn_role() {
-  PROFILE=${1}
-  ROLE=${2:-}
-  if [[ -z ${ROLE} ]] ; then
-    set_iam_profile
-    ROLE=${LOGIN_IAM_PROFILE}
+  [[ ${ID_TOP} == "app" ]] && ID_TOP="all"
+  ACCT_NUM=$(grep 'allowed_account_ids' \
+    "${GIT_DIR}/terraform/${ID_TOP}/${ID_ACCT}/main.tf" |
+    awk -F'"' '{print $2}')
+  if [[ -z ${ID_ROLE} ]] ; then
+    AV_PROFILE=$(awk '{a[i++]=$0} END {for (j=i-1; j>=0;) print a[j--] }' \
+                 ~/.aws/config |
+                 awk -v account="$ACCT_NUM" -v RS= '$0 ~ account' |
+                 tail -n 1 | sed -E 's/\[profile (.*)\]/\1/')
+  else
+    AV_PROFILE=$(tail -r ~/.aws/config | tail -n +$(tail -r ~/.aws/config |
+      grep -n "$ACCT_NUM.*$ID_ROLE" | awk -F: '{print $1}') |
+      grep -m 1 '\[profile' | sed -E 's/\[profile ([a-z-]+)\]/\1/')
   fi
-  ACCOUNT=$(get_acct_num ${PROFILE})
-  AV_PROFILE=$(tail -r ~/.aws/config | tail -n +$(tail -r ~/.aws/config | grep -n "$ACCOUNT.*$ROLE" |
-               awk -F: '{print $1}') | grep -m 1 '\[profile' | sed -E 's/\[profile ([a-z-]+)\]/\1/')
 }
 
 # verify that script is running from identity-devops repo
@@ -533,13 +524,6 @@ git_current_branch() {
   REF=$(git rev-parse --short HEAD 2>/dev/null) || return
   fi
   echo ${REF#refs/heads/}
-}
-
-get_profile_name () {
-  ACCOUNT=${1:-$(aws sts get-caller-identity | jq -r '.Account')}
-  awk '{a[i++]=$0} END {for (j=i-1; j>=0;) print a[j--] }' ~/.aws/config |
-             awk -v account="$ACCOUNT" -v RS= '$0 ~ account' |
-                tail -n 1 | sed -E 's/\[profile (.*)\]/\1/'
 }
 
 #### use ~/.login-revs to set $GH_REVS var; used in bin/github-pr ####
