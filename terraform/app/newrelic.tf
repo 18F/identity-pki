@@ -17,4 +17,6 @@ module "newrelic" {
   web_low_traffic_warn_threshold       = var.web_low_traffic_warn_threshold
   opsgenie_key_file                    = var.opsgenie_key_file
   error_dashboard_site                 = "${var.env_name}.${var.root_domain}"
+  memory_free_threshold_byte           = var.memory_free_threshold_byte
+  low_memory_alert_enabled             = var.low_memory_alert_enabled
 }

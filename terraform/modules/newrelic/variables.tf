@@ -118,3 +118,12 @@ variable "staticsite_fixed_string" {
   #  <meta sys-status="login.gov site up and running">
   default = "login.gov site up and running"
 }
+
+variable "memory_free_threshold_byte" {
+  description = "Low memory threshold in bytes"
+}
+
+variable "low_memory_alert_enabled" {
+  description = "set this to one if you want to be alerted on low memory"
+  default     = 0
+}
