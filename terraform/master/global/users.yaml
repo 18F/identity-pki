@@ -12,6 +12,7 @@ users:
       - devops
   alexander.bradley:
     aws_groups:
+      - analytics
       - appdev
     gitlab_groups:
       - appdev
