@@ -75,7 +75,7 @@ when /\A89494/
   default['login_dot_gov']['domain_name'] = 'identitysandbox.gov'
 when /\A03479/
   default['login_dot_gov']['domain_name'] = 'gitlab.identitysandbox.gov'
-when /\A06704/
+when /\A21768/
   default['login_dot_gov']['domain_name'] = 'gitlab.login.gov'
 else
   raise "Unexpected AWS account ID: #{Chef::Recipe::AwsMetadata.get_aws_account_id.inspect}"
