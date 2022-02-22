@@ -120,7 +120,8 @@ variable "staticsite_fixed_string" {
 }
 
 variable "memory_free_threshold_byte" {
-  description = "Low memory threshold in bytes"
+  description = "Low memory threshold in bytes for New Relic"
+  default     = "524288000" #500 MB 
 }
 
 variable "low_memory_alert_enabled" {
