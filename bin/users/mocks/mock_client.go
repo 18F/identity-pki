@@ -8,7 +8,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	go_gitlab "github.com/xanzy/go-gitlab"
+	gitlab "github.com/xanzy/go-gitlab"
 )
 
 // MockGitlabClientIface is a mock of GitlabClientIface interface.
@@ -35,15 +35,15 @@ func (m *MockGitlabClientIface) EXPECT() *MockGitlabClientIfaceMockRecorder {
 }
 
 // AddGroupMember mocks base method.
-func (m *MockGitlabClientIface) AddGroupMember(gid interface{}, opt *go_gitlab.AddGroupMemberOptions, options ...go_gitlab.RequestOptionFunc) (*go_gitlab.GroupMember, *go_gitlab.Response, error) {
+func (m *MockGitlabClientIface) AddGroupMember(gid interface{}, opt *gitlab.AddGroupMemberOptions, options ...gitlab.RequestOptionFunc) (*gitlab.GroupMember, *gitlab.Response, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{gid, opt}
 	for _, a := range options {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "AddGroupMember", varargs...)
-	ret0, _ := ret[0].(*go_gitlab.GroupMember)
-	ret1, _ := ret[1].(*go_gitlab.Response)
+	ret0, _ := ret[0].(*gitlab.GroupMember)
+	ret1, _ := ret[1].(*gitlab.Response)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2
 }
@@ -56,7 +56,7 @@ func (mr *MockGitlabClientIfaceMockRecorder) AddGroupMember(gid, opt interface{}
 }
 
 // BlockUser mocks base method.
-func (m *MockGitlabClientIface) BlockUser(user int, options ...go_gitlab.RequestOptionFunc) error {
+func (m *MockGitlabClientIface) BlockUser(user int, options ...gitlab.RequestOptionFunc) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{user}
 	for _, a := range options {
@@ -75,15 +75,15 @@ func (mr *MockGitlabClientIfaceMockRecorder) BlockUser(user interface{}, options
 }
 
 // CreateGroup mocks base method.
-func (m *MockGitlabClientIface) CreateGroup(opt *go_gitlab.CreateGroupOptions, options ...go_gitlab.RequestOptionFunc) (*go_gitlab.Group, *go_gitlab.Response, error) {
+func (m *MockGitlabClientIface) CreateGroup(opt *gitlab.CreateGroupOptions, options ...gitlab.RequestOptionFunc) (*gitlab.Group, *gitlab.Response, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{opt}
 	for _, a := range options {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "CreateGroup", varargs...)
-	ret0, _ := ret[0].(*go_gitlab.Group)
-	ret1, _ := ret[1].(*go_gitlab.Response)
+	ret0, _ := ret[0].(*gitlab.Group)
+	ret1, _ := ret[1].(*gitlab.Response)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2
 }
@@ -96,15 +96,15 @@ func (mr *MockGitlabClientIfaceMockRecorder) CreateGroup(opt interface{}, option
 }
 
 // CreateUser mocks base method.
-func (m *MockGitlabClientIface) CreateUser(opt *go_gitlab.CreateUserOptions, options ...go_gitlab.RequestOptionFunc) (*go_gitlab.User, *go_gitlab.Response, error) {
+func (m *MockGitlabClientIface) CreateUser(opt *gitlab.CreateUserOptions, options ...gitlab.RequestOptionFunc) (*gitlab.User, *gitlab.Response, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{opt}
 	for _, a := range options {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "CreateUser", varargs...)
-	ret0, _ := ret[0].(*go_gitlab.User)
-	ret1, _ := ret[1].(*go_gitlab.Response)
+	ret0, _ := ret[0].(*gitlab.User)
+	ret1, _ := ret[1].(*gitlab.Response)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2
 }
@@ -117,14 +117,14 @@ func (mr *MockGitlabClientIfaceMockRecorder) CreateUser(opt interface{}, options
 }
 
 // DeleteGroup mocks base method.
-func (m *MockGitlabClientIface) DeleteGroup(gid interface{}, options ...go_gitlab.RequestOptionFunc) (*go_gitlab.Response, error) {
+func (m *MockGitlabClientIface) DeleteGroup(gid interface{}, options ...gitlab.RequestOptionFunc) (*gitlab.Response, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{gid}
 	for _, a := range options {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "DeleteGroup", varargs...)
-	ret0, _ := ret[0].(*go_gitlab.Response)
+	ret0, _ := ret[0].(*gitlab.Response)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -137,14 +137,14 @@ func (mr *MockGitlabClientIfaceMockRecorder) DeleteGroup(gid interface{}, option
 }
 
 // DeleteSharedProjectFromGroup mocks base method.
-func (m *MockGitlabClientIface) DeleteSharedProjectFromGroup(pid interface{}, groupID int, options ...go_gitlab.RequestOptionFunc) (*go_gitlab.Response, error) {
+func (m *MockGitlabClientIface) DeleteSharedProjectFromGroup(pid interface{}, groupID int, options ...gitlab.RequestOptionFunc) (*gitlab.Response, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{pid, groupID}
 	for _, a := range options {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "DeleteSharedProjectFromGroup", varargs...)
-	ret0, _ := ret[0].(*go_gitlab.Response)
+	ret0, _ := ret[0].(*gitlab.Response)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -157,15 +157,15 @@ func (mr *MockGitlabClientIfaceMockRecorder) DeleteSharedProjectFromGroup(pid, g
 }
 
 // ListGroupMembers mocks base method.
-func (m *MockGitlabClientIface) ListGroupMembers(gid interface{}, opt *go_gitlab.ListGroupMembersOptions, options ...go_gitlab.RequestOptionFunc) ([]*go_gitlab.GroupMember, *go_gitlab.Response, error) {
+func (m *MockGitlabClientIface) ListGroupMembers(gid interface{}, opt *gitlab.ListGroupMembersOptions, options ...gitlab.RequestOptionFunc) ([]*gitlab.GroupMember, *gitlab.Response, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{gid, opt}
 	for _, a := range options {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "ListGroupMembers", varargs...)
-	ret0, _ := ret[0].([]*go_gitlab.GroupMember)
-	ret1, _ := ret[1].(*go_gitlab.Response)
+	ret0, _ := ret[0].([]*gitlab.GroupMember)
+	ret1, _ := ret[1].(*gitlab.Response)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2
 }
@@ -178,15 +178,15 @@ func (mr *MockGitlabClientIfaceMockRecorder) ListGroupMembers(gid, opt interface
 }
 
 // ListGroups mocks base method.
-func (m *MockGitlabClientIface) ListGroups(opt *go_gitlab.ListGroupsOptions, options ...go_gitlab.RequestOptionFunc) ([]*go_gitlab.Group, *go_gitlab.Response, error) {
+func (m *MockGitlabClientIface) ListGroups(opt *gitlab.ListGroupsOptions, options ...gitlab.RequestOptionFunc) ([]*gitlab.Group, *gitlab.Response, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{opt}
 	for _, a := range options {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "ListGroups", varargs...)
-	ret0, _ := ret[0].([]*go_gitlab.Group)
-	ret1, _ := ret[1].(*go_gitlab.Response)
+	ret0, _ := ret[0].([]*gitlab.Group)
+	ret1, _ := ret[1].(*gitlab.Response)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2
 }
@@ -199,15 +199,15 @@ func (mr *MockGitlabClientIfaceMockRecorder) ListGroups(opt interface{}, options
 }
 
 // ListProjects mocks base method.
-func (m *MockGitlabClientIface) ListProjects(opt *go_gitlab.ListProjectsOptions, options ...go_gitlab.RequestOptionFunc) ([]*go_gitlab.Project, *go_gitlab.Response, error) {
+func (m *MockGitlabClientIface) ListProjects(opt *gitlab.ListProjectsOptions, options ...gitlab.RequestOptionFunc) ([]*gitlab.Project, *gitlab.Response, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{opt}
 	for _, a := range options {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "ListProjects", varargs...)
-	ret0, _ := ret[0].([]*go_gitlab.Project)
-	ret1, _ := ret[1].(*go_gitlab.Response)
+	ret0, _ := ret[0].([]*gitlab.Project)
+	ret1, _ := ret[1].(*gitlab.Response)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2
 }
@@ -220,15 +220,15 @@ func (mr *MockGitlabClientIfaceMockRecorder) ListProjects(opt interface{}, optio
 }
 
 // ListUsers mocks base method.
-func (m *MockGitlabClientIface) ListUsers(opt *go_gitlab.ListUsersOptions, options ...go_gitlab.RequestOptionFunc) ([]*go_gitlab.User, *go_gitlab.Response, error) {
+func (m *MockGitlabClientIface) ListUsers(opt *gitlab.ListUsersOptions, options ...gitlab.RequestOptionFunc) ([]*gitlab.User, *gitlab.Response, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{opt}
 	for _, a := range options {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "ListUsers", varargs...)
-	ret0, _ := ret[0].([]*go_gitlab.User)
-	ret1, _ := ret[1].(*go_gitlab.Response)
+	ret0, _ := ret[0].([]*gitlab.User)
+	ret1, _ := ret[1].(*gitlab.Response)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2
 }
@@ -240,15 +240,36 @@ func (mr *MockGitlabClientIfaceMockRecorder) ListUsers(opt interface{}, options 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListUsers", reflect.TypeOf((*MockGitlabClientIface)(nil).ListUsers), varargs...)
 }
 
+// ModifyUser mocks base method.
+func (m *MockGitlabClientIface) ModifyUser(user int, opt *gitlab.ModifyUserOptions, options ...gitlab.RequestOptionFunc) (*gitlab.User, *gitlab.Response, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{user, opt}
+	for _, a := range options {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "ModifyUser", varargs...)
+	ret0, _ := ret[0].(*gitlab.User)
+	ret1, _ := ret[1].(*gitlab.Response)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// ModifyUser indicates an expected call of ModifyUser.
+func (mr *MockGitlabClientIfaceMockRecorder) ModifyUser(user, opt interface{}, options ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{user, opt}, options...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ModifyUser", reflect.TypeOf((*MockGitlabClientIface)(nil).ModifyUser), varargs...)
+}
+
 // RemoveGroupMember mocks base method.
-func (m *MockGitlabClientIface) RemoveGroupMember(gid interface{}, user int, options ...go_gitlab.RequestOptionFunc) (*go_gitlab.Response, error) {
+func (m *MockGitlabClientIface) RemoveGroupMember(gid interface{}, user int, options ...gitlab.RequestOptionFunc) (*gitlab.Response, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{gid, user}
 	for _, a := range options {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "RemoveGroupMember", varargs...)
-	ret0, _ := ret[0].(*go_gitlab.Response)
+	ret0, _ := ret[0].(*gitlab.Response)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -261,14 +282,14 @@ func (mr *MockGitlabClientIfaceMockRecorder) RemoveGroupMember(gid, user interfa
 }
 
 // ShareProjectWithGroup mocks base method.
-func (m *MockGitlabClientIface) ShareProjectWithGroup(pid interface{}, opt *go_gitlab.ShareWithGroupOptions, options ...go_gitlab.RequestOptionFunc) (*go_gitlab.Response, error) {
+func (m *MockGitlabClientIface) ShareProjectWithGroup(pid interface{}, opt *gitlab.ShareWithGroupOptions, options ...gitlab.RequestOptionFunc) (*gitlab.Response, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{pid, opt}
 	for _, a := range options {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "ShareProjectWithGroup", varargs...)
-	ret0, _ := ret[0].(*go_gitlab.Response)
+	ret0, _ := ret[0].(*gitlab.Response)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -281,7 +302,7 @@ func (mr *MockGitlabClientIfaceMockRecorder) ShareProjectWithGroup(pid, opt inte
 }
 
 // UnblockUser mocks base method.
-func (m *MockGitlabClientIface) UnblockUser(user int, options ...go_gitlab.RequestOptionFunc) error {
+func (m *MockGitlabClientIface) UnblockUser(user int, options ...gitlab.RequestOptionFunc) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{user}
 	for _, a := range options {

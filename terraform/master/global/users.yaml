@@ -6,6 +6,8 @@ users:
       - finops
       - bizops
   alex.kritikos:
+    git_username: akrito
+    name: Alex Kritikos
     aws_groups:
       - devops
     gitlab_groups:
@@ -215,11 +217,30 @@ users:
     gitlab_groups:
       - devops
   zach.margolis:
+    email: zachary.margolis@gsa.gov
     aws_groups:
       - appdev
       - apponcall
     gitlab_groups:
       - appdev
+  # Gitlab Machine User - don't specify aws_groups for these
+  root:
+    email: admin@example.com
+    gitlab_groups:
+      - bots
+      - lg
+      - devops
+      - appdev
+  support-bot:
+    name: "GitLab Support Bot"
+    email: support@gitlab.login.gov
+    gitlab_groups:
+      - bots
+  alert-bot:
+    name: "GitLab Alert Bot"
+    email: alert@gitlab.login.gov
+    gitlab_groups:
+      - bots
 
 groups:
   appdev:

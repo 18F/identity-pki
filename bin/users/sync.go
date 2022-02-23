@@ -1,6 +1,4 @@
 // Sync syncs users, groups, projects, group membership and shared projects.
-// TODO:
-//   Sync attributes of objects
 
 package main
 
@@ -10,7 +8,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"strings"
 
 	"github.com/xanzy/go-gitlab"
 	"gopkg.in/yaml.v2"
@@ -24,13 +21,6 @@ var dryrun bool
 var userYaml string
 var apiToken string // env var
 var check bool
-
-var ignoredUsers = []string{
-	"support",
-	"alert",
-	"root",
-	"admin@example.com", // Default email for root
-}
 
 // What we care about w.r.t. GitLab authorization. These objects will be synced.
 type GitlabCache struct {
@@ -93,6 +83,9 @@ func (p *AuthorizedProject) UnmarshalYAML(unmarshal func(interface{}) error) err
 type AuthUser struct {
 	Aws_groups    []string
 	Gitlab_groups []string
+	Git_username string
+	Name string
+	Email string
 }
 
 // Format of groups in YAML
@@ -173,18 +166,8 @@ func main() {
 		log.Fatalf("Error reading user YAML: %s", err)
 	}
 
-	usersToBlock, usersToUnblock, usersToCreate := resolveUsers(existingUsers, authorizedUsers)
-	err = blockUsers(gitc, usersToBlock)
-	if err != nil {
-		log.Fatalf("Unable to block users: %v", err)
-	}
-	err = unblockUsers(gitc, usersToUnblock)
-	if err != nil {
-		log.Fatalf("Unable to unblock users: %v", err)
-	}
-	err = createUsers(gitc, usersToCreate)
-	if err != nil {
-		log.Fatalf("Unable to create users: %v", err)
+	if err := resolveUsers(gitc, existingUsers, authorizedUsers); err != nil {
+		log.Fatalf("Error resolving users: %v", err)
 	}
 
 	//
@@ -196,7 +179,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("Could not get GitLab groups: %v", err)
 	}
-	log.Printf("Found groups: %v", gitlabGroups)
 
 	groupsToCreate, groupsToDelete := resolveGroups(gitlabGroups, authorizedUsers)
 	err = createGroups(gitc, groupsToCreate)
@@ -209,7 +191,7 @@ func main() {
 	}
 
 	//
-	// Sync Members
+	// Sync Group Members
 	//
 
 	groupsWithMembers, err := getExistingMembers(gitc)
@@ -344,7 +326,6 @@ func getExistingMembers(gitc GitlabClientIface) (map[string]map[string]bool, err
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Found groups: %v", gitlabGroups)
 
 	for gname, g := range gitlabGroups {
 		members, err := getGroupMembers(gitc, g)
@@ -407,7 +388,6 @@ func getExistingUsers(gitc GitlabClientIface) (map[string]*gitlab.User, error) {
 	existingUsers := make(map[string]*gitlab.User)
 	for _, u := range gitUsers {
 		existingUsers[u.Username] = u
-		log.Printf("Found existing GitLab user: %v (%v)", u.Email, u.State)
 		cache.Users[u.Username] = u
 	}
 
@@ -416,43 +396,58 @@ func getExistingUsers(gitc GitlabClientIface) (map[string]*gitlab.User, error) {
 
 // Given sets of existing and authorized users, returns sets of users to block, unblock and create
 func resolveUsers(
+	gitc GitlabClientIface,
 	existingUsers map[string]*gitlab.User,
 	authorizedUsers *AuthorizedUsers,
-) (map[string]*gitlab.User, map[string]*gitlab.User, map[string]bool) {
+) error {
 
-	usersToBlock := map[string]*gitlab.User{}
-	usersToUnblock := map[string]*gitlab.User{}
-	usersToCreate := map[string]bool{}
-
-	// Copy and clean existingUsers so we don't mangle it unexpectedly
-	ignoreMap := make(map[string]bool)
-	for _, v := range ignoredUsers {
-		if strings.Contains(v, "@") {
-			ignoreMap[v] = true
-		} else {
-			ignoreMap[fmt.Sprintf("%v@%v", v, fqdn)] = true
-		}
-	}
-	for username, user := range existingUsers {
-		if _, ok := ignoreMap[user.Email]; !ok {
-			usersToBlock[username] = user
-		}
-	}
-
-	// For each user in YAML,  mark to keep it
-	// TODO keep if they're a member of any Gitlab group
+	// Just a little bookkeeping so we can quickly decided whether to block a user later
+	keptUsers := map[string]bool{}
+	
+	// Unblock or create needed users (members of groups)
 	for username, userAttrs := range authorizedUsers.Users {
+
+		// Override the username if a preferred one exists
+		if userAttrs.Git_username != "" {
+			username = userAttrs.Git_username
+		}
+		
 		if len(userAttrs.Gitlab_groups) > 0 {
+			
+			// Record this for use when we block users
+			keptUsers[username] = true
+
+			// Create or unblock&update
 			if u, ok := existingUsers[username]; ok {
-				usersToUnblock[username] = u
-				delete(usersToBlock, username)
+
+				// Unblock user by user ID
+				err := unblockUser(gitc, u)
+				if err != nil {
+					return err
+				}
+
+				// Now that we know the user exists, sync the attrs
+				if err := updateUser(gitc, u, userAttrs); err != nil {
+					return err
+				}
 			} else {
-				usersToCreate[username] = true
+				if err := createUser(gitc, username, userAttrs); err != nil {
+					return err
+				}
 			}
 		}
 	}
 
-	return usersToBlock, usersToUnblock, usersToCreate
+	for username, user := range existingUsers {
+
+		// Did we create/unblock this user?
+		if _, ok := keptUsers[username]; !ok {
+			if err := blockUser(gitc, user); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 // Returns sets of groups to create and delete
@@ -462,7 +457,6 @@ func resolveGroups(
 ) (map[string]bool, map[string]*gitlab.Group) {
 
 	authGroups := getAuthorizedGroups(authorizedUsers)
-	log.Printf("Authorized groups: %v", authGroups)
 
 	groupsToCreate := map[string]bool{}
 	groupsToDelete := map[string]*gitlab.Group{}
@@ -503,10 +497,6 @@ func resolveMembers(
 	for gname, members := range memberships {
 		membersToCreate[gname] = make(map[string]bool)
 
-		// Ignore machine users
-		for _, username := range ignoredUsers {
-			delete(members, username)
-		}
 		for username := range authGroups[gname] {
 			// Remove authorized members from maybeDelete
 			if _, ok := members[username]; ok {
@@ -520,64 +510,91 @@ func resolveMembers(
 	return membersToCreate, memberships
 }
 
-func blockUsers(gitc GitlabClientIface, usersToBlock map[string]*gitlab.User) error {
-	for username, user := range usersToBlock {
-		if user.State == "blocked" {
-			continue
-		}
+func blockUser(gitc GitlabClientIface, u *gitlab.User) error {
+	if u.State == "blocked" {
+		return nil
+	}
 
-		fatalIfDryRun("User %v should be blocked, but isn't.", username)
+	fatalIfDryRun("User %v should be blocked, but isn't.", u.Username)
 
-		err := gitc.BlockUser(user.ID)
-		if err != nil {
-			return err
-		}
+	if err := gitc.BlockUser(u.ID); err != nil {
+		return err
 	}
 	return nil
 }
 
-func unblockUsers(gitc GitlabClientIface, usersToUnblock map[string]*gitlab.User) error {
-	for username, user := range usersToUnblock {
-		if user.State == "active" {
-			continue
-		}
+func unblockUser(gitc GitlabClientIface, u *gitlab.User) error {
+	if u.State == "active" {
+		return nil
+	}
 
-		fatalIfDryRun("User %v should be unblocked, but isn't.", username)
+	fatalIfDryRun("User %v should be unblocked, but isn't.", u.Username)
 
-		err := gitc.UnblockUser(user.ID)
-		if err != nil {
-			return err
-		}
+	if err := gitc.UnblockUser(u.ID); err != nil {
+		return err
 	}
 	return nil
 }
 
-func createUsers(gitc GitlabClientIface, usersToCreate map[string]bool) error {
-	for username := range usersToCreate {
-		fatalIfDryRun("User %v should exist, but doesn't.", username)
+func updateUser(gitc GitlabClientIface, gitlabUser *gitlab.User, userAttrs *AuthUser) error {
+	options := &gitlab.ModifyUserOptions{
+		SkipReconfirmation:  gitlab.Bool(true),
+	}
+	needUpdate := false
 
-		options := &gitlab.CreateUserOptions{
-			Email:               gitlab.String(fmt.Sprintf("%v@gsa.gov", username)),
-			ForceRandomPassword: gitlab.Bool(true),
-			Username:            gitlab.String(username),
-			Name:                gitlab.String(username),
-			SkipConfirmation:    gitlab.Bool(true),
-			CanCreateGroup:      gitlab.Bool(false),
-		}
+	if userAttrs.Name != "" && gitlabUser.Name != userAttrs.Name {
+		options.Name = gitlab.String(userAttrs.Name)
+		needUpdate = true
+	}
 
-		newUser, _, err := gitc.CreateUser(options)
-		if err != nil {
+	if userAttrs.Email != "" && gitlabUser.Email != userAttrs.Email {
+		options.Email = gitlab.String(userAttrs.Email)
+		needUpdate = true
+	}
+	
+	if needUpdate {
+		fatalIfDryRun("User %v needs updating (%v -> %v, %v -> %v).", gitlabUser.Username, gitlabUser.Name, userAttrs.Name, gitlabUser.Email, userAttrs.Email)
+		if _, _, err := gitc.ModifyUser(gitlabUser.ID, options); err != nil {
 			return err
 		}
-		cache.Users[newUser.Username] = newUser
 	}
+	
+	return nil
+}
+
+func createUser(gitc GitlabClientIface, username string, userAttrs *AuthUser) error {
+	fatalIfDryRun("User %v should exist, but doesn't.", username)
+
+	email := fmt.Sprintf("%v@gsa.gov", username)
+	if userAttrs.Email != "" {
+		email = userAttrs.Email
+	}
+
+	name := username
+	if userAttrs.Name != "" {
+		name = userAttrs.Name
+	}
+	
+	options := &gitlab.CreateUserOptions{
+		Email:               gitlab.String(email),
+		ForceRandomPassword: gitlab.Bool(true),
+		Username:            gitlab.String(username),
+		Name:                gitlab.String(name),
+		SkipConfirmation:    gitlab.Bool(true),
+		CanCreateGroup:      gitlab.Bool(false),
+	}
+
+	newUser, _, err := gitc.CreateUser(options)
+	if err != nil {
+		return err
+	}
+	cache.Users[newUser.Username] = newUser
 	return nil
 }
 
 func createGroups(gitc GitlabClientIface, groupsToCreate map[string]bool) error {
 	for gname := range groupsToCreate {
 		fatalIfDryRun("Group %v should exist, but doesn't.", gname)
-		log.Printf("Creating %v", gname)
 		options := &gitlab.CreateGroupOptions{
 			Name: gitlab.String(gname),
 			Path: gitlab.String(gname),
@@ -685,6 +702,7 @@ func getGroupMembers(gitc GitlabClientIface, group *gitlab.Group) ([]*gitlab.Gro
 	if err != nil {
 		return nil, err
 	}
+	
 	return members, nil
 }
 

@@ -16,69 +16,77 @@ func assertEqual(t *testing.T, testName string, got interface{}, want interface{
 	}
 }
 
-var testResolveUsersData = []struct {
-	Name            string
-	ExistingUsers   map[string]*gitlab.User
-	AuthorizedUsers *AuthorizedUsers
-	WantToBlock     map[string]*gitlab.User
-	WantToUnblock   map[string]*gitlab.User
-	WantToCreate    map[string]bool
-}{
-	{
-		Name: "Add/Block/Unblock Users",
-		ExistingUsers: map[string]*gitlab.User{
-			"just.testing": {
-				Email: "just.testing@gsa.gov",
-			},
-			"john.doe": {
-				Email: "john.doe@gsa.gov",
-			},
-			"alexandra.thegreat": {
-				Email: "alexandra.thegreat@gsa.gov",
-			},
-			"root": {
-				Email: "admin@example.com",
-			},
-		},
-		AuthorizedUsers: &AuthorizedUsers{
-			Users: map[string]*AuthUser{
+func TestResolveUsers(t *testing.T) {
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+	mockClient := mocks.NewMockGitlabClientIface(mockCtrl)
+
+	testResolveUsersData := []struct {
+		Name            string
+		ExistingUsers   map[string]*gitlab.User
+		AuthorizedUsers *AuthorizedUsers
+	}{
+		{
+			Name: "Add/Block/Unblock Users",
+			ExistingUsers: map[string]*gitlab.User{
+				"just.testing": {
+					Email: "just.testing@gsa.gov",
+					ID:    1,
+					Username: "just.testing",
+				},
 				"john.doe": {
-					Gitlab_groups: []string{},
+					Email: "john.doe@gsa.gov",
+					ID:    2,
+					Username: "john.doe",
 				},
 				"alexandra.thegreat": {
-					Gitlab_groups: []string{"devops"},
+					Email: "alexandra.thegreat@gsa.gov",
+					ID:    3,
+					Username: "alexandra.thegreat",
 				},
-				"new.engineer": {
-					Gitlab_groups: []string{"appdev"},
+			},
+			AuthorizedUsers: &AuthorizedUsers{
+				Users: map[string]*AuthUser{
+					"john.doe": {
+						Gitlab_groups: []string{},
+					},
+					"alexandra.thegreat": {
+						Gitlab_groups: []string{"devops"},
+						Email: "alex.dagreat@gsa.gov",
+					},
+					"new.engineer": {
+						Gitlab_groups: []string{"appdev"},
+					},
 				},
 			},
 		},
-		WantToBlock: map[string]*gitlab.User{
-			"just.testing": {
-				Email: "just.testing@gsa.gov",
-			},
-			"john.doe": {
-				Email: "john.doe@gsa.gov",
-			},
-		},
-		WantToUnblock: map[string]*gitlab.User{
-			"alexandra.thegreat": {
-				Email: "alexandra.thegreat@gsa.gov",
-			},
-		},
-		WantToCreate: map[string]bool{
-			"new.engineer": true,
-		},
-	},
-}
+	}
 
-func TestResolveUsers(t *testing.T) {
+	mockClient.
+		EXPECT().
+		UnblockUser(3) // Alexandra
+	mockClient.
+		EXPECT().
+		CreateUser(gomock.Any()).
+		Return(&gitlab.User{
+			Username: "new.engineer",
+		}, nil, nil)
+	mockClient.
+		EXPECT().
+		BlockUser(1) // Just Testing
+	mockClient.
+		EXPECT().
+		BlockUser(2) // John Doe
+	mockClient.
+		EXPECT().
+		ModifyUser(3, gomock.Any()) // alex.dagreat
+
+	cache.Users = make(map[string]*gitlab.User)
 	for _, td := range testResolveUsersData {
-		toBlock, toUnblock, toCreate := resolveUsers(td.ExistingUsers, td.AuthorizedUsers)
-
-		assertEqual(t, td.Name, toBlock, td.WantToBlock)
-		assertEqual(t, td.Name, toUnblock, td.WantToUnblock)
-		assertEqual(t, td.Name, toCreate, td.WantToCreate)
+		err := resolveUsers(mockClient, td.ExistingUsers, td.AuthorizedUsers)
+		if err != nil {
+			t.Error(err)
+		}
 	}
 }
 
@@ -146,7 +154,6 @@ var testResolveMembersData = []struct {
 			"lg": {
 				"lg_dev": true,
 				"ex_dev": true,
-				"root":   true,
 			},
 		},
 		AuthGroups: map[string]map[string]bool{
@@ -179,9 +186,9 @@ func TestResolveMembers(t *testing.T) {
 
 func TestGetAuthorizedGroups(t *testing.T) {
 	want := map[string]map[string]bool{
-		"lg": {
-			"gitlab.and.group.please": true,
-		},
+		"appdev": {"mach.zargolis": true},
+		"devops": {"krit.alexikos": true},
+		"lg":     {"gitlab.and.group.please": true},
 	}
 	authUsers, err := getAuthorizedUsers("test_users.yaml")
 	if err != nil {
@@ -281,8 +288,8 @@ func TestResolveProjects(t *testing.T) {
 					GroupAccessLevel: 30,
 				},
 				{
-					GroupID: 3,
-					GroupName: "appdev",
+					GroupID:          3,
+					GroupName:        "appdev",
 					GroupAccessLevel: 30,
 				},
 			},
