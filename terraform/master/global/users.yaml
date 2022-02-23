@@ -5,6 +5,9 @@ users:
       - analytics
       - finops
       - bizops
+  alan.atlas:
+    aws_groups:
+      - analytics
   alex.kritikos:
     git_username: akrito
     name: Alex Kritikos
