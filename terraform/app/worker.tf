@@ -97,6 +97,28 @@ resource "aws_iam_role_policy" "worker-upload-s3-reports" {
   policy = data.aws_iam_policy_document.put_reports_to_s3.json
 }
 
+# Allow assuming cross-account role for Pinpoint APIs. This is in a separate
+# account for accounting purposes since it's on a separate contract.
+resource "aws_iam_role_policy" "worker-pinpoint-assumerole" {
+  name   = "${var.env_name}-worker-pinpoint-assumerole"
+  role   = aws_iam_role.worker.id
+  policy = <<EOM
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "sts:AssumeRole",
+      "Resource": [
+        "arn:aws:iam::${var.identity_sms_aws_account_id}:role/${var.identity_sms_iam_role_name_idp}"
+      ]
+    }
+  ]
+}
+EOM
+
+}
+
 module "worker_launch_template" {
   source = "github.com/18F/identity-terraform//launch_template?ref=dbe5240c66a0931003ba3ef87ad7898008591a50"
   #source = "../../../identity-terraform/launch_template"
