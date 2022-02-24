@@ -240,6 +240,8 @@ users:
       - lg
       - devops
       - appdev
+    can_create_group:
+      - true
   support-bot:
     name:
       - "GitLab Support Bot"

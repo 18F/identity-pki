@@ -82,20 +82,22 @@ func (p *AuthorizedProject) UnmarshalYAML(unmarshal func(interface{}) error) err
 // Format of users from parsing YAML. For backwards compatibility, all fields
 // must be lists of strings in YAML, but we unmarshal some into scalar strings.
 type AuthUser struct {
-	Aws_groups    []string
-	Gitlab_groups []string
-	Git_username  string
-	Name          string
-	Email         string
+	Aws_groups       []string
+	Gitlab_groups    []string
+	Git_username     string
+	Name             string
+	Email            string
+	Can_create_group bool
 }
 
 func (au *AuthUser) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	type alias struct {
-		Aws_groups    []string
-		Gitlab_groups []string
-		Git_username  []string
-		Name          []string
-		Email         []string
+		Aws_groups       []string
+		Gitlab_groups    []string
+		Git_username     []string
+		Name             []string
+		Email            []string
+		Can_create_group []string
 	}
 	var tmp alias
 	if err := unmarshal(&tmp); err != nil {
@@ -115,6 +117,7 @@ func (au *AuthUser) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	if len(tmp.Email) > 0 {
 		au.Email = tmp.Email[0]
 	}
+	au.Can_create_group = len(tmp.Can_create_group) > 0 && tmp.Can_create_group[0] == "true"
 	return nil
 }
 
@@ -584,17 +587,24 @@ func updateUser(gitc GitlabClientIface, gitlabUser *gitlab.User, userAttrs *Auth
 	needUpdate := false
 
 	if userAttrs.Name != "" && gitlabUser.Name != userAttrs.Name {
+		fatalIfDryRun("User %v needs updating: Name %v -> %v", gitlabUser.Username, gitlabUser.Name, userAttrs.Name)
 		options.Name = gitlab.String(userAttrs.Name)
 		needUpdate = true
 	}
 
 	if userAttrs.Email != "" && gitlabUser.Email != userAttrs.Email {
+		fatalIfDryRun("User %v needs updating: Email %v -> %v", gitlabUser.Username, gitlabUser.Email, userAttrs.Email)
 		options.Email = gitlab.String(userAttrs.Email)
 		needUpdate = true
 	}
 
+	if userAttrs.Can_create_group != gitlabUser.CanCreateGroup {
+		fatalIfDryRun("User %v needs updating: Create Group %v -> %v", gitlabUser.Username, gitlabUser.CanCreateGroup, userAttrs.Can_create_group)
+		options.CanCreateGroup = gitlab.Bool(userAttrs.Can_create_group)
+		needUpdate = true
+	}
+
 	if needUpdate {
-		fatalIfDryRun("User %v needs updating (%v -> %v, %v -> %v).", gitlabUser.Username, gitlabUser.Name, userAttrs.Name, gitlabUser.Email, userAttrs.Email)
 		if _, _, err := gitc.ModifyUser(gitlabUser.ID, options); err != nil {
 			return err
 		}
@@ -622,7 +632,7 @@ func createUser(gitc GitlabClientIface, username string, userAttrs *AuthUser) er
 		Username:            gitlab.String(username),
 		Name:                gitlab.String(name),
 		SkipConfirmation:    gitlab.Bool(true),
-		CanCreateGroup:      gitlab.Bool(false),
+		CanCreateGroup:      gitlab.Bool(userAttrs.Can_create_group),
 	}
 
 	newUser, _, err := gitc.CreateUser(options)
