@@ -1,12 +1,5 @@
 # this file sets up newrelic alerts for metrics
 # Once we get tf 0.13.* going, we can get rid of all the count and [0] silliness
-terraform {
-  required_providers {
-    newrelic = {
-      source = "newrelic/newrelic"
-    }
-  }
-}
 
 ####### Due to https://github.com/newrelic/terraform-provider-newrelic/issues/1006,
 ####### NEW_RELIC_API_KEY is not set via Terraform. Our current workaround is to
@@ -15,10 +8,10 @@ terraform {
 # This is a key that starts with NRAK ; created at https://one.newrelic.com/launcher/api-keys-ui.api-keys-launcher
 # see https://docs.newrelic.com/docs/apis/get-started/intro-apis/new-relic-api-keys/#user-api-key
 
-data "aws_s3_bucket_object" "newrelic_apikey" {
-  bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
-  key    = "common/newrelic_apikey"
-}
+#data "aws_s3_bucket_object" "newrelic_apikey" {
+#  bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
+#  key    = "common/newrelic_apikey"
+#}
 
 # NOTE: this S3 object needs to be uploaded with --content-type text/plain
 # This is the NewRelic account ID
@@ -32,7 +25,7 @@ data "aws_s3_bucket_object" "newrelic_account_id" {
 provider "newrelic" {
   region     = "US"
   account_id = data.aws_s3_bucket_object.newrelic_account_id.body
-  api_key    = data.aws_s3_bucket_object.newrelic_apikey.body
+  #api_key    = data.aws_s3_bucket_object.newrelic_apikey.body
 }
 
 data "aws_caller_identity" "current" {}

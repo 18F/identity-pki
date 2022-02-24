@@ -615,6 +615,10 @@ run bin/deploy/configure_state_bucket.sh "$style_option" "$TERRAFORM_STATE_BUCKE
 echo >&2 "+ cd terraform/$TF_DIR_FULL"
 cd "terraform/$TF_DIR_FULL"
 
+# get NEWRELIC_API_KEY out of the secrets bucket
+export NEW_RELIC_API_KEY=$(aws s3 cp \
+    "s3://login-gov.secrets.${aws_account_id}-${TERRAFORM_STATE_BUCKET_REGION}/common/newrelic_apikey" - || true)
+
 cat >&2 <<EOF
 ########################################
 #

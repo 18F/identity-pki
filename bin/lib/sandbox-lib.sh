@@ -75,6 +75,7 @@ initialize() {
 run_tasks() {
   echo
   [[ -z ${TODO-} ]] && TODO+=("${TASKS[@]}")
+  TODO=($(printf '%s\n' "${TODO[@]}"|sort))
   for TASK in "${TODO[@]}" ; do
     echo_green "Executing task '${TASK}'..."
     eval ${TASK}

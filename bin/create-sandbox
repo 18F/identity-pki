@@ -2,7 +2,7 @@
 
 #### build up a sandbox environment from scratch ####
 
-set -eu
+set -euo pipefail
 
 BASEPATH="$(dirname "$0")"
 . "${BASEPATH}/lib/common.sh"
@@ -60,7 +60,7 @@ EOM
   exit 0
 }
 
-clear_log_groups() {
+1_clear_log_groups() {
   for LOG_GROUP in $(ave aws logs describe-log-groups |
     jq --arg TF "${TF_ENV}" -r '.logGroups[]|
     select(.logGroupName|startswith($TF)).logGroupName') ; do
@@ -69,7 +69,7 @@ clear_log_groups() {
   done
 }
 
-app_secrets() {
+2_app_secrets() {
   BUCKET="login-gov.app-secrets.${AWS_ACCT_NUM}-${AWS_REGION}"
   for KEY in $(ave aws s3 ls s3://${BUCKET}/${SOURCE_ENV}/ |
       awk '{print $NF}' | tr -d '/') ; do
@@ -79,7 +79,7 @@ app_secrets() {
   done
 }
 
-regular_secrets() {
+3_regular_secrets() {
   BUCKET="login-gov.secrets.${AWS_ACCT_NUM}-${AWS_REGION}"
   for KEY in $(cat bin/lib/build-keys) ; do
       ave aws s3 cp s3://${BUCKET}/${SOURCE_ENV}/${KEY} \
@@ -87,12 +87,12 @@ regular_secrets() {
   done
 }
 
-tf_deploy() {
+4_tf_deploy() {
   ave ${BASEPATH}/tf-deploy -m ${TF_ENV} app apply -auto-approve
   MIGRATION_HOST_BUILT=true
 }
 
-migration_scaling() {
+5_migration_scaling() {
   while [[ ! ${MIGRATION_HOST_BUILT} ]] ; do
     if [[ $(ave aws autoscaling describe-auto-scaling-groups \
         --auto-scaling-group-name "${TF_ENV}-migration" \
@@ -113,11 +113,11 @@ migration_scaling() {
 }
 
 TASKS=(
-  "clear_log_groups"
-  "app_secrets"
-  "regular_secrets"
-  "tf_deploy"
-  "migration_scaling"
+  "1_clear_log_groups"
+  "2_app_secrets"
+  "3_regular_secrets"
+  "4_tf_deploy"
+  "5_migration_scaling"
 )
 TODO=()
 while getopts casdmh opt
