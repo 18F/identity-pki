@@ -13,6 +13,8 @@ users:
       - akrito
     name:
       - Alex Kritikos
+    email:
+      - alex.kritikos@gsa.gov
     aws_groups:
       - devops
     gitlab_groups:

@@ -14,6 +14,7 @@ import (
 )
 
 const gitlabTokenEnvVar = "GITLAB_API_TOKEN"
+const ghost = "ghost"
 
 // Flags
 var fqdn string
@@ -54,9 +55,9 @@ func (p *AuthorizedProject) UnmarshalYAML(unmarshal func(interface{}) error) err
 	}
 
 	*p = AuthorizedProject{
-		Groups: make(map[string]struct{Access *gitlab.AccessLevelValue}),
+		Groups: make(map[string]struct{ Access *gitlab.AccessLevelValue }),
 	}
-	
+
 	for gName, g := range tmp.Groups {
 		switch level := g.Access; level {
 		case "developer":
@@ -78,24 +79,23 @@ func (p *AuthorizedProject) UnmarshalYAML(unmarshal func(interface{}) error) err
 	return nil
 }
 
-	
 // Format of users from parsing YAML. For backwards compatibility, all fields
 // must be lists of strings in YAML, but we unmarshal some into scalar strings.
 type AuthUser struct {
 	Aws_groups    []string
 	Gitlab_groups []string
-	Git_username string
-	Name string
-	Email string
+	Git_username  string
+	Name          string
+	Email         string
 }
 
 func (au *AuthUser) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	type alias struct {
 		Aws_groups    []string
 		Gitlab_groups []string
-		Git_username []string
-		Name []string
-		Email []string
+		Git_username  []string
+		Name          []string
+		Email         []string
 	}
 	var tmp alias
 	if err := unmarshal(&tmp); err != nil {
@@ -103,7 +103,7 @@ func (au *AuthUser) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	}
 
 	*au = AuthUser{
-		Aws_groups: tmp.Aws_groups,
+		Aws_groups:    tmp.Aws_groups,
 		Gitlab_groups: tmp.Gitlab_groups,
 	}
 	if len(tmp.Git_username) > 0 {
@@ -117,7 +117,6 @@ func (au *AuthUser) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	}
 	return nil
 }
-
 
 // Format of groups in YAML
 type AuthGroup struct {
@@ -318,6 +317,12 @@ func resolveProjects(gitc GitlabClientIface, existingProjects map[string]*gitlab
 func getAuthorizedGroups(authUsers *AuthorizedUsers) map[string]map[string]bool {
 	groups := map[string]map[string]bool{}
 	for username, au := range authUsers.Users {
+
+		// Use the overridden git username if available
+		if au.Git_username != "" {
+			username = au.Git_username
+		}
+
 		for _, g := range au.Gitlab_groups {
 			if _, ok := groups[g]; !ok {
 				groups[g] = make(map[string]bool)
@@ -434,7 +439,7 @@ func resolveUsers(
 
 	// Just a little bookkeeping so we can quickly decided whether to block a user later
 	keptUsers := map[string]bool{}
-	
+
 	// Unblock or create needed users (members of groups)
 	for username, userAttrs := range authorizedUsers.Users {
 
@@ -442,9 +447,9 @@ func resolveUsers(
 		if userAttrs.Git_username != "" {
 			username = userAttrs.Git_username
 		}
-		
+
 		if len(userAttrs.Gitlab_groups) > 0 {
-			
+
 			// Record this for use when we block users
 			keptUsers[username] = true
 
@@ -470,6 +475,11 @@ func resolveUsers(
 	}
 
 	for username, user := range existingUsers {
+
+		// Ignore the special "ghost" user...
+		if username == ghost {
+			continue
+		}
 
 		// Did we create/unblock this user?
 		if _, ok := keptUsers[username]; !ok {
@@ -569,7 +579,7 @@ func unblockUser(gitc GitlabClientIface, u *gitlab.User) error {
 
 func updateUser(gitc GitlabClientIface, gitlabUser *gitlab.User, userAttrs *AuthUser) error {
 	options := &gitlab.ModifyUserOptions{
-		SkipReconfirmation:  gitlab.Bool(true),
+		SkipReconfirmation: gitlab.Bool(true),
 	}
 	needUpdate := false
 
@@ -582,14 +592,14 @@ func updateUser(gitc GitlabClientIface, gitlabUser *gitlab.User, userAttrs *Auth
 		options.Email = gitlab.String(userAttrs.Email)
 		needUpdate = true
 	}
-	
+
 	if needUpdate {
 		fatalIfDryRun("User %v needs updating (%v -> %v, %v -> %v).", gitlabUser.Username, gitlabUser.Name, userAttrs.Name, gitlabUser.Email, userAttrs.Email)
 		if _, _, err := gitc.ModifyUser(gitlabUser.ID, options); err != nil {
 			return err
 		}
 	}
-	
+
 	return nil
 }
 
@@ -605,7 +615,7 @@ func createUser(gitc GitlabClientIface, username string, userAttrs *AuthUser) er
 	if userAttrs.Name != "" {
 		name = userAttrs.Name
 	}
-	
+
 	options := &gitlab.CreateUserOptions{
 		Email:               gitlab.String(email),
 		ForceRandomPassword: gitlab.Bool(true),
@@ -733,7 +743,7 @@ func getGroupMembers(gitc GitlabClientIface, group *gitlab.Group) ([]*gitlab.Gro
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return members, nil
 }
 

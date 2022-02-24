@@ -30,19 +30,22 @@ func TestResolveUsers(t *testing.T) {
 			Name: "Add/Block/Unblock Users",
 			ExistingUsers: map[string]*gitlab.User{
 				"just.testing": {
-					Email: "just.testing@gsa.gov",
-					ID:    1,
+					Email:    "just.testing@gsa.gov",
+					ID:       1,
 					Username: "just.testing",
 				},
 				"john.doe": {
-					Email: "john.doe@gsa.gov",
-					ID:    2,
+					Email:    "john.doe@gsa.gov",
+					ID:       2,
 					Username: "john.doe",
 				},
 				"alexandra.thegreat": {
-					Email: "alexandra.thegreat@gsa.gov",
-					ID:    3,
+					Email:    "alexandra.thegreat@gsa.gov",
+					ID:       3,
 					Username: "alexandra.thegreat",
+				},
+				"ghost": {
+					Username: "ghost",
 				},
 			},
 			AuthorizedUsers: &AuthorizedUsers{
@@ -52,7 +55,7 @@ func TestResolveUsers(t *testing.T) {
 					},
 					"alexandra.thegreat": {
 						Gitlab_groups: []string{"devops"},
-						Email: "alex.dagreat@gsa.gov",
+						Email:         "alex.dagreat@gsa.gov",
 					},
 					"new.engineer": {
 						Gitlab_groups: []string{"appdev"},
@@ -141,41 +144,41 @@ func TestResolveGroups(t *testing.T) {
 	}
 }
 
-var testResolveMembersData = []struct {
-	Name         string
-	Memberships  map[string]map[string]bool
-	AuthGroups   map[string]map[string]bool
-	WantToCreate map[string]map[string]bool
-	WantToDelete map[string]map[string]bool
-}{
-	{
-		Name: "Create/Delete Members",
-		Memberships: map[string]map[string]bool{
-			"lg": {
-				"lg_dev": true,
-				"ex_dev": true,
-			},
-		},
-		AuthGroups: map[string]map[string]bool{
-			"lg": {
-				"lg_dev":  true,
-				"new_dev": true,
-			},
-		},
-		WantToCreate: map[string]map[string]bool{
-			"lg": {
-				"new_dev": true,
-			},
-		},
-		WantToDelete: map[string]map[string]bool{
-			"lg": {
-				"ex_dev": true,
-			},
-		},
-	},
-}
-
 func TestResolveMembers(t *testing.T) {
+	var testResolveMembersData = []struct {
+		Name         string
+		Memberships  map[string]map[string]bool
+		AuthGroups   map[string]map[string]bool
+		WantToCreate map[string]map[string]bool
+		WantToDelete map[string]map[string]bool
+	}{
+		{
+			Name: "Create/Delete Members",
+			Memberships: map[string]map[string]bool{
+				"lg": {
+					"lg_dev": true,
+					"ex_dev": true,
+				},
+			},
+			AuthGroups: map[string]map[string]bool{
+				"lg": {
+					"lg_dev":  true,
+					"new_dev": true,
+				},
+			},
+			WantToCreate: map[string]map[string]bool{
+				"lg": {
+					"new_dev": true,
+				},
+			},
+			WantToDelete: map[string]map[string]bool{
+				"lg": {
+					"ex_dev": true,
+				},
+			},
+		},
+	}
+
 	for _, td := range testResolveMembersData {
 		toCreate, toDelete := resolveMembers(td.Memberships, td.AuthGroups)
 
@@ -187,7 +190,7 @@ func TestResolveMembers(t *testing.T) {
 func TestGetAuthorizedGroups(t *testing.T) {
 	want := map[string]map[string]bool{
 		"appdev": {"mach.zargolis": true},
-		"devops": {"krit.alexikos": true},
+		"devops": {"kritty": true},
 		"lg":     {"gitlab.and.group.please": true},
 	}
 	authUsers, err := getAuthorizedUsers("test_users.yaml")
