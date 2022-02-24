@@ -18,19 +18,18 @@ av() {
 TBD
 EOF
   [[ $# == 0 ]] && badopt
-  while getopts i:l:s:p:a:d:o:m:x: opt
+  while getopts i:l:s:p:a:t:o:m:x: opt
   do
     case "${opt}" in
-      i) AV_PROFILE='sandbox-admin'     ;;
-      l) AV_PROFILE='prod-admin'        ;;
-      s) AV_PROFILE='sms-sandbox-admin' ;;
-      p) AV_PROFILE='sms-prod-admin'    ;;
-      a) AV_PROFILE='analytics-admin'   ;;
-      t) AV_PROFILE='interviews-admin'  ;;
-      d) AV_PROFILE='secops-dev-admin'  ;;
-      o) AV_PROFILE='tooling-prod-admin' ;;
-      m) AV_PROFILE='master-admin'      ;;
-      x) AV_PROFILE='x' && shift 1      ;;
+      i) AV_PROFILE='sandbox-admin'         ;;
+      l) AV_PROFILE='prod-admin'            ;;
+      s) AV_PROFILE='sms-sandbox-admin'     ;;
+      p) AV_PROFILE='sms-prod-admin'        ;;
+      a) AV_PROFILE='alpha-admin'           ;;
+      t) AV_PROFILE='tooling-sandbox-admin' ;;
+      o) AV_PROFILE='tooling-prod-admin'    ;;
+      m) AV_PROFILE='master-admin'          ;;
+      x) AV_PROFILE='x' && shift 1          ;;
       h|*) badopt ;;
     esac
     AV_CMD="${OPTARG}" 

@@ -41,7 +41,7 @@ Examples:
 $(basename "$0")                ==>   tf-deploy GSA_USERNAME app plan
 $(basename "$0") core           ==>   tf-deploy core/sandbox plan
 $(basename "$0") -m master      ==>   tf-deploy master/global plan | grep -E '^ +# [a-z]'
-$(basename "$0") all analytics  ==>   tf-deploy all/analytics plan
+$(basename "$0") all alpha      ==>   tf-deploy all/alpha plan
 $(basename "$0") -p app int     ==>   tf-deploy int app plan |
                                       pbcopy ; subl -b --command new_file --command paste
 
