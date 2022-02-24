@@ -45,13 +45,8 @@ resource "aws_cloudfront_distribution" "idp_static_cdn" {
     cached_methods   = ["HEAD", "GET"]
     target_origin_id = "static-idp-${var.env_name}"
 
-    forwarded_values {
-      query_string = false
-
-      cookies {
-        forward = "none"
-      }
-    }
+    cache_policy_id          = data.aws_cloudfront_cache_policy.managed_caching_optimized.id
+    origin_request_policy_id = data.aws_cloudfront_origin_request_policy.managed_cors_s3origin.id
 
     min_ttl                = 0
     viewer_protocol_policy = "https-only"
