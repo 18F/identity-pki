@@ -15,14 +15,17 @@ users:
     gitlab_groups:
       - lg
   krit.alexikos:
-    git_username: kritty
-    name: Krit Alexikos
+    git_username:
+      - kritty
+    name:
+      - Krit Alexikos
     aws_groups:
       - devops
     gitlab_groups:
       - devops
   mach.zargolis:
-    email: machary.zargolis@gsa.gov
+    email:
+      - machary.zargolis@gsa.gov
     aws_groups:
       - appdev
       - apponcall

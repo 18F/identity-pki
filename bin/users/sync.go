@@ -79,7 +79,8 @@ func (p *AuthorizedProject) UnmarshalYAML(unmarshal func(interface{}) error) err
 }
 
 	
-// Format of users in YAML
+// Format of users from parsing YAML. For backwards compatibility, all fields
+// must be lists of strings in YAML, but we unmarshal some into scalar strings.
 type AuthUser struct {
 	Aws_groups    []string
 	Gitlab_groups []string
@@ -87,6 +88,36 @@ type AuthUser struct {
 	Name string
 	Email string
 }
+
+func (au *AuthUser) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	type alias struct {
+		Aws_groups    []string
+		Gitlab_groups []string
+		Git_username []string
+		Name []string
+		Email []string
+	}
+	var tmp alias
+	if err := unmarshal(&tmp); err != nil {
+		return err
+	}
+
+	*au = AuthUser{
+		Aws_groups: tmp.Aws_groups,
+		Gitlab_groups: tmp.Gitlab_groups,
+	}
+	if len(tmp.Git_username) > 0 {
+		au.Git_username = tmp.Git_username[0]
+	}
+	if len(tmp.Name) > 0 {
+		au.Name = tmp.Name[0]
+	}
+	if len(tmp.Email) > 0 {
+		au.Email = tmp.Email[0]
+	}
+	return nil
+}
+
 
 // Format of groups in YAML
 type AuthGroup struct {
