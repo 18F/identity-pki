@@ -773,12 +773,14 @@ variable "performance_insights_enabled" {
 
 variable "enable_cloudwatch_slos" {
   type    = bool
-  default = false
+  default = true
 }
+
 variable "low_memory_alert_enabled" {
   description = "set this to 1 if you want to alert on low memory alert in New Relic"
   default     = 0
 }
+
 variable "memory_free_threshold_byte" {
   description = "Low memory threshold in bytes for New Relic"
   default     = "524288000" #500 MB 

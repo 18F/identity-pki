@@ -9,4 +9,5 @@ module "cloudwatch_sli" {
 
   load_balancer_arn = aws_alb.idp.arn
   sli_namespace     = "${var.env_name}/sli"
+  sli_prefix        = "idp"
 }
