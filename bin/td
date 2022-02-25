@@ -108,11 +108,11 @@ fi
 # default TF_ENV, if left blank
 if [[ -z ${TF_ENV} ]] ; then
   case ${TF_DIR} in
-        app|waf) TF_ENV=${GSA_USERNAME}     ;;
-         gitlab) TF_ENV='alpha'             ;;
-    tooling|sms) TF_ENV="${TF_DIR}-sandbox" ;;
-         master) TF_ENV='global'            ;;
-              *) TF_ENV='sandbox'           ;;
+        app|waf) TF_ENV=${GSA_USERNAME} ;;
+         gitlab) TF_ENV='alpha'         ;;
+        tooling) TF_ENV='tooling'       ;;
+         master) TF_ENV='global'        ;;
+              *) TF_ENV='sandbox'       ;;
   esac
 fi
 
