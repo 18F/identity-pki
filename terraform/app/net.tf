@@ -458,8 +458,10 @@ resource "aws_security_group" "idp" {
     to_port     = 22
     protocol    = "tcp"
     cidr_blocks = [
-      "162.140.252.160/32",
-      "162.140.64.26/32",
+      "162.140.252.175/32", # nsftp.gpo.gov - Primary
+      "162.140.64.175/32",  # nsftp.gpo.gov - Backup
+      "162.140.252.160/32", # Old GPO SFTP - Remove when cutover to nsftp.gpo.gov
+      "162.140.64.26/32",   # Old GPO SFTP - Remove when cutover to nsftp.gpo.gov
     ]
   }
 
@@ -1267,8 +1269,10 @@ resource "aws_security_group" "worker" {
     to_port     = 22
     protocol    = "tcp"
     cidr_blocks = [
-      "162.140.252.160/32",
-      "162.140.64.26/32",
+      "162.140.252.175/32", # nsftp.gpo.gov - Primary
+      "162.140.64.175/32",  # nsftp.gpo.gov - Backup
+      "162.140.252.160/32", # Old GPO SFTP - Remove when cutover to nsftp.gpo.gov
+      "162.140.64.26/32",   # Old GPO SFTP - Remove when cutover to nsftp.gpo.gov
     ]
   }
 
