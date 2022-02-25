@@ -21,6 +21,8 @@
 # This volume thing is ugly, but xvdg works, but xvdh does not create
 # the /dev/xvdh symlink.  So we are just hardcoding the nvme devices
 # it maps to directly.  WTF Ubuntu?
+
+aws_account_id = Chef::Recipe::AwsMetadata.get_aws_account_id
 aws_region = Chef::Recipe::AwsMetadata.get_aws_region
 backup_s3_bucket = "gitlab-#{node.chef_environment}-backups"
 config_s3_bucket = "gitlab-#{node.chef_environment}-config"
@@ -32,11 +34,13 @@ gitaly_ebs_volume = ConfigLoader.load_config(node, "gitaly_ebs_volume", common: 
 gitaly_real_device = "/dev/nvme2n1"
 gitlab_device = "/dev/xvdh"
 gitlab_ebs_volume = ConfigLoader.load_config(node, "gitlab_ebs_volume", common: false).chomp
+gitlab_license = ConfigLoader.load_config(node, "login-gov.gitlab-license", common: true)
 gitlab_real_device = "/dev/nvme3n1"
+gitlab_root_api_token = shell_out('openssl rand -base64 20 | head -c 20').stdout
 postgres_version = "13"
 redis_host = ConfigLoader.load_config(node, "gitlab_redis_endpoint", common: false).chomp
 root_password = ConfigLoader.load_config(node, "gitlab_root_password", common: false).chomp
-runner_token = ConfigLoader.load_config(node, "gitlab_runner_token", common: false).chomp
+secrets_s3_bucket = "login-gov.secrets.#{aws_account_id}-#{aws_region}"
 ses_password = ConfigLoader.load_config(node, "ses_smtp_password", common: true).chomp
 ses_username = ConfigLoader.load_config(node, "ses_smtp_username", common: true).chomp
 smtp_address = "email-smtp.#{aws_region}.amazonaws.com"
@@ -114,6 +118,14 @@ end
 remote_file "rds_ca_bundle" do
   path "/etc/gitlab/ssl/rds_ca_bundle.pem"
   source "https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem"
+  owner 'root'
+  group 'root'
+  mode 0644
+end
+
+file "gitlab_ee_license_file" do
+  path "/etc/gitlab/login-gov.gitlab-license"
+  content gitlab_license
   owner 'root'
   group 'root'
   mode 0644
@@ -216,4 +228,31 @@ cron_d 'gitlab_backup_create' do
   predefined_value "@daily"
   command '/etc/gitlab/backup.sh'
   notifies :create, 'file[/etc/gitlab/backup.sh]', :before
+end
+
+execute 'copy_gitlab_root_token_to_s3' do
+  command "echo #{gitlab_root_api_token} | aws s3 cp - s3://#{secrets_s3_bucket}/#{node.chef_environment}/gitlab_root_api_token"
+  action :run
+end
+
+execute 'revoke_gitlab_root_tokens' do
+  command <<-EOF
+    sudo gitlab-rails runner "User.find_by_username('root').personal_access_tokens.all.revoke!"
+  EOF
+  action :run
+end
+
+execute 'save_gitlab_root_token' do
+  command <<-EOF
+    sudo gitlab-rails runner "token = User.find_by_username('root').personal_access_tokens.create(scopes: [:api], name: 'Automation Token'); \
+    token.set_token('#{node.run_state['gitlab_root_api_token']}'); token.save!"
+  EOF
+  action :run
+end
+
+execute 'clean_up_licenses' do
+  command <<-EOF
+    sudo gitlab-rails runner "License.all.each(&:destroy!); license = License.new(data: #{gitlab_license}); license.save"
+  EOF
+  action :run
 end

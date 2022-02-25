@@ -10,6 +10,10 @@ resource "aws_ebs_volume" "gitaly" {
   }
 }
 
-output "gitaly_volume_id" {
-  value = aws_ebs_volume.gitaly.id
+resource "aws_s3_bucket_object" "gitaly_volume_id" {
+  bucket  = data.aws_s3_bucket.secrets.id
+  key     = "${var.env_name}/gitaly_ebs_volume"
+  content = aws_ebs_volume.gitaly.id
+
+  etag = md5(aws_ebs_volume.gitaly.id)
 }

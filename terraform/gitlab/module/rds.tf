@@ -128,3 +128,11 @@ resource "aws_security_group" "db" {
 
   vpc_id = aws_vpc.default.id
 }
+
+resource "aws_s3_bucket_object" "gitlab_db_host" {
+  bucket  = data.aws_s3_bucket.secrets.id
+  key     = "${var.env_name}/gitlab_db_host"
+  content = aws_db_instance.gitlab.address
+
+  etag = md5(aws_db_instance.gitlab.address)
+}
