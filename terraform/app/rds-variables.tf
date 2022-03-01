@@ -21,16 +21,16 @@ variable "rds_engine" {
 }
 
 variable "rds_engine_version" {
-  default = "13.4"
+  default = "13.5"
 }
 
 variable "rds_engine_version_replica" {
-  default     = "13.4"
+  default     = "13.5"
   description = "RDS requires that replicas be upgraded *before* primaries"
 }
 
 variable "rds_engine_version_worker_jobs" {
-  default = "13.3"
+  default = "13.5"
 }
 
 variable "rds_instance_class" {
