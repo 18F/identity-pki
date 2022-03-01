@@ -19,5 +19,5 @@ module "main" {
 
   trigger_source      = "CloudWatch"
   code_branch         = var.code_branch
-  image_build_nat_eip = "34.216.34.15" # TODO: make this programmable
+  image_build_nat_eip = "35.89.44.224" # TODO: make this programmable
 }

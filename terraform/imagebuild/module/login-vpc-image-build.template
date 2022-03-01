@@ -373,7 +373,7 @@
             "Properties": {
               "AllocationId": { "Ref": "EIPNatGatewayAllocationID" },
               "SubnetId": { "Ref": "PublicSubnet1" },
-              "Tags" : [ { "Key": "Name", "Value": "NatGateway1"} ] 
+              "Tags" : [ { "Key": "Name", "Value": "imagebuild-nat-gateway"} ] 
             },
             "DependsOn" : "InternetGateway"
         },
