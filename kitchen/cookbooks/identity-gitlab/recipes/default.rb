@@ -40,6 +40,7 @@ gitlab_root_api_token = shell_out('openssl rand -base64 20 | head -c 20').stdout
 postgres_version = "13"
 redis_host = ConfigLoader.load_config(node, "gitlab_redis_endpoint", common: false).chomp
 root_password = ConfigLoader.load_config(node, "gitlab_root_password", common: false).chomp
+runner_token = ConfigLoader.load_config(node, "gitlab_runner_token", common: false).chomp
 secrets_s3_bucket = "login-gov.secrets.#{aws_account_id}-#{aws_region}"
 ses_password = ConfigLoader.load_config(node, "ses_smtp_password", common: true).chomp
 ses_username = ConfigLoader.load_config(node, "ses_smtp_username", common: true).chomp
