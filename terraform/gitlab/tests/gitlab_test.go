@@ -27,14 +27,29 @@ var domain = os.Getenv("DOMAIN")
 var gitlabtoken = os.Getenv("GITLAB_API_TOKEN")
 var timeout = 5
 
-func RunCommandOnInstances(t *testing.T, instancestrings []string, command string) *ssm.GetCommandInvocationOutput {
+var runner_asg = env_name + "-gitlab-test-pool"
+
+func RunCommandOnInstance(t *testing.T, instance_string string, command string) *ssm.GetCommandInvocationOutput {
+	outputs := RunCommandOnInstances(t, []string{instance_string}, command)
+	return outputs[0]
+}
+
+func RunCommandOnInstances(t *testing.T, instancestrings []string, command string) []*ssm.GetCommandInvocationOutput {
 	var instances []*string
 	for _, instance := range instancestrings {
 		instances = append(instances, aws_sdk.String(instance))
 	}
 
 	// Wait for SSM to get active
-	aws.WaitForSsmInstance(t, region, instancestrings[0], 900*time.Second)
+	var wg sync.WaitGroup
+	for _, instancestring := range instancestrings {
+		wg.Add(1)
+		go func(i string) {
+			defer wg.Done()
+			aws.WaitForSsmInstance(t, region, i, 900*time.Second)
+		}(instancestring)
+	}
+	wg.Wait()
 
 	// ssm in and do the command
 	myssm := aws.NewSsmClient(t, region)
@@ -51,16 +66,28 @@ func RunCommandOnInstances(t *testing.T, instancestrings []string, command strin
 	require.NoError(t, err)
 
 	// Wait until it's done
-	cmdinvocation := &ssm.GetCommandInvocationInput{
-		CommandId:  output.Command.CommandId,
-		InstanceId: instances[0],
-	}
-	err = myssm.WaitUntilCommandExecuted(cmdinvocation)
+	results := make(chan *ssm.GetCommandInvocationOutput, len(instances))
+	for _, instance := range instances {
+		go func(i *string) {
+			cmdinvocation := &ssm.GetCommandInvocationInput{
+				CommandId:  output.Command.CommandId,
+				InstanceId: i,
+			}
+			myssm.WaitUntilCommandExecuted(cmdinvocation)
+			cmdoutput, _ := myssm.GetCommandInvocation(cmdinvocation)
 
-	// return output of command
-	cmdoutput, err := myssm.GetCommandInvocation(cmdinvocation)
-	require.NoError(t, err)
-	return cmdoutput
+			results <- cmdoutput
+		}(instance)
+	}
+
+	outputs := []*ssm.GetCommandInvocationOutput{}
+	for range instances {
+		cmdOut := <-results
+		outputs = append(outputs, cmdOut)
+	}
+
+	// return outputs of commands
+	return outputs
 }
 
 func ASGRecycle(t *testing.T, asgName string) {
@@ -106,13 +133,13 @@ func ASGRecycle(t *testing.T, asgName string) {
 // This does a basic smoke test
 // to make sure that it was able to come up and get registered.
 func TestRunnerRunning(t *testing.T) {
-	asgName := env_name + "-gitlab_runner"
-
 	// make sure first runner is registered
-	instances := aws.GetInstanceIdsForAsg(t, asgName, region)
-	firstinstance := instances[0:1]
+	instances := aws.GetInstanceIdsForAsg(t, runner_asg, region)
+	require.NotEmpty(t, instances)
+
+	firstinstance := instances[0]
 	cmd := "gitlab-runner status"
-	result := RunCommandOnInstances(t, firstinstance, cmd)
+	result := RunCommandOnInstance(t, firstinstance, cmd)
 	assert.Equal(t, "gitlab-runner: Service is running\n", *result.StandardOutputContent)
 }
 
@@ -144,14 +171,15 @@ func TestGitlabS3artifacts(t *testing.T) {
 	// something in S3, indicating that gitlab is actually using S3
 	asgName := env_name + "-gitlab"
 	instances := aws.GetInstanceIdsForAsg(t, asgName, region)
-	firstinstance := instances[0:1]
+	require.NotEmpty(t, instances)
+	firstinstance := instances[0]
 
 	// create project
 	projectname := fmt.Sprintf("gitlabs3test-%d", os.Getpid())
 	cmd := "curl -s -X POST --header 'PRIVATE-TOKEN: " + gitlabtoken +
 		"' 'http://localhost:8080/api/v4/projects?name=" + projectname +
 		"&initialize_with_readme=true&default_branch=main&auto_devops_enabled=true'"
-	result := RunCommandOnInstances(t, firstinstance, cmd)
+	result := RunCommandOnInstance(t, firstinstance, cmd)
 	require.Equal(t, int64(0), *result.ResponseCode, "could not create repo")
 
 	// parse out project ID from result
@@ -162,7 +190,7 @@ func TestGitlabS3artifacts(t *testing.T) {
 	// delete project after we are done
 	deletecmd := "curl -s -X DELETE --header 'PRIVATE-TOKEN: " + gitlabtoken + "' 'http://localhost:8080/api/v4/projects/" + projectid + "'"
 	t.Cleanup(func() {
-		result = RunCommandOnInstances(t, firstinstance, deletecmd)
+		result = RunCommandOnInstance(t, firstinstance, deletecmd)
 		require.Equal(t, int64(0), *result.ResponseCode, "could not delete repo")
 		require.Contains(t, *result.StandardOutputContent, "202 Accepted", "could not delete repo")
 	})
@@ -172,7 +200,7 @@ func TestGitlabS3artifacts(t *testing.T) {
 	cmd = "curl -s --header 'Content-Type: application/json' --header 'PRIVATE-TOKEN: " + gitlabtoken +
 		"' --data '{ \"name\": \"New release\", \"tag_name\": \"v0.3\", \"description\": \"Super nice release\", \"ref\": \"main\" }'" +
 		" --request POST http://localhost:8080/api/v4/projects/" + projectid + "/releases"
-	result = RunCommandOnInstances(t, firstinstance, cmd)
+	result = RunCommandOnInstance(t, firstinstance, cmd)
 	require.Equal(t, int64(0), *result.ResponseCode, "could not create a release with "+cmd)
 	require.NotContains(t, *result.StandardOutputContent, "Bad Request", "could not create a release with "+cmd)
 
@@ -182,9 +210,8 @@ func TestGitlabS3artifacts(t *testing.T) {
 		"' 'http://localhost:8080/api/v4/projects/" + projectid +
 		"/jobs'"
 	for {
-		result = RunCommandOnInstances(t, firstinstance, cmd)
+		result = RunCommandOnInstance(t, firstinstance, cmd)
 		require.Equal(t, int64(0), *result.ResponseCode, "could not get list of jobs with "+cmd)
-
 		var jobresult []map[string]interface{}
 		json.Unmarshal([]byte(*result.StandardOutputContent), &jobresult)
 
@@ -210,7 +237,7 @@ func TestGitlabS3artifacts(t *testing.T) {
 	cmd = "curl -s --header 'PRIVATE-TOKEN: " + gitlabtoken +
 		"' 'http://localhost:8080/api/v4/projects/" + projectid +
 		"/jobs/" + jobid + "/trace'"
-	result = RunCommandOnInstances(t, firstinstance, cmd)
+	result = RunCommandOnInstance(t, firstinstance, cmd)
 	require.Equal(t, int64(0), *result.ResponseCode, "could not download job.log with "+cmd)
 	require.NotContains(t, *result.StandardOutputContent, "Bad Request", "could not download job.log with "+cmd)
 	require.NotContains(t, *result.StandardOutputContent, "404 Not Found", "could not download job.log with "+cmd)
@@ -244,34 +271,33 @@ func TestGitlabS3artifacts(t *testing.T) {
 // This does a basic smoke test
 // to make sure that docker is working.
 func TestDockerWorking(t *testing.T) {
-	asgName := env_name + "-gitlab_runner"
-
 	// make sure we can pull an image
-	instances := aws.GetInstanceIdsForAsg(t, asgName, region)
-	firstinstance := instances[0:1]
+	instances := aws.GetInstanceIdsForAsg(t, runner_asg, region)
+	require.NotEmpty(t, instances)
+	firstinstance := instances[0]
 	cmd := "docker pull alpine:latest"
-	result := RunCommandOnInstances(t, firstinstance, cmd)
+	result := RunCommandOnInstance(t, firstinstance, cmd)
 	require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed: "+*result.StandardOutputContent)
 }
 
 // This makes sure that the proper ssh key is installed
 func TestSshKey(t *testing.T) {
 	asgName := env_name + "-gitlab"
-
 	// make sure the keys are the same
 	instances := aws.GetInstanceIdsForAsg(t, asgName, region)
-	firstinstance := instances[0:1]
+	require.NotEmpty(t, instances)
+	firstinstance := instances[0]
 	cmd := "tar xOzf /etc/gitlab/etc_ssh.tar.gz ssh/ssh_host_ecdsa_key.pub"
-	tarfileresult := RunCommandOnInstances(t, firstinstance, cmd)
+	tarfileresult := RunCommandOnInstance(t, firstinstance, cmd)
 	require.Equal(t, int64(0), *tarfileresult.ResponseCode, cmd+" failed: "+*tarfileresult.StandardOutputContent)
 	cmd = "cat /etc/ssh/ssh_host_ecdsa_key.pub"
-	fileresult := RunCommandOnInstances(t, firstinstance, cmd)
+	fileresult := RunCommandOnInstance(t, firstinstance, cmd)
 	require.Equal(t, int64(0), *fileresult.ResponseCode, cmd+" failed: "+*fileresult.StandardOutputContent)
 	require.Equal(t, *tarfileresult.StandardOutputContent, *fileresult.StandardOutputContent, "ssh key is not the same as the archived ssh key")
 
 	// check against live sshd
 	cmd = "ssh-keyscan localhost | grep ecdsa | awk '{print $3}'"
-	result := RunCommandOnInstances(t, firstinstance, cmd)
+	result := RunCommandOnInstance(t, firstinstance, cmd)
 	require.Contains(t, *tarfileresult.StandardOutputContent, strings.TrimSpace(*result.StandardOutputContent), "archived ssh key was not the same as the running sshd key")
 }
 
@@ -279,12 +305,11 @@ func TestSshKey(t *testing.T) {
 // XXX https://github.com/18F/identity-base-image/pull/178 in it.
 // // This tests whether we are still fulfilling the s1.2.x auditd controls.
 // func TestSOneTwo(t *testing.T) {
-// 	asgName := env_name + "-gitlab_runner"
-
-// 	instances := aws.GetInstanceIdsForAsg(t, asgName, region)
-// 	firstinstance := instances[0:1]
+// 	instances := aws.GetInstanceIdsForAsg(t, runner_asg, region)
+//  require.NotEmpty(t, instances)
+// 	firstinstance := instances[0]
 // 	cmd := "sudo auditctl -l"
-// 	result := RunCommandOnInstances(t, firstinstance, cmd)
+// 	result := RunCommandOnInstance(t, firstinstance, cmd)
 // 	require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed: "+*result.StandardOutputContent)
 // 	require.Contains(t, *result.StandardOutputContent, "docker", "According to compliance control s1.2.x, auditd needs to have docker stuff in it")
 // }
@@ -302,11 +327,11 @@ func GetDockerdProc(t *testing.T) string {
 	defer dockerdproc.mu.Unlock()
 
 	if dockerdproc.commandline == "" {
-		asgName := env_name + "-gitlab_runner"
-		instances := aws.GetInstanceIdsForAsg(t, asgName, region)
-		firstinstance := instances[0:1]
+		instances := aws.GetInstanceIdsForAsg(t, runner_asg, region)
+		require.NotEmpty(t, instances)
+		firstinstance := instances[0]
 		cmd := "ps gaxuwww | grep -v grep | grep dockerd"
-		result := RunCommandOnInstances(t, firstinstance, cmd)
+		result := RunCommandOnInstance(t, firstinstance, cmd)
 		require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed: "+*result.StandardOutputContent)
 		dockerdproc.commandline = *result.StandardOutputContent
 	}
@@ -325,12 +350,11 @@ func TestSTwoTen(t *testing.T) {
 
 // This tests whether we are still fulfilling the s2.11 control.
 func TestSTwoEleven(t *testing.T) {
-	asgName := env_name + "-gitlab_runner"
-
-	instances := aws.GetInstanceIdsForAsg(t, asgName, region)
-	firstinstance := instances[0:1]
+	instances := aws.GetInstanceIdsForAsg(t, runner_asg, region)
+	require.NotEmpty(t, instances)
+	firstinstance := instances[0]
 	cmd := "ls -l /var/run/docker.sock"
-	result := RunCommandOnInstances(t, firstinstance, cmd)
+	result := RunCommandOnInstance(t, firstinstance, cmd)
 	require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed: "+*result.StandardOutputContent)
 	require.Contains(t, *result.StandardOutputContent, "srw-rw---- 1 root docker", "According to compliance control s2.11, use of docker should only be authorized for members of the docker group and root")
 }

@@ -11,11 +11,18 @@ import (
 
 func RunOnRunners(t *testing.T, cmd string) []string {
 	t.Parallel()
-	asgName := env_name + "-gitlab_runner"
-	instances := aws.GetInstanceIdsForAsg(t, asgName, region)
-	result := RunCommandOnInstances(t, instances, cmd)
-	t.Log(*result.StandardOutputContent)
-	return strings.Split(*result.StandardErrorContent, "\n")
+	instances := aws.GetInstanceIdsForAsg(t, env_name+"-gitlab-build-pool", region)
+	instances = append(instances, aws.GetInstanceIdsForAsg(t, env_name+"-gitlab-test-pool", region)...)
+
+	results := RunCommandOnInstances(t, instances, cmd)
+	combinedOut := []string{}
+	for _, result := range results {
+		slicedOut := strings.Split(*result.StandardOutputContent, "\n")
+		slicedErr := strings.Split(*result.StandardErrorContent, "\n")
+		combinedOut = append(combinedOut, slicedOut...)
+		combinedOut = append(combinedOut, slicedErr...)
+	}
+	return combinedOut
 }
 
 func _TestMemory(t *testing.T) {
@@ -63,13 +70,9 @@ func _TestSharedProcessNamespace(t *testing.T) {
 }
 
 func TestJobContainers(t *testing.T) {
-	// TODO: setup: start long-running job
-
-	t.Run("Require memory arg", _TestMemory)
-	t.Run("Require cpu_shares arg", _TestCPUShares)
+	t.Run("s5.10 Require memory arg", _TestMemory)
+	t.Run("s5.11 Require cpu_shares arg", _TestCPUShares)
 	t.Run("Require bound interfaces", _TestBoundHostInterface)
 	t.Run("Ensure on-failure restart policy <= 5", _TestContainerRestartPolicy)
 	t.Run("Ensure host process namespace is not shared", _TestSharedProcessNamespace)
-
-	// TODO: teardown: cancel long-running job
 }
