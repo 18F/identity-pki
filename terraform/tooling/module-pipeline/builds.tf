@@ -10,6 +10,11 @@ locals {
   recycletest_env = (var.env_name == "" ? var.recycletest_env_name : var.env_name)
 }
 
+data "aws_s3_bucket_object" "newrelic_api_key" {
+  bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
+  key    = "common/newrelic_apikey"
+}
+
 # How to run a terraform plan
 resource "aws_codebuild_project" "auto_terraform_plan" {
   name          = "auto_terraform_${local.clean_tf_dir}_${var.env_name}_plan"
@@ -44,6 +49,10 @@ resource "aws_codebuild_project" "auto_terraform_plan" {
       name  = "TF_VAR_account_id"
       value = var.account
     }
+    environment_variable {
+      name  = "NEW_RELIC_API_KEY"
+      value = data.aws_s3_bucket_object.newrelic_api_key.body
+    }
   }
 
   logs_config {
@@ -57,7 +66,6 @@ resource "aws_codebuild_project" "auto_terraform_plan" {
     type      = "CODEPIPELINE"
     buildspec = <<EOT
 version: 0.2
-
 phases:
   install:
     commands:
@@ -74,11 +82,12 @@ phases:
       - cd $CODEBUILD_SRC_DIR
       - mkdir -p terraform/$TF_DIR/.terraform
       - mv /tmp/plugins terraform/$TF_DIR/.terraform/
-
   build:
     commands:
       - cp .terraform.lock.hcl terraform/$TF_DIR
       - cp versions.tf terraform/${local.tf_top_dir}
+      - rm -f terraform/modules/newrelic/versions.tf  # XXX I am not sure why we have to do this.
+      - cp versions.tf terraform/modules/newrelic/    # XXX symlinks should work
       - cd terraform/$TF_DIR
       - unset AWS_PROFILE
       - export AWS_STS_REGIONAL_ENDPOINTS=regional
@@ -87,22 +96,19 @@ phases:
       - export AWS_SECRET_ACCESS_KEY=$(echo $roledata | jq -r .Credentials.SecretAccessKey)
       - export AWS_SESSION_TOKEN=$(echo $roledata | jq -r .Credentials.SessionToken)
       - export AWS_REGION=${var.region}
-      - 
+      -
       - pwd
       - terraform init -plugin-dir=.terraform/plugins -lockfile=readonly -backend-config=bucket=${local.state_bucket} -backend-config=key=${local.tf_config_key} -backend-config=dynamodb_table=terraform_locks -backend-config=region=${var.state_bucket_region}
       - terraform providers lock -fs-mirror=.terraform/plugins
       - terraform plan -lock-timeout=180s -out /plan.tfplan ${local.vars_files} 2>&1 > /plan.out
       - cat -n /plan.out
-
   post_build:
     commands:
       - echo "================================ Terraform plan completed on `date`"
-
 artifacts:
   files:
     - /plan.out
     - /plan.tfplan
-
     EOT
   }
   source_version = var.gitref
@@ -158,6 +164,10 @@ resource "aws_codebuild_project" "auto_terraform_apply" {
       name  = "TF_VAR_account_id"
       value = var.account
     }
+    environment_variable {
+      name  = "NEW_RELIC_API_KEY"
+      value = data.aws_s3_bucket_object.newrelic_api_key.body
+    }
   }
 
   logs_config {
@@ -171,7 +181,6 @@ resource "aws_codebuild_project" "auto_terraform_apply" {
     type      = "CODEPIPELINE"
     buildspec = <<EOT
 version: 0.2
-
 phases:
   install:
     commands:
@@ -188,11 +197,12 @@ phases:
       - cd $CODEBUILD_SRC_DIR
       - mkdir -p terraform/$TF_DIR/.terraform
       - mv /tmp/plugins terraform/$TF_DIR/.terraform/
-
   build:
     commands:
       - cp .terraform.lock.hcl terraform/$TF_DIR
       - cp versions.tf terraform/${local.tf_top_dir}
+      - rm -f terraform/modules/newrelic/versions.tf  # XXX I am not sure why we have to do this.
+      - cp versions.tf terraform/modules/newrelic/    # XXX symlinks should work
       - cd terraform/$TF_DIR
       - unset AWS_PROFILE
       - export AWS_STS_REGIONAL_ENDPOINTS=regional
@@ -201,12 +211,11 @@ phases:
       - export AWS_SECRET_ACCESS_KEY=$(echo $roledata | jq -r .Credentials.SecretAccessKey)
       - export AWS_SESSION_TOKEN=$(echo $roledata | jq -r .Credentials.SessionToken)
       - export AWS_REGION="${var.region}"
-      - 
+      -
       - terraform init -plugin-dir=.terraform/plugins -lockfile=readonly -backend-config=bucket=${local.state_bucket} -backend-config=key=${local.tf_config_key} -backend-config=dynamodb_table=terraform_locks -backend-config=region=${var.state_bucket_region}
       - terraform providers lock -fs-mirror=.terraform/plugins
       - terraform plan -lock-timeout=180s -out /plan2.tfplan ${local.vars_files} 2>&1 > /plan2.out # A bit ugly, but some things are generated dynamically here that need to be around for the plan to actually be applied.
       - terraform apply -auto-approve -lock-timeout=180s $CODEBUILD_SRC_DIR_${local.clean_tf_dir}_${var.env_name}_plan_output/plan.tfplan
-
   post_build:
     commands:
       - echo terraform apply completed on `date`
@@ -265,12 +274,10 @@ resource "aws_codebuild_project" "auto_terraform_noderecycle" {
     type      = "CODEPIPELINE"
     buildspec = <<EOT
 version: 0.2
-
 phases:
   install:
     commands:
       - echo "nothing to install yet"
-
   build:
     commands:
       - cd terraform/${var.tf_dir}
@@ -292,7 +299,6 @@ phases:
           echo "no recycle found:  continuing"
           exit 0
         fi
-
   post_build:
     commands:
       - echo terraform node recycle completed on `date`
@@ -533,12 +539,10 @@ resource "aws_codebuild_project" "auto_terraform_test" {
     type      = "CODEPIPELINE"
     buildspec = <<EOT
 version: 0.2
-
 phases:
   install:
     runtime-versions:
       golang: 1.15
-
   build:
     commands:
       - cd terraform/$TF_DIR/
@@ -562,11 +566,9 @@ phases:
           echo "no tests found:  continuing"
           exit 0
         fi
-
   post_build:
     commands:
       - echo test completed on `date`
-
     EOT
   }
   source_version = var.gitref
