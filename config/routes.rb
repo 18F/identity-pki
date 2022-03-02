@@ -3,5 +3,6 @@ Rails.application.routes.draw do
   get '/', to: 'identify#create'
   post '/', to: 'verify#open'
 
+  get '/health_check' => 'health/overall#index'
   get '/api/health/certs' => 'health/certs#index'
 end
