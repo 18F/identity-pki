@@ -182,7 +182,7 @@ users:
       - appdev
   ryan.d.brown:
     aws_groups:
-      - devopsnonprod
+      - devops
     gitlab_groups:
       - devops
   samuel.steiner:
