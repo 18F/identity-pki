@@ -35,6 +35,7 @@ To track compliance status, we have a header yaml file with a status list. The o
 - `c-documented`: this control has been documented.
 - `c-organization-defined`: this control should be organization defined.
 - `c-inherited`: this control is inherited from AWS.
+- `c-in-parent-ssp`: this control is already documented in the main SSP.
   - NB: As per Mo Zia, Please note that any control that refers to the login.gov SSP should be marked as `c-implemented` instead since that control is referring to a software **implementation**. So `c-inherited` here practically only refers to the AWS level.
   - [example](./dist/system-security-plans/gitlab/sr-10.md).
 - `c-org-help-needed`: this control needs to be implemented at the login.gov level instead of at the Gitlab level.

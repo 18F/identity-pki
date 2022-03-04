@@ -2,6 +2,7 @@
 status:
   - c-implemented
   - c-documented
+  - c-in-parent-ssp
 ---
 
 # ar-4 - \[catalog\] Privacy Monitoring and Auditing

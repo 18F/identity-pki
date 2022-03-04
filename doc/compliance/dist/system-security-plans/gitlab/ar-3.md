@@ -2,6 +2,7 @@
 status:
   - c-implemented
   - c-documented
+  - c-in-parent-ssp
 ---
 
 # ar-3 - \[catalog\] Privacy Requirements for Contractors and Service Providers

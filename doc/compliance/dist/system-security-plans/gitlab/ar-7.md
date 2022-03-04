@@ -2,6 +2,7 @@
 status:
   - c-implemented
   - c-documented
+  - c-in-parent-ssp
 ---
 
 # ar-7 - \[catalog\] Privacy-Enhanced System Design and Development
