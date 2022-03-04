@@ -69,10 +69,21 @@ func _TestSharedProcessNamespace(t *testing.T) {
 	}
 }
 
+func _TestFileOwnershipDockerService(t *testing.T) {
+	cmd := "stat -c '%U %G' $(systemctl show -p FragmentPath docker.service --value)"
+	for _, s := range RunOnRunners(t, cmd) {
+		// TODO: Remove conditional once https://gitlab.com/gitlab-org/gitlab-runner/-/merge_requests/1834 is merged
+		if !regexp.MustCompile("root root").MatchString(s) {
+			assert.NotRegexp(t, ": 0$", s)
+		}
+	}
+}
+
 func TestJobContainers(t *testing.T) {
 	t.Run("s5.10 Require memory arg", _TestMemory)
 	t.Run("s5.11 Require cpu_shares arg", _TestCPUShares)
 	t.Run("Require bound interfaces", _TestBoundHostInterface)
 	t.Run("Ensure on-failure restart policy <= 5", _TestContainerRestartPolicy)
 	t.Run("Ensure host process namespace is not shared", _TestSharedProcessNamespace)
+	t.Run("Ensure Docker service file ownership is correct", _TestFileOwnershipDockerService)
 }
