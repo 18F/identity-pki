@@ -75,6 +75,7 @@ users:
   jessica.dembe:
     aws_groups:
       - appdev
+      - apponcall
     gitlab_groups:
       - appdev
   jonathan.hooper:
