@@ -134,5 +134,9 @@ resource "aws_s3_bucket_object" "gitlab_db_host" {
   key     = "${var.env_name}/gitlab_db_host"
   content = aws_db_instance.gitlab.address
 
-  etag = md5(aws_db_instance.gitlab.address)
+  source_hash = md5(aws_db_instance.gitlab.address)
+}
+
+output "gitlab_db_host" {
+  value = aws_db_instance.gitlab.address
 }

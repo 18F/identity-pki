@@ -125,5 +125,5 @@ resource "aws_s3_bucket_object" "gitlab_volume_id" {
   key     = "${var.env_name}/gitlab_ebs_volume"
   content = aws_ebs_volume.gitlab.id
 
-  etag = md5(aws_ebs_volume.gitlab.id)
+  source_hash = md5(aws_ebs_volume.gitlab.id)
 }

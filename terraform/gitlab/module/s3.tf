@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "backups" {
-  bucket = "gitlab-${var.env_name}-backups"
+  bucket = "login-gov-${var.env_name}-gitlabbackups-${data.aws_caller_identity.current.account_id}-${var.region}"
   acl    = "private"
 
   versioning {
@@ -33,9 +33,9 @@ resource "aws_s3_bucket" "backups" {
     Environment = "${var.env_name}"
   }
 
-  lifecycle {
-    prevent_destroy = true
-  }
+  # lifecycle {
+  #   prevent_destroy = true
+  # }
 }
 
 resource "aws_s3_bucket_public_access_block" "backups_access_block" {
@@ -47,14 +47,14 @@ resource "aws_s3_bucket_public_access_block" "backups_access_block" {
 }
 
 resource "aws_s3_bucket" "config" {
-  bucket = "gitlab-${var.env_name}-config"
+  bucket = "login-gov-${var.env_name}-gitlabconfig-${data.aws_caller_identity.current.account_id}-${var.region}"
   acl    = "private"
 
   # force_destroy = true
 
-  lifecycle {
-    prevent_destroy = true
-  }
+  # lifecycle {
+  #   prevent_destroy = true
+  # }
 
   versioning {
     enabled = true
@@ -110,14 +110,14 @@ resource "aws_s3_bucket_public_access_block" "cache_access_block" {
 
 locals {
   gitlab_buckets = [
-    "gitlab-${var.env_name}-artifacts",
-    "gitlab-${var.env_name}-external-diffs",
-    "gitlab-${var.env_name}-lfs-objects",
-    "gitlab-${var.env_name}-uploads",
-    "gitlab-${var.env_name}-packages",
-    "gitlab-${var.env_name}-dependency-proxy",
-    "gitlab-${var.env_name}-terraform-state",
-    "gitlab-${var.env_name}-pages"
+    "login-gov-${var.env_name}-gitlabartifacts-${data.aws_caller_identity.current.account_id}-${var.region}",
+    "login-gov-${var.env_name}-gitlabexternaldiffs-${data.aws_caller_identity.current.account_id}-${var.region}",
+    "login-gov-${var.env_name}-gitlablfsobjects-${data.aws_caller_identity.current.account_id}-${var.region}",
+    "login-gov-${var.env_name}-gitlabuploads-${data.aws_caller_identity.current.account_id}-${var.region}",
+    "login-gov-${var.env_name}-gitlabpackages-${data.aws_caller_identity.current.account_id}-${var.region}",
+    "login-gov-${var.env_name}-gitlabdependcyproxy-${data.aws_caller_identity.current.account_id}-${var.region}",
+    "login-gov-${var.env_name}-gitlabtfstate-${data.aws_caller_identity.current.account_id}-${var.region}",
+    "login-gov-${var.env_name}-gitlabpages-${data.aws_caller_identity.current.account_id}-${var.region}"
   ]
 }
 
@@ -129,9 +129,9 @@ resource "aws_s3_bucket" "gitlab_buckets" {
 
   # force_destroy = true
 
-  lifecycle {
-    prevent_destroy = true
-  }
+  # lifecycle {
+  #   prevent_destroy = true
+  # }
 
   versioning {
     enabled = true

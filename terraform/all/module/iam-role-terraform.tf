@@ -46,6 +46,7 @@ locals {
         sid    = "Acm"
         effect = "Allow"
         actions = [
+          "acm:AddTagsToCertificate",
           "acm:DeleteCertificate",
           "acm:DescribeCertificate",
           "acm:ListTagsForCertificate",
@@ -278,6 +279,7 @@ locals {
         sid    = "Elasticache"
         effect = "Allow"
         actions = [
+          "elasticache:AddTagsToResource",
           "elasticache:CreateCacheSubnetGroup",
           "elasticache:CreateReplicationGroup",
           "elasticache:DeleteReplicationGroup",
@@ -686,6 +688,8 @@ locals {
           "ses:GetIdentityVerificationAttributes",
           "ses:GetIdentityDkimAttributes",
           "ses:DescribeReceiptRule",
+          "ses:VerifyDomainDkim",
+          "ses:VerifyDomainIdentity",
         ]
         resources = [
           "*",

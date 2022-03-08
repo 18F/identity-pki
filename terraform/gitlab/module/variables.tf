@@ -170,7 +170,6 @@ variable "bootstrap_private_git_clone_url" {
 # though they will have different IDs. They should be updated here at the same
 # time, and then released to environments in sequence.
 variable "default_ami_id_tooling" {
-  default     = "ami-03275d6189ecc11cc" # 2022-03-01 base-20211020070545 Ubuntu 18.04
   description = "default AMI ID for environments in the tooling account"
 }
 
@@ -251,9 +250,7 @@ variable "root_domain" {
   default     = "gitlab.identitysandbox.gov"
 }
 
-variable "route53_id" {
-  default = "Z096400532ZFM348WWIAA"
-}
+variable "route53_id" {}
 
 variable "slack_events_sns_hook_arn" {
   description = "ARN of SNS topic that will notify the #identity-events/#identity-otherevents channels in Slack"

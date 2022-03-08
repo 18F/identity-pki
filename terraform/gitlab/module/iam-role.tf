@@ -165,34 +165,36 @@ EOM
               "s3:ListBucket"
           ],
           "Resource": [
-              "arn:aws:s3:::gitlab-${var.env_name}-artifacts",
-              "arn:aws:s3:::gitlab-${var.env_name}-backups",
-              "arn:aws:s3:::gitlab-${var.env_name}-external-diffs",
-              "arn:aws:s3:::gitlab-${var.env_name}-lfs-objects",
-              "arn:aws:s3:::gitlab-${var.env_name}-uploads",
-              "arn:aws:s3:::gitlab-${var.env_name}-packages",
-              "arn:aws:s3:::gitlab-${var.env_name}-dependency-proxy",
-              "arn:aws:s3:::gitlab-${var.env_name}-terraform-state",
-              "arn:aws:s3:::gitlab-${var.env_name}-pages"
+              "arn:aws:s3:::login-gov-${var.env_name}-gitlabartifacts-${data.aws_caller_identity.current.account_id}-${var.region}",
+              "arn:aws:s3:::login-gov-${var.env_name}-gitlabexternaldiffs-${data.aws_caller_identity.current.account_id}-${var.region}",
+              "arn:aws:s3:::login-gov-${var.env_name}-gitlablfsobjects-${data.aws_caller_identity.current.account_id}-${var.region}",
+              "arn:aws:s3:::login-gov-${var.env_name}-gitlabuploads-${data.aws_caller_identity.current.account_id}-${var.region}",
+              "arn:aws:s3:::login-gov-${var.env_name}-gitlabpackages-${data.aws_caller_identity.current.account_id}-${var.region}",
+              "arn:aws:s3:::login-gov-${var.env_name}-gitlabdependcyproxy-${data.aws_caller_identity.current.account_id}-${var.region}",
+              "arn:aws:s3:::login-gov-${var.env_name}-gitlabtfstate-${data.aws_caller_identity.current.account_id}-${var.region}",
+              "arn:aws:s3:::login-gov-${var.env_name}-gitlabpages-${data.aws_caller_identity.current.account_id}-${var.region}",
+              "arn:aws:s3:::login-gov-${var.env_name}-gitlabcache-${data.aws_caller_identity.current.account_id}-${var.region}",
+              "arn:aws:s3:::login-gov-${var.env_name}-gitlabconfig-${data.aws_caller_identity.current.account_id}-${var.region}"
           ]
       },
       {
           "Effect": "Allow",
           "Action": [
-              "s3:PutObject",
-              "s3:GetObject",
-              "s3:DeleteObject"
+            "s3:DeleteObject",
+            "s3:GetObject",
+            "s3:PutObject"
           ],
           "Resource": [
-              "arn:aws:s3:::gitlab-${var.env_name}-artifacts/*",
-              "arn:aws:s3:::gitlab-${var.env_name}-backups/*",
-              "arn:aws:s3:::gitlab-${var.env_name}-external-diffs/*",
-              "arn:aws:s3:::gitlab-${var.env_name}-lfs-objects/*",
-              "arn:aws:s3:::gitlab-${var.env_name}-uploads/*",
-              "arn:aws:s3:::gitlab-${var.env_name}-packages/*",
-              "arn:aws:s3:::gitlab-${var.env_name}-dependency-proxy/*",
-              "arn:aws:s3:::gitlab-${var.env_name}-terraform-state/*",
-              "arn:aws:s3:::gitlab-${var.env_name}-pages/*"
+              "arn:aws:s3:::login-gov-${var.env_name}-gitlabartifacts-${data.aws_caller_identity.current.account_id}-${var.region}/*",
+              "arn:aws:s3:::login-gov-${var.env_name}-gitlabexternaldiffs-${data.aws_caller_identity.current.account_id}-${var.region}/*",
+              "arn:aws:s3:::login-gov-${var.env_name}-gitlablfsobjects-${data.aws_caller_identity.current.account_id}-${var.region}/*",
+              "arn:aws:s3:::login-gov-${var.env_name}-gitlabuploads-${data.aws_caller_identity.current.account_id}-${var.region}/*",
+              "arn:aws:s3:::login-gov-${var.env_name}-gitlabpackages-${data.aws_caller_identity.current.account_id}-${var.region}/*",
+              "arn:aws:s3:::login-gov-${var.env_name}-gitlabdependcyproxy-${data.aws_caller_identity.current.account_id}-${var.region}/*",
+              "arn:aws:s3:::login-gov-${var.env_name}-gitlabtfstate-${data.aws_caller_identity.current.account_id}-${var.region}/*",
+              "arn:aws:s3:::login-gov-${var.env_name}-gitlabpages-${data.aws_caller_identity.current.account_id}-${var.region}/*",
+              "arn:aws:s3:::login-gov-${var.env_name}-gitlabcache-${data.aws_caller_identity.current.account_id}-${var.region}/*",
+              "arn:aws:s3:::login-gov-${var.env_name}-gitlabconfig-${data.aws_caller_identity.current.account_id}-${var.region}/*"
           ]
       }
   ]

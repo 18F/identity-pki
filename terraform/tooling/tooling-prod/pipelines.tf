@@ -6,17 +6,17 @@ module "main" {
   dns_domain = "gitlab.login.gov"
 }
 
-# deploy the prod gitlab environment to the tooling account on the main branch!
-module "login-prod" {
+# deploy the production gitlab environment to the tooling account on the main branch!
+module "production" {
   region = "us-west-2"
   source = "../module-pipeline"
 
   # This is the dir under the terraform dir to tf in identity-devops
-  tf_dir = "gitlab/login-prod"
+  tf_dir = "gitlab/production"
   # This is the gitref to check out in identity-devops
-  gitref = "main"
+  gitref = "stages/gitlabproduction"
   # this is the environment that we will recycle/test
-  recycletest_env_name = "login-prod"
+  recycletest_env_name = "production"
   # this is the dns domain that we need to test
   recycletest_domain = "gitlab.login.gov"
   # This is the account to deploy tf_dir into

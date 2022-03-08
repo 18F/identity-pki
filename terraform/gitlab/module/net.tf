@@ -94,6 +94,7 @@ resource "aws_security_group" "base" {
     to_port     = -1
     cidr_blocks = [aws_vpc.default.cidr_block]
   }
+
   egress {
     protocol    = "icmp"
     from_port   = -1
@@ -150,11 +151,26 @@ resource "aws_security_group" "gitlab" {
 
   # TODO: limit this to what is actually needed
   # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
+
   egress {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
     cidr_blocks = [var.vpc_cidr_block]
+  }
+
+  egress {
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = [aws_subnet.db1.cidr_block, aws_subnet.db2.cidr_block]
+  }
+
+  egress {
+    from_port   = 6379
+    to_port     = 6379
+    protocol    = "tcp"
+    cidr_blocks = [aws_subnet.db1.cidr_block, aws_subnet.db2.cidr_block]
   }
 
   # need 8834 to comm with Nessus Server
@@ -165,14 +181,10 @@ resource "aws_security_group" "gitlab" {
     cidr_blocks = [var.nessusserver_ip]
   }
 
-  # TODO: Can we use HTTPS for provisioning instead?
-  # github
   egress {
-    from_port = 22
-    to_port   = 22
-    protocol  = "tcp"
-
-    # github
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
     cidr_blocks = local.github_ipv4_cidr_blocks
   }
 
@@ -561,7 +573,7 @@ resource "aws_route_table_association" "publicsubnet3" {
 resource "aws_subnet" "privatesubnet1" {
   availability_zone       = "${var.region}a"
   cidr_block              = var.private1_subnet_cidr_block
-  map_public_ip_on_launch = true
+  map_public_ip_on_launch = false
 
   tags = {
     Name = "${var.name}-private1_subnet-${var.env_name}"
@@ -580,7 +592,7 @@ resource "aws_ssm_parameter" "net_subnet_private1" {
 resource "aws_subnet" "privatesubnet2" {
   availability_zone       = "${var.region}b"
   cidr_block              = var.private2_subnet_cidr_block
-  map_public_ip_on_launch = true
+  map_public_ip_on_launch = false
 
   tags = {
     Name = "${var.name}-private2_subnet-${var.env_name}"
@@ -599,7 +611,7 @@ resource "aws_ssm_parameter" "net_subnet_private2" {
 resource "aws_subnet" "privatesubnet3" {
   availability_zone       = "${var.region}c"
   cidr_block              = var.private3_subnet_cidr_block
-  map_public_ip_on_launch = true
+  map_public_ip_on_launch = false
 
   tags = {
     Name = "${var.name}-private3_subnet-${var.env_name}"

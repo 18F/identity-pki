@@ -15,5 +15,5 @@ resource "aws_s3_bucket_object" "gitaly_volume_id" {
   key     = "${var.env_name}/gitaly_ebs_volume"
   content = aws_ebs_volume.gitaly.id
 
-  etag = md5(aws_ebs_volume.gitaly.id)
+  source_hash = md5(aws_ebs_volume.gitaly.id)
 }

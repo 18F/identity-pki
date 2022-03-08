@@ -13,22 +13,15 @@ terraform {
 module "main" {
   source = "../module"
 
-  bootstrap_main_git_ref_default = "main"
-  env_name                       = "prod"
+  bootstrap_main_git_ref_default = "stages/gitlabproduction"
+  env_name                       = "production"
   region                         = "us-west-2"
   slack_events_sns_hook_arn      = "arn:aws:sns:us-west-2:034795980528:slack-otherevents"
-  #enforce                  = true
-  root_domain = "gitlab.login.gov"
+  root_domain                    = "gitlab.login.gov"
+  default_ami_id_tooling         = "ami-0046bdebfcb2ee91d"
+  route53_id                     = "Z07730471OKZ5T4V8NB2M"
 }
 
-output "gitaly_volume_id" {
-  value = module.main.gitaly_volume_id
-}
-
-output "gitlab_redis_endpoint" {
-  value = module.main.gitlab_redis_endpoint
-}
-
-output "gitlab_volume_id" {
-  value = module.main.gitlab_volume_id
+output "gitlab_db_host" {
+  value = module.main.gitlab_db_host
 }

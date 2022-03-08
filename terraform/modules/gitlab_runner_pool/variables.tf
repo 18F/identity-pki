@@ -11,58 +11,72 @@ variable "aws_vpc" {
 
 variable "alb3_subnet_cidr_block" { # 172.16.33.208 - 172.16.33.223
   default = "172.16.33.208/28"
+  type    = string
 }
 
 variable "alb1_subnet_cidr_block" { # 172.16.33.224 - 172.16.33.239
   default = "172.16.33.224/28"
+  type    = string
 }
 
 variable "alb2_subnet_cidr_block" { # 172.16.33.240 - 172.16.33.255
   default = "172.16.33.240/28"
+  type    = string
 }
 
 variable "gitlab1_subnet_cidr_block" { # 172.16.32.32  - 172.16.32.47
   default = "172.16.32.32/28"
+  type    = string
 }
 
 variable "gitlab2_subnet_cidr_block" { # 172.16.32.48  - 172.16.32.63
   default = "172.16.32.48/28"
+  type    = string
 }
 
 variable "public1_subnet_cidr_block" { # 172.16.32.64 - 172.16.32.127
   default = "172.16.32.64/26"
+  type    = string
 }
 
 variable "public2_subnet_cidr_block" { # 172.16.32.128 - 172.16.32.191
   default = "172.16.32.128/26"
+  type    = string
 }
 
 variable "public3_subnet_cidr_block" { # 172.16.32.192 - 172.16.32.255
   default = "172.16.32.192/26"
+  type    = string
 }
 
 variable "private1_subnet_cidr_block" { # 172.16.35.0 - 172.16.35.63
   default = "172.16.35.0/26"
+  type    = string
 }
 
 variable "private2_subnet_cidr_block" { # 172.16.35.64 - 172.16.35.127
   default = "172.16.35.64/26"
+  type    = string
 }
 
 variable "private3_subnet_cidr_block" { # 172.16.35.128 - 172.16.35.191
   default = "172.16.35.128/26"
+  type    = string
 }
 
 variable "nat_a_subnet_cidr_block" { # 172.16.35.192 - 172.16.35.207
   default = "172.16.35.192/28"
+  type    = string
 }
 
 variable "nat_b_subnet_cidr_block" { # 172.16.35.208 - 172.16.35.223
   default = "172.16.35.208/28"
+  type    = string
 }
 
 variable "nat_c_subnet_cidr_block" { # 172.16.35.224 - 172.16.35.239
   default = "172.16.35.224/28"
+  type    = string
 }
 
 variable "allowed_gitlab_cidr_blocks_v4" { # 159.142.0.0 - 159.142.255.255
@@ -160,7 +174,6 @@ variable "bootstrap_private_git_clone_url" {
 # though they will have different IDs. They should be updated here at the same
 # time, and then released to environments in sequence.
 variable "default_ami_id_tooling" {
-  default     = "ami-0b054cef11a589516" # 2022-01-13 base-20211020070545 Ubuntu 18.04
   description = "default AMI ID for environments in the tooling account"
 }
 
@@ -240,9 +253,7 @@ variable "root_domain" {
   description = "DNS domain to use as the root domain, e.g. login.gov"
 }
 
-variable "route53_id" {
-  default = "Z096400532ZFM348WWIAA"
-}
+variable "route53_id" {}
 
 variable "slack_events_sns_hook_arn" {
   description = "ARN of SNS topic that will notify the #identity-events/#identity-otherevents channels in Slack"

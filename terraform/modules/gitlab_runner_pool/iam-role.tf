@@ -428,3 +428,27 @@ resource "aws_iam_role_policy" "gitlab-runner-shared-cache" {
       EOM
 }
 
+# allow runners to get the config
+resource "aws_iam_role_policy" "gitlab-runner-config" {
+  role        = aws_iam_role.gitlab_runner.id
+  name_prefix = "${var.env_name}-gitlab_runner-config"
+  policy      = <<-EOM
+      {
+          "Version": "2012-10-17",
+          "Statement": [
+              {
+                  "Sid": "Config",
+                  "Effect": "Allow",
+                  "Action": [
+                      "s3:GetObject"
+                  ],
+                  "Resource": [
+                    "arn:aws:s3:::login-gov-${var.env_name}-gitlabconfig-${data.aws_caller_identity.current.account_id}-${var.region}/",
+                    "arn:aws:s3:::login-gov-${var.env_name}-gitlabconfig-${data.aws_caller_identity.current.account_id}-${var.region}/*"
+                  ]
+              }
+          ]
+      }
+      EOM
+}
+

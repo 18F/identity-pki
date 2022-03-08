@@ -17,5 +17,6 @@ module "main" {
   env_name                       = "alpha"
   region                         = "us-west-2"
   slack_events_sns_hook_arn      = "arn:aws:sns:us-west-2:034795980528:slack-otherevents"
-  #enforce                  = true
+  default_ami_id_tooling         = "ami-0389fc8ab897c5bc5" # 2022-02-22 base-20211020070545 Ubuntu 18.04
+  route53_id                     = "Z096400532ZFM348WWIAA"
 }

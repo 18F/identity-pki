@@ -9,21 +9,34 @@ resource "aws_security_group" "gitlab_runner" {
     protocol  = "tcp"
 
     # github
-    cidr_blocks = var.github_ipv4_cidr_blocks
+    cidr_blocks = sort(
+      concat(
+        var.github_ipv4_cidr_blocks,
+        tolist(
+          [
+            var.gitlab1_subnet_cidr_block,
+            var.gitlab2_subnet_cidr_block
+          ]
+        )
+      )
+    )
   }
 
-  # allow SSM
   egress {
     from_port = 443
     to_port   = 443
     protocol  = "tcp"
-    cidr_blocks = [
-      var.private1_subnet_cidr_block,
-      var.private2_subnet_cidr_block,
-      var.private3_subnet_cidr_block,
-      var.gitlab1_subnet_cidr_block,
-      var.gitlab2_subnet_cidr_block
-    ]
+    cidr_blocks = sort(
+      tolist(
+        [
+          var.private1_subnet_cidr_block,
+          var.private2_subnet_cidr_block,
+          var.private3_subnet_cidr_block,
+          var.gitlab1_subnet_cidr_block,
+          var.gitlab2_subnet_cidr_block
+        ]
+      )
+    )
   }
 
   # can talk to the proxy

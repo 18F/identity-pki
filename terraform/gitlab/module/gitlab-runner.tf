@@ -28,6 +28,8 @@ module "build_pool" {
   route53_internal_zone_id         = aws_route53_zone.internal.zone_id
   s3_prefix_list_id                = aws_vpc_endpoint.private-s3.prefix_list_id
   slack_events_sns_hook_arn        = var.slack_events_sns_hook_arn
+  default_ami_id_tooling           = var.default_ami_id_tooling
+  route53_id                       = var.route53_id
 }
 
 # A pool with minimal permissions
@@ -60,4 +62,6 @@ module "test_pool" {
   route53_internal_zone_id         = aws_route53_zone.internal.zone_id
   s3_prefix_list_id                = aws_vpc_endpoint.private-s3.prefix_list_id
   slack_events_sns_hook_arn        = var.slack_events_sns_hook_arn
+  default_ami_id_tooling           = var.default_ami_id_tooling
+  route53_id                       = var.route53_id
 }

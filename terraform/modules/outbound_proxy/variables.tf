@@ -175,9 +175,7 @@ variable "proxy_enabled_roles" {
   }
 }
 
-variable "route53_internal_zone_id" {
-  default = "Z096400532ZFM348WWIAA"
-}
+variable "route53_internal_zone_id" {}
 
 variable "use_spot_instances" {
   description = "Use spot instances for roles suitable for spot use"

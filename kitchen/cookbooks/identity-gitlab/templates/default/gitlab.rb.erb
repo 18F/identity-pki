@@ -314,14 +314,14 @@ gitlab_rails['object_store']['connection'] = {
 gitlab_rails['object_store']['storage_options'] = {
 	'server_side_encryption' => 'AES256',
 }
-gitlab_rails['object_store']['objects']['artifacts']['bucket'] = 'gitlab-<%= node.chef_environment %>-artifacts'
-gitlab_rails['object_store']['objects']['external_diffs']['bucket'] = 'gitlab-<%= node.chef_environment %>-external-diffs'
-gitlab_rails['object_store']['objects']['lfs']['bucket'] = 'gitlab-<%= node.chef_environment %>-lfs-objects'
-gitlab_rails['object_store']['objects']['uploads']['bucket'] = 'gitlab-<%= node.chef_environment %>-uploads'
-gitlab_rails['object_store']['objects']['packages']['bucket'] = 'gitlab-<%= node.chef_environment %>-packages'
-gitlab_rails['object_store']['objects']['dependency_proxy']['bucket'] = 'gitlab-<%= node.chef_environment %>-dependency-proxy'
-gitlab_rails['object_store']['objects']['terraform_state']['bucket'] = 'gitlab-<%= node.chef_environment %>-terraform-state'
-gitlab_rails['object_store']['objects']['pages']['bucket'] = 'gitlab-<%= node.chef_environment %>-pages'
+gitlab_rails['object_store']['objects']['artifacts']['bucket'] = 'login-gov-<%= node.chef_environment %>-gitlabartifacts-<%= @aws_account_id %>-<%= @aws_region %>'
+gitlab_rails['object_store']['objects']['external_diffs']['bucket'] = 'login-gov-<%= node.chef_environment %>-gitlabexternaldiffs-<%= @aws_account_id %>-<%= @aws_region %>'
+gitlab_rails['object_store']['objects']['lfs']['bucket'] = 'login-gov-<%= node.chef_environment %>-gitlablfsobjects-<%= @aws_account_id %>-<%= @aws_region %>'
+gitlab_rails['object_store']['objects']['uploads']['bucket'] = 'login-gov-<%= node.chef_environment %>-gitlabuploads-<%= @aws_account_id %>-<%= @aws_region %>'
+gitlab_rails['object_store']['objects']['packages']['bucket'] = 'login-gov-<%= node.chef_environment %>-gitlabpackages-<%= @aws_account_id %>-<%= @aws_region %>'
+gitlab_rails['object_store']['objects']['dependency_proxy']['bucket'] = 'login-gov-<%= node.chef_environment %>-gitlabdependcyproxy-<%= @aws_account_id %>-<%= @aws_region %>'
+gitlab_rails['object_store']['objects']['terraform_state']['bucket'] = 'login-gov-<%= node.chef_environment %>-gitlabtfstate-<%= @aws_account_id %>-<%= @aws_region %>'
+gitlab_rails['object_store']['objects']['pages']['bucket'] = 'login-gov-<%= node.chef_environment %>-gitlabpages-<%= @aws_account_id %>-<%= @aws_region %>'
 
 ### Job Artifacts
 gitlab_rails['artifacts_enabled'] = true

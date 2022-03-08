@@ -27,5 +27,5 @@ resource "aws_s3_bucket_object" "gitlab_redis_endpoint" {
   key     = "${var.env_name}/gitlab_redis_endpoint"
   content = aws_elasticache_replication_group.gitlab.primary_endpoint_address
 
-  etag = md5(aws_elasticache_replication_group.gitlab.primary_endpoint_address)
+  source_hash = md5(aws_elasticache_replication_group.gitlab.primary_endpoint_address)
 }
