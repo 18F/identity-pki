@@ -66,6 +66,9 @@ users:
   goutham.kommanaboyina:
     aws_groups:
       - analytics
+  henry.richardson:
+    aws_groups:
+      - devopsnonprod
   james.tranovich:
     gitlab_groups:
       - devops
@@ -201,6 +204,9 @@ users:
       - keymasters
     gitlab_groups:
       - appdev
+  sujana.gurung:
+    aws_groups:
+      - devopsnonprod
   thomas.black:
     aws_groups:
       - bizops
