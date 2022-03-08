@@ -32,7 +32,7 @@ resource "aws_db_instance" "default" {
   monitoring_interval             = var.rds_enhanced_monitoring_interval
   monitoring_role_arn             = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.rds_monitoring_role_name}"
   performance_insights_enabled    = var.performance_insights_enabled
-  performance_insights_kms_key_id = data.aws_kms_key.rds_alias.arn
+  performance_insights_kms_key_id = var.performance_insights_enabled ? data.aws_kms_key.rds_alias.arn : ""
 
   vpc_security_group_ids = [aws_security_group.db.id]
 
