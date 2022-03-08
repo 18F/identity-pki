@@ -1,0 +1,123 @@
+#!/bin/bash
+set -eu
+
+app=idp
+APP_USER="${APP_USER-websrv}"
+CONSOLE_INFO=()
+
+ENV_VARS=("app=$app")
+LOGIN_TASK_LOG_LEVEL='warn'
+
+usage() {
+  cat >&2 <<EOM
+
+usage: $(basename "$0") [-l|--log LEVEL] <%- if @rails_console %>[-w|--write] [APP]<%- end %>
+
+<%- if @rails_task == 'console' %>
+Run a Rails console for APP (default "idp").
+
+This involves using sudo to change to the app service user, default $APP_USER.
+(Override by setting APP_USER). You will be prompted to provide a justification
+for creating this console, which will be recorded in the $CHANNEL
+channel in Slack.
+<%- elsif @rails_task == 'users:lookup_by_email' %>
+Runs the users_lookup rake task, which prompts for the email address of a
+Login.gov user, and returns their UUID. STDIN is hidden to prevent
+PII from being logged in CloudWatch/S3. A notification containing your username
+and the name of this host will be sent to the $CHANNEL channel in Slack.
+<%- end %>
+The -l / --log flag can be used, along with a LEVEL, to change the
+value of LOGIN_TASK_LOG_LEVEL that is sent to the rake task;
+this defaults to 'warn' if not set.
+
+Flags:
+<%- if @rails_console %>
+  -w | --write      : Passes ALLOW_CONSOLE_DB_WRITE_ACCESS="true" env var
+                      through to rails console
+<%- end %>
+  -l | --log LEVEL  : Passes LOGIN_TASK_LOG_LEVEL env var (set to LEVEL)
+                      through to rails console (defaults to WARN if not set)
+
+EOM
+}
+
+MISSING_KEYS=0
+CHANNEL=$(cat /etc/login.gov/keys/slackchannel) || ((MISSING_KEYS++))
+WEBHOOK=$(cat /etc/login.gov/keys/slackwebhook) || ((MISSING_KEYS++))
+if [ ${MISSING_KEYS} -gt 0 ]; then
+  echo 'Slack channel/webhook missing! Verify files and run Chef to repopulate.'
+  exit 1
+fi
+
+ID_USER=$(whoami) || true
+if [[ "${ID_USER}" =~ ^(root|ssm-user|ubuntu|ec2-user) ]] || [ -z "$ID_USER" ] ; then
+  ID_USER="${GSA_USERNAME:-}"
+  if [ -z "$ID_USER" ] ; then
+    echo 'Username invalid! Set via GSA_USERNAME env var or SSMSessionRunAs session tag'
+    exit 1
+  fi
+fi
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -h|--help)
+      usage
+      exit
+    ;;
+    -l|--log)
+      LOGIN_TASK_LOG_LEVEL="$2"
+      shift
+    ;;
+<%- if @rails_console %>
+    -w|--write)
+      ALLOW_CONSOLE_DB_WRITE_ACCESS="true"
+    ;;
+    *)
+      app="$1"
+      if [[ ! -d "/srv/${app}/current" ]] ; then
+        echo "Directory '/srv/${app}/current' not found! Verify app name and run again"
+        exit 1
+      fi
+    ;;
+<%- else %>
+    *)
+      echo '-l / --log + valid log level are only valid arguments for this script!'
+      usage
+      exit 1
+    ;;
+<%- end %>
+  esac
+  shift
+done
+
+<%- if @rails_console %>
+# Pass through ALLOW_CONSOLE_DB_WRITE_ACCESS, if set
+if [ -n "${ALLOW_CONSOLE_DB_WRITE_ACCESS-}" ]; then
+  CONSOLE_INFO+=('(readwrite)')
+  ENV_VARS+=("ALLOW_CONSOLE_DB_WRITE_ACCESS=$ALLOW_CONSOLE_DB_WRITE_ACCESS")
+else
+  CONSOLE_INFO+=('(readonly)')
+fi
+
+while true; do
+  read -r -p "Please provide an explanation for this Rails console: " USE_CASE
+  if [ ! -z "$USE_CASE" ]; then
+    break
+  fi
+done
+CONSOLE_INFO+=(':\n*'"$(echo $USE_CASE | sed 's/"/\\\"/g;s/\&/\&amp\;/g;s/</\&lt\;/g;s/>/\&gt\;/g')"'*')
+<%- end %>
+
+if [[ ! "${LOGIN_TASK_LOG_LEVEL}" =~ ^(debug|info|warn|error|fatal|unknown)$ ]] ; then
+  LOGIN_TASK_LOG_LEVEL='warn'
+  echo "LOGIN_TASK_LOG_LEVEL of '${LOGIN_TASK_LOG_LEVEL}' invalid; defaulting to WARN"
+fi
+ENV_VARS+=("LOGIN_TASK_LOG_LEVEL=$LOGIN_TASK_LOG_LEVEL")
+
+TEXT=':rails: _<%= @rails_task %>_ :rails: for `'"${ID_USER}"'` on `'"$(hostname)"'` '"${CONSOLE_INFO[@]:-}"''
+PAYLOAD='payload={"channel": "'"${CHANNEL}"'", "username": "<%= @script_name %>", "text": "'"${TEXT}"'", "icon_emoji": ":<%= @slack_icon %>:"}'
+curl -X POST --data-urlencode "${PAYLOAD}" $WEBHOOK
+
+set -x
+
+exec sudo -H -u "$APP_USER" env "${ENV_VARS[@]}" sh -euxc "cd '/srv/$app/current'; bundle exec rails <%= @rails_task %>"

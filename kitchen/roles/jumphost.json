@@ -10,8 +10,7 @@
   "run_list": [
     "role[base]",
     "recipe[login_dot_gov::static_eip]",
-    "recipe[identity-jumphost]",
-    "recipe[login_dot_gov::common_scripts]"
+    "recipe[identity-jumphost]"
   ],
   "env_run_lists": {
   }

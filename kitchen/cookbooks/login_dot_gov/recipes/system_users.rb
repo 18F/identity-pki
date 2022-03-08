@@ -1,24 +1,21 @@
-# create app service user
-group node.fetch('login_dot_gov').fetch('system_user') do
-  system true
-end
-user node.fetch('login_dot_gov').fetch('system_user') do
-  home '/home/' + node.fetch('login_dot_gov').fetch('system_user')
-  manage_home true
-  shell '/usr/sbin/nologin'
-  system true
-  gid node.fetch('login_dot_gov').fetch('system_user')
-end
-
-# create web service user
-group node.fetch('login_dot_gov').fetch('web_system_user') do
-  system true
-end
-user node.fetch('login_dot_gov').fetch('web_system_user') do
-  home '/nonexistent'
-  shell '/usr/sbin/nologin'
-  system true
-  gid node.fetch('login_dot_gov').fetch('web_system_user')
+# create service users
+['system_user','web_system_user'].each do |user|
+  service_user = node.fetch('login_dot_gov').fetch(user)  
+  group service_user do
+    system true
+  end
+  user service_user do
+    home "/home/#{service_user}"
+    manage_home true
+    shell '/usr/sbin/nologin'
+    system true
+    gid service_user
+  end
+  directory "/home/#{service_user}" do
+    mode '755'
+    owner service_user
+    group service_user
+  end
 end
 
 # explicitly set up ssm-user up front instead of relying on ssm magic
