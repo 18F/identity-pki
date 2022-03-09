@@ -242,12 +242,6 @@ resource "aws_cloudwatch_event_rule" "every_hour" {
   schedule_expression = "rate(1 hour)"
 }
 
-resource "aws_cloudwatch_event_rule" "every_one_day" {
-  name                = "every-one-day"
-  description         = "Fires every day"
-  schedule_expression = "rate(1 day)"
-}
-
 resource "aws_cloudwatch_event_rule" "weekdays_at_noon" {
   name                = "weekdays-at-noon"
   description         = "Fires on weekdays at 12p EST / 1 pm EDT"
