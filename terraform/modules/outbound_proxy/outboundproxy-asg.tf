@@ -85,7 +85,7 @@ resource "aws_route53_record" "obproxy" {
 }
 
 resource "aws_autoscaling_group" "outboundproxy" {
-  name_prefix = "${var.env_name}-outboundproxy"
+  name_prefix = "${var.env_name}-${var.proxy_for}-obproxy"
 
   min_size         = var.asg_outboundproxy_min
   max_size         = var.asg_outboundproxy_max
