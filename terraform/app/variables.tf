@@ -785,3 +785,8 @@ variable "memory_free_threshold_byte" {
   description = "Low memory threshold in bytes for New Relic"
   default     = "524288000" #500 MB 
 }
+
+variable "disk_free_storage_space_too_low_threshold" {
+  description = "How much free storage (in bytes) should an RDS instance have before the alarms kicks in"
+  default     = "100000000"
+}
