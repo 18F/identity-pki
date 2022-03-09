@@ -53,6 +53,15 @@ resource "aws_db_instance" "default" {
   }
 }
 
+module "app_cloudwatch_rds" {
+  source = "../modules/cloudwatch_rds/"
+  count  = var.apps_enabled
+
+  rds_storage_threshold = var.rds_storage_threshold
+  rds_db                = aws_db_instance.default[0].id
+  alarm_actions         = local.low_priority_alarm_actions
+}
+
 output "app_db_endpoint" {
   value = element(concat(aws_db_instance.default.*.endpoint, [""]), 0)
 }

@@ -125,3 +125,8 @@ variable "rds_dashboard_idp_vertical_annotations" {
   description = "A raw JSON array of vertical annotations to add to all cloudwatch dashboard widgets"
   default     = "[]"
 }
+
+variable "rds_storage_threshold" {
+  description = "RDS instance free storage (in bytes) to stay above before alerting"
+  default     = "100000000"
+}

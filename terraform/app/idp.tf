@@ -55,6 +55,14 @@ resource "aws_db_instance" "idp" {
   deletion_protection = true
 }
 
+module "idp_cloudwatch_rds" {
+  source = "../modules/cloudwatch_rds/"
+
+  rds_storage_threshold = var.rds_storage_threshold
+  rds_db                = aws_db_instance.idp.id
+  alarm_actions         = local.low_priority_alarm_actions
+}
+
 output "idp_db_endpoint" {
   value = aws_db_instance.idp.endpoint
 }
@@ -106,6 +114,15 @@ resource "aws_db_instance" "idp-read-replica" {
 
   # uncomment this if deleting the read replica / environment
   #skip_final_snapshot = true
+}
+
+module "idp_replica_cloudwatch_rds" {
+  source = "../modules/cloudwatch_rds/"
+  count  = var.enable_rds_idp_read_replica ? 1 : 0
+
+  rds_storage_threshold = var.rds_storage_threshold
+  rds_db                = aws_db_instance.idp-read-replica[0].id
+  alarm_actions         = local.low_priority_alarm_actions
 }
 
 output "idp_db_endpoint_replica" {

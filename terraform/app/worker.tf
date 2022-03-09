@@ -296,6 +296,14 @@ resource "aws_db_instance" "idp-worker-jobs" {
   deletion_protection = false
 }
 
+module "idp_worker_jobs_cloudwatch_rds" {
+  source = "../modules/cloudwatch_rds/"
+
+  rds_storage_threshold = var.rds_storage_threshold
+  rds_db                = aws_db_instance.idp-worker-jobs.id
+  alarm_actions         = local.low_priority_alarm_actions
+}
+
 output "idp_db_endpoint_worker_jobs" {
   # This weird element() stuff is so we can refer to these attributes even
   # when the resource has count=0. Reportedly this hack will not
