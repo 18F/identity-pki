@@ -63,11 +63,10 @@ EOM
 
   namespace = "${var.env_name}/idp-authentication"
 
-  metric_name = "login-mfa"
+  metric_name = "login-mfa-success"
 
   dimensions = {
-    multi_factor_auth_method = "sms",
-    success                  = "1"
+    multi_factor_auth_method = "sms"
   }
 
   statistic           = "Sum"

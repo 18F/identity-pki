@@ -103,13 +103,21 @@ locals {
     }
     # TODO - Transition graphs and alarms to use this multidimensional metric,
     # then deprecate the login-failure-mfa-X metrics above
-    login_multi_factor_authentication = {
-      name         = "login-mfa"
-      pattern      = "{ ($.name = \"Multi-Factor Authentication\") }"
+    login_multi_factor_authentication_success = {
+      name         = "login-mfa-success"
+      pattern      = "{ $.name = \"Multi-Factor Authentication\" && $.properties.event_properties.success is true }"
       metric_value = 1
       dimensions = {
-        multi_factor_auth_method = "$.properties.event_properties.multi_factor_auth_method",
-        success                  = "$.properties.event_properties.success"
+        multi_factor_auth_method = "$.properties.event_properties.multi_factor_auth_method"
+      },
+    },
+
+    login_multi_factor_authentication_failure = {
+      name         = "login-mfa-failure"
+      pattern      = "{ $.name = \"Multi-Factor Authentication\" && $.properties.event_properties.success is false }"
+      metric_value = 1
+      dimensions = {
+        multi_factor_auth_method = "$.properties.event_properties.multi_factor_auth_method"
       },
     },
   }
