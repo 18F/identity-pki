@@ -1,13 +1,18 @@
 ---
 # Add one line per application environment specifying the `identity-devops`
 # branch to deploy from
+
+# upper envs
+dev: main
+
+# sandboxes
 akrito: stages/akrito
-pauldoomed: stages/pauldoomed
 jmdembe: main
 #mhenke: stages/mhenke
-orenyk: stages/orenyk
+orenyk: main
+pauldoomed: stages/pauldoomed
+peggleston: main
+ryandbrown: stages/ryandbrown
 solipet: main
 #tspencer: stages/tspencer
 zmargolis: stages/zmargolis
-dev: main
-ryandbrown: stages/ryandbrown
