@@ -1,13 +1,8 @@
 module "cloudwatch_sli" {
-  source = "github.com/18F/identity-terraform//slo_lambda?ref=f9cee1ae41992f37b5d157f6c3dbcc70f395aaa2"
-  # source = "../../../identity-terraform/slo_lambda"
-  name  = "${var.env_name}-cloudwatch-sli"
-  count = var.enable_cloudwatch_slos ? 1 : 0
-  providers = {
-    aws = aws.usw2
-  }
+  source = "github.com/18F/identity-terraform//slo_lambda?ref=7e18b31a0dc6560b3000e4d2792d000a9c9976b8"
+  #source = "../../../identity-terraform/slo_lambda"
 
+  env_name          = var.env_name
   load_balancer_arn = aws_alb.idp.arn
-  sli_namespace     = "${var.env_name}/sli"
   sli_prefix        = "idp"
 }
