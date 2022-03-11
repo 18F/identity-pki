@@ -179,12 +179,6 @@ users:
   rahul.kamarouthu:
     aws_groups:
       - analytics
-  russ.beye:
-    aws_groups:
-      - appdev
-      - apponcall
-    gitlab_groups:
-      - appdev
   ryan.d.brown:
     aws_groups:
       - devops
@@ -211,12 +205,6 @@ users:
   thomas.black:
     aws_groups:
       - bizops
-  tianna.woodson:
-    aws_groups:
-      - appdev
-      - apponcall
-    gitlab_groups:
-      - appdev
   tiffanyj.andrews:
     aws_groups:
       - analytics
