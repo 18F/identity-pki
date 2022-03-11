@@ -1,5 +1,5 @@
 module "readonly-assumerole" {
-  source = "github.com/18F/identity-terraform//iam_assumerole?ref=7e11ebe24e3a9cbc34d1413cf4d20b3d71390d5b"
+  source = "github.com/18F/identity-terraform//iam_assumerole?ref=a6261020a94b77b08eedf92a068832f21723f7a2"
 
   role_name = "ReadOnly"
   enabled = lookup(

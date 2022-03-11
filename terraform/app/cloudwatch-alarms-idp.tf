@@ -1,6 +1,6 @@
 # IdP specific alarms
 module "elb_http_alerts" {
-  source = "github.com/18F/identity-terraform//elb_http_alerts?ref=7e11ebe24e3a9cbc34d1413cf4d20b3d71390d5b"
+  source = "github.com/18F/identity-terraform//elb_http_alerts?ref=a6261020a94b77b08eedf92a068832f21723f7a2"
 
   env_name         = var.env_name
   load_balancer_id = aws_alb.idp.id

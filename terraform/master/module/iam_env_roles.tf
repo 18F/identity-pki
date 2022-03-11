@@ -1,5 +1,5 @@
 module "assume_roles" {
-  source = "github.com/18F/identity-terraform//iam_masterassume?ref=6d1906810f2470b0b9cd38b992ac7c8b0b82f76c"
+  source = "github.com/18F/identity-terraform//iam_masterassume?ref=a6261020a94b77b08eedf92a068832f21723f7a2"
   #source = "../../../../identity-terraform/iam_masterassume"
 
   role_list         = var.role_list

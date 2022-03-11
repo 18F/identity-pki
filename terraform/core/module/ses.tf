@@ -1,5 +1,5 @@
 module "ses_west_2" {
-  source = "github.com/18F/identity-terraform//ses_dkim_r53?ref=7e11ebe24e3a9cbc34d1413cf4d20b3d71390d5b"
+  source = "github.com/18F/identity-terraform//ses_dkim_r53?ref=a6261020a94b77b08eedf92a068832f21723f7a2"
   #source = "../../../../identity-terraform/ses_dkim_r53"
 
   domain  = var.root_domain
@@ -7,7 +7,7 @@ module "ses_west_2" {
 }
 
 module "ses_east_1" {
-  source = "github.com/18F/identity-terraform//ses_dkim_r53?ref=7e11ebe24e3a9cbc34d1413cf4d20b3d71390d5b"
+  source = "github.com/18F/identity-terraform//ses_dkim_r53?ref=a6261020a94b77b08eedf92a068832f21723f7a2"
   #source = "../../../../identity-terraform/ses_dkim_r53"
   providers = {
     aws = aws.use1

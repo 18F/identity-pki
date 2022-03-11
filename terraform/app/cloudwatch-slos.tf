@@ -1,5 +1,5 @@
 module "cloudwatch_sli" {
-  source = "github.com/18F/identity-terraform//slo_lambda?ref=e088c86308b757e37b608ae54b6e7b5f3e7075a3"
+  source = "github.com/18F/identity-terraform//slo_lambda?ref=a6261020a94b77b08eedf92a068832f21723f7a2"
   # source = "../../../identity-terraform/slo_lambda"
 
   env_name          = var.env_name

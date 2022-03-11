@@ -4,7 +4,7 @@ data "aws_caller_identity" "current" {
 module "git2s3_src" {
   count = data.aws_caller_identity.current.account_id == "894947205914" ? 1 : 0
   #source = "../../../../identity-terraform/git2s3_artifacts"
-  source = "github.com/18F/identity-terraform//git2s3_artifacts?ref=7e11ebe24e3a9cbc34d1413cf4d20b3d71390d5b"
+  source = "github.com/18F/identity-terraform//git2s3_artifacts?ref=a6261020a94b77b08eedf92a068832f21723f7a2"
   providers = {
     aws = aws.usw2
   }
