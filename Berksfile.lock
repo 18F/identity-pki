@@ -34,8 +34,6 @@ DEPENDENCIES
     path: kitchen/cookbooks/identity-outboundproxy
   identity-pivcac
     path: kitchen/cookbooks/identity-pivcac
-  identity-soc
-    path: kitchen/cookbooks/identity-soc
   identity_base_config
     git: https://github.com/18F/identity-cookbooks
     revision: 879b902bd5ca66487922e34a85c217a41728f668
@@ -85,11 +83,12 @@ GRAPH
     lvm (>= 1.1)
   git (11.0.1)
     ark (>= 0.0.0)
-  identity-gitlab (0.0.4)
+  identity-gitlab (0.0.5)
     config_loader (>= 0.0.0)
     docker (>= 0.0.0)
     filesystem (>= 0.0.0)
     login_dot_gov (>= 0.0.0)
+    packagecloud (>= 0.0.0)
   identity-jumphost (0.1.2)
     login_dot_gov (>= 0.0.0)
     squid (~> 4.0)
@@ -107,8 +106,6 @@ GRAPH
     deploy_resource (>= 0.0.0)
     identity_shared_attributes (>= 0.0.0)
     login_dot_gov (>= 0.0.0)
-  identity-soc (0.0.1)
-    aws_metadata (>= 0.0.0)
   identity_base_config (0.1.4)
     identity_shared_attributes (>= 0.0.0)
   identity_shared_attributes (0.1.2)
@@ -128,6 +125,7 @@ GRAPH
   motd (1.0.1)
   newrelic-infra (0.12.2)
   openssl (8.5.5)
+  packagecloud (1.0.1)
   passenger (0.0.1)
   service_discovery (0.2.1)
     aws_metadata (>= 0.0.0)

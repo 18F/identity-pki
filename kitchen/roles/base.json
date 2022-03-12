@@ -38,8 +38,7 @@
     "recipe[login_dot_gov::resolve]",
     "recipe[identity_base_config::ruby]",
     "recipe[identity-monitoring]",
-    "recipe[identity-nessus]",
-    "recipe[identity-soc::endgame]"
+    "recipe[identity-nessus]"
   ],
   "env_run_lists": {}
 }
