@@ -28,6 +28,7 @@ resource "aws_iam_role_policy" "gitlab-ecr-write" {
           {
               "Effect": "Allow",
               "Action": [
+                  "ecr:BatchImportUpstreamImage",
                   "ecr:BatchCheckLayerAvailability",
                   "ecr:GetDownloadUrlForLayer",
                   "ecr:GetRepositoryPolicy",
@@ -73,6 +74,7 @@ resource "aws_iam_role_policy" "gitlab-ecr" {
           {
               "Effect": "Allow",
               "Action": [
+                  "ecr:BatchImportUpstreamImage",
                   "ecr:BatchCheckLayerAvailability",
                   "ecr:GetDownloadUrlForLayer",
                   "ecr:GetRepositoryPolicy",
