@@ -5,7 +5,7 @@ resource "aws_cloudwatch_dashboard" "idp_ial2_sp_dashboards" {
 
   dashboard_body = jsonencode({
     "widgets" : [
-      each.value["issuer"] == "SAML" ? {
+      each.value["protocol"] == "SAML" ? {
         "height" : 9,
         "width" : 12,
         "y" : 26,
@@ -97,25 +97,11 @@ resource "aws_cloudwatch_dashboard" "idp_ial2_sp_dashboards" {
         "x" : 0,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE '${aws_cloudwatch_log_group.idp_events.name}' | fields @timestamp, @message\n| filter name = 'Doc Auth visited'\n| stats count_distinct(visit_id) as session_count by properties.service_provider",
+          "query" : "SOURCE '${aws_cloudwatch_log_group.idp_events.name}' | fields @timestamp, @message\n| filter name = 'User Registration: Email Submitted'\n| filter properties.service_provider = '${each.value["issuer"]}'\n| stats count_distinct(visit_id) as count by bin(10min)",
           "region" : "us-west-2",
           "stacked" : false,
-          "view" : "bar",
-          "title" : "Proofing attempt count by service provider"
-        }
-      },
-      {
-        "height" : 6,
-        "width" : 12,
-        "y" : 35,
-        "x" : 12,
-        "type" : "log",
-        "properties" : {
-          "query" : "SOURCE '${aws_cloudwatch_log_group.idp_events.name}' | fields @timestamp, @message\n| filter name = 'IdV: final resolution'\n| stats count_distinct(visit_id) as session_count by properties.service_provider",
-          "region" : "us-west-2",
-          "stacked" : false,
-          "view" : "bar",
-          "title" : "Proofing success by service provider"
+          "title" : "Email Registration Submissions",
+          "view" : "timeSeries"
         }
       },
       {
