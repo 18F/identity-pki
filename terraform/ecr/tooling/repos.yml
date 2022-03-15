@@ -4,14 +4,18 @@ default_read_template: &all_write_template
     gitlab_alpha_build-pool: "write"
     gitlab_bravo_build-pool: "write"
     gitlab_charlie_build-pool: "write"
-    gitlab_delta_build-pool: "write"
-    gitlab_echo_build-pool: "write"
+    gitlab_alpha_test-pool: "read"
+    gitlab_bravo_test-pool: "read"
+    gitlab_charlie_test-pool: "read"
 
+# If you add an existing repo, you may need to import the state, e.g.
+# tf-deploy ecr/tooling import 'module.repos["gitlab-qa"].aws_ecr_repository.ecr_repo' gitlab-qa
+    
 repos:
   alpha:
     name: "alpha/base"
     <<: *all_write_template
-  alpine:
+  alpine_git:
     name: "alpine/git"
     <<: *all_write_template
   fluent-bit:
@@ -24,7 +28,7 @@ repos:
     name: "gitlabdemo"
     <<: *all_write_template
   golang:
-    name: "library/golang"
+    name: "ecr-public/docker/library/golang"
     <<: *all_write_template
   tspencertest:
     name: "tspencertest"
@@ -32,3 +36,7 @@ repos:
   gitlab-qa:
     name: "gitlab-qa"
     <<: *all_write_template
+  alpine:
+    name: "ecr-public/docker/library/alpine"
+    <<: *all_write_template
+    

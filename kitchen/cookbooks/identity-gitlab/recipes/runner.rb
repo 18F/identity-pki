@@ -117,7 +117,7 @@ execute 'configure_gitlab_runner' do
     --env NO_PROXY="#{no_proxy}" \
     --env no_proxy="#{no_proxy}" \
     --env DOCKER_AUTH_CONFIG='{ \"credsStore\": \"ecr-login\"}' \
-    --docker-image alpine:latest \
+    --docker-image="#{aws_account_id}.dkr.ecr.#{aws_region}.amazonaws.com/ecr-public/docker/library/alpine:latest" \
     --run-untagged="#{node.run_state['allow_untagged_jobs']}" \
     --tag-list "#{node.run_state['gitlab_runner_pool_name']}" \
     --locked=false \

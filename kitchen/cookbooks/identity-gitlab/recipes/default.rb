@@ -372,6 +372,11 @@ execute 'add_ci_skeleton' do
     curl --silent --fail --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
       "#{external_url}/api/v4/projects/${PROJECT_NUMBER}/variables" \
       --form "key=EXTERNAL_FQDN" --form "value=#{external_fqdn}"
+    curl --silent --fail --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XDELETE \
+      "#{external_url}/api/v4/projects/${PROJECT_NUMBER}/variables/AWS_REGION"
+    curl --silent --fail --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
+      "#{external_url}/api/v4/projects/${PROJECT_NUMBER}/variables" \
+      --form "key=AWS_REGION" --form "value=#{aws_region}"
   EOF
   ignore_failure true
   sensitive true
