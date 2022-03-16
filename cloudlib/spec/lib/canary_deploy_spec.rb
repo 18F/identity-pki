@@ -42,15 +42,15 @@ describe Cloudlib::CanaryState do
     end
 
     it 'returns :good when deploy metrics are good' do
-      old_deploy.request_metrics = { count: 200, five_hundred_percent: 0.01 }
-      new_deploy.request_metrics = { count: 200, five_hundred_percent: 0.0001 }
+      old_deploy.request_metrics = { count: 2000, five_hundred_percent: 0.01 }
+      new_deploy.request_metrics = { count: 2000, five_hundred_percent: 0.0001 }
       canary_state.deploys = [old_deploy, new_deploy]
       expect(canary_state.promotion_status).to eq :good
     end
 
     it 'returns :bad when deploy metrics are bad' do
-      old_deploy.request_metrics = { count: 200, five_hundred_percent: 0.001 }
-      new_deploy.request_metrics = { count: 200, five_hundred_percent: 0.1 }
+      old_deploy.request_metrics = { count: 2000, five_hundred_percent: 0.001 }
+      new_deploy.request_metrics = { count: 2000, five_hundred_percent: 0.1 }
       canary_state.deploys = [old_deploy, new_deploy]
       expect(canary_state.promotion_status).to eq :bad
     end
