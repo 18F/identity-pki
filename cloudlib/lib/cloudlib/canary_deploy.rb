@@ -107,9 +107,9 @@ module Cloudlib
       old_five_hundred_percent = old_deploy.request_metrics[:five_hundred_percent]
       new_five_hundred_percent = new_deploy.request_metrics[:five_hundred_percent]
 
-      if new_request_count > 100 && new_five_hundred_percent < 0.001 && new_five_hundred_percent < old_five_hundred_percent
+      if new_request_count > 1000 && new_five_hundred_percent < 0.001 && (new_five_hundred_percent - old_five_hundred_percent).abs < 0.01
         :good
-      elsif new_request_count > 100 && new_five_hundred_percent > 0.01
+      elsif new_request_count > 1000 && new_five_hundred_percent > 0.01
         :bad
       elsif true
         :not_enough_data
@@ -136,6 +136,8 @@ module Cloudlib
 
       while true do
         idp_asg = as.get_autoscaling_group_by_name(idp_asg_name)
+        raise 'Must have at least two IDPs to do canary deploy' if idp_asg.desired_capacity < 2
+        idpxtra_asg = as.get_autoscaling_group_by_name(idpxtra_asg_name)
 
         deploys = get_deploys
         has_migrated = has_run_migrations?(sha: latest_sha)
@@ -143,7 +145,7 @@ module Cloudlib
         scheduled_scale_in = get_scheduled_scale_in
         is_scaling_new_version_to_full = (scheduled_scale_in && (idp_asg.desired_capacity == scheduled_scale_in.desired_capacity * 2))
         health_data = Cloudlib::ElasticLoadBalancingV2.new.find_target_health_data(env, "idp")
-        all_idps_healthy = health_data.count { |x| x.target_health.state == "healthy" } == idp_asg.desired_capacity
+        all_idps_healthy = health_data.count { |x| x.target_health.state == "healthy" } == (idp_asg.desired_capacity + idpxtra_asg.desired_capacity)
         is_scaling_in = scheduled_scale_in && idp_asg.desired_capacity == scheduled_scale_in.desired_capacity
 
         state = CanaryState.new(
@@ -160,13 +162,13 @@ module Cloudlib
         if state.invalid_number_of_deploys?
           raise 'bad number of deploys'
         elsif !has_migrated && scheduled_scale_in
-          puts 'is there a current deploy going on?'
-          puts 'should I cancel the current scheduled scale in? (y)'
+          puts 'There is currently a scheduled action to remove old servers as part of a previous deploy'
+          puts 'If you have determined it is safe, I can cancel the previous deploy and restart the deployment? (y)'
           should_cancel = STDIN.gets.chomp
           if should_cancel == 'y'
             scheduled_scale_in.delete({auto_scaling_group_name: idp_asg_name})
           else
-            puts 'not deleting scheduled scale in, exiting'
+            puts 'not deleting existing deploy, exiting'
             break
           end
         elsif deploys.count == 2 && !deploys.map(&:sha).include?(latest_sha)
@@ -199,6 +201,12 @@ module Cloudlib
 
           case state.promotion_status
           when :good
+            puts 'Continue with canary deploy? (yes)'
+            input = STDIN.gets.chomp
+            if input != 'yes'
+              puts 'Continuing to monitor deploy'
+              next
+            end
             puts 'Scaling up all the way, waiting for new instances to provision'
             idpxtra_asg = as.get_autoscaling_group_by_name(idpxtra_asg_name)
             worker_asg = as.get_autoscaling_group_by_name(worker_asg_name)
@@ -209,19 +217,27 @@ module Cloudlib
           when :not_enough_data
             # wait some more
           when :bad
-            # TODO: uh oh, scale in new instances, abort?
+            # TODO: uh oh, scale down new instances, abort?
           end
         elsif state.waiting_for_scaling_up_new_version?
           print '.'
         elsif state.ready_to_scale_down_old_version?
-          puts "\nNew deploy has completed scaling up, starting to scale down old instances"
+          puts "\nNew deploy has completed scaling up new servers, starting to scale down old servers"
           idpxtra_asg = as.get_autoscaling_group_by_name(idpxtra_asg_name)
           worker_asg = as.get_autoscaling_group_by_name(worker_asg_name)
           as.set_desired_capacity(idp_asg_name, scheduled_scale_in.desired_capacity)
 
           as.set_desired_capacity(idpxtra_asg_name, idpxtra_asg.desired_capacity / 2) if idpxtra_asg.desired_capacity > 1
           as.set_desired_capacity(worker_asg_name, worker_asg.desired_capacity / 2) if worker_asg.desired_capacity > 1
-          puts 'Started scale down, waiting for old instances to drain and terminate'
+          if env == 'prod'
+            puts "\n#{Time.now}: To remove old servers, scale-in protection must be removed from idp, idpxtra, and worker instances."
+            puts "You will now be prompted to confirm removing scale-in protection from all of the instance types."
+            Cloudlib::AutoScaling.new.scale_in_instances("prod-idp", {})
+            Cloudlib::AutoScaling.new.scale_in_instances("prod-idpxtra", {})
+            Cloudlib::AutoScaling.new.scale_in_instances("prod-worker", {})
+          end
+
+          puts 'Started scaling down old servers, waiting for old servers to drain and terminate'
         elsif state.waiting_for_old_version_to_scale_down?
           print '.'
         elsif state.completed_deploy?
