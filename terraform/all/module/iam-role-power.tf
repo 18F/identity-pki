@@ -499,6 +499,18 @@ module "poweruser-assumerole" {
           ]
         },
         {
+          sid    = "Shield"
+          effect = "Allow"
+          actions = [
+            "shield:List*",
+            "shield:Describe*",
+            "shield:GetSubscriptionState",
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
           sid    = "SQS"
           effect = "Allow"
           actions = [
