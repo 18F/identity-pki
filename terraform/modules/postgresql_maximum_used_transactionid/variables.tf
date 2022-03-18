@@ -82,9 +82,9 @@ variable "statistic" {
 }
 
 variable "transaction_id_threshold" {
-    type        = number
-    description = "Threshold for the maximum transaction id for triggering cloudwatch alarm"
-    default     = "80"
+  type        = number
+  description = "Threshold for the maximum transaction id for triggering cloudwatch alarm"
+  default     = "80"
 }
 
 variable "alarm_actions" {
@@ -98,7 +98,7 @@ variable "alarm_actions" {
 #---------------------------------------------------
 
 variable "db_name" {
-    type        = string
-    description = "Database name to be monitored by the Cloudwatch Alarm"
+  type        = string
+  description = "Database name to be monitored by the Cloudwatch Alarm"
 
 }
