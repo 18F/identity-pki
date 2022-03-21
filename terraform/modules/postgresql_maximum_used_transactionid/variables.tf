@@ -84,7 +84,7 @@ variable "statistic" {
 variable "transaction_id_threshold" {
   type        = number
   description = "Threshold for the maximum transaction id for triggering cloudwatch alarm"
-  default     = "80"
+  default     = "1000000000"
 }
 
 variable "alarm_actions" {
