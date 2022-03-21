@@ -164,3 +164,9 @@ variable "guardduty_threat_feed_code" {
   description = "Path of the compressed lambda source code."
   default     = "src/guard-duty-threat-feed.zip"
 }
+
+variable "cross_account_archive_bucket_access" {
+  description = "Source roles from other accounts allowed access to a list of buckets"
+  type        = map(list(string))
+  default     = {}
+}

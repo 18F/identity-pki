@@ -326,3 +326,9 @@ variable "route53_internal_zone_id" {
 
 variable "s3_prefix_list_id" {
 }
+
+variable "destination_artifact_accounts" {
+  description = "List of AWS accounts we can potentially push artifacts to"
+  type        = list(string)
+  default     = []
+}

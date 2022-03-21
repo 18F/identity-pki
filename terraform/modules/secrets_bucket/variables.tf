@@ -28,3 +28,13 @@ variable "force_destroy" {
   default     = false
   description = "Allow destroy even if bucket contains objects"
 }
+
+variable "policy" {
+  default     = ""
+  description = "Bucket policy"
+}
+
+variable "sse_algorithm" {
+  default     = "aws:kms"
+  description = "S3 Server-side Encryption Algorithm"
+}

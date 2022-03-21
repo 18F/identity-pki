@@ -97,6 +97,14 @@ module "main" {
     "sj2019-us-east-1-894947205914",
   ]
 
+  # Roles from other accounts allowed to write to our archive buckets
+  cross_account_archive_bucket_access = {
+    "arn:aws:iam::034795980528:role/alpha-build-pool_gitlab_runner_iam_role" = [
+      "mhenke",
+      "pauldoom"
+    ]
+  }
+
   slack_events_sns_hook_arn = "arn:aws:sns:us-west-2:894947205914:slack-otherevents"
 }
 

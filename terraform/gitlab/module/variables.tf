@@ -355,3 +355,9 @@ variable "elasticache_redis_engine_version" {
 variable "elasticache_redis_parameter_group_name" {
   default = "default.redis6.x"
 }
+
+variable "destination_artifact_accounts" {
+  description = "List of AWS accounts we can potentially push artifacts to"
+  type        = list(string)
+  default     = []
+}

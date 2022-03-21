@@ -1,5 +1,5 @@
 resource "aws_iam_role" "gitlab_runner" {
-  name_prefix        = "${var.env_name}_gitlab_runner_iam_role"
+  name               = "${var.env_name}-${var.gitlab_runner_pool_name}_gitlab_runner_iam_role"
   assume_role_policy = <<-EOM
     {
       "Version": "2012-10-17",
@@ -454,3 +454,25 @@ resource "aws_iam_role_policy" "gitlab-runner-config" {
       EOM
 }
 
+data "aws_iam_policy_document" "app_artifacts_bucket_role_policy_document" {
+  statement {
+    sid    = "AllowBucketAndObjects"
+    effect = "Allow"
+    actions = [
+      "s3:GetObject",
+      "s3:PutObject"
+    ]
+
+    resources = [
+      for account in var.destination_artifact_accounts : "arn:aws:s3:::login-gov.app-artifacts.${account}-${var.region}/*"
+    ]
+  }
+}
+
+resource "aws_iam_role_policy" "app_artifacts_role_bucket_role_policy" {
+  count = length(var.destination_artifact_accounts) > 0 ? 1 : 0
+
+  name   = "${var.env_name}-upload-app-artifacts"
+  role   = aws_iam_role.gitlab_runner.id
+  policy = data.aws_iam_policy_document.app_artifacts_bucket_role_policy_document.json
+}

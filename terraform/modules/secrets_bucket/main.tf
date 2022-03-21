@@ -10,7 +10,7 @@ resource "aws_s3_bucket" "secrets" {
   acl           = "private"
   force_destroy = var.force_destroy
 
-  policy = ""
+  policy = var.policy
 
   tags = {
     Name        = var.bucket_name_prefix
@@ -29,7 +29,7 @@ resource "aws_s3_bucket" "secrets" {
   server_side_encryption_configuration {
     rule {
       apply_server_side_encryption_by_default {
-        sse_algorithm = "aws:kms"
+        sse_algorithm = var.sse_algorithm
       }
     }
   }

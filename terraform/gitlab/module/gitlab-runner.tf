@@ -30,6 +30,7 @@ module "build_pool" {
   slack_events_sns_hook_arn        = var.slack_events_sns_hook_arn
   default_ami_id_tooling           = var.default_ami_id_tooling
   route53_id                       = var.route53_id
+  destination_artifact_accounts    = var.destination_artifact_accounts
 }
 
 # A pool with minimal permissions
