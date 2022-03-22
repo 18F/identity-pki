@@ -94,3 +94,5 @@ verify_private_repo
 verify_sandbox_env "${1:-}"
 
 run_tasks
+
+exit 0

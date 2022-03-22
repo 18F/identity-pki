@@ -73,8 +73,6 @@ exit 0
         --pipeline-name "auto_terraform_app_$TF_ENV" \
         --stage-name Plan --transition-type Inbound \
         --reason "$reason"
-
-    exit 0
 }
 
 TASKS=(
@@ -102,3 +100,5 @@ verify_private_repo
 verify_sandbox_env "${1:-}"
 
 run_tasks
+
+exit 0
