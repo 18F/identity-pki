@@ -37,7 +37,7 @@ man_page() {
 
 Usage: $basename ENV_NAME
 
-Disables auto-tf execution for the specified sandbox environment (defaults to \$GSA_USERNAME if not specified)
+Enables auto-tf execution for the specified sandbox environment (defaults to \$GSA_USERNAME if not specified)
 
 Arguments:
 
