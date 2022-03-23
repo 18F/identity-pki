@@ -389,4 +389,3 @@ resource "aws_cloudwatch_metric_alarm" "wafv2_blocked_alert" {
     WebACL = "${var.env}-idp-waf"
   }
 }
-
