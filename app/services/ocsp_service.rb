@@ -112,6 +112,5 @@ class OcspService
       key_id: subject.key_id,
     }
     Rails.logger.warn("OCSP error: #{info.to_json}")
-    NewRelic::Agent.notice_error(exception)
   end
 end
