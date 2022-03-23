@@ -78,7 +78,7 @@ data "aws_s3_bucket_object" "identity_devops_oauthkey" {
 # For example:  echo 'terraform_v1.1.3-bundle2022012018_linux_amd64.zip' > .tfbundle
 variable "tfbundle" {
   description = "default name of the tfbundle that you want the system to deploy with in the auto_tf_bucket"
-  default     = "terraform_v1.1.3-bundle2022012018_linux_amd64.zip"
+  default     = "terraform_v1.1.3-bundle2022032314_linux_amd64.zip"
 }
 
 variable "events_sns_topic" {
