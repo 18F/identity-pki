@@ -198,7 +198,6 @@ open_pr() {
   for NUM in $(git diff --numstat | awk '{print $1}' | tr '\n' ' ') ; do
     DIFF_COUNT=$(expr $DIFF_COUNT + $NUM)
   done
-  echo $DIFF_COUNT
   if [[ ${DIFF_COUNT} != 4 ]] ; then
     raise "4 lines should be changed for an AMI update PR; ${DIFF_COUNT} lines changed instead. Verify and try again."
   fi

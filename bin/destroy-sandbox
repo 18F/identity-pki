@@ -15,9 +15,8 @@ usage() {
 Usage: ${0} [-ldebkxh] [ENV] (defaults to \$GSA_USERNAME if not specified)
 
 Flags (will run all if no flags specified):
-  -d : Remove deletion/prevent_destroy/final snapshot from RDS dbs via apply
+  -d : Remove deletion protection from RDS dbs + zero out ASGs via apply
   -s : Stop and delete the CloudWatch-to-S3 Kinesis Firehose stream
-  -z : Zero out all \${TF_ENV} Auto Scaling Groups
   -b : Empties all S3 buckets with ENV in the bucket name
   -x : terraform-destroy + reset db .tf files
   -k : Delete all ENV-named S3 keys in secrets/app-secrets buckets
@@ -38,18 +37,16 @@ specified flags/arguments.
 The tasks in this script can also be individually executed
 using the following flags:
 
-  -d : Remove deletion protection/prevent_destroy from RDS databases,
-       and set skip_final_snapshot to true, via terraform apply
+  -d : Remove deletion protection/prevent_destroy/final_snapshot from RDS databases,
+       and zero out all Auto Scaling Groups, via \`tf-deploy \${TF_ENV} app apply\`
   -s : Stop and force-delete the cw-kinesis-s3 Firehose stream,
        allowing its corresponding bucket to be emptied and deleted
-  -z : Set Minimum, Desired, and Maximum numbers for all
-       Auto Scaling Groups in \${TF_ENV} to 0
   -b : Empties all S3 buckets with \${TF_ENV} in the bucket name,
-       and deletes all object versions as well.
+       and deletes all object versions as well
   -x : Run \`terraform destroy -auto-approve\` against the
-       environment, skipping the attempt to send a message to Slack.
+       environment, skipping the attempt to send a message to Slack
   -k : Delete all S3 keys in the secrets/app-secrets buckets that
-       have \${TF_ENV} in their name.
+       have \${TF_ENV} in their name
   -h : Displays this help
 
 This script will default to using \${GSA_USERNAME} for the
@@ -63,7 +60,9 @@ EOM
 replace_db_files() {
   for DB in idp app worker; do
     FILE="${APP_DIR}/${DB}.tf"
-    [[ -f "${FILE}.bak" ]] && run mv ${FILE}.bak ${FILE}
+    if [[ -f "${FILE}.bak" ]] ; then
+      mv ${FILE}.bak ${FILE}
+    fi
   done
 }
 
@@ -76,7 +75,7 @@ replace_db_files() {
     sed -i '' -E 's/#(skip_final_snapshot = true)/\1/g' ${APP_DIR}/${DB}.tf
   done
 
-  ave ${BASEPATH}/tf-deploy -t ${TF_ENV} app apply -auto-approve
+  ave ${BASEPATH}/tf-deploy -z -t ${TF_ENV} app apply -auto-approve
 }
 
 2_stop_kinesis_stream() {
@@ -99,17 +98,7 @@ replace_db_files() {
   done
 }
 
-3_zero_out_asgs() {
-  for ASG in $(ave aws autoscaling describe-auto-scaling-groups \
-    --query 'AutoScalingGroups[*].AutoScalingGroupName' |
-    jq -r '.[]' | grep ${TF_ENV}) ; do
-    ave aws autoscaling update-auto-scaling-group \
-      --auto-scaling-group-name ${ASG} \
-      --min-size 0 --desired-capacity 0 --max-size 0 
-  done
-}
-
-4_empty_buckets() {
+3_empty_buckets() {
   boto3_check
   for BUCKET in $(ave aws s3 ls |grep ${TF_ENV} | awk '{print $NF}' | sort -r); do
     ave aws s3 rm s3://${BUCKET} --recursive
@@ -121,12 +110,12 @@ replace_db_files() {
   done
 }
 
-5_tf_destroy() {
+4_tf_destroy() {
   ave ${BASEPATH}/tf-deploy -t ${TF_ENV} app destroy -auto-approve
   replace_db_files
 }
 
-6_delete_env_keys() {
+5_delete_env_keys() {
   for BUCKET in $(ave aws s3 ls | grep 'secrets.' | awk '{print $NF}') ; do
     ave aws s3api delete-objects \
         --bucket ${BUCKET} \
@@ -142,22 +131,20 @@ replace_db_files() {
 TASKS=(
   "1_allow_db_destroy"
   "2_stop_kinesis_stream"
-  "3_zero_out_asgs"
-  "4_empty_buckets"
-  "5_tf_destroy"
-  "6_delete_env_keys"
+  "3_empty_buckets"
+  "4_tf_destroy"
+  "5_delete_env_keys"
 )
 
 TODO=()
-while getopts dszbxkh opt
+while getopts dsbxkh opt
 do
   case $opt in
     d) TODO+=("${TASKS[0]}") ;;
     s) TODO+=("${TASKS[1]}") ;;
-    z) TODO+=("${TASKS[2]}") ;;
-    b) TODO+=("${TASKS[3]}") ;;
-    x) TODO+=("${TASKS[4]}") ;;
-    k) TODO+=("${TASKS[5]}") ;;
+    b) TODO+=("${TASKS[2]}") ;;
+    x) TODO+=("${TASKS[3]}") ;;
+    k) TODO+=("${TASKS[4]}") ;;
     h) man_page              ;;
     *) usage && exit 1       ;;
   esac
