@@ -43,3 +43,21 @@ module "log-ship-to-soc-dns-query-log" {
   soc_destination_arn = "arn:aws:logs:${var.region}:752281881774:destination:elp-dns-lg"
 }
 
+
+### sending App logs to the App log endpoint
+module "log-ship-to-soc-app-logs" {
+  count                               = var.send_cw_to_soc
+  source                              = "../modules/log_ship_to_soc"
+  region                              = var.region
+  cloudwatch_subscription_filter_name = "log-ship-to-soc"
+  cloudwatch_log_group_name = {
+    "${var.env_name}_/srv/idp/shared/log/events.log"           = ""
+    "${var.env_name}_/srv/idp/shared/log/kms.log"              = ""
+    "${var.env_name}_/srv/idp/shared/log/production.log"       = ""
+    "${var.env_name}_/srv/idp/shared/log/telephony.log"        = ""
+    "${var.env_name}_/srv/idp/shared/log/workers.log"          = ""
+    "${var.env_name}_/srv/pki-rails/shared/log/production.log" = ""
+  }
+  env_name            = "${var.env_name}-app"
+  soc_destination_arn = "arn:aws:logs:us-west-2:752281881774:destination:elp-app-lg"
+}
