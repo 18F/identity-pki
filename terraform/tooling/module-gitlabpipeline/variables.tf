@@ -71,3 +71,8 @@ variable "events_sns_topic" {
   description = "name of the sns topic to send events to"
   default     = "slack-otherevents"
 }
+
+variable "enable_autotf_alarms" {
+  description = "enable the autotf alarms"
+  default     = false
+}

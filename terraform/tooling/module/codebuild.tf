@@ -67,7 +67,7 @@ resource "aws_iam_role_policy" "auto_terraform" {
         "ecr:PutReplicationConfiguration",
         "ecr:SetRepositoryPolicy",
         "ecr:TagResource",
-        "ecr:UntagResource"    
+        "ecr:UntagResource"
       ]
     },
     {
@@ -88,6 +88,13 @@ resource "aws_iam_role_policy" "auto_terraform" {
       ],
       "Action": [
         "codestar-notifications:DescribeNotificationRule"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Resource": ["arn:aws:sns:${var.region}:${data.aws_caller_identity.current.account_id}:${var.events_sns_topic}"],
+      "Action": [
+        "sns:Publish"
       ]
     },
     {

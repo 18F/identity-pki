@@ -464,4 +464,5 @@ module "gitlabcharlie" {
   auto_tf_sg_id             = module.main.auto_tf_sg_id
   auto_tf_bucket_id         = module.main.auto_tf_bucket_id
   auto_tf_pipeline_role_arn = module.main.auto_tf_pipeline_role_arn
+  enable_autotf_alarms      = true
 }

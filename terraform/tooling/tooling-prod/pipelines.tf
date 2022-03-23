@@ -30,6 +30,7 @@ module "production" {
   auto_tf_sg_id             = module.main.auto_tf_sg_id
   auto_tf_bucket_id         = module.main.auto_tf_bucket_id
   auto_tf_pipeline_role_arn = module.main.auto_tf_pipeline_role_arn
+  enable_autotf_alarms      = true
 }
 
 # deploy the all/tooling-prod target to the tooling-prod account on the main branch
@@ -54,6 +55,7 @@ module "alltoolingprod" {
   auto_tf_sg_id             = module.main.auto_tf_sg_id
   auto_tf_bucket_id         = module.main.auto_tf_bucket_id
   auto_tf_pipeline_role_arn = module.main.auto_tf_pipeline_role_arn
+  enable_autotf_alarms      = true
 }
 
 # deploy the imagebuild/tooling-prod target to the tooling-prod account on the main branch
@@ -78,4 +80,5 @@ module "imagebuildtoolingprod" {
   auto_tf_sg_id             = module.main.auto_tf_sg_id
   auto_tf_bucket_id         = module.main.auto_tf_bucket_id
   auto_tf_pipeline_role_arn = module.main.auto_tf_pipeline_role_arn
+  enable_autotf_alarms      = true
 }
