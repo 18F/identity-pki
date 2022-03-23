@@ -95,6 +95,12 @@ variable "ip_block_list" {
   default     = []
 }
 
+variable "geo_block_list" {
+  description = "Geographic Regions to block"
+  type        = list(string)
+  default     = []
+}
+
 variable "relaxed_uri_paths" {
   description = "Map of regexes matching paths to use less strict protections on"
   # Use these sparingly for paths accepting files/other content that triggers

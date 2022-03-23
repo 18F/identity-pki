@@ -19,7 +19,7 @@ resource "aws_wafv2_web_acl" "idp" {
 
   rule {
     name     = "IdpBlockIpAddresses"
-    priority = 0
+    priority = 1
 
     action {
       dynamic "block" {
@@ -48,7 +48,7 @@ resource "aws_wafv2_web_acl" "idp" {
 
   rule {
     name     = "AWSManagedRulesAmazonIpReputationList"
-    priority = 1
+    priority = 2
 
     override_action {
       dynamic "none" {
@@ -86,7 +86,7 @@ resource "aws_wafv2_web_acl" "idp" {
 
   rule {
     name     = "AWSManagedRulesCommonRuleSet"
-    priority = 2
+    priority = 3
 
     override_action {
       dynamic "none" {
@@ -124,7 +124,7 @@ resource "aws_wafv2_web_acl" "idp" {
 
   rule {
     name     = "AWSManagedRulesKnownBadInputsRuleSet"
-    priority = 3
+    priority = 4
 
     override_action {
       dynamic "none" {
@@ -162,7 +162,7 @@ resource "aws_wafv2_web_acl" "idp" {
 
   rule {
     name     = "AWSManagedRulesLinuxRuleSet"
-    priority = 4
+    priority = 5
 
     override_action {
       dynamic "none" {
@@ -200,7 +200,7 @@ resource "aws_wafv2_web_acl" "idp" {
 
   rule {
     name     = "AWSManagedRulesSQLiRuleSet"
-    priority = 5
+    priority = 6
 
     override_action {
       dynamic "none" {
@@ -258,7 +258,7 @@ resource "aws_wafv2_web_acl" "idp" {
 
   rule {
     name     = "IdpOtpSendRateLimited"
-    priority = 6
+    priority = 7
 
     action {
       dynamic "block" {
@@ -317,6 +317,38 @@ resource "aws_wafv2_web_acl" "idp" {
     }
   }
 
+  dynamic "rule" {
+    for_each = length(var.geo_block_list) >= 1 ? [1] : []
+    content {
+      name     = "GeoBlockRegion"
+      priority = 0
+
+      action {
+        dynamic "block" {
+          for_each = length(lookup(local.rule_settings, "override_action", {})) == 0 || lookup(local.rule_settings, "override_action", {}) == "none" ? [1] : []
+          content {}
+        }
+
+        dynamic "count" {
+          for_each = lookup(local.rule_settings, "override_action", {}) == "count" ? [1] : []
+          content {}
+        }
+      }
+
+      statement {
+        geo_match_statement {
+          country_codes = var.geo_block_list
+        }
+      }
+
+
+      visibility_config {
+        cloudwatch_metrics_enabled = true
+        metric_name                = "${local.web_acl_name}-GeoBlockRegion-metric"
+        sampled_requests_enabled   = true
+      }
+    }
+  }
   visibility_config {
     cloudwatch_metrics_enabled = true
     metric_name                = "${local.web_acl_name}-metric"
@@ -357,3 +389,4 @@ resource "aws_cloudwatch_metric_alarm" "wafv2_blocked_alert" {
     WebACL = "${var.env}-idp-waf"
   }
 }
+
