@@ -1,5 +1,7 @@
 #!/bin/bash
 
+trap "PASTE=" EXIT
+
 # Output a streamlined, truncated terraform plan
 
 set -eu
@@ -8,70 +10,93 @@ set -eu
 
 usage() {
     cat >&2 << EOM
-Usage: $(basename "$0") [-p] [-m] TF_DIR TF_ENV
+Usage: $(basename "$0") [-p|-m|-b] TF_DIR TF_ENV
 
-Runs 'terraform plan' via tf-deploy, then processes
-the output for easier change visibility:
+Runs 'terraform plan' via tf-deploy & processes output for easier change visibility.
 
-1. Removes all color codes
-2. Extracts only the lines beginning with change symbols (- # + ~ > ->)
-3. Takes any large user_data blocks being changed
-   and replaces them with a * character
+  -m : Only list specific resource(s) being changed (no additional output)
+  -b : Print full and resource-specific plans
+  -p : Paste output to a new tab/window in Sublime Text using the subl binary
+  -h : Display help
 
 Arguments:
-- TF_DIR
-    Which directory under terraform/ to use (app/all/core/etc.)
-    Will default to 'app' if not declared.
-- TF_ENV
-    Which environment to use, whether account-specific or env-specific.
-    Will default to 'sandbox' if not declared, or to GSA_USERNAME
-    if TF_DIR is 'app'.
-
-Flags:
-  -m : Only list the specific resource(s) being changed
-       (no additional output)
-  -p : If using Sublime Text, pastes the command output to
-       a new tab/window in Sublime Text using the subl
-       binary.
-  -b : Both the full and module-only output will be
-       listed.
-
-Examples:
-
-$(basename "$0")                ==>   tf-deploy GSA_USERNAME app plan
-$(basename "$0") core           ==>   tf-deploy core/sandbox plan
-$(basename "$0") -m master      ==>   tf-deploy master/global plan | grep -E '^ +# [a-z]'
-$(basename "$0") all alpha      ==>   tf-deploy all/alpha plan
-$(basename "$0") -p app int     ==>   tf-deploy int app plan |
-                                      pbcopy ; subl -b --command new_file --command paste
+  TF_DIR : Specify terraform/TF_DIR ('app' if not set)
+  TF_ENV : Specify Terraform environment/account (\$GSA_USERNAME if not set)
+       (can be combined with -m / -p flags)
 
 EOM
 }
 
-process_plan () {
-  "$@" | sed -n '/^Terraform will perform the following actions\:$/,$p' |
-  sed -E 's/(user_data += ").*"/\1\*"/'
+man_page() {
+    cat >&2 << EOM
+Usage: $(basename "$0") [-p|-m|-b] TF_DIR TF_ENV
+
+Runs 'terraform plan' via tf-deploy & processes output for easier change visibility:
+
+1. Removes all color codes (plan -no-color & grep --color=never)
+2. Extracts only the lines beginning with change symbols (- # + ~ > ->)
+3. Replaces any user_data changes (normally large hashes) with a single '*' character
+4. Trims off note at the end about the plan not being saved to an outfile
+
+Flags:
+  -m : Only list specific resource(s) being changed (no additional output)
+  -b : Both the full and resource-only outputs will be printed out
+  -p : If using Sublime Text, pastes the command output to a new tab/window in
+       Sublime Text using the subl binary; can be combined with -m / -p flags
+  -h : Displays this help
+
+Arguments:
+  TF_DIR : Which directory under terraform/ to use (app/all/core/etc.)
+              Will default to 'app' if not declared.
+  TF_ENV : Which environment to use, whether account-specific or env-specific.
+              Will default to 'sandbox' if not declared, or to \$GSA_USERNAME
+              if TF_DIR is 'app'.
+
+Examples:
+
+$(basename "$0")             ==> tf-deploy GSA_USERNAME app plan
+$(basename "$0") core        ==> tf-deploy core/sandbox plan
+$(basename "$0") master      ==> tf-deploy master/global plan | grep -E '^ +# [a-z]'
+$(basename "$0") all alpha   ==> tf-deploy all/alpha plan
+$(basename "$0") -p app int  ==> tf-deploy int app plan |
+                                 pbcopy ; subl -b --command new_file --command paste
+
+EOM
+exit 0
+}
+
+full_plan () {
+  echo
+  echo "${PLAN}" | head -n+1
+  echo "${PLAN}" | grep -E '^ *[\-\+\~\#]' --color=never | grep -v 'unchanged' |
+  sed -E 's/^( +\# )/\n\1/;s/ +\= +/ \= /;s/ {2}/ /g'
+  echo
+  echo "${PLAN}" | tail -n1
 }
 
 print_plan () {
   if [[ "${MODULES_ONLY}" == true ]] ; then
+    echo -e "PLAN SUMMARY:\n"
     echo "${PLAN}" | grep -E '^ +# [a-z]' --color=never
     if [[ "${DUAL_OUTPUT}" == true ]] ; then
       echo
-      echo "${PLAN}"
+      echo "------------------------------------------------------------"
+      full_plan
     fi
   else
-    echo "${PLAN}"
+    full_plan
   fi
 }
 
+verify_root_repo
 declare {MODULES_ONLY,PASTE,DUAL_OUTPUT}=
-while getopts mpb opt
+while getopts mpbh opt
 do
     case "${opt}" in
         m) MODULES_ONLY=true                     ;;
         p) PASTE=true                            ;;
         b) DUAL_OUTPUT=true && MODULES_ONLY=true ;;
+        h) man_page                              ;;
         *) usage && exit 1                       ;;
     esac
 done
@@ -79,36 +104,30 @@ shift $((OPTIND-1))
 
 [ $# -gt 2 ] && raise 'Must provide <2 arguments'
 
-TF_DIR="${1-app}"
-TF_ENV="${2-sandbox}"
-verify_root_repo
+TF_DIR="${1:-app}"
+TF_ENV="${2:-$(echo ${GSA_USERNAME})}"
 
-GIT_DIR=$(git rev-parse --show-toplevel)
-
-if ! [[ $(find "${GIT_DIR}/terraform" -name "${TF_DIR}" -type d -maxdepth 1) ]] ; then
-  raise "TF_DIR ${TF_DIR} not found in ${GIT_DIR}/terraform/"
-else
-  if [[ "${TF_DIR}" == 'app' ]] ; then
-    if [[ -z ${TF_ENV} ]] || [[ ${TF_ENV} == 'sandbox' ]] ; then
-      [[ -z ${GSA_USERNAME} ]] && raise 'TF_ENV undeclared + GSA_USERNAME not set'
-      TF_ENV=${GSA_USERNAME}
-    fi
-    PLAN=$(process_plan "$(dirname "$0")/tf-deploy" "${TF_ENV}" "${TF_DIR}" plan -no-color)
-  else
-    [[ "${TF_DIR}" == 'master' ]] && TF_ENV='global'
-    if ! [[ $(find "${GIT_DIR}/terraform/${TF_DIR}" -name "${TF_ENV}" -type d -maxdepth 1) ]] ; then
-      raise "TF_ENV ${TF_ENV} not found in ${GIT_DIR}/terraform/${TF_DIR}"
-    fi
-    PLAN=$(process_plan "$(dirname "$0")/tf-deploy" "${TF_DIR}/${TF_ENV}" plan -no-color)
-  fi
+if [[ ! "${TF_DIR}" == 'app' ]] && [[ -z ${2} ]] ; then
+  TF_ENV='sandbox'
 fi
+
+TF_PATH="${TF_DIR}/${TF_ENV}"
+[[ "${TF_DIR}" == 'app' ]] && TF_PATH="${TF_ENV} ${TF_DIR}"
+
+PLAN=$($(dirname "$0")/tf-deploy ${TF_PATH} plan -no-color)
+[[ $? == 0 ]] || raise "Plan command unsuccessful; verify and try again"
+PLAN=$(echo "${PLAN}" |
+    sed -n '/^Terraform will perform the following actions\:$/,/^Plan\:/p' |
+    sed -E 's/(user_data += ").*"/\1\*"/')
 
 if [[ "${PASTE}" == true ]] ; then
   if [[ $(which subl) ]] ; then
     print_plan | pbcopy ; subl -b --command new_file --command paste
   else
-    echo 'subl binary not found, printing to STDOUT.'
+    echo_yellow 'subl binary not found, printing to STDOUT.'
   fi
 else
+  echo
   print_plan
+  echo
 fi
