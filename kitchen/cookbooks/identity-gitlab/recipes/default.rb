@@ -144,6 +144,7 @@ remote_file "Copy key" do
   owner 'root'
   group 'root'
   mode 0600
+  sensitive true
 end
 
 remote_file "rds_ca_bundle" do
@@ -160,6 +161,7 @@ file "gitlab_ee_license_file" do
   owner 'root'
   group 'root'
   mode 0644
+  sensitive true
 end
 
 package 'gitlab-ee'
@@ -284,6 +286,7 @@ execute 'clean_up_licenses' do
     gitlab-rails runner 'License.all.each(&:destroy!); license_data = "#{gitlab_license}"; license = License.new(data: license_data); license.save'
   EOF
   action :run
+  sensitive true
 end
 
 execute 'allow_users_to_create_groups' do
@@ -381,4 +384,58 @@ execute 'add_ci_skeleton' do
   ignore_failure true
   sensitive true
   action :run
+end
+
+
+# this is to set up user/group syncing
+remote_file "rds_ca_bundle" do
+  path "/root/golang.tar.gz"
+  source "https://go.dev/dl/go1.17.8.linux-amd64.tar.gz"
+  owner 'root'
+  group 'root'
+  mode 0644
+end
+
+execute 'install_golang' do
+  cwd '/usr/local'
+  command <<-EOF
+    tar zxpf /root/golang.tar.gz
+  EOF
+  action :run
+end
+
+file '/root/gitlabssh.sh' do
+  content <<-EOF
+    #!/bin/bash
+    /usr/bin/ssh -i /etc/login.gov/keys/id_ecdsa.identity-devops.deploy
+  EOF
+  owner 'root'
+  group 'root'
+  mode '0755'
+  action :create
+end
+
+execute 'build_usersync' do
+  cwd '/etc/login.gov/repos/identity-devops/bin/users'
+  command <<-EOF
+    export PATH=$PATH:/usr/local/go/bin
+    make build
+  EOF
+  action :run
+end
+
+template '/etc/hosts' do
+    source 'hosts.erb'
+    owner 'root'
+    group 'root'
+    mode '0644'
+    variables ({
+        external_fqdn: external_fqdn,
+    })
+end
+
+cron_d 'run_usersync' do
+  action :create
+  predefined_value "@hourly"
+  command "/etc/login.gov/repos/identity-devops/bin/users/sync.sh #{external_fqdn}"
 end

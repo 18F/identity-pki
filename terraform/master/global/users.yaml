@@ -238,20 +238,6 @@ users:
       - appdev
     can_create_group:
       - true
-  support-bot:
-    name:
-      - "GitLab Support Bot"
-    email:
-      - support@gitlab.login.gov
-    gitlab_groups:
-      - bots
-  alert-bot:
-    name:
-      - "GitLab Alert Bot"
-    email:
-      - alert@gitlab.login.gov
-    gitlab_groups:
-      - bots
 
 groups:
   appdev:
@@ -279,4 +265,16 @@ projects:
       devops:
         access: maintainer
       appdev:
+        access: developer
+  lg/identity-saml-sinatra:
+    groups:
+      appdev:
+        access: maintainer
+      devops:
+        access: developer
+  lg/identity-oidc-sinatra:
+    groups:
+      appdev:
+        access: maintainer
+      devops:
         access: developer

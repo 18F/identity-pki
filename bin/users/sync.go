@@ -418,6 +418,7 @@ func getExistingUsers(gitc GitlabClientIface) (map[string]*gitlab.User, error) {
 			ListOptions: gitlab.ListOptions{
 				PerPage: 100,
 			},
+			ExcludeInternal: func() *bool { b := true; return &b }(),
 		},
 	)
 	if err != nil {

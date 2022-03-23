@@ -1,44 +1,30 @@
 #!/bin/bash
 
-# TODO: Automate this and store the token in S3 (or AWS Secrets Manager)
-# To generate an API key from a fresh GitLab install for the default admin user:
-#
-# local> bin/ssm-instance --no-document --newest asg-charlie-gitlab // replace `charlie` with your env.
-#
-# instance> sudo su -
-# instance> gitlab-rails console
-#
-# irb> user = User.find_by_username('root')
-# irb> user.can_create_group = true
-# irb> user.save!
-# irb> token = user.personal_access_tokens.create(scopes: [:api], name: 'Automation token')
-# irb> t = Devise.friendly_token // Remember the output
-# irb> token.set_token(t)
-# irb> token.save!
-# irb> exit
-#
-# instance> exit
-#
-# local> export GITLAB_API_TOKEN=OutputFromFriendlyTokenAbove
-#
-# References:
-# - https://docs.gitlab.com/ee/administration/troubleshooting/gitlab_rails_cheat_sheet.html#users
-# - https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#create-a-personal-access-token-programmatically
-#
-#
-# Token Creation Script in-progress:
-#export bucket=gitlab-charlie-config
-#export key=GITLAB_API_TOKEN
-#object_exists=$(aws s3api head-object --bucket $bucket --key $key || true)
-#if [ -z "$object_exists" ]; then
-#  echo "Generating Gitlab root token"
-#  export GITLAB_API_TOKEN=$(openssl rand -base64 20 | head -c 20)
-#  echo $GITLAB_API_TOKEN | aws s3 cp - s3://$bucket/$key
-#  sudo gitlab-rails runner "token = User.find_by_username('root').personal_access_tokens.create(scopes: [:api], name: 'Automation token'); token.set_token('$GITLAB_API_TOKEN'); token.save!"
-#else
-#  echo "Gitlab root token found in S3"
-#fi
+if [ -z "$1" ] ; then
+	echo "usage:  $0 <fqdn_of_gitlab>"
+	exit 1
+fi
 
-cd $(dirname $0)
+. /etc/environment
+GITLAB_API_TOKEN="$(cat /etc/gitlab/gitlab_root_api_token)"
+export GITLAB_API_TOKEN
+export http_proxy
+export https_proxy
+export no_proxy
+export GIT_SSH_COMMAND='ssh -i /etc/login.gov/keys/id_ecdsa.identity-devops.deploy -o IdentitiesOnly=yes -o StrictHostKeyChecking=no'
 
-go run . "$@"
+# get the latest and greatest 
+if [ -d /root/identity-devops ] ; then
+	cd /root/identity-devops
+	git pull
+else
+	cd /root
+	if git clone git@localhost:lg/identity-devops.git ; then
+		echo "cloned from local repo"
+	else
+		git clone git@github.com:18F/identity-devops.git
+	fi
+fi
+
+# This binary should have been built by chef already
+/etc/login.gov/repos/identity-devops/bin/users/users --fqdn="$1" --file=/root/identity-devops/terraform/master/global/users.yaml
