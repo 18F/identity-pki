@@ -72,8 +72,8 @@ run git push origin v${NEW_RELEASE} # push w/remote tags
 run ${GIT_DIR}/bin/github-pr -m "$(cat <<EOF
 Release v${NEW_RELEASE}
 
-$(echo ${BREAKING_PRS} | sed -E 's/^(- \#[0-9]+) .+$/\1/g')
-$(echo ${REGULAR_PRS} | sed -E 's/^(- \#[0-9]+) .+$/\1/g')
+$(echo "${BREAKING_PRS}" | sed -E 's/^(- \#[0-9]+) .+$/\1/g')
+$(echo "${REGULAR_PRS}" | sed -E 's/^(- \#[0-9]+) .+$/\1/g')
 EOF
 )"
 
