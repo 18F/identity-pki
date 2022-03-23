@@ -195,12 +195,12 @@ resource "newrelic_nrql_alert_condition" "controller_action_errors" {
   policy_id                    = newrelic_alert_policy.high[0].id
   name                         = "${var.env_name}: high rate of errors in controller action"
   enabled                      = true
-  description                  = "Alerting when errors in controller action name get above 1% for the past 5 minutes"
+  description                  = "Alerting when errors in controller action name get above 0.5% for the past 2 minutes"
   runbook_url                  = "https://github.com/18F/identity-devops/wiki/Runbook:-controller-action-error-rate"
   violation_time_limit_seconds = 43200
-  aggregation_window           = 60
-  aggregation_method           = "cadence"
-  aggregation_delay            = 120
+  aggregation_window           = 120
+  aggregation_method           = "event_flow"
+  aggregation_delay            = 60
 
   nrql {
     query = "SELECT percentage(count(*), WHERE http.statusCode >= 500 and appName = '${var.env_name}.${var.root_domain}') FROM Transaction WHERE appName = '${var.env_name}.${var.root_domain}' FACET name"
@@ -208,23 +208,24 @@ resource "newrelic_nrql_alert_condition" "controller_action_errors" {
 
   critical {
     operator              = "above"
-    threshold             = 1
-    threshold_duration    = 300
+    threshold             = 0.5
+    threshold_duration    = 120
     threshold_occurrences = "ALL"
   }
 }
 
 resource "newrelic_nrql_alert_condition" "service_provider_errors" {
-  count                        = var.idp_enabled
-  policy_id                    = newrelic_alert_policy.high[0].id
-  name                         = "${var.env_name}: high rate of errors for service provider"
-  enabled                      = true
-  description                  = "Alerting when errors for individual service provider get above 1% for the past 5 minutes"
+  count       = var.idp_enabled
+  policy_id   = newrelic_alert_policy.high[0].id
+  name        = "${var.env_name}: high rate of errors for service provider"
+  enabled     = true
+  description = "Alerting when errors for individual service provider get above 0.5% for the past 2 minutes"
+
   runbook_url                  = "https://github.com/18F/identity-devops/wiki/Runbook:-high-service-provider-error-rate"
   violation_time_limit_seconds = 43200
-  aggregation_window           = 60
-  aggregation_method           = "cadence"
-  aggregation_delay            = 120
+  aggregation_window           = 120
+  aggregation_method           = "event_flow"
+  aggregation_delay            = 60
 
   nrql {
     query = "SELECT percentage(count(*), WHERE error is true and http.statusCode >= 500 and appName = '${var.env_name}.${var.root_domain}') FROM Transaction WHERE appName = '${var.env_name}.${var.root_domain}' FACET service_provider"
@@ -232,8 +233,8 @@ resource "newrelic_nrql_alert_condition" "service_provider_errors" {
 
   critical {
     operator              = "above"
-    threshold             = 1
-    threshold_duration    = 300
+    threshold             = 0.5
+    threshold_duration    = 120
     threshold_occurrences = "ALL"
   }
 }
