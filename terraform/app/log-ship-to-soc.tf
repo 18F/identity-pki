@@ -61,3 +61,16 @@ module "log-ship-to-soc-app-logs" {
   env_name            = "${var.env_name}-app"
   soc_destination_arn = "arn:aws:logs:us-west-2:752281881774:destination:elp-app-lg"
 }
+
+### send RDS logs to SOC
+module "log-ship-to-soc-rds-logs" {
+  count                               = var.send_cw_to_soc
+  source                              = "../modules/log_ship_to_soc"
+  region                              = var.region
+  cloudwatch_subscription_filter_name = "log-ship-to-soc"
+  cloudwatch_log_group_name = {
+    "/aws/rds/instance/login-${var.env_name}-idp/postgresql" = ""
+  }
+  env_name            = "${var.env_name}-rds"
+  soc_destination_arn = "arn:aws:logs:us-west-2:752281881774:destination:elp-rds-lg"
+}
