@@ -8,6 +8,9 @@
   "default_attributes": {
     "login_dot_gov": {
       "deploy_branch_default": "main",
+      "deploy_branch": {
+        "identity-idp": "stages/dm"
+      },
       "idp_artifacts": true,
       "auto_eip_enabled_roles": ["jumphost", "outboundproxy"],
       "idp_sync_static": false
