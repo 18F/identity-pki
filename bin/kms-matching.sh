@@ -22,6 +22,7 @@ usage:  ./kms-matching.sh --uuid <uuid> --context <context> --hours <hours> --en
 			
              ./kms-matching.sh --uuid 38d96999-9999-9999-9999-888888888888 --context password-digest
              ./kms-matching.sh --uuid 38d96999-9999-9999-9999-888888888888 --context password-digest --hours 36
+             ./kms-matching.sh --uuid 38d96999-9999-9999-9999-888888888888 --context password-digest --start_date "2022-03-15" --hours 36
              ./kms-matching.sh --uuid 38d96999-9999-9999-9999-888888888888 --context password-digest --hours 36 --env staging
 EOM
 exit 1
@@ -31,6 +32,7 @@ exit 1
 context='password-digest'
 hours='24H'
 env='prod'
+start_date=''
 nologs=0
 
 if [[ "$#" -eq 0 ]]; then
@@ -45,6 +47,8 @@ while [[ "$#" -gt 0 ]]; do
 		--hours) hours="$2H"; shift ;;
 		--env) env="$2"; shift;;
         --nologs) nologs=1; shift;;
+        --start_date) start_date="$2"; shift;;
+
         *) echo "Unknown argument passed: $1"; usage ;;
     esac
     shift
@@ -61,12 +65,24 @@ key=$(printf "\"%s-%s\"" "$uuid" "$context")
 
 echo "Searching for $key"
 
-# date time for CloudWatch query
-epoch_start=`date -v-$hours "+%s"`
-epoch_end=`date "+%s"`
+# epoch date time for CloudWatch query
+if [ -z "$start_date" ] ; then
+    epoch_start=`date -v-$hours "+%s"`
+    epoch_end=`date "+%s"`
+else
+    s=${start_date}
+    epoch_start=`date -u -j -f "%Y-%m-%d" "$s" "+%s"`
+    epoch_end=`date -u -j -v+$hours -f "%Y-%m-%d" "$s" "+%s"`
+fi
 
-start_time=`date -u -v-$hours "+%Y-%m-%dT%H:%M:%SZ"`
-end_time=`date -u "+%Y-%m-%dT%H:%M:%SZ"`
+# date time for DDB query
+if [ -z "$start_date" ] ; then
+    start_time=`date -u -v-$hours "+%Y-%m-%dT%H:%M:%SZ"`
+    end_time=`date -u "+%Y-%m-%dT%H:%M:%SZ"`
+else
+    start_time=`date -u -j -f "%Y-%m-%d" "${start_date}" "+%Y-%m-%dT%H:%M:%SZ"`
+    end_time=`date -u -j -v+$hours -f "%Y-%m-%d" "${start_date}" "+%Y-%m-%dT%H:%M:%SZ"`
+fi
 
 start_time=$(printf "\"%s\"" "$start_time")
 end_time=$(printf "\"%s\"" "$end_time")
@@ -109,7 +125,7 @@ filter uuid = '$uuid' and action = 'decrypt' and context = '$context'" \
 --output text)
 
 echo "CW Query ID $query_id"
-echo "Waiting for results"
+echo "Waiting 15s for results"
 
 # CW Insights query runs async
 # Need to check status
