@@ -4,9 +4,7 @@ locals {
   bootstrap_main_git_ref_default   = var.bootstrap_main_git_ref_default != "" ? var.bootstrap_main_git_ref_default : "stages/${var.env_name}"
   account_default_ami_id           = var.default_ami_id_tooling
 
-  #  example github data -> https://api.github.com/meta
-  ip_regex                = "^[0-9./]*$"
-  github_ipv4_cidr_blocks = sort(compact(tolist([for ip in data.github_ip_ranges.git_ipv4.git[*] : ip if length(regexall(local.ip_regex, ip)) > 0])))
+  github_ipv4_cidr_blocks = sort(data.github_ip_ranges.meta.git_ipv4)
 }
 
 variable "aws_vpc" {

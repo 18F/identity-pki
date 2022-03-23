@@ -239,7 +239,7 @@ resource "aws_security_group" "gitlab-lb" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = var.allowed_gitlab_cidr_blocks_v4
+    cidr_blocks = sort(concat(var.allowed_gitlab_cidr_blocks_v4, data.github_ip_ranges.meta.hooks_ipv4))
   }
 
   # these are the EIPs for the NAT which is being used by the obproxies

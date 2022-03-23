@@ -1,4 +1,4 @@
-data "github_ip_ranges" "git_ipv4" {
+data "github_ip_ranges" "meta" {
 }
 
 data "aws_caller_identity" "current" {
