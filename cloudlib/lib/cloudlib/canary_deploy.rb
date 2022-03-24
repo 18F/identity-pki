@@ -145,7 +145,7 @@ module Cloudlib
         scheduled_scale_in = get_scheduled_scale_in
         is_scaling_new_version_to_full = (scheduled_scale_in && (idp_asg.desired_capacity == scheduled_scale_in.desired_capacity * 2))
         health_data = Cloudlib::ElasticLoadBalancingV2.new.find_target_health_data(env, "idp")
-        all_idps_healthy = health_data.count { |x| x.target_health.state == "healthy" } == (idp_asg.desired_capacity + idpxtra_asg.desired_capacity)
+        all_idps_healthy = health_data.count { |x| ["healthy", "unused"].include?(x.target_health.state) } == (idp_asg.desired_capacity + idpxtra_asg.desired_capacity)
         is_scaling_in = scheduled_scale_in && idp_asg.desired_capacity == scheduled_scale_in.desired_capacity
 
         state = CanaryState.new(
