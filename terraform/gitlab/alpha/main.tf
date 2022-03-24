@@ -20,4 +20,5 @@ module "main" {
   default_ami_id_tooling         = "ami-0389fc8ab897c5bc5" # 2022-02-22 base-20211020070545 Ubuntu 18.04
   route53_id                     = "Z096400532ZFM348WWIAA"
   destination_artifact_accounts  = ["894947205914"] # login-sandbox
+  asg_gitlab_test_runner_desired = 4
 }

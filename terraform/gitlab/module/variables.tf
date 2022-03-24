@@ -96,7 +96,11 @@ variable "asg_gitlab_desired" {
   default = 1
 }
 
-variable "asg_gitlab_runner_desired" {
+variable "asg_gitlab_build_runner_desired" {
+  default = 1
+}
+
+variable "asg_gitlab_test_runner_desired" {
   default = 1
 }
 

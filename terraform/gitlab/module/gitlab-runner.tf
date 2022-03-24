@@ -4,7 +4,7 @@ module "build_pool" {
 
   allow_untagged_jobs              = false
   asg_gitlab_desired               = var.asg_gitlab_desired
-  asg_gitlab_runner_desired        = var.asg_gitlab_runner_desired
+  asg_gitlab_runner_desired        = var.asg_gitlab_build_runner_desired
   asg_outboundproxy_desired        = var.asg_outboundproxy_desired
   asg_outboundproxy_max            = var.asg_outboundproxy_max
   asg_outboundproxy_min            = var.asg_outboundproxy_min
@@ -39,7 +39,7 @@ module "test_pool" {
 
   allow_untagged_jobs              = true
   asg_gitlab_desired               = var.asg_gitlab_desired
-  asg_gitlab_runner_desired        = var.asg_gitlab_runner_desired
+  asg_gitlab_runner_desired        = var.asg_gitlab_test_runner_desired
   asg_outboundproxy_desired        = var.asg_outboundproxy_desired
   asg_outboundproxy_max            = var.asg_outboundproxy_max
   asg_outboundproxy_min            = var.asg_outboundproxy_min
