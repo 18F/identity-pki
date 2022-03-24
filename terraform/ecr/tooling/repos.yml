@@ -42,4 +42,6 @@ repos:
   alpine:
     name: "ecr-public/docker/library/alpine"
     <<: *all_write_template
-    
+  ruby-node-yarn-chrome-chromedriver:
+    name: "ruby-node-yarn-chrome-chromedriver"
+    <<: *all_write_template

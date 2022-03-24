@@ -2,11 +2,6 @@ variables:
   CI_COMMIT_TAG: "latest"
   ECR_REGISTRY: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
 
-sync_users_and_groups:
-  image: ${ECR_REGISTRY}/ecr-public/library/golang:latest
-  script:
-    - ./bin/users/sync.sh --fqdn=$CI_SERVER_HOST
-
 # TODO Use an image from ECR
 .build_template: &build_template
   tags:
