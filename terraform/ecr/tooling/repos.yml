@@ -30,6 +30,9 @@ repos:
   golang:
     name: "ecr-public/docker/library/golang"
     <<: *all_write_template
+  idp_ci:
+    name: "idp/ci"
+    <<: *all_write_template
   tspencertest:
     name: "tspencertest"
     <<: *all_write_template

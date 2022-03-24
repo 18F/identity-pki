@@ -9,6 +9,8 @@ sync_users_and_groups:
 
 # TODO Use an image from ECR
 .build_template: &build_template
+  tags:
+    - build-pool
   image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
@@ -38,3 +40,9 @@ build_base:
   variables:
     dockerfile: base.Dockerfile
     ecr_repo: alpha/base
+
+build_idp_ci:
+  <<: *build_template
+  variables:
+    dockerfile: idp_ci.Dockerfile
+    ecr_repo: idp/ci
