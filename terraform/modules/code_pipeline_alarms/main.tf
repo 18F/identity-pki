@@ -22,7 +22,7 @@ variable "sns_target_arn" {
 resource "aws_cloudwatch_event_rule" "main" {
   name        = var.alarm_name
   count       = var.enable_autotf_alarms ? 1 : 0
-  description = "Detects failures on ${alarm_name}"
+  description = "Detects failures on ${var.alarm_name}"
 
   event_pattern = <<-EOF
     {
