@@ -13,3 +13,9 @@ variable "rds_storage_threshold" {
   type        = string
   default     = "100000000"
 }
+
+variable "unvacummed_transactions_count" {
+  description = "The maximum transaction IDs(in count) that have been used by PostgreSQL."
+  type        = string
+  default     = "1000000000"
+}

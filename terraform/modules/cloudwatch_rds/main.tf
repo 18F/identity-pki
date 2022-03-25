@@ -24,6 +24,12 @@ locals {
       threshold           = 2500
       alarm_description   = "Write IOPS is too high. Check RDS Instance and review storage space."
     },
+    MaximumUsedTransactionIDstoohigh = {
+      comparison_operator = "GreaterThanThreshold"
+      metric_name         = "MaximumUsedTransactionIDs"
+      threshold           = var.unvacummed_transactions_count
+      alarm_description   = "Alarm to alert the Transaction ID Wraparound in PostgreSQL Database. Cleanup the unvacuumed transactions before the autovacuum kicks in."
+    },
   }
 }
 
