@@ -15,3 +15,38 @@ resource "aws_wafv2_regex_pattern_set" "relaxed_uri_paths" {
     environment = var.env
   }
 }
+
+resource "aws_wafv2_regex_pattern_set" "header_blocks" {
+  count       = length(var.header_block_regex)
+  name        = "${var.env}-header-${var.header_block_regex[count.index].field_name}-blocks"
+  description = "Regex patterns to block related to header ${var.header_block_regex[count.index].field_name}"
+  scope       = "REGIONAL"
+
+  dynamic "regular_expression" {
+    for_each = var.header_block_regex[count.index].patterns
+    content {
+      regex_string = regular_expression.value
+    }
+  }
+
+  tags = {
+    environment = var.env
+  }
+}
+
+resource "aws_wafv2_regex_pattern_set" "query_string_blocks" {
+  name        = "${var.env}-query-string-blocks"
+  description = "Regex patterns in query strings to block"
+  scope       = "REGIONAL"
+
+  dynamic "regular_expression" {
+    for_each = var.query_block_regex
+    content {
+      regex_string = regular_expression.value
+    }
+  }
+
+  tags = {
+    environment = var.env
+  }
+}
