@@ -3,10 +3,6 @@ variable "region" {
   default     = "us-west-2"
 }
 
-variable "env" {
-  description = "Environment name"
-}
-
 variable "scan_on_push_filter" {
   description = "Filter for repos to set scan on push"
   type        = string

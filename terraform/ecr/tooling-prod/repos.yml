@@ -1,0 +1,16 @@
+default_read_template: &all_write_template
+  ecr_repo_tag_mutability: "MUTABLE"
+  tags:
+    gitlab_production_build-pool: "write"
+    gitlab_production_test-pool: "read"
+
+# If you add an existing repo, you may need to import the state, e.g.
+# tf-deploy ecr/tooling import 'module.repos["gitlab-qa"].aws_ecr_repository.ecr_repo' gitlab-qa
+    
+repos:
+  alpine:
+    name: "ecr-public/docker/library/alpine"
+    <<: *all_write_template
+  idp_ci:
+    name: "idp/ci"
+    <<: *all_write_template

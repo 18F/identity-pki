@@ -3,10 +3,6 @@ variable "region" {
   default     = "us-west-2"
 }
 
-variable "env" {
-  description = "Environment name"
-}
-
 variable "ecr_repo_name" {
   description = "Name of ECR repo"
   type        = string
