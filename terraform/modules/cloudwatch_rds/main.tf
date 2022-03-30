@@ -28,7 +28,7 @@ locals {
       comparison_operator = "GreaterThanThreshold"
       metric_name         = "MaximumUsedTransactionIDs"
       threshold           = var.unvacummed_transactions_count
-      alarm_description   = "Alarm to alert the Transaction ID Wraparound in PostgreSQL Database. Cleanup the unvacuumed transactions before the autovacuum kicks in."
+      alarm_description   = "Usage of Transaction IDs in PostgreSQL Database is high. Check RDS Instance, review and cleanup the unvacuumed transactions before the autovacuum kicks in."
     },
   }
 }
