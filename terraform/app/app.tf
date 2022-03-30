@@ -57,9 +57,10 @@ module "app_cloudwatch_rds" {
   source = "../modules/cloudwatch_rds/"
   count  = var.apps_enabled
 
-  rds_storage_threshold = var.rds_storage_threshold
-  rds_db                = aws_db_instance.default[0].id
-  alarm_actions         = local.low_priority_alarm_actions
+  rds_storage_threshold         = var.rds_storage_threshold
+  rds_db                        = aws_db_instance.default[0].id
+  alarm_actions                 = local.low_priority_alarm_actions
+  unvacummed_transactions_count = var.unvacummed_transactions_count
 }
 
 output "app_db_endpoint" {

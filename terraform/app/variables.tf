@@ -785,3 +785,9 @@ variable "memory_free_threshold_byte" {
   description = "Low memory threshold in bytes for New Relic"
   default     = "524288000" #500 MB 
 }
+
+variable "unvacummed_transactions_count" {
+  description = "The maximum transaction IDs(in count) that have been used by PostgreSQL."
+  type        = string
+  default     = "1000000000"
+}
