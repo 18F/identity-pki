@@ -5,6 +5,7 @@ import (
 	// "encoding/hex"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"os"
 	"strings"
 	"sync"
@@ -22,12 +23,62 @@ import (
 var env_name = os.Getenv("ENV_NAME")
 var region = os.Getenv("REGION")
 var domain = os.Getenv("DOMAIN")
-
-// Generate with https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#create-a-personal-access-token-programmatically ?
-var gitlabtoken = os.Getenv("GITLAB_API_TOKEN")
+var accountid = os.Getenv("ACCOUNTID")
 var timeout = 5
-
 var runner_asg = env_name + "-gitlab-test-pool"
+
+func randSeq(n int) string {
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letters[rand.Intn(len(letters))]
+	}
+	return string(b)
+}
+
+type GitlabToken struct {
+	mu    sync.Mutex
+	token string
+}
+
+var gitlabtoken = GitlabToken{token: ""}
+var letters = []rune("abcdef0123456789")
+
+func gitlabToken(t *testing.T) string {
+	gitlabtoken.mu.Lock()
+	defer gitlabtoken.mu.Unlock()
+	if gitlabtoken.token == "" {
+		// generate token string
+		rand.Seed(time.Now().UnixNano())
+		newtoken := randSeq(20)
+
+		// do command on host to create it
+		asgName := env_name + "-gitlab"
+		instances := aws.GetInstanceIdsForAsg(t, asgName, region)
+		require.NotEmpty(t, instances)
+		firstinstance := instances[0]
+		cmd := fmt.Sprintf("gitlab-rails runner \"token = User.find_by_username('root').personal_access_tokens.create(scopes: [:api], name: 'Automation Token'); token.set_token('%s'); token.save!\"", newtoken)
+		result := RunCommandOnInstance(t, firstinstance, cmd)
+		require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed to create API token: "+*result.StandardOutputContent)
+		gitlabtoken.token = newtoken
+	}
+	return gitlabtoken.token
+}
+
+func deleteGitlabToken(t *testing.T) {
+	gitlabtoken.mu.Lock()
+	defer gitlabtoken.mu.Unlock()
+	if gitlabtoken.token != "" {
+		// do command on host to delete it
+		asgName := env_name + "-gitlab"
+		instances := aws.GetInstanceIdsForAsg(t, asgName, region)
+		require.NotEmpty(t, instances)
+		firstinstance := instances[0]
+		cmd := fmt.Sprintf("gitlab-rails runner \"PersonalAccessToken.find_by_token('%s').revoke!\"", gitlabtoken.token)
+		result := RunCommandOnInstance(t, firstinstance, cmd)
+		require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed to revoke API token: "+*result.StandardOutputContent)
+		gitlabtoken.token = ""
+	}
+}
 
 func RunCommandOnInstance(t *testing.T, instance_string string, command string) *ssm.GetCommandInvocationOutput {
 	outputs := RunCommandOnInstances(t, []string{instance_string}, command)
@@ -146,15 +197,14 @@ func TestRunnerRunning(t *testing.T) {
 // This checks that s3 buckets are there and being used by gitlab.
 func TestGitlabS3buckets(t *testing.T) {
 	bucketlist := [...]string{
-		"gitlab-" + env_name + "-artifacts",
-		"gitlab-" + env_name + "-backups",
-		"gitlab-" + env_name + "-external-diffs",
-		"gitlab-" + env_name + "-lfs-objects",
-		"gitlab-" + env_name + "-uploads",
-		"gitlab-" + env_name + "-packages",
-		"gitlab-" + env_name + "-dependency-proxy",
-		"gitlab-" + env_name + "-terraform-state",
-		"gitlab-" + env_name + "-pages",
+		"login-gov-" + env_name + "-gitlabartifacts-" + accountid + "-" + region,
+		"login-gov-" + env_name + "-gitlabexternaldiffs-" + accountid + "-" + region,
+		"login-gov-" + env_name + "-gitlablfsobjects-" + accountid + "-" + region,
+		"login-gov-" + env_name + "-gitlabuploads-" + accountid + "-" + region,
+		"login-gov-" + env_name + "-gitlabpackages-" + accountid + "-" + region,
+		"login-gov-" + env_name + "-gitlabdependcyproxy-" + accountid + "-" + region,
+		"login-gov-" + env_name + "-gitlabtfstate-" + accountid + "-" + region,
+		"login-gov-" + env_name + "-gitlabpages-" + accountid + "-" + region,
 	}
 
 	// Check the buckets exist and have versioning enabled
@@ -167,6 +217,12 @@ func TestGitlabS3buckets(t *testing.T) {
 }
 
 func TestGitlabS3artifacts(t *testing.T) {
+	// Create a gitlab token that we can use for the job
+	token := gitlabToken(t)
+	t.Cleanup(func() {
+		deleteGitlabToken(t)
+	})
+
 	// Check that when we create a repo with a job that the job runs and creates
 	// something in S3, indicating that gitlab is actually using S3
 	asgName := env_name + "-gitlab"
@@ -176,7 +232,7 @@ func TestGitlabS3artifacts(t *testing.T) {
 
 	// create project
 	projectname := fmt.Sprintf("gitlabs3test-%d", os.Getpid())
-	cmd := "curl -s -X POST --header 'PRIVATE-TOKEN: " + gitlabtoken +
+	cmd := "curl -s -X POST --header 'PRIVATE-TOKEN: " + token +
 		"' 'http://localhost:8080/api/v4/projects?name=" + projectname +
 		"&initialize_with_readme=true&default_branch=main&auto_devops_enabled=true'"
 	result := RunCommandOnInstance(t, firstinstance, cmd)
@@ -188,7 +244,7 @@ func TestGitlabS3artifacts(t *testing.T) {
 	projectid := fmt.Sprintf("%.0f", jsonresult["id"])
 
 	// delete project after we are done
-	deletecmd := "curl -s -X DELETE --header 'PRIVATE-TOKEN: " + gitlabtoken + "' 'http://localhost:8080/api/v4/projects/" + projectid + "'"
+	deletecmd := "curl -s -X DELETE --header 'PRIVATE-TOKEN: " + token + "' 'http://localhost:8080/api/v4/projects/" + projectid + "'"
 	t.Cleanup(func() {
 		result = RunCommandOnInstance(t, firstinstance, deletecmd)
 		require.Equal(t, int64(0), *result.ResponseCode, "could not delete repo")
@@ -197,7 +253,7 @@ func TestGitlabS3artifacts(t *testing.T) {
 
 	// create a tag/release in project (starts a job)
 	// POST /projects/:id/releases
-	cmd = "curl -s --header 'Content-Type: application/json' --header 'PRIVATE-TOKEN: " + gitlabtoken +
+	cmd = "curl -s --header 'Content-Type: application/json' --header 'PRIVATE-TOKEN: " + token +
 		"' --data '{ \"name\": \"New release\", \"tag_name\": \"v0.3\", \"description\": \"Super nice release\", \"ref\": \"main\" }'" +
 		" --request POST http://localhost:8080/api/v4/projects/" + projectid + "/releases"
 	result = RunCommandOnInstance(t, firstinstance, cmd)
@@ -206,7 +262,7 @@ func TestGitlabS3artifacts(t *testing.T) {
 
 	// watch /projects/:id/jobs with project ID to see when job completes
 	jobid := "1"
-	cmd = "curl -s --header 'PRIVATE-TOKEN: " + gitlabtoken +
+	cmd = "curl -s --header 'PRIVATE-TOKEN: " + token +
 		"' 'http://localhost:8080/api/v4/projects/" + projectid +
 		"/jobs'"
 	for {
@@ -234,7 +290,7 @@ func TestGitlabS3artifacts(t *testing.T) {
 
 	// Download artifact
 	// GET /projects/:id/jobs/:job_id/artifacts/job.log
-	cmd = "curl -s --header 'PRIVATE-TOKEN: " + gitlabtoken +
+	cmd = "curl -s --header 'PRIVATE-TOKEN: " + token +
 		"' 'http://localhost:8080/api/v4/projects/" + projectid +
 		"/jobs/" + jobid + "/trace'"
 	result = RunCommandOnInstance(t, firstinstance, cmd)

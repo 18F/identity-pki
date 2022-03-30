@@ -363,3 +363,8 @@ variable "destination_artifact_accounts" {
   type        = list(string)
   default     = []
 }
+
+variable "production" {
+  description = "If this is set to true, it will try to set up dns/SSL so that you can go to gitlab.login.gov"
+  default     = false
+}

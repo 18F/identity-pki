@@ -396,7 +396,7 @@ resource "aws_iam_role_policy" "codebuild_test" {
       ],
       "Condition": {
           "StringLike": { "ssm:resourceTag/Name": [
-            "asg-${local.recycletest_env}-gitlab_runner"
+            "asg-${local.recycletest_env}-gitlab*"
           ]
         }
       }
@@ -436,7 +436,7 @@ resource "aws_iam_role_policy" "codebuild_test" {
         "s3:PutObject"
       ],
       "Resource": [
-        "arn:aws:s3:::gitlab-${local.recycletest_env}-*",
+        "arn:aws:s3:::login-gov-${local.recycletest_env}-*",
         "arn:aws:s3:::auto-tf-bucket-${data.aws_caller_identity.current.account_id}",
         "arn:aws:s3:::auto-tf-bucket-${data.aws_caller_identity.current.account_id}/*"
       ]

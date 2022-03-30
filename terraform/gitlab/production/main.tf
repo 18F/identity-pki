@@ -21,6 +21,7 @@ module "main" {
   default_ami_id_tooling         = "ami-0046bdebfcb2ee91d"
   route53_id                     = "Z07730471OKZ5T4V8NB2M"
   asg_gitlab_test_runner_desired = 4
+  production                     = true
 }
 
 output "gitlab_db_host" {

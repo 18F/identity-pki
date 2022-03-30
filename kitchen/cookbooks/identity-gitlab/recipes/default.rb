@@ -29,7 +29,11 @@ backup_s3_bucket = "login-gov-#{node.chef_environment}-gitlabbackups-#{aws_accou
 config_s3_bucket = "login-gov-#{node.chef_environment}-gitlabconfig-#{aws_account_id}-#{aws_region}"
 db_host = ConfigLoader.load_config(node, "gitlab_db_host", common: false).chomp
 db_password = ConfigLoader.load_config(node, "gitlab_db_password", common: false).chomp
-external_fqdn = "gitlab.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
+if node.chef_environment == 'production' or node.chef_environment == 'bravo'
+  external_fqdn = "#{node['login_dot_gov']['domain_name']}"  
+else
+  external_fqdn = "gitlab.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
+end
 gitaly_device = "/dev/xvdg"
 gitaly_ebs_volume = ConfigLoader.load_config(node, "gitaly_ebs_volume", common: false).chomp
 gitaly_real_device = "/dev/nvme2n1"

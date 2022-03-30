@@ -12,6 +12,7 @@ fi
 
 export ENV_NAME="$1"; shift
 export REGION=${REGION:="us-west-2"}
+export ACCOUNTID=${CODEBUILD_WEBHOOK_ACTOR_ACCOUNT_ID:=$(aws sts get-caller-identity --query 'Account' --output text)}
 export DOMAIN="$2"; shift
 
 cd "$(dirname "$0")"

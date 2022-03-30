@@ -1,7 +1,8 @@
 # cert for gitlab, attached to the lb
 resource "aws_acm_certificate" "gitlab" {
-  domain_name       = "gitlab.${var.env_name}.${var.root_domain}"
-  validation_method = "DNS"
+  domain_name               = "gitlab.${var.env_name}.${var.root_domain}"
+  subject_alternative_names = var.production ? [var.root_domain] : []
+  validation_method         = "DNS"
 
   tags = {
     Name = "gitlab${var.env_name}.${var.root_domain}"
