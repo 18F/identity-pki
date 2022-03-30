@@ -310,22 +310,22 @@ execute 'add_ci_skeleton' do
     fi
 
     GROUP_JSON=$(curl --silent --fail --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" \
-      "#{external_url}/api/v4/groups" | jq '.[] | select(.name=="Login-Gov")')
+      "#{external_url}/api/v4/groups" | jq '.[] | select(.path=="lg")')
 
     if [[ -z "$GROUP_JSON" ]]
     then
       echo "Creating LG Group"
       curl --silent --fail --request POST --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" \
         --header "Content-Type: application/json" \
-        --data '{"name": "Login-Gov", "path": "lg", "description": "Login.gov Project Group"}' \
+        --data '{"name": "lg", "path": "lg", "description": "Login.gov Project Group"}' \
         "#{external_url}/api/v4/groups" | jq '.message'
       GROUP_JSON=$(curl --silent --fail --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" \
-        "#{external_url}/api/v4/groups" | jq '.[] | select(.name=="Login-Gov")')
+        "#{external_url}/api/v4/groups" | jq '.[] | select(.path=="lg")')
     else
       echo "LG Group Present"
     fi
 
-    GROUP_NUMBER=$(echo $GROUP_JSON | jq 'select(.name=="Login-Gov") | .id')
+    GROUP_NUMBER=$(echo $GROUP_JSON | jq 'select(.path=="lg") | .id')
 
     for repo in identity-devops identity-gitlab identity-devops-private gitlab
     do
