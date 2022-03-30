@@ -171,6 +171,11 @@ users:
   patrick.carberry:
     aws_groups:
       - bizops
+  paul.borowicz:
+    aws_groups:
+      - devopsnonprod
+    gitlab_groups:
+      - devops
   paul.hirsch:
     aws_groups:
       - devops
@@ -238,7 +243,6 @@ users:
       - appdev
     can_create_group:
       - true
-
 groups:
   appdev:
     description: "Application Developers"
@@ -246,7 +250,6 @@ groups:
     description: "DevOps and SRE"
   lg:
     description: "Namespace for Login.gov projects"
-
 projects:
   lg/identity-devops:
     groups:
