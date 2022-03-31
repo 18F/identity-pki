@@ -1,8 +1,30 @@
+# Jobs defined here use the ecr-public/docker/library/alpine docker image by
+# default. To find other available images:
+#   aws ecr describe-repositories | jq '.repositories[].repositoryUri'
+#
+# To use a publicly-available image via an ECR pull-through cache:
+#   Locate the image at https://gallery.ecr.aws/ and note the path, e.g. docker/library/alpine
+#   Prefix 'ecr-public/' to the path, e.g. ecr_path=ecr-public/docker/library/alpine
+#   Add $ecr_path to terraform/ecr/tooling-prod/repos.yml and tf apply.
+#   Use the image in your CI jobs as:
+#     image: "${ECR_REGISTRY}/$ecr_path"
+#
+# To build an image from a Dockerfile:
+#   Make up a name for your image's repo.
+#   Add it to terraform/ecr/tooling-prod/repos.yml and tf apply.
+#   Add the dockerfile to dockerfiles/
+#   Build it by adding a job like so:
+#     build_idp_ci:
+#       <<: *build_template
+#       variables:
+#         dockerfile: idp_ci.Dockerfile
+#         ecr_repo: idp/ci
+
 variables:
   CI_COMMIT_TAG: "latest"
   ECR_REGISTRY: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
 
-# TODO Use an image from ECR
+# TODO(LG-6069): Use an image from ECR
 .build_template: &build_template
   tags:
     - build-pool
@@ -29,7 +51,7 @@ variables:
       --destination "${ECR_REGISTRY}/${ecr_repo}:${CI_COMMIT_TAG}"
       --build-arg "http_proxy=${http_proxy}" --build-arg "https_proxy=${https_proxy}" --build-arg "no_proxy=${no_proxy}"
 
-# Build images by referencing a dockerfile (in dockerfiles/) and a destination repo
+# Build images by providing a dockerfile (in dockerfiles/) and a destination ECR repo
 build_base:
   <<: *build_template
   variables:
