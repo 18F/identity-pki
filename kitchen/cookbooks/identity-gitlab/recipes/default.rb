@@ -30,7 +30,7 @@ config_s3_bucket = "login-gov-#{node.chef_environment}-gitlabconfig-#{aws_accoun
 db_host = ConfigLoader.load_config(node, "gitlab_db_host", common: false).chomp
 db_password = ConfigLoader.load_config(node, "gitlab_db_password", common: false).chomp
 if node.chef_environment == 'production' or node.chef_environment == 'bravo'
-  external_fqdn = "#{node['login_dot_gov']['domain_name']}"  
+  external_fqdn = "#{node['login_dot_gov']['domain_name']}"
 else
   external_fqdn = "gitlab.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
 end
@@ -40,13 +40,16 @@ gitaly_real_device = "/dev/nvme2n1"
 gitlab_device = "/dev/xvdh"
 gitlab_ebs_volume = ConfigLoader.load_config(node, "gitlab_ebs_volume", common: false).chomp
 gitlab_license = ConfigLoader.load_config(node, "login-gov.gitlab-license", common: true)
+gitlab_qa_account_name = "gitlab-qa"
 gitlab_qa_api_token = shell_out('openssl rand -base64 32 | sha256sum | head -c20').stdout
+gitlab_qa_password = shell_out('openssl rand -base64 32 | sha256sum | head -c20').stdout
 gitlab_real_device = "/dev/nvme3n1"
 gitlab_root_api_token = shell_out('openssl rand -base64 32 | sha256sum | head -c20').stdout
-runner_token = shell_out('openssl rand -base64 32 | sha256sum | head -c20').stdout
+local_url = "https://localhost:443"
 postgres_version = "13"
 redis_host = ConfigLoader.load_config(node, "gitlab_redis_endpoint", common: false).chomp
 root_password = ConfigLoader.load_config(node, "gitlab_root_password", common: false).chomp
+runner_token = shell_out('openssl rand -base64 32 | sha256sum | head -c20').stdout
 ses_password = ConfigLoader.load_config(node, "ses_smtp_password", common: true).chomp
 ses_username = ConfigLoader.load_config(node, "ses_smtp_username", common: true).chomp
 smtp_address = "email-smtp.#{aws_region}.amazonaws.com"
@@ -230,7 +233,6 @@ file '/etc/gitlab/restore.sh' do
     # aws s3 cp s3://#{backup_s3_bucket}/ssh /etc/ssh/ --recursive --exclude "*" --include "ssh_host_*"
     # aws s3 cp s3://#{backup_s3_bucket}/ssl /etc/gitlab/ssl --recursive
     # aws s3 cp s3://#{backup_s3_bucket}/[date serial]-ee_gitlab_backup.tar /var/opt/gitlab/backups
-
     export GITLAB_ASSUME_YES=1
     gitlab-backup restore
   EOF
@@ -256,8 +258,8 @@ end
 
 execute 'copy_gitlab_runner_token_to_s3' do
   command "echo #{runner_token} | aws s3 cp - s3://#{config_s3_bucket}/gitlab_runner_token"
-  sensitive true
   action :run
+  sensitive true
 end
 
 execute 'apply_runner_token' do
@@ -266,11 +268,11 @@ execute 'apply_runner_token' do
     appSetting.set_runners_registration_token('#{runner_token}'); \
     appSetting.save!"
   EOF
-  sensitive true
   action :run
+  sensitive true
 end
 
-execute 'revoke_gitlab_tokens' do
+execute 'revoke_gitlab_root_tokens' do
   command <<-EOF
     gitlab-rails runner "User.find_by_username('root').personal_access_tokens.all.each(&:revoke!)"
   EOF
@@ -283,6 +285,35 @@ execute 'save_gitlab_root_token' do
     token.set_token('#{gitlab_root_api_token}'); token.save!"
   EOF
   action :run
+  sensitive true
+end
+
+execute 'delete_qa_user' do
+  command <<-EOF
+    gitlab-rails runner "current_user = User.find_by(username: 'root'); qa_user = User.find_by_username('#{gitlab_qa_account_name}'); \
+    DeleteUserWorker.perform_async(current_user.id, qa_user.id)"
+  EOF
+  action :run
+  ignore_failure true
+end
+
+execute 'create_gitlab_qa_user' do
+  command <<-EOF
+    gitlab-rails runner "qauser = User.new(username: '#{gitlab_qa_account_name}', email: 'qa@#{external_fqdn}', \
+    name: 'QA User', password: '#{gitlab_qa_password}', password_confirmation: '#{gitlab_qa_password}', \
+    can_create_group: 'true', admin: 'true'); qauser.skip_confirmation!; qauser.save!"
+  EOF
+  action :run
+  ignore_failure true
+end
+
+execute 'create_gitlab_qa_token' do
+  command <<-EOF
+    gitlab-rails runner "token = User.find_by_username('#{gitlab_qa_account_name}').personal_access_tokens.create(scopes: [:api], name: 'Automation Token'); \
+    token.set_token('#{gitlab_qa_api_token}'); token.save!"
+  EOF
+  action :run
+  sensitive true
 end
 
 execute 'clean_up_licenses' do
@@ -293,7 +324,7 @@ execute 'clean_up_licenses' do
   sensitive true
 end
 
-execute 'allow_users_to_create_groups' do
+execute 'allow_root_to_create_groups' do
   command <<-EOF
     gitlab-rails runner "User.find_by_username('root').update!(can_create_group: true)"
   EOF
@@ -302,91 +333,75 @@ end
 
 execute 'add_ci_skeleton' do
   command <<-EOF
-    if curl --silent --fail -o /dev/null "#{external_url}/"; then
-      echo "URL exists: #{external_url}"
+    if curl --noproxy '*' --insecure --output /dev/null "#{local_url}/"; then
+      echo "URL exists: #{local_url}"
     else
-      echo "URL does not exist: #{external_url}"
-      exit
+      echo "URL does not exist: #{local_url}"
+      exit 1
     fi
-
-    GROUP_JSON=$(curl --silent --fail --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" \
-      "#{external_url}/api/v4/groups" | jq '.[] | select(.path=="lg")')
-
-    if [[ -z "$GROUP_JSON" ]]
+    if (curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" \
+      "#{local_url}/api/v4/groups" | jq '.[] | select(.path=="lg")')
     then
       echo "Creating LG Group"
-      curl --silent --fail --request POST --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" \
+      curl --request POST --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" \
         --header "Content-Type: application/json" \
         --data '{"name": "lg", "path": "lg", "description": "Login.gov Project Group"}' \
-        "#{external_url}/api/v4/groups" | jq '.message'
-      GROUP_JSON=$(curl --silent --fail --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" \
-        "#{external_url}/api/v4/groups" | jq '.[] | select(.path=="lg")')
+        "#{local_url}/api/v4/groups" | jq '.message'
     else
       echo "LG Group Present"
     fi
-
+    GROUP_JSON=$(curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" \
+      "#{local_url}/api/v4/groups" | jq '.[] | select(.path=="lg")')
     GROUP_NUMBER=$(echo $GROUP_JSON | jq 'select(.path=="lg") | .id')
-
     for repo in identity-devops identity-gitlab identity-devops-private gitlab
     do
-      if [[ -z $(curl --silent --fail --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" \
-      "#{external_url}/api/v4/projects?search=${repo}") ]]
+      if (curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" "#{local_url}/api/v4/projects?search=$repo")
       then
-        echo "Creating ${repo} Project"
-        curl --silent --fail --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
-          "#{external_url}/api/v4/projects?name=${repo}&visibility=private&namespace_id=${GROUP_NUMBER}"
+        echo "Creating $repo Project"
+        curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
+          "#{local_url}/api/v4/projects?name=$repo&visibility=private&namespace_id=$GROUP_NUMBER"
       else
-        echo "${repo} Project Present"
+        echo "$repo Project Present"
       fi
     done
-
-    USER_JSON=$(curl --silent --fail --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" \
-      "#{external_url}/api/v4/users" | jq '.[] | select(.name=="gitlab-qa")')
-
-    if [ -z "$USER_JSON" ]
-    then
-      echo "Creating gitlab-qa"
-      curl --silent --fail --request POST --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" \
-        --header "Content-Type: application/json" \
-        --data '{"name": "gitlab-qa", "username": "gitlab-qa", "email": "test@#{external_fqdn}", "force_random_password": "true"}' \
-        "#{external_url}/api/v4/users" | jq '.message'
-      USER_JSON=$(curl --silent --fail --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" \
-        "#{external_url}/api/v4/users" | jq '.[] | select(.name=="gitlab-qa")')
-    else
-      echo "LG gitlab-qa Present"
-    fi
-
-    PROJECT_RETURN=$(curl --silent --fail --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" \
-      "#{external_url}/api/v4/groups/${GROUP_NUMBER}/projects?" | jq '.[] | select(.name=="identity-devops")')
-    PROJECT_NUMBER=$(echo $PROJECT_RETURN | jq 'select(.name=="identity-devops") | .id')
-    curl --silent --fail --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XDELETE \
-      "#{external_url}/api/v4/projects/${PROJECT_NUMBER}/variables/GITLAB_API_TOKEN"
-    curl --silent --fail --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
-      "#{external_url}/api/v4/projects/${PROJECT_NUMBER}/variables" \
+    PROJECT_JSON=$(curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" \
+      "#{local_url}/api/v4/groups/$GROUP_NUMBER/projects?" | jq '.[] | select(.name=="identity-devops")')
+    PROJECT_NUMBER=$(echo $PROJECT_JSON | jq 'select(.name=="identity-devops") | .id')
+    for variable in GITLAB_API_TOKEN GITLAB_QA_ACCOUNT GITLAB_QA_PASSWORD GITLAB_QA_API_TOKEN AWS_ACCOUNT_ID EXTERNAL_FQDN AWS_REGION
+    do
+      if (curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XGET \
+        "#{local_url}/api/v4/projects/$PROJECT_NUMBER/variables/$variable"  | jq '.value')
+      then
+        echo "Deleting ENV Variable $variable"
+        curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XDELETE \
+          "#{local_url}/api/v4/projects/$PROJECT_NUMBER/variables/$variable"
+      else
+        echo "$variable Not Present"
+      fi
+    done
+    curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
+      "#{local_url}/api/v4/projects/$PROJECT_NUMBER/variables" \
       --form "key=GITLAB_API_TOKEN" --form "value=#{gitlab_root_api_token}"
-    curl --silent --fail --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XDELETE \
-      "#{external_url}/api/v4/projects/${PROJECT_NUMBER}/variables/AWS_ACCOUNT_ID"
-    curl --silent --fail --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
-      "#{external_url}/api/v4/projects/${PROJECT_NUMBER}/variables" \
+    curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
+      "#{local_url}/api/v4/projects/$PROJECT_NUMBER/variables" \
+      --form "key=GITLAB_QA_ACCOUNT" --form "value=#{gitlab_qa_account_name}"
+    curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
+      "#{local_url}/api/v4/projects/$PROJECT_NUMBER/variables" \
+      --form "key=GITLAB_QA_PASSWORD" --form "value=#{gitlab_qa_password}"
+    curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
+      "#{local_url}/api/v4/projects/$PROJECT_NUMBER/variables" \
+      --form "key=GITLAB_QA_API_TOKEN" --form "value=#{gitlab_qa_api_token}"
+    curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
+      "#{local_url}/api/v4/projects/$PROJECT_NUMBER/variables" \
        --form "key=AWS_ACCOUNT_ID" --form "value=#{aws_account_id}"
-    curl --silent --fail --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XDELETE \
-      "#{external_url}/api/v4/projects/${PROJECT_NUMBER}/variables/GITLAB_QA_ACCOUNT"
-    curl --silent --fail --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
-      "#{external_url}/api/v4/projects/${PROJECT_NUMBER}/variables" \
-      --form "key=GITLAB_QA_ACCOUNT" --form "value=gitlab-qa"
-    curl --silent --fail --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XDELETE \
-      "#{external_url}/api/v4/projects/${PROJECT_NUMBER}/variables/EXTERNAL_FQDN"
-    curl --silent --fail --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
-      "#{external_url}/api/v4/projects/${PROJECT_NUMBER}/variables" \
+    curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
+      "#{local_url}/api/v4/projects/$PROJECT_NUMBER/variables" \
       --form "key=EXTERNAL_FQDN" --form "value=#{external_fqdn}"
-    curl --silent --fail --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XDELETE \
-      "#{external_url}/api/v4/projects/${PROJECT_NUMBER}/variables/AWS_REGION"
-    curl --silent --fail --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
-      "#{external_url}/api/v4/projects/${PROJECT_NUMBER}/variables" \
+    curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
+      "#{local_url}/api/v4/projects/$PROJECT_NUMBER/variables" \
       --form "key=AWS_REGION" --form "value=#{aws_region}"
   EOF
-  ignore_failure true
-  sensitive true
+  ignore_failure false
   action :run
 end
 
