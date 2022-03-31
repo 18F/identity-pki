@@ -99,6 +99,10 @@ default['login_dot_gov']['artifacts_bucket'] = "login-gov.app-artifacts." \
 default['login_dot_gov']['secrets_bucket'] = "login-gov.secrets." \
                                                "#{aws_account_id}-#{aws_region}"
 
+# How long to set the Cache-Control max-age header on IDP static asset CDN objects
+# Defaults to 1 year since most assets are fingerprinted, setting to 0 will disable
+default['login_dot_gov']['static_cdn_max_age'] = 31536000
+
 # how long to wait for curl localhost to finish at end of bootstrapping
 default['login_dot_gov']['passenger_prewarm_timeout']                 = 30
 

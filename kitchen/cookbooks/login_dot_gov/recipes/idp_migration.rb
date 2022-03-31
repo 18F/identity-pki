@@ -34,19 +34,27 @@ else
 end
 
 static_bucket = node.fetch('login_dot_gov').fetch('static_bucket')
+static_cdn_max_age = node.fetch('login_dot_gov').fetch('static_cdn_max_age')
 if static_bucket && node.fetch('login_dot_gov').fetch('idp_sync_static')
   Chef::Log.info("Syncronizing IdP assets and packs to #{static_bucket}")
 
   execute 'deploy sync static assets step' do
     # Sync based on size only (not create time) and ignore sprockets manifest
-    command "aws s3 sync --size-only --exclude '.sprockets-manifest-*.json' #{release_path}/public/assets s3://#{static_bucket}/assets"
+    command "aws s3 sync --size-only --cache-control max-age=#{static_cdn_max_age} --exclude '.sprockets-manifest-*.json' #{release_path}/public/assets s3://#{static_bucket}/assets"
     user node['login_dot_gov']['system_user']
     group node['login_dot_gov']['system_user']
     ignore_failure node.fetch('login_dot_gov').fetch('idp_sync_static_ignore_failure')
   end
 
   execute 'deploy sync static packs step' do
-    command "aws s3 sync --size-only #{release_path}/public/packs s3://#{static_bucket}/packs"
+    command "aws s3 sync --size-only --cache-control max-age=#{static_cdn_max_age} --exclude 'manifest.json' #{release_path}/public/packs s3://#{static_bucket}/packs"
+    user node['login_dot_gov']['system_user']
+    group node['login_dot_gov']['system_user']
+    ignore_failure node.fetch('login_dot_gov').fetch('idp_sync_static_ignore_failure')
+  end
+
+  execute 'deploy sync static packs manifest.json step' do
+    command "aws s3 cp #{release_path}/public/packs/manifest.json s3://#{static_bucket}/packs/manifest.json"
     user node['login_dot_gov']['system_user']
     group node['login_dot_gov']['system_user']
     ignore_failure node.fetch('login_dot_gov').fetch('idp_sync_static_ignore_failure')
