@@ -232,8 +232,8 @@ users:
       - apponcall
     gitlab_groups:
       - appdev
-  # Gitlab Machine User - don't specify aws_groups for these
   root:
+    __note: "Gitlab Machine User - don't specify aws_groups for these"
     email:
       - admin@example.com
     gitlab_groups:
