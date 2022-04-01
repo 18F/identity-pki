@@ -70,7 +70,7 @@ resource "aws_autoscaling_group" "gitlab_runner" {
   }
 
   min_size         = 1
-  max_size         = 4 # TODO count subnets or Region's AZ width
+  max_size         = 10 # TODO count subnets or Region's AZ width
   desired_capacity = var.asg_gitlab_runner_desired
 
   wait_for_capacity_timeout = 0 # 0 == ignore
