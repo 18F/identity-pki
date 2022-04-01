@@ -407,12 +407,13 @@ end
 
 
 # this is to set up user/group syncing
-remote_file "rds_ca_bundle" do
+remote_file "golang" do
   path "/root/golang.tar.gz"
   source "https://go.dev/dl/go1.17.8.linux-amd64.tar.gz"
   owner 'root'
   group 'root'
   mode 0644
+  checksum '980e65a863377e69fd9b67df9d8395fd8e93858e7a24c9f55803421e453f4f99'
 end
 
 execute 'install_golang' do
@@ -457,4 +458,16 @@ cron_d 'run_usersync' do
   action :create
   predefined_value "@hourly"
   command "/etc/login.gov/repos/identity-devops/bin/users/sync.sh #{external_fqdn}"
+end
+
+# set up logs for gitlab
+template '/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/gitlabcw.json' do
+  source 'gitlabcw.json.erb'
+  owner 'root'
+  group 'root'
+  mode '0644'
+  variables ({
+    :environmentName => node.chef_environment
+  })
+  notifies :restart, 'service[amazon-cloudwatch-agent]', :delayed
 end
