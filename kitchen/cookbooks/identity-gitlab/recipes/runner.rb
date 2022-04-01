@@ -146,3 +146,9 @@ execute 'restart_runner' do
   command 'systemctl restart gitlab-runner'
   action :nothing
 end
+
+cron_d 'clear_docker_cache' do
+  action :create
+  predefined_value '@daily'
+  command '/usr/share/gitlab-runner/clear-docker-cache'
+end
