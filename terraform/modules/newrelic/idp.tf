@@ -191,14 +191,14 @@ resource "newrelic_nrql_alert_condition" "enduser_response_time" {
 }
 
 resource "newrelic_nrql_alert_condition" "controller_action_errors" {
-  count                        = var.idp_enabled
-  policy_id                    = newrelic_alert_policy.high[0].id
+  count                        = var.enduser_enabled
+  policy_id                    = newrelic_alert_policy.enduser[0].id
   name                         = "${var.env_name}: high rate of errors in controller action"
   enabled                      = true
   description                  = "Alerting when errors in controller action name get above 0.5% for the past 2 minutes"
   runbook_url                  = "https://github.com/18F/identity-devops/wiki/Runbook:-controller-action-error-rate"
   violation_time_limit_seconds = 43200
-  aggregation_window           = 120
+  aggregation_window           = 60
   aggregation_method           = "event_flow"
   aggregation_delay            = 60
 
@@ -215,15 +215,15 @@ resource "newrelic_nrql_alert_condition" "controller_action_errors" {
 }
 
 resource "newrelic_nrql_alert_condition" "service_provider_errors" {
-  count       = var.idp_enabled
-  policy_id   = newrelic_alert_policy.high[0].id
+  count       = var.enduser_enabled
+  policy_id   = newrelic_alert_policy.enduser[0].id
   name        = "${var.env_name}: high rate of errors for service provider"
   enabled     = true
   description = "Alerting when errors for individual service provider get above 0.5% for the past 2 minutes"
 
   runbook_url                  = "https://github.com/18F/identity-devops/wiki/Runbook:-high-service-provider-error-rate"
   violation_time_limit_seconds = 43200
-  aggregation_window           = 120
+  aggregation_window           = 60
   aggregation_method           = "event_flow"
   aggregation_delay            = 60
 
