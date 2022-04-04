@@ -316,6 +316,92 @@ resource "aws_wafv2_web_acl" "idp" {
       sampled_requests_enabled   = true
     }
   }
+  dynamic "rule" {
+    for_each = length(var.header_block_regex) >= 1 ? [1] : []
+    content {
+      name     = "IdpHeaderRegexBlock"
+      priority = 8
+
+      action {
+        dynamic "block" {
+          for_each = length(lookup(local.rule_settings, "override_action", {})) == 0 || lookup(local.rule_settings, "override_action", {}) == "none" ? [1] : []
+          content {}
+        }
+
+        dynamic "count" {
+          for_each = lookup(local.rule_settings, "override_action", {}) == "count" ? [1] : []
+          content {}
+        }
+      }
+      statement {
+        or_statement {
+          dynamic "statement" {
+            for_each = var.header_block_regex
+            content {
+              regex_pattern_set_reference_statement {
+                arn = aws_wafv2_regex_pattern_set.header_blocks[statement.key].arn
+
+                field_to_match {
+                  single_header {
+                    name = lower(statement.value.field_name)
+                  }
+                }
+                text_transformation {
+                  priority = 2
+                  type     = "NONE"
+                }
+              }
+            }
+          }
+        }
+      }
+
+      visibility_config {
+        cloudwatch_metrics_enabled = true
+        metric_name                = "${local.web_acl_name}-HeaderBlock-metric"
+        sampled_requests_enabled   = true
+      }
+    }
+
+
+  }
+
+  rule {
+    name     = "IdpQueryRegexBlock"
+    priority = 9
+
+    action {
+      dynamic "block" {
+        for_each = length(lookup(local.rule_settings, "override_action", {})) == 0 || lookup(local.rule_settings, "override_action", {}) == "none" ? [1] : []
+        content {}
+      }
+
+      dynamic "count" {
+        for_each = lookup(local.rule_settings, "override_action", {}) == "count" ? [1] : []
+        content {}
+      }
+    }
+    statement {
+      regex_pattern_set_reference_statement {
+        arn = aws_wafv2_regex_pattern_set.query_string_blocks.arn
+
+        text_transformation {
+          priority = 2
+          type     = "NONE"
+        }
+
+        field_to_match {
+          query_string {}
+        }
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "${local.web_acl_name}-QueryStringBlock-metric"
+      sampled_requests_enabled   = true
+    }
+  }
 
   dynamic "rule" {
     for_each = length(var.geo_block_list) >= 1 ? [1] : []

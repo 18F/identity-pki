@@ -111,6 +111,23 @@ variable "relaxed_uri_paths" {
   }
 }
 
+variable "header_block_regex" {
+  description = "Map of regexes matching headers to block"
+  type = list(object({
+    field_name = string
+    patterns   = list(string)
+    }
+    )
+  )
+  default = []
+}
+
+variable "query_block_regex" {
+  description = "Set of regexes to filter query strings for blocking"
+  type        = list(string)
+  default     = []
+}
+
 variable "waf_alert_blocked_period" {
   description = "Window (period) in seconds to for evaluating blocks"
   type        = string
