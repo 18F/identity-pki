@@ -1,0 +1,147 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+require 'yaml'
+require 'tty-prompt'
+
+USERS_YAML = 'terraform/master/global/users.yaml'
+
+def main(args)
+  options = {
+    user: nil,
+    aws_groups: [],
+  }
+  mode = "added"
+  basename = File.basename($0)
+
+  optparse = OptionParser.new do |opts|
+    opts.banner = <<-EOM
+usage: #{basename} [-u|--username] user.name [--a|--aws-groups] group1,group2 [OPTIONS]
+
+Add/update #{USERS_YAML} with the key user.name,
+with group1,group2,etc. being the list of AWS groups to add the user to.
+Optionally, can also be used to configure other keys within their entry,
+e.g. ec2_username, gitlab_groups, and (if overriding standard GitLab
+username/email format) git_username / email.
+Can also remove the specified user with the -D / --delete-user flag.
+
+Examples:
+
+  # Create user bob.smith, and add them to AWS groups appdev and apponcall
+  #{$PROGRAM_NAME} -u bob.smith -a appdev,apponcall
+
+  # As above, and add bob.smith to the appdev GitLab group
+  #{$PROGRAM_NAME} -u bob.smith -a appdev,apponcall -g appdev
+
+  # As above, with custom GitLab username bbsmith
+  #{$PROGRAM_NAME} -u bob.smith -a appdev,apponcall -g appdev --gitlab-username bbsmith
+
+Options:
+
+    EOM
+
+    opts.on('-h', '--help', 'Display this message') do
+      STDERR.puts "\n#{opts}\n"
+      exit
+    end
+
+    opts.on('-u', '--username NAME', "User's AWS username (first.last)") do |username|
+      options[:user] = username
+    end
+
+    opts.on('-a', '--aws-groups A,B,C',
+      Array, "AWS groups to add user to, comma-separated") do |aws_groups|
+      options[:aws_groups] = aws_groups
+    end
+
+    opts.on('-e', '--ec2-username NAME', "EC2 username (for SSM access)") do |ec2_username|
+      options[:ec2_username] = ec2_username
+    end
+
+    opts.on('-g', '--gitlab-groups A,B,C',
+      Array, "GitLab to add user to, comma-separated") do |gitlab_groups|
+      options[:gitlab_groups] = gitlab_groups
+    end
+
+    opts.on('--gitlab-username NAME',
+      "GitLab username (overrides aws.username@ format)") do |git_user|
+      abort "#{basename}: specify gitlab_groups if setting git_user" if !options[:gitlab_groups]
+      options[:git_user] = git_user
+    end
+
+    opts.on('--email EMAIL',
+      "GitLab email address (overrides aws.username@gsa.gov format)") do |email|
+      abort "#{basename}: specify gitlab_groups if setting email" if !options[:gitlab_groups]
+      options[:email] = email
+    end
+
+    opts.on('-D', '--delete-user', 'Remove user instead of adding/updating') do
+      options[:delete] = true
+    end
+  end
+
+  command = optparse.order(args)
+
+  if command.any?
+    STDERR.puts optparse
+    exit 1
+  end
+
+  abort "\n#{basename}: must specify username\n\n" if !options[:user]
+
+  if options[:aws_groups].empty? && !options[:delete]
+    abort "\n#{basename}: must specify AWS group(s)\n\n"
+  end
+
+  yaml = YAML.load_file(USERS_YAML)
+  prompt = TTY::Prompt.new(output: STDERR)
+
+  if options[:delete]
+    abort "\nUser #{options[:user]} not found in #{USERS_YAML}\n\n" if yaml['users'][options[:user]].nil?
+    mode = "removed"
+  else
+    if !yaml['users'][options[:user]].nil?
+      if mode == "added"
+        puts "\n#{options[:user]} exists in #{USERS_YAML} with the following configs:"
+        pp yaml['users'][options[:user]]
+        puts "You specified:"
+        puts "#{options}\n\n"
+        unless prompt.yes?("Update configs for #{options[:user]}?")
+          abort "#{options[:user]} not updated\n\n"
+        end
+        mode = "updated"
+      end
+    else
+      yaml['users'][options[:user]] = {}
+    end
+  end
+  
+  if options[:delete]
+    puts
+    unless prompt.yes?("Remove #{options[:user]} from #{USERS_YAML}?")
+      abort "#{options[:user]} not removed."
+    end
+    yaml['users'].delete(options[:user])
+    puts "#{options[:user]} #{mode}."
+  else
+    puts "\n#{options[:user]} #{mode}:"
+    options.each do |opt,val|
+      next if opt == :user
+      yaml['users'][options[:user]].merge!({ opt.to_s => options[opt] })
+      puts "- #{opt.to_s}: #{options[opt]}"
+    end
+  end
+  puts
+
+  # make sure users is sorted, gitlab root (denoted by __note) is last
+  sorted_users = yaml['users'].sort_by do |username, attributes|
+    [attributes.key?('__note') ? 1 : 0, username]
+  end.to_h
+
+  yaml['users'] = sorted_users
+  File.open(USERS_YAML, 'w') { |f| f.puts YAML.dump(yaml) }
+end
+
+if __FILE__ == $0
+  main(ARGV)
+end
