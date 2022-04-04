@@ -109,6 +109,17 @@ execute 'deploy activate step' do
   user 'root'
 end
 
+# TODO: Attempt to download pre-compiled artifacts including assets,
+# like the idp instances, to avoid re-compiling on every worker host
+execute 'deploy build-post-config step' do
+  cwd '/srv/idp/releases/chef'
+  command [
+    'sudo', '-H', '-u', node.fetch('login_dot_gov').fetch('system_user'),
+    './deploy/build-post-config'
+  ]
+  user 'root'
+end
+
 # symlink chef release to current dir
 link '/srv/idp/current' do
   to '/srv/idp/releases/chef'
@@ -135,7 +146,7 @@ end
 system_user = node.fetch('login_dot_gov').fetch('web_system_user')
 
 if node.fetch('login_dot_gov').fetch('idp_run_recurring_jobs')
-  
+
 else
   Chef::Log.info('idp_run_recurring_jobs is falsy, disabling idp-jobs.service')
   service_state = [:create, :disable, :stop]
