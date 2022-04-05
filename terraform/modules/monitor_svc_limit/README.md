@@ -61,10 +61,8 @@ It creates the following AWS Resources:
   **Outputs**
   |   Name                            |  Description                                |                                                         
   | ------------------------------    | ------------------------------------------- |                                                     
-  | lambda_function_name              | Lambda Function Name                        |
-  | lambda_function_arn               | Lambda function arn              |
-  | lambda_iam_role                   | IAM role created for Lambda function         |
-  | lambda_iam_name                   | IAM role name created for Lambda function         |
+  | ta_refresher_lambda_arn              | Arn of Lambda Function refreshing Trusted Advisor                        |
+  | ta_monitor_lambda_arn               | Arn of Lambda function monitoring Trusted Advisor               |
 
 
  
