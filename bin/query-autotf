@@ -38,10 +38,19 @@ class QueryAutoTF
   end
 
   def build_group(app:, env:, stage:)
-    if app == 'gitlab'
-      return "auto-terraform/#{app}/#{env}--stages/#{app}#{env}/#{stage}"
+    case env
+    when 'dev'
+      if app == 'app'
+        return "auto-terraform/#{app}-#{env}-main/#{stage}"
+      elsif app == 'waf'
+        return "auto-terraform/#{app}/#{env}--main/#{stage}"
+      end
     else
-      return "auto-terraform/#{app}-#{env}-stages/#{env}/#{stage}"
+      if app == 'gitlab'
+        return "auto-terraform/#{app}/#{env}--stages/#{app}#{env}/#{stage}"
+      else
+        return "auto-terraform/#{app}-#{env}-stages/#{env}/#{stage}"
+      end
     end
   end
   
