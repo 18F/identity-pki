@@ -89,6 +89,17 @@ func _TestFilePermissionsDockerService(t *testing.T) {
 	}
 }
 
+// s5.18
+func _TestUlimits(t *testing.T) {
+	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{ .Id }}: Ulimits={{ .HostConfig.Ulimits }}'"
+	for _, s := range RunOnRunners(t, cmd) {
+		if regexp.MustCompile("Ulimits").MatchString(s) {
+			assert.Regexp(t, ": Ulimits=<no value>$", s)
+		}
+	}
+}
+
+
 func TestJobContainers(t *testing.T) {
 	t.Run("s5.10 Require memory arg", _TestMemory)
 	t.Run("s5.11 Require cpu_shares arg", _TestCPUShares)
@@ -97,4 +108,5 @@ func TestJobContainers(t *testing.T) {
 	t.Run("Ensure host process namespace is not shared", _TestSharedProcessNamespace)
 	t.Run("Ensure Docker service file ownership is correct", _TestFileOwnershipDockerService)
 	t.Run("Ensure Docker service file permissions are correct", _TestFilePermissionsDockerService)
+	t.Run("Ensure that the default ulimit is not overwritten at runtime", _TestUlimits)
 }
