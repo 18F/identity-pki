@@ -11,7 +11,7 @@ def main(args)
     user: nil,
     aws_groups: [],
   }
-  mode = "added"
+  mode = :added
   basename = File.basename($0)
 
   optparse = OptionParser.new do |opts|
@@ -98,10 +98,10 @@ Options:
 
   if options[:delete]
     abort "\nUser #{options[:user]} not found in #{USERS_YAML}\n\n" if yaml['users'][options[:user]].nil?
-    mode = "removed"
+    mode = :removed
   else
     if !yaml['users'][options[:user]].nil?
-      if mode == "added"
+      if mode == :added
         puts "\n#{options[:user]} exists in #{USERS_YAML} with the following configs:"
         pp yaml['users'][options[:user]]
         puts "You specified:"
@@ -109,7 +109,7 @@ Options:
         unless prompt.yes?("Update configs for #{options[:user]}?")
           abort "#{options[:user]} not updated\n\n"
         end
-        mode = "updated"
+        mode = :updated
       end
     else
       yaml['users'][options[:user]] = {}
