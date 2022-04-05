@@ -46,7 +46,7 @@ class QueryAutoTF
   end
   
   def run(argv, stdin)
-    config = parse(argv, stdin)
+    config = parse(argv)
 
     query_all(config)
   end
@@ -90,7 +90,7 @@ class QueryAutoTF
         config.format = :json
       end
 
-      opts.on('--csv', ' format output as CSV') do
+      opts.on('--csv', 'format output as CSV') do
         config.format = :csv
       end
 
