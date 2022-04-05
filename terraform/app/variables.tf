@@ -791,3 +791,17 @@ variable "unvacummed_transactions_count" {
   type        = string
   default     = "1000000000"
 }
+
+variable "refresher_trigger_schedule" {
+  description = "Frequency of TA refresher lambda execution"
+  #default     = "rate(5 minutes)"
+  default = "cron(0 14 * * ? *)"
+
+}
+
+variable "monitor_trigger_schedule" {
+  description = "Frequency of TA monitor lambda execution"
+  #default     = "rate(10 minutes)"
+  default = "cron(10 14 * * ? *)"
+
+}
