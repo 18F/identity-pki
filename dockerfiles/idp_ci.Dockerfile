@@ -14,8 +14,12 @@ RUN apt-get install -y --no-install-recommends nodejs \
       google-chrome-stable \
       yarn
 
-RUN curl -Ss "https://chromedriver.storage.googleapis.com/$(curl -Ss "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$(google-chrome --version | grep -Po '\d+\.\d+\.\d+' | tr -d '\n')")/chromedriver_linux64.zip" > /tmp/chromedriver.zip
-RUN unzip /tmp/chromedriver.zip -d /tmp/chromedriver
-RUN mv -f /tmp/chromedriver/chromedriver /usr/local/bin/chromedriver
-RUN rm /tmp/chromedriver.zip
-RUN rmdir /tmp/chromedriver
+RUN curl -Ss "https://chromedriver.storage.googleapis.com/$(curl -Ss "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$(google-chrome --version | grep -Po '\d+\.\d+\.\d+' | tr -d '\n')")/chromedriver_linux64.zip" > /tmp/chromedriver.zip && \
+    unzip /tmp/chromedriver.zip -d /tmp/chromedriver && \
+    mv -f /tmp/chromedriver/chromedriver /usr/local/bin/chromedriver && \
+    rm /tmp/chromedriver.zip && \
+    rmdir /tmp/chromedriver
+
+RUN find / -perm /6000 -type f -exec chmod a-s {} \; || true
+
+# No need for HEALTHCHECK here, because this image is not long lived.
