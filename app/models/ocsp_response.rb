@@ -86,9 +86,9 @@ class OcspResponse
   end
 
   def to_text
+    statuses = response&.basic&.status&.map { |status| status_description(status) }&.join('')
     general_text_description +
-      "Basic Response:\n  Responses:\n" +
-      response.basic.status.map { |status| status_description(status) }.join('')
+      "Basic Response:\n  Responses:\n#{statuses || 'Invalid Response'}"
   end
 
   def log_if_interesting
@@ -106,8 +106,8 @@ class OcspResponse
 
   def general_text_description
     "Subject Serial: #{subject.serial}\n" \
-      "Status String: #{response.status_string}\n" \
-      "Status Int: #{response.status}\n"
+      "Status String: #{response&.status_string}\n" \
+      "Status Int: #{response&.status}\n"
   end
 
   STATUS_STRINGS = {
