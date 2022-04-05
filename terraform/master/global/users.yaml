@@ -2,254 +2,254 @@
 users:
   akhlaq.khan:
     aws_groups:
-      - analytics
-      - finops
-      - bizops
+    - analytics
+    - finops
+    - bizops
   alan.atlas:
     aws_groups:
-      - analytics
+    - analytics
   alex.kritikos:
     git_username:
-      - akrito
+    - akrito
     name:
-      - Alex Kritikos
+    - Alex Kritikos
     email:
-      - alex.kritikos@gsa.gov
+    - alex.kritikos@gsa.gov
     aws_groups:
-      - devops
+    - devops
     gitlab_groups:
-      - devops
+    - devops
   alexander.bradley:
     aws_groups:
-      - analytics
-      - appdev
+    - analytics
+    - appdev
     gitlab_groups:
-      - appdev
+    - appdev
   amos.stone:
     aws_groups:
-      - analytics
+    - analytics
   andrew.duthie:
     aws_groups:
-      - appdev
-      - apponcall
+    - appdev
+    - apponcall
     gitlab_groups:
-      - appdev
+    - appdev
   brett.mcparland:
     aws_groups:
-      - secops
-      - soc
+    - secops
+    - soc
   chris.manger:
     aws_groups:
-      - bizops
-      - finops
+    - bizops
+    - finops
   clinton.troxel:
     aws_groups:
-      - appdev
+    - appdev
     gitlab_groups:
-      - appdev
+    - appdev
   dave.zvenyach:
     aws_groups:
-      - analytics
+    - analytics
   devon.johnson:
     aws_groups:
-      - appdev
+    - appdev
   diondra.humphries:
     aws_groups:
-      - bizops
+    - bizops
   douglas.price:
     aws_groups:
-      - appdev
-      - apponcall
-      - bizops
+    - appdev
+    - apponcall
+    - bizops
     gitlab_groups:
-      - appdev
+    - appdev
   goutham.kommanaboyina:
     aws_groups:
-      - analytics
+    - analytics
   henry.richardson:
     aws_groups:
-      - devopsnonprod
+    - devopsnonprod
   james.tranovich:
     gitlab_groups:
-      - devops
+    - devops
   jeffrey.holden:
     aws_groups:
-      - analytics
+    - analytics
   jessica.dembe:
     aws_groups:
-      - appdev
-      - apponcall
+    - appdev
+    - apponcall
     gitlab_groups:
-      - appdev
+    - appdev
   jonathan.hooper:
     aws_groups:
-      - appdev
-      - apponcall
-      - devops
-      - keymasters
+    - appdev
+    - apponcall
+    - devops
+    - keymasters
     gitlab_groups:
-      - appdev
-      - devops
+    - appdev
+    - devops
   jonathan.pirro:
     aws_groups:
-      - devops
+    - devops
     gitlab_groups:
-      - devops
+    - devops
   julia.elman:
     aws_groups:
-      - analytics
+    - analytics
   justin.grevich:
     aws_groups:
-      - devops
+    - devops
     gitlab_groups:
-      - devops
+    - devops
   kelsey.sinclair:
     aws_groups:
-      - bizops
+    - bizops
   logan.mcdonald:
     gitlab_groups:
-      - devops
+    - devops
   malick.diarra:
     aws_groups:
-      - appdev
-      - apponcall
+    - appdev
+    - apponcall
     gitlab_groups:
-      - appdev
+    - appdev
   manish.shah:
     aws_groups:
-      - appdev
-      - apponcall
+    - appdev
+    - apponcall
     gitlab_groups:
-      - appdev
+    - appdev
   michael.antiporta:
     aws_groups:
-      - analytics
+    - analytics
   mitchell.henke:
     aws_groups:
-      - appdev
-      - apponcall
-      - devops
+    - appdev
+    - apponcall
+    - devops
     gitlab_groups:
-      - appdev
-      - devops
+    - appdev
+    - devops
   mossadeq.zia:
     aws_groups:
-      - devops
-      - secops
-      - keymasters
-      - socreadonly
+    - devops
+    - secops
+    - keymasters
+    - socreadonly
     gitlab_groups:
-      - devops
+    - devops
   nathan.wick:
     aws_groups:
-      - bizops
+    - bizops
   nick.kramer:
     gitlab_groups:
-      - devops
+    - devops
   olayemisi.ogunshina:
     aws_groups:
-      - analytics
+    - analytics
   oren.kanner:
     aws_groups:
-      - appdev
-      - apponcall
-      - bizops
+    - appdev
+    - apponcall
+    - bizops
     gitlab_groups:
-      - appdev
+    - appdev
   page.levendis:
     aws_groups:
-      - analytics
+    - analytics
   parissa.eggleston:
     aws_groups:
-      - appdev
-      - apponcall
+    - appdev
+    - apponcall
     gitlab_groups:
-      - appdev
+    - appdev
   patricia.bryan:
     aws_groups:
-      - bizops
+    - bizops
   patrick.carberry:
     aws_groups:
-      - bizops
+    - bizops
   paul.borowicz:
     aws_groups:
-      - devopsnonprod
+    - devopsnonprod
     gitlab_groups:
-      - devops
+    - devops
   paul.hirsch:
     aws_groups:
-      - devops
+    - devops
     gitlab_groups:
-      - devops
+    - devops
   rahul.kamarouthu:
     aws_groups:
-      - analytics
+    - analytics
   ryan.d.brown:
     aws_groups:
-      - devops
+    - devops
     gitlab_groups:
-      - devops
+    - devops
   samuel.steiner:
     aws_groups:
-      - appdev
+    - appdev
     gitlab_groups:
-      - appdev
+    - appdev
   sierra.toler:
     aws_groups:
-      - bizops
+    - bizops
   steve.urciuoli:
     aws_groups:
-      - appdev
-      - apponcall
-      - keymasters
+    - appdev
+    - apponcall
+    - keymasters
     gitlab_groups:
-      - appdev
+    - appdev
   sujana.gurung:
     aws_groups:
-      - devopsnonprod
+    - devopsnonprod
   thomas.black:
     aws_groups:
-      - bizops
+    - bizops
   tiffanyj.andrews:
     aws_groups:
-      - analytics
+    - analytics
   timothy.spencer:
     aws_groups:
-      - devops
-      - secops
+    - devops
+    - secops
     gitlab_groups:
-      - devops
+    - devops
   vivek.chugh:
     aws_groups:
-      - devops
+    - devops
     gitlab_groups:
-      - devops
+    - devops
   zach.margolis:
     email:
-      - zachary.margolis@gsa.gov
+    - zachary.margolis@gsa.gov
     aws_groups:
-      - appdev
-      - apponcall
+    - appdev
+    - apponcall
     gitlab_groups:
-      - appdev
-  # Gitlab Machine User - don't specify aws_groups for these
+    - appdev
   root:
+    __note: Gitlab Machine User - don't specify aws_groups for these
     email:
-      - admin@example.com
+    - admin@example.com
     gitlab_groups:
-      - bots
-      - lg
-      - devops
-      - appdev
+    - bots
+    - lg
+    - devops
+    - appdev
     can_create_group:
-      - true
+    - true
 groups:
   appdev:
-    description: "Application Developers"
+    description: Application Developers
   devops:
-    description: "DevOps and SRE"
+    description: DevOps and SRE
   lg:
-    description: "Namespace for Login.gov projects"
+    description: Namespace for Login.gov projects
 projects:
   lg/identity-devops:
     groups:
