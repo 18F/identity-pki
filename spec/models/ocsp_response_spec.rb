@@ -137,6 +137,10 @@ RSpec.describe OcspResponse do
       describe '#logging_content' do
         it { expect(ocsp_response.logging_content).to eq 'No Response' }
       end
+
+      describe '#to_text' do
+        it { expect(ocsp_response.to_text).to match(/Invalid Response/) }
+      end
     end
   end
 end
