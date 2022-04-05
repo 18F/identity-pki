@@ -1,0 +1,208 @@
+#!/usr/bin/env ruby
+Dir.chdir(File.dirname(__FILE__)) { require 'bundler/setup' }
+
+
+require 'active_support/core_ext/integer/time'
+require 'aws-sdk-cloudwatchlogs'
+require 'aws-sdk-codepipeline'
+require 'optparse'
+require 'csv'
+require 'json'
+require 'optparse/time'
+
+$BASE_NAME = File.basename($PROGRAM_NAME) 
+class QueryAutoTF
+
+  def cloudwatch_client
+    @cloudwatch_client ||= Aws::CloudWatchLogs::Client.new(region: ENV['AWS_REGION'])
+  end
+
+  Config = Struct.new(
+    :env,
+    :app,
+    :stages,
+    :groups,
+    :format,
+    :executions,
+    keyword_init: true
+  ) do
+    def initialize(*)
+      super
+      self.app = 'app'
+      self.env = ENV['GSA_USERNAME']
+      self.stages = ['plan','apply','noderecycle','test']
+      self.groups = []
+      self.format = :humanreadable
+      self.executions = 1
+    end
+  end
+
+  def build_group(app:, env:, stage:)
+    if app == 'gitlab'
+      return "auto-terraform/#{app}/#{env}--stages/#{app}#{env}/#{stage}"
+    else
+      return "auto-terraform/#{app}-#{env}-stages/#{env}/#{stage}"
+    end
+  end
+  
+  def run(argv, stdin)
+    config = parse(argv, stdin)
+
+    query_all(config)
+  end
+  
+  def parse(argv)
+    config = Config.new()
+
+    OptionParser.new do |opts|
+      opts.banner = <<~TXT
+        Usage
+        =======================
+
+          #{$BASE_NAME} [OPTIONS]
+
+        Script to query autotf, splits a query up across multiple stages and combines results
+
+        Examples
+        =======================
+
+        Query the last 4 executions of the plan stage
+
+        #{$BASE_NAME} --env int --app idp --stages plan --executions 4
+
+        Options
+        =======================
+      TXT
+
+      opts.on('--env ENV', 'Defaults to $GSA_USERNAME') do |env|
+        config.env = env
+      end
+
+      opts.on('--app APP', 'Defaults to app') do |app|
+        config.app = app
+      end
+
+      opts.on('--stages STAGE,STAGE', Array, 'Requests specific stages of the pipeline. Defaults to all stages (plan,apply,noderecycle,test)') do |stages|
+        config.stages = stages
+      end
+
+      opts.on('--json', 'format output as newline-delimited JSON (nd-json)') do
+        config.format = :json
+      end
+
+      opts.on('--csv', ' format output as CSV') do
+        config.format = :csv
+      end
+
+      opts.on('--human','(default) format output as human readable') do
+        config.format = :humanreadable
+      end
+
+      opts.on('-e EXEC','--executions EXEC', Integer, 'Pulls the last number of executions of auto-tf. Defaults to 1') do |exec|
+        config.executions = exec
+      end
+
+      opts.on("-h", "--help", "Prints this help") do
+        puts opts
+        exit
+      end
+    end.parse!(argv)
+
+    if (app = config.app) && (env = config.env)
+      config.stages.each do |stage|
+        config.groups << build_group(app: app, env: env, stage: stage)
+      end
+    end
+
+    errors = []
+
+    if !errors.empty?
+      puts errors
+      exit 1
+    end
+
+    config
+  end
+  
+  def find_log_streams(group:, executions:)
+    return cloudwatch_client.describe_log_streams(
+      log_group_name: group,
+      order_by: "LastEventTime",
+      descending: true,
+      limit: executions
+    ).log_streams
+  end
+
+  def find_logs(group:, stream:)
+
+    return cloudwatch_client.get_log_events(
+      log_group_name: group,
+      log_stream_name: stream,
+      )
+  end
+
+  def format_response(response, fmt)
+    case fmt
+    when :csv
+      csv = []
+        response.each do |event|
+          csv << [ event.timestamp, "#{event.message.rstrip}", event.ingestion_time ].to_csv
+        end
+        return csv
+    when :json
+      return response
+    when :humanreadable
+      humanreadable = []
+        response.each do |event|
+          humanreadable << "#{Time.at(event.timestamp.to_f/1000.00).strftime('%Y-%m-%d %H:%M:%S.%L %Z')} | #{event.message.rstrip}"
+        end
+        return humanreadable
+    else
+      puts "unknown format #{fmt}"
+      exit 1
+    end
+  end
+  def query_all(config)
+    errors = Concurrent::Array.new
+    thread_pool = Concurrent::FixedThreadPool.new(5)
+
+    event_mutex = Mutex.new
+
+    results = []
+    config.groups.each do |group|
+      thread_pool.post do
+        begin
+          log_streams = find_log_streams(group: group, executions: config.executions)
+
+          log_streams.each do |stream|
+            thread_results = format_response(find_logs(group: group,stream: stream.log_stream_name).events, config.format)
+
+            event_mutex.synchronize do
+                results += thread_results
+            end
+          end
+        rescue => e
+          errors << e
+          thread_pool.shutdown
+        end
+      end
+    end
+
+    thread_pool.shutdown
+    thread_pool.wait_for_termination
+
+    if config.format == :humanreadable
+      results = results.sort_by { |event| event.split('|', 1).first }
+    end
+    puts results
+
+    if !errors.empty?
+      STDERR.puts errors
+      exit 1
+    end
+  end
+end
+
+if __FILE__ == $PROGRAM_NAME
+  QueryAutoTF.new.run(ARGV, STDIN)
+end
