@@ -9,24 +9,17 @@ Second one is responsible for checking the status of recent refresh and look for
 
 Note: Resources are created in the region passed in the variable var.aws_region but api calls from within the lambda are run in us-east-1 region as Trusted Advisor is a global service.
 
-
 ## Prerequistes:
 1) SNS topic to send notification
 
 ## AWS Resources 
 It creates the following AWS Resources:
- 1. [AWS Lambda](https://docs.aws.amazon.com/lambda/latest/dg/welcome.html) with runtime "python3.9", with an IAM role with limited permissions to Cloudwatch Logs, Support.
+1. [AWS Lambda](https://docs.aws.amazon.com/lambda/latest/dg/welcome.html) with runtime "python3.9", with an IAM role with limited permissions to Cloudwatch Logs, Support.
 2. [CW Events Rule](https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/Create-CloudWatch-Events-Rule.html)
-
-
 
 ## Architecture Diagram: Service Limit Monitoring Diagram
 
 ![Service Limit Monitoring Diagram](./diagrams/trusted_advisor.png)
-
-
-
-
    
 ## Usage:
 
@@ -38,8 +31,6 @@ It creates the following AWS Resources:
 	    sns_topic                      = var.sns_topic
     }
 
-
-	
  **Inputs**
  |   Name                  |  Description                                                          | Type   |  Default      | Required |
  | ---------------------   | --------------------------------------------------------------------- | ------ | ------------- | -------- |
@@ -54,19 +45,9 @@ It creates the following AWS Resources:
  | refresher_trigger_schedule   | Frequency of invoking TA Refresher Lambda from CW event rule                       | string |cron(0 14 * * ? *)| Yes     |
  | sns_topic| SNS topic to send information when Service Usage is above 80% of allocated limit                                  | string |                |  Yes     |
 
-
-
-
-
   **Outputs**
   |   Name                            |  Description                                |                                                         
   | ------------------------------    | ------------------------------------------- |                                                     
   | ta_refresher_lambda_arn              | Arn of Lambda Function refreshing Trusted Advisor                        |
   | ta_monitor_lambda_arn               | Arn of Lambda function monitoring Trusted Advisor               |
-
-
- 
-
- 
-
 
