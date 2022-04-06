@@ -12,25 +12,25 @@ resource "aws_ecr_repository" "ecr_repo" {
 resource "aws_ecr_repository_policy" "ecr_repo" {
   repository = aws_ecr_repository.ecr_repo.name
   policy     = <<-EOF
-{
-  "Version": "2008-10-17",
-  "Statement": [
-      {
-          "Sid": "Default Account Allow",
-          "Effect": "Allow",
-          "Principal": { "AWS": "${data.aws_caller_identity.current.account_id}" },
-          "Action": "*"
-      },
-      {
-          "Sid":"Allow Prod Replication",
-          "Effect":"Allow",
-          "Principal":{ "AWS": "555546682965" },
-          "Action":[
-              "ecr:CreateRepository",
-              "ecr:ReplicateImage"
-          ]
-      }
-  ]
-}
+    {
+      "Version": "2008-10-17",
+      "Statement": [
+          {
+              "Sid": "Default Account Allow",
+              "Effect": "Allow",
+              "Principal": { "AWS": "${data.aws_caller_identity.current.account_id}" },
+              "Action": "*"
+          },
+          {
+              "Sid":"Allow Prod Replication",
+              "Effect":"Allow",
+              "Principal":{ "AWS": "555546682965" },
+              "Action":[
+                  "ecr:CreateRepository",
+                  "ecr:ReplicateImage"
+              ]
+          }
+      ]
+    }
 EOF
 }

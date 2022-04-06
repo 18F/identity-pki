@@ -10,7 +10,7 @@ default_read_template: &all_write_template
 
 # If you add an existing repo, you may need to import the state, e.g.
 # tf-deploy ecr/tooling import 'module.repos["gitlab-qa"].aws_ecr_repository.ecr_repo' gitlab-qa
-    
+
 repos:
   alpha:
     name: "alpha/base"
@@ -44,4 +44,7 @@ repos:
     <<: *all_write_template
   ruby-node-yarn-chrome-chromedriver:
     name: "ruby-node-yarn-chrome-chromedriver"
+    <<: *all_write_template
+  nginx:
+    name: "ecr-public/nginx/nginx"
     <<: *all_write_template
