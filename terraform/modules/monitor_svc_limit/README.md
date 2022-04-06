@@ -8,7 +8,6 @@ First one is responsible for running "describe_trusted_advisor_checks" api in "u
 Second one is responsible for checking the status of recent refresh and look for services that have the usage status as Yellow or Red, then notify the sns topic.
 
 Note: Resources are created in the region passed in the variable var.aws_region but api calls from within the lambda are run in us-east-1 region as Trusted Advisor is a global service.
-
 ## Prerequistes:
 1) SNS topic to send notification
 
@@ -32,22 +31,22 @@ It creates the following AWS Resources:
     }
 
  **Inputs**
- |   Name                  |  Description                                                          | Type   |  Default      | Required |
- | ---------------------   | --------------------------------------------------------------------- | ------ | ------------- | -------- |
- | aws_region              | AWS Region                                                            | string |  us-east-1    | Yes      |
- | filename                | Filename for the lambda code 			   | string |               | No      |
- | function_input          | JSON input that will be sent to Lambda function                       | json   |               | No       |
- | function_name           | Name to assign to the lambda					   | string  |              | Yes      |
- | lambda_handler          | Handler for Lambda function                                           | string |  |   No |
- | lambda_runtime          | Runtime for the Lambda function                                       | string | python3.9      |  No      |
- | lambda_timeout          | Timeout Value for Lambda                                              | number |     180        | No	|
- | monitor_trigger_schedule | Frequency of invoking TA Monitor Lambda from CW event rule           | string |cron(10 14 * * ? *)| Yes      |
- | refresher_trigger_schedule   | Frequency of invoking TA Refresher Lambda from CW event rule                       | string |cron(0 14 * * ? *)| Yes     |
- | sns_topic| SNS topic to send information when Service Usage is above 80% of allocated limit                                  | string |                |  Yes     |
+ |   Name                     |  Description                                                     | Type   |  Default          | Required |
+ | -------------------------- | ---------------------------------------------------------------  | ------ | ----------------- | -------- |
+ | aws_region                 | AWS Region                                                       | string |  us-east-1        | Yes      |
+ | filename                   | Filename for the lambda code 			                 | string |                   | No       |
+ | function_input             | JSON input that will be sent to Lambda function                  | json   |                   | No       |
+ | function_name              | Name to assign to the lambda					 | string |                   | Yes      |
+ | lambda_handler             | Handler for Lambda function                                      | string |                   | No       |
+ | lambda_runtime             | Runtime for the Lambda function                                  | string | python3.9         | No       |
+ | lambda_timeout             | Timeout Value for Lambda                                         | number |     180           | No       |
+ | monitor_trigger_schedule   | Frequency of invoking TA Monitor Lambda from CW event rule       | string |cron(10 14 * * ? *)| Yes      |
+ | refresher_trigger_schedule | Frequency of invoking TA Refresher Lambda from CW event rule     | string |cron(0 14 * * ? *) | Yes      |
+ | sns_topic| SNS topic to send information when Service Usage is above 80% of allocated limit   | string |                   |  Yes     |
 
   **Outputs**
-  |   Name                            |  Description                                |                                                         
-  | ------------------------------    | ------------------------------------------- |                                                     
-  | ta_refresher_lambda_arn              | Arn of Lambda Function refreshing Trusted Advisor                        |
-  | ta_monitor_lambda_arn               | Arn of Lambda function monitoring Trusted Advisor               |
+  |   Name                   |  Description                                      |                                                         
+  | ------------------------ | ------------------------------------------------- |                                                     
+  | ta_refresher_lambda_arn  | Arn of Lambda Function refreshing Trusted Advisor |
+  | ta_monitor_lambda_arn    | Arn of Lambda function monitoring Trusted Advisor |
 
