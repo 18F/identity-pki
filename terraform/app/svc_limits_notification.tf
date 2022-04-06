@@ -1,3 +1,5 @@
+#Monitor and notify AWS Service usage using Trusted Advisor Checks
+
 module "limit_check_lambda" {
   source                     = "../modules/monitor_svc_limit"
   refresher_trigger_schedule = var.refresher_trigger_schedule
@@ -5,6 +7,8 @@ module "limit_check_lambda" {
   aws_region                 = var.region
   sns_topic                  = local.low_priority_alarm_actions
 }
+
+#Monitor and notify KMS Symmetric calls usage
 
 resource "aws_cloudwatch_metric_alarm" "kms_api" {
   alarm_name                = "kms_api_limit_check"
@@ -41,4 +45,32 @@ resource "aws_cloudwatch_metric_alarm" "kms_api" {
       }
     }
   }
+}
+
+# Monitor CloudTrail logs and notify for any LimitExceededError message
+
+resource "aws_cloudwatch_log_metric_filter" "api_throttling" {
+  name           = "LimitExceededErrorMessage"
+  log_group_name = "CloudTrail/DefaultLogGroup"
+  pattern        = "{ ($.errorCode = \"*LimitExceeded\") }"
+  metric_transformation {
+    name       = "LimitExceededErrorMessage"
+    namespace  = "${var.env_name}/CloudTrailMetrics"
+    value      = 1
+    dimensions = {}
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "api_throttling" {
+  alarm_name          = "${var.env_name}-svc_limit_exceeded_error_message"
+  alarm_description   = "Monitors the number of LimitExceeded error messages in Cloudtrail logs"
+  metric_name         = aws_cloudwatch_log_metric_filter.api_throttling.name
+  threshold           = "1"
+  statistic           = "Sum"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  datapoints_to_alarm = "1"
+  evaluation_periods  = "1"
+  period              = "300"
+  namespace           = "${var.env_name}/CloudTrailMetrics"
+  alarm_actions       = local.low_priority_alarm_actions
 }
