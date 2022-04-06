@@ -31,7 +31,7 @@ It creates the following AWS Resources:
 ## Usage:
 
     module "limit_check_lambda" {
-         source                        = "git::git@github.com:gurung09/lambda-module.git"
+         source                        = "../modules/monitor_svc_limit"
 	    refresher_trigger_schedule     = var.refresher_trigger_schedule
 	    monitor_trigger_schedule       = var.monitor_trigger_schedule
          aws_region                    = var.aws_region
@@ -50,8 +50,8 @@ It creates the following AWS Resources:
  | lambda_handler          | Handler for Lambda function                                           | string |  |   No |
  | lambda_runtime          | Runtime for the Lambda function                                       | string | python3.9      |  No      |
  | lambda_timeout          | Timeout Value for Lambda                                              | number |     180        | No	|
- | monitor_trigger_schedule | Frequency of invoking TA Monitor Lambda from CW event rule           | string | rate(5 minutes)| Yes      |
- | refresher_trigger_schedule   | Frequency of invoking TA Refresher Lambda from CW event rule                       | string | rate(5 minutes) | Yes     |
+ | monitor_trigger_schedule | Frequency of invoking TA Monitor Lambda from CW event rule           | string |cron(10 14 * * ? *)| Yes      |
+ | refresher_trigger_schedule   | Frequency of invoking TA Refresher Lambda from CW event rule                       | string |cron(0 14 * * ? *)| Yes     |
  | sns_topic| SNS topic to send information when Service Usage is above 80% of allocated limit                                  | string |                |  Yes     |
 
 

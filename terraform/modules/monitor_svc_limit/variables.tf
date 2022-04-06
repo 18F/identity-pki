@@ -3,10 +3,9 @@ variable "aws_region" {
   description = "AWS Region"
 }
 
-
 variable "sns_topic" {
   type        = list(string)
-  description = "SNS topic"
+  description = "ARN of SNS topic to send notification"
 }
 
 variable "function_input" {
@@ -20,14 +19,11 @@ variable "function_input" {
 
 variable "refresher_trigger_schedule" {
   description = "Frequency of TA refresher lambda execution"
-
 }
 
 variable "monitor_trigger_schedule" {
   description = "Frequency of TA monitor lambda execution"
-
 }
-
 
 variable "lambda_timeout" {
   type        = number
@@ -38,12 +34,11 @@ variable "lambda_timeout" {
 variable "ta_refresher_lambda_name" {
   type        = string
   default     = "ta_refresher_lambda"
-  description = "TA refresher Lambda"
+  description = "Function Name for Lambda refreshing Trusted Advisor Checks"
 }
-
 
 variable "ta_monitor_lambda_name" {
   type        = string
   default     = "ta_monitor_lambda"
-  description = "TA monitor Lambda"
+  description = "Function Name for Lambda monitoring Trusted Advisor Checks"
 }

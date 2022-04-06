@@ -6,7 +6,6 @@ module "limit_check_lambda" {
   sns_topic                  = local.low_priority_alarm_actions
 }
 
-
 resource "aws_cloudwatch_metric_alarm" "kms_api" {
   alarm_name                = "kms_api_limit_check"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
@@ -16,7 +15,6 @@ resource "aws_cloudwatch_metric_alarm" "kms_api" {
   insufficient_data_actions = []
   actions_enabled           = "true"
   alarm_actions             = local.low_priority_alarm_actions
-
 
   metric_query {
     id          = "pct_utilization"

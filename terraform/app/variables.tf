@@ -794,14 +794,10 @@ variable "unvacummed_transactions_count" {
 
 variable "refresher_trigger_schedule" {
   description = "Frequency of TA refresher lambda execution"
-  #default     = "rate(5 minutes)"
-  default = "cron(0 14 * * ? *)"
-
+  default     = "cron(0 14 * * ? *)"
 }
 
 variable "monitor_trigger_schedule" {
   description = "Frequency of TA monitor lambda execution"
-  #default     = "rate(10 minutes)"
-  default = "cron(10 14 * * ? *)"
-
+  default     = "cron(10 14 * * ? *)"
 }
