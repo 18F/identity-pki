@@ -20,6 +20,15 @@
 
 require 'aws-sdk-ec2'
 
+include_recipe 'filesystem'
+
+filesystem 'docker' do
+  fstype "ext4"
+  device '/dev/nvme1n1'
+  mount "/var/lib/docker"
+  action [:create, :enable, :mount]
+end
+
 execute 'grab_gitlab_runner_repo' do
   command 'curl https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.deb.sh | sudo bash'
   ignore_failure true

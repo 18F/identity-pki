@@ -56,6 +56,27 @@ module "gitlab_runner_launch_template" {
     allow_untagged_jobs     = var.allow_untagged_jobs ? "true" : "false"
   }
 
+  block_device_mappings = [
+    {
+      # used for lvm?
+      device_name = "/dev/sdf",
+      ebs = [{
+        volume_size           = 100,
+        delete_on_termination = true,
+        encrypted             = true
+      }]
+    },
+    {
+      # used for /var/lib/docker
+      device_name = "/dev/sdg",
+      ebs = [{
+        volume_size           = 200,
+        delete_on_termination = true,
+        encrypted             = true
+      }]
+    }
+  ]
+
   template_tags = {
     main_git_ref = module.gitlab_runner_user_data.main_git_ref,
   }
