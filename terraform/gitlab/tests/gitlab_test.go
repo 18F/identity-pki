@@ -404,7 +404,7 @@ func TestSTwoTen(t *testing.T) {
 	require.NotContains(t, GetDockerdProc(t), "dm.basesize", "According to compliance control s2.10, dm.basesize should not be set")
 }
 
-// This tests whether we are still fulfilling the s2.11 control.
+// This tests whether we are still fulfilling the s2.11 and s3.15 control.
 func TestSTwoEleven(t *testing.T) {
 	instances := aws.GetInstanceIdsForAsg(t, runner_asg, region)
 	require.NotEmpty(t, instances)
@@ -412,7 +412,7 @@ func TestSTwoEleven(t *testing.T) {
 	cmd := "ls -l /var/run/docker.sock"
 	result := RunCommandOnInstance(t, firstinstance, cmd)
 	require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed: "+*result.StandardOutputContent)
-	require.Contains(t, *result.StandardOutputContent, "srw-rw---- 1 root docker", "According to compliance control s2.11, use of docker should only be authorized for members of the docker group and root")
+	require.Contains(t, *result.StandardOutputContent, "srw-rw---- 1 root docker", "According to compliance controls s2.11 and s3.15, use of docker should only be authorized for members of the docker group and root")
 }
 
 // This tests whether we are still fulfilling the s2.12 and s2.2 controls.
@@ -448,4 +448,78 @@ func TestSTwoFour(t *testing.T) {
 // This tests whether we are still fulfilling the s2.8 control.
 func TestSTwoEight(t *testing.T) {
 	require.Contains(t, GetDockerdProc(t), "--userns-remap=default", "According to compliance control s2.8, Dockerd should remap uids/gids")
+}
+
+// This tests whether we are still fulfilling the s3.17 control.
+func TestSThreeSeventeen(t *testing.T) {
+	instances := aws.GetInstanceIdsForAsg(t, runner_asg, region)
+	require.NotEmpty(t, instances)
+	firstinstance := instances[0]
+	cmd := "ls -l /etc/docker/daemon.json"
+	result := RunCommandOnInstance(t, firstinstance, cmd)
+	require.NotEqual(t, int64(0), *result.ResponseCode, "/etc/docker/daemon.json should not exist, as we are using the docker recipe to configure the commandline to configure it so that we don't have to manage the perms/ownership of this.")
+}
+
+// This tests whether we are still fulfilling the s3.19 control.
+func TestSThreeNineteen(t *testing.T) {
+	instances := aws.GetInstanceIdsForAsg(t, runner_asg, region)
+	require.NotEmpty(t, instances)
+	firstinstance := instances[0]
+	cmd := "ls -l /etc/default/docker"
+	result := RunCommandOnInstance(t, firstinstance, cmd)
+	require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed: "+*result.StandardOutputContent)
+	require.Contains(t, *result.StandardOutputContent, "-rw-r--r-- 1 root root", "According to compliance control s3.19, the docker defaults should only be editable by root")
+}
+
+// This tests whether we are still fulfilling the s3.2 control.
+func TestSThreeTwo(t *testing.T) {
+	instances := aws.GetInstanceIdsForAsg(t, runner_asg, region)
+	require.NotEmpty(t, instances)
+	firstinstance := instances[0]
+	cmd := "ls -l $(systemctl show -p FragmentPath docker.service | awk -F= '{print $2}')"
+	result := RunCommandOnInstance(t, firstinstance, cmd)
+	require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed: "+*result.StandardOutputContent)
+	require.Contains(t, *result.StandardOutputContent, "-rw-r--r-- 1 root root", "According to compliance control s3.2, the docker service file should only be editable by root")
+}
+
+// This tests whether we are still fulfilling the s3.20 control.
+func TestSThreeTwenty(t *testing.T) {
+	instances := aws.GetInstanceIdsForAsg(t, runner_asg, region)
+	require.NotEmpty(t, instances)
+	firstinstance := instances[0]
+	cmd := "ls -l /etc/sysconfig/docker"
+	result := RunCommandOnInstance(t, firstinstance, cmd)
+	require.NotEqual(t, int64(0), *result.ResponseCode, "/etc/sysconfig/docker should not exist by default so that s3.20 is fulfilled")
+}
+
+// This tests whether we are still fulfilling the s3.3 control.
+func TestSThreeThree(t *testing.T) {
+	instances := aws.GetInstanceIdsForAsg(t, runner_asg, region)
+	require.NotEmpty(t, instances)
+	firstinstance := instances[0]
+	cmd := "ls -l $(systemctl show -p FragmentPath docker.socket | awk -F= '{print $2}')"
+	result := RunCommandOnInstance(t, firstinstance, cmd)
+	require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed: "+*result.StandardOutputContent)
+	require.Contains(t, *result.StandardOutputContent, "-rw-r--r-- 1 root root", "According to compliance control s3.3, the docker socket should have these perms")
+}
+
+// This tests whether we are still fulfilling the s3.5 control.
+func TestSThreeFive(t *testing.T) {
+	instances := aws.GetInstanceIdsForAsg(t, runner_asg, region)
+	require.NotEmpty(t, instances)
+	firstinstance := instances[0]
+	cmd := "ls -ld /etc/docker"
+	result := RunCommandOnInstance(t, firstinstance, cmd)
+	require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed: "+*result.StandardOutputContent)
+	require.Contains(t, *result.StandardOutputContent, "drwxr-xr-x 2 root root", "According to compliance control s3.5, the docker dir should have these perms")
+}
+
+// This tests whether we are still fulfilling the s3.7 control.
+func TestSThreeSeven(t *testing.T) {
+	instances := aws.GetInstanceIdsForAsg(t, runner_asg, region)
+	require.NotEmpty(t, instances)
+	firstinstance := instances[0]
+	cmd := "ls -ld /etc/docker/certs.d"
+	result := RunCommandOnInstance(t, firstinstance, cmd)
+	require.NotEqual(t, int64(0), *result.ResponseCode, "/etc/docker/certs.d should not exist, as we are not using certs.  Otherwise, s3.7 requires us to manage the perms of this.")
 }
