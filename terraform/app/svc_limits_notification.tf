@@ -11,7 +11,7 @@ module "limit_check_lambda" {
 #Monitor and notify KMS Symmetric calls usage
 
 resource "aws_cloudwatch_metric_alarm" "kms_api" {
-  alarm_name                = "kms_api_limit_check"
+  alarm_name                = "kms_api_usage_alert"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "10"
   threshold                 = "80"
