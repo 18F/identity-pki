@@ -9,7 +9,6 @@ module "limit_check_lambda" {
 }
 
 #Monitor and notify KMS Symmetric calls usage
-
 resource "aws_cloudwatch_metric_alarm" "kms_api" {
   alarm_name                = "kms_api_usage_alert"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
@@ -52,7 +51,7 @@ resource "aws_cloudwatch_metric_alarm" "kms_api" {
 resource "aws_cloudwatch_log_metric_filter" "api_throttling" {
   name           = "LimitExceededErrorMessage"
   log_group_name = "CloudTrail/DefaultLogGroup"
-  pattern        = "{ ($.errorCode = \"*LimitExceeded\") }"
+  pattern        = "{ ($.errorCode = \"*LimitExceeded\") || ($.errorCode = \"LimitExceededException\") }"
   metric_transformation {
     name       = "LimitExceededErrorMessage"
     namespace  = "${var.env_name}/CloudTrailMetrics"
