@@ -102,33 +102,6 @@ resource "aws_subnet" "db2" {
   vpc_id = aws_vpc.default.id
 }
 
-resource "aws_security_group" "db" {
-  description = "Allow inbound and outbound postgresql traffic to proper locations"
-
-  egress = []
-
-  ingress {
-    from_port = 5432
-    to_port   = 5432
-    protocol  = "tcp"
-    security_groups = [
-      aws_security_group.gitlab.id,
-    ]
-  }
-
-  name = "${var.name}-db-${var.env_name} gitlab"
-
-  tags = {
-    Name = "${var.name}-db_security_group-${var.env_name} gitlab"
-  }
-
-  lifecycle {
-    create_before_destroy = true
-  }
-
-  vpc_id = aws_vpc.default.id
-}
-
 resource "aws_s3_bucket_object" "gitlab_db_host" {
   bucket  = data.aws_s3_bucket.secrets.id
   key     = "${var.env_name}/gitlab_db_host"

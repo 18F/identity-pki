@@ -381,25 +381,32 @@ execute 'add_ci_skeleton' do
     done
     curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
       "#{local_url}/api/v4/projects/$PROJECT_NUMBER/variables" \
-      --form "key=GITLAB_API_TOKEN" --form "value=#{gitlab_root_api_token}"
+      --form "key=GITLAB_API_TOKEN" --form "value=#{gitlab_root_api_token}" \
+      --form "masked=true" --form "protected=true"
     curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
       "#{local_url}/api/v4/projects/$PROJECT_NUMBER/variables" \
-      --form "key=GITLAB_QA_ACCOUNT" --form "value=#{gitlab_qa_account_name}"
+      --form "key=GITLAB_QA_ACCOUNT" --form "value=#{gitlab_qa_account_name}" \
+      --form "masked=true"
     curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
       "#{local_url}/api/v4/projects/$PROJECT_NUMBER/variables" \
-      --form "key=GITLAB_QA_PASSWORD" --form "value=#{gitlab_qa_password}"
+      --form "key=GITLAB_QA_PASSWORD" --form "value=#{gitlab_qa_password}" \
+      --form "masked=true"
     curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
       "#{local_url}/api/v4/projects/$PROJECT_NUMBER/variables" \
-      --form "key=GITLAB_QA_API_TOKEN" --form "value=#{gitlab_qa_api_token}"
+      --form "key=GITLAB_QA_API_TOKEN" --form "value=#{gitlab_qa_api_token}" \
+      --form "masked=true"
     curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
       "#{local_url}/api/v4/projects/$PROJECT_NUMBER/variables" \
-       --form "key=AWS_ACCOUNT_ID" --form "value=#{aws_account_id}"
+       --form "key=AWS_ACCOUNT_ID" --form "value=#{aws_account_id}" \
+      --form "masked=true"
     curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
       "#{local_url}/api/v4/projects/$PROJECT_NUMBER/variables" \
-      --form "key=EXTERNAL_FQDN" --form "value=#{external_fqdn}"
+      --form "key=EXTERNAL_FQDN" --form "value=#{external_fqdn}" \
+      --form "masked=true"
     curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
       "#{local_url}/api/v4/projects/$PROJECT_NUMBER/variables" \
-      --form "key=AWS_REGION" --form "value=#{aws_region}"
+      --form "key=AWS_REGION" --form "value=#{aws_region}" \
+      --form "masked=true"
   EOF
   ignore_failure false
   action :run
