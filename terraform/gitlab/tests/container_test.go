@@ -125,7 +125,7 @@ func _TestUlimits(t *testing.T) {
 	}
 }
 
-// s.5.19
+// s5.19
 func _TestPropagationMode(t *testing.T) {
 	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{ .Id }}: Propagation={{range $mnt := .Mounts}} {{json $mnt.Propagation}} {{end}}'"
 	for _, s := range RunOnRunners(t, cmd) {
@@ -164,6 +164,14 @@ func _TestPrivilegedExec(t *testing.T) {
 	}
 }
 
+// s5.23
+func _TestRootExec(t *testing.T) {
+	cmd := "ausearch -k docker | grep exec | grep user"
+	for _, s := range RunOnRunners(t, cmd) {
+		assert.NotRegexp(t, "root", s)
+	}
+}
+
 func TestJobContainers(t *testing.T) {
 	t.Run("s5.10 Require memory arg", _TestMemory)
 	t.Run("s5.11 Require cpu_shares arg", _TestCPUShares)
@@ -179,4 +187,5 @@ func TestJobContainers(t *testing.T) {
 	t.Run("s5.20 Ensure that the host's UTS namespace is not shared", _TestUTSNamespace)
 	t.Run("s5.21 Ensure the default seccomp profile is not disabled", _TestSeccomp)
 	t.Run("s5.22 Ensure that docker exec commands are not privileged", _TestPrivilegedExec)
+	t.Run("s5.23 Ensure that docker exec commands are not used with the user=root option", _TestRootExec)
 }
