@@ -152,7 +152,6 @@ func _TestSeccomp(t *testing.T) {
 		if regexp.MustCompile("SecurityOpt").MatchString(s) {
 			assert.NotRegexp(t, "unconfined", s)
 		}
-		assert.Regexp(t, "SecurityOpt", s)
 	}
 }
 
@@ -172,6 +171,14 @@ func _TestRootExec(t *testing.T) {
 	}
 }
 
+// s5.24
+func _TestCgroupUsage(t *testing.T) {
+	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{ .Id }}: CgroupParent={{ .HostConfig.CgroupParent }}'"
+	for _, s := range RunOnRunners(t, cmd) {
+		assert.NotRegexp(t, "CgroupParent=.", s)
+	}
+}
+
 func TestJobContainers(t *testing.T) {
 	t.Run("s5.10 Require memory arg", _TestMemory)
 	t.Run("s5.11 Require cpu_shares arg", _TestCPUShares)
@@ -188,4 +195,5 @@ func TestJobContainers(t *testing.T) {
 	t.Run("s5.21 Ensure the default seccomp profile is not disabled", _TestSeccomp)
 	t.Run("s5.22 Ensure that docker exec commands are not privileged", _TestPrivilegedExec)
 	t.Run("s5.23 Ensure that docker exec commands are not used with the user=root option", _TestRootExec)
+	t.Run("s5.24 Ensure that cgroup usage is confirmed", _TestCgroupUsage)
 }
