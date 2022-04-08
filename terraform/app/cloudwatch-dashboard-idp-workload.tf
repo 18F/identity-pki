@@ -18,7 +18,7 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
                 ],
                 "view": "timeSeries",
                 "stacked": true,
-                "region": "us-west-2",
+                "region": "${var.region}",
                 "title": "${var.env_name} IdP - Backend Request Status by Code",
                 "period": 60,
                 "yAxis": {
@@ -45,7 +45,7 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
                 ],
                 "view": "timeSeries",
                 "stacked": false,
-                "region": "us-west-2",
+                "region": "${var.region}",
                 "title": "${var.env_name} IdP - Backend Request Response Time",
                 "period": 60,
                 "yAxis": {
@@ -85,33 +85,6 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
         {
             "type": "metric",
             "x": 0,
-            "y": 46,
-            "width": 12,
-            "height": 6,
-            "properties": {
-                "metrics": [
-                    [ "AWS/AutoScaling", "GroupInServiceInstances", "AutoScalingGroupName", "${aws_autoscaling_group.pivcac.name}", { "color": "#2ca02c", "label": "InService" } ],
-                    [ ".", "GroupTerminatingInstances", ".", ".", { "color": "#d62728", "label": "Terminating" } ],
-                    [ ".", "GroupPendingInstances", ".", ".", { "color": "#ff7f0e", "label": "Pending" } ]
-                ],
-                "view": "timeSeries",
-                "stacked": false,
-                "region": "us-west-2",
-                "yAxis": {
-                    "left": {
-                        "min": 0,
-                        "label": "Count (max)",
-                        "showUnits": false
-                    }
-                },
-                "title": "${var.env_name} PIVCAC - Autoscaling Group Instance State",
-                "period": 60,
-                "stat": "Average"
-            }
-        },
-        {
-            "type": "metric",
-            "x": 0,
             "y": 20,
             "width": 12,
             "height": 6,
@@ -126,7 +99,7 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
                 ],
                 "view": "timeSeries",
                 "stacked": false,
-                "region": "us-west-2",
+                "region": "${var.region}",
                 "title": "${var.env_name} IdP - CPU Utilization",
                 "period": 60,
                 "yAxis": {
@@ -155,9 +128,9 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
             "height": 6,
             "properties": {
                 "metrics": [
-                    [ { "expression": "(target_errs + elb_5xx) / (elb_3xx + elb_4xx + elb_5xx + target_total) * 100", "label": "Overall Error Rate", "id": "err_rate", "color": "#9467bd", "visible": false, "region": "us-west-2" } ],
-                    [ { "expression": "elb_5xx / (elb_3xx + elb_4xx + elb_5xx + target_total) * 100", "label": "Load Balancer Frontend", "id": "elb_err_rate", "color": "#000", "region": "us-west-2" } ],
-                    [ { "expression": "(target_errs / target_total) * 100", "label": "Webserver Backend", "id": "target_err_rate", "color": "#d62728", "period": 60, "stat": "Sum", "region": "us-west-2" } ],
+                    [ { "expression": "(target_errs + elb_5xx) / (elb_3xx + elb_4xx + elb_5xx + target_total) * 100", "label": "Overall Error Rate", "id": "err_rate", "color": "#9467bd", "visible": false, "region": "${var.region}" } ],
+                    [ { "expression": "elb_5xx / (elb_3xx + elb_4xx + elb_5xx + target_total) * 100", "label": "Load Balancer Frontend", "id": "elb_err_rate", "color": "#000", "region": "${var.region}" } ],
+                    [ { "expression": "(target_errs / target_total) * 100", "label": "Webserver Backend", "id": "target_err_rate", "color": "#d62728", "period": 60, "stat": "Sum", "region": "${var.region}" } ],
                     [ "AWS/ApplicationELB", "RequestCount", "LoadBalancer", "${aws_alb.idp.arn_suffix}", { "id": "target_total", "label": "Backend RequestCount", "color": "#1f77b4", "yAxis": "right", "visible": false } ],
                     [ ".", "HTTPCode_Target_5XX_Count", ".", ".", { "id": "target_errs", "yAxis": "right", "visible": false, "color": "#ffbb78" } ],
                     [ ".", "HTTPCode_ELB_3XX_Count", ".", ".", { "id": "elb_3xx", "yAxis": "right", "visible": false, "color": "#c49c94" } ],
@@ -166,7 +139,7 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
                 ],
                 "view": "timeSeries",
                 "stacked": false,
-                "region": "us-west-2",
+                "region": "${var.region}",
                 "yAxis": {
                     "left": {
                         "label": "Error %",
@@ -210,7 +183,7 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
                 ],
                 "view": "timeSeries",
                 "stacked": false,
-                "region": "us-west-2",
+                "region": "${var.region}",
                 "title": "${var.env_name} IdP - Datastore Connections",
                 "stat": "Maximum",
                 "period": 60,
@@ -236,7 +209,7 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
                 "view": "timeSeries",
                 "stacked": false,
                 "title": "${var.env_name} IdP - Database IOPS",
-                "region": "us-west-2",
+                "region": "${var.region}",
                 "period": 60,
                 "stat": "Maximum",
                 "yAxis": {
@@ -252,7 +225,7 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
                     "horizontal": [
                         {
                             "label": "Provisioned IOPS",
-                            "value": 3500,
+                            "value": ${var.rds_iops_idp},
                             "fill": "above"
                         }
                     ]
@@ -273,7 +246,7 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
                 ],
                 "view": "timeSeries",
                 "stacked": false,
-                "region": "us-west-2",
+                "region": "${var.region}",
                 "stat": "Sum",
                 "period": 60,
                 "title": "IdP - Combined Account Email",
@@ -307,7 +280,7 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
                 ],
                 "view": "timeSeries",
                 "stacked": false,
-                "region": "us-west-2",
+                "region": "${var.region}",
                 "stat": "Sum",
                 "period": 60,
                 "title": "${var.env_name} IdP - Authentication Events",
@@ -343,7 +316,7 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
                 ],
                 "view": "timeSeries",
                 "stacked": true,
-                "region": "us-west-2",
+                "region": "${var.region}",
                 "stat": "Sum",
                 "period": 60,
                 "title": "${var.env_name} IdP - KMS Symmetric Encryption Events",
@@ -367,33 +340,6 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
         },
         {
             "type": "metric",
-            "x": 0,
-            "y": 26,
-            "width": 12,
-            "height": 6,
-            "properties": {
-                "metrics": [
-                    [ "AWS/AutoScaling", "GroupInServiceInstances", "AutoScalingGroupName", "${aws_autoscaling_group.idp.name}", { "color": "#2ca02c", "label": "InService" } ],
-                    [ ".", "GroupTerminatingInstances", ".", ".", { "color": "#d62728", "label": "Terminating" } ],
-                    [ ".", "GroupPendingInstances", ".", ".", { "color": "#ff7f0e", "label": "Pending" } ]
-                ],
-                "view": "timeSeries",
-                "stacked": false,
-                "region": "us-west-2",
-                "yAxis": {
-                    "left": {
-                        "min": 0,
-                        "label": "Count (max)",
-                        "showUnits": false
-                    }
-                },
-                "title": "${var.env_name} IdP - Autoscaling Group Instance State",
-                "period": 60,
-                "stat": "Average"
-            }
-        },
-        {
-            "type": "metric",
             "x": 12,
             "y": 2,
             "width": 12,
@@ -407,7 +353,7 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
                 ],
                 "view": "timeSeries",
                 "stacked": false,
-                "region": "us-west-2",
+                "region": "${var.region}",
                 "stat": "Sum",
                 "period": 60,
                 "title": "${var.env_name} - Telephony Detail",
@@ -421,33 +367,6 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
         },
         {
             "type": "metric",
-            "x": 0,
-            "y": 32,
-            "width": 12,
-            "height": 6,
-            "properties": {
-                "metrics": [
-                    [ "AWS/AutoScaling", "GroupInServiceInstances", "AutoScalingGroupName", "${aws_autoscaling_group.idpxtra.name}", { "color": "#2ca02c", "label": "InService" } ],
-                    [ ".", "GroupTerminatingInstances", ".", ".", { "color": "#d62728", "label": "Terminating" } ],
-                    [ ".", "GroupPendingInstances", ".", ".", { "color": "#ff7f0e", "label": "Pending" } ]
-                ],
-                "view": "timeSeries",
-                "stacked": false,
-                "region": "us-west-2",
-                "yAxis": {
-                    "left": {
-                        "min": 0,
-                        "label": "Count (max)",
-                        "showUnits": false
-                    }
-                },
-                "title": "${var.env_name} IdPXtra - Autoscaling Group Instance State",
-                "period": 60,
-                "stat": "Average"
-            }
-        },
-        {
-            "type": "metric",
             "x": 12,
             "y": 38,
             "width": 12,
@@ -455,7 +374,7 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
             "properties": {
                 "view": "timeSeries",
                 "stacked": false,
-                "region": "us-west-2",
+                "region": "${var.region}",
                 "stat": "Sum",
                 "period": 60,
                 "title": "${var.env_name} - Proxy Requests",
@@ -474,6 +393,76 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
         {
             "type": "metric",
             "x": 0,
+            "y": 26,
+            "width": 12,
+            "height": 6,
+            "properties": {
+                "metrics": [
+                    [ "AWS/AutoScaling", "GroupInServiceInstances", "AutoScalingGroupName", "${aws_autoscaling_group.idp.name}", { "color": "#2ca02c", "label": "InService" } ],
+                    [ ".", "GroupTerminatingInstances", ".", ".", { "color": "#d62728", "label": "Terminating" } ],
+                    [ ".", "GroupPendingInstances", ".", ".", { "color": "#ff7f0e", "label": "Pending" } ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${var.region}",
+                "yAxis": {
+                    "left": {
+                        "min": 0,
+                        "label": "Count (max)",
+                        "showUnits": false
+                    }
+                },
+                "title": "${var.env_name} IdP - Autoscaling Group Instance State",
+                "period": 60,
+                "stat": "Average",
+                "annotations": {
+                    "horizontal": [
+                        {
+                            "label": "Minimum",
+                            "value": ${var.asg_idp_min}
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "metric",
+            "x": 0,
+            "y": 32,
+            "width": 12,
+            "height": 6,
+            "properties": {
+                "metrics": [
+                    [ "AWS/AutoScaling", "GroupInServiceInstances", "AutoScalingGroupName", "${aws_autoscaling_group.idpxtra.name}", { "color": "#2ca02c", "label": "InService" } ],
+                    [ ".", "GroupTerminatingInstances", ".", ".", { "color": "#d62728", "label": "Terminating" } ],
+                    [ ".", "GroupPendingInstances", ".", ".", { "color": "#ff7f0e", "label": "Pending" } ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${var.region}",
+                "yAxis": {
+                    "left": {
+                        "min": 0,
+                        "label": "Count (max)",
+                        "showUnits": false
+                    }
+                },
+                "title": "${var.env_name} IdPXtra - Autoscaling Group Instance State",
+                "period": 60,
+                "stat": "Average",
+                "annotations": {
+                    "horizontal": [
+                        {
+                            "label": "Minimum",
+                            "value": ${var.asg_idpxtra_min}
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "metric",
+            "x": 0,
             "y": 38,
             "width": 12,
             "height": 6,
@@ -485,7 +474,7 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
                 ],
                 "view": "timeSeries",
                 "stacked": false,
-                "region": "us-west-2",
+                "region": "${var.region}",
                 "yAxis": {
                     "left": {
                         "min": 0,
@@ -495,7 +484,85 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
                 },
                 "title": "${var.env_name} Worker - Autoscaling Group Instance State",
                 "period": 60,
-                "stat": "Average"
+                "stat": "Average",
+                "annotations": {
+                    "horizontal": [
+                        {
+                            "label": "Minimum",
+                            "value": ${var.asg_worker_min}
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "metric",
+            "x": 0,
+            "y": 46,
+            "width": 12,
+            "height": 6,
+            "properties": {
+                "metrics": [
+                    [ "AWS/AutoScaling", "GroupInServiceInstances", "AutoScalingGroupName", "${aws_autoscaling_group.pivcac.name}", { "color": "#2ca02c", "label": "InService" } ],
+                    [ ".", "GroupTerminatingInstances", ".", ".", { "color": "#d62728", "label": "Terminating" } ],
+                    [ ".", "GroupPendingInstances", ".", ".", { "color": "#ff7f0e", "label": "Pending" } ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${var.region}",
+                "yAxis": {
+                    "left": {
+                        "min": 0,
+                        "label": "Count (max)",
+                        "showUnits": false
+                    }
+                },
+                "title": "${var.env_name} PIVCAC - Autoscaling Group Instance State",
+                "period": 60,
+                "stat": "Average",
+                "annotations": {
+                    "horizontal": [
+                        {
+                            "label": "Minimum",
+                            "value": ${var.asg_pivcac_min}
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "metric",
+            "x": 0,
+            "y": 52,
+            "width": 12,
+            "height": 6,
+            "properties": {
+                "metrics": [
+                    [ "AWS/AutoScaling", "GroupInServiceInstances", "AutoScalingGroupName", "${aws_autoscaling_group.outboundproxy.name}", { "color": "#2ca02c", "label": "InService" } ],
+                    [ ".", "GroupTerminatingInstances", ".", ".", { "color": "#d62728", "label": "Terminating" } ],
+                    [ ".", "GroupPendingInstances", ".", ".", { "color": "#ff7f0e", "label": "Pending" } ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${var.region}",
+                "yAxis": {
+                    "left": {
+                        "min": 0,
+                        "label": "Count (max)",
+                        "showUnits": false
+                    }
+                },
+                "title": "${var.env_name} Outboundproxy - Autoscaling Group Instance State",
+                "period": 60,
+                "stat": "Average",
+                "annotations": {
+                    "horizontal": [
+                        {
+                            "label": "Minimum",
+                            "value": ${var.asg_outboundproxy_min}
+                        }
+                    ]
+                }
             }
         }
     ]

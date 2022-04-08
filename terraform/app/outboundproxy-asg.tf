@@ -155,6 +155,8 @@ resource "aws_autoscaling_group" "outboundproxy" {
   health_check_type         = "ELB"
   health_check_grace_period = 1
 
+  enabled_metrics = var.asg_enabled_metrics
+
   termination_policies = ["OldestInstance"]
 
   # We manually terminate instances in prod
