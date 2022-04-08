@@ -125,6 +125,16 @@ func _TestUlimits(t *testing.T) {
 	}
 }
 
+// s.5.19
+func _TestPropagationMode(t *testing.T) {
+	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{ .Id }}: Propagation={{range $mnt := .Mounts}} {{json $mnt.Propagation}} {{end}}'"
+	for _, s := range RunOnRunners(t, cmd) {
+		if regexp.MustCompile("Propagation").MatchString(s) {
+			assert.NotRegexp(t, "shared", s)
+		}
+	}
+}
+
 func TestJobContainers(t *testing.T) {
 	t.Run("s5.10 Require memory arg", _TestMemory)
 	t.Run("s5.11 Require cpu_shares arg", _TestCPUShares)
@@ -136,4 +146,5 @@ func TestJobContainers(t *testing.T) {
 	t.Run("s5.16 Ensure IPC namespace is not shared", _TestIPCNamespace)
 	t.Run("s5.17 Ensure devices are not shared", _TestSharedDevices)
 	t.Run("s5.18 Ensure that the default ulimit is not overwritten at runtime", _TestUlimits)
+	t.Run("s5.19 Ensure mount propagation mode is not set to shared", _TestPropagationMode)
 }
