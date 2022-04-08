@@ -135,6 +135,15 @@ func _TestPropagationMode(t *testing.T) {
 	}
 }
 
+// s5.20
+func _TestUTSNamespace(t *testing.T) {
+	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{ .Id }}: UTSMode={{ .HostConfig.UTSMode }}'"
+	for _, s := range RunOnRunners(t, cmd) {
+		if regexp.MustCompile("UTSMode").MatchString(s) {
+			assert.NotRegexp(t, "UTSMode=host", s)
+		}
+	}
+}
 func TestJobContainers(t *testing.T) {
 	t.Run("s5.10 Require memory arg", _TestMemory)
 	t.Run("s5.11 Require cpu_shares arg", _TestCPUShares)
@@ -147,4 +156,5 @@ func TestJobContainers(t *testing.T) {
 	t.Run("s5.17 Ensure devices are not shared", _TestSharedDevices)
 	t.Run("s5.18 Ensure that the default ulimit is not overwritten at runtime", _TestUlimits)
 	t.Run("s5.19 Ensure mount propagation mode is not set to shared", _TestPropagationMode)
+	t.Run("s5.20 Ensure that the host's UTS namespace is not shared", _TestUTSNamespace)
 }
