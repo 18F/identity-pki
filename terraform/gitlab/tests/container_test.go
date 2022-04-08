@@ -144,6 +144,17 @@ func _TestUTSNamespace(t *testing.T) {
 		}
 	}
 }
+
+// s5.21
+func _TestSeccomp(t *testing.T) {
+	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{ .Id }}: SecurityOpt={{ .HostConfig.SecurityOpt }}'"
+	for _, s := range RunOnRunners(t, cmd) {
+		if regexp.MustCompile("SecurityOpt").MatchString(s) {
+			assert.NotRegexp(t, "unconfined", s)
+		}
+		assert.Regexp(t, "SecurityOpt", s)
+	}
+}
 func TestJobContainers(t *testing.T) {
 	t.Run("s5.10 Require memory arg", _TestMemory)
 	t.Run("s5.11 Require cpu_shares arg", _TestCPUShares)
@@ -157,4 +168,5 @@ func TestJobContainers(t *testing.T) {
 	t.Run("s5.18 Ensure that the default ulimit is not overwritten at runtime", _TestUlimits)
 	t.Run("s5.19 Ensure mount propagation mode is not set to shared", _TestPropagationMode)
 	t.Run("s5.20 Ensure that the host's UTS namespace is not shared", _TestUTSNamespace)
+	t.Run("s5.21 Ensure the default seccomp profile is not disabled", _TestSeccomp)
 }
