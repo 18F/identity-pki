@@ -25,6 +25,7 @@ func RunOnRunners(t *testing.T, cmd string) []string {
 	return combinedOut
 }
 
+// s5.10
 func _TestMemory(t *testing.T) {
 	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{.Name}}: {{ .HostConfig.Memory }}'"
 	for _, s := range RunOnRunners(t, cmd) {
@@ -35,6 +36,7 @@ func _TestMemory(t *testing.T) {
 	}
 }
 
+// s5.11
 func _TestCPUShares(t *testing.T) {
 	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{ .Name }}: {{ .HostConfig.CpuShares }}'"
 	for _, s := range RunOnRunners(t, cmd) {
@@ -45,6 +47,10 @@ func _TestCPUShares(t *testing.T) {
 	}
 }
 
+// s5.12
+// docker ps --quiet --all | xargs docker inspect --format '{{ .Id }}: ReadonlyRootfs={{ .HostConfig.ReadonlyRootfs }}'
+
+// s5.13
 func _TestBoundHostInterface(t *testing.T) {
 	cmd := "docker ps --quiet | xargs docker inspect --format '{{ .Name }}: {{ .NetworkSettings.Ports }}'"
 	for _, s := range RunOnRunners(t, cmd) {
@@ -52,16 +58,18 @@ func _TestBoundHostInterface(t *testing.T) {
 	}
 }
 
+// s5.14
 func _TestContainerRestartPolicy(t *testing.T) {
 	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{ .Name }}: RestartPolicyName={{ .HostConfig.RestartPolicy.Name }} MaximumRetryCount={{ .HostConfig.RestartPolicy.MaximumRetryCount }}'"
 	for _, s := range RunOnRunners(t, cmd) {
 		assert.NotRegexp(t, "RestartPolicyName=always", s)
-		if regexp.MustCompile("RestartPolicyName=on-failure").MatchString(s) {
+		if regexp.MustCompile(".*RestartPolicyName=on-failure.*").MatchString(s) {
 			assert.Regexp(t, "MaximumRetryCount=[0-5]$", s)
 		}
 	}
 }
 
+// s5.15
 func _TestSharedProcessNamespace(t *testing.T) {
 	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{ .Name }}: PidMode={{ .HostConfig.PidMode }}'"
 	for _, s := range RunOnRunners(t, cmd) {
@@ -89,6 +97,24 @@ func _TestFilePermissionsDockerService(t *testing.T) {
 	}
 }
 
+// s5.16
+func _TestIPCNamespace(t *testing.T) {
+	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{ .Id }}: IpcMode={{ .HostConfig.IpcMode }}'"
+	for _, s := range RunOnRunners(t, cmd) {
+		assert.NotRegexp(t, "IpcMode=host", s)
+	}
+}
+
+// s5.17
+func _TestSharedDevices(t *testing.T) {
+	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{ .Id }}: Devices={{ .HostConfig.Devices }}'"
+	for _, s := range RunOnRunners(t, cmd) {
+		if regexp.MustCompile(".*Devices=.*").MatchString(s) {
+			assert.Regexp(t, "Devices=<no value>", s)
+		}
+	}
+}
+
 // s5.18
 func _TestUlimits(t *testing.T) {
 	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{ .Id }}: Ulimits={{ .HostConfig.Ulimits }}'"
@@ -99,14 +125,15 @@ func _TestUlimits(t *testing.T) {
 	}
 }
 
-
 func TestJobContainers(t *testing.T) {
 	t.Run("s5.10 Require memory arg", _TestMemory)
 	t.Run("s5.11 Require cpu_shares arg", _TestCPUShares)
-	t.Run("Require bound interfaces", _TestBoundHostInterface)
-	t.Run("Ensure on-failure restart policy <= 5", _TestContainerRestartPolicy)
-	t.Run("Ensure host process namespace is not shared", _TestSharedProcessNamespace)
+	t.Run("s5.13 Require bound interfaces", _TestBoundHostInterface)
+	t.Run("s5.14 Ensure on-failure restart policy <= 5", _TestContainerRestartPolicy)
+	t.Run("s5.15 Ensure host process namespace is not shared", _TestSharedProcessNamespace)
 	t.Run("Ensure Docker service file ownership is correct", _TestFileOwnershipDockerService)
 	t.Run("Ensure Docker service file permissions are correct", _TestFilePermissionsDockerService)
-	t.Run("Ensure that the default ulimit is not overwritten at runtime", _TestUlimits)
+	t.Run("s5.16 Ensure IPC namespace is not shared", _TestIPCNamespace)
+	t.Run("s5.17 Ensure devices are not shared", _TestSharedDevices)
+	t.Run("s5.18 Ensure that the default ulimit is not overwritten at runtime", _TestUlimits)
 }
