@@ -1,7 +1,8 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
+  - c-in-parent-ssp
 ---
 
 # ca-3 - \[catalog\] System Interconnections
@@ -47,18 +48,18 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-Add control implementation description here for item ca-3_smt.a
+This control is already documented in the main SSP.  There are no new Interconnection Agreements.
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-Add control implementation description here for item ca-3_smt.b
+This control is already documented in the main SSP.  There are no new Interconnection Agreements.
 
 ______________________________________________________________________
 
 ## Implementation c.
 
-Add control implementation description here for item ca-3_smt.c
+This control is already documented in the main SSP.  There are no new Interconnection Agreements.
 
 ______________________________________________________________________

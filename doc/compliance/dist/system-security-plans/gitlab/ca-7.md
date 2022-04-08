@@ -1,7 +1,8 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
+  - c-in-parent-ssp
 ---
 
 # ca-7 - \[catalog\] Continuous Monitoring
@@ -82,42 +83,42 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-Add control implementation description here for item ca-7_smt.a
+This control is already documented in the main SSP.
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-Add control implementation description here for item ca-7_smt.b
+This control is already documented in the main SSP.
 
 ______________________________________________________________________
 
 ## Implementation c.
 
-Add control implementation description here for item ca-7_smt.c
+This control is already documented in the main SSP.
 
 ______________________________________________________________________
 
 ## Implementation d.
 
-Add control implementation description here for item ca-7_smt.d
+This control is already documented in the main SSP.
 
 ______________________________________________________________________
 
 ## Implementation e.
 
-Add control implementation description here for item ca-7_smt.e
+This control is already documented in the main SSP.
 
 ______________________________________________________________________
 
 ## Implementation f.
 
-Add control implementation description here for item ca-7_smt.f
+This control is already documented in the main SSP.
 
 ______________________________________________________________________
 
 ## Implementation g.
 
-Add control implementation description here for item ca-7_smt.g
+This control is already documented in the main SSP.
 
 ______________________________________________________________________
