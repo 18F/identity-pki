@@ -179,6 +179,16 @@ func _TestCgroupUsage(t *testing.T) {
 	}
 }
 
+// s5.25
+func _TestNoNewPrivileges(t *testing.T) {
+	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{ .Id }}: SecurityOpt={{ .HostConfig.SecurityOpt }}'"
+	for _, s := range RunOnRunners(t, cmd) {
+		if regexp.MustCompile("SecurityOpt").MatchString(s) {
+			assert.Regexp(t, "no-new-privileges", s)
+		}
+	}
+}
+
 func TestJobContainers(t *testing.T) {
 	t.Run("s5.10 Require memory arg", _TestMemory)
 	t.Run("s5.11 Require cpu_shares arg", _TestCPUShares)
@@ -196,4 +206,5 @@ func TestJobContainers(t *testing.T) {
 	t.Run("s5.22 Ensure that docker exec commands are not privileged", _TestPrivilegedExec)
 	t.Run("s5.23 Ensure that docker exec commands are not used with the user=root option", _TestRootExec)
 	t.Run("s5.24 Ensure that cgroup usage is confirmed", _TestCgroupUsage)
+	t.Run("s5.25 Ensure that the container is restricted from acquiring additional privileges", _TestNoNewPrivileges)
 }
