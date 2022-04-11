@@ -73,11 +73,6 @@ gitlab-qa:
       --build-arg "http_proxy=${http_proxy}" --build-arg "https_proxy=${https_proxy}" --build-arg "no_proxy=${no_proxy}"
 
 # Build images by providing a dockerfile (in dockerfiles/) and a destination ECR repo
-build_base:
-  <<: *build_template
-  variables:
-    dockerfile: base.Dockerfile
-    ecr_repo: alpha/base
 
 build_idp_ci:
   <<: *build_template
