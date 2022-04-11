@@ -45,6 +45,21 @@ variable "asg_recycle_business_hours" {
   description = "If set to 1, recycle only once/day during business hours Mon-Fri, not every 6 houts"
 }
 
+variable "asg_enabled_metrics" {
+  type        = list(string)
+  description = "A list of cloudwatch metrics to collect on ASGs https://www.terraform.io/docs/providers/aws/r/autoscaling_group.html#enabled_metrics"
+  default = [
+    "GroupStandbyInstances",
+    "GroupTotalInstances",
+    "GroupPendingInstances",
+    "GroupTerminatingInstances",
+    "GroupDesiredCapacity",
+    "GroupInServiceInstances",
+    "GroupMinSize",
+    "GroupMaxSize",
+  ]
+}
+
 # Several variables used by the modules/bootstrap/ module for running
 # provision.sh to clone git repos and run chef.
 variable "bootstrap_main_git_ref_default" {
