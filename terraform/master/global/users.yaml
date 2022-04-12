@@ -25,9 +25,6 @@ users:
     - appdev
     gitlab_groups:
     - appdev
-  amos.stone:
-    aws_groups:
-    - analytics
   andrew.duthie:
     aws_groups:
     - appdev
@@ -43,13 +40,8 @@ users:
     - bizops
     - finops
   clinton.troxel:
-    aws_groups:
-    - appdev
     gitlab_groups:
     - appdev
-  dave.zvenyach:
-    aws_groups:
-    - analytics
   devon.johnson:
     aws_groups:
     - appdev
@@ -69,7 +61,6 @@ users:
   henry.richardson:
     aws_groups:
     - devopsnonprod
-  james.tranovich:
     gitlab_groups:
     - devops
   jeffrey.holden:
@@ -95,9 +86,14 @@ users:
     - devops
     gitlab_groups:
     - devops
-  julia.elman:
+  julia.l.allen:
     aws_groups:
-    - analytics
+    - appdev
+    gitlab_groups:
+    - appdev
+  julia.elman:
+    gitlab_groups:
+    - appdev
   justin.grevich:
     aws_groups:
     - devops
@@ -140,12 +136,14 @@ users:
     - socreadonly
     gitlab_groups:
     - devops
+  natasha.ibrahim:
+    aws_groups:
+    - appdev
+    gitlab_groups:
+    - appdev
   nathan.wick:
     aws_groups:
     - bizops
-  nick.kramer:
-    gitlab_groups:
-    - devops
   olayemisi.ogunshina:
     aws_groups:
     - analytics
@@ -156,9 +154,6 @@ users:
     - bizops
     gitlab_groups:
     - appdev
-  page.levendis:
-    aws_groups:
-    - analytics
   parissa.eggleston:
     aws_groups:
     - appdev
@@ -207,12 +202,13 @@ users:
   sujana.gurung:
     aws_groups:
     - devopsnonprod
-  thomas.black:
-    aws_groups:
-    - bizops
+    gitlab_groups:
+    - devops
   tiffanyj.andrews:
     aws_groups:
     - analytics
+    gitlab_groups:
+    - appdev
   timothy.spencer:
     aws_groups:
     - devops
@@ -233,7 +229,7 @@ users:
     gitlab_groups:
     - appdev
   root:
-    __note: Gitlab Machine User - don't specify aws_groups for these
+    # Note: Gitlab Machine User - don't specify aws_groups for these
     email:
     - admin@example.com
     gitlab_groups:
