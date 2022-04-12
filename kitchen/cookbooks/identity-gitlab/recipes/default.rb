@@ -213,10 +213,11 @@ file '/etc/gitlab/backup.sh' do
     #!/bin/bash
     # backup github environment
     gitlab-backup create
-    aws s3 cp /etc/gitlab/gitlab-secrets.json s3://#{backup_s3_bucket}/gitlab-secrets.json
-    aws s3 cp /etc/gitlab/gitlab.rb s3://#{backup_s3_bucket}/gitlab.rb
-    aws s3 cp /etc/ssh/ s3://#{backup_s3_bucket}/ssh --recursive --exclude "*" --include "ssh_host_*"
-    aws s3 cp /etc/gitlab/ssl s3://#{backup_s3_bucket}/ssl --recursive
+    DATE=$(date +%Y%m%d%H%M)
+    aws s3 cp /etc/gitlab/gitlab-secrets.json s3://#{backup_s3_bucket}/$DATE/gitlab-secrets.json
+    aws s3 cp /etc/gitlab/gitlab.rb s3://#{backup_s3_bucket}/$DATE/gitlab.rb
+    aws s3 cp /etc/ssh/ s3://#{backup_s3_bucket}/$DATE/ssh --recursive --exclude "*" --include "ssh_host_*"
+    aws s3 cp /etc/gitlab/ssl s3://#{backup_s3_bucket}/$DATE/ssl --recursive
   EOF
   owner 'root'
   group 'root'
@@ -227,11 +228,17 @@ end
 file '/etc/gitlab/restore.sh' do
   content <<-EOF
     #!/bin/bash
+    DATE=$1
+    if [ -z "$DATE" ] ; then
+      echo "usage: $0 <DATE>"
+      echo "where DATE can be found from doing an 'aws s3 ls s3://#{backup_s3_bucket}/'"
+      exit 1
+    fi
     # restore github environment, un-comment items to restore
-    # aws s3 cp s3://#{backup_s3_bucket}/gitlab-secrets.json /etc/gitlab/gitlab-secrets.json
-    # aws s3 cp s3://#{backup_s3_bucket}/gitlab.rb /etc/gitlab/gitlab.rb
-    # aws s3 cp s3://#{backup_s3_bucket}/ssh /etc/ssh/ --recursive --exclude "*" --include "ssh_host_*"
-    # aws s3 cp s3://#{backup_s3_bucket}/ssl /etc/gitlab/ssl --recursive
+    # aws s3 cp s3://#{backup_s3_bucket}/$DATE/gitlab-secrets.json /etc/gitlab/gitlab-secrets.json
+    # aws s3 cp s3://#{backup_s3_bucket}/$DATE/gitlab.rb /etc/gitlab/gitlab.rb
+    # aws s3 cp s3://#{backup_s3_bucket}/$DATE/ssh /etc/ssh/ --recursive --exclude "*" --include "ssh_host_*"
+    # aws s3 cp s3://#{backup_s3_bucket}/$DATE/ssl /etc/gitlab/ssl --recursive
     # aws s3 cp s3://#{backup_s3_bucket}/[date serial]-ee_gitlab_backup.tar /var/opt/gitlab/backups
     export GITLAB_ASSUME_YES=1
     gitlab-backup restore

@@ -166,6 +166,7 @@ EOM
           ],
           "Resource": [
               "arn:aws:s3:::login-gov-${var.env_name}-gitlabartifacts-${data.aws_caller_identity.current.account_id}-${var.region}",
+              "arn:aws:s3:::login-gov-${var.env_name}-gitlabbackups-${data.aws_caller_identity.current.account_id}-${var.region}/*",
               "arn:aws:s3:::login-gov-${var.env_name}-gitlabexternaldiffs-${data.aws_caller_identity.current.account_id}-${var.region}",
               "arn:aws:s3:::login-gov-${var.env_name}-gitlablfsobjects-${data.aws_caller_identity.current.account_id}-${var.region}",
               "arn:aws:s3:::login-gov-${var.env_name}-gitlabuploads-${data.aws_caller_identity.current.account_id}-${var.region}",
@@ -186,6 +187,7 @@ EOM
           ],
           "Resource": [
               "arn:aws:s3:::login-gov-${var.env_name}-gitlabartifacts-${data.aws_caller_identity.current.account_id}-${var.region}/*",
+              "arn:aws:s3:::login-gov-${var.env_name}-gitlabbackups-${data.aws_caller_identity.current.account_id}-${var.region}/*",
               "arn:aws:s3:::login-gov-${var.env_name}-gitlabexternaldiffs-${data.aws_caller_identity.current.account_id}-${var.region}/*",
               "arn:aws:s3:::login-gov-${var.env_name}-gitlablfsobjects-${data.aws_caller_identity.current.account_id}-${var.region}/*",
               "arn:aws:s3:::login-gov-${var.env_name}-gitlabuploads-${data.aws_caller_identity.current.account_id}-${var.region}/*",
