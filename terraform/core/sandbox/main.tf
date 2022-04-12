@@ -99,6 +99,12 @@ module "main" {
 
   # Roles from other accounts allowed to write to our archive buckets
   cross_account_archive_bucket_access = {
+    "arn:aws:iam::217680906704:role/production-build-pool_gitlab_runner_iam_role" = [
+      "mhenke",
+      "pauldoom",
+      "int",
+      "dev"
+    ],
     "arn:aws:iam::034795980528:role/alpha-build-pool_gitlab_runner_iam_role" = [
       "mhenke",
       "pauldoom"
