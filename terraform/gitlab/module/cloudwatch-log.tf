@@ -67,3 +67,33 @@ resource "aws_cloudwatch_log_group" "gitlab_backup_log" {
     environment = var.env_name
   }
 }
+
+resource "aws_cloudwatch_log_metric_filter" "gitlab_backup_failures" {
+  name           = "gitlab_${var.env_name}_backup_failures"
+  pattern        = "gitlab backup FAILED"
+  log_group_name = "${var.env_name}_/var/log/messages"
+
+  metric_transformation {
+    name      = "BackupFailure"
+    namespace = "Gitlab/${var.env_name}"
+    value     = "1"
+  }
+}
+
+# This alert is set pretty long because we want to see it during the
+# day.  If you fix the problem and run the backup script by hand,
+# the alarm will not clear until 12h goes by.
+resource "aws_cloudwatch_metric_alarm" "gitlab_backup_failures" {
+  alarm_name                = "gitlab_${var.env_name}_backup_failures"
+  comparison_operator       = "GreaterThanOrEqualToThreshold"
+  evaluation_periods        = "1"
+  metric_name               = "BackupFailure"
+  namespace                 = "Gitlab/${var.env_name}"
+  period                    = "43200"
+  statistic                 = "Sum"
+  threshold                 = "1"
+  alarm_description         = "Gitlab ${var.env_name} had backups fail!"
+  treat_missing_data        = "notBreaching"
+  insufficient_data_actions = []
+  alarm_actions             = [var.slack_events_sns_hook_arn]
+}

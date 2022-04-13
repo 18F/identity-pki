@@ -210,14 +210,21 @@ end
 
 file '/etc/gitlab/backup.sh' do
   content <<-EOF
-    #!/bin/bash
-    # backup github environment
-    gitlab-backup create
-    DATE=$(date +%Y%m%d%H%M)
-    aws s3 cp /etc/gitlab/gitlab-secrets.json s3://#{backup_s3_bucket}/$DATE/gitlab-secrets.json
-    aws s3 cp /etc/gitlab/gitlab.rb s3://#{backup_s3_bucket}/$DATE/gitlab.rb
-    aws s3 cp /etc/ssh/ s3://#{backup_s3_bucket}/$DATE/ssh --recursive --exclude "*" --include "ssh_host_*"
-    aws s3 cp /etc/gitlab/ssl s3://#{backup_s3_bucket}/$DATE/ssl --recursive
+#!/bin/bash
+DATE=$(date +%Y%m%d%H%M)
+failure() {
+  echo "gitlab backup FAILED for #{node.chef_environment}:$DATE - $1"
+}
+
+# backup github environment
+gitlab-backup create || failure "gitlab-backup failed"
+aws s3 cp /etc/gitlab/gitlab-secrets.json s3://#{backup_s3_bucket}/$DATE/gitlab-secrets.json || failure "gitlab-secrets.json copy to s3 failed"
+aws s3 cp /etc/gitlab/gitlab.rb s3://#{backup_s3_bucket}/$DATE/gitlab.rb || failure "gitlab.rb copy to s3 failed"
+aws s3 cp /etc/ssh/ s3://#{backup_s3_bucket}/$DATE/ssh --recursive --exclude "*" --include "ssh_host_*" || failure "ssh copy to s3 failed"
+aws s3 cp /etc/gitlab/ssl s3://#{backup_s3_bucket}/$DATE/ssl --recursive || failure "ssl copy to s3 failed"
+
+# make sure backups are not zero in size
+find /var/opt/gitlab/backups -type f -size 0 | xargs -r false || failure "zero length backup file detected"
   EOF
   owner 'root'
   group 'root'
@@ -227,21 +234,21 @@ end
 
 file '/etc/gitlab/restore.sh' do
   content <<-EOF
-    #!/bin/bash
-    DATE=$1
-    if [ -z "$DATE" ] ; then
-      echo "usage: $0 <DATE>"
-      echo "where DATE can be found from doing an 'aws s3 ls s3://#{backup_s3_bucket}/'"
-      exit 1
-    fi
-    # restore github environment, un-comment items to restore
-    # aws s3 cp s3://#{backup_s3_bucket}/$DATE/gitlab-secrets.json /etc/gitlab/gitlab-secrets.json
-    # aws s3 cp s3://#{backup_s3_bucket}/$DATE/gitlab.rb /etc/gitlab/gitlab.rb
-    # aws s3 cp s3://#{backup_s3_bucket}/$DATE/ssh /etc/ssh/ --recursive --exclude "*" --include "ssh_host_*"
-    # aws s3 cp s3://#{backup_s3_bucket}/$DATE/ssl /etc/gitlab/ssl --recursive
-    # aws s3 cp s3://#{backup_s3_bucket}/[date serial]-ee_gitlab_backup.tar /var/opt/gitlab/backups
-    export GITLAB_ASSUME_YES=1
-    gitlab-backup restore
+#!/bin/bash
+DATE=$1
+if [ -z "$DATE" ] ; then
+  echo "usage: $0 <DATE>"
+  echo "where DATE can be found from doing an 'aws s3 ls s3://#{backup_s3_bucket}/'"
+  exit 1
+fi
+# restore github environment, un-comment items to restore
+# aws s3 cp s3://#{backup_s3_bucket}/$DATE/gitlab-secrets.json /etc/gitlab/gitlab-secrets.json
+# aws s3 cp s3://#{backup_s3_bucket}/$DATE/gitlab.rb /etc/gitlab/gitlab.rb
+# aws s3 cp s3://#{backup_s3_bucket}/$DATE/ssh /etc/ssh/ --recursive --exclude "*" --include "ssh_host_*"
+# aws s3 cp s3://#{backup_s3_bucket}/$DATE/ssl /etc/gitlab/ssl --recursive
+# aws s3 cp s3://#{backup_s3_bucket}/[date serial]-ee_gitlab_backup.tar /var/opt/gitlab/backups
+export GITLAB_ASSUME_YES=1
+gitlab-backup restore
   EOF
   owner 'root'
   group 'root'
