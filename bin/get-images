@@ -227,8 +227,8 @@ while getopts luobrh-: OPT; do
   case "$OPT" in
     sb|sandbox-base)  needs_arg; SANDBOX_AMIS+="base_$OPTARG "  ;;
     sr|sandbox-rails) needs_arg; SANDBOX_AMIS+="rails_$OPTARG " ;;
-    pb|prod-base)     needs_arg; PROD_AMIS+="base_$OPTARG"      ;;
-    pr|prod-rails)    needs_arg; PROD_AMIS+="rails_$OPTARG"     ;;
+    pb|prod-base)     needs_arg; PROD_AMIS+="base_$OPTARG "     ;;
+    pr|prod-rails)    needs_arg; PROD_AMIS+="rails_$OPTARG "    ;;
     l) TASK_LIST=         ;;
     u) TASK_LIST='update' ;;
     o) TASK_LIST='open'   ;;
