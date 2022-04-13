@@ -95,6 +95,9 @@ Options:
 
   yaml = YAML.load_file(USERS_YAML)
   prompt = TTY::Prompt.new(output: STDERR)
+  root_comment = File.open(USERS_YAML) do |f|
+    f.find { |l| l =~ /Gitlab Machine User/ }
+  end
 
   if options[:delete]
     abort "\nUser #{options[:user]} not found in #{USERS_YAML}\n\n" if yaml['users'][options[:user]].nil?
@@ -135,11 +138,16 @@ Options:
 
   # make sure users is sorted, gitlab root (denoted by __note) is last
   sorted_users = yaml['users'].sort_by do |username, attributes|
-    [attributes.key?('__note') ? 1 : 0, username]
+    [username == 'root' ? 1 : 0, username]
   end.to_h
 
   yaml['users'] = sorted_users
-  File.open(USERS_YAML, 'w') { |f| f.puts YAML.dump(yaml) }
+  File.open(USERS_YAML, 'w') do |f|
+    YAML.dump(yaml).each_line do |l|
+      f.puts l
+      f.puts root_comment if l =~ /root/
+    end
+  end
 end
 
 if __FILE__ == $0

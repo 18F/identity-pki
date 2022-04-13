@@ -1,33 +1,36 @@
 #!/bin/bash
 
+#### ZIP up a Terraform binary, and provider plugins, for auto-tf to use ####
+
 set -euo pipefail
 
 . "$(dirname "$0")/lib/common.sh"
 
-man_page() {
+help_me() {
   cat >&2 << EOM
 
-Creates a ZIP file (a la the now-deprecated terraform-bundle tool)
-containing the Terraform binary (compiled from the repo) and the
-plugins in the repo-wide lockfile, then copies them up into the
-auto-tf bucket for use by CodeBuild in doing its auto-tf stuff.
-Requires login-tooling access.
+Creates a ZIP file (a la the now-deprecated terraform-bundle tool) containing the
+Terraform binary (compiled from the repo) and the plugins in the repo-wide lockfile,
+then copies them up into the auto-tf bucket for use by CodeBuild in doing its
+auto-tf stuff.
 
+- Requires login-tooling access.
 - Invokes aws-vault itself, so you don't have to!
 - Designed to be run without arguments.
 EOM
-usage
+  usage
+  exit 0
 }
 
 usage() {
   cat >&2 << EOM
 
-Usage: ${0}
-Options:
+Usage: ${0} [-v VERSION|-k|-h]
 
-  -v : TF_VERSION
-  -k : Keep /tmp/terraform-bundle dir after uploading
-  -h : Display help
+Flags:
+  -v VERSION : Manually specify version of Terraform to use
+  -k         : Keep /tmp/terraform-bundle dir after uploading
+  -h         : Display help
 
 EOM
 }
@@ -45,8 +48,8 @@ do
   case $opt in
     v) TF_VERSION="v${OPTARG}" ;;
     k) KEEP_BUILD_DIR=1        ;;
-    h) man_page && exit 0      ;;
-    *) raise 'Invalid option'  ;;
+    h) help_me                 ;;
+    *) usage && exit 1         ;;
   esac
 done
 shift $((OPTIND-1))

@@ -1,12 +1,11 @@
 #!/bin/bash
 
+#### Disable auto_tf in a supported sandbox env ####
+
 set -euo pipefail
 
-basename="$(basename "$0")"
-
-BASEPATH="$(dirname "$0")"
-. "${BASEPATH}/lib/common.sh"
-. "${BASEPATH}/lib/sandbox-lib.sh"
+. "$(dirname "$0")/lib/common.sh"
+. "$(dirname "$0")/lib/sandbox-lib.sh"
 
 # Try really hard not to let anything accidentally write to stdout.
 # Point stdout at stderr and open FD 3 to point to the original stdout.
@@ -15,83 +14,71 @@ BASEPATH="$(dirname "$0")"
 exec 3>&1 1>&2
 
 usage() {
-    cat >&2 << EOM
+  cat >&2 << EOM
 
-Usage: $basename ENV_NAME
+Usage: ${0} [-vd|-r REASON] [ENV] (defaults to \$GSA_USERNAME if not specified)
 
-Disables auto-tf execution for the specified sandbox environment (defaults to \$GSA_USERNAME if not specified)
-
--h: Show this usage information
--v: Verify the current status of the pipeline
--r <string>: Add a custom reason for disabling auto-tf
-
-Arguments:
-
-    ENV_NAME:
-    Environment name for the deployment, e.g. "dev", "prod", or "global".
+Flags (will run all if no flags specified):
+  -v        : Verify inboundTransitionState.enabled of auto_tf_app_ENV
+              in AWS CodePipeline
+  -d        : Disable auto_tf_app_ENV CodePipeline by disabling
+              the 'Plan' stage transition step
+  -r REASON : Adds a custom reason for disabling auto-tf for ENV
+              (default: 'Disabled via disable-autotf script by user \$AWS_NAME',
+              where \$AWS_NAME is the one used in the active assumed role)
+  -h        : Display help
 
 EOM
 }
 
-man_page() {
-    cat >&2 << EOM
+help_me() {
+  cat >&2 << EOM
 
-Usage: $basename ENV_NAME
-
-Disables auto-tf execution for the specified sandbox environment (defaults to \$GSA_USERNAME if not specified)
-
-Arguments:
-
-    ENV_NAME:
-    Environment name for the deployment, e.g. "dev", "prod", or "global".
-
-Options:
-
-    -h              Display this message
-    -v              Verify the current status of the pipeline
-    -r <string>     Adds a custom reason for disabling auto-tf (This defaults to "Disabled via disable-autotf script by user \$GSA_USERNAME")
+Disables auto-tf execution for the ENV sandbox app environment.
+Defaults to \$GSA_USERNAME if not specified.
 EOM
-exit 0
+  usage
+  exit 0
 }
+
 
 1_verify_pipeline_status() {
-    local isEnabled
-    isEnabled=$(aws codepipeline get-pipeline-state \
-        --name "auto_terraform_app_$TF_ENV" \
-        | jq ".stageStates[1].inboundTransitionState.enabled")
-
-    if $isEnabled
-    then
-        return
-    else
-        raise "Auto-tf is already disabled for envirnoment: $TF_ENV"
+  local STATE
+  if [[ $(STATE=$(aws codepipeline get-pipeline-state \
+                  --name "auto_terraform_app_${TF_ENV}")) ]] ; then
+    if [[ ! $(printf '%s\n' "${STATE}" | jq -r '.' |
+              jq '.stageStates[1].inboundTransitionState.enabled') ]] ; then
+      raise "auto-tf is already disabled for '$TF_ENV' environment"
     fi
+  else
+    raise "Pipeline auto_terraform_app_${TF_ENV} not found"
+  fi
 }
 
 2_disable_pipeline() {
-    aws codepipeline disable-stage-transition \
-        --pipeline-name "auto_terraform_app_$TF_ENV" \
-        --stage-name Plan --transition-type Inbound \
-        --reason "$reason"
+  aws codepipeline disable-stage-transition \
+    --pipeline-name "auto_terraform_app_${TF_ENV}" \
+    --stage-name Plan --transition-type Inbound \
+    --reason "${REASON}"
 }
 
+AWS_NAME=$(aws sts get-caller-identity | jq -r .Arn | awk -F/ '{print $NF}')
+REASON="Disabled via disable-autotf script by user ${AWS_NAME}"
+
 TASKS=(
-    "1_verify_pipeline_status"
-    "2_disable_pipeline"
+  "1_verify_pipeline_status"
+  "2_disable_pipeline"
 )
 
 TODO=()
-
-reason="Disabled via disable-autotf script by user $GSA_USERNAME"
-
-while getopts "r:vhe" opt; do
-    case $opt in
-        r) reason="$OPTARG" ;;
-        v) TODO+=("${TASKS[0]}") ;;
-        e) TODO+=("${TASKS[1]}") ;;
-        h) man_page ;;
-        *) usage && exit 1 ;;
-    esac
+while getopts r:vdh opt; do
+  case $opt in
+    r) REASON="$OPTARG"      ;;
+    v) TODO+=("${TASKS[0]}") ;;
+    d) TODO+=("${TASKS[1]}") ;;
+    h) help_me               ;;
+    *) usage && exit 1       ;;
+  esac
 done
 shift $((OPTIND-1))
 
@@ -100,5 +87,3 @@ verify_private_repo
 verify_sandbox_env "${1:-}"
 
 run_tasks
-
-exit 0

@@ -3,7 +3,7 @@
 
 ############# login.gov aliases/functions #############
 if [[ ! $(brew list --cask | grep aws-vault) ]] ; then
-  brew cask install aws-vault || { echo "aws-vault not installed!" && exit 1 ; }
+  brew cask install aws-vault || { echo "aws-vault not installed!" && break 1 ; }
 fi
 
 ######## aliases ########
@@ -49,17 +49,6 @@ EOF
   esac
 }
 
-#### run terraform plan with trimmed-down output ####
-tpc() {
-  local TF_ARGS
-  [[ -z ${1} ]] || TF_ARGS+="-d ${1} "
-  [[ -z ${2} ]] || TF_ARGS+="-e ${2} "
-  plan=$(td "${TF_ARGS}"-p)
-  echo $plan | sed $'s,\x1b\\[[0-9;]*[a-zA-Z],,g' |
-               grep --color=auto -E '(^\s+[-\#\+\~\>]|\s->)\s' |
-               sed -E 's/(user_data += ").*"/\1\*"/'
-}
-
 #### quick SSM access ; requires session-manager-plugin to work! ####
 ssc() {
   local SSM_CMD
@@ -80,49 +69,6 @@ ssc() {
          --parameters command="'${SSM_CMD}'" \
          --target "${INSTANCE_ID}"
 }
-#### run bundle exec with common commands ####
-be() {
-  read -r -d '' usage <<'EOF'
-
-TBD
-
-EOF
-  [[ $# == 0 ]] && badopt
-  local BUNDLE_CMD
-  AV_PROFILE='sandbox-admin'
-  while getopts vk:b:r: opt
-  do
-    case "${opt}" in       ## opt in `be -${opt}${OPTARG}`
-      k) case "${OPTARG}" in
-          t) BUNDLE_CMD='kitchen test'     ;;
-          c) BUNDLE_CMD='kitchen converge' ;;
-          l) BUNDLE_CMD='kitchen login'    ;;
-          i) BUNDLE_CMD='kitchen list'     ;;
-          d) BUNDLE_CMD='kitchen destroy'  ;;
-          v) BUNDLE_CMD='kitchen verify'   ;;
-          o) BUNDLE_CMD='kitchen console'  ;;
-          *) badopt                        ;;
-         esac
-      ;;
-      b) case "${OPTARG}" in
-          u) BUNDLE_CMD='berks update'  ;;
-          i) BUNDLE_CMD='berks install' ;;
-          *) badopt                     ;;
-         esac
-      ;;
-      r) case "${OPTARG}" in
-          k) BUNDLE_CMD='rake'    ;;
-          c) BUNDLE_CMD='rails c' ;;
-          s) BUNDLE_CMD='rspec'   ;;
-          *) badopt               ;;
-         esac
-      ;;
-      h|*) badopt ${opt} ;;  
-    esac
-  done
-  run_av bundle exec ${BUNDLE_CMD}
-} 
-
 
 #### quickly run common cloudlib aliases/commands with any AWS_PROFILE/env ####
 vcl() {
@@ -145,12 +91,14 @@ EOF
       m) EC2_TYPE='migration'               ;;
       o) EC2_TYPE='outboundproxy'           ;;
       p) EC2_TYPE='pivcac'                  ;;
+      s) EC2_TYPE='scrubhost'               ;;
+      w) EC2_TYPE='worker'                  ;;
       *) [[ ${opt} =~ 'e' ]] || badopt ${1} ;;
     esac
     case "${opt}" in
       e) CL_TABLE=$(run_av ls-servers -Hlqe ${EC2_ENV})                 ;;
       l) CL_TABLE=$(run_av ls-servers -Hlqn asg-${EC2_ENV}-${EC2_TYPE}) ;;
-      c) run_av scale-in-old-instances -q ${EC2_ENV} ${EC2_TYPE}        ;;
+      c) run_av scale-in-old-instances -qf ${EC2_ENV} ${EC2_TYPE}       ;;
       r) run_av asg-recycle -q ${EC2_ENV} ${EC2_TYPE}                   ;;
       s) run_av asg-size -q ${EC2_ENV} ${EC2_TYPE} ${3-}                ;;
       *) badopt ${opt}                                                  ;;

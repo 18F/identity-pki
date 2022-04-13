@@ -53,14 +53,12 @@ HF_MESSAGE=$(git log --format='- %t | %s' -n 1 ${COMMIT_ID})
 
 run ${GIT_DIR}/bin/github-pr -m "$(cat <<EOF
 Release v${HOTFIX} (hotfix)
-
 ${HF_MESSAGE}
 EOF
 )"
 
 run hub release create v${HOTFIX} -m "$(cat <<EOF
 Release v${HOTFIX} (hotfix)
-
 ${HF_MESSAGE}
 EOF
 )"

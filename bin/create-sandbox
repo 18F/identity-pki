@@ -1,12 +1,11 @@
 #!/bin/bash
 
-#### build up a sandbox environment from scratch ####
+#### Build up a sandbox environment from scratch ####
 
 set -euo pipefail
 
-BASEPATH="$(dirname "$0")"
-. "${BASEPATH}/lib/common.sh"
-. "${BASEPATH}/lib/sandbox-lib.sh"
+. "$(dirname "$0")/lib/common.sh"
+. "$(dirname "$0")/lib/sandbox-lib.sh"
 
 usage() {
   cat >&2 << EOM
@@ -24,7 +23,7 @@ Flags (will run all if no flags specified):
 EOM
 }
 
-man_page() {
+help_me() {
     cat >&2 << EOM
     
 Usage: ${0} [-asdiph] [ENV]
@@ -128,8 +127,8 @@ do
     s) TODO+=("${TASKS[2]}") ;;
     d) TODO+=("${TASKS[3]}") ;;
     m) TODO+=("${TASKS[4]}") ;;
-    h) man_page ;;
-    *) usage && exit 1 ;;
+    h) help_me               ;;
+    *) usage && exit 1       ;;
   esac
 done
 shift $((OPTIND-1))

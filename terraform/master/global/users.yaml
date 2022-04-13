@@ -86,12 +86,12 @@ users:
     - devops
     gitlab_groups:
     - devops
+  julia.elman:
+    gitlab_groups:
+    - appdev
   julia.l.allen:
     aws_groups:
     - appdev
-    gitlab_groups:
-    - appdev
-  julia.elman:
     gitlab_groups:
     - appdev
   justin.grevich:

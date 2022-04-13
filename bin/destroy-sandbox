@@ -1,13 +1,13 @@
 #!/bin/bash
 
-#### tear down/destroy a sandbox environment ####
+#### Tear down/destroy a sandbox environment ####
 
 trap replace_db_files EXIT
+
 set -euo pipefail
 
-BASEPATH="$(dirname "$0")"
-. "${BASEPATH}/lib/common.sh"
-. "${BASEPATH}/lib/sandbox-lib.sh"
+. "$(dirname "$0")/lib/common.sh"
+. "$(dirname "$0")/lib/sandbox-lib.sh"
 
 usage() {
     cat >&2 << EOM
@@ -25,7 +25,7 @@ Flags (will run all if no flags specified):
 EOM
 }
 
-man_page() {
+help_me() {
     cat >&2 << EOM
 
 Usage: ${0} [-ldebkxh] [ENV]
@@ -145,7 +145,7 @@ do
     b) TODO+=("${TASKS[2]}") ;;
     x) TODO+=("${TASKS[3]}") ;;
     k) TODO+=("${TASKS[4]}") ;;
-    h) man_page              ;;
+    h) help_me               ;;
     *) usage && exit 1       ;;
   esac
 done

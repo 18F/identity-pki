@@ -1,12 +1,11 @@
 #!/bin/bash
 
+#### Enable auto_tf in a supported sandbox env ####
+
 set -euo pipefail
 
-basename="$(basename "$0")"
-
-BASEPATH="$(dirname "$0")"
-. "${BASEPATH}/lib/common.sh"
-. "${BASEPATH}/lib/sandbox-lib.sh"
+. "$(dirname "$0")/lib/common.sh"
+. "$(dirname "$0")/lib/sandbox-lib.sh"
 
 # Try really hard not to let anything accidentally write to stdout.
 # Point stdout at stderr and open FD 3 to point to the original stdout.
@@ -15,77 +14,60 @@ BASEPATH="$(dirname "$0")"
 exec 3>&1 1>&2
 
 usage() {
-    cat >&2 << EOM
+  cat >&2 << EOM
 
-Usage: $basename ENV_NAME
+Usage: ${0} [-ve] [ENV] (defaults to \$GSA_USERNAME if not specified)
 
-Enables auto-tf execution for the specified sandbox environment (defaults to \$GSA_USERNAME if not specified)
-
--h: Show this usage information
--v: Verify the current status of the pipeline
-
-Arguments:
-
-    ENV_NAME:
-    Environment name for the deployment, e.g. "dev", "prod", or "global".
+Flags (will run all if no flags specified):
+  -v : Verify inboundTransitionState.enabled of auto_tf_app_ENV in AWS CodePipeline
+  -e : Enable auto_tf_app_ENV CodePipeline by enabling 'Plan' stage transition step
+  -h : Display help
 
 EOM
 }
 
-man_page() {
-    cat >&2 << EOM
+help_me() {
+  cat >&2 << EOM
 
-Usage: $basename ENV_NAME
-
-Enables auto-tf execution for the specified sandbox environment (defaults to \$GSA_USERNAME if not specified)
-
-Arguments:
-
-    ENV_NAME:
-    Environment name for the deployment, e.g. "dev", "prod", or "global".
-
-Options:
-
-    -h              Display this message
-    -v              Verify the current status of the pipeline
+Enables auto-tf execution for the ENV sandbox app environment.
+Defaults to \$GSA_USERNAME if not specified.
 EOM
-exit 0
+  usage
+  exit 0
 }
 
 1_verify_pipeline_status() {
-    local isEnabled
-    isEnabled=$(aws codepipeline get-pipeline-state \
-        --name "auto_terraform_app_$TF_ENV" \
-        | jq ".stageStates[1].inboundTransitionState.enabled")
-
-    if ! $isEnabled
-    then
-        return
-    else
-        raise "Auto-tf is already enabled for envirnoment: $TF_ENV"
-        exit 1
-    fi
+  local STATE
+  if [[ $(STATE=$(aws codepipeline get-pipeline-state \
+                  --name "auto_terraform_app_${TF_ENV}")) ]] ; then
+  if [[ $(printf '%s\n' "${STATE}" | jq -r '.' |
+        jq '.stageStates[1].inboundTransitionState.enabled') ]] ; then
+    raise "auto-tf is already enabled for '$TF_ENV' environment"
+  fi
+  else
+    raise "Pipeline auto_terraform_app_${TF_ENV} not found"
+  fi
 }
 
 2_enable_pipeline() {
-    aws codepipeline enable-stage-transition \
-        --pipeline-name "auto_terraform_app_$TF_ENV" \
-        --stage-name Plan --transition-type Inbound
+  aws codepipeline enable-stage-transition \
+    --pipeline-name "auto_terraform_app_${TF_ENV}" \
+    --stage-name Plan --transition-type Inbound
 }
 
 TASKS=(
-    "1_verify_pipeline_status"
-    "2_enable_pipeline"
+  "1_verify_pipeline_status"
+  "2_enable_pipeline"
 )
 
 TODO=()
-while getopts rvh opt; do
-    case $opt in
-        v) TODO+=("${TASKS[0]}") ;;
-        r) TODO+=("${TASKS[1]}") ;;
-        h) man_page ;;
-        *) usage && exit 1 ;;
-    esac
+while getopts veh opt; do
+  case $opt in
+    v) TODO+=("${TASKS[0]}") ;;
+    e) TODO+=("${TASKS[1]}") ;;
+    h) help_me               ;;
+    *) usage && exit 1       ;;
+  esac
 done
 shift $((OPTIND-1))
 
@@ -94,5 +76,3 @@ verify_private_repo
 verify_sandbox_env "${1:-}"
 
 run_tasks
-
-exit 0

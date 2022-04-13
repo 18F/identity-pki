@@ -54,13 +54,11 @@ else
 fi
 
 if [[ $(echo "${RELEASE_PRS}" | grep BREAKING) ]] ; then
-  define BREAKING_PRS <<EOM
-
+  BREAKING_PRS="
 BREAKING CHANGES:
 $(echo "${RELEASE_PRS}" | grep BREAKING | sed -E 's/\(BREAKING\)| \| BREAKING//g')
 
-REGULAR CHANGES:
-EOM
+REGULAR CHANGES:"
 fi
 REGULAR_PRS=$(echo "${RELEASE_PRS}" | grep -v BREAKING)
 
@@ -69,9 +67,8 @@ run bundle exec rake release
 run git push origin release/v${NEW_RELEASE}
 run git push origin v${NEW_RELEASE} # push w/remote tags
 
-run ${GIT_DIR}/bin/github-pr -m "$(cat <<EOF
+${GIT_DIR}/bin/github-pr -m "$(cat <<EOF
 Release v${NEW_RELEASE}
-
 $(echo "${BREAKING_PRS}" | sed -E 's/^(- \#[0-9]+) .+$/\1/g')
 $(echo "${REGULAR_PRS}" | sed -E 's/^(- \#[0-9]+) .+$/\1/g')
 EOF
@@ -79,7 +76,6 @@ EOF
 
 run hub release create v${NEW_RELEASE} -m "$(cat <<EOF
 Release v${NEW_RELEASE}
-
 ${BREAKING_PRS}
 ${REGULAR_PRS}
 EOF

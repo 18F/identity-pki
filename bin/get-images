@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Grab AMI data and build a PR with it!
+#### Grab AMI data and build a PR with it! ####
 
 set -euo pipefail
 
@@ -28,39 +28,14 @@ Manually set AMIs for specific account and/or type:
 EOM
 }
 
-man_page() {
-    cat >&2 << EOM
-Usage: ${0} [-uospbr]
+help_me() {
+  cat >&2 << EOM
 
-1. Obtains information (ID/date/type/description) on most recent AMIs in each account
-(sandbox/prod) generated via the terraform/imagebuild deployment infrastructure
-2. Verifies that the AMIs are valid (via aws ec2 describe-images)
-3. Updates the corresponding values in terraform/app/variables.tf
-4. Creates a branch/pull request with the new AMI IDs
-
-Designed to run with no specified flags/arguments; however, individual commands / 
-parameters for the script can be specified with the following flags:
-
-  -l : Only generate the AMI data table, then exit
-  -u : Update ami_id values in terraform/app/variables.tf
-  -o : Create an ami/DATE branch, commit the changes to terraform/app/variables.tf,
-       and open a PR with the generated table data for the body
-  -b : Only update the base AMI IDs
-  -r : Only update the rails AMI IDs
-  -h : Display this help
-
-If specific AMI IDs are declared as arguments, with appropriate flags, the script
-will use that/those AMI(s) instead of the most recent CodeBuild artifact(s) (ideal in
-case there is an error with a recent build, and the previous build/another AMI should
-be used instead:
-
-  --sb=<AMI_ID> | --sandbox-base=<AMI_ID>
-  --sr=<AMI_ID> | --sandbox-rails=<AMI_ID>
-  --pb=<AMI_ID> | --prod-base=<AMI_ID>
-  --pr=<AMI_ID> | --prod-rails=<AMI_ID>
-
-The script will then proceed normally, checking CodeBuild for whichever AMIs are
-_not_ manually specified using one or more flags, generating the data table, etc.
+Obtains information (ID/date/type/description) on most recent AMIs in each account
+(sandbox/prod) generated via the terraform/imagebuild deployment infrastructure, then:
+1. Verifies that the AMIs are valid (via aws ec2 describe-images)
+2. Updates the corresponding values in terraform/app/variables.tf
+3. Creates a branch/pull request with the new AMI IDs
 
 The script will error out if:
 - there is an active \$AWS_VAULT session running
@@ -77,10 +52,9 @@ Example output:
 | ami-0b80f8d69529ba0a6  | 2021-08-09 20:53:03  | sandbox  | base-20210809203135   | 
 | ami-0f9ede873dff2b00b  | 2021-08-08 07:33:49  | prod     | rails-20210808070419  | 
 | ami-04249a1f1f1564ada  | 2021-08-08 07:25:36  | prod     | base-20210808070324   | 
-
 EOM
-
-exit 0
+  usage
+  exit 0
 }
 
 needs_arg() { if [ -z "$OPTARG" ]; then raise "No arg for --$OPT option"; fi; }
@@ -260,9 +234,9 @@ while getopts luobrh-: OPT; do
     o) TASK_LIST='open'   ;;
     b) TYPE_LIST='base'   ;;
     r) TYPE_LIST='rails'  ;;
-    h) man_page ;;
+    h) help_me            ;;
     ??* ) raise "Illegal option --$OPT" ;;  # bad long option
-    ? )   exit 2 ;;  # bad short option (error reported via getopts)
+    ? )   usage && exit 2 ;;  # bad short option (error reported via getopts)
   esac
 done
 shift $((OPTIND-1)) # remove parsed options and args from $@ list

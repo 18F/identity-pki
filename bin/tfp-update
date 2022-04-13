@@ -1,8 +1,9 @@
 #!/bin/bash
 
-#### update Terraform provider versions and (optionally) Terraform itself ####
+#### Update Terraform provider plugins (and Terraform itself, if desired) ####
 
 trap revert_versions EXIT
+
 set -euo pipefail
 
 . "$(dirname "$0")/lib/common.sh"
@@ -10,10 +11,9 @@ set -euo pipefail
 usage() {
     cat >&2 << EOM
 
-Usage:
-  ${0} [-t]
-to only update specific providers:
-  ${0} [-t] PROVIDER1 [PROVIDER2 ...]
+Usage: ${0} [-t|-h] [PROVIDER1 PROVIDER2 ...]
+  - If provided, will only update the providers whose names are specified
+    as arguments (e.g. 'aws', 'github', etc.) rather than the full list.
 
 Flags:
   -t : Skip checking to see if an update to Terraform is available
@@ -22,29 +22,20 @@ Flags:
 EOM
 }
 
-man_page() {
+help_me() {
     cat >&2 << EOM
 
-Usage: ${0} [-t] [PROVIDER1 PROVIDER2 ...]
+Updates all providers found in versions.tf via 'terraform providers lock', updating
+that file and .terraform.lock.hcl for the full repo. Creates a new lockfile within
+terraform/master/global and replaces the repo-wide lockfile with the newly-created one.
 
-Updates all providers found in versions.tf via 'terraform providers lock',
-updating that file and .terraform.lock.hcl for the full repo.
-Creates a new lockfile within terraform/master/global and replaces
-the repo-wide lockfile with the newly-created one.
-
-If desired, will only update the providers whose names are specified
-as arguments (e.g. 'aws', 'github', etc.) rather than the full list.
-
-Will also check to see if the currently-running version of Terraform
-is the most up-to-date, and (upon approval) will run terraform-switch.sh,
-update the required_version in versions.tf, and add the new version
-to the KNOWN_TF_VERSIONS variable in bin/lib/common.sh as well.
-
-Flags:
-  -t : Skip the Terraform update check
-  -h : Displays this help
-
+Will also check to see if the currently-running version of Terraform is the most
+up-to-date, and (upon approval) will run terraform-switch.sh, update the
+required_version in versions.tf, and add the new version to the KNOWN_TF_VERSIONS
+variable in bin/lib/common.sh as well.
 EOM
+  usage
+  exit 0
 }
 
 # revert versions.tf.bak if it exists
@@ -68,9 +59,9 @@ LOCKFILE="${LOCKFILE_DIR}/.terraform.lock.hcl"
 while getopts th opt
 do
   case $opt in
-    t) SKIP_TF_UPDATE=true                           ;;
-    h) man_page && exit 0                            ;;
-    *) usage && exit 1                               ;;
+    t) SKIP_TF_UPDATE=true ;;
+    h) help_me             ;;
+    *) usage && exit 1     ;;
   esac
 done
 shift $((OPTIND-1))

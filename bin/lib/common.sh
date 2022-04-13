@@ -19,7 +19,11 @@ ave() {
       echo -ne '\033[m'
     fi
   fi
-  aws-vault exec ${AV_PROFILE} -- "${run_me[@]}"
+  if [[ ! -z ${AWS_VAULT:-} ]] && [[ ${SHLVL} -gt 1 ]] ; then
+    "${run_me[@]}"
+  else
+    aws-vault exec ${AV_PROFILE} -- "${run_me[@]}"
+  fi
 }
 
 # echo full command before executing, then do it anyway

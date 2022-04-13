@@ -1,36 +1,47 @@
 #!/bin/bash
 
-# Quickly run aws-vault commands
+#### Run complex aws-vault commands with only a few flags and args ####
 
-set -eu
+set -euo pipefail
 
 . "$(dirname "$0")/lib/common.sh"
 
 usage() {
   cat >&2 <<EOM
 
-usage: $(basename "$0") [ACCOUNT]|[-x PROFILE] CMD|-v DUR|-l SERVICE
+Usage: ${0} ACCOUNT|[-x PROFILE] CMD|[-v DUR]|[-[i]l|c SERVICE]
+  - Will prompt to set \$LOGIN_IAM_PROFILE in env, if not already configured
+  - Uses Google Chrome for \`login\` commands
 
-Execute aws-vault commands with far less typing. Automatically
-determines the correct profile in your ~/.aws/config to use
-based on the presence of an env var, \$LOGIN_IAM_PROFILE,
-which it will prompt you to set if it isn't already set in your
+Flags:
+  -x PROFILE : Use specific profile instead of \$ACCOUNT-\$LOGIN_IAM_PROFILE
+  -v [DUR]   : \`exec --no-session --duration \${DUR}h\` (defaults to 1h)
+  -i         : Opens an incognito window when used with -l / -c (e.g. -il / -ic SERVICE)
+  -l         : \`login\` instead of \`exec\`
+  -c SERVICE : -l but redirects to https://console.aws.amazon.com/\${SERVICE}
+  -h         : Display help
+
+EOM
+}
+
+help_me() {
+  cat >&2 << EOM
+
+Execute aws-vault commands with far less typing. Automatically determines the correct
+profile in your ~/.aws/config to use based on the presence of an env var,
+\$LOGIN_IAM_PROFILE, which it will prompt you to set if it isn't already set in your
 current shell/env.
 
 Examples:
-  $(basename "$0") sandbox CMD  ==>  aws-vault exec sandbox-\$LOGIN_IAM_PROFILE -- CMD
-  $(basename "$0") -v 2 prod    ==>  aws-vault exec prod-\$LOGIN_IAM_PROFILE --no-session --duration 2h
-  $(basename "$0") -l sms-prod  ==>  aws-vault login sms-prod-\$LOGIN_IAM_PROFILE
-
-Flags:
-  -x PROFILE : Use a specific profile name, rather than \$ACCOUNT-\$LOGIN_IAM_PROFILE
-  -v [DUR]   : Equivalent to \`--no-session --duration \${DUR}h\`.
-               If DUR is not set, defaults to 1h.
-  -l         : Runs \`login\` instead of \`exec\`, opening the console in a browser window.
-  -c SERVICE : Same as -l but redirects to https://console.aws.amazon.com/\${SERVICE}
-  -h         : Display this help
-
+  ${0} sandbox CMD       -> aws-vault exec sandbox-\$LOGIN_IAM_PROFILE -- CMD
+  ${0} -v 2 sms-sandbox  -> aws-vault exec sms-sandbox-\$LOGIN_IAM_PROFILE --no-session --duration 2h
+  ${0} -l -x alpha-admin -> aws-vault login alpha-admin
+  ${0} -ic ec2 prod      -> aws-vault login prod-\$LOGIN_IAM_PROFILE --stdout |
+                            sed -E "s/%2Fconsole%2F/%2F\$SERVICE%2F/" |
+                            xargs -t /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome -incognito
 EOM
+  usage
+  exit 0
 }
 
 verify_profile () {
@@ -56,35 +67,18 @@ declare {AV_ROLE,SET_ROLE,SERVICE,INCOGNITO}=
 DUR=1
 VAULT_CMD='exec'
 
+[ $# -eq 0 ] && raise 'Cannot be run without arguments!'
+
 while getopts x:lc:v:ih opt
 do
   case "${opt}" in
-    x)
-       SET_ROLE="${OPTARG}"
-    ;;
-    l) 
-       SERVICE='console'
-       VAULT_CMD="login"
-    ;;
-    c)
-       SERVICE="${OPTARG}"
-       VAULT_CMD="login"
-    ;;
-    v)
-      DUR="${OPTARG}"
-      VAULT_CMD="session"
-    ;;
-    i)
-      INCOGNITO="-incognito"
-    ;;
-    h)
-      usage
-      exit 0
-    ;;
-    *)
-      usage
-      exit 1
-    ;;
+    x) SET_ROLE="${OPTARG}"                     ;;
+    l) VAULT_CMD="login" && SERVICE='console'   ;;
+    c) VAULT_CMD="login" && SERVICE="${OPTARG}" ;;
+    v) VAULT_CMD="session" && DUR="${OPTARG}"   ;;
+    i) INCOGNITO="-incognito"                   ;;
+    h) help_me                                  ;;
+    *) usage && exit 1                          ;;
   esac
 done
 shift $((OPTIND-1))

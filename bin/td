@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#### run tf-deploy with common Terraform commands and any AWS profile/TF directory ####
+#### Run tf-deploy with common commands and any AWS profile/TF directory ####
 
 set -euo pipefail
 
@@ -10,60 +10,44 @@ usage() {
     cat >&2 << EOM
 
 Usage: ${0} [-d TF_DIR|-e TF_ENV] CMD
- (or specify command with flag below:)
 
-  -a : apply                 -f LOCK_ID : force-unlock '\$LOCK_ID'
-  -p : plan                  -i ADDRESS ID : import \$RESOURCE_ADDRESS \$RESOURCE_ID
-  -x : destroy               -c ARGS : bin/tfplan ARGS
-  -v CMD : providers <CMD>   -o : Use ACCOUNT-admin instead of ACCOUNT-terraform   
-  -s CMD : state <CMD>       -u : Update .terraform.lock.hcl in the repo
+Directory/environment flags (optional):
+  -d TF_DIR : Directory in terraform/ to use (defaults to 'app' if not specified)
+  -e TF_ENV : Environment to use (defaults to \$GSA_USERNAME if not specified,
+              or 'sandbox' if TF_DIR has been set differently by -d)
 
+Flags (if CMD not specified):
+  -a : apply                       -f LOCK_ID    : force-unlock '\$LOCK_ID'
+  -p : plan                        -i ADDRESS ID : import \$ADDRESS \$ID
+  -x : destroy                     -c ARGS       : bin/tfplan ARGS
+  -v CMD : providers <CMD>         -s CMD : state <CMD>
+  
+  -u : Update .terraform.lock.hcl in the repo
+  -o : Use ACCOUNT-admin instead of ACCOUNT-terraform
   -h : Display help
+
+Specify arguments for command flags/tfplan WITHOUT hypens, e.g.:
+
+${0} -a target=aws_vpc.default -> bin/tf-deploy \$GSA_USERNAME app apply -target=aws_vpc.default
+${0} -d imagebuild -c bp       -> bin/tfplan -bp imagebuild sandbox
 
 EOM
 }
 
-man_page() {
+help_me() {
     cat >&2 << EOM
 
-Usage: ${0} [-d TF_DIR|-e TF_ENV] -a|-p|-x|-t|-o|-c ARGS|-v TF_PROVIDER_COMMAND
-                                  -s STATE_COMMAND | -f LOCK_ID
-                                  -i RESOURCE_ADDRESS RESOURCE_ID
+Wrapper script to pass aws-vault-enabled Terraform commands to bin/tf-deploy, using
+whatever 'Terraform' role(s) you have in your ~/.aws/config file.
 
-Wrapper script to pass aws-vault-enabled Terraform commands to bin/tf-deploy,
-using whatever 'Terraform' role(s) you have in your ~/.aws/config file.
-You MUST pass one command flag so that it knows what to do!
+Will parse the provided arguments/flags to determine which command to run, along with
+which directory and environment to run them against (if either are specified).
 
-Dir/env flags (optional):
-  -d TF_DIR : Directory in terraform/ to use.
-              Defaults to 'app' if not set.
-  -e TF_ENV : Terraform environment to use.
-              Defaults to \$GSA_USERNAME if not set, or 'sandbox'
-              if TF_DIR has been set differently by -d
-
-Common command flags:
-  -a : apply
-  -p : plan
-  -x : destroy
-  The above commands can be run with arguments if desired.
-  Arguments must be specified WITHOUT hyphens,
-  e.g. target= instead of -target=
-
-State command flags (arguments MUST be provided):
-  -v COMMAND    : providers '\$COMMAND'
-  -s COMMAND    : state '\$COMMAND'
-  -f LOCK_ID    : force-unlock '\$LOCK_ID'
-  -i ADDRESS ID : import \$RESOURCE_ADDRESS \$RESOURCE_ID
-
-Other commands (optional:
-  -c ARGS : Runs tfplan using any ARGS provided.
-            Specify ARGS without using dashes (e.g. m/p/mp)
-  -o : Use ACCOUNT-admin instead of ACCOUNT-terraform
-       (to only be used if encountering permissions issues
-        with the active Terraform role)
-  -h : Displays this help
-
+If no command flags are provided, will run whatever command is provided after
+all other arguments have been parsed.
 EOM
+  usage
+  exit 0
 }
 
 verify_root_repo
@@ -89,7 +73,7 @@ do
     l) RUN_FLAG+="-l "             ;;
     z) RUN_FLAG+="-z "             ;;
     m) RUN_FLAG+="-m "             ;;
-    h) man_page && exit 0          ;;
+    h) help_me                     ;;
     *) usage && exit 1             ;;
   esac
 done
