@@ -6,8 +6,9 @@ trap replace_db_files EXIT
 
 set -euo pipefail
 
-. "$(dirname "$0")/lib/common.sh"
-. "$(dirname "$0")/lib/sandbox-lib.sh"
+BASEPATH="$(dirname "$0")"
+. "${BASEPATH}/lib/common.sh"
+. "${BASEPATH}/lib/sandbox-lib.sh"
 
 usage() {
     cat >&2 << EOM

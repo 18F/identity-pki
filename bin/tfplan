@@ -6,15 +6,12 @@ trap "PASTE=" EXIT
 
 set -euo pipefail
 
-basename="$(basename "$0")"
-
-BASEPATH="$(dirname "$0")"
-. "${BASEPATH}/lib/common.sh"
+. "$(dirname "$0")/lib/common.sh"
 
 usage() {
     cat >&2 << EOM
 
-Usage: ${basename} [-m|-b|-p|-h] TF_DIR TF_ENV
+Usage: ${0} [-m|-b|-p|-h] TF_DIR TF_ENV
 
 Flags:
   -m : Only list specific resource(s) being changed (no additional output)
@@ -45,11 +42,11 @@ Runs 'terraform plan' via tf-deploy & processes output for easier change visibil
 
 Examples:
 
-${basename}            -> tf-deploy GSA_USERNAME app plan
-${basename} core       -> tf-deploy core/sandbox plan
-${basename} master     -> tf-deploy master/global plan | grep -E '^ +# [a-z]'
-${basename} all alpha  -> tf-deploy all/alpha plan
-${basename} -p app int -> tf-deploy int app plan |
+${0}            -> tf-deploy GSA_USERNAME app plan
+${0} core       -> tf-deploy core/sandbox plan
+${0} master     -> tf-deploy master/global plan | grep -E '^ +# [a-z]'
+${0} all alpha  -> tf-deploy all/alpha plan
+${0} -p app int -> tf-deploy int app plan |
                                  pbcopy ; subl -b --command new_file --command paste
 EOM
   usage
