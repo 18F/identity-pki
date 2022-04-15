@@ -90,6 +90,9 @@ module "main" {
       { "ReadOnly" = ["Sandbox", "Prod", "Master", "Analytics"] },
       { "Terraform" = ["Sandbox"] }
     ],
+    "supporteng" = [
+      { "SupportEngineer" = ["Sandbox", "Prod"] }
+    ],
     "keymasters" = [
       { "KMSAdministrator" = ["Prod"] }
     ]
@@ -106,6 +109,7 @@ module "main" {
     "ReportsReadOnly",
     "KMSAdministrator",
     "SOCAdministrator",
+    "SupportEngineer",
   ]
 
   # User to group mappings - Groups defined in ../module/iam_groups.tf

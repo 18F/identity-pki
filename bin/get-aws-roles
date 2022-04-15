@@ -9,30 +9,45 @@ set -eu
 usage() {
   cat >&2 <<EOM
 
-usage: $(basename "$0") [AWS_IAM_USER] [-c]
+usage: $(basename "$0") [AWS_IAM_USER]
 
-List the available AWS IAM roles that a user can assume +
-add to their ~/.aws/config file for aws-vault access.
+Look up all AWS IAM roles that \`AWS_IAM_USER\` can Assume
+via aws-vault. The value of \`AWS_IAM_USER\` can be:
 
-Can be run with no arguments to list your own roles, if
-your AWS_IAM_USER env var is set. If run with -c , will
-prompt if you want the printed role(s) to be added to
-your ~/.aws/config file. (You cannot use the -c option
-if looking up roles for another user.)
+- provided as an argument to this script (for yourself
+  or to look up another user's available roles)
+- set in one's shell as an environment variable,
+  i.e. within an .rc file
+- left blank, to use the value of \`.UserName\` returned
+  when running \`aws iam get-user\`
+
+If running yourself and/or without providing \`AWS_IAM_USER\`
+as an argument, will prompt to add them to your
+~/.aws/config file with the appropriate role_arn /
+role_session_name / include_profile settings, as well
+as the session_tags=SSMSessionRunAs configs if you have
+an ec2_username set in terraform/master/global/users.yaml
+
+Must be run in an aws-vault exec / session wrapper using
+one's source/parent profile (usually \`master\`), e.g.:
+
+$ aws-vault exec master -- $(basename "$0")
+$ $(dirname "$0")/awsv -x master $(basename "$0")
 
 EOM
 }
 
-if [ $# -gt 2 ] ; then
-  usage
-  exit 1
-fi
+[ $# -gt 1 ] && raise 'Must provide 0-1 arguments'
 verify_root_repo
 echo
 
 IAM_USER=${1-}
 ENV_USER=${AWS_IAM_USER-}
-FOUND_USER=$(aws iam get-user 2>/dev/null | jq -r '.[].UserName')
+IAM_USER_DATA=$(aws iam get-user 2>/dev/null)
+FOUND_USER=$(echo ${IAM_USER_DATA} | jq -r '.[].UserName')
+EC2_USERNAME=$(echo ${IAM_USER_DATA} | jq -r '.[].Tags[]|
+  select(.Key == "ec2_username").Value' 2>/dev/null || true) 
+declare {FOUND_POLICIES,ROLE_ARNS,RUN_AS_CONFIG}=
 
 if [[ -z "${IAM_USER}" ]] ; then
   if [[ -z "${ENV_USER}" ]] ; then
@@ -55,7 +70,6 @@ verify_iam_user "${IAM_USER}"
 echo_blue "Getting available roles(s) for user ${IAM_USER}..."
 echo
 # verify that we have permission to see the groups for $IAM_USER
-declare FOUND_POLICIES=()
 for GROUP in $(aws iam list-groups-for-user \
                 --user-name ${IAM_USER} \
                 --query 'Groups[].{Group:GroupName}' \
@@ -68,7 +82,6 @@ done
 
 ACCOUNT_TYPES=$(echo -e "{\n$(sed -E '1,/aws_account_types/d;/\}/,$d' terraform/master/global/main.tf)}" |
                 sed -E 's/\]\}/\]\'$'\n\}/;s/ = /\: /g;s/ #.+$//g')
-declare ROLE_ARNS=()
 for POLICY in $(echo ${FOUND_POLICIES[@]} |
                 tr -s '[:blank:]' '\n' | sort -u | tr '\n' ' ') ; do
   ACCOUNT=$(echo $POLICY | sed -E 's/.*policy\/([a-zA-z]+)Assume.*/\1/')
@@ -87,7 +100,11 @@ echo
 
 if [[ "${FOUND_USER}" == "${IAM_USER}" ]] ; then
   if prompt_yn "Add roles to ~/.aws/config file?" ; then
-    [[ -z ${GSA_USERNAME} ]] && raise "GSA_USERNAME not set; cannot configure SSMSessionRunAs user"
+    if [[ -z ${EC2_USERNAME} ]]; then
+      echo_yellow "EC2_USERNAME not set; will not configure SSMSessionRunAs user"
+    else
+      RUN_AS_CONFIG="session_tags      = SSMSessionRunAs=${EC2_USERNAME}\n"
+    fi
     echo_blue "Generating config and adding to file..."
     echo
     MAIN_PROFILE=${AWS_VAULT:-$(echo $AWS_PROFILE)}
@@ -106,12 +123,9 @@ if [[ "${FOUND_USER}" == "${IAM_USER}" ]] ; then
       else
         define ROLE_BLOCK <<EOF
 [profile ${ROLE_NAME}]
-role_arn=${ROLE_ARN}
-role_session_name=${FOUND_USER}
-session_tags=SSMSessionRunAs=${GSA_USERNAME}
-include_profile=${MAIN_PROFILE}
-source_profile=${MAIN_PROFILE}
-region=us-west-2
+role_arn          = ${ROLE_ARN}
+role_session_name = ${FOUND_USER}
+${RUN_AS_CONFIG}include_profile   = ${MAIN_PROFILE}
 
 EOF
         echo -e "${ROLE_BLOCK}\n" | tee -a ~/.aws/config
