@@ -213,7 +213,8 @@ file '/etc/gitlab/backup.sh' do
 #!/bin/bash
 DATE=$(date +%Y%m%d%H%M)
 failure() {
-  echo "gitlab backup FAILED for #{node.chef_environment}:$DATE - $1"
+  STATUS="FAILED"
+  echo "gitlab backup $STATUS for #{node.chef_environment}:$DATE - $1" | logger
 }
 
 # backup github environment
