@@ -1,7 +1,8 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
+  - c-in-parent-ssp
 ---
 
 # cp-2 - \[catalog\] Contingency Plan
@@ -89,7 +90,7 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-<!-- Please leave this section blank and enter implementation details in the parts below. -->
+The GitLab component uses cp-2 from the main Login.gov SSP.
 
 ______________________________________________________________________
 
