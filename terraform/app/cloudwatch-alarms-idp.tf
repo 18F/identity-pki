@@ -133,3 +133,24 @@ EOM
   ok_actions    = local.high_priority_alarm_actions
 }
 
+resource "aws_cloudwatch_metric_alarm" "idp_too_many_healthy_instances_alert" {
+  alarm_name        = "${aws_autoscaling_group.idp.name}-healthy-instances"
+  alarm_description = "${aws_autoscaling_group.idp.name}: Too many healthy instances"
+  namespace         = "AWS/ApplicationELB"
+
+  metric_name = "HealthyHostCount"
+  dimensions = {
+    LoadBalancer = aws_alb.idp.arn_suffix
+    TargetGroup  = aws_alb_target_group.idp-ssl.arn_suffix
+  }
+
+  statistic           = "Maximum"
+  comparison_operator = "GreaterThanThreshold"
+  threshold           = var.asg_idp_desired
+  period              = 300
+  evaluation_periods  = 12
+
+  treat_missing_data = "notBreaching"
+
+  alarm_actions = local.low_priority_alarm_actions
+}
