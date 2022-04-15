@@ -139,7 +139,8 @@ execute 'configure_gitlab_runner' do
     --cache-s3-authentication_type iam \
     --access-level=not_protected \
     --docker-memory 4096m \
-    --docker-cpu-shares 1024
+    --docker-cpu-shares 1024 \
+    --docker-security-opt no-new-privileges
   EOH
   sensitive true
   notifies :run, 'execute[restart_runner]', :immediate
