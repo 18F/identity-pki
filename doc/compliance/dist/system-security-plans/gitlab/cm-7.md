@@ -1,7 +1,8 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
+  - c-in-parent-ssp
 ---
 
 # cm-7 - \[catalog\] Least Functionality
@@ -50,12 +51,12 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-Add control implementation description here for item cm-7_smt.a
+This control is already documented in the main SSP.
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-Add control implementation description here for item cm-7_smt.b
+This control is already documented in the main SSP.
 
 ______________________________________________________________________

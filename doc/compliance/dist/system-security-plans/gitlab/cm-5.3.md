@@ -1,7 +1,8 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
+  - c-in-parent-ssp
 ---
 
 # cm-5.3 - \[catalog\] Signed Components
@@ -26,6 +27,11 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control cm-5.3
+This control is already documented in the main SSP for the server VMs.
+
+Gitlab packages are signed by gitlab, and verified with a public key.
+
+Our Container Development wiki page tells us to use Docker
+Content Trust, where possible.
 
 ______________________________________________________________________

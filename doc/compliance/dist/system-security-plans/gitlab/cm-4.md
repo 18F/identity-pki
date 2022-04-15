@@ -1,7 +1,8 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
+  - c-in-parent-ssp
 ---
 
 # cm-4 - \[catalog\] Security Impact Analysis
@@ -22,6 +23,9 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control cm-4
+This control is already documented in the main SSP.
+
+In addition, our Container Development wiki page has instructions on
+how to establish trust for a specific image.
 
 ______________________________________________________________________

@@ -1,7 +1,8 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
+  - c-in-parent-ssp
 needs-params:
   - cm-8.3_prm_3
 effort:
@@ -59,12 +60,12 @@ ______________________________________________________________________
 
 ## Implementation (a)
 
-Add control implementation description here for item cm-8.3_smt.a
+This control is already documented in the main SSP.
 
 ______________________________________________________________________
 
 ## Implementation (b)
 
-Add control implementation description here for item cm-8.3_smt.b
+This control is already documented in the main SSP.
 
 ______________________________________________________________________

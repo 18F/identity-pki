@@ -1,7 +1,8 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
+  - c-in-parent-ssp
 ---
 
 # cm-6 - \[catalog\] Configuration Settings
@@ -67,24 +68,29 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-Add control implementation description here for item cm-6_smt.a
+This control is already documented in the main SSP for the Gitlab Server.
+
+Also, our Container Development wiki page gives us recommendations from
+the docker CIS benchmark for us to follow to create secure and minimal images.
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-Add control implementation description here for item cm-6_smt.b
+This control is already documented in the main SSP for the Gitlab Server.
+
+As much as possible, we have implemented the checklist items in CM-6(a).
 
 ______________________________________________________________________
 
 ## Implementation c.
 
-Add control implementation description here for item cm-6_smt.c
+This control is already documented in the main SSP for the Gitlab Server.
 
 ______________________________________________________________________
 
 ## Implementation d.
 
-Add control implementation description here for item cm-6_smt.d
+This control is already documented in the main SSP for the Gitlab Server.
 
 ______________________________________________________________________

@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
 effort:
   - medium
 ---
@@ -32,6 +32,7 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control cm-6.1
+Gitlab is deployed and tested in a fully automated fashion using
+AWS CodePipeline and CodeBuild.
 
 ______________________________________________________________________

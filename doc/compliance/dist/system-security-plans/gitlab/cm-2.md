@@ -1,7 +1,8 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
+  - c-in-parent-ssp
 ---
 
 # cm-2 - \[catalog\] Baseline Configuration
@@ -26,6 +27,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control cm-2
+This control is already documented in the main SSP.
 
 ______________________________________________________________________

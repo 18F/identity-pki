@@ -1,7 +1,8 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
+  - c-in-parent-ssp
 ---
 
 # cm-7.5 - \[catalog\] Authorized Software / Whitelisting
@@ -43,18 +44,18 @@ ______________________________________________________________________
 
 ## Implementation (a)
 
-Add control implementation description here for item cm-7.5_smt.a
+This control is already documented in the main SSP.
 
 ______________________________________________________________________
 
 ## Implementation (b)
 
-Add control implementation description here for item cm-7.5_smt.b
+This control is already documented in the main SSP.
 
 ______________________________________________________________________
 
 ## Implementation (c)
 
-Add control implementation description here for item cm-7.5_smt.c
+This control is already documented in the main SSP.
 
 ______________________________________________________________________
