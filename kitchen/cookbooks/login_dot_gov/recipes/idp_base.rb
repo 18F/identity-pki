@@ -1,8 +1,9 @@
 # setup postgres root config resource
 psql_config 'configure postgres CA bundle root cert'
 
-release_path    = '/srv/idp/releases/chef'
-shared_path     = '/srv/idp/shared'
+parent_release_path = '/srv/idp/releases'
+release_path        = '/srv/idp/releases/chef'
+shared_path         = '/srv/idp/shared'
 
 # create dir for AWS PostgreSQL combined CA cert bundle
 directory '/usr/local/share/aws' do
@@ -20,6 +21,12 @@ remote_file '/usr/local/share/aws/rds-combined-ca-bundle.pem' do
   owner 'root'
   sensitive true # nothing sensitive but using to remove unnecessary output
   source 'https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem'
+end
+
+directory parent_release_path do
+  owner node['login_dot_gov']['system_user']
+  group node['login_dot_gov']['system_user']
+  recursive true
 end
 
 directory release_path do
@@ -73,21 +80,49 @@ git_sha = shell_out("git ls-remote https://github.com/18F/identity-idp.git #{dep
 idp_artifacts_enabled = node['login_dot_gov']['idp_artifacts']
 artifacts_bucket = node['login_dot_gov']['artifacts_bucket']
 s3_artifact = "s3://#{artifacts_bucket}/#{node.chef_environment}/#{git_sha}.idp.tar.gz"
-artifacts_downloaded = lambda { File.exist?('/srv/idp/releases/artifacts-downloaded') }
+artifacts_downloaded = lambda { File.exist?('/srv/idp/releases/idp.tar.gz') }
+artifacts_unzipped = lambda { File.exist?('/srv/idp/releases/artifacts-downloaded') }
 
 # Attempts to download and extract an IDP artifact with the most recent SHA on the deploy branch
 # into `/srv/idp/releases/chef`.
 if idp_artifacts_enabled
   execute 'download artifacts' do
     cwd '/srv/idp/releases'
-    command "aws s3 cp #{Shellwords.shellescape(s3_artifact)} idp.tar.gz && tar -xzf idp.tar.gz -C chef && touch /srv/idp/releases/artifacts-downloaded"
+    command [
+      'aws', 's3', 'cp', "#{Shellwords.shellescape(s3_artifact)}", 'idp.tar.gz'
+    ]
+
+    user node['login_dot_gov']['system_user']
+    group node['login_dot_gov']['system_user']
+    ignore_failure true
+  end
+
+  execute 'unzip artifacts' do
+    cwd '/srv/idp/releases'
+    command [
+      'tar', '-xzf', 'idp.tar.gz', '-C', 'chef'
+    ]
+    user node['login_dot_gov']['system_user']
+    group node['login_dot_gov']['system_user']
+    only_if { artifacts_downloaded.call }
+    ignore_failure true
+  end
+
+  execute 'mark artifacts as downloaded successfully' do
+    cwd '/srv/idp/releases'
+    command [
+      'touch', '/srv/idp/releases/artifacts-downloaded'
+    ]
+    user node['login_dot_gov']['system_user']
+    group node['login_dot_gov']['system_user']
+    only_if { artifacts_downloaded.call }
     ignore_failure true
   end
 end
 
 execute 'tag instance from artifact sha' do
   command "aws ec2 create-tags --region #{node['ec2']['region']} --resources #{node['ec2']['instance_id']} --tags Key=gitsha:idp,Value=#{git_sha}"
-  only_if { artifacts_downloaded.call }
+  only_if { artifacts_unzipped.call }
 end
 
 git release_path do
@@ -95,12 +130,12 @@ git release_path do
   depth 1
   user node['login_dot_gov']['system_user']
   revision deploy_branch
-  not_if { artifacts_downloaded.call }
+  not_if { artifacts_unzipped.call }
 end
 
 execute 'tag instance from git repo sha' do
   command "aws ec2 create-tags --region #{node['ec2']['region']} --resources #{node['ec2']['instance_id']} --tags Key=gitsha:idp,Value=$(cd #{release_path} && git rev-parse HEAD)"
-  only_if { idp_artifacts_enabled && !artifacts_downloaded.call }
+  only_if { idp_artifacts_enabled && !artifacts_unzipped.call }
 end
 
 # TODO: figure out why this hack is needed and remove it.
@@ -131,7 +166,7 @@ execute 'deploy build step' do
     'sudo', '-H', '-u', node.fetch('login_dot_gov').fetch('system_user'), './deploy/build'
   ]
   user 'root'
-  only_if { !idp_artifacts_enabled || !artifacts_downloaded.call }
+  only_if { !idp_artifacts_enabled || !artifacts_unzipped.call }
 end
 
 # If artifact was downloaded, we instruct the IDP to install its Ruby/JS dependencies
@@ -143,7 +178,7 @@ execute 'deploy build step with artifacts' do
     'sudo', 'IDP_LOCAL_DEPENDENCIES=true', '-H', '-u', node.fetch('login_dot_gov').fetch('system_user'), './deploy/build'
   ]
   user 'root'
-  only_if { idp_artifacts_enabled && artifacts_downloaded.call }
+  only_if { idp_artifacts_enabled && artifacts_unzipped.call }
 end
 
 execute 'link large static files' do
@@ -186,7 +221,7 @@ execute 'deploy build-post-config step' do
     './deploy/build-post-config'
   ]
   user 'root'
-  not_if { artifacts_downloaded.call }
+  not_if { artifacts_unzipped.call }
 end
 
 execute 'newrelic log deploy' do
