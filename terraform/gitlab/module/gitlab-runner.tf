@@ -31,6 +31,7 @@ module "build_pool" {
   default_ami_id_tooling           = var.default_ami_id_tooling
   route53_id                       = var.route53_id
   destination_artifact_accounts    = var.destination_artifact_accounts
+  destination_idp_static_accounts  = var.destination_idp_static_accounts
 }
 
 # A pool with reduced Internet access, but increased infrastructure permissions

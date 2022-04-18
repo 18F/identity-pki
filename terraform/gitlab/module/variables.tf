@@ -368,6 +368,12 @@ variable "destination_artifact_accounts" {
   default     = []
 }
 
+variable "destination_idp_static_accounts" {
+  description = "List of AWS accounts we can potentially push IDP CDN static assets to"
+  type        = list(string)
+  default     = []
+}
+
 variable "production" {
   description = "If this is set to true, it will try to set up dns/SSL so that you can go to gitlab.login.gov"
   default     = false

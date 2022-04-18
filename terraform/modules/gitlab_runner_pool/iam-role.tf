@@ -456,7 +456,7 @@ resource "aws_iam_role_policy" "gitlab-runner-config" {
 
 data "aws_iam_policy_document" "app_artifacts_bucket_role_policy_document" {
   statement {
-    sid    = "AllowBucketAndObjects"
+    sid    = "AllowAppArtifactsBucketAndObjects"
     effect = "Allow"
     actions = [
       "s3:GetObject",
@@ -469,10 +469,32 @@ data "aws_iam_policy_document" "app_artifacts_bucket_role_policy_document" {
   }
 }
 
+data "aws_iam_policy_document" "idp_static_assets_role_bucket_role_policy_document" {
+  statement {
+    sid    = "AllowIDPStaticAssetsBucketAndObjects"
+    effect = "Allow"
+    actions = [
+      "s3:GetObject",
+      "s3:PutObject",
+      "s3:ListBucket"
+    ]
+
+    resources = flatten([for account in var.destination_idp_static_accounts : ["arn:aws:s3:::login-gov-idp-static-*.${account}-${var.region}", "arn:aws:s3:::login-gov-idp-static-*.${account}-${var.region}/*"]])
+  }
+}
+
 resource "aws_iam_role_policy" "app_artifacts_role_bucket_role_policy" {
   count = length(var.destination_artifact_accounts) > 0 ? 1 : 0
 
   name   = "${var.env_name}-upload-app-artifacts"
   role   = aws_iam_role.gitlab_runner.id
   policy = data.aws_iam_policy_document.app_artifacts_bucket_role_policy_document.json
+}
+
+resource "aws_iam_role_policy" "idp_static_assets_role_bucket_role_policy" {
+  count = length(var.destination_idp_static_accounts) > 0 ? 1 : 0
+
+  name   = "${var.env_name}-upload-idp-static-assets"
+  role   = aws_iam_role.gitlab_runner.id
+  policy = data.aws_iam_policy_document.idp_static_assets_role_bucket_role_policy_document.json
 }

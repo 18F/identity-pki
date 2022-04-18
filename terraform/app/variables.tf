@@ -22,6 +22,12 @@ variable "enable_idp_cdn" {
   default     = false
 }
 
+variable "idp_static_bucket_cross_account_access" {
+  description = "Source roles from other accounts allowed access to the bucket"
+  type        = list(string)
+  default     = []
+}
+
 # unallocated: "172.16.33.96/28"   # 172.16.33.96  - 172.16.33.111
 # unallocated: "172.16.33.112/28"  # 172.16.33.112 - 172.16.33.115
 variable "db1_subnet_cidr_block" { # 172.16.33.32 - 172.16.33.47

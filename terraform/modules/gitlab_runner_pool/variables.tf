@@ -332,3 +332,9 @@ variable "destination_artifact_accounts" {
   type        = list(string)
   default     = []
 }
+
+variable "destination_idp_static_accounts" {
+  description = "List of AWS accounts we can potentially push IDP CDN static assets to"
+  type        = list(string)
+  default     = []
+}

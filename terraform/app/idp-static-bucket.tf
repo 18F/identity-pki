@@ -1,19 +1,23 @@
 # S3 bucket for static assets
+locals {
+  bucket_name = "login-gov-idp-static-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
+}
+
 resource "aws_s3_bucket" "idp_static_bucket" {
   # Conditionally create this bucket only if enable_idp_assets_bucket is set to true
   count = var.enable_idp_static_bucket ? 1 : 0
 
-  bucket = "login-gov-idp-static-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
+  bucket = local.bucket_name
 
   force_destroy = var.force_destroy_idp_static_bucket
 
   logging {
     target_bucket = "login-gov.s3-access-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
-    target_prefix = "login-gov-idp-static-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}/"
+    target_prefix = "${local.bucket_name}/"
   }
 
   tags = {
-    Name = "login-gov-idp-static-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
+    Name = local.bucket_name
   }
 
   website {
@@ -64,8 +68,11 @@ module "idp_static_bucket_config" {
 }
 
 data "aws_iam_policy_document" "idp_static_bucket_policy" {
+  source_json = data.aws_iam_policy_document.cross_account.json
+
   # IdP and AppDev can manage items
   statement {
+    sid = "EC2AppDevPermission"
     actions = [
       "s3:AbortMultipartUpload",
       "s3:GetObject",
@@ -81,8 +88,8 @@ data "aws_iam_policy_document" "idp_static_bucket_policy" {
       ]
     }
     resources = [
-      "arn:aws:s3:::login-gov-idp-static-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}",
-      "arn:aws:s3:::login-gov-idp-static-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}/*"
+      "arn:aws:s3:::${local.bucket_name}",
+      "arn:aws:s3:::${local.bucket_name}/*"
     ]
   }
 
@@ -90,13 +97,47 @@ data "aws_iam_policy_document" "idp_static_bucket_policy" {
   # S3 origin the call from CloudFront to S3 uses the S3 API so we do
   # not want to expose permissions like List.
   statement {
+    sid     = "CloudFrontGET"
     actions = ["s3:GetObject"]
     principals {
       type        = "AWS"
       identifiers = [aws_cloudfront_origin_access_identity.cloudfront_oai.iam_arn]
     }
     resources = [
-      "arn:aws:s3:::login-gov-idp-static-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}/*"
+      "arn:aws:s3:::${local.bucket_name}/*"
     ]
+  }
+}
+
+data "aws_iam_policy_document" "cross_account" {
+  dynamic "statement" {
+    for_each = toset(var.idp_static_bucket_cross_account_access)
+
+    content {
+      actions = [
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:ListBucket"
+      ]
+      principals {
+        type = "AWS"
+        identifiers = [
+          statement.key
+        ]
+      }
+      resources = [
+        "arn:aws:s3:::${local.bucket_name}/*",
+        "arn:aws:s3:::${local.bucket_name}"
+      ]
+    }
+  }
+}
+
+resource "aws_s3_bucket_ownership_controls" "idp_static_bucket" {
+  count  = var.enable_idp_static_bucket ? 1 : 0
+  bucket = aws_s3_bucket.idp_static_bucket[0].id
+
+  rule {
+    object_ownership = "BucketOwnerEnforced"
   }
 }
