@@ -57,6 +57,7 @@ module "log-ship-to-soc-app-logs" {
     "${var.env_name}_/srv/idp/shared/log/telephony.log"        = ""
     "${var.env_name}_/srv/idp/shared/log/workers.log"          = ""
     "${var.env_name}_/srv/pki-rails/shared/log/production.log" = ""
+    "${var.env_name}_/srv/idp/shared/log/newrelic_agent.log"   = ""
   }
   env_name            = "${var.env_name}-app"
   soc_destination_arn = "arn:aws:logs:us-west-2:752281881774:destination:elp-app-lg"
