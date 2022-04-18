@@ -18,9 +18,10 @@ module "main" {
   dashboard_logos_bucket_write = true
   reports_bucket_arn           = "arn:aws:s3:::login-gov.reports.894947205914-us-west-2"
   account_roles_map = {
-    iam_reports_enabled   = true
-    iam_kmsadmin_enabled  = true
-    iam_analytics_enabled = true
+    iam_reports_enabled    = true
+    iam_kmsadmin_enabled   = true
+    iam_analytics_enabled  = true
+    iam_supporteng_enabled = true
   }
 
   # TODO: Remove this as soon as service provider logos no longer
@@ -141,19 +142,12 @@ module "main" {
     },
   ]
 
-  #  ssm_access_map = {
-  #    "Analytics"         = [
-  #      { "prod" = ["analyze"] },
-  #      { "staging" = ["analyze"] },
-  #    ],
-  #    "Auditor"           = [ { "*" = ["*"] } ],
-  #    "FullAdministrator" = [ { "*" = ["*"] } ],
-  #    "PowerUser"         = [ { "*" = ["*"] } ],
-  #    "ReadOnly"          = [ { "*" = ["*"] } ],
-  #    "Terraform"         = [ { "*" = ["*"] } ],
-  #    "BillingReadOnly"   = [ { "*" = ["*"] } ],
-  #    "ReportsReadOnly"   = [ { "*" = ["*"] } ],
-  #    "KMSAdministrator"  = [ { "*" = ["*"] } ],
-  #    "SOCAdministrator"  = [ { "*" = ["*"] } ],
-  #  }
+  ssm_access_map = {
+    "FullAdministrator" = [{ "*" = ["*"] }],
+    "KMSAdministrator"  = [{ "*" = ["*"] }],
+    "PowerUser"         = [{ "*" = ["*"] }],
+    "SOCAdministrator"  = [{ "*" = ["*"] }],
+    "SupportEngineer"   = [{ "*" = ["uuid-lookup"] }],
+    "Terraform"         = [{ "*" = ["*"] }],
+  }
 }

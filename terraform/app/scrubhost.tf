@@ -130,7 +130,7 @@ resource "aws_iam_role_policy" "scrub-permissions-auto-eip" {
 resource "aws_iam_role_policy" "scrub-permissions-ssm-access" {
   name   = "${var.env_name}-scrub-permissions-ssm-access"
   role   = aws_iam_role.scrub-permissions.id
-  policy = data.aws_iam_policy_document.ssm_access_role_policy.json
+  policy = module.ssm.ssm_access_role_policy
 }
 
 resource "aws_iam_role_policy" "scrub-sns-publish-alerts" {

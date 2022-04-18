@@ -9,7 +9,7 @@ set -eu
 usage() {
   cat >&2 <<EOM
 
-usage: $(basename "$0") USERNAME [-k] [-p]
+usage: $(basename "$0") USERNAME [-u EC2_USERNAME] [-k] [-p]
 
 Create an AWS login profile w/temporary password + Access/Secret Keys
 for USERNAME in the login-master account, and then opens
@@ -18,9 +18,12 @@ a new Google Sheet where the credentials can be shared.
 If run with a user who already has a login profile and/or Access/Secret
 Key(s), prompt to delete/recreate the credentials.
 
+If user has an ec2_username key/value in terraform/master/global/users.yaml,
+adds the value of that key as the ec2_username Tag for that user.
+
 Flags:
-  -k    Only create Access Key ID / Secret Key
-  -p    Only create temp password
+  -k : Only create Access Key ID / Secret Key
+  -p : Only create temp password
 
 To work properly, USERNAME must:
   - be an entry in terraform/master/global/users.yaml

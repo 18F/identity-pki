@@ -23,14 +23,13 @@ module Cloudlib
 
       attr_reader :cl
       attr_reader :instance
-      attr_reader :use_document
+      attr_reader :document
 
       # @param [String] instance_id
       # @param [Aws::EC2::Instance] instance
-      # @param [Boolean] use_document whether or not to use a document (requires document be have
-      #   been terraformed in that environment)
-      def initialize(instance_id: nil, instance: nil, use_document: true)
-        @use_document = use_document
+      # @param [String] document
+      def initialize(instance_id: nil, instance: nil, document: nil)
+        @document = document
 
         if (instance_id && instance) || (!instance_id && !instance)
           raise ArgumentError.new('must pass one of instance_id or instance')
@@ -72,14 +71,23 @@ module Cloudlib
           'start-session',
           '--target', instance.instance_id,
         ]
+        
+        # HACK: Don't use document when connecting to gitlab hosts.
+        # Update this once an SSM document solution is in place.
+        instance_domain = ''
+        instance.tags.each { |tag| instance_domain = tag.value if tag.key == "domain" }
 
-        if use_document
+        if instance_domain !~ /gitlab/
           cmd += [
-            '--parameters', { gsausername: [local_gsa_username] }.to_json,
-            '--document',  document_name,
+            '--document',  "#{@cl.env}-ssm-document-#{@document}",
           ]
+          if @document == 'gsa-username'
+            cmd += [
+              '--parameters', { gsausername: [local_gsa_username] }.to_json,
+            ]
+          end
         end
-
+        
         log.debug('exec: ' + cmd.inspect)
         exec(*cmd)
       end
@@ -90,9 +98,6 @@ module Cloudlib
         end
       end
 
-      def document_name
-        "#{@cl.env}-ssm-document-gsa-username"
-      end
     end
   end
 end

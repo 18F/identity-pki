@@ -22,6 +22,16 @@ locals {
     iam_billing_enabled        = true
     iam_reports_enabled        = false
     iam_kmsadmin_enabled       = false
+    iam_supporteng_enabled     = false
+  }
+
+  ssm_cmd_map = {
+    "default"     = ["*"]
+    "sudo"        = ["*"]
+    "rails-c"     = ["idp", "idpxtra", "migration", "worker"]
+    "rails-w"     = ["idp", "idpxtra", "migration", "worker"]
+    "tail-cw"     = ["*"]
+    "uuid-lookup" = ["idp", "idpxtra", "migration", "worker"]
   }
 }
 

@@ -59,7 +59,7 @@ resource "aws_iam_role_policy" "base-permissions-auto-eip" {
 resource "aws_iam_role_policy" "base-permissions-ssm-access" {
   name   = "${var.env_name}-base-permissions-ssm-access"
   role   = aws_iam_role.base-permissions.id
-  policy = data.aws_iam_policy_document.ssm_access_role_policy.json
+  policy = module.ssm.ssm_access_role_policy
 }
 
 # allow all instances to send a dying SNS notice

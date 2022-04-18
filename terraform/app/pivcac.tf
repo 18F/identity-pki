@@ -109,7 +109,7 @@ resource "aws_iam_role_policy" "pivcac-cloudwatch-agent" {
 resource "aws_iam_role_policy" "pivcac-ssm-access" {
   name   = "${var.env_name}-pivcac-ssm-access"
   role   = aws_iam_role.pivcac.id
-  policy = data.aws_iam_policy_document.ssm_access_role_policy.json
+  policy = module.ssm.ssm_access_role_policy
 }
 
 resource "aws_iam_role_policy" "pivcac-sns-publish-alerts" {

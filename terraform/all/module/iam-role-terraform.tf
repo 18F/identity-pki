@@ -374,6 +374,7 @@ locals {
         sid    = "Logs"
         effect = "Allow"
         actions = [
+          "logs:AssociateKmsKey",
           "logs:CreateLogDelivery",
           "logs:CreateLogGroup",
           "logs:CreateLogStream",

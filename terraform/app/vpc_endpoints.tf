@@ -14,8 +14,7 @@ resource "aws_security_group" "kms_endpoint" {
     to_port   = 65535
     protocol  = "tcp"
     security_groups = [
-      aws_security_group.idp.id,
-      aws_security_group.migration.id,
+      aws_security_group.base.id
     ]
   }
 

@@ -36,6 +36,14 @@ data "aws_iam_policy_document" "master_account_assumerole" {
         "arn:aws:iam::${var.master_account_id}:root"
       ]
     }
+    condition {
+      test     = "StringEquals"
+      variable = "aws:RequestTag/SSMSessionRunAs"
+
+      values = [
+        "&{aws:PrincipalTag/ec2_username}",
+      ]
+    }
   }
 }
 

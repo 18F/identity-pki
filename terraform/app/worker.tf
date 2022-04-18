@@ -82,7 +82,7 @@ resource "aws_iam_role_policy" "worker-cloudwatch-agent" {
 resource "aws_iam_role_policy" "worker-ssm-access" {
   name   = "${var.env_name}-worker-ssm-access"
   role   = aws_iam_role.worker.id
-  policy = data.aws_iam_policy_document.ssm_access_role_policy.json
+  policy = module.ssm.ssm_access_role_policy
 }
 
 resource "aws_iam_role_policy" "worker-sns-publish-alerts" {

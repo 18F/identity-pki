@@ -293,7 +293,7 @@ resource "aws_iam_role_policy" "idp-upload-s3-reports" {
 resource "aws_iam_role_policy" "idp-ssm-access" {
   name   = "${var.env_name}-idp-ssm-access"
   role   = aws_iam_role.idp.id
-  policy = data.aws_iam_policy_document.ssm_access_role_policy.json
+  policy = module.ssm.ssm_access_role_policy
 }
 
 resource "aws_iam_role_policy" "idp-sns-publish-alerts" {

@@ -92,7 +92,7 @@ resource "aws_iam_role_policy" "migration-cloudwatch-agent" {
 resource "aws_iam_role_policy" "migration-ssm-access" {
   name   = "${var.env_name}-migration-ssm-access"
   role   = aws_iam_role.migration.id
-  policy = data.aws_iam_policy_document.ssm_access_role_policy.json
+  policy = module.ssm.ssm_access_role_policy
 }
 
 resource "aws_iam_role_policy" "migration-sns-publish-alerts" {

@@ -29,3 +29,15 @@ module "billing-assumerole" {
     },
   ]
 }
+
+### TODO: set this up and figure out enforcement in a future PR
+#resource "aws_iam_role_policy" "ssm_nondoc_deny_billing" {
+#  count = sum([
+#    contains(keys(var.ssm_access_map),"BillingReadOnly") ? 0 : 1,
+#    length(keys(var.ssm_access_map)) == 0 ? 0 : 1
+#  ]) == 2 ? 1 : 0
+#  
+#  name        = "BillingReadOnly-SSMNonDocDeny"
+#  role        = "BillingReadOnly"
+#  policy      = data.aws_iam_policy_document.ssm_nondoc_deny.json
+#}

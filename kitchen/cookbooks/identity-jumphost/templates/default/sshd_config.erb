@@ -101,7 +101,7 @@ UseDNS no
 <% if ! @lockdown %>
 AcceptEnv AWS_*
 <% else %>
-DenyUsers root ubuntu ec2-user
+DenyUsers root ubuntu ec2-user ssm-user
 <% end %>
 
 Ciphers aes128-ctr,aes192-ctr,aes256-ctr

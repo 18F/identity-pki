@@ -22,6 +22,7 @@ module "main" {
     iam_kmsadmin_enabled       = true
     iam_analytics_enabled      = true
     iam_auto_terraform_enabled = false
+    iam_supporteng_enabled     = true
   }
 
   legacy_bucket_list = [
@@ -98,6 +99,13 @@ module "main" {
       ]
     },
   ]
+
+  ssm_access_map = {
+    "FullAdministrator" = [{ "*" = ["*"] }],
+    "KMSAdministrator"  = [{ "*" = ["*"] }],
+    "PowerUser"         = [{ "*" = ["*"] }],
+    "SOCAdministrator"  = [{ "*" = ["*"] }],
+    "SupportEngineer"   = [{ "*" = ["uuid-lookup"] }],
+    "Terraform"         = [{ "*" = ["*"] }],
+  }
 }
-
-

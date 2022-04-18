@@ -72,9 +72,18 @@ get_iam() {
                  awk -v account="$ACCT_NUM" -v RS= '$0 ~ account' |
                  tail -n 1 | sed -E 's/\[profile (.*)\]/\1/')
   else
-    AV_PROFILE=$(tail -r ~/.aws/config | tail -n +$(tail -r ~/.aws/config |
-      grep -n "$ACCT_NUM.*$ID_ROLE" | awk -F: '{print $1}') |
-      grep -m 1 '\[profile' | sed -E 's/\[profile ([a-z-]+)\]/\1/')
+    local CONFIG_LINE=$(tail -r ~/.aws/config |
+      grep -n "$ACCT_NUM.*$ID_ROLE" | awk -F: '{print $1}') || true
+    if [[ ! -z "${CONFIG_LINE}" ]] ; then
+        AV_PROFILE=$(tail -r ~/.aws/config | tail -n +${CONFIG_LINE} |
+                     grep -m 1 '\[profile' |
+                     sed -E 's/\[profile ([a-z-]+)\]/\1/')
+    else
+      echo
+      echo_red "Role ARN not found in ~/.aws/config:"
+      echo_yellow "arn:aws:iam::${ACCT_NUM}:role/${ID_ROLE}"
+      raise "Verify role, profile, and ARN, and try again!"
+    fi
   fi
 }
 
@@ -148,12 +157,12 @@ EOM
 # verify existence of IAM user
 verify_iam_user () {
   local WHO_AM_I=${1}
-  local IAM_USERS_FILE="terraform/master/global/users.yaml"
+  local USERS_FILE="${GIT_DIR}/terraform/master/global/users.yaml"
   local MASTER_ACCOUNT_ID=340731855345
 
   echo_blue "Verifying IAM user ${WHO_AM_I}... "
-  if [[ ! $(grep -E "^\s*${WHO_AM_I}\s*:" "${GIT_DIR}/${IAM_USERS_FILE}") ]] ; then
-    echo_yellow "WARNING: User '${WHO_AM_I}' not found in ${IAM_USERS_FILE}"
+  if [[ ! $(grep -E "^  ${WHO_AM_I}:" "${USERS_FILE}") ]] ; then
+    raise "User '${WHO_AM_I}' not found in ${USERS_FILE}"
   fi
 
   if [[ $(aws sts get-caller-identity | jq -r '.Account') != "${MASTER_ACCOUNT_ID}" ]] ; then
