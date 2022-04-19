@@ -173,7 +173,7 @@ resource "aws_lambda_function" "ta_monitor_lambda" {
   description      = "Lambda function monitoring Trusted Advisor"
   role             = aws_iam_role.ta_monitor_lambda.arn
   handler          = "ta_monitor.lambda_handler"
-  runtime          = "python3.6"
+  runtime          = "python3.9"
   timeout          = var.lambda_timeout
   source_code_hash = data.archive_file.ta_monitor_function.output_base64sha256
   publish          = false
