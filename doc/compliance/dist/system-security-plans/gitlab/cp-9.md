@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
 ---
 
 # cp-9 - \[catalog\] Information System Backup
@@ -47,30 +47,36 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-<!-- Please leave this section blank and enter implementation details in the parts below. -->
-
 ______________________________________________________________________
 
 ## Implementation a.
 
-Add control implementation description here for item cp-9_smt.a
+GitLab user level information is backed up by both a full system
+backup script as well as database snapshot backup using the same schedule as all items
+covered in the parent SSP.
+
+See CP-9 control documentation in the main SSP for remaining detail.
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-Add control implementation description here for item cp-9_smt.b
+GitLab system level information is backed up by both a full system
+backup script as well as database snapshot backup using the same schedule as all items
+covered in the parent SSP.
+
+See CP-9 control documentation in the main SSP for remaining detail.
 
 ______________________________________________________________________
 
 ## Implementation c.
 
-Add control implementation description here for item cp-9_smt.c
+This control is already documented in the main SSP.
 
 ______________________________________________________________________
 
 ## Implementation d.
 
-Add control implementation description here for item cp-9_smt.d
+This control is already documented in the main SSP.
 
 ______________________________________________________________________

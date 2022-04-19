@@ -1,7 +1,8 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
+  - c-in-parent-ssp
 ---
 
 # cp-9.1 - \[catalog\] Testing for Reliability / Integrity
@@ -22,6 +23,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control cp-9.1
+This control is already documented in the main SSP.
 
 ______________________________________________________________________
