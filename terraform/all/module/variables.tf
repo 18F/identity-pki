@@ -215,3 +215,13 @@ variable "ssm_access_map" {
   description = "Map of SSM docs available to specific roles"
   default     = {}
 }
+
+variable "refresher_schedule" {
+  description = "Frequency of TA refresher lambda execution"
+  default     = "cron(0 14 * * ? *)"
+}
+
+variable "monitor_schedule" {
+  description = "Frequency of TA monitor lambda execution"
+  default     = "cron(10 14 * * ? *)"
+}

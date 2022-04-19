@@ -1,7 +1,3 @@
-locals {
-  account_id = data.aws_caller_identity.current.account_id
-}
-
 # -- Data Sources Trusted Advisor Refresher Lambda--
 
 data "aws_caller_identity" "current" {}
@@ -119,7 +115,7 @@ resource "aws_cloudwatch_log_group" "ta_refresher_lambda" {
 
 resource "aws_lambda_function" "ta_refresher_lambda" {
   filename         = data.archive_file.ta_refresher_function.output_path
-  function_name    = var.ta_refresher_lambda_name
+  function_name    = var.refresher_lambda
   description      = "Refreshes the Trusted Advisor check"
   role             = aws_iam_role.ta_refresher_lambda.arn
   handler          = "ta_refresher.lambda_handler"
@@ -130,20 +126,20 @@ resource "aws_lambda_function" "ta_refresher_lambda" {
 }
 
 resource "aws_iam_role" "ta_refresher_lambda" {
-  name_prefix        = "${var.ta_refresher_lambda_name}-role"
+  name_prefix        = "${var.refresher_lambda}-role"
   assume_role_policy = data.aws_iam_policy_document.ta_refresher_lambda_assume.json
 }
 
 resource "aws_iam_role_policy" "ta_refresher_lambda" {
-  name   = "${var.ta_refresher_lambda_name}-policy"
+  name   = "${var.refresher_lambda}-policy"
   role   = aws_iam_role.ta_refresher_lambda.id
   policy = data.aws_iam_policy_document.ta_refresher_lambda_policy.json
 }
 
 ###Cloudwatch-Lambda invocation###
 resource "aws_cloudwatch_event_rule" "ta_refresher_lambda_cronjob" {
-  name                = "${var.ta_refresher_lambda_name}-rule"
-  schedule_expression = var.refresher_trigger_schedule
+  name                = "${var.refresher_lambda}-rule"
+  schedule_expression = var.refresher_schedule
 }
 
 resource "aws_cloudwatch_event_target" "ta_refresher_invoke_lambda" {
@@ -169,7 +165,7 @@ resource "aws_cloudwatch_log_group" "ta_monitor_lambda" {
 
 resource "aws_lambda_function" "ta_monitor_lambda" {
   filename         = data.archive_file.ta_monitor_function.output_path
-  function_name    = var.ta_monitor_lambda_name
+  function_name    = var.monitor_lambda
   description      = "Lambda function monitoring Trusted Advisor"
   role             = aws_iam_role.ta_monitor_lambda.arn
   handler          = "ta_monitor.lambda_handler"
@@ -185,20 +181,20 @@ resource "aws_lambda_function" "ta_monitor_lambda" {
 }
 
 resource "aws_iam_role" "ta_monitor_lambda" {
-  name_prefix        = "${var.ta_monitor_lambda_name}-rule"
+  name_prefix        = "${var.monitor_lambda}-rule"
   assume_role_policy = data.aws_iam_policy_document.ta_monitor_lambda_assume.json
 }
 
 resource "aws_iam_role_policy" "ta_monitor_lambda" {
-  name   = "${var.ta_monitor_lambda_name}-role"
+  name   = "${var.monitor_lambda}-role"
   role   = aws_iam_role.ta_monitor_lambda.id
   policy = data.aws_iam_policy_document.ta_monitor_lambda_policy.json
 }
 
 ###Cloudwatch-Lambda invocation###
 resource "aws_cloudwatch_event_rule" "ta_monitor_lambda_cronjob" {
-  name                = "${var.ta_monitor_lambda_name}-rule"
-  schedule_expression = var.monitor_trigger_schedule
+  name                = "${var.monitor_lambda}-rule"
+  schedule_expression = var.monitor_schedule
 }
 
 resource "aws_cloudwatch_event_target" "ta_monitor_invoke_lambda" {

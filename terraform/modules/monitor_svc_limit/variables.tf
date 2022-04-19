@@ -1,15 +1,11 @@
-variable "aws_region" {
-  type        = string
-  description = "AWS Region"
-}
-
 variable "sns_topic" {
+  description = "ARN of SNS topic to send notification (in list format)"
   type        = list(string)
-  description = "ARN of SNS topic to send notification"
 }
 
 variable "function_input" {
   description = "JSON input that will be sent to Lambda function"
+  type        = string
   default     = <<EOF
  {
 	"action": "refesh&monitorTA"
@@ -17,28 +13,32 @@ variable "function_input" {
  EOF
 }
 
-variable "refresher_trigger_schedule" {
+variable "refresher_schedule" {
   description = "Frequency of TA refresher lambda execution"
+  type        = string
+  default     = "cron(0 14 * * ? *)"
 }
 
-variable "monitor_trigger_schedule" {
+variable "monitor_schedule" {
   description = "Frequency of TA monitor lambda execution"
+  type        = string
+  default     = "cron(10 14 * * ? *)"
 }
 
 variable "lambda_timeout" {
-  type        = number
-  default     = "180"
   description = "Timeout Value for Lambda"
+  type        = number
+  default     = 180
 }
 
-variable "ta_refresher_lambda_name" {
-  type        = string
-  default     = "ta_refresher_lambda"
+variable "refresher_lambda" {
   description = "Function Name for Lambda refreshing Trusted Advisor Checks"
+  type        = string
+  default     = "trustedadvisor-check-refresher"
 }
 
-variable "ta_monitor_lambda_name" {
-  type        = string
-  default     = "ta_monitor_lambda"
+variable "monitor_lambda" {
   description = "Function Name for Lambda monitoring Trusted Advisor Checks"
+  type        = string
+  default     = "trustedadvisor-check-monitor"
 }

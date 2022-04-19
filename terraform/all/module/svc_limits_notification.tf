@@ -1,11 +1,11 @@
 #Monitor and notify AWS Service usage using Trusted Advisor Checks
 
 module "limit_check_lambda" {
-  source                     = "../modules/monitor_svc_limit"
-  refresher_trigger_schedule = var.refresher_trigger_schedule
-  monitor_trigger_schedule   = var.monitor_trigger_schedule
-  aws_region                 = var.region
-  sns_topic                  = local.low_priority_alarm_actions
+  source = "../../modules/monitor_svc_limit"
+
+  refresher_schedule = var.refresher_schedule
+  monitor_schedule   = var.monitor_schedule
+  sns_topic          = [aws_sns_topic.slack_usw2["events"].arn]
 }
 
 #Monitor and notify KMS Symmetric calls usage
@@ -17,7 +17,7 @@ resource "aws_cloudwatch_metric_alarm" "kms_api" {
   alarm_description         = "KMS Cryptographic operations (symmetric) api request rate has exceeded 80%"
   insufficient_data_actions = []
   actions_enabled           = "true"
-  alarm_actions             = local.low_priority_alarm_actions
+  alarm_actions             = [aws_sns_topic.slack_usw2["events"].arn]
 
   metric_query {
     id          = "pct_utilization"
@@ -54,14 +54,14 @@ resource "aws_cloudwatch_log_metric_filter" "api_throttling" {
   pattern        = "{ ($.errorCode = \"*LimitExceeded\") || ($.errorCode = \"LimitExceededException\") }"
   metric_transformation {
     name       = "LimitExceededErrorMessage"
-    namespace  = "${var.env_name}/CloudTrailMetrics"
+    namespace  = "CloudTrailMetrics/APIThrottling"
     value      = 1
     dimensions = {}
   }
 }
 
 resource "aws_cloudwatch_metric_alarm" "api_throttling" {
-  alarm_name          = "${var.env_name}-svc_limit_exceeded_error_message"
+  alarm_name          = "svc_limit_exceeded_error_message"
   alarm_description   = "Monitors the number of LimitExceeded error messages in Cloudtrail logs"
   metric_name         = aws_cloudwatch_log_metric_filter.api_throttling.name
   threshold           = "1"
@@ -70,6 +70,6 @@ resource "aws_cloudwatch_metric_alarm" "api_throttling" {
   datapoints_to_alarm = "1"
   evaluation_periods  = "1"
   period              = "300"
-  namespace           = "${var.env_name}/CloudTrailMetrics"
-  alarm_actions       = local.low_priority_alarm_actions
+  namespace           = "CloudTrailMetrics/APIThrottling"
+  alarm_actions       = [aws_sns_topic.slack_usw2["events"].arn]
 }
