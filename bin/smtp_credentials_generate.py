@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# Generate new SES SMTP credentials for use by GitLab or other SMTP senders
+
 # From https://docs.aws.amazon.com/ses/latest/DeveloperGuide/smtp-credentials.html
 
 import hmac
