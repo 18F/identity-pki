@@ -11,7 +11,7 @@ variable "region" {
 variable "config_access_key_rotation_frequency" {
   type        = string
   description = "The frequency that you want AWS Config to run evaluations for the rule."
-  default     = "Six_Hours"
+  default     = "TwentyFour_Hours"
 }
 
 variable "config_access_key_rotation_max_key_age" {

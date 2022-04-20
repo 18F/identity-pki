@@ -4,6 +4,8 @@ data "archive_file" "config_access_key_rotation_lambda_function" {
   output_path = "${path.module}/${var.config_access_key_rotation_code}"
 }
 
+data "aws_caller_identity" "current" {}
+
 resource "aws_lambda_function" "config_access_key_rotation_lambda" {
   filename      = data.archive_file.config_access_key_rotation_lambda_function.output_path
   function_name = "${var.config_access_key_rotation_name}-function"
@@ -13,7 +15,7 @@ resource "aws_lambda_function" "config_access_key_rotation_lambda" {
 
   source_code_hash = data.archive_file.config_access_key_rotation_lambda_function.output_base64sha256
   memory_size      = "3008"
-  runtime          = "python3.8"
+  runtime          = "python3.9"
   timeout          = "300"
 
   environment {
