@@ -226,9 +226,6 @@ variable "instance_type_jumphost" {
   default = "t3.medium"
 }
 
-variable "instance_type_scrubhost" {
-  default = "t3.medium"
-}
 
 variable "instance_type_migration" {
   default = "t3.medium"
@@ -287,11 +284,6 @@ variable "asg_recycle_business_hours" {
 
 # Auto scaling group desired counts
 variable "asg_jumphost_desired" {
-  default = 0
-}
-
-# Temporary - Remove after scrub completed
-variable "asg_scrubhost_desired" {
   default = 0
 }
 

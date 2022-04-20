@@ -91,7 +91,6 @@ EOF
       m) EC2_TYPE='migration'               ;;
       o) EC2_TYPE='outboundproxy'           ;;
       p) EC2_TYPE='pivcac'                  ;;
-      s) EC2_TYPE='scrubhost'               ;;
       w) EC2_TYPE='worker'                  ;;
       *) [[ ${opt} =~ 'e' ]] || badopt ${1} ;;
     esac
