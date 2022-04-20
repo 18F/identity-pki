@@ -66,7 +66,7 @@ resource "aws_lambda_function" "pinpoint-lambda" {
   source_code_hash = data.archive_file.lambda.output_base64sha256
   runtime          = "python3.9"
   handler          = "main.lambda_handler"
-  timeout          = 30
+  timeout          = 90
   memory_size      = 128
   role             = aws_iam_role.lambda_role.arn
   environment {
@@ -84,4 +84,6 @@ resource "aws_lambda_event_source_mapping" "event_source_mapping" {
   event_source_arn  = aws_kinesis_stream.pinpoint_kinesis_stream.arn
   function_name     = aws_lambda_function.pinpoint-lambda.arn
   starting_position = "LATEST"
+  batch_size        = 10000
+
 }
