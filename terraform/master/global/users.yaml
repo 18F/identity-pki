@@ -160,6 +160,10 @@ users:
     - mzia
     gitlab_groups:
     - devops
+  nadya.primak:
+    aws_groups:
+    - appdev
+    - apponcall
   natasha.ibrahim:
     aws_groups:
     - appdev
