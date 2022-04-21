@@ -366,7 +366,9 @@ resource "aws_wafv2_web_acl" "idp" {
 
   }
 
-  rule {
+  dynamic "rule" {
+    for_each = length(var.query_block_regex) >= 1 ? [1] : []
+    content {
     name     = "IdpQueryRegexBlock"
     priority = 9
 
@@ -383,7 +385,7 @@ resource "aws_wafv2_web_acl" "idp" {
     }
     statement {
       regex_pattern_set_reference_statement {
-        arn = aws_wafv2_regex_pattern_set.query_string_blocks.arn
+        arn = aws_wafv2_regex_pattern_set.query_string_blocks[0].arn
 
         text_transformation {
           priority = 2
@@ -402,6 +404,7 @@ resource "aws_wafv2_web_acl" "idp" {
       sampled_requests_enabled   = true
     }
   }
+}
 
   dynamic "rule" {
     for_each = length(var.geo_block_list) >= 1 ? [1] : []
