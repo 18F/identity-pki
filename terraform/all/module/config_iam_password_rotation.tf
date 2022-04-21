@@ -1,4 +1,4 @@
-module "config_access_key_rotation" {
+module "config_password_rotation" {
   source                        = "../../modules/config_iam_password_rotation"
   config_password_rotation_name = var.config_password_rotation_name
   region                        = var.region
