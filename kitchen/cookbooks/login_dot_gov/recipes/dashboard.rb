@@ -12,12 +12,6 @@ idp_url       = "https://idp.#{node.chef_environment}.#{node['login_dot_gov']['d
 idp_sp_url    = "https://idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}/api/service_provider"
 dashboard_url = "https://dashboard.#{node.chef_environment}.#{node.fetch('login_dot_gov').fetch('domain_name')}"
 
-# configure release_path as a safe.directory
-# https://github.blog/2022-04-12-git-security-vulnerability-announced/
-execute 'configure safe.directory' do
-  command "git config --global --add safe.directory #{base_dir}"
-end
-
 # deploy_branch defaults to stages/<env>
 # unless deploy_branch.identity-#{app_name} is specifically set otherwise
 default_branch = node.fetch('login_dot_gov').fetch('deploy_branch_default')
@@ -30,6 +24,12 @@ deploy_branch = node.fetch('login_dot_gov').fetch('deploy_branch').fetch("identi
     recursive true
     subscribes :create, "deploy[/srv/dashboard]", :before
   end
+end
+
+# configure release_path as a safe.directory
+# https://github.blog/2022-04-12-git-security-vulnerability-announced/
+execute 'cachedcopy_directory_safe' do
+  command "git config --global --add safe.directory #{base_dir}/shared/cached-copy"
 end
 
 # TODO: don't generate YAML with erb, that's an antipattern
@@ -141,6 +141,15 @@ directory "#{deploy_dir}/api" do
   owner node.fetch('login_dot_gov').fetch('system_user')
   recursive true
   action :create
+end
+
+# configure releases/LONGDATE as a safe.directory
+# https://github.blog/2022-04-12-git-security-vulnerability-announced/
+execute 'release_directory_safe' do
+  command <<-EOH
+    git config --global --add safe.directory \
+    $(find "#{base_dir}/releases/" -maxdepth 1 -type d | tail -n+2)
+  EOH
 end
 
 login_dot_gov_deploy_info "#{deploy_dir}/api/deploy.json" do
