@@ -189,6 +189,14 @@ func _TestNoNewPrivileges(t *testing.T) {
 	}
 }
 
+// s5.26
+func _TestCheckContainerHealth(t *testing.T) {
+	cmd := "docker ps --quiet | xargs docker inspect --format '{{ .Id }}: Health={{ .State.Health.Status }}'"
+	for _, s := range RunOnRunners(t, cmd) {
+		assert.Regexp(t, "foobar", s)
+	}
+}
+
 func TestJobContainers(t *testing.T) {
 	t.Run("s5.10 Require memory arg", _TestMemory)
 	t.Run("s5.11 Require cpu_shares arg", _TestCPUShares)
@@ -207,4 +215,5 @@ func TestJobContainers(t *testing.T) {
 	t.Run("s5.23 Ensure that docker exec commands are not used with the user=root option", _TestRootExec)
 	t.Run("s5.24 Ensure that cgroup usage is confirmed", _TestCgroupUsage)
 	t.Run("s5.25 Ensure that the container is restricted from acquiring additional privileges", _TestNoNewPrivileges)
+	t.Run("s5.26 Ensure that container health is checked at runtime", _TestCheckContainerHealth)
 }
