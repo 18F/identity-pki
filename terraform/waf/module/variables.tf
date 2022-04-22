@@ -108,9 +108,9 @@ variable "relaxed_uri_paths" {
   type = map(string)
   default = {
     "docauth_image_upload" = "^/api/verify/images" # https://github.com/18F/identity-devops/issues/4092
-    "ODIC"                 = "^/([a-z]{2}/)?$"
-    "ODIC_verify"          = "^/([a-z]{2}/)?verify/review"
-    "ODIC_authorization"   = "^/openid_connect/authorize"
+    "ODIC"                 = "^/([a-z]{2}/)?$" # https://github.com/18F/identity-devops/issues/4563
+    "ODIC_verify"          = "^/([a-z]{2}/)?verify/review" # https://github.com/18F/identity-devops/issues/4563
+    "ODIC_authorization"   = "^/openid_connect/authorize" # https://github.com/18F/identity-devops/issues/4563
   }
 }
 
