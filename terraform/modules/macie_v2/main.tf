@@ -22,3 +22,17 @@ resource "aws_macie2_classification_job" "account_bucket_scan" {
 
   depends_on = [aws_macie2_account.account_scan]
 }
+
+resource "aws_macie2_findings_filter" "account_filter" {
+  name        = "Suppress Low/Medium Findings"
+  description = "Suppress Low/Medium Findings"
+  position    = 1
+  action      = "ARCHIVE"
+  finding_criteria {
+    criterion {
+      field = "severity.description"
+      eq    = ["Medium", "Low"]
+    }
+  }
+  depends_on = [aws_macie2_account.account_scan]
+}
