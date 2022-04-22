@@ -35,6 +35,7 @@ resource "aws_wafv2_regex_pattern_set" "header_blocks" {
 }
 
 resource "aws_wafv2_regex_pattern_set" "query_string_blocks" {
+  count       = length(var.query_block_regex) >= 1 ? 1 : 0
   name        = "${var.env}-query-string-blocks"
   description = "Regex patterns in query strings to block"
   scope       = "REGIONAL"
