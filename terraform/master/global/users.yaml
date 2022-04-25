@@ -73,9 +73,20 @@ users:
     - henrydrich
     gitlab_groups:
     - devops
+  jack.cody:
+    aws_groups:
+    - appdev
+    gitlab_groups:
+    - appdev
   jeffrey.holden:
     aws_groups:
     - analytics
+  jenniffier.bieberbach:
+    aws_groups:
+    - secopsnonprod
+    - analytics
+    gitlab_groups:
+    - devops
   jessica.dembe:
     aws_groups:
     - appdev
@@ -120,6 +131,14 @@ users:
   kelsey.sinclair:
     aws_groups:
     - bizops
+  ken.kato:
+    aws_groups:
+    - devopsnonprod
+    - analytics
+    gitlab_groups:
+    - devops
+    git_username:
+    - kenk667
   logan.mcdonald:
     gitlab_groups:
     - devops
@@ -135,6 +154,12 @@ users:
     aws_groups:
     - appdev
     - apponcall
+    gitlab_groups:
+    - appdev
+  micah.saul:
+    aws_groups:
+    - appdev
+    - analytics
     gitlab_groups:
     - appdev
   michael.antiporta:
