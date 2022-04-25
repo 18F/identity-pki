@@ -81,15 +81,6 @@ resource "aws_iam_policy" "config_access_key_rotation_lambda_iam_access" {
         ]
         Effect   = "Allow"
         Resource = "arn:aws:logs:${var.region}:${data.aws_caller_identity.current.account_id}:*"
-      },
-      {
-        Action = [
-          "iam:ListAccessKeys",
-          "iam:DeleteAccessKey",
-          "iam:UpdateAccessKey"
-        ]
-        Effect   = "Allow"
-        Resource = "*"
       }
     ]
   })
