@@ -107,7 +107,10 @@ variable "relaxed_uri_paths" {
   # false positives but has a low risk of being exploited.  Document additions!
   type = map(string)
   default = {
-    "docauth_image_upload" = "^/api/verify/images" # https://github.com/18F/identity-devops/issues/4092
+    "docauth_image_upload"    = "^/api/verify/images"         # https://github.com/18F/identity-devops/issues/4092
+    "login_form"              = "^/([a-z]{2}/)?$"             # https://github.com/18F/identity-devops/issues/4563
+    "password_screening_flow" = "^/([a-z]{2}/)?verify/review" # https://github.com/18F/identity-devops/issues/4563
+    "OIDC_authorization"      = "^/openid_connect/authorize"  # https://github.com/18F/identity-devops/issues/4563
   }
 }
 
