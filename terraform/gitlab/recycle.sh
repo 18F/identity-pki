@@ -17,8 +17,8 @@ MIGRATIONDELAY=5
 MIGRATIONDURATION=20
 
 # healthy percentage required during an instance refresh
-# Chose 50 because in prod, we seem to have our systems running at around 25% CPU at peak
-MINHEALTHYPCT=50
+# Chose this because in prod, we seem to have our systems running at around 25% CPU at peak
+MINHEALTHYPCT=35
 
 # This is a egrep pattern for excluding types of ASGs from being recycled.
 # Migrations hosts need to be done separately.  You can add more with |.
