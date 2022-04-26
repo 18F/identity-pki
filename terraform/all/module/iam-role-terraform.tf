@@ -71,6 +71,7 @@ locals {
         sid    = "Autoscaling"
         effect = "Allow"
         actions = [
+          "autoscaling:AttachLoadBalancerTargetGroups",
           "autoscaling:AttachLoadBalancers",
           "autoscaling:CreateAutoScalingGroup",
           "autoscaling:CreateOrUpdateTags",
@@ -270,6 +271,7 @@ locals {
           "ec2:RevokeSecurityGroupEgress",
           "ec2:RevokeSecurityGroupIngress",
           "ec2:RunInstances",
+          "ec2:*VpcEndpoint*",
         ]
         resources = [
           "*",
