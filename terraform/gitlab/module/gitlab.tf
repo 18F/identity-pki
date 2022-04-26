@@ -44,7 +44,7 @@ module "gitlab_launch_template" {
   instance_type             = var.instance_type_gitlab
   use_spot_instances        = var.use_spot_instances
   iam_instance_profile_name = aws_iam_instance_profile.gitlab.name
-  security_group_ids        = [aws_security_group.gitlab.id, aws_security_group.base.id]
+  security_group_ids        = [aws_security_group.gitlab.id, aws_security_group.base.id, aws_security_group.gitlab-lb.id]
 
   user_data = module.gitlab_user_data.rendered_cloudinit_config
 
@@ -54,14 +54,8 @@ module "gitlab_launch_template" {
 }
 
 resource "aws_autoscaling_group" "gitlab" {
-  name = "${var.env_name}-gitlab"
-
-  # There is some sort of flapping going on here unless you set this
-  lifecycle {
-    ignore_changes = [
-      load_balancers,
-    ]
-  }
+  name              = "${var.env_name}-gitlab"
+  target_group_arns = [aws_lb_target_group.gitlab.arn, aws_lb_target_group.gitlab-ssh.arn]
 
   launch_template {
     id      = module.gitlab_launch_template.template_id
@@ -102,11 +96,6 @@ resource "aws_autoscaling_group" "gitlab" {
 
   # We manually terminate instances in prod
   protect_from_scale_in = var.asg_prevent_auto_terminate == 1 ? true : false
-}
-
-resource "aws_autoscaling_attachment" "gitlab" {
-  autoscaling_group_name = aws_autoscaling_group.gitlab.id
-  elb                    = aws_elb.gitlab.id
 }
 
 resource "aws_ebs_volume" "gitlab" {

@@ -20,4 +20,6 @@ module "main" {
   default_ami_id_tooling         = "ami-04eb44f13c683a210" # 2022-04-20 base-20220420070421 Ubuntu 18.04
   route53_id                     = "Z096400532ZFM348WWIAA"
   production                     = true
+  # These are the account IDs who can access this cluster's gitlab service.
+  accountids = ["894947205914", "034795980528", "217680906704"]
 }

@@ -378,3 +378,10 @@ variable "production" {
   description = "If this is set to true, it will try to set up dns/SSL so that you can go to gitlab.login.gov"
   default     = false
 }
+
+variable "accountids" {
+  type        = list(string)
+  description = "list of AWS account ids that we should allow to find the gitlab privatelink service"
+  default     = []
+  # export TF_VAR_accountids='["1234", "2345", "5678"]'
+}

@@ -99,20 +99,6 @@ resource "aws_security_group" "gitlab" {
     cidr_blocks = local.github_ipv4_cidr_blocks
   }
 
-  ingress {
-    from_port       = 22
-    to_port         = 22
-    protocol        = "tcp"
-    security_groups = [aws_security_group.gitlab-lb.id]
-  }
-
-  ingress {
-    from_port       = 443
-    to_port         = 443
-    protocol        = "tcp"
-    security_groups = [aws_security_group.gitlab-lb.id]
-  }
-
   name_prefix = "${var.name}-gitlab-${var.env_name}"
 
   tags = {
@@ -125,6 +111,22 @@ resource "aws_security_group" "gitlab" {
   }
 
   vpc_id = aws_vpc.default.id
+}
+
+locals {
+  gitlabsubnetids = [aws_subnet.gitlab1.id, aws_subnet.gitlab2.id]
+}
+data "aws_network_interface" "lb" {
+  count = length(local.gitlabsubnetids)
+
+  filter {
+    name   = "description"
+    values = ["ELB ${aws_lb.gitlab.arn_suffix}"]
+  }
+  filter {
+    name   = "subnet-id"
+    values = ["${element(local.gitlabsubnetids, count.index)}"]
+  }
 }
 
 resource "aws_security_group" "gitlab-lb" {
@@ -164,6 +166,22 @@ resource "aws_security_group" "gitlab-lb" {
       "${aws_eip.nat_b.public_ip}/32",
       "${aws_eip.nat_c.public_ip}/32"
     ]
+  }
+
+  # these cidr blocks should contain the nlb, so it can do healthchecks and send traffic
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = formatlist("%s/32", data.aws_network_interface.lb.*.private_ip)
+    description = "Allow connection from NLB"
+  }
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = formatlist("%s/32", data.aws_network_interface.lb.*.private_ip)
+    description = "Allow connection from NLB"
   }
 
   name_prefix = "${var.name}-gitlab-lb-${var.env_name}"
