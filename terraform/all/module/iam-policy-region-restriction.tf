@@ -15,6 +15,7 @@ data "aws_iam_policy_document" "region_restriction" {
       values = [
         "us-west-2",
         "us-east-1",
+        "us-east-2",
       ]
     }
   }
