@@ -110,12 +110,6 @@ resource "aws_subnet" "alb3" {
   vpc_id = aws_vpc.default.id
 }
 
-resource "aws_vpc_endpoint" "private-s3" {
-  vpc_id          = aws_vpc.default.id
-  service_name    = "com.amazonaws.${var.region}.s3"
-  route_table_ids = [aws_vpc.default.main_route_table_id]
-}
-
 # create NAT subnets and gateways
 resource "aws_subnet" "nat_a" {
   availability_zone       = "${var.region}a"
