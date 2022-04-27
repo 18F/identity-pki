@@ -56,7 +56,7 @@ variable "packer_config" {
     data_vol_size           = "100"
     deregister_existing_ami = "false"
     delete_ami_snapshots    = "false"
-    chef_version            = "17.5.22"
+    chef_version            = "17.5.22" # also passed to CloudFormation as ChefVersion parameter.
     os_version              = "Ubuntu 18.04"
     ami_owner_id            = "679593333241",
     ami_filter_name         = "ubuntu-pro-fips/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server*"
@@ -70,4 +70,22 @@ Options are 'S3', 'CloudWatch', or 'Both'.
 DESC
   type        = string
   default     = "Both"
+}
+
+variable "packer_version" {
+  description = <<DESC
+REQUIRED. Packer version used in buildspec.yml file from identity-base-image repo.
+Passed into CloudFormation template as PackerVersion parameter.
+DESC
+  type        = string
+  default     = "1.7.2"
+}
+
+variable "berkshelf_version" {
+  description = <<DESC
+REQUIRED. Berkshelf version used in buildspec.yml file from identity-base-image repo.
+Passed into CloudFormation template as BerkshelfVersion parameter.
+DESC
+  type        = string
+  default     = "7.1.0"
 }

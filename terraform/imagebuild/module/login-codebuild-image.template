@@ -13,6 +13,9 @@
                         "ProjectName",
                         "AccountAlias",
                         "RoleName",
+                        "PackerVersion",
+                        "ChefVersion",
+                        "BerkshelfVersion",
                         "SourceFileName"
                     ]
                 },
@@ -51,6 +54,18 @@
                 },
                 "RoleName": {
                     "default": "Role Name *"
+                },
+                "PackerVersion": {
+                    "default": "Packer version *"
+                },
+                "ChefVersion": {
+                    "default": "Chef version *"
+                },
+                "BerkshelfVersion": {
+                    "default": "Berkshelf version *"
+                },
+                "SourceFileName": {
+                    "default": "SourceFileName"
                 }
             }
         }
@@ -103,6 +118,21 @@
             "Type": "String",
             "AllowedValues": ["base", "rails"],
             "Default": "base"
+        },
+        "PackerVersion": {
+            "Description": "Required: Packer version used in buildspec.yml file from identity-base-image repo.",
+            "Type": "String",
+            "Default": "1.7.2"
+        },
+        "ChefVersion": {
+            "Description": "Required: Chef version used in buildspec.yml file from identity-base-image repo.",
+            "Type": "String",
+            "Default": "17.5"
+        },
+        "BerkshelfVersion": {
+            "Description": "Required: Berkshelf version used in buildspec.yml file from identity-base-image repo.",
+            "Type": "String",
+            "Default": "7.1.0"
         }
     },
     "Conditions": {
@@ -631,6 +661,18 @@
                     "ComputeType": "BUILD_GENERAL1_MEDIUM",
                     "Image": "aws/codebuild/standard:4.0",
                     "EnvironmentVariables": [
+                    {
+                        "Name": "PACKER_VERSION",
+                        "Value": {"Ref": "PackerVersion"}
+                    },
+                    {
+                        "Name": "CHEF_VERSION",
+                        "Value": {"Ref": "ChefVersion"}
+                    },
+                    {
+                        "Name": "BERKSHELF_VERSION",
+                        "Value": {"Ref": "BerkshelfVersion"}
+                    },
                     {
                         "Name": "ROLE",
                         "Value": {"Ref": "RoleName"}
