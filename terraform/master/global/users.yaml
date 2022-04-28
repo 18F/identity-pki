@@ -50,7 +50,7 @@ users:
     - ctro
   devon.johnson:
     aws_groups:
-    - appdev
+    - supporteng
   diondra.humphries:
     aws_groups:
     - bizops
