@@ -119,6 +119,8 @@ users:
   julia.l.allen:
     aws_groups:
     - appdev
+    ec2_username:
+    - jlallen
     gitlab_groups:
     - appdev
   justin.grevich:
@@ -192,6 +194,8 @@ users:
   natasha.ibrahim:
     aws_groups:
     - appdev
+    ec2_username:
+    - nibrahim
     gitlab_groups:
     - appdev
   nathan.wick:
