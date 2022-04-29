@@ -31,6 +31,55 @@ locals {
     "soc"         = "login-soc-events"
   }
   slack_webhook_ssm_param_name = "/account/slack/webhook/url"
+  slack_sns_log_groups_arns = flatten([
+    [for group in aws_cloudwatch_log_group.slack_usw2_success_logs_groups : "${group.arn}:*"],
+    [for group in aws_cloudwatch_log_group.slack_usw2_failure_logs_groups : "${group.arn}:*"],
+    [for group in aws_cloudwatch_log_group.slack_use1_success_logs_groups : "${group.arn}:*"],
+    [for group in aws_cloudwatch_log_group.slack_use1_failure_logs_groups : "${group.arn}:*"],
+  ])
+}
+
+## SNS Feedback
+
+data "aws_iam_policy_document" "sns_assume_role_policy" {
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["sns.amazonaws.com"]
+    }
+  }
+}
+
+data "aws_iam_policy_document" "slack_SNSFeedback_policy_document" {
+  statement {
+    sid    = "AllowFeedback"
+    effect = "Allow"
+    actions = [
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+    ]
+    resources = [
+      for arn in local.slack_sns_log_groups_arns : "${arn}"
+    ]
+  }
+}
+resource "aws_iam_policy" "slack_SNS_Feedback_policy" {
+  name   = "slackSNSFeedbackPolicy"
+  policy = data.aws_iam_policy_document.slack_SNSFeedback_policy_document.json
+}
+
+resource "aws_iam_role" "slack_SNSFailureFeedback" {
+  name                = "slack_SNSFailureFeedback"
+  assume_role_policy  = data.aws_iam_policy_document.sns_assume_role_policy.json
+  managed_policy_arns = [aws_iam_policy.slack_SNS_Feedback_policy.arn]
+}
+
+resource "aws_iam_role" "slack_SNSSuccessFeedback" {
+  name                = "slack_SNSSuccessFeedback"
+  assume_role_policy  = data.aws_iam_policy_document.sns_assume_role_policy.json
+  managed_policy_arns = [aws_iam_policy.slack_SNS_Feedback_policy.arn]
 }
 
 ## Terraform providers cannot be generated, so we need a separate block for each region,
@@ -39,10 +88,27 @@ locals {
 
 ## us-west-2 
 
+resource "aws_cloudwatch_log_group" "slack_usw2_success_logs_groups" {
+  for_each = toset(keys(local.slack_channel_map))
+
+  name              = "sns/us-west-2/${data.aws_caller_identity.current.account_id}/slack-${each.key}"
+  retention_in_days = 365
+}
+
+resource "aws_cloudwatch_log_group" "slack_usw2_failure_logs_groups" {
+  for_each = toset(keys(local.slack_channel_map))
+
+  name              = "sns/us-west-2/${data.aws_caller_identity.current.account_id}/slack-${each.key}/Failure"
+  retention_in_days = 365
+}
+
 resource "aws_sns_topic" "slack_usw2" {
   for_each = toset(keys(local.slack_channel_map))
 
-  name = "slack-${each.key}"
+  name                                = "slack-${each.key}"
+  lambda_success_feedback_role_arn    = aws_iam_role.slack_SNSSuccessFeedback.arn
+  lambda_failure_feedback_role_arn    = aws_iam_role.slack_SNSFailureFeedback.arn
+  lambda_success_feedback_sample_rate = 100
 }
 
 resource "aws_sns_topic_policy" "slack_usw2" {
@@ -106,11 +172,30 @@ module "opsgenie_sns" {
 
 ## us-east-1
 
+resource "aws_cloudwatch_log_group" "slack_use1_success_logs_groups" {
+  provider = aws.use1
+  for_each = toset(keys(local.slack_channel_map))
+
+  name              = "sns/us-east-1/${data.aws_caller_identity.current.account_id}/slack-${each.key}"
+  retention_in_days = 365
+}
+
+resource "aws_cloudwatch_log_group" "slack_use1_failure_logs_groups" {
+  provider = aws.use1
+  for_each = toset(keys(local.slack_channel_map))
+
+  name              = "sns/us-east-1/${data.aws_caller_identity.current.account_id}/slack-${each.key}/Failure"
+  retention_in_days = 365
+}
+
 resource "aws_sns_topic" "slack_use1" {
   provider = aws.use1
   for_each = local.slack_channel_map
 
-  name = "slack-${each.key}"
+  name                                = "slack-${each.key}"
+  lambda_success_feedback_role_arn    = aws_iam_role.slack_SNSSuccessFeedback.arn
+  lambda_failure_feedback_role_arn    = aws_iam_role.slack_SNSFailureFeedback.arn
+  lambda_success_feedback_sample_rate = 100
 }
 
 resource "aws_sns_topic_policy" "slack_use1" {
