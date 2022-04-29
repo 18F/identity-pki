@@ -470,8 +470,15 @@ resource "aws_cloudwatch_metric_alarm" "wafv2_blocked_alert" {
   period              = var.waf_alert_blocked_period
   statistic           = "Sum"
   threshold           = var.waf_alert_blocked_threshold
-  alarm_description   = "More than ${var.waf_alert_blocked_threshold} WAF blocks occured in ${var.waf_alert_blocked_period} seconds"
-  alarm_actions       = var.waf_alert_actions
+  alarm_description   = <<EOM
+More than ${var.waf_alert_blocked_threshold} WAF blocks occured in ${var.waf_alert_blocked_period} seconds
+
+This could be a run of the mill scan, something worse, or signs of a false positive block.
+
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-WAF#waf-blocks-exceeded
+EOM
+
+  alarm_actions = var.waf_alert_actions
   dimensions = {
     Rule   = "ALL"
     Region = var.region

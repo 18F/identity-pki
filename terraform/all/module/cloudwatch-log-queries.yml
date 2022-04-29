@@ -1,0 +1,9 @@
+---
+cloudtrail/limit-exceeded:
+  logs:
+    - CloudTrail/DefaultLogGroup
+  query: |
+    ## Look for signs of API rate limiting CloudTrail events
+    filter errorCode like "LimitExceeded"
+    ## Comment out the following line to see the full events
+    | stats count() as events by awsRegion,eventSource,eventName,userIdentity.arn | sort events desc
