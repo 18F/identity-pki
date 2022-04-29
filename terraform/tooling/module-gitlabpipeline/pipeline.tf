@@ -27,22 +27,6 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
         OAuthToken = data.aws_s3_bucket_object.identity_devops_oauthkey.body
       }
     }
-    action {
-      name             = "identity_devops_private"
-      category         = "Source"
-      owner            = "ThirdParty"
-      provider         = "GitHub"
-      version          = "1"
-      namespace        = "PrivateSource"
-      output_artifacts = ["gitlab_${var.cluster_name}_private_output"]
-
-      configuration = {
-        Owner      = "18F"
-        Repo       = "identity-devops-private"
-        Branch     = "main"
-        OAuthToken = data.aws_s3_bucket_object.identity_devops_oauthkey.body
-      }
-    }
   }
 
   stage {
