@@ -51,6 +51,8 @@ users:
   devon.johnson:
     aws_groups:
     - supporteng
+    ec2_username:
+    - djohnson
   diondra.humphries:
     aws_groups:
     - bizops
