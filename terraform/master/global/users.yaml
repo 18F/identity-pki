@@ -70,7 +70,7 @@ users:
     - analytics
   henry.richardson:
     aws_groups:
-    - devopsnonprod
+    - devops
     ec2_username:
     - henrydrich
     gitlab_groups:
@@ -274,7 +274,7 @@ users:
     - appdev
   sujana.gurung:
     aws_groups:
-    - devopsnonprod
+    - devops
     ec2_username:
     - sujana09
     gitlab_groups:
