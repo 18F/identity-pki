@@ -26,5 +26,3 @@ RUN curl -Ss "https://chromedriver.storage.googleapis.com/$(curl -Ss "https://ch
     rmdir /tmp/chromedriver
 
 RUN find / -perm /6000 -type f -exec chmod a-s {} \; || true
-
-HEALTHCHECK CMD stat /etc/passwd
