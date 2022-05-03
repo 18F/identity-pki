@@ -61,7 +61,7 @@ module Cloudlib
         cl.instance_label(instance)
       end
 
-      # Replace this process with aws ssm start-session
+      # Runs aws ssm start-session against instance.instance_id w/provided document
       #
       # @return DOES NOT RETURN
       def ssm_session_exec
@@ -81,23 +81,11 @@ module Cloudlib
           cmd += [
             '--document',  "#{@cl.env}-ssm-document-#{@document}",
           ]
-          if @document == 'gsa-username'
-            cmd += [
-              '--parameters', { gsausername: [local_gsa_username] }.to_json,
-            ]
-          end
         end
         
         log.debug('exec: ' + cmd.inspect)
         exec(*cmd)
       end
-
-      def local_gsa_username
-        ENV['GSA_USERNAME'].tap do |str|
-          raise 'missing $GSA_USERNAME' if !str || str.empty?
-        end
-      end
-
     end
   end
 end

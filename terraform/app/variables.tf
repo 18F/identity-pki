@@ -789,3 +789,12 @@ variable "unvacummed_transactions_count" {
   type        = string
   default     = "1000000000"
 }
+
+variable "ssm_session_timeout" {
+  description = <<EOM
+REQUIRED. Amount of time (in minutes) of inactivity to allow before an
+SSM session ends. Defaults to 15 minutes.
+EOM
+  type        = number
+  default     = 15
+}
