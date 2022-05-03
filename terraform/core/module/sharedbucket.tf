@@ -119,27 +119,6 @@ resource "aws_s3_bucket_policy" "lambda-functions" {
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Sid": "AllowCircleCIPuts",
-      "Effect": "Allow",
-      "Principal": {
-        "AWS": "${aws_iam_user.circleci.arn}"
-      },
-      "Action": "s3:PutObject",
-      "Resource": "arn:aws:s3:::${module.s3_shared.buckets["lambda-functions"]}/circleci/*"
-    },
-    {
-      "Sid": "AllowProdAccountRead",
-      "Effect": "Allow",
-      "Principal": {
-        "AWS": "arn:aws:iam::555546682965:root"
-      },
-      "Action": [
-        "s3:GetObject",
-        "s3:GetObjectVersion"
-      ],
-      "Resource": "arn:aws:s3:::${module.s3_shared.buckets["lambda-functions"]}/circleci/*"
-    },
-    {
       "Sid": "AllowProdAccountBucketRead",
       "Effect": "Allow",
       "Principal": {
@@ -220,11 +199,6 @@ module "elb-logs" {
   lifecycle_days_standard_ia = 60   # 2 months
   lifecycle_days_glacier     = 365  # 1 year
   lifecycle_days_expire      = 2190 # 6 years
-}
-
-resource "aws_iam_user" "circleci" {
-  name = "bot=circleci"
-  path = "/system/"
 }
 
 output "elb_log_bucket" {
