@@ -1,17 +1,19 @@
-data "archive_file" "config_access_key_rotation_lambda_function" {
-  type        = "zip"
-  source_file = "${path.module}/src/lambda_function.py"
-  output_path = "${path.module}/${var.config_access_key_rotation_code}"
+module "config_access_key_rotation_code" {
+  source = "github.com/18F/identity-terraform//null_archive?ref=4e19868ad1ed9ab3fa6b9938eb85c97db3b8a0a7"
+
+  source_code_filename = "config_access_key_rotation.py"
+  source_dir           = "${path.module}/src/"
+  zip_filename         = var.config_access_key_rotation_code
 }
 
 resource "aws_lambda_function" "config_access_key_rotation_lambda" {
-  filename      = data.archive_file.config_access_key_rotation_lambda_function.output_path
+  filename      = module.config_access_key_rotation_code.zip_output_path
   function_name = "${var.config_access_key_rotation_name}-function"
   role          = aws_iam_role.config_access_key_rotation_lambda_role.arn
   description   = "IAM Access Key Rotation Function"
-  handler       = "lambda_function.lambda_handler"
+  handler       = "config_access_key_rotation.lambda_handler"
 
-  source_code_hash = data.archive_file.config_access_key_rotation_lambda_function.output_base64sha256
+  source_code_hash = module.config_access_key_rotation_code.zip_output_base64sha256
   memory_size      = "3008"
   runtime          = "python3.8"
   timeout          = "300"

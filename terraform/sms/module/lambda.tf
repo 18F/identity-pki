@@ -49,10 +49,12 @@ resource "aws_iam_role_policy_attachment" "lambda-role-attach-cust-policy" {
   policy_arn = aws_iam_policy.cust-policy.arn
 }
 
-data "archive_file" "lambda" {
-  type        = "zip"
-  source_file = "${path.module}/python/main.py"
-  output_path = "${path.module}/python/main.py.zip"
+module "lambda_zip" {
+  source = "github.com/18F/identity-terraform//null_archive?ref=4e19868ad1ed9ab3fa6b9938eb85c97db3b8a0a7"
+
+  source_code_filename = "pinpoint_lambda.py"
+  source_dir           = "${path.module}/src/"
+  zip_filename         = "pinpoint_lambda.py.zip"
 }
 
 resource "aws_lambda_function" "pinpoint-lambda" {
@@ -62,10 +64,10 @@ resource "aws_lambda_function" "pinpoint-lambda" {
   ]
   function_name    = "${var.env}-pinpoint-kinesis-cw-function-${data.aws_region.current.name}"
   description      = "Pinpoint Kinesis CW Lambda Function"
-  filename         = data.archive_file.lambda.output_path
-  source_code_hash = data.archive_file.lambda.output_base64sha256
+  filename         = module.lambda_zip.zip_output_path
+  source_code_hash = module.lambda_zip.zip_output_base64sha256
   runtime          = "python3.9"
-  handler          = "main.lambda_handler"
+  handler          = "pinpoint_lambda.lambda_handler"
   timeout          = 90
   memory_size      = 128
   role             = aws_iam_role.lambda_role.arn

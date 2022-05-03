@@ -16,6 +16,8 @@ terraform.tfstate.backup
 **/terraform.tfstate.*.backup
 .vagrant
 Vagrantfile
+**.zip
+*.zip
 
 # Terraform State and Whatnot
 /terraform/*/.terraform
@@ -33,7 +35,6 @@ Vagrantfile
 /nodes/*/Gemfile.lock
 /nodes/*/Berksfile.lock
 
-# Lambda function ZIP files
-/terraform/*/module/*/*.zip
-/terraform/modules/*/src/*.zip
-/terraform/modules/*/*.zip
+# pycache and dist-info directories
+**/__pycache__/
+**.dist-info/
