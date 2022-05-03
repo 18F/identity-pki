@@ -237,6 +237,7 @@ module "idp_worker_jobs_rds_usw2" {
 }
 
 module "idp_worker_jobs_rds_use1" {
+  count  = var.rds_recover_to_ue1 ? 1 : 0
   source = "../modules/idp_rds"
   providers = {
     aws = aws.use1

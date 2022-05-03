@@ -130,3 +130,12 @@ variable "rds_storage_threshold" {
   description = "RDS instance free storage (in bytes) to stay above before alerting"
   default     = "100000000"
 }
+
+variable "rds_recover_to_ue1" {
+  description = <<EOM
+Whether or not to create a DB parameter group in us-east-1 via the idp_rds_use1 module.
+Defaults to false ; should be manually set to true in upper environments.
+EOM
+  type        = bool
+  default     = false
+}
