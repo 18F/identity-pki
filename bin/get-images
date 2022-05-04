@@ -245,7 +245,7 @@ open_pr() {
   run git add --all
   run git commit -m "${PR_TITLE}"
   run git push --set-upstream origin ${AMI_BRANCH}
-  run pull-request -p -r "${GH_REVS}" -e -m "$(cat <<EOF
+  run hub pull-request -p -r "${GH_REVS}" -e -m "$(cat <<EOF
 ${PR_TITLE}
 
 $(mdout "${HEADERS}\n$(echo "|$(printf "%${NUM_COLS}s" | sed 's/ /----- |/g')")\n${DATA}" | tr 'T' ' ')
