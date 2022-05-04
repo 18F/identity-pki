@@ -117,7 +117,7 @@ func _TestUlimits(t *testing.T) {
 	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{ .Id }}: Ulimits={{ .HostConfig.Ulimits }}'"
 	for _, s := range RunOnRunners(t, cmd) {
 		if regexp.MustCompile("Ulimits").MatchString(s) {
-			assert.Regexp(t, ": Ulimits=<no value>$", s)
+			assert.Regexp(t, ": Ulimits=.*nproc.*$", s)
 		}
 	}
 }
@@ -196,7 +196,7 @@ func TestJobContainers(t *testing.T) {
 	t.Run("Ensure Docker service file permissions are correct", _TestFilePermissionsDockerService)
 	t.Run("s5.16 Ensure IPC namespace is not shared", _TestIPCNamespace)
 	t.Run("s5.17 Ensure devices are not shared", _TestSharedDevices)
-	t.Run("s5.18 Ensure that the default ulimit is not overwritten at runtime", _TestUlimits)
+	t.Run("s5.18, s5.28 Ensure that the default ulimit IS overwritten at runtime", _TestUlimits)
 	t.Run("s5.19 Ensure mount propagation mode is not set to shared", _TestPropagationMode)
 	t.Run("s5.20 Ensure that the host's UTS namespace is not shared", _TestUTSNamespace)
 	t.Run("s5.21 Ensure the default seccomp profile is not disabled", _TestSeccomp)
