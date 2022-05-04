@@ -1,5 +1,5 @@
 module "config_access_key_rotation_code" {
-  source = "github.com/18F/identity-terraform//null_archive?ref=4e19868ad1ed9ab3fa6b9938eb85c97db3b8a0a7"
+  source = "github.com/18F/identity-terraform//null_archive?ref=9ca808e1cad7add8e7bdccd6aa1199d873d34d54"
 
   source_code_filename = "config_access_key_rotation.py"
   source_dir           = "${path.module}/src/"

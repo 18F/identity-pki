@@ -13,10 +13,11 @@ BASEPATH="$(dirname "$0")"
 usage() {
     cat >&2 << EOM
 
-Usage: ${0} [-ldebkxh] [ENV] (defaults to \$GSA_USERNAME if not specified)
+Usage: ${0} [-d[a]sbkxh] [ENV] (defaults to \$GSA_USERNAME if not specified)
 
 Flags (will run all if no flags specified):
-  -d : Remove deletion protection from RDS dbs + zero out ASGs via apply
+  -d : Remove deletion protection from RDS dbs + zero out ASGs via targeted apply
+  -a : Same as -d, but do full (non-targeted) apply (not run by default)
   -s : Stop and delete the CloudWatch-to-S3 Kinesis Firehose stream
   -b : Empties all S3 buckets with ENV in the bucket name
   -x : terraform-destroy + reset db .tf files
@@ -29,7 +30,7 @@ EOM
 help_me() {
     cat >&2 << EOM
 
-Usage: ${0} [-ldebkxh] [ENV]
+Usage: ${0} [-d[a]sbkxh] [TF_ENV]
 
 Runs all necessary commands to prep and destroy an existing
 sandbox environment, \${TF_ENV}. Designed to run with no
@@ -39,7 +40,9 @@ The tasks in this script can also be individually executed
 using the following flags:
 
   -d : Remove deletion protection/prevent_destroy/final_snapshot from RDS databases,
-       and zero out all Auto Scaling Groups, via \`tf-deploy \${TF_ENV} app apply\`
+       and zero out Auto Scaling Groups, via targeted \`tf-deploy \${TF_ENV} app apply\`.
+  -a : Same as -d but will do a full \`apply\` without specifically targeting the
+       RDS databases/ASGs (use in case the targeted \`apply\` is failing).
   -s : Stop and force-delete the cw-kinesis-s3 Firehose stream,
        allowing its corresponding bucket to be emptied and deleted
   -b : Empties all S3 buckets with \${TF_ENV} in the bucket name,
@@ -60,7 +63,7 @@ EOM
 
 replace_db_files() {
   for DB in idp app worker; do
-    FILE="${APP_DIR}/${DB}.tf"
+    FILE="$(git rev-parse --show-toplevel)/terraform/app/${DB}.tf"
     if [[ -f "${FILE}.bak" ]] ; then
       mv ${FILE}.bak ${FILE}
     fi
@@ -68,6 +71,7 @@ replace_db_files() {
 }
 
 1_allow_db_destroy() {
+  local TF_ARGS=()
   for DB in idp app worker ; do
     cp ${APP_DIR}/${DB}.tf ${APP_DIR}/${DB}.tf.bak
     for TASK in prevent_destroy deletion_protection ; do
@@ -75,8 +79,12 @@ replace_db_files() {
     done
     sed -i '' -E 's/#(skip_final_snapshot = true)/\1/g' ${APP_DIR}/${DB}.tf
   done
-
-  ave ${BASEPATH}/tf-deploy -z -t ${TF_ENV} app apply -auto-approve
+  if [[ ! ${APPLY_ALL} == true ]] ; then
+    TF_ARGS=($(ave ${BASEPATH}/tf-deploy ${TF_ENV} app state list |
+      grep 'db_instance\|autoscaling_group'))
+    TF_ARGS=( "${TF_ARGS[@]/#/-target=}" ) # adds DBs and ASGs as targets
+  fi
+  ave ${BASEPATH}/tf-deploy -z -t ${TF_ENV} app apply -auto-approve "${TF_ARGS[@]:-}"
 }
 
 2_stop_kinesis_stream() {
@@ -138,9 +146,11 @@ TASKS=(
 )
 
 TODO=()
-while getopts dsbxkh opt
+APPLY_ALL=false
+while getopts adsbxkh opt
 do
   case $opt in
+    a) APPLY_ALL=true        ;;
     d) TODO+=("${TASKS[0]}") ;;
     s) TODO+=("${TASKS[1]}") ;;
     b) TODO+=("${TASKS[2]}") ;;
@@ -153,4 +163,7 @@ done
 shift $((OPTIND-1))
 initialize ${1:-}
 
+if [[ ${APPLY_ALL} == true ]] && [[ ! "${TODO[@]:-}" =~ "${TASKS[0]}" ]] ; then
+  TODO+=("${TASKS[0]}")
+fi
 run_tasks
