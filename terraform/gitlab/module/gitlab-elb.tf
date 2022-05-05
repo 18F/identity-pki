@@ -1,8 +1,9 @@
 resource "aws_lb" "gitlab" {
   name_prefix = substr("${var.env_name}-gitlab", 0, 6)
   subnets = [
-    aws_subnet.gitlab1.id,
-    aws_subnet.gitlab2.id,
+    aws_subnet.publicsubnet1.id,
+    aws_subnet.publicsubnet2.id,
+    aws_subnet.publicsubnet3.id
   ]
 
   load_balancer_type = "network"
