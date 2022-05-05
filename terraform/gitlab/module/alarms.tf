@@ -38,6 +38,27 @@ module "gitlab_deploy_pool_insufficent_instances_alerts" {
   alarm_actions = [var.slack_events_sns_hook_arn]
 }
 
+resource "aws_cloudwatch_metric_alarm" "generic_alarm" {
+  actions_enabled     = true
+  alarm_actions       = [var.slack_events_sns_hook_arn]
+  alarm_description   = "Alarms when LB targets are unhealthy"
+  alarm_name          = "${var.env_name} Load Balancer Unhealthy"
+  comparison_operator = "LessThanOrEqualToThreshold"
+  evaluation_periods  = 2
+  metric_name         = "HealthyHostCount"
+  namespace           = "AWS/NetworkELB"
+  period              = 60
+  statistic           = "Sum"
+  threshold           = 1
+
+  dimensions = {
+    TargetGroup  = aws_lb_target_group.gitlab.arn_suffix
+    LoadBalancer = aws_lb.gitlab.arn_suffix
+  }
+}
+
+
+
 module "newrelic" {
   source = "../../modules/newrelic/"
 
