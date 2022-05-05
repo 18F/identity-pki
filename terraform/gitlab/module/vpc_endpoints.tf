@@ -1,3 +1,25 @@
+resource "aws_vpc_endpoint" "kms" {
+  vpc_id            = aws_vpc.default.id
+  service_name      = "com.amazonaws.${var.region}.kms"
+  vpc_endpoint_type = "Interface"
+
+  security_group_ids = [
+    aws_security_group.kms_endpoint.id,
+  ]
+
+  subnet_ids = [
+    aws_subnet.privatesubnet1.id,
+    aws_subnet.privatesubnet2.id,
+    aws_subnet.privatesubnet3.id,
+  ]
+
+  private_dns_enabled = true
+
+  tags = {
+    Name = "${var.env_name}-gitlab-kms"
+  }
+}
+
 resource "aws_vpc_endpoint" "logs" {
   vpc_id            = aws_vpc.default.id
   service_name      = "com.amazonaws.${var.region}.logs"

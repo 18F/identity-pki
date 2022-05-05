@@ -584,3 +584,36 @@ resource "aws_security_group" "ssmmessages_endpoint" {
 
   vpc_id = aws_vpc.default.id
 }
+
+resource "aws_security_group" "kms_endpoint" {
+  name_prefix = "${var.name}-kms_endpoint-${var.env_name}"
+  description = "Allow inbound from all servers"
+
+  # allow outbound to the VPC
+  egress {
+    from_port   = 0
+    to_port     = 65535
+    protocol    = "tcp"
+    cidr_blocks = [aws_vpc.default.cidr_block]
+  }
+
+  ingress {
+    from_port   = 0
+    to_port     = 65535
+    protocol    = "tcp"
+    cidr_blocks = [aws_vpc.default.cidr_block]
+  }
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [aws_vpc.default.cidr_block]
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  vpc_id = aws_vpc.default.id
+}
