@@ -195,11 +195,20 @@ func _TestDockerNetworking(t *testing.T) {
 		}
   }
 }
+
 // s5.30
 func _TestHostUserNamespace(t *testing.T) {
 	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{ .Id }}: UsernsMode={{ .HostConfig.UsernsMode }}'"
 	for _, s := range RunOnRunners(t, cmd) {
 		assert.NotRegexp(t, "UsernsMode=.", s)
+	}
+}
+
+// s5.31
+func _TestDockerSocket(t *testing.T) {
+	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{ .Id }}: Volumes={{ .Mounts }}'"
+	for _, s := range RunOnRunners(t, cmd) {
+		assert.NotRegexp(t,  "docker\\.sock", s)
 	}
 }
 
@@ -223,4 +232,5 @@ func TestJobContainers(t *testing.T) {
 	t.Run("s5.25 Ensure that the container is restricted from acquiring additional privileges", _TestNoNewPrivileges)
 	t.Run("s5.29 Ensure that containers are not on the default network", _TestDockerNetworking)
 	t.Run("s5.30 Ensure that the host's user namespaces are not shared", _TestHostUserNamespace)
+	t.Run("s5.31 Ensure that the Docker socket is not mounted inside any containers", _TestDockerSocket)
 }
