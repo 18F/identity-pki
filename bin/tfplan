@@ -55,7 +55,7 @@ EOM
 
 full_plan () {
   echo
-  echo "${PLAN}" | head -n+1
+  echo "${PLAN}" | awk 'FNR <= 1'
   echo "${PLAN}" | grep -E '^ *[-\+\~\#]' --color=never | grep -v 'unchanged' |
   sed -E 's/^( +\# )/\n\1/;s/ +\= +/ \= /;s/ {2}/ /g'
   echo
