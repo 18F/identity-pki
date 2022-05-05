@@ -26,12 +26,6 @@ deploy_branch = node.fetch('login_dot_gov').fetch('deploy_branch').fetch("identi
   end
 end
 
-# configure release_path as a safe.directory
-# https://github.blog/2022-04-12-git-security-vulnerability-announced/
-execute 'cachedcopy_directory_safe' do
-  command "git config --global --add safe.directory #{base_dir}/shared/cached-copy"
-end
-
 # TODO: don't generate YAML with erb, that's an antipattern
 template "#{base_dir}/shared/config/database.yml" do
   owner node['login_dot_gov']['system_user']
@@ -141,15 +135,6 @@ directory "#{deploy_dir}/api" do
   owner node.fetch('login_dot_gov').fetch('system_user')
   recursive true
   action :create
-end
-
-# configure releases/LONGDATE as a safe.directory
-# https://github.blog/2022-04-12-git-security-vulnerability-announced/
-execute 'release_directory_safe' do
-  command <<-EOH
-    git config --global --add safe.directory \
-    $(find "#{base_dir}/releases/" -maxdepth 1 -type d | tail -n+2)
-  EOH
 end
 
 login_dot_gov_deploy_info "#{deploy_dir}/api/deploy.json" do
