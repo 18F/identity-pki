@@ -97,7 +97,7 @@ resource "aws_autoscaling_group" "outboundproxy" {
     create_before_destroy = true
   }
 
-  vpc_zone_identifier = var.public_subnets
+  vpc_zone_identifier = var.proxy_subnet_ids
 
   target_group_arns = [aws_lb_target_group.obproxy.arn]
 

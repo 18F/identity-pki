@@ -9,76 +9,6 @@ variable "aws_vpc" {
   default = ""
 }
 
-variable "alb3_subnet_cidr_block" { # 172.16.33.208 - 172.16.33.223
-  default = "172.16.33.208/28"
-  type    = string
-}
-
-variable "alb1_subnet_cidr_block" { # 172.16.33.224 - 172.16.33.239
-  default = "172.16.33.224/28"
-  type    = string
-}
-
-variable "alb2_subnet_cidr_block" { # 172.16.33.240 - 172.16.33.255
-  default = "172.16.33.240/28"
-  type    = string
-}
-
-variable "gitlab1_subnet_cidr_block" { # 172.16.32.32  - 172.16.32.47
-  default = "172.16.32.32/28"
-  type    = string
-}
-
-variable "gitlab2_subnet_cidr_block" { # 172.16.32.48  - 172.16.32.63
-  default = "172.16.32.48/28"
-  type    = string
-}
-
-variable "public1_subnet_cidr_block" { # 172.16.32.64 - 172.16.32.127
-  default = "172.16.32.64/26"
-  type    = string
-}
-
-variable "public2_subnet_cidr_block" { # 172.16.32.128 - 172.16.32.191
-  default = "172.16.32.128/26"
-  type    = string
-}
-
-variable "public3_subnet_cidr_block" { # 172.16.32.192 - 172.16.32.255
-  default = "172.16.32.192/26"
-  type    = string
-}
-
-variable "private1_subnet_cidr_block" { # 172.16.35.0 - 172.16.35.63
-  default = "172.16.35.0/26"
-  type    = string
-}
-
-variable "private2_subnet_cidr_block" { # 172.16.35.64 - 172.16.35.127
-  default = "172.16.35.64/26"
-  type    = string
-}
-
-variable "private3_subnet_cidr_block" { # 172.16.35.128 - 172.16.35.191
-  default = "172.16.35.128/26"
-  type    = string
-}
-
-variable "nat_a_subnet_cidr_block" { # 172.16.35.192 - 172.16.35.207
-  default = "172.16.35.192/28"
-  type    = string
-}
-
-variable "nat_b_subnet_cidr_block" { # 172.16.35.208 - 172.16.35.223
-  default = "172.16.35.208/28"
-  type    = string
-}
-
-variable "nat_c_subnet_cidr_block" { # 172.16.35.224 - 172.16.35.239
-  default = "172.16.35.224/28"
-  type    = string
-}
-
 variable "allowed_gitlab_cidr_blocks_v4" { # 159.142.0.0 - 159.142.255.255
   default = [
     "159.142.0.0/16",
@@ -281,18 +211,6 @@ variable "base_security_group_id" {
   default     = ""
 }
 
-variable "gitlab_subnet_1_id" {
-  description = "ID of gitlab Subnet 1"
-  type        = string
-  default     = ""
-}
-
-variable "gitlab_subnet_2_id" {
-  description = "ID of gitlab Subnet 2"
-  type        = string
-  default     = ""
-}
-
 variable "github_ipv4_cidr_blocks" {
   type        = list(string)
   description = "List of GitHub's IPv4 CIDR ranges."
@@ -311,16 +229,6 @@ variable "allow_untagged_jobs" {
   default     = false
 }
 
-
-variable "aws_subnet_publicsubnet1_id" {
-}
-
-variable "aws_subnet_publicsubnet2_id" {
-}
-
-variable "aws_subnet_publicsubnet3_id" {
-}
-
 variable "route53_internal_zone_id" {
 }
 
@@ -333,8 +241,18 @@ variable "destination_artifact_accounts" {
   default     = []
 }
 
+variable "runner_subnet_ids" {
+  description = "list of IDs of runner Subnets"
+  type        = list(any)
+}
+
 variable "destination_idp_static_accounts" {
   description = "List of AWS accounts we can potentially push IDP CDN static assets to"
   type        = list(string)
   default     = []
+}
+
+variable "gitlab_lb_interface_cidr_blocks" {
+  description = "gitlab lb interface cidr blocks"
+  type        = list(string)
 }

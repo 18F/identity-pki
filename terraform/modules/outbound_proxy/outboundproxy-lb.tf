@@ -2,7 +2,7 @@ resource "aws_lb" "obproxy" {
   name_prefix                      = substr("${var.env_name}-obproxy", 0, 6)
   internal                         = true
   load_balancer_type               = "network"
-  subnets                          = var.public_subnets
+  subnets                          = var.proxy_subnet_ids
   enable_cross_zone_load_balancing = true
 
   tags = {

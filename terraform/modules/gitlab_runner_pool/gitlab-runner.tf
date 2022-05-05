@@ -97,10 +97,7 @@ resource "aws_autoscaling_group" "gitlab_runner" {
   wait_for_capacity_timeout = 0 # 0 == ignore
 
   # https://github.com/18F/identity-devops-private/issues/259
-  vpc_zone_identifier = [
-    var.gitlab_subnet_1_id,
-    var.gitlab_subnet_2_id,
-  ]
+  vpc_zone_identifier = var.runner_subnet_ids
 
   health_check_type         = "EC2"
   health_check_grace_period = 1
