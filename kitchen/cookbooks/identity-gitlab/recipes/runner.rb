@@ -112,6 +112,10 @@ docker_service 'default' do
   default_ulimit 'nproc=256:512'
 end
 
+docker_network 'runner-net' do
+  driver 'bridge'
+end
+
 execute 'configure_gitlab_runner' do
   command <<-EOH
     gitlab-runner register \
@@ -141,7 +145,8 @@ execute 'configure_gitlab_runner' do
     --access-level=not_protected \
     --docker-memory 4096m \
     --docker-cpu-shares 1024 \
-    --docker-security-opt no-new-privileges
+    --docker-security-opt no-new-privileges \
+    --docker-network-mode="runner-net"
   EOH
   sensitive true
   notifies :run, 'execute[restart_runner]', :immediate
