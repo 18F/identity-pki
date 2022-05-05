@@ -1,5 +1,7 @@
 data "aws_caller_identity" "current" {}
 
+data "aws_region" "current" {}
+
 variable "env" {
   description = "Environment (prod/int/dev)"
 }
@@ -165,15 +167,16 @@ data "template_file" "set-hostname-template" {
 data "template_file" "cloud-init-base-template" {
   template = file("${path.module}/cloud-init.base.yaml.tpl")
   vars = {
-    domain           = var.domain
-    sns_topic_arn    = var.sns_topic_arn
-    env              = var.env
-    role             = var.role
-    proxy_server     = local.proxy_server
-    proxy_port       = local.proxy_port
-    no_proxy_hosts   = local.no_proxy_hosts
     apt_proxy_stanza = local.apt_proxy_stanza
+    domain           = var.domain
+    env              = var.env
+    no_proxy_hosts   = local.no_proxy_hosts
+    proxy_port       = local.proxy_port
+    proxy_server     = local.proxy_server
     proxy_url        = local.proxy_url
+    region           = data.aws_region.current.name
+    role             = var.role
+    sns_topic_arn    = var.sns_topic_arn
   }
 }
 
@@ -272,4 +275,3 @@ data "template_cloudinit_config" "bootstrap" {
     content      = data.template_file.cloud-init-provision-main-template.rendered
   }
 }
-
