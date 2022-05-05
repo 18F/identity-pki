@@ -50,7 +50,7 @@ resource "aws_route" "default" {
 resource "aws_subnet" "gitlab1" {
   availability_zone       = "${var.region}a"
   cidr_block              = var.gitlab1_subnet_cidr_block
-  map_public_ip_on_launch = true
+  map_public_ip_on_launch = false
 
   tags = {
     Name = "${var.name}-gitlab1_subnet-${var.env_name}"
@@ -62,7 +62,7 @@ resource "aws_subnet" "gitlab1" {
 resource "aws_subnet" "gitlab2" {
   availability_zone       = "${var.region}b"
   cidr_block              = var.gitlab2_subnet_cidr_block
-  map_public_ip_on_launch = true
+  map_public_ip_on_launch = false
 
   tags = {
     Name = "${var.name}-gitlab2_subnet-${var.env_name}"
