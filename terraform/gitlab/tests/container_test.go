@@ -193,6 +193,13 @@ func _TestDockerNetworking(t *testing.T) {
 		if regexp.MustCompile("map").MatchString(s) {
 			assert.Regexp(t, "map\\[\\]", s)
 		}
+  }
+}
+// s5.30
+func _TestHostUserNamespace(t *testing.T) {
+	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{ .Id }}: UsernsMode={{ .HostConfig.UsernsMode }}'"
+	for _, s := range RunOnRunners(t, cmd) {
+		assert.NotRegexp(t, "UsernsMode=.", s)
 	}
 }
 
@@ -215,4 +222,5 @@ func TestJobContainers(t *testing.T) {
 	t.Run("s5.24 Ensure that cgroup usage is confirmed", _TestCgroupUsage)
 	t.Run("s5.25 Ensure that the container is restricted from acquiring additional privileges", _TestNoNewPrivileges)
 	t.Run("s5.29 Ensure that containers are not on the default network", _TestDockerNetworking)
+	t.Run("s5.30 Ensure that the host's user namespaces are not shared", _TestHostUserNamespace)
 }
