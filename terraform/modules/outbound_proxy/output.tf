@@ -1,5 +1,5 @@
-output "proxy_security_group_id" {
-  value = aws_security_group.obproxy.id
+output "proxy_lb_cidr_blocks" {
+  value = formatlist("%s/32", data.aws_network_interface.obproxy.*.private_ip)
 }
 
 output "proxy_asg_name" {

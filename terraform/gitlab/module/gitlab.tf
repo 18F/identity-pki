@@ -44,7 +44,7 @@ module "gitlab_launch_template" {
   instance_type             = var.instance_type_gitlab
   use_spot_instances        = var.use_spot_instances
   iam_instance_profile_name = aws_iam_instance_profile.gitlab.name
-  security_group_ids        = [aws_security_group.gitlab.id, aws_security_group.base.id, aws_security_group.gitlab-lb.id]
+  security_group_ids        = [aws_security_group.gitlab.id, aws_security_group.base.id]
 
   user_data = module.gitlab_user_data.rendered_cloudinit_config
 
