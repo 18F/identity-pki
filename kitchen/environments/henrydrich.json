@@ -5,7 +5,7 @@
   "chef_type": "environment",
   "default_attributes": {
     "login_dot_gov": {
-      "deploy_branch_default": "main",
+      "deploy_branch_default": "stages/henrydrich",
       "idp_run_migrations": true,
       "allow_unsafe_migrations": true,
       "idp_sync_static": true
