@@ -2,6 +2,7 @@ package test
 
 import (
 	"regexp"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -27,8 +28,12 @@ func RunOnRunners(t *testing.T, cmd string) []string {
 
 // s5.3
 func _TestDropCapabilities(t *testing.T) {
-	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{ .Id }}: CapAdd={{ .HostConfig.CapAdd }} CapDrop={{ .HostConfig.CapDrop }}'"
+	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{ .Name }}: CapAdd={{ .HostConfig.CapAdd }} CapDrop={{ .HostConfig.CapDrop }}'"
 	for _, s := range RunOnRunners(t, cmd) {
+		// Ignore redis and postgres
+		if regexp.MustCompile("-postgres-|-redis-").MatchString(s) {
+			continue
+		}
 		if regexp.MustCompile("CapDrop").MatchString(s) {
 			assert.Regexp(t, "CapDrop=\\[net_raw\\]", s)
 		}
@@ -61,7 +66,7 @@ func _TestSensitiveMounts(t *testing.T) {
 			"/usr",
 		}
 		for _, mount := range badMounts {
-			assert.NotRegexp(t, "Volumes=" + mount + "$", s)
+			assert.NotRegexp(t, "Volumes="+mount+"$", s)
 		}
 	}
 }
@@ -71,6 +76,17 @@ func _TestSSHD(t *testing.T) {
 	cmd := "docker ps --quiet | xargs -n 1 -i docker exec '{}' pgrep -l sshd"
 	for _, s := range RunOnRunners(t, cmd) {
 			assert.NotRegexp(t, "sshd", s)
+	}
+}
+
+// s5.7
+func _TestLowPorts(t *testing.T) {
+	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{ range $k, $v := .NetworkSettings.Ports }}{{ $k }}\n{{ end }}'"
+	for _, s := range RunOnRunners(t, cmd) {
+		if ms := regexp.MustCompile("([0-9]+)/tcp").FindStringSubmatch(s); len(ms) > 0 {
+			port, _ := strconv.Atoi(ms[1])
+			assert.GreaterOrEqual(t, port, 1024)
+		}
 	}
 }
 
@@ -227,8 +243,14 @@ func _TestCgroupUsage(t *testing.T) {
 
 // s5.25
 func _TestNoNewPrivileges(t *testing.T) {
-	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{ .Id }}: SecurityOpt={{ .HostConfig.SecurityOpt }}'"
+	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{ .Name }}: SecurityOpt={{ .HostConfig.SecurityOpt }}'"
+
 	for _, s := range RunOnRunners(t, cmd) {
+		// Ignore redis and postgres
+		if regexp.MustCompile("-postgres-|-redis-").MatchString(s) {
+			continue
+		}
+
 		if regexp.MustCompile("SecurityOpt").MatchString(s) {
 			assert.Regexp(t, "no-new-privileges", s)
 		}
@@ -242,7 +264,7 @@ func _TestDockerNetworking(t *testing.T) {
 		if regexp.MustCompile("map").MatchString(s) {
 			assert.Regexp(t, "map\\[\\]", s)
 		}
-  }
+	}
 }
 
 // s5.30
@@ -257,7 +279,7 @@ func _TestHostUserNamespace(t *testing.T) {
 func _TestDockerSocket(t *testing.T) {
 	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{ .Id }}: Volumes={{ .Mounts }}'"
 	for _, s := range RunOnRunners(t, cmd) {
-		assert.NotRegexp(t,  "docker\\.sock", s)
+		assert.NotRegexp(t, "docker\\.sock", s)
 	}
 }
 
@@ -266,6 +288,7 @@ func TestJobContainers(t *testing.T) {
 	t.Run("s5.4 Ensure that privileged containers are not used", _TestPrivilegedContainers)
 	t.Run("s5.5 Ensure sensitive host system directories are not mounted on containers", _TestSensitiveMounts)
 	t.Run("s5.6 Ensure sshd is not run within containers", _TestSSHD)
+	t.Run("s5.7 Ensure privileged ports are not mapped within containers", _TestLowPorts)
 	t.Run("s5.10 Require memory arg", _TestMemory)
 	t.Run("s5.11 Require cpu_shares arg", _TestCPUShares)
 	t.Run("s5.13 Require bound interfaces", _TestBoundHostInterface)
