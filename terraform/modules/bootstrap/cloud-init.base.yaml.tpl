@@ -9,13 +9,15 @@ no_ssh_fingerprints: true
 # make it so that we don't do DSA keys, which do not work with FIPS
 ssh_genkeytypes: ['rsa', 'ecdsa']
 
+bootcmd:
+ - aws configure set region ${region} --profile default
 
 write_files:
  - path: /etc/login.gov/info/env
    content: "${env}\n"
 
  - path: /etc/login.gov/info/sns_topic_arn
-   content: "${sns_topic_arn}\n"  
+   content: "${sns_topic_arn}\n"
 
  - path: /etc/login.gov/info/domain
    content: "${domain}\n"

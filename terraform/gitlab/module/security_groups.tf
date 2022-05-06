@@ -9,15 +9,6 @@ resource "aws_security_group" "base" {
     Name = "${var.env_name}-base"
   }
 
-  # allow TCP egress to outbound proxy
-  egress {
-    description     = "allow egress to outbound proxy"
-    protocol        = "tcp"
-    from_port       = var.proxy_port
-    to_port         = var.proxy_port
-    security_groups = [module.outbound_proxy.proxy_security_group_id]
-  }
-
   # allow ICMP to/from the whole VPC
   ingress {
     protocol    = "icmp"
@@ -42,6 +33,26 @@ resource "aws_security_group" "base" {
     prefix_list_ids = [aws_vpc_endpoint.private-s3.prefix_list_id]
   }
 
+  egress {
+    description = "allow egress to other VPC endpoints"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    security_groups = [
+      aws_security_group.ec2_endpoint.id,
+      aws_security_group.ec2messages_endpoint.id,
+      aws_security_group.logs_endpoint.id,
+      aws_security_group.monitoring_endpoint.id,
+      aws_security_group.secretsmanager_endpoint.id,
+      aws_security_group.smtp_endpoint.id,
+      aws_security_group.sns_endpoint.id,
+      aws_security_group.ssm_endpoint.id,
+      aws_security_group.ssmmessages_endpoint.id,
+      aws_security_group.sts_endpoint.id,
+      aws_security_group.kms_endpoint.id
+    ]
+  }
+
   # GARBAGE TEMP - Allow direct access to api.snapcraft.io until Ubuntu Advantage stops
   #                hanging on repeated calls to pull the livestream agent from snap
   egress {
@@ -50,6 +61,29 @@ resource "aws_security_group" "base" {
     from_port   = 443
     to_port     = 443
     cidr_blocks = ["91.189.92.0/24"]
+  }
+
+  egress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = local.github_ipv4_cidr_blocks
+  }
+
+  egress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = formatlist("%s/32", data.aws_network_interface.lb.*.private_ip)
+    description = "Allow connection to NLB"
+  }
+
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = formatlist("%s/32", data.aws_network_interface.lb.*.private_ip)
+    description = "Allow connection to NLB"
   }
 
   lifecycle {
@@ -68,6 +102,14 @@ resource "aws_security_group" "gitlab" {
     to_port     = 65535
     protocol    = "tcp"
     cidr_blocks = [aws_vpc.default.cidr_block]
+  }
+
+  # can talk to the proxy
+  egress {
+    from_port   = var.proxy_port
+    to_port     = var.proxy_port
+    protocol    = "tcp"
+    cidr_blocks = module.outbound_proxy.proxy_lb_cidr_blocks
   }
 
   egress {
@@ -92,67 +134,31 @@ resource "aws_security_group" "gitlab" {
     cidr_blocks = [var.nessusserver_ip]
   }
 
-  egress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = local.github_ipv4_cidr_blocks
-  }
-
-  name_prefix = "${var.name}-gitlab-${var.env_name}"
-
-  tags = {
-    Name = "${var.name}-gitlabserver_security_group-${var.env_name}"
-    role = "gitlab"
-  }
-
-  lifecycle {
-    create_before_destroy = true
-  }
-
-  vpc_id = aws_vpc.default.id
-}
-
-locals {
-  gitlabsubnetids = [aws_subnet.gitlab1.id, aws_subnet.gitlab2.id]
-}
-data "aws_network_interface" "lb" {
-  count = length(local.gitlabsubnetids)
-
-  filter {
-    name   = "description"
-    values = ["ELB ${aws_lb.gitlab.arn_suffix}"]
-  }
-  filter {
-    name   = "subnet-id"
-    values = ["${element(local.gitlabsubnetids, count.index)}"]
-  }
-}
-
-resource "aws_security_group" "gitlab-lb" {
-  description = "Allow inbound gitlab traffic from allowlisted IPs"
-
-  # TODO: limit this to what is actually needed
-  # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
-  egress {
-    from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block]
+  # these cidr blocks should contain the nlb, so it can do healthchecks and send traffic
+  ingress {
+    from_port = 22
+    to_port   = 22
+    protocol  = "tcp"
+    cidr_blocks = sort(
+      concat(
+        [aws_vpc.default.cidr_block],
+        local.github_ipv4_cidr_blocks,
+        var.allowed_gitlab_cidr_blocks_v4
+      )
+    )
   }
 
   ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = var.allowed_gitlab_cidr_blocks_v4
-  }
-
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = sort(concat(var.allowed_gitlab_cidr_blocks_v4, data.github_ip_ranges.meta.hooks_ipv4))
+    from_port = 443
+    to_port   = 443
+    protocol  = "tcp"
+    cidr_blocks = sort(
+      concat(
+        [aws_vpc.default.cidr_block],
+        data.github_ip_ranges.meta.hooks_ipv4,
+        var.allowed_gitlab_cidr_blocks_v4
+      )
+    )
   }
 
   # these are the EIPs for the NAT which is being used by the obproxies
@@ -176,6 +182,7 @@ resource "aws_security_group" "gitlab-lb" {
     cidr_blocks = formatlist("%s/32", data.aws_network_interface.lb.*.private_ip)
     description = "Allow connection from NLB"
   }
+
   ingress {
     from_port   = 443
     to_port     = 443
@@ -184,10 +191,11 @@ resource "aws_security_group" "gitlab-lb" {
     description = "Allow connection from NLB"
   }
 
-  name_prefix = "${var.name}-gitlab-lb-${var.env_name}"
+  name_prefix = "${var.name}-gitlab-${var.env_name}"
 
   tags = {
-    Name = "${var.name}-gitlab-lb_security_group-${var.env_name}"
+    Name = "${var.name}-gitlabserver_security_group-${var.env_name}"
+    role = "gitlab"
   }
 
   lifecycle {

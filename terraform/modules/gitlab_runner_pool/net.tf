@@ -10,12 +10,19 @@ resource "aws_security_group" "gitlab_runner" {
     cidr_blocks = sort(var.github_ipv4_cidr_blocks)
   }
 
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = sort(var.github_ipv4_cidr_blocks)
+  }
+
   # can talk to the proxy
   egress {
-    from_port       = 3128
-    to_port         = 3128
-    protocol        = "tcp"
-    security_groups = [module.outbound_proxy.proxy_security_group_id]
+    from_port   = 3128
+    to_port     = 3128
+    protocol    = "tcp"
+    cidr_blocks = module.outbound_proxy.proxy_lb_cidr_blocks
   }
 
   # need 8834 to comm with Nessus Server
