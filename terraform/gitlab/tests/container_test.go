@@ -66,6 +66,14 @@ func _TestSensitiveMounts(t *testing.T) {
 	}
 }
 
+// s5.6
+func _TestSSHD(t *testing.T) {
+	cmd := "docker ps --quiet | xargs -n 1 -i docker exec '{}' pgrep -l sshd"
+	for _, s := range RunOnRunners(t, cmd) {
+			assert.NotRegexp(t, "sshd", s)
+	}
+}
+
 // s5.10
 func _TestMemory(t *testing.T) {
 	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{.Name}}: {{ .HostConfig.Memory }}'"
@@ -257,6 +265,7 @@ func TestJobContainers(t *testing.T) {
 	t.Run("s5.3 Ensure that Linux kernel capabilities are restricted within containers", _TestDropCapabilities)
 	t.Run("s5.4 Ensure that privileged containers are not used", _TestPrivilegedContainers)
 	t.Run("s5.5 Ensure sensitive host system directories are not mounted on containers", _TestSensitiveMounts)
+	t.Run("s5.6 Ensure sshd is not run within containers", _TestSSHD)
 	t.Run("s5.10 Require memory arg", _TestMemory)
 	t.Run("s5.11 Require cpu_shares arg", _TestCPUShares)
 	t.Run("s5.13 Require bound interfaces", _TestBoundHostInterface)
