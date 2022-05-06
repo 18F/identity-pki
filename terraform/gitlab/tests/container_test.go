@@ -35,6 +35,16 @@ func _TestDropCapabilities(t *testing.T) {
 	}
 }
 
+// s5.4
+func _TestPrivilegedContainers(t *testing.T) {
+	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{ .Id }}: Privileged={{ .HostConfig.Privileged }}'"
+	for _, s := range RunOnRunners(t, cmd) {
+		if regexp.MustCompile("Privileged=").MatchString(s) {
+			assert.Regexp(t, "Privileged=false", s)
+		}
+	}
+}
+
 // s5.10
 func _TestMemory(t *testing.T) {
 	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{.Name}}: {{ .HostConfig.Memory }}'"
@@ -224,6 +234,7 @@ func _TestDockerSocket(t *testing.T) {
 
 func TestJobContainers(t *testing.T) {
 	t.Run("s5.3 Ensure that Linux kernel capabilities are restricted within containers", _TestDropCapabilities)
+	t.Run("s5.4 Ensure that privileged containers are not used", _TestPrivilegedContainers)
 	t.Run("s5.10 Require memory arg", _TestMemory)
 	t.Run("s5.11 Require cpu_shares arg", _TestCPUShares)
 	t.Run("s5.13 Require bound interfaces", _TestBoundHostInterface)
