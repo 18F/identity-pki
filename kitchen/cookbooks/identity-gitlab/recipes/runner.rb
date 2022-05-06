@@ -146,7 +146,8 @@ execute 'configure_gitlab_runner' do
     --docker-memory 4096m \
     --docker-cpu-shares 1024 \
     --docker-security-opt no-new-privileges \
-    --docker-network-mode="runner-net"
+    --docker-network-mode="runner-net" \
+    --docker-cap-drop net_raw
   EOH
   sensitive true
   notifies :run, 'execute[restart_runner]', :immediate
