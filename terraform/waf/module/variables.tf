@@ -92,7 +92,9 @@ variable "otp_send_rate_limit_per_ip" {
 variable "ip_block_list" {
   description = "IP addresses to block"
   type        = list(string)
-  default     = []
+  default = [
+    "45.156.25.223" # 2022-04-29 - Log4j scanner blocked per-GSA IR
+  ]
 }
 
 variable "geo_block_list" {
