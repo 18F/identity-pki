@@ -111,7 +111,7 @@ variable "asg_gitlab_test_runner_desired" {
 }
 
 variable "asg_outboundproxy_desired" {
-  default = 3
+  default = 1
 }
 
 variable "asg_outboundproxy_min" {
@@ -119,7 +119,7 @@ variable "asg_outboundproxy_min" {
 }
 
 variable "asg_outboundproxy_max" {
-  default = 9
+  default = 3
 }
 
 variable "asg_prevent_auto_terminate" {

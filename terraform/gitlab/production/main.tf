@@ -25,6 +25,7 @@ module "main" {
   destination_idp_static_accounts = ["894947205914"] # login-sandbox
   production                      = true
   accountids                      = ["894947205914", "034795980528", "217680906704"]
+  asg_outboundproxy_desired       = 2
 }
 
 output "gitlab_db_host" {

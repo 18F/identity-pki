@@ -21,4 +21,5 @@ module "outbound_proxy" {
   s3_prefix_list_id                = var.s3_prefix_list_id
   slack_events_sns_hook_arn        = var.slack_events_sns_hook_arn
   vpc_id                           = var.aws_vpc
+  asg_outboundproxy_desired        = var.asg_outboundproxy_desired
 }

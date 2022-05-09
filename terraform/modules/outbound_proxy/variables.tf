@@ -32,7 +32,7 @@ variable "asg_outboundproxy_min" {
 }
 
 variable "asg_outboundproxy_max" {
-  default = 1
+  default = 4
 }
 
 variable "asg_prevent_auto_terminate" {
