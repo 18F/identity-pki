@@ -260,6 +260,14 @@ users:
     - ssteiner
     gitlab_groups:
     - appdev
+  sheldon.bachstein:
+    aws_groups:
+    - appdev
+    - analytics
+    gitlab_groups:
+    - appdev
+    git_username:
+    - sheldon-b
   sierra.toler:
     aws_groups:
     - bizops
@@ -284,6 +292,14 @@ users:
     - sujana09
     gitlab_groups:
     - devops
+  thomas.apodaca:
+    aws_groups:
+    - appdev
+    - analytics
+    gitlab_groups:
+    - appdev
+    git_username:
+    - tomas-nava
   tiffanyj.andrews:
     aws_groups:
     - analytics
