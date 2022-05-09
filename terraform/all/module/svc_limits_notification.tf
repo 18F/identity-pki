@@ -15,7 +15,9 @@ resource "aws_cloudwatch_metric_alarm" "kms_api" {
   evaluation_periods  = "10"
   threshold           = "80"
   alarm_description   = <<EOM
-KMS Symmetric Cryptographic API request rate has exceeded 80% of limit in ${data.aws_caller_identity.current.account_id} - ${var.region}
+KMS Symmetric Cryptographic API request rate has exceeded 80% of limit for:
+Account: ${data.aws_caller_identity.current.account_id}
+Region: ${var.region}
 
 Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-AWS-Service-Limits#kms-symmetric-key-api
 EOM
@@ -68,7 +70,9 @@ resource "aws_cloudwatch_log_metric_filter" "api_throttling" {
 resource "aws_cloudwatch_metric_alarm" "api_throttling" {
   alarm_name          = "svc_limit_exceeded_error_message"
   alarm_description   = <<EOM
-LimitExceeded messages found in CloudTrail - Please investigate!
+LimitExceeded messages found in CloudTrail - AWS API rate limiting occurring
+Account: ${data.aws_caller_identity.current.account_id}
+Region: ${var.region}
 
 Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-AWS-Service-Limits#limitexceeded-in-cloudtrail
 EOM
