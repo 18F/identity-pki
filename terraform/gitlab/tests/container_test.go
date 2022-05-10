@@ -90,6 +90,14 @@ func _TestLowPorts(t *testing.T) {
 	}
 }
 
+// s5.9
+func _TestNetworkMode(t *testing.T) {
+	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{ .Id }}: NetworkMode={{ .HostConfig.NetworkMode }}'"
+	for _, s := range RunOnRunners(t, cmd) {
+			assert.NotRegexp(t, "NetworkMode=host", s)
+	}
+}
+
 // s5.10
 func _TestMemory(t *testing.T) {
 	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{.Name}}: {{ .HostConfig.Memory }}'"
@@ -289,6 +297,7 @@ func TestJobContainers(t *testing.T) {
 	t.Run("s5.5 Ensure sensitive host system directories are not mounted on containers", _TestSensitiveMounts)
 	t.Run("s5.6 Ensure sshd is not run within containers", _TestSSHD)
 	t.Run("s5.7 Ensure privileged ports are not mapped within containers", _TestLowPorts)
+	t.Run("s5.9 Ensure that the host's network namespace is not shared", _TestNetworkMode)
 	t.Run("s5.10 Require memory arg", _TestMemory)
 	t.Run("s5.11 Require cpu_shares arg", _TestCPUShares)
 	t.Run("s5.13 Require bound interfaces", _TestBoundHostInterface)
