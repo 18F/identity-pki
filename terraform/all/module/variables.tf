@@ -226,3 +226,27 @@ variable "monitor_schedule" {
   description = "Frequency of TA monitor lambda execution"
   default     = "cron(10 14 * * ? *)"
 }
+
+variable "config_password_rotation_name" {
+  description = "Name of the Config Password rotation, used to name other resources"
+  type        = string
+  default     = "cfg-password-rotation"
+}
+
+variable "password_rotation_frequency" {
+  type        = string
+  description = "The frequency that you want AWS Config to run evaluations for the rule."
+  default     = "TwentyFour_Hours"
+}
+
+variable "password_rotation_max_key_age" {
+  type        = string
+  description = "Maximum number of days without rotation. Default 90."
+  default     = 90
+}
+
+variable "config_password_rotation_code" {
+  type        = string
+  description = "Path of the compressed lambda source code."
+  default     = "lambda/config-password-rotation.zip"
+}
