@@ -93,7 +93,8 @@ variable "ip_block_list" {
   description = "IP addresses to block"
   type        = list(string)
   default = [
-    "45.156.25.223" # 2022-04-29 - Log4j scanner blocked per-GSA IR
+    "45.156.25.223",  # 2022-04-29 - Log4j scanner blocked per-GSA IR
+    "141.170.198.141" # 2022-05-10 - Noisy scanner from BA generating some 502s
   ]
 }
 
