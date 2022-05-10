@@ -90,11 +90,12 @@ variable "otp_send_rate_limit_per_ip" {
 }
 
 variable "ip_block_list" {
-  description = "IP addresses to block"
+  description = "IP addresses with CIDR mask to block"
   type        = list(string)
+  # !!! REMEMBER THE CIDR MASK!  For a single IPv4 IP just add /32 at the end.
   default = [
-    "45.156.25.223",  # 2022-04-29 - Log4j scanner blocked per-GSA IR
-    "141.170.198.141" # 2022-05-10 - Noisy scanner from BA generating some 502s
+    "45.156.25.223/32",  # 2022-04-29 - Log4j scanner blocked per-GSA IR
+    "141.170.198.141/32" # 2022-05-10 - Noisy scanner from BA generating some 502s
   ]
 }
 
