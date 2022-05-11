@@ -49,27 +49,6 @@ EOF
   esac
 }
 
-#### quick SSM access ; requires session-manager-plugin to work! ####
-ssc() {
-  local SSM_CMD
-  INSTANCE_ID=${1}
-  env_get "${2}"
-  shift 2
-  while getopts ifs opt
-  do
-          case $opt in
-                  i) SSM_CMD="sudo su - ${GSA_USERNAME}"  ;;
-                  f) SSM_CMD="sudo tail -f /var/log/cloud-init-output.log"  ;;
-                  s) SSM_CMD="sudo su - "  ;;
-          esac
-  done
-  [ -z $SSM_CMD ] && SSM_CMD="$@"
-  run_av aws ssm start-session \
-         --document-name AWS-StartInteractiveCommand \
-         --parameters command="'${SSM_CMD}'" \
-         --target "${INSTANCE_ID}"
-}
-
 #### quickly run common cloudlib aliases/commands with any AWS_PROFILE/env ####
 vcl() {
   read -r -d '' usage <<'EOF'
@@ -80,7 +59,7 @@ EOF
   [[ $# == 0 ]] && badopt
   local CL_TABLE EC2_TYPE
   env_get ${2}
-  while getopts el:c:r:s: opt
+  while getopts el:c:r:s:L:S:F:D: opt
   do
     case "${OPTARG}" in
       A) EC2_TYPE='ALL'                     ;;
@@ -95,12 +74,16 @@ EOF
       *) [[ ${opt} =~ 'e' ]] || badopt ${1} ;;
     esac
     case "${opt}" in
-      e) CL_TABLE=$(run_av ls-servers -Hlqe ${EC2_ENV})                 ;;
-      l) CL_TABLE=$(run_av ls-servers -Hlqn asg-${EC2_ENV}-${EC2_TYPE}) ;;
-      c) run_av scale-in-old-instances -qf ${EC2_ENV} ${EC2_TYPE}       ;;
-      r) run_av asg-recycle -q ${EC2_ENV} ${EC2_TYPE}                   ;;
-      s) run_av asg-size -q ${EC2_ENV} ${EC2_TYPE} ${3-}                ;;
-      *) badopt ${opt}                                                  ;;
+      e) CL_TABLE=$(run_av ls-servers -Hlqe ${EC2_ENV})                     ;;
+      l) CL_TABLE=$(run_av ls-servers -Hlqn asg-${EC2_ENV}-${EC2_TYPE})     ;;
+      c) run_av scale-in-old-instances -qf ${EC2_ENV} ${EC2_TYPE}           ;;
+      r) run_av asg-recycle -q ${EC2_ENV} ${EC2_TYPE}                       ;;
+      s) run_av asg-size -q ${EC2_ENV} ${EC2_TYPE} ${3-}                    ;;
+      L) run_av ssm-instance --newest asg-${EC2_ENV}-${EC2_TYPE}            ;;
+      S) run_av ssm-instance -d sudo --newest asg-${EC2_ENV}-${EC2_TYPE}    ;;
+      F) run_av ssm-instance -d tail-cw --newest asg-${EC2_ENV}-${EC2_TYPE} ;;
+      D) run_av ssm-instance -d ${3-} --newest asg-${EC2_ENV}-${EC2_TYPE}   ;;
+      *) badopt ${opt}                                                      ;;
     esac
   done
   [[ -z "${CL_TABLE}" ]] || echo "${CL_TABLE}" |
