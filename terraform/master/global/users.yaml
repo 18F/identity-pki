@@ -35,10 +35,6 @@ users:
     - aduth
     gitlab_groups:
     - appdev
-  brett.mcparland:
-    aws_groups:
-    - secops
-    - soc
   chris.manger:
     aws_groups:
     - bizops
