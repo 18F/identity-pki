@@ -37,7 +37,7 @@ module "outboundproxy_user_data" {
 module "outboundproxy_launch_template" {
   source = "github.com/18F/identity-terraform//launch_template?ref=a6261020a94b77b08eedf92a068832f21723f7a2"
   #source = "../../../identity-terraform/launch_template"
-  role           = "outboundproxy"
+  role           = "${var.proxy_for}-outboundproxy"
   env            = var.env_name
   root_domain    = var.root_domain
   ami_id_map     = var.ami_id_map

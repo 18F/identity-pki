@@ -22,4 +22,5 @@ module "outbound_proxy" {
   slack_events_sns_hook_arn        = var.slack_events_sns_hook_arn
   vpc_id                           = var.aws_vpc
   asg_outboundproxy_desired        = var.asg_outboundproxy_desired
+  ssm_access_policy                = var.ssm_access_policy
 }
