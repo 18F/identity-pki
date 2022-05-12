@@ -119,6 +119,7 @@ users:
   julia.l.allen:
     aws_groups:
     - appdev
+    - apponcall
     ec2_username:
     - jlallen
     gitlab_groups:
@@ -203,6 +204,7 @@ users:
   natasha.ibrahim:
     aws_groups:
     - appdev
+    - apponcall
     ec2_username:
     - nibrahim
     gitlab_groups:
