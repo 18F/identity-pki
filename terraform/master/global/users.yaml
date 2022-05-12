@@ -167,6 +167,15 @@ users:
   michael.antiporta:
     aws_groups:
     - analytics
+  michael.w.ward:
+    aws_groups:
+    - devopsnonprod
+    ec2_username:
+    - mww59
+    gitlab_groups:
+    - devops
+    git_username:
+    - mww59
   mitchell.henke:
     aws_groups:
     - appdev
