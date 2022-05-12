@@ -50,7 +50,7 @@ resource "aws_iam_role_policy_attachment" "lambda-role-attach-cust-policy" {
 }
 
 module "lambda_zip" {
-  source = "github.com/18F/identity-terraform//null_archive?ref=9ca808e1cad7add8e7bdccd6aa1199d873d34d54"
+  source = "github.com/18F/identity-terraform//null_archive?ref=0fe0243d7df353014c757a72ef0c48f5805fb3d3"
 
   source_code_filename = "pinpoint_lambda.py"
   source_dir           = "${path.module}/src/"
@@ -60,7 +60,8 @@ module "lambda_zip" {
 resource "aws_lambda_function" "pinpoint-lambda" {
   depends_on = [
     aws_cloudwatch_log_group.pinpoint-logs,
-    aws_iam_role.lambda_role
+    aws_iam_role.lambda_role,
+    module.lambda_zip.resource_check
   ]
   function_name    = "${var.env}-pinpoint-kinesis-cw-function-${data.aws_region.current.name}"
   description      = "Pinpoint Kinesis CW Lambda Function"

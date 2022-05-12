@@ -1,5 +1,5 @@
 module "config_access_key_rotation_code" {
-  source = "github.com/18F/identity-terraform//null_archive?ref=9ca808e1cad7add8e7bdccd6aa1199d873d34d54"
+  source = "github.com/18F/identity-terraform//null_archive?ref=0fe0243d7df353014c757a72ef0c48f5805fb3d3"
 
   source_code_filename = "config_access_key_rotation.py"
   source_dir           = "${path.module}/src/"
@@ -25,6 +25,8 @@ resource "aws_lambda_function" "config_access_key_rotation_lambda" {
       RetentionPeriod = 100
     }
   }
+
+  depends_on = [module.config_access_key_rotation_code.resource_check]
 }
 
 resource "aws_lambda_permission" "config_access_key_rotation_lambda_permission" {
