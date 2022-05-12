@@ -27,6 +27,8 @@ users:
     - appdev
     gitlab_groups:
     - appdev
+    ec2_username:
+    - theabrad
   andrew.duthie:
     aws_groups:
     - appdev
