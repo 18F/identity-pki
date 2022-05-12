@@ -70,19 +70,8 @@ module Cloudlib
           'ssm',
           'start-session',
           '--target', instance.instance_id,
+          '--document',  "#{@cl.env}-ssm-document-#{@document}",
         ]
-        
-        # HACK: Don't use document when connecting to gitlab hosts.
-        # Update this once an SSM document solution is in place.
-        instance_domain = ''
-        instance.tags.each { |tag| instance_domain = tag.value if tag.key == "domain" }
-
-        if instance_domain !~ /gitlab/
-          cmd += [
-            '--document',  "#{@cl.env}-ssm-document-#{@document}",
-          ]
-        end
-        
         log.debug('exec: ' + cmd.inspect)
         exec(*cmd)
       end

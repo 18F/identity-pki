@@ -25,4 +25,12 @@ module "main" {
     iam_appdev_enabled = false
   }
   smtp_user_ready = true
+
+  ssm_access_map = {
+    "FullAdministrator" = [{ "*" = ["*"] }],
+    "KMSAdministrator"  = [{ "*" = ["*"] }],
+    "PowerUser"         = [{ "*" = ["*"] }],
+    "SOCAdministrator"  = [{ "*" = ["*"] }],
+    "Terraform"         = [{ "*" = ["*"] }],
+  }
 }

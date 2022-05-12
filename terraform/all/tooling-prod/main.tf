@@ -38,4 +38,12 @@ module "main" {
       ]
     }
   ]
+
+  ssm_access_map = {
+    "FullAdministrator" = [{ "*" = ["*"] }],
+    "KMSAdministrator"  = [{ "*" = ["*"] }],
+    "PowerUser"         = [{ "*" = ["*"] }],
+    "SOCAdministrator"  = [{ "*" = ["*"] }],
+    "Terraform"         = [{ "*" = ["*"] }],
+  }
 }

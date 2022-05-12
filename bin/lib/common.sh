@@ -504,19 +504,6 @@ Repo root for $BASENAME: $repo_root_after_cd"
   fi
 }
 
-
-## determine env (and AWS_PROFILE) from arg ##
-env_get() {
-  AV_PROFILE='sandbox-admin'
-  if [[ ${TF_DIR} == 'app' ]] || [[ -z ${TF_DIR} ]] ; then
-    EC2_ENV="${1-sandbox}"
-    [[ ${EC2_ENV} == 'sandbox' ]] && EC2_ENV=$(echo $GSA_USERNAME)
-  else
-    EC2_ENV="${1-sandbox}"
-  fi
-  [[ "${EC2_ENV}" =~ "staging|prod|dm" ]] && AV_PROFILE='prod-admin'
-}
-
 ## strip off aws-vault exec stuff if running a long AWS_VAULT session ##
 run_av() {
   run_me_av=("$@")

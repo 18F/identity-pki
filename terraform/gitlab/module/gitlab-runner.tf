@@ -29,6 +29,7 @@ module "build_pool" {
   runner_subnet_ids                = [aws_subnet.privatesubnet1.id, aws_subnet.privatesubnet2.id]
   s3_prefix_list_id                = aws_vpc_endpoint.private-s3.prefix_list_id
   slack_events_sns_hook_arn        = var.slack_events_sns_hook_arn
+  ssm_access_policy                = module.ssm.ssm_access_role_policy
 }
 
 # A pool with reduced Internet access, but increased infrastructure permissions
@@ -60,6 +61,7 @@ module "deploy_pool" {
   runner_subnet_ids                = [aws_subnet.privatesubnet1.id, aws_subnet.privatesubnet2.id]
   s3_prefix_list_id                = aws_vpc_endpoint.private-s3.prefix_list_id
   slack_events_sns_hook_arn        = var.slack_events_sns_hook_arn
+  ssm_access_policy                = module.ssm.ssm_access_role_policy
 }
 
 # A pool for testing infrastructure
@@ -91,4 +93,5 @@ module "test_pool" {
   runner_subnet_ids                = [aws_subnet.privatesubnet1.id, aws_subnet.privatesubnet2.id]
   s3_prefix_list_id                = aws_vpc_endpoint.private-s3.prefix_list_id
   slack_events_sns_hook_arn        = var.slack_events_sns_hook_arn
+  ssm_access_policy                = module.ssm.ssm_access_role_policy
 }

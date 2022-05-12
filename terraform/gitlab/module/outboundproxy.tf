@@ -17,4 +17,5 @@ module "outbound_proxy" {
   root_domain                      = var.root_domain
   proxy_for                        = "gitlab"
   client_security_group_ids        = [aws_security_group.gitlab.id]
+  ssm_access_policy                = module.ssm.ssm_access_role_policy
 }

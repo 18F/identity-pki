@@ -335,71 +335,11 @@ resource "aws_iam_role_policy" "gitlab-runner-sns-publish-alerts" {
     EOM
 }
 
-# allow SSM service core functionality
+# allow SSM access via documents / key generation + usage
 resource "aws_iam_role_policy" "gitlab-runner-ssm-access" {
   role        = aws_iam_role.gitlab_runner.id
   name_prefix = "${var.env_name}-gitlab_runner-ssm-access"
-  policy      = <<-EOM
-      {
-          "Version": "2012-10-17",
-          "Statement": [
-              {
-                  "Sid": "SSMCoreAccess",
-                  "Effect": "Allow",
-                  "Action": [
-                      "ssmmessages:OpenDataChannel",
-                      "ssmmessages:OpenControlChannel",
-                      "ssmmessages:CreateDataChannel",
-                      "ssmmessages:CreateControlChannel",
-                      "ssm:UpdateInstanceInformation",
-                      "ssm:UpdateInstanceAssociationStatus",
-                      "ssm:UpdateAssociationStatus",
-                      "ssm:PutInventory",
-                      "ssm:PutConfigurePackageResult",
-                      "ssm:PutComplianceItems",
-                      "ssm:ListInstanceAssociations",
-                      "ssm:ListAssociations",
-                      "ssm:GetParameters",
-                      "ssm:GetParameter",
-                      "ssm:GetManifest",
-                      "ssm:GetDocument",
-                      "ssm:GetDeployablePatchSnapshotForInstance",
-                      "ssm:DescribeDocument",
-                      "ssm:DescribeAssociation",
-                      "ec2messages:SendReply",
-                      "ec2messages:GetMessages",
-                      "ec2messages:GetEndpoint",
-                      "ec2messages:FailMessage",
-                      "ec2messages:DeleteMessage",
-                      "ec2messages:AcknowledgeMessage"
-                  ],
-                  "Resource": "*"
-              },
-              {
-                  "Sid": "CloudWatchAgentAccess",
-                  "Effect": "Allow",
-                  "Action": [
-                      "ec2:DescribeVolumes",
-                      "ec2:DescribeTags",
-                      "cloudwatch:PutMetricData"
-                  ],
-                  "Resource": "*"
-              },
-              {
-                  "Sid": "CloudWatchLogsAccess",
-                  "Effect": "Allow",
-                  "Action": [
-                      "logs:PutLogEvents",
-                      "logs:DescribeLogStreams",
-                      "logs:DescribeLogGroups",
-                      "logs:CreateLogStream",
-                      "logs:CreateLogGroup"
-                  ],
-                  "Resource": "*"
-              }
-          ]
-      }
-    EOM
+  policy      = var.ssm_access_policy
 }
 
 # allow runners to use a shared cache
