@@ -1,25 +1,23 @@
 ---
 name: AMI Update
 about: A PR including new AMIs being rolled out to terraform/app
-title: ''
+title: "AMI update, YYYY-MM-DD"
 labels: ''
 assignees: ''
 
 ---
 
-PR_TITLE
-
 <!-- This PR MUST fulfill the accepted criteria defined for DevOps PRs: -->
-<!-- https://login-handbook.app.cloud.gov/articles/devops-acceptance-criteria.html -->
+<!-- https://handbook.login.gov/articles/platform-acceptance-criteria.html#pull-requests -->
 
-<!-- enter data for the new AMIs here -->
-<!-- generate: aws ec2 describe-images \
-  --owners self \
-  --query 'Images[*].{ami:ImageId,date:CreationDate}' \
-  --output text | sort -rk 2 | head -n 2 -->
+<!-- generate AMI data: bin/get-images -l -->
+<!-- and replace the below block with the generated data -->
+
 | Account | ID | Date | Description |
 | :---: | :---: | :---: | :---: |
 | sandbox | ami-XXXXXXXXXXXXXXXXX | <DATE> | base image Ubuntu 18.04 |
 | prod | ami-XXXXXXXXXXXXXXXXX | <DATE> | base image Ubuntu 18.04 |
 | sandbox | ami-XXXXXXXXXXXXXXXXX | <DATE> | rails image Ubuntu 18.04 |
 | prod | ami-XXXXXXXXXXXXXXXXX | <DATE> | rails image Ubuntu 18.04 |
+
+<!-- REMOVE ALL COMMENT BLOCKS, LIKE THIS ONE, BEFORE SUBMITTING! -->
