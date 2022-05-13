@@ -276,7 +276,7 @@ locals {
     },
     idp_worker_perform_failure = {
       name         = "perform-failure"
-      pattern      = "{ $.name = \"perform.active_job\" && $.exception_message = * && $.queue_name = \"*GoodJob*\" }"
+      pattern      = "{ $.name = \"perform.active_job\" && $.exception_message = * && $.queue_name = \"*GoodJob*\" && $.queue_name != \"*long_running*\" }"
       metric_value = 1
     },
   }

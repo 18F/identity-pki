@@ -190,3 +190,10 @@ waf/blocked-by-rule-and-ip:
     filter action != "ALLOW"
     | stats count() as count by terminatingRuleId,httpRequest.clientIp
     | sort count desc
+workers/failed_jobs:
+  logs:
+    - ${env}_/srv/idp/shared/log/workers.log
+  query: |
+    ## Shows jobs that raised an exception while running
+    fields @timestamp, @message
+    | filter ispresent(exception_class) and name = 'perform.active_job'
