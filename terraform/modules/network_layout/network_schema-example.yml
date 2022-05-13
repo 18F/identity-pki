@@ -13,29 +13,22 @@
 # Availability region - Up to 16 slots
 regions:
   - ~ # First region maps to 10.0.0.0/16 which should always be avoided
-  - ~ # us-east-1 - Planned
-  - us-east-2
-  - ~ # us-west-1 - Planned
-  - us-west-2
+  - mars-1
+  - mars-2
+  - ~ # (planned) mars-3
+  - europa-1
 
 # Deployment environments - Up to 16 slots
 environments:
   - peering # Peering/internetworking
+  - management # Central tooling/command
+  - ~ # (planned) Management growth
   - security # Central security control
   - telemetry # Monitoring and data collection
   - ~ # (planned) Telemetry growth
-  - tooling-prod # Central tooling/command
-  - tooling-sandbox # Other (overlapping) tooling
-  - app-prod # Production applications
-  - app-staging # Staging applications
-  - app-dm # Data migration applications
-  - app-int # Integration/customer facing non-prod applications
-  - app-sandbox # Other (overlapping) applications
-  - ~ # Unused
-  - ~ # Unused
-  - ~ # Unused
-  - ~ # Unused
-  - ~ # Unused
+  - prod # Production applications
+  - qa # QA applications
+  - test # Sandbox, CI, and other testing
 
 # Availability zones - Up to 16 slots
 zones:
@@ -61,10 +54,3 @@ purposes:
   - ~ # (unplanned) Future private, preferably future data services
   - apps # Primary application instance subnets
   - apps # (continued) Primary application instance subnets
-  - apps # (continued) Primary application instance subnets
-  - apps # (continued) Primary application instance subnets
-  - ~ # FUTURE - EKS Cluster Space
-  - ~ # FUTURE - EKS Cluster Space
-  - ~ # FUTURE - EKS Cluster Space
-  - ~ # FUTURE - EKS Cluster Space
-
