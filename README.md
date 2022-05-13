@@ -27,3 +27,32 @@ Lastly, be sure to follow our [PR Acceptance Criteria](https://handbook.login.go
 - [Runbook: Infrastructure CI/CD](https://github.com/18F/identity-devops/wiki/Runbook:-Infrastructure-CI-CD)
 
 Check the [Login.gov Handbook](https://handbook.login.gov/#infrastructure) for more!
+
+## Directory Overview
+
+~~~
+├── bin                 # Platform CLI utilities
+├── cloudlib            # Bespoke Ruby infrastructure CLI library
+├── doc
+│   ├── adr             # Lightweight Architectural Decision Records
+│   ├── architecture    # Architectural diagrams and notes
+│   └── compliance      # OSCAL based compliance documentation as code
+├── kitchen
+│   ├── cookbooks       # Non-public Chef cookbooks (See identity-cookbooks for public)
+│   ├── data_bags       # Chef databags (mainly public EIP IP address pools)
+│   ├── environments    # Per-application environment Chef settings
+│   └── roles           # Chef instance role definitions
+└── terraform
+    ├── all             # AWS Account common resources
+    ├── app             # IdP/PIVCAC/Dashboard application environments
+    ├── core            # DNS and other concerns for accounts serving environments
+    ├── ecr             # Elastic Container Registry for OCI (Docker) image storage
+    ├── gitlab          # GitLab SCM/CI/CD
+    ├── imagebuild      # AWS EC2 Image (AMI) build pipelines
+    ├── master          # Human account management
+    ├── modules         # Shared non-public modules (See identity-terraform for public)
+    ├── sms             # PinPoint SMS/Voice resources
+    ├── tooling         # Auto-TF infrastructure CD system
+    └── waf             # Web Application Firewall - Per-application environment
+~~~
+
