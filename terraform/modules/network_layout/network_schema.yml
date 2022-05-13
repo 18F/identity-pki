@@ -13,8 +13,8 @@
 # Availability region - Up to 8 slots
 regions:
   - ~ # First region maps to 10.0.0.0/16 which should always be avoided
-  - ~ # us-east-1 - Planned
-  - us-east-2
+  - us-east-1
+  - ~ # us-east-2 - Planned
   - ~ # us-west-1 - Planned
   - us-west-2
 
@@ -43,6 +43,10 @@ zones:
   - b
   - c
   - d
+  - ~ # Unused
+  - ~ # Unused
+  - ~ # Unused
+  - ~ # Unused
 
 # Subnet purposes - Up to 32 slots
 # Each purpose receives a /24 unless you specify the same purpose

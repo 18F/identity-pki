@@ -5,4 +5,3 @@ data "local_file" "network_layout" {
 output "network_layout" {
   value = jsondecode(data.local_file.network_layout.content
 }
-
