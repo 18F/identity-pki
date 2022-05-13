@@ -3,6 +3,8 @@
 
 import json
 import yaml
+from collections import Counter
+from math import log
 
 
 def load_yaml_file(filename):
@@ -21,15 +23,23 @@ def sanity_check_schema(schema_data):
     for (k, m) in {"environments": 32, "purposes": 32, "regions": 8, "zones": 8}.items():
         length = len(schema_data[k])
         if length < 1:
-            errs.append("Section {k} must have at least one entry")
+            errs.append(f"Section {k} must have at least one entry")
         if length > m:
-            errs.append("Section {k} has {l} entries, exceeding the limit of {m}")
+            errs.append(f"Section {k} has {length} entries, exceeding the limit of {m}")
+
+    purposes_counter = Counter(filter(None, schema_data['purposes'])).items()
+
+    for (k, m) in purposes_counter:
+        if m == 1:
+            continue
+        elif m % 2 != 0:
+            errs.append(f"Purpose {k} has to be a power of 2")
 
     return errs
 
 
 def get_purpose_masks(target_purpose, purposes):
-    return str(24 - (purposes.count(target_purpose)//2))
+    return str(24 - int(log(purposes.count(target_purpose), 2)))
 
 
 def get_v4_octet(high_slot, low_slot):
@@ -80,14 +90,13 @@ def main():
 
     errs = sanity_check_schema(schema_data)
     if errs:
-        raise RuntimeError('Errors processing {schema_file}:{"\n".join(errs)}')
+        message = "Errors processing " + schema_file + ":\n" + "\n".join(errs)
+        raise RuntimeError(message)
 
     subnet_map = create_subnet_map(schema_data)
 
-    json_subnet_map = json.dumps(subnet_map)
-
     with open("network_layout.json", "w") as outfile:
-        outfile.write(json_subnet_map)
+        outfile.write(json.dumps(subnet_map))
 
 
 if __name__ == '__main__':
