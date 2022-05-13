@@ -10,7 +10,7 @@
 # Once you assign a slot you should not change it unless
 # all resources in the given category are destroyed!
 
-# Availability region - Up to 16 slots
+# Availability region - Up to 8 slots
 regions:
   - ~ # First region maps to 10.0.0.0/16 which should always be avoided
   - mars-1
@@ -18,7 +18,7 @@ regions:
   - ~ # (planned) mars-3
   - europa-1
 
-# Deployment environments - Up to 16 slots
+# Deployment environments - Up to 32 slots
 environments:
   - peering # Peering/internetworking
   - management # Central tooling/command
@@ -30,14 +30,14 @@ environments:
   - qa # QA applications
   - test # Sandbox, CI, and other testing
 
-# Availability zones - Up to 16 slots
+# Availability zones - Up to 8 slots
 zones:
   - a
   - b
   - c
   - d
 
-# Subnet purposes - Up to 16 slots
+# Subnet purposes - Up to 32 slots
 # Each purpose receives a /24 unless you specify the same purpose
 # in multiple consequetive slots.
 # * If the slot is even you can combine the next into a /23.

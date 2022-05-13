@@ -46,7 +46,7 @@ def create_subnet_map(network_layout):
             subnet_map[region][env] = {'_vpc': }
 
 def main():
-    schema_file = "network_schema_login.yml"
+    schema_file = "network_schema.yml"
     schema_data = load_yaml_file(schema_file)
 
     errs = sanity_check_schema(schema_data)

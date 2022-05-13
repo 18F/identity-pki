@@ -1,6 +1,6 @@
 ---
 # Define the regions, (availaiabily) zones, environments, and purposes
-# to map to networks.  For each type, 16 slots are available.
+# to map to networks.
 #
 # REMEMBER: Ordering matters!
 # * Slots set to 'unused' will reserve the given slot's space.
@@ -10,7 +10,7 @@
 # Once you assign a slot you should not change it unless
 # all resources in the given category are destroyed!
 
-# Availability region - Up to 16 slots
+# Availability region - Up to 8 slots
 regions:
   - ~ # First region maps to 10.0.0.0/16 which should always be avoided
   - ~ # us-east-1 - Planned
@@ -18,7 +18,7 @@ regions:
   - ~ # us-west-1 - Planned
   - us-west-2
 
-# Deployment environments - Up to 16 slots
+# Deployment environments - Up to 32 slots
 environments:
   - peering # Peering/internetworking
   - security # Central security control
@@ -37,14 +37,14 @@ environments:
   - ~ # Unused
   - ~ # Unused
 
-# Availability zones - Up to 16 slots
+# Availability zones - Up to 8 slots
 zones:
   - a
   - b
   - c
   - d
 
-# Subnet purposes - Up to 16 slots
+# Subnet purposes - Up to 32 slots
 # Each purpose receives a /24 unless you specify the same purpose
 # in multiple consequetive slots.
 # * If the slot is even you can combine the next into a /23.
@@ -63,8 +63,4 @@ purposes:
   - apps # (continued) Primary application instance subnets
   - apps # (continued) Primary application instance subnets
   - apps # (continued) Primary application instance subnets
-  - ~ # FUTURE - EKS Cluster Space
-  - ~ # FUTURE - EKS Cluster Space
-  - ~ # FUTURE - EKS Cluster Space
-  - ~ # FUTURE - EKS Cluster Space
 
