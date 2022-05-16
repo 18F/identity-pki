@@ -169,3 +169,10 @@ cron_d 'clear_docker_cache' do
   predefined_value '@daily'
   command '/usr/share/gitlab-runner/clear-docker-cache'
 end
+
+# This is terrible, but it seems to be the only way to do this:
+# https://gitlab.com/gitlab-org/gitlab-runner/-/issues/1539
+execute 'update_runner_concurrency' do
+  command 'sed -i "s/^concurrent = .*/concurrent = 2/" /etc/gitlab-runner/config.toml'
+  notifies :run, 'execute[restart_runner]', :immediate
+end
