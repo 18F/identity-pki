@@ -10,15 +10,14 @@
 # Once you assign a slot you should not change it unless
 # all resources in the given category are destroyed!
 
-# Availability region - Up to 8 slots
+# Availability region - Up to 4 slots
 regions:
-  - ~ # First region maps to 10.0.0.0/16 which should always be avoided
+  - ~ # First region maps to 100.64.0.0/12 which should always be avoided
   - us-east-1
-  - ~ # us-east-2 - Planned
-  - ~ # us-west-1 - Planned
   - us-west-2
+  - ~ # Future Use
 
-# Deployment environments - Up to 32 slots
+# Deployment environments - Up to 16 slots
 environments:
   - peering # Peering/internetworking
   - security # Central security control
@@ -51,9 +50,7 @@ zones:
 # Subnet purposes - Up to 32 slots
 # Each purpose receives a /24 unless you specify the same purpose
 # in multiple consequetive slots.
-# * If the slot is even you can combine the next into a /23.
-# * If slot is 0 or divisible by 4 you can combine with the next 3 slots
-#   into a /22.
+# Each slots represents 256 ip addresses.
 purposes:
   - ~ # (planned) routing
   - public-ingress # External load balancers and other ingress
@@ -67,4 +64,3 @@ purposes:
   - apps # (continued) Primary application instance subnets
   - apps # (continued) Primary application instance subnets
   - apps # (continued) Primary application instance subnets
-

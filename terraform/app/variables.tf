@@ -115,10 +115,6 @@ variable "net_regions" {
   }
 }
 
-environments
-az
-purpose
-
 # proxy settings
 variable "proxy_server" {
   default = "obproxy.login.gov.internal"
