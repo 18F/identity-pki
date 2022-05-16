@@ -18,4 +18,7 @@ module "outbound_proxy" {
   proxy_for                        = "gitlab"
   client_security_group_ids        = [aws_security_group.gitlab.id]
   ssm_access_policy                = module.ssm.ssm_access_role_policy
+  asg_outboundproxy_desired        = var.asg_outboundproxy_desired
+  asg_outboundproxy_max            = var.asg_outboundproxy_max
+  asg_outboundproxy_min            = var.asg_outboundproxy_min
 }

@@ -30,14 +30,6 @@ module "gitlab_test_pool_insufficent_instances_alerts" {
   alarm_actions = [var.slack_events_sns_hook_arn]
 }
 
-module "gitlab_deploy_pool_insufficent_instances_alerts" {
-  source = "../../modules/asg_insufficent_instances_alerts"
-
-  asg_name = module.deploy_pool.runner_asg_name
-
-  alarm_actions = [var.slack_events_sns_hook_arn]
-}
-
 resource "aws_cloudwatch_metric_alarm" "generic_alarm" {
   actions_enabled     = true
   alarm_actions       = [var.slack_events_sns_hook_arn]

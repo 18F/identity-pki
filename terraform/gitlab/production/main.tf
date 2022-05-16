@@ -26,6 +26,7 @@ module "main" {
   production                      = true
   accountids                      = ["894947205914", "034795980528", "217680906704"]
   asg_outboundproxy_desired       = 2
+  asg_outboundproxy_min           = 2
 }
 
 output "gitlab_db_host" {

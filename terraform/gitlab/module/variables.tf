@@ -383,7 +383,7 @@ variable "production" {
 
 variable "accountids" {
   type        = list(string)
-  description = "list of AWS account ids that we should allow to find the gitlab privatelink service"
+  description = "list of AWS account ids that we should allow to find the gitlab privatelink service and be allowed to get the gitlab runner token"
   default     = []
   # export TF_VAR_accountids='["1234", "2345", "5678"]'
 }

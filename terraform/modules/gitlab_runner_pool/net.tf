@@ -49,6 +49,14 @@ resource "aws_security_group" "gitlab_runner" {
     description = "Allow connection from NLB"
   }
 
+  egress {
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
+    security_groups = var.endpoint_security_groups
+    description     = "Allow connection to vpc endpoints"
+  }
+
   name_prefix = "${var.name}-gitlabrunner-${var.env_name}"
 
   tags = {

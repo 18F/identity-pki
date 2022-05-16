@@ -319,6 +319,7 @@ execute 'create_gitlab_qa_user' do
     can_create_group: 'true', admin: 'true'); qauser.skip_confirmation!; qauser.save!"
   EOF
   action :run
+  sensitive true
   ignore_failure true
 end
 

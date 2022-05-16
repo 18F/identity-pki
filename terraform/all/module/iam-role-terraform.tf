@@ -470,6 +470,7 @@ locals {
         effect = "Allow"
         actions = [
           "route53:ActivateKeySigningKey",
+          "route53:AssociateVPCWithHostedZone",
           "route53:ChangeResourceRecordSets",
           "route53:CreateHostedZone",
           "route53:CreateKeySigningKey",

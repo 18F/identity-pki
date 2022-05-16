@@ -70,6 +70,12 @@ instance.tags.each do |tag|
   end
 end
 
+if node['login_dot_gov']['gitlab_url'] == nil
+    gitlab_url = "gitlab.#{node.chef_environment}.#{domain_name}"
+else
+    gitlab_url = node['login_dot_gov']['gitlab_url']
+end
+
 template '/etc/squid/domain-allowlist.conf' do
     source ["default/#{node.run_state['proxy_for']}-domain-allowlist.conf.erb", 'default/domain-allowlist.conf.erb']
     mode '0644'
@@ -78,7 +84,7 @@ template '/etc/squid/domain-allowlist.conf' do
     variables ({
         identity_idp: ".#{domain_name}",
         push_notification_domains: push_notification_domains,
-        gitlab_url: "gitlab.#{node.chef_environment}.#{domain_name}",
+        gitlab_url: gitlab_url,
         aws_account_id: aws_account_id,
         aws_region: aws_region,
     })
