@@ -29,11 +29,11 @@ include_recipe 'newrelic-infra'
 # kinda a terrible hack until the newrelic people fix their cookbook
 directory '/var/run/newrelic-infra' do
 	owner 'newrelic_infra'
-	not_if Dir.exist?('/var/run/newrelic-infra')
+	not_if { Dir.exist?('/var/run/newrelic-infra') }
 end
 directory '/tmp/nr-integrations' do
 	owner 'newrelic_infra'
-	not_if Dir.exist?('/tmp/nr-integrations')
+	not_if { Dir.exist?('/tmp/nr-integrations') }
 end
 
 cookbook_file '/etc/systemd/system/newrelic-infra.service' do
