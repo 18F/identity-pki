@@ -483,6 +483,7 @@ locals {
           "route53:GetDNSSEC",
           "route53:GetHostedZone",
           "route53:ListHostedZones",
+          "route53:ListHostedZonesByName",
           "route53:ListResourceRecordSets",
           "route53:ListTagsForResource",
           "route53domains:DeleteTagsForDomain",
