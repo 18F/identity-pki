@@ -17,7 +17,7 @@ locals {
 module "build_pool" {
   source = "../../modules/gitlab_runner_pool/"
 
-  allow_untagged_jobs              = false
+  allow_untagged_jobs              = true
   asg_gitlab_runner_desired        = var.asg_gitlab_build_runner_desired
   asg_outboundproxy_desired        = var.asg_outboundproxy_desired
   asg_outboundproxy_max            = var.asg_outboundproxy_max
@@ -51,7 +51,7 @@ module "build_pool" {
 module "test_pool" {
   source = "../../modules/gitlab_runner_pool/"
 
-  allow_untagged_jobs              = false
+  allow_untagged_jobs              = true
   asg_gitlab_runner_desired        = var.asg_gitlab_test_runner_desired
   asg_outboundproxy_desired        = var.asg_outboundproxy_desired
   asg_outboundproxy_max            = var.asg_outboundproxy_max
