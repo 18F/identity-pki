@@ -9,6 +9,11 @@ locals {
   github_ipv4 = compact([
     for ip in data.github_ip_ranges.ips.git : try(regex(local.ip_regex, ip), "")
   ])
+  network_layout = module.network_layout.network_layout
+}
+
+module "network_layout" {
+  source     = "../modules/network_layout"
 }
 
 # When adding a new subnet, be sure to add an association with a network ACL,
@@ -1003,6 +1008,7 @@ resource "aws_vpc" "default" {
   }
 }
 
+
 resource "aws_ssm_parameter" "net_vpcid" {
   name  = "${local.net_ssm_parameter_prefix}vpc/id"
   type  = "String"
@@ -1371,3 +1377,74 @@ resource "aws_security_group" "quarantine" {
   }
 }
 
+resource "aws_vpc_ipv4_cidr_block_association" "secondary_cidr" {
+  vpc_id = aws_vpc.default.id
+  cidr_block = local.network_layout[var.region]["app-sandbox"]._network
+}
+
+resource "aws_subnet" "idp" {
+  for_each = local.network_layout[var.region]["app-sandbox"]._zones
+  availability_zone       = "${var.region}${each.key}"
+  cidr_block              = each.value.apps
+  depends_on              = [aws_internet_gateway.default]
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "${var.name}-idp_subnet_${each.key}-${var.env_name}"
+  }
+
+  vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
+}
+
+# resource "aws_subnet" "alb" {
+#  for_each = local.network_layout[var.region]["app-sandbox"]._zones
+#  availability_zone       = "${var.region}${each.key}"
+#  cidr_block              = each.value.public-ingress
+#  depends_on              = [aws_internet_gateway.default]
+#  map_public_ip_on_launch = true
+#
+#  tags = {
+#    Name = "${var.name}-alb_subnet_${each.key}-${var.env_name}"
+#  }
+#
+#  vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
+#}
+
+resource "aws_subnet" "db" {
+  for_each = local.network_layout[var.region]["app-sandbox"]._zones
+  availability_zone       = "${var.region}${each.key}"
+  cidr_block              = each.value.data-services
+  map_public_ip_on_launch = false
+
+  tags = {
+    Name = "${var.name}-db_subnet_${each.key}-${var.env_name}"
+  }
+
+  vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
+}
+
+resource "aws_subnet" "public-ingress" {
+  for_each = local.network_layout[var.region]["app-sandbox"]._zones
+  availability_zone       = "${var.region}${each.key}"
+  cidr_block              = each.value.public-ingress
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "${var.name}-public_ingress_subnet_${each.key}-${var.env_name}"
+  }
+
+  vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
+}
+
+resource "aws_subnet" "public-egress" {
+  for_each = local.network_layout[var.region]["app-sandbox"]._zones
+  availability_zone       = "${var.region}${each.key}"
+  cidr_block              = each.value.public-egress
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "${var.name}-public_ingress_subnet_${each.key}-${var.env_name}"
+  }
+
+  vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
+}
