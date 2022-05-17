@@ -7,7 +7,9 @@
     "login_dot_gov": {
       "idp_run_migrations": true,
       "allow_unsafe_migrations": true,
-      "idp_sync_static": true
+      "idp_sync_static": true,
+      "gitlab_url": "gitlab.identitysandbox.gov",
+      "gitlab_config_s3_bucket": "login-gov-bravo-gitlabconfig-034795980528-us-west-2"
     }
   },
   "override_attributes": {

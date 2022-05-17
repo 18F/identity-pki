@@ -28,10 +28,6 @@ variable "asg_auto_recycle_enabled" {
 }
 
 # Auto scaling group desired counts
-variable "asg_gitlab_desired" {
-  default = 1
-}
-
 variable "asg_gitlab_runner_desired" {
   default = 1
 }
@@ -255,6 +251,17 @@ variable "destination_idp_static_accounts" {
 variable "gitlab_lb_interface_cidr_blocks" {
   description = "gitlab lb interface cidr blocks"
   type        = list(string)
+}
+
+variable "endpoint_security_groups" {
+  description = "list of VPC endpoint security group ids that the pool needs to talk to"
+  type        = list(string)
+  default     = []
+}
+
+variable "gitlab_configbucket" {
+  description = "if set, override the default gitlabconfig bucket location"
+  default     = ""
 }
 
 variable "ssm_access_policy" {

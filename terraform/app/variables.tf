@@ -748,6 +748,17 @@ variable "gitlab_hostname" {
   default     = "gitlab"
 }
 
+variable "gitlab_runner_enabled" {
+  description = "whether to turn on a gitlab runner for this environment"
+  type        = bool
+  default     = false
+}
+
+variable "gitlab_configbucket" {
+  description = "should be used to override where the gitlab server's config bucket is so that the runner knows where to get the runner token"
+  default     = ""
+}
+
 variable "idp_ial2_sp_dashboards" {
   type = map(object({
     name     = string

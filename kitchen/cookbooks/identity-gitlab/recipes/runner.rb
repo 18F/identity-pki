@@ -47,8 +47,16 @@ resource = Aws::EC2::Resource.new(region: Chef::Recipe::AwsMetadata.get_aws_regi
 
 aws_account_id = Chef::Recipe::AwsMetadata.get_aws_account_id
 aws_region = Chef::Recipe::AwsMetadata.get_aws_region
-config_s3_bucket = "login-gov-#{node.chef_environment}-gitlabconfig-#{aws_account_id}-#{aws_region}"
-external_fqdn = "gitlab.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
+if node['login_dot_gov']['gitlab_config_s3_bucket'] == nil
+  config_s3_bucket = "login-gov-#{node.chef_environment}-gitlabconfig-#{aws_account_id}-#{aws_region}"
+else
+  config_s3_bucket = node['login_dot_gov']['gitlab_config_s3_bucket']
+end
+if node['login_dot_gov']['gitlab_url'] == nil
+  external_fqdn = "gitlab.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
+else
+  external_fqdn = node['login_dot_gov']['gitlab_url']
+end
 external_url = "https://#{external_fqdn}"
 http_proxy = node['login_dot_gov']['http_proxy']
 https_proxy = node['login_dot_gov']['https_proxy']
@@ -120,7 +128,7 @@ execute 'configure_gitlab_runner' do
   command <<-EOH
     gitlab-runner register \
     --non-interactive \
-    --name "#{runner_name}" \
+    --name "#{node.run_state['gitlab_runner_pool_name']}-#{runner_name}" \
     --url "#{external_url}" \
     --registration-token "#{runner_token}" \
     --executor docker \

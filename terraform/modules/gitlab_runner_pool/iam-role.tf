@@ -370,6 +370,11 @@ resource "aws_iam_role_policy" "gitlab-runner-shared-cache" {
       EOM
 }
 
+locals {
+  gitlab_configbucket = var.gitlab_configbucket != "" ? var.gitlab_configbucket : "login-gov-${var.env_name}-gitlabconfig-${data.aws_caller_identity.current.account_id}-${var.region}"
+
+}
+
 # allow runners to get the config
 resource "aws_iam_role_policy" "gitlab-runner-config" {
   role        = aws_iam_role.gitlab_runner.id
@@ -385,8 +390,8 @@ resource "aws_iam_role_policy" "gitlab-runner-config" {
                       "s3:GetObject"
                   ],
                   "Resource": [
-                    "arn:aws:s3:::login-gov-${var.env_name}-gitlabconfig-${data.aws_caller_identity.current.account_id}-${var.region}/",
-                    "arn:aws:s3:::login-gov-${var.env_name}-gitlabconfig-${data.aws_caller_identity.current.account_id}-${var.region}/*"
+                    "arn:aws:s3:::${local.gitlab_configbucket}/",
+                    "arn:aws:s3:::${local.gitlab_configbucket}/*"
                   ]
               }
           ]
