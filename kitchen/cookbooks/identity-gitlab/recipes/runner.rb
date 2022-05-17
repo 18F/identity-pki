@@ -180,7 +180,8 @@ end
 
 # This is terrible, but it seems to be the only way to do this:
 # https://gitlab.com/gitlab-org/gitlab-runner/-/issues/1539
+# XXX If ever we figure out our concurrency issues, we can go back to 2 or more.
 execute 'update_runner_concurrency' do
-  command 'sed -i "s/^concurrent = .*/concurrent = 2/" /etc/gitlab-runner/config.toml'
+  command 'sed -i "s/^concurrent = .*/concurrent = 1/" /etc/gitlab-runner/config.toml'
   notifies :run, 'execute[restart_runner]', :immediate
 end
