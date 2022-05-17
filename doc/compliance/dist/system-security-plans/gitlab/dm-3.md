@@ -1,7 +1,6 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-documented
 ---
 
 # dm-3 - \[catalog\] Minimization of PII Used in Testing, Training, and Research
@@ -16,6 +15,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control dm-3
+We do not collect or hold PII in GitLab.
 
 ______________________________________________________________________
