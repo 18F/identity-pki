@@ -58,7 +58,7 @@ EOM
 resource "aws_cloudwatch_log_metric_filter" "api_throttling" {
   name           = "LimitExceededErrorMessage"
   log_group_name = "CloudTrail/DefaultLogGroup"
-  pattern        = "{ ($.errorCode = \"*LimitExceeded\") || ($.errorCode = \"LimitExceededException\") }"
+  pattern        = "{ (($.errorCode = \"*LimitExceeded\") || ($.errorCode = \"LimitExceededException\")) && $.userIdentity.arn != \"*PrismaCloudRole/redlock*\" }"
   metric_transformation {
     name       = "LimitExceededErrorMessage"
     namespace  = "CloudTrailMetrics/APIThrottling"
