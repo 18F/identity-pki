@@ -19,4 +19,5 @@ module "main" {
   slack_events_sns_hook_arn      = "arn:aws:sns:us-west-2:034795980528:slack-otherevents"
   default_ami_id_tooling         = "ami-08d81eaa9fe849343" # 2022-05-03 base-20220503070419 Ubuntu 18.04
   route53_id                     = "Z096400532ZFM348WWIAA"
+  accountids                     = ["894947205914", "034795980528", "217680906704"]
 }
