@@ -34,7 +34,7 @@ resource "aws_cloudwatch_metric_alarm" "generic_alarm" {
   actions_enabled     = true
   alarm_actions       = [var.slack_events_sns_hook_arn]
   alarm_description   = "Alarms when LB targets are unhealthy"
-  alarm_name          = "${var.env_name} Load Balancer Unhealthy"
+  alarm_name          = "GitLab ${var.env_name} Load Balancer Unhealthy"
   comparison_operator = "LessThanOrEqualToThreshold"
   evaluation_periods  = 2
   metric_name         = "HealthyHostCount"
