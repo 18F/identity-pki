@@ -171,7 +171,9 @@ file "gitlab_ee_license_file" do
   sensitive true
 end
 
-package 'gitlab-ee'
+package 'gitlab-ee' do
+  version "14.10.2-ee.0"
+end
 
 execute 'restore_ssh_keys' do
   command 'tar zxvf /etc/gitlab/etc_ssh.tar.gz'
