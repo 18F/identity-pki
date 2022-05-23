@@ -9,18 +9,17 @@ set -euo pipefail
 usage() {
   cat >&2 << EOM
 
-Usage: ${0} -a AWS_ACCOUNT [-b BRANCH|-t TYPE]
+Usage: ${0} -a AWS_ACCOUNT [-b BRANCH|-t TYPE|-v]
 
 Runs \`aws codepipeline start-pipeline-execution\` for
 each type of AMI in the login-\$AWS_ACCOUNT account.
 
 Flags:
 
-  -b BRANCH : Update the identity-base-image branch
-              used for builds to \$BRANCH, via tf-deploy
-              and aws cloudformation
-  -t TYPE   : Only update the stacks/build project/
-              pipeline for \$TYPE AMIs (base/rails)
+  -b BRANCH : Update the identity-base-image branch used for builds to \$BRANCH,
+              via tf-deploy and AWS CloudFormation
+  -t TYPE   : Only update stacks/build project/pipeline for \$TYPE AMIs (base/rails)
+  -v        : Verify imagebuild branch in \`login-\$ACCOUNT\`, but do not update/build
   -h        : Display this help
 
 EOM
@@ -87,16 +86,17 @@ update_build_branch() {
   fi
 }
 
-declare {ACCOUNT,BUILD_BRANCH,TF_APPLY_CMD,CURRENT_BRANCH,AV_PROFILE}=
+declare {ACCOUNT,BUILD_BRANCH,TF_APPLY_CMD,CURRENT_BRANCH,AV_PROFILE,VERIFY_ONLY}=
 TYPE_LIST='base rails'
 
 verify_root_repo
-while getopts :a:t:b:h opt
+while getopts :a:t:b:vh opt
 do
   case $opt in
     a) ACCOUNT="${OPTARG}"      ;;
     t) TYPE_LIST="${OPTARG}"    ;;
     b) BUILD_BRANCH="${OPTARG}" ;;
+    v) VERIFY_ONLY=true         ;;
     h) usage && exit 0          ;;
     *) raise 'Invalid option'   ;;
   esac
@@ -111,6 +111,7 @@ fi
 
 get_iam 'imagebuild' "${ACCOUNT}"
 get_build_branch
+[[ ${VERIFY_ONLY} == true ]] && exit 0
 
 if ! [[ -z ${BUILD_BRANCH} ]] ; then
   update_build_branch
