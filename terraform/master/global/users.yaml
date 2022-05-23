@@ -322,6 +322,11 @@ users:
     - tspencer
     gitlab_groups:
     - devops
+  victor.otu:
+    aws_groups:
+    - devopsnonprod
+    ec2_username:
+    - votu
   vivek.chugh:
     aws_groups:
     - devops
