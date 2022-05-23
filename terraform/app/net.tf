@@ -1382,11 +1382,11 @@ resource "aws_security_group" "quarantine" {
 
 resource "aws_vpc_ipv4_cidr_block_association" "secondary_cidr" {
   vpc_id = aws_vpc.default.id
-  cidr_block = local.network_layout[var.region]["app-sandbox"]._network
+  cidr_block = local.network_layout[var.region][var.env_type]._network
 }
 
 resource "aws_subnet" "idp" {
-  for_each = local.network_layout[var.region]["app-sandbox"]._zones
+  for_each = local.network_layout[var.region][var.env_type]._zones
   availability_zone       = "${var.region}${each.key}"
   cidr_block              = each.value.apps
   depends_on              = [aws_internet_gateway.default]
@@ -1400,7 +1400,7 @@ resource "aws_subnet" "idp" {
 }
 
 resource "aws_subnet" "db" {
-  for_each = local.network_layout[var.region]["app-sandbox"]._zones
+  for_each = local.network_layout[var.region][var.env_type]._zones
   availability_zone       = "${var.region}${each.key}"
   cidr_block              = each.value.data-services
   map_public_ip_on_launch = false
@@ -1413,7 +1413,7 @@ resource "aws_subnet" "db" {
 }
 
 resource "aws_subnet" "public-ingress" {
-  for_each = local.network_layout[var.region]["app-sandbox"]._zones
+  for_each = local.network_layout[var.region][var.env_type]._zones
   availability_zone       = "${var.region}${each.key}"
   cidr_block              = each.value.public-ingress
   map_public_ip_on_launch = true
@@ -1426,7 +1426,7 @@ resource "aws_subnet" "public-ingress" {
 }
 
 resource "aws_subnet" "public-egress" {
-  for_each = local.network_layout[var.region]["app-sandbox"]._zones
+  for_each = local.network_layout[var.region][var.env_type]._zones
   availability_zone       = "${var.region}${each.key}"
   cidr_block              = each.value.public-egress
   map_public_ip_on_launch = true
