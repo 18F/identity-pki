@@ -364,6 +364,7 @@ locals {
           "lambda:ListVersionsByFunction*",
           "lambda:PublishVersion",
           "lambda:RemovePermission",
+          "lambda:TagResource",
           "lambda:UpdateEventSourceMapping",
           "lambda:UpdateFunctionCode",
           "lambda:UpdateFunctionConfiguration",

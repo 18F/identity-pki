@@ -16,7 +16,6 @@ module "main" {
   slack_events_sns_topic = "slack-events"
   iam_account_alias      = "login-sms-prod"
   account_roles_map = {
-    iam_appdev_enabled         = false
     iam_auto_terraform_enabled = false
   }
 

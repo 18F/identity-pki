@@ -12,7 +12,6 @@ locals {
   master_assumerole_policy = data.aws_iam_policy_document.master_account_assumerole.json
 
   role_enabled_defaults = {
-    iam_appdev_enabled         = true
     iam_analytics_enabled      = false
     iam_power_enabled          = true
     iam_readonly_enabled       = true
@@ -89,12 +88,6 @@ variable "s3_block_all_public_access" {
   default     = true
 }
 
-variable "dashboard_logos_bucket_write" {
-  description = "Permit AppDev role write access to static logos buckets"
-  type        = bool
-  default     = false
-}
-
 variable "reports_bucket_arn" {
   description = "ARN for the S3 bucket for reports."
   type        = string
@@ -104,6 +97,7 @@ variable "reports_bucket_arn" {
 variable "account_roles_map" {
   description = "Map of roles that are enabled/disabled in current account."
   type        = map(any)
+  default     = {}
 }
 
 variable "cloudtrail_event_selectors" {

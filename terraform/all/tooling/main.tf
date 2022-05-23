@@ -21,10 +21,7 @@ module "main" {
   slack_events_sns_topic = "slack-events"
   opsgenie_key_ready     = var.opsgenie_key_ready
   iam_account_alias      = "login-tooling-sandbox"
-  account_roles_map = {
-    iam_appdev_enabled = false
-  }
-  smtp_user_ready = true
+  smtp_user_ready        = true
 
   ssm_access_map = {
     "FullAdministrator" = [{ "*" = ["*"] }],
