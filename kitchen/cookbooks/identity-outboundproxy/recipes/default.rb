@@ -40,7 +40,7 @@ end
 #install squid
 package 'squid'
 
-aws_vpc_cidr = Chef::Recipe::AwsMetadata.get_aws_vpc_cidr
+aws_vpc_cidr = Chef::Recipe::AwsMetadata.get_aws_all_vpc_cidr
 aws_account_id = Chef::Recipe::AwsMetadata.get_aws_account_id
 aws_region = Chef::Recipe::AwsMetadata.get_aws_region
 domain_name = node.fetch('login_dot_gov').fetch('domain_name')
