@@ -2,8 +2,8 @@ DEPENDENCIES
   apt (~> 7.0)
   aws_metadata
     git: https://github.com/18F/identity-cookbooks
-    revision: 879b902bd5ca66487922e34a85c217a41728f668
-    ref: 879b902
+    revision: 46b2178bf06fe44362cb72bfbcbfeaa33f193b90
+    ref: 46b2178
     rel: aws_metadata
   aws_s3
     path: kitchen/cookbooks/aws_s3
