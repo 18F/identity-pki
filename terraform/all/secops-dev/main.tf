@@ -19,9 +19,6 @@ module "main" {
   opsgenie_key_ready = var.opsgenie_key_ready
 
   iam_account_alias = "login-secops-dev"
-  account_roles_map = {
-    iam_appdev_enabled = false
-  }
 
   cloudtrail_event_selectors = [
     {

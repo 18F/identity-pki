@@ -20,7 +20,6 @@ module "main" {
 
   iam_account_alias = "login-analytics"
   account_roles_map = {
-    iam_appdev_enabled    = false
     iam_analytics_enabled = true
     iam_power_enabled     = false
     iam_socadmin_enabled  = true

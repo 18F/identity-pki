@@ -14,9 +14,6 @@ module "main" {
   source = "../module"
 
   iam_account_alias = "login-sms-sandbox"
-  account_roles_map = {
-    iam_appdev_enabled = false
-  }
 
   cloudtrail_event_selectors = [
     {
