@@ -79,13 +79,13 @@ resource "aws_security_group" "base" {
     protocol    = "icmp"
     from_port   = -1
     to_port     = -1
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
   egress {
     protocol    = "icmp"
     from_port   = -1
     to_port     = -1
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   # allow access to the VPC private S3 endpoint
@@ -117,7 +117,7 @@ resource "aws_security_group" "app" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   # need to get packages and stuff (conditionally)
@@ -287,7 +287,7 @@ resource "aws_security_group" "jumphost" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   # need 80/443 to get packages/gems/etc
@@ -453,6 +453,10 @@ resource "aws_security_group" "idp" {
       aws_subnet.privatesubnet1.cidr_block,
       aws_subnet.privatesubnet2.cidr_block,
       aws_subnet.privatesubnet3.cidr_block,
+      aws_subnet.idp["a"].cidr_block,
+      aws_subnet.idp["b"].cidr_block,
+      aws_subnet.idp["c"].cidr_block,
+      aws_subnet.idp["d"].cidr_block,
     ]
   }
 
@@ -629,7 +633,7 @@ resource "aws_security_group" "migration" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   # github
@@ -689,7 +693,7 @@ resource "aws_security_group" "pivcac" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   # need to get packages and stuff (conditionally)
@@ -789,6 +793,10 @@ resource "aws_security_group" "web" {
       var.private1_subnet_cidr_block,
       var.private2_subnet_cidr_block,
       var.private3_subnet_cidr_block,
+      aws_subnet.idp["a"].cidr_block,
+      aws_subnet.idp["b"].cidr_block,
+      aws_subnet.idp["c"].cidr_block,
+      aws_subnet.idp["d"].cidr_block,
     ]
   }
   egress {
@@ -801,6 +809,10 @@ resource "aws_security_group" "web" {
       var.private1_subnet_cidr_block,
       var.private2_subnet_cidr_block,
       var.private3_subnet_cidr_block,
+      aws_subnet.idp["a"].cidr_block,
+      aws_subnet.idp["b"].cidr_block,
+      aws_subnet.idp["c"].cidr_block,
+      aws_subnet.idp["d"].cidr_block,
     ]
   }
 
@@ -1133,7 +1145,7 @@ resource "aws_security_group" "obproxy" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   # need 80/443 to get packages/gems/etc
@@ -1214,7 +1226,7 @@ resource "aws_security_group" "obproxy" {
     from_port   = 3128
     to_port     = 3128
     protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   ingress {
@@ -1249,7 +1261,7 @@ resource "aws_security_group" "worker" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   # need to get packages and stuff (conditionally)
@@ -1353,7 +1365,7 @@ resource "aws_security_group" "quarantine" {
     protocol    = "tcp"
     from_port   = 443
     to_port     = 443
-    cidr_blocks = [var.vpc_cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
   egress {
     description     = "allow egress to VPC S3 endpoint"
@@ -1396,20 +1408,6 @@ resource "aws_subnet" "idp" {
   vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
 }
 
-# resource "aws_subnet" "alb" {
-#  for_each = local.network_layout[var.region]["app-sandbox"]._zones
-#  availability_zone       = "${var.region}${each.key}"
-#  cidr_block              = each.value.public-ingress
-#  depends_on              = [aws_internet_gateway.default]
-#  map_public_ip_on_launch = true
-#
-#  tags = {
-#    Name = "${var.name}-alb_subnet_${each.key}-${var.env_name}"
-#  }
-#
-#  vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
-#}
-
 resource "aws_subnet" "db" {
   for_each = local.network_layout[var.region]["app-sandbox"]._zones
   availability_zone       = "${var.region}${each.key}"
@@ -1443,7 +1441,7 @@ resource "aws_subnet" "public-egress" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "${var.name}-public_ingress_subnet_${each.key}-${var.env_name}"
+    Name = "${var.name}-public_egress_subnet_${each.key}-${var.env_name}"
   }
 
   vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id

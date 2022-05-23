@@ -435,8 +435,7 @@ resource "aws_autoscaling_group" "idp" {
   ]
 
   vpc_zone_identifier = [
-    aws_subnet.idp1.id,
-    aws_subnet.idp2.id,
+    aws_subnet.idp["d"].id,
   ]
 
   # possible choices: EC2, ELB
