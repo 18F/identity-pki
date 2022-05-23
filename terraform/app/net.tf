@@ -447,17 +447,14 @@ resource "aws_security_group" "idp" {
     # can't use security_groups on account of terraform cycle
     # https://github.com/terraform-providers/terraform-provider-aws/issues/3234
     #security_groups = ["${aws_security_group.cloudhsm.id}"]
-    cidr_blocks = [
+    cidr_blocks = concat([
       aws_subnet.idp1.cidr_block,
       aws_subnet.idp2.cidr_block,
       aws_subnet.privatesubnet1.cidr_block,
       aws_subnet.privatesubnet2.cidr_block,
       aws_subnet.privatesubnet3.cidr_block,
-      aws_subnet.idp["a"].cidr_block,
-      aws_subnet.idp["b"].cidr_block,
-      aws_subnet.idp["c"].cidr_block,
-      aws_subnet.idp["d"].cidr_block,
-    ]
+    ],
+    [ for subnet in aws_subnet.idp : "${subnet.cidr_block}"])
   }
 
   # gpo
@@ -787,33 +784,27 @@ resource "aws_security_group" "web" {
     from_port = 80
     to_port   = 80
     protocol  = "tcp"
-    cidr_blocks = [
+    cidr_blocks = concat([
       var.idp1_subnet_cidr_block,
       var.idp2_subnet_cidr_block,
       var.private1_subnet_cidr_block,
       var.private2_subnet_cidr_block,
       var.private3_subnet_cidr_block,
-      aws_subnet.idp["a"].cidr_block,
-      aws_subnet.idp["b"].cidr_block,
-      aws_subnet.idp["c"].cidr_block,
-      aws_subnet.idp["d"].cidr_block,
-    ]
+    ],
+    [ for subnet in aws_subnet.idp : "${subnet.cidr_block}" ])
   }
   egress {
     from_port = 443
     to_port   = 443
     protocol  = "tcp"
-    cidr_blocks = [
+    cidr_blocks = concat([
       var.idp1_subnet_cidr_block,
       var.idp2_subnet_cidr_block,
       var.private1_subnet_cidr_block,
       var.private2_subnet_cidr_block,
       var.private3_subnet_cidr_block,
-      aws_subnet.idp["a"].cidr_block,
-      aws_subnet.idp["b"].cidr_block,
-      aws_subnet.idp["c"].cidr_block,
-      aws_subnet.idp["d"].cidr_block,
-    ]
+    ],
+    [ for subnet in aws_subnet.idp : "${subnet.cidr_block}" ])
   }
 
   ingress {
