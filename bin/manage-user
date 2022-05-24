@@ -34,7 +34,7 @@ Examples:
   #{$PROGRAM_NAME} -u bob.smith -a appdev,apponcall -g appdev
 
   # As above, with custom GitLab username bbsmith
-  #{$PROGRAM_NAME} -u bob.smith -a appdev,apponcall -g appdev --gitlab-username bbsmith
+  #{$PROGRAM_NAME} -u bob.smith -a appdev,apponcall -g appdev --git-username bbsmith
 
 Options:
 
@@ -54,7 +54,8 @@ Options:
       options[:aws_groups] = aws_groups
     end
 
-    opts.on('-e', '--ec2-username NAME', "EC2 username (for SSM access)") do |ec2_username|
+    opts.on('-e', '--ec2-username NAME',
+      Array, "EC2 username (for SSM access)") do |ec2_username|
       options[:ec2_username] = ec2_username
     end
 
@@ -63,10 +64,10 @@ Options:
       options[:gitlab_groups] = gitlab_groups
     end
 
-    opts.on('--gitlab-username NAME',
-      "GitLab username (overrides aws.username@ format)") do |git_user|
-      abort "#{basename}: specify gitlab_groups if setting git_user" if !options[:gitlab_groups]
-      options[:git_user] = git_user
+    opts.on('--git-username NAME',
+      Array, "Git username (overrides aws.username@ format)") do |git_username|
+      abort "#{basename}: specify gitlab_groups if setting git_username" if !options[:gitlab_groups]
+      options[:git_username] = git_username
     end
 
     opts.on('--email EMAIL',
@@ -118,7 +119,7 @@ Options:
       yaml['users'][options[:user]] = {}
     end
   end
-  
+
   if options[:delete]
     puts
     unless prompt.yes?("Remove #{options[:user]} from #{USERS_YAML}?")

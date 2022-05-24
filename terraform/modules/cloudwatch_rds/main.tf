@@ -4,31 +4,52 @@ locals {
       comparison_operator = "GreaterThanThreshold"
       metric_name         = "DiskQueueDepth"
       threshold           = 20
-      alarm_description   = "Average database disk queue depth is too high, performance may be negatively impacted."
+      alarm_description   = <<EOM
+Average database disk queue depth is too high, performance may be negatively impacted
+
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-RDS-disk-queue-depth
+EOM
     },
     lowFreeStorageSpace = {
       comparison_operator = "LessThanThreshold"
       metric_name         = "FreeStorageSpace"
       threshold           = var.rds_storage_threshold
-      alarm_description   = "Average database free storage space is too low and may fill up soon."
+      alarm_description   = <<EOM
+Database free storage space is too low and may fill up soon!
+
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-RDS-PostgreSQL-General#storage-volumes
+EOM
     },
     readIOPStoohigh = {
       comparison_operator = "GreaterThanThreshold"
       metric_name         = "ReadIOPS"
       threshold           = 2500
-      alarm_description   = "ReadIOPS is too high. Check RDS Instance and add more memory."
+      alarm_description   = <<EOM
+ReadIOPS is too high. Check RDS Instance and consider provisioned IOPS adjustment
+
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-RDS-PostgreSQL-General#iops
+EOM
     },
     writeIOPStoohigh = {
       comparison_operator = "GreaterThanThreshold"
       metric_name         = "WriteIOPS"
       threshold           = 2500
-      alarm_description   = "Write IOPS is too high. Check RDS Instance and review storage space."
+      alarm_description   = <<EOM
+Write IOPS is too high. Check RDS Instance and consider provisioned IOPS adjustment
+
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-RDS-PostgreSQL-General#iops
+EOM
     },
     MaximumUsedTransactionIDstoohigh = {
       comparison_operator = "GreaterThanThreshold"
       metric_name         = "MaximumUsedTransactionIDs"
       threshold           = var.unvacummed_transactions_count
-      alarm_description   = "Usage of Transaction IDs in PostgreSQL Database is high. Check RDS Instance, review and cleanup the unvacuumed transactions before the autovacuum kicks in."
+      alarm_description   = <<EOM
+Usage of Transaction IDs in PostgreSQL Database is high -
+Check RDS Instance, review and cleanup the unvacuumed transactions before the autovacuum kicks in
+
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-RDS-PostgreSQL-Optimization#vacuum-deep-dive
+EOM
     },
   }
 }

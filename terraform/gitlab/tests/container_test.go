@@ -2,6 +2,7 @@ package test
 
 import (
 	"regexp"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -25,6 +26,78 @@ func RunOnRunners(t *testing.T, cmd string) []string {
 	return combinedOut
 }
 
+// s5.3
+func _TestDropCapabilities(t *testing.T) {
+	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{ .Name }}: CapAdd={{ .HostConfig.CapAdd }} CapDrop={{ .HostConfig.CapDrop }}'"
+	for _, s := range RunOnRunners(t, cmd) {
+		// Ignore redis and postgres
+		if regexp.MustCompile("-postgres-|-redis-").MatchString(s) {
+			continue
+		}
+		if regexp.MustCompile("CapDrop").MatchString(s) {
+			assert.Regexp(t, "CapDrop=\\[net_raw\\]", s)
+		}
+	}
+}
+
+// s5.4
+func _TestPrivilegedContainers(t *testing.T) {
+	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{ .Id }}: Privileged={{ .HostConfig.Privileged }}'"
+	for _, s := range RunOnRunners(t, cmd) {
+		if regexp.MustCompile("Privileged=").MatchString(s) {
+			assert.Regexp(t, "Privileged=false", s)
+		}
+	}
+}
+
+// s5.5
+func _TestSensitiveMounts(t *testing.T) {
+	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{ .Id }}: Volumes={{ range .Mounts }}{{ .Source }}{{ end }}'"
+	for _, s := range RunOnRunners(t, cmd) {
+		// Sensitive directories per CIS Docker Benchmark
+		badMounts := []string{
+			"/",
+			"/boot",
+			"/dev",
+			"/etc",
+			"/lib",
+			"/proc",
+			"/sys",
+			"/usr",
+		}
+		for _, mount := range badMounts {
+			assert.NotRegexp(t, "Volumes="+mount+"$", s)
+		}
+	}
+}
+
+// s5.6
+func _TestSSHD(t *testing.T) {
+	cmd := "docker ps --quiet | xargs -n 1 -i docker exec '{}' pgrep -l sshd"
+	for _, s := range RunOnRunners(t, cmd) {
+			assert.NotRegexp(t, "sshd", s)
+	}
+}
+
+// s5.7
+func _TestLowPorts(t *testing.T) {
+	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{ range $k, $v := .NetworkSettings.Ports }}{{ $k }}\n{{ end }}'"
+	for _, s := range RunOnRunners(t, cmd) {
+		if ms := regexp.MustCompile("([0-9]+)/tcp").FindStringSubmatch(s); len(ms) > 0 {
+			port, _ := strconv.Atoi(ms[1])
+			assert.GreaterOrEqual(t, port, 1024)
+		}
+	}
+}
+
+// s5.9
+func _TestNetworkMode(t *testing.T) {
+	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{ .Id }}: NetworkMode={{ .HostConfig.NetworkMode }}'"
+	for _, s := range RunOnRunners(t, cmd) {
+			assert.NotRegexp(t, "NetworkMode=host", s)
+	}
+}
+
 // s5.10
 func _TestMemory(t *testing.T) {
 	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{.Name}}: {{ .HostConfig.Memory }}'"
@@ -46,9 +119,6 @@ func _TestCPUShares(t *testing.T) {
 		}
 	}
 }
-
-// s5.12
-// docker ps --quiet --all | xargs docker inspect --format '{{ .Id }}: ReadonlyRootfs={{ .HostConfig.ReadonlyRootfs }}'
 
 // s5.13
 func _TestBoundHostInterface(t *testing.T) {
@@ -120,7 +190,7 @@ func _TestUlimits(t *testing.T) {
 	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{ .Id }}: Ulimits={{ .HostConfig.Ulimits }}'"
 	for _, s := range RunOnRunners(t, cmd) {
 		if regexp.MustCompile("Ulimits").MatchString(s) {
-			assert.Regexp(t, ": Ulimits=<no value>$", s)
+			assert.Regexp(t, ": Ulimits=.*nproc.*$", s)
 		}
 	}
 }
@@ -181,15 +251,53 @@ func _TestCgroupUsage(t *testing.T) {
 
 // s5.25
 func _TestNoNewPrivileges(t *testing.T) {
-	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{ .Id }}: SecurityOpt={{ .HostConfig.SecurityOpt }}'"
+	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{ .Name }}: SecurityOpt={{ .HostConfig.SecurityOpt }}'"
+
 	for _, s := range RunOnRunners(t, cmd) {
+		// Ignore redis and postgres
+		if regexp.MustCompile("-postgres-|-redis-").MatchString(s) {
+			continue
+		}
+
 		if regexp.MustCompile("SecurityOpt").MatchString(s) {
 			assert.Regexp(t, "no-new-privileges", s)
 		}
 	}
 }
 
+// s5.29
+func _TestDockerNetworking(t *testing.T) {
+	cmd := "docker network inspect bridge --format '{{ .Containers }}'"
+	for _, s := range RunOnRunners(t, cmd) {
+		if regexp.MustCompile("map").MatchString(s) {
+			assert.Regexp(t, "map\\[\\]", s)
+		}
+	}
+}
+
+// s5.30
+func _TestHostUserNamespace(t *testing.T) {
+	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{ .Id }}: UsernsMode={{ .HostConfig.UsernsMode }}'"
+	for _, s := range RunOnRunners(t, cmd) {
+		assert.NotRegexp(t, "UsernsMode=.", s)
+	}
+}
+
+// s5.31
+func _TestDockerSocket(t *testing.T) {
+	cmd := "docker ps --quiet --all | xargs docker inspect --format '{{ .Id }}: Volumes={{ .Mounts }}'"
+	for _, s := range RunOnRunners(t, cmd) {
+		assert.NotRegexp(t, "docker\\.sock", s)
+	}
+}
+
 func TestJobContainers(t *testing.T) {
+	t.Run("s5.3 Ensure that Linux kernel capabilities are restricted within containers", _TestDropCapabilities)
+	t.Run("s5.4 Ensure that privileged containers are not used", _TestPrivilegedContainers)
+	t.Run("s5.5 Ensure sensitive host system directories are not mounted on containers", _TestSensitiveMounts)
+	t.Run("s5.6 Ensure sshd is not run within containers", _TestSSHD)
+	t.Run("s5.7 Ensure privileged ports are not mapped within containers", _TestLowPorts)
+	t.Run("s5.9 Ensure that the host's network namespace is not shared", _TestNetworkMode)
 	t.Run("s5.10 Require memory arg", _TestMemory)
 	t.Run("s5.11 Require cpu_shares arg", _TestCPUShares)
 	t.Run("s5.13 Require bound interfaces", _TestBoundHostInterface)
@@ -199,7 +307,7 @@ func TestJobContainers(t *testing.T) {
 	t.Run("Ensure Docker service file permissions are correct", _TestFilePermissionsDockerService)
 	t.Run("s5.16 Ensure IPC namespace is not shared", _TestIPCNamespace)
 	t.Run("s5.17 Ensure devices are not shared", _TestSharedDevices)
-	t.Run("s5.18 Ensure that the default ulimit is not overwritten at runtime", _TestUlimits)
+	t.Run("s5.18, s5.28 Ensure that the default ulimit IS overwritten at runtime", _TestUlimits)
 	t.Run("s5.19 Ensure mount propagation mode is not set to shared", _TestPropagationMode)
 	t.Run("s5.20 Ensure that the host's UTS namespace is not shared", _TestUTSNamespace)
 	t.Run("s5.21 Ensure the default seccomp profile is not disabled", _TestSeccomp)
@@ -207,4 +315,7 @@ func TestJobContainers(t *testing.T) {
 	t.Run("s5.23 Ensure that docker exec commands are not used with the user=root option", _TestRootExec)
 	t.Run("s5.24 Ensure that cgroup usage is confirmed", _TestCgroupUsage)
 	t.Run("s5.25 Ensure that the container is restricted from acquiring additional privileges", _TestNoNewPrivileges)
+	t.Run("s5.29 Ensure that containers are not on the default network", _TestDockerNetworking)
+	t.Run("s5.30 Ensure that the host's user namespaces are not shared", _TestHostUserNamespace)
+	t.Run("s5.31 Ensure that the Docker socket is not mounted inside any containers", _TestDockerSocket)
 }

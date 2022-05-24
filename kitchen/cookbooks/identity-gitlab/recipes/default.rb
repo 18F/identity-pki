@@ -171,7 +171,9 @@ file "gitlab_ee_license_file" do
   sensitive true
 end
 
-package 'gitlab-ee'
+package 'gitlab-ee' do
+  version "14.10.2-ee.0"
+end
 
 execute 'restore_ssh_keys' do
   command 'tar zxvf /etc/gitlab/etc_ssh.tar.gz'
@@ -319,6 +321,7 @@ execute 'create_gitlab_qa_user' do
     can_create_group: 'true', admin: 'true'); qauser.skip_confirmation!; qauser.save!"
   EOF
   action :run
+  sensitive true
   ignore_failure true
 end
 
@@ -401,27 +404,27 @@ execute 'add_ci_skeleton' do
     curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
       "#{local_url}/api/v4/projects/$PROJECT_NUMBER/variables" \
       --form "key=GITLAB_QA_ACCOUNT" --form "value=#{gitlab_qa_account_name}" \
-      --form "masked=true"
+      --form "masked=true" --form "protected=true"
     curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
       "#{local_url}/api/v4/projects/$PROJECT_NUMBER/variables" \
       --form "key=GITLAB_QA_PASSWORD" --form "value=#{gitlab_qa_password}" \
-      --form "masked=true"
+      --form "masked=true" --form "protected=true"
     curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
       "#{local_url}/api/v4/projects/$PROJECT_NUMBER/variables" \
       --form "key=GITLAB_QA_API_TOKEN" --form "value=#{gitlab_qa_api_token}" \
-      --form "masked=true"
+      --form "masked=true" --form "protected=true"
     curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
       "#{local_url}/api/v4/projects/$PROJECT_NUMBER/variables" \
        --form "key=AWS_ACCOUNT_ID" --form "value=#{aws_account_id}" \
-      --form "masked=true"
+      --form "masked=true" --form "protected=true"
     curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
       "#{local_url}/api/v4/projects/$PROJECT_NUMBER/variables" \
       --form "key=EXTERNAL_FQDN" --form "value=#{external_fqdn}" \
-      --form "masked=true"
+      --form "masked=true" --form "protected=true"
     curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
       "#{local_url}/api/v4/projects/$PROJECT_NUMBER/variables" \
       --form "key=AWS_REGION" --form "value=#{aws_region}" \
-      --form "masked=true"
+      --form "masked=true" --form "protected=true"
   EOF
   ignore_failure false
   action :run

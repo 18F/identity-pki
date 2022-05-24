@@ -56,6 +56,9 @@ resource "aws_cloudformation_stack" "image_codebuild_stack" {
     RoleName           = each.key
     SourceFileName     = aws_ssm_parameter.source_file_name.name
     Git2S3OutputBucket = local.git2s3_bucket
+    ChefVersion        = var.packer_config["chef_version"]
+    PackerVersion      = var.packer_version
+    BerkshelfVersion   = var.berkshelf_version
   }
   capabilities = ["CAPABILITY_IAM"]
 }

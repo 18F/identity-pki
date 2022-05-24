@@ -11,7 +11,13 @@ resource "aws_cloudwatch_metric_alarm" "ddos_alert" {
   period                    = "300"
   statistic                 = "Minimum"
   threshold                 = "1"
-  alarm_description         = "This Alarm is executed when a DDoS attack is detected"
+  alarm_description         = <<EOM
+AWS Shield has detected a possible Distributed Denial of Service (DDoS) attack
+Account: ${data.aws_caller_identity.current.account_id}
+Region: ${var.region}
+
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Denial-of-Service#aws-shield
+EOM
   insufficient_data_actions = []
   alarm_actions             = local.ddos_alarm_topics
 }

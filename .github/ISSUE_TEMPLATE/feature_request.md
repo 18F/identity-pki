@@ -7,17 +7,12 @@ assignees: ''
 
 ---
 
-<!-- This issue MUST fulfill the accepted criteria defined for DevOps Issues: -->
-<!-- https://login-handbook.app.cloud.gov/articles/devops-acceptance-criteria.html -->
-
-TITLE_OF_ISSUE
-<!-- REMOVE ALL COMMENT BLOCKS, LIKE THIS ONE, BEFORE SUBMITTING! -->
+<!-- This issue MUST fulfill the accepted criteria defined for DevOps 'User Story' Issues: -->
+<!-- https://handbook.login.gov/articles/platform-acceptance-criteria.html#user-story-issues -->
 
 ## Issue
 
-<!-- describe issue in user-story form. if possible, try and follow: -->
-<!--  1. I N V E S T standards: https://agileforall.com/new-to-agile-invest-in-good-user-stories/ -->
-<!--  2. DevOps Definition Of Ready: https://login-handbook.app.cloud.gov/articles/definition-of-ready.html -->
+<!-- describe issue in user-story form -->
 
 As a ***TYPE_OF_USER***,
 I would like to ***NEW_FUNCTIONALITY***,
@@ -27,9 +22,14 @@ So that I can ***ACCEPTED_OUTCOME***
 
 <!-- check boxes for each task to achieve ACCEPTED_OUTCOME -->
 
-* [ ] One task
-* [ ] Another task
+- [ ] One task
+- [ ] Another task
 
 ## Acceptance Criteria
 
 <!-- Define acceptance criteria for ACCEPTED_OUTCOME -->
+
+- [ ] One criteria
+- [ ] Another criteria
+
+<!-- REMOVE ALL COMMENT BLOCKS, LIKE THIS ONE, BEFORE SUBMITTING! -->

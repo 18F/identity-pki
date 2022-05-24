@@ -36,15 +36,8 @@ resource "aws_cloudwatch_log_group" "ubuntu_advantage" {
   }
 }
 
-
 resource "aws_cloudwatch_log_group" "idp_events" {
   name              = "${var.env_name}_/srv/idp/shared/log/events.log"
-  retention_in_days = local.retention_days
-}
-
-# Log group for reimported scrubbed messages in case of PII spill
-resource "aws_cloudwatch_log_group" "idp_events_scrubbed" {
-  name              = "${var.env_name}_scrubbed_/srv/idp/shared/log/events.log"
   retention_in_days = local.retention_days
 }
 

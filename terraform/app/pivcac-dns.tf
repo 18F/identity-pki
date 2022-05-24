@@ -56,7 +56,7 @@ resource "aws_iam_role_policy" "pivcac_update_route53" {
 ##### DNSSEC #####
 
 module "dnssec" {
-  source = "github.com/18F/identity-terraform//dnssec?ref=a6261020a94b77b08eedf92a068832f21723f7a2"
+  source = "github.com/18F/identity-terraform//dnssec?ref=9ca808e1cad7add8e7bdccd6aa1199d873d34d54"
   #source = "../../../identity-terraform/dnssec"
 
   dnssec_ksks_action_req_alarm_desc = "${local.dnssec_runbook_prefix}_ksks_action_req"
@@ -71,7 +71,7 @@ module "dnssec" {
 
 resource "aws_route53_record" "pivcac_zone_ds" {
   zone_id = var.route53_id
-  name    = "pivcac.${var.env_name}.${var.root_domain}"
+  name    = aws_route53_zone.pivcac_zone.name
   type    = "DS"
   ttl     = "300"
   records = [module.dnssec.active_ds_value]

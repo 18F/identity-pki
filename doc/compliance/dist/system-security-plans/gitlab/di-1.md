@@ -1,7 +1,6 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-documented
 ---
 
 # di-1 - \[catalog\] Data Quality
@@ -16,6 +15,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control di-1
+We do not collect or hold PII in GitLab.
 
 ______________________________________________________________________

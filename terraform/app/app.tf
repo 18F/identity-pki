@@ -203,7 +203,7 @@ data "aws_iam_policy_document" "partner_logos_bucket_policy" {
       type = "AWS"
       identifiers = [
         aws_iam_role.app.arn,
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/AppDev",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/PowerUser",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/FullAdministrator",
       ]
     }

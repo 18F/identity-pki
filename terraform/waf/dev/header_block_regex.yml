@@ -4,7 +4,6 @@
 - field_name: User-Agent
   patterns:
     - "BadAgent"
-    - "SuperBadAgent"
 - field_name: Accept-Language
   patterns:
     - "ForgottenLanguage"

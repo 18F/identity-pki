@@ -19,9 +19,6 @@ module "main" {
   opsgenie_key_ready = var.opsgenie_key_ready
 
   iam_account_alias = "login-tooling-prod"
-  account_roles_map = {
-    iam_appdev_enabled = false
-  }
 
   cloudtrail_event_selectors = [
     {
@@ -38,4 +35,11 @@ module "main" {
       ]
     }
   ]
+
+  ssm_access_map = {
+    "FullAdministrator" = [{ "*" = ["*"] }],
+    "PowerUser"         = [{ "*" = ["*"] }],
+    "SOCAdministrator"  = [{ "*" = ["*"] }],
+    "Terraform"         = [{ "*" = ["*"] }],
+  }
 }

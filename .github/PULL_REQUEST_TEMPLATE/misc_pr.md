@@ -7,10 +7,8 @@ assignees: ''
 
 ---
 
-PR_TITLE
-
 <!-- This PR MUST fulfill the accepted criteria defined for DevOps PRs: -->
-<!-- https://login-handbook.app.cloud.gov/articles/devops-acceptance-criteria.html -->
+<!-- https://handbook.login.gov/articles/platform-acceptance-criteria.html#pull-requests -->
 
 <!-- Short description of what is happening in the PR -->
 
@@ -19,7 +17,8 @@ PR_TITLE
 
 ```
 
-<!-- Include any issue(s) this addresses. Do NOT put 'Fixes' as GitHub will auto-close it! -->
+<!-- Include any issue(s) this addresses. -->
+<!-- Do NOT put 'Fixes' as GitHub will auto-close it! -->
 Addresses #
 
-</details>
+<!-- REMOVE ALL COMMENT BLOCKS, LIKE THIS ONE, BEFORE SUBMITTING! -->

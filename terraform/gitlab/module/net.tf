@@ -24,16 +24,6 @@ resource "aws_ssm_parameter" "net_vpcid" {
   value = aws_vpc.default.id
 }
 
-# When adding a new subnet, be sure to add an association with a network ACL,
-# or it will use the default NACL, which causes problems since the default
-# network ACL is special and is handled weirdly by AWS and Terraform.
-#
-# If you don't explicitly give the subnet a NACL, a terraform plan will show an
-# attempt to remove the default plan, which can't actually be done, so it will
-# continually show that same plan.
-#
-# See https://www.terraform.io/docs/providers/aws/r/default_network_acl.html
-
 resource "aws_internet_gateway" "default" {
   tags = {
     Name = "${var.name}-gateway-${var.env_name}"
@@ -50,7 +40,7 @@ resource "aws_route" "default" {
 resource "aws_subnet" "gitlab1" {
   availability_zone       = "${var.region}a"
   cidr_block              = var.gitlab1_subnet_cidr_block
-  map_public_ip_on_launch = true
+  map_public_ip_on_launch = false
 
   tags = {
     Name = "${var.name}-gitlab1_subnet-${var.env_name}"
@@ -59,16 +49,26 @@ resource "aws_subnet" "gitlab1" {
   vpc_id = aws_vpc.default.id
 }
 
+resource "aws_route_table_association" "gitlab1" {
+  subnet_id      = aws_subnet.gitlab1.id
+  route_table_id = aws_route_table.private_a.id
+}
+
 resource "aws_subnet" "gitlab2" {
   availability_zone       = "${var.region}b"
   cidr_block              = var.gitlab2_subnet_cidr_block
-  map_public_ip_on_launch = true
+  map_public_ip_on_launch = false
 
   tags = {
     Name = "${var.name}-gitlab2_subnet-${var.env_name}"
   }
 
   vpc_id = aws_vpc.default.id
+}
+
+resource "aws_route_table_association" "gitlab2" {
+  subnet_id      = aws_subnet.gitlab2.id
+  route_table_id = aws_route_table.private_b.id
 }
 
 resource "aws_subnet" "alb1" {
@@ -84,6 +84,11 @@ resource "aws_subnet" "alb1" {
   vpc_id = aws_vpc.default.id
 }
 
+resource "aws_route_table_association" "alb1" {
+  subnet_id      = aws_subnet.alb1.id
+  route_table_id = aws_vpc.default.main_route_table_id
+}
+
 resource "aws_subnet" "alb2" {
   availability_zone       = "${var.region}b"
   cidr_block              = var.alb2_subnet_cidr_block
@@ -95,6 +100,11 @@ resource "aws_subnet" "alb2" {
   }
 
   vpc_id = aws_vpc.default.id
+}
+
+resource "aws_route_table_association" "alb2" {
+  subnet_id      = aws_subnet.alb2.id
+  route_table_id = aws_vpc.default.main_route_table_id
 }
 
 resource "aws_subnet" "alb3" {
@@ -110,10 +120,9 @@ resource "aws_subnet" "alb3" {
   vpc_id = aws_vpc.default.id
 }
 
-resource "aws_vpc_endpoint" "private-s3" {
-  vpc_id          = aws_vpc.default.id
-  service_name    = "com.amazonaws.${var.region}.s3"
-  route_table_ids = [aws_vpc.default.main_route_table_id]
+resource "aws_route_table_association" "alb3" {
+  subnet_id      = aws_subnet.alb3.id
+  route_table_id = aws_vpc.default.main_route_table_id
 }
 
 # create NAT subnets and gateways
@@ -147,21 +156,9 @@ resource "aws_nat_gateway" "nat_a" {
   depends_on = [aws_internet_gateway.default]
 }
 
-resource "aws_route_table" "nat_a" {
-  vpc_id = aws_vpc.default.id
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.default.id
-  }
-
-  tags = {
-    Name = "${var.env_name} nat_a"
-  }
-}
-
 resource "aws_route_table_association" "nat_a" {
   subnet_id      = aws_subnet.nat_a.id
-  route_table_id = aws_route_table.nat_a.id
+  route_table_id = aws_vpc.default.main_route_table_id
 }
 
 resource "aws_subnet" "nat_b" {
@@ -194,21 +191,9 @@ resource "aws_nat_gateway" "nat_b" {
   depends_on = [aws_internet_gateway.default]
 }
 
-resource "aws_route_table" "nat_b" {
-  vpc_id = aws_vpc.default.id
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.default.id
-  }
-
-  tags = {
-    Name = "${var.env_name} nat_b"
-  }
-}
-
 resource "aws_route_table_association" "nat_b" {
   subnet_id      = aws_subnet.nat_b.id
-  route_table_id = aws_route_table.nat_b.id
+  route_table_id = aws_vpc.default.main_route_table_id
 }
 
 resource "aws_subnet" "nat_c" {
@@ -241,21 +226,9 @@ resource "aws_nat_gateway" "nat_c" {
   depends_on = [aws_internet_gateway.default]
 }
 
-resource "aws_route_table" "nat_c" {
-  vpc_id = aws_vpc.default.id
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.default.id
-  }
-
-  tags = {
-    Name = "${var.env_name} nat_c"
-  }
-}
-
 resource "aws_route_table_association" "nat_c" {
   subnet_id      = aws_subnet.nat_c.id
-  route_table_id = aws_route_table.nat_c.id
+  route_table_id = aws_vpc.default.main_route_table_id
 }
 
 # create public and private subnets
@@ -272,21 +245,9 @@ resource "aws_subnet" "publicsubnet1" {
   vpc_id = aws_vpc.default.id
 }
 
-resource "aws_route_table" "publicsubnet1" {
-  vpc_id = aws_vpc.default.id
-  route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.nat_a.id
-  }
-
-  tags = {
-    Name = "${var.env_name}-publicsubnet1"
-  }
-}
-
 resource "aws_route_table_association" "publicsubnet1" {
   subnet_id      = aws_subnet.publicsubnet1.id
-  route_table_id = aws_route_table.publicsubnet1.id
+  route_table_id = aws_vpc.default.main_route_table_id
 }
 
 resource "aws_subnet" "publicsubnet2" {
@@ -302,21 +263,9 @@ resource "aws_subnet" "publicsubnet2" {
   vpc_id = aws_vpc.default.id
 }
 
-resource "aws_route_table" "publicsubnet2" {
-  vpc_id = aws_vpc.default.id
-  route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.nat_b.id
-  }
-
-  tags = {
-    Name = "${var.env_name}-publicsubnet2"
-  }
-}
-
 resource "aws_route_table_association" "publicsubnet2" {
   subnet_id      = aws_subnet.publicsubnet2.id
-  route_table_id = aws_route_table.publicsubnet2.id
+  route_table_id = aws_vpc.default.main_route_table_id
 }
 
 resource "aws_subnet" "publicsubnet3" {
@@ -332,21 +281,9 @@ resource "aws_subnet" "publicsubnet3" {
   vpc_id = aws_vpc.default.id
 }
 
-resource "aws_route_table" "publicsubnet3" {
-  vpc_id = aws_vpc.default.id
-  route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.nat_c.id
-  }
-
-  tags = {
-    Name = "${var.env_name}-publicsubnet3"
-  }
-}
-
 resource "aws_route_table_association" "publicsubnet3" {
   subnet_id      = aws_subnet.publicsubnet3.id
-  route_table_id = aws_route_table.publicsubnet3.id
+  route_table_id = aws_vpc.default.main_route_table_id
 }
 
 resource "aws_subnet" "privatesubnet1" {
@@ -368,6 +305,11 @@ resource "aws_ssm_parameter" "net_subnet_private1" {
   value = aws_subnet.privatesubnet1.id
 }
 
+resource "aws_route_table_association" "privatesubnet1" {
+  subnet_id      = aws_subnet.privatesubnet1.id
+  route_table_id = aws_route_table.private_a.id
+}
+
 resource "aws_subnet" "privatesubnet2" {
   availability_zone       = "${var.region}b"
   cidr_block              = var.private2_subnet_cidr_block
@@ -387,6 +329,11 @@ resource "aws_ssm_parameter" "net_subnet_private2" {
   value = aws_subnet.privatesubnet2.id
 }
 
+resource "aws_route_table_association" "privatesubnet2" {
+  subnet_id      = aws_subnet.privatesubnet2.id
+  route_table_id = aws_route_table.private_b.id
+}
+
 resource "aws_subnet" "privatesubnet3" {
   availability_zone       = "${var.region}c"
   cidr_block              = var.private3_subnet_cidr_block
@@ -400,6 +347,11 @@ resource "aws_subnet" "privatesubnet3" {
   vpc_id = aws_vpc.default.id
 }
 
+resource "aws_route_table_association" "privatesubnet3" {
+  subnet_id      = aws_subnet.privatesubnet3.id
+  route_table_id = aws_route_table.private_c.id
+}
+
 resource "aws_ssm_parameter" "net_subnet_private3" {
   name  = "${local.net_ssm_parameter_prefix}subnet/private3/id"
   type  = "String"
@@ -410,4 +362,40 @@ resource "aws_elasticache_subnet_group" "gitlab" {
   name        = "${var.name}-gitlab-cache-${var.env_name}"
   description = "Redis Subnet Group"
   subnet_ids  = [aws_subnet.db1.id, aws_subnet.db2.id]
+}
+
+resource "aws_route_table" "private_a" {
+  vpc_id = aws_vpc.default.id
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.nat_a.id
+  }
+
+  tags = {
+    Name = "${var.env_name} private_a"
+  }
+}
+
+resource "aws_route_table" "private_b" {
+  vpc_id = aws_vpc.default.id
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.nat_b.id
+  }
+
+  tags = {
+    Name = "${var.env_name} private_b"
+  }
+}
+
+resource "aws_route_table" "private_c" {
+  vpc_id = aws_vpc.default.id
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.nat_c.id
+  }
+
+  tags = {
+    Name = "${var.env_name} private_c"
+  }
 }

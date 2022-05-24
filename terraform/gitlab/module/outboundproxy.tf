@@ -8,7 +8,7 @@ module "outbound_proxy" {
   bootstrap_main_s3_ssh_key_url    = local.bootstrap_main_s3_ssh_key_url
   bootstrap_private_s3_ssh_key_url = local.bootstrap_private_s3_ssh_key_url
   env_name                         = var.env_name
-  public_subnets                   = [aws_subnet.publicsubnet1.id, aws_subnet.publicsubnet2.id, aws_subnet.publicsubnet3.id]
+  proxy_subnet_ids                 = [aws_subnet.privatesubnet1.id, aws_subnet.privatesubnet2.id, aws_subnet.privatesubnet3.id]
   route53_internal_zone_id         = aws_route53_zone.internal.zone_id
   s3_prefix_list_id                = aws_vpc_endpoint.private-s3.prefix_list_id
   slack_events_sns_hook_arn        = var.slack_events_sns_hook_arn
@@ -16,4 +16,9 @@ module "outbound_proxy" {
   github_ipv4_cidr_blocks          = local.github_ipv4_cidr_blocks
   root_domain                      = var.root_domain
   proxy_for                        = "gitlab"
+  client_security_group_ids        = [aws_security_group.gitlab.id]
+  ssm_access_policy                = module.ssm.ssm_access_role_policy
+  asg_outboundproxy_desired        = var.asg_outboundproxy_desired
+  asg_outboundproxy_max            = var.asg_outboundproxy_max
+  asg_outboundproxy_min            = var.asg_outboundproxy_min
 }

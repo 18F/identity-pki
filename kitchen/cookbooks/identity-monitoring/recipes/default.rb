@@ -26,14 +26,23 @@ node.default['newrelic_infra']['config']['custom_attributes'] = {
 
 include_recipe 'newrelic-infra'
 
+# temporary fix due to bug in newrelic cookbook
+# remove when this is fixed https://github.com/newrelic/infrastructure-agent-chef/issues/110
+directory '/etc' do
+  owner 'root'
+  group 'root'
+  mode  '0755'
+end
+
 # kinda a terrible hack until the newrelic people fix their cookbook
 directory '/var/run/newrelic-infra' do
 	owner 'newrelic_infra'
-	not_if Dir.exist?('/var/run/newrelic-infra')
+	not_if { Dir.exist?('/var/run/newrelic-infra') }
 end
+
 directory '/tmp/nr-integrations' do
 	owner 'newrelic_infra'
-	not_if Dir.exist?('/tmp/nr-integrations')
+	not_if { Dir.exist?('/tmp/nr-integrations') }
 end
 
 cookbook_file '/etc/systemd/system/newrelic-infra.service' do

@@ -38,29 +38,15 @@ data "aws_iam_policy_document" "ta_refresher_lambda_policy" {
   }
 }
 
-data "archive_file" "ta_refresher_function" {
-  type        = "zip"
-  source_file = "${path.module}/lambda/ta_refresher.py"
-  output_path = "${path.module}/lambda/ta_refresher.zip"
-}
+module "ta_refresher_function_code" {
+  source = "github.com/18F/identity-terraform//null_archive?ref=0fe0243d7df353014c757a72ef0c48f5805fb3d3"
 
-data "aws_lambda_function" "ta_refresher_lambda" {
-  function_name = aws_lambda_function.ta_refresher_lambda.function_name
-  qualifier     = ""
+  source_code_filename = "ta_refresher.py"
+  source_dir           = "${path.module}/ta_refresher/"
+  zip_filename         = "ta_refresher.zip"
 }
 
 # -- Data Sources Trusted Advisor Monitor Lambda--
-
-data "archive_file" "ta_monitor_function" {
-  type        = "zip"
-  source_file = "${path.module}/lambda/ta_monitor.py"
-  output_path = "${path.module}/lambda/ta_monitor.zip"
-}
-
-data "aws_lambda_function" "ta_monitor_lambda" {
-  function_name = aws_lambda_function.ta_monitor_lambda.function_name
-  qualifier     = ""
-}
 
 data "aws_iam_policy_document" "ta_monitor_lambda_assume" {
   statement {
@@ -106,6 +92,14 @@ data "aws_iam_policy_document" "ta_monitor_lambda_policy" {
   }
 }
 
+module "ta_monitor_function_code" {
+  source = "github.com/18F/identity-terraform//null_archive?ref=0fe0243d7df353014c757a72ef0c48f5805fb3d3"
+
+  source_code_filename = "ta_monitor.py"
+  source_dir           = "${path.module}/ta_monitor/"
+  zip_filename         = "ta_monitor.zip"
+}
+
 # -- Trusted Advisor Refresher Lambda Resources --
 
 resource "aws_cloudwatch_log_group" "ta_refresher_lambda" {
@@ -114,15 +108,17 @@ resource "aws_cloudwatch_log_group" "ta_refresher_lambda" {
 }
 
 resource "aws_lambda_function" "ta_refresher_lambda" {
-  filename         = data.archive_file.ta_refresher_function.output_path
+  filename         = module.ta_refresher_function_code.zip_output_path
   function_name    = var.refresher_lambda
   description      = "Refreshes the Trusted Advisor check"
   role             = aws_iam_role.ta_refresher_lambda.arn
   handler          = "ta_refresher.lambda_handler"
   runtime          = "python3.9"
   timeout          = var.lambda_timeout
-  source_code_hash = data.archive_file.ta_refresher_function.output_base64sha256
+  source_code_hash = module.ta_refresher_function_code.zip_output_base64sha256
   publish          = false
+
+  depends_on = [module.ta_refresher_function_code.resource_check]
 }
 
 resource "aws_iam_role" "ta_refresher_lambda" {
@@ -144,7 +140,7 @@ resource "aws_cloudwatch_event_rule" "ta_refresher_lambda_cronjob" {
 
 resource "aws_cloudwatch_event_target" "ta_refresher_invoke_lambda" {
   rule  = aws_cloudwatch_event_rule.ta_refresher_lambda_cronjob.name
-  arn   = data.aws_lambda_function.ta_refresher_lambda.arn
+  arn   = aws_lambda_function.ta_refresher_lambda.arn
   input = var.function_input
 }
 
@@ -164,20 +160,22 @@ resource "aws_cloudwatch_log_group" "ta_monitor_lambda" {
 }
 
 resource "aws_lambda_function" "ta_monitor_lambda" {
-  filename         = data.archive_file.ta_monitor_function.output_path
+  filename         = module.ta_monitor_function_code.zip_output_path
   function_name    = var.monitor_lambda
   description      = "Lambda function monitoring Trusted Advisor"
   role             = aws_iam_role.ta_monitor_lambda.arn
   handler          = "ta_monitor.lambda_handler"
   runtime          = "python3.9"
   timeout          = var.lambda_timeout
-  source_code_hash = data.archive_file.ta_monitor_function.output_base64sha256
+  source_code_hash = module.ta_monitor_function_code.zip_output_base64sha256
   publish          = false
   environment {
     variables = {
       notification_topic = jsonencode(var.sns_topic)
     }
   }
+
+  depends_on = [module.ta_monitor_function_code.resource_check]
 }
 
 resource "aws_iam_role" "ta_monitor_lambda" {
@@ -199,7 +197,7 @@ resource "aws_cloudwatch_event_rule" "ta_monitor_lambda_cronjob" {
 
 resource "aws_cloudwatch_event_target" "ta_monitor_invoke_lambda" {
   rule  = aws_cloudwatch_event_rule.ta_monitor_lambda_cronjob.name
-  arn   = data.aws_lambda_function.ta_monitor_lambda.arn
+  arn   = aws_lambda_function.ta_monitor_lambda.arn
   input = var.function_input
 }
 

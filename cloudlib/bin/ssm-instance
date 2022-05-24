@@ -66,7 +66,7 @@ end
 def main(args)
   options = {
     pick_strategy: nil,
-    document: 'gsa-username'
+    document: 'default'
   }
 
   basename = File.basename($0)
@@ -123,8 +123,8 @@ Options:
       options[:pick_strategy] = :oldest
     end
 
-    # change to 'default' once old SSM doc is removed
-    opts.on('-d', '--document DOCUMENT', 'Use custom SSM document, defaults to ssm-document-gsa-username') do |doc|
+    opts.on('-d', '--document DOCUMENT',
+      'Use custom SSM document; defaults to ssm-document-default in app environments') do |doc|
       options[:document] = doc
     end
 

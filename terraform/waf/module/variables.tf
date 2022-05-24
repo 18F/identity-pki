@@ -90,9 +90,13 @@ variable "otp_send_rate_limit_per_ip" {
 }
 
 variable "ip_block_list" {
-  description = "IP addresses to block"
+  description = "IP addresses with CIDR mask to block"
   type        = list(string)
-  default     = []
+  # !!! REMEMBER THE CIDR MASK!  For a single IPv4 IP just add /32 at the end.
+  default = [
+    "45.156.25.223/32",  # 2022-04-29 - Log4j scanner blocked per-GSA IR
+    "141.170.198.141/32" # 2022-05-10 - Noisy scanner from BA generating some 502s
+  ]
 }
 
 variable "geo_block_list" {
@@ -107,7 +111,10 @@ variable "relaxed_uri_paths" {
   # false positives but has a low risk of being exploited.  Document additions!
   type = map(string)
   default = {
-    "docauth_image_upload" = "^/api/verify/images" # https://github.com/18F/identity-devops/issues/4092
+    "docauth_image_upload"    = "^/api/verify/images"         # https://github.com/18F/identity-devops/issues/4092
+    "login_form"              = "^/([a-z]{2}/)?$"             # https://github.com/18F/identity-devops/issues/4563
+    "password_screening_flow" = "^/([a-z]{2}/)?verify/review" # https://github.com/18F/identity-devops/issues/4563
+    "OIDC_authorization"      = "^/openid_connect/authorize"  # https://github.com/18F/identity-devops/issues/4563
   }
 }
 

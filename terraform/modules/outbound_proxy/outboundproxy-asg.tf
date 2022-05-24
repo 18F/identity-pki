@@ -37,7 +37,7 @@ module "outboundproxy_user_data" {
 module "outboundproxy_launch_template" {
   source = "github.com/18F/identity-terraform//launch_template?ref=a6261020a94b77b08eedf92a068832f21723f7a2"
   #source = "../../../identity-terraform/launch_template"
-  role           = "outboundproxy"
+  role           = "${var.proxy_for}-outboundproxy"
   env            = var.env_name
   root_domain    = var.root_domain
   ami_id_map     = var.ami_id_map
@@ -97,7 +97,7 @@ resource "aws_autoscaling_group" "outboundproxy" {
     create_before_destroy = true
   }
 
-  vpc_zone_identifier = var.public_subnets
+  vpc_zone_identifier = var.proxy_subnet_ids
 
   target_group_arns = [aws_lb_target_group.obproxy.arn]
 

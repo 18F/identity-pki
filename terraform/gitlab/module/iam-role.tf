@@ -288,69 +288,9 @@ EOM
 EOM
   }
 
-  # allow SSM service core functionality
+  # allow SSM access via documents / key generation + usage
   inline_policy {
     name   = "${var.env_name}-gitlab-ssm-access"
-    policy = <<EOM
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Sid": "SSMCoreAccess",
-            "Effect": "Allow",
-            "Action": [
-                "ssmmessages:OpenDataChannel",
-                "ssmmessages:OpenControlChannel",
-                "ssmmessages:CreateDataChannel",
-                "ssmmessages:CreateControlChannel",
-                "ssm:UpdateInstanceInformation",
-                "ssm:UpdateInstanceAssociationStatus",
-                "ssm:UpdateAssociationStatus",
-                "ssm:PutInventory",
-                "ssm:PutConfigurePackageResult",
-                "ssm:PutComplianceItems",
-                "ssm:ListInstanceAssociations",
-                "ssm:ListAssociations",
-                "ssm:GetParameters",
-                "ssm:GetParameter",
-                "ssm:GetManifest",
-                "ssm:GetDocument",
-                "ssm:GetDeployablePatchSnapshotForInstance",
-                "ssm:DescribeDocument",
-                "ssm:DescribeAssociation",
-                "ec2messages:SendReply",
-                "ec2messages:GetMessages",
-                "ec2messages:GetEndpoint",
-                "ec2messages:FailMessage",
-                "ec2messages:DeleteMessage",
-                "ec2messages:AcknowledgeMessage"
-            ],
-            "Resource": "*"
-        },
-        {
-            "Sid": "CloudWatchAgentAccess",
-            "Effect": "Allow",
-            "Action": [
-                "ec2:DescribeVolumes",
-                "ec2:DescribeTags",
-                "cloudwatch:PutMetricData"
-            ],
-            "Resource": "*"
-        },
-        {
-            "Sid": "CloudWatchLogsAccess",
-            "Effect": "Allow",
-            "Action": [
-                "logs:PutLogEvents",
-                "logs:DescribeLogStreams",
-                "logs:DescribeLogGroups",
-                "logs:CreateLogStream",
-                "logs:CreateLogGroup"
-            ],
-            "Resource": "*"
-        }
-    ]
-}
-EOM
+    policy = module.ssm.ssm_access_role_policy
   }
 }

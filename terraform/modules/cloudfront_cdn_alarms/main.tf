@@ -8,7 +8,13 @@ resource "aws_cloudwatch_metric_alarm" "cloudfront_alert" {
   statistic           = "Average"
   threshold           = var.threshold
 
-  alarm_description = "This CloudFront Distribution alarm is executed when the total error rate exceeds allowed limits"
-  alarm_actions     = var.alarm_actions
-  dimensions        = var.dimensions
+  alarm_description = <<EOM
+This CloudFront Distribution alarm goes off when the 4XX/5XX error rate is too high, which can indicate
+that the IdP is referencing static assets that do not exist in CloudFront.
+  
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-CloudFront-CDN#totalerrorrate-alarm
+EOM
+
+  alarm_actions = var.alarm_actions
+  dimensions    = var.dimensions
 }

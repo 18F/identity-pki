@@ -34,7 +34,9 @@ execute 'grab_gitlab_runner_repo' do
   ignore_failure true
 end
 
-package 'gitlab-runner'
+package 'gitlab-runner' do
+  version "14.10.1"
+end
 
 cookbook_file '/usr/local/bin/docker-credential-ecr-login' do
   source 'docker-credential-ecr-login-0.6.0.linux-amd64'
@@ -47,8 +49,16 @@ resource = Aws::EC2::Resource.new(region: Chef::Recipe::AwsMetadata.get_aws_regi
 
 aws_account_id = Chef::Recipe::AwsMetadata.get_aws_account_id
 aws_region = Chef::Recipe::AwsMetadata.get_aws_region
-config_s3_bucket = "login-gov-#{node.chef_environment}-gitlabconfig-#{aws_account_id}-#{aws_region}"
-external_fqdn = "gitlab.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
+if node['login_dot_gov']['gitlab_config_s3_bucket'] == nil
+  config_s3_bucket = "login-gov-#{node.chef_environment}-gitlabconfig-#{aws_account_id}-#{aws_region}"
+else
+  config_s3_bucket = node['login_dot_gov']['gitlab_config_s3_bucket']
+end
+if node['login_dot_gov']['gitlab_url'] == nil
+  external_fqdn = "gitlab.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
+else
+  external_fqdn = node['login_dot_gov']['gitlab_url']
+end
 external_url = "https://#{external_fqdn}"
 http_proxy = node['login_dot_gov']['http_proxy']
 https_proxy = node['login_dot_gov']['https_proxy']
@@ -109,13 +119,18 @@ docker_service 'default' do
   userland_proxy false
   misc_opts '--no-new-privileges'
   userns_remap 'default'
+  default_ulimit 'nproc=256:512'
+end
+
+docker_network 'runner-net' do
+  driver 'bridge'
 end
 
 execute 'configure_gitlab_runner' do
   command <<-EOH
     gitlab-runner register \
     --non-interactive \
-    --name "#{runner_name}" \
+    --name "#{node.run_state['gitlab_runner_pool_name']}-#{runner_name}" \
     --url "#{external_url}" \
     --registration-token "#{runner_token}" \
     --executor docker \
@@ -140,7 +155,9 @@ execute 'configure_gitlab_runner' do
     --access-level=not_protected \
     --docker-memory 4096m \
     --docker-cpu-shares 1024 \
-    --docker-security-opt no-new-privileges
+    --docker-security-opt no-new-privileges \
+    --docker-network-mode="runner-net" \
+    --docker-cap-drop net_raw
   EOH
   sensitive true
   notifies :run, 'execute[restart_runner]', :immediate
@@ -161,4 +178,12 @@ cron_d 'clear_docker_cache' do
   action :create
   predefined_value '@daily'
   command '/usr/share/gitlab-runner/clear-docker-cache'
+end
+
+# This is terrible, but it seems to be the only way to do this:
+# https://gitlab.com/gitlab-org/gitlab-runner/-/issues/1539
+# XXX If ever we figure out our concurrency issues, we can go back to 2 or more.
+execute 'update_runner_concurrency' do
+  command 'sed -i "s/^concurrent = .*/concurrent = 1/" /etc/gitlab-runner/config.toml'
+  notifies :run, 'execute[restart_runner]', :immediate
 end

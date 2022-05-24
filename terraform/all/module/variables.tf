@@ -12,7 +12,6 @@ locals {
   master_assumerole_policy = data.aws_iam_policy_document.master_account_assumerole.json
 
   role_enabled_defaults = {
-    iam_appdev_enabled         = true
     iam_analytics_enabled      = false
     iam_power_enabled          = true
     iam_readonly_enabled       = true
@@ -26,12 +25,13 @@ locals {
   }
 
   ssm_cmd_map = {
-    "default"     = ["*"]
-    "sudo"        = ["*"]
-    "rails-c"     = ["idp", "idpxtra", "migration", "worker"]
-    "rails-w"     = ["idp", "idpxtra", "migration", "worker"]
-    "tail-cw"     = ["*"]
-    "uuid-lookup" = ["idp", "idpxtra", "migration", "worker"]
+    "default"      = ["*"]
+    "sudo"         = ["*"]
+    "rails-c"      = ["idp", "idpxtra", "migration", "worker"]
+    "rails-w"      = ["idp", "idpxtra", "migration", "worker"]
+    "tail-cw"      = ["*"]
+    "uuid-lookup"  = ["idp", "idpxtra", "migration", "worker"]
+    "work-restart" = ["worker"]
   }
 }
 
@@ -88,12 +88,6 @@ variable "s3_block_all_public_access" {
   default     = true
 }
 
-variable "dashboard_logos_bucket_write" {
-  description = "Permit AppDev role write access to static logos buckets"
-  type        = bool
-  default     = false
-}
-
 variable "reports_bucket_arn" {
   description = "ARN for the S3 bucket for reports."
   type        = string
@@ -103,6 +97,7 @@ variable "reports_bucket_arn" {
 variable "account_roles_map" {
   description = "Map of roles that are enabled/disabled in current account."
   type        = map(any)
+  default     = {}
 }
 
 variable "cloudtrail_event_selectors" {
@@ -224,4 +219,28 @@ variable "refresher_schedule" {
 variable "monitor_schedule" {
   description = "Frequency of TA monitor lambda execution"
   default     = "cron(10 14 * * ? *)"
+}
+
+variable "config_password_rotation_name" {
+  description = "Name of the Config Password rotation, used to name other resources"
+  type        = string
+  default     = "cfg-password-rotation"
+}
+
+variable "password_rotation_frequency" {
+  type        = string
+  description = "The frequency that you want AWS Config to run evaluations for the rule."
+  default     = "TwentyFour_Hours"
+}
+
+variable "password_rotation_max_key_age" {
+  type        = string
+  description = "Maximum number of days without rotation. Default 90."
+  default     = 90
+}
+
+variable "config_password_rotation_code" {
+  type        = string
+  description = "Path of the compressed lambda source code."
+  default     = "lambda/config-password-rotation.zip"
 }

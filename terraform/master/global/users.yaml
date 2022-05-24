@@ -27,6 +27,8 @@ users:
     - appdev
     gitlab_groups:
     - appdev
+    ec2_username:
+    - theabrad
   andrew.duthie:
     aws_groups:
     - appdev
@@ -35,10 +37,6 @@ users:
     - aduth
     gitlab_groups:
     - appdev
-  brett.mcparland:
-    aws_groups:
-    - secops
-    - soc
   chris.manger:
     aws_groups:
     - bizops
@@ -50,7 +48,9 @@ users:
     - ctro
   devon.johnson:
     aws_groups:
-    - appdev
+    - supporteng
+    ec2_username:
+    - djohnson
   diondra.humphries:
     aws_groups:
     - bizops
@@ -68,14 +68,25 @@ users:
     - analytics
   henry.richardson:
     aws_groups:
-    - devopsnonprod
+    - devops
     ec2_username:
     - henrydrich
     gitlab_groups:
     - devops
+  jack.cody:
+    aws_groups:
+    - appdev
+    gitlab_groups:
+    - appdev
   jeffrey.holden:
     aws_groups:
     - analytics
+  jenniffier.bieberbach:
+    aws_groups:
+    - secopsnonprod
+    - analytics
+    gitlab_groups:
+    - devops
   jessica.dembe:
     aws_groups:
     - appdev
@@ -108,6 +119,9 @@ users:
   julia.l.allen:
     aws_groups:
     - appdev
+    - apponcall
+    ec2_username:
+    - jlallen
     gitlab_groups:
     - appdev
   justin.grevich:
@@ -120,6 +134,14 @@ users:
   kelsey.sinclair:
     aws_groups:
     - bizops
+  ken.kato:
+    aws_groups:
+    - devopsnonprod
+    - analytics
+    gitlab_groups:
+    - devops
+    git_username:
+    - kenk667
   logan.mcdonald:
     gitlab_groups:
     - devops
@@ -137,9 +159,24 @@ users:
     - apponcall
     gitlab_groups:
     - appdev
+  micah.saul:
+    aws_groups:
+    - appdev
+    - analytics
+    gitlab_groups:
+    - appdev
   michael.antiporta:
     aws_groups:
     - analytics
+  michael.w.ward:
+    aws_groups:
+    - devopsnonprod
+    ec2_username:
+    - mww59
+    gitlab_groups:
+    - devops
+    git_username:
+    - mww59
   mitchell.henke:
     aws_groups:
     - appdev
@@ -160,9 +197,16 @@ users:
     - mzia
     gitlab_groups:
     - devops
+  nadya.primak:
+    aws_groups:
+    - appdev
+    - apponcall
   natasha.ibrahim:
     aws_groups:
     - appdev
+    - apponcall
+    ec2_username:
+    - nibrahim
     gitlab_groups:
     - appdev
   nathan.wick:
@@ -225,9 +269,22 @@ users:
     - ssteiner
     gitlab_groups:
     - appdev
+  sheldon.bachstein:
+    aws_groups:
+    - appdev
+    - analytics
+    gitlab_groups:
+    - appdev
+    git_username:
+    - sheldon-b
   sierra.toler:
     aws_groups:
     - bizops
+  stephen.shelton:
+    aws_groups:
+    - devopsnonprod
+    ec2_username:
+    - sshelton
   steve.urciuoli:
     aws_groups:
     - appdev
@@ -239,11 +296,19 @@ users:
     - appdev
   sujana.gurung:
     aws_groups:
-    - devopsnonprod
+    - devops
     ec2_username:
     - sujana09
     gitlab_groups:
     - devops
+  thomas.apodaca:
+    aws_groups:
+    - appdev
+    - analytics
+    gitlab_groups:
+    - appdev
+    git_username:
+    - tomas-nava
   tiffanyj.andrews:
     aws_groups:
     - analytics
@@ -257,6 +322,11 @@ users:
     - tspencer
     gitlab_groups:
     - devops
+  victor.otu:
+    aws_groups:
+    - devopsnonprod
+    ec2_username:
+    - votu
   vivek.chugh:
     aws_groups:
     - devops

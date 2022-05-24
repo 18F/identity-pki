@@ -85,6 +85,12 @@ resource "aws_alb_target_group" "idp-ssl" {
     unhealthy_threshold = 2 # down for 20 seconds
   }
 
+  stickiness {
+    enabled         = false
+    type            = "lb_cookie"
+    cookie_duration = 1200
+  }
+
   # TODO: rename to "...-idp-ssl"
   name     = "${var.env_name}-ssl-target-group"
   port     = 443

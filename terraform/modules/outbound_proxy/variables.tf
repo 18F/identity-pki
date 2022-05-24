@@ -32,7 +32,7 @@ variable "asg_outboundproxy_min" {
 }
 
 variable "asg_outboundproxy_max" {
-  default = 1
+  default = 4
 }
 
 variable "asg_prevent_auto_terminate" {
@@ -202,7 +202,7 @@ variable "vpc_id" {
   description = "VPC Used To Launch the Outbound Proxy"
 }
 
-variable "public_subnets" {
+variable "proxy_subnet_ids" {
   type        = list(string)
   description = "List of public subnets to use for the outbound proxy ASG"
 }
@@ -227,4 +227,15 @@ variable "proxy_for" {
   type        = string
   description = "What the proxy is for, e.g. idp, gitlab, gitlab-runner-test-pool."
   default     = "default"
+}
+
+variable "client_security_group_ids" {
+  type        = list(string)
+  description = "security group allowed to communicate with the proxy"
+  default     = []
+}
+
+variable "ssm_access_policy" {
+  type        = string
+  description = "JSON-formatted IAM policy providing access to SSM resources."
 }

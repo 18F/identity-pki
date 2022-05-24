@@ -61,7 +61,7 @@ module Cloudlib
         cl.instance_label(instance)
       end
 
-      # Replace this process with aws ssm start-session
+      # Runs aws ssm start-session against instance.instance_id w/provided document
       #
       # @return DOES NOT RETURN
       def ssm_session_exec
@@ -70,34 +70,11 @@ module Cloudlib
           'ssm',
           'start-session',
           '--target', instance.instance_id,
+          '--document',  "#{@cl.env}-ssm-document-#{@document}",
         ]
-        
-        # HACK: Don't use document when connecting to gitlab hosts.
-        # Update this once an SSM document solution is in place.
-        instance_domain = ''
-        instance.tags.each { |tag| instance_domain = tag.value if tag.key == "domain" }
-
-        if instance_domain !~ /gitlab/
-          cmd += [
-            '--document',  "#{@cl.env}-ssm-document-#{@document}",
-          ]
-          if @document == 'gsa-username'
-            cmd += [
-              '--parameters', { gsausername: [local_gsa_username] }.to_json,
-            ]
-          end
-        end
-        
         log.debug('exec: ' + cmd.inspect)
         exec(*cmd)
       end
-
-      def local_gsa_username
-        ENV['GSA_USERNAME'].tap do |str|
-          raise 'missing $GSA_USERNAME' if !str || str.empty?
-        end
-      end
-
     end
   end
 end

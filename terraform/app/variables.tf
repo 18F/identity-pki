@@ -226,9 +226,6 @@ variable "instance_type_jumphost" {
   default = "t3.medium"
 }
 
-variable "instance_type_scrubhost" {
-  default = "t3.medium"
-}
 
 variable "instance_type_migration" {
   default = "t3.medium"
@@ -287,11 +284,6 @@ variable "asg_recycle_business_hours" {
 
 # Auto scaling group desired counts
 variable "asg_jumphost_desired" {
-  default = 0
-}
-
-# Temporary - Remove after scrub completed
-variable "asg_scrubhost_desired" {
   default = 0
 }
 
@@ -495,22 +487,22 @@ variable "bootstrap_private_git_clone_url" {
 # though they will have different IDs. They should be updated here at the same
 # time, and then released to environments in sequence.
 variable "default_ami_id_sandbox" {
-  default     = "ami-0d7dd3973b474e44c" # 2022-04-12 Ubuntu 18.04
+  default     = "ami-0db336f366bcaa64d" # 2022-05-23 Ubuntu 18.04
   description = "default AMI ID for environments in the sandbox account"
 }
 
 variable "default_ami_id_prod" {
-  default     = "ami-07fb7eb41a4c3bc50" # 2022-04-12 Ubuntu 18.04
+  default     = "ami-0cd15a15ccae71ca2" # 2022-05-23 Ubuntu 18.04
   description = "default AMI ID for environments in the prod account"
 }
 
 variable "rails_ami_id_sandbox" {
-  default     = "ami-094e6ec1b4fa2030b" # 2022-04-12 Ubuntu 18.04
+  default     = "ami-07cf6baf5d1b1de68" # 2022-05-23 Ubuntu 18.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the sandbox account"
 }
 
 variable "rails_ami_id_prod" {
-  default     = "ami-031301069bf4b5183" # 2022-04-12 Ubuntu 18.04
+  default     = "ami-0a53cf38ab0110428" # 2022-05-23 Ubuntu 18.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the prod account"
 }
 
@@ -744,6 +736,17 @@ variable "gitlab_hostname" {
   default     = "gitlab"
 }
 
+variable "gitlab_runner_enabled" {
+  description = "whether to turn on a gitlab runner for this environment"
+  type        = bool
+  default     = false
+}
+
+variable "gitlab_configbucket" {
+  description = "should be used to override where the gitlab server's config bucket is so that the runner knows where to get the runner token"
+  default     = ""
+}
+
 variable "idp_ial2_sp_dashboards" {
   type = map(object({
     name     = string
@@ -796,4 +799,13 @@ variable "unvacummed_transactions_count" {
   description = "The maximum transaction IDs(in count) that have been used by PostgreSQL."
   type        = string
   default     = "1000000000"
+}
+
+variable "ssm_session_timeout" {
+  description = <<EOM
+REQUIRED. Amount of time (in minutes) of inactivity to allow before an
+SSM session ends. Defaults to 15 minutes.
+EOM
+  type        = number
+  default     = 15
 }

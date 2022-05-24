@@ -1,17 +1,9 @@
 resource "aws_security_group" "kms_endpoint" {
   description = "Allow inbound from idp servers"
 
-  # allow outbound to the VPC
-  egress {
-    from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr_block]
-  }
-
   ingress {
-    from_port = 0
-    to_port   = 65535
+    from_port = 443
+    to_port   = 443
     protocol  = "tcp"
     security_groups = [
       aws_security_group.base.id
@@ -41,17 +33,9 @@ resource "aws_security_group" "kms_endpoint" {
 resource "aws_security_group" "ssm_endpoint" {
   description = "Allow inbound from all servers"
 
-  # allow outbound to the VPC
-  egress {
-    from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr_block]
-  }
-
   ingress {
-    from_port = 0
-    to_port   = 65535
+    from_port = 443
+    to_port   = 443
     protocol  = "tcp"
     security_groups = [
       aws_security_group.base.id,
@@ -81,17 +65,9 @@ resource "aws_security_group" "ssm_endpoint" {
 resource "aws_security_group" "ssmmessages_endpoint" {
   description = "Allow inbound from all servers"
 
-  # allow outbound to the VPC
-  egress {
-    from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr_block]
-  }
-
   ingress {
-    from_port = 0
-    to_port   = 65535
+    from_port = 443
+    to_port   = 443
     protocol  = "tcp"
     security_groups = [
       aws_security_group.base.id,
@@ -121,17 +97,9 @@ resource "aws_security_group" "ssmmessages_endpoint" {
 resource "aws_security_group" "ec2_endpoint" {
   description = "Allow inbound from all servers"
 
-  # allow outbound to the VPC
-  egress {
-    from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr_block]
-  }
-
   ingress {
-    from_port = 0
-    to_port   = 65535
+    from_port = 443
+    to_port   = 443
     protocol  = "tcp"
     security_groups = [
       aws_security_group.base.id,
@@ -151,17 +119,9 @@ resource "aws_security_group" "ec2_endpoint" {
 resource "aws_security_group" "ec2messages_endpoint" {
   description = "Allow inbound from all servers"
 
-  # allow outbound to the VPC
-  egress {
-    from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr_block]
-  }
-
   ingress {
-    from_port = 0
-    to_port   = 65535
+    from_port = 443
+    to_port   = 443
     protocol  = "tcp"
     security_groups = [
       aws_security_group.base.id,
@@ -196,17 +156,9 @@ resource "aws_security_group" "ec2messages_endpoint" {
 resource "aws_security_group" "logs_endpoint" {
   description = "Allow inbound from all servers"
 
-  # allow outbound to the VPC
-  egress {
-    from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr_block]
-  }
-
   ingress {
-    from_port = 0
-    to_port   = 65535
+    from_port = 443
+    to_port   = 443
     protocol  = "tcp"
     security_groups = [
       aws_security_group.base.id,
@@ -242,17 +194,9 @@ resource "aws_security_group" "logs_endpoint" {
 resource "aws_security_group" "monitoring_endpoint" {
   description = "Allow inbound from all servers"
 
-  # allow outbound to the VPC
-  egress {
-    from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr_block]
-  }
-
   ingress {
-    from_port = 0
-    to_port   = 65535
+    from_port = 443
+    to_port   = 443
     protocol  = "tcp"
     security_groups = [
       aws_security_group.base.id,
@@ -272,17 +216,9 @@ resource "aws_security_group" "monitoring_endpoint" {
 resource "aws_security_group" "secretsmanager_endpoint" {
   description = "Allow inbound from all servers"
 
-  # allow outbound to the VPC
-  egress {
-    from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr_block]
-  }
-
   ingress {
-    from_port = 0
-    to_port   = 65535
+    from_port = 443
+    to_port   = 443
     protocol  = "tcp"
     security_groups = [
       aws_security_group.base.id,
@@ -302,17 +238,9 @@ resource "aws_security_group" "secretsmanager_endpoint" {
 resource "aws_security_group" "sns_endpoint" {
   description = "Allow inbound from all servers"
 
-  # allow outbound to the VPC
-  egress {
-    from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr_block]
-  }
-
   ingress {
-    from_port = 0
-    to_port   = 65535
+    from_port = 443
+    to_port   = 443
     protocol  = "tcp"
     security_groups = [
       aws_security_group.base.id,
@@ -330,14 +258,6 @@ resource "aws_security_group" "sns_endpoint" {
 
 resource "aws_security_group" "lambda_endpoint" {
   description = "Allow inbound from idp servers"
-
-  # allow outbound to the VPC
-  egress {
-    from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr_block]
-  }
 
   ingress {
     from_port = 443
@@ -359,14 +279,6 @@ resource "aws_security_group" "lambda_endpoint" {
 
 resource "aws_security_group" "sqs_endpoint" {
   description = "Allow inbound from idp servers"
-
-  # allow outbound to the VPC
-  egress {
-    from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr_block]
-  }
 
   ingress {
     from_port = 443
@@ -587,17 +499,9 @@ resource "aws_vpc_endpoint" "sqs" {
 resource "aws_security_group" "sts_endpoint" {
   description = "Allow inbound from all servers"
 
-  # allow outbound to the VPC
-  egress {
-    from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr_block]
-  }
-
   ingress {
-    from_port = 0
-    to_port   = 65535
+    from_port = 443
+    to_port   = 443
     protocol  = "tcp"
     security_groups = [
       aws_security_group.base.id,
@@ -656,14 +560,6 @@ resource "aws_vpc_endpoint" "events" {
 
 resource "aws_security_group" "events_endpoint" {
   description = "Allow inbound from idp servers"
-
-  # allow outbound to the VPC
-  egress {
-    from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr_block]
-  }
 
   ingress {
     from_port = 443

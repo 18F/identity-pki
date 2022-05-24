@@ -3,8 +3,10 @@ locals {
   bootstrap_private_s3_ssh_key_url = var.bootstrap_private_s3_ssh_key_url != "" ? var.bootstrap_private_s3_ssh_key_url : "s3://login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}/common/id_ecdsa.id-do-private.deploy"
   bootstrap_main_git_ref_default   = var.bootstrap_main_git_ref_default != "" ? var.bootstrap_main_git_ref_default : "stages/${var.env_name}"
   account_default_ami_id           = var.default_ami_id_tooling
-
-  github_ipv4_cidr_blocks = sort(data.github_ip_ranges.meta.git_ipv4)
+  public_subnet_cidrs              = [aws_subnet.publicsubnet1.cidr_block, aws_subnet.publicsubnet2.cidr_block, aws_subnet.publicsubnet3.cidr_block]
+  private_subnet_cidrs             = [aws_subnet.privatesubnet1.cidr_block, aws_subnet.privatesubnet2.cidr_block, aws_subnet.privatesubnet3.cidr_block]
+  private_subnet_ids               = [aws_subnet.publicsubnet1.id, aws_subnet.publicsubnet2.id, aws_subnet.publicsubnet3.id]
+  github_ipv4_cidr_blocks          = sort(data.github_ip_ranges.meta.git_ipv4)
 }
 
 variable "aws_vpc" {
@@ -109,7 +111,7 @@ variable "asg_gitlab_test_runner_desired" {
 }
 
 variable "asg_outboundproxy_desired" {
-  default = 3
+  default = 1
 }
 
 variable "asg_outboundproxy_min" {
@@ -117,7 +119,7 @@ variable "asg_outboundproxy_min" {
 }
 
 variable "asg_outboundproxy_max" {
-  default = 9
+  default = 3
 }
 
 variable "asg_prevent_auto_terminate" {
@@ -377,4 +379,11 @@ variable "destination_idp_static_accounts" {
 variable "production" {
   description = "If this is set to true, it will try to set up dns/SSL so that you can go to gitlab.login.gov"
   default     = false
+}
+
+variable "accountids" {
+  type        = list(string)
+  description = "list of AWS account ids that we should allow to find the gitlab privatelink service and be allowed to get the gitlab runner token"
+  default     = []
+  # export TF_VAR_accountids='["1234", "2345", "5678"]'
 }

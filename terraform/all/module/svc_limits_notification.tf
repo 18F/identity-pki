@@ -10,11 +10,18 @@ module "limit_check_lambda" {
 
 #Monitor and notify KMS Symmetric calls usage
 resource "aws_cloudwatch_metric_alarm" "kms_api" {
-  alarm_name                = "kms_api_usage_alert"
-  comparison_operator       = "GreaterThanOrEqualToThreshold"
-  evaluation_periods        = "10"
-  threshold                 = "80"
-  alarm_description         = "KMS Cryptographic operations (symmetric) api request rate has exceeded 80%"
+  alarm_name          = "kms_api_usage_alert"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "10"
+  threshold           = "80"
+  alarm_description   = <<EOM
+KMS Symmetric Cryptographic API request rate has exceeded 80% of limit for:
+Account: ${data.aws_caller_identity.current.account_id}
+Region: ${var.region}
+
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-AWS-Service-Limits#kms-symmetric-key-api
+EOM
+
   insufficient_data_actions = []
   actions_enabled           = "true"
   alarm_actions             = [aws_sns_topic.slack_usw2["events"].arn]
@@ -51,7 +58,7 @@ resource "aws_cloudwatch_metric_alarm" "kms_api" {
 resource "aws_cloudwatch_log_metric_filter" "api_throttling" {
   name           = "LimitExceededErrorMessage"
   log_group_name = "CloudTrail/DefaultLogGroup"
-  pattern        = "{ ($.errorCode = \"*LimitExceeded\") || ($.errorCode = \"LimitExceededException\") }"
+  pattern        = "{ (($.errorCode = \"*LimitExceeded\") || ($.errorCode = \"LimitExceededException\")) && $.userIdentity.arn != \"*PrismaCloudRole/redlock*\" }"
   metric_transformation {
     name       = "LimitExceededErrorMessage"
     namespace  = "CloudTrailMetrics/APIThrottling"
@@ -62,7 +69,13 @@ resource "aws_cloudwatch_log_metric_filter" "api_throttling" {
 
 resource "aws_cloudwatch_metric_alarm" "api_throttling" {
   alarm_name          = "svc_limit_exceeded_error_message"
-  alarm_description   = "Monitors the number of LimitExceeded error messages in Cloudtrail logs"
+  alarm_description   = <<EOM
+LimitExceeded messages found in CloudTrail - AWS API rate limiting occurring
+Account: ${data.aws_caller_identity.current.account_id}
+Region: ${var.region}
+
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-AWS-Service-Limits#limitexceeded-in-cloudtrail
+EOM
   metric_name         = aws_cloudwatch_log_metric_filter.api_throttling.name
   threshold           = "1"
   statistic           = "Sum"

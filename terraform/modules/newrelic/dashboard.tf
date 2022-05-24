@@ -13,7 +13,7 @@ data "newrelic_entity" "dashboard" {
 
 resource "newrelic_alert_condition" "dashboard_low_throughput" {
   count           = var.dashboard_enabled
-  policy_id       = newrelic_alert_policy.high[0].id
+  policy_id       = newrelic_alert_policy.low[0].id
   name            = "${var.env_name}: DASHBOARD LOW Throughput (web)"
   runbook_url     = "https://github.com/18F/identity-devops/wiki/Runbook:-low-throughput-in-New-Relic"
   enabled         = true

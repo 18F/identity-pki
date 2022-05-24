@@ -13,11 +13,13 @@ BASEPATH="$(dirname "$0")"
 usage() {
     cat >&2 << EOM
 
-Usage: ${0} [-ldebkxh] [ENV] (defaults to \$GSA_USERNAME if not specified)
+Usage: ${0} [-d[a]sbkxh] [ENV] (defaults to \$GSA_USERNAME if not specified)
 
 Flags (will run all if no flags specified):
-  -d : Remove deletion protection from RDS dbs + zero out ASGs via apply
+  -d : Remove deletion protection from RDS dbs + zero out ASGs via targeted apply
+  -a : Same as -d, but do full (non-targeted) apply (not run by default)
   -s : Stop and delete the CloudWatch-to-S3 Kinesis Firehose stream
+  -p : Delete the DS record for the pivcac.ENV.identitysandbox.gov hosted zone
   -b : Empties all S3 buckets with ENV in the bucket name
   -x : terraform-destroy + reset db .tf files
   -k : Delete all ENV-named S3 keys in secrets/app-secrets buckets
@@ -29,7 +31,7 @@ EOM
 help_me() {
     cat >&2 << EOM
 
-Usage: ${0} [-ldebkxh] [ENV]
+Usage: ${0} [-d[a]sbkxh] [TF_ENV]
 
 Runs all necessary commands to prep and destroy an existing
 sandbox environment, \${TF_ENV}. Designed to run with no
@@ -39,11 +41,15 @@ The tasks in this script can also be individually executed
 using the following flags:
 
   -d : Remove deletion protection/prevent_destroy/final_snapshot from RDS databases,
-       and zero out all Auto Scaling Groups, via \`tf-deploy \${TF_ENV} app apply\`
+       and zero out Auto Scaling Groups, via targeted \`tf-deploy \${TF_ENV} app apply\`.
+  -a : Same as -d but will do a full \`apply\` without specifically targeting the
+       RDS databases/ASGs (use in case the targeted \`apply\` is failing).
   -s : Stop and force-delete the cw-kinesis-s3 Firehose stream,
        allowing its corresponding bucket to be emptied and deleted
   -b : Empties all S3 buckets with \${TF_ENV} in the bucket name,
        and deletes all object versions as well
+  -p : Delete the DS record from identitysandbox.gov that enables DNSSEC for the
+       pivcac.\${TF_ENV}.identitysandbox.gov (necessary before disabling DNSSEC)
   -x : Run \`terraform destroy -auto-approve\` against the
        environment, skipping the attempt to send a message to Slack
   -k : Delete all S3 keys in the secrets/app-secrets buckets that
@@ -60,7 +66,7 @@ EOM
 
 replace_db_files() {
   for DB in idp app worker; do
-    FILE="${APP_DIR}/${DB}.tf"
+    FILE="$(git rev-parse --show-toplevel)/terraform/app/${DB}.tf"
     if [[ -f "${FILE}.bak" ]] ; then
       mv ${FILE}.bak ${FILE}
     fi
@@ -68,6 +74,7 @@ replace_db_files() {
 }
 
 1_allow_db_destroy() {
+  local TF_ARGS=()
   for DB in idp app worker ; do
     cp ${APP_DIR}/${DB}.tf ${APP_DIR}/${DB}.tf.bak
     for TASK in prevent_destroy deletion_protection ; do
@@ -75,8 +82,13 @@ replace_db_files() {
     done
     sed -i '' -E 's/#(skip_final_snapshot = true)/\1/g' ${APP_DIR}/${DB}.tf
   done
-
-  ave ${BASEPATH}/tf-deploy -z -t ${TF_ENV} app apply -auto-approve
+  if [[ ! ${APPLY_ALL} == true ]] ; then
+    TF_ARGS=($(ave ${BASEPATH}/tf-deploy ${TF_ENV} app state list |
+      grep 'db_instance\|autoscaling_group'))
+    TF_ARGS+=('aws_route53_record.pivcac_zone_ds') # delete pivcac parent DS
+    TF_ARGS=( "${TF_ARGS[@]/#/-target=}" ) # adds DBs and ASGs as targets
+  fi
+  ave ${BASEPATH}/tf-deploy -z -t ${TF_ENV} app apply -auto-approve "${TF_ARGS[@]:-}"
 }
 
 2_stop_kinesis_stream() {
@@ -99,7 +111,26 @@ replace_db_files() {
   done
 }
 
-3_empty_buckets() {
+3_destroy_pivcac_ds_records() {
+  local ZONE_ID PIVCAC_DS
+  while [[ -z ${ZONE_ID} ]] ; do
+    ZONE_ID=$(ave aws route53 list-hosted-zones-by-name |
+              jq -r '.HostedZones[]|select(.Name == "identitysandbox.gov.").Id' |
+              awk -F/ '{print $NF}')
+  done
+  while [[ -z ${PIVCAC_DS} ]] ; do
+    PIVCAC_DS=$(ave aws route53 list-resource-record-sets \
+       --hosted-zone-id $ZONE_ID |
+       jq -c --arg ENV_NAME "${GSA_USERNAME}" \
+       '.ResourceRecordSets[]|select(.Type == "DS")|select(.Name|contains($ENV_NAME))')
+  done
+  ave aws route53 change-resource-record-sets \
+      --hosted-zone-id $ZONE_ID \
+      --change-batch \
+      "{\"Comment\":\"DEL-pivcac.${GSA_USERNAME}-DS\",\"Changes\":[{\"Action\":\"DELETE\",\"ResourceRecordSet\":$PIVCAC_DS}]}"
+}
+
+4_empty_buckets() {
   boto3_check
   for BUCKET in $(ave aws s3 ls |grep ${TF_ENV} | awk '{print $NF}' | sort -r); do
     ave aws s3 rm s3://${BUCKET} --recursive
@@ -111,12 +142,12 @@ replace_db_files() {
   done
 }
 
-4_tf_destroy() {
+5_tf_destroy() {
   ave ${BASEPATH}/tf-deploy -t ${TF_ENV} app destroy -auto-approve
   replace_db_files
 }
 
-5_delete_env_keys() {
+6_delete_env_keys() {
   for BUCKET in $(ave aws s3 ls | grep 'secrets.' | awk '{print $NF}') ; do
     ave aws s3api delete-objects \
         --bucket ${BUCKET} \
@@ -132,20 +163,24 @@ replace_db_files() {
 TASKS=(
   "1_allow_db_destroy"
   "2_stop_kinesis_stream"
-  "3_empty_buckets"
-  "4_tf_destroy"
-  "5_delete_env_keys"
+  "3_destroy_pivcac_ds_records"
+  "4_empty_buckets"
+  "5_tf_destroy"
+  "6_delete_env_keys"
 )
 
 TODO=()
-while getopts dsbxkh opt
+APPLY_ALL=false
+while getopts adspbxkh opt
 do
   case $opt in
+    a) APPLY_ALL=true        ;;
     d) TODO+=("${TASKS[0]}") ;;
     s) TODO+=("${TASKS[1]}") ;;
-    b) TODO+=("${TASKS[2]}") ;;
-    x) TODO+=("${TASKS[3]}") ;;
-    k) TODO+=("${TASKS[4]}") ;;
+    p) TODO+=("${TASKS[2]}") ;;
+    b) TODO+=("${TASKS[3]}") ;;
+    x) TODO+=("${TASKS[4]}") ;;
+    k) TODO+=("${TASKS[5]}") ;;
     h) help_me               ;;
     *) usage && exit 1       ;;
   esac
@@ -153,4 +188,7 @@ done
 shift $((OPTIND-1))
 initialize ${1:-}
 
+if [[ ${APPLY_ALL} == true ]] && [[ ! "${TODO[@]:-}" =~ "${TASKS[0]}" ]] ; then
+  TODO+=("${TASKS[0]}")
+fi
 run_tasks

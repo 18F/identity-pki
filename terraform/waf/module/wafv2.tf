@@ -366,40 +366,43 @@ resource "aws_wafv2_web_acl" "idp" {
 
   }
 
-  rule {
-    name     = "IdpQueryRegexBlock"
-    priority = 9
+  dynamic "rule" {
+    for_each = length(var.query_block_regex) >= 1 ? [1] : []
+    content {
+      name     = "IdpQueryRegexBlock"
+      priority = 9
 
-    action {
-      dynamic "block" {
-        for_each = length(lookup(local.rule_settings, "override_action", {})) == 0 || lookup(local.rule_settings, "override_action", {}) == "none" ? [1] : []
-        content {}
-      }
-
-      dynamic "count" {
-        for_each = lookup(local.rule_settings, "override_action", {}) == "count" ? [1] : []
-        content {}
-      }
-    }
-    statement {
-      regex_pattern_set_reference_statement {
-        arn = aws_wafv2_regex_pattern_set.query_string_blocks.arn
-
-        text_transformation {
-          priority = 2
-          type     = "NONE"
+      action {
+        dynamic "block" {
+          for_each = length(lookup(local.rule_settings, "override_action", {})) == 0 || lookup(local.rule_settings, "override_action", {}) == "none" ? [1] : []
+          content {}
         }
 
-        field_to_match {
-          query_string {}
+        dynamic "count" {
+          for_each = lookup(local.rule_settings, "override_action", {}) == "count" ? [1] : []
+          content {}
         }
       }
-    }
+      statement {
+        regex_pattern_set_reference_statement {
+          arn = aws_wafv2_regex_pattern_set.query_string_blocks[0].arn
 
-    visibility_config {
-      cloudwatch_metrics_enabled = true
-      metric_name                = "${local.web_acl_name}-QueryStringBlock-metric"
-      sampled_requests_enabled   = true
+          text_transformation {
+            priority = 2
+            type     = "NONE"
+          }
+
+          field_to_match {
+            query_string {}
+          }
+        }
+      }
+
+      visibility_config {
+        cloudwatch_metrics_enabled = true
+        metric_name                = "${local.web_acl_name}-QueryStringBlock-metric"
+        sampled_requests_enabled   = true
+      }
     }
   }
 
@@ -467,8 +470,15 @@ resource "aws_cloudwatch_metric_alarm" "wafv2_blocked_alert" {
   period              = var.waf_alert_blocked_period
   statistic           = "Sum"
   threshold           = var.waf_alert_blocked_threshold
-  alarm_description   = "More than ${var.waf_alert_blocked_threshold} WAF blocks occured in ${var.waf_alert_blocked_period} seconds"
-  alarm_actions       = var.waf_alert_actions
+  alarm_description   = <<EOM
+More than ${var.waf_alert_blocked_threshold} WAF blocks occured in ${var.waf_alert_blocked_period} seconds
+
+This could be a run of the mill scan, something worse, or signs of a false positive block.
+
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-WAF#waf-blocks-exceeded
+EOM
+
+  alarm_actions = var.waf_alert_actions
   dimensions = {
     Rule   = "ALL"
     Region = var.region

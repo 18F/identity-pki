@@ -74,6 +74,32 @@ resource "aws_s3_bucket" "config" {
   }
 }
 
+resource "aws_s3_bucket_policy" "allow_gitlab_config_access_from_envs" {
+  bucket = aws_s3_bucket.config.id
+  policy = data.aws_iam_policy_document.allow_gitlab_config_access_from_envs.json
+}
+
+locals {
+  rootaccounts = formatlist("arn:aws:iam::%s:root", var.accountids)
+}
+
+data "aws_iam_policy_document" "allow_gitlab_config_access_from_envs" {
+  statement {
+    sid = "allowEnvRunners"
+    principals {
+      type        = "AWS"
+      identifiers = local.rootaccounts
+    }
+    actions = [
+      "s3:GetObject",
+    ]
+    resources = [
+      aws_s3_bucket.config.arn,
+      "${aws_s3_bucket.config.arn}/*",
+    ]
+  }
+}
+
 resource "aws_s3_bucket_public_access_block" "config_access_block" {
   bucket                  = aws_s3_bucket.config.id
   block_public_acls       = true

@@ -5,12 +5,6 @@ parent_release_path = '/srv/idp/releases'
 release_path        = '/srv/idp/releases/chef'
 shared_path         = '/srv/idp/shared'
 
-# configure release_path as a safe.directory
-# https://github.blog/2022-04-12-git-security-vulnerability-announced/
-execute 'configure safe.directory' do
-  command "git config --global --add safe.directory #{release_path}"
-end
-
 # create dir for AWS PostgreSQL combined CA cert bundle
 directory '/usr/local/share/aws' do
   owner 'root'

@@ -71,6 +71,7 @@ locals {
         sid    = "Autoscaling"
         effect = "Allow"
         actions = [
+          "autoscaling:AttachLoadBalancerTargetGroups",
           "autoscaling:AttachLoadBalancers",
           "autoscaling:CreateAutoScalingGroup",
           "autoscaling:CreateOrUpdateTags",
@@ -270,6 +271,7 @@ locals {
           "ec2:RevokeSecurityGroupEgress",
           "ec2:RevokeSecurityGroupIngress",
           "ec2:RunInstances",
+          "ec2:*VpcEndpoint*",
         ]
         resources = [
           "*",
@@ -362,6 +364,7 @@ locals {
           "lambda:ListVersionsByFunction*",
           "lambda:PublishVersion",
           "lambda:RemovePermission",
+          "lambda:TagResource",
           "lambda:UpdateEventSourceMapping",
           "lambda:UpdateFunctionCode",
           "lambda:UpdateFunctionConfiguration",
@@ -468,6 +471,7 @@ locals {
         effect = "Allow"
         actions = [
           "route53:ActivateKeySigningKey",
+          "route53:AssociateVPCWithHostedZone",
           "route53:ChangeResourceRecordSets",
           "route53:CreateHostedZone",
           "route53:CreateKeySigningKey",
@@ -480,6 +484,7 @@ locals {
           "route53:GetDNSSEC",
           "route53:GetHostedZone",
           "route53:ListHostedZones",
+          "route53:ListHostedZonesByName",
           "route53:ListResourceRecordSets",
           "route53:ListTagsForResource",
           "route53domains:DeleteTagsForDomain",

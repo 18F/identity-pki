@@ -12,12 +12,6 @@ idp_url       = "https://idp.#{node.chef_environment}.#{node['login_dot_gov']['d
 idp_sp_url    = "https://idp.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}/api/service_provider"
 dashboard_url = "https://dashboard.#{node.chef_environment}.#{node.fetch('login_dot_gov').fetch('domain_name')}"
 
-# configure release_path as a safe.directory
-# https://github.blog/2022-04-12-git-security-vulnerability-announced/
-execute 'configure safe.directory' do
-  command "git config --global --add safe.directory #{base_dir}"
-end
-
 # deploy_branch defaults to stages/<env>
 # unless deploy_branch.identity-#{app_name} is specifically set otherwise
 default_branch = node.fetch('login_dot_gov').fetch('deploy_branch_default')
@@ -61,8 +55,7 @@ deploy "#{base_dir}" do
     cmds = [
       "rbenv exec bundle config build.nokogiri --use-system-libraries",
       "rbenv exec bundle install --deployment --jobs 3 --path #{base_dir}/shared/bundle --without deploy development test",
-      "sudo npm install",
-      "rbenv exec bundle exec bin/activate",
+      "yarn install --cache-folder .cache/yarn",
       "rbenv exec bundle exec rake assets:precompile"
     ]
 

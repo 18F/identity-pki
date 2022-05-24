@@ -1,17 +1,19 @@
-data "archive_file" "guardduty_lambda_function" {
-  type        = "zip"
-  source_file = "${path.module}/src/lambda_function.py"
-  output_path = "${path.module}/${var.guardduty_threat_feed_code}"
+module "guardduty_threat_feed_code" {
+  source = "github.com/18F/identity-terraform//null_archive?ref=0fe0243d7df353014c757a72ef0c48f5805fb3d3"
+
+  source_code_filename = "guardduty_threat_feed.py"
+  source_dir           = "${path.module}/src/"
+  zip_filename         = var.guardduty_threat_feed_code
 }
 
 resource "aws_lambda_function" "guardduty_threat_feed_lambda" {
-  filename      = data.archive_file.guardduty_lambda_function.output_path
+  filename      = module.guardduty_threat_feed_code.zip_output_path
   function_name = "${var.guardduty_threat_feed_name}-function"
   role          = aws_iam_role.guardduty_threat_feed_lambda_role.arn
   description   = "GuardDuty Threat Feed Function"
-  handler       = "lambda_function.lambda_handler"
+  handler       = "guardduty_threat_feed.lambda_handler"
 
-  source_code_hash = data.archive_file.guardduty_lambda_function.output_base64sha256
+  source_code_hash = module.guardduty_threat_feed_code.zip_output_base64sha256
   memory_size      = "3008"
   runtime          = "python3.8"
   timeout          = "300"
@@ -25,6 +27,8 @@ resource "aws_lambda_function" "guardduty_threat_feed_lambda" {
       OUTPUT_BUCKET  = "${aws_s3_bucket.guardduty_threat_feed_s3_bucket.id}"
     }
   }
+
+  depends_on = [module.guardduty_threat_feed_code.resource_check]
 }
 
 resource "aws_lambda_permission" "guardduty_threat_feed_lambda_permission" {

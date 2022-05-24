@@ -70,9 +70,9 @@ module "idp_static_bucket_config" {
 data "aws_iam_policy_document" "idp_static_bucket_policy" {
   source_json = data.aws_iam_policy_document.cross_account.json
 
-  # IdP and AppDev can manage items
+  # IdP and PowerUser can manage items
   statement {
-    sid = "EC2AppDevPermission"
+    sid = "EC2PowerUserPermission"
     actions = [
       "s3:AbortMultipartUpload",
       "s3:GetObject",
@@ -84,7 +84,7 @@ data "aws_iam_policy_document" "idp_static_bucket_policy" {
       identifiers = [
         aws_iam_role.idp.arn,
         aws_iam_role.migration.arn,
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/AppDev"
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/PowerUser"
       ]
     }
     resources = [

@@ -49,27 +49,6 @@ EOF
   esac
 }
 
-#### quick SSM access ; requires session-manager-plugin to work! ####
-ssc() {
-  local SSM_CMD
-  INSTANCE_ID=${1}
-  env_get "${2}"
-  shift 2
-  while getopts ifs opt
-  do
-          case $opt in
-                  i) SSM_CMD="sudo su - ${GSA_USERNAME}"  ;;
-                  f) SSM_CMD="sudo tail -f /var/log/cloud-init-output.log"  ;;
-                  s) SSM_CMD="sudo su - "  ;;
-          esac
-  done
-  [ -z $SSM_CMD ] && SSM_CMD="$@"
-  run_av aws ssm start-session \
-         --document-name AWS-StartInteractiveCommand \
-         --parameters command="'${SSM_CMD}'" \
-         --target "${INSTANCE_ID}"
-}
-
 #### quickly run common cloudlib aliases/commands with any AWS_PROFILE/env ####
 vcl() {
   read -r -d '' usage <<'EOF'
@@ -78,30 +57,46 @@ TBD
  
 EOF
   [[ $# == 0 ]] && badopt
-  local CL_TABLE EC2_TYPE
-  env_get ${2}
-  while getopts el:c:r:s: opt
+  local CL_TABLE EC2_TYPE EC2_ACCT
+  local EC2_ENV="${2}"
+  case ${EC2_ENV} in
+    gitlab-production) EC2_ACCT="tooling-prod"    ;;
+    gitlab-*)          EC2_ACCT="tooling-sandbox" ;;
+    staging|dm|prod)   EC2_ACCT="prod"            ;;
+    *)                 EC2_ACCT="sandbox"         ;;
+  esac
+  AV_PROFILE="${EC2_ACCT}-admin"
+  EC2_ENV=${EC2_ENV#*-}
+  [[ -z ${EC2_ENV:-} ]] && EC2_ENV=${GSA_USERNAME}
+  while getopts el:c:r:s:L:S:F:D: opt
   do
     case "${OPTARG}" in
-      A) EC2_TYPE='ALL'                     ;;
-      a) EC2_TYPE='app'                     ;;
-      i) EC2_TYPE='idp'                     ;;
-      x) EC2_TYPE='idpxtra'                 ;;
-      j) EC2_TYPE='jumphost'                ;;
-      m) EC2_TYPE='migration'               ;;
-      o) EC2_TYPE='outboundproxy'           ;;
-      p) EC2_TYPE='pivcac'                  ;;
-      s) EC2_TYPE='scrubhost'               ;;
-      w) EC2_TYPE='worker'                  ;;
+      A) EC2_TYPE='ALL'                ;;
+      a) EC2_TYPE='app'                ;;
+      i) EC2_TYPE='idp'                ;;
+      x) EC2_TYPE='idpxtra'            ;;
+      j) EC2_TYPE='jumphost'           ;;
+      m) EC2_TYPE='migration'          ;;
+      o) EC2_TYPE='outboundproxy'      ;;
+      p) EC2_TYPE='pivcac'             ;;
+      w) EC2_TYPE='worker'             ;;
+      G) EC2_TYPE='gitlab'             ;;
+      B) EC2_TYPE='gitlab-build-pool'  ;;
+      T) EC2_TYPE='gitlab-test-pool'   ;;
+      D) EC2_TYPE='gitlab-deploy-pool' ;;
       *) [[ ${opt} =~ 'e' ]] || badopt ${1} ;;
     esac
     case "${opt}" in
-      e) CL_TABLE=$(run_av ls-servers -Hlqe ${EC2_ENV})                 ;;
-      l) CL_TABLE=$(run_av ls-servers -Hlqn asg-${EC2_ENV}-${EC2_TYPE}) ;;
-      c) run_av scale-in-old-instances -qf ${EC2_ENV} ${EC2_TYPE}       ;;
-      r) run_av asg-recycle -q ${EC2_ENV} ${EC2_TYPE}                   ;;
-      s) run_av asg-size -q ${EC2_ENV} ${EC2_TYPE} ${3-}                ;;
-      *) badopt ${opt}                                                  ;;
+      e) CL_TABLE=$(run_av ls-servers -Hlqe ${EC2_ENV})                     ;;
+      l) CL_TABLE=$(run_av ls-servers -Hlqn asg-${EC2_ENV}-${EC2_TYPE})     ;;
+      c) run_av scale-in-old-instances -qf ${EC2_ENV} ${EC2_TYPE}           ;;
+      r) run_av asg-recycle -q ${EC2_ENV} ${EC2_TYPE}                       ;;
+      s) run_av asg-size -q ${EC2_ENV} ${EC2_TYPE} ${3-}                    ;;
+      L) run_av ssm-instance --newest asg-${EC2_ENV}-${EC2_TYPE}            ;;
+      S) run_av ssm-instance -d sudo --newest asg-${EC2_ENV}-${EC2_TYPE}    ;;
+      F) run_av ssm-instance -d tail-cw --newest asg-${EC2_ENV}-${EC2_TYPE} ;;
+      D) run_av ssm-instance -d ${3-} --newest asg-${EC2_ENV}-${EC2_TYPE}   ;;
+      *) badopt ${opt}                                                      ;;
     esac
   done
   [[ -z "${CL_TABLE}" ]] || echo "${CL_TABLE}" |

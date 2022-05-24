@@ -1,3 +1,25 @@
+resource "aws_vpc_endpoint" "kms" {
+  vpc_id            = aws_vpc.default.id
+  service_name      = "com.amazonaws.${var.region}.kms"
+  vpc_endpoint_type = "Interface"
+
+  security_group_ids = [
+    aws_security_group.kms_endpoint.id,
+  ]
+
+  subnet_ids = [
+    aws_subnet.privatesubnet1.id,
+    aws_subnet.privatesubnet2.id,
+    aws_subnet.privatesubnet3.id,
+  ]
+
+  private_dns_enabled = true
+
+  tags = {
+    Name = "${var.env_name}-gitlab-kms"
+  }
+}
+
 resource "aws_vpc_endpoint" "logs" {
   vpc_id            = aws_vpc.default.id
   service_name      = "com.amazonaws.${var.region}.logs"
@@ -14,6 +36,10 @@ resource "aws_vpc_endpoint" "logs" {
   ]
 
   private_dns_enabled = true
+
+  tags = {
+    Name = "${var.env_name}-gitlab-logs"
+  }
 }
 
 resource "aws_vpc_endpoint" "monitoring" {
@@ -32,6 +58,10 @@ resource "aws_vpc_endpoint" "monitoring" {
   ]
 
   private_dns_enabled = true
+
+  tags = {
+    Name = "${var.env_name}-gitlab-monitoring"
+  }
 }
 
 resource "aws_vpc_endpoint" "ssm" {
@@ -50,6 +80,10 @@ resource "aws_vpc_endpoint" "ssm" {
   ]
 
   private_dns_enabled = true
+
+  tags = {
+    Name = "${var.env_name}-gitlab-ssm"
+  }
 }
 
 resource "aws_vpc_endpoint" "ssmmessages" {
@@ -68,6 +102,10 @@ resource "aws_vpc_endpoint" "ssmmessages" {
   ]
 
   private_dns_enabled = true
+
+  tags = {
+    Name = "${var.env_name}-gitlab-ssmmessages"
+  }
 }
 
 resource "aws_vpc_endpoint" "ec2" {
@@ -86,6 +124,10 @@ resource "aws_vpc_endpoint" "ec2" {
   ]
 
   private_dns_enabled = true
+
+  tags = {
+    Name = "${var.env_name}-gitlab-ec2"
+  }
 }
 
 resource "aws_vpc_endpoint" "ec2messages" {
@@ -104,6 +146,10 @@ resource "aws_vpc_endpoint" "ec2messages" {
   ]
 
   private_dns_enabled = true
+
+  tags = {
+    Name = "${var.env_name}-gitlab-ec2messages"
+  }
 }
 
 resource "aws_vpc_endpoint" "secretsmanager" {
@@ -122,6 +168,10 @@ resource "aws_vpc_endpoint" "secretsmanager" {
   ]
 
   private_dns_enabled = true
+
+  tags = {
+    Name = "${var.env_name}-gitlab-secretsmanager"
+  }
 }
 
 resource "aws_vpc_endpoint" "sns" {
@@ -140,6 +190,10 @@ resource "aws_vpc_endpoint" "sns" {
   ]
 
   private_dns_enabled = true
+
+  tags = {
+    Name = "${var.env_name}-gitlab-sns"
+  }
 }
 
 resource "aws_vpc_endpoint" "sts" {
@@ -158,11 +212,10 @@ resource "aws_vpc_endpoint" "sts" {
   ]
 
   private_dns_enabled = true
-}
 
-data "aws_vpc_endpoint_service" "email-smtp" {
-  service      = "email-smtp"
-  service_type = "Interface"
+  tags = {
+    Name = "${var.env_name}-gitlab-sts"
+  }
 }
 
 resource "aws_vpc_endpoint" "email-smtp" {
@@ -175,5 +228,16 @@ resource "aws_vpc_endpoint" "email-smtp" {
     aws_subnet.privatesubnet2.id,
     aws_subnet.privatesubnet3.id,
   ]
+
   private_dns_enabled = true
+
+  tags = {
+    Name = "${var.env_name}-gitlab-email-smtp"
+  }
+}
+
+resource "aws_vpc_endpoint" "private-s3" {
+  vpc_id          = aws_vpc.default.id
+  service_name    = "com.amazonaws.${var.region}.s3"
+  route_table_ids = [aws_vpc.default.main_route_table_id]
 }
