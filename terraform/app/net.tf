@@ -454,7 +454,7 @@ resource "aws_security_group" "idp" {
       aws_subnet.privatesubnet2.cidr_block,
       aws_subnet.privatesubnet3.cidr_block,
     ],
-    [ for subnet in aws_subnet.idp : "${subnet.cidr_block}"])
+    [ for subnet in aws_subnet.app : subnet.cidr_block])
   }
 
   # gpo
@@ -791,7 +791,7 @@ resource "aws_security_group" "web" {
       var.private2_subnet_cidr_block,
       var.private3_subnet_cidr_block,
     ],
-    [ for subnet in aws_subnet.idp : "${subnet.cidr_block}" ])
+    [ for subnet in aws_subnet.app : subnet.cidr_block ])
   }
   egress {
     from_port = 443
@@ -804,7 +804,7 @@ resource "aws_security_group" "web" {
       var.private2_subnet_cidr_block,
       var.private3_subnet_cidr_block,
     ],
-    [ for subnet in aws_subnet.idp : "${subnet.cidr_block}" ])
+    [ for subnet in aws_subnet.app : subnet.cidr_block ])
   }
 
   ingress {
@@ -1385,7 +1385,7 @@ resource "aws_vpc_ipv4_cidr_block_association" "secondary_cidr" {
   cidr_block = local.network_layout[var.region][var.env_type]._network
 }
 
-resource "aws_subnet" "idp" {
+resource "aws_subnet" "app" {
   for_each = local.network_layout[var.region][var.env_type]._zones
   availability_zone       = "${var.region}${each.key}"
   cidr_block              = each.value.apps
@@ -1393,7 +1393,7 @@ resource "aws_subnet" "idp" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "${var.name}-idp_subnet_${each.key}-${var.env_name}"
+    Name = "${var.name}-app_subnet_${each.key}-${var.env_name}"
   }
 
   vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id

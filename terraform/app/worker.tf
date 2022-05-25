@@ -170,11 +170,11 @@ resource "aws_autoscaling_group" "worker" {
     create_before_destroy = true
   }
 
-  vpc_zone_identifier = [
+  vpc_zone_identifier = concat([
     aws_subnet.privatesubnet1.id,
     aws_subnet.privatesubnet2.id,
     aws_subnet.privatesubnet3.id,
-  ]
+  ], [for subnet in aws_subnet.app : subnet.id])
 
   health_check_type         = "EC2"
   health_check_grace_period = 1

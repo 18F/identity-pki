@@ -437,7 +437,7 @@ resource "aws_autoscaling_group" "idp" {
   vpc_zone_identifier = concat([
     aws_subnet.idp1.id,
     aws_subnet.idp2.id,
-  ], [for subnet in aws_subnet.idp : "${subnet.id}" ])
+  ], [for subnet in aws_subnet.app : subnet.id ])
 
   # possible choices: EC2, ELB
   health_check_type = "ELB"

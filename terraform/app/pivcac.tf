@@ -140,10 +140,10 @@ resource "aws_autoscaling_group" "pivcac" {
   wait_for_capacity_timeout = 0
 
   # Use the same subnet as the IDP.
-  vpc_zone_identifier = [
+  vpc_zone_identifier = concat([
     aws_subnet.idp1.id,
     aws_subnet.idp2.id,
-  ]
+  ], [for subnet in aws_subnet.app : subnet.id ])
 
   load_balancers = [aws_elb.pivcac.id]
 
@@ -191,7 +191,7 @@ resource "aws_autoscaling_group" "pivcac" {
 resource "aws_elb" "pivcac" {
   name            = "${var.env_name}-pivcac"
   security_groups = [aws_security_group.web.id]
-  subnets         = [aws_subnet.alb1.id, aws_subnet.alb2.id]
+  subnets         = [aws_subnet.alb1.id, aws_subnet.alb2.id, aws_subnet.public-ingress["c"].id, aws_subnet.public-ingress["d"].id]
 
   access_logs {
     bucket        = "login-gov.elb-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
