@@ -66,7 +66,7 @@ resource "aws_autoscaling_group" "migration" {
   vpc_zone_identifier = concat([
     aws_subnet.idp1.id,
     aws_subnet.idp2.id,
-  ], [for subnet in aws_subnet.app : subnet.id ])
+  ], [for subnet in aws_subnet.app : subnet.id])
 
   # possible choices: EC2, ELB
   health_check_type = "EC2"

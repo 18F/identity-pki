@@ -13,7 +13,7 @@ locals {
 }
 
 module "network_layout" {
-  source     = "../modules/network_layout"
+  source = "../modules/network_layout"
 }
 
 # When adding a new subnet, be sure to add an association with a network ACL,
@@ -453,8 +453,8 @@ resource "aws_security_group" "idp" {
       aws_subnet.privatesubnet1.cidr_block,
       aws_subnet.privatesubnet2.cidr_block,
       aws_subnet.privatesubnet3.cidr_block,
-    ],
-    [ for subnet in aws_subnet.app : subnet.cidr_block])
+      ],
+    [for subnet in aws_subnet.app : subnet.cidr_block])
   }
 
   # gpo
@@ -790,8 +790,8 @@ resource "aws_security_group" "web" {
       var.private1_subnet_cidr_block,
       var.private2_subnet_cidr_block,
       var.private3_subnet_cidr_block,
-    ],
-    [ for subnet in aws_subnet.app : subnet.cidr_block ])
+      ],
+    [for subnet in aws_subnet.app : subnet.cidr_block])
   }
   egress {
     from_port = 443
@@ -803,8 +803,8 @@ resource "aws_security_group" "web" {
       var.private1_subnet_cidr_block,
       var.private2_subnet_cidr_block,
       var.private3_subnet_cidr_block,
-    ],
-    [ for subnet in aws_subnet.app : subnet.cidr_block ])
+      ],
+    [for subnet in aws_subnet.app : subnet.cidr_block])
   }
 
   ingress {
@@ -1381,12 +1381,12 @@ resource "aws_security_group" "quarantine" {
 }
 
 resource "aws_vpc_ipv4_cidr_block_association" "secondary_cidr" {
-  vpc_id = aws_vpc.default.id
+  vpc_id     = aws_vpc.default.id
   cidr_block = local.network_layout[var.region][var.env_type]._network
 }
 
 resource "aws_subnet" "app" {
-  for_each = local.network_layout[var.region][var.env_type]._zones
+  for_each                = local.network_layout[var.region][var.env_type]._zones
   availability_zone       = "${var.region}${each.key}"
   cidr_block              = each.value.apps
   depends_on              = [aws_internet_gateway.default]
@@ -1400,7 +1400,7 @@ resource "aws_subnet" "app" {
 }
 
 resource "aws_subnet" "db" {
-  for_each = local.network_layout[var.region][var.env_type]._zones
+  for_each                = local.network_layout[var.region][var.env_type]._zones
   availability_zone       = "${var.region}${each.key}"
   cidr_block              = each.value.data-services
   map_public_ip_on_launch = false
@@ -1413,7 +1413,7 @@ resource "aws_subnet" "db" {
 }
 
 resource "aws_subnet" "public-ingress" {
-  for_each = local.network_layout[var.region][var.env_type]._zones
+  for_each                = local.network_layout[var.region][var.env_type]._zones
   availability_zone       = "${var.region}${each.key}"
   cidr_block              = each.value.public-ingress
   map_public_ip_on_launch = true
@@ -1426,7 +1426,7 @@ resource "aws_subnet" "public-ingress" {
 }
 
 resource "aws_subnet" "public-egress" {
-  for_each = local.network_layout[var.region][var.env_type]._zones
+  for_each                = local.network_layout[var.region][var.env_type]._zones
   availability_zone       = "${var.region}${each.key}"
   cidr_block              = each.value.public-egress
   map_public_ip_on_launch = true

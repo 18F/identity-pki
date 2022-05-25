@@ -143,7 +143,7 @@ resource "aws_autoscaling_group" "pivcac" {
   vpc_zone_identifier = concat([
     aws_subnet.idp1.id,
     aws_subnet.idp2.id,
-  ], [for subnet in aws_subnet.app : subnet.id ])
+  ], [for subnet in aws_subnet.app : subnet.id])
 
   load_balancers = [aws_elb.pivcac.id]
 

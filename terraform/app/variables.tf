@@ -106,7 +106,7 @@ variable "vpc_cidr_block" { # 172.16.32.0   - 172.16.35.255
 # Nonoverlapping subnet calculation tables
 variable "net_regions" {
   description = "Map of region to offset value"
-  type = map(number)
+  type        = map(number)
   default = {
     us-east-1 = 16,
     us-east-2 = 32,
@@ -227,15 +227,15 @@ variable "env_name" {
 }
 
 variable "env_type" {
-  type = string
-  default = "app-sandbox"
+  type        = string
+  default     = "app-sandbox"
   description = "The env_type of the application. App-Produciton, App-sandbox, Gitlab-Production, etc."
 
   validation {
     condition = contains(
-      ["peering","security","telemetry","tooling-prod","tooling-sandbox","app-prod","app-staging","app-dm","app-dm","app-int","app-sandbox"]
-      ,var.env_type)
-      error_message = "Environment Type can't be found. Please check the network_layout module for valid environment types or update the validation ruleset for new environment types."
+      ["peering", "security", "telemetry", "tooling-prod", "tooling-sandbox", "app-prod", "app-staging", "app-dm", "app-dm", "app-int", "app-sandbox"]
+    , var.env_type)
+    error_message = "Environment Type can't be found. Please check the network_layout module for valid environment types or update the validation ruleset for new environment types."
   }
 }
 

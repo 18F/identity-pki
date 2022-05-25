@@ -88,7 +88,7 @@ resource "aws_security_group" "ssmmessages_endpoint" {
       var.private1_subnet_cidr_block,
       var.private2_subnet_cidr_block,
       var.private3_subnet_cidr_block,
-    ], [for subnet in aws_subnet.app: subnet.cidr_block])
+    ], [for subnet in aws_subnet.app : subnet.cidr_block])
   }
 
   vpc_id = aws_vpc.default.id

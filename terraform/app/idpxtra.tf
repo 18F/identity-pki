@@ -139,7 +139,7 @@ resource "aws_autoscaling_group" "idpxtra" {
     aws_subnet.privatesubnet1.id,
     aws_subnet.privatesubnet2.id,
     aws_subnet.privatesubnet3.id,
-  ], [ for subnet in aws_subnet.app : subnet.id])
+  ], [for subnet in aws_subnet.app : subnet.id])
 
   health_check_type         = "ELB"
   health_check_grace_period = 1

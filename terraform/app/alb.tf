@@ -1,7 +1,7 @@
 resource "aws_alb" "idp" {
   name            = "${var.name}-idp-alb-${var.env_name}"
   security_groups = [aws_security_group.web.id]
-  subnets         = [
+  subnets = [
     aws_subnet.alb1.id, aws_subnet.alb2.id, aws_subnet.alb3.id,
     aws_subnet.public-ingress["d"].id
   ]

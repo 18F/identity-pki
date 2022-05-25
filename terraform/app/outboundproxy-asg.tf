@@ -148,7 +148,7 @@ resource "aws_autoscaling_group" "outboundproxy" {
     aws_subnet.publicsubnet1.id,
     aws_subnet.publicsubnet2.id,
     aws_subnet.publicsubnet3.id,
-  ], [for subnet in aws_subnet.app : subnet.id ])
+  ], [for subnet in aws_subnet.app : subnet.id])
 
   target_group_arns = [aws_lb_target_group.obproxy.arn]
 
