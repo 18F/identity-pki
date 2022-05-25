@@ -37,6 +37,13 @@ users:
     - aduth
     gitlab_groups:
     - appdev
+  benjamin.chait:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - appdev
+    git_username:
+    - benjaminchait
   chris.manger:
     aws_groups:
     - bizops

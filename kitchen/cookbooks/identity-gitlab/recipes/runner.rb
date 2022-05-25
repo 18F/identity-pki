@@ -34,7 +34,9 @@ execute 'grab_gitlab_runner_repo' do
   ignore_failure true
 end
 
-package 'gitlab-runner'
+package 'gitlab-runner' do
+  version "14.10.1"
+end
 
 cookbook_file '/usr/local/bin/docker-credential-ecr-login' do
   source 'docker-credential-ecr-login-0.6.0.linux-amd64'
