@@ -9,6 +9,7 @@ resource "aws_db_instance" "default" {
     aws_security_group.db,
     aws_subnet.db1,
     aws_subnet.db2,
+    aws_subnet.db,
   ]
   engine         = var.rds_engine
   engine_version = var.rds_engine_version
@@ -70,7 +71,7 @@ output "app_db_endpoint" {
 resource "aws_db_subnet_group" "default" {
   description = "${var.env_name} env subnet group for login.gov"
   name        = "${var.name}-db-${var.env_name}"
-  subnet_ids  = [aws_subnet.db1.id, aws_subnet.db2.id]
+  subnet_ids  = concat([aws_subnet.db1.id, aws_subnet.db2.id], [for subnet in aws_subnet.db : subnet.id])
 
   tags = {
     Name = "${var.name}-${var.env_name}"
