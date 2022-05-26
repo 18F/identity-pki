@@ -6,6 +6,8 @@ module "config_access_key_rotation_code" {
   zip_filename         = var.config_access_key_rotation_code
 }
 
+data "aws_caller_identity" "current" {}
+
 resource "aws_lambda_function" "config_access_key_rotation_lambda" {
   filename      = module.config_access_key_rotation_code.zip_output_path
   function_name = "${var.config_access_key_rotation_name}-function"
@@ -15,7 +17,7 @@ resource "aws_lambda_function" "config_access_key_rotation_lambda" {
 
   source_code_hash = module.config_access_key_rotation_code.zip_output_base64sha256
   memory_size      = "3008"
-  runtime          = "python3.8"
+  runtime          = "python3.9"
   timeout          = "300"
 
   environment {
@@ -29,10 +31,10 @@ resource "aws_lambda_function" "config_access_key_rotation_lambda" {
   depends_on = [module.config_access_key_rotation_code.resource_check]
 }
 
-resource "aws_lambda_permission" "config_access_key_rotation_lambda_permission" {
-  statement_id  = "${var.config_access_key_rotation_name}-lambda-permission"
-  function_name = aws_lambda_function.config_access_key_rotation_lambda.function_name
-  action        = "lambda:InvokeFunction"
-  principal     = "sns.amazonaws.com"
-  source_arn    = data.aws_sns_topic.config_access_key_rotation_topic.arn
-}
+#resource "aws_lambda_permission" "config_access_key_rotation_lambda_permission" {
+#  statement_id  = "${var.config_access_key_rotation_name}-lambda-permission"
+#  function_name = aws_lambda_function.config_access_key_rotation_lambda.function_name
+#  action        = "lambda:InvokeFunction"
+#  principal     = "sns.amazonaws.com"
+#  source_arn    = data.aws_sns_topic.config_access_key_rotation_topic.arn
+#}

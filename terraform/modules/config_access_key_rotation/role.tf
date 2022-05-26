@@ -63,7 +63,30 @@ resource "aws_iam_role_policy_attachment" "config_access_key_rotation_ssm_access
   policy_arn = aws_iam_policy.config_access_key_rotation_ssm_access.arn
 }
 
-resource "aws_iam_role_policy_attachment" "config_access_key_rotation_lambda" {
+resource "aws_iam_policy" "config_access_key_rotation_lambda_iam_access" {
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        Effect   = "Allow"
+        Resource = "arn:aws:logs:${var.region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${aws_lambda_function.config_access_key_rotation_lambda.function_name}:*"
+      },
+      {
+        Action = [
+          "logs:CreateLogGroup"
+        ]
+        Effect   = "Allow"
+        Resource = "arn:aws:logs:${var.region}:${data.aws_caller_identity.current.account_id}:*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "config_access_key_rotation_lambda_iam_access" {
   role       = aws_iam_role.config_access_key_rotation_lambda_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+  policy_arn = aws_iam_policy.config_access_key_rotation_lambda_iam_access.arn
 }
