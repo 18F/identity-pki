@@ -203,13 +203,6 @@ execute 'restart_sshd' do
   action :nothing
 end
 
-execute 'update_gitlab_settings' do
-  command <<-EOF
-    gitlab-rails runner 'ApplicationSetting.last.update(signup_enabled: false)'
-  EOF
-  action :run
-end
-
 file '/etc/gitlab/backup.sh' do
   content <<-EOF
 #!/bin/bash
@@ -279,75 +272,88 @@ execute 'copy_gitlab_runner_token_to_s3' do
   sensitive true
 end
 
-execute 'apply_runner_token' do
+
+# Put these all together because it takes a TON of time to init rails.
+# This may mask some failures of some of these commands, but I think that's OK?
+execute 'gitlab_rails_commands' do
   command <<-EOF
-    gitlab-rails runner "appSetting = Gitlab::CurrentSettings.current_application_settings; \
-    appSetting.set_runners_registration_token('#{runner_token}'); \
-    appSetting.save!"
+    gitlab-rails runner " \
+    begin; \
+      puts 'update gitlab settings'; \
+      ApplicationSetting.last.update(signup_enabled: false); \
+    rescue; \
+      puts 'XXX could not delete QA user'; \
+    end; \
+    \
+    begin; \
+      puts 'apply runner token'; \
+      appSetting = Gitlab::CurrentSettings.current_application_settings; \
+      appSetting.set_runners_registration_token('#{runner_token}'); \
+      appSetting.save!; \
+    rescue; \
+      puts 'XXX could not apply runner token'; \
+    end; \
+    \
+    begin; \
+      puts 'revoke gitlab root tokens'; \
+      User.find_by_username('root').personal_access_tokens.all.each(&:revoke!); \
+    rescue; \
+      puts 'XXX could not revoke root tokens'; \
+    end; \
+    \
+    begin; \
+      puts 'save gitlab root token'; \
+      token = User.find_by_username('root').personal_access_tokens.create(scopes: [:api], name: 'Automation Token'); \
+      token.set_token('#{gitlab_root_api_token}'); token.save!; \
+    rescue; \
+      puts 'XXX could not save gitlab root token'; \
+    end; \
+    \
+    begin; \
+      puts 'clean up licenses'; \
+      License.all.each(&:destroy!); license_data = '#{gitlab_license}'; license = License.new(data: license_data); license.save; \
+    rescue; \
+      puts 'XXX could not clean up licenses'; \
+    end; \
+    \
+    begin; \
+      puts 'allow root to create groups'; \
+      User.find_by_username('root').update!(can_create_group: true); \
+    rescue; \
+      puts 'XXX could not allow root to create groups'; \
+    end; \
+    \
+    begin ; \
+      puts 'delete QA user'; \
+      current_user = User.find_by(username: 'root'); qa_user = User.find_by_username('#{gitlab_qa_account_name}'); \
+      DeleteUserWorker.perform_async(current_user.id, qa_user.id); \
+    rescue; \
+      puts 'XXX could not delete QA user'; \
+    end; \
+    \
+    begin; \
+      puts 'create QA user'; \
+      qauser = User.new(username: '#{gitlab_qa_account_name}', email: 'qa@#{external_fqdn}', \
+      name: 'QA User', password: '#{gitlab_qa_password}', password_confirmation: '#{gitlab_qa_password}', \
+      can_create_group: 'true', admin: 'true'); qauser.skip_confirmation!; qauser.save!; \
+    rescue; \
+      puts 'XXX could not create QA user'; \
+    end; \
+    \
+    begin; \
+      puts 'create QA User token'; \
+      token = User.find_by_username('#{gitlab_qa_account_name}').personal_access_tokens.create(scopes: [:api], name: 'Automation Token'); \
+      token.set_token('#{gitlab_qa_api_token}'); token.save!; \
+    rescue; \
+      puts 'XXX could not create QA token'; \
+    end; \
+    \
+    true"
   EOF
   action :run
   sensitive true
 end
 
-execute 'revoke_gitlab_root_tokens' do
-  command <<-EOF
-    gitlab-rails runner "User.find_by_username('root').personal_access_tokens.all.each(&:revoke!)"
-  EOF
-  action :run
-end
-
-execute 'save_gitlab_root_token' do
-  command <<-EOF
-    gitlab-rails runner "token = User.find_by_username('root').personal_access_tokens.create(scopes: [:api], name: 'Automation Token'); \
-    token.set_token('#{gitlab_root_api_token}'); token.save!"
-  EOF
-  action :run
-  sensitive true
-end
-
-execute 'delete_qa_user' do
-  command <<-EOF
-    gitlab-rails runner "current_user = User.find_by(username: 'root'); qa_user = User.find_by_username('#{gitlab_qa_account_name}'); \
-    DeleteUserWorker.perform_async(current_user.id, qa_user.id)"
-  EOF
-  action :run
-  ignore_failure true
-end
-
-execute 'create_gitlab_qa_user' do
-  command <<-EOF
-    gitlab-rails runner "qauser = User.new(username: '#{gitlab_qa_account_name}', email: 'qa@#{external_fqdn}', \
-    name: 'QA User', password: '#{gitlab_qa_password}', password_confirmation: '#{gitlab_qa_password}', \
-    can_create_group: 'true', admin: 'true'); qauser.skip_confirmation!; qauser.save!"
-  EOF
-  action :run
-  sensitive true
-  ignore_failure true
-end
-
-execute 'create_gitlab_qa_token' do
-  command <<-EOF
-    gitlab-rails runner "token = User.find_by_username('#{gitlab_qa_account_name}').personal_access_tokens.create(scopes: [:api], name: 'Automation Token'); \
-    token.set_token('#{gitlab_qa_api_token}'); token.save!"
-  EOF
-  action :run
-  sensitive true
-end
-
-execute 'clean_up_licenses' do
-  command <<-EOF
-    gitlab-rails runner 'License.all.each(&:destroy!); license_data = "#{gitlab_license}"; license = License.new(data: license_data); license.save'
-  EOF
-  action :run
-  sensitive true
-end
-
-execute 'allow_root_to_create_groups' do
-  command <<-EOF
-    gitlab-rails runner "User.find_by_username('root').update!(can_create_group: true)"
-  EOF
-  action :run
-end
 
 execute 'add_ci_skeleton' do
   command <<-EOF
