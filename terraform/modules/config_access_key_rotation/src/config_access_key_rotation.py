@@ -90,12 +90,12 @@ def process_user(user_name, force=False):
         else:
             # Both keys older than rotation date. Delete oldest and create new
             key_to_delete = oldest_key['AccessKeyId']
-            # logger.info("Delete Key(s): {}".format(key_to_delete))
-            iam.delete_access_key(UserName=user_name, AccessKeyId=key_to_delete)
+            logger.info("Delete Key(s): {}".format(key_to_delete))
+            #iam.delete_access_key(UserName=user_name, AccessKeyId=key_to_delete)
 
     elif num_active == 1 and num_inactive == 1:
         # One active and one inactive. Handle inactive key according to inactivation/deletion dates
-        # logger.info("Inactive Key(s): {}".format(inactive_keys[0]))
+        logger.info("Inactive Key(s): {}".format(inactive_keys[0]))
         handle_oldest_key(user_name, inactive_keys[0])
 
     elif num_active == 1 and num_inactive == 0:
@@ -111,8 +111,8 @@ def process_user(user_name, force=False):
     elif num_active == 0 and num_inactive > 0:
         # If no active keys, delete all inactive keys
         for key_to_delete in inactive_keys:
-            # logger.info("Delete Key(s): {}".format(key_to_delete))
-            iam.delete_access_key(UserName=user_name, AccessKeyId=key_to_delete['AccessKeyId'])
+            logger.info("Delete Key(s): {}".format(key_to_delete))
+            #iam.delete_access_key(UserName=user_name, AccessKeyId=key_to_delete['AccessKeyId'])
 
 def classify_date(akm):
     creation_date = akm['CreateDate'].date()
@@ -130,12 +130,12 @@ def handle_oldest_key(user_name, oldest_key):
 
     if classification == "Inactivate":
         key_to_inactivate = oldest_key['AccessKeyId']
-        # logger.info("Inactivate Key(s): {}".format(key_to_inactivate))
-        iam.update_access_key(UserName=user_name, AccessKeyId=key_to_inactivate, Status='Inactive')
+        logger.info("Inactivate Key(s): {}".format(key_to_inactivate))
+        #iam.update_access_key(UserName=user_name, AccessKeyId=key_to_inactivate, Status='Inactive')
     elif classification == "Delete":
         key_to_delete = oldest_key['AccessKeyId']
-        # logger.info("Delete Key(s): {}".format(key_to_delete))
-        iam.delete_access_key(UserName=user_name, AccessKeyId=key_to_delete)
+        logger.info("Delete Key(s): {}".format(key_to_delete))
+        #iam.delete_access_key(UserName=user_name, AccessKeyId=key_to_delete)
 
 def lambda_handler(event, context):
     logger.info("Event: " + json.dumps(event))

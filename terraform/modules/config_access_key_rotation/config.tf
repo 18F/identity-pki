@@ -22,10 +22,13 @@ resource "aws_config_config_rule" "config_access_key_rotation_rule" {
 }
 
 resource "aws_config_remediation_configuration" "config_access_key_rotation_remediation" {
-  config_rule_name = aws_config_config_rule.config_access_key_rotation_rule.name
-  resource_type    = "AWS::IAM::User"
-  target_type      = "SSM_DOCUMENT"
-  target_id        = aws_ssm_document.config_access_key_rotation_ssm_doc.name
+  config_rule_name           = aws_config_config_rule.config_access_key_rotation_rule.name
+  resource_type              = "AWS::IAM::User"
+  target_type                = "SSM_DOCUMENT"
+  target_id                  = aws_ssm_document.config_access_key_rotation_ssm_doc.name
+  automatic                  = true
+  maximum_automatic_attempts = 2
+  retry_attempt_seconds      = 600
 
   parameter {
     name         = "AutomationAssumeRole"
