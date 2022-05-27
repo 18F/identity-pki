@@ -22,6 +22,8 @@
 # the /dev/xvdh symlink.  So we are just hardcoding the nvme devices
 # it maps to directly.  WTF Ubuntu?
 
+# passwords are generated randomly
+# root authentication tokens are revoked at the end of the chef run
 
 aws_account_id = Chef::Recipe::AwsMetadata.get_aws_account_id
 aws_region = Chef::Recipe::AwsMetadata.get_aws_region
@@ -133,6 +135,7 @@ template '/etc/gitlab/gitlab.rb' do
         runner_token: runner_token,
     }.merge(saml_params))
     notifies :run, 'execute[reconfigure_gitlab]', :delayed
+    sensitive true
 end
 
 directory '/etc/gitlab/ssl'
@@ -143,6 +146,7 @@ remote_file "Copy cert" do
   owner 'root'
   group 'root'
   mode 0644
+  sensitive true
 end
 
 remote_file "Copy key" do
@@ -180,6 +184,7 @@ execute 'restore_ssh_keys' do
   cwd '/etc'
   ignore_failure true
   notifies :run, 'execute[restart_sshd]', :delayed
+  sensitive true
 end
 
 template '/etc/ssh/sshd_config' do
@@ -271,7 +276,6 @@ execute 'copy_gitlab_runner_token_to_s3' do
   action :run
   sensitive true
 end
-
 
 # Put these all together because it takes a TON of time to init rails.
 # This may mask some failures of some of these commands, but I think that's OK?
@@ -434,8 +438,8 @@ execute 'add_ci_skeleton' do
   EOF
   ignore_failure false
   action :run
+  sensitive true
 end
-
 
 # this is to set up user/group syncing
 remote_file "golang" do
