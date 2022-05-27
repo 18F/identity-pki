@@ -435,6 +435,8 @@ execute 'add_ci_skeleton' do
       "#{local_url}/api/v4/projects/$PROJECT_NUMBER/variables" \
       --form "key=AWS_REGION" --form "value=#{aws_region}" \
       --form "masked=true" --form "protected=true"
+    curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPUT \
+      "#{local_url}/api/v4/application/settings?deactivate_dormant_users=true"
   EOF
   ignore_failure false
   action :run

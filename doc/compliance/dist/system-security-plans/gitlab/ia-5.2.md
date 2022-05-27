@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-inherited
+  - c-documented
 ---
 
 # ia-5.2 - \[catalog\] Pki-based Authentication
@@ -48,24 +48,24 @@ ______________________________________________________________________
 
 ## Implementation (a)
 
-Add control implementation description here for item ia-5.2_smt.a
+PKI-based authentication including verifying certificate paths and trust anchors is handled upstream via Login.gov. The GitLab component uses ia-5.2 from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation (b)
 
-Add control implementation description here for item ia-5.2_smt.b
+Enforcing authorized access is handled upstream via Login.gov. The GitLab component uses ia-5.2 from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation (c)
 
-Add control implementation description here for item ia-5.2_smt.c
+Mapping the authenticated identity to the account of the individual or group is handled upstream via Login.gov. The GitLab component uses ia-5.2 from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation (d)
 
-Add control implementation description here for item ia-5.2_smt.d
+Implementation of a local cache of revocation data is handled upstream via Login.gov. The GitLab component uses ia-5.2 from the main Login.gov SSP.
 
 ______________________________________________________________________

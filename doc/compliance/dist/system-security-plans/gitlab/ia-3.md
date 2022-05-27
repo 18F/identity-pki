@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
 needs-params:
   - ia-3_prm_2
 ---
@@ -36,6 +36,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control ia-3
+Access to Gitlab is authenticated on a machine-by-machine basis using TCP/IP addresses and AWS security groups to control access to local, remote, and network connections.
 
 ______________________________________________________________________

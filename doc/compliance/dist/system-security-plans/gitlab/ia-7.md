@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
 effort:
   - medium
 ---
@@ -24,6 +24,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control ia-7
+Gitlab implements recent and compliant versions of OpenSSL, Ruby and Golang, and can be configured to achieve FIPS 140-2 or 140-3 per statements made by Gitlab (https://gitlab.com/groups/gitlab-org/-/epics/5104).
 
 ______________________________________________________________________
