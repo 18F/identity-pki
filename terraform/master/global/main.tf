@@ -43,6 +43,7 @@ module "main" {
 
   group_role_map = {
     "appdev" = [
+      { "Analytics" = ["Sandbox", "Prod"] },
       { "PowerUser" = ["Sandbox"] },
       { "ReadOnly" = ["Sandbox"] },
       { "Terraform" = ["Sandbox"] }
@@ -51,14 +52,17 @@ module "main" {
       { "Analytics" = ["Sandbox", "Prod"] }
     ],
     "apponcall" = [
+      { "Analytics" = ["Sandbox", "Prod"] },
       { "PowerUser" = ["Sandbox", "Prod"] },
       { "ReadOnly" = ["Sandbox", "Prod"] },
       { "Terraform" = ["Sandbox"] }
     ],
     "bizops" = [
+      { "Analytics" = ["Sandbox", "Prod"] },
       { "ReportsReadOnly" = ["Sandbox", "Prod"] }
     ],
     "devops" = [
+      { "Analytics" = ["Sandbox", "Prod"] },
       { "FullAdministrator" = ["Sandbox", "Prod", "Master", "Analytics"] },
       { "ReadOnly" = ["Sandbox", "Prod"] },
       { "Terraform" = ["Sandbox", "Prod", "Master"] },
@@ -72,11 +76,13 @@ module "main" {
       { "BillingReadOnly" = ["Sandbox", "Prod"] }
     ],
     "secops" = [
+      { "Analytics" = ["Sandbox", "Prod"] },
       { "FullAdministrator" = ["Sandbox", "Prod", "Master"] },
       { "ReadOnly" = ["Sandbox", "Prod"] },
       { "KMSAdministrator" = ["Sandbox"] }
     ],
     "secopsnonprod" = [
+      { "Analytics" = ["Sandbox", "Prod"] },
       { "FullAdministrator" = ["Sandbox"] },
       { "ReadOnly" = ["Sandbox"] },
       { "KMSAdministrator" = ["Sandbox"] }
@@ -91,6 +97,7 @@ module "main" {
       { "Terraform" = ["Sandbox"] }
     ],
     "supporteng" = [
+      { "Analytics" = ["Sandbox", "Prod"] },
       { "SupportEngineer" = ["Sandbox", "Prod"] }
     ],
     "keymasters" = [
