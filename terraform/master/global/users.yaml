@@ -5,9 +5,13 @@ users:
     - analytics
     - finops
     - bizops
+    gitlab_groups:
+    - pm
   alan.atlas:
     aws_groups:
     - analytics
+    gitlab_groups:
+    - pm
   alex.kritikos:
     ec2_username:
     - akrito
@@ -41,7 +45,7 @@ users:
     aws_groups:
     - analytics
     gitlab_groups:
-    - appdev
+    - pm
     git_username:
     - benjaminchait
   chris.manger:
@@ -53,6 +57,13 @@ users:
     - appdev
     ec2_username:
     - ctro
+  david.dsilva:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - pm
+    git_username:
+    - daviddsilvanava
   devon.johnson:
     aws_groups:
     - supporteng
@@ -70,6 +81,18 @@ users:
     - solipet
     gitlab_groups:
     - appdev
+  elizabeth.manning:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - pm
+    git_username:
+    - lizzieamanning
+  harlan.weber:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - pm
   goutham.kommanaboyina:
     aws_groups:
     - analytics
@@ -83,11 +106,14 @@ users:
   jack.cody:
     aws_groups:
     - appdev
+    - appdevoncall
     gitlab_groups:
     - appdev
   jeffrey.holden:
     aws_groups:
     - analytics
+    gitlab_groups:
+    - pm
   jenniffier.bieberbach:
     aws_groups:
     - secopsnonprod
@@ -149,6 +175,13 @@ users:
     - devops
     git_username:
     - kenk667
+  lalitha.jonnalagadda:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - pm
+    git_username:
+    - lalitha-jonnalagadda
   logan.mcdonald:
     gitlab_groups:
     - devops
@@ -208,6 +241,8 @@ users:
     aws_groups:
     - appdev
     - apponcall
+    gitlab_groups:
+    - appdev
   natasha.ibrahim:
     aws_groups:
     - appdev
@@ -219,6 +254,11 @@ users:
   nathan.wick:
     aws_groups:
     - bizops
+  nicholas.willey:
+    aws_groups:
+    - secopsnonprod
+    gitlab_groups:
+    - devops
   olayemisi.ogunshina:
     aws_groups:
     - analytics
@@ -259,6 +299,8 @@ users:
     - pauldoom
     gitlab_groups:
     - devops
+    git_username:
+    - pauldoomgov
   rahul.kamarouthu:
     aws_groups:
     - analytics
@@ -276,6 +318,9 @@ users:
     - ssteiner
     gitlab_groups:
     - appdev
+  sean.porter:
+    gitlab_groups:
+    - pm
   sheldon.bachstein:
     aws_groups:
     - appdev
@@ -320,7 +365,7 @@ users:
     aws_groups:
     - analytics
     gitlab_groups:
-    - appdev
+    - pm
   timothy.spencer:
     aws_groups:
     - devops
@@ -367,6 +412,8 @@ groups:
     description: Application Developers
   devops:
     description: DevOps and SRE
+  pm:
+    description: Project Management and Facilitation
   lg:
     description: Namespace for Login.gov projects
 projects:
