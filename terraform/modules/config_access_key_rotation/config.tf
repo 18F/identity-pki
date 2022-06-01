@@ -27,8 +27,8 @@ resource "aws_config_remediation_configuration" "config_access_key_rotation_reme
   target_type                = "SSM_DOCUMENT"
   target_id                  = aws_ssm_document.config_access_key_rotation_ssm_doc.name
   automatic                  = true
-  maximum_automatic_attempts = 2
-  retry_attempt_seconds      = 600
+  maximum_automatic_attempts = 1
+  retry_attempt_seconds      = 43200
 
   parameter {
     name         = "AutomationAssumeRole"
