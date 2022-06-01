@@ -1,8 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
-  - c-org-help-needed
+  - c-implemented
+  - c-documented
 effort:
   - high
 ---
@@ -41,18 +40,30 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-Add control implementation description here for item sr-1_smt.a
+GSA has developed and documented IT Security Policies and Procedures, including SCRM policies and procedures; these documents are made available to GSA employees (and contractors, as may be appropriate), on GSA’s InSite. The LG system is subject to GSA policies and procedures, described below.
+
+ Policies, Regulations, and Laws (specific InSite page): https://insite.gsa.gov/employee-resources/acquisition-purchases-and-payments/acquisition-portal/acquisition-by-topic/cybersupply-chain-risk-management-cscrm/cscrm-policies-regulations-and-laws.
+
+ Procedures (specific InSite page): https://insite.gsa.gov/cdnstatic/insite/Cyber-Supply-Chain-Risk-Management_OCISO-%28C-SCRM%29-Program-%5BCIO-IT-Security-21-117-Initial-Release%5D.pdf. 
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-Add control implementation description here for item sr-1_smt.b
+GSA has developed and documented IT Security Policies and Procedures, including SCRM policies and procedures; these documents are made available to GSA employees (and contractors, as may be appropriate), on GSA’s InSite. The LG system is subject to GSA policies and procedures, described below.
+
+ Policies, Regulations, and Laws (specific InSite page): https://insite.gsa.gov/employee-resources/acquisition-purchases-and-payments/acquisition-portal/acquisition-by-topic/cybersupply-chain-risk-management-cscrm/cscrm-policies-regulations-and-laws.
+
+ Procedures (specific InSite page): https://insite.gsa.gov/cdnstatic/insite/Cyber-Supply-Chain-Risk-Management_OCISO-%28C-SCRM%29-Program-%5BCIO-IT-Security-21-117-Initial-Release%5D.pdf. 
 
 ______________________________________________________________________
 
 ## Implementation c.
 
-Add control implementation description here for item sr-1_smt.c
+GSA has developed and documented IT Security Policies and Procedures, including SCRM policies and procedures; these documents are made available to GSA employees (and contractors, as may be appropriate), on GSA’s InSite. The LG system is subject to GSA policies and procedures, described below.
+
+ Policies, Regulations, and Laws (specific InSite page): https://insite.gsa.gov/employee-resources/acquisition-purchases-and-payments/acquisition-portal/acquisition-by-topic/cybersupply-chain-risk-management-cscrm/cscrm-policies-regulations-and-laws.
+
+ Procedures (specific InSite page): https://insite.gsa.gov/cdnstatic/insite/Cyber-Supply-Chain-Risk-Management_OCISO-%28C-SCRM%29-Program-%5BCIO-IT-Security-21-117-Initial-Release%5D.pdf. 
 
 ______________________________________________________________________
