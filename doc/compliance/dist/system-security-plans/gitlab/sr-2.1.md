@@ -1,7 +1,9 @@
 ---
+Responsible Role:
+Parameter: 
 status:
   - c-not-implemented
-  - c-not-documented
+  - c-documented
   - c-org-help-needed
 effort:
   - medium
@@ -11,7 +13,7 @@ effort:
 
 ## Control Statement
 
-Establish a supply chain risk management team consisting of organization-defined personnel, roles, and responsibilities to lead and support the following SCRM activities: organization-defined supply chain risk management activities.
+Establish a supply chain risk management team consisting of [Assignment: organizationdefined personnel, roles, and responsibilities] to lead and support the following SCRM activities: [Assignment: organization-defined supply chain risk management activities].
 
 ## Control guidance
 
@@ -21,6 +23,12 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control sr-2.1
+GSA has developed and documented IT Security Policies and Procedures, including SCRM policies and procedures; these documents are made available to GSA employees (and contractors, as may be appropriate), on GSA’s InSite. The LG system is subject to GSA policies and procedures, described below.
+
+Policies, Regulations, and Laws (specific InSite page): https://insite.gsa.gov/employee-resources/acquisition-purchases-and-payments/acquisition-portal/acquisition-by-topic/cybersupply-chain-risk-management-cscrm/cscrm-policies-regulations-and-laws.
+
+Procedures (specific InSite page): https://insite.gsa.gov/cdnstatic/insite/Cyber-Supply-Chain-Risk-Management_OCISO-%28C-SCRM%29-Program-%5BCIO-IT-Security-21-117-Initial-Release%5D.pdf. 
+
+[TBD] Additionally LG team adheres to GSA policies as shared responsibilites across the GSA organization from CIO, CISO to the system owners. Gitlab is the platform that assists our security analysts in this capacity where SCRM security in part of establishing trusted software SDLC with continuous security inspection (SAST, DAST) against LG application source code and dependencies from supply chain. This is coupled with LG's CI/CD pipeline promotion process.  
 
 ______________________________________________________________________
