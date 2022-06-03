@@ -22,7 +22,7 @@ module "acm-cert-public-reporting-data-cdn" {
 # "Origin" is difficult to search for since it is overloaded in the context of talking about CORS and CloudFront.
 # It can refer to either the HTTP header or the CloudFront origin (S3 in this case).
 resource "aws_cloudfront_cache_policy" "public_reporting_data_cache_policy" {
-  name        = "Public-Reporting-Data-Cache-Policy"
+  name        = "${var.env_name}-Public-Reporting-Data-Cache-Policy"
   default_ttl = 86400
   max_ttl     = 31536000
   min_ttl     = 1
