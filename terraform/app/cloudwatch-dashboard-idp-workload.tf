@@ -34,7 +34,7 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
         {
             "type": "metric",
             "x": 12,
-            "y": 14,
+            "y": 20,
             "width": 12,
             "height": 6,
             "properties": {
@@ -172,7 +172,7 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
         {
             "type": "metric",
             "x": 12,
-            "y": 26,
+            "y": 32,
             "width": 12,
             "height": 6,
             "properties": {
@@ -198,7 +198,7 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
         {
             "type": "metric",
             "x": 12,
-            "y": 20,
+            "y": 26,
             "width": 12,
             "height": 6,
             "properties": {
@@ -235,7 +235,7 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
         {
             "type": "metric",
             "x": 12,
-            "y": 8,
+            "y": 14,
             "width": 12,
             "height": 6,
             "properties": {
@@ -269,13 +269,8 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
                     [ "${var.env_name}/idp-authentication", "sp-redirect-initiated-all", { "label": "sp-return [sum:$${SUM}, max:$${MAX}]" } ],
                     [ ".", "user-marked-authenticated", { "label": "authenticated [sum:$${SUM}, max:$${MAX}]" } ],
                     [ ".", "user-registration-complete", { "label": "registration-complete [sum:$${SUM}, max:$${MAX}]" } ],
-                    [ ".", "remembered-device-used-for-authentication", { "label": "remembered-device [sum:$${SUM}, max:$${MAX}]" } ],
                     [ ".", "rate-limit-triggered", { "label": "rate-limited [sum:$${SUM}, max:$${MAX}]" } ],
                     [ ".", "login-failure-email-or-password", { "label": "fail-email-pass [sum:$${SUM}, max:$${MAX}]" } ],
-                    [ ".", "login-failure-mfa-sms", { "label": "fail-mfa-sms [sum:$${SUM}, max:$${MAX}]" } ],
-                    [ ".", "login-failure-mfa-totp", { "label": "fail-mfa-totp [sum:$${SUM}, max:$${MAX}]" } ],
-                    [ ".", "login-failure-mfa-voice", { "label": "fail-mfa-voice [sum:$${SUM}, max:$${MAX}]" } ],
-                    [ ".", "login-failure-mfa-piv_cac", { "label": "fail-mfa-pivcac [sum:$${SUM}, max:$${MAX}]" } ],
                     [ "${var.env_name}/idp-ialx", "idv-review-complete-success", { "label": "idv-review-complete-success [sum:$${SUM}, max:$${MAX}]" } ]
                 ],
                 "view": "timeSeries",
@@ -295,7 +290,7 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
         {
             "type": "metric",
             "x": 12,
-            "y": 32,
+            "y": 38,
             "width": 12,
             "height": 6,
             "properties": {
@@ -341,7 +336,7 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
         {
             "type": "metric",
             "x": 12,
-            "y": 2,
+            "y": 8,
             "width": 12,
             "height": 6,
             "properties": {
@@ -366,9 +361,49 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
             }
         },
         {
+            "height": 6,
+            "width": 12,
+            "y": 2,
+            "x": 12,
+            "type": "metric",
+            "properties": {
+                "metrics": [
+                    [ "${var.env_name}/idp-authentication", "remembered-device-used-for-authentication", { "label": "Remembered Device [sum:$${SUM}, max:$${MAX}]" } ],
+                    [ ".", "login-mfa-success", "multi_factor_auth_method", "backup_code", { "label": "Backup Code Success [sum:$${SUM}, max:$${MAX}]" } ],
+                    [ ".", "login-mfa-failure", ".", ".", { "label": "Backup Code Failure [sum:$${SUM}, max:$${MAX}]" } ],
+                    [ ".", "login-mfa-success", ".", "personal-key", { "label": "Personal Key Success [sum:$${SUM}, max:$${MAX}]" } ],
+                    [ ".", "login-mfa-failure", ".", ".", { "label": "Personal Key Failure [sum:$${SUM}, max:$${MAX}]" } ],
+                    [ ".", "login-mfa-success", ".", "piv_cac", { "label": "PIV/CAC Success [sum:$${SUM}, max:$${MAX}]" } ],
+                    [ ".", "login-mfa-failure", ".", ".", { "label": "PIV/CAC Failure [sum:$${SUM}, max:$${MAX}]" } ],
+                    [ ".", "login-mfa-success", ".", "sms", { "label": "SMS Success [sum:$${SUM}, max:$${MAX}]" } ],
+                    [ ".", "login-mfa-failure", ".", ".", { "label": "SMS Failure [sum:$${SUM}, max:$${MAX}]" } ],
+                    [ ".", "login-mfa-success", ".", "totp", { "label": "TOTP Success [sum:$${SUM}, max:$${MAX}]" } ],
+                    [ ".", "login-mfa-failure", ".", ".", { "label": "TOTP Failure [sum:$${SUM}, max:$${MAX}]" } ],
+                    [ ".", "login-mfa-success", ".", "voice", { "label": "Voice Success [sum:$${SUM}, max:$${MAX}]" } ],
+                    [ ".", "login-mfa-failure", ".", ".", { "label": "Voice Failure [sum:$${SUM}, max:$${MAX}]" } ],
+                    [ ".", "login-mfa-success", ".", "webauthn_platform", { "label": "WebAuthn Platform Success [sum:$${SUM}, max:$${MAX}]" } ],
+                    [ ".", "login-mfa-failure", ".", ".", { "label": "WebAuthn Platform Failure [sum:$${SUM}, max:$${MAX}]" } ],
+                    [ ".", "login-mfa-success", ".", "webauthn", { "label": "WebAuthn Roaming Success [sum:$${SUM}, max:$${MAX}]" } ],
+                    [ ".", "login-mfa-failure", ".", ".", { "label": "WebAuthn Roaming Failure [sum:$${SUM}, max:$${MAX}]" } ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${var.region}",
+                "stat": "Sum",
+                "period": 60,
+                "title": "${var.env_name} - MFA Detail",
+                "yAxis": {
+                    "left": {
+                        "label": "Events",
+                        "showUnits": false
+                    }
+                }
+            }
+        },
+        {
             "type": "metric",
             "x": 12,
-            "y": 38,
+            "y": 44,
             "width": 12,
             "height": 6,
             "properties": {

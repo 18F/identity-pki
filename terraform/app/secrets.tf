@@ -76,6 +76,7 @@ data "aws_iam_policy_document" "secrets_role_policy" {
   }
 }
 
+# TODO
 # Role that instances can use to access stuff in citadel. Add this as the role
 # for an aws_iam_instance_profile. Note that terraform < 0.9 has a "roles"
 # attribute on aws_iam_instance_profile even though there is a 1:1 mapping
