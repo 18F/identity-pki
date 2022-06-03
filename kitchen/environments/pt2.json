@@ -12,7 +12,7 @@
       ],
       "lockdown": "true",
       "idp_sync_static": true,
-      "deploy_branch_default": "stages/pt",
+      "deploy_branch_default": "stages/pt2"
     },
     "ssh_keys": {},
     "identity-jumphost": {
