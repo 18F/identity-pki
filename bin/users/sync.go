@@ -83,6 +83,7 @@ func (p *AuthorizedProject) UnmarshalYAML(unmarshal func(interface{}) error) err
 // must be lists of strings in YAML, but we unmarshal some into scalar strings.
 type AuthUser struct {
 	Aws_groups       []string
+	Ec2_username     []string
 	Gitlab_groups    []string
 	Git_username     string
 	Name             string
@@ -93,6 +94,7 @@ type AuthUser struct {
 func (au *AuthUser) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	type alias struct {
 		Aws_groups       []string
+		Ec2_username     []string
 		Gitlab_groups    []string
 		Git_username     []string
 		Name             []string
