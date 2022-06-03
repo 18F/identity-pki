@@ -382,6 +382,7 @@ users:
     - lg
     - devops
     - appdev
+    - pm
     can_create_group:
     - true
 groups:
