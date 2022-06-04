@@ -73,6 +73,12 @@ if basic_auth_enabled
   end
 end
 
+nginx_conf = '/opt/nginx/conf/nginx.conf'
+execute 'remove rate limiting from nginx config' do
+  command "sed -i -e '/# Limit connections/,+3d' #{nginx_conf}"
+  notifies :restart, "service[passenger]"
+end
+
 # add nginx conf for app server
 # TODO: JJG convert security_group_exceptions to hash so we can keep a note in both chef and nginx
 #       configs as to why we added the exception.
