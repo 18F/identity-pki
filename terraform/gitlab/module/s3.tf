@@ -12,11 +12,11 @@ resource "aws_s3_bucket" "backups" {
     enabled                                = true
 
     expiration {
-      days = 30
+      days = var.gitlab_backup_retention_days
     }
 
     noncurrent_version_expiration {
-      days = 30
+      days = var.gitlab_backup_retention_days
     }
   }
 
@@ -29,17 +29,101 @@ resource "aws_s3_bucket" "backups" {
   }
 
   tags = {
-    Name        = "gitlab-${var.env_name}-config"
+    Name        = "gitlab-${var.env_name}-backups"
     Environment = "${var.env_name}"
   }
 
-  # lifecycle {
-  #   prevent_destroy = true
-  # }
+  lifecycle {
+    prevent_destroy = true
+
+    ignore_changes = [replication_configuration]
+  }
+}
+
+resource "aws_s3_bucket_ownership_controls" "backups" {
+  bucket = aws_s3_bucket.backups.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
 }
 
 resource "aws_s3_bucket_public_access_block" "backups_access_block" {
   bucket                  = aws_s3_bucket.backups.id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_replication_configuration" "replication" {
+  role   = aws_iam_role.s3_replication.arn
+  bucket = aws_s3_bucket.backups.id
+
+  rule {
+    id     = "gitlab"
+    status = "Enabled"
+
+    destination {
+      bucket        = aws_s3_bucket.backups_dr.arn
+      storage_class = "STANDARD"
+    }
+  }
+}
+
+resource "aws_s3_bucket" "backups_dr" {
+  bucket   = "login-gov-${var.env_name}-gitlabbackups-${data.aws_caller_identity.current.account_id}-${var.dr_region}"
+  acl      = "private"
+  provider = aws.dr
+
+  versioning {
+    enabled = true
+  }
+
+  lifecycle_rule {
+    abort_incomplete_multipart_upload_days = 1
+    id                                     = "expire-backups"
+    enabled                                = true
+
+    expiration {
+      days = var.gitlab_backup_retention_days
+    }
+
+    noncurrent_version_expiration {
+      days = var.gitlab_backup_retention_days
+    }
+  }
+
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
+
+  tags = {
+    Name        = "gitlab-${var.env_name}-drbackups"
+    Environment = "${var.env_name}"
+  }
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+resource "aws_s3_bucket_ownership_controls" "backups_dr" {
+  bucket   = aws_s3_bucket.backups_dr.id
+  provider = aws.dr
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "backups_dr_access_block" {
+  provider                = aws.dr
+  bucket                  = aws_s3_bucket.backups_dr.id
   block_public_acls       = true
   block_public_policy     = true
   ignore_public_acls      = true
@@ -52,9 +136,9 @@ resource "aws_s3_bucket" "config" {
 
   # force_destroy = true
 
-  # lifecycle {
-  #   prevent_destroy = true
-  # }
+  lifecycle {
+    prevent_destroy = true
+  }
 
   versioning {
     enabled = true
@@ -155,9 +239,9 @@ resource "aws_s3_bucket" "gitlab_buckets" {
 
   # force_destroy = true
 
-  # lifecycle {
-  #   prevent_destroy = true
-  # }
+  lifecycle {
+    prevent_destroy = true
+  }
 
   versioning {
     enabled = true

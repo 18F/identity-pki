@@ -57,7 +57,6 @@ resource "aws_lb_listener" "gitlab-ssh" {
   }
 }
 
-
 resource "aws_route53_record" "gitlab-elb-public" {
   zone_id = var.route53_id
   name    = "gitlab.${var.env_name}"

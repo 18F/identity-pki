@@ -226,6 +226,10 @@ variable "region" {
   default = "us-west-2"
 }
 
+variable "dr_region" {
+  default = "us-east-2"
+}
+
 variable "nessusserver_ip" {
   description = "Nessus server's public IP"
   default     = "44.230.151.136/32"
@@ -386,4 +390,8 @@ variable "accountids" {
   description = "list of AWS account ids that we should allow to find the gitlab privatelink service and be allowed to get the gitlab runner token"
   default     = []
   # export TF_VAR_accountids='["1234", "2345", "5678"]'
+}
+
+variable "gitlab_backup_retention_days" {
+  default = 90
 }
