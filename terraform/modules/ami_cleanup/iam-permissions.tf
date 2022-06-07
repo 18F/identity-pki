@@ -2,13 +2,13 @@ data "aws_caller_identity" "current" {}
 
 data "aws_iam_policy_document" "ami_cleanup_lambda_assume" {
   statement {
-    sid = "Assume"
+    sid    = "Assume"
     effect = "Allow"
     actions = [
       "sts:AssumeRole"
     ]
     principals {
-      type = "Service"
+      type        = "Service"
       identifiers = ["lambda.amazonaws.com"]
     }
   }
@@ -34,14 +34,14 @@ resource "aws_iam_role" "lambda_ami_cleanup" {
 }
 
 resource "aws_iam_role_policy" "ami_cleanup_cloudwatch" {
-  name = "CloudWatch"
-  role = aws_iam_role.lambda_ami_cleanup.id
+  name   = "CloudWatch"
+  role   = aws_iam_role.lambda_ami_cleanup.id
   policy = data.aws_iam_policy_document.ami_cleanup_lambda_cloudwatch_policy.json
 }
 
 data "aws_iam_policy_document" "ami_cleanup_lambda_Tag_policy" {
   statement {
-    sid = "VisualEditor0"
+    sid    = "VisualEditor0"
     effect = "Allow"
     actions = [
       "ec2:CreateTags",
@@ -53,14 +53,14 @@ data "aws_iam_policy_document" "ami_cleanup_lambda_Tag_policy" {
 }
 
 resource "aws_iam_role_policy" "ami_cleanup_tags" {
-  name = "CreateTag"
-  role = aws_iam_role.lambda_ami_cleanup.id
+  name   = "CreateTag"
+  role   = aws_iam_role.lambda_ami_cleanup.id
   policy = data.aws_iam_policy_document.ami_cleanup_lambda_Tag_policy.json
 }
 
 data "aws_iam_policy_document" "ami_cleanup_lambda_delete_snapshot_policy" {
   statement {
-    sid = "VisualEditor0"
+    sid    = "VisualEditor0"
     effect = "Allow"
     actions = [
       "ec2:DeleteSnapshot",
@@ -72,15 +72,15 @@ data "aws_iam_policy_document" "ami_cleanup_lambda_delete_snapshot_policy" {
 }
 
 resource "aws_iam_role_policy" "ami_cleanup_delete_snapshot" {
-  name = "DeleteSnapshot"
-  role = aws_iam_role.lambda_ami_cleanup.id
+  name   = "DeleteSnapshot"
+  role   = aws_iam_role.lambda_ami_cleanup.id
   policy = data.aws_iam_policy_document.ami_cleanup_lambda_delete_snapshot_policy.json
 }
 
 
 data "aws_iam_policy_document" "ami_cleanup_lambda_deregister_image_policy" {
   statement {
-    sid = "VisualEditor0"
+    sid    = "VisualEditor0"
     effect = "Allow"
     actions = [
       "ec2:DeregisterImage",
@@ -92,14 +92,14 @@ data "aws_iam_policy_document" "ami_cleanup_lambda_deregister_image_policy" {
 }
 
 resource "aws_iam_role_policy" "ami_cleanup_deregister_image" {
-  name = "DeregisterImage"
-  role = aws_iam_role.lambda_ami_cleanup.id
+  name   = "DeregisterImage"
+  role   = aws_iam_role.lambda_ami_cleanup.id
   policy = data.aws_iam_policy_document.ami_cleanup_lambda_deregister_image_policy.json
 }
 
 data "aws_iam_policy_document" "ami_cleanup_lambda_describe_image_policy" {
   statement {
-    sid = "VisualEditor0"
+    sid    = "VisualEditor0"
     effect = "Allow"
     actions = [
       "ec2:DescribeImages",
@@ -112,14 +112,14 @@ data "aws_iam_policy_document" "ami_cleanup_lambda_describe_image_policy" {
 }
 
 resource "aws_iam_role_policy" "ami_cleanup_describe_image" {
-  name = "DescribeImageAttribute"
-  role = aws_iam_role.lambda_ami_cleanup.id
+  name   = "DescribeImageAttribute"
+  role   = aws_iam_role.lambda_ami_cleanup.id
   policy = data.aws_iam_policy_document.ami_cleanup_lambda_describe_image_policy.json
 }
 
 data "aws_iam_policy_document" "ami_cleanup_lambda_read_autoscaling_policy" {
   statement {
-    sid = "VisualEditor0"
+    sid    = "VisualEditor0"
     effect = "Allow"
     actions = [
       "ec2:DescribeInstances",
@@ -131,7 +131,7 @@ data "aws_iam_policy_document" "ami_cleanup_lambda_read_autoscaling_policy" {
 }
 
 resource "aws_iam_role_policy" "ami_cleanup_read_autoscaling" {
-  name = "ReadAutoscaling"
-  role = aws_iam_role.lambda_ami_cleanup.id
+  name   = "ReadAutoscaling"
+  role   = aws_iam_role.lambda_ami_cleanup.id
   policy = data.aws_iam_policy_document.ami_cleanup_lambda_read_autoscaling_policy.json
 }
