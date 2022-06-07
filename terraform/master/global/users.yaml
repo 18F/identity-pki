@@ -83,14 +83,14 @@ users:
     - pm
     git_username:
     - lizzieamanning
+  goutham.kommanaboyina:
+    aws_groups:
+    - analytics
   harlan.weber:
     aws_groups:
     - analytics
     gitlab_groups:
     - pm
-  goutham.kommanaboyina:
-    aws_groups:
-    - analytics
   henry.richardson:
     aws_groups:
     - devops
@@ -192,6 +192,11 @@ users:
     - appdev
     gitlab_groups:
     - appdev
+  michael.ambroselli:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - magsa
   michael.antiporta:
     aws_groups:
     - analytics
@@ -286,6 +291,11 @@ users:
   rahul.kamarouthu:
     aws_groups:
     - analytics
+  russel.ngamboassongmo:
+    aws_groups:
+    - supporteng
+    ec2_username:
+    - nassongmo
   ryan.d.brown:
     aws_groups:
     - devops
