@@ -630,6 +630,12 @@ variable "pivcac_low_traffic_alert_threshold" {
   default     = 5
 }
 
+variable "pivcac_mfa_low_alert_threshold" {
+  description = "Minimum number of successful PIV/CAC MFA sign ins per 60 minutes"
+  type        = number
+  default     = 0
+}
+
 variable "proofing_low_alert_threshold" {
   description = "Minimum number of successful proofs in an hour"
   type        = number
