@@ -395,7 +395,7 @@ execute 'add_ci_skeleton' do
     PROJECT_JSON=$(curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" \
       "#{local_url}/api/v4/groups/$GROUP_NUMBER/projects?" | jq '.[] | select(.name=="identity-devops")')
     PROJECT_NUMBER=$(echo $PROJECT_JSON | jq 'select(.name=="identity-devops") | .id')
-    for variable in GITLAB_API_TOKEN GITLAB_QA_ACCOUNT GITLAB_QA_PASSWORD GITLAB_QA_API_TOKEN AWS_ACCOUNT_ID EXTERNAL_FQDN AWS_REGION
+    for variable in GITLAB_QA_ACCOUNT GITLAB_QA_PASSWORD GITLAB_QA_API_TOKEN AWS_ACCOUNT_ID EXTERNAL_FQDN AWS_REGION
     do
       if (curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XGET \
         "#{local_url}/api/v4/projects/$PROJECT_NUMBER/variables/$variable"  | jq '.value')
@@ -407,10 +407,6 @@ execute 'add_ci_skeleton' do
         echo "$variable Not Present"
       fi
     done
-    curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
-      "#{local_url}/api/v4/projects/$PROJECT_NUMBER/variables" \
-      --form "key=GITLAB_API_TOKEN" --form "value=#{gitlab_root_api_token}" \
-      --form "masked=true" --form "protected=true"
     curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
       "#{local_url}/api/v4/projects/$PROJECT_NUMBER/variables" \
       --form "key=GITLAB_QA_ACCOUNT" --form "value=#{gitlab_qa_account_name}" \
@@ -426,7 +422,7 @@ execute 'add_ci_skeleton' do
     curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
       "#{local_url}/api/v4/projects/$PROJECT_NUMBER/variables" \
        --form "key=AWS_ACCOUNT_ID" --form "value=#{aws_account_id}" \
-      --form "masked=true" --form "protected=true"
+      --form "masked=true"
     curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
       "#{local_url}/api/v4/projects/$PROJECT_NUMBER/variables" \
       --form "key=EXTERNAL_FQDN" --form "value=#{external_fqdn}" \
@@ -434,7 +430,7 @@ execute 'add_ci_skeleton' do
     curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
       "#{local_url}/api/v4/projects/$PROJECT_NUMBER/variables" \
       --form "key=AWS_REGION" --form "value=#{aws_region}" \
-      --form "masked=true" --form "protected=true"
+      --form "masked=true"
     curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPUT \
       "#{local_url}/api/v4/application/settings?deactivate_dormant_users=true"
   EOF

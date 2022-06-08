@@ -32,6 +32,10 @@ module "gitlab_runner_lifecycle_hooks" {
   asg_name = aws_autoscaling_group.gitlab_runner.name
 }
 
+locals {
+  gitlab_ecr_repo_accountid = var.gitlab_ecr_repo_accountid == "" ? data.aws_caller_identity.current.account_id : var.gitlab_ecr_repo_accountid
+}
+
 module "gitlab_runner_launch_template" {
   source = "github.com/18F/identity-terraform//launch_template?ref=a6261020a94b77b08eedf92a068832f21723f7a2"
   #source = "../../../identity-terraform/launch_template"
@@ -52,8 +56,10 @@ module "gitlab_runner_launch_template" {
   user_data = module.gitlab_runner_user_data.rendered_cloudinit_config
 
   instance_tags = {
-    gitlab_runner_pool_name = var.gitlab_runner_pool_name,
-    allow_untagged_jobs     = var.allow_untagged_jobs ? "true" : "false"
+    gitlab_runner_pool_name   = var.gitlab_runner_pool_name,
+    allow_untagged_jobs       = var.allow_untagged_jobs ? "true" : "false"
+    is_it_an_env_runner       = var.is_it_an_env_runner ? "true" : "false"
+    gitlab_ecr_repo_accountid = local.gitlab_ecr_repo_accountid
   }
 
   block_device_mappings = [

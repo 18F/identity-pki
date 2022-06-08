@@ -38,6 +38,8 @@ package 'gitlab-runner' do
   version "14.10.1"
 end
 
+# install docker-credential-ecr-login so we can auth to ECR
+# (from https://github.com/awslabs/amazon-ecr-credential-helper/releases)
 cookbook_file '/usr/local/bin/docker-credential-ecr-login' do
   source 'docker-credential-ecr-login-0.6.0.linux-amd64'
   mode '0755'
@@ -70,12 +72,22 @@ runner_token = shell_out("aws s3 cp s3://#{config_s3_bucket}/gitlab_runner_token
 valid_tags = [
   'gitlab_runner_pool_name',
   'allow_untagged_jobs',
+  'is_it_an_env_runner',
+  'gitlab_ecr_repo_accountid'
 ]
 
 instance.tags.each do |tag|
   if valid_tags.include? tag.key
     node.run_state[tag.key] = tag.value
   end
+end
+
+if node.run_state['is_it_an_env_runner'] == 'true'
+  node.run_state['runner_tag'] = node.environment + '-' + node.run_state['gitlab_runner_pool_name']
+  node.run_state['ecr_accountid'] = node.run_state['gitlab_ecr_repo_accountid']
+else
+  node.run_state['runner_tag'] = node.run_state['gitlab_runner_pool_name']
+  node.run_state['ecr_accountid'] = aws_account_id
 end
 
 directory '/etc/systemd/system/gitlab-runner.service.d'
@@ -126,6 +138,8 @@ docker_network 'runner-net' do
   driver 'bridge'
 end
 
+gitlab_ecr_registry = "#{node.run_state['ecr_accountid']}.dkr.ecr.#{aws_region}.amazonaws.com"
+
 execute 'configure_gitlab_runner' do
   command <<-EOH
     gitlab-runner register \
@@ -140,10 +154,10 @@ execute 'configure_gitlab_runner' do
     --env https_proxy="#{https_proxy}" \
     --env NO_PROXY="#{no_proxy}" \
     --env no_proxy="#{no_proxy}" \
-    --env DOCKER_AUTH_CONFIG='{ \"credsStore\": \"ecr-login\"}' \
+    --env DOCKER_AUTH_CONFIG='{\"credHelpers\": {\"public.ecr.aws\": \"ecr-login\",\"#{gitlab_ecr_registry}\": \"ecr-login\"}}' \
     --docker-image="#{aws_account_id}.dkr.ecr.#{aws_region}.amazonaws.com/ecr-public/docker/library/alpine:latest" \
     --run-untagged="#{node.run_state['allow_untagged_jobs']}" \
-    --tag-list "#{node.run_state['gitlab_runner_pool_name']}" \
+    --tag-list "#{node.run_state['runner_tag']}" \
     --locked=false \
     --cache-shared \
     --cache-type s3 \
