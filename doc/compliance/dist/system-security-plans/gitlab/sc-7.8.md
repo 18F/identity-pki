@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
 ---
 
 # sc-7.8 - \[catalog\] Route Traffic to Authenticated Proxy Servers
@@ -28,6 +28,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control sc-7.8
+Gitlab uses a series of proxy servers to provide outgoing access destined for external networks.  Specific network destinations are enabled via an allow list, and all other destinations are disallowed.  All outbound traffic destined for external network that is originated by Gitlab or Gitlab components are routed through proxies.
 
 ______________________________________________________________________

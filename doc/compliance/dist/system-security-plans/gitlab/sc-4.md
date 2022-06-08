@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
 ---
 
 # sc-4 - \[catalog\] Information in Shared Resources
@@ -22,6 +22,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control sc-4
+Gitlab prevents unauthorized and unintended information transfer via shared system resources by separating the Gitlab source code management system processes from Gitlab runner processes. Specifically, any build, test and other Gitlab runner activities are sequestered from the Gitlab source code management system processes by placing all runner or CICD process on separate virtual machines which use separate security groups, and dedicated web proxies.
 
 ______________________________________________________________________

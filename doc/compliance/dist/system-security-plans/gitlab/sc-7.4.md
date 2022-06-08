@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-in-parent-ssp
+  - c-documented
 ---
 
 # sc-7.4 - \[catalog\] External Telecommunications Services
@@ -51,30 +51,30 @@ ______________________________________________________________________
 
 ## Implementation (a)
 
-Add control implementation description here for item sc-7.4_smt.a
+This control is documented in the main SSP.
 
 ______________________________________________________________________
 
 ## Implementation (b)
 
-Add control implementation description here for item sc-7.4_smt.b
+This control is documented in the main SSP.
 
 ______________________________________________________________________
 
 ## Implementation (c)
 
-Add control implementation description here for item sc-7.4_smt.c
+This control is documented in the main SSP.
 
 ______________________________________________________________________
 
 ## Implementation (d)
 
-Add control implementation description here for item sc-7.4_smt.d
+This control is documented in the main SSP.
 
 ______________________________________________________________________
 
 ## Implementation (e)
 
-Add control implementation description here for item sc-7.4_smt.e
+This control is documented in the main SSP.
 
 ______________________________________________________________________

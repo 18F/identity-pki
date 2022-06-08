@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
 needs-params:
   - sc-6_prm_2
 ---
@@ -34,6 +34,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control sc-6
+To maintain service availability, Gitlab uses AWS Availability Zones and Elastic Load Balancing, along with real-time resource monitoring and alerting.
 
 ______________________________________________________________________
