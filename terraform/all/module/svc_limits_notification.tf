@@ -77,11 +77,11 @@ Region: ${var.region}
 Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-AWS-Service-Limits#limitexceeded-in-cloudtrail
 EOM
   metric_name         = aws_cloudwatch_log_metric_filter.api_throttling.name
-  threshold           = "1"
+  threshold           = "5"
   statistic           = "Sum"
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  datapoints_to_alarm = "1"
-  evaluation_periods  = "1"
+  datapoints_to_alarm = "3"
+  evaluation_periods  = "3"
   period              = "300"
   namespace           = "CloudTrailMetrics/APIThrottling"
   alarm_actions       = [aws_sns_topic.slack_usw2["events"].arn]

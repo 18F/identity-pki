@@ -244,3 +244,15 @@ variable "config_password_rotation_code" {
   description = "Path of the compressed lambda source code."
   default     = "lambda/config-password-rotation.zip"
 }
+
+variable "PrismaCloudRoleName" {
+  type        = string
+  description = "IAM role name to be assumed by PrismaCloud followed by session name in the format:/role-name/role-session-name"
+  default     = "/PrismaCloudRole/redlock"
+}
+
+variable "NewRelicARNRoleName" {
+  type        = string
+  description = "IAM role name to be assumed by NewRelic Integrations followed by session name in the format:/role-name/role-session-name"
+  default     = "/NewRelicInfrastructure-Integrations/newrelic-infrastructure"
+}
