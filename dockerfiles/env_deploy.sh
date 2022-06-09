@@ -64,7 +64,7 @@ cd "$CI_PROJECT_DIR/terraform/app" || exit 1
 		-var-file "$CI_PROJECT_DIR/identity-devops-private/vars/base.tfvars" \
 		-var-file "$CI_PROJECT_DIR/identity-devops-private/vars/account_global_$AWS_ACCOUNTID.tfvars" \
 		-var-file "$CI_PROJECT_DIR/identity-devops-private/vars/$CI_ENVIRONMENT_NAME.tfvars"
-/usr/local/bin/terraform show "$CI_PROJECT_DIR/terraform.plan" > "$CI_PROJECT_DIR/plan.txt"
+/usr/local/bin/terraform show -no-color "$CI_PROJECT_DIR/terraform.plan" > "$CI_PROJECT_DIR/plan.txt"
 
 # deploy, using the plan
 /usr/local/bin/terraform apply -lock-timeout=180s -auto-approve "$CI_PROJECT_DIR/terraform.plan"

@@ -753,6 +753,11 @@ variable "gitlab_configbucket" {
   default     = ""
 }
 
+variable "gitlab_ecr_repo_accountid" {
+  description = "the AWS account ID where it's gitlab lives, so it knows what ECR to pull from"
+  default     = "217680906704" # prod
+}
+
 variable "idp_ial2_sp_dashboards" {
   type = map(object({
     name     = string

@@ -78,5 +78,5 @@ module "env-runner" {
   ssm_access_policy         = module.ssm.ssm_access_role_policy
   terraform_powers          = true
   is_it_an_env_runner       = true
-  gitlab_ecr_repo_accountid = "034795980528"
+  gitlab_ecr_repo_accountid = var.gitlab_ecr_repo_accountid
 }
