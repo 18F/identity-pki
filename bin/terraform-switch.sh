@@ -29,7 +29,6 @@ ID_TF_SKIP_PLUGIN_CACHE="${ID_TF_SKIP_PLUGIN_CACHE-}"
 
 # Location of installed TF symlink
 TERRAFORM_SYMLINK="${TERRAFORM_SYMLINK-/usr/local/bin/terraform}"
-SUDO_LN=
 
 # Hashicorp GPG key fingerprint
 TF_GPG_KEY_ID='72D7468F'
@@ -180,6 +179,7 @@ esac
 case "$(uname -m)" in
     x86_64|amd64) TF_ARCH=amd64 ;;
     i386|i686) TF_ARCH=386 ;;
+    arm64) TF_ARCH=arm64 ;;
     arm*) TF_ARCH=arm ;;
     *)
         echo >&2 "Unknown architecture '$(uname -m)'"
@@ -340,10 +340,10 @@ install_tf_symlink() {
 
     echo_blue "Updating terraform symlink for $TERRAFORM_SYMLINK"
 
-    if [ -n "$SUDO_LN" ]; then
-        run sudo ln -sfv "$terraform_exe" "$TERRAFORM_SYMLINK"
-    else
+    if [ -w "$(dirname $TERRAFORM_SYMLINK)" ]; then
         run ln -sfv "$terraform_exe" "$TERRAFORM_SYMLINK"
+    else
+        run sudo ln -sfv "$terraform_exe" "$TERRAFORM_SYMLINK"
     fi
 
 }
