@@ -47,7 +47,7 @@ users:
     - benjaminchait
   chris.manger:
     aws_groups:
-    - bizops
+    - finops
   clinton.troxel:
     gitlab_groups:
     - appdev

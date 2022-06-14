@@ -71,6 +71,11 @@ module "main" {
       { "FullAdministrator" = ["Sandbox"] },
       { "Terraform" = ["Sandbox"] }
     ],
+    "finops" = [
+      { "Analytics" = ["Sandbox", "Prod"] },
+      { "BillingReadOnly" = ["Sandbox", "Prod"] },
+      { "ReportsReadOnly" = ["Sandbox", "Prod"] }
+    ],
     "secops" = [
       { "Analytics" = ["Sandbox", "Prod"] },
       { "FullAdministrator" = ["Sandbox", "Prod", "Master"] },
@@ -104,6 +109,7 @@ module "main" {
   role_list = [
     "Analytics",
     "Auditor",
+    "BillingReadOnly",
     "FullAdministrator",
     "PowerUser",
     "ReadOnly",
