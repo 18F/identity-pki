@@ -109,7 +109,7 @@ elif ! [[ "${TYPE_LIST}" =~ (base|rails) ]] ; then
   raise "TYPE must be \`base\` or \`rails\`; remove -t flag to use both"
 fi
 
-get_iam 'imagebuild' "${ACCOUNT}"
+get_iam 'imagebuild' "${ACCOUNT}" 'FullAdministrator'
 get_build_branch
 [[ ${VERIFY_ONLY} == true ]] && exit 0
 
