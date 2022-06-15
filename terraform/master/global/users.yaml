@@ -26,7 +26,7 @@ users:
     - devops
   alexander.bradley:
     aws_groups:
-    - appdev
+    - apponcall
     gitlab_groups:
     - appdev
     ec2_username:
