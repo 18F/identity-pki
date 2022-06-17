@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-in-parent-ssp
+  - c-documented
 needs-params:
   - si-4_prm_5
 ---
@@ -96,42 +96,42 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-Add control implementation description here for item si-4_smt.a
+This control is documented in the main SSP.
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-Add control implementation description here for item si-4_smt.b
+This control is documented in the main SSP.
 
 ______________________________________________________________________
 
 ## Implementation c.
 
-Add control implementation description here for item si-4_smt.c
+This control is documented in the main SSP.
 
 ______________________________________________________________________
 
 ## Implementation d.
 
-Add control implementation description here for item si-4_smt.d
+This control is documented in the main SSP.
 
 ______________________________________________________________________
 
 ## Implementation e.
 
-Add control implementation description here for item si-4_smt.e
+This control is documented in the main SSP.
 
 ______________________________________________________________________
 
 ## Implementation f.
 
-Add control implementation description here for item si-4_smt.f
+This control is documented in the main SSP.
 
 ______________________________________________________________________
 
 ## Implementation g.
 
-Add control implementation description here for item si-4_smt.g
+This control is documented in the main SSP.
 
 ______________________________________________________________________
