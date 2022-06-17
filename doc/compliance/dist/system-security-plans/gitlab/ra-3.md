@@ -1,7 +1,8 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
+  - c-in-parent-ssp
 needs-params:
   - ra-3_prm_1
 ---
@@ -73,30 +74,31 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-Add control implementation description here for item ra-3_smt.a
+The Gitlab component uses ra-3.a from the main login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-Add control implementation description here for item ra-3_smt.b
+
+The Gitlab component uses ra-3.b from the main login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation c.
 
-Add control implementation description here for item ra-3_smt.c
+The Gitlab component uses ra-3.c from the main login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation d.
 
-Add control implementation description here for item ra-3_smt.d
+The Gitlab component uses ra-3.d from the main login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation e.
 
-Add control implementation description here for item ra-3_smt.e
+The Gitlab component uses ra-3.e from the main login.gov SSP.
 
 ______________________________________________________________________
