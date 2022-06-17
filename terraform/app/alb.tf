@@ -1,7 +1,7 @@
 resource "aws_alb" "idp" {
   name            = "${var.name}-idp-alb-${var.env_name}"
   security_groups = [aws_security_group.web.id]
-  subnets = [ for subnet in aws_subnet.public-ingress : subnet.id ]
+  subnets         = [for subnet in aws_subnet.public-ingress : subnet.id]
 
   access_logs {
     bucket  = "login-gov.elb-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
