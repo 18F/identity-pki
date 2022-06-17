@@ -9,7 +9,6 @@ resource "aws_db_instance" "default" {
     aws_security_group.db,
     aws_subnet.db1,
     aws_subnet.db2,
-    aws_subnet.db,
   ]
   engine         = var.rds_engine
   engine_version = var.rds_engine_version

@@ -66,9 +66,8 @@ resource "aws_network_acl" "db" {
     Name = "${var.env_name}-db"
   }
 
-  vpc_id = aws_vpc.default.id
-  subnet_ids = concat([aws_subnet.db1.id, aws_subnet.db2.id],
-  [for subnet in aws_subnet.db : "${subnet.id}"])
+  vpc_id     = aws_vpc.default.id
+  subnet_ids = [aws_subnet.db1.id, aws_subnet.db2.id]
 }
 
 # allow ephemeral ports out
@@ -292,17 +291,6 @@ resource "aws_network_acl_rule" "idp-ingress-cloudhsm" {
   rule_number    = 46
   rule_action    = "allow"
   cidr_block     = var.vpc_cidr_block
-}
-
-resource "aws_network_acl_rule" "idp-ingress-s-cloudhsm" {
-  network_acl_id = aws_network_acl.idp.id
-  egress         = false
-  from_port      = 2223
-  to_port        = 2225
-  protocol       = "tcp"
-  rule_number    = 48
-  rule_action    = "allow"
-  cidr_block     = aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block
 }
 
 resource "aws_network_acl_rule" "idp-ingress-proxy" {

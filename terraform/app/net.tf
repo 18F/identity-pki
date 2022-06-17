@@ -1399,14 +1399,14 @@ resource "aws_subnet" "app" {
   vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
 }
 
-resource "aws_subnet" "db" {
+resource "aws_subnet" "data_services" {
   for_each                = local.network_layout[var.region][var.env_type]._zones
   availability_zone       = "${var.region}${each.key}"
   cidr_block              = each.value.data-services
   map_public_ip_on_launch = false
 
   tags = {
-    Name = "${var.name}-db_subnet_${each.key}-${var.env_name}"
+    Name = "${var.name}-data_services_subnet_${each.key}-${var.env_name}"
   }
 
   vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
