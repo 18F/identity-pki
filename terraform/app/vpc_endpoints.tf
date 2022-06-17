@@ -14,11 +14,11 @@ resource "aws_security_group" "kms_endpoint" {
     from_port = 443
     to_port   = 443
     protocol  = "tcp"
-    cidr_blocks = [
+    cidr_blocks = concat([
       var.private1_subnet_cidr_block,
       var.private2_subnet_cidr_block,
       var.private3_subnet_cidr_block,
-    ]
+    ], [for subnet in aws_subnet.app : subnet.cidr_block])
   }
 
   name = "${var.name}-kms_endpoint-${var.env_name}"
@@ -309,11 +309,11 @@ resource "aws_vpc_endpoint" "kms" {
     aws_security_group.kms_endpoint.id,
   ]
 
-  subnet_ids = [
+  subnet_ids = concat([
     aws_subnet.privatesubnet1.id,
     aws_subnet.privatesubnet2.id,
     aws_subnet.privatesubnet3.id,
-  ]
+  ], [for subnet in aws_subnet.app : subnet.id])
 
   private_dns_enabled = true
 }
@@ -327,11 +327,11 @@ resource "aws_vpc_endpoint" "logs" {
     aws_security_group.logs_endpoint.id,
   ]
 
-  subnet_ids = [
+  subnet_ids = concat([
     aws_subnet.privatesubnet1.id,
     aws_subnet.privatesubnet2.id,
     aws_subnet.privatesubnet3.id,
-  ]
+  ], [for subnet in aws_subnet.app : subnet.id])
 
   private_dns_enabled = true
 }
@@ -345,11 +345,11 @@ resource "aws_vpc_endpoint" "monitoring" {
     aws_security_group.monitoring_endpoint.id,
   ]
 
-  subnet_ids = [
+  subnet_ids = concat([
     aws_subnet.privatesubnet1.id,
     aws_subnet.privatesubnet2.id,
     aws_subnet.privatesubnet3.id,
-  ]
+  ], [for subnet in aws_subnet.app : subnet.id])
 
   private_dns_enabled = true
 }
@@ -363,11 +363,11 @@ resource "aws_vpc_endpoint" "ssm" {
     aws_security_group.ssm_endpoint.id,
   ]
 
-  subnet_ids = [
+  subnet_ids = concat([
     aws_subnet.privatesubnet1.id,
     aws_subnet.privatesubnet2.id,
     aws_subnet.privatesubnet3.id,
-  ]
+  ], [for subnet in aws_subnet.app : subnet.id])
 
   private_dns_enabled = true
 }
@@ -381,11 +381,11 @@ resource "aws_vpc_endpoint" "ssmmessages" {
     aws_security_group.ssmmessages_endpoint.id,
   ]
 
-  subnet_ids = [
+  subnet_ids = concat([
     aws_subnet.privatesubnet1.id,
     aws_subnet.privatesubnet2.id,
     aws_subnet.privatesubnet3.id,
-  ]
+  ], [for subnet in aws_subnet.app : subnet.id])
 
   private_dns_enabled = true
 }
@@ -399,11 +399,11 @@ resource "aws_vpc_endpoint" "ec2" {
     aws_security_group.ec2_endpoint.id,
   ]
 
-  subnet_ids = [
+  subnet_ids = concat([
     aws_subnet.privatesubnet1.id,
     aws_subnet.privatesubnet2.id,
     aws_subnet.privatesubnet3.id,
-  ]
+  ], [for subnet in aws_subnet.app : subnet.id])
 
   private_dns_enabled = true
 }
@@ -417,11 +417,11 @@ resource "aws_vpc_endpoint" "ec2messages" {
     aws_security_group.ec2messages_endpoint.id,
   ]
 
-  subnet_ids = [
+  subnet_ids = concat([
     aws_subnet.privatesubnet1.id,
     aws_subnet.privatesubnet2.id,
     aws_subnet.privatesubnet3.id,
-  ]
+  ], [for subnet in aws_subnet.app : subnet.id])
 
   private_dns_enabled = true
 }
@@ -435,11 +435,11 @@ resource "aws_vpc_endpoint" "secretsmanager" {
     aws_security_group.secretsmanager_endpoint.id,
   ]
 
-  subnet_ids = [
+  subnet_ids = concat([
     aws_subnet.privatesubnet1.id,
     aws_subnet.privatesubnet2.id,
     aws_subnet.privatesubnet3.id,
-  ]
+  ], [for subnet in aws_subnet.app : subnet.id])
 
   private_dns_enabled = true
 }
@@ -453,11 +453,11 @@ resource "aws_vpc_endpoint" "sns" {
     aws_security_group.sns_endpoint.id,
   ]
 
-  subnet_ids = [
+  subnet_ids = concat([
     aws_subnet.privatesubnet1.id,
     aws_subnet.privatesubnet2.id,
     aws_subnet.privatesubnet3.id,
-  ]
+  ], [for subnet in aws_subnet.app : subnet.id])
 
   private_dns_enabled = true
 }
@@ -471,11 +471,11 @@ resource "aws_vpc_endpoint" "lambda" {
     aws_security_group.lambda_endpoint.id,
   ]
 
-  subnet_ids = [
+  subnet_ids = concat([
     aws_subnet.privatesubnet1.id,
     aws_subnet.privatesubnet2.id,
     aws_subnet.privatesubnet3.id,
-  ]
+  ], [for subnet in aws_subnet.app : subnet.id])
 
   private_dns_enabled = true
 }
@@ -489,11 +489,11 @@ resource "aws_vpc_endpoint" "sqs" {
     aws_security_group.sqs_endpoint.id,
   ]
 
-  subnet_ids = [
+  subnet_ids = concat([
     aws_subnet.privatesubnet1.id,
     aws_subnet.privatesubnet2.id,
     aws_subnet.privatesubnet3.id,
-  ]
+  ], [for subnet in aws_subnet.app : subnet.id])
 
   private_dns_enabled = true
 }
@@ -514,11 +514,11 @@ resource "aws_security_group" "sts_endpoint" {
     from_port = 443
     to_port   = 443
     protocol  = "tcp"
-    cidr_blocks = [
+    cidr_blocks = concat([
       var.private1_subnet_cidr_block,
       var.private2_subnet_cidr_block,
       var.private3_subnet_cidr_block,
-    ]
+    ], [for subnet in aws_subnet.app : subnet.cidr_block])
   }
 
   vpc_id = aws_vpc.default.id
@@ -533,11 +533,11 @@ resource "aws_vpc_endpoint" "sts" {
     aws_security_group.sts_endpoint.id,
   ]
 
-  subnet_ids = [
+  subnet_ids = concat([
     aws_subnet.privatesubnet1.id,
     aws_subnet.privatesubnet2.id,
     aws_subnet.privatesubnet3.id,
-  ]
+  ], [for subnet in aws_subnet.app : subnet.id])
 
   private_dns_enabled = true
 }
@@ -551,11 +551,11 @@ resource "aws_vpc_endpoint" "events" {
     aws_security_group.events_endpoint.id,
   ]
 
-  subnet_ids = [
+  subnet_ids = concat([
     aws_subnet.privatesubnet1.id,
     aws_subnet.privatesubnet2.id,
     aws_subnet.privatesubnet3.id,
-  ]
+  ], [for subnet in aws_subnet.app : subnet.id])
 
   private_dns_enabled = true
 }
