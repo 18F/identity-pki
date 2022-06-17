@@ -529,11 +529,11 @@ resource "aws_security_group" "idp" {
     from_port = 443
     to_port   = 443
     protocol  = "tcp"
-    cidr_blocks = [
+    cidr_blocks = concat([
       var.private1_subnet_cidr_block,
       var.private2_subnet_cidr_block,
       var.private3_subnet_cidr_block,
-    ]
+    ], [for subnet in aws_subnet.app : subnet.cidr_block])
   }
 
   name = "${var.name}-idp-${var.env_name}"
@@ -774,15 +774,15 @@ resource "aws_security_group" "web" {
   # bootstrapping cycle and will still remove unmanaged rules.
   # https://github.com/terraform-providers/terraform-provider-aws/issues/3095
   egress {
-    from_port = 80
-    to_port   = 80
-    protocol  = "tcp"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
     cidr_blocks = [for subnet in aws_subnet.app : subnet.cidr_block]
   }
   egress {
-    from_port = 443
-    to_port   = 443
-    protocol  = "tcp"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
     cidr_blocks = [for subnet in aws_subnet.app : subnet.cidr_block]
   }
 
