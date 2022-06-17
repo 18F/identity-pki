@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # Transform network_schema.yml into subnet map JSON
 
+import argparse
 import json
 import yaml
 from collections import Counter
@@ -98,7 +99,7 @@ def main():
     subnet_map = create_subnet_map(schema_data)
 
     with open("network_layout.json", "w") as outfile:
-        outfile.write(json.dumps(subnet_map))
+        outfile.write(json.dumps(subnet_map, indent=2))
 
 
 if __name__ == '__main__':
