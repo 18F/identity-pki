@@ -3,7 +3,8 @@
 ## Example release:
 ## Tuesday
 # bin/cut-release
-# export DEPLOY_RELEASE=v200
+# git fetch origin --tags
+# export DEPLOY_RELEASE=$(git tag -l --sort=-version:refname | sed 1q)
 # bin/release.sh clean
 # bin/release.sh int
 # bin/release.sh pt

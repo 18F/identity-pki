@@ -6,6 +6,7 @@ PROD_PLANS := $(PROD_TF_PATHS:=.plan)
 PROD_APPLIES := $(PROD_TF_PATHS:=.apply)
 APP_ENVS := $(patsubst %,terraform/app/%,int pt pt2 staging dm prod)
 
+SHELL = /bin/sh -o pipefail -c
 .PHONY: clean clean-plan clean-apply default help non-app-non-prod
 .PHONY: other-prod int staging dm pt pt2 prod
 .DEFAULT_GOAL := help
@@ -45,13 +46,13 @@ $(APP_ENVS:=.branch): terraform/app/%.branch:
 # App-specific td invocation
 $(APP_ENVS:=.plan): terraform/app/%.plan: terraform/app/%.branch ## plan for one app env "%"
 	git checkout stages/$*
-	bin/td -e $* -c b > $@.tmp
+	bin/td -e $* -c b | tee $@.tmp
 	mv $@.tmp $@
 
 # If no plan exists, fail. Don't implicitly run plan.
 $(APP_ENVS:=.apply): terraform/app/%.apply: terraform/app/%.plan-verify ## apply for one app env "%"
 	git checkout stages/$*
-	bin/td -e $* -a auto-approve > $@.tmp
+	bin/td -e $* -a auto-approve | tee $@.tmp
 	mv $@.tmp $@
 
 # Override so recycling int is run as `sandbox-admin`
@@ -60,7 +61,7 @@ $(patsubst %,terraform/app/%.recycle,prod staging dm): ACCOUNT = prod-admin
 
 # Recycling for prod, staging, dm is done as `prod-admin`. `int` gets overridden.
 $(APP_ENVS:=.recycle): terraform/app/%.recycle: terraform/app/%.apply ## recycle one app env "%"
-	aws-vault exec $(ACCOUNT) -- bin/asg-recycle $* ALL > $@.tmp
+	aws-vault exec $(ACCOUNT) -- bin/asg-recycle $* ALL | tee $@.tmp
 	mv $@.tmp $@
 
 terraform/app/%.recycle-verify: terraform/app/%.recycle
@@ -80,7 +81,7 @@ $(PROD_PLANS): GIT_BRANCH = stages/prod
 terraform/all/tooling-prod.plan: GIT_BRANCH = main
 $(PLANS) $(PROD_PLANS):
 	test -n "$(GIT_BRANCH)" && git checkout "$(GIT_BRANCH)" || true
-	bin/td -d $(shell basename $(@D)) -e $(shell basename $@ .plan) -c b > $@.tmp
+	bin/td -d $(shell basename $(@D)) -e $(shell basename $@ .plan) -c b | tee $@.tmp
 	mv $@.tmp $@
 
 if_nonempty_plan = if ! grep -q '^No changes in Terraform plan for ' $<; then
@@ -97,7 +98,7 @@ terraform/all/tooling-prod.apply: GIT_BRANCH = main
 $(APPLIES) $(PROD_APPLIES): %.apply: %.plan %.plan-verify
 	test -n "$(GIT_BRANCH)" && git checkout "$(GIT_BRANCH)" || true
 	rm -f $@.tmp
-	$(if_nonempty_plan) bin/td -d $(shell basename $(@D)) -e $(shell basename $@ .apply) -a auto-approve > $@.tmp; fi
+	$(if_nonempty_plan) bin/td -d $(shell basename $(@D)) -e $(shell basename $@ .apply) -a auto-approve | tee $@.tmp; fi
 	$(if_nonempty_plan) mv $@.tmp $@; fi
 	touch $@
 
