@@ -216,13 +216,7 @@ resource "aws_network_acl" "idp" {
   }
 
   vpc_id = aws_vpc.default.id
-  subnet_ids = concat([
-    aws_subnet.idp1.id,
-    aws_subnet.idp2.id,
-    aws_subnet.privatesubnet1.id,
-    aws_subnet.privatesubnet2.id,
-    aws_subnet.privatesubnet3.id,
-  ], [for subnet in aws_subnet.app : subnet.id])
+  subnet_ids = [for subnet in aws_subnet.app : subnet.id]
 }
 
 # Uses up to rule number 25 + number of ssh_cidr_blocks
@@ -319,8 +313,7 @@ resource "aws_network_acl_rule" "idp-ingress-s-proxy" {
 
 resource "aws_network_acl" "alb" {
   vpc_id = aws_vpc.default.id
-  subnet_ids = concat([aws_subnet.alb1.id, aws_subnet.alb2.id, aws_subnet.alb3.id, ],
-  [for subnet in aws_subnet.public-ingress : subnet.id])
+  subnet_ids = [for subnet in aws_subnet.public-ingress : subnet.id]
 
   tags = {
     Name = "${var.env_name}-alb"

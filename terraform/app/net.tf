@@ -529,11 +529,7 @@ resource "aws_security_group" "idp" {
     from_port = 443
     to_port   = 443
     protocol  = "tcp"
-    cidr_blocks = concat([
-      var.private1_subnet_cidr_block,
-      var.private2_subnet_cidr_block,
-      var.private3_subnet_cidr_block,
-    ], [for subnet in aws_subnet.app : subnet.cidr_block])
+    cidr_blocks = [for subnet in aws_subnet.app : subnet.cidr_block]
   }
 
   name = "${var.name}-idp-${var.env_name}"
@@ -774,6 +770,7 @@ resource "aws_security_group" "web" {
   # bootstrapping cycle and will still remove unmanaged rules.
   # https://github.com/terraform-providers/terraform-provider-aws/issues/3095
   egress {
+<<<<<<< Updated upstream
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
@@ -783,6 +780,17 @@ resource "aws_security_group" "web" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
+=======
+    from_port = 80
+    to_port   = 80
+    protocol  = "tcp"
+    cidr_blocks = [for subnet in aws_subnet.app : subnet.cidr_block]
+  }
+  egress {
+    from_port = 443
+    to_port   = 443
+    protocol  = "tcp"
+>>>>>>> Stashed changes
     cidr_blocks = [for subnet in aws_subnet.app : subnet.cidr_block]
   }
 
@@ -820,22 +828,14 @@ resource "aws_security_group" "app-alb" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = concat([
-      aws_subnet.publicsubnet1.cidr_block,
-      aws_subnet.publicsubnet2.cidr_block,
-      aws_subnet.publicsubnet3.cidr_block,
-    ], [for subnet in aws_subnet.app : subnet.cidr_block])
+    cidr_blocks = [for subnet in aws_subnet.app : subnet.cidr_block]
   }
   egress {
     description = "Permit HTTPS to public subnets for app"
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = concat([
-      aws_subnet.publicsubnet1.cidr_block,
-      aws_subnet.publicsubnet2.cidr_block,
-      aws_subnet.publicsubnet3.cidr_block,
-    ], [for subnet in aws_subnet.app : subnet.cidr_block])
+    cidr_blocks = [for subnet in aws_subnet.app : subnet.cidr_block]
   }
 
   ingress {
@@ -907,71 +907,6 @@ resource "aws_subnet" "jumphost2" {
   vpc_id = aws_vpc.default.id
 }
 
-resource "aws_subnet" "idp1" {
-  availability_zone       = "${var.region}a"
-  cidr_block              = var.idp1_subnet_cidr_block
-  depends_on              = [aws_internet_gateway.default]
-  map_public_ip_on_launch = true
-
-  tags = {
-    Name = "${var.name}-idp1_subnet-${var.env_name}"
-  }
-
-  vpc_id = aws_vpc.default.id
-}
-
-resource "aws_subnet" "idp2" {
-  availability_zone       = "${var.region}b"
-  cidr_block              = var.idp2_subnet_cidr_block
-  depends_on              = [aws_internet_gateway.default]
-  map_public_ip_on_launch = true
-
-  tags = {
-    Name = "${var.name}-idp2_subnet-${var.env_name}"
-  }
-
-  vpc_id = aws_vpc.default.id
-}
-
-resource "aws_subnet" "alb1" {
-  availability_zone       = "${var.region}a"
-  cidr_block              = var.alb1_subnet_cidr_block
-  depends_on              = [aws_internet_gateway.default]
-  map_public_ip_on_launch = true
-
-  tags = {
-    Name = "${var.name}-alb1_subnet-${var.env_name}"
-  }
-
-  vpc_id = aws_vpc.default.id
-}
-
-resource "aws_subnet" "alb2" {
-  availability_zone       = "${var.region}b"
-  cidr_block              = var.alb2_subnet_cidr_block
-  depends_on              = [aws_internet_gateway.default]
-  map_public_ip_on_launch = true
-
-  tags = {
-    Name = "${var.name}-alb2_subnet-${var.env_name}"
-  }
-
-  vpc_id = aws_vpc.default.id
-}
-
-resource "aws_subnet" "alb3" {
-  availability_zone       = "${var.region}c"
-  cidr_block              = var.alb3_subnet_cidr_block
-  depends_on              = [aws_internet_gateway.default]
-  map_public_ip_on_launch = true
-
-  tags = {
-    Name = "${var.name}-alb3_subnet-${var.env_name}"
-  }
-
-  vpc_id = aws_vpc.default.id
-}
-
 resource "aws_vpc_endpoint" "private-s3" {
   vpc_id          = aws_vpc.default.id
   service_name    = "com.amazonaws.${var.region}.s3"
@@ -1007,103 +942,6 @@ resource "aws_route53_resolver_query_log_config" "vpc" {
 resource "aws_route53_resolver_query_log_config_association" "vpc" {
   resolver_query_log_config_id = aws_route53_resolver_query_log_config.vpc.id
   resource_id                  = aws_vpc.default.id
-}
-
-# create public and private subnets
-resource "aws_subnet" "publicsubnet1" {
-  availability_zone       = "${var.region}a"
-  cidr_block              = var.public1_subnet_cidr_block
-  map_public_ip_on_launch = true
-
-  tags = {
-    Name = "${var.name}-public1_subnet-${var.env_name}"
-    type = "public"
-  }
-
-  vpc_id = aws_vpc.default.id
-}
-
-resource "aws_subnet" "publicsubnet2" {
-  availability_zone       = "${var.region}b"
-  cidr_block              = var.public2_subnet_cidr_block
-  map_public_ip_on_launch = true
-
-  tags = {
-    Name = "${var.name}-public2_subnet-${var.env_name}"
-    type = "public"
-  }
-
-  vpc_id = aws_vpc.default.id
-}
-
-resource "aws_subnet" "publicsubnet3" {
-  availability_zone       = "${var.region}c"
-  cidr_block              = var.public3_subnet_cidr_block
-  map_public_ip_on_launch = true
-
-  tags = {
-    Name = "${var.name}-public3_subnet-${var.env_name}"
-    type = "public"
-  }
-
-  vpc_id = aws_vpc.default.id
-}
-
-resource "aws_subnet" "privatesubnet1" {
-  availability_zone       = "${var.region}a"
-  cidr_block              = var.private1_subnet_cidr_block
-  map_public_ip_on_launch = true
-
-  tags = {
-    Name = "${var.name}-private1_subnet-${var.env_name}"
-    type = "private"
-  }
-
-  vpc_id = aws_vpc.default.id
-}
-
-resource "aws_ssm_parameter" "net_subnet_private1" {
-  name  = "${local.net_ssm_parameter_prefix}subnet/private1/id"
-  type  = "String"
-  value = aws_subnet.privatesubnet1.id
-}
-
-resource "aws_subnet" "privatesubnet2" {
-  availability_zone       = "${var.region}b"
-  cidr_block              = var.private2_subnet_cidr_block
-  map_public_ip_on_launch = true
-
-  tags = {
-    Name = "${var.name}-private2_subnet-${var.env_name}"
-    type = "private"
-  }
-
-  vpc_id = aws_vpc.default.id
-}
-
-resource "aws_ssm_parameter" "net_subnet_private2" {
-  name  = "${local.net_ssm_parameter_prefix}subnet/private2/id"
-  type  = "String"
-  value = aws_subnet.privatesubnet2.id
-}
-
-resource "aws_subnet" "privatesubnet3" {
-  availability_zone       = "${var.region}c"
-  cidr_block              = var.private3_subnet_cidr_block
-  map_public_ip_on_launch = true
-
-  tags = {
-    Name = "${var.name}-private3_subnet-${var.env_name}"
-    type = "private"
-  }
-
-  vpc_id = aws_vpc.default.id
-}
-
-resource "aws_ssm_parameter" "net_subnet_private3" {
-  name  = "${local.net_ssm_parameter_prefix}subnet/private3/id"
-  type  = "String"
-  value = aws_subnet.privatesubnet3.id
 }
 
 resource "aws_security_group" "obproxy" {
