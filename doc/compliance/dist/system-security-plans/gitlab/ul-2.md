@@ -1,7 +1,6 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-documented
 ---
 
 # ul-2 - \[catalog\] Information Sharing with Third Parties
@@ -16,6 +15,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control ul-2
+We do not collect or hold PII in GitLab.
 
 ______________________________________________________________________

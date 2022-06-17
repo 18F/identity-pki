@@ -1,0 +1,145 @@
+#!/bin/bash
+
+#### Create sandbox environment configs from the .template files in each repo ####
+
+trap "cd ${GIT_DIR}" EXIT
+
+set -euo pipefail
+
+BASEPATH="$(dirname "$0")"
+. "${BASEPATH}/lib/common.sh"
+. "${BASEPATH}/lib/sandbox-lib.sh"
+
+usage() {
+  cat >&2 <<EOM
+
+Create the files necessary for building a user's sandbox environment by copying from
+the various .template files in the identity-devops and identity-devops-private repos.
+
+Usage: ${0} [-e EC2_USERNAME]|[-n 'First Last'] first.last
+  - Leave [first.last] blank to create config files for your own user/account; if
+    doing so, must run using one's source/parent profile (usually \`master\`), e.g.:
+      $ aws-vault exec master -- ${0}
+      $ $(dirname "$0")/awsv -x master ${0}
+
+Flags:
+  -e EC2_USERNAME : Manually specify desired EC2_USERNAME (10 characters or less)
+                    (if different from default of first initial + last name)
+  -n 'First Last' : Manually specify desired First and Last name
+                    (if different from default; must be in single quotes)
+  -h : Display help
+
+EOM
+}
+
+# print values after calculating/updating
+echo_names() {
+  echo -n "AWS username: " && echo_green ${NEW_USER}
+  echo -n "First/last name: " && echo_green ${FIRST_LAST}
+  echo -n "GSA_USERNAME/EC2 login name: " && echo_green ${TF_ENV}
+}
+
+# verify that EC2 login name is <=10 char
+check_ec2_name_length() {
+  local NEW_TF_ENV
+  while [[ ${#TF_ENV} -gt 10 ]] ; do
+    echo_yellow "EC2 login name '${TF_ENV}' is too long;"
+    echo_yellow "please provide another that is <= 10 characters."
+    read -r -p "New GSA_USERNAME/EC2 login name: " TF_ENV
+    echo
+  done
+}
+
+verify_root_repo
+verify_private_repo >/dev/null
+
+declare {FIRST_LAST,TF_ENV}=
+while getopts n:e:h opt
+do
+  case "${opt}" in
+    n) FIRST_LAST="${OPTARG}" ;;
+    e) TF_ENV="${OPTARG}"     ;;
+    h) usage && exit 0        ;;
+    *) raise 'Invalid option' ;;
+  esac
+done
+shift $((OPTIND-1))
+echo
+
+# get AWS username of person running script, if run without args;
+# otherwise, just verify AWS username in users.yaml
+NEW_USER="${1-}"
+if [[ -z ${NEW_USER} ]] ; then
+  verify_iam_user "${NEW_USER}"
+  NEW_USER="${VERIFIED_USER}"
+  echo
+else
+  NEW_USER=$(echo ${NEW_USER} | tr '[:upper:]' '[:lower:]')
+  verify_iam_user_yaml "${NEW_USER}"
+fi
+
+# calculate FIRST_LAST and TF_ENV if not already set
+if [[ -z ${FIRST_LAST} ]] ; then
+  FIRST_LAST=$(for NAME in $(echo ${NEW_USER}| tr '\.' ' ') ; do
+    echo ${NAME} | awk '{$1=toupper(substr($1,0,1))substr($1,2)}1'
+  done | tr '\n' ' ' | sed 's/ $//')
+fi
+if [[ -z ${TF_ENV} ]] ; then
+  if ! [[ -z ${EC2_USERNAME:-} ]] ; then
+    TF_ENV=${EC2_USERNAME}
+  else
+    TF_ENV=$(echo ${NEW_USER} | sed -E 's/^([a-z])[a-z\.]+\.([a-z]+)$/\1\2/')
+  fi
+fi
+check_ec2_name_length
+
+# print calculated names, prompt to validate; repeat until value(s) are confirmed
+while true ; do
+  echo_names
+  if ! prompt_yn "Does this look correct?" ; then
+    echo
+    read -r -p "First/last name [leave blank to use '${FIRST_LAST}']: " R_FL
+    [[ -z ${R_FL} ]] || FIRST_LAST=${R_FL}
+    read -r -p "GSA_USERNAME/EC2 login name [leave blank to use '${TF_ENV}']: " R_TFE
+    if ! [[ -z ${R_TFE} ]] ; then
+      TF_ENV=${R_TFE}
+      check_ec2_name_length
+    fi
+    echo
+  else
+    break
+  fi
+done
+
+echo
+echo_cyan "Creating/verifying environment files..."
+
+NEW_FILES=0
+for REPO in ${PRIVATE_REPO} ${GIT_DIR} ; do
+  cd ${REPO}
+  REPO_NAME_SHORT=$(git rev-parse --show-toplevel | awk -F/ '{print $NF}')
+  for FILE in $(find . -name '*.template' \
+                -not -path './terraform/*' -not -path './archive/*') ; do
+
+    # generate new basename based on TF_ENV/username,
+    # then calculate full path from dirname of template file
+    FILENAME=$(echo $(basename ${FILE}) |
+      sed -E "s/[a-z]+(\.[a-z]+)\.template/${TF_ENV}\1/")
+    NEW_FILE="$(dirname ${FILE})/${FILENAME}"
+    if [[ -f "${NEW_FILE}" ]] ; then
+      echo_yellow "${REPO_NAME_SHORT}/${NEW_FILE} exists; skipping creation."
+    else
+      echo_cyan "Creating ${REPO_NAME_SHORT}/${NEW_FILE} ..."
+
+      # convert TEMPLATE and Firstname Lastname as they appear in .template files
+      cat ${FILE} | sed "s/TEMPLATE/${TF_ENV}/g" |
+        sed "s/Firstname Lastname/${FIRST_LAST}/" > "${NEW_FILE}"
+      ((NEW_FILES++))
+    fi
+  done
+done
+cd ${GIT_DIR}
+
+# if new files were created, print out how many
+[[ $NEW_FILES -gt 0 ]] && echo_green "${NEW_FILES} file(s) created."
+echo

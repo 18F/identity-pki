@@ -13,7 +13,7 @@ fi
 export ENV_NAME="$1"
 export IDP_HOSTNAME="$2"
 export REGION="us-west-2"
+export RECYCLE="TRUE"
 
 #go test -v -timeout 30m -run TestFilebeat
 go test -v -timeout 60m
-

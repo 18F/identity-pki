@@ -268,3 +268,21 @@ variable "ssm_access_policy" {
   type        = string
   description = "JSON-formatted IAM policy providing access to SSM resources."
 }
+
+variable "terraform_powers" {
+  description = "Whether the runner gets enabled with terraform powers"
+  type        = bool
+  default     = false
+}
+
+variable "is_it_an_env_runner" {
+  description = "Whether or not we add the env into the tags, so that gitlab will know what env it is in"
+  type        = bool
+  default     = false
+}
+
+variable "gitlab_ecr_repo_accountid" {
+  description = "accountid of the ECR repo that this runner pool is pulling from (like the tooling-sandbox or tooling-prod)"
+  type        = string
+  default     = ""
+}

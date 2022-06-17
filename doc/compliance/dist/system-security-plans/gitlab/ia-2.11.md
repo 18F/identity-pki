@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
 effort:
   - medium
 ---
@@ -36,6 +36,7 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control ia-2.11
+Gitlab user accounts are authenticated via Login.gov, which requires MFA.  MFA support is
+documented here -> https://www.login.gov/help/get-started/authentication-options/.
 
 ______________________________________________________________________

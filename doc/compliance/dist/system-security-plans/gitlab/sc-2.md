@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
 ---
 
 # sc-2 - \[catalog\] Application Partitioning
@@ -22,6 +22,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control sc-2
+Gitlab provides an information system management functionality and is logically separated from the user functionality of the Login.gov systems.
 
 ______________________________________________________________________

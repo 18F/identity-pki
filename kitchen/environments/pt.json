@@ -11,7 +11,7 @@
         "outboundproxy"
       ],
       "lockdown": "true",
-      "idp_sync_static": false
+      "idp_sync_static": true
     },
     "ssh_keys": {},
     "identity-jumphost": {

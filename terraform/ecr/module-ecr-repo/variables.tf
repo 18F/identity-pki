@@ -29,3 +29,13 @@ variable "kms_key" {
   description = "ARN of the KMS key to use when encryption type is KMS (will use default key if not specified)"
   type        = string
 }
+
+variable "readonly_accountids" {
+  description = "list of accountids that need readonly access to this repo"
+  type        = list(string)
+}
+
+variable "prod_accountid" {
+  description = "prod account ID, so prod can replicate images"
+  type        = string
+}

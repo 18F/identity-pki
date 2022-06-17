@@ -11,26 +11,36 @@ resource "aws_ecr_repository" "ecr_repo" {
 
 resource "aws_ecr_repository_policy" "ecr_repo" {
   repository = aws_ecr_repository.ecr_repo.name
-  policy     = <<-EOF
-    {
-      "Version": "2008-10-17",
-      "Statement": [
-          {
-              "Sid": "Default Account Allow",
-              "Effect": "Allow",
-              "Principal": { "AWS": "${data.aws_caller_identity.current.account_id}" },
-              "Action": "*"
-          },
-          {
-              "Sid":"Allow Prod Replication",
-              "Effect":"Allow",
-              "Principal":{ "AWS": "555546682965" },
-              "Action":[
-                  "ecr:CreateRepository",
-                  "ecr:ReplicateImage"
-              ]
-          }
-      ]
+  policy     = data.aws_iam_policy_document.ecr_repo.json
+}
+
+locals {
+  readonlyrootaccounts = formatlist("arn:aws:iam::%s:root", var.readonly_accountids)
+}
+
+data "aws_iam_policy_document" "ecr_repo" {
+  statement {
+    sid = "Allow Prod Replication"
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::${var.prod_accountid}:root"]
     }
-EOF
+    actions = [
+      "ecr:CreateRepository",
+      "ecr:ReplicateImage"
+    ]
+  }
+
+  statement {
+    sid = "Allow Readonly access to runners"
+    principals {
+      type        = "AWS"
+      identifiers = local.readonlyrootaccounts
+    }
+    actions = [
+      "ecr:BatchGetImage",
+      "ecr:BatchCheckLayerAvailability",
+      "ecr:GetDownloadUrlForLayer"
+    ]
+  }
 }

@@ -211,6 +211,7 @@ func TestGitlabCache(t *testing.T) {
 			ListOptions: gitlab.ListOptions{
 				PerPage: 100,
 			},
+			ExcludeInternal: gitlab.Bool(true),
 		},
 	)
 	mockClient.

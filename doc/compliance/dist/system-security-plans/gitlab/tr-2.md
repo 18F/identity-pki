@@ -1,7 +1,6 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-documented
 ---
 
 # tr-2 - \[catalog\] System of Records Notices and Privacy Act Statements
@@ -16,6 +15,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control tr-2
+We do not collect or hold PII in GitLab.
 
 ______________________________________________________________________

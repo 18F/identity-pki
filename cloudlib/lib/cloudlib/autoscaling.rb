@@ -31,7 +31,7 @@ module Cloudlib
       @prompt = TTY::Prompt.new(output: STDERR)
 
       # A few useful defaults
-      @default_spindown_delay = 900
+      @default_spindown_delay = 600
       @default_migration_delay = 300
 
       # Flag for pre-migration in progress

@@ -48,42 +48,6 @@ locals {
       metric_value = 1
       dimensions   = {}
     },
-    login_failure_mfa_sms = {
-      name         = "login-failure-mfa-sms"
-      pattern      = "{ ($.name = \"Multi-Factor Authentication\") && ($.properties.event_properties.success is false) && ($.properties.event_properties.multi_factor_auth_method = \"sms\") }"
-      metric_value = 1
-      dimensions   = {}
-    },
-    login_failure_mfa_personal_key = {
-      name         = "login-failure-mfa-personal-key"
-      pattern      = "{ ($.name = \"Multi-Factor Authentication\") && ($.properties.event_properties.success is false) && ($.properties.event_properties.multi_factor_auth_method = \"personal-key\") }"
-      metric_value = 1
-      dimensions   = {}
-    },
-    login_failure_mfa_piv_cac = {
-      name         = "login-failure-mfa-piv_cac"
-      pattern      = "{ ($.name = \"Multi-Factor Authentication\") && ($.properties.event_properties.success is false) && ($.properties.event_properties.multi_factor_auth_method = \"piv_cac\") }"
-      metric_value = 1
-      dimensions   = {}
-    },
-    login_failure_mfa_totp = {
-      name         = "login-failure-mfa-totp"
-      pattern      = "{ ($.name = \"Multi-Factor Authentication\") && ($.properties.event_properties.success is false) && ($.properties.event_properties.multi_factor_auth_method = \"totp\") }"
-      metric_value = 1
-      dimensions   = {}
-    },
-    login_failure_mfa_webauthn = {
-      name         = "login-failure-mfa-webauthn"
-      pattern      = "{ ($.name = \"Multi-Factor Authentication\") && ($.properties.event_properties.success is false) && ($.properties.event_properties.multi_factor_auth_method = \"webauthn\") }"
-      metric_value = 1
-      dimensions   = {}
-    },
-    login_failure_mfa_webauthn_platform = {
-      name         = "login-failure-mfa-webauthn-platform"
-      pattern      = "{ ($.name = \"Multi-Factor Authentication\") && ($.properties.event_properties.success is false) && ($.properties.event_properties.multi_factor_auth_method = \"webauthn_platform\") }"
-      metric_value = 1
-      dimensions   = {}
-    },
     # Defining both multidimension and single dimension sp-redirect metrics to
     # avoid the limitation on using SEARCH in alarms.
     # See https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/using-metric-math.html#metric-math-syntax
@@ -101,8 +65,6 @@ locals {
       metric_value = 1
       dimensions   = {}
     }
-    # TODO - Transition graphs and alarms to use this multidimensional metric,
-    # then deprecate the login-failure-mfa-X metrics above
     login_multi_factor_authentication_success = {
       name         = "login-mfa-success"
       pattern      = "{ $.name = \"Multi-Factor Authentication\" && $.properties.event_properties.success is true }"

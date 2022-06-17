@@ -14,3 +14,9 @@ repos:
   idp_ci:
     name: "idp/ci"
     <<: *all_write_template
+  env_test:
+    name: "cd/env_test"
+    <<: *all_write_template
+  env_deploy:
+    name: "cd/env_deploy"
+    <<: *all_write_template

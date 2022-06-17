@@ -19,6 +19,7 @@ import (
 var idp_hostname = os.Getenv("IDP_HOSTNAME")
 var region = os.Getenv("REGION")
 var env_name = os.Getenv("ENV_NAME")
+var recycle = os.Getenv("RECYCLE")
 
 func RunCommandOnInstances(t *testing.T, instancestrings []string, command string) *ssm.GetCommandInvocationOutput {
 	var instances []*string
@@ -100,11 +101,13 @@ func ASGRecycle(t *testing.T, asgName string) {
 	aws.WaitForCapacity(t, asgName, region, 60, 30*time.Second)
 }
 
-// This does an ASG recycle of the IDP and then a basic smoke test
+// This does an ASG recycle of the IDP (if needed) and then a basic smoke test
 // to make sure that everything works with whatever new stuff is out there.
 func TestIdpRecycle(t *testing.T) {
 	asgName := env_name + "-idp"
-	ASGRecycle(t, asgName)
+	if recycle == "TRUE" {
+		ASGRecycle(t, asgName)
+	}
 
 	url := fmt.Sprintf("https://%s/api/health/", idp_hostname)
 

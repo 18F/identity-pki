@@ -294,3 +294,65 @@ EOM
     policy = module.ssm.ssm_access_role_policy
   }
 }
+
+resource "aws_iam_role" "s3_replication" {
+  name_prefix = "${var.env_name}_gitlab_s3_repl"
+
+  assume_role_policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "s3.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+POLICY
+
+  inline_policy {
+    name   = "${var.env_name}-gitlab-s3_repl"
+    policy = <<-EOM
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Action": [
+            "s3:GetReplicationConfiguration",
+            "s3:ListBucket"
+          ],
+          "Effect": "Allow",
+          "Resource": [
+            "${aws_s3_bucket.backups.arn}"
+          ]
+        },
+        {
+          "Action": [
+            "s3:GetObjectVersionForReplication",
+            "s3:GetObjectVersionAcl",
+             "s3:GetObjectVersionTagging"
+          ],
+          "Effect": "Allow",
+          "Resource": [
+            "${aws_s3_bucket.backups.arn}/*"
+          ]
+        },
+        {
+          "Action": [
+            "s3:ReplicateObject",
+            "s3:ReplicateDelete",
+            "s3:ReplicateTags",
+            "s3:ObjectOwnerOverrideToBucketOwner"
+          ],
+          "Effect": "Allow",
+          "Resource": "${aws_s3_bucket.backups_dr.arn}/*"
+        }
+      ]
+    }
+  EOM
+  }
+}

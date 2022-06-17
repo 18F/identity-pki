@@ -29,7 +29,7 @@ fi
 
 # Sources terraform/core environment setup file to find correct bucket.
 case "${ENVIRONMENT}" in
-  prod|staging)
+  prod|staging|dm)
     . terraform/all/prod/env-vars.sh
     ;;
   *)

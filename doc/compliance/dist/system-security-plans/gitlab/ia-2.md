@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
 effort:
   - medium
 ---
@@ -24,6 +24,8 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control ia-2
+Gitlab access is controlled via a combination of Login.gov authentication, MFA,
+assignment of permissions via granting individual Login.gov accounts membership
+in permission groups, GSA VPN access and AWS security groups. 
 
 ______________________________________________________________________

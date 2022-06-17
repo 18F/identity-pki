@@ -69,8 +69,8 @@ resource "aws_lambda_function" "pinpoint-lambda" {
   source_code_hash = module.lambda_zip.zip_output_base64sha256
   runtime          = "python3.9"
   handler          = "pinpoint_lambda.lambda_handler"
-  timeout          = 90
-  memory_size      = 128
+  timeout          = 600
+  memory_size      = 4096
   role             = aws_iam_role.lambda_role.arn
   environment {
     variables = {

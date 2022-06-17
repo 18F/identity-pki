@@ -5,12 +5,16 @@
 # all/tooling with whatever account you're updating.
 #
 # aws iam create-user --user-name ses-smtp
+
+## Run the following snippet to rotate keys
 # set KEYDATA (aws iam create-access-key --user-name ses-smtp)
 # set ACCOUNTID (aws sts get-caller-identity | jq -r .Account)
 # set ACCESSKEYID (echo $KEYDATA | jq -r .AccessKey.AccessKeyId)
 # set SMTPPASS (bin/smtp_credentials_generate.py (echo $KEYDATA | jq -r '.AccessKey.SecretAccessKey') us-west-2)
 # echo $ACCESSKEYID | aws s3 cp - "s3://login-gov.secrets."$ACCOUNTID"-us-west-2/common/ses_smtp_username" --no-guess-mime-type --content-type="text/plain" --metadata-directive="REPLACE"
 # echo $SMTPPASS | aws s3 cp - "s3://login-gov.secrets."$ACCOUNTID"-us-west-2/common/ses_smtp_password" --no-guess-mime-type --content-type="text/plain" --metadata-directive="REPLACE"
+## End key-rotation snippet
+
 # bin/tf-deploy all/tooling import 'module.main.aws_iam_user.ses-smtp[0]' ses-smtp
 # bin/tf-deploy all/tooling import 'module.main.aws_iam_access_key.ses-smtp[0]' $ACCESSKEYID
 

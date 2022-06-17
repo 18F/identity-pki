@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-inherited
+  - c-documented
 ---
 
 # ia-5.6 - \[catalog\] Protection of Authenticators
@@ -22,6 +22,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control ia-5.6
+Protection and classification of authenticators is handled upstream via Login.gov. The GitLab component uses ia-5.6 from the main Login.gov SSP.
 
 ______________________________________________________________________

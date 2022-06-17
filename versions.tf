@@ -41,6 +41,11 @@ provider "aws" {
 }
 
 provider "aws" {
+  alias  = "dr"
+  region = var.dr_region
+}
+
+provider "aws" {
   alias  = "use1"
   region = "us-east-1"
 }

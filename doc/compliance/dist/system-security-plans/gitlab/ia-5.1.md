@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-inherited
+  - c-documented
 ---
 
 # ia-5.1 - \[catalog\] Password-based Authentication
@@ -69,36 +69,36 @@ ______________________________________________________________________
 
 ## Implementation (a)
 
-Add control implementation description here for item ia-5.1_smt.a
+Security controls for passwords relating to case sensitivity, length, content, and complexity are all managed upstream by Login.gov. The GitLab component uses ia-5.1 from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation (b)
 
-Add control implementation description here for item ia-5.1_smt.b
+Security controls for passwords relating to minimum changes between old and new passwords are managed upstream by Login.gov. The GitLab component uses ia-5.1 from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation (c)
 
-Add control implementation description here for item ia-5.1_smt.c
+Security controls for passwords relating to encrypted storage and transmission are managed upstream by Login.gov. The GitLab component uses ia-5.1 from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation (d)
 
-Add control implementation description here for item ia-5.1_smt.d
+Security controls for passwords relating to minimum or maximum lifetimes are managed upstream by Login.gov. The GitLab component uses ia-5.1 from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation (e)
 
-Add control implementation description here for item ia-5.1_smt.e
+Security controls for passwords relating to generational reuse are managed upstream by Login.gov. The GitLab component uses ia-5.1 from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation (f)
 
-Add control implementation description here for item ia-5.1_smt.f
+Security controls for passwords relating to temporary passwords and required changes are managed upstream by Login.gov. The GitLab component uses ia-5.1 from the main Login.gov SSP.
 
 ______________________________________________________________________

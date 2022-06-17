@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-in-parent-ssp
+  - c-documented
 needs-params:
   - sc-7_prm_1
 ---
@@ -50,18 +50,18 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-Add control implementation description here for item sc-7_smt.a
+This control is documented in the main SSP.
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-Add control implementation description here for item sc-7_smt.b
+This control is documented in the main SSP.
 
 ______________________________________________________________________
 
 ## Implementation c.
 
-Add control implementation description here for item sc-7_smt.c
+This control is documented in the main SSP.
 
 ______________________________________________________________________

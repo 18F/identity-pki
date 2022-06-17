@@ -90,14 +90,14 @@ get_iam() {
 # verify that script is running from identity-devops repo
 verify_root_repo() {
   GIT_DIR=$(git rev-parse --show-toplevel)
-  if [ "$(echo ${GIT_DIR} | awk -F/ '{print $NF}')" != 'identity-devops' ]
-  then
+  GIT_DIR_SHORT=$(echo ${GIT_DIR} | awk -F/ '{print $NF}')
+  if [[ "${GIT_DIR_SHORT}" != 'identity-devops' ]] ; then
     raise "Must be run from the identity-devops repo"
   fi
 }
 
 # send a notification in Slack, pulling appropriate key(s) from bucket to do so
-slack_notify () {
+slack_notify() {
   local AWS_ACCT_NUM TF_ENV AWS_REGION COLOR SLACK_USER SLACK_EMOJI PRE_TEXT TEXT KEYS
 
   while getopts n:t:r:c:u:e:p:m:y: opt
@@ -154,22 +154,53 @@ EOM
   echo -e "\n\n${PRE_TEXT}\n${TEXT}\n" | tr -d "\`" | sed -E "s/\\n/\n/"
 }
 
-# verify existence of IAM user
-verify_iam_user () {
+# verify existence of IAM user in AWS
+verify_iam_user() {
   local WHO_AM_I=${1}
-  local USERS_FILE="${GIT_DIR}/terraform/master/global/users.yaml"
-  local MASTER_ACCOUNT_ID=340731855345
+  local MASTER_ACCT=340731855345
+  local ENV_USER=${AWS_IAM_USER-}
 
-  echo_blue "Verifying IAM user ${WHO_AM_I}... "
-  if [[ ! $(grep -E "^  ${WHO_AM_I}:" "${USERS_FILE}") ]] ; then
-    raise "User '${WHO_AM_I}' not found in ${USERS_FILE}"
+  local IAM_USER_DATA=$(aws iam get-user 2>/dev/null)
+  FOUND_USER=$(echo ${IAM_USER_DATA} | jq -r '.[].UserName')
+  EC2_USERNAME=$(echo ${IAM_USER_DATA} | jq -r '.[].Tags[]|
+    select(.Key == "ec2_username").Value' 2>/dev/null || true)
+  
+  if [[ -z "${WHO_AM_I}" ]] ; then
+    if [[ -z "${ENV_USER}" ]] ; then
+      if [[ -z "${FOUND_USER}" ]] ; then
+        echo_red "Could not detect current IAM user; also:"
+        echo_red "neither IAM_USER, nor env var AWS_IAM_USER, is set;"
+        raise "must set either to run with AssumedRole"
+      else
+        echo_yellow "AWS_IAM_USER not set in env."
+        echo_yellow "Using ${FOUND_USER} as IAM_USER."
+        WHO_AM_I="${FOUND_USER}"
+      fi
+    else
+      WHO_AM_I="${AWS_IAM_USER}"
+    fi
   fi
 
-  if [[ $(aws sts get-caller-identity | jq -r '.Account') != "${MASTER_ACCOUNT_ID}" ]] ; then
+  verify_iam_user_yaml "${WHO_AM_I}"
+
+  if [[ $(aws sts get-caller-identity | jq -r '.Account') != "${MASTER_ACCT}" ]] ; then
     raise "This script must be run with a login-master AWS profile"
   fi
+
   if [[ ! $(aws iam list-users | grep "user/${WHO_AM_I}") ]] ; then
     raise "User '${WHO_AM_I}' not in list of IAM users in login-master"
+  fi
+
+  echo_cyan "IAM user '${WHO_AM_I}' verified."
+  [[ -z ${EC2_USERNAME} ]] || echo_cyan "EC2 username '${EC2_USERNAME}' verified."
+  VERIFIED_USER=${WHO_AM_I}
+}
+
+# verify IAM user in users.yaml
+verify_iam_user_yaml() {
+  local USERS_FILE="terraform/master/global/users.yaml"
+  if [[ ! $(grep -E "^  ${1}:" "${GIT_DIR}/${USERS_FILE}") ]] ; then
+    raise "User '${1}' not found in ${USERS_FILE}"
   fi
 }
 

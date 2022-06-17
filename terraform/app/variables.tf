@@ -500,22 +500,22 @@ variable "bootstrap_private_git_clone_url" {
 # though they will have different IDs. They should be updated here at the same
 # time, and then released to environments in sequence.
 variable "default_ami_id_sandbox" {
-  default     = "ami-0db336f366bcaa64d" # 2022-05-23 Ubuntu 18.04
+  default     = "ami-05d4e60fd7103b6c3" # 2022-06-14 Ubuntu 18.04
   description = "default AMI ID for environments in the sandbox account"
 }
 
 variable "default_ami_id_prod" {
-  default     = "ami-0cd15a15ccae71ca2" # 2022-05-23 Ubuntu 18.04
+  default     = "ami-0cf02d435fe7c67cc" # 2022-06-14 Ubuntu 18.04
   description = "default AMI ID for environments in the prod account"
 }
 
 variable "rails_ami_id_sandbox" {
-  default     = "ami-07cf6baf5d1b1de68" # 2022-05-23 Ubuntu 18.04
+  default     = "ami-011ad5db6ee49a284" # 2022-06-14 Ubuntu 18.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the sandbox account"
 }
 
 variable "rails_ami_id_prod" {
-  default     = "ami-0a53cf38ab0110428" # 2022-05-23 Ubuntu 18.04
+  default     = "ami-04ccea8a7c08fe8f8" # 2022-06-14 Ubuntu 18.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the prod account"
 }
 
@@ -643,6 +643,12 @@ variable "pivcac_low_traffic_alert_threshold" {
   default     = 5
 }
 
+variable "pivcac_mfa_low_alert_threshold" {
+  description = "Minimum number of successful PIV/CAC MFA sign ins per 60 minutes"
+  type        = number
+  default     = 0
+}
+
 variable "proofing_low_alert_threshold" {
   description = "Minimum number of successful proofs in an hour"
   type        = number
@@ -758,6 +764,11 @@ variable "gitlab_runner_enabled" {
 variable "gitlab_configbucket" {
   description = "should be used to override where the gitlab server's config bucket is so that the runner knows where to get the runner token"
   default     = ""
+}
+
+variable "gitlab_ecr_repo_accountid" {
+  description = "the AWS account ID where it's gitlab lives, so it knows what ECR to pull from"
+  default     = "217680906704" # prod
 }
 
 variable "idp_ial2_sp_dashboards" {

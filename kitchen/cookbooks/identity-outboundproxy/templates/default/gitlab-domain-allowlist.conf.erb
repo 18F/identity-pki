@@ -13,6 +13,7 @@ mirror.gcr.io
 gcr.io
 storage.googleapis.com
 proxy.golang.org
+sum.golang.org
 login-gov-<%= node.chef_environment %>-gitlabcache-<%= @aws_account_id %>-<%= @aws_region %>.s3.dualstack.<%= @aws_region %>.amazonaws.com
 <%= @aws_account_id %>.dkr.ecr.<%= @aws_region %>.amazonaws.com
 amazon-ecr-credential-helper-releases.s3.us-east-2.amazonaws.com
@@ -31,6 +32,15 @@ api.github.com
 
 # to install golang
 go.dev
+
+# to allow gitlab runner auto-build-image
+registry.gitlab.com
+
+# allow us to download terraform plugins/providers
+registry.terraform.io
+
+# allow alpine packages
+dl-cdn.alpinelinux.org
 
 # deploying test applications to cloud.gov
 cli.run.pivotal.io

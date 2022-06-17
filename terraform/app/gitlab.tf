@@ -48,7 +48,6 @@ module "env-runner" {
   bootstrap_main_s3_ssh_key_url    = local.bootstrap_main_s3_ssh_key_url
   bootstrap_private_s3_ssh_key_url = local.bootstrap_private_s3_ssh_key_url
   default_ami_id_tooling           = local.account_default_ami_id
-  enable_ecr_write                 = false
   env_name                         = var.env_name
   github_ipv4_cidr_blocks          = local.github_ipv4
   gitlab_lb_interface_cidr_blocks  = [var.gitlab_subnet_cidr_block]
@@ -75,6 +74,9 @@ module "env-runner" {
     aws_security_group.lambda_endpoint.id,
     aws_security_group.sqs_endpoint.id
   ]
-  gitlab_configbucket = var.gitlab_configbucket
-  ssm_access_policy   = module.ssm.ssm_access_role_policy
+  gitlab_configbucket       = var.gitlab_configbucket
+  ssm_access_policy         = module.ssm.ssm_access_role_policy
+  terraform_powers          = true
+  is_it_an_env_runner       = true
+  gitlab_ecr_repo_accountid = var.gitlab_ecr_repo_accountid
 }

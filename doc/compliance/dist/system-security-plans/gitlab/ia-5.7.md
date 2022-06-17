@@ -1,6 +1,6 @@
 ---
 status:
-  - c-not-implemented
+  - c-implemented
   - c-not-documented
 ---
 
@@ -28,6 +28,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control ia-5.7
+Passwords that are stored in the Gitlab system are stored in a hashed/encrypted format rather than plain text. The GitLab component uses ia-5.7 from the main Login.gov SSP.
 
 ______________________________________________________________________

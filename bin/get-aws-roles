@@ -9,30 +9,25 @@ set -eu
 usage() {
   cat >&2 <<EOM
 
-usage: $(basename "$0") [AWS_IAM_USER]
+Usage: $(basename "$0") [USER_NAME] (leave blank to get roles for your own user)
 
-Look up all AWS IAM roles that \`AWS_IAM_USER\` can Assume
-via aws-vault. The value of \`AWS_IAM_USER\` can be:
+Look up AWS IAM roles that USER_NAME -- or one's self -- can Assume via aws-vault.
+Verifies USER_NAME in \`aws iam list-users\` and terraform/master/global/users.yaml
 
-- provided as an argument to this script (for yourself
-  or to look up another user's available roles)
-- set in one's shell as an environment variable,
-  i.e. within an .rc file
-- left blank, to use the value of \`.UserName\` returned
-  when running \`aws iam get-user\`
+If USER_NAME is provided:
+- Must be run with an Assumed role from login-master, e.g. master-admin
+- Will only print out list of roles available to USER_NAME
 
-If running yourself and/or without providing \`AWS_IAM_USER\`
-as an argument, will prompt to add them to your
-~/.aws/config file with the appropriate role_arn /
-role_session_name / include_profile settings, as well
-as the session_tags=SSMSessionRunAs configs if you have
-an ec2_username set in terraform/master/global/users.yaml
-
-Must be run in an aws-vault exec / session wrapper using
-one's source/parent profile (usually \`master\`), e.g.:
-
-$ aws-vault exec master -- $(basename "$0")
-$ $(dirname "$0")/awsv -x master $(basename "$0")
+If not:
+- Must be run using one's source/parent profile (usually \`master\`), e.g.:
+  $ aws-vault exec master -- $(basename "$0")
+  $ $(dirname "$0")/awsv -x master $(basename "$0")
+- Will use value of \`AWS_IAM_USER\` env var, if set, for USER_NAME; otherwise,
+  will look up the value of \`.UserName\` by running \`aws iam get-user\`
+- Will prompt to add the listed role(s) to your ~/.aws/config file with the
+  appropriate role_arn / role_session_name / include_profile settings, as well as
+  the session_tags=SSMSessionRunAs configs if you have an ec2_username set
+  in the terraform/master/global/users.yaml file.
 
 EOM
 }
@@ -41,37 +36,15 @@ EOM
 verify_root_repo
 echo
 
+declare {FOUND_POLICIES,ROLE_ARNS,RUN_AS_CONFIG,VERIFIED_USER}=
 IAM_USER=${1-}
-ENV_USER=${AWS_IAM_USER-}
-IAM_USER_DATA=$(aws iam get-user 2>/dev/null)
-FOUND_USER=$(echo ${IAM_USER_DATA} | jq -r '.[].UserName')
-EC2_USERNAME=$(echo ${IAM_USER_DATA} | jq -r '.[].Tags[]|
-  select(.Key == "ec2_username").Value' 2>/dev/null || true) 
-declare {FOUND_POLICIES,ROLE_ARNS,RUN_AS_CONFIG}=
-
-if [[ -z "${IAM_USER}" ]] ; then
-  if [[ -z "${ENV_USER}" ]] ; then
-    if [[ -z "${FOUND_USER}" ]] ; then
-      echo_red "Could not detect current IAM user; also:"
-      echo_red "IAM_USER & AWS_IAM_USER not set;"
-      raise "must set either to run with AssumedRole"
-    else
-      echo_yellow "AWS_IAM_USER not set in env."
-      echo_yellow "Using ${FOUND_USER} as IAM_USER."
-      IAM_USER="${FOUND_USER}"
-    fi
-  else
-    IAM_USER="${AWS_IAM_USER}"
-  fi
-fi
-
 verify_iam_user "${IAM_USER}"
 
-echo_blue "Getting available roles(s) for user ${IAM_USER}..."
+echo_cyan "Getting available roles(s) for user ${VERIFIED_USER}..."
 echo
-# verify that we have permission to see the groups for $IAM_USER
+# verify that we have permission to see the groups for $VERIFIED_USER
 for GROUP in $(aws iam list-groups-for-user \
-                --user-name ${IAM_USER} \
+                --user-name ${VERIFIED_USER} \
                 --query 'Groups[].{Group:GroupName}' \
                 --output text) ; do
   FOUND_POLICIES+=$(aws iam list-attached-group-policies \
@@ -80,7 +53,8 @@ for GROUP in $(aws iam list-groups-for-user \
                     --output text)
 done
 
-ACCOUNT_TYPES=$(echo -e "{\n$(sed -E '1,/aws_account_types/d;/\}/,$d' terraform/master/global/main.tf)}" |
+MASTER_FILE='terraform/master/global/main.tf'
+ACCOUNT_TYPES=$(echo -e "{\n$(sed -E '1,/aws_account_types/d;/\}/,$d' ${MASTER_FILE})}" |
                 sed -E 's/\]\}/\]\'$'\n\}/;s/ = /\: /g;s/ #.+$//g')
 for POLICY in $(echo ${FOUND_POLICIES[@]} |
                 tr -s '[:blank:]' '\n' | sort -u | tr '\n' ' ') ; do
@@ -89,7 +63,8 @@ for POLICY in $(echo ${FOUND_POLICIES[@]} |
   SHORT_ROLE=$(grep -wlr "${ROLE}" terraform/all/module/iam-role-*.tf |
                sed -E 's/.*\-([a-z]+)\.tf/\1/')
   for ACCOUNT_ID in $(echo $ACCOUNT_TYPES | jq -r --arg ACCOUNT "$ACCOUNT" '.[$ACCOUNT][]') ; do
-    SHORT_ACCT=$(egrep "^\s+\"${ACCOUNT_ID}\"" terraform/master/global/main.tf | sed -E 's/.+login-//')
+    SHORT_ACCT=$(egrep "^\s+\"${ACCOUNT_ID}\"" ${MASTER_FILE} |
+      sed -E 's/.+login-([a-z-]+).*/\1/')
     ROLE_ARNS+=("${SHORT_ACCT}-${SHORT_ROLE}+arn:aws:iam::${ACCOUNT_ID}:role+${ROLE}")
   done
 done
@@ -98,7 +73,7 @@ echo "${ROLE_ARNS[@]}" | tr ' ' '\n' | sed -E 's/\+/ /g' |
                 sed -E 's/role /role\//' | column -t | sort -t: -k4 -u
 echo
 
-if [[ "${FOUND_USER}" == "${IAM_USER}" ]] ; then
+if [[ "${FOUND_USER}" == "${VERIFIED_USER}" ]] ; then
   if prompt_yn "Add roles to ~/.aws/config file?" ; then
     if [[ -z ${EC2_USERNAME} ]]; then
       echo_yellow "EC2_USERNAME not set; will not configure SSMSessionRunAs user"

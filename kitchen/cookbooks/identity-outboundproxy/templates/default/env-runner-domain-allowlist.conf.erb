@@ -31,3 +31,35 @@ esm.ubuntu.com
 autoscaling.<%= @aws_region %>.amazonaws.com
 download.newrelic.com
 .ec2.archive.ubuntu.com
+
+# allow us to get the ECR credential helper
+amazon-ecr-credential-helper-releases.s3.us-east-2.amazonaws.com
+
+# allow us to do the terraform locks
+dynamodb.<%= @aws_region %>.amazonaws.com
+
+# terraform endpoints for aws stuff
+acm.<%= @aws_region %>.amazonaws.com
+api.ecr-public.us-east-1.amazonaws.com
+checkpoint-api.hashicorp.com
+cloudfront.amazonaws.com
+ec2.us-east-1.amazonaws.com
+ec2.<%= @aws_region %>.amazonaws.com
+ip-ranges.amazonaws.com
+monitoring.<%= @aws_region %>.amazonaws.com
+rds.<%= @aws_region %>.amazonaws.com
+s3.dualstack.<%= @aws_region %>.amazonaws.com
+route53.amazonaws.com
+kinesis.<%= @aws_region %>.amazonaws.com
+acm.us-east-1.amazonaws.com
+sns.us-east-1.amazonaws.com
+route53resolver.<%= @aws_region %>.amazonaws.com
+elasticloadbalancing.<%= @aws_region %>.amazonaws.com
+elasticache.<%= @aws_region %>.amazonaws.com
+kms.us-east-1.amazonaws.com
+firehose.<%= @aws_region %>.amazonaws.com
+events.us-east-1.amazonaws.com
+
+# allow us to connect to our env
+idp.<%= node.chef_environment %>.identitysandbox.gov
+#secure.login.gov

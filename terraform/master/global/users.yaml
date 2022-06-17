@@ -3,11 +3,14 @@ users:
   akhlaq.khan:
     aws_groups:
     - analytics
-    - finops
     - bizops
+    gitlab_groups:
+    - pm
   alan.atlas:
     aws_groups:
     - analytics
+    gitlab_groups:
+    - pm
   alex.kritikos:
     ec2_username:
     - akrito
@@ -23,15 +26,13 @@ users:
     - devops
   alexander.bradley:
     aws_groups:
-    - analytics
-    - appdev
+    - apponcall
     gitlab_groups:
     - appdev
     ec2_username:
     - theabrad
   andrew.duthie:
     aws_groups:
-    - appdev
     - apponcall
     ec2_username:
     - aduth
@@ -41,18 +42,24 @@ users:
     aws_groups:
     - analytics
     gitlab_groups:
-    - appdev
+    - pm
     git_username:
     - benjaminchait
   chris.manger:
     aws_groups:
-    - bizops
     - finops
   clinton.troxel:
     gitlab_groups:
     - appdev
     ec2_username:
     - ctro
+  david.dsilva:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - pm
+    git_username:
+    - daviddsilvanava
   devon.johnson:
     aws_groups:
     - supporteng
@@ -63,16 +70,27 @@ users:
     - bizops
   douglas.price:
     aws_groups:
-    - appdev
     - apponcall
     - bizops
     ec2_username:
     - solipet
     gitlab_groups:
     - appdev
+  elizabeth.manning:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - pm
+    git_username:
+    - lizzieamanning
   goutham.kommanaboyina:
     aws_groups:
     - analytics
+  harlan.weber:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - pm
   henry.richardson:
     aws_groups:
     - devops
@@ -82,12 +100,14 @@ users:
     - devops
   jack.cody:
     aws_groups:
-    - appdev
+    - apponcall
     gitlab_groups:
     - appdev
   jeffrey.holden:
     aws_groups:
     - analytics
+    gitlab_groups:
+    - pm
   jenniffier.bieberbach:
     aws_groups:
     - secopsnonprod
@@ -96,7 +116,6 @@ users:
     - devops
   jessica.dembe:
     aws_groups:
-    - appdev
     - apponcall
     ec2_username:
     - jmdembe
@@ -104,7 +123,6 @@ users:
     - appdev
   jonathan.hooper:
     aws_groups:
-    - appdev
     - apponcall
     - devops
     - keymasters
@@ -125,7 +143,6 @@ users:
     - appdev
   julia.l.allen:
     aws_groups:
-    - appdev
     - apponcall
     ec2_username:
     - jlallen
@@ -144,17 +161,22 @@ users:
   ken.kato:
     aws_groups:
     - devopsnonprod
-    - analytics
     gitlab_groups:
     - devops
     git_username:
     - kenk667
+  lalitha.jonnalagadda:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - pm
+    git_username:
+    - lalitha-jonnalagadda
   logan.mcdonald:
     gitlab_groups:
     - devops
   malick.diarra:
     aws_groups:
-    - appdev
     - apponcall
     ec2_username:
     - mdiarra
@@ -162,16 +184,24 @@ users:
     - appdev
   manish.shah:
     aws_groups:
-    - appdev
     - apponcall
     gitlab_groups:
     - appdev
+  melissa.miller:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - mmiller
   micah.saul:
     aws_groups:
     - appdev
-    - analytics
     gitlab_groups:
     - appdev
+  michael.ambroselli:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - magsa
   michael.antiporta:
     aws_groups:
     - analytics
@@ -186,7 +216,6 @@ users:
     - mww59
   mitchell.henke:
     aws_groups:
-    - appdev
     - apponcall
     - devops
     ec2_username:
@@ -206,11 +235,11 @@ users:
     - devops
   nadya.primak:
     aws_groups:
-    - appdev
     - apponcall
+    gitlab_groups:
+    - appdev
   natasha.ibrahim:
     aws_groups:
-    - appdev
     - apponcall
     ec2_username:
     - nibrahim
@@ -219,12 +248,16 @@ users:
   nathan.wick:
     aws_groups:
     - bizops
+  nicholas.willey:
+    aws_groups:
+    - secopsnonprod
+    gitlab_groups:
+    - devops
   olayemisi.ogunshina:
     aws_groups:
     - analytics
   oren.kanner:
     aws_groups:
-    - appdev
     - apponcall
     - bizops
     ec2_username:
@@ -233,7 +266,6 @@ users:
     - appdev
   parissa.eggleston:
     aws_groups:
-    - appdev
     - apponcall
     ec2_username:
     - peggleston
@@ -247,7 +279,7 @@ users:
     - bizops
   paul.borowicz:
     aws_groups:
-    - devopsnonprod
+    - devops
     ec2_username:
     - pborowicz
     gitlab_groups:
@@ -259,9 +291,16 @@ users:
     - pauldoom
     gitlab_groups:
     - devops
+    git_username:
+    - pauldoomgov
   rahul.kamarouthu:
     aws_groups:
     - analytics
+  russel.ngamboassongmo:
+    aws_groups:
+    - supporteng
+    ec2_username:
+    - nassongmo
   ryan.d.brown:
     aws_groups:
     - devops
@@ -276,14 +315,18 @@ users:
     - ssteiner
     gitlab_groups:
     - appdev
+  sean.porter:
+    gitlab_groups:
+    - pm
   sheldon.bachstein:
     aws_groups:
     - appdev
-    - analytics
     gitlab_groups:
     - appdev
     git_username:
     - sheldon-b
+    email:
+    - sheldon.bachstein@gsa.gov
   sierra.toler:
     aws_groups:
     - bizops
@@ -294,9 +337,7 @@ users:
     - sshelton
   steve.urciuoli:
     aws_groups:
-    - appdev
     - apponcall
-    - keymasters
     ec2_username:
     - steveu
     gitlab_groups:
@@ -311,7 +352,6 @@ users:
   thomas.apodaca:
     aws_groups:
     - appdev
-    - analytics
     gitlab_groups:
     - appdev
     git_username:
@@ -320,7 +360,7 @@ users:
     aws_groups:
     - analytics
     gitlab_groups:
-    - appdev
+    - pm
   timothy.spencer:
     aws_groups:
     - devops
@@ -347,7 +387,6 @@ users:
     email:
     - zachary.margolis@gsa.gov
     aws_groups:
-    - appdev
     - apponcall
     gitlab_groups:
     - appdev
@@ -360,6 +399,7 @@ users:
     - lg
     - devops
     - appdev
+    - pm
     can_create_group:
     - true
 groups:
@@ -367,6 +407,8 @@ groups:
     description: Application Developers
   devops:
     description: DevOps and SRE
+  pm:
+    description: Project Management and Facilitation
   lg:
     description: Namespace for Login.gov projects
 projects:

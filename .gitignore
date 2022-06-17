@@ -38,3 +38,12 @@ Vagrantfile
 # pycache and dist-info directories
 **/__pycache__/
 **.dist-info/
+
+# Relase state
+terraform/*/*.plan
+terraform/*/*.apply
+terraform/*/*.plan-verify
+terraform/*/*.branch
+terraform/*/*.recycle-verify
+terraform/*/*.recycle
+terraform/*/*.scale-in

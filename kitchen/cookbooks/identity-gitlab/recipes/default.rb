@@ -22,6 +22,8 @@
 # the /dev/xvdh symlink.  So we are just hardcoding the nvme devices
 # it maps to directly.  WTF Ubuntu?
 
+# passwords are generated randomly
+# root authentication tokens are revoked at the end of the chef run
 
 aws_account_id = Chef::Recipe::AwsMetadata.get_aws_account_id
 aws_region = Chef::Recipe::AwsMetadata.get_aws_region
@@ -133,6 +135,7 @@ template '/etc/gitlab/gitlab.rb' do
         runner_token: runner_token,
     }.merge(saml_params))
     notifies :run, 'execute[reconfigure_gitlab]', :delayed
+    sensitive true
 end
 
 directory '/etc/gitlab/ssl'
@@ -143,6 +146,7 @@ remote_file "Copy cert" do
   owner 'root'
   group 'root'
   mode 0644
+  sensitive true
 end
 
 remote_file "Copy key" do
@@ -180,6 +184,7 @@ execute 'restore_ssh_keys' do
   cwd '/etc'
   ignore_failure true
   notifies :run, 'execute[restart_sshd]', :delayed
+  sensitive true
 end
 
 template '/etc/ssh/sshd_config' do
@@ -201,13 +206,6 @@ end
 execute 'restart_sshd' do
   command 'service ssh reload'
   action :nothing
-end
-
-execute 'update_gitlab_settings' do
-  command <<-EOF
-    gitlab-rails runner 'ApplicationSetting.last.update(signup_enabled: false)'
-  EOF
-  action :run
 end
 
 file '/etc/gitlab/backup.sh' do
@@ -279,75 +277,87 @@ execute 'copy_gitlab_runner_token_to_s3' do
   sensitive true
 end
 
-execute 'apply_runner_token' do
+# Put these all together because it takes a TON of time to init rails.
+# This may mask some failures of some of these commands, but I think that's OK?
+execute 'gitlab_rails_commands' do
   command <<-EOF
-    gitlab-rails runner "appSetting = Gitlab::CurrentSettings.current_application_settings; \
-    appSetting.set_runners_registration_token('#{runner_token}'); \
-    appSetting.save!"
+    gitlab-rails runner " \
+    begin; \
+      puts 'update gitlab settings'; \
+      ApplicationSetting.last.update(signup_enabled: false); \
+    rescue; \
+      puts 'XXX could not delete QA user'; \
+    end; \
+    \
+    begin; \
+      puts 'apply runner token'; \
+      appSetting = Gitlab::CurrentSettings.current_application_settings; \
+      appSetting.set_runners_registration_token('#{runner_token}'); \
+      appSetting.save!; \
+    rescue; \
+      puts 'XXX could not apply runner token'; \
+    end; \
+    \
+    begin; \
+      puts 'revoke gitlab root tokens'; \
+      User.find_by_username('root').personal_access_tokens.all.each(&:revoke!); \
+    rescue; \
+      puts 'XXX could not revoke root tokens'; \
+    end; \
+    \
+    begin; \
+      puts 'save gitlab root token'; \
+      token = User.find_by_username('root').personal_access_tokens.create(scopes: [:api], name: 'Automation Token'); \
+      token.set_token('#{gitlab_root_api_token}'); token.save!; \
+    rescue; \
+      puts 'XXX could not save gitlab root token'; \
+    end; \
+    \
+    begin; \
+      puts 'clean up licenses'; \
+      License.all.each(&:destroy!); license_data = '#{gitlab_license}'; license = License.new(data: license_data); license.save; \
+    rescue; \
+      puts 'XXX could not clean up licenses'; \
+    end; \
+    \
+    begin; \
+      puts 'allow root to create groups'; \
+      User.find_by_username('root').update!(can_create_group: true); \
+    rescue; \
+      puts 'XXX could not allow root to create groups'; \
+    end; \
+    \
+    begin ; \
+      puts 'delete QA user'; \
+      current_user = User.find_by(username: 'root'); qa_user = User.find_by_username('#{gitlab_qa_account_name}'); \
+      DeleteUserWorker.perform_async(current_user.id, qa_user.id); \
+    rescue; \
+      puts 'XXX could not delete QA user'; \
+    end; \
+    \
+    begin; \
+      puts 'create QA user'; \
+      qauser = User.new(username: '#{gitlab_qa_account_name}', email: 'qa@#{external_fqdn}', \
+      name: 'QA User', password: '#{gitlab_qa_password}', password_confirmation: '#{gitlab_qa_password}', \
+      can_create_group: 'true', admin: 'true'); qauser.skip_confirmation!; qauser.save!; \
+    rescue; \
+      puts 'XXX could not create QA user'; \
+    end; \
+    \
+    begin; \
+      puts 'create QA User token'; \
+      token = User.find_by_username('#{gitlab_qa_account_name}').personal_access_tokens.create(scopes: [:api], name: 'Automation Token'); \
+      token.set_token('#{gitlab_qa_api_token}'); token.save!; \
+    rescue; \
+      puts 'XXX could not create QA token'; \
+    end; \
+    \
+    true"
   EOF
   action :run
   sensitive true
 end
 
-execute 'revoke_gitlab_root_tokens' do
-  command <<-EOF
-    gitlab-rails runner "User.find_by_username('root').personal_access_tokens.all.each(&:revoke!)"
-  EOF
-  action :run
-end
-
-execute 'save_gitlab_root_token' do
-  command <<-EOF
-    gitlab-rails runner "token = User.find_by_username('root').personal_access_tokens.create(scopes: [:api], name: 'Automation Token'); \
-    token.set_token('#{gitlab_root_api_token}'); token.save!"
-  EOF
-  action :run
-  sensitive true
-end
-
-execute 'delete_qa_user' do
-  command <<-EOF
-    gitlab-rails runner "current_user = User.find_by(username: 'root'); qa_user = User.find_by_username('#{gitlab_qa_account_name}'); \
-    DeleteUserWorker.perform_async(current_user.id, qa_user.id)"
-  EOF
-  action :run
-  ignore_failure true
-end
-
-execute 'create_gitlab_qa_user' do
-  command <<-EOF
-    gitlab-rails runner "qauser = User.new(username: '#{gitlab_qa_account_name}', email: 'qa@#{external_fqdn}', \
-    name: 'QA User', password: '#{gitlab_qa_password}', password_confirmation: '#{gitlab_qa_password}', \
-    can_create_group: 'true', admin: 'true'); qauser.skip_confirmation!; qauser.save!"
-  EOF
-  action :run
-  sensitive true
-  ignore_failure true
-end
-
-execute 'create_gitlab_qa_token' do
-  command <<-EOF
-    gitlab-rails runner "token = User.find_by_username('#{gitlab_qa_account_name}').personal_access_tokens.create(scopes: [:api], name: 'Automation Token'); \
-    token.set_token('#{gitlab_qa_api_token}'); token.save!"
-  EOF
-  action :run
-  sensitive true
-end
-
-execute 'clean_up_licenses' do
-  command <<-EOF
-    gitlab-rails runner 'License.all.each(&:destroy!); license_data = "#{gitlab_license}"; license = License.new(data: license_data); license.save'
-  EOF
-  action :run
-  sensitive true
-end
-
-execute 'allow_root_to_create_groups' do
-  command <<-EOF
-    gitlab-rails runner "User.find_by_username('root').update!(can_create_group: true)"
-  EOF
-  action :run
-end
 
 execute 'add_ci_skeleton' do
   command <<-EOF
@@ -385,7 +395,7 @@ execute 'add_ci_skeleton' do
     PROJECT_JSON=$(curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" \
       "#{local_url}/api/v4/groups/$GROUP_NUMBER/projects?" | jq '.[] | select(.name=="identity-devops")')
     PROJECT_NUMBER=$(echo $PROJECT_JSON | jq 'select(.name=="identity-devops") | .id')
-    for variable in GITLAB_API_TOKEN GITLAB_QA_ACCOUNT GITLAB_QA_PASSWORD GITLAB_QA_API_TOKEN AWS_ACCOUNT_ID EXTERNAL_FQDN AWS_REGION
+    for variable in GITLAB_QA_ACCOUNT GITLAB_QA_PASSWORD GITLAB_QA_API_TOKEN AWS_ACCOUNT_ID EXTERNAL_FQDN AWS_REGION
     do
       if (curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XGET \
         "#{local_url}/api/v4/projects/$PROJECT_NUMBER/variables/$variable"  | jq '.value')
@@ -397,10 +407,6 @@ execute 'add_ci_skeleton' do
         echo "$variable Not Present"
       fi
     done
-    curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
-      "#{local_url}/api/v4/projects/$PROJECT_NUMBER/variables" \
-      --form "key=GITLAB_API_TOKEN" --form "value=#{gitlab_root_api_token}" \
-      --form "masked=true" --form "protected=true"
     curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
       "#{local_url}/api/v4/projects/$PROJECT_NUMBER/variables" \
       --form "key=GITLAB_QA_ACCOUNT" --form "value=#{gitlab_qa_account_name}" \
@@ -416,7 +422,7 @@ execute 'add_ci_skeleton' do
     curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
       "#{local_url}/api/v4/projects/$PROJECT_NUMBER/variables" \
        --form "key=AWS_ACCOUNT_ID" --form "value=#{aws_account_id}" \
-      --form "masked=true" --form "protected=true"
+      --form "masked=true"
     curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
       "#{local_url}/api/v4/projects/$PROJECT_NUMBER/variables" \
       --form "key=EXTERNAL_FQDN" --form "value=#{external_fqdn}" \
@@ -424,12 +430,14 @@ execute 'add_ci_skeleton' do
     curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
       "#{local_url}/api/v4/projects/$PROJECT_NUMBER/variables" \
       --form "key=AWS_REGION" --form "value=#{aws_region}" \
-      --form "masked=true" --form "protected=true"
+      --form "masked=true"
+    curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPUT \
+      "#{local_url}/api/v4/application/settings?deactivate_dormant_users=true"
   EOF
   ignore_failure false
   action :run
+  sensitive true
 end
-
 
 # this is to set up user/group syncing
 remote_file "golang" do

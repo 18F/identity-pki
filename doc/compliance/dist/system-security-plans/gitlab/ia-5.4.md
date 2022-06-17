@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-inherited
+  - c-documented
 ---
 
 # ia-5.4 - \[catalog\] Automated Support for Password Strength Determination
@@ -26,6 +26,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control ia-5.4
+Password Strength is evaluated and enforced upstream via Login.gov. The GitLab component uses ia-5.4 from the main Login.gov SSP.
 
 ______________________________________________________________________

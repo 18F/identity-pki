@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-in-parent-ssp
+  - c-documented
 ---
 
 # sc-7.5 - \[catalog\] Deny by Default / Allow by Exception
@@ -26,6 +26,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control sc-7.5
+This control is documented in the main SSP.
 
 ______________________________________________________________________

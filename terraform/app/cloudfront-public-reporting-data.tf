@@ -9,13 +9,44 @@ module "acm-cert-public-reporting-data-cdn" {
   validation_zone_id = var.route53_id
 }
 
-# Per https://aws.amazon.com/premiumsupport/knowledge-center/no-access-control-allow-origin-error/,
-# used to resolve issue with cached CORS headers when using the same data site from
-# multiple front ends.
-# See https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-origin-request-policies.html
-# 
-# UPDATE (2021-12-30): Both a cache policy AND an origin-request policy must be used;
-# the forwarded_values configuration is considered legacy at this point.
+# The Managed-CORS-S3Origin origin policy passes the Origin, Access-Control-Request-Headers, Access-Control-Request-Method headers to the
+# S3 bucket.  We previously used the CloudFront Managed-CachingOptimized caching policy, but this caused issues because the policy does
+# not take into account the headers when building the cache key.  This led to situations where if the first request for an object came with
+# the header "Origin: https://example.com", S3 would respond with "Access-Control-Allow-Origin: https://example.com".  If later
+# requests came from "Origin: https://example2.com", CloudFront would respond with "Access-Control-Allow-Origin: https://example.com" and
+# the browser would block the request due to a CORS origin mismatch.
+#
+# Our solution to this is to have a CloudFront cache policy that includes the headers in the cache key.  This ensures requests with different
+# "Origin" headers have separate cache keys.
+#
+# "Origin" is difficult to search for since it is overloaded in the context of talking about CORS and CloudFront.
+# It can refer to either the HTTP header or the CloudFront origin (S3 in this case).
+resource "aws_cloudfront_cache_policy" "public_reporting_data_cache_policy" {
+  name        = "${var.env_name}-Public-Reporting-Data-Cache-Policy"
+  default_ttl = 86400
+  max_ttl     = 31536000
+  min_ttl     = 1
+
+  parameters_in_cache_key_and_forwarded_to_origin {
+    enable_accept_encoding_gzip   = true
+    enable_accept_encoding_brotli = true
+
+    headers_config {
+      header_behavior = "whitelist"
+      headers {
+        items = ["Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers"]
+      }
+    }
+
+    cookies_config {
+      cookie_behavior = "none"
+    }
+    query_strings_config {
+      query_string_behavior = "none"
+    }
+  }
+}
+
 data "aws_cloudfront_cache_policy" "managed_caching_optimized" {
   name = "Managed-CachingOptimized"
 }
@@ -51,7 +82,7 @@ resource "aws_cloudfront_distribution" "public_reporting_data_cdn" {
     cached_methods   = ["HEAD", "GET", "OPTIONS"]
     target_origin_id = "public-reporting-data-${var.env_name}"
 
-    cache_policy_id          = data.aws_cloudfront_cache_policy.managed_caching_optimized.id
+    cache_policy_id          = aws_cloudfront_cache_policy.public_reporting_data_cache_policy.id
     origin_request_policy_id = data.aws_cloudfront_origin_request_policy.managed_cors_s3origin.id
 
     min_ttl                = 0

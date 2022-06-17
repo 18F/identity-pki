@@ -1,5 +1,5 @@
 resource "aws_iam_role" "gitlab_runner" {
-  name               = "${var.env_name}-${var.gitlab_runner_pool_name}_gitlab_runner_iam_role"
+  name               = "${var.env_name}-${var.gitlab_runner_pool_name}_gitlab_runner_role"
   assume_role_policy = <<-EOM
     {
       "Version": "2012-10-17",
@@ -87,12 +87,7 @@ resource "aws_iam_role_policy" "gitlab-ecr" {
                   "ecr:ListTagsForResource",
                   "ecr:DescribeImageScanFindings"
               ],
-              "Resource": "*",
-              "Condition": {
-                  "StringEquals": {
-                      "aws:ResourceTag/gitlab_${var.env_name}_${var.gitlab_runner_pool_name}": "read"
-                  }
-              }
+              "Resource": "*"
           }
           ]
       }
@@ -442,4 +437,20 @@ resource "aws_iam_role_policy" "idp_static_assets_role_bucket_role_policy" {
   name   = "${var.env_name}-upload-idp-static-assets"
   role   = aws_iam_role.gitlab_runner.id
   policy = data.aws_iam_policy_document.idp_static_assets_role_bucket_role_policy_document.json
+}
+
+# attach AutoTerraform policies if needed
+locals {
+  auto_tf_policies = var.terraform_powers ? toset([
+    "AutoTerraform1",
+    "AutoTerraform2",
+    "AutoTerraform3",
+    "AutoTerraform4"
+  ]) : []
+}
+resource "aws_iam_role_policy_attachment" "AutoTerraform" {
+  for_each = local.auto_tf_policies
+
+  role       = aws_iam_role.gitlab_runner.id
+  policy_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/${each.key}"
 }

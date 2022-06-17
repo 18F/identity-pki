@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
 ---
 
 # ia-2.1 - \[catalog\] Network Access to Privileged Accounts
@@ -18,6 +18,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control ia-2.1
+All users, privileged and otherwise, require GSA VPN to gain network access, which requires MFA.  They also require login.gov to log in to the application, which uses MFA.  The Gitlab root account password is locked during bootstrapping, but in emergencies can be reset through using AWS SSM, which requires MFA.
 
 ______________________________________________________________________

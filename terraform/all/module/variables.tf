@@ -244,3 +244,39 @@ variable "config_password_rotation_code" {
   description = "Path of the compressed lambda source code."
   default     = "lambda/config-password-rotation.zip"
 }
+
+variable "PrismaCloudRoleName" {
+  type        = string
+  description = "IAM role name to be assumed by PrismaCloud followed by session name in the format:/role-name/role-session-name"
+  default     = "/PrismaCloudRole/redlock"
+}
+
+variable "NewRelicARNRoleName" {
+  type        = string
+  description = "IAM role name to be assumed by NewRelic Integrations followed by session name in the format:/role-name/role-session-name"
+  default     = "/NewRelicInfrastructure-Integrations/newrelic-infrastructure"
+}
+
+variable "period" {
+  type        = number
+  default     = 60
+  description = "The period in seconds over which the specified statistic is applied."
+}
+
+variable "evaluation_periods" {
+  type        = number
+  description = "The number of periods over which data is compared to the specified threshold."
+  default     = 5
+}
+
+variable "threshold" {
+  type        = number
+  default     = 1
+  description = "The value against which the specified statistic is compared. "
+}
+
+variable "datapoints_to_alarm" {
+  type        = number
+  default     = 5
+  description = "The number of datapoints that must be breaching to trigger the alarm."
+}

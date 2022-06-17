@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
 ---
 
 # ia-4 - \[catalog\] Identifier Management
@@ -78,30 +78,30 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-Add control implementation description here for item ia-4_smt.a
+Authorization is granted to assign unique identifiers to group and role identifiers by Login.gov leads and managers.
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-Add control implementation description here for item ia-4_smt.b
+Groups and roles are selected for individuals and groups by Login.gov leads and managers.  
 
 ______________________________________________________________________
 
 ## Implementation c.
 
-Add control implementation description here for item ia-4_smt.c
+Groups and roles are assigned for to individuals by Login.gov leads and mangers.
 
 ______________________________________________________________________
 
 ## Implementation d.
 
-Add control implementation description here for item ia-4_smt.d
+Reuse of individual user identifiers is disallowed upstream by Login.gov.
 
 ______________________________________________________________________
 
 ## Implementation e.
 
-Add control implementation description here for item ia-4_smt.e
+Individual user accounts are disabled in Gitlab after a period of inactivity in order to free up licenses.  
 
 ______________________________________________________________________

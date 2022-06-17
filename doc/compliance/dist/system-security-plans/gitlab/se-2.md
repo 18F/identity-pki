@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-documented
+  - c-in-parent-ssp
 ---
 
 # se-2 - \[catalog\] Privacy Incident Response
@@ -16,6 +16,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control se-2
+This control is already documented in the main SSP.
 
 ______________________________________________________________________

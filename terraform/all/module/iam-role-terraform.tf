@@ -604,6 +604,7 @@ locals {
           "iam:DeleteRole",
           "iam:DeleteRolePolicy",
           "iam:DeleteUser",
+          "iam:DetachGroupPolicy",
           "iam:DetachRolePolicy",
           "iam:DetachUserPolicy",
           "iam:GetAccountPasswordPolicy",

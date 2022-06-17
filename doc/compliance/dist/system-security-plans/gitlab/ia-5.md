@@ -1,6 +1,6 @@
 ---
 status:
-  - c-not-implemented
+  - c-inherited
   - c-not-documented
 effort:
   - medium
@@ -92,60 +92,60 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-Add control implementation description here for item ia-5_smt.a
+The identity of the individual, group, role, or device is authenticated upstream via Login.gov. The GitLab component uses ia-5 from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-Add control implementation description here for item ia-5_smt.b
+Any initial authenticator content for authenticators is handled upstream via Login.gov. The GitLab component uses ia-5 from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation c.
 
-Add control implementation description here for item ia-5_smt.c
+Authenticator strength is controlled upstream via Login.gov. The GitLab component uses ia-5 from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation d.
 
-Add control implementation description here for item ia-5_smt.d
+Administrative procedures for authenticator distribution and handling is controlled upstream via Login.gov. The GitLab component uses ia-5 from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation e.
 
-Add control implementation description here for item ia-5_smt.e
+Any change in default content of authenticators is handled upstream via Login.gov. The GitLab component uses ia-5 from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation f.
 
-Add control implementation description here for item ia-5_smt.f
+Lifetime restrictions and reuse conditions for authenticators is handled upstream via Login.gov. The GitLab component uses ia-5 from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation g.
 
-Add control implementation description here for item ia-5_smt.g
+Changing/refreshing of authenticators is handled upstream via Login.gov. The GitLab component uses ia-5 from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation h.
 
-Add control implementation description here for item ia-5_smt.h
+Authenticator content is protected upstream via Login.gov. The GitLab component uses ia-5 from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation i.
 
-Add control implementation description here for item ia-5_smt.i
+Safeguards for protect authenticators are handled upstream via Login.gov. The GitLab component uses ia-5 from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation j.
 
-Add control implementation description here for item ia-5_smt.j
+Any change of authenticators is handled upstream via Login.gov. The GitLab component uses ia-5 from the main Login.gov SSP.
 
 ______________________________________________________________________

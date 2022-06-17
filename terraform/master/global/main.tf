@@ -27,7 +27,8 @@ module "main" {
     "Prod" = [
       "555546682965", # login-prod
       "472911866628", # login-sms-prod
-      "217680906704"  # login-tooling-prod
+      "217680906704", # login-tooling-prod
+      "461353137281"  # login-analytics - In-ATO so included in Prod list
     ],
     "Sandbox" = [
       "894947205914", # login-sandbox
@@ -35,77 +36,84 @@ module "main" {
       "138431511372", # login-secops-dev
       "034795980528", # login-tooling-sandbox
       "917793222841"  # login-alpha
-    ],
-    "Analytics" = [
-      "461353137281" # login-analytics
     ]
   }
 
   group_role_map = {
+    "analytics" = [
+      { "Analytics" = ["Sandbox", "Prod"] }
+    ],
     "appdev" = [
+      { "Analytics" = ["Sandbox", "Prod"] },
       { "PowerUser" = ["Sandbox"] },
       { "ReadOnly" = ["Sandbox"] },
       { "Terraform" = ["Sandbox"] }
     ],
-    "analytics" = [
-      { "Analytics" = ["Sandbox", "Prod"] }
-    ],
     "apponcall" = [
+      { "Analytics" = ["Sandbox", "Prod"] },
       { "PowerUser" = ["Sandbox", "Prod"] },
       { "ReadOnly" = ["Sandbox", "Prod"] },
       { "Terraform" = ["Sandbox"] }
     ],
     "bizops" = [
+      { "Analytics" = ["Sandbox", "Prod"] },
       { "ReportsReadOnly" = ["Sandbox", "Prod"] }
     ],
     "devops" = [
-      { "FullAdministrator" = ["Sandbox", "Prod", "Master", "Analytics"] },
+      { "Analytics" = ["Sandbox", "Prod"] },
+      { "FullAdministrator" = ["Sandbox", "Prod", "Master"] },
       { "ReadOnly" = ["Sandbox", "Prod"] },
       { "Terraform" = ["Sandbox", "Prod", "Master"] },
-      { "KMSAdministrator" = ["Sandbox", "Analytics"] }
+      { "KMSAdministrator" = ["Sandbox"] }
     ],
     "devopsnonprod" = [
+      { "Analytics" = ["Sandbox", "Prod"] },
       { "FullAdministrator" = ["Sandbox"] },
       { "Terraform" = ["Sandbox"] }
     ],
     "finops" = [
-      { "BillingReadOnly" = ["Sandbox", "Prod"] }
+      { "Analytics" = ["Sandbox", "Prod"] },
+      { "BillingReadOnly" = ["Sandbox", "Prod"] },
+      { "ReportsReadOnly" = ["Sandbox", "Prod"] }
     ],
     "secops" = [
+      { "Analytics" = ["Sandbox", "Prod"] },
       { "FullAdministrator" = ["Sandbox", "Prod", "Master"] },
       { "ReadOnly" = ["Sandbox", "Prod"] },
       { "KMSAdministrator" = ["Sandbox"] }
     ],
     "secopsnonprod" = [
+      { "Analytics" = ["Sandbox", "Prod"] },
       { "FullAdministrator" = ["Sandbox"] },
       { "ReadOnly" = ["Sandbox"] },
       { "KMSAdministrator" = ["Sandbox"] }
     ],
     "soc" = [
-      { "Auditor" = ["Sandbox", "Prod", "Master", "Analytics"] },
-      { "ReadOnly" = ["Sandbox", "Prod", "Master", "Analytics"] },
-      { "SOCAdministrator" = ["Sandbox", "Prod", "Master", "Analytics"] }
+      { "Auditor" = ["Sandbox", "Prod", "Master"] },
+      { "ReadOnly" = ["Sandbox", "Prod", "Master"] },
+      { "SOCAdministrator" = ["Sandbox", "Prod", "Master"] }
     ],
     "socreadonly" = [
-      { "ReadOnly" = ["Sandbox", "Prod", "Master", "Analytics"] },
+      { "ReadOnly" = ["Sandbox", "Prod", "Master"] },
       { "Terraform" = ["Sandbox"] }
     ],
     "supporteng" = [
+      { "Analytics" = ["Sandbox", "Prod"] },
       { "SupportEngineer" = ["Sandbox", "Prod"] }
     ],
     "keymasters" = [
-      { "KMSAdministrator" = ["Prod"] }
+      { "KMSAdministrator" = ["Sandbox", "Prod"] }
     ]
   }
 
   role_list = [
     "Analytics",
     "Auditor",
+    "BillingReadOnly",
     "FullAdministrator",
     "PowerUser",
     "ReadOnly",
     "Terraform",
-    "BillingReadOnly",
     "ReportsReadOnly",
     "KMSAdministrator",
     "SOCAdministrator",

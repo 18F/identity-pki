@@ -11,8 +11,8 @@
         "outboundproxy"
       ],
       "lockdown": "true",
-      "deploy_branch_default": "stages/pt",
-      "idp_sync_static": false
+      "idp_sync_static": true,
+      "deploy_branch_default": "stages/pt2"
     },
     "ssh_keys": {},
     "identity-jumphost": {

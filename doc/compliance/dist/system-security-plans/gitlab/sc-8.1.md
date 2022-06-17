@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-in-parent-ssp
+  - c-documented
 needs-params:
   - sc-8.1_prm_1
 ---
@@ -31,6 +31,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control sc-8.1
+This control is documented in the main SSP.
 
 ______________________________________________________________________

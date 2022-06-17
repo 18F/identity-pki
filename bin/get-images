@@ -128,7 +128,7 @@ get_ami_info() {
   shift
   echo -e "\nGetting login-${PROFILE} AMI data..."
   NEW_AMIS=()
-  get_iam 'imagebuild' "${PROFILE}"
+  get_iam 'imagebuild' "${PROFILE}" 'FullAdministrator'
 
   for TYPE in "$@" ; do
     if [[ ${TYPE} =~ '_ami-' ]] ; then

@@ -265,6 +265,7 @@ resource "aws_security_group" "lambda_endpoint" {
     protocol  = "tcp"
     security_groups = [
       aws_security_group.idp.id,
+      aws_security_group.base.id,
     ]
   }
 
@@ -286,6 +287,7 @@ resource "aws_security_group" "sqs_endpoint" {
     protocol  = "tcp"
     security_groups = [
       aws_security_group.idp.id,
+      aws_security_group.base.id,
     ]
   }
 
@@ -568,6 +570,7 @@ resource "aws_security_group" "events_endpoint" {
     security_groups = [
       aws_security_group.idp.id,
       aws_security_group.app.id,
+      aws_security_group.base.id,
     ]
   }
 

@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
 ---
 
 # sc-7.3 - \[catalog\] Access Points
@@ -22,6 +22,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control sc-7.3
+Gitlab limits the number of external network connections; the only access points visible on a public network are AWS load balancers.
 
 ______________________________________________________________________

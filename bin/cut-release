@@ -46,7 +46,7 @@ OLD_VERSION_PR=$(echo "${PR_LIST}" | grep v${OLD_RELEASE} | tr -d '\n')
 [[ ${MANUAL} ]] && NEW_VERSION_PR=$(echo "${PR_LIST}" | grep v${NEW_RELEASE} | tr -d '\n')
 if [[ -z ${NEW_VERSION_PR} ]] ; then
   RELEASE_PRS=$(echo "${PR_LIST}" |
-    sed "/${OLD_RELEASE}/q" | sed '$d')
+    sed "/${OLD_VERSION_PR}/q" | sed '$d')
 else
   RELEASE_PRS=$(echo "${PR_LIST}" |
      awk -v beg="$NEW_VERSION_PR" -v end="$OLD_VERSION_PR" '$0==beg{f=1} f{print; if ($0==end) exit}' |
