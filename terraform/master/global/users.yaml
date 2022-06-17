@@ -325,6 +325,8 @@ users:
     - appdev
     git_username:
     - sheldon-b
+    email:
+    - sheldon.bachstein@gsa.gov
   sierra.toler:
     aws_groups:
     - bizops
