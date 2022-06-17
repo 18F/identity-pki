@@ -770,7 +770,6 @@ resource "aws_security_group" "web" {
   # bootstrapping cycle and will still remove unmanaged rules.
   # https://github.com/terraform-providers/terraform-provider-aws/issues/3095
   egress {
-<<<<<<< Updated upstream
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
@@ -780,17 +779,6 @@ resource "aws_security_group" "web" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-=======
-    from_port = 80
-    to_port   = 80
-    protocol  = "tcp"
-    cidr_blocks = [for subnet in aws_subnet.app : subnet.cidr_block]
-  }
-  egress {
-    from_port = 443
-    to_port   = 443
-    protocol  = "tcp"
->>>>>>> Stashed changes
     cidr_blocks = [for subnet in aws_subnet.app : subnet.cidr_block]
   }
 
