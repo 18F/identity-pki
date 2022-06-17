@@ -1378,18 +1378,19 @@ resource "aws_subnet" "app" {
   vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
 }
 
-resource "aws_subnet" "data_services" {
-  for_each                = local.network_layout[var.region][var.env_type]._zones
-  availability_zone       = "${var.region}${each.key}"
-  cidr_block              = each.value.data-services
-  map_public_ip_on_launch = false
-
-  tags = {
-    Name = "${var.name}-data_services_subnet_${each.key}-${var.env_name}"
-  }
-
-  vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
-}
+# Disabling resource until Aurora Tasks are completed
+#resource "aws_subnet" "data-services" {
+#  for_each                = local.network_layout[var.region][var.env_type]._zones
+#  availability_zone       = "${var.region}${each.key}"
+#  cidr_block              = each.value.data-services
+#  map_public_ip_on_launch = false
+#
+#  tags = {
+#    Name = "${var.name}-data_services_subnet_${each.key}-${var.env_name}"
+#  }
+#
+#  vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
+#}
 
 resource "aws_subnet" "public-ingress" {
   for_each                = local.network_layout[var.region][var.env_type]._zones
@@ -1404,15 +1405,16 @@ resource "aws_subnet" "public-ingress" {
   vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
 }
 
-resource "aws_subnet" "public-egress" {
-  for_each                = local.network_layout[var.region][var.env_type]._zones
-  availability_zone       = "${var.region}${each.key}"
-  cidr_block              = each.value.public-egress
-  map_public_ip_on_launch = true
-
-  tags = {
-    Name = "${var.name}-public_egress_subnet_${each.key}-${var.env_name}"
-  }
-
-  vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
-}
+## Disabling Resource until NetworkFirewall Tasks are in place
+##resource "aws_subnet" "public-egress" {
+#  for_each                = local.network_layout[var.region][var.env_type]._zones
+#  availability_zone       = "${var.region}${each.key}"
+#  cidr_block              = each.value.public-egress
+#  map_public_ip_on_launch = true
+#
+#  tags = {
+#    Name = "${var.name}-public_egress_subnet_${each.key}-${var.env_name}"
+#  }
+#
+#  vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
+#}
