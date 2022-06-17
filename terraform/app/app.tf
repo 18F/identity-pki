@@ -71,7 +71,7 @@ output "app_db_endpoint" {
 resource "aws_db_subnet_group" "default" {
   description = "${var.env_name} env subnet group for login.gov"
   name        = "${var.name}-db-${var.env_name}"
-  subnet_ids  = concat([aws_subnet.db1.id, aws_subnet.db2.id], [for subnet in aws_subnet.db : subnet.id])
+  subnet_ids  = [aws_subnet.db1.id, aws_subnet.db2.id]
 
   tags = {
     Name = "${var.name}-${var.env_name}"
