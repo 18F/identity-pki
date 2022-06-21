@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-in-parent-ssp
+  - c-documented
 needs-params:
   - si-5_prm_2
 ---
@@ -61,24 +61,24 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-Add control implementation description here for item si-5_smt.a
+This control is documented in the main SSP.
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-Add control implementation description here for item si-5_smt.b
+This control is documented in the main SSP.
 
 ______________________________________________________________________
 
 ## Implementation c.
 
-Add control implementation description here for item si-5_smt.c
+This control is documented in the main SSP.
 
 ______________________________________________________________________
 
 ## Implementation d.
 
-Add control implementation description here for item si-5_smt.d
+This control is documented in the main SSP.
 
 ______________________________________________________________________

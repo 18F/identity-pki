@@ -46,10 +46,10 @@ using the following flags:
        RDS databases/ASGs (use in case the targeted \`apply\` is failing).
   -s : Stop and force-delete the cw-kinesis-s3 Firehose stream,
        allowing its corresponding bucket to be emptied and deleted
-  -b : Empties all S3 buckets with \${TF_ENV} in the bucket name,
-       and deletes all object versions as well
   -p : Delete the DS record from identitysandbox.gov that enables DNSSEC for the
        pivcac.\${TF_ENV}.identitysandbox.gov (necessary before disabling DNSSEC)
+  -b : Empties all S3 buckets with \${TF_ENV} in the bucket name,
+       and deletes all object versions as well
   -x : Run \`terraform destroy -auto-approve\` against the
        environment, skipping the attempt to send a message to Slack
   -k : Delete all S3 keys in the secrets/app-secrets buckets that
@@ -121,13 +121,13 @@ replace_db_files() {
   while [[ -z ${PIVCAC_DS} ]] ; do
     PIVCAC_DS=$(ave aws route53 list-resource-record-sets \
        --hosted-zone-id $ZONE_ID |
-       jq -c --arg ENV_NAME "${GSA_USERNAME}" \
+       jq -c --arg ENV_NAME "${TF_ENV}" \
        '.ResourceRecordSets[]|select(.Type == "DS")|select(.Name|contains($ENV_NAME))')
   done
   ave aws route53 change-resource-record-sets \
       --hosted-zone-id $ZONE_ID \
       --change-batch \
-      "{\"Comment\":\"DEL-pivcac.${GSA_USERNAME}-DS\",\"Changes\":[{\"Action\":\"DELETE\",\"ResourceRecordSet\":$PIVCAC_DS}]}"
+      "{\"Comment\":\"DEL-pivcac.${TF_ENV}-DS\",\"Changes\":[{\"Action\":\"DELETE\",\"ResourceRecordSet\":$PIVCAC_DS}]}"
 }
 
 4_empty_buckets() {

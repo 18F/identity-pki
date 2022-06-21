@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+- c-in-parent-ssp
+- c-documented
 ---
 
 # si-2.3 - \[catalog\] Time to Remediate Flaws / Benchmarks for Corrective Actions
@@ -39,12 +39,12 @@ ______________________________________________________________________
 
 ## Implementation (a)
 
-Add control implementation description here for item si-2.3_smt.a
+This control is documented in the main SSP.
 
 ______________________________________________________________________
 
 ## Implementation (b)
 
-Add control implementation description here for item si-2.3_smt.b
+This control is documented in the main SSP.
 
 ______________________________________________________________________

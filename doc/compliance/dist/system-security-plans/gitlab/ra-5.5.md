@@ -1,7 +1,8 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
+  - c-in-parent-ssp
 ---
 
 # ra-5.5 - \[catalog\] Privileged Access
@@ -28,6 +29,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control ra-5.5
+The Gitlab component uses ra-5.5 from the main login.gov SSP.
 
 ______________________________________________________________________

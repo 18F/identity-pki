@@ -10,7 +10,7 @@ needs-params:
 
 ## Control Statement
 
-The organization updates the information system vulnerabilities scanned No value found.
+The organization updates the information system vulnerabilities scanned
 
 ## Control Objective
 
