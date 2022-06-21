@@ -207,6 +207,8 @@ users:
   michael.antiporta:
     aws_groups:
     - analytics
+    gitlab_groups:
+    - pm
   michael.w.ward:
     aws_groups:
     - devops
