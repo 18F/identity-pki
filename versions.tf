@@ -30,7 +30,7 @@ terraform {
     }
     newrelic = {
       source  = "newrelic/newrelic"
-      version = "2.41.1"
+      version = "2.47.1"
     }
     random = {
       source  = "hashicorp/random"
