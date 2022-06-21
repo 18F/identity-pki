@@ -28,8 +28,6 @@ variable "idp_static_bucket_cross_account_access" {
   default     = []
 }
 
-# unallocated: "172.16.33.96/28"   # 172.16.33.96  - 172.16.33.111
-# unallocated: "172.16.33.112/28"  # 172.16.33.112 - 172.16.33.115
 variable "db1_subnet_cidr_block" { # 172.16.33.32 - 172.16.33.47
   default = "172.16.33.32/28"
 }
