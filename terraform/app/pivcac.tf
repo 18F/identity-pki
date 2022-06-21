@@ -191,7 +191,7 @@ resource "aws_autoscaling_group" "pivcac" {
 resource "aws_elb" "pivcac" {
   name            = "${var.env_name}-pivcac"
   security_groups = [aws_security_group.web.id]
-  subnets         = [aws_subnet.alb1.id, aws_subnet.alb2.id, aws_subnet.public-ingress["c"].id, aws_subnet.public-ingress["d"].id]
+  subnets         = [for subnet in aws_subnet.public-ingress : subnet.id]
 
   access_logs {
     bucket        = "login-gov.elb-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
