@@ -187,6 +187,8 @@ users:
     - apponcall
     gitlab_groups:
     - appdev
+    ec2_username:
+    - mshah
   melissa.miller:
     aws_groups:
     - appdev
@@ -207,7 +209,7 @@ users:
     - analytics
   michael.w.ward:
     aws_groups:
-    - devopsnonprod
+    - devops
     ec2_username:
     - mww59
     gitlab_groups:

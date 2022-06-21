@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-in-parent-ssp
+  - c-documented
 ---
 
 # si-2 - \[catalog\] Flaw Remediation
@@ -56,24 +56,24 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-Add control implementation description here for item si-2_smt.a
+This control is documented in the main SSP.
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-Add control implementation description here for item si-2_smt.b
+This control is documented in the main SSP.
 
 ______________________________________________________________________
 
 ## Implementation c.
 
-Add control implementation description here for item si-2_smt.c
+This control is documented in the main SSP.
 
 ______________________________________________________________________
 
 ## Implementation d.
 
-Add control implementation description here for item si-2_smt.d
+This control is documented in the main SSP.
 
 ______________________________________________________________________

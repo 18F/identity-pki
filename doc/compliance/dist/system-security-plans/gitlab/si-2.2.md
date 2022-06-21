@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-in-parent-ssp
+  - c-documented
 ---
 
 # si-2.2 - \[catalog\] Automated Flaw Remediation Status
@@ -22,6 +22,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control si-2.2
+This control is documented in the main SSP.
 
 ______________________________________________________________________

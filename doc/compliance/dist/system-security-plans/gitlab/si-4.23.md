@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+- c-in-parent-ssp
+- c-documented
 ---
 
 # si-4.23 - \[catalog\] Host-based Devices
@@ -28,6 +28,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control si-4.23
+This control is documented in the main SSP.
 
 ______________________________________________________________________
