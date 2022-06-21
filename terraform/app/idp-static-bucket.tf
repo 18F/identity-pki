@@ -141,3 +141,15 @@ resource "aws_s3_bucket_ownership_controls" "idp_static_bucket" {
     object_ownership = "BucketOwnerEnforced"
   }
 }
+
+# Populates the custom error/maintenance pages into the static bucket used by cloudfront
+resource "aws_s3_bucket_object" "cloudfront_custom_pages" {
+  depends_on             = [aws_s3_bucket.idp_static_bucket[0]]
+  for_each               = var.cloudfront_custom_pages
+  key                    = each.key
+  bucket                 = aws_s3_bucket.idp_static_bucket[0].id
+  source                 = each.value
+  content_type           = "text/html"
+  server_side_encryption = "AES256"
+  etag                   = filemd5(each.value)
+}

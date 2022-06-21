@@ -32,6 +32,10 @@ terraform {
       source  = "newrelic/newrelic"
       version = "2.41.1"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "3.3.1"
+    }
   }
   required_version = "1.1.3"
 }
