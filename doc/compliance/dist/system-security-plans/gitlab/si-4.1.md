@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-in-parent-ssp
+  - c-documented
 ---
 
 # si-4.1 - \[catalog\] System-wide Intrusion Detection System
@@ -22,6 +22,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control si-4.1
+This control is documented in the main SSP.
 
 ______________________________________________________________________

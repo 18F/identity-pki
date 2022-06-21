@@ -1,7 +1,8 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
+  - c-in-parent-ssp
 ---
 
 # ra-5.6 - \[catalog\] Automated Trend Analyses
@@ -18,6 +19,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control ra-5.6
+The Gitlab component uses ra-5.6 from the main login.gov SSP.
 
 ______________________________________________________________________
