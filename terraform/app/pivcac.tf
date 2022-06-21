@@ -140,10 +140,7 @@ resource "aws_autoscaling_group" "pivcac" {
   wait_for_capacity_timeout = 0
 
   # Use the same subnet as the IDP.
-  vpc_zone_identifier = concat([
-    aws_subnet.idp1.id,
-    aws_subnet.idp2.id,
-  ], [for subnet in aws_subnet.app : subnet.id])
+  vpc_zone_identifier = [for subnet in aws_subnet.app : subnet.id]
 
   load_balancers = [aws_elb.pivcac.id]
 
