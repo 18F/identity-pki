@@ -12,6 +12,10 @@ terraform {
       source  = "hashicorp/archive"
       version = "2.2.0"
     }
+    cloudinit = {
+      source  = "hashicorp/cloudinit"
+      version = "2.2.0"
+    }
     external = {
       source  = "hashicorp/external"
       version = "2.2.0"
