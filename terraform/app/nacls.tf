@@ -54,11 +54,7 @@ resource "aws_network_acl" "allow" {
   }
 
   # Add basically every subnet here.
-  subnet_ids = [
-    aws_subnet.publicsubnet1.id,
-    aws_subnet.publicsubnet2.id,
-    aws_subnet.publicsubnet3.id,
-  ]
+  subnet_ids = [for subnet in aws_subnet.app : subnet.id]
 }
 
 resource "aws_network_acl" "db" {
