@@ -207,7 +207,7 @@ users:
     - analytics
   michael.w.ward:
     aws_groups:
-    - devopsnonprod
+    - devops
     ec2_username:
     - mww59
     gitlab_groups:
