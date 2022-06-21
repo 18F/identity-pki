@@ -187,6 +187,8 @@ users:
     - apponcall
     gitlab_groups:
     - appdev
+    ec2_username:
+    - mshah
   melissa.miller:
     aws_groups:
     - appdev
