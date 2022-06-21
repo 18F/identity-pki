@@ -14,11 +14,7 @@ resource "aws_security_group" "kms_endpoint" {
     from_port = 443
     to_port   = 443
     protocol  = "tcp"
-    cidr_blocks = concat([
-      var.private1_subnet_cidr_block,
-      var.private2_subnet_cidr_block,
-      var.private3_subnet_cidr_block,
-    ], [for subnet in aws_subnet.app : subnet.cidr_block])
+    cidr_blocks = [for subnet in aws_subnet.app : subnet.cidr_block]
   }
 
   name = "${var.name}-kms_endpoint-${var.env_name}"
@@ -50,13 +46,7 @@ resource "aws_security_group" "ssm_endpoint" {
     from_port = 443
     to_port   = 443
     protocol  = "tcp"
-    cidr_blocks = concat([
-      var.private1_subnet_cidr_block,
-      var.private2_subnet_cidr_block,
-      var.private3_subnet_cidr_block,
-      var.idp1_subnet_cidr_block,
-      var.idp2_subnet_cidr_block,
-    ], [for subnet in aws_subnet.app : subnet.cidr_block])
+    cidr_blocks = [for subnet in aws_subnet.app : subnet.cidr_block]
   }
 
   vpc_id = aws_vpc.default.id
@@ -82,13 +72,7 @@ resource "aws_security_group" "ssmmessages_endpoint" {
     from_port = 443
     to_port   = 443
     protocol  = "tcp"
-    cidr_blocks = concat([
-      var.idp1_subnet_cidr_block,
-      var.idp2_subnet_cidr_block,
-      var.private1_subnet_cidr_block,
-      var.private2_subnet_cidr_block,
-      var.private3_subnet_cidr_block,
-    ], [for subnet in aws_subnet.app : subnet.cidr_block])
+    cidr_blocks = [for subnet in aws_subnet.app : subnet.cidr_block]
   }
 
   vpc_id = aws_vpc.default.id
@@ -135,13 +119,7 @@ resource "aws_security_group" "ec2messages_endpoint" {
     from_port = 443
     to_port   = 443
     protocol  = "tcp"
-    cidr_blocks = concat([
-      var.private1_subnet_cidr_block,
-      var.private2_subnet_cidr_block,
-      var.private3_subnet_cidr_block,
-      var.idp1_subnet_cidr_block,
-      var.idp2_subnet_cidr_block,
-    ], [for subnet in aws_subnet.app : subnet.cidr_block])
+    cidr_blocks = [for subnet in aws_subnet.app : subnet.cidr_block]
   }
 
   name = "${var.name}-ec2messages_endpoint-${var.env_name}"
@@ -173,13 +151,7 @@ resource "aws_security_group" "logs_endpoint" {
     from_port = 443
     to_port   = 443
     protocol  = "tcp"
-    cidr_blocks = concat([
-      var.private1_subnet_cidr_block,
-      var.private2_subnet_cidr_block,
-      var.private3_subnet_cidr_block,
-      var.idp1_subnet_cidr_block,
-      var.idp2_subnet_cidr_block,
-    ], [for subnet in aws_subnet.app : subnet.cidr_block])
+    cidr_blocks = [for subnet in aws_subnet.app : subnet.cidr_block]
   }
 
   name = "${var.name}-logs_endpoint-${var.env_name}"
@@ -470,11 +442,7 @@ resource "aws_security_group" "sts_endpoint" {
     from_port = 443
     to_port   = 443
     protocol  = "tcp"
-    cidr_blocks = concat([
-      var.private1_subnet_cidr_block,
-      var.private2_subnet_cidr_block,
-      var.private3_subnet_cidr_block,
-    ], [for subnet in aws_subnet.app : subnet.cidr_block])
+    cidr_blocks = [for subnet in aws_subnet.app : subnet.cidr_block]
   }
 
   vpc_id = aws_vpc.default.id
