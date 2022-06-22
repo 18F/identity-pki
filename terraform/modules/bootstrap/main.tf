@@ -153,31 +153,7 @@ output "private_git_ref" {
 # The output of this module is a rendered cloud-init user data script,
 # appropriate for including in an aws_launch_configuration resource.
 output "rendered_cloudinit_config" {
-  value = data.template_cloudinit_config.bootstrap.rendered
-}
-
-data "template_file" "set-hostname-template" {
-  template = file("${path.module}/cloud-init.hostname.yaml.tpl")
-  vars = {
-    hostname_prefix = var.role
-    domain          = "${var.env}.${var.domain}"
-  }
-}
-
-data "template_file" "cloud-init-base-template" {
-  template = file("${path.module}/cloud-init.base.yaml.tpl")
-  vars = {
-    apt_proxy_stanza = local.apt_proxy_stanza
-    domain           = var.domain
-    env              = var.env
-    no_proxy_hosts   = local.no_proxy_hosts
-    proxy_port       = local.proxy_port
-    proxy_server     = local.proxy_server
-    proxy_url        = local.proxy_url
-    region           = data.aws_region.current.name
-    role             = var.role
-    sns_topic_arn    = var.sns_topic_arn
-  }
+  value = data.cloudinit_config.bootstrap.rendered
 }
 
 # These templates create cloud-init configuration that runs provision.sh with
@@ -199,48 +175,7 @@ data "template_file" "cloud-init-base-template" {
 # Currently we run identity-devops-private first. Because the identity-devops
 # cookbooks are so complicated and take so long to run, it's useful to have
 # unix accounts set up early so we can SSH in to diagnose failures.
-data "template_file" "cloud-init-provision-private-template" {
-  template = file("${path.module}/cloud-init.provision.yaml.tpl")
-  vars = {
-    # This will cause /run/<provision_phase_name> to be created if this
-    # completes successfully.
-    provision_phase_name = "private-provisioning"
-    kitchen_subdir       = ""
-    berksfile_toplevel   = ""
-    chef_download_sha256 = var.chef_download_sha256
-    chef_download_url    = var.chef_download_url
-    git_clone_url        = var.private_git_clone_url
-    git_ref              = var.private_git_ref
-    s3_ssh_key_url       = var.private_s3_ssh_key_url
-    asg_name             = local.asg_name
-    lifecycle_hook_name  = var.private_lifecycle_hook_name
-    run_remove_advantage = "echo not removing advantage client yet"
-    run_aide             = "echo not running aideinit"
-
-  }
-}
-
-data "template_file" "cloud-init-provision-main-template" {
-  template = file("${path.module}/cloud-init.provision.yaml.tpl")
-  vars = {
-    # This will cause /run/<provision_phase_name> to be created if this
-    # completes successfully.
-    provision_phase_name = "main-provisioning"
-    kitchen_subdir       = "--kitchen-subdir kitchen"
-    berksfile_toplevel   = "--berksfile-toplevel"
-    chef_download_sha256 = var.chef_download_sha256
-    chef_download_url    = var.chef_download_url
-    git_clone_url        = var.main_git_clone_url
-    git_ref              = local.main_git_ref
-    s3_ssh_key_url       = var.main_s3_ssh_key_url
-    asg_name             = local.asg_name
-    lifecycle_hook_name  = var.main_lifecycle_hook_name
-    run_remove_advantage = "apt remove -y ubuntu-advantage-pro ubuntu-advantage-tools"
-    run_aide             = "aideinit --force --yes && touch /var/tmp/ran-aideinit"
-  }
-}
-
-data "template_cloudinit_config" "bootstrap" {
+data "cloudinit_config" "bootstrap" {
   # may need to change these to true if we hit 16K in size
   gzip          = true
   base64_encode = true
@@ -248,7 +183,12 @@ data "template_cloudinit_config" "bootstrap" {
   part {
     filename     = "set-hostname.yaml"
     content_type = "text/cloud-config"
-    content      = data.template_file.set-hostname-template.rendered
+    content = templatefile("${path.module}/cloud-init.hostname.yaml.tpl",
+      {
+        hostname_prefix = var.role,
+        domain          = "${var.env}.${var.domain}"
+      }
+    )
   }
 
   part {
@@ -260,18 +200,65 @@ data "template_cloudinit_config" "bootstrap" {
   part {
     filename     = "base.yaml"
     content_type = "text/cloud-config"
-    content      = data.template_file.cloud-init-base-template.rendered
+    content = templatefile("${path.module}/cloud-init.base.yaml.tpl",
+      {
+        apt_proxy_stanza = local.apt_proxy_stanza,
+        domain           = var.domain,
+        env              = var.env,
+        no_proxy_hosts   = local.no_proxy_hosts,
+        proxy_port       = local.proxy_port,
+        proxy_server     = local.proxy_server,
+        proxy_url        = local.proxy_url,
+        region           = data.aws_region.current.name,
+        role             = var.role,
+        sns_topic_arn    = var.sns_topic_arn
+      }
+    )
   }
 
   part {
     filename     = "provision-private.yaml"
     content_type = "text/cloud-config"
-    content      = data.template_file.cloud-init-provision-private-template.rendered
+    content = templatefile("${path.module}/cloud-init.provision.yaml.tpl",
+      {
+        # This will cause /run/<provision_phase_name> to be created if this
+        # completes successfully.
+        provision_phase_name = "private-provisioning",
+        kitchen_subdir       = "",
+        berksfile_toplevel   = "",
+        chef_download_sha256 = var.chef_download_sha256,
+        chef_download_url    = var.chef_download_url,
+        git_clone_url        = var.private_git_clone_url,
+        git_ref              = var.private_git_ref,
+        s3_ssh_key_url       = var.private_s3_ssh_key_url,
+        asg_name             = local.asg_name,
+        lifecycle_hook_name  = var.private_lifecycle_hook_name,
+        run_remove_advantage = "echo not removing advantage client yet",
+        run_aide             = "echo not running aideinit"
+      }
+    )
   }
 
   part {
     filename     = "provision-main.yaml"
     content_type = "text/cloud-config"
-    content      = data.template_file.cloud-init-provision-main-template.rendered
+    content = templatefile("${path.module}/cloud-init.provision.yaml.tpl",
+      {
+        # This will cause /run/<provision_phase_name> to be created if this
+        # completes successfully.
+        provision_phase_name = "main-provisioning",
+        kitchen_subdir       = "--kitchen-subdir kitchen",
+        berksfile_toplevel   = "--berksfile-toplevel",
+        chef_download_sha256 = var.chef_download_sha256,
+        chef_download_url    = var.chef_download_url,
+        git_clone_url        = var.main_git_clone_url,
+        git_ref              = local.main_git_ref,
+        s3_ssh_key_url       = var.main_s3_ssh_key_url,
+        asg_name             = local.asg_name,
+        lifecycle_hook_name  = var.main_lifecycle_hook_name,
+        run_remove_advantage = "apt remove -y ubuntu-advantage-pro ubuntu-advantage-tools",
+        run_aide             = "aideinit --force --yes && touch /var/tmp/ran-aideinit"
+      }
+    )
   }
 }

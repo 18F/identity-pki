@@ -1,9 +1,11 @@
 # PIVCAC
 module "pivcac_elb_http_alerts" {
-  source = "github.com/18F/identity-terraform//elb_http_alerts?ref=a6261020a94b77b08eedf92a068832f21723f7a2"
+  source = "github.com/18F/identity-terraform//elb_http_alerts?ref=d1efaf9307f31101f0bedb4e4a0da5df9d5bef0f"
+  #source = "../../../identity-terraform/elb_http_alerts"
 
-  env_name         = var.env_name
-  load_balancer_id = aws_elb.pivcac.id
+  env_name = var.env_name
+  lb_name  = aws_elb.pivcac.name
+  lb_type  = "ELB"
 
   // These are defined in variables.tf
   alarm_actions = local.high_priority_alarm_actions
