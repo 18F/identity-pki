@@ -416,7 +416,7 @@ resource "aws_security_group" "idp" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   # need to get packages and stuff (conditionally)
