@@ -87,25 +87,32 @@ gitlab-qa:
 
 build_env_deploy:
   <<: *build_template
+  only:
+    - main
   variables:
     dockerfile: env_deploy.Dockerfile
     ecr_repo: cd/env_deploy
 
 build_env_test:
   <<: *build_template
+  only:
+    - main
   variables:
     dockerfile: env_test.Dockerfile
     ecr_repo: cd/env_test
 
 build_idp_ci:
   <<: *build_template
+  only:
+    - main
   variables:
     dockerfile: idp_ci.Dockerfile
     ecr_repo: idp/ci
 
-# deploy jobs here
+# deploy jobs for tspencer env here.
 deploy_tspencer:
   environment: tspencer
+  resource_group: tspencer
   only:
     - stages/tspencer
   variables:
@@ -113,10 +120,12 @@ deploy_tspencer:
   tags:
     - tspencer-env-runner
   image:
-    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_deploy:$CI_COMMIT_SHA
+    # these are hardcoded to make this deploy process more secure.
+    # If you want to update this image, you will need to edit it here, and in
+    # s3://login-gov.secrets.<account>-us-west-2/<env>/gitlab_env_runner_allowed_images,
+    # or s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images.
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_deploy@sha256:08cfe5f8648099f2800ec586dad9060bbb06d3e3a1a0d3c811f19dc6fa55590a
   stage: deploy
-  needs:
-    - build_env_deploy
   artifacts:
     name: "$CI_ENVIRONMENT_NAME-$CI_COMMIT_SHA"
     paths:
@@ -135,10 +144,13 @@ test_tspencer:
   tags:
     - tspencer-env-runner
   image:
-    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_test:$CI_COMMIT_SHA
+    # these are hardcoded to make this deploy process more secure.
+    # If you want to update this image, you will need to edit it here, and in
+    # s3://login-gov.secrets.<account>-us-west-2/<env>/gitlab_env_runner_allowed_images,
+    # or s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images.
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_test@sha256:19f6b9521f7c94820aa5594ca1e979da27ba019c0fdf4ead84c2f047876083d8
   stage: test
   needs:
-    - build_env_test
     - deploy_tspencer
   artifacts:
     reports:

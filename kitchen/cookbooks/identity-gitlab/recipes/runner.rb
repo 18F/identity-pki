@@ -73,7 +73,8 @@ valid_tags = [
   'gitlab_runner_pool_name',
   'allow_untagged_jobs',
   'is_it_an_env_runner',
-  'gitlab_ecr_repo_accountid'
+  'gitlab_ecr_repo_accountid',
+  'only_on_protected_branch'
 ]
 
 instance.tags.each do |tag|
@@ -82,12 +83,39 @@ instance.tags.each do |tag|
   end
 end
 
+gitlab_ecr_registry = "#{node.run_state['gitlab_ecr_repo_accountid']}.dkr.ecr.#{aws_region}.amazonaws.com"
+
 if node.run_state['is_it_an_env_runner'] == 'true'
+  # only allow images with the proper digests, which are hardcoded into
+  # the gitlab_env_runner_allowed_images file in the env secret bucket:
+  #   s3://login-gov.secrets.<account>-us-west-2/<env>/gitlab_env_runner_allowed_images
+  # Or in the common secret bucket, if the env secret does not exist:
+  #   s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images
+  # 
+  # The file should look something like:
+  #   <account>.dkr.ecr.us-west-2.amazonaws.com/cd/env_deploy@sha256:e04b3b710e76ff00dddd3d62029571fb40a2edeba6ffbda4fa80138c079264b1
+  #   <account>.dkr.ecr.us-west-2.amazonaws.com/cd/env_test@sha256:e04b3b710e76ff00dddd3d62029571fb4feeddeba6ffbda4fa80138c079264b1
+  #
+  # You can find the digest by going to ECR in the AWS console and looking at the repo,
+  # finding the build that you have approved, and then copying the digest for it.
+  # They look like "sha256:2feedface4242424242<etc>"
+  # 
   node.run_state['runner_tag'] = node.environment + '-' + node.run_state['gitlab_runner_pool_name']
   node.run_state['ecr_accountid'] = node.run_state['gitlab_ecr_repo_accountid']
+  allowed_images = ConfigLoader.load_config_or_nil(node, "gitlab_env_runner_allowed_images")
+  if allowed_images.nil?
+    node.run_state['allowed_images'] = ConfigLoader.load_config(node, "gitlab_env_runner_allowed_images", common: true).chomp.split()
+  else
+    node.run_state['allowed_images'] = allowed_images.chomp.split()
+  end
+  node.run_state['allowed_services'] = [""]
 else
   node.run_state['runner_tag'] = node.run_state['gitlab_runner_pool_name']
   node.run_state['ecr_accountid'] = aws_account_id
+  # this actually allows all services/images if it is empty.  Otherwise, you can fill this with
+  # images like "foo/bar:baz" or "foo@sha256-423f234f..." or whatever.
+  node.run_state['allowed_images'] = []
+  node.run_state['allowed_services'] = []
 end
 
 directory '/etc/systemd/system/gitlab-runner.service.d'
@@ -138,43 +166,33 @@ docker_network 'runner-net' do
   driver 'bridge'
 end
 
-gitlab_ecr_registry = "#{node.run_state['ecr_accountid']}.dkr.ecr.#{aws_region}.amazonaws.com"
+template '/etc/gitlab-runner/runner-register.sh' do
+  source 'runner-register.sh.erb'
+  variables ({
+    http_proxy: http_proxy,
+    https_proxy: https_proxy,
+    no_proxy: no_proxy,
+    external_url: external_url,
+    runner_name: runner_name,
+    runner_token: runner_token,
+    gitlab_ecr_registry: gitlab_ecr_registry,
+    aws_account_id: aws_account_id,
+    aws_region: aws_region,
+  })
+  mode '755'
+  sensitive true
+  notifies :run, 'execute[configure_gitlab_runner]', :immediate
+end
 
 execute 'configure_gitlab_runner' do
-  command <<-EOH
-    gitlab-runner register \
-    --non-interactive \
-    --name "#{node.run_state['gitlab_runner_pool_name']}-#{runner_name}" \
-    --url "#{external_url}" \
-    --registration-token "#{runner_token}" \
-    --executor docker \
-    --env HTTP_PROXY="#{http_proxy}" \
-    --env HTTPS_PROXY="#{https_proxy}" \
-    --env http_proxy="#{http_proxy}" \
-    --env https_proxy="#{https_proxy}" \
-    --env NO_PROXY="#{no_proxy}" \
-    --env no_proxy="#{no_proxy}" \
-    --env DOCKER_AUTH_CONFIG='{\"credHelpers\": {\"public.ecr.aws\": \"ecr-login\",\"#{gitlab_ecr_registry}\": \"ecr-login\"}}' \
-    --docker-image="#{aws_account_id}.dkr.ecr.#{aws_region}.amazonaws.com/ecr-public/docker/library/alpine:latest" \
-    --run-untagged="#{node.run_state['allow_untagged_jobs']}" \
-    --tag-list "#{node.run_state['runner_tag']}" \
-    --locked=false \
-    --cache-shared \
-    --cache-type s3 \
-    --cache-path "#{node.chef_environment}" \
-    --cache-s3-server-address s3.amazonaws.com \
-    --cache-s3-bucket-name "login-gov-#{node.chef_environment}-gitlabcache-#{aws_account_id}-#{aws_region}" \
-    --cache-s3-bucket-location "#{aws_region}" \
-    --cache-s3-authentication_type iam \
-    --access-level=not_protected \
-    --docker-memory 4096m \
-    --docker-cpu-shares 1024 \
-    --docker-security-opt no-new-privileges \
-    --docker-network-mode="runner-net" \
-    --docker-cap-drop net_raw
-  EOH
+  command '/etc/gitlab-runner/runner-register.sh'
+  action :nothing
   sensitive true
   notifies :run, 'execute[restart_runner]', :immediate
+end
+
+execute 'remove_registration_script' do
+  command '/bin/rm -f /etc/gitlab-runner/runner-register.sh'
 end
 
 group 'docker' do
