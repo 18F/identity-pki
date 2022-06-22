@@ -472,7 +472,7 @@ execute 'build_usersync' do
   cwd '/etc/login.gov/repos/identity-devops/bin/users'
   command <<-EOF
     export PATH=$PATH:/usr/local/go/bin
-    make build
+    make
   EOF
   action :run
 end
