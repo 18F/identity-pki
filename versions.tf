@@ -12,6 +12,10 @@ terraform {
       source  = "hashicorp/archive"
       version = "2.2.0"
     }
+    cloudinit = {
+      source  = "hashicorp/cloudinit"
+      version = "2.2.0"
+    }
     external = {
       source  = "hashicorp/external"
       version = "2.2.0"
@@ -30,7 +34,7 @@ terraform {
     }
     newrelic = {
       source  = "newrelic/newrelic"
-      version = "2.41.1"
+      version = "2.47.1"
     }
   }
   required_version = "1.1.3"
