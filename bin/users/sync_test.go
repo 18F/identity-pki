@@ -43,6 +43,13 @@ func TestResolveUsers(t *testing.T) {
 					Email:    "alexandra.thegreat@gsa.gov",
 					ID:       3,
 					Username: "alexandra.thegreat",
+					State: "blocked",
+				},
+				"alexander.theok": {
+					Email:    "alexander.theok@gsa.gov",
+					ID:       4,
+					Username: "alexander.theok",
+					State: "deactivated",
 				},
 				"ghost": {
 					Username: "ghost",
@@ -56,6 +63,10 @@ func TestResolveUsers(t *testing.T) {
 					"alexandra.thegreat": {
 						Gitlab_groups: []string{"devops"},
 						Email:         "alex.dagreat@gsa.gov",
+					},
+					"alexander.theok": {
+						Gitlab_groups: []string{"devops"},
+						Email:         "alexander.theok@gsa.gov",
 					},
 					"new.engineer": {
 						Gitlab_groups: []string{"appdev"},

@@ -572,7 +572,7 @@ func blockUser(gitc GitlabClientIface, u *gitlab.User) error {
 }
 
 func unblockUser(gitc GitlabClientIface, u *gitlab.User) error {
-	if u.State == "active" {
+	if u.State == "active" || u.State == "deactivated" {
 		return nil
 	}
 
