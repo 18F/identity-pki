@@ -1,3 +1,73 @@
+data "aws_iam_policy_document" "ami_cleanup_lambda_assume" {
+  statement {
+    sid    = "Assume"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole"
+    ]
+    principals {
+      type        = "Service"
+      identifiers = ["lambda.amazonaws.com"]
+    }
+  }
+}
+
+data "aws_iam_policy_document" "ami_cleanup_lambda" {
+  statement {
+    sid    = "AllowCloudWatchLogsAccess"
+    effect = "Allow"
+    actions = [
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+    ]
+    resources = [
+      "${aws_cloudwatch_log_group.ami_cleanup_log_group.arn}:*"
+    ]
+  }
+
+  statement {
+    sid    = "AllowCreatingEC2Tags"
+    effect = "Allow"
+    actions = [
+      "ec2:CreateTags",
+    ]
+    resources = [
+      "arn:aws:ec2:*::image/*"
+    ]
+  }
+
+  statement {
+    sid    = "AllowEC2Access"
+    effect = "Allow"
+    actions = [
+      "ec2:DeleteSnapshot",
+      "ec2:DeregisterImage",
+      "ec2:DescribeImages",
+      "ec2:DescribeImageAttribute",
+      "ec2:DescribeInstances",
+    ]
+    resources = [
+      "*"
+    ]
+  }
+
+}
+
+resource "aws_iam_role" "lambda_ami_cleanup" {
+  name_prefix        = "lambda_ami_cleanup"
+  assume_role_policy = data.aws_iam_policy_document.ami_cleanup_lambda_assume.json
+}
+
+resource "aws_iam_role_policy" "ami_cleanup_lambda" {
+  name   = "CloudWatchAndEC2"
+  role   = aws_iam_role.lambda_ami_cleanup.id
+  policy = data.aws_iam_policy_document.ami_cleanup_lambda.json
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
 resource "aws_cloudwatch_log_group" "ami_cleanup_log_group" {
   name              = "/aws/lambda/${aws_lambda_function.ami_cleanup.function_name}"
   retention_in_days = 30
@@ -26,14 +96,14 @@ resource "aws_lambda_function" "ami_cleanup" {
   depends_on = [module.ami_cleanup_function_code.resource_check]
 }
 
-resource "aws_cloudwatch_event_rule" "Run_ami_cleanup" {
+resource "aws_cloudwatch_event_rule" "run_ami_cleanup" {
   name                = "Run-ami_cleanup"
   description         = "Fires every 8 hours"
   schedule_expression = "cron(0 8 ? * * *)"
 }
 
 resource "aws_cloudwatch_event_target" "target_ami_cleanup" {
-  rule      = aws_cloudwatch_event_rule.Run_ami_cleanup.name
+  rule      = aws_cloudwatch_event_rule.run_ami_cleanup.name
   target_id = aws_lambda_function.ami_cleanup.function_name
   arn       = aws_lambda_function.ami_cleanup.arn
 
@@ -45,6 +115,9 @@ resource "aws_lambda_permission" "cloudwatch_to_ami_cleanup" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.ami_cleanup.function_name
   principal     = "events.amazonaws.com"
-  source_arn    = aws_cloudwatch_event_rule.Run_ami_cleanup.arn
-}
+  source_arn    = aws_cloudwatch_event_rule.run_ami_cleanup.arn
 
+  lifecycle {
+    create_before_destroy = true
+  }
+}
