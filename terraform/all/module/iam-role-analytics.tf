@@ -40,6 +40,20 @@ module "analytics-assumerole" {
           ]
         },
         {
+          sid    = "PubdataBucketAccess"
+          effect = "Allow"
+          actions = [
+            "s3:GetObject",
+            "s3:HeadBucket",
+            "s3:List*",
+            "s3:PutObject",
+          ]
+          resources = [
+            "arn:aws:s3:::login-gov-pubdata-.*",
+            "arn:aws:s3:::login-gov-pubdata-.*/*"
+          ]
+        },
+        {
           sid    = "CloudTrailBucketAccess"
           effect = "Allow"
           actions = [
