@@ -49,8 +49,8 @@ module "analytics-assumerole" {
             "s3:PutObject",
           ]
           resources = [
-            "arn:aws:s3:::login-gov-pubdata-.*",
-            "arn:aws:s3:::login-gov-pubdata-.*/*"
+            "arn:aws:s3:::login-gov-pubdata-*",
+            "arn:aws:s3:::login-gov-pubdata-*/*"
           ]
         },
         {
