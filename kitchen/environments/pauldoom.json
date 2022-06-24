@@ -9,7 +9,7 @@
       "allow_unsafe_migrations": true,
       "idp_sync_static": true,
       "gitlab_url": "gitlab.login.gov",
-      "gitlab_config_s3_bucket": "login-gov-production-gitlabconfig-894947205914-us-west-2"
+      "gitlab_config_s3_bucket": "login-gov-production-gitlabconfig-217680906704-us-west-2"
     }
   },
   "override_attributes": {}
