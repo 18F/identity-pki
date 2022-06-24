@@ -29,6 +29,8 @@ stages:
 variables:
   CI_COMMIT_TAG: "$CI_COMMIT_SHA"
   ECR_REGISTRY: "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
+  DEPLOY_IMAGE_DIGEST: "sha256:b35232b58b47b2c3327d3501bcc177c9b475896a52fe4fbb79d92041c5832d1b"
+  TEST_IMAGE_DIGEST: "sha256:19f6b9521f7c94820aa5594ca1e979da27ba019c0fdf4ead84c2f047876083d8"
 
 gitlab-qa:
   only:
@@ -124,7 +126,8 @@ deploy_tspencer:
     # If you want to update this image, you will need to edit it here, and in
     # s3://login-gov.secrets.<account>-us-west-2/<env>/gitlab_env_runner_allowed_images,
     # or s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images.
-    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_deploy@sha256:08cfe5f8648099f2800ec586dad9060bbb06d3e3a1a0d3c811f19dc6fa55590a
+    # If you are doing development work, you can override them for your env.
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_deploy@$DEPLOY_IMAGE_DIGEST
   stage: deploy
   artifacts:
     name: "$CI_ENVIRONMENT_NAME-$CI_COMMIT_SHA"
@@ -148,7 +151,7 @@ test_tspencer:
     # If you want to update this image, you will need to edit it here, and in
     # s3://login-gov.secrets.<account>-us-west-2/<env>/gitlab_env_runner_allowed_images,
     # or s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images.
-    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_test@sha256:19f6b9521f7c94820aa5594ca1e979da27ba019c0fdf4ead84c2f047876083d8
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_test@$TEST_IMAGE_DIGEST
   stage: test
   needs:
     - deploy_tspencer
@@ -173,7 +176,7 @@ deploy_pauldoom:
     # If you want to update this image, you will need to edit it here, and in
     # s3://login-gov.secrets.<account>-us-west-2/<env>/gitlab_env_runner_allowed_images,
     # or s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images.
-    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_deploy@sha256:08cfe5f8648099f2800ec586dad9060bbb06d3e3a1a0d3c811f19dc6fa55590a
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_deploy@$DEPLOY_IMAGE_DIGEST
   stage: deploy
   artifacts:
     name: "$CI_ENVIRONMENT_NAME-$CI_COMMIT_SHA"
@@ -197,7 +200,7 @@ test_pauldoom:
     # If you want to update this image, you will need to edit it here, and in
     # s3://login-gov.secrets.<account>-us-west-2/<env>/gitlab_env_runner_allowed_images,
     # or s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images.
-    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_test@sha256:19f6b9521f7c94820aa5594ca1e979da27ba019c0fdf4ead84c2f047876083d8
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_test@$TEST_IMAGE_DIGEST
   stage: test
   needs:
     - deploy_pauldoom
