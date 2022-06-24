@@ -33,6 +33,8 @@ locals {
     "uuid-lookup"  = ["idp", "idpxtra", "migration", "worker"]
     "work-restart" = ["worker"]
   }
+
+  s3_logs_bucket = "login-gov.s3-access-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
 }
 
 variable "iam_account_alias" {

@@ -14,7 +14,7 @@ module "main_secrets_bucket" {
 
   bucket_name_prefix  = "login-gov"
   bucket_name         = "${local.bucket_name_prefix}.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
-  logs_bucket         = "login-gov.s3-access-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+  logs_bucket         = local.s3_logs_bucket
   secrets_bucket_type = local.secrets_bucket_type
   region              = var.region
 }

@@ -34,7 +34,7 @@ resource "aws_s3_bucket" "awsmacietrail_dataevent" {
   policy = data.aws_iam_policy_document.s3_awsmacietrail_dataevent.json
 
   logging {
-    target_bucket = "login-gov.s3-access-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+    target_bucket = local.s3_logs_bucket
     target_prefix = "${local.macie_s3_bucket_name}/"
   }
 

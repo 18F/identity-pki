@@ -8,7 +8,7 @@ resource "aws_s3_bucket" "config_recorder" {
   acl           = "private"
 
   logging {
-    target_bucket = "login-gov.s3-access-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+    target_bucket = local.s3_logs_bucket
     target_prefix = "${local.config_recorder_s3_bucket_name}/"
   }
 
