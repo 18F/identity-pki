@@ -84,5 +84,6 @@ EOM
   evaluation_periods  = var.evaluation_periods
   period              = var.period
   namespace           = "CloudTrailMetrics/APIThrottling"
+  treat_missing_data  = "notBreaching"
   alarm_actions       = [aws_sns_topic.slack_usw2["events"].arn]
 }
