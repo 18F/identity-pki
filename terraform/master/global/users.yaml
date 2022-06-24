@@ -308,6 +308,8 @@ users:
     - devops
     git_username:
     - pauldoomgov
+    email:
+    - paul.hirsch@gsa.gov
   rahul.kamarouthu:
     aws_groups:
     - analytics
