@@ -1,5 +1,5 @@
 resource "aws_lb" "gitlab" {
-  name_prefix = substr("${var.env_name}-gitlab", 0, 6)
+  name = "${var.env_name}-gitlab"
   subnets = [
     aws_subnet.publicsubnet1.id,
     aws_subnet.publicsubnet2.id,
@@ -19,11 +19,41 @@ resource "aws_lb" "gitlab" {
   }
 }
 
+resource "aws_lb" "gitlab-waf" {
+  name = "${var.env_name}-gitlab-waf"
+  security_groups = [
+    aws_security_group.waf_lb.id,
+    aws_security_group.base.id,
+  ]
+  internal = true
+  subnets = [
+    aws_subnet.privatesubnet1.id,
+    aws_subnet.privatesubnet2.id,
+    aws_subnet.privatesubnet3.id
+  ]
+
+  load_balancer_type = "application"
+
+  access_logs {
+    bucket  = "login-gov.elb-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+    prefix  = "${var.env_name}/gitlab-waf"
+    enabled = true
+  }
+
+  tags = {
+    Name = "${var.env_name}-gitlab"
+  }
+}
+
 resource "aws_lb_target_group" "gitlab" {
   name     = "${var.env_name}-gitlab"
   port     = 443
-  protocol = "TLS"
+  protocol = "HTTPS"
   vpc_id   = aws_vpc.default.id
+  health_check {
+    protocol = "HTTPS"
+    matcher = "200,302"
+  }
 }
 
 resource "aws_lb_target_group" "gitlab-ssh" {
@@ -33,12 +63,38 @@ resource "aws_lb_target_group" "gitlab-ssh" {
   vpc_id   = aws_vpc.default.id
 }
 
-resource "aws_lb_listener" "gitlab" {
+resource "aws_lb_target_group" "gitlab-waf" {
+  name        = "${var.env_name}-gitlab-waf"
+  target_type = "alb"
+  port        = 443
+  protocol    = "TCP"
+  vpc_id      = aws_vpc.default.id
+  health_check {
+    protocol = "HTTPS"
+  }
+}
+
+resource "aws_lb_target_group_attachment" "waf" {
+  target_group_arn = aws_lb_target_group.gitlab-waf.arn
+  target_id        = aws_lb.gitlab-waf.arn
+}
+
+resource "aws_lb_listener" "gitlab-to-gitlab-waf" {
   load_balancer_arn = aws_lb.gitlab.arn
-  port              = "443"
-  protocol          = "TLS"
+  port              = 443
+  protocol          = "TCP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.gitlab-waf.arn
+  }
+}
+
+resource "aws_lb_listener" "gitlab-waf-to-instances" {
+  load_balancer_arn = aws_lb.gitlab-waf.arn
+  port              = 443
+  protocol          = "HTTPS"
   certificate_arn   = aws_acm_certificate.gitlab.arn
-  alpn_policy       = "HTTP2Preferred"
 
   default_action {
     type             = "forward"

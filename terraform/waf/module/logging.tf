@@ -62,6 +62,7 @@ resource "aws_cloudwatch_log_group" "cw_waf_logs" {
 }
 
 module "log-ship-to-soc-waf-logs" {
+  count                               = var.ship_logs_to_soc ? 1 : 0
   source                              = "../../modules/log_ship_to_soc"
   region                              = "us-west-2"
   cloudwatch_subscription_filter_name = "log-ship-to-soc"
