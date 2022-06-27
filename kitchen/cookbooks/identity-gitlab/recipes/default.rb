@@ -236,18 +236,23 @@ end
 file '/etc/gitlab/restore.sh' do
   content <<-EOF
 #!/bin/bash
-DATE=$1
-if [ -z "$DATE" ] ; then
-  echo "usage: $0 <DATE>"
-  echo "where DATE can be found from doing an 'aws s3 ls s3://#{backup_s3_bucket}/'"
+
+# define variables
+# export DATE=202206071934
+# export BACKUP_ARCHIVE_NAME=1655078426_2022_06_13_14.10.2-ee_gitlab_backup.tar
+# export BACKUP_S3_BUCKET=#{backup_s3_bucket}
+
+if [ -z "$DATE" ] && [ -z "$BACKUP_ARCHIVE_NAME" ] && [ -z "$REGION" ] ; then
+  echo "please set the following environment variables DATE, BACKUP_ARCHIVE_NAME, and REGION"
   exit 1
 fi
-# restore github environment, un-comment items to restore
-# aws s3 cp s3://#{backup_s3_bucket}/$DATE/gitlab-secrets.json /etc/gitlab/gitlab-secrets.json
-# aws s3 cp s3://#{backup_s3_bucket}/$DATE/gitlab.rb /etc/gitlab/gitlab.rb
-# aws s3 cp s3://#{backup_s3_bucket}/$DATE/ssh /etc/ssh/ --recursive --exclude "*" --include "ssh_host_*"
-# aws s3 cp s3://#{backup_s3_bucket}/$DATE/ssl /etc/gitlab/ssl --recursive
-# aws s3 cp s3://#{backup_s3_bucket}/[date serial]-ee_gitlab_backup.tar /var/opt/gitlab/backups
+
+# restore github environment
+aws s3 cp s3://$BACKUP_S3_BUCKET/$DATE/gitlab-secrets.json /etc/gitlab/gitlab-secrets.json
+aws s3 cp s3://$BACKUP_S3_BUCKET/$DATE/gitlab.rb /etc/gitlab/gitlab.rb
+aws s3 cp s3://$BACKUP_S3_BUCKET/$DATE/ssh /etc/ssh/ --recursive --exclude "*" --include "ssh_host_*"
+aws s3 cp s3://$BACKUP_S3_BUCKET/$DATE/ssl /etc/gitlab/ssl --recursive
+aws s3 cp s3://$BACKUP_S3_BUCKET/$BACKUP_ARCHIVE_NAME /var/opt/gitlab/backups
 export GITLAB_ASSUME_YES=1
 gitlab-backup restore
   EOF
@@ -262,6 +267,7 @@ cron_d 'gitlab_backup_create' do
   predefined_value "@daily"
   command '/etc/gitlab/backup.sh'
   notifies :create, 'file[/etc/gitlab/backup.sh]', :before
+  user 'root'
 end
 
 file '/etc/gitlab/gitlab_root_api_token' do
