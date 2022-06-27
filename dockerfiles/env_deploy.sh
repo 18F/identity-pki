@@ -49,6 +49,7 @@ cp versions.tf terraform/modules/newrelic/    # XXX symlinks should work
 
 # make sure that we have checked out main for the identity-devops-private submodule
 # and set up some other git stuff
+rm -f "$CI_PROJECT_DIR/../identity-devops-private"
 ln -s "$CI_PROJECT_DIR/identity-devops-private" "$CI_PROJECT_DIR/../identity-devops-private"
 git config --global --add safe.directory "$CI_PROJECT_DIR"
 git config --global --add safe.directory "$CI_PROJECT_DIR/identity-devops-private"
