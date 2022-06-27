@@ -279,6 +279,6 @@ variable "threshold" {
 
 variable "datapoints_to_alarm" {
   type        = number
-  default     = 5
+  default     = 2
   description = "The number of datapoints that must be breaching to trigger the alarm."
 }
