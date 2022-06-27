@@ -77,6 +77,39 @@ RSpec.describe Certificate do
     end
   end
 
+  describe '#valid?' do
+    it 'is invalid if leaf is oasdfasd' do
+      real_root_ca, _root_key = create_root_certificate(
+        dn: 'CN=something',
+        serial: 1
+      )
+
+      root_certificate = Certificate.new(real_root_ca)
+
+      impostor_root_ca, impostor_root_key = create_root_certificate(
+        dn: 'CN=something2',
+        serial: 2
+      )
+
+      allow(IdentityConfig.store).to receive(:trusted_ca_root_identifiers).and_return(
+        [root_certificate.key_id]
+      )
+
+      CertificateStore.instance.add_certificate(root_certificate)
+
+      cert = create_leaf_certificate(
+        ca: impostor_root_ca,
+        ca_key: impostor_root_key,
+        dn: 'CN=else',
+        serial: 1,
+        subject_key_identifier: root_certificate.key_id
+      )
+
+      expect(Certificate.new(cert).valid?(is_leaf: true)).to eq false
+      expect(Certificate.new(cert).validate_cert(is_leaf: true)).to eq 'unverified'
+    end
+  end
+
   describe '#signature_verified?' do
     let(:x509_cert) { leaf_cert }
 
