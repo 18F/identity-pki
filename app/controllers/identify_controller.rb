@@ -66,6 +66,8 @@ class IdentifyController < ApplicationController
   def process_cert(raw_cert)
     cert = Certificate.new(OpenSSL::X509::Certificate.new(raw_cert))
 
+    log_certificate(cert)
+
     cert.token(nonce: nonce)
   rescue OpenSSL::X509::CertificateError => error
     certificate_bad_error(error)
@@ -95,5 +97,26 @@ class IdentifyController < ApplicationController
   def allowed_referrer?(uri)
     allowed_host = IdentityConfig.store.identity_idp_host
     !allowed_host || uri.host == allowed_host
+  end
+
+  def log_certificate(cert)
+    validation_result = cert.validate_cert(is_leaf: true)
+
+    attributes = {
+      name: 'Certificate Processed',
+      signing_key_id: cert.signing_key_id,
+      key_id: cert.key_id,
+      issuer: cert.issuer.to_s,
+      card_type: cert.card_type,
+      valid_policies: cert.valid_policies?,
+      valid: validation_result == 'valid',
+      error: validation_result != 'valid' ? validation_result : nil,
+    }
+
+    if validation_result == 'self-signed cert'
+      attributes.delete(:issuer)
+    end
+
+    logger.info(attributes.to_json)
   end
 end
