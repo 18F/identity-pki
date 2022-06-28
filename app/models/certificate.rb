@@ -166,6 +166,11 @@ class Certificate
     OpenSSL::Digest::SHA1.new(x509_cert.to_der).to_s
   end
 
+  def card_type
+    return 'cac' if trusted_dod_root?
+    'piv'
+  end
+
   private
 
   def get_extension(oid)
@@ -192,11 +197,6 @@ class Certificate
         card_type: card_type
       )
     )
-  end
-
-  def card_type
-    return 'cac' if trusted_dod_root?
-    'piv'
   end
 
   def trusted_dod_root?
