@@ -1,7 +1,8 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
+  - c-in-parent-ssp
 effort:
   - medium
 ---
@@ -12,7 +13,7 @@ effort:
 
 The organization:
 
-- \[a\] Determines that the information system is capable of auditing the following events: organization-defined auditable events;
+- \[a\] Determines that the information system is capable of auditing the following events: organization-defined auditable events (see parent SSP for organization-defined auditable events);
 
 - \[b\] Coordinates the security audit function with other organizational entities requiring audit-related information to enhance mutual support and to help guide the selection of auditable events;
 
@@ -53,24 +54,24 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-Add control implementation description here for item au-2_smt.a
+See parent SSP.
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-Add control implementation description here for item au-2_smt.b
+See parent SSP.
 
 ______________________________________________________________________
 
 ## Implementation c.
 
-Add control implementation description here for item au-2_smt.c
+See parent SSP.
 
 ______________________________________________________________________
 
 ## Implementation d.
 
-Add control implementation description here for item au-2_smt.d
+See parent SSP.
 
 ______________________________________________________________________
