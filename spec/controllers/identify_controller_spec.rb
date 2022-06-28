@@ -135,11 +135,29 @@ RSpec.describe IdentifyController, type: :controller do
             allow(OcspService).to receive(:new).and_return(ocsp_responder)
           end
 
-          it 'returns a token with a uuid and subject' do
+          it 'returns a token with a uuid and subject and logs certificate metadata' do
             allow(IdentityConfig.store).to receive(:client_cert_escaped).and_return(true)
-            @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
+
+            cert = Certificate.new(client_cert)
 
             expect(CertificateLoggerService).to_not receive(:log_certificate)
+            expect(Rails.logger).to receive(:info).with(/GET/).once
+            expect(Rails.logger).to receive(:info).with(
+              'Returning a token for a valid certificate.'
+            ).once
+            expect(Rails.logger).to receive(:info).with({
+              name: 'Certificate Processed',
+              signing_key_id: cert.signing_key_id,
+              key_id: cert.key_id,
+              issuer: cert.issuer.to_s,
+              card_type: cert.card_type,
+              valid_policies: true,
+              valid: true,
+              error: nil,
+            }.to_json).once
+
+            @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
+
 
             get :create, params: { nonce: '123', redirect_uri: 'http://example.com/' }
             expect(response).to have_http_status(:found)
@@ -362,6 +380,34 @@ RSpec.describe IdentifyController, type: :controller do
             expect(token_contents['nonce']).to eq '123'
           end
         end
+
+        describe 'a self-signed certificate' do
+          it 'returns a token as self-signed and does not log issuer' do
+            cert = Certificate.new(root_cert)
+            @request.headers['X-Client-Cert'] = CGI.escape(root_cert.to_pem)
+            expect(CertificateLoggerService).to receive(:log_certificate)
+            expect(Rails.logger).to receive(:info).with(/GET/).once
+            expect(Rails.logger).to receive(:info).with({
+              name: 'Certificate Processed',
+              signing_key_id: cert.key_id,
+              key_id: cert.key_id,
+              card_type: cert.card_type,
+              valid_policies: false,
+              valid: false,
+              error: 'self-signed cert',
+            }.to_json).once
+
+            get :create, params: { nonce: '123', redirect_uri: 'http://example.com/' }
+            expect(response).to have_http_status(:found)
+            expect(response.has_header?('Location')).to be_truthy
+            expect(token).to be_truthy
+
+            expect(token_contents['error']).to eq 'certificate.self-signed cert'
+            expect(token_contents['key_id']).to be_present
+            expect(token_contents['nonce']).to eq '123'
+          end
+        end
+
 
         context 'when the nonce param is missing' do
           it 'returns a bad request' do
