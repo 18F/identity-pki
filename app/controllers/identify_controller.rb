@@ -65,6 +65,18 @@ class IdentifyController < ApplicationController
 
   def process_cert(raw_cert)
     cert = Certificate.new(OpenSSL::X509::Certificate.new(raw_cert))
+    validation_result = cert.validate_cert(is_leaf: true)
+
+    logger.info({
+      name: 'Certificate Processed',
+      signing_key_id: cert.signing_key_id,
+      key_id: cert.key_id,
+      issuer: cert.issuer.to_s,
+      card_type: cert.card_type,
+      valid_policies: cert.valid_policies?,
+      valid: validation_result == 'valid',
+      error: validation_result != 'valid' ? validation_result : nil,
+    }.to_json)
 
     cert.token(nonce: nonce)
   rescue OpenSSL::X509::CertificateError => error
