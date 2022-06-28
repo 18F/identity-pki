@@ -235,7 +235,7 @@ module X509Helpers
 
     extensions = [
       ['keyUsage', 'digitalSignature', true],
-      ['subjectKeyIdentifier', 'hash', false],
+      ['subjectKeyIdentifier', info.fetch(:subject_key_identifier, 'hash'), false],
       AUTHORITY_INFO_ACCESS_EXTENSION,
       ['authorityKeyIdentifier', 'keyid:always', false],
     ]

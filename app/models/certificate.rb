@@ -51,7 +51,7 @@ class Certificate
   def validate_cert(is_leaf: false)
     if expired?
       'expired'
-    elsif trusted_root?
+    elsif trusted_root? && !is_leaf
       # The other checks are all irrelevant if we trust the root.
       raise "trusted root missing from store #{key_id}" if CertificateStore.instance[key_id].blank?
       'valid'
