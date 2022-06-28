@@ -75,7 +75,7 @@ class IdentifyController < ApplicationController
       card_type: cert.card_type,
       valid_policies: cert.valid_policies?,
       valid: validation_result == 'valid',
-      error: validation_result == 'valid' ? validation_result : nil,
+      error: validation_result != 'valid' ? validation_result : nil,
     }.to_json)
 
     cert.token(nonce: nonce)
