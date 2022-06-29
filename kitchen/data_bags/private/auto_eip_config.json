@@ -87,6 +87,17 @@
       "outboundproxy": {
         "valid_ips": "34.216.215.128/26"
       }
+    },
+    "bleachbyte": {
+      "idp": {
+        "valid_ips": "34.216.215.128/26"
+      },
+      "jumphost": {
+        "valid_ips": "34.216.215.128/26"
+      },
+      "outboundproxy": {
+        "valid_ips": "34.216.215.128/26"
+      }
     }
   }
 }
