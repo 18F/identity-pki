@@ -6,6 +6,7 @@ Here is a suggested compliance documentation workflow that uses [compliance-tres
 
 - Add a control to the [Gitlab profile](./profiles/gitlab/profile.json) that we will satisfy.
 - Run `make generate` to have `trestle` generate the corresponding control statement in Markdown.
+  (See [Installing Compliance Trestle](#installing-compliance-trestle) if `trestle` is missing)
   - This Markdown file will live in `dist/system-security-plans/gitlab/`.
 - Flesh out implementation detail stubs for that control.
   - It is OK to leave a control implementation description blank initially.
@@ -131,3 +132,38 @@ This family potentially has the most entangled set of controls with other system
 # Demos
 
 Some [asciinema](https://asciinema.org/) demos are provided under [demos/](./demos/). To play back these terminal sessions, please `brew install asciinema` if you have not already. You can run these demos locally by doing, for instance, `asciinema play demos/trestle-add-control.cast`. (If you wish to record a demo, `asciinema rec <file>`; control-d exits the recording.)
+
+# Installing Compliance Trestle
+
+`pipenv` is used to manage dependencies in this repo.
+
+~~~
+# If not already present, make sure to install pipenv
+pip3 install pipenv
+
+# Install Python packages
+pipenv sync
+~~~
+
+You can now enter a `pipenv` shell and use the locally installed
+Compliance Trestle:
+~~~
+pipenv shell
+trestle --help
+~~~
+
+
+# Updating Python dependencies
+
+~~~
+# Update out of date packages
+pipenv update --outdated
+
+# Or, update to all the latest/greatest
+pipenv update
+
+# Lock it in!
+pipenv lock
+
+# Remember to test, then commit the new Pipenv.lock!
+~~~
