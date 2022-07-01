@@ -107,7 +107,7 @@ resource "aws_cloudwatch_event_target" "target_ami_cleanup" {
   target_id = aws_lambda_function.ami_cleanup.function_name
   arn       = aws_lambda_function.ami_cleanup.arn
 
-  input = "{\"expireUnassociatedinDays\":\"${var.expire_unassociated_in_days}\",\"expireAssociatedinDays\": \"${var.expire_associated_in_days}\",\"dryRun\": \"True\" }"
+  input = "{\"expireUnassociatedinDays\":\"${var.expire_unassociated_in_days}\",\"expireAssociatedinDays\": \"${var.expire_associated_in_days}\",\"dryRun\": \"\" }"
 }
 
 resource "aws_lambda_permission" "cloudwatch_to_ami_cleanup" {
