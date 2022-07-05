@@ -1,7 +1,8 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
+  - c-in-parent-ssp
 ---
 
 # ra-5.3 - \[catalog\] Breadth / Depth of Coverage
@@ -22,6 +23,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control ra-5.3
+The GitLab component uses ra-5.3 from the main login.gov SSP.
 
 ______________________________________________________________________

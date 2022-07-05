@@ -2,7 +2,7 @@
 status:
   - c-implemented
   - c-documented
-  - c-parent-ssp
+  - c-in-parent-ssp
 ---
 
 # au-6.3 - \[catalog\] Correlate Audit Repositories

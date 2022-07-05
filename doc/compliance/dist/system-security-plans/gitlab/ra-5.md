@@ -1,7 +1,8 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
+  - c-in-parent-ssp
 ---
 
 # ra-5 - \[catalog\] Vulnerability Scanning
@@ -90,30 +91,30 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-Add control implementation description here for item ra-5_smt.a
+The Gitlab component uses ra-5_smt.a from the main login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-Add control implementation description here for item ra-5_smt.b
+The Gitlab component uses ra-5_smt.b from the main login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation c.
 
-Add control implementation description here for item ra-5_smt.c
+The Gitlab component uses ra-5_smt.c from the main login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation d.
 
-Add control implementation description here for item ra-5_smt.d
+The Gitlab component uses ra-5_smt.d from the main login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation e.
 
-Add control implementation description here for item ra-5_smt.e
+The Gitlab component uses ra-5_smt.e from the main login.gov SSP.
 
 ______________________________________________________________________
