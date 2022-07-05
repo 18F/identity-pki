@@ -68,10 +68,19 @@ resource "aws_cloudwatch_log_group" "gitlab_backup_log" {
   }
 }
 
+resource "aws_cloudwatch_log_group" "gitlab_messages_log" {
+  name              = "${var.env_name}_/var/log/messages"
+  retention_in_days = 365
+
+  tags = {
+    environment = var.env_name
+  }
+}
+
 resource "aws_cloudwatch_log_metric_filter" "gitlab_backup_failures" {
   name           = "gitlab_${var.env_name}_backup_failures"
   pattern        = "gitlab backup FAILED"
-  log_group_name = "${var.env_name}_/var/log/messages"
+  log_group_name = aws_cloudwatch_log_group.gitlab_messages_log.name
 
   metric_transformation {
     name      = "BackupFailure"
