@@ -10,9 +10,14 @@ terraform {
   }
 }
 
+variable "rds_password" {
+  default = ""
+}
+
 module "main" {
   source = "../module"
 
+  rds_password                   = var.rds_password
   bootstrap_main_git_ref_default = "stages/gitlabepsilon"
   env_name                       = "epsilon"
   region                         = "us-west-2"

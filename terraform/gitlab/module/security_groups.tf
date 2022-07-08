@@ -164,13 +164,13 @@ resource "aws_security_group" "gitlab" {
   # Accept traffic from the WAF-enabled ALB
   ingress {
     from_port = 443
-    to_port = 443
-    protocol = "tcp"
+    to_port   = 443
+    protocol  = "tcp"
     security_groups = [
       aws_security_group.waf_lb.id,
     ]
   }
-  
+
   # these are the EIPs for the NAT which is being used by the obproxies
   # This is needed so that the outbound proxies can access the external lb.
   ingress {
@@ -637,7 +637,7 @@ resource "aws_security_group" "kms_endpoint" {
 }
 
 resource "aws_security_group" "waf_lb" {
-  name = "${var.env_name}-waf-lb"
+  name        = "${var.env_name}-waf-lb"
   description = "Allow inbound from the NLB to the WAF-enabled ALB"
   ingress {
     from_port   = 443
@@ -646,7 +646,7 @@ resource "aws_security_group" "waf_lb" {
     cidr_blocks = formatlist("%s/32", data.aws_network_interface.lb.*.private_ip)
     description = "Allow connection from NLB"
   }
-  
+
   # these are the EIPs for the NAT which is being used by the obproxies
   # This is needed so that the outbound proxies can access the external lb.
   ingress {

@@ -31,7 +31,7 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
         Owner                = "18F"
         Repo                 = "identity-devops"
         Branch               = var.gitref
-        OAuthToken           = data.aws_s3_bucket_object.identity_devops_oauthkey.body
+        OAuthToken           = data.aws_s3_object.identity_devops_oauthkey.body
         PollForSourceChanges = "true"
       }
     }
@@ -48,7 +48,7 @@ resource "aws_codepipeline" "auto_tf_pipeline" {
         Owner                = "18F"
         Repo                 = "identity-devops-private"
         Branch               = "main"
-        OAuthToken           = data.aws_s3_bucket_object.identity_devops_oauthkey.body
+        OAuthToken           = data.aws_s3_object.identity_devops_oauthkey.body
         PollForSourceChanges = "true"
       }
     }

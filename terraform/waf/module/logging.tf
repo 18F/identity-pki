@@ -5,33 +5,50 @@ locals {
 
 resource "aws_s3_bucket" "waf_logs" {
   bucket = "login-gov.${local.web_acl_name}-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
-  acl    = "private"
-
-  logging {
-    target_bucket = "login-gov.s3-access-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
-    target_prefix = "login-gov.${local.web_acl_name}-logs.${data.aws_caller_identity.current.account_id}-${var.region}/"
-  }
-
   tags = {
     environment = var.env
   }
+}
 
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm = "aws:kms"
-      }
+resource "aws_s3_bucket_versioning" "waf_logs" {
+  bucket = aws_s3_bucket.waf_logs.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_acl" "waf_logs" {
+  bucket = aws_s3_bucket.waf_logs.id
+  acl    = "private"
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "waf_logs" {
+  bucket = aws_s3_bucket.waf_logs.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "aws:kms"
     }
   }
+}
 
-  versioning {
-    enabled = true
-  }
+resource "aws_s3_bucket_logging" "waf_logs" {
+  bucket = aws_s3_bucket.waf_logs.id
 
-  lifecycle_rule {
-    id      = "expire"
-    prefix  = "/"
-    enabled = true
+  target_bucket = "login-gov.s3-access-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+  target_prefix = "login-gov.${local.web_acl_name}-logs.${data.aws_caller_identity.current.account_id}-${var.region}/"
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "waf_logs" {
+  bucket = aws_s3_bucket.waf_logs.id
+
+  rule {
+    id     = "expire"
+    status = "Enabled"
+    filter {
+      prefix = "/"
+    }
 
     transition {
       storage_class = "INTELLIGENT_TIERING"
@@ -43,7 +60,7 @@ resource "aws_s3_bucket" "waf_logs" {
       days = 2190
     }
     noncurrent_version_expiration {
-      days = 2190
+      noncurrent_days = 2190
     }
   }
 }

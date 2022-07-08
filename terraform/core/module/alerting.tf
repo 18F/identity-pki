@@ -1,4 +1,4 @@
-data "aws_s3_bucket_object" "slack_sns_email" {
+data "aws_s3_object" "slack_sns_email" {
   bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
   key    = "slack_sns_email"
 }
@@ -21,7 +21,7 @@ resource "aws_sns_topic_subscription" "opsgenie_devops_high" {
 module "sns_slack" {
   source = "../../modules/slack_sns/"
 
-  sns_subscription_email_address_list = [data.aws_s3_bucket_object.slack_sns_email.body]
+  sns_subscription_email_address_list = [data.aws_s3_object.slack_sns_email.body]
   sns_topic_display_name              = var.slack_sns_name
 }
 

@@ -5,46 +5,65 @@ locals {
 resource "aws_s3_bucket" "config_recorder" {
   bucket        = local.config_recorder_s3_bucket_name
   force_destroy = true
-  acl           = "private"
-
-  logging {
-    target_bucket = local.s3_logs_bucket
-    target_prefix = "${local.config_recorder_s3_bucket_name}/"
-  }
 
   tags = {
     Name = local.config_recorder_s3_bucket_name
   }
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm = "AES256"
-      }
+}
+
+resource "aws_s3_bucket_versioning" "config_recorder" {
+  bucket = aws_s3_bucket.config_recorder.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_acl" "config_recorder" {
+  bucket = aws_s3_bucket.config_recorder.id
+  acl    = "private"
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "config_recorder" {
+  bucket = aws_s3_bucket.config_recorder.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
     }
   }
+}
 
-  versioning {
-    enabled = true
-  }
+resource "aws_s3_bucket_logging" "config_recorder" {
+  bucket = aws_s3_bucket.config_recorder.id
 
-  lifecycle_rule {
-    id      = "intelligent"
-    prefix  = "/"
-    enabled = true
+  target_bucket = module.tf-state.s3_access_log_bucket
+  target_prefix = "${local.config_recorder_s3_bucket_name}/"
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "config_recorder" {
+  bucket = aws_s3_bucket.config_recorder.id
+
+  rule {
+    id     = "intelligent"
+    status = "Enabled"
+    filter {
+      prefix = "/"
+    }
 
     transition {
       days          = 30
       storage_class = "INTELLIGENT_TIERING"
     }
     noncurrent_version_transition {
-      days          = 30
-      storage_class = "INTELLIGENT_TIERING"
+      noncurrent_days = 30
+      storage_class   = "INTELLIGENT_TIERING"
     }
     expiration {
       days = 2190
     }
     noncurrent_version_expiration {
-      days = 2190
+      noncurrent_days = 2190
     }
   }
 }

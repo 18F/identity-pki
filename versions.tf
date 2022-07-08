@@ -6,7 +6,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "3.71.0"
+      version = "4.21.0"
     }
     archive = {
       source  = "hashicorp/archive"
@@ -18,15 +18,15 @@ terraform {
     }
     external = {
       source  = "hashicorp/external"
-      version = "2.2.0"
+      version = "2.2.2"
     }
     github = {
       source  = "integrations/github"
-      version = "4.19.1"
+      version = "4.26.1"
     }
     null = {
       source  = "hashicorp/null"
-      version = "3.1.0"
+      version = "3.1.1"
     }
     template = {
       source  = "hashicorp/template"
@@ -34,10 +34,10 @@ terraform {
     }
     newrelic = {
       source  = "newrelic/newrelic"
-      version = "2.47.1"
+      version = "2.48.1"
     }
   }
-  required_version = "1.1.3"
+  required_version = "1.2.4"
 }
 
 provider "aws" {

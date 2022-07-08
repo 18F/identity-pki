@@ -62,30 +62,46 @@ resource "aws_kms_alias" "kinesis_firehose_stream_bucket" {
 
 resource "aws_s3_bucket" "kinesis_firehose_stream_bucket" {
   bucket = var.bucket_name
-  acl    = "private"
-  versioning {
-    enabled = true
-  }
+}
 
-  lifecycle_rule {
-    id      = "expire_files"
-    enabled = true
-    prefix  = ""
+resource "aws_s3_bucket_acl" "kinesis_firehose_stream_bucket" {
+  bucket = aws_s3_bucket.kinesis_firehose_stream_bucket.id
+  acl    = "private"
+}
+
+resource "aws_s3_bucket_versioning" "kinesis_firehose_stream_bucket" {
+  bucket = aws_s3_bucket.kinesis_firehose_stream_bucket.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "kinesis_firehose_stream_bucket" {
+  bucket = aws_s3_bucket.kinesis_firehose_stream_bucket.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      kms_master_key_id = aws_kms_key.kinesis_firehose_stream_bucket.arn
+      sse_algorithm     = "aws:kms"
+    }
+  }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "kinesis_firehose_stream_bucket" {
+  bucket = aws_s3_bucket.kinesis_firehose_stream_bucket.id
+
+  rule {
+    id     = "expire_files"
+    status = "Enabled"
+    filter {
+      prefix = ""
+    }
 
     expiration {
       days = var.expiration_days
     }
   }
-
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        kms_master_key_id = aws_kms_key.kinesis_firehose_stream_bucket.arn
-        sse_algorithm     = "aws:kms"
-      }
-    }
-  }
-
 }
 
 module "kinesis_firehose_stream_bucket_config" {

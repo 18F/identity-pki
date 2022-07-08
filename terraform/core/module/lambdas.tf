@@ -2,13 +2,12 @@
 resource "aws_lambda_function" "audit-github" {
   count = var.lambda_audit_github_enabled
 
-  s3_bucket = module.s3_shared.buckets["lambda-functions"]
+  s3_bucket = aws_s3_bucket.lambda_functions.id
   s3_key    = "circleci/identity-lambda-functions/${var.lambda_identity_lambda_functions_gitrev}.zip"
 
   lifecycle {
     ignore_changes = [
-      s3_key,
-      last_modified,
+      s3_key
     ]
   }
 
@@ -118,13 +117,12 @@ resource "aws_iam_role_policy_attachment" "lambda-audit-github-xray" {
 resource "aws_lambda_function" "audit-aws" {
   count = var.lambda_audit_aws_enabled
 
-  s3_bucket = module.s3_shared.buckets["lambda-functions"]
+  s3_bucket = aws_s3_bucket.lambda_functions.id
   s3_key    = "circleci/identity-lambda-functions/${var.lambda_identity_lambda_functions_gitrev}.zip"
 
   lifecycle {
     ignore_changes = [
-      s3_key,
-      last_modified,
+      s3_key
     ]
   }
 

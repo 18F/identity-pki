@@ -52,7 +52,7 @@ resource "aws_lb_target_group" "gitlab" {
   vpc_id   = aws_vpc.default.id
   health_check {
     protocol = "HTTPS"
-    matcher = "200,302"
+    matcher  = "200,302"
   }
 }
 

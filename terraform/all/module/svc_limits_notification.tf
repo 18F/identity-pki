@@ -65,6 +65,7 @@ resource "aws_cloudwatch_log_metric_filter" "api_throttling" {
     value      = 1
     dimensions = {}
   }
+  depends_on = [aws_cloudwatch_log_group.cloudtrail_default]
 }
 
 resource "aws_cloudwatch_metric_alarm" "api_throttling" {

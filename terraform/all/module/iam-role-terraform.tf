@@ -589,6 +589,7 @@ locals {
           "iam:AttachGroupPolicy",
           "iam:AttachRolePolicy",
           "iam:AttachUserPolicy",
+          "iam:CreateAccountAlias",
           "iam:CreateGroup",
           "iam:CreateInstanceProfile",
           "iam:CreatePolicy",
@@ -596,6 +597,7 @@ locals {
           "iam:CreateRole",
           "iam:CreateServiceLinkedRole",
           "iam:CreateUser",
+          "iam:DeleteAccountAlias",
           "iam:DeleteAccessKey",
           "iam:DeleteAccountPasswordPolicy",
           "iam:DeleteGroup",
@@ -681,6 +683,8 @@ locals {
         sid    = "SecurityHub"
         effect = "Allow"
         actions = [
+          "securityhub:DisableSecurityHub",
+          "securityhub:EnableSecurityHub",
           "securityhub:GetEnabledStandards",
         ]
         resources = [
