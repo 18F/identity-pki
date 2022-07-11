@@ -50,13 +50,13 @@ resource "aws_iam_access_key" "ses-smtp" {
   user  = aws_iam_user.ses-smtp[0].name
 }
 
-data "aws_s3_bucket_object" "ses-smtp-username" {
+data "aws_s3_object" "ses-smtp-username" {
   count  = var.smtp_user_ready ? 1 : 0
   bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
   key    = "common/ses_smtp_username"
 }
 
-data "aws_s3_bucket_object" "ses-smtp-password" {
+data "aws_s3_object" "ses-smtp-password" {
   count  = var.smtp_user_ready ? 1 : 0
   bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
   key    = "common/ses_smtp_password"

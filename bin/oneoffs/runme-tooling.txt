@@ -1,0 +1,20 @@
+# remove this file once the AWS Provider v4 deploys are complete
+set -euo pipefail
+
+TERRAFORM_ENV=$1
+AWS_ACCT_NUM=$(grep -m1 aws_account_id "terraform/tooling/${TERRAFORM_ENV}/env-vars.sh" | awk -F'"' '{print $2}')
+
+#####################################################################################
+##### if any command below fails, comment out the preceding commands and re-run
+##### this script file. do not comment out any of the above lines!
+#####################################################################################
+
+bin/td -d tooling -e ${TERRAFORM_ENV} -i 'module.main.aws_s3_bucket_acl.codepipeline_bucket' "auto-tf-bucket-${AWS_ACCT_NUM},private"
+bin/td -d tooling -e ${TERRAFORM_ENV} -i 'module.main.module.elb-logs.aws_s3_bucket_acl.logs' "login-gov.elb-logs.${AWS_ACCT_NUM}-us-west-2,log-delivery-write"
+
+bin/td -d tooling -e ${TERRAFORM_ENV} -i 'module.main.aws_s3_bucket_server_side_encryption_configuration.codepipeline_bucket' "auto-tf-bucket-${AWS_ACCT_NUM}"
+
+bin/td -d tooling -e ${TERRAFORM_ENV} -i 'module.main.module.elb-logs.aws_s3_bucket_lifecycle_configuration.logs' "login-gov.elb-logs.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d tooling -e ${TERRAFORM_ENV} -i 'module.main.module.elb-logs.aws_s3_bucket_policy.logs' "login-gov.elb-logs.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d tooling -e ${TERRAFORM_ENV} -i 'module.main.module.elb-logs.aws_s3_bucket_server_side_encryption_configuration.logs' "login-gov.elb-logs.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d tooling -e ${TERRAFORM_ENV} -i 'module.main.module.elb-logs.aws_s3_bucket_versioning.logs' "login-gov.elb-logs.${AWS_ACCT_NUM}-us-west-2"

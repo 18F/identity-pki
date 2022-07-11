@@ -50,7 +50,7 @@ resource "newrelic_alert_policy_channel" "enduser" {
 
 # Creates an opsgenie alert channel.
 # NOTE:  This apikey needs to be uploaded with --content-type text/plain
-data "aws_s3_bucket_object" "opsgenie_apikey" {
+data "aws_s3_object" "opsgenie_apikey" {
   bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
   key    = "common/${var.opsgenie_key_file}"
 }
@@ -60,13 +60,13 @@ resource "newrelic_alert_channel" "opsgenie" {
   type  = "opsgenie"
 
   config {
-    api_key = data.aws_s3_bucket_object.opsgenie_apikey.body
+    api_key = data.aws_s3_object.opsgenie_apikey.body
     tags    = "${var.env_name} environment"
     region  = "US"
   }
 }
 
-data "aws_s3_bucket_object" "opsgenie_low_apikey" {
+data "aws_s3_object" "opsgenie_low_apikey" {
   bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
   key    = "common/opsgenie_low_apikey"
 }
@@ -76,13 +76,13 @@ resource "newrelic_alert_channel" "opsgenie_low" {
   type  = "opsgenie"
 
   config {
-    api_key = data.aws_s3_bucket_object.opsgenie_low_apikey.body
+    api_key = data.aws_s3_object.opsgenie_low_apikey.body
     tags    = "${var.env_name} environment"
     region  = "US"
   }
 }
 
-data "aws_s3_bucket_object" "opsgenie_enduser_apikey" {
+data "aws_s3_object" "opsgenie_enduser_apikey" {
   bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
   key    = "common/opsgenie_enduser_apikey"
 }
@@ -93,7 +93,7 @@ resource "newrelic_alert_channel" "opsgenie_enduser" {
   type  = "opsgenie"
 
   config {
-    api_key = data.aws_s3_bucket_object.opsgenie_enduser_apikey.body
+    api_key = data.aws_s3_object.opsgenie_enduser_apikey.body
     tags    = "${var.env_name} environment"
     region  = "US"
   }

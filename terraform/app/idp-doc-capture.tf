@@ -19,40 +19,60 @@ resource "aws_kms_alias" "idp_doc_capture" {
 resource "aws_s3_bucket" "idp_doc_capture" {
   bucket        = "${local.doc_capture_s3_bucket_name_prefix}-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
   force_destroy = true
-  acl           = "private"
-
-  logging {
-    target_bucket = "login-gov.s3-access-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
-    target_prefix = "${local.doc_capture_s3_bucket_name_prefix}-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}/"
-  }
-
   tags = {
     Name = "${local.doc_capture_s3_bucket_name_prefix}-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
   }
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        kms_master_key_id = aws_kms_key.idp_doc_capture.arn
-        sse_algorithm     = "aws:kms"
-      }
+}
+
+resource "aws_s3_bucket_acl" "idp_doc_capture" {
+  bucket = aws_s3_bucket.idp_doc_capture.id
+  acl    = "private"
+}
+
+resource "aws_s3_bucket_versioning" "idp_doc_capture" {
+  bucket = aws_s3_bucket.idp_doc_capture.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "idp_doc_capture" {
+  bucket = aws_s3_bucket.idp_doc_capture.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      kms_master_key_id = aws_kms_key.idp_doc_capture.arn
+      sse_algorithm     = "aws:kms"
     }
   }
+}
 
-  versioning {
-    enabled = true
-  }
+resource "aws_s3_bucket_logging" "idp_doc_capture" {
+  bucket = aws_s3_bucket.idp_doc_capture.id
 
-  lifecycle_rule {
-    id      = "delete"
-    enabled = true
+  target_bucket = "login-gov.s3-access-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+  target_prefix = "${local.doc_capture_s3_bucket_name_prefix}-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}/"
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "idp_doc_capture" {
+  bucket = aws_s3_bucket.idp_doc_capture.id
+
+  rule {
+    id     = "delete"
+    status = "Enabled"
 
     expiration {
       days = 1
     }
     noncurrent_version_expiration {
-      days = 1
+      noncurrent_days = 1
     }
   }
+}
+
+resource "aws_s3_bucket_cors_configuration" "idp_doc_capture" {
+  bucket = aws_s3_bucket.idp_doc_capture.id
 
   cors_rule {
     allowed_headers = ["*"]

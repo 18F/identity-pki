@@ -453,22 +453,22 @@ variable "bootstrap_private_git_clone_url" {
 # though they will have different IDs. They should be updated here at the same
 # time, and then released to environments in sequence.
 variable "default_ami_id_sandbox" {
-  default     = "ami-0f2f5984a37535cd5" # 2022-06-21 Ubuntu 18.04
+  default     = "ami-00c12ab5674172242" # 2022-06-29 Ubuntu 18.04
   description = "default AMI ID for environments in the sandbox account"
 }
 
 variable "default_ami_id_prod" {
-  default     = "ami-0278c96517e672490" # 2022-06-21 Ubuntu 18.04
+  default     = "ami-0cad7e3d9aa452aa0" # 2022-06-29 Ubuntu 18.04
   description = "default AMI ID for environments in the prod account"
 }
 
 variable "rails_ami_id_sandbox" {
-  default     = "ami-0b2720f82db50c7b1" # 2022-06-21 Ubuntu 18.04
+  default     = "ami-06c3feac9ff01dd3f" # 2022-06-29 Ubuntu 18.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the sandbox account"
 }
 
 variable "rails_ami_id_prod" {
-  default     = "ami-017625fe46826bf65" # 2022-06-21 Ubuntu 18.04
+  default     = "ami-04380653f0334764b" # 2022-06-29 Ubuntu 18.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the prod account"
 }
 
@@ -505,11 +505,6 @@ locals {
 # only numbers and strings.
 #
 # See: https://blog.gruntwork.io/terraform-tips-tricks-loops-if-statements-and-gotchas-f739bbae55f9
-
-variable "cloudfront_tlstest_enabled" {
-  default     = 0
-  description = "Enable the cloudfront endpoints for testing SNI and TLSv1.2 compatibility"
-}
 
 variable "alb_http_port_80_enabled" {
   default     = 1

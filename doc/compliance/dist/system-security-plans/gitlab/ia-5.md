@@ -1,7 +1,7 @@
 ---
 status:
   - c-inherited
-  - c-not-documented
+  - c-documented
 effort:
   - medium
 ---

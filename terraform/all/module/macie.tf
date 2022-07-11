@@ -6,6 +6,7 @@ locals {
   macie_s3_bucket_name = "login-gov.awsmacietrail-dataevent.${data.aws_caller_identity.current.account_id}-${var.region}"
 }
 
+# KMS key/alias
 
 resource "aws_kms_key" "awsmacietrail_dataevent" {
   description             = "Macie v2"
@@ -19,34 +20,57 @@ resource "aws_kms_alias" "awsmacietrail_dataevent" {
   target_key_id = aws_kms_key.awsmacietrail_dataevent.key_id
 }
 
+# S3 resources
+
 resource "aws_s3_bucket" "awsmacietrail_dataevent" {
   bucket = local.macie_s3_bucket_name
+}
+
+resource "aws_s3_bucket_acl" "awsmacietrail_dataevent" {
+  bucket = aws_s3_bucket.awsmacietrail_dataevent.bucket
   acl    = "private"
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        kms_master_key_id = aws_kms_key.awsmacietrail_dataevent.arn
-        sse_algorithm     = "aws:kms"
-      }
+}
+
+resource "aws_s3_bucket_versioning" "awsmacietrail_dataevent" {
+  bucket = aws_s3_bucket.awsmacietrail_dataevent.bucket
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "awsmacietrail_dataevent" {
+  bucket = aws_s3_bucket.awsmacietrail_dataevent.bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
+      kms_master_key_id = aws_kms_key.awsmacietrail_dataevent.arn
+      sse_algorithm     = "aws:kms"
     }
   }
+}
 
+resource "aws_s3_bucket_policy" "awsmacietrail_dataevent" {
+  bucket = aws_s3_bucket.awsmacietrail_dataevent.id
   policy = data.aws_iam_policy_document.s3_awsmacietrail_dataevent.json
+}
 
-  logging {
-    target_bucket = "login-gov.s3-access-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
-    target_prefix = "${local.macie_s3_bucket_name}/"
-  }
+resource "aws_s3_bucket_logging" "awsmacietrail_dataevent" {
+  bucket = aws_s3_bucket.awsmacietrail_dataevent.id
 
-  versioning {
-    enabled = true
-  }
+  target_bucket = module.tf-state.s3_access_log_bucket
+  target_prefix = "${local.macie_s3_bucket_name}/"
+}
 
-  lifecycle_rule {
-    id      = "expire"
-    prefix  = "/"
-    enabled = true
+resource "aws_s3_bucket_lifecycle_configuration" "awsmacietrail_dataevent" {
+  bucket = aws_s3_bucket.awsmacietrail_dataevent.id
 
+  rule {
+    id     = "expire"
+    status = "Enabled"
+    filter {
+      prefix = "/"
+    }
     transition {
       storage_class = "INTELLIGENT_TIERING"
     }
@@ -57,12 +81,13 @@ resource "aws_s3_bucket" "awsmacietrail_dataevent" {
       days = 2190
     }
     noncurrent_version_expiration {
-      days = 2190
+      noncurrent_days = 2190
     }
   }
 }
 
-// Recommended policies per the Macie console
+# Recommended policies per the Macie console
+
 data "aws_iam_policy_document" "kms_awsmacietrail_dataevent" {
   statement {
     sid    = "Allow Macie to use the key"

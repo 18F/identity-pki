@@ -50,8 +50,21 @@ dsl() {
   echo ${1} | tr -d '\'
 }
 
+# check, verify and update TF variables
+check_tf_versions() {
+  TF_VERSION_INFO=$(terraform --version)
+  CURRENT_TF_VERSION=$(echo "${TF_VERSION_INFO}" | head -n 1 |
+    awk '{print $2}' | sed -E 's/\.$//;s/\./\\\./g' | tr -d 'v')
+  if [[ $(echo "${TF_VERSION_INFO}" | grep 'out of date!') ]] ; then
+    NEW_TF_VERSION=$(echo "${TF_VERSION_INFO}" |
+      tail -n-1 | awk '{print $2}' | sed -E 's/\.$//;s/\./\\\./g')
+  fi
+  REQUIRED_TF_VERSION=$(cat "${GIT_DIR}/versions.tf" | grep 'required_version' |
+    awk -F'"' '{print $2}' | sed -E 's/\.$//;s/\./\\\./g')
+}
+
 verify_root_repo
-declare {SKIP_TF_UPDATE,TF_VERSION_INFO,NEW_TF_VERSION,OLD_VERSION,NEW_VERSION}=
+declare {SKIP_TF_UPDATE,NEW_TF_VERSION,OLD_VERSION,NEW_VERSION}=
 PROVIDER_LIST=()
 LOCKFILE_DIR="${GIT_DIR}/terraform/master/global"
 LOCKFILE="${LOCKFILE_DIR}/.terraform.lock.hcl"
@@ -82,15 +95,27 @@ fi
 
 echo
 cp "${GIT_DIR}/versions.tf" "${GIT_DIR}/versions.tf.bak"
-echo_blue "Updating the following providers:"
+echo_blue "Checking for updates to the following providers:"
 for PROVIDER in "${PROVIDER_LIST[@]}" ; do
   echo "- $(dsl ${PROVIDER})"
   sed -i '' -E "/$PROVIDER/{n;s/( version = \")/\1\>\= /;}" "${GIT_DIR}/versions.tf"
 done
 echo
 [[ -f "${LOCKFILE}" ]] && rm "${LOCKFILE}"
+
+check_tf_versions
+if [[ "$(dsl $CURRENT_TF_VERSION)" != "$(dsl $REQUIRED_TF_VERSION)" ]] ; then
+  echo_yellow "Current Terraform version is $(dsl ${CURRENT_TF_VERSION});"
+  echo_yellow "however, versions.tf requires $(dsl ${REQUIRED_TF_VERSION}) instead."
+  if prompt_yn "Change current version via terraform-switch?" ; then
+    run $(dirname "$0")/terraform-switch.sh $(dsl ${REQUIRED_TF_VERSION})
+  else
+    raise "Change currently-running Terraform version and try again!"
+  fi
+fi
 $(dirname "$0")/td -l -d master -v lock
 
+UPDATED_PROVIDERS=0
 for PROVIDER in "${PROVIDER_LIST[@]}" ; do
   OLD_VERSION=$(grep -A1 "source  = \"${PROVIDER}\"" "${GIT_DIR}/versions.tf" |
     tail -n+2 | sed -E 's/.+\"\>\= ([0-9\.]+)\"/\1/;s/\./\\\./g')
@@ -101,39 +126,38 @@ for PROVIDER in "${PROVIDER_LIST[@]}" ; do
     echo_yellow "$(dsl ${PROVIDER}) is already at $(dsl ${NEW_VERSION}); skipping."
   else
     echo_green "Updated $(dsl ${PROVIDER}) from $(dsl ${OLD_VERSION}) to $(dsl ${NEW_VERSION})"
+    ((UPDATED_PROVIDERS++))
   fi
 done
 rm "${GIT_DIR}/versions.tf.bak"
 
-if ! [[ -z $(diff "${GIT_DIR}/.terraform.lock.hcl" "${LOCKFILE}") ]] ; then
+rm "${LOCKFILE}"
+if [[ ${UPDATED_PROVIDERS} -gt 0 ]] && \
+  [[ ! $(comm -3 "${GIT_DIR}/.terraform.lock.hcl" "${LOCKFILE}" |
+    grep -v 'constraints') ]]; then
   echo_blue "Regenerating and copying lockfile..."
-  rm "${LOCKFILE}"
   $(dirname "$0")/td -l -d master -v lock
   mv "${LOCKFILE}" .terraform.lock.hcl
   echo_green "Repo-level .terraform.lock.hcl updated."
-  cd "${LOCKFILE_DIR}"
-  ln -s ../../../.terraform.lock.hcl .terraform.lock.hcl
-  cd - >/dev/null
 fi
+cd "${LOCKFILE_DIR}"
+ln -s ../../../.terraform.lock.hcl .terraform.lock.hcl
+cd - >/dev/null
 echo
 
-if [[ -z ${SKIP_TF_UPDATE} ]] ; then
-  TF_VERSION_INFO=$(terraform --version)
-  if [[ $(echo "${TF_VERSION_INFO}" | grep 'out of date!') ]] ; then
-    NEW_TF_VERSION=$(echo "${TF_VERSION_INFO}" |
-      tail -n-1 | awk '{print $2}' | sed -E 's/\.$//;s/\./\\\./g')
-    if prompt_yn "New Terraform version $(dsl ${NEW_TF_VERSION}) available; update?" ; then
-      cp "${GIT_DIR}/versions.tf" "${GIT_DIR}/versions.tf.bak"
-      run $(dirname "$0")/terraform-switch.sh $(dsl ${NEW_TF_VERSION})
-      sed -i '' -E "s/(required_version = \">= )[0-9\.]+/\1$NEW_TF_VERSION/" \
-        "${GIT_DIR}/versions.tf"
-      rm "${GIT_DIR}/versions.tf.bak"
-      echo_green "Updated required_version in versions.tf to $(dsl ${NEW_TF_VERSION})"
-      if ! [[ $(echo ${KNOWN_TF_VERSIONS[@]} | grep $(dsl ${NEW_TF_VERSION})) ]] ; then
-        sed -i '' -E "s/(KNOWN_TF_VERSIONS=\()/\1\n  \"v${NEW_TF_VERSION}\"/" \
-          $(dirname "$0")/lib/common.sh
-        echo_green "Added v$(dsl ${NEW_TF_VERSION}) to KNOWN_TF_VERSIONS in common.sh"
-      fi
+check_tf_versions
+if [[ -z ${SKIP_TF_UPDATE} ]] && [[ ! -z ${NEW_TF_VERSION} ]]; then
+  if prompt_yn "New Terraform version $(dsl ${NEW_TF_VERSION}) available; update?" ; then
+    cp "${GIT_DIR}/versions.tf" "${GIT_DIR}/versions.tf.bak"
+    run $(dirname "$0")/terraform-switch.sh $(dsl ${NEW_TF_VERSION})
+    sed -i '' -E "s/(required_version = \")[0-9\.]+/\1${NEW_TF_VERSION}/" \
+      "${GIT_DIR}/versions.tf"
+    rm "${GIT_DIR}/versions.tf.bak"
+    echo_green "Updated required_version in versions.tf to $(dsl ${NEW_TF_VERSION})"
+    if ! [[ $(echo ${KNOWN_TF_VERSIONS[@]} | grep $(dsl ${NEW_TF_VERSION})) ]] ; then
+      sed -i '' -E "s/(KNOWN_TF_VERSIONS=\()/\1\n  \"v${NEW_TF_VERSION}\"/" \
+        $(dirname "$0")/lib/common.sh
+      echo_green "Added v$(dsl ${NEW_TF_VERSION}) to KNOWN_TF_VERSIONS in common.sh"
     fi
   fi
 fi

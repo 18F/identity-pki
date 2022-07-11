@@ -1,4 +1,4 @@
-#!/bin/sh -x 
+#!/bin/bash -x
 # 
 # Deploy an idp environment from gitlab job.
 # If this is not going to be deployed to us-west-2, you will need to set
@@ -12,6 +12,20 @@ if [ -z "$CI_PROJECT_DIR" ] ; then
 	echo "not being run under gitlab CI, so nothing will work:  aborting"
 	exit 1
 fi
+if [ "$MY_ENV" != "$CI_ENVIRONMENT_NAME" ] ; then
+	echo "gitlab is asking us to deploy to $CI_ENVIRONMENT_NAME, but I am in $MY_ENV.  Aborting"
+	exit 2
+fi
+var="MY_ENV_$CI_ENVIRONMENT_NAME"
+if [ -z "${!var}" ] ; then
+	echo "gitlab is asking us to deploy to $CI_ENVIRONMENT_NAME, but I am not in that environment.  Aborting"
+	exit 3
+fi
+if [ "$(env | grep -Ec '^MY_ENV_')" -gt 1 ] ; then
+	echo "something is trying to override what environment we are in, as there is more than one MY_ENV_* variable.  Aborting"
+	exit 4
+fi
+
 
 # set up variables
 AWS_REGION="${AWS_REGION:-us-west-2}"
@@ -35,6 +49,7 @@ cp versions.tf terraform/modules/newrelic/    # XXX symlinks should work
 
 # make sure that we have checked out main for the identity-devops-private submodule
 # and set up some other git stuff
+rm -f "$CI_PROJECT_DIR/../identity-devops-private"
 ln -s "$CI_PROJECT_DIR/identity-devops-private" "$CI_PROJECT_DIR/../identity-devops-private"
 git config --global --add safe.directory "$CI_PROJECT_DIR"
 git config --global --add safe.directory "$CI_PROJECT_DIR/identity-devops-private"

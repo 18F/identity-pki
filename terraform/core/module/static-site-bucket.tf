@@ -19,51 +19,78 @@ output "cloudfront_oai_path" {
 resource "aws_s3_bucket" "account_static_bucket" {
   bucket = "login-gov-account-static.${data.aws_caller_identity.current.account_id}-${var.region}"
 
-  logging {
-    target_bucket = local.s3_logs_bucket
-    target_prefix = "login-gov-account-static.${data.aws_caller_identity.current.account_id}-${var.region}/"
-  }
-
   tags = {
     Name = "login-gov-account-static.${data.aws_caller_identity.current.account_id}-${var.region}"
   }
+}
 
-  website {
-    index_document = "index.html"
+# Versioning in place, though all resources in this bucket should be
+# in repos.  Deleted versions purged in 30 days.
+resource "aws_s3_bucket_versioning" "account_static_bucket" {
+  bucket = aws_s3_bucket.account_static_bucket.id
+
+  versioning_configuration {
+    status = "Enabled"
   }
+}
 
-  policy = data.aws_iam_policy_document.account_static_bucket_policy.json
+resource "aws_s3_bucket_website_configuration" "account_static_bucket" {
+  bucket = aws_s3_bucket.account_static_bucket.id
 
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm = "AES256"
-      }
+  index_document {
+    suffix = "index.html"
+  }
+}
+
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "account_static_bucket" {
+  bucket = aws_s3_bucket.account_static_bucket.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
     }
   }
+}
 
-  # Versioning in place, though all resources in this bucket should be
-  # in repos.  Deleted versions purged in 30 days.
-  versioning {
-    enabled = true
-  }
+resource "aws_s3_bucket_policy" "account_static_bucket" {
+  bucket = aws_s3_bucket.account_static_bucket.id
+  policy = data.aws_iam_policy_document.account_static_bucket_policy.json
+}
 
-  lifecycle_rule {
-    prefix  = "/"
-    enabled = true
+resource "aws_s3_bucket_logging" "account_static_bucket" {
+  bucket = aws_s3_bucket.account_static_bucket.id
+
+  target_bucket = local.s3_logs_bucket
+  target_prefix = "login-gov-account-static.${data.aws_caller_identity.current.account_id}-${var.region}/"
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "account_static_bucket" {
+  bucket = aws_s3_bucket.account_static_bucket.id
+
+  rule {
+    id     = "noncurrent_version_expiration"
+    status = "Enabled"
+    filter {
+      prefix = "/"
+    }
 
     noncurrent_version_expiration {
-      days = 30
+      noncurrent_days = 30
     }
   }
-
-  # cors_rule {
-  #   allowed_headers = ["*"]
-  #   allowed_methods = ["GET"]
-  #   allowed_origins = ["https://*.${var.root_domain}"]
-  #   expose_headers  = ["ETag"]
-  # }
 }
+
+# resource "aws_s3_bucket_cors_configuration" "account_static_bucket" {
+#   bucket = aws_s3_bucket.account_static_bucket
+# 
+#   cors_rule {
+#     allowed_headers = ["*"]
+#     allowed_methods = ["GET"]
+#     allowed_origins = ["https://*.${var.root_domain}"]
+#     expose_headers  = ["ETag"]
+#   }
+# }
 
 module "account_static_bucket_config" {
   source = "github.com/18F/identity-terraform//s3_config?ref=a6261020a94b77b08eedf92a068832f21723f7a2"

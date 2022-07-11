@@ -60,17 +60,44 @@ data "aws_iam_policy_document" "cloudtrail_cloudwatch_logs" {
 resource "aws_s3_bucket" "cloudtrail" {
   bucket        = "login-gov-cloudtrail-${data.aws_caller_identity.current.account_id}"
   force_destroy = true
+}
 
-  policy = data.aws_iam_policy_document.cloudtrail.json
+resource "aws_s3_bucket_versioning" "cloudtrail" {
+  bucket = aws_s3_bucket.cloudtrail.id
 
-  versioning {
-    enabled = true
+  versioning_configuration {
+    status = "Enabled"
   }
+}
 
-  lifecycle_rule {
-    id      = "logexpire"
-    enabled = true
-    prefix  = ""
+resource "aws_s3_bucket_server_side_encryption_configuration" "cloudtrail" {
+  bucket = aws_s3_bucket.cloudtrail.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
+resource "aws_s3_bucket_policy" "cloudtrail" {
+  bucket = aws_s3_bucket.cloudtrail.id
+  policy = data.aws_iam_policy_document.cloudtrail.json
+}
+
+resource "aws_s3_bucket_logging" "cloudtrail" {
+  bucket = aws_s3_bucket.cloudtrail.id
+
+  target_bucket = module.tf-state.s3_access_log_bucket
+  target_prefix = "login-gov-cloudtrail-${data.aws_caller_identity.current.account_id}/"
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "cloudtrail" {
+  bucket = aws_s3_bucket.cloudtrail.id
+
+  rule {
+    id     = "logexpire"
+    status = "Enabled"
 
     transition {
       days          = 90
@@ -87,31 +114,18 @@ resource "aws_s3_bucket" "cloudtrail" {
     }
 
     noncurrent_version_transition {
-      days          = 90
-      storage_class = "STANDARD_IA"
+      noncurrent_days = 90
+      storage_class   = "STANDARD_IA"
     }
 
     noncurrent_version_transition {
-      days          = 365
-      storage_class = "GLACIER"
+      noncurrent_days = 365
+      storage_class   = "GLACIER"
     }
 
     noncurrent_version_expiration {
-      days = 2190
+      noncurrent_days = 2190
     }
-  }
-
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm = "AES256"
-      }
-    }
-  }
-
-  logging {
-    target_bucket = module.tf-state.s3_log_bucket
-    target_prefix = "login-gov-cloudtrail-${data.aws_caller_identity.current.account_id}/"
   }
 }
 
@@ -164,4 +178,9 @@ resource "aws_cloudtrail" "cloudtrail" {
       }
     }
   }
+
+  depends_on = [
+    aws_s3_bucket_policy.cloudtrail,
+    aws_cloudwatch_log_group.cloudtrail_default
+  ]
 }

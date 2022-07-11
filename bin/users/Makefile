@@ -1,3 +1,7 @@
+users: sync.go client.go
+	go build -mod vendor .
+
+.PHONY: test
 test: mocks/mock_client.go
 	go fmt
 	go test
@@ -5,10 +9,8 @@ test: mocks/mock_client.go
 mocks/mock_client.go: client.go
 	mockgen -source=client.go -destination=mocks/mock_client.go -package=mocks
 
-build:
-	go build -mod vendor .
-
 # this updates the vendored code
+.PHONY: vendor
 vendor:
 	go mod tidy
 	go mod vendor

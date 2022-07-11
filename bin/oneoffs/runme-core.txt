@@ -1,0 +1,101 @@
+# remove this file once the AWS Provider v4 deploys are complete
+set -euo pipefail
+
+TERRAFORM_ENV=$1
+AWS_ACCT_NUM=$(grep -m1 aws_account_id "terraform/core/${TERRAFORM_ENV}/env-vars.sh" | awk -F'"' '{print $2}')
+
+#####################################################################################
+##### if any command below fails, comment out the preceding commands and re-run
+##### this script file. do not comment out any of the above lines!
+#####################################################################################
+
+bin/td -d core -e ${TERRAFORM_ENV} -s mv 'module.main.module.s3_email.aws_s3_bucket.bucket["email"]' 'module.main.aws_s3_bucket.email'
+bin/td -d core -e ${TERRAFORM_ENV} -s mv 'module.main.module.s3_shared.aws_s3_bucket.bucket["lambda-functions"]' 'module.main.aws_s3_bucket.lambda_functions'
+bin/td -d core -e ${TERRAFORM_ENV} -s mv 'module.main.module.s3_shared.aws_s3_bucket.bucket["reports"]' 'module.main.aws_s3_bucket.reports'
+bin/td -d core -e ${TERRAFORM_ENV} -s mv 'module.main.module.s3_shared.aws_s3_bucket.bucket["shared-data"]' 'module.main.aws_s3_bucket.shared_data'
+
+bin/td -d core -e ${TERRAFORM_ENV} -s rm 'module.main.aws_s3_bucket_object.mta_sts_txt_file'
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.aws_s3_object.mta_sts_txt_file' "login-gov-account-static.${AWS_ACCT_NUM}-us-west-2/mta-sts/.well-known/mta-sts.txt"
+
+bin/td -d core -e ${TERRAFORM_ENV} -s mv 'module.main.aws_s3_bucket_policy.email-bucket' "module.main.aws_s3_bucket_policy.email"
+bin/td -d core -e ${TERRAFORM_ENV} -s mv 'module.main.aws_s3_bucket_policy.lambda-functions' "module.main.aws_s3_bucket_policy.lambda_functions"
+bin/td -d core -e ${TERRAFORM_ENV} -s mv 'module.main.aws_s3_bucket_policy.shared' "module.main.aws_s3_bucket_policy.shared_data"
+
+bin/td -d core -e ${TERRAFORM_ENV} -s mv 'module.main.module.s3_email.module.bucket_config["email"].aws_s3_bucket_inventory.daily' "module.main.module.s3_email_config.aws_s3_bucket_inventory.daily"
+bin/td -d core -e ${TERRAFORM_ENV} -s mv 'module.main.module.s3_email.module.bucket_config["email"].aws_s3_bucket_public_access_block.public_block' "module.main.module.s3_email_config.aws_s3_bucket_public_access_block.public_block"
+
+bin/td -d core -e ${TERRAFORM_ENV} -s mv 'module.main.module.s3_shared.module.bucket_config["lambda-functions"].aws_s3_bucket_inventory.daily' "module.main.module.s3_lambda_functions_config.aws_s3_bucket_inventory.daily"
+bin/td -d core -e ${TERRAFORM_ENV} -s mv 'module.main.module.s3_shared.module.bucket_config["lambda-functions"].aws_s3_bucket_public_access_block.public_block' "module.main.module.s3_lambda_functions_config.aws_s3_bucket_public_access_block.public_block"
+bin/td -d core -e ${TERRAFORM_ENV} -s mv 'module.main.module.s3_shared.module.bucket_config["reports"].aws_s3_bucket_inventory.daily' "module.main.module.s3_reports_config.aws_s3_bucket_inventory.daily"
+bin/td -d core -e ${TERRAFORM_ENV} -s mv 'module.main.module.s3_shared.module.bucket_config["reports"].aws_s3_bucket_public_access_block.public_block' "module.main.module.s3_reports_config.aws_s3_bucket_public_access_block.public_block"
+bin/td -d core -e ${TERRAFORM_ENV} -s mv 'module.main.module.s3_shared.module.bucket_config["shared-data"].aws_s3_bucket_inventory.daily' "module.main.module.s3_shared_data_config.aws_s3_bucket_inventory.daily"
+bin/td -d core -e ${TERRAFORM_ENV} -s mv 'module.main.module.s3_shared.module.bucket_config["shared-data"].aws_s3_bucket_public_access_block.public_block' "module.main.module.s3_shared_data_config.aws_s3_bucket_public_access_block.public_block"
+
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.aws_s3_bucket_acl.email' "login-gov.email.${AWS_ACCT_NUM}-us-west-2,private"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.aws_s3_bucket_acl.lambda_functions' "login-gov.lambda-functions.${AWS_ACCT_NUM}-us-west-2,private"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.aws_s3_bucket_acl.quarantine-ec2' "login-gov.quarantine-ec2.${AWS_ACCT_NUM}-us-west-2,private"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.aws_s3_bucket_acl.reports' "login-gov.reports.${AWS_ACCT_NUM}-us-west-2,private"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.aws_s3_bucket_acl.shared_data' "login-gov.shared-data.${AWS_ACCT_NUM}-us-west-2,private"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.module.app_artifacts_bucket.aws_s3_bucket_acl.secrets' "login-gov.app-artifacts.${AWS_ACCT_NUM}-us-west-2,private"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.module.app_secrets_bucket.aws_s3_bucket_acl.secrets' "login-gov.app-secrets.${AWS_ACCT_NUM}-us-west-2,private"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.module.elb-logs.aws_s3_bucket_acl.logs' "login-gov.elb-logs.${AWS_ACCT_NUM}-us-west-2,log-delivery-write"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.module.guardduty_threat_feed.aws_s3_bucket_acl.guardduty_threat_feed_s3_bucket' "login-gov.gd-gd-threat-feed.${AWS_ACCT_NUM}-us-west-2,private"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.module.s3_config_ue1.aws_s3_bucket_acl.s3-access-logs' "login-gov.s3-access-logs.${AWS_ACCT_NUM}-us-east-1,log-delivery-write"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.module.s3_config_ue1.aws_s3_bucket_acl.s3-logs' "login-gov.s3-logs.${AWS_ACCT_NUM}-us-east-1,log-delivery-write"
+
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.aws_s3_bucket_lifecycle_configuration.account_static_bucket' "login-gov-account-static.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.aws_s3_bucket_lifecycle_configuration.email' "login-gov.email.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.aws_s3_bucket_lifecycle_configuration.lambda_functions' "login-gov.lambda-functions.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.aws_s3_bucket_lifecycle_configuration.quarantine-ec2' "login-gov.quarantine-ec2.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.aws_s3_bucket_lifecycle_configuration.reports' "login-gov.reports.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.module.elb-logs.aws_s3_bucket_lifecycle_configuration.logs' "login-gov.elb-logs.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.module.guardduty_threat_feed.aws_s3_bucket_lifecycle_configuration.guardduty_threat_feed_s3_bucket' "login-gov.gd-gd-threat-feed.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.module.s3_config_ue1.aws_s3_bucket_lifecycle_configuration.s3-access-logs' "login-gov.s3-access-logs.${AWS_ACCT_NUM}-us-east-1"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.module.s3_config_ue1.aws_s3_bucket_lifecycle_configuration.s3-logs' "login-gov.s3-logs.${AWS_ACCT_NUM}-us-east-1"
+
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.aws_s3_bucket_logging.email' "login-gov.email.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.aws_s3_bucket_logging.lambda_functions' "login-gov.lambda-functions.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.aws_s3_bucket_logging.account_static_bucket' "login-gov-account-static.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.aws_s3_bucket_logging.quarantine-ec2' "login-gov.quarantine-ec2.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.aws_s3_bucket_logging.reports' "login-gov.reports.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.aws_s3_bucket_logging.shared_data' "login-gov.shared-data.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.module.app_artifacts_bucket.aws_s3_bucket_logging.secrets' "login-gov.app-artifacts.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.module.app_secrets_bucket.aws_s3_bucket_logging.secrets' "login-gov.app-secrets.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.module.guardduty_threat_feed.aws_s3_bucket_logging.guardduty_threat_feed_s3_bucket' "login-gov.gd-gd-threat-feed.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.module.s3_config_ue1.aws_s3_bucket_logging.inventory' "login-gov.s3-inventory.${AWS_ACCT_NUM}-us-east-1"
+
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.aws_s3_bucket_server_side_encryption_configuration.email' "login-gov.email.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.aws_s3_bucket_server_side_encryption_configuration.lambda_functions' "login-gov.lambda-functions.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.aws_s3_bucket_server_side_encryption_configuration.account_static_bucket' "login-gov-account-static.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.aws_s3_bucket_server_side_encryption_configuration.quarantine-ec2' "login-gov.quarantine-ec2.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.aws_s3_bucket_server_side_encryption_configuration.reports' "login-gov.reports.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.aws_s3_bucket_server_side_encryption_configuration.shared_data' "login-gov.shared-data.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.module.app_artifacts_bucket.aws_s3_bucket_server_side_encryption_configuration.secrets' "login-gov.app-artifacts.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.module.app_secrets_bucket.aws_s3_bucket_server_side_encryption_configuration.secrets' "login-gov.app-secrets.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.module.elb-logs.aws_s3_bucket_server_side_encryption_configuration.logs' "login-gov.elb-logs.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.module.guardduty_threat_feed.aws_s3_bucket_server_side_encryption_configuration.guardduty_threat_feed_s3_bucket' "login-gov.gd-gd-threat-feed.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.module.s3_config_ue1.aws_s3_bucket_server_side_encryption_configuration.inventory' "login-gov.s3-inventory.${AWS_ACCT_NUM}-us-east-1"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.module.s3_config_ue1.aws_s3_bucket_server_side_encryption_configuration.s3-access-logs' "login-gov.s3-access-logs.${AWS_ACCT_NUM}-us-east-1"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.module.s3_config_ue1.aws_s3_bucket_server_side_encryption_configuration.s3-logs' "login-gov.s3-logs.${AWS_ACCT_NUM}-us-east-1"
+
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.aws_s3_bucket_versioning.email' "login-gov.email.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.aws_s3_bucket_versioning.lambda_functions' "login-gov.lambda-functions.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.aws_s3_bucket_versioning.account_static_bucket' "login-gov-account-static.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.aws_s3_bucket_versioning.quarantine-ec2' "login-gov.quarantine-ec2.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.aws_s3_bucket_versioning.reports' "login-gov.reports.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.aws_s3_bucket_versioning.shared_data' "login-gov.shared-data.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.module.app_artifacts_bucket.aws_s3_bucket_versioning.secrets' "login-gov.app-artifacts.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.module.app_secrets_bucket.aws_s3_bucket_versioning.secrets' "login-gov.app-secrets.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.module.elb-logs.aws_s3_bucket_versioning.logs' "login-gov.elb-logs.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.module.guardduty_threat_feed.aws_s3_bucket_versioning.guardduty_threat_feed_s3_bucket' "login-gov.gd-gd-threat-feed.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.module.s3_config_ue1.aws_s3_bucket_versioning.inventory' "login-gov.s3-inventory.${AWS_ACCT_NUM}-us-east-1"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.module.s3_config_ue1.aws_s3_bucket_versioning.s3-access-logs' "login-gov.s3-access-logs.${AWS_ACCT_NUM}-us-east-1"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.module.s3_config_ue1.aws_s3_bucket_versioning.s3-logs' "login-gov.s3-logs.${AWS_ACCT_NUM}-us-east-1"
+
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.aws_s3_bucket_policy.account_static_bucket' "login-gov-account-static.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.aws_s3_bucket_policy.quarantine-ec2' "login-gov.quarantine-ec2.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.module.app_artifacts_bucket.aws_s3_bucket_policy.secrets[0]' "login-gov.app-artifacts.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.module.elb-logs.aws_s3_bucket_policy.logs' "login-gov.elb-logs.${AWS_ACCT_NUM}-us-west-2"
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.module.s3_config_ue1.aws_s3_bucket_policy.inventory' "login-gov.s3-inventory.${AWS_ACCT_NUM}-us-east-1"
+
+bin/td -d core -e ${TERRAFORM_ENV} -i 'module.main.aws_s3_bucket_website_configuration.account_static_bucket' "login-gov-account-static.${AWS_ACCT_NUM}-us-west-2"

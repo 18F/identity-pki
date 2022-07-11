@@ -286,3 +286,9 @@ variable "gitlab_ecr_repo_accountid" {
   type        = string
   default     = ""
 }
+
+variable "only_on_protected_branch" {
+  description = "Only allow this to run if it comes from a protected branch.  See https://docs.gitlab.com/ee/ci/runners/configure_runners.html#prevent-runners-from-revealing-sensitive-information"
+  type        = bool
+  default     = false
+}

@@ -1,7 +1,8 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
+  - c-in-parent-ssp
 effort:
   - medium
 ---
@@ -44,12 +45,12 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-Add control implementation description here for item au-5_smt.a
+See parent SSP.
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-Add control implementation description here for item au-5_smt.b
+See parent SSP.
 
 ______________________________________________________________________

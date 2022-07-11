@@ -10,7 +10,7 @@ locals {
   recycletest_env = (var.env_name == "" ? var.recycletest_env_name : var.env_name)
 }
 
-data "aws_s3_bucket_object" "newrelic_api_key" {
+data "aws_s3_object" "newrelic_api_key" {
   bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
   key    = "common/newrelic_apikey"
 }
@@ -51,7 +51,7 @@ resource "aws_codebuild_project" "auto_terraform_plan" {
     }
     environment_variable {
       name  = "NEW_RELIC_API_KEY"
-      value = data.aws_s3_bucket_object.newrelic_api_key.body
+      value = data.aws_s3_object.newrelic_api_key.body
     }
   }
 
@@ -166,7 +166,7 @@ resource "aws_codebuild_project" "auto_terraform_apply" {
     }
     environment_variable {
       name  = "NEW_RELIC_API_KEY"
-      value = data.aws_s3_bucket_object.newrelic_api_key.body
+      value = data.aws_s3_object.newrelic_api_key.body
     }
   }
 

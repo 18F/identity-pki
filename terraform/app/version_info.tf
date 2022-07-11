@@ -14,7 +14,7 @@ provider "aws" {
   alias  = "version_info"
 }
 
-resource "aws_s3_bucket_object" "version_info" {
+resource "aws_s3_object" "version_info" {
   provider = aws.version_info
   key      = "terraform-app/version_info/${var.env_name}.txt"
   bucket   = var.version_info_bucket

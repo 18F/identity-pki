@@ -1,7 +1,8 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
+  - c-in-parent-ssp
 ---
 
 # au-6 - \[catalog\] Audit Review, Analysis, and Reporting
@@ -43,12 +44,12 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-Add control implementation description here for item au-6_smt.a
+See parent SSP.
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-Add control implementation description here for item au-6_smt.b
+See parent SSP.
 
 ______________________________________________________________________

@@ -18,31 +18,53 @@ resource "aws_kms_alias" "quarantine-ec2" {
 
 resource "aws_s3_bucket" "quarantine-ec2" {
   bucket = local.quarantine_s3_bucket_name
+}
+
+resource "aws_s3_bucket_acl" "quarantine-ec2" {
+  bucket = aws_s3_bucket.quarantine-ec2.id
   acl    = "private"
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        kms_master_key_id = aws_kms_key.quarantine-ec2.arn
-        sse_algorithm     = "aws:kms"
-      }
+}
+
+resource "aws_s3_bucket_versioning" "quarantine-ec2" {
+  bucket = aws_s3_bucket.quarantine-ec2.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "quarantine-ec2" {
+  bucket = aws_s3_bucket.quarantine-ec2.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      kms_master_key_id = aws_kms_key.quarantine-ec2.arn
+      sse_algorithm     = "aws:kms"
     }
   }
+}
 
+resource "aws_s3_bucket_policy" "quarantine-ec2" {
+  bucket = aws_s3_bucket.quarantine-ec2.id
   policy = data.aws_iam_policy_document.s3_quarantine-ec2.json
+}
 
-  logging {
-    target_bucket = local.s3_logs_bucket
-    target_prefix = "${local.quarantine_s3_bucket_name}/"
-  }
+resource "aws_s3_bucket_logging" "quarantine-ec2" {
+  bucket = aws_s3_bucket.quarantine-ec2.id
 
-  versioning {
-    enabled = true
-  }
+  target_bucket = local.s3_logs_bucket
+  target_prefix = "${local.quarantine_s3_bucket_name}/"
+}
 
-  lifecycle_rule {
-    id      = "expire"
-    prefix  = "/"
-    enabled = true
+resource "aws_s3_bucket_lifecycle_configuration" "quarantine-ec2" {
+  bucket = aws_s3_bucket.quarantine-ec2.id
+
+  rule {
+    id     = "expire"
+    status = "Enabled"
+    filter {
+      prefix = "/"
+    }
 
     transition {
       storage_class = "INTELLIGENT_TIERING"
@@ -54,11 +76,10 @@ resource "aws_s3_bucket" "quarantine-ec2" {
       days = 2190
     }
     noncurrent_version_expiration {
-      days = 2190
+      noncurrent_days = 2190
     }
   }
 }
-
 
 data "aws_iam_policy_document" "s3_quarantine-ec2" {
 

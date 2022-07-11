@@ -1,32 +1,5 @@
 resource "aws_s3_bucket" "backups" {
   bucket = "login-gov-${var.env_name}-gitlabbackups-${data.aws_caller_identity.current.account_id}-${var.region}"
-  acl    = "private"
-
-  versioning {
-    enabled = true
-  }
-
-  lifecycle_rule {
-    abort_incomplete_multipart_upload_days = 1
-    id                                     = "expire-backups"
-    enabled                                = true
-
-    expiration {
-      days = var.gitlab_backup_retention_days
-    }
-
-    noncurrent_version_expiration {
-      days = var.gitlab_backup_retention_days
-    }
-  }
-
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm = "AES256"
-      }
-    }
-  }
 
   tags = {
     Name        = "gitlab-${var.env_name}-backups"
@@ -35,8 +8,51 @@ resource "aws_s3_bucket" "backups" {
 
   lifecycle {
     prevent_destroy = true
+    ignore_changes  = [replication_configuration]
+  }
+}
 
-    ignore_changes = [replication_configuration]
+resource "aws_s3_bucket_acl" "backups" {
+  bucket = aws_s3_bucket.backups.id
+  acl    = "private"
+}
+
+resource "aws_s3_bucket_versioning" "backups" {
+  bucket = aws_s3_bucket.backups.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "backups" {
+  bucket = aws_s3_bucket.backups.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "backups" {
+  bucket = aws_s3_bucket.backups.id
+
+  rule {
+    id     = "expire-backups"
+    status = "Enabled"
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 1
+    }
+
+    expiration {
+      days = var.gitlab_backup_retention_days
+    }
+
+    noncurrent_version_expiration {
+      noncurrent_days = var.gitlab_backup_retention_days
+    }
   }
 }
 
@@ -73,34 +89,7 @@ resource "aws_s3_bucket_replication_configuration" "replication" {
 
 resource "aws_s3_bucket" "backups_dr" {
   bucket   = "login-gov-${var.env_name}-gitlabbackups-${data.aws_caller_identity.current.account_id}-${var.dr_region}"
-  acl      = "private"
   provider = aws.dr
-
-  versioning {
-    enabled = true
-  }
-
-  lifecycle_rule {
-    abort_incomplete_multipart_upload_days = 1
-    id                                     = "expire-backups"
-    enabled                                = true
-
-    expiration {
-      days = var.gitlab_backup_retention_days
-    }
-
-    noncurrent_version_expiration {
-      days = var.gitlab_backup_retention_days
-    }
-  }
-
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm = "AES256"
-      }
-    }
-  }
 
   tags = {
     Name        = "gitlab-${var.env_name}-drbackups"
@@ -109,6 +98,54 @@ resource "aws_s3_bucket" "backups_dr" {
 
   lifecycle {
     prevent_destroy = true
+  }
+}
+
+resource "aws_s3_bucket_acl" "backups_dr" {
+  bucket   = aws_s3_bucket.backups_dr.id
+  provider = aws.dr
+  acl      = "private"
+}
+
+resource "aws_s3_bucket_versioning" "backups_dr" {
+  bucket   = aws_s3_bucket.backups_dr.id
+  provider = aws.dr
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "backups_dr" {
+  bucket   = aws_s3_bucket.backups_dr.id
+  provider = aws.dr
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "backups_dr" {
+  bucket   = aws_s3_bucket.backups_dr.id
+  provider = aws.dr
+
+  rule {
+    id     = "expire-backups"
+    status = "Enabled"
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 1
+    }
+
+    expiration {
+      days = var.gitlab_backup_retention_days
+    }
+
+    noncurrent_version_expiration {
+      noncurrent_days = var.gitlab_backup_retention_days
+    }
   }
 }
 
@@ -132,29 +169,38 @@ resource "aws_s3_bucket_public_access_block" "backups_dr_access_block" {
 
 resource "aws_s3_bucket" "config" {
   bucket = "login-gov-${var.env_name}-gitlabconfig-${data.aws_caller_identity.current.account_id}-${var.region}"
-  acl    = "private"
-
   # force_destroy = true
 
   lifecycle {
     prevent_destroy = true
   }
 
-  versioning {
-    enabled = true
-  }
-
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm = "AES256"
-      }
-    }
-  }
-
   tags = {
     Name        = "gitlab-${var.env_name}-config"
     Environment = "${var.env_name}"
+  }
+}
+
+resource "aws_s3_bucket_acl" "config" {
+  bucket = aws_s3_bucket.config.id
+  acl    = "private"
+}
+
+resource "aws_s3_bucket_versioning" "config" {
+  bucket = aws_s3_bucket.config.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "config" {
+  bucket = aws_s3_bucket.config.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
   }
 }
 
@@ -194,19 +240,25 @@ resource "aws_s3_bucket_public_access_block" "config_access_block" {
 
 resource "aws_s3_bucket" "cache" {
   bucket = "login-gov-${var.env_name}-gitlabcache-${data.aws_caller_identity.current.account_id}-${var.region}"
-  acl    = "private"
-
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm = "AES256"
-      }
-    }
-  }
 
   tags = {
     Name        = "login-gov-${var.env_name}-gitlabcache-${data.aws_caller_identity.current.account_id}-${var.region}"
     Environment = "${var.env_name}"
+  }
+}
+
+resource "aws_s3_bucket_acl" "cache" {
+  bucket = aws_s3_bucket.cache.id
+  acl    = "private"
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "cache" {
+  bucket = aws_s3_bucket.cache.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
   }
 }
 
@@ -219,38 +271,55 @@ resource "aws_s3_bucket_public_access_block" "cache_access_block" {
 }
 
 locals {
-  gitlab_buckets = [
-    "login-gov-${var.env_name}-gitlabartifacts-${data.aws_caller_identity.current.account_id}-${var.region}",
-    "login-gov-${var.env_name}-gitlabexternaldiffs-${data.aws_caller_identity.current.account_id}-${var.region}",
-    "login-gov-${var.env_name}-gitlablfsobjects-${data.aws_caller_identity.current.account_id}-${var.region}",
-    "login-gov-${var.env_name}-gitlabuploads-${data.aws_caller_identity.current.account_id}-${var.region}",
-    "login-gov-${var.env_name}-gitlabpackages-${data.aws_caller_identity.current.account_id}-${var.region}",
-    "login-gov-${var.env_name}-gitlabdependcyproxy-${data.aws_caller_identity.current.account_id}-${var.region}",
-    "login-gov-${var.env_name}-gitlabtfstate-${data.aws_caller_identity.current.account_id}-${var.region}",
-    "login-gov-${var.env_name}-gitlabpages-${data.aws_caller_identity.current.account_id}-${var.region}"
-  ]
+  gitlab_buckets = formatlist(
+    "login-gov-${var.env_name}-gitlab%s-${data.aws_caller_identity.current.account_id}-${var.region}",
+    [
+      "artifacts",
+      "externaldiffs",
+      "lfsobjects",
+      "uploads",
+      "packages",
+      "dependcyproxy",
+      "tfstate",
+      "pages"
+    ]
+  )
 }
 
 resource "aws_s3_bucket" "gitlab_buckets" {
   for_each = toset(local.gitlab_buckets)
 
   bucket = each.key
-  acl    = "private"
 
   # force_destroy = true
 
   lifecycle {
     prevent_destroy = true
   }
+}
 
-  versioning {
-    enabled = true
+resource "aws_s3_bucket_acl" "gitlab_buckets" {
+  for_each = toset(local.gitlab_buckets)
+  bucket   = each.key
+  acl = "private"
+}
+
+resource "aws_s3_bucket_versioning" "gitlab_buckets" {
+  for_each = toset(local.gitlab_buckets)
+  bucket   = each.key
+
+  versioning_configuration {
+    status = "Enabled"
   }
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm = "AES256"
-      }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "gitlab_buckets" {
+  for_each = toset(local.gitlab_buckets)
+  bucket   = each.key
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
     }
   }
 }

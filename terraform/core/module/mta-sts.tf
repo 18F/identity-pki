@@ -27,7 +27,7 @@ EOF
   mta_sts_report_addresses = join(",", [for v in var.mta_sts_report_mailboxes : "mailto:${v}"])
 }
 
-resource "aws_s3_bucket_object" "mta_sts_txt_file" {
+resource "aws_s3_object" "mta_sts_txt_file" {
   bucket = aws_s3_bucket.account_static_bucket.id
   key    = "mta-sts/.well-known/mta-sts.txt"
   # Contents of .well-known/mta-sts.txt must follow https://tools.ietf.org/html/rfc8461#section-3.2
