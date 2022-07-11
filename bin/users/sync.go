@@ -265,7 +265,8 @@ func resolveProjects(gitc GitlabClientIface, existingProjects map[string]*gitlab
 		// Does the project exist
 		existingProject, ok := existingProjects[pathWithNamespace]
 		if !ok {
-			return fmt.Errorf("Project %v doesn't exist.", pathWithNamespace)
+			log.Printf("Warning: Project %v doesn't exist.", pathWithNamespace)
+			continue
 		}
 
 		// Create or update shares
@@ -571,7 +572,7 @@ func blockUser(gitc GitlabClientIface, u *gitlab.User) error {
 }
 
 func unblockUser(gitc GitlabClientIface, u *gitlab.User) error {
-	if u.State == "active" {
+	if u.State == "active" || u.State == "deactivated" {
 		return nil
 	}
 

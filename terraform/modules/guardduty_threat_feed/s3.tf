@@ -1,32 +1,49 @@
 resource "aws_s3_bucket" "guardduty_threat_feed_s3_bucket" {
   bucket = local.gd_s3_bucket
-  acl    = "private"
-
-  logging {
-    target_bucket = var.logs_bucket
-    target_prefix = "${local.gd_s3_bucket}/"
-  }
-
   tags = {
     feed = var.guardduty_threat_feed_name
   }
+}
 
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm = "AES256"
-      }
+resource "aws_s3_bucket_acl" "guardduty_threat_feed_s3_bucket" {
+  bucket = aws_s3_bucket.guardduty_threat_feed_s3_bucket.id
+  acl    = "private"
+}
+
+resource "aws_s3_bucket_versioning" "guardduty_threat_feed_s3_bucket" {
+  bucket = aws_s3_bucket.guardduty_threat_feed_s3_bucket.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "guardduty_threat_feed_s3_bucket" {
+  bucket = aws_s3_bucket.guardduty_threat_feed_s3_bucket.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
     }
   }
+}
 
-  versioning {
-    enabled = true
-  }
+resource "aws_s3_bucket_logging" "guardduty_threat_feed_s3_bucket" {
+  bucket = aws_s3_bucket.guardduty_threat_feed_s3_bucket.id
 
-  lifecycle_rule {
-    id      = "expire"
-    prefix  = "/"
-    enabled = true
+  target_bucket = var.logs_bucket
+  target_prefix = "${local.gd_s3_bucket}/"
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "guardduty_threat_feed_s3_bucket" {
+  bucket = aws_s3_bucket.guardduty_threat_feed_s3_bucket.id
+
+  rule {
+    id     = "expire"
+    status = "Enabled"
+    filter {
+      prefix = "/"
+    }
 
     transition {
       storage_class = "INTELLIGENT_TIERING"
@@ -38,7 +55,7 @@ resource "aws_s3_bucket" "guardduty_threat_feed_s3_bucket" {
       days = 2190
     }
     noncurrent_version_expiration {
-      days = 2190
+      noncurrent_days = 2190
     }
   }
 }

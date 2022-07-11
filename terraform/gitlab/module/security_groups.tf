@@ -161,6 +161,16 @@ resource "aws_security_group" "gitlab" {
     )
   }
 
+  # Accept traffic from the WAF-enabled ALB
+  ingress {
+    from_port = 443
+    to_port   = 443
+    protocol  = "tcp"
+    security_groups = [
+      aws_security_group.waf_lb.id,
+    ]
+  }
+
   # these are the EIPs for the NAT which is being used by the obproxies
   # This is needed so that the outbound proxies can access the external lb.
   ingress {
@@ -623,5 +633,53 @@ resource "aws_security_group" "kms_endpoint" {
     create_before_destroy = true
   }
 
+  vpc_id = aws_vpc.default.id
+}
+
+resource "aws_security_group" "waf_lb" {
+  name        = "${var.env_name}-waf-lb"
+  description = "Allow inbound from the NLB to the WAF-enabled ALB"
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = formatlist("%s/32", data.aws_network_interface.lb.*.private_ip)
+    description = "Allow connection from NLB"
+  }
+
+  # these are the EIPs for the NAT which is being used by the obproxies
+  # This is needed so that the outbound proxies can access the external lb.
+  ingress {
+    from_port = 443
+    to_port   = 443
+    protocol  = "tcp"
+    cidr_blocks = [
+      "${aws_eip.nat_a.public_ip}/32",
+      "${aws_eip.nat_b.public_ip}/32",
+      "${aws_eip.nat_c.public_ip}/32"
+    ]
+  }
+
+  # Source IPs conneting through the NLB
+  ingress {
+    from_port = 443
+    to_port   = 443
+    protocol  = "tcp"
+    cidr_blocks = sort(
+      concat(
+        [aws_vpc.default.cidr_block],
+        data.github_ip_ranges.meta.hooks_ipv4,
+        var.allowed_gitlab_cidr_blocks_v4
+      )
+    )
+  }
+
+  # allow outbound to the VPC
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [aws_vpc.default.cidr_block]
+  }
   vpc_id = aws_vpc.default.id
 }

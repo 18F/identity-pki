@@ -1,14 +1,15 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
+  - c-in-parent-ssp
 ---
 
 # au-3.1 - \[catalog\] Additional Audit Information
 
 ## Control Statement
 
-The information system generates audit records containing the following additional information: organization-defined additional, more detailed information.
+The information system generates audit records containing the following additional information: organization-defined additional, more detailed information.  See parent SSP for additional organization-defined information.
 
 ## Control Objective
 
@@ -26,6 +27,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control au-3.1
+Documented in parent SSP.
 
 ______________________________________________________________________

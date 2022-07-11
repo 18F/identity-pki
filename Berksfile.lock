@@ -2,8 +2,8 @@ DEPENDENCIES
   apt (~> 7.0)
   aws_metadata
     git: https://github.com/18F/identity-cookbooks
-    revision: 46b2178bf06fe44362cb72bfbcbfeaa33f193b90
-    ref: 46b2178
+    revision: 082f27d5b4e038557d7a75386a0f82509c459d51
+    ref: 082f27d
     rel: aws_metadata
   aws_s3
     path: kitchen/cookbooks/aws_s3
@@ -15,8 +15,8 @@ DEPENDENCIES
     path: kitchen/cookbooks/chef_proxy_env
   config_loader
     git: https://github.com/18F/identity-cookbooks
-    revision: 879b902bd5ca66487922e34a85c217a41728f668
-    ref: 879b902
+    revision: 082f27d5b4e038557d7a75386a0f82509c459d51
+    ref: 082f27d
     rel: config_loader
   deploy_resource (~> 1.0)
   docker (~> 10.1.0)
@@ -36,13 +36,13 @@ DEPENDENCIES
     path: kitchen/cookbooks/identity-pivcac
   identity_base_config
     git: https://github.com/18F/identity-cookbooks
-    revision: 879b902bd5ca66487922e34a85c217a41728f668
-    ref: 879b902
+    revision: 082f27d5b4e038557d7a75386a0f82509c459d51
+    ref: 082f27d
     rel: identity_base_config
   identity_shared_attributes
     git: https://github.com/18F/identity-cookbooks
-    revision: 879b902bd5ca66487922e34a85c217a41728f668
-    ref: 879b902
+    revision: 082f27d5b4e038557d7a75386a0f82509c459d51
+    ref: 082f27d
     rel: identity_shared_attributes
   instance_certificate
     path: kitchen/cookbooks/instance_certificate
@@ -57,8 +57,8 @@ DEPENDENCIES
   ssh-keys
   static_eip
     git: https://github.com/18F/identity-cookbooks
-    revision: 879b902bd5ca66487922e34a85c217a41728f668
-    ref: 879b902
+    revision: 082f27d5b4e038557d7a75386a0f82509c459d51
+    ref: 082f27d
     rel: static_eip
   sudo
   users
@@ -78,10 +78,10 @@ GRAPH
   config_loader (0.3.0)
     aws_metadata (>= 0.0.0)
   deploy_resource (1.0.3)
-  docker (10.1.7)
+  docker (10.1.8)
   filesystem (3.0.5)
     lvm (>= 1.1)
-  git (11.0.1)
+  git (11.0.2)
     ark (>= 0.0.0)
   identity-gitlab (0.0.5)
     config_loader (>= 0.0.0)
@@ -121,7 +121,7 @@ GRAPH
     static_eip (>= 0.2.0)
     sudo (>= 0.0.1)
     users (>= 0.0.1)
-  lvm (5.2.2)
+  lvm (6.0.0)
   motd (1.0.1)
   newrelic-infra (0.12.2)
   openssl (8.5.5)

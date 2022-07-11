@@ -109,7 +109,7 @@ resource "aws_ebs_volume" "gitlab" {
   }
 }
 
-resource "aws_s3_bucket_object" "gitlab_volume_id" {
+resource "aws_s3_object" "gitlab_volume_id" {
   bucket  = data.aws_s3_bucket.secrets.id
   key     = "${var.env_name}/gitlab_ebs_volume"
   content = aws_ebs_volume.gitlab.id

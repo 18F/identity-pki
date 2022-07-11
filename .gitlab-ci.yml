@@ -29,6 +29,8 @@ stages:
 variables:
   CI_COMMIT_TAG: "$CI_COMMIT_SHA"
   ECR_REGISTRY: "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
+  DEPLOY_IMAGE_DIGEST: "sha256:493095c8b49951c1421df77555896b0f55848c240adbbd82938075bb2ffb9b3a"
+  TEST_IMAGE_DIGEST: "sha256:19f6b9521f7c94820aa5594ca1e979da27ba019c0fdf4ead84c2f047876083d8"
 
 gitlab-qa:
   only:
@@ -87,25 +89,32 @@ gitlab-qa:
 
 build_env_deploy:
   <<: *build_template
+  only:
+    - main
   variables:
     dockerfile: env_deploy.Dockerfile
     ecr_repo: cd/env_deploy
 
 build_env_test:
   <<: *build_template
+  only:
+    - main
   variables:
     dockerfile: env_test.Dockerfile
     ecr_repo: cd/env_test
 
 build_idp_ci:
   <<: *build_template
+  only:
+    - main
   variables:
     dockerfile: idp_ci.Dockerfile
     ecr_repo: idp/ci
 
-# deploy jobs here
+# deploy jobs for tspencer env here.
 deploy_tspencer:
   environment: tspencer
+  resource_group: tspencer
   only:
     - stages/tspencer
   variables:
@@ -113,10 +122,13 @@ deploy_tspencer:
   tags:
     - tspencer-env-runner
   image:
-    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_deploy:$CI_COMMIT_SHA
+    # these are hardcoded to make this deploy process more secure.
+    # If you want to update this image, you will need to edit it here, and in
+    # s3://login-gov.secrets.<account>-us-west-2/<env>/gitlab_env_runner_allowed_images,
+    # or s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images.
+    # If you are doing development work, you can override them for your env.
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_deploy@$DEPLOY_IMAGE_DIGEST
   stage: deploy
-  needs:
-    - build_env_deploy
   artifacts:
     name: "$CI_ENVIRONMENT_NAME-$CI_COMMIT_SHA"
     paths:
@@ -135,13 +147,65 @@ test_tspencer:
   tags:
     - tspencer-env-runner
   image:
-    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_test:$CI_COMMIT_SHA
+    # these are hardcoded to make this deploy process more secure.
+    # If you want to update this image, you will need to edit it here, and in
+    # s3://login-gov.secrets.<account>-us-west-2/<env>/gitlab_env_runner_allowed_images,
+    # or s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images.
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_test@$TEST_IMAGE_DIGEST
   stage: test
   needs:
-    - build_env_test
     - deploy_tspencer
   artifacts:
     reports:
       junit: testlogs/*.xml
   script:
     - echo "Yay tests!"
+
+# deploy jobs for pauldoom env here.
+deploy_pauldoom:
+  environment: pauldoom
+  resource_group: pauldoom
+  only:
+    - stages/pauldoom
+  variables:
+    GIT_SUBMODULE_STRATEGY: normal
+  tags:
+    - pauldoom-env-runner
+  image:
+    # these are hardcoded to make this deploy process more secure.
+    # If you want to update this image, you will need to edit it here, and in
+    # s3://login-gov.secrets.<account>-us-west-2/<env>/gitlab_env_runner_allowed_images,
+    # or s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images.
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_deploy@$DEPLOY_IMAGE_DIGEST
+  stage: deploy
+  artifacts:
+    name: "$CI_ENVIRONMENT_NAME-$CI_COMMIT_SHA"
+    paths:
+      - terraform.plan
+      - plan.txt
+    expire_in: 1 year
+  script:
+    - echo "Somebody set us up the deploy"
+
+test_pauldoom:
+  only:
+    - stages/pauldoom
+  variables:
+    IDP_HOSTNAME: idp.pauldoom.identitysandbox.gov
+    ENV_NAME: pauldoom
+  tags:
+    - pauldoom-env-runner
+  image:
+    # these are hardcoded to make this deploy process more secure.
+    # If you want to update this image, you will need to edit it here, and in
+    # s3://login-gov.secrets.<account>-us-west-2/<env>/gitlab_env_runner_allowed_images,
+    # or s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images.
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_test@$TEST_IMAGE_DIGEST
+  stage: test
+  needs:
+    - deploy_pauldoom
+  artifacts:
+    reports:
+      junit: testlogs/*.xml
+  script:
+    - echo "Tests for great justice"

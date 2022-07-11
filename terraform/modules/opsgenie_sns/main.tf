@@ -18,7 +18,7 @@ variable "region" {
 data "aws_caller_identity" "current" {
 }
 
-data "aws_s3_bucket_object" "opsgenie_sns_apikey" {
+data "aws_s3_object" "opsgenie_sns_apikey" {
   bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
   key    = "common/opsgenie_sns_apikey"
 }
@@ -124,7 +124,7 @@ resource "aws_sns_topic_subscription" "opsgenie_alert_usw2" {
   topic_arn              = aws_sns_topic.opsgenie_alert_usw2.arn
   endpoint_auto_confirms = true
   protocol               = "https"
-  endpoint               = "https://api.opsgenie.com/v1/json/cloudwatchevents?apiKey=${data.aws_s3_bucket_object.opsgenie_sns_apikey.body}"
+  endpoint               = "https://api.opsgenie.com/v1/json/cloudwatchevents?apiKey=${data.aws_s3_object.opsgenie_sns_apikey.body}"
 }
 
 resource "aws_sns_topic" "opsgenie_alert_use1" {
@@ -161,7 +161,7 @@ resource "aws_sns_topic_subscription" "opsgenie_alert_use1" {
   topic_arn              = aws_sns_topic.opsgenie_alert_use1.arn
   endpoint_auto_confirms = true
   protocol               = "https"
-  endpoint               = "https://api.opsgenie.com/v1/json/cloudwatchevents?apiKey=${data.aws_s3_bucket_object.opsgenie_sns_apikey.body}"
+  endpoint               = "https://api.opsgenie.com/v1/json/cloudwatchevents?apiKey=${data.aws_s3_object.opsgenie_sns_apikey.body}"
 }
 
 output "usw2_sns_topic_arn" {

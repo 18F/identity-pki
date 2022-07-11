@@ -1,0 +1,47 @@
+#!/bin/sh -x
+
+gitlab-runner register \
+    --non-interactive \
+    --name "<%= node.run_state['gitlab_runner_pool_name'] %>}-<%= @runner_name %>" \
+    --url "<%= @external_url %>" \
+    --registration-token "<%= @runner_token %>" \
+    --executor docker \
+    --env HTTP_PROXY="<%= @http_proxy %>" \
+    --env HTTPS_PROXY="<%= @https_proxy %>" \
+    --env http_proxy="<%= @http_proxy %>" \
+    --env https_proxy="<%= @https_proxy %>" \
+    --env NO_PROXY="<%= @no_proxy %>" \
+    --env no_proxy="<%= @no_proxy %>" \
+    --env MY_ENV="<%= node.chef_environment %>" \
+    --env MY_ENV_<%= node.chef_environment %>="<%= node.chef_environment %>" \
+    --env DOCKER_AUTH_CONFIG='{"credHelpers": {"public.ecr.aws": "ecr-login","<%= @gitlab_ecr_registry %>": "ecr-login"}}' \
+    --docker-image="<%= @aws_account_id %>.dkr.ecr.<%= @aws_region %>.amazonaws.com/ecr-public/docker/library/alpine:latest" \
+<% if node.run_state['is_it_an_env_runner'] == 'true' -%>
+    --docker-disable-entrypoint-overwrite \
+<% end -%>
+<% for allowedimage in node.run_state['allowed_images'] do -%>
+    --docker-allowed-images "<%= allowedimage %>" \
+<% end -%>
+<% for allowedservice in node.run_state['allowed_services'] do -%>
+    --docker-allowed-services "<%= allowedservice %>" \
+<% end -%>
+    --run-untagged="<%= node.run_state['allow_untagged_jobs'] %>" \
+    --tag-list "<%= node.run_state['runner_tag'] %>" \
+    --locked=false \
+    --cache-shared \
+    --cache-type s3 \
+    --cache-path "<%= node.chef_environment %>" \
+    --cache-s3-server-address s3.amazonaws.com \
+    --cache-s3-bucket-name "login-gov-<%= node.chef_environment %>-gitlabcache-<%= @aws_account_id %>-<%= @aws_region %>" \
+    --cache-s3-bucket-location "<%= @aws_region %>" \
+    --cache-s3-authentication_type iam \
+<% if node.run_state['only_on_protected_branch'] == 'true' -%>
+    --access-level=ref_protected \
+<% else -%>
+    --access-level=not_protected \
+<% end -%>
+    --docker-memory 4096m \
+    --docker-cpu-shares 1024 \
+    --docker-security-opt no-new-privileges \
+    --docker-network-mode="runner-net" \
+    --docker-cap-drop net_raw

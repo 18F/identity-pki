@@ -1,7 +1,7 @@
 ---
 status:
   - c-implemented
-  - c-not-documented
+  - c-documented
 ---
 
 # ia-5.7 - \[catalog\] No Embedded Unencrypted Static Authenticators
@@ -28,6 +28,15 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Passwords that are stored in the Gitlab system are stored in a hashed/encrypted format rather than plain text. The GitLab component uses ia-5.7 from the main Login.gov SSP.
+Under normal use static passwords stored in GitLab are not used or usable.
+The Login.gov IdP is used for SSO in most cases, reducing the number of actively
+used passwords in the GitLab component.
+
+If Login.gov IdP is unavilable password authentication
+with MFA may be enabled in GitLab for registered users after an authorized
+operator has initiated temporary break-glass procedures.
+
+Passwords that are stored in the Gitlab system are stored in a hashed/encrypted format.
+Details on algorithm, streatching, and salting can be found here: https://docs.gitlab.com/ee/security/password_storage.html
 
 ______________________________________________________________________

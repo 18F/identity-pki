@@ -65,6 +65,7 @@ resource "aws_cloudwatch_log_metric_filter" "api_throttling" {
     value      = 1
     dimensions = {}
   }
+  depends_on = [aws_cloudwatch_log_group.cloudtrail_default]
 }
 
 resource "aws_cloudwatch_metric_alarm" "api_throttling" {
@@ -84,5 +85,6 @@ EOM
   evaluation_periods  = var.evaluation_periods
   period              = var.period
   namespace           = "CloudTrailMetrics/APIThrottling"
+  treat_missing_data  = "notBreaching"
   alarm_actions       = [aws_sns_topic.slack_usw2["events"].arn]
 }

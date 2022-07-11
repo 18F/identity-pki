@@ -49,20 +49,20 @@ resource "aws_cloudwatch_metric_alarm" "generic_alarm" {
   }
 }
 
-data "aws_s3_bucket_object" "newrelic_apikey" {
+data "aws_s3_object" "newrelic_apikey" {
   bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
   key    = "common/newrelic_apikey"
 }
 
-data "aws_s3_bucket_object" "newrelic_account_id" {
+data "aws_s3_object" "newrelic_account_id" {
   bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
   key    = "common/newrelic_account_id"
 }
 
 provider "newrelic" {
   region     = "US"
-  account_id = data.aws_s3_bucket_object.newrelic_account_id.body
-  api_key    = data.aws_s3_bucket_object.newrelic_apikey.body
+  account_id = data.aws_s3_object.newrelic_account_id.body
+  api_key    = data.aws_s3_object.newrelic_apikey.body
 }
 
 module "newrelic" {

@@ -8,4 +8,4 @@ assemble:
 	trestle author ssp-assemble --markdown dist/system-security-plans/ --output gitlab
 
 status:
-	grep -R "\- c\-" dist/system-security-plans/* | cut -d':' -f2 | sort | uniq -c
+	grep -R "\- c\-" dist/system-security-plans/* | cut -d':' -f2 | sed -E 's/^.*(c-)/\1/' | sort | uniq -c

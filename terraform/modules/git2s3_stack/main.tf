@@ -101,7 +101,7 @@ resource "aws_s3_bucket_policy" "artifact_bucket" {
   policy = data.aws_iam_policy_document.artifact_bucket.json
 }
 
-resource "aws_s3_bucket_object" "git2s3_output_bucket_name" {
+resource "aws_s3_object" "git2s3_output_bucket_name" {
   bucket       = var.artifact_bucket
   key          = "git2s3/OutputBucketName"
   content      = local.git2s3_output_bucket
@@ -109,5 +109,5 @@ resource "aws_s3_bucket_object" "git2s3_output_bucket_name" {
 }
 
 output "output_bucket" {
-  value = aws_s3_bucket_object.git2s3_output_bucket_name.key
+  value = aws_s3_object.git2s3_output_bucket_name.key
 }

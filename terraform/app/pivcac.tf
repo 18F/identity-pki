@@ -220,43 +220,62 @@ resource "aws_s3_bucket" "pivcac_cert_bucket" {
   tags = {
     Name = "login-gov-pivcac-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
   }
-  policy = data.aws_iam_policy_document.pivcac_bucket_policy.json
+}
 
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm = "AES256"
-      }
+resource "aws_s3_bucket_policy" "pivcac_cert_bucket" {
+  bucket = aws_s3_bucket.pivcac_cert_bucket.id
+  policy = data.aws_iam_policy_document.pivcac_bucket_policy.json
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "pivcac_cert_bucket" {
+  bucket = aws_s3_bucket.pivcac_cert_bucket.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
     }
   }
 }
 
 resource "aws_s3_bucket" "pivcac_public_cert_bucket" {
   bucket = "login-gov-pivcac-public-cert-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
-
   tags = {
     Name = "login-gov-pivcac-public-cert-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
   }
-  policy = data.aws_iam_policy_document.pivcac_public_cert_bucket_policy.json
+}
 
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm = "AES256"
-      }
+resource "aws_s3_bucket_versioning" "pivcac_public_cert_bucket" {
+  bucket = aws_s3_bucket.pivcac_public_cert_bucket.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "pivcac_public_cert_bucket" {
+  bucket = aws_s3_bucket.pivcac_public_cert_bucket.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
     }
   }
+}
 
-  versioning {
-    enabled = true
-  }
+resource "aws_s3_bucket_policy" "pivcac_public_cert_bucket" {
+  bucket = aws_s3_bucket.pivcac_public_cert_bucket.id
+  policy = data.aws_iam_policy_document.pivcac_public_cert_bucket_policy.json
+}
 
-  lifecycle_rule {
-    id      = "expiration"
-    enabled = true
+resource "aws_s3_bucket_lifecycle_configuration" "pivcac_public_cert_bucket" {
+  bucket = aws_s3_bucket.pivcac_public_cert_bucket.id
+
+  rule {
+    id     = "expiration"
+    status = "Enabled"
 
     noncurrent_version_expiration {
-      days = 60
+      noncurrent_days = 60
     }
 
     expiration {

@@ -1,7 +1,8 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
+  - c-in-parent-ssp
 ---
 
 # au-6.1 - \[catalog\] Process Integration
@@ -33,6 +34,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control au-6.1
+See parent SSP.
 
 ______________________________________________________________________
