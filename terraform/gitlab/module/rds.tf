@@ -18,7 +18,7 @@ resource "aws_db_instance" "gitlab" {
   storage_encrypted       = true
   storage_type            = var.rds_storage_type_gitlab
   iops                    = var.rds_iops_gitlab
-  name                    = "gitlabhq_production"
+  db_name                    = "gitlabhq_production"
 
   # we want to push these via Terraform now
   auto_minor_version_upgrade  = true
@@ -102,7 +102,7 @@ resource "aws_subnet" "db2" {
   vpc_id = aws_vpc.default.id
 }
 
-resource "aws_s3_bucket_object" "gitlab_db_host" {
+resource "aws_s3_object" "gitlab_db_host" {
   bucket  = data.aws_s3_bucket.secrets.id
   key     = "${var.env_name}/gitlab_db_host"
   content = aws_db_instance.gitlab.address

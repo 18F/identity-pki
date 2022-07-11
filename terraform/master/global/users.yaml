@@ -38,6 +38,13 @@ users:
     - aduth
     gitlab_groups:
     - appdev
+  anthony.barbara:
+    aws_groups:
+    - secopsnonprod
+    ec2_username:
+    - abarbara
+    gitlab_groups:
+    - devops
   benjamin.chait:
     aws_groups:
     - analytics
@@ -83,6 +90,20 @@ users:
     - pm
     git_username:
     - lizzieamanning
+  eric.gade:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - egade
+    gitlab_groups:
+    - appdev
+  gene.angelo:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - gangelo
+    gitlab_groups:
+    - appdev
   goutham.kommanaboyina:
     aws_groups:
     - analytics
@@ -101,6 +122,8 @@ users:
   jack.cody:
     aws_groups:
     - apponcall
+    ec2_username:
+    - jcody
     gitlab_groups:
     - appdev
   jeffrey.holden:
@@ -119,6 +142,13 @@ users:
     - apponcall
     ec2_username:
     - jmdembe
+    gitlab_groups:
+    - appdev
+  john.skinner:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - jskinner
     gitlab_groups:
     - appdev
   jonathan.hooper:
@@ -165,6 +195,13 @@ users:
     - devops
     git_username:
     - kenk667
+  kimball.bighorse:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - kbighorse
+    gitlab_groups:
+    - appdev
   lalitha.jonnalagadda:
     aws_groups:
     - analytics
@@ -172,9 +209,13 @@ users:
     - pm
     git_username:
     - lalitha-jonnalagadda
-  logan.mcdonald:
+  luis.matos:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - lmatos
     gitlab_groups:
-    - devops
+    - appdev
   malick.diarra:
     aws_groups:
     - apponcall
@@ -189,6 +230,20 @@ users:
     - appdev
     ec2_username:
     - mshah
+  matt.hinz:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - mhinz
+    gitlab_groups:
+    - appdev
+  matthew.wagner:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - mwagner
+    gitlab_groups:
+    - appdev
   melissa.miller:
     aws_groups:
     - appdev
@@ -237,9 +292,16 @@ users:
     - mzia
     gitlab_groups:
     - devops
+  nadia.bilal:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - antifraud
   nadya.primak:
     aws_groups:
     - apponcall
+    ec2_username:
+    - nprimak
     gitlab_groups:
     - appdev
   natasha.ibrahim:
@@ -255,6 +317,8 @@ users:
   nicholas.willey:
     aws_groups:
     - secopsnonprod
+    ec2_username:
+    - nwilley
     gitlab_groups:
     - devops
   olayemisi.ogunshina:
@@ -297,9 +361,21 @@ users:
     - devops
     git_username:
     - pauldoomgov
+    email:
+    - paul.hirsch@gsa.gov
+  philip.burke:
+    gitlab_groups:
+    - antifraud
   rahul.kamarouthu:
     aws_groups:
     - analytics
+  richard.wolfe:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - rwolfe
+    gitlab_groups:
+    - appdev
   russel.ngamboassongmo:
     aws_groups:
     - supporteng
@@ -312,16 +388,28 @@ users:
     - ryandbrown
     gitlab_groups:
     - devops
-  samuel.steiner:
+  ryan.orear:
     aws_groups:
-    - appdev
-    ec2_username:
-    - ssteiner
+    - analytics
     gitlab_groups:
-    - appdev
+    - antifraud
   sean.porter:
     gitlab_groups:
     - pm
+  shanice.musiitwa:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - smusiitwa
+    gitlab_groups:
+    - appdev
+  shannon.alexander-navarro:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - svalexander
+    gitlab_groups:
+    - appdev
   sheldon.bachstein:
     aws_groups:
     - appdev
@@ -365,6 +453,13 @@ users:
     - analytics
     gitlab_groups:
     - pm
+  timothy.bradley:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - tbradley
+    gitlab_groups:
+    - appdev
   timothy.spencer:
     aws_groups:
     - devops
@@ -407,6 +502,8 @@ users:
     can_create_group:
     - true
 groups:
+  antifraud:
+    description: Fraud Investigations
   appdev:
     description: Application Developers
   devops:

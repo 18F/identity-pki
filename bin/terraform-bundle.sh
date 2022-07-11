@@ -14,8 +14,7 @@ Terraform binary (compiled from the repo) and the plugins in the repo-wide lockf
 then copies them up into the auto-tf bucket for use by CodeBuild in doing its
 auto-tf stuff.
 
-- Requires login-tooling access.
-- Invokes aws-vault itself, so you don't have to!
+- Requires login-tooling access; best run via aws-vault.
 - Designed to be run without arguments.
 EOM
   usage
@@ -37,7 +36,6 @@ EOM
 
 verify_root_repo
 
-ACCT_NUMBER=$(aws sts get-caller-identity --query "Account" --output text)
 TF_VERSION=$(get_terraform_version)
 REAL_TF_VERSION="${TF_VERSION:1}"
 KEEP_BUILD_DIR=0
@@ -53,6 +51,12 @@ do
   esac
 done
 shift $((OPTIND-1))
+
+if [[ ! $(env | grep 'AWS_VAULT=') ]] || [[ ! "${AWS_VAULT}" =~ 'tooling' ]] ; then
+  raise 'Must be run with a login-tooling AWS profile/assumed role!'
+fi
+
+ACCT_NUMBER=$(aws sts get-caller-identity --query "Account" --output text)
 
 echo_green "Using Terraform ${TF_VERSION}"
 

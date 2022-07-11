@@ -96,7 +96,7 @@ resource "aws_route53_record" "app_external" {
 }
 
 resource "aws_route53_record" "c_dash" {
-  count   = var.apps_enabled == 1 ? 1 : 0
+  count   = var.apps_enabled
   name    = "dashboard.${var.env_name}.${var.root_domain}"
   records = ["app.${var.env_name}.${var.root_domain}"]
   ttl     = "300"
@@ -150,40 +150,65 @@ resource "aws_route53_record" "postgres" {
 }
 
 # S3 bucket for partners to upload and serve logos
+# Conditionally create this bucket only if enable_partner_logos_bucket is set to true
 resource "aws_s3_bucket" "partner_logos_bucket" {
-  # Conditionally create this bucket only if enable_partner_logos_bucket is set to true
-  count = var.apps_enabled
-
+  count  = var.apps_enabled
   bucket = "login-gov-partner-logos-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
-  acl    = "public-read"
-
-  logging {
-    target_bucket = "login-gov.s3-access-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
-    target_prefix = "login-gov-partner-logos-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}/"
-  }
-
   tags = {
     Name = "login-gov-partner-logos-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
   }
+}
 
-  website {
-    index_document = "index.html"
-    error_document = "error.html"
+resource "aws_s3_bucket_versioning" "partner_logos_bucket" {
+  count  = var.apps_enabled
+  bucket = aws_s3_bucket.partner_logos_bucket[count.index].id
+
+  versioning_configuration {
+    status = "Enabled"
   }
+}
 
-  policy = data.aws_iam_policy_document.partner_logos_bucket_policy.json
+resource "aws_s3_bucket_acl" "partner_logos_bucket" {
+  count  = var.apps_enabled
+  bucket = aws_s3_bucket.partner_logos_bucket[count.index].id
+  acl    = "public-read"
+}
 
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm = "AES256"
-      }
+resource "aws_s3_bucket_website_configuration" "partner_logos_bucket" {
+  count  = var.apps_enabled
+  bucket = aws_s3_bucket.partner_logos_bucket[count.index].id
+
+  index_document {
+    suffix = "index.html"
+  }
+  error_document {
+    key = "error.html"
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "partner_logos_bucket" {
+  count  = var.apps_enabled
+  bucket = aws_s3_bucket.partner_logos_bucket[count.index].id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
     }
   }
+}
 
-  versioning {
-    enabled = true
-  }
+resource "aws_s3_bucket_policy" "partner_logos_bucket" {
+  count  = var.apps_enabled
+  bucket = aws_s3_bucket.partner_logos_bucket[count.index].id
+  policy = data.aws_iam_policy_document.partner_logos_bucket_policy.json
+}
+
+resource "aws_s3_bucket_logging" "partner_logos_bucket" {
+  count  = var.apps_enabled
+  bucket = aws_s3_bucket.partner_logos_bucket[count.index].id
+
+  target_bucket = "login-gov.s3-access-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+  target_prefix = "login-gov-partner-logos-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}/"
 }
 
 data "aws_iam_policy_document" "partner_logos_bucket_policy" {
@@ -220,7 +245,7 @@ module "partner_logos_bucket_config" {
   source = "github.com/18F/identity-terraform//s3_config?ref=a6261020a94b77b08eedf92a068832f21723f7a2"
   #source = "../../../identity-terraform/s3_config"
 
-  bucket_name_override = aws_s3_bucket.partner_logos_bucket[0].id
+  bucket_name_override = aws_s3_bucket.partner_logos_bucket[count.index].id
   region               = var.region
   inventory_bucket_arn = local.inventory_bucket_arn
   block_public_access  = false

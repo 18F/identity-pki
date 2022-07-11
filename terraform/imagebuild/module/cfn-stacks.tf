@@ -1,6 +1,6 @@
 data "aws_iam_account_alias" "current" {}
 
-data "aws_s3_bucket_object" "git2s3_output_bucket" {
+data "aws_s3_object" "git2s3_output_bucket" {
   bucket = var.artifact_bucket
   key    = "git2s3/OutputBucketName"
 }
@@ -12,7 +12,7 @@ data "aws_eip" "nat_eip" {
 
 locals {
   aws_alias     = trimprefix(data.aws_iam_account_alias.current.account_alias, "login-")
-  git2s3_bucket = trimspace(data.aws_s3_bucket_object.git2s3_output_bucket.body)
+  git2s3_bucket = trimspace(data.aws_s3_object.git2s3_output_bucket.body)
 }
 
 resource "aws_cloudformation_stack" "image_network_stack" {

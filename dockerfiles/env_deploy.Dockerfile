@@ -16,17 +16,12 @@ RUN curl -s "https://releases.hashicorp.com/terraform/${TF_VERSION}/terraform_${
 
 # prepare to install provider plugins here
 RUN mkdir /terraform-bundle
-COPY versions.tf versions.tf.old* /terraform-bundle
+COPY versions.tf /terraform-bundle
+COPY versions.tf.old* /terraform-bundle
 
-# install current provider plugins
+# install provider plugins
 RUN cd /terraform-bundle && \
-	terraform init && \
-	terraform providers mirror -platform=linux_amd64 ./plugins && \
-	rm -rf .terraform .terraform.lock.hcl
-
-# install old provider plugins
-RUN cd /terraform-bundle && \
-	for i in versions.tf.old* ; do \
+	for i in versions.tf versions.tf.old* ; do \
 		mv "$i" versions.tf ; \
 		terraform init ; \
 		terraform providers mirror -platform=linux_amd64 ./plugins ; \

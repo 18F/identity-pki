@@ -7,32 +7,48 @@ locals {
 
 resource "aws_s3_bucket" "secrets" {
   bucket        = var.bucket_name
-  acl           = "private"
   force_destroy = var.force_destroy
-
-  policy = var.policy
 
   tags = {
     Name        = var.bucket_name_prefix
     Environment = "All"
   }
+}
 
-  versioning {
-    enabled = true
+resource "aws_s3_bucket_acl" "secrets" {
+  bucket = aws_s3_bucket.secrets.id
+  acl    = "private"
+}
+
+resource "aws_s3_bucket_versioning" "secrets" {
+  bucket = aws_s3_bucket.secrets.id
+
+  versioning_configuration {
+    status = "Enabled"
   }
+}
 
-  logging {
-    target_bucket = var.logs_bucket
-    target_prefix = "${var.bucket_name}/"
-  }
+resource "aws_s3_bucket_server_side_encryption_configuration" "secrets" {
+  bucket = aws_s3_bucket.secrets.id
 
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm = var.sse_algorithm
-      }
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = var.sse_algorithm
     }
   }
+}
+
+resource "aws_s3_bucket_policy" "secrets" {
+  count  = var.policy == "" ? 0 : 1
+  bucket = aws_s3_bucket.secrets.id
+  policy = var.policy
+}
+
+resource "aws_s3_bucket_logging" "secrets" {
+  bucket = aws_s3_bucket.secrets.id
+
+  target_bucket = var.logs_bucket
+  target_prefix = "${var.bucket_name}/"
 }
 
 module "secrets_bucket_config" {

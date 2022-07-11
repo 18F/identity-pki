@@ -26,22 +26,3 @@ output "jumphost-lb" {
   value = aws_route53_record.jumphost-elb-public.name
 }
 
-output "tlstest-cloudfront-domain" {
-  value = element(
-    concat(
-      aws_cloudfront_distribution.tls_profiling.*.domain_name,
-      [""],
-    ),
-    0,
-  )
-}
-
-output "snitest-cloudfront-domain" {
-  value = element(
-    concat(
-      aws_cloudfront_distribution.sni_profiling.*.domain_name,
-      [""],
-    ),
-    0,
-  )
-}

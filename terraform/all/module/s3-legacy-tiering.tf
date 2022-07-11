@@ -6,29 +6,37 @@ resource "aws_s3_bucket" "legacy_bucket" {
   for_each = toset(var.legacy_bucket_list)
 
   bucket = each.key
-  lifecycle_rule {
-    id      = "IntelligentTieringArchive"
-    enabled = true
+  tags = {
+    Name   = each.key
+    Status = "ITArchive"
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "legacy_bucket" {
+  for_each = toset(var.legacy_bucket_list)
+  bucket   = each.key
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "legacy_bucket" {
+  for_each = toset(var.legacy_bucket_list)
+  bucket   = each.key
+
+  rule {
+    id     = "IntelligentTieringArchive"
+    status = "Enabled"
     transition {
       storage_class = "INTELLIGENT_TIERING"
       days          = 0
     }
     noncurrent_version_transition {
-      storage_class = "INTELLIGENT_TIERING"
-      days          = 0
-    }
-  }
-
-  tags = {
-    Name   = each.key
-    Status = "ITArchive"
-  }
-
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm = "AES256"
-      }
+      storage_class   = "INTELLIGENT_TIERING"
+      noncurrent_days = 0
     }
   }
 }

@@ -1,7 +1,6 @@
 provider "aws" {
   region              = "us-west-2"
   allowed_account_ids = ["217680906704"] # require login-tooling-prod
-  profile             = "login-tooling-prod"
 }
 
 # Stub remote config
@@ -22,6 +21,7 @@ module "main" {
   default_ami_id_tooling          = "ami-0c96631d6b27c5d6d" # 2022-05-18 base-20220518070420 Ubuntu 18.04
   route53_id                      = "Z07730471OKZ5T4V8NB2M"
   asg_gitlab_test_runner_desired  = 15
+  asg_gitlab_build_runner_desired = 2
   destination_artifact_accounts   = ["894947205914"] # login-sandbox
   destination_idp_static_accounts = ["894947205914"] # login-sandbox
   production                      = true

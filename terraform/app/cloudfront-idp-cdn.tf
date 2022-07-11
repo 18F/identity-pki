@@ -56,7 +56,7 @@ resource "aws_cloudfront_distribution" "idp_static_cdn" {
   viewer_certificate {
     acm_certificate_arn = module.acm-cert-idp-static-cdn[0].cert_arn
     # TLS version should align with idp-alg setting
-    minimum_protocol_version = "TLSv1"
+    minimum_protocol_version = "TLSv1.2_2018"
     ssl_support_method       = "sni-only"
   }
 

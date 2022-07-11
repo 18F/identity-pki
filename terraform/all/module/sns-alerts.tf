@@ -159,6 +159,8 @@ module "slack_lambda_usw2" {
   slack_username              = var.slack_username
   slack_icon                  = var.slack_icon
   slack_topic_arn             = aws_sns_topic.slack_usw2[each.key].arn
+
+  depends_on = [aws_sns_topic.slack_usw2]
 }
 
 module "opsgenie_sns" {
@@ -249,4 +251,6 @@ module "slack_lambda_use1" {
   slack_username              = var.slack_username
   slack_icon                  = var.slack_icon
   slack_topic_arn             = aws_sns_topic.slack_use1[each.key].arn
+
+  depends_on = [aws_sns_topic.slack_use1]
 }

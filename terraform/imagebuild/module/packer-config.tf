@@ -1,4 +1,4 @@
-resource "aws_s3_bucket_object" "packer_config" {
+resource "aws_s3_object" "packer_config" {
   for_each = toset(var.ami_types)
 
   bucket       = var.artifact_bucket

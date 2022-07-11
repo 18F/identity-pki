@@ -1,7 +1,6 @@
 provider "aws" {
   region              = "us-west-2"
   allowed_account_ids = ["217680906704"] # require login-tooling-prod
-  profile             = "login-tooling-prod"
 }
 
 # Stub remote config
@@ -26,7 +25,7 @@ module "repos" {
   for_each = local.repos
   source   = "../module-ecr-repo"
 
-  readonly_accountids = ["217680906704", "555546682965"]
+  readonly_accountids = ["555546682965", "894947205914"] # prod and sandbox
   prod_accountid      = "555546682965"
   ecr_repo_name       = each.value.name
   encryption_type     = "AES256"

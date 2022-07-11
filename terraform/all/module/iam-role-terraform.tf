@@ -527,11 +527,13 @@ locals {
           "elasticloadbalancing:DescribeTags",
           "elasticloadbalancing:DescribeTargetGroupAttributes",
           "elasticloadbalancing:DescribeTargetGroups",
+          "elasticloadbalancing:DescribeTargetHealth",
           "elasticloadbalancing:ModifyListener",
           "elasticloadbalancing:ModifyLoadBalancerAttributes",
           "elasticloadbalancing:ModifyRule",
           "elasticloadbalancing:ModifyTargetGroup",
           "elasticloadbalancing:ModifyTargetGroupAttributes",
+          "elasticloadbalancing:RegisterTargets",
           "elasticloadbalancing:RemoveTags",
           "elasticloadbalancing:SetRulePriorities",
           "elasticloadbalancing:SetSecurityGroups",
@@ -587,6 +589,7 @@ locals {
           "iam:AttachGroupPolicy",
           "iam:AttachRolePolicy",
           "iam:AttachUserPolicy",
+          "iam:CreateAccountAlias",
           "iam:CreateGroup",
           "iam:CreateInstanceProfile",
           "iam:CreatePolicy",
@@ -594,6 +597,7 @@ locals {
           "iam:CreateRole",
           "iam:CreateServiceLinkedRole",
           "iam:CreateUser",
+          "iam:DeleteAccountAlias",
           "iam:DeleteAccessKey",
           "iam:DeleteAccountPasswordPolicy",
           "iam:DeleteGroup",
@@ -679,6 +683,8 @@ locals {
         sid    = "SecurityHub"
         effect = "Allow"
         actions = [
+          "securityhub:DisableSecurityHub",
+          "securityhub:EnableSecurityHub",
           "securityhub:GetEnabledStandards",
         ]
         resources = [

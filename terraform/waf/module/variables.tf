@@ -158,3 +158,12 @@ variable "soc_destination_arn" {
   description = "SOC destination ARN for WAF Logs"
   default     = "arn:aws:logs:us-west-2:752281881774:destination:elp-waf-lg"
 }
+
+variable "lb_name" {
+  description = "LB on which to enforce WAF rules"
+  default     = ""
+}
+
+variable "ship_logs_to_soc" {
+  default = true
+}

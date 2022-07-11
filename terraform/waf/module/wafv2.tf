@@ -5,7 +5,8 @@ locals {
 }
 
 data "aws_lb" "idp" {
-  name = "login-idp-alb-${var.env}"
+  name = var.lb_name != "" ? var.lb_name : "login-idp-alb-${var.env}"
+
 }
 
 resource "aws_wafv2_web_acl" "idp" {

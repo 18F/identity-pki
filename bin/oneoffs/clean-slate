@@ -6,7 +6,7 @@
 
 set -eu
 
-. "$(dirname "$0")/lib/common.sh"
+. "$(dirname "$0")/../lib/common.sh"
 
 usage() {
     cat >&2 << EOM

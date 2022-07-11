@@ -5,24 +5,44 @@ resource "aws_s3_bucket" "legacy_log_bucket" {
 
   bucket        = "login-gov-${var.env_name}-logs"
   force_destroy = true
-  acl           = "log-delivery-write"
+}
 
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm = "AES256"
-      }
+resource "aws_s3_bucket_acl" "legacy_log_bucket" {
+  count  = var.keep_legacy_bucket ? 1 : 0
+  bucket = aws_s3_bucket.legacy_log_bucket[count.index].id
+  acl    = "log-delivery-write"
+}
+
+resource "aws_s3_bucket_versioning" "legacy_log_bucket" {
+  count  = var.keep_legacy_bucket ? 1 : 0
+  bucket = aws_s3_bucket.legacy_log_bucket[count.index].id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "legacy_log_bucket" {
+  count  = var.keep_legacy_bucket ? 1 : 0
+  bucket = aws_s3_bucket.legacy_log_bucket[count.index].id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
     }
   }
+}
 
-  versioning {
-    enabled = true
-  }
+resource "aws_s3_bucket_lifecycle_configuration" "legacy_log_bucket" {
+  count  = var.keep_legacy_bucket ? 1 : 0
+  bucket = aws_s3_bucket.legacy_log_bucket[count.index].id
 
-  lifecycle_rule {
-    id      = "logexpire"
-    enabled = true
-    prefix  = ""
+  rule {
+    id     = "logexpire"
+    status = "Enabled"
+    filter {
+      prefix = ""
+    }
 
     transition {
       days          = 90
@@ -44,7 +64,7 @@ module "legacy_log_bucket_config" {
   count  = var.keep_legacy_bucket ? 1 : 0
   source = "github.com/18F/identity-terraform//s3_config?ref=a6261020a94b77b08eedf92a068832f21723f7a2"
 
-  bucket_name_override = aws_s3_bucket.legacy_log_bucket[0].id
+  bucket_name_override = aws_s3_bucket.legacy_log_bucket[count.index].id
   region               = var.region
   inventory_bucket_arn = local.inventory_bucket_arn
 }

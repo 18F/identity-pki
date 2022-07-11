@@ -1,7 +1,8 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
+  - c-in-parent-ssp
 ---
 
 # au-7 - \[catalog\] Audit Reduction and Report Generation
@@ -41,12 +42,12 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-Add control implementation description here for item au-7_smt.a
+See parent SSP.
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-Add control implementation description here for item au-7_smt.b
+See parent SSP.
 
 ______________________________________________________________________

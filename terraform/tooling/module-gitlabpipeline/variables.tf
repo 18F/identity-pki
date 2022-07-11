@@ -56,7 +56,7 @@ variable "account" {
 # this is a github personal access token that can be used to pull the
 # repo.  You can create it like so:  https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token
 # NOTE:  these s3 objects need to be uploaded with --content-type text/plain
-data "aws_s3_bucket_object" "identity_devops_oauthkey" {
+data "aws_s3_object" "identity_devops_oauthkey" {
   bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
   key    = "common/identity_devops_oauthkey"
 }
@@ -64,7 +64,7 @@ data "aws_s3_bucket_object" "identity_devops_oauthkey" {
 # this bundle is updated with bin/terraform-bundle.sh
 variable "tfbundle" {
   description = "name of the tfbundle that you want the system to deploy with in the auto_tf_bucket"
-  default     = "terraform_v1.1.3-bundle2022011908_linux_amd64.zip"
+  default     = "terraform_v1.2.4-bundle2022070518_linux_amd64.zip"
 }
 
 variable "events_sns_topic" {

@@ -1,5 +1,5 @@
 module "tf-state" {
-  source = "github.com/18F/identity-terraform//state_bucket?ref=a6261020a94b77b08eedf92a068832f21723f7a2"
+  source = "github.com/18F/identity-terraform//state_bucket?ref=3c8d34e9c1e58f9a7398349a63fc0b52f249f56c"
   #source = "../../../../identity-terraform/state_bucket"
 
   remote_state_enabled = 0
@@ -10,17 +10,17 @@ module "tf-state" {
 
 module "main_secrets_bucket" {
   source     = "../../modules/secrets_bucket"
-  depends_on = [module.tf-state.s3_log_bucket]
+  depends_on = [module.tf-state.s3_access_log_bucket]
 
   bucket_name_prefix  = "login-gov"
   bucket_name         = "${local.bucket_name_prefix}.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
-  logs_bucket         = "login-gov.s3-access-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+  logs_bucket         = module.tf-state.s3_access_log_bucket
   secrets_bucket_type = local.secrets_bucket_type
   region              = var.region
 }
 
-resource "aws_s3_bucket_object" "tfslackchannel" {
-  bucket       = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
+resource "aws_s3_object" "tfslackchannel" {
+  bucket       = module.main_secrets_bucket.bucket_name
   key          = "tfslackchannel"
   content      = var.tf_slack_channel
   content_type = "text/plain"

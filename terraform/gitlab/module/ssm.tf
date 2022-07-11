@@ -1,6 +1,6 @@
 # SSM Docs via module
 module "ssm" {
-  source = "github.com/18F/identity-terraform//ssm?ref=885a48f7325456e69a8820e8a30948af26e36eb4"
+  source = "github.com/18F/identity-terraform//ssm?ref=105ed397c16ebff2d97c762502ff73dcbda36ab9"
   # source = "../../../../identity-terraform/ssm"
 
   bucket_name_prefix = "login-gov"
