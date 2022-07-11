@@ -90,6 +90,13 @@ users:
     - pm
     git_username:
     - lizzieamanning
+  eric.gade:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - egade
+    gitlab_groups:
+    - appdev
   gene.angelo:
     aws_groups:
     - appdev
@@ -137,6 +144,13 @@ users:
     - jmdembe
     gitlab_groups:
     - appdev
+  john.skinner:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - jskinner
+    gitlab_groups:
+    - appdev
   jonathan.hooper:
     aws_groups:
     - apponcall
@@ -181,6 +195,13 @@ users:
     - devops
     git_username:
     - kenk667
+  kimball.bighorse:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - kbighorse
+    gitlab_groups:
+    - appdev
   lalitha.jonnalagadda:
     aws_groups:
     - analytics
@@ -209,6 +230,13 @@ users:
     - appdev
     ec2_username:
     - mshah
+  matt.hinz:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - mhinz
+    gitlab_groups:
+    - appdev
   matthew.wagner:
     aws_groups:
     - appdev
@@ -264,9 +292,16 @@ users:
     - mzia
     gitlab_groups:
     - devops
+  nadia.bilal:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - antifraud
   nadya.primak:
     aws_groups:
     - apponcall
+    ec2_username:
+    - nprimak
     gitlab_groups:
     - appdev
   natasha.ibrahim:
@@ -282,6 +317,8 @@ users:
   nicholas.willey:
     aws_groups:
     - secopsnonprod
+    ec2_username:
+    - nwilley
     gitlab_groups:
     - devops
   olayemisi.ogunshina:
@@ -326,9 +363,19 @@ users:
     - pauldoomgov
     email:
     - paul.hirsch@gsa.gov
+  philip.burke:
+    gitlab_groups:
+    - antifraud
   rahul.kamarouthu:
     aws_groups:
     - analytics
+  richard.wolfe:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - rwolfe
+    gitlab_groups:
+    - appdev
   russel.ngamboassongmo:
     aws_groups:
     - supporteng
@@ -341,9 +388,21 @@ users:
     - ryandbrown
     gitlab_groups:
     - devops
+  ryan.orear:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - antifraud
   sean.porter:
     gitlab_groups:
     - pm
+  shanice.musiitwa:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - smusiitwa
+    gitlab_groups:
+    - appdev
   shannon.alexander-navarro:
     aws_groups:
     - appdev
@@ -443,6 +502,8 @@ users:
     can_create_group:
     - true
 groups:
+  antifraud:
+    description: Fraud Investigations
   appdev:
     description: Application Developers
   devops:
