@@ -19,10 +19,17 @@ resource "aws_lb" "gitlab" {
   }
 }
 
+# If we want to use WAF rules, ensure we have a WAF ACL
+data "aws_wafv2_web_acl" "alb-acl" {
+  count = var.use_waf_rules ? 1 : 0
+  name  = "${aws_lb.gitlab-waf.name}-waf"
+  scope = "REGIONAL"
+}
+
 resource "aws_lb" "gitlab-waf" {
   name = "${var.env_name}-gitlab-waf"
   security_groups = [
-    aws_security_group.waf_lb.id,
+    aws_security_group.waf_alb.id,
     aws_security_group.base.id,
   ]
   internal = true

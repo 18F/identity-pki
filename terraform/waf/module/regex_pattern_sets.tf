@@ -51,3 +51,21 @@ resource "aws_wafv2_regex_pattern_set" "query_string_blocks" {
     environment = var.env
   }
 }
+
+resource "aws_wafv2_regex_pattern_set" "restricted_paths" {
+  count       = length(var.restricted_paths) > 0 ? 1 : 0
+  name        = "${var.env}-gitlab-restricted-paths"
+  description = "Regex patterns of Gitlab paths to restrict to VPN and VPC"
+  scope       = "REGIONAL"
+
+  dynamic "regular_expression" {
+    for_each = toset(var.restricted_paths)
+    content {
+      regex_string = regular_expression.value
+    }
+  }
+
+  tags = {
+    environment = var.env
+  }
+}

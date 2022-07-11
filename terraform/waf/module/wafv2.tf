@@ -4,12 +4,72 @@ locals {
   }
 }
 
-data "aws_lb" "idp" {
+data "aws_lb" "alb" {
   name = var.lb_name != "" ? var.lb_name : "login-idp-alb-${var.env}"
+}
+
+# Rule to restrict access to certain paths (e.g. /admin, /api) to a set of
+# privileged IPs (e.g. VPC, VPN)
+resource "aws_wafv2_rule_group" "restricted_paths" {
+  count       = length(var.privileged_ips) > 0 ? 1 : 0
+  name        = "${var.env}-${var.lb_name}-restricted-paths"
+  description = "Rule to restrict certain paths to privileged IPs"
+  scope       = "REGIONAL"
+  capacity    = 36 # Sum of WCU costs below
+
+  rule {
+    name     = "RestrictPaths"
+    priority = 1
+    action {
+      block {}
+    }
+    statement {
+      and_statement {
+        statement {
+          not_statement {
+            statement {
+              ip_set_reference_statement { # 1 WCU
+                arn = aws_wafv2_ip_set.privileged_ips[0].arn
+              }
+            }
+          }
+        }
+        statement {
+          regex_pattern_set_reference_statement { # 25 WCU
+            arn = aws_wafv2_regex_pattern_set.restricted_paths[0].arn
+            field_to_match {
+              uri_path {}
+            }
+            text_transformation { # 10 WCU
+              priority = 0
+              type     = "LOWERCASE"
+            }
+          }
+        }
+      }
+    }
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "${var.env}-gitlab-restricted-paths-GitlabRestrictPaths-metric"
+      sampled_requests_enabled   = true
+    }
+  }
+
+  visibility_config {
+    cloudwatch_metrics_enabled = true
+    metric_name                = "${var.env}-gitlab-restricted-paths-metric"
+    sampled_requests_enabled   = true
+  }
 
 }
 
-resource "aws_wafv2_web_acl" "idp" {
+moved {
+  from = aws_wafv2_web_acl.idp
+  to = aws_wafv2_web_acl.alb
+}
+
+# Highest used priority: 10
+resource "aws_wafv2_web_acl" "alb" {
   name        = local.web_acl_name
   description = "ACL for ${local.web_acl_name}"
   scope       = "REGIONAL"
@@ -439,6 +499,28 @@ resource "aws_wafv2_web_acl" "idp" {
       }
     }
   }
+
+  dynamic "rule" {
+    for_each = length(var.privileged_ips) > 0 ? [1] : []
+    content {
+      name = "RestrictPaths"
+      priority = 10
+      override_action {
+        none {}
+      }
+      statement {
+        rule_group_reference_statement {
+          arn = aws_wafv2_rule_group.restricted_paths[0].arn
+        }
+      }
+      visibility_config {
+        cloudwatch_metrics_enabled = true
+        metric_name                = "${local.web_acl_name}-RestrictPaths-metric"
+        sampled_requests_enabled   = true
+      }
+    }
+  }
+  
   visibility_config {
     cloudwatch_metrics_enabled = true
     metric_name                = "${local.web_acl_name}-metric"
@@ -450,16 +532,26 @@ resource "aws_wafv2_web_acl" "idp" {
   }
 }
 
-resource "aws_wafv2_web_acl_logging_configuration" "idp" {
+moved {
+  from = aws_wafv2_web_acl_logging_configuration.idp
+  to = aws_wafv2_web_acl_logging_configuration.alb
+}
+
+resource "aws_wafv2_web_acl_logging_configuration" "alb" {
   log_destination_configs = [
     aws_cloudwatch_log_group.cw_waf_logs.arn
   ]
-  resource_arn = aws_wafv2_web_acl.idp.arn
+  resource_arn = aws_wafv2_web_acl.alb.arn
 }
 
-resource "aws_wafv2_web_acl_association" "idp" {
-  resource_arn = data.aws_lb.idp.arn
-  web_acl_arn  = aws_wafv2_web_acl.idp.arn
+moved {
+  from = aws_wafv2_web_acl_association.idp
+  to = aws_wafv2_web_acl_association.alb
+}
+
+resource "aws_wafv2_web_acl_association" "alb" {
+  resource_arn = data.aws_lb.alb.arn
+  web_acl_arn  = aws_wafv2_web_acl.alb.arn
 }
 
 resource "aws_cloudwatch_metric_alarm" "wafv2_blocked_alert" {
