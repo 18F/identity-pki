@@ -144,11 +144,14 @@ resource "aws_autoscaling_group" "outboundproxy" {
     create_before_destroy = true
   }
 
-  vpc_zone_identifier = concat([
+  vpc_zone_identifier = [
     aws_subnet.publicsubnet1.id,
     aws_subnet.publicsubnet2.id,
     aws_subnet.publicsubnet3.id,
-  ], [for subnet in aws_subnet.app : subnet.id])
+    aws_subnet.app["a"],
+    aws_subnet.app["b"],
+    aws_subnet.app["c"]
+  ]
 
   target_group_arns = [aws_lb_target_group.obproxy.arn]
 
