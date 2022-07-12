@@ -55,15 +55,3 @@ initialize() {
   AWS_REGION=$(cat "${PRIVATE_REPO}/env/account_global_${AWS_ACCT_NUM}.sh" |
     grep -m 1 TERRAFORM_STATE_BUCKET_REGION | awk -F'"' '{print $2}')
 }
-
-run_tasks() {
-  echo
-  [[ -z ${TODO-} ]] && TODO+=("${TASKS[@]}")
-  TODO=($(printf '%s\n' "${TODO[@]}"|sort -u))
-  for TASK in "${TODO[@]}" ; do
-    echo_green "Executing task '${TASK}'..."
-    eval ${TASK}
-    echo_green "Task completed successfully."
-    echo
-  done
-}

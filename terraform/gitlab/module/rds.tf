@@ -18,7 +18,7 @@ resource "aws_db_instance" "gitlab" {
   storage_encrypted       = true
   storage_type            = var.rds_storage_type_gitlab
   iops                    = var.rds_iops_gitlab
-  db_name                    = "gitlabhq_production"
+  db_name                 = "gitlabhq_production"
 
   # we want to push these via Terraform now
   auto_minor_version_upgrade  = true

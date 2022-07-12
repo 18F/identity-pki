@@ -19,7 +19,9 @@ ave() {
       echo -ne '\033[m'
     fi
   fi
-  if [[ ! -z ${AWS_VAULT:-} ]] && [[ ${SHLVL} -gt 1 ]] ; then
+  if [[ ! -z ${AWS_PROFILE:-} ]] ; then
+    "${run_me[@]}"
+  elif [[ ! -z ${AWS_VAULT:-} ]] && [[ ${SHLVL} -gt 1 ]] ; then
     "${run_me[@]}"
   else
     aws-vault exec ${AV_PROFILE} -- "${run_me[@]}"
@@ -586,4 +588,29 @@ boto3_check() {
   else
     echo_cyan "pip binary found + boto3 library installed."
   fi
+}
+
+#### given $TASKS which contains a set of functions to run,
+#### echo_green each one and then run it
+run_tasks() {
+  echo
+  [[ -z ${TODO-} ]] && TODO+=("${TASKS[@]}")
+  TODO=($(printf '%s\n' "${TODO[@]}"|sort -u))
+  for TASK in "${TODO[@]}" ; do
+    echo_green "Executing task '${TASK}'..."
+    eval ${TASK}
+    echo_green "Task completed successfully."
+    echo
+  done
+}
+
+#### empty bucket including all versions of all objects
+empty_bucket_with_versions() {
+  local BUCKET_TO_EMPTY=${1}
+  ave aws s3 rm s3://${BUCKET_TO_EMPTY} --recursive
+  ave python -c "import boto3 ;\
+    session = boto3.Session() ;\
+    s3 = session.resource(service_name='s3') ;\
+    bucket = s3.Bucket('${BUCKET_TO_EMPTY}') ;\
+    bucket.object_versions.delete()"
 }

@@ -133,12 +133,7 @@ replace_db_files() {
 4_empty_buckets() {
   boto3_check
   for BUCKET in $(ave aws s3 ls |grep ${TF_ENV} | awk '{print $NF}' | sort -r); do
-    ave aws s3 rm s3://${BUCKET} --recursive
-    ave python -c "import boto3 ;\
-      session = boto3.Session() ;\
-      s3 = session.resource(service_name='s3') ;\
-      bucket = s3.Bucket('${BUCKET}') ;\
-      bucket.object_versions.delete()"
+    empty_bucket_with_versions ${BUCKET}
   done
 }
 
