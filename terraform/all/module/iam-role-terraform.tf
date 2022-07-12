@@ -778,6 +778,7 @@ locals {
           "wafv2:GetWebACL",
           "wafv2:GetWebACLForResource",
           "wafv2:ListTagsForResource",
+          "wafv2:ListWebACLs",
           "wafv2:PutLoggingConfiguration",
           "wafv2:TagResource",
           "wafv2:UntagResource",
