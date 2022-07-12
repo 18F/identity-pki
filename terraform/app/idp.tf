@@ -84,8 +84,6 @@ resource "aws_db_instance" "idp-read-replica" {
     description = "Read replica of idp database"
   }
 
-  engine               = var.rds_engine
-  engine_version       = var.rds_engine_version_replica
   instance_class       = var.rds_instance_class_replica
   parameter_group_name = module.idp_rds_usw2.rds_parameter_group_name
 
@@ -97,7 +95,6 @@ resource "aws_db_instance" "idp-read-replica" {
 
   maintenance_window = var.rds_maintenance_window
   storage_encrypted  = true
-  username           = var.rds_username
   storage_type       = var.rds_storage_type_idp_replica
   allocated_storage  = var.rds_storage_idp_replica
   iops               = var.rds_iops_idp_replica
