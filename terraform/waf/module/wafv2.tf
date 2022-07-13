@@ -8,67 +8,11 @@ data "aws_lb" "alb" {
   name = var.lb_name != "" ? var.lb_name : "login-idp-alb-${var.env}"
 }
 
-# Rule to restrict access to certain paths (e.g. /admin, /api) to a set of
-# privileged IPs (e.g. VPC, VPN)
-resource "aws_wafv2_rule_group" "restricted_paths" {
-  count       = length(var.privileged_ips) > 0 ? 1 : 0
-  name        = "${var.env}-${var.lb_name}-restricted-paths"
-  description = "Rule to restrict certain paths to privileged IPs"
-  scope       = "REGIONAL"
-  capacity    = 36 # Sum of WCU costs below
-
-  rule {
-    name     = "RestrictPaths"
-    priority = 1
-    action {
-      block {}
-    }
-    statement {
-      and_statement {
-        statement {
-          not_statement {
-            statement {
-              ip_set_reference_statement { # 1 WCU
-                arn = aws_wafv2_ip_set.privileged_ips[0].arn
-              }
-            }
-          }
-        }
-        statement {
-          regex_pattern_set_reference_statement { # 25 WCU
-            arn = aws_wafv2_regex_pattern_set.restricted_paths[0].arn
-            field_to_match {
-              uri_path {}
-            }
-            text_transformation { # 10 WCU
-              priority = 0
-              type     = "LOWERCASE"
-            }
-          }
-        }
-      }
-    }
-    visibility_config {
-      cloudwatch_metrics_enabled = true
-      metric_name                = "${var.env}-gitlab-restricted-paths-GitlabRestrictPaths-metric"
-      sampled_requests_enabled   = true
-    }
-  }
-
-  visibility_config {
-    cloudwatch_metrics_enabled = true
-    metric_name                = "${var.env}-gitlab-restricted-paths-metric"
-    sampled_requests_enabled   = true
-  }
-
-}
-
 moved {
   from = aws_wafv2_web_acl.idp
   to = aws_wafv2_web_acl.alb
 }
 
-# Highest used priority: 10
 resource "aws_wafv2_web_acl" "alb" {
   name        = local.web_acl_name
   description = "ACL for ${local.web_acl_name}"
@@ -78,9 +22,31 @@ resource "aws_wafv2_web_acl" "alb" {
     allow {}
   }
 
+  # Only this rule has the 'allow' action, short-circuiting the other rules.
+  dynamic "rule" {
+    for_each = length(var.privileged_ips) > 0 ? [1] : []
+    content {
+      name = "AllowPrivilegedIPs"
+      priority = 50
+      action {
+        allow {}
+      }
+      statement {
+        ip_set_reference_statement {
+          arn = aws_wafv2_ip_set.privileged_ips[0].arn
+        }
+      }
+      visibility_config {
+        cloudwatch_metrics_enabled = true
+        metric_name                = "${local.web_acl_name}-PrivilegedIPs-metric"
+        sampled_requests_enabled   = true
+      }
+    }
+  }
+
   rule {
     name     = "IdpBlockIpAddresses"
-    priority = 1
+    priority = 100
 
     action {
       dynamic "block" {
@@ -109,7 +75,7 @@ resource "aws_wafv2_web_acl" "alb" {
 
   rule {
     name     = "AWSManagedRulesAmazonIpReputationList"
-    priority = 2
+    priority = 200
 
     override_action {
       dynamic "none" {
@@ -147,7 +113,7 @@ resource "aws_wafv2_web_acl" "alb" {
 
   rule {
     name     = "AWSManagedRulesCommonRuleSet"
-    priority = 3
+    priority = 300
 
     override_action {
       dynamic "none" {
@@ -185,7 +151,7 @@ resource "aws_wafv2_web_acl" "alb" {
 
   rule {
     name     = "AWSManagedRulesKnownBadInputsRuleSet"
-    priority = 4
+    priority = 400
 
     override_action {
       dynamic "none" {
@@ -223,7 +189,7 @@ resource "aws_wafv2_web_acl" "alb" {
 
   rule {
     name     = "AWSManagedRulesLinuxRuleSet"
-    priority = 5
+    priority = 500
 
     override_action {
       dynamic "none" {
@@ -261,7 +227,7 @@ resource "aws_wafv2_web_acl" "alb" {
 
   rule {
     name     = "AWSManagedRulesSQLiRuleSet"
-    priority = 6
+    priority = 600
 
     override_action {
       dynamic "none" {
@@ -319,7 +285,7 @@ resource "aws_wafv2_web_acl" "alb" {
 
   rule {
     name     = "IdpOtpSendRateLimited"
-    priority = 7
+    priority = 700
 
     action {
       dynamic "block" {
@@ -381,7 +347,7 @@ resource "aws_wafv2_web_acl" "alb" {
     for_each = length(var.header_block_regex) >= 1 ? [1] : []
     content {
       name     = "IdpHeaderRegexBlock"
-      priority = 8
+      priority = 800
 
       action {
         dynamic "block" {
@@ -431,7 +397,7 @@ resource "aws_wafv2_web_acl" "alb" {
     for_each = length(var.query_block_regex) >= 1 ? [1] : []
     content {
       name     = "IdpQueryRegexBlock"
-      priority = 9
+      priority = 900
 
       action {
         dynamic "block" {
@@ -471,7 +437,7 @@ resource "aws_wafv2_web_acl" "alb" {
     for_each = length(var.geo_block_list) >= 1 ? [1] : []
     content {
       name     = "GeoBlockRegion"
-      priority = 0
+      priority = 1000
 
       action {
         dynamic "block" {
@@ -501,21 +467,28 @@ resource "aws_wafv2_web_acl" "alb" {
   }
 
   dynamic "rule" {
-    for_each = length(var.privileged_ips) > 0 ? [1] : []
+    for_each = length(var.restricted_paths) > 0 ? [1] : []
     content {
-      name = "RestrictPaths"
-      priority = 10
-      override_action {
-        none {}
+      name = "BlockPaths"
+      priority = 1100
+      action {
+        block {}
       }
       statement {
-        rule_group_reference_statement {
-          arn = aws_wafv2_rule_group.restricted_paths[0].arn
+        regex_pattern_set_reference_statement {
+          arn = aws_wafv2_regex_pattern_set.restricted_paths[0].arn
+          field_to_match {
+            uri_path {}
+          }
+          text_transformation {
+            priority = 0
+            type     = "LOWERCASE"
+          }
         }
       }
       visibility_config {
         cloudwatch_metrics_enabled = true
-        metric_name                = "${local.web_acl_name}-RestrictPaths-metric"
+        metric_name                = "${var.env}-gitlab-restricted-paths-GitlabBlockPaths-metric"
         sampled_requests_enabled   = true
       }
     }
