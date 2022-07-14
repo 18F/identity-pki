@@ -493,6 +493,34 @@ resource "aws_wafv2_web_acl" "alb" {
       }
     }
   }
+
+  dynamic "rule" {
+    for_each = length(var.geo_allow_list) >= 1 ? [1] : []
+    content {
+      name     = "GeoAllowRegion"
+      priority = 1200
+
+      action {
+        block {}
+      }
+
+      statement {
+        not_statement {
+          statement {
+            geo_match_statement {
+              country_codes = var.geo_allow_list
+            }
+          }
+        }
+      }
+
+      visibility_config {
+        cloudwatch_metrics_enabled = true
+        metric_name                = "${local.web_acl_name}-GeoAllowRegion-metric"
+        sampled_requests_enabled   = true
+      }
+    }
+  }
   
   visibility_config {
     cloudwatch_metrics_enabled = true

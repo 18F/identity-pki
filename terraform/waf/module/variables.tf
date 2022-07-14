@@ -175,3 +175,7 @@ variable "restricted_paths" {
 variable "privileged_ips" {
   default = []
 }
+
+variable "geo_allow_list" {
+  default = []
+}

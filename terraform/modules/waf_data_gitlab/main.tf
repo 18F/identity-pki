@@ -36,3 +36,15 @@ output "gitlab_privileged_ips" {
     )
   )
 }
+
+output "us_regions" {
+  value = [
+    "AS",
+    "GU",
+    "MP",
+    "PR",
+    "UM",
+    "US",
+    "VI",
+  ]
+}

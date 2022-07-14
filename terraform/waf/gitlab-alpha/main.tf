@@ -25,4 +25,5 @@ module "main" {
   ship_logs_to_soc  = false
   restricted_paths  = module.waf_data.gitlab_restricted_paths
   privileged_ips    = module.waf_data.gitlab_privileged_ips
+  geo_allow_list    = module.waf_data.us_regions
 }
