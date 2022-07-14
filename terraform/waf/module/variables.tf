@@ -169,7 +169,10 @@ variable "ship_logs_to_soc" {
 }
 
 variable "restricted_paths" {
-  default = []
+  default = {
+    paths = []
+    exclusions = []
+  }
 }
 
 variable "privileged_ips" {

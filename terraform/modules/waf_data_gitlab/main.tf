@@ -7,10 +7,15 @@ data "aws_vpc" "default" {
 data "github_ip_ranges" "meta" {}
 
 output "gitlab_restricted_paths" {
-  value = [
-    "^/api.*",
-    "^/admin.*",
-  ]
+  value = {
+    paths = [
+      "^/api.*",
+      "^/admin.*",
+    ]
+    exclusions = [
+      "^/api/graphql.*",
+    ]
+  }
 }
 
 data "aws_nat_gateways" "ngws" {

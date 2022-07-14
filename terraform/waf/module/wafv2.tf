@@ -343,6 +343,7 @@ resource "aws_wafv2_web_acl" "alb" {
       sampled_requests_enabled   = true
     }
   }
+  
   dynamic "rule" {
     for_each = length(var.header_block_regex) >= 1 ? [1] : []
     content {
@@ -467,7 +468,7 @@ resource "aws_wafv2_web_acl" "alb" {
   }
 
   dynamic "rule" {
-    for_each = length(var.restricted_paths) > 0 ? [1] : []
+    for_each = length(var.restricted_paths.paths) > 0 ? [1] : []
     content {
       name = "BlockPaths"
       priority = 1100
@@ -475,20 +476,40 @@ resource "aws_wafv2_web_acl" "alb" {
         block {}
       }
       statement {
-        regex_pattern_set_reference_statement {
-          arn = aws_wafv2_regex_pattern_set.restricted_paths[0].arn
-          field_to_match {
-            uri_path {}
+        and_statement {
+          statement {
+            not_statement {
+              statement {
+                regex_pattern_set_reference_statement {
+                  arn = aws_wafv2_regex_pattern_set.restricted_paths_exclusions.arn
+                  field_to_match {
+                    uri_path {}
+                  }
+                  text_transformation {
+                    priority = 0
+                    type     = "LOWERCASE"
+                  }
+                }
+              }
+            }
           }
-          text_transformation {
-            priority = 0
-            type     = "LOWERCASE"
+          statement {
+            regex_pattern_set_reference_statement {
+              arn = aws_wafv2_regex_pattern_set.restricted_paths.arn
+              field_to_match {
+                uri_path {}
+              }
+              text_transformation {
+                priority = 0
+                type     = "LOWERCASE"
+              }
+            }
           }
         }
       }
       visibility_config {
         cloudwatch_metrics_enabled = true
-        metric_name                = "${var.env}-gitlab-restricted-paths-GitlabBlockPaths-metric"
+        metric_name                = "${var.env}-restricted-paths-BlockPaths-metric"
         sampled_requests_enabled   = true
       }
     }
