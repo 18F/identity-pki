@@ -23,6 +23,18 @@ class IdentifyController < ApplicationController
     end
   end
 
+  def error
+    if referrer
+      # given a valid certificate from the client, return a token
+      referrer.query = "token=#{token_for_referrer}"
+
+      # redirect to referer OR redirect to a preconfigured URL template
+      redirect_to referrer.to_s
+    else
+      render_bad_request('No referrer')
+    end
+  end
+
   private
 
   def render_bad_request(reason)
