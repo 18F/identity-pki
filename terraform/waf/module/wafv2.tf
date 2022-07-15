@@ -10,7 +10,7 @@ data "aws_lb" "alb" {
 
 moved {
   from = aws_wafv2_web_acl.idp
-  to = aws_wafv2_web_acl.alb
+  to   = aws_wafv2_web_acl.alb
 }
 
 resource "aws_wafv2_web_acl" "alb" {
@@ -26,7 +26,7 @@ resource "aws_wafv2_web_acl" "alb" {
   dynamic "rule" {
     for_each = length(var.privileged_ips) > 0 ? [1] : []
     content {
-      name = "AllowPrivilegedIPs"
+      name     = "AllowPrivilegedIPs"
       priority = 50
       action {
         allow {}
@@ -343,7 +343,7 @@ resource "aws_wafv2_web_acl" "alb" {
       sampled_requests_enabled   = true
     }
   }
-  
+
   dynamic "rule" {
     for_each = length(var.header_block_regex) >= 1 ? [1] : []
     content {
@@ -470,7 +470,7 @@ resource "aws_wafv2_web_acl" "alb" {
   dynamic "rule" {
     for_each = length(var.restricted_paths.paths) > 0 ? [1] : []
     content {
-      name = "BlockPaths"
+      name     = "BlockPaths"
       priority = 1100
       action {
         block {}
@@ -542,7 +542,7 @@ resource "aws_wafv2_web_acl" "alb" {
       }
     }
   }
-  
+
   visibility_config {
     cloudwatch_metrics_enabled = true
     metric_name                = "${local.web_acl_name}-metric"
@@ -556,7 +556,7 @@ resource "aws_wafv2_web_acl" "alb" {
 
 moved {
   from = aws_wafv2_web_acl_logging_configuration.idp
-  to = aws_wafv2_web_acl_logging_configuration.alb
+  to   = aws_wafv2_web_acl_logging_configuration.alb
 }
 
 resource "aws_wafv2_web_acl_logging_configuration" "alb" {
@@ -568,7 +568,7 @@ resource "aws_wafv2_web_acl_logging_configuration" "alb" {
 
 moved {
   from = aws_wafv2_web_acl_association.idp
-  to = aws_wafv2_web_acl_association.alb
+  to   = aws_wafv2_web_acl_association.alb
 }
 
 resource "aws_wafv2_web_acl_association" "alb" {
