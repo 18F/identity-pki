@@ -320,6 +320,7 @@ module "poweruser-assumerole" {
             "ec2:AssociateDhcpOptions",
             "ec2:AssociateIamInstanceProfile",
             "ec2:AssociateRouteTable",
+            "ec2:AssociateVpcCidrBlock",
             "ec2:AttachInternetGateway",
             "ec2:AttachNetworkInterface",
             "ec2:AttachVolume",
@@ -367,6 +368,7 @@ module "poweruser-assumerole" {
             "ec2:DisassociateAddress",
             "ec2:DisassociateRouteTable",
             "ec2:DisassociateIamInstanceProfile",
+            "ec2:DisassociateVpcCidrBlock",
             "ec2:EnableVgwRoutePropagation", #don't use vpn seems unnecessary
             "ec2:GetConsoleScreenshot",
             "ec2:GetConsoleOutput",
