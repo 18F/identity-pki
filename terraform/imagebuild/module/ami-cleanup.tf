@@ -61,6 +61,7 @@ resource "aws_iam_role_policy" "ami_cleanup_lambda" {
   }
 }
 
+#tfsec:ignore:aws-cloudwatch-log-group-customer-key
 resource "aws_cloudwatch_log_group" "ami_cleanup_log_group" {
   name              = "/aws/lambda/${aws_lambda_function.ami_cleanup.function_name}"
   retention_in_days = 30
@@ -75,6 +76,7 @@ module "ami_cleanup_function_code" {
   zip_filename = "ami_cleanup.zip"
 }
 
+#tfsec:ignore:aws-lambda-enable-tracing
 resource "aws_lambda_function" "ami_cleanup" {
   filename         = module.ami_cleanup_function_code.zip_output_path
   function_name    = "ami_cleanup"
