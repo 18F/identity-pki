@@ -501,6 +501,7 @@ users:
     - devops
     - appdev
     - pm
+    - antifraud
     can_create_group:
     - true
 groups:
