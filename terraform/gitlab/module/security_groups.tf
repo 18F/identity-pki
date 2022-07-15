@@ -637,30 +637,30 @@ resource "aws_security_group" "kms_endpoint" {
 }
 
 resource "aws_security_group" "waf_alb" {
-  name = "${var.env_name}-waf-alb"
+  name        = "${var.env_name}-waf-alb"
   description = "Allow inbound from the NLB to the WAF-enabled ALB"
-  vpc_id = aws_vpc.default.id
+  vpc_id      = aws_vpc.default.id
 }
 
 resource "aws_security_group_rule" "waf_lb_nlb_ingress" {
-  count = var.use_waf_rules ? 0 : 1
+  count             = var.use_waf_rules ? 0 : 1
   security_group_id = aws_security_group.waf_alb.id
-  type = "ingress"
-  from_port   = 443
-  to_port     = 443
-  protocol    = "tcp"
-  cidr_blocks = formatlist("%s/32", data.aws_network_interface.lb.*.private_ip)
-  description = "Allow connection from NLB"
+  type              = "ingress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = formatlist("%s/32", data.aws_network_interface.lb.*.private_ip)
+  description       = "Allow connection from NLB"
 }
-  
+
 resource "aws_security_group_rule" "waf_lb_nat_ingress" {
-  count = var.use_waf_rules ? 0 : 1
+  count             = var.use_waf_rules ? 0 : 1
   security_group_id = aws_security_group.waf_alb.id
-  type = "ingress"
-  description = "These are the EIPs for the NAT which is being used by the obproxies. This is needed so that the outbound proxies can access the external lb"
-  from_port = 443
-  to_port   = 443
-  protocol  = "tcp"
+  type              = "ingress"
+  description       = "These are the EIPs for the NAT which is being used by the obproxies. This is needed so that the outbound proxies can access the external lb"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
   cidr_blocks = [
     "${aws_eip.nat_a.public_ip}/32",
     "${aws_eip.nat_b.public_ip}/32",
@@ -669,39 +669,39 @@ resource "aws_security_group_rule" "waf_lb_nat_ingress" {
 }
 
 resource "aws_security_group_rule" "waf_lb_vpc_vpn_ingress" {
-  count = var.use_waf_rules ? 0 : 1
+  count             = var.use_waf_rules ? 0 : 1
   security_group_id = aws_security_group.waf_alb.id
-  type = "ingress"
-  description = "Source IPs conneting through the NLB"
-  from_port = 443
-  to_port   = 443
-  protocol  = "tcp"
+  type              = "ingress"
+  description       = "Source IPs conneting through the NLB"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
   cidr_blocks = sort(
     concat(
       [aws_vpc.default.cidr_block],
       data.github_ip_ranges.meta.hooks_ipv4,
       var.allowed_gitlab_cidr_blocks_v4
-      )
     )
+  )
 }
 
 resource "aws_security_group_rule" "waf_lb_public_ingress" {
-  count = var.use_waf_rules ? 1 : 0 # This is opposite the other rules.
+  count             = var.use_waf_rules ? 1 : 0 # This is opposite the other rules.
   security_group_id = aws_security_group.waf_alb.id
-  type = "ingress"
-  description = "Alow public HTTPS traffic. Filtering occurs at the WAF level"
-  from_port = 443
-  to_port = 443
-  protocol = "tcp"
-  cidr_blocks = ["0.0.0.0/0",]
+  type              = "ingress"
+  description       = "Alow public HTTPS traffic. Filtering occurs at the WAF level"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0", ]
 }
-  
+
 resource "aws_security_group_rule" "waf_lb_vpc_egress" {
   security_group_id = aws_security_group.waf_alb.id
-  type = "egress"
-  description = "Allow outbound to the VPC"
-  from_port   = 443
-  to_port     = 443
-  protocol    = "tcp"
-  cidr_blocks = [aws_vpc.default.cidr_block]
+  type              = "egress"
+  description       = "Allow outbound to the VPC"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = [aws_vpc.default.cidr_block]
 }

@@ -17,7 +17,7 @@ resource "aws_wafv2_ip_set" "privileged_ips" {
   description        = "Privileged IPs"
   scope              = "REGIONAL"
   ip_address_version = "IPV4"
-  addresses = var.privileged_ips
+  addresses          = var.privileged_ips
   tags = {
     environment = var.env
   }

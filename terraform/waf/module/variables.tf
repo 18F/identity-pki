@@ -170,7 +170,7 @@ variable "ship_logs_to_soc" {
 
 variable "restricted_paths" {
   default = {
-    paths = []
+    paths      = []
     exclusions = []
   }
 }
