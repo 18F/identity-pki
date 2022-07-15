@@ -544,6 +544,7 @@ locals {
           "elasticloadbalancing:SetRulePriorities",
           "elasticloadbalancing:SetSecurityGroups",
           "elasticloadbalancing:SetWebACL",
+          "elasticloadbalancing:SetSubnets",
         ]
         resources = [
           "*",
