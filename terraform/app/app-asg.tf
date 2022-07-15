@@ -76,10 +76,11 @@ resource "aws_autoscaling_group" "app" {
     aws_alb_target_group.app-ssl[0].arn,
   ]
 
-  vpc_zone_identifier = [
+  vpc_zone_identifier = concat([
     aws_subnet.publicsubnet1.id,
     aws_subnet.publicsubnet2.id,
-  ]
+    ],
+  [for subnet in aws_subnet.app : subnet.id])
 
   # possible choices: EC2, ELB
   health_check_type = "ELB"

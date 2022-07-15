@@ -1,0 +1,66 @@
+---
+# Define the regions, (availaiabily) zones, environments, and purposes
+# to map to networks.
+#
+# REMEMBER: Ordering matters!
+# * Slots set to 'unused' will reserve the given slot's space.
+# * Slots not defined after the last named slot will be considered
+#   unused.
+#
+# Once you assign a slot you should not change it unless
+# all resources in the given category are destroyed!
+
+# Availability region - Up to 4 slots
+regions:
+  - ~ # First region maps to 100.64.0.0/12 which should always be avoided
+  - us-east-1
+  - us-west-2
+  - ~ # Future Use
+
+# Deployment environments - Up to 16 slots
+environments:
+  - peering # Peering/internetworking
+  - security # Central security control
+  - telemetry # Monitoring and data collection
+  - ~ # (planned) Telemetry growth
+  - tooling-prod # Central tooling/command
+  - tooling-sandbox # Other (overlapping) tooling
+  - app-prod # Production applications
+  - app-staging # Staging applications
+  - app-dm # Data migration applications
+  - app-int # Integration/customer facing non-prod applications
+  - app-sandbox # Other (overlapping) applications
+  - ~ # Unused
+  - ~ # Unused
+  - ~ # Unused
+  - ~ # Unused
+  - ~ # Unused
+
+# Availability zones - Up to 8 slots
+zones:
+  - a
+  - b
+  - c
+  - d
+  - ~ # Unused
+  - ~ # Unused
+  - ~ # Unused
+  - ~ # Unused
+
+# Subnet purposes - Up to 32 slots
+# Each purpose receives a /24 unless you specify the same purpose
+# in multiple consequetive slots.
+# Each slots represents 256 ip addresses.
+purposes:
+  - ~ # (planned) routing
+  - public-ingress # External load balancers and other ingress
+  - public-egress # Outbound NAT and proxy
+  - ~ # (unplanned) Future public facing
+  - endpoints # Cloud provider private API access
+  - data-services # Persistent storage services
+  - ~ # (unplanned) Future private, preferably future data services
+  - ~ # (unplanned) Future private, preferably future data services
+  - apps # Primary application instance subnets
+  - apps # (continued) Primary application instance subnets
+  - apps # (continued) Primary application instance subnets
+  - apps # (continued) Primary application instance subnets

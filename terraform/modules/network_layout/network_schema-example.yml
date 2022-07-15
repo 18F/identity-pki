@@ -1,0 +1,56 @@
+---
+# Define the regions, (availaiabily) zones, environments, and purposes
+# to map to networks.  For each type, 16 slots are available.
+#
+# REMEMBER: Ordering matters!
+# * Slots set to 'unused' will reserve the given slot's space.
+# * Slots not defined after the last named slot will be considered
+#   unused.
+#
+# Once you assign a slot you should not change it unless
+# all resources in the given category are destroyed!
+
+# Availability region - Up to 8 slots
+regions:
+  - ~ # First region maps to 10.0.0.0/16 which should always be avoided
+  - mars-1
+  - mars-2
+  - ~ # (planned) mars-3
+  - europa-1
+
+# Deployment environments - Up to 32 slots
+environments:
+  - peering # Peering/internetworking
+  - management # Central tooling/command
+  - ~ # (planned) Management growth
+  - security # Central security control
+  - telemetry # Monitoring and data collection
+  - ~ # (planned) Telemetry growth
+  - prod # Production applications
+  - qa # QA applications
+  - test # Sandbox, CI, and other testing
+
+# Availability zones - Up to 8 slots
+zones:
+  - a
+  - b
+  - c
+  - d
+
+# Subnet purposes - Up to 32 slots
+# Each purpose receives a /24 unless you specify the same purpose
+# in multiple consequetive slots.
+# * If the slot is even you can combine the next into a /23.
+# * If slot is 0 or divisible by 4 you can combine with the next 3 slots
+#   into a /22.
+purposes:
+  - ~ # (planned) routing
+  - public-ingress # External load balancers and other ingress
+  - public-egress # Outbound NAT and proxy
+  - ~ # (unplanned) Future public facing
+  - endpoints # Cloud provider private API access
+  - data-services # Persistent storage services
+  - ~ # (unplanned) Future private, preferably future data services
+  - ~ # (unplanned) Future private, preferably future data services
+  - apps # Primary application instance subnets
+  - apps # (continued) Primary application instance subnets

@@ -2,7 +2,7 @@ resource "aws_alb" "app" {
   count           = var.apps_enabled
   name            = "${var.name}-app-alb-${var.env_name}"
   security_groups = [aws_security_group.app-alb.id]
-  subnets         = [aws_subnet.alb1.id, aws_subnet.alb2.id]
+  subnets         = [aws_subnet.alb1.id, aws_subnet.alb2.id, aws_subnet.public-ingress["c"].id, aws_subnet.public-ingress["d"].id]
 
   access_logs {
     bucket  = "login-gov.elb-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
