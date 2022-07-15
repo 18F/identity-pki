@@ -2,6 +2,8 @@
 # permission to the destination ARN.
 # See: https://github.com/18F/identity-devops/wiki/Runbook:-GSA-SOC-as-a-Service-(SOCaaS)#cloudwatch-shipping-important-note
 module "log-ship-to-soc-cloudtrail-logs" {
+  count = var.soc_logs_enabled ? 1 : 0
+
   source                              = "../../modules/log_ship_to_soc"
   region                              = var.region
   cloudwatch_subscription_filter_name = "log-ship-to-soc"

@@ -1,15 +1,5 @@
 locals {
   common_account_name = var.iam_account_alias == "login-master" ? "global" : replace(var.iam_account_alias, "login-", "")
-  dnssec_policy_arn   = var.dnssec_zone_exists ? data.aws_iam_policy.dnssec_disable_prevent[0].arn : ""
-
-  # attach rds_delete_prevent and region_restriction to all roles
-  custom_policy_arns = compact([
-    aws_iam_policy.rds_delete_prevent.arn,
-    aws_iam_policy.region_restriction.arn,
-    local.dnssec_policy_arn,
-  ])
-
-  master_assumerole_policy = data.aws_iam_policy_document.master_account_assumerole.json
 
   role_enabled_defaults = {
     iam_analytics_enabled      = false
@@ -279,4 +269,15 @@ variable "datapoints_to_alarm" {
   type        = number
   default     = 12
   description = "The number of datapoints that must be breaching to trigger the alarm."
+}
+
+variable "soc_logs_enabled" {
+  type        = bool
+  default     = true
+  description = <<EOM
+Enables creation of log_ship_to_soc module, allowing shipping of CloudWatch logs to
+SOC core account. Must be set to 0 for new accounts until the SOCaaS team has
+approved and confirmed access to the destination CloudWatch log group. More info:
+https://github.com/18F/identity-devops/wiki/Runbook:-GSA-SOC-as-a-Service-(SOCaaS)#cloudwatch-shipping-important-note
+EOM
 }

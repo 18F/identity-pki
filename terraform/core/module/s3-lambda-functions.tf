@@ -78,8 +78,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "lambda_functions" {
 module "s3_lambda_functions_config" {
   source = "github.com/18F/identity-terraform//s3_config?ref=5d338480d96af4c5123fcbebb0d0a189e31496b4"
 
-  bucket_name_prefix   = local.bucket_name_prefix
-  bucket_name          = "lambda_functions"
+  bucket_name_override = aws_s3_bucket.lambda_functions.id
   region               = var.region
   inventory_bucket_arn = local.inventory_bucket_uw2_arn
   block_public_access  = true

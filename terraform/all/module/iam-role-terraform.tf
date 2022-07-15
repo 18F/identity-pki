@@ -5,7 +5,7 @@ module "terraform-assumerole" {
       enable = "iam_auto_terraform_enabled"
     },
     "Terraform" = {
-      policy = local.master_assumerole_policy
+      policy = data.aws_iam_policy_document.master_account_assumerole.json
       enable = "iam_terraform_enabled"
     }
   }
@@ -19,7 +19,11 @@ module "terraform-assumerole" {
     lookup(local.role_enabled_defaults, each.value["enable"])
   )
   master_assumerole_policy = each.value["policy"]
-  custom_policy_arns       = local.custom_policy_arns
+  custom_policy_arns = compact([
+    aws_iam_policy.rds_delete_prevent.arn,
+    aws_iam_policy.region_restriction.arn,
+    var.dnssec_zone_exists ? data.aws_iam_policy.dnssec_disable_prevent[0].arn : "",
+  ])
   iam_policies = [
     for pol in local.terraform_iam_policies : {
       policy_name        = "${each.key}${index(local.terraform_iam_policies, pol) + 1}"
@@ -778,6 +782,7 @@ locals {
           "wafv2:GetWebACL",
           "wafv2:GetWebACLForResource",
           "wafv2:ListTagsForResource",
+          "wafv2:ListWebACLs",
           "wafv2:PutLoggingConfiguration",
           "wafv2:TagResource",
           "wafv2:UntagResource",

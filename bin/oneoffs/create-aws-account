@@ -1,0 +1,128 @@
+#!/bin/bash
+
+# Sets up the basic groundwork (via Terraform) for an AWS account.
+# Must be run as an actual IAM user (vs. with an assumed role)
+# with the AdministrativeAccess IAM policy attached.
+
+set -euo pipefail
+
+. "$(dirname "$0")/../lib/common.sh"
+. "$(dirname "$0")/../lib/acct-lib.sh"
+
+usage() {
+    cat >&2 << EOM
+
+Usage: ${0} [-tprob12345] IAM_USER_PROFILE_NAME
+
+Runs all necessary tasks to set up the basic infrastructure (in terraform/all)
+for a (new) AWS account, including assumable IAM roles and the AWS account alias.
+
+MUST be run as an IAM user (/not/ an assumed role)
+within said account, which has the AdministrativeAccess IAM policy attached,
+identified in ~/.aws/config as \`IAM_USER_PROFILE_NAME\` (required argument).
+
+The tasks in this script can also be individually executed as follows:
+
+  -t, -1 : Import the 'terraform_locks' DynamoDB table -- created by bin/tf-deploy
+           during its first run -- into Terraform state, so that it can be managed
+           directly in code.
+           (Step: 1_import_lock_table)
+  -p, -2 : Creates the 'RDSDeletionPrevent' and 'RegionRestriction' IAM policies,
+           which are attached to all assumable IAM roles and required for
+           subsequent 'terraform apply' operations to work properly.
+           (Step: 2_create_deny_policies)
+  -r, -3 : Creates *Terraform role(s) and 'secrets' S3 bucket, then verifies that
+           the sts:AssumeRole operation can be used with one's default (login-master)
+           profile to assume the Terraform role and run subsequent commands with it.
+           (Step: 3_create_tf_role_and_secrets_bucket)
+  -o, -4 : Copies the 'common/opsgenie_sns_apikey' S3 object from the login-sandbox
+           account into this account's 'secrets' bucket, required for the SNS topics
+           for alerting to be properly created.
+           (Step: 4_copy_opsgenie_key)
+  -b, -5 : Runs 'terraform apply' in the account as the Terraform role, creating all
+           remaining resources defined in the terraform/all directory.
+           (Step: 5_build_acct)
+  -h     : Displays this help
+
+EOM
+}
+
+# since configure_state_bucket.sh creates the DynamoDB table if it doesn't exist,
+# import it into state right off the bat so it can be managed within Terraform
+1_import_lock_table() {
+  bin/tf-deploy -t "all/${TF_ACCT}" import \
+    'module.main.module.tf-state.aws_dynamodb_table.tf-lock-table[0]' 'terraform_locks'
+}
+
+# two apply operations are needed; one for the basic IAM policies
+# and one for the Terraform role/secrets bucket.
+# this makes the Terraform role do most of the work after it's created
+# and eliminates the need for more profile juggling after copying the opsgenie key
+2_create_deny_policies() {
+  bin/tf-deploy -t "all/${TF_ACCT}" apply \
+    -auto-approve \
+    -target='module.main.aws_iam_policy.rds_delete_prevent' \
+    -target='module.main.aws_iam_policy.region_restriction'
+}
+
+# create the Terraform role(s) and secrets bucket,
+# then verify that sts:AssumeRole with the Terraform role
+# works with login-master (default) credentials
+3_create_tf_role_and_secrets_bucket() {
+  bin/tf-deploy -t "all/${TF_ACCT}" apply \
+    -auto-approve \
+    -target='module.main.module.terraform-assumerole' \
+    -target='module.main.module.main_secrets_bucket.aws_s3_bucket.secrets'
+  unset AWS_PROFILE
+  get_iam 'all' "${TF_ACCT}" 'Terraform'
+  until $(bin/awsv -x ${AV_PROFILE} echo) ; do sleep 1 ; done
+}
+
+# get opsgenie key from sandbox and put it in the new secrets bucket
+4_copy_opsgenie_key() {
+  get_secrets_bucket sandbox
+  OPSGENIE_KEY=$(bin/awsv -x ${AV_PROFILE} \
+    aws s3 cp "s3://${SECRETS_BUCKET}/common/opsgenie_sns_apikey" -)
+  get_secrets_bucket ${TF_ACCT}
+  printf "${OPSGENIE_KEY}" | bin/awsv -x ${AV_PROFILE} \
+    aws s3 cp - "s3://${SECRETS_BUCKET}/common/opsgenie_sns_apikey" \
+      --no-guess-mime-type \
+      --content-type="text/plain" \
+      --metadata-directive="REPLACE"
+}
+
+# with everything in place, build the rest of terraform/all infra as Terraform role
+5_build_acct() {
+  bin/td -d all -e "${TF_ACCT}" -at auto-approve
+}
+
+declare {TF_ACCT,ACCT_ID,SECRETS_BUCKET}=
+verify_root_repo
+
+TASKS=(
+  "1_import_lock_table"
+  "2_create_deny_policies"
+  "3_create_tf_role_and_secrets_bucket"
+  "4_copy_opsgenie_key"
+  "5_build_acct"
+)
+TODO=()
+
+while getopts t1p2r3o4b5 opt
+do
+  case $opt in
+    1|t) TODO+=("${TASKS[0]}") ;;
+    2|p) TODO+=("${TASKS[1]}") ;;
+    3|r) TODO+=("${TASKS[2]}") ;;
+    4|o) TODO+=("${TASKS[3]}") ;;
+    5|b) TODO+=("${TASKS[4]}") ;;
+    h) help_me                 ;;
+    *) usage && exit 1         ;;
+  esac
+done
+shift $((OPTIND-1))
+
+export AWS_PROFILE=$1
+verify_account_info
+
+run_tasks

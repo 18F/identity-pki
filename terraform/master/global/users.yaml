@@ -419,6 +419,8 @@ users:
     - sheldon-b
     email:
     - sheldon.bachstein@gsa.gov
+    ec2_username:
+    - sbachstein
   sierra.toler:
     aws_groups:
     - bizops

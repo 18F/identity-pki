@@ -1,5 +1,5 @@
 locals {
-  web_acl_name = "${var.env}-idp-waf"
+  web_acl_name = var.lb_name != "" ? "${var.lb_name}-waf" : "${var.env}-idp-waf"
 }
 
 variable "region" {
@@ -166,4 +166,19 @@ variable "lb_name" {
 
 variable "ship_logs_to_soc" {
   default = true
+}
+
+variable "restricted_paths" {
+  default = {
+    paths = []
+    exclusions = []
+  }
+}
+
+variable "privileged_ips" {
+  default = []
+}
+
+variable "geo_allow_list" {
+  default = []
 }

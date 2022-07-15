@@ -7,8 +7,12 @@ module "kmsadmin-assumerole" {
     "iam_kmsadmin_enabled",
     lookup(local.role_enabled_defaults, "iam_kmsadmin_enabled")
   )
-  master_assumerole_policy = local.master_assumerole_policy
-  custom_policy_arns       = local.custom_policy_arns
+  master_assumerole_policy = data.aws_iam_policy_document.master_account_assumerole.json
+  custom_policy_arns = compact([
+    aws_iam_policy.rds_delete_prevent.arn,
+    aws_iam_policy.region_restriction.arn,
+    var.dnssec_zone_exists ? data.aws_iam_policy.dnssec_disable_prevent[0].arn : "",
+  ])
 
   iam_policies = [
     {
