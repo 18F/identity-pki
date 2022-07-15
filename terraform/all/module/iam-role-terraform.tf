@@ -205,6 +205,7 @@ locals {
         actions = [
           "ec2:AllocateAddress",
           "ec2:AssociateRouteTable",
+          "ec2:AssociateVpcCidrBlock",
           "ec2:AttachInternetGateway",
           "ec2:AttachVolume",
           "ec2:AuthorizeSecurityGroupEgress",
@@ -264,6 +265,7 @@ locals {
           "ec2:DetachVolume",
           "ec2:DisassociateAddress",
           "ec2:DisassociateRouteTable",
+          "ec2:DisassociateVpcCidrBlock",
           "ec2:GetTransitGatewayRouteTableAssociations",
           "ec2:ModifySubnetAttribute",
           "ec2:ModifyVpcAttribute",
