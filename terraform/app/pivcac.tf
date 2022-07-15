@@ -190,6 +190,7 @@ resource "aws_elb" "pivcac" {
   security_groups = [aws_security_group.web.id]
   subnets         = [for subnet in aws_subnet.public-ingress : subnet.id]
 
+
   access_logs {
     bucket        = "login-gov.elb-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
     bucket_prefix = "${var.env_name}/pivcac"

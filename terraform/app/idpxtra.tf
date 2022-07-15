@@ -137,6 +137,7 @@ resource "aws_autoscaling_group" "idpxtra" {
   # TODO - See https://github.com/18F/identity-devops/issues/2084
   vpc_zone_identifier = [for subnet in aws_subnet.app : subnet.id]
 
+
   health_check_type         = "ELB"
   health_check_grace_period = 1
 
