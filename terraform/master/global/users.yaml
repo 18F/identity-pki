@@ -52,6 +52,8 @@ users:
     - pm
     git_username:
     - benjaminchait
+    email:
+    - benjamin.chait@gsa.gov
   chris.manger:
     aws_groups:
     - finops
@@ -67,6 +69,8 @@ users:
     - pm
     git_username:
     - daviddsilvanava
+    email:
+    - david.dsilva@gsa.gov
   devon.johnson:
     aws_groups:
     - supporteng
@@ -90,6 +94,8 @@ users:
     - pm
     git_username:
     - lizzieamanning
+    email:
+    - elizabeth.manning@gsa.gov
   eric.gade:
     aws_groups:
     - appdev
@@ -195,6 +201,8 @@ users:
     - devops
     git_username:
     - kenk667
+    email:
+    - ken.kato@gsa.gov
   kimball.bighorse:
     aws_groups:
     - appdev
@@ -209,6 +217,8 @@ users:
     - pm
     git_username:
     - lalitha-jonnalagadda
+    email:
+    - lalitha.jonnalagadda@gsa.gov
   luis.matos:
     aws_groups:
     - appdev
@@ -273,6 +283,8 @@ users:
     - devops
     git_username:
     - mww59
+    email:
+    - michael.w.ward@gsa.gov
   mitchell.henke:
     aws_groups:
     - apponcall
@@ -450,6 +462,8 @@ users:
     - appdev
     git_username:
     - tomas-nava
+    email:
+    - thomas.apodaca@gsa.gov
   tiffanyj.andrews:
     aws_groups:
     - analytics
