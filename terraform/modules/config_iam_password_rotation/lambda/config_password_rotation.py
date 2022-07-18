@@ -69,7 +69,17 @@ def compare_time(user_name, lastchanged, lastlogin, account_id):
 
 #Send notification to user before disabling the console access
 def push_notification(user_name, time, account_id):
-  notification = " User " + "\"" +  user_name + "\"" + " last activity in AWS Account" + "\"" + account_id + "\"" + " at " + "\"" + time.strftime('%Y-%m-%d') + "\"" + "Console login is disabled after 120 days of missing login activity or if password is not rotated in every 100 days with active login activity. Please rotate any passwords that are about to reach 100 days but if console access in not required, no need to take any action. "
+  notification = "TESTING: User " + "\"" +  user_name + "\"" + " last activity in AWS Account" + "\"" + account_id + "\"" + " at " + "\"" + time.strftime('%Y-%m-%d') + "\"" + "Console login is disabled after 120 days of missing login activity or if password is not rotated in every 100 days with active login activity. Please rotate any passwords that are about to reach 100 days but if console access in not required, no need to take any action. "
+  response = sns.publish (
+              TargetArn = os.environ['notification_topic'],
+              Message = json.dumps({'default': notification}),
+              MessageStructure = 'json'
+       )
+  print("Notification sent", response)
+
+#Send notification to user after disabling the console access
+def push_notification_after(user_name, time, account_id):
+  notification = "TESTING: Login disabled for user " + user_name + " in AWS Account " + account_id + " at " + (datetime.datetime.now()).date().strftime('%Y-%m-%d')
   response = sns.publish (
               TargetArn = os.environ['notification_topic'],
               Message = json.dumps({'default': notification}),
@@ -81,7 +91,8 @@ def push_notification(user_name, time, account_id):
 def disable_access(user_name, time, account_id):
     try:
         print(" Disabling Console login for user " + "\"" +  user_name + "\"" + " in AWS Account" + "\"" + account_id + "\"" + " .Console login is disabled after 120 days of missing login activity or if password is not rotated in every 100 days with active login activity.")
-        iam.delete_login_profile(UserName=user_name)
+        #iam.delete_login_profile(UserName=user_name)
+        push_notification_after(user_name, time, account_id)
         print("Login disabled for user " + user_name + " at " + (datetime.datetime.now()).date().strftime('%Y-%m-%d'))
     
     except ClientError as e:
