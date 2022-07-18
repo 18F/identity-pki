@@ -14,8 +14,8 @@ SHELL = /bin/sh -o pipefail -c
 all: int pt pt2 staging dm non-app-non-prod prod non-app-prod
 
 # Deploy, with prompts to verify plans
-non-app-non-prod: $(APPLIES)
-non-app-prod: $(PROD_APPLIES)
+non-app-non-prod: | $(APPLIES)
+non-app-prod: | $(PROD_APPLIES)
 
 # Deploy to named app environment, with prompts for user intervention
 int pt pt2 staging dm: %: terraform/app/%.recycle-verify
@@ -44,13 +44,13 @@ $(APP_ENVS:=.branch): terraform/app/%.branch:
 	touch $@
 
 # App-specific td invocation
-$(APP_ENVS:=.plan): terraform/app/%.plan: terraform/app/%.branch ## plan for one app env "%"
+$(APP_ENVS:=.plan): terraform/app/%.plan: | terraform/app/%.branch ## plan for one app env "%"
 	git checkout stages/$*
 	bin/td -e $* -c b | tee $@.tmp
 	mv $@.tmp $@
 
 # If no plan exists, fail. Don't implicitly run plan.
-$(APP_ENVS:=.apply): terraform/app/%.apply: terraform/app/%.plan-verify ## apply for one app env "%"
+$(APP_ENVS:=.apply): terraform/app/%.apply: | terraform/app/%.plan-verify ## apply for one app env "%"
 	git checkout stages/$*
 	bin/td -e $* -a auto-approve | tee $@.tmp
 	mv $@.tmp $@
@@ -60,22 +60,22 @@ $(patsubst %,terraform/app/%.recycle,int pt pt2): ACCOUNT = sandbox-admin
 $(patsubst %,terraform/app/%.recycle,prod staging dm): ACCOUNT = prod-admin
 
 # Recycling for prod, staging, dm is done as `prod-admin`. `int` gets overridden.
-$(APP_ENVS:=.recycle): terraform/app/%.recycle: terraform/app/%.apply ## recycle one app env "%"
+$(APP_ENVS:=.recycle): terraform/app/%.recycle: | terraform/app/%.apply ## recycle one app env "%"
 	aws-vault exec $(ACCOUNT) -- bin/asg-recycle $* ALL | tee $@.tmp
 	mv $@.tmp $@
 
-terraform/app/%.recycle-verify: terraform/app/%.recycle
+terraform/app/%.recycle-verify: | terraform/app/%.recycle
 	@echo Please verify the recycle of $* completed and $* is healthy.
 	@read -p "Enter 'y' to continue: " s && test "$$s" = "y"
 	touch $@
 
 # Prod needs a special command to scale-in
 PROD_SCALE_INS=$(patsubst %,terraform/app/prod.%.scale-in,idp idpxtra pivcac worker outboundproxy)
-$(PROD_SCALE_INS): terraform/app/prod.%.scale-in: terraform/app/prod.recycle-verify
+$(PROD_SCALE_INS): terraform/app/prod.%.scale-in: | terraform/app/prod.recycle-verify
 	aws-vault exec prod-admin -- bin/scale-in-old-instances prod $*
 	touch $@
 
-terraform/app/prod.scale-in: $(PROD_SCALE_INS)
+terraform/app/prod.scale-in: | $(PROD_SCALE_INS)
 
 $(PROD_PLANS): GIT_BRANCH = stages/prod
 terraform/all/tooling-prod.plan: GIT_BRANCH = main
@@ -86,7 +86,7 @@ $(PLANS) $(PROD_PLANS):
 
 if_nonempty_plan = if ! grep -q '^No changes in Terraform plan for ' $<; then
 
-$(addsuffix .plan-verify,$(TF_PATHS) $(PROD_TF_PATHS) $(APP_ENVS)): %.plan-verify: %.plan
+$(addsuffix .plan-verify,$(TF_PATHS) $(PROD_TF_PATHS) $(APP_ENVS)): %.plan-verify: | %.plan
 	$(if_nonempty_plan) less $<; fi
 	@$(if_nonempty_plan) echo "Please verify the plan output of $* (maybe posting to #identity-devops)."; fi
 	@$(if_nonempty_plan) read -p "Enter 'y' to continue: " s && test "$$s" = "y"; fi
@@ -95,7 +95,7 @@ $(addsuffix .plan-verify,$(TF_PATHS) $(PROD_TF_PATHS) $(APP_ENVS)): %.plan-verif
 # Ensure there's a verified plan before applying
 $(PROD_APPLIES): GIT_BRANCH = stages/prod
 terraform/all/tooling-prod.apply: GIT_BRANCH = main
-$(APPLIES) $(PROD_APPLIES): %.apply: %.plan %.plan-verify
+$(APPLIES) $(PROD_APPLIES): %.apply: | %.plan %.plan-verify
 	test -n "$(GIT_BRANCH)" && git checkout "$(GIT_BRANCH)" || true
 	rm -f $@.tmp
 	$(if_nonempty_plan) bin/td -d $(shell basename $(@D)) -e $(shell basename $@ .apply) -a auto-approve | tee $@.tmp; fi
