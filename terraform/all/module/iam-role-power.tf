@@ -7,8 +7,12 @@ module "poweruser-assumerole" {
     "iam_power_enabled",
     lookup(local.role_enabled_defaults, "iam_power_enabled")
   )
-  master_assumerole_policy = local.master_assumerole_policy
-  custom_policy_arns       = local.custom_policy_arns
+  master_assumerole_policy = data.aws_iam_policy_document.master_account_assumerole.json
+  custom_policy_arns = compact([
+    aws_iam_policy.rds_delete_prevent.arn,
+    aws_iam_policy.region_restriction.arn,
+    var.dnssec_zone_exists ? data.aws_iam_policy.dnssec_disable_prevent[0].arn : "",
+  ])
 
   iam_policies = [
     {
@@ -316,6 +320,7 @@ module "poweruser-assumerole" {
             "ec2:AssociateDhcpOptions",
             "ec2:AssociateIamInstanceProfile",
             "ec2:AssociateRouteTable",
+            "ec2:AssociateVpcCidrBlock",
             "ec2:AttachInternetGateway",
             "ec2:AttachNetworkInterface",
             "ec2:AttachVolume",
@@ -363,6 +368,7 @@ module "poweruser-assumerole" {
             "ec2:DisassociateAddress",
             "ec2:DisassociateRouteTable",
             "ec2:DisassociateIamInstanceProfile",
+            "ec2:DisassociateVpcCidrBlock",
             "ec2:EnableVgwRoutePropagation", #don't use vpn seems unnecessary
             "ec2:GetConsoleScreenshot",
             "ec2:GetConsoleOutput",

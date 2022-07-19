@@ -17,7 +17,7 @@ variable "force_destroy_idp_static_bucket" {
 }
 
 variable "enable_idp_cdn" {
-  description = "Enable CloudFront distribution serving from S3 bucket (enable_idp_static_bucket must be true)"
+  description = "Enable CloudFront distribution serving from idp origin servers"
   type        = bool
   default     = false
 }
@@ -453,22 +453,22 @@ variable "bootstrap_private_git_clone_url" {
 # though they will have different IDs. They should be updated here at the same
 # time, and then released to environments in sequence.
 variable "default_ami_id_sandbox" {
-  default     = "ami-00c12ab5674172242" # 2022-06-29 Ubuntu 18.04
+  default     = "ami-05df4a2379218c7e0" # 2022-07-18 Ubuntu 18.04
   description = "default AMI ID for environments in the sandbox account"
 }
 
 variable "default_ami_id_prod" {
-  default     = "ami-0cad7e3d9aa452aa0" # 2022-06-29 Ubuntu 18.04
+  default     = "ami-0a145bcf9ad63f88d" # 2022-07-12 Ubuntu 18.04
   description = "default AMI ID for environments in the prod account"
 }
 
 variable "rails_ami_id_sandbox" {
-  default     = "ami-06c3feac9ff01dd3f" # 2022-06-29 Ubuntu 18.04
+  default     = "ami-0c3ffd0846c351917" # 2022-07-18 Ubuntu 18.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the sandbox account"
 }
 
 variable "rails_ami_id_prod" {
-  default     = "ami-04380653f0334764b" # 2022-06-29 Ubuntu 18.04
+  default     = "ami-0945c298e23f64ffc" # 2022-07-12 Ubuntu 18.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the prod account"
 }
 
@@ -780,4 +780,87 @@ SSM session ends. Defaults to 15 minutes.
 EOM
   type        = number
   default     = 15
+}
+
+variable "cloudfront_s3_cache_paths" {
+  description = <<EOM
+The list of paths to serve from the static content s3 bucket,
+should contain /packs/* and /assets/* to not break static content
+EOM
+  type = list(object({
+    path            = string
+    caching_enabled = bool
+  }))
+  default = [
+    {
+      path            = "/packs/*"
+      caching_enabled = true
+    },
+    {
+      path            = "/assets/*"
+      caching_enabled = true
+    },
+    {
+      path            = "/5xx-codes/*"
+      caching_enabled = false
+    },
+    {
+      path            = "/maintenance/*"
+      caching_enabled = false
+    }
+  ]
+}
+
+variable "cloudfront_custom_error_responses" {
+  description = <<EOM
+List of custom error responses to show to the end user
+instead of just an error code.
+EOM
+  type = list(object({
+    ttl                = number
+    error_code         = number
+    response_code      = number
+    response_page_path = string
+  }))
+  default = [
+    {
+      ttl                = 0
+      error_code         = 504
+      response_code      = 504
+      response_page_path = "/5xx-codes/503.html"
+    },
+    {
+      ttl                = 0
+      error_code         = 503
+      response_code      = 503
+      response_page_path = "/5xx-codes/503.html"
+    },
+    {
+      ttl                = 0
+      error_code         = 502
+      response_code      = 502
+      response_page_path = "/5xx-codes/503.html"
+    }
+  ]
+}
+
+variable "enable_cloudfront_maintenance_page" {
+  description = <<EOM
+Enables a maintenance page infront of idp servers
+and routes all traffic to that until disabled
+EOM
+  type        = bool
+  default     = false
+}
+
+variable "cloudfront_custom_pages" {
+  description = <<EOM
+List of custom pages to populate into the static S3 bucket used by CloudFront for
+custom error/maintenance handling. Format is {<s3-bucket-key> = <local-file-source>}"
+EOM
+  type        = map(string)
+  default = {
+    "5xx-codes/503.html"           = "./custom_pages/503.html",
+    "maintenance/maintenance.html" = "./custom_pages/maintenance.html"
+  }
 }

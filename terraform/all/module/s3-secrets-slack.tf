@@ -1,8 +1,8 @@
 module "tf-state" {
-  source = "github.com/18F/identity-terraform//state_bucket?ref=3c8d34e9c1e58f9a7398349a63fc0b52f249f56c"
+  source = "github.com/18F/identity-terraform//state_bucket?ref=cf0896394f38f0bd0e79054f2d413be2de1b2dd9"
   #source = "../../../../identity-terraform/state_bucket"
 
-  remote_state_enabled = 0
+  remote_state_enabled = 1
   region               = var.region
   bucket_name_prefix   = "login-gov"
   sse_algorithm        = "AES256"

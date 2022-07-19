@@ -22,4 +22,5 @@ module "main" {
   destination_artifact_accounts  = ["894947205914"] # login-sandbox
   accountids                     = ["894947205914", "034795980528", "217680906704"]
   asg_gitlab_test_runner_desired = 4
+  use_waf_rules                  = true
 }

@@ -1,3 +1,4 @@
+#tfsec:ignore:aws-iam-no-policy-wildcards
 data "aws_iam_policy_document" "ami_cleanup_lambda_assume" {
   statement {
     sid    = "Assume"
@@ -12,6 +13,7 @@ data "aws_iam_policy_document" "ami_cleanup_lambda_assume" {
   }
 }
 
+#tfsec:ignore:aws-iam-no-policy-wildcards
 data "aws_iam_policy_document" "ami_cleanup_lambda" {
   statement {
     sid    = "AllowCloudWatchLogsAccess"
@@ -26,17 +28,6 @@ data "aws_iam_policy_document" "ami_cleanup_lambda" {
   }
 
   statement {
-    sid    = "AllowCreatingEC2Tags"
-    effect = "Allow"
-    actions = [
-      "ec2:CreateTags",
-    ]
-    resources = [
-      "arn:aws:ec2:*::image/*"
-    ]
-  }
-
-  statement {
     sid    = "AllowEC2Access"
     effect = "Allow"
     actions = [
@@ -47,7 +38,9 @@ data "aws_iam_policy_document" "ami_cleanup_lambda" {
       "ec2:DescribeInstances",
     ]
     resources = [
-      "*"
+      "arn:aws:ec2:*::image/*",
+      "arn:aws:ec2:*::snapshot/*",
+      "arn:aws:ec2:*:*:instance/*",
     ]
   }
 
@@ -68,13 +61,14 @@ resource "aws_iam_role_policy" "ami_cleanup_lambda" {
   }
 }
 
+#tfsec:ignore:aws-cloudwatch-log-group-customer-key
 resource "aws_cloudwatch_log_group" "ami_cleanup_log_group" {
   name              = "/aws/lambda/${aws_lambda_function.ami_cleanup.function_name}"
   retention_in_days = 30
 }
 
 module "ami_cleanup_function_code" {
-  source = "github.com/18F/identity-terraform//null_archive?ref=0fe0243d7df353014c757a72ef0c48f5805fb3d3"
+  source = "github.com/18F/identity-terraform//null_archive?ref=ce6350a87980eed8b5e07d61c4265728c5215fcd"
 
   source_code_filename = "ami_cleanup.py"
   source_dir           = "${path.module}/files/"
@@ -82,6 +76,7 @@ module "ami_cleanup_function_code" {
   zip_filename = "ami_cleanup.zip"
 }
 
+#tfsec:ignore:aws-lambda-enable-tracing
 resource "aws_lambda_function" "ami_cleanup" {
   filename         = module.ami_cleanup_function_code.zip_output_path
   function_name    = "ami_cleanup"

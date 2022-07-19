@@ -395,3 +395,8 @@ variable "accountids" {
 variable "gitlab_backup_retention_days" {
   default = 90
 }
+
+variable "use_waf_rules" {
+  default     = false
+  description = "Whether to use WAF instead of Security Group rules for the ALB. Allows public acccess to some paths."
+}

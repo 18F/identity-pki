@@ -301,7 +301,7 @@ resource "aws_s3_bucket" "gitlab_buckets" {
 resource "aws_s3_bucket_acl" "gitlab_buckets" {
   for_each = toset(local.gitlab_buckets)
   bucket   = each.key
-  acl = "private"
+  acl      = "private"
 }
 
 resource "aws_s3_bucket_versioning" "gitlab_buckets" {

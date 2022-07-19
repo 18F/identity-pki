@@ -80,7 +80,6 @@ module "main" {
     "login-gov-doc",
     "login-gov-jjg-analytics-secrets",
     "login-gov-kinesis-failed-events",
-    "login-gov-rds-backup-pt2.894947205914-us-west-2",
     "login-gov-s3-object-logging-dev",
     "login-gov-test-coverage",
     "login-gov.scripts.lambda",

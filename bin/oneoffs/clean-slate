@@ -4,48 +4,102 @@
 # To be used if completely resetting an account and starting fresh
 # with a deploy from terraform/all.
 
-set -eu
+set -euo pipefail
 
 . "$(dirname "$0")/../lib/common.sh"
+. "$(dirname "$0")/../lib/acct-lib.sh"
 
 usage() {
     cat >&2 << EOM
 
-Usage: ${0}
+Usage: ${0} [-slxbt12345] IAM_USER_PROFILE_NAME
 
-Deletes the \`terraform_locks\` DynamoDB table and any leftover S3 buckets
-from an account. Should only be used when resetting an account back to a
-clean slate and then repopulating it with the resources from terraform/all.
+Runs all necessary tasks to tear down the basic infrastructure for an AWS account.
+Ideally, should only be used when resetting an account back to a clean slate and
+then repopulating it with the resources in the terraform/all directory.
+
+MUST be run as an IAM user (/not/ an assumed role) within said account,
+which has the AdministrativeAccess IAM policy attached,
+identified in ~/.aws/config as \`IAM_USER_PROFILE_NAME\` (required argument).
+
+The tasks in this script can also be individually executed as follows:
+
+  -s, -1 : Removes all objects + versions from the account's 'secrets' S3 bucket,
+           allowing Terraform to delete the bucket when the 'destroy' operation runs.
+           (Step: 1_empty_secrets_bucket)
+  -m, -2 : Removes the entire 'tf-state' module from state, as many of them have
+           prevent_destroy = true and will be deleted later in the script anyway.
+           (Step: 2_rm_state_module)
+  -x, -3 : Runs 'terraform destroy' to delete all other resources that are defined
+           in the terraform/all directory.
+           (Step: 3_tf_destroy_all)
+  -b, -4 : Empties and deletes any S3 buckets that remain in the account, which
+           includes the 's3-access-logs' and 'tf-state' buckets.
+           (Step: 4_rm_remaining_buckets)
+  -t, -5 : Deletes the \`terraform_locks\` DynamoDB table from the account.
+           (Step: 5_delete_tf_locks_table)
+  -h     : Displays this help
 
 EOM
 }
 
-[ $# -gt 0 ] && raise 'No arguments needed'
-verify_root_repo
+# empty the secrets bucket so that Terraform can actually destroy it
+1_empty_secrets_bucket() {
+  empty_bucket_with_versions $(aws s3 ls | grep '\.secrets\.' | awk '{print $NF}')
+}
 
-AWS_ACCOUNT_NUM=$(aws sts get-caller-identity | jq -r '.Account')
-AWS_ACCT_NAME=$(aws iam list-account-aliases | jq -r '.AccountAliases[]')
+# remove tf-state module from Terraform; buckets and table are emptied
+# and deleted in 5_delete_tf_locks_table below
+2_rm_state_module() {
+  bin/tf-deploy -t "all/${TF_ACCT}" state rm 'module.main.module.tf-state'
+}
 
-if [[ $(grep -E "# login-.*(prod|sandbox|master)" "terraform/master/global/main.tf" |
-            sed -E 's/^.*\"([0-9]+)\".*$/\1/' | grep "${AWS_ACCOUNT_NUM}" ) ]] ; then
-  raise 'Cannot delete sandbox/prod/master accounts!'
-fi
+3_tf_destroy_all() {
+  bin/tf-deploy -t "all/${TF_ACCT}" destroy \
+    -auto-approve -var 'opsgenie_key_ready=false'
+}
 
-if ! prompt_yn "Delete S3 buckets and DynamoDB table from AWS account ${AWS_ACCOUNT_NUM} (${AWS_ACCT_NAME}) ? " ; then
-  echo_blue "Exiting."
-  exit 0
-else
+# empty + delete buckets not destroyed by Terraform (e.g. s3-access-logs, tf-state)
+4_rm_remaining_buckets() {
   for BUCKET in $(aws s3api list-buckets --output text --query 'Buckets[*].Name'); do
-    run aws s3 rm s3://${BUCKET} --recursive
-    run python -c "import boto3 ;\
-      session = boto3.Session() ;\
-      s3 = session.resource(service_name='s3') ;\
-      bucket = s3.Bucket('${BUCKET}') ;\
-      bucket.object_versions.delete()"
+    run empty_bucket_with_versions ${BUCKET}
     run aws s3api delete-bucket --bucket ${BUCKET}
   done
+}
+
+5_delete_tf_locks_table() {
   run aws dynamodb delete-table --table-name terraform_locks
   echo_blue "Waiting for deletion of \`terraform_locks\` to complete..."
   run aws dynamodb wait table-not-exists --table-name terraform_locks
-  echo "Deletion complete!"
-fi
+}
+
+declare {TF_ACCT,ACCT_ID}=
+verify_root_repo
+
+TASKS=(
+  "1_empty_secrets_bucket"
+  "2_rm_state_module"
+  "3_tf_destroy_all"
+  "4_rm_remaining_buckets"
+  "5_delete_tf_locks_table"
+)
+TODO=()
+
+while getopts s1l2x3b4t5 opt
+do
+  case $opt in
+    1|s) TODO+=("${TASKS[0]}") ;;
+    2|m) TODO+=("${TASKS[1]}") ;;
+    3|x) TODO+=("${TASKS[2]}") ;;
+    4|b) TODO+=("${TASKS[3]}") ;;
+    5|t) TODO+=("${TASKS[4]}") ;;
+    h) help_me                 ;;
+    *) usage && exit 1         ;;
+  esac
+done
+shift $((OPTIND-1))
+
+export AWS_PROFILE=$1
+verify_account_info
+
+run_tasks

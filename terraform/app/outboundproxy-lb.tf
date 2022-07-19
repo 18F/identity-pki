@@ -1,8 +1,10 @@
 resource "aws_lb" "obproxy" {
-  name                             = "${var.env_name}-obproxy"
-  internal                         = true
-  load_balancer_type               = "network"
-  subnets                          = [for subnet in aws_subnet.app : subnet.id]
+  name               = "${var.env_name}-obproxy"
+  internal           = true
+  load_balancer_type = "network"
+
+  subnets = [for subnet in aws_subnet.app : subnet.id]
+
   enable_cross_zone_load_balancing = true
 
   tags = {

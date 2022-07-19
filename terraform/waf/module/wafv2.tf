@@ -4,12 +4,16 @@ locals {
   }
 }
 
-data "aws_lb" "idp" {
+data "aws_lb" "alb" {
   name = var.lb_name != "" ? var.lb_name : "login-idp-alb-${var.env}"
-
 }
 
-resource "aws_wafv2_web_acl" "idp" {
+moved {
+  from = aws_wafv2_web_acl.idp
+  to   = aws_wafv2_web_acl.alb
+}
+
+resource "aws_wafv2_web_acl" "alb" {
   name        = local.web_acl_name
   description = "ACL for ${local.web_acl_name}"
   scope       = "REGIONAL"
@@ -18,9 +22,31 @@ resource "aws_wafv2_web_acl" "idp" {
     allow {}
   }
 
+  # Only this rule has the 'allow' action, short-circuiting the other rules.
+  dynamic "rule" {
+    for_each = length(var.privileged_ips) > 0 ? [1] : []
+    content {
+      name     = "AllowPrivilegedIPs"
+      priority = 50
+      action {
+        allow {}
+      }
+      statement {
+        ip_set_reference_statement {
+          arn = aws_wafv2_ip_set.privileged_ips[0].arn
+        }
+      }
+      visibility_config {
+        cloudwatch_metrics_enabled = true
+        metric_name                = "${local.web_acl_name}-PrivilegedIPs-metric"
+        sampled_requests_enabled   = true
+      }
+    }
+  }
+
   rule {
     name     = "IdpBlockIpAddresses"
-    priority = 1
+    priority = 100
 
     action {
       dynamic "block" {
@@ -49,7 +75,7 @@ resource "aws_wafv2_web_acl" "idp" {
 
   rule {
     name     = "AWSManagedRulesAmazonIpReputationList"
-    priority = 2
+    priority = 200
 
     override_action {
       dynamic "none" {
@@ -87,7 +113,7 @@ resource "aws_wafv2_web_acl" "idp" {
 
   rule {
     name     = "AWSManagedRulesCommonRuleSet"
-    priority = 3
+    priority = 300
 
     override_action {
       dynamic "none" {
@@ -125,7 +151,7 @@ resource "aws_wafv2_web_acl" "idp" {
 
   rule {
     name     = "AWSManagedRulesKnownBadInputsRuleSet"
-    priority = 4
+    priority = 400
 
     override_action {
       dynamic "none" {
@@ -163,7 +189,7 @@ resource "aws_wafv2_web_acl" "idp" {
 
   rule {
     name     = "AWSManagedRulesLinuxRuleSet"
-    priority = 5
+    priority = 500
 
     override_action {
       dynamic "none" {
@@ -201,7 +227,7 @@ resource "aws_wafv2_web_acl" "idp" {
 
   rule {
     name     = "AWSManagedRulesSQLiRuleSet"
-    priority = 6
+    priority = 600
 
     override_action {
       dynamic "none" {
@@ -259,7 +285,7 @@ resource "aws_wafv2_web_acl" "idp" {
 
   rule {
     name     = "IdpOtpSendRateLimited"
-    priority = 7
+    priority = 700
 
     action {
       dynamic "block" {
@@ -317,11 +343,12 @@ resource "aws_wafv2_web_acl" "idp" {
       sampled_requests_enabled   = true
     }
   }
+
   dynamic "rule" {
     for_each = length(var.header_block_regex) >= 1 ? [1] : []
     content {
       name     = "IdpHeaderRegexBlock"
-      priority = 8
+      priority = 800
 
       action {
         dynamic "block" {
@@ -371,7 +398,7 @@ resource "aws_wafv2_web_acl" "idp" {
     for_each = length(var.query_block_regex) >= 1 ? [1] : []
     content {
       name     = "IdpQueryRegexBlock"
-      priority = 9
+      priority = 900
 
       action {
         dynamic "block" {
@@ -411,7 +438,7 @@ resource "aws_wafv2_web_acl" "idp" {
     for_each = length(var.geo_block_list) >= 1 ? [1] : []
     content {
       name     = "GeoBlockRegion"
-      priority = 0
+      priority = 1000
 
       action {
         dynamic "block" {
@@ -439,6 +466,83 @@ resource "aws_wafv2_web_acl" "idp" {
       }
     }
   }
+
+  dynamic "rule" {
+    for_each = length(var.restricted_paths.paths) > 0 ? [1] : []
+    content {
+      name     = "BlockPaths"
+      priority = 1100
+      action {
+        block {}
+      }
+      statement {
+        and_statement {
+          statement {
+            not_statement {
+              statement {
+                regex_pattern_set_reference_statement {
+                  arn = aws_wafv2_regex_pattern_set.restricted_paths_exclusions.arn
+                  field_to_match {
+                    uri_path {}
+                  }
+                  text_transformation {
+                    priority = 0
+                    type     = "LOWERCASE"
+                  }
+                }
+              }
+            }
+          }
+          statement {
+            regex_pattern_set_reference_statement {
+              arn = aws_wafv2_regex_pattern_set.restricted_paths.arn
+              field_to_match {
+                uri_path {}
+              }
+              text_transformation {
+                priority = 0
+                type     = "LOWERCASE"
+              }
+            }
+          }
+        }
+      }
+      visibility_config {
+        cloudwatch_metrics_enabled = true
+        metric_name                = "${var.env}-restricted-paths-BlockPaths-metric"
+        sampled_requests_enabled   = true
+      }
+    }
+  }
+
+  dynamic "rule" {
+    for_each = length(var.geo_allow_list) >= 1 ? [1] : []
+    content {
+      name     = "GeoAllowRegion"
+      priority = 1200
+
+      action {
+        block {}
+      }
+
+      statement {
+        not_statement {
+          statement {
+            geo_match_statement {
+              country_codes = var.geo_allow_list
+            }
+          }
+        }
+      }
+
+      visibility_config {
+        cloudwatch_metrics_enabled = true
+        metric_name                = "${local.web_acl_name}-GeoAllowRegion-metric"
+        sampled_requests_enabled   = true
+      }
+    }
+  }
+
   visibility_config {
     cloudwatch_metrics_enabled = true
     metric_name                = "${local.web_acl_name}-metric"
@@ -450,16 +554,26 @@ resource "aws_wafv2_web_acl" "idp" {
   }
 }
 
-resource "aws_wafv2_web_acl_logging_configuration" "idp" {
+moved {
+  from = aws_wafv2_web_acl_logging_configuration.idp
+  to   = aws_wafv2_web_acl_logging_configuration.alb
+}
+
+resource "aws_wafv2_web_acl_logging_configuration" "alb" {
   log_destination_configs = [
     aws_cloudwatch_log_group.cw_waf_logs.arn
   ]
-  resource_arn = aws_wafv2_web_acl.idp.arn
+  resource_arn = aws_wafv2_web_acl.alb.arn
 }
 
-resource "aws_wafv2_web_acl_association" "idp" {
-  resource_arn = data.aws_lb.idp.arn
-  web_acl_arn  = aws_wafv2_web_acl.idp.arn
+moved {
+  from = aws_wafv2_web_acl_association.idp
+  to   = aws_wafv2_web_acl_association.alb
+}
+
+resource "aws_wafv2_web_acl_association" "alb" {
+  resource_arn = data.aws_lb.alb.arn
+  web_acl_arn  = aws_wafv2_web_acl.alb.arn
 }
 
 resource "aws_cloudwatch_metric_alarm" "wafv2_blocked_alert" {
