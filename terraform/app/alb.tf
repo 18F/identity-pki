@@ -16,17 +16,25 @@ resource "aws_alb" "idp" {
 }
 
 locals {
-  # In prod, the TLS cert has only "secure.<domain>"
-  # In other environments, the TLS cert has "idp.<env>.<domain>" and "<env>.<domain>"
+  # In prod, the TLS cert has only "secure.origin.<domain>"
+  # In other environments, the TLS cert has "idp.origin.<env>.<domain>" and "<env>.<domain>"
+  # DNS name for the alb for the idp instances
+  idp_origin_name = var.env_name == "prod" ? "secure.origin.${var.root_domain}" : "idp.origin.${var.env_name}.${var.root_domain}"
+  # DNS name for the cloudfront distribution now infront of the idp instances
   idp_domain_name = var.env_name == "prod" ? "secure.${var.root_domain}" : "idp.${var.env_name}.${var.root_domain}"
-
-  idp_subject_alt_names = var.env_name == "prod" ? [] : ["${var.env_name}.${var.root_domain}"]
+  # SAN for cloudfront dns name to allow for quicker removal of CDN
+  idp_subject_alt_names = var.env_name == "prod" ? ["secure.${var.root_domain}"] : ["idp.${var.env_name}.${var.root_domain}"]
+  idp_cdn_root          = var.env_name == "prod" ? "" : "${var.env_name}.${var.root_domain}"
+  # Allows for dynamic configuration of aws_lb_listener_rule.idp_ssl, since listener
+  # rules will collide on the priority swapping from 0 <-> 100 for two listener rules
+  host_header_enabled = var.enable_idp_cdn == true ? [] : ["enabled"]
+  http_header_enabled = var.enable_idp_cdn == true ? ["enabled"] : []
 }
 
 # Create a TLS certificate with ACM
 module "acm-cert-idp" {
   source                    = "github.com/18F/identity-terraform//acm_certificate?ref=a6261020a94b77b08eedf92a068832f21723f7a2"
-  domain_name               = local.idp_domain_name
+  domain_name               = local.idp_origin_name
   subject_alternative_names = local.idp_subject_alt_names
   validation_zone_id        = var.route53_id
 }
@@ -43,6 +51,7 @@ resource "aws_alb_listener" "idp" {
   }
 }
 
+# SSL Listener for ALB, swapped default to redirect for use with Cloudfront
 resource "aws_alb_listener" "idp-ssl" {
   depends_on = [module.acm-cert-idp.finished_id] # don't use cert until valid
 
@@ -51,10 +60,48 @@ resource "aws_alb_listener" "idp-ssl" {
   port              = "443"
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-TLS-1-2-2017-01"
-
   default_action {
-    target_group_arn = aws_alb_target_group.idp-ssl.id
+    type = "redirect"
+    redirect {
+      host        = local.idp_domain_name
+      path        = "/#{path}"
+      port        = "#{port}"
+      protocol    = "#{protocol}"
+      query       = "#{query}"
+      status_code = "HTTP_301"
+    }
+  }
+}
+
+# Either allows traffic to IDP based on new Cloudfront header if Cloudfront is
+# enabled. Otherwise it allows traffic to idp servers based on hostname if
+# Cloudfront is disabled to prevent a collision between two aws_lb_listner_rule
+# resources swapping their priority from 0 <-> 100
+resource "aws_lb_listener_rule" "idp_ssl" {
+  listener_arn = aws_alb_listener.idp-ssl.arn
+  priority     = 100
+
+  action {
     type             = "forward"
+    target_group_arn = aws_alb_target_group.idp-ssl.arn
+  }
+
+  condition {
+    # Conditionally populated if Cloudfront is disabled
+    dynamic "host_header" {
+      for_each = local.host_header_enabled
+      content {
+        values = [local.idp_domain_name]
+      }
+    }
+    # Conditionally populated if Cloudfront is enabled
+    dynamic "http_header" {
+      for_each = local.http_header_enabled
+      content {
+        http_header_name = local.cloudfront_security_header.name
+        values           = local.cloudfront_security_header.value
+      }
+    }
   }
 }
 
@@ -108,33 +155,13 @@ resource "aws_alb_target_group" "idp-ssl" {
   }
 }
 
-# secure.login.gov is the production-only name for the IDP app
-resource "aws_route53_record" "c_alb_production" {
-  count   = var.env_name == "prod" ? 1 : 0
-  name    = "secure.login.gov"
-  records = [aws_alb.idp.dns_name]
-  ttl     = "300"
-  type    = "CNAME"
-  zone_id = var.route53_id
-}
-
-# non-prod envs are currently configured to both idp.<env>.login.gov
-# and <env>.login.gov
-resource "aws_route53_record" "c_alb" {
-  count   = var.env_name == "prod" ? 0 : 1
-  name    = "${var.env_name}.${var.root_domain}"
-  records = [aws_alb.idp.dns_name]
-  ttl     = "300"
-  type    = "CNAME"
-  zone_id = var.route53_id
-}
-
-resource "aws_route53_record" "c_alb_idp" {
-  count   = var.env_name == "prod" ? 0 : 1
-  name    = "idp.${var.env_name}.${var.root_domain}"
-  records = [aws_alb.idp.dns_name]
-  ttl     = "300"
-  type    = "CNAME"
-  zone_id = var.route53_id
+# Creates idp.origin or secure.origin domain name
+resource "aws_route53_record" "origin_alb_idp" {
+  depends_on = [aws_cloudfront_distribution.idp_static_cdn]
+  name       = local.idp_origin_name
+  records    = [aws_alb.idp.dns_name]
+  ttl        = "300"
+  type       = "CNAME"
+  zone_id    = var.route53_id
 }
 

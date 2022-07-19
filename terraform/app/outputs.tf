@@ -26,3 +26,21 @@ output "jumphost-lb" {
   value = aws_route53_record.jumphost-elb-public.name
 }
 
+output "idp_dns_name" {
+  value = aws_route53_record.c_cloudfront_idp.fqdn
+}
+
+output "idp_origin_dns_name" {
+  value = aws_route53_record.origin_alb_idp.fqdn
+}
+
+output "region" {
+  value = var.region
+}
+
+output "idp_custom_pages" {
+  description = "List of custom error pages served up by cloudfront"
+  value = [
+    for k, v in var.cloudfront_custom_pages : "https://${aws_route53_record.c_cloudfront_idp.fqdn}/${k}"
+  ]
+}

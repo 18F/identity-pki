@@ -2,6 +2,24 @@ data "aws_sns_topic" "cloudfront_alarm" {
   name = "devops_high_priority"
 }
 
+data "aws_cloudfront_cache_policy" "managed_caching_disabled" {
+  name = "Managed-CachingDisabled"
+}
+
+resource "random_string" "security_header" {
+  length  = 32
+  special = false
+}
+
+locals {
+  # Prevents access directly to origin using a rule on the alb listener
+  # Name and random value are arbitrary, can be any string for each
+  cloudfront_security_header = {
+    name  = "Origin-Access-Control",
+    value = [random_string.security_header.result]
+  }
+}
+
 # Create a TLS certificate with ACM
 module "acm-cert-idp-static-cdn" {
   count  = var.enable_idp_cdn ? 1 : 0
@@ -11,18 +29,20 @@ module "acm-cert-idp-static-cdn" {
     aws = aws.use1
   }
 
-  domain_name        = "static.${local.idp_domain_name}"
-  validation_zone_id = var.route53_id
+  domain_name               = local.idp_domain_name
+  subject_alternative_names = compact(flatten([local.idp_cdn_root, local.idp_origin_name]))
+  validation_zone_id        = var.route53_id
 }
 
 resource "aws_cloudfront_distribution" "idp_static_cdn" {
   count = var.enable_idp_cdn ? 1 : 0
 
   depends_on = [
-    aws_s3_bucket.idp_static_bucket[0],
-    module.acm-cert-idp-static-cdn[0].finished_id
+    module.acm-cert-idp[0].finished_id,
+    aws_cloudfront_origin_request_policy.idp_origin
   ]
 
+  # Origin for serving static content with s3 bucket as origin
   origin {
     # Using regional S3 name here per:
     #  https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/DownloadDistS3AndCustomOrigins.html#concept_S3Origin
@@ -33,26 +53,64 @@ resource "aws_cloudfront_distribution" "idp_static_cdn" {
     }
   }
 
+  # Origin for serving dynamic content with idp server as origin
+  origin {
+    domain_name = local.idp_origin_name
+    origin_id   = "dynamic-idp-${var.env_name}"
+    custom_header {
+      name  = local.cloudfront_security_header.name
+      value = local.cloudfront_security_header.value[0]
+    }
+    custom_origin_config {
+      http_port              = "80"
+      https_port             = "443"
+      origin_protocol_policy = "https-only"
+      origin_ssl_protocols = [
+        "TLSv1.2"
+      ]
+    }
+  }
+
   enabled         = true
   is_ipv6_enabled = true
-  aliases         = ["static.${local.idp_domain_name}"]
+  aliases         = compact(flatten([local.idp_cdn_root, local.idp_origin_name, local.idp_domain_name]))
 
-  # Throwaway default
-  default_root_object = "/index.html"
+  default_root_object = var.enable_cloudfront_maintenance_page ? "maintenance/maintenance.html" : ""
 
+  # Cache behavior for static resources coming from s3 origin
+  # Makes a cache behavior for each path in var.cloudfront_s3_cache_path
+  dynamic "ordered_cache_behavior" {
+    for_each = var.cloudfront_s3_cache_paths
+    content {
+      path_pattern     = ordered_cache_behavior.value.path
+      allowed_methods  = ["HEAD", "GET"]
+      cached_methods   = ["HEAD", "GET"]
+      target_origin_id = "static-idp-${var.env_name}"
+
+      cache_policy_id          = ordered_cache_behavior.value.caching_enabled ? data.aws_cloudfront_cache_policy.managed_caching_optimized.id : data.aws_cloudfront_cache_policy.managed_caching_disabled.id
+      origin_request_policy_id = data.aws_cloudfront_origin_request_policy.managed_cors_s3origin.id
+
+      min_ttl                = 0
+      viewer_protocol_policy = "https-only"
+      compress               = true
+    }
+  }
+
+  # Cache behavior for dynamic resources coming from idp origin
   default_cache_behavior {
-    allowed_methods  = ["HEAD", "GET"]
+    allowed_methods  = ["HEAD", "GET", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
     cached_methods   = ["HEAD", "GET"]
-    target_origin_id = "static-idp-${var.env_name}"
+    target_origin_id = "dynamic-idp-${var.env_name}"
 
-    cache_policy_id          = data.aws_cloudfront_cache_policy.managed_caching_optimized.id
-    origin_request_policy_id = data.aws_cloudfront_origin_request_policy.managed_cors_s3origin.id
+    cache_policy_id          = data.aws_cloudfront_cache_policy.managed_caching_disabled.id
+    origin_request_policy_id = aws_cloudfront_origin_request_policy.idp_origin.id
 
     min_ttl                = 0
-    viewer_protocol_policy = "https-only"
+    viewer_protocol_policy = "redirect-to-https"
     compress               = true
   }
 
+  # Swapping cert from previous static.${local.idp_origin_name} to the idp cert
   viewer_certificate {
     acm_certificate_arn = module.acm-cert-idp-static-cdn[0].cert_arn
     # TLS version should align with idp-alg setting
@@ -64,6 +122,17 @@ resource "aws_cloudfront_distribution" "idp_static_cdn" {
   restrictions {
     geo_restriction {
       restriction_type = "none"
+    }
+  }
+
+  # Custom error responses
+  dynamic "custom_error_response" {
+    for_each = var.cloudfront_custom_error_responses
+    content {
+      error_caching_min_ttl = custom_error_response.value.ttl
+      error_code            = custom_error_response.value.error_code
+      response_code         = custom_error_response.value.response_code
+      response_page_path    = custom_error_response.value.response_page_path
     }
   }
 
@@ -79,10 +148,22 @@ resource "aws_cloudfront_distribution" "idp_static_cdn" {
   price_class = "PriceClass_100"
 }
 
-resource "aws_route53_record" "cname_cloudfront_idp" {
-  count   = var.enable_idp_cdn ? 1 : 0
-  name    = "static.${local.idp_domain_name}"
-  records = [aws_cloudfront_distribution.idp_static_cdn[count.index].domain_name]
+# non-prod envs are currently configured to both idp.<env>.identitysandbox.gov
+# and <env>.identitysandbox.gov
+resource "aws_route53_record" "c_cloudfront_env" {
+  count   = var.env_name == "prod" ? 0 : 1
+  name    = "${var.env_name}.${var.root_domain}"
+  records = var.enable_idp_cdn ? [aws_cloudfront_distribution.idp_static_cdn[0].domain_name] : [aws_alb.idp.dns_name]
+  ttl     = "300"
+  type    = "CNAME"
+  zone_id = var.route53_id
+}
+
+# Swaps the idp.<env>.identitysandbox.gov or secure.login.gov to point at 
+# either cloudfront or alb depending on enable_idp_cdn toggle
+resource "aws_route53_record" "c_cloudfront_idp" {
+  name    = local.idp_domain_name
+  records = var.enable_idp_cdn ? [aws_cloudfront_distribution.idp_static_cdn[0].domain_name] : [aws_alb.idp.dns_name]
   ttl     = "300"
   type    = "CNAME"
   zone_id = var.route53_id
