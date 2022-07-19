@@ -133,7 +133,7 @@ resource "aws_autoscaling_group" "idpxtra" {
     aws_alb_target_group.idpxtra.arn
   ]
 
-  # Place in shared public blocks accross 3 AZs
+  # Place in shared public blocks across 4 AZs
   # TODO - See https://github.com/18F/identity-devops/issues/2084
   vpc_zone_identifier = [for subnet in aws_subnet.app : subnet.id]
 
