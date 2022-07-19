@@ -16,6 +16,29 @@ func assertEqual(t *testing.T, testName string, got interface{}, want interface{
 	}
 }
 
+// Ensure we build missing emails from the GSA username, not the Gitlab username
+func TestGuessEmail(t *testing.T) {
+	authUsers, err := getAuthorizedUsers("test_users.yaml")
+	if err != nil {
+		t.Errorf("Failed: %v", err)
+	}
+	for _, testData := range []struct {
+		Got  string
+		Want string
+	}{
+		{
+			Got:  authUsers.Users["krit.alexikos"].Email,
+			Want: "krit.alexikos@gsa.gov",
+		},
+		{
+			Got:  authUsers.Users["krit.alexikos"].Git_username,
+			Want: "kritty",
+		},
+	} {
+		assertEqual(t, "Process user YAML", testData.Got, testData.Want)
+	}
+}
+
 func TestResolveUsers(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
@@ -43,13 +66,13 @@ func TestResolveUsers(t *testing.T) {
 					Email:    "alexandra.thegreat@gsa.gov",
 					ID:       3,
 					Username: "alexandra.thegreat",
-					State: "blocked",
+					State:    "blocked",
 				},
 				"alexander.theok": {
 					Email:    "alexander.theok@gsa.gov",
 					ID:       4,
 					Username: "alexander.theok",
-					State: "deactivated",
+					State:    "deactivated",
 				},
 				"ghost": {
 					Username: "ghost",

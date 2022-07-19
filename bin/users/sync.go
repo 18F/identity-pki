@@ -412,6 +412,15 @@ func getAuthorizedUsers(f string) (*AuthorizedUsers, error) {
 	if err != nil {
 		return nil, err
 	}
+	// Postprocess the YAML to fill in blank fields
+	for gsaUsername, userAttrs := range authorizedUsers.Users {
+		if userAttrs.Email == "" {
+			userAttrs.Email = fmt.Sprintf("%v@gsa.gov", gsaUsername)
+		}
+		if userAttrs.Name == "" {
+			userAttrs.Name = gsaUsername
+		}
+	}
 	return &authorizedUsers, nil
 }
 
@@ -620,21 +629,11 @@ func updateUser(gitc GitlabClientIface, gitlabUser *gitlab.User, userAttrs *Auth
 func createUser(gitc GitlabClientIface, username string, userAttrs *AuthUser) error {
 	fatalIfDryRun("User %v should exist, but doesn't.", username)
 
-	email := fmt.Sprintf("%v@gsa.gov", username)
-	if userAttrs.Email != "" {
-		email = userAttrs.Email
-	}
-
-	name := username
-	if userAttrs.Name != "" {
-		name = userAttrs.Name
-	}
-
 	options := &gitlab.CreateUserOptions{
-		Email:               gitlab.String(email),
+		Email:               gitlab.String(userAttrs.Email),
 		ForceRandomPassword: gitlab.Bool(true),
 		Username:            gitlab.String(username),
-		Name:                gitlab.String(name),
+		Name:                gitlab.String(userAttrs.Name),
 		SkipConfirmation:    gitlab.Bool(true),
 		CanCreateGroup:      gitlab.Bool(userAttrs.Can_create_group),
 	}
