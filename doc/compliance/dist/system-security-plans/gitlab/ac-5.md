@@ -1,7 +1,9 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
+  - c-in-parent-ssp
+
 effort:
   - medium
 ---
@@ -33,7 +35,15 @@ Determine if the organization:
 
 ## Control guidance
 
-Separation of duties addresses the potential for abuse of authorized privileges and helps to reduce the risk of malevolent activity without collusion. Separation of duties includes, for example: (i) dividing mission functions and information system support functions among different individuals and/or roles; (ii) conducting information system support functions with different individuals (e.g., system management, programming, configuration management, quality assurance and testing, and network security); and (iii) ensuring security personnel administering access control functions do not also administer audit functions.
+Separation of duties addresses the potential for abuse of authorized privileges
+and helps to reduce the risk of malevolent activity without
+collusion. Separation of duties includes, for example: (i) dividing mission
+functions and information system support functions among different individuals
+and/or roles; (ii) conducting information system support functions with
+different individuals (e.g., system management, programming, configuration
+management, quality assurance and testing, and network security); and (iii)
+ensuring security personnel administering access control functions do not also
+administer audit functions.
 
 ______________________________________________________________________
 
@@ -45,18 +55,18 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-Add control implementation description here for item ac-5_smt.a
+The Gitlab component uses AC-5, part A from the main login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-Add control implementation description here for item ac-5_smt.b
+The Gitlab component uses AC-5, part B from the main login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation c.
 
-Add control implementation description here for item ac-5_smt.c
+The Gitlab component uses AC-5, part C from the main login.gov SSP.
 
 ______________________________________________________________________
