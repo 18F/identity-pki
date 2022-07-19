@@ -50,7 +50,7 @@ func DoWithTimeoutE(t testing.TestingT, actionDescription string, timeout time.D
 	}
 }
 
-// DoWithRetry runs the specified action. If it returns a value, return that value. If it returns a FatalError, return that error
+// DoWithRetry runs the specified action. If it returns a string, return that string. If it returns a FatalError, return that error
 // immediately. If it returns any other type of error, sleep for sleepBetweenRetries and try again, up to a maximum of
 // maxRetries retries. If maxRetries is exceeded, fail the test.
 func DoWithRetry(t testing.TestingT, actionDescription string, maxRetries int, sleepBetweenRetries time.Duration, action func() (string, error)) string {
@@ -61,11 +61,30 @@ func DoWithRetry(t testing.TestingT, actionDescription string, maxRetries int, s
 	return out
 }
 
-// DoWithRetryE runs the specified action. If it returns a value, return that value. If it returns a FatalError, return that error
+// DoWithRetryE runs the specified action. If it returns a string, return that string. If it returns a FatalError, return that error
 // immediately. If it returns any other type of error, sleep for sleepBetweenRetries and try again, up to a maximum of
 // maxRetries retries. If maxRetries is exceeded, return a MaxRetriesExceeded error.
 func DoWithRetryE(t testing.TestingT, actionDescription string, maxRetries int, sleepBetweenRetries time.Duration, action func() (string, error)) (string, error) {
-	var output string
+	out, err := DoWithRetryInterfaceE(t, actionDescription, maxRetries, sleepBetweenRetries, func() (interface{}, error) { return action() })
+	return out.(string), err
+}
+
+// DoWithRetryInterface runs the specified action. If it returns a value, return that value. If it returns a FatalError, return that error
+// immediately. If it returns any other type of error, sleep for sleepBetweenRetries and try again, up to a maximum of
+// maxRetries retries. If maxRetries is exceeded, fail the test.
+func DoWithRetryInterface(t testing.TestingT, actionDescription string, maxRetries int, sleepBetweenRetries time.Duration, action func() (interface{}, error)) interface{} {
+	out, err := DoWithRetryInterfaceE(t, actionDescription, maxRetries, sleepBetweenRetries, action)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return out
+}
+
+// DoWithRetryInterfaceE runs the specified action. If it returns a value, return that value. If it returns a FatalError, return that error
+// immediately. If it returns any other type of error, sleep for sleepBetweenRetries and try again, up to a maximum of
+// maxRetries retries. If maxRetries is exceeded, return a MaxRetriesExceeded error.
+func DoWithRetryInterfaceE(t testing.TestingT, actionDescription string, maxRetries int, sleepBetweenRetries time.Duration, action func() (interface{}, error)) (interface{}, error) {
+	var output interface{}
 	var err error
 
 	for i := 0; i <= maxRetries; i++ {
