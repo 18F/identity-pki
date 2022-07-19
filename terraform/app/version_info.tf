@@ -1,8 +1,7 @@
-
 locals {
-  # This module expects to find the private configuration checked out in a separate
+  # This module usually expects to find the private configuration checked out in a separate
   # repository located (from the root of this repo) at ../{repo-name}-private/.
-  privatedir = "${path.module}/../../../identity-devops-private/"
+  privatedir = var.privatedir == "" ? "${path.module}/../../../identity-devops-private/" : var.privatedir
 }
 
 data "external" "version_info" {

@@ -829,6 +829,11 @@ EOM
   default     = 15
 }
 
+variable "privatedir" {
+  description = "where identity-devops-private lives.  Used for the version_info.sh script"
+  default     = ""
+}
+
 variable "cloudfront_s3_cache_paths" {
   description = <<EOM
 The list of paths to serve from the static content s3 bucket,

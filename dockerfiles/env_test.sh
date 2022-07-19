@@ -28,5 +28,11 @@ export REGION="$AWS_REGION"
 cd "$CI_PROJECT_DIR/tests"
 mkdir "$CI_PROJECT_DIR/testlogs"
 
-go test -v -timeout 60m | tee "$CI_PROJECT_DIR/test_output.log"
+go test -v -timeout 60m > "$CI_PROJECT_DIR/test_output.log"
+RETVAL=$?
+
+cat "$CI_PROJECT_DIR/test_output.log"
+
 /usr/local/bin/terratest_log_parser --testlog "$CI_PROJECT_DIR/test_output.log" --outputdir "$CI_PROJECT_DIR/testlogs"
+
+exit $RETVAL
