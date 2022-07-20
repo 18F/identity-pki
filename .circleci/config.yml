@@ -38,7 +38,7 @@ jobs:
   tfsec-check-soft:
     docker:
       # TODO - Pin this!
-      - image: aquasec/tfsec-ci:v0.63
+      - image: aquasec/tfsec-ci:v1.26.3
     working_directory: /tmp/identity-devops
     parameters:
       folder:
@@ -51,7 +51,7 @@ jobs:
 
   tfsec-check-enforce:
     docker:
-      - image: aquasec/tfsec-ci:v0.63
+      - image: aquasec/tfsec-ci:v1.26.3
     working_directory: /tmp/identity-devops
     parameters:
       folder:
