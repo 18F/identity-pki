@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
 effort:
   - medium
 ---
@@ -24,6 +24,8 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control ac-6
+Accounts are managed in code. Least privilege is achieved through role-based
+access to components. User privileges are assigned and removed dependent
+upon role-based needs within the code.
 
 ______________________________________________________________________
