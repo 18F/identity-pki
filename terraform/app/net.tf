@@ -526,9 +526,9 @@ resource "aws_security_group" "idp" {
 
   # inbound from lambda functions
   ingress {
-    from_port = 443
-    to_port   = 443
-    protocol  = "tcp"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
     cidr_blocks = [for subnet in aws_subnet.app : subnet.cidr_block]
   }
 
