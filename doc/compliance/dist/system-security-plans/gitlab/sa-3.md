@@ -1,7 +1,8 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-in-parent-ssp
+  - c-documented
 effort:
   - medium
 ---
@@ -49,24 +50,31 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-Add control implementation description here for item sa-3_smt.a
+The Gitlab component uses sa-3_smt.a from the main login.gov SSP.
+
+### Note to SSP editor:
+
+Once GitLab is approved, we will migrate all private and infrastructure
+repos to GitLab instead of GitHub, and GitLab will be used for
+continuous integration instead of CircleCI.  So this probably will
+just be a search/replace of github with gitlab.
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-Add control implementation description here for item sa-3_smt.b
+The Gitlab component uses sa-3_smt.b from the main login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation c.
 
-Add control implementation description here for item sa-3_smt.c
+The Gitlab component uses sa-3_smt.c from the main login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation d.
 
-Add control implementation description here for item sa-3_smt.d
+The Gitlab component uses sa-3_smt.d from the main login.gov SSP.
 
 ______________________________________________________________________

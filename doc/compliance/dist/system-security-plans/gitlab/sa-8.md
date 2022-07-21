@@ -1,7 +1,8 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-in-parent-ssp
+  - c-documented
 ---
 
 # sa-8 - \[catalog\] Security Engineering Principles
@@ -32,6 +33,13 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control sa-8
+The Gitlab component uses sa-8 from the main login.gov SSP.
+
+### Note to SSP editor:
+
+Once GitLab is approved, we will migrate all private and infrastructure
+repos to GitLab instead of GitHub, and GitLab will be used for
+continuous integration instead of CircleCI.  So this probably will
+just be a search/replace of github with gitlab.
 
 ______________________________________________________________________
