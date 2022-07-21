@@ -211,7 +211,7 @@ resource "aws_network_acl" "idp" {
     Name = "${var.env_name}-idp"
   }
 
-  vpc_id = aws_vpc.default.id
+  vpc_id     = aws_vpc.default.id
   subnet_ids = [for subnet in aws_subnet.app : subnet.id]
 }
 
@@ -308,7 +308,7 @@ resource "aws_network_acl_rule" "idp-ingress-s-proxy" {
 # ------------- end idp rules --------------------
 
 resource "aws_network_acl" "alb" {
-  vpc_id = aws_vpc.default.id
+  vpc_id     = aws_vpc.default.id
   subnet_ids = [for subnet in aws_subnet.public-ingress : subnet.id]
 
   tags = {
