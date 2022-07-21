@@ -27,36 +27,6 @@ resource "aws_default_network_acl" "default" {
   }
 }
 
-# A default network ACL that allows all traffic
-resource "aws_network_acl" "allow" {
-  tags = {
-    Name = "${var.env_name}-allow"
-  }
-
-  vpc_id = aws_vpc.default.id
-
-  ingress {
-    protocol   = -1
-    rule_no    = 100
-    action     = "allow"
-    cidr_block = "0.0.0.0/0"
-    from_port  = 0
-    to_port    = 0
-  }
-
-  egress {
-    protocol   = -1
-    rule_no    = 100
-    action     = "allow"
-    cidr_block = "0.0.0.0/0"
-    from_port  = 0
-    to_port    = 0
-  }
-
-  # Add basically every subnet here.
-  subnet_ids = [for subnet in aws_subnet.app : subnet.id]
-}
-
 resource "aws_network_acl" "db" {
   tags = {
     Name = "${var.env_name}-db"
