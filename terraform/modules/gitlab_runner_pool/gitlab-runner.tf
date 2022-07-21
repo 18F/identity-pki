@@ -61,6 +61,7 @@ module "gitlab_runner_launch_template" {
     is_it_an_env_runner       = var.is_it_an_env_runner ? "true" : "false"
     gitlab_ecr_repo_accountid = local.gitlab_ecr_repo_accountid
     only_on_protected_branch  = var.only_on_protected_branch ? "true" : "false"
+    gitlab_hostname           = var.gitlab_hostname
   }
 
   block_device_mappings = [

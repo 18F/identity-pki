@@ -58,11 +58,11 @@ func (c *Lambda) AddLayerVersionPermissionRequest(input *AddLayerVersionPermissi
 
 // AddLayerVersionPermission API operation for AWS Lambda.
 //
-// Adds permissions to the resource-based policy of a version of an AWS Lambda
-// layer (https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html).
+// Adds permissions to the resource-based policy of a version of an Lambda layer
+// (https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html).
 // Use this action to grant layer usage permission to other accounts. You can
-// grant permission to a single account, all AWS accounts, or all accounts in
-// an organization.
+// grant permission to a single account, all accounts in an organization, or
+// all Amazon Web Services accounts.
 //
 // To revoke permission, call RemoveLayerVersionPermission with the statement
 // ID that you specified when you added it.
@@ -76,7 +76,7 @@ func (c *Lambda) AddLayerVersionPermissionRequest(input *AddLayerVersionPermissi
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * ResourceNotFoundException
 //   The resource specified in the request does not exist.
@@ -164,19 +164,21 @@ func (c *Lambda) AddPermissionRequest(input *AddPermissionInput) (req *request.R
 
 // AddPermission API operation for AWS Lambda.
 //
-// Grants an AWS service or another account permission to use a function. You
-// can apply the policy at the function level, or specify a qualifier to restrict
-// access to a single version or alias. If you use a qualifier, the invoker
-// must use the full Amazon Resource Name (ARN) of that version or alias to
-// invoke the function.
+// Grants an Amazon Web Services service, account, or organization permission
+// to use a function. You can apply the policy at the function level, or specify
+// a qualifier to restrict access to a single version or alias. If you use a
+// qualifier, the invoker must use the full Amazon Resource Name (ARN) of that
+// version or alias to invoke the function. Note: Lambda does not support adding
+// policies to version $LATEST.
 //
 // To grant permission to another account, specify the account ID as the Principal.
-// For AWS services, the principal is a domain-style identifier defined by the
-// service, like s3.amazonaws.com or sns.amazonaws.com. For AWS services, you
-// can also specify the ARN of the associated resource as the SourceArn. If
-// you grant permission to a service principal without specifying the source,
-// other accounts could potentially configure resources in their account to
-// invoke your Lambda function.
+// To grant permission to an organization defined in Organizations, specify
+// the organization ID as the PrincipalOrgID. For Amazon Web Services services,
+// the principal is a domain-style identifier defined by the service, like s3.amazonaws.com
+// or sns.amazonaws.com. For Amazon Web Services services, you can also specify
+// the ARN of the associated resource as the SourceArn. If you grant permission
+// to a service principal without specifying the source, other accounts could
+// potentially configure resources in their account to invoke your Lambda function.
 //
 // This action adds a statement to a resource-based permissions policy for the
 // function. For more information about function policies, see Lambda Function
@@ -191,7 +193,7 @@ func (c *Lambda) AddPermissionRequest(input *AddPermissionInput) (req *request.R
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * ResourceNotFoundException
 //   The resource specified in the request does not exist.
@@ -296,7 +298,7 @@ func (c *Lambda) CreateAliasRequest(input *CreateAliasInput) (req *request.Reque
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * ResourceNotFoundException
 //   The resource specified in the request does not exist.
@@ -327,6 +329,90 @@ func (c *Lambda) CreateAlias(input *CreateAliasInput) (*AliasConfiguration, erro
 // for more information on using Contexts.
 func (c *Lambda) CreateAliasWithContext(ctx aws.Context, input *CreateAliasInput, opts ...request.Option) (*AliasConfiguration, error) {
 	req, out := c.CreateAliasRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opCreateCodeSigningConfig = "CreateCodeSigningConfig"
+
+// CreateCodeSigningConfigRequest generates a "aws/request.Request" representing the
+// client's request for the CreateCodeSigningConfig operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See CreateCodeSigningConfig for more information on using the CreateCodeSigningConfig
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the CreateCodeSigningConfigRequest method.
+//    req, resp := client.CreateCodeSigningConfigRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/CreateCodeSigningConfig
+func (c *Lambda) CreateCodeSigningConfigRequest(input *CreateCodeSigningConfigInput) (req *request.Request, output *CreateCodeSigningConfigOutput) {
+	op := &request.Operation{
+		Name:       opCreateCodeSigningConfig,
+		HTTPMethod: "POST",
+		HTTPPath:   "/2020-04-22/code-signing-configs/",
+	}
+
+	if input == nil {
+		input = &CreateCodeSigningConfigInput{}
+	}
+
+	output = &CreateCodeSigningConfigOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// CreateCodeSigningConfig API operation for AWS Lambda.
+//
+// Creates a code signing configuration. A code signing configuration (https://docs.aws.amazon.com/lambda/latest/dg/configuration-trustedcode.html)
+// defines a list of allowed signing profiles and defines the code-signing validation
+// policy (action to be taken if deployment validation checks fail).
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for AWS Lambda's
+// API operation CreateCodeSigningConfig for usage and error information.
+//
+// Returned Error Types:
+//   * ServiceException
+//   The Lambda service encountered an internal error.
+//
+//   * InvalidParameterValueException
+//   One of the parameters in the request is invalid.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/CreateCodeSigningConfig
+func (c *Lambda) CreateCodeSigningConfig(input *CreateCodeSigningConfigInput) (*CreateCodeSigningConfigOutput, error) {
+	req, out := c.CreateCodeSigningConfigRequest(input)
+	return out, req.Send()
+}
+
+// CreateCodeSigningConfigWithContext is the same as CreateCodeSigningConfig with the addition of
+// the ability to pass a context and additional request options.
+//
+// See CreateCodeSigningConfig for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lambda) CreateCodeSigningConfigWithContext(ctx aws.Context, input *CreateCodeSigningConfigInput, opts ...request.Option) (*CreateCodeSigningConfigOutput, error) {
+	req, out := c.CreateCodeSigningConfigRequest(input)
 	req.SetContext(ctx)
 	req.ApplyOptions(opts...)
 	return out, req.Send()
@@ -376,18 +462,23 @@ func (c *Lambda) CreateEventSourceMappingRequest(input *CreateEventSourceMapping
 
 // CreateEventSourceMapping API operation for AWS Lambda.
 //
-// Creates a mapping between an event source and an AWS Lambda function. Lambda
+// Creates a mapping between an event source and an Lambda function. Lambda
 // reads items from the event source and triggers the function.
 //
-// For details about each event source type, see the following topics.
+// For details about how to configure different event sources, see the following
+// topics.
 //
-//    * Using AWS Lambda with Amazon DynamoDB (https://docs.aws.amazon.com/lambda/latest/dg/with-ddb.html)
+//    * Amazon DynamoDB Streams (https://docs.aws.amazon.com/lambda/latest/dg/with-ddb.html#services-dynamodb-eventsourcemapping)
 //
-//    * Using AWS Lambda with Amazon Kinesis (https://docs.aws.amazon.com/lambda/latest/dg/with-kinesis.html)
+//    * Amazon Kinesis (https://docs.aws.amazon.com/lambda/latest/dg/with-kinesis.html#services-kinesis-eventsourcemapping)
 //
-//    * Using AWS Lambda with Amazon SQS (https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html)
+//    * Amazon SQS (https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html#events-sqs-eventsource)
 //
-//    * Using AWS Lambda with Amazon MSK (https://docs.aws.amazon.com/lambda/latest/dg/with-msk.html)
+//    * Amazon MQ and RabbitMQ (https://docs.aws.amazon.com/lambda/latest/dg/with-mq.html#services-mq-eventsourcemapping)
+//
+//    * Amazon MSK (https://docs.aws.amazon.com/lambda/latest/dg/with-msk.html)
+//
+//    * Apache Kafka (https://docs.aws.amazon.com/lambda/latest/dg/kafka-smaa.html)
 //
 // The following error handling options are only available for stream sources
 // (DynamoDB and Kinesis):
@@ -399,13 +490,29 @@ func (c *Lambda) CreateEventSourceMappingRequest(input *CreateEventSourceMapping
 //    Amazon SNS topic.
 //
 //    * MaximumRecordAgeInSeconds - Discard records older than the specified
-//    age. Default -1 (infinite). Minimum 60. Maximum 604800.
+//    age. The default value is infinite (-1). When set to infinite (-1), failed
+//    records are retried until the record expires
 //
 //    * MaximumRetryAttempts - Discard records after the specified number of
-//    retries. Default -1 (infinite). Minimum 0. Maximum 10000. When infinite,
-//    failed records will be retried until the record expires.
+//    retries. The default value is infinite (-1). When set to infinite (-1),
+//    failed records are retried until the record expires.
 //
 //    * ParallelizationFactor - Process multiple batches from each shard concurrently.
+//
+// For information about which configuration parameters apply to each event
+// source, see the following topics.
+//
+//    * Amazon DynamoDB Streams (https://docs.aws.amazon.com/lambda/latest/dg/with-ddb.html#services-ddb-params)
+//
+//    * Amazon Kinesis (https://docs.aws.amazon.com/lambda/latest/dg/with-kinesis.html#services-kinesis-params)
+//
+//    * Amazon SQS (https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html#services-sqs-params)
+//
+//    * Amazon MQ and RabbitMQ (https://docs.aws.amazon.com/lambda/latest/dg/with-mq.html#services-mq-params)
+//
+//    * Amazon MSK (https://docs.aws.amazon.com/lambda/latest/dg/with-msk.html#services-msk-parms)
+//
+//    * Apache Kafka (https://docs.aws.amazon.com/lambda/latest/dg/with-kafka.html#services-kafka-parms)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -416,7 +523,7 @@ func (c *Lambda) CreateEventSourceMappingRequest(input *CreateEventSourceMapping
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * InvalidParameterValueException
 //   One of the parameters in the request is invalid.
@@ -497,11 +604,26 @@ func (c *Lambda) CreateFunctionRequest(input *CreateFunctionInput) (req *request
 // CreateFunction API operation for AWS Lambda.
 //
 // Creates a Lambda function. To create a function, you need a deployment package
-// (https://docs.aws.amazon.com/lambda/latest/dg/deployment-package-v2.html)
+// (https://docs.aws.amazon.com/lambda/latest/dg/gettingstarted-package.html)
 // and an execution role (https://docs.aws.amazon.com/lambda/latest/dg/intro-permission-model.html#lambda-intro-execution-role).
-// The deployment package contains your function code. The execution role grants
-// the function permission to use AWS services, such as Amazon CloudWatch Logs
-// for log streaming and AWS X-Ray for request tracing.
+// The deployment package is a .zip file archive or container image that contains
+// your function code. The execution role grants the function permission to
+// use Amazon Web Services services, such as Amazon CloudWatch Logs for log
+// streaming and X-Ray for request tracing.
+//
+// You set the package type to Image if the deployment package is a container
+// image (https://docs.aws.amazon.com/lambda/latest/dg/lambda-images.html).
+// For a container image, the code property must include the URI of a container
+// image in the Amazon ECR registry. You do not need to specify the handler
+// and runtime properties.
+//
+// You set the package type to Zip if the deployment package is a .zip file
+// archive (https://docs.aws.amazon.com/lambda/latest/dg/gettingstarted-package.html#gettingstarted-package-zip).
+// For a .zip file archive, the code property specifies the location of the
+// .zip file. You must also specify the handler and runtime properties. The
+// code in the deployment package must be compatible with the target instruction
+// set architecture of the function (x86-64 or arm64). If you do not specify
+// the architecture, the default value is x86-64.
 //
 // When you create a function, Lambda provisions an instance of the function
 // and its supporting resources. If your function connects to a VPC, this process
@@ -524,14 +646,21 @@ func (c *Lambda) CreateFunctionRequest(input *CreateFunctionInput) (req *request
 // of the function, and include tags (TagResource) and per-function concurrency
 // limits (PutFunctionConcurrency).
 //
-// If another account or an AWS service invokes your function, use AddPermission
-// to grant permission by creating a resource-based IAM policy. You can grant
-// permissions at the function level, on a version, or on an alias.
+// You can use code signing if your deployment package is a .zip file archive.
+// To enable code signing for this function, specify the ARN of a code-signing
+// configuration. When a user attempts to deploy a code package with UpdateFunctionCode,
+// Lambda checks that the code package has a valid signature from a trusted
+// publisher. The code-signing configuration includes set set of signing profiles,
+// which define the trusted publishers for this function.
+//
+// If another account or an Amazon Web Services service invokes your function,
+// use AddPermission to grant permission by creating a resource-based IAM policy.
+// You can grant permissions at the function level, on a version, or on an alias.
 //
 // To invoke your function directly, use Invoke. To invoke your function in
-// response to events in other AWS services, create an event source mapping
-// (CreateEventSourceMapping), or configure a function trigger in the other
-// service. For more information, see Invoking Functions (https://docs.aws.amazon.com/lambda/latest/dg/lambda-invocation.html).
+// response to events in other Amazon Web Services services, create an event
+// source mapping (CreateEventSourceMapping), or configure a function trigger
+// in the other service. For more information, see Invoking Functions (https://docs.aws.amazon.com/lambda/latest/dg/lambda-invocation.html).
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -542,7 +671,7 @@ func (c *Lambda) CreateFunctionRequest(input *CreateFunctionInput) (req *request
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * InvalidParameterValueException
 //   One of the parameters in the request is invalid.
@@ -558,6 +687,18 @@ func (c *Lambda) CreateFunctionRequest(input *CreateFunctionInput) (req *request
 //
 //   * CodeStorageExceededException
 //   You have exceeded your maximum total code size per account. Learn more (https://docs.aws.amazon.com/lambda/latest/dg/limits.html)
+//
+//   * CodeVerificationFailedException
+//   The code signature failed one or more of the validation checks for signature
+//   mismatch or expiry, and the code signing policy is set to ENFORCE. Lambda
+//   blocks the deployment.
+//
+//   * InvalidCodeSignatureException
+//   The code signature failed the integrity check. Lambda always blocks deployment
+//   if the integrity check fails, even if code signing policy is set to WARN.
+//
+//   * CodeSigningConfigNotFoundException
+//   The specified code signing configuration does not exist.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/CreateFunction
 func (c *Lambda) CreateFunction(input *CreateFunctionInput) (*FunctionConfiguration, error) {
@@ -576,6 +717,99 @@ func (c *Lambda) CreateFunction(input *CreateFunctionInput) (*FunctionConfigurat
 // for more information on using Contexts.
 func (c *Lambda) CreateFunctionWithContext(ctx aws.Context, input *CreateFunctionInput, opts ...request.Option) (*FunctionConfiguration, error) {
 	req, out := c.CreateFunctionRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opCreateFunctionUrlConfig = "CreateFunctionUrlConfig"
+
+// CreateFunctionUrlConfigRequest generates a "aws/request.Request" representing the
+// client's request for the CreateFunctionUrlConfig operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See CreateFunctionUrlConfig for more information on using the CreateFunctionUrlConfig
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the CreateFunctionUrlConfigRequest method.
+//    req, resp := client.CreateFunctionUrlConfigRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/CreateFunctionUrlConfig
+func (c *Lambda) CreateFunctionUrlConfigRequest(input *CreateFunctionUrlConfigInput) (req *request.Request, output *CreateFunctionUrlConfigOutput) {
+	op := &request.Operation{
+		Name:       opCreateFunctionUrlConfig,
+		HTTPMethod: "POST",
+		HTTPPath:   "/2021-10-31/functions/{FunctionName}/url",
+	}
+
+	if input == nil {
+		input = &CreateFunctionUrlConfigInput{}
+	}
+
+	output = &CreateFunctionUrlConfigOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// CreateFunctionUrlConfig API operation for AWS Lambda.
+//
+// Creates a Lambda function URL with the specified configuration parameters.
+// A function URL is a dedicated HTTP(S) endpoint that you can use to invoke
+// your function.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for AWS Lambda's
+// API operation CreateFunctionUrlConfig for usage and error information.
+//
+// Returned Error Types:
+//   * ResourceConflictException
+//   The resource already exists, or another operation is in progress.
+//
+//   * ResourceNotFoundException
+//   The resource specified in the request does not exist.
+//
+//   * InvalidParameterValueException
+//   One of the parameters in the request is invalid.
+//
+//   * ServiceException
+//   The Lambda service encountered an internal error.
+//
+//   * TooManyRequestsException
+//   The request throughput limit was exceeded.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/CreateFunctionUrlConfig
+func (c *Lambda) CreateFunctionUrlConfig(input *CreateFunctionUrlConfigInput) (*CreateFunctionUrlConfigOutput, error) {
+	req, out := c.CreateFunctionUrlConfigRequest(input)
+	return out, req.Send()
+}
+
+// CreateFunctionUrlConfigWithContext is the same as CreateFunctionUrlConfig with the addition of
+// the ability to pass a context and additional request options.
+//
+// See CreateFunctionUrlConfig for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lambda) CreateFunctionUrlConfigWithContext(ctx aws.Context, input *CreateFunctionUrlConfigInput, opts ...request.Option) (*CreateFunctionUrlConfigOutput, error) {
+	req, out := c.CreateFunctionUrlConfigRequest(input)
 	req.SetContext(ctx)
 	req.ApplyOptions(opts...)
 	return out, req.Send()
@@ -637,7 +871,7 @@ func (c *Lambda) DeleteAliasRequest(input *DeleteAliasInput) (req *request.Reque
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * InvalidParameterValueException
 //   One of the parameters in the request is invalid.
@@ -665,6 +899,96 @@ func (c *Lambda) DeleteAlias(input *DeleteAliasInput) (*DeleteAliasOutput, error
 // for more information on using Contexts.
 func (c *Lambda) DeleteAliasWithContext(ctx aws.Context, input *DeleteAliasInput, opts ...request.Option) (*DeleteAliasOutput, error) {
 	req, out := c.DeleteAliasRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opDeleteCodeSigningConfig = "DeleteCodeSigningConfig"
+
+// DeleteCodeSigningConfigRequest generates a "aws/request.Request" representing the
+// client's request for the DeleteCodeSigningConfig operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See DeleteCodeSigningConfig for more information on using the DeleteCodeSigningConfig
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the DeleteCodeSigningConfigRequest method.
+//    req, resp := client.DeleteCodeSigningConfigRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/DeleteCodeSigningConfig
+func (c *Lambda) DeleteCodeSigningConfigRequest(input *DeleteCodeSigningConfigInput) (req *request.Request, output *DeleteCodeSigningConfigOutput) {
+	op := &request.Operation{
+		Name:       opDeleteCodeSigningConfig,
+		HTTPMethod: "DELETE",
+		HTTPPath:   "/2020-04-22/code-signing-configs/{CodeSigningConfigArn}",
+	}
+
+	if input == nil {
+		input = &DeleteCodeSigningConfigInput{}
+	}
+
+	output = &DeleteCodeSigningConfigOutput{}
+	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(restjson.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
+	return
+}
+
+// DeleteCodeSigningConfig API operation for AWS Lambda.
+//
+// Deletes the code signing configuration. You can delete the code signing configuration
+// only if no function is using it.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for AWS Lambda's
+// API operation DeleteCodeSigningConfig for usage and error information.
+//
+// Returned Error Types:
+//   * ServiceException
+//   The Lambda service encountered an internal error.
+//
+//   * InvalidParameterValueException
+//   One of the parameters in the request is invalid.
+//
+//   * ResourceNotFoundException
+//   The resource specified in the request does not exist.
+//
+//   * ResourceConflictException
+//   The resource already exists, or another operation is in progress.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/DeleteCodeSigningConfig
+func (c *Lambda) DeleteCodeSigningConfig(input *DeleteCodeSigningConfigInput) (*DeleteCodeSigningConfigOutput, error) {
+	req, out := c.DeleteCodeSigningConfigRequest(input)
+	return out, req.Send()
+}
+
+// DeleteCodeSigningConfigWithContext is the same as DeleteCodeSigningConfig with the addition of
+// the ability to pass a context and additional request options.
+//
+// See DeleteCodeSigningConfig for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lambda) DeleteCodeSigningConfigWithContext(ctx aws.Context, input *DeleteCodeSigningConfigInput, opts ...request.Option) (*DeleteCodeSigningConfigOutput, error) {
+	req, out := c.DeleteCodeSigningConfigRequest(input)
 	req.SetContext(ctx)
 	req.ApplyOptions(opts...)
 	return out, req.Send()
@@ -729,7 +1053,7 @@ func (c *Lambda) DeleteEventSourceMappingRequest(input *DeleteEventSourceMapping
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * ResourceNotFoundException
 //   The resource specified in the request does not exist.
@@ -816,8 +1140,9 @@ func (c *Lambda) DeleteFunctionRequest(input *DeleteFunctionInput) (req *request
 // Qualifier parameter. Otherwise, all versions and aliases are deleted.
 //
 // To delete Lambda event source mappings that invoke a function, use DeleteEventSourceMapping.
-// For AWS services and resources that invoke your function directly, delete
-// the trigger in the service where you originally configured it.
+// For Amazon Web Services services and resources that invoke your function
+// directly, delete the trigger in the service where you originally configured
+// it.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -828,7 +1153,7 @@ func (c *Lambda) DeleteFunctionRequest(input *DeleteFunctionInput) (req *request
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * ResourceNotFoundException
 //   The resource specified in the request does not exist.
@@ -859,6 +1184,101 @@ func (c *Lambda) DeleteFunction(input *DeleteFunctionInput) (*DeleteFunctionOutp
 // for more information on using Contexts.
 func (c *Lambda) DeleteFunctionWithContext(ctx aws.Context, input *DeleteFunctionInput, opts ...request.Option) (*DeleteFunctionOutput, error) {
 	req, out := c.DeleteFunctionRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opDeleteFunctionCodeSigningConfig = "DeleteFunctionCodeSigningConfig"
+
+// DeleteFunctionCodeSigningConfigRequest generates a "aws/request.Request" representing the
+// client's request for the DeleteFunctionCodeSigningConfig operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See DeleteFunctionCodeSigningConfig for more information on using the DeleteFunctionCodeSigningConfig
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the DeleteFunctionCodeSigningConfigRequest method.
+//    req, resp := client.DeleteFunctionCodeSigningConfigRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/DeleteFunctionCodeSigningConfig
+func (c *Lambda) DeleteFunctionCodeSigningConfigRequest(input *DeleteFunctionCodeSigningConfigInput) (req *request.Request, output *DeleteFunctionCodeSigningConfigOutput) {
+	op := &request.Operation{
+		Name:       opDeleteFunctionCodeSigningConfig,
+		HTTPMethod: "DELETE",
+		HTTPPath:   "/2020-06-30/functions/{FunctionName}/code-signing-config",
+	}
+
+	if input == nil {
+		input = &DeleteFunctionCodeSigningConfigInput{}
+	}
+
+	output = &DeleteFunctionCodeSigningConfigOutput{}
+	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(restjson.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
+	return
+}
+
+// DeleteFunctionCodeSigningConfig API operation for AWS Lambda.
+//
+// Removes the code signing configuration from the function.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for AWS Lambda's
+// API operation DeleteFunctionCodeSigningConfig for usage and error information.
+//
+// Returned Error Types:
+//   * InvalidParameterValueException
+//   One of the parameters in the request is invalid.
+//
+//   * CodeSigningConfigNotFoundException
+//   The specified code signing configuration does not exist.
+//
+//   * ResourceNotFoundException
+//   The resource specified in the request does not exist.
+//
+//   * ServiceException
+//   The Lambda service encountered an internal error.
+//
+//   * TooManyRequestsException
+//   The request throughput limit was exceeded.
+//
+//   * ResourceConflictException
+//   The resource already exists, or another operation is in progress.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/DeleteFunctionCodeSigningConfig
+func (c *Lambda) DeleteFunctionCodeSigningConfig(input *DeleteFunctionCodeSigningConfigInput) (*DeleteFunctionCodeSigningConfigOutput, error) {
+	req, out := c.DeleteFunctionCodeSigningConfigRequest(input)
+	return out, req.Send()
+}
+
+// DeleteFunctionCodeSigningConfigWithContext is the same as DeleteFunctionCodeSigningConfig with the addition of
+// the ability to pass a context and additional request options.
+//
+// See DeleteFunctionCodeSigningConfig for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lambda) DeleteFunctionCodeSigningConfigWithContext(ctx aws.Context, input *DeleteFunctionCodeSigningConfigInput, opts ...request.Option) (*DeleteFunctionCodeSigningConfigOutput, error) {
+	req, out := c.DeleteFunctionCodeSigningConfigRequest(input)
 	req.SetContext(ctx)
 	req.ApplyOptions(opts...)
 	return out, req.Send()
@@ -920,7 +1340,7 @@ func (c *Lambda) DeleteFunctionConcurrencyRequest(input *DeleteFunctionConcurren
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * ResourceNotFoundException
 //   The resource specified in the request does not exist.
@@ -1015,7 +1435,7 @@ func (c *Lambda) DeleteFunctionEventInvokeConfigRequest(input *DeleteFunctionEve
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * ResourceNotFoundException
 //   The resource specified in the request does not exist.
@@ -1025,6 +1445,9 @@ func (c *Lambda) DeleteFunctionEventInvokeConfigRequest(input *DeleteFunctionEve
 //
 //   * TooManyRequestsException
 //   The request throughput limit was exceeded.
+//
+//   * ResourceConflictException
+//   The resource already exists, or another operation is in progress.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/DeleteFunctionEventInvokeConfig
 func (c *Lambda) DeleteFunctionEventInvokeConfig(input *DeleteFunctionEventInvokeConfigInput) (*DeleteFunctionEventInvokeConfigOutput, error) {
@@ -1043,6 +1466,96 @@ func (c *Lambda) DeleteFunctionEventInvokeConfig(input *DeleteFunctionEventInvok
 // for more information on using Contexts.
 func (c *Lambda) DeleteFunctionEventInvokeConfigWithContext(ctx aws.Context, input *DeleteFunctionEventInvokeConfigInput, opts ...request.Option) (*DeleteFunctionEventInvokeConfigOutput, error) {
 	req, out := c.DeleteFunctionEventInvokeConfigRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opDeleteFunctionUrlConfig = "DeleteFunctionUrlConfig"
+
+// DeleteFunctionUrlConfigRequest generates a "aws/request.Request" representing the
+// client's request for the DeleteFunctionUrlConfig operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See DeleteFunctionUrlConfig for more information on using the DeleteFunctionUrlConfig
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the DeleteFunctionUrlConfigRequest method.
+//    req, resp := client.DeleteFunctionUrlConfigRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/DeleteFunctionUrlConfig
+func (c *Lambda) DeleteFunctionUrlConfigRequest(input *DeleteFunctionUrlConfigInput) (req *request.Request, output *DeleteFunctionUrlConfigOutput) {
+	op := &request.Operation{
+		Name:       opDeleteFunctionUrlConfig,
+		HTTPMethod: "DELETE",
+		HTTPPath:   "/2021-10-31/functions/{FunctionName}/url",
+	}
+
+	if input == nil {
+		input = &DeleteFunctionUrlConfigInput{}
+	}
+
+	output = &DeleteFunctionUrlConfigOutput{}
+	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(restjson.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
+	return
+}
+
+// DeleteFunctionUrlConfig API operation for AWS Lambda.
+//
+// Deletes a Lambda function URL. When you delete a function URL, you can't
+// recover it. Creating a new function URL results in a different URL address.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for AWS Lambda's
+// API operation DeleteFunctionUrlConfig for usage and error information.
+//
+// Returned Error Types:
+//   * ResourceConflictException
+//   The resource already exists, or another operation is in progress.
+//
+//   * ResourceNotFoundException
+//   The resource specified in the request does not exist.
+//
+//   * ServiceException
+//   The Lambda service encountered an internal error.
+//
+//   * TooManyRequestsException
+//   The request throughput limit was exceeded.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/DeleteFunctionUrlConfig
+func (c *Lambda) DeleteFunctionUrlConfig(input *DeleteFunctionUrlConfigInput) (*DeleteFunctionUrlConfigOutput, error) {
+	req, out := c.DeleteFunctionUrlConfigRequest(input)
+	return out, req.Send()
+}
+
+// DeleteFunctionUrlConfigWithContext is the same as DeleteFunctionUrlConfig with the addition of
+// the ability to pass a context and additional request options.
+//
+// See DeleteFunctionUrlConfig for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lambda) DeleteFunctionUrlConfigWithContext(ctx aws.Context, input *DeleteFunctionUrlConfigInput, opts ...request.Option) (*DeleteFunctionUrlConfigOutput, error) {
+	req, out := c.DeleteFunctionUrlConfigRequest(input)
 	req.SetContext(ctx)
 	req.ApplyOptions(opts...)
 	return out, req.Send()
@@ -1093,7 +1606,7 @@ func (c *Lambda) DeleteLayerVersionRequest(input *DeleteLayerVersionInput) (req 
 
 // DeleteLayerVersion API operation for AWS Lambda.
 //
-// Deletes a version of an AWS Lambda layer (https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html).
+// Deletes a version of an Lambda layer (https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html).
 // Deleted versions can no longer be viewed or added to functions. To avoid
 // breaking functions, a copy of the version remains in Lambda until no functions
 // refer to it.
@@ -1107,7 +1620,7 @@ func (c *Lambda) DeleteLayerVersionRequest(input *DeleteLayerVersionInput) (req 
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * TooManyRequestsException
 //   The request throughput limit was exceeded.
@@ -1202,7 +1715,7 @@ func (c *Lambda) DeleteProvisionedConcurrencyConfigRequest(input *DeleteProvisio
 //   The request throughput limit was exceeded.
 //
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/DeleteProvisionedConcurrencyConfig
 func (c *Lambda) DeleteProvisionedConcurrencyConfig(input *DeleteProvisionedConcurrencyConfigInput) (*DeleteProvisionedConcurrencyConfigOutput, error) {
@@ -1271,7 +1784,7 @@ func (c *Lambda) GetAccountSettingsRequest(input *GetAccountSettingsInput) (req 
 // GetAccountSettings API operation for AWS Lambda.
 //
 // Retrieves details about your account's limits (https://docs.aws.amazon.com/lambda/latest/dg/limits.html)
-// and usage in an AWS Region.
+// and usage in an Amazon Web Services Region.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -1285,7 +1798,7 @@ func (c *Lambda) GetAccountSettingsRequest(input *GetAccountSettingsInput) (req 
 //   The request throughput limit was exceeded.
 //
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/GetAccountSettings
 func (c *Lambda) GetAccountSettings(input *GetAccountSettingsInput) (*GetAccountSettingsOutput, error) {
@@ -1364,7 +1877,7 @@ func (c *Lambda) GetAliasRequest(input *GetAliasInput) (req *request.Request, ou
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * ResourceNotFoundException
 //   The resource specified in the request does not exist.
@@ -1392,6 +1905,91 @@ func (c *Lambda) GetAlias(input *GetAliasInput) (*AliasConfiguration, error) {
 // for more information on using Contexts.
 func (c *Lambda) GetAliasWithContext(ctx aws.Context, input *GetAliasInput, opts ...request.Option) (*AliasConfiguration, error) {
 	req, out := c.GetAliasRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opGetCodeSigningConfig = "GetCodeSigningConfig"
+
+// GetCodeSigningConfigRequest generates a "aws/request.Request" representing the
+// client's request for the GetCodeSigningConfig operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See GetCodeSigningConfig for more information on using the GetCodeSigningConfig
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the GetCodeSigningConfigRequest method.
+//    req, resp := client.GetCodeSigningConfigRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/GetCodeSigningConfig
+func (c *Lambda) GetCodeSigningConfigRequest(input *GetCodeSigningConfigInput) (req *request.Request, output *GetCodeSigningConfigOutput) {
+	op := &request.Operation{
+		Name:       opGetCodeSigningConfig,
+		HTTPMethod: "GET",
+		HTTPPath:   "/2020-04-22/code-signing-configs/{CodeSigningConfigArn}",
+	}
+
+	if input == nil {
+		input = &GetCodeSigningConfigInput{}
+	}
+
+	output = &GetCodeSigningConfigOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// GetCodeSigningConfig API operation for AWS Lambda.
+//
+// Returns information about the specified code signing configuration.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for AWS Lambda's
+// API operation GetCodeSigningConfig for usage and error information.
+//
+// Returned Error Types:
+//   * ServiceException
+//   The Lambda service encountered an internal error.
+//
+//   * InvalidParameterValueException
+//   One of the parameters in the request is invalid.
+//
+//   * ResourceNotFoundException
+//   The resource specified in the request does not exist.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/GetCodeSigningConfig
+func (c *Lambda) GetCodeSigningConfig(input *GetCodeSigningConfigInput) (*GetCodeSigningConfigOutput, error) {
+	req, out := c.GetCodeSigningConfigRequest(input)
+	return out, req.Send()
+}
+
+// GetCodeSigningConfigWithContext is the same as GetCodeSigningConfig with the addition of
+// the ability to pass a context and additional request options.
+//
+// See GetCodeSigningConfig for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lambda) GetCodeSigningConfigWithContext(ctx aws.Context, input *GetCodeSigningConfigInput, opts ...request.Option) (*GetCodeSigningConfigOutput, error) {
+	req, out := c.GetCodeSigningConfigRequest(input)
 	req.SetContext(ctx)
 	req.ApplyOptions(opts...)
 	return out, req.Send()
@@ -1453,7 +2051,7 @@ func (c *Lambda) GetEventSourceMappingRequest(input *GetEventSourceMappingInput)
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * ResourceNotFoundException
 //   The resource specified in the request does not exist.
@@ -1543,7 +2141,7 @@ func (c *Lambda) GetFunctionRequest(input *GetFunctionInput) (req *request.Reque
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * ResourceNotFoundException
 //   The resource specified in the request does not exist.
@@ -1571,6 +2169,94 @@ func (c *Lambda) GetFunction(input *GetFunctionInput) (*GetFunctionOutput, error
 // for more information on using Contexts.
 func (c *Lambda) GetFunctionWithContext(ctx aws.Context, input *GetFunctionInput, opts ...request.Option) (*GetFunctionOutput, error) {
 	req, out := c.GetFunctionRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opGetFunctionCodeSigningConfig = "GetFunctionCodeSigningConfig"
+
+// GetFunctionCodeSigningConfigRequest generates a "aws/request.Request" representing the
+// client's request for the GetFunctionCodeSigningConfig operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See GetFunctionCodeSigningConfig for more information on using the GetFunctionCodeSigningConfig
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the GetFunctionCodeSigningConfigRequest method.
+//    req, resp := client.GetFunctionCodeSigningConfigRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/GetFunctionCodeSigningConfig
+func (c *Lambda) GetFunctionCodeSigningConfigRequest(input *GetFunctionCodeSigningConfigInput) (req *request.Request, output *GetFunctionCodeSigningConfigOutput) {
+	op := &request.Operation{
+		Name:       opGetFunctionCodeSigningConfig,
+		HTTPMethod: "GET",
+		HTTPPath:   "/2020-06-30/functions/{FunctionName}/code-signing-config",
+	}
+
+	if input == nil {
+		input = &GetFunctionCodeSigningConfigInput{}
+	}
+
+	output = &GetFunctionCodeSigningConfigOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// GetFunctionCodeSigningConfig API operation for AWS Lambda.
+//
+// Returns the code signing configuration for the specified function.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for AWS Lambda's
+// API operation GetFunctionCodeSigningConfig for usage and error information.
+//
+// Returned Error Types:
+//   * InvalidParameterValueException
+//   One of the parameters in the request is invalid.
+//
+//   * ResourceNotFoundException
+//   The resource specified in the request does not exist.
+//
+//   * ServiceException
+//   The Lambda service encountered an internal error.
+//
+//   * TooManyRequestsException
+//   The request throughput limit was exceeded.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/GetFunctionCodeSigningConfig
+func (c *Lambda) GetFunctionCodeSigningConfig(input *GetFunctionCodeSigningConfigInput) (*GetFunctionCodeSigningConfigOutput, error) {
+	req, out := c.GetFunctionCodeSigningConfigRequest(input)
+	return out, req.Send()
+}
+
+// GetFunctionCodeSigningConfigWithContext is the same as GetFunctionCodeSigningConfig with the addition of
+// the ability to pass a context and additional request options.
+//
+// See GetFunctionCodeSigningConfig for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lambda) GetFunctionCodeSigningConfigWithContext(ctx aws.Context, input *GetFunctionCodeSigningConfigInput, opts ...request.Option) (*GetFunctionCodeSigningConfigOutput, error) {
+	req, out := c.GetFunctionCodeSigningConfigRequest(input)
 	req.SetContext(ctx)
 	req.ApplyOptions(opts...)
 	return out, req.Send()
@@ -1641,7 +2327,7 @@ func (c *Lambda) GetFunctionConcurrencyRequest(input *GetFunctionConcurrencyInpu
 //   The request throughput limit was exceeded.
 //
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/GetFunctionConcurrency
 func (c *Lambda) GetFunctionConcurrency(input *GetFunctionConcurrencyInput) (*GetFunctionConcurrencyOutput, error) {
@@ -1725,7 +2411,7 @@ func (c *Lambda) GetFunctionConfigurationRequest(input *GetFunctionConfiguration
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * ResourceNotFoundException
 //   The resource specified in the request does not exist.
@@ -1816,7 +2502,7 @@ func (c *Lambda) GetFunctionEventInvokeConfigRequest(input *GetFunctionEventInvo
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * ResourceNotFoundException
 //   The resource specified in the request does not exist.
@@ -1844,6 +2530,94 @@ func (c *Lambda) GetFunctionEventInvokeConfig(input *GetFunctionEventInvokeConfi
 // for more information on using Contexts.
 func (c *Lambda) GetFunctionEventInvokeConfigWithContext(ctx aws.Context, input *GetFunctionEventInvokeConfigInput, opts ...request.Option) (*GetFunctionEventInvokeConfigOutput, error) {
 	req, out := c.GetFunctionEventInvokeConfigRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opGetFunctionUrlConfig = "GetFunctionUrlConfig"
+
+// GetFunctionUrlConfigRequest generates a "aws/request.Request" representing the
+// client's request for the GetFunctionUrlConfig operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See GetFunctionUrlConfig for more information on using the GetFunctionUrlConfig
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the GetFunctionUrlConfigRequest method.
+//    req, resp := client.GetFunctionUrlConfigRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/GetFunctionUrlConfig
+func (c *Lambda) GetFunctionUrlConfigRequest(input *GetFunctionUrlConfigInput) (req *request.Request, output *GetFunctionUrlConfigOutput) {
+	op := &request.Operation{
+		Name:       opGetFunctionUrlConfig,
+		HTTPMethod: "GET",
+		HTTPPath:   "/2021-10-31/functions/{FunctionName}/url",
+	}
+
+	if input == nil {
+		input = &GetFunctionUrlConfigInput{}
+	}
+
+	output = &GetFunctionUrlConfigOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// GetFunctionUrlConfig API operation for AWS Lambda.
+//
+// Returns details about a Lambda function URL.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for AWS Lambda's
+// API operation GetFunctionUrlConfig for usage and error information.
+//
+// Returned Error Types:
+//   * InvalidParameterValueException
+//   One of the parameters in the request is invalid.
+//
+//   * ServiceException
+//   The Lambda service encountered an internal error.
+//
+//   * ResourceNotFoundException
+//   The resource specified in the request does not exist.
+//
+//   * TooManyRequestsException
+//   The request throughput limit was exceeded.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/GetFunctionUrlConfig
+func (c *Lambda) GetFunctionUrlConfig(input *GetFunctionUrlConfigInput) (*GetFunctionUrlConfigOutput, error) {
+	req, out := c.GetFunctionUrlConfigRequest(input)
+	return out, req.Send()
+}
+
+// GetFunctionUrlConfigWithContext is the same as GetFunctionUrlConfig with the addition of
+// the ability to pass a context and additional request options.
+//
+// See GetFunctionUrlConfig for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lambda) GetFunctionUrlConfigWithContext(ctx aws.Context, input *GetFunctionUrlConfigInput, opts ...request.Option) (*GetFunctionUrlConfigOutput, error) {
+	req, out := c.GetFunctionUrlConfigRequest(input)
 	req.SetContext(ctx)
 	req.ApplyOptions(opts...)
 	return out, req.Send()
@@ -1893,7 +2667,7 @@ func (c *Lambda) GetLayerVersionRequest(input *GetLayerVersionInput) (req *reque
 
 // GetLayerVersion API operation for AWS Lambda.
 //
-// Returns information about a version of an AWS Lambda layer (https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html),
+// Returns information about a version of an Lambda layer (https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html),
 // with a link to download the layer archive that's valid for 10 minutes.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
@@ -1905,7 +2679,7 @@ func (c *Lambda) GetLayerVersionRequest(input *GetLayerVersionInput) (req *reque
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * InvalidParameterValueException
 //   One of the parameters in the request is invalid.
@@ -1982,7 +2756,7 @@ func (c *Lambda) GetLayerVersionByArnRequest(input *GetLayerVersionByArnInput) (
 
 // GetLayerVersionByArn API operation for AWS Lambda.
 //
-// Returns information about a version of an AWS Lambda layer (https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html),
+// Returns information about a version of an Lambda layer (https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html),
 // with a link to download the layer archive that's valid for 10 minutes.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
@@ -1994,7 +2768,7 @@ func (c *Lambda) GetLayerVersionByArnRequest(input *GetLayerVersionByArnInput) (
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * InvalidParameterValueException
 //   One of the parameters in the request is invalid.
@@ -2071,7 +2845,7 @@ func (c *Lambda) GetLayerVersionPolicyRequest(input *GetLayerVersionPolicyInput)
 
 // GetLayerVersionPolicy API operation for AWS Lambda.
 //
-// Returns the permission policy for a version of an AWS Lambda layer (https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html).
+// Returns the permission policy for a version of an Lambda layer (https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html).
 // For more information, see AddLayerVersionPermission.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
@@ -2083,7 +2857,7 @@ func (c *Lambda) GetLayerVersionPolicyRequest(input *GetLayerVersionPolicyInput)
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * ResourceNotFoundException
 //   The resource specified in the request does not exist.
@@ -2172,7 +2946,7 @@ func (c *Lambda) GetPolicyRequest(input *GetPolicyInput) (req *request.Request, 
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * ResourceNotFoundException
 //   The resource specified in the request does not exist.
@@ -2270,7 +3044,7 @@ func (c *Lambda) GetProvisionedConcurrencyConfigRequest(input *GetProvisionedCon
 //   The request throughput limit was exceeded.
 //
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * ProvisionedConcurrencyConfigNotFoundException
 //   The specified configuration does not exist.
@@ -2389,7 +3163,7 @@ func (c *Lambda) InvokeRequest(input *InvokeInput) (req *request.Request, output
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * ResourceNotFoundException
 //   The resource specified in the request does not exist.
@@ -2411,17 +3185,17 @@ func (c *Lambda) InvokeRequest(input *InvokeInput) (req *request.Request, output
 //   One of the parameters in the request is invalid.
 //
 //   * EC2UnexpectedException
-//   AWS Lambda received an unexpected EC2 client exception while setting up for
-//   the Lambda function.
+//   Lambda received an unexpected EC2 client exception while setting up for the
+//   Lambda function.
 //
 //   * SubnetIPAddressLimitReachedException
-//   AWS Lambda was not able to set up VPC access for the Lambda function because
+//   Lambda was not able to set up VPC access for the Lambda function because
 //   one or more configured subnets has no available IP addresses.
 //
 //   * ENILimitReachedException
-//   AWS Lambda was not able to create an elastic network interface in the VPC,
-//   specified as part of Lambda function configuration, because the limit for
-//   network interfaces has been reached.
+//   Lambda was not able to create an elastic network interface in the VPC, specified
+//   as part of Lambda function configuration, because the limit for network interfaces
+//   has been reached.
 //
 //   * EFSMountConnectivityException
 //   The function couldn't make a network connection to the configured file system.
@@ -2435,10 +3209,10 @@ func (c *Lambda) InvokeRequest(input *InvokeInput) (req *request.Request, output
 //   system, but the mount operation timed out.
 //
 //   * EFSIOException
-//   An error occured when reading from or writing to a connected file system.
+//   An error occurred when reading from or writing to a connected file system.
 //
 //   * EC2ThrottledException
-//   AWS Lambda was throttled by Amazon EC2 during Lambda function initialization
+//   Lambda was throttled by Amazon EC2 during Lambda function initialization
 //   using the execution role provided for the Lambda function.
 //
 //   * EC2AccessDeniedException
@@ -2452,7 +3226,7 @@ func (c *Lambda) InvokeRequest(input *InvokeInput) (req *request.Request, output
 //   invalid.
 //
 //   * InvalidZipFileException
-//   AWS Lambda could not unzip the deployment package.
+//   Lambda could not unzip the deployment package.
 //
 //   * KMSDisabledException
 //   Lambda was unable to decrypt the environment variables because the KMS key
@@ -2565,7 +3339,7 @@ func (c *Lambda) InvokeAsyncRequest(input *InvokeAsyncInput) (req *request.Reque
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * ResourceNotFoundException
 //   The resource specified in the request does not exist.
@@ -2667,7 +3441,7 @@ func (c *Lambda) ListAliasesRequest(input *ListAliasesInput) (req *request.Reque
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * ResourceNotFoundException
 //   The resource specified in the request does not exist.
@@ -2752,6 +3526,148 @@ func (c *Lambda) ListAliasesPagesWithContext(ctx aws.Context, input *ListAliases
 	return p.Err()
 }
 
+const opListCodeSigningConfigs = "ListCodeSigningConfigs"
+
+// ListCodeSigningConfigsRequest generates a "aws/request.Request" representing the
+// client's request for the ListCodeSigningConfigs operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See ListCodeSigningConfigs for more information on using the ListCodeSigningConfigs
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the ListCodeSigningConfigsRequest method.
+//    req, resp := client.ListCodeSigningConfigsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/ListCodeSigningConfigs
+func (c *Lambda) ListCodeSigningConfigsRequest(input *ListCodeSigningConfigsInput) (req *request.Request, output *ListCodeSigningConfigsOutput) {
+	op := &request.Operation{
+		Name:       opListCodeSigningConfigs,
+		HTTPMethod: "GET",
+		HTTPPath:   "/2020-04-22/code-signing-configs/",
+		Paginator: &request.Paginator{
+			InputTokens:     []string{"Marker"},
+			OutputTokens:    []string{"NextMarker"},
+			LimitToken:      "MaxItems",
+			TruncationToken: "",
+		},
+	}
+
+	if input == nil {
+		input = &ListCodeSigningConfigsInput{}
+	}
+
+	output = &ListCodeSigningConfigsOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// ListCodeSigningConfigs API operation for AWS Lambda.
+//
+// Returns a list of code signing configurations (https://docs.aws.amazon.com/lambda/latest/dg/configuring-codesigning.html).
+// A request returns up to 10,000 configurations per call. You can use the MaxItems
+// parameter to return fewer configurations per call.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for AWS Lambda's
+// API operation ListCodeSigningConfigs for usage and error information.
+//
+// Returned Error Types:
+//   * ServiceException
+//   The Lambda service encountered an internal error.
+//
+//   * InvalidParameterValueException
+//   One of the parameters in the request is invalid.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/ListCodeSigningConfigs
+func (c *Lambda) ListCodeSigningConfigs(input *ListCodeSigningConfigsInput) (*ListCodeSigningConfigsOutput, error) {
+	req, out := c.ListCodeSigningConfigsRequest(input)
+	return out, req.Send()
+}
+
+// ListCodeSigningConfigsWithContext is the same as ListCodeSigningConfigs with the addition of
+// the ability to pass a context and additional request options.
+//
+// See ListCodeSigningConfigs for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lambda) ListCodeSigningConfigsWithContext(ctx aws.Context, input *ListCodeSigningConfigsInput, opts ...request.Option) (*ListCodeSigningConfigsOutput, error) {
+	req, out := c.ListCodeSigningConfigsRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+// ListCodeSigningConfigsPages iterates over the pages of a ListCodeSigningConfigs operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See ListCodeSigningConfigs method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a ListCodeSigningConfigs operation.
+//    pageNum := 0
+//    err := client.ListCodeSigningConfigsPages(params,
+//        func(page *lambda.ListCodeSigningConfigsOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
+func (c *Lambda) ListCodeSigningConfigsPages(input *ListCodeSigningConfigsInput, fn func(*ListCodeSigningConfigsOutput, bool) bool) error {
+	return c.ListCodeSigningConfigsPagesWithContext(aws.BackgroundContext(), input, fn)
+}
+
+// ListCodeSigningConfigsPagesWithContext same as ListCodeSigningConfigsPages except
+// it takes a Context and allows setting request options on the pages.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lambda) ListCodeSigningConfigsPagesWithContext(ctx aws.Context, input *ListCodeSigningConfigsInput, fn func(*ListCodeSigningConfigsOutput, bool) bool, opts ...request.Option) error {
+	p := request.Pagination{
+		NewRequest: func() (*request.Request, error) {
+			var inCpy *ListCodeSigningConfigsInput
+			if input != nil {
+				tmp := *input
+				inCpy = &tmp
+			}
+			req, _ := c.ListCodeSigningConfigsRequest(inCpy)
+			req.SetContext(ctx)
+			req.ApplyOptions(opts...)
+			return req, nil
+		},
+	}
+
+	for p.Next() {
+		if !fn(p.Page().(*ListCodeSigningConfigsOutput), !p.HasNextPage()) {
+			break
+		}
+	}
+
+	return p.Err()
+}
+
 const opListEventSourceMappings = "ListEventSourceMappings"
 
 // ListEventSourceMappingsRequest generates a "aws/request.Request" representing the
@@ -2814,7 +3730,7 @@ func (c *Lambda) ListEventSourceMappingsRequest(input *ListEventSourceMappingsIn
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * ResourceNotFoundException
 //   The resource specified in the request does not exist.
@@ -2971,7 +3887,7 @@ func (c *Lambda) ListFunctionEventInvokeConfigsRequest(input *ListFunctionEventI
 //   The request throughput limit was exceeded.
 //
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/ListFunctionEventInvokeConfigs
 func (c *Lambda) ListFunctionEventInvokeConfigs(input *ListFunctionEventInvokeConfigsInput) (*ListFunctionEventInvokeConfigsOutput, error) {
@@ -3047,6 +3963,152 @@ func (c *Lambda) ListFunctionEventInvokeConfigsPagesWithContext(ctx aws.Context,
 	return p.Err()
 }
 
+const opListFunctionUrlConfigs = "ListFunctionUrlConfigs"
+
+// ListFunctionUrlConfigsRequest generates a "aws/request.Request" representing the
+// client's request for the ListFunctionUrlConfigs operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See ListFunctionUrlConfigs for more information on using the ListFunctionUrlConfigs
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the ListFunctionUrlConfigsRequest method.
+//    req, resp := client.ListFunctionUrlConfigsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/ListFunctionUrlConfigs
+func (c *Lambda) ListFunctionUrlConfigsRequest(input *ListFunctionUrlConfigsInput) (req *request.Request, output *ListFunctionUrlConfigsOutput) {
+	op := &request.Operation{
+		Name:       opListFunctionUrlConfigs,
+		HTTPMethod: "GET",
+		HTTPPath:   "/2021-10-31/functions/{FunctionName}/urls",
+		Paginator: &request.Paginator{
+			InputTokens:     []string{"Marker"},
+			OutputTokens:    []string{"NextMarker"},
+			LimitToken:      "MaxItems",
+			TruncationToken: "",
+		},
+	}
+
+	if input == nil {
+		input = &ListFunctionUrlConfigsInput{}
+	}
+
+	output = &ListFunctionUrlConfigsOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// ListFunctionUrlConfigs API operation for AWS Lambda.
+//
+// Returns a list of Lambda function URLs for the specified function.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for AWS Lambda's
+// API operation ListFunctionUrlConfigs for usage and error information.
+//
+// Returned Error Types:
+//   * InvalidParameterValueException
+//   One of the parameters in the request is invalid.
+//
+//   * ServiceException
+//   The Lambda service encountered an internal error.
+//
+//   * ResourceNotFoundException
+//   The resource specified in the request does not exist.
+//
+//   * TooManyRequestsException
+//   The request throughput limit was exceeded.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/ListFunctionUrlConfigs
+func (c *Lambda) ListFunctionUrlConfigs(input *ListFunctionUrlConfigsInput) (*ListFunctionUrlConfigsOutput, error) {
+	req, out := c.ListFunctionUrlConfigsRequest(input)
+	return out, req.Send()
+}
+
+// ListFunctionUrlConfigsWithContext is the same as ListFunctionUrlConfigs with the addition of
+// the ability to pass a context and additional request options.
+//
+// See ListFunctionUrlConfigs for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lambda) ListFunctionUrlConfigsWithContext(ctx aws.Context, input *ListFunctionUrlConfigsInput, opts ...request.Option) (*ListFunctionUrlConfigsOutput, error) {
+	req, out := c.ListFunctionUrlConfigsRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+// ListFunctionUrlConfigsPages iterates over the pages of a ListFunctionUrlConfigs operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See ListFunctionUrlConfigs method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a ListFunctionUrlConfigs operation.
+//    pageNum := 0
+//    err := client.ListFunctionUrlConfigsPages(params,
+//        func(page *lambda.ListFunctionUrlConfigsOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
+func (c *Lambda) ListFunctionUrlConfigsPages(input *ListFunctionUrlConfigsInput, fn func(*ListFunctionUrlConfigsOutput, bool) bool) error {
+	return c.ListFunctionUrlConfigsPagesWithContext(aws.BackgroundContext(), input, fn)
+}
+
+// ListFunctionUrlConfigsPagesWithContext same as ListFunctionUrlConfigsPages except
+// it takes a Context and allows setting request options on the pages.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lambda) ListFunctionUrlConfigsPagesWithContext(ctx aws.Context, input *ListFunctionUrlConfigsInput, fn func(*ListFunctionUrlConfigsOutput, bool) bool, opts ...request.Option) error {
+	p := request.Pagination{
+		NewRequest: func() (*request.Request, error) {
+			var inCpy *ListFunctionUrlConfigsInput
+			if input != nil {
+				tmp := *input
+				inCpy = &tmp
+			}
+			req, _ := c.ListFunctionUrlConfigsRequest(inCpy)
+			req.SetContext(ctx)
+			req.ApplyOptions(opts...)
+			return req, nil
+		},
+	}
+
+	for p.Next() {
+		if !fn(p.Page().(*ListFunctionUrlConfigsOutput), !p.HasNextPage()) {
+			break
+		}
+	}
+
+	return p.Err()
+}
+
 const opListFunctions = "ListFunctions"
 
 // ListFunctionsRequest generates a "aws/request.Request" representing the
@@ -3101,8 +4163,12 @@ func (c *Lambda) ListFunctionsRequest(input *ListFunctionsInput) (req *request.R
 // of each. Lambda returns up to 50 functions per call.
 //
 // Set FunctionVersion to ALL to include all published versions of each function
-// in addition to the unpublished version. To get more information about a function
-// or version, use GetFunction.
+// in addition to the unpublished version.
+//
+// The ListFunctions action returns a subset of the FunctionConfiguration fields.
+// To get the additional fields (State, StateReasonCode, StateReason, LastUpdateStatus,
+// LastUpdateStatusReason, LastUpdateStatusReasonCode) for a function or version,
+// use GetFunction.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -3113,7 +4179,7 @@ func (c *Lambda) ListFunctionsRequest(input *ListFunctionsInput) (req *request.R
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * TooManyRequestsException
 //   The request throughput limit was exceeded.
@@ -3195,6 +4261,151 @@ func (c *Lambda) ListFunctionsPagesWithContext(ctx aws.Context, input *ListFunct
 	return p.Err()
 }
 
+const opListFunctionsByCodeSigningConfig = "ListFunctionsByCodeSigningConfig"
+
+// ListFunctionsByCodeSigningConfigRequest generates a "aws/request.Request" representing the
+// client's request for the ListFunctionsByCodeSigningConfig operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See ListFunctionsByCodeSigningConfig for more information on using the ListFunctionsByCodeSigningConfig
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the ListFunctionsByCodeSigningConfigRequest method.
+//    req, resp := client.ListFunctionsByCodeSigningConfigRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/ListFunctionsByCodeSigningConfig
+func (c *Lambda) ListFunctionsByCodeSigningConfigRequest(input *ListFunctionsByCodeSigningConfigInput) (req *request.Request, output *ListFunctionsByCodeSigningConfigOutput) {
+	op := &request.Operation{
+		Name:       opListFunctionsByCodeSigningConfig,
+		HTTPMethod: "GET",
+		HTTPPath:   "/2020-04-22/code-signing-configs/{CodeSigningConfigArn}/functions",
+		Paginator: &request.Paginator{
+			InputTokens:     []string{"Marker"},
+			OutputTokens:    []string{"NextMarker"},
+			LimitToken:      "MaxItems",
+			TruncationToken: "",
+		},
+	}
+
+	if input == nil {
+		input = &ListFunctionsByCodeSigningConfigInput{}
+	}
+
+	output = &ListFunctionsByCodeSigningConfigOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// ListFunctionsByCodeSigningConfig API operation for AWS Lambda.
+//
+// List the functions that use the specified code signing configuration. You
+// can use this method prior to deleting a code signing configuration, to verify
+// that no functions are using it.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for AWS Lambda's
+// API operation ListFunctionsByCodeSigningConfig for usage and error information.
+//
+// Returned Error Types:
+//   * ServiceException
+//   The Lambda service encountered an internal error.
+//
+//   * InvalidParameterValueException
+//   One of the parameters in the request is invalid.
+//
+//   * ResourceNotFoundException
+//   The resource specified in the request does not exist.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/ListFunctionsByCodeSigningConfig
+func (c *Lambda) ListFunctionsByCodeSigningConfig(input *ListFunctionsByCodeSigningConfigInput) (*ListFunctionsByCodeSigningConfigOutput, error) {
+	req, out := c.ListFunctionsByCodeSigningConfigRequest(input)
+	return out, req.Send()
+}
+
+// ListFunctionsByCodeSigningConfigWithContext is the same as ListFunctionsByCodeSigningConfig with the addition of
+// the ability to pass a context and additional request options.
+//
+// See ListFunctionsByCodeSigningConfig for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lambda) ListFunctionsByCodeSigningConfigWithContext(ctx aws.Context, input *ListFunctionsByCodeSigningConfigInput, opts ...request.Option) (*ListFunctionsByCodeSigningConfigOutput, error) {
+	req, out := c.ListFunctionsByCodeSigningConfigRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+// ListFunctionsByCodeSigningConfigPages iterates over the pages of a ListFunctionsByCodeSigningConfig operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See ListFunctionsByCodeSigningConfig method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a ListFunctionsByCodeSigningConfig operation.
+//    pageNum := 0
+//    err := client.ListFunctionsByCodeSigningConfigPages(params,
+//        func(page *lambda.ListFunctionsByCodeSigningConfigOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
+func (c *Lambda) ListFunctionsByCodeSigningConfigPages(input *ListFunctionsByCodeSigningConfigInput, fn func(*ListFunctionsByCodeSigningConfigOutput, bool) bool) error {
+	return c.ListFunctionsByCodeSigningConfigPagesWithContext(aws.BackgroundContext(), input, fn)
+}
+
+// ListFunctionsByCodeSigningConfigPagesWithContext same as ListFunctionsByCodeSigningConfigPages except
+// it takes a Context and allows setting request options on the pages.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lambda) ListFunctionsByCodeSigningConfigPagesWithContext(ctx aws.Context, input *ListFunctionsByCodeSigningConfigInput, fn func(*ListFunctionsByCodeSigningConfigOutput, bool) bool, opts ...request.Option) error {
+	p := request.Pagination{
+		NewRequest: func() (*request.Request, error) {
+			var inCpy *ListFunctionsByCodeSigningConfigInput
+			if input != nil {
+				tmp := *input
+				inCpy = &tmp
+			}
+			req, _ := c.ListFunctionsByCodeSigningConfigRequest(inCpy)
+			req.SetContext(ctx)
+			req.ApplyOptions(opts...)
+			return req, nil
+		},
+	}
+
+	for p.Next() {
+		if !fn(p.Page().(*ListFunctionsByCodeSigningConfigOutput), !p.HasNextPage()) {
+			break
+		}
+	}
+
+	return p.Err()
+}
+
 const opListLayerVersions = "ListLayerVersions"
 
 // ListLayerVersionsRequest generates a "aws/request.Request" representing the
@@ -3245,10 +4456,12 @@ func (c *Lambda) ListLayerVersionsRequest(input *ListLayerVersionsInput) (req *r
 
 // ListLayerVersions API operation for AWS Lambda.
 //
-// Lists the versions of an AWS Lambda layer (https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html).
+// Lists the versions of an Lambda layer (https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html).
 // Versions that have been deleted aren't listed. Specify a runtime identifier
 // (https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html) to list
-// only versions that indicate that they're compatible with that runtime.
+// only versions that indicate that they're compatible with that runtime. Specify
+// a compatible architecture to include only layer versions that are compatible
+// with that architecture.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -3259,7 +4472,7 @@ func (c *Lambda) ListLayerVersionsRequest(input *ListLayerVersionsInput) (req *r
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * InvalidParameterValueException
 //   One of the parameters in the request is invalid.
@@ -3394,10 +4607,12 @@ func (c *Lambda) ListLayersRequest(input *ListLayersInput) (req *request.Request
 
 // ListLayers API operation for AWS Lambda.
 //
-// Lists AWS Lambda layers (https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html)
+// Lists Lambda layers (https://docs.aws.amazon.com/lambda/latest/dg/invocation-layers.html)
 // and shows information about the latest version of each. Specify a runtime
 // identifier (https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html)
 // to list only layers that indicate that they're compatible with that runtime.
+// Specify a compatible architecture to include only layers that are compatible
+// with that instruction set architecture (https://docs.aws.amazon.com/lambda/latest/dg/foundation-arch.html).
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -3408,7 +4623,7 @@ func (c *Lambda) ListLayersRequest(input *ListLayersInput) (req *request.Request
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * InvalidParameterValueException
 //   One of the parameters in the request is invalid.
@@ -3560,7 +4775,7 @@ func (c *Lambda) ListProvisionedConcurrencyConfigsRequest(input *ListProvisioned
 //   The request throughput limit was exceeded.
 //
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/ListProvisionedConcurrencyConfigs
 func (c *Lambda) ListProvisionedConcurrencyConfigs(input *ListProvisionedConcurrencyConfigsInput) (*ListProvisionedConcurrencyConfigsOutput, error) {
@@ -3692,7 +4907,7 @@ func (c *Lambda) ListTagsRequest(input *ListTagsInput) (req *request.Request, ou
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * ResourceNotFoundException
 //   The resource specified in the request does not exist.
@@ -3788,7 +5003,7 @@ func (c *Lambda) ListVersionsByFunctionRequest(input *ListVersionsByFunctionInpu
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * ResourceNotFoundException
 //   The resource specified in the request does not exist.
@@ -3917,7 +5132,7 @@ func (c *Lambda) PublishLayerVersionRequest(input *PublishLayerVersionInput) (re
 
 // PublishLayerVersion API operation for AWS Lambda.
 //
-// Creates an AWS Lambda layer (https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html)
+// Creates an Lambda layer (https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html)
 // from a ZIP archive. Each time you call PublishLayerVersion with the same
 // layer name, a new version is created.
 //
@@ -3932,7 +5147,7 @@ func (c *Lambda) PublishLayerVersionRequest(input *PublishLayerVersionInput) (re
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * ResourceNotFoundException
 //   The resource specified in the request does not exist.
@@ -4016,8 +5231,8 @@ func (c *Lambda) PublishVersionRequest(input *PublishVersionInput) (req *request
 // from the current code and configuration of a function. Use versions to create
 // a snapshot of your function code and configuration that doesn't change.
 //
-// AWS Lambda doesn't publish a version if the function's configuration and
-// code haven't changed since the last version. Use UpdateFunctionCode or UpdateFunctionConfiguration
+// Lambda doesn't publish a version if the function's configuration and code
+// haven't changed since the last version. Use UpdateFunctionCode or UpdateFunctionConfiguration
 // to update the function before publishing a version.
 //
 // Clients can invoke versions directly or with an alias. To create an alias,
@@ -4032,7 +5247,7 @@ func (c *Lambda) PublishVersionRequest(input *PublishVersionInput) (req *request
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * ResourceNotFoundException
 //   The resource specified in the request does not exist.
@@ -4071,6 +5286,102 @@ func (c *Lambda) PublishVersion(input *PublishVersionInput) (*FunctionConfigurat
 // for more information on using Contexts.
 func (c *Lambda) PublishVersionWithContext(ctx aws.Context, input *PublishVersionInput, opts ...request.Option) (*FunctionConfiguration, error) {
 	req, out := c.PublishVersionRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opPutFunctionCodeSigningConfig = "PutFunctionCodeSigningConfig"
+
+// PutFunctionCodeSigningConfigRequest generates a "aws/request.Request" representing the
+// client's request for the PutFunctionCodeSigningConfig operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See PutFunctionCodeSigningConfig for more information on using the PutFunctionCodeSigningConfig
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the PutFunctionCodeSigningConfigRequest method.
+//    req, resp := client.PutFunctionCodeSigningConfigRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/PutFunctionCodeSigningConfig
+func (c *Lambda) PutFunctionCodeSigningConfigRequest(input *PutFunctionCodeSigningConfigInput) (req *request.Request, output *PutFunctionCodeSigningConfigOutput) {
+	op := &request.Operation{
+		Name:       opPutFunctionCodeSigningConfig,
+		HTTPMethod: "PUT",
+		HTTPPath:   "/2020-06-30/functions/{FunctionName}/code-signing-config",
+	}
+
+	if input == nil {
+		input = &PutFunctionCodeSigningConfigInput{}
+	}
+
+	output = &PutFunctionCodeSigningConfigOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// PutFunctionCodeSigningConfig API operation for AWS Lambda.
+//
+// Update the code signing configuration for the function. Changes to the code
+// signing configuration take effect the next time a user tries to deploy a
+// code package to the function.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for AWS Lambda's
+// API operation PutFunctionCodeSigningConfig for usage and error information.
+//
+// Returned Error Types:
+//   * ServiceException
+//   The Lambda service encountered an internal error.
+//
+//   * InvalidParameterValueException
+//   One of the parameters in the request is invalid.
+//
+//   * ResourceNotFoundException
+//   The resource specified in the request does not exist.
+//
+//   * TooManyRequestsException
+//   The request throughput limit was exceeded.
+//
+//   * ResourceConflictException
+//   The resource already exists, or another operation is in progress.
+//
+//   * CodeSigningConfigNotFoundException
+//   The specified code signing configuration does not exist.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/PutFunctionCodeSigningConfig
+func (c *Lambda) PutFunctionCodeSigningConfig(input *PutFunctionCodeSigningConfigInput) (*PutFunctionCodeSigningConfigOutput, error) {
+	req, out := c.PutFunctionCodeSigningConfigRequest(input)
+	return out, req.Send()
+}
+
+// PutFunctionCodeSigningConfigWithContext is the same as PutFunctionCodeSigningConfig with the addition of
+// the ability to pass a context and additional request options.
+//
+// See PutFunctionCodeSigningConfig for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lambda) PutFunctionCodeSigningConfigWithContext(ctx aws.Context, input *PutFunctionCodeSigningConfigInput, opts ...request.Option) (*PutFunctionCodeSigningConfigOutput, error) {
+	req, out := c.PutFunctionCodeSigningConfigRequest(input)
 	req.SetContext(ctx)
 	req.ApplyOptions(opts...)
 	return out, req.Send()
@@ -4144,7 +5455,7 @@ func (c *Lambda) PutFunctionConcurrencyRequest(input *PutFunctionConcurrencyInpu
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * InvalidParameterValueException
 //   One of the parameters in the request is invalid.
@@ -4251,7 +5562,7 @@ func (c *Lambda) PutFunctionEventInvokeConfigRequest(input *PutFunctionEventInvo
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * ResourceNotFoundException
 //   The resource specified in the request does not exist.
@@ -4261,6 +5572,9 @@ func (c *Lambda) PutFunctionEventInvokeConfigRequest(input *PutFunctionEventInvo
 //
 //   * TooManyRequestsException
 //   The request throughput limit was exceeded.
+//
+//   * ResourceConflictException
+//   The resource already exists, or another operation is in progress.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/PutFunctionEventInvokeConfig
 func (c *Lambda) PutFunctionEventInvokeConfig(input *PutFunctionEventInvokeConfigInput) (*PutFunctionEventInvokeConfigOutput, error) {
@@ -4351,7 +5665,7 @@ func (c *Lambda) PutProvisionedConcurrencyConfigRequest(input *PutProvisionedCon
 //   The request throughput limit was exceeded.
 //
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/PutProvisionedConcurrencyConfig
 func (c *Lambda) PutProvisionedConcurrencyConfig(input *PutProvisionedConcurrencyConfigInput) (*PutProvisionedConcurrencyConfigOutput, error) {
@@ -4420,7 +5734,7 @@ func (c *Lambda) RemoveLayerVersionPermissionRequest(input *RemoveLayerVersionPe
 
 // RemoveLayerVersionPermission API operation for AWS Lambda.
 //
-// Removes a statement from the permissions policy for a version of an AWS Lambda
+// Removes a statement from the permissions policy for a version of an Lambda
 // layer (https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html).
 // For more information, see AddLayerVersionPermission.
 //
@@ -4433,7 +5747,7 @@ func (c *Lambda) RemoveLayerVersionPermissionRequest(input *RemoveLayerVersionPe
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * ResourceNotFoundException
 //   The resource specified in the request does not exist.
@@ -4516,8 +5830,8 @@ func (c *Lambda) RemovePermissionRequest(input *RemovePermissionInput) (req *req
 
 // RemovePermission API operation for AWS Lambda.
 //
-// Revokes function-use permission from an AWS service or another account. You
-// can get the ID of the statement from the output of GetPolicy.
+// Revokes function-use permission from an Amazon Web Services service or another
+// account. You can get the ID of the statement from the output of GetPolicy.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -4528,7 +5842,7 @@ func (c *Lambda) RemovePermissionRequest(input *RemovePermissionInput) (req *req
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * ResourceNotFoundException
 //   The resource specified in the request does not exist.
@@ -4623,7 +5937,7 @@ func (c *Lambda) TagResourceRequest(input *TagResourceInput) (req *request.Reque
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * ResourceNotFoundException
 //   The resource specified in the request does not exist.
@@ -4716,7 +6030,7 @@ func (c *Lambda) UntagResourceRequest(input *UntagResourceInput) (req *request.R
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * ResourceNotFoundException
 //   The resource specified in the request does not exist.
@@ -4807,7 +6121,7 @@ func (c *Lambda) UpdateAliasRequest(input *UpdateAliasInput) (req *request.Reque
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * ResourceNotFoundException
 //   The resource specified in the request does not exist.
@@ -4843,6 +6157,92 @@ func (c *Lambda) UpdateAlias(input *UpdateAliasInput) (*AliasConfiguration, erro
 // for more information on using Contexts.
 func (c *Lambda) UpdateAliasWithContext(ctx aws.Context, input *UpdateAliasInput, opts ...request.Option) (*AliasConfiguration, error) {
 	req, out := c.UpdateAliasRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opUpdateCodeSigningConfig = "UpdateCodeSigningConfig"
+
+// UpdateCodeSigningConfigRequest generates a "aws/request.Request" representing the
+// client's request for the UpdateCodeSigningConfig operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See UpdateCodeSigningConfig for more information on using the UpdateCodeSigningConfig
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the UpdateCodeSigningConfigRequest method.
+//    req, resp := client.UpdateCodeSigningConfigRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/UpdateCodeSigningConfig
+func (c *Lambda) UpdateCodeSigningConfigRequest(input *UpdateCodeSigningConfigInput) (req *request.Request, output *UpdateCodeSigningConfigOutput) {
+	op := &request.Operation{
+		Name:       opUpdateCodeSigningConfig,
+		HTTPMethod: "PUT",
+		HTTPPath:   "/2020-04-22/code-signing-configs/{CodeSigningConfigArn}",
+	}
+
+	if input == nil {
+		input = &UpdateCodeSigningConfigInput{}
+	}
+
+	output = &UpdateCodeSigningConfigOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// UpdateCodeSigningConfig API operation for AWS Lambda.
+//
+// Update the code signing configuration. Changes to the code signing configuration
+// take effect the next time a user tries to deploy a code package to the function.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for AWS Lambda's
+// API operation UpdateCodeSigningConfig for usage and error information.
+//
+// Returned Error Types:
+//   * ServiceException
+//   The Lambda service encountered an internal error.
+//
+//   * InvalidParameterValueException
+//   One of the parameters in the request is invalid.
+//
+//   * ResourceNotFoundException
+//   The resource specified in the request does not exist.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/UpdateCodeSigningConfig
+func (c *Lambda) UpdateCodeSigningConfig(input *UpdateCodeSigningConfigInput) (*UpdateCodeSigningConfigOutput, error) {
+	req, out := c.UpdateCodeSigningConfigRequest(input)
+	return out, req.Send()
+}
+
+// UpdateCodeSigningConfigWithContext is the same as UpdateCodeSigningConfig with the addition of
+// the ability to pass a context and additional request options.
+//
+// See UpdateCodeSigningConfig for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lambda) UpdateCodeSigningConfigWithContext(ctx aws.Context, input *UpdateCodeSigningConfigInput, opts ...request.Option) (*UpdateCodeSigningConfigOutput, error) {
+	req, out := c.UpdateCodeSigningConfigRequest(input)
 	req.SetContext(ctx)
 	req.ApplyOptions(opts...)
 	return out, req.Send()
@@ -4892,8 +6292,23 @@ func (c *Lambda) UpdateEventSourceMappingRequest(input *UpdateEventSourceMapping
 
 // UpdateEventSourceMapping API operation for AWS Lambda.
 //
-// Updates an event source mapping. You can change the function that AWS Lambda
+// Updates an event source mapping. You can change the function that Lambda
 // invokes, or pause invocation and resume later from the same location.
+//
+// For details about how to configure different event sources, see the following
+// topics.
+//
+//    * Amazon DynamoDB Streams (https://docs.aws.amazon.com/lambda/latest/dg/with-ddb.html#services-dynamodb-eventsourcemapping)
+//
+//    * Amazon Kinesis (https://docs.aws.amazon.com/lambda/latest/dg/with-kinesis.html#services-kinesis-eventsourcemapping)
+//
+//    * Amazon SQS (https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html#events-sqs-eventsource)
+//
+//    * Amazon MQ and RabbitMQ (https://docs.aws.amazon.com/lambda/latest/dg/with-mq.html#services-mq-eventsourcemapping)
+//
+//    * Amazon MSK (https://docs.aws.amazon.com/lambda/latest/dg/with-msk.html)
+//
+//    * Apache Kafka (https://docs.aws.amazon.com/lambda/latest/dg/kafka-smaa.html)
 //
 // The following error handling options are only available for stream sources
 // (DynamoDB and Kinesis):
@@ -4905,13 +6320,29 @@ func (c *Lambda) UpdateEventSourceMappingRequest(input *UpdateEventSourceMapping
 //    Amazon SNS topic.
 //
 //    * MaximumRecordAgeInSeconds - Discard records older than the specified
-//    age. Default -1 (infinite). Minimum 60. Maximum 604800.
+//    age. The default value is infinite (-1). When set to infinite (-1), failed
+//    records are retried until the record expires
 //
 //    * MaximumRetryAttempts - Discard records after the specified number of
-//    retries. Default -1 (infinite). Minimum 0. Maximum 10000. When infinite,
-//    failed records will be retried until the record expires.
+//    retries. The default value is infinite (-1). When set to infinite (-1),
+//    failed records are retried until the record expires.
 //
 //    * ParallelizationFactor - Process multiple batches from each shard concurrently.
+//
+// For information about which configuration parameters apply to each event
+// source, see the following topics.
+//
+//    * Amazon DynamoDB Streams (https://docs.aws.amazon.com/lambda/latest/dg/with-ddb.html#services-ddb-params)
+//
+//    * Amazon Kinesis (https://docs.aws.amazon.com/lambda/latest/dg/with-kinesis.html#services-kinesis-params)
+//
+//    * Amazon SQS (https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html#services-sqs-params)
+//
+//    * Amazon MQ and RabbitMQ (https://docs.aws.amazon.com/lambda/latest/dg/with-mq.html#services-mq-params)
+//
+//    * Amazon MSK (https://docs.aws.amazon.com/lambda/latest/dg/with-msk.html#services-msk-parms)
+//
+//    * Apache Kafka (https://docs.aws.amazon.com/lambda/latest/dg/with-kafka.html#services-kafka-parms)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -4922,7 +6353,7 @@ func (c *Lambda) UpdateEventSourceMappingRequest(input *UpdateEventSourceMapping
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * ResourceNotFoundException
 //   The resource specified in the request does not exist.
@@ -5007,10 +6438,28 @@ func (c *Lambda) UpdateFunctionCodeRequest(input *UpdateFunctionCodeInput) (req 
 
 // UpdateFunctionCode API operation for AWS Lambda.
 //
-// Updates a Lambda function's code.
+// Updates a Lambda function's code. If code signing is enabled for the function,
+// the code package must be signed by a trusted publisher. For more information,
+// see Configuring code signing (https://docs.aws.amazon.com/lambda/latest/dg/configuration-trustedcode.html).
+//
+// If the function's package type is Image, you must specify the code package
+// in ImageUri as the URI of a container image (https://docs.aws.amazon.com/lambda/latest/dg/lambda-images.html)
+// in the Amazon ECR registry.
+//
+// If the function's package type is Zip, you must specify the deployment package
+// as a .zip file archive (https://docs.aws.amazon.com/lambda/latest/dg/gettingstarted-package.html#gettingstarted-package-zip).
+// Enter the Amazon S3 bucket and key of the code .zip file location. You can
+// also provide the function code inline using the ZipFile field.
+//
+// The code in the deployment package must be compatible with the target instruction
+// set architecture of the function (x86-64 or arm64).
 //
 // The function's code is locked when you publish a version. You can't modify
 // the code of a published version, only the unpublished version.
+//
+// For a function defined as a container image, Lambda resolves the image tag
+// to an image digest. In Amazon ECR, if you update the image tag to a new image,
+// Lambda does not automatically update the function.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -5021,7 +6470,7 @@ func (c *Lambda) UpdateFunctionCodeRequest(input *UpdateFunctionCodeInput) (req 
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * ResourceNotFoundException
 //   The resource specified in the request does not exist.
@@ -5042,6 +6491,18 @@ func (c *Lambda) UpdateFunctionCodeRequest(input *UpdateFunctionCodeInput) (req 
 //
 //   * ResourceConflictException
 //   The resource already exists, or another operation is in progress.
+//
+//   * CodeVerificationFailedException
+//   The code signature failed one or more of the validation checks for signature
+//   mismatch or expiry, and the code signing policy is set to ENFORCE. Lambda
+//   blocks the deployment.
+//
+//   * InvalidCodeSignatureException
+//   The code signature failed the integrity check. Lambda always blocks deployment
+//   if the integrity check fails, even if code signing policy is set to WARN.
+//
+//   * CodeSigningConfigNotFoundException
+//   The specified code signing configuration does not exist.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/UpdateFunctionCode
 func (c *Lambda) UpdateFunctionCode(input *UpdateFunctionCodeInput) (*FunctionConfiguration, error) {
@@ -5124,7 +6585,7 @@ func (c *Lambda) UpdateFunctionConfigurationRequest(input *UpdateFunctionConfigu
 // version, only the unpublished version.
 //
 // To configure function concurrency, use PutFunctionConcurrency. To grant invoke
-// permissions to an account or AWS service, use AddPermission.
+// permissions to an account or Amazon Web Services service, use AddPermission.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -5135,7 +6596,7 @@ func (c *Lambda) UpdateFunctionConfigurationRequest(input *UpdateFunctionConfigu
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * ResourceNotFoundException
 //   The resource specified in the request does not exist.
@@ -5153,6 +6614,18 @@ func (c *Lambda) UpdateFunctionConfigurationRequest(input *UpdateFunctionConfigu
 //   The RevisionId provided does not match the latest RevisionId for the Lambda
 //   function or alias. Call the GetFunction or the GetAlias API to retrieve the
 //   latest RevisionId for your resource.
+//
+//   * CodeVerificationFailedException
+//   The code signature failed one or more of the validation checks for signature
+//   mismatch or expiry, and the code signing policy is set to ENFORCE. Lambda
+//   blocks the deployment.
+//
+//   * InvalidCodeSignatureException
+//   The code signature failed the integrity check. Lambda always blocks deployment
+//   if the integrity check fails, even if code signing policy is set to WARN.
+//
+//   * CodeSigningConfigNotFoundException
+//   The specified code signing configuration does not exist.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/UpdateFunctionConfiguration
 func (c *Lambda) UpdateFunctionConfiguration(input *UpdateFunctionConfigurationInput) (*FunctionConfiguration, error) {
@@ -5234,7 +6707,7 @@ func (c *Lambda) UpdateFunctionEventInvokeConfigRequest(input *UpdateFunctionEve
 //
 // Returned Error Types:
 //   * ServiceException
-//   The AWS Lambda service encountered an internal error.
+//   The Lambda service encountered an internal error.
 //
 //   * ResourceNotFoundException
 //   The resource specified in the request does not exist.
@@ -5244,6 +6717,9 @@ func (c *Lambda) UpdateFunctionEventInvokeConfigRequest(input *UpdateFunctionEve
 //
 //   * TooManyRequestsException
 //   The request throughput limit was exceeded.
+//
+//   * ResourceConflictException
+//   The resource already exists, or another operation is in progress.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/UpdateFunctionEventInvokeConfig
 func (c *Lambda) UpdateFunctionEventInvokeConfig(input *UpdateFunctionEventInvokeConfigInput) (*UpdateFunctionEventInvokeConfigOutput, error) {
@@ -5267,6 +6743,97 @@ func (c *Lambda) UpdateFunctionEventInvokeConfigWithContext(ctx aws.Context, inp
 	return out, req.Send()
 }
 
+const opUpdateFunctionUrlConfig = "UpdateFunctionUrlConfig"
+
+// UpdateFunctionUrlConfigRequest generates a "aws/request.Request" representing the
+// client's request for the UpdateFunctionUrlConfig operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See UpdateFunctionUrlConfig for more information on using the UpdateFunctionUrlConfig
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the UpdateFunctionUrlConfigRequest method.
+//    req, resp := client.UpdateFunctionUrlConfigRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/UpdateFunctionUrlConfig
+func (c *Lambda) UpdateFunctionUrlConfigRequest(input *UpdateFunctionUrlConfigInput) (req *request.Request, output *UpdateFunctionUrlConfigOutput) {
+	op := &request.Operation{
+		Name:       opUpdateFunctionUrlConfig,
+		HTTPMethod: "PUT",
+		HTTPPath:   "/2021-10-31/functions/{FunctionName}/url",
+	}
+
+	if input == nil {
+		input = &UpdateFunctionUrlConfigInput{}
+	}
+
+	output = &UpdateFunctionUrlConfigOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// UpdateFunctionUrlConfig API operation for AWS Lambda.
+//
+// Updates the configuration for a Lambda function URL.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for AWS Lambda's
+// API operation UpdateFunctionUrlConfig for usage and error information.
+//
+// Returned Error Types:
+//   * ResourceConflictException
+//   The resource already exists, or another operation is in progress.
+//
+//   * ResourceNotFoundException
+//   The resource specified in the request does not exist.
+//
+//   * InvalidParameterValueException
+//   One of the parameters in the request is invalid.
+//
+//   * ServiceException
+//   The Lambda service encountered an internal error.
+//
+//   * TooManyRequestsException
+//   The request throughput limit was exceeded.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/lambda-2015-03-31/UpdateFunctionUrlConfig
+func (c *Lambda) UpdateFunctionUrlConfig(input *UpdateFunctionUrlConfigInput) (*UpdateFunctionUrlConfigOutput, error) {
+	req, out := c.UpdateFunctionUrlConfigRequest(input)
+	return out, req.Send()
+}
+
+// UpdateFunctionUrlConfigWithContext is the same as UpdateFunctionUrlConfig with the addition of
+// the ability to pass a context and additional request options.
+//
+// See UpdateFunctionUrlConfig for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *Lambda) UpdateFunctionUrlConfigWithContext(ctx aws.Context, input *UpdateFunctionUrlConfigInput, opts ...request.Option) (*UpdateFunctionUrlConfigOutput, error) {
+	req, out := c.UpdateFunctionUrlConfigRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
 // Limits that are related to concurrency and storage. All file and storage
 // sizes are in bytes.
 type AccountLimit struct {
@@ -5276,8 +6843,8 @@ type AccountLimit struct {
 	// extracted.
 	CodeSizeUnzipped *int64 `type:"long"`
 
-	// The maximum size of a deployment package when it's uploaded directly to AWS
-	// Lambda. Use Amazon S3 for larger files.
+	// The maximum size of a deployment package when it's uploaded directly to Lambda.
+	// Use Amazon S3 for larger files.
 	CodeSizeZipped *int64 `type:"long"`
 
 	// The maximum number of simultaneous function executions.
@@ -5292,12 +6859,20 @@ type AccountLimit struct {
 	UnreservedConcurrentExecutions *int64 `type:"integer"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s AccountLimit) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s AccountLimit) GoString() string {
 	return s.String()
 }
@@ -5344,12 +6919,20 @@ type AccountUsage struct {
 	TotalCodeSize *int64 `type:"long"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s AccountUsage) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s AccountUsage) GoString() string {
 	return s.String()
 }
@@ -5383,7 +6966,10 @@ type AddLayerVersionPermissionInput struct {
 	// organization.
 	OrganizationId *string `type:"string"`
 
-	// An account ID, or * to grant permission to all AWS accounts.
+	// An account ID, or * to grant layer usage permission to all accounts in an
+	// organization, or all Amazon Web Services accounts (if organizationId is not
+	// specified). For the last case, make sure that you really do want all Amazon
+	// Web Services accounts to have usage permission to this layer.
 	//
 	// Principal is a required field
 	Principal *string `type:"string" required:"true"`
@@ -5404,12 +6990,20 @@ type AddLayerVersionPermissionInput struct {
 	VersionNumber *int64 `location:"uri" locationName:"VersionNumber" type:"long" required:"true"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s AddLayerVersionPermissionInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s AddLayerVersionPermissionInput) GoString() string {
 	return s.String()
 }
@@ -5497,12 +7091,20 @@ type AddLayerVersionPermissionOutput struct {
 	Statement *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s AddLayerVersionPermissionOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s AddLayerVersionPermissionOutput) GoString() string {
 	return s.String()
 }
@@ -5548,12 +7150,22 @@ type AddPermissionInput struct {
 	// FunctionName is a required field
 	FunctionName *string `location:"uri" locationName:"FunctionName" min:"1" type:"string" required:"true"`
 
-	// The AWS service or account that invokes the function. If you specify a service,
-	// use SourceArn or SourceAccount to limit who can invoke the function through
-	// that service.
+	// The type of authentication that your function URL uses. Set to AWS_IAM if
+	// you want to restrict access to authenticated IAM users only. Set to NONE
+	// if you want to bypass IAM authentication to create a public endpoint. For
+	// more information, see Security and auth model for Lambda function URLs (https://docs.aws.amazon.com/lambda/latest/dg/urls-auth.html).
+	FunctionUrlAuthType *string `type:"string" enum:"FunctionUrlAuthType"`
+
+	// The Amazon Web Services service or account that invokes the function. If
+	// you specify a service, use SourceArn or SourceAccount to limit who can invoke
+	// the function through that service.
 	//
 	// Principal is a required field
 	Principal *string `type:"string" required:"true"`
+
+	// The identifier for your organization in Organizations. Use this to grant
+	// permissions to all the Amazon Web Services accounts under this organization.
+	PrincipalOrgID *string `min:"12" type:"string"`
 
 	// Specify a version or alias to add permissions to a published version of the
 	// function.
@@ -5570,8 +7182,11 @@ type AddPermissionInput struct {
 	// by another account.
 	SourceAccount *string `type:"string"`
 
-	// For AWS services, the ARN of the AWS resource that invokes the function.
-	// For example, an Amazon S3 bucket or Amazon SNS topic.
+	// For Amazon Web Services services, the ARN of the Amazon Web Services resource
+	// that invokes the function. For example, an Amazon S3 bucket or Amazon SNS
+	// topic.
+	//
+	// Note that Lambda configures the comparison using the StringLike operator.
 	SourceArn *string `type:"string"`
 
 	// A statement identifier that differentiates the statement from others in the
@@ -5581,12 +7196,20 @@ type AddPermissionInput struct {
 	StatementId *string `min:"1" type:"string" required:"true"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s AddPermissionInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s AddPermissionInput) GoString() string {
 	return s.String()
 }
@@ -5605,6 +7228,9 @@ func (s *AddPermissionInput) Validate() error {
 	}
 	if s.Principal == nil {
 		invalidParams.Add(request.NewErrParamRequired("Principal"))
+	}
+	if s.PrincipalOrgID != nil && len(*s.PrincipalOrgID) < 12 {
+		invalidParams.Add(request.NewErrParamMinLen("PrincipalOrgID", 12))
 	}
 	if s.Qualifier != nil && len(*s.Qualifier) < 1 {
 		invalidParams.Add(request.NewErrParamMinLen("Qualifier", 1))
@@ -5640,9 +7266,21 @@ func (s *AddPermissionInput) SetFunctionName(v string) *AddPermissionInput {
 	return s
 }
 
+// SetFunctionUrlAuthType sets the FunctionUrlAuthType field's value.
+func (s *AddPermissionInput) SetFunctionUrlAuthType(v string) *AddPermissionInput {
+	s.FunctionUrlAuthType = &v
+	return s
+}
+
 // SetPrincipal sets the Principal field's value.
 func (s *AddPermissionInput) SetPrincipal(v string) *AddPermissionInput {
 	s.Principal = &v
+	return s
+}
+
+// SetPrincipalOrgID sets the PrincipalOrgID field's value.
+func (s *AddPermissionInput) SetPrincipalOrgID(v string) *AddPermissionInput {
+	s.PrincipalOrgID = &v
 	return s
 }
 
@@ -5683,12 +7321,20 @@ type AddPermissionOutput struct {
 	Statement *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s AddPermissionOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s AddPermissionOutput) GoString() string {
 	return s.String()
 }
@@ -5723,12 +7369,20 @@ type AliasConfiguration struct {
 	RoutingConfig *AliasRoutingConfiguration `type:"structure"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s AliasConfiguration) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s AliasConfiguration) GoString() string {
 	return s.String()
 }
@@ -5778,12 +7432,20 @@ type AliasRoutingConfiguration struct {
 	AdditionalVersionWeights map[string]*float64 `type:"map"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s AliasRoutingConfiguration) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s AliasRoutingConfiguration) GoString() string {
 	return s.String()
 }
@@ -5791,6 +7453,250 @@ func (s AliasRoutingConfiguration) GoString() string {
 // SetAdditionalVersionWeights sets the AdditionalVersionWeights field's value.
 func (s *AliasRoutingConfiguration) SetAdditionalVersionWeights(v map[string]*float64) *AliasRoutingConfiguration {
 	s.AdditionalVersionWeights = v
+	return s
+}
+
+// List of signing profiles that can sign a code package.
+type AllowedPublishers struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) for each of the signing profiles. A signing
+	// profile defines a trusted user who can sign a code package.
+	//
+	// SigningProfileVersionArns is a required field
+	SigningProfileVersionArns []*string `min:"1" type:"list" required:"true"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s AllowedPublishers) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s AllowedPublishers) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *AllowedPublishers) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "AllowedPublishers"}
+	if s.SigningProfileVersionArns == nil {
+		invalidParams.Add(request.NewErrParamRequired("SigningProfileVersionArns"))
+	}
+	if s.SigningProfileVersionArns != nil && len(s.SigningProfileVersionArns) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("SigningProfileVersionArns", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetSigningProfileVersionArns sets the SigningProfileVersionArns field's value.
+func (s *AllowedPublishers) SetSigningProfileVersionArns(v []*string) *AllowedPublishers {
+	s.SigningProfileVersionArns = v
+	return s
+}
+
+// Details about a Code signing configuration (https://docs.aws.amazon.com/lambda/latest/dg/configuration-codesigning.html).
+type CodeSigningConfig struct {
+	_ struct{} `type:"structure"`
+
+	// List of allowed publishers.
+	//
+	// AllowedPublishers is a required field
+	AllowedPublishers *AllowedPublishers `type:"structure" required:"true"`
+
+	// The Amazon Resource Name (ARN) of the Code signing configuration.
+	//
+	// CodeSigningConfigArn is a required field
+	CodeSigningConfigArn *string `type:"string" required:"true"`
+
+	// Unique identifer for the Code signing configuration.
+	//
+	// CodeSigningConfigId is a required field
+	CodeSigningConfigId *string `type:"string" required:"true"`
+
+	// The code signing policy controls the validation failure action for signature
+	// mismatch or expiry.
+	//
+	// CodeSigningPolicies is a required field
+	CodeSigningPolicies *CodeSigningPolicies `type:"structure" required:"true"`
+
+	// Code signing configuration description.
+	Description *string `type:"string"`
+
+	// The date and time that the Code signing configuration was last modified,
+	// in ISO-8601 format (YYYY-MM-DDThh:mm:ss.sTZD).
+	//
+	// LastModified is a required field
+	LastModified *string `type:"string" required:"true"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s CodeSigningConfig) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s CodeSigningConfig) GoString() string {
+	return s.String()
+}
+
+// SetAllowedPublishers sets the AllowedPublishers field's value.
+func (s *CodeSigningConfig) SetAllowedPublishers(v *AllowedPublishers) *CodeSigningConfig {
+	s.AllowedPublishers = v
+	return s
+}
+
+// SetCodeSigningConfigArn sets the CodeSigningConfigArn field's value.
+func (s *CodeSigningConfig) SetCodeSigningConfigArn(v string) *CodeSigningConfig {
+	s.CodeSigningConfigArn = &v
+	return s
+}
+
+// SetCodeSigningConfigId sets the CodeSigningConfigId field's value.
+func (s *CodeSigningConfig) SetCodeSigningConfigId(v string) *CodeSigningConfig {
+	s.CodeSigningConfigId = &v
+	return s
+}
+
+// SetCodeSigningPolicies sets the CodeSigningPolicies field's value.
+func (s *CodeSigningConfig) SetCodeSigningPolicies(v *CodeSigningPolicies) *CodeSigningConfig {
+	s.CodeSigningPolicies = v
+	return s
+}
+
+// SetDescription sets the Description field's value.
+func (s *CodeSigningConfig) SetDescription(v string) *CodeSigningConfig {
+	s.Description = &v
+	return s
+}
+
+// SetLastModified sets the LastModified field's value.
+func (s *CodeSigningConfig) SetLastModified(v string) *CodeSigningConfig {
+	s.LastModified = &v
+	return s
+}
+
+// The specified code signing configuration does not exist.
+type CodeSigningConfigNotFoundException struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"Message" type:"string"`
+
+	Type *string `type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s CodeSigningConfigNotFoundException) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s CodeSigningConfigNotFoundException) GoString() string {
+	return s.String()
+}
+
+func newErrorCodeSigningConfigNotFoundException(v protocol.ResponseMetadata) error {
+	return &CodeSigningConfigNotFoundException{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *CodeSigningConfigNotFoundException) Code() string {
+	return "CodeSigningConfigNotFoundException"
+}
+
+// Message returns the exception's message.
+func (s *CodeSigningConfigNotFoundException) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *CodeSigningConfigNotFoundException) OrigErr() error {
+	return nil
+}
+
+func (s *CodeSigningConfigNotFoundException) Error() string {
+	return fmt.Sprintf("%s: %s\n%s", s.Code(), s.Message(), s.String())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *CodeSigningConfigNotFoundException) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *CodeSigningConfigNotFoundException) RequestID() string {
+	return s.RespMetadata.RequestID
+}
+
+// Code signing configuration policies (https://docs.aws.amazon.com/lambda/latest/dg/configuration-codesigning.html#config-codesigning-policies)
+// specify the validation failure action for signature mismatch or expiry.
+type CodeSigningPolicies struct {
+	_ struct{} `type:"structure"`
+
+	// Code signing configuration policy for deployment validation failure. If you
+	// set the policy to Enforce, Lambda blocks the deployment request if signature
+	// validation checks fail. If you set the policy to Warn, Lambda allows the
+	// deployment and creates a CloudWatch log.
+	//
+	// Default value: Warn
+	UntrustedArtifactOnDeployment *string `type:"string" enum:"CodeSigningPolicy"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s CodeSigningPolicies) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s CodeSigningPolicies) GoString() string {
+	return s.String()
+}
+
+// SetUntrustedArtifactOnDeployment sets the UntrustedArtifactOnDeployment field's value.
+func (s *CodeSigningPolicies) SetUntrustedArtifactOnDeployment(v string) *CodeSigningPolicies {
+	s.UntrustedArtifactOnDeployment = &v
 	return s
 }
 
@@ -5805,12 +7711,20 @@ type CodeStorageExceededException struct {
 	Type *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s CodeStorageExceededException) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s CodeStorageExceededException) GoString() string {
 	return s.String()
 }
@@ -5853,6 +7767,165 @@ func (s *CodeStorageExceededException) RequestID() string {
 	return s.RespMetadata.RequestID
 }
 
+// The code signature failed one or more of the validation checks for signature
+// mismatch or expiry, and the code signing policy is set to ENFORCE. Lambda
+// blocks the deployment.
+type CodeVerificationFailedException struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"Message" type:"string"`
+
+	Type *string `type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s CodeVerificationFailedException) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s CodeVerificationFailedException) GoString() string {
+	return s.String()
+}
+
+func newErrorCodeVerificationFailedException(v protocol.ResponseMetadata) error {
+	return &CodeVerificationFailedException{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *CodeVerificationFailedException) Code() string {
+	return "CodeVerificationFailedException"
+}
+
+// Message returns the exception's message.
+func (s *CodeVerificationFailedException) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *CodeVerificationFailedException) OrigErr() error {
+	return nil
+}
+
+func (s *CodeVerificationFailedException) Error() string {
+	return fmt.Sprintf("%s: %s\n%s", s.Code(), s.Message(), s.String())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *CodeVerificationFailedException) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *CodeVerificationFailedException) RequestID() string {
+	return s.RespMetadata.RequestID
+}
+
+// The cross-origin resource sharing (CORS) (https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)
+// settings for your Lambda function URL. Use CORS to grant access to your function
+// URL from any origin. You can also use CORS to control access for specific
+// HTTP headers and methods in requests to your function URL.
+type Cors struct {
+	_ struct{} `type:"structure"`
+
+	// Whether to allow cookies or other credentials in requests to your function
+	// URL. The default is false.
+	AllowCredentials *bool `type:"boolean"`
+
+	// The HTTP headers that origins can include in requests to your function URL.
+	// For example: Date, Keep-Alive, X-Custom-Header.
+	AllowHeaders []*string `type:"list"`
+
+	// The HTTP methods that are allowed when calling your function URL. For example:
+	// GET, POST, DELETE, or the wildcard character (*).
+	AllowMethods []*string `type:"list"`
+
+	// The origins that can access your function URL. You can list any number of
+	// specific origins, separated by a comma. For example: https://www.example.com,
+	// http://localhost:60905.
+	//
+	// Alternatively, you can grant access to all origins using the wildcard character
+	// (*).
+	AllowOrigins []*string `type:"list"`
+
+	// The HTTP headers in your function response that you want to expose to origins
+	// that call your function URL. For example: Date, Keep-Alive, X-Custom-Header.
+	ExposeHeaders []*string `type:"list"`
+
+	// The maximum amount of time, in seconds, that web browsers can cache results
+	// of a preflight request. By default, this is set to 0, which means that the
+	// browser doesn't cache results.
+	MaxAge *int64 `type:"integer"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s Cors) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s Cors) GoString() string {
+	return s.String()
+}
+
+// SetAllowCredentials sets the AllowCredentials field's value.
+func (s *Cors) SetAllowCredentials(v bool) *Cors {
+	s.AllowCredentials = &v
+	return s
+}
+
+// SetAllowHeaders sets the AllowHeaders field's value.
+func (s *Cors) SetAllowHeaders(v []*string) *Cors {
+	s.AllowHeaders = v
+	return s
+}
+
+// SetAllowMethods sets the AllowMethods field's value.
+func (s *Cors) SetAllowMethods(v []*string) *Cors {
+	s.AllowMethods = v
+	return s
+}
+
+// SetAllowOrigins sets the AllowOrigins field's value.
+func (s *Cors) SetAllowOrigins(v []*string) *Cors {
+	s.AllowOrigins = v
+	return s
+}
+
+// SetExposeHeaders sets the ExposeHeaders field's value.
+func (s *Cors) SetExposeHeaders(v []*string) *Cors {
+	s.ExposeHeaders = v
+	return s
+}
+
+// SetMaxAge sets the MaxAge field's value.
+func (s *Cors) SetMaxAge(v int64) *Cors {
+	s.MaxAge = &v
+	return s
+}
+
 type CreateAliasInput struct {
 	_ struct{} `type:"structure"`
 
@@ -5890,12 +7963,20 @@ type CreateAliasInput struct {
 	RoutingConfig *AliasRoutingConfiguration `type:"structure"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s CreateAliasInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s CreateAliasInput) GoString() string {
 	return s.String()
 }
@@ -5958,29 +8039,143 @@ func (s *CreateAliasInput) SetRoutingConfig(v *AliasRoutingConfiguration) *Creat
 	return s
 }
 
+type CreateCodeSigningConfigInput struct {
+	_ struct{} `type:"structure"`
+
+	// Signing profiles for this code signing configuration.
+	//
+	// AllowedPublishers is a required field
+	AllowedPublishers *AllowedPublishers `type:"structure" required:"true"`
+
+	// The code signing policies define the actions to take if the validation checks
+	// fail.
+	CodeSigningPolicies *CodeSigningPolicies `type:"structure"`
+
+	// Descriptive name for this code signing configuration.
+	Description *string `type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s CreateCodeSigningConfigInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s CreateCodeSigningConfigInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CreateCodeSigningConfigInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CreateCodeSigningConfigInput"}
+	if s.AllowedPublishers == nil {
+		invalidParams.Add(request.NewErrParamRequired("AllowedPublishers"))
+	}
+	if s.AllowedPublishers != nil {
+		if err := s.AllowedPublishers.Validate(); err != nil {
+			invalidParams.AddNested("AllowedPublishers", err.(request.ErrInvalidParams))
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetAllowedPublishers sets the AllowedPublishers field's value.
+func (s *CreateCodeSigningConfigInput) SetAllowedPublishers(v *AllowedPublishers) *CreateCodeSigningConfigInput {
+	s.AllowedPublishers = v
+	return s
+}
+
+// SetCodeSigningPolicies sets the CodeSigningPolicies field's value.
+func (s *CreateCodeSigningConfigInput) SetCodeSigningPolicies(v *CodeSigningPolicies) *CreateCodeSigningConfigInput {
+	s.CodeSigningPolicies = v
+	return s
+}
+
+// SetDescription sets the Description field's value.
+func (s *CreateCodeSigningConfigInput) SetDescription(v string) *CreateCodeSigningConfigInput {
+	s.Description = &v
+	return s
+}
+
+type CreateCodeSigningConfigOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The code signing configuration.
+	//
+	// CodeSigningConfig is a required field
+	CodeSigningConfig *CodeSigningConfig `type:"structure" required:"true"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s CreateCodeSigningConfigOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s CreateCodeSigningConfigOutput) GoString() string {
+	return s.String()
+}
+
+// SetCodeSigningConfig sets the CodeSigningConfig field's value.
+func (s *CreateCodeSigningConfigOutput) SetCodeSigningConfig(v *CodeSigningConfig) *CreateCodeSigningConfigOutput {
+	s.CodeSigningConfig = v
+	return s
+}
+
 type CreateEventSourceMappingInput struct {
 	_ struct{} `type:"structure"`
 
-	// The maximum number of items to retrieve in a single batch.
+	// The maximum number of records in each batch that Lambda pulls from your stream
+	// or queue and sends to your function. Lambda passes all of the records in
+	// the batch to the function in a single call, up to the payload limit for synchronous
+	// invocation (6 MB).
 	//
 	//    * Amazon Kinesis - Default 100. Max 10,000.
 	//
-	//    * Amazon DynamoDB Streams - Default 100. Max 1,000.
+	//    * Amazon DynamoDB Streams - Default 100. Max 10,000.
 	//
-	//    * Amazon Simple Queue Service - Default 10. Max 10.
+	//    * Amazon Simple Queue Service - Default 10. For standard queues the max
+	//    is 10,000. For FIFO queues the max is 10.
 	//
 	//    * Amazon Managed Streaming for Apache Kafka - Default 100. Max 10,000.
+	//
+	//    * Self-Managed Apache Kafka - Default 100. Max 10,000.
+	//
+	//    * Amazon MQ (ActiveMQ and RabbitMQ) - Default 100. Max 10,000.
 	BatchSize *int64 `min:"1" type:"integer"`
 
-	// (Streams) If the function returns an error, split the batch in two and retry.
+	// (Streams only) If the function returns an error, split the batch in two and
+	// retry.
 	BisectBatchOnFunctionError *bool `type:"boolean"`
 
-	// (Streams) An Amazon SQS queue or Amazon SNS topic destination for discarded
+	// (Streams only) An Amazon SQS queue or Amazon SNS topic destination for discarded
 	// records.
 	DestinationConfig *DestinationConfig `type:"structure"`
 
-	// If true, the event source mapping is active. Set to false to pause polling
-	// and invocation.
+	// When true, the event source mapping is active. When false, Lambda pauses
+	// polling and invocation.
+	//
+	// Default: True
 	Enabled *bool `type:"boolean"`
 
 	// The Amazon Resource Name (ARN) of the event source.
@@ -5992,9 +8187,12 @@ type CreateEventSourceMappingInput struct {
 	//    * Amazon Simple Queue Service - The ARN of the queue.
 	//
 	//    * Amazon Managed Streaming for Apache Kafka - The ARN of the cluster.
-	//
-	// EventSourceArn is a required field
-	EventSourceArn *string `type:"string" required:"true"`
+	EventSourceArn *string `type:"string"`
+
+	// (Streams and Amazon SQS) An object that defines the filter criteria that
+	// determine whether Lambda should process an event. For more information, see
+	// Lambda event filtering (https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventfiltering.html).
+	FilterCriteria *FilterCriteria `type:"structure"`
 
 	// The name of the Lambda function.
 	//
@@ -6014,21 +8212,40 @@ type CreateEventSourceMappingInput struct {
 	// FunctionName is a required field
 	FunctionName *string `min:"1" type:"string" required:"true"`
 
-	// (Streams) The maximum amount of time to gather records before invoking the
-	// function, in seconds.
+	// (Streams and Amazon SQS) A list of current response type enums applied to
+	// the event source mapping.
+	FunctionResponseTypes []*string `type:"list" enum:"FunctionResponseType"`
+
+	// (Streams and Amazon SQS standard queues) The maximum amount of time, in seconds,
+	// that Lambda spends gathering records before invoking the function.
+	//
+	// Default: 0
+	//
+	// Related setting: When you set BatchSize to a value greater than 10, you must
+	// set MaximumBatchingWindowInSeconds to at least 1.
 	MaximumBatchingWindowInSeconds *int64 `type:"integer"`
 
-	// (Streams) Discard records older than the specified age. The default value
-	// is infinite (-1).
+	// (Streams only) Discard records older than the specified age. The default
+	// value is infinite (-1).
 	MaximumRecordAgeInSeconds *int64 `type:"integer"`
 
-	// (Streams) Discard records after the specified number of retries. The default
-	// value is infinite (-1). When set to infinite (-1), failed records will be
-	// retried until the record expires.
+	// (Streams only) Discard records after the specified number of retries. The
+	// default value is infinite (-1). When set to infinite (-1), failed records
+	// will be retried until the record expires.
 	MaximumRetryAttempts *int64 `type:"integer"`
 
-	// (Streams) The number of batches to process from each shard concurrently.
+	// (Streams only) The number of batches to process from each shard concurrently.
 	ParallelizationFactor *int64 `min:"1" type:"integer"`
+
+	// (MQ) The name of the Amazon MQ broker destination queue to consume.
+	Queues []*string `min:"1" type:"list"`
+
+	// The Self-Managed Apache Kafka cluster to send records.
+	SelfManagedEventSource *SelfManagedEventSource `type:"structure"`
+
+	// An array of authentication protocols or VPC components required to secure
+	// your event source.
+	SourceAccessConfigurations []*SourceAccessConfiguration `type:"list"`
 
 	// The position in a stream from which to start reading. Required for Amazon
 	// Kinesis, Amazon DynamoDB, and Amazon MSK Streams sources. AT_TIMESTAMP is
@@ -6038,16 +8255,28 @@ type CreateEventSourceMappingInput struct {
 	// With StartingPosition set to AT_TIMESTAMP, the time from which to start reading.
 	StartingPositionTimestamp *time.Time `type:"timestamp"`
 
-	// (MSK) The name of the Kafka topic.
+	// The name of the Kafka topic.
 	Topics []*string `min:"1" type:"list"`
+
+	// (Streams only) The duration in seconds of a processing window. The range
+	// is between 1 second up to 900 seconds.
+	TumblingWindowInSeconds *int64 `type:"integer"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s CreateEventSourceMappingInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s CreateEventSourceMappingInput) GoString() string {
 	return s.String()
 }
@@ -6057,9 +8286,6 @@ func (s *CreateEventSourceMappingInput) Validate() error {
 	invalidParams := request.ErrInvalidParams{Context: "CreateEventSourceMappingInput"}
 	if s.BatchSize != nil && *s.BatchSize < 1 {
 		invalidParams.Add(request.NewErrParamMinValue("BatchSize", 1))
-	}
-	if s.EventSourceArn == nil {
-		invalidParams.Add(request.NewErrParamRequired("EventSourceArn"))
 	}
 	if s.FunctionName == nil {
 		invalidParams.Add(request.NewErrParamRequired("FunctionName"))
@@ -6076,8 +8302,26 @@ func (s *CreateEventSourceMappingInput) Validate() error {
 	if s.ParallelizationFactor != nil && *s.ParallelizationFactor < 1 {
 		invalidParams.Add(request.NewErrParamMinValue("ParallelizationFactor", 1))
 	}
+	if s.Queues != nil && len(s.Queues) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Queues", 1))
+	}
 	if s.Topics != nil && len(s.Topics) < 1 {
 		invalidParams.Add(request.NewErrParamMinLen("Topics", 1))
+	}
+	if s.SelfManagedEventSource != nil {
+		if err := s.SelfManagedEventSource.Validate(); err != nil {
+			invalidParams.AddNested("SelfManagedEventSource", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.SourceAccessConfigurations != nil {
+		for i, v := range s.SourceAccessConfigurations {
+			if v == nil {
+				continue
+			}
+			if err := v.Validate(); err != nil {
+				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "SourceAccessConfigurations", i), err.(request.ErrInvalidParams))
+			}
+		}
 	}
 
 	if invalidParams.Len() > 0 {
@@ -6116,9 +8360,21 @@ func (s *CreateEventSourceMappingInput) SetEventSourceArn(v string) *CreateEvent
 	return s
 }
 
+// SetFilterCriteria sets the FilterCriteria field's value.
+func (s *CreateEventSourceMappingInput) SetFilterCriteria(v *FilterCriteria) *CreateEventSourceMappingInput {
+	s.FilterCriteria = v
+	return s
+}
+
 // SetFunctionName sets the FunctionName field's value.
 func (s *CreateEventSourceMappingInput) SetFunctionName(v string) *CreateEventSourceMappingInput {
 	s.FunctionName = &v
+	return s
+}
+
+// SetFunctionResponseTypes sets the FunctionResponseTypes field's value.
+func (s *CreateEventSourceMappingInput) SetFunctionResponseTypes(v []*string) *CreateEventSourceMappingInput {
+	s.FunctionResponseTypes = v
 	return s
 }
 
@@ -6146,6 +8402,24 @@ func (s *CreateEventSourceMappingInput) SetParallelizationFactor(v int64) *Creat
 	return s
 }
 
+// SetQueues sets the Queues field's value.
+func (s *CreateEventSourceMappingInput) SetQueues(v []*string) *CreateEventSourceMappingInput {
+	s.Queues = v
+	return s
+}
+
+// SetSelfManagedEventSource sets the SelfManagedEventSource field's value.
+func (s *CreateEventSourceMappingInput) SetSelfManagedEventSource(v *SelfManagedEventSource) *CreateEventSourceMappingInput {
+	s.SelfManagedEventSource = v
+	return s
+}
+
+// SetSourceAccessConfigurations sets the SourceAccessConfigurations field's value.
+func (s *CreateEventSourceMappingInput) SetSourceAccessConfigurations(v []*SourceAccessConfiguration) *CreateEventSourceMappingInput {
+	s.SourceAccessConfigurations = v
+	return s
+}
+
 // SetStartingPosition sets the StartingPosition field's value.
 func (s *CreateEventSourceMappingInput) SetStartingPosition(v string) *CreateEventSourceMappingInput {
 	s.StartingPosition = &v
@@ -6164,13 +8438,29 @@ func (s *CreateEventSourceMappingInput) SetTopics(v []*string) *CreateEventSourc
 	return s
 }
 
+// SetTumblingWindowInSeconds sets the TumblingWindowInSeconds field's value.
+func (s *CreateEventSourceMappingInput) SetTumblingWindowInSeconds(v int64) *CreateEventSourceMappingInput {
+	s.TumblingWindowInSeconds = &v
+	return s
+}
+
 type CreateFunctionInput struct {
 	_ struct{} `type:"structure"`
+
+	// The instruction set architecture that the function supports. Enter a string
+	// array with one of the valid values (arm64 or x86_64). The default value is
+	// x86_64.
+	Architectures []*string `min:"1" type:"list" enum:"Architecture"`
 
 	// The code for the function.
 	//
 	// Code is a required field
 	Code *FunctionCode `type:"structure" required:"true"`
+
+	// To enable code signing for this function, specify the ARN of a code-signing
+	// configuration. A code-signing configuration includes a set of signing profiles,
+	// which define the trusted publishers for this function.
+	CodeSigningConfigArn *string `type:"string"`
 
 	// A dead letter queue configuration that specifies the queue or topic where
 	// Lambda sends asynchronous events when they fail processing. For more information,
@@ -6182,6 +8472,10 @@ type CreateFunctionInput struct {
 
 	// Environment variables that are accessible from function code during execution.
 	Environment *Environment `type:"structure"`
+
+	// The size of the function’s /tmp directory in MB. The default value is 512,
+	// but can be any whole number between 512 and 10240 MB.
+	EphemeralStorage *EphemeralStorage `type:"structure"`
 
 	// Connection settings for an Amazon EFS file system.
 	FileSystemConfigs []*FileSystemConfig `type:"list"`
@@ -6203,16 +8497,19 @@ type CreateFunctionInput struct {
 	FunctionName *string `min:"1" type:"string" required:"true"`
 
 	// The name of the method within your code that Lambda calls to execute your
-	// function. The format includes the file name. It can also include namespaces
-	// and other qualifiers, depending on the runtime. For more information, see
-	// Programming Model (https://docs.aws.amazon.com/lambda/latest/dg/programming-model-v2.html).
-	//
-	// Handler is a required field
-	Handler *string `type:"string" required:"true"`
+	// function. Handler is required if the deployment package is a .zip file archive.
+	// The format includes the file name. It can also include namespaces and other
+	// qualifiers, depending on the runtime. For more information, see Programming
+	// Model (https://docs.aws.amazon.com/lambda/latest/dg/programming-model-v2.html).
+	Handler *string `type:"string"`
 
-	// The ARN of the AWS Key Management Service (AWS KMS) key that's used to encrypt
-	// your function's environment variables. If it's not provided, AWS Lambda uses
-	// a default service key.
+	// Container image configuration values (https://docs.aws.amazon.com/lambda/latest/dg/configuration-images.html#configuration-images-settings)
+	// that override the values in the container image Dockerfile.
+	ImageConfig *ImageConfig `type:"structure"`
+
+	// The ARN of the Amazon Web Services Key Management Service (KMS) key that's
+	// used to encrypt your function's environment variables. If it's not provided,
+	// Lambda uses a default service key.
 	KMSKeyArn *string `type:"string"`
 
 	// A list of function layers (https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html)
@@ -6220,10 +8517,14 @@ type CreateFunctionInput struct {
 	// ARN, including the version.
 	Layers []*string `type:"list"`
 
-	// The amount of memory that your function has access to. Increasing the function's
-	// memory also increases its CPU allocation. The default value is 128 MB. The
-	// value must be a multiple of 64 MB.
+	// The amount of memory available to the function (https://docs.aws.amazon.com/lambda/latest/dg/configuration-memory.html)
+	// at runtime. Increasing the function memory also increases its CPU allocation.
+	// The default value is 128 MB. The value can be any multiple of 1 MB.
 	MemorySize *int64 `min:"128" type:"integer"`
+
+	// The type of deployment package. Set to Image for container image and set
+	// Zip for ZIP archive.
+	PackageType *string `type:"string" enum:"PackageType"`
 
 	// Set to true to publish the first version of the function during creation.
 	Publish *bool `type:"boolean"`
@@ -6234,35 +8535,43 @@ type CreateFunctionInput struct {
 	Role *string `type:"string" required:"true"`
 
 	// The identifier of the function's runtime (https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html).
-	//
-	// Runtime is a required field
-	Runtime *string `type:"string" required:"true" enum:"Runtime"`
+	// Runtime is required if the deployment package is a .zip file archive.
+	Runtime *string `type:"string" enum:"Runtime"`
 
 	// A list of tags (https://docs.aws.amazon.com/lambda/latest/dg/tagging.html)
 	// to apply to the function.
 	Tags map[string]*string `type:"map"`
 
-	// The amount of time that Lambda allows a function to run before stopping it.
-	// The default is 3 seconds. The maximum allowed value is 900 seconds.
+	// The amount of time (in seconds) that Lambda allows a function to run before
+	// stopping it. The default is 3 seconds. The maximum allowed value is 900 seconds.
+	// For additional information, see Lambda execution environment (https://docs.aws.amazon.com/lambda/latest/dg/runtimes-context.html).
 	Timeout *int64 `min:"1" type:"integer"`
 
 	// Set Mode to Active to sample and trace a subset of incoming requests with
-	// AWS X-Ray.
+	// X-Ray (https://docs.aws.amazon.com/lambda/latest/dg/services-xray.html).
 	TracingConfig *TracingConfig `type:"structure"`
 
-	// For network connectivity to AWS resources in a VPC, specify a list of security
-	// groups and subnets in the VPC. When you connect a function to a VPC, it can
-	// only access resources and the internet through that VPC. For more information,
-	// see VPC Settings (https://docs.aws.amazon.com/lambda/latest/dg/configuration-vpc.html).
+	// For network connectivity to Amazon Web Services resources in a VPC, specify
+	// a list of security groups and subnets in the VPC. When you connect a function
+	// to a VPC, it can only access resources and the internet through that VPC.
+	// For more information, see VPC Settings (https://docs.aws.amazon.com/lambda/latest/dg/configuration-vpc.html).
 	VpcConfig *VpcConfig `type:"structure"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s CreateFunctionInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s CreateFunctionInput) GoString() string {
 	return s.String()
 }
@@ -6270,6 +8579,9 @@ func (s CreateFunctionInput) GoString() string {
 // Validate inspects the fields of the type to determine if they are valid.
 func (s *CreateFunctionInput) Validate() error {
 	invalidParams := request.ErrInvalidParams{Context: "CreateFunctionInput"}
+	if s.Architectures != nil && len(s.Architectures) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Architectures", 1))
+	}
 	if s.Code == nil {
 		invalidParams.Add(request.NewErrParamRequired("Code"))
 	}
@@ -6279,17 +8591,11 @@ func (s *CreateFunctionInput) Validate() error {
 	if s.FunctionName != nil && len(*s.FunctionName) < 1 {
 		invalidParams.Add(request.NewErrParamMinLen("FunctionName", 1))
 	}
-	if s.Handler == nil {
-		invalidParams.Add(request.NewErrParamRequired("Handler"))
-	}
 	if s.MemorySize != nil && *s.MemorySize < 128 {
 		invalidParams.Add(request.NewErrParamMinValue("MemorySize", 128))
 	}
 	if s.Role == nil {
 		invalidParams.Add(request.NewErrParamRequired("Role"))
-	}
-	if s.Runtime == nil {
-		invalidParams.Add(request.NewErrParamRequired("Runtime"))
 	}
 	if s.Timeout != nil && *s.Timeout < 1 {
 		invalidParams.Add(request.NewErrParamMinValue("Timeout", 1))
@@ -6297,6 +8603,11 @@ func (s *CreateFunctionInput) Validate() error {
 	if s.Code != nil {
 		if err := s.Code.Validate(); err != nil {
 			invalidParams.AddNested("Code", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.EphemeralStorage != nil {
+		if err := s.EphemeralStorage.Validate(); err != nil {
+			invalidParams.AddNested("EphemeralStorage", err.(request.ErrInvalidParams))
 		}
 	}
 	if s.FileSystemConfigs != nil {
@@ -6316,9 +8627,21 @@ func (s *CreateFunctionInput) Validate() error {
 	return nil
 }
 
+// SetArchitectures sets the Architectures field's value.
+func (s *CreateFunctionInput) SetArchitectures(v []*string) *CreateFunctionInput {
+	s.Architectures = v
+	return s
+}
+
 // SetCode sets the Code field's value.
 func (s *CreateFunctionInput) SetCode(v *FunctionCode) *CreateFunctionInput {
 	s.Code = v
+	return s
+}
+
+// SetCodeSigningConfigArn sets the CodeSigningConfigArn field's value.
+func (s *CreateFunctionInput) SetCodeSigningConfigArn(v string) *CreateFunctionInput {
+	s.CodeSigningConfigArn = &v
 	return s
 }
 
@@ -6340,6 +8663,12 @@ func (s *CreateFunctionInput) SetEnvironment(v *Environment) *CreateFunctionInpu
 	return s
 }
 
+// SetEphemeralStorage sets the EphemeralStorage field's value.
+func (s *CreateFunctionInput) SetEphemeralStorage(v *EphemeralStorage) *CreateFunctionInput {
+	s.EphemeralStorage = v
+	return s
+}
+
 // SetFileSystemConfigs sets the FileSystemConfigs field's value.
 func (s *CreateFunctionInput) SetFileSystemConfigs(v []*FileSystemConfig) *CreateFunctionInput {
 	s.FileSystemConfigs = v
@@ -6358,6 +8687,12 @@ func (s *CreateFunctionInput) SetHandler(v string) *CreateFunctionInput {
 	return s
 }
 
+// SetImageConfig sets the ImageConfig field's value.
+func (s *CreateFunctionInput) SetImageConfig(v *ImageConfig) *CreateFunctionInput {
+	s.ImageConfig = v
+	return s
+}
+
 // SetKMSKeyArn sets the KMSKeyArn field's value.
 func (s *CreateFunctionInput) SetKMSKeyArn(v string) *CreateFunctionInput {
 	s.KMSKeyArn = &v
@@ -6373,6 +8708,12 @@ func (s *CreateFunctionInput) SetLayers(v []*string) *CreateFunctionInput {
 // SetMemorySize sets the MemorySize field's value.
 func (s *CreateFunctionInput) SetMemorySize(v int64) *CreateFunctionInput {
 	s.MemorySize = &v
+	return s
+}
+
+// SetPackageType sets the PackageType field's value.
+func (s *CreateFunctionInput) SetPackageType(v string) *CreateFunctionInput {
+	s.PackageType = &v
 	return s
 }
 
@@ -6418,6 +8759,185 @@ func (s *CreateFunctionInput) SetVpcConfig(v *VpcConfig) *CreateFunctionInput {
 	return s
 }
 
+type CreateFunctionUrlConfigInput struct {
+	_ struct{} `type:"structure"`
+
+	// The type of authentication that your function URL uses. Set to AWS_IAM if
+	// you want to restrict access to authenticated IAM users only. Set to NONE
+	// if you want to bypass IAM authentication to create a public endpoint. For
+	// more information, see Security and auth model for Lambda function URLs (https://docs.aws.amazon.com/lambda/latest/dg/urls-auth.html).
+	//
+	// AuthType is a required field
+	AuthType *string `type:"string" required:"true" enum:"FunctionUrlAuthType"`
+
+	// The cross-origin resource sharing (CORS) (https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)
+	// settings for your function URL.
+	Cors *Cors `type:"structure"`
+
+	// The name of the Lambda function.
+	//
+	// Name formats
+	//
+	//    * Function name - my-function.
+	//
+	//    * Function ARN - arn:aws:lambda:us-west-2:123456789012:function:my-function.
+	//
+	//    * Partial ARN - 123456789012:function:my-function.
+	//
+	// The length constraint applies only to the full ARN. If you specify only the
+	// function name, it is limited to 64 characters in length.
+	//
+	// FunctionName is a required field
+	FunctionName *string `location:"uri" locationName:"FunctionName" min:"1" type:"string" required:"true"`
+
+	// The alias name.
+	Qualifier *string `location:"querystring" locationName:"Qualifier" min:"1" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s CreateFunctionUrlConfigInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s CreateFunctionUrlConfigInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CreateFunctionUrlConfigInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CreateFunctionUrlConfigInput"}
+	if s.AuthType == nil {
+		invalidParams.Add(request.NewErrParamRequired("AuthType"))
+	}
+	if s.FunctionName == nil {
+		invalidParams.Add(request.NewErrParamRequired("FunctionName"))
+	}
+	if s.FunctionName != nil && len(*s.FunctionName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("FunctionName", 1))
+	}
+	if s.Qualifier != nil && len(*s.Qualifier) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Qualifier", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetAuthType sets the AuthType field's value.
+func (s *CreateFunctionUrlConfigInput) SetAuthType(v string) *CreateFunctionUrlConfigInput {
+	s.AuthType = &v
+	return s
+}
+
+// SetCors sets the Cors field's value.
+func (s *CreateFunctionUrlConfigInput) SetCors(v *Cors) *CreateFunctionUrlConfigInput {
+	s.Cors = v
+	return s
+}
+
+// SetFunctionName sets the FunctionName field's value.
+func (s *CreateFunctionUrlConfigInput) SetFunctionName(v string) *CreateFunctionUrlConfigInput {
+	s.FunctionName = &v
+	return s
+}
+
+// SetQualifier sets the Qualifier field's value.
+func (s *CreateFunctionUrlConfigInput) SetQualifier(v string) *CreateFunctionUrlConfigInput {
+	s.Qualifier = &v
+	return s
+}
+
+type CreateFunctionUrlConfigOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The type of authentication that your function URL uses. Set to AWS_IAM if
+	// you want to restrict access to authenticated IAM users only. Set to NONE
+	// if you want to bypass IAM authentication to create a public endpoint. For
+	// more information, see Security and auth model for Lambda function URLs (https://docs.aws.amazon.com/lambda/latest/dg/urls-auth.html).
+	//
+	// AuthType is a required field
+	AuthType *string `type:"string" required:"true" enum:"FunctionUrlAuthType"`
+
+	// The cross-origin resource sharing (CORS) (https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)
+	// settings for your function URL.
+	Cors *Cors `type:"structure"`
+
+	// When the function URL was created, in ISO-8601 format (https://www.w3.org/TR/NOTE-datetime)
+	// (YYYY-MM-DDThh:mm:ss.sTZD).
+	//
+	// CreationTime is a required field
+	CreationTime *string `type:"string" required:"true"`
+
+	// The Amazon Resource Name (ARN) of your function.
+	//
+	// FunctionArn is a required field
+	FunctionArn *string `type:"string" required:"true"`
+
+	// The HTTP URL endpoint for your function.
+	//
+	// FunctionUrl is a required field
+	FunctionUrl *string `min:"40" type:"string" required:"true"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s CreateFunctionUrlConfigOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s CreateFunctionUrlConfigOutput) GoString() string {
+	return s.String()
+}
+
+// SetAuthType sets the AuthType field's value.
+func (s *CreateFunctionUrlConfigOutput) SetAuthType(v string) *CreateFunctionUrlConfigOutput {
+	s.AuthType = &v
+	return s
+}
+
+// SetCors sets the Cors field's value.
+func (s *CreateFunctionUrlConfigOutput) SetCors(v *Cors) *CreateFunctionUrlConfigOutput {
+	s.Cors = v
+	return s
+}
+
+// SetCreationTime sets the CreationTime field's value.
+func (s *CreateFunctionUrlConfigOutput) SetCreationTime(v string) *CreateFunctionUrlConfigOutput {
+	s.CreationTime = &v
+	return s
+}
+
+// SetFunctionArn sets the FunctionArn field's value.
+func (s *CreateFunctionUrlConfigOutput) SetFunctionArn(v string) *CreateFunctionUrlConfigOutput {
+	s.FunctionArn = &v
+	return s
+}
+
+// SetFunctionUrl sets the FunctionUrl field's value.
+func (s *CreateFunctionUrlConfigOutput) SetFunctionUrl(v string) *CreateFunctionUrlConfigOutput {
+	s.FunctionUrl = &v
+	return s
+}
+
 // The dead-letter queue (https://docs.aws.amazon.com/lambda/latest/dg/invocation-async.html#dlq)
 // for failed asynchronous invocations.
 type DeadLetterConfig struct {
@@ -6427,12 +8947,20 @@ type DeadLetterConfig struct {
 	TargetArn *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s DeadLetterConfig) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s DeadLetterConfig) GoString() string {
 	return s.String()
 }
@@ -6444,7 +8972,7 @@ func (s *DeadLetterConfig) SetTargetArn(v string) *DeadLetterConfig {
 }
 
 type DeleteAliasInput struct {
-	_ struct{} `type:"structure"`
+	_ struct{} `type:"structure" nopayload:"true"`
 
 	// The name of the Lambda function.
 	//
@@ -6468,12 +8996,20 @@ type DeleteAliasInput struct {
 	Name *string `location:"uri" locationName:"Name" min:"1" type:"string" required:"true"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s DeleteAliasInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s DeleteAliasInput) GoString() string {
 	return s.String()
 }
@@ -6516,18 +9052,97 @@ type DeleteAliasOutput struct {
 	_ struct{} `type:"structure"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s DeleteAliasOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s DeleteAliasOutput) GoString() string {
 	return s.String()
 }
 
-type DeleteEventSourceMappingInput struct {
+type DeleteCodeSigningConfigInput struct {
+	_ struct{} `type:"structure" nopayload:"true"`
+
+	// The The Amazon Resource Name (ARN) of the code signing configuration.
+	//
+	// CodeSigningConfigArn is a required field
+	CodeSigningConfigArn *string `location:"uri" locationName:"CodeSigningConfigArn" type:"string" required:"true"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DeleteCodeSigningConfigInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DeleteCodeSigningConfigInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeleteCodeSigningConfigInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeleteCodeSigningConfigInput"}
+	if s.CodeSigningConfigArn == nil {
+		invalidParams.Add(request.NewErrParamRequired("CodeSigningConfigArn"))
+	}
+	if s.CodeSigningConfigArn != nil && len(*s.CodeSigningConfigArn) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("CodeSigningConfigArn", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetCodeSigningConfigArn sets the CodeSigningConfigArn field's value.
+func (s *DeleteCodeSigningConfigInput) SetCodeSigningConfigArn(v string) *DeleteCodeSigningConfigInput {
+	s.CodeSigningConfigArn = &v
+	return s
+}
+
+type DeleteCodeSigningConfigOutput struct {
 	_ struct{} `type:"structure"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DeleteCodeSigningConfigOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DeleteCodeSigningConfigOutput) GoString() string {
+	return s.String()
+}
+
+type DeleteEventSourceMappingInput struct {
+	_ struct{} `type:"structure" nopayload:"true"`
 
 	// The identifier of the event source mapping.
 	//
@@ -6535,12 +9150,20 @@ type DeleteEventSourceMappingInput struct {
 	UUID *string `location:"uri" locationName:"UUID" type:"string" required:"true"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s DeleteEventSourceMappingInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s DeleteEventSourceMappingInput) GoString() string {
 	return s.String()
 }
@@ -6567,8 +9190,90 @@ func (s *DeleteEventSourceMappingInput) SetUUID(v string) *DeleteEventSourceMapp
 	return s
 }
 
-type DeleteFunctionConcurrencyInput struct {
+type DeleteFunctionCodeSigningConfigInput struct {
+	_ struct{} `type:"structure" nopayload:"true"`
+
+	// The name of the Lambda function.
+	//
+	// Name formats
+	//
+	//    * Function name - MyFunction.
+	//
+	//    * Function ARN - arn:aws:lambda:us-west-2:123456789012:function:MyFunction.
+	//
+	//    * Partial ARN - 123456789012:function:MyFunction.
+	//
+	// The length constraint applies only to the full ARN. If you specify only the
+	// function name, it is limited to 64 characters in length.
+	//
+	// FunctionName is a required field
+	FunctionName *string `location:"uri" locationName:"FunctionName" min:"1" type:"string" required:"true"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DeleteFunctionCodeSigningConfigInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DeleteFunctionCodeSigningConfigInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeleteFunctionCodeSigningConfigInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeleteFunctionCodeSigningConfigInput"}
+	if s.FunctionName == nil {
+		invalidParams.Add(request.NewErrParamRequired("FunctionName"))
+	}
+	if s.FunctionName != nil && len(*s.FunctionName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("FunctionName", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetFunctionName sets the FunctionName field's value.
+func (s *DeleteFunctionCodeSigningConfigInput) SetFunctionName(v string) *DeleteFunctionCodeSigningConfigInput {
+	s.FunctionName = &v
+	return s
+}
+
+type DeleteFunctionCodeSigningConfigOutput struct {
 	_ struct{} `type:"structure"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DeleteFunctionCodeSigningConfigOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DeleteFunctionCodeSigningConfigOutput) GoString() string {
+	return s.String()
+}
+
+type DeleteFunctionConcurrencyInput struct {
+	_ struct{} `type:"structure" nopayload:"true"`
 
 	// The name of the Lambda function.
 	//
@@ -6587,12 +9292,20 @@ type DeleteFunctionConcurrencyInput struct {
 	FunctionName *string `location:"uri" locationName:"FunctionName" min:"1" type:"string" required:"true"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s DeleteFunctionConcurrencyInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s DeleteFunctionConcurrencyInput) GoString() string {
 	return s.String()
 }
@@ -6623,18 +9336,26 @@ type DeleteFunctionConcurrencyOutput struct {
 	_ struct{} `type:"structure"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s DeleteFunctionConcurrencyOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s DeleteFunctionConcurrencyOutput) GoString() string {
 	return s.String()
 }
 
 type DeleteFunctionEventInvokeConfigInput struct {
-	_ struct{} `type:"structure"`
+	_ struct{} `type:"structure" nopayload:"true"`
 
 	// The name of the Lambda function, version, or alias.
 	//
@@ -6657,12 +9378,20 @@ type DeleteFunctionEventInvokeConfigInput struct {
 	Qualifier *string `location:"querystring" locationName:"Qualifier" min:"1" type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s DeleteFunctionEventInvokeConfigInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s DeleteFunctionEventInvokeConfigInput) GoString() string {
 	return s.String()
 }
@@ -6702,18 +9431,26 @@ type DeleteFunctionEventInvokeConfigOutput struct {
 	_ struct{} `type:"structure"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s DeleteFunctionEventInvokeConfigOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s DeleteFunctionEventInvokeConfigOutput) GoString() string {
 	return s.String()
 }
 
 type DeleteFunctionInput struct {
-	_ struct{} `type:"structure"`
+	_ struct{} `type:"structure" nopayload:"true"`
 
 	// The name of the Lambda function or version.
 	//
@@ -6737,12 +9474,20 @@ type DeleteFunctionInput struct {
 	Qualifier *string `location:"querystring" locationName:"Qualifier" min:"1" type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s DeleteFunctionInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s DeleteFunctionInput) GoString() string {
 	return s.String()
 }
@@ -6782,18 +9527,120 @@ type DeleteFunctionOutput struct {
 	_ struct{} `type:"structure"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s DeleteFunctionOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s DeleteFunctionOutput) GoString() string {
 	return s.String()
 }
 
-type DeleteLayerVersionInput struct {
+type DeleteFunctionUrlConfigInput struct {
+	_ struct{} `type:"structure" nopayload:"true"`
+
+	// The name of the Lambda function.
+	//
+	// Name formats
+	//
+	//    * Function name - my-function.
+	//
+	//    * Function ARN - arn:aws:lambda:us-west-2:123456789012:function:my-function.
+	//
+	//    * Partial ARN - 123456789012:function:my-function.
+	//
+	// The length constraint applies only to the full ARN. If you specify only the
+	// function name, it is limited to 64 characters in length.
+	//
+	// FunctionName is a required field
+	FunctionName *string `location:"uri" locationName:"FunctionName" min:"1" type:"string" required:"true"`
+
+	// The alias name.
+	Qualifier *string `location:"querystring" locationName:"Qualifier" min:"1" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DeleteFunctionUrlConfigInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DeleteFunctionUrlConfigInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeleteFunctionUrlConfigInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeleteFunctionUrlConfigInput"}
+	if s.FunctionName == nil {
+		invalidParams.Add(request.NewErrParamRequired("FunctionName"))
+	}
+	if s.FunctionName != nil && len(*s.FunctionName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("FunctionName", 1))
+	}
+	if s.Qualifier != nil && len(*s.Qualifier) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Qualifier", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetFunctionName sets the FunctionName field's value.
+func (s *DeleteFunctionUrlConfigInput) SetFunctionName(v string) *DeleteFunctionUrlConfigInput {
+	s.FunctionName = &v
+	return s
+}
+
+// SetQualifier sets the Qualifier field's value.
+func (s *DeleteFunctionUrlConfigInput) SetQualifier(v string) *DeleteFunctionUrlConfigInput {
+	s.Qualifier = &v
+	return s
+}
+
+type DeleteFunctionUrlConfigOutput struct {
 	_ struct{} `type:"structure"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DeleteFunctionUrlConfigOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DeleteFunctionUrlConfigOutput) GoString() string {
+	return s.String()
+}
+
+type DeleteLayerVersionInput struct {
+	_ struct{} `type:"structure" nopayload:"true"`
 
 	// The name or Amazon Resource Name (ARN) of the layer.
 	//
@@ -6806,12 +9653,20 @@ type DeleteLayerVersionInput struct {
 	VersionNumber *int64 `location:"uri" locationName:"VersionNumber" type:"long" required:"true"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s DeleteLayerVersionInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s DeleteLayerVersionInput) GoString() string {
 	return s.String()
 }
@@ -6851,18 +9706,26 @@ type DeleteLayerVersionOutput struct {
 	_ struct{} `type:"structure"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s DeleteLayerVersionOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s DeleteLayerVersionOutput) GoString() string {
 	return s.String()
 }
 
 type DeleteProvisionedConcurrencyConfigInput struct {
-	_ struct{} `type:"structure"`
+	_ struct{} `type:"structure" nopayload:"true"`
 
 	// The name of the Lambda function.
 	//
@@ -6886,12 +9749,20 @@ type DeleteProvisionedConcurrencyConfigInput struct {
 	Qualifier *string `location:"querystring" locationName:"Qualifier" min:"1" type:"string" required:"true"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s DeleteProvisionedConcurrencyConfigInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s DeleteProvisionedConcurrencyConfigInput) GoString() string {
 	return s.String()
 }
@@ -6934,12 +9805,20 @@ type DeleteProvisionedConcurrencyConfigOutput struct {
 	_ struct{} `type:"structure"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s DeleteProvisionedConcurrencyConfigOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s DeleteProvisionedConcurrencyConfigOutput) GoString() string {
 	return s.String()
 }
@@ -6956,12 +9835,20 @@ type DestinationConfig struct {
 	OnSuccess *OnSuccess `type:"structure"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s DestinationConfig) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s DestinationConfig) GoString() string {
 	return s.String()
 }
@@ -6988,12 +9875,20 @@ type EC2AccessDeniedException struct {
 	Type *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s EC2AccessDeniedException) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s EC2AccessDeniedException) GoString() string {
 	return s.String()
 }
@@ -7036,7 +9931,7 @@ func (s *EC2AccessDeniedException) RequestID() string {
 	return s.RespMetadata.RequestID
 }
 
-// AWS Lambda was throttled by Amazon EC2 during Lambda function initialization
+// Lambda was throttled by Amazon EC2 during Lambda function initialization
 // using the execution role provided for the Lambda function.
 type EC2ThrottledException struct {
 	_            struct{}                  `type:"structure"`
@@ -7047,12 +9942,20 @@ type EC2ThrottledException struct {
 	Type *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s EC2ThrottledException) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s EC2ThrottledException) GoString() string {
 	return s.String()
 }
@@ -7095,8 +9998,8 @@ func (s *EC2ThrottledException) RequestID() string {
 	return s.RespMetadata.RequestID
 }
 
-// AWS Lambda received an unexpected EC2 client exception while setting up for
-// the Lambda function.
+// Lambda received an unexpected EC2 client exception while setting up for the
+// Lambda function.
 type EC2UnexpectedException struct {
 	_            struct{}                  `type:"structure"`
 	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
@@ -7108,12 +10011,20 @@ type EC2UnexpectedException struct {
 	Type *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s EC2UnexpectedException) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s EC2UnexpectedException) GoString() string {
 	return s.String()
 }
@@ -7156,7 +10067,7 @@ func (s *EC2UnexpectedException) RequestID() string {
 	return s.RespMetadata.RequestID
 }
 
-// An error occured when reading from or writing to a connected file system.
+// An error occurred when reading from or writing to a connected file system.
 type EFSIOException struct {
 	_            struct{}                  `type:"structure"`
 	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
@@ -7166,12 +10077,20 @@ type EFSIOException struct {
 	Type *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s EFSIOException) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s EFSIOException) GoString() string {
 	return s.String()
 }
@@ -7224,12 +10143,20 @@ type EFSMountConnectivityException struct {
 	Type *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s EFSMountConnectivityException) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s EFSMountConnectivityException) GoString() string {
 	return s.String()
 }
@@ -7283,12 +10210,20 @@ type EFSMountFailureException struct {
 	Type *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s EFSMountFailureException) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s EFSMountFailureException) GoString() string {
 	return s.String()
 }
@@ -7342,12 +10277,20 @@ type EFSMountTimeoutException struct {
 	Type *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s EFSMountTimeoutException) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s EFSMountTimeoutException) GoString() string {
 	return s.String()
 }
@@ -7390,9 +10333,9 @@ func (s *EFSMountTimeoutException) RequestID() string {
 	return s.RespMetadata.RequestID
 }
 
-// AWS Lambda was not able to create an elastic network interface in the VPC,
-// specified as part of Lambda function configuration, because the limit for
-// network interfaces has been reached.
+// Lambda was not able to create an elastic network interface in the VPC, specified
+// as part of Lambda function configuration, because the limit for network interfaces
+// has been reached.
 type ENILimitReachedException struct {
 	_            struct{}                  `type:"structure"`
 	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
@@ -7402,12 +10345,20 @@ type ENILimitReachedException struct {
 	Type *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ENILimitReachedException) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ENILimitReachedException) GoString() string {
 	return s.String()
 }
@@ -7450,20 +10401,36 @@ func (s *ENILimitReachedException) RequestID() string {
 	return s.RespMetadata.RequestID
 }
 
-// A function's environment variable settings.
+// A function's environment variable settings. You can use environment variables
+// to adjust your function's behavior without updating code. An environment
+// variable is a pair of strings that are stored in a function's version-specific
+// configuration.
 type Environment struct {
 	_ struct{} `type:"structure"`
 
-	// Environment variable key-value pairs.
+	// Environment variable key-value pairs. For more information, see Using Lambda
+	// environment variables (https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html).
+	//
+	// Variables is a sensitive parameter and its value will be
+	// replaced with "sensitive" in string returned by Environment's
+	// String and GoString methods.
 	Variables map[string]*string `type:"map" sensitive:"true"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s Environment) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s Environment) GoString() string {
 	return s.String()
 }
@@ -7482,15 +10449,27 @@ type EnvironmentError struct {
 	ErrorCode *string `type:"string"`
 
 	// The error message.
+	//
+	// Message is a sensitive parameter and its value will be
+	// replaced with "sensitive" in string returned by EnvironmentError's
+	// String and GoString methods.
 	Message *string `type:"string" sensitive:"true"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s EnvironmentError) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s EnvironmentError) GoString() string {
 	return s.String()
 }
@@ -7517,15 +10496,27 @@ type EnvironmentResponse struct {
 	Error *EnvironmentError `type:"structure"`
 
 	// Environment variable key-value pairs.
+	//
+	// Variables is a sensitive parameter and its value will be
+	// replaced with "sensitive" in string returned by EnvironmentResponse's
+	// String and GoString methods.
 	Variables map[string]*string `type:"map" sensitive:"true"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s EnvironmentResponse) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s EnvironmentResponse) GoString() string {
 	return s.String()
 }
@@ -7542,69 +10533,179 @@ func (s *EnvironmentResponse) SetVariables(v map[string]*string) *EnvironmentRes
 	return s
 }
 
-// A mapping between an AWS resource and an AWS Lambda function. See CreateEventSourceMapping
-// for details.
+// The size of the function’s /tmp directory in MB. The default value is 512,
+// but can be any whole number between 512 and 10240 MB.
+type EphemeralStorage struct {
+	_ struct{} `type:"structure"`
+
+	// The size of the function’s /tmp directory.
+	//
+	// Size is a required field
+	Size *int64 `min:"512" type:"integer" required:"true"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s EphemeralStorage) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s EphemeralStorage) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *EphemeralStorage) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "EphemeralStorage"}
+	if s.Size == nil {
+		invalidParams.Add(request.NewErrParamRequired("Size"))
+	}
+	if s.Size != nil && *s.Size < 512 {
+		invalidParams.Add(request.NewErrParamMinValue("Size", 512))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetSize sets the Size field's value.
+func (s *EphemeralStorage) SetSize(v int64) *EphemeralStorage {
+	s.Size = &v
+	return s
+}
+
+// A mapping between an Amazon Web Services resource and a Lambda function.
+// For details, see CreateEventSourceMapping.
 type EventSourceMappingConfiguration struct {
 	_ struct{} `type:"structure"`
 
-	// The maximum number of items to retrieve in a single batch.
+	// The maximum number of records in each batch that Lambda pulls from your stream
+	// or queue and sends to your function. Lambda passes all of the records in
+	// the batch to the function in a single call, up to the payload limit for synchronous
+	// invocation (6 MB).
+	//
+	// Default value: Varies by service. For Amazon SQS, the default is 10. For
+	// all other services, the default is 100.
+	//
+	// Related setting: When you set BatchSize to a value greater than 10, you must
+	// set MaximumBatchingWindowInSeconds to at least 1.
 	BatchSize *int64 `min:"1" type:"integer"`
 
-	// (Streams) If the function returns an error, split the batch in two and retry.
+	// (Streams only) If the function returns an error, split the batch in two and
+	// retry. The default value is false.
 	BisectBatchOnFunctionError *bool `type:"boolean"`
 
-	// (Streams) An Amazon SQS queue or Amazon SNS topic destination for discarded
+	// (Streams only) An Amazon SQS queue or Amazon SNS topic destination for discarded
 	// records.
 	DestinationConfig *DestinationConfig `type:"structure"`
 
 	// The Amazon Resource Name (ARN) of the event source.
 	EventSourceArn *string `type:"string"`
 
+	// (Streams and Amazon SQS) An object that defines the filter criteria that
+	// determine whether Lambda should process an event. For more information, see
+	// Lambda event filtering (https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventfiltering.html).
+	FilterCriteria *FilterCriteria `type:"structure"`
+
 	// The ARN of the Lambda function.
 	FunctionArn *string `type:"string"`
 
-	// The date that the event source mapping was last updated, or its state changed.
+	// (Streams and Amazon SQS) A list of current response type enums applied to
+	// the event source mapping.
+	FunctionResponseTypes []*string `type:"list" enum:"FunctionResponseType"`
+
+	// The date that the event source mapping was last updated or that its state
+	// changed.
 	LastModified *time.Time `type:"timestamp"`
 
-	// The result of the last AWS Lambda invocation of your Lambda function.
+	// The result of the last Lambda invocation of your function.
 	LastProcessingResult *string `type:"string"`
 
-	// (Streams) The maximum amount of time to gather records before invoking the
-	// function, in seconds.
+	// (Streams and Amazon SQS standard queues) The maximum amount of time, in seconds,
+	// that Lambda spends gathering records before invoking the function.
+	//
+	// Default: 0
+	//
+	// Related setting: When you set BatchSize to a value greater than 10, you must
+	// set MaximumBatchingWindowInSeconds to at least 1.
 	MaximumBatchingWindowInSeconds *int64 `type:"integer"`
 
-	// (Streams) The maximum age of a record that Lambda sends to a function for
-	// processing.
+	// (Streams only) Discard records older than the specified age. The default
+	// value is -1, which sets the maximum age to infinite. When the value is set
+	// to infinite, Lambda never discards old records.
 	MaximumRecordAgeInSeconds *int64 `type:"integer"`
 
-	// (Streams) The maximum number of times to retry when the function returns
-	// an error.
+	// (Streams only) Discard records after the specified number of retries. The
+	// default value is -1, which sets the maximum number of retries to infinite.
+	// When MaximumRetryAttempts is infinite, Lambda retries failed records until
+	// the record expires in the event source.
 	MaximumRetryAttempts *int64 `type:"integer"`
 
-	// (Streams) The number of batches to process from each shard concurrently.
+	// (Streams only) The number of batches to process concurrently from each shard.
+	// The default value is 1.
 	ParallelizationFactor *int64 `min:"1" type:"integer"`
+
+	// (Amazon MQ) The name of the Amazon MQ broker destination queue to consume.
+	Queues []*string `min:"1" type:"list"`
+
+	// The self-managed Apache Kafka cluster for your event source.
+	SelfManagedEventSource *SelfManagedEventSource `type:"structure"`
+
+	// An array of the authentication protocol, VPC components, or virtual host
+	// to secure and define your event source.
+	SourceAccessConfigurations []*SourceAccessConfiguration `type:"list"`
+
+	// The position in a stream from which to start reading. Required for Amazon
+	// Kinesis, Amazon DynamoDB, and Amazon MSK stream sources. AT_TIMESTAMP is
+	// supported only for Amazon Kinesis streams.
+	StartingPosition *string `type:"string" enum:"EventSourcePosition"`
+
+	// With StartingPosition set to AT_TIMESTAMP, the time from which to start reading.
+	StartingPositionTimestamp *time.Time `type:"timestamp"`
 
 	// The state of the event source mapping. It can be one of the following: Creating,
 	// Enabling, Enabled, Disabling, Disabled, Updating, or Deleting.
 	State *string `type:"string"`
 
-	// Indicates whether the last change to the event source mapping was made by
-	// a user, or by the Lambda service.
+	// Indicates whether a user or Lambda made the last change to the event source
+	// mapping.
 	StateTransitionReason *string `type:"string"`
 
-	// (MSK) The name of the Kafka topic.
+	// The name of the Kafka topic.
 	Topics []*string `min:"1" type:"list"`
+
+	// (Streams only) The duration in seconds of a processing window. The range
+	// is 1–900 seconds.
+	TumblingWindowInSeconds *int64 `type:"integer"`
 
 	// The identifier of the event source mapping.
 	UUID *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s EventSourceMappingConfiguration) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s EventSourceMappingConfiguration) GoString() string {
 	return s.String()
 }
@@ -7633,9 +10734,21 @@ func (s *EventSourceMappingConfiguration) SetEventSourceArn(v string) *EventSour
 	return s
 }
 
+// SetFilterCriteria sets the FilterCriteria field's value.
+func (s *EventSourceMappingConfiguration) SetFilterCriteria(v *FilterCriteria) *EventSourceMappingConfiguration {
+	s.FilterCriteria = v
+	return s
+}
+
 // SetFunctionArn sets the FunctionArn field's value.
 func (s *EventSourceMappingConfiguration) SetFunctionArn(v string) *EventSourceMappingConfiguration {
 	s.FunctionArn = &v
+	return s
+}
+
+// SetFunctionResponseTypes sets the FunctionResponseTypes field's value.
+func (s *EventSourceMappingConfiguration) SetFunctionResponseTypes(v []*string) *EventSourceMappingConfiguration {
+	s.FunctionResponseTypes = v
 	return s
 }
 
@@ -7675,6 +10788,36 @@ func (s *EventSourceMappingConfiguration) SetParallelizationFactor(v int64) *Eve
 	return s
 }
 
+// SetQueues sets the Queues field's value.
+func (s *EventSourceMappingConfiguration) SetQueues(v []*string) *EventSourceMappingConfiguration {
+	s.Queues = v
+	return s
+}
+
+// SetSelfManagedEventSource sets the SelfManagedEventSource field's value.
+func (s *EventSourceMappingConfiguration) SetSelfManagedEventSource(v *SelfManagedEventSource) *EventSourceMappingConfiguration {
+	s.SelfManagedEventSource = v
+	return s
+}
+
+// SetSourceAccessConfigurations sets the SourceAccessConfigurations field's value.
+func (s *EventSourceMappingConfiguration) SetSourceAccessConfigurations(v []*SourceAccessConfiguration) *EventSourceMappingConfiguration {
+	s.SourceAccessConfigurations = v
+	return s
+}
+
+// SetStartingPosition sets the StartingPosition field's value.
+func (s *EventSourceMappingConfiguration) SetStartingPosition(v string) *EventSourceMappingConfiguration {
+	s.StartingPosition = &v
+	return s
+}
+
+// SetStartingPositionTimestamp sets the StartingPositionTimestamp field's value.
+func (s *EventSourceMappingConfiguration) SetStartingPositionTimestamp(v time.Time) *EventSourceMappingConfiguration {
+	s.StartingPositionTimestamp = &v
+	return s
+}
+
 // SetState sets the State field's value.
 func (s *EventSourceMappingConfiguration) SetState(v string) *EventSourceMappingConfiguration {
 	s.State = &v
@@ -7693,6 +10836,12 @@ func (s *EventSourceMappingConfiguration) SetTopics(v []*string) *EventSourceMap
 	return s
 }
 
+// SetTumblingWindowInSeconds sets the TumblingWindowInSeconds field's value.
+func (s *EventSourceMappingConfiguration) SetTumblingWindowInSeconds(v int64) *EventSourceMappingConfiguration {
+	s.TumblingWindowInSeconds = &v
+	return s
+}
+
 // SetUUID sets the UUID field's value.
 func (s *EventSourceMappingConfiguration) SetUUID(v string) *EventSourceMappingConfiguration {
 	s.UUID = &v
@@ -7700,7 +10849,7 @@ func (s *EventSourceMappingConfiguration) SetUUID(v string) *EventSourceMappingC
 }
 
 // Details about the connection between a Lambda function and an Amazon EFS
-// file system.
+// file system (https://docs.aws.amazon.com/lambda/latest/dg/configuration-filesystem.html).
 type FileSystemConfig struct {
 	_ struct{} `type:"structure"`
 
@@ -7716,12 +10865,20 @@ type FileSystemConfig struct {
 	LocalMountPath *string `type:"string" required:"true"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s FileSystemConfig) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s FileSystemConfig) GoString() string {
 	return s.String()
 }
@@ -7754,13 +10911,84 @@ func (s *FileSystemConfig) SetLocalMountPath(v string) *FileSystemConfig {
 	return s
 }
 
+// A structure within a FilterCriteria object that defines an event filtering
+// pattern.
+type Filter struct {
+	_ struct{} `type:"structure"`
+
+	// A filter pattern. For more information on the syntax of a filter pattern,
+	// see Filter rule syntax (https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventfiltering.html#filtering-syntax).
+	Pattern *string `type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s Filter) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s Filter) GoString() string {
+	return s.String()
+}
+
+// SetPattern sets the Pattern field's value.
+func (s *Filter) SetPattern(v string) *Filter {
+	s.Pattern = &v
+	return s
+}
+
+// An object that contains the filters for an event source.
+type FilterCriteria struct {
+	_ struct{} `type:"structure"`
+
+	// A list of filters.
+	Filters []*Filter `type:"list"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s FilterCriteria) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s FilterCriteria) GoString() string {
+	return s.String()
+}
+
+// SetFilters sets the Filters field's value.
+func (s *FilterCriteria) SetFilters(v []*Filter) *FilterCriteria {
+	s.Filters = v
+	return s
+}
+
 // The code for the Lambda function. You can specify either an object in Amazon
-// S3, or upload a deployment package directly.
+// S3, upload a .zip file archive deployment package directly, or specify the
+// URI of a container image.
 type FunctionCode struct {
 	_ struct{} `type:"structure"`
 
-	// An Amazon S3 bucket in the same AWS Region as your function. The bucket can
-	// be in a different AWS account.
+	// URI of a container image (https://docs.aws.amazon.com/lambda/latest/dg/lambda-images.html)
+	// in the Amazon ECR registry.
+	ImageUri *string `type:"string"`
+
+	// An Amazon S3 bucket in the same Amazon Web Services Region as your function.
+	// The bucket can be in a different Amazon Web Services account.
 	S3Bucket *string `min:"3" type:"string"`
 
 	// The Amazon S3 key of the deployment package.
@@ -7769,19 +10997,31 @@ type FunctionCode struct {
 	// For versioned objects, the version of the deployment package object to use.
 	S3ObjectVersion *string `min:"1" type:"string"`
 
-	// The base64-encoded contents of the deployment package. AWS SDK and AWS CLI
-	// clients handle the encoding for you.
+	// The base64-encoded contents of the deployment package. Amazon Web Services
+	// SDK and Amazon Web Services CLI clients handle the encoding for you.
+	//
+	// ZipFile is a sensitive parameter and its value will be
+	// replaced with "sensitive" in string returned by FunctionCode's
+	// String and GoString methods.
 	//
 	// ZipFile is automatically base64 encoded/decoded by the SDK.
 	ZipFile []byte `type:"blob" sensitive:"true"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s FunctionCode) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s FunctionCode) GoString() string {
 	return s.String()
 }
@@ -7803,6 +11043,12 @@ func (s *FunctionCode) Validate() error {
 		return invalidParams
 	}
 	return nil
+}
+
+// SetImageUri sets the ImageUri field's value.
+func (s *FunctionCode) SetImageUri(v string) *FunctionCode {
+	s.ImageUri = &v
+	return s
 }
 
 // SetS3Bucket sets the S3Bucket field's value.
@@ -7833,21 +11079,41 @@ func (s *FunctionCode) SetZipFile(v []byte) *FunctionCode {
 type FunctionCodeLocation struct {
 	_ struct{} `type:"structure"`
 
+	// URI of a container image in the Amazon ECR registry.
+	ImageUri *string `type:"string"`
+
 	// A presigned URL that you can use to download the deployment package.
 	Location *string `type:"string"`
 
 	// The service that's hosting the file.
 	RepositoryType *string `type:"string"`
+
+	// The resolved URI for the image.
+	ResolvedImageUri *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s FunctionCodeLocation) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s FunctionCodeLocation) GoString() string {
 	return s.String()
+}
+
+// SetImageUri sets the ImageUri field's value.
+func (s *FunctionCodeLocation) SetImageUri(v string) *FunctionCodeLocation {
+	s.ImageUri = &v
+	return s
 }
 
 // SetLocation sets the Location field's value.
@@ -7862,9 +11128,20 @@ func (s *FunctionCodeLocation) SetRepositoryType(v string) *FunctionCodeLocation
 	return s
 }
 
+// SetResolvedImageUri sets the ResolvedImageUri field's value.
+func (s *FunctionCodeLocation) SetResolvedImageUri(v string) *FunctionCodeLocation {
+	s.ResolvedImageUri = &v
+	return s
+}
+
 // Details about a function's configuration.
 type FunctionConfiguration struct {
 	_ struct{} `type:"structure"`
+
+	// The instruction set architecture that the function supports. Architecture
+	// is a string array with one of the valid values. The default architecture
+	// value is x86_64.
+	Architectures []*string `min:"1" type:"list" enum:"Architecture"`
 
 	// The SHA256 hash of the function's deployment package.
 	CodeSha256 *string `type:"string"`
@@ -7878,10 +11155,14 @@ type FunctionConfiguration struct {
 	// The function's description.
 	Description *string `type:"string"`
 
-	// The function's environment variables.
+	// The function's environment variables (https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html).
 	Environment *EnvironmentResponse `type:"structure"`
 
-	// Connection settings for an Amazon EFS file system.
+	// The size of the function’s /tmp directory in MB. The default value is 512,
+	// but can be any whole number between 512 and 10240 MB.
+	EphemeralStorage *EphemeralStorage `type:"structure"`
+
+	// Connection settings for an Amazon EFS file system (https://docs.aws.amazon.com/lambda/latest/dg/configuration-filesystem.html).
 	FileSystemConfigs []*FileSystemConfig `type:"list"`
 
 	// The function's Amazon Resource Name (ARN).
@@ -7893,8 +11174,11 @@ type FunctionConfiguration struct {
 	// The function that Lambda calls to begin executing your function.
 	Handler *string `type:"string"`
 
+	// The function's image configuration values.
+	ImageConfigResponse *ImageConfigResponse `type:"structure"`
+
 	// The KMS key that's used to encrypt the function's environment variables.
-	// This key is only returned if you've configured a customer managed CMK.
+	// This key is only returned if you've configured a customer managed key.
 	KMSKeyArn *string `type:"string"`
 
 	// The date and time that the function was last updated, in ISO-8601 format
@@ -7914,11 +11198,15 @@ type FunctionConfiguration struct {
 	// The function's layers (https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html).
 	Layers []*Layer `type:"list"`
 
-	// For Lambda@Edge functions, the ARN of the master function.
+	// For Lambda@Edge functions, the ARN of the main function.
 	MasterArn *string `type:"string"`
 
-	// The memory that's allocated to the function.
+	// The amount of memory available to the function at runtime.
 	MemorySize *int64 `min:"128" type:"integer"`
+
+	// The type of deployment package. Set to Image for container image and set
+	// Zip for .zip file archive.
+	PackageType *string `type:"string" enum:"PackageType"`
 
 	// The latest updated revision of the function or alias.
 	RevisionId *string `type:"string"`
@@ -7928,6 +11216,12 @@ type FunctionConfiguration struct {
 
 	// The runtime environment for the Lambda function.
 	Runtime *string `type:"string" enum:"Runtime"`
+
+	// The ARN of the signing job.
+	SigningJobArn *string `type:"string"`
+
+	// The ARN of the signing profile version.
+	SigningProfileVersionArn *string `type:"string"`
 
 	// The current state of the function. When the state is Inactive, you can reactivate
 	// the function by invoking it.
@@ -7944,7 +11238,7 @@ type FunctionConfiguration struct {
 	// stopping it.
 	Timeout *int64 `min:"1" type:"integer"`
 
-	// The function's AWS X-Ray tracing configuration.
+	// The function's X-Ray tracing configuration.
 	TracingConfig *TracingConfigResponse `type:"structure"`
 
 	// The version of the Lambda function.
@@ -7954,14 +11248,28 @@ type FunctionConfiguration struct {
 	VpcConfig *VpcConfigResponse `type:"structure"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s FunctionConfiguration) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s FunctionConfiguration) GoString() string {
 	return s.String()
+}
+
+// SetArchitectures sets the Architectures field's value.
+func (s *FunctionConfiguration) SetArchitectures(v []*string) *FunctionConfiguration {
+	s.Architectures = v
+	return s
 }
 
 // SetCodeSha256 sets the CodeSha256 field's value.
@@ -7994,6 +11302,12 @@ func (s *FunctionConfiguration) SetEnvironment(v *EnvironmentResponse) *Function
 	return s
 }
 
+// SetEphemeralStorage sets the EphemeralStorage field's value.
+func (s *FunctionConfiguration) SetEphemeralStorage(v *EphemeralStorage) *FunctionConfiguration {
+	s.EphemeralStorage = v
+	return s
+}
+
 // SetFileSystemConfigs sets the FileSystemConfigs field's value.
 func (s *FunctionConfiguration) SetFileSystemConfigs(v []*FileSystemConfig) *FunctionConfiguration {
 	s.FileSystemConfigs = v
@@ -8015,6 +11329,12 @@ func (s *FunctionConfiguration) SetFunctionName(v string) *FunctionConfiguration
 // SetHandler sets the Handler field's value.
 func (s *FunctionConfiguration) SetHandler(v string) *FunctionConfiguration {
 	s.Handler = &v
+	return s
+}
+
+// SetImageConfigResponse sets the ImageConfigResponse field's value.
+func (s *FunctionConfiguration) SetImageConfigResponse(v *ImageConfigResponse) *FunctionConfiguration {
+	s.ImageConfigResponse = v
 	return s
 }
 
@@ -8066,6 +11386,12 @@ func (s *FunctionConfiguration) SetMemorySize(v int64) *FunctionConfiguration {
 	return s
 }
 
+// SetPackageType sets the PackageType field's value.
+func (s *FunctionConfiguration) SetPackageType(v string) *FunctionConfiguration {
+	s.PackageType = &v
+	return s
+}
+
 // SetRevisionId sets the RevisionId field's value.
 func (s *FunctionConfiguration) SetRevisionId(v string) *FunctionConfiguration {
 	s.RevisionId = &v
@@ -8081,6 +11407,18 @@ func (s *FunctionConfiguration) SetRole(v string) *FunctionConfiguration {
 // SetRuntime sets the Runtime field's value.
 func (s *FunctionConfiguration) SetRuntime(v string) *FunctionConfiguration {
 	s.Runtime = &v
+	return s
+}
+
+// SetSigningJobArn sets the SigningJobArn field's value.
+func (s *FunctionConfiguration) SetSigningJobArn(v string) *FunctionConfiguration {
+	s.SigningJobArn = &v
+	return s
+}
+
+// SetSigningProfileVersionArn sets the SigningProfileVersionArn field's value.
+func (s *FunctionConfiguration) SetSigningProfileVersionArn(v string) *FunctionConfiguration {
+	s.SigningProfileVersionArn = &v
 	return s
 }
 
@@ -8155,12 +11493,20 @@ type FunctionEventInvokeConfig struct {
 	MaximumRetryAttempts *int64 `type:"integer"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s FunctionEventInvokeConfig) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s FunctionEventInvokeConfig) GoString() string {
 	return s.String()
 }
@@ -8195,16 +11541,117 @@ func (s *FunctionEventInvokeConfig) SetMaximumRetryAttempts(v int64) *FunctionEv
 	return s
 }
 
-type GetAccountSettingsInput struct {
+// Details about a Lambda function URL.
+type FunctionUrlConfig struct {
 	_ struct{} `type:"structure"`
+
+	// The type of authentication that your function URL uses. Set to AWS_IAM if
+	// you want to restrict access to authenticated IAM users only. Set to NONE
+	// if you want to bypass IAM authentication to create a public endpoint. For
+	// more information, see Security and auth model for Lambda function URLs (https://docs.aws.amazon.com/lambda/latest/dg/urls-auth.html).
+	//
+	// AuthType is a required field
+	AuthType *string `type:"string" required:"true" enum:"FunctionUrlAuthType"`
+
+	// The cross-origin resource sharing (CORS) (https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)
+	// settings for your function URL.
+	Cors *Cors `type:"structure"`
+
+	// When the function URL was created, in ISO-8601 format (https://www.w3.org/TR/NOTE-datetime)
+	// (YYYY-MM-DDThh:mm:ss.sTZD).
+	//
+	// CreationTime is a required field
+	CreationTime *string `type:"string" required:"true"`
+
+	// The Amazon Resource Name (ARN) of your function.
+	//
+	// FunctionArn is a required field
+	FunctionArn *string `type:"string" required:"true"`
+
+	// The HTTP URL endpoint for your function.
+	//
+	// FunctionUrl is a required field
+	FunctionUrl *string `min:"40" type:"string" required:"true"`
+
+	// When the function URL configuration was last updated, in ISO-8601 format
+	// (https://www.w3.org/TR/NOTE-datetime) (YYYY-MM-DDThh:mm:ss.sTZD).
+	//
+	// LastModifiedTime is a required field
+	LastModifiedTime *string `type:"string" required:"true"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s FunctionUrlConfig) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s FunctionUrlConfig) GoString() string {
+	return s.String()
+}
+
+// SetAuthType sets the AuthType field's value.
+func (s *FunctionUrlConfig) SetAuthType(v string) *FunctionUrlConfig {
+	s.AuthType = &v
+	return s
+}
+
+// SetCors sets the Cors field's value.
+func (s *FunctionUrlConfig) SetCors(v *Cors) *FunctionUrlConfig {
+	s.Cors = v
+	return s
+}
+
+// SetCreationTime sets the CreationTime field's value.
+func (s *FunctionUrlConfig) SetCreationTime(v string) *FunctionUrlConfig {
+	s.CreationTime = &v
+	return s
+}
+
+// SetFunctionArn sets the FunctionArn field's value.
+func (s *FunctionUrlConfig) SetFunctionArn(v string) *FunctionUrlConfig {
+	s.FunctionArn = &v
+	return s
+}
+
+// SetFunctionUrl sets the FunctionUrl field's value.
+func (s *FunctionUrlConfig) SetFunctionUrl(v string) *FunctionUrlConfig {
+	s.FunctionUrl = &v
+	return s
+}
+
+// SetLastModifiedTime sets the LastModifiedTime field's value.
+func (s *FunctionUrlConfig) SetLastModifiedTime(v string) *FunctionUrlConfig {
+	s.LastModifiedTime = &v
+	return s
+}
+
+type GetAccountSettingsInput struct {
+	_ struct{} `type:"structure" nopayload:"true"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetAccountSettingsInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetAccountSettingsInput) GoString() string {
 	return s.String()
 }
@@ -8219,12 +11666,20 @@ type GetAccountSettingsOutput struct {
 	AccountUsage *AccountUsage `type:"structure"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetAccountSettingsOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetAccountSettingsOutput) GoString() string {
 	return s.String()
 }
@@ -8242,7 +11697,7 @@ func (s *GetAccountSettingsOutput) SetAccountUsage(v *AccountUsage) *GetAccountS
 }
 
 type GetAliasInput struct {
-	_ struct{} `type:"structure"`
+	_ struct{} `type:"structure" nopayload:"true"`
 
 	// The name of the Lambda function.
 	//
@@ -8266,12 +11721,20 @@ type GetAliasInput struct {
 	Name *string `location:"uri" locationName:"Name" min:"1" type:"string" required:"true"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetAliasInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetAliasInput) GoString() string {
 	return s.String()
 }
@@ -8310,8 +11773,90 @@ func (s *GetAliasInput) SetName(v string) *GetAliasInput {
 	return s
 }
 
-type GetEventSourceMappingInput struct {
+type GetCodeSigningConfigInput struct {
+	_ struct{} `type:"structure" nopayload:"true"`
+
+	// The The Amazon Resource Name (ARN) of the code signing configuration.
+	//
+	// CodeSigningConfigArn is a required field
+	CodeSigningConfigArn *string `location:"uri" locationName:"CodeSigningConfigArn" type:"string" required:"true"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s GetCodeSigningConfigInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s GetCodeSigningConfigInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *GetCodeSigningConfigInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "GetCodeSigningConfigInput"}
+	if s.CodeSigningConfigArn == nil {
+		invalidParams.Add(request.NewErrParamRequired("CodeSigningConfigArn"))
+	}
+	if s.CodeSigningConfigArn != nil && len(*s.CodeSigningConfigArn) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("CodeSigningConfigArn", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetCodeSigningConfigArn sets the CodeSigningConfigArn field's value.
+func (s *GetCodeSigningConfigInput) SetCodeSigningConfigArn(v string) *GetCodeSigningConfigInput {
+	s.CodeSigningConfigArn = &v
+	return s
+}
+
+type GetCodeSigningConfigOutput struct {
 	_ struct{} `type:"structure"`
+
+	// The code signing configuration
+	//
+	// CodeSigningConfig is a required field
+	CodeSigningConfig *CodeSigningConfig `type:"structure" required:"true"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s GetCodeSigningConfigOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s GetCodeSigningConfigOutput) GoString() string {
+	return s.String()
+}
+
+// SetCodeSigningConfig sets the CodeSigningConfig field's value.
+func (s *GetCodeSigningConfigOutput) SetCodeSigningConfig(v *CodeSigningConfig) *GetCodeSigningConfigOutput {
+	s.CodeSigningConfig = v
+	return s
+}
+
+type GetEventSourceMappingInput struct {
+	_ struct{} `type:"structure" nopayload:"true"`
 
 	// The identifier of the event source mapping.
 	//
@@ -8319,12 +11864,20 @@ type GetEventSourceMappingInput struct {
 	UUID *string `location:"uri" locationName:"UUID" type:"string" required:"true"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetEventSourceMappingInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetEventSourceMappingInput) GoString() string {
 	return s.String()
 }
@@ -8351,8 +11904,123 @@ func (s *GetEventSourceMappingInput) SetUUID(v string) *GetEventSourceMappingInp
 	return s
 }
 
-type GetFunctionConcurrencyInput struct {
+type GetFunctionCodeSigningConfigInput struct {
+	_ struct{} `type:"structure" nopayload:"true"`
+
+	// The name of the Lambda function.
+	//
+	// Name formats
+	//
+	//    * Function name - MyFunction.
+	//
+	//    * Function ARN - arn:aws:lambda:us-west-2:123456789012:function:MyFunction.
+	//
+	//    * Partial ARN - 123456789012:function:MyFunction.
+	//
+	// The length constraint applies only to the full ARN. If you specify only the
+	// function name, it is limited to 64 characters in length.
+	//
+	// FunctionName is a required field
+	FunctionName *string `location:"uri" locationName:"FunctionName" min:"1" type:"string" required:"true"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s GetFunctionCodeSigningConfigInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s GetFunctionCodeSigningConfigInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *GetFunctionCodeSigningConfigInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "GetFunctionCodeSigningConfigInput"}
+	if s.FunctionName == nil {
+		invalidParams.Add(request.NewErrParamRequired("FunctionName"))
+	}
+	if s.FunctionName != nil && len(*s.FunctionName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("FunctionName", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetFunctionName sets the FunctionName field's value.
+func (s *GetFunctionCodeSigningConfigInput) SetFunctionName(v string) *GetFunctionCodeSigningConfigInput {
+	s.FunctionName = &v
+	return s
+}
+
+type GetFunctionCodeSigningConfigOutput struct {
 	_ struct{} `type:"structure"`
+
+	// The The Amazon Resource Name (ARN) of the code signing configuration.
+	//
+	// CodeSigningConfigArn is a required field
+	CodeSigningConfigArn *string `type:"string" required:"true"`
+
+	// The name of the Lambda function.
+	//
+	// Name formats
+	//
+	//    * Function name - MyFunction.
+	//
+	//    * Function ARN - arn:aws:lambda:us-west-2:123456789012:function:MyFunction.
+	//
+	//    * Partial ARN - 123456789012:function:MyFunction.
+	//
+	// The length constraint applies only to the full ARN. If you specify only the
+	// function name, it is limited to 64 characters in length.
+	//
+	// FunctionName is a required field
+	FunctionName *string `min:"1" type:"string" required:"true"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s GetFunctionCodeSigningConfigOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s GetFunctionCodeSigningConfigOutput) GoString() string {
+	return s.String()
+}
+
+// SetCodeSigningConfigArn sets the CodeSigningConfigArn field's value.
+func (s *GetFunctionCodeSigningConfigOutput) SetCodeSigningConfigArn(v string) *GetFunctionCodeSigningConfigOutput {
+	s.CodeSigningConfigArn = &v
+	return s
+}
+
+// SetFunctionName sets the FunctionName field's value.
+func (s *GetFunctionCodeSigningConfigOutput) SetFunctionName(v string) *GetFunctionCodeSigningConfigOutput {
+	s.FunctionName = &v
+	return s
+}
+
+type GetFunctionConcurrencyInput struct {
+	_ struct{} `type:"structure" nopayload:"true"`
 
 	// The name of the Lambda function.
 	//
@@ -8371,12 +12039,20 @@ type GetFunctionConcurrencyInput struct {
 	FunctionName *string `location:"uri" locationName:"FunctionName" min:"1" type:"string" required:"true"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetFunctionConcurrencyInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetFunctionConcurrencyInput) GoString() string {
 	return s.String()
 }
@@ -8410,12 +12086,20 @@ type GetFunctionConcurrencyOutput struct {
 	ReservedConcurrentExecutions *int64 `type:"integer"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetFunctionConcurrencyOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetFunctionConcurrencyOutput) GoString() string {
 	return s.String()
 }
@@ -8427,7 +12111,7 @@ func (s *GetFunctionConcurrencyOutput) SetReservedConcurrentExecutions(v int64) 
 }
 
 type GetFunctionConfigurationInput struct {
-	_ struct{} `type:"structure"`
+	_ struct{} `type:"structure" nopayload:"true"`
 
 	// The name of the Lambda function, version, or alias.
 	//
@@ -8451,12 +12135,20 @@ type GetFunctionConfigurationInput struct {
 	Qualifier *string `location:"querystring" locationName:"Qualifier" min:"1" type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetFunctionConfigurationInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetFunctionConfigurationInput) GoString() string {
 	return s.String()
 }
@@ -8493,7 +12185,7 @@ func (s *GetFunctionConfigurationInput) SetQualifier(v string) *GetFunctionConfi
 }
 
 type GetFunctionEventInvokeConfigInput struct {
-	_ struct{} `type:"structure"`
+	_ struct{} `type:"structure" nopayload:"true"`
 
 	// The name of the Lambda function, version, or alias.
 	//
@@ -8516,12 +12208,20 @@ type GetFunctionEventInvokeConfigInput struct {
 	Qualifier *string `location:"querystring" locationName:"Qualifier" min:"1" type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetFunctionEventInvokeConfigInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetFunctionEventInvokeConfigInput) GoString() string {
 	return s.String()
 }
@@ -8586,12 +12286,20 @@ type GetFunctionEventInvokeConfigOutput struct {
 	MaximumRetryAttempts *int64 `type:"integer"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetFunctionEventInvokeConfigOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetFunctionEventInvokeConfigOutput) GoString() string {
 	return s.String()
 }
@@ -8627,7 +12335,7 @@ func (s *GetFunctionEventInvokeConfigOutput) SetMaximumRetryAttempts(v int64) *G
 }
 
 type GetFunctionInput struct {
-	_ struct{} `type:"structure"`
+	_ struct{} `type:"structure" nopayload:"true"`
 
 	// The name of the Lambda function, version, or alias.
 	//
@@ -8651,12 +12359,20 @@ type GetFunctionInput struct {
 	Qualifier *string `location:"querystring" locationName:"Qualifier" min:"1" type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetFunctionInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetFunctionInput) GoString() string {
 	return s.String()
 }
@@ -8708,12 +12424,20 @@ type GetFunctionOutput struct {
 	Tags map[string]*string `type:"map"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetFunctionOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetFunctionOutput) GoString() string {
 	return s.String()
 }
@@ -8742,8 +12466,172 @@ func (s *GetFunctionOutput) SetTags(v map[string]*string) *GetFunctionOutput {
 	return s
 }
 
-type GetLayerVersionByArnInput struct {
+type GetFunctionUrlConfigInput struct {
+	_ struct{} `type:"structure" nopayload:"true"`
+
+	// The name of the Lambda function.
+	//
+	// Name formats
+	//
+	//    * Function name - my-function.
+	//
+	//    * Function ARN - arn:aws:lambda:us-west-2:123456789012:function:my-function.
+	//
+	//    * Partial ARN - 123456789012:function:my-function.
+	//
+	// The length constraint applies only to the full ARN. If you specify only the
+	// function name, it is limited to 64 characters in length.
+	//
+	// FunctionName is a required field
+	FunctionName *string `location:"uri" locationName:"FunctionName" min:"1" type:"string" required:"true"`
+
+	// The alias name.
+	Qualifier *string `location:"querystring" locationName:"Qualifier" min:"1" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s GetFunctionUrlConfigInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s GetFunctionUrlConfigInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *GetFunctionUrlConfigInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "GetFunctionUrlConfigInput"}
+	if s.FunctionName == nil {
+		invalidParams.Add(request.NewErrParamRequired("FunctionName"))
+	}
+	if s.FunctionName != nil && len(*s.FunctionName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("FunctionName", 1))
+	}
+	if s.Qualifier != nil && len(*s.Qualifier) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Qualifier", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetFunctionName sets the FunctionName field's value.
+func (s *GetFunctionUrlConfigInput) SetFunctionName(v string) *GetFunctionUrlConfigInput {
+	s.FunctionName = &v
+	return s
+}
+
+// SetQualifier sets the Qualifier field's value.
+func (s *GetFunctionUrlConfigInput) SetQualifier(v string) *GetFunctionUrlConfigInput {
+	s.Qualifier = &v
+	return s
+}
+
+type GetFunctionUrlConfigOutput struct {
 	_ struct{} `type:"structure"`
+
+	// The type of authentication that your function URL uses. Set to AWS_IAM if
+	// you want to restrict access to authenticated IAM users only. Set to NONE
+	// if you want to bypass IAM authentication to create a public endpoint. For
+	// more information, see Security and auth model for Lambda function URLs (https://docs.aws.amazon.com/lambda/latest/dg/urls-auth.html).
+	//
+	// AuthType is a required field
+	AuthType *string `type:"string" required:"true" enum:"FunctionUrlAuthType"`
+
+	// The cross-origin resource sharing (CORS) (https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)
+	// settings for your function URL.
+	Cors *Cors `type:"structure"`
+
+	// When the function URL was created, in ISO-8601 format (https://www.w3.org/TR/NOTE-datetime)
+	// (YYYY-MM-DDThh:mm:ss.sTZD).
+	//
+	// CreationTime is a required field
+	CreationTime *string `type:"string" required:"true"`
+
+	// The Amazon Resource Name (ARN) of your function.
+	//
+	// FunctionArn is a required field
+	FunctionArn *string `type:"string" required:"true"`
+
+	// The HTTP URL endpoint for your function.
+	//
+	// FunctionUrl is a required field
+	FunctionUrl *string `min:"40" type:"string" required:"true"`
+
+	// When the function URL configuration was last updated, in ISO-8601 format
+	// (https://www.w3.org/TR/NOTE-datetime) (YYYY-MM-DDThh:mm:ss.sTZD).
+	//
+	// LastModifiedTime is a required field
+	LastModifiedTime *string `type:"string" required:"true"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s GetFunctionUrlConfigOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s GetFunctionUrlConfigOutput) GoString() string {
+	return s.String()
+}
+
+// SetAuthType sets the AuthType field's value.
+func (s *GetFunctionUrlConfigOutput) SetAuthType(v string) *GetFunctionUrlConfigOutput {
+	s.AuthType = &v
+	return s
+}
+
+// SetCors sets the Cors field's value.
+func (s *GetFunctionUrlConfigOutput) SetCors(v *Cors) *GetFunctionUrlConfigOutput {
+	s.Cors = v
+	return s
+}
+
+// SetCreationTime sets the CreationTime field's value.
+func (s *GetFunctionUrlConfigOutput) SetCreationTime(v string) *GetFunctionUrlConfigOutput {
+	s.CreationTime = &v
+	return s
+}
+
+// SetFunctionArn sets the FunctionArn field's value.
+func (s *GetFunctionUrlConfigOutput) SetFunctionArn(v string) *GetFunctionUrlConfigOutput {
+	s.FunctionArn = &v
+	return s
+}
+
+// SetFunctionUrl sets the FunctionUrl field's value.
+func (s *GetFunctionUrlConfigOutput) SetFunctionUrl(v string) *GetFunctionUrlConfigOutput {
+	s.FunctionUrl = &v
+	return s
+}
+
+// SetLastModifiedTime sets the LastModifiedTime field's value.
+func (s *GetFunctionUrlConfigOutput) SetLastModifiedTime(v string) *GetFunctionUrlConfigOutput {
+	s.LastModifiedTime = &v
+	return s
+}
+
+type GetLayerVersionByArnInput struct {
+	_ struct{} `type:"structure" nopayload:"true"`
 
 	// The ARN of the layer version.
 	//
@@ -8751,12 +12639,20 @@ type GetLayerVersionByArnInput struct {
 	Arn *string `location:"querystring" locationName:"Arn" min:"1" type:"string" required:"true"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetLayerVersionByArnInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetLayerVersionByArnInput) GoString() string {
 	return s.String()
 }
@@ -8786,8 +12682,11 @@ func (s *GetLayerVersionByArnInput) SetArn(v string) *GetLayerVersionByArnInput 
 type GetLayerVersionByArnOutput struct {
 	_ struct{} `type:"structure"`
 
+	// A list of compatible instruction set architectures (https://docs.aws.amazon.com/lambda/latest/dg/foundation-arch.html).
+	CompatibleArchitectures []*string `type:"list" enum:"Architecture"`
+
 	// The layer's compatible runtimes.
-	CompatibleRuntimes []*string `type:"list"`
+	CompatibleRuntimes []*string `type:"list" enum:"Runtime"`
 
 	// Details about the layer version.
 	Content *LayerVersionContentOutput `type:"structure"`
@@ -8812,14 +12711,28 @@ type GetLayerVersionByArnOutput struct {
 	Version *int64 `type:"long"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetLayerVersionByArnOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetLayerVersionByArnOutput) GoString() string {
 	return s.String()
+}
+
+// SetCompatibleArchitectures sets the CompatibleArchitectures field's value.
+func (s *GetLayerVersionByArnOutput) SetCompatibleArchitectures(v []*string) *GetLayerVersionByArnOutput {
+	s.CompatibleArchitectures = v
+	return s
 }
 
 // SetCompatibleRuntimes sets the CompatibleRuntimes field's value.
@@ -8871,7 +12784,7 @@ func (s *GetLayerVersionByArnOutput) SetVersion(v int64) *GetLayerVersionByArnOu
 }
 
 type GetLayerVersionInput struct {
-	_ struct{} `type:"structure"`
+	_ struct{} `type:"structure" nopayload:"true"`
 
 	// The name or Amazon Resource Name (ARN) of the layer.
 	//
@@ -8884,12 +12797,20 @@ type GetLayerVersionInput struct {
 	VersionNumber *int64 `location:"uri" locationName:"VersionNumber" type:"long" required:"true"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetLayerVersionInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetLayerVersionInput) GoString() string {
 	return s.String()
 }
@@ -8928,8 +12849,11 @@ func (s *GetLayerVersionInput) SetVersionNumber(v int64) *GetLayerVersionInput {
 type GetLayerVersionOutput struct {
 	_ struct{} `type:"structure"`
 
+	// A list of compatible instruction set architectures (https://docs.aws.amazon.com/lambda/latest/dg/foundation-arch.html).
+	CompatibleArchitectures []*string `type:"list" enum:"Architecture"`
+
 	// The layer's compatible runtimes.
-	CompatibleRuntimes []*string `type:"list"`
+	CompatibleRuntimes []*string `type:"list" enum:"Runtime"`
 
 	// Details about the layer version.
 	Content *LayerVersionContentOutput `type:"structure"`
@@ -8954,14 +12878,28 @@ type GetLayerVersionOutput struct {
 	Version *int64 `type:"long"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetLayerVersionOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetLayerVersionOutput) GoString() string {
 	return s.String()
+}
+
+// SetCompatibleArchitectures sets the CompatibleArchitectures field's value.
+func (s *GetLayerVersionOutput) SetCompatibleArchitectures(v []*string) *GetLayerVersionOutput {
+	s.CompatibleArchitectures = v
+	return s
 }
 
 // SetCompatibleRuntimes sets the CompatibleRuntimes field's value.
@@ -9013,7 +12951,7 @@ func (s *GetLayerVersionOutput) SetVersion(v int64) *GetLayerVersionOutput {
 }
 
 type GetLayerVersionPolicyInput struct {
-	_ struct{} `type:"structure"`
+	_ struct{} `type:"structure" nopayload:"true"`
 
 	// The name or Amazon Resource Name (ARN) of the layer.
 	//
@@ -9026,12 +12964,20 @@ type GetLayerVersionPolicyInput struct {
 	VersionNumber *int64 `location:"uri" locationName:"VersionNumber" type:"long" required:"true"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetLayerVersionPolicyInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetLayerVersionPolicyInput) GoString() string {
 	return s.String()
 }
@@ -9077,12 +13023,20 @@ type GetLayerVersionPolicyOutput struct {
 	RevisionId *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetLayerVersionPolicyOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetLayerVersionPolicyOutput) GoString() string {
 	return s.String()
 }
@@ -9100,7 +13054,7 @@ func (s *GetLayerVersionPolicyOutput) SetRevisionId(v string) *GetLayerVersionPo
 }
 
 type GetPolicyInput struct {
-	_ struct{} `type:"structure"`
+	_ struct{} `type:"structure" nopayload:"true"`
 
 	// The name of the Lambda function, version, or alias.
 	//
@@ -9123,12 +13077,20 @@ type GetPolicyInput struct {
 	Qualifier *string `location:"querystring" locationName:"Qualifier" min:"1" type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetPolicyInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetPolicyInput) GoString() string {
 	return s.String()
 }
@@ -9174,12 +13136,20 @@ type GetPolicyOutput struct {
 	RevisionId *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetPolicyOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetPolicyOutput) GoString() string {
 	return s.String()
 }
@@ -9197,7 +13167,7 @@ func (s *GetPolicyOutput) SetRevisionId(v string) *GetPolicyOutput {
 }
 
 type GetProvisionedConcurrencyConfigInput struct {
-	_ struct{} `type:"structure"`
+	_ struct{} `type:"structure" nopayload:"true"`
 
 	// The name of the Lambda function.
 	//
@@ -9221,12 +13191,20 @@ type GetProvisionedConcurrencyConfigInput struct {
 	Qualifier *string `location:"querystring" locationName:"Qualifier" min:"1" type:"string" required:"true"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetProvisionedConcurrencyConfigInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetProvisionedConcurrencyConfigInput) GoString() string {
 	return s.String()
 }
@@ -9289,12 +13267,20 @@ type GetProvisionedConcurrencyConfigOutput struct {
 	StatusReason *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetProvisionedConcurrencyConfigOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s GetProvisionedConcurrencyConfigOutput) GoString() string {
 	return s.String()
 }
@@ -9335,6 +13321,211 @@ func (s *GetProvisionedConcurrencyConfigOutput) SetStatusReason(v string) *GetPr
 	return s
 }
 
+// Configuration values that override the container image Dockerfile settings.
+// See Container settings (https://docs.aws.amazon.com/lambda/latest/dg/images-create.html#images-parms).
+type ImageConfig struct {
+	_ struct{} `type:"structure"`
+
+	// Specifies parameters that you want to pass in with ENTRYPOINT.
+	Command []*string `type:"list"`
+
+	// Specifies the entry point to their application, which is typically the location
+	// of the runtime executable.
+	EntryPoint []*string `type:"list"`
+
+	// Specifies the working directory.
+	WorkingDirectory *string `type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s ImageConfig) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s ImageConfig) GoString() string {
+	return s.String()
+}
+
+// SetCommand sets the Command field's value.
+func (s *ImageConfig) SetCommand(v []*string) *ImageConfig {
+	s.Command = v
+	return s
+}
+
+// SetEntryPoint sets the EntryPoint field's value.
+func (s *ImageConfig) SetEntryPoint(v []*string) *ImageConfig {
+	s.EntryPoint = v
+	return s
+}
+
+// SetWorkingDirectory sets the WorkingDirectory field's value.
+func (s *ImageConfig) SetWorkingDirectory(v string) *ImageConfig {
+	s.WorkingDirectory = &v
+	return s
+}
+
+// Error response to GetFunctionConfiguration.
+type ImageConfigError struct {
+	_ struct{} `type:"structure"`
+
+	// Error code.
+	ErrorCode *string `type:"string"`
+
+	// Error message.
+	//
+	// Message is a sensitive parameter and its value will be
+	// replaced with "sensitive" in string returned by ImageConfigError's
+	// String and GoString methods.
+	Message *string `type:"string" sensitive:"true"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s ImageConfigError) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s ImageConfigError) GoString() string {
+	return s.String()
+}
+
+// SetErrorCode sets the ErrorCode field's value.
+func (s *ImageConfigError) SetErrorCode(v string) *ImageConfigError {
+	s.ErrorCode = &v
+	return s
+}
+
+// SetMessage sets the Message field's value.
+func (s *ImageConfigError) SetMessage(v string) *ImageConfigError {
+	s.Message = &v
+	return s
+}
+
+// Response to GetFunctionConfiguration request.
+type ImageConfigResponse struct {
+	_ struct{} `type:"structure"`
+
+	// Error response to GetFunctionConfiguration.
+	Error *ImageConfigError `type:"structure"`
+
+	// Configuration values that override the container image Dockerfile.
+	ImageConfig *ImageConfig `type:"structure"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s ImageConfigResponse) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s ImageConfigResponse) GoString() string {
+	return s.String()
+}
+
+// SetError sets the Error field's value.
+func (s *ImageConfigResponse) SetError(v *ImageConfigError) *ImageConfigResponse {
+	s.Error = v
+	return s
+}
+
+// SetImageConfig sets the ImageConfig field's value.
+func (s *ImageConfigResponse) SetImageConfig(v *ImageConfig) *ImageConfigResponse {
+	s.ImageConfig = v
+	return s
+}
+
+// The code signature failed the integrity check. Lambda always blocks deployment
+// if the integrity check fails, even if code signing policy is set to WARN.
+type InvalidCodeSignatureException struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"Message" type:"string"`
+
+	Type *string `type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s InvalidCodeSignatureException) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s InvalidCodeSignatureException) GoString() string {
+	return s.String()
+}
+
+func newErrorInvalidCodeSignatureException(v protocol.ResponseMetadata) error {
+	return &InvalidCodeSignatureException{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *InvalidCodeSignatureException) Code() string {
+	return "InvalidCodeSignatureException"
+}
+
+// Message returns the exception's message.
+func (s *InvalidCodeSignatureException) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *InvalidCodeSignatureException) OrigErr() error {
+	return nil
+}
+
+func (s *InvalidCodeSignatureException) Error() string {
+	return fmt.Sprintf("%s: %s\n%s", s.Code(), s.Message(), s.String())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *InvalidCodeSignatureException) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *InvalidCodeSignatureException) RequestID() string {
+	return s.RespMetadata.RequestID
+}
+
 // One of the parameters in the request is invalid.
 type InvalidParameterValueException struct {
 	_            struct{}                  `type:"structure"`
@@ -9347,12 +13538,20 @@ type InvalidParameterValueException struct {
 	Type *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s InvalidParameterValueException) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s InvalidParameterValueException) GoString() string {
 	return s.String()
 }
@@ -9407,12 +13606,20 @@ type InvalidRequestContentException struct {
 	Type *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s InvalidRequestContentException) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s InvalidRequestContentException) GoString() string {
 	return s.String()
 }
@@ -9465,12 +13672,20 @@ type InvalidRuntimeException struct {
 	Type *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s InvalidRuntimeException) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s InvalidRuntimeException) GoString() string {
 	return s.String()
 }
@@ -9524,12 +13739,20 @@ type InvalidSecurityGroupIDException struct {
 	Type *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s InvalidSecurityGroupIDException) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s InvalidSecurityGroupIDException) GoString() string {
 	return s.String()
 }
@@ -9582,12 +13805,20 @@ type InvalidSubnetIDException struct {
 	Type *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s InvalidSubnetIDException) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s InvalidSubnetIDException) GoString() string {
 	return s.String()
 }
@@ -9630,7 +13861,7 @@ func (s *InvalidSubnetIDException) RequestID() string {
 	return s.RespMetadata.RequestID
 }
 
-// AWS Lambda could not unzip the deployment package.
+// Lambda could not unzip the deployment package.
 type InvalidZipFileException struct {
 	_            struct{}                  `type:"structure"`
 	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
@@ -9640,12 +13871,20 @@ type InvalidZipFileException struct {
 	Type *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s InvalidZipFileException) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s InvalidZipFileException) GoString() string {
 	return s.String()
 }
@@ -9714,12 +13953,20 @@ type InvokeAsyncInput struct {
 	InvokeArgs io.ReadSeeker `type:"blob" required:"true"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s InvokeAsyncInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s InvokeAsyncInput) GoString() string {
 	return s.String()
 }
@@ -9766,12 +14013,20 @@ type InvokeAsyncOutput struct {
 	Status *int64 `location:"statusCode" type:"integer"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s InvokeAsyncOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s InvokeAsyncOutput) GoString() string {
 	return s.String()
 }
@@ -9820,22 +14075,38 @@ type InvokeInput struct {
 	//    has permission to invoke the function.
 	InvocationType *string `location:"header" locationName:"X-Amz-Invocation-Type" type:"string" enum:"InvocationType"`
 
-	// Set to Tail to include the execution log in the response.
+	// Set to Tail to include the execution log in the response. Applies to synchronously
+	// invoked functions only.
 	LogType *string `location:"header" locationName:"X-Amz-Log-Type" type:"string" enum:"LogType"`
 
 	// The JSON that you want to provide to your Lambda function as input.
+	//
+	// You can enter the JSON directly. For example, --payload '{ "key": "value"
+	// }'. You can also specify a file path. For example, --payload file://payload.json.
+	//
+	// Payload is a sensitive parameter and its value will be
+	// replaced with "sensitive" in string returned by InvokeInput's
+	// String and GoString methods.
 	Payload []byte `type:"blob" sensitive:"true"`
 
 	// Specify a version or alias to invoke a published version of the function.
 	Qualifier *string `location:"querystring" locationName:"Qualifier" min:"1" type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s InvokeInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s InvokeInput) GoString() string {
 	return s.String()
 }
@@ -9910,6 +14181,10 @@ type InvokeOutput struct {
 	LogResult *string `location:"header" locationName:"X-Amz-Log-Result" type:"string"`
 
 	// The response from the function, or an error object.
+	//
+	// Payload is a sensitive parameter and its value will be
+	// replaced with "sensitive" in string returned by InvokeOutput's
+	// String and GoString methods.
 	Payload []byte `type:"blob" sensitive:"true"`
 
 	// The HTTP status code is in the 200 range for a successful request. For the
@@ -9919,12 +14194,20 @@ type InvokeOutput struct {
 	StatusCode *int64 `location:"statusCode" type:"integer"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s InvokeOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s InvokeOutput) GoString() string {
 	return s.String()
 }
@@ -9970,12 +14253,20 @@ type KMSAccessDeniedException struct {
 	Type *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s KMSAccessDeniedException) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s KMSAccessDeniedException) GoString() string {
 	return s.String()
 }
@@ -10029,12 +14320,20 @@ type KMSDisabledException struct {
 	Type *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s KMSDisabledException) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s KMSDisabledException) GoString() string {
 	return s.String()
 }
@@ -10088,12 +14387,20 @@ type KMSInvalidStateException struct {
 	Type *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s KMSInvalidStateException) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s KMSInvalidStateException) GoString() string {
 	return s.String()
 }
@@ -10147,12 +14454,20 @@ type KMSNotFoundException struct {
 	Type *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s KMSNotFoundException) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s KMSNotFoundException) GoString() string {
 	return s.String()
 }
@@ -10195,7 +14510,7 @@ func (s *KMSNotFoundException) RequestID() string {
 	return s.RespMetadata.RequestID
 }
 
-// An AWS Lambda layer (https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html).
+// An Lambda layer (https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html).
 type Layer struct {
 	_ struct{} `type:"structure"`
 
@@ -10204,14 +14519,28 @@ type Layer struct {
 
 	// The size of the layer archive in bytes.
 	CodeSize *int64 `type:"long"`
+
+	// The Amazon Resource Name (ARN) of a signing job.
+	SigningJobArn *string `type:"string"`
+
+	// The Amazon Resource Name (ARN) for a signing profile version.
+	SigningProfileVersionArn *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s Layer) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s Layer) GoString() string {
 	return s.String()
 }
@@ -10228,7 +14557,19 @@ func (s *Layer) SetCodeSize(v int64) *Layer {
 	return s
 }
 
-// A ZIP archive that contains the contents of an AWS Lambda layer (https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html).
+// SetSigningJobArn sets the SigningJobArn field's value.
+func (s *Layer) SetSigningJobArn(v string) *Layer {
+	s.SigningJobArn = &v
+	return s
+}
+
+// SetSigningProfileVersionArn sets the SigningProfileVersionArn field's value.
+func (s *Layer) SetSigningProfileVersionArn(v string) *Layer {
+	s.SigningProfileVersionArn = &v
+	return s
+}
+
+// A ZIP archive that contains the contents of an Lambda layer (https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html).
 // You can specify either an Amazon S3 location, or upload a layer archive directly.
 type LayerVersionContentInput struct {
 	_ struct{} `type:"structure"`
@@ -10242,19 +14583,31 @@ type LayerVersionContentInput struct {
 	// For versioned objects, the version of the layer archive object to use.
 	S3ObjectVersion *string `min:"1" type:"string"`
 
-	// The base64-encoded contents of the layer archive. AWS SDK and AWS CLI clients
-	// handle the encoding for you.
+	// The base64-encoded contents of the layer archive. Amazon Web Services SDK
+	// and Amazon Web Services CLI clients handle the encoding for you.
+	//
+	// ZipFile is a sensitive parameter and its value will be
+	// replaced with "sensitive" in string returned by LayerVersionContentInput's
+	// String and GoString methods.
 	//
 	// ZipFile is automatically base64 encoded/decoded by the SDK.
 	ZipFile []byte `type:"blob" sensitive:"true"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s LayerVersionContentInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s LayerVersionContentInput) GoString() string {
 	return s.String()
 }
@@ -10302,7 +14655,7 @@ func (s *LayerVersionContentInput) SetZipFile(v []byte) *LayerVersionContentInpu
 	return s
 }
 
-// Details about a version of an AWS Lambda layer (https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html).
+// Details about a version of an Lambda layer (https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html).
 type LayerVersionContentOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -10314,14 +14667,28 @@ type LayerVersionContentOutput struct {
 
 	// A link to the layer archive in Amazon S3 that is valid for 10 minutes.
 	Location *string `type:"string"`
+
+	// The Amazon Resource Name (ARN) of a signing job.
+	SigningJobArn *string `type:"string"`
+
+	// The Amazon Resource Name (ARN) for a signing profile version.
+	SigningProfileVersionArn *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s LayerVersionContentOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s LayerVersionContentOutput) GoString() string {
 	return s.String()
 }
@@ -10344,12 +14711,27 @@ func (s *LayerVersionContentOutput) SetLocation(v string) *LayerVersionContentOu
 	return s
 }
 
-// Details about a version of an AWS Lambda layer (https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html).
+// SetSigningJobArn sets the SigningJobArn field's value.
+func (s *LayerVersionContentOutput) SetSigningJobArn(v string) *LayerVersionContentOutput {
+	s.SigningJobArn = &v
+	return s
+}
+
+// SetSigningProfileVersionArn sets the SigningProfileVersionArn field's value.
+func (s *LayerVersionContentOutput) SetSigningProfileVersionArn(v string) *LayerVersionContentOutput {
+	s.SigningProfileVersionArn = &v
+	return s
+}
+
+// Details about a version of an Lambda layer (https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html).
 type LayerVersionsListItem struct {
 	_ struct{} `type:"structure"`
 
+	// A list of compatible instruction set architectures (https://docs.aws.amazon.com/lambda/latest/dg/foundation-arch.html).
+	CompatibleArchitectures []*string `type:"list" enum:"Architecture"`
+
 	// The layer's compatible runtimes.
-	CompatibleRuntimes []*string `type:"list"`
+	CompatibleRuntimes []*string `type:"list" enum:"Runtime"`
 
 	// The date that the version was created, in ISO 8601 format. For example, 2018-11-27T15:10:45.123+0000.
 	CreatedDate *string `type:"string"`
@@ -10367,14 +14749,28 @@ type LayerVersionsListItem struct {
 	Version *int64 `type:"long"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s LayerVersionsListItem) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s LayerVersionsListItem) GoString() string {
 	return s.String()
+}
+
+// SetCompatibleArchitectures sets the CompatibleArchitectures field's value.
+func (s *LayerVersionsListItem) SetCompatibleArchitectures(v []*string) *LayerVersionsListItem {
+	s.CompatibleArchitectures = v
+	return s
 }
 
 // SetCompatibleRuntimes sets the CompatibleRuntimes field's value.
@@ -10413,7 +14809,7 @@ func (s *LayerVersionsListItem) SetVersion(v int64) *LayerVersionsListItem {
 	return s
 }
 
-// Details about an AWS Lambda layer (https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html).
+// Details about an Lambda layer (https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html).
 type LayersListItem struct {
 	_ struct{} `type:"structure"`
 
@@ -10427,12 +14823,20 @@ type LayersListItem struct {
 	LayerName *string `min:"1" type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s LayersListItem) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s LayersListItem) GoString() string {
 	return s.String()
 }
@@ -10456,7 +14860,7 @@ func (s *LayersListItem) SetLayerName(v string) *LayersListItem {
 }
 
 type ListAliasesInput struct {
-	_ struct{} `type:"structure"`
+	_ struct{} `type:"structure" nopayload:"true"`
 
 	// The name of the Lambda function.
 	//
@@ -10485,12 +14889,20 @@ type ListAliasesInput struct {
 	MaxItems *int64 `location:"querystring" locationName:"MaxItems" min:"1" type:"integer"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ListAliasesInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ListAliasesInput) GoString() string {
 	return s.String()
 }
@@ -10551,12 +14963,20 @@ type ListAliasesOutput struct {
 	NextMarker *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ListAliasesOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ListAliasesOutput) GoString() string {
 	return s.String()
 }
@@ -10573,8 +14993,102 @@ func (s *ListAliasesOutput) SetNextMarker(v string) *ListAliasesOutput {
 	return s
 }
 
-type ListEventSourceMappingsInput struct {
+type ListCodeSigningConfigsInput struct {
+	_ struct{} `type:"structure" nopayload:"true"`
+
+	// Specify the pagination token that's returned by a previous request to retrieve
+	// the next page of results.
+	Marker *string `location:"querystring" locationName:"Marker" type:"string"`
+
+	// Maximum number of items to return.
+	MaxItems *int64 `location:"querystring" locationName:"MaxItems" min:"1" type:"integer"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s ListCodeSigningConfigsInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s ListCodeSigningConfigsInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ListCodeSigningConfigsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ListCodeSigningConfigsInput"}
+	if s.MaxItems != nil && *s.MaxItems < 1 {
+		invalidParams.Add(request.NewErrParamMinValue("MaxItems", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetMarker sets the Marker field's value.
+func (s *ListCodeSigningConfigsInput) SetMarker(v string) *ListCodeSigningConfigsInput {
+	s.Marker = &v
+	return s
+}
+
+// SetMaxItems sets the MaxItems field's value.
+func (s *ListCodeSigningConfigsInput) SetMaxItems(v int64) *ListCodeSigningConfigsInput {
+	s.MaxItems = &v
+	return s
+}
+
+type ListCodeSigningConfigsOutput struct {
 	_ struct{} `type:"structure"`
+
+	// The code signing configurations
+	CodeSigningConfigs []*CodeSigningConfig `type:"list"`
+
+	// The pagination token that's included if more results are available.
+	NextMarker *string `type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s ListCodeSigningConfigsOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s ListCodeSigningConfigsOutput) GoString() string {
+	return s.String()
+}
+
+// SetCodeSigningConfigs sets the CodeSigningConfigs field's value.
+func (s *ListCodeSigningConfigsOutput) SetCodeSigningConfigs(v []*CodeSigningConfig) *ListCodeSigningConfigsOutput {
+	s.CodeSigningConfigs = v
+	return s
+}
+
+// SetNextMarker sets the NextMarker field's value.
+func (s *ListCodeSigningConfigsOutput) SetNextMarker(v string) *ListCodeSigningConfigsOutput {
+	s.NextMarker = &v
+	return s
+}
+
+type ListEventSourceMappingsInput struct {
+	_ struct{} `type:"structure" nopayload:"true"`
 
 	// The Amazon Resource Name (ARN) of the event source.
 	//
@@ -10606,16 +15120,26 @@ type ListEventSourceMappingsInput struct {
 	// A pagination token returned by a previous call.
 	Marker *string `location:"querystring" locationName:"Marker" type:"string"`
 
-	// The maximum number of event source mappings to return.
+	// The maximum number of event source mappings to return. Note that ListEventSourceMappings
+	// returns a maximum of 100 items in each response, even if you set the number
+	// higher.
 	MaxItems *int64 `location:"querystring" locationName:"MaxItems" min:"1" type:"integer"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ListEventSourceMappingsInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ListEventSourceMappingsInput) GoString() string {
 	return s.String()
 }
@@ -10671,12 +15195,20 @@ type ListEventSourceMappingsOutput struct {
 	NextMarker *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ListEventSourceMappingsOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ListEventSourceMappingsOutput) GoString() string {
 	return s.String()
 }
@@ -10694,7 +15226,7 @@ func (s *ListEventSourceMappingsOutput) SetNextMarker(v string) *ListEventSource
 }
 
 type ListFunctionEventInvokeConfigsInput struct {
-	_ struct{} `type:"structure"`
+	_ struct{} `type:"structure" nopayload:"true"`
 
 	// The name of the Lambda function.
 	//
@@ -10720,12 +15252,20 @@ type ListFunctionEventInvokeConfigsInput struct {
 	MaxItems *int64 `location:"querystring" locationName:"MaxItems" min:"1" type:"integer"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ListFunctionEventInvokeConfigsInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ListFunctionEventInvokeConfigsInput) GoString() string {
 	return s.String()
 }
@@ -10777,12 +15317,20 @@ type ListFunctionEventInvokeConfigsOutput struct {
 	NextMarker *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ListFunctionEventInvokeConfigsOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ListFunctionEventInvokeConfigsOutput) GoString() string {
 	return s.String()
 }
@@ -10799,8 +15347,245 @@ func (s *ListFunctionEventInvokeConfigsOutput) SetNextMarker(v string) *ListFunc
 	return s
 }
 
-type ListFunctionsInput struct {
+type ListFunctionUrlConfigsInput struct {
+	_ struct{} `type:"structure" nopayload:"true"`
+
+	// The name of the Lambda function.
+	//
+	// Name formats
+	//
+	//    * Function name - my-function.
+	//
+	//    * Function ARN - arn:aws:lambda:us-west-2:123456789012:function:my-function.
+	//
+	//    * Partial ARN - 123456789012:function:my-function.
+	//
+	// The length constraint applies only to the full ARN. If you specify only the
+	// function name, it is limited to 64 characters in length.
+	//
+	// FunctionName is a required field
+	FunctionName *string `location:"uri" locationName:"FunctionName" min:"1" type:"string" required:"true"`
+
+	// Specify the pagination token that's returned by a previous request to retrieve
+	// the next page of results.
+	Marker *string `location:"querystring" locationName:"Marker" type:"string"`
+
+	// The maximum number of function URLs to return in the response. Note that
+	// ListFunctionUrlConfigs returns a maximum of 50 items in each response, even
+	// if you set the number higher.
+	MaxItems *int64 `location:"querystring" locationName:"MaxItems" min:"1" type:"integer"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s ListFunctionUrlConfigsInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s ListFunctionUrlConfigsInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ListFunctionUrlConfigsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ListFunctionUrlConfigsInput"}
+	if s.FunctionName == nil {
+		invalidParams.Add(request.NewErrParamRequired("FunctionName"))
+	}
+	if s.FunctionName != nil && len(*s.FunctionName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("FunctionName", 1))
+	}
+	if s.MaxItems != nil && *s.MaxItems < 1 {
+		invalidParams.Add(request.NewErrParamMinValue("MaxItems", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetFunctionName sets the FunctionName field's value.
+func (s *ListFunctionUrlConfigsInput) SetFunctionName(v string) *ListFunctionUrlConfigsInput {
+	s.FunctionName = &v
+	return s
+}
+
+// SetMarker sets the Marker field's value.
+func (s *ListFunctionUrlConfigsInput) SetMarker(v string) *ListFunctionUrlConfigsInput {
+	s.Marker = &v
+	return s
+}
+
+// SetMaxItems sets the MaxItems field's value.
+func (s *ListFunctionUrlConfigsInput) SetMaxItems(v int64) *ListFunctionUrlConfigsInput {
+	s.MaxItems = &v
+	return s
+}
+
+type ListFunctionUrlConfigsOutput struct {
 	_ struct{} `type:"structure"`
+
+	// A list of function URL configurations.
+	//
+	// FunctionUrlConfigs is a required field
+	FunctionUrlConfigs []*FunctionUrlConfig `type:"list" required:"true"`
+
+	// The pagination token that's included if more results are available.
+	NextMarker *string `type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s ListFunctionUrlConfigsOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s ListFunctionUrlConfigsOutput) GoString() string {
+	return s.String()
+}
+
+// SetFunctionUrlConfigs sets the FunctionUrlConfigs field's value.
+func (s *ListFunctionUrlConfigsOutput) SetFunctionUrlConfigs(v []*FunctionUrlConfig) *ListFunctionUrlConfigsOutput {
+	s.FunctionUrlConfigs = v
+	return s
+}
+
+// SetNextMarker sets the NextMarker field's value.
+func (s *ListFunctionUrlConfigsOutput) SetNextMarker(v string) *ListFunctionUrlConfigsOutput {
+	s.NextMarker = &v
+	return s
+}
+
+type ListFunctionsByCodeSigningConfigInput struct {
+	_ struct{} `type:"structure" nopayload:"true"`
+
+	// The The Amazon Resource Name (ARN) of the code signing configuration.
+	//
+	// CodeSigningConfigArn is a required field
+	CodeSigningConfigArn *string `location:"uri" locationName:"CodeSigningConfigArn" type:"string" required:"true"`
+
+	// Specify the pagination token that's returned by a previous request to retrieve
+	// the next page of results.
+	Marker *string `location:"querystring" locationName:"Marker" type:"string"`
+
+	// Maximum number of items to return.
+	MaxItems *int64 `location:"querystring" locationName:"MaxItems" min:"1" type:"integer"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s ListFunctionsByCodeSigningConfigInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s ListFunctionsByCodeSigningConfigInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ListFunctionsByCodeSigningConfigInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ListFunctionsByCodeSigningConfigInput"}
+	if s.CodeSigningConfigArn == nil {
+		invalidParams.Add(request.NewErrParamRequired("CodeSigningConfigArn"))
+	}
+	if s.CodeSigningConfigArn != nil && len(*s.CodeSigningConfigArn) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("CodeSigningConfigArn", 1))
+	}
+	if s.MaxItems != nil && *s.MaxItems < 1 {
+		invalidParams.Add(request.NewErrParamMinValue("MaxItems", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetCodeSigningConfigArn sets the CodeSigningConfigArn field's value.
+func (s *ListFunctionsByCodeSigningConfigInput) SetCodeSigningConfigArn(v string) *ListFunctionsByCodeSigningConfigInput {
+	s.CodeSigningConfigArn = &v
+	return s
+}
+
+// SetMarker sets the Marker field's value.
+func (s *ListFunctionsByCodeSigningConfigInput) SetMarker(v string) *ListFunctionsByCodeSigningConfigInput {
+	s.Marker = &v
+	return s
+}
+
+// SetMaxItems sets the MaxItems field's value.
+func (s *ListFunctionsByCodeSigningConfigInput) SetMaxItems(v int64) *ListFunctionsByCodeSigningConfigInput {
+	s.MaxItems = &v
+	return s
+}
+
+type ListFunctionsByCodeSigningConfigOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The function ARNs.
+	FunctionArns []*string `type:"list"`
+
+	// The pagination token that's included if more results are available.
+	NextMarker *string `type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s ListFunctionsByCodeSigningConfigOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s ListFunctionsByCodeSigningConfigOutput) GoString() string {
+	return s.String()
+}
+
+// SetFunctionArns sets the FunctionArns field's value.
+func (s *ListFunctionsByCodeSigningConfigOutput) SetFunctionArns(v []*string) *ListFunctionsByCodeSigningConfigOutput {
+	s.FunctionArns = v
+	return s
+}
+
+// SetNextMarker sets the NextMarker field's value.
+func (s *ListFunctionsByCodeSigningConfigOutput) SetNextMarker(v string) *ListFunctionsByCodeSigningConfigOutput {
+	s.NextMarker = &v
+	return s
+}
+
+type ListFunctionsInput struct {
+	_ struct{} `type:"structure" nopayload:"true"`
 
 	// Set to ALL to include entries for all published versions of each function.
 	FunctionVersion *string `location:"querystring" locationName:"FunctionVersion" type:"string" enum:"FunctionVersion"`
@@ -10809,22 +15594,32 @@ type ListFunctionsInput struct {
 	// the next page of results.
 	Marker *string `location:"querystring" locationName:"Marker" type:"string"`
 
-	// For Lambda@Edge functions, the AWS Region of the master function. For example,
-	// us-east-1 filters the list of functions to only include Lambda@Edge functions
-	// replicated from a master function in US East (N. Virginia). If specified,
-	// you must set FunctionVersion to ALL.
+	// For Lambda@Edge functions, the Amazon Web Services Region of the master function.
+	// For example, us-east-1 filters the list of functions to only include Lambda@Edge
+	// functions replicated from a master function in US East (N. Virginia). If
+	// specified, you must set FunctionVersion to ALL.
 	MasterRegion *string `location:"querystring" locationName:"MasterRegion" type:"string"`
 
-	// The maximum number of functions to return.
+	// The maximum number of functions to return in the response. Note that ListFunctions
+	// returns a maximum of 50 items in each response, even if you set the number
+	// higher.
 	MaxItems *int64 `location:"querystring" locationName:"MaxItems" min:"1" type:"integer"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ListFunctionsInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ListFunctionsInput) GoString() string {
 	return s.String()
 }
@@ -10877,12 +15672,20 @@ type ListFunctionsOutput struct {
 	NextMarker *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ListFunctionsOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ListFunctionsOutput) GoString() string {
 	return s.String()
 }
@@ -10900,7 +15703,10 @@ func (s *ListFunctionsOutput) SetNextMarker(v string) *ListFunctionsOutput {
 }
 
 type ListLayerVersionsInput struct {
-	_ struct{} `type:"structure"`
+	_ struct{} `type:"structure" nopayload:"true"`
+
+	// The compatible instruction set architecture (https://docs.aws.amazon.com/lambda/latest/dg/foundation-arch.html).
+	CompatibleArchitecture *string `location:"querystring" locationName:"CompatibleArchitecture" type:"string" enum:"Architecture"`
 
 	// A runtime identifier. For example, go1.x.
 	CompatibleRuntime *string `location:"querystring" locationName:"CompatibleRuntime" type:"string" enum:"Runtime"`
@@ -10917,12 +15723,20 @@ type ListLayerVersionsInput struct {
 	MaxItems *int64 `location:"querystring" locationName:"MaxItems" min:"1" type:"integer"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ListLayerVersionsInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ListLayerVersionsInput) GoString() string {
 	return s.String()
 }
@@ -10944,6 +15758,12 @@ func (s *ListLayerVersionsInput) Validate() error {
 		return invalidParams
 	}
 	return nil
+}
+
+// SetCompatibleArchitecture sets the CompatibleArchitecture field's value.
+func (s *ListLayerVersionsInput) SetCompatibleArchitecture(v string) *ListLayerVersionsInput {
+	s.CompatibleArchitecture = &v
+	return s
 }
 
 // SetCompatibleRuntime sets the CompatibleRuntime field's value.
@@ -10980,12 +15800,20 @@ type ListLayerVersionsOutput struct {
 	NextMarker *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ListLayerVersionsOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ListLayerVersionsOutput) GoString() string {
 	return s.String()
 }
@@ -11003,7 +15831,10 @@ func (s *ListLayerVersionsOutput) SetNextMarker(v string) *ListLayerVersionsOutp
 }
 
 type ListLayersInput struct {
-	_ struct{} `type:"structure"`
+	_ struct{} `type:"structure" nopayload:"true"`
+
+	// The compatible instruction set architecture (https://docs.aws.amazon.com/lambda/latest/dg/foundation-arch.html).
+	CompatibleArchitecture *string `location:"querystring" locationName:"CompatibleArchitecture" type:"string" enum:"Architecture"`
 
 	// A runtime identifier. For example, go1.x.
 	CompatibleRuntime *string `location:"querystring" locationName:"CompatibleRuntime" type:"string" enum:"Runtime"`
@@ -11015,12 +15846,20 @@ type ListLayersInput struct {
 	MaxItems *int64 `location:"querystring" locationName:"MaxItems" min:"1" type:"integer"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ListLayersInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ListLayersInput) GoString() string {
 	return s.String()
 }
@@ -11036,6 +15875,12 @@ func (s *ListLayersInput) Validate() error {
 		return invalidParams
 	}
 	return nil
+}
+
+// SetCompatibleArchitecture sets the CompatibleArchitecture field's value.
+func (s *ListLayersInput) SetCompatibleArchitecture(v string) *ListLayersInput {
+	s.CompatibleArchitecture = &v
+	return s
 }
 
 // SetCompatibleRuntime sets the CompatibleRuntime field's value.
@@ -11066,12 +15911,20 @@ type ListLayersOutput struct {
 	NextMarker *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ListLayersOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ListLayersOutput) GoString() string {
 	return s.String()
 }
@@ -11089,7 +15942,7 @@ func (s *ListLayersOutput) SetNextMarker(v string) *ListLayersOutput {
 }
 
 type ListProvisionedConcurrencyConfigsInput struct {
-	_ struct{} `type:"structure"`
+	_ struct{} `type:"structure" nopayload:"true"`
 
 	// The name of the Lambda function.
 	//
@@ -11115,12 +15968,20 @@ type ListProvisionedConcurrencyConfigsInput struct {
 	MaxItems *int64 `location:"querystring" locationName:"MaxItems" min:"1" type:"integer"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ListProvisionedConcurrencyConfigsInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ListProvisionedConcurrencyConfigsInput) GoString() string {
 	return s.String()
 }
@@ -11172,12 +16033,20 @@ type ListProvisionedConcurrencyConfigsOutput struct {
 	ProvisionedConcurrencyConfigs []*ProvisionedConcurrencyConfigListItem `type:"list"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ListProvisionedConcurrencyConfigsOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ListProvisionedConcurrencyConfigsOutput) GoString() string {
 	return s.String()
 }
@@ -11195,20 +16064,29 @@ func (s *ListProvisionedConcurrencyConfigsOutput) SetProvisionedConcurrencyConfi
 }
 
 type ListTagsInput struct {
-	_ struct{} `type:"structure"`
+	_ struct{} `type:"structure" nopayload:"true"`
 
-	// The function's Amazon Resource Name (ARN).
+	// The function's Amazon Resource Name (ARN). Note: Lambda does not support
+	// adding tags to aliases or versions.
 	//
 	// Resource is a required field
 	Resource *string `location:"uri" locationName:"ARN" type:"string" required:"true"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ListTagsInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ListTagsInput) GoString() string {
 	return s.String()
 }
@@ -11242,12 +16120,20 @@ type ListTagsOutput struct {
 	Tags map[string]*string `type:"map"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ListTagsOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ListTagsOutput) GoString() string {
 	return s.String()
 }
@@ -11259,7 +16145,7 @@ func (s *ListTagsOutput) SetTags(v map[string]*string) *ListTagsOutput {
 }
 
 type ListVersionsByFunctionInput struct {
-	_ struct{} `type:"structure"`
+	_ struct{} `type:"structure" nopayload:"true"`
 
 	// The name of the Lambda function.
 	//
@@ -11281,16 +16167,26 @@ type ListVersionsByFunctionInput struct {
 	// the next page of results.
 	Marker *string `location:"querystring" locationName:"Marker" type:"string"`
 
-	// The maximum number of versions to return.
+	// The maximum number of versions to return. Note that ListVersionsByFunction
+	// returns a maximum of 50 items in each response, even if you set the number
+	// higher.
 	MaxItems *int64 `location:"querystring" locationName:"MaxItems" min:"1" type:"integer"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ListVersionsByFunctionInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ListVersionsByFunctionInput) GoString() string {
 	return s.String()
 }
@@ -11342,12 +16238,20 @@ type ListVersionsByFunctionOutput struct {
 	Versions []*FunctionConfiguration `type:"list"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ListVersionsByFunctionOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ListVersionsByFunctionOutput) GoString() string {
 	return s.String()
 }
@@ -11372,12 +16276,20 @@ type OnFailure struct {
 	Destination *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s OnFailure) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s OnFailure) GoString() string {
 	return s.String()
 }
@@ -11396,12 +16308,20 @@ type OnSuccess struct {
 	Destination *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s OnSuccess) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s OnSuccess) GoString() string {
 	return s.String()
 }
@@ -11422,12 +16342,20 @@ type PolicyLengthExceededException struct {
 	Type *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s PolicyLengthExceededException) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s PolicyLengthExceededException) GoString() string {
 	return s.String()
 }
@@ -11484,12 +16412,20 @@ type PreconditionFailedException struct {
 	Type *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s PreconditionFailedException) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s PreconditionFailedException) GoString() string {
 	return s.String()
 }
@@ -11561,12 +16497,20 @@ type ProvisionedConcurrencyConfigListItem struct {
 	StatusReason *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ProvisionedConcurrencyConfigListItem) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ProvisionedConcurrencyConfigListItem) GoString() string {
 	return s.String()
 }
@@ -11623,12 +16567,20 @@ type ProvisionedConcurrencyConfigNotFoundException struct {
 	Type *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ProvisionedConcurrencyConfigNotFoundException) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ProvisionedConcurrencyConfigNotFoundException) GoString() string {
 	return s.String()
 }
@@ -11674,9 +16626,12 @@ func (s *ProvisionedConcurrencyConfigNotFoundException) RequestID() string {
 type PublishLayerVersionInput struct {
 	_ struct{} `type:"structure"`
 
+	// A list of compatible instruction set architectures (https://docs.aws.amazon.com/lambda/latest/dg/foundation-arch.html).
+	CompatibleArchitectures []*string `type:"list" enum:"Architecture"`
+
 	// A list of compatible function runtimes (https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html).
 	// Used for filtering with ListLayers and ListLayerVersions.
-	CompatibleRuntimes []*string `type:"list"`
+	CompatibleRuntimes []*string `type:"list" enum:"Runtime"`
 
 	// The function layer archive.
 	//
@@ -11702,12 +16657,20 @@ type PublishLayerVersionInput struct {
 	LicenseInfo *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s PublishLayerVersionInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s PublishLayerVersionInput) GoString() string {
 	return s.String()
 }
@@ -11734,6 +16697,12 @@ func (s *PublishLayerVersionInput) Validate() error {
 		return invalidParams
 	}
 	return nil
+}
+
+// SetCompatibleArchitectures sets the CompatibleArchitectures field's value.
+func (s *PublishLayerVersionInput) SetCompatibleArchitectures(v []*string) *PublishLayerVersionInput {
+	s.CompatibleArchitectures = v
+	return s
 }
 
 // SetCompatibleRuntimes sets the CompatibleRuntimes field's value.
@@ -11769,8 +16738,11 @@ func (s *PublishLayerVersionInput) SetLicenseInfo(v string) *PublishLayerVersion
 type PublishLayerVersionOutput struct {
 	_ struct{} `type:"structure"`
 
+	// A list of compatible instruction set architectures (https://docs.aws.amazon.com/lambda/latest/dg/foundation-arch.html).
+	CompatibleArchitectures []*string `type:"list" enum:"Architecture"`
+
 	// The layer's compatible runtimes.
-	CompatibleRuntimes []*string `type:"list"`
+	CompatibleRuntimes []*string `type:"list" enum:"Runtime"`
 
 	// Details about the layer version.
 	Content *LayerVersionContentOutput `type:"structure"`
@@ -11795,14 +16767,28 @@ type PublishLayerVersionOutput struct {
 	Version *int64 `type:"long"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s PublishLayerVersionOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s PublishLayerVersionOutput) GoString() string {
 	return s.String()
+}
+
+// SetCompatibleArchitectures sets the CompatibleArchitectures field's value.
+func (s *PublishLayerVersionOutput) SetCompatibleArchitectures(v []*string) *PublishLayerVersionOutput {
+	s.CompatibleArchitectures = v
+	return s
 }
 
 // SetCompatibleRuntimes sets the CompatibleRuntimes field's value.
@@ -11888,12 +16874,20 @@ type PublishVersionInput struct {
 	RevisionId *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s PublishVersionInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s PublishVersionInput) GoString() string {
 	return s.String()
 }
@@ -11938,6 +16932,135 @@ func (s *PublishVersionInput) SetRevisionId(v string) *PublishVersionInput {
 	return s
 }
 
+type PutFunctionCodeSigningConfigInput struct {
+	_ struct{} `type:"structure"`
+
+	// The The Amazon Resource Name (ARN) of the code signing configuration.
+	//
+	// CodeSigningConfigArn is a required field
+	CodeSigningConfigArn *string `type:"string" required:"true"`
+
+	// The name of the Lambda function.
+	//
+	// Name formats
+	//
+	//    * Function name - MyFunction.
+	//
+	//    * Function ARN - arn:aws:lambda:us-west-2:123456789012:function:MyFunction.
+	//
+	//    * Partial ARN - 123456789012:function:MyFunction.
+	//
+	// The length constraint applies only to the full ARN. If you specify only the
+	// function name, it is limited to 64 characters in length.
+	//
+	// FunctionName is a required field
+	FunctionName *string `location:"uri" locationName:"FunctionName" min:"1" type:"string" required:"true"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s PutFunctionCodeSigningConfigInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s PutFunctionCodeSigningConfigInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *PutFunctionCodeSigningConfigInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "PutFunctionCodeSigningConfigInput"}
+	if s.CodeSigningConfigArn == nil {
+		invalidParams.Add(request.NewErrParamRequired("CodeSigningConfigArn"))
+	}
+	if s.FunctionName == nil {
+		invalidParams.Add(request.NewErrParamRequired("FunctionName"))
+	}
+	if s.FunctionName != nil && len(*s.FunctionName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("FunctionName", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetCodeSigningConfigArn sets the CodeSigningConfigArn field's value.
+func (s *PutFunctionCodeSigningConfigInput) SetCodeSigningConfigArn(v string) *PutFunctionCodeSigningConfigInput {
+	s.CodeSigningConfigArn = &v
+	return s
+}
+
+// SetFunctionName sets the FunctionName field's value.
+func (s *PutFunctionCodeSigningConfigInput) SetFunctionName(v string) *PutFunctionCodeSigningConfigInput {
+	s.FunctionName = &v
+	return s
+}
+
+type PutFunctionCodeSigningConfigOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The The Amazon Resource Name (ARN) of the code signing configuration.
+	//
+	// CodeSigningConfigArn is a required field
+	CodeSigningConfigArn *string `type:"string" required:"true"`
+
+	// The name of the Lambda function.
+	//
+	// Name formats
+	//
+	//    * Function name - MyFunction.
+	//
+	//    * Function ARN - arn:aws:lambda:us-west-2:123456789012:function:MyFunction.
+	//
+	//    * Partial ARN - 123456789012:function:MyFunction.
+	//
+	// The length constraint applies only to the full ARN. If you specify only the
+	// function name, it is limited to 64 characters in length.
+	//
+	// FunctionName is a required field
+	FunctionName *string `min:"1" type:"string" required:"true"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s PutFunctionCodeSigningConfigOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s PutFunctionCodeSigningConfigOutput) GoString() string {
+	return s.String()
+}
+
+// SetCodeSigningConfigArn sets the CodeSigningConfigArn field's value.
+func (s *PutFunctionCodeSigningConfigOutput) SetCodeSigningConfigArn(v string) *PutFunctionCodeSigningConfigOutput {
+	s.CodeSigningConfigArn = &v
+	return s
+}
+
+// SetFunctionName sets the FunctionName field's value.
+func (s *PutFunctionCodeSigningConfigOutput) SetFunctionName(v string) *PutFunctionCodeSigningConfigOutput {
+	s.FunctionName = &v
+	return s
+}
+
 type PutFunctionConcurrencyInput struct {
 	_ struct{} `type:"structure"`
 
@@ -11963,12 +17086,20 @@ type PutFunctionConcurrencyInput struct {
 	ReservedConcurrentExecutions *int64 `type:"integer" required:"true"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s PutFunctionConcurrencyInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s PutFunctionConcurrencyInput) GoString() string {
 	return s.String()
 }
@@ -12008,16 +17139,24 @@ type PutFunctionConcurrencyOutput struct {
 	_ struct{} `type:"structure"`
 
 	// The number of concurrent executions that are reserved for this function.
-	// For more information, see Managing Concurrency (https://docs.aws.amazon.com/lambda/latest/dg/concurrent-executions.html).
+	// For more information, see Managing Concurrency (https://docs.aws.amazon.com/lambda/latest/dg/configuration-concurrency.html).
 	ReservedConcurrentExecutions *int64 `type:"integer"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s PutFunctionConcurrencyOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s PutFunctionConcurrencyOutput) GoString() string {
 	return s.String()
 }
@@ -12071,12 +17210,20 @@ type PutFunctionEventInvokeConfigInput struct {
 	Qualifier *string `location:"querystring" locationName:"Qualifier" min:"1" type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s PutFunctionEventInvokeConfigInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s PutFunctionEventInvokeConfigInput) GoString() string {
 	return s.String()
 }
@@ -12162,12 +17309,20 @@ type PutFunctionEventInvokeConfigOutput struct {
 	MaximumRetryAttempts *int64 `type:"integer"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s PutFunctionEventInvokeConfigOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s PutFunctionEventInvokeConfigOutput) GoString() string {
 	return s.String()
 }
@@ -12232,12 +17387,20 @@ type PutProvisionedConcurrencyConfigInput struct {
 	Qualifier *string `location:"querystring" locationName:"Qualifier" min:"1" type:"string" required:"true"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s PutProvisionedConcurrencyConfigInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s PutProvisionedConcurrencyConfigInput) GoString() string {
 	return s.String()
 }
@@ -12312,12 +17475,20 @@ type PutProvisionedConcurrencyConfigOutput struct {
 	StatusReason *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s PutProvisionedConcurrencyConfigOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s PutProvisionedConcurrencyConfigOutput) GoString() string {
 	return s.String()
 }
@@ -12359,7 +17530,7 @@ func (s *PutProvisionedConcurrencyConfigOutput) SetStatusReason(v string) *PutPr
 }
 
 type RemoveLayerVersionPermissionInput struct {
-	_ struct{} `type:"structure"`
+	_ struct{} `type:"structure" nopayload:"true"`
 
 	// The name or Amazon Resource Name (ARN) of the layer.
 	//
@@ -12381,12 +17552,20 @@ type RemoveLayerVersionPermissionInput struct {
 	VersionNumber *int64 `location:"uri" locationName:"VersionNumber" type:"long" required:"true"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s RemoveLayerVersionPermissionInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s RemoveLayerVersionPermissionInput) GoString() string {
 	return s.String()
 }
@@ -12444,18 +17623,26 @@ type RemoveLayerVersionPermissionOutput struct {
 	_ struct{} `type:"structure"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s RemoveLayerVersionPermissionOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s RemoveLayerVersionPermissionOutput) GoString() string {
 	return s.String()
 }
 
 type RemovePermissionInput struct {
-	_ struct{} `type:"structure"`
+	_ struct{} `type:"structure" nopayload:"true"`
 
 	// The name of the Lambda function, version, or alias.
 	//
@@ -12489,12 +17676,20 @@ type RemovePermissionInput struct {
 	StatementId *string `location:"uri" locationName:"StatementId" min:"1" type:"string" required:"true"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s RemovePermissionInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s RemovePermissionInput) GoString() string {
 	return s.String()
 }
@@ -12552,12 +17747,20 @@ type RemovePermissionOutput struct {
 	_ struct{} `type:"structure"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s RemovePermissionOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s RemovePermissionOutput) GoString() string {
 	return s.String()
 }
@@ -12573,12 +17776,20 @@ type RequestTooLargeException struct {
 	Type *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s RequestTooLargeException) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s RequestTooLargeException) GoString() string {
 	return s.String()
 }
@@ -12633,12 +17844,20 @@ type ResourceConflictException struct {
 	Type *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ResourceConflictException) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ResourceConflictException) GoString() string {
 	return s.String()
 }
@@ -12693,12 +17912,20 @@ type ResourceInUseException struct {
 	Type *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ResourceInUseException) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ResourceInUseException) GoString() string {
 	return s.String()
 }
@@ -12751,12 +17978,20 @@ type ResourceNotFoundException struct {
 	Type *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ResourceNotFoundException) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ResourceNotFoundException) GoString() string {
 	return s.String()
 }
@@ -12812,12 +18047,20 @@ type ResourceNotReadyException struct {
 	Type *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ResourceNotReadyException) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ResourceNotReadyException) GoString() string {
 	return s.String()
 }
@@ -12860,7 +18103,53 @@ func (s *ResourceNotReadyException) RequestID() string {
 	return s.RespMetadata.RequestID
 }
 
-// The AWS Lambda service encountered an internal error.
+// The self-managed Apache Kafka cluster for your event source.
+type SelfManagedEventSource struct {
+	_ struct{} `type:"structure"`
+
+	// The list of bootstrap servers for your Kafka brokers in the following format:
+	// "KAFKA_BOOTSTRAP_SERVERS": ["abc.xyz.com:xxxx","abc2.xyz.com:xxxx"].
+	Endpoints map[string][]*string `min:"1" type:"map"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s SelfManagedEventSource) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s SelfManagedEventSource) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *SelfManagedEventSource) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "SelfManagedEventSource"}
+	if s.Endpoints != nil && len(s.Endpoints) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Endpoints", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetEndpoints sets the Endpoints field's value.
+func (s *SelfManagedEventSource) SetEndpoints(v map[string][]*string) *SelfManagedEventSource {
+	s.Endpoints = v
+	return s
+}
+
+// The Lambda service encountered an internal error.
 type ServiceException struct {
 	_            struct{}                  `type:"structure"`
 	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
@@ -12870,12 +18159,20 @@ type ServiceException struct {
 	Type *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ServiceException) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s ServiceException) GoString() string {
 	return s.String()
 }
@@ -12918,7 +18215,96 @@ func (s *ServiceException) RequestID() string {
 	return s.RespMetadata.RequestID
 }
 
-// AWS Lambda was not able to set up VPC access for the Lambda function because
+// To secure and define access to your event source, you can specify the authentication
+// protocol, VPC components, or virtual host.
+type SourceAccessConfiguration struct {
+	_ struct{} `type:"structure"`
+
+	// The type of authentication protocol, VPC components, or virtual host for
+	// your event source. For example: "Type":"SASL_SCRAM_512_AUTH".
+	//
+	//    * BASIC_AUTH - (Amazon MQ) The Secrets Manager secret that stores your
+	//    broker credentials.
+	//
+	//    * BASIC_AUTH - (Self-managed Apache Kafka) The Secrets Manager ARN of
+	//    your secret key used for SASL/PLAIN authentication of your Apache Kafka
+	//    brokers.
+	//
+	//    * VPC_SUBNET - The subnets associated with your VPC. Lambda connects to
+	//    these subnets to fetch data from your self-managed Apache Kafka cluster.
+	//
+	//    * VPC_SECURITY_GROUP - The VPC security group used to manage access to
+	//    your self-managed Apache Kafka brokers.
+	//
+	//    * SASL_SCRAM_256_AUTH - The Secrets Manager ARN of your secret key used
+	//    for SASL SCRAM-256 authentication of your self-managed Apache Kafka brokers.
+	//
+	//    * SASL_SCRAM_512_AUTH - The Secrets Manager ARN of your secret key used
+	//    for SASL SCRAM-512 authentication of your self-managed Apache Kafka brokers.
+	//
+	//    * VIRTUAL_HOST - (Amazon MQ) The name of the virtual host in your RabbitMQ
+	//    broker. Lambda uses this RabbitMQ host as the event source. This property
+	//    cannot be specified in an UpdateEventSourceMapping API call.
+	//
+	//    * CLIENT_CERTIFICATE_TLS_AUTH - (Amazon MSK, Self-managed Apache Kafka)
+	//    The Secrets Manager ARN of your secret key containing the certificate
+	//    chain (X.509 PEM), private key (PKCS#8 PEM), and private key password
+	//    (optional) used for mutual TLS authentication of your MSK/Apache Kafka
+	//    brokers.
+	//
+	//    * SERVER_ROOT_CA_CERTIFICATE - (Self-managed Apache Kafka) The Secrets
+	//    Manager ARN of your secret key containing the root CA certificate (X.509
+	//    PEM) used for TLS encryption of your Apache Kafka brokers.
+	Type *string `type:"string" enum:"SourceAccessType"`
+
+	// The value for your chosen configuration in Type. For example: "URI": "arn:aws:secretsmanager:us-east-1:01234567890:secret:MyBrokerSecretName".
+	URI *string `min:"1" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s SourceAccessConfiguration) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s SourceAccessConfiguration) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *SourceAccessConfiguration) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "SourceAccessConfiguration"}
+	if s.URI != nil && len(*s.URI) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("URI", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetType sets the Type field's value.
+func (s *SourceAccessConfiguration) SetType(v string) *SourceAccessConfiguration {
+	s.Type = &v
+	return s
+}
+
+// SetURI sets the URI field's value.
+func (s *SourceAccessConfiguration) SetURI(v string) *SourceAccessConfiguration {
+	s.URI = &v
+	return s
+}
+
+// Lambda was not able to set up VPC access for the Lambda function because
 // one or more configured subnets has no available IP addresses.
 type SubnetIPAddressLimitReachedException struct {
 	_            struct{}                  `type:"structure"`
@@ -12929,12 +18315,20 @@ type SubnetIPAddressLimitReachedException struct {
 	Type *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s SubnetIPAddressLimitReachedException) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s SubnetIPAddressLimitReachedException) GoString() string {
 	return s.String()
 }
@@ -12991,12 +18385,20 @@ type TagResourceInput struct {
 	Tags map[string]*string `type:"map" required:"true"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s TagResourceInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s TagResourceInput) GoString() string {
 	return s.String()
 }
@@ -13036,12 +18438,20 @@ type TagResourceOutput struct {
 	_ struct{} `type:"structure"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s TagResourceOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s TagResourceOutput) GoString() string {
 	return s.String()
 }
@@ -13061,12 +18471,20 @@ type TooManyRequestsException struct {
 	Type *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s TooManyRequestsException) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s TooManyRequestsException) GoString() string {
 	return s.String()
 }
@@ -13109,8 +18527,9 @@ func (s *TooManyRequestsException) RequestID() string {
 	return s.RespMetadata.RequestID
 }
 
-// The function's AWS X-Ray tracing configuration. To sample and record incoming
-// requests, set Mode to Active.
+// The function's X-Ray (https://docs.aws.amazon.com/lambda/latest/dg/services-xray.html)
+// tracing configuration. To sample and record incoming requests, set Mode to
+// Active.
 type TracingConfig struct {
 	_ struct{} `type:"structure"`
 
@@ -13118,12 +18537,20 @@ type TracingConfig struct {
 	Mode *string `type:"string" enum:"TracingMode"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s TracingConfig) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s TracingConfig) GoString() string {
 	return s.String()
 }
@@ -13134,7 +18561,7 @@ func (s *TracingConfig) SetMode(v string) *TracingConfig {
 	return s
 }
 
-// The function's AWS X-Ray tracing configuration.
+// The function's X-Ray tracing configuration.
 type TracingConfigResponse struct {
 	_ struct{} `type:"structure"`
 
@@ -13142,12 +18569,20 @@ type TracingConfigResponse struct {
 	Mode *string `type:"string" enum:"TracingMode"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s TracingConfigResponse) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s TracingConfigResponse) GoString() string {
 	return s.String()
 }
@@ -13168,12 +18603,20 @@ type UnsupportedMediaTypeException struct {
 	Type *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s UnsupportedMediaTypeException) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s UnsupportedMediaTypeException) GoString() string {
 	return s.String()
 }
@@ -13217,7 +18660,7 @@ func (s *UnsupportedMediaTypeException) RequestID() string {
 }
 
 type UntagResourceInput struct {
-	_ struct{} `type:"structure"`
+	_ struct{} `type:"structure" nopayload:"true"`
 
 	// The function's Amazon Resource Name (ARN).
 	//
@@ -13230,12 +18673,20 @@ type UntagResourceInput struct {
 	TagKeys []*string `location:"querystring" locationName:"tagKeys" type:"list" required:"true"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s UntagResourceInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s UntagResourceInput) GoString() string {
 	return s.String()
 }
@@ -13275,12 +18726,20 @@ type UntagResourceOutput struct {
 	_ struct{} `type:"structure"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s UntagResourceOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s UntagResourceOutput) GoString() string {
 	return s.String()
 }
@@ -13325,12 +18784,20 @@ type UpdateAliasInput struct {
 	RoutingConfig *AliasRoutingConfiguration `type:"structure"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s UpdateAliasInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s UpdateAliasInput) GoString() string {
 	return s.String()
 }
@@ -13396,30 +18863,160 @@ func (s *UpdateAliasInput) SetRoutingConfig(v *AliasRoutingConfiguration) *Updat
 	return s
 }
 
+type UpdateCodeSigningConfigInput struct {
+	_ struct{} `type:"structure"`
+
+	// Signing profiles for this code signing configuration.
+	AllowedPublishers *AllowedPublishers `type:"structure"`
+
+	// The The Amazon Resource Name (ARN) of the code signing configuration.
+	//
+	// CodeSigningConfigArn is a required field
+	CodeSigningConfigArn *string `location:"uri" locationName:"CodeSigningConfigArn" type:"string" required:"true"`
+
+	// The code signing policy.
+	CodeSigningPolicies *CodeSigningPolicies `type:"structure"`
+
+	// Descriptive name for this code signing configuration.
+	Description *string `type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s UpdateCodeSigningConfigInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s UpdateCodeSigningConfigInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UpdateCodeSigningConfigInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UpdateCodeSigningConfigInput"}
+	if s.CodeSigningConfigArn == nil {
+		invalidParams.Add(request.NewErrParamRequired("CodeSigningConfigArn"))
+	}
+	if s.CodeSigningConfigArn != nil && len(*s.CodeSigningConfigArn) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("CodeSigningConfigArn", 1))
+	}
+	if s.AllowedPublishers != nil {
+		if err := s.AllowedPublishers.Validate(); err != nil {
+			invalidParams.AddNested("AllowedPublishers", err.(request.ErrInvalidParams))
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetAllowedPublishers sets the AllowedPublishers field's value.
+func (s *UpdateCodeSigningConfigInput) SetAllowedPublishers(v *AllowedPublishers) *UpdateCodeSigningConfigInput {
+	s.AllowedPublishers = v
+	return s
+}
+
+// SetCodeSigningConfigArn sets the CodeSigningConfigArn field's value.
+func (s *UpdateCodeSigningConfigInput) SetCodeSigningConfigArn(v string) *UpdateCodeSigningConfigInput {
+	s.CodeSigningConfigArn = &v
+	return s
+}
+
+// SetCodeSigningPolicies sets the CodeSigningPolicies field's value.
+func (s *UpdateCodeSigningConfigInput) SetCodeSigningPolicies(v *CodeSigningPolicies) *UpdateCodeSigningConfigInput {
+	s.CodeSigningPolicies = v
+	return s
+}
+
+// SetDescription sets the Description field's value.
+func (s *UpdateCodeSigningConfigInput) SetDescription(v string) *UpdateCodeSigningConfigInput {
+	s.Description = &v
+	return s
+}
+
+type UpdateCodeSigningConfigOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The code signing configuration
+	//
+	// CodeSigningConfig is a required field
+	CodeSigningConfig *CodeSigningConfig `type:"structure" required:"true"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s UpdateCodeSigningConfigOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s UpdateCodeSigningConfigOutput) GoString() string {
+	return s.String()
+}
+
+// SetCodeSigningConfig sets the CodeSigningConfig field's value.
+func (s *UpdateCodeSigningConfigOutput) SetCodeSigningConfig(v *CodeSigningConfig) *UpdateCodeSigningConfigOutput {
+	s.CodeSigningConfig = v
+	return s
+}
+
 type UpdateEventSourceMappingInput struct {
 	_ struct{} `type:"structure"`
 
-	// The maximum number of items to retrieve in a single batch.
+	// The maximum number of records in each batch that Lambda pulls from your stream
+	// or queue and sends to your function. Lambda passes all of the records in
+	// the batch to the function in a single call, up to the payload limit for synchronous
+	// invocation (6 MB).
 	//
 	//    * Amazon Kinesis - Default 100. Max 10,000.
 	//
-	//    * Amazon DynamoDB Streams - Default 100. Max 1,000.
+	//    * Amazon DynamoDB Streams - Default 100. Max 10,000.
 	//
-	//    * Amazon Simple Queue Service - Default 10. Max 10.
+	//    * Amazon Simple Queue Service - Default 10. For standard queues the max
+	//    is 10,000. For FIFO queues the max is 10.
 	//
 	//    * Amazon Managed Streaming for Apache Kafka - Default 100. Max 10,000.
+	//
+	//    * Self-Managed Apache Kafka - Default 100. Max 10,000.
+	//
+	//    * Amazon MQ (ActiveMQ and RabbitMQ) - Default 100. Max 10,000.
 	BatchSize *int64 `min:"1" type:"integer"`
 
-	// (Streams) If the function returns an error, split the batch in two and retry.
+	// (Streams only) If the function returns an error, split the batch in two and
+	// retry.
 	BisectBatchOnFunctionError *bool `type:"boolean"`
 
-	// (Streams) An Amazon SQS queue or Amazon SNS topic destination for discarded
+	// (Streams only) An Amazon SQS queue or Amazon SNS topic destination for discarded
 	// records.
 	DestinationConfig *DestinationConfig `type:"structure"`
 
-	// If true, the event source mapping is active. Set to false to pause polling
-	// and invocation.
+	// When true, the event source mapping is active. When false, Lambda pauses
+	// polling and invocation.
+	//
+	// Default: True
 	Enabled *bool `type:"boolean"`
+
+	// (Streams and Amazon SQS) An object that defines the filter criteria that
+	// determine whether Lambda should process an event. For more information, see
+	// Lambda event filtering (https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventfiltering.html).
+	FilterCriteria *FilterCriteria `type:"structure"`
 
 	// The name of the Lambda function.
 	//
@@ -13437,21 +19034,38 @@ type UpdateEventSourceMappingInput struct {
 	// function name, it's limited to 64 characters in length.
 	FunctionName *string `min:"1" type:"string"`
 
-	// (Streams) The maximum amount of time to gather records before invoking the
-	// function, in seconds.
+	// (Streams and Amazon SQS) A list of current response type enums applied to
+	// the event source mapping.
+	FunctionResponseTypes []*string `type:"list" enum:"FunctionResponseType"`
+
+	// (Streams and Amazon SQS standard queues) The maximum amount of time, in seconds,
+	// that Lambda spends gathering records before invoking the function.
+	//
+	// Default: 0
+	//
+	// Related setting: When you set BatchSize to a value greater than 10, you must
+	// set MaximumBatchingWindowInSeconds to at least 1.
 	MaximumBatchingWindowInSeconds *int64 `type:"integer"`
 
-	// (Streams) Discard records older than the specified age. The default value
-	// is infinite (-1).
+	// (Streams only) Discard records older than the specified age. The default
+	// value is infinite (-1).
 	MaximumRecordAgeInSeconds *int64 `type:"integer"`
 
-	// (Streams) Discard records after the specified number of retries. The default
-	// value is infinite (-1). When set to infinite (-1), failed records will be
-	// retried until the record expires.
+	// (Streams only) Discard records after the specified number of retries. The
+	// default value is infinite (-1). When set to infinite (-1), failed records
+	// will be retried until the record expires.
 	MaximumRetryAttempts *int64 `type:"integer"`
 
-	// (Streams) The number of batches to process from each shard concurrently.
+	// (Streams only) The number of batches to process from each shard concurrently.
 	ParallelizationFactor *int64 `min:"1" type:"integer"`
+
+	// An array of authentication protocols or VPC components required to secure
+	// your event source.
+	SourceAccessConfigurations []*SourceAccessConfiguration `type:"list"`
+
+	// (Streams only) The duration in seconds of a processing window. The range
+	// is between 1 second up to 900 seconds.
+	TumblingWindowInSeconds *int64 `type:"integer"`
 
 	// The identifier of the event source mapping.
 	//
@@ -13459,12 +19073,20 @@ type UpdateEventSourceMappingInput struct {
 	UUID *string `location:"uri" locationName:"UUID" type:"string" required:"true"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s UpdateEventSourceMappingInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s UpdateEventSourceMappingInput) GoString() string {
 	return s.String()
 }
@@ -13492,6 +19114,16 @@ func (s *UpdateEventSourceMappingInput) Validate() error {
 	}
 	if s.UUID != nil && len(*s.UUID) < 1 {
 		invalidParams.Add(request.NewErrParamMinLen("UUID", 1))
+	}
+	if s.SourceAccessConfigurations != nil {
+		for i, v := range s.SourceAccessConfigurations {
+			if v == nil {
+				continue
+			}
+			if err := v.Validate(); err != nil {
+				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "SourceAccessConfigurations", i), err.(request.ErrInvalidParams))
+			}
+		}
 	}
 
 	if invalidParams.Len() > 0 {
@@ -13524,9 +19156,21 @@ func (s *UpdateEventSourceMappingInput) SetEnabled(v bool) *UpdateEventSourceMap
 	return s
 }
 
+// SetFilterCriteria sets the FilterCriteria field's value.
+func (s *UpdateEventSourceMappingInput) SetFilterCriteria(v *FilterCriteria) *UpdateEventSourceMappingInput {
+	s.FilterCriteria = v
+	return s
+}
+
 // SetFunctionName sets the FunctionName field's value.
 func (s *UpdateEventSourceMappingInput) SetFunctionName(v string) *UpdateEventSourceMappingInput {
 	s.FunctionName = &v
+	return s
+}
+
+// SetFunctionResponseTypes sets the FunctionResponseTypes field's value.
+func (s *UpdateEventSourceMappingInput) SetFunctionResponseTypes(v []*string) *UpdateEventSourceMappingInput {
+	s.FunctionResponseTypes = v
 	return s
 }
 
@@ -13554,6 +19198,18 @@ func (s *UpdateEventSourceMappingInput) SetParallelizationFactor(v int64) *Updat
 	return s
 }
 
+// SetSourceAccessConfigurations sets the SourceAccessConfigurations field's value.
+func (s *UpdateEventSourceMappingInput) SetSourceAccessConfigurations(v []*SourceAccessConfiguration) *UpdateEventSourceMappingInput {
+	s.SourceAccessConfigurations = v
+	return s
+}
+
+// SetTumblingWindowInSeconds sets the TumblingWindowInSeconds field's value.
+func (s *UpdateEventSourceMappingInput) SetTumblingWindowInSeconds(v int64) *UpdateEventSourceMappingInput {
+	s.TumblingWindowInSeconds = &v
+	return s
+}
+
 // SetUUID sets the UUID field's value.
 func (s *UpdateEventSourceMappingInput) SetUUID(v string) *UpdateEventSourceMappingInput {
 	s.UUID = &v
@@ -13562,6 +19218,11 @@ func (s *UpdateEventSourceMappingInput) SetUUID(v string) *UpdateEventSourceMapp
 
 type UpdateFunctionCodeInput struct {
 	_ struct{} `type:"structure"`
+
+	// The instruction set architecture that the function supports. Enter a string
+	// array with one of the valid values (arm64 or x86_64). The default value is
+	// x86_64.
+	Architectures []*string `min:"1" type:"list" enum:"Architecture"`
 
 	// Set to true to validate the request parameters and access permissions without
 	// modifying the function code.
@@ -13583,6 +19244,10 @@ type UpdateFunctionCodeInput struct {
 	// FunctionName is a required field
 	FunctionName *string `location:"uri" locationName:"FunctionName" min:"1" type:"string" required:"true"`
 
+	// URI of a container image in the Amazon ECR registry. Do not use for a function
+	// defined with a .zip file archive.
+	ImageUri *string `type:"string"`
+
 	// Set to true to publish a new version of the function after updating the code.
 	// This has the same effect as calling PublishVersion separately.
 	Publish *bool `type:"boolean"`
@@ -13592,29 +19257,44 @@ type UpdateFunctionCodeInput struct {
 	// last read it.
 	RevisionId *string `type:"string"`
 
-	// An Amazon S3 bucket in the same AWS Region as your function. The bucket can
-	// be in a different AWS account.
+	// An Amazon S3 bucket in the same Amazon Web Services Region as your function.
+	// The bucket can be in a different Amazon Web Services account. Use only with
+	// a function defined with a .zip file archive deployment package.
 	S3Bucket *string `min:"3" type:"string"`
 
-	// The Amazon S3 key of the deployment package.
+	// The Amazon S3 key of the deployment package. Use only with a function defined
+	// with a .zip file archive deployment package.
 	S3Key *string `min:"1" type:"string"`
 
 	// For versioned objects, the version of the deployment package object to use.
 	S3ObjectVersion *string `min:"1" type:"string"`
 
-	// The base64-encoded contents of the deployment package. AWS SDK and AWS CLI
-	// clients handle the encoding for you.
+	// The base64-encoded contents of the deployment package. Amazon Web Services
+	// SDK and Amazon Web Services CLI clients handle the encoding for you. Use
+	// only with a function defined with a .zip file archive deployment package.
+	//
+	// ZipFile is a sensitive parameter and its value will be
+	// replaced with "sensitive" in string returned by UpdateFunctionCodeInput's
+	// String and GoString methods.
 	//
 	// ZipFile is automatically base64 encoded/decoded by the SDK.
 	ZipFile []byte `type:"blob" sensitive:"true"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s UpdateFunctionCodeInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s UpdateFunctionCodeInput) GoString() string {
 	return s.String()
 }
@@ -13622,6 +19302,9 @@ func (s UpdateFunctionCodeInput) GoString() string {
 // Validate inspects the fields of the type to determine if they are valid.
 func (s *UpdateFunctionCodeInput) Validate() error {
 	invalidParams := request.ErrInvalidParams{Context: "UpdateFunctionCodeInput"}
+	if s.Architectures != nil && len(s.Architectures) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Architectures", 1))
+	}
 	if s.FunctionName == nil {
 		invalidParams.Add(request.NewErrParamRequired("FunctionName"))
 	}
@@ -13644,6 +19327,12 @@ func (s *UpdateFunctionCodeInput) Validate() error {
 	return nil
 }
 
+// SetArchitectures sets the Architectures field's value.
+func (s *UpdateFunctionCodeInput) SetArchitectures(v []*string) *UpdateFunctionCodeInput {
+	s.Architectures = v
+	return s
+}
+
 // SetDryRun sets the DryRun field's value.
 func (s *UpdateFunctionCodeInput) SetDryRun(v bool) *UpdateFunctionCodeInput {
 	s.DryRun = &v
@@ -13653,6 +19342,12 @@ func (s *UpdateFunctionCodeInput) SetDryRun(v bool) *UpdateFunctionCodeInput {
 // SetFunctionName sets the FunctionName field's value.
 func (s *UpdateFunctionCodeInput) SetFunctionName(v string) *UpdateFunctionCodeInput {
 	s.FunctionName = &v
+	return s
+}
+
+// SetImageUri sets the ImageUri field's value.
+func (s *UpdateFunctionCodeInput) SetImageUri(v string) *UpdateFunctionCodeInput {
+	s.ImageUri = &v
 	return s
 }
 
@@ -13706,6 +19401,10 @@ type UpdateFunctionConfigurationInput struct {
 	// Environment variables that are accessible from function code during execution.
 	Environment *Environment `type:"structure"`
 
+	// The size of the function’s /tmp directory in MB. The default value is 512,
+	// but can be any whole number between 512 and 10240 MB.
+	EphemeralStorage *EphemeralStorage `type:"structure"`
+
 	// Connection settings for an Amazon EFS file system.
 	FileSystemConfigs []*FileSystemConfig `type:"list"`
 
@@ -13726,14 +19425,19 @@ type UpdateFunctionConfigurationInput struct {
 	FunctionName *string `location:"uri" locationName:"FunctionName" min:"1" type:"string" required:"true"`
 
 	// The name of the method within your code that Lambda calls to execute your
-	// function. The format includes the file name. It can also include namespaces
-	// and other qualifiers, depending on the runtime. For more information, see
-	// Programming Model (https://docs.aws.amazon.com/lambda/latest/dg/programming-model-v2.html).
+	// function. Handler is required if the deployment package is a .zip file archive.
+	// The format includes the file name. It can also include namespaces and other
+	// qualifiers, depending on the runtime. For more information, see Programming
+	// Model (https://docs.aws.amazon.com/lambda/latest/dg/programming-model-v2.html).
 	Handler *string `type:"string"`
 
-	// The ARN of the AWS Key Management Service (AWS KMS) key that's used to encrypt
-	// your function's environment variables. If it's not provided, AWS Lambda uses
-	// a default service key.
+	// Container image configuration values (https://docs.aws.amazon.com/lambda/latest/dg/images-parms.html)
+	// that override the values in the container image Docker file.
+	ImageConfig *ImageConfig `type:"structure"`
+
+	// The ARN of the Amazon Web Services Key Management Service (KMS) key that's
+	// used to encrypt your function's environment variables. If it's not provided,
+	// Lambda uses a default service key.
 	KMSKeyArn *string `type:"string"`
 
 	// A list of function layers (https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html)
@@ -13741,9 +19445,9 @@ type UpdateFunctionConfigurationInput struct {
 	// ARN, including the version.
 	Layers []*string `type:"list"`
 
-	// The amount of memory that your function has access to. Increasing the function's
-	// memory also increases its CPU allocation. The default value is 128 MB. The
-	// value must be a multiple of 64 MB.
+	// The amount of memory available to the function (https://docs.aws.amazon.com/lambda/latest/dg/configuration-memory.html)
+	// at runtime. Increasing the function memory also increases its CPU allocation.
+	// The default value is 128 MB. The value can be any multiple of 1 MB.
 	MemorySize *int64 `min:"128" type:"integer"`
 
 	// Only update the function if the revision ID matches the ID that's specified.
@@ -13755,29 +19459,39 @@ type UpdateFunctionConfigurationInput struct {
 	Role *string `type:"string"`
 
 	// The identifier of the function's runtime (https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html).
+	// Runtime is required if the deployment package is a .zip file archive.
 	Runtime *string `type:"string" enum:"Runtime"`
 
-	// The amount of time that Lambda allows a function to run before stopping it.
-	// The default is 3 seconds. The maximum allowed value is 900 seconds.
+	// The amount of time (in seconds) that Lambda allows a function to run before
+	// stopping it. The default is 3 seconds. The maximum allowed value is 900 seconds.
+	// For additional information, see Lambda execution environment (https://docs.aws.amazon.com/lambda/latest/dg/runtimes-context.html).
 	Timeout *int64 `min:"1" type:"integer"`
 
 	// Set Mode to Active to sample and trace a subset of incoming requests with
-	// AWS X-Ray.
+	// X-Ray (https://docs.aws.amazon.com/lambda/latest/dg/services-xray.html).
 	TracingConfig *TracingConfig `type:"structure"`
 
-	// For network connectivity to AWS resources in a VPC, specify a list of security
-	// groups and subnets in the VPC. When you connect a function to a VPC, it can
-	// only access resources and the internet through that VPC. For more information,
-	// see VPC Settings (https://docs.aws.amazon.com/lambda/latest/dg/configuration-vpc.html).
+	// For network connectivity to Amazon Web Services resources in a VPC, specify
+	// a list of security groups and subnets in the VPC. When you connect a function
+	// to a VPC, it can only access resources and the internet through that VPC.
+	// For more information, see VPC Settings (https://docs.aws.amazon.com/lambda/latest/dg/configuration-vpc.html).
 	VpcConfig *VpcConfig `type:"structure"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s UpdateFunctionConfigurationInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s UpdateFunctionConfigurationInput) GoString() string {
 	return s.String()
 }
@@ -13796,6 +19510,11 @@ func (s *UpdateFunctionConfigurationInput) Validate() error {
 	}
 	if s.Timeout != nil && *s.Timeout < 1 {
 		invalidParams.Add(request.NewErrParamMinValue("Timeout", 1))
+	}
+	if s.EphemeralStorage != nil {
+		if err := s.EphemeralStorage.Validate(); err != nil {
+			invalidParams.AddNested("EphemeralStorage", err.(request.ErrInvalidParams))
+		}
 	}
 	if s.FileSystemConfigs != nil {
 		for i, v := range s.FileSystemConfigs {
@@ -13832,6 +19551,12 @@ func (s *UpdateFunctionConfigurationInput) SetEnvironment(v *Environment) *Updat
 	return s
 }
 
+// SetEphemeralStorage sets the EphemeralStorage field's value.
+func (s *UpdateFunctionConfigurationInput) SetEphemeralStorage(v *EphemeralStorage) *UpdateFunctionConfigurationInput {
+	s.EphemeralStorage = v
+	return s
+}
+
 // SetFileSystemConfigs sets the FileSystemConfigs field's value.
 func (s *UpdateFunctionConfigurationInput) SetFileSystemConfigs(v []*FileSystemConfig) *UpdateFunctionConfigurationInput {
 	s.FileSystemConfigs = v
@@ -13847,6 +19572,12 @@ func (s *UpdateFunctionConfigurationInput) SetFunctionName(v string) *UpdateFunc
 // SetHandler sets the Handler field's value.
 func (s *UpdateFunctionConfigurationInput) SetHandler(v string) *UpdateFunctionConfigurationInput {
 	s.Handler = &v
+	return s
+}
+
+// SetImageConfig sets the ImageConfig field's value.
+func (s *UpdateFunctionConfigurationInput) SetImageConfig(v *ImageConfig) *UpdateFunctionConfigurationInput {
+	s.ImageConfig = v
 	return s
 }
 
@@ -13947,12 +19678,20 @@ type UpdateFunctionEventInvokeConfigInput struct {
 	Qualifier *string `location:"querystring" locationName:"Qualifier" min:"1" type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s UpdateFunctionEventInvokeConfigInput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s UpdateFunctionEventInvokeConfigInput) GoString() string {
 	return s.String()
 }
@@ -14038,12 +19777,20 @@ type UpdateFunctionEventInvokeConfigOutput struct {
 	MaximumRetryAttempts *int64 `type:"integer"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s UpdateFunctionEventInvokeConfigOutput) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s UpdateFunctionEventInvokeConfigOutput) GoString() string {
 	return s.String()
 }
@@ -14078,6 +19825,192 @@ func (s *UpdateFunctionEventInvokeConfigOutput) SetMaximumRetryAttempts(v int64)
 	return s
 }
 
+type UpdateFunctionUrlConfigInput struct {
+	_ struct{} `type:"structure"`
+
+	// The type of authentication that your function URL uses. Set to AWS_IAM if
+	// you want to restrict access to authenticated IAM users only. Set to NONE
+	// if you want to bypass IAM authentication to create a public endpoint. For
+	// more information, see Security and auth model for Lambda function URLs (https://docs.aws.amazon.com/lambda/latest/dg/urls-auth.html).
+	AuthType *string `type:"string" enum:"FunctionUrlAuthType"`
+
+	// The cross-origin resource sharing (CORS) (https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)
+	// settings for your function URL.
+	Cors *Cors `type:"structure"`
+
+	// The name of the Lambda function.
+	//
+	// Name formats
+	//
+	//    * Function name - my-function.
+	//
+	//    * Function ARN - arn:aws:lambda:us-west-2:123456789012:function:my-function.
+	//
+	//    * Partial ARN - 123456789012:function:my-function.
+	//
+	// The length constraint applies only to the full ARN. If you specify only the
+	// function name, it is limited to 64 characters in length.
+	//
+	// FunctionName is a required field
+	FunctionName *string `location:"uri" locationName:"FunctionName" min:"1" type:"string" required:"true"`
+
+	// The alias name.
+	Qualifier *string `location:"querystring" locationName:"Qualifier" min:"1" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s UpdateFunctionUrlConfigInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s UpdateFunctionUrlConfigInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UpdateFunctionUrlConfigInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UpdateFunctionUrlConfigInput"}
+	if s.FunctionName == nil {
+		invalidParams.Add(request.NewErrParamRequired("FunctionName"))
+	}
+	if s.FunctionName != nil && len(*s.FunctionName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("FunctionName", 1))
+	}
+	if s.Qualifier != nil && len(*s.Qualifier) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Qualifier", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetAuthType sets the AuthType field's value.
+func (s *UpdateFunctionUrlConfigInput) SetAuthType(v string) *UpdateFunctionUrlConfigInput {
+	s.AuthType = &v
+	return s
+}
+
+// SetCors sets the Cors field's value.
+func (s *UpdateFunctionUrlConfigInput) SetCors(v *Cors) *UpdateFunctionUrlConfigInput {
+	s.Cors = v
+	return s
+}
+
+// SetFunctionName sets the FunctionName field's value.
+func (s *UpdateFunctionUrlConfigInput) SetFunctionName(v string) *UpdateFunctionUrlConfigInput {
+	s.FunctionName = &v
+	return s
+}
+
+// SetQualifier sets the Qualifier field's value.
+func (s *UpdateFunctionUrlConfigInput) SetQualifier(v string) *UpdateFunctionUrlConfigInput {
+	s.Qualifier = &v
+	return s
+}
+
+type UpdateFunctionUrlConfigOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The type of authentication that your function URL uses. Set to AWS_IAM if
+	// you want to restrict access to authenticated IAM users only. Set to NONE
+	// if you want to bypass IAM authentication to create a public endpoint. For
+	// more information, see Security and auth model for Lambda function URLs (https://docs.aws.amazon.com/lambda/latest/dg/urls-auth.html).
+	//
+	// AuthType is a required field
+	AuthType *string `type:"string" required:"true" enum:"FunctionUrlAuthType"`
+
+	// The cross-origin resource sharing (CORS) (https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)
+	// settings for your function URL.
+	Cors *Cors `type:"structure"`
+
+	// When the function URL was created, in ISO-8601 format (https://www.w3.org/TR/NOTE-datetime)
+	// (YYYY-MM-DDThh:mm:ss.sTZD).
+	//
+	// CreationTime is a required field
+	CreationTime *string `type:"string" required:"true"`
+
+	// The Amazon Resource Name (ARN) of your function.
+	//
+	// FunctionArn is a required field
+	FunctionArn *string `type:"string" required:"true"`
+
+	// The HTTP URL endpoint for your function.
+	//
+	// FunctionUrl is a required field
+	FunctionUrl *string `min:"40" type:"string" required:"true"`
+
+	// When the function URL configuration was last updated, in ISO-8601 format
+	// (https://www.w3.org/TR/NOTE-datetime) (YYYY-MM-DDThh:mm:ss.sTZD).
+	//
+	// LastModifiedTime is a required field
+	LastModifiedTime *string `type:"string" required:"true"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s UpdateFunctionUrlConfigOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s UpdateFunctionUrlConfigOutput) GoString() string {
+	return s.String()
+}
+
+// SetAuthType sets the AuthType field's value.
+func (s *UpdateFunctionUrlConfigOutput) SetAuthType(v string) *UpdateFunctionUrlConfigOutput {
+	s.AuthType = &v
+	return s
+}
+
+// SetCors sets the Cors field's value.
+func (s *UpdateFunctionUrlConfigOutput) SetCors(v *Cors) *UpdateFunctionUrlConfigOutput {
+	s.Cors = v
+	return s
+}
+
+// SetCreationTime sets the CreationTime field's value.
+func (s *UpdateFunctionUrlConfigOutput) SetCreationTime(v string) *UpdateFunctionUrlConfigOutput {
+	s.CreationTime = &v
+	return s
+}
+
+// SetFunctionArn sets the FunctionArn field's value.
+func (s *UpdateFunctionUrlConfigOutput) SetFunctionArn(v string) *UpdateFunctionUrlConfigOutput {
+	s.FunctionArn = &v
+	return s
+}
+
+// SetFunctionUrl sets the FunctionUrl field's value.
+func (s *UpdateFunctionUrlConfigOutput) SetFunctionUrl(v string) *UpdateFunctionUrlConfigOutput {
+	s.FunctionUrl = &v
+	return s
+}
+
+// SetLastModifiedTime sets the LastModifiedTime field's value.
+func (s *UpdateFunctionUrlConfigOutput) SetLastModifiedTime(v string) *UpdateFunctionUrlConfigOutput {
+	s.LastModifiedTime = &v
+	return s
+}
+
 // The VPC security groups and subnets that are attached to a Lambda function.
 // For more information, see VPC Settings (https://docs.aws.amazon.com/lambda/latest/dg/configuration-vpc.html).
 type VpcConfig struct {
@@ -14090,12 +20023,20 @@ type VpcConfig struct {
 	SubnetIds []*string `type:"list"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s VpcConfig) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s VpcConfig) GoString() string {
 	return s.String()
 }
@@ -14126,12 +20067,20 @@ type VpcConfigResponse struct {
 	VpcId *string `type:"string"`
 }
 
-// String returns the string representation
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s VpcConfigResponse) String() string {
 	return awsutil.Prettify(s)
 }
 
-// GoString returns the string representation
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
 func (s VpcConfigResponse) GoString() string {
 	return s.String()
 }
@@ -14155,6 +20104,50 @@ func (s *VpcConfigResponse) SetVpcId(v string) *VpcConfigResponse {
 }
 
 const (
+	// ArchitectureX8664 is a Architecture enum value
+	ArchitectureX8664 = "x86_64"
+
+	// ArchitectureArm64 is a Architecture enum value
+	ArchitectureArm64 = "arm64"
+)
+
+// Architecture_Values returns all elements of the Architecture enum
+func Architecture_Values() []string {
+	return []string{
+		ArchitectureX8664,
+		ArchitectureArm64,
+	}
+}
+
+const (
+	// CodeSigningPolicyWarn is a CodeSigningPolicy enum value
+	CodeSigningPolicyWarn = "Warn"
+
+	// CodeSigningPolicyEnforce is a CodeSigningPolicy enum value
+	CodeSigningPolicyEnforce = "Enforce"
+)
+
+// CodeSigningPolicy_Values returns all elements of the CodeSigningPolicy enum
+func CodeSigningPolicy_Values() []string {
+	return []string{
+		CodeSigningPolicyWarn,
+		CodeSigningPolicyEnforce,
+	}
+}
+
+const (
+	// EndPointTypeKafkaBootstrapServers is a EndPointType enum value
+	EndPointTypeKafkaBootstrapServers = "KAFKA_BOOTSTRAP_SERVERS"
+)
+
+// EndPointType_Values returns all elements of the EndPointType enum
+func EndPointType_Values() []string {
+	return []string{
+		EndPointTypeKafkaBootstrapServers,
+	}
+}
+
+const (
 	// EventSourcePositionTrimHorizon is a EventSourcePosition enum value
 	EventSourcePositionTrimHorizon = "TRIM_HORIZON"
 
@@ -14171,6 +20164,34 @@ func EventSourcePosition_Values() []string {
 		EventSourcePositionTrimHorizon,
 		EventSourcePositionLatest,
 		EventSourcePositionAtTimestamp,
+	}
+}
+
+const (
+	// FunctionResponseTypeReportBatchItemFailures is a FunctionResponseType enum value
+	FunctionResponseTypeReportBatchItemFailures = "ReportBatchItemFailures"
+)
+
+// FunctionResponseType_Values returns all elements of the FunctionResponseType enum
+func FunctionResponseType_Values() []string {
+	return []string{
+		FunctionResponseTypeReportBatchItemFailures,
+	}
+}
+
+const (
+	// FunctionUrlAuthTypeNone is a FunctionUrlAuthType enum value
+	FunctionUrlAuthTypeNone = "NONE"
+
+	// FunctionUrlAuthTypeAwsIam is a FunctionUrlAuthType enum value
+	FunctionUrlAuthTypeAwsIam = "AWS_IAM"
+)
+
+// FunctionUrlAuthType_Values returns all elements of the FunctionUrlAuthType enum
+func FunctionUrlAuthType_Values() []string {
+	return []string{
+		FunctionUrlAuthTypeNone,
+		FunctionUrlAuthTypeAwsIam,
 	}
 }
 
@@ -14247,6 +20268,15 @@ const (
 
 	// LastUpdateStatusReasonCodeInvalidSecurityGroup is a LastUpdateStatusReasonCode enum value
 	LastUpdateStatusReasonCodeInvalidSecurityGroup = "InvalidSecurityGroup"
+
+	// LastUpdateStatusReasonCodeImageDeleted is a LastUpdateStatusReasonCode enum value
+	LastUpdateStatusReasonCodeImageDeleted = "ImageDeleted"
+
+	// LastUpdateStatusReasonCodeImageAccessDenied is a LastUpdateStatusReasonCode enum value
+	LastUpdateStatusReasonCodeImageAccessDenied = "ImageAccessDenied"
+
+	// LastUpdateStatusReasonCodeInvalidImage is a LastUpdateStatusReasonCode enum value
+	LastUpdateStatusReasonCodeInvalidImage = "InvalidImage"
 )
 
 // LastUpdateStatusReasonCode_Values returns all elements of the LastUpdateStatusReasonCode enum
@@ -14259,6 +20289,9 @@ func LastUpdateStatusReasonCode_Values() []string {
 		LastUpdateStatusReasonCodeSubnetOutOfIpaddresses,
 		LastUpdateStatusReasonCodeInvalidSubnet,
 		LastUpdateStatusReasonCodeInvalidSecurityGroup,
+		LastUpdateStatusReasonCodeImageDeleted,
+		LastUpdateStatusReasonCodeImageAccessDenied,
+		LastUpdateStatusReasonCodeInvalidImage,
 	}
 }
 
@@ -14275,6 +20308,22 @@ func LogType_Values() []string {
 	return []string{
 		LogTypeNone,
 		LogTypeTail,
+	}
+}
+
+const (
+	// PackageTypeZip is a PackageType enum value
+	PackageTypeZip = "Zip"
+
+	// PackageTypeImage is a PackageType enum value
+	PackageTypeImage = "Image"
+)
+
+// PackageType_Values returns all elements of the PackageType enum
+func PackageType_Values() []string {
+	return []string{
+		PackageTypeZip,
+		PackageTypeImage,
 	}
 }
 
@@ -14317,6 +20366,12 @@ const (
 	// RuntimeNodejs12X is a Runtime enum value
 	RuntimeNodejs12X = "nodejs12.x"
 
+	// RuntimeNodejs14X is a Runtime enum value
+	RuntimeNodejs14X = "nodejs14.x"
+
+	// RuntimeNodejs16X is a Runtime enum value
+	RuntimeNodejs16X = "nodejs16.x"
+
 	// RuntimeJava8 is a Runtime enum value
 	RuntimeJava8 = "java8"
 
@@ -14338,6 +20393,9 @@ const (
 	// RuntimePython38 is a Runtime enum value
 	RuntimePython38 = "python3.8"
 
+	// RuntimePython39 is a Runtime enum value
+	RuntimePython39 = "python3.9"
+
 	// RuntimeDotnetcore10 is a Runtime enum value
 	RuntimeDotnetcore10 = "dotnetcore1.0"
 
@@ -14349,6 +20407,9 @@ const (
 
 	// RuntimeDotnetcore31 is a Runtime enum value
 	RuntimeDotnetcore31 = "dotnetcore3.1"
+
+	// RuntimeDotnet6 is a Runtime enum value
+	RuntimeDotnet6 = "dotnet6"
 
 	// RuntimeNodejs43Edge is a Runtime enum value
 	RuntimeNodejs43Edge = "nodejs4.3-edge"
@@ -14378,6 +20439,8 @@ func Runtime_Values() []string {
 		RuntimeNodejs810,
 		RuntimeNodejs10X,
 		RuntimeNodejs12X,
+		RuntimeNodejs14X,
+		RuntimeNodejs16X,
 		RuntimeJava8,
 		RuntimeJava8Al2,
 		RuntimeJava11,
@@ -14385,16 +20448,58 @@ func Runtime_Values() []string {
 		RuntimePython36,
 		RuntimePython37,
 		RuntimePython38,
+		RuntimePython39,
 		RuntimeDotnetcore10,
 		RuntimeDotnetcore20,
 		RuntimeDotnetcore21,
 		RuntimeDotnetcore31,
+		RuntimeDotnet6,
 		RuntimeNodejs43Edge,
 		RuntimeGo1X,
 		RuntimeRuby25,
 		RuntimeRuby27,
 		RuntimeProvided,
 		RuntimeProvidedAl2,
+	}
+}
+
+const (
+	// SourceAccessTypeBasicAuth is a SourceAccessType enum value
+	SourceAccessTypeBasicAuth = "BASIC_AUTH"
+
+	// SourceAccessTypeVpcSubnet is a SourceAccessType enum value
+	SourceAccessTypeVpcSubnet = "VPC_SUBNET"
+
+	// SourceAccessTypeVpcSecurityGroup is a SourceAccessType enum value
+	SourceAccessTypeVpcSecurityGroup = "VPC_SECURITY_GROUP"
+
+	// SourceAccessTypeSaslScram512Auth is a SourceAccessType enum value
+	SourceAccessTypeSaslScram512Auth = "SASL_SCRAM_512_AUTH"
+
+	// SourceAccessTypeSaslScram256Auth is a SourceAccessType enum value
+	SourceAccessTypeSaslScram256Auth = "SASL_SCRAM_256_AUTH"
+
+	// SourceAccessTypeVirtualHost is a SourceAccessType enum value
+	SourceAccessTypeVirtualHost = "VIRTUAL_HOST"
+
+	// SourceAccessTypeClientCertificateTlsAuth is a SourceAccessType enum value
+	SourceAccessTypeClientCertificateTlsAuth = "CLIENT_CERTIFICATE_TLS_AUTH"
+
+	// SourceAccessTypeServerRootCaCertificate is a SourceAccessType enum value
+	SourceAccessTypeServerRootCaCertificate = "SERVER_ROOT_CA_CERTIFICATE"
+)
+
+// SourceAccessType_Values returns all elements of the SourceAccessType enum
+func SourceAccessType_Values() []string {
+	return []string{
+		SourceAccessTypeBasicAuth,
+		SourceAccessTypeVpcSubnet,
+		SourceAccessTypeVpcSecurityGroup,
+		SourceAccessTypeSaslScram512Auth,
+		SourceAccessTypeSaslScram256Auth,
+		SourceAccessTypeVirtualHost,
+		SourceAccessTypeClientCertificateTlsAuth,
+		SourceAccessTypeServerRootCaCertificate,
 	}
 }
 
@@ -14452,6 +20557,15 @@ const (
 
 	// StateReasonCodeInvalidSecurityGroup is a StateReasonCode enum value
 	StateReasonCodeInvalidSecurityGroup = "InvalidSecurityGroup"
+
+	// StateReasonCodeImageDeleted is a StateReasonCode enum value
+	StateReasonCodeImageDeleted = "ImageDeleted"
+
+	// StateReasonCodeImageAccessDenied is a StateReasonCode enum value
+	StateReasonCodeImageAccessDenied = "ImageAccessDenied"
+
+	// StateReasonCodeInvalidImage is a StateReasonCode enum value
+	StateReasonCodeInvalidImage = "InvalidImage"
 )
 
 // StateReasonCode_Values returns all elements of the StateReasonCode enum
@@ -14467,6 +20581,9 @@ func StateReasonCode_Values() []string {
 		StateReasonCodeSubnetOutOfIpaddresses,
 		StateReasonCodeInvalidSubnet,
 		StateReasonCodeInvalidSecurityGroup,
+		StateReasonCodeImageDeleted,
+		StateReasonCodeImageAccessDenied,
+		StateReasonCodeInvalidImage,
 	}
 }
 

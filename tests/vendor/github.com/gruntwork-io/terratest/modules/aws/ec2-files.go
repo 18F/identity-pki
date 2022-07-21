@@ -4,10 +4,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/gruntwork-io/terratest/modules/customerrors"
 	"github.com/gruntwork-io/terratest/modules/files"
 	"github.com/gruntwork-io/terratest/modules/ssh"
 	"github.com/gruntwork-io/terratest/modules/testing"
+	"github.com/hashicorp/go-multierror"
 )
 
 // RemoteFileSpecification describes which files you want to copy from your instances
@@ -212,24 +212,24 @@ func FetchFilesFromAsgs(t testing.TestingT, awsRegion string, spec RemoteFileSpe
 // remoteDirectory (using sudo if useSudo is true), and stores the files locally at
 // localDirectory/<publicip>/<remoteFolderName>
 func FetchFilesFromAsgsE(t testing.TestingT, awsRegion string, spec RemoteFileSpecification) error {
-	errorsOccurred := []error{}
+	var errorsOccurred = new(multierror.Error)
 
 	for _, curAsg := range spec.AsgNames {
 		for curRemoteDir, fileFilters := range spec.RemotePathToFileFilter {
 
 			instanceIDs, err := GetInstanceIdsForAsgE(t, curAsg, awsRegion)
 			if err != nil {
-				errorsOccurred = append(errorsOccurred, err)
+				errorsOccurred = multierror.Append(errorsOccurred, err)
 			} else {
 				for _, instanceID := range instanceIDs {
 					err = FetchFilesFromInstanceE(t, awsRegion, spec.SshUser, spec.KeyPair, instanceID, spec.UseSudo, curRemoteDir, spec.LocalDestinationDir, fileFilters)
 
 					if err != nil {
-						errorsOccurred = append(errorsOccurred, err)
+						errorsOccurred = multierror.Append(errorsOccurred, err)
 					}
 				}
 			}
 		}
 	}
-	return customerrors.NewMultiError(errorsOccurred...)
+	return errorsOccurred.ErrorOrNil()
 }

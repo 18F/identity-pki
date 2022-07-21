@@ -63,6 +63,7 @@ resource = Aws::EC2::Resource.new(region: Chef::Recipe::AwsMetadata.get_aws_regi
 instance = resource.instance(Chef::Recipe::AwsMetadata.get_aws_instance_id)
 valid_tags = [
   'proxy_for',
+  'gitlab_hostname'
 ]
 instance.tags.each do |tag|
   if valid_tags.include? tag.key
@@ -70,10 +71,10 @@ instance.tags.each do |tag|
   end
 end
 
-if node['login_dot_gov']['gitlab_url'] == nil
+if node.run_state['gitlab_hostname'] == nil
     gitlab_url = "gitlab.#{node.chef_environment}.#{domain_name}"
 else
-    gitlab_url = node['login_dot_gov']['gitlab_url']
+    gitlab_url = node.run_state['gitlab_hostname']
 end
 
 template '/etc/squid/domain-allowlist.conf' do

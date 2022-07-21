@@ -29,8 +29,8 @@ stages:
 variables:
   CI_COMMIT_TAG: "$CI_COMMIT_SHA"
   ECR_REGISTRY: "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
-  DEPLOY_IMAGE_DIGEST: "sha256:493095c8b49951c1421df77555896b0f55848c240adbbd82938075bb2ffb9b3a"
-  TEST_IMAGE_DIGEST: "sha256:19f6b9521f7c94820aa5594ca1e979da27ba019c0fdf4ead84c2f047876083d8"
+  DEPLOY_IMAGE_DIGEST: "sha256:3ccb9f8e234631b8a8ddb55068a3aef668aed91a57cc74cf844b838ce23092c2"
+  TEST_IMAGE_DIGEST: "sha256:d98342e69fe686a2fcdab8beb5a9c4e191130a247b34a3814f29a8ed6a20450d"
 
 gitlab-qa:
   only:
@@ -161,6 +161,21 @@ test_tspencer:
   script:
     - echo "Yay tests!"
 
+badtest_tspencer:
+  when: manual
+  allow_failure: true
+  tags:
+    - tspencer-env-runner
+  image:
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ecr-public/docker/library/alpine
+  stage: test
+  only:
+    - stages/tspencer
+  needs:
+    - deploy_tspencer
+  script:
+    - echo "This should fail!  It is used for testing."
+
 # deploy jobs for pauldoom env here.
 deploy_pauldoom:
   environment: pauldoom
@@ -209,3 +224,18 @@ test_pauldoom:
       junit: testlogs/*.xml
   script:
     - echo "Tests for great justice"
+
+badtest_pauldoom:
+  when: manual
+  allow_failure: true
+  tags:
+    - pauldoom-env-runner
+  image:
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ecr-public/docker/library/alpine
+  stage: test
+  only:
+    - stages/pauldoom
+  needs:
+    - deploy_pauldoom
+  script:
+    - echo "You have no chance to survive make your test."

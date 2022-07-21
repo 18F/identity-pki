@@ -292,3 +292,8 @@ variable "only_on_protected_branch" {
   type        = bool
   default     = false
 }
+
+variable "gitlab_hostname" {
+  description = "hostname of gitlab server"
+  type        = string
+}

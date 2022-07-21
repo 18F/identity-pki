@@ -48,33 +48,15 @@ cookbook_file '/usr/local/bin/docker-credential-ecr-login' do
 end
 
 resource = Aws::EC2::Resource.new(region: Chef::Recipe::AwsMetadata.get_aws_region)
-
-aws_account_id = Chef::Recipe::AwsMetadata.get_aws_account_id
-aws_region = Chef::Recipe::AwsMetadata.get_aws_region
-if node['login_dot_gov']['gitlab_config_s3_bucket'] == nil
-  config_s3_bucket = "login-gov-#{node.chef_environment}-gitlabconfig-#{aws_account_id}-#{aws_region}"
-else
-  config_s3_bucket = node['login_dot_gov']['gitlab_config_s3_bucket']
-end
-if node['login_dot_gov']['gitlab_url'] == nil
-  external_fqdn = "gitlab.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
-else
-  external_fqdn = node['login_dot_gov']['gitlab_url']
-end
-external_url = "https://#{external_fqdn}"
-http_proxy = node['login_dot_gov']['http_proxy']
-https_proxy = node['login_dot_gov']['https_proxy']
 instance = resource.instance(Chef::Recipe::AwsMetadata.get_aws_instance_id)
-no_proxy = node['login_dot_gov']['no_proxy']
-runner_name = node['hostname']
-runner_token = shell_out("aws s3 cp s3://#{config_s3_bucket}/gitlab_runner_token -").stdout.chomp
 
 valid_tags = [
   'gitlab_runner_pool_name',
   'allow_untagged_jobs',
   'is_it_an_env_runner',
   'gitlab_ecr_repo_accountid',
-  'only_on_protected_branch'
+  'only_on_protected_branch',
+  'gitlab_hostname'
 ]
 
 instance.tags.each do |tag|
@@ -83,7 +65,27 @@ instance.tags.each do |tag|
   end
 end
 
+aws_account_id = Chef::Recipe::AwsMetadata.get_aws_account_id
+aws_region = Chef::Recipe::AwsMetadata.get_aws_region
+http_proxy = node['login_dot_gov']['http_proxy']
+https_proxy = node['login_dot_gov']['https_proxy']
+no_proxy = node['login_dot_gov']['no_proxy']
+runner_name = node['hostname']
 gitlab_ecr_registry = "#{node.run_state['gitlab_ecr_repo_accountid']}.dkr.ecr.#{aws_region}.amazonaws.com"
+
+if node.run_state['gitlab_hostname'] == nil
+  external_fqdn = "gitlab.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
+else
+  external_fqdn = node.run_state['gitlab_hostname']
+end
+external_url = "https://#{external_fqdn}"
+
+if node.run_state['gitlab_ecr_repo_accountid'] == nil
+  config_s3_bucket = "login-gov-#{node.chef_environment}-gitlabconfig-#{aws_account_id}-#{aws_region}"
+else
+  config_s3_bucket = "login-gov-#{node.chef_environment}-gitlabconfig-#{node.run_state['gitlab_ecr_repo_accountid']}-#{aws_region}"
+end
+runner_token = shell_out("aws s3 cp s3://#{config_s3_bucket}/gitlab_runner_token -").stdout.chomp
 
 if node.run_state['is_it_an_env_runner'] == 'true'
   # only allow images with the proper digests, which are hardcoded into

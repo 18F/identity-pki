@@ -1,7 +1,8 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-in-parent-ssp
+  - c-documented
 ---
 
 # sa-5 - \[catalog\] Information System Documentation
@@ -84,30 +85,34 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-Add control implementation description here for item sa-5_smt.a
+Gitlab Documentation can be found on the GitLab website: https://docs.gitlab.com/.
+Documentation on login.gov-specific operational and install tasks can be found in our wiki
+and handbook, and the secure config for the application can be found in the
+identity-devops git repo.
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-Add control implementation description here for item sa-5_smt.b
+Documentation of GitLab security controls and how to use them
+can be found here:  https://docs.gitlab.com/ee/security/
 
 ______________________________________________________________________
 
 ## Implementation c.
 
-Add control implementation description here for item sa-5_smt.c
+The Gitlab component uses sa-5_smt.c from the main login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation d.
 
-Add control implementation description here for item sa-5_smt.d
+The Gitlab component uses sa-5_smt.d from the main login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation e.
 
-Add control implementation description here for item sa-5_smt.e
+The Gitlab component uses sa-5_smt.e from the main login.gov SSP.
 
 ______________________________________________________________________

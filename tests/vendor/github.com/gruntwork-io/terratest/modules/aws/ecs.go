@@ -18,6 +18,20 @@ func GetEcsCluster(t testing.TestingT, region string, name string) *ecs.Cluster 
 
 // GetEcsClusterE fetches information about specified ECS cluster.
 func GetEcsClusterE(t testing.TestingT, region string, name string) (*ecs.Cluster, error) {
+	return GetEcsClusterWithIncludeE(t, region, name, []string{})
+}
+
+// GetEcsClusterWithInclude fetches extended information about specified ECS cluster.
+// The `include` parameter specifies a list of `ecs.ClusterField*` constants, such as `ecs.ClusterFieldTags`.
+func GetEcsClusterWithInclude(t testing.TestingT, region string, name string, include []string) *ecs.Cluster {
+	clusterInfo, err := GetEcsClusterWithIncludeE(t, region, name, include)
+	require.NoError(t, err)
+	return clusterInfo
+}
+
+// GetEcsClusterWithIncludeE fetches extended information about specified ECS cluster.
+// The `include` parameter specifies a list of `ecs.ClusterField*` constants, such as `ecs.ClusterFieldTags`.
+func GetEcsClusterWithIncludeE(t testing.TestingT, region string, name string, include []string) (*ecs.Cluster, error) {
 	client, err := NewEcsClientE(t, region)
 	if err != nil {
 		return nil, err
@@ -26,6 +40,7 @@ func GetEcsClusterE(t testing.TestingT, region string, name string) (*ecs.Cluste
 		Clusters: []*string{
 			aws.String(name),
 		},
+		Include: aws.StringSlice(include),
 	}
 	output, err := client.DescribeClusters(input)
 	if err != nil {

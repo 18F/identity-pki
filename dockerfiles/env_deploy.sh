@@ -33,6 +33,7 @@ export AWS_REGION
 AWS_ACCOUNTID="$(aws sts get-caller-identity --output text --query 'Account')"
 TFSTATE_BUCKET="login-gov.tf-state.$AWS_ACCOUNTID-$AWS_REGION"
 TFSTATE_CONFIG_KEY="terraform-app/terraform-$CI_ENVIRONMENT_NAME.tfstate"
+IDP_DIR="$CI_PROJECT_DIR/identity-devops-private"
 
 # We need to use a tfbundle so that we don't have to have access to the internet.
 cd "$CI_PROJECT_DIR"
@@ -49,11 +50,9 @@ cp versions.tf terraform/modules/newrelic/    # XXX symlinks should work
 
 # make sure that we have checked out main for the identity-devops-private submodule
 # and set up some other git stuff
-rm -f "$CI_PROJECT_DIR/../identity-devops-private"
-ln -s "$CI_PROJECT_DIR/identity-devops-private" "$CI_PROJECT_DIR/../identity-devops-private"
 git config --global --add safe.directory "$CI_PROJECT_DIR"
-git config --global --add safe.directory "$CI_PROJECT_DIR/identity-devops-private"
-cd "$CI_PROJECT_DIR/identity-devops-private"
+git config --global --add safe.directory "$IDP_DIR"
+cd "$IDP_DIR"
 git checkout main
 
 # set up env vars
@@ -61,6 +60,8 @@ TF_VAR_env_name="$CI_ENVIRONMENT_NAME"
 export TF_VAR_env_name
 TF_VAR_account_id="$AWS_ACCOUNTID"
 export TF_VAR_account_id
+TF_VAR_privatedir="$IDP_DIR"
+export TF_VAR_privatedir
 NEW_RELIC_API_KEY=$(aws s3 cp "s3://login-gov.secrets.$AWS_ACCOUNTID-$AWS_REGION/common/newrelic_apikey" - || true)
 export NEW_RELIC_API_KEY
 
@@ -76,9 +77,9 @@ cd "$CI_PROJECT_DIR/terraform/app" || exit 1
 
 # plan, so we can create/store a plan artifact
 /usr/local/bin/terraform plan -lock-timeout=180s -out="$CI_PROJECT_DIR/terraform.plan" \
-		-var-file "$CI_PROJECT_DIR/identity-devops-private/vars/base.tfvars" \
-		-var-file "$CI_PROJECT_DIR/identity-devops-private/vars/account_global_$AWS_ACCOUNTID.tfvars" \
-		-var-file "$CI_PROJECT_DIR/identity-devops-private/vars/$CI_ENVIRONMENT_NAME.tfvars"
+		-var-file "$IDP_DIR/vars/base.tfvars" \
+		-var-file "$IDP_DIR/vars/account_global_$AWS_ACCOUNTID.tfvars" \
+		-var-file "$IDP_DIR/vars/$CI_ENVIRONMENT_NAME.tfvars"
 /usr/local/bin/terraform show -no-color "$CI_PROJECT_DIR/terraform.plan" > "$CI_PROJECT_DIR/plan.txt"
 
 # deploy, using the plan

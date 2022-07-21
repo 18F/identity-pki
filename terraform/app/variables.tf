@@ -453,22 +453,22 @@ variable "bootstrap_private_git_clone_url" {
 # though they will have different IDs. They should be updated here at the same
 # time, and then released to environments in sequence.
 variable "default_ami_id_sandbox" {
-  default     = "ami-05df4a2379218c7e0" # 2022-07-18 Ubuntu 18.04
+  default     = "ami-0a07e45bbbb5d2e98" # 2022-07-20 Ubuntu 18.04
   description = "default AMI ID for environments in the sandbox account"
 }
 
 variable "default_ami_id_prod" {
-  default     = "ami-0a145bcf9ad63f88d" # 2022-07-12 Ubuntu 18.04
+  default     = "ami-0af7fdccf4371efff" # 2022-07-20 Ubuntu 18.04
   description = "default AMI ID for environments in the prod account"
 }
 
 variable "rails_ami_id_sandbox" {
-  default     = "ami-0c3ffd0846c351917" # 2022-07-18 Ubuntu 18.04
+  default     = "ami-04de3e304856363ac" # 2022-07-20 Ubuntu 18.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the sandbox account"
 }
 
 variable "rails_ami_id_prod" {
-  default     = "ami-0945c298e23f64ffc" # 2022-07-12 Ubuntu 18.04
+  default     = "ami-04fa18778ba30507b" # 2022-07-20 Ubuntu 18.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the prod account"
 }
 
@@ -780,6 +780,11 @@ SSM session ends. Defaults to 15 minutes.
 EOM
   type        = number
   default     = 15
+}
+
+variable "privatedir" {
+  description = "where identity-devops-private lives.  Used for the version_info.sh script"
+  default     = ""
 }
 
 variable "cloudfront_s3_cache_paths" {

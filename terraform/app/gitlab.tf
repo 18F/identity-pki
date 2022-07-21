@@ -79,4 +79,5 @@ module "env-runner" {
   terraform_powers          = true
   is_it_an_env_runner       = true
   gitlab_ecr_repo_accountid = var.gitlab_ecr_repo_accountid
+  gitlab_hostname           = var.gitlab_hostname
 }
