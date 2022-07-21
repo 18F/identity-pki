@@ -11,14 +11,10 @@ resource "aws_security_group" "kms_endpoint" {
   }
 
   ingress {
-    from_port = 443
-    to_port   = 443
-    protocol  = "tcp"
-    cidr_blocks = concat([
-      var.private1_subnet_cidr_block,
-      var.private2_subnet_cidr_block,
-      var.private3_subnet_cidr_block,
-    ], [for subnet in aws_subnet.app : subnet.cidr_block])
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [for subnet in aws_subnet.app : subnet.cidr_block]
   }
 
   egress {
@@ -54,16 +50,10 @@ resource "aws_security_group" "ssm_endpoint" {
   # This rule was created to avoid circular dependencies and allow quarantine hosts to be managed via ssm
 
   ingress {
-    from_port = 443
-    to_port   = 443
-    protocol  = "tcp"
-    cidr_blocks = concat([
-      var.private1_subnet_cidr_block,
-      var.private2_subnet_cidr_block,
-      var.private3_subnet_cidr_block,
-      var.idp1_subnet_cidr_block,
-      var.idp2_subnet_cidr_block,
-    ], [for subnet in aws_subnet.app : subnet.cidr_block])
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [for subnet in aws_subnet.app : subnet.cidr_block]
   }
   egress {
     from_port   = 0
@@ -92,16 +82,10 @@ resource "aws_security_group" "ssmmessages_endpoint" {
   # This rule was created to avoid circular dependencies and allow quarantine hosts to be managed via ssm
 
   ingress {
-    from_port = 443
-    to_port   = 443
-    protocol  = "tcp"
-    cidr_blocks = concat([
-      var.idp1_subnet_cidr_block,
-      var.idp2_subnet_cidr_block,
-      var.private1_subnet_cidr_block,
-      var.private2_subnet_cidr_block,
-      var.private3_subnet_cidr_block,
-    ], [for subnet in aws_subnet.app : subnet.cidr_block])
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [for subnet in aws_subnet.app : subnet.cidr_block]
   }
 
   egress {
@@ -157,16 +141,10 @@ resource "aws_security_group" "ec2messages_endpoint" {
   # This rule was created to avoid circular dependencies and allow quarantine hosts to be managed via ssm
 
   ingress {
-    from_port = 443
-    to_port   = 443
-    protocol  = "tcp"
-    cidr_blocks = concat([
-      var.private1_subnet_cidr_block,
-      var.private2_subnet_cidr_block,
-      var.private3_subnet_cidr_block,
-      var.idp1_subnet_cidr_block,
-      var.idp2_subnet_cidr_block,
-    ], [for subnet in aws_subnet.app : subnet.cidr_block])
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [for subnet in aws_subnet.app : subnet.cidr_block]
   }
 
   egress {
@@ -201,16 +179,10 @@ resource "aws_security_group" "logs_endpoint" {
   # This rule was created to avoid circular dependencies and allow quarantine hosts to be managed via ssm
 
   ingress {
-    from_port = 443
-    to_port   = 443
-    protocol  = "tcp"
-    cidr_blocks = concat([
-      var.private1_subnet_cidr_block,
-      var.private2_subnet_cidr_block,
-      var.private3_subnet_cidr_block,
-      var.idp1_subnet_cidr_block,
-      var.idp2_subnet_cidr_block,
-    ], [for subnet in aws_subnet.app : subnet.cidr_block])
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [for subnet in aws_subnet.app : subnet.cidr_block]
   }
 
   egress {
@@ -528,14 +500,10 @@ resource "aws_security_group" "sts_endpoint" {
   }
 
   ingress {
-    from_port = 443
-    to_port   = 443
-    protocol  = "tcp"
-    cidr_blocks = concat([
-      var.private1_subnet_cidr_block,
-      var.private2_subnet_cidr_block,
-      var.private3_subnet_cidr_block,
-    ], [for subnet in aws_subnet.app : subnet.cidr_block])
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [for subnet in aws_subnet.app : subnet.cidr_block]
   }
 
   egress {
