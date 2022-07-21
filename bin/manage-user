@@ -71,7 +71,7 @@ Options:
     end
 
     opts.on('--email EMAIL',
-      "GitLab email address (overrides aws.username@gsa.gov format)") do |email|
+      Array, "GitLab email address (overrides aws.username@gsa.gov format)") do |email|
       abort "#{basename}: specify gitlab_groups if setting email" if !options[:gitlab_groups]
       options[:email] = email
     end
