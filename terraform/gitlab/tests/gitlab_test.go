@@ -198,11 +198,11 @@ func TestRunnerRunning(t *testing.T) {
 func TestGitlabS3buckets(t *testing.T) {
 	bucketlist := [...]string{
 		"login-gov-" + env_name + "-gitlabartifacts-" + accountid + "-" + region,
-		"login-gov-" + env_name + "-gitlabexternaldiffs-" + accountid + "-" + region,
+		"login-gov-" + env_name + "-gitlabediffs-" + accountid + "-" + region,
 		"login-gov-" + env_name + "-gitlablfsobjects-" + accountid + "-" + region,
 		"login-gov-" + env_name + "-gitlabuploads-" + accountid + "-" + region,
 		"login-gov-" + env_name + "-gitlabpackages-" + accountid + "-" + region,
-		"login-gov-" + env_name + "-gitlabdependcyproxy-" + accountid + "-" + region,
+		"login-gov-" + env_name + "-gitlabdproxy-" + accountid + "-" + region,
 		"login-gov-" + env_name + "-gitlabtfstate-" + accountid + "-" + region,
 		"login-gov-" + env_name + "-gitlabpages-" + accountid + "-" + region,
 	}

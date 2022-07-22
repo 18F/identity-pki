@@ -275,11 +275,11 @@ locals {
     "login-gov-${var.env_name}-gitlab%s-${data.aws_caller_identity.current.account_id}-${var.region}",
     [
       "artifacts",
-      "externaldiffs",
+      "ediffs",
       "lfsobjects",
       "uploads",
       "packages",
-      "dependcyproxy",
+      "dproxy",
       "tfstate",
       "pages"
     ]
@@ -294,7 +294,7 @@ resource "aws_s3_bucket" "gitlab_buckets" {
   # force_destroy = true
 
   lifecycle {
-    prevent_destroy = true
+    # prevent_destroy = true
   }
 }
 
