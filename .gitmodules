@@ -1,3 +1,3 @@
 [submodule "identity-devops-private"]
 	path = identity-devops-private
-	url = ../identity-devops-private.git
+	url = git@github.com:18F/identity-devops-private.git
