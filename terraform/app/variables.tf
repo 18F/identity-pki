@@ -219,12 +219,12 @@ variable "name" {
   default = "login"
 }
 
-variable "fisma_tag" {
-  default = "Q-LG"
-}
-
 variable "region" {
   default = "us-west-2"
+}
+
+variable "fisma_tag" {
+  default = "Q-LG"
 }
 
 variable "availability_zones" {

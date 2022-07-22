@@ -2,6 +2,10 @@ variable "region" {
   description = "AWS Region where this account lives."
 }
 
+variable "fisma_tag" {
+  default = "Q-LG"
+}
+
 variable "aws_account_types" {
   description = "AWS accounts grouped by type"
   type        = map(list(string))

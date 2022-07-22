@@ -8,6 +8,10 @@ variable "region" {
   default = "us-west-2"
 }
 
+variable "fisma_tag" {
+  default = "Q-LG"
+}
+
 variable "config_access_key_rotation_frequency" {
   type        = string
   description = "The frequency that you want AWS Config to run evaluations for the rule."

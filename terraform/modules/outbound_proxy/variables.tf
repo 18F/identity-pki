@@ -156,6 +156,10 @@ variable "region" {
   default = "us-west-2"
 }
 
+variable "fisma_tag" {
+  default = "Q-LG"
+}
+
 variable "nessusserver_ip" {
   description = "Nessus server's public IP"
   default     = "44.230.151.136/32"
