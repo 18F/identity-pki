@@ -9,8 +9,13 @@ data "external" "version_info" {
 }
 
 provider "aws" {
+  alias = "version_info"
+  default_tags {
+    tags = {
+      fisma = var.fisma_tag
+    }
+  }
   region = var.version_info_region
-  alias  = "version_info"
 }
 
 resource "aws_s3_object" "version_info" {

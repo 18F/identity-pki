@@ -45,6 +45,11 @@ terraform {
 }
 
 provider "aws" {
+  default_tags {
+    tags = {
+      fisma = var.fisma_tag
+    }
+  }
   region = var.region
 }
 

@@ -174,6 +174,11 @@ resource "aws_autoscaling_group" "outboundproxy" {
     value               = "${var.env_name}.${var.root_domain}"
     propagate_at_launch = false
   }
+  tag {
+    key                 = "fisma"
+    value               = var.fisma_tag
+    propagate_at_launch = true
+  }
 }
 
 # This module creates cloudwatch logs filters that create metrics for squid
