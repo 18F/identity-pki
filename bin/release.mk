@@ -84,7 +84,7 @@ $(PLANS) $(PROD_PLANS):
 	bin/td -d $(shell basename $(@D)) -e $(shell basename $@ .plan) -c b | tee $@.tmp
 	mv $@.tmp $@
 
-if_nonempty_plan = if ! grep -q '^No changes in Terraform plan for ' $<; then
+if_nonempty_plan = if ! grep -q '^No changes in Terraform plan for ' $|; then
 
 $(addsuffix .plan-verify,$(TF_PATHS) $(PROD_TF_PATHS) $(APP_ENVS)): %.plan-verify: | %.plan
 	$(if_nonempty_plan) less $<; fi
