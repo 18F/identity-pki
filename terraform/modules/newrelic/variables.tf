@@ -8,10 +8,6 @@ variable "enabled" {
   default     = 0
 }
 
-variable "fisma_tag" {
-  default = "Q-LG"
-}
-
 variable "staticsite_alerts_enabled" {
   description = "this should only be set in the prod environment, as it creates monitors for the static site"
   default     = 0
@@ -54,6 +50,10 @@ variable "env_name" {}
 
 variable "region" {
   default = "us-west-2"
+}
+
+variable "fisma_tag" {
+  default = "Q-LG"
 }
 
 variable "apdex_alert_threshold" {

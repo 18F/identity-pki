@@ -148,6 +148,10 @@ variable "region" {
   default = "us-west-2"
 }
 
+variable "fisma_tag" {
+  default = "Q-LG"
+}
+
 variable "nessusserver_ip" {
   description = "Nessus server's public IP"
   default     = "44.230.151.136/32"
@@ -296,4 +300,5 @@ variable "only_on_protected_branch" {
 variable "gitlab_hostname" {
   description = "hostname of gitlab server"
   type        = string
+  default     = "gitlab.login.gov"
 }

@@ -2,6 +2,10 @@ variable "region" {
   default = "us-west-2"
 }
 
+variable "fisma_tag" {
+  default = "Q-LG"
+}
+
 variable "state_lock_table" {
   description = "Name of the DynamoDB table to use for state locking with the S3 state backend, e.g. 'terraform-locks'"
 }

@@ -2,6 +2,10 @@ variable "region" {
   default = "us-west-2"
 }
 
+variable "fisma_tag" {
+  default = "Q-LG"
+}
+
 variable "ami_types" {
   description = "Names of the types of AMIs being created (base/rails by default)."
   type        = list(string)

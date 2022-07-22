@@ -33,6 +33,10 @@ variable "region" {
   description = "AWS region, used for S3 bucket names"
 }
 
+variable "fisma_tag" {
+  default = "Q-LG"
+}
+
 variable "sandbox_account_id" {
   description = "account id for the sandbox account"
   default     = "894947205914"

@@ -2,6 +2,10 @@ variable "region" {
   description = "AWS region, used for S3 bucket names"
 }
 
+variable "fisma_tag" {
+  default = "Q-LG"
+}
+
 variable "state_bucket_region" {
   description = "region of the terraform state bucket"
   default     = "us-west-2"

@@ -8,6 +8,10 @@ variable "region" {
   default = "us-west-2"
 }
 
+variable "fisma_tag" {
+  default = "Q-LG"
+}
+
 variable "guardduty_days_requested" {
   type    = number
   default = 7

@@ -3,6 +3,10 @@ variable "region" {
   default     = "us-west-2"
 }
 
+variable "fisma_tag" {
+  default = "Q-LG"
+}
+
 variable "scan_on_push_filter" {
   description = "Filter for repos to set scan on push"
   type        = string
