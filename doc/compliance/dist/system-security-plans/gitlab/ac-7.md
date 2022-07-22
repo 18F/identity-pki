@@ -1,7 +1,9 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
+  - c-in-parent-ssp
+
 needs-params:
   - ac-7_prm_3
 ---
@@ -49,12 +51,14 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-Add control implementation description here for item ac-7_smt.a
+As Gitlab uses Login.gov application accounts for its authentication, this is
+covered in the Login.gov SSP, AC-7 Part A, "Application Accounts".
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-Add control implementation description here for item ac-7_smt.b
+As Gitlab uses Login.gov application accounts for its authentication, this is
+covered in the Login.gov SSP, AC-7 Part B, "Application Accounts".
 
 ______________________________________________________________________
