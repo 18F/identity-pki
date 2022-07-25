@@ -54,6 +54,7 @@ locals {
           "acm:DeleteCertificate",
           "acm:DescribeCertificate",
           "acm:ListTagsForCertificate",
+          "acm:RemoveTagsFromCertificate",
           "acm:RequestCertificate",
         ]
         resources = [
@@ -151,6 +152,8 @@ locals {
           "cloudwatch:ListTagsForResource",
           "cloudwatch:PutDashboard",
           "cloudwatch:PutMetricAlarm",
+          "cloudwatch:TagResource",
+          "cloudwatch:UntagResource"
         ]
         resources = [
           "*",
@@ -196,6 +199,7 @@ locals {
           "dynamodb:TagResource",
           "dynamodb:UpdateContinuousBackups",
           "dynamodb:UpdateTimeToLive",
+          "dynamodb:UntagResource"
         ]
         resources = [
           "*",
@@ -320,8 +324,9 @@ locals {
           "kinesis:EnableEnhancedMonitoring",
           "kinesis:IncreaseStreamRetentionPeriod",
           "kinesis:ListTagsForStream",
+          "kinesis:RemoveTagsFromStream",
           "kinesis:StartStreamEncryption",
-          "kinesis:UpdateShardCount",
+          "kinesis:UpdateShardCount"
         ]
         resources = [
           "*",
@@ -349,8 +354,9 @@ locals {
           "kms:ScheduleKeyDeletion",
           "kms:Sign",
           "kms:TagResource",
+          "kms:UntagResource",
           "kms:UpdateAlias",
-          "kms:UpdateKeyDescription",
+          "kms:UpdateKeyDescription"
         ]
         resources = [
           "*",
@@ -515,6 +521,8 @@ locals {
           "route53resolver:List*",
           "route53resolver:PutResolverRulePolicy",
           "route53resolver:*ResolverQueryLogConfig*",
+          "route53resolver:TagResource",
+          "route53resolver:UntagResource"
         ]
         resources = [
           "*",
@@ -581,6 +589,8 @@ locals {
           "events:PutRule",
           "events:PutTargets",
           "events:RemoveTargets",
+          "events:TagResource",
+          "events:UntagResource"
         ]
         resources = [
           "*",
@@ -595,7 +605,9 @@ locals {
           "firehose:DescribeDeliveryStream",
           "firehose:ListTagsForDeliveryStream",
           "firehose:DeleteDeliveryStream",
-          "firehose:List*"
+          "firehose:List*",
+          "firehose:TagDeliveryStream",
+          "firehose:UntagDeliveryStream"
         ]
         resources = [
           "*",
@@ -660,7 +672,9 @@ locals {
           "iam:PutRolePolicy",
           "iam:RemoveRoleFromInstanceProfile",
           "iam:RemoveUserFromGroup",
+          "iam:TagInstanceProfile",
           "iam:TagRole",
+          "iam:UntagInstanceProfile",
           "iam:UntagRole",
           "iam:UpdateAccountPasswordPolicy",
           "iam:UpdateAssumeRolePolicy",
@@ -694,6 +708,8 @@ locals {
           "sns:ListTopics",
           "sns:SetTopicAttributes",
           "sns:Subscribe",
+          "sns:TagResource",
+          "sns:UntagResource",
           "sns:Unsubscribe",
         ]
         resources = [
