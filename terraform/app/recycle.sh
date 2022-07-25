@@ -143,5 +143,11 @@ else
 fi
 PROPERSIZE=$(aws autoscaling describe-auto-scaling-groups --region "$AWS_REGION" --auto-scaling-group-names "$ENV_NAME"-gitlab-env-runner | jq .AutoScalingGroups[0].DesiredCapacity)
 DOUBLESIZE=$(expr $PROPERSIZE \* 2)
-aws autoscaling put-scheduled-update-group-action --region "$AWS_REGION" --scheduled-action-name "recycle-env-runner-$ENV_NAME" --auto-scaling-group-name "${ENV_NAME}-gitlab-env-runner" --start-time "$START" --desired-capacity "$DOUBLESIZE"
-aws autoscaling put-scheduled-update-group-action --region "$AWS_REGION" --scheduled-action-name "end-recycle-env-runner-$ENV_NAME" --auto-scaling-group-name "${ENV_NAME}-gitlab-env-runner" --start-time "$END" --desired-capacity "$PROPERSIZE"
+RUNNERASGCOUNT=$(aws autoscaling describe-auto-scaling-groups --region "$AWS_REGION" --auto-scaling-group-names "$ENV_NAME"-gitlab-env-runner | jq '.[] | length')
+
+if [ "$RUNNERASGCOUNT" != "0" ] ; then
+       aws autoscaling put-scheduled-update-group-action --region "$AWS_REGION" --scheduled-action-name "recycle-env-runner-$ENV_NAME" --auto-scaling-group-name "${ENV_NAME}-gitlab-env-runner" --start-time "$START" --desired-capacity "$DOUBLESIZE"
+       aws autoscaling put-scheduled-update-group-action --region "$AWS_REGION" --scheduled-action-name "end-recycle-env-runner-$ENV_NAME" --auto-scaling-group-name "${ENV_NAME}-gitlab-env-runner" --start-time "$END" --desired-capacity "$PROPERSIZE"
+else
+       echo "${ENV_NAME}-gitlab-env-runner does not exist, not recycling"
+fi
