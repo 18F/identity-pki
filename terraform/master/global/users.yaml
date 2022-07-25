@@ -137,6 +137,13 @@ users:
     - analytics
     gitlab_groups:
     - pm
+  jeffrey.sheffel:
+    aws_groups:
+    - appdev
+    gitlab_groups:
+    - appdev
+    ec2_username:
+    - jsheffel
   jenniffier.bieberbach:
     aws_groups:
     - secopsnonprod
@@ -221,6 +228,11 @@ users:
     - lalitha-jonnalagadda
     email:
     - lalitha.jonnalagadda@gsa.gov
+  leanna.miller:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - pm
   luis.matos:
     aws_groups:
     - appdev
@@ -276,6 +288,13 @@ users:
     - analytics
     gitlab_groups:
     - pm
+  michael.ogren:
+    aws_groups:
+    - appdev
+    gitlab_groups:
+    - appdev
+    ec2_username:
+    - mogren
   michael.w.ward:
     aws_groups:
     - devops
@@ -491,6 +510,13 @@ users:
     - tspencer
     gitlab_groups:
     - devops
+  travis.newby:
+    aws_groups:
+    - appdev
+    gitlab_groups:
+    - appdev
+    ec2_username:
+    - tnewby
   victor.otu:
     aws_groups:
     - devopsnonprod
