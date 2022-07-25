@@ -380,6 +380,11 @@ users:
   philip.burke:
     gitlab_groups:
     - antifraud
+  princess.ojiaku:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - pm
   rahul.kamarouthu:
     aws_groups:
     - analytics
