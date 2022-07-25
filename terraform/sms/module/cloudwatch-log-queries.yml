@@ -1,0 +1,24 @@
+---
+pinpoint-events/any:
+  logs:
+    - /aws/lambda/pinpoint_event_logger
+  query: |
+    # Show all PinPoint message events
+    filter ispresent(event_type)
+    | fields @timestamp, event_type, attributes.record_status, attributes.iso_country_code, @message
+
+pinpoint-events/pct-success-by-country:
+  logs:
+    - /aws/lambda/pinpoint_event_logger
+  query: |
+    filter ispresent(event_type)
+    | stats  sum(event_type!="_SMS.SUCCESS") / count() as pct_success by attributes.iso_country_code as iso_country_code
+
+pinpoint-events/spend-by-country:
+  logs:
+    - /aws/lambda/pinpoint_event_logger
+  query: |
+    filter ispresent(event_type)
+    | stats sum(metrics.price_in_millicents_usd) * 0.00001 as USD by attributes.iso_country_code as iso_country_code
+    | sort USD desc
+

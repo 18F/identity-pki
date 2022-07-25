@@ -93,12 +93,3 @@ resource "aws_cloudwatch_dashboard" "pinpoint" {
 EOF
 }
 
-resource "aws_cloudwatch_log_group" "pinpoint-logs" {
-  name              = "${var.env}-pinpoint-logs"
-  retention_in_days = 30
-}
-
-resource "aws_cloudwatch_log_stream" "SMSLogs" {
-  name           = "SMSLogs"
-  log_group_name = aws_cloudwatch_log_group.pinpoint-logs.name
-}

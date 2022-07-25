@@ -47,3 +47,9 @@ variable "pinpoint_error_alarm_threshold" {
 variable "pinpoint_spend_limit" {
   description = "USD monthly spend limit for pinpoint application. Increased via support ticket."
 }
+
+variable "pinpoint_event_logger_lambda_name" {
+  description = "Name of the PinPoint to CloudWatch logger"
+  type        = string
+  default     = "pinpoint_event_logger"
+}
