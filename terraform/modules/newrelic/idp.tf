@@ -337,7 +337,7 @@ resource "newrelic_synthetics_monitor" "cloudfront_health" {
   status    = "ENABLED"
   locations = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
 
-  uri               = "https://static.${local.idp_domain_name}/packs/manifest.json"
+  uri               = "https://${local.idp_domain_name}/packs/manifest.json"
   validation_string = "entrypoints"
   verify_ssl        = true
 }
@@ -345,6 +345,6 @@ resource "newrelic_synthetics_alert_condition" "cloud_health" {
   count     = (var.enabled + var.cdn_idp_static_assets_alarms_enabled) >= 2 ? 1 : 0
   policy_id = newrelic_alert_policy.high[0].id
 
-  name       = "https://static.${local.idp_domain_name}/packs/manifest.json health failure"
+  name       = "https://${local.idp_domain_name}/packs/manifest.json health failure"
   monitor_id = newrelic_synthetics_monitor.cloudfront_health[0].id
 }
