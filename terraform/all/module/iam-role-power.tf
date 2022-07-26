@@ -1,5 +1,5 @@
 module "poweruser-assumerole" {
-  source = "github.com/18F/identity-terraform//iam_assumerole?ref=a6261020a94b77b08eedf92a068832f21723f7a2"
+  source = "github.com/18F/identity-terraform//iam_assumerole?ref=5d344d205dd09eb85d5de1ff1081c4a598afe433"
 
   role_name = "PowerUser"
   enabled = lookup(

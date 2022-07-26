@@ -76,7 +76,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "lambda_functions" {
 }
 
 module "s3_lambda_functions_config" {
-  source = "github.com/18F/identity-terraform//s3_config?ref=5d338480d96af4c5123fcbebb0d0a189e31496b4"
+  source = "github.com/18F/identity-terraform//s3_config?ref=5d344d205dd09eb85d5de1ff1081c4a598afe433"
 
   bucket_name_override = aws_s3_bucket.lambda_functions.id
   region               = var.region

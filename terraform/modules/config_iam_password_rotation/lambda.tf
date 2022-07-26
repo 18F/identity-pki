@@ -9,7 +9,7 @@ data "aws_sns_topic" "config_password_rotation_topic" {
 }
 
 module "config_password_rotation_code" {
-  source = "github.com/18F/identity-terraform//null_archive?ref=0fe0243d7df353014c757a72ef0c48f5805fb3d3"
+  source = "github.com/18F/identity-terraform//null_archive?ref=5d344d205dd09eb85d5de1ff1081c4a598afe433"
 
   source_code_filename = "config_password_rotation.py"
   source_dir           = "${path.module}/lambda/"

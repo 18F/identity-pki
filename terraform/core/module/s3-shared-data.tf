@@ -69,7 +69,7 @@ resource "aws_s3_bucket_logging" "shared_data" {
 }
 
 module "s3_shared_data_config" {
-  source = "github.com/18F/identity-terraform//s3_config?ref=5d338480d96af4c5123fcbebb0d0a189e31496b4"
+  source = "github.com/18F/identity-terraform//s3_config?ref=5d344d205dd09eb85d5de1ff1081c4a598afe433"
 
   bucket_name_override = aws_s3_bucket.shared_data.id
   region               = var.region

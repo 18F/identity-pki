@@ -61,7 +61,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "guardduty_threat_feed_s3_bucke
 }
 
 module "guardduty_threat_feed_s3_bucket_config" {
-  source = "github.com/18F/identity-terraform//s3_config?ref=a6261020a94b77b08eedf92a068832f21723f7a2"
+  source = "github.com/18F/identity-terraform//s3_config?ref=5d344d205dd09eb85d5de1ff1081c4a598afe433"
 
   bucket_name_override = aws_s3_bucket.guardduty_threat_feed_s3_bucket.id
   inventory_bucket_arn = var.inventory_bucket_arn

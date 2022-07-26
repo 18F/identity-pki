@@ -51,7 +51,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "reports" {
 }
 
 module "s3_reports_config" {
-  source = "github.com/18F/identity-terraform//s3_config?ref=5d338480d96af4c5123fcbebb0d0a189e31496b4"
+  source = "github.com/18F/identity-terraform//s3_config?ref=5d344d205dd09eb85d5de1ff1081c4a598afe433"
 
   bucket_name_prefix   = local.bucket_name_prefix
   bucket_name          = "reports"

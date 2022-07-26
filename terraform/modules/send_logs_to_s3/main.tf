@@ -105,7 +105,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "kinesis_firehose_stream_bucket
 }
 
 module "kinesis_firehose_stream_bucket_config" {
-  source               = "github.com/18F/identity-terraform//s3_config?ref=a6261020a94b77b08eedf92a068832f21723f7a2"
+  source               = "github.com/18F/identity-terraform//s3_config?ref=5d344d205dd09eb85d5de1ff1081c4a598afe433"
   depends_on           = [aws_s3_bucket.kinesis_firehose_stream_bucket]
   bucket_name_override = aws_s3_bucket.kinesis_firehose_stream_bucket.id
   region               = var.region

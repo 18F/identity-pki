@@ -3,7 +3,7 @@
 #   login-gov.elb-logs.<ACCOUNT_ID>-<AWS_REGION>
 module "elb-logs" {
   # can't use variable for ref -- see https://github.com/hashicorp/terraform/issues/17994
-  source = "github.com/18F/identity-terraform//elb_access_logs_bucket?ref=105ed397c16ebff2d97c762502ff73dcbda36ab9"
+  source = "github.com/18F/identity-terraform//elb_access_logs_bucket?ref=5d344d205dd09eb85d5de1ff1081c4a598afe433"
   #source = "../../../../identity-terraform/elb_access_logs_bucket"
 
   region                     = var.region
