@@ -60,11 +60,17 @@ smtp_address = "email-smtp.#{aws_region}.amazonaws.com"
 email_from = "gitlab@#{external_fqdn}"
 external_url = "https://#{external_fqdn}"
 
+target_url = if node.chef_environment == 'production'
+               'https://secure.login.gov/api/saml/auth2022'
+             else
+               'https://idp.int.identitysandbox.gov/api/saml/auth2021'
+             end
+
 # Login.gov SAML parameters
 saml_params = {
   saml_assertion_consumer_service_url: "#{external_url}/users/auth/saml/callback",
   saml_idp_cert_fingerprint: ConfigLoader.load_config(node, "saml_idp_cert_fingerprint", common: false).chomp,
-  saml_idp_sso_target_url: 'https://idp.int.identitysandbox.gov/api/saml/auth2021',
+  saml_idp_sso_target_url: target_url,
   saml_issuer: "urn:gov:gsa:openidconnect.profiles:sp:sso:login_gov:gitlab_#{node.chef_environment}",
   saml_name_identifier_format: 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
   saml_certificate: ConfigLoader.load_config(node, "saml_certificate", common: false).chomp,
