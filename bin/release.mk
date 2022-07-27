@@ -87,7 +87,7 @@ $(PLANS) $(PROD_PLANS):
 if_nonempty_plan = if ! grep -q '^No changes in Terraform plan for ' $|; then
 
 $(addsuffix .plan-verify,$(TF_PATHS) $(PROD_TF_PATHS) $(APP_ENVS)): %.plan-verify: | %.plan
-	$(if_nonempty_plan) less $<; fi
+	$(if_nonempty_plan) less $|; fi
 	@$(if_nonempty_plan) echo "Please verify the plan output of $* (maybe posting to #identity-devops)."; fi
 	@$(if_nonempty_plan) read -p "Enter 'y' to continue: " s && test "$$s" = "y"; fi
 	touch $@
@@ -105,6 +105,7 @@ $(APPLIES) $(PROD_APPLIES): %.apply: | %.plan %.plan-verify
 clean: clean-plan clean-apply ## Removes all intermediate files (e.g. .plan, .apply)
 	rm -f terraform/*/*.branch
 	rm -f terraform/*/*.recycle
+	rm -f terraform/*/*.recycle-verify
 	rm -f terraform/*/*.plan-verify
 
 clean-plan: ## Just removes .plan logs

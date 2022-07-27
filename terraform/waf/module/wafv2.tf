@@ -552,6 +552,15 @@ resource "aws_wafv2_web_acl" "alb" {
   tags = {
     environment = var.env
   }
+
+  # hack to avoid trying to set tags_all for aws_wafv2_web_acl,
+  # which does not currently (2022-07-26) work
+  # for more details, see:
+  # https://github.com/hashicorp/terraform-provider-aws/issues/23992
+  # https://github.com/hashicorp/terraform-provider-aws/issues/24386
+  lifecycle {
+    ignore_changes = [tags_all]
+  }
 }
 
 moved {

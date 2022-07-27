@@ -42,7 +42,7 @@ terraform {
 
 provider "aws" {
   default_tags {
-    tags = {
+    tags = var.fisma_tag == "" ? {} : {
       fisma = var.fisma_tag
     }
   }

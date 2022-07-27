@@ -238,6 +238,7 @@ locals {
           "ec2:DeleteNatGateway",
           "ec2:DeleteNetworkAcl",
           "ec2:DeleteNetworkAclEntry",
+          "ec2:DeleteNetworkInterface",
           "ec2:DeleteRoute",
           "ec2:DeleteRouteTable",
           "ec2:DeleteSecurityGroup",
@@ -608,7 +609,8 @@ locals {
           "firehose:DeleteDeliveryStream",
           "firehose:List*",
           "firehose:TagDeliveryStream",
-          "firehose:UntagDeliveryStream"
+          "firehose:UntagDeliveryStream",
+          "firehose:UpdateDestination"
         ]
         resources = [
           "*",
