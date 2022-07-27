@@ -106,6 +106,11 @@ module "main" {
           "records" = ["login-gov.hs01b.dkim.hubspotemail.net."],
           "ttl"     = "900",
         },
+        {
+          "name"    = "zendesk",
+          "records" = ["logingov.zendesk.com."],
+          "ttl"     = "900",
+        }
       ]
     },
     {
