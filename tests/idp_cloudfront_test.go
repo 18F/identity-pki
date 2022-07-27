@@ -2,11 +2,11 @@ package test
 
 import (
   "fmt"
+  "os"
   "testing"
   "net/http"
   "strings"	
   "github.com/stretchr/testify/assert"
-  "github.com/gruntwork-io/terratest/modules/terraform"
 )
 
 // Grab response from idp server to check headers
@@ -36,17 +36,12 @@ func CheckHeaders(t *testing.T, resp *http.Response, idp_fqdn string, headers ma
 // Check headers and header values
 func TestIdpHeaders(t *testing.T) {
   t.Parallel()
-  terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
-    // The path to where our Terraform code is located
-    TerraformDir: "../terraform/app/",
-  })
-  // Load value from terraform outputs.tf inside terraform/app
-  idp_fqdn :=  terraform.Output(t, terraformOptions, "idp_dns_name")
+  // Load value from environment variables
+  idp_fqdn :=  os.Getenv("IDP_HOSTNAME")
   url := fmt.Sprintf("https://%s", idp_fqdn)
   response := ReturnResponse(url)
   // Map of headers to check for in the response headers
   headers := map[string][]string {
-    "Content-Security-Policy": {"frame-ancestors 'self'", "default-src 'self'", "child-src 'self'", "form-action 'self'", "block-all-mixed-content", "connect-src 'self' *.nr-data.net *.google-analytics.com us.acas.acuant.net", fmt.Sprintf("font-src 'self' data: https://%s", idp_fqdn), fmt.Sprintf("img-src 'self' data: login.gov https://%s idscangoweb.acuant.com https://s3.us-west-2.amazonaws.com", idp_fqdn), "media-src 'self'", "object-src 'none'", fmt.Sprintf("style-src 'self' https://%s 'unsafe-inline'", idp_fqdn), "base-uri 'self'"},
     "Strict-Transport-Security": {"max-age=31556952", "includeSubDomains", "preload"},
     "X-Content-Type-Options": {"nosniff"},
     "X-Frame-Options": {"DENY"},
@@ -60,13 +55,9 @@ func TestIdpHeaders(t *testing.T) {
 // Check origin redirect without added cloudfront header
 func TestBlockedOrigin(t *testing.T) {
   t.Parallel()
-  terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
-    // The path to where our Terraform code is located
-    TerraformDir: "../terraform/app/",
-  })
-  // Load value from terraform outputs.tf inside terraform/app
-  idp_origin_fqdn :=  terraform.Output(t, terraformOptions, "idp_origin_dns_name")
-  idp_fqdn :=  terraform.Output(t, terraformOptions, "idp_dns_name")
+  // Load value from environment variables
+  idp_origin_fqdn :=  os.Getenv("IDP_ORIGIN_HOSTNAME")
+  idp_fqdn :=  os.Getenv("IDP_HOSTNAME")
   url := fmt.Sprintf("https://%s", idp_origin_fqdn)
   // Get response and check to make sure it redirected from origin dns name to cloudfront dns name
   response := ReturnResponse(url)
@@ -85,11 +76,10 @@ to serve it.
 */
 func TestCustomErrorPages(t *testing.T) {
   t.Parallel()
-  terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
-    // The path to where our Terraform code is located
-    TerraformDir: "../terraform/app/",
-  })
-  idp_custom_pages := terraform.OutputList(t, terraformOptions, "idp_custom_pages")
+  var idp_custom_pages [2]string
+  // Load value from environment variables
+  idp_custom_pages[0] = fmt.Sprintf("https://%s/maintenance/maintenance.html", os.Getenv("IDP_HOSTNAME"))
+  idp_custom_pages[1] = fmt.Sprintf("https://%s/5xx-codes/503.html", os.Getenv("IDP_HOSTNAME"))
   for value := range idp_custom_pages {
     response := ReturnResponse(idp_custom_pages[value])
     // Page exists and is reachable in the browser, no permission issues
