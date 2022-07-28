@@ -48,8 +48,11 @@ def get_v4_octet(high_slot, low_slot):
 
 
 def get_v6_az_purpose(az_slot, purpose_slot):
-    # AZ slots 0 .. 5 map to a .. f for easy reading
-    return '{:x}{:x}'.format((10 + az_slot) % 16, purpose_slot)
+    return (32 * az_slot)+purpose_slot
+
+
+def translate_netnum(netnum):
+    return "xxxx:xxxx:xxxx:xx" + "{:02x}".format(netnum) + "::/64"
 
 
 def create_subnet_map(network_layout):
@@ -82,7 +85,15 @@ def create_subnet_map(network_layout):
                         octet3 = get_v4_octet(az_slot, purpose_slot)
                         mask = get_purpose_masks(purpose, network_layout['purposes'])
                         network = "100."+octet2+"."+octet3+".0/"+mask
-                        subnet_map[region][env]["_zones"][az][purpose] = network
+                        netnum = get_v6_az_purpose(az_slot, purpose_slot)
+
+                        az_map = subnet_map[region][env]["_zones"][az]
+
+                        az_map[purpose] = {
+                                "ipv4-cidr": network,
+                                "ipv6-netnum": netnum,
+                                "ipv6-network": translate_netnum(netnum),
+                                }
 
     return subnet_map
 

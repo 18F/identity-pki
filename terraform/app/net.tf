@@ -905,8 +905,9 @@ resource "aws_vpc" "default" {
   cidr_block = var.vpc_cidr_block
 
   # main_route_table_id = "${aws_route_table.default.id}"
-  enable_dns_support   = true
-  enable_dns_hostnames = true
+  enable_dns_support               = true
+  enable_dns_hostnames             = true
+  assign_generated_ipv6_cidr_block = true
 
   tags = {
     Name = "${var.name}-vpc-${var.env_name}"
@@ -1193,9 +1194,12 @@ resource "aws_vpc_ipv4_cidr_block_association" "secondary_cidr" {
 resource "aws_subnet" "app" {
   for_each                = local.network_layout[var.region][var.env_type]._zones
   availability_zone       = "${var.region}${each.key}"
-  cidr_block              = each.value.apps
+  cidr_block              = each.value.apps.ipv4-cidr
   depends_on              = [aws_internet_gateway.default]
   map_public_ip_on_launch = true
+
+  ## Example Enablement of IPv6 for app subnets.
+  # ipv6_cidr_block = cidrsubnet(aws_vpc.default.ipv6_cidr_block, 8, each.value.apps.ipv6-netnum)
 
   tags = {
     Name = "${var.name}-app_subnet_${each.key}-${var.env_name}"
@@ -1221,8 +1225,10 @@ resource "aws_subnet" "app" {
 resource "aws_subnet" "public-ingress" {
   for_each                = local.network_layout[var.region][var.env_type]._zones
   availability_zone       = "${var.region}${each.key}"
-  cidr_block              = each.value.public-ingress
+  cidr_block              = each.value.public-ingress.ipv4-cidr
   map_public_ip_on_launch = true
+
+  ipv6_cidr_block = cidrsubnet(aws_vpc.default.ipv6_cidr_block, 8, each.value.public-ingress.ipv6-netnum)
 
   tags = {
     Name = "${var.name}-public_ingress_subnet_${each.key}-${var.env_name}"
