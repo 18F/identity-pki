@@ -873,3 +873,19 @@ EOM
     "maintenance/maintenance.html" = "./custom_pages/maintenance.html"
   }
 }
+
+variable "idp_pii_spill_patterns" {
+  type        = list(string)
+  description = "List of strings used in proofing with smoke tests - These should never appear in logs!"
+  default = [
+    "FAKEY",
+    "MIDDLEFAKER",
+    "MCFAKERSON",
+    "1111111111111", # Fake SSN
+    "GREAT FALLS",
+    "1938-10-06",  # Fake DOB
+    "2099-12-31",  # Fake DL expiration
+    "314-555-1212" # Fake SSN
+  ]
+}
+

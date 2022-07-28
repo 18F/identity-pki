@@ -156,3 +156,19 @@ resource "aws_cloudwatch_metric_alarm" "idp_too_many_healthy_instances_alert" {
 
   alarm_actions = local.low_priority_alarm_actions
 }
+
+resource "aws_cloudwatch_metric_alarm" "pii_spill_detector_alarm" {
+  alarm_name                = "${var.env_name}-pii-spill-detector-alarm"
+  comparison_operator       = "GreaterThanThreshold"
+  evaluation_periods        = "1"
+  datapoints_to_alarm       = "1"
+  metric_name               = "PII_Spill_Event"
+  namespace                 = "${var.env_name}/SpillDetectorMetrics"
+  period                    = "900"
+  statistic                 = "Sum"
+  threshold                 = "0"
+  alarm_description         = "${var.env_name} PII Spill Detector Alarm"
+  treat_missing_data        = "notBreaching"
+  insufficient_data_actions = []
+  alarm_actions             = local.high_priority_alarm_actions
+}

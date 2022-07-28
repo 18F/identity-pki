@@ -316,3 +316,16 @@ resource "aws_cloudwatch_log_metric_filter" "idp_worker" {
     value     = each.value["metric_value"]
   }
 }
+
+resource "aws_cloudwatch_log_metric_filter" "pii_spill_detector" {
+  name           = "pii-spill-detector"
+  pattern        = join(" ", [for v in var.idp_pii_spill_patterns : "?\"${v}\""])
+  log_group_name = aws_cloudwatch_log_group.idp_events.name
+
+  metric_transformation {
+    name          = "PII_Spill_Event"
+    namespace     = "${var.env_name}/SpillDetectorMetrics"
+    value         = "1"
+    default_value = "0"
+  }
+}
