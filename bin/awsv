@@ -44,13 +44,6 @@ EOM
   exit 0
 }
 
-verify_profile () {
-  AV_ROLE="${1}"
-  if [[ ! $(grep "profile ${AV_ROLE}" ~/.aws/config) ]] ; then
-    raise "Profile ${AV_ROLE} not found in ~/.aws/config ; verify the name and try again!"
-  fi
-}
-
 if [[ -z $(aws-vault list --sessions) ]] || [[ $(aws-vault list --sessions |
                                                  awk -F: '{print $NF}' |
                                                  cut -c1-1) == '-' ]] ; then

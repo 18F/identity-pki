@@ -177,6 +177,7 @@ users:
   jonathan.pirro:
     aws_groups:
     - devops
+    - apponcall
     ec2_username:
     - bleachbyte
     gitlab_groups:

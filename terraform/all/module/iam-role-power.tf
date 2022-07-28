@@ -20,6 +20,16 @@ module "poweruser-assumerole" {
       policy_description = "Policy 1 for Power User"
       policy_document = [
         {
+          sid    = "AccessAnalyzer"
+          effect = "Allow"
+          actions = [
+            "access-analyzer:GetAnalyzer",
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
           sid    = "Athena"
           effect = "Allow"
           actions = [
@@ -59,6 +69,7 @@ module "poweruser-assumerole" {
             "cloudfront:CreateDistribution",
             "cloudfront:CreateInvalidation",
             "cloudfront:DeleteCloudFrontOriginAccessIdentity",
+            "cloudfront:GetCachePolicy",
             "cloudfront:GetDistribution",
             "cloudfront:GetCloudFrontOriginAccessIdentity",
             "cloudfront:GetCloudFrontOriginAccessIdentityConfig",
@@ -83,6 +94,29 @@ module "poweruser-assumerole" {
             "cloudwatch:*",
             "logs:*",
             "events:*",
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
+          sid    = "CodeStar"
+          effect = "Allow"
+          actions = [
+            "codestar-notifications:DescribeNotificationRule",
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
+          sid    = "Config"
+          effect = "Allow"
+          actions = [
+            "config:DescribeConfigurationRecorders",
+            "config:DescribeConfigurationRecorderStatus",
+            "config:DescribeDeliveryChannels",
+            "config:DescribeRemediationConfigurations",
           ]
           resources = [
             "*",
@@ -173,6 +207,19 @@ module "poweruser-assumerole" {
             "kms:ListKeys",
             "kms:ListAliases",
             "kms:CreateAlias",
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
+          sid    = "NetworkFirewall"
+          effect = "Allow"
+          actions = [
+            "network-firewall:DescribeRuleGroup",
+            "network-firewall:DescribeFirewall",
+            "network-firewall:DescribeFirewallPolicy",
+            "network-firewall:DescribeLoggingConfiguration",
           ]
           resources = [
             "*",
@@ -277,6 +324,7 @@ module "poweruser-assumerole" {
           effect = "Allow"
           actions = [
             "cloudtrail:DescribeTrails",
+            "cloudtrail:GetEventSelectors",
             "cloudtrail:GetTrailStatus",
             "cloudtrail:ListTags",
             "cloudtrail:LookupEvents",
@@ -489,6 +537,16 @@ module "poweruser-assumerole" {
           effect = "Allow"
           actions = [
             "s3:*",
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
+          sid    = "SecurityHub"
+          effect = "Allow"
+          actions = [
+            "securityhub:GetEnabledStandards",
           ]
           resources = [
             "*",

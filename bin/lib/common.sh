@@ -89,6 +89,28 @@ get_iam() {
   fi
 }
 
+verify_profile () {
+  AV_ROLE="${1}"
+  if [[ ! $(grep "profile ${AV_ROLE}" ~/.aws/config) ]] ; then
+    echo_red "Profile ${AV_ROLE} not found in ~/.aws/config;"
+    raise "verify the name and try again!"
+  fi
+}
+
+# set LOGIN_IAM_PROFILE env var and prompt to add export line to .rc
+set_iam_profile () {
+  local SET_PROFILE
+  while [[ -z "${LOGIN_IAM_PROFILE-}" ]] ; do
+    echo_yellow "LOGIN_IAM_PROFILE not set in shell environment variables."
+    while [[ -z "${SET_PROFILE}" ]] ; do
+      read -r -p "Please specify (i.e. ACCOUNT-LOGIN_IAM_PROFILE): " SET_PROFILE
+    done
+    run export LOGIN_IAM_PROFILE=${SET_PROFILE}
+    echo "Add this line to your .rc file of choice to avoid having to set this in the future:"
+    echo -e "\nexport LOGIN_IAM_PROFILE=${SET_PROFILE}\n"
+  done
+}
+
 # verify that script is running from identity-devops repo
 verify_root_repo() {
   GIT_DIR=$(git rev-parse --show-toplevel)

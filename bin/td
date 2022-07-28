@@ -22,9 +22,9 @@ Flags (if CMD not specified):
   -x : destroy                     -c ARGS       : bin/tfplan ARGS
   -v CMD : providers <CMD>         -s CMD : state <CMD>
   
-  -u : Update .terraform.lock.hcl in the repo
-  -o : Use ACCOUNT-admin instead of ACCOUNT-terraform
-  -h : Display help
+  -u      : Update .terraform.lock.hcl in the repo
+  -r ROLE : Use ACCOUNT-ROLE instead of ACCOUNT-terraform
+  -h      : Display help
 
 Specify arguments for command flags/tfplan WITHOUT hypens, e.g.:
 
@@ -51,30 +51,30 @@ EOM
 }
 
 verify_root_repo
-declare {ARGS,RUN_FLAG,TF_CMD,TF_DIR,TF_ENV,TF_PROFILE,AV_PROFILE}=
+declare {ARGS,RUN_FLAG,TF_CMD,TF_DIR,TF_ENV,TF_PROFILE,AV_PROFILE,SET_ROLE}=
 TF_ROLE='Terraform'
 
-while getopts d:e:apxsifcvuotlzmh opt
+while getopts d:e:apxsifcvur:tlzmh opt
 do
   case $opt in
-    d) TF_DIR="${OPTARG}"          ;;
-    e) TF_ENV="${OPTARG}"          ;;
-    a) TF_CMD="apply"              ;;
-    p) TF_CMD="plan"               ;;
-    x) TF_CMD="destroy"            ;;
-    s) TF_CMD="state"              ;;
-    i) TF_CMD="import"             ;;
-    f) TF_CMD="force-unlock"       ;;
-    c) TF_CMD="tfplan"             ;;
-    v) TF_CMD="providers"          ;;
-    u) TF_CMD="upgrade"            ;;
-    o) TF_ROLE="FullAdministrator" ;;
-    t) RUN_FLAG+="-t "             ;;
-    l) RUN_FLAG+="-l "             ;;
-    z) RUN_FLAG+="-z "             ;;
-    m) RUN_FLAG+="-m "             ;;
-    h) help_me                     ;;
-    *) usage && exit 1             ;;
+    d) TF_DIR="${OPTARG}"    ;;
+    e) TF_ENV="${OPTARG}"    ;;
+    a) TF_CMD="apply"        ;;
+    p) TF_CMD="plan"         ;;
+    x) TF_CMD="destroy"      ;;
+    s) TF_CMD="state"        ;;
+    i) TF_CMD="import"       ;;
+    f) TF_CMD="force-unlock" ;;
+    c) TF_CMD="tfplan"       ;;
+    v) TF_CMD="providers"    ;;
+    u) TF_CMD="upgrade"      ;;
+    r) SET_ROLE="${OPTARG}"  ;;
+    t) RUN_FLAG+="-t "       ;;
+    l) RUN_FLAG+="-l "       ;;
+    z) RUN_FLAG+="-z "       ;;
+    m) RUN_FLAG+="-m "       ;;
+    h) help_me               ;;
+    *) usage && exit 1       ;;
   esac
 done
 shift $((OPTIND-1))
@@ -117,6 +117,12 @@ if [[ ${TF_DIR} == "app" ]] ; then
   fi
 else
   TF_PROFILE=${TF_ENV}
+fi
+
+if [[ ! -z "${SET_ROLE}" ]] && [[ "${SET_ROLE}" != 'terraform' ]] ; then
+  TF_ROLE=$(grep 'role_name' "terraform/all/module/iam-role-${SET_ROLE}.tf" \
+    2>/dev/null| awk -F'"' '{print $2}') || \
+    raise "IAM module for '${SET_ROLE}' not found!"
 fi
 
 get_iam ${TF_DIR} ${TF_PROFILE} ${TF_ROLE}
