@@ -1,3 +1,5 @@
+require 'open3'
+
 namespace :certs do
   desc 'Remove invalid certs, set EXPIRING=true to also remove certs expiring within 30 days'
   task remove_invalid: :environment do
@@ -201,5 +203,47 @@ namespace :certs do
         CertificateStore.instance.load_certs!
       end
     end
+  end
+
+
+
+  desc 'Check that LG certificate bundle matches certificates in certificate path'
+  task check_certificate_bundle: :environment do |t, args|
+    certificate_store = CertificateStore.instance
+    certificate_store.load_certs!(dir: 'config/certs')
+    bundled_certs = []
+    cert_bundle_file = File.read(IdentityConfig.store.login_certificate_bundle_file)
+    cert_bundle = cert_bundle_file.split(CertificateStore::END_CERTIFICATE).map do |cert|
+      cert += CertificateStore::END_CERTIFICATE
+      cert = Certificate.new(OpenSSL::X509::Certificate.new(cert))
+    end
+
+    if cert_bundle.map(&:sha1_fingerprint).sort != certificate_store.certificates.map(&:sha1_fingerprint).sort
+      puts <<-ERROR
+        #{IdentityConfig.store.login_certificate_bundle_file} does not match the certificates in #{IdentityConfig.store.certificate_store_directory}
+        Please run:
+        rake certs:generate_certificate_bundle
+      ERROR
+      exit 1
+    end
+  end
+
+  task generate_certificate_bundles: :environment do |t, args|
+    certificate_store = CertificateStore.instance
+    certificate_store.load_certs!
+    File.write(
+      IdentityConfig.store.login_certificate_bundle_file,
+      certificate_store.certificates.sort_by(&:sha1_fingerprint).map(&:to_pem).join,
+    )
+
+    ficam_uri = URI('https://raw.githubusercontent.com/GSA/ficam-playbooks/staging/_fpki/tools/CACertificatesValidatingToFederalCommonPolicyG2.p7b')
+
+    response = Net::HTTP.get_response(ficam_uri)
+    certificates = response.body.force_encoding('UTF-8')
+    stdout, stderr, status = Open3.capture3('openssl', 'pkcs7', '-print_certs', '-inform', 'DER', stdin_data: certificates)
+    File.write(
+      IdentityConfig.store.ficam_certificate_bundle_file,
+      stdout,
+    )
   end
 end

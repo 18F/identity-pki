@@ -101,12 +101,9 @@ class IdentifyController < ApplicationController
   end
 
   def log_certificate(cert)
-    stdout, stderr, status = Open3.capture3('openssl verify -purpose sslclient -inhibit_any -explicit_policy -CAfile ./config/all_certs/all.pem -policy_check -policy 2.16.8.40.1.101.3.2.1.3.7 -policy 2.16.840.1.101.3.2.1.3.13 -policy 2.16.840.1.101.3.2.1.3.15 -policy 2.16.840.1.101.3.2.1.3.16 -policy 2.16.840.1.101.3.2.1.3.18 -policy 2.16.840.1.101.3.2.1.3.41', stdin_data: cert.to_pem)
-
-    stderr.strip!
-    errors = stderr.scan(/(error \d+ [\w :]+)$\n?/).flatten
     validation_result = cert.validate_cert(is_leaf: true)
-
+    login_certs_openssl_result = openssl_validate(cert.to_pem, Rails.root.join(IdentityConfig.store.login_certificate_bundle_file).to_s)
+    ficam_certs_openssl_result = openssl_validate(cert.to_pem, Rails.root.join(IdentityConfig.store.login_certificate_bundle_file).to_s)
     attributes = {
       name: 'Certificate Processed',
       signing_key_id: cert.signing_key_id,
@@ -116,8 +113,10 @@ class IdentifyController < ApplicationController
       valid_policies: cert.valid_policies?,
       valid: validation_result == 'valid',
       error: validation_result != 'valid' ? validation_result : nil,
-      openssl_valid: status.success? && stderr.ends_with?("OK") && errors.empty?,
-      openssl_errors: errors.join(', '),
+      openssl_valid: login_certs_openssl_result[:valid],
+      openssl_errors: login_certs_openssl_result[:errors],
+      ficam_openssl_valid: ficam_certs_openssl_result[:valid],
+      ficam_openssl_errors: ficam_certs_openssl_result[:errors],
     }
 
     if validation_result == 'self-signed cert'
@@ -125,5 +124,16 @@ class IdentifyController < ApplicationController
     end
 
     logger.info(attributes.to_json)
+  end
+
+  def openssl_validate(certificate_pem, certificate_bundle_file_path)
+    stdout, stderr, status = Open3.capture3('openssl', 'verify', '-purpose', 'sslclient', '-inhibit_any', '-explicit_policy', '-CAfile', certificate_bundle_file_path, '-policy_check', '-policy', '2.16.8.40.1.101.3.2.1.3.7', '-policy', '2.16.840.1.101.3.2.1.3.13', '-policy', '2.16.840.1.101.3.2.1.3.15', '-policy', '2.16.840.1.101.3.2.1.3.16', '-policy', '2.16.840.1.101.3.2.1.3.18', '-policy', '2.16.840.1.101.3.2.1.3.41', stdin_data: certificate_pem)
+
+    stderr.strip!
+    errors = stderr.scan(/(error \d+ [\w :]+)$\n?/).flatten
+    {
+      valid: status.success? && stderr.ends_with?('OK') && errors.empty?,
+      errors: errors.join(', '),
+    }
   end
 end

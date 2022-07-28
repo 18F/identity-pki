@@ -100,4 +100,19 @@ class IssuingCaService
     return nil unless uri.scheme == 'http'
     uri
   end
+
+  # Recursively find all certificates issued
+  def self.find_all_issued_certificates(cert, certs: {})
+    certs[cert.key_id] = cert
+
+    certificates = fetch_ca_repository_certs_for_cert(cert).compact
+    certificates.each do |certificate|
+      next if certs[certificate.key_id]
+      certs[certificate.key_id] = certificate
+
+      find_all_issued_certificates(certificate, certs: certs)
+    end
+
+    certs
+  end
 end

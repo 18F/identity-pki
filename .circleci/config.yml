@@ -68,6 +68,28 @@ jobs:
       - deploy:
           command: |
             ./cc-test-reporter sum-coverage --output - --parts $CIRCLE_NODE_TOTAL coverage/codeclimate.*.json | ./cc-test-reporter upload-coverage --debug --input -
+  check_certificate_bundle:
+    docker:
+      # Specify the Ruby version you desire here
+      - image: cimg/ruby:3.0.3
+        environment:
+          RAILS_ENV: test
+      - image: cimg/postgres:13.4
+        environment:
+          POSTGRES_USER: circleci
+
+    steps:
+      - checkout
+      - install-deps
+      - run:
+          name: Test Setup
+          command: |
+            cp config/application.yml.default config/application.yml
+            bundle exec rake db:setup --trace
+      - run:
+          name: Check certificate bundle
+          command: |
+            bundle exec rake certs:check_certificate_bundle
   build-release-container:
     working_directory: ~/identity-pki
     docker:
@@ -141,6 +163,7 @@ workflows:
   release:
     jobs:
       - build
+      - check_certificate_bundle
       - build-release-container:
           requires:
             - build
