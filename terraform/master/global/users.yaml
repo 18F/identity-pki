@@ -491,6 +491,8 @@ users:
     - tomas-nava
     email:
     - thomas.apodaca@gsa.gov
+    ec2_username:
+    - tapodaca
   tiffanyj.andrews:
     aws_groups:
     - analytics
