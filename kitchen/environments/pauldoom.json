@@ -4,6 +4,9 @@
   "json_class": "Chef::Environment",
   "chef_type": "environment",
   "default_attributes": {
+    "identity-outboundproxy": {
+      "use_dashboard_dynamic_updates": true
+    },
     "login_dot_gov": {
       "idp_run_migrations": true,
       "allow_unsafe_migrations": true,

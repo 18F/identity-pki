@@ -10,19 +10,21 @@
 push_notification_domains = []
 
 if node.fetch('identity-outboundproxy').fetch('use_dashboard_dynamic_updates')
-    # Create array to store push notification urls from JSON
-    json_push_notification_urls = []
     # Create array to store push notification urls for pushing
     push_notification_urls = []
 
-    response = Chef::HTTP.new("https://dashboard.#{node.chef_environment}.identitysandbox.gov")  
-    sp = response.get('/api/service_providers') 
-    response_json = JSON.parse(sp) 
-    response_json.each do |service_provider_config|
-        json_push_notification_url = service_provider_config['push_notification_url']
-        unless json_push_notification_url.nil? || json_push_notification_url.empty?
-            push_notification_urls << service_provider_config['push_notification_url']
+    begin
+        response = Chef::HTTP.new("https://dashboard.#{node.chef_environment}.identitysandbox.gov")
+        sp = response.get('/api/service_providers') 
+        response_json = JSON.parse(sp)
+        response_json.each do |service_provider_config|
+            json_push_notification_url = service_provider_config['push_notification_url']
+            unless json_push_notification_url.nil? || json_push_notification_url.empty?
+                push_notification_urls << service_provider_config['push_notification_url']
+            end
         end
+    rescue
+        Chef::Log.warn("identity-outboundproxy: Failed to get push notification URLs from https://dashboard.#{node.chef_environment}.identitysandbox.gov - SKIPPING")
     end
 
     # Split push_notification_url into ip and domains and localhost
