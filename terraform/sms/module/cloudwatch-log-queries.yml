@@ -7,12 +7,13 @@ pinpoint-events/any:
     filter ispresent(event_type)
     | fields @timestamp, event_type, attributes.record_status, attributes.iso_country_code, @message
 
-pinpoint-events/pct-success-by-country:
+pinpoint-events/pct-failure-by-country:
   logs:
     - /aws/lambda/pinpoint_event_logger
   query: |
     filter ispresent(event_type)
-    | stats  sum(event_type!="_SMS.SUCCESS") / count() as pct_success by attributes.iso_country_code as iso_country_code
+    | stats 100 * sum(event_type!="_SMS.FAILIRE") / count() as pct_failure by attributes.iso_country_code as iso_country_code
+    | sort pct_failure desc
 
 pinpoint-events/spend-by-country:
   logs:
