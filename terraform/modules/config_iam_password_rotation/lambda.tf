@@ -4,10 +4,6 @@ data "aws_sns_topic" "notify_slack" {
   name = var.slack_events_sns_topic
 }
 
-data "aws_sns_topic" "config_password_rotation_topic" {
-  name = aws_sns_topic.ssm_to_lambda_notification_topic.name
-}
-
 module "config_password_rotation_code" {
   source = "github.com/18F/identity-terraform//null_archive?ref=5d344d205dd09eb85d5de1ff1081c4a598afe433"
 
@@ -77,8 +73,8 @@ resource "aws_iam_policy" "password_update_lambda_policy" {
       {
         Action = [
           "iam:GetCredentialReport",
-          "iam:GenerateCredentialReport",
-          "iam:DeleteLoginProfile"
+          "iam:GenerateCredentialReport"
+          #"iam:DeleteLoginProfile"
         ]
         Effect   = "Allow"
         Resource = "*"
@@ -96,22 +92,4 @@ resource "aws_iam_role_policy_attachment" "password_lambda_logs" {
 resource "aws_cloudwatch_log_group" "password_lambda_cw_logs" {
   name              = "/aws/lambda/${var.config_password_rotation_name}-lambda"
   retention_in_days = 365
-}
-
-resource "aws_lambda_permission" "config_password_rotation_lambda_permission" {
-  statement_id  = "${var.config_password_rotation_name}-lambda-permission"
-  function_name = aws_lambda_function.password_rotation_lambda.function_name
-  action        = "lambda:InvokeFunction"
-  principal     = "sns.amazonaws.com"
-  source_arn    = data.aws_sns_topic.config_password_rotation_topic.arn
-}
-
-resource "aws_sns_topic_subscription" "config_password_rotation_lambda_target" {
-  topic_arn = data.aws_sns_topic.config_password_rotation_topic.arn
-  protocol  = "lambda"
-  endpoint  = aws_lambda_function.password_rotation_lambda.arn
-}
-
-resource "aws_sns_topic" "ssm_to_lambda_notification_topic" {
-  name = "${var.config_password_rotation_name}-topic"
 }
