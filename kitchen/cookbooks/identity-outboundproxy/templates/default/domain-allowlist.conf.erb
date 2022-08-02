@@ -213,11 +213,15 @@ crl-server.orc.com
 #
 # Static - For prod and staging the FQDNs for push notifications must be explicitly
 # defined here.
+commerce.acendrefederal.com
+ebssreports.doleta.gov
+efoia-pal.sec.gov
+foia-pal.cfpb.gov
+nocapi.api.eauth.usda.gov
 rcs-apps-stage.fra.dot.gov
 sam.gov
 webapps.dol.gov
 www.servicesonline.opm.gov
-commerce.acendrefederal.com
 
 # Dynamic - Automatically generated in `int` and `dev` by querying the dashboard service providers
 <% @push_notification_domains.each do |domain| -%>
