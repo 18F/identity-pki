@@ -465,7 +465,7 @@ users:
     - bizops
   stephen.shelton:
     aws_groups:
-    - devopsnonprod
+    - devops
     ec2_username:
     - sshelton
   steve.urciuoli:
