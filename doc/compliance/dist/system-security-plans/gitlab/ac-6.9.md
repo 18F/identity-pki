@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
 ---
 
 # ac-6.9 - \[catalog\] Auditing Use of Privileged Functions
@@ -22,6 +22,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control ac-6.9
+The Gitlab component uses AC-6.9 from the main login.gov SSP.
 
 ______________________________________________________________________
