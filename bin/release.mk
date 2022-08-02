@@ -6,6 +6,20 @@ PROD_PLANS := $(PROD_TF_PATHS:=.plan)
 PROD_APPLIES := $(PROD_TF_PATHS:=.apply)
 APP_ENVS := $(patsubst %,terraform/app/%,int staging dm prod)
 
+# Provide these as vars so they may be overridden for testing purposes
+# e.g. td="echo td" git_push="echo git push" bin/release.sh today
+ifdef dry_run
+td := echo Would have run td
+git_push := echo Would have run git push
+asg_recycle := echo Would have run asg-recycle
+scale_in := echo Would have run scale-in-old-instances
+else
+td := bin/td
+git_push := git push
+asg_recycle := bin/asg-recycle
+scale_in := bin/scale-in-old-instances
+endif
+
 SHELL = /bin/sh -o pipefail -c
 .PHONY: clean clean-plan clean-apply clean-recycle clean-scale-in default help non-app-non-prod
 .PHONY: other-prod int staging dm prod
@@ -35,24 +49,29 @@ Saturday: help
 # weird environments
 terraform/waf/staging.plan terraform/waf/staging.apply : export DEPLOY_WEIRD_BRANCH := 1
 
+# Find the cut release
+$(APP_ENVS:=.release_version): terraform/app/%.release_version:
+	git checkout main
+	git pull
+	echo "v$$(expr $$(cat VERSION.txt | sed -E 's/pre\-//' | sed -E 's/\..+//') - 1)" > $@
+
 # Prepping app branches
-$(APP_ENVS:=.branch): terraform/app/%.branch:
-	test -n "$(DEPLOY_RELEASE)"
+$(APP_ENVS:=.branch): terraform/app/%.branch: | terraform/app/%.release_version
 	git checkout stages/$*
-	git pull --ff-only origin $(DEPLOY_RELEASE)
-	git push --set-upstream origin stages/$*
+	git pull --ff-only origin `cat $|`
+	$(git_push) --set-upstream origin stages/$*
 	touch $@
 
 # App-specific td invocation
 $(APP_ENVS:=.plan): terraform/app/%.plan: | terraform/app/%.branch ## plan for one app env "%"
 	git checkout stages/$*
-	bin/td -e $* -c b | tee $@.tmp
+	$(td) -e $* -c b | tee $@.tmp
 	mv $@.tmp $@
 
 # If no plan exists, fail. Don't implicitly run plan.
 $(APP_ENVS:=.apply): terraform/app/%.apply: | terraform/app/%.plan-verify ## apply for one app env "%"
 	git checkout stages/$*
-	bin/td -e $* -a auto-approve | tee $@.tmp
+	$(td) -e $* -a auto-approve | tee $@.tmp
 	mv $@.tmp $@
 
 # Override so recycling int is run as `sandbox-admin`
@@ -61,7 +80,7 @@ $(patsubst %,terraform/app/%.recycle,prod staging dm): ACCOUNT = prod-admin
 
 # Recycling for prod, staging, dm is done as `prod-admin`. `int` gets overridden.
 $(APP_ENVS:=.recycle): terraform/app/%.recycle: | terraform/app/%.apply ## recycle one app env "%"
-	aws-vault exec $(ACCOUNT) -- bin/asg-recycle $* ALL | tee $@.tmp
+	aws-vault exec $(ACCOUNT) -- $(asg_recycle) $* ALL | tee $@.tmp
 	mv $@.tmp $@
 
 terraform/app/%.recycle-verify: | terraform/app/%.recycle
@@ -72,7 +91,7 @@ terraform/app/%.recycle-verify: | terraform/app/%.recycle
 # Prod needs a special command to scale-in
 PROD_SCALE_INS=$(patsubst %,terraform/app/prod.%.scale-in,idp pivcac worker outboundproxy)
 $(PROD_SCALE_INS): terraform/app/prod.%.scale-in: | terraform/app/prod.recycle-verify
-	aws-vault exec prod-admin -- bin/scale-in-old-instances prod $*
+	aws-vault exec prod-admin -- $(scale_in) prod $*
 	touch $@
 
 terraform/app/prod.scale-in: | $(PROD_SCALE_INS)
@@ -81,7 +100,7 @@ $(PROD_PLANS): GIT_BRANCH = stages/prod
 terraform/all/tooling-prod.plan: GIT_BRANCH = main
 $(PLANS) $(PROD_PLANS):
 	test -n "$(GIT_BRANCH)" && git checkout "$(GIT_BRANCH)" || true
-	bin/td -d $(shell basename $(@D)) -e $(shell basename $@ .plan) -c b | tee $@.tmp
+	$(td) -d $(shell basename $(@D)) -e $(shell basename $@ .plan) -c b | tee $@.tmp
 	mv $@.tmp $@
 
 if_nonempty_plan = if ! grep -q '^No changes in Terraform plan for ' $|; then
@@ -98,13 +117,14 @@ terraform/all/tooling-prod.apply: GIT_BRANCH = main
 $(APPLIES) $(PROD_APPLIES): %.apply: | %.plan %.plan-verify
 	test -n "$(GIT_BRANCH)" && git checkout "$(GIT_BRANCH)" || true
 	rm -f $@.tmp
-	$(if_nonempty_plan) bin/td -d $(shell basename $(@D)) -e $(shell basename $@ .apply) -a auto-approve | tee $@.tmp; fi
+	$(if_nonempty_plan) $(td) -d $(shell basename $(@D)) -e $(shell basename $@ .apply) -a auto-approve | tee $@.tmp; fi
 	$(if_nonempty_plan) mv $@.tmp $@; fi
 	touch $@
 
 ## Removes all intermediate files (e.g. .plan, .apply)
 clean: clean-plan clean-apply clean-recycle clean-scale-in
 	rm -f terraform/*/*.branch
+	rm -f terraform/*/*.release_version
 
 clean-plan: ## Just removes .plan logs
 	rm -f terraform/*/*.plan
