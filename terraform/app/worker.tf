@@ -198,6 +198,11 @@ resource "aws_autoscaling_group" "worker" {
     value               = "${var.env_name}.${var.root_domain}"
     propagate_at_launch = false
   }
+  tag {
+    key                 = "fisma"
+    value               = var.fisma_tag
+    propagate_at_launch = true
+  }
 
   depends_on = [
     aws_autoscaling_group.outboundproxy,

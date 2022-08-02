@@ -93,6 +93,11 @@ resource "aws_autoscaling_group" "gitlab" {
     value               = var.env_name
     propagate_at_launch = false
   }
+  tag {
+    key                 = "fisma"
+    value               = var.fisma_tag
+    propagate_at_launch = true
+  }
 
   # We manually terminate instances in prod
   protect_from_scale_in = var.asg_prevent_auto_terminate == 1 ? true : false
