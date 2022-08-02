@@ -9,10 +9,12 @@ set -euo pipefail
 . "$(dirname "$0")/../lib/common.sh"
 . "$(dirname "$0")/../lib/acct-lib.sh"
 
-usage() {
-    cat >&2 << EOM
+howto() { echo "Usage: ${0} [-tprob12345] IAM_USER_PROFILE_NAME" ; }
+usage() { echo -e "\n$(howto)\nUse -h for more info!\n" ; }
+help_me() {
+  cat >&2 << EOM
 
-Usage: ${0} [-tprob12345] IAM_USER_PROFILE_NAME
+$(howto)
 
 Runs all necessary tasks to set up the basic infrastructure (in terraform/all)
 for a (new) AWS account, including assumable IAM roles and the AWS account alias.
@@ -108,7 +110,7 @@ TASKS=(
 )
 TODO=()
 
-while getopts t1p2r3o4b5 opt
+while getopts t1p2r3o4b5h opt
 do
   case $opt in
     1|t) TODO+=("${TASKS[0]}") ;;
@@ -124,5 +126,9 @@ shift $((OPTIND-1))
 
 export AWS_PROFILE=$1
 verify_account_info
+if [[ ! -z "${ACCOUNT_ALIAS}" ]] && [[ "${TODO[@]:-}" != "5_build_acct" ]]; then
+  echo_red "Account alias '${ACCOUNT_ALIAS}' already exists for '${TF_ACCT}'."
+  raise "Account may already exist; use bin/td for Terraform commands instead!"
+fi
 
 run_tasks

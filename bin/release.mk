@@ -1,24 +1,24 @@
-TF_PATHS := $(shell find terraform -name env-vars.sh -exec dirname {} \; |grep -v 'ecr\|gitlab\|prod\|secops-dev\|waf/bleachbyte')
+TF_PATHS := $(shell find terraform -name env-vars.sh -exec dirname {} \; |grep -v 'ecr\|gitlab\|prod')
 PLANS := $(TF_PATHS:=.plan)
 APPLIES := $(TF_PATHS:=.apply)
-PROD_TF_PATHS := $(shell find terraform -name env-vars.sh -exec dirname {} \; |grep -v 'ecr\|gitlab\|secops-dev\|sms/prod-east' | grep 'prod')
+PROD_TF_PATHS := $(shell find terraform -name env-vars.sh -exec dirname {} \; |grep -v 'ecr\|gitlab\|sms/prod-east' | grep 'prod')
 PROD_PLANS := $(PROD_TF_PATHS:=.plan)
 PROD_APPLIES := $(PROD_TF_PATHS:=.apply)
-APP_ENVS := $(patsubst %,terraform/app/%,int pt pt2 staging dm prod)
+APP_ENVS := $(patsubst %,terraform/app/%,int staging dm prod)
 
 SHELL = /bin/sh -o pipefail -c
-.PHONY: clean clean-plan clean-apply default help non-app-non-prod
-.PHONY: other-prod int staging dm pt pt2 prod
+.PHONY: clean clean-plan clean-apply clean-recycle clean-scale-in default help non-app-non-prod
+.PHONY: other-prod int staging dm prod
 .DEFAULT_GOAL := help
 
-all: int pt pt2 staging dm non-app-non-prod prod non-app-prod
+all: int staging dm non-app-non-prod prod non-app-prod
 
 # Deploy, with prompts to verify plans
 non-app-non-prod: | $(APPLIES)
 non-app-prod: | $(PROD_APPLIES)
 
 # Deploy to named app environment, with prompts for user intervention
-int pt pt2 staging dm: %: terraform/app/%.recycle-verify
+int staging dm: %: terraform/app/%.recycle-verify
 prod: terraform/app/prod.scale-in
 
 # This might be very silly, but lets you just run 'make today' every day and
@@ -26,7 +26,7 @@ prod: terraform/app/prod.scale-in
 today: $(shell date +%A)
 Sunday: help
 Monday: help
-Tuesday: int pt pt2
+Tuesday: int
 Wednesday: staging dm non-app-non-prod
 Thursday: prod non-app-prod
 Friday: help
@@ -56,7 +56,7 @@ $(APP_ENVS:=.apply): terraform/app/%.apply: | terraform/app/%.plan-verify ## app
 	mv $@.tmp $@
 
 # Override so recycling int is run as `sandbox-admin`
-$(patsubst %,terraform/app/%.recycle,int pt pt2): ACCOUNT = sandbox-admin
+$(patsubst %,terraform/app/%.recycle,int): ACCOUNT = sandbox-admin
 $(patsubst %,terraform/app/%.recycle,prod staging dm): ACCOUNT = prod-admin
 
 # Recycling for prod, staging, dm is done as `prod-admin`. `int` gets overridden.
@@ -102,19 +102,26 @@ $(APPLIES) $(PROD_APPLIES): %.apply: | %.plan %.plan-verify
 	$(if_nonempty_plan) mv $@.tmp $@; fi
 	touch $@
 
-clean: clean-plan clean-apply ## Removes all intermediate files (e.g. .plan, .apply)
+## Removes all intermediate files (e.g. .plan, .apply)
+clean: clean-plan clean-apply clean-recycle clean-scale-in
 	rm -f terraform/*/*.branch
-	rm -f terraform/*/*.recycle
-	rm -f terraform/*/*.recycle-verify
-	rm -f terraform/*/*.plan-verify
 
 clean-plan: ## Just removes .plan logs
 	rm -f terraform/*/*.plan
 	rm -f terraform/*/*.plan.tmp
+	rm -f terraform/*/*.plan-verify
 
 clean-apply: ## Just removes .apply logs
 	rm -f terraform/*/*.apply
 	rm -f terraform/*/*.apply.tmp
+
+clean-recycle: ## Just removes .recycle logs
+	rm -f terraform/*/*.recycle
+	rm -f terraform/*/*.recycle.tmp
+	rm -f terraform/*/*.recycle-verify
+
+clean-scale-in: ## Just remove .scale-in logs
+	rm -f terraform/*/*.scale-in
 
 # help: export TEST_VAR=bar
 help: ## Prints usage text
