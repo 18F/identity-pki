@@ -14,7 +14,6 @@ end
 def main
   recycle_opts = {}
   skip_migration = false
-  skip_idpxtra = false
   skip_worker = false
   monitor = false
 
@@ -117,10 +116,6 @@ For example:
       skip_worker = true
     end
 
-    opts.on('-X', '--skip-idpxtra', 'Do not include IDPXtra in IDP role recycle') do
-      skip_idpxtra = true
-    end
-
     opts.on('-m', '--monitor', 'Monitor deploy after recycle') do
       monitor = true
     end
@@ -155,7 +150,7 @@ For example:
     asg_name = "#{env}-#{role}"
 
     # Manage pre-migration
-    if !skip_migration && (role == 'idp' || role == 'idpxtra' || role == 'worker' || role == 'migration')
+    if !skip_migration && (role == 'idp' || role == 'worker' || role == 'migration')
       puts as.pastel.bold.yellow("Launching migration instance prior to #{role} spin up")
       as.start_recycle("#{env}-migration",
                        new_size: 1,
@@ -170,11 +165,6 @@ For example:
 
     if role != 'migration'
       as.start_recycle(asg_name, **recycle_opts)
-    end
-
-    if !skip_idpxtra && role == 'idp'
-      puts as.pastel.bold.yellow('Recycling idpxtra instance in parallel with idp')
-      as.start_recycle("#{env}-idpxtra", skip_zero: true, **recycle_opts)
     end
 
     if !skip_worker && role == 'idp'

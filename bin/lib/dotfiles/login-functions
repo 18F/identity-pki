@@ -74,7 +74,6 @@ EOF
       A) EC2_TYPE='ALL'                ;;
       a) EC2_TYPE='app'                ;;
       i) EC2_TYPE='idp'                ;;
-      x) EC2_TYPE='idpxtra'            ;;
       j) EC2_TYPE='jumphost'           ;;
       m) EC2_TYPE='migration'          ;;
       o) EC2_TYPE='outboundproxy'      ;;

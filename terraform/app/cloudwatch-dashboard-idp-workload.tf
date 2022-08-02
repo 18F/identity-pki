@@ -91,7 +91,6 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
             "properties": {
                 "metrics": [
                     [ "AWS/EC2", "CPUUtilization", "AutoScalingGroupName", "${aws_autoscaling_group.idp.name}", { "label": "IdP Instances" } ],
-                    [ "...", "${aws_autoscaling_group.idpxtra.name}", { "label": "IdPXtra Instances" } ],
                     [ "...", "${aws_autoscaling_group.worker.name}", { "label": "Worker Instances" } ],
                     [ "AWS/RDS", ".", "DBInstanceIdentifier", "${aws_db_instance.idp.id}", { "label": "Database" } ],
                     [ "AWS/ElastiCache", ".", "CacheClusterId", "${var.env_name}-idp-001", { "label": "Cache (1)" } ],
@@ -455,41 +454,6 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
                         {
                             "label": "Minimum",
                             "value": ${var.asg_idp_min}
-                        }
-                    ]
-                }
-            }
-        },
-        {
-            "type": "metric",
-            "x": 0,
-            "y": 32,
-            "width": 12,
-            "height": 6,
-            "properties": {
-                "metrics": [
-                    [ "AWS/AutoScaling", "GroupInServiceInstances", "AutoScalingGroupName", "${aws_autoscaling_group.idpxtra.name}", { "color": "#2ca02c", "label": "InService" } ],
-                    [ ".", "GroupTerminatingInstances", ".", ".", { "color": "#d62728", "label": "Terminating" } ],
-                    [ ".", "GroupPendingInstances", ".", ".", { "color": "#ff7f0e", "label": "Pending" } ]
-                ],
-                "view": "timeSeries",
-                "stacked": false,
-                "region": "${var.region}",
-                "yAxis": {
-                    "left": {
-                        "min": 0,
-                        "label": "Count (max)",
-                        "showUnits": false
-                    }
-                },
-                "title": "${var.env_name} IdPXtra - Autoscaling Group Instance State",
-                "period": 60,
-                "stat": "Average",
-                "annotations": {
-                    "horizontal": [
-                        {
-                            "label": "Minimum",
-                            "value": ${var.asg_idpxtra_min}
                         }
                     ]
                 }

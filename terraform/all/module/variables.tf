@@ -17,10 +17,10 @@ locals {
   ssm_cmd_map = {
     "default"      = ["*"]
     "sudo"         = ["*"]
-    "rails-c"      = ["idp", "idpxtra", "migration", "worker"]
-    "rails-w"      = ["idp", "idpxtra", "migration", "worker"]
+    "rails-c"      = ["idp", "migration", "worker"]
+    "rails-w"      = ["idp", "migration", "worker"]
     "tail-cw"      = ["*"]
-    "uuid-lookup"  = ["idp", "idpxtra", "migration", "worker"]
+    "uuid-lookup"  = ["idp", "migration", "worker"]
     "work-restart" = ["worker"]
   }
 }

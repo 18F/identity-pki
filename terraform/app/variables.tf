@@ -269,18 +269,6 @@ variable "asg_idp_max" {
   default = 8
 }
 
-variable "asg_idpxtra_min" {
-  default = 0
-}
-
-variable "asg_idpxtra_desired" {
-  default = 0
-}
-
-variable "asg_idpxtra_max" {
-  default = 8
-}
-
 variable "asg_app_min" {
   default = 0
 }
@@ -392,22 +380,6 @@ variable "worker_cpu_autoscaling_enabled" {
 variable "worker_cpu_autoscaling_target" {
   # Allow workers higher CPU saturation if CPU autoscaling is on
   default = 90
-}
-
-variable "idpxtra_client_ids" {
-  description = "Map of friendly names (keys) to client ID/OIDC arns (values) to be routed to idpxtra pool"
-  # Example: {"sba_dlap" = "urn:gov:gsa:openidconnect.profiles:sp:sso:sba:dlap"}
-  type    = map(string)
-  default = {}
-}
-
-variable "idpxtra_sp_networks" {
-  # WARNING - ANY IP matching these lists will get routed to idpxtra, including
-  #           users.  Use this feature only when really needed or for explicit testing!
-  description = "Map of friendly names to lists of CIDR blocks to route to idpxtra pool, used for SP to IdP token and other requests"
-  type        = map(list(string))
-  # Example: {"sba_dlap" = ["5.5.5.0/24", "7.7.5.1/32"]}
-  default = {}
 }
 
 # Several variables used by the modules/bootstrap/ module for running

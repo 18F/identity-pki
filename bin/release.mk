@@ -70,7 +70,7 @@ terraform/app/%.recycle-verify: | terraform/app/%.recycle
 	touch $@
 
 # Prod needs a special command to scale-in
-PROD_SCALE_INS=$(patsubst %,terraform/app/prod.%.scale-in,idp idpxtra pivcac worker outboundproxy)
+PROD_SCALE_INS=$(patsubst %,terraform/app/prod.%.scale-in,idp pivcac worker outboundproxy)
 $(PROD_SCALE_INS): terraform/app/prod.%.scale-in: | terraform/app/prod.recycle-verify
 	aws-vault exec prod-admin -- bin/scale-in-old-instances prod $*
 	touch $@

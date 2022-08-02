@@ -291,7 +291,6 @@ resource "aws_iam_role_policy" "app-xray-publish" {
 # resource "aws_autoscaling_notification" "application" {
 #   group_names = [
 #     aws_autoscaling_group.idp.name,
-#     aws_autoscaling_group.idpxtra.name,
 #     aws_autoscaling_group.pivcac.name,
 #   ]
 
