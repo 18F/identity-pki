@@ -30,6 +30,21 @@ module "analytics-assumerole" {
           ]
         },
         {
+          sid    = "AthenaAccess"
+          effect = "Allow"
+          actions = [
+            "athena:List*",
+            "athena:BatchGet*",
+            "athena:Get*",
+            "athena:StartQueryExecution",
+            "athena:StopQueryExecution",
+          ]
+          resources = [
+            "arn:aws:s3:::login-gov.reports.*",
+            "arn:aws:s3:::login-gov.reports.*/*"
+          ]
+        },
+        {
           sid    = "ReportsBucketAccess"
           effect = "Allow"
           actions = [
