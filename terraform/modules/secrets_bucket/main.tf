@@ -20,27 +20,6 @@ resource "aws_s3_bucket_acl" "secrets" {
   acl    = "private"
 }
 
-resource "aws_s3_bucket_object" "bigfix_folder" {
-  bucket = aws_s3_bucket.secrets.id
-  #    acl    = "private"
-  key    = "common/soc_agents/bigfix/"
-  source = "/dev/null"
-}
-
-resource "aws_s3_bucket_object" "endgame_folder" {
-  bucket = aws_s3_bucket.secrets.id
-  #   acl    = "private"
-  key    = "common/soc_agents/endgame/"
-  source = "/dev/null"
-}
-
-resource "aws_s3_bucket_object" "fireeye_folder" {
-  bucket = aws_s3_bucket.secrets.id
-  #  acl    = "private"
-  key    = "common/soc_agents/fireeye/"
-  source = "/dev/null"
-}
-
 resource "aws_s3_bucket_versioning" "secrets" {
   bucket = aws_s3_bucket.secrets.id
 
