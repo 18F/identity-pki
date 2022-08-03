@@ -1,7 +1,3 @@
-locals{
-  events_log_bucket_name   = "login-gov-log-cache-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
-}
-
 data "aws_iam_policy_document" "cloudwatch_process_logs" {
   statement {
     sid    = "AllowProcessCloudWatchLogs"
@@ -12,84 +8,94 @@ data "aws_iam_policy_document" "cloudwatch_process_logs" {
       "s3:PutObjectAcl"
     ]
     resources = [
-      "arn:aws:s3:::${local.events_log_bucket_name}",
-      "arn:aws:s3:::${local.events_log_bucket_name}/*"
+      "${module.kinesis-firehose.kinesis_firehose_stream_bucket.arn}",
+      "${module.kinesis-firehose.kinesis_firehose_stream_bucket.arn}/*"
     ]
   }
+
+  depends_on = [module.kinesis-firehose]
+
 }
 
 resource "aws_iam_role_policy" "cloudwatch_process_logs" {
   name   = "${var.env_name}-cloudwatch-process-logs"
   role   = module.cloudwatch_events_log_processors.cloudwatch_log_processor_lambda_iam_role.id
   policy = data.aws_iam_policy_document.cloudwatch_process_logs.json
+
+  depends_on = [module.cloudwatch_events_log_processors.cloudwatch_log_processor_lambda_iam_role]
 }
 
-module "cloudwatch_events_log_processors"{
+module "cloudwatch_events_log_processors" {
   source        = "../modules/cloudwatch_log_processors"
-  kms_resources =  [module.kinesis-firehose.kinesis_firehose_stream_bucket]
+  kms_resources = [module.kinesis-firehose.kinesis_firehose_stream_bucket_kms_key.arn]
 
-  env_name      = var.env_name
-  region        = var.region
-  bucket_name   = local.events_log_bucket_name
-  source_arn    = module.kinesis-firehose.kinesis_firehose_stream_bucket
+  env_name    = var.env_name
+  region      = var.region
+  bucket_name = module.kinesis-firehose.kinesis_firehose_stream_bucket.bucket
+  source_arn  = module.kinesis-firehose.kinesis_firehose_stream_bucket.arn
+
+  depends_on = [module.kinesis-firehose]
 }
 
-module "athena_logs_database"{
+module "athena_logs_database" {
   source        = "../modules/athena_database"
   database_name = "${var.env_name}_events_logs"
-  bucket_name   = local.events_log_bucket_name
+  bucket_name   = module.kinesis-firehose.kinesis_firehose_stream_bucket.bucket
+
+  depends_on = [module.kinesis-firehose]
+
 }
 
 resource "aws_glue_catalog_table" "aws_glue_catalog_table" {
   name          = "${var.env_name}_events_log"
-  database_name = "${module.athena_logs_database.database.name}"
+  database_name = module.athena_logs_database.database.name
 
   table_type = "EXTERNAL_TABLE"
 
   parameters = {
     EXTERNAL                    = "TRUE"
     "parquet.compression"       = "SNAPPY"
-    "has_encrypted_data"        = "true", 
-    "projection.day.digits"     = "2", 
-    "projection.day.range"      = "01,31", 
-    "projection.day.type"       = "integer", 
-    "projection.enabled"        = "true", 
-    "projection.hour.digits"    = "2", 
-    "projection.hour.range"     = "00,23", 
-    "projection.hour.type"      = "integer", 
-    "projection.month.digits"   = "2", 
-    "projection.month.range"    = "01,12", 
-    "projection.month.type"     = "integer", 
-    "projection.year.digits"    = "4", 
-    "projection.year.range"     = "2021,2022", 
-    "projection.year.type"      = "integer", 
-    "storage.location.template" = "s3://${local.events_log_bucket_name}/athena/$${year}/$${month}/$${day}/$${hour}", 
+    "has_encrypted_data"        = "true",
+    "projection.day.digits"     = "2",
+    "projection.day.range"      = "01,31",
+    "projection.day.type"       = "integer",
+    "projection.enabled"        = "true",
+    "projection.hour.digits"    = "2",
+    "projection.hour.range"     = "00,23",
+    "projection.hour.type"      = "integer",
+    "projection.month.digits"   = "2",
+    "projection.month.range"    = "01,12",
+    "projection.month.type"     = "integer",
+    "projection.year.digits"    = "4",
+    "projection.year.range"     = "2021,2022",
+    "projection.year.type"      = "integer",
+    "storage.location.template" = "s3://${module.kinesis-firehose.kinesis_firehose_stream_bucket.bucket}/athena/$${year}/$${month}/$${day}/$${hour}",
     "transient_lastDdlTime"     = "1657034075"
   }
 
   partition_keys {
-    name    = "year"
-    type    = "int"
+    name = "year"
+    type = "int"
   }
 
   partition_keys {
-    name    = "month"
-    type    = "int"
+    name = "month"
+    type = "int"
   }
 
   partition_keys {
-    name    = "day"
-    type    = "int"
+    name = "day"
+    type = "int"
   }
 
   partition_keys {
-    name    = "hour"
-    type    = "int"
+    name = "hour"
+    type = "int"
   }
 
-  
+
   storage_descriptor {
-    location      = "s3://${local.events_log_bucket_name}/athena"
+    location      = "s3://${module.kinesis-firehose.kinesis_firehose_stream_bucket.bucket}/athena"
     input_format  = "org.apache.hadoop.mapred.TextInputFormat"
     output_format = "org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat"
 
@@ -162,5 +168,10 @@ resource "aws_glue_catalog_table" "aws_glue_catalog_table" {
       type = "string"
     }
   }
+
+  depends_on = [
+    module.athena_logs_database,
+    module.kinesis-firehose.kinesis_firehose_stream_bucket
+  ]
 
 }

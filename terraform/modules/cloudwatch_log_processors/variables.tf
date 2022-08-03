@@ -8,7 +8,7 @@ variable "bucket_name" {
 variable "bucket_path" {
   description = "Path where logs live"
   type        = string
-  default     = "logs"
+  default     = "logs/"
 }
 
 variable "env_name" {

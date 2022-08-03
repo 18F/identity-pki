@@ -29,6 +29,8 @@ resource "aws_s3_bucket_notification" "log_processor_bucket_notification" {
     events              = ["s3:ObjectCreated:*"]
     filter_prefix       = var.bucket_path
   }
+
+  depends_on = [aws_lambda_permission.allow_s3_trigger]
 }
 
 resource "aws_lambda_permission" "allow_s3_trigger" {
