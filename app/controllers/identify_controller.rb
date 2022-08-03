@@ -1,5 +1,6 @@
 require 'cgi'
 require 'openssl'
+require 'open3'
 
 class IdentifyController < ApplicationController
   TOKEN_LIFESPAN = 5.minutes
@@ -100,6 +101,10 @@ class IdentifyController < ApplicationController
   end
 
   def log_certificate(cert)
+    stdout, stderr, status = Open3.capture3('openssl verify -purpose sslclient -inhibit_any -explicit_policy -CAfile ./config/all_certs/all.pem -policy_check -policy 2.16.8.40.1.101.3.2.1.3.7 -policy 2.16.840.1.101.3.2.1.3.13 -policy 2.16.840.1.101.3.2.1.3.15 -policy 2.16.840.1.101.3.2.1.3.16 -policy 2.16.840.1.101.3.2.1.3.18 -policy 2.16.840.1.101.3.2.1.3.41', stdin_data: cert.to_pem)
+
+    stderr.strip!
+    errors = stderr.scan(/(error \d+ [\w :]+)$\n?/).flatten
     validation_result = cert.validate_cert(is_leaf: true)
 
     attributes = {
@@ -111,6 +116,8 @@ class IdentifyController < ApplicationController
       valid_policies: cert.valid_policies?,
       valid: validation_result == 'valid',
       error: validation_result != 'valid' ? validation_result : nil,
+      openssl_valid: status.success? && stderr.ends_with?("OK") && errors.empty?,
+      openssl_errors: errors.join(', '),
     }
 
     if validation_result == 'self-signed cert'
