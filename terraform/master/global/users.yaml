@@ -274,6 +274,8 @@ users:
     - appdev
     ec2_username:
     - mmiller
+    gitlab_groups:
+    - appdev
   micah.saul:
     aws_groups:
     - appdev
