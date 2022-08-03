@@ -1,4 +1,5 @@
 # SSM Docs via module
+
 module "ssm" {
   source = "github.com/18F/identity-terraform//ssm?ref=5d344d205dd09eb85d5de1ff1081c4a598afe433"
   #source = "../../../identity-terraform/ssm"
@@ -47,6 +48,18 @@ module "ssm" {
     "work-restart" = {
       command     = "sudo systemctl restart idp-workers.target"
       description = "Restart idp-worker service via systemctl"
+      logging     = true
+      use_root    = false
+    }
+    "passenger-stat" = {
+      command     = "sudo systemctl status passenger.service| grep Active"
+      description = "Check status of passenger service via systemctl, report Active line"
+      logging     = true
+      use_root    = false
+    }
+    "passenger-restart" = {
+      command     = "sudo systemctl restart passenger; if [ $? -eq 0 ]; then echo SUCCESS; else echo FAIL && exit ; fi"
+      description = "Restart passenger service via systemctl"
       logging     = true
       use_root    = false
     }

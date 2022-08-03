@@ -15,13 +15,15 @@ locals {
   }
 
   ssm_cmd_map = {
-    "default"      = ["*"]
-    "sudo"         = ["*"]
-    "rails-c"      = ["idp", "migration", "worker"]
-    "rails-w"      = ["idp", "migration", "worker"]
-    "tail-cw"      = ["*"]
-    "uuid-lookup"  = ["idp", "migration", "worker"]
-    "work-restart" = ["worker"]
+    "default"           = ["*"]
+    "sudo"              = ["*"]
+    "rails-c"           = ["idp", "migration", "worker"]
+    "rails-w"           = ["idp", "migration", "worker"]
+    "tail-cw"           = ["*"]
+    "uuid-lookup"       = ["idp", "migration", "worker"]
+    "work-restart"      = ["worker"]
+    "passenger-stat"    = ["idp", "worker"]
+    "passenger-restart" = ["idp", "worker"]
   }
 }
 
