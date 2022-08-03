@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
 effort:
   - medium
 ---
@@ -30,6 +30,10 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control ac-6.10
+Non-privileged access to Gitlab is limited to AppDev engineers.
+
+Privileged access to Gitlab for the purpose of administration and implementing
+or configuring security safeguards is restricted to only DevOps Engineers, and
+requires PIV-based MFA from the GSA network.
 
 ______________________________________________________________________

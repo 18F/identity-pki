@@ -40,10 +40,11 @@ Vagrantfile
 **.dist-info/
 
 # Relase state
-terraform/*/*.plan
 terraform/*/*.apply
-terraform/*/*.plan-verify
 terraform/*/*.branch
-terraform/*/*.recycle-verify
+terraform/*/*.plan
+terraform/*/*.plan-verify
 terraform/*/*.recycle
+terraform/*/*.recycle-verify
+terraform/*/*.release_version
 terraform/*/*.scale-in

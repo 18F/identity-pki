@@ -9,10 +9,12 @@ set -euo pipefail
 . "$(dirname "$0")/../lib/common.sh"
 . "$(dirname "$0")/../lib/acct-lib.sh"
 
-usage() {
-    cat >&2 << EOM
+howto() { echo "Usage: ${0} [-tprob12345h] IAM_USER_PROFILE_NAME" ; }
+usage() { echo -e "\n$(howto)\nUse -h for more info!\n" ; }
+help_me() {
+  cat >&2 << EOM
 
-Usage: ${0} [-slxbt12345] IAM_USER_PROFILE_NAME
+$(howto)
 
 Runs all necessary tasks to tear down the basic infrastructure for an AWS account.
 Ideally, should only be used when resetting an account back to a clean slate and
@@ -45,7 +47,8 @@ EOM
 
 # empty the secrets bucket so that Terraform can actually destroy it
 1_empty_secrets_bucket() {
-  empty_bucket_with_versions $(aws s3 ls | grep '\.secrets\.' | awk '{print $NF}')
+  get_secrets_bucket ${TF_ACCT}
+  empty_bucket_with_versions ${SECRETS_BUCKET}
 }
 
 # remove tf-state module from Terraform; buckets and table are emptied
@@ -73,7 +76,7 @@ EOM
   run aws dynamodb wait table-not-exists --table-name terraform_locks
 }
 
-declare {TF_ACCT,ACCT_ID}=
+declare {TF_ACCT,ACCT_ID,SECRETS_BUCKET,ACCOUNT_ALIAS}=
 verify_root_repo
 
 TASKS=(
@@ -85,7 +88,7 @@ TASKS=(
 )
 TODO=()
 
-while getopts s1l2x3b4t5 opt
+while getopts s1l2x3b4t5h opt
 do
   case $opt in
     1|s) TODO+=("${TASKS[0]}") ;;
@@ -101,5 +104,9 @@ shift $((OPTIND-1))
 
 export AWS_PROFILE=$1
 verify_account_info
+if [[ -z "${ACCOUNT_ALIAS}" ]] ; then
+  echo_red "Account alias for '${TF_ACCT}' not found via 'list-account-aliases'."
+  raise "Account may already be cleaned up; rebuild with create-aws-account instead!"
+fi
 
 run_tasks

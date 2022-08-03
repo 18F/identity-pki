@@ -366,6 +366,13 @@ users:
     - orenyk
     gitlab_groups:
     - appdev
+  osman.latif:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - olatif
+    gitlab_groups:
+    - appdev
   parissa.eggleston:
     aws_groups:
     - apponcall
@@ -408,6 +415,13 @@ users:
   rahul.kamarouthu:
     aws_groups:
     - analytics
+  rakesh.nagilla:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - rnagilla
+    gitlab_groups:
+    - appdev
   richard.wolfe:
     aws_groups:
     - appdev
@@ -465,7 +479,7 @@ users:
     - bizops
   stephen.shelton:
     aws_groups:
-    - devopsnonprod
+    - devops
     ec2_username:
     - sshelton
   steve.urciuoli:

@@ -33,6 +33,9 @@ verify_account_info() {
   else
     echo_cyan "Found: AWS account '${TF_ACCT}' with ID '${ACCT_ID}'."
   fi
+
+  echo_green "Verifying account status..."
+  ACCOUNT_ALIAS=$(aws iam list-account-aliases --query AccountAliases --output text)
 }
 
 get_secrets_bucket() {
