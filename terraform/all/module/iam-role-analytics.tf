@@ -40,8 +40,7 @@ module "analytics-assumerole" {
             "athena:StopQueryExecution",
           ]
           resources = [
-            "arn:aws:s3:::login-gov.reports.*",
-            "arn:aws:s3:::login-gov.reports.*/*"
+            "*"
           ]
         },
         {
