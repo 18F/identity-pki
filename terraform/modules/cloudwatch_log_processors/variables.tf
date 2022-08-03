@@ -1,5 +1,16 @@
 data "aws_caller_identity" "current" {}
 
+variable "bucket_name" {
+  description = "Bucket where logs live"
+  type        = string
+}
+
+variable "bucket_path" {
+  description = "Path where logs live"
+  type        = string
+  default     = "logs"
+}
+
 variable "env_name" {
   description = "Environment Name"
   type        = string
@@ -52,15 +63,9 @@ variable "lambda_runtime" {
   default     = "python3.9"
 }
 
-variable "bucket_name" {
-  description = "Bucket where logs live"
+variable "source_arn" {
+  description = "Arn for S3 Lambda trigger"
   type        = string
-}
-
-variable "bucket_path" {
-  description = "Bucket where logs live"
-  type        = string
-  default     = "logs/"
 }
 
 

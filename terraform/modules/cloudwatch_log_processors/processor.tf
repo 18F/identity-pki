@@ -36,6 +36,6 @@ resource "aws_lambda_permission" "allow_s3_trigger" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.log_processor_lambda.arn
   principal     = "s3.amazonaws.com"
-  // source_arn    = 
+  source_arn    = var.source_arn
 }
 

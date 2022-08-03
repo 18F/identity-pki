@@ -31,6 +31,7 @@ module "cloudwatch_events_log_processors"{
   env_name      = var.env_name
   region        = var.region
   bucket_name   = local.events_log_bucket_name
+  source_arn    = module.kinesis-firehose.kinesis_firehose_stream_bucket
 }
 
 module "athena_logs_database"{
