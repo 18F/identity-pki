@@ -39,7 +39,7 @@ module "cloudwatch_events_log_processors" {
 
 module "athena_logs_database" {
   source        = "../modules/athena_database"
-  database_name = "${var.env_name}_events_logs"
+  database_name = "${var.env_name}_logs"
   bucket_name   = module.kinesis-firehose.kinesis_firehose_stream_bucket.bucket
 
   depends_on = [module.kinesis-firehose]
@@ -119,7 +119,7 @@ resource "aws_glue_catalog_table" "aws_glue_catalog_table" {
     }
 
     columns {
-      name = "my_struct"
+      name = "properties"
       type = "struct<event_properties:struct<requested_ial:string,service_provider:string,flash:string,stored_location:string>,new_event:boolean,new_session_path:boolean,new_session_success_state:boolean,success_state:string,path:string,session_duration:float,user_id:string,locale:string,user_ip:string,hostname:string,pid:int,service_provider:string,trace_id:string,git_sha:string,git_branch:string,user_agent:string,browser_name:string,browser_version:string,browser_platform_name:string,browser_platform_version:string,browser_device_name:string,browser_mobile:boolean,browser_bot:boolean>"
     }
 
