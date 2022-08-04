@@ -107,7 +107,7 @@ module "main" {
           "ttl"     = "900",
         },
         {
-          "name"    = "zendesk",
+          "name"    = "zendesk.",
           "records" = ["logingov.zendesk.com."],
           "ttl"     = "900",
         }
