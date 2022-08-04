@@ -124,6 +124,11 @@ resource "aws_glue_catalog_table" "aws_glue_catalog_table" {
     }
 
     columns {
+      name = "time"
+      type = "string"
+    }
+
+    columns {
       name = "timestamp"
       type = "string"
     }
