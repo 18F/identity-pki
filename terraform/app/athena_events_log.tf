@@ -41,7 +41,7 @@ module "athena_logs_database" {
   source        = "../modules/athena_database"
   database_name = "${var.env_name}_logs"
   bucket_name   = module.kinesis-firehose.kinesis_firehose_stream_bucket.bucket
-
+  kms_key       = module.kinesis-firehose.kinesis_firehose_stream_bucket_kms_key.arn
   depends_on = [module.kinesis-firehose]
 
 }

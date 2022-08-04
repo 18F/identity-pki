@@ -8,5 +8,9 @@ variable "database_name"{
   type        = string
 }
 
+variable "kms_key"{
+  description = "KMS key to use with the Athena database"
+  type        = string
+}
 
 
