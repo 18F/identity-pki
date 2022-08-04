@@ -1,0 +1,101 @@
+#!/usr/bin/env ruby
+
+require 'aws-sdk-cloudwatch'
+require 'json'
+require 'optparse'
+
+BASENAME = File.basename($0)
+BANNER_TEXT = <<-EOM
+usage: #{BASENAME} [OPTIONS]
+
+Copy an expiremental dashboard source into a terraform file
+
+For example:
+  #{BASENAME} -in jmhooper-sample-dashbaord
+
+  #{BASENAME} -in jmhooper-sample-dashbaord -out sample-dashboard.tf
+
+  #{BASENAME} -in jmhooper-sample-dashbaord -out sample-dashboard.tf -name sample-dashboard
+
+EOM
+
+options = {}
+optparse = OptionParser.new do |opts|
+  opts.banner = BANNER_TEXT
+
+  opts.on('-h', '--help', 'Display this message') do
+    STDERR.puts opts
+    exit
+  end
+
+  opts.on('-i', '--in INPUT_DASHBOARD', 'Input dashboard name') do |value|
+    options[:input_dashboard] = value
+  end
+
+  opts.on('-o', '--out OUTPUT_FILE', 'Output terraform file') do |value|
+    options[:output_file] = value
+  end
+
+  opts.on('-n', '--name DASHBOARD_NAME', 'Override dashboard name') do |value|
+    options[:dashboard_name] = value
+  end
+end
+optparse.parse!
+
+input_dashboard = options[:input_dashboard]
+if input_dashboard.nil?
+  warn optparse.help
+  raise OptionParser::MissingArgument, 'no input dashboard provided'
+end
+
+def output_file_from_input(input_dashboard)
+  'cloudwatch-' + input_dashboard.gsub(/^[A-Za-z]+-/, '') + '.tf'
+end
+
+def dashboard_name_from_input(input_dashboard)
+  input_dashboard.gsub(/^[A-Za-z]+-/, '')
+end
+
+output_file = options[:output_file] || output_file_from_input(input_dashboard)
+dashboard_name = options[:dashboard_name] || dashboard_name_from_input(input_dashboard)
+
+sandbox_dashboard = Aws::CloudWatch::Client.new.get_dashboard(dashboard_name: input_dashboard)
+dashboard_source = JSON.parse(sandbox_dashboard.dashboard_body)
+
+def transform_widget(widget)
+  new_widget = widget.dup
+
+  properties = new_widget['properties']
+  return new_widget if properties.nil?
+
+  if properties['region']
+    properties['region'] = '${var.region}'
+  end
+
+  if properties['query']
+    properties['query'].gsub!(/^SOURCE '[a-z]+_/, "SOURCE '${var.env_name}_")
+    properties['query'].gsub!(/\n+/, "\n")
+  end
+
+  new_widget
+end
+
+dashboard_source['widgets'] = dashboard_source['widgets'].map do |widget|
+  transform_widget(widget)
+end
+
+terraform_output = <<-TERRAFORM_OUTPUT
+resource "aws_cloudwatch_dashboard" "#{dashboard_name.gsub('-', '_')}" {
+  dashboard_name = "${var.env_name}-#{dashboard_name}"
+
+  dashboard_body = <<EOF
+    #{JSON.pretty_generate(dashboard_source)}
+  EOF
+}
+TERRAFORM_OUTPUT
+
+output_path = "terraform/app/#{output_file}"
+
+File.write(output_path, terraform_output)
+
+puts "#{output_path} written"
