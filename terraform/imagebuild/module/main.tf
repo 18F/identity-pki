@@ -1,6 +1,13 @@
 data "aws_caller_identity" "current" {
 }
 
+locals {
+  secrets_bucket = join(".", [
+    "login-gov", "secrets",
+    "${data.aws_caller_identity.current.account_id}-${var.region}"
+  ])
+}
+
 module "git2s3_src" {
   count = data.aws_caller_identity.current.account_id == "894947205914" ? 1 : 0
   #source = "../../../../identity-terraform/git2s3_artifacts"
@@ -19,4 +26,25 @@ module "git2s3_src" {
   #artifact_bucket      = "login-gov-public-artifacts-us-west-2"
   bucket_name_prefix = "login-gov"
   sse_algorithm      = "AES256"
+}
+
+resource "aws_s3_object" "bigfix_folder" {
+  bucket = local.secrets_bucket
+  acl    = "private"
+  key    = "common/soc_agents/bigfix/"
+  source = "/dev/null"
+}
+
+resource "aws_s3_object" "endgame_folder" {
+  bucket = local.secrets_bucket
+  acl    = "private"
+  key    = "common/soc_agents/endgame/"
+  source = "/dev/null"
+}
+
+resource "aws_s3_object" "fireeye_folder" {
+  bucket = local.secrets_bucket
+  acl    = "private"
+  key    = "common/soc_agents/fireeye/"
+  source = "/dev/null"
 }
