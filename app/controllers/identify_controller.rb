@@ -103,7 +103,7 @@ class IdentifyController < ApplicationController
   def log_certificate(cert)
     validation_result = cert.validate_cert(is_leaf: true)
     login_certs_openssl_result = openssl_validate(cert.to_pem, Rails.root.join(IdentityConfig.store.login_certificate_bundle_file).to_s)
-    ficam_certs_openssl_result = openssl_validate(cert.to_pem, Rails.root.join(IdentityConfig.store.login_certificate_bundle_file).to_s)
+    ficam_certs_openssl_result = openssl_validate(cert.to_pem, Rails.root.join(IdentityConfig.store.ficam_certificate_bundle_file).to_s)
     attributes = {
       name: 'Certificate Processed',
       signing_key_id: cert.signing_key_id,
@@ -130,9 +130,10 @@ class IdentifyController < ApplicationController
     stdout, stderr, status = Open3.capture3('openssl', 'verify', '-purpose', 'sslclient', '-inhibit_any', '-explicit_policy', '-CAfile', certificate_bundle_file_path, '-policy_check', '-policy', '2.16.8.40.1.101.3.2.1.3.7', '-policy', '2.16.840.1.101.3.2.1.3.13', '-policy', '2.16.840.1.101.3.2.1.3.15', '-policy', '2.16.840.1.101.3.2.1.3.16', '-policy', '2.16.840.1.101.3.2.1.3.18', '-policy', '2.16.840.1.101.3.2.1.3.41', stdin_data: certificate_pem)
 
     stderr.strip!
+    stdout.strip!
     errors = stderr.scan(/(error \d+ [\w :]+)$\n?/).flatten
     {
-      valid: status.success? && stderr.ends_with?('OK') && errors.empty?,
+      valid: status.success? && stdout.ends_with?('OK') && errors.empty?,
       errors: errors.join(', '),
     }
   end

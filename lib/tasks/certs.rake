@@ -209,8 +209,7 @@ namespace :certs do
 
   desc 'Check that LG certificate bundle matches certificates in certificate path'
   task check_certificate_bundle: :environment do |t, args|
-    certificate_store = CertificateStore.instance
-    certificate_store.load_certs!(dir: 'config/certs')
+    CertificateStore.instance.load_certs!(dir: 'config/certs')
     bundled_certs = []
     cert_bundle_file = File.read(IdentityConfig.store.login_certificate_bundle_file)
     cert_bundle = cert_bundle_file.split(CertificateStore::END_CERTIFICATE).map do |cert|
@@ -218,7 +217,7 @@ namespace :certs do
       cert = Certificate.new(OpenSSL::X509::Certificate.new(cert))
     end
 
-    if cert_bundle.map(&:sha1_fingerprint).sort != certificate_store.certificates.map(&:sha1_fingerprint).sort
+    if cert_bundle.map(&:sha1_fingerprint).sort != CertificateStore.instance.certificates.map(&:sha1_fingerprint).sort
       puts <<-ERROR
         #{IdentityConfig.store.login_certificate_bundle_file} does not match the certificates in #{IdentityConfig.store.certificate_store_directory}
         Please run:
@@ -229,21 +228,33 @@ namespace :certs do
   end
 
   task generate_certificate_bundles: :environment do |t, args|
-    certificate_store = CertificateStore.instance
-    certificate_store.load_certs!
+    CertificateStore.instance.load_certs!(dir: 'config/certs')
     File.write(
       IdentityConfig.store.login_certificate_bundle_file,
-      certificate_store.certificates.sort_by(&:sha1_fingerprint).map(&:to_pem).join,
+      CertificateStore.instance.certificates.sort_by(&:sha1_fingerprint).map(&:to_pem).join,
     )
 
     ficam_uri = URI('https://raw.githubusercontent.com/GSA/ficam-playbooks/staging/_fpki/tools/CACertificatesValidatingToFederalCommonPolicyG2.p7b')
 
     response = Net::HTTP.get_response(ficam_uri)
-    certificates = response.body.force_encoding('UTF-8')
-    stdout, stderr, status = Open3.capture3('openssl', 'pkcs7', '-print_certs', '-inform', 'DER', stdin_data: certificates)
+    body = response.body.force_encoding('UTF-8')
+    stdout, stderr, status = Open3.capture3('openssl', 'pkcs7', '-print_certs', '-inform', 'DER', stdin_data: body)
+    raw_certificates = stdout.strip
+
+    certificates = raw_certificates.split(CertificateStore::END_CERTIFICATE).map do |cert|
+      cert += CertificateStore::END_CERTIFICATE
+      cert = Certificate.new(OpenSSL::X509::Certificate.new(cert))
+    end
+
+    # Remove all certificates that are non-root cert and sign the Federal Bridge CA G4 cert
+    certificates.reject! do |x|
+      (x.key_id == '79:F0:00:49:EB:7F:77:C2:5D:41:02:65:34:8A:90:23:9B:1E:07:6F' &&
+       !IdentityConfig.store.trusted_ca_root_identifiers.include?(x.signing_key_id))
+    end
+
     File.write(
       IdentityConfig.store.ficam_certificate_bundle_file,
-      stdout,
+      certificates.sort_by(&:sha1_fingerprint).map(&:to_pem).join,
     )
   end
 end

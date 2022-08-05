@@ -65,12 +65,12 @@ class IssuingCaService
     http = Net::HTTP.new(issuer_uri.hostname, issuer_uri.port)
     response = http.get(issuer_uri.path)
     if response.kind_of?(Net::HTTPSuccess)
-      OpenSSL::PKCS7.new(response.body).certificates
+      OpenSSL::PKCS7.new(response.body).certificates || []
     else
       NewRelic::Agent.notice_error(UnexpectedPKCS7Response.new(response.body))
       []
     end
-  rescue OpenSSL::PKCS7::PKCS7Error, ArgumentError, Errno::ECONNREFUSED, Net::ReadTimeout => e
+  rescue OpenSSL::PKCS7::PKCS7Error, ArgumentError, Errno::ECONNREFUSED, Net::ReadTimeout, Net::OpenTimeout => e
     NewRelic::Agent.notice_error(e)
     []
   end
