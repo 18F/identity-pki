@@ -161,7 +161,7 @@ docker_service 'default' do
   userland_proxy false
   misc_opts '--no-new-privileges'
   userns_remap 'default'
-  default_ulimit 'nproc=256:512'
+  default_ulimit 'nproc=16384:16384'
 end
 
 docker_network 'runner-net' do
