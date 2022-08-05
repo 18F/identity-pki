@@ -79,7 +79,7 @@ def push_notification(user_name, time, account_id):
 
 #Send notification to user after disabling the console access
 def push_notification_after(user_name, time, account_id):
-  notification = "TESTING: Login disabled for user " + user_name + " in AWS Account " + account_id + " at " + (datetime.datetime.now()).date().strftime('%Y-%m-%d') + "Runbook: https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#settingupdating-your-console-password"
+  notification = "TESTING: Login disabled for user " + user_name + " in AWS Account " + account_id + " at " + (datetime.datetime.now()).date().strftime('%Y-%m-%d') + " Runbook: https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#settingupdating-your-console-password "
   response = sns.publish (
               TargetArn = os.environ['notification_topic'],
               Message = json.dumps({'default': notification}),
