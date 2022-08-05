@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
 effort:
   - medium
 ---
@@ -31,12 +31,23 @@ Determine if the organization:
 
 ## Control guidance
 
-Security functions include, for example, establishing system accounts, configuring access authorizations (i.e., permissions, privileges), setting events to be audited, and setting intrusion detection parameters. Security-relevant information includes, for example, filtering rules for routers/firewalls, cryptographic key management information, configuration parameters for security services, and access control lists. Explicitly authorized personnel include, for example, security administrators, system and network administrators, system security officers, system maintenance personnel, system programmers, and other privileged users.
+Security functions include, for example, establishing system accounts,
+configuring access authorizations (i.e., permissions, privileges), setting
+events to be audited, and setting intrusion detection
+parameters. Security-relevant information includes, for example, filtering rules
+for routers/firewalls, cryptographic key management information, configuration
+parameters for security services, and access control lists. Explicitly
+authorized personnel include, for example, security administrators, system and
+network administrators, system security officers, system maintenance personnel,
+system programmers, and other privileged users.
 
 ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control ac-6.1
+DevOps Engineers use CloudWatch logs to view and analyze Gitlab audit logs.
+
+Administrative Gitlab access is granted on an as-needed basis to DevOps
+engineers via commands executed in the AWS environment.
 
 ______________________________________________________________________
