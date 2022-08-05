@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
 ---
 
 # ac-6.2 - \[catalog\] Non-privileged Access for Nonsecurity Functions
@@ -26,6 +26,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control ac-6.2
+GitLab restricts accounts with privileged access (DevOps engineers) from accessing administrative functions by default. To access administrative functions, administrators must re-authenticate with MFA to assume an administrative role.
 
 ______________________________________________________________________
