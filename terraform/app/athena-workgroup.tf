@@ -1,6 +1,6 @@
-resource "aws_s3_bucket" "athena_query_results"{
+resource "aws_s3_bucket" "athena_query_results" {
   bucket = "aws-athena-query-results-${var.env_name}-${data.aws_caller_identity.current.account_id}-${var.region}"
-} 
+}
 
 resource "aws_s3_bucket_acl" "athena_query_results_acl" {
   bucket = aws_s3_bucket.athena_query_results.id
@@ -8,7 +8,7 @@ resource "aws_s3_bucket_acl" "athena_query_results_acl" {
 }
 
 resource "aws_s3_bucket_public_access_block" "athena_query_results_public_access_block" {
-  bucket =aws_s3_bucket.athena_query_results.id
+  bucket = aws_s3_bucket.athena_query_results.id
 
   block_public_acls       = true
   block_public_policy     = true
@@ -28,7 +28,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "athena_query_resu
 }
 
 resource "aws_athena_workgroup" "environment_workgroup" {
-  name = "${var.env_name}-workgroup"
+  name          = "${var.env_name}-workgroup"
   force_destroy = true
 
   configuration {

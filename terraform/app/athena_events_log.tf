@@ -42,7 +42,7 @@ module "athena_logs_database" {
   database_name = "${var.env_name}_logs"
   bucket_name   = module.kinesis-firehose.kinesis_firehose_stream_bucket.bucket
   kms_key       = module.kinesis-firehose.kinesis_firehose_stream_bucket_kms_key.arn
-  depends_on = [module.kinesis-firehose]
+  depends_on    = [module.kinesis-firehose]
 
 }
 
@@ -182,21 +182,21 @@ resource "aws_glue_catalog_table" "aws_glue_catalog_table" {
 }
 
 resource "aws_athena_named_query" "success_state" {
-  name        = "Totals by success_state over the last 7 days"
+  name      = "Totals by success_state over the last 7 days"
   workgroup = aws_athena_workgroup.environment_workgroup.id
   database  = module.athena_logs_database.database.name
   query     = "SELECT properties.success_state, COUNT(properties.success_state) AS total FROM \"${var.env_name}_logs\".\"${var.env_name}_events_log\" WHERE from_iso8601_timestamp(time) > from_iso8601_timestamp(time) - interval '7' day GROUP BY properties.success_state ORDER BY total desc"
 }
 
 resource "aws_athena_named_query" "user_ips" {
-  name        = "Top 10 User IPs for a given day"
+  name      = "Top 10 User IPs for a given day"
   workgroup = aws_athena_workgroup.environment_workgroup.id
   database  = module.athena_logs_database.database.name
   query     = "SELECT properties.user_ip , count(properties.user_ip) as total FROM \"${var.env_name}_logs\".\"${var.env_name}_events_log\"  WHERE year = ? AND month = ? AND DAY = ? AND properties.browser_bot = false GROUP BY properties.user_ip ORDER BY total desc LIMIT 10"
 }
 
 resource "aws_athena_named_query" "browser_platforms" {
-  name        = "Top 10 Browser/Platform combinations for a given day"
+  name      = "Top 10 Browser/Platform combinations for a given day"
   workgroup = aws_athena_workgroup.environment_workgroup.id
   database  = module.athena_logs_database.database.name
   query     = "SELECT properties.browser_name, properties.browser_version, properties.browser_platform_name, properties.browser_platform_version, COUNT(*) as total FROM \"${var.env_name}_logs\".\"${var.env_name}_events_log\"  WHERE year = ? AND month = ? AND DAY = ? AND properties.browser_bot = false GROUP BY properties.browser_name, properties.browser_version, properties.browser_platform_name, properties.browser_platform_version ORDER BY total desc LIMIT 10"
