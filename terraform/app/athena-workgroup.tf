@@ -29,6 +29,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "athena_query_resu
 
 resource "aws_athena_workgroup" "environment_workgroup" {
   name = "${var.env_name}-workgroup"
+  force_destroy = true
 
   configuration {
     enforce_workgroup_configuration    = true
