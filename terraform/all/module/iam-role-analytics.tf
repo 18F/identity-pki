@@ -30,20 +30,6 @@ module "analytics-assumerole" {
           ]
         },
         {
-          sid    = "AthenaAccess"
-          effect = "Allow"
-          actions = [
-            "athena:List*",
-            "athena:BatchGet*",
-            "athena:Get*",
-            "athena:StartQueryExecution",
-            "athena:StopQueryExecution",
-          ]
-          resources = [
-            "*"
-          ]
-        },
-        {
           sid    = "ReportsBucketAccess"
           effect = "Allow"
           actions = [
