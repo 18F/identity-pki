@@ -38,9 +38,30 @@ module "analytics-assumerole" {
             "athena:Get*",
             "athena:StartQueryExecution",
             "athena:StopQueryExecution",
+            "glue:BatchGetPartition",
+            "glue:GetDatabase",
+            "glue:GetDatabases",
+            "glue:GetPartition",
+            "glue:GetPartitions",
+            "glue:GetTable",
+            "glue:GetTables",
           ]
           resources = [
             "*"
+          ]
+        },
+        {
+          sid    = "AthenaBucketAccess"
+          effect = "Allow"
+          actions = [
+            "s3:GetObject",
+            "s3:HeadBucket",
+            "s3:List*",
+            "s3:PutObject",
+          ]
+          resources = [
+            "arn:aws:s3:::aws-athena-query-results-*",
+            "arn:aws:s3:::aws-athena-query-results-*/*"
           ]
         },
         {
