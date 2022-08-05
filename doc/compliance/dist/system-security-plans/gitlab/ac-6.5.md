@@ -1,7 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
+  - c-implemented
+  - c-documented
 ---
 
 # ac-6.5 - \[catalog\] Privileged Accounts
@@ -26,6 +26,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control ac-6.5
+The Gitlab component uses AC-6.5, from the main login.gov SSP.
 
 ______________________________________________________________________
