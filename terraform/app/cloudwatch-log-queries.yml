@@ -87,8 +87,8 @@ provisioning/cloud-init-output:
     ## Only select the end result (CONTINUE for Good, ABANDON for Bad)
     # | filter @message like "--lifecycle-action-result"
     #
-    ## Uncomment to show earliest lines first
-    # | sort @timestamp asc
+    ## Show most recent lines first
+    | sort @timestamp desc
 
 rails/500s-by-controller:
   logs:
