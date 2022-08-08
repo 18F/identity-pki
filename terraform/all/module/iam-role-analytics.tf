@@ -60,8 +60,8 @@ module "analytics-assumerole" {
             "s3:PutObject",
           ]
           resources = [
-            "arn:aws:s3:::aws-athena-query-results-*",
-            "arn:aws:s3:::aws-athena-query-results-*/*"
+            "arn:aws:s3:::login-gov-athena-query-results-*",
+            "arn:aws:s3:::login-gov-athena-query-results-*/*"
           ]
         },
         {
