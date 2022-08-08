@@ -42,7 +42,7 @@ module "athena_events_log_database" {
   bucket_name   = module.kinesis-firehose.kinesis_firehose_stream_bucket.bucket
   kms_key       = module.kinesis-firehose.kinesis_firehose_stream_bucket_kms_key.arn
 
-  depends_on    = [module.kinesis-firehose]
+  depends_on = [module.kinesis-firehose]
 }
 
 resource "aws_glue_catalog_table" "athena_events_log_database" {
@@ -52,28 +52,28 @@ resource "aws_glue_catalog_table" "athena_events_log_database" {
   table_type = "EXTERNAL_TABLE"
 
   parameters = {
-    EXTERNAL                    = "TRUE"
-    "parquet.compression"       = "SNAPPY"
-    "has_encrypted_data"        = "true",
-    "projection.day.digits"     = "2",
-    "projection.day.range"      = "01,31",
-    "projection.day.type"       = "integer",
-    "projection.enabled"        = "true",
-    "projection.hour.digits"    = "2",
-    "projection.hour.range"     = "00,23",
-    "projection.hour.type"      = "integer",
-    "projection.month.digits"   = "2",
-    "projection.month.range"    = "01,12",
-    "projection.month.type"     = "integer",
-    "projection.year.digits"    = "4",
-    "projection.year.range"     = "2021,2022",
-    "projection.year.type"      = "integer",
-    "storage.location.template" = join("/",[
+    EXTERNAL                  = "TRUE"
+    "parquet.compression"     = "SNAPPY"
+    "has_encrypted_data"      = "true",
+    "projection.day.digits"   = "2",
+    "projection.day.range"    = "01,31",
+    "projection.day.type"     = "integer",
+    "projection.enabled"      = "true",
+    "projection.hour.digits"  = "2",
+    "projection.hour.range"   = "00,23",
+    "projection.hour.type"    = "integer",
+    "projection.month.digits" = "2",
+    "projection.month.range"  = "01,12",
+    "projection.month.type"   = "integer",
+    "projection.year.digits"  = "4",
+    "projection.year.range"   = "2021,2022",
+    "projection.year.type"    = "integer",
+    "storage.location.template" = join("/", [
       "s3:/",
       module.kinesis-firehose.kinesis_firehose_stream_bucket.bucket,
       "athena/$${year}/$${month}/$${day}/$${hour}",
     ])
-    "transient_lastDdlTime"     = "1657034075"
+    "transient_lastDdlTime" = "1657034075"
   }
 
   partition_keys {
@@ -123,22 +123,22 @@ resource "aws_glue_catalog_table" "athena_events_log_database" {
 
     columns {
       name = "properties"
-      type = join("",[
-              "struct<",
-                "event_properties:struct<",
-                  "requested_ial:string,service_provider:string,",
-                  "flash:string,stored_location:string",
-                ">,",
-                "new_event:boolean,new_session_path:boolean,new_session_success_state:boolean,",
-                "success_state:string,path:string,session_duration:float,user_id:string,",
-                "locale:string,user_ip:string,hostname:string,pid:int,service_provider:string,",
-                "trace_id:string,git_sha:string,git_branch:string,user_agent:string,",
-                "browser_name:string,browser_version:string,browser_platform_name:string,",
-                "browser_platform_version:string,browser_device_name:string,",
-                "browser_mobile:boolean,browser_bot:boolean",
-              ">"
-            ])    
-        }
+      type = join("", [
+        "struct<",
+        "event_properties:struct<",
+        "requested_ial:string,service_provider:string,",
+        "flash:string,stored_location:string",
+        ">,",
+        "new_event:boolean,new_session_path:boolean,new_session_success_state:boolean,",
+        "success_state:string,path:string,session_duration:float,user_id:string,",
+        "locale:string,user_ip:string,hostname:string,pid:int,service_provider:string,",
+        "trace_id:string,git_sha:string,git_branch:string,user_agent:string,",
+        "browser_name:string,browser_version:string,browser_platform_name:string,",
+        "browser_platform_version:string,browser_device_name:string,",
+        "browser_mobile:boolean,browser_bot:boolean",
+        ">"
+      ])
+    }
 
     columns {
       name = "time"
@@ -223,7 +223,7 @@ resource "aws_athena_named_query" "user_ips" {
               ORDER BY total desc
               LIMIT 10
               EOT
-  }
+}
 
 resource "aws_athena_named_query" "browser_platforms" {
   name      = "Top 10 Browser/Platform combinations for a given day"

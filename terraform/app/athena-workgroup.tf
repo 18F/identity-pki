@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "athena_query_results" {
-bucket = join(".",[
+  bucket = join(".", [
     "login-gov-athena-query-results-${var.env_name}",
     "${data.aws_caller_identity.current.account_id}-${var.region}"
   ])
