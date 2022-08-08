@@ -15,6 +15,8 @@ users:
     gitlab_groups:
       - lg
   krit.alexikos:
+    new_field:
+      - fun!
     ec2_username:
       - spencerino
     git_username:

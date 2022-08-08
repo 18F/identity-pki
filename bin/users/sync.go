@@ -408,7 +408,7 @@ func getAuthorizedUsers(f string) (*AuthorizedUsers, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = yaml.UnmarshalStrict(userFile, &authorizedUsers)
+	err = yaml.Unmarshal(userFile, &authorizedUsers)
 	if err != nil {
 		return nil, err
 	}
