@@ -1,35 +1,9 @@
-data "aws_iam_policy_document" "cloudwatch_process_logs" {
-  statement {
-    sid    = "AllowProcessCloudWatchLogs"
-    effect = "Allow"
-    actions = [
-      "s3:PutObject",
-      "s3:GetObject",
-      "s3:PutObjectAcl"
-    ]
-    resources = [
-      "${module.kinesis-firehose.kinesis_firehose_stream_bucket.arn}",
-      "${module.kinesis-firehose.kinesis_firehose_stream_bucket.arn}/*"
-    ]
-  }
-
-  depends_on = [module.kinesis-firehose]
-}
-
-resource "aws_iam_role_policy" "cloudwatch_process_logs" {
-  name   = "${var.env_name}-cloudwatch-process-logs"
-  role   = module.athena_events_log_database.cloudwatch_log_processor_lambda_iam_role.id
-  policy = data.aws_iam_policy_document.cloudwatch_process_logs.json
-
-  depends_on = [module.athena_events_log_database.cloudwatch_log_processor_lambda_iam_role]
-}
-
 module "athena_events_log_database" {
   source        = "../modules/athena_database"
   database_name = "${var.env_name}_logs"
   kms_key       = module.kinesis-firehose.kinesis_firehose_stream_bucket_kms_key.arn
   kms_resources = [module.kinesis-firehose.kinesis_firehose_stream_bucket_kms_key.arn]
-  process_logs  = true
+  process_logs  = false
   env_name      = var.env_name
   region        = var.region
   bucket_name   = module.kinesis-firehose.kinesis_firehose_stream_bucket.bucket

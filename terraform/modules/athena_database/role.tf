@@ -23,6 +23,24 @@ data "aws_iam_policy_document" "cloudwatch_decrypt_kms_policy" {
   }
 }
 
+data "aws_iam_policy_document" "cloudwatch_process_logs" {
+  count = var.process_logs ? 1 : 0
+  statement {
+    sid    = "AllowProcessCloudWatchLogs"
+    effect = "Allow"
+    actions = [
+      "s3:PutObject",
+      "s3:GetObject",
+      "s3:PutObjectAcl"
+    ]
+    resources = [
+      "${var.source_arn}",
+      "${var.source_arn}/*"
+    ]
+  }
+
+}
+
 resource "aws_iam_role" "cloudwatch_log_processor_lambda" {
   count              = var.process_logs ? 1 : 0
   name               = "${var.env_name}_cloudwatch_log_processor"
@@ -42,7 +60,11 @@ resource "aws_iam_role_policy" "cloudwatch_decrypt_kms" {
   policy = data.aws_iam_policy_document.cloudwatch_decrypt_kms_policy[0].json
 }
 
-output "cloudwatch_log_processor_lambda_iam_role" {
-  value = var.process_logs ? aws_iam_role.cloudwatch_log_processor_lambda[0] : null
-}
+resource "aws_iam_role_policy" "cloudwatch_process_logs" {
+  count  = var.process_logs ? 1 : 0
+  name   = "${var.env_name}-cloudwatch-process-logs"
+  role   = aws_iam_role.cloudwatch_log_processor_lambda[0].id
+  policy = data.aws_iam_policy_document.cloudwatch_process_logs[0].json
 
+  depends_on = [aws_iam_role.cloudwatch_log_processor_lambda[0]]
+}
