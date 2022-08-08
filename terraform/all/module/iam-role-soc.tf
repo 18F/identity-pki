@@ -73,6 +73,8 @@ module "socadmin-assumerole" {
           ]
 
           resources = [
+            "arn:aws:s3:::login-gov-athena-query-results-*",
+            "arn:aws:s3:::login-gov-athena-query-results-*/*",
             "arn:aws:s3:::aws-athena-query-results-${data.aws_caller_identity.current.account_id}-${var.region}",
             "arn:aws:s3:::aws-athena-query-results-${data.aws_caller_identity.current.account_id}-${var.region}/*"
           ]
