@@ -1211,7 +1211,7 @@ resource "aws_subnet" "app" {
 resource "aws_subnet" "data-services" {
   for_each                = local.network_layout[var.region][var.env_type]._zones
   availability_zone       = "${var.region}${each.key}"
-  cidr_block              = each.value.data-services
+  cidr_block              = each.value.data-services.ipv4-cidr
   map_public_ip_on_launch = false
 
   tags = {
