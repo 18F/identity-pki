@@ -33,7 +33,7 @@ resource "aws_network_acl" "db" {
   }
 
   vpc_id     = aws_vpc.default.id
-  subnet_ids = [aws_subnet.db1.id, aws_subnet.db2.id]
+  subnet_ids = concat([aws_subnet.db1.id, aws_subnet.db2.id], [for subnet in aws_subnet.data-services : subnet.id])
 }
 
 # allow ephemeral ports out

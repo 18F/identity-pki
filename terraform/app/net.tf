@@ -29,7 +29,7 @@ module "network_layout" {
 resource "aws_elasticache_subnet_group" "idp" {
   name        = "${var.name}-idp-cache-${var.env_name}"
   description = "Redis Subnet Group"
-  subnet_ids  = [aws_subnet.db1.id, aws_subnet.db2.id]
+  subnet_ids  = [for subnet in aws_subnet.data-services : subnet.id]
 }
 
 resource "aws_internet_gateway" "default" {
@@ -1208,19 +1208,18 @@ resource "aws_subnet" "app" {
   vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
 }
 
-# Disabling resource until Aurora Tasks are completed
-#resource "aws_subnet" "data-services" {
-#  for_each                = local.network_layout[var.region][var.env_type]._zones
-#  availability_zone       = "${var.region}${each.key}"
-#  cidr_block              = each.value.data-services
-#  map_public_ip_on_launch = false
-#
-#  tags = {
-#    Name = "${var.name}-data_services_subnet_${each.key}-${var.env_name}"
-#  }
-#
-#  vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
-#}
+resource "aws_subnet" "data-services" {
+  for_each                = local.network_layout[var.region][var.env_type]._zones
+  availability_zone       = "${var.region}${each.key}"
+  cidr_block              = each.value.data-services
+  map_public_ip_on_launch = false
+
+  tags = {
+    Name = "${var.name}-data_services_subnet_${each.key}-${var.env_name}"
+  }
+
+  vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
+}
 
 resource "aws_subnet" "public-ingress" {
   for_each                = local.network_layout[var.region][var.env_type]._zones

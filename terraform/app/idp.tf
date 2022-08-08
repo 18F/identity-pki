@@ -167,7 +167,18 @@ resource "aws_elasticache_replication_group" "idp" {
   port                 = 6379
 
   # note that t2.* instances don't support automatic failover
+  multi_az_enabled           = true
   automatic_failover_enabled = true
+
+  at_rest_encryption_enabled = var.elasticache_redis_encrypt_at_rest
+  transit_encryption_enabled = var.elasticache_redis_encrypt_in_transit
+
+  log_delivery_configuration {
+    destination      = aws_cloudwatch_log_group.elasticache_redis_log.name
+    destination_type = "cloudwatch-logs"
+    log_format       = "text"
+    log_type         = "engine-log"
+  }
 }
 
 resource "aws_iam_instance_profile" "idp" {
@@ -517,13 +528,4 @@ resource "aws_route53_record" "idp-postgres" {
   type    = "CNAME"
   ttl     = "300"
   records = [replace(aws_db_instance.idp.endpoint, ":5432", "")]
-}
-
-resource "aws_route53_record" "redis" {
-  zone_id = aws_route53_zone.internal.zone_id
-  name    = "redis"
-
-  type    = "CNAME"
-  ttl     = "300"
-  records = [aws_elasticache_replication_group.idp.primary_endpoint_address]
 }

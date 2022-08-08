@@ -10,6 +10,14 @@ resource "aws_cloudwatch_log_group" "kms_log" {
   }
 }
 
+resource "aws_cloudwatch_log_group" "elasticache_redis_log" {
+  name = "elasticache-${var.env_name}-redis"
+
+  tags = {
+    environment = var.env_name
+  }
+}
+
 resource "aws_cloudwatch_log_group" "squid_access_log" {
   name = "${var.env_name}_/var/log/squid/access.log"
 

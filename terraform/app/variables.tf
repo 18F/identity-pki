@@ -111,11 +111,23 @@ variable "elasticache_redis_node_type" {
 
 variable "elasticache_redis_engine_version" {
   description = "Engine version used for redis elasticache. Changes may incur downtime."
-  default     = "5.0.6"
+  default     = "6.2"
 }
 
 variable "elasticache_redis_parameter_group_name" {
-  default = "default.redis5.0"
+  default = "default.redis6.x"
+}
+
+variable "elasticache_redis_encrypt_at_rest" {
+  description = "Enable encryption at rest using customer managed KMS key (CMK)"
+  type        = bool
+  default     = true
+}
+
+variable "elasticache_redis_encrypt_in_transit" {
+  description = "Enable TLS for Redis"
+  type        = bool
+  default     = true
 }
 
 # prod/test environment flags

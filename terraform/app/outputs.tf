@@ -11,7 +11,7 @@ output "aws_db_address" {
 }
 
 output "aws_elasticache_cluster_address" {
-  value = "redis.login.gov.internal"
+  value = aws_elasticache_replication_group.idp.primary_endpoint_address
 }
 
 output "aws_idp_sg_id" {
