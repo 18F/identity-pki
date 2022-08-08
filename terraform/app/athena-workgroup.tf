@@ -1,13 +1,16 @@
 resource "aws_s3_bucket" "athena_query_results" {
-  bucket = "aws-athena-query-results-${var.env_name}-${data.aws_caller_identity.current.account_id}-${var.region}"
+bucket = join(".",[
+    "login-gov-athena-query-results-${var.env_name}",
+    "${data.aws_caller_identity.current.account_id}-${var.region}"
+  ])
 }
 
-resource "aws_s3_bucket_acl" "athena_query_results_acl" {
+resource "aws_s3_bucket_acl" "athena_query_results" {
   bucket = aws_s3_bucket.athena_query_results.id
   acl    = "private"
 }
 
-resource "aws_s3_bucket_public_access_block" "athena_query_results_public_access_block" {
+resource "aws_s3_bucket_public_access_block" "athena_query_results" {
   bucket = aws_s3_bucket.athena_query_results.id
 
   block_public_acls       = true
@@ -16,7 +19,7 @@ resource "aws_s3_bucket_public_access_block" "athena_query_results_public_access
   restrict_public_buckets = true
 }
 
-resource "aws_s3_bucket_server_side_encryption_configuration" "athena_query_results_sse" {
+resource "aws_s3_bucket_server_side_encryption_configuration" "athena_query_results" {
   bucket = aws_s3_bucket.athena_query_results.bucket
 
   rule {

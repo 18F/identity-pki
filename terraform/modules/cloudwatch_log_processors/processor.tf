@@ -21,7 +21,7 @@ resource "aws_lambda_function" "log_processor_lambda" {
   depends_on = [module.lambda_code.resource_check]
 }
 
-resource "aws_s3_bucket_notification" "log_processor_bucket_notification" {
+resource "aws_s3_bucket_notification" "log_processor" {
   bucket = var.bucket_name
 
   lambda_function {

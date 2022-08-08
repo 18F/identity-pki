@@ -14,18 +14,17 @@ data "aws_iam_policy_document" "cloudwatch_process_logs" {
   }
 
   depends_on = [module.kinesis-firehose]
-
 }
 
 resource "aws_iam_role_policy" "cloudwatch_process_logs" {
   name   = "${var.env_name}-cloudwatch-process-logs"
-  role   = module.cloudwatch_events_log_processors.cloudwatch_log_processor_lambda_iam_role.id
+  role   = module.cloudwatch_events_log_processor.cloudwatch_log_processor_lambda_iam_role.id
   policy = data.aws_iam_policy_document.cloudwatch_process_logs.json
 
-  depends_on = [module.cloudwatch_events_log_processors.cloudwatch_log_processor_lambda_iam_role]
+  depends_on = [module.cloudwatch_events_log_processor.cloudwatch_log_processor_lambda_iam_role]
 }
 
-module "cloudwatch_events_log_processors" {
+module "cloudwatch_events_log_processor" {
   source        = "../modules/cloudwatch_log_processors"
   kms_resources = [module.kinesis-firehose.kinesis_firehose_stream_bucket_kms_key.arn]
 
@@ -37,18 +36,18 @@ module "cloudwatch_events_log_processors" {
   depends_on = [module.kinesis-firehose]
 }
 
-module "athena_logs_database" {
+module "athena_events_log_database" {
   source        = "../modules/athena_database"
   database_name = "${var.env_name}_logs"
   bucket_name   = module.kinesis-firehose.kinesis_firehose_stream_bucket.bucket
   kms_key       = module.kinesis-firehose.kinesis_firehose_stream_bucket_kms_key.arn
-  depends_on    = [module.kinesis-firehose]
 
+  depends_on    = [module.kinesis-firehose]
 }
 
-resource "aws_glue_catalog_table" "aws_glue_catalog_table" {
+resource "aws_glue_catalog_table" "athena_events_log_database" {
   name          = "${var.env_name}_events_log"
-  database_name = module.athena_logs_database.database.name
+  database_name = module.athena_events_log_database.database.name
 
   table_type = "EXTERNAL_TABLE"
 
@@ -69,7 +68,11 @@ resource "aws_glue_catalog_table" "aws_glue_catalog_table" {
     "projection.year.digits"    = "4",
     "projection.year.range"     = "2021,2022",
     "projection.year.type"      = "integer",
-    "storage.location.template" = "s3://${module.kinesis-firehose.kinesis_firehose_stream_bucket.bucket}/athena/$${year}/$${month}/$${day}/$${hour}",
+    "storage.location.template" = join("/",[
+      "s3:/",
+      module.kinesis-firehose.kinesis_firehose_stream_bucket.bucket,
+      "athena/$${year}/$${month}/$${day}/$${hour}",
+    ])
     "transient_lastDdlTime"     = "1657034075"
   }
 
@@ -120,8 +123,22 @@ resource "aws_glue_catalog_table" "aws_glue_catalog_table" {
 
     columns {
       name = "properties"
-      type = "struct<event_properties:struct<requested_ial:string,service_provider:string,flash:string,stored_location:string>,new_event:boolean,new_session_path:boolean,new_session_success_state:boolean,success_state:string,path:string,session_duration:float,user_id:string,locale:string,user_ip:string,hostname:string,pid:int,service_provider:string,trace_id:string,git_sha:string,git_branch:string,user_agent:string,browser_name:string,browser_version:string,browser_platform_name:string,browser_platform_version:string,browser_device_name:string,browser_mobile:boolean,browser_bot:boolean>"
-    }
+      type = join("",[
+              "struct<",
+                "event_properties:struct<",
+                  "requested_ial:string,service_provider:string,",
+                  "flash:string,stored_location:string",
+                ">,",
+                "new_event:boolean,new_session_path:boolean,new_session_success_state:boolean,",
+                "success_state:string,path:string,session_duration:float,user_id:string,",
+                "locale:string,user_ip:string,hostname:string,pid:int,service_provider:string,",
+                "trace_id:string,git_sha:string,git_branch:string,user_agent:string,",
+                "browser_name:string,browser_version:string,browser_platform_name:string,",
+                "browser_platform_version:string,browser_device_name:string,",
+                "browser_mobile:boolean,browser_bot:boolean",
+              ">"
+            ])    
+        }
 
     columns {
       name = "time"
@@ -175,7 +192,7 @@ resource "aws_glue_catalog_table" "aws_glue_catalog_table" {
   }
 
   depends_on = [
-    module.athena_logs_database,
+    module.athena_events_log_database,
     module.kinesis-firehose.kinesis_firehose_stream_bucket
   ]
 
@@ -184,20 +201,43 @@ resource "aws_glue_catalog_table" "aws_glue_catalog_table" {
 resource "aws_athena_named_query" "success_state" {
   name      = "Totals by success_state over the last 7 days"
   workgroup = aws_athena_workgroup.environment_workgroup.id
-  database  = module.athena_logs_database.database.name
-  query     = "SELECT properties.success_state, COUNT(properties.success_state) AS total FROM \"${var.env_name}_logs\".\"${var.env_name}_events_log\" WHERE from_iso8601_timestamp(time) > from_iso8601_timestamp(time) - interval '7' day GROUP BY properties.success_state ORDER BY total desc"
+  database  = module.athena_events_log_database.database.name
+  query     = <<EOT
+              SELECT properties.success_state, COUNT(properties.success_state) AS total
+              FROM "${var.env_name}_logs"."${var.env_name}_events_log"
+              WHERE from_iso8601_timestamp(time) > from_iso8601_timestamp(time) - interval '7' day
+              GROUP BY properties.success_state
+              ORDER BY total desc
+              EOT
 }
 
 resource "aws_athena_named_query" "user_ips" {
   name      = "Top 10 User IPs for a given day"
   workgroup = aws_athena_workgroup.environment_workgroup.id
-  database  = module.athena_logs_database.database.name
-  query     = "SELECT properties.user_ip , count(properties.user_ip) as total FROM \"${var.env_name}_logs\".\"${var.env_name}_events_log\"  WHERE year = ? AND month = ? AND DAY = ? AND properties.browser_bot = false GROUP BY properties.user_ip ORDER BY total desc LIMIT 10"
-}
+  database  = module.athena_events_log_database.database.name
+  query     = <<EOT
+              SELECT properties.user_ip , count(properties.user_ip) AS total
+              FROM "${var.env_name}_logs"."${var.env_name}_events_log"
+              WHERE year = ? AND month = ? AND DAY = ? AND properties.browser_bot = false
+              GROUP BY properties.user_ip
+              ORDER BY total desc
+              LIMIT 10
+              EOT
+  }
 
 resource "aws_athena_named_query" "browser_platforms" {
   name      = "Top 10 Browser/Platform combinations for a given day"
   workgroup = aws_athena_workgroup.environment_workgroup.id
-  database  = module.athena_logs_database.database.name
-  query     = "SELECT properties.browser_name, properties.browser_version, properties.browser_platform_name, properties.browser_platform_version, COUNT(*) as total FROM \"${var.env_name}_logs\".\"${var.env_name}_events_log\"  WHERE year = ? AND month = ? AND DAY = ? AND properties.browser_bot = false GROUP BY properties.browser_name, properties.browser_version, properties.browser_platform_name, properties.browser_platform_version ORDER BY total desc LIMIT 10"
+  database  = module.athena_events_log_database.database.name
+  query     = <<EOT
+              SELECT properties.browser_name, properties.browser_version,
+                properties.browser_platform_name, properties.browser_platform_version,
+                COUNT(*) as total
+              FROM "${var.env_name}_logs"."${var.env_name}_events_log"
+              WHERE year = ? AND month = ? AND DAY = ? AND properties.browser_bot = false
+              GROUP BY properties.browser_name, properties.browser_version, 
+                properties.browser_platform_name, properties.browser_platform_version
+              ORDER BY total desc
+              LIMIT 10
+              EOT
 }
