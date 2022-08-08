@@ -506,7 +506,7 @@ end
 cron_d 'run_usersync' do
   action :create
   predefined_value "@hourly"
-  command "/etc/login.gov/repos/identity-devops/bin/users/sync.sh #{external_fqdn}"
+  command "/etc/login.gov/repos/identity-devops/bin/users/sync.sh #{external_fqdn} 2>&1 | logger --id=$$ -t sync.sh"
 end
 
 # set up logs for gitlab
