@@ -57,13 +57,28 @@ module "analytics-assumerole" {
           ]
         },
         {
-          sid    = "AthenaBucketAccess"
+          sid    = "AthenaSourceBucketAccess"
           effect = "Allow"
           actions = [
             "s3:GetObject",
-            "s3:HeadBucket",
-            "s3:List*",
-            "s3:PutObject",
+            "s3:ListBucket"
+          ]
+          resources = [
+            "arn:aws:s3:::login-gov-log-cache-*",
+            "arn:aws:s3:::login-gov-log-cache-*/*",
+          ]
+        },
+        {
+          sid    = "AthenaOutputBucketAccess"
+          effect = "Allow"
+          actions = [
+                "s3:GetBucketLocation",
+                "s3:GetObject",
+                "s3:ListBucket",
+                "s3:ListBucketMultipartUploads",
+                "s3:AbortMultipartUpload",
+                "s3:PutObject",
+                "s3:ListMultipartUploadParts"          
           ]
           resources = [
             "arn:aws:s3:::login-gov-athena-query-results-*",
