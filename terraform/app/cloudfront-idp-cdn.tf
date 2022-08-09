@@ -6,6 +6,10 @@ data "aws_cloudfront_cache_policy" "managed_caching_disabled" {
   name = "Managed-CachingDisabled"
 }
 
+data "aws_cloudfront_origin_request_policy" "idp_origin" {
+  name = "idp-origin-request-policy"
+}
+
 resource "random_string" "security_header" {
   length  = 32
   special = false
@@ -38,8 +42,7 @@ resource "aws_cloudfront_distribution" "idp_static_cdn" {
   count = var.enable_idp_cdn ? 1 : 0
 
   depends_on = [
-    module.acm-cert-idp[0].finished_id,
-    aws_cloudfront_origin_request_policy.idp_origin
+    module.acm-cert-idp[0].finished_id
   ]
 
   # Origin for serving static content with s3 bucket as origin
@@ -103,7 +106,7 @@ resource "aws_cloudfront_distribution" "idp_static_cdn" {
     target_origin_id = "dynamic-idp-${var.env_name}"
 
     cache_policy_id          = data.aws_cloudfront_cache_policy.managed_caching_disabled.id
-    origin_request_policy_id = aws_cloudfront_origin_request_policy.idp_origin.id
+    origin_request_policy_id = data.aws_cloudfront_origin_request_policy.idp_origin.id
 
     min_ttl                = 0
     viewer_protocol_policy = "redirect-to-https"
