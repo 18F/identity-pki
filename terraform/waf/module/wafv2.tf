@@ -481,7 +481,7 @@ resource "aws_wafv2_web_acl" "alb" {
             not_statement {
               statement {
                 regex_pattern_set_reference_statement {
-                  arn = aws_wafv2_regex_pattern_set.restricted_paths_exclusions.arn
+                  arn = aws_wafv2_regex_pattern_set.restricted_paths_exclusions[0].arn
                   field_to_match {
                     uri_path {}
                   }
@@ -495,7 +495,7 @@ resource "aws_wafv2_web_acl" "alb" {
           }
           statement {
             regex_pattern_set_reference_statement {
-              arn = aws_wafv2_regex_pattern_set.restricted_paths.arn
+              arn = aws_wafv2_regex_pattern_set.restricted_paths[0].arn
               field_to_match {
                 uri_path {}
               }
