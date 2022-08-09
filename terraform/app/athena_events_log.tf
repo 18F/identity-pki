@@ -172,7 +172,7 @@ resource "aws_athena_named_query" "success_state" {
   query     = <<EOT
               SELECT properties.success_state, COUNT(properties.success_state) AS total
               FROM "${var.env_name}_logs"."${var.env_name}_events_log"
-              WHERE from_iso8601_timestamp(time) > from_iso8601_timestamp(time) - interval '7' day
+              WHERE from_iso8601_timestamp(time) > current_date - interval '7' day
               GROUP BY properties.success_state
               ORDER BY total desc
               EOT
