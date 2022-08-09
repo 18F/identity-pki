@@ -41,13 +41,18 @@ write_files:
 
  - path: /etc/login.gov/info/proxy_server
    content: "${proxy_server}"
+
  - path: /etc/login.gov/info/proxy_port
    content: "${proxy_port}"
+
  - path: /etc/login.gov/info/no_proxy_hosts
    content: "${no_proxy_hosts}"
 
  - path: /etc/login.gov/info/http_proxy
    content: "${proxy_url}"
+
+ - path: /etc/default/motd-news
+   content: "ENABLED=0"
 
 ${apt_proxy_stanza}
  - path: /etc/ssh/ssh_known_hosts
