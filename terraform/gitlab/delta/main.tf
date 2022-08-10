@@ -18,7 +18,7 @@ module "main" {
   region                         = "us-east-2"
   dr_region                      = "us-west-2"
   slack_events_sns_hook_arn      = "arn:aws:sns:us-east-2:034795980528:slack-otherevents"
-  default_ami_id_tooling         = "ami-025390aa502ac1b0f" # 2022-05-11 base-20220518070421 Ubuntu 18.04
+  default_ami_id_tooling         = "ami-048730c6de6ae6369" # base-20220809165126 2022-08-09
   route53_id                     = "Z096400532ZFM348WWIAA"
   accountids                     = ["894947205914", "034795980528", "217680906704"]
   no_proxy_hosts                 = "localhost,127.0.0.1,169.254.169.254,169.254.169.123,.login.gov.internal,.us-east-2.amazonaws.com"

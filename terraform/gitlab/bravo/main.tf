@@ -17,7 +17,7 @@ module "main" {
   env_name                       = "bravo"
   region                         = "us-west-2"
   slack_events_sns_hook_arn      = "arn:aws:sns:us-west-2:034795980528:slack-otherevents"
-  default_ami_id_tooling         = "ami-0b6395c0bb69bef0e" # 2022-05-11 base-20220518070421 Ubuntu 18.04
+  default_ami_id_tooling         = "ami-048730c6de6ae6369" # base-20220809165126 2022-08-09
   route53_id                     = "Z096400532ZFM348WWIAA"
   destination_artifact_accounts  = ["894947205914"] # login-sandbox
   production                     = true
