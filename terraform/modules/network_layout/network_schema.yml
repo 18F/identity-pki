@@ -54,7 +54,7 @@ zones:
 purposes:
   - ~ # (planned) routing
   - public-ingress # External load balancers and other ingress
-  - public-egress # Outbound NAT and proxy
+  - ~ # (uplanned) Future Subnet
   - ~ # (unplanned) Future public facing
   - endpoints # Cloud provider private API access
   - data-services # Persistent storage services

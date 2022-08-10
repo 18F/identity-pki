@@ -10,11 +10,6 @@
             "ipv6-netnum": 1,
             "ipv6-network": "xxxx:xxxx:xxxx:xx01::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.80.66.0/24",
-            "ipv6-netnum": 2,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx02::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.80.68.0/24",
             "ipv6-netnum": 4,
@@ -36,11 +31,6 @@
             "ipv4-cidr": "100.80.81.0/24",
             "ipv6-netnum": 33,
             "ipv6-network": "xxxx:xxxx:xxxx:xx21::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.80.82.0/24",
-            "ipv6-netnum": 34,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx22::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.80.84.0/24",
@@ -64,11 +54,6 @@
             "ipv6-netnum": 65,
             "ipv6-network": "xxxx:xxxx:xxxx:xx41::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.80.98.0/24",
-            "ipv6-netnum": 66,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx42::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.80.100.0/24",
             "ipv6-netnum": 68,
@@ -90,11 +75,6 @@
             "ipv4-cidr": "100.80.113.0/24",
             "ipv6-netnum": 97,
             "ipv6-network": "xxxx:xxxx:xxxx:xx61::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.80.114.0/24",
-            "ipv6-netnum": 98,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx62::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.80.116.0/24",
@@ -123,11 +103,6 @@
             "ipv6-netnum": 1,
             "ipv6-network": "xxxx:xxxx:xxxx:xx01::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.81.66.0/24",
-            "ipv6-netnum": 2,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx02::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.81.68.0/24",
             "ipv6-netnum": 4,
@@ -149,11 +124,6 @@
             "ipv4-cidr": "100.81.81.0/24",
             "ipv6-netnum": 33,
             "ipv6-network": "xxxx:xxxx:xxxx:xx21::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.81.82.0/24",
-            "ipv6-netnum": 34,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx22::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.81.84.0/24",
@@ -177,11 +147,6 @@
             "ipv6-netnum": 65,
             "ipv6-network": "xxxx:xxxx:xxxx:xx41::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.81.98.0/24",
-            "ipv6-netnum": 66,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx42::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.81.100.0/24",
             "ipv6-netnum": 68,
@@ -203,11 +168,6 @@
             "ipv4-cidr": "100.81.113.0/24",
             "ipv6-netnum": 97,
             "ipv6-network": "xxxx:xxxx:xxxx:xx61::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.81.114.0/24",
-            "ipv6-netnum": 98,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx62::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.81.116.0/24",
@@ -236,11 +196,6 @@
             "ipv6-netnum": 1,
             "ipv6-network": "xxxx:xxxx:xxxx:xx01::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.82.66.0/24",
-            "ipv6-netnum": 2,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx02::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.82.68.0/24",
             "ipv6-netnum": 4,
@@ -262,11 +217,6 @@
             "ipv4-cidr": "100.82.81.0/24",
             "ipv6-netnum": 33,
             "ipv6-network": "xxxx:xxxx:xxxx:xx21::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.82.82.0/24",
-            "ipv6-netnum": 34,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx22::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.82.84.0/24",
@@ -290,11 +240,6 @@
             "ipv6-netnum": 65,
             "ipv6-network": "xxxx:xxxx:xxxx:xx41::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.82.98.0/24",
-            "ipv6-netnum": 66,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx42::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.82.100.0/24",
             "ipv6-netnum": 68,
@@ -316,11 +261,6 @@
             "ipv4-cidr": "100.82.113.0/24",
             "ipv6-netnum": 97,
             "ipv6-network": "xxxx:xxxx:xxxx:xx61::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.82.114.0/24",
-            "ipv6-netnum": 98,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx62::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.82.116.0/24",
@@ -349,11 +289,6 @@
             "ipv6-netnum": 1,
             "ipv6-network": "xxxx:xxxx:xxxx:xx01::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.84.66.0/24",
-            "ipv6-netnum": 2,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx02::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.84.68.0/24",
             "ipv6-netnum": 4,
@@ -375,11 +310,6 @@
             "ipv4-cidr": "100.84.81.0/24",
             "ipv6-netnum": 33,
             "ipv6-network": "xxxx:xxxx:xxxx:xx21::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.84.82.0/24",
-            "ipv6-netnum": 34,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx22::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.84.84.0/24",
@@ -403,11 +333,6 @@
             "ipv6-netnum": 65,
             "ipv6-network": "xxxx:xxxx:xxxx:xx41::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.84.98.0/24",
-            "ipv6-netnum": 66,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx42::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.84.100.0/24",
             "ipv6-netnum": 68,
@@ -429,11 +354,6 @@
             "ipv4-cidr": "100.84.113.0/24",
             "ipv6-netnum": 97,
             "ipv6-network": "xxxx:xxxx:xxxx:xx61::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.84.114.0/24",
-            "ipv6-netnum": 98,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx62::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.84.116.0/24",
@@ -462,11 +382,6 @@
             "ipv6-netnum": 1,
             "ipv6-network": "xxxx:xxxx:xxxx:xx01::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.85.66.0/24",
-            "ipv6-netnum": 2,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx02::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.85.68.0/24",
             "ipv6-netnum": 4,
@@ -488,11 +403,6 @@
             "ipv4-cidr": "100.85.81.0/24",
             "ipv6-netnum": 33,
             "ipv6-network": "xxxx:xxxx:xxxx:xx21::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.85.82.0/24",
-            "ipv6-netnum": 34,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx22::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.85.84.0/24",
@@ -516,11 +426,6 @@
             "ipv6-netnum": 65,
             "ipv6-network": "xxxx:xxxx:xxxx:xx41::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.85.98.0/24",
-            "ipv6-netnum": 66,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx42::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.85.100.0/24",
             "ipv6-netnum": 68,
@@ -542,11 +447,6 @@
             "ipv4-cidr": "100.85.113.0/24",
             "ipv6-netnum": 97,
             "ipv6-network": "xxxx:xxxx:xxxx:xx61::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.85.114.0/24",
-            "ipv6-netnum": 98,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx62::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.85.116.0/24",
@@ -575,11 +475,6 @@
             "ipv6-netnum": 1,
             "ipv6-network": "xxxx:xxxx:xxxx:xx01::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.86.66.0/24",
-            "ipv6-netnum": 2,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx02::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.86.68.0/24",
             "ipv6-netnum": 4,
@@ -601,11 +496,6 @@
             "ipv4-cidr": "100.86.81.0/24",
             "ipv6-netnum": 33,
             "ipv6-network": "xxxx:xxxx:xxxx:xx21::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.86.82.0/24",
-            "ipv6-netnum": 34,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx22::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.86.84.0/24",
@@ -629,11 +519,6 @@
             "ipv6-netnum": 65,
             "ipv6-network": "xxxx:xxxx:xxxx:xx41::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.86.98.0/24",
-            "ipv6-netnum": 66,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx42::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.86.100.0/24",
             "ipv6-netnum": 68,
@@ -655,11 +540,6 @@
             "ipv4-cidr": "100.86.113.0/24",
             "ipv6-netnum": 97,
             "ipv6-network": "xxxx:xxxx:xxxx:xx61::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.86.114.0/24",
-            "ipv6-netnum": 98,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx62::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.86.116.0/24",
@@ -688,11 +568,6 @@
             "ipv6-netnum": 1,
             "ipv6-network": "xxxx:xxxx:xxxx:xx01::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.87.66.0/24",
-            "ipv6-netnum": 2,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx02::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.87.68.0/24",
             "ipv6-netnum": 4,
@@ -714,11 +589,6 @@
             "ipv4-cidr": "100.87.81.0/24",
             "ipv6-netnum": 33,
             "ipv6-network": "xxxx:xxxx:xxxx:xx21::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.87.82.0/24",
-            "ipv6-netnum": 34,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx22::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.87.84.0/24",
@@ -742,11 +612,6 @@
             "ipv6-netnum": 65,
             "ipv6-network": "xxxx:xxxx:xxxx:xx41::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.87.98.0/24",
-            "ipv6-netnum": 66,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx42::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.87.100.0/24",
             "ipv6-netnum": 68,
@@ -768,11 +633,6 @@
             "ipv4-cidr": "100.87.113.0/24",
             "ipv6-netnum": 97,
             "ipv6-network": "xxxx:xxxx:xxxx:xx61::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.87.114.0/24",
-            "ipv6-netnum": 98,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx62::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.87.116.0/24",
@@ -801,11 +661,6 @@
             "ipv6-netnum": 1,
             "ipv6-network": "xxxx:xxxx:xxxx:xx01::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.88.66.0/24",
-            "ipv6-netnum": 2,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx02::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.88.68.0/24",
             "ipv6-netnum": 4,
@@ -827,11 +682,6 @@
             "ipv4-cidr": "100.88.81.0/24",
             "ipv6-netnum": 33,
             "ipv6-network": "xxxx:xxxx:xxxx:xx21::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.88.82.0/24",
-            "ipv6-netnum": 34,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx22::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.88.84.0/24",
@@ -855,11 +705,6 @@
             "ipv6-netnum": 65,
             "ipv6-network": "xxxx:xxxx:xxxx:xx41::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.88.98.0/24",
-            "ipv6-netnum": 66,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx42::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.88.100.0/24",
             "ipv6-netnum": 68,
@@ -881,11 +726,6 @@
             "ipv4-cidr": "100.88.113.0/24",
             "ipv6-netnum": 97,
             "ipv6-network": "xxxx:xxxx:xxxx:xx61::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.88.114.0/24",
-            "ipv6-netnum": 98,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx62::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.88.116.0/24",
@@ -914,11 +754,6 @@
             "ipv6-netnum": 1,
             "ipv6-network": "xxxx:xxxx:xxxx:xx01::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.89.66.0/24",
-            "ipv6-netnum": 2,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx02::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.89.68.0/24",
             "ipv6-netnum": 4,
@@ -940,11 +775,6 @@
             "ipv4-cidr": "100.89.81.0/24",
             "ipv6-netnum": 33,
             "ipv6-network": "xxxx:xxxx:xxxx:xx21::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.89.82.0/24",
-            "ipv6-netnum": 34,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx22::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.89.84.0/24",
@@ -968,11 +798,6 @@
             "ipv6-netnum": 65,
             "ipv6-network": "xxxx:xxxx:xxxx:xx41::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.89.98.0/24",
-            "ipv6-netnum": 66,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx42::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.89.100.0/24",
             "ipv6-netnum": 68,
@@ -994,11 +819,6 @@
             "ipv4-cidr": "100.89.113.0/24",
             "ipv6-netnum": 97,
             "ipv6-network": "xxxx:xxxx:xxxx:xx61::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.89.114.0/24",
-            "ipv6-netnum": 98,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx62::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.89.116.0/24",
@@ -1027,11 +847,6 @@
             "ipv6-netnum": 1,
             "ipv6-network": "xxxx:xxxx:xxxx:xx01::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.90.66.0/24",
-            "ipv6-netnum": 2,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx02::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.90.68.0/24",
             "ipv6-netnum": 4,
@@ -1053,11 +868,6 @@
             "ipv4-cidr": "100.90.81.0/24",
             "ipv6-netnum": 33,
             "ipv6-network": "xxxx:xxxx:xxxx:xx21::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.90.82.0/24",
-            "ipv6-netnum": 34,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx22::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.90.84.0/24",
@@ -1081,11 +891,6 @@
             "ipv6-netnum": 65,
             "ipv6-network": "xxxx:xxxx:xxxx:xx41::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.90.98.0/24",
-            "ipv6-netnum": 66,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx42::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.90.100.0/24",
             "ipv6-netnum": 68,
@@ -1107,11 +912,6 @@
             "ipv4-cidr": "100.90.113.0/24",
             "ipv6-netnum": 97,
             "ipv6-network": "xxxx:xxxx:xxxx:xx61::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.90.114.0/24",
-            "ipv6-netnum": 98,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx62::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.90.116.0/24",
@@ -1143,11 +943,6 @@
             "ipv6-netnum": 1,
             "ipv6-network": "xxxx:xxxx:xxxx:xx01::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.96.66.0/24",
-            "ipv6-netnum": 2,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx02::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.96.68.0/24",
             "ipv6-netnum": 4,
@@ -1169,11 +964,6 @@
             "ipv4-cidr": "100.96.81.0/24",
             "ipv6-netnum": 33,
             "ipv6-network": "xxxx:xxxx:xxxx:xx21::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.96.82.0/24",
-            "ipv6-netnum": 34,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx22::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.96.84.0/24",
@@ -1197,11 +987,6 @@
             "ipv6-netnum": 65,
             "ipv6-network": "xxxx:xxxx:xxxx:xx41::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.96.98.0/24",
-            "ipv6-netnum": 66,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx42::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.96.100.0/24",
             "ipv6-netnum": 68,
@@ -1223,11 +1008,6 @@
             "ipv4-cidr": "100.96.113.0/24",
             "ipv6-netnum": 97,
             "ipv6-network": "xxxx:xxxx:xxxx:xx61::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.96.114.0/24",
-            "ipv6-netnum": 98,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx62::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.96.116.0/24",
@@ -1256,11 +1036,6 @@
             "ipv6-netnum": 1,
             "ipv6-network": "xxxx:xxxx:xxxx:xx01::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.97.66.0/24",
-            "ipv6-netnum": 2,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx02::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.97.68.0/24",
             "ipv6-netnum": 4,
@@ -1282,11 +1057,6 @@
             "ipv4-cidr": "100.97.81.0/24",
             "ipv6-netnum": 33,
             "ipv6-network": "xxxx:xxxx:xxxx:xx21::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.97.82.0/24",
-            "ipv6-netnum": 34,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx22::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.97.84.0/24",
@@ -1310,11 +1080,6 @@
             "ipv6-netnum": 65,
             "ipv6-network": "xxxx:xxxx:xxxx:xx41::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.97.98.0/24",
-            "ipv6-netnum": 66,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx42::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.97.100.0/24",
             "ipv6-netnum": 68,
@@ -1336,11 +1101,6 @@
             "ipv4-cidr": "100.97.113.0/24",
             "ipv6-netnum": 97,
             "ipv6-network": "xxxx:xxxx:xxxx:xx61::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.97.114.0/24",
-            "ipv6-netnum": 98,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx62::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.97.116.0/24",
@@ -1369,11 +1129,6 @@
             "ipv6-netnum": 1,
             "ipv6-network": "xxxx:xxxx:xxxx:xx01::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.98.66.0/24",
-            "ipv6-netnum": 2,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx02::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.98.68.0/24",
             "ipv6-netnum": 4,
@@ -1395,11 +1150,6 @@
             "ipv4-cidr": "100.98.81.0/24",
             "ipv6-netnum": 33,
             "ipv6-network": "xxxx:xxxx:xxxx:xx21::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.98.82.0/24",
-            "ipv6-netnum": 34,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx22::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.98.84.0/24",
@@ -1423,11 +1173,6 @@
             "ipv6-netnum": 65,
             "ipv6-network": "xxxx:xxxx:xxxx:xx41::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.98.98.0/24",
-            "ipv6-netnum": 66,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx42::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.98.100.0/24",
             "ipv6-netnum": 68,
@@ -1449,11 +1194,6 @@
             "ipv4-cidr": "100.98.113.0/24",
             "ipv6-netnum": 97,
             "ipv6-network": "xxxx:xxxx:xxxx:xx61::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.98.114.0/24",
-            "ipv6-netnum": 98,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx62::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.98.116.0/24",
@@ -1482,11 +1222,6 @@
             "ipv6-netnum": 1,
             "ipv6-network": "xxxx:xxxx:xxxx:xx01::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.100.66.0/24",
-            "ipv6-netnum": 2,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx02::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.100.68.0/24",
             "ipv6-netnum": 4,
@@ -1508,11 +1243,6 @@
             "ipv4-cidr": "100.100.81.0/24",
             "ipv6-netnum": 33,
             "ipv6-network": "xxxx:xxxx:xxxx:xx21::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.100.82.0/24",
-            "ipv6-netnum": 34,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx22::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.100.84.0/24",
@@ -1536,11 +1266,6 @@
             "ipv6-netnum": 65,
             "ipv6-network": "xxxx:xxxx:xxxx:xx41::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.100.98.0/24",
-            "ipv6-netnum": 66,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx42::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.100.100.0/24",
             "ipv6-netnum": 68,
@@ -1562,11 +1287,6 @@
             "ipv4-cidr": "100.100.113.0/24",
             "ipv6-netnum": 97,
             "ipv6-network": "xxxx:xxxx:xxxx:xx61::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.100.114.0/24",
-            "ipv6-netnum": 98,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx62::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.100.116.0/24",
@@ -1595,11 +1315,6 @@
             "ipv6-netnum": 1,
             "ipv6-network": "xxxx:xxxx:xxxx:xx01::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.101.66.0/24",
-            "ipv6-netnum": 2,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx02::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.101.68.0/24",
             "ipv6-netnum": 4,
@@ -1621,11 +1336,6 @@
             "ipv4-cidr": "100.101.81.0/24",
             "ipv6-netnum": 33,
             "ipv6-network": "xxxx:xxxx:xxxx:xx21::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.101.82.0/24",
-            "ipv6-netnum": 34,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx22::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.101.84.0/24",
@@ -1649,11 +1359,6 @@
             "ipv6-netnum": 65,
             "ipv6-network": "xxxx:xxxx:xxxx:xx41::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.101.98.0/24",
-            "ipv6-netnum": 66,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx42::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.101.100.0/24",
             "ipv6-netnum": 68,
@@ -1675,11 +1380,6 @@
             "ipv4-cidr": "100.101.113.0/24",
             "ipv6-netnum": 97,
             "ipv6-network": "xxxx:xxxx:xxxx:xx61::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.101.114.0/24",
-            "ipv6-netnum": 98,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx62::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.101.116.0/24",
@@ -1708,11 +1408,6 @@
             "ipv6-netnum": 1,
             "ipv6-network": "xxxx:xxxx:xxxx:xx01::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.102.66.0/24",
-            "ipv6-netnum": 2,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx02::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.102.68.0/24",
             "ipv6-netnum": 4,
@@ -1734,11 +1429,6 @@
             "ipv4-cidr": "100.102.81.0/24",
             "ipv6-netnum": 33,
             "ipv6-network": "xxxx:xxxx:xxxx:xx21::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.102.82.0/24",
-            "ipv6-netnum": 34,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx22::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.102.84.0/24",
@@ -1762,11 +1452,6 @@
             "ipv6-netnum": 65,
             "ipv6-network": "xxxx:xxxx:xxxx:xx41::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.102.98.0/24",
-            "ipv6-netnum": 66,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx42::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.102.100.0/24",
             "ipv6-netnum": 68,
@@ -1788,11 +1473,6 @@
             "ipv4-cidr": "100.102.113.0/24",
             "ipv6-netnum": 97,
             "ipv6-network": "xxxx:xxxx:xxxx:xx61::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.102.114.0/24",
-            "ipv6-netnum": 98,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx62::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.102.116.0/24",
@@ -1821,11 +1501,6 @@
             "ipv6-netnum": 1,
             "ipv6-network": "xxxx:xxxx:xxxx:xx01::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.103.66.0/24",
-            "ipv6-netnum": 2,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx02::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.103.68.0/24",
             "ipv6-netnum": 4,
@@ -1847,11 +1522,6 @@
             "ipv4-cidr": "100.103.81.0/24",
             "ipv6-netnum": 33,
             "ipv6-network": "xxxx:xxxx:xxxx:xx21::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.103.82.0/24",
-            "ipv6-netnum": 34,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx22::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.103.84.0/24",
@@ -1875,11 +1545,6 @@
             "ipv6-netnum": 65,
             "ipv6-network": "xxxx:xxxx:xxxx:xx41::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.103.98.0/24",
-            "ipv6-netnum": 66,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx42::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.103.100.0/24",
             "ipv6-netnum": 68,
@@ -1901,11 +1566,6 @@
             "ipv4-cidr": "100.103.113.0/24",
             "ipv6-netnum": 97,
             "ipv6-network": "xxxx:xxxx:xxxx:xx61::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.103.114.0/24",
-            "ipv6-netnum": 98,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx62::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.103.116.0/24",
@@ -1934,11 +1594,6 @@
             "ipv6-netnum": 1,
             "ipv6-network": "xxxx:xxxx:xxxx:xx01::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.104.66.0/24",
-            "ipv6-netnum": 2,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx02::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.104.68.0/24",
             "ipv6-netnum": 4,
@@ -1960,11 +1615,6 @@
             "ipv4-cidr": "100.104.81.0/24",
             "ipv6-netnum": 33,
             "ipv6-network": "xxxx:xxxx:xxxx:xx21::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.104.82.0/24",
-            "ipv6-netnum": 34,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx22::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.104.84.0/24",
@@ -1988,11 +1638,6 @@
             "ipv6-netnum": 65,
             "ipv6-network": "xxxx:xxxx:xxxx:xx41::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.104.98.0/24",
-            "ipv6-netnum": 66,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx42::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.104.100.0/24",
             "ipv6-netnum": 68,
@@ -2014,11 +1659,6 @@
             "ipv4-cidr": "100.104.113.0/24",
             "ipv6-netnum": 97,
             "ipv6-network": "xxxx:xxxx:xxxx:xx61::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.104.114.0/24",
-            "ipv6-netnum": 98,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx62::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.104.116.0/24",
@@ -2047,11 +1687,6 @@
             "ipv6-netnum": 1,
             "ipv6-network": "xxxx:xxxx:xxxx:xx01::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.105.66.0/24",
-            "ipv6-netnum": 2,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx02::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.105.68.0/24",
             "ipv6-netnum": 4,
@@ -2073,11 +1708,6 @@
             "ipv4-cidr": "100.105.81.0/24",
             "ipv6-netnum": 33,
             "ipv6-network": "xxxx:xxxx:xxxx:xx21::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.105.82.0/24",
-            "ipv6-netnum": 34,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx22::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.105.84.0/24",
@@ -2101,11 +1731,6 @@
             "ipv6-netnum": 65,
             "ipv6-network": "xxxx:xxxx:xxxx:xx41::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.105.98.0/24",
-            "ipv6-netnum": 66,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx42::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.105.100.0/24",
             "ipv6-netnum": 68,
@@ -2127,11 +1752,6 @@
             "ipv4-cidr": "100.105.113.0/24",
             "ipv6-netnum": 97,
             "ipv6-network": "xxxx:xxxx:xxxx:xx61::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.105.114.0/24",
-            "ipv6-netnum": 98,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx62::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.105.116.0/24",
@@ -2160,11 +1780,6 @@
             "ipv6-netnum": 1,
             "ipv6-network": "xxxx:xxxx:xxxx:xx01::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.106.66.0/24",
-            "ipv6-netnum": 2,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx02::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.106.68.0/24",
             "ipv6-netnum": 4,
@@ -2186,11 +1801,6 @@
             "ipv4-cidr": "100.106.81.0/24",
             "ipv6-netnum": 33,
             "ipv6-network": "xxxx:xxxx:xxxx:xx21::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.106.82.0/24",
-            "ipv6-netnum": 34,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx22::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.106.84.0/24",
@@ -2214,11 +1824,6 @@
             "ipv6-netnum": 65,
             "ipv6-network": "xxxx:xxxx:xxxx:xx41::/64"
           },
-          "public-egress": {
-            "ipv4-cidr": "100.106.98.0/24",
-            "ipv6-netnum": 66,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx42::/64"
-          },
           "endpoints": {
             "ipv4-cidr": "100.106.100.0/24",
             "ipv6-netnum": 68,
@@ -2240,11 +1845,6 @@
             "ipv4-cidr": "100.106.113.0/24",
             "ipv6-netnum": 97,
             "ipv6-network": "xxxx:xxxx:xxxx:xx61::/64"
-          },
-          "public-egress": {
-            "ipv4-cidr": "100.106.114.0/24",
-            "ipv6-netnum": 98,
-            "ipv6-network": "xxxx:xxxx:xxxx:xx62::/64"
           },
           "endpoints": {
             "ipv4-cidr": "100.106.116.0/24",
