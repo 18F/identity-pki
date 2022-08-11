@@ -7,6 +7,27 @@ locals {
   private_subnet_cidrs             = [aws_subnet.privatesubnet1.cidr_block, aws_subnet.privatesubnet2.cidr_block, aws_subnet.privatesubnet3.cidr_block]
   private_subnet_ids               = [aws_subnet.publicsubnet1.id, aws_subnet.publicsubnet2.id, aws_subnet.publicsubnet3.id]
   github_ipv4_cidr_blocks          = sort(data.github_ip_ranges.meta.git_ipv4)
+  no_proxy_hosts = join(",", concat([
+    "localhost",
+    "127.0.0.1",
+    "169.254.169.254",
+    "169.254.169.123",
+    ".login.gov.internal",
+    "metadata.google.internal",
+  ], formatlist("%s.${var.region}.amazonaws.com", [
+    "ec2",
+    "ec2messages",
+    "events",
+    "kms",
+    "lambda",
+    "monitoring",
+    "secretsmanager",
+    "sns",
+    "sqs",
+    "ssm",
+    "ssmmessages",
+    "sts",
+  ])))
 }
 
 variable "aws_vpc" {
@@ -245,10 +266,6 @@ variable "proxy_server" {
 
 variable "proxy_port" {
   default = "3128"
-}
-
-variable "no_proxy_hosts" {
-  default = "localhost,127.0.0.1,169.254.169.254,169.254.169.123,.login.gov.internal,ec2.us-west-2.amazonaws.com,kms.us-west-2.amazonaws.com,secretsmanager.us-west-2.amazonaws.com,ssm.us-west-2.amazonaws.com,ec2messages.us-west-2.amazonaws.com,lambda.us-west-2.amazonaws.com,ssmmessages.us-west-2.amazonaws.com,sns.us-west-2.amazonaws.com,sqs.us-west-2.amazonaws.com,events.us-west-2.amazonaws.com,metadata.google.internal,sts.us-west-2.amazonaws.com"
 }
 
 variable "proxy_enabled_roles" {
