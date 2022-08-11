@@ -149,7 +149,7 @@ resource "aws_ssm_parameter" "account_alarm_slack_usw2" {
 
 module "slack_lambda_usw2" {
   for_each = local.slack_channel_map
-  source   = "github.com/18F/identity-terraform//slack_lambda?ref=5d344d205dd09eb85d5de1ff1081c4a598afe433"
+  source   = "github.com/18F/identity-terraform//slack_lambda?ref=7505e64eb3bc5013d32007bd49acfeea7b78d25d"
   #source = "../../../../identity-terraform/slack_lambda"
 
   lambda_name                 = "snstoslack_login_${each.key}"
@@ -238,7 +238,7 @@ resource "aws_ssm_parameter" "account_alarm_slack_use1" {
 
 module "slack_lambda_use1" {
   for_each = local.slack_channel_map
-  source   = "github.com/18F/identity-terraform//slack_lambda?ref=5d344d205dd09eb85d5de1ff1081c4a598afe433"
+  source   = "github.com/18F/identity-terraform//slack_lambda?ref=7505e64eb3bc5013d32007bd49acfeea7b78d25d"
   #source = "../../../../identity-terraform/slack_lambda"
   providers = {
     aws = aws.use1

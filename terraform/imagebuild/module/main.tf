@@ -11,7 +11,7 @@ locals {
 module "git2s3_src" {
   count = data.aws_caller_identity.current.account_id == "894947205914" ? 1 : 0
   #source = "../../../../identity-terraform/git2s3_artifacts"
-  source = "github.com/18F/identity-terraform//git2s3_artifacts?ref=5d344d205dd09eb85d5de1ff1081c4a598afe433"
+  source = "github.com/18F/identity-terraform//git2s3_artifacts?ref=7505e64eb3bc5013d32007bd49acfeea7b78d25d"
   providers = {
     aws = aws.usw2
   }

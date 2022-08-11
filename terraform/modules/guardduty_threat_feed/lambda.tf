@@ -15,7 +15,7 @@ resource "aws_lambda_function" "guardduty_threat_feed_lambda" {
 
   source_code_hash = module.guardduty_threat_feed_code.zip_output_base64sha256
   memory_size      = "3008"
-  runtime          = "python3.8"
+  runtime          = "python3.9"
   timeout          = "300"
 
   environment {
