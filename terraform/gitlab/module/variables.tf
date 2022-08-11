@@ -14,19 +14,19 @@ locals {
     "169.254.169.123",
     ".login.gov.internal",
     "metadata.google.internal",
-  ], formatlist("%s.${var.region}.amazonaws.com", [
-    "ec2",
-    "ec2messages",
-    "events",
-    "kms",
-    "lambda",
-    "monitoring",
-    "secretsmanager",
-    "sns",
-    "sqs",
-    "ssm",
-    "ssmmessages",
-    "sts",
+    ], formatlist("%s.${var.region}.amazonaws.com", [
+      "ec2",
+      "ec2messages",
+      "events",
+      "kms",
+      "lambda",
+      "monitoring",
+      "secretsmanager",
+      "sns",
+      "sqs",
+      "ssm",
+      "ssmmessages",
+      "sts",
   ])))
 }
 
