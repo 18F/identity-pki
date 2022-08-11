@@ -1,5 +1,6 @@
 module "analytics-assumerole" {
-  source = "github.com/18F/identity-terraform//iam_assumerole?ref=0eedb22803b1d68fb0c0dd7a0d325cb1a9bb69ba"
+  source = "github.com/18F/identity-terraform//iam_assumerole?ref=dd773cc57d4a6ba7416859be5089522dbf2c8dec"
+  #source = "../../../../identity-terraform/iam_assumerole"
 
   role_name = "Analytics"
   enabled = lookup(
@@ -167,43 +168,28 @@ module "analytics-assumerole" {
           resources = [
             "*",
           ]
+        },
+        {
+          sid    = "AthenaKMSKeyAccess"
+          effect = "Allow"
+          actions = [
+            "kms:Decrypt",
+            "kms:DescribeKey",
+            "kms:Encrypt",
+            "kms:GenerateDataKey",
+          ]
+          resources = [
+            "*"
+          ]
+          conditions = [
+            {
+              test     = "ForAnyValue:StringLike"
+              variable = "kms:ResourceAliases"
+              values   = ["alias/*-kms-s3-log-cache-bucket"]
+            }
+          ]
         }
       ]
     },
   ]
-}
-
-data "aws_iam_policy_document" "analytics_role_key_access" {
-  statement {
-    sid = "AthenaKMSKeyAccess"
-    effect = "Allow"
-    actions = [
-      "kms:Decrypt",
-      "kms:DescribeKey",
-      "kms:Encrypt",
-      "kms:GenerateDataKey"
-    ]
-    resources = [
-      "*"
-    ]
-    condition {
-        test     = "ForAnyValue:StringLike"
-        variable = "kms:ResourceAliases"
-
-        values = [
-          "alias/*-kms-s3-log-cache-bucket",
-        ]
-      }
-  }
-}
-
-resource "aws_iam_policy" "analytics_role_key_access" {
-  name        = "AthenaKMSKeyAccess"
-  description = "Give users access to the keys used in Athena"
-  policy      = data.aws_iam_policy_document.analytics_role_key_access.json
-}
-
-resource "aws_iam_role_policy_attachment" "analytics_role_key_access" {
-  role       = module.analytics-assumerole.iam_assumable_role[0].name
-  policy_arn = aws_iam_policy.analytics_role_key_access.arn
 }
