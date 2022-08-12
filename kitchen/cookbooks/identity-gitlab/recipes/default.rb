@@ -55,6 +55,8 @@ runner_token = shell_out('openssl rand -base64 32 | sha256sum | head -c20').stdo
 ses_password = ConfigLoader.load_config(node, "ses_smtp_password", common: true).chomp
 ses_username = ConfigLoader.load_config(node, "ses_smtp_username", common: true).chomp
 smtp_address = "email-smtp.#{aws_region}.amazonaws.com"
+user_sync_metric_namespace = ConfigLoader.load_config(node, "gitlab_user_sync_metric_namespace", common: false).chomp
+user_sync_metric_name = ConfigLoader.load_config(node, "gitlab_user_sync_metric_name", common: false).chomp
 
 #must come after external_fqdn
 email_from = "gitlab@#{external_fqdn}"
@@ -506,7 +508,7 @@ end
 cron_d 'run_usersync' do
   action :create
   predefined_value "@hourly"
-  command "/etc/login.gov/repos/identity-devops/bin/users/sync.sh #{external_fqdn} 2>&1 | logger --id=$$ -t users/sync.sh"
+  command "/etc/login.gov/repos/identity-devops/bin/users/sync.sh #{external_fqdn} #{user_sync_metric_namespace} #{user_sync_metric_name} 2>&1 | logger --id=$$ -t users/sync.sh"
 end
 
 # set up logs for gitlab

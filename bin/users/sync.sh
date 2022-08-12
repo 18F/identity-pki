@@ -1,7 +1,9 @@
 #!/bin/bash
 
-if [ -z "$1" ] ; then
-	echo "usage:  $0 <fqdn_of_gitlab>"
+set -euo pipefail
+
+if [ -z "$3" ] ; then
+	echo "usage:  $0 <fqdn_of_gitlab> <metric_namespace> <metric_name>"
 	exit 1
 fi
 
@@ -27,4 +29,4 @@ else
 fi
 
 # This binary should have been built by chef already
-/etc/login.gov/repos/identity-devops/bin/users/users --fqdn="$1" --file=/root/identity-devops/terraform/master/global/users.yaml
+/etc/login.gov/repos/identity-devops/bin/users/users --fqdn="$1" --file=/root/identity-devops/terraform/master/global/users.yaml && aws cloudwatch put-metric-data --namespace "$2" --metric-name "$3" --value 1
