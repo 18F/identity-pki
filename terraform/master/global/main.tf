@@ -79,12 +79,14 @@ module "main" {
       { "Analytics" = ["Sandbox", "Prod"] },
       { "FullAdministrator" = ["Sandbox", "Prod", "Master"] },
       { "ReadOnly" = ["Sandbox", "Prod"] },
+      { "Terraform" = ["Sandbox", "Prod"] },
       { "KMSAdministrator" = ["Sandbox"] }
     ],
     "secopsnonprod" = [
       { "Analytics" = ["Sandbox", "Prod"] },
       { "FullAdministrator" = ["Sandbox"] },
       { "ReadOnly" = ["Sandbox"] },
+      { "Terraform" = ["Sandbox"] },
       { "KMSAdministrator" = ["Sandbox"] }
     ],
     "soc" = [
