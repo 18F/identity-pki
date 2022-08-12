@@ -56,7 +56,7 @@ resource "aws_iam_role_policy" "pivcac_update_route53" {
 ##### DNSSEC #####
 
 module "dnssec" {
-  source = "github.com/18F/identity-terraform//dnssec?ref=5d344d205dd09eb85d5de1ff1081c4a598afe433"
+  source = "github.com/18F/identity-terraform//dnssec?ref=c812463b47625add4cc4dae00470b953a93ecda0"
   #source = "../../../identity-terraform/dnssec"
 
   dnssec_ksks_action_req_alarm_desc = "${local.dnssec_runbook_prefix}_ksks_action_req"
