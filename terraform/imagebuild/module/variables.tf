@@ -63,7 +63,7 @@ variable "packer_config" {
     chef_version            = "17.5.22" # also passed to CloudFormation as ChefVersion parameter.
     os_version              = "Ubuntu 20.04"
     ami_owner_id            = "679593333241",
-    ami_filter_name         = "ubuntu-pro-fips-server/images/hvm-ssd/ubuntu-focal-20.04-amd64*" 
+    ami_filter_name         = "ubuntu-pro-fips-server/images/hvm-ssd/ubuntu-focal-18.04-amd64*" 
   }
 }
 
