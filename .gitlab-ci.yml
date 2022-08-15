@@ -239,3 +239,59 @@ badtest_pauldoom:
     - deploy_pauldoom
   script:
     - echo "You have no chance to survive make your test."
+
+# deploy jobs for dev env here.
+deploy_dev:
+  environment: dev
+  resource_group: dev
+  only:
+    - main
+  variables:
+    GIT_SUBMODULE_STRATEGY: normal
+  tags:
+    - dev-env-runner
+  image:
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_deploy@$DEPLOY_IMAGE_DIGEST
+  stage: deploy
+  artifacts:
+    name: "$CI_ENVIRONMENT_NAME-$CI_COMMIT_SHA"
+    paths:
+      - terraform.plan
+      - plan.txt
+    expire_in: 1 year
+  script:
+    - echo "Somebody set us up the deploy"
+
+test_dev:
+  only:
+    - main
+  variables:
+    IDP_HOSTNAME: idp.dev.identitysandbox.gov
+    ENV_NAME: dev
+  tags:
+    - dev-env-runner
+  image:
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_test@$TEST_IMAGE_DIGEST
+  stage: test
+  needs:
+    - deploy_dev
+  artifacts:
+    reports:
+      junit: testlogs/*.xml
+  script:
+    - echo "Tests for great justice"
+
+badtest_dev:
+  when: manual
+  allow_failure: true
+  tags:
+    - dev-env-runner
+  image:
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ecr-public/docker/library/alpine
+  stage: test
+  only:
+    - main
+  needs:
+    - deploy_dev
+  script:
+    - echo "You have no chance to survive make your test."

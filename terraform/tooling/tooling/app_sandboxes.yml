@@ -3,7 +3,7 @@
 # branch to deploy from
 
 # upper envs
-dev: main
+# dev: main
 
 # sandboxes
 akrito: stages/akrito
