@@ -1,0 +1,19 @@
+{
+  "name": "votu",
+  "description": "",
+  "json_class": "Chef::Environment",
+  "chef_type": "environment",
+  "default_attributes": {
+    "login_dot_gov": {
+      "deploy_branch_default": "main",
+      "deploy_branch": {
+        "identity-idp": "stages/votu"
+      "idp_run_migrations": true,
+      "allow_unsafe_migrations": true,
+      "idp_sync_static": true
+    }
+  },
+  "override_attributes": {
+
+  }
+}
