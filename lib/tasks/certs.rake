@@ -235,6 +235,7 @@ namespace :certs do
     )
 
     ficam_uri = URI('https://raw.githubusercontent.com/GSA/ficam-playbooks/staging/_fpki/tools/CACertificatesValidatingToFederalCommonPolicyG2.p7b')
+    federal_brige_ca_g4_key_id = '79:F0:00:49:EB:7F:77:C2:5D:41:02:65:34:8A:90:23:9B:1E:07:6F'
 
     response = Net::HTTP.get_response(ficam_uri)
     body = response.body.force_encoding('UTF-8')
@@ -248,7 +249,7 @@ namespace :certs do
 
     # Remove all certificates that are non-root cert and sign the Federal Bridge CA G4 cert
     certificates.reject! do |x|
-      (x.key_id == '79:F0:00:49:EB:7F:77:C2:5D:41:02:65:34:8A:90:23:9B:1E:07:6F' &&
+      (x.key_id == federal_brige_ca_g4_key_id &&
        !IdentityConfig.store.trusted_ca_root_identifiers.include?(x.signing_key_id))
     end
 
