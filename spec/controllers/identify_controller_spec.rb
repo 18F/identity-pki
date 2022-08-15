@@ -140,7 +140,7 @@ RSpec.describe IdentifyController, type: :controller do
 
             cert = Certificate.new(client_cert)
 
-            expect(CertificateLoggerService).to_not receive(:log_certificate)
+            expect(CertificateLoggerService).to receive(:log_certificate).once
             expect(Rails.logger).to receive(:info).with(/GET/).once
             expect(Rails.logger).to receive(:info).with(
               'Returning a token for a valid certificate.'
@@ -188,7 +188,7 @@ RSpec.describe IdentifyController, type: :controller do
 
             it 'returns a token with a card_type of cac' do
               @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
-              expect(CertificateLoggerService).to_not receive(:log_certificate)
+              expect(CertificateLoggerService).to receive(:log_certificate).once
               get :create, params: { nonce: '123', redirect_uri: 'http://example.com/' }
 
               expect(token_contents['card_type']).to eq 'cac'
@@ -203,7 +203,7 @@ RSpec.describe IdentifyController, type: :controller do
 
             it 'returns a token with a card_type of piv' do
               @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
-              expect(CertificateLoggerService).to_not receive(:log_certificate)
+              expect(CertificateLoggerService).to receive(:log_certificate)
               get :create, params: { nonce: '123', redirect_uri: 'http://example.com/' }
 
               expect(token_contents['card_type']).to eq 'piv'
@@ -238,7 +238,7 @@ RSpec.describe IdentifyController, type: :controller do
           it 'returns a token with a uuid and subject' do
             allow(IdentityConfig.store).to receive(:client_cert_escaped).and_return(false)
             @request.headers['X-Client-Cert'] = client_cert_pem.split(/\n/).join("\n\t")
-            expect(CertificateLoggerService).to_not receive(:log_certificate)
+            expect(CertificateLoggerService).to receive(:log_certificate).once
 
             get :create, params: { nonce: '123', redirect_uri: 'http://example.com/' }
             expect(response).to have_http_status(:found)
