@@ -248,6 +248,11 @@ namespace :certs do
     end
 
     # Remove all certificates that are non-root cert and sign the Federal Bridge CA G4 cert
+    # The current Federal Bridge CA G4 cert expires at 2029-12-06 16:52:46, and we may want to
+    # monitor this as we approach that time.
+    #
+    # We could also engineer a more robust solution to circular cross-signed certificates that doesn't
+    # rely on specific key IDs.
     certificates.reject! do |x|
       (x.key_id == federal_brige_ca_g4_key_id &&
        !IdentityConfig.store.trusted_ca_root_identifiers.include?(x.signing_key_id))
