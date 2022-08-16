@@ -157,3 +157,12 @@ resource "aws_cloudwatch_log_subscription_filter" "cloudwatch_subscription_filte
     aws_cloudwatch_log_stream.kinesis_firehose_stream_logging_stream,
   ]
 }
+
+output "kinesis_firehose_stream_bucket_kms_key" {
+  value = aws_kms_key.kinesis_firehose_stream_bucket
+
+}
+
+output "kinesis_firehose_stream_bucket" {
+  value = aws_s3_bucket.kinesis_firehose_stream_bucket
+}
