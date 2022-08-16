@@ -33,8 +33,12 @@ variables:
   TEST_IMAGE_DIGEST: "sha256:d98342e69fe686a2fcdab8beb5a9c4e191130a247b34a3814f29a8ed6a20450d"
 
 gitlab-qa:
-  only:
-    - main
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      changes:
+        - terraform/gitlab/**/*
+        - kitchen/cookbooks/identity-gitlab/**/*
+        - terraform/modules/gitlab_runner_pool/**/*
   variables:
     GITHUB_ENDPOINT: "https://${EXTERNAL_FQDN}:443"
     GITLAB_ADMIN_PASSWORD: ${GITLAB_QA_PASSWORD}
