@@ -297,8 +297,7 @@ variable "only_on_protected_branch" {
   default     = false
 }
 
-variable "gitlab_hostname" {
-  description = "hostname of gitlab server"
+variable "runner_gitlab_hostname" {
+  description = "hostname of gitlab server to register with"
   type        = string
-  default     = "gitlab.login.gov"
 }

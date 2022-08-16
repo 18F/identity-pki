@@ -56,7 +56,8 @@ valid_tags = [
   'is_it_an_env_runner',
   'gitlab_ecr_repo_accountid',
   'only_on_protected_branch',
-  'gitlab_hostname'
+  'gitlab_hostname',
+  'gitlab_config_s3_bucket'
 ]
 
 instance.tags.each do |tag|
@@ -80,10 +81,10 @@ else
 end
 external_url = "https://#{external_fqdn}"
 
-if node.run_state['gitlab_ecr_repo_accountid'] == nil
-  config_s3_bucket = "login-gov-#{node.chef_environment}-gitlabconfig-#{aws_account_id}-#{aws_region}"
-else
+if node.run_state['gitlab_config_s3_bucket'] == nil
   config_s3_bucket = "login-gov-#{node.chef_environment}-gitlabconfig-#{node.run_state['gitlab_ecr_repo_accountid']}-#{aws_region}"
+else
+  config_s3_bucket = node.run_state['gitlab_config_s3_bucket']
 end
 runner_token = shell_out("aws s3 cp s3://#{config_s3_bucket}/gitlab_runner_token -").stdout.chomp
 
