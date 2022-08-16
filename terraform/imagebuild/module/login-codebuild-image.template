@@ -16,6 +16,7 @@
                         "PackerVersion",
                         "ChefVersion",
                         "BerkshelfVersion",
+                        "UbuntuVersion",
                         "SourceFileName"
                     ]
                 },
@@ -63,6 +64,9 @@
                 },
                 "BerkshelfVersion": {
                     "default": "Berkshelf version *"
+                },
+                "UbuntuVersion": {
+                    "default": "Ubuntu Pro FIPS version *"
                 },
                 "SourceFileName": {
                     "default": "SourceFileName"
@@ -133,6 +137,11 @@
             "Description": "Required: Berkshelf version used in buildspec.yml file from identity-base-image repo.",
             "Type": "String",
             "Default": "7.1.0"
+        },
+        "UbuntuVersion": {
+            "Description": "Required: Main version number of Ubuntu Pro FIPS used in buildspec.yml file from identity-base-image repo.",
+            "Type": "String",
+            "Default": "18"
         }
     },
     "Conditions": {
@@ -672,6 +681,10 @@
                     {
                         "Name": "BERKSHELF_VERSION",
                         "Value": {"Ref": "BerkshelfVersion"}
+                    },
+                    {
+                        "Name": "UBUNTU_VERSION",
+                        "Value": {"Ref": "UbuntuVersion"}
                     },
                     {
                         "Name": "ROLE",

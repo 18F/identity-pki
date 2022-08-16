@@ -52,7 +52,10 @@ variable "code_branch" {
 }
 
 variable "packer_config" {
-  description = "Map of key/value pairs for Packer configs consistent in all AMI types."
+  description = <<DESC
+Map of key/value pairs for Packer configs consistent in all AMI types in account.
+Main number for os_version and ami_filter_name MUST be the same as var.os_number.
+DESC
   type        = map(string)
   default = {
     encryption              = "true"
@@ -60,11 +63,22 @@ variable "packer_config" {
     data_vol_size           = "100"
     deregister_existing_ami = "false"
     delete_ami_snapshots    = "false"
-    chef_version            = "17.5.22" # also passed to CloudFormation as ChefVersion parameter.
+    chef_version            = "17.5.22" # also passed to CFN as ChefVersion parameter
     os_version              = "Ubuntu 18.04"
     ami_owner_id            = "679593333241",
-    ami_filter_name         = "ubuntu-pro-fips-server/images/hvm-ssd/ubuntu-focal-18.04-amd64*"
+    ami_filter_name         = "ubuntu-pro-fips/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server*"
   }
+}
+
+variable "os_number" {
+  description = <<DESC
+REQUIRED. Main version number of Ubuntu Pro FIPS used in buildspec.yml file from
+identity-base-image repo and .var.hcl files from public-artifacts bucket.
+Passed into CloudFormation template as UbuntuVersion parameter. MUST match numbers
+in os_version and ami_filter_name values in var.packer_config above.
+DESC
+  type        = string
+  default     = "18"
 }
 
 variable "trigger_source" {

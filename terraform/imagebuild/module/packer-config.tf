@@ -2,7 +2,7 @@ resource "aws_s3_object" "packer_config" {
   for_each = toset(var.ami_types)
 
   bucket       = var.artifact_bucket
-  key          = "packer_config/${local.aws_alias}/${each.key}.18.var.hcl"
+  key          = "packer_config/${local.aws_alias}/${each.key}.${var.os_number}.var.hcl"
   content      = <<HCL
 aws_region = "${var.region}"
 encryption = "${var.packer_config["encryption"]}"
