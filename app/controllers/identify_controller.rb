@@ -102,6 +102,7 @@ class IdentifyController < ApplicationController
 
   def log_certificate(cert)
     validation_result = cert.validate_cert(is_leaf: true)
+    valid = validation_result == 'valid'
     login_certs_openssl_result = openssl_validate(cert.to_pem, Rails.root.join(IdentityConfig.store.login_certificate_bundle_file).to_s)
     ficam_certs_openssl_result = openssl_validate(cert.to_pem, Rails.root.join(IdentityConfig.store.ficam_certificate_bundle_file).to_s)
     attributes = {
@@ -111,8 +112,8 @@ class IdentifyController < ApplicationController
       issuer: cert.issuer.to_s,
       card_type: cert.card_type,
       valid_policies: cert.valid_policies?,
-      valid: validation_result == 'valid',
-      error: validation_result != 'valid' ? validation_result : nil,
+      valid: valid,
+      error: !valid ? validation_result : nil,
       openssl_valid: login_certs_openssl_result[:valid],
       openssl_errors: login_certs_openssl_result[:errors],
       ficam_openssl_valid: ficam_certs_openssl_result[:valid],
@@ -121,6 +122,11 @@ class IdentifyController < ApplicationController
 
     if validation_result == 'self-signed cert'
       attributes.delete(:issuer)
+    end
+
+    # Log certificate if it fails either OpenSSL validation, but passes our current validation or vice versa
+    if valid != login_certs_openssl_result[:valid] || valid != ficam_certs_openssl_result[:valid]
+      CertificateLoggerService.log_certificate(cert)
     end
 
     logger.info(attributes.to_json)
