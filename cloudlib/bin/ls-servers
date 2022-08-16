@@ -135,6 +135,10 @@ Options:
       options[:batch] = true
     end
 
+    opts.on('-L', '--list-csv', 'Output matching server names in CSV line') do
+      options[:list_csv] = true
+    end
+
     opts.on('-H', '--no-header', 'Skip header output') do
       options[:skip_header] = true
     end
@@ -184,6 +188,8 @@ Options:
 
   if options[:batch]
     print_data_batch(data, skip_header: options[:skip_header])
+  elsif options[:list_csv]
+    puts data[:rows].map { |d| d[0] }.join(",")
   else
     print_data_table(data, skip_header: options[:skip_header])
   end
