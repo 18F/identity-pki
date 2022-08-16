@@ -33,7 +33,7 @@ resource "aws_glue_catalog_table" "athena_events_log_database" {
     "projection.month.range"  = "01,12",
     "projection.month.type"   = "integer",
     "projection.year.digits"  = "4",
-    "projection.year.range"   = "2021,2022",
+    "projection.year.range"   = "2021,2025",
     "projection.year.type"    = "integer",
     "storage.location.template" = join("/", [
       "s3:/",
