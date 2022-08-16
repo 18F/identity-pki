@@ -1,5 +1,5 @@
 module "analytics-assumerole" {
-  source = "github.com/18F/identity-terraform//iam_assumerole?ref=5d344d205dd09eb85d5de1ff1081c4a598afe433"
+  source = "github.com/18F/identity-terraform//iam_assumerole?ref=0aeb1065291b8fa0bb19f386cf4954147f075a81"
 
   role_name = "Analytics"
   enabled = lookup(
@@ -30,6 +30,82 @@ module "analytics-assumerole" {
           ]
         },
         {
+          sid    = "AthenaConsoleAccess"
+          effect = "Allow"
+          actions = [
+            "athena:List*",
+            "athena:BatchGet*",
+            "athena:Get*",
+            "athena:StartQueryExecution",
+            "athena:StopQueryExecution",
+            "athena:CreateNamedQuery",
+            "athena:CreatePreparedStatement",
+            "athena:DeleteNamedQuery",
+            "athena:DeletePreparedStatement",
+            "athena:UpdateNamedQuery",
+            "athena:UpdatePreparedStatement",
+            "glue:BatchGetPartition",
+            "glue:GetDatabase",
+            "glue:GetDatabases",
+            "glue:GetPartition",
+            "glue:GetPartitions",
+            "glue:GetTable",
+            "glue:GetTables",
+          ]
+          resources = [
+            "*"
+          ]
+        },
+        {
+          sid    = "AthenaKMSKeyAccess"
+          effect = "Allow"
+          actions = [
+            "kms:Decrypt",
+            "kms:DescribeKey",
+            "kms:Encrypt",
+            "kms:GenerateDataKey",
+          ]
+          resources = [
+            "*"
+          ]
+          conditions = [
+            {
+              test     = "ForAnyValue:StringLike"
+              variable = "kms:ResourceAliases"
+              values   = ["alias/*-kms-s3-log-cache-bucket"]
+            }
+          ]
+        },
+        {
+          sid    = "AthenaOutputBucketAccess"
+          effect = "Allow"
+          actions = [
+            "s3:GetBucketLocation",
+            "s3:GetObject",
+            "s3:ListBucket",
+            "s3:ListBucketMultipartUploads",
+            "s3:AbortMultipartUpload",
+            "s3:PutObject",
+            "s3:ListMultipartUploadParts"
+          ]
+          resources = [
+            "arn:aws:s3:::login-gov-athena-query-results-*",
+            "arn:aws:s3:::login-gov-athena-query-results-*/*"
+          ]
+        },
+        {
+          sid    = "AthenaSourceBucketAccess"
+          effect = "Allow"
+          actions = [
+            "s3:GetObject",
+            "s3:ListBucket"
+          ]
+          resources = [
+            "arn:aws:s3:::login-gov-log-cache-*",
+            "arn:aws:s3:::login-gov-log-cache-*/*",
+          ]
+        },
+        {
           sid    = "ReportsBucketAccess"
           effect = "Allow"
           actions = [
@@ -41,20 +117,6 @@ module "analytics-assumerole" {
           resources = [
             "arn:aws:s3:::login-gov.reports.*",
             "arn:aws:s3:::login-gov.reports.*/*"
-          ]
-        },
-        {
-          sid    = "PubdataBucketAccess"
-          effect = "Allow"
-          actions = [
-            "s3:GetObject",
-            "s3:HeadBucket",
-            "s3:List*",
-            "s3:PutObject",
-          ]
-          resources = [
-            "arn:aws:s3:::login-gov-pubdata-*",
-            "arn:aws:s3:::login-gov-pubdata-*/*"
           ]
         },
         {
@@ -110,6 +172,20 @@ module "analytics-assumerole" {
           ]
           resources = [
             "*",
+          ]
+        },
+        {
+          sid    = "PubdataBucketAccess"
+          effect = "Allow"
+          actions = [
+            "s3:GetObject",
+            "s3:HeadBucket",
+            "s3:List*",
+            "s3:PutObject",
+          ]
+          resources = [
+            "arn:aws:s3:::login-gov-pubdata-*",
+            "arn:aws:s3:::login-gov-pubdata-*/*"
           ]
         }
       ]
