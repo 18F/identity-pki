@@ -26,10 +26,15 @@ def lambda_handler(event, context):
 
     try:
         # Get the object, unzip/decode it and split the objects into their own lines 
-        file = s3.get_object(Bucket=bucket, Key=key)["Body"].read()   # TODO - This reads the entire file into RAM - Might be too big!  We may need to do some chunking: https://medium.com/analytics-vidhya/demystifying-aws-lambda-deal-with-large-files-stored-on-s3-using-python-and-boto3-6078d0e2b9df
+        # TODO - This reads the entire file into RAM - Might be too big!
+        # We may need to do some chunking:
+        # https://medium.com/@analytics-vidhya/6078d0e2b9df
+        file = s3.get_object(Bucket=bucket, Key=key)["Body"].read()
     except Exception as e:
             print(e)
-            print('Error getting object {} from bucket {}. Make sure they exist and your bucket is in the same region as this function.'.format(key, bucket))
+            print(('Error getting object {} from bucket {}. '
+                   'Make sure they exist and your bucket is in '
+                   'the same region as this function.').format(key, bucket))
             raise e
 
     logs = gzip.decompress(file).decode('UTF-8').replace("}{", "}\n{").splitlines()
@@ -55,6 +60,8 @@ def lambda_handler(event, context):
 
     except Exception as e:
         print(e)
-        print('Error putting object {} into bucket {}. Make sure they exist and your bucket is in the same region as this function.'.format(key, bucket))
+        print(('Error putting object {} into bucket {}. '
+               'Make sure they exist and your bucket is in '
+               'the same region as this function.').format(key, bucket))
         raise e
 
