@@ -59,6 +59,7 @@ resource "aws_cloudformation_stack" "image_codebuild_stack" {
     ChefVersion        = var.packer_config["chef_version"]
     PackerVersion      = var.packer_version
     BerkshelfVersion   = var.berkshelf_version
+    UbuntuVersion      = var.os_number
   }
   capabilities = ["CAPABILITY_IAM"]
 }
