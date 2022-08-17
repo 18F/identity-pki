@@ -100,7 +100,7 @@ resource "aws_autoscaling_group" "gitlab_runner" {
   }
 
   min_size         = 1
-  max_size         = 10 < var.asg_gitlab_runner_desired ? var.asg_gitlab_runner_desired : 10
+  max_size         = var.asg_gitlab_runner_desired * 2
   desired_capacity = var.asg_gitlab_runner_desired
 
   wait_for_capacity_timeout = 0 # 0 == ignore
