@@ -45,6 +45,7 @@ module "build_pool" {
   slack_events_sns_hook_arn        = var.slack_events_sns_hook_arn
   endpoint_security_groups         = local.default_endpoint_security_group_ids
   ssm_access_policy                = module.ssm.ssm_access_role_policy
+  runner_gitlab_hostname           = "gitlab.${var.env_name}.${var.root_domain}"
 }
 
 # A pool for testing infrastructure
@@ -77,4 +78,5 @@ module "test_pool" {
   slack_events_sns_hook_arn        = var.slack_events_sns_hook_arn
   endpoint_security_groups         = local.default_endpoint_security_group_ids
   ssm_access_policy                = module.ssm.ssm_access_role_policy
+  runner_gitlab_hostname           = "gitlab.${var.env_name}.${var.root_domain}"
 }
