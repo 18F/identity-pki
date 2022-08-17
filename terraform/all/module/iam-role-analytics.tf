@@ -89,8 +89,8 @@ module "analytics-assumerole" {
             "s3:ListMultipartUploadParts"
           ]
           resources = [
-            "arn:aws:s3:::login-gov-athena-query-results-*",
-            "arn:aws:s3:::login-gov-athena-query-results-*/*"
+            "arn:aws:s3:::login-gov-athena-queries-*",
+            "arn:aws:s3:::login-gov-athena-queries-*/*"
           ]
         },
         {

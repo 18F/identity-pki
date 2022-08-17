@@ -897,6 +897,61 @@ locals {
         resources = [
           "*",
         ]
+      },
+      {
+        sid    = "Athena"
+        effect = "Allow"
+        actions = [
+          "athena:CreateDataCatalog",
+          "athena:CreateNamedQuery",
+          "athena:CreatePreparedStatement",
+          "athena:CreateWorkGroup",
+          "athena:DeleteDataCatalog",
+          "athena:DeleteNamedQuery",
+          "athena:DeletePreparedStatement",
+          "athena:DeleteWorkGroup",
+          "athena:GetDatabase",
+          "athena:GetNamedQuery",
+          "athena:GetQueryExecution",
+          "athena:GetQueryResults",
+          "athena:GetWorkGroup",
+          "athena:ListTagsForResource",
+          "athena:StartQueryExecution",
+          "athena:StopQueryExecution",
+          "athena:TagResource",
+          "athena:UntagResource",
+          "athena:UpdateDataCatalog",
+          "athena:UpdateNamedQuery",
+          "athena:UpdatePreparedStatement",
+          "athena:UpdateWorkGroup",
+        ]
+        resources = [
+          "*",
+        ]
+      },
+      {
+        sid    = "Glue"
+        effect = "Allow"
+        actions = [
+          "glue:BatchCreatePartition",
+          "glue:BatchDeletePartition",
+          "glue:BatchDeleteTable",
+          "glue:CreateDatabase",
+          "glue:CreatePartition",
+          "glue:CreateTable",
+          "glue:DeleteDatabase",
+          "glue:DeletePartition",
+          "glue:DeleteTable",
+          "glue:GetDatabase",
+          "glue:GetTable",
+          "glue:GetTables",
+          "glue:UpdateDatabase",
+          "glue:UpdatePartition",
+          "glue:UpdateTable",
+        ]
+        resources = [
+          "*",
+        ]
       }
     ]
   ]

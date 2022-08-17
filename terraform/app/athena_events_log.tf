@@ -3,7 +3,7 @@ module "athena_events_log_database" {
   database_name = "${var.env_name}_logs"
   kms_key       = module.kinesis-firehose.kinesis_firehose_stream_bucket_kms_key.arn
   kms_resources = [module.kinesis-firehose.kinesis_firehose_stream_bucket_kms_key.arn]
-  process_logs  = false
+  process_logs  = true
   env_name      = var.env_name
   region        = var.region
   bucket_name   = module.kinesis-firehose.kinesis_firehose_stream_bucket.bucket
