@@ -179,6 +179,7 @@ test_tspencer:
     - stages/tspencer
   variables:
     IDP_HOSTNAME: idp.tspencer.identitysandbox.gov
+    IDP_ORIGIN_HOSTNAME: idp.origin.tspencer.identitysandbox.gov
     ENV_NAME: tspencer
   tags:
     - tspencer-env-runner
@@ -243,6 +244,7 @@ test_pauldoom:
     - stages/pauldoom
   variables:
     IDP_HOSTNAME: idp.pauldoom.identitysandbox.gov
+    IDP_ORIGIN_HOSTNAME: idp.origin.pauldoom.identitysandbox.gov
     ENV_NAME: pauldoom
   tags:
     - pauldoom-env-runner
@@ -374,6 +376,7 @@ test_dev:
     - main
   variables:
     IDP_HOSTNAME: idp.dev.identitysandbox.gov
+    IDP_ORIGIN_HOSTNAME: idp.origin.dev.identitysandbox.gov
     ENV_NAME: dev
   tags:
     - dev-env-runner
