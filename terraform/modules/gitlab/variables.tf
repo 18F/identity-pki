@@ -22,6 +22,9 @@ variable "dns_name" {
   description = "dns name for the privatelink endpoint"
 }
 
-variable "name" {}
+variable "name" {
+  description = "prefix to use for the vpc endpoint"
+  default     = "login"
+}
 
 variable "env_name" {}

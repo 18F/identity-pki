@@ -39,6 +39,12 @@ repos:
   env_deploy:
     name: "cd/env_deploy"
     <<: *all_write_template
+  gitlab_test:
+    name: "cd/gitlab_test"
+    <<: *all_write_template
+  gitlab_deploy:
+    name: "cd/gitlab_deploy"
+    <<: *all_write_template
   tspencertest:
     name: "tspencertest"
     <<: *all_write_template

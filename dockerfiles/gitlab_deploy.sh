@@ -1,6 +1,6 @@
 #!/bin/bash -x
 # 
-# Deploy an idp environment from gitlab job.
+# Deploy a gitlab environment from gitlab job.
 # If this is not going to be deployed to us-west-2, you will need to set
 # AWS_REGION.  Your job might need to set GIT_SUBMODULE_STRATEGY: normal.
 # 
@@ -32,19 +32,18 @@ AWS_REGION="${AWS_REGION:-us-west-2}"
 export AWS_REGION
 AWS_ACCOUNTID="$(aws sts get-caller-identity --output text --query 'Account')"
 TFSTATE_BUCKET="login-gov.tf-state.$AWS_ACCOUNTID-$AWS_REGION"
-TFSTATE_CONFIG_KEY="terraform-app/terraform-$CI_ENVIRONMENT_NAME.tfstate"
+TFSTATE_CONFIG_KEY="terraform-gitlab/$CI_ENVIRONMENT_NAME.tfstate"
 IDP_DIR="$CI_PROJECT_DIR/identity-devops-private"
 
 # We need to use a tfbundle so that we don't have to have access to the internet.
 cd "$CI_PROJECT_DIR"
-mkdir -p terraform/app/.terraform
-cp -rp /terraform-bundle/plugins terraform/app/.terraform/
+mkdir -p "terraform/gitlab/$CI_ENVIRONMENT_NAME/.terraform"
+cp -rp /terraform-bundle/plugins "terraform/gitlab/$CI_ENVIRONMENT_NAME/.terraform/"
 
 # Deal with our wacky provider locking scheme
-rm -f terraform/app/.terraform.lock.hcl
-cp .terraform.lock.hcl terraform/app
-rm -f terraform/app/versions.tf
-cp versions.tf terraform/app
+rm -f "terraform/gitlab/$CI_ENVIRONMENT_NAME/.terraform.lock.hcl"
+cp .terraform.lock.hcl "terraform/gitlab/$CI_ENVIRONMENT_NAME"
+rm -f "terraform/gitlab/$CI_ENVIRONMENT_NAME/versions.tf"
 rm -f terraform/modules/newrelic/versions.tf  # XXX I am not sure why we have to do this.
 cp versions.tf terraform/modules/newrelic/    # XXX symlinks should work
 
@@ -66,7 +65,7 @@ NEW_RELIC_API_KEY=$(aws s3 cp "s3://login-gov.secrets.$AWS_ACCOUNTID-$AWS_REGION
 export NEW_RELIC_API_KEY
 
 # Do the init
-cd "$CI_PROJECT_DIR/terraform/app" || exit 1
+cd "$CI_PROJECT_DIR/terraform/gitlab/$CI_ENVIRONMENT_NAME" || exit 1
 /usr/local/bin/terraform init -plugin-dir=.terraform/plugins \
 	-lockfile=readonly \
 	-backend-config=bucket="$TFSTATE_BUCKET" \
@@ -77,9 +76,7 @@ cd "$CI_PROJECT_DIR/terraform/app" || exit 1
 
 # plan, so we can create/store a plan artifact
 /usr/local/bin/terraform plan -lock-timeout=180s -out="$CI_PROJECT_DIR/terraform.plan" \
-		-var-file "$IDP_DIR/vars/base.tfvars" \
-		-var-file "$IDP_DIR/vars/account_global_$AWS_ACCOUNTID.tfvars" \
-		-var-file "$IDP_DIR/vars/$CI_ENVIRONMENT_NAME.tfvars"
+		-var-file "$IDP_DIR/vars/base.tfvars"
 /usr/local/bin/terraform show -no-color "$CI_PROJECT_DIR/terraform.plan" > "$CI_PROJECT_DIR/plan.txt"
 
 JQSTUFF='([.resource_changes[]?.change.actions?]|flatten)|{"create":(map(select(.=="create"))|length),"update":(map(select(.=="update"))|length),"delete":(map(select(.=="delete"))|length)}'
@@ -90,4 +87,4 @@ JQSTUFF='([.resource_changes[]?.change.actions?]|flatten)|{"create":(map(select(
 echo terraform apply completed on "$(date)"
 
 # recycle the nodes
-bash "$CI_PROJECT_DIR/terraform/app/recycle.sh" "$CI_ENVIRONMENT_NAME"
+bash "$CI_PROJECT_DIR/terraform/gitlab/recycle.sh" "$CI_ENVIRONMENT_NAME"

@@ -241,3 +241,25 @@ resource "aws_vpc_endpoint" "private-s3" {
   service_name    = "com.amazonaws.${var.region}.s3"
   route_table_ids = [aws_vpc.default.main_route_table_id]
 }
+
+resource "aws_vpc_endpoint" "events" {
+  vpc_id            = aws_vpc.default.id
+  service_name      = "com.amazonaws.${var.region}.events"
+  vpc_endpoint_type = "Interface"
+
+  security_group_ids = [
+    aws_security_group.events_endpoint.id,
+  ]
+
+  subnet_ids = [
+    aws_subnet.privatesubnet1.id,
+    aws_subnet.privatesubnet2.id,
+    aws_subnet.privatesubnet3.id,
+  ]
+
+  private_dns_enabled = true
+
+  tags = {
+    Name = "${var.env_name}-gitlab-events"
+  }
+}

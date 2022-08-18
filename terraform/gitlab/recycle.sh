@@ -9,7 +9,11 @@ if [ -z "$1" ] ; then
 	exit 1
 fi
 
+set +e
+
 ENV_NAME="$1"
+AWS_REGION="${AWS_REGION:-us-west-2}"
+export AWS_REGION
 
 # How many minutes to give migrations a head start before doing all the recycles
 MIGRATIONDELAY=5
@@ -22,15 +26,16 @@ MINHEALTHYPCT=35
 
 # This is a egrep pattern for excluding types of ASGs from being recycled.
 # Migrations hosts need to be done separately.  You can add more with |.
-IGNORE="^${ENV_NAME}-migration$"
+# Don't kill the runner which may be running this script!
+IGNORE="^${ENV_NAME}-migration$|^${ENV_NAME}-gitlab-env-runner"
 
 # clean up
 cd /tmp/ || exit 1
 rm -rf refreshes*
 
 # start recycles up
-aws autoscaling describe-auto-scaling-groups | jq -r ".AutoScalingGroups[] | .AutoScalingGroupName | select(test(\"^${ENV_NAME}-\"))" | grep -Ev "$IGNORE" | while read line ; do
-	aws autoscaling start-instance-refresh --preferences MinHealthyPercentage="$MINHEALTHYPCT" --auto-scaling-group-name "$line" > "/tmp/refreshes-$line"
+aws autoscaling describe-auto-scaling-groups --region "$AWS_REGION" | jq -r ".AutoScalingGroups[] | .AutoScalingGroupName | select(test(\"^${ENV_NAME}-\"))" | grep -Ev "$IGNORE" | while read line ; do
+	aws autoscaling start-instance-refresh --region "$AWS_REGION" --preferences MinHealthyPercentage="$MINHEALTHYPCT" --auto-scaling-group-name "$line" > "/tmp/refreshes-$line"
 	if [ "$?" -eq "0" ] ; then
 		echo "$line instance refresh initiated"
 	else
@@ -56,7 +61,7 @@ for i in refreshes* ; do
 
 	STOP=false
 	until [ "$STOP" = true ] ; do
-		STATUS=$(aws autoscaling describe-instance-refreshes  --auto-scaling-group-name "$ASG" --instance-refresh-ids "$REFRESHID" | jq -r '.InstanceRefreshes[] | .Status')
+		STATUS=$(aws autoscaling describe-instance-refreshes --region "$AWS_REGION"  --auto-scaling-group-name "$ASG" --instance-refresh-ids "$REFRESHID" | jq -r '.InstanceRefreshes[] | .Status')
 
 		case "$STATUS" in
 			"Successful")
@@ -70,13 +75,13 @@ for i in refreshes* ; do
 				;;
 			"Cancelled")
 				echo "$ASG reycle was canceled for some reason:"
-				aws autoscaling describe-instance-refreshes  --auto-scaling-group-name "$ASG" --instance-refresh-ids "$REFRESHID"
+				aws autoscaling describe-instance-refreshes --region "$AWS_REGION"  --auto-scaling-group-name "$ASG" --instance-refresh-ids "$REFRESHID"
 				STOP=true
 				FAILURE=true
 				;;
 			*)
 				# show the status here while we are waiting
-				aws autoscaling describe-instance-refreshes  --auto-scaling-group-name "$ASG" --instance-refresh-ids "$REFRESHID"
+				aws autoscaling describe-instance-refreshes --region "$AWS_REGION"  --auto-scaling-group-name "$ASG" --instance-refresh-ids "$REFRESHID"
 				sleep 60
 				;;
 		esac
@@ -87,4 +92,40 @@ done
 if [ "$FAILURE" = "true" ] ; then
 	echo "node recycle FAILED, investigate reasons above"
 	exit 1
+fi
+
+# recycle the gitlab-runner 1h in the future if it's run inside a pipeline, to avoid us
+# killing the system this job is running on while it's running.  Otherwise, just recycle
+# right away.
+# XXX if the tests run extra long, they may get killed by this, so if you need to,
+#     you can change the 60/70 minute stuff to more.  Let's hope tests never run more
+#     than an hour.
+if [ -z "$CI_COMMIT_SHA" ] ; then
+	echo "============= recycling $ENV_NAME-gitlab-env-runner asynchronously right now"
+	if [ "$(uname -s)" = "Darwin" ] ; then
+		START=$(TZ=Zulu date -v +1M +%Y-%m-%dT%H:%M:%SZ)
+		END=$(TZ=Zulu date -v +10M +%Y-%m-%dT%H:%M:%SZ)
+	else
+		START=$(TZ=Zulu date -d "1 minutes" +%Y-%m-%dT%H:%M:%SZ)
+		END=$(TZ=Zulu date -d "10 minutes" +%Y-%m-%dT%H:%M:%SZ)
+	fi
+else
+	echo "============= recycling $ENV_NAME-gitlab-env-runner 1h from now"
+	if [ "$(uname -s)" = "Darwin" ] ; then
+		START=$(TZ=Zulu date -v +60M +%Y-%m-%dT%H:%M:%SZ)
+		END=$(TZ=Zulu date -v +70M +%Y-%m-%dT%H:%M:%SZ)
+	else
+		START=$(TZ=Zulu date -d "60 minutes" +%Y-%m-%dT%H:%M:%SZ)
+		END=$(TZ=Zulu date -d "70 minutes" +%Y-%m-%dT%H:%M:%SZ)
+	fi
+fi
+PROPERSIZE=$(aws autoscaling describe-auto-scaling-groups --region "$AWS_REGION" --auto-scaling-group-names "$ENV_NAME"-gitlab-env-runner | jq .AutoScalingGroups[0].DesiredCapacity)
+DOUBLESIZE=$(expr $PROPERSIZE \* 2)
+RUNNERASGCOUNT=$(aws autoscaling describe-auto-scaling-groups --region "$AWS_REGION" --auto-scaling-group-names "$ENV_NAME"-gitlab-env-runner | jq '.[] | length')
+
+if [ "$RUNNERASGCOUNT" != "0" ] ; then
+       aws autoscaling put-scheduled-update-group-action --region "$AWS_REGION" --scheduled-action-name "recycle-env-runner-$ENV_NAME" --auto-scaling-group-name "${ENV_NAME}-gitlab-env-runner" --start-time "$START" --desired-capacity "$DOUBLESIZE"
+       aws autoscaling put-scheduled-update-group-action --region "$AWS_REGION" --scheduled-action-name "end-recycle-env-runner-$ENV_NAME" --auto-scaling-group-name "${ENV_NAME}-gitlab-env-runner" --start-time "$END" --desired-capacity "$PROPERSIZE"
+else
+       echo "${ENV_NAME}-gitlab-env-runner does not exist, not recycling"
 fi

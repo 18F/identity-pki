@@ -2,6 +2,7 @@
 .ecr.us-west-2.amazonaws.com
 .s3.us-west-1.amazonaws.com
 .s3.us-west-2.amazonaws.com
+.s3.us-east-2.amazonaws.com
 .s3.amazonaws.com
 <%= @aws_account_id %>.dkr.ecr.<%= @aws_region %>.amazonaws.com
 <%= @gitlab_url %>
@@ -14,6 +15,7 @@ logs.us-west-2.amazonaws.com
 sts.amazonaws.com
 sts.us-east-1.amazonaws.com
 sts.us-west-2.amazonaws.com
+sts.us-east-2.amazonaws.com
 
 arsenal.<%= @aws_region %>.amazonaws.com
 .cloudfront.net
@@ -22,6 +24,8 @@ packages.gitlab.com
 gov-infra-api.newrelic.com
 gov-identity-api.newrelic.com
 gov-infrastructure-command-api.newrelic.com
+synthetics.newrelic.com
+api.newrelic.com
 index.rubygems.org
 rubygems.org
 supermarket-production-cookbooks.s3.amazonaws.com
@@ -33,9 +37,6 @@ autoscaling.<%= @aws_region %>.amazonaws.com
 download.newrelic.com
 .ec2.archive.ubuntu.com
 
-# allow us to get the ECR credential helper
-amazon-ecr-credential-helper-releases.s3.us-east-2.amazonaws.com
-
 # allow us to do the terraform locks
 dynamodb.<%= @aws_region %>.amazonaws.com
 
@@ -45,7 +46,9 @@ api.ecr-public.us-east-1.amazonaws.com
 checkpoint-api.hashicorp.com
 cloudfront.amazonaws.com
 ec2.us-east-1.amazonaws.com
+ec2.us-east-2.amazonaws.com
 ec2.<%= @aws_region %>.amazonaws.com
+email.<%= @aws_region %>.amazonaws.com
 ip-ranges.amazonaws.com
 monitoring.<%= @aws_region %>.amazonaws.com
 rds.<%= @aws_region %>.amazonaws.com

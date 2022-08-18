@@ -90,6 +90,10 @@ variable "nat_c_subnet_cidr_block" { # 172.16.35.224 - 172.16.35.239
   default = "172.16.35.224/28"
 }
 
+variable "gitlab_subnet_cidr_block" { # 172.16.33.64 - 172.16.33.95
+  default = "172.16.33.64/27"
+}
+
 variable "allowed_gitlab_cidr_blocks_v4" { # 159.142.0.0 - 159.142.255.255
   # https://s3.amazonaws.com/nr-synthetics-assets/nat-ip-dnsname/production/ip.json
   default = [
@@ -420,4 +424,35 @@ variable "gitlab_backup_retention_days" {
 variable "use_waf_rules" {
   default     = false
   description = "Whether to use WAF instead of Security Group rules for the ALB. Allows public acccess to some paths."
+}
+
+variable "gitlab_runner_enabled" {
+  default     = false
+  description = "run an env_runner in here"
+}
+
+variable "env_runner_gitlab_hostname" {
+  description = "Gitlab instance that the env_runner should connect to"
+  default     = ""
+}
+
+locals {
+  env_runner_gitlab_hostname = var.env_runner_gitlab_hostname == "" ? "gitlab.${var.env_name}.${var.root_domain}" : var.env_runner_gitlab_hostname
+  env_runner_config_bucket   = var.env_runner_config_bucket == "" ? "login-gov-${var.env_name}-gitlabconfig-${data.aws_caller_identity.current.account_id}-${var.region}" : var.env_runner_config_bucket
+  runner_config_bucket       = var.runner_config_bucket == "" ? "login-gov-${var.env_name}-gitlabconfig-${data.aws_caller_identity.current.account_id}-${var.region}" : var.runner_config_bucket
+}
+
+variable "gitlab_servicename" {
+  description = "the privatelink servicename that we connect with"
+  default     = ""
+}
+
+variable "env_runner_config_bucket" {
+  description = "the config bucket that the env_runner should get it's config from"
+  default     = ""
+}
+
+variable "runner_config_bucket" {
+  description = "the config bucket that all the other runners should get their config from"
+  default     = ""
 }

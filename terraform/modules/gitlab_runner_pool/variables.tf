@@ -264,8 +264,8 @@ variable "endpoint_security_groups" {
 }
 
 variable "gitlab_configbucket" {
-  description = "if set, override the default gitlabconfig bucket location"
-  default     = ""
+  type        = string
+  description = "gitlabconfig bucket location"
 }
 
 variable "ssm_access_policy" {

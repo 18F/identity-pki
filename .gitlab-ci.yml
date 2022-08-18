@@ -30,7 +30,9 @@ variables:
   CI_COMMIT_TAG: "$CI_COMMIT_SHA"
   ECR_REGISTRY: "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
   DEPLOY_IMAGE_DIGEST: "sha256:a1dc5a54bf94f8bde6b8eba3c48fc7b869a999b341d76639458d6a757dbfcf57"
-  TEST_IMAGE_DIGEST: "sha256:d98342e69fe686a2fcdab8beb5a9c4e191130a247b34a3814f29a8ed6a20450d"
+  TEST_IMAGE_DIGEST: "sha256:4f08ebe20d31b7001969b56dc14473e29466f6e4e754ff414626b301ae89d9c6"
+  GITDEPLOY_IMAGE_DIGEST: "sha256:5cbb0d207db1f1a4267ae4255f901794c6847ca6d13723bd43eee3e80726bf5e"
+  GITTEST_IMAGE_DIGEST: "sha256:9c92a4d06c4e88af3989df742cbc466054f6842855da4b71f8092204ff85ecdb"
 
 gitlab-qa:
   rules:
@@ -68,10 +70,6 @@ gitlab-qa:
   image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
-  only:
-    variables:
-      - $dockerfile
-      - $ecr_repo
   script:
     - mkdir -p /kaniko/.docker
     - |-
@@ -91,26 +89,58 @@ gitlab-qa:
 
 # Build images by providing a dockerfile (in dockerfiles/) and a destination ECR repo
 
+build_gitlab_deploy:
+  <<: *build_template
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_PIPELINE_SOURCE == "push"
+      changes:
+        - dockerfiles/gitlab_deploy*
+        - versions.tf
+  variables:
+    dockerfile: gitlab_deploy.Dockerfile
+    ecr_repo: cd/gitlab_deploy
+
+build_gitlab_test:
+  <<: *build_template
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_PIPELINE_SOURCE == "push"
+      changes:
+        - dockerfiles/gitlab_test*
+        - versions.tf
+  variables:
+    dockerfile: gitlab_test.Dockerfile
+    ecr_repo: cd/gitlab_test
+
 build_env_deploy:
   <<: *build_template
-  only:
-    - main
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_PIPELINE_SOURCE == "push"
+      changes:
+        - dockerfiles/env_deploy*
+        - versions.tf
   variables:
     dockerfile: env_deploy.Dockerfile
     ecr_repo: cd/env_deploy
 
 build_env_test:
   <<: *build_template
-  only:
-    - main
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_PIPELINE_SOURCE == "push"
+      changes:
+        - dockerfiles/env_test*
+        - versions.tf
   variables:
     dockerfile: env_test.Dockerfile
     ecr_repo: cd/env_test
 
 build_idp_ci:
   <<: *build_template
-  only:
-    - main
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
   variables:
     dockerfile: idp_ci.Dockerfile
     ecr_repo: idp/ci
@@ -139,6 +169,8 @@ deploy_tspencer:
       - terraform.plan
       - plan.txt
     expire_in: 1 year
+    reports:
+      terraform: plan.json
   script:
     - echo "Yay deploys!"
 
@@ -244,6 +276,75 @@ badtest_pauldoom:
   script:
     - echo "You have no chance to survive make your test."
 
+# deploy jobs for gitstaging env here.
+deploy_gitstaging:
+  environment: gitstaging
+  resource_group: gitstaging
+  only:
+    - stages/gitstaging
+  variables:
+    GIT_SUBMODULE_STRATEGY: normal
+  tags:
+    - gitstaging-env-runner
+  image:
+    # these are hardcoded to make this deploy process more secure.
+    # If you want to update this image, you will need to edit it here, and in
+    # s3://login-gov.secrets.<account>-us-west-2/<env>/gitlab_env_runner_allowed_images,
+    # or s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images.
+    # If you are doing development work, you can override them for your env.
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/gitlab_deploy@$GITDEPLOY_IMAGE_DIGEST
+  stage: deploy
+  artifacts:
+    name: "$CI_ENVIRONMENT_NAME-$CI_COMMIT_SHA"
+    paths:
+      - terraform.plan
+      - plan.txt
+    expire_in: 1 year
+    reports:
+      terraform: plan.json
+  script:
+    - echo "Yay deploys!"
+
+test_gitstaging:
+  only:
+    - stages/gitstaging
+  variables:
+    ENV_NAME: gitstaging
+    DOMAIN: gitlab.gitstaging.gitlab.login.gov
+  tags:
+    - gitstaging-env-runner
+  image:
+    # these are hardcoded to make this deploy process more secure.
+    # If you want to update this image, you will need to edit it here, and in
+    # s3://login-gov.secrets.<account>-us-west-2/<env>/gitlab_env_runner_allowed_images,
+    # or s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images.
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/gitlab_test@$GITTEST_IMAGE_DIGEST
+  stage: test
+  needs:
+    - deploy_gitstaging
+  script:
+    - echo "Somebody set us up the deploy"
+  artifacts:
+    reports:
+      junit: testlogs/*.xml
+  script:
+    - echo "Tests for great justice"
+
+badtest_gitstaging:
+  when: manual
+  allow_failure: true
+  tags:
+    - gitstaging-env-runner
+  image:
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ecr-public/docker/library/alpine
+  stage: test
+  only:
+    - main
+  needs:
+    - deploy_gitstaging
+  script:
+    - echo "You have no chance to survive make your test."
+
 # deploy jobs for dev env here.
 deploy_dev:
   environment: dev
@@ -263,6 +364,8 @@ deploy_dev:
       - terraform.plan
       - plan.txt
     expire_in: 1 year
+    reports:
+      terraform: plan.json
   script:
     - echo "Somebody set us up the deploy"
 

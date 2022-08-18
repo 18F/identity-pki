@@ -265,7 +265,8 @@ func TestGitlabS3artifacts(t *testing.T) {
 	cmd = "curl -s --header 'PRIVATE-TOKEN: " + token +
 		"' 'http://localhost:8080/api/v4/projects/" + projectid +
 		"/jobs'"
-	for {
+	var jobtimeout int
+	for jobtimeout = 18; jobtimeout > 0; jobtimeout-- {
 		result = RunCommandOnInstance(t, firstinstance, cmd)
 		require.Equal(t, int64(0), *result.ResponseCode, "could not get list of jobs with "+cmd)
 		var jobresult []map[string]interface{}
@@ -284,9 +285,10 @@ func TestGitlabS3artifacts(t *testing.T) {
 			break
 		}
 
-		fmt.Printf("no jobs are done, waiting until there is one\n")
+		fmt.Printf("no jobs in %s are done, waiting until there is one\n", projectname)
 		time.Sleep(10)
 	}
+	require.NotEqual(t, 0, jobtimeout, "timed out:  no job finished")
 
 	// Download artifact
 	// GET /projects/:id/jobs/:job_id/artifacts/job.log
