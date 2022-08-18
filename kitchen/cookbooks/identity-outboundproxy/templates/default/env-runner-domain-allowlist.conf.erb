@@ -49,6 +49,7 @@ ec2.<%= @aws_region %>.amazonaws.com
 ip-ranges.amazonaws.com
 monitoring.<%= @aws_region %>.amazonaws.com
 rds.<%= @aws_region %>.amazonaws.com
+rds.us-east-1.amazonaws.com
 s3.dualstack.<%= @aws_region %>.amazonaws.com
 route53.amazonaws.com
 kinesis.<%= @aws_region %>.amazonaws.com
@@ -60,6 +61,9 @@ elasticache.<%= @aws_region %>.amazonaws.com
 kms.us-east-1.amazonaws.com
 firehose.<%= @aws_region %>.amazonaws.com
 events.us-east-1.amazonaws.com
+wafv2.<%= @aws_region %>.amazonaws.com
+athena.<%= @aws_region %>.amazonaws.com
+glue.<%= @aws_region %>.amazonaws.com
 
 # allow us to connect to our env
 idp.<%= node.chef_environment %>.identitysandbox.gov
