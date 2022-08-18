@@ -339,7 +339,7 @@ badtest_gitstaging:
     name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ecr-public/docker/library/alpine
   stage: test
   only:
-    - main
+    - stages/gitstaging
   needs:
     - deploy_gitstaging
   script:
