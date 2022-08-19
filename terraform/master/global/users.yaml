@@ -599,27 +599,37 @@ projects:
         access: maintainer
       appdev:
         access: developer
+      pm:
+        access: reporter
   lg/identity-idp:
     groups:
       appdev:
         access: maintainer
       devops:
         access: developer
+      pm:
+        access: reporter
   lg/identity-gitlab:
     groups:
       devops:
         access: maintainer
       appdev:
         access: developer
+      pm:
+        access: reporter
   lg/identity-saml-sinatra:
     groups:
       appdev:
         access: maintainer
       devops:
         access: developer
+      pm:
+        access: reporter
   lg/identity-oidc-sinatra:
     groups:
       appdev:
         access: maintainer
       devops:
         access: developer
+      pm:
+        access: reporter
