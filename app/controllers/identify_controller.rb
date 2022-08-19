@@ -133,7 +133,7 @@ class IdentifyController < ApplicationController
   end
 
   def openssl_validate(certificate_pem, certificate_bundle_file_path)
-    stdout, stderr, status = Open3.capture3('openssl', 'verify', '-purpose', 'sslclient', '-inhibit_any', '-explicit_policy', '-CAfile', certificate_bundle_file_path, '-policy_check', '-policy', '2.16.8.40.1.101.3.2.1.3.7', '-policy', '2.16.840.1.101.3.2.1.3.13', '-policy', '2.16.840.1.101.3.2.1.3.15', '-policy', '2.16.840.1.101.3.2.1.3.16', '-policy', '2.16.840.1.101.3.2.1.3.18', '-policy', '2.16.840.1.101.3.2.1.3.41', stdin_data: certificate_pem)
+    stdout, stderr, status = Open3.capture3('openssl', 'verify', '-purpose', 'sslclient', '-inhibit_any', '-explicit_policy', '-CAfile', certificate_bundle_file_path, '-policy_check', '-policy', '2.16.840.1.101.3.2.1.3.7', '-policy', '2.16.840.1.101.3.2.1.3.13', '-policy', '2.16.840.1.101.3.2.1.3.15', '-policy', '2.16.840.1.101.3.2.1.3.16', '-policy', '2.16.840.1.101.3.2.1.3.18', '-policy', '2.16.840.1.101.3.2.1.3.41', stdin_data: certificate_pem)
 
     stderr.strip!
     stdout.strip!
