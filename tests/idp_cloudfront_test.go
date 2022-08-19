@@ -4,6 +4,7 @@ import (
   "fmt"
   "os"
   "testing"
+  "net"
   "net/http"
   "strings"	
   "github.com/stretchr/testify/assert"
@@ -18,6 +19,17 @@ func ReturnResponse(url string) *http.Response {
   defer resp.Body.Close()
 
   return resp
+}
+
+// Does a CNAME lookup of a hostname to check if cloudfront exists in the environment or not
+func CheckCloudfrontExists() bool {
+  idp_fqdn := os.Getenv("IDP_HOSTNAME")
+  cname, _ := net.LookupCNAME(idp_fqdn)
+	if strings.Contains(cname, "cloudfront") {
+    return true
+  } else {
+    return false
+  }
 }
 
 // Given a map of slices, we iterate over each header and check to make sure that the response both contains the header and the appropriate values
@@ -35,6 +47,9 @@ func CheckHeaders(t *testing.T, resp *http.Response, idp_fqdn string, headers ma
 
 // Check headers and header values
 func TestIdpHeaders(t *testing.T) {
+  if ! CheckCloudfrontExists() {
+    t.Skip("Cloudfront doesn't exist in this environment, skipping")
+  }
   t.Parallel()
   // Load value from environment variables
   idp_fqdn :=  os.Getenv("IDP_HOSTNAME")
@@ -44,7 +59,7 @@ func TestIdpHeaders(t *testing.T) {
   headers := map[string][]string {
     "Strict-Transport-Security": {"max-age=31556952", "includeSubDomains", "preload"},
     "X-Content-Type-Options": {"nosniff"},
-    "X-Frame-Options": {"DENY"},
+    "X-Frame-Options": {"SAMEORIGIN"},
     "X-Xss-Protection": {"1", "mode=block"},
     "Referrer-Policy": {"strict-origin-when-cross-origin"},
     "X-Permitted-Cross-Domain-Policies": {"none"},
@@ -54,7 +69,9 @@ func TestIdpHeaders(t *testing.T) {
 
 // Check origin redirect without added cloudfront header
 func TestBlockedOrigin(t *testing.T) {
-  t.Parallel()
+  if ! CheckCloudfrontExists() {
+    t.Skip("Cloudfront doesn't exist in this environment, skipping")
+  }
   // Load value from environment variables
   idp_origin_fqdn :=  os.Getenv("IDP_ORIGIN_HOSTNAME")
   idp_fqdn :=  os.Getenv("IDP_HOSTNAME")
@@ -75,6 +92,9 @@ maintenance page, as long as it exists and is reachable Cloudfront will be able
 to serve it.
 */
 func TestCustomErrorPages(t *testing.T) {
+  if ! CheckCloudfrontExists() {
+    t.Skip("Cloudfront doesn't exist in this environment, skipping")
+  }
   t.Parallel()
   var idp_custom_pages [2]string
   // Load value from environment variables
