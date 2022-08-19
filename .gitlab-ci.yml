@@ -92,9 +92,13 @@ gitlab-qa:
 build_gitlab_deploy:
   <<: *build_template
   rules:
+    # always run if it's on the main branch
     - if: $CI_COMMIT_BRANCH == "main"
-    - if: $CI_PIPELINE_SOURCE == "push"
-      changes:
+    # If this is not new code, then stop
+    - if: $CI_PIPELINE_SOURCE != "push" || $CI_COMMIT_BRANCH
+      when: never
+    # run if there are changes in these files
+    - changes:
         - dockerfiles/gitlab_deploy*
         - versions.tf
   variables:
@@ -104,9 +108,13 @@ build_gitlab_deploy:
 build_gitlab_test:
   <<: *build_template
   rules:
+    # always run if it's on the main branch
     - if: $CI_COMMIT_BRANCH == "main"
-    - if: $CI_PIPELINE_SOURCE == "push"
-      changes:
+    # If this is not new code, then stop
+    - if: $CI_PIPELINE_SOURCE != "push" || $CI_COMMIT_BRANCH
+      when: never
+    # run if there are changes in these files
+    - changes:
         - dockerfiles/gitlab_test*
         - versions.tf
   variables:
@@ -116,9 +124,13 @@ build_gitlab_test:
 build_env_deploy:
   <<: *build_template
   rules:
+    # always run if it's on the main branch
     - if: $CI_COMMIT_BRANCH == "main"
-    - if: $CI_PIPELINE_SOURCE == "push"
-      changes:
+    # If this is not new code, then stop
+    - if: $CI_PIPELINE_SOURCE != "push" || $CI_COMMIT_BRANCH
+      when: never
+    # run if there are changes in these files
+    - changes:
         - dockerfiles/env_deploy*
         - versions.tf
   variables:
@@ -128,9 +140,13 @@ build_env_deploy:
 build_env_test:
   <<: *build_template
   rules:
+    # always run if it's on the main branch
     - if: $CI_COMMIT_BRANCH == "main"
-    - if: $CI_PIPELINE_SOURCE == "push"
-      changes:
+    # If this is not new code, then stop
+    - if: $CI_PIPELINE_SOURCE != "push" || $CI_COMMIT_BRANCH
+      when: never
+    # run if there are changes in these files
+    - changes:
         - dockerfiles/env_test*
         - versions.tf
   variables:
@@ -140,7 +156,14 @@ build_env_test:
 build_idp_ci:
   <<: *build_template
   rules:
+    # always run if it's on the main branch
     - if: $CI_COMMIT_BRANCH == "main"
+    # If this is not new code, then stop
+    - if: $CI_PIPELINE_SOURCE != "push" || $CI_COMMIT_BRANCH
+      when: never
+    # run if there are changes in these files
+    - changes:
+        - dockerfiles/idp_ci*
   variables:
     dockerfile: idp_ci.Dockerfile
     ecr_repo: idp/ci
