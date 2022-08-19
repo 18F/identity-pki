@@ -184,7 +184,7 @@ file "gitlab_ee_license_file" do
 end
 
 package 'gitlab-ee' do
-  version "14.10.2-ee.0"
+  version "15.2.2-ee.0"
 end
 
 execute 'restore_ssh_keys' do

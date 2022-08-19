@@ -29,13 +29,13 @@ filesystem 'docker' do
   action [:create, :enable, :mount]
 end
 
-execute 'grab_gitlab_runner_repo' do
-  command 'curl https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.deb.sh | sudo bash'
-  ignore_failure true
+packagecloud_repo "runner/gitlab-runner" do
+  type "deb"
+  base_url "https://packages.gitlab.com/"
 end
 
 package 'gitlab-runner' do
-  version "14.10.1"
+  version "15.2.1"
 end
 
 # install docker-credential-ecr-login so we can auth to ECR
@@ -94,7 +94,7 @@ if node.run_state['is_it_an_env_runner'] == 'true'
   #   s3://login-gov.secrets.<account>-us-west-2/<env>/gitlab_env_runner_allowed_images
   # Or in the common secret bucket, if the env secret does not exist:
   #   s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images
-  # 
+  #
   # The file should look something like:
   #   <account>.dkr.ecr.us-west-2.amazonaws.com/cd/env_deploy@sha256:e04b3b710e76ff00dddd3d62029571fb40a2edeba6ffbda4fa80138c079264b1
   #   <account>.dkr.ecr.us-west-2.amazonaws.com/cd/env_test@sha256:e04b3b710e76ff00dddd3d62029571fb4feeddeba6ffbda4fa80138c079264b1
@@ -102,7 +102,7 @@ if node.run_state['is_it_an_env_runner'] == 'true'
   # You can find the digest by going to ECR in the AWS console and looking at the repo,
   # finding the build that you have approved, and then copying the digest for it.
   # They look like "sha256:2feedface4242424242<etc>"
-  # 
+  #
   node.run_state['runner_tag'] = node.environment + '-' + node.run_state['gitlab_runner_pool_name']
   node.run_state['ecr_accountid'] = node.run_state['gitlab_ecr_repo_accountid']
   allowed_images = ConfigLoader.load_config_or_nil(node, "gitlab_env_runner_allowed_images")
