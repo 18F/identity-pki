@@ -22,7 +22,6 @@ Flags (if CMD not specified):
   -x : destroy                     -c ARGS       : bin/tfplan ARGS
   -v CMD : providers <CMD>         -s CMD : state <CMD>
   
-  -u      : Update .terraform.lock.hcl in the repo
   -r ROLE : Use ACCOUNT-ROLE instead of ACCOUNT-terraform
   -h      : Display help
 
@@ -54,7 +53,7 @@ verify_root_repo
 declare {ARGS,RUN_FLAG,TF_CMD,TF_DIR,TF_ENV,TF_PROFILE,AV_PROFILE,SET_ROLE}=
 TF_ROLE='Terraform'
 
-while getopts d:e:apxsifcvur:tlzmh opt
+while getopts d:e:apxsifcvr:tlzmh opt
 do
   case $opt in
     d) TF_DIR="${OPTARG}"    ;;
@@ -67,7 +66,6 @@ do
     f) TF_CMD="force-unlock" ;;
     c) TF_CMD="tfplan"       ;;
     v) TF_CMD="providers"    ;;
-    u) TF_CMD="upgrade"      ;;
     r) SET_ROLE="${OPTARG}"  ;;
     t) RUN_FLAG+="-t "       ;;
     l) RUN_FLAG+="-l "       ;;
@@ -142,12 +140,7 @@ else
   TF_PATH="${TF_DIR}/${TF_ENV}"
 fi
 
-if [[ ${TF_CMD} == 'upgrade' ]] ; then
-  run aws-vault exec ${AV_PROFILE} -- $(dirname "$0")/tf-deploy -l ${TF_PATH} providers lock
-  if prompt_yn "Update repo-level lockfile?" ; then
-    mv $(find ${GIT_DIR}/terraform/${TF_DIR} -name .terraform.lock.hcl -type f) ${GIT_DIR}
-  fi
-elif [[ ${TF_CMD} == 'tfplan' ]] ; then
+if [[ ${TF_CMD} == 'tfplan' ]] ; then
   run aws-vault exec ${AV_PROFILE} -- $(dirname "$0")/${TF_CMD} ${ARGS} ${TF_DIR} ${TF_ENV}
 else  
   run aws-vault exec ${AV_PROFILE} -- $(dirname "$0")/tf-deploy ${RUN_FLAG} ${TF_PATH} ${TF_CMD} ${ARGS}

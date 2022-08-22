@@ -63,8 +63,20 @@ check_tf_versions() {
     awk -F'"' '{print $2}' | sed -E 's/\.$//;s/\./\\\./g')
 }
 
+# providers lock for all platforms
+tf_providers_lock() {
+  echo_green "Regenerating and copying lockfile..."
+  cd ${LOCKFILE_DIR}
+  [[ -f "${LOCKFILE}" ]] && rm "${LOCKFILE}"
+  run terraform providers lock \
+    -platform=windows_amd64 -platform=darwin_amd64 -platform=linux_amd64 \
+    -platform=darwin_arm64 -platform=linux_arm64
+  cd -
+}
+
 verify_root_repo
-declare {SKIP_TF_UPDATE,NEW_TF_VERSION,OLD_VERSION,NEW_VERSION}=
+declare {SKIP_TF_UPDATE,NEW_TF_VERSION,OLD_VERSION,NEW_VERSION}
+TF_UPDATED=false
 PROVIDER_LIST=()
 LOCKFILE_DIR="${GIT_DIR}/terraform/master/global"
 LOCKFILE="${LOCKFILE_DIR}/.terraform.lock.hcl"
@@ -95,7 +107,7 @@ fi
 
 echo
 cp "${GIT_DIR}/versions.tf" "${GIT_DIR}/versions.tf.bak"
-echo_blue "Checking for updates to the following providers:"
+echo_green "Checking for updates to the following providers:"
 for PROVIDER in "${PROVIDER_LIST[@]}" ; do
   echo "- $(dsl ${PROVIDER})"
   sed -i '' -E "/$PROVIDER/{n;s/( version = \")/\1\>\= /;}" "${GIT_DIR}/versions.tf"
@@ -113,7 +125,7 @@ if [[ "$(dsl $CURRENT_TF_VERSION)" != "$(dsl $REQUIRED_TF_VERSION)" ]] ; then
     raise "Change currently-running Terraform version and try again!"
   fi
 fi
-$(dirname "$0")/td -l -d master -v lock
+tf_providers_lock
 
 UPDATED_PROVIDERS=0
 for PROVIDER in "${PROVIDER_LIST[@]}" ; do
@@ -125,24 +137,23 @@ for PROVIDER in "${PROVIDER_LIST[@]}" ; do
   if [[ "${OLD_VERSION}" == "${NEW_VERSION}" ]] ; then
     echo_yellow "$(dsl ${PROVIDER}) is already at $(dsl ${NEW_VERSION}); skipping."
   else
-    echo_green "Updated $(dsl ${PROVIDER}) from $(dsl ${OLD_VERSION}) to $(dsl ${NEW_VERSION})"
+    echo_cyan "Updated $(dsl ${PROVIDER}) from $(dsl ${OLD_VERSION}) to $(dsl ${NEW_VERSION})"
     ((UPDATED_PROVIDERS++))
   fi
 done
-rm "${GIT_DIR}/versions.tf.bak"
 
-rm "${LOCKFILE}"
 if [[ ${UPDATED_PROVIDERS} -gt 0 ]] && \
-  [[ ! $(comm -3 "${GIT_DIR}/.terraform.lock.hcl" "${LOCKFILE}" |
-    grep -v 'constraints') ]]; then
-  echo_blue "Regenerating and copying lockfile..."
-  $(dirname "$0")/td -l -d master -v lock
+  [[ ! -z $(comm -3 "${GIT_DIR}/versions.tf.bak" "${GIT_DIR}/versions.tf") ]]; then
+  echo
+  echo_green "${UPDATED_PROVIDERS} provider(s) updated."
+  tf_providers_lock
   mv "${LOCKFILE}" .terraform.lock.hcl
   echo_green "Repo-level .terraform.lock.hcl updated."
 fi
 cd "${LOCKFILE_DIR}"
 ln -s ../../../.terraform.lock.hcl .terraform.lock.hcl
 cd - >/dev/null
+rm "${GIT_DIR}/versions.tf.bak"
 echo
 
 check_tf_versions
@@ -159,5 +170,13 @@ if [[ -z ${SKIP_TF_UPDATE} ]] && [[ ! -z ${NEW_TF_VERSION} ]]; then
         $(dirname "$0")/lib/common.sh
       echo_green "Added v$(dsl ${NEW_TF_VERSION}) to KNOWN_TF_VERSIONS in common.sh"
     fi
+    TF_UPDATED=true
   fi
 fi
+
+if [[ ${UPDATED_PROVIDERS} -gt 0 ]] || [[ ${TF_UPDATED} == true ]] ; then
+  echo_green "Verifying new configuration with bin/tf-deploy..."
+  $(dirname "$0")/td -d master -v schema -json | jq '.provider_schemas|keys'
+  [[ ${?} == 0 ]] || raise "Command failed, verify configs and run again!"
+fi
+
