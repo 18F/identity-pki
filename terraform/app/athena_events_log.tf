@@ -9,6 +9,10 @@ module "athena_events_log_database" {
   bucket_name   = module.kinesis-firehose.kinesis_firehose_stream_bucket.bucket
   source_arn    = module.kinesis-firehose.kinesis_firehose_stream_bucket.arn
 
+  lambda_ephemeral_storage = 4096
+  lambda_timeout           = 45
+  lambda_memory            = 4096
+
   depends_on = [module.kinesis-firehose]
 }
 
