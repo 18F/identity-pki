@@ -20,6 +20,10 @@ resource "aws_lambda_function" "log_processor_lambda" {
   source_code_hash = module.lambda_code[0].zip_output_base64sha256
   publish          = false
 
+  ephemeral_storage {
+    size = var.lambda_ephemeral_storage
+  }
+
   depends_on = [module.lambda_code[0].resource_check]
 }
 

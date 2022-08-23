@@ -46,13 +46,19 @@ variable "lambda_name" {
 variable "lambda_memory" {
   description = "Memory allocated to Lambda function, 128MB to 3,008MB in 64MB increments"
   type        = number
-  default     = 128
+  default     = 512
+}
+
+variable "lambda_ephemeral_storage" {
+  description = "Used to expand the total amount of Ephemeral storage available, beyond the default amount of 512MB"
+  type        = number
+  default     = 512
 }
 
 variable "lambda_timeout" {
   description = "Timeout for Lambda function"
   type        = number
-  default     = 3
+  default     = 30
 }
 
 variable "lambda_runtime" {
