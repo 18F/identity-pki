@@ -23,7 +23,7 @@ resource "aws_lambda_function" "log_processor_lambda" {
   ephemeral_storage {
     size = var.lambda_ephemeral_storage
   }
-  
+
   depends_on = [module.lambda_code[0].resource_check]
 }
 
