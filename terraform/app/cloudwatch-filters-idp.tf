@@ -26,7 +26,7 @@ locals {
     },
     user_registration_complete = {
       name         = "user-registration-complete"
-      pattern      = "{ ($.name = \"User registration: complete\") }"
+      pattern      = "{ ($.name = \"User Registration: User Fully Registered\") }"
       metric_value = 1
       dimensions   = {}
     },
