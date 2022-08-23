@@ -873,3 +873,21 @@ variable "idp_pii_spill_patterns" {
   ]
 }
 
+variable "events_log_lambda_memory" {
+  description = "Memory allocated to Lambda function, 128MB to 3,008MB in 64MB increments"
+  type        = number
+  default     = 512
+}
+
+variable "events_log_lambda_ephemeral_storage" {
+  description = "Used to expand the total amount of Ephemeral storage available, beyond the default amount of 512MB"
+  type        = number
+  default     = 512
+}
+
+variable "events_log_lambda_timeout" {
+  description = "Timeout for Lambda function"
+  type        = number
+  default     = 30
+}
+
