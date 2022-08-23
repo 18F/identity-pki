@@ -18,7 +18,7 @@ Usage: ${0} [-d[a]sbkxh] [ENV] (defaults to \$GSA_USERNAME if not specified)
 Flags (will run all if no flags specified):
   -d : Remove deletion protection from RDS dbs + zero out ASGs via targeted apply
   -a : Same as -d, but do full (non-targeted) apply (not run by default)
-  -s : Stop and delete the CloudWatch-to-S3 Kinesis Firehose stream
+  -s : Stop and delete the CloudWatch-to-S3 Kinesis Firehose stream and Logs stream
   -p : Delete the DS record for the pivcac.ENV.identitysandbox.gov hosted zone
   -b : Empties all S3 buckets with ENV in the bucket name
   -x : terraform-destroy + reset db .tf files
@@ -44,8 +44,8 @@ using the following flags:
        and zero out Auto Scaling Groups, via targeted \`tf-deploy \${TF_ENV} app apply\`.
   -a : Same as -d but will do a full \`apply\` without specifically targeting the
        RDS databases/ASGs (use in case the targeted \`apply\` is failing).
-  -s : Stop and force-delete the cw-kinesis-s3 Firehose stream,
-       allowing its corresponding bucket to be emptied and deleted
+  -s : Stop and force-delete the cw-kinesis-s3 Firehose stream and associated CloudWatch
+       log stream, allowing their corresponding bucket to be emptied and deleted
   -p : Delete the DS record from identitysandbox.gov that enables DNSSEC for the
        pivcac.\${TF_ENV}.identitysandbox.gov (necessary before disabling DNSSEC)
   -b : Empties all S3 buckets with \${TF_ENV} in the bucket name,
@@ -93,6 +93,7 @@ replace_db_files() {
 
 2_stop_kinesis_stream() {
   local CW_S3_STREAM="cw-kinesis-s3-${TF_ENV}-us-west-2"
+  local CW_S3_LOG="/aws/kinesisfirehose/${CW_S3_STREAM}"
 
   if [[ $(ave aws firehose describe-delivery-stream \
           --delivery-stream-name "${CW_S3_STREAM}" \
@@ -109,6 +110,20 @@ replace_db_files() {
           --output text) == "DELETING" ]] ; do
     sleep 5
   done
+
+  if [[ ! -z $(ave aws logs describe-log-streams \
+          --log-group-name "${CW_S3_LOG}" | jq -r '.logStreams[]') ]] ; then
+    ave aws logs delete-log-stream \
+      --log-group-name "${CW_S3_LOG}" --log-stream-name 'S3Delivery'
+  fi
+  while [[ ! -z $(ave aws logs describe-log-streams \
+          --log-group-name "${CW_S3_LOG}" | jq -r '.logStreams[]') ]] ; do
+    sleep 5
+  done
+
+  boto3_check
+  local CACHE_BUCKET=$(ave aws s3 ls | grep "log-cache-${TF_ENV}" | awk '{print $NF}')
+  empty_bucket_with_versions ${CACHE_BUCKET}
 }
 
 3_destroy_pivcac_ds_records() {
@@ -131,8 +146,7 @@ replace_db_files() {
 }
 
 4_empty_buckets() {
-  boto3_check
-  for BUCKET in $(ave aws s3 ls |grep ${TF_ENV} | awk '{print $NF}' | sort -r); do
+  for BUCKET in $(ave aws s3 ls | grep ${TF_ENV} | awk '{print $NF}' | sort -r); do
     empty_bucket_with_versions ${BUCKET}
   done
 }
@@ -183,7 +197,9 @@ done
 shift $((OPTIND-1))
 initialize ${1:-}
 
-if [[ ${APPLY_ALL} == true ]] && [[ ! "${TODO[@]:-}" =~ "${TASKS[0]}" ]] ; then
-  TODO+=("${TASKS[0]}")
+if [[ ${APPLY_ALL} == true ]] ; then
+  if [[ ! -z ${TODO-} ]] && [[ ! "${TODO[@]:-}" =~ "${TASKS[0]}" ]] ; then
+    TODO+=("${TASKS[0]}")
+  fi
 fi
 run_tasks

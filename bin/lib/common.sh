@@ -622,6 +622,7 @@ run_tasks() {
     echo_green "Executing task '${TASK}'..."
     eval ${TASK}
     echo_green "Task completed successfully."
+    sleep 1
     echo
   done
 }
