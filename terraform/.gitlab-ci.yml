@@ -1,0 +1,51 @@
+include:
+  local: /.gitlab-ci-rules.yml
+
+terraform-fmt:
+  image:
+    name: hashicorp/terraform
+    entrypoint: [""]
+  script:
+    - terraform fmt -recursive -diff -check ./terraform
+  rules:
+    - !reference [.merge_request, rules]
+    - changes:
+        - terraform/**/*
+
+# Scanning top level modules to avoid extreme duplication
+tfsec-check-soft:
+  image: aquasec/tfsec-ci:v1.26.3
+  script:
+    - tfsec --no-color --soft-fail terraform/$TFDIR
+  rules:
+    - !reference [.merge_request, rules]
+    - changes:
+        - terraform/$TFDIR/**/*
+  parallel:
+    matrix:
+      - TFDIR:
+          - all/module
+          - app
+          - core/module
+          - gitlab/module
+          - modules
+          - sms/module
+          - tooling/module
+          - waf/module
+
+# Add folders that should be vuln free and STAY THAT WAY
+tfsec-check-enforce:
+  image: aquasec/tfsec-ci:v1.26.3
+  script:
+    - tfsec --no-color terraform/$TFDIR
+  rules:
+    - !reference [.merge_request, rules]
+    - changes:
+        - terraform/$TFDIR/**/*
+  parallel:
+    matrix:
+      - TFDIR:
+          - imagebuild/module
+          - master/module
+          - tooling/module-gitlabpipeline
+          - tooling/module-pipeline

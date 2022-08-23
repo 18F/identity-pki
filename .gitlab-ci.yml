@@ -381,3 +381,7 @@ badtest_dev:
     - main
   needs:
     - deploy_dev
+
+include:
+  - local: /terraform/.gitlab-ci.yml
+  - local: /cloudlib/.gitlab-ci.yml
