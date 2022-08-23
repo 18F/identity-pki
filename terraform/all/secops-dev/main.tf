@@ -14,14 +14,10 @@ variable "opsgenie_key_ready" {
 }
 
 module "main" {
-  source             = "../module"
+  source = "../module"
+
   opsgenie_key_ready = var.opsgenie_key_ready
-
-  # comment out once SOC team approves access to CW log group
-  soc_logs_enabled = false
-
-  iam_account_alias = "login-secops-dev"
-
+  iam_account_alias  = "login-secops-dev"
   cloudtrail_event_selectors = [
     {
       include_management_events = false
