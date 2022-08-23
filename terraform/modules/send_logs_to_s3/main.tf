@@ -9,11 +9,12 @@ resource "aws_kinesis_firehose_delivery_stream" "cloudwatch-exporter" {
   destination = "extended_s3"
 
   extended_s3_configuration {
-    role_arn       = aws_iam_role.kinesis_firehose_stream_role.arn
-    bucket_arn     = aws_s3_bucket.kinesis_firehose_stream_bucket.arn
-    buffer_size    = 128
-    s3_backup_mode = "Enabled"
-    prefix         = "logs/"
+    role_arn        = aws_iam_role.kinesis_firehose_stream_role.arn
+    bucket_arn      = aws_s3_bucket.kinesis_firehose_stream_bucket.arn
+    buffer_size     = 32
+    buffer_interval = 60
+    s3_backup_mode  = "Enabled"
+    prefix          = "logs/"
 
     s3_backup_configuration {
       role_arn   = aws_iam_role.kinesis_firehose_stream_role.arn
