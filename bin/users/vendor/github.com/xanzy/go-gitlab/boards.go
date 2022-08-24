@@ -33,11 +33,21 @@ type IssueBoardsService struct {
 //
 // GitLab API docs: https://docs.gitlab.com/ce/api/boards.html
 type IssueBoard struct {
-	ID        int          `json:"id"`
-	Name      string       `json:"name"`
-	Project   *Project     `json:"project"`
-	Milestone *Milestone   `json:"milestone"`
-	Lists     []*BoardList `json:"lists"`
+	ID        int        `json:"id"`
+	Name      string     `json:"name"`
+	Project   *Project   `json:"project"`
+	Milestone *Milestone `json:"milestone"`
+	Assignee  *struct {
+		ID        int    `json:"id"`
+		Username  string `json:"username"`
+		Name      string `json:"name"`
+		State     string `json:"state"`
+		AvatarURL string `json:"avatar_url"`
+		WebURL    string `json:"web_url"`
+	} `json:"assignee"`
+	Lists  []*BoardList    `json:"lists"`
+	Weight int             `json:"weight"`
+	Labels []*LabelDetails `json:"labels"`
 }
 
 func (b IssueBoard) String() string {
@@ -48,9 +58,18 @@ func (b IssueBoard) String() string {
 //
 // GitLab API docs: https://docs.gitlab.com/ce/api/boards.html
 type BoardList struct {
-	ID       int    `json:"id"`
-	Label    *Label `json:"label"`
-	Position int    `json:"position"`
+	ID       int `json:"id"`
+	Assignee *struct {
+		ID       int    `json:"id"`
+		Name     string `json:"name"`
+		Username string `json:"username"`
+	} `json:"assignee"`
+	Iteration      *ProjectIteration `json:"iteration"`
+	Label          *Label            `json:"label"`
+	MaxIssueCount  int               `json:"max_issue_count"`
+	MaxIssueWeight int               `json:"max_issue_weight"`
+	Milestone      *Milestone        `json:"milestone"`
+	Position       int               `json:"position"`
 }
 
 func (b BoardList) String() string {
@@ -72,7 +91,7 @@ func (s *IssueBoardsService) CreateIssueBoard(pid interface{}, opt *CreateIssueB
 	if err != nil {
 		return nil, nil, err
 	}
-	u := fmt.Sprintf("projects/%s/boards", pathEscape(project))
+	u := fmt.Sprintf("projects/%s/boards", PathEscape(project))
 
 	req, err := s.client.NewRequest(http.MethodPost, u, opt, options)
 	if err != nil {
@@ -95,7 +114,7 @@ type UpdateIssueBoardOptions struct {
 	Name        *string `url:"name,omitempty" json:"name,omitempty"`
 	AssigneeID  *int    `url:"assignee_id,omitempty" json:"assignee_id,omitempty"`
 	MilestoneID *int    `url:"milestone_id,omitempty" json:"milestone_id,omitempty"`
-	Labels      Labels  `url:"labels,omitempty" json:"labels,omitempty"`
+	Labels      *Labels `url:"labels,omitempty" json:"labels,omitempty"`
 	Weight      *int    `url:"weight,omitempty" json:"weight,omitempty"`
 }
 
@@ -107,7 +126,7 @@ func (s *IssueBoardsService) UpdateIssueBoard(pid interface{}, board int, opt *U
 	if err != nil {
 		return nil, nil, err
 	}
-	u := fmt.Sprintf("projects/%s/boards/%d", pathEscape(project), board)
+	u := fmt.Sprintf("projects/%s/boards/%d", PathEscape(project), board)
 
 	req, err := s.client.NewRequest(http.MethodPut, u, opt, options)
 	if err != nil {
@@ -131,7 +150,7 @@ func (s *IssueBoardsService) DeleteIssueBoard(pid interface{}, board int, option
 	if err != nil {
 		return nil, err
 	}
-	u := fmt.Sprintf("projects/%s/boards/%d", pathEscape(project), board)
+	u := fmt.Sprintf("projects/%s/boards/%d", PathEscape(project), board)
 
 	req, err := s.client.NewRequest(http.MethodDelete, u, nil, options)
 	if err != nil {
@@ -154,7 +173,7 @@ func (s *IssueBoardsService) ListIssueBoards(pid interface{}, opt *ListIssueBoar
 	if err != nil {
 		return nil, nil, err
 	}
-	u := fmt.Sprintf("projects/%s/boards", pathEscape(project))
+	u := fmt.Sprintf("projects/%s/boards", PathEscape(project))
 
 	req, err := s.client.NewRequest(http.MethodGet, u, opt, options)
 	if err != nil {
@@ -178,7 +197,7 @@ func (s *IssueBoardsService) GetIssueBoard(pid interface{}, board int, options .
 	if err != nil {
 		return nil, nil, err
 	}
-	u := fmt.Sprintf("projects/%s/boards/%d", pathEscape(project), board)
+	u := fmt.Sprintf("projects/%s/boards/%d", PathEscape(project), board)
 
 	req, err := s.client.NewRequest(http.MethodGet, u, nil, options)
 	if err != nil {
@@ -208,7 +227,7 @@ func (s *IssueBoardsService) GetIssueBoardLists(pid interface{}, board int, opt 
 	if err != nil {
 		return nil, nil, err
 	}
-	u := fmt.Sprintf("projects/%s/boards/%d/lists", pathEscape(project), board)
+	u := fmt.Sprintf("projects/%s/boards/%d/lists", PathEscape(project), board)
 
 	req, err := s.client.NewRequest(http.MethodGet, u, opt, options)
 	if err != nil {
@@ -233,7 +252,7 @@ func (s *IssueBoardsService) GetIssueBoardList(pid interface{}, board, list int,
 		return nil, nil, err
 	}
 	u := fmt.Sprintf("projects/%s/boards/%d/lists/%d",
-		pathEscape(project),
+		PathEscape(project),
 		board,
 		list,
 	)
@@ -257,7 +276,10 @@ func (s *IssueBoardsService) GetIssueBoardList(pid interface{}, board, list int,
 //
 // GitLab API docs: https://docs.gitlab.com/ce/api/boards.html#new-board-list
 type CreateIssueBoardListOptions struct {
-	LabelID *int `url:"label_id" json:"label_id"`
+	LabelID     *int `url:"label_id,omitempty" json:"label_id,omitempty"`
+	AssigneeID  *int `url:"assignee_id,omitempty" json:"assignee_id,omitempty"`
+	MilestoneID *int `url:"milestone_id,omitempty" json:"milestone_id,omitempty"`
+	IterationID *int `url:"iteration_id,omitempty" json:"iteration_id,omitempty"`
 }
 
 // CreateIssueBoardList creates a new issue board list.
@@ -268,7 +290,7 @@ func (s *IssueBoardsService) CreateIssueBoardList(pid interface{}, board int, op
 	if err != nil {
 		return nil, nil, err
 	}
-	u := fmt.Sprintf("projects/%s/boards/%d/lists", pathEscape(project), board)
+	u := fmt.Sprintf("projects/%s/boards/%d/lists", PathEscape(project), board)
 
 	req, err := s.client.NewRequest(http.MethodPost, u, opt, options)
 	if err != nil {
@@ -301,7 +323,7 @@ func (s *IssueBoardsService) UpdateIssueBoardList(pid interface{}, board, list i
 		return nil, nil, err
 	}
 	u := fmt.Sprintf("projects/%s/boards/%d/lists/%d",
-		pathEscape(project),
+		PathEscape(project),
 		board,
 		list,
 	)
@@ -331,7 +353,7 @@ func (s *IssueBoardsService) DeleteIssueBoardList(pid interface{}, board, list i
 		return nil, err
 	}
 	u := fmt.Sprintf("projects/%s/boards/%d/lists/%d",
-		pathEscape(project),
+		PathEscape(project),
 		board,
 		list,
 	)

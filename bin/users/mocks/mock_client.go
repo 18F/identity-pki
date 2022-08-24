@@ -262,9 +262,9 @@ func (mr *MockGitlabClientIfaceMockRecorder) ModifyUser(user, opt interface{}, o
 }
 
 // RemoveGroupMember mocks base method.
-func (m *MockGitlabClientIface) RemoveGroupMember(gid interface{}, user int, options ...gitlab.RequestOptionFunc) (*gitlab.Response, error) {
+func (m *MockGitlabClientIface) RemoveGroupMember(gid interface{}, user int, opt *gitlab.RemoveGroupMemberOptions, options ...gitlab.RequestOptionFunc) (*gitlab.Response, error) {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{gid, user}
+	varargs := []interface{}{gid, user, opt}
 	for _, a := range options {
 		varargs = append(varargs, a)
 	}
@@ -275,9 +275,9 @@ func (m *MockGitlabClientIface) RemoveGroupMember(gid interface{}, user int, opt
 }
 
 // RemoveGroupMember indicates an expected call of RemoveGroupMember.
-func (mr *MockGitlabClientIfaceMockRecorder) RemoveGroupMember(gid, user interface{}, options ...interface{}) *gomock.Call {
+func (mr *MockGitlabClientIfaceMockRecorder) RemoveGroupMember(gid, user, opt interface{}, options ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{gid, user}, options...)
+	varargs := append([]interface{}{gid, user, opt}, options...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveGroupMember", reflect.TypeOf((*MockGitlabClientIface)(nil).RemoveGroupMember), varargs...)
 }
 

@@ -699,7 +699,7 @@ func deleteMemberships(gitc GitlabClientIface, membersToDelete map[string]map[st
 
 			groupID := cache.Groups[groupName].ID
 			userID := cache.Users[memberName].ID
-			_, err := gitc.RemoveGroupMember(groupID, userID)
+			_, err := gitc.RemoveGroupMember(groupID, userID, &gitlab.RemoveGroupMemberOptions{})
 			if err != nil {
 				return err
 			}

@@ -49,8 +49,11 @@ type Release struct {
 		AvatarURL string `json:"avatar_url"`
 		WebURL    string `json:"web_url"`
 	} `json:"author"`
-	Commit Commit `json:"commit"`
-	Assets struct {
+	Commit          Commit `json:"commit"`
+	UpcomingRelease bool   `json:"upcoming_release"`
+	CommitPath      string `json:"commit_path"`
+	TagPath         string `json:"tag_path"`
+	Assets          struct {
 		Count   int `json:"count"`
 		Sources []struct {
 			Format string `json:"format"`
@@ -75,7 +78,7 @@ func (s *ReleasesService) ListReleases(pid interface{}, opt *ListReleasesOptions
 	if err != nil {
 		return nil, nil, err
 	}
-	u := fmt.Sprintf("projects/%s/releases", pathEscape(project))
+	u := fmt.Sprintf("projects/%s/releases", PathEscape(project))
 
 	req, err := s.client.NewRequest(http.MethodGet, u, opt, options)
 	if err != nil {
@@ -100,7 +103,7 @@ func (s *ReleasesService) GetRelease(pid interface{}, tagName string, options ..
 	if err != nil {
 		return nil, nil, err
 	}
-	u := fmt.Sprintf("projects/%s/releases/%s", pathEscape(project), pathEscape(tagName))
+	u := fmt.Sprintf("projects/%s/releases/%s", PathEscape(project), PathEscape(tagName))
 
 	req, err := s.client.NewRequest(http.MethodGet, u, nil, options)
 	if err != nil {
@@ -116,35 +119,39 @@ func (s *ReleasesService) GetRelease(pid interface{}, tagName string, options ..
 	return r, resp, err
 }
 
-// ReleaseAssets represents release assets in CreateRelease() options
-//
-// GitLab API docs:
-// https://docs.gitlab.com/ce/api/releases/index.html#create-a-release
-type ReleaseAssets struct {
-	Links []*ReleaseAssetLink `url:"links" json:"links"`
-}
-
-// ReleaseAssetLink represents release asset link in CreateRelease() options
-//
-// GitLab API docs:
-// https://docs.gitlab.com/ce/api/releases/index.html#create-a-release
-type ReleaseAssetLink struct {
-	Name string `url:"name" json:"name"`
-	URL  string `url:"url" json:"url"`
-}
-
 // CreateReleaseOptions represents CreateRelease() options.
 //
 // GitLab API docs:
 // https://docs.gitlab.com/ce/api/releases/index.html#create-a-release
 type CreateReleaseOptions struct {
-	Name        *string        `url:"name" json:"name"`
-	TagName     *string        `url:"tag_name" json:"tag_name"`
-	Description *string        `url:"description" json:"description"`
-	Ref         *string        `url:"ref,omitempty" json:"ref,omitempty"`
-	Milestones  []string       `url:"milestones,omitempty" json:"milestones,omitempty"`
-	Assets      *ReleaseAssets `url:"assets,omitempty" json:"assets,omitempty"`
-	ReleasedAt  *time.Time     `url:"released_at,omitempty" json:"released_at,omitempty"`
+	Name        *string               `url:"name,omitempty" json:"name,omitempty"`
+	TagName     *string               `url:"tag_name,omitempty" json:"tag_name,omitempty"`
+	TagMessage  *string               `url:"tag_message,omitempty" json:"tag_message,omitempty"`
+	Description *string               `url:"description,omitempty" json:"description,omitempty"`
+	Ref         *string               `url:"ref,omitempty" json:"ref,omitempty"`
+	Milestones  *[]string             `url:"milestones,omitempty" json:"milestones,omitempty"`
+	Assets      *ReleaseAssetsOptions `url:"assets,omitempty" json:"assets,omitempty"`
+	ReleasedAt  *time.Time            `url:"released_at,omitempty" json:"released_at,omitempty"`
+}
+
+// ReleaseAssetsOptions represents release assets in CreateRelease() options.
+//
+// GitLab API docs:
+// https://docs.gitlab.com/ce/api/releases/index.html#create-a-release
+type ReleaseAssetsOptions struct {
+	Links []*ReleaseAssetLinkOptions `url:"links,omitempty" json:"links,omitempty"`
+}
+
+// ReleaseAssetLinkOptions represents release asset link in CreateRelease()
+// options.
+//
+// GitLab API docs:
+// https://docs.gitlab.com/ce/api/releases/index.html#create-a-release
+type ReleaseAssetLinkOptions struct {
+	Name     *string        `url:"name,omitempty" json:"name,omitempty"`
+	URL      *string        `url:"url,omitempty" json:"url,omitempty"`
+	FilePath *string        `url:"filepath,omitempty" json:"filepath,omitempty"`
+	LinkType *LinkTypeValue `url:"link_type,omitempty" json:"link_type,omitempty"`
 }
 
 // CreateRelease creates a release.
@@ -156,7 +163,7 @@ func (s *ReleasesService) CreateRelease(pid interface{}, opts *CreateReleaseOpti
 	if err != nil {
 		return nil, nil, err
 	}
-	u := fmt.Sprintf("projects/%s/releases", pathEscape(project))
+	u := fmt.Sprintf("projects/%s/releases", PathEscape(project))
 
 	req, err := s.client.NewRequest(http.MethodPost, u, opts, options)
 	if err != nil {
@@ -179,7 +186,7 @@ func (s *ReleasesService) CreateRelease(pid interface{}, opts *CreateReleaseOpti
 type UpdateReleaseOptions struct {
 	Name        *string    `url:"name" json:"name"`
 	Description *string    `url:"description" json:"description"`
-	Milestones  []string   `url:"milestones,omitempty" json:"milestones,omitempty"`
+	Milestones  *[]string  `url:"milestones,omitempty" json:"milestones,omitempty"`
 	ReleasedAt  *time.Time `url:"released_at,omitempty" json:"released_at,omitempty"`
 }
 
@@ -192,7 +199,7 @@ func (s *ReleasesService) UpdateRelease(pid interface{}, tagName string, opts *U
 	if err != nil {
 		return nil, nil, err
 	}
-	u := fmt.Sprintf("projects/%s/releases/%s", pathEscape(project), pathEscape(tagName))
+	u := fmt.Sprintf("projects/%s/releases/%s", PathEscape(project), PathEscape(tagName))
 
 	req, err := s.client.NewRequest(http.MethodPut, u, opts, options)
 	if err != nil {
@@ -217,7 +224,7 @@ func (s *ReleasesService) DeleteRelease(pid interface{}, tagName string, options
 	if err != nil {
 		return nil, nil, err
 	}
-	u := fmt.Sprintf("projects/%s/releases/%s", pathEscape(project), pathEscape(tagName))
+	u := fmt.Sprintf("projects/%s/releases/%s", PathEscape(project), PathEscape(tagName))
 
 	req, err := s.client.NewRequest(http.MethodDelete, u, nil, options)
 	if err != nil {

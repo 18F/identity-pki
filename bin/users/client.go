@@ -17,7 +17,7 @@ type GitlabClientIface interface {
 	CreateGroup(opt *gitlab.CreateGroupOptions, options ...gitlab.RequestOptionFunc) (*gitlab.Group, *gitlab.Response, error)
 	DeleteGroup(gid interface{}, options ...gitlab.RequestOptionFunc) (*gitlab.Response, error)
 	AddGroupMember(gid interface{}, opt *gitlab.AddGroupMemberOptions, options ...gitlab.RequestOptionFunc) (*gitlab.GroupMember, *gitlab.Response, error)
-	RemoveGroupMember(gid interface{}, user int, options ...gitlab.RequestOptionFunc) (*gitlab.Response, error)
+	RemoveGroupMember(gid interface{}, user int, opt *gitlab.RemoveGroupMemberOptions, options ...gitlab.RequestOptionFunc) (*gitlab.Response, error)
 	ModifyUser(user int, opt *gitlab.ModifyUserOptions, options ...gitlab.RequestOptionFunc) (*gitlab.User, *gitlab.Response, error)
 }
 
@@ -61,8 +61,8 @@ func (gc *GitlabClient) DeleteGroup(gid interface{}, options ...gitlab.RequestOp
 func (gc *GitlabClient) AddGroupMember(gid interface{}, opt *gitlab.AddGroupMemberOptions, options ...gitlab.RequestOptionFunc) (*gitlab.GroupMember, *gitlab.Response, error) {
 	return gc.client.GroupMembers.AddGroupMember(gid, opt, options...)
 }
-func (gc *GitlabClient) RemoveGroupMember(gid interface{}, user int, options ...gitlab.RequestOptionFunc) (*gitlab.Response, error) {
-	return gc.client.GroupMembers.RemoveGroupMember(gid, user, options...)
+func (gc *GitlabClient) RemoveGroupMember(gid interface{}, user int, opt *gitlab.RemoveGroupMemberOptions, options ...gitlab.RequestOptionFunc) (*gitlab.Response, error) {
+	return gc.client.GroupMembers.RemoveGroupMember(gid, user, opt, options...)
 }
 func (gc *GitlabClient) ModifyUser(user int, opt *gitlab.ModifyUserOptions, options ...gitlab.RequestOptionFunc) (*gitlab.User, *gitlab.Response, error) {
 	return gc.client.Users.ModifyUser(user, opt, options...)

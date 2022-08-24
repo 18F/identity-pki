@@ -62,7 +62,7 @@ func (s *InvitesService) ListPendingGroupInvitations(gid interface{}, opt *ListP
 	if err != nil {
 		return nil, nil, err
 	}
-	u := fmt.Sprintf("groups/%s/invitations", pathEscape(group))
+	u := fmt.Sprintf("groups/%s/invitations", PathEscape(group))
 
 	req, err := s.client.NewRequest(http.MethodGet, u, opt, options)
 	if err != nil {
@@ -87,7 +87,7 @@ func (s *InvitesService) ListPendingProjectInvitations(pid interface{}, opt *Lis
 	if err != nil {
 		return nil, nil, err
 	}
-	u := fmt.Sprintf("projects/%s/invitations", pathEscape(project))
+	u := fmt.Sprintf("projects/%s/invitations", PathEscape(project))
 
 	req, err := s.client.NewRequest(http.MethodGet, u, opt, options)
 	if err != nil {
@@ -111,6 +111,7 @@ func (s *InvitesService) ListPendingProjectInvitations(pid interface{}, opt *Lis
 type InvitesOptions struct {
 	ID          interface{}       `url:"id,omitempty" json:"id,omitempty"`
 	Email       *string           `url:"email,omitempty" json:"email,omitempty"`
+	UserID      interface{}       `url:"user_id,omitempty" json:"user_id,omitempty"`
 	AccessLevel *AccessLevelValue `url:"access_level,omitempty" json:"access_level,omitempty"`
 	ExpiresAt   *ISOTime          `url:"expires_at,omitempty" json:"expires_at,omitempty"`
 }
@@ -133,7 +134,7 @@ func (s *InvitesService) GroupInvites(gid interface{}, opt *InvitesOptions, opti
 	if err != nil {
 		return nil, nil, err
 	}
-	u := fmt.Sprintf("groups/%s/invitations", pathEscape(group))
+	u := fmt.Sprintf("groups/%s/invitations", PathEscape(group))
 
 	req, err := s.client.NewRequest(http.MethodPost, u, opt, options)
 	if err != nil {
@@ -158,7 +159,7 @@ func (s *InvitesService) ProjectInvites(pid interface{}, opt *InvitesOptions, op
 	if err != nil {
 		return nil, nil, err
 	}
-	u := fmt.Sprintf("projects/%s/invitations", pathEscape(project))
+	u := fmt.Sprintf("projects/%s/invitations", PathEscape(project))
 
 	req, err := s.client.NewRequest(http.MethodPost, u, opt, options)
 	if err != nil {
