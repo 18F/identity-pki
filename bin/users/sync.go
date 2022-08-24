@@ -58,22 +58,26 @@ func (p *AuthorizedProject) UnmarshalYAML(unmarshal func(interface{}) error) err
 		Groups: make(map[string]struct{ Access *gitlab.AccessLevelValue }),
 	}
 
+	accessLevelAlias := map[string]gitlab.AccessLevelValue{
+		"none":       gitlab.NoPermissions,
+		"minimal":    gitlab.MinimalAccessPermissions,
+		"guest":      gitlab.GuestPermissions,
+		"reporter":   gitlab.ReporterPermissions,
+		"developer":  gitlab.DeveloperPermissions,
+		"maintainer": gitlab.MaintainerPermissions,
+		"owner":      gitlab.OwnerPermissions,
+	}
+
 	for gName, g := range tmp.Groups {
-		switch level := g.Access; level {
-		case "developer":
+		alias := g.Access
+		if val, ok := accessLevelAlias[alias]; ok {
 			p.Groups[gName] = struct {
 				Access *gitlab.AccessLevelValue
 			}{
-				Access: gitlab.AccessLevel(gitlab.DeveloperPermissions),
+				Access: gitlab.AccessLevel(val),
 			}
-		case "maintainer":
-			p.Groups[gName] = struct {
-				Access *gitlab.AccessLevelValue
-			}{
-				Access: gitlab.AccessLevel(gitlab.MaintainerPermissions),
-			}
-		default:
-			return fmt.Errorf("Access level %v not defined", level)
+		} else {
+			return fmt.Errorf("access level %v not defined", alias)
 		}
 	}
 	return nil

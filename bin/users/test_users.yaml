@@ -37,13 +37,14 @@ users:
       - appdev
 
 groups:
-  groups:
   appdev:
     description: "Application Developers"
   devops:
     description: "DevOps and SRE"
   lg:
     description: "Namespace for Login.gov projects"
+  pm:
+    description: "PMs are members"
     
 projects:
   lg/identity-devops:
@@ -58,6 +59,8 @@ projects:
         access: maintainer
       devops:
         access: developer
+      pm:
+        access: reporter
   lg/identity-gitlab:
     groups:
       devops:
