@@ -16,6 +16,7 @@ terraform.tfstate.backup
 **/terraform.tfstate.*.backup
 .vagrant
 Vagrantfile
+.vscode
 **.zip
 *.zip
 
