@@ -56,3 +56,20 @@ You can specify either the VPC ID or VPC Name
 **Example:**
 *./vpc-kill-switch -v vpc-1234567890123*
 *./vpc-kill-switch -vn login-acme-vpc*
+
+**Emergency-Stop Utility** 
+
+The Emergency Stop, queries route tables in a VPC and removes the quad zero entry in those route tables pointing to the Internet Gateway. This will effectively cut on publically facing subnets access to the Big I. You need to be an admin for the environment to be able to run the utility. You can re-add the route table entry by running the Terraform apply again and it will restore the quad zero entries. 
+
+Usage:
+
+emergency-stop [-v VPCID] [-r REGION]
+
+-v is the VPC ID whose connectivity you want to disconnect from the Big I
+-r is the Region which defaults to us-west-2
+
+**PLEASE NOTE: You need to be logged in as the admin of your environment to run the script**
+*$ aws-vault exec sandbox-admin* 
+
+**Example:**
+*./emergency-stop -v vpc-1234567890123*
