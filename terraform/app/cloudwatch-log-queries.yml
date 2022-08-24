@@ -70,6 +70,29 @@ outboundproxy/blocked-requests-by-destination:
     | stats count() as count by destination
     | sort count desc
 
+pivcac/errors-by-issuer:
+  logs:
+    - ${env}_/srv/pki-rails/shared/log/production.log
+  query: |
+    ## Count invalid certs by issuer
+    filter valid = 0
+    | filter issuer like /./
+    | filter issuer not like /CN=Communications Server/
+    | stats count(*) as count, latest(@message) as sample by issuer, error
+    | sort by count desc
+
+pivcac/failures-by-service-provider:
+  logs:
+    - ${env}_/srv/idp/shared/log/events.log
+  query: |
+    ## Count failed piv/cac auth attempts by service provider
+    filter name = "Multi-Factor Authentication"
+    | filter properties.event_properties.success = 0
+    | filter properties.event_properties.multi_factor_auth_method = "piv_cac"
+    | filter properties.service_provider like /./
+    | stats count() as count by properties.service_provider as sp, properties.event_properties.errors.type as error
+    | sort by count desc
+
 provisioning/cloud-init-output:
   logs:
     - /var/log/cloud-init-output.log
