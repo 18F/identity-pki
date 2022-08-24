@@ -135,7 +135,7 @@ resource "aws_cloudwatch_metric_alarm" "gitlab_user_sync_failures" {
   period                    = 3600 * 3
   statistic                 = "Sum"
   threshold                 = "1"
-  alarm_description         = "This Alarm is executed if the user sync script has NOT completed successfully in the last 3 hours. Investigate the logs at https://{var.region}.console.aws.amazon.com/cloudwatch/home?region=${var.region}#dashboards:name=${local.gitlab_user_sync_dashboard_name}"
+  alarm_description         = "This Alarm is executed if the user sync script has NOT completed successfully in the last 3 hours. Investigate the logs at https://${var.region}.console.aws.amazon.com/cloudwatch/home?region=${var.region}#dashboards:name=${local.gitlab_user_sync_dashboard_name}"
   treat_missing_data        = "breaching"
   insufficient_data_actions = []
   alarm_actions = [
