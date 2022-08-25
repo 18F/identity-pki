@@ -385,3 +385,4 @@ badtest_dev:
 include:
   - local: /terraform/.gitlab-ci.yml
   - local: /cloudlib/.gitlab-ci.yml
+  - local: /bin/users/.gitlab-ci.yml

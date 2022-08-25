@@ -1,0 +1,13 @@
+include:
+  local: /.gitlab-ci-rules.yml
+
+test_user_sync:
+  image: "$ECR_REGISTRY/ecr-public/docker/library/golang"
+  rules:
+    - !reference [.merge_request, rules]
+    - changes:
+      - bin/users/**/*
+  script:
+    - cd bin/users
+    - make test
+  
