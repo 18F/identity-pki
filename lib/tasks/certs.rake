@@ -263,4 +263,19 @@ namespace :certs do
       certificates.sort_by(&:sha1_fingerprint).map(&:to_pem).join,
     )
   end
+
+  task :validate_client_cert, [:cert_path] => [:environment] do |t, args|
+    CertificateStore.instance.load_certs!(dir: 'config/certs')
+
+    raw_cert = File.read(args[:cert_path])
+    certificate = Certificate.new(OpenSSL::X509::Certificate.new(raw_cert))
+
+    validation_result = certificate.validate_cert
+
+    if validation_result == 'valid'
+      puts 'Certificate is valid!'
+    else
+      puts "Certificate is invalid: #{validation_result}"
+    end
+  end
 end
