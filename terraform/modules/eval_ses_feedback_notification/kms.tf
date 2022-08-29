@@ -1,13 +1,13 @@
 resource "aws_kms_key" "sqs_key" {
-    description              = "KMS Keys for SQS queue Encryption"
-    enable_key_rotation      = true
-    deletion_window_in_days  = 10
-  
-    tags = {
-      Name = "SQS_Key"
-    }
-  
-    policy = <<EOF
+  description             = "KMS Keys for SQS queue Encryption"
+  enable_key_rotation     = true
+  deletion_window_in_days = 10
+
+  tags = {
+    Name = "SQS_Key"
+  }
+
+  policy = <<EOF
   {
       "Id": "sqs-1",
       "Version": "2012-10-17",
@@ -100,11 +100,11 @@ resource "aws_kms_key" "sqs_key" {
       ]
   }
   EOF
-  }
-  
-  resource "aws_kms_alias" "my_kms_alias" {
-    target_key_id = aws_kms_key.sqs_key.key_id
-    name          = "alias/ses-kms-key"
-  }
-  
+}
+
+resource "aws_kms_alias" "my_kms_alias" {
+  target_key_id = aws_kms_key.sqs_key.key_id
+  name          = "alias/ses-kms-key"
+}
+
   
