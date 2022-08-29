@@ -131,6 +131,17 @@ resource "aws_route53_record" "gitlab-elb-public" {
   }
 }
 
+resource "aws_route53_record" "gitlab-elb-private" {
+  zone_id = aws_route53_zone.internal.zone_id
+  name    = "gitlab.${var.env_name}.${var.root_domain}"
+  type    = "A"
+  alias {
+    name                   = aws_lb.gitlab.dns_name
+    zone_id                = aws_lb.gitlab.zone_id
+    evaluate_target_health = true
+  }
+}
+
 # This is only for production, where we want "gitlab.login.gov" to work.
 resource "aws_route53_record" "gitlab-elb-public-production" {
   count   = var.production ? 1 : 0
