@@ -140,7 +140,6 @@ module "macie-bucket-scans-sandbox" {
     "login-gov-log-cache-int.894947205914-us-west-2",
     "login-gov.app-secrets.894947205914-us-west-2",
     "login-gov.secrets.894947205914-us-west-2",
-    "login-gov.transfer-utility.894947205914-us-west-2"
   ]
 
 }
