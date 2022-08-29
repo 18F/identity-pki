@@ -109,6 +109,7 @@ class IdentifyController < ApplicationController
       name: 'Certificate Processed',
       signing_key_id: cert.signing_key_id,
       key_id: cert.key_id,
+      certificate_chain_signing_key_ids: cert.x509_certificate_chain_key_ids,
       issuer: cert.issuer.to_s,
       card_type: cert.card_type,
       valid_policies: cert.valid_policies?,
@@ -120,9 +121,7 @@ class IdentifyController < ApplicationController
       ficam_openssl_errors: ficam_certs_openssl_result[:errors],
     }
 
-    if validation_result == 'self-signed cert'
-      attributes.delete(:issuer)
-    end
+    attributes.delete(:issuer) if validation_result == 'self-signed cert'
 
     # Log certificate if it fails either OpenSSL validation, but passes our current validation or vice versa
     if valid != login_certs_openssl_result[:valid] || valid != ficam_certs_openssl_result[:valid]
