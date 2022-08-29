@@ -125,6 +125,12 @@ resource "aws_iam_role_policy" "pivcac-xray-publish" {
   policy = data.aws_iam_policy_document.xray-publish-policy.json
 }
 
+resource "aws_iam_role_policy" "pivcac-transfer-utility" {
+  name   = "${var.env_name}-pivcac-transfer-utility"
+  role   = aws_iam_role.pivcac.id
+  policy = data.aws_iam_policy_document.transfer_utility_policy.json
+}
+
 resource "aws_autoscaling_group" "pivcac" {
   name = "${var.env_name}-pivcac"
 

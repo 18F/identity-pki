@@ -203,6 +203,12 @@ resource "aws_iam_role_policy" "idp-secrets" {
   policy = data.aws_iam_policy_document.secrets_role_policy.json
 }
 
+resource "aws_iam_role_policy" "idp-transfer-utility" {
+  name   = "${var.env_name}-idp-transfer-utility"
+  role   = aws_iam_role.idp.id
+  policy = data.aws_iam_policy_document.transfer_utility_policy.json
+}
+
 resource "aws_iam_role_policy" "idp-secrets-manager" {
   name   = "${var.env_name}-idp-secrets-manager"
   role   = aws_iam_role.idp.id

@@ -85,6 +85,12 @@ resource "aws_iam_role_policy" "obproxy-sns-publish-alerts" {
   policy = data.aws_iam_policy_document.sns-publish-alerts-policy.json
 }
 
+resource "aws_iam_role_policy" "obproxy-transfer-utility" {
+  name   = "${var.env_name}-obproxy-transfer-utility"
+  role   = aws_iam_role.obproxy.id
+  policy = data.aws_iam_policy_document.transfer_utility_policy.json
+}
+
 module "outboundproxy_launch_template" {
   source = "github.com/18F/identity-terraform//launch_template?ref=5d344d205dd09eb85d5de1ff1081c4a598afe433"
   #source = "../../../identity-terraform/launch_template"

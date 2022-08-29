@@ -184,6 +184,7 @@ module "macie-bucket-scans-prod" {
     "login-gov-log-cache-staging.555546682965-us-west-2",
     "login-gov.app-secrets.555546682965-us-west-2",
     "login-gov.secrets.555546682965-us-west-2",
+    "login-gov.transfer-utility.555546682965-us-west-2",
   ]
 }
 

@@ -97,6 +97,12 @@ resource "aws_iam_role_policy" "worker-upload-s3-reports" {
   policy = data.aws_iam_policy_document.put_reports_to_s3.json
 }
 
+resource "aws_iam_role_policy" "worker-transfer-utility" {
+  name   = "${var.env_name}-worker-transfer-utility"
+  role   = aws_iam_role.worker.id
+  policy = data.aws_iam_policy_document.transfer_utility_policy.json
+}
+
 # Allow assuming cross-account role for Pinpoint APIs. This is in a separate
 # account for accounting purposes since it's on a separate contract.
 resource "aws_iam_role_policy" "worker-pinpoint-assumerole" {

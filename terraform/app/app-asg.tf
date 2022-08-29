@@ -223,4 +223,10 @@ resource "aws_iam_role_policy" "app-sns-publish-alerts" {
   policy = data.aws_iam_policy_document.sns-publish-alerts-policy.json
 }
 
+resource "aws_iam_role_policy" "app-transfer-utility" {
+  name   = "${var.env_name}-app-transfer-utility"
+  role   = aws_iam_role.app.id
+  policy = data.aws_iam_policy_document.transfer_utility_policy.json
+}
+
 # </end> base-permissions policies
