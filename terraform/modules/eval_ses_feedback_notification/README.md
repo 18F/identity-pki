@@ -18,11 +18,5 @@ It creates the following AWS Resources:
 
 module "ses_feedback_notification" {
   source = "../modules/eval_ses_feedback_notification"
-  ses_identity = var.ses_verified_identity
-  region    = var.region
-  lambda_timeout = var.lambda_timeout
-  lambda_runtime = var.lambda_runtime
-  ses_lambda_function_name = var.ses_lambda_function_name
   ses_verified_identity = var.ses_verified_identity
-  ses_feedback_topic    = var.ses_feedback_topic_name
 }
