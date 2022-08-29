@@ -1,5 +1,6 @@
 require 'cgi'
 require 'openssl'
+require 'open3'
 
 class IdentifyController < ApplicationController
   TOKEN_LIFESPAN = 5.minutes
@@ -101,22 +102,44 @@ class IdentifyController < ApplicationController
 
   def log_certificate(cert)
     validation_result = cert.validate_cert(is_leaf: true)
-
+    valid = validation_result == 'valid'
+    login_certs_openssl_result = openssl_validate(cert.to_pem, Rails.root.join(IdentityConfig.store.login_certificate_bundle_file).to_s)
+    ficam_certs_openssl_result = openssl_validate(cert.to_pem, Rails.root.join(IdentityConfig.store.ficam_certificate_bundle_file).to_s)
     attributes = {
       name: 'Certificate Processed',
       signing_key_id: cert.signing_key_id,
       key_id: cert.key_id,
+      certificate_chain_signing_key_ids: cert.x509_certificate_chain_key_ids,
       issuer: cert.issuer.to_s,
       card_type: cert.card_type,
       valid_policies: cert.valid_policies?,
-      valid: validation_result == 'valid',
-      error: validation_result != 'valid' ? validation_result : nil,
+      valid: valid,
+      error: !valid ? validation_result : nil,
+      openssl_valid: login_certs_openssl_result[:valid],
+      openssl_errors: login_certs_openssl_result[:errors],
+      ficam_openssl_valid: ficam_certs_openssl_result[:valid],
+      ficam_openssl_errors: ficam_certs_openssl_result[:errors],
     }
 
-    if validation_result == 'self-signed cert'
-      attributes.delete(:issuer)
+    attributes.delete(:issuer) if validation_result == 'self-signed cert'
+
+    # Log certificate if it fails either OpenSSL validation, but passes our current validation or vice versa
+    if valid != login_certs_openssl_result[:valid] || valid != ficam_certs_openssl_result[:valid]
+      CertificateLoggerService.log_certificate(cert)
     end
 
     logger.info(attributes.to_json)
+  end
+
+  def openssl_validate(certificate_pem, certificate_bundle_file_path)
+    stdout, stderr, status = Open3.capture3('openssl', 'verify', '-purpose', 'sslclient', '-inhibit_any', '-explicit_policy', '-CAfile', certificate_bundle_file_path, '-policy_check', '-policy', '2.16.840.1.101.3.2.1.3.7', '-policy', '2.16.840.1.101.3.2.1.3.13', '-policy', '2.16.840.1.101.3.2.1.3.15', '-policy', '2.16.840.1.101.3.2.1.3.16', '-policy', '2.16.840.1.101.3.2.1.3.18', '-policy', '2.16.840.1.101.3.2.1.3.41', stdin_data: certificate_pem)
+
+    stderr.strip!
+    stdout.strip!
+    errors = stderr.scan(/(error \d+ [\w :]+)$\n?/).flatten
+    {
+      valid: status.success? && stdout.ends_with?('OK') && errors.empty?,
+      errors: errors.join(', '),
+    }
   end
 end

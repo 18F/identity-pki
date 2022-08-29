@@ -1,3 +1,5 @@
+require 'open3'
+
 namespace :certs do
   desc 'Remove invalid certs, set EXPIRING=true to also remove certs expiring within 30 days'
   task remove_invalid: :environment do
@@ -200,6 +202,80 @@ namespace :certs do
         File.write(path, found_cert.to_pem)
         CertificateStore.instance.load_certs!
       end
+    end
+  end
+
+
+
+  desc 'Check that LG certificate bundle matches certificates in certificate path'
+  task check_certificate_bundle: :environment do |t, args|
+    CertificateStore.instance.load_certs!(dir: 'config/certs')
+    bundled_certs = []
+    cert_bundle_file = File.read(IdentityConfig.store.login_certificate_bundle_file)
+    cert_bundle = cert_bundle_file.split(CertificateStore::END_CERTIFICATE).map do |cert|
+      cert += CertificateStore::END_CERTIFICATE
+      cert = Certificate.new(OpenSSL::X509::Certificate.new(cert))
+    end
+
+    if cert_bundle.map(&:sha1_fingerprint).sort != CertificateStore.instance.certificates.map(&:sha1_fingerprint).sort
+      puts <<-ERROR
+        #{IdentityConfig.store.login_certificate_bundle_file} does not match the certificates in #{IdentityConfig.store.certificate_store_directory}
+        Please run:
+        rake certs:generate_certificate_bundle
+      ERROR
+      exit 1
+    end
+  end
+
+  task generate_certificate_bundles: :environment do |t, args|
+    CertificateStore.instance.load_certs!(dir: 'config/certs')
+    File.write(
+      IdentityConfig.store.login_certificate_bundle_file,
+      CertificateStore.instance.certificates.sort_by(&:sha1_fingerprint).map(&:to_pem).join,
+    )
+
+    ficam_uri = URI('https://raw.githubusercontent.com/GSA/ficam-playbooks/staging/_fpki/tools/CACertificatesValidatingToFederalCommonPolicyG2.p7b')
+    federal_brige_ca_g4_key_id = '79:F0:00:49:EB:7F:77:C2:5D:41:02:65:34:8A:90:23:9B:1E:07:6F'
+
+    response = Net::HTTP.get_response(ficam_uri)
+    body = response.body.force_encoding('UTF-8')
+    stdout, stderr, status = Open3.capture3('openssl', 'pkcs7', '-print_certs', '-inform', 'DER', stdin_data: body)
+    raw_certificates = stdout.strip
+
+    certificates = raw_certificates.split(CertificateStore::END_CERTIFICATE).map do |cert|
+      cert += CertificateStore::END_CERTIFICATE
+      cert = Certificate.new(OpenSSL::X509::Certificate.new(cert))
+    end
+
+    # Remove all certificates that are non-root cert and sign the Federal Bridge CA G4 cert
+    # The current Federal Bridge CA G4 cert expires at 2029-12-06 16:52:46, and we may want to
+    # monitor this as we approach that time.
+    #
+    # We could also engineer a more robust solution to circular cross-signed certificates that doesn't
+    # rely on specific key IDs.
+    certificates.reject! do |x|
+      (x.key_id == federal_brige_ca_g4_key_id &&
+       !IdentityConfig.store.trusted_ca_root_identifiers.include?(x.signing_key_id))
+    end
+
+    File.write(
+      IdentityConfig.store.ficam_certificate_bundle_file,
+      certificates.sort_by(&:sha1_fingerprint).map(&:to_pem).join,
+    )
+  end
+
+  task :validate_client_cert, [:cert_path] => [:environment] do |t, args|
+    CertificateStore.instance.load_certs!(dir: 'config/certs')
+
+    raw_cert = File.read(args[:cert_path])
+    certificate = Certificate.new(OpenSSL::X509::Certificate.new(raw_cert))
+
+    validation_result = certificate.validate_cert
+
+    if validation_result == 'valid'
+      puts 'Certificate is valid!'
+    else
+      puts "Certificate is invalid: #{validation_result}"
     end
   end
 end

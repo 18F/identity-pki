@@ -171,6 +171,10 @@ class Certificate
     'piv'
   end
 
+  def x509_certificate_chain_key_ids
+    cert_store.x509_certificate_chain(self).map(&:key_id)
+  end
+
   private
 
   def get_extension(oid)
@@ -204,10 +208,6 @@ class Certificate
       return true if cert_store.dod_root_identifiers.include?(key_id)
     end
     false
-  end
-
-  def x509_certificate_chain_key_ids
-    cert_store.x509_certificate_chain(self).map(&:key_id)
   end
 
   def cert_store
