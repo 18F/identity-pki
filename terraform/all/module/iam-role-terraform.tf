@@ -244,6 +244,7 @@ locals {
           "ec2:DeleteRouteTable",
           "ec2:DeleteSecurityGroup",
           "ec2:DeleteSubnet",
+          "ec2:DeleteTags",
           "ec2:DeleteVpc",
           "ec2:DeleteVolume",
           "ec2:DeleteVpcEndpoints",
@@ -306,7 +307,8 @@ locals {
           "elasticache:DescribeReplicationGroups",
           "elasticache:ListTagsForResource",
           "elasticache:ModifyCacheSubnetGroup",
-          "elasticache:ModifyReplicationGroup"
+          "elasticache:ModifyReplicationGroup",
+          "elasticache:RemoveTagsFromResource"
         ]
         resources = [
           "*",
@@ -382,6 +384,7 @@ locals {
           "lambda:PublishVersion",
           "lambda:RemovePermission",
           "lambda:TagResource",
+          "lambda:UntagResource",
           "lambda:UpdateEventSourceMapping",
           "lambda:UpdateFunctionCode",
           "lambda:UpdateFunctionConfiguration",
@@ -479,6 +482,7 @@ locals {
           "rds:ModifyDBParameterGroup",
           "rds:ModifyDBSubnetGroup",
           "rds:RebootDBInstance",
+          "rds:RemoveTagsFromResource",
         ]
         resources = [
           "*",
