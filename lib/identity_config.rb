@@ -57,6 +57,7 @@ class IdentityConfig
     config.add(:database_username)
     config.add(:dod_root_identifiers, type: :comma_separated_string_list)
     config.add(:domain_name)
+    config.add(:openssl_verify_enabled, type: :boolean)
     config.add(:ficam_certificate_bundle_file, type: :string)
     config.add(:http_open_timeout, type: :integer)
     config.add(:http_read_timeout, type: :integer)
