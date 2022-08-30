@@ -151,3 +151,8 @@ output "primary_zone_active_ds_value" {
   value = module.main.primary_zone_active_ds_value
 }
 
+###SES feedback notification evaluation###
+module "ses_feedback_notification" {
+  source                = "../../modules/eval_ses_feedback_notification"
+  ses_verified_identity = "identitysandbox.gov"
+}
