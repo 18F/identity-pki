@@ -129,7 +129,7 @@ namespace :certs do
   # modified to go deeper in the issuing tree.
   desc 'Find certs issued by existing certs'
   task find_new: :environment do
-    root_keys = IdentityConfig.store.trusted_ca_root_identifiers + IdentityConfig.store.dod_root_identifiers
+    root_keys = IdentityConfig.store.trusted_ca_root_identifiers
     root_keys.each do |key_id|
       root_cert = CertificateStore.instance[key_id]
       repository_certs = IssuingCaService.fetch_ca_repository_certs_for_cert(root_cert)

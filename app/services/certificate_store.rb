@@ -38,7 +38,6 @@ class CertificateStore # rubocop:disable Metrics/ClassLength
   def_delegators :certificates, :each, :select
   def_delegators CertificateStore,
                  :trusted_ca_root_identifiers,
-                 :dod_root_identifiers,
                  :clear_root_identifiers
 
   def add_pem_file(filename)
@@ -110,15 +109,9 @@ class CertificateStore # rubocop:disable Metrics/ClassLength
       IdentityConfig.store.trusted_ca_root_identifiers.map(&:strip).select(&:present?)
   end
 
-  def self.dod_root_identifiers
-    @dod_root_identifiers ||=
-      IdentityConfig.store.dod_root_identifiers.map(&:strip).select(&:present?)
-  end
-
   def self.clear_root_identifiers
     @store = nil
     @trusted_ca_root_identifiers = nil
-    @dod_root_identifiers = nil
   end
 
   private
