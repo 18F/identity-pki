@@ -28,9 +28,8 @@ def lambda_handler(event, context):
         if(check == "true"):
            user_name               = test1["user"]
            if((test1["password_last_used"] == "no_information")):
-               print("User never logged in the AWS Console, so disabling the access")
-               time = (datetime.datetime.now()).date()
-               disable_access(user_name, time, account_id)
+               print("User never logged in the AWS Console. This should be an user who has not onboarded yet")
+               continue
            else:
             password_last_used_date = test1["password_last_used"]
             password_last_changed_date = test1["password_last_changed"]
@@ -58,9 +57,9 @@ def compare_time(user_name, lastchanged, lastlogin, account_id):
   print(user_name, "user's password age is", password_age, "days old & was used for the most recent login ",recent_password_used_age, "days ago" )
 
   if(recent_password_used_age < 120):
-    if(90 < password_age <= 100):
+    if(90 <= password_age <= 100):
         print("Password age between 90-100 days so sending warning notification for user", user_name)
-        push_notification(user_name, lastchanged, account_id)
+        push_notification(user_name, lastchanged, account_id, password_age)
     elif(password_age > 100):
         print("Password age older than 100 days so disabling it for user", user_name)
         disable_access(user_name, lastchanged, account_id)
@@ -68,30 +67,31 @@ def compare_time(user_name, lastchanged, lastlogin, account_id):
     disable_access(user_name, lastlogin, account_id)
 
 #Send notification to user before disabling the console access
-def push_notification(user_name, time, account_id):
-  notification = "TESTING: User " + "\"" +  user_name + "\"" + " last activity in AWS Account" + "\"" + account_id + "\"" + " at " + "\"" + time.strftime('%Y-%m-%d') + "\"" + "Console login is disabled after 120 days of missing login activity or if password is not rotated in every 100 days with active login activity. Please rotate any passwords that are about to reach 100 days but if console access in not required, no need to take any action. Runbook: https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#settingupdating-your-console-password"
+def push_notification(user_name, time, account_id, password_age):
+  notification = "\"" +  user_name + "\"" + " - AWS console password in " + "\"" + account_id + "\"" + " is " + "\"" + str(password_age) + "\"" + " days old. " + " Rotate password before reaching 100 days for continued access to AWS console. Instructions to rotate password - Runbook: https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#settingupdating-your-console-password"
   response = sns.publish (
-              TargetArn = os.environ['notification_topic'],
-              Message = json.dumps({'default': notification}),
-              MessageStructure = 'json'
-       )
-  print("Notification sent", response)
+             TargetArn = os.environ['notification_topic'],
+             Message = json.dumps({'default': notification}),
+             MessageStructure = 'json'
+      )
+  print("Notification sent", notification)
+
 
 #Send notification to user after disabling the console access
 def push_notification_after(user_name, time, account_id):
-  notification = "TESTING: Login disabled for user " + user_name + " in AWS Account " + account_id + " at " + (datetime.datetime.now()).date().strftime('%Y-%m-%d') + " Runbook: https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#settingupdating-your-console-password "
+  notification = "Login disabled for " + "\"" + user_name + "\"" + " in AWS Account " + "\"" + account_id + "\"" + " at " + (datetime.datetime.now()).date().strftime('%Y-%m-%d') + ". For assitance refer - " + " Runbook: https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#settingupdating-your-console-password "
   response = sns.publish (
-              TargetArn = os.environ['notification_topic'],
-              Message = json.dumps({'default': notification}),
-              MessageStructure = 'json'
-       )
-  print("Notification sent", response)
+             TargetArn = os.environ['notification_topic'],
+             Message = json.dumps({'default': notification}),
+             MessageStructure = 'json'
+      )
+  print("Notification sent", notification)
 
 #Disable console access
 def disable_access(user_name, time, account_id):
     try:
-        print(" Disabling Console login for user " + "\"" +  user_name + "\"" + " in AWS Account" + "\"" + account_id + "\"" + " .Console login is disabled after 120 days of missing login activity or if password is not rotated in every 100 days with active login activity.")
-        #iam.delete_login_profile(UserName=user_name)
+        print(" Disabling Console login for " + "\"" +  user_name + "\"" + " in AWS Account" + "\"" + account_id + "\"" + " ." )
+        iam.delete_login_profile(UserName=user_name)
         push_notification_after(user_name, time, account_id)
         print("Login disabled for user " + user_name + " at " + (datetime.datetime.now()).date().strftime('%Y-%m-%d'))
     

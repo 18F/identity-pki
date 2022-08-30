@@ -73,8 +73,8 @@ resource "aws_iam_policy" "password_update_lambda_policy" {
       {
         Action = [
           "iam:GetCredentialReport",
-          "iam:GenerateCredentialReport"
-          #"iam:DeleteLoginProfile"
+          "iam:GenerateCredentialReport",
+          "iam:DeleteLoginProfile"
         ]
         Effect   = "Allow"
         Resource = "*"

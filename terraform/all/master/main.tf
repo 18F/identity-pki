@@ -23,3 +23,16 @@ module "main" {
     iam_auto_terraform_enabled = false
   }
 }
+
+module "config_password_rotation" {
+  source = "../../modules/config_iam_password_rotation"
+  depends_on = [
+    module.main.sns_to_slack_usw2,
+    module.main.sns_to_slack_use1
+  ]
+
+  config_password_rotation_name = module.main.config_password_rotation_name
+  region                        = module.main.region
+  config_password_rotation_code = "../../modules/config_iam_password_rotation/${module.main.config_password_rotation_code}"
+  slack_events_sns_topic        = "slack-events"
+}
