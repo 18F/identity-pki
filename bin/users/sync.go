@@ -5,7 +5,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 
@@ -408,7 +407,7 @@ func getExistingProjects(gitc GitlabClientIface) (map[string]*gitlab.Project, er
 func getAuthorizedUsers(f string) (*AuthorizedUsers, error) {
 	// Get Users from YAML
 	var authorizedUsers AuthorizedUsers
-	userFile, err := ioutil.ReadFile(f)
+	userFile, err := os.ReadFile(f)
 	if err != nil {
 		return nil, err
 	}

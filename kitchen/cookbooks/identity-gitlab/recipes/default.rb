@@ -460,11 +460,11 @@ end
 # this is to set up user/group syncing
 remote_file "golang" do
   path "/root/golang.tar.gz"
-  source "https://go.dev/dl/go1.17.8.linux-amd64.tar.gz"
+  source "https://go.dev/dl/go1.19.linux-amd64.tar.gz"
   owner 'root'
   group 'root'
   mode 0644
-  checksum '980e65a863377e69fd9b67df9d8395fd8e93858e7a24c9f55803421e453f4f99'
+  checksum '464b6b66591f6cf055bc5df90a9750bf5fbc9d038722bb84a9d56a2bea974be6'
 end
 
 execute 'install_golang' do
