@@ -18,6 +18,13 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-All users, privileged and otherwise, require GSA VPN to gain network access, which requires MFA.  They also require login.gov to log in to the application, which uses MFA.  The Gitlab root account password is locked during bootstrapping, but in emergencies can be reset through using AWS SSM, which requires MFA.
+GitLab uses Login.gov for authentication which always requires MFA.  In addition
+the GitLab integration with Login.gov is configured to require a phishing resistant MFA
+method such as PIV/CAC, face or touch unlock, or hardware key.
+
+Administrative access to GitLab UI/API requires GSA VPN access which also utilizes
+MFA with PIV.
+
+The Gitlab root account password is locked during bootstrapping, but in emergencies can be reset through using AWS SSM, which requires MFA.
 
 ______________________________________________________________________
