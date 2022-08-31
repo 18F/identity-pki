@@ -21,6 +21,7 @@ var dryrun bool
 var userYaml string
 var apiToken string // env var
 var check bool
+var validateOnly bool
 
 // What we care about w.r.t. GitLab authorization. These objects will be synced.
 type GitlabCache struct {
@@ -157,11 +158,27 @@ func init() {
 		flag.PrintDefaults()
 		os.Exit(1)
 	}
+	flag.BoolVar(&validateOnly, "validate", false, "Only validate users.yaml - do not call the Gitlab API.")
 }
 
 func main() {
 	// Check if we have flags and env vars set
 	flag.Parse()
+
+	// Parse YAML
+	authorizedUsers, err := getAuthorizedUsers(userYaml)
+	if err != nil {
+		log.Fatalf("Error reading user YAML: %s", err)
+	}
+
+	// Run internal validations before we attempt any external changes
+	if err := authorizedUsers.Validate(); err != nil {
+		log.Fatalf("users yaml failed validation: %v", err)
+	}
+	if validateOnly {
+		os.Exit(0)
+	}
+
 	dryrun = check || dryrun
 	if fqdn == "" {
 		flag.Usage()
@@ -197,11 +214,6 @@ func main() {
 	existingUsers, err := getExistingUsers(gitc)
 	if err != nil {
 		log.Fatalf("Failed to list users: %v", err)
-	}
-
-	authorizedUsers, err := getAuthorizedUsers(userYaml)
-	if err != nil {
-		log.Fatalf("Error reading user YAML: %s", err)
 	}
 
 	if err := resolveUsers(gitc, existingUsers, authorizedUsers); err != nil {

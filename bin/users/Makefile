@@ -1,9 +1,8 @@
-users: sync.go client.go
+users: *.go
 	go build -mod vendor .
 
 .PHONY: test
 test: mocks/mock_client.go
-	go fmt
 	go test
 
 mocks/mock_client.go: client.go
@@ -14,3 +13,7 @@ mocks/mock_client.go: client.go
 vendor:
 	go mod tidy
 	go mod vendor
+
+.PHONY: validate
+validate:
+	go run . --validate --file=../../terraform/master/global/users.yaml

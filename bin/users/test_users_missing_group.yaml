@@ -1,0 +1,11 @@
+---
+users:
+  root:
+    gitlab_groups:
+    - bots
+    - lg
+    can_create_group:
+    - true
+groups:
+  lg:
+    description: Namespace for Login.gov projects

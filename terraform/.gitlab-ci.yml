@@ -49,3 +49,13 @@ tfsec-check-enforce:
           - master/module
           - tooling/module-gitlabpipeline
           - tooling/module-pipeline
+
+users-yaml-validation:
+  image: "$ECR_REGISTRY/ecr-public/docker/library/golang"
+  rules:
+    - !reference [.merge_request, rules]
+    - changes:
+      - terraform/master/global/users.yaml
+  script:
+    - cd bin/users
+    - make validate

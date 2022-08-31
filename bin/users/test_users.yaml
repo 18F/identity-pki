@@ -35,10 +35,21 @@ users:
       - apponcall
     gitlab_groups:
       - appdev
+  root:
+    gitlab_groups:
+      - appdev
+      - bots
+      - devops
+      - lg
+      - pm
+    can_create_group:
+      - true
 
 groups:
   appdev:
     description: "Application Developers"
+  bots:
+    description: "Bots"
   devops:
     description: "DevOps and SRE"
   lg:

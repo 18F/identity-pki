@@ -223,9 +223,22 @@ func TestResolveMembers(t *testing.T) {
 
 func TestGetAuthorizedGroups(t *testing.T) {
 	want := map[string]map[string]bool{
-		"appdev": {"mach.zargolis": true},
-		"devops": {"kritty": true},
-		"lg":     {"gitlab.and.group.please": true},
+		"appdev": {
+			"mach.zargolis": true,
+			"root":          true,
+		},
+		"bots": {"root": true},
+		"devops": {
+			"kritty": true,
+			"root":   true,
+		},
+		"lg": {
+			"gitlab.and.group.please": true,
+			"root":                    true,
+		},
+		"pm": {
+			"root": true,
+		},
 	}
 	authUsers, err := getAuthorizedUsers("test_users.yaml")
 	if err != nil {
@@ -354,4 +367,35 @@ func TestResolveProjects(t *testing.T) {
 		EXPECT().
 		DeleteSharedProjectFromGroup(1, 3)
 	resolveProjects(mockClient, existingProjects, authorizedUsers)
+}
+
+func TestValidate(t *testing.T) {
+	tests := map[string]struct {
+		input    string
+		want_err bool
+	}{
+		"valid":                   {input: "test_users.yaml", want_err: false},
+		"bad project member":      {input: "test_users_bad_project_membership.yaml", want_err: true},
+		"missing group":           {input: "test_users_missing_group.yaml", want_err: true},
+		"can't create group":      {input: "test_users_no_root_group_permission.yaml", want_err: true},
+		"missing root membership": {input: "test_users_no_root_membership.yaml", want_err: true},
+		"no root member":          {input: "test_users_no_root.yaml", want_err: true},
+	}
+
+	for name, td := range tests {
+		t.Run(name, func(t *testing.T) {
+			au, err := getAuthorizedUsers(td.input)
+			if err != nil {
+				t.Errorf("error loading %v: %v", td.input, err)
+			}
+
+			err = au.Validate()
+			if err != nil && !td.want_err {
+				t.Errorf("error validating %s: %s", td.input, err)
+			}
+			if err == nil && td.want_err {
+				t.Errorf("expected an error when validating %s", td.input)
+			}
+		})
+	}
 }

@@ -1,0 +1,41 @@
+---
+users:
+  lorem.ipsum:
+    ec2_username:
+    - lipsum
+    email:
+    - loremabeth.ipsum@gsa.gov
+    aws_groups:
+    - apponcall
+    gitlab_groups:
+    - appdev
+  root:
+    # Note: Gitlab Machine User - don't specify aws_groups for these
+    email:
+    - admin@example.com
+    gitlab_groups:
+    - lg
+    - devops
+    - appdev
+    - pm
+    - antifraud
+groups:
+  antifraud:
+    description: Fraud Investigations
+  appdev:
+    description: Application Developers
+  devops:
+    description: DevOps and SRE
+  pm:
+    description: Project Management and Facilitation
+  lg:
+    description: Namespace for Login.gov projects
+projects:
+  lg/identity-devops:
+    groups:
+      devops:
+        access: maintainer
+      appdev:
+        access: developer
+      pm:
+        access: reporter
