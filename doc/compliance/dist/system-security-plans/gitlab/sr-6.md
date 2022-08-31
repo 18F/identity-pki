@@ -1,8 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
-  - c-org-help-needed
+  - c-implemented
+  - c-documented
 effort:
   - medium
 ---
@@ -21,6 +20,8 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control sr-6
+The Office of the Principal Deputy Associate Administrator maintains responsibility for GSA Cyber & Supply Chain Risk Management functions. The SCRM team provides advisory services and leadership for GSA and government-wide enterprise strategies, plans, actions, and coordination efforts related to enterprise and supply chain risk management and to improve cybersecurity and resilience for information and operational technology and critical infrastructure. This includes ongoing review of the current supply chain risk landscape and necessary updates to the SCRM plan. 
+
+SCRM Team Overview: https://insite.gsa.gov/services-and-offices/staff-offices/office-of-mission-assurance/divisions-program-offices/office-of-the-principal-deputy-associate-administrator
 
 ______________________________________________________________________

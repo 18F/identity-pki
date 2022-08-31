@@ -1,8 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
-  - c-org-help-needed
+  - c-implemented
+  - c-documented
 effort:
   - medium
 ---
@@ -21,6 +20,13 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control sr-5
+The LG system adheres to GSA acquisition policies, regulations, and procedures to ensure supply chain risks are mitigated.
 
-______________________________________________________________________
+GSA Acquisition Portal - https://insite.gsa.gov/employee-resources/acquisition-purchases-and-payments/acquisition-portal
+
+Additionally, GSA maintains a dashboard to gauge acquisition performance across a range of metrics. This supports measuring the success of GSA's acquisition function.
+
+GSA Acquisition Dashboard - https://insite.gsa.gov/topics/acquisition-purchases-and-payments/acquisition-portal/acquisition-dashboard
+
+_____________________________________________________________________
+

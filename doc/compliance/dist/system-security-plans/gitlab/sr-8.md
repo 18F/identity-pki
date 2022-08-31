@@ -1,8 +1,7 @@
 ---
 status:
-  - c-not-implemented
-  - c-not-documented
-  - c-org-help-needed
+  - c-implemented
+  - c-documented
 needs-params:
   - sr-8_prm_1
 ---
@@ -21,6 +20,8 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Add control implementation description here for control sr-8
+The LG system adheres to GSA acquisition policies, regulations, and procedures to ensure supply chain risks are mitigated.
+
+GSA Acquisition Portal - https://insite.gsa.gov/employee-resources/acquisition-purchases-and-payments/acquisition-portal
 
 ______________________________________________________________________

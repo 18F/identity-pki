@@ -32,7 +32,7 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-GSA has developed and documented IT Security Policies and Procedures, including SCRM policies and procedures; these documents are made available to GSA employees (and contractors, as may be appropriate), on GSA’s InSite. The LG system is subject to GSA policies and procedures, described below.
+GSA has developed and documented IT Security Policies and Procedures, including SCRM policies and procedures; these documents are made available to GSA employees (and contractors, as may be appropriate), on GSA’s InSite. The GSA SCRM plan, as well as related standards and policy development is the responsibility of the Supply Chain Risk Management Working Group under the Office of the Principal Deputy Associate Administrator. The LG system is subject to these GSA policies and procedures, as described below.
 
 Policies, Regulations, and Laws (specific InSite page): https://insite.gsa.gov/employee-resources/acquisition-purchases-and-payments/acquisition-portal/acquisition-by-topic/cybersupply-chain-risk-management-cscrm/cscrm-policies-regulations-and-laws.
 
@@ -42,7 +42,7 @@ ______________________________________________________________________
 
 ## Implementation b.
 
-GSA has developed and documented IT Security Policies and Procedures, including SCRM policies and procedures; these documents are made available to GSA employees (and contractors, as may be appropriate), on GSA’s InSite. The LG system is subject to GSA policies and procedures, described below.
+GSA has developed and documented IT Security Policies and Procedures, including SCRM policies and procedures; these documents are made available to GSA employees (and contractors, as may be appropriate), on GSA’s InSite. The GSA SCRM plan, as well as related standards and policies, are maintained by Supply Chain Risk Management Working Group under the Office of the Principal Deputy Associate Administrator. The LG system is subject to GSA policies and procedures, described below.
 
 Policies, Regulations, and Laws (specific InSite page): https://insite.gsa.gov/employee-resources/acquisition-purchases-and-payments/acquisition-portal/acquisition-by-topic/cybersupply-chain-risk-management-cscrm/cscrm-policies-regulations-and-laws.
 
@@ -52,7 +52,7 @@ ______________________________________________________________________
 
 ## Implementation c.
 
-GSA has developed and documented IT Security Policies and Procedures, including SCRM policies and procedures; these documents are made available to GSA employees (and contractors, as may be appropriate), on GSA’s InSite. The LG system is subject to GSA policies and procedures, described below.
+The GSA SCRM plan is made available only to GSA employees (and contractors, as may be appropriate) on GSA’s InSite. GSA IT Security Policies and Procedures protect against unauthorized disclosure of the SCRM plan. Modifications to the SCRM plan are permitted to authorized SCRM Working Group Review Board members operating under the Office of the Principal Deputy Associate Administrator. Access to the GSA InSite system is governed by GSA SecureAuth and requires two-factor authentication. The LG system is subject to GSA policies and procedures, described below.
 
 Policies, Regulations, and Laws (specific InSite page): https://insite.gsa.gov/employee-resources/acquisition-purchases-and-payments/acquisition-portal/acquisition-by-topic/cybersupply-chain-risk-management-cscrm/cscrm-policies-regulations-and-laws.
 
