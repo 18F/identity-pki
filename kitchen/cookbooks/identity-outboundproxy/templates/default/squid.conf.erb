@@ -67,6 +67,11 @@ icp_access deny all
 
 http_port 3128
 
+# this causes it to use the resolv.conf search paths instead of just going "nope!"
+# We need this so that we can do some DNS trickery to get around named VPC endpoints
+# (like gitlab.login.gov) soaking up subdomains (like gitlab.gitstaging.gitlab.login.gov).
+dns_defnames on
+
 # just like the standard squid log, but adds client source port %>p
 logformat custom_squid  %ts.%03tu %6tr %>a:%>p %Ss/%03>Hs %<st %rm %ru %[un %Sh/%<a %mt
 
