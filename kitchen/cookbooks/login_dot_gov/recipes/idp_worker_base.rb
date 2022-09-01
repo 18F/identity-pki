@@ -203,3 +203,12 @@ end
 execute 'start worker target' do
   command "systemctl start idp-workers.target"
 end
+
+# disable passenger service for workers
+execute 'stop passenger' do
+  command "systemctl stop passenger.service"
+end
+
+execute 'disable passenger' do
+  command "chmod -x /etc/init.d/passenger"
+end
