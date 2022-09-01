@@ -34,6 +34,14 @@ variables:
   GITDEPLOY_IMAGE_DIGEST: "sha256:5cbb0d207db1f1a4267ae4255f901794c6847ca6d13723bd43eee3e80726bf5e"
   GITTEST_IMAGE_DIGEST: "sha256:9c92a4d06c4e88af3989df742cbc466054f6842855da4b71f8092204ff85ecdb"
 
+# Always runs on merge requests, so the pipeline has at least one job. https://gitlab.com/gitlab-org/gitlab/-/issues/220260
+no-op:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_PIPELINE_SOURCE == "external_pull_request_event"
+  script:
+    - "true"
+
 gitlab-qa:
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
