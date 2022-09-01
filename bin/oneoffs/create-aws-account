@@ -9,7 +9,7 @@ set -euo pipefail
 . "$(dirname "$0")/../lib/common.sh"
 . "$(dirname "$0")/../lib/acct-lib.sh"
 
-howto() { echo "Usage: ${0} [-tprob12345] IAM_USER_PROFILE_NAME" ; }
+howto() { echo "Usage: ${0} [-tprobs123456] [-a SRC_ACCT] IAM_USER_PROFILE_NAME" ; }
 usage() { echo -e "\n$(howto)\nUse -h for more info!\n" ; }
 help_me() {
   cat >&2 << EOM
@@ -18,6 +18,11 @@ $(howto)
 
 Runs all necessary tasks to set up the basic infrastructure (in terraform/all)
 for a (new) AWS account, including assumable IAM roles and the AWS account alias.
+
+Some secrets and parameters are copied from a separate account, \`login-SRC_ACCT\`,
+as they cannot be created/managed within the codebase/Terraform code.
+Defaults to 'sandbox', can be otherwise set with the -a flag if desired
+(i.e. \`-a prod\` to pull from the \`login-prod\` account instead.)
 
 MUST be run as an IAM user (/not/ an assumed role)
 within said account, which has the AdministrativeAccess IAM policy attached,
@@ -37,13 +42,15 @@ The tasks in this script can also be individually executed as follows:
            the sts:AssumeRole operation can be used with one's default (login-master)
            profile to assume the Terraform role and run subsequent commands with it.
            (Step: 3_create_tf_role_and_secrets_bucket)
-  -o, -4 : Copies the 'common/opsgenie_sns_apikey' S3 object from the login-sandbox
+  -o, -4 : Copies the 'common/opsgenie_sns_apikey' S3 object from the login-SRC_ACCT
            account into this account's 'secrets' bucket, required for the SNS topics
            for alerting to be properly created.
            (Step: 4_copy_opsgenie_key)
   -b, -5 : Runs 'terraform apply' in the account as the Terraform role, creating all
            remaining resources defined in the terraform/all directory.
            (Step: 5_build_acct)
+  -s, -6 : Copies the /account/slack/webhook/url SSM parameter from login-SRC_ACCT
+           to each region, allowing Terraform to send notifications to Slack
   -h     : Displays this help
 
 EOM
@@ -80,9 +87,9 @@ EOM
   until $(bin/awsv -x ${AV_PROFILE} echo) ; do sleep 1 ; done
 }
 
-# get opsgenie key from sandbox and put it in the new secrets bucket
+# get opsgenie key from $SRC_ACCT and put it in the new secrets bucket
 4_copy_opsgenie_key() {
-  get_secrets_bucket sandbox
+  get_secrets_bucket ${SRC_ACCT}
   OPSGENIE_KEY=$(bin/awsv -x ${AV_PROFILE} \
     aws s3 cp "s3://${SECRETS_BUCKET}/common/opsgenie_sns_apikey" -)
   get_secrets_bucket ${TF_ACCT}
@@ -93,12 +100,33 @@ EOM
       --metadata-directive="REPLACE"
 }
 
-# with everything in place, build the rest of terraform/all infra as Terraform role
+# build the rest of terraform/all infra as Terraform role
 5_build_acct() {
   bin/td -d all -e "${TF_ACCT}" -at auto-approve
 }
 
+# update the SSM slackwebhook parameters
+6_slack_webhook_ssm_params() {
+  local WEBHOOK_URL
+  for REGION in 'us-west-2' 'us-east-1' ; do
+    get_iam 'all' "${SRC_ACCT}" 'Terraform'
+    WEBHOOK_URL=$(printf "$(bin/awsv -x ${AV_PROFILE} aws ssm get-parameters \
+                  --names '/account/slack/webhook/url' \
+                  --region "${REGION}" \
+                  --with-decryption | jq -r '.Parameters[].Value')")
+    get_iam 'all' "${TF_ACCT}" 'Terraform'
+    bin/awsv -x ${AV_PROFILE} aws ssm put-parameter \
+      --name '/account/slack/webhook/url' \
+      --value "${WEBHOOK_URL}" \
+      --region "${REGION}" \
+      --type SecureString \
+      --description 'Slack webhook url for notifications' --overwrite
+  done
+
+}
+
 declare {TF_ACCT,ACCT_ID,SECRETS_BUCKET}=
+SRC_ACCT='sandbox'
 verify_root_repo
 
 TASKS=(
@@ -107,10 +135,11 @@ TASKS=(
   "3_create_tf_role_and_secrets_bucket"
   "4_copy_opsgenie_key"
   "5_build_acct"
+  "6_slack_webhook_ssm_params"
 )
 TODO=()
 
-while getopts t1p2r3o4b5h opt
+while getopts t1p2r3o4b5s6a:h opt
 do
   case $opt in
     1|t) TODO+=("${TASKS[0]}") ;;
@@ -118,6 +147,8 @@ do
     3|r) TODO+=("${TASKS[2]}") ;;
     4|o) TODO+=("${TASKS[3]}") ;;
     5|b) TODO+=("${TASKS[4]}") ;;
+    6|s) TODO+=("${TASKS[5]}") ;;
+    a) SRC_ACCT="${OPTARG}"    ;;
     h) help_me                 ;;
     *) usage && exit 1         ;;
   esac
@@ -126,7 +157,7 @@ shift $((OPTIND-1))
 
 export AWS_PROFILE=$1
 verify_account_info
-if [[ ! -z "${ACCOUNT_ALIAS}" ]] && [[ "${TODO[@]:-}" != "5_build_acct" ]]; then
+if [[ ! -z "${ACCOUNT_ALIAS}" ]] && [[ -z "${TODO-}" ]] ; then
   echo_red "Account alias '${ACCOUNT_ALIAS}' already exists for '${TF_ACCT}'."
   raise "Account may already exist; use bin/td for Terraform commands instead!"
 fi
