@@ -193,7 +193,7 @@ variable "env_type" {
 }
 
 variable "instance_type_app" {
-  default = "t3.medium"
+  default = "t3.small"
 }
 
 variable "instance_type_idp" {
@@ -201,9 +201,8 @@ variable "instance_type_idp" {
 }
 
 variable "instance_type_jumphost" {
-  default = "t3.medium"
+  default = "t3.micro"
 }
-
 
 variable "instance_type_migration" {
   default = "t3.medium"
@@ -270,11 +269,11 @@ variable "asg_jumphost_desired" {
 }
 
 variable "asg_idp_min" {
-  default = 0
+  default = 1
 }
 
 variable "asg_idp_desired" {
-  default = 0
+  default = 1
 }
 
 variable "asg_idp_max" {
@@ -306,7 +305,7 @@ variable "asg_migration_max" {
 }
 
 variable "asg_pivcac_min" {
-  default = 0
+  default = 1
 }
 
 variable "asg_pivcac_desired" {
@@ -318,7 +317,7 @@ variable "asg_pivcac_max" {
 }
 
 variable "asg_outboundproxy_desired" {
-  default = 3
+  default = 1
 }
 
 variable "asg_outboundproxy_min" {
