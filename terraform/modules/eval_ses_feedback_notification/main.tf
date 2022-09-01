@@ -5,7 +5,7 @@ provider "aws" {
 data "aws_caller_identity" "current" {}
 
 locals {
-  ses_verified_identity = join("", regexall("[a-z]+", var.ses_verified_identity))
+  verified_identity_alnum = join("", regexall("[a-z]+", var.ses_verified_identity))
 }
 
 ###SQS queue###
@@ -23,7 +23,7 @@ resource "aws_sqs_queue" "ses_dead_letter_queue" {
 }
 
 resource "aws_sns_topic" "ses_feedback_topic" {
-  name = "ses-send-notifications-${local.ses_verified_identity}"
+  name = "ses-send-notifications-${local.verified_identity_alnum}"
 }
 
 resource "aws_sns_topic_subscription" "ses_feedback_subscription" {
@@ -35,21 +35,21 @@ resource "aws_sns_topic_subscription" "ses_feedback_subscription" {
 resource "aws_ses_identity_notification_topic" "ses_bounce" {
   topic_arn                = aws_sns_topic.ses_feedback_topic.arn
   notification_type        = "Bounce"
-  identity                 = local.ses_verified_identity
+  identity                 = var.ses_verified_identity
   include_original_headers = false
 }
 
 resource "aws_ses_identity_notification_topic" "ses_complaint" {
   topic_arn                = aws_sns_topic.ses_feedback_topic.arn
   notification_type        = "Complaint"
-  identity                 = local.ses_verified_identity
+  identity                 = var.ses_verified_identity
   include_original_headers = false
 }
 
 resource "aws_ses_identity_notification_topic" "ses_delivery" {
   topic_arn                = aws_sns_topic.ses_feedback_topic.arn
   notification_type        = "Delivery"
-  identity                 = local.ses_verified_identity
+  identity                 = var.ses_verified_identity
   include_original_headers = false
 }
 
@@ -81,7 +81,7 @@ resource "aws_sqs_queue_policy" "ses_queue_policy" {
 
 resource "aws_lambda_function" "SESFeedbackEvalLambda" {
   filename      = data.archive_file.ses_feedback_evaluation_function.output_path
-  function_name = "SESLambda_${local.ses_verified_identity}"
+  function_name = "SESLambda_${local.verified_identity_alnum}"
   role          = aws_iam_role.ses_feedback_eval_lambda_role.arn
   handler       = "lambda_function.lambda_handler"
   runtime       = var.lambda_runtime
@@ -160,6 +160,6 @@ resource "aws_iam_role_policy_attachment" "ses_lambda_logs" {
 
 ####Cloudwatchlog group
 resource "aws_cloudwatch_log_group" "ses_lambda_cw_logs" {
-  name              = "/aws/lambda/SESLambda_${local.ses_verified_identity}"
+  name              = "/aws/lambda/SESLambda_${local.verified_identity_alnum}"
   retention_in_days = 365
 }
