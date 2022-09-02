@@ -581,6 +581,13 @@ users:
     - antifraud
     can_create_group:
     - true
+  project_21_bot:
+    name:
+    - Github CI
+    email:
+    - project21_bot@noreply.gitlab.login.gov
+    gitlab_project_bot:
+    - true
 groups:
   antifraud:
     description: Fraud Investigations

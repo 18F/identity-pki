@@ -44,5 +44,12 @@ func (au *AuthorizedUsers) Validate() error {
 	if !rootUser.Can_create_group {
 		return fmt.Errorf("root must be able to create groups")
 	}
+
+	// Gitlab Project Bots may not be members of groups
+	for userName, user := range au.Users {
+		if user.Gitlab_project_bot && len(user.Gitlab_groups) > 0 {
+			return fmt.Errorf("project Bot %v may not be a member any groups", userName)
+		}
+	}
 	return nil
 }

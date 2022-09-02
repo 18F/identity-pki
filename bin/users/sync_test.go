@@ -94,6 +94,10 @@ func TestResolveUsers(t *testing.T) {
 					"new.engineer": {
 						Gitlab_groups: []string{"appdev"},
 					},
+					// Not a member of any groups
+					"robbie.robot": {
+						Gitlab_project_bot: true,
+					},
 				},
 			},
 		},
@@ -107,6 +111,12 @@ func TestResolveUsers(t *testing.T) {
 		CreateUser(gomock.Any()).
 		Return(&gitlab.User{
 			Username: "new.engineer",
+		}, nil, nil)
+	mockClient.
+		EXPECT().
+		CreateUser(gomock.Any()).
+		Return(&gitlab.User{
+			Username: "robbie.robot",
 		}, nil, nil)
 	mockClient.
 		EXPECT().
@@ -380,6 +390,7 @@ func TestValidate(t *testing.T) {
 		"can't create group":      {input: "test_users_no_root_group_permission.yaml", want_err: true},
 		"missing root membership": {input: "test_users_no_root_membership.yaml", want_err: true},
 		"no root member":          {input: "test_users_no_root.yaml", want_err: true},
+		"bot group member":        {input: "test_users_bot_member.yaml", want_err: true},
 	}
 
 	for name, td := range tests {

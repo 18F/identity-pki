@@ -86,24 +86,26 @@ func (p *AuthorizedProject) UnmarshalYAML(unmarshal func(interface{}) error) err
 // Format of users from parsing YAML. For backwards compatibility, all fields
 // must be lists of strings in YAML, but we unmarshal some into scalar strings.
 type AuthUser struct {
-	Aws_groups       []string
-	Ec2_username     []string
-	Gitlab_groups    []string
-	Git_username     string
-	Name             string
-	Email            string
-	Can_create_group bool
+	Aws_groups         []string
+	Ec2_username       []string
+	Gitlab_groups      []string
+	Git_username       string
+	Name               string
+	Email              string
+	Can_create_group   bool
+	Gitlab_project_bot bool
 }
 
 func (au *AuthUser) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	type alias struct {
-		Aws_groups       []string
-		Ec2_username     []string
-		Gitlab_groups    []string
-		Git_username     []string
-		Name             []string
-		Email            []string
-		Can_create_group []string
+		Aws_groups         []string
+		Ec2_username       []string
+		Gitlab_groups      []string
+		Git_username       []string
+		Name               []string
+		Email              []string
+		Can_create_group   []string
+		Gitlab_project_bot []string
 	}
 	var tmp alias
 	if err := unmarshal(&tmp); err != nil {
@@ -124,6 +126,7 @@ func (au *AuthUser) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		au.Email = tmp.Email[0]
 	}
 	au.Can_create_group = len(tmp.Can_create_group) > 0 && tmp.Can_create_group[0] == "true"
+	au.Gitlab_project_bot = len(tmp.Gitlab_project_bot) > 0 && tmp.Gitlab_project_bot[0] == "true"
 	return nil
 }
 
@@ -471,7 +474,7 @@ func resolveUsers(
 	// Just a little bookkeeping so we can quickly decided whether to block a user later
 	keptUsers := map[string]bool{}
 
-	// Unblock or create needed users (members of groups)
+	// Unblock or create needed users (bots or members of groups)
 	for username, userAttrs := range authorizedUsers.Users {
 
 		// Override the username if a preferred one exists
@@ -479,7 +482,7 @@ func resolveUsers(
 			username = userAttrs.Git_username
 		}
 
-		if len(userAttrs.Gitlab_groups) > 0 {
+		if userAttrs.Gitlab_project_bot || len(userAttrs.Gitlab_groups) > 0 {
 
 			// Record this for use when we block users
 			keptUsers[username] = true
