@@ -41,6 +41,26 @@ module "poweruser-assumerole" {
           ]
         },
         {
+          sid    = "AthenaKMSKeyAccess"
+          effect = "Allow"
+          actions = [
+            "kms:Decrypt",
+            "kms:DescribeKey",
+            "kms:Encrypt",
+            "kms:GenerateDataKey",
+          ]
+          resources = [
+            "*"
+          ]
+          conditions = [
+            {
+              test     = "ForAnyValue:StringLike"
+              variable = "kms:ResourceAliases"
+              values   = ["alias/*-kms-s3-log-cache-bucket"]
+            }
+          ]
+        },
+        {
           sid    = "Autoscaling"
           effect = "Allow"
           actions = [
