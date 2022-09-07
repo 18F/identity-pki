@@ -62,7 +62,8 @@ resource "aws_kms_alias" "kinesis_firehose_stream_bucket" {
 }
 
 resource "aws_s3_bucket" "kinesis_firehose_stream_bucket" {
-  bucket = var.bucket_name
+  bucket        = var.bucket_name
+  force_destroy = var.destroy_firehose_bucket
 }
 
 resource "aws_s3_bucket_acl" "kinesis_firehose_stream_bucket" {

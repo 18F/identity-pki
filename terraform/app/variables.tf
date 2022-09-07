@@ -890,3 +890,12 @@ variable "events_log_lambda_timeout" {
   default     = 30
 }
 
+variable "destroy_firehose_bucket" {
+  description = <<EOM
+Whether or not to allow the Kinesis Firehose stream bucket to be destroyed
+with objects still present in it.
+Defaults to true; MUST be set to false in upper environments!
+EOM
+  type        = bool
+  default     = true
+}

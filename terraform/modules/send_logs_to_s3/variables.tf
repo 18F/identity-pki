@@ -51,3 +51,12 @@ variable "env_name" {
   description = "Environment Name"
   type        = string
 }
+
+variable "destroy_firehose_bucket" {
+  description = <<EOM
+Whether or not to allow the bucket to be destroyed with objects still present in it.
+Defaults to true; MUST be set to false in upper environments!
+EOM
+  type        = bool
+  default     = true
+}

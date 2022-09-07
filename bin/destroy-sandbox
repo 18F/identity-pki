@@ -13,13 +13,12 @@ BASEPATH="$(dirname "$0")"
 usage() {
     cat >&2 << EOM
 
-Usage: ${0} [-d[a]sbkxh] [ENV] (defaults to \$GSA_USERNAME if not specified)
+Usage: ${0} [-d[a]cpbkxh] [ENV] (defaults to \$GSA_USERNAME if not specified)
 
 Flags (will run all if no flags specified):
   -d : Remove deletion protection from RDS dbs + zero out ASGs via targeted apply
   -a : Same as -d, but do full (non-targeted) apply (not run by default)
   -c : Promote any replica AuroraDB clusters to standalone clusters
-  -s : Stop and delete the CloudWatch-to-S3 Kinesis Firehose stream and Logs stream
   -p : Delete the DS record for the pivcac.ENV.identitysandbox.gov hosted zone
   -b : Empties all S3 buckets with ENV in the bucket name
   -x : terraform-destroy + reset db .tf files
@@ -47,8 +46,6 @@ using the following flags:
        RDS databases/ASGs (use in case the targeted \`apply\` is failing).
   -c : Find any/all replica AuroraDB clusters within the environment, and promote
        each one to a standalone instance (to allow deletion by Terraform)
-  -s : Stop and force-delete the cw-kinesis-s3 Firehose stream and associated CloudWatch
-       log stream, allowing their corresponding bucket to be emptied and deleted
   -p : Delete the DS record from identitysandbox.gov that enables DNSSEC for the
        pivcac.\${TF_ENV}.identitysandbox.gov (necessary before disabling DNSSEC)
   -b : Empties all S3 buckets with \${TF_ENV} in the bucket name,
@@ -98,42 +95,7 @@ replace_db_files() {
   done
 }
 
-3_stop_kinesis_stream() {
-  local CW_S3_STREAM="cw-kinesis-s3-${TF_ENV}-us-west-2"
-  local CW_S3_LOG="/aws/kinesisfirehose/${CW_S3_STREAM}"
-
-  if [[ $(ave aws firehose describe-delivery-stream \
-          --delivery-stream-name "${CW_S3_STREAM}" \
-          --query 'DeliveryStreamDescription.DeliveryStreamStatus' \
-          --output text) == "ACTIVE" ]] ; then
-    ave aws firehose delete-delivery-stream \
-     --delivery-stream-name "${CW_S3_STREAM}" \
-     --allow-force-delete
-  fi
-  sleep 5
-  while [[ $(ave aws firehose describe-delivery-stream \
-          --delivery-stream-name "${CW_S3_STREAM}" \
-          --query 'DeliveryStreamDescription.DeliveryStreamStatus' \
-          --output text) == "DELETING" ]] ; do
-    sleep 5
-  done
-
-  if [[ ! -z $(ave aws logs describe-log-streams \
-          --log-group-name "${CW_S3_LOG}" | jq -r '.logStreams[]') ]] ; then
-    ave aws logs delete-log-stream \
-      --log-group-name "${CW_S3_LOG}" --log-stream-name 'S3Delivery'
-  fi
-  while [[ ! -z $(ave aws logs describe-log-streams \
-          --log-group-name "${CW_S3_LOG}" | jq -r '.logStreams[]') ]] ; do
-    sleep 5
-  done
-
-  boto3_check
-  local CACHE_BUCKET=$(ave aws s3 ls | grep "log-cache-${TF_ENV}" | awk '{print $NF}')
-  empty_bucket_with_versions ${CACHE_BUCKET}
-}
-
-4_destroy_pivcac_ds_records() {
+3_destroy_pivcac_ds_records() {
   local ZONE_ID PIVCAC_DS
   while [[ -z ${ZONE_ID} ]] ; do
     ZONE_ID=$(ave aws route53 list-hosted-zones-by-name |
@@ -152,18 +114,18 @@ replace_db_files() {
       "{\"Comment\":\"DEL-pivcac.${TF_ENV}-DS\",\"Changes\":[{\"Action\":\"DELETE\",\"ResourceRecordSet\":$PIVCAC_DS}]}"
 }
 
-5_empty_buckets() {
+4_empty_buckets() {
   for BUCKET in $(ave aws s3 ls | grep ${TF_ENV} | awk '{print $NF}' | sort -r); do
     empty_bucket_with_versions ${BUCKET}
   done
 }
 
-6_tf_destroy() {
+5_tf_destroy() {
   ave ${BASEPATH}/tf-deploy -t ${TF_ENV} app destroy -auto-approve
   replace_db_files
 }
 
-7_delete_env_keys() {
+6_delete_env_keys() {
   for BUCKET in $(ave aws s3 ls | grep 'secrets.' | awk '{print $NF}') ; do
     ave aws s3api delete-objects \
         --bucket ${BUCKET} \
@@ -179,26 +141,24 @@ replace_db_files() {
 TASKS=(
   "1_allow_db_destroy"
   "2_promote_aurora_cluster"
-  "3_stop_kinesis_stream"
-  "4_destroy_pivcac_ds_records"
-  "5_empty_buckets"
-  "6_tf_destroy"
-  "7_delete_env_keys"
+  "3_destroy_pivcac_ds_records"
+  "4_empty_buckets"
+  "5_tf_destroy"
+  "6_delete_env_keys"
 )
 
 TODO=()
 APPLY_ALL=false
-while getopts adcspbxkh opt
+while getopts adcpbxkh opt
 do
   case $opt in
     a) APPLY_ALL=true        ;;
     d) TODO+=("${TASKS[0]}") ;;
     c) TODO+=("${TASKS[1]}") ;;
-    s) TODO+=("${TASKS[2]}") ;;
-    p) TODO+=("${TASKS[3]}") ;;
-    b) TODO+=("${TASKS[4]}") ;;
-    x) TODO+=("${TASKS[5]}") ;;
-    k) TODO+=("${TASKS[6]}") ;;
+    p) TODO+=("${TASKS[2]}") ;;
+    b) TODO+=("${TASKS[3]}") ;;
+    x) TODO+=("${TASKS[4]}") ;;
+    k) TODO+=("${TASKS[5]}") ;;
     h) help_me               ;;
     *) usage && exit 1       ;;
   esac

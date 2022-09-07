@@ -8,5 +8,5 @@ module "kinesis-firehose" {
   cloudwatch_log_group_name             = ["${var.env_name}_/srv/idp/shared/log/events.log", "${var.env_name}_/srv/idp/shared/log/workers.log"]
   cloudwatch_filter_pattern             = ""
   env_name                              = var.env_name
+  destroy_firehose_bucket               = var.destroy_firehose_bucket
 }
-
