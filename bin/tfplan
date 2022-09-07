@@ -80,13 +80,14 @@ print_plan () {
 }
 
 verify_root_repo
-declare {MODULES_ONLY,PASTE,DUAL_OUTPUT}=
-while getopts mpbh opt
+declare {MODULES_ONLY,PASTE,DUAL_OUTPUT,DESTROY_OPT}=
+while getopts mpbxh opt
 do
     case "${opt}" in
         m) MODULES_ONLY=true                     ;;
         p) PASTE=true                            ;;
         b) DUAL_OUTPUT=true && MODULES_ONLY=true ;;
+        x) DESTROY_OPT='-destroy'                ;;
         h) help_me                               ;;
         *) usage && exit 1                       ;;
     esac
@@ -105,7 +106,7 @@ fi
 TF_PATH="${TF_DIR}/${TF_ENV}"
 [[ "${TF_DIR}" == 'app' ]] && TF_PATH="${TF_ENV} ${TF_DIR}"
 
-PLAN=$($(dirname "$0")/tf-deploy ${TF_PATH} plan -no-color)
+PLAN=$($(dirname "$0")/tf-deploy ${TF_PATH} plan ${DESTROY_OPT} -no-color)
 [[ $? == 0 ]] || raise "Plan command unsuccessful; verify and try again"
 if [[ $(echo "${PLAN}" | grep 'No changes') ]] ; then
   echo -e "\nNo changes in Terraform plan for ${TF_DIR}/${TF_ENV}.\n"

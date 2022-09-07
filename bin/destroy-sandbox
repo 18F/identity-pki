@@ -18,6 +18,7 @@ Usage: ${0} [-d[a]sbkxh] [ENV] (defaults to \$GSA_USERNAME if not specified)
 Flags (will run all if no flags specified):
   -d : Remove deletion protection from RDS dbs + zero out ASGs via targeted apply
   -a : Same as -d, but do full (non-targeted) apply (not run by default)
+  -c : Promote any replica AuroraDB clusters to standalone clusters
   -s : Stop and delete the CloudWatch-to-S3 Kinesis Firehose stream and Logs stream
   -p : Delete the DS record for the pivcac.ENV.identitysandbox.gov hosted zone
   -b : Empties all S3 buckets with ENV in the bucket name
@@ -44,6 +45,8 @@ using the following flags:
        and zero out Auto Scaling Groups, via targeted \`tf-deploy \${TF_ENV} app apply\`.
   -a : Same as -d but will do a full \`apply\` without specifically targeting the
        RDS databases/ASGs (use in case the targeted \`apply\` is failing).
+  -c : Find any/all replica AuroraDB clusters within the environment, and promote
+       each one to a standalone instance (to allow deletion by Terraform)
   -s : Stop and force-delete the cw-kinesis-s3 Firehose stream and associated CloudWatch
        log stream, allowing their corresponding bucket to be emptied and deleted
   -p : Delete the DS record from identitysandbox.gov that enables DNSSEC for the
@@ -65,8 +68,8 @@ EOM
 }
 
 replace_db_files() {
-  for DB in idp app worker; do
-    FILE="$(git rev-parse --show-toplevel)/terraform/app/${DB}.tf"
+  for TF_FILE in 'app/idp' 'app/app' 'app/worker' 'modules/rds_aurora/main' ; do
+    FILE="$(git rev-parse --show-toplevel)/terraform/${TF_FILE}.tf"
     if [[ -f "${FILE}.bak" ]] ; then
       mv ${FILE}.bak ${FILE}
     fi
@@ -75,23 +78,27 @@ replace_db_files() {
 
 1_allow_db_destroy() {
   local TF_ARGS=()
-  for DB in idp app worker ; do
-    cp ${APP_DIR}/${DB}.tf ${APP_DIR}/${DB}.tf.bak
-    for TASK in prevent_destroy deletion_protection ; do
-      sed -i '' -E "s/(${TASK} = )true/\1false/g" ${APP_DIR}/${DB}.tf
-    done
-    sed -i '' -E 's/#(skip_final_snapshot = true)/\1/g' ${APP_DIR}/${DB}.tf
-  done
   if [[ ! ${APPLY_ALL} == true ]] ; then
     TF_ARGS=($(ave ${BASEPATH}/tf-deploy ${TF_ENV} app state list |
-      grep 'db_instance\|autoscaling_group'))
+      grep 'db_instance\|autoscaling_group\|rds_cluster\.'))
     TF_ARGS+=('aws_route53_record.pivcac_zone_ds') # delete pivcac parent DS
     TF_ARGS=( "${TF_ARGS[@]/#/-target=}" ) # adds DBs and ASGs as targets
   fi
   ave ${BASEPATH}/tf-deploy -z -t ${TF_ENV} app apply -auto-approve "${TF_ARGS[@]:-}"
 }
 
-2_stop_kinesis_stream() {
+2_promote_aurora_cluster() {
+  for CLUSTER in $(ave aws rds describe-db-clusters |
+      jq --arg TFE "${TF_ENV}" -r '.DBClusters[]|select((.DBClusterIdentifier|
+      contains($TFE)) and .ReplicationSourceIdentifier != null).DBClusterIdentifier') ; do
+    ave aws rds promote-read-replica-db-cluster \
+      --db-cluster-identifier "${CLUSTER}"
+    sleep 1
+    ave aws rds wait db-cluster-available --db-cluster-identifier "${CLUSTER}"
+  done
+}
+
+3_stop_kinesis_stream() {
   local CW_S3_STREAM="cw-kinesis-s3-${TF_ENV}-us-west-2"
   local CW_S3_LOG="/aws/kinesisfirehose/${CW_S3_STREAM}"
 
@@ -126,7 +133,7 @@ replace_db_files() {
   empty_bucket_with_versions ${CACHE_BUCKET}
 }
 
-3_destroy_pivcac_ds_records() {
+4_destroy_pivcac_ds_records() {
   local ZONE_ID PIVCAC_DS
   while [[ -z ${ZONE_ID} ]] ; do
     ZONE_ID=$(ave aws route53 list-hosted-zones-by-name |
@@ -145,18 +152,18 @@ replace_db_files() {
       "{\"Comment\":\"DEL-pivcac.${TF_ENV}-DS\",\"Changes\":[{\"Action\":\"DELETE\",\"ResourceRecordSet\":$PIVCAC_DS}]}"
 }
 
-4_empty_buckets() {
+5_empty_buckets() {
   for BUCKET in $(ave aws s3 ls | grep ${TF_ENV} | awk '{print $NF}' | sort -r); do
     empty_bucket_with_versions ${BUCKET}
   done
 }
 
-5_tf_destroy() {
+6_tf_destroy() {
   ave ${BASEPATH}/tf-deploy -t ${TF_ENV} app destroy -auto-approve
   replace_db_files
 }
 
-6_delete_env_keys() {
+7_delete_env_keys() {
   for BUCKET in $(ave aws s3 ls | grep 'secrets.' | awk '{print $NF}') ; do
     ave aws s3api delete-objects \
         --bucket ${BUCKET} \
@@ -171,31 +178,42 @@ replace_db_files() {
 
 TASKS=(
   "1_allow_db_destroy"
-  "2_stop_kinesis_stream"
-  "3_destroy_pivcac_ds_records"
-  "4_empty_buckets"
-  "5_tf_destroy"
-  "6_delete_env_keys"
+  "2_promote_aurora_cluster"
+  "3_stop_kinesis_stream"
+  "4_destroy_pivcac_ds_records"
+  "5_empty_buckets"
+  "6_tf_destroy"
+  "7_delete_env_keys"
 )
 
 TODO=()
 APPLY_ALL=false
-while getopts adspbxkh opt
+while getopts adcspbxkh opt
 do
   case $opt in
     a) APPLY_ALL=true        ;;
     d) TODO+=("${TASKS[0]}") ;;
-    s) TODO+=("${TASKS[1]}") ;;
-    p) TODO+=("${TASKS[2]}") ;;
-    b) TODO+=("${TASKS[3]}") ;;
-    x) TODO+=("${TASKS[4]}") ;;
-    k) TODO+=("${TASKS[5]}") ;;
+    c) TODO+=("${TASKS[1]}") ;;
+    s) TODO+=("${TASKS[2]}") ;;
+    p) TODO+=("${TASKS[3]}") ;;
+    b) TODO+=("${TASKS[4]}") ;;
+    x) TODO+=("${TASKS[5]}") ;;
+    k) TODO+=("${TASKS[6]}") ;;
     h) help_me               ;;
     *) usage && exit 1       ;;
   esac
 done
 shift $((OPTIND-1))
 initialize ${1:-}
+
+for TF_FILE in 'app/idp' 'app/app' 'app/worker' 'modules/rds_aurora/main' ; do
+  FILE="$(git rev-parse --show-toplevel)/terraform/${TF_FILE}.tf"
+  cp "${FILE}" "${FILE}.bak"
+  for TASK in prevent_destroy deletion_protection ; do
+    sed -i '' -E "s/(${TASK} = )true/\1false/g" "${FILE}"
+  done
+  sed -i '' -E 's/#(skip_final_snapshot = true)/\1/g' "${FILE}"
+done
 
 if [[ ${APPLY_ALL} == true ]] ; then
   if [[ ! -z ${TODO-} ]] && [[ ! "${TODO[@]:-}" =~ "${TASKS[0]}" ]] ; then

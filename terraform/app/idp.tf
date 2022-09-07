@@ -139,6 +139,11 @@ module "idp_rds_usw2" {
   name               = var.name
   rds_engine         = var.rds_engine
   rds_engine_version = var.rds_engine_version
+  pgroup_params = flatten([
+    local.apg_cluster_pgroup_params,
+    local.apg_db_pgroup_params,
+    local.rds_param_max_standby_streaming_delay
+  ])
 }
 
 module "idp_rds_use1" {
@@ -151,6 +156,11 @@ module "idp_rds_use1" {
   name               = var.name
   rds_engine         = var.rds_engine
   rds_engine_version = var.rds_engine_version
+  pgroup_params = flatten([
+    local.apg_cluster_pgroup_params,
+    local.apg_db_pgroup_params,
+    local.rds_param_max_standby_streaming_delay
+  ])
 }
 
 # Multi-AZ redis cluster, used for session storage
@@ -533,5 +543,5 @@ resource "aws_route53_record" "idp-postgres" {
 
   type    = "CNAME"
   ttl     = "300"
-  records = [replace(aws_db_instance.idp.endpoint, ":5432", "")]
+  records = [replace(aws_db_instance.idp.endpoint, ":${var.rds_db_port}", "")]
 }

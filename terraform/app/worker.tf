@@ -241,6 +241,11 @@ module "idp_worker_jobs_rds_usw2" {
   suffix             = "-worker-jobs"
   rds_engine         = var.rds_engine
   rds_engine_version = var.rds_engine_version_worker_jobs
+  pgroup_params = flatten([
+    local.apg_cluster_pgroup_params,
+    local.apg_db_pgroup_params,
+    local.rds_param_max_standby_streaming_delay
+  ])
 }
 
 module "idp_worker_jobs_rds_use1" {
@@ -254,6 +259,11 @@ module "idp_worker_jobs_rds_use1" {
   suffix             = "-worker-jobs"
   rds_engine         = var.rds_engine
   rds_engine_version = var.rds_engine_version_worker_jobs
+  pgroup_params = flatten([
+    local.apg_cluster_pgroup_params,
+    local.apg_db_pgroup_params,
+    local.rds_param_max_standby_streaming_delay
+  ])
 }
 
 # idp worker jobs database

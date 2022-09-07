@@ -19,3 +19,8 @@ variable "rds_engine" {
 variable "rds_engine_version" {
   type = string
 }
+
+variable "pgroup_params" {
+  type        = list(any)
+  description = "Parameter names/values/methods for the force_ssl parameter group"
+}

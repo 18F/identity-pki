@@ -40,7 +40,7 @@ resource "aws_db_instance" "default" {
   # 1. Uncomment `skip_final_snapshot=true` and
   #    comment `prevent_destroy=true`
   # 2. Perform a terraform/deploy "apply" with the additional
-  #    argument of "-target=aws_db_instance.default" to mark the database
+  #    argument of "-target=aws_db_instance.default[0]" to mark the database
   #    as not requiring a final snapshot.
   # 3. Perform a terraform/deploy "destroy" as needed.
   #
@@ -58,7 +58,7 @@ module "app_cloudwatch_rds" {
   count  = var.apps_enabled
 
   rds_storage_threshold         = var.rds_storage_threshold
-  rds_db                        = aws_db_instance.default[0].id
+  rds_db                        = aws_db_instance.default[count.index].id
   alarm_actions                 = local.low_priority_alarm_actions
   unvacummed_transactions_count = var.unvacummed_transactions_count
 }
@@ -70,7 +70,10 @@ output "app_db_endpoint" {
 resource "aws_db_subnet_group" "default" {
   description = "${var.env_name} env subnet group for login.gov"
   name        = "${var.name}-db-${var.env_name}"
-  subnet_ids  = [aws_subnet.db1.id, aws_subnet.db2.id]
+  subnet_ids = [
+    aws_subnet.db1.id,
+    aws_subnet.db2.id
+  ]
 
   tags = {
     Name = "${var.name}-${var.env_name}"
@@ -81,7 +84,7 @@ resource "aws_route53_record" "app_internal" {
   count   = var.apps_enabled
   name    = "app.login.gov.internal"
   zone_id = aws_route53_zone.internal.zone_id
-  records = [aws_alb.app[0].dns_name]
+  records = [aws_alb.app[count.index].dns_name]
   ttl     = "300"
   type    = "CNAME"
 }
@@ -90,7 +93,7 @@ resource "aws_route53_record" "app_external" {
   count   = var.apps_enabled
   name    = "app.${var.env_name}.${var.root_domain}"
   zone_id = var.route53_id
-  records = [aws_alb.app[0].dns_name]
+  records = [aws_alb.app[count.index].dns_name]
   ttl     = "300"
   type    = "CNAME"
 }
@@ -141,9 +144,11 @@ resource "aws_route53_record" "c_sp_sinatra" {
 }
 
 resource "aws_route53_record" "postgres" {
-  count   = var.apps_enabled
-  name    = "postgres"
-  records = [replace(aws_db_instance.default[0].endpoint, ":5432", "")]
+  count = var.apps_enabled
+  name  = "postgres"
+  records = [
+    replace(aws_db_instance.default[count.index].endpoint, ":${var.rds_db_port}", "")
+  ]
   ttl     = "300"
   type    = "CNAME"
   zone_id = aws_route53_zone.internal.zone_id

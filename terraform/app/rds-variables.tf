@@ -1,8 +1,56 @@
-variable "enable_rds_idp_read_replica" {
-  description = "Whether to create an RDS read replica of the IDP database"
-  default     = false
-  type        = bool
+# Locals
+
+locals {
+  # DB parameter groups are defined here and divided into instance-only parameters,
+  # cluster-only parameters, or both, for Aurora support
+  apg_cluster_pgroup_params = [
+    {
+      name   = "rds.force_ssl"
+      value  = "1"
+      method = "pending-reboot"
+    },
+    # Log autovacuum tasks that take more than 1 sec
+    {
+      name  = "rds.force_autovacuum_logging_level"
+      value = "log"
+    },
+    {
+      name  = "log_autovacuum_min_duration"
+      value = 1000
+    }
+  ]
+
+  apg_db_pgroup_params = [
+    # Log all Data Definition Layer changes (ALTER, CREATE, etc.)
+    {
+      name  = "log_statement"
+      value = "ddl"
+    },
+    # Log all slow queries that take longer than specified time in ms
+    {
+      name  = "log_min_duration_statement"
+      value = "250" # 250 ms
+    },
+    # Log lock waits
+    {
+      name  = "log_lock_waits"
+      value = "1"
+    }
+  ]
+
+  # Set to 1800000 ms (30 min) for RDS; Aurora maxes out at 30000 ms
+  # https://aws.amazon.com/blogs/database/best-practices-for-amazon-rds-postgresql-replication/
+  apg_param_max_standby_streaming_delay = {
+    name  = "max_standby_streaming_delay"
+    value = "30000"
+  }
+  rds_param_max_standby_streaming_delay = {
+    name  = "max_standby_streaming_delay"
+    value = "1800000"
+  }
 }
+
+# General / All DBs
 
 variable "rds_backup_retention_period" {
   default = "34"
@@ -12,24 +60,23 @@ variable "rds_backup_window" {
   default = "08:00-08:34"
 }
 
-# Changing engine or engine_version requires also changing any relevant uses of
-# aws_db_parameter_group, which has a family attribute that tightly couples its
-# parameter to the engine and version.
+variable "rds_db_port" {
+  default = 5432
+}
 
 variable "rds_engine" {
   default = "postgres"
+}
+
+variable "rds_engine_aurora" {
+  default = "aurora-postgresql"
 }
 
 variable "rds_engine_version" {
   default = "13.5"
 }
 
-variable "rds_engine_version_replica" {
-  default     = "13.5"
-  description = "RDS requires that replicas be upgraded *before* primaries"
-}
-
-variable "rds_engine_version_worker_jobs" {
+variable "rds_engine_version_aurora" {
   default = "13.5"
 }
 
@@ -37,74 +84,14 @@ variable "rds_instance_class" {
   default = "db.t3.micro"
 }
 
-variable "rds_instance_class_replica" {
-  default = "db.t3.micro"
+variable "rds_instance_class_aurora" {
+  default = "db.t3.medium"
 }
 
-variable "rds_instance_class_worker_jobs" {
-  default = "db.t3.micro"
+variable "rds_password" { # set manually after creation
 }
 
-variable "rds_storage_type_idp" {
-  # possible storage types:
-  # standard (magnetic)
-  # gp2 (general SSD)
-  # io1 (provisioned IOPS SSD)
-  description = "The type of EBS storage (magnetic, SSD, PIOPS) used by the IdP database"
-  default     = "standard"
-}
-
-variable "rds_storage_type_idp_replica" {
-  description = "The type of EBS storage (magnetic, SSD, PIOPS) used by the IdP database read replica"
-  default     = "standard"
-}
-
-variable "rds_storage_type_idp_worker_jobs" {
-  description = "The type of EBS storage (magnetic, SSD, PIOPS) used by the IdP worker jobs"
-  default     = "gp2"
-}
-
-variable "rds_iops_idp" {
-  description = "If PIOPS storage is used, the number of IOPS provisioned"
-  default     = 0
-}
-
-variable "rds_iops_idp_replica" {
-  description = "If PIOPS storage is used, the number of IOPS provisioned for the read replica"
-  default     = 0
-}
-
-variable "rds_iops_idp_worker_jobs" {
-  description = "If PIOPS storage is used, the number of IOPS provisioned for the IdP worker jobs"
-  default     = 0
-}
-
-variable "rds_password" {
-}
-
-variable "rds_password_worker_jobs" {
-}
-
-variable "rds_storage_app" {
-  default = "8"
-}
-
-variable "rds_storage_idp" {
-  default = "26"
-}
-
-variable "rds_storage_idp_replica" {
-  default = "26"
-}
-
-variable "rds_storage_idp_worker_jobs" {
-  default = "26"
-}
-
-variable "rds_username" {
-}
-
-variable "rds_username_worker_jobs" {
+variable "rds_username" { # set manually after creation
 }
 
 variable "rds_maintenance_window" {
@@ -138,4 +125,192 @@ Defaults to false ; should be manually set to true in upper environments.
 EOM
   type        = bool
   default     = false
+}
+
+variable "rds_engine_mode_aurora" {
+  type        = string
+  description = "DB engine mode to use with Aurora DB cluster(s)"
+  default     = "provisioned"
+}
+
+# idp
+
+variable "rds_storage_type_idp" {
+  # possible storage types:
+  # standard (magnetic)
+  # gp2 (general SSD)
+  # io1 (provisioned IOPS SSD)
+  description = "EBS storage type (magnetic, SSD, PIOPS) used by the idp RDS database"
+  default     = "standard"
+}
+
+variable "rds_iops_idp" {
+  description = "If PIOPS storage is used, the number of IOPS provisioned"
+  default     = 0
+}
+
+variable "rds_storage_idp" {
+  default = "26"
+}
+
+variable "idp_aurora_enabled" {
+  type        = bool
+  description = "Enable/disable creating idp AuroraDB cluster"
+  default     = false
+}
+
+variable "idp_aurora_autoscaling" {
+  description = "Enable/disable Auto Scaling for the idp Aurora DB cluster"
+  type        = bool
+  default     = false
+}
+
+variable "idp_aurora_serverlessv2_config" {
+  type = list(object({
+    max = number
+    min = number
+  }))
+  description = <<EOM
+Scaling configuration (maximum/minimum capacity) to use,
+if setting/upgrading idp DB cluster to Aurora Serverless v2
+EOM
+  default     = []
+}
+
+# idp-replica
+
+variable "enable_rds_idp_read_replica" {
+  description = "Whether to create an RDS read replica of the idp RDS database"
+  default     = false
+  type        = bool
+}
+
+variable "rds_engine_version_replica" {
+  default     = "13.5"
+  description = <<EOM
+rds_engine_version for idp-replica RDS database.
+RDS requires that replicas be upgraded *before* primaries
+EOM
+}
+
+variable "rds_instance_class_replica" {
+  default = "db.t3.micro"
+}
+
+variable "rds_storage_type_idp_replica" {
+  description = <<EOM
+EBS storage type (magnetic, SSD, PIOPS) used by idp-replica RDS database
+EOM
+  default     = "standard"
+}
+
+variable "rds_iops_idp_replica" {
+  description = <<EOM
+If PIOPS storage is used, number of IOPS provisioned for idp-replica RDS database
+EOM
+  default     = 0
+}
+
+variable "rds_storage_idp_replica" {
+  default = "26"
+}
+
+# apps (sampleapps)
+
+variable "rds_instance_class_apps_aurora" {
+  default = "db.t3.medium"
+}
+
+variable "rds_storage_app" {
+  default = "8"
+}
+
+variable "apps_aurora_enabled" {
+  type        = bool
+  description = "Enable/disable creating sampleapps AuroraDB cluster"
+  default     = false
+}
+
+variable "apps_aurora_autoscaling" {
+  description = "Enable/disable Auto Scaling for the sampleapps Aurora DB cluster"
+  type        = bool
+  default     = false
+}
+
+variable "apps_aurora_serverlessv2_config" {
+  type = list(object({
+    max = number
+    min = number
+  }))
+  description = <<EOM
+Scaling configuration (maximum/minimum capacity) to use,
+if setting/upgrading sampleapps DB cluster to Aurora Serverless v2
+EOM
+  default     = []
+}
+
+# worker (idp-worker-jobs)
+
+variable "rds_engine_version_worker_jobs" {
+  default = "13.5"
+}
+
+variable "rds_engine_version_worker_jobs_aurora" {
+  default = "13.5"
+}
+
+variable "rds_instance_class_worker_jobs" {
+  default = "db.t3.micro"
+}
+
+variable "rds_instance_class_worker_jobs_aurora" {
+  default = "db.t3.medium"
+}
+
+variable "rds_storage_type_idp_worker_jobs" {
+  description = <<EOM
+EBS storage type (magnetic, SSD, PIOPS) used by idp-worker-jobs RDS database
+EOM
+  default     = "gp2"
+}
+
+variable "rds_iops_idp_worker_jobs" {
+  description = <<EOM
+If PIOPS storage is used, number of IOPS provisioned for idp-worker-jobs RDS database
+EOM
+  default     = 0
+}
+
+variable "rds_password_worker_jobs" {
+}
+
+variable "rds_storage_idp_worker_jobs" {
+  default = "26"
+}
+
+variable "rds_username_worker_jobs" {
+}
+
+variable "worker_aurora_enabled" {
+  type        = bool
+  description = "Enable/disable creating idp-worker-jobs AuroraDB cluster"
+  default     = false
+}
+
+variable "worker_aurora_autoscaling" {
+  description = "Enable/disable Auto Scaling for the worker Aurora DB cluster"
+  type        = bool
+  default     = false
+}
+
+variable "worker_jobs_aurora_serverlessv2_config" {
+  type = list(object({
+    max = number
+    min = number
+  }))
+  description = <<EOM
+Scaling configuration (maximum/minimum capacity) to use,
+if setting/upgrading worker_jobs DB cluster to Aurora Serverless v2
+EOM
+  default     = []
 }

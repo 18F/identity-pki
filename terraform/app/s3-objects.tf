@@ -20,7 +20,7 @@ resource "aws_s3_object" "db_host_app" {
 
   bucket       = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
   key          = "${var.env_name}/db_host_app"
-  content      = aws_db_instance.default[0].address
+  content      = aws_db_instance.default[count.index].address
   content_type = "text/plain"
 }
 

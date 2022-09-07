@@ -481,6 +481,7 @@ locals {
           "rds:ModifyDBClusterParameterGroup",
           "rds:ModifyDBParameterGroup",
           "rds:ModifyDBSubnetGroup",
+          "rds:PromoteReadReplicaDBCluster",
           "rds:RebootDBInstance",
           "rds:RemoveTagsFromResource",
         ]

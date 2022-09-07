@@ -86,8 +86,8 @@ resource "aws_network_acl_rule" "db-ingress-s-redis" {
 resource "aws_network_acl_rule" "db-ingress-postgres" {
   network_acl_id = aws_network_acl.db.id
   egress         = false
-  from_port      = 5432
-  to_port        = 5432
+  from_port      = var.rds_db_port
+  to_port        = var.rds_db_port
   protocol       = "tcp"
   rule_number    = 15
   rule_action    = "allow"
@@ -97,8 +97,8 @@ resource "aws_network_acl_rule" "db-ingress-postgres" {
 resource "aws_network_acl_rule" "db-ingress-s-postgres" {
   network_acl_id = aws_network_acl.db.id
   egress         = false
-  from_port      = 5432
-  to_port        = 5432
+  from_port      = var.rds_db_port
+  to_port        = var.rds_db_port
   protocol       = "tcp"
   rule_number    = 16
   rule_action    = "allow"

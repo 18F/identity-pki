@@ -233,8 +233,8 @@ resource "aws_security_group" "db" {
   egress = []
 
   ingress {
-    from_port = 5432
-    to_port   = 5432
+    from_port = var.rds_db_port
+    to_port   = var.rds_db_port
     protocol  = "tcp"
     security_groups = [
       aws_security_group.app.id,

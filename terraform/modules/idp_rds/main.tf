@@ -9,8 +9,8 @@ terraform {
 data "aws_caller_identity" "current" {}
 
 locals {
-  # PostgreSQL parameter group family names changed from X.Y to just X after major version 9
-  rds_engine_version_short = length(regexall("^9\\.", var.rds_engine_version)) > 0 ? join(".", [for v in [0, 1] : split(".", var.rds_engine_version)[v]]) : split(".", var.rds_engine_version)[0]
+  # PostgreSQL param group family names changed from X.Y to X after major version 9
+  rds_engine_version_short = split(".", var.rds_engine_version)[0]
 }
 
 resource "aws_db_parameter_group" "force_ssl" {
@@ -21,12 +21,6 @@ resource "aws_db_parameter_group" "force_ssl" {
   # http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_WorkingWithParamGroups.html.
   family = "${var.rds_engine}${local.rds_engine_version_short}"
 
-  parameter {
-    name         = "rds.force_ssl"
-    value        = "1"
-    apply_method = "pending-reboot"
-  }
-
   # Setting to 30 minutes, RDS requires value in ms
   # https://aws.amazon.com/blogs/database/best-practices-for-amazon-rds-postgresql-replication/
   parameter {
@@ -34,45 +28,17 @@ resource "aws_db_parameter_group" "force_ssl" {
     value = "1800000"
   }
 
-  # Setting to 30 minutes, RDS requires value in ms
-  # https://aws.amazon.com/blogs/database/best-practices-for-amazon-rds-postgresql-replication/
-  parameter {
-    name  = "max_standby_streaming_delay"
-    value = "1800000"
-  }
+  # additional parameters pulled from var.pgroup_params so that we can use those
+  # params in Aurora in the future
+  dynamic "parameter" {
+    for_each = var.pgroup_params
+    iterator = pblock
 
-  # Log all Data Definition Layer changes (ALTER, CREATE, etc.)
-  parameter {
-    name  = "log_statement"
-    value = "ddl"
-  }
-
-  # Log all slow queries that take longer than specified time in ms
-  parameter {
-    name  = "log_min_duration_statement"
-    value = "250" # 250 ms
-  }
-
-  # Log lock waits
-  parameter {
-    name  = "log_lock_waits"
-    value = "1"
-  }
-
-  # Log lock waits
-  parameter {
-    name  = "log_lock_waits"
-    value = "1"
-  }
-
-  # Log autovacuum task that take more than 1 sec
-  parameter {
-    name  = "rds.force_autovacuum_logging_level"
-    value = "log"
-  }
-  parameter {
-    name  = "log_autovacuum_min_duration"
-    value = 1000
+    content {
+      name         = pblock.value.name
+      value        = pblock.value.value
+      apply_method = lookup(pblock.value, "method", "immediate")
+    }
   }
 
   lifecycle {

@@ -637,3 +637,18 @@ empty_bucket_with_versions() {
     bucket = s3.Bucket('${BUCKET_TO_EMPTY}') ;\
     bucket.object_versions.delete()"
 }
+
+#### get id and name of all resources in Terraform state
+get_tf_state() {
+  STATE_ENV=${1:-$(echo ${TF_ENV})}
+  STATE_DIR=${2:-$(echo ${TF_DIR})}
+  ${GIT_DIR}/bin/td -e ${STATE_ENV} -d ${STATE_DIR} -s pull -no-color |
+    jq '.resources[]|select(.mode == "managed")|
+    {id: .instances[0].attributes.id,name: (
+      (if .module? then "\(.module)." else "" end) + .type + "." + .name +
+      (if .instances[0].index_key? then ("[" + (
+      if (.instances[0].index_key|type) == "number"
+      then .instances[0].index_key|tostring
+      else ("\"" + .instances[0].index_key + "\"") end
+      ) + "]") else "" end))}'
+}
