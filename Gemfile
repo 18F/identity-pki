@@ -15,6 +15,7 @@ gem 'rake'
 
 gem 'rest-client', '~> 2.0'
 
+gem 'colorize'
 gem 'semantic'
 gem 'subprocess'
 gem 'terminal-table', '~> 3.0'
