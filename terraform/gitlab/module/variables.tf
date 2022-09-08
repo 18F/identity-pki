@@ -456,3 +456,39 @@ variable "runner_config_bucket" {
   description = "the config bucket that all the other runners should get their config from"
   default     = ""
 }
+
+variable "pgroup_params" {
+  description = "Parameter names/values/methods for the force_ssl parameter group"
+  type        = list(any)
+  default = [
+    {
+      name  = "log_lock_waits"
+      value = "1"
+    },
+    {
+      name  = "log_min_duration_statement"
+      value = "250"
+    },
+    {
+      name  = "log_statement"
+      value = "ddl"
+    },
+    {
+      name  = "max_standby_streaming_delay"
+      value = "1800000"
+    },
+    {
+      name   = "rds.force_ssl"
+      value  = "1"
+      method = "pending-reboot"
+    },
+    {
+      name  = "rds.force_autovacuum_logging_level"
+      value = "log"
+    },
+    {
+      name  = "log_autovacuum_min_duration"
+      value = 1000
+    }
+  ]
+}
