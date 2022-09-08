@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/xanzy/go-gitlab"
 	"gopkg.in/yaml.v2"
 )
@@ -165,6 +166,9 @@ func init() {
 }
 
 func main() {
+
+	var result error
+
 	// Check if we have flags and env vars set
 	flag.Parse()
 
@@ -219,8 +223,9 @@ func main() {
 		log.Fatalf("Failed to list users: %v", err)
 	}
 
+	// This may fail if Gitlab returns errors. Don't bail, because there's still useful work to do.
 	if err := resolveUsers(gitc, existingUsers, authorizedUsers); err != nil {
-		log.Fatalf("Error resolving users: %v", err)
+		result = multierror.Append(result, fmt.Errorf("error resolving users: %v", err))
 	}
 
 	//
@@ -234,13 +239,14 @@ func main() {
 	}
 
 	groupsToCreate, groupsToDelete := resolveGroups(gitlabGroups, authorizedUsers)
+	// Even if these fail, try to continue. There's still work to do.
 	err = createGroups(gitc, groupsToCreate)
 	if err != nil {
-		log.Fatalf("Unable to create groups: %v", err)
+		result = multierror.Append(result, fmt.Errorf("unable to create groups: %v", err))
 	}
 	err = deleteGroups(gitc, groupsToDelete)
 	if err != nil {
-		log.Fatalf("Unable to delete groups: %v", err)
+		result = multierror.Append(result, fmt.Errorf("unable to delete groups: %v", err))
 	}
 
 	//
@@ -253,13 +259,14 @@ func main() {
 	}
 	authGroups := getAuthorizedGroups(authorizedUsers)
 	membersToCreate, membersToDelete := resolveMembers(groupsWithMembers, authGroups)
+	// Even if these fail, try to continue. There's still work to do.
 	err = createMemberships(gitc, membersToCreate)
 	if err != nil {
-		log.Fatalf("Failed to create members: %v", err)
+		result = multierror.Append(result, fmt.Errorf("failed to create members: %v", err))
 	}
 	err = deleteMemberships(gitc, membersToDelete)
 	if err != nil {
-		log.Fatalf("Failed to delete members: %v", err)
+		result = multierror.Append(result, fmt.Errorf("failed to delete members: %v", err))
 	}
 
 	//
@@ -273,7 +280,11 @@ func main() {
 
 	err = resolveProjects(gitc, projects, authorizedUsers)
 	if err != nil {
-		log.Fatalf("Failed to resolve projects: %v", err)
+		result = multierror.Append(result, fmt.Errorf("failed to resolve projects: %v", err))
+	}
+
+	if result != nil {
+		log.Fatal(result)
 	}
 }
 
@@ -471,6 +482,8 @@ func resolveUsers(
 	authorizedUsers *AuthorizedUsers,
 ) error {
 
+	var result error
+
 	// Just a little bookkeeping so we can quickly decided whether to block a user later
 	keptUsers := map[string]bool{}
 
@@ -493,16 +506,16 @@ func resolveUsers(
 				// Unblock user by user ID
 				err := unblockUser(gitc, u)
 				if err != nil {
-					return err
+					result = multierror.Append(result, err)
 				}
 
 				// Now that we know the user exists, sync the attrs
 				if err := updateUser(gitc, u, userAttrs); err != nil {
-					return err
+					result = multierror.Append(result, err)
 				}
 			} else {
 				if err := createUser(gitc, username, userAttrs); err != nil {
-					return err
+					result = multierror.Append(result, err)
 				}
 			}
 		}
@@ -518,14 +531,15 @@ func resolveUsers(
 		// Did we create/unblock this user?
 		if _, ok := keptUsers[username]; !ok {
 			if err := blockUser(gitc, user); err != nil {
-				return err
+				result = multierror.Append(result, err)
 			}
 		}
 	}
-	return nil
+	return result
 }
 
 // Returns sets of groups to create and delete
+// TODO: directly create and delete groups. Use mocks to test.
 func resolveGroups(
 	gitlabGroups map[string]*gitlab.Group,
 	authorizedUsers *AuthorizedUsers,
@@ -696,9 +710,17 @@ func createMemberships(gitc GitlabClientIface, membersToCreate map[string]map[st
 		for memberName := range members {
 			fatalIfDryRun("Member %v should exist in %v, but doesn't.", memberName, groupName)
 
-			groupID := cache.Groups[groupName].ID
+			group, ok := cache.Groups[groupName]
+			if !ok {
+				return fmt.Errorf("%v not found in group cache", groupName)
+			}
+			user, ok := cache.Users[memberName]
+			if !ok {
+				return fmt.Errorf("%v not found in user cache", memberName)
+			}
+			groupID := group.ID
 			memberOpts := &gitlab.AddGroupMemberOptions{
-				UserID:      gitlab.Int(cache.Users[memberName].ID),
+				UserID:      gitlab.Int(user.ID),
 				AccessLevel: gitlab.AccessLevel(gitlab.DeveloperPermissions),
 			}
 			_, _, err := gitc.AddGroupMember(groupID, memberOpts)
