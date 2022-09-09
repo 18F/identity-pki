@@ -15,6 +15,7 @@ module "main" {
   bootstrap_main_git_ref_default  = "stages/gitstaging"
   dr_region                       = "us-east-2"
   env_name                        = "gitstaging"
+  env_type                        = "tooling-staging"
   region                          = "us-west-2"
   root_domain                     = "gitlab.login.gov"
   slack_events_sns_hook_arn       = "arn:aws:sns:us-west-2:034795980528:slack-events"

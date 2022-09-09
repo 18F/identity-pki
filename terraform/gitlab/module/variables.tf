@@ -3,10 +3,25 @@ locals {
   bootstrap_private_s3_ssh_key_url = var.bootstrap_private_s3_ssh_key_url != "" ? var.bootstrap_private_s3_ssh_key_url : "s3://login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}/common/id_ecdsa.id-do-private.deploy"
   bootstrap_main_git_ref_default   = var.bootstrap_main_git_ref_default != "" ? var.bootstrap_main_git_ref_default : "stages/${var.env_name}"
   account_default_ami_id           = var.default_ami_id_tooling
-  public_subnet_cidrs              = [aws_subnet.publicsubnet1.cidr_block, aws_subnet.publicsubnet2.cidr_block, aws_subnet.publicsubnet3.cidr_block]
-  private_subnet_cidrs             = [aws_subnet.privatesubnet1.cidr_block, aws_subnet.privatesubnet2.cidr_block, aws_subnet.privatesubnet3.cidr_block]
-  private_subnet_ids               = [aws_subnet.publicsubnet1.id, aws_subnet.publicsubnet2.id, aws_subnet.publicsubnet3.id]
   github_ipv4_cidr_blocks          = sort(data.github_ip_ranges.meta.git_ipv4)
+  network_zones                    = toset(keys(local.network_layout[var.region][var.env_type]._zones))
+  env_runner_gitlab_hostname       = var.env_runner_gitlab_hostname == "" ? "gitlab.${var.env_name}.${var.root_domain}" : var.env_runner_gitlab_hostname
+  env_runner_config_bucket         = var.env_runner_config_bucket == "" ? "login-gov-${var.env_name}-gitlabconfig-${data.aws_caller_identity.current.account_id}-${var.region}" : var.env_runner_config_bucket
+  runner_config_bucket             = var.runner_config_bucket == "" ? "login-gov-${var.env_name}-gitlabconfig-${data.aws_caller_identity.current.account_id}-${var.region}" : var.runner_config_bucket
+  default_endpoint_security_group_ids = [
+    aws_security_group.kms_endpoint.id,
+    aws_security_group.ssm_endpoint.id,
+    aws_security_group.ssmmessages_endpoint.id,
+    aws_security_group.ec2_endpoint.id,
+    aws_security_group.ec2messages_endpoint.id,
+    aws_security_group.logs_endpoint.id,
+    aws_security_group.monitoring_endpoint.id,
+    aws_security_group.secretsmanager_endpoint.id,
+    aws_security_group.sts_endpoint.id,
+    aws_security_group.events_endpoint.id,
+    aws_security_group.sns_endpoint.id
+  ]
+  gitlab_lb_interface_cidr_blocks = formatlist("%s/32", [for interface in data.aws_network_interface.lb : interface.private_ip])
   no_proxy_hosts = join(",", concat([
     "localhost",
     "127.0.0.1",
@@ -32,66 +47,6 @@ locals {
 
 variable "aws_vpc" {
   default = ""
-}
-
-variable "alb3_subnet_cidr_block" { # 172.16.33.208 - 172.16.33.223
-  default = "172.16.33.208/28"
-}
-
-variable "alb1_subnet_cidr_block" { # 172.16.33.224 - 172.16.33.239
-  default = "172.16.33.224/28"
-}
-
-variable "alb2_subnet_cidr_block" { # 172.16.33.240 - 172.16.33.255
-  default = "172.16.33.240/28"
-}
-
-variable "gitlab1_subnet_cidr_block" { # 172.16.32.32  - 172.16.32.47
-  default = "172.16.32.32/28"
-}
-
-variable "gitlab2_subnet_cidr_block" { # 172.16.32.48  - 172.16.32.63
-  default = "172.16.32.48/28"
-}
-
-variable "public1_subnet_cidr_block" { # 172.16.32.64 - 172.16.32.127
-  default = "172.16.32.64/26"
-}
-
-variable "public2_subnet_cidr_block" { # 172.16.32.128 - 172.16.32.191
-  default = "172.16.32.128/26"
-}
-
-variable "public3_subnet_cidr_block" { # 172.16.32.192 - 172.16.32.255
-  default = "172.16.32.192/26"
-}
-
-variable "private1_subnet_cidr_block" { # 172.16.35.0 - 172.16.35.63
-  default = "172.16.35.0/26"
-}
-
-variable "private2_subnet_cidr_block" { # 172.16.35.64 - 172.16.35.127
-  default = "172.16.35.64/26"
-}
-
-variable "private3_subnet_cidr_block" { # 172.16.35.128 - 172.16.35.191
-  default = "172.16.35.128/26"
-}
-
-variable "nat_a_subnet_cidr_block" { # 172.16.35.192 - 172.16.35.207
-  default = "172.16.35.192/28"
-}
-
-variable "nat_b_subnet_cidr_block" { # 172.16.35.208 - 172.16.35.223
-  default = "172.16.35.208/28"
-}
-
-variable "nat_c_subnet_cidr_block" { # 172.16.35.224 - 172.16.35.239
-  default = "172.16.35.224/28"
-}
-
-variable "gitlab_subnet_cidr_block" { # 172.16.33.64 - 172.16.33.95
-  default = "172.16.33.64/27"
 }
 
 variable "allowed_gitlab_cidr_blocks_v4" { # 159.142.0.0 - 159.142.255.255
@@ -299,10 +254,6 @@ variable "use_spot_instances" {
   default     = 0
 }
 
-variable "vpc_cidr_block" { # 172.16.32.0   - 172.16.35.255
-  default = "172.16.32.0/22"
-}
-
 #######################################################################
 # RDS Variables
 variable "rds_storage_gitlab" {
@@ -357,14 +308,6 @@ variable "rds_storage_type_gitlab" {
 variable "rds_iops_gitlab" {
   description = "If PIOPS storage is used, the number of IOPS provisioned"
   default     = 0
-}
-
-variable "db1_subnet_cidr_block" { # 172.16.33.32 - 172.16.33.47
-  default = "172.16.33.32/28"
-}
-
-variable "db2_subnet_cidr_block" { # 172.16.33.48 - 172.16.33.63
-  default = "172.16.33.48/28"
 }
 
 # gitaly EBS volume config here
@@ -436,12 +379,6 @@ variable "env_runner_gitlab_hostname" {
   default     = ""
 }
 
-locals {
-  env_runner_gitlab_hostname = var.env_runner_gitlab_hostname == "" ? "gitlab.${var.env_name}.${var.root_domain}" : var.env_runner_gitlab_hostname
-  env_runner_config_bucket   = var.env_runner_config_bucket == "" ? "login-gov-${var.env_name}-gitlabconfig-${data.aws_caller_identity.current.account_id}-${var.region}" : var.env_runner_config_bucket
-  runner_config_bucket       = var.runner_config_bucket == "" ? "login-gov-${var.env_name}-gitlabconfig-${data.aws_caller_identity.current.account_id}-${var.region}" : var.runner_config_bucket
-}
-
 variable "gitlab_servicename" {
   description = "the privatelink servicename that we connect with"
   default     = ""
@@ -491,4 +428,21 @@ variable "pgroup_params" {
       value = 1000
     }
   ]
+}
+
+variable "env_type" {
+  type        = string
+  default     = "app-sandbox"
+  description = "The env_type of the application. App-Produciton, App-sandbox, Gitlab-Production, etc."
+
+  validation {
+    condition = contains(
+      ["peering", "security", "telemetry", "tooling-prod", "tooling-sandbox", "tooling-staging", "app-prod", "app-staging", "app-dm", "app-dm", "app-int", "app-sandbox"]
+    , var.env_type)
+    error_message = "Environment Type can't be found. Please check the network_layout module for valid environment types or update the validation ruleset for new environment types."
+  }
+}
+
+variable "vpc_cidr_block" { # 172.16.32.0   - 172.16.35.255
+  default = "172.16.32.0/22"
 }

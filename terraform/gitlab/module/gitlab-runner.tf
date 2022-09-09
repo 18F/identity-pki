@@ -1,20 +1,3 @@
-locals {
-  default_endpoint_security_group_ids = [
-    aws_security_group.kms_endpoint.id,
-    aws_security_group.ssm_endpoint.id,
-    aws_security_group.ssmmessages_endpoint.id,
-    aws_security_group.ec2_endpoint.id,
-    aws_security_group.ec2messages_endpoint.id,
-    aws_security_group.logs_endpoint.id,
-    aws_security_group.monitoring_endpoint.id,
-    aws_security_group.secretsmanager_endpoint.id,
-    aws_security_group.sts_endpoint.id,
-    aws_security_group.events_endpoint.id,
-    aws_security_group.sns_endpoint.id
-  ]
-  gitlab_lb_interface_cidr_blocks = formatlist("%s/32", data.aws_network_interface.lb.*.private_ip)
-}
-
 # A pool that can build images and push them to ECR
 module "build_pool" {
   source = "../../modules/gitlab_runner_pool/"
@@ -42,7 +25,7 @@ module "build_pool" {
   root_domain                      = var.root_domain
   route53_id                       = var.route53_id
   route53_internal_zone_id         = aws_route53_zone.internal.zone_id
-  runner_subnet_ids                = [aws_subnet.privatesubnet1.id, aws_subnet.privatesubnet2.id]
+  runner_subnet_ids                = [for zone in local.network_zones : aws_subnet.apps[zone].id]
   s3_prefix_list_id                = aws_vpc_endpoint.private-s3.prefix_list_id
   slack_events_sns_hook_arn        = var.slack_events_sns_hook_arn
   endpoint_security_groups         = local.default_endpoint_security_group_ids
@@ -76,7 +59,7 @@ module "test_pool" {
   root_domain                      = var.root_domain
   route53_id                       = var.route53_id
   route53_internal_zone_id         = aws_route53_zone.internal.zone_id
-  runner_subnet_ids                = [aws_subnet.privatesubnet1.id, aws_subnet.privatesubnet2.id]
+  runner_subnet_ids                = [for zone in local.network_zones : aws_subnet.public-ingress[zone].id]
   s3_prefix_list_id                = aws_vpc_endpoint.private-s3.prefix_list_id
   slack_events_sns_hook_arn        = var.slack_events_sns_hook_arn
   endpoint_security_groups         = local.default_endpoint_security_group_ids
@@ -110,7 +93,7 @@ module "env-runner" {
   root_domain                      = var.root_domain
   route53_id                       = var.route53_id
   route53_internal_zone_id         = aws_route53_zone.internal.zone_id
-  runner_subnet_ids                = [aws_subnet.privatesubnet1.id, aws_subnet.privatesubnet2.id]
+  runner_subnet_ids                = [for zone in local.network_zones : aws_subnet.public-ingress[zone].id]
   s3_prefix_list_id                = aws_vpc_endpoint.private-s3.prefix_list_id
   slack_events_sns_hook_arn        = var.slack_events_sns_hook_arn
   endpoint_security_groups         = local.default_endpoint_security_group_ids
@@ -130,7 +113,7 @@ module "gitlab" {
   source     = "../../modules/gitlab"
 
   gitlab_servicename       = var.gitlab_servicename
-  gitlab_subnet_cidr_block = var.gitlab_subnet_cidr_block
+  gitlab_subnet_cidr_block = aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block
   vpc_id                   = aws_vpc.default.id
   env_name                 = var.env_name
   allowed_security_groups  = [aws_security_group.base.id]

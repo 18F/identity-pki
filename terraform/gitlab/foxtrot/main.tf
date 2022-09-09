@@ -15,6 +15,7 @@ module "main" {
 
   bootstrap_main_git_ref_default = "abarbara/foxtrotgitlab"
   env_name                       = "foxtrot"
+  env_type                       = "tooling-sandbox"
   region                         = "us-west-2"
   slack_events_sns_hook_arn      = "arn:aws:sns:us-west-2:034795980528:slack-otherevents"
   dr_region                      = "us-east-2"

@@ -8,18 +8,42 @@ data "aws_vpc_endpoint_service" "email-smtp" {
 }
 
 data "aws_network_interface" "lb" {
-  count = length(local.private_subnet_ids)
+  for_each = aws_lb.gitlab.subnets
 
   filter {
     name   = "description"
     values = ["ELB ${aws_lb.gitlab.arn_suffix}"]
   }
+
   filter {
     name   = "subnet-id"
-    values = ["${element(local.private_subnet_ids, count.index)}"]
+    values = [each.value]
   }
 
   depends_on = [
     aws_lb.gitlab
   ]
+}
+
+data "aws_availability_zones" "available" {}
+
+data "aws_vpc_endpoint_service" "smtp" {
+  service = "email-smtp"
+}
+
+data "aws_subnets" "smtp_subnets" {
+  filter {
+    name   = "vpc-id"
+    values = [aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id]
+  }
+
+  filter {
+    name   = "subnet-id"
+    values = [for zone in local.network_zones : aws_subnet.endpoints[zone].id]
+  }
+
+  filter {
+    name   = "availability-zone"
+    values = data.aws_vpc_endpoint_service.smtp.availability_zones
+  }
 }

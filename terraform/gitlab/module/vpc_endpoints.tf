@@ -7,11 +7,7 @@ resource "aws_vpc_endpoint" "kms" {
     aws_security_group.kms_endpoint.id,
   ]
 
-  subnet_ids = [
-    aws_subnet.privatesubnet1.id,
-    aws_subnet.privatesubnet2.id,
-    aws_subnet.privatesubnet3.id,
-  ]
+  subnet_ids = [for zone in local.network_zones : aws_subnet.endpoints[zone].id]
 
   private_dns_enabled = true
 
@@ -29,11 +25,7 @@ resource "aws_vpc_endpoint" "logs" {
     aws_security_group.logs_endpoint.id,
   ]
 
-  subnet_ids = [
-    aws_subnet.privatesubnet1.id,
-    aws_subnet.privatesubnet2.id,
-    aws_subnet.privatesubnet3.id,
-  ]
+  subnet_ids = [for zone in local.network_zones : aws_subnet.endpoints[zone].id]
 
   private_dns_enabled = true
 
@@ -51,11 +43,7 @@ resource "aws_vpc_endpoint" "monitoring" {
     aws_security_group.monitoring_endpoint.id,
   ]
 
-  subnet_ids = [
-    aws_subnet.privatesubnet1.id,
-    aws_subnet.privatesubnet2.id,
-    aws_subnet.privatesubnet3.id,
-  ]
+  subnet_ids = [for zone in local.network_zones : aws_subnet.endpoints[zone].id]
 
   private_dns_enabled = true
 
@@ -73,11 +61,7 @@ resource "aws_vpc_endpoint" "ssm" {
     aws_security_group.ssm_endpoint.id,
   ]
 
-  subnet_ids = [
-    aws_subnet.privatesubnet1.id,
-    aws_subnet.privatesubnet2.id,
-    aws_subnet.privatesubnet3.id,
-  ]
+  subnet_ids = [for zone in local.network_zones : aws_subnet.endpoints[zone].id]
 
   private_dns_enabled = true
 
@@ -95,11 +79,7 @@ resource "aws_vpc_endpoint" "ssmmessages" {
     aws_security_group.ssmmessages_endpoint.id,
   ]
 
-  subnet_ids = [
-    aws_subnet.privatesubnet1.id,
-    aws_subnet.privatesubnet2.id,
-    aws_subnet.privatesubnet3.id,
-  ]
+  subnet_ids = [for zone in local.network_zones : aws_subnet.endpoints[zone].id]
 
   private_dns_enabled = true
 
@@ -117,11 +97,7 @@ resource "aws_vpc_endpoint" "ec2" {
     aws_security_group.ec2_endpoint.id,
   ]
 
-  subnet_ids = [
-    aws_subnet.privatesubnet1.id,
-    aws_subnet.privatesubnet2.id,
-    aws_subnet.privatesubnet3.id,
-  ]
+  subnet_ids = [for zone in local.network_zones : aws_subnet.endpoints[zone].id]
 
   private_dns_enabled = true
 
@@ -139,11 +115,7 @@ resource "aws_vpc_endpoint" "ec2messages" {
     aws_security_group.ec2messages_endpoint.id,
   ]
 
-  subnet_ids = [
-    aws_subnet.privatesubnet1.id,
-    aws_subnet.privatesubnet2.id,
-    aws_subnet.privatesubnet3.id,
-  ]
+  subnet_ids = [for zone in local.network_zones : aws_subnet.endpoints[zone].id]
 
   private_dns_enabled = true
 
@@ -161,11 +133,7 @@ resource "aws_vpc_endpoint" "secretsmanager" {
     aws_security_group.secretsmanager_endpoint.id,
   ]
 
-  subnet_ids = [
-    aws_subnet.privatesubnet1.id,
-    aws_subnet.privatesubnet2.id,
-    aws_subnet.privatesubnet3.id,
-  ]
+  subnet_ids = [for zone in local.network_zones : aws_subnet.endpoints[zone].id]
 
   private_dns_enabled = true
 
@@ -183,11 +151,7 @@ resource "aws_vpc_endpoint" "sns" {
     aws_security_group.sns_endpoint.id,
   ]
 
-  subnet_ids = [
-    aws_subnet.privatesubnet1.id,
-    aws_subnet.privatesubnet2.id,
-    aws_subnet.privatesubnet3.id,
-  ]
+  subnet_ids = [for zone in local.network_zones : aws_subnet.endpoints[zone].id]
 
   private_dns_enabled = true
 
@@ -205,11 +169,7 @@ resource "aws_vpc_endpoint" "sts" {
     aws_security_group.sts_endpoint.id,
   ]
 
-  subnet_ids = [
-    aws_subnet.privatesubnet1.id,
-    aws_subnet.privatesubnet2.id,
-    aws_subnet.privatesubnet3.id,
-  ]
+  subnet_ids = [for zone in local.network_zones : aws_subnet.endpoints[zone].id]
 
   private_dns_enabled = true
 
@@ -219,15 +179,16 @@ resource "aws_vpc_endpoint" "sts" {
 }
 
 resource "aws_vpc_endpoint" "email-smtp" {
-  vpc_id             = aws_vpc.default.id
-  service_name       = data.aws_vpc_endpoint_service.email-smtp.service_name
-  vpc_endpoint_type  = "Interface"
-  security_group_ids = [aws_security_group.smtp_endpoint.id]
-  subnet_ids = [
-    aws_subnet.privatesubnet1.id,
-    aws_subnet.privatesubnet2.id,
-    aws_subnet.privatesubnet3.id,
+  vpc_id            = aws_vpc.default.id
+  service_name      = data.aws_vpc_endpoint_service.email-smtp.service_name
+  vpc_endpoint_type = "Interface"
+
+  security_group_ids = [
+    aws_security_group.smtp_endpoint.id
   ]
+
+  # https://github.com/terraform-aws-modules/terraform-aws-vpc/issues/462
+  subnet_ids = data.aws_subnets.smtp_subnets.ids
 
   private_dns_enabled = true
 
@@ -237,9 +198,13 @@ resource "aws_vpc_endpoint" "email-smtp" {
 }
 
 resource "aws_vpc_endpoint" "private-s3" {
-  vpc_id          = aws_vpc.default.id
-  service_name    = "com.amazonaws.${var.region}.s3"
-  route_table_ids = [aws_vpc.default.main_route_table_id]
+  vpc_id       = aws_vpc.default.id
+  service_name = "com.amazonaws.${var.region}.s3"
+  route_table_ids = flatten([
+    aws_route.default.route_table_id, [
+      for route in aws_route_table.private_subnet_route_table : route.id
+    ]
+  ])
 }
 
 resource "aws_vpc_endpoint" "events" {
@@ -251,11 +216,7 @@ resource "aws_vpc_endpoint" "events" {
     aws_security_group.events_endpoint.id,
   ]
 
-  subnet_ids = [
-    aws_subnet.privatesubnet1.id,
-    aws_subnet.privatesubnet2.id,
-    aws_subnet.privatesubnet3.id,
-  ]
+  subnet_ids = [for zone in local.network_zones : aws_subnet.endpoints[zone].id]
 
   private_dns_enabled = true
 

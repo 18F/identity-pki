@@ -1,10 +1,6 @@
 resource "aws_lb" "gitlab" {
-  name = "${var.env_name}-gitlab"
-  subnets = [
-    aws_subnet.publicsubnet1.id,
-    aws_subnet.publicsubnet2.id,
-    aws_subnet.publicsubnet3.id
-  ]
+  name    = "${var.env_name}-gitlab"
+  subnets = [for zone in local.network_zones : aws_subnet.public-ingress[zone].id]
 
   load_balancer_type = "network"
 
@@ -33,11 +29,7 @@ resource "aws_lb" "gitlab-waf" {
     aws_security_group.base.id,
   ]
   internal = true
-  subnets = [
-    aws_subnet.privatesubnet1.id,
-    aws_subnet.privatesubnet2.id,
-    aws_subnet.privatesubnet3.id
-  ]
+  subnets  = [for zone in local.network_zones : aws_subnet.apps[zone].id]
 
   load_balancer_type = "application"
 

@@ -22,8 +22,8 @@ environments:
   - peering # Peering/internetworking
   - security # Central security control
   - telemetry # Monitoring and data collection
-  - ~ # (planned) Telemetry growth
   - tooling-prod # Central tooling/command
+  - tooling-staging # Staging tooling (replica of prod)
   - tooling-sandbox # Other (overlapping) tooling
   - app-prod # Production applications
   - app-staging # Staging applications

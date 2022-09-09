@@ -14,6 +14,7 @@ module "main" {
 
   bootstrap_main_git_ref_default = "stages/gitlabdelta"
   env_name                       = "delta"
+  env_type                       = "tooling-sandbox"
   gitlab_az                      = "us-east-2a"
   region                         = "us-east-2"
   dr_region                      = "us-west-2"

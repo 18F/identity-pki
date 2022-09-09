@@ -5,17 +5,29 @@ data "aws_ip_ranges" "route53" {
 
 locals {
   net_ssm_parameter_prefix = "/${var.env_name}/network/"
+  network_layout           = module.network_layout.network_layout
+}
+
+module "network_layout" {
+  source = "../../modules/network_layout"
 }
 
 resource "aws_vpc" "default" {
   cidr_block = var.vpc_cidr_block
 
-  enable_dns_support   = true
-  enable_dns_hostnames = true
+  # main_route_table_id = "${aws_route_table.default.id}"
+  enable_dns_support               = true
+  enable_dns_hostnames             = true
+  assign_generated_ipv6_cidr_block = true
 
   tags = {
     Name = "${var.name}-vpc-${var.env_name}"
   }
+}
+
+resource "aws_vpc_ipv4_cidr_block_association" "secondary_cidr" {
+  vpc_id     = aws_vpc.default.id
+  cidr_block = local.network_layout[var.region][var.env_type]._network
 }
 
 resource "aws_ssm_parameter" "net_vpcid" {
@@ -37,365 +49,111 @@ resource "aws_route" "default" {
   gateway_id             = aws_internet_gateway.default.id
 }
 
-resource "aws_subnet" "gitlab1" {
-  availability_zone       = "${var.region}a"
-  cidr_block              = var.gitlab1_subnet_cidr_block
-  map_public_ip_on_launch = false
-
+resource "aws_route_table" "private_subnet_route_table" {
+  for_each = local.network_zones
+  vpc_id   = aws_vpc.default.id
   tags = {
-    Name = "${var.name}-gitlab1_subnet-${var.env_name}"
+    Name = "${var.name}-private_route_table_${each.key}-${var.env_name}"
   }
-
-  vpc_id = aws_vpc.default.id
 }
 
-resource "aws_route_table_association" "gitlab1" {
-  subnet_id      = aws_subnet.gitlab1.id
-  route_table_id = aws_route_table.private_a.id
+## Start - Create EIP for NAT Gateway
+resource "aws_eip" "public_ingress_nat_gw_eip" {
+  for_each = local.network_zones
 }
 
-resource "aws_subnet" "gitlab2" {
-  availability_zone       = "${var.region}b"
-  cidr_block              = var.gitlab2_subnet_cidr_block
-  map_public_ip_on_launch = false
+## End - Create EIP for NAT Gateway
 
+## Start - Create NAT Gateways in login-ingress-public subnets
+resource "aws_nat_gateway" "nat" {
+  for_each      = local.network_zones
+  allocation_id = aws_eip.public_ingress_nat_gw_eip[each.key].id
+  subnet_id     = aws_subnet.public-ingress[each.key].id
   tags = {
-    Name = "${var.name}-gitlab2_subnet-${var.env_name}"
+    Name = "${var.name}-nat_gateway_${each.key}-${var.env_name}"
   }
-
-  vpc_id = aws_vpc.default.id
 }
 
-resource "aws_route_table_association" "gitlab2" {
-  subnet_id      = aws_subnet.gitlab2.id
-  route_table_id = aws_route_table.private_b.id
-}
+## End - Create NAT Gateways in login-public subnets
 
-resource "aws_subnet" "alb1" {
-  availability_zone       = "${var.region}a"
-  cidr_block              = var.alb1_subnet_cidr_block
-  depends_on              = [aws_internet_gateway.default]
-  map_public_ip_on_launch = true
+## Start - Create and Associate routing tables of App Subnets
 
-  tags = {
-    Name = "${var.name}-alb1_subnet-${var.env_name}"
-  }
-
-  vpc_id = aws_vpc.default.id
-}
-
-resource "aws_route_table_association" "alb1" {
-  subnet_id      = aws_subnet.alb1.id
-  route_table_id = aws_vpc.default.main_route_table_id
-}
-
-resource "aws_subnet" "alb2" {
-  availability_zone       = "${var.region}b"
-  cidr_block              = var.alb2_subnet_cidr_block
-  depends_on              = [aws_internet_gateway.default]
-  map_public_ip_on_launch = true
-
-  tags = {
-    name = "${var.name}-alb2_subnet-${var.env_name}"
-  }
-
-  vpc_id = aws_vpc.default.id
-}
-
-resource "aws_route_table_association" "alb2" {
-  subnet_id      = aws_subnet.alb2.id
-  route_table_id = aws_vpc.default.main_route_table_id
-}
-
-resource "aws_subnet" "alb3" {
-  availability_zone       = "${var.region}c"
-  cidr_block              = var.alb3_subnet_cidr_block
-  depends_on              = [aws_internet_gateway.default]
-  map_public_ip_on_launch = true
-
-  tags = {
-    name = "${var.name}-alb3_subnet-${var.env_name}"
-  }
-
-  vpc_id = aws_vpc.default.id
-}
-
-resource "aws_route_table_association" "alb3" {
-  subnet_id      = aws_subnet.alb3.id
-  route_table_id = aws_vpc.default.main_route_table_id
-}
-
-# create NAT subnets and gateways
-resource "aws_subnet" "nat_a" {
-  availability_zone       = "${var.region}a"
-  cidr_block              = var.nat_a_subnet_cidr_block
-  map_public_ip_on_launch = false
-
-  tags = {
-    Name = "${var.name}-nat_a_subnet-${var.env_name}"
-    type = "public"
-  }
-
-  vpc_id = aws_vpc.default.id
-}
-
-resource "aws_eip" "nat_a" {
-  vpc = true
-}
-
-resource "aws_nat_gateway" "nat_a" {
-  allocation_id = aws_eip.nat_a.id
-  subnet_id     = aws_subnet.nat_a.id
-
-  tags = {
-    Name = "${var.env_name}-nat_a"
-  }
-
-  # To ensure proper ordering, it is recommended to add an explicit dependency
-  # on the Internet Gateway for the VPC.
-  depends_on = [aws_internet_gateway.default]
-}
-
-resource "aws_route_table_association" "nat_a" {
-  subnet_id      = aws_subnet.nat_a.id
-  route_table_id = aws_vpc.default.main_route_table_id
-}
-
-resource "aws_subnet" "nat_b" {
-  availability_zone       = "${var.region}b"
-  cidr_block              = var.nat_b_subnet_cidr_block
-  map_public_ip_on_launch = false
-
-  tags = {
-    Name = "${var.name}-nat_b_subnet-${var.env_name}"
-    type = "public"
-  }
-
-  vpc_id = aws_vpc.default.id
-}
-
-resource "aws_eip" "nat_b" {
-  vpc = true
-}
-
-resource "aws_nat_gateway" "nat_b" {
-  allocation_id = aws_eip.nat_b.id
-  subnet_id     = aws_subnet.nat_b.id
-
-  tags = {
-    Name = "${var.env_name}-nat_b"
-  }
-
-  # To ensure proper ordering, it is recommended to add an explicit dependency
-  # on the Internet Gateway for the VPC.
-  depends_on = [aws_internet_gateway.default]
-}
-
-resource "aws_route_table_association" "nat_b" {
-  subnet_id      = aws_subnet.nat_b.id
-  route_table_id = aws_vpc.default.main_route_table_id
-}
-
-resource "aws_subnet" "nat_c" {
-  availability_zone       = "${var.region}c"
-  cidr_block              = var.nat_c_subnet_cidr_block
-  map_public_ip_on_launch = false
-
-  tags = {
-    Name = "${var.name}-nat_c_subnet-${var.env_name}"
-    type = "public"
-  }
-
-  vpc_id = aws_vpc.default.id
-}
-
-resource "aws_eip" "nat_c" {
-  vpc = true
-}
-
-resource "aws_nat_gateway" "nat_c" {
-  allocation_id = aws_eip.nat_c.id
-  subnet_id     = aws_subnet.nat_c.id
-
-  tags = {
-    Name = "${var.env_name}-nat_c"
-  }
-
-  # To ensure proper ordering, it is recommended to add an explicit dependency
-  # on the Internet Gateway for the VPC.
-  depends_on = [aws_internet_gateway.default]
-}
-
-resource "aws_route_table_association" "nat_c" {
-  subnet_id      = aws_subnet.nat_c.id
-  route_table_id = aws_vpc.default.main_route_table_id
-}
-
-# create public and private subnets
-resource "aws_subnet" "publicsubnet1" {
-  availability_zone       = "${var.region}a"
-  cidr_block              = var.public1_subnet_cidr_block
-  map_public_ip_on_launch = true
-
-  tags = {
-    Name = "${var.name}-public1_subnet-${var.env_name}"
-    type = "public"
-  }
-
-  vpc_id = aws_vpc.default.id
-}
-
-resource "aws_route_table_association" "publicsubnet1" {
-  subnet_id      = aws_subnet.publicsubnet1.id
-  route_table_id = aws_vpc.default.main_route_table_id
-}
-
-resource "aws_subnet" "publicsubnet2" {
-  availability_zone       = "${var.region}b"
-  cidr_block              = var.public2_subnet_cidr_block
-  map_public_ip_on_launch = true
-
-  tags = {
-    Name = "${var.name}-public2_subnet-${var.env_name}"
-    type = "public"
-  }
-
-  vpc_id = aws_vpc.default.id
-}
-
-resource "aws_route_table_association" "publicsubnet2" {
-  subnet_id      = aws_subnet.publicsubnet2.id
-  route_table_id = aws_vpc.default.main_route_table_id
-}
-
-resource "aws_subnet" "publicsubnet3" {
-  availability_zone       = "${var.region}c"
-  cidr_block              = var.public3_subnet_cidr_block
-  map_public_ip_on_launch = true
-
-  tags = {
-    Name = "${var.name}-public3_subnet-${var.env_name}"
-    type = "public"
-  }
-
-  vpc_id = aws_vpc.default.id
-}
-
-resource "aws_route_table_association" "publicsubnet3" {
-  subnet_id      = aws_subnet.publicsubnet3.id
-  route_table_id = aws_vpc.default.main_route_table_id
-}
-
-resource "aws_subnet" "privatesubnet1" {
-  availability_zone       = "${var.region}a"
-  cidr_block              = var.private1_subnet_cidr_block
-  map_public_ip_on_launch = false
-
-  tags = {
-    Name = "${var.name}-private1_subnet-${var.env_name}"
-    type = "private"
-  }
-
-  vpc_id = aws_vpc.default.id
-}
-
-resource "aws_ssm_parameter" "net_subnet_private1" {
-  name  = "${local.net_ssm_parameter_prefix}subnet/private1/id"
-  type  = "String"
-  value = aws_subnet.privatesubnet1.id
-}
-
-resource "aws_route_table_association" "privatesubnet1" {
-  subnet_id      = aws_subnet.privatesubnet1.id
-  route_table_id = aws_route_table.private_a.id
-}
-
-resource "aws_subnet" "privatesubnet2" {
-  availability_zone       = "${var.region}b"
-  cidr_block              = var.private2_subnet_cidr_block
-  map_public_ip_on_launch = false
-
-  tags = {
-    Name = "${var.name}-private2_subnet-${var.env_name}"
-    type = "private"
-  }
-
-  vpc_id = aws_vpc.default.id
-}
-
-resource "aws_ssm_parameter" "net_subnet_private2" {
-  name  = "${local.net_ssm_parameter_prefix}subnet/private2/id"
-  type  = "String"
-  value = aws_subnet.privatesubnet2.id
-}
-
-resource "aws_route_table_association" "privatesubnet2" {
-  subnet_id      = aws_subnet.privatesubnet2.id
-  route_table_id = aws_route_table.private_b.id
-}
-
-resource "aws_subnet" "privatesubnet3" {
-  availability_zone       = "${var.region}c"
-  cidr_block              = var.private3_subnet_cidr_block
-  map_public_ip_on_launch = false
-
-  tags = {
-    Name = "${var.name}-private3_subnet-${var.env_name}"
-    type = "private"
-  }
-
-  vpc_id = aws_vpc.default.id
-}
-
-resource "aws_route_table_association" "privatesubnet3" {
-  subnet_id      = aws_subnet.privatesubnet3.id
-  route_table_id = aws_route_table.private_c.id
-}
-
-resource "aws_ssm_parameter" "net_subnet_private3" {
-  name  = "${local.net_ssm_parameter_prefix}subnet/private3/id"
-  type  = "String"
-  value = aws_subnet.privatesubnet3.id
-}
-
-resource "aws_elasticache_subnet_group" "gitlab" {
-  name        = "${var.name}-gitlab-cache-${var.env_name}"
-  description = "Redis Subnet Group"
-  subnet_ids  = [aws_subnet.db1.id, aws_subnet.db2.id]
-}
-
-resource "aws_route_table" "private_a" {
-  vpc_id = aws_vpc.default.id
+resource "aws_route_table" "app_subnet_route_table" {
+  for_each = local.network_zones
+  vpc_id   = aws_vpc.default.id
   route {
     cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.nat_a.id
+    nat_gateway_id = aws_nat_gateway.nat[each.key].id
   }
-
   tags = {
-    Name = "${var.env_name} private_a"
+    Name = "${var.name}-app_subnet_route_table_${each.key}-${var.env_name}"
   }
 }
 
-resource "aws_route_table" "private_b" {
-  vpc_id = aws_vpc.default.id
-  route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.nat_b.id
-  }
-
-  tags = {
-    Name = "${var.env_name} private_b"
-  }
+resource "aws_route_table_association" "firewall_subnet_route_table_association" {
+  for_each       = local.network_zones
+  route_table_id = aws_route_table.app_subnet_route_table[each.key].id
+  subnet_id      = aws_subnet.apps[each.key].id
 }
 
-resource "aws_route_table" "private_c" {
-  vpc_id = aws_vpc.default.id
-  route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.nat_c.id
-  }
+## End - Create and Associate routing tables of App Subnets
+
+resource "aws_subnet" "apps" {
+  for_each                = local.network_zones
+  availability_zone       = "${var.region}${each.key}"
+  cidr_block              = local.network_layout[var.region][var.env_type]["_zones"][each.key]["apps"]["ipv4-cidr"]
+  depends_on              = [aws_internet_gateway.default]
+  map_public_ip_on_launch = false
+
+  ## Example Enablement of IPv6 for app subnets.
+  # ipv6_cidr_block = cidrsubnet(aws_vpc.default.ipv6_cidr_block, 8, local.network_layout[var.region][var.env_type]["_zones"][each.key]["apps"]["ipv6-netnum"])
 
   tags = {
-    Name = "${var.env_name} private_c"
+    Name = "${var.name}-app_subnet_${each.key}-${var.env_name}"
   }
+
+  vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
+}
+
+resource "aws_subnet" "data-services" {
+  for_each                = local.network_zones
+  availability_zone       = "${var.region}${each.key}"
+  cidr_block              = local.network_layout[var.region][var.env_type]["_zones"][each.key]["data-services"]["ipv4-cidr"]
+  map_public_ip_on_launch = false
+
+  tags = {
+    Name = "${var.name}-data_services_subnet_${each.key}-${var.env_name}"
+  }
+
+  vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
+}
+
+resource "aws_subnet" "public-ingress" {
+  for_each                = local.network_zones
+  availability_zone       = "${var.region}${each.key}"
+  cidr_block              = local.network_layout[var.region][var.env_type]["_zones"][each.key]["public-ingress"]["ipv4-cidr"]
+  map_public_ip_on_launch = true
+
+  ipv6_cidr_block = cidrsubnet(aws_vpc.default.ipv6_cidr_block, 8, local.network_layout[var.region][var.env_type]["_zones"][each.key]["public-ingress"]["ipv6-netnum"])
+
+  tags = {
+    Name = "${var.name}-public_ingress_subnet_${each.key}-${var.env_name}"
+  }
+
+  vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
+}
+
+resource "aws_subnet" "endpoints" {
+  for_each                = local.network_zones
+  availability_zone       = "${var.region}${each.key}"
+  cidr_block              = local.network_layout[var.region][var.env_type]["_zones"][each.key]["endpoints"]["ipv4-cidr"]
+  map_public_ip_on_launch = false
+
+  ipv6_cidr_block = cidrsubnet(aws_vpc.default.ipv6_cidr_block, 8, local.network_layout[var.region][var.env_type]["_zones"][each.key]["apps"]["ipv6-netnum"])
+
+  tags = {
+    Name = "${var.name}-public_endpoints_subnet_${each.key}-${var.env_name}"
+  }
+
+  vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
 }

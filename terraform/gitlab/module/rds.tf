@@ -79,30 +79,6 @@ resource "aws_db_subnet_group" "gitlab" {
   }
 }
 
-resource "aws_subnet" "db1" {
-  availability_zone       = "${var.region}a"
-  cidr_block              = var.db1_subnet_cidr_block
-  map_public_ip_on_launch = false
-
-  tags = {
-    Name = "${var.name}-db1_subnet-${var.env_name} gitlab"
-  }
-
-  vpc_id = aws_vpc.default.id
-}
-
-resource "aws_subnet" "db2" {
-  availability_zone       = "${var.region}b"
-  cidr_block              = var.db2_subnet_cidr_block
-  map_public_ip_on_launch = false
-
-  tags = {
-    Name = "${var.name}-db2_subnet-${var.env_name} gitlab"
-  }
-
-  vpc_id = aws_vpc.default.id
-}
-
 resource "aws_s3_object" "gitlab_db_host" {
   bucket  = data.aws_s3_bucket.secrets.id
   key     = "${var.env_name}/gitlab_db_host"

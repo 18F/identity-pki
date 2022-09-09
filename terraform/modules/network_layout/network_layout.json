@@ -281,6 +281,99 @@
       }
     },
     "tooling-prod": {
+      "_network": "100.83.0.0/16",
+      "_zones": {
+        "a": {
+          "public-ingress": {
+            "ipv4-cidr": "100.83.65.0/24",
+            "ipv6-netnum": 1,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx01::/64"
+          },
+          "endpoints": {
+            "ipv4-cidr": "100.83.68.0/24",
+            "ipv6-netnum": 4,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx04::/64"
+          },
+          "data-services": {
+            "ipv4-cidr": "100.83.69.0/24",
+            "ipv6-netnum": 5,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx05::/64"
+          },
+          "apps": {
+            "ipv4-cidr": "100.83.72.0/22",
+            "ipv6-netnum": 8,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx08::/64"
+          }
+        },
+        "b": {
+          "public-ingress": {
+            "ipv4-cidr": "100.83.81.0/24",
+            "ipv6-netnum": 33,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx21::/64"
+          },
+          "endpoints": {
+            "ipv4-cidr": "100.83.84.0/24",
+            "ipv6-netnum": 36,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx24::/64"
+          },
+          "data-services": {
+            "ipv4-cidr": "100.83.85.0/24",
+            "ipv6-netnum": 37,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx25::/64"
+          },
+          "apps": {
+            "ipv4-cidr": "100.83.88.0/22",
+            "ipv6-netnum": 40,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx28::/64"
+          }
+        },
+        "c": {
+          "public-ingress": {
+            "ipv4-cidr": "100.83.97.0/24",
+            "ipv6-netnum": 65,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx41::/64"
+          },
+          "endpoints": {
+            "ipv4-cidr": "100.83.100.0/24",
+            "ipv6-netnum": 68,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx44::/64"
+          },
+          "data-services": {
+            "ipv4-cidr": "100.83.101.0/24",
+            "ipv6-netnum": 69,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx45::/64"
+          },
+          "apps": {
+            "ipv4-cidr": "100.83.104.0/22",
+            "ipv6-netnum": 72,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx48::/64"
+          }
+        },
+        "d": {
+          "public-ingress": {
+            "ipv4-cidr": "100.83.113.0/24",
+            "ipv6-netnum": 97,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx61::/64"
+          },
+          "endpoints": {
+            "ipv4-cidr": "100.83.116.0/24",
+            "ipv6-netnum": 100,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx64::/64"
+          },
+          "data-services": {
+            "ipv4-cidr": "100.83.117.0/24",
+            "ipv6-netnum": 101,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx65::/64"
+          },
+          "apps": {
+            "ipv4-cidr": "100.83.120.0/22",
+            "ipv6-netnum": 104,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx68::/64"
+          }
+        }
+      }
+    },
+    "tooling-staging": {
       "_network": "100.84.0.0/16",
       "_zones": {
         "a": {
@@ -1214,6 +1307,99 @@
       }
     },
     "tooling-prod": {
+      "_network": "100.99.0.0/16",
+      "_zones": {
+        "a": {
+          "public-ingress": {
+            "ipv4-cidr": "100.99.65.0/24",
+            "ipv6-netnum": 1,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx01::/64"
+          },
+          "endpoints": {
+            "ipv4-cidr": "100.99.68.0/24",
+            "ipv6-netnum": 4,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx04::/64"
+          },
+          "data-services": {
+            "ipv4-cidr": "100.99.69.0/24",
+            "ipv6-netnum": 5,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx05::/64"
+          },
+          "apps": {
+            "ipv4-cidr": "100.99.72.0/22",
+            "ipv6-netnum": 8,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx08::/64"
+          }
+        },
+        "b": {
+          "public-ingress": {
+            "ipv4-cidr": "100.99.81.0/24",
+            "ipv6-netnum": 33,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx21::/64"
+          },
+          "endpoints": {
+            "ipv4-cidr": "100.99.84.0/24",
+            "ipv6-netnum": 36,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx24::/64"
+          },
+          "data-services": {
+            "ipv4-cidr": "100.99.85.0/24",
+            "ipv6-netnum": 37,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx25::/64"
+          },
+          "apps": {
+            "ipv4-cidr": "100.99.88.0/22",
+            "ipv6-netnum": 40,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx28::/64"
+          }
+        },
+        "c": {
+          "public-ingress": {
+            "ipv4-cidr": "100.99.97.0/24",
+            "ipv6-netnum": 65,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx41::/64"
+          },
+          "endpoints": {
+            "ipv4-cidr": "100.99.100.0/24",
+            "ipv6-netnum": 68,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx44::/64"
+          },
+          "data-services": {
+            "ipv4-cidr": "100.99.101.0/24",
+            "ipv6-netnum": 69,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx45::/64"
+          },
+          "apps": {
+            "ipv4-cidr": "100.99.104.0/22",
+            "ipv6-netnum": 72,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx48::/64"
+          }
+        },
+        "d": {
+          "public-ingress": {
+            "ipv4-cidr": "100.99.113.0/24",
+            "ipv6-netnum": 97,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx61::/64"
+          },
+          "endpoints": {
+            "ipv4-cidr": "100.99.116.0/24",
+            "ipv6-netnum": 100,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx64::/64"
+          },
+          "data-services": {
+            "ipv4-cidr": "100.99.117.0/24",
+            "ipv6-netnum": 101,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx65::/64"
+          },
+          "apps": {
+            "ipv4-cidr": "100.99.120.0/22",
+            "ipv6-netnum": 104,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx68::/64"
+          }
+        }
+      }
+    },
+    "tooling-staging": {
       "_network": "100.100.0.0/16",
       "_zones": {
         "a": {

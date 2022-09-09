@@ -21,11 +21,16 @@ resource "aws_elasticache_replication_group" "gitlab" {
   }
 }
 
-
 resource "aws_s3_object" "gitlab_redis_endpoint" {
   bucket  = data.aws_s3_bucket.secrets.id
   key     = "${var.env_name}/gitlab_redis_endpoint"
   content = aws_elasticache_replication_group.gitlab.primary_endpoint_address
 
   source_hash = md5(aws_elasticache_replication_group.gitlab.primary_endpoint_address)
+}
+
+resource "aws_elasticache_subnet_group" "gitlab" {
+  name        = "${var.name}-gitlab-cache-${var.env_name}"
+  description = "Redis Subnet Group"
+  subnet_ids  = [aws_subnet.db1.id, aws_subnet.db2.id]
 }

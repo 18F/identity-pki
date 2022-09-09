@@ -14,14 +14,14 @@ resource "aws_security_group" "base" {
     protocol    = "icmp"
     from_port   = -1
     to_port     = -1
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   egress {
     protocol    = "icmp"
     from_port   = -1
     to_port     = -1
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   # allow access to the VPC private S3 endpoint
@@ -74,7 +74,7 @@ resource "aws_security_group" "base" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = formatlist("%s/32", data.aws_network_interface.lb.*.private_ip)
+    cidr_blocks = local.gitlab_lb_interface_cidr_blocks
     description = "Allow connection to NLB"
   }
 
@@ -82,7 +82,7 @@ resource "aws_security_group" "base" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = formatlist("%s/32", data.aws_network_interface.lb.*.private_ip)
+    cidr_blocks = local.gitlab_lb_interface_cidr_blocks
     description = "Allow connection to NLB"
   }
 
@@ -101,7 +101,7 @@ resource "aws_security_group" "gitlab" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   # can talk to the proxy
@@ -116,14 +116,14 @@ resource "aws_security_group" "gitlab" {
     from_port   = 5432
     to_port     = 5432
     protocol    = "tcp"
-    cidr_blocks = [aws_subnet.db1.cidr_block, aws_subnet.db2.cidr_block]
+    cidr_blocks = [for zone in local.network_zones : local.network_layout[var.region][var.env_type]["_zones"][zone]["data-services"]["ipv4-cidr"]]
   }
 
   egress {
     from_port   = 6379
     to_port     = 6379
     protocol    = "tcp"
-    cidr_blocks = [aws_subnet.db1.cidr_block, aws_subnet.db2.cidr_block]
+    cidr_blocks = [for zone in local.network_zones : local.network_layout[var.region][var.env_type]["_zones"][zone]["data-services"]["ipv4-cidr"]]
   }
 
   # need 8834 to comm with Nessus Server
@@ -141,7 +141,7 @@ resource "aws_security_group" "gitlab" {
     protocol  = "tcp"
     cidr_blocks = sort(
       concat(
-        [aws_vpc.default.cidr_block],
+        [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block],
         local.github_ipv4_cidr_blocks,
         var.allowed_gitlab_cidr_blocks_v4
       )
@@ -154,7 +154,7 @@ resource "aws_security_group" "gitlab" {
     protocol  = "tcp"
     cidr_blocks = sort(
       concat(
-        [aws_vpc.default.cidr_block],
+        [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block],
         data.github_ip_ranges.meta.hooks_ipv4,
         var.allowed_gitlab_cidr_blocks_v4
       )
@@ -174,14 +174,10 @@ resource "aws_security_group" "gitlab" {
   # these are the EIPs for the NAT which is being used by the obproxies
   # This is needed so that the outbound proxies can access the external lb.
   ingress {
-    from_port = 443
-    to_port   = 443
-    protocol  = "tcp"
-    cidr_blocks = [
-      "${aws_eip.nat_a.public_ip}/32",
-      "${aws_eip.nat_b.public_ip}/32",
-      "${aws_eip.nat_c.public_ip}/32"
-    ]
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [for zone in local.network_zones : "${aws_nat_gateway.nat[zone].public_ip}/32"]
   }
 
   # these cidr blocks should contain the nlb, so it can do healthchecks and send traffic
@@ -189,7 +185,7 @@ resource "aws_security_group" "gitlab" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = formatlist("%s/32", data.aws_network_interface.lb.*.private_ip)
+    cidr_blocks = local.gitlab_lb_interface_cidr_blocks
     description = "Allow connection from NLB"
   }
 
@@ -197,7 +193,7 @@ resource "aws_security_group" "gitlab" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = formatlist("%s/32", data.aws_network_interface.lb.*.private_ip)
+    cidr_blocks = local.gitlab_lb_interface_cidr_blocks
     description = "Allow connection from NLB"
   }
 
@@ -276,14 +272,14 @@ resource "aws_security_group" "ec2_endpoint" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   ingress {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   tags = {
@@ -306,14 +302,14 @@ resource "aws_security_group" "ec2messages_endpoint" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   ingress {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
   # Adding ingress rule below to allow ssm access via port 443 from private and idp subnets
   # This rule was created to avoid circular dependencies and allow quarantine hosts to be managed via ssm
@@ -322,7 +318,7 @@ resource "aws_security_group" "ec2messages_endpoint" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   tags = {
@@ -345,14 +341,14 @@ resource "aws_security_group" "logs_endpoint" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   ingress {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   # Adding ingress rule below to allow ssm access via port 443 from private and idp subnets
@@ -362,7 +358,7 @@ resource "aws_security_group" "logs_endpoint" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   tags = {
@@ -385,14 +381,14 @@ resource "aws_security_group" "monitoring_endpoint" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   ingress {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   tags = {
@@ -415,14 +411,14 @@ resource "aws_security_group" "secretsmanager_endpoint" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   ingress {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   tags = {
@@ -445,14 +441,14 @@ resource "aws_security_group" "sns_endpoint" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   ingress {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   tags = {
@@ -474,21 +470,21 @@ resource "aws_security_group" "smtp_endpoint" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   ingress {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   ingress {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   lifecycle {
@@ -506,21 +502,21 @@ resource "aws_security_group" "sts_endpoint" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   ingress {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   ingress {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   lifecycle {
@@ -538,21 +534,21 @@ resource "aws_security_group" "events_endpoint" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   ingress {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   ingress {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   lifecycle {
@@ -571,14 +567,14 @@ resource "aws_security_group" "ssm_endpoint" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   ingress {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   # Adding ingress rule below to allow ssm access via port 443 from private and idp subnets
@@ -588,7 +584,7 @@ resource "aws_security_group" "ssm_endpoint" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   lifecycle {
@@ -608,14 +604,14 @@ resource "aws_security_group" "ssmmessages_endpoint" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   ingress {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   # Adding ingress rule below to allow ssm access via port 443 from private and idp subnets
@@ -625,7 +621,7 @@ resource "aws_security_group" "ssmmessages_endpoint" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   lifecycle {
@@ -644,21 +640,21 @@ resource "aws_security_group" "kms_endpoint" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   ingress {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   ingress {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block]
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   lifecycle {
@@ -681,7 +677,7 @@ resource "aws_security_group_rule" "waf_lb_nlb_ingress" {
   from_port         = 443
   to_port           = 443
   protocol          = "tcp"
-  cidr_blocks       = formatlist("%s/32", data.aws_network_interface.lb.*.private_ip)
+  cidr_blocks       = local.gitlab_lb_interface_cidr_blocks
   description       = "Allow connection from NLB"
 }
 
@@ -693,11 +689,7 @@ resource "aws_security_group_rule" "waf_lb_nat_ingress" {
   from_port         = 443
   to_port           = 443
   protocol          = "tcp"
-  cidr_blocks = [
-    "${aws_eip.nat_a.public_ip}/32",
-    "${aws_eip.nat_b.public_ip}/32",
-    "${aws_eip.nat_c.public_ip}/32"
-  ]
+  cidr_blocks       = [for zone in local.network_zones : "${aws_nat_gateway.nat[zone].public_ip}/32"]
 }
 
 resource "aws_security_group_rule" "waf_lb_vpc_vpn_ingress" {
@@ -710,7 +702,7 @@ resource "aws_security_group_rule" "waf_lb_vpc_vpn_ingress" {
   protocol          = "tcp"
   cidr_blocks = sort(
     concat(
-      [aws_vpc.default.cidr_block],
+      [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block],
       data.github_ip_ranges.meta.hooks_ipv4,
       var.allowed_gitlab_cidr_blocks_v4
     )
@@ -735,5 +727,5 @@ resource "aws_security_group_rule" "waf_lb_vpc_egress" {
   from_port         = 443
   to_port           = 443
   protocol          = "tcp"
-  cidr_blocks       = [aws_vpc.default.cidr_block]
+  cidr_blocks       = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
 }

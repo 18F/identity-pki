@@ -20,6 +20,7 @@ module "main" {
   rds_password                   = var.rds_password
   bootstrap_main_git_ref_default = "stages/gitlabepsilon"
   env_name                       = "epsilon"
+  env_type                       = "tooling-sandbox"
   region                         = "us-west-2"
   dr_region                      = "us-east-2"
   slack_events_sns_hook_arn      = "arn:aws:sns:us-west-2:034795980528:slack-otherevents"
