@@ -42,6 +42,12 @@ no-op:
   script:
     - "true"
 
+# Always show environment vars, to aid in developing and debugging pipelines.
+# Unlike the "no-op" job, this may be removed with no ill effects.
+show-env:
+  script:
+    - env
+
 gitlab-qa:
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
