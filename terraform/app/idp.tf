@@ -170,7 +170,7 @@ resource "aws_elasticache_replication_group" "idp" {
   engine               = "redis"
   engine_version       = var.elasticache_redis_engine_version
   node_type            = var.elasticache_redis_node_type
-  num_cache_clusters   = 2
+  num_cache_clusters   = var.elasticache_redis_num_cache_clusters
   parameter_group_name = var.elasticache_redis_parameter_group_name
   security_group_ids   = [aws_security_group.cache.id]
   subnet_group_name    = aws_elasticache_subnet_group.idp.name

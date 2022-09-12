@@ -104,9 +104,13 @@ variable "apps_enabled" {
 
 variable "elasticache_redis_node_type" {
   description = "Instance type used for redis elasticache. Changes incur downtime."
-
   # allowed values: t2.micro-medium, m3.medium-2xlarge, m4|r3|r4.large-
   default = "cache.t3.micro"
+}
+
+variable "elasticache_redis_num_cache_clusters" {
+  description = "Number of Redis cache clusters."
+  default     = 2
 }
 
 variable "elasticache_redis_engine_version" {
@@ -128,6 +132,16 @@ variable "elasticache_redis_encrypt_in_transit" {
   description = "Enable TLS for Redis"
   type        = bool
   default     = true
+}
+
+variable "elasticache_redis_alarm_threshold_memory" {
+  description = "Alert Threshhold for Redis memory utilization"
+  default     = 75
+}
+
+variable "elasticache_redis_alarm_threshold_memory_high" {
+  description = "Critical Alert Threshhold for Redis memory utilization"
+  default     = 80
 }
 
 # prod/test environment flags
