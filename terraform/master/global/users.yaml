@@ -150,6 +150,11 @@ users:
     - appdev
     ec2_username:
     - jsheffel
+  jenna.hansen:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - pm
   jenniffier.bieberbach:
     aws_groups:
     - secopsnonprod
@@ -161,6 +166,13 @@ users:
     - apponcall
     ec2_username:
     - jmdembe
+    gitlab_groups:
+    - appdev
+  john.maxwell:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - jmax
     gitlab_groups:
     - appdev
   john.skinner:
