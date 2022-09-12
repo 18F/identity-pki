@@ -84,6 +84,13 @@ users:
     - solipet
     gitlab_groups:
     - appdev
+  eileen.mcfarland:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - emcfarland
+    gitlab_groups:
+    - appdev
   elizabeth.manning:
     aws_groups:
     - analytics
@@ -200,9 +207,6 @@ users:
     - jgrevich
     gitlab_groups:
     - devops
-  kelsey.sinclair:
-    aws_groups:
-    - bizops
   ken.kato:
     aws_groups:
     - devopsnonprod
@@ -292,6 +296,9 @@ users:
     - analytics
     gitlab_groups:
     - pm
+  michael.fay:
+    aws_groups:
+    - finops
   michael.ogren:
     aws_groups:
     - appdev
@@ -329,11 +336,6 @@ users:
     - mzia
     gitlab_groups:
     - devops
-  nadia.bilal:
-    aws_groups:
-    - analytics
-    gitlab_groups:
-    - antifraud
   nadya.primak:
     aws_groups:
     - apponcall
@@ -458,13 +460,6 @@ users:
   sean.porter:
     gitlab_groups:
     - pm
-  shanice.musiitwa:
-    aws_groups:
-    - appdev
-    ec2_username:
-    - smusiitwa
-    gitlab_groups:
-    - appdev
   shannon.alexander-navarro:
     aws_groups:
     - appdev
@@ -507,6 +502,11 @@ users:
     - sujana09
     gitlab_groups:
     - devops
+  sumi.thaiveettil:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - pm
   thomas.apodaca:
     aws_groups:
     - appdev
