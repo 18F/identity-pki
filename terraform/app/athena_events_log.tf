@@ -167,6 +167,105 @@ resource "aws_glue_catalog_table" "athena_events_log_database" {
     module.kinesis-firehose.kinesis_firehose_stream_bucket
   ]
 
+  lifecycle {
+    // After initial setup, AWS Glue crawler will manage the table definition based on the logs
+
+    ignore_changes = [
+      storage_descriptor
+    ]
+  }
+
+}
+
+data "aws_iam_policy_document" "glue-assume-role-policy" {
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["glue.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "events_log_glue_crawler" {
+  name               = "${var.env_name}_events_log_glue_crawler"
+  assume_role_policy = data.aws_iam_policy_document.glue-assume-role-policy.json
+}
+
+resource "aws_iam_role_policy_attachment" "glue_crawler_service_role" {
+  role       = aws_iam_role.events_log_glue_crawler.id
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
+}
+
+data "aws_iam_policy_document" "glue_crawler_kms_policy" {
+  statement {
+    sid    = "AllowDecryptFromKMS"
+    effect = "Allow"
+    actions = [
+      "kms:Decrypt",
+      "kms:Encrypt",
+      "kms:GenerateDataKey",
+      "kms:DescribeKey"
+    ]
+    resources = [module.kinesis-firehose.kinesis_firehose_stream_bucket_kms_key.arn]
+  }
+}
+
+data "aws_iam_policy_document" "glue_crawler_s3_policy" {
+  statement {
+    sid    = "AllowGlue"
+    effect = "Allow"
+    actions = [
+      "s3:GetObject",
+      "s3:PutObject",
+    ]
+    resources = [
+      "${module.kinesis-firehose.kinesis_firehose_stream_bucket.arn}/athena/*",
+    ]
+  }
+}
+
+resource "aws_iam_role_policy" "glue_crawler_s3_policy" {
+  name   = "${var.env_name}-events-log-glue-crawler-s3"
+  role   = aws_iam_role.events_log_glue_crawler.id
+  policy = data.aws_iam_policy_document.glue_crawler_s3_policy.json
+}
+
+resource "aws_iam_role_policy" "glue_crawler_kms_policy" {
+  name   = "${var.env_name}-events-log-glue-crawler-kms"
+  role   = aws_iam_role.events_log_glue_crawler.id
+  policy = data.aws_iam_policy_document.glue_crawler_kms_policy.json
+}
+
+resource "aws_glue_crawler" "log_crawler" {
+  database_name = aws_glue_catalog_table.athena_events_log_database.name
+  // set cron to once a week on Friday after business hours
+  schedule = "cron(30 19 ? * 5 *)"
+  name     = "${var.env_name}_events_log_crawler"
+  role     = aws_iam_role.events_log_glue_crawler.arn
+
+  configuration = jsonencode(
+    {
+      Grouping = {
+        TableGroupingPolicy = "CombineCompatibleSchemas"
+      }
+      CrawlerOutput = {
+        Partitions = { AddOrUpdateBehavior = "InheritFromTable" }
+      }
+      Version = 1
+    }
+  )
+
+  schema_change_policy {
+    delete_behavior = "LOG"
+    update_behavior = "UPDATE_IN_DATABASE"
+  }
+
+  catalog_target {
+    database_name = module.athena_events_log_database.database.name
+    tables        = [aws_glue_catalog_table.athena_events_log_database.name]
+  }
 }
 
 resource "aws_athena_named_query" "success_state" {
