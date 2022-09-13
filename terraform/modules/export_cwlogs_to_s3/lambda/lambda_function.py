@@ -14,11 +14,9 @@ def custom_ssm_name(log_group_name):
     return new_name
 
 def lambda_handler(event, context):
-    print("S3_BUCKET=%s" % os.environ["S3_BUCKET"])
     input_log_groups = os.environ["CW_LogGroup"]
     log_groups_to_export = json.loads(input_log_groups)
     print("Cloudwatch Log Groups to export to: ",log_groups_to_export)
-    print(type(log_groups_to_export))
 
     for log_group_name in log_groups_to_export:
         #create ssm parameter for storing time of export
