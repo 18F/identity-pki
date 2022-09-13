@@ -121,6 +121,18 @@ else
   node.run_state['allowed_services'] = []
 end
 
+# get the repos from allowed_images and make a list to be used with the ecr-helper stuff
+repohosts = []
+reporegex = /[0-9]*.dkr.ecr.*.amazonaws.com/
+node.run_state['allowed_images'].each do |repo|
+  if repo =~ reporegex
+    repohost = reporegex.match(repo)[0]
+    repohosts.append(repohost)
+  end
+end
+repolist = repohosts.uniq.map { |repohost| ',"' + repohost + '": "ecr-login"' }.join
+
+
 directory '/etc/systemd/system/gitlab-runner.service.d'
 
 template '/etc/systemd/system/gitlab-runner.service.d/http-proxy.conf' do
@@ -179,6 +191,7 @@ template '/etc/gitlab-runner/runner-register.sh' do
     runner_name: runner_name,
     runner_token: runner_token,
     gitlab_ecr_registry: gitlab_ecr_registry,
+    repolist: repolist,
     aws_account_id: aws_account_id,
     aws_region: aws_region,
   })

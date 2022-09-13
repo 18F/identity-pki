@@ -25,7 +25,7 @@ module "repos" {
   for_each = local.repos
   source   = "../module-ecr-repo"
 
-  readonly_accountids = ["555546682965", "894947205914"] # prod and sandbox
+  readonly_accountids = ["555546682965", "894947205914", "034795980528"] # prod and sandbox and tooling-sandbox
   prod_accountid      = "555546682965"
   ecr_repo_name       = each.value.name
   encryption_type     = "AES256"

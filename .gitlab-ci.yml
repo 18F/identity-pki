@@ -233,7 +233,9 @@ build_idp_ci:
 # deploy jobs for tspencer env here.
 deploy_tspencer:
   <<: *deploy_template
-  environment: tspencer
+  environment:
+    name: tspencer
+    url: https://idp.tspencer.identitysandbox.gov/
   resource_group: tspencer
   tags:
     - tspencer-env-runner
@@ -395,6 +397,68 @@ badtest_dev:
     - main
   needs:
     - deploy_dev
+
+# deploy jobs for gitlabbravo env here.
+deploy_bravo:
+  environment: 
+    name: bravo
+    url: https://gitlab.identitysandbox.gov/
+  resource_group: bravo
+  only:
+    - stages/gitlabbravo
+  variables:
+    GIT_SUBMODULE_STRATEGY: normal
+  tags:
+    - bravo-env-runner
+  image:
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/gitlab_deploy@$GITDEPLOY_IMAGE_DIGEST
+  stage: deploy
+  artifacts:
+    name: "$CI_ENVIRONMENT_NAME-$CI_COMMIT_SHA"
+    paths:
+      - terraform.plan
+      - plan.txt
+    expire_in: 1 year
+    reports:
+      terraform: plan.json
+  script:
+    - echo "Yay deploys!"
+
+test_bravo:
+  only:
+    - stages/gitlabbravo
+  variables:
+    ENV_NAME: bravo
+    DOMAIN: gitlab.bravo.gitlab.login.gov
+  tags:
+    - bravo-env-runner
+  image:
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/gitlab_test@$GITTEST_IMAGE_DIGEST
+  stage: test
+  needs:
+    - deploy_bravo
+  script:
+    - echo "Somebody set us up the deploy"
+  artifacts:
+    reports:
+      junit: testlogs/*.xml
+  script:
+    - echo "Tests for great justice"
+
+badtest_bravo:
+  when: manual
+  allow_failure: true
+  tags:
+    - bravo-env-runner
+  image:
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ecr-public/docker/library/alpine
+  stage: test
+  only:
+    - stages/bravo
+  needs:
+    - deploy_bravo
+  script:
+    - echo "You have no chance to survive make your test."
 
 include:
   - local: /terraform/.gitlab-ci.yml

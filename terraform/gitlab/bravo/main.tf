@@ -23,7 +23,16 @@ module "main" {
   destination_artifact_accounts  = ["894947205914"] # login-sandbox
   production                     = true
   # These are the account IDs who can access this cluster's gitlab service.
-  accountids                = ["894947205914", "034795980528", "217680906704"]
-  asg_outboundproxy_desired = 2
-  asg_outboundproxy_min     = 2
+  accountids                      = ["894947205914", "034795980528", "217680906704"]
+  root_domain                     = "gitlab.identitysandbox.gov"
+  asg_outboundproxy_desired       = 2
+  asg_outboundproxy_min           = 2
+  asg_gitlab_test_runner_desired  = 2
+  asg_gitlab_build_runner_desired = 2
+  destination_idp_static_accounts = ["894947205914"] # login-sandbox
+  use_waf_rules                   = false
+  gitlab_runner_enabled           = true
+  env_runner_gitlab_hostname      = "gitlab.login.gov"
+  env_runner_config_bucket        = "login-gov-production-gitlabconfig-217680906704-us-west-2"
+  gitlab_servicename              = "com.amazonaws.vpce.us-west-2.vpce-svc-01f5cb298111fa927"
 }
