@@ -32,6 +32,7 @@ module "build_pool" {
   ssm_access_policy                = module.ssm.ssm_access_role_policy
   runner_gitlab_hostname           = "gitlab.${var.env_name}.${var.root_domain}"
   gitlab_configbucket              = local.runner_config_bucket
+  vpc_cidr_block                   = aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block
 }
 
 # A pool for testing infrastructure
@@ -66,6 +67,7 @@ module "test_pool" {
   ssm_access_policy                = module.ssm.ssm_access_role_policy
   runner_gitlab_hostname           = "gitlab.${var.env_name}.${var.root_domain}"
   gitlab_configbucket              = local.runner_config_bucket
+  vpc_cidr_block                   = aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block
 }
 
 # A runner that can deploy stuff to this environment
@@ -103,6 +105,7 @@ module "env-runner" {
   gitlab_ecr_repo_accountid        = data.aws_caller_identity.current.account_id
   runner_gitlab_hostname           = local.env_runner_gitlab_hostname
   gitlab_configbucket              = local.env_runner_config_bucket
+  vpc_cidr_block                   = aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block
 }
 
 # This enables the gitlab privatelink endpoint in the VPC for
@@ -119,4 +122,5 @@ module "gitlab" {
   allowed_security_groups  = [aws_security_group.base.id]
   route53_zone_id          = aws_route53_zone.internal.zone_id
   dns_name                 = local.env_runner_gitlab_hostname
+  gitlab_subnet_ids        = aws_autoscaling_group.gitlab.vpc_zone_identifier
 }

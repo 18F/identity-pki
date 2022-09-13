@@ -25,4 +25,5 @@ module "outbound_proxy" {
   asg_outboundproxy_max            = var.asg_outboundproxy_max
   asg_outboundproxy_min            = var.asg_outboundproxy_min
   ssm_access_policy                = var.ssm_access_policy
+  vpc_cidr_block                   = var.vpc_cidr_block
 }

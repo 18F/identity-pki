@@ -32,5 +32,5 @@ resource "aws_s3_object" "gitlab_redis_endpoint" {
 resource "aws_elasticache_subnet_group" "gitlab" {
   name        = "${var.name}-gitlab-cache-${var.env_name}"
   description = "Redis Subnet Group"
-  subnet_ids  = [aws_subnet.db1.id, aws_subnet.db2.id]
+  subnet_ids  = [for zone in local.network_zones : aws_subnet.data-services[zone].id]
 }

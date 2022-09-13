@@ -11,7 +11,8 @@ resource "aws_lb" "gitlab" {
   }
 
   tags = {
-    Name = "${var.env_name}-gitlab"
+    Name           = "${var.env_name}-gitlab"
+    "s3:x-amz-acl" = "bucket-owner-full-control"
   }
 }
 

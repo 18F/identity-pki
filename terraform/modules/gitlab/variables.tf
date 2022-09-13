@@ -28,3 +28,8 @@ variable "name" {
 }
 
 variable "env_name" {}
+
+variable "gitlab_subnet_ids" {
+  description = "list of subnet ids used for hosting gitlab"
+  default     = []
+}

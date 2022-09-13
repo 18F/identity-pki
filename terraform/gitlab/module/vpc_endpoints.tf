@@ -201,10 +201,13 @@ resource "aws_vpc_endpoint" "private-s3" {
   vpc_id       = aws_vpc.default.id
   service_name = "com.amazonaws.${var.region}.s3"
   route_table_ids = flatten([
-    aws_route.default.route_table_id, [
-      for route in aws_route_table.private_subnet_route_table : route.id
-    ]
+    [for table in aws_route_table.private_subnet_route_table : table.id],
+    [for table in aws_route_table.public_subnet_route_table : table.id]
   ])
+
+  tags = {
+    Name = "${var.env_name}-gitlab-s3"
+  }
 }
 
 resource "aws_vpc_endpoint" "events" {

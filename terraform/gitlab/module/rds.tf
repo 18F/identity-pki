@@ -72,7 +72,7 @@ module "gitlab_rds_usw2" {
 resource "aws_db_subnet_group" "gitlab" {
   description = "${var.env_name} subnet group for gitlab"
   name        = "${var.name}-db-${var.env_name} gitlab"
-  subnet_ids  = [aws_subnet.db1.id, aws_subnet.db2.id]
+  subnet_ids  = [for zone in local.network_zones : aws_subnet.data-services[zone].id]
 
   tags = {
     Name = "${var.name}-${var.env_name} gitlab"

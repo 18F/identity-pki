@@ -43,21 +43,8 @@ resource "aws_internet_gateway" "default" {
   vpc_id = aws_vpc.default.id
 }
 
-resource "aws_route" "default" {
-  route_table_id         = aws_vpc.default.main_route_table_id
-  destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = aws_internet_gateway.default.id
-}
-
-resource "aws_route_table" "private_subnet_route_table" {
-  for_each = local.network_zones
-  vpc_id   = aws_vpc.default.id
-  tags = {
-    Name = "${var.name}-private_route_table_${each.key}-${var.env_name}"
-  }
-}
-
 ## Start - Create EIP for NAT Gateway
+
 resource "aws_eip" "public_ingress_nat_gw_eip" {
   for_each = local.network_zones
 }
@@ -76,27 +63,34 @@ resource "aws_nat_gateway" "nat" {
 
 ## End - Create NAT Gateways in login-public subnets
 
-## Start - Create and Associate routing tables of App Subnets
 
-resource "aws_route_table" "app_subnet_route_table" {
+resource "aws_route_table" "private_subnet_route_table" {
   for_each = local.network_zones
   vpc_id   = aws_vpc.default.id
+
   route {
     cidr_block     = "0.0.0.0/0"
     nat_gateway_id = aws_nat_gateway.nat[each.key].id
   }
+
   tags = {
-    Name = "${var.name}-app_subnet_route_table_${each.key}-${var.env_name}"
+    Name = "${var.name}-private_subnet_route_table_${each.key}-${var.env_name}"
   }
 }
 
-resource "aws_route_table_association" "firewall_subnet_route_table_association" {
-  for_each       = local.network_zones
-  route_table_id = aws_route_table.app_subnet_route_table[each.key].id
-  subnet_id      = aws_subnet.apps[each.key].id
-}
+resource "aws_route_table" "public_subnet_route_table" {
+  for_each = local.network_zones
+  vpc_id   = aws_vpc.default.id
 
-## End - Create and Associate routing tables of App Subnets
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.default.id
+  }
+
+  tags = {
+    Name = "${var.name}-public_subnet_route_table_${each.key}-${var.env_name}"
+  }
+}
 
 resource "aws_subnet" "apps" {
   for_each                = local.network_zones
@@ -109,10 +103,16 @@ resource "aws_subnet" "apps" {
   # ipv6_cidr_block = cidrsubnet(aws_vpc.default.ipv6_cidr_block, 8, local.network_layout[var.region][var.env_type]["_zones"][each.key]["apps"]["ipv6-netnum"])
 
   tags = {
-    Name = "${var.name}-app_subnet_${each.key}-${var.env_name}"
+    Name = "${var.name}-apps_subnet_${each.key}-${var.env_name}"
   }
 
   vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
+}
+
+resource "aws_route_table_association" "apps_subnet_route_table_association" {
+  for_each       = local.network_zones
+  route_table_id = aws_route_table.private_subnet_route_table[each.key].id
+  subnet_id      = aws_subnet.apps[each.key].id
 }
 
 resource "aws_subnet" "data-services" {
@@ -126,6 +126,12 @@ resource "aws_subnet" "data-services" {
   }
 
   vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
+}
+
+resource "aws_route_table_association" "data_services_subnet_route_table_association" {
+  for_each       = local.network_zones
+  route_table_id = aws_route_table.private_subnet_route_table[each.key].id
+  subnet_id      = aws_subnet.data-services[each.key].id
 }
 
 resource "aws_subnet" "public-ingress" {
@@ -143,6 +149,12 @@ resource "aws_subnet" "public-ingress" {
   vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
 }
 
+resource "aws_route_table_association" "public_ingress_subnet_route_table_association" {
+  for_each       = local.network_zones
+  route_table_id = aws_route_table.public_subnet_route_table[each.key].id
+  subnet_id      = aws_subnet.public-ingress[each.key].id
+}
+
 resource "aws_subnet" "endpoints" {
   for_each                = local.network_zones
   availability_zone       = "${var.region}${each.key}"
@@ -156,4 +168,10 @@ resource "aws_subnet" "endpoints" {
   }
 
   vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
+}
+
+resource "aws_route_table_association" "endpoints_subnet_route_table_association" {
+  for_each       = local.network_zones
+  route_table_id = aws_route_table.private_subnet_route_table[each.key].id
+  subnet_id      = aws_subnet.endpoints[each.key].id
 }
