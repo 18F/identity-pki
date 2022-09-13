@@ -186,3 +186,14 @@ variable "privileged_ips" {
 variable "geo_allow_list" {
   default = []
 }
+
+variable "wafv2_web_acl_scope" {
+  type        = string
+  description = "Scope where rules are created, can be either REGIONAL or CLOUDFRONT"
+  default     = "REGIONAL"
+
+  validation {
+    condition     = var.wafv2_web_acl_scope == "REGIONAL" || var.wafv2_web_acl_scope == "CLOUDFRONT"
+    error_message = "wafv2_web_acl_scope must be either set to either REGIONAL or CLOUDFRONT"
+  }
+}

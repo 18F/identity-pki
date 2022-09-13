@@ -5,7 +5,8 @@ locals {
 }
 
 data "aws_lb" "alb" {
-  name = var.lb_name != "" ? var.lb_name : "login-idp-alb-${var.env}"
+  count = var.wafv2_web_acl_scope == "REGIONAL" ? 1 : 0
+  name  = var.lb_name != "" ? var.lb_name : "login-idp-alb-${var.env}"
 }
 
 moved {
@@ -16,7 +17,7 @@ moved {
 resource "aws_wafv2_web_acl" "alb" {
   name        = local.web_acl_name
   description = "ACL for ${local.web_acl_name}"
-  scope       = "REGIONAL"
+  scope       = var.wafv2_web_acl_scope
 
   default_action {
     allow {}
@@ -581,31 +582,7 @@ moved {
 }
 
 resource "aws_wafv2_web_acl_association" "alb" {
-  resource_arn = data.aws_lb.alb.arn
+  count        = var.wafv2_web_acl_scope == "REGIONAL" ? 1 : 0
+  resource_arn = data.aws_lb.alb[count.index].arn
   web_acl_arn  = aws_wafv2_web_acl.alb.arn
-}
-
-resource "aws_cloudwatch_metric_alarm" "wafv2_blocked_alert" {
-  alarm_name          = "${var.env}-wafv2-blocks-exceeded"
-  comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = "1"
-  metric_name         = "BlockedRequests"
-  namespace           = "AWS/WAFV2"
-  period              = var.waf_alert_blocked_period
-  statistic           = "Sum"
-  threshold           = var.waf_alert_blocked_threshold
-  alarm_description   = <<EOM
-More than ${var.waf_alert_blocked_threshold} WAF blocks occured in ${var.waf_alert_blocked_period} seconds
-
-This could be a run of the mill scan, something worse, or signs of a false positive block.
-
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-WAF#waf-blocks-exceeded
-EOM
-
-  alarm_actions = var.waf_alert_actions
-  dimensions = {
-    Rule   = "ALL"
-    Region = var.region
-    WebACL = "${var.env}-idp-waf"
-  }
 }

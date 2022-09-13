@@ -1,5 +1,4 @@
 locals {
-
   s3_inventory_bucket_arn = "arn:${data.aws_partition.current.partition}:s3:::login-gov.s3-inventory.${data.aws_caller_identity.current.account_id}-${var.region}"
 }
 
@@ -81,12 +80,12 @@ resource "aws_cloudwatch_log_group" "cw_waf_logs" {
 module "log-ship-to-soc-waf-logs" {
   count                               = var.ship_logs_to_soc ? 1 : 0
   source                              = "../../modules/log_ship_to_soc"
-  region                              = "us-west-2"
+  region                              = var.region
   cloudwatch_subscription_filter_name = "log-ship-to-soc"
   cloudwatch_log_group_name = {
     tostring(aws_cloudwatch_log_group.cw_waf_logs.name) = ""
   }
-  env_name            = local.web_acl_name
+  env_name = var.lb_name != "" ? (
+  "${var.lb_name}-waf") : "${var.env}-idp-waf-${var.wafv2_web_acl_scope}"
   soc_destination_arn = var.soc_destination_arn
 }
-

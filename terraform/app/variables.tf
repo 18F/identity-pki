@@ -871,6 +871,15 @@ EOM
   }
 }
 
+variable "idp_cloudfront_waf_enabled" {
+  description = <<EOM
+Enable or disable WAFv2 rule association with idp CloudFront distribution.
+Requires a corresponding, active environment/config in the terraform/waf directory.
+EOM
+  type        = bool
+  default     = false
+}
+
 variable "idp_pii_spill_patterns" {
   type        = list(string)
   description = "List of strings used in proofing with smoke tests - These should never appear in logs!"

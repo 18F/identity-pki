@@ -10,6 +10,13 @@ data "aws_cloudfront_origin_request_policy" "idp_origin" {
   name = "idp-origin-request-policy"
 }
 
+data "aws_wafv2_web_acl" "cloudfront_web_acl" {
+  provider = aws.use1
+  count    = var.idp_cloudfront_waf_enabled ? 1 : 0
+  name     = "${var.env_name}-idp-waf"
+  scope    = "CLOUDFRONT"
+}
+
 resource "random_string" "security_header" {
   length  = 32
   special = false
@@ -73,6 +80,9 @@ resource "aws_cloudfront_distribution" "idp_static_cdn" {
       ]
     }
   }
+
+  web_acl_id = var.idp_cloudfront_waf_enabled ? (
+  data.aws_wafv2_web_acl.cloudfront_web_acl[count.index].arn) : ""
 
   enabled         = true
   is_ipv6_enabled = true
