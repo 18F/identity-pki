@@ -29,7 +29,7 @@ resource "aws_glue_catalog_table" "athena_events_log_database" {
     "projection.day.digits"   = "2",
     "projection.day.range"    = "01,31",
     "projection.day.type"     = "integer",
-    "projection.enabled"      = "true",
+    "projection.enabled"      = "false",
     "projection.hour.digits"  = "2",
     "projection.hour.range"   = "00,23",
     "projection.hour.type"    = "integer",
@@ -171,7 +171,10 @@ resource "aws_glue_catalog_table" "athena_events_log_database" {
     // After initial setup, AWS Glue crawler will manage the table definition based on the logs
 
     ignore_changes = [
-      storage_descriptor
+      storage_descriptor,
+      partition_keys,
+      parameters,
+      owner
     ]
   }
 
@@ -198,21 +201,7 @@ resource "aws_iam_role_policy_attachment" "glue_crawler_service_role" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
 }
 
-data "aws_iam_policy_document" "glue_crawler_kms_policy" {
-  statement {
-    sid    = "AllowDecryptFromKMS"
-    effect = "Allow"
-    actions = [
-      "kms:Decrypt",
-      "kms:Encrypt",
-      "kms:GenerateDataKey",
-      "kms:DescribeKey"
-    ]
-    resources = [module.kinesis-firehose.kinesis_firehose_stream_bucket_kms_key.arn]
-  }
-}
-
-data "aws_iam_policy_document" "glue_crawler_s3_policy" {
+data "aws_iam_policy_document" "glue_crawler_policy" {
   statement {
     sid    = "AllowGlue"
     effect = "Allow"
@@ -224,18 +213,25 @@ data "aws_iam_policy_document" "glue_crawler_s3_policy" {
       "${module.kinesis-firehose.kinesis_firehose_stream_bucket.arn}/athena/*",
     ]
   }
+
+  statement {
+    sid    = "AllowDecryptFromKMS"
+    effect = "Allow"
+    actions = [
+      "kms:Decrypt",
+      "kms:Encrypt",
+      "kms:GenerateDataKey",
+      "kms:DescribeKey"
+    ]
+    resources = [module.kinesis-firehose.kinesis_firehose_stream_bucket_kms_key.arn]
+  }
+
 }
 
-resource "aws_iam_role_policy" "glue_crawler_s3_policy" {
-  name   = "${var.env_name}-events-log-glue-crawler-s3"
+resource "aws_iam_role_policy" "glue_crawler_policy" {
+  name   = "${var.env_name}-events-log-glue-crawler"
   role   = aws_iam_role.events_log_glue_crawler.id
-  policy = data.aws_iam_policy_document.glue_crawler_s3_policy.json
-}
-
-resource "aws_iam_role_policy" "glue_crawler_kms_policy" {
-  name   = "${var.env_name}-events-log-glue-crawler-kms"
-  role   = aws_iam_role.events_log_glue_crawler.id
-  policy = data.aws_iam_policy_document.glue_crawler_kms_policy.json
+  policy = data.aws_iam_policy_document.glue_crawler_policy.json
 }
 
 resource "aws_glue_crawler" "log_crawler" {
