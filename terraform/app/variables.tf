@@ -874,15 +874,23 @@ EOM
 variable "idp_pii_spill_patterns" {
   type        = list(string)
   description = "List of strings used in proofing with smoke tests - These should never appear in logs!"
+  # Suggested test data from https://developers.login.gov/testing/#data-testing as
+  # well as common test fixture data
   default = [
+    # First Names
+    "Susan",
     "FAKEY",
-    "MIDDLEFAKER",
+    # Last Names
+    "Smith",
     "MCFAKERSON",
-    "1111111111111", # Fake SSN
-    "GREAT FALLS",
-    "1938-10-06",  # Fake DOB
-    "2099-12-31",  # Fake DL expiration
-    "314-555-1212" # Fake SSN
+    # Addresses
+    "1 Microsoft Way",
+    "Bayside",
+    # Birthdates
+    "10/06/1938", # Fake birthdate
+    "1938-10-06", # Alt fake birthdate
+    # Phones
+    "314-555-1212" # Fake phone
   ]
 }
 

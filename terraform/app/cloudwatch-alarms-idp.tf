@@ -167,8 +167,11 @@ resource "aws_cloudwatch_metric_alarm" "pii_spill_detector_alarm" {
   period                    = "900"
   statistic                 = "Sum"
   threshold                 = "0"
-  alarm_description         = "${var.env_name} PII Spill Detector Alarm"
   treat_missing_data        = "notBreaching"
   insufficient_data_actions = []
   alarm_actions             = local.high_priority_alarm_actions
+  alarm_description         = <<EOM
+${var.env_name}: PII Spill Detector Alarm - Sample PII may be present in event.log
+See https://github.com/18F/identity-devops/wiki/Runbook:-PII-spilled-into-logs#pii_spill_event-alert
+EOM
 }
