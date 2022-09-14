@@ -106,14 +106,8 @@ resource "aws_s3_bucket_lifecycle_configuration" "bucket-config" {
 
     status = "Enabled"
 
-    transition {
-      days          = 30
-      storage_class = "STANDARD_IA"
-    }
-
-    transition {
-      days          = 60
-      storage_class = "INTELLIGENT_TIERING"
+    expiration {
+      days = 90
     }
   }
 }
