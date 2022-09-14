@@ -156,3 +156,15 @@ module "ses_feedback_notification" {
   source                = "../../modules/eval_ses_feedback_notification"
   ses_verified_identity = "identitysandbox.gov"
 }
+
+###Exporting SES logs to S3###
+module "export_to_s3" {
+  source = "../../modules/export_cwlogs_to_s3"
+
+  depends_on = [
+    module.main.s3_ses_logs_bucket
+  ]
+
+  cw_log_group = [module.ses_feedback_notification.ses_feedback_eval_lambda_loggroup]
+  s3_bucket    = "login-gov-ses-feedback-notification-logs.894947205914-${module.main.region}"
+}
