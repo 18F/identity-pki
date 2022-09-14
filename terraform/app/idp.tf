@@ -428,11 +428,13 @@ module "idp_launch_template" {
   default_ami_id = local.account_rails_ami_id
 
   instance_type             = var.instance_type_idp
-  use_spot_instances        = var.use_spot_instances
   iam_instance_profile_name = aws_iam_instance_profile.idp.name
   security_group_ids        = [aws_security_group.idp.id, aws_security_group.base.id]
+  user_data                 = module.idp_user_data.rendered_cloudinit_config
 
-  user_data = module.idp_user_data.rendered_cloudinit_config
+  use_spot_instances = var.use_spot_instances == 1 ? (
+    length(var.idp_mixed_instance_config) == 0 ? 1 : 0
+  ) : 0
 
   template_tags = {
     main_git_ref = module.idp_user_data.main_git_ref
@@ -442,9 +444,54 @@ module "idp_launch_template" {
 resource "aws_autoscaling_group" "idp" {
   name = "${var.env_name}-idp"
 
-  launch_template {
-    id      = module.idp_launch_template.template_id
-    version = "$Latest"
+  # use launch_template if var.idp_mixed_instance_config is not specified;
+  # otherwise will throw InvalidQueryParameter error if var.use_spot_instances == 1
+  dynamic "launch_template" {
+    for_each = length(var.idp_mixed_instance_config) == 0 ? [1] : []
+
+    content {
+      id      = module.idp_launch_template.template_id
+      version = "$Latest"
+    }
+  }
+
+  dynamic "mixed_instances_policy" {
+    for_each = length(var.idp_mixed_instance_config) == 0 ? [] : [1]
+
+    content {
+      instances_distribution {
+        on_demand_base_capacity = (
+          var.use_spot_instances == 1 ? 0 : var.asg_idp_max
+        )
+        on_demand_percentage_above_base_capacity = (
+          var.use_spot_instances != 1 ? 100 : 0
+        )
+        spot_allocation_strategy = "capacity-optimized"
+      }
+
+      launch_template {
+        launch_template_specification {
+          launch_template_id = module.idp_launch_template.template_id
+          version            = "$Latest"
+        }
+
+        # at least one override, containing the instance type within
+        # the launch template, must be present
+        override {
+          instance_type     = var.instance_type_idp
+          weighted_capacity = var.idp_default_weight
+        }
+
+        dynamic "override" {
+          for_each = var.idp_mixed_instance_config
+
+          content {
+            instance_type     = override.value.instance_type
+            weighted_capacity = override.value.weighted_capacity
+          }
+        }
+      }
+    }
   }
 
   min_size         = var.asg_idp_min

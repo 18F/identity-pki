@@ -235,9 +235,87 @@ variable "instance_type_worker" {
 }
 
 variable "use_spot_instances" {
-  description = "Use spot instances for roles suitable for spot use"
+  description = "Use spot instances for roles suitable for spot use."
   type        = number
   default     = 0
+}
+
+variable "idp_mixed_instance_config" {
+  description = <<EOM
+Map of instance types/weighted capacities for idp Auto Scaling Group, if using.
+Will also configure mixed_instances_policy.instances_distribution settings for use
+with 100% Spot instances if var.use_spot_instances == 1
+EOM
+  type = list(object({
+    instance_type     = string
+    weighted_capacity = number
+  }))
+  default = [ # leaving the default of [] for now
+    #    {
+    #      instance_type     = "t3.medium"
+    #      weighted_capacity = 1
+    #    },
+    #    {
+    #      instance_type     = "t3.large"
+    #      weighted_capacity = 2
+    #    },
+    #    {
+    #      instance_type     = "t3.xlarge"
+    #      weighted_capacity = 4
+    #    },
+    #    {
+    #      instance_type     = "t3.2xlarge"
+    #      weighted_capacity = 8
+    #    },
+  ]
+}
+
+variable "idp_default_weight" {
+  type        = number
+  description = <<EOM
+Default weighted value for var.instance_type_idp instances within the idp
+Auto Scaling Group. Must be at least 1, with even numbers preferable thereafter.
+EOM
+  default     = 1
+}
+
+variable "worker_mixed_instance_config" {
+  description = <<EOM
+Map of instance types/weighted capacities for worker Auto Scaling Group, if using.
+Will also configure mixed_instances_policy.instances_distribution settings for use
+with 100% Spot instances if var.use_spot_instances == 1
+EOM
+  type = list(object({
+    instance_type     = string
+    weighted_capacity = number
+  }))
+  default = [ # leaving the default of [] for now
+    #    {
+    #      instance_type     = "t3.medium"
+    #      weighted_capacity = 1
+    #    },
+    #    {
+    #      instance_type     = "t3.large"
+    #      weighted_capacity = 2
+    #    },
+    #    {
+    #      instance_type     = "t3.xlarge"
+    #      weighted_capacity = 4
+    #    },
+    #    {
+    #      instance_type     = "t3.2xlarge"
+    #      weighted_capacity = 8
+    #    },
+  ]
+}
+
+variable "worker_default_weight" {
+  type        = number
+  description = <<EOM
+Default weighted value for var.instance_type_worker instances within the worker
+Auto Scaling Group. Must be at least 1, with even numbers preferable thereafter.
+EOM
+  default     = 1
 }
 
 variable "name" {
