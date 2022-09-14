@@ -88,7 +88,7 @@ resource "aws_security_group" "obproxy" {
     from_port   = 3128
     to_port     = 3128
     protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr_block]
+    cidr_blocks = [var.vpc_cidr_block, "100.106.0.0/16"]
   }
 
   ingress {
