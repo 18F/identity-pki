@@ -73,27 +73,8 @@ if basic_auth_enabled
   end
 end
 
-nginx_conf = '/opt/nginx/conf/nginx.conf'
-
 execute 'remove rate limiting from nginx config' do
-  command "sed -i -e '/# Limit connections/,+3d' #{nginx_conf}"
-  notifies :restart, "service[passenger]"
-end
-
-cpu_count = node.fetch('cpu').fetch('total')
-
-execute 'scale nginx worker count with instance cpu count' do
-  command "sed -i -e 's/worker_processes.*/worker_processes #{cpu_count};/' #{nginx_conf}"
-  notifies :restart, "service[passenger]"
-end
-
-execute 'scale passenger pool size with instance cpu count' do
-  command "sed -i -e 's/passenger_max_pool_size.*/passenger_max_pool_size #{cpu_count*2};/' #{nginx_conf}"
-  notifies :restart, "service[passenger]"
-end
-
-execute 'scale passenger pool size with instance cpu count' do
-  command "sed -i -e 's/passenger_min_instances.*/passenger_min_instances #{cpu_count*2};/' #{nginx_conf}"
+  command "sed -i -e '/# Limit connections/,+3d' '/opt/nginx/conf/nginx.conf'"
   notifies :restart, "service[passenger]"
 end
 

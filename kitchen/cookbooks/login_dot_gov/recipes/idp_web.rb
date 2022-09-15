@@ -98,24 +98,6 @@ else
   Chef::Log.info("No #{nginx_mime_types} - synced asset MIME types may be wrong")
 end
 
-nginx_conf = '/opt/nginx/conf/nginx.conf'
-cpu_count = node.fetch('cpu').fetch('total')
-
-execute 'scale nginx worker count with instance cpu count' do
-  command "sed -i -e 's/worker_processes.*/worker_processes #{cpu_count};/' #{nginx_conf}"
-  notifies :restart, "service[passenger]"
-end
-
-execute 'scale passenger max pool size with instance cpu count' do
-  command "sed -i -e 's/passenger_max_pool_size.*/passenger_max_pool_size #{cpu_count*2};/' #{nginx_conf}"
-  notifies :restart, "service[passenger]"
-end
-
-execute 'scale passenger min pool size with instance cpu count' do
-  command "sed -i -e 's/passenger_min_instances.*/passenger_min_instances #{cpu_count*2};/' #{nginx_conf}"
-  notifies :restart, "service[passenger]"
-end
-
 file '/etc/init.d/passenger' do
   action :nothing
   notifies(:restart, "service[passenger]")
