@@ -76,9 +76,13 @@ gitlab-qa:
     - echo "Yay!"
   when: manual
 
+include:
+  local: /.gitlab-ci-rules.yml
+
 # TODO(LG-6069): Use an image from ECR
 .build_template: &build_template
   stage: build
+  interruptible: true
   tags:
     - build-pool
   image:
@@ -106,12 +110,11 @@ gitlab-qa:
 build_gitlab_deploy:
   <<: *build_template
   rules:
-    # always run if it's on the main branch
+    # Always run if it's on the main branch.
     - if: $CI_COMMIT_BRANCH == "main"
-    # If this is not new code, then stop
-    - if: $CI_PIPELINE_SOURCE != "push" || $CI_COMMIT_BRANCH
-      when: never
-    # run if there are changes in these files
+    # Otherwise, only build on PRs, not new branches ...
+    - !reference [.merge_request, rules]
+    # ... and only if there are changes in these files
     - changes:
         - dockerfiles/gitlab_deploy*
         - versions.tf
@@ -122,12 +125,11 @@ build_gitlab_deploy:
 build_gitlab_test:
   <<: *build_template
   rules:
-    # always run if it's on the main branch
+    # Always run if it's on the main branch.
     - if: $CI_COMMIT_BRANCH == "main"
-    # If this is not new code, then stop
-    - if: $CI_PIPELINE_SOURCE != "push" || $CI_COMMIT_BRANCH
-      when: never
-    # run if there are changes in these files
+    # Otherwise, only build on PRs, not new branches ...
+    - !reference [.merge_request, rules]
+    # ... and only if there are changes in these files
     - changes:
         - dockerfiles/gitlab_test*
         - versions.tf
@@ -138,12 +140,11 @@ build_gitlab_test:
 build_env_deploy:
   <<: *build_template
   rules:
-    # always run if it's on the main branch
+    # Always run if it's on the main branch.
     - if: $CI_COMMIT_BRANCH == "main"
-    # If this is not new code, then stop
-    - if: $CI_PIPELINE_SOURCE != "push" || $CI_COMMIT_BRANCH
-      when: never
-    # run if there are changes in these files
+    # Otherwise, only build on PRs, not new branches ...
+    - !reference [.merge_request, rules]
+    # ... and only if there are changes in these files
     - changes:
         - dockerfiles/env_deploy*
         - versions.tf
@@ -154,12 +155,11 @@ build_env_deploy:
 build_env_test:
   <<: *build_template
   rules:
-    # always run if it's on the main branch
+    # Always run if it's on the main branch.
     - if: $CI_COMMIT_BRANCH == "main"
-    # If this is not new code, then stop
-    - if: $CI_PIPELINE_SOURCE != "push" || $CI_COMMIT_BRANCH
-      when: never
-    # run if there are changes in these files
+    # Otherwise, only build on PRs, not new branches ...
+    - !reference [.merge_request, rules]
+    # ... and only if there are changes in these files
     - changes:
         - dockerfiles/env_test*
         - versions.tf
@@ -170,12 +170,11 @@ build_env_test:
 build_idp_ci:
   <<: *build_template
   rules:
-    # always run if it's on the main branch
+    # Always run if it's on the main branch.
     - if: $CI_COMMIT_BRANCH == "main"
-    # If this is not new code, then stop
-    - if: $CI_PIPELINE_SOURCE != "push" || $CI_COMMIT_BRANCH
-      when: never
-    # run if there are changes in these files
+    # Otherwise, only build on PRs, not new branches ...
+    - !reference [.merge_request, rules]
+    # ... and only if there are changes in these files
     - changes:
         - dockerfiles/idp_ci*
   variables:
