@@ -328,23 +328,27 @@ module Cloudlib
           rows << [key, *values]
         end
 
-        Terminal::Table.new(rows: rows)
+        Terminal::Table.new(rows: rows, style: { padding_left: 0 })
       end
 
       private
 
       def color_code(first_value:, current_value:, display_value:)
-        color = if first_value && current_value.nil?
-          :red
+
+        color, change_indicator = if first_value && current_value.nil?
+          [:red, '-']
         elsif first_value.nil? && current_value
-          :green
+          [:green, '+']
         elsif first_value != current_value
-          :yellow
+          [:yellow, '!']
         else
-          :default
+          [:default, ' ']
         end
 
-        ColorizedString[display_value].colorize(color)
+        [
+          ColorizedString[change_indicator].colorize(:light_black),
+          ColorizedString[display_value].colorize(color)
+        ].join
       end
 
       def redact(value)
