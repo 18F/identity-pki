@@ -88,3 +88,25 @@ EOM
   treat_missing_data  = "notBreaching"
   alarm_actions       = [aws_sns_topic.slack_usw2["events"].arn]
 }
+
+resource "aws_cloudwatch_metric_alarm" "ses_email_send_limit" {
+  alarm_name          = "ses_email_send_limit"
+  alarm_description   = <<EOM
+In danger of exceeding ${var.ses_email_limit} emails per 6 hours
+Account: ${data.aws_caller_identity.current.account_id}
+Region: ${var.region}
+
+Runbook: https://github.com/18F/identity-private/wiki/Runbook:-SES-email-reputation---send-rate
+EOM
+  metric_name         = "Send"
+  threshold           = var.ses_email_limit
+  statistic           = "Sum"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  datapoints_to_alarm = 1
+  evaluation_periods  = 1
+  period              = 21600 # 6 hours 
+  namespace           = "AWS/SES"
+  treat_missing_data  = "breaching"
+  alarm_actions       = [aws_sns_topic.slack_usw2["events"].arn]
+}
+

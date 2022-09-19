@@ -16,6 +16,7 @@ module "main" {
   dnssec_zone_exists     = true
   iam_account_alias      = "login-prod"
   reports_bucket_arn     = "arn:aws:s3:::login-gov.reports.555546682965-us-west-2"
+  ses_email_limit        = 500000
   account_roles_map = {
     iam_reports_enabled        = true
     iam_kmsadmin_enabled       = true

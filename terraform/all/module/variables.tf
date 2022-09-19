@@ -287,3 +287,8 @@ approved and confirmed access to the destination CloudWatch log group. More info
 https://github.com/18F/identity-devops/wiki/Runbook:-GSA-SOC-as-a-Service-(SOCaaS)#cloudwatch-shipping-important-note
 EOM
 }
+variable "ses_email_limit" {
+  type        = number
+  default     = 21600
+  description = "This is the limit of emails per 6 hour period. Default is 1 per second, only prod should override."
+}
