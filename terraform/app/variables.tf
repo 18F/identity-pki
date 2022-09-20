@@ -968,7 +968,6 @@ variable "idp_pii_spill_patterns" {
     "Susan",
     "FAKEY",
     # Last Names
-    "Smith",
     "MCFAKERSON",
     # Addresses
     "1 Microsoft Way",
