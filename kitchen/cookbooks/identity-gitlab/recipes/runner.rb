@@ -34,8 +34,9 @@ packagecloud_repo "runner/gitlab-runner" do
   base_url "https://packages.gitlab.com/"
 end
 
+# https://packages.gitlab.com/runner/gitlab-runner
 package 'gitlab-runner' do
-  version "15.2.1"
+  version "15.3.0"
 end
 
 # install docker-credential-ecr-login so we can auth to ECR
