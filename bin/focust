@@ -1,0 +1,88 @@
+#!/bin/bash
+
+set -euo pipefail
+
+declare {ENV,TEST,USERS,NUMUSERS,RUNTIME,SPAWNRATE}=
+
+usage() {
+    cat >&2 << EOM
+
+Usage: ${0} [-e ENV] -t TEST [-u USERS] [-n NUMUSERS] [-r RUNTIME] [-s SPAWNRATE]
+
+Directory/environment flags (optional):
+  -e ENV : Environment to use (defaults to \$GSA_USERNAME if not specified)
+
+Flags (if CMD not specified):
+  -t TEST      : The test you would like to run. Found under identity-loadtest.
+  -u USER      : Peak number of concurrent Locust Users
+  -n NUMUSERS  : Total available Locust Users
+  -r RUNTIME   : Stop after the specified amount of time. (300s, 20m, 3h, 1h30m, etc.)
+  -s SPAWNRATE : Rate to spawn users at (users per second.)
+
+  -h           : Display help menu
+
+EOM
+}
+
+while getopts e:t:u:n:r:s:h opt; do
+    case $opt in
+        e) ENV="${OPTARG}" ;;
+        t) TEST="${OPTARG}" ;;
+        u) USERS="${OPTARG}" ;;
+        n) NUMUSERS="${OPTARG}" ;;
+        r) RUNTIME="${OPTARG}" ;;
+        s) SPAWNRATE="${OPTARG}" ;;
+        *) usage && exit 1 ;;
+    esac
+done
+shift $((OPTIND-1))
+
+if [[ -z ${ENV} ]] ; then
+    ENV=${GSA_USERNAME}
+fi
+
+if [[ -z ${TEST} ]] ; then
+    echo "You need to select a test."
+    exit 1
+fi
+
+MASTER_ASG=$(\
+    aws autoscaling describe-auto-scaling-groups \
+    --auto-scaling-group-name "$ENV-locust-leader" \
+)
+WORKER_ASG=$(\
+    aws autoscaling describe-auto-scaling-groups \
+    --auto-scaling-group-name "$ENV-locust-worker" \
+)
+MasterInstanceCount=$(\
+    echo "$MASTER_ASG" | jq '.AutoScalingGroups[].Instances | length' \
+)
+WorkerInstanceCount=$(\
+    echo "$WORKER_ASG" | jq '.AutoScalingGroups[].Instances | length' \
+)
+
+if [ "$MasterInstanceCount" != "1" ] ; then
+    echo "You have an incorrect number of locust-leader. Try resizing the ASG"
+    exit 1
+fi
+
+MASTER_INSTANCE=$(\
+    echo "$MASTER_ASG" | jq -r '.AutoScalingGroups[].Instances[].InstanceId' \
+)
+
+MASTER_IP=$(\
+    aws ec2 describe-instances --instance-ids "$MASTER_INSTANCE" |
+    jq .Reservations[].Instances[].NetworkInterfaces[].PrivateIpAddress \
+)
+
+echo "Launching $TEST in $ENV with $WorkerInstanceCount worker ec2 hosts..."
+
+aws ssm send-command \
+    --targets Key=tag:Name,Values="asg-$ENV-locust-leader" \
+    --document-name "$ENV-ssm-cmd-locust-leader" \
+    --parameters "ENV=$ENV,TEST=$TEST,USERS=${USERS:="10"},NUMUSERS=${NUMUSERS:="100"},RUNTIME=${RUNTIME:="60s"},SPAWNRATE=${SPAWNRATE:="10"}"
+
+aws ssm send-command \
+    --targets Key=tag:Name,Values="asg-$ENV-locust-worker" \
+    --document-name "$ENV-ssm-cmd-locust-worker" \
+    --parameters "MASTERIP=$MASTER_IP,ENV=$ENV,TEST=$TEST,NUMUSERS=$NUMUSERS"

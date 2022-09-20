@@ -69,6 +69,14 @@ resource "aws_iam_role_policy" "base-permissions-sns-publish-alerts" {
   policy = data.aws_iam_policy_document.sns-publish-alerts-policy.json
 }
 
+# all all instances to upload and download from transfer utility
+
+resource "aws_iam_role_policy" "base-permissions-transfer-utility" {
+  name   = "${var.env_name}-base-permissions-transfer-utility"
+  role   = aws_iam_role.base-permissions.id
+  policy = data.aws_iam_policy_document.transfer_utility_policy.json
+}
+
 # IAM instance profile using the citadel client role
 resource "aws_iam_instance_profile" "base-permissions" {
   name = "${var.env_name}-base-permissions"

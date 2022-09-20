@@ -26,6 +26,8 @@ DEPENDENCIES
     path: kitchen/cookbooks/identity-gitlab
   identity-jumphost
     path: kitchen/cookbooks/identity-jumphost
+  identity-locust
+    path: kitchen/cookbooks/identity-locust
   identity-monitoring
     path: kitchen/cookbooks/identity-monitoring
   identity-nessus
@@ -93,6 +95,9 @@ GRAPH
     login_dot_gov (>= 0.0.0)
     squid (~> 4.0)
     users (>= 0.0.0)
+  identity-locust (0.1.0)
+    login_dot_gov (>= 0.0.0)
+    users (>= 0.0.0)
   identity-monitoring (0.1.1)
     config_loader (>= 0.0.0)
     login_dot_gov (>= 0.0.0)
@@ -121,7 +126,7 @@ GRAPH
     static_eip (>= 0.2.0)
     sudo (>= 0.0.1)
     users (>= 0.0.1)
-  lvm (6.0.0)
+  lvm (6.0.1)
   motd (1.0.1)
   newrelic-infra (0.12.2)
   openssl (8.5.5)

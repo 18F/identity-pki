@@ -39,6 +39,7 @@ cookbook 'canonical_hostname', path: prefixed('kitchen/cookbooks/canonical_hostn
 cookbook 'chef_proxy_env', path: prefixed('kitchen/cookbooks/chef_proxy_env')
 cookbook 'identity-gitlab', path: prefixed('kitchen/cookbooks/identity-gitlab')
 cookbook 'identity-jumphost', path: prefixed('kitchen/cookbooks/identity-jumphost')
+cookbook 'identity-locust', path: prefixed('kitchen/cookbooks/identity-locust')
 cookbook 'identity-nessus', path: prefixed('kitchen/cookbooks/identity-nessus')
 cookbook 'identity-pivcac', path: prefixed('kitchen/cookbooks/identity-pivcac')
 cookbook 'instance_certificate', path: prefixed('kitchen/cookbooks/instance_certificate')

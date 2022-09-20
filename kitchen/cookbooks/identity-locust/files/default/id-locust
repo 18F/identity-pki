@@ -1,0 +1,143 @@
+#!/bin/bash
+set -eu
+
+run() {
+  echo >&2 "+ $*"
+  "$@"
+}
+
+raise() {
+  echo -e "\nERROR: $* \n" >&2
+  usage
+  exit 1
+}
+
+REPO_DIR='/etc/login.gov/repos/identity-loadtest'
+[[ -d "${REPO_DIR}" ]] || raise "REPO_DIR ${REPO_DIR} does not exist"
+
+list_tests() {
+  find ${REPO_DIR}/load_testing  -name "*.locustfile.py" -printf '%P\n' | cut -d '.' -f 1 >&2
+}
+
+usage() {
+  cat >&2 <<EOM
+usage: $(basename "$0") TEST_NAME ENV [-u USERS] [-r SPAWN_RATE] [-n NUM_USERS]
+
+  TEST_NAME : name of the test, i.e. load_testing/TEST_NAME.locustfile.py
+  ENV : environment where test will be pointed, in the format:
+         - https://idp.ENV.identitysandbox.gov/
+           (will automatically change the URL if set to 'staging' or 'prod')
+
+Optional arguments:
+    
+    -u : --users=       (defaults to 1)
+    -r : --spawn-rate     (defaults to 1)
+    -n : NUM_USERS=     (defaults to 100)
+    -t : --run-time   (defaults to '10s')
+    -m : --master      (distributed mode)
+    -p : --no-prompt   (distributed mode)
+    -w : --worker       (distributed mode)
+
+NOTE: If running in distributed mode:
+  1. Run with -m on the master node; the command will output the IP
+     address of the master host, and wait for you to copy it (w/prompt)
+     before continuing. You can override the prompt behavior with -p on the master node.
+  2. Run with -w on the worker node(s), supplying the IP address of
+     the master node as an argument to -w when running.
+  3. Options such as -r / -c / -h / -n should only be run on
+     the master node.
+  4. Additional options can be passed to locust by including
+     -- at the end of the id-locust options
+
+Examples:
+
+    $(basename "$0") sign_up pt
+    $(basename "$0") sign_up int -u 10 -r 25 -t 10m
+    $(basename "$0") sign_in dev -r 10 -n 120
+
+    # Pass through options to Locust
+    $(basename "$0") sign_up pt -u 100 -t 10m -- --step-load --step-users 10 --step-time 1m
+
+Available Tests:
+
+
+EOM
+  list_tests
+}
+
+[[ $# -lt 2 ]] && raise "Both TEST_NAME and ENV must be provided"
+
+TEST=${1}
+TEST_FILE="${REPO_DIR}/load_testing/${TEST}.locustfile.py"
+[[ -f "${TEST_FILE}" ]] || raise "Test '${TEST_FILE}' not found"
+
+case "${2}" in
+       -*) raise "Invalid environment name: ${2}"        ;;
+  staging) TARGET='https://idp.staging.login.gov'        ;;
+     prod) TARGET='https://secure.login.gov'             ;;
+        *) TARGET="https://idp.${2}.identitysandbox.gov" ;;
+esac
+shift 2
+
+TEST_DIR='/var/log/loadtest'
+RUN_TIME="60s"
+MASTER_ADDRESS=
+EXTRA_OPTIONS=
+declare {MASTER,WORKER}=false
+declare PROMPT=true
+declare {USERS,SPAWN_RATE}=1
+declare NUM_USERS=100
+
+while getopts u:r:n:t:mw:p opt
+do
+  case "${opt}" in
+    u) USERS=${OPTARG}    ;;
+    r) SPAWN_RATE=${OPTARG} ;;
+    n) NUM_USERS=${OPTARG}  ;;
+    t) RUN_TIME=${OPTARG}   ;;
+    m) MASTER=true          ;;
+    p) PROMPT=false         ;;
+    w) 
+       WORKER=true
+       MASTER_ADDRESS=${OPTARG}
+    ;;
+    :) raise "-${OPTARG} requires argument" ;;
+  esac
+done
+
+# Retain unprocessed arguments to pass to Locust
+shift $((OPTIND - 1))
+EXTRA_OPTIONS=${@//-p}
+
+if [[ "${WORKER}" == true ]] && [[ "${MASTER}" == true ]] ; then
+  raise "Cannot be MASTER and WORKER at once"
+fi
+
+if [[ "${MASTER}" == true ]] ; then
+    EXTRA_OPTIONS="${EXTRA_OPTIONS} --master"
+    echo "IP address of master: $(ifconfig | grep 'inet 100' | awk '{print $2}')"
+
+    if [[ "${PROMPT}" == true ]] ; then
+        read -n 1 -s -r -p "Press any key to run test... "
+    fi
+fi
+
+if [[ "${WORKER}" == true ]] ; then
+  run locust --host "${TARGET}" \
+             --locustfile "${TEST_FILE}" --worker --master-host "${MASTER_ADDRESS}"
+else
+  START_TIME=$(date +%Y%m%d%H%M%S)
+  export NUM_USERS
+  # Run locust with extra options front loaded to prevent being interpreted as
+  # UserClass
+  run locust ${EXTRA_OPTIONS} \
+            --host "${TARGET}" \
+             --locustfile "${TEST_FILE}" \
+             --users "${USERS}" \
+             --spawn-rate "${SPAWN_RATE}" \
+             --headless \
+             --csv "${TEST_DIR}/${START_TIME}-${TEST}" \
+             --run-time "${RUN_TIME}" \
+             --logfile "${TEST_DIR}/${START_TIME}-${TEST}.log" \
+             2>&1 | tee "${TEST_DIR}/${START_TIME}-${TEST}-cli-output.log"
+fi

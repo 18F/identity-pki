@@ -234,6 +234,10 @@ variable "instance_type_worker" {
   default = "t3.medium"
 }
 
+variable "instance_type_locust" {
+  default = "t3.medium"
+}
+
 variable "use_spot_instances" {
   description = "Use spot instances for roles suitable for spot use."
   type        = number
@@ -1006,4 +1010,22 @@ Defaults to true; MUST be set to false in upper environments!
 EOM
   type        = bool
   default     = true
+}
+
+variable "enable_loadtesting" {
+  type        = bool
+  description = "Feature Flag for Locust loadtesting hosts and related infrastructure"
+  default     = false
+}
+
+variable "asg_locust_worker_desired" {
+  default = 0
+}
+
+variable "asg_locust_leader_desired" {
+  default = 0
+}
+
+variable "asg_locust_worker_max" {
+  default = 8
 }
