@@ -30,7 +30,7 @@ module "main" {
   asg_gitlab_test_runner_desired  = 2
   asg_gitlab_build_runner_desired = 2
   destination_idp_static_accounts = ["894947205914"] # login-sandbox
-  use_waf_rules                   = false
+  use_waf_rules                   = true
   gitlab_runner_enabled           = true
   env_runner_gitlab_hostname      = "gitlab.login.gov"
   env_runner_config_bucket        = "login-gov-production-gitlabconfig-217680906704-us-west-2"

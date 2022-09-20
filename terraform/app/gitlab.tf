@@ -10,14 +10,15 @@ module "gitlab" {
   depends_on = [aws_internet_gateway.default]
   source     = "../modules/gitlab"
 
-  gitlab_servicename       = var.gitlab_servicename
-  gitlab_subnet_cidr_block = var.gitlab_subnet_cidr_block
-  vpc_id                   = aws_vpc.default.id
-  name                     = var.name
-  env_name                 = var.env_name
-  allowed_security_groups  = [aws_security_group.base.id]
-  route53_zone_id          = aws_route53_zone.internal.zone_id
-  dns_name                 = var.gitlab_hostname
+  gitlab_servicename = var.gitlab_servicename
+  # not supported in us-west-2d
+  endpoint_subnet_ids     = slice([for subnet in aws_subnet.app : subnet.id], 0, 2)
+  vpc_id                  = aws_vpc.default.id
+  name                    = var.name
+  env_name                = var.env_name
+  allowed_security_groups = [aws_security_group.base.id]
+  route53_zone_id         = aws_route53_zone.internal.zone_id
+  dns_name                = var.gitlab_hostname
 }
 
 # A runner that can deploy stuff to this environment

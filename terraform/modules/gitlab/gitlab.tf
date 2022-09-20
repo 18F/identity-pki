@@ -1,22 +1,9 @@
 
 data "aws_availability_zones" "available" {}
 
-resource "aws_subnet" "gitlab" {
-  count = 2
-
-  availability_zone       = data.aws_availability_zones.available.names[count.index]
-  cidr_block              = cidrsubnet(var.gitlab_subnet_cidr_block, 1, count.index)
-  map_public_ip_on_launch = false
-  vpc_id                  = var.vpc_id
-
-  tags = {
-    Name = "${var.name}-gitlab-${var.env_name}"
-  }
-}
-
 resource "aws_vpc_endpoint" "gitlab" {
   service_name        = var.gitlab_servicename
-  subnet_ids          = aws_subnet.gitlab.*.id
+  subnet_ids          = var.endpoint_subnet_ids
   vpc_id              = var.vpc_id
   security_group_ids  = [aws_security_group.gitlab.id]
   vpc_endpoint_type   = "Interface"

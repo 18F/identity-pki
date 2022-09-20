@@ -2,10 +2,6 @@ variable "gitlab_servicename" {
   description = "the service_name of the gitlab privatelink service"
 }
 
-variable "gitlab_subnet_cidr_block" {
-  description = "the netblock we split up for use by the privatelink endpoint"
-}
-
 variable "vpc_id" {
   description = "the VPC where this endpoint lives"
 }
@@ -28,3 +24,8 @@ variable "name" {
 }
 
 variable "env_name" {}
+
+variable "endpoint_subnet_ids" {
+  description = "list of subnet_ids to house the privatelink endpoint"
+  default     = "login"
+}

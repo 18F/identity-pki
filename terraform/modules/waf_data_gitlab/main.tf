@@ -35,7 +35,7 @@ output "gitlab_privileged_ips" {
   value = sort(
     concat(
       local.nat_cidr_blocks,
-      [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block],
+      [data.aws_vpc.default.cidr_block],
       data.github_ip_ranges.meta.hooks_ipv4,
       ["159.142.0.0/16", ] # GSA VPN IPs
     )

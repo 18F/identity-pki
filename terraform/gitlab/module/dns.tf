@@ -35,4 +35,3 @@ resource "aws_route53_resolver_query_log_config_association" "internal" {
   resolver_query_log_config_id = aws_route53_resolver_query_log_config.internal.id
   resource_id                  = aws_vpc.default.id
 }
-

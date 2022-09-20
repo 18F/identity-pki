@@ -21,4 +21,8 @@ module "main" {
   default_ami_id_tooling         = "ami-048730c6de6ae6369" # base-20220809165126 2022-08-09
   route53_id                     = "Z096400532ZFM348WWIAA"
   accountids                     = ["894947205914", "034795980528", "217680906704"]
+  gitlab_runner_enabled          = true
+  env_runner_gitlab_hostname     = "gitlab.login.gov"
+  env_runner_config_bucket       = "login-gov-production-gitlabconfig-217680906704-us-west-2"
+  gitlab_servicename             = "com.amazonaws.vpce.us-west-2.vpce-svc-01f5cb298111fa927"
 }

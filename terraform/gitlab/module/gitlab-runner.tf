@@ -60,7 +60,7 @@ module "test_pool" {
   root_domain                      = var.root_domain
   route53_id                       = var.route53_id
   route53_internal_zone_id         = aws_route53_zone.internal.zone_id
-  runner_subnet_ids                = [for zone in local.network_zones : aws_subnet.public-ingress[zone].id]
+  runner_subnet_ids                = [for zone in local.network_zones : aws_subnet.apps[zone].id]
   s3_prefix_list_id                = aws_vpc_endpoint.private-s3.prefix_list_id
   slack_events_sns_hook_arn        = var.slack_events_sns_hook_arn
   endpoint_security_groups         = local.default_endpoint_security_group_ids
@@ -95,7 +95,7 @@ module "env-runner" {
   root_domain                      = var.root_domain
   route53_id                       = var.route53_id
   route53_internal_zone_id         = aws_route53_zone.internal.zone_id
-  runner_subnet_ids                = [for zone in local.network_zones : aws_subnet.public-ingress[zone].id]
+  runner_subnet_ids                = [for zone in local.network_zones : aws_subnet.apps[zone].id]
   s3_prefix_list_id                = aws_vpc_endpoint.private-s3.prefix_list_id
   slack_events_sns_hook_arn        = var.slack_events_sns_hook_arn
   endpoint_security_groups         = local.default_endpoint_security_group_ids
@@ -115,12 +115,11 @@ module "gitlab" {
   depends_on = [aws_internet_gateway.default]
   source     = "../../modules/gitlab"
 
-  gitlab_servicename       = var.gitlab_servicename
-  gitlab_subnet_cidr_block = aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block
-  vpc_id                   = aws_vpc.default.id
-  env_name                 = var.env_name
-  allowed_security_groups  = [aws_security_group.base.id]
-  route53_zone_id          = aws_route53_zone.internal.zone_id
-  dns_name                 = local.env_runner_gitlab_hostname
-  gitlab_subnet_ids        = aws_autoscaling_group.gitlab.vpc_zone_identifier
+  gitlab_servicename      = var.gitlab_servicename
+  endpoint_subnet_ids     = slice([for zone in local.network_zones : aws_subnet.endpoints[zone].id], 0, 2)
+  vpc_id                  = aws_vpc.default.id
+  env_name                = var.env_name
+  allowed_security_groups = [aws_security_group.base.id]
+  route53_zone_id         = aws_route53_zone.internal.zone_id
+  dns_name                = local.env_runner_gitlab_hostname
 }
