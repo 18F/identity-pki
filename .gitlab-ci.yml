@@ -29,10 +29,11 @@ stages:
 variables:
   CI_COMMIT_TAG: "$CI_COMMIT_SHA"
   ECR_REGISTRY: "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
-  DEPLOY_IMAGE_DIGEST: "sha256:a1dc5a54bf94f8bde6b8eba3c48fc7b869a999b341d76639458d6a757dbfcf57"
+  DEPLOY_IMAGE_DIGEST: "sha256:b59593114ae2715ba92120e72b53a84e3fa84720013546cffbe28548a7fcd5f3"
   TEST_IMAGE_DIGEST: "sha256:4f08ebe20d31b7001969b56dc14473e29466f6e4e754ff414626b301ae89d9c6"
   GITDEPLOY_IMAGE_DIGEST: "sha256:5cbb0d207db1f1a4267ae4255f901794c6847ca6d13723bd43eee3e80726bf5e"
   GITTEST_IMAGE_DIGEST: "sha256:9c92a4d06c4e88af3989df742cbc466054f6842855da4b71f8092204ff85ecdb"
+  STOP_IMAGE_DIGEST: "sha256:0d9bd0ca8bf279593c190e84dbf93b5fb47080f8562447640ede187fe1315c1f"
 
 # Always runs on merge requests, so the pipeline has at least one job. https://gitlab.com/gitlab-org/gitlab/-/issues/220260
 no-op:
@@ -73,7 +74,7 @@ gitlab-qa:
     name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/gitlab-qa:latest
   stage: test_gitlab
   script:
-    - echo "Yay!"
+    - echo "Yay!" ; exit 1
   when: manual
 
 include:
@@ -132,7 +133,6 @@ build_gitlab_test:
     # ... and only if there are changes in these files
     - changes:
         - dockerfiles/gitlab_test*
-        - versions.tf
   variables:
     dockerfile: gitlab_test.Dockerfile
     ecr_repo: cd/gitlab_test
@@ -152,6 +152,20 @@ build_env_deploy:
     dockerfile: env_deploy.Dockerfile
     ecr_repo: cd/env_deploy
 
+build_env_stop:
+  <<: *build_template
+  rules:
+    # Always run if it's on the main branch.
+    - if: $CI_COMMIT_BRANCH == "main"
+    # Otherwise, only build on PRs, not new branches ...
+    - !reference [.merge_request, rules]
+    # ... and only if there are changes in these files
+    - changes:
+        - dockerfiles/env_stop*
+  variables:
+    dockerfile: env_stop.Dockerfile
+    ecr_repo: cd/env_stop
+
 build_env_test:
   <<: *build_template
   rules:
@@ -162,7 +176,6 @@ build_env_test:
     # ... and only if there are changes in these files
     - changes:
         - dockerfiles/env_test*
-        - versions.tf
   variables:
     dockerfile: env_test.Dockerfile
     ecr_repo: cd/env_test
@@ -202,7 +215,7 @@ build_idp_ci:
     reports:
       terraform: plan.json
   script:
-    - echo "Somebody set us up the deploy"
+    - echo "Somebody set us up the deploy" ; exit 1
 
 .test_template: &test_template
   image:
@@ -216,7 +229,7 @@ build_idp_ci:
     reports:
       junit: testlogs/*.xml
   script:
-    - echo "Tests for great justice"
+    - echo "Tests for great justice" ; exit 1
 
 .badtest_template: &badtest_template
   when: manual
@@ -225,15 +238,25 @@ build_idp_ci:
     name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ecr-public/docker/library/alpine
   stage: test
   script:
-    - echo "You have no chance to survive make your test."
+    - echo "You have no chance to survive make your test." ; exit 1
 
+.stop_template: &stop_template
+  when: manual
+  stage: deploy
+  variables:
+    GIT_SUBMODULE_STRATEGY: normal
+  image:
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_stop@$STOP_IMAGE_DIGEST
+  script:
+    - echo "Main screen turn off." ; exit 1
 
 
 # deploy jobs for tspencer env here.
 deploy_tspencer:
   <<: *deploy_template
-  environment:
+  environment: 
     name: tspencer
+    on_stop: stop_tspencer
     url: https://idp.tspencer.identitysandbox.gov/
   resource_group: tspencer
   tags:
@@ -262,6 +285,17 @@ badtest_tspencer:
     - tspencer-env-runner
   needs:
     - deploy_tspencer
+
+stop_tspencer:
+  <<: *stop_template
+  only:
+    - stages/tspencer
+  tags:
+    - tspencer-env-runner
+  resource_group: tspencer
+  environment: 
+    name: tspencer
+    action: stop
 
 
 # deploy jobs for pauldoom env here.
@@ -296,6 +330,18 @@ badtest_pauldoom:
   needs:
     - deploy_pauldoom
 
+stop_pauldoom:
+  <<: *stop_template
+  only:
+    - stages/pauldoom
+  tags:
+    - pauldoom-env-runner
+  resource_group: pauldoom
+  environment: 
+    name: pauldoom
+    action: stop
+
+
 # deploy jobs for gitstaging env here.
 deploy_gitstaging:
   environment: gitstaging
@@ -323,7 +369,7 @@ deploy_gitstaging:
     reports:
       terraform: plan.json
   script:
-    - echo "Yay deploys!"
+    - echo "Yay deploys!" ; exit 1
 
 test_gitstaging:
   only:
@@ -343,12 +389,12 @@ test_gitstaging:
   needs:
     - deploy_gitstaging
   script:
-    - echo "Somebody set us up the deploy"
+    - echo "Somebody set us up the deploy" ; exit 1
   artifacts:
     reports:
       junit: testlogs/*.xml
   script:
-    - echo "Tests for great justice"
+    - echo "Tests for great justice" ; exit 1
 
 badtest_gitstaging:
   when: manual
@@ -363,7 +409,7 @@ badtest_gitstaging:
   needs:
     - deploy_gitstaging
   script:
-    - echo "You have no chance to survive make your test."
+    - echo "You have no chance to survive make your test." ; exit 1
 
 # deploy jobs for dev env here.
 deploy_dev:
@@ -421,7 +467,7 @@ deploy_bravo:
     reports:
       terraform: plan.json
   script:
-    - echo "Yay deploys!"
+    - echo "Yay deploys!" ; exit 1
 
 test_bravo:
   only:
@@ -437,12 +483,12 @@ test_bravo:
   needs:
     - deploy_bravo
   script:
-    - echo "Somebody set us up the deploy"
+    - echo "Somebody set us up the deploy" ; exit 1
   artifacts:
     reports:
       junit: testlogs/*.xml
   script:
-    - echo "Tests for great justice"
+    - echo "Tests for great justice" ; exit 1
 
 badtest_bravo:
   when: manual
@@ -457,7 +503,7 @@ badtest_bravo:
   needs:
     - deploy_bravo
   script:
-    - echo "You have no chance to survive make your test."
+    - echo "You have no chance to survive make your test." ; exit 1
 
 include:
   - local: /terraform/.gitlab-ci.yml

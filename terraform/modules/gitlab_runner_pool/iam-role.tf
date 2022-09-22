@@ -394,6 +394,35 @@ resource "aws_iam_role_policy" "gitlab-runner-config" {
       EOM
 }
 
+resource "aws_iam_role_policy" "gitlab-runner-stopenv" {
+  role        = aws_iam_role.gitlab_runner.id
+  name_prefix = "${var.env_name}-gitlab_runner-stopenv"
+  policy      = <<-EOM
+      {
+          "Version": "2012-10-17",
+          "Statement": [
+              {
+                  "Sid": "allowStopEnv",
+                  "Effect": "Allow",
+                  "Action": [
+                      "rds:StopDBInstance",
+                      "rds:StartDBInstance",
+                      "rds:StopDBCluster",
+                      "rds:StartDBCluster"
+                  ],
+                  "Resource": [
+                    "arn:aws:rds:${var.region}:${data.aws_caller_identity.current.account_id}:db:login-${var.env_name}",
+                    "arn:aws:rds:${var.region}:${data.aws_caller_identity.current.account_id}:db:${var.env_name}-idp-worker-jobs",
+                    "arn:aws:rds:${var.region}:${data.aws_caller_identity.current.account_id}:db:login-${var.env_name}-idp",
+                    "arn:aws:rds:${var.region}:${data.aws_caller_identity.current.account_id}:db:${var.env_name}-idp-replica",
+                    "arn:aws:rds:${var.region}:${data.aws_caller_identity.current.account_id}:cluster:login-${var.env_name}-idp-aurora-${var.region}"
+                  ]
+              }
+          ]
+      }
+    EOM
+}
+
 data "aws_iam_policy_document" "app_artifacts_bucket_role_policy_document" {
   statement {
     sid    = "AllowAppArtifactsBucketAndObjects"

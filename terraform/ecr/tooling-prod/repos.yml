@@ -20,6 +20,9 @@ repos:
   env_deploy:
     name: "cd/env_deploy"
     <<: *all_write_template
+  env_stop:
+    name: "cd/env_stop"
+    <<: *all_write_template
   gitlab_test:
     name: "cd/gitlab_test"
     <<: *all_write_template

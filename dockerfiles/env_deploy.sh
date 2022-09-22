@@ -65,6 +65,13 @@ export TF_VAR_privatedir
 NEW_RELIC_API_KEY=$(aws s3 cp "s3://login-gov.secrets.$AWS_ACCOUNTID-$AWS_REGION/common/newrelic_apikey" - || true)
 export NEW_RELIC_API_KEY
 
+# start RDS/aurora (it may be shut down from an env_stop)
+aws rds start-db-instance --region "$AWS_REGION" --db-instance-identifier "$CI_ENVIRONMENT_NAME-idp-worker-jobs" || true
+aws rds start-db-instance --region "$AWS_REGION" --db-instance-identifier "login-$CI_ENVIRONMENT_NAME" || true
+aws rds start-db-instance --region "$AWS_REGION" --db-instance-identifier "login-$CI_ENVIRONMENT_NAME-idp" || true
+aws rds start-db-instance --region "$AWS_REGION" --db-instance-identifier "$CI_ENVIRONMENT_NAME-idp-replica" || true
+aws rds start-db-cluster --region "$AWS_REGION" --db-cluster-identifier "login-$CI_ENVIRONMENT_NAME-idp-aurora-$AWS_REGION" || true
+
 # Do the init
 cd "$CI_PROJECT_DIR/terraform/app" || exit 1
 /usr/local/bin/terraform init -plugin-dir=.terraform/plugins \
