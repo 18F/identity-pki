@@ -1,6 +1,6 @@
 ## Overview:
 
-This module enables the feedback notification for the SES verified identity(Domain/Email) to a SNS topic. SQS queue is subscribed to the SNS topic. A dead letter queue for this SQS queue is created for delivering any failed messages, with retention of 14 days. Lambda is setup with SQS as trigger and masks the receipent's email address before pushing to cloudwatch log group.
+This module enables the feedback notification for the SES verified identity(Domain/Email) to a SNS topic. Feedback notifications for Bounce, Complaint and Delievery will be sent to their respective SNS topic. SQS queue is subscribed to the created SNS topics. A dead letter queue for this SQS queue is created for delivering any failed messages, with retention of 14 days. Lambda is setup with SQS as trigger and masks the receipent's email address before pushing to cloudwatch log group.
 
 ## Architecture Diagram: SES Feedback Notification Evaluation POC
 
@@ -16,7 +16,9 @@ It creates the following AWS Resources:
 
 ## Usage:
 
-module "ses_feedback_notification" {
-  source = "../modules/eval_ses_feedback_notification"
-  ses_verified_identity = var.ses_verified_identity
-}
+```hcl
+    module "ses_feedback_notification" {
+      source = "../modules/eval_ses_feedback_notification"
+      ses_verified_identity = var.ses_verified_identity
+    }
+```
