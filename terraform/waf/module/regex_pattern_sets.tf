@@ -36,7 +36,7 @@ resource "aws_wafv2_regex_pattern_set" "header_blocks" {
 
 resource "aws_wafv2_regex_pattern_set" "query_string_blocks" {
   count       = length(var.query_block_regex) >= 1 ? 1 : 0
-  name        = "${var.env}-query-string-blocks"
+  name        = "${var.env}-${var.app}-query-string-blocks"
   description = "Regex patterns in query strings to block"
   scope       = var.wafv2_web_acl_scope
 
@@ -54,8 +54,8 @@ resource "aws_wafv2_regex_pattern_set" "query_string_blocks" {
 
 resource "aws_wafv2_regex_pattern_set" "restricted_paths" {
   count       = length(var.restricted_paths.paths) > 0 ? 1 : 0
-  name        = "${var.env}-gitlab-restricted-paths"
-  description = "Regex patterns of Gitlab paths to restrict to VPN and VPC"
+  name        = "${var.env}-${var.app}-restricted-paths"
+  description = "Regex patterns of paths to restrict to VPN and VPC"
   scope       = var.wafv2_web_acl_scope
 
   dynamic "regular_expression" {
@@ -72,8 +72,8 @@ resource "aws_wafv2_regex_pattern_set" "restricted_paths" {
 
 resource "aws_wafv2_regex_pattern_set" "restricted_paths_exclusions" {
   count       = length(var.restricted_paths.exclusions) > 0 ? 1 : 0
-  name        = "${var.env}-gitlab-restricted-paths-exclusions"
-  description = "Regex patterns of Gitlab paths NOT to restrict to VPN and VPC"
+  name        = "${var.env}-${var.app}-restricted-paths-exclusions"
+  description = "Regex patterns of paths NOT to restrict to VPN and VPC"
   scope       = var.wafv2_web_acl_scope
 
   dynamic "regular_expression" {

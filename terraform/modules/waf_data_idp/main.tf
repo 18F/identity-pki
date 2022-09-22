@@ -4,16 +4,12 @@ data "aws_vpc" "default" {
   }
 }
 
-data "github_ip_ranges" "meta" {}
-
 output "restricted_paths" {
   value = {
     paths = [
-      "^/api.*",
-      "^/admin.*",
+      "^/api/irs_attempts_api/.*",
     ]
     exclusions = [
-      "^/api/graphql.*",
     ]
   }
 }
@@ -29,27 +25,23 @@ data "aws_nat_gateway" "ngw" {
 
 locals {
   nat_cidr_blocks = formatlist("%s/32", [for ngw in data.aws_nat_gateway.ngw : ngw.public_ip])
+  vpc_cidr_blocks = [for entry in data.aws_vpc.default.cidr_block_associations : entry.cidr_block]
 }
 
 output "privileged_cidrs_v4" {
   value = sort(
     concat(
       local.nat_cidr_blocks,
-      [data.aws_vpc.default.cidr_block],
-      data.github_ip_ranges.meta.hooks_ipv4,
-      ["159.142.0.0/16", ] # GSA VPN IPs
+      local.vpc_cidr_blocks,
+      var.privileged_cidr_blocks_v4,
     )
   )
 }
 
-output "us_regions" {
-  value = [
-    "AS",
-    "GU",
-    "MP",
-    "PR",
-    "UM",
-    "US",
-    "VI",
-  ]
+output "privileged_cidrs_v6" {
+  value = sort(
+    concat(
+      var.privileged_cidr_blocks_v6,
+    )
+  )
 }

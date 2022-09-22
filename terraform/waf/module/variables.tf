@@ -15,6 +15,11 @@ variable "env" {
   description = "Environment name"
 }
 
+variable "app" {
+  description = "Application name like idp or gitlab"
+  default     = "idp"
+}
+
 variable "enforce" {
   description = "Set to true to enforce WAF ACL rules or false to just count traffic matching rules"
   type        = bool
@@ -179,7 +184,11 @@ variable "restricted_paths" {
   }
 }
 
-variable "privileged_ips" {
+variable "privileged_cidrs_v4" {
+  default = []
+}
+
+variable "privileged_cidrs_v6" {
   default = []
 }
 

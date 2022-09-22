@@ -25,7 +25,7 @@ resource "aws_wafv2_web_acl" "alb" {
 
   # Only this rule has the 'allow' action, short-circuiting the other rules.
   dynamic "rule" {
-    for_each = length(var.privileged_ips) > 0 ? [1] : []
+    for_each = length(aws_wafv2_ip_set.privileged_ips) > 0 ? [1] : []
     content {
       name     = "AllowPrivilegedIPs"
       priority = 50
@@ -33,8 +33,44 @@ resource "aws_wafv2_web_acl" "alb" {
         allow {}
       }
       statement {
-        ip_set_reference_statement {
-          arn = aws_wafv2_ip_set.privileged_ips[0].arn
+        or_statement {
+          # Support matching in case of direct access or through CDN
+          statement {
+            ip_set_reference_statement {
+              arn = aws_wafv2_ip_set.privileged_ips[0].arn
+            }
+          }
+          dynamic "statement" {
+            for_each = length(aws_wafv2_ip_set.privileged_cidrs_v6) > 0 ? [1] : []
+            content {
+              ip_set_reference_statement {
+                arn = aws_wafv2_ip_set.privileged_cidrs_v6[0].arn
+              }
+            }
+          }
+          statement {
+            ip_set_reference_statement {
+              arn = aws_wafv2_ip_set.privileged_ips[0].arn
+              ip_set_forwarded_ip_config {
+                header_name       = "X-Forwarded-For"
+                position          = "FIRST"
+                fallback_behavior = "NO_MATCH"
+              }
+            }
+          }
+          dynamic "statement" {
+            for_each = length(aws_wafv2_ip_set.privileged_cidrs_v6) > 0 ? [1] : []
+            content {
+              ip_set_reference_statement {
+                arn = aws_wafv2_ip_set.privileged_cidrs_v6[0].arn
+                ip_set_forwarded_ip_config {
+                  header_name       = "X-Forwarded-For"
+                  position          = "FIRST"
+                  fallback_behavior = "NO_MATCH"
+                }
+              }
+            }
+          }
         }
       }
       visibility_config {
@@ -471,39 +507,58 @@ resource "aws_wafv2_web_acl" "alb" {
   dynamic "rule" {
     for_each = length(var.restricted_paths.paths) > 0 ? [1] : []
     content {
-      name     = "BlockPaths"
+      name     = "IdpBlockPaths"
       priority = 1100
       action {
         block {}
       }
       statement {
-        and_statement {
-          statement {
-            not_statement {
-              statement {
-                regex_pattern_set_reference_statement {
-                  arn = aws_wafv2_regex_pattern_set.restricted_paths_exclusions[0].arn
-                  field_to_match {
-                    uri_path {}
-                  }
-                  text_transformation {
-                    priority = 0
-                    type     = "LOWERCASE"
+        dynamic "and_statement" {
+          # Only combine the resticted path AND the exclusion path patterns if both
+          # are present
+          for_each = length(var.restricted_paths.exclusions) > 0 ? [1] : []
+          content {
+            statement {
+              not_statement {
+                statement {
+                  regex_pattern_set_reference_statement {
+                    arn = aws_wafv2_regex_pattern_set.restricted_paths_exclusions[0].arn
+                    field_to_match {
+                      uri_path {}
+                    }
+                    text_transformation {
+                      priority = 0
+                      type     = "LOWERCASE"
+                    }
                   }
                 }
               }
             }
+            statement {
+              regex_pattern_set_reference_statement {
+                arn = aws_wafv2_regex_pattern_set.restricted_paths[0].arn
+                field_to_match {
+                  uri_path {}
+                }
+                text_transformation {
+                  priority = 0
+                  type     = "LOWERCASE"
+                }
+              }
+            }
           }
-          statement {
-            regex_pattern_set_reference_statement {
-              arn = aws_wafv2_regex_pattern_set.restricted_paths[0].arn
-              field_to_match {
-                uri_path {}
-              }
-              text_transformation {
-                priority = 0
-                type     = "LOWERCASE"
-              }
+        }
+        dynamic "regex_pattern_set_reference_statement" {
+          # No AND needed if only a restricted path pattern is set
+          for_each = length(var.restricted_paths.exclusions) > 0 ? [] : [1]
+          content {
+            arn = aws_wafv2_regex_pattern_set.restricted_paths[0].arn
+            field_to_match {
+              uri_path {}
+            }
+            text_transformation {
+              priority = 0
+              type     = "LOWERCASE"
             }
           }
         }
