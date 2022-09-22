@@ -450,7 +450,7 @@ deploy_bravo:
     url: https://gitlab.identitysandbox.gov/
   resource_group: bravo
   only:
-    - stages/gitlabbravo
+    - main
   variables:
     GIT_SUBMODULE_STRATEGY: normal
   tags:
@@ -471,7 +471,7 @@ deploy_bravo:
 
 test_bravo:
   only:
-    - stages/gitlabbravo
+    - main
   variables:
     ENV_NAME: bravo
     DOMAIN: gitlab.bravo.gitlab.login.gov
