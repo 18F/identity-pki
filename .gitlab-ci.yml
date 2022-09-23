@@ -324,7 +324,10 @@ stop_tspencer:
 # deploy jobs for pauldoom env here.
 deploy_pauldoom:
   <<: *deploy_template
-  environment: pauldoom
+  environment:
+    name: pauldoom
+    url: https://idp.pauldoom.identitysandbox.gov/
+    on_stop: stop_pauldoom
   resource_group: pauldoom
   only:
     - stages/pauldoom
@@ -367,7 +370,9 @@ stop_pauldoom:
 
 # deploy jobs for gitstaging env here.
 deploy_gitstaging:
-  environment: gitstaging
+  environment:
+    name: gitstaging
+    url: https://gitlab.gitstaging.gitlab.login.gov/
   resource_group: gitstaging
   only:
     - stages/gitstaging
@@ -435,7 +440,9 @@ badtest_gitstaging:
 # deploy jobs for dev env here.
 deploy_dev:
   <<: *deploy_template
-  environment: dev
+  environment:
+    name: dev
+    url: https://idp.dev.identitysandbox.gov/
   resource_group: dev
   only:
     - main
