@@ -153,13 +153,13 @@ locals {
       metric_value = 1
     },
   }
-  
+
   in_person_proofing_filters = {
     login_in_person_proofing_enrollment_failure = {
       name         = "login-in-person-proofing-failure"
       pattern      = "{ ($.name = \"USPS IPPaaS enrollment failed\") }"
       metric_value = 1
-      dimensions = {}
+      dimensions   = {}
     },
   }
 
