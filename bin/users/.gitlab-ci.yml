@@ -1,3 +1,4 @@
+---
 include:
   local: /.gitlab-ci-rules.yml
 
@@ -6,8 +7,7 @@ test_user_sync:
   rules:
     - !reference [.merge_request, rules]
     - changes:
-      - bin/users/**/*
+        - bin/users/**/*
   script:
     - cd bin/users
     - make test
-  

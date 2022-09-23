@@ -1,3 +1,4 @@
+---
 # Jobs defined here use the ecr-public/docker/library/alpine docker image by
 # default. To find other available images:
 #   aws ecr describe-repositories | jq '.repositories[].repositoryUri'
@@ -49,36 +50,58 @@ show-env:
   script:
     - env
 
-gitlab-qa:
-  rules:
-    - if: $CI_COMMIT_BRANCH == "main"
-      changes:
-        - terraform/gitlab/**/*
-        - kitchen/cookbooks/identity-gitlab/**/*
-        - terraform/modules/gitlab_runner_pool/**/*
+build-gitlab-qa:
   variables:
-    GITHUB_ENDPOINT: "https://${EXTERNAL_FQDN}:443"
-    GITLAB_ADMIN_PASSWORD: ${GITLAB_QA_PASSWORD}
-    GITLAB_ADMIN_USERNAME: ${GITLAB_QA_ACCOUNT}
-    GITLAB_API_BASE: "https://${EXTERNAL_FQDN}/api/v4"
-    GITLAB_FORKER_PASSWORD: ${GITLAB_QA_PASSWORD}
-    GITLAB_FORKER_USERNAME: ${GITLAB_QA_ACCOUNT}
-    GITLAB_PASSWORD: ${GITLAB_QA_PASSWORD}
-    GITLAB_QA_PASSWORD: ${GITLAB_QA_PASSWORD}
-    GITLAB_QA_USERNAME_1: ${GITLAB_QA_ACCOUNT}
-    GITLAB_USERNAME: ${GITLAB_QA_ACCOUNT}
-    QA_DEBUG: "true"
+    CI_COMMIT_TAG: v15.3.3-ee
+    ECR_REGISTRY: $AWS_ACCOUNT_ID.dkr.ecr.us-west-2.amazonaws.com
+    IMAGE_NAME: gitlab-qa
+
+
   tags:
     - build-pool
+  stage: build
   image:
-    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/gitlab-qa:latest
-  stage: test_gitlab
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
   script:
-    - echo "Yay!" ; exit 1
+    - git clone https://gitlab.com/gitlab-org/gitlab.git
+    - git checkout $CI_COMMIT_TAG
+    - cd gitlab
+    - mkdir -p /kaniko/.docker
+    - |-
+       KANIKOCFG="\"credsStore\":\"ecr-login\""
+       if [ "x${http_proxy}" != "x" -o "x${https_proxy}" != "x" ]; then
+         KANIKOCFG="${KANIKOCFG}, \"proxies\": { \"default\": { \"httpProxy\": \"${http_proxy}\", \"httpsProxy\": \"${https_proxy}\", \"noProxy\": \"${no_proxy}\"}}"
+       fi
+       KANIKOCFG="{ ${KANIKOCFG} }"
+       echo "${KANIKOCFG}" > /kaniko/.docker/config.json
+    - >-
+      /kaniko/executor
+      --context "./"
+      --dockerfile "./qa/Dockerfile"
+      --destination "${ECR_REGISTRY}/${ecr_repo}:latest"
+      --destination "${ECR_REGISTRY}/${ecr_repo}:${CI_COMMIT_TAG}"
+      --build-arg "http_proxy=${http_proxy}" --build-arg "https_proxy=${https_proxy}" --build-arg "no_proxy=${no_proxy}"
   when: manual
 
-include:
-  local: /.gitlab-ci-rules.yml
+run-gitlab-qa:
+  variables:
+    GITHUB_ENDPOINT: "https://$EXTERNAL_FQDN"
+    GITLAB_ADMIN_PASSWORD: $GITLAB_QA_PASSWORD
+    GITLAB_ADMIN_USERNAME: $GITLAB_QA_ACCOUNT
+    GITLAB_PASSWORD: $GITLAB_QA_PASSWORD
+    GITLAB_USERNAME: $GITLAB_QA_ACCOUNT
+    QA_CAN_TEST_PRAEFECT: "false"
+    QA_DEBUG: "true"
+  tags:
+    - test-pool
+  image:
+    name: "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/gitlab-qa:latest"
+  stage: test
+  script:
+    - "bin/test Test::Instance::Smoke https://$EXTERNAL_FQDN --"
+    - exit 1
+  when: manual
 
 # TODO(LG-6069): Use an image from ECR
 .build_template: &build_template
@@ -254,7 +277,7 @@ build_idp_ci:
 # deploy jobs for tspencer env here.
 deploy_tspencer:
   <<: *deploy_template
-  environment: 
+  environment:
     name: tspencer
     on_stop: stop_tspencer
     url: https://idp.tspencer.identitysandbox.gov/
@@ -293,7 +316,7 @@ stop_tspencer:
   tags:
     - tspencer-env-runner
   resource_group: tspencer
-  environment: 
+  environment:
     name: tspencer
     action: stop
 
@@ -337,7 +360,7 @@ stop_pauldoom:
   tags:
     - pauldoom-env-runner
   resource_group: pauldoom
-  environment: 
+  environment:
     name: pauldoom
     action: stop
 
@@ -393,8 +416,6 @@ test_gitstaging:
   artifacts:
     reports:
       junit: testlogs/*.xml
-  script:
-    - echo "Tests for great justice" ; exit 1
 
 badtest_gitstaging:
   when: manual
@@ -445,7 +466,7 @@ badtest_dev:
 
 # deploy jobs for gitlabbravo env here.
 deploy_bravo:
-  environment: 
+  environment:
     name: bravo
     url: https://gitlab.identitysandbox.gov/
   resource_group: bravo
@@ -487,8 +508,6 @@ test_bravo:
   artifacts:
     reports:
       junit: testlogs/*.xml
-  script:
-    - echo "Tests for great justice" ; exit 1
 
 badtest_bravo:
   when: manual
@@ -506,6 +525,7 @@ badtest_bravo:
     - echo "You have no chance to survive make your test." ; exit 1
 
 include:
-  - local: /terraform/.gitlab-ci.yml
-  - local: /cloudlib/.gitlab-ci.yml
-  - local: /bin/users/.gitlab-ci.yml
+  - local: .gitlab-ci-rules.yml
+  - local: terraform/.gitlab-ci.yml
+  - local: cloudlib/.gitlab-ci.yml
+  - local: bin/users/.gitlab-ci.yml
