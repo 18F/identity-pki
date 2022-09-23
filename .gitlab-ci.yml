@@ -367,19 +367,14 @@ stop_pauldoom:
     name: pauldoom
     action: stop
 
-
-# deploy jobs for gitstaging env here.
-deploy_gitstaging:
-  environment:
-    name: gitstaging
-    url: https://gitlab.gitstaging.gitlab.login.gov/
-  resource_group: gitstaging
-  only:
-    - stages/gitstaging
-  variables:
-    GIT_SUBMODULE_STRATEGY: normal
+# deploy job template for gitlab envs
+.deploy_gitlab_template: &deploy_gitlab_template
+  environment: 
+    name: $env
+    url: $url
+  resource_group: $env
   tags:
-    - gitstaging-env-runner
+    - $env-env-runner
   image:
     # these are hardcoded to make this deploy process more secure.
     # If you want to update this image, you will need to edit it here, and in
@@ -399,14 +394,10 @@ deploy_gitstaging:
   script:
     - echo "Yay deploys!" ; exit 1
 
-test_gitstaging:
-  only:
-    - stages/gitstaging
-  variables:
-    ENV_NAME: gitstaging
-    DOMAIN: gitlab.gitstaging.gitlab.login.gov
+# test job template for gitlab envs
+.test_gitlab_template: &test_gitlab_template
   tags:
-    - gitstaging-env-runner
+    - ${ENV_NAME}-env-runner
   image:
     # these are hardcoded to make this deploy process more secure.
     # If you want to update this image, you will need to edit it here, and in
@@ -414,13 +405,31 @@ test_gitstaging:
     # or s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images.
     name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/gitlab_test@$GITTEST_IMAGE_DIGEST
   stage: test
-  needs:
-    - deploy_gitstaging
   script:
     - echo "Somebody set us up the deploy" ; exit 1
   artifacts:
     reports:
       junit: testlogs/*.xml
+
+# deploy jobs for gitstaging env here.
+deploy_gitstaging:
+  <<: *deploy_gitlab_template
+  only:
+    - stages/gitstaging
+  variables:
+    env: gitstaging
+    url: https://gitlab.gitstaging.gitlab.login.gov/
+    GIT_SUBMODULE_STRATEGY: normal
+
+test_gitstaging:
+  <<: *test_gitlab_template
+  needs:
+    - deploy_gitstaging
+  only:
+    - stages/gitstaging
+  variables:
+    ENV_NAME: gitstaging
+    DOMAIN: gitlab.gitstaging.gitlab.login.gov
 
 badtest_gitstaging:
   when: manual
@@ -473,48 +482,23 @@ badtest_dev:
 
 # deploy jobs for gitlabbravo env here.
 deploy_bravo:
-  environment:
-    name: bravo
-    url: https://gitlab.identitysandbox.gov/
-  resource_group: bravo
+  <<: *deploy_gitlab_template
   only:
     - main
   variables:
+    env: bravo
+    url: https://gitlab.identitysandbox.gov/
     GIT_SUBMODULE_STRATEGY: normal
-  tags:
-    - bravo-env-runner
-  image:
-    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/gitlab_deploy@$GITDEPLOY_IMAGE_DIGEST
-  stage: deploy
-  artifacts:
-    name: "$CI_ENVIRONMENT_NAME-$CI_COMMIT_SHA"
-    paths:
-      - terraform.plan
-      - plan.txt
-    expire_in: 1 year
-    reports:
-      terraform: plan.json
-  script:
-    - echo "Yay deploys!" ; exit 1
 
 test_bravo:
+  <<: *test_gitlab_template
   only:
     - main
+  needs:
+    - deploy_bravo
   variables:
     ENV_NAME: bravo
     DOMAIN: gitlab.bravo.gitlab.login.gov
-  tags:
-    - bravo-env-runner
-  image:
-    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/gitlab_test@$GITTEST_IMAGE_DIGEST
-  stage: test
-  needs:
-    - deploy_bravo
-  script:
-    - echo "Somebody set us up the deploy" ; exit 1
-  artifacts:
-    reports:
-      junit: testlogs/*.xml
 
 badtest_bravo:
   when: manual
@@ -530,6 +514,26 @@ badtest_bravo:
     - deploy_bravo
   script:
     - echo "You have no chance to survive make your test." ; exit 1
+
+deploy_alpha:
+  <<: *deploy_gitlab_template
+  variables:
+    env: alpha
+    url: https://gitlab.alpha.gitlab.identitysandbox.gov
+    GIT_SUBMODULE_STRATEGY: normal
+    CI_DEBUG_TRACE: "true"
+  only:
+    - stages/gitlabalpha
+
+test_alpha:
+  <<: *test_gitlab_template
+  needs:
+    - deploy_alpha
+  variables:
+    ENV_NAME: alpha
+    DOMAIN: gitlab.alpha.gitlab.login.gov
+  only:
+    - stages/gitlabalpha
 
 include:
   - local: .gitlab-ci-rules.yml

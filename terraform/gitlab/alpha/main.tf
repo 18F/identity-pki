@@ -24,4 +24,8 @@ module "main" {
   accountids                     = ["894947205914", "034795980528", "217680906704"]
   asg_gitlab_test_runner_desired = 4
   use_waf_rules                  = true
+  gitlab_runner_enabled          = true
+  env_runner_gitlab_hostname     = "gitlab.login.gov"
+  env_runner_config_bucket       = "login-gov-production-gitlabconfig-217680906704-us-west-2"
+  gitlab_servicename             = "com.amazonaws.vpce.us-west-2.vpce-svc-01f5cb298111fa927"
 }
