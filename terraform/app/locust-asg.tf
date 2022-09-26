@@ -11,15 +11,15 @@ module "locust_user_data" {
   chef_download_sha256 = var.chef_download_sha256
 
   # identity-devops-private variables
-  private_s3_ssh_key_url = var.bootstrap_private_s3_ssh_key_url
+  private_s3_ssh_key_url = local.bootstrap_private_s3_ssh_key_url
   private_git_clone_url  = var.bootstrap_private_git_clone_url
   private_git_ref        = var.bootstrap_private_git_ref
 
   # identity-devops variables
-  main_s3_ssh_key_url  = var.bootstrap_main_s3_ssh_key_url
+  main_s3_ssh_key_url  = local.bootstrap_main_s3_ssh_key_url
   main_git_clone_url   = var.bootstrap_main_git_clone_url
   main_git_ref_map     = var.bootstrap_main_git_ref_map
-  main_git_ref_default = var.bootstrap_main_git_ref_default
+  main_git_ref_default = local.bootstrap_main_git_ref_default
 
   # proxy variables
   proxy_server        = var.proxy_server

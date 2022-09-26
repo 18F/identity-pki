@@ -2,17 +2,18 @@
 
 set -euo pipefail
 
-declare {ENV,TEST,USERS,NUMUSERS,RUNTIME,SPAWNRATE}=
+declare {TF_ENV,TEST,DESTINATION,USERS,NUMUSERS,RUNTIME,SPAWNRATE}=
 
 usage() {
     cat >&2 << EOM
 
-Usage: ${0} [-e ENV] -t TEST [-u USERS] [-n NUMUSERS] [-r RUNTIME] [-s SPAWNRATE]
+Usage: ${0} [-e TF_ENV] [-d DESTINATION ] -t TEST [-u USERS] [-n NUMUSERS] [-r RUNTIME] [-s SPAWNRATE]
 
 Directory/environment flags (optional):
-  -e ENV : Environment to use (defaults to \$GSA_USERNAME if not specified)
+  -e TF_ENV : Environment to launch the tests (defaults to \$GSA_USERNAME if not specified)
+  -d DESTINATION : Environment to test against (defaults to TF_ENV if not specified)
 
-Flags (if CMD not specified):
+Flags (optional):
   -t TEST      : The test you would like to run. Found under identity-loadtest.
   -u USER      : Peak number of concurrent Locust Users
   -n NUMUSERS  : Total available Locust Users
@@ -24,21 +25,33 @@ Flags (if CMD not specified):
 EOM
 }
 
-while getopts e:t:u:n:r:s:h opt; do
+while getopts e:d:t:u:n:r:s:h opt; do
     case $opt in
-        e) ENV="${OPTARG}" ;;
-        t) TEST="${OPTARG}" ;;
-        u) USERS="${OPTARG}" ;;
-        n) NUMUSERS="${OPTARG}" ;;
-        r) RUNTIME="${OPTARG}" ;;
-        s) SPAWNRATE="${OPTARG}" ;;
-        *) usage && exit 1 ;;
+        e) TF_ENV="${OPTARG}"      ;;
+        d) DESTINATION="${OPTARG}" ;;
+        t) TEST="${OPTARG}"        ;;
+        u) USERS="${OPTARG}"       ;;
+        n) NUMUSERS="${OPTARG}"    ;;
+        r) RUNTIME="${OPTARG}"     ;;
+        s) SPAWNRATE="${OPTARG}"   ;;
+        *) usage && exit 1         ;;
     esac
 done
 shift $((OPTIND-1))
 
-if [[ -z ${ENV} ]] ; then
-    ENV=${GSA_USERNAME}
+if [[ -z ${TF_ENV} ]] ; then
+    TF_ENV=${GSA_USERNAME}
+fi
+
+if [[ -z ${DESTINATION} ]] ; then
+    DESTINATION=${TF_ENV}
+fi
+
+if [ -z "${DESTINATION}" ] || [ -z "${TF_ENV}" ] ; then
+    echo "ERROR: Environment Variable GSA_USERNAME has not been defined."
+    echo "Have you setup your local environment?"
+    echo "https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration"
+    exit 1
 fi
 
 if [[ -z ${TEST} ]] ; then
@@ -48,11 +61,11 @@ fi
 
 MASTER_ASG=$(\
     aws autoscaling describe-auto-scaling-groups \
-    --auto-scaling-group-name "$ENV-locust-leader" \
+    --auto-scaling-group-name "$TF_ENV-locust-leader" \
 )
 WORKER_ASG=$(\
     aws autoscaling describe-auto-scaling-groups \
-    --auto-scaling-group-name "$ENV-locust-worker" \
+    --auto-scaling-group-name "$TF_ENV-locust-worker" \
 )
 MasterInstanceCount=$(\
     echo "$MASTER_ASG" | jq '.AutoScalingGroups[].Instances | length' \
@@ -75,14 +88,15 @@ MASTER_IP=$(\
     jq .Reservations[].Instances[].NetworkInterfaces[].PrivateIpAddress \
 )
 
-echo "Launching $TEST in $ENV with $WorkerInstanceCount worker ec2 hosts..."
+echo "Launching $TEST against $DESTINATION in $TF_ENV"
+echo "    Worker Count: $WorkerInstanceCount"
 
 aws ssm send-command \
-    --targets Key=tag:Name,Values="asg-$ENV-locust-leader" \
-    --document-name "$ENV-ssm-cmd-locust-leader" \
-    --parameters "ENV=$ENV,TEST=$TEST,USERS=${USERS:="10"},NUMUSERS=${NUMUSERS:="100"},RUNTIME=${RUNTIME:="60s"},SPAWNRATE=${SPAWNRATE:="10"}"
+    --targets Key=tag:Name,Values="asg-$TF_ENV-locust-leader" \
+    --document-name "$TF_ENV-ssm-cmd-locust-leader" \
+    --parameters "ENV=$DESTINATION,TEST=$TEST,USERS=${USERS:="10"},NUMUSERS=${NUMUSERS:="100"},RUNTIME=${RUNTIME:="60s"},SPAWNRATE=${SPAWNRATE:="10"}"
 
 aws ssm send-command \
-    --targets Key=tag:Name,Values="asg-$ENV-locust-worker" \
-    --document-name "$ENV-ssm-cmd-locust-worker" \
-    --parameters "MASTERIP=$MASTER_IP,ENV=$ENV,TEST=$TEST,NUMUSERS=$NUMUSERS"
+    --targets Key=tag:Name,Values="asg-$TF_ENV-locust-worker" \
+    --document-name "$TF_ENV-ssm-cmd-locust-worker" \
+    --parameters "MASTERIP=$MASTER_IP,ENV=$DESTINATION,TEST=$TEST,NUMUSERS=$NUMUSERS"

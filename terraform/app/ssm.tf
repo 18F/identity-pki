@@ -74,7 +74,7 @@ locals {
         {
           name        = "ENV"
           type        = "String"
-          default     = "henrydrich"
+          default     = "pt"
           description = "Target Environment to Run Against"
         },
         {
