@@ -367,6 +367,52 @@ stop_pauldoom:
     name: pauldoom
     action: stop
 
+# deploy jobs for bleachbyte env here.
+deploy_bleachbyte:
+  <<: *deploy_template
+  environment:
+    name: bleachbyte
+    on_stop: stop_bleachbyte
+    url: https://idp.bleachbyte.identitysandbox.gov/
+  resource_group: bleachbyte
+  tags:
+    - bleachbyte-env-runner
+  only:
+    - stages/bleachbyte
+
+test_bleachbyte:
+  <<: *test_template
+  only:
+    - stages/bleachbyte
+  tags:
+    - bleachbyte-env-runner
+  needs:
+    - deploy_bleachbyte
+  variables:
+    IDP_HOSTNAME: idp.bleachbyte.identitysandbox.gov
+    IDP_ORIGIN_HOSTNAME: idp.origin.bleachbyte.identitysandbox.gov
+    ENV_NAME: bleachbyte
+
+badtest_bleachbyte:
+  <<: *badtest_template
+  only:
+    - stages/bleachbyte
+  tags:
+    - bleachbyte-env-runner
+  needs:
+    - deploy_bleachbyte
+
+stop_bleachbyte:
+  <<: *stop_template
+  only:
+    - stages/bleachbyte
+  tags:
+    - bleachbyte-env-runner
+  resource_group: bleachbyte
+  environment:
+    name: bleachbyte
+    action: stop
+
 # deploy job template for gitlab envs
 .deploy_gitlab_template: &deploy_gitlab_template
   environment: 
