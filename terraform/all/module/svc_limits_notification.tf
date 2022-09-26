@@ -106,7 +106,7 @@ EOM
   evaluation_periods  = 1
   period              = 21600 # 6 hours 
   namespace           = "AWS/SES"
-  treat_missing_data  = "breaching"
+  treat_missing_data  = "notBreaching"
   alarm_actions       = [aws_sns_topic.slack_usw2["events"].arn]
 }
 
