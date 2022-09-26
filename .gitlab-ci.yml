@@ -378,12 +378,12 @@ deploy_bleachbyte:
   tags:
     - bleachbyte-env-runner
   only:
-    - stages/bleachbyte
+    - main
 
 test_bleachbyte:
   <<: *test_template
   only:
-    - stages/bleachbyte
+    - main
   tags:
     - bleachbyte-env-runner
   needs:
@@ -396,7 +396,7 @@ test_bleachbyte:
 badtest_bleachbyte:
   <<: *badtest_template
   only:
-    - stages/bleachbyte
+    - main
   tags:
     - bleachbyte-env-runner
   needs:
@@ -405,7 +405,7 @@ badtest_bleachbyte:
 stop_bleachbyte:
   <<: *stop_template
   only:
-    - stages/bleachbyte
+    - main
   tags:
     - bleachbyte-env-runner
   resource_group: bleachbyte
