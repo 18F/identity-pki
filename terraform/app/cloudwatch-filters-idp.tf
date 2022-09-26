@@ -154,6 +154,14 @@ locals {
     },
   }
 
+  in_person_proofing_filters = {
+    login_in_person_proofing_enrollment_failure = {
+      name         = "login-in-person-proofing-failure"
+      pattern      = "{ ($.name = \"USPS IPPaaS enrollment failed\") }"
+      metric_value = 1
+      dimensions   = {}
+    },
+  }
 
   idp_external_service_filters = {
     aws_kms_decrypt_response_time = {
@@ -264,6 +272,19 @@ resource "aws_cloudwatch_log_metric_filter" "idp_events_auth" {
   metric_transformation {
     name       = each.value["name"]
     namespace  = "${var.env_name}/idp-authentication"
+    value      = each.value["metric_value"]
+    dimensions = each.value["dimensions"]
+  }
+}
+
+resource "aws_cloudwatch_log_metric_filter" "idp_events_in_person_proofing" {
+  for_each       = local.in_person_proofing_filters
+  name           = each.value["name"]
+  pattern        = each.value["pattern"]
+  log_group_name = aws_cloudwatch_log_group.idp_events.name
+  metric_transformation {
+    name       = each.value["name"]
+    namespace  = "${var.env_name}/idp-in-person-proofing"
     value      = each.value["metric_value"]
     dimensions = each.value["dimensions"]
   }

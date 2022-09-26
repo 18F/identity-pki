@@ -175,3 +175,21 @@ ${var.env_name}: PII Spill Detector Alarm - Sample PII may be present in event.l
 See https://github.com/18F/identity-devops/wiki/Runbook:-PII-spilled-into-logs#pii_spill_event-alert
 EOM
 }
+
+resource "aws_cloudwatch_metric_alarm" "in-person-proofing-enrollment-alarm" {
+  alarm_name                = "${var.env_name}-in-person-proofing-failure"
+  comparison_operator       = "GreaterThanThreshold"
+  evaluation_periods        = "1"
+  datapoints_to_alarm       = "1"
+  metric_name               = "login-in-person-proofing-failure"
+  namespace                 = "${var.env_name}/idp-in-person-proofing"
+  period                    = "300"
+  statistic                 = "Sum"
+  threshold                 = "0"
+  treat_missing_data        = "notBreaching"
+  insufficient_data_actions = []
+  alarm_actions             = []
+  alarm_description         = <<EOM
+${var.env_name}: Alarm tracking In Person Proofing Enrollment Failed Requests Failure
+EOM
+}
