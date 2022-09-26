@@ -22,32 +22,53 @@ resource "aws_sqs_queue" "ses_dead_letter_queue" {
   kms_master_key_id         = aws_kms_key.sqs_key.key_id
 }
 
-resource "aws_sns_topic" "ses_feedback_topic" {
-  name = "ses-send-notifications-${local.verified_identity_alnum}"
+###SNS topic###
+resource "aws_sns_topic" "ses_feedback_topic_bounce" {
+  name = "ses-send-notifications-bounce-${local.verified_identity_alnum}"
 }
 
-resource "aws_sns_topic_subscription" "ses_feedback_subscription" {
-  topic_arn = aws_sns_topic.ses_feedback_topic.arn
+resource "aws_sns_topic" "ses_feedback_topic_complaint" {
+  name = "ses-send-notifications-complaint-${local.verified_identity_alnum}"
+}
+
+resource "aws_sns_topic" "ses_feedback_topic_delivery" {
+  name = "ses-send-notifications-delivery-${local.verified_identity_alnum}"
+}
+
+resource "aws_sns_topic_subscription" "ses_feedback_subscription_bounce" {
+  topic_arn = aws_sns_topic.ses_feedback_topic_bounce.arn
+  protocol  = "sqs"
+  endpoint  = aws_sqs_queue.ses_feedback_queue.arn
+}
+
+resource "aws_sns_topic_subscription" "ses_feedback_subscription_complaint" {
+  topic_arn = aws_sns_topic.ses_feedback_topic_complaint.arn
+  protocol  = "sqs"
+  endpoint  = aws_sqs_queue.ses_feedback_queue.arn
+}
+
+resource "aws_sns_topic_subscription" "ses_feedback_subscription_delivery" {
+  topic_arn = aws_sns_topic.ses_feedback_topic_delivery.arn
   protocol  = "sqs"
   endpoint  = aws_sqs_queue.ses_feedback_queue.arn
 }
 
 resource "aws_ses_identity_notification_topic" "ses_bounce" {
-  topic_arn                = aws_sns_topic.ses_feedback_topic.arn
+  topic_arn                = aws_sns_topic.ses_feedback_topic_bounce.arn
   notification_type        = "Bounce"
   identity                 = var.ses_verified_identity
   include_original_headers = false
 }
 
 resource "aws_ses_identity_notification_topic" "ses_complaint" {
-  topic_arn                = aws_sns_topic.ses_feedback_topic.arn
+  topic_arn                = aws_sns_topic.ses_feedback_topic_complaint.arn
   notification_type        = "Complaint"
   identity                 = var.ses_verified_identity
   include_original_headers = false
 }
 
 resource "aws_ses_identity_notification_topic" "ses_delivery" {
-  topic_arn                = aws_sns_topic.ses_feedback_topic.arn
+  topic_arn                = aws_sns_topic.ses_feedback_topic_delivery.arn
   notification_type        = "Delivery"
   identity                 = var.ses_verified_identity
   include_original_headers = false
@@ -65,8 +86,12 @@ data "aws_iam_policy_document" "ses_feedback_queue_iam_policy" {
       type        = "*"
     }
     condition {
-      test     = "ArnEquals"
-      values   = ["${aws_sns_topic.ses_feedback_topic.arn}"]
+      test = "ArnEquals"
+      values = [
+        "${aws_sns_topic.ses_feedback_topic_bounce.arn}",
+        "${aws_sns_topic.ses_feedback_topic_complaint.arn}",
+        "${aws_sns_topic.ses_feedback_topic_delivery.arn}",
+      ]
       variable = "aws:SourceArn"
     }
   }
