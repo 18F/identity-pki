@@ -8,9 +8,17 @@ s3 = boto3.client('s3')
 # Take an event from the logEvents array in a CloudWatch log object and transform it into its own log object:
 #   - Add all fields from the parent Cloudwatch log 
 #   - Rewrite messages from workers.log as json
+def remove_whitespace_from_keys(j):
+    if isinstance(j, dict):
+        return {key.replace(' ', ''): remove_whitespace_from_keys(value) for key, value in j.items()}
+    elif isinstance(j, list):
+        return [remove_whitespace_from_keys(value) for value in j]
+    else:
+        return j
+        
 def transform_log_event(logEvent):
     try:
-        newLogEvent = json.loads(logEvent['message'])
+        newLogEvent = remove_whitespace_from_keys(json.loads(logEvent['message']))
     except ValueError:
         newLogEvent = {'name': logEvent['message'].replace("\n", ' ')}
 
