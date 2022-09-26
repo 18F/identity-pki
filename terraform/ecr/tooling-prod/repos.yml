@@ -32,3 +32,6 @@ repos:
   golang:
     name: "ecr-public/docker/library/golang"
     <<: *all_write_template
+  ruby:
+    name: "ecr-public/docker/library/ruby"
+    <<: *all_write_template

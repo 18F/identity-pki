@@ -32,4 +32,5 @@ gem 'erubis', '~> 2'
 
 group :test do
   gem 'rspec', '~> 3.10'
+  gem 'cookstyle', '~> 7.32.1'
 end

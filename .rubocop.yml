@@ -93,7 +93,7 @@ Style/WordArray:
   Enabled: false
 
 # not useful
-Style/SpaceInsideHashLiteralBraces:
+Layout/SpaceInsideHashLiteralBraces:
   Enabled: false
 
 # not useful

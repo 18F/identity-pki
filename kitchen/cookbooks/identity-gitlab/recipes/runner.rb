@@ -1,21 +1,6 @@
 #
-# Cookbook Name:: identity-gitlab
+# Cookbook:: identity-gitlab
 # Recipe:: runner
-#
-# Copyright 2017, YOUR_COMPANY_NAME
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 require 'aws-sdk-ec2'
@@ -23,20 +8,20 @@ require 'aws-sdk-ec2'
 include_recipe 'filesystem'
 
 filesystem 'docker' do
-  fstype "ext4"
+  fstype 'ext4'
   device '/dev/nvme1n1'
-  mount "/var/lib/docker"
+  mount '/var/lib/docker'
   action [:create, :enable, :mount]
 end
 
-packagecloud_repo "runner/gitlab-runner" do
-  type "deb"
-  base_url "https://packages.gitlab.com/"
+packagecloud_repo 'runner/gitlab-runner' do
+  type 'deb'
+  base_url 'https://packages.gitlab.com/'
 end
 
 # https://packages.gitlab.com/runner/gitlab-runner
 package 'gitlab-runner' do
-  version "15.3.0"
+  version '15.3.0'
 end
 
 # install docker-credential-ecr-login so we can auth to ECR
@@ -58,7 +43,7 @@ valid_tags = [
   'gitlab_ecr_repo_accountid',
   'only_on_protected_branch',
   'gitlab_hostname',
-  'gitlab_config_s3_bucket'
+  'gitlab_config_s3_bucket',
 ]
 
 instance.tags.each do |tag|
@@ -75,14 +60,14 @@ no_proxy = node['login_dot_gov']['no_proxy']
 runner_name = node['hostname']
 gitlab_ecr_registry = "#{node.run_state['gitlab_ecr_repo_accountid']}.dkr.ecr.#{aws_region}.amazonaws.com"
 
-if node.run_state['gitlab_hostname'] == nil
+if node.run_state['gitlab_hostname'].nil?
   external_fqdn = "gitlab.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
 else
   external_fqdn = node.run_state['gitlab_hostname']
 end
 external_url = "https://#{external_fqdn}"
 
-if node.run_state['gitlab_config_s3_bucket'] == nil
+if node.run_state['gitlab_config_s3_bucket'].nil?
   config_s3_bucket = "login-gov-#{node.chef_environment}-gitlabconfig-#{node.run_state['gitlab_ecr_repo_accountid']}-#{aws_region}"
 else
   config_s3_bucket = node.run_state['gitlab_config_s3_bucket']
@@ -106,13 +91,13 @@ if node.run_state['is_it_an_env_runner'] == 'true'
   #
   node.run_state['runner_tag'] = node.environment + '-' + node.run_state['gitlab_runner_pool_name']
   node.run_state['ecr_accountid'] = node.run_state['gitlab_ecr_repo_accountid']
-  allowed_images = ConfigLoader.load_config_or_nil(node, "gitlab_env_runner_allowed_images")
+  allowed_images = ConfigLoader.load_config_or_nil(node, 'gitlab_env_runner_allowed_images')
   if allowed_images.nil?
-    node.run_state['allowed_images'] = ConfigLoader.load_config(node, "gitlab_env_runner_allowed_images", common: true).chomp.split()
+    node.run_state['allowed_images'] = ConfigLoader.load_config(node, 'gitlab_env_runner_allowed_images', common: true).chomp.split()
   else
     node.run_state['allowed_images'] = allowed_images.chomp.split()
   end
-  node.run_state['allowed_services'] = [""]
+  node.run_state['allowed_services'] = ['']
 else
   node.run_state['runner_tag'] = node.run_state['gitlab_runner_pool_name']
   node.run_state['ecr_accountid'] = aws_account_id
@@ -141,12 +126,12 @@ template '/etc/systemd/system/gitlab-runner.service.d/http-proxy.conf' do
   owner 'root'
   group 'root'
   mode '644'
-  variables ({
+  variables({
     http_proxy: http_proxy,
     https_proxy: https_proxy,
     no_proxy: no_proxy,
   })
-  notifies :run, 'execute[systemctl_daemon_config]', :immediate
+  notifies :run, 'execute[systemctl_daemon_config]', :immediately
 end
 
 template '/etc/systemd/system/gitlab-runner.service.d/aws-region.conf' do
@@ -154,7 +139,7 @@ template '/etc/systemd/system/gitlab-runner.service.d/aws-region.conf' do
   owner 'root'
   group 'root'
   mode '644'
-  notifies :run, 'execute[systemctl_daemon_config]', :immediate
+  notifies :run, 'execute[systemctl_daemon_config]', :immediately
 end
 
 execute 'systemctl_daemon_config' do
@@ -184,7 +169,7 @@ end
 
 template '/etc/gitlab-runner/runner-register.sh' do
   source 'runner-register.sh.erb'
-  variables ({
+  variables({
     http_proxy: http_proxy,
     https_proxy: https_proxy,
     no_proxy: no_proxy,
@@ -198,14 +183,14 @@ template '/etc/gitlab-runner/runner-register.sh' do
   })
   mode '755'
   sensitive true
-  notifies :run, 'execute[configure_gitlab_runner]', :immediate
+  notifies :run, 'execute[configure_gitlab_runner]', :immediately
 end
 
 execute 'configure_gitlab_runner' do
   command '/etc/gitlab-runner/runner-register.sh'
   action :nothing
   sensitive true
-  notifies :run, 'execute[restart_runner]', :immediate
+  notifies :run, 'execute[restart_runner]', :immediately
 end
 
 execute 'remove_registration_script' do
@@ -234,5 +219,5 @@ end
 # XXX If ever we figure out our concurrency issues, we can go back to 2 or more.
 execute 'update_runner_concurrency' do
   command 'sed -i "s/^concurrent = .*/concurrent = 1/" /etc/gitlab-runner/config.toml'
-  notifies :run, 'execute[restart_runner]', :immediate
+  notifies :run, 'execute[restart_runner]', :immediately
 end

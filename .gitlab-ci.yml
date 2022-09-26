@@ -521,7 +521,6 @@ deploy_alpha:
     env: alpha
     url: https://gitlab.alpha.gitlab.identitysandbox.gov
     GIT_SUBMODULE_STRATEGY: normal
-    CI_DEBUG_TRACE: "true"
   only:
     - stages/gitlabalpha
 
@@ -537,6 +536,7 @@ test_alpha:
 
 include:
   - local: .gitlab-ci-rules.yml
+  - local: kitchen/cookbooks/identity-gitlab/.gitlab-ci.yml
   - local: terraform/.gitlab-ci.yml
   - local: cloudlib/.gitlab-ci.yml
   - local: bin/users/.gitlab-ci.yml
