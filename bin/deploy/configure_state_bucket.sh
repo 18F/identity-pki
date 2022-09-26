@@ -204,8 +204,7 @@ if [ "$USE_LOCKFILE" == 0 ] ; then
   TF_READ_LOCKFILE="-lockfile=readonly "
 fi
 
-#terraform init ${TF_READ_LOCKFILE}\
-terraform init \
+terraform init ${TF_READ_LOCKFILE}\
     -backend-config="bucket=${BUCKET}" \
     -backend-config="key=${STATE}" \
     -backend-config="dynamodb_table=$LOCK_TABLE" \
