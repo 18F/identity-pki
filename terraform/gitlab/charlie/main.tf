@@ -12,17 +12,17 @@ terraform {
 module "main" {
   source = "../module"
 
-  bootstrap_main_git_ref_default = "stages/gitlabcharlie"
-  env_name                       = "charlie"
-  env_type                       = "tooling-sandbox"
-  region                         = "us-west-2"
-  dr_region                      = "us-east-2"
-  slack_events_sns_hook_arn      = "arn:aws:sns:us-west-2:034795980528:slack-otherevents"
-  default_ami_id_tooling         = "ami-048730c6de6ae6369" # base-20220809165126 2022-08-09
-  route53_id                     = "Z096400532ZFM348WWIAA"
   accountids                     = ["894947205914", "034795980528", "217680906704"]
-  gitlab_runner_enabled          = true
-  env_runner_gitlab_hostname     = "gitlab.login.gov"
+  bootstrap_main_git_ref_default = "stages/gitlabcharlie"
+  default_ami_id_tooling         = "ami-048730c6de6ae6369" # base-20220809165126 2022-08-09
+  dr_region                      = "us-east-2"
+  env_name                       = "charlie"
   env_runner_config_bucket       = "login-gov-production-gitlabconfig-217680906704-us-west-2"
-  gitlab_servicename             = "com.amazonaws.vpce.us-west-2.vpce-svc-01f5cb298111fa927"
+  env_runner_gitlab_hostname     = "gitlab.login.gov"
+  env_type                       = "tooling-sandbox"
+  gitlab_runner_enabled          = true
+  gitlab_servicename             = "com.amazonaws.vpce.us-west-2.vpce-svc-0270024908d73003b"
+  region                         = "us-west-2"
+  route53_id                     = "Z096400532ZFM348WWIAA"
+  slack_events_sns_hook_arn      = "arn:aws:sns:us-west-2:034795980528:slack-otherevents"
 }

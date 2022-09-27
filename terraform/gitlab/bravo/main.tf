@@ -34,5 +34,5 @@ module "main" {
   gitlab_runner_enabled           = true
   env_runner_gitlab_hostname      = "gitlab.login.gov"
   env_runner_config_bucket        = "login-gov-production-gitlabconfig-217680906704-us-west-2"
-  gitlab_servicename              = "com.amazonaws.vpce.us-west-2.vpce-svc-01f5cb298111fa927"
+  gitlab_servicename              = "com.amazonaws.vpce.us-west-2.vpce-svc-0270024908d73003b"
 }
