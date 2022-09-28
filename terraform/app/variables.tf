@@ -103,8 +103,16 @@ variable "apps_enabled" {
 }
 
 variable "elasticache_redis_node_type" {
+  type        = string
   description = "Instance type used for redis elasticache. Changes incur downtime."
   # allowed values: t2.micro-medium, m3.medium-2xlarge, m4|r3|r4.large-
+  default = "cache.t3.micro"
+}
+
+variable "elasticache_redis_attempts_api_node_type" {
+  type        = string
+  description = "Instance type used for redis attempts api elasticache. Changes incur downtime."
+  ## allowed values: t2.micro-medium, m3.medium-2xlarge, m4|r3|r4.large-
   default = "cache.t3.micro"
 }
 

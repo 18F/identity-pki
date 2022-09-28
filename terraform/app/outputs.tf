@@ -14,6 +14,10 @@ output "aws_elasticache_cluster_address" {
   value = aws_elasticache_replication_group.idp.primary_endpoint_address
 }
 
+output "aws_elasticache_cluster_attempts_address" {
+  value = aws_elasticache_replication_group.idp_attempts.primary_endpoint_address
+}
+
 output "aws_idp_sg_id" {
   value = "SECURITY_GROUP_ID=${aws_security_group.idp.id}"
 }
