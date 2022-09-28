@@ -26,9 +26,10 @@ resource "aws_ssm_parameter" "slack_webhook_east1" {
 
 locals {
   slack_channel_map = {
-    "events"      = "login-events"
-    "otherevents" = "login-otherevents"
-    "soc"         = "login-soc-events"
+    "events"             = "login-events"
+    "otherevents"        = "login-otherevents"
+    "soc"                = "login-soc-events"
+    "in-person-proofing" = "login-in-person-proofing-events"
   }
   slack_webhook_ssm_param_name = "/account/slack/webhook/url"
   slack_sns_log_groups_arns = flatten([
