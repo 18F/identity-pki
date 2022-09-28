@@ -41,10 +41,10 @@ resource "aws_wafv2_web_acl" "alb" {
             }
           }
           dynamic "statement" {
-            for_each = length(aws_wafv2_ip_set.privileged_cidrs_v6) > 0 ? [1] : []
+            for_each = length(aws_wafv2_ip_set.privileged_ips_v6) > 0 ? [1] : []
             content {
               ip_set_reference_statement {
-                arn = aws_wafv2_ip_set.privileged_cidrs_v6[0].arn
+                arn = aws_wafv2_ip_set.privileged_ips_v6[0].arn
               }
             }
           }
@@ -59,10 +59,10 @@ resource "aws_wafv2_web_acl" "alb" {
             }
           }
           dynamic "statement" {
-            for_each = length(aws_wafv2_ip_set.privileged_cidrs_v6) > 0 ? [1] : []
+            for_each = length(aws_wafv2_ip_set.privileged_ips_v6) > 0 ? [1] : []
             content {
               ip_set_reference_statement {
-                arn = aws_wafv2_ip_set.privileged_cidrs_v6[0].arn
+                arn = aws_wafv2_ip_set.privileged_ips_v6[0].arn
                 ip_set_forwarded_ip_config {
                   header_name       = "X-Forwarded-For"
                   position          = "FIRST"
@@ -81,32 +81,67 @@ resource "aws_wafv2_web_acl" "alb" {
     }
   }
 
-  rule {
-    name     = "IdpBlockIpAddresses"
-    priority = 100
-
-    action {
-      dynamic "block" {
-        for_each = length(lookup(local.rule_settings, "override_action", {})) == 0 || lookup(local.rule_settings, "override_action", {}) == "none" ? [1] : []
-        content {}
+  dynamic "rule" {
+    for_each = length(aws_wafv2_ip_set.block_list.arn) > 0 ? [1] : []
+    content {
+      name     = "IdpBlockIpAddresses"
+      priority = 100
+      action {
+        dynamic "block" {
+          for_each = length(lookup(local.rule_settings, "override_action", {})) == 0 || lookup(local.rule_settings, "override_action", {}) == "none" ? [1] : []
+          content {}
+        }
+        dynamic "count" {
+          for_each = lookup(local.rule_settings, "override_action", {}) == "count" ? [1] : []
+          content {}
+        }
       }
-
-      dynamic "count" {
-        for_each = lookup(local.rule_settings, "override_action", {}) == "count" ? [1] : []
-        content {}
+      statement {
+        or_statement {
+          # Support matching in case of direct access or through CDN
+          statement {
+            ip_set_reference_statement {
+              arn = aws_wafv2_ip_set.block_list.arn
+            }
+          }
+          dynamic "statement" {
+            for_each = length(aws_wafv2_ip_set.block_list_v6) > 0 ? [1] : []
+            content {
+              ip_set_reference_statement {
+                arn = aws_wafv2_ip_set.block_list_v6[0].arn
+              }
+            }
+          }
+          statement {
+            ip_set_reference_statement {
+              arn = aws_wafv2_ip_set.block_list.arn
+              ip_set_forwarded_ip_config {
+                header_name       = "X-Forwarded-For"
+                position          = "FIRST"
+                fallback_behavior = "NO_MATCH"
+              }
+            }
+          }
+          dynamic "statement" {
+            for_each = length(aws_wafv2_ip_set.block_list_v6) > 0 ? [1] : []
+            content {
+              ip_set_reference_statement {
+                arn = aws_wafv2_ip_set.block_list_v6[0].arn
+                ip_set_forwarded_ip_config {
+                  header_name       = "X-Forwarded-For"
+                  position          = "FIRST"
+                  fallback_behavior = "NO_MATCH"
+                }
+              }
+            }
+          }
+        }
       }
-    }
-
-    statement {
-      ip_set_reference_statement {
-        arn = aws_wafv2_ip_set.block_list.arn
+      visibility_config {
+        cloudwatch_metrics_enabled = true
+        metric_name                = "${local.web_acl_name}-IdpBlockIpAddresses-metric"
+        sampled_requests_enabled   = true
       }
-    }
-
-    visibility_config {
-      cloudwatch_metrics_enabled = true
-      metric_name                = "${local.web_acl_name}-IdpBlockIpAddresses-metric"
-      sampled_requests_enabled   = true
     }
   }
 
