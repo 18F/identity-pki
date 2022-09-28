@@ -377,6 +377,7 @@ locals {
           "lambda:DeleteAlias",
           "lambda:DeleteEventSourceMapping*",
           "lambda:DeleteFunction*",
+          "lambda:EnableReplication*",
           "lambda:GetEventSourceMapping*",
           "lambda:GetFunction*",
           "lambda:GetPolicy",
