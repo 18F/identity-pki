@@ -392,13 +392,6 @@ users:
     - olatif
     gitlab_groups:
     - appdev
-  parissa.eggleston:
-    aws_groups:
-    - apponcall
-    ec2_username:
-    - peggleston
-    gitlab_groups:
-    - appdev
   patricia.bryan:
     aws_groups:
     - bizops
@@ -407,7 +400,7 @@ users:
     - bizops
   paul.borowicz:
     aws_groups:
-    - devops
+    - devopsnonprod
     ec2_username:
     - pborowicz
     gitlab_groups:
@@ -431,6 +424,13 @@ users:
     - analytics
     gitlab_groups:
     - pm
+  project_21_bot:
+    name:
+    - Github CI
+    email:
+    - project21_bot@noreply.gitlab.login.gov
+    gitlab_project_bot:
+    - true
   rahul.kamarouthu:
     aws_groups:
     - analytics
@@ -557,13 +557,6 @@ users:
     - appdev
     ec2_username:
     - tnewby
-  victor.otu:
-    aws_groups:
-    - devopsnonprod
-    ec2_username:
-    - votu
-    gitlab_groups:
-    - devops
   vivek.chugh:
     aws_groups:
     - devops
@@ -592,13 +585,6 @@ users:
     - pm
     - antifraud
     can_create_group:
-    - true
-  project_21_bot:
-    name:
-    - Github CI
-    email:
-    - project21_bot@noreply.gitlab.login.gov
-    gitlab_project_bot:
     - true
 groups:
   antifraud:
