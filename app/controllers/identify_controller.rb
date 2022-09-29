@@ -111,7 +111,6 @@ class IdentifyController < ApplicationController
       key_id: cert.key_id,
       certificate_chain_signing_key_ids: cert.x509_certificate_chain_key_ids,
       issuer: cert.issuer.to_s,
-      card_type: cert.card_type,
       valid_policies: cert.valid_policies?,
       valid: valid,
       error: !valid ? validation_result : nil,

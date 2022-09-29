@@ -100,9 +100,6 @@ RSpec.describe CertificateStore do
       allow(IdentityConfig.store).to receive(:trusted_ca_root_identifiers).and_return(
         root_cert_key_ids
       )
-      allow(IdentityConfig.store).to receive(:dod_root_identifiers).and_return(
-        root_cert_key_ids
-      )
       certificate_store.clear_root_identifiers
       certificate_store.add_pem_file(ca_file_path)
 
@@ -184,12 +181,6 @@ RSpec.describe CertificateStore do
       describe 'trusted_ca_root_identifiers' do
         it 'reflects the configured set' do
           expect(certificate_store.send(:trusted_ca_root_identifiers)).to eq root_cert_key_ids
-        end
-      end
-
-      describe 'dod_root_identifiers' do
-        it 'reflects the configured set' do
-          expect(certificate_store.send(:dod_root_identifiers)).to eq root_cert_key_ids
         end
       end
 
