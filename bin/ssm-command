@@ -1,0 +1,234 @@
+#!/bin/bash
+
+# -e exit on error
+# -u exit if variables is called but not defined
+# -o options, pipefail option kills a command when a section of the pipe fails
+set -euo pipefail
+
+# debug lines, uncomment to view debugging output
+#set -x
+#trap read debug
+
+# include common.sh for identity standards
+. "$(dirname "$0")/lib/common.sh"
+
+usage() {
+  cat >&2 <<EOM
+
+Script must be run with aws-vault
+
+Usage: ${0} -d DOCUMENT -e ENVIRONMENT -r ROLE [-ov] 
+
+Flags:
+    -r role          :  server role
+    -d document      :  document to run
+    -e environment   :  run against all servers in ENVIRONMENT
+    -h               :  display this message
+    -v               :  Be more verbose
+    -o               :  Output list of targeted instances and full command output
+
+EOM
+}
+
+help_me() {
+cat >&2 <<EOM
+This will execute command documents against multiple ec2 instances defined by the Environment and Role,
+for example, against all idp instances in Dev environment
+  Example:
+    # run test doc against all idp in dev
+    ${0} -d test -e dev -r idp
+EOM
+  usage
+  exit 0
+}
+
+# trap ctrl-c and call ctrl_c
+function ctrl_c() {
+echo "exiting due to ctrl-c"
+run aws ssm list-commands --command-id "$COMID"\
+| jq '.Commands[]|{Status:.Status,Details:.StatusDetails,Targets:.TargetCount,Completed:.CompletedCount,Errors:.ErrorCount}'
+}
+
+
+# function to list and enumerate targets
+targ_list () {
+LISTING=$(run aws ec2 describe-instances \
+--filter Name=tag:aws:autoscaling:groupName,Values="$TF_ENV-$ROLE" Name=instance-state-name,Values=running \
+--query "Reservations[*].Instances[*].{Instance:InstanceId,Name:Tags[?Key=='Name']|[0].Value}" \
+--output text)
+
+LIST=$(echo "${LISTING-}"| wc -l)
+}
+
+# function to verify environment and role set
+env_app_check () {
+  if [[ -z "${ROLE}" ]] || [[ -z "${TF_ENV}" ]] || [[ -z "${DOC}" ]] ; then
+    raise "Must specify TF_ENV (-e), ROLE (-r), and DOC (-d)"
+  fi
+}
+
+# function to check concurrency rate, run on number or percentage of group
+concur () {
+if [ -z "${RATE-}" ] 
+then
+ CONCUR="$PERCENT%"
+else
+ CONCUR="$TERM"
+fi
+}
+
+# function to output full list of client data
+full_out () {
+if [[ "$COMOUT" == "yes" ]]
+then
+  run_var FULLOUT aws ssm list-command-invocations --command-id "$COMID"
+  echo "$FULLOUT"
+fi
+}
+
+#sleep timer
+sleeping () {
+if [ -z "${1-}" ]
+then
+  TIME=5
+else
+  TIME="${1-}"
+fi
+TIMER=0
+while [ "${TIMER}" -lt "${TIME-}" ]  
+do
+  echo -n "-"
+  sleep 1
+  ((TIMER++))
+done
+}
+
+# function to check command output
+is_complete () {
+TOTETIME=0
+trap ctrl_c INT
+echo "Sent command, checking for completion every 5 seconds. Ctrl-c to exit and check manually"
+while [ -z "${ENDOUT-}" ] || [[ $ENDOUT =~ (Pending|Progress) ]] 
+do
+  sleeping 5
+  ((TOTETIME++))
+# exit after 60 check cycles
+  if [ ${TOTETIME-} -gt 60 ]
+  then
+    echo "still waiting after 15 minutes..."
+    echo "$ENDOUT"
+    exit
+  fi
+
+  ENDOUT=$(run aws ssm list-commands --command-id "$COMID"\
+| jq '.Commands[]|{Status:.Status,Details:.StatusDetails,Targets:.TargetCount,Completed:.CompletedCount,Errors:.ErrorCount}') 
+done
+}
+
+
+#function to run aws ssm send-command with appropriate document
+run_aws_cmd () {
+  local DOC_NAME="$TF_ENV-ssm-cmd-$DOC"
+  # exit if DOC is not defined
+  if [[ -z $(aws ssm list-documents --filters Key=Name,Values="${DOC_NAME}" |
+             jq -r '.DocumentIdentifiers[].Name') ]] ; then
+    raise "SSM document $TF_ENV-ssm-cmd-$DOC does not exist!"
+  fi
+
+  echo_green "Running $TF_ENV-ssm-cmd-$DOC..."
+  run aws ssm send-command \
+      --document-name "${DOC_NAME}" \
+      --targets Key=tag:aws:autoscaling:groupName,Values="$TF_ENV-$ROLE" \
+      --cloud-watch-output-config '{"CloudWatchOutputEnabled":true}' \
+      --max-concurrency "$CONCUR" \
+      --max-errors "$TERM"
+}
+
+######## Main section ########
+
+# Set default variables
+PERCENT=25
+TERM=0
+COMOUT="no"
+
+# verify script runs from indentity_devops
+verify_root_repo
+
+# check for AWS_VAULT
+[[ $(env | grep 'AWS_VAULT=') ]] || raise 'Must be run with aws-vault!'
+
+# initialize required variables
+declare {TF_ENV,ROLE,DOC}=
+
+# Case statment to handle arguments
+while getopts "hc:d:e:op:r:t:v" opt; do
+  case $opt in
+    d) 
+    DOC="$OPTARG"
+    ;;
+    e) 
+    TF_ENV="$OPTARG"
+    ;;
+    o) COMOUT="yes"
+    ;;
+    r)
+    ROLE="$OPTARG"
+    ;;
+    p) # undocumented option to set concurrent rate by percent, default 25%
+    PERCENT="$OPTARG"
+    ;;
+    c) # undocumented option to set concurrent run rate by number 
+    RATE="$OPTARG" 
+    unset PERCENT
+    ;;
+    t) # undocumented option to control how many failures are allowed before terminating, default 0
+    TERM="$OPTARG" 
+    ;;
+    v) 
+    set -x
+    ;;
+    \?) 
+    echo "Error, invalid arguments"  #catch invalid arguments
+    exit
+    ;;
+    h) # get help
+    help_me
+    ;;
+    *) # if nothing else
+    usage && exit
+    ;;
+  esac
+done
+
+# run concurrency function to check for option and set defautls
+concur
+
+# verify environment and role set
+env_app_check
+
+# Get list of targets
+targ_list
+
+# show systems to run against
+echo -e "$LIST number of instances selected."
+if prompt_yn "You will run against all $ROLE instances in $TF_ENV, $LIST total"
+then
+  echo "waiting for command to Succeed or Timeout..."
+else 
+  echo "aborting"
+  exit 1
+fi
+
+COMID=$(run_aws_cmd | grep CommandId| awk '{print $2}'| sed 's/[",]//g')
+# this method with jq was suggested but fails
+#COMID=$(run_aws_cmd | jq '.Command.CommandId')
+echo "Command ID is $COMID"
+
+is_complete
+
+echo ""
+echo "$ENDOUT"
+
+# check if full output wanted
+full_out
+
