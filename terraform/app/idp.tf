@@ -163,6 +163,16 @@ module "idp_rds_use1" {
   ])
 }
 
+resource "aws_elasticache_parameter_group" "idp" {
+  name   = "${var.env_name}-idp-params"
+  family = "redis6.x"
+
+  parameter {
+    name  = "maxmemory-policy"
+    value = "noeviction"
+  }
+}
+
 # Multi-AZ redis cluster, used for session storage
 resource "aws_elasticache_replication_group" "idp" {
   replication_group_id = "${var.env_name}-idp"
@@ -171,7 +181,7 @@ resource "aws_elasticache_replication_group" "idp" {
   engine_version       = var.elasticache_redis_engine_version
   node_type            = var.elasticache_redis_node_type
   num_cache_clusters   = var.elasticache_redis_num_cache_clusters
-  parameter_group_name = var.elasticache_redis_parameter_group_name
+  parameter_group_name = aws_elasticache_parameter_group.idp.name
   security_group_ids   = [aws_security_group.cache.id]
   subnet_group_name    = aws_elasticache_subnet_group.idp.name
   port                 = 6379
@@ -199,7 +209,7 @@ resource "aws_elasticache_replication_group" "idp_attempts" {
   engine_version       = var.elasticache_redis_engine_version
   node_type            = var.elasticache_redis_attempts_api_node_type
   num_cache_clusters   = 2
-  parameter_group_name = var.elasticache_redis_parameter_group_name
+  parameter_group_name = aws_elasticache_parameter_group.idp.name
   security_group_ids   = [aws_security_group.cache.id]
   subnet_group_name    = aws_elasticache_subnet_group.idp.name
 

@@ -117,17 +117,15 @@ variable "elasticache_redis_attempts_api_node_type" {
 }
 
 variable "elasticache_redis_num_cache_clusters" {
+  type        = number
   description = "Number of Redis cache clusters."
   default     = 2
 }
 
 variable "elasticache_redis_engine_version" {
+  type        = string
   description = "Engine version used for redis elasticache. Changes may incur downtime."
   default     = "6.2"
-}
-
-variable "elasticache_redis_parameter_group_name" {
-  default = "default.redis6.x"
 }
 
 variable "elasticache_redis_encrypt_at_rest" {
@@ -143,11 +141,13 @@ variable "elasticache_redis_encrypt_in_transit" {
 }
 
 variable "elasticache_redis_alarm_threshold_memory" {
+  type        = number
   description = "Alert Threshhold for Redis memory utilization"
   default     = 75
 }
 
 variable "elasticache_redis_alarm_threshold_memory_high" {
+  type        = number
   description = "Critical Alert Threshhold for Redis memory utilization"
   default     = 80
 }

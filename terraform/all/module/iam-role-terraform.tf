@@ -308,7 +308,11 @@ locals {
           "elasticache:ListTagsForResource",
           "elasticache:ModifyCacheSubnetGroup",
           "elasticache:ModifyReplicationGroup",
-          "elasticache:RemoveTagsFromResource"
+          "elasticache:RemoveTagsFromResource",
+          "elasticache:CreateCacheParameterGroup",
+          "elasticache:DescribeCacheParameterGroups",
+          "elasticache:DescribeCacheParameters",
+          "elasticache:DeleteCacheParameterGroup"
         ]
         resources = [
           "*",
