@@ -298,7 +298,7 @@ users:
     - appdev
   michael.ambroselli:
     aws_groups:
-    - appdev
+    - apponcall
     ec2_username:
     - magsa
     gitlab_groups:
