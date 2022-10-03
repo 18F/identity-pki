@@ -161,6 +161,13 @@ users:
     - analytics
     gitlab_groups:
     - devops
+  jeremy.curcio:
+    aws_groups:
+    - appdev
+    gitlab_groups:
+    - appdev
+    ec2_username:
+    - jcurcio
   jessica.dembe:
     aws_groups:
     - apponcall
@@ -270,6 +277,13 @@ users:
     - appdev
     ec2_username:
     - mshah
+  matt.gardner:
+    aws_groups:
+    - appdev
+    gitlab_groups:
+    - appdev
+    ec2_username:
+    - mgardner
   matt.hinz:
     aws_groups:
     - appdev
@@ -291,6 +305,13 @@ users:
     - mmiller
     gitlab_groups:
     - appdev
+  micah.neveu:
+    aws_groups:
+    - appdev
+    gitlab_groups:
+    - appdev
+    ec2_username:
+    - mneveu
   micah.saul:
     aws_groups:
     - appdev
@@ -398,13 +419,6 @@ users:
   patrick.carberry:
     aws_groups:
     - bizops
-  paul.borowicz:
-    aws_groups:
-    - devopsnonprod
-    ec2_username:
-    - pborowicz
-    gitlab_groups:
-    - devops
   paul.hirsch:
     aws_groups:
     - devops
@@ -530,6 +544,9 @@ users:
     - thomas.apodaca@gsa.gov
     ec2_username:
     - tapodaca
+  thomas.emerick:
+    aws_groups:
+    - analytics
   tiffanyj.andrews:
     aws_groups:
     - analytics
