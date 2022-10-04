@@ -67,12 +67,6 @@ EOM
 
 needs_arg() { if [ -z "$OPTARG" ]; then raise "No arg for --$OPT option"; fi; }
 
-# parse space/tab-separated column output and space with pipe marks
-mdout() {
-  echo -e "|$@|" | column -t | tr -s ' ' '|' |
-  sed 's/ *| */@| /g' | column -s '@' -t | sed 's/ |/|/g' 
-}
-
 next_build() {
   PIPE_DATA=$(ave -r aws codepipeline list-action-executions \
     --pipeline-name ${PIPE_NAME} \

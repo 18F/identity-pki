@@ -56,6 +56,12 @@ define() {
   read -r -d '' ${1} || true
 }
 
+# parse space/tab-separated column output and space with pipe marks
+mdout() {
+  echo -e "|$@|" | column -t | tr -s ' ' '|' |
+  sed 's/ *| */@| /g' | column -s '@' -t | sed 's/ |/|/g' 
+}
+
 # get top profile for ID_ACCT out of aws/config
 # Provide ROLE for specific 'role/ROLE' profile
 get_iam() {
