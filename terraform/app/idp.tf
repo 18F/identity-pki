@@ -217,6 +217,9 @@ resource "aws_elasticache_replication_group" "idp_attempts" {
   multi_az_enabled           = true
   automatic_failover_enabled = true
 
+  #Enable data tiering if using a data tier enabled node.
+  data_tiering_enabled = length(regexall("r6gd", var.elasticache_redis_attempts_api_node_type)) != 0 ? true : false
+
   at_rest_encryption_enabled = var.elasticache_redis_encrypt_at_rest
   transit_encryption_enabled = var.elasticache_redis_encrypt_in_transit
 
