@@ -115,7 +115,8 @@ resource "aws_alb_target_group" "idp" {
   protocol = "HTTP"
   vpc_id   = aws_vpc.default.id
 
-  deregistration_delay = 120
+  deregistration_delay          = 120
+  load_balancing_algorithm_type = var.use_lor_algorithm ? "least_outstanding_requests" : "round_robin"
 }
 
 resource "aws_alb_target_group" "idp-ssl" {
@@ -144,7 +145,8 @@ resource "aws_alb_target_group" "idp-ssl" {
   protocol = "HTTPS"
   vpc_id   = aws_vpc.default.id
 
-  deregistration_delay = 120
+  deregistration_delay          = 120
+  load_balancing_algorithm_type = var.use_lor_algorithm ? "least_outstanding_requests" : "round_robin"
 
   tags = {
     prefix      = var.env_name

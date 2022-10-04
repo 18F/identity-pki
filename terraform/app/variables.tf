@@ -1037,3 +1037,9 @@ variable "asg_locust_leader_desired" {
 variable "asg_locust_worker_max" {
   default = 8
 }
+
+variable "use_lor_algorithm" {
+  description = "Use Least Outstanding Requests algorithm for Application Load Balancer load balancing requests"
+  type        = bool
+  default     = false
+}
