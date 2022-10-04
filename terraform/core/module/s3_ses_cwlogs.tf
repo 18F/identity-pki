@@ -1,7 +1,14 @@
+locals {
+  exported_logs_bucket = join(".", [
+    "login-gov-ses-feedback-notification-logs",
+    "${data.aws_caller_identity.current.account_id}-${var.region}"
+  ])
+}
+
 resource "aws_s3_bucket" "exported_logs" {
-  bucket = "login-gov-ses-feedback-notification-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+  bucket = local.exported_logs_bucket
   tags = {
-    Name = "login-gov-ses-feedback-notification-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+    Name = local.exported_logs_bucket
   }
 
   # destroy the bucket in two steps
@@ -17,12 +24,13 @@ resource "aws_s3_bucket" "exported_logs" {
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "sse" {
-  bucket = aws_s3_bucket.exported_logs.bucket
+  bucket = aws_s3_bucket.exported_logs.id
 
   rule {
     apply_server_side_encryption_by_default {
       sse_algorithm = "AES256"
-      #Exporting to S3 buckets encrypted with SSE-KMS is not supported. Exporting to S3 buckets that are encrypted with AES-256 is supported.
+      # Exporting to S3 buckets encrypted with SSE-KMS is not supported.
+      # Exporting to S3 buckets that are encrypted with AES-256 is supported.
     }
   }
 }
@@ -86,9 +94,9 @@ data "aws_iam_policy_document" "allow_cw_logs" {
   }
 }
 
-###Transition between storage class
+### Transition between storage class
 resource "aws_s3_bucket_lifecycle_configuration" "bucket-config" {
-  bucket = aws_s3_bucket.exported_logs.bucket
+  bucket = aws_s3_bucket.exported_logs.id
 
   rule {
     id = "archival"
@@ -110,4 +118,30 @@ resource "aws_s3_bucket_lifecycle_configuration" "bucket-config" {
       days = 90
     }
   }
+}
+
+### SES feedback notification evaluation
+module "ses_feedback_notification" {
+  source                = "../../modules/eval_ses_feedback_notification"
+  ses_verified_identity = var.root_domain
+}
+
+resource "aws_sns_topic_subscription" "ses_feedback_subscription_complaint" {
+  count = var.root_domain == "login.gov" ? 1 : 0 # only create in prod
+
+  topic_arn = module.ses_feedback_notification.sns_for_ses_compliant_notifications
+  protocol  = "email"
+  endpoint  = "email-complaints@${var.root_domain}"
+}
+
+### Exporting SES logs to S3
+module "export_to_s3" {
+  source = "../../modules/export_cwlogs_to_s3"
+
+  depends_on = [
+    aws_s3_bucket.exported_logs
+  ]
+
+  cw_log_group = [module.ses_feedback_notification.ses_feedback_eval_lambda_loggroup]
+  s3_bucket    = aws_s3_bucket.exported_logs.id
 }

@@ -194,4 +194,3 @@ output "primary_zone_dnssec_ksks" {
 output "primary_zone_active_ds_value" {
   value = module.main.primary_zone_active_ds_value
 }
-
