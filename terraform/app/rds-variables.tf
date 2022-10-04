@@ -156,7 +156,7 @@ variable "rds_storage_idp" {
 variable "idp_aurora_enabled" {
   type        = bool
   description = "Enable/disable creating idp AuroraDB cluster"
-  default     = false
+  default     = true
 }
 
 variable "idp_aurora_autoscaling" {
