@@ -1,5 +1,16 @@
 locals {
-  redis_clusters = setunion(aws_elasticache_replication_group.idp.member_clusters, aws_elasticache_replication_group.idp_attempts.member_clusters)
+  # Terraform can't determine member_clusters in an aws_elasticache_replication_group
+  # before a plan/apply operation, so this for/format block must be used instead,
+  # at least for the time being. TODO: figure out a better way to do this
+  # dynamically / with proper resource importing/naming/etc.
+  redis_clusters = setunion(
+    [for i in range(
+      1, 3
+    ) : format("%s-%03d", "${var.env_name}-idp-attempts", i)],
+    [for i in range(
+      1, (var.elasticache_redis_num_cache_clusters + 1)
+    ) : format("%s-%03d", "${var.env_name}-idp", i)]
+  )
 }
 
 # first alert
@@ -22,6 +33,8 @@ EOM
   dimensions = {
     CacheClusterId = each.key
   }
+
+  depends_on = [aws_elasticache_replication_group.idp, aws_elasticache_replication_group.idp_attempts]
 }
 
 # high alert
@@ -44,5 +57,7 @@ EOM
   dimensions = {
     CacheClusterId = each.key
   }
+
+  depends_on = [aws_elasticache_replication_group.idp, aws_elasticache_replication_group.idp_attempts]
 }
 

@@ -306,6 +306,7 @@ locals {
           "elasticache:DescribeCacheSubnetGroups",
           "elasticache:DescribeReplicationGroups",
           "elasticache:ListTagsForResource",
+          "elasticache:ModifyCacheParameterGroup",
           "elasticache:ModifyCacheSubnetGroup",
           "elasticache:ModifyReplicationGroup",
           "elasticache:RemoveTagsFromResource",
