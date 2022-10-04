@@ -69,3 +69,13 @@ resource "aws_cloudwatch_log_group" "idp_workers" {
   retention_in_days = local.retention_days
 }
 
+resource "aws_cloudwatch_log_group" "nginx_status" {
+  name              = "${var.env_name}_/var/log/nginx/nginx_status.log"
+  retention_in_days = local.retention_days
+}
+
+resource "aws_cloudwatch_log_group" "passenger_status" {
+  name              = "${var.env_name}_/var/log/nginx/passenger_status.log"
+  retention_in_days = local.retention_days
+}
+

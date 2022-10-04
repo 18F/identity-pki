@@ -64,6 +64,22 @@
 
                                         },
                                         {
+                                                "file_path": "/var/log/nginx/nginx_status.log",
+                                                "log_group_name": "<%= @environmentName %>_/var/log/nginx/nginx_status.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC",
+                                                "timestamp_format": "%d/%b/%Y:%H:%M:%S %z"
+
+                                        },
+                                        {
+                                                "file_path": "/var/log/nginx/passenger_status.log",
+                                                "log_group_name": "<%= @environmentName %>_/var/log/nginx/passenger_status.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC",
+                                                "timestamp_format": "%d/%b/%Y:%H:%M:%S %z"
+
+                                        },
+                                        {
                                                 "file_path": "/var/log/nginx/error.log",
                                                 "log_group_name": "<%= @environmentName %>_/var/log/nginx/error.log",
                                                 "log_stream_name": "{local_hostname}",

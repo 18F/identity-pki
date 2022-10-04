@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+  
+set -eu
+
+# Set instance and asg information for metrics dimensions
+instance_id='<%= @instanceId %>'
+autoscaling_group_name='<%= @environmentName %>-<%= @roleName %>'
+instance_type='<%= @instanceType %>'
+
+memory=$(passenger-memory-stats --no-apache | grep -i 'Total private dirty')
+
+# NGINX status logs
+echo "$instance_id $autoscaling_group_name $instance_type $(curl http://127.0.0.1/nginx_status |
+      tr '\n' ' ' | awk '{ print $3, $8, $9, $10, $12, $14, $16 }') $(echo $memory | awk '{print $6}') " >>/var/log/nginx/nginx_status.log
+
+
+# Passenger status logs
+passenger_status=$(passenger-status --no-header --show server |
+                jq  '. | to_entries | {"threads":[.[] | select(.key | match("thread[0-9]";"i")) | .value ]}')
+
+instance_details="
+{
+    \"instance_id\": \"$instance_id\",
+    \"autoscaling_group_name\": \"$autoscaling_group_name\", 
+    \"instance_type\": \"$instance_type\", 
+    \"memory\": \"$(echo $memory | awk '{print $13}')\"
+}
+"
+
+metrics="
+{
+    \"active_client_count\" : \"$(echo $passenger_status | jq -r '[.threads[].active_client_count] | add')\",
+    \"disconnected_client_count\" : \"$(echo $passenger_status | jq -r '[.threads[].disconnected_client_count] | add')\",
+    \"free_client_count\" : \"$(echo $passenger_status | jq -r '[.threads[].free_client_count] | add')\",
+    \"total_clients_accepted\" : \"$(echo $passenger_status | jq -r '[.threads[].total_clients_accepted] | add')\",
+    \"total_requests_begun\" : \"$(echo $passenger_status | jq -r '[.threads[].total_requests_begun] | add')\",
+    \"client_accept_speed\" : \"$(echo $passenger_status | jq -r '[.threads[].client_accept_speed["1m"].value] | add / length')\",
+    \"request_begin_speed\" : \"$(echo $passenger_status | jq -r '[.threads[].request_begin_speed["1m"].value] | add / length')\"
+}
+"
+
+echo "$( echo $passenger_status | 
+     jq -rc --argjson INSTANCE_DETAILS "$instance_details" --argjson METRICS "$metrics" '. += $INSTANCE_DETAILS | . += $METRICS')" >>/var/log/nginx/passenger_status.log
