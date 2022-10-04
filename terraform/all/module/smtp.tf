@@ -1,22 +1,14 @@
 # Resources for an SES SMTP user. Requires var.smtp_user_ready to be TRUE to do
 # anything. Follow the instructions below to set up an SMTP user for an account.
 #
-# Following are Fish shell commands to populate the resource and bucket. Replace
+# Following are shell commands to populate the resource and bucket. Replace
 # all/tooling with whatever account you're updating.
 #
 # aws iam create-user --user-name ses-smtp
 
-## Run the following snippet to rotate keys
-# set KEYDATA (aws iam create-access-key --user-name ses-smtp)
-# set ACCOUNTID (aws sts get-caller-identity | jq -r .Account)
-# set ACCESSKEYID (echo $KEYDATA | jq -r .AccessKey.AccessKeyId)
-# set SMTPPASS (bin/smtp_credentials_generate.py (echo $KEYDATA | jq -r '.AccessKey.SecretAccessKey') us-west-2)
-# echo $ACCESSKEYID | aws s3 cp - "s3://login-gov.secrets."$ACCOUNTID"-us-west-2/common/ses_smtp_username" --no-guess-mime-type --content-type="text/plain" --metadata-directive="REPLACE"
-# echo $SMTPPASS | aws s3 cp - "s3://login-gov.secrets."$ACCOUNTID"-us-west-2/common/ses_smtp_password" --no-guess-mime-type --content-type="text/plain" --metadata-directive="REPLACE"
-## End key-rotation snippet
-
-# bin/tf-deploy all/tooling import 'module.main.aws_iam_user.ses-smtp[0]' ses-smtp
-# bin/tf-deploy all/tooling import 'module.main.aws_iam_access_key.ses-smtp[0]' $ACCESSKEYID
+## Run the following terraform commands to rotate keys
+# bin/tf-deploy all/tooling taint 'module.main.aws_iam_access_key.ses-smtp[0]'
+# bin/tf-deploy all/tooling apply
 
 resource "aws_iam_user_policy" "ses-smtp" {
   count  = var.smtp_user_ready ? 1 : 0
@@ -50,14 +42,20 @@ resource "aws_iam_access_key" "ses-smtp" {
   user  = aws_iam_user.ses-smtp[0].name
 }
 
-data "aws_s3_object" "ses-smtp-username" {
-  count  = var.smtp_user_ready ? 1 : 0
-  bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
-  key    = "common/ses_smtp_username"
+resource "aws_s3_object" "ses-smtp-username" {
+  count   = var.smtp_user_ready ? 1 : 0
+  bucket  = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
+  key     = "common/ses_smtp_username"
+  content = aws_iam_access_key.ses-smtp[0].id
+
+  source_hash = md5(aws_iam_access_key.ses-smtp[0].id)
 }
 
-data "aws_s3_object" "ses-smtp-password" {
-  count  = var.smtp_user_ready ? 1 : 0
-  bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
-  key    = "common/ses_smtp_password"
+resource "aws_s3_object" "ses-smtp-password" {
+  count   = var.smtp_user_ready ? 1 : 0
+  bucket  = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
+  key     = "common/ses_smtp_password"
+  content = aws_iam_access_key.ses-smtp[0].ses_smtp_password_v4
+
+  source_hash = md5(aws_iam_access_key.ses-smtp[0].ses_smtp_password_v4)
 }
