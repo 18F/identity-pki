@@ -534,6 +534,49 @@ test_alpha:
   only:
     - stages/gitlabalpha
 
+# deploy jobs for henrydrich env here.
+deploy_henrydrich:
+  <<: *deploy_template
+  environment: henrydrich
+  resource_group: henrydrich
+  tags:
+    - henrydrich-env-runner
+  only:
+    - stages/henrydrich
+
+test_henrydrich:
+  <<: *test_template
+  only:
+    - stages/henrydrich
+  tags:
+    - henrydrich-env-runner
+  needs:
+    - deploy_henrydrich
+  variables:
+    IDP_HOSTNAME: idp.henrydrich.identitysandbox.gov
+    IDP_ORIGIN_HOSTNAME: idp.origin.henrydrich.identitysandbox.gov
+    ENV_NAME: henrydrich
+
+badtest_henrydrich:
+  <<: *badtest_template
+  only:
+    - stages/henrydrich
+  tags:
+    - henrydrich-env-runner
+  needs:
+    - deploy_henrydrich
+
+stop_henrydrich:
+  <<: *stop_template
+  only:
+    - stages/henrydrich
+  tags:
+    - henrydrich-env-runner
+  resource_group: henrydrich
+  environment:
+    name: henrydrich
+    action: stop
+
 include:
   - local: .gitlab-ci-rules.yml
   - local: kitchen/cookbooks/identity-gitlab/.gitlab-ci.yml
