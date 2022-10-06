@@ -16,8 +16,8 @@ variable "opsgenie_key_ready" {
 module "main" {
   source             = "../module"
   opsgenie_key_ready = var.opsgenie_key_ready
-
-  iam_account_alias = "login-tooling-prod"
+  smtp_user_ready    = true
+  iam_account_alias  = "login-tooling-prod"
 
   cloudtrail_event_selectors = [
     {
