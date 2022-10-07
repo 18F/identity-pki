@@ -4,7 +4,6 @@ gitlab-runner register \
     --non-interactive \
     --name "<%= node.run_state['gitlab_runner_pool_name'] %>-<%= @runner_name %>" \
     --url "<%= @external_url %>" \
-    --registration-token "<%= @runner_token %>" \
     --executor docker \
     --env HTTP_PROXY="<%= @http_proxy %>" \
     --env HTTPS_PROXY="<%= @https_proxy %>" \
