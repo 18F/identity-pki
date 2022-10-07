@@ -14,6 +14,7 @@ locals {
 }
 
 resource "aws_db_parameter_group" "force_ssl" {
+  count       = length(var.pgroup_params) > 0 ? 1 : 0
   name_prefix = "${var.name}-${var.env_name}-idp${var.suffix}-${var.rds_engine}${replace(local.rds_engine_version_short, ".", "")}-"
 
   # Before changing this value, make sure the parameters are correct for the
