@@ -9,15 +9,17 @@ set -euo pipefail
 . "$(dirname "$0")/lib/common.sh"
 
 usage() {
-    cat >&2 << EOM
+  cat >&2 << EOM
 
-Usage: ${0} [-m|-b|-p|-h] TF_DIR TF_ENV
+Usage: ${0} [-m|-b|-p|-t TARG1,TARG2...,TARGn|-h] TF_DIR TF_ENV
 
 Flags:
   -m : Only list specific resource(s) being changed (no additional output)
   -b : Both the full and resource-only outputs will be printed out
   -p : If using Sublime Text, pastes the command output to a new tab/window in
        Sublime Text using the subl binary; can be combined with -m / -p flags
+  -t TARG1,TARG2 : Perform a targeted 'plan' against comma-separated list
+                   of resource names
   -h : Display help
 
 Arguments:
@@ -31,7 +33,7 @@ EOM
 }
 
 help_me() {
-    cat >&2 << EOM
+  cat >&2 << EOM
 
 Runs 'terraform plan' via tf-deploy & processes output for easier change visibility:
 
@@ -80,17 +82,18 @@ print_plan () {
 }
 
 verify_root_repo
-declare {MODULES_ONLY,PASTE,DUAL_OUTPUT,DESTROY_OPT}=
-while getopts mpbxh opt
+declare {MODULES_ONLY,PASTE,DUAL_OUTPUT,DESTROY,TARGS,TARG_LIST}=
+while getopts mpbxht: opt
 do
-    case "${opt}" in
-        m) MODULES_ONLY=true                     ;;
-        p) PASTE=true                            ;;
-        b) DUAL_OUTPUT=true && MODULES_ONLY=true ;;
-        x) DESTROY_OPT='-destroy'                ;;
-        h) help_me                               ;;
-        *) usage && exit 1                       ;;
-    esac
+  case "${opt}" in
+    m) MODULES_ONLY=true                     ;;
+    p) PASTE=true                            ;;
+    b) DUAL_OUTPUT=true && MODULES_ONLY=true ;;
+    x) DESTROY='-destroy'                    ;;
+    h) help_me                               ;;
+    t) TARGS="${OPTARG}"                     ;;
+    *) usage && exit 1                       ;;
+  esac
 done
 shift $((OPTIND-1))
 
@@ -106,7 +109,12 @@ fi
 TF_PATH="${TF_DIR}/${TF_ENV}"
 [[ "${TF_DIR}" == 'app' ]] && TF_PATH="${TF_ENV} ${TF_DIR}"
 
-PLAN=$($(dirname "$0")/tf-deploy ${TF_PATH} plan ${DESTROY_OPT} -no-color)
+if [[ ! -z "${TARGS}" ]] ; then
+  TARG_LIST=$(echo "--target=$(echo $TARGS |
+                               sed -E 's/,/ \-\-target\=/g')" | sed -E 's/\=\-/\=/g')
+fi
+
+PLAN=$($(dirname "$0")/tf-deploy ${TF_PATH} plan ${DESTROY} ${TARG_LIST} -no-color)
 [[ $? == 0 ]] || raise "Plan command unsuccessful; verify and try again"
 if [[ $(echo "${PLAN}" | grep 'No changes') ]] ; then
   echo -e "\nNo changes in Terraform plan for ${TF_DIR}/${TF_ENV}.\n"
