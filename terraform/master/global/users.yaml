@@ -6,11 +6,6 @@ users:
     - bizops
     gitlab_groups:
     - pm
-  alan.atlas:
-    aws_groups:
-    - analytics
-    gitlab_groups:
-    - pm
   alex.kritikos:
     ec2_username:
     - akrito
@@ -514,13 +509,6 @@ users:
     - sshelton
     gitlab_groups:
     - devops
-  steve.urciuoli:
-    aws_groups:
-    - apponcall
-    ec2_username:
-    - steveu
-    gitlab_groups:
-    - appdev
   sujana.gurung:
     aws_groups:
     - devops
