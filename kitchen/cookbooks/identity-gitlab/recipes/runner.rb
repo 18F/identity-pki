@@ -208,6 +208,11 @@ execute 'restart_runner' do
   action :nothing
 end
 
+execute 'reload_runner' do
+  command 'kill -HUP $(systemctl show --property MainPID --value gitlab-runner)'
+  action :nothing
+end
+
 cron_d 'clear_docker_cache' do
   action :create
   predefined_value '@daily'
@@ -219,5 +224,5 @@ end
 # XXX If ever we figure out our concurrency issues, we can go back to 2 or more.
 execute 'update_runner_concurrency' do
   command 'sed -i "s/^concurrent = .*/concurrent = 1/" /etc/gitlab-runner/config.toml'
-  notifies :run, 'execute[restart_runner]', :immediately
+  notifies :run, 'execute[reload_runner]', :immediately
 end

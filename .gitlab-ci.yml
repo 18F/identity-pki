@@ -30,7 +30,7 @@ stages:
 variables:
   CI_COMMIT_TAG: "$CI_COMMIT_SHA"
   ECR_REGISTRY: "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
-  DEPLOY_IMAGE_DIGEST: "sha256:b59593114ae2715ba92120e72b53a84e3fa84720013546cffbe28548a7fcd5f3"
+  DEPLOY_IMAGE_DIGEST: "sha256:c59cb499bb05d9126e3f99fe935e9871578b985dcf3259edf56a4c36c59d5542"
   TEST_IMAGE_DIGEST: "sha256:4f08ebe20d31b7001969b56dc14473e29466f6e4e754ff414626b301ae89d9c6"
   GITDEPLOY_IMAGE_DIGEST: "sha256:5cbb0d207db1f1a4267ae4255f901794c6847ca6d13723bd43eee3e80726bf5e"
   GITTEST_IMAGE_DIGEST: "sha256:9c92a4d06c4e88af3989df742cbc466054f6842855da4b71f8092204ff85ecdb"
@@ -287,6 +287,21 @@ deploy_tspencer:
   only:
     - stages/tspencer
 
+post_deploy_tspencer:
+  <<: *deploy_template
+  environment:
+    name: tspencer
+  allow_failure: true
+  variables:
+    RECYCLE_ENV_RUNNERS_ONLY: "true"
+  resource_group: tspencer
+  needs:
+    - deploy_tspencer
+  tags:
+    - tspencer-env-runner
+  only:
+    - stages/tspencer
+
 test_tspencer:
   <<: *test_template
   only:
@@ -333,6 +348,21 @@ deploy_pauldoom:
     - stages/pauldoom
   tags:
     - pauldoom-env-runner
+
+post_deploy_pauldoom:
+  <<: *deploy_template
+  environment:
+    name: pauldoom
+  allow_failure: true
+  variables:
+    RECYCLE_ENV_RUNNERS_ONLY: "true"
+  resource_group: pauldoom
+  needs:
+    - deploy_pauldoom
+  tags:
+    - pauldoom-env-runner
+  only:
+    - stages/pauldoom
 
 test_pauldoom:
   <<: *test_template
@@ -539,6 +569,21 @@ deploy_henrydrich:
   <<: *deploy_template
   environment: henrydrich
   resource_group: henrydrich
+  tags:
+    - henrydrich-env-runner
+  only:
+    - stages/henrydrich
+
+post_deploy_henrydrich:
+  <<: *deploy_template
+  environment:
+    name: henrydrich
+  allow_failure: true
+  variables:
+    RECYCLE_ENV_RUNNERS_ONLY: "true"
+  resource_group: henrydrich
+  needs:
+    - deploy_henrydrich
   tags:
     - henrydrich-env-runner
   only:
