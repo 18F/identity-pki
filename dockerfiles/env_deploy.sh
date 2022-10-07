@@ -102,5 +102,9 @@ JQSTUFF='([.resource_changes[]?.change.actions?]|flatten)|{"create":(map(select(
 /usr/local/bin/terraform apply -lock-timeout=180s -auto-approve "$CI_PROJECT_DIR/terraform.plan"
 echo terraform apply completed on "$(date)"
 
+if [ -n "$DEPLOY_TERRAFORM_ONLY" ] ; then
+	exit $?
+fi
+
 # recycle the nodes
 bash "$CI_PROJECT_DIR/terraform/app/recycle.sh" "$CI_ENVIRONMENT_NAME"

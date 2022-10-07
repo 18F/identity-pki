@@ -25,39 +25,51 @@ MIGRATIONDURATION=20
 MINHEALTHYPCT=50
 
 # Generate the list of ASGs to recycle.
-if [ -z "$RECYCLE_ENV_RUNNERS_ONLY" ] ; then
-	if [ -z "$CI_COMMIT_SHA" ] ; then
-		# Running under auto-tf or by hand
-		IGNORE="^${ENV_NAME}-migration$"
-	else
-		echo "============= running under gitlab: not recycling $ENV_NAME-gitlab-env-runner"
-		IGNORE="^${ENV_NAME}-migration$|^${ENV_NAME}-gitlab-env-runner"
-	fi
-	ASGS=$(aws autoscaling describe-auto-scaling-groups --region "$AWS_REGION" | jq -r ".AutoScalingGroups[] | .AutoScalingGroupName | select(test(\"^${ENV_NAME}-\"))" | grep -Ev "$IGNORE")
-
-	# run a migrations host first to make sure that everything is ready for
-	# the new hosts.  We are adding one to the current size in case there's
-	# already one running.  We return to zero at the end, though.
-	CURRENTSIZE=$(aws autoscaling describe-auto-scaling-groups --region "$AWS_REGION" --auto-scaling-group-names "$ENV_NAME"-migration | jq .AutoScalingGroups[0].DesiredCapacity)
-	DESIREDSIZE=$(expr $CURRENTSIZE + 1)
-	if [ "$(uname -s)" = "Darwin" ] ; then
-		NOW=$(TZ=Zulu date -v +15S +%Y-%m-%dT%H:%M:%SZ)
-		THEFUTURE=$(TZ=Zulu date -v +"$MIGRATIONDURATION"M +%Y-%m-%dT%H:%M:%SZ)
-	else
-		NOW=$(TZ=Zulu date -d "15 seconds" +%Y-%m-%dT%H:%M:%SZ)
-		THEFUTURE=$(TZ=Zulu date -d "$MIGRATIONDURATION minutes" +%Y-%m-%dT%H:%M:%SZ)
-	fi
-	echo "============= Scheduling migration host launch and teardown"
-	aws autoscaling put-scheduled-update-group-action --region "$AWS_REGION" --scheduled-action-name "migrate-$ENV_NAME" --auto-scaling-group-name "${ENV_NAME}-migration" --start-time "$NOW" --desired-capacity "$DESIREDSIZE"
-	aws autoscaling put-scheduled-update-group-action --region "$AWS_REGION" --scheduled-action-name "end-migrate-$ENV_NAME" --auto-scaling-group-name "${ENV_NAME}-migration" --start-time "$THEFUTURE" --desired-capacity 0
-
-	# Sleep to give time for migrations to complete
-	SLEEPDELAY=$(expr "$MIGRATIONDELAY" "*" 60)
-	echo "sleeping for $SLEEPDELAY seconds to give time for migrations to complete..."
-	sleep "$SLEEPDELAY"
+if [ -n "$RECYCLE_ONLY_THESE_ASGS" ] ; then
+	for i in $RECYCLE_ONLY_THESE_ASGS ; do
+		if echo "$i" | grep -E "^${ENV_NAME}-" ; then
+			echo "validated $i as an ASG in $ENV_NAME environment"
+		else
+			echo "$i is NOT a valid ASG in $ENV_NAME:  aborting"
+			exit 1
+		fi
+	done
+	ASGS="$RECYCLE_ONLY_THESE_ASGS"
 else
-	# only recycle gitlab-env-runner
-	ASGS="${ENV_NAME}-gitlab-env-runner"
+	if [ -z "$RECYCLE_ENV_RUNNERS_ONLY" ] ; then
+		if [ -z "$CI_COMMIT_SHA" ] ; then
+			# Running under auto-tf or by hand
+			IGNORE="^${ENV_NAME}-migration$"
+		else
+			echo "============= running under gitlab: not recycling $ENV_NAME-gitlab-env-runner"
+			IGNORE="^${ENV_NAME}-migration$|^${ENV_NAME}-gitlab-env-runner"
+		fi
+		ASGS=$(aws autoscaling describe-auto-scaling-groups --region "$AWS_REGION" | jq -r ".AutoScalingGroups[] | .AutoScalingGroupName | select(test(\"^${ENV_NAME}-\"))" | grep -Ev "$IGNORE")
+
+		# run a migrations host first to make sure that everything is ready for
+		# the new hosts.  We are adding one to the current size in case there's
+		# already one running.  We return to zero at the end, though.
+		CURRENTSIZE=$(aws autoscaling describe-auto-scaling-groups --region "$AWS_REGION" --auto-scaling-group-names "$ENV_NAME"-migration | jq .AutoScalingGroups[0].DesiredCapacity)
+		DESIREDSIZE=$(expr $CURRENTSIZE + 1)
+		if [ "$(uname -s)" = "Darwin" ] ; then
+			NOW=$(TZ=Zulu date -v +15S +%Y-%m-%dT%H:%M:%SZ)
+			THEFUTURE=$(TZ=Zulu date -v +"$MIGRATIONDURATION"M +%Y-%m-%dT%H:%M:%SZ)
+		else
+			NOW=$(TZ=Zulu date -d "15 seconds" +%Y-%m-%dT%H:%M:%SZ)
+			THEFUTURE=$(TZ=Zulu date -d "$MIGRATIONDURATION minutes" +%Y-%m-%dT%H:%M:%SZ)
+		fi
+		echo "============= Scheduling migration host launch and teardown"
+		aws autoscaling put-scheduled-update-group-action --region "$AWS_REGION" --scheduled-action-name "migrate-$ENV_NAME" --auto-scaling-group-name "${ENV_NAME}-migration" --start-time "$NOW" --desired-capacity "$DESIREDSIZE"
+		aws autoscaling put-scheduled-update-group-action --region "$AWS_REGION" --scheduled-action-name "end-migrate-$ENV_NAME" --auto-scaling-group-name "${ENV_NAME}-migration" --start-time "$THEFUTURE" --desired-capacity 0
+
+		# Sleep to give time for migrations to complete
+		SLEEPDELAY=$(expr "$MIGRATIONDELAY" "*" 60)
+		echo "sleeping for $SLEEPDELAY seconds to give time for migrations to complete..."
+		sleep "$SLEEPDELAY"
+	else
+		# only recycle gitlab-env-runner
+		ASGS="${ENV_NAME}-gitlab-env-runner"
+	fi
 fi
 
 # clean up
