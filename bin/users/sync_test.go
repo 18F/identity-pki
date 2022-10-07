@@ -111,13 +111,22 @@ func TestResolveUsers(t *testing.T) {
 		CreateUser(gomock.Any()).
 		Return(&gitlab.User{
 			Username: "new.engineer",
+			ID:       5,
 		}, nil, nil)
+	mockClient.
+		EXPECT().
+		DeactivateUser(5) // deactivate new.engineer
 	mockClient.
 		EXPECT().
 		CreateUser(gomock.Any()).
 		Return(&gitlab.User{
 			Username: "robbie.robot",
+			ID:       6,
 		}, nil, nil)
+	mockClient.
+		EXPECT().
+		DeactivateUser(6) // deactivate robbie.robot
+
 	mockClient.
 		EXPECT().
 		BlockUser(1) // Just Testing

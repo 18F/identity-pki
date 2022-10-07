@@ -674,6 +674,13 @@ func createUser(gitc GitlabClientIface, username string, userAttrs *AuthUser) er
 	if err != nil {
 		return err
 	}
+
+	// DEactivate the newly-created user. User will be REactivated on first login.
+	err = gitc.DeactivateUser(newUser.ID)
+	if err != nil {
+		return err
+	}
+
 	cache.Users[newUser.Username] = newUser
 	return nil
 }

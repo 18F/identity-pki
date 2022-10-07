@@ -116,6 +116,25 @@ func (mr *MockGitlabClientIfaceMockRecorder) CreateUser(opt interface{}, options
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockGitlabClientIface)(nil).CreateUser), varargs...)
 }
 
+// DeactivateUser mocks base method.
+func (m *MockGitlabClientIface) DeactivateUser(user int, options ...gitlab.RequestOptionFunc) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{user}
+	for _, a := range options {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DeactivateUser", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeactivateUser indicates an expected call of DeactivateUser.
+func (mr *MockGitlabClientIfaceMockRecorder) DeactivateUser(user interface{}, options ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{user}, options...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeactivateUser", reflect.TypeOf((*MockGitlabClientIface)(nil).DeactivateUser), varargs...)
+}
+
 // DeleteGroup mocks base method.
 func (m *MockGitlabClientIface) DeleteGroup(gid interface{}, options ...gitlab.RequestOptionFunc) (*gitlab.Response, error) {
 	m.ctrl.T.Helper()

@@ -19,6 +19,7 @@ type GitlabClientIface interface {
 	AddGroupMember(gid interface{}, opt *gitlab.AddGroupMemberOptions, options ...gitlab.RequestOptionFunc) (*gitlab.GroupMember, *gitlab.Response, error)
 	RemoveGroupMember(gid interface{}, user int, opt *gitlab.RemoveGroupMemberOptions, options ...gitlab.RequestOptionFunc) (*gitlab.Response, error)
 	ModifyUser(user int, opt *gitlab.ModifyUserOptions, options ...gitlab.RequestOptionFunc) (*gitlab.User, *gitlab.Response, error)
+	DeactivateUser(user int, options ...gitlab.RequestOptionFunc) error
 }
 
 type GitlabClient struct {
@@ -66,4 +67,7 @@ func (gc *GitlabClient) RemoveGroupMember(gid interface{}, user int, opt *gitlab
 }
 func (gc *GitlabClient) ModifyUser(user int, opt *gitlab.ModifyUserOptions, options ...gitlab.RequestOptionFunc) (*gitlab.User, *gitlab.Response, error) {
 	return gc.client.Users.ModifyUser(user, opt, options...)
+}
+func (gc *GitlabClient) DeactivateUser(user int, options ...gitlab.RequestOptionFunc) error {
+	return gc.client.Users.DeactivateUser(user, options...)
 }
