@@ -65,12 +65,12 @@ class IssuingCaService
     http = Net::HTTP.new(issuer_uri.hostname, issuer_uri.port)
     response = http.get(issuer_uri.path)
     if response.kind_of?(Net::HTTPSuccess)
-      OpenSSL::PKCS7.new(response.body).certificates
+      OpenSSL::PKCS7.new(response.body).certificates || []
     else
       NewRelic::Agent.notice_error(UnexpectedPKCS7Response.new(response.body))
       []
     end
-  rescue OpenSSL::PKCS7::PKCS7Error, ArgumentError, Errno::ECONNREFUSED, Net::ReadTimeout => e
+  rescue OpenSSL::PKCS7::PKCS7Error, ArgumentError, Errno::ECONNREFUSED, Net::ReadTimeout, Net::OpenTimeout => e
     NewRelic::Agent.notice_error(e)
     []
   end
@@ -99,5 +99,20 @@ class IssuingCaService
     uri = URI.parse(uri)
     return nil unless uri.scheme == 'http'
     uri
+  end
+
+  # Recursively find all certificates issued
+  def self.find_all_issued_certificates(cert, certs: {})
+    certs[cert.key_id] = cert
+
+    certificates = fetch_ca_repository_certs_for_cert(cert).compact
+    certificates.each do |certificate|
+      next if certs[certificate.key_id]
+      certs[certificate.key_id] = certificate
+
+      find_all_issued_certificates(certificate, certs: certs)
+    end
+
+    certs
   end
 end

@@ -9,7 +9,9 @@ aws_http_timeout: '5'
 http_read_timeout: '5'
 http_open_timeout: '5'
 
-ca_issuer_host_allow_list: 'repo.fpki.gov,crl.disa.mil,http.fpki.gov,ssp-aia.symauth.com,pki.treasury.gov,rootweb.managed.entrust.com,aia1.ssp-strong-id.net,pki.treas.gov,crls.pki.state.gov,sspweb.managed.entrust.com,nfirootweb.managed.entrust.com,ssp-aia.digicert.com'
+ca_issuer_host_allow_list: 'aia.certipath.com,repo.fpki.gov,crl.disa.mil,http.fpki.gov,ssp-aia.symauth.com,pki.treasury.gov,rootweb.managed.entrust.com,aia1.ssp-strong-id.net,pki.treas.gov,crls.pki.state.gov,sspweb.managed.entrust.com,nfirootweb.managed.entrust.com,ssp-aia.digicert.com,www.fis.evincible.com'
+ficam_certificate_bundle_file: 'config/cert_bundles/ficam_bundle.pem'
+login_certificate_bundle_file: 'config/cert_bundles/login_bundle.pem'
 client_cert_logger_s3_bucket_name: ''
 database_host: ''
 database_password: ''
@@ -18,6 +20,7 @@ database_timeout: '5000'
 database_username: ''
 domain_name: ''
 identity_idp_host: 'localhost'
+openssl_verify_enabled: 'true'
 newrelic_license_key : ''
 nonce_bloom_filter_hash_count: '4'
 nonce_bloom_filter_prefix: 'nonce'
@@ -31,25 +34,8 @@ token_encryption_key_salt_old: ''
 
 # Trusted roots:
 # F4:27:5C:A9:C3:7C:47:F4:FA:A6:A7:B0:59:97:AA:DD:35:26:17:E3 - Federal Common Policy G2
-# 49:74:BB:0C:5E:BA:7A:FE:02:54:EF:7B:A0:C6:95:C6:09:80:70:96 DoD Root CA 2
-# 6C:8A:94:A2:77:B1:80:72:1D:81:7A:16:AA:F2:DC:CE:66:EE:45:C0 DoD Root CA 3
-# BD:C1:B9:6B:4D:F4:1D:EC:30:90:BF:62:73:C0:84:33:F2:71:24:85 DoD Root CA 4
 
-trusted_ca_root_identifiers: "\
-  F4:27:5C:A9:C3:7C:47:F4:FA:A6:A7:B0:59:97:AA:DD:35:26:17:E3,\
-  6C:8A:94:A2:77:B1:80:72:1D:81:7A:16:AA:F2:DC:CE:66:EE:45:C0,\
-  49:74:BB:0C:5E:BA:7A:FE:02:54:EF:7B:A0:C6:95:C6:09:80:70:96,\
-  BD:C1:B9:6B:4D:F4:1D:EC:30:90:BF:62:73:C0:84:33:F2:71:24:85"
-
-# DoD root identifiers:
-# 49:74:BB:0C:5E:BA:7A:FE:02:54:EF:7B:A0:C6:95:C6:09:80:70:96 - DoD Root CA 2
-# 6C:8A:94:A2:77:B1:80:72:1D:81:7A:16:AA:F2:DC:CE:66:EE:45:C0 - DoD Root CA 3
-# BD:C1:B9:6B:4D:F4:1D:EC:30:90:BF:62:73:C0:84:33:F2:71:24:85 - DoD Root CA 4
-
-dod_root_identifiers: "\
-  49:74:BB:0C:5E:BA:7A:FE:02:54:EF:7B:A0:C6:95:C6:09:80:70:96,\
-  6C:8A:94:A2:77:B1:80:72:1D:81:7A:16:AA:F2:DC:CE:66:EE:45:C0,\
-  BD:C1:B9:6B:4D:F4:1D:EC:30:90:BF:62:73:C0:84:33:F2:71:24:85"
+trusted_ca_root_identifiers: "F4:27:5C:A9:C3:7C:47:F4:FA:A6:A7:B0:59:97:AA:DD:35:26:17:E3"
 
 required_policies: |
   [
@@ -100,6 +86,7 @@ production:
   certificate_store_directory: 'config/certs'
   client_cert_escaped: 'true'
   identity_idp_host: ''
+  openssl_verify_enabled: 'false'
   nonce_bloom_filter_enabled: 'false'
   token_encryption_key_salt: ''
   token_encryption_key_pepper: ''

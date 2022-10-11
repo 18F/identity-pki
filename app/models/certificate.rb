@@ -166,9 +166,8 @@ class Certificate
     OpenSSL::Digest::SHA1.new(x509_cert.to_der).to_s
   end
 
-  def card_type
-    return 'cac' if trusted_dod_root?
-    'piv'
+  def x509_certificate_chain_key_ids
+    cert_store.x509_certificate_chain(self).map(&:key_id)
   end
 
   private
@@ -194,20 +193,8 @@ class Certificate
         subject: subject_s,
         issuer: issuer.to_s,
         uuid: piv.uuid,
-        card_type: card_type
       )
     )
-  end
-
-  def trusted_dod_root?
-    x509_certificate_chain_key_ids.each do |key_id|
-      return true if cert_store.dod_root_identifiers.include?(key_id)
-    end
-    false
-  end
-
-  def x509_certificate_chain_key_ids
-    cert_store.x509_certificate_chain(self).map(&:key_id)
   end
 
   def cert_store

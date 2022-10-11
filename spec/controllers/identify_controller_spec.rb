@@ -140,7 +140,7 @@ RSpec.describe IdentifyController, type: :controller do
 
             cert = Certificate.new(client_cert)
 
-            expect(CertificateLoggerService).to_not receive(:log_certificate)
+            expect(CertificateLoggerService).to receive(:log_certificate).once
             expect(Rails.logger).to receive(:info).with(/GET/).once
             expect(Rails.logger).to receive(:info).with(
               'Returning a token for a valid certificate.'
@@ -149,11 +149,15 @@ RSpec.describe IdentifyController, type: :controller do
               name: 'Certificate Processed',
               signing_key_id: cert.signing_key_id,
               key_id: cert.key_id,
+              certificate_chain_signing_key_ids: [cert.signing_key_id],
               issuer: cert.issuer.to_s,
-              card_type: cert.card_type,
               valid_policies: true,
               valid: true,
               error: nil,
+              openssl_valid: false,
+              openssl_errors: 'error 20 at 0 depth lookup: unable to get local issuer certificate',
+              ficam_openssl_valid: false,
+              ficam_openssl_errors: 'error 20 at 0 depth lookup: unable to get local issuer certificate',
             }.to_json).once
 
             @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
@@ -173,37 +177,6 @@ RSpec.describe IdentifyController, type: :controller do
             expect(given_subject).to eq expected_subject
 
             expect(token_contents['issuer']).to eq(client_issuer)
-          end
-
-          context 'when a DoD root certificate is found in certificate chain' do
-            before(:each) do
-              allow(IdentityConfig.store).to receive(:dod_root_identifiers).and_return(
-                root_cert_key_ids
-              )
-            end
-
-            it 'returns a token with a card_type of cac' do
-              @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
-              expect(CertificateLoggerService).to_not receive(:log_certificate)
-              get :create, params: { nonce: '123', redirect_uri: 'http://example.com/' }
-
-              expect(token_contents['card_type']).to eq 'cac'
-              expect(token_contents['issuer']).to eq client_issuer
-            end
-          end
-
-          context 'when the root certificate is not found in dod_root_identifiers' do
-            before(:each) do
-              allow(IdentityConfig.store).to receive(:dod_root_identifiers).and_return([])
-            end
-
-            it 'returns a token with a card_type of piv' do
-              @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
-              expect(CertificateLoggerService).to_not receive(:log_certificate)
-              get :create, params: { nonce: '123', redirect_uri: 'http://example.com/' }
-
-              expect(token_contents['card_type']).to eq 'piv'
-            end
           end
 
           it 'allows the use of the REFERRER header to specify the referrer' do
@@ -234,7 +207,7 @@ RSpec.describe IdentifyController, type: :controller do
           it 'returns a token with a uuid and subject' do
             allow(IdentityConfig.store).to receive(:client_cert_escaped).and_return(false)
             @request.headers['X-Client-Cert'] = client_cert_pem.split(/\n/).join("\n\t")
-            expect(CertificateLoggerService).to_not receive(:log_certificate)
+            expect(CertificateLoggerService).to receive(:log_certificate).once
 
             get :create, params: { nonce: '123', redirect_uri: 'http://example.com/' }
             expect(response).to have_http_status(:found)
@@ -391,10 +364,14 @@ RSpec.describe IdentifyController, type: :controller do
               name: 'Certificate Processed',
               signing_key_id: cert.key_id,
               key_id: cert.key_id,
-              card_type: cert.card_type,
+              certificate_chain_signing_key_ids: [cert.signing_key_id],
               valid_policies: false,
               valid: false,
               error: 'self-signed cert',
+              openssl_valid: false,
+              openssl_errors: 'error 18 at 0 depth lookup: self signed certificate, error 26 at 0 depth lookup: unsupported certificate purpose',
+              ficam_openssl_valid: false,
+              ficam_openssl_errors: 'error 18 at 0 depth lookup: self signed certificate, error 26 at 0 depth lookup: unsupported certificate purpose',
             }.to_json).once
 
             get :create, params: { nonce: '123', redirect_uri: 'http://example.com/' }
