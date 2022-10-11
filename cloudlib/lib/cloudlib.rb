@@ -34,8 +34,11 @@ module Cloudlib
   def self.log_level
     return @log_level if @log_level
 
-    if ENV['CL_LOG_LEVEL'] && !ENV['CL_LOG_LEVEL'].empty?
-      @log_level = Integer(ENV['CL_LOG_LEVEL'])
+    env_log_level = ENV['CL_LOG_LEVEL']&.upcase
+    if env_log_level && !env_log_level.empty?
+      @log_level = Logger.const_defined?(env_log_level) ?
+        Logger.const_get(env_log_level) :
+        Integer(env_log_level)
       return @log_level
     end
 

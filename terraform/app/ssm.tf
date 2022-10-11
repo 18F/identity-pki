@@ -20,6 +20,28 @@ locals {
       use_root    = true
       parameters  = []
     }
+    "scp-s3-cp" = {
+      description = "Part of the scp-s3 devops script, runs an aws s3 cp command on the box"
+      parameters = [
+        {
+          name        = "sourcefile"
+          type        = "String"
+          default     = "null"
+          description = "source file to copy"
+        },
+        {
+          name        = "destfile"
+          type        = "String"
+          default     = "null"
+          description = "destination file to copy to"
+        },
+      ]
+      logging  = false
+      use_root = false
+      command = [
+        "aws s3 cp {{ sourcefile }} {{ destfile }}"
+      ]
+    }
   }
 }
 

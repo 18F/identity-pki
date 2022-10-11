@@ -1,0 +1,238 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'optparse'
+require 'tempfile'
+require 'aws-sdk-s3'
+require 'aws-sdk-sts'
+
+Dir.chdir(File.dirname(__FILE__)) { require 'bundler/setup' }
+require_relative '../cloudlib/lib/cloudlib.rb'
+
+class ScpS3
+  attr_reader :source, :dest
+
+  def self.parse!(argv)
+    delete = true
+    source = nil
+    dest = nil
+
+    basename = File.basename($PROGRAM_NAME)
+
+    parser = OptionParser.new do |opts|
+      opts.banner = <<-STR
+usage: #{basename} [OPTIONS] SOURCE DEST
+
+Mimics SCP: copies a file from SOURCE to DEST, using S3 as an intermediate
+
+Example:
+  # Copy a file from the instance to your local machine
+  #{basename} i-abcdef:/remote/file.json .
+
+  # Copy a file to an instance from your local machine
+  #{basename} file.json i-abcdef:/tmp/file.json
+
+Options:
+      STR
+
+      opts.on(
+        '--[no-]delete',
+        'skips deleting the file in s3 afterwards, useful for debugging (default is to delete)',
+      ) do |d|
+        delete = d
+      end
+
+      opts.on('--help', 'prints this help message') do
+        puts opts
+        exit 0
+      end
+    end
+
+    parser.parse!(argv)
+
+    if argv.length < 2
+      puts parser
+      exit 1
+    end
+
+    source, dest = ARGV.last(2)
+
+    new(
+      source: source,
+      dest: dest,
+      delete: delete,
+    )
+  end
+
+  def initialize(source:, dest:, delete: nil)
+    @source = source
+    @dest = dest
+    @delete = delete
+  end
+
+  # Whether or not to delete the file from s3 after copying
+  def delete?
+    !!@delete
+  end
+
+  def log
+    @log ||= Cloudlib.class_log(self.class, STDERR)
+  end
+
+  TransferConfig = Struct.new(
+    :path,
+    :instance,
+    :env,
+    keyword_init: true,
+  ) do
+    def host_path
+      [instance&.instance_id, path].compact.join(':')
+    end
+  end
+
+  def run
+    source_config, dest_config = [source, dest].map do |path|
+      build_transfer_config(path)
+    end
+
+    if dest_config.path == '.'
+      dest_config.path = File.basename(source_config.path)
+    end
+
+    direction, key = if source_config.instance && dest_config.instance
+                       [:transfer, File.join("#{source_config.env}/transfer/", source_config.path)]
+                     elsif source_config.instance
+                       [:download, File.join("#{source_config.env}/out/", source_config.path)]
+                     elsif dest_config.instance
+                       [:upload, File.join("#{dest_config.env}/in/", dest_config.path)]
+                     else
+                       :local
+                     end
+
+    if direction == :local
+      cmd = ['cp', source_config.path, dest_config.path]
+      log.info(cmd.join(' '))
+      success = system(*cmd)
+      exit(success ? 0 : 1)
+    end
+
+    copy_to_s3(key: key, transfer_config: source_config)
+    copy_from_s3(key: key, transfer_config: dest_config)
+
+    if delete? && bucket && key
+      log_aws_command(command: 'rm', source: build_s3_path(key))
+      s3_client.delete_object(bucket: bucket, key: key)
+    end
+  rescue Aws::S3::Errors::AccessDenied => err
+    log.error("#{err.class}: #{err.message}, could be a permissions issue or you may need to be on VPN")
+    exit 1
+  end
+
+  def copy_to_s3(key:, transfer_config:)
+    s3_path = build_s3_path(key)
+
+    log_aws_command(command: 'cp', source: transfer_config.host_path, destination: s3_path)
+
+    if transfer_config.instance
+      remote_s3_scp(
+        instance: transfer_config.instance,
+        source: transfer_config.path,
+        dest: s3_path,
+      )
+    else
+      File.open(transfer_config.path, 'rb') do |file|
+        s3_client.put_object(
+          bucket: bucket,
+          key: key,
+          body: file,
+        )
+      end
+    end
+  end
+
+  def copy_from_s3(key:, transfer_config:)
+    s3_path = build_s3_path(key)
+
+    log_aws_command(command: 'cp', source: s3_path, destination: transfer_config.host_path)
+
+    if transfer_config.instance
+      remote_s3_scp(
+        instance: transfer_config.instance,
+        source: s3_path,
+        dest: transfer_config.path,
+      )
+    else
+      s3_client.get_object(
+        bucket: bucket,
+        key: key,
+        response_target: transfer_config.path,
+      )
+    end
+  end
+
+  # @param [String] path
+  # @return [TransferConfig]
+  def build_transfer_config(path)
+    match = path.match(/((?<host>[^:]+):)?(?<path>.+)/)
+    instance_id = match[:host]
+
+    instance = begin
+      Cloudlib::EC2.new.lookup_instance_by_id(instance_id) if instance_id
+    rescue
+      puts "could not find instance #{instance_id}"
+      exit 1
+    end
+
+    env = Cloudlib::SSM.ec2lib_for_vpc(instance.vpc_id).env if instance
+
+    TransferConfig.new(
+      path: match[:path],
+      instance: instance,
+      env: env,
+    )
+  end
+
+  # logs an equivalent aws command line
+  def log_aws_command(command:, source:, destination: nil)
+    s3_args = ['aws', 's3', command, source, destination].compact
+    log.info s3_args.join(' ')
+  end
+
+  def s3_client
+    @s3_client ||= Aws::S3::Client.new
+  end
+
+  def build_s3_path(key)
+    "s3://#{bucket}/#{key}"
+  end
+
+  def bucket
+    @bucket ||= begin
+      account_id = begin
+        Aws::STS::Client.new.get_caller_identity.account
+      rescue
+        nil
+      end
+
+      if account_id && !account_id.empty?
+        "login-gov.transfer-utility.#{account_id}-us-west-2"
+      end
+    end
+  end
+
+  # @param [Aws::EC2::Instance] instance
+  def remote_s3_scp(instance:, source:, dest:)
+    Cloudlib::SSM::Single.new(
+      instance: instance,
+      document: 'scp-s3-cp',
+      parameters: {
+        sourcefile: [source],
+        destfile: [dest],
+      },
+    ).ssm_send_command
+  end
+end
+
+if $PROGRAM_NAME == __FILE__
+  ScpS3.parse!(ARGV).run
+end

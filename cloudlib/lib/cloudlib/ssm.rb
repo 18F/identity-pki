@@ -21,15 +21,15 @@ module Cloudlib
     # instance.
     class Single
 
-      attr_reader :cl
-      attr_reader :instance
-      attr_reader :document
+      attr_reader :cl, :instance, :document, :parameters
 
       # @param [String] instance_id
       # @param [Aws::EC2::Instance] instance
       # @param [String] document
-      def initialize(instance_id: nil, instance: nil, document: nil)
+      # @param [Hash,nil] parameters
+      def initialize(instance_id: nil, instance: nil, document: nil, parameters: nil)
         @document = document
+        @parameters = parameters
 
         if (instance_id && instance) || (!instance_id && !instance)
           raise ArgumentError.new('must pass one of instance_id or instance')
@@ -70,10 +70,50 @@ module Cloudlib
           'ssm',
           'start-session',
           '--target', instance.instance_id,
-          '--document',  "#{@cl.env}-ssm-document-#{@document}",
+          '--document', "#{@cl.env}-ssm-document-#{@document}",
         ]
+        cmd += ['--parameters', parameters.to_json] if parameters
         log.debug('exec: ' + cmd.inspect)
         exec(*cmd)
+      end
+
+      # Runs SSM command, waits for it synchronously
+      # Future work: maybe an async option?
+      # @return [Aws::SSM::Types::GetCommandInvocationResult]
+      def ssm_send_command
+        ssm_client = Aws::SSM::Client.new
+
+        document_name = "#{@cl.env}-ssm-cmd-#{@document}"
+
+        cmd = [
+          'aws',
+          'ssm',
+          'send-command',
+          '--targets', "Key=InstanceIds,Values=#{instance.instance_id}",
+          '--document-name', document_name,
+        ]
+        cmd += ['--parameters', parameters.to_json] if parameters
+        log.info(cmd.join(' '))
+
+        command = ssm_client.send_command(
+          document_name: document_name,
+          targets: [
+            { key: 'InstanceIds', values: [instance.instance_id] },
+          ],
+          parameters: parameters,
+        )
+
+        log.debug('send_command result: ' + command.to_s)
+
+        command_result = ssm_client.wait_until(
+          :command_executed,
+          command_id: command.command.command_id,
+          instance_id: instance.instance_id
+        )
+
+        log.debug('command result: ' + command_result.to_s)
+
+        command_result
       end
     end
   end
