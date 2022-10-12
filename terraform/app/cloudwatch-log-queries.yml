@@ -70,6 +70,17 @@ outboundproxy/blocked-requests-by-destination:
     | stats count() as count by destination
     | sort count desc
 
+pii/id-token-hint-use-by-redirect-uri:
+  logs:
+  - ${env}_/srv/idp/shared/log/production.log
+  query: |
+    ## Count use of id_token_hint in RP-Initiated logout by post_logout_redirect_uri value
+    ## Remove this query after all SPs have converted to use of client_id
+    filter path like "/openid_connect/logout" | parse path /id_token_hint=.+?\\.(?<payload>.*?)\\./
+    | parse path /post_logout_redirect_uri=https(:\\/\\/|%3A%2F%2F)(?<redirect_fqdn>.+?)(\\/|%2F)/
+    | stats count() as count by redirect_fqdn
+    | sort count desc
+
 pivcac/errors-by-issuer:
   logs:
     - ${env}_/srv/pki-rails/shared/log/production.log
@@ -213,6 +224,7 @@ waf/blocked-by-rule-and-ip:
     filter action != "ALLOW"
     | stats count() as count by terminatingRuleId,httpRequest.clientIp
     | sort count desc
+
 workers/failed_jobs:
   logs:
     - ${env}_/srv/idp/shared/log/workers.log
