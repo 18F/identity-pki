@@ -66,10 +66,14 @@ saml_params = {
 
 execute 'mount_gitaly_volume' do
   command "aws ec2 attach-volume --device #{gitaly_device} --instance-id #{node['ec2']['instance_id']} --volume-id #{gitaly_ebs_volume} --region #{aws_region}"
+  retries 15
+  retry_delay 60
 end
 
 execute 'mount_gitlab_volume' do
   command "aws ec2 attach-volume --device #{gitlab_device} --instance-id #{node['ec2']['instance_id']} --volume-id #{gitlab_ebs_volume} --region #{aws_region}"
+  retries 15
+  retry_delay 60
 end
 
 include_recipe 'filesystem'
@@ -437,6 +441,8 @@ execute 'add_ci_skeleton' do
       "#{local_url}/api/v4/application/settings?password_authentication_enabled_for_web=false"
     curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPUT \
       "#{local_url}/api/v4/application/settings?admin_mode=true"
+    curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPUT \
+      "#{local_url}/api/v4/application/settings?plantuml_enabled=true&plantuml_url=#{external_url}/-/plantuml/"
   EOF
   ignore_failure false
   action :run
@@ -507,4 +513,47 @@ template '/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/gitlabc
     environmentName: node.chef_environment,
   })
   notifies :restart, 'service[amazon-cloudwatch-agent]', :delayed
+end
+
+# Run PlantUML service
+plantuml_version = 'v1.2020.10'
+package 'tomcat8'
+package 'openjdk-8-jdk'
+package 'graphviz'
+
+service 'tomcat8' do
+  action :nothing
+  supports({
+    restart: true,
+    status: true,
+    start: true,
+    stop: true,
+  })
+end
+
+remote_file 'plantuml.war' do
+  path '/var/lib/tomcat8/webapps/plantuml.war'
+  source "https://github.com/plantuml/plantuml-server/releases/download/#{plantuml_version}/plantuml-#{plantuml_version}.war"
+  owner 'tomcat8'
+  group 'tomcat8'
+  mode '600'
+  notifies :restart, 'service[tomcat8]', :delayed
+end
+
+cookbook_file 'tomcat server.xml' do
+  path '/etc/tomcat8/server.xml'
+  source 'server.xml'
+  owner 'root'
+  group 'tomcat8'
+  mode '640'
+  notifies :restart, 'service[tomcat8]', :delayed
+end
+
+cookbook_file 'tomcat env vars' do
+  path '/etc/default/tomcat8'
+  source 'tomcat8'
+  owner 'root'
+  group 'root'
+  mode '644'
+  notifies :restart, 'service[tomcat8]', :delayed
 end

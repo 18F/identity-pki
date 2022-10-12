@@ -652,6 +652,7 @@ gitlab_rails['env'] = {
   'http_proxy' => "http://obproxy.login.gov.internal:3128",
   'https_proxy' => "http://obproxy.login.gov.internal:3128",
   'no_proxy' => "localhost,127.0.0.1,169.254.169.254,169.254.169.123",
+  'PLANTUML_ENCODING' => 'deflate',
 #   'BUNDLE_GEMFILE' => "/opt/gitlab/embedded/service/gitlab-rails/Gemfile",
 #   'PATH' => "/opt/gitlab/bin:/opt/gitlab/embedded/bin:/bin:/usr/bin"
 }
@@ -1360,6 +1361,7 @@ redis['enable'] = false
 ##! Docs: https://docs.gitlab.com/omnibus/settings/nginx.html#supporting-proxied-ssl
 # nginx['listen_https'] = nil
 
+nginx['custom_gitlab_server_config'] = "location /-/plantuml { \n rewrite ^/-/(plantuml.*) /$1 break;\n proxy_cache off; \n proxy_pass http://localhost:8081/plantuml; \n}\n"
 # nginx['custom_gitlab_server_config'] = "location ^~ /foo-namespace/bar-project/raw/ {\n deny all;\n}\n"
 # nginx['custom_nginx_config'] = "include /etc/nginx/conf.d/example.conf;"
 # nginx['proxy_read_timeout'] = 3600

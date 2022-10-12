@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/rand"
+	"net/http"
 	"os"
 	"strings"
 	"sync"
@@ -524,4 +525,15 @@ func TestSThreeSeven(t *testing.T) {
 	cmd := "ls -ld /etc/docker/certs.d"
 	result := RunCommandOnInstance(t, firstinstance, cmd)
 	require.NotEqual(t, int64(0), *result.ResponseCode, "/etc/docker/certs.d should not exist, as we are not using certs.  Otherwise, s3.7 requires us to manage the perms of this.")
+}
+
+func TestPlantUml(t *testing.T) {
+	// Encoded UML from doc/architecture/waf.md
+	// This was chosen because it excercises the `!include` directive.
+	testUML := "https://" + domain + "/-/plantuml/png/~1U9oDLDzlsZ0GVkUlkF42I0rfEvxwC0aOHKWjGx2sZvD9Zc3DE9djaB5g__lETe44GhiemiVTTxy_fmN37aIfD8nBLBhnYSj8v37cIi3Qc4pVXQ5YHJVXPfqlSutAWb6QRfHkmZcFc8hJASSCHJZi1JF1f7bwV0WL2cGQmvlWclG_XliCtIpVY4QZ1VsN1Kme5gMCSKKcgvcHyJ_Iia8BjjJs3BYD4QnI5MGsDmK8jpUVkzTXpBKvjBCF7j8vx4qeLAAOuQdqzG0zjT1qi_a8i-2RJF0Ln_WTt1YfToP29iGxg2cQ8bK_kKo6ljklAFWMrUu3Foepomr-W5fWb2jkTfEO8jDflGHdCYevEayo2eGv_ifH6xWNQG4qNnYJcYsXNOGl_VkEGmxINCPCxThRJ5v1Sxpem_Diskp0gpFldoVQdxOOkqXDGATeaj3qSVxQn1vL1sbKCaKsaw_bUJOyIJOIJ1iUFQGi7Z0YH4J3V1lhKOUgBSMImamV1fIYK_ANgK4Gk3AL1ln3Q0rnAbi6rcoBeDy62ebAyqntuP59bY2mA4AjOSiP6AOIDBfrXcrSYfyffCufkbaZH8BJhbeQ9hCktDCEg64OoJXBkJGq9RFc6kYrM3-IW1016L599Wvkq_xtAfWK53NBbu975bMg1cNifb0fS3IydKXjxEnqM-LI-YNDdVJdP8Ody4oblpbQ-BV1pCdlEhGJryXXoMVO0nMOMDBbN_64i7tQPEUrPgW0nDPsmLO48gbvrRa4ckS2BL3HwPiJjj9wV1tF-XdTfyXzLYfSOuvhPrIpjFU_rRk4Skj9FfBR6eQ3rHquG6WlERmNInUhTY6Ke6w5fpwNlIzjjDmE5Kaa6pE31Tkr9RC5aiBEqzdtNmC8uhIGmHUW6-aCzTfzcpM6VJD0scDn3IZzyIOVmNaTNFACJ4SNi74FEMXnTz3hVJupU8hUmUsjCp5hiX-D08W_JaLdIUKeTOHMeZYr5-6abbBrD41V1QkEu1-shL5m"
+	resp, err := http.Get(testUML)
+	require.NoError(t, err, "HTTP request to plantuml-server failed")
+	defer resp.Body.Close()
+	errorMessage := resp.Header.Get("X-Plantuml-Diagram-Error")
+	require.Equal(t, 200, resp.StatusCode, "plantUML could not be rendered: "+errorMessage)
 }
