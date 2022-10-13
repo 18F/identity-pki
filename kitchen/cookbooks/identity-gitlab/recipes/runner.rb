@@ -175,6 +175,7 @@ template '/etc/gitlab-runner/runner-register.sh' do
     no_proxy: no_proxy,
     external_url: external_url,
     runner_name: runner_name,
+    runner_token: runner_token,
     gitlab_ecr_registry: gitlab_ecr_registry,
     repolist: repolist,
     aws_account_id: aws_account_id,
@@ -187,11 +188,8 @@ end
 
 execute 'configure_gitlab_runner' do
   command '/etc/gitlab-runner/runner-register.sh'
-  environment({
-    REGISTRATION_TOKEN: runner_token,
-  })
-  sensitive false
   action :nothing
+  sensitive true
   notifies :run, 'execute[restart_runner]', :immediately
 end
 
