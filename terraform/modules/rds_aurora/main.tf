@@ -294,8 +294,9 @@ resource "aws_rds_cluster_instance" "aurora" {
     Name = local.db_name
   }
 
-  auto_minor_version_upgrade = var.auto_minor_upgrades
-  apply_immediately          = true
+  auto_minor_version_upgrade   = var.auto_minor_upgrades
+  apply_immediately            = true
+  preferred_maintenance_window = var.maintenance_window
 
   # enhanced monitoring
   monitoring_interval = var.monitoring_interval
