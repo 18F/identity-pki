@@ -628,3 +628,4 @@ include:
   - local: terraform/.gitlab-ci.yml
   - local: cloudlib/.gitlab-ci.yml
   - local: bin/users/.gitlab-ci.yml
+  - template: Jobs/SAST-IaC.gitlab-ci.yml
