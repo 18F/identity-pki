@@ -87,3 +87,25 @@ EOM
   alarm_actions             = local.high_priority_alarm_actions
 }
 
+resource "aws_cloudwatch_metric_alarm" "idp_worker_threatmetrix_js_verification_alarm" {
+  count = var.idp_worker_alarms_enabled
+
+  alarm_name                = "${var.env_name} ThreatMetrix JS Verification"
+  comparison_operator       = "GreaterThanThreshold"
+  evaluation_periods        = "1"
+  datapoints_to_alarm       = "1"
+  metric_name               = "threatmetrix-js-invalid"
+  namespace                 = "${var.env_name}/idp-worker"
+  period                    = "3600"
+  statistic                 = "Maximum"
+  threshold                 = "0"
+  alarm_description         = <<EOM
+This alarm is executed when Javascript served by LexisNexis ThreatMetrix is not appropriately signed.
+
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-ThreatMetrix-Javascript-verification
+EOM
+  treat_missing_data        = "missing"
+  insufficient_data_actions = []
+  alarm_actions             = local.high_priority_alarm_actions
+}
+

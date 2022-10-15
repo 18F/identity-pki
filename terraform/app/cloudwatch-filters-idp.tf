@@ -249,6 +249,12 @@ locals {
       pattern      = "{ $.name = \"perform.active_job\" && $.exception_message = * && $.queue_name = \"*GoodJob*\" && $.queue_name != \"*long_running*\" }"
       metric_value = 1
     },
+    threatmetrix_js_invalid = {
+      name         = "threatmetrix-js-invalid"
+      pattern      = "{ ($.name = \"ThreatMetrixJsVerification\") && ($.valid IS FALSE) }"
+      metric_value = 1
+      dimensions   = {}
+    }
   }
 }
 
