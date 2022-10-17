@@ -108,22 +108,29 @@ resource "aws_cloudwatch_metric_alarm" "gitlab_backup_failures" {
 }
 
 locals {
-  gitlab_user_sync_metric_namespace = "Gitlab/${var.env_name}"
-  gitlab_user_sync_metric_name      = "UserSyncSuccess"
-  gitlab_user_sync_dashboard_name   = "${var.env_name}-Gitlab-User-Sync"
-  secrets_bucket                    = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
+  secrets_bucket                  = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
+  gitlab_metric_namespace         = "Gitlab/${var.env_name}"
+  gitlab_user_sync_metric_name    = "UserSyncSuccess"
+  gitlab_user_sync_dashboard_name = "${var.env_name}-Gitlab-User-Sync"
+  gitlab_ci_ping_metric_name      = "CIPingSuccess"
+  alert_topic                     = var.env_type == "tooling-prod" ? "slack-events" : "slack-otherevents"
 }
 
-# These values can be shared via S3 with Chef, which creates the cronjob.
-resource "aws_s3_object" "gitlab_user_sync_metric_namespace" {
+# These values can be shared via S3 with Chef and Gitlab.
+resource "aws_s3_object" "gitlab_metric_namespace" {
   bucket  = local.secrets_bucket
-  key     = "${var.env_name}/gitlab_user_sync_metric_namespace"
-  content = local.gitlab_user_sync_metric_namespace
+  key     = "${var.env_name}/gitlab_metric_namespace"
+  content = local.gitlab_metric_namespace
 }
 resource "aws_s3_object" "gitlab_user_sync_metric_name" {
   bucket  = local.secrets_bucket
   key     = "${var.env_name}/gitlab_user_sync_metric_name"
   content = local.gitlab_user_sync_metric_name
+}
+resource "aws_s3_object" "gitlab_ci_ping_metric_name" {
+  bucket  = local.secrets_bucket
+  key     = "${var.env_name}/gitlab_ci_ping_metric_name"
+  content = local.gitlab_ci_ping_metric_name
 }
 
 resource "aws_cloudwatch_metric_alarm" "gitlab_user_sync_failures" {
@@ -131,7 +138,7 @@ resource "aws_cloudwatch_metric_alarm" "gitlab_user_sync_failures" {
   comparison_operator       = "LessThanThreshold"
   evaluation_periods        = "1"
   metric_name               = local.gitlab_user_sync_metric_name
-  namespace                 = local.gitlab_user_sync_metric_namespace
+  namespace                 = local.gitlab_metric_namespace
   period                    = 3600 * 3
   statistic                 = "Sum"
   threshold                 = "1"
@@ -139,7 +146,24 @@ resource "aws_cloudwatch_metric_alarm" "gitlab_user_sync_failures" {
   treat_missing_data        = "breaching"
   insufficient_data_actions = []
   alarm_actions = [
-    "arn:aws:sns:${var.region}:${data.aws_caller_identity.current.account_id}:slack-events",
+    "arn:aws:sns:${var.region}:${data.aws_caller_identity.current.account_id}:${local.alert_topic}",
+  ]
+}
+
+resource "aws_cloudwatch_metric_alarm" "gitlab_ci_ping_failures" {
+  alarm_name                = "${var.env_name} CI ping unsuccessful"
+  comparison_operator       = "LessThanThreshold"
+  evaluation_periods        = "1"
+  metric_name               = local.gitlab_ci_ping_metric_name
+  namespace                 = local.gitlab_metric_namespace
+  period                    = 60 * var.ci_ping_alert_minutes
+  statistic                 = "Sum"
+  threshold                 = "1"
+  alarm_description         = "This Alarm is executed if Gitlab's CI has NOT completed successfully in the ${var.ci_ping_alert_minutes} minutes."
+  treat_missing_data        = "breaching"
+  insufficient_data_actions = []
+  alarm_actions = [
+    "arn:aws:sns:${var.region}:${data.aws_caller_identity.current.account_id}:${local.alert_topic}",
   ]
 }
 

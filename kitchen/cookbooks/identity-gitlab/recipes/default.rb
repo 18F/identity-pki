@@ -40,7 +40,7 @@ runner_token = shell_out('openssl rand -base64 32 | sha256sum | head -c20').stdo
 ses_password = ConfigLoader.load_config(node, 'ses_smtp_password', common: true).chomp
 ses_username = ConfigLoader.load_config(node, 'ses_smtp_username', common: true).chomp
 smtp_address = "email-smtp.#{aws_region}.amazonaws.com"
-user_sync_metric_namespace = ConfigLoader.load_config(node, 'gitlab_user_sync_metric_namespace', common: false).chomp
+metric_namespace = ConfigLoader.load_config(node, 'gitlab_metric_namespace', common: false).chomp
 user_sync_metric_name = ConfigLoader.load_config(node, 'gitlab_user_sync_metric_name', common: false).chomp
 
 # must come after external_fqdn
@@ -443,6 +443,14 @@ execute 'add_ci_skeleton' do
       "#{local_url}/api/v4/application/settings?admin_mode=true"
     curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPUT \
       "#{local_url}/api/v4/application/settings?plantuml_enabled=true&plantuml_url=#{external_url}/-/plantuml/"
+    pipeline=$(curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XGET \
+      "#{local_url}/api/v4/projects/$PROJECT_NUMBER/pipeline_schedules" | jq -r .[0])
+    if [ "$pipeline" = "null" ]; then
+      curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
+        "#{local_url}/api/v4/projects/$PROJECT_NUMBER/pipeline_schedules" \
+        --form description="Every 10 minutes" --form ref="main" --form cron="*/10 * * * *" --form cron_timezone="UTC" \
+        --form active="true"
+    fi
   EOF
   ignore_failure false
   action :run
@@ -500,7 +508,7 @@ end
 cron_d 'run_usersync' do
   action :create
   predefined_value '@hourly'
-  command "/etc/login.gov/repos/identity-devops/bin/users/sync.sh #{external_fqdn} #{user_sync_metric_namespace} #{user_sync_metric_name} 2>&1 | logger --id=$$ -t users/sync.sh"
+  command "/etc/login.gov/repos/identity-devops/bin/users/sync.sh #{external_fqdn} #{metric_namespace} #{user_sync_metric_name} 2>&1 | logger --id=$$ -t users/sync.sh"
 end
 
 # set up logs for gitlab

@@ -51,12 +51,12 @@ show-env:
     - env
 
 build-gitlab-qa:
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"
   variables:
     CI_COMMIT_TAG: v15.3.3-ee
     ECR_REGISTRY: $AWS_ACCOUNT_ID.dkr.ecr.us-west-2.amazonaws.com
     IMAGE_NAME: gitlab-qa
-
-
   tags:
     - build-pool
   stage: build
@@ -85,6 +85,8 @@ build-gitlab-qa:
   when: manual
 
 run-gitlab-qa:
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"
   variables:
     GITHUB_ENDPOINT: "https://$EXTERNAL_FQDN"
     GITLAB_ADMIN_PASSWORD: $GITLAB_QA_PASSWORD
@@ -134,6 +136,8 @@ run-gitlab-qa:
 build_gitlab_deploy:
   <<: *build_template
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     # Always run if it's on the main branch.
     - if: $CI_COMMIT_BRANCH == "main"
     # Otherwise, only build on PRs, not new branches ...
@@ -149,6 +153,8 @@ build_gitlab_deploy:
 build_gitlab_test:
   <<: *build_template
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     # Always run if it's on the main branch.
     - if: $CI_COMMIT_BRANCH == "main"
     # Otherwise, only build on PRs, not new branches ...
@@ -163,6 +169,8 @@ build_gitlab_test:
 build_env_deploy:
   <<: *build_template
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     # Always run if it's on the main branch.
     - if: $CI_COMMIT_BRANCH == "main"
     # Otherwise, only build on PRs, not new branches ...
@@ -178,6 +186,8 @@ build_env_deploy:
 build_env_stop:
   <<: *build_template
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     # Always run if it's on the main branch.
     - if: $CI_COMMIT_BRANCH == "main"
     # Otherwise, only build on PRs, not new branches ...
@@ -192,6 +202,8 @@ build_env_stop:
 build_env_test:
   <<: *build_template
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     # Always run if it's on the main branch.
     - if: $CI_COMMIT_BRANCH == "main"
     # Otherwise, only build on PRs, not new branches ...
@@ -206,6 +218,8 @@ build_env_test:
 build_idp_ci:
   <<: *build_template
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     # Always run if it's on the main branch.
     - if: $CI_COMMIT_BRANCH == "main"
     # Otherwise, only build on PRs, not new branches ...
@@ -334,7 +348,6 @@ stop_tspencer:
   environment:
     name: tspencer
     action: stop
-
 
 # deploy jobs for pauldoom env here.
 deploy_pauldoom:
@@ -483,15 +496,19 @@ deploy_dev:
     name: dev
     url: https://idp.dev.identitysandbox.gov/
   resource_group: dev
-  only:
-    - main
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "main"
   tags:
     - dev-env-runner
 
 test_dev:
   <<: *test_template
-  only:
-    - main
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "main"
   tags:
     - dev-env-runner
   needs:
@@ -505,16 +522,20 @@ badtest_dev:
   <<: *badtest_template
   tags:
     - dev-env-runner
-  only:
-    - main
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "main"
   needs:
     - deploy_dev
 
 # deploy jobs for gitlabbravo env here.
 deploy_bravo:
   <<: *deploy_gitlab_template
-  only:
-    - main
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "main"
   variables:
     env: bravo
     url: https://gitlab.identitysandbox.gov/
@@ -522,8 +543,10 @@ deploy_bravo:
 
 test_bravo:
   <<: *test_gitlab_template
-  only:
-    - main
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "main"
   needs:
     - deploy_bravo
   variables:
@@ -621,6 +644,17 @@ stop_henrydrich:
   environment:
     name: henrydrich
     action: stop
+
+ping_cloudwatch:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+  variables:
+    S3: "s3://login-gov.secrets.${AWS_ACCOUNT_ID}-${AWS_REGION}/${MY_ENV}"
+  script:
+    - apk add aws-cli
+    - NAMESPACE=$(aws s3 cp $S3/gitlab_metric_namespace -)
+    - METRIC=$(aws s3 cp $S3/gitlab_ci_ping_metric_name -)
+    - aws cloudwatch put-metric-data --region "$AWS_REGION" --namespace "$NAMESPACE" --metric-name "$METRIC" --value 1
 
 include:
   - local: .gitlab-ci-rules.yml

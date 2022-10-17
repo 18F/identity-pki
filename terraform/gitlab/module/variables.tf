@@ -446,3 +446,9 @@ variable "env_type" {
 variable "vpc_cidr_block" { # 172.16.32.0   - 172.16.35.255
   default = "172.16.32.0/22"
 }
+
+variable "ci_ping_alert_minutes" {
+  type        = number
+  description = "Alert if Gitlab CI has not run succesfully in this many minutes."
+  default     = 30
+}
