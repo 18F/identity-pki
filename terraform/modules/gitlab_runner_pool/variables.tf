@@ -3,6 +3,28 @@ locals {
   bootstrap_private_s3_ssh_key_url = var.bootstrap_private_s3_ssh_key_url != "" ? var.bootstrap_private_s3_ssh_key_url : "s3://login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}/common/id_ecdsa.id-do-private.deploy"
   bootstrap_main_git_ref_default   = var.bootstrap_main_git_ref_default != "" ? var.bootstrap_main_git_ref_default : "stages/${var.env_name}"
   account_default_ami_id           = var.default_ami_id_tooling
+  no_proxy_hosts = join(",", concat([
+    "localhost",
+    "127.0.0.1",
+    "169.254.169.254",
+    "169.254.169.123",
+    ".login.gov.internal",
+    "metadata.google.internal",
+    ], formatlist("%s.${var.region}.amazonaws.com", [
+      "ec2",
+      "ec2messages",
+      "events",
+      "kms",
+      "lambda",
+      "monitoring",
+      "secretsmanager",
+      "sns",
+      "sqs",
+      "ssm",
+      "ssmmessages",
+      "sts",
+  ])))
+
 }
 
 variable "aws_vpc" {
@@ -163,10 +185,6 @@ variable "proxy_server" {
 
 variable "proxy_port" {
   default = "3128"
-}
-
-variable "no_proxy_hosts" {
-  default = "localhost,127.0.0.1,169.254.169.254,169.254.169.123,.login.gov.internal,ec2.us-west-2.amazonaws.com,kms.us-west-2.amazonaws.com,secretsmanager.us-west-2.amazonaws.com,ssm.us-west-2.amazonaws.com,ec2messages.us-west-2.amazonaws.com,lambda.us-west-2.amazonaws.com,ssmmessages.us-west-2.amazonaws.com,sns.us-west-2.amazonaws.com,sqs.us-west-2.amazonaws.com,events.us-west-2.amazonaws.com,metadata.google.internal,sts.us-west-2.amazonaws.com"
 }
 
 variable "proxy_enabled_roles" {
