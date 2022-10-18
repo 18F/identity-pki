@@ -11,50 +11,54 @@ BASEPATH="$(dirname "$0")"
 . "${BASEPATH}/lib/sandbox-lib.sh"
 
 usage() {
-    cat >&2 << EOM
+  cat >&2 << EOM
 
-Usage: ${0} [-d[a]cpbkxh] [ENV] (defaults to \$GSA_USERNAME if not specified)
+Usage: ${0} [-dcpbxk123456[a]h] [TF_ENV] (will use \$GSA_USERNAME if not specified)
 
 Flags (will run all if no flags specified):
-  -d : Remove deletion protection from RDS dbs + zero out ASGs via targeted apply
-  -a : Same as -d, but do full (non-targeted) apply (not run by default)
-  -c : Promote any replica AuroraDB clusters to standalone clusters
-  -p : Delete the DS record for the pivcac.ENV.identitysandbox.gov hosted zone
-  -b : Empties all S3 buckets with ENV in the bucket name
-  -x : terraform-destroy + reset db .tf files
-  -k : Delete all ENV-named S3 keys in secrets/app-secrets buckets
-  -h : Detailed help
+  -d / -1 : Remove deletion protection from RDS + zero out ASGs via targeted apply
+  -c / -2 : Promote any replica AuroraDB clusters to standalone clusters
+  -p / -3 : Delete the DS record for the pivcac.ENV.identitysandbox.gov hosted zone
+  -b / -4 : Empties all S3 buckets with ENV in the bucket name
+  -x / -5 : terraform-destroy + reset db .tf files
+  -k / -6 : Delete all ENV-named S3 keys in secrets/app-secrets buckets
+       -a : Same as -d, but do full (non-targeted) apply (not run by default)
+       -h : Detailed help
 
 EOM
 }
 
 help_me() {
-    cat >&2 << EOM
+  cat >&2 << EOM
 
-Usage: ${0} [-d[a]sbkxh] [TF_ENV]
+Usage: ${0} [-dcpbxk123456[a]h] [TF_ENV] (will use \$GSA_USERNAME if not specified)
 
-Runs all necessary commands to prep and destroy an existing
-sandbox environment, \${TF_ENV}. Designed to run with no
-specified flags/arguments.
+Runs all necessary commands to prep and destroy an existing sandbox environment,
+\${TF_ENV}. Designed to run with no specified flags/arguments.
 
-The tasks in this script can also be individually executed
-using the following flags:
+The tasks in this script can also be individually executed as follows:
 
-  -d : Remove deletion protection/prevent_destroy/final_snapshot from RDS databases,
-       and zero out Auto Scaling Groups, via targeted \`tf-deploy \${TF_ENV} app apply\`.
-  -a : Same as -d but will do a full \`apply\` without specifically targeting the
-       RDS databases/ASGs (use in case the targeted \`apply\` is failing).
-  -c : Find any/all replica AuroraDB clusters within the environment, and promote
-       each one to a standalone instance (to allow deletion by Terraform)
-  -p : Delete the DS record from identitysandbox.gov that enables DNSSEC for the
-       pivcac.\${TF_ENV}.identitysandbox.gov (necessary before disabling DNSSEC)
-  -b : Empties all S3 buckets with \${TF_ENV} in the bucket name,
-       and deletes all object versions as well
-  -x : Run \`terraform destroy -auto-approve\` against the
-       environment, skipping the attempt to send a message to Slack
-  -k : Delete all S3 keys in the secrets/app-secrets buckets that
-       have \${TF_ENV} in their name
-  -h : Displays this help
+  -d / -1 : Remove protection/prevent_destroy/final_snapshot from RDS databases, and
+            zero out Auto Scaling Groups, via a targeted \`tf-deploy\` operation.
+            (Step: 1_allow_db_destroy)
+  -c / -2 : Find any/all replica AuroraDB clusters within the environment and promote
+            each one to a standalone instance (to allow deletion by Terraform)
+            (Step: 2_promote_aurora_cluster)
+  -p / -3 : Delete the DS record from identitysandbox.gov that enables DNSSEC for the
+            pivcac.\${TF_ENV}.identitysandbox.gov (necessary before disabling DNSSEC)
+            (Step: 3_destroy_pivcac_ds_records)
+  -b / -4 : Empties all S3 buckets with \${TF_ENV} in the bucket name,
+            and deletes all object versions as well
+            (Step: 4_empty_buckets)
+  -x / -5 : Run \`terraform destroy -auto-approve\` against the
+            environment, skipping the attempt to send a message to Slack
+            (Step: 5_tf_destroy)
+  -k / -6 : Delete all S3 keys in the secrets/app-secrets buckets that
+            have \${TF_ENV} in their name
+            (Step: 6_delete_env_keys)
+       -a : Same as -d but do a full \`apply\` without specifically targeting the
+            RDS databases/ASGs (use in case the targeted \`apply\` is failing).
+       -h : Displays this help
 
 This script will default to using \${GSA_USERNAME} for the
 value of \${TF_ENV}, unless a different one is specified
@@ -101,12 +105,14 @@ replace_db_files() {
     ZONE_ID=$(ave aws route53 list-hosted-zones-by-name |
               jq -r '.HostedZones[]|select(.Name == "identitysandbox.gov.").Id' |
               awk -F/ '{print $NF}')
+    sleep 1
   done
   while [[ -z ${PIVCAC_DS} ]] ; do
     PIVCAC_DS=$(ave aws route53 list-resource-record-sets \
        --hosted-zone-id $ZONE_ID |
        jq -c --arg ENV_NAME "${TF_ENV}" \
        '.ResourceRecordSets[]|select(.Type == "DS")|select(.Name|contains($ENV_NAME))')
+    sleep 1
   done
   ave aws route53 change-resource-record-sets \
       --hosted-zone-id $ZONE_ID \
@@ -149,18 +155,18 @@ TASKS=(
 
 TODO=()
 APPLY_ALL=false
-while getopts adcpbxkh opt
+while getopts d1c2p3b4x5k6ah opt
 do
   case $opt in
-    a) APPLY_ALL=true        ;;
-    d) TODO+=("${TASKS[0]}") ;;
-    c) TODO+=("${TASKS[1]}") ;;
-    p) TODO+=("${TASKS[2]}") ;;
-    b) TODO+=("${TASKS[3]}") ;;
-    x) TODO+=("${TASKS[4]}") ;;
-    k) TODO+=("${TASKS[5]}") ;;
-    h) help_me               ;;
-    *) usage && exit 1       ;;
+    d|1) TODO+=("${TASKS[0]}") ;;
+    c|2) TODO+=("${TASKS[1]}") ;;
+    p|3) TODO+=("${TASKS[2]}") ;;
+    b|4) TODO+=("${TASKS[3]}") ;;
+    x|5) TODO+=("${TASKS[4]}") ;;
+    k|6) TODO+=("${TASKS[5]}") ;;
+    a) APPLY_ALL=true          ;;
+    h) help_me                 ;;
+    *) usage && exit 1         ;;
   esac
 done
 shift $((OPTIND-1))

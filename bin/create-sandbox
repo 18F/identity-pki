@@ -11,50 +11,49 @@ BASEPATH="$(dirname "$0")"
 usage() {
   cat >&2 << EOM
 
-Usage: ${0} [-casdmh] [ENV] (defaults to \$GSA_USERNAME if not specified)
+Usage: ${0} [-casdmh12345] [TF_ENV] (will use \$GSA_USERNAME if not specified)
 
 Flags (will run all if no flags specified):
-  -c : Clear CloudWatch log groups left over from previous env destroy
-  -a : Copy S3 app-secrets v1/application.yml files from dev to ENV
-  -s : Copy S3 secrets listed in ./lib/build-keys from dev to ENV
-  -d : Run terraform-apply + spin up 1 migration host
-  -m : Schedule the ENV-migration ASG to reset to 0 in 15min
-  -h : Detailed help
+  -c / -1 : Clear CloudWatch log groups left over from previous env destroy
+  -a / -2 : Copy S3 app-secrets v1/application.yml files from dev to ENV
+  -s / -3 : Copy S3 secrets listed in ./lib/build-keys from dev to ENV
+  -d / -4 : Run terraform-apply + spin up 1 migration host
+  -m / -5 : Schedule the ENV-migration ASG to reset to 0 in 15min
+       -h : Detailed help
 
 EOM
 }
 
 help_me() {
-    cat >&2 << EOM
+  cat >&2 << EOM
     
-Usage: ${0} [-asdiph] [ENV]
+Usage: ${0} [-casdmh12345] [TF_ENV] (will use \$GSA_USERNAME if not specified)
 
-Runs all necessary commands to create a full terraform-app environment,
-\${TF_ENV}, in the login-sandbox account. Designed to run with no
-specified flags/arguments.
+Runs all necessary commands to create a sandbox application environment, \${TF_ENV},
+in the login-sandbox account. Designed to run with no specified flags/arguments.
 
-The tasks in this script can also be individually executed
-using the following flags:
+The tasks in this script can also be individually executed as follows:
 
-  -c : Clear out and delete any CloudWatch log groups accidentally
-       left over from a previous environment purge, if any exist
-  -a : Duplicate all v1/application.yml files for \`dev\`,
-       within the login-gov.app-secrets bucket, for \${TF_ENV},
-       replacing all instances of \`dev\` within with \${TF_ENV} 
-  -s : Copy all files listed in ./lib/build-keys from the int/ dir
-       within the login-gov.secrets bucket to a \${TF_ENV}/ dir in
-       the same bucket
-  -d : Run \`terraform apply -auto-approve\` against \${TF_ENV},
-       spinning up 1 migration host to run database migrations
-       as the environment comes up
-  -m : Add a Scheduled Action to the \${TF_ENV}-migration Auto
-       Scaling Group, which sets its Desired count back to 0 after
-       15 minutes' time (as is done with IDP recycles)
-  -h : Displays this help
-
-This script will default to using \${GSA_USERNAME} for the
-value of \${TF_ENV}, unless a different one is specified
-as a final argument.
+  -c / -1 : Clear out and delete any CloudWatch log groups accidentally
+            left over from a previous environment purge, if any exist
+            (Step: 1_clear_log_groups)
+  -a / -2 : Duplicate all v1/application.yml files for \`dev\`,
+            within the login-gov.app-secrets bucket, for \${TF_ENV},
+            replacing all instances of \`dev\` within with \${TF_ENV}
+            (Step: 2_app_secrets)
+  -s / -3 : Copy all files listed in ./lib/build-keys from the int/ dir
+            within the login-gov.secrets bucket to a \${TF_ENV}/ dir in
+            the same bucket
+            (Step: 3_regular_secrets)
+  -d / -4 : Run \`terraform apply -auto-approve\` against \${TF_ENV},
+            spinning up 1 migration host to run database migrations
+            as the environment comes up
+            (Step: 4_tf_deploy)
+  -m / -5 : Add a Scheduled Action to the \${TF_ENV}-migration Auto
+            Scaling Group, which sets its Desired count back to 0 after
+            15 minutes' time (as is done with IDP recycles)
+            (Step: 5_migration_scaling)
+  -h      : Displays this help
 
 EOM
   exit 0
@@ -120,16 +119,16 @@ TASKS=(
   "5_migration_scaling"
 )
 TODO=()
-while getopts casdmh opt
+while getopts c1a2s3d4m5h opt
 do
   case $opt in
-    c) TODO+=("${TASKS[0]}") ;;
-    a) TODO+=("${TASKS[1]}") ;;
-    s) TODO+=("${TASKS[2]}") ;;
-    d) TODO+=("${TASKS[3]}") ;;
-    m) TODO+=("${TASKS[4]}") ;;
-    h) help_me               ;;
-    *) usage && exit 1       ;;
+    c|1) TODO+=("${TASKS[0]}") ;;
+    a|2) TODO+=("${TASKS[1]}") ;;
+    s|3) TODO+=("${TASKS[2]}") ;;
+    d|4) TODO+=("${TASKS[3]}") ;;
+    m|5) TODO+=("${TASKS[4]}") ;;
+    h) help_me                 ;;
+    *) usage && exit 1         ;;
   esac
 done
 shift $((OPTIND-1))
