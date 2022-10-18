@@ -425,6 +425,15 @@ users:
     - pauldoomgov
     email:
     - paul.hirsch@gsa.gov
+  peter.chen:
+    aws_groups:
+    - devopsnonprod
+    gitlab_groups:
+    - devops
+    ec2_username:
+    - peter.chen
+    git_username:
+    - peterchengsa
   philip.burke:
     gitlab_groups:
     - antifraud
