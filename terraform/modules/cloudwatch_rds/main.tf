@@ -1,4 +1,6 @@
 locals {
+  free_space_type = var.type == "rds" ? "Database free" : "Cluster instance temporary"
+
   rds_alarms_map = {
     highDiskQueueDepth = {
       comparison_operator = "GreaterThanThreshold"
@@ -12,10 +14,10 @@ EOM
     },
     lowFreeStorageSpace = {
       comparison_operator = "LessThanThreshold"
-      metric_name         = "FreeStorageSpace"
+      metric_name         = var.type == "rds" ? "FreeStorageSpace" : "FreeLocalStorage"
       threshold           = var.rds_storage_threshold
       alarm_description   = <<EOM
-Database free storage space is too low and may fill up soon!
+${local.free_space_type} storage is too low and may fill up soon!
 
 Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-RDS-PostgreSQL-General#storage-volumes
 EOM

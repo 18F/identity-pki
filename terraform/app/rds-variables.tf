@@ -159,6 +159,22 @@ variable "idp_aurora_enabled" {
   default     = true
 }
 
+variable "idp_cluster_instances" {
+  type        = number
+  description = <<EOM
+Number of instances to create for the idp AuroraDB cluster. MUST be Set to 1
+if creating cluster as a read replica, then should be set to 2+ thereafter.
+EOM
+  default     = 1
+  validation {
+    condition = (
+      var.idp_cluster_instances >= 1 &&
+      var.idp_cluster_instances <= 15
+    )
+    error_message = "Cluster must contain between 1 and 15 instances."
+  }
+}
+
 variable "idp_aurora_autoscaling" {
   description = "Enable/disable Auto Scaling for the idp Aurora DB cluster"
   type        = bool
@@ -231,6 +247,22 @@ variable "apps_aurora_enabled" {
   default     = false
 }
 
+variable "apps_cluster_instances" {
+  type        = number
+  description = <<EOM
+Number of instances to create for the sampleapps AuroraDB cluster. MUST be Set to 1
+if creating cluster as a read replica, then should be set to 2+ thereafter.
+EOM
+  default     = 1
+  validation {
+    condition = (
+      var.apps_cluster_instances >= 1 &&
+      var.apps_cluster_instances <= 15
+    )
+    error_message = "Cluster must contain between 1 and 15 instances."
+  }
+}
+
 variable "apps_aurora_autoscaling" {
   description = "Enable/disable Auto Scaling for the sampleapps Aurora DB cluster"
   type        = bool
@@ -295,6 +327,22 @@ variable "worker_aurora_enabled" {
   type        = bool
   description = "Enable/disable creating idp-worker-jobs AuroraDB cluster"
   default     = false
+}
+
+variable "worker_cluster_instances" {
+  type        = number
+  description = <<EOM
+Number of instances to create for the worker AuroraDB cluster. MUST be Set to 1
+if creating cluster as a read replica, then should be set to 2+ thereafter.
+EOM
+  default     = 1
+  validation {
+    condition = (
+      var.worker_cluster_instances >= 1 &&
+      var.worker_cluster_instances <= 15
+    )
+    error_message = "Cluster must contain between 1 and 15 instances."
+  }
 }
 
 variable "worker_aurora_autoscaling" {

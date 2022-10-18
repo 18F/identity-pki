@@ -50,7 +50,7 @@ module "worker_aurora_uw2" {
   internal_zone_id = aws_route53_zone.internal.zone_id
   route53_ttl      = 300
 
-  primary_cluster_instances = 1                             # must start at 1, can increase once standalone
+  primary_cluster_instances = var.worker_cluster_instances  # must start at 1
   enable_autoscaling        = var.worker_aurora_autoscaling # defaults to false
 
   #### must select ONE pair of variables to use, cannot use both
@@ -67,4 +67,15 @@ module "worker_aurora_uw2" {
   #### and var.rds_engine_mode_aurora must be 'provisioned'
 
   serverlessv2_config = var.worker_jobs_aurora_serverlessv2_config
+}
+
+module "worker_aurora_uw2_cloudwatch" {
+  count  = var.worker_aurora_enabled && var.idp_aurora_enabled ? 1 : 0
+  source = "../modules/cloudwatch_rds/"
+
+  type                          = "aurora"
+  rds_storage_threshold         = var.rds_storage_threshold
+  rds_db                        = module.worker_aurora_uw2[count.index].writer_instance
+  alarm_actions                 = local.low_priority_alarm_actions
+  unvacummed_transactions_count = var.unvacummed_transactions_count
 }

@@ -92,7 +92,13 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
                 "metrics": [
                     [ "AWS/EC2", "CPUUtilization", "AutoScalingGroupName", "${aws_autoscaling_group.idp.name}", { "label": "IdP Instances" } ],
                     [ "...", "${aws_autoscaling_group.worker.name}", { "label": "Worker Instances" } ],
-                    [ "AWS/RDS", ".", "DBInstanceIdentifier", "${aws_db_instance.idp.id}", { "label": "Database" } ],
+                    [ "AWS/RDS", ".", "DBInstanceIdentifier", "${aws_db_instance.idp.id}", { "label": "Database (RDS)" } ],
+                    %{if var.idp_aurora_enabled~}
+                    [ "...", "${module.idp_aurora_from_rds[0].writer_instance}", { "label": "AuroraDB (Writer Instance)" } ],
+                    %{for id in module.idp_aurora_from_rds[0].reader_instances~}
+                    [ "...", "${id}", { "label": "AuroraDB (Replica ${index(module.idp_aurora_from_rds[0].reader_instances, id) + 1})" } ],
+                    %{endfor~}
+                    %{endif~}
                     [ "AWS/ElastiCache", ".", "CacheClusterId", "${var.env_name}-idp-001", { "label": "Cache (1)" } ],
                     [ "...", "${var.env_name}-idp-002", { "label": "Cache (2)" } ]
                 ],
@@ -176,7 +182,13 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
             "height": 6,
             "properties": {
                 "metrics": [
-                    [ "AWS/RDS", "DatabaseConnections", "DBInstanceIdentifier", "${aws_db_instance.idp.id}", { "label": "Database" } ],
+                    [ "AWS/RDS", "DatabaseConnections", "DBInstanceIdentifier", "${aws_db_instance.idp.id}", { "label": "Database (RDS)" } ],
+                    %{if var.idp_aurora_enabled~}
+                    [ "...", "${module.idp_aurora_from_rds[0].writer_instance}", { "label": "AuroraDB (Writer Instance)" } ],
+                    %{for id in module.idp_aurora_from_rds[0].reader_instances~}
+                    [ "...", "${id}", { "label": "AuroraDB (Replica ${index(module.idp_aurora_from_rds[0].reader_instances, id) + 1})" } ],
+                    %{endfor~}
+                    %{endif~}
                     [ "AWS/ElastiCache", "CurrConnections", "CacheClusterId", "${var.env_name}-idp-001", { "label": "Cache (1)" } ],
                     [ "...", "${var.env_name}-idp-002", { "label": "Cache (2)" } ]
                 ],
@@ -207,7 +219,7 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
                 ],
                 "view": "timeSeries",
                 "stacked": false,
-                "title": "${var.env_name} IdP - Database IOPS",
+                "title": "${var.env_name} IdP - RDS Database IOPS",
                 "region": "${var.region}",
                 "period": 60,
                 "stat": "Maximum",
@@ -231,6 +243,41 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
                 }
             }
         },
+        %{if var.idp_aurora_enabled~}
+        {
+            "type": "metric",
+            "x": 12,
+            "y": 26,
+            "width": 12,
+            "height": 6,
+            "properties": {
+                "metrics": [
+                    [ "AWS/RDS", "WriteIOPS", "DBInstanceIdentifier", "${module.idp_aurora_from_rds[0].writer_instance}", { "label": "Write" } ],
+                    [ ".", ".", "DBClusterIdentifier", "${module.idp_aurora_from_rds[0].cluster_id}", { "label": "Write (Cluster)" } ],
+                    [ ".", "ReadIOPS", "DBInstanceIdentifier", "${module.idp_aurora_from_rds[0].writer_instance}", { "label": "Read" } ],
+                    %{for id in module.idp_aurora_from_rds[0].reader_instances~}
+                    [ "...", "${id}", { "label": "Read (Replica ${index(module.idp_aurora_from_rds[0].reader_instances, id) + 1})" } ],
+                    %{endfor~}
+                    [ ".", ".", "DBClusterIdentifier", "${module.idp_aurora_from_rds[0].cluster_id}", { "label": "Read (Cluster)" } ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "title": "${var.env_name} IdP - AuroraDB Instance IOPS",
+                "region": "${var.region}",
+                "period": 60,
+                "stat": "Maximum",
+                "yAxis": {
+                    "left": {
+                        "label": "IOPS (max)",
+                        "showUnits": false
+                    },
+                    "right": {
+                        "showUnits": false
+                    }
+                }
+            }
+        },
+        %{endif~}
         {
             "type": "metric",
             "x": 12,

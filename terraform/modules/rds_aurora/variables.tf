@@ -122,7 +122,14 @@ variable "primary_cluster_instances" {
 Number of instances to create for the primary AuroraDB cluster. MUST be Set to 1
 if creating cluster as a read replica, then should be set to 2+ thereafter.
 EOM
-  default     = 2
+  default     = 1
+  validation {
+    condition = (
+      var.primary_cluster_instances >= 1 &&
+      var.primary_cluster_instances <= 15
+    )
+    error_message = "Cluster must contain between 1 and 15 instances."
+  }
 }
 
 variable "enable_autoscaling" {
