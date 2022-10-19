@@ -33,7 +33,7 @@ User is a new: (Please check one or explain in Other)
 ***NOTE:*** As much as is possible, please create a separate comment when completing
 each of the tasks below. This is to show that each task was completed at a specific time.
 
-Reference [[Runbook:-Onboarding-and-Offboarding-AWS-and-GitLab-Users#functional-roles-and-groups]]
+Reference [Runbook:-Onboarding-and-Offboarding-AWS-and-GitLab-Users#functional-roles-and-groups](https://github.com/18F/identity-devops/wiki/Runbook:-Onboarding-and-Offboarding-AWS-and-GitLab-Users#functional-roles-and-groups)
 to idenify the proper Pre-Prod AWS group(s), GitLab group(s), and NewRelic access
 the user should have.
 
