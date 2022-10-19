@@ -76,7 +76,7 @@ pii/id-token-hint-use-by-redirect-uri:
   query: |
     ## Count use of id_token_hint in RP-Initiated logout by post_logout_redirect_uri value
     ## Remove this query after all SPs have converted to use of client_id
-    filter path like "/openid_connect/logout" | parse path /id_token_hint=.+?\\.(?<payload>.*?)\\./
+    filter path like "/openid_connect/logout" and path like "id_token_hint" | parse path /id_token_hint=.+?\\.(?<payload>.*?)\\./
     | parse path /post_logout_redirect_uri=https(:\\/\\/|%3A%2F%2F)(?<redirect_fqdn>.+?)(\\/|%2F)/
     | stats count() as count by redirect_fqdn
     | sort count desc
