@@ -1,0 +1,184 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'optparse'
+
+Dir.chdir(File.dirname(__FILE__)) { require 'bundler/setup' }
+require_relative '../lib/cloudlib'
+require_relative '../lib/cloudlib/monitor_deploy'
+
+def log
+  Cloudlib.cli_log
+end
+
+def main
+  recycle_opts = {}
+  skip_migration = false
+  skip_worker = false
+  monitor = false
+
+  basename = File.basename($0)
+
+  optparse = OptionParser.new do |opts|
+    opts.banner = <<-EOM
+usage: #{basename} [OPTIONS] ENVIRONMENT ROLE
+
+Create AWS ASG instance-refreshes to refresh instances in an ASG by rolling
+termination and creation.
+
+If the idp role is specified, a migration instance will be started.
+5 minutes (default) later the idp will begin an instance refresh
+To disable spooling in a migration instance use the -s / --skip-migration flag.
+
+It is dangerous to spin down instances before the grace period has elapsed
+because the ASG ignores health check results during the grace period and could
+spin down healthy instances with no replacements available. To ensure safety,
+use ASG lifecycle hooks to ensure that instances don't enter the InService
+state before they are finished bootstrapping. With lifecycle hooks in place,
+the health check grace period is 0. We default to a spindown delay of 15
+minutes in this case.
+
+For example:
+
+    # Refresh idp instances, first scaling out a migration instances, waiting
+    # the default 5 minutes, then starting normal idp refresh
+    #{basename} int idp
+
+    # Refresh idp instances starting immediately without starting a migration
+    # instance
+    #{basename} --skip-migration int idp
+    #{basename} -s int idp
+
+    # Refresh everything except persistent and utility instances and with
+    # a migration instance spun up prior to idp spin up
+    #{basename} int ALL
+
+    # Recycle a migration instance up and then down to recycle config
+    #{basename} int migration
+
+    # Refresh IDP instances and then monitor deploy
+    # #{basename} prod idp --monitor
+
+    EOM
+
+    opts.on('-h', '--help', 'Display this message') do
+      $stderr.puts opts
+      exit
+    end
+
+    opts.on('-v', '--verbose', 'Be more verbose') do
+      Cloudlib.log_level -= 1 if Cloudlib.log_level > 0
+    end
+
+    opts.on('-q', '--quiet', 'Be quieter (can pass multiple times)') do
+      Cloudlib.log_level += 1
+    end
+
+    opts.on('--delay SEC', 'Wait before scheduled spindown') do |val|
+      recycle_opts[:spindown_delay] = Integer(val)
+    end
+
+    opts.on('-s', '--skip-migration',
+            'Do not run migration instance before starting IdP refresh') do
+      skip_migration = true
+    end
+
+    opts.on('-W', '--skip-worker', 'Do not include Worker in IDP role refresh') do
+      skip_worker = true
+    end
+
+    opts.on('-m', '--monitor', 'Monitor deploy after refresh') do
+      monitor = true
+    end
+
+    opts.on('--delay-for-migration SEC',
+            'Wait after migration start to spin up IdPs (Default: 300)') do |val|
+      recycle_opts[:spinup_delay] = Integer(val)
+    end
+  end
+
+  args = optparse.parse!
+
+  case args.length
+  when 2
+    env, role = args
+  else
+    $stderr.puts optparse
+    exit 1
+  end
+
+  as = Cloudlib::AutoScaling.new
+
+  if role == 'ALL'
+    # Note - pre-migration handled inside refresh_all_asgs_in_env if set
+    as.refresh_all_asgs_in_env(env,
+                               recycle_opts: recycle_opts,
+                               skip_migration: skip_migration)
+  else
+    asg_name = "#{env}-#{role}"
+
+    if !skip_migration && (role == 'idp' || role == 'worker')
+      puts as.pastel.bold.yellow("Launching migration instance prior to #{role} spin up")
+      as.start_recycle("#{env}-migration",
+                       new_size: 1,
+                       return_to_size: 0,
+                       spindown_delay: recycle_opts[:spindown_delay])
+
+      # Set a spinup delay if not explicity set
+      if recycle_opts[:spinup_delay].nil?
+        recycle_opts[:spinup_delay] = as.default_migration_delay
+      end
+
+      pids[role] = Process.fork do
+        sleep recycle_opts[:spinup_delay]
+        as.start_refresh(asg_name)
+        exit
+      end
+    end
+
+    if !skip_worker && role == 'idp'
+      puts as.pastel.bold.yellow('Recycling worker instance in parallel with idp')
+
+      if recycle_opts[:spinup_delay].nil?
+        as.start_refresh("#{env}-worker")
+      else
+        pids[:worker] = Process.fork do
+          sleep recycle_opts[:spinup_delay]
+          as.start_refresh("#{env}-worker")
+          exit
+        end
+      end
+    end
+
+    if role != 'migration' && role != 'idp' && role != 'worker'
+      as.start_refresh(asg_name)
+    elsif (role == 'idp' || role == 'worker') && skip_migration
+      as.start_refresh(asg_name)
+    elsif role == 'migration'
+      as.start_recycle("#{env}-migration",
+                       new_size: 1,
+                       return_to_size: 0,
+                       spindown_delay: recycle_opts[:spindown_delay])
+    end
+
+    puts as.pastel.bold.blue('Done! Watch #login-events / #login-otherevents for abandoned/failed launches')
+
+    # This is an infinite loop so it must go last
+    if monitor
+      Cloudlib::MonitorDeploy.get_and_monitor_deploys(env: env, role: role)
+    else
+      pids.each do |_key, value|
+        Process.detach(value)
+      end
+    end
+  end
+end
+
+if __FILE__ == $0
+  begin
+    main
+  rescue TTY::Reader::InputInterrupt
+    $stderr.puts 'OK, aborted'
+    exit 2
+  end
+end

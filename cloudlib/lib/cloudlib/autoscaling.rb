@@ -401,6 +401,78 @@ module Cloudlib
                               desired_capacity: return_to_size)
     end
 
+    # Initiate a refresh of the given autoscaling group via start-instance-refresh
+    #
+    # @param [String] asg_name
+    # @param [Integer] min_healthy_percentage Minumum Healthy Percentage of
+    #   the ASG to continue rolling out the instance refresh
+
+    def start_refresh(asg_name, min_healthy_percentage=95)
+      log.info "Starting ASG refresh of #{asg_name.inspect}"
+      params = {
+        auto_scaling_group_name: asg_name,
+        preferences: {
+          min_healthy_percentage: min_healthy_percentage,
+        },
+      }
+
+      response = autoscaling.client.start_instance_refresh(params)
+
+      log.info "Instance Refresh ID: #{response[:instance_refresh_id]}"
+      return response[:instance_refresh_id]
+    end
+
+    def refresh_all_asgs_in_env(env, recycle_opts: {}, interactive: true,
+                                skip_migration: false)
+      prefix = env + '-'
+      asgs = list_autoscaling_groups(name_prefix: prefix, skip_stateful: true,
+                                     skip_zero: true, skip_utility: true)
+
+      if asgs.empty?
+        log.error("No ASGs found prefixed #{prefix.inspect} -- wrong account?")
+        raise NotFound.new("No auto scaling groups found for #{env.inspect}")
+      end
+
+      log.info("\nWill refresh all autoscaling groups in #{env.inspect}:\n  " +
+               asgs.map(&:name).join("\n  "))
+
+      if interactive
+        prompt.ask('Press enter to continue...')
+      end
+
+      asgs.each do |group|
+        name = group.name
+        puts pastel.bold.green("\nRefreshing #{name}")
+        # Manage pre-refresh migration for IdP
+        if name.match?(/-(idp|worker)$/) && !skip_migration
+          if !@pre_migrating
+            puts pastel.bold.yellow('Launching migration instance prior to spin up')
+            start_recycle("#{env}-migration",
+                          new_size: 1,
+                          return_to_size: 0,
+                          spindown_delay: recycle_opts[:spindown_delay])
+            @pre_migrating = true
+          end
+
+          idp_opts = recycle_opts.dup
+          # Set a default spinup delay
+          if idp_opts[:spinup_delay].nil?
+            idp_opts[:spinup_delay] = default_migration_delay
+          end
+
+          Process.fork do
+            sleep idp_opts[:spinup_delay]
+            start_refresh(name)
+            exit
+          end
+        else
+          start_refresh(name)
+        end
+      end
+
+      puts pastel.bold.green('All Done')
+    end
+
     # Call `#start_recycle` once for each autoscaling group in an environment.
     #
     # @param [String] env
