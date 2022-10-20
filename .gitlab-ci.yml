@@ -551,7 +551,7 @@ test_bravo:
     - deploy_bravo
   variables:
     ENV_NAME: bravo
-    DOMAIN: gitlab.bravo.gitlab.login.gov
+    DOMAIN: gitlab.bravo.gitlab.identitysandbox.gov
 
 badtest_bravo:
   when: manual
@@ -583,7 +583,7 @@ test_alpha:
     - deploy_alpha
   variables:
     ENV_NAME: alpha
-    DOMAIN: gitlab.alpha.gitlab.login.gov
+    DOMAIN: gitlab.alpha.gitlab.identitysandbox.gov
   only:
     - stages/gitlabalpha
 
