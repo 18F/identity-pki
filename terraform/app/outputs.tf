@@ -1,50 +1,81 @@
+#### IDP
+
+output "idp_dashboard_arn" {
+  value = module.idp_dashboard.dashboard_arn
+}
+
+# ALB
+
+output "idp_alb" {
+  value = {
+    alb_hostname    = aws_alb.idp.dns_name
+    ec2_sg_id       = aws_security_group.idp.id
+    origin_dns_name = aws_route53_record.origin_alb_idp.fqdn
+  }
+}
+
+# CloudFront
+
+output "idp_cloudfront" {
+  value = {
+    domain_name = aws_route53_record.c_cloudfront_idp.fqdn
+    custom_pages = [
+      for k, v in var.cloudfront_custom_pages : (
+        "https://${aws_route53_record.c_cloudfront_idp.fqdn}/${k}"
+      )
+    ]
+    oai_arn  = aws_cloudfront_origin_access_identity.cloudfront_oai.iam_arn
+    oai_path = aws_cloudfront_origin_access_identity.cloudfront_oai.cloudfront_access_identity_path
+  }
+}
+
+# RDS / ElastiCache
+
+output "idp_rds" {
+  value = {
+    rds_fqdn    = aws_route53_record.idp-postgres.fqdn
+    db_endpoint = aws_db_instance.idp.endpoint
+    db_endpoint_replica = (
+      var.enable_rds_idp_read_replica ? aws_db_instance.idp-read-replica[0].endpoint : null
+    )
+    elasticache_cluster_address = (
+      aws_elasticache_replication_group.idp.primary_endpoint_address
+    )
+    elasticache_cluster_attempts_address = (
+      aws_elasticache_replication_group.idp_attempts.primary_endpoint_address
+    )
+  }
+}
+
+# AuroraDB
+
+output "idp_aurora" {
+  value = var.idp_aurora_enabled ? {
+    endpoint_reader          = module.idp_aurora_from_rds[0].reader_endpoint
+    endpoint_writer          = module.idp_aurora_from_rds[0].writer_endpoint
+    endpoint_writer_instance = module.idp_aurora_from_rds[0].writer_instance_endpoint
+    fqdn_reader              = module.idp_aurora_from_rds[0].reader_fqdn
+    fqdn_writer              = module.idp_aurora_from_rds[0].writer_fqdn
+  } : null
+}
+
+#### misc / other
+
+output "app_rds" {
+  value = var.apps_enabled == 1 ? {
+    rds_fqdn     = aws_route53_record.postgres[0].fqdn
+    rds_endpoint = aws_db_instance.default[0].endpoint
+  } : null
+}
+
+output "idp_db_endpoint_worker_jobs" {
+  value = aws_db_instance.idp-worker-jobs.endpoint
+}
+
 output "env_name" {
   value = var.env_name
 }
 
-output "alb_hostname" {
-  value = element(concat(aws_alb.idp.*.dns_name, [""]), 0)
-}
-
-output "aws_db_address" {
-  value = "postgres.login.gov.internal"
-}
-
-output "aws_elasticache_cluster_address" {
-  value = aws_elasticache_replication_group.idp.primary_endpoint_address
-}
-
-output "aws_elasticache_cluster_attempts_address" {
-  value = aws_elasticache_replication_group.idp_attempts.primary_endpoint_address
-}
-
-output "aws_idp_sg_id" {
-  value = "SECURITY_GROUP_ID=${aws_security_group.idp.id}"
-}
-
-output "idp_db_address" {
-  value = "idp-postgres.login.gov.internal"
-}
-
-output "jumphost-lb" {
-  value = aws_route53_record.jumphost-elb-public.name
-}
-
-output "idp_dns_name" {
-  value = aws_route53_record.c_cloudfront_idp.fqdn
-}
-
-output "idp_origin_dns_name" {
-  value = aws_route53_record.origin_alb_idp.fqdn
-}
-
 output "region" {
   value = var.region
-}
-
-output "idp_custom_pages" {
-  description = "List of custom error pages served up by cloudfront"
-  value = [
-    for k, v in var.cloudfront_custom_pages : "https://${aws_route53_record.c_cloudfront_idp.fqdn}/${k}"
-  ]
 }

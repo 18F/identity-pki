@@ -26,10 +26,6 @@ EOM
 
 }
 
-output "idp_dashboard_arn" {
-  value = module.idp_dashboard.dashboard_arn
-}
-
 module "rds_dashboard_idp" {
   source = "github.com/18F/identity-terraform//cloudwatch_dashboard_rds?ref=5d344d205dd09eb85d5de1ff1081c4a598afe433"
 

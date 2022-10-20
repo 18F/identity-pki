@@ -64,10 +64,6 @@ module "idp_cloudwatch_rds" {
   unvacummed_transactions_count = var.unvacummed_transactions_count
 }
 
-output "idp_db_endpoint" {
-  value = aws_db_instance.idp.endpoint
-}
-
 data "aws_sns_topic" "rds_snapshot_events" {
   name = "rds-snapshot-events"
 }
@@ -121,13 +117,6 @@ module "idp_replica_cloudwatch_rds" {
   rds_storage_threshold = var.rds_storage_threshold
   rds_db                = aws_db_instance.idp-read-replica[0].id
   alarm_actions         = local.low_priority_alarm_actions
-}
-
-output "idp_db_endpoint_replica" {
-  # This weird element() stuff is so we can refer to these attributes even
-  # when the resource has count=0. Reportedly this hack will not
-  # be necessary in TF 0.12.
-  value = element(concat(aws_db_instance.idp-read-replica.*.endpoint, [""]), 0)
 }
 
 module "idp_rds_usw2" {

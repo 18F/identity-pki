@@ -63,10 +63,6 @@ module "app_cloudwatch_rds" {
   unvacummed_transactions_count = var.unvacummed_transactions_count
 }
 
-output "app_db_endpoint" {
-  value = element(concat(aws_db_instance.default.*.endpoint, [""]), 0)
-}
-
 resource "aws_db_subnet_group" "default" {
   description = "${var.env_name} env subnet group for login.gov"
   name        = "${var.name}-db-${var.env_name}"
