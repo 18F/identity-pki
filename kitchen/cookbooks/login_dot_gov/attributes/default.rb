@@ -139,4 +139,4 @@ default['login_dot_gov']['dashboard']['sp_private_key_password'] = 'foobar'
 default['passenger']['production']['user'] = node.fetch(:identity_shared_attributes).fetch(:production_user)
 
 # worker process count
-default['login_dot_gov']['worker_count'] = node.fetch('cpu').fetch('total') / 2
+default['login_dot_gov']['worker_count'] = 1
