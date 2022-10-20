@@ -288,10 +288,6 @@ variable "rds_maintenance_window" {
   default = "Sun:08:34-Sun:09:08"
 }
 
-variable "rds_password" {
-  default = ""
-}
-
 variable "rds_username" {
   default = "gitlab"
 }

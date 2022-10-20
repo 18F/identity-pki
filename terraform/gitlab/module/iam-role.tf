@@ -64,6 +64,25 @@ EOM
   }
 
   inline_policy {
+    name   = "${var.env_name}-gitlab-rds-modify"
+    policy = <<-EOM
+        {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Sid": "allowRDSpasswordReset",
+                    "Effect": "Allow",
+                    "Action": [
+                        "rds:ModifyDBInstance"
+                    ],
+                    "Resource": "arn:aws:rds:${var.region}:${data.aws_caller_identity.current.account_id}:db:${aws_db_instance.gitlab.identifier}"
+                }
+            ]
+        }
+    EOM
+  }
+
+  inline_policy {
     name   = "${var.env_name}-gitlab-cloudwatch-logs"
     policy = <<EOM
 {

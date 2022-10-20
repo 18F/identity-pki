@@ -1,3 +1,14 @@
+# Random password created to ease boostrapping
+# for security reasons, this secret should immediately be 
+# rotated using the scripts from identity-devops/bin/update_secretsmanager_secret 
+# and identity-devops/bin/update_rds_password to invalidate 
+# the password kept in terraform state
+
+resource "random_password" "rds_inital_password" {
+  length  = 32
+  special = false
+}
+
 # RDS resources for gitlab live here
 
 resource "aws_db_instance" "gitlab" {
@@ -13,7 +24,7 @@ resource "aws_db_instance" "gitlab" {
   maintenance_window      = var.rds_maintenance_window
   multi_az                = true
   parameter_group_name    = module.gitlab_rds_usw2.rds_parameter_group_name
-  password                = var.rds_password # change this by hand after creation
+  password                = random_password.rds_inital_password.result
   username                = var.rds_username
   storage_encrypted       = true
   storage_type            = var.rds_storage_type_gitlab
@@ -77,6 +88,14 @@ resource "aws_db_subnet_group" "gitlab" {
   tags = {
     Name = "${var.name}-${var.env_name} gitlab"
   }
+}
+
+resource "aws_s3_object" "gitlab_instance_id" {
+  bucket  = data.aws_s3_bucket.secrets.id
+  key     = "${var.env_name}/gitlab_instance_id"
+  content = aws_db_instance.gitlab.identifier
+
+  source_hash = md5(aws_db_instance.gitlab.identifier)
 }
 
 resource "aws_s3_object" "gitlab_db_host" {

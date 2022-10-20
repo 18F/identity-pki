@@ -15,7 +15,8 @@ aws_region = Chef::Recipe::AwsMetadata.get_aws_region
 backup_s3_bucket = "login-gov-#{node.chef_environment}-gitlabbackups-#{aws_account_id}-#{aws_region}"
 config_s3_bucket = "login-gov-#{node.chef_environment}-gitlabconfig-#{aws_account_id}-#{aws_region}"
 db_host = ConfigLoader.load_config(node, 'gitlab_db_host', common: false).chomp
-db_password = ConfigLoader.load_config(node, 'gitlab_db_password', common: false).chomp
+db_instance_id = ConfigLoader.load_config(node, 'gitlab_instance_id', common: false).chomp
+db_password = shell_out('openssl rand -base64 32 | sha256sum | head -c20').stdout
 if node.chef_environment == 'production' || node.chef_environment == 'bravo'
   external_fqdn = "#{node['login_dot_gov']['domain_name']}"
 else
@@ -42,6 +43,12 @@ ses_username = ConfigLoader.load_config(node, 'ses_smtp_username', common: true)
 smtp_address = "email-smtp.#{aws_region}.amazonaws.com"
 metric_namespace = ConfigLoader.load_config(node, 'gitlab_metric_namespace', common: false).chomp
 user_sync_metric_name = ConfigLoader.load_config(node, 'gitlab_user_sync_metric_name', common: false).chomp
+
+execute 'update_db_password' do
+  command <<-EOF
+    aws rds modify-db-instance --db-instance-identifier '#{db_instance_id}' --master-user-password '#{db_password}'
+  EOF
+end
 
 # must come after external_fqdn
 email_from = "gitlab@#{external_fqdn}"
@@ -564,4 +571,16 @@ cookbook_file 'tomcat env vars' do
   group 'root'
   mode '644'
   notifies :restart, 'service[tomcat8]', :delayed
+end
+
+# random gitlab maintenance tasks
+# https://docs.gitlab.com/ee/administration/raketasks/maintenance.html
+
+execute 'run_gitlab_db_reindex' do
+  cwd '/opt/gitlab/embedded/service'
+  command <<-EOF
+    gitlab-rake gitlab:db:reindex
+  EOF
+  action :run
+  ignore_failure true
 end

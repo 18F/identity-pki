@@ -227,3 +227,21 @@ resource "aws_vpc_endpoint" "events" {
     Name = "${var.env_name}-gitlab-events"
   }
 }
+
+resource "aws_vpc_endpoint" "rds" {
+  vpc_id            = aws_vpc.default.id
+  service_name      = "com.amazonaws.${var.region}.rds"
+  vpc_endpoint_type = "Interface"
+
+  security_group_ids = [
+    aws_security_group.rds_endpoint.id,
+  ]
+
+  subnet_ids = [for zone in local.network_zones : aws_subnet.endpoints[zone].id]
+
+  private_dns_enabled = true
+
+  tags = {
+    Name = "${var.env_name}-gitlab-rds"
+  }
+}

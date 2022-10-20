@@ -729,3 +729,30 @@ resource "aws_security_group_rule" "waf_lb_vpc_egress" {
   protocol          = "tcp"
   cidr_blocks       = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
 }
+
+
+resource "aws_security_group" "rds_endpoint" {
+  name_prefix = "${var.name}-rds_endpoint-${var.env_name}"
+  description = "Allow inbound from all servers"
+
+  # allow outbound to the VPC
+  egress {
+    from_port   = 0
+    to_port     = 65535
+    protocol    = "tcp"
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
+  }
+
+  ingress {
+    from_port   = 0
+    to_port     = 65535
+    protocol    = "tcp"
+    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  vpc_id = aws_vpc.default.id
+}
