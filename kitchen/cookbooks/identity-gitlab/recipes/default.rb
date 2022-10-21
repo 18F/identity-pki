@@ -48,6 +48,9 @@ execute 'update_db_password' do
   command <<-EOF
     aws rds modify-db-instance --db-instance-identifier '#{db_instance_id}' --master-user-password '#{db_password}'
   EOF
+  ignore_failure false
+  action :run
+  sensitive true
 end
 
 # must come after external_fqdn
