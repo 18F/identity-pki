@@ -113,6 +113,7 @@ locals {
   gitlab_user_sync_metric_name    = "UserSyncSuccess"
   gitlab_user_sync_dashboard_name = "${var.env_name}-Gitlab-User-Sync"
   gitlab_ci_ping_metric_name      = "CIPingSuccess"
+  gitlab_ci_ping_alert_handle     = var.env_type == "tooling-prod" ? "@login-devtools-oncall" : ""
   alert_topic                     = var.env_type == "tooling-prod" ? "slack-events" : "slack-otherevents"
 }
 
@@ -159,7 +160,7 @@ resource "aws_cloudwatch_metric_alarm" "gitlab_ci_ping_failures" {
   period                    = 60 * var.ci_ping_alert_minutes
   statistic                 = "Sum"
   threshold                 = "1"
-  alarm_description         = "This Alarm is executed if Gitlab's CI has NOT completed successfully in the ${var.ci_ping_alert_minutes} minutes."
+  alarm_description         = "This Alarm is executed if Gitlab's CI has NOT completed successfully in the ${var.ci_ping_alert_minutes} minutes. Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Gitlab-CI-Troubleshooting ${local.gitlab_ci_ping_alert_handle}"
   treat_missing_data        = "breaching"
   insufficient_data_actions = []
   alarm_actions = [
