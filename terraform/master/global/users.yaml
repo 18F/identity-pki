@@ -52,6 +52,11 @@ users:
   chris.manger:
     aws_groups:
     - finops
+  cody.reinold:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - pm
   david.dsilva:
     aws_groups:
     - analytics
