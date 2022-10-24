@@ -21,7 +21,7 @@ module "main" {
   root_domain                     = "gitlab.login.gov"
   default_ami_id_tooling          = "ami-0786033e9d020fed4" # base-20220809165123 2022-08-09
   route53_id                      = "Z07730471OKZ5T4V8NB2M"
-  asg_gitlab_test_runner_desired  = 25
+  asg_gitlab_test_runner_desired  = 38
   asg_gitlab_build_runner_desired = 4
   destination_artifact_accounts   = ["894947205914"] # login-sandbox
   destination_idp_static_accounts = ["894947205914"] # login-sandbox
