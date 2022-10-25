@@ -152,6 +152,42 @@ variable "elasticache_redis_alarm_threshold_memory_high" {
   default     = 80
 }
 
+variable "elasticache_redis_alarm_threshold_cpu" {
+  type        = number
+  description = "Alert Threshhold for Redis cpu utilization"
+  default     = 70
+}
+
+variable "elasticache_redis_alarm_threshold_cpu_high" {
+  type        = number
+  description = "Critical Alert Threshhold for Redis cpu utilization"
+  default     = 80
+}
+
+variable "elasticache_redis_alarm_threshold_currconnections" {
+  type        = number
+  description = "Alert Threshhold for Redis currconnections utilization"
+  default     = 40000
+}
+
+variable "elasticache_redis_alarm_threshold_currconnections_high" {
+  type        = number
+  description = "Critical Alert Threshold for Redis currconnections utilization"
+  default     = 50000
+}
+
+variable "elasticache_redis_alarm_threshold_replication_lag" {
+  type        = string
+  description = "Alert Threshhold for Redis replication_lag utilization"
+  default     = ".1"
+}
+
+variable "elasticache_redis_alarm_threshold_replication_lag_high" {
+  type        = string
+  description = "Critical Alert Threshhold for Redis replication_lag utilization"
+  default     = ".2"
+}
+
 # prod/test environment flags
 variable "asg_prevent_auto_terminate" {
   description = "Whether to protect auto scaled instances from automatic termination"
