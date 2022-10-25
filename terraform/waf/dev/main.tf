@@ -29,9 +29,10 @@ module "main" {
 
   waf_alert_actions = ["arn:aws:sns:us-west-2:894947205914:slack-otherevents"]
 
-  restricted_paths    = module.waf_data.restricted_paths
-  privileged_cidrs_v4 = module.waf_data.privileged_cidrs_v4
-  privileged_cidrs_v6 = module.waf_data.privileged_cidrs_v6
+  restricted_paths         = module.waf_data.restricted_paths
+  restricted_paths_enforce = false # Count only in Dev
+  privileged_cidrs_v4      = module.waf_data.privileged_cidrs_v4
+  privileged_cidrs_v6      = module.waf_data.privileged_cidrs_v6
 }
 
 module "cloudfront-waf" {

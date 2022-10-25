@@ -545,7 +545,15 @@ resource "aws_wafv2_web_acl" "alb" {
       name     = "IdpBlockPaths"
       priority = 1100
       action {
-        block {}
+        dynamic "block" {
+          for_each = var.restricted_paths_enforce ? [1] : []
+          content {}
+        }
+
+        dynamic "count" {
+          for_each = var.restricted_paths_enforce ? [] : [1]
+          content {}
+        }
       }
       statement {
         dynamic "and_statement" {

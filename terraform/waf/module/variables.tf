@@ -186,18 +186,30 @@ variable "ship_logs_to_soc" {
 }
 
 variable "restricted_paths" {
+  description = "Map with two keys: A list of rexex matches of paths to restrict to privileged IPs, and a list of paths to exclude"
+  type        = map(list(string))
   default = {
     paths      = []
     exclusions = []
   }
 }
 
+variable "restricted_paths_enforce" {
+  description = "Set to false to count instead of block excluded paths - ONLY USE IN SANDBOXES!"
+  type        = bool
+  default     = true
+}
+
 variable "privileged_cidrs_v4" {
-  default = []
+  description = "List of IPv4 CIDR blocks allowed to privileged paths"
+  type        = list(string)
+  default     = []
 }
 
 variable "privileged_cidrs_v6" {
-  default = []
+  description = "List of IPv6 CIDR blocks allowed to privileged paths"
+  type        = list(string)
+  default     = []
 }
 
 variable "geo_allow_list" {
