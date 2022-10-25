@@ -369,4 +369,5 @@ module "idp_worker_jobs_cloudwatch_rds" {
   rds_db                        = aws_db_instance.idp-worker-jobs.id
   alarm_actions                 = local.low_priority_alarm_actions
   unvacummed_transactions_count = var.unvacummed_transactions_count
+  db_instance_class             = var.rds_instance_class_worker_jobs
 }

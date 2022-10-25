@@ -8,6 +8,12 @@ variable "rds_db" {
   description = "ID of DB instance to create alarms for."
 }
 
+variable "db_instance_class" {
+  type        = string
+  description = "Instance class to monitor in RDS Cluster"
+  default     = "db.r5.large"
+}
+
 variable "rds_storage_threshold" {
   description = <<EOM
 DB instance storage (in bytes) to stay above before alerting.

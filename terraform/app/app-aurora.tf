@@ -74,4 +74,5 @@ module "app_aurora_uw2_cloudwatch" {
   rds_db                        = module.app_aurora_uw2[count.index].writer_instance
   alarm_actions                 = local.low_priority_alarm_actions
   unvacummed_transactions_count = var.unvacummed_transactions_count
+  db_instance_class             = var.rds_instance_class_apps_aurora
 }

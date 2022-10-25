@@ -86,4 +86,5 @@ module "idp_aurora_cloudwatch" {
   rds_db                        = module.idp_aurora_from_rds[count.index].writer_instance
   alarm_actions                 = local.low_priority_alarm_actions
   unvacummed_transactions_count = var.unvacummed_transactions_count
+  db_instance_class             = var.rds_instance_class_aurora
 }
