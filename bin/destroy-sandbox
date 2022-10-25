@@ -2,13 +2,13 @@
 
 #### Tear down/destroy a sandbox environment ####
 
-trap replace_db_files EXIT
-
 set -euo pipefail
 
 BASEPATH="$(dirname "$0")"
 . "${BASEPATH}/lib/common.sh"
 . "${BASEPATH}/lib/sandbox-lib.sh"
+
+trap replace_db_files EXIT
 
 usage() {
   cat >&2 << EOM
@@ -66,15 +66,6 @@ as a final argument.
 
 EOM
   exit 0
-}
-
-replace_db_files() {
-  for TF_FILE in 'app/idp' 'app/app' 'app/worker' 'modules/rds_aurora/main' ; do
-    FILE="$(git rev-parse --show-toplevel)/terraform/${TF_FILE}.tf"
-    if [[ -f "${FILE}.bak" ]] ; then
-      mv ${FILE}.bak ${FILE}
-    fi
-  done
 }
 
 1_allow_db_destroy() {
@@ -170,16 +161,9 @@ do
   esac
 done
 shift $((OPTIND-1))
-initialize ${1:-}
 
-for TF_FILE in 'app/idp' 'app/app' 'app/worker' 'modules/rds_aurora/main' ; do
-  FILE="$(git rev-parse --show-toplevel)/terraform/${TF_FILE}.tf"
-  cp "${FILE}" "${FILE}.bak"
-  for TASK in prevent_destroy deletion_protection ; do
-    sed -i '' -E "s/(${TASK} = )true/\1false/g" "${FILE}"
-  done
-  sed -i '' -E 's/#(skip_final_snapshot = true)/\1/g' "${FILE}"
-done
+initialize ${1:-}
+remove_db_protection_in_state 'ALL'
 
 if [[ ${APPLY_ALL} == true ]] ; then
   if [[ ! -z ${TODO-} ]] && [[ ! "${TODO[@]:-}" =~ "${TASKS[0]}" ]] ; then

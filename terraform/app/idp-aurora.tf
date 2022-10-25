@@ -19,7 +19,7 @@ module "idp_aurora_from_rds" {
   # the source RDS database (aws_db_instance.idp). Once the cluster has been
   # promoted to standalone, this attribute can be removed, and the
   # rds_password and rds_username attributes should be used instead.
-  rds_db_arn   = aws_db_instance.idp.arn
+  rds_db_arn   = var.idp_use_rds ? aws_db_instance.idp[0].arn : ""
   rds_password = var.rds_password # ignored when creating replica
   rds_username = var.rds_username # ignored when creating replica
 

@@ -32,9 +32,9 @@ output "idp_cloudfront" {
 # RDS / ElastiCache
 
 output "idp_rds" {
-  value = {
-    rds_fqdn    = aws_route53_record.idp-postgres.fqdn
-    db_endpoint = aws_db_instance.idp.endpoint
+  value = var.idp_use_rds ? {
+    rds_fqdn    = aws_route53_record.idp-postgres[0].fqdn
+    db_endpoint = aws_db_instance.idp[0].endpoint
     db_endpoint_replica = (
       var.enable_rds_idp_read_replica ? aws_db_instance.idp-read-replica[0].endpoint : null
     )
@@ -44,7 +44,7 @@ output "idp_rds" {
     elasticache_cluster_attempts_address = (
       aws_elasticache_replication_group.idp_attempts.primary_endpoint_address
     )
-  }
+  } : null
 }
 
 # AuroraDB

@@ -1,4 +1,6 @@
 resource "aws_db_instance" "idp" {
+  count = var.idp_use_rds ? 1 : 0
+
   allocated_storage       = var.rds_storage_idp
   backup_retention_period = var.rds_backup_retention_period
   backup_window           = var.rds_backup_window
@@ -56,10 +58,11 @@ resource "aws_db_instance" "idp" {
 }
 
 module "idp_cloudwatch_rds" {
+  count  = var.idp_use_rds ? 1 : 0
   source = "../modules/cloudwatch_rds/"
 
   rds_storage_threshold         = var.rds_storage_threshold
-  rds_db                        = aws_db_instance.idp.id
+  rds_db                        = aws_db_instance.idp[count.index].id
   alarm_actions                 = local.low_priority_alarm_actions
   unvacummed_transactions_count = var.unvacummed_transactions_count
 }
@@ -70,8 +73,8 @@ data "aws_sns_topic" "rds_snapshot_events" {
 
 # Optional read replica of the primary idp database
 resource "aws_db_instance" "idp-read-replica" {
-  count               = var.enable_rds_idp_read_replica ? 1 : 0
-  replicate_source_db = aws_db_instance.idp.id
+  count               = var.enable_rds_idp_read_replica && var.idp_use_rds ? 1 : 0
+  replicate_source_db = aws_db_instance.idp[count.index].id
 
   identifier = "${var.env_name}-idp-replica"
 
@@ -112,10 +115,10 @@ resource "aws_db_instance" "idp-read-replica" {
 
 module "idp_replica_cloudwatch_rds" {
   source = "../modules/cloudwatch_rds/"
-  count  = var.enable_rds_idp_read_replica ? 1 : 0
+  count  = var.enable_rds_idp_read_replica && var.idp_use_rds ? 1 : 0
 
   rds_storage_threshold = var.rds_storage_threshold
-  rds_db                = aws_db_instance.idp-read-replica[0].id
+  rds_db                = aws_db_instance.idp-read-replica[count.index].id
   alarm_actions         = local.low_priority_alarm_actions
 }
 
@@ -137,7 +140,7 @@ module "idp_rds_usw2" {
 }
 
 module "idp_rds_use1" {
-  count  = var.rds_recover_to_ue1 ? 1 : 0
+  count  = var.idp_use_rds && var.rds_recover_to_ue1 ? 1 : 0
   source = "../modules/idp_rds"
   providers = {
     aws = aws.use1
@@ -154,473 +157,12 @@ module "idp_rds_use1" {
   ])
 }
 
-resource "aws_elasticache_parameter_group" "idp" {
-  name   = "${var.env_name}-idp-params"
-  family = "redis6.x"
-
-  parameter {
-    name  = "maxmemory-policy"
-    value = "noeviction"
-  }
-}
-
-# Multi-AZ redis cluster, used for session storage
-resource "aws_elasticache_replication_group" "idp" {
-  replication_group_id = "${var.env_name}-idp"
-  description          = "Multi AZ redis cluster for the IdP in ${var.env_name}"
-  engine               = "redis"
-  engine_version       = var.elasticache_redis_engine_version
-  node_type            = var.elasticache_redis_node_type
-  num_cache_clusters   = var.elasticache_redis_num_cache_clusters
-  parameter_group_name = aws_elasticache_parameter_group.idp.name
-  security_group_ids   = [aws_security_group.cache.id]
-  subnet_group_name    = aws_elasticache_subnet_group.idp.name
-  port                 = 6379
-
-  # note that t2.* instances don't support automatic failover
-  multi_az_enabled           = true
-  automatic_failover_enabled = true
-
-  at_rest_encryption_enabled = var.elasticache_redis_encrypt_at_rest
-  transit_encryption_enabled = var.elasticache_redis_encrypt_in_transit
-
-  log_delivery_configuration {
-    destination      = aws_cloudwatch_log_group.elasticache_redis_log.name
-    destination_type = "cloudwatch-logs"
-    log_format       = "text"
-    log_type         = "engine-log"
-  }
-}
-
-###Multi-AZ redis cluster, used for Attempt API Related Storage. Added 09-05-22
-resource "aws_elasticache_replication_group" "idp_attempts" {
-  replication_group_id = "${var.env_name}-idp-attempts"
-  description          = "Multi AZ redis cluster for Attempts API Related Storage in IdP in ${var.env_name}"
-  engine               = "redis"
-  engine_version       = var.elasticache_redis_engine_version
-  node_type            = var.elasticache_redis_attempts_api_node_type
-  num_cache_clusters   = 2
-  parameter_group_name = aws_elasticache_parameter_group.idp.name
-  security_group_ids   = [aws_security_group.cache.id]
-  subnet_group_name    = aws_elasticache_subnet_group.idp.name
-
-  # note that t2.* instances don't support automatic failover
-  multi_az_enabled           = true
-  automatic_failover_enabled = true
-
-  #Enable data tiering if using a data tier enabled node.
-  data_tiering_enabled = length(regexall("r6gd", var.elasticache_redis_attempts_api_node_type)) != 0 ? true : false
-
-  at_rest_encryption_enabled = var.elasticache_redis_encrypt_at_rest
-  transit_encryption_enabled = var.elasticache_redis_encrypt_in_transit
-
-  log_delivery_configuration {
-    destination      = aws_cloudwatch_log_group.elasticache_redis_log.name
-    destination_type = "cloudwatch-logs"
-    log_format       = "text"
-    log_type         = "engine-log"
-  }
-}
-
-
-resource "aws_iam_instance_profile" "idp" {
-  name = "${var.env_name}_idp_instance_profile"
-  role = aws_iam_role.idp.name
-}
-
-resource "aws_iam_role" "idp" {
-  name               = "${var.env_name}_idp_iam_role"
-  assume_role_policy = data.aws_iam_policy_document.assume_role_from_vpc.json
-}
-
-resource "aws_iam_role_policy" "idp-download-artifacts" {
-  name   = "${var.env_name}-idp-artifacts"
-  role   = aws_iam_role.idp.id
-  policy = data.aws_iam_policy_document.download_artifacts_role_policy.json
-}
-
-resource "aws_iam_role_policy" "idp-secrets" {
-  name   = "${var.env_name}-idp-secrets"
-  role   = aws_iam_role.idp.id
-  policy = data.aws_iam_policy_document.secrets_role_policy.json
-}
-
-resource "aws_iam_role_policy" "idp-transfer-utility" {
-  name   = "${var.env_name}-idp-transfer-utility"
-  role   = aws_iam_role.idp.id
-  policy = data.aws_iam_policy_document.transfer_utility_policy.json
-}
-
-resource "aws_iam_role_policy" "idp-secrets-manager" {
-  name   = "${var.env_name}-idp-secrets-manager"
-  role   = aws_iam_role.idp.id
-  policy = <<EOM
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "secretsmanager:DescribeSecret",
-                "secretsmanager:List*"
-            ],
-            "Resource": "*"
-        },
-        {
-            "Effect": "Allow",
-            "Action": "secretsmanager:Get*",
-            "Resource": [
-                "arn:aws:secretsmanager:*:*:secret:global/common/*",
-                "arn:aws:secretsmanager:*:*:secret:global/idp/*",
-                "arn:aws:secretsmanager:*:*:secret:${var.env_name}/common/*",
-                "arn:aws:secretsmanager:*:*:secret:${var.env_name}/idp/*"
-            ]
-        }
-    ]
-}
-EOM
-
-}
-
-# Allow listing CloudHSM clusters
-resource "aws_iam_role_policy" "idp-cloudhsm-client" {
-  name   = "${var.env_name}-idp-cloudhsm-client"
-  role   = aws_iam_role.idp.id
-  policy = <<EOM
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "cloudhsm:DescribeClusters",
-                "cloudhsm:ListTags",
-                "cloudhsm:ListTagsForResource"
-            ],
-            "Resource": "*"
-        }
-    ]
-}
-EOM
-
-}
-
-resource "aws_iam_role_policy" "idp-certificates" {
-  name   = "${var.env_name}-idp-certificates"
-  role   = aws_iam_role.idp.id
-  policy = data.aws_iam_policy_document.certificates_role_policy.json
-}
-
-resource "aws_iam_role_policy" "idp-describe_instances" {
-  name   = "${var.env_name}-idp-describe_instances"
-  role   = aws_iam_role.idp.id
-  policy = data.aws_iam_policy_document.describe_instances_role_policy.json
-}
-
-resource "aws_iam_role_policy" "idp-application-secrets" {
-  name   = "${var.env_name}-idp-application-secrets"
-  role   = aws_iam_role.idp.id
-  policy = data.aws_iam_policy_document.application_secrets_role_policy.json
-}
-
-resource "aws_iam_role_policy" "idp-ses-email" {
-  name   = "${var.env_name}-idp-ses-email"
-  role   = aws_iam_role.idp.id
-  policy = data.aws_iam_policy_document.ses_email_role_policy.json
-}
-
-resource "aws_iam_role_policy" "idp-cloudwatch-logs" {
-  name   = "${var.env_name}-idp-cloudwatch-logs"
-  role   = aws_iam_role.idp.id
-  policy = data.aws_iam_policy_document.cloudwatch-logs.json
-}
-
-resource "aws_iam_role_policy" "idp-cloudwatch-agent" {
-  name   = "${var.env_name}-idp-cloudwatch-agent"
-  role   = aws_iam_role.idp.id
-  policy = data.aws_iam_policy_document.cloudwatch-agent.json
-}
-
-resource "aws_iam_role_policy" "idp-upload-s3-reports" {
-  name   = "${var.env_name}-idp-s3-reports"
-  role   = aws_iam_role.idp.id
-  policy = data.aws_iam_policy_document.put_reports_to_s3.json
-}
-
-resource "aws_iam_role_policy" "idp-ssm-access" {
-  name   = "${var.env_name}-idp-ssm-access"
-  role   = aws_iam_role.idp.id
-  policy = module.ssm.ssm_access_role_policy
-}
-
-resource "aws_iam_role_policy" "idp-sns-publish-alerts" {
-  name   = "${var.env_name}-idp-sns-publish-alerts"
-  role   = aws_iam_role.idp.id
-  policy = data.aws_iam_policy_document.sns-publish-alerts-policy.json
-}
-
-resource "aws_iam_role_policy" "idp-ec2-tags" {
-  name   = "${var.env_name}-idp-ec2-tags"
-  role   = aws_iam_role.idp.id
-  policy = data.aws_iam_policy_document.ec2-tags.json
-}
-
-# This policy allows writing to the S3 reports bucket
-data "aws_iam_policy_document" "put_reports_to_s3" {
-  statement {
-    sid    = "PutObjectsToReportsS3Bucket"
-    effect = "Allow"
-    actions = [
-      "s3:PutObject",
-    ]
-    resources = [
-      "arn:aws:s3:::login-gov.reports.${data.aws_caller_identity.current.account_id}-${var.region}/${var.env_name}/*",
-    ]
-  }
-
-  # allow listing objects so we can see what we've uploaded
-  statement {
-    sid    = "ListBucket"
-    effect = "Allow"
-    actions = [
-      "s3:ListBucket",
-    ]
-    resources = [
-      "arn:aws:s3:::login-gov.reports.${data.aws_caller_identity.current.account_id}-${var.region}",
-    ]
-  }
-}
-
-# Allow assuming cross-account role for Pinpoint APIs. This is in a separate
-# account for accounting purposes since it's on a separate contract.
-resource "aws_iam_role_policy" "idp-pinpoint-assumerole" {
-  name   = "${var.env_name}-idp-pinpoint-assumerole"
-  role   = aws_iam_role.idp.id
-  policy = <<EOM
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": "sts:AssumeRole",
-      "Resource": [
-        "arn:aws:iam::${var.identity_sms_aws_account_id}:role/${var.identity_sms_iam_role_name_idp}"
-      ]
-    }
-  ]
-}
-EOM
-
-}
-
-# Allow publishing traces to X-Ray
-resource "aws_iam_role_policy" "idp-xray-publish" {
-  name   = "${var.env_name}-idp-xray-publish"
-  role   = aws_iam_role.idp.id
-  policy = data.aws_iam_policy_document.xray-publish-policy.json
-}
-
-module "idp_user_data" {
-  source = "../modules/bootstrap/"
-
-  role          = "idp"
-  env           = var.env_name
-  domain        = var.root_domain
-  sns_topic_arn = var.slack_events_sns_hook_arn
-
-  chef_download_url    = var.chef_download_url
-  chef_download_sha256 = var.chef_download_sha256
-
-  # identity-devops-private variables
-  private_s3_ssh_key_url = local.bootstrap_private_s3_ssh_key_url
-  private_git_clone_url  = var.bootstrap_private_git_clone_url
-  private_git_ref        = var.bootstrap_private_git_ref
-
-  # identity-devops variables
-  main_s3_ssh_key_url  = local.bootstrap_main_s3_ssh_key_url
-  main_git_clone_url   = var.bootstrap_main_git_clone_url
-  main_git_ref_map     = var.bootstrap_main_git_ref_map
-  main_git_ref_default = local.bootstrap_main_git_ref_default
-
-  # proxy variables
-  proxy_server        = var.proxy_server
-  proxy_port          = var.proxy_port
-  no_proxy_hosts      = var.no_proxy_hosts
-  proxy_enabled_roles = var.proxy_enabled_roles
-}
-
-module "idp_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=5d344d205dd09eb85d5de1ff1081c4a598afe433"
-  #source = "../../../identity-terraform/launch_template"
-
-  role           = "idp"
-  env            = var.env_name
-  root_domain    = var.root_domain
-  ami_id_map     = var.ami_id_map
-  default_ami_id = local.account_rails_ami_id
-
-  instance_type             = var.instance_type_idp
-  iam_instance_profile_name = aws_iam_instance_profile.idp.name
-  security_group_ids        = [aws_security_group.idp.id, aws_security_group.base.id]
-  user_data                 = module.idp_user_data.rendered_cloudinit_config
-
-  use_spot_instances = var.use_spot_instances == 1 ? (
-    length(var.idp_mixed_instance_config) == 0 ? 1 : 0
-  ) : 0
-
-  template_tags = {
-    main_git_ref = module.idp_user_data.main_git_ref
-  }
-}
-
-resource "aws_autoscaling_group" "idp" {
-  name = "${var.env_name}-idp"
-
-  # use launch_template if var.idp_mixed_instance_config is not specified;
-  # otherwise will throw InvalidQueryParameter error if var.use_spot_instances == 1
-  dynamic "launch_template" {
-    for_each = length(var.idp_mixed_instance_config) == 0 ? [1] : []
-
-    content {
-      id      = module.idp_launch_template.template_id
-      version = "$Latest"
-    }
-  }
-
-  dynamic "mixed_instances_policy" {
-    for_each = length(var.idp_mixed_instance_config) == 0 ? [] : [1]
-
-    content {
-      instances_distribution {
-        on_demand_base_capacity = (
-          var.use_spot_instances == 1 ? 0 : var.asg_idp_max
-        )
-        on_demand_percentage_above_base_capacity = (
-          var.use_spot_instances != 1 ? 100 : 0
-        )
-        spot_allocation_strategy = "capacity-optimized"
-      }
-
-      launch_template {
-        launch_template_specification {
-          launch_template_id = module.idp_launch_template.template_id
-          version            = "$Latest"
-        }
-
-        # at least one override, containing the instance type within
-        # the launch template, must be present
-        override {
-          instance_type     = var.instance_type_idp
-          weighted_capacity = var.idp_default_weight
-        }
-
-        dynamic "override" {
-          for_each = var.idp_mixed_instance_config
-
-          content {
-            instance_type     = override.value.instance_type
-            weighted_capacity = override.value.weighted_capacity
-          }
-        }
-      }
-    }
-  }
-
-  min_size         = var.asg_idp_min
-  max_size         = var.asg_idp_max
-  desired_capacity = var.asg_idp_desired
-
-  wait_for_capacity_timeout = 0
-
-  target_group_arns = [
-    aws_alb_target_group.idp.arn,
-    aws_alb_target_group.idp-ssl.arn,
-  ]
-
-  vpc_zone_identifier = [for subnet in aws_subnet.app : subnet.id]
-
-  # possible choices: EC2, ELB
-  health_check_type = "ELB"
-
-  health_check_grace_period = 1
-
-  termination_policies = ["OldestInstance"]
-
-  # Because bootstrapping takes so long, we terminate manually in prod
-  # More context on ASG deploys and safety:
-  # https://github.com/18F/identity-devops-private/issues/337
-  protect_from_scale_in = var.asg_prevent_auto_terminate == 1 ? true : false
-
-  enabled_metrics = var.asg_enabled_metrics
-
-  # tags on the instance will come from the launch template
-  tag {
-    key                 = "prefix"
-    value               = "idp"
-    propagate_at_launch = false
-  }
-  tag {
-    key                 = "domain"
-    value               = "${var.env_name}.${var.root_domain}"
-    propagate_at_launch = false
-  }
-  tag {
-    key                 = "fisma"
-    value               = var.fisma_tag
-    propagate_at_launch = true
-  }
-
-  depends_on = [
-    aws_autoscaling_group.outboundproxy,
-    aws_autoscaling_group.migration,
-  ]
-}
-
-module "idp_lifecycle_hooks" {
-  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=5d344d205dd09eb85d5de1ff1081c4a598afe433"
-  asg_name = aws_autoscaling_group.idp.name
-}
-
-module "idp_recycle" {
-  source = "github.com/18F/identity-terraform//asg_recycle?ref=5d344d205dd09eb85d5de1ff1081c4a598afe433"
-
-  # switch to count when that's a thing that we can do
-  # https://github.com/hashicorp/terraform/issues/953
-  enabled = var.asg_auto_recycle_enabled
-
-  use_daily_business_hours_schedule = var.asg_recycle_business_hours
-
-  asg_name                = aws_autoscaling_group.idp.name
-  normal_desired_capacity = aws_autoscaling_group.idp.desired_capacity
-}
-
-resource "aws_autoscaling_policy" "idp-cpu" {
-  count = var.idp_cpu_autoscaling_enabled
-
-  autoscaling_group_name = aws_autoscaling_group.idp.name
-  name                   = "cpu-scaling"
-
-  # currently it takes about 15 minutes for instances to bootstrap
-  estimated_instance_warmup = 900
-
-  policy_type = "TargetTrackingScaling"
-
-  target_tracking_configuration {
-    predefined_metric_specification {
-      predefined_metric_type = "ASGAverageCPUUtilization"
-    }
-
-    target_value = var.idp_cpu_autoscaling_target
-
-    disable_scale_in = var.idp_cpu_autoscaling_disable_scale_in == 1 ? true : false
-  }
-}
-
 resource "aws_route53_record" "idp-postgres" {
+  count   = var.idp_use_rds ? 1 : 0
   zone_id = aws_route53_zone.internal.zone_id
   name    = "idp-postgres"
 
   type    = "CNAME"
   ttl     = "300"
-  records = [replace(aws_db_instance.idp.endpoint, ":${var.rds_db_port}", "")]
+  records = [replace(aws_db_instance.idp[count.index].endpoint, ":${var.rds_db_port}", "")]
 }

@@ -135,6 +135,15 @@ variable "rds_engine_mode_aurora" {
 
 # idp
 
+variable "idp_use_rds" {
+  description = <<EOM
+Whether or not to build/use an AWS RDS instance (vs. AuroraDB) for the IdP DB.
+Set to false if wanting to spin down and/or not create the RDS DB.
+EOM
+  type        = bool
+  default     = true
+}
+
 variable "rds_storage_type_idp" {
   # possible storage types:
   # standard (magnetic)

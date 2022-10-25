@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# locate identity-devops-private directory, either from parent directory
+# of current repo or via manually-passed-in value
 verify_private_repo() {
   PRIVATE_REPO=${ID_PRIVATE_DIR-}
   if [[ -z ${PRIVATE_REPO} ]] ; then
@@ -13,6 +15,7 @@ verify_private_repo() {
   echo_cyan "identity-devops-private dir located."
 }
 
+# ensure that all required TF_ENV files (Chef/tfvars/etc.) exist
 verify_env_files() {
   for FILE in "${GIT_DIR}/kitchen/environments/${TF_ENV}.json" \
               "${PRIVATE_REPO}/vars/${TF_ENV}.tfvars" \
@@ -26,6 +29,8 @@ verify_env_files() {
   echo_cyan "Environment config files exist and are valid."
 }
 
+# verify that passed-in TF_ENV / GSA_USERNAME is valid and that environment
+# is not protected/staging/prod
 verify_sandbox_env() {
   TF_ENV=${1:-$(echo ${GSA_USERNAME})}
   if [[ -z ${TF_ENV} ]] ; then
@@ -39,6 +44,8 @@ verify_sandbox_env() {
   verify_env_files
 }
 
+# run verify functions above, confirm correct AV_PROFILE, and verify the
+# APP_DIR, AWS account number, and region, before continuing the main script
 initialize() {
   echo
   echo_green "Initializing..."
@@ -54,4 +61,33 @@ initialize() {
   AWS_ACCT_NUM=$(ave aws sts get-caller-identity | jq -r '.Account')
   AWS_REGION=$(cat "${PRIVATE_REPO}/env/account_global_${AWS_ACCT_NUM}.sh" |
     grep -m 1 TERRAFORM_STATE_BUCKET_REGION | awk -F'"' '{print $2}')
+}
+
+# disable prevent_destroy and deletion_protection configs for RDS databases
+# by changing the strings/comments in individual .tf files + creating .bak versions
+# of each file. pass 'ALL' as an argument to do the same for AuroraDB as well
+remove_db_protection_in_state() {
+  local RM_AURORA
+  if [[ ${1:-} == 'ALL' ]] ; then
+    RM_AURORA='modules/rds_aurora/main'
+  fi
+  for TF_FILE in 'app/idp' 'app/app' 'app/worker' "${RM_AURORA}" ; do
+    FILE="$(git rev-parse --show-toplevel)/terraform/${TF_FILE}.tf"
+    cp "${FILE}" "${FILE}.bak"
+    for TASK in prevent_destroy deletion_protection ; do
+      sed -i '' -E "s/(${TASK} = )true/\1false/g" "${FILE}"
+    done
+    sed -i '' -E 's/#(skip_final_snapshot = true)/\1/g' "${FILE}"
+  done
+}
+
+# if .bak versions of .tf files (from remove_db_protection_in_state) exist;
+# revert them back to the originals
+replace_db_files() {
+  for TF_FILE in 'app/idp' 'app/app' 'app/worker' 'modules/rds_aurora/main' ; do
+    FILE="$(git rev-parse --show-toplevel)/terraform/${TF_FILE}.tf"
+    if [[ -f "${FILE}.bak" ]] ; then
+      mv ${FILE}.bak ${FILE}
+    fi
+  done
 }

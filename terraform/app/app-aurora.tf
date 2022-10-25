@@ -9,7 +9,7 @@ module "app_aurora_uw2" {
   db_identifier = "sampleapps"
 
   # The rds_db_arn attribute should only be used when replicating from
-  # the source RDS database (aws_db_instance.idp). Once the cluster has been
+  # the source RDS database (aws_db_instance.idp[0]). Once the cluster has been
   # promoted to standalone, this attribute can be removed, and the
   # rds_password and rds_username attributes should be used instead.
   rds_db_arn   = aws_db_instance.default[count.index].arn
