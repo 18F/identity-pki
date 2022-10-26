@@ -34,31 +34,51 @@ resource "aws_cloudwatch_event_target" "opsgenie_root_user_accessed" {
   arn       = module.opsgenie_sns[0].use1_sns_topic_arn
 }
 
-## Start - Personal Dashboard Health Events - Publishing to SNS 
-resource "aws_cloudwatch_event_rule" "phd" {
-  name          = "PHD-Events"
+# AWS Health Aware (Personal Health Dashboard notification)
+# Every region we have resources in needs its own subscription
+resource "aws_cloudwatch_event_rule" "phd_us_east_1" {
+  provider      = aws.use1
+  name          = "PHD-Events-US-East-1"
   description   = "Personal Health Dashboard events"
   event_pattern = <<EOF
 {
   "source": ["aws.health"],
   "detail-type": ["AWS Health Event"],
   "detail": {
-    "service": ["ACCOUNT", "EC2", "VPC", "S3", "RDS"]
+    "service": ${jsonencode(var.phd_alerted_services)}
   }
 }
 EOF
 }
 
-resource "aws_cloudwatch_event_target" "phd_events_accessed" {
-  rule      = aws_cloudwatch_event_rule.phd.name
+resource "aws_cloudwatch_event_rule" "phd_us_west_2" {
+  provider      = aws.usw2
+  name          = "PHD-Events-US-West-2"
+  description   = "Personal Health Dashboard events"
+  event_pattern = <<EOF
+{
+  "source": ["aws.health"],
+  "detail-type": ["AWS Health Event"],
+  "detail": {
+    "service": ${jsonencode(var.phd_alerted_services)}
+  }
+}
+EOF
+}
+
+# Collect PHD alerts in US-East-1
+resource "aws_cloudwatch_event_target" "phd_alert_us_east_1" {
+  provider  = aws.use1
+  rule      = aws_cloudwatch_event_rule.phd_us_east_1.name
   target_id = "SendToEventsSlack"
-  arn       = aws_sns_topic.slack_usw2["events"].arn
+  # Personal Health Dashboard alerts are main event channel worthy for any account
+  arn = aws_sns_topic.slack_use1["events"].arn
 }
 
-resource "aws_cloudwatch_event_target" "phd_other_events_accessed" {
-  rule      = aws_cloudwatch_event_rule.phd.name
-  target_id = "SendToOtherEventsSlack"
-  arn       = aws_sns_topic.slack_usw2["otherevents"].arn
+resource "aws_cloudwatch_event_target" "phd_alert_us_west_2" {
+  provider  = aws.usw2
+  rule      = aws_cloudwatch_event_rule.phd_us_west_2.name
+  target_id = "SendToEventsSlack"
+  # Personal Health Dashboard alerts are main event channel worthy for any account
+  arn = aws_sns_topic.slack_usw2["events"].arn
 }
-
-## End - Personal Dashboard Health Events - Publishing to SNS 

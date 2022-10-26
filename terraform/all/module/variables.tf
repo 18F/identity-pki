@@ -180,6 +180,87 @@ variable "slack_events_sns_topic" {
   default     = "slack-otherevents"
 }
 
+variable "phd_alerted_services" {
+  description = "List Person Health event service types that should result in a notification"
+  type        = list(string)
+
+  # Where did this list come from?  These are the services we use from the full list
+  # of services here:
+  #   aws health describe-event-types | jq -r '.eventTypes[] | .service' | sort | uniq
+  default = [
+    "ACCOUNT",
+    "ACM",
+    "APIGATEWAY",
+    "APPMESH",
+    "ATHENA",
+    "AUTOSCALING",
+    "BILLING",
+    "CLOUDFRONT",
+    "CLOUDTRAIL",
+    "CLOUDWATCHSYNTHETICS",
+    "CLOUDWATCH",
+    "CONFIG",
+    "DETECTIVE",
+    "DMS",
+    "DYNAMODB",
+    "EBS",
+    "EC2",
+    "ECR",
+    "ECR_PUBLIC",
+    "EKS",
+    "ELASTICACHE",
+    "ELASTICLOADBALANCING",
+    "EVENTS",
+    "GLUE",
+    "GUARDDUTY",
+    "HEALTH",
+    "IAM",
+    "INSPECTOR2",
+    "INSPECTOR",
+    "INTERNETCONNECTIVITY",
+    "KINESISSTREAMS",
+    "KINESIS",
+    "KMS",
+    "LAMBDA",
+    "MACIE",
+    "MANAGEMENTCONSOLE",
+    "MARKETPLACE",
+    "MULTIPLE_SERVICES",
+    "NATGATEWAY",
+    "NETWORKFIREWALL",
+    "NOTIFICATIONS",
+    "ORGANIZATIONS",
+    "RDS",
+    "REACHABILITY_ANALYZER",
+    "RESOURCE_GROUPS",
+    "ROUTE53PRIVATEDNS",
+    "ROUTE53RESOLVER",
+    "ROUTE53",
+    "RUM",
+    "S3",
+    "SECRETSMANAGER",
+    "SECURITYHUB",
+    "SECURITY",
+    "SERVICEDISCOVERY",
+    "SERVICEQUOTAS",
+    "SES",
+    "SHIELD",
+    "SIGNIN",
+    "SMS",
+    "SNS",
+    "SQS",
+    "SSM",
+    "SSO",
+    "SUPPORTCENTER",
+    "TAG",
+    "TRANSIT_GATEWAY",
+    "VPCE_PRIVATELINK",
+    "VPC",
+    "WAF",
+    "XRAY",
+  ]
+}
+
 variable "dnssec_zone_exists" {
   type        = bool
   description = <<EOM
