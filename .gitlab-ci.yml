@@ -410,6 +410,68 @@ stop_pauldoom:
     name: pauldoom
     action: stop
 
+# deploy jobs for ursula env here.
+deploy_ursula:
+  <<: *deploy_template
+  environment:
+    name: ursula
+    url: https://idp.ursula.identitysandbox.gov/
+    on_stop: stop_ursula
+  resource_group: ursula
+  only:
+    - main
+  tags:
+    - ursula-env-runner
+
+post_deploy_ursula:
+  <<: *deploy_template
+  environment:
+    name: ursula
+  allow_failure: true
+  variables:
+    RECYCLE_ENV_RUNNERS_ONLY: "true"
+  resource_group: ursula
+  needs:
+    - deploy_ursula
+  tags:
+    - ursula-env-runner
+  only:
+    - main
+
+test_ursula:
+  <<: *test_template
+  only:
+    - stages/ursula
+  tags:
+    - ursula-env-runner
+  needs:
+    - deploy_ursula
+  variables:
+    IDP_HOSTNAME: idp.ursula.identitysandbox.gov
+    IDP_ORIGIN_HOSTNAME: idp.origin.ursula.identitysandbox.gov
+    ENV_NAME: ursula
+
+badtest_ursula:
+  <<: *badtest_template
+  tags:
+    - ursula-env-runner
+  only:
+    - main
+  needs:
+    - deploy_ursula
+
+stop_ursula:
+  <<: *stop_template
+  only:
+    - main
+  tags:
+    - ursula-env-runner
+  resource_group: ursula
+  environment:
+    name: ursula
+    action: stop
+
+
 # deploy job template for gitlab envs
 .deploy_gitlab_template: &deploy_gitlab_template
   environment: 
