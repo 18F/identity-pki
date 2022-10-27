@@ -30,10 +30,10 @@ locals {
     "cache.m6g.8xlarge"   = 1.5
     "cache.m6g.12xlarge"  = 2.5
     "cache.m6g.16xlarge"  = 3.125
-    "cache.m5.large"      = 0.125
-    "cache.m5.xlarge"     = 0.125
-    "cache.m5.2xlarge"    = 0.125
-    "cache.m5.4xlarge"    = 0.125
+    "cache.m5.large"      = 1
+    "cache.m5.xlarge"     = 1
+    "cache.m5.2xlarge"    = 1
+    "cache.m5.4xlarge"    = 1
     "cache.m5.12xlarge"   = 1.25
     "cache.m5.24xlarge"   = 3.125
     "cache.m4.10xlarge"   = 1.25
