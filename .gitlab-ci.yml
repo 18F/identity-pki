@@ -441,7 +441,7 @@ post_deploy_ursula:
 test_ursula:
   <<: *test_template
   only:
-    - stages/ursula
+    - main
   tags:
     - ursula-env-runner
   needs:
@@ -471,6 +471,66 @@ stop_ursula:
     name: ursula
     action: stop
 
+# deploy jobs for joy env here.
+deploy_joy:
+  <<: *deploy_template
+  environment:
+    name: joy
+    url: https://idp.joy.identitysandbox.gov/
+    on_stop: stop_joy
+  resource_group: joy
+  only:
+    - main
+  tags:
+    - joy-env-runner
+
+post_deploy_joy:
+  <<: *deploy_template
+  environment:
+    name: joy
+  allow_failure: true
+  variables:
+    RECYCLE_ENV_RUNNERS_ONLY: "true"
+  resource_group: joy
+  needs:
+    - deploy_joy
+  tags:
+    - joy-env-runner
+  only:
+    - main
+
+test_joy:
+  <<: *test_template
+  only:
+    - main
+  tags:
+    - joy-env-runner
+  needs:
+    - deploy_joy
+  variables:
+    IDP_HOSTNAME: idp.joy.identitysandbox.gov
+    IDP_ORIGIN_HOSTNAME: idp.origin.joy.identitysandbox.gov
+    ENV_NAME: joy
+
+badtest_joy:
+  <<: *badtest_template
+  tags:
+    - joy-env-runner
+  only:
+    - main
+  needs:
+    - deploy_joy
+
+stop_joy:
+  <<: *stop_template
+  only:
+    - main
+  tags:
+    - joy-env-runner
+  resource_group: joy
+  environment:
+    name: joy
+    action: stop
 
 # deploy job template for gitlab envs
 .deploy_gitlab_template: &deploy_gitlab_template
