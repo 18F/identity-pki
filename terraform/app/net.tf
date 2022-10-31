@@ -56,15 +56,6 @@ resource "aws_security_group" "base" {
     Name = "${var.env_name}-base"
   }
 
-  # allow SSH in from jumphost
-  ingress {
-    description     = "allow SSH in from jumphost"
-    protocol        = "tcp"
-    from_port       = 22
-    to_port         = 22
-    security_groups = [aws_security_group.jumphost.id]
-  }
-
   # allow TCP egress to outbound proxy
   egress {
     description     = "allow egress to outbound proxy"
@@ -160,21 +151,6 @@ resource "aws_security_group" "app" {
     security_groups = [aws_security_group.app-alb.id]
   }
 
-  ingress {
-    from_port       = 22
-    to_port         = 22
-    protocol        = "tcp"
-    security_groups = [aws_security_group.jumphost.id]
-  }
-
-  # allow CI VPC for integration tests
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = var.ci_sg_ssh_cidr_blocks
-  }
-
   name = "${var.env_name}-app"
 
   tags = {
@@ -210,14 +186,6 @@ resource "aws_security_group" "cache" {
     ]
   }
 
-  # allow CI VPC for integration tests
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = var.ci_sg_ssh_cidr_blocks
-  }
-
   name = "${var.name}-cache-${var.env_name}"
 
   tags = {
@@ -245,14 +213,6 @@ resource "aws_security_group" "db" {
     ]
   }
 
-  # allow CI VPC for integration tests
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = var.ci_sg_ssh_cidr_blocks
-  }
-
   name = "${var.name}-db-${var.env_name}"
 
   tags = {
@@ -276,135 +236,6 @@ resource "aws_security_group" "null" {
 
   ingress = []
   egress  = []
-}
-
-resource "aws_security_group" "jumphost" {
-  description = "Allow inbound jumphost traffic: whitelisted IPs for SSH"
-
-  # TODO: limit this to what is actually needed
-  # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
-  egress {
-    from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
-  }
-
-  # need 80/443 to get packages/gems/etc
-  egress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # need 80/443 to get packages/gems/etc
-  egress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # need 8834 to comm with Nessus Server
-  egress {
-    from_port   = 8834
-    to_port     = 8834
-    protocol    = "tcp"
-    cidr_blocks = [var.nessusserver_ip]
-  }
-
-  # github
-  egress {
-    from_port = 22
-    to_port   = 22
-    protocol  = "tcp"
-
-    # github
-    cidr_blocks = local.github_ipv4
-  }
-
-  # TODO split out ELB security group from jumphost SG
-  egress {
-    from_port = 22 # ELB
-
-    to_port  = 22
-    protocol = "tcp"
-    self     = true
-  }
-  egress {
-    from_port = 26 # ELB healthcheck
-
-    to_port  = 26
-    protocol = "tcp"
-    self     = true
-  }
-
-  #s3 gateway
-  egress {
-    from_port       = 443
-    to_port         = 443
-    protocol        = "tcp"
-    prefix_list_ids = [aws_vpc_endpoint.private-s3.prefix_list_id]
-  }
-
-  # locust distributed
-  egress {
-    from_port = 5557
-
-    to_port  = 5557
-    protocol = "tcp"
-    self     = true
-  }
-
-  # locust distributed
-  ingress {
-    from_port = 5557
-
-    to_port  = 5557
-    protocol = "tcp"
-    self     = true
-  }
-
-  ingress {
-    from_port = 22 # ELB
-
-    to_port  = 22
-    protocol = "tcp"
-    self     = true
-  }
-  ingress {
-    from_port = 26 # ELB healthcheck
-
-    to_port  = 26
-    protocol = "tcp"
-    self     = true
-  }
-
-  ingress {
-    from_port = 22
-    to_port   = 22
-    protocol  = "tcp"
-
-    # Remote Access (FIXME rename variable to 'external_ssh_cidr_blocks'?)
-  }
-
-  # need 8834 to comm with Nessus Server
-  ingress {
-    from_port   = 8834
-    to_port     = 8834
-    protocol    = "tcp"
-    cidr_blocks = [var.nessusserver_ip]
-  }
-
-  name = "${var.name}-jumphost-${var.env_name}"
-
-  tags = {
-    Name = "${var.name}-jumphost_security_group-${var.env_name}"
-    role = "jumphost"
-  }
-
-  vpc_id = aws_vpc.default.id
 }
 
 resource "aws_security_group" "idp" {
@@ -499,21 +330,6 @@ resource "aws_security_group" "idp" {
     to_port         = 443
     protocol        = "tcp"
     security_groups = [aws_security_group.web.id]
-  }
-
-  ingress {
-    from_port       = 22
-    to_port         = 22
-    protocol        = "tcp"
-    security_groups = [aws_security_group.jumphost.id]
-  }
-
-  # allow CI VPC for integration tests
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = var.ci_sg_ssh_cidr_blocks
   }
 
   # need 8834 to comm with Nessus Server
@@ -646,21 +462,6 @@ resource "aws_security_group" "migration" {
     prefix_list_ids = [aws_vpc_endpoint.private-s3.prefix_list_id]
   }
 
-  ingress {
-    from_port       = 22
-    to_port         = 22
-    protocol        = "tcp"
-    security_groups = [aws_security_group.jumphost.id]
-  }
-
-  # allow CI VPC for integration tests
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = var.ci_sg_ssh_cidr_blocks
-  }
-
   # need 8834 to comm with Nessus Server
   ingress {
     from_port   = 8834
@@ -723,21 +524,6 @@ resource "aws_security_group" "pivcac" {
     to_port     = 443
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port       = 22
-    to_port         = 22
-    protocol        = "tcp"
-    security_groups = [aws_security_group.jumphost.id]
-  }
-
-  # allow CI VPC for integration tests
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = var.ci_sg_ssh_cidr_blocks
   }
 
   # need 8834 to comm with Nessus Server
@@ -866,30 +652,6 @@ resource "aws_subnet" "db2" {
 
   tags = {
     Name = "${var.name}-db2_subnet-${var.env_name}"
-  }
-
-  vpc_id = aws_vpc.default.id
-}
-
-resource "aws_subnet" "jumphost1" {
-  availability_zone       = "${var.region}a"
-  cidr_block              = var.jumphost1_subnet_cidr_block
-  map_public_ip_on_launch = true
-
-  tags = {
-    Name = "${var.name}-jumphost1_subnet-${var.env_name}"
-  }
-
-  vpc_id = aws_vpc.default.id
-}
-
-resource "aws_subnet" "jumphost2" {
-  availability_zone       = "${var.region}b"
-  cidr_block              = var.jumphost2_subnet_cidr_block
-  map_public_ip_on_launch = true
-
-  tags = {
-    Name = "${var.name}-jumphost2_subnet-${var.env_name}"
   }
 
   vpc_id = aws_vpc.default.id
@@ -1024,20 +786,6 @@ resource "aws_security_group" "obproxy" {
     to_port     = 3128
     protocol    = "tcp"
     cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
-  }
-
-  ingress {
-    from_port       = 22
-    to_port         = 22
-    protocol        = "tcp"
-    security_groups = [aws_security_group.jumphost.id]
-  }
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = var.ci_sg_ssh_cidr_blocks
   }
 
   name = "${var.name}-obproxy-${var.env_name}"

@@ -1,7 +1,6 @@
 locals {
   all_asg_names = compact([
     aws_autoscaling_group.idp.name,
-    aws_autoscaling_group.jumphost.name,
     aws_autoscaling_group.migration.name,
     aws_autoscaling_group.pivcac.name,
     aws_autoscaling_group.outboundproxy.name,

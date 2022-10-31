@@ -53,17 +53,3 @@ resource "aws_network_acl_rule" "ingress-tcp-ephemeral-ports" {
   rule_action    = "allow"
   cidr_block     = "0.0.0.0/0"
 }
-
-# Allow SSH in from the specified CIDR blocks
-resource "aws_network_acl_rule" "ingress-tcp-ssh-cidr-blocks" {
-  count = var.enabled * length(var.ssh_cidr_blocks)
-
-  network_acl_id = var.network_acl_id
-  rule_number    = 25 + count.index
-  egress         = false
-  protocol       = "tcp"
-  from_port      = 22
-  to_port        = 22
-  cidr_block     = element(var.ssh_cidr_blocks, count.index)
-  rule_action    = "allow"
-}

@@ -40,14 +40,6 @@ variable "db3_subnet_cidr_block" { # 172.16.33.64 - 172.16.33.79
   default = "172.16.33.64/28"
 }
 
-variable "jumphost1_subnet_cidr_block" { # 172.16.32.32  - 172.16.32.47
-  default = "172.16.32.32/28"
-}
-
-variable "jumphost2_subnet_cidr_block" { # 172.16.32.48  - 172.16.32.63
-  default = "172.16.32.48/28"
-}
-
 variable "gitlab_subnet_cidr_block" { # 172.16.35.192 - 172.16.35.223
   default = "172.16.35.192/27"
 }
@@ -75,7 +67,6 @@ variable "proxy_enabled_roles" {
   default = {
     unknown       = 1
     outboundproxy = 0
-    jumphost      = 0
   }
 }
 
@@ -258,10 +249,6 @@ variable "instance_type_idp" {
   default = "t3.medium"
 }
 
-variable "instance_type_jumphost" {
-  default = "t3.micro"
-}
-
 variable "instance_type_migration" {
   default = "t3.medium"
 }
@@ -404,10 +391,6 @@ variable "asg_recycle_business_hours" {
 }
 
 # Auto scaling group desired counts
-variable "asg_jumphost_desired" {
-  default = 0
-}
-
 variable "asg_idp_min" {
   default = 1
 }

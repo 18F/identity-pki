@@ -42,7 +42,6 @@ resource "aws_security_group" "ssm_endpoint" {
     protocol  = "tcp"
     security_groups = [
       aws_security_group.base.id,
-      aws_security_group.jumphost.id, # TODO remove
     ]
   }
 
@@ -74,7 +73,6 @@ resource "aws_security_group" "ssmmessages_endpoint" {
     protocol  = "tcp"
     security_groups = [
       aws_security_group.base.id,
-      aws_security_group.jumphost.id, # TODO remove
     ]
   }
 
@@ -106,7 +104,6 @@ resource "aws_security_group" "ec2_endpoint" {
     protocol  = "tcp"
     security_groups = [
       aws_security_group.base.id,
-      aws_security_group.jumphost.id, # TODO remove
     ]
   }
 
@@ -134,7 +131,6 @@ resource "aws_security_group" "ec2messages_endpoint" {
     protocol  = "tcp"
     security_groups = [
       aws_security_group.base.id,
-      aws_security_group.jumphost.id, # TODO remove
     ]
   }
   # Adding ingress rule below to allow ssm access via port 443 from private and idp subnets
@@ -171,7 +167,6 @@ resource "aws_security_group" "logs_endpoint" {
     protocol  = "tcp"
     security_groups = [
       aws_security_group.base.id,
-      aws_security_group.jumphost.id, # TODO remove
     ]
   }
 
@@ -209,7 +204,6 @@ resource "aws_security_group" "monitoring_endpoint" {
     protocol  = "tcp"
     security_groups = [
       aws_security_group.base.id,
-      aws_security_group.jumphost.id, # TODO remove
     ]
   }
 
@@ -237,7 +231,6 @@ resource "aws_security_group" "secretsmanager_endpoint" {
     protocol  = "tcp"
     security_groups = [
       aws_security_group.base.id,
-      aws_security_group.jumphost.id, # TODO remove
     ]
   }
 

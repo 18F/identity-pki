@@ -106,75 +106,7 @@ resource "aws_network_acl_rule" "db-ingress-s-postgres" {
 }
 
 # ---------------- end db rules ---------------
-
-resource "aws_network_acl" "jumphost" {
-  tags = {
-    Name = "${var.env_name}-jumphost"
-  }
-
-  vpc_id = aws_vpc.default.id
-  subnet_ids = [
-    aws_subnet.jumphost1.id,
-    aws_subnet.jumphost2.id,
-  ]
-}
-
 # Uses up to rule number 25 + number of ssh_cidr_blocks
-module "jumphost-base-nacl-rules" {
-  source         = "../modules/base_nacl_rules"
-  network_acl_id = aws_network_acl.jumphost.id
-  ssh_cidr_blocks = flatten([
-    var.jumphost1_subnet_cidr_block,
-    var.jumphost2_subnet_cidr_block,
-    var.ci_sg_ssh_cidr_blocks,
-  ])
-}
-
-resource "aws_network_acl_rule" "jumphost-elb-healthcheck1" {
-  network_acl_id = aws_network_acl.jumphost.id
-  egress         = false
-  from_port      = 26
-  to_port        = 26
-  protocol       = "tcp"
-  cidr_block     = var.jumphost1_subnet_cidr_block
-  rule_number    = 50
-  rule_action    = "allow"
-}
-
-resource "aws_network_acl_rule" "jumphost-elb-healthcheck2" {
-  network_acl_id = aws_network_acl.jumphost.id
-  egress         = false
-  from_port      = 26
-  to_port        = 26
-  protocol       = "tcp"
-  cidr_block     = var.jumphost2_subnet_cidr_block
-  rule_number    = 51
-  rule_action    = "allow"
-}
-
-# port to run locust in distributed mode
-resource "aws_network_acl_rule" "jumphost-locust-distributed1" {
-  network_acl_id = aws_network_acl.jumphost.id
-  egress         = false
-  from_port      = 5557
-  to_port        = 5557
-  protocol       = "tcp"
-  cidr_block     = var.jumphost1_subnet_cidr_block
-  rule_number    = 52
-  rule_action    = "allow"
-}
-
-resource "aws_network_acl_rule" "jumphost-locust-distributed2" {
-  network_acl_id = aws_network_acl.jumphost.id
-  egress         = false
-  from_port      = 5557
-  to_port        = 5557
-  protocol       = "tcp"
-  cidr_block     = var.jumphost2_subnet_cidr_block
-  rule_number    = 53
-  rule_action    = "allow"
-}
-
 
 resource "aws_network_acl" "idp" {
   tags = {
@@ -189,11 +121,6 @@ resource "aws_network_acl" "idp" {
 module "idp-base-nacl-rules" {
   source         = "../modules/base_nacl_rules"
   network_acl_id = aws_network_acl.idp.id
-  ssh_cidr_blocks = flatten([
-    var.jumphost1_subnet_cidr_block,
-    var.jumphost2_subnet_cidr_block,
-    var.ci_sg_ssh_cidr_blocks,
-  ])
 }
 
 resource "aws_network_acl_rule" "idp-ingress-http" {
