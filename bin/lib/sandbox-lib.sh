@@ -20,7 +20,6 @@ verify_env_files() {
   for FILE in "${GIT_DIR}/kitchen/environments/${TF_ENV}.json" \
               "${PRIVATE_REPO}/vars/${TF_ENV}.tfvars" \
               "${PRIVATE_REPO}/chef/environments/${TF_ENV}.json" \
-              "${PRIVATE_REPO}/chef/data_bags/users/${TF_ENV}.json" \
               "${PRIVATE_REPO}/env/${TF_ENV}.sh" ; do
     FILENAME=$(echo ${FILE} | awk -F/ '{print $NF}')
     FILEPATH=$(echo ${FILE} | awk -F/ '{$NF=""; print $0}')
