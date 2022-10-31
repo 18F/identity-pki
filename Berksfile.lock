@@ -24,8 +24,6 @@ DEPENDENCIES
   git
   identity-gitlab
     path: kitchen/cookbooks/identity-gitlab
-  identity-jumphost
-    path: kitchen/cookbooks/identity-jumphost
   identity-locust
     path: kitchen/cookbooks/identity-locust
   identity-monitoring
@@ -91,10 +89,6 @@ GRAPH
     filesystem (>= 0.0.0)
     login_dot_gov (>= 0.0.0)
     packagecloud (>= 0.0.0)
-  identity-jumphost (0.1.2)
-    login_dot_gov (>= 0.0.0)
-    squid (~> 4.0)
-    users (>= 0.0.0)
   identity-locust (0.1.0)
     login_dot_gov (>= 0.0.0)
     users (>= 0.0.0)
