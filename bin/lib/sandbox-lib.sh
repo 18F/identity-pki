@@ -62,15 +62,19 @@ initialize() {
     grep -m 1 TERRAFORM_STATE_BUCKET_REGION | awk -F'"' '{print $2}')
 }
 
-# disable prevent_destroy and deletion_protection configs for RDS databases
-# by changing the strings/comments in individual .tf files + creating .bak versions
-# of each file. pass 'ALL' as an argument to do the same for AuroraDB as well
+# list variable used with DB functions below to remove protection from DBs
+DBS_TO_REMOVE=(
+  'app/idp'
+  'app/app'
+  'app/worker'
+  'modules/rds_aurora/main'
+)
+
+# disable prevent_destroy and deletion_protection configs
+# for RDS databases by changing the strings/comments
+# in individual .tf files + creating .bak versions of each file.
 remove_db_protection_in_state() {
-  local RM_AURORA
-  if [[ ${1:-} == 'ALL' ]] ; then
-    RM_AURORA='modules/rds_aurora/main'
-  fi
-  for TF_FILE in 'app/idp' 'app/app' 'app/worker' "${RM_AURORA}" ; do
+  for TF_FILE in "${DBS_TO_REMOVE[@]}" ; do
     FILE="$(git rev-parse --show-toplevel)/terraform/${TF_FILE}.tf"
     cp "${FILE}" "${FILE}.bak"
     for TASK in prevent_destroy deletion_protection ; do
@@ -83,7 +87,7 @@ remove_db_protection_in_state() {
 # if .bak versions of .tf files (from remove_db_protection_in_state) exist;
 # revert them back to the originals
 replace_db_files() {
-  for TF_FILE in 'app/idp' 'app/app' 'app/worker' 'modules/rds_aurora/main' ; do
+  for TF_FILE in "${DBS_TO_REMOVE[@]}" ; do
     FILE="$(git rev-parse --show-toplevel)/terraform/${TF_FILE}.tf"
     if [[ -f "${FILE}.bak" ]] ; then
       mv ${FILE}.bak ${FILE}

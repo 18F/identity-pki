@@ -55,6 +55,7 @@ rm_files() {
 1_promote_cluster() {
   if [[ ! -z $(ave aws rds describe-db-clusters --db-cluster-identifier ${CLUSTER} |
         jq -r '.DBClusters[].ReplicationSourceIdentifier|select (.!=null)') ]] ; then
+    ave aws rds wait db-cluster-available --db-cluster-identifier "${CLUSTER}"
     ave aws rds promote-read-replica-db-cluster \
       --db-cluster-identifier "${CLUSTER}"
     sleep 1
@@ -94,6 +95,8 @@ rm_files() {
       "module.rds_dashboard_idp[0]"
     )
     local TF_ARGS=( "${IDP_RESOURCES[@]/#/-target=}" )
+    
+    DBS_TO_REMOVE=('app/idp')
     remove_db_protection_in_state
     
     for FLAG in '' ' -m' ; do

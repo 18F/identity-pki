@@ -91,24 +91,21 @@ EOM
 }
 
 3_destroy_pivcac_ds_records() {
-  local ZONE_ID PIVCAC_DS
-  while [[ -z ${ZONE_ID} ]] ; do
-    ZONE_ID=$(ave aws route53 list-hosted-zones-by-name |
+  local ZONE_ID=$(ave aws route53 list-hosted-zones-by-name |
               jq -r '.HostedZones[]|select(.Name == "identitysandbox.gov.").Id' |
               awk -F/ '{print $NF}')
-    sleep 1
-  done
-  while [[ -z ${PIVCAC_DS} ]] ; do
-    PIVCAC_DS=$(ave aws route53 list-resource-record-sets \
+  local PIVCAC_DS=$(ave aws route53 list-resource-record-sets \
        --hosted-zone-id $ZONE_ID |
        jq -c --arg ENV_NAME "${TF_ENV}" \
        '.ResourceRecordSets[]|select(.Type == "DS")|select(.Name|contains($ENV_NAME))')
-    sleep 1
-  done
-  ave aws route53 change-resource-record-sets \
-      --hosted-zone-id $ZONE_ID \
-      --change-batch \
-      "{\"Comment\":\"DEL-pivcac.${TF_ENV}-DS\",\"Changes\":[{\"Action\":\"DELETE\",\"ResourceRecordSet\":$PIVCAC_DS}]}"
+  if [[ -z ${PIVCAC_DS} ]] ; then
+    echo_yellow "No DS record found for pivcac.${TF_ENV} ; skipping"
+  else
+    ave aws route53 change-resource-record-sets \
+        --hosted-zone-id $ZONE_ID \
+        --change-batch \
+        "{\"Comment\":\"DEL-pivcac.${TF_ENV}-DS\",\"Changes\":[{\"Action\":\"DELETE\",\"ResourceRecordSet\":$PIVCAC_DS}]}"
+  fi
 }
 
 4_empty_buckets() {
