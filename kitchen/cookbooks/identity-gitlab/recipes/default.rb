@@ -184,7 +184,7 @@ end
 
 # https://packages.gitlab.com/gitlab/gitlab-ce
 package 'gitlab-ee' do
-  version '15.3.3-ee.0'
+  version '15.4.3-ee.0'
 end
 
 execute 'restore_ssh_keys' do

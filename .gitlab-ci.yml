@@ -263,8 +263,13 @@ build_idp_ci:
     name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_test@$TEST_IMAGE_DIGEST
   stage: test
   artifacts:
+    paths:
+      - gl-sast-report.json
+      - report.xml
     reports:
-      junit: testlogs/*.xml
+      sast: gl-sast-report.json
+      junit: report.xml
+    when: always
   script:
     - echo "Tests for great justice" ; exit 1
 
@@ -573,8 +578,13 @@ stop_joy:
   script:
     - echo "Somebody set us up the deploy" ; exit 1
   artifacts:
+    paths:
+      - gl-sast-report.json
+      - report.xml
     reports:
-      junit: testlogs/*.xml
+      sast: gl-sast-report.json
+      junit: report.xml
+    when: always
 
 # deploy jobs for gitstaging env here.
 deploy_gitstaging:
@@ -784,4 +794,5 @@ include:
   - local: terraform/.gitlab-ci.yml
   - local: cloudlib/.gitlab-ci.yml
   - local: bin/users/.gitlab-ci.yml
-  - template: Jobs/SAST-IaC.gitlab-ci.yml
+  - template: Security/SAST-IaC.gitlab-ci.yml
+  - template: Security/SAST.gitlab-ci.yml
