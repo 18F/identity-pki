@@ -20,6 +20,7 @@ resource "aws_elasticache_replication_group" "idp" {
   security_group_ids   = [aws_security_group.cache.id]
   subnet_group_name    = aws_elasticache_subnet_group.idp.name
   port                 = 6379
+  apply_immediately    = true
 
   # note that t2.* instances don't support automatic failover
   multi_az_enabled           = true
@@ -54,6 +55,7 @@ resource "aws_elasticache_replication_group" "idp_attempts" {
   parameter_group_name = aws_elasticache_parameter_group.idp.name
   security_group_ids   = [aws_security_group.cache.id]
   subnet_group_name    = aws_elasticache_subnet_group.idp.name
+  apply_immediately    = true
 
   # note that t2.* instances don't support automatic failover
   multi_az_enabled           = true
