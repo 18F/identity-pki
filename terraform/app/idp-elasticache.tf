@@ -34,6 +34,13 @@ resource "aws_elasticache_replication_group" "idp" {
     log_format       = "text"
     log_type         = "engine-log"
   }
+
+  log_delivery_configuration {
+    destination      = aws_cloudwatch_log_group.elasticache_redis_soft_log.name
+    destination_type = "cloudwatch-logs"
+    log_format       = "text"
+    log_type         = "slow-log"
+  }
 }
 
 ###Multi-AZ redis cluster, used for Attempt API Related Storage. Added 09-05-22
@@ -63,5 +70,12 @@ resource "aws_elasticache_replication_group" "idp_attempts" {
     destination_type = "cloudwatch-logs"
     log_format       = "text"
     log_type         = "engine-log"
+  }
+
+  log_delivery_configuration {
+    destination      = aws_cloudwatch_log_group.elasticache_redis_soft_log.name
+    destination_type = "cloudwatch-logs"
+    log_format       = "text"
+    log_type         = "slow-log"
   }
 }
