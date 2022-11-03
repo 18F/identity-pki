@@ -437,13 +437,13 @@ users:
     - paul.hirsch@gsa.gov
   peter.chen:
     aws_groups:
-    - devopsnonprod
+    - devops
     gitlab_groups:
     - devops
     ec2_username:
     - peter.chen
     git_username:
-    - peterchengsa
+    - p3ch3n
   philip.burke:
     gitlab_groups:
     - antifraud
