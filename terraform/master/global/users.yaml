@@ -107,6 +107,11 @@ users:
     - egade
     gitlab_groups:
     - appdev
+  ero.gray:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - pm
   gene.angelo:
     aws_groups:
     - appdev
