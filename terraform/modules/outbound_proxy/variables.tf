@@ -8,12 +8,6 @@ variable "account_default_ami_id" {
   description = "account default ami"
 }
 
-# Auto scaling flags
-variable "asg_auto_recycle_enabled" {
-  default     = 0
-  description = "Whether to automatically recycle IdP/app/outboundproxy servers every 6 hours"
-}
-
 # Auto scaling group desired counts
 variable "asg_gitlab_desired" {
   default = 1
@@ -38,11 +32,6 @@ variable "asg_outboundproxy_max" {
 variable "asg_prevent_auto_terminate" {
   description = "Whether to protect auto scaled instances from automatic termination"
   default     = 0
-}
-
-variable "asg_recycle_business_hours" {
-  default     = 0
-  description = "If set to 1, recycle only once/day during business hours Mon-Fri, not every 6 houts"
 }
 
 variable "asg_enabled_metrics" {

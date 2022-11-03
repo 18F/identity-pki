@@ -63,19 +63,6 @@ module "obproxy_lifecycle_hooks" {
   asg_name = aws_autoscaling_group.outboundproxy.name
 }
 
-module "outboundproxy_recycle" {
-  source = "github.com/18F/identity-terraform//asg_recycle?ref=5d344d205dd09eb85d5de1ff1081c4a598afe433"
-
-  # switch to count when that's a thing that we can do
-  # https://github.com/hashicorp/terraform/issues/953
-  enabled = var.asg_auto_recycle_enabled
-
-  use_daily_business_hours_schedule = var.asg_recycle_business_hours
-
-  asg_name                = aws_autoscaling_group.outboundproxy.name
-  normal_desired_capacity = aws_autoscaling_group.outboundproxy.desired_capacity
-}
-
 resource "aws_route53_record" "obproxy" {
   zone_id = var.route53_internal_zone_id
   name    = var.hostname

@@ -379,15 +379,22 @@ variable "root_domain" {
   description = "DNS domain to use as the root domain, e.g. login.gov"
 }
 
-# Auto scaling flags
-variable "asg_auto_recycle_enabled" {
-  default     = 0
-  description = "Whether to automatically recycle IdP/app/outboundproxy servers every 6 hours"
+# Automatic recycling and/or zeroing-out of Auto Scaling Groups on scheduled basis
+# See identity-terraform//asg_recycle/schedule.tf for detailed timetables
+variable "autoscaling_time_zone" {
+  description = "IANA time zone to use with cron schedules. Uses UTC by default."
+  type        = string
+  default     = "Etc/UTC"
 }
 
-variable "asg_recycle_business_hours" {
-  default     = 0
-  description = "If set to 1, recycle only once/day during business hours Mon-Fri, not every 6 houts"
+variable "autoscaling_schedule_name" {
+  description = <<EOM
+Name of one of the blocks defined in schedule.tf, which defines
+the cron schedules for recycling and/or 'autozero' scheduled actions.
+MUST match one of the key names in local.rotation_schedules.
+EOM
+  type        = string
+  default     = "nozero_norecycle"
 }
 
 # Auto scaling group desired counts

@@ -110,18 +110,17 @@ module "migration_lifecycle_hooks" {
 }
 
 module "migration_recycle" {
-  source  = "github.com/18F/identity-terraform//asg_recycle?ref=5d344d205dd09eb85d5de1ff1081c4a598afe433"
-  enabled = var.asg_auto_recycle_enabled
+  source = "github.com/18F/identity-terraform//asg_recycle?ref=207bc3d9efad0725a4e33eb128e5034972bbd25f"
+  #source = "../../../identity-terraform/asg_recycle"
 
-  # Migration instances must preceed IdP instances.  The following are 10 minute
-  # shifted versions of the default schedules.  Migration instances stay up 30 minutes
-  # in case a long running migration task is in the set.
-  spinup_recurrence   = var.asg_recycle_business_hours == 1 ? "50 16 * * 1-5" : "50 4,10,16,22 * * *"
-  spindown_recurrence = var.asg_recycle_business_hours == 1 ? "20 17 * * 1-5" : "20 5,11,17,23 * * *"
+  asg_name                = aws_autoscaling_group.migration.name
+  normal_desired_capacity = 1
+  time_zone               = var.autoscaling_time_zone
 
-  asg_name = aws_autoscaling_group.migration.name
+  scale_schedule  = var.autoscaling_schedule_name
+  custom_schedule = local.migration_rotation_schedules # defined in migration-schedule.tf
+
   # Hard set 1 instance for spin up and none for spin down
-  normal_desired_capacity    = 1
   spinup_mult_factor         = 1
   override_spindown_capacity = 0
 }

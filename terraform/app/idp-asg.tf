@@ -357,16 +357,13 @@ module "idp_lifecycle_hooks" {
 }
 
 module "idp_recycle" {
-  source = "github.com/18F/identity-terraform//asg_recycle?ref=5d344d205dd09eb85d5de1ff1081c4a598afe433"
-
-  # switch to count when that's a thing that we can do
-  # https://github.com/hashicorp/terraform/issues/953
-  enabled = var.asg_auto_recycle_enabled
-
-  use_daily_business_hours_schedule = var.asg_recycle_business_hours
+  source = "github.com/18F/identity-terraform//asg_recycle?ref=207bc3d9efad0725a4e33eb128e5034972bbd25f"
+  #source = "../../../identity-terraform/asg_recycle"
 
   asg_name                = aws_autoscaling_group.idp.name
   normal_desired_capacity = aws_autoscaling_group.idp.desired_capacity
+  scale_schedule          = var.autoscaling_schedule_name
+  time_zone               = var.autoscaling_time_zone
 }
 
 resource "aws_autoscaling_policy" "idp-cpu" {
