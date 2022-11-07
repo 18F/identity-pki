@@ -61,6 +61,12 @@ resource "aws_security_group" "ssm_endpoint" {
     cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
+  #name = "${var.name}-ssm_endpoint-${var.env_name}"
+
+  tags = {
+    Name = "${var.name}-ssm_endpoint-${var.env_name}"
+  }
+
   vpc_id = aws_vpc.default.id
 }
 
@@ -92,6 +98,13 @@ resource "aws_security_group" "ssmmessages_endpoint" {
     protocol    = "tcp"
     cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
+
+  #name = "${var.name}-ssmmessages_endpoint-${var.env_name}"
+
+  tags = {
+    Name = "${var.name}-ssmmessages_endpoint-${var.env_name}"
+  }
+
   vpc_id = aws_vpc.default.id
 }
 
@@ -113,6 +126,7 @@ resource "aws_security_group" "ec2_endpoint" {
     protocol    = "tcp"
     cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
+
   name = "${var.name}-ec2_endpoint-${var.env_name}"
 
   tags = {
@@ -149,6 +163,7 @@ resource "aws_security_group" "ec2messages_endpoint" {
     protocol    = "tcp"
     cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
+
   name = "${var.name}-ec2messages_endpoint-${var.env_name}"
 
   tags = {
@@ -186,6 +201,7 @@ resource "aws_security_group" "logs_endpoint" {
     protocol    = "tcp"
     cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
+
   name = "${var.name}-logs_endpoint-${var.env_name}"
 
   tags = {
@@ -213,6 +229,7 @@ resource "aws_security_group" "monitoring_endpoint" {
     protocol    = "tcp"
     cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
+
   name = "${var.name}-monitoring_endpoint-${var.env_name}"
 
   tags = {
@@ -240,6 +257,7 @@ resource "aws_security_group" "secretsmanager_endpoint" {
     protocol    = "tcp"
     cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
+
   name = "${var.name}-secretsmanager_endpoint-${var.env_name}"
 
   tags = {
@@ -267,6 +285,7 @@ resource "aws_security_group" "sns_endpoint" {
     protocol    = "tcp"
     cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
+
   name = "${var.name}-sns_endpoint-${var.env_name}"
 
   tags = {
@@ -317,6 +336,7 @@ resource "aws_security_group" "sqs_endpoint" {
     protocol    = "tcp"
     cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
+
   name = "${var.name}-sqs_endpoint-${var.env_name}"
 
   tags = {
@@ -505,6 +525,13 @@ resource "aws_security_group" "sts_endpoint" {
     protocol    = "tcp"
     cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
+
+  #name = "${var.name}-sts_endpoint-${var.env_name}"
+
+  tags = {
+    Name = "${var.name}-sts_endpoint-${var.env_name}"
+  }
+
   vpc_id = aws_vpc.default.id
 }
 

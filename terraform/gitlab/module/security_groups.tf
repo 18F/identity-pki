@@ -463,6 +463,7 @@ resource "aws_security_group" "sns_endpoint" {
 }
 
 resource "aws_security_group" "smtp_endpoint" {
+  #name_prefix = "${var.name}-smtp_endpoint-${var.env_name}"
   description = "Allow inbound from all servers"
 
   # allow outbound to the VPC
@@ -485,6 +486,10 @@ resource "aws_security_group" "smtp_endpoint" {
     to_port     = 443
     protocol    = "tcp"
     cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
+  }
+
+  tags = {
+    Name = "${var.name}-smtp_endpoint-${var.env_name}"
   }
 
   lifecycle {
@@ -495,6 +500,7 @@ resource "aws_security_group" "smtp_endpoint" {
 }
 
 resource "aws_security_group" "sts_endpoint" {
+  #name_prefix = "${var.name}-sts_endpoint-${var.env_name}"
   description = "Allow inbound from all servers"
 
   # allow outbound to the VPC
@@ -517,6 +523,10 @@ resource "aws_security_group" "sts_endpoint" {
     to_port     = 443
     protocol    = "tcp"
     cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
+  }
+
+  tags = {
+    Name = "${var.name}-sts_endpoint-${var.env_name}"
   }
 
   lifecycle {
@@ -527,6 +537,7 @@ resource "aws_security_group" "sts_endpoint" {
 }
 
 resource "aws_security_group" "events_endpoint" {
+  #name_prefix = "${var.name}-events_endpoint-${var.env_name}"
   description = "Allow inbound from all servers"
 
   # allow outbound to the VPC
@@ -549,6 +560,10 @@ resource "aws_security_group" "events_endpoint" {
     to_port     = 443
     protocol    = "tcp"
     cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
+  }
+
+  tags = {
+    Name = "${var.name}-events_endpoint-${var.env_name}"
   }
 
   lifecycle {
@@ -585,6 +600,10 @@ resource "aws_security_group" "ssm_endpoint" {
     to_port     = 443
     protocol    = "tcp"
     cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
+  }
+
+  tags = {
+    Name = "${var.name}-ssm_endpoint-${var.env_name}"
   }
 
   lifecycle {
@@ -624,6 +643,10 @@ resource "aws_security_group" "ssmmessages_endpoint" {
     cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
+  tags = {
+    Name = "${var.name}-ssmmessages_endpoint-${var.env_name}"
+  }
+
   lifecycle {
     create_before_destroy = true
   }
@@ -655,6 +678,10 @@ resource "aws_security_group" "kms_endpoint" {
     to_port     = 443
     protocol    = "tcp"
     cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
+  }
+
+  tags = {
+    Name = "${var.name}-kms_endpoint-${var.env_name}"
   }
 
   lifecycle {
@@ -748,6 +775,10 @@ resource "aws_security_group" "rds_endpoint" {
     to_port     = 65535
     protocol    = "tcp"
     cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
+  }
+
+  tags = {
+    Name = "${var.name}-rds_endpoint-${var.env_name}"
   }
 
   lifecycle {
