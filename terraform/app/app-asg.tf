@@ -112,7 +112,7 @@ resource "aws_autoscaling_group" "app" {
 
 module "app_recycle" {
   count  = var.apps_enabled
-  source = "github.com/18F/identity-terraform//asg_recycle?ref=207bc3d9efad0725a4e33eb128e5034972bbd25f"
+  source = "github.com/18F/identity-terraform//asg_recycle?ref=188a7cdf33a76196be389169c3493a1156c2b45e"
   #source = "../../../identity-terraform/asg_recycle"
 
   asg_name                = aws_autoscaling_group.app[count.index].name

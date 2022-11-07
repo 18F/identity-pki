@@ -110,7 +110,7 @@ module "migration_lifecycle_hooks" {
 }
 
 module "migration_recycle" {
-  source = "github.com/18F/identity-terraform//asg_recycle?ref=207bc3d9efad0725a4e33eb128e5034972bbd25f"
+  source = "github.com/18F/identity-terraform//asg_recycle?ref=188a7cdf33a76196be389169c3493a1156c2b45e"
   #source = "../../../identity-terraform/asg_recycle"
 
   asg_name                = aws_autoscaling_group.migration.name
@@ -118,7 +118,7 @@ module "migration_recycle" {
   time_zone               = var.autoscaling_time_zone
 
   scale_schedule  = var.autoscaling_schedule_name
-  custom_schedule = local.migration_rotation_schedules # defined in migration-schedule.tf
+  custom_schedule = local.migration_rotation_schedules # migration-schedule.tf
 
   # Hard set 1 instance for spin up and none for spin down
   spinup_mult_factor         = 1
