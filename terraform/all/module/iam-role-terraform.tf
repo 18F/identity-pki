@@ -537,6 +537,7 @@ locals {
           "route53resolver:PutResolverRulePolicy",
           "route53resolver:*ResolverQueryLogConfig*",
           "route53resolver:TagResource",
+          "route53resolver:UpdateResolverDnssecConfig",
           "route53resolver:UntagResource"
         ]
         resources = [
