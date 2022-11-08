@@ -134,6 +134,13 @@ then
 else
   echo "Running in REGION: ${REGION}"
 fi
+if ! check_var $ACCOUNT_ID
+then
+  export ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text)
+  echo "Using detected ACCOUNT_ID: ${ACCOUNT_ID}"
+else
+  echo "Using ACCOUNT_ID: ${ACCOUNT_ID}"
+fi
 
 # Check if a single test should be run, otherwise run the whole suite
 if [ -z $TEST_NAME ]

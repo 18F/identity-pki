@@ -11,7 +11,7 @@ resource "aws_kms_key" "attempts_api_kms" {
 }
 
 resource "aws_kms_alias" "attempts_api_kms" {
-  name          = "alias/${var.env_name}-attempts-api"
+  name          = "alias/${var.env_name}-attempts-api-s3"
   target_key_id = aws_kms_key.attempts_api_kms.key_id
 }
 
@@ -51,10 +51,17 @@ data "aws_iam_policy_document" "attempts_api_kms" {
 
 # Attempts API S3 Bucket Setup
 resource "aws_s3_bucket" "attempts_api" {
-  bucket = "${var.env_name}-idp-attempts-api"
+  bucket = "login-gov-attempts-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
   tags = {
     Environment = var.env_name
   }
+}
+
+resource "aws_s3_bucket_logging" "attempts_api" {
+  bucket = aws_s3_bucket.attempts_api.id
+
+  target_bucket = "login-gov.s3-access-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+  target_prefix = "${aws_s3_bucket.attempts_api.id}/"
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "attempts_api" {

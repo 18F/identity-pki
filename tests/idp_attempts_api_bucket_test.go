@@ -1,8 +1,8 @@
 package test
 
 import (
-	"sync"
 	"fmt"
+	"sync"
 	"testing"
 	"time"
 
@@ -18,6 +18,7 @@ var worker_asg = env_name + "-worker"
 var app_asg = env_name + "-app"
 var outboundproxy_asg = env_name + "-outboundproxy"
 var pivcac_asg = env_name + "-pivcac"
+var attempts_bucket = "login-gov-attempts-" + env_name + "." + account_id + "-" + region
 
 func RunCommandOnInstance(t *testing.T, instance_string string, command string) *ssm.GetCommandInvocationOutput {
 	outputs := RunOnInstances(t, []string{instance_string}, command)
@@ -93,31 +94,31 @@ func TestAccessIdpInstances(t *testing.T) {
 
 	// Check to make sure you can see the bucket from the instance
 	fmt.Println("Testing if instance can see the bucket")
-	cmd := "aws s3api head-bucket --bucket " + env_name + "-idp-attempts-api"
+	cmd := "aws s3api head-bucket --bucket " + attempts_bucket
 	result := RunCommandOnInstance(t, firstinstance, cmd)
 	require.Equal(t, int64(0), *result.ResponseCode)
 
 	// Create tempfile on instance
-  fmt.Println("Creating temporary file to upload to s3")
+	fmt.Println("Creating temporary file to upload to s3")
 	cmd = "echo testing > /tmp/" + tempFile
 	result = RunCommandOnInstance(t, firstinstance, cmd)
 	require.Equal(t, int64(0), *result.ResponseCode)
 
 	// Test to make sure we can upload tempfile
 	fmt.Println("Testing upload of temporary file to s3 bucket")
-	cmd = "aws s3 cp /tmp/" + tempFile + " s3://" + env_name + "-idp-attempts-api/"
+	cmd = "aws s3 cp /tmp/" + tempFile + " s3://" + attempts_bucket + "/"
 	result = RunCommandOnInstance(t, firstinstance, cmd)
 	require.Equal(t, int64(0), *result.ResponseCode)
 
 	// Test to make sure we can pull from the bucket
 	fmt.Println("Testing download of temporary file to s3 bucket")
-	cmd = "aws s3 cp s3://" + env_name + "-idp-attempts-api/" + tempFile + " /tmp/" + pullFile
+	cmd = "aws s3 cp s3://" + attempts_bucket + "/" + tempFile + " /tmp/" + pullFile
 	result = RunCommandOnInstance(t, firstinstance, cmd)
 	require.Equal(t, int64(0), *result.ResponseCode)
- 
+
 	// Test delete and cleanup tempfile
 	fmt.Println("Testing delete of temporary file in s3 bucket")
-	cmd = "aws s3 rm s3://" + env_name + "-idp-attempts-api/" + tempFile
+	cmd = "aws s3 rm s3://" + attempts_bucket + "/" + tempFile
 	result = RunCommandOnInstance(t, firstinstance, cmd)
 	require.Equal(t, int64(0), *result.ResponseCode)
 
@@ -141,31 +142,31 @@ func TestAccessWorkerInstances(t *testing.T) {
 
 	// Check to make sure you can see the bucket from the instance
 	fmt.Println("Testing if instance can see the bucket")
-	cmd := "aws s3api head-bucket --bucket " + env_name + "-idp-attempts-api"
+	cmd := "aws s3api head-bucket --bucket " + attempts_bucket
 	result := RunCommandOnInstance(t, firstinstance, cmd)
 	require.Equal(t, int64(0), *result.ResponseCode)
 
 	// Create tempfile on instance
-  fmt.Println("Creating temporary file to upload to s3")
+	fmt.Println("Creating temporary file to upload to s3")
 	cmd = "echo testing > /tmp/" + tempFile
 	result = RunCommandOnInstance(t, firstinstance, cmd)
 	require.Equal(t, int64(0), *result.ResponseCode)
 
 	// Test to make sure we can upload tempfile
 	fmt.Println("Testing upload of temporary file to s3 bucket")
-	cmd = "aws s3 cp /tmp/" + tempFile + " s3://" + env_name + "-idp-attempts-api/"
+	cmd = "aws s3 cp /tmp/" + tempFile + " s3://" + attempts_bucket + "/"
 	result = RunCommandOnInstance(t, firstinstance, cmd)
 	require.Equal(t, int64(0), *result.ResponseCode)
 
 	// Test to make sure we can pull from the bucket
 	fmt.Println("Testing download of temporary file to s3 bucket")
-	cmd = "aws s3 cp s3://" + env_name + "-idp-attempts-api/" + tempFile + " /tmp/" + pullFile
+	cmd = "aws s3 cp s3://" + attempts_bucket + "/" + tempFile + " /tmp/" + pullFile
 	result = RunCommandOnInstance(t, firstinstance, cmd)
 	require.Equal(t, int64(0), *result.ResponseCode)
- 
+
 	// Test delete and cleanup tempfile
 	fmt.Println("Testing delete of temporary file in s3 bucket")
-	cmd = "aws s3 rm s3://" + env_name + "-idp-attempts-api/" + tempFile
+	cmd = "aws s3 rm s3://" + attempts_bucket + "/" + tempFile
 	result = RunCommandOnInstance(t, firstinstance, cmd)
 	require.Equal(t, int64(0), *result.ResponseCode)
 
@@ -179,7 +180,7 @@ func TestAccessWorkerInstances(t *testing.T) {
 // Make sure PIVCAC instance cannot put/get/delete from the s3 bucket
 func TestAccessPIVCACInstances(t *testing.T) {
 	// Can t.Parallel() this since it won't write to the bucket
-  t.Parallel()
+	t.Parallel()
 	// Get an instance from the ASG
 	// Show all returned output with fmt.Printf("%+v\n", result)
 	instances := aws.GetInstanceIdsForAsg(t, pivcac_asg, region)
@@ -190,34 +191,34 @@ func TestAccessPIVCACInstances(t *testing.T) {
 
 	// Check to make sure you can see the bucket from the instance
 	fmt.Println("Testing if instance can see the bucket")
-	cmd := "aws s3api head-bucket --bucket " + env_name + "-idp-attempts-api"
+	cmd := "aws s3api head-bucket --bucket " + attempts_bucket
 	result := RunCommandOnInstance(t, firstinstance, cmd)
 	require.Equal(t, int64(255), *result.ResponseCode)
 
 	// Create tempfile on instance
-  fmt.Println("Creating temporary file to upload to s3")
+	fmt.Println("Creating temporary file to upload to s3")
 	cmd = "echo testing > /tmp/" + tempFile
 	result = RunCommandOnInstance(t, firstinstance, cmd)
 	require.Equal(t, int64(0), *result.ResponseCode)
 
 	// Test to make sure we can upload tempfile
 	fmt.Println("Testing upload of temporary file to s3 bucket")
-	cmd = "aws s3 cp /tmp/" + tempFile + " s3://" + env_name + "-idp-attempts-api/"
+	cmd = "aws s3 cp /tmp/" + tempFile + " s3://" + attempts_bucket + "/"
 	result = RunCommandOnInstance(t, firstinstance, cmd)
 	require.Equal(t, int64(1), *result.ResponseCode)
 
 	// Test to make sure we can pull from the bucket
 	fmt.Println("Testing download of temporary file to s3 bucket")
-	cmd = "aws s3 cp s3://" + env_name + "-idp-attempts-api/" + tempFile + " /tmp/" + pullFile
+	cmd = "aws s3 cp s3://" + attempts_bucket + "/" + tempFile + " /tmp/" + pullFile
 	result = RunCommandOnInstance(t, firstinstance, cmd)
 	require.Equal(t, int64(1), *result.ResponseCode)
- 
+
 	// Test delete and cleanup tempfile
 	// This will always fail because it can't upload to begin with
 	// if there is a better way of testing delete permissions
 	// that doesn't require an object let me know
 	fmt.Println("Testing delete of temporary file in s3 bucket")
-	cmd = "aws s3 rm s3://" + env_name + "-idp-attempts-api/" + tempFile
+	cmd = "aws s3 rm s3://" + attempts_bucket + "/" + tempFile
 	result = RunCommandOnInstance(t, firstinstance, cmd)
 	require.Equal(t, int64(1), *result.ResponseCode)
 
@@ -231,7 +232,7 @@ func TestAccessPIVCACInstances(t *testing.T) {
 // Make sure Outboundproxy instances cannot put/get/delete from the s3 bucket
 func TestAccessOutboundproxyInstances(t *testing.T) {
 	// Can t.Parallel() this since it won't write to the bucket
-  t.Parallel()
+	t.Parallel()
 	// Get an instance from the ASG
 	// Show all returned output with fmt.Printf("%+v\n", result)
 	instances := aws.GetInstanceIdsForAsg(t, outboundproxy_asg, region)
@@ -242,34 +243,34 @@ func TestAccessOutboundproxyInstances(t *testing.T) {
 
 	// Check to make sure you can see the bucket from the instance
 	fmt.Println("Testing if instance can see the bucket")
-	cmd := "aws s3api head-bucket --bucket " + env_name + "-idp-attempts-api"
+	cmd := "aws s3api head-bucket --bucket " + attempts_bucket
 	result := RunCommandOnInstance(t, firstinstance, cmd)
 	require.Equal(t, int64(255), *result.ResponseCode)
 
 	// Create tempfile on instance
-  fmt.Println("Creating temporary file to upload to s3")
+	fmt.Println("Creating temporary file to upload to s3")
 	cmd = "echo testing > /tmp/" + tempFile
 	result = RunCommandOnInstance(t, firstinstance, cmd)
 	require.Equal(t, int64(0), *result.ResponseCode)
 
 	// Test to make sure we can upload tempfile
 	fmt.Println("Testing upload of temporary file to s3 bucket")
-	cmd = "aws s3 cp /tmp/" + tempFile + " s3://" + env_name + "-idp-attempts-api/"
+	cmd = "aws s3 cp /tmp/" + tempFile + " s3://" + attempts_bucket + "/"
 	result = RunCommandOnInstance(t, firstinstance, cmd)
 	require.Equal(t, int64(1), *result.ResponseCode)
 
 	// Test to make sure we can pull from the bucket
 	fmt.Println("Testing download of temporary file to s3 bucket")
-	cmd = "aws s3 cp s3://" + env_name + "-idp-attempts-api/" + tempFile + " /tmp/" + pullFile
+	cmd = "aws s3 cp s3://" + attempts_bucket + "/" + tempFile + " /tmp/" + pullFile
 	result = RunCommandOnInstance(t, firstinstance, cmd)
 	require.Equal(t, int64(1), *result.ResponseCode)
- 
+
 	// Test delete and cleanup tempfile
 	// This will always fail because it can't upload to begin with
 	// if there is a better way of testing delete permissions
 	// that doesn't require an object let me know
 	fmt.Println("Testing delete of temporary file in s3 bucket")
-	cmd = "aws s3 rm s3://" + env_name + "-idp-attempts-api/" + tempFile
+	cmd = "aws s3 rm s3://" + attempts_bucket + "/" + tempFile
 	result = RunCommandOnInstance(t, firstinstance, cmd)
 	require.Equal(t, int64(1), *result.ResponseCode)
 
@@ -283,7 +284,7 @@ func TestAccessOutboundproxyInstances(t *testing.T) {
 // Make sure App instance cannot put/get/delete from the s3 bucket
 func TestAccessAppInstances(t *testing.T) {
 	// Can t.Parallel() this since it won't write to the bucket
-  t.Parallel()
+	t.Parallel()
 	// Get an instance from the ASG
 	// Show all returned output with fmt.Printf("%+v\n", result)
 	instances := aws.GetInstanceIdsForAsg(t, app_asg, region)
@@ -294,34 +295,34 @@ func TestAccessAppInstances(t *testing.T) {
 
 	// Check to make sure you can see the bucket from the instance
 	fmt.Println("Testing if instance can see the bucket")
-	cmd := "aws s3api head-bucket --bucket " + env_name + "-idp-attempts-api"
+	cmd := "aws s3api head-bucket --bucket " + attempts_bucket
 	result := RunCommandOnInstance(t, firstinstance, cmd)
 	require.Equal(t, int64(255), *result.ResponseCode)
 
 	// Create tempfile on instance
-  fmt.Println("Creating temporary file to upload to s3")
+	fmt.Println("Creating temporary file to upload to s3")
 	cmd = "echo testing > /tmp/" + tempFile
 	result = RunCommandOnInstance(t, firstinstance, cmd)
 	require.Equal(t, int64(0), *result.ResponseCode)
 
 	// Test to make sure we can upload tempfile
 	fmt.Println("Testing upload of temporary file to s3 bucket")
-	cmd = "aws s3 cp /tmp/" + tempFile + " s3://" + env_name + "-idp-attempts-api/"
+	cmd = "aws s3 cp /tmp/" + tempFile + " s3://" + attempts_bucket + "/"
 	result = RunCommandOnInstance(t, firstinstance, cmd)
 	require.Equal(t, int64(1), *result.ResponseCode)
 
 	// Test to make sure we can pull from the bucket
 	fmt.Println("Testing download of temporary file to s3 bucket")
-	cmd = "aws s3 cp s3://" + env_name + "-idp-attempts-api/" + tempFile + " /tmp/" + pullFile
+	cmd = "aws s3 cp s3://" + attempts_bucket + "/" + tempFile + " /tmp/" + pullFile
 	result = RunCommandOnInstance(t, firstinstance, cmd)
 	require.Equal(t, int64(1), *result.ResponseCode)
- 
+
 	// Test delete and cleanup tempfile
 	// This will always fail because it can't upload to begin with
 	// if there is a better way of testing delete permissions
 	// that doesn't require an object let me know
 	fmt.Println("Testing delete of temporary file in s3 bucket")
-	cmd = "aws s3 rm s3://" + env_name + "-idp-attempts-api/" + tempFile
+	cmd = "aws s3 rm s3://" + attempts_bucket + "/" + tempFile
 	result = RunCommandOnInstance(t, firstinstance, cmd)
 	require.Equal(t, int64(1), *result.ResponseCode)
 
@@ -331,5 +332,3 @@ func TestAccessAppInstances(t *testing.T) {
 	result = RunCommandOnInstance(t, firstinstance, cmd)
 	require.Equal(t, int64(0), *result.ResponseCode)
 }
-
-

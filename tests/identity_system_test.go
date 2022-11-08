@@ -17,6 +17,7 @@ import (
 )
 
 var idp_hostname = os.Getenv("IDP_HOSTNAME")
+var account_id = os.Getenv("ACCOUNT_ID")
 var region = os.Getenv("REGION")
 var env_name = os.Getenv("ENV_NAME")
 var recycle = os.Getenv("RECYCLE")
