@@ -29,7 +29,7 @@ get_build_branch() {
   echo -e "\nVerifying current imagebuild branch in \`login-${ACCOUNT}\`..."
   CURRENT_BRANCH=$(ave -r aws ssm get-parameter \
     --name ImageCreationSourceFile --output text --with-decryption --query 'Parameter.Value' |
-    sed -E 's/18F\/identity-base-image\/([A-Za-z0-9\/-]+)\/18F_identity-base-image\.zip/\1/')
+    sed -E 's/18F\/identity-base-image\/([A-Za-z0-9\.\/-]+)\/18F_identity-base-image\.zip/\1/')
   echo_cyan "- Branch: ${CURRENT_BRANCH}"
   echo
 }
@@ -43,15 +43,12 @@ run_terraform() {
 
 update_build_branch() {
   local STACKS=()
+  local CONFIRM='no'
   echo -e "Ready to update imagebuild/${ACCOUNT} via tf-deploy."
-  if [[ ${CURRENT_BRANCH} == ${BUILD_BRANCH} ]] ; then
-    echo_yellow "NOTE: Current imagebuild branch already set to \`${BUILD_BRANCH}\`;"
-    echo_yellow "will NOT run update-stack operations after apply is complete."
-  else
-    echo_cyan "- Desired branch: ${BUILD_BRANCH}"
-  fi
+  echo_cyan "- Desired branch: ${BUILD_BRANCH}"
   echo
   if prompt_yn "Continue?" ; then
+    CONFIRM='yes'
     TF_APPLY_CMD="var 'code_branch=${BUILD_BRANCH}'"
     run_terraform
     if ! [[ ${CURRENT_BRANCH} == ${BUILD_BRANCH} ]] ; then
@@ -84,6 +81,11 @@ update_build_branch() {
       echo_green "CloudFormation stacks updated."
     fi
   fi
+  if [[ ${ACCOUNT} == 'sandbox' ]] && [[ ${CONFIRM} == 'yes' ]] ; then
+    echo_green "Pipeline execution(s) started in \`login-${ACCOUNT}\`!"
+    echo "Check the AWS CodePipeline/CodeBuild console for build progress."
+    exit 0
+  fi
 }
 
 declare {ACCOUNT,BUILD_BRANCH,TF_APPLY_CMD,CURRENT_BRANCH,AV_PROFILE,VERIFY_ONLY}=
@@ -114,11 +116,16 @@ get_build_branch
 [[ ${VERIFY_ONLY} == true ]] && exit 0
 
 if ! [[ -z ${BUILD_BRANCH} ]] ; then
-  update_build_branch
+  if [[ ${CURRENT_BRANCH} == ${BUILD_BRANCH} ]] ; then
+    echo_yellow "Current imagebuild branch already set to \`${BUILD_BRANCH}\`;"
+    echo_yellow "skipping update operation."
+  else
+    update_build_branch
+  fi
 else
   if [[ ${CURRENT_BRANCH} != 'main' ]] ; then
     echo_yellow "Current imagebuild branch is \`${CURRENT_BRANCH}\`, not \`main\`;" 
-    echo_yellow "additionally, no custom branch was specified via -b flag."
+    echo_yellow "however, no custom branch was specified via -b flag."
     echo
     if prompt_yn "Update imagebuild/${ACCOUNT} to use \`main\` branch instead?" ; then
       echo
