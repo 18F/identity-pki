@@ -485,7 +485,7 @@ deploy_joy:
     on_stop: stop_joy
   resource_group: joy
   only:
-    - main
+    - stages/joy
   tags:
     - joy-env-runner
 
@@ -502,12 +502,12 @@ post_deploy_joy:
   tags:
     - joy-env-runner
   only:
-    - main
+    - stages/joy
 
 test_joy:
   <<: *test_template
   only:
-    - main
+    - stages/joy
   tags:
     - joy-env-runner
   needs:
@@ -522,14 +522,14 @@ badtest_joy:
   tags:
     - joy-env-runner
   only:
-    - main
+    - stages/joy
   needs:
     - deploy_joy
 
 stop_joy:
   <<: *stop_template
   only:
-    - main
+    - stages/joy
   tags:
     - joy-env-runner
   resource_group: joy
