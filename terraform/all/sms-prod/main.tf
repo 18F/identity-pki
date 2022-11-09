@@ -31,6 +31,12 @@ module "main" {
           ]
         }
       ]
+    },
+    {
+      include_management_events = true
+      read_write_type           = "All"
+
+      data_resources = []
     }
   ]
 }
