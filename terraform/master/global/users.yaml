@@ -83,6 +83,11 @@ users:
   diondra.humphries:
     aws_groups:
     - bizops
+  doran.steele:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - pm
   douglas.price:
     aws_groups:
     - apponcall
