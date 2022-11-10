@@ -16,16 +16,16 @@
 #   Add the dockerfile to dockerfiles/
 #   Build it by adding a job like so:
 #     build_idp_ci:
-#       <<: *build_template
+#       extends: .build_template
 #       variables:
 #         dockerfile: idp_ci.Dockerfile
 #         ecr_repo: idp/ci
 
 stages:
   - build
-  - test_gitlab
-  - deploy
   - test
+  - deploy
+  - post_deploy
 
 variables:
   CI_COMMIT_TAG: "$CI_COMMIT_SHA"
@@ -106,7 +106,7 @@ run-gitlab-qa:
   when: manual
 
 # TODO(LG-6069): Use an image from ECR
-.build_template: &build_template
+.build_template:
   stage: build
   interruptible: true
   tags:
@@ -133,8 +133,8 @@ run-gitlab-qa:
 
 # Build images by providing a dockerfile (in dockerfiles/) and a destination ECR repo
 
-build_gitlab_deploy:
-  <<: *build_template
+build_gitlab_deploy_container:
+  extends: .build_template
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
@@ -150,8 +150,8 @@ build_gitlab_deploy:
     dockerfile: gitlab_deploy.Dockerfile
     ecr_repo: cd/gitlab_deploy
 
-build_gitlab_test:
-  <<: *build_template
+build_gitlab_test_container:
+  extends: .build_template
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
@@ -166,8 +166,8 @@ build_gitlab_test:
     dockerfile: gitlab_test.Dockerfile
     ecr_repo: cd/gitlab_test
 
-build_env_deploy:
-  <<: *build_template
+build_env_deploy_container:
+  extends: .build_template
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
@@ -183,8 +183,8 @@ build_env_deploy:
     dockerfile: env_deploy.Dockerfile
     ecr_repo: cd/env_deploy
 
-build_env_stop:
-  <<: *build_template
+build_env_stop_container:
+  extends: .build_template
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
@@ -199,8 +199,8 @@ build_env_stop:
     dockerfile: env_stop.Dockerfile
     ecr_repo: cd/env_stop
 
-build_env_test:
-  <<: *build_template
+build_env_test_container:
+  extends: .build_template
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
@@ -215,8 +215,8 @@ build_env_test:
     dockerfile: env_test.Dockerfile
     ecr_repo: cd/env_test
 
-build_idp_ci:
-  <<: *build_template
+build_idp_ci_container:
+  extends: .build_template
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
@@ -232,7 +232,23 @@ build_idp_ci:
     ecr_repo: idp/ci
 
 # templates for idp env deploys
-.deploy_template: &deploy_template
+# templates for idp env deploys
+
+.post_deploy_template:
+  variables:
+    GIT_SUBMODULE_STRATEGY: normal
+  image:
+    # these are hardcoded to make this deploy process more secure.
+    # If you want to update this image, you will need to edit it here, and in
+    # s3://login-gov.secrets.<account>-us-west-2/<env>/gitlab_env_runner_allowed_images,
+    # or s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images.
+    # If you are doing development work, you can override them for your env.
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_deploy@$DEPLOY_IMAGE_DIGEST
+  stage: post_deploy
+  script:
+    - echo "Somebody set us up the deploy" ; exit 1
+
+.deploy_template:
   variables:
     GIT_SUBMODULE_STRATEGY: normal
   image:
@@ -252,9 +268,9 @@ build_idp_ci:
     reports:
       terraform: plan.json
   script:
-    - echo "Somebody set us up the deploy" ; exit 1
+    - echo "Somebody set us up the deploy" ; exit 1 
 
-.test_template: &test_template
+.test_template:
   image:
     # these are hardcoded to make this deploy process more secure.
     # If you want to update this image, you will need to edit it here, and in
@@ -273,16 +289,7 @@ build_idp_ci:
   script:
     - echo "Tests for great justice" ; exit 1
 
-.badtest_template: &badtest_template
-  when: manual
-  allow_failure: true
-  image:
-    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ecr-public/docker/library/alpine
-  stage: test
-  script:
-    - echo "You have no chance to survive make your test." ; exit 1
-
-.stop_template: &stop_template
+.stop_template:
   when: manual
   stage: deploy
   variables:
@@ -292,10 +299,9 @@ build_idp_ci:
   script:
     - echo "Main screen turn off." ; exit 1
 
-
 # deploy jobs for tspencer env here.
 deploy_tspencer:
-  <<: *deploy_template
+  extends: .deploy_template
   environment:
     name: tspencer
     on_stop: stop_tspencer
@@ -303,48 +309,39 @@ deploy_tspencer:
   resource_group: tspencer
   tags:
     - tspencer-env-runner
-  only:
-    - stages/tspencer
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "stages/tspencer"
 
 post_deploy_tspencer:
-  <<: *deploy_template
+  extends: .post_deploy_template
   environment:
     name: tspencer
   allow_failure: true
   variables:
     RECYCLE_ENV_RUNNERS_ONLY: "true"
   resource_group: tspencer
-  needs:
-    - deploy_tspencer
   tags:
     - tspencer-env-runner
-  only:
-    - stages/tspencer
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "stages/tspencer"
 
 test_tspencer:
-  <<: *test_template
+  extends: .test_template
   only:
     - stages/tspencer
   tags:
     - tspencer-env-runner
-  needs:
-    - deploy_tspencer
   variables:
     IDP_HOSTNAME: idp.tspencer.identitysandbox.gov
     IDP_ORIGIN_HOSTNAME: idp.origin.tspencer.identitysandbox.gov
     ENV_NAME: tspencer
 
-badtest_tspencer:
-  <<: *badtest_template
-  only:
-    - stages/tspencer
-  tags:
-    - tspencer-env-runner
-  needs:
-    - deploy_tspencer
-
 stop_tspencer:
-  <<: *stop_template
+  extends: .stop_template
   only:
     - stages/tspencer
   tags:
@@ -356,56 +353,48 @@ stop_tspencer:
 
 # deploy jobs for pauldoom env here.
 deploy_pauldoom:
-  <<: *deploy_template
+  extends: .deploy_template
   environment:
     name: pauldoom
     url: https://idp.pauldoom.identitysandbox.gov/
     on_stop: stop_pauldoom
   resource_group: pauldoom
-  only:
-    - stages/pauldoom
   tags:
     - pauldoom-env-runner
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "stages/pauldoom"
+
 
 post_deploy_pauldoom:
-  <<: *deploy_template
+  extends: .post_deploy_template
   environment:
     name: pauldoom
   allow_failure: true
   variables:
     RECYCLE_ENV_RUNNERS_ONLY: "true"
   resource_group: pauldoom
-  needs:
-    - deploy_pauldoom
   tags:
     - pauldoom-env-runner
-  only:
-    - stages/pauldoom
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "stages/pauldoom"
 
 test_pauldoom:
-  <<: *test_template
+  extends: .test_template
   only:
     - stages/pauldoom
   tags:
     - pauldoom-env-runner
-  needs:
-    - deploy_pauldoom
   variables:
     IDP_HOSTNAME: idp.pauldoom.identitysandbox.gov
     IDP_ORIGIN_HOSTNAME: idp.origin.pauldoom.identitysandbox.gov
     ENV_NAME: pauldoom
 
-badtest_pauldoom:
-  <<: *badtest_template
-  tags:
-    - pauldoom-env-runner
-  only:
-    - stages/pauldoom
-  needs:
-    - deploy_pauldoom
-
 stop_pauldoom:
-  <<: *stop_template
+  extends: .stop_template
   only:
     - stages/pauldoom
   tags:
@@ -417,56 +406,48 @@ stop_pauldoom:
 
 # deploy jobs for ursula env here.
 deploy_ursula:
-  <<: *deploy_template
+  extends: .deploy_template
   environment:
     name: ursula
     url: https://idp.ursula.identitysandbox.gov/
     on_stop: stop_ursula
   resource_group: ursula
-  only:
-    - main
   tags:
     - ursula-env-runner
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "main"
+
 
 post_deploy_ursula:
-  <<: *deploy_template
+  extends: .post_deploy_template
   environment:
     name: ursula
   allow_failure: true
   variables:
     RECYCLE_ENV_RUNNERS_ONLY: "true"
   resource_group: ursula
-  needs:
-    - deploy_ursula
   tags:
     - ursula-env-runner
-  only:
-    - main
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "main"
 
 test_ursula:
-  <<: *test_template
+  extends: .test_template
   only:
     - main
   tags:
     - ursula-env-runner
-  needs:
-    - deploy_ursula
   variables:
     IDP_HOSTNAME: idp.ursula.identitysandbox.gov
     IDP_ORIGIN_HOSTNAME: idp.origin.ursula.identitysandbox.gov
     ENV_NAME: ursula
 
-badtest_ursula:
-  <<: *badtest_template
-  tags:
-    - ursula-env-runner
-  only:
-    - main
-  needs:
-    - deploy_ursula
-
 stop_ursula:
-  <<: *stop_template
+  extends: .stop_template
   only:
     - main
   tags:
@@ -478,56 +459,48 @@ stop_ursula:
 
 # deploy jobs for joy env here.
 deploy_joy:
-  <<: *deploy_template
+  extends: .deploy_template
   environment:
     name: joy
     url: https://idp.joy.identitysandbox.gov/
     on_stop: stop_joy
   resource_group: joy
-  only:
-    - stages/joy
   tags:
     - joy-env-runner
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "main"
+
 
 post_deploy_joy:
-  <<: *deploy_template
+  extends: .post_deploy_template
   environment:
     name: joy
   allow_failure: true
   variables:
     RECYCLE_ENV_RUNNERS_ONLY: "true"
   resource_group: joy
-  needs:
-    - deploy_joy
   tags:
     - joy-env-runner
-  only:
-    - stages/joy
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "main"
 
 test_joy:
-  <<: *test_template
+  extends: .test_template
   only:
     - stages/joy
   tags:
     - joy-env-runner
-  needs:
-    - deploy_joy
   variables:
     IDP_HOSTNAME: idp.joy.identitysandbox.gov
     IDP_ORIGIN_HOSTNAME: idp.origin.joy.identitysandbox.gov
     ENV_NAME: joy
 
-badtest_joy:
-  <<: *badtest_template
-  tags:
-    - joy-env-runner
-  only:
-    - stages/joy
-  needs:
-    - deploy_joy
-
 stop_joy:
-  <<: *stop_template
+  extends: .stop_template
   only:
     - stages/joy
   tags:
@@ -538,11 +511,7 @@ stop_joy:
     action: stop
 
 # deploy job template for gitlab envs
-.deploy_gitlab_template: &deploy_gitlab_template
-  environment: 
-    name: $env
-    url: $url
-  resource_group: $env
+.deploy_gitlab_template:
   tags:
     - $env-env-runner
   image:
@@ -565,7 +534,7 @@ stop_joy:
     - echo "Yay deploys!" ; exit 1
 
 # test job template for gitlab envs
-.test_gitlab_template: &test_gitlab_template
+.test_gitlab_template:
   tags:
     - ${ENV_NAME}-env-runner
   image:
@@ -588,140 +557,164 @@ stop_joy:
 
 # deploy jobs for gitstaging env here.
 deploy_gitstaging:
-  <<: *deploy_gitlab_template
-  only:
-    - stages/gitstaging
+  extends: .deploy_gitlab_template
+  environment:
+    name: gitstaging
+    url: https://gitlab.gitstaging.gitlab.login.gov/
+  resource_group: gitstaging
   variables:
     env: gitstaging
     url: https://gitlab.gitstaging.gitlab.login.gov/
     GIT_SUBMODULE_STRATEGY: normal
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "stages/gitstaging"
 
 test_gitstaging:
-  <<: *test_gitlab_template
-  needs:
-    - deploy_gitstaging
-  only:
-    - stages/gitstaging
+  extends: .test_gitlab_template
+  environment:
+    name: gitstaging
+    url: https://gitlab.gitstaging.gitlab.login.gov/
+  resource_group: gitstaging
   variables:
     ENV_NAME: gitstaging
     DOMAIN: gitlab.gitstaging.gitlab.login.gov
-
-badtest_gitstaging:
-  when: manual
-  allow_failure: true
-  tags:
-    - gitstaging-env-runner
-  image:
-    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ecr-public/docker/library/alpine
-  stage: test
-  only:
-    - stages/gitstaging
-  needs:
-    - deploy_gitstaging
-  script:
-    - echo "You have no chance to survive make your test." ; exit 1
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "stages/gitstaging"
 
 # deploy jobs for dev env here.
 deploy_dev:
-  <<: *deploy_template
+  extends: .deploy_template
   environment:
     name: dev
     url: https://idp.dev.identitysandbox.gov/
   resource_group: dev
+  tags:
+    - dev-env-runner
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
     - if: $CI_COMMIT_BRANCH == "main"
-  tags:
-    - dev-env-runner
 
 test_dev:
-  <<: *test_template
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "main"
+  extends: .test_template
   tags:
     - dev-env-runner
-  needs:
-    - deploy_dev
   variables:
     IDP_HOSTNAME: idp.dev.identitysandbox.gov
     IDP_ORIGIN_HOSTNAME: idp.origin.dev.identitysandbox.gov
     ENV_NAME: dev
-
-badtest_dev:
-  <<: *badtest_template
-  tags:
-    - dev-env-runner
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
     - if: $CI_COMMIT_BRANCH == "main"
-  needs:
-    - deploy_dev
+
+deploy_charlie:
+  extends: .deploy_gitlab_template
+  environment:
+    action: start
+    name: charlie
+    url: https://gitlab.charlie.gitlab.login.gov/
+  resource_group: charlie
+  variables:
+    env: charlie
+    url: https://gitlab.charlie.gitlab.identitysandbox.gov/
+    GIT_SUBMODULE_STRATEGY: normal
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "stages/gitlabcharlie"
+
+test_charlie:
+  extends: .test_gitlab_template
+  environment:
+    action: verify
+    name: charlie
+    url: https://gitlab.charlie.gitlab.login.gov/
+  resource_group: charlie
+  variables:
+    ENV_NAME: charlie
+    DOMAIN: gitlab.charlie.gitlab.login.gov
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "stages/gitlabcharlie"
 
 # deploy jobs for gitlabbravo env here.
 deploy_bravo:
-  <<: *deploy_gitlab_template
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "main"
+  extends: .deploy_gitlab_template
+  environment:
+    name: bravo
+    url: https://gitlab.bravo.gitlab.login.gov/
+  resource_group: bravo
   variables:
     env: bravo
-    url: https://gitlab.identitysandbox.gov/
+    url: https://gitlab.bravo.gitlab.login.gov/
     GIT_SUBMODULE_STRATEGY: normal
-
-test_bravo:
-  <<: *test_gitlab_template
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
     - if: $CI_COMMIT_BRANCH == "main"
-  needs:
-    - deploy_bravo
+
+test_bravo:
+  extends: .test_gitlab_template
+  environment:
+    name: bravo
+    url: https://gitlab.bravo.gitlab.login.gov/
+  resource_group: bravo
   variables:
     ENV_NAME: bravo
     DOMAIN: gitlab.bravo.gitlab.identitysandbox.gov
-
-badtest_bravo:
-  when: manual
-  allow_failure: true
-  tags:
-    - bravo-env-runner
-  image:
-    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ecr-public/docker/library/alpine
-  stage: test
-  only:
-    - stages/bravo
-  needs:
-    - deploy_bravo
-  script:
-    - echo "You have no chance to survive make your test." ; exit 1
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "main"
 
 deploy_alpha:
-  <<: *deploy_gitlab_template
+  extends: .deploy_gitlab_template
+  environment:
+    name: alpha
+    url: https://gitlab.alpha.gitlab.login.gov/
+  resource_group: alpha
   variables:
     env: alpha
     url: https://gitlab.alpha.gitlab.identitysandbox.gov
     GIT_SUBMODULE_STRATEGY: normal
-  only:
-    - stages/gitlabalpha
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "stages/gitlabalpha"
 
 test_alpha:
-  <<: *test_gitlab_template
-  needs:
-    - deploy_alpha
+  extends: .test_gitlab_template
+  environment:
+    name: alpha
+    url: https://gitlab.alpha.gitlab.login.gov/
+  resource_group: alpha
   variables:
     ENV_NAME: alpha
     DOMAIN: gitlab.alpha.gitlab.identitysandbox.gov
-  only:
-    - stages/gitlabalpha
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "stages/gitlabalpha"
 
 # deploy jobs for henrydrich env here.
 deploy_henrydrich:
-  <<: *deploy_template
+  extends: .deploy_template
   environment: henrydrich
   resource_group: henrydrich
   tags:
@@ -730,44 +723,31 @@ deploy_henrydrich:
     - stages/henrydrich
 
 post_deploy_henrydrich:
-  <<: *deploy_template
+  extends: .post_deploy_template
   environment:
     name: henrydrich
   allow_failure: true
   variables:
     RECYCLE_ENV_RUNNERS_ONLY: "true"
   resource_group: henrydrich
-  needs:
-    - deploy_henrydrich
   tags:
     - henrydrich-env-runner
   only:
     - stages/henrydrich
 
 test_henrydrich:
-  <<: *test_template
+  extends: .test_template
   only:
     - stages/henrydrich
   tags:
     - henrydrich-env-runner
-  needs:
-    - deploy_henrydrich
   variables:
     IDP_HOSTNAME: idp.henrydrich.identitysandbox.gov
     IDP_ORIGIN_HOSTNAME: idp.origin.henrydrich.identitysandbox.gov
     ENV_NAME: henrydrich
 
-badtest_henrydrich:
-  <<: *badtest_template
-  only:
-    - stages/henrydrich
-  tags:
-    - henrydrich-env-runner
-  needs:
-    - deploy_henrydrich
-
 stop_henrydrich:
-  <<: *stop_template
+  extends: .stop_template
   only:
     - stages/henrydrich
   tags:
