@@ -331,25 +331,27 @@ post_deploy_tspencer:
 
 test_tspencer:
   extends: .test_template
-  only:
-    - stages/tspencer
   tags:
     - tspencer-env-runner
   variables:
     IDP_HOSTNAME: idp.tspencer.identitysandbox.gov
     IDP_ORIGIN_HOSTNAME: idp.origin.tspencer.identitysandbox.gov
     ENV_NAME: tspencer
+  rules:
+    - if: $CI_COMMIT_BRANCH == "stages/tspencer"
 
 stop_tspencer:
   extends: .stop_template
-  only:
-    - stages/tspencer
   tags:
     - tspencer-env-runner
   resource_group: tspencer
   environment:
     name: tspencer
     action: stop
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "stages/tspencer"
 
 # deploy jobs for pauldoom env here.
 deploy_pauldoom:
@@ -384,25 +386,27 @@ post_deploy_pauldoom:
 
 test_pauldoom:
   extends: .test_template
-  only:
-    - stages/pauldoom
   tags:
     - pauldoom-env-runner
   variables:
     IDP_HOSTNAME: idp.pauldoom.identitysandbox.gov
     IDP_ORIGIN_HOSTNAME: idp.origin.pauldoom.identitysandbox.gov
     ENV_NAME: pauldoom
+  rules:
+    - if: $CI_COMMIT_BRANCH == "stages/pauldoom"
 
 stop_pauldoom:
   extends: .stop_template
-  only:
-    - stages/pauldoom
   tags:
     - pauldoom-env-runner
   resource_group: pauldoom
   environment:
     name: pauldoom
     action: stop
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "stages/pauldoom"
 
 # deploy jobs for ursula env here.
 deploy_ursula:
@@ -437,25 +441,30 @@ post_deploy_ursula:
 
 test_ursula:
   extends: .test_template
-  only:
-    - main
   tags:
     - ursula-env-runner
   variables:
     IDP_HOSTNAME: idp.ursula.identitysandbox.gov
     IDP_ORIGIN_HOSTNAME: idp.origin.ursula.identitysandbox.gov
     ENV_NAME: ursula
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "stages/pauldoom"
 
 stop_ursula:
   extends: .stop_template
-  only:
-    - main
   tags:
     - ursula-env-runner
   resource_group: ursula
   environment:
     name: ursula
     action: stop
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "main"
+
 
 # deploy jobs for joy env here.
 deploy_joy:
@@ -470,8 +479,7 @@ deploy_joy:
   rules:
     - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
       when: never
-    - if: $CI_COMMIT_BRANCH == "main"
-
+    - if: $CI_COMMIT_BRANCH == "stages/joy"
 
 post_deploy_joy:
   extends: .post_deploy_template
@@ -486,29 +494,32 @@ post_deploy_joy:
   rules:
     - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
       when: never
-    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "stages/joy"
 
 test_joy:
   extends: .test_template
-  only:
-    - stages/joy
   tags:
     - joy-env-runner
   variables:
     IDP_HOSTNAME: idp.joy.identitysandbox.gov
     IDP_ORIGIN_HOSTNAME: idp.origin.joy.identitysandbox.gov
     ENV_NAME: joy
+  rules:
+    - if: $CI_COMMIT_BRANCH == "stages/joy"
+
 
 stop_joy:
   extends: .stop_template
-  only:
-    - stages/joy
   tags:
     - joy-env-runner
   resource_group: joy
   environment:
     name: joy
     action: stop
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "stages/joy"
 
 # deploy job template for gitlab envs
 .deploy_gitlab_template:
@@ -719,8 +730,11 @@ deploy_henrydrich:
   resource_group: henrydrich
   tags:
     - henrydrich-env-runner
-  only:
-    - stages/henrydrich
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "stages/henrydrich"
+
 
 post_deploy_henrydrich:
   extends: .post_deploy_template
@@ -732,30 +746,36 @@ post_deploy_henrydrich:
   resource_group: henrydrich
   tags:
     - henrydrich-env-runner
-  only:
-    - stages/henrydrich
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "stages/henrydrich"
 
 test_henrydrich:
   extends: .test_template
-  only:
-    - stages/henrydrich
   tags:
     - henrydrich-env-runner
   variables:
     IDP_HOSTNAME: idp.henrydrich.identitysandbox.gov
     IDP_ORIGIN_HOSTNAME: idp.origin.henrydrich.identitysandbox.gov
     ENV_NAME: henrydrich
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "stages/henrydrich"
 
 stop_henrydrich:
   extends: .stop_template
-  only:
-    - stages/henrydrich
   tags:
     - henrydrich-env-runner
   resource_group: henrydrich
   environment:
     name: henrydrich
     action: stop
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "stages/henrydrich"
 
 ping_cloudwatch:
   rules:
