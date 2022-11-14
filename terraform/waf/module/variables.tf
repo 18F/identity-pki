@@ -226,3 +226,16 @@ variable "wafv2_web_acl_scope" {
     error_message = "wafv2_web_acl_scope must be either set to either REGIONAL or CLOUDFRONT"
   }
 }
+
+variable "aws_shield_resources" {
+  type        = map(list(string))
+  description = "Map that contains resources to enable AWS Shield per environment, accepts a list of resource arns per resource type"
+  default = {
+    cloudfront               = [],
+    route53_hosted_zone      = [],
+    global_accelerator       = [],
+    application_loadbalancer = [],
+    classic_loadbalancer     = [],
+    elastic_ip_address       = []
+  }
+}

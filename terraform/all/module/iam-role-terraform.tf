@@ -714,6 +714,20 @@ locals {
         ]
       },
       {
+        sid    = "Shield"
+        effect = "Allow"
+        actions = [
+          "shield:ListTagsForResource",
+          "shield:DescribeProtection",
+          "shield:TagResource",
+          "shield:CreateProtection",
+          "shield:DeleteProtection"
+        ]
+        resources = [
+          "*",
+        ]
+      },
+      {
         sid    = "Sns"
         effect = "Allow"
         actions = [
