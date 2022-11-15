@@ -176,7 +176,7 @@ variable "env_name" {
 }
 
 variable "instance_type_gitlab" {
-  default = "c5.xlarge"
+  default = "r5.xlarge"
 }
 
 variable "instance_type_gitlab_runner" {
