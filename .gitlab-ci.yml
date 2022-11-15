@@ -777,6 +777,324 @@ stop_henrydrich:
       when: never
     - if: $CI_COMMIT_BRANCH == "stages/henrydrich"
 
+# deploy jobs for akrito env here.
+deploy_akrito:
+  extends: .deploy_template
+  environment: akrito
+  resource_group: akrito
+  tags:
+    - akrito-env-runner
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "stages/akrito"
+
+post_deploy_akrito:
+  extends: .post_deploy_template
+  environment:
+    name: akrito
+  allow_failure: true
+  variables:
+    RECYCLE_ENV_RUNNERS_ONLY: "true"
+  resource_group: akrito
+  tags:
+    - akrito-env-runner
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "stages/akrito"
+
+test_akrito:
+  extends: .test_template
+  tags:
+    - akrito-env-runner
+  variables:
+    IDP_HOSTNAME: idp.akrito.identitysandbox.gov
+    IDP_ORIGIN_HOSTNAME: idp.origin.akrito.identitysandbox.gov
+    ENV_NAME: akrito
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "stages/akrito"
+
+stop_akrito:
+  extends: .stop_template
+  tags:
+    - akrito-env-runner
+  resource_group: akrito
+  environment:
+    name: akrito
+    action: stop
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "stages/akrito"
+
+# deploy jobs for ryandbrown env here.
+deploy_ryandbrown:
+  extends: .deploy_template
+  environment: ryandbrown
+  resource_group: ryandbrown
+  tags:
+    - ryandbrown-env-runner
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "stages/ryandbrown"
+
+post_deploy_ryandbrown:
+  extends: .post_deploy_template
+  environment:
+    name: ryandbrown
+  allow_failure: true
+  variables:
+    RECYCLE_ENV_RUNNERS_ONLY: "true"
+  resource_group: ryandbrown
+  tags:
+    - ryandbrown-env-runner
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "stages/ryandbrown"
+
+test_ryandbrown:
+  extends: .test_template
+  tags:
+    - ryandbrown-env-runner
+  variables:
+    IDP_HOSTNAME: idp.ryandbrown.identitysandbox.gov
+    IDP_ORIGIN_HOSTNAME: idp.origin.ryandbrown.identitysandbox.gov
+    ENV_NAME: ryandbrown
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "stages/ryandbrown"
+
+stop_ryandbrown:
+  extends: .stop_template
+  tags:
+    - ryandbrown-env-runner
+  resource_group: ryandbrown
+  environment:
+    name: ryandbrown
+    action: stop
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "stages/ryandbrown"
+
+# deploy jobs for zmargolis env here.
+deploy_zmargolis:
+  extends: .deploy_template
+  environment: zmargolis
+  resource_group: zmargolis
+  tags:
+    - zmargolis-env-runner
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "stages/zmargolis"
+
+post_deploy_zmargolis:
+  extends: .post_deploy_template
+  environment:
+    name: zmargolis
+  allow_failure: true
+  variables:
+    RECYCLE_ENV_RUNNERS_ONLY: "true"
+  resource_group: zmargolis
+  tags:
+    - zmargolis-env-runner
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "stages/zmargolis"
+
+test_zmargolis:
+  extends: .test_template
+  tags:
+    - zmargolis-env-runner
+  variables:
+    IDP_HOSTNAME: idp.zmargolis.identitysandbox.gov
+    IDP_ORIGIN_HOSTNAME: idp.origin.zmargolis.identitysandbox.gov
+    ENV_NAME: zmargolis
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "stages/zmargolis"
+
+stop_zmargolis:
+  extends: .stop_template
+  tags:
+    - zmargolis-env-runner
+  resource_group: zmargolis
+  environment:
+    name: zmargolis
+    action: stop
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "stages/zmargolis"
+
+# deploy jobs for jmdembe env here.
+deploy_jmdembe:
+  extends: .deploy_template
+  environment: jmdembe
+  resource_group: jmdembe
+  tags:
+    - jmdembe-env-runner
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "main"
+
+post_deploy_jmdembe:
+  extends: .post_deploy_template
+  environment:
+    name: jmdembe
+  allow_failure: true
+  variables:
+    RECYCLE_ENV_RUNNERS_ONLY: "true"
+  resource_group: jmdembe
+  tags:
+    - jmdembe-env-runner
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "main"
+
+test_jmdembe:
+  extends: .test_template
+  tags:
+    - jmdembe-env-runner
+  variables:
+    IDP_HOSTNAME: idp.jmdembe.identitysandbox.gov
+    IDP_ORIGIN_HOSTNAME: idp.origin.jmdembe.identitysandbox.gov
+    ENV_NAME: jmdembe
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "main"
+
+stop_jmdembe:
+  extends: .stop_template
+  tags:
+    - jmdembe-env-runner
+  resource_group: jmdembe
+  environment:
+    name: jmdembe
+    action: stop
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "main"
+
+# deploy jobs for orenyk env here.
+deploy_orenyk:
+  extends: .deploy_template
+  environment: orenyk
+  resource_group: orenyk
+  tags:
+    - orenyk-env-runner
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "main"
+
+post_deploy_orenyk:
+  extends: .post_deploy_template
+  environment:
+    name: orenyk
+  allow_failure: true
+  variables:
+    RECYCLE_ENV_RUNNERS_ONLY: "true"
+  resource_group: orenyk
+  tags:
+    - orenyk-env-runner
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "main"
+
+test_orenyk:
+  extends: .test_template
+  tags:
+    - orenyk-env-runner
+  variables:
+    IDP_HOSTNAME: idp.orenyk.identitysandbox.gov
+    IDP_ORIGIN_HOSTNAME: idp.origin.orenyk.identitysandbox.gov
+    ENV_NAME: orenyk
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "main"
+
+stop_orenyk:
+  extends: .stop_template
+  tags:
+    - orenyk-env-runner
+  resource_group: orenyk
+  environment:
+    name: orenyk
+    action: stop
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "main"
+
+# deploy jobs for solipet env here.
+deploy_solipet:
+  extends: .deploy_template
+  environment: solipet
+  resource_group: solipet
+  tags:
+    - solipet-env-runner
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "main"
+
+post_deploy_solipet:
+  extends: .post_deploy_template
+  environment:
+    name: solipet
+  allow_failure: true
+  variables:
+    RECYCLE_ENV_RUNNERS_ONLY: "true"
+  resource_group: solipet
+  tags:
+    - solipet-env-runner
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "main"
+
+test_solipet:
+  extends: .test_template
+  tags:
+    - solipet-env-runner
+  variables:
+    IDP_HOSTNAME: idp.solipet.identitysandbox.gov
+    IDP_ORIGIN_HOSTNAME: idp.origin.solipet.identitysandbox.gov
+    ENV_NAME: solipet
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "main"
+
+stop_solipet:
+  extends: .stop_template
+  tags:
+    - solipet-env-runner
+  resource_group: solipet
+  environment:
+    name: solipet
+    action: stop
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "main"
+
 ping_cloudwatch:
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
