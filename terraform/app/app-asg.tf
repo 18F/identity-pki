@@ -112,13 +112,15 @@ resource "aws_autoscaling_group" "app" {
 
 module "app_recycle" {
   count  = var.apps_enabled
-  source = "github.com/18F/identity-terraform//asg_recycle?ref=188a7cdf33a76196be389169c3493a1156c2b45e"
+  source = "github.com/18F/identity-terraform//asg_recycle?ref=fd9fe4db97f988ce2038eb2bcc6316841482b2f4"
   #source = "../../../identity-terraform/asg_recycle"
 
-  asg_name                = aws_autoscaling_group.app[count.index].name
-  normal_desired_capacity = aws_autoscaling_group.app[count.index].desired_capacity
-  scale_schedule          = var.autoscaling_schedule_name
-  time_zone               = var.autoscaling_time_zone
+  asg_name       = aws_autoscaling_group.app[count.index].name
+  normal_min     = var.asg_app_min
+  normal_max     = var.asg_app_max
+  normal_desired = var.asg_app_desired
+  scale_schedule = var.autoscaling_schedule_name
+  time_zone      = var.autoscaling_time_zone
 }
 
 resource "aws_iam_instance_profile" "app" {

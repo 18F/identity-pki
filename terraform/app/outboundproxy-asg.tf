@@ -117,12 +117,14 @@ module "obproxy_lifecycle_hooks" {
 }
 
 module "outboundproxy_recycle" {
-  source = "github.com/18F/identity-terraform//asg_recycle?ref=188a7cdf33a76196be389169c3493a1156c2b45e"
+  source = "github.com/18F/identity-terraform//asg_recycle?ref=fd9fe4db97f988ce2038eb2bcc6316841482b2f4"
   #source = "../../../identity-terraform/asg_recycle"
 
-  asg_name                = aws_autoscaling_group.outboundproxy.name
-  normal_desired_capacity = aws_autoscaling_group.outboundproxy.desired_capacity
-  time_zone               = var.autoscaling_time_zone
+  asg_name       = aws_autoscaling_group.outboundproxy.name
+  normal_min     = var.asg_outboundproxy_min
+  normal_max     = var.asg_outboundproxy_max
+  normal_desired = var.asg_outboundproxy_desired
+  time_zone      = var.autoscaling_time_zone
 
   scale_schedule  = var.autoscaling_schedule_name
   custom_schedule = local.outboundproxy_rotation_schedules # outboundproxy-schedule.tf
