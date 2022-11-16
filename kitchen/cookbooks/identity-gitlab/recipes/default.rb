@@ -219,21 +219,33 @@ end
 file '/etc/gitlab/backup.sh' do
   content <<-EOF
 #!/bin/bash
-DATE=$(date +%Y%m%d%H%M)
+DATE="$(date +%Y%m%d%H%M)"
+SNS_TOPIC_ARN="$(cat "/etc/login.gov/info/sns_topic_arn")"
+AWS_REGION="#{aws_region}"
+
 failure() {
   STATUS="FAILED"
-  echo "gitlab backup $STATUS for #{node.chef_environment}:$DATE - $1" | logger
+  MESSAGE="gitlab backup $STATUS for #{node.chef_environment}:$DATE - $1"
+  echo "$MESSAGE" | logger
+  /usr/local/bin/aws sns publish \
+    --region "$AWS_REGION" \
+    --topic-arn "$SNS_TOPIC_ARN" \
+    --message "$MESSAGE"
 }
 
 # backup github environment
 gitlab-backup create || failure "gitlab-backup failed"
-aws s3 cp /etc/gitlab/gitlab-secrets.json s3://#{backup_s3_bucket}/$DATE/gitlab-secrets.json || failure "gitlab-secrets.json copy to s3 failed"
-aws s3 cp /etc/gitlab/gitlab.rb s3://#{backup_s3_bucket}/$DATE/gitlab.rb || failure "gitlab.rb copy to s3 failed"
-aws s3 cp /etc/ssh/ s3://#{backup_s3_bucket}/$DATE/ssh --recursive --exclude "*" --include "ssh_host_*" || failure "ssh copy to s3 failed"
-aws s3 cp /etc/gitlab/ssl s3://#{backup_s3_bucket}/$DATE/ssl --recursive || failure "ssl copy to s3 failed"
+/usr/local/bin/aws s3 cp /etc/gitlab/gitlab-secrets.json s3://#{backup_s3_bucket}/$DATE/gitlab-secrets.json || failure "gitlab-secrets.json copy to s3 failed"
+/usr/local/bin/aws s3 cp /etc/gitlab/gitlab.rb s3://#{backup_s3_bucket}/$DATE/gitlab.rb || failure "gitlab.rb copy to s3 failed"
+/usr/local/bin/aws s3 cp /etc/ssh/ s3://#{backup_s3_bucket}/$DATE/ssh --recursive --exclude "*" --include "ssh_host_*" || failure "ssh copy to s3 failed"
+/usr/local/bin/aws s3 cp /etc/gitlab/ssl s3://#{backup_s3_bucket}/$DATE/ssl --recursive || failure "ssl copy to s3 failed"
 
 # make sure backups are not zero in size
 find /var/opt/gitlab/backups -type f -size 0 | xargs -r false || failure "zero length backup file detected"
+
+# Delete tempoary files
+find /var/opt/gitlab/backups -type f -name '*.tar' -delete || failure "Some temporary backup files could not be deleted"
+
   EOF
   owner 'root'
   group 'root'
