@@ -69,12 +69,12 @@ build-gitlab-qa:
     - cd gitlab
     - mkdir -p /kaniko/.docker
     - |-
-       KANIKOCFG="\"credsStore\":\"ecr-login\""
-       if [ "x${http_proxy}" != "x" -o "x${https_proxy}" != "x" ]; then
-         KANIKOCFG="${KANIKOCFG}, \"proxies\": { \"default\": { \"httpProxy\": \"${http_proxy}\", \"httpsProxy\": \"${https_proxy}\", \"noProxy\": \"${no_proxy}\"}}"
-       fi
-       KANIKOCFG="{ ${KANIKOCFG} }"
-       echo "${KANIKOCFG}" > /kaniko/.docker/config.json
+      KANIKOCFG="\"credsStore\":\"ecr-login\""
+      if [ "x${http_proxy}" != "x" -o "x${https_proxy}" != "x" ]; then
+        KANIKOCFG="${KANIKOCFG}, \"proxies\": { \"default\": { \"httpProxy\": \"${http_proxy}\", \"httpsProxy\": \"${https_proxy}\", \"noProxy\": \"${no_proxy}\"}}"
+      fi
+      KANIKOCFG="{ ${KANIKOCFG} }"
+      echo "${KANIKOCFG}" > /kaniko/.docker/config.json
     - >-
       /kaniko/executor
       --context "./"
@@ -114,15 +114,24 @@ run-gitlab-qa:
   image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    # Always run if it's on the main branch.
+    - if: $CI_COMMIT_BRANCH == "main"
+    # Otherwise, only build on PRs, not new branches ...
+    - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_PIPELINE_SOURCE != "external_pull_request_event"'
+      when: never
+    # Use 'changes:' in jobs that inherit this template to further restrict when the job runs
   script:
     - mkdir -p /kaniko/.docker
     - |-
-       KANIKOCFG="\"credsStore\":\"ecr-login\""
-       if [ "x${http_proxy}" != "x" -o "x${https_proxy}" != "x" ]; then
-         KANIKOCFG="${KANIKOCFG}, \"proxies\": { \"default\": { \"httpProxy\": \"${http_proxy}\", \"httpsProxy\": \"${https_proxy}\", \"noProxy\": \"${no_proxy}\"}}"
-       fi
-       KANIKOCFG="{ ${KANIKOCFG} }"
-       echo "${KANIKOCFG}" > /kaniko/.docker/config.json
+      KANIKOCFG="\"credsStore\":\"ecr-login\""
+      if [ "x${http_proxy}" != "x" -o "x${https_proxy}" != "x" ]; then
+        KANIKOCFG="${KANIKOCFG}, \"proxies\": { \"default\": { \"httpProxy\": \"${http_proxy}\", \"httpsProxy\": \"${https_proxy}\", \"noProxy\": \"${no_proxy}\"}}"
+      fi
+      KANIKOCFG="{ ${KANIKOCFG} }"
+      echo "${KANIKOCFG}" > /kaniko/.docker/config.json
     - >-
       /kaniko/executor
       --context "${CI_PROJECT_DIR}"
@@ -136,13 +145,7 @@ run-gitlab-qa:
 build_gitlab_deploy_container:
   extends: .build_template
   rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-      when: never
-    # Always run if it's on the main branch.
-    - if: $CI_COMMIT_BRANCH == "main"
-    # Otherwise, only build on PRs, not new branches ...
-    - !reference [.merge_request, rules]
-    # ... and only if there are changes in these files
+    - !reference [.build_template, rules]
     - changes:
         - dockerfiles/gitlab_deploy*
         - versions.tf
@@ -153,13 +156,7 @@ build_gitlab_deploy_container:
 build_gitlab_test_container:
   extends: .build_template
   rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-      when: never
-    # Always run if it's on the main branch.
-    - if: $CI_COMMIT_BRANCH == "main"
-    # Otherwise, only build on PRs, not new branches ...
-    - !reference [.merge_request, rules]
-    # ... and only if there are changes in these files
+    - !reference [.build_template, rules]
     - changes:
         - dockerfiles/gitlab_test*
   variables:
@@ -169,13 +166,7 @@ build_gitlab_test_container:
 build_env_deploy_container:
   extends: .build_template
   rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-      when: never
-    # Always run if it's on the main branch.
-    - if: $CI_COMMIT_BRANCH == "main"
-    # Otherwise, only build on PRs, not new branches ...
-    - !reference [.merge_request, rules]
-    # ... and only if there are changes in these files
+    - !reference [.build_template, rules]
     - changes:
         - dockerfiles/env_deploy*
         - versions.tf
@@ -186,13 +177,7 @@ build_env_deploy_container:
 build_env_stop_container:
   extends: .build_template
   rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-      when: never
-    # Always run if it's on the main branch.
-    - if: $CI_COMMIT_BRANCH == "main"
-    # Otherwise, only build on PRs, not new branches ...
-    - !reference [.merge_request, rules]
-    # ... and only if there are changes in these files
+    - !reference [.build_template, rules]
     - changes:
         - dockerfiles/env_stop*
   variables:
@@ -202,13 +187,7 @@ build_env_stop_container:
 build_env_test_container:
   extends: .build_template
   rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-      when: never
-    # Always run if it's on the main branch.
-    - if: $CI_COMMIT_BRANCH == "main"
-    # Otherwise, only build on PRs, not new branches ...
-    - !reference [.merge_request, rules]
-    # ... and only if there are changes in these files
+    - !reference [.build_template, rules]
     - changes:
         - dockerfiles/env_test*
   variables:
@@ -218,13 +197,7 @@ build_env_test_container:
 build_idp_ci_container:
   extends: .build_template
   rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-      when: never
-    # Always run if it's on the main branch.
-    - if: $CI_COMMIT_BRANCH == "main"
-    # Otherwise, only build on PRs, not new branches ...
-    - !reference [.merge_request, rules]
-    # ... and only if there are changes in these files
+    - !reference [.build_template, rules]
     - changes:
         - dockerfiles/idp_ci*
   variables:
@@ -268,7 +241,7 @@ build_idp_ci_container:
     reports:
       terraform: plan.json
   script:
-    - echo "Somebody set us up the deploy" ; exit 1 
+    - echo "Somebody set us up the deploy" ; exit 1
 
 .test_template:
   image:
@@ -368,7 +341,6 @@ deploy_pauldoom:
       when: never
     - if: $CI_COMMIT_BRANCH == "stages/pauldoom"
 
-
 post_deploy_pauldoom:
   extends: .post_deploy_template
   environment:
@@ -423,7 +395,6 @@ deploy_ursula:
       when: never
     - if: $CI_COMMIT_BRANCH == "main"
 
-
 post_deploy_ursula:
   extends: .post_deploy_template
   environment:
@@ -465,7 +436,6 @@ stop_ursula:
       when: never
     - if: $CI_COMMIT_BRANCH == "main"
 
-
 # deploy jobs for joy env here.
 deploy_joy:
   extends: .deploy_template
@@ -506,7 +476,6 @@ test_joy:
     ENV_NAME: joy
   rules:
     - if: $CI_COMMIT_BRANCH == "stages/joy"
-
 
 stop_joy:
   extends: .stop_template
@@ -734,7 +703,6 @@ deploy_henrydrich:
     - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
       when: never
     - if: $CI_COMMIT_BRANCH == "stages/henrydrich"
-
 
 post_deploy_henrydrich:
   extends: .post_deploy_template
