@@ -10,12 +10,12 @@ usage() {
   cat >&2 << EOM
 
 Usage: ${0} [-luogh]
+Requires access to FullAdministrator role for account(s) polled for image changes!
 
-Flags (will run all, EXCEPT -g, if no flags specified):
+Flags (will run all if no flags specified):
   -l : Show AMI data output table only
-  -u : Update ami_id values in terraform/app/variables.tf
+  -u : Update ami_id vars in terraform/app/variables.tf + terraform/gitlab/*/main.tf
   -o : Create ami/DATE branch + open a PR with ami_id changes
-  -g : Update default_ami_id_tooling values in terraform/gitlab/*/main.tf
   -h : Detailed help
 
 Manually set AMIs for specific account and/or type:
@@ -40,26 +40,23 @@ deployment infrastructure, then:
 2. Updates the corresponding values in terraform/app/variables.tf
 3. Creates a branch/pull request with the new AMI IDs
 
-If the -g flag is set, it will also update the default_ami_id_tooling value(s) in
-each of the environment-specific main.tf files in terraform/gitlab as well.
-
 The script will error out if:
 - there is an active \$AWS_VAULT session running
 - the \`hub\` cask is not installed (for creating a PR)
 - when manually declaring AMIs, a space is used as a separator instead of the = sign
 - when attempting to create a PR, there are other local changes besides the updates
-  to terraform/app/variables.tf (and terraform/gitlab/*/main.tf if -g is set)
+  to terraform/app/variables.tf and terraform/gitlab/*/main.tf
 
 Example output:
 
-| AMI                   | Date                | Account      | Description          | 
-| -----                 | -----               | -----        | -----                | 
-| ami-01780a49bf5991d91 | 2022-04-27 07:43:34 | sandbox      | rails-20220427070429 | 
-| ami-0c581634d34853649 | 2022-04-27 07:33:32 | sandbox      | base-20220427070411  | 
-| ami-087d5aac204147f66 | 2022-04-27 07:36:27 | prod         | rails-20220427070425 | 
-| ami-04584dc44a85e2a7a | 2022-04-27 07:28:24 | prod         | base-20220427070422  | 
-| ami-08e6c2173d14752cc | 2022-04-27 07:29:16 | tooling      | base-20220427070432  | 
-| ami-0ca7ae578890c36e1 | 2022-04-27 07:30:19 | tooling-prod | base-20220427070424  | 
+| ID                    | Date                | Account      | Version     | 
+| -----                 | -----               | -----        | -----       | 
+| ami-0bdb7a0f4b458e241 | 2022-11-15 07:38:51 | sandbox      | base-18.04  | 
+| ami-0d62c4bd00b9fcc43 | 2022-11-15 07:37:55 | sandbox      | rails-18.04 | 
+| ami-02b34aef0997fd696 | 2022-11-15 07:40:00 | prod         | rails-18.04 | 
+| ami-0db7ebba69f9886fa | 2022-11-15 07:30:53 | prod         | base-18.04  | 
+| ami-03436eeb5f77f43f4 | 2022-11-15 07:38:49 | tooling      | base-18.04  | 
+| ami-081a79d240358c459 | 2022-11-15 07:29:43 | tooling-prod | base-18.04  | 
 EOM
   usage
   exit 0
@@ -78,7 +75,8 @@ get_pipeline_ami() {
   local AMI_TYPE="${1}"
   local BUILD
   local BAD_BUILDS=0
-  PIPE_NAME=$(ave -r aws codepipeline list-pipelines | jq -r '.pipelines[].name' | grep -i ${AMI_TYPE})
+  PIPE_NAME=$(ave -r aws codepipeline list-pipelines |
+    jq -r '.pipelines[].name' | grep -i "Image${AMI_TYPE}Role")
   PIPE_DATA=$(ave aws codepipeline list-action-executions \
     --pipeline-name ${PIPE_NAME} --max-items 1)
   PIPE_TOKEN=$(echo ${PIPE_DATA} | jq -r '.NextToken')
@@ -138,7 +136,7 @@ get_ami_info() {
               --image-ids $(echo "${NEW_AMIS[*]}") \
               --query 'Images[*].[ImageId,CreationDate,Name]' \
               --output text | sort -rk2 | head -n 2 |
-              sed -E "s/login\.gov (base|rails) (role )?hardened (base )?image Ubuntu 18\.04 /$PROFILE \1\-/g" |
+              sed -E "s/login\.gov (base|rails) (role )?hardened (base )?image Ubuntu ([0-9\.]+) [0-9]+/$PROFILE \1\-\4/g" |
               sed -E "s/([0-9\:]+)\.000Z/\1/g" |
               sed -E 's/^/\|/g;s/$/\|/g')\n")
 }
@@ -162,7 +160,7 @@ data_table() {
 }
 
 update_vars() {
-  echo -e "\nUpdating values in variables.tf file(s)...\n"
+  echo -e "\nUpdating values in .tf file(s)...\n"
   local UPDATES=('FILE:TERRAFORM@VAR:NEW@VALUE' '-----:-----:-----')
   [[ ${#DATA[@]} -eq 0 ]] && get_ami_info
   for LINE in $(echo "${DATA[@]}" | tail -n +2 | tr -d '|' |
@@ -172,8 +170,10 @@ update_vars() {
     AMI_DATE=$(echo ${LINE} | awk -F+ '{print $2}' | sed -E 's/([0-9-]+)T.+/\1/')
     AMI_ACCT=$(echo ${LINE} | awk -F+ '{print $3}')
     AMI_TYPE=$(echo ${LINE} | awk -F+ '{print $4}' | sed -E 's/([a-z]+).+/\1/')
+    UBUNTU_VERSION=$(echo ${LINE} | awk -F+ '{print $4}' | sed -E "s/${AMI_TYPE}-//")
+    AMI_STRING="${AMI_ID}\" # ${AMI_DATE} Ubuntu ${UBUNTU_VERSION}"
     [[ ${AMI_TYPE} == "base" ]] && AMI_TYPE='default'
-    if [[ ${GITLAB_AMIS} == true ]] && [[ "${AMI_ACCT}" =~ 'tooling' ]]; then
+    if [[ "${AMI_ACCT}" =~ 'tooling' ]]; then
       if [[ "${AMI_ACCT}" == 'tooling-prod' ]]; then
         TF_VARS_PATHS+=('terraform/gitlab/production/main.tf')
       else
@@ -189,15 +189,13 @@ update_vars() {
     fi
     for VAR_PATH in "${TF_VARS_PATHS[@]}" ; do
       if [[ "${VAR_PATH}" =~ 'app' ]] ; then
-        sed -i '' -E "/\"${AMI_TYPE}_ami_id_${AMI_ACCT}\"/{n;s/\
-ami-[0-9a-f]{17}\" \# [0-9-]{10}/${AMI_ID}\" \# ${AMI_DATE}/;}" "${GIT_DIR}/${VAR_PATH}"
+        sed -i '' -E "/\"${AMI_TYPE}_ami_id_${AMI_ACCT}\"/{n;s/\ami.+/${AMI_STRING}/;}" \
+        "${GIT_DIR}/${VAR_PATH}"
       else
-        AMI_DATE_SHORT=$(echo ${LINE} | awk -F+ '{print $2}' | sed 's/[-: T]//g')
-        sed -i '' -E "s/ami-.+ ([a-z-]+)[0-9]{14}/\
-${AMI_ID}\" # ${AMI_DATE} \1${AMI_DATE_SHORT}/" "${GIT_DIR}/${VAR_PATH}"
+        sed -i '' -E "s/ami-.+/${AMI_STRING}/" "${GIT_DIR}/${VAR_PATH}"
       fi
       if [[ $(git diff -U0 | grep ${AMI_ID}) ]] && [[ $(git diff --name-only | grep "${VAR_PATH}" ) ]]; then
-        UPDATES+=("${VAR_PATH}:${AMI_TYPE}_ami_id_${AMI_ACCT}:${AMI_ID}")
+        UPDATES+=("${VAR_PATH}:${AMI_TYPE}_ami_id_${AMI_ACCT%-*}:${AMI_ID}")
         ((UPDATED_VARS++))
       fi
       if [[ ! "${AMI_FILES[@]:-}" =~ ${VAR_PATH} ]] ; then
@@ -262,8 +260,7 @@ BAD_IMAGE_DATA=()
 AMI_FILES=()
 AV_PROFILE=
 UPDATED_VARS=0
-GITLAB_AMIS=false
-HEADERS="|AMI Date Account Description|"
+HEADERS="|ID Date Account Version|"
 
 TASK_LIST=('list' 'update' 'open')
 SANDBOX_AMIS=('sandbox')
@@ -271,7 +268,7 @@ PROD_AMIS=('prod')
 TOOLING_SANDBOX_AMIS=('tooling')
 TOOLING_PROD_AMIS=('tooling-prod')
 
-while getopts luogh-: OPT; do
+while getopts luoh-: OPT; do
   # support long options: https://stackoverflow.com/a/28466267/519360
   if [ "$OPT" = "-" ]; then   # long option: reformulate OPT and OPTARG
     OPT="${OPTARG%%=*}"       # extract long option name
@@ -289,7 +286,6 @@ while getopts luogh-: OPT; do
     l) TASK_LIST=('list')          ;;
     u) TASK_LIST=('list' 'update') ;;
     o) TASK_LIST=('list' 'open')   ;;
-    g) GITLAB_AMIS=true            ;;
     h) help_me                     ;;
     ??* ) raise "Illegal option --$OPT" ;;  # bad long option
     ? )   usage && exit 2 ;;  # bad short option (error reported via getopts)
