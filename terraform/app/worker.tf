@@ -154,7 +154,7 @@ module "worker_lifecycle_hooks" {
 }
 
 module "worker_recycle" {
-  source = "github.com/18F/identity-terraform//asg_recycle?ref=fd9fe4db97f988ce2038eb2bcc6316841482b2f4"
+  source = "github.com/18F/identity-terraform//asg_recycle?ref=72f86a962807f84f5f5980c1bcffb9439d25d9df"
   #source = "../../../identity-terraform/asg_recycle"
 
   asg_name       = aws_autoscaling_group.worker.name
