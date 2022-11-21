@@ -693,6 +693,10 @@ resource "aws_route53_resolver_query_log_config_association" "vpc" {
   resource_id                  = aws_vpc.default.id
 }
 
+resource "aws_route53_resolver_dnssec_config" "vpc" {
+  resource_id = aws_vpc.default.id
+}
+
 resource "aws_security_group" "obproxy" {
   description = "Allow inbound web traffic and whitelisted IP(s) for SSH"
 

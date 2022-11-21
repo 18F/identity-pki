@@ -25,6 +25,11 @@ resource "aws_route53_record" "internal-ns" {
   records         = aws_route53_zone.internal.name_servers
 }
 
+# Turn on DNSSec Validation
+resource "aws_route53_resolver_dnssec_config" "vpc" {
+  resource_id = aws_vpc.default.id
+}
+
 # Use per-environment internal resolver for nice resolver logging
 resource "aws_route53_resolver_query_log_config" "internal" {
   name            = "${var.name}-vpc-${var.env_name}"
