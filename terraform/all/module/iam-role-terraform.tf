@@ -764,13 +764,18 @@ locals {
         sid    = "SES"
         effect = "Allow"
         actions = [
+          "ses:CreateConfigurationSet",
+          "ses:CreateConfigurationSetEventDestination",
           "ses:CreateReceiptRule",
+          "ses:DeleteConfigurationSet",
           "ses:DeleteReceiptRule",
+          "ses:DescribeConfigurationSet",
           "ses:DescribeReceiptRule",
           "ses:DescribeReceiptRule",
           "ses:GetIdentityDkimAttributes",
           "ses:GetIdentityVerificationAttributes",
           "ses:GetIdentityNotificationAttributes",
+          "ses:PutConfigurationSetDeliveryOptions",
           "ses:SetIdentityHeadersInNotificationsEnabled",
           "ses:SetIdentityNotificationTopic",
           "ses:VerifyDomainDkim",
