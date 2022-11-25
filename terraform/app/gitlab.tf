@@ -44,7 +44,8 @@ module "env-runner" {
   asg_outboundproxy_min            = 1
   aws_vpc                          = aws_vpc.default.id
   base_security_group_id           = aws_security_group.base.id
-  bootstrap_main_git_ref_default   = var.bootstrap_main_git_ref_default
+  bootstrap_main_git_ref_default   = local.bootstrap_main_git_ref_default
+  bootstrap_private_git_ref        = local.bootstrap_private_git_ref
   bootstrap_main_git_ref_map       = var.bootstrap_main_git_ref_map
   bootstrap_main_s3_ssh_key_url    = local.bootstrap_main_s3_ssh_key_url
   bootstrap_private_s3_ssh_key_url = local.bootstrap_private_s3_ssh_key_url

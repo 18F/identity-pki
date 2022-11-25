@@ -393,7 +393,7 @@ deploy_ursula:
   rules:
     - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
       when: never
-    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "stages/stable"
 
 post_deploy_ursula:
   extends: .post_deploy_template
@@ -408,7 +408,7 @@ post_deploy_ursula:
   rules:
     - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
       when: never
-    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "stages/stable"
 
 test_ursula:
   extends: .test_template
@@ -421,7 +421,7 @@ test_ursula:
   rules:
     - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
       when: never
-    - if: $CI_COMMIT_BRANCH == "stages/pauldoom"
+    - if: $CI_COMMIT_BRANCH == "stages/stable"
 
 stop_ursula:
   extends: .stop_template
@@ -434,7 +434,7 @@ stop_ursula:
   rules:
     - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
       when: never
-    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "stages/stable"
 
 # deploy jobs for joy env here.
 deploy_joy:
@@ -914,7 +914,7 @@ deploy_jmdembe:
   rules:
     - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
       when: never
-    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "stages/stable"
 
 post_deploy_jmdembe:
   extends: .post_deploy_template
@@ -929,7 +929,7 @@ post_deploy_jmdembe:
   rules:
     - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
       when: never
-    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "stages/stable"
 
 test_jmdembe:
   extends: .test_template
@@ -942,7 +942,7 @@ test_jmdembe:
   rules:
     - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
       when: never
-    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "stages/stable"
 
 stop_jmdembe:
   extends: .stop_template
@@ -955,7 +955,7 @@ stop_jmdembe:
   rules:
     - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
       when: never
-    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "stages/stable"
 
 # deploy jobs for orenyk env here.
 deploy_orenyk:
@@ -967,7 +967,7 @@ deploy_orenyk:
   rules:
     - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
       when: never
-    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "stages/stable"
 
 post_deploy_orenyk:
   extends: .post_deploy_template
@@ -982,7 +982,7 @@ post_deploy_orenyk:
   rules:
     - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
       when: never
-    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "stages/stable"
 
 test_orenyk:
   extends: .test_template
@@ -995,7 +995,7 @@ test_orenyk:
   rules:
     - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
       when: never
-    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "stages/stable"
 
 stop_orenyk:
   extends: .stop_template
@@ -1008,7 +1008,7 @@ stop_orenyk:
   rules:
     - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
       when: never
-    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "stages/stable"
 
 # deploy jobs for solipet env here.
 deploy_solipet:
@@ -1020,7 +1020,7 @@ deploy_solipet:
   rules:
     - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
       when: never
-    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "stages/stable"
 
 post_deploy_solipet:
   extends: .post_deploy_template
@@ -1035,7 +1035,7 @@ post_deploy_solipet:
   rules:
     - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
       when: never
-    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "stages/stable"
 
 test_solipet:
   extends: .test_template
@@ -1048,7 +1048,7 @@ test_solipet:
   rules:
     - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
       when: never
-    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "stages/stable"
 
 stop_solipet:
   extends: .stop_template
@@ -1061,7 +1061,7 @@ stop_solipet:
   rules:
     - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
       when: never
-    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "stages/stable"
 
 ping_cloudwatch:
   rules:

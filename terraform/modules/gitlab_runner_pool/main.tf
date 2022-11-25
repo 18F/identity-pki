@@ -7,8 +7,8 @@ module "outbound_proxy" {
   account_default_ami_id           = var.default_ami_id_tooling
   ami_id_map                       = var.ami_id_map
   base_security_group_id           = var.base_security_group_id
-  bootstrap_main_git_ref_default   = var.bootstrap_main_git_ref_default
-  bootstrap_main_s3_ssh_key_url    = var.bootstrap_main_s3_ssh_key_url
+  bootstrap_main_git_ref_default   = local.bootstrap_main_git_ref_default
+  bootstrap_private_git_ref        = local.bootstrap_private_git_ref
   bootstrap_private_s3_ssh_key_url = var.bootstrap_private_s3_ssh_key_url
   client_security_group_ids        = [aws_security_group.gitlab_runner.id]
   env_name                         = var.env_name

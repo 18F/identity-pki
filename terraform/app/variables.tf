@@ -603,17 +603,44 @@ variable "page_devops" {
 }
 
 locals {
-  bootstrap_main_s3_ssh_key_url    = var.bootstrap_main_s3_ssh_key_url != "" ? var.bootstrap_main_s3_ssh_key_url : "s3://login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}/common/id_ecdsa.identity-devops.deploy"
-  bootstrap_private_s3_ssh_key_url = var.bootstrap_private_s3_ssh_key_url != "" ? var.bootstrap_private_s3_ssh_key_url : "s3://login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}/common/id_ecdsa.id-do-private.deploy"
-  bootstrap_main_git_ref_default   = var.bootstrap_main_git_ref_default != "" ? var.bootstrap_main_git_ref_default : "stages/${var.env_name}"
-  account_default_ami_id           = data.aws_caller_identity.current.account_id == "555546682965" ? var.default_ami_id_prod : var.default_ami_id_sandbox
-  account_rails_ami_id             = data.aws_caller_identity.current.account_id == "555546682965" ? var.rails_ami_id_prod : var.rails_ami_id_sandbox
-  high_priority_alarm_actions      = var.page_devops == 1 ? [var.high_priority_sns_hook, var.slack_events_sns_hook_arn] : [var.slack_events_sns_hook_arn]
-  low_priority_alarm_actions       = [var.slack_events_sns_hook_arn]
-  high_priority_alarm_actions_use1 = var.page_devops == 1 ? [var.high_priority_sns_hook_use1, var.slack_events_sns_hook_arn_use1] : [var.slack_events_sns_hook_arn_use1]
-  low_priority_alarm_actions_use1  = [var.slack_events_sns_hook_arn_use1]
-  inventory_bucket_arn             = "arn:aws:s3:::login-gov.s3-inventory.${data.aws_caller_identity.current.account_id}-${var.region}"
-  dnssec_runbook_prefix            = " - https://github.com/18F/identity-devops/wiki/Runbook:-DNS#dnssec"
+  secrets_bucket = join(".", [
+    "login-gov.secrets",
+    "${data.aws_caller_identity.current.account_id}-${var.region}"
+  ])
+  acct_type = data.aws_caller_identity.current.account_id == "555546682965" ? (
+  "prod") : "sandbox"
+
+  bootstrap_private_s3_ssh_key_url = var.bootstrap_private_s3_ssh_key_url != "" ? (
+    var.bootstrap_private_s3_ssh_key_url
+  ) : "s3://${local.secrets_bucket}/common/id_ecdsa.id-do-private.deploy"
+  bootstrap_private_git_ref = var.bootstrap_private_git_ref != "" ? (
+  var.bootstrap_private_git_ref) : "main"
+
+  bootstrap_main_s3_ssh_key_url = var.bootstrap_main_s3_ssh_key_url != "" ? (
+    var.bootstrap_main_s3_ssh_key_url
+  ) : "s3://${local.secrets_bucket}/common/id_ecdsa.identity-devops.deploy"
+  bootstrap_main_git_ref_default = var.bootstrap_main_git_ref_default != "" ? (
+  var.bootstrap_main_git_ref_default) : "stages/${var.env_name}"
+
+  account_default_ami_id = local.acct_type == "prod" ? (
+  var.default_ami_id_prod) : var.default_ami_id_sandbox
+  account_rails_ami_id = local.acct_type == "prod" ? (
+  var.rails_ami_id_prod) : var.rails_ami_id_sandbox
+
+  low_priority_alarm_actions      = [var.slack_events_sns_hook_arn]
+  low_priority_alarm_actions_use1 = [var.slack_events_sns_hook_arn_use1]
+  high_priority_alarm_actions = var.page_devops == 1 ? [
+    var.high_priority_sns_hook, var.slack_events_sns_hook_arn
+  ] : [var.slack_events_sns_hook_arn]
+  high_priority_alarm_actions_use1 = var.page_devops == 1 ? [
+    var.high_priority_sns_hook_use1, var.slack_events_sns_hook_arn_use1
+  ] : [var.slack_events_sns_hook_arn_use1]
+
+  inventory_bucket_arn = join(".", [
+    "arn:aws:s3:::login-gov.s3-inventory",
+    "${data.aws_caller_identity.current.account_id}-${var.region}"
+  ])
+  dnssec_runbook_prefix = " - https://github.com/18F/identity-devops/wiki/Runbook:-DNS#dnssec"
 }
 
 # These variables are used to toggle whether certain services are enabled.

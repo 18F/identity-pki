@@ -1,13 +1,22 @@
 locals {
-  bootstrap_main_s3_ssh_key_url    = var.bootstrap_main_s3_ssh_key_url != "" ? var.bootstrap_main_s3_ssh_key_url : "s3://login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}/common/id_ecdsa.identity-devops.deploy"
-  bootstrap_private_s3_ssh_key_url = var.bootstrap_private_s3_ssh_key_url != "" ? var.bootstrap_private_s3_ssh_key_url : "s3://login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}/common/id_ecdsa.id-do-private.deploy"
-  bootstrap_main_git_ref_default   = var.bootstrap_main_git_ref_default != "" ? var.bootstrap_main_git_ref_default : "stages/${var.env_name}"
-  account_default_ami_id           = var.default_ami_id_tooling
-  github_ipv4_cidr_blocks          = sort(data.github_ip_ranges.meta.git_ipv4)
-  network_zones                    = toset(keys(local.network_layout[var.region][var.env_type]._zones))
-  env_runner_gitlab_hostname       = var.env_runner_gitlab_hostname == "" ? "gitlab.${var.env_name}.${var.root_domain}" : var.env_runner_gitlab_hostname
-  env_runner_config_bucket         = var.env_runner_config_bucket == "" ? "login-gov-${var.env_name}-gitlabconfig-${data.aws_caller_identity.current.account_id}-${var.region}" : var.env_runner_config_bucket
-  runner_config_bucket             = var.runner_config_bucket == "" ? "login-gov-${var.env_name}-gitlabconfig-${data.aws_caller_identity.current.account_id}-${var.region}" : var.runner_config_bucket
+  bootstrap_private_s3_ssh_key_url = var.bootstrap_private_s3_ssh_key_url != "" ? (
+    var.bootstrap_private_s3_ssh_key_url
+  ) : "s3://${local.secrets_bucket}/common/id_ecdsa.id-do-private.deploy"
+  bootstrap_private_git_ref = var.bootstrap_private_git_ref != "" ? (
+  var.bootstrap_private_git_ref) : "main"
+
+  bootstrap_main_s3_ssh_key_url = var.bootstrap_main_s3_ssh_key_url != "" ? (
+    var.bootstrap_main_s3_ssh_key_url
+  ) : "s3://${local.secrets_bucket}/common/id_ecdsa.identity-devops.deploy"
+  bootstrap_main_git_ref_default = var.bootstrap_main_git_ref_default != "" ? (
+  var.bootstrap_main_git_ref_default) : "stages/${var.env_name}"
+
+  account_default_ami_id     = var.default_ami_id_tooling
+  github_ipv4_cidr_blocks    = sort(data.github_ip_ranges.meta.git_ipv4)
+  network_zones              = toset(keys(local.network_layout[var.region][var.env_type]._zones))
+  env_runner_gitlab_hostname = var.env_runner_gitlab_hostname == "" ? "gitlab.${var.env_name}.${var.root_domain}" : var.env_runner_gitlab_hostname
+  env_runner_config_bucket   = var.env_runner_config_bucket == "" ? "login-gov-${var.env_name}-gitlabconfig-${data.aws_caller_identity.current.account_id}-${var.region}" : var.env_runner_config_bucket
+  runner_config_bucket       = var.runner_config_bucket == "" ? "login-gov-${var.env_name}-gitlabconfig-${data.aws_caller_identity.current.account_id}-${var.region}" : var.runner_config_bucket
   default_endpoint_security_group_ids = [
     aws_security_group.kms_endpoint.id,
     aws_security_group.ssm_endpoint.id,

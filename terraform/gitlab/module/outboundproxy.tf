@@ -5,6 +5,7 @@ module "outbound_proxy" {
   ami_id_map                       = var.ami_id_map
   base_security_group_id           = aws_security_group.base.id
   bootstrap_main_git_ref_default   = local.bootstrap_main_git_ref_default
+  bootstrap_private_git_ref        = local.bootstrap_private_git_ref
   bootstrap_main_s3_ssh_key_url    = local.bootstrap_main_s3_ssh_key_url
   bootstrap_private_s3_ssh_key_url = local.bootstrap_private_s3_ssh_key_url
   env_name                         = var.env_name

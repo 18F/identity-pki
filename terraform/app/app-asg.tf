@@ -12,7 +12,7 @@ module "app_user_data" {
   # identity-devops-private variables
   private_s3_ssh_key_url = local.bootstrap_private_s3_ssh_key_url
   private_git_clone_url  = var.bootstrap_private_git_clone_url
-  private_git_ref        = var.bootstrap_private_git_ref
+  private_git_ref        = local.bootstrap_private_git_ref
 
   # identity-devops variables
   main_s3_ssh_key_url  = local.bootstrap_main_s3_ssh_key_url
