@@ -93,7 +93,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "account_static_bucket" {
 # }
 
 module "account_static_bucket_config" {
-  source = "github.com/18F/identity-terraform//s3_config?ref=5d344d205dd09eb85d5de1ff1081c4a598afe433"
+  source = "github.com/18F/identity-terraform//s3_config?ref=e7ad5ef38f724b31911248a74173e9fee3bbf045"
 
   bucket_name_override = aws_s3_bucket.account_static_bucket.id
   region               = var.region

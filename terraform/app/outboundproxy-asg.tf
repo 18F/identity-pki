@@ -92,7 +92,7 @@ resource "aws_iam_role_policy" "obproxy-transfer-utility" {
 }
 
 module "outboundproxy_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=5d344d205dd09eb85d5de1ff1081c4a598afe433"
+  source = "github.com/18F/identity-terraform//launch_template?ref=e7ad5ef38f724b31911248a74173e9fee3bbf045"
   #source = "../../../identity-terraform/launch_template"
   role           = "outboundproxy"
   env            = var.env_name
@@ -112,12 +112,12 @@ module "outboundproxy_launch_template" {
 }
 
 module "obproxy_lifecycle_hooks" {
-  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=5d344d205dd09eb85d5de1ff1081c4a598afe433"
+  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=e7ad5ef38f724b31911248a74173e9fee3bbf045"
   asg_name = aws_autoscaling_group.outboundproxy.name
 }
 
 module "outboundproxy_recycle" {
-  source = "github.com/18F/identity-terraform//asg_recycle?ref=72f86a962807f84f5f5980c1bcffb9439d25d9df"
+  source = "github.com/18F/identity-terraform//asg_recycle?ref=e7ad5ef38f724b31911248a74173e9fee3bbf045"
   #source = "../../../identity-terraform/asg_recycle"
 
   asg_name       = aws_autoscaling_group.outboundproxy.name
@@ -193,7 +193,7 @@ resource "aws_autoscaling_group" "outboundproxy" {
 # creates alarm on total requests following below a threshold
 # requests that notifies to the specified alarm SNS ARN.
 module "outboundproxy_cloudwatch_filters" {
-  source     = "github.com/18F/identity-terraform//squid_cloudwatch_filters?ref=5d344d205dd09eb85d5de1ff1081c4a598afe433"
+  source     = "github.com/18F/identity-terraform//squid_cloudwatch_filters?ref=e7ad5ef38f724b31911248a74173e9fee3bbf045"
   depends_on = [aws_cloudwatch_log_group.squid_access_log]
 
   env_name      = var.env_name

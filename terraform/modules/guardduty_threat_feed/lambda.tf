@@ -1,5 +1,5 @@
 module "guardduty_threat_feed_code" {
-  source = "github.com/18F/identity-terraform//null_archive?ref=5d344d205dd09eb85d5de1ff1081c4a598afe433"
+  source = "github.com/18F/identity-terraform//null_archive?ref=e7ad5ef38f724b31911248a74173e9fee3bbf045"
 
   source_code_filename = "guardduty_threat_feed.py"
   source_dir           = "${path.module}/src/"

@@ -92,12 +92,12 @@ resource "newrelic_alert_condition" "error_rate" {
 }
 
 resource "newrelic_synthetics_monitor" "api_health" {
-  count     = var.idp_enabled
-  name      = "${var.env_name} /api/health check"
-  type      = "SIMPLE"
-  frequency = 5
-  status    = "ENABLED"
-  locations = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
+  count            = var.idp_enabled
+  name             = "${var.env_name} /api/health check"
+  type             = "SIMPLE"
+  period           = "EVERY_5_MINUTES"
+  status           = "ENABLED"
+  locations_public = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
 
   uri               = "https://${local.idp_domain_name}/api/health"
   validation_string = "\"all_checks_healthy\":true"
@@ -112,12 +112,12 @@ resource "newrelic_synthetics_alert_condition" "api_health" {
 }
 
 resource "newrelic_synthetics_monitor" "outbound_proxy_health" {
-  count     = var.idp_enabled
-  name      = "${var.env_name} /api/health/outbound check"
-  type      = "SIMPLE"
-  frequency = 5
-  status    = "ENABLED"
-  locations = ["AWS_US_EAST_1"]
+  count            = var.idp_enabled
+  name             = "${var.env_name} /api/health/outbound check"
+  type             = "SIMPLE"
+  period           = "EVERY_5_MINUTES"
+  status           = "ENABLED"
+  locations_public = ["AWS_US_EAST_1"]
 
   uri               = "https://${local.idp_domain_name}/api/health/outbound"
   validation_string = "\"healthy\":true"
@@ -330,12 +330,12 @@ resource "newrelic_one_dashboard" "error_dashboard" {
 }
 
 resource "newrelic_synthetics_monitor" "cloudfront_health" {
-  count     = (var.enabled + var.cdn_idp_static_assets_alarms_enabled) >= 2 ? 1 : 0
-  name      = "${var.env_name} static /packs/manifest.json check"
-  type      = "SIMPLE"
-  frequency = 5
-  status    = "ENABLED"
-  locations = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
+  count            = (var.enabled + var.cdn_idp_static_assets_alarms_enabled) >= 2 ? 1 : 0
+  name             = "${var.env_name} static /packs/manifest.json check"
+  type             = "SIMPLE"
+  period           = "EVERY_5_MINUTES"
+  status           = "ENABLED"
+  locations_public = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
 
   uri               = "https://${local.idp_domain_name}/packs/manifest.json"
   validation_string = "entrypoints"

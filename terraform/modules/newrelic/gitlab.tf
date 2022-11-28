@@ -1,10 +1,10 @@
 resource "newrelic_synthetics_monitor" "gitlab_health" {
-  count     = (var.enabled + var.gitlab_enabled) >= 2 ? 1 : 0
-  name      = "${var.env_name} gitlab check"
-  type      = "SIMPLE"
-  frequency = 5
-  status    = "ENABLED"
-  locations = ["AWS_US_EAST_2"]
+  count            = (var.enabled + var.gitlab_enabled) >= 2 ? 1 : 0
+  name             = "${var.env_name} gitlab check"
+  type             = "SIMPLE"
+  period           = "EVERY_5_MINUTES"
+  status           = "ENABLED"
+  locations_public = ["AWS_US_EAST_2"]
 
   uri               = "https://gitlab.${var.env_name}.${var.root_domain}"
   validation_string = "GitLab"

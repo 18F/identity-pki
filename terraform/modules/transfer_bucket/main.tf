@@ -123,7 +123,7 @@ data "aws_iam_policy_document" "transfer_utility_policy_document" {
 }
 
 module "transfer_utility_bucket_config" {
-  source     = "github.com/18F/identity-terraform//s3_config?ref=5d344d205dd09eb85d5de1ff1081c4a598afe433"
+  source     = "github.com/18F/identity-terraform//s3_config?ref=e7ad5ef38f724b31911248a74173e9fee3bbf045"
   depends_on = [aws_s3_bucket.transfer_utility]
 
   bucket_name_prefix   = var.bucket_name_prefix

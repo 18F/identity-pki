@@ -2,12 +2,12 @@
 # sites are monitored there.  Enable these by setting staticsite_alerts_enabled to 1.
 
 resource "newrelic_synthetics_monitor" "wwwlogingov" {
-  count     = var.staticsite_alerts_enabled
-  name      = "${var.env_name} www.login.gov monitor"
-  type      = "SIMPLE"
-  frequency = 5
-  status    = "ENABLED"
-  locations = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
+  count            = var.staticsite_alerts_enabled
+  name             = "${var.env_name} www.login.gov monitor"
+  type             = "SIMPLE"
+  period           = "EVERY_5_MINUTES"
+  status           = "ENABLED"
+  locations_public = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
 
   uri               = "https://www.login.gov"
   validation_string = var.staticsite_fixed_string
@@ -15,12 +15,12 @@ resource "newrelic_synthetics_monitor" "wwwlogingov" {
 }
 
 resource "newrelic_synthetics_monitor" "logingov" {
-  count     = var.staticsite_alerts_enabled
-  name      = "${var.env_name} login.gov static site monitor"
-  type      = "SIMPLE"
-  frequency = 5
-  status    = "ENABLED"
-  locations = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
+  count            = var.staticsite_alerts_enabled
+  name             = "${var.env_name} login.gov static site monitor"
+  type             = "SIMPLE"
+  period           = "EVERY_5_MINUTES"
+  status           = "ENABLED"
+  locations_public = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
 
   uri               = "https://login.gov"
   validation_string = var.staticsite_fixed_string

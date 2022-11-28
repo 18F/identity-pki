@@ -1,6 +1,6 @@
 # cloudwatch dashboard for IDP
 module "idp_dashboard" {
-  source = "github.com/18F/identity-terraform//cloudwatch_dashboard_alb?ref=5d344d205dd09eb85d5de1ff1081c4a598afe433"
+  source = "github.com/18F/identity-terraform//cloudwatch_dashboard_alb?ref=e7ad5ef38f724b31911248a74173e9fee3bbf045"
 
   dashboard_name          = "${var.env_name}-idp"
   alb_arn_suffix          = aws_alb.idp.arn_suffix
@@ -28,7 +28,7 @@ EOM
 
 module "rds_dashboard_idp" {
   count  = var.idp_use_rds ? 1 : 0
-  source = "github.com/18F/identity-terraform//cloudwatch_dashboard_rds?ref=5d344d205dd09eb85d5de1ff1081c4a598afe433"
+  source = "github.com/18F/identity-terraform//cloudwatch_dashboard_rds?ref=e7ad5ef38f724b31911248a74173e9fee3bbf045"
 
   dashboard_name         = "${var.env_name}-RDS-idp"
   region                 = var.region

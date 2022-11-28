@@ -10,7 +10,7 @@ module "terraform-assumerole" {
     }
   }
 
-  source = "github.com/18F/identity-terraform//iam_assumerole?ref=0aeb1065291b8fa0bb19f386cf4954147f075a81"
+  source = "github.com/18F/identity-terraform//iam_assumerole?ref=e7ad5ef38f724b31911248a74173e9fee3bbf045"
 
   role_name = each.key
   enabled = lookup(
@@ -262,6 +262,7 @@ locals {
           "ec2:DescribePrefixLists",
           "ec2:DescribeRouteTables",
           "ec2:DescribeSecurityGroups",
+          "ec2:DescribeSecurityGroupRules",
           "ec2:DescribeSubnets",
           "ec2:DescribeVolume*",
           "ec2:DescribeVpcAttribute",

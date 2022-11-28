@@ -32,12 +32,12 @@ resource "newrelic_alert_condition" "dashboard_low_throughput" {
 }
 
 resource "newrelic_synthetics_monitor" "dashboard" {
-  count     = var.dashboard_enabled
-  name      = "${var.env_name} dashboard site monitor"
-  type      = "SIMPLE"
-  frequency = 5
-  status    = "ENABLED"
-  locations = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
+  count            = var.dashboard_enabled
+  name             = "${var.env_name} dashboard site monitor"
+  type             = "SIMPLE"
+  period           = "EVERY_5_MINUTES"
+  status           = "ENABLED"
+  locations_public = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
 
   uri               = "https://dashboard.${var.env_name}.${var.root_domain}/"
   validation_string = "Use the dashboard to manage your Login.gov test integrations."

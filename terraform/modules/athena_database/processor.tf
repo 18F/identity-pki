@@ -1,6 +1,6 @@
 module "lambda_code" {
   count  = var.process_logs ? 1 : 0
-  source = "github.com/18F/identity-terraform//null_archive?ref=b4eb8ffd4f46539b35b31833237d7a0413adc029"
+  source = "github.com/18F/identity-terraform//null_archive?ref=e7ad5ef38f724b31911248a74173e9fee3bbf045"
 
   source_code_filename = "${var.log_processor_lambda}.py"
   source_dir           = "${path.module}/src/"
