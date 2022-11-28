@@ -2,7 +2,7 @@ FROM alpine:3
 
 COPY dockerfiles/env_test.sh /usr/local/bin/env_test.sh
 
-RUN apk add go
+RUN apk add go aws-cli
 RUN GOBIN=/usr/local/bin go install github.com/gruntwork-io/terratest/cmd/terratest_log_parser@latest
 
 # set up testuser

@@ -24,6 +24,7 @@ fi
 AWS_REGION="${AWS_REGION:-us-west-2}"
 export AWS_REGION
 export REGION="$AWS_REGION"
+export ACCOUNT_ID="$(aws sts get-caller-identity --query 'Account' --output text)"
 
 cd "$CI_PROJECT_DIR/tests"
 mkdir "$CI_PROJECT_DIR/testlogs"
