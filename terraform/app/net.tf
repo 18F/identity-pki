@@ -100,6 +100,7 @@ resource "aws_security_group" "base" {
 }
 
 resource "aws_security_group" "app" {
+  count       = var.apps_enabled
   description = "Security group for sample app servers"
 
   # TODO: limit this to what is actually needed
@@ -141,14 +142,14 @@ resource "aws_security_group" "app" {
     from_port       = 80
     to_port         = 80
     protocol        = "tcp"
-    security_groups = [aws_security_group.app-alb.id]
+    security_groups = [aws_security_group.app-alb[count.index].id]
   }
 
   ingress {
     from_port       = 443
     to_port         = 443
     protocol        = "tcp"
-    security_groups = [aws_security_group.app-alb.id]
+    security_groups = [aws_security_group.app-alb[count.index].id]
   }
 
   name = "${var.env_name}-app"
@@ -202,13 +203,13 @@ resource "aws_security_group" "db" {
     from_port = var.rds_db_port
     to_port   = var.rds_db_port
     protocol  = "tcp"
-    security_groups = [
-      aws_security_group.app.id,
+    security_groups = compact([
       aws_security_group.idp.id,
       aws_security_group.migration.id,
       aws_security_group.pivcac.id,
       aws_security_group.worker.id,
-    ]
+      var.apps_enabled == 1 ? aws_security_group.app[0].id : ""
+    ])
   }
 
   name = "${var.name}-db-${var.env_name}"
@@ -588,6 +589,7 @@ resource "aws_security_group" "web" {
 }
 
 resource "aws_security_group" "app-alb" {
+  count       = var.apps_enabled
   description = "App ALB group allowing Internet traffic"
   vpc_id      = aws_vpc.default.id
 

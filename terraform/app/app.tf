@@ -202,7 +202,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "partner_logos_buc
 resource "aws_s3_bucket_policy" "partner_logos_bucket" {
   count  = var.apps_enabled
   bucket = aws_s3_bucket.partner_logos_bucket[count.index].id
-  policy = data.aws_iam_policy_document.partner_logos_bucket_policy.json
+  policy = data.aws_iam_policy_document.partner_logos_bucket_policy[count.index].json
 }
 
 resource "aws_s3_bucket_logging" "partner_logos_bucket" {
@@ -214,6 +214,7 @@ resource "aws_s3_bucket_logging" "partner_logos_bucket" {
 }
 
 data "aws_iam_policy_document" "partner_logos_bucket_policy" {
+  count = var.apps_enabled
   statement {
     actions = [
       "s3:PutObject",
@@ -229,7 +230,7 @@ data "aws_iam_policy_document" "partner_logos_bucket_policy" {
     principals {
       type = "AWS"
       identifiers = [
-        aws_iam_role.app.arn,
+        aws_iam_role.app[count.index].arn,
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/PowerUser",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/FullAdministrator",
       ]
@@ -254,8 +255,9 @@ module "partner_logos_bucket_config" {
 }
 
 resource "aws_iam_role_policy" "app-s3-logos-access" {
+  count  = var.apps_enabled
   name   = "${var.env_name}-app-s3-logos-access"
-  role   = aws_iam_role.app.id
+  role   = aws_iam_role.app[count.index].id
   policy = <<EOM
 {
     "Version": "2012-10-17",
@@ -281,24 +283,8 @@ EOM
 
 # Allow publishing traces to X-Ray
 resource "aws_iam_role_policy" "app-xray-publish" {
+  count  = var.apps_enabled
   name   = "${var.env_name}-app-xray-publish"
-  role   = aws_iam_role.app.id
+  role   = aws_iam_role.app[count.index].id
   policy = data.aws_iam_policy_document.xray-publish-policy.json
 }
-
-# data "aws_sns_topic" "autoscaling_events_data" {
-#   name = "autoscaling_events"
-# }
-
-# resource "aws_autoscaling_notification" "application" {
-#   group_names = [
-#     aws_autoscaling_group.idp.name,
-#     aws_autoscaling_group.pivcac.name,
-#   ]
-
-#   notifications = [
-#     "autoscaling:EC2_INSTANCE_LAUNCH",
-#   ]
-
-#   topic_arn = data.aws_sns_topic.autoscaling_events_data.arn
-# }

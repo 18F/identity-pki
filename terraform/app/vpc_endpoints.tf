@@ -574,11 +574,11 @@ resource "aws_security_group" "events_endpoint" {
     from_port = 443
     to_port   = 443
     protocol  = "tcp"
-    security_groups = [
+    security_groups = compact([
       aws_security_group.idp.id,
-      aws_security_group.app.id,
       aws_security_group.base.id,
-    ]
+      var.apps_enabled == 1 ? aws_security_group.app[0].id : ""
+    ])
   }
 
   egress {

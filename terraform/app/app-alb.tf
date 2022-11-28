@@ -1,7 +1,7 @@
 resource "aws_alb" "app" {
   count           = var.apps_enabled
   name            = "${var.name}-app-alb-${var.env_name}"
-  security_groups = [aws_security_group.app-alb.id]
+  security_groups = [aws_security_group.app-alb[count.index].id]
   subnets         = [for subnet in aws_subnet.public-ingress : subnet.id]
 
   access_logs {
