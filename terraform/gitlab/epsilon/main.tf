@@ -19,7 +19,7 @@ module "main" {
   region                         = "us-west-2"
   dr_region                      = "us-east-2"
   slack_events_sns_hook_arn      = "arn:aws:sns:us-west-2:034795980528:slack-otherevents"
-  default_ami_id_tooling         = "ami-0bf7a25a1c0417bd8" # 2022-11-22 Ubuntu 18.04
+  default_ami_id_tooling         = "ami-0c77a19cac4b5dfa9" # 2022-11-28 Ubuntu 18.04
   route53_id                     = "Z096400532ZFM348WWIAA"
   accountids                     = ["894947205914", "034795980528", "217680906704"]
   destination_artifact_accounts  = ["894947205914"] # login-sandbox
