@@ -53,3 +53,26 @@ variable "pinpoint_event_logger_lambda_name" {
   type        = string
   default     = "pinpoint_event_logger"
 }
+
+variable "sms_unexpected_country_alarm_threshold" {
+  type        = number
+  default     = 100
+  description = <<EOM
+  This is the threshold for number of SMS message sent hourly. 
+  Any country (other than those in the ignored_list) going over the threshold 
+  limit in an hour will trigger an alert to slack"
+  EOM
+}
+
+
+variable "ignored_countries" {
+  type        = string
+  description = "Countries (in ISO format) that should be excluded from the query for high usage"
+  default     = "US,PR,MX,CA"
+}
+
+
+variable "sms_runbook_url" {
+  type    = string
+  default = "https://github.com/18F/identity-devops/wiki/On-Call-Guide-Quick-Reference"
+}
