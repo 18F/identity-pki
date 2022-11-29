@@ -192,6 +192,9 @@ users:
     - jmdembe
     gitlab_groups:
     - appdev
+  jillian.harrigan:
+    gitlab_groups:
+    - antifraud
   john.maxwell:
     aws_groups:
     - appdev
