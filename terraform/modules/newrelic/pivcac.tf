@@ -40,7 +40,7 @@ resource "newrelic_synthetics_monitor" "pivcac_certs_health_7d" {
   type              = "SIMPLE"
   period            = "EVERY_HOUR"
   status            = "ENABLED"
-  locations_public  = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
+  locations_public  = ["US_EAST_1", "US_EAST_2"]
   uri               = "https://${local.pivcac_domain_name}/api/health/certs.json?deadline=7d&source=newrelic"
   validation_string = "\"healthy\":true"
   verify_ssl        = true
@@ -52,7 +52,7 @@ resource "newrelic_synthetics_monitor" "pivcac_certs_health_30d" {
   type              = "SIMPLE"
   period            = "EVERY_HOUR"
   status            = "ENABLED"
-  locations_public  = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
+  locations_public  = ["US_EAST_1", "US_EAST_2"]
   uri               = "https://${local.pivcac_domain_name}/api/health/certs.json?deadline=30d&source=newrelic"
   validation_string = "\"healthy\":true"
   verify_ssl        = true

@@ -4,7 +4,7 @@ resource "newrelic_synthetics_monitor" "gitlab_health" {
   type             = "SIMPLE"
   period           = "EVERY_5_MINUTES"
   status           = "ENABLED"
-  locations_public = ["AWS_US_EAST_2"]
+  locations_public = ["US_EAST_2"]
 
   uri               = "https://gitlab.${var.env_name}.${var.root_domain}"
   validation_string = "GitLab"

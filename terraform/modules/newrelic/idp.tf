@@ -97,7 +97,7 @@ resource "newrelic_synthetics_monitor" "api_health" {
   type             = "SIMPLE"
   period           = "EVERY_5_MINUTES"
   status           = "ENABLED"
-  locations_public = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
+  locations_public = ["US_EAST_1", "US_EAST_2"]
 
   uri               = "https://${local.idp_domain_name}/api/health"
   validation_string = "\"all_checks_healthy\":true"
@@ -117,7 +117,7 @@ resource "newrelic_synthetics_monitor" "outbound_proxy_health" {
   type             = "SIMPLE"
   period           = "EVERY_5_MINUTES"
   status           = "ENABLED"
-  locations_public = ["AWS_US_EAST_1"]
+  locations_public = ["US_EAST_1"]
 
   uri               = "https://${local.idp_domain_name}/api/health/outbound"
   validation_string = "\"healthy\":true"
@@ -335,7 +335,7 @@ resource "newrelic_synthetics_monitor" "cloudfront_health" {
   type             = "SIMPLE"
   period           = "EVERY_5_MINUTES"
   status           = "ENABLED"
-  locations_public = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
+  locations_public = ["US_EAST_1", "US_EAST_2"]
 
   uri               = "https://${local.idp_domain_name}/packs/manifest.json"
   validation_string = "entrypoints"
