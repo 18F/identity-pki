@@ -7,7 +7,7 @@ resource "newrelic_synthetics_monitor" "wwwlogingov" {
   type             = "SIMPLE"
   period           = "EVERY_5_MINUTES"
   status           = "ENABLED"
-  locations_public = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
+  locations_public = ["US_EAST_1", "US_EAST_2"]
 
   uri               = "https://www.login.gov"
   validation_string = var.staticsite_fixed_string
@@ -20,7 +20,7 @@ resource "newrelic_synthetics_monitor" "logingov" {
   type             = "SIMPLE"
   period           = "EVERY_5_MINUTES"
   status           = "ENABLED"
-  locations_public = ["AWS_US_EAST_1", "AWS_US_EAST_2"]
+  locations_public = ["US_EAST_1", "US_EAST_2"]
 
   uri               = "https://login.gov"
   validation_string = var.staticsite_fixed_string
