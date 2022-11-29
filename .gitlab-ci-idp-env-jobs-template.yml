@@ -1,0 +1,98 @@
+---
+stages:
+  - build
+  - deploy
+  - test
+  - post_deploy
+
+post_deploy:
+  environment:
+    name: ${ENV_NAME}
+  allow_failure: true
+  variables:
+    RECYCLE_ENV_RUNNERS_ONLY: "true"
+    GIT_SUBMODULE_STRATEGY: normal
+  resource_group: $ENV_NAME
+  tags:
+    - ${ENV_NAME}-env-runner
+  image:
+    # these are hardcoded to make this deploy process more secure.
+    # If you want to update this image, you will need to edit it here, and in
+    # s3://login-gov.secrets.<account>-us-west-2/<env>/gitlab_env_runner_allowed_images,
+    # or s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images.
+    # If you are doing development work, you can override them for your env.
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_deploy@$DEPLOY_IMAGE_DIGEST
+  stage: post_deploy
+  script:
+    - echo "Somebody set us up the post_deploy" ; exit 1
+
+deploy:
+  environment:
+    name: ${ENV_NAME}
+    on_stop: stop
+    url: https://idp.${ENV_NAME}.identitysandbox.gov/
+  resource_group: ${ENV_NAME}
+  tags:
+    - ${ENV_NAME}-env-runner
+  variables:
+    GIT_SUBMODULE_STRATEGY: normal
+  image:
+    # these are hardcoded to make this deploy process more secure.
+    # If you want to update this image, you will need to edit it here, and in
+    # s3://login-gov.secrets.<account>-us-west-2/<env>/gitlab_env_runner_allowed_images,
+    # or s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images.
+    # If you are doing development work, you can override them for your env.
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_deploy@$DEPLOY_IMAGE_DIGEST
+  stage: deploy
+  artifacts:
+    name: "$CI_ENVIRONMENT_NAME-$CI_COMMIT_SHA"
+    paths:
+      - terraform.plan
+      - plan.txt
+    expire_in: 1 year
+    reports:
+      terraform: plan.json
+  script:
+    - echo "Somebody set us up the deploy" ; exit 1
+
+test:
+  tags:
+    - ${ENV_NAME}-env-runner
+  variables:
+    IDP_HOSTNAME: idp.${ENV_NAME}.identitysandbox.gov
+    IDP_ORIGIN_HOSTNAME: idp.origin.${ENV_NAME}.identitysandbox.gov
+    ENV_NAME: ${ENV_NAME}
+    ACCOUNT_ID: $AWS_ACCOUNT_ID
+  image:
+    # these are hardcoded to make this deploy process more secure.
+    # If you want to update this image, you will need to edit it here, and in
+    # s3://login-gov.secrets.<account>-us-west-2/<env>/gitlab_env_runner_allowed_images,
+    # or s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images.
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_test@$TEST_IMAGE_DIGEST
+  stage: test
+  artifacts:
+    paths:
+      - gl-sast-report.json
+      - report.xml
+    reports:
+      sast: gl-sast-report.json
+      junit: report.xml
+    when: always
+  script:
+    - echo "Tests for great justice" ; exit 1
+
+stop:
+  tags:
+    - ${ENV_NAME}-env-runner
+  resource_group: ${ENV_NAME}
+  environment:
+    name: ${ENV_NAME}
+    action: stop
+  when: manual
+  stage: deploy
+  variables:
+    GIT_SUBMODULE_STRATEGY: normal
+  image:
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_stop@$STOP_IMAGE_DIGEST
+  script:
+    - echo "Main screen turn off." ; exit 1

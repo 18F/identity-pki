@@ -44,12 +44,6 @@ no-op:
   script:
     - "true"
 
-# Always show environment vars, to aid in developing and debugging pipelines.
-# Unlike the "no-op" job, this may be removed with no ill effects.
-show-env:
-  script:
-    - env
-
 build-gitlab-qa:
   rules:
     - if: $CI_PIPELINE_SOURCE != "schedule"
@@ -204,291 +198,102 @@ build_idp_ci_container:
     dockerfile: idp_ci.Dockerfile
     ecr_repo: idp/ci
 
-# templates for idp env deploys
-# templates for idp env deploys
-
-.post_deploy_template:
+# IDP environments and their jobs
+env-tspencer:
   variables:
-    GIT_SUBMODULE_STRATEGY: normal
-  image:
-    # these are hardcoded to make this deploy process more secure.
-    # If you want to update this image, you will need to edit it here, and in
-    # s3://login-gov.secrets.<account>-us-west-2/<env>/gitlab_env_runner_allowed_images,
-    # or s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images.
-    # If you are doing development work, you can override them for your env.
-    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_deploy@$DEPLOY_IMAGE_DIGEST
-  stage: post_deploy
-  script:
-    - echo "Somebody set us up the deploy" ; exit 1
-
-.deploy_template:
-  variables:
-    GIT_SUBMODULE_STRATEGY: normal
-  image:
-    # these are hardcoded to make this deploy process more secure.
-    # If you want to update this image, you will need to edit it here, and in
-    # s3://login-gov.secrets.<account>-us-west-2/<env>/gitlab_env_runner_allowed_images,
-    # or s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images.
-    # If you are doing development work, you can override them for your env.
-    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_deploy@$DEPLOY_IMAGE_DIGEST
-  stage: deploy
-  artifacts:
-    name: "$CI_ENVIRONMENT_NAME-$CI_COMMIT_SHA"
-    paths:
-      - terraform.plan
-      - plan.txt
-    expire_in: 1 year
-    reports:
-      terraform: plan.json
-  script:
-    - echo "Somebody set us up the deploy" ; exit 1
-
-.test_template:
-  image:
-    # these are hardcoded to make this deploy process more secure.
-    # If you want to update this image, you will need to edit it here, and in
-    # s3://login-gov.secrets.<account>-us-west-2/<env>/gitlab_env_runner_allowed_images,
-    # or s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images.
-    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_test@$TEST_IMAGE_DIGEST
-  stage: test
-  artifacts:
-    paths:
-      - gl-sast-report.json
-      - report.xml
-    reports:
-      sast: gl-sast-report.json
-      junit: report.xml
-    when: always
-  script:
-    - echo "Tests for great justice" ; exit 1
-
-.stop_template:
-  when: manual
-  stage: deploy
-  variables:
-    GIT_SUBMODULE_STRATEGY: normal
-  image:
-    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_stop@$STOP_IMAGE_DIGEST
-  script:
-    - echo "Main screen turn off." ; exit 1
-
-# deploy jobs for tspencer env here.
-deploy_tspencer:
-  extends: .deploy_template
-  environment:
-    name: tspencer
-    on_stop: stop_tspencer
-    url: https://idp.tspencer.identitysandbox.gov/
-  resource_group: tspencer
-  tags:
-    - tspencer-env-runner
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/tspencer"
-
-post_deploy_tspencer:
-  extends: .post_deploy_template
-  environment:
-    name: tspencer
-  allow_failure: true
-  variables:
-    RECYCLE_ENV_RUNNERS_ONLY: "true"
-  resource_group: tspencer
-  tags:
-    - tspencer-env-runner
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/tspencer"
-
-test_tspencer:
-  extends: .test_template
-  tags:
-    - tspencer-env-runner
-  variables:
-    IDP_HOSTNAME: idp.tspencer.identitysandbox.gov
-    IDP_ORIGIN_HOSTNAME: idp.origin.tspencer.identitysandbox.gov
     ENV_NAME: tspencer
   rules:
     - if: $CI_COMMIT_BRANCH == "stages/tspencer"
+  trigger:
+    include: .gitlab-ci-idp-env-jobs-template.yml
 
-stop_tspencer:
-  extends: .stop_template
-  tags:
-    - tspencer-env-runner
-  resource_group: tspencer
-  environment:
-    name: tspencer
-    action: stop
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/tspencer"
-
-# deploy jobs for pauldoom env here.
-deploy_pauldoom:
-  extends: .deploy_template
-  environment:
-    name: pauldoom
-    url: https://idp.pauldoom.identitysandbox.gov/
-    on_stop: stop_pauldoom
-  resource_group: pauldoom
-  tags:
-    - pauldoom-env-runner
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/pauldoom"
-
-post_deploy_pauldoom:
-  extends: .post_deploy_template
-  environment:
-    name: pauldoom
-  allow_failure: true
+env-pauldoom:
   variables:
-    RECYCLE_ENV_RUNNERS_ONLY: "true"
-  resource_group: pauldoom
-  tags:
-    - pauldoom-env-runner
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/pauldoom"
-
-test_pauldoom:
-  extends: .test_template
-  tags:
-    - pauldoom-env-runner
-  variables:
-    IDP_HOSTNAME: idp.pauldoom.identitysandbox.gov
-    IDP_ORIGIN_HOSTNAME: idp.origin.pauldoom.identitysandbox.gov
     ENV_NAME: pauldoom
   rules:
     - if: $CI_COMMIT_BRANCH == "stages/pauldoom"
+  trigger:
+    include: .gitlab-ci-idp-env-jobs-template.yml
 
-stop_pauldoom:
-  extends: .stop_template
-  tags:
-    - pauldoom-env-runner
-  resource_group: pauldoom
-  environment:
-    name: pauldoom
-    action: stop
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/pauldoom"
-
-# deploy jobs for ursula env here.
-deploy_ursula:
-  extends: .deploy_template
-  environment:
-    name: ursula
-    url: https://idp.ursula.identitysandbox.gov/
-    on_stop: stop_ursula
-  resource_group: ursula
-  tags:
-    - ursula-env-runner
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/stable"
-
-post_deploy_ursula:
-  extends: .post_deploy_template
-  environment:
-    name: ursula
-  allow_failure: true
+env-ursula:
   variables:
-    RECYCLE_ENV_RUNNERS_ONLY: "true"
-  resource_group: ursula
-  tags:
-    - ursula-env-runner
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/stable"
-
-test_ursula:
-  extends: .test_template
-  tags:
-    - ursula-env-runner
-  variables:
-    IDP_HOSTNAME: idp.ursula.identitysandbox.gov
-    IDP_ORIGIN_HOSTNAME: idp.origin.ursula.identitysandbox.gov
     ENV_NAME: ursula
   rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
     - if: $CI_COMMIT_BRANCH == "stages/stable"
+  trigger:
+    include: .gitlab-ci-idp-env-jobs-template.yml
 
-stop_ursula:
-  extends: .stop_template
-  tags:
-    - ursula-env-runner
-  resource_group: ursula
-  environment:
-    name: ursula
-    action: stop
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/stable"
-
-# deploy jobs for joy env here.
-deploy_joy:
-  extends: .deploy_template
-  environment:
-    name: joy
-    url: https://idp.joy.identitysandbox.gov/
-    on_stop: stop_joy
-  resource_group: joy
-  tags:
-    - joy-env-runner
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/joy"
-
-post_deploy_joy:
-  extends: .post_deploy_template
-  environment:
-    name: joy
-  allow_failure: true
+env-joy:
   variables:
-    RECYCLE_ENV_RUNNERS_ONLY: "true"
-  resource_group: joy
-  tags:
-    - joy-env-runner
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/joy"
-
-test_joy:
-  extends: .test_template
-  tags:
-    - joy-env-runner
-  variables:
-    IDP_HOSTNAME: idp.joy.identitysandbox.gov
-    IDP_ORIGIN_HOSTNAME: idp.origin.joy.identitysandbox.gov
     ENV_NAME: joy
   rules:
     - if: $CI_COMMIT_BRANCH == "stages/joy"
+  trigger:
+    include: .gitlab-ci-idp-env-jobs-template.yml
 
-stop_joy:
-  extends: .stop_template
-  tags:
-    - joy-env-runner
-  resource_group: joy
-  environment:
-    name: joy
-    action: stop
+env-dev:
+  variables:
+    ENV_NAME: dev
   rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/joy"
+    - if: $CI_COMMIT_BRANCH == "main"
+  trigger:
+    include: .gitlab-ci-idp-env-jobs-template.yml
+
+env-henrydrich:
+  variables:
+    ENV_NAME: henrydrich
+  rules:
+    - if: $CI_COMMIT_BRANCH == "stages/henrydrich"
+  trigger:
+    include: .gitlab-ci-idp-env-jobs-template.yml
+
+env-akrito:
+  variables:
+    ENV_NAME: akrito
+  rules:
+    - if: $CI_COMMIT_BRANCH == "stages/akrito"
+  trigger:
+    include: .gitlab-ci-idp-env-jobs-template.yml
+
+env-ryandbrown:
+  variables:
+    ENV_NAME: ryandbrown
+  rules:
+    - if: $CI_COMMIT_BRANCH == "stages/ryandbrown"
+  trigger:
+    include: .gitlab-ci-idp-env-jobs-template.yml
+
+env-zmargolis:
+  variables:
+    ENV_NAME: zmargolis
+  rules:
+    - if: $CI_COMMIT_BRANCH == "stages/zmargolis"
+  trigger:
+    include: .gitlab-ci-idp-env-jobs-template.yml
+
+env-jmdembe:
+  variables:
+    ENV_NAME: jmdembe
+  rules:
+    - if: $CI_COMMIT_BRANCH == "stages/stable"
+  trigger:
+    include: .gitlab-ci-idp-env-jobs-template.yml
+
+env-orenyk:
+  variables:
+    ENV_NAME: orenyk
+  rules:
+    - if: $CI_COMMIT_BRANCH == "stages/stable"
+  trigger:
+    include: .gitlab-ci-idp-env-jobs-template.yml
+
+env-solipet:
+  variables:
+    ENV_NAME: solipet
+  rules:
+    - if: $CI_COMMIT_BRANCH == "stages/stable"
+  trigger:
+    include: .gitlab-ci-idp-env-jobs-template.yml
 
 # deploy job template for gitlab envs
 .deploy_gitlab_template:
@@ -564,35 +369,6 @@ test_gitstaging:
     - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
       when: never
     - if: $CI_COMMIT_BRANCH == "stages/gitstaging"
-
-# deploy jobs for dev env here.
-deploy_dev:
-  extends: .deploy_template
-  environment:
-    name: dev
-    url: https://idp.dev.identitysandbox.gov/
-  resource_group: dev
-  tags:
-    - dev-env-runner
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-      when: never
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "main"
-
-test_dev:
-  extends: .test_template
-  tags:
-    - dev-env-runner
-  variables:
-    IDP_HOSTNAME: idp.dev.identitysandbox.gov
-    IDP_ORIGIN_HOSTNAME: idp.origin.dev.identitysandbox.gov
-    ENV_NAME: dev
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "main"
 
 deploy_charlie:
   extends: .deploy_gitlab_template
@@ -691,377 +467,6 @@ test_alpha:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
     - if: $CI_COMMIT_BRANCH == "stages/gitlabalpha"
-
-# deploy jobs for henrydrich env here.
-deploy_henrydrich:
-  extends: .deploy_template
-  environment: henrydrich
-  resource_group: henrydrich
-  tags:
-    - henrydrich-env-runner
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/henrydrich"
-
-post_deploy_henrydrich:
-  extends: .post_deploy_template
-  environment:
-    name: henrydrich
-  allow_failure: true
-  variables:
-    RECYCLE_ENV_RUNNERS_ONLY: "true"
-  resource_group: henrydrich
-  tags:
-    - henrydrich-env-runner
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/henrydrich"
-
-test_henrydrich:
-  extends: .test_template
-  tags:
-    - henrydrich-env-runner
-  variables:
-    IDP_HOSTNAME: idp.henrydrich.identitysandbox.gov
-    IDP_ORIGIN_HOSTNAME: idp.origin.henrydrich.identitysandbox.gov
-    ENV_NAME: henrydrich
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/henrydrich"
-
-stop_henrydrich:
-  extends: .stop_template
-  tags:
-    - henrydrich-env-runner
-  resource_group: henrydrich
-  environment:
-    name: henrydrich
-    action: stop
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/henrydrich"
-
-# deploy jobs for akrito env here.
-deploy_akrito:
-  extends: .deploy_template
-  environment: akrito
-  resource_group: akrito
-  tags:
-    - akrito-env-runner
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/akrito"
-
-post_deploy_akrito:
-  extends: .post_deploy_template
-  environment:
-    name: akrito
-  allow_failure: true
-  variables:
-    RECYCLE_ENV_RUNNERS_ONLY: "true"
-  resource_group: akrito
-  tags:
-    - akrito-env-runner
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/akrito"
-
-test_akrito:
-  extends: .test_template
-  tags:
-    - akrito-env-runner
-  variables:
-    IDP_HOSTNAME: idp.akrito.identitysandbox.gov
-    IDP_ORIGIN_HOSTNAME: idp.origin.akrito.identitysandbox.gov
-    ENV_NAME: akrito
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/akrito"
-
-stop_akrito:
-  extends: .stop_template
-  tags:
-    - akrito-env-runner
-  resource_group: akrito
-  environment:
-    name: akrito
-    action: stop
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/akrito"
-
-# deploy jobs for ryandbrown env here.
-deploy_ryandbrown:
-  extends: .deploy_template
-  environment: ryandbrown
-  resource_group: ryandbrown
-  tags:
-    - ryandbrown-env-runner
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/ryandbrown"
-
-post_deploy_ryandbrown:
-  extends: .post_deploy_template
-  environment:
-    name: ryandbrown
-  allow_failure: true
-  variables:
-    RECYCLE_ENV_RUNNERS_ONLY: "true"
-  resource_group: ryandbrown
-  tags:
-    - ryandbrown-env-runner
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/ryandbrown"
-
-test_ryandbrown:
-  extends: .test_template
-  tags:
-    - ryandbrown-env-runner
-  variables:
-    IDP_HOSTNAME: idp.ryandbrown.identitysandbox.gov
-    IDP_ORIGIN_HOSTNAME: idp.origin.ryandbrown.identitysandbox.gov
-    ENV_NAME: ryandbrown
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/ryandbrown"
-
-stop_ryandbrown:
-  extends: .stop_template
-  tags:
-    - ryandbrown-env-runner
-  resource_group: ryandbrown
-  environment:
-    name: ryandbrown
-    action: stop
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/ryandbrown"
-
-# deploy jobs for zmargolis env here.
-deploy_zmargolis:
-  extends: .deploy_template
-  environment: zmargolis
-  resource_group: zmargolis
-  tags:
-    - zmargolis-env-runner
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/zmargolis"
-
-post_deploy_zmargolis:
-  extends: .post_deploy_template
-  environment:
-    name: zmargolis
-  allow_failure: true
-  variables:
-    RECYCLE_ENV_RUNNERS_ONLY: "true"
-  resource_group: zmargolis
-  tags:
-    - zmargolis-env-runner
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/zmargolis"
-
-test_zmargolis:
-  extends: .test_template
-  tags:
-    - zmargolis-env-runner
-  variables:
-    IDP_HOSTNAME: idp.zmargolis.identitysandbox.gov
-    IDP_ORIGIN_HOSTNAME: idp.origin.zmargolis.identitysandbox.gov
-    ENV_NAME: zmargolis
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/zmargolis"
-
-stop_zmargolis:
-  extends: .stop_template
-  tags:
-    - zmargolis-env-runner
-  resource_group: zmargolis
-  environment:
-    name: zmargolis
-    action: stop
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/zmargolis"
-
-# deploy jobs for jmdembe env here.
-deploy_jmdembe:
-  extends: .deploy_template
-  environment: jmdembe
-  resource_group: jmdembe
-  tags:
-    - jmdembe-env-runner
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/stable"
-
-post_deploy_jmdembe:
-  extends: .post_deploy_template
-  environment:
-    name: jmdembe
-  allow_failure: true
-  variables:
-    RECYCLE_ENV_RUNNERS_ONLY: "true"
-  resource_group: jmdembe
-  tags:
-    - jmdembe-env-runner
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/stable"
-
-test_jmdembe:
-  extends: .test_template
-  tags:
-    - jmdembe-env-runner
-  variables:
-    IDP_HOSTNAME: idp.jmdembe.identitysandbox.gov
-    IDP_ORIGIN_HOSTNAME: idp.origin.jmdembe.identitysandbox.gov
-    ENV_NAME: jmdembe
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/stable"
-
-stop_jmdembe:
-  extends: .stop_template
-  tags:
-    - jmdembe-env-runner
-  resource_group: jmdembe
-  environment:
-    name: jmdembe
-    action: stop
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/stable"
-
-# deploy jobs for orenyk env here.
-deploy_orenyk:
-  extends: .deploy_template
-  environment: orenyk
-  resource_group: orenyk
-  tags:
-    - orenyk-env-runner
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/stable"
-
-post_deploy_orenyk:
-  extends: .post_deploy_template
-  environment:
-    name: orenyk
-  allow_failure: true
-  variables:
-    RECYCLE_ENV_RUNNERS_ONLY: "true"
-  resource_group: orenyk
-  tags:
-    - orenyk-env-runner
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/stable"
-
-test_orenyk:
-  extends: .test_template
-  tags:
-    - orenyk-env-runner
-  variables:
-    IDP_HOSTNAME: idp.orenyk.identitysandbox.gov
-    IDP_ORIGIN_HOSTNAME: idp.origin.orenyk.identitysandbox.gov
-    ENV_NAME: orenyk
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/stable"
-
-stop_orenyk:
-  extends: .stop_template
-  tags:
-    - orenyk-env-runner
-  resource_group: orenyk
-  environment:
-    name: orenyk
-    action: stop
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/stable"
-
-# deploy jobs for solipet env here.
-deploy_solipet:
-  extends: .deploy_template
-  environment: solipet
-  resource_group: solipet
-  tags:
-    - solipet-env-runner
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/stable"
-
-post_deploy_solipet:
-  extends: .post_deploy_template
-  environment:
-    name: solipet
-  allow_failure: true
-  variables:
-    RECYCLE_ENV_RUNNERS_ONLY: "true"
-  resource_group: solipet
-  tags:
-    - solipet-env-runner
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/stable"
-
-test_solipet:
-  extends: .test_template
-  tags:
-    - solipet-env-runner
-  variables:
-    IDP_HOSTNAME: idp.solipet.identitysandbox.gov
-    IDP_ORIGIN_HOSTNAME: idp.origin.solipet.identitysandbox.gov
-    ENV_NAME: solipet
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/stable"
-
-stop_solipet:
-  extends: .stop_template
-  tags:
-    - solipet-env-runner
-  resource_group: solipet
-  environment:
-    name: solipet
-    action: stop
-  rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "stages/stable"
 
 ping_cloudwatch:
   rules:
