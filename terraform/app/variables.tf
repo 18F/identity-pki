@@ -1096,3 +1096,7 @@ variable "use_lor_algorithm" {
   type        = bool
   default     = false
 }
+variable "cloudfront_http_version" {
+  description = "Http version supported by Cloudfront distribution. Valid values are either http2 or http2and3"
+  default     = "http2and3"
+}

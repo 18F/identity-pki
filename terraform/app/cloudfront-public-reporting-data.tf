@@ -79,6 +79,9 @@ resource "aws_cloudfront_distribution" "public_reporting_data_cdn" {
 
   # Serve from US/Canada/Europe CloudFront instances
   price_class = "PriceClass_100"
+
+  # Maximum http version supported
+  http_version = var.cloudfront_http_version
 }
 
 resource "aws_route53_record" "public_reporting_data_a" {

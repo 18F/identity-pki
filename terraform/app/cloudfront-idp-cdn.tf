@@ -52,6 +52,9 @@ resource "aws_cloudfront_distribution" "idp_static_cdn" {
     module.acm-cert-idp[0].finished_id
   ]
 
+  # Maximum http version supported
+  http_version = var.cloudfront_http_version
+
   # Origin for serving static content with s3 bucket as origin
   origin {
     # Using regional S3 name here per:
