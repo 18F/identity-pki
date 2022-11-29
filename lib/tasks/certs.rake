@@ -221,12 +221,13 @@ namespace :certs do
       puts <<-ERROR
         #{IdentityConfig.store.login_certificate_bundle_file} does not match the certificates in #{IdentityConfig.store.certificate_store_directory}
         Please run:
-        rake certs:generate_certificate_bundle
+        rake certs:generate_certificate_bundles
       ERROR
       exit 1
     end
   end
 
+  desc 'Generate LG certificate bundles'
   task generate_certificate_bundles: :environment do |t, args|
     CertificateStore.instance.load_certs!(dir: 'config/certs')
     File.write(
