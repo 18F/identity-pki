@@ -459,6 +459,8 @@ execute 'add_ci_skeleton' do
       --form "masked=true" --form "protected=false"
     curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPUT \
       "#{local_url}/api/v4/application/settings?deactivate_dormant_users=true"
+      curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPUT \
+      "#{local_url}/api/v4/application/settings?user_deactivation_emails_enabled=false"
     curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPUT \
       "#{local_url}/api/v4/application/settings?password_authentication_enabled_for_web=false"
     curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPUT \
