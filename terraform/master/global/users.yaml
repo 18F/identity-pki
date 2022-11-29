@@ -341,11 +341,6 @@ users:
     - magsa
     gitlab_groups:
     - appdev
-  michael.antiporta:
-    aws_groups:
-    - analytics
-    gitlab_groups:
-    - pm
   michael.fay:
     aws_groups:
     - finops
