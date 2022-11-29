@@ -259,15 +259,6 @@ users:
     - kbighorse
     gitlab_groups:
     - appdev
-  lalitha.jonnalagadda:
-    aws_groups:
-    - analytics
-    gitlab_groups:
-    - pm
-    git_username:
-    - lalitha-jonnalagadda
-    email:
-    - lalitha.jonnalagadda@gsa.gov
   leanna.miller:
     aws_groups:
     - analytics
