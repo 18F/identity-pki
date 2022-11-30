@@ -223,6 +223,14 @@ env-ursula:
   trigger:
     include: .gitlab-ci-idp-env-jobs-template.yml
 
+env-agnes:
+  variables:
+    ENV_NAME: agnes
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+  trigger:
+    include: .gitlab-ci-idp-env-jobs-template.yml
+
 env-joy:
   variables:
     ENV_NAME: joy
