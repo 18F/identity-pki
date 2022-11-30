@@ -1,6 +1,7 @@
 package test
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"strings"
@@ -8,7 +9,9 @@ import (
 	"time"
 
 	aws_sdk "github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/autoscaling"
+	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
 	"github.com/aws/aws-sdk-go/service/ssm"
 	"github.com/gruntwork-io/terratest/modules/aws"
 	http_helper "github.com/gruntwork-io/terratest/modules/http-helper"
@@ -120,6 +123,39 @@ func TestIdpRecycle(t *testing.T) {
 			return isOk && isHealthy
 		},
 	)
+}
+
+// Test Cloudwatch metric filters
+func TestMetricFilters(t *testing.T) {
+	mySession := session.Must(session.NewSession())
+	svc := cloudwatchlogs.New(mySession, aws_sdk.NewConfig().WithRegion(region))
+
+	// Get the pattern we're checking from the live filter
+	filters, err := svc.DescribeMetricFilters(&cloudwatchlogs.DescribeMetricFiltersInput{
+		FilterNamePrefix: aws_sdk.String(env_name + "-idp-interesting-uris-success"),
+		LogGroupName:     aws_sdk.String(env_name + "_/var/log/nginx/access.log"),
+	})
+	require.NoError(t, err)
+	require.Len(t, filters.MetricFilters, 1)
+	pattern := filters.MetricFilters[0].FilterPattern
+
+	// This log has a couple interesting events, and a few that should get filtered out
+	readFile, err := os.Open("testdata/access.log.test")
+	require.NoError(t, err)
+	fileScanner := bufio.NewScanner(readFile)
+	fileScanner.Split(bufio.ScanLines)
+	var logLines []*string
+	for fileScanner.Scan() {
+		logLines = append(logLines, aws_sdk.String(fileScanner.Text()))
+	}
+
+	filterOutput, err := svc.TestMetricFilter(&cloudwatchlogs.TestMetricFilterInput{
+		FilterPattern:    pattern,
+		LogEventMessages: logLines,
+	})
+	require.NoError(t, err)
+	// Exactly 2 events should pass the filter
+	require.Len(t, filterOutput.Matches, 2)
 }
 
 // // XXX would be great to actually do a new account and so on.

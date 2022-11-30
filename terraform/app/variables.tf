@@ -1100,3 +1100,16 @@ variable "cloudfront_http_version" {
   description = "Http version supported by Cloudfront distribution. Valid values are either http2 or http2and3"
   default     = "http2and3"
 }
+
+variable "sli_uninteresting_uris" {
+  description = "Uninteresting URIs that may dilute an SLI due to their high frequency and relatively cheap cost."
+  default = [
+    "/apple-touch-icon.png",
+    "/es",
+    "/favicon-16x16.png",
+    "/favicon-32x32.png",
+    "/fr",
+    "/health_check",
+    "/manifest.json"
+  ]
+}
