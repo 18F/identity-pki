@@ -59,11 +59,13 @@ users:
     - pm
   connor.mccarthy:
     aws_groups:
-    - devopsnonprod
+    - devops
     gitlab_groups:
     - devops
     git_username:
     - ConnorPMcCarthy
+    ec2_username:
+    - cmccarthy
   david.dsilva:
     aws_groups:
     - analytics
