@@ -758,6 +758,12 @@ variable "sms_mfa_low_alert_threshold" {
   default     = 0
 }
 
+variable "sms_mfa_low_success_alert_threshold" {
+  description = "Minimum success rate of SMS MFA sign ins per 10 minutes"
+  type        = number
+  default     = 0
+}
+
 variable "sms_send_rate_alert_threshold" {
   description = "If more than this number of SMS deliveries is exeeded in a minute, we alert"
   default     = 100
@@ -908,7 +914,7 @@ variable "low_memory_alert_enabled" {
 
 variable "memory_free_threshold_byte" {
   description = "Low memory threshold in bytes for New Relic"
-  default     = "524288000" #500 MB 
+  default     = "524288000" #500 MB
 }
 
 variable "unvacummed_transactions_count" {

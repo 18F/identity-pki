@@ -83,6 +83,61 @@ EOM
   ok_actions    = local.low_priority_alarm_actions
 }
 
+resource "aws_cloudwatch_metric_alarm" "low_sms_mfa_success" {
+  count             = var.sms_mfa_low_success_alert_threshold > 0 ? 1 : 0
+  alarm_name        = "${var.env_name}-low_sms_mfa_success"
+  alarm_description = <<EOM
+${var.env_name}: SMS MFA confirmation success rate less than ${var.sms_mfa_low_success_alert_threshold}% in 10 minutes
+See https://github.com/18F/identity-devops/wiki/Runbook:-Pinpoint-SMS-and-Voice#sms-delivery
+EOM
+
+  metric_query {
+    id          = "success_rate"
+    expression  = "(successes / (successes + failures)) * 100"
+    label       = "Success Rate"
+    return_data = "true"
+  }
+
+  metric_query {
+    id = "failures"
+
+    metric {
+      metric_name = "login-mfa-failure"
+      namespace   = "${var.env_name}/idp-authentication"
+      period      = 600
+      stat        = "Sum"
+
+      dimensions = {
+        multi_factor_auth_method = "sms"
+      }
+    }
+  }
+
+  metric_query {
+    id = "successes"
+
+    metric {
+      metric_name = "login-mfa-success"
+      namespace   = "${var.env_name}/idp-authentication"
+      period      = 600
+      stat        = "Sum"
+
+      dimensions = {
+        multi_factor_auth_method = "sms"
+      }
+    }
+  }
+
+  comparison_operator = "LessThanThreshold"
+  threshold           = var.sms_mfa_low_success_alert_threshold
+  evaluation_periods  = 1
+
+  treat_missing_data = "breaching"
+
+  alarm_actions = local.low_priority_alarm_actions
+  ok_actions    = local.low_priority_alarm_actions
+}
+
 resource "aws_cloudwatch_metric_alarm" "low_sp_return_activity" {
   count = var.sp_return_low_alert_threshold > 0 ? 1 : 0
 
