@@ -182,6 +182,25 @@ func ASGRecycle(t *testing.T, asgName string) {
 	aws.WaitForCapacity(t, asgName, region, 60, 30*time.Second)
 }
 
+func MakeHTTPRequest(t *testing.T, url string, token string) int {
+	client := http.Client{}
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		t.Logf("Failed to send request to URL: " + url)
+		t.Fail()
+	}
+
+	req.Header.Set("PRIVATE-TOKEN", token)
+
+	res, err := client.Do(req)
+	if err != nil {
+		t.Logf("Failed to get result from URL: " + url)
+		t.Fail()
+	}
+
+	return res.StatusCode
+}
+
 // This does a basic smoke test
 // to make sure that it was able to come up and get registered.
 func TestRunnerRunning(t *testing.T) {
@@ -217,7 +236,7 @@ func TestGitlabS3buckets(t *testing.T) {
 	}
 }
 
-func TestGitlabS3artifacts(t *testing.T) {
+func TestGitlabAPI(t *testing.T) {
 	// Create a gitlab token that we can use for the job
 	token := gitlabToken(t)
 	t.Cleanup(func() {
@@ -325,6 +344,18 @@ func TestGitlabS3artifacts(t *testing.T) {
 	// sha256data = sha256.Sum256(data)
 	// s3joblogsha256 := hex.EncodeToString(sha256data[:])
 	// require.Equal(t, joblogsha256, s3joblogsha256)
+
+	// set gitlab_url for API testing
+	var gitlab_url string
+	if env_name == "production" {
+		gitlab_url = fmt.Sprintf("http://gitlab.%v", domain)
+	} else {
+		gitlab_url = fmt.Sprintf("http://gitlab.%v.%v", env_name, domain)
+	}
+
+	// make an http request to test the API
+	result_status := MakeHTTPRequest(t, fmt.Sprintf("%v/api/v4/projects/", gitlab_url), token)
+	require.Equal(t, 200, result_status, fmt.Sprintf("error when getting %v/api/v4/projects/: ", result_status))
 }
 
 // This does a basic smoke test

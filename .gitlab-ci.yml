@@ -44,61 +44,6 @@ no-op:
   script:
     - "true"
 
-build-gitlab-qa:
-  rules:
-    - if: $CI_PIPELINE_SOURCE != "schedule"
-  variables:
-    CI_COMMIT_TAG: v15.3.3-ee
-    ECR_REGISTRY: $AWS_ACCOUNT_ID.dkr.ecr.us-west-2.amazonaws.com
-    IMAGE_NAME: gitlab-qa
-  tags:
-    - build-pool
-  stage: build
-  image:
-    name: gcr.io/kaniko-project/executor:debug
-    entrypoint: [""]
-  script:
-    - git clone https://gitlab.com/gitlab-org/gitlab.git
-    - git checkout $CI_COMMIT_TAG
-    - cd gitlab
-    - mkdir -p /kaniko/.docker
-    - |-
-      KANIKOCFG="\"credsStore\":\"ecr-login\""
-      if [ "x${http_proxy}" != "x" -o "x${https_proxy}" != "x" ]; then
-        KANIKOCFG="${KANIKOCFG}, \"proxies\": { \"default\": { \"httpProxy\": \"${http_proxy}\", \"httpsProxy\": \"${https_proxy}\", \"noProxy\": \"${no_proxy}\"}}"
-      fi
-      KANIKOCFG="{ ${KANIKOCFG} }"
-      echo "${KANIKOCFG}" > /kaniko/.docker/config.json
-    - >-
-      /kaniko/executor
-      --context "./"
-      --dockerfile "./qa/Dockerfile"
-      --destination "${ECR_REGISTRY}/${ecr_repo}:latest"
-      --destination "${ECR_REGISTRY}/${ecr_repo}:${CI_COMMIT_TAG}"
-      --build-arg "http_proxy=${http_proxy}" --build-arg "https_proxy=${https_proxy}" --build-arg "no_proxy=${no_proxy}"
-  when: manual
-
-run-gitlab-qa:
-  rules:
-    - if: $CI_PIPELINE_SOURCE != "schedule"
-  variables:
-    GITHUB_ENDPOINT: "https://$EXTERNAL_FQDN"
-    GITLAB_ADMIN_PASSWORD: $GITLAB_QA_PASSWORD
-    GITLAB_ADMIN_USERNAME: $GITLAB_QA_ACCOUNT
-    GITLAB_PASSWORD: $GITLAB_QA_PASSWORD
-    GITLAB_USERNAME: $GITLAB_QA_ACCOUNT
-    QA_CAN_TEST_PRAEFECT: "false"
-    QA_DEBUG: "true"
-  tags:
-    - test-pool
-  image:
-    name: "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/gitlab-qa:latest"
-  stage: test
-  script:
-    - "bin/test Test::Instance::Smoke https://$EXTERNAL_FQDN --"
-    - exit 1
-  when: manual
-
 # TODO(LG-6069): Use an image from ECR
 .build_template:
   stage: build
@@ -360,7 +305,7 @@ deploy_gitstaging:
     url: https://gitlab.gitstaging.gitlab.login.gov/
     GIT_SUBMODULE_STRATEGY: normal
   rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+    - if: $CI_SERVER_HOST != "gitlab.login.gov"
       when: never
     - if: $CI_COMMIT_BRANCH == "stages/gitstaging"
 
@@ -374,7 +319,7 @@ test_gitstaging:
     ENV_NAME: gitstaging
     DOMAIN: gitlab.gitstaging.gitlab.login.gov
   rules:
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+    - if: $CI_SERVER_HOST != "gitlab.login.gov"
       when: never
     - if: $CI_COMMIT_BRANCH == "stages/gitstaging"
 
@@ -392,7 +337,7 @@ deploy_charlie:
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+    - if: $CI_SERVER_HOST != "gitlab.login.gov"
       when: never
     - if: $CI_COMMIT_BRANCH == "stages/gitlabcharlie"
 
@@ -409,7 +354,7 @@ test_charlie:
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+    - if: $CI_SERVER_HOST != "gitlab.login.gov"
       when: never
     - if: $CI_COMMIT_BRANCH == "stages/gitlabcharlie"
 
@@ -427,7 +372,7 @@ deploy_bravo:
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+    - if: $CI_SERVER_HOST != "gitlab.login.gov"
       when: never
     - if: $CI_COMMIT_BRANCH == "main"
 
@@ -443,7 +388,7 @@ test_bravo:
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
-    - if: $CI_SERVER_HOST != "gitlab.gitstaging.gitlab.login.gov"
+    - if: $CI_SERVER_HOST != "gitlab.login.gov"
       when: never
     - if: $CI_COMMIT_BRANCH == "main"
 
