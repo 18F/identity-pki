@@ -5,8 +5,8 @@ COPY dockerfiles/gitlab_deploy.sh /usr/local/bin/gitlab_deploy.sh
 RUN apk add aws-cli git curl bash jq coreutils tzdata
 
 # install terraform
-ENV TF_VERSION=1.2.4
-ENV TF_SHA256=705ea62a44a0081594dad6b2b093eefefb12d54fa5a20a66562f9e082b00414c
+ENV TF_VERSION=1.3.5
+ENV TF_SHA256=ac28037216c3bc41de2c22724e863d883320a770056969b8d211ca8af3d477cf
 
 RUN curl -s "https://releases.hashicorp.com/terraform/${TF_VERSION}/terraform_${TF_VERSION}_linux_amd64.zip" > tf.zip && \
 	echo "${TF_SHA256}  tf.zip" | sha256sum -c - && \
