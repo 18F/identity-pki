@@ -56,7 +56,8 @@ no-op:
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
-    # Always run if it's on the main branch.
+    # Always run if it's on the main branch. This currently implies containers are
+    # rebuilt after merges in identity-idp as well (which trigger this pipeline).
     - if: $CI_COMMIT_BRANCH == "main"
     # Otherwise, only build on PRs, not new branches ...
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_PIPELINE_SOURCE != "external_pull_request_event"'
@@ -172,7 +173,7 @@ env-agnes:
   variables:
     ENV_NAME: agnes
   rules:
-    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE != "schedule"
   trigger:
     include: .gitlab-ci-idp-env-jobs-template.yml
 
@@ -188,7 +189,7 @@ env-dev:
   variables:
     ENV_NAME: dev
   rules:
-    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE != "schedule"
   trigger:
     include: .gitlab-ci-idp-env-jobs-template.yml
 
