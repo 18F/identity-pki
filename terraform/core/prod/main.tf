@@ -41,11 +41,6 @@ module "main" {
           "records" = ["L1XfURLRizB_sP022sBOoQGaulRl34R9B3xEZxTTFk=rsa; t=s; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDPtW5iwpXVPiH5FzJ7Nrl8USzuY9zqqzjE0D1r04xDN6qwziDnmgcFNNfMewVKN2D1O+2J9N14hRprzByFwfQW76yojh54Xu3uSbQ3JP0A7k8o8GutRF8zbFUA8n0ZH2y0cIEjMliXY4W4LwPA7m4q0ObmvSjhd6\"\"3O9d8z1XkUBwIDAQAB"],
           "ttl"     = "900",
         },
-        {
-          "name"    = "status.",
-          "records" = ["status-page-domain-verification=tg65vnybbdwq"],
-          "ttl"     = "3600",
-        },
       ]
     },
     {
