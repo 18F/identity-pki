@@ -33,6 +33,25 @@ module "main" {
   restricted_paths    = module.waf_data.restricted_paths
   privileged_cidrs_v4 = module.waf_data.privileged_cidrs_v4
   privileged_cidrs_v6 = module.waf_data.privileged_cidrs_v6
+  aws_shield_resources = {
+    cloudfront = [
+      "arn:aws:cloudfront::555546682965:distribution/E219U62GJ2GXKD",
+      "arn:aws:cloudfront::555546682965:distribution/E1VUTCRIBG0SX2"
+    ],
+    route53_hosted_zone = [
+      "arn:aws:route53:::hostedzone/Z3E7AW4JDQM95M",
+      "arn:aws:route53:::hostedzone/Z1ZBRRO92N8G72",
+      "arn:aws:route53:::hostedzone/Z29P7LNIL2XATE"
+    ],
+    global_accelerator = [],
+    application_loadbalancer = [
+      "arn:aws:elasticloadbalancing:us-west-2:555546682965:loadbalancer/app/login-idp-alb-staging/bc839ef22f4ef769"
+    ],
+    classic_loadbalancer = [
+      "arn:aws:elasticloadbalancing:us-west-2:555546682965:loadbalancer/staging-pivcac"
+    ],
+    elastic_ip_address = []
+  }
 }
 
 module "cloudfront-waf" {
