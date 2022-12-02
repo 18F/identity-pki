@@ -36,14 +36,6 @@ variables:
   GITTEST_IMAGE_DIGEST: "sha256:9c92a4d06c4e88af3989df742cbc466054f6842855da4b71f8092204ff85ecdb"
   STOP_IMAGE_DIGEST: "sha256:0d9bd0ca8bf279593c190e84dbf93b5fb47080f8562447640ede187fe1315c1f"
 
-# Always runs on merge requests, so the pipeline has at least one job. https://gitlab.com/gitlab-org/gitlab/-/issues/220260
-no-op:
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $CI_PIPELINE_SOURCE == "external_pull_request_event"
-  script:
-    - "true"
-
 # TODO(LG-6069): Use an image from ECR
 .build_template:
   stage: build
