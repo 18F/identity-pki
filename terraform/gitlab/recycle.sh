@@ -35,7 +35,7 @@ rm -rf refreshes*
 
 # start recycles up
 aws autoscaling describe-auto-scaling-groups --region "$AWS_REGION" | jq -r ".AutoScalingGroups[] | .AutoScalingGroupName | select(test(\"^${ENV_NAME}-\"))" | grep -Ev "$IGNORE" | while read line ; do
-	aws autoscaling start-instance-refresh --region "$AWS_REGION" --preferences MinHealthyPercentage="$MINHEALTHYPCT" --auto-scaling-group-name "$line" > "/tmp/refreshes-$line"
+	aws autoscaling start-instance-refresh --region "$AWS_REGION" --preferences '{"MinHealthyPercentage": '$MINHEALTHYPCT', "InstanceWarmup": 0}' --auto-scaling-group-name "$line" > "/tmp/refreshes-$line"
 	if [ "$?" -eq "0" ] ; then
 		echo "$line instance refresh initiated"
 	else
