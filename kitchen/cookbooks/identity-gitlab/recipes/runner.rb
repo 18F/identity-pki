@@ -21,7 +21,7 @@ end
 
 # https://packages.gitlab.com/runner/gitlab-runner
 package 'gitlab-runner' do
-  version '15.5.0'
+  version '15.6.1'
 end
 
 # install docker-credential-ecr-login so we can auth to ECR
