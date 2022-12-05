@@ -398,9 +398,6 @@ deploy_alpha:
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
-      # XXX - Just for evaluating the PR
-    - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_PIPELINE_SOURCE != "external_pull_request_event"'
-      when: never
     - if: $CI_COMMIT_BRANCH == "stages/gitlabalpha"
 
 test_alpha:
@@ -414,9 +411,6 @@ test_alpha:
     DOMAIN: gitlab.alpha.gitlab.identitysandbox.gov
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
-      when: never
-      # XXX - Just for evaluating the PR
-    - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_PIPELINE_SOURCE != "external_pull_request_event"'
       when: never
     - if: $CI_COMMIT_BRANCH == "stages/gitlabalpha"
 
