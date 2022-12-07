@@ -33,8 +33,15 @@ IGNORE="^${ENV_NAME}-migration$|^${ENV_NAME}-gitlab-env-runner"
 cd /tmp/ || exit 1
 rm -rf refreshes*
 
+# determine ASGs to recycle
+if [ -n "$RECYCLE_ENV_RUNNERS_ONLY" ]; then
+    ASGS="${ENV_NAME}-gitlab-env-runner"
+else
+    ASGS=$(aws autoscaling describe-auto-scaling-groups --region "$AWS_REGION" | jq -r ".AutoScalingGroups[] | .AutoScalingGroupName | select(test(\"^${ENV_NAME}-\"))" | grep -Ev "$IGNORE")
+fi
+
 # start recycles up
-aws autoscaling describe-auto-scaling-groups --region "$AWS_REGION" | jq -r ".AutoScalingGroups[] | .AutoScalingGroupName | select(test(\"^${ENV_NAME}-\"))" | grep -Ev "$IGNORE" | while read line ; do
+for line in $ASGS; do
 	aws autoscaling start-instance-refresh --region "$AWS_REGION" --preferences '{"MinHealthyPercentage": '$MINHEALTHYPCT', "InstanceWarmup": 0}' --auto-scaling-group-name "$line" > "/tmp/refreshes-$line"
 	if [ "$?" -eq "0" ] ; then
 		echo "$line instance refresh initiated"
@@ -92,40 +99,4 @@ done
 if [ "$FAILURE" = "true" ] ; then
 	echo "node recycle FAILED, investigate reasons above"
 	exit 1
-fi
-
-# recycle the gitlab-runner 1h in the future if it's run inside a pipeline, to avoid us
-# killing the system this job is running on while it's running.  Otherwise, just recycle
-# right away.
-# XXX if the tests run extra long, they may get killed by this, so if you need to,
-#     you can change the 60/70 minute stuff to more.  Let's hope tests never run more
-#     than an hour.
-if [ -z "$CI_COMMIT_SHA" ] ; then
-	echo "============= recycling $ENV_NAME-gitlab-env-runner asynchronously right now"
-	if [ "$(uname -s)" = "Darwin" ] ; then
-		START=$(TZ=Zulu date -v +1M +%Y-%m-%dT%H:%M:%SZ)
-		END=$(TZ=Zulu date -v +10M +%Y-%m-%dT%H:%M:%SZ)
-	else
-		START=$(TZ=Zulu date -d "1 minutes" +%Y-%m-%dT%H:%M:%SZ)
-		END=$(TZ=Zulu date -d "10 minutes" +%Y-%m-%dT%H:%M:%SZ)
-	fi
-else
-	echo "============= recycling $ENV_NAME-gitlab-env-runner 1h from now"
-	if [ "$(uname -s)" = "Darwin" ] ; then
-		START=$(TZ=Zulu date -v +60M +%Y-%m-%dT%H:%M:%SZ)
-		END=$(TZ=Zulu date -v +70M +%Y-%m-%dT%H:%M:%SZ)
-	else
-		START=$(TZ=Zulu date -d "60 minutes" +%Y-%m-%dT%H:%M:%SZ)
-		END=$(TZ=Zulu date -d "70 minutes" +%Y-%m-%dT%H:%M:%SZ)
-	fi
-fi
-PROPERSIZE=$(aws autoscaling describe-auto-scaling-groups --region "$AWS_REGION" --auto-scaling-group-names "$ENV_NAME"-gitlab-env-runner | jq .AutoScalingGroups[0].DesiredCapacity)
-DOUBLESIZE=$(expr $PROPERSIZE \* 2)
-RUNNERASGCOUNT=$(aws autoscaling describe-auto-scaling-groups --region "$AWS_REGION" --auto-scaling-group-names "$ENV_NAME"-gitlab-env-runner | jq '.[] | length')
-
-if [ "$RUNNERASGCOUNT" != "0" ] ; then
-       aws autoscaling put-scheduled-update-group-action --region "$AWS_REGION" --scheduled-action-name "recycle-env-runner-$ENV_NAME" --auto-scaling-group-name "${ENV_NAME}-gitlab-env-runner" --start-time "$START" --desired-capacity "$DOUBLESIZE"
-       aws autoscaling put-scheduled-update-group-action --region "$AWS_REGION" --scheduled-action-name "end-recycle-env-runner-$ENV_NAME" --auto-scaling-group-name "${ENV_NAME}-gitlab-env-runner" --start-time "$END" --desired-capacity "$PROPERSIZE"
-else
-       echo "${ENV_NAME}-gitlab-env-runner does not exist, not recycling"
 fi

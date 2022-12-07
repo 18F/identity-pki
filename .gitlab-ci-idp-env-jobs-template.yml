@@ -1,9 +1,8 @@
 ---
 stages:
-  - build
   - deploy
-  - test
   - post_deploy
+  - smoke_test
 
 post_deploy:
   environment:
@@ -69,7 +68,7 @@ test:
     # s3://login-gov.secrets.<account>-us-west-2/<env>/gitlab_env_runner_allowed_images,
     # or s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images.
     name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_test@$TEST_IMAGE_DIGEST
-  stage: test
+  stage: smoke_test
   artifacts:
     paths:
       - gl-sast-report.json

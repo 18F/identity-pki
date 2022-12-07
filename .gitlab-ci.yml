@@ -26,13 +26,14 @@ stages:
   - test
   - deploy
   - post_deploy
+  - smoke_test
 
 variables:
   CI_COMMIT_TAG: "$CI_COMMIT_SHA"
   ECR_REGISTRY: "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
   DEPLOY_IMAGE_DIGEST: "sha256:eb50e40ea23f539867dffd40a0c27f0daa04c5c4e90f5a8c2074f2037058644a"
   TEST_IMAGE_DIGEST: "sha256:0d3138704798b5aac3b3a461d12a6ca45a8466e699934d3e98a4247c22773b68"
-  GITDEPLOY_IMAGE_DIGEST: "sha256:2ccdd92641947e43bff447e7009c3e9baa46f599d95ac5da0997fac77370d53e"
+  GITDEPLOY_IMAGE_DIGEST: "sha256:92a1f4c466f4a83a37b5434c969115c164f3ca02a48e0516ebf395af823c97fe"
   GITTEST_IMAGE_DIGEST: "sha256:9c92a4d06c4e88af3989df742cbc466054f6842855da4b71f8092204ff85ecdb"
   STOP_IMAGE_DIGEST: "sha256:0d9bd0ca8bf279593c190e84dbf93b5fb47080f8562447640ede187fe1315c1f"
 
@@ -274,7 +275,7 @@ env-solipet:
     # s3://login-gov.secrets.<account>-us-west-2/<env>/gitlab_env_runner_allowed_images,
     # or s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images.
     name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/gitlab_test@$GITTEST_IMAGE_DIGEST
-  stage: test
+  stage: smoke_test
   script:
     - echo "Somebody set us up the deploy" ; exit 1
   artifacts:
@@ -300,8 +301,26 @@ deploy_gitstaging:
   rules:
     - if: $CI_SERVER_HOST != "gitlab.login.gov"
       when: never
-    - if: $CI_COMMIT_BRANCH == "stages/gitstaging"
+    - if: $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE == "push"
 
+recycle_runner_gitstaging:
+  extends: .deploy_gitlab_template
+  environment:
+    name: gitstaging
+    url: https://gitlab.gitstaging.gitlab.login.gov/
+  resource_group: gitstaging
+  variables:
+    env: gitstaging
+    url: https://gitlab.gitstaging.gitlab.login.gov/
+    GIT_SUBMODULE_STRATEGY: normal
+    RECYCLE_ENV_RUNNERS_ONLY: "true"
+  stage: post_deploy
+  allow_failure: true
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE == "push"
+  
 test_gitstaging:
   extends: .test_gitlab_template
   environment:
@@ -314,7 +333,7 @@ test_gitstaging:
   rules:
     - if: $CI_SERVER_HOST != "gitlab.login.gov"
       when: never
-    - if: $CI_COMMIT_BRANCH == "stages/gitstaging"
+    - if: $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE == "push"
 
 deploy_charlie:
   extends: .deploy_gitlab_template

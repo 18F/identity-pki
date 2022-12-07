@@ -35,6 +35,12 @@ TFSTATE_BUCKET="login-gov.tf-state.$AWS_ACCOUNTID-$AWS_REGION"
 TFSTATE_CONFIG_KEY="terraform-gitlab/$CI_ENVIRONMENT_NAME.tfstate"
 IDP_DIR="$CI_PROJECT_DIR/identity-devops-private"
 
+# do recycle early and bail if we are only supposed to be recycling the env runners
+if [ -n "$RECYCLE_ENV_RUNNERS_ONLY" ] ; then
+	bash "$CI_PROJECT_DIR/terraform/gitlab/recycle.sh" "$CI_ENVIRONMENT_NAME"
+	exit $?
+fi
+
 # We need to use a tfbundle so that we don't have to have access to the internet.
 cd "$CI_PROJECT_DIR"
 mkdir -p "terraform/gitlab/$CI_ENVIRONMENT_NAME/.terraform"
