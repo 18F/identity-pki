@@ -145,3 +145,9 @@ module "export_to_s3" {
   cw_log_group = [module.ses_feedback_notification.ses_feedback_eval_lambda_loggroup]
   s3_bucket    = aws_s3_bucket.exported_logs.id
 }
+
+###Capturing SES Events to CW logs using configuration steps
+module "publish-ses-events-to-cw-logs-using-configsets" {
+  source                = "../../modules/publish_ses_events_to_cw_logs"
+  ses_verified_identity = var.root_domain
+}
