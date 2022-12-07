@@ -144,10 +144,6 @@ module "macie-bucket-scans-sandbox" {
 
 }
 
-module "publish-ses-events-to-cw-logs" {
-  source = "../../modules/publish_ses_events_to_cw_logs"
-}
-
 output "primary_zone_dnssec_ksks" {
   value = module.main.primary_zone_dnssec_ksks
 }
