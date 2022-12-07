@@ -4,10 +4,12 @@ data "aws_sns_topic" "cloudfront_alarm" {
 
 data "aws_cloudfront_cache_policy" "managed_caching_disabled" {
   name = "Managed-CachingDisabled"
+  provider = aws.use1
 }
 
 data "aws_cloudfront_origin_request_policy" "idp_origin" {
   name = "idp-origin-request-policy"
+  provider = aws.use1
 }
 
 data "aws_wafv2_web_acl" "cloudfront_web_acl" {
@@ -47,7 +49,7 @@ module "acm-cert-idp-static-cdn" {
 
 resource "aws_cloudfront_distribution" "idp_static_cdn" {
   count = var.enable_idp_cdn ? 1 : 0
-
+  provider = aws.use1
   depends_on = [
     module.acm-cert-idp[0].finished_id
   ]
