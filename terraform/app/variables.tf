@@ -1102,6 +1102,7 @@ variable "use_lor_algorithm" {
   type        = bool
   default     = false
 }
+
 variable "cloudfront_http_version" {
   description = "Http version supported by Cloudfront distribution. Valid values are either http2 or http2and3"
   default     = "http2and3"
@@ -1118,4 +1119,10 @@ variable "sli_uninteresting_uris" {
     "/health_check",
     "/manifest.json"
   ]
+}
+
+variable "escrow_content_expiration" {
+  description = "Expiration of documents that are pushed to the escrow s3 bucket in days"
+  type        = string
+  default     = 90
 }

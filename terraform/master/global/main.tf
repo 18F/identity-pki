@@ -70,6 +70,9 @@ module "main" {
       { "FullAdministrator" = ["Sandbox"] },
       { "Terraform" = ["Sandbox"] }
     ],
+    "escrowread" = [
+      { "EscrowRead" = ["Sandbox"] }
+    ]
     "finops" = [
       { "Analytics" = ["Sandbox", "Prod"] },
       { "BillingReadOnly" = ["Sandbox", "Prod"] },
@@ -111,6 +114,7 @@ module "main" {
     "Analytics",
     "Auditor",
     "BillingReadOnly",
+    "EscrowRead",
     "FullAdministrator",
     "PowerUser",
     "ReadOnly",
