@@ -192,6 +192,7 @@ resource "aws_autoscaling_group" "pivcac" {
   depends_on = [
     aws_autoscaling_group.outboundproxy,
     aws_autoscaling_group.migration,
+    aws_cloudwatch_log_group.nginx_access_log
   ]
 }
 

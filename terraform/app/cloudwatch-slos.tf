@@ -10,7 +10,7 @@ locals {
 
 resource "aws_cloudwatch_log_metric_filter" "idp_interesting_uris_success" {
   name           = "${var.env_name}-idp-interesting-uris-success"
-  log_group_name = "${var.env_name}_/var/log/nginx/access.log"
+  log_group_name = aws_cloudwatch_log_group.nginx_access_log.name
   pattern        = join("", ["{", local.idp_uri_denylist_filter, " && $.status != 5*}"])
   metric_transformation {
     name      = "InterestingUrisSuccess"
@@ -20,11 +20,12 @@ resource "aws_cloudwatch_log_metric_filter" "idp_interesting_uris_success" {
       Hostname = "$.hostname"
     }
   }
+  depends_on = [aws_cloudwatch_log_group.nginx_access_log]
 }
 
 resource "aws_cloudwatch_log_metric_filter" "idp_interesting_uris_total" {
   name           = "${var.env_name}-idp-interesting-uris-total"
-  log_group_name = "${var.env_name}_/var/log/nginx/access.log"
+  log_group_name = aws_cloudwatch_log_group.nginx_access_log.name
   pattern        = join("", ["{", local.idp_uri_denylist_filter, "}"])
   metric_transformation {
     name      = "InterestingUrisTotal"
@@ -34,6 +35,7 @@ resource "aws_cloudwatch_log_metric_filter" "idp_interesting_uris_total" {
       Hostname = "$.hostname"
     }
   }
+  depends_on = [aws_cloudwatch_log_group.nginx_access_log]
 }
 
 module "cloudwatch_sli" {

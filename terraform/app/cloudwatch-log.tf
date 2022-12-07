@@ -79,3 +79,10 @@ resource "aws_cloudwatch_log_group" "passenger_status" {
   retention_in_days = local.retention_days
 }
 
+resource "aws_cloudwatch_log_group" "nginx_access_log" {
+  name = "${var.env_name}_/var/log/nginx/access.log"
+
+  tags = {
+    environment = var.env_name
+  }
+}

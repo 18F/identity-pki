@@ -260,6 +260,8 @@ resource "aws_autoscaling_group" "worker" {
   depends_on = [
     aws_autoscaling_group.outboundproxy,
     aws_autoscaling_group.migration,
+    aws_autoscaling_group.idp,
+    aws_cloudwatch_log_group.nginx_access_log
   ]
 }
 
