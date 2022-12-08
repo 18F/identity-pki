@@ -1,10 +1,10 @@
 locals {
   # Need this because prod doesn't have an AutoTerraform role at the moment
-  key_management_roles = var.env_name == "prod" ? [
-    "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/Terraform"
-    ] : [
+  key_management_roles = var.gitlab_enabled ? [
     "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/Terraform",
-    "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/AutoTerraform"
+    module.env-runner[0].runner_role_arn
+    ] : [
+    "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/Terraform"
   ]
 }
 
