@@ -293,6 +293,7 @@ deploy_gitstaging:
   environment:
     name: gitstaging
     url: https://gitlab.gitstaging.gitlab.login.gov/
+    action: start
   resource_group: gitstaging
   variables:
     env: gitstaging
@@ -308,6 +309,7 @@ recycle_runner_gitstaging:
   environment:
     name: gitstaging
     url: https://gitlab.gitstaging.gitlab.login.gov/
+    action: access
   resource_group: gitstaging
   variables:
     env: gitstaging
@@ -326,6 +328,7 @@ test_gitstaging:
   environment:
     name: gitstaging
     url: https://gitlab.gitstaging.gitlab.login.gov/
+    action: verify
   resource_group: gitstaging
   variables:
     ENV_NAME: gitstaging

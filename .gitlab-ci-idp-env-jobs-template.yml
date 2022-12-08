@@ -6,6 +6,7 @@ stages:
 
 post_deploy:
   environment:
+    action: access
     name: ${ENV_NAME}
   allow_failure: true
   variables:
@@ -27,6 +28,7 @@ post_deploy:
 
 deploy:
   environment:
+    action: start
     name: ${ENV_NAME}
     on_stop: stop
     url: https://idp.${ENV_NAME}.identitysandbox.gov/
@@ -55,6 +57,9 @@ deploy:
     - echo "Somebody set us up the deploy" ; exit 1
 
 test:
+  environment:
+    action: verify
+    name: ${ENV_NAME}
   tags:
     - ${ENV_NAME}-env-runner
   variables:
