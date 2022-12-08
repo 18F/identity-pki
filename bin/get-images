@@ -176,9 +176,10 @@ update_vars() {
     if [[ "${AMI_ACCT}" =~ 'tooling' ]]; then
       if [[ "${AMI_ACCT}" == 'tooling-prod' ]]; then
         TF_VARS_PATHS+=('terraform/gitlab/production/main.tf')
+        TF_VARS_PATHS+=('terraform/gitlab/gitstaging/main.tf')
       else
         for MAIN_TF in $(find "${GIT_DIR}/terraform/gitlab" -type f -name 'main.tf' \
-          ! -path "*tfstate*" ! -path "*\.terraform*" ! -path "*prod*" | tr '\n' ' ') ; do
+          ! -path "*tfstate*" ! -path "*\.terraform*" ! -path "*prod*" ! -path "*gitstaging*" | tr '\n' ' ') ; do
           if [[ $(grep 'allowed_account_ids' "${MAIN_TF}") ]] ; then
             TF_VARS_PATHS+=($(echo "${MAIN_TF}" | sed -E 's/.+(terraform\/)/\1/'))
           fi
