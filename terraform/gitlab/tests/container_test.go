@@ -12,8 +12,7 @@ import (
 
 func RunOnRunners(t *testing.T, cmd string) []string {
 	t.Parallel()
-	instances := aws.GetInstanceIdsForAsg(t, env_name+"-gitlab-build-pool", region)
-	instances = append(instances, aws.GetInstanceIdsForAsg(t, env_name+"-gitlab-test-pool", region)...)
+	instances := aws.GetInstanceIdsForAsg(t, env_name+"-gitlab-env-runner", region)
 
 	results := RunCommandOnInstances(t, instances, cmd)
 	combinedOut := []string{}

@@ -20,9 +20,11 @@ MIGRATIONDELAY=5
 # How many minutes to wait for a migration to get done and thus be torn down
 MIGRATIONDURATION=20
 
-# healthy percentage required during an instance refresh
-# Chose this because in prod, we seem to have our systems running at around 25% CPU at peak
-MINHEALTHYPCT=35
+# Healthy percentage required during an instance refresh. Chose this because we
+# have only one Gitlab Rails instance, so while it's refreshing, the entire
+# environment is down anyway. Setting this to 0% tells AWS that all instances
+# may be refreshed at once.
+MINHEALTHYPCT=0
 
 # This is a egrep pattern for excluding types of ASGs from being recycled.
 # Migrations hosts need to be done separately.  You can add more with |.

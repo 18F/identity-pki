@@ -375,6 +375,8 @@ test_charlie:
 
 # deploy jobs for gitlabbravo env here.
 deploy_bravo:
+  # Allow failure so the pipeline continues with other envs
+  allow_failure: true
   extends: .deploy_gitlab_template
   environment:
     name: bravo
@@ -392,6 +394,8 @@ deploy_bravo:
     - if: $CI_COMMIT_BRANCH == "main"
 
 test_bravo:
+  # Allow failure so the pipeline continues with other envs
+  allow_failure: true
   extends: .test_gitlab_template
   environment:
     name: bravo

@@ -26,7 +26,7 @@ var region = os.Getenv("REGION")
 var domain = os.Getenv("DOMAIN")
 var accountid = os.Getenv("ACCOUNTID")
 var timeout = 5
-var runner_asg = env_name + "-gitlab-test-pool"
+var runner_asg = env_name + "-gitlab-env-runner"
 
 func randSeq(n int) string {
 	b := make([]rune, n)
@@ -330,6 +330,11 @@ func TestGitlabAPI(t *testing.T) {
 // This does a basic smoke test
 // to make sure that docker is working.
 func TestDockerWorking(t *testing.T) {
+	// If we're inside Gitlab CI, we implictly know it works.
+	if os.Getenv("CI_PROJECT_DIR") != "" {
+		return
+	}
+
 	// make sure we can pull an image
 	instances := aws.GetInstanceIdsForAsg(t, runner_asg, region)
 	require.NotEmpty(t, instances)
