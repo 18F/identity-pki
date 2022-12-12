@@ -18,6 +18,22 @@ locals {
       metric_value = 1
       dimensions   = {}
     },
+    telephony_otp_sent_method_is_resend = {
+      name         = "telephony-otp-sent-method-is-resend"
+      pattern      = "{ ($.name = \"Telephony: OTP sent\") && $.properties.event_properties.success is true && $.properties.event_properties.resend is true }"
+      metric_value = 1
+      dimensions = {
+        channel = "$.properties.event_properties.otp_delivery_preference",
+      }
+    },
+    telephony_otp_sent_method_not_resend = {
+      name         = "telephony-otp-sent-method-is-not-resend"
+      pattern      = "{ ($.name = \"Telephony: OTP sent\") && $.properties.event_properties.success is true && ($.properties.event_properties.resend is false || $.properties.event_properties.resend is null) }"
+      metric_value = 1
+      dimensions = {
+        channel = "$.properties.event_properties.otp_delivery_preference",
+      }
+    },
     user_marked_authenticated = {
       name         = "user-marked-authenticated"
       pattern      = "{ ($.name = \"User marked authenticated\") }"

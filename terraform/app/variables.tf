@@ -769,6 +769,11 @@ variable "sms_send_rate_alert_threshold" {
   default     = 100
 }
 
+variable "sms_high_retry_percentage_threshold" {
+  description = "If more than this percentage of SMS retries, send alert"
+  default     = 0
+}
+
 variable "sp_return_low_alert_threshold" {
   description = "Minimum number of SP redirect initiations (SP returns) per 10 minutes"
   type        = number
