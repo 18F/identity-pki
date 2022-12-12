@@ -1,6 +1,6 @@
 resource "aws_wafv2_regex_pattern_set" "relaxed_uri_paths" {
   name        = "${var.env}-relaxed-uri-paths"
-  description = "Paths to excempt from false positive happy SQLi and other rules"
+  description = "Paths to exempt from false positive happy SQLi and other rules"
   scope       = var.wafv2_web_acl_scope
 
   dynamic "regular_expression" {
@@ -78,6 +78,24 @@ resource "aws_wafv2_regex_pattern_set" "restricted_paths_exclusions" {
 
   dynamic "regular_expression" {
     for_each = toset(var.restricted_paths.exclusions)
+    content {
+      regex_string = regular_expression.value
+    }
+  }
+
+  tags = {
+    environment = var.env
+  }
+}
+
+resource "aws_wafv2_regex_pattern_set" "limit_exempt_paths" {
+  name        = "${var.env}-limit-exempt-paths"
+  description = "Paths to exempt from rate-limiting acl rules"
+  scope       = var.wafv2_web_acl_scope
+
+  dynamic "regular_expression" {
+    for_each = var.limit_exempt_paths
+
     content {
       regex_string = regular_expression.value
     }
