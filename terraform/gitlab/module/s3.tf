@@ -35,27 +35,6 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "backups" {
   }
 }
 
-resource "aws_s3_bucket_lifecycle_configuration" "backups" {
-  bucket = aws_s3_bucket.backups.id
-
-  rule {
-    id     = "expire-backups"
-    status = "Enabled"
-
-    abort_incomplete_multipart_upload {
-      days_after_initiation = 1
-    }
-
-    expiration {
-      days = var.gitlab_backup_retention_days
-    }
-
-    noncurrent_version_expiration {
-      noncurrent_days = var.gitlab_backup_retention_days
-    }
-  }
-}
-
 resource "aws_s3_bucket_ownership_controls" "backups" {
   bucket = aws_s3_bucket.backups.id
 
@@ -123,28 +102,6 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "backups_dr" {
   rule {
     apply_server_side_encryption_by_default {
       sse_algorithm = "AES256"
-    }
-  }
-}
-
-resource "aws_s3_bucket_lifecycle_configuration" "backups_dr" {
-  bucket   = aws_s3_bucket.backups_dr.id
-  provider = aws.dr
-
-  rule {
-    id     = "expire-backups"
-    status = "Enabled"
-
-    abort_incomplete_multipart_upload {
-      days_after_initiation = 1
-    }
-
-    expiration {
-      days = var.gitlab_backup_retention_days
-    }
-
-    noncurrent_version_expiration {
-      noncurrent_days = var.gitlab_backup_retention_days
     }
   }
 }
