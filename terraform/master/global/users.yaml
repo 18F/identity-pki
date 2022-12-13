@@ -194,6 +194,13 @@ users:
     - jmdembe
     gitlab_groups:
     - appdev
+  jessica.fortier:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - jfortier
+    gitlab_groups:
+    - appdev
   jillian.harrigan:
     gitlab_groups:
     - antifraud
