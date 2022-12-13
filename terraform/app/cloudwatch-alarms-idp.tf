@@ -248,3 +248,39 @@ resource "aws_cloudwatch_metric_alarm" "in-person-proofing-enrollment-alarm" {
 ${var.env_name}: Alarm tracking In Person Proofing Enrollment Requests Failure
 EOM
 }
+
+resource "aws_cloudwatch_metric_alarm" "attempt-api-event-auth-alarm" {
+  alarm_name                = "${var.env_name}-attempt-api-event-auth-failure"
+  comparison_operator       = "GreaterThanThreshold"
+  evaluation_periods        = "1"
+  datapoints_to_alarm       = "1"
+  metric_name               = "attempt-api-events-auth-failure"
+  namespace                 = "${var.env_name}/attempt-api-events"
+  period                    = "300"
+  statistic                 = "Sum"
+  threshold                 = "0"
+  treat_missing_data        = "notBreaching"
+  insufficient_data_actions = []
+  alarm_actions             = local.high_priority_alarm_actions
+  alarm_description         = <<EOM
+${var.env_name}: IRS Attempt API authentication failure(s) detected.
+See https://github.com/18F/identity-devops/wiki/Runbook:-IRS-Attempt-API-Event---Authentication-Failure
+EOM
+}
+
+resource "aws_cloudwatch_metric_alarm" "attempt-api-low-success-rate-alarm" {
+  alarm_name                = "${var.env_name}-attempt-api-low-success-rate"
+  comparison_operator       = "LessThanThreshold"
+  evaluation_periods        = "1"
+  metric_name               = "attempt-api-events-success"
+  namespace                 = "${var.env_name}/attempt-api-events"
+  period                    = "1800"
+  statistic                 = "Sum"
+  threshold                 = var.attemptapi_low_success_alarm_threshold
+  treat_missing_data        = var.attemptapi_low_success_alarm_threshold > 0 ? "breaching" : "notBreaching"
+  alarm_actions             = local.high_priority_alarm_actions
+  alarm_description         = <<EOM
+${var.env_name}: IRS Attempt API - Less than ${var.attemptapi_low_success_alarm_threshold} successful call in the last 30 minutes. 
+See https://github.com/18F/identity-devops/wiki/Runbook:-IRS-Attempt-API-Event---Low-Success-Rate
+EOM
+}
