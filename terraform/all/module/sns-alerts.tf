@@ -28,6 +28,7 @@ locals {
   slack_channel_map = {
     "events"             = "login-events"
     "otherevents"        = "login-otherevents"
+    "events-pt"          = "login-events-pt"
     "soc"                = "login-soc-events"
     "in-person-proofing" = "login-in-person-proofing-events"
   }

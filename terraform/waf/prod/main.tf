@@ -21,6 +21,8 @@ module "main" {
   region  = "us-west-2"
   enforce = true
 
+  enforce_rate_limit = true
+
   # Uncomment to use header_block_regex filter
   #header_block_regex = yamldecode(file("header_block_regex.yml"))
 
@@ -63,6 +65,7 @@ module "cloudfront-waf" {
   region              = "us-east-1"
   enforce             = true
   soc_destination_arn = "arn:aws:logs:us-east-1:752281881774:destination:elp-waf-lg"
+  enforce_rate_limit  = true
 
   # Uncomment to use header_block_regex filter
   #header_block_regex = yamldecode(file("header_block_regex.yml"))

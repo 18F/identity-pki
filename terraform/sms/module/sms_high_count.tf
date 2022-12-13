@@ -107,6 +107,6 @@ resource "aws_iam_role_policy_attachment" "sms_count_lambda" {
 
 ### Cloudwatch log group for lambda ###
 resource "aws_cloudwatch_log_group" "sms_count_lambda_cw_logs" {
-  name              = "/aws/lambda/sms_high_count_lambda_logs"
+  name              = "/aws/lambda/sms_high_count"
   retention_in_days = 365
 }

@@ -26,6 +26,12 @@ variable "enforce" {
   default     = false
 }
 
+variable "enforce_rate_limit" {
+  description = "Set to true to enforce rate-limiting of all traffic based on source IP"
+  type        = bool
+  default     = false
+}
+
 # description of rules in each AWS managed ruleset 
 # https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-list.html
 variable "ip_reputation_ruleset_exclusions" {
@@ -138,6 +144,15 @@ variable "relaxed_uri_paths" {
   }
 }
 
+variable "limit_exempt_paths" {
+  description = "Set of regexes to exempt from rate-limiting acl rules"
+  type        = list(string)
+  default = [
+    "^/api/.*",
+    "^/\\.well-known/.*"
+  ]
+}
+
 variable "header_block_regex" {
   description = "Map of regexes matching headers to block"
   type = list(object({
@@ -165,6 +180,12 @@ variable "waf_alert_blocked_threshold" {
   description = "Alert will fire if the number of blocks within the window is >= this value"
   type        = string
   default     = "5"
+}
+
+variable "rate_limit" {
+  description = "The maximum number of requests from a single IP address that are allowed in a five-minute period"
+  type        = string
+  default     = "5500"
 }
 
 variable "waf_alert_actions" {

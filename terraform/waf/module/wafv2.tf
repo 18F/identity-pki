@@ -23,7 +23,7 @@ resource "aws_wafv2_web_acl" "alb" {
     allow {}
   }
 
-  # Only this rule has the 'allow' action, short-circuiting the other rules.
+  # Only these first 2 rules have the 'allow' action, short-circuiting the other rules.
   dynamic "rule" {
     for_each = length(aws_wafv2_ip_set.privileged_ips) > 0 ? [1] : []
     content {
@@ -78,6 +78,36 @@ resource "aws_wafv2_web_acl" "alb" {
         metric_name                = "${local.web_acl_name}-PrivilegedIPs-metric"
         sampled_requests_enabled   = true
       }
+    }
+  }
+
+  rule {
+    name     = "AllowTrafficToPaths"
+    priority = 60
+
+    action {
+      allow {}
+    }
+
+    statement {
+      regex_pattern_set_reference_statement {
+        arn = aws_wafv2_regex_pattern_set.limit_exempt_paths.arn
+
+        field_to_match {
+          uri_path {}
+        }
+
+        text_transformation {
+          priority = 2
+          type     = "LOWERCASE"
+        }
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "${local.web_acl_name}-AllowTrafficToPaths-metric"
+      sampled_requests_enabled   = true
     }
   }
 
@@ -462,8 +492,6 @@ resource "aws_wafv2_web_acl" "alb" {
         sampled_requests_enabled   = true
       }
     }
-
-
   }
 
   dynamic "rule" {
@@ -637,6 +665,61 @@ resource "aws_wafv2_web_acl" "alb" {
       visibility_config {
         cloudwatch_metrics_enabled = true
         metric_name                = "${local.web_acl_name}-GeoAllowRegion-metric"
+        sampled_requests_enabled   = true
+      }
+    }
+  }
+
+  dynamic "rule" {
+    for_each = var.wafv2_web_acl_scope == "CLOUDFRONT" && var.enforce_rate_limit ? [1] : []
+    content {
+      name     = "RateLimitBlockRequestFromSourceIPs"
+      priority = 1400
+
+      action {
+        block {}
+      }
+
+      statement {
+        rate_based_statement {
+          limit              = var.rate_limit
+          aggregate_key_type = "IP"
+        }
+      }
+
+      visibility_config {
+        cloudwatch_metrics_enabled = true
+        metric_name                = "${local.web_acl_name}-RateLimitBySourceIP-metric"
+        sampled_requests_enabled   = true
+      }
+    }
+  }
+
+  dynamic "rule" {
+    for_each = var.wafv2_web_acl_scope != "CLOUDFRONT" && var.enforce_rate_limit ? [1] : []
+    content {
+      name     = "RateLimitBlockRequestFromHeaderIPs"
+      priority = 1500
+
+      action {
+        block {}
+      }
+
+      statement {
+        rate_based_statement {
+          limit              = var.rate_limit
+          aggregate_key_type = "FORWARDED_IP"
+
+          forwarded_ip_config {
+            fallback_behavior = "MATCH"
+            header_name       = "X-Forwarded-For"
+          }
+        }
+      }
+
+      visibility_config {
+        cloudwatch_metrics_enabled = true
+        metric_name                = "${local.web_acl_name}-RateLimitByHeaderIP-metric"
         sampled_requests_enabled   = true
       }
     }

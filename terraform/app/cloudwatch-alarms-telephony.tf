@@ -120,3 +120,58 @@ EOM
   alarm_actions             = local.high_priority_alarm_actions
 }
 
+resource "aws_cloudwatch_metric_alarm" "idp_sms_resend_percentage_high_alarm" {
+  count                     = var.sms_high_retry_percentage_threshold > 0 ? 1 : 0
+  alarm_name                = "${var.env_name}-high_sms_resend_percentage_threshold"
+  comparison_operator       = "GreaterThanThreshold"
+  evaluation_periods        = "1"
+  datapoints_to_alarm       = "1"
+  threshold                 = var.sms_high_retry_percentage_threshold
+  alarm_description         = <<EOM
+${var.env_name} IdP experienced more than ${var.sms_high_retry_percentage_threshold} percent of SMS retries in 5 minutes
+
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Pinpoint-SMS-and-Voice
+EOM
+  treat_missing_data        = "notBreaching"
+  insufficient_data_actions = []
+  alarm_actions             = local.low_priority_alarm_actions
+  ok_actions                = local.low_priority_alarm_actions
+
+
+  metric_query {
+    id          = "resend_percentage"
+    expression  = "(resends / (resends + not_resends)) * 100"
+    label       = "Resend Percentage"
+    return_data = "true"
+  }
+
+  metric_query {
+    id = "resends"
+
+    metric {
+      metric_name = "telephony-otp-sent-method-is-resend"
+      namespace   = "${var.env_name}/idp-authentication"
+      period      = 300
+      stat        = "Sum"
+
+      dimensions = {
+        channel = "sms"
+      }
+    }
+  }
+
+  metric_query {
+    id = "not_resends"
+
+    metric {
+      metric_name = "telephony-otp-sent-method-is-not-resend"
+      namespace   = "${var.env_name}/idp-authentication"
+      period      = 300
+      stat        = "Sum"
+
+      dimensions = {
+        channel = "sms"
+      }
+    }
+  }
+}
