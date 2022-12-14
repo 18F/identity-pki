@@ -400,16 +400,15 @@ test_bravo:
   environment:
     name: bravo
     url: https://gitlab.bravo.gitlab.login.gov/
+    action: verify
   resource_group: bravo
   variables:
     ENV_NAME: bravo
     DOMAIN: gitlab.bravo.gitlab.identitysandbox.gov
   rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-      when: never
     - if: $CI_SERVER_HOST != "gitlab.login.gov"
       when: never
-    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE == "push"
 
 deploy_alpha:
   extends: .deploy_gitlab_template
