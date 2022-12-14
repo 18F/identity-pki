@@ -81,7 +81,7 @@ get_pipeline_ami() {
     --pipeline-name ${PIPE_NAME} --max-items 1)
   PIPE_TOKEN=$(echo ${PIPE_DATA} | jq -r '.NextToken')
   # check actionExecutionDetails of most recent CodePipeline action
-  # if stageName is Build -- and Succeeded -- get the externalExecutionId to look up the AMI ID
+  # if stageName = Build & Status = Succeeded, get externalExecutionId to look up AMI
   # if not -- and/or if the build Failed -- go to the next action
   while [[ -z ${BUILD} ]] ; do
     PIPE_BUILD=$(echo ${PIPE_DATA} | jq -r '.actionExecutionDetails[]')
@@ -132,6 +132,8 @@ get_ami_info() {
     fi
     NEW_AMIS+=(${IMAGE})
   done
+  [[ ${PROFILE} == 'tooling' ]] && PROFILE='tooling-sandbox'
+
   DATA+=$(echo -e "\n$(ave -r aws ec2 describe-images \
               --image-ids $(echo "${NEW_AMIS[*]}") \
               --query 'Images[*].[ImageId,CreationDate,Name]' \
@@ -165,7 +167,6 @@ update_vars() {
   [[ ${#DATA[@]} -eq 0 ]] && get_ami_info
   for LINE in $(echo "${DATA[@]}" | tail -n +2 | tr -d '|' |
                 awk '{print $1"+"$2"+"$3"+"$4}') ; do
-    local TF_VARS_PATHS=()
     AMI_ID=$(echo ${LINE} | awk -F+ '{print $1}')
     AMI_DATE=$(echo ${LINE} | awk -F+ '{print $2}' | sed -E 's/([0-9-]+)T.+/\1/')
     AMI_ACCT=$(echo ${LINE} | awk -F+ '{print $3}')
@@ -173,21 +174,18 @@ update_vars() {
     UBUNTU_VERSION=$(echo ${LINE} | awk -F+ '{print $4}' | sed -E "s/${AMI_TYPE}-//")
     AMI_STRING="${AMI_ID}\" # ${AMI_DATE} Ubuntu ${UBUNTU_VERSION}"
     [[ ${AMI_TYPE} == "base" ]] && AMI_TYPE='default'
+    # select files to update AMIs in
+    local TF_VARS_PATHS=()
     if [[ "${AMI_ACCT}" =~ 'tooling' ]]; then
-      if [[ "${AMI_ACCT}" == 'tooling-prod' ]]; then
-        TF_VARS_PATHS+=('terraform/gitlab/production/main.tf')
-        TF_VARS_PATHS+=('terraform/gitlab/gitstaging/main.tf')
-      else
-        for MAIN_TF in $(find "${GIT_DIR}/terraform/gitlab" -type f -name 'main.tf' \
-          ! -path "*tfstate*" ! -path "*\.terraform*" ! -path "*prod*" ! -path "*gitstaging*" | tr '\n' ' ') ; do
-          if [[ $(grep 'allowed_account_ids' "${MAIN_TF}") ]] ; then
-            TF_VARS_PATHS+=($(echo "${MAIN_TF}" | sed -E 's/.+(terraform\/)/\1/'))
-          fi
-        done
-      fi
+      for MAIN_TF in $(find "${GIT_DIR}/terraform/gitlab" -type f -name 'main.tf' -maxdepth 2) ; do
+        if [[ $(grep -E "\# +require login-${AMI_ACCT}$" "${MAIN_TF}") ]] ; then
+          TF_VARS_PATHS+=($(echo "${MAIN_TF}" | sed -E 's/.+(terraform\/)/\1/'))
+        fi
+      done
     else
       TF_VARS_PATHS+=('terraform/app/variables.tf')
     fi
+
     for VAR_PATH in "${TF_VARS_PATHS[@]}" ; do
       if [[ "${VAR_PATH}" =~ 'app' ]] ; then
         sed -i '' -E "/\"${AMI_TYPE}_ami_id_${AMI_ACCT}\"/{n;s/\ami.+/${AMI_STRING}/;}" \
