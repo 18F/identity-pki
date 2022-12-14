@@ -1,7 +1,7 @@
 resource "aws_cloudwatch_metric_alarm" "idp_worker_alive_alarm" {
   count = var.idp_worker_alarms_enabled
 
-  alarm_name                = "${var.env_name} IDP Workers Alive Alert"
+  alarm_name                = "${var.env_name}-IDPWorkers-Alive"
   comparison_operator       = "LessThanThreshold"
   evaluation_periods        = "6"
   datapoints_to_alarm       = "6"
@@ -24,7 +24,7 @@ EOM
 resource "aws_cloudwatch_metric_alarm" "idp_worker_failure_alarm" {
   count = var.idp_worker_alarms_enabled
 
-  alarm_name                = "${var.env_name} IDP Workers Failure Alert"
+  alarm_name                = "${var.env_name}-IDPWorkers-Failure"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "1"
   datapoints_to_alarm       = "1"
@@ -46,7 +46,7 @@ EOM
 resource "aws_cloudwatch_metric_alarm" "idp_worker_queue_time_alarm" {
   count = var.idp_worker_alarms_enabled
 
-  alarm_name                = "${var.env_name} IDP Workers Queue Time Alert"
+  alarm_name                = "${var.env_name}-IDPWorkers-QueueTime"
   comparison_operator       = "GreaterThanThreshold"
   evaluation_periods        = "1"
   datapoints_to_alarm       = "1"
@@ -68,7 +68,7 @@ EOM
 resource "aws_cloudwatch_metric_alarm" "idp_worker_perform_time_alarm" {
   count = var.idp_worker_alarms_enabled
 
-  alarm_name                = "${var.env_name} IDP Workers Perform Time Alert"
+  alarm_name                = "${var.env_name}-IDPWorkers-PerformTime"
   comparison_operator       = "GreaterThanThreshold"
   evaluation_periods        = "1"
   datapoints_to_alarm       = "1"
@@ -90,7 +90,7 @@ EOM
 resource "aws_cloudwatch_metric_alarm" "idp_worker_threatmetrix_js_verification_alarm" {
   count = var.idp_worker_alarms_enabled
 
-  alarm_name                = "${var.env_name} ThreatMetrix JS Verification"
+  alarm_name                = "${var.env_name}-ThreatMetrix-JSVerification"
   comparison_operator       = "GreaterThanThreshold"
   evaluation_periods        = "1"
   datapoints_to_alarm       = "1"

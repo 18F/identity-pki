@@ -73,7 +73,7 @@ locals {
 # first alert
 resource "aws_cloudwatch_metric_alarm" "elasticache_alarm_memory" {
   for_each            = local.redis_clusters
-  alarm_name          = "${each.key} Redis memory high"
+  alarm_name          = "${each.key}-Redis-Memory-High"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
   metric_name         = "DatabaseMemoryUsagePercentage"
@@ -92,12 +92,16 @@ EOM
   }
 
   depends_on = [aws_elasticache_replication_group.idp, aws_elasticache_replication_group.idp_attempts]
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 # high alert
 resource "aws_cloudwatch_metric_alarm" "elasticache_alarm_critical_memory" {
   for_each            = local.redis_clusters
-  alarm_name          = "${each.key} Redis memory critical"
+  alarm_name          = "${each.key}-Redis-Memory-Critical"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
   metric_name         = "DatabaseMemoryUsagePercentage"
@@ -116,11 +120,15 @@ EOM
   }
 
   depends_on = [aws_elasticache_replication_group.idp, aws_elasticache_replication_group.idp_attempts]
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_cloudwatch_metric_alarm" "elasticache_alarm_cpu" {
   for_each            = local.redis_clusters
-  alarm_name          = "${each.key} Redis cpu high"
+  alarm_name          = "${each.key}-Redis-CPU-High"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
   metric_name         = "CPUUtilization"
@@ -139,11 +147,15 @@ EOM
   }
 
   depends_on = [aws_elasticache_replication_group.idp, aws_elasticache_replication_group.idp_attempts]
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_cloudwatch_metric_alarm" "elasticache_alarm_critical_cpu" {
   for_each            = local.redis_clusters
-  alarm_name          = "${each.key} Redis cpu critical"
+  alarm_name          = "${each.key}-Redis-CPU-Critical"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
   metric_name         = "CPUUtilization"
@@ -162,11 +174,15 @@ EOM
   }
 
   depends_on = [aws_elasticache_replication_group.idp, aws_elasticache_replication_group.idp_attempts]
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_cloudwatch_metric_alarm" "elasticache_alarm_currconnections" {
   for_each            = local.redis_clusters
-  alarm_name          = "${each.key} Redis currconnections high"
+  alarm_name          = "${each.key}-Redis-CurrConnections-High"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "2"
   metric_name         = "CurrConnections"
@@ -185,11 +201,15 @@ EOM
   }
 
   depends_on = [aws_elasticache_replication_group.idp, aws_elasticache_replication_group.idp_attempts]
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_cloudwatch_metric_alarm" "elasticache_alarm_critical_currconnections" {
   for_each            = local.redis_clusters
-  alarm_name          = "${each.key} Redis currconnections critical"
+  alarm_name          = "${each.key}-Redis-CurrConnections-Critical"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "2"
   metric_name         = "CurrConnections"
@@ -208,11 +228,15 @@ EOM
   }
 
   depends_on = [aws_elasticache_replication_group.idp, aws_elasticache_replication_group.idp_attempts]
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_cloudwatch_metric_alarm" "elasticache_alarm_replication_lag" {
   for_each            = local.redis_clusters
-  alarm_name          = "${each.key} Redis replication lag high"
+  alarm_name          = "${each.key}-Redis-ReplicationLag-High"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
   metric_name         = "ReplicationLag"
@@ -231,11 +255,15 @@ EOM
   }
 
   depends_on = [aws_elasticache_replication_group.idp, aws_elasticache_replication_group.idp_attempts]
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_cloudwatch_metric_alarm" "elasticache_alarm_critical_replication_lag" {
   for_each            = local.redis_clusters
-  alarm_name          = "${each.key} Redis replication lag critical"
+  alarm_name          = "${each.key}-Redis-ReplicationLag-Critical"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
   metric_name         = "ReplicationLag"
@@ -254,11 +282,15 @@ EOM
   }
 
   depends_on = [aws_elasticache_replication_group.idp, aws_elasticache_replication_group.idp_attempts]
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_cloudwatch_metric_alarm" "elasticache_alarm_idp_attempts_network" {
   for_each            = toset(local.idp_attempts_redis_clusters)
-  alarm_name          = "${each.key} Redis Network Usage high"
+  alarm_name          = "${each.key}-Redis-NetworkUsage-High"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
   threshold           = local.idp_attempts_network * 0.7
@@ -304,11 +336,15 @@ EOM
     }
   }
   depends_on = [aws_elasticache_replication_group.idp_attempts]
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_cloudwatch_metric_alarm" "elasticache_alarm_idp_network" {
   for_each            = toset(local.idp_redis_clusters)
-  alarm_name          = "${each.key} Redis Network Usage high"
+  alarm_name          = "${each.key}-Redis-NetworkUsage-High"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
   threshold           = local.idp_network * 0.7
@@ -354,11 +390,15 @@ EOM
     }
   }
   depends_on = [aws_elasticache_replication_group.idp]
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_cloudwatch_metric_alarm" "elasticache_alarm_critical_idp_attempts_network" {
   for_each            = toset(local.idp_attempts_redis_clusters)
-  alarm_name          = "${each.key} Redis Network Usage Critical"
+  alarm_name          = "${each.key}-Redis-NetworkUsage-Critical"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
   threshold           = local.idp_attempts_network * 0.9
@@ -404,11 +444,15 @@ EOM
     }
   }
   depends_on = [aws_elasticache_replication_group.idp_attempts]
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_cloudwatch_metric_alarm" "elasticache_alarm_critical_idp_network" {
   for_each            = toset(local.idp_redis_clusters)
-  alarm_name          = "${each.key} Redis Network Usage Critical"
+  alarm_name          = "${each.key}-Redis-NetworkUsage-Critical"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
   threshold           = local.idp_network * 0.9
@@ -454,4 +498,8 @@ EOM
     }
   }
   depends_on = [aws_elasticache_replication_group.idp]
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }

@@ -33,7 +33,7 @@ resource "aws_lambda_function" "audit-github" {
 
 # Alert on errors
 module "audit-github-alerts" {
-  source = "github.com/18F/identity-terraform//lambda_alerts?ref=e7ad5ef38f724b31911248a74173e9fee3bbf045"
+  source = "github.com/18F/identity-terraform//lambda_alerts?ref=471a57ba45e92852321ed19ba3f22072807c381b"
 
   enabled              = var.lambda_audit_github_enabled
   function_name        = var.lambda_audit_github_enabled == 1 ? aws_lambda_function.audit-github[0].function_name : ""
@@ -148,7 +148,7 @@ resource "aws_lambda_function" "audit-aws" {
 
 # Alert on errors
 module "audit-aws-alerts" {
-  source = "github.com/18F/identity-terraform//lambda_alerts?ref=e7ad5ef38f724b31911248a74173e9fee3bbf045"
+  source = "github.com/18F/identity-terraform//lambda_alerts?ref=471a57ba45e92852321ed19ba3f22072807c381b"
 
   enabled              = var.lambda_audit_aws_enabled
   function_name        = var.lambda_audit_aws_enabled == 1 ? aws_lambda_function.audit-aws[0].function_name : ""

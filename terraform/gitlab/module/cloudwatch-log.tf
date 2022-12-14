@@ -135,7 +135,7 @@ resource "aws_s3_object" "gitlab_ci_ping_metric_name" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "gitlab_user_sync_failures" {
-  alarm_name                = "${var.env_name} user sync unsuccessful"
+  alarm_name                = "${var.env_name}_user_sync_unsuccessful"
   comparison_operator       = "LessThanThreshold"
   evaluation_periods        = "1"
   metric_name               = local.gitlab_user_sync_metric_name
@@ -152,7 +152,7 @@ resource "aws_cloudwatch_metric_alarm" "gitlab_user_sync_failures" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "gitlab_ci_ping_failures" {
-  alarm_name                = "${var.env_name} CI ping unsuccessful"
+  alarm_name                = "${var.env_name}_CI_ping_unsuccessful"
   comparison_operator       = "LessThanThreshold"
   evaluation_periods        = "1"
   metric_name               = local.gitlab_ci_ping_metric_name

@@ -16,7 +16,7 @@ resource "aws_sns_topic_subscription" "opsgenie_devops_high" {
 # == Spend limit alarms ==
 
 resource "aws_cloudwatch_metric_alarm" "pinpoint_spend_limit_critical" {
-  alarm_name        = "${var.env} SMS spend limit CRITICAL"
+  alarm_name        = "${var.env}-SMS-SpendLimit-CRITICAL"
   alarm_description = <<EOM
 Pinpoint SMS spending has reached 90% of the monthly limit!
 Once this is exceeded, all SMS messages will be rejected. [TF]
@@ -40,7 +40,7 @@ EOM
 }
 
 resource "aws_cloudwatch_metric_alarm" "pinpoint_spend_limit_warning" {
-  alarm_name        = "${var.env} SMS spend limit WARNING"
+  alarm_name        = "${var.env}-SMS-SpendLimit-WARNING"
   alarm_description = <<EOM
 Pinpoint SMS spending has reached 80% of the monthly limit!
 Once this is exceeded, all SMS messages will be rejected. [TF]
@@ -62,7 +62,7 @@ EOM
 }
 
 resource "aws_cloudwatch_metric_alarm" "pinpoint_spend_limit_daily_warning" {
-  alarm_name        = "${var.env} SMS spend limit daily WARNING"
+  alarm_name        = "${var.env}-SMS-SpendLimitDaily-WARNING"
   alarm_description = <<EOM
 Pinpoint SMS spending over the past day is on track to exceed the monthly limit
 if daily spending is projected monthly.
@@ -100,7 +100,7 @@ EOM
 # == Pinpoint error alarms ==
 
 resource "aws_cloudwatch_metric_alarm" "pinpoint_temporary_errors" {
-  alarm_name        = "${var.env} SMS temporary errors"
+  alarm_name        = "${var.env}-SMS-TemporaryErrors"
   alarm_description = "Pinpoint SMS errors exceed alarm threshold [TF]"
   namespace         = "AWS/Pinpoint"
   metric_name       = "DirectSendMessageTemporaryFailure"
@@ -122,7 +122,7 @@ resource "aws_cloudwatch_metric_alarm" "pinpoint_temporary_errors" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "pinpoint_permanent_errors" {
-  alarm_name        = "${var.env} SMS permanent errors"
+  alarm_name        = "${var.env}-SMS-PermanentErrors"
   alarm_description = "Pinpoint SMS errors exceed alarm threshold [TF]"
   namespace         = "AWS/Pinpoint"
   metric_name       = "DirectSendMessagePermanentFailure"
@@ -144,7 +144,7 @@ resource "aws_cloudwatch_metric_alarm" "pinpoint_permanent_errors" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "pinpoint_throttled_errors" {
-  alarm_name        = "${var.env} SMS throttled errors"
+  alarm_name        = "${var.env}-SMS-ThrottledErrors"
   alarm_description = "Pinpoint SMS errors exceed alarm threshold [TF]"
   namespace         = "AWS/Pinpoint"
   metric_name       = "DirectSendMessageThrottled"

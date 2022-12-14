@@ -1,6 +1,6 @@
 # IdP specific alarms
 module "elb_http_alerts" {
-  source = "github.com/18F/identity-terraform//elb_http_alerts?ref=e7ad5ef38f724b31911248a74173e9fee3bbf045"
+  source = "github.com/18F/identity-terraform//elb_http_alerts?ref=471a57ba45e92852321ed19ba3f22072807c381b"
   #source = "../../../identity-terraform/elb_http_alerts"
 
   env_name = var.env_name

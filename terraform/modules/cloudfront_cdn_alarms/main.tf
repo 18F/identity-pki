@@ -1,5 +1,5 @@
 resource "aws_cloudwatch_metric_alarm" "cloudfront_alert" {
-  alarm_name          = "CloudFront ${var.env_name} ${var.distribution_name} Total Errors"
+  alarm_name          = "CloudFront-${var.env_name}-${var.distribution_name}-TotalErrors"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
   metric_name         = "TotalErrorRate"

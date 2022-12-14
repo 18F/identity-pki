@@ -3,7 +3,7 @@ locals {
 }
 
 resource "aws_cloudwatch_metric_alarm" "ddos_alert" {
-  alarm_name                = "DDoS Alert"
+  alarm_name                = "DDoS-Alert"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "1"
   metric_name               = "MetricName"
