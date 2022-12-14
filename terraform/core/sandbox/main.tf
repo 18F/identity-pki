@@ -24,10 +24,9 @@ module "main" {
 
   # TODO - Remove the need for these.  Set to the same as prod
   # for now to ensure we control the target
-  static_cloudfront_name        = "db1mat7gaslfp.cloudfront.net"
-  design_cloudfront_name        = "d28khhcfeuwd3y.cloudfront.net"
-  developers_cloudfront_name    = "d26qb7on2m22yd.cloudfront.net"
-  acme_partners_cloudfront_name = "dbahbj6k864a6.cloudfront.net"
+  static_cloudfront_name     = "db1mat7gaslfp.cloudfront.net"
+  design_cloudfront_name     = "d28khhcfeuwd3y.cloudfront.net"
+  developers_cloudfront_name = "d26qb7on2m22yd.cloudfront.net"
   prod_records = [
     {
       type = "NS",

@@ -92,6 +92,11 @@ module "main" {
           "ttl"     = "900",
         },
         {
+          "name"    = "partners.",
+          "records" = ["partners.login.gov.external-domains-production.cloud.gov."],
+          "ttl"     = "900",
+        },
+        {
           "name"    = "status.",
           "records" = ["8xj4141vpqw4.stspg-customer.com."],
           "ttl"     = "900",
@@ -140,15 +145,14 @@ module "main" {
     "20211006" = "active"
   }
 
-  static_cloudfront_name        = "db1mat7gaslfp.cloudfront.net"
-  design_cloudfront_name        = "d28khhcfeuwd3y.cloudfront.net"
-  developers_cloudfront_name    = "d26qb7on2m22yd.cloudfront.net"
-  acme_partners_cloudfront_name = "dbahbj6k864a6.cloudfront.net"
-  google_site_verification_txt  = "XpAHhjdX8tbSoncavYqzKuquO0ystD12VzLmXR10CK0" # associated with zachary.margolis@gsa.gov
-  mx_provider                   = "google-g-suite"
-  mta_sts_report_mailboxes      = ["tls.reports@gsa.gov", "tls-reports@login.gov"]
-  mta_sts_mode                  = "enforce"
-  lambda_audit_github_debug     = 0
+  static_cloudfront_name       = "db1mat7gaslfp.cloudfront.net"
+  design_cloudfront_name       = "d28khhcfeuwd3y.cloudfront.net"
+  developers_cloudfront_name   = "d26qb7on2m22yd.cloudfront.net"
+  google_site_verification_txt = "XpAHhjdX8tbSoncavYqzKuquO0ystD12VzLmXR10CK0" # associated with zachary.margolis@gsa.gov
+  mx_provider                  = "google-g-suite"
+  mta_sts_report_mailboxes     = ["tls.reports@gsa.gov", "tls-reports@login.gov"]
+  mta_sts_mode                 = "enforce"
+  lambda_audit_github_debug    = 0
 
   slack_events_sns_hook_arn = "arn:aws:sns:us-west-2:555546682965:slack-events"
 }

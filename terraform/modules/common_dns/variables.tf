@@ -14,10 +14,6 @@ variable "developers_cloudfront_name" {
   description = "Developers site Cloudfront DNS name, e.g. abcd.cloudfront.net"
 }
 
-variable "acme_partners_cloudfront_name" {
-  description = "Partners site Cloudfront DNS name, e.g. abcd.cloudfront.net"
-}
-
 variable "cloudfront_zone_id" {
   description = "Static site Cloudfront Zone ID, e.g. ZABCDEFG1234"
   default     = "Z2FDTNDATAQYW2" # Zone ID for all cloudfront sites?

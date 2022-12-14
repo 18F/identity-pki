@@ -59,15 +59,3 @@ resource "aws_route53_record" "record" {
   records = each.value.records
   zone_id = aws_route53_zone.primary.zone_id
 }
-
-resource "aws_route53_record" "acme_partners" {
-  count   = var.domain == "login.gov" ? 1 : 0
-  name    = "partners.${var.domain}"
-  type    = "A"
-  zone_id = aws_route53_zone.primary.zone_id
-  alias {
-    evaluate_target_health = false
-    name                   = var.acme_partners_cloudfront_name
-    zone_id                = var.cloudfront_zone_id
-  }
-}
