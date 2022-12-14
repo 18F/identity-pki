@@ -68,7 +68,7 @@ provider "aws" {
     autoscalingplans = "https://autoscaling-plans.${var.region}.amazonaws.com"
     cloudfront       = "https://cloudfront-fips.amazonaws.com"
     route53resolver  = "https://route53resolver.${var.region}.amazonaws.com"
-    s3               = "https://s3.${var.region}.amazonaws.com"
+    s3               = "https://s3.amazonaws.com"
   }
 }
 
