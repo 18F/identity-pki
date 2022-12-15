@@ -281,7 +281,7 @@ resource "aws_cloudwatch_metric_alarm" "attempts-api-low-success-rate-alarm" {
   treat_missing_data  = "breaching"
   alarm_actions       = local.low_priority_alarm_actions
   alarm_description   = <<EOM
-${var.env_name}: IRS Attempts API - Less than ${var.attempts_api_low_success_alarm_threshold} successful call in the last 30 minutes. 
+${var.env_name}: IRS Attempts API - Less than ${var.attempts_api_low_success_alarm_threshold} successful call in the last 90 minutes. 
 See https://github.com/18F/identity-devops/wiki/Runbook:-IRS-Attempts-API-Event---Low-Success-Rate
 EOM
 }
