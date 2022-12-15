@@ -269,7 +269,7 @@ EOM
 }
 
 resource "aws_cloudwatch_metric_alarm" "attempts-api-low-success-rate-alarm" {
-  count               = var.attemptsapi_low_success_alarm_threshold > 0 ? 1 : 0
+  count               = var.attempts_api_low_success_alarm_threshold > 0 ? 1 : 0
   alarm_name          = "${var.env_name}-attempts-api-low-success-rate"
   comparison_operator = "LessThanThreshold"
   evaluation_periods  = "1"
