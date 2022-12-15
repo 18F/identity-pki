@@ -277,7 +277,7 @@ resource "aws_cloudwatch_metric_alarm" "attempts-api-low-success-rate-alarm" {
   namespace           = "${var.env_name}/attempts-api-events"
   period              = "1800"
   statistic           = "Sum"
-  threshold           = var.attemptsapi_low_success_alarm_threshold
+  threshold           = var.attempts_api_low_success_alarm_threshold
   treat_missing_data  = "breaching"
   alarm_actions       = local.high_priority_alarm_actions
   alarm_description   = <<EOM
