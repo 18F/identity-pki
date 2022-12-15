@@ -1132,7 +1132,7 @@ variable "escrow_content_expiration" {
   default     = 90
 }
 
-variable "attemptsapi_low_success_alarm_threshold" {
+variable "attempts_api_low_success_alarm_threshold" {
   description = "Minimum number of IRS Attempts API Event calls per 30 minutes"
   type        = number
   default     = 0
