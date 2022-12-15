@@ -261,7 +261,7 @@ resource "aws_cloudwatch_metric_alarm" "attempts-api-event-auth-alarm" {
   threshold                 = "0"
   treat_missing_data        = "notBreaching"
   insufficient_data_actions = []
-  alarm_actions             = local.high_priority_alarm_actions
+  alarm_actions             = local.low_priority_alarm_actions
   alarm_description         = <<EOM
 ${var.env_name}: IRS Attempts API authentication failure(s) detected.
 See https://github.com/18F/identity-devops/wiki/Runbook:-IRS-Attempts-API-Event---Authentication-Failure
