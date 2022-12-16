@@ -5,8 +5,8 @@
 # account.
 resource "aws_cloudfront_origin_request_policy" "idp_origin" {
   provider = aws.use1
-  name    = "idp-origin-request-policy"
-  comment = "Origin request policy for all IDP servers"
+  name     = "idp-origin-request-policy"
+  comment  = "Origin request policy for all IDP servers"
   cookies_config {
     cookie_behavior = "all"
   }

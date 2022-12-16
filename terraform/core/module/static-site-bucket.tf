@@ -5,7 +5,7 @@
 # to one account wide OAI may make sense when we are continerized.
 resource "aws_cloudfront_origin_access_identity" "cloudfront_oai" {
   provider = aws.use1
-  comment = "${var.root_domain} - CloudFront access to static S3 bucket"
+  comment  = "${var.root_domain} - CloudFront access to static S3 bucket"
 }
 
 output "cloudfront_oai_arn" {
