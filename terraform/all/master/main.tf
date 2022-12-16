@@ -38,7 +38,7 @@ module "config_password_rotation" {
 }
 
 ###Verify SES identity###
-module "core_ses" {
+module "master_ses" {
   source = "github.com/18F/identity-terraform//ses_dkim_r53?ref=main"
 
   domain           = "humans.login.gov"
