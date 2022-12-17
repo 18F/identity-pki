@@ -142,7 +142,7 @@ module "export_to_s3" {
     aws_s3_bucket.exported_logs
   ]
 
-  cw_log_group = [module.ses_feedback_notification.ses_feedback_eval_lambda_loggroup]
+  cw_log_group = [module.publish-ses-events-to-cw-logs-using-configsets.ses_events_eval_lambda_loggroup]
   s3_bucket    = aws_s3_bucket.exported_logs.id
 }
 
