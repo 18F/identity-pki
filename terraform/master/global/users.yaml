@@ -75,6 +75,11 @@ users:
     - daviddsilvanava
     email:
     - david.dsilva@gsa.gov
+  devin.fensterheim:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - antifraud
   devon.johnson:
     aws_groups:
     - supporteng
