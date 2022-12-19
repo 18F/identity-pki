@@ -380,11 +380,11 @@ deploy_bravo:
   extends: .deploy_gitlab_template
   environment:
     name: bravo
-    url: https://gitlab.bravo.gitlab.login.gov/
+    url: https://gitlab.identitysandbox.gov/
   resource_group: bravo
   variables:
     env: bravo
-    url: https://gitlab.bravo.gitlab.login.gov/
+    url: https://gitlab.identitysandbox.gov/
     GIT_SUBMODULE_STRATEGY: normal
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
@@ -393,22 +393,57 @@ deploy_bravo:
       when: never
     - if: $CI_COMMIT_BRANCH == "main"
 
+recycle_runner_bravo:
+  extends: .deploy_gitlab_template
+  environment:
+    name: bravo
+    url: https://gitlab.identitysandbox.gov/
+    action: access
+  resource_group: bravo
+  variables:
+    env: bravo
+    url: https://gitlab.identitysandbox.gov/
+    GIT_SUBMODULE_STRATEGY: normal
+    RECYCLE_ENV_RUNNERS_ONLY: "true"
+  stage: post_deploy
+  allow_failure: true
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE == "push"
+
 test_bravo:
   # Allow failure so the pipeline continues with other envs
   allow_failure: true
   extends: .test_gitlab_template
   environment:
     name: bravo
-    url: https://gitlab.bravo.gitlab.login.gov/
+    url: https://gitlab.identitysandbox.gov/
     action: verify
-  resource_group: bravo
   variables:
     ENV_NAME: bravo
-    DOMAIN: gitlab.bravo.gitlab.identitysandbox.gov
+    DOMAIN: gitlab.identitysandbox.gov
   rules:
     - if: $CI_SERVER_HOST != "gitlab.login.gov"
       when: never
     - if: $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE == "push"
+
+badtest_bravo:
+  when: manual
+  extends: .test_gitlab_template
+  allow_failure: true
+  environment:
+    name: bravo
+    url: https://gitlab.identitysandbox.gov/
+    action: verify
+  image:
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ecr-public/docker/library/alpine
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE == "push"
+  script:
+    - echo "You have no chance to survive make your test." ; exit 1
 
 deploy_alpha:
   extends: .deploy_gitlab_template
