@@ -396,13 +396,6 @@ users:
     - nprimak
     gitlab_groups:
     - appdev
-  natasha.ibrahim:
-    aws_groups:
-    - apponcall
-    ec2_username:
-    - nibrahim
-    gitlab_groups:
-    - appdev
   nathan.wick:
     aws_groups:
     - bizops
