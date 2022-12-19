@@ -4,8 +4,9 @@
 # This is now a shared origin request policy across the entire
 # account.
 resource "aws_cloudfront_origin_request_policy" "idp_origin" {
-  name    = "idp-origin-request-policy"
-  comment = "Origin request policy for all IDP servers"
+  provider = aws.use1
+  name     = "idp-origin-request-policy"
+  comment  = "Origin request policy for all IDP servers"
   cookies_config {
     cookie_behavior = "all"
   }

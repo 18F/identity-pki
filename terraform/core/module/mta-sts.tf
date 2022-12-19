@@ -38,6 +38,7 @@ resource "aws_s3_object" "mta_sts_txt_file" {
 }
 
 resource "aws_cloudfront_distribution" "mta_sts_cdn" {
+  provider = aws.use1
   depends_on = [
     aws_s3_bucket.account_static_bucket,
     module.acm-cert-mta-sts-cdn.finished_id

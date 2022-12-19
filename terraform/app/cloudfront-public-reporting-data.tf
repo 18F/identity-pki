@@ -10,19 +10,22 @@ module "acm-cert-public-reporting-data-cdn" {
 }
 
 data "aws_cloudfront_cache_policy" "public_reporting_data_cache_policy" {
-  name = "Public-Reporting-Data-Cache-Policy"
+  name     = "Public-Reporting-Data-Cache-Policy"
+  provider = aws.use1
 }
 
 data "aws_cloudfront_cache_policy" "managed_caching_optimized" {
-  name = "Managed-CachingOptimized"
+  name     = "Managed-CachingOptimized"
+  provider = aws.use1
 }
 
 data "aws_cloudfront_origin_request_policy" "managed_cors_s3origin" {
-  name = "Managed-CORS-S3Origin"
+  name     = "Managed-CORS-S3Origin"
+  provider = aws.use1
 }
 
 resource "aws_cloudfront_distribution" "public_reporting_data_cdn" {
-
+  provider = aws.use1
   depends_on = [
     aws_s3_bucket.public_reporting_data,
     module.acm-cert-public-reporting-data-cdn.finished_id

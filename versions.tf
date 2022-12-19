@@ -46,20 +46,56 @@ provider "aws" {
       fisma = var.fisma_tag
     }
   }
-  region = var.region
+  region            = var.region
+  use_fips_endpoint = true
+  endpoints {
+    appautoscaling   = "https://application-autoscaling.${var.region}.amazonaws.com"
+    autoscaling      = "https://autoscaling.${var.region}.amazonaws.com"
+    autoscalingplans = "https://autoscaling-plans.${var.region}.amazonaws.com"
+    cloudfront       = "https://cloudfront-fips.amazonaws.com"
+    route53resolver  = "https://route53resolver.${var.region}.amazonaws.com"
+    s3               = "https://s3.${var.region}.amazonaws.com"
+  }
 }
 
 provider "aws" {
-  alias  = "dr"
-  region = var.dr_region
+  alias             = "dr"
+  region            = var.dr_region
+  use_fips_endpoint = true
+  endpoints {
+    appautoscaling   = "https://application-autoscaling.${var.region}.amazonaws.com"
+    autoscaling      = "https://autoscaling.${var.region}.amazonaws.com"
+    autoscalingplans = "https://autoscaling-plans.${var.region}.amazonaws.com"
+    cloudfront       = "https://cloudfront-fips.amazonaws.com"
+    route53resolver  = "https://route53resolver.${var.region}.amazonaws.com"
+    s3               = "https://s3.amazonaws.com"
+  }
 }
 
 provider "aws" {
-  alias  = "use1"
-  region = "us-east-1"
+  alias             = "use1"
+  region            = "us-east-1"
+  use_fips_endpoint = true
+  endpoints {
+    appautoscaling   = "https://application-autoscaling.${var.region}.amazonaws.com"
+    autoscaling      = "https://autoscaling.${var.region}.amazonaws.com"
+    autoscalingplans = "https://autoscaling-plans.${var.region}.amazonaws.com"
+    cloudfront       = "https://cloudfront-fips.amazonaws.com"
+    route53resolver  = "https://route53resolver.${var.region}.amazonaws.com"
+    s3               = "https://s3.amazonaws.com"
+  }
 }
 
 provider "aws" {
-  alias  = "usw2"
-  region = var.region
+  alias             = "usw2"
+  region            = var.region
+  use_fips_endpoint = true
+  endpoints {
+    appautoscaling   = "https://application-autoscaling.${var.region}.amazonaws.com"
+    autoscaling      = "https://autoscaling.${var.region}.amazonaws.com"
+    autoscalingplans = "https://autoscaling-plans.${var.region}.amazonaws.com"
+    cloudfront       = "https://cloudfront-fips.amazonaws.com"
+    route53resolver  = "https://route53resolver.${var.region}.amazonaws.com"
+    s3               = "https://s3.${var.region}.amazonaws.com"
+  }
 }
