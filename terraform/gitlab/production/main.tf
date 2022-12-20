@@ -30,6 +30,10 @@ module "main" {
   asg_outboundproxy_desired       = 2
   asg_outboundproxy_min           = 2
   use_waf_rules                   = true
+  gitlab_runner_enabled           = true
+  env_runner_gitlab_hostname      = "gitlab.gitstaging.gitlab.login.gov"
+  env_runner_config_bucket        = "login-gov-gitstaging-gitlabconfig-217680906704-us-west-2"
+  gitlab_servicename              = "com.amazonaws.vpce.us-west-2.vpce-svc-07880c3ca1e0f631f"
 }
 
 output "gitlab_db_host" {

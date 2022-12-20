@@ -27,6 +27,7 @@ stages:
   - deploy
   - post_deploy
   - smoke_test
+  - gitlabproduction_deploy
 
 variables:
   CI_COMMIT_TAG: "$CI_COMMIT_SHA"
@@ -337,6 +338,27 @@ test_gitstaging:
     - if: $CI_SERVER_HOST != "gitlab.login.gov"
       when: never
     - if: $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE == "push"
+
+deploygitlabproduction_gitstaging:
+  stage: gitlabproduction_deploy
+  resource_group: gitlabproduction
+  needs: 
+    - job: test_gitstaging
+      optional: true
+  when: manual
+  environment:
+    name: gitlabproduction
+    url: https://gitlab.login.gov/
+  image:
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ecr-public/docker/library/alpine
+  script:
+    - apk --no-cache add curl
+    - |-
+      curl --request POST \
+        --form token="$GITSTAGING_PIPELINE_TRIGGER_TOKEN" \
+        --form ref=main \
+        --form "variables[ENV_NAME]=production" \
+        "https://gitlab.gitstaging.gitlab.login.gov/api/v4/projects/$GITSTAGING_DEPLOY_PROJECT_ID/trigger/pipeline"
 
 deploy_charlie:
   extends: .deploy_gitlab_template
