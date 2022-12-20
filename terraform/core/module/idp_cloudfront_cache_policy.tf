@@ -18,7 +18,6 @@
 # This is configured at the account level (vs. app environment level) as there is a
 # quota/limit of 20 cache policies per account, which cannot be increased.
 resource "aws_cloudfront_cache_policy" "public_reporting_data_cache_policy" {
-  provider    = aws.use1
   name        = "Public-Reporting-Data-Cache-Policy"
   default_ttl = 86400
   max_ttl     = 31536000
