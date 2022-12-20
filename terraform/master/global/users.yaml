@@ -131,13 +131,6 @@ users:
     - analytics
     gitlab_groups:
     - pm
-  gene.angelo:
-    aws_groups:
-    - appdev
-    ec2_username:
-    - gangelo
-    gitlab_groups:
-    - appdev
   goutham.kommanaboyina:
     aws_groups:
     - analytics
@@ -167,13 +160,6 @@ users:
     - analytics
     gitlab_groups:
     - pm
-  jeffrey.sheffel:
-    aws_groups:
-    - appdev
-    gitlab_groups:
-    - appdev
-    ec2_username:
-    - jsheffel
   jenna.hansen:
     aws_groups:
     - analytics
@@ -295,13 +281,6 @@ users:
     - mdiarra
     gitlab_groups:
     - appdev
-  manish.shah:
-    aws_groups:
-    - apponcall
-    gitlab_groups:
-    - appdev
-    ec2_username:
-    - mshah
   matt.gardner:
     aws_groups:
     - appdev
@@ -321,13 +300,6 @@ users:
     - appdev
     ec2_username:
     - mwagner
-    gitlab_groups:
-    - appdev
-  melissa.miller:
-    aws_groups:
-    - appdev
-    ec2_username:
-    - mmiller
     gitlab_groups:
     - appdev
   micah.neveu:
@@ -470,13 +442,6 @@ users:
   rahul.kamarouthu:
     aws_groups:
     - analytics
-    gitlab_groups:
-    - appdev
-  rakesh.nagilla:
-    aws_groups:
-    - appdev
-    ec2_username:
-    - rnagilla
     gitlab_groups:
     - appdev
   richard.wolfe:
