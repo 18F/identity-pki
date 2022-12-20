@@ -75,6 +75,11 @@ users:
     - daviddsilvanava
     email:
     - david.dsilva@gsa.gov
+  devin.fensterheim:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - antifraud
   devon.johnson:
     aws_groups:
     - supporteng
@@ -389,13 +394,6 @@ users:
     - apponcall
     ec2_username:
     - nprimak
-    gitlab_groups:
-    - appdev
-  natasha.ibrahim:
-    aws_groups:
-    - apponcall
-    ec2_username:
-    - nibrahim
     gitlab_groups:
     - appdev
   nathan.wick:
