@@ -3,10 +3,11 @@ module "fraudops-assumerole" {
 
   role_name = "FraudOps"
   enabled = lookup(
-    merge(local.role_enabled_defaults, var.account_roles_map),
-    "iam_fraudops_enabled",
-    lookup(local.role_enabled_defaults, "iam_fraudops_enabled")
+    var.account_roles_map,
+    "iam_supporteng_enabled",
+    lookup(local.role_enabled_defaults, "iam_supporteng_enabled")
   )
+
   master_assumerole_policy = data.aws_iam_policy_document.master_account_assumerole.json
   custom_policy_arns = compact([
     aws_iam_policy.rds_delete_prevent.arn,
