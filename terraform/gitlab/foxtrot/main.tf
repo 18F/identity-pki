@@ -18,7 +18,7 @@ module "main" {
   region                         = "us-west-2"
   slack_events_sns_hook_arn      = "arn:aws:sns:us-west-2:034795980528:slack-otherevents"
   dr_region                      = "us-east-2"
-  default_ami_id_tooling         = "ami-026d121fc28ba3ad1" # 2022-12-13 Ubuntu 18.04
+  default_ami_id_tooling         = "ami-0a135bfb842ce19d2" # 2022-12-20 Ubuntu 18.04
   route53_id                     = "Z096400532ZFM348WWIAA"
   destination_artifact_accounts  = ["894947205914"] # login-sandbox
   # These are the account IDs who can access this cluster's gitlab service.
