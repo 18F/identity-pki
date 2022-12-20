@@ -79,8 +79,10 @@ module "main" {
       { "ReportsReadOnly" = ["Sandbox", "Prod"] }
     ],
     "fraudops" = [
-      { "Analytics" = ["Sandbox", "Prod"] },
-      { "FraudOps" = ["Sandbox", "Prod"] }
+#      { "Analytics" = ["Sandbox", "Prod"] },
+#      { "FraudOps" = ["Sandbox", "Prod"] }
+       { "Analytics" = ["Sandbox"] },
+       { "FraudOps" = ["Sandbox"] }
     ],
     "secops" = [
       { "Analytics" = ["Sandbox", "Prod"] },
