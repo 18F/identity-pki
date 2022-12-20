@@ -317,6 +317,8 @@ module "idp_worker_jobs_rds_use1" {
 
 # idp worker jobs database
 resource "aws_db_instance" "idp-worker-jobs" {
+  count = var.worker_use_rds ? 1 : 0
+
   allocated_storage       = var.rds_storage_idp_worker_jobs
   backup_retention_period = var.rds_backup_retention_period
   backup_window           = var.rds_backup_window
@@ -364,10 +366,11 @@ resource "aws_db_instance" "idp-worker-jobs" {
 }
 
 module "idp_worker_jobs_cloudwatch_rds" {
+  count  = var.worker_use_rds ? 1 : 0
   source = "../modules/cloudwatch_rds/"
 
   rds_storage_threshold         = var.rds_storage_threshold
-  rds_db                        = aws_db_instance.idp-worker-jobs.id
+  rds_db                        = aws_db_instance.idp-worker-jobs[count.index].id
   alarm_actions                 = local.low_priority_alarm_actions
   unvacummed_transactions_count = var.unvacummed_transactions_count
   db_instance_class             = var.rds_instance_class_worker_jobs

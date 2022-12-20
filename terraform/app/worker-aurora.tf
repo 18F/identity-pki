@@ -5,26 +5,25 @@ module "worker_aurora_uw2" {
   name_prefix   = var.name
   region        = "us-west-2"
   env_name      = var.env_name
-  db_identifier = "idp-worker-jobs"
+  db_identifier = "worker"
 
   # The rds_db_arn attribute should only be used when replicating from
   # the source RDS database (aws_db_instance.idp-worker-jobs).
   # Once the cluster has been promoted to standalone, this attribute can be removed,
   # and the rds_password and rds_username attributes should be used instead.
-  rds_db_arn   = aws_db_instance.idp-worker-jobs.arn
+  rds_db_arn   = var.worker_use_rds ? aws_db_instance.idp-worker-jobs[count.index].arn : ""
   rds_password = var.rds_password_worker_jobs # ignored when creating replica
   rds_username = var.rds_username_worker_jobs # ignored when creating replica
 
-  db_instance_class    = var.rds_instance_class_worker_jobs_aurora
-  db_engine            = var.rds_engine_aurora
-  db_engine_mode       = var.rds_engine_mode_aurora
-  db_engine_version    = var.rds_engine_version_worker_jobs_aurora
-  db_port              = var.rds_db_port
-  apg_db_pgroup_params = local.apg_db_pgroup_params
-  apg_cluster_pgroup_params = flatten([
-    local.apg_cluster_pgroup_params,
-    local.apg_param_max_standby_streaming_delay
-  ])
+  db_instance_class = var.rds_instance_class_worker_jobs_aurora
+  db_engine         = var.rds_engine_aurora
+  db_engine_mode    = var.rds_engine_mode_aurora
+  db_engine_version = var.rds_engine_version_worker_jobs_aurora
+  db_port           = var.rds_db_port
+
+  # use pgroups from idp aurora cluster
+  custom_apg_cluster_pgroup = module.idp_aurora_from_rds[count.index].cluster_pgroup
+  custom_apg_db_pgroup      = module.idp_aurora_from_rds[count.index].instance_pgroup
 
   db_subnet_group   = aws_db_subnet_group.aurora[count.index].id
   db_security_group = aws_security_group.db.id

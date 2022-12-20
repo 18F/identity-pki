@@ -132,12 +132,12 @@ module "idp_rds_usw2" {
   name               = var.name
   rds_engine         = var.rds_engine
   rds_engine_version = var.rds_engine_version
-  #pgroup_params = [] # uncomment when turning down RDS database
-  pgroup_params = flatten([
+
+  pgroup_params = var.idp_use_rds ? flatten([
     local.apg_cluster_pgroup_params,
     local.apg_db_pgroup_params,
     local.rds_param_max_standby_streaming_delay
-  ])
+  ]) : []
 }
 
 module "idp_rds_use1" {
@@ -150,7 +150,7 @@ module "idp_rds_use1" {
   name               = var.name
   rds_engine         = var.rds_engine
   rds_engine_version = var.rds_engine_version
-  #pgroup_params = [] # uncomment when turning down RDS database
+
   pgroup_params = flatten([
     local.apg_cluster_pgroup_params,
     local.apg_db_pgroup_params,
