@@ -272,6 +272,19 @@ locals {
       dimensions   = {}
     }
   }
+
+  idp_attempts_api_filters = {
+    attempts_api_events_auth_failure = {
+      name         = "attempts-api-events-auth-failure"
+      pattern      = "{ ($.name = \"IRS Attempt API: Events submitted\" ) && ($.properties.event_properties.authenticated is false) }"
+      metric_value = 1
+    },
+    attempts_api_events_success = {
+      name         = "attempts-api-events-success"
+      pattern      = "{ ($.name = \"IRS Attempt API: Events submitted\" ) && ($.properties.event_properties.success is true) }"
+      metric_value = 1
+    }
+  }
 }
 
 resource "aws_cloudwatch_log_metric_filter" "idp_external_service" {
@@ -373,3 +386,14 @@ resource "aws_cloudwatch_log_metric_filter" "pii_spill_detector" {
   }
 }
 
+resource "aws_cloudwatch_log_metric_filter" "attempts_api_events" {
+  for_each       = local.idp_attempts_api_filters
+  name           = each.value["name"]
+  pattern        = each.value["pattern"]
+  log_group_name = aws_cloudwatch_log_group.idp_events.name
+  metric_transformation {
+    name      = each.value["name"]
+    namespace = "${var.env_name}/attempts-api-events"
+    value     = each.value["metric_value"]
+  }
+}
