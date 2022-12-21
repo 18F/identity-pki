@@ -1,0 +1,213 @@
+#!/bin/bash
+
+#### Promote an AuroraDB cluster to standalone and (if desired) spin down RDS DB
+
+set -euo pipefail
+
+BASEPATH="$(dirname "$0")/.."
+. "${BASEPATH}/lib/common.sh"
+. "${BASEPATH}/lib/sandbox-lib.sh"
+
+trap rm_files EXIT
+
+usage() {
+  cat >&2 << EOM
+
+Usage: ${0} [-p1u2x3h] [-d DB_TYPE] [TF_ENV]
+  (will use idp for DB_TYPE, and \$GSA_USERNAME for TF_ENV, if not specified)
+
+Flags (will run 1 + 2 if not specified):
+  -p / -1 : Promote AuroraDB replica cluster to a regional/standalone cluster
+  -u / -2 : Update application.yml / db_host_app file(s) with cluster addresses
+  -x / -3 : Remove protection from RDS DB and destroy it + related resources
+            (NOT run by default, unless specified)
+  -h      : Detailed help
+
+EOM
+}
+
+help_me() {
+  cat >&2 << EOM
+
+Given a sandbox environment (\$GSA_USERNAME if not specified), an RDS instance
+for the given DB_TYPE, and an AuroraDB cluster replicating said RDS instance:
+
+1. Promotes the AuroraDB cluster to a standalone/regional cluster
+2. Pulls down the application.yml / db_host_app file(s) for the related app(s),
+   updates the database_host / database_read_replica_host entries with the
+   AuroraDB cluster write/read endpoint addresses, and prompts to recycle
+   the corresponding host(s) in the environment
+3. (OPTIONALLY) Removes protection from the source RDS DB, and then remove it
+   (and all associated resources) via \`terraform apply\`, with the
+   appropriate *_use_rds variable set to \`false\` to do so.
+
+EOM
+  usage
+  exit 0
+}
+
+rm_files() {
+  replace_db_files
+  if [[ -f "${DB_INFO}" ]] && [[ "${TODO[@]:-}" =~ "${TASKS[1]}" ]] ; then
+    rm "${DB_INFO}"
+  fi
+}
+
+1_promote_cluster() {
+  if [[ ! -z $(ave aws rds describe-db-clusters --db-cluster-identifier ${CLUSTER} |
+        jq -r '.DBClusters[].ReplicationSourceIdentifier|select (.!=null)') ]] ; then
+    ave aws rds wait db-cluster-available --db-cluster-identifier "${CLUSTER}"
+    ave aws rds promote-read-replica-db-cluster \
+      --db-cluster-identifier "${CLUSTER}"
+    sleep 1
+    ave aws rds wait db-cluster-available --db-cluster-identifier "${CLUSTER}"
+  else
+    echo_yellow "Cluster ${CLUSTER} is already a regional cluster; skipping."
+  fi
+}
+
+2_update_config() {
+  if [[ "${DB_INFO}" == 'db_host_app' ]] ; then
+    local SECRETS_BUCKET=$(ave aws s3 ls |grep '\.secrets\.' | awk '{print $NF}')
+    local APP_DB=$(ave aws s3 cp "s3://${SECRETS_BUCKET}"/"${TF_ENV}"/"${DB_INFO}" -)
+    if [[ ! "${APP_DB}" =~ ${CLUSTER} ]] ; then
+      printf "$(echo "${APP_DB}" |
+        sed -E 's/login-([a-z0-9]+)\.([a-z0-9]+)/\1-dashboard\.cluster-\2/')" |
+        ave aws s3 cp - "s3://${SECRETS_BUCKET}"/"${TF_ENV}"/"${DB_INFO}" \
+        --no-guess-mime-type --content-type="text/plain" --metadata-directive="REPLACE"
+      echo_cyan "'${DB_INFO}' file updated!"
+      if prompt_yn "Recycle app hosts now to pull in config changes?" ; then
+        ave ${BASEPATH}/asg-recycle -q ${TF_ENV} app
+      fi
+    else
+      echo_yellow "${DB_INFO} already points to ${CLUSTER}; skipping."
+    fi
+  else
+    for APP in "${YAML_APPS[@]}" ; do
+      ave ${BASEPATH}/app-s3-secret --env ${TF_ENV} --app ${APP} --download "${DB_INFO}"
+      if [[ ! $(grep "${CLUSTER}" "${DB_INFO}") ]] ; then
+        run sed -i '' -E "s/${RDS_INSTANCE}\./${CLUSTER}\.cluster-/" "${DB_INFO}"
+        if [[ ! -z "${RDS_REPLICA}" ]] && \
+          [[ $(grep 'database_read_replica_host' "${DB_INFO}") ]] ; then
+            run sed -i '' -E "s/${RDS_REPLICA}\./${CLUSTER}\.cluster-ro-/" "${DB_INFO}"
+        fi
+        ave ${BASEPATH}/app-s3-secret --env ${TF_ENV} --app ${APP} --upload "${DB_INFO}"
+        echo_cyan "application.yml updated!"
+        if prompt_yn "Recycle ${APP} hosts now to pull in config changes?" ; then
+          ave ${BASEPATH}/asg-recycle -q ${TF_ENV} ${APP}
+        fi
+      else
+        echo_yellow "application.yml values already point to ${CLUSTER}; skipping."
+      fi
+      rm "${DB_INFO}"
+    done
+  fi
+}
+
+3_destroy_rds_instance() {
+  local RDS_RESOURCES
+  DBS_TO_REMOVE=("app/${DB_TYPE}")
+  if [[ ! $(ave aws rds describe-db-instances \
+          --db-instance-identifier $RDS_INSTANCE) ]] ; then
+    echo_yellow "RDS instance ${RDS_INSTANCE} not found; nothing to terminate."
+  else
+    case "${DB_TYPE}" in
+      idp)
+        RDS_RESOURCES=(
+          "aws_db_instance.idp[0]"
+          "aws_route53_record.idp-postgres[0]"
+          "module.idp_cloudwatch_rds[0]"
+          "module.rds_dashboard_idp[0]"
+        )
+        if [[ $(ave aws rds describe-db-instances \
+          --db-instance-identifier $RDS_REPLICA) ]] ; then
+          RDS_RESOURCES+=(
+            "aws_db_instance.idp-read-replica[0]"
+            "module.idp_replica_cloudwatch_rds[0]"
+          )
+        fi
+      ;;
+      dashboard)
+        DBS_TO_REMOVE=('app/app')
+        RDS_RESOURCES=(
+          "aws_db_instance.default[0]"
+          "aws_route53_record.postgres[0]"
+          "module.app_cloudwatch_rds[0]"
+          "aws_s3_object.db_host_app[0]"
+        )
+      ;;
+      worker)
+        RDS_RESOURCES=(
+          "aws_db_instance.idp-worker-jobs[0]"
+          "module.idp_worker_jobs_cloudwatch_rds[0]"
+        )
+      ;;
+    esac
+    
+    local TF_ARGS=( "${RDS_RESOURCES[@]/#/-target=}" )
+    
+    remove_db_protection_in_state
+    
+    for TF_RUN in {1..2} ; do
+      ave ${BASEPATH}/tf-deploy -t ${TF_ENV} app apply \
+        -auto-approve "${TF_ARGS[@]:-}"
+      sleep 1
+      if [[ ! "${TF_ARGS[@]:-}" =~ 'false' ]] ; then
+        TF_ARGS+=("-var=${DB_TYPE}_use_rds=false")
+      fi
+    done
+    replace_db_files
+  fi
+}
+
+TASKS=(
+  "1_promote_cluster"
+  "2_update_config"
+  "3_destroy_rds_instance"
+)
+
+declare {RDS_INSTANCE,RDS_REPLICA,CLUSTER}=
+YAML_APPS=()
+DB_TYPE='idp'
+DB_INFO='update-db.yml'
+
+while getopts p1u2x3d:h opt
+do
+  case $opt in
+    p|1) TODO+=("${TASKS[0]}") ;;
+    u|2) TODO+=("${TASKS[1]}") ;;
+    x|3) TODO+=("${TASKS[2]}") ;;
+    d) DB_TYPE="${OPTARG}"     ;;
+    h) help_me                 ;;
+    *) usage && exit 1         ;;
+  esac
+done
+shift $((OPTIND-1))
+initialize ${1:-}
+
+case "${DB_TYPE}" in
+  idp)
+    RDS_INSTANCE="login-${TF_ENV}-idp"
+    RDS_REPLICA="${TF_ENV}-idp-replica"
+    CLUSTER="login-${TF_ENV}-idp-aurora-us-west-2"
+    YAML_APPS+=('idp' 'pivcac')
+  ;;
+  dashboard)
+    DB_INFO='db_host_app'
+    RDS_INSTANCE="login-${TF_ENV}"
+  ;;
+  worker)
+    RDS_INSTANCE="${TF_ENV}-idp-worker-jobs"
+    YAML_APPS+=('idp')
+  ;;
+  *) raise "DB_TYPE must be one of: idp / dashboard / worker" ;;
+esac
+[[ -z "${CLUSTER}" ]] && CLUSTER="${TF_ENV}-${DB_TYPE}"
+
+if [[ -z ${TODO-} ]] ; then
+  for i in 0 1 ; do 
+    TODO+=("${TASKS[$i]}")
+  done
+fi
+
+run_tasks

@@ -1,7 +1,8 @@
 # Locals
 
 locals {
-  db_name = "${var.name_prefix}-${var.env_name}-${var.db_identifier}-${var.region}"
+  db_name = var.db_name_override == "" ? (
+  "${var.env_name}-${var.db_identifier}") : var.db_name_override
   pgroup_family = join("", [
     var.db_engine,
     can(regex(
@@ -36,6 +37,15 @@ variable "db_identifier" {
   description = "Unique identifier for the database (e.g. default/primary/etc.)"
 }
 
+variable "db_name_override" {
+  type        = string
+  description = <<EOM
+Manually-specified name for the Aurora cluster. Will override the
+default pattern of env_name-db_identifier unless left blank.
+EOM
+  default     = ""
+}
+
 variable "rds_db_arn" {
   type        = string
   description = <<EOM
@@ -65,6 +75,15 @@ variable "db_port" {
   default     = 5432
 }
 
+variable "custom_apg_db_pgroup" {
+  type        = string
+  description = <<EOM
+(OPTIONAL) Name of an existing parameter group to use for the DB cluster instance(s);
+leave blank to create the aws_db_parameter_group.aurora resource
+EOM
+  default     = ""
+}
+
 variable "apg_db_pgroup_params" {
   type        = list(any)
   description = <<EOM
@@ -72,6 +91,15 @@ List of parameters to configure for the AuroraDB instance parameter group.
 Include name, value, and apply method (will default to 'immediate' if not set).
 EOM
   default     = []
+}
+
+variable "custom_apg_cluster_pgroup" {
+  type        = string
+  description = <<EOM
+(OPTIONAL) Name of an existing parameter group to use for the DB cluster;
+leave blank to create the aws_db_parameter_group.aurora resource
+EOM
+  default     = ""
 }
 
 variable "apg_cluster_pgroup_params" {

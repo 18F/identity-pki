@@ -1,5 +1,5 @@
 resource "aws_db_instance" "default" {
-  count = var.apps_enabled
+  count = var.dashboard_use_rds && var.apps_enabled == 1 ? 1 : 0
 
   allocated_storage       = var.rds_storage_app
   backup_retention_period = var.rds_backup_retention_period
@@ -55,7 +55,7 @@ resource "aws_db_instance" "default" {
 
 module "app_cloudwatch_rds" {
   source = "../modules/cloudwatch_rds/"
-  count  = var.apps_enabled
+  count  = var.dashboard_use_rds && var.apps_enabled == 1 ? 1 : 0
 
   rds_storage_threshold         = var.rds_storage_threshold
   rds_db                        = aws_db_instance.default[count.index].id
@@ -141,7 +141,7 @@ resource "aws_route53_record" "c_sp_sinatra" {
 }
 
 resource "aws_route53_record" "postgres" {
-  count = var.apps_enabled
+  count = var.dashboard_use_rds && var.apps_enabled == 1 ? 1 : 0
   name  = "postgres"
   records = [
     replace(aws_db_instance.default[count.index].endpoint, ":${var.rds_db_port}", "")

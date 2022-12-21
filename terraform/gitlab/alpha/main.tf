@@ -18,7 +18,7 @@ module "main" {
   env_type                       = "tooling-sandbox"
   region                         = "us-west-2"
   slack_events_sns_hook_arn      = "arn:aws:sns:us-west-2:034795980528:slack-otherevents"
-  default_ami_id_tooling         = "ami-026d121fc28ba3ad1" # 2022-12-13 Ubuntu 18.04
+  default_ami_id_tooling         = "ami-0a135bfb842ce19d2" # 2022-12-20 Ubuntu 18.04
   route53_id                     = "Z096400532ZFM348WWIAA"
   destination_artifact_accounts  = ["894947205914"] # login-sandbox
   accountids                     = ["894947205914", "034795980528", "217680906704"]

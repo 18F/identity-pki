@@ -208,12 +208,12 @@ resource "aws_rds_cluster" "aurora" {
 
   vpc_security_group_ids = [var.db_security_group]
   db_cluster_parameter_group_name = (
-    var.apg_cluster_pgroup_params != [] ? (
-    aws_rds_cluster_parameter_group.aurora[0].id) : null
+    var.custom_apg_cluster_pgroup == "" ? (
+    aws_rds_cluster_parameter_group.aurora[0].name) : var.custom_apg_cluster_pgroup
   )
   db_instance_parameter_group_name = (
-    var.apg_db_pgroup_params != [] && var.major_upgrades ? (
-    aws_db_parameter_group.aurora[0].id) : null
+    var.custom_apg_db_pgroup == "" && var.major_upgrades ? (
+    aws_db_parameter_group.aurora[0].name) : var.custom_apg_db_pgroup
   )
 
   backup_retention_period      = var.retention_period
@@ -287,7 +287,8 @@ resource "aws_rds_cluster_instance" "aurora" {
   instance_class       = var.db_instance_class
 
   db_parameter_group_name = (
-    var.apg_db_pgroup_params == [] ? null : aws_db_parameter_group.aurora[0].id
+    var.custom_apg_db_pgroup == "" && var.major_upgrades ? (
+    aws_db_parameter_group.aurora[0].id) : null
   )
 
   tags = {
@@ -346,7 +347,7 @@ resource "aws_appautoscaling_policy" "db" {
 # Parameter Groups
 
 resource "aws_rds_cluster_parameter_group" "aurora" {
-  count       = var.apg_cluster_pgroup_params == [] ? 0 : 1
+  count       = var.custom_apg_cluster_pgroup == "" ? 1 : 0
   name        = "${local.db_name}-${replace(local.pgroup_family, ".", "")}-cluster"
   family      = local.pgroup_family
   description = "${local.pgroup_family} parameter group for ${local.db_name} cluster"
@@ -367,7 +368,7 @@ resource "aws_rds_cluster_parameter_group" "aurora" {
 }
 
 resource "aws_db_parameter_group" "aurora" {
-  count       = var.apg_db_pgroup_params == [] ? 0 : 1
+  count       = var.custom_apg_db_pgroup == "" ? 1 : 0
   name        = "${local.db_name}-${replace(local.pgroup_family, ".", "")}-db"
   family      = local.pgroup_family
   description = "${local.pgroup_family} parameter group for ${local.db_name} instances"

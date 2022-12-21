@@ -240,9 +240,18 @@ variable "rds_storage_idp_replica" {
   default = "26"
 }
 
-# apps (sampleapps)
+# dashboard (app)
 
-variable "rds_instance_class_apps_aurora" {
+variable "dashboard_use_rds" {
+  description = <<EOM
+Whether or not to build/use an AWS RDS instance (vs. AuroraDB) for the dashboard DB.
+Set to false if wanting to spin down and/or not create the RDS DB.
+EOM
+  type        = bool
+  default     = true
+}
+
+variable "rds_instance_class_dashboard_aurora" {
   default = "db.t3.medium"
 }
 
@@ -250,47 +259,65 @@ variable "rds_storage_app" {
   default = "8"
 }
 
-variable "apps_aurora_enabled" {
+variable "dashboard_aurora_enabled" {
   type        = bool
-  description = "Enable/disable creating sampleapps AuroraDB cluster"
+  description = "Enable/disable creating dashboard AuroraDB cluster"
   default     = false
 }
 
-variable "apps_cluster_instances" {
+variable "dashboard_aurora_pgroup" {
+  type        = string
+  description = <<EOM
+Name of the default parameter group for the dashboard Aurora DB cluster/instance(s);
+should match main number of var.rds_engine_version
+EOM
+  default     = "default.aurora-postgresql13"
+}
+
+variable "dashboard_cluster_instances" {
   type        = number
   description = <<EOM
-Number of instances to create for the sampleapps AuroraDB cluster. MUST be Set to 1
+Number of instances to create for the dashboard AuroraDB cluster. MUST be Set to 1
 if creating cluster as a read replica, then should be set to 2+ thereafter.
 EOM
   default     = 1
   validation {
     condition = (
-      var.apps_cluster_instances >= 1 &&
-      var.apps_cluster_instances <= 15
+      var.dashboard_cluster_instances >= 1 &&
+      var.dashboard_cluster_instances <= 15
     )
     error_message = "Cluster must contain between 1 and 15 instances."
   }
 }
 
-variable "apps_aurora_autoscaling" {
-  description = "Enable/disable Auto Scaling for the sampleapps Aurora DB cluster"
+variable "dashboard_aurora_autoscaling" {
+  description = "Enable/disable Auto Scaling for the dashboard Aurora DB cluster"
   type        = bool
   default     = false
 }
 
-variable "apps_aurora_serverlessv2_config" {
+variable "dashboard_aurora_serverlessv2_config" {
   type = list(object({
     max = number
     min = number
   }))
   description = <<EOM
 Scaling configuration (maximum/minimum capacity) to use,
-if setting/upgrading sampleapps DB cluster to Aurora Serverless v2
+if setting/upgrading dashboard DB cluster to Aurora Serverless v2
 EOM
   default     = []
 }
 
 # worker (idp-worker-jobs)
+
+variable "worker_use_rds" {
+  description = <<EOM
+Whether or not to build/use an AWS RDS instance (vs. AuroraDB) for the worker-jobs DB.
+Set to false if wanting to spin down and/or not create the RDS DB.
+EOM
+  type        = bool
+  default     = true
+}
 
 variable "rds_engine_version_worker_jobs" {
   default = "13.5"
@@ -326,7 +353,7 @@ variable "rds_password_worker_jobs" {
 }
 
 variable "rds_storage_idp_worker_jobs" {
-  default = "26"
+  default = "8"
 }
 
 variable "rds_username_worker_jobs" {

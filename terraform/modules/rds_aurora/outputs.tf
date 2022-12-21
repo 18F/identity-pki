@@ -33,3 +33,13 @@ output "reader_endpoint" {
 output "reader_fqdn" {
   value = aws_route53_record.reader_endpoint.fqdn
 }
+
+output "cluster_pgroup" {
+  value = var.custom_apg_cluster_pgroup == "" ? (
+  aws_rds_cluster_parameter_group.aurora[0].name) : null
+}
+
+output "instance_pgroup" {
+  value = var.custom_apg_db_pgroup == "" && var.major_upgrades ? (
+  aws_db_parameter_group.aurora[0].name) : null
+}

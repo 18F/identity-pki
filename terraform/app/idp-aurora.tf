@@ -15,6 +15,12 @@ module "idp_aurora_from_rds" {
   env_name      = var.env_name
   db_identifier = "idp-aurora"
 
+  # This pattern is in place for current idp Aurora clusters. The new default
+  # (to be used with the final DMS-migrated idp Aurora cluster) should
+  # be env_name-db_identifier, e.g. prod-idp, since the region name will still
+  # be included in the full endpoint address.
+  db_name_override = "${var.name}-${var.env_name}-idp-aurora-${var.region}"
+
   # The rds_db_arn attribute should only be used when replicating from
   # the source RDS database (aws_db_instance.idp). Once the cluster has been
   # promoted to standalone, this attribute can be removed, and the
