@@ -1131,3 +1131,9 @@ variable "escrow_content_expiration" {
   type        = string
   default     = 90
 }
+
+variable "attempts_api_low_success_alarm_threshold" {
+  description = "Minimum number of IRS Attempts API Event calls per 90 minutes"
+  type        = number
+  default     = 0
+}
