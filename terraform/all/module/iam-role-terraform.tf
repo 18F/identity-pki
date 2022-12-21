@@ -436,6 +436,7 @@ locals {
           "logs:PutRetentionPolicy",
           "logs:PutSubscriptionFilter",
           "logs:TagLogGroup",
+          "logs:TestMetricFilter",
           "logs:UntagLogGroup",
           "logs:UpdateLogDelivery",
           "logs:DeleteLogStream"
