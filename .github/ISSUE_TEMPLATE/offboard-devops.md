@@ -18,6 +18,7 @@ assignees: ''
 each of the tasks below. This is to show that each task was completed at a specific time.
 
 - [ ] AWS
+  - [ ] Disable password authentication for the team member's AWS account
   - [ ] Disable / Delete Access Key ID(s) and Secret Access Key(s)
   - [ ] Spin down personal sandbox environment using `bin/destroy-sandbox ENV_NAME`
 - [ ] `identity-devops`
