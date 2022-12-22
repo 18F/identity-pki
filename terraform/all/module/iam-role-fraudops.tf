@@ -4,8 +4,8 @@ module "fraudops-assumerole" {
   role_name = "FraudOps"
   enabled = lookup(
     var.account_roles_map,
-    "iam_supporteng_enabled",
-    lookup(local.role_enabled_defaults, "iam_supporteng_enabled")
+    "iam_fraudops_enabled",
+    lookup(local.role_enabled_defaults, "iam_fraudops_enabled", false)
   )
 
   master_assumerole_policy = data.aws_iam_policy_document.master_account_assumerole.json
