@@ -60,6 +60,25 @@ data "aws_iam_policy_document" "escrow_kms" {
       identifiers = local.key_management_roles
     }
   }
+  statement {
+    sid    = "ViewKey"
+    effect = "Allow"
+    actions = [
+      "kms:DescribeKey",
+      "kms:GetKeyPolicy",
+      "kms:GetKeyRotationStatus",
+      "kms:ListGrants",
+      "kms:ListResourceTags"
+    ]
+    resources = ["*"]
+
+    principals {
+      type = "AWS"
+      identifiers = [
+        "*"
+      ]
+    }
+  }
   # Allow encrypt from worker/idp instances
   statement {
     sid    = "ApplicationEncrypt"
