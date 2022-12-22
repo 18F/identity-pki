@@ -179,6 +179,12 @@ variable "elasticache_redis_alarm_threshold_replication_lag_high" {
   default     = ".2"
 }
 
+variable "elasticache_redis_alarm_threshold_network" {
+  type        = number
+  description = "Alert Threshhold for Redis percentage of total network bandwidth use"
+  default     = 80
+}
+
 # prod/test environment flags
 variable "asg_prevent_auto_terminate" {
   description = "Whether to protect auto scaled instances from automatic termination"
