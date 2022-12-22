@@ -467,7 +467,7 @@ users:
     - devops
   ryan.orear:
     aws_groups:
-    - analytics
+    - fraudops
     gitlab_groups:
     - antifraud
   sean.porter:
