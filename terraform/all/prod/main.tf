@@ -108,6 +108,6 @@ module "main" {
     "SOCAdministrator"  = [{ "*" = ["*"] }],
     "SupportEngineer"   = [{ "*" = ["uuid-lookup"] }],
     "Terraform"         = [{ "*" = ["*"] }],
-    "FraudOps"   = [{ "*" = ["uuid-lookup"] }],
+    "FraudOps"          = [{ "*" = ["uuid-lookup"] }],
   }
 }
