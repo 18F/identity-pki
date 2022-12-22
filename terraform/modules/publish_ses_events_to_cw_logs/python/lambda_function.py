@@ -54,18 +54,6 @@ def lambda_handler(event, context):
             reason = conv['reject']['reason']
             print("Email was rejected for the reason:", reason)
             mail_section(mail_destination, headers_destination, common_headers, conv)
-
-        elif(event_type == 'Open'):
-            #print("Event type Open does not log destination email in the open{} block")
-            ip_address = conv['open']['ipAddress']
-            print("Email was opened by the ip address:", ip_address)
-            mail_section(mail_destination, headers_destination, common_headers, conv)
-        
-        elif(event_type == 'Click'):
-            #print("Event type Click does not log destination email in the click{} block")
-            ip_address = conv['click']['ipAddress']
-            print("Email was clicked from the ip address:", ip_address)
-            mail_section(mail_destination, headers_destination, common_headers, conv)
         
         elif(event_type == 'Rendering Failure'):
             #print("Event type Rendering Failure does not log destination email in the failure{} block")
