@@ -160,6 +160,9 @@ users:
     - analytics
     gitlab_groups:
     - pm
+  jeffrey.mcmillan:
+    aws_groups:
+    - analytics
   jenna.hansen:
     aws_groups:
     - analytics
@@ -246,6 +249,9 @@ users:
     - jgrevich
     gitlab_groups:
     - devops
+  keith.wertsching:
+    aws_groups:
+    - analytics
   ken.kato:
     aws_groups:
     - devopsnonprod
