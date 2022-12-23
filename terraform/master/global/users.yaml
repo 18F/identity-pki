@@ -250,6 +250,7 @@ users:
   justin.grevich:
     aws_groups:
     - devops
+    - orgadmin
     ec2_username:
     - jgrevich
     gitlab_groups:
@@ -367,6 +368,7 @@ users:
     - devops
     - secops
     - keymasters
+    - orgadmin
     - socreadonly
     ec2_username:
     - mzia
@@ -418,6 +420,7 @@ users:
   paul.hirsch:
     aws_groups:
     - devops
+    - orgadmin
     ec2_username:
     - pauldoom
     gitlab_groups:
