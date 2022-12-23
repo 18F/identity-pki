@@ -695,10 +695,49 @@ variable "slack_events_sns_hook_arn_use1" {
   description = "ARN of SNS topic that will notify the #identity-events/#identity-otherevents channels in Slack from US-East-1"
 }
 
+
+# KMS Event Matching settings
 variable "kms_log_kinesis_shards" {
   description = "Number of shards to provision in Kinesis datastream for kms logging"
   default     = 1
 }
+
+variable "kms_log_alerts_enabled" {
+  description = "Set to false to avoid sending KMS match alerts to Slack/SNS"
+  type        = bool
+  default     = true
+}
+
+variable "kms_log_kinesis_retention_hours" {
+  description = "Hours to retain data in Kinesis - Min is 24 and max is 168"
+  type        = number
+  default     = 24
+}
+
+variable "kms_log_ct_queue_message_retention_seconds" {
+  description = "Number of seconds a message will remain in the queue"
+  type        = number
+  default     = 345600 # 4 days
+}
+
+variable "kms_log_dynamodb_retention_days" {
+  description = "Number of days to retain kms log records in DynamoDB"
+  type        = number
+  default     = 365
+}
+
+variable "kms_log_kmslog_lambda_debug" {
+  description = "Whether to run the kms logging lambdas in debug mode in this account"
+  type        = bool
+  default     = false
+}
+
+variable "kms_log_lambda_identity_lambda_functions_gitrev" {
+  description = "This is gross and temporary, but we need to be able to switch KMS matcher code without a new rev of identity-terraform"
+  type        = string
+  default     = "1815de9b0893548876138e7086391e210cc85813"
+}
+
 
 variable "newrelic_alerts_enabled" {
   description = "turn on common newrelic alerting services.  Required if any other newrelic stuff is enabled."
