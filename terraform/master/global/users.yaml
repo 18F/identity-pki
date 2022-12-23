@@ -119,6 +119,11 @@ users:
     - lizzieamanning
     email:
     - elizabeth.manning@gsa.gov
+  eric.evans:
+    aws_groups:
+    - secopsnonprod
+    gitlab_groups:
+    - devops
   eric.gade:
     aws_groups:
     - appdev
