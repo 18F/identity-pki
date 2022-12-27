@@ -62,7 +62,7 @@ module "main" {
       { "ReportsReadOnly" = ["Sandbox", "Prod"] }
     ],
     "devops" = [
-      { "Analytics" = ["Sandbox", "Organization", "Prod"] },
+      { "Analytics" = ["Sandbox", "Prod"] },
       { "FullAdministrator" = ["Sandbox", "Prod", "Master"] },
       { "ReadOnly" = ["Sandbox", "Prod"] },
       { "Terraform" = ["Sandbox", "Prod", "Master"] },
@@ -82,6 +82,7 @@ module "main" {
       { "ReportsReadOnly" = ["Sandbox", "Prod"] }
     ],
     "orgadmin" = [
+      { "Analytics" = ["Organization"] },
       { "BillingReadOnly" = ["Organization"] }, # For troubleshooting/assisting finops
       { "FullAdministrator" = ["Organization"] }
     ],
