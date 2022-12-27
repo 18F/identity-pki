@@ -10,7 +10,8 @@
       "allow_unsafe_migrations": true,
       "idp_sync_static": true,
       "deploy_branch": {
-        "identity-dashboard": "stages/ursula"
+        "identity-dashboard": "stages/ursula",
+        "identity-idp": "stages/ursula"
       }
     }
   },
