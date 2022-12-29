@@ -19,12 +19,16 @@ module "main" {
   region            = "us-west-2"
   master_account_id = "340731855345"
 
+  # This groups accounts into account types.
+  # It is parsed by bin/get-aws-roles, and requires:
+  # * NO TRAILING COMMAS IN LISTS!  This gets parsed as JSON
+  # * A comment followed by the account alias
   aws_account_types = {
     "Master" = [
       "340731855345" # login-master
     ],
     "Organization" = [
-      "121998818467", # login-org-management - Billing org account
+      "121998818467" # login-org-management - Billing org account
     ],
     "Prod" = [
       "555546682965", # login-prod
