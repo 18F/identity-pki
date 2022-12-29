@@ -243,9 +243,10 @@ resource "aws_cloudwatch_metric_alarm" "in-person-proofing-enrollment-alarm" {
   threshold                 = "0"
   treat_missing_data        = "notBreaching"
   insufficient_data_actions = []
-  alarm_actions             = ["arn:aws:sns:${var.region}:${data.aws_caller_identity.current.account_id}:slack-in-person-proofing"]
+  alarm_actions             = local.in_person_alarm_actions
   alarm_description         = <<EOM
 ${var.env_name}: Alarm tracking In Person Proofing Enrollment Requests Failure
+See https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms
 EOM
 }
 

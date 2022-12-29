@@ -39,7 +39,7 @@ Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing
 EOM
   treat_missing_data        = "breaching"
   insufficient_data_actions = []
-  alarm_actions             = local.low_priority_alarm_actions
+  alarm_actions             = local.in_person_alarm_actions
 }
 
 resource "aws_cloudwatch_metric_alarm" "idp_usps_proofing_results_worker_low_transaction_frequency_alarm" {
@@ -61,7 +61,7 @@ Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing
 EOM
   treat_missing_data        = "breaching"
   insufficient_data_actions = []
-  alarm_actions             = local.low_priority_alarm_actions
+  alarm_actions             = local.in_person_alarm_actions
 }
 
 # There should be no failures, so alert on any failure

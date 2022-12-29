@@ -633,6 +633,7 @@ locals {
   account_rails_ami_id = local.acct_type == "prod" ? (
   var.rails_ami_id_prod) : var.rails_ami_id_sandbox
 
+  in_person_alarm_actions         = ["arn:aws:sns:${var.region}:${data.aws_caller_identity.current.account_id}:slack-in-person-proofing"]
   low_priority_alarm_actions      = [var.slack_events_sns_hook_arn]
   low_priority_alarm_actions_use1 = [var.slack_events_sns_hook_arn_use1]
   high_priority_alarm_actions = var.page_devops == 1 ? [
