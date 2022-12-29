@@ -37,7 +37,7 @@ resource "aws_ssm_document" "config_access_key_rotation_ssm_doc" {
         inputs:
           DocumentName: AWS-PublishSNSNotification
           RuntimeParameters:
-            TopicArn: "${data.aws_sns_topic.config_access_key_rotation_topic.arn}"
+            TopicArn: "arn:aws:sns:${var.region}:${data.aws_caller_identity.current.account_id}:${var.slack_events_sns_topic}"
             Message: {"Account": "{{global:ACCOUNT_ID}}", "User": "{{resolveUsername.configUserName}}", "Reason": "needs to rotate their Access Key. Active access keys should be rotated within 90 days to be marked as Compliant to AWS Config Rules. Rotate access key to avoid it from being Deleted or marked as Inactive. Runbook: https://github.com/18F/identity-devops/wiki/Setting-Up-AWS-Vault#rotating-aws-keys"}
     outputs:
       - resolveUsername.configUserName

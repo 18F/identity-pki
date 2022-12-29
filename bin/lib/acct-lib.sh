@@ -38,8 +38,16 @@ verify_account_info() {
   ACCOUNT_ALIAS=$(aws iam list-account-aliases --query AccountAliases --output text)
 }
 
+switch_creds() {
+  unset AWS_PROFILE
+  case ${1} in
+    source) get_iam 'all' "${SRC_ACCT}" 'Terraform' ;;
+    dest)   AV_PROFILE=${ADMIN_IAM_ROLE}            ;;
+  esac
+}
+
 get_secrets_bucket() {
-  get_iam 'all' "${1}" 'Terraform'
+  switch_creds ${1}
   SECRETS_BUCKET=$(bin/awsv -x ${AV_PROFILE} aws s3 ls |
   grep '\.secrets\.' | awk '{print $NF}')
 }

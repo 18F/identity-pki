@@ -47,8 +47,7 @@ EOM
 
 # empty the secrets bucket so that Terraform can actually destroy it
 1_empty_secrets_bucket() {
-  get_secrets_bucket ${TF_ACCT}
-  empty_bucket_with_versions ${SECRETS_BUCKET}
+  empty_bucket_with_versions $(aws s3 ls | grep '\.secrets\.' | awk '{print $NF}')
 }
 
 # remove tf-state module from Terraform; buckets and table are emptied
@@ -58,16 +57,26 @@ EOM
 }
 
 3_tf_destroy_all() {
-  bin/tf-deploy -t "all/${TF_ACCT}" destroy \
-    -auto-approve -var 'opsgenie_key_ready=false'
+  bin/tf-deploy -t "all/${TF_ACCT}" destroy -auto-approve -var 'opsgenie_key_ready=false'
 }
 
-# empty + delete buckets not destroyed by Terraform (e.g. s3-access-logs, tf-state)
+# empty + delete buckets not destroyed by Terraform (e.g. s3-access-logs, tf-state);
+# will print out list of buckets (any/all with 'login' and/or the account number)
+# and then prompt to confirm deletion.
 4_rm_remaining_buckets() {
-  for BUCKET in $(aws s3api list-buckets --output text --query 'Buckets[*].Name'); do
-    run empty_bucket_with_versions ${BUCKET}
-    run aws s3api delete-bucket --bucket ${BUCKET}
-  done
+  BUCKET_LIST=($(aws s3api list-buckets --query 'Buckets[*].Name' |
+                  jq -r '.[]' | grep "${ACCT_NUM}\|login"))
+  echo_cyan "Will delete the following S3 buckets:\n"
+  echo "${BUCKET_LIST[@]}" | tr ' ' '\n'
+  echo
+  if prompt_yn "Continue?" ; then
+    for BUCKET in "${BUCKET_LIST[@]}" do
+      run empty_bucket_with_versions ${BUCKET}
+      run aws s3api delete-bucket --bucket ${BUCKET}
+    done
+  else
+    echo_yellow "Skipping bucket deletion."
+  fi
 }
 
 5_delete_tf_locks_table() {
@@ -76,7 +85,7 @@ EOM
   run aws dynamodb wait table-not-exists --table-name terraform_locks
 }
 
-declare {TF_ACCT,ACCT_ID,SECRETS_BUCKET,ACCOUNT_ALIAS}=
+declare {TF_ACCT,ACCT_ID,SECRETS_BUCKET,ACCOUNT_ALIAS,ADMIN_IAM_ROLE}=
 verify_root_repo
 
 TASKS=(
@@ -102,7 +111,10 @@ do
 done
 shift $((OPTIND-1))
 
-export AWS_PROFILE=$1
+ADMIN_IAM_ROLE=${1-}
+[[ -z ${ADMIN_IAM_ROLE} ]] && raise "Must provide an IAM profile name!"
+export AWS_PROFILE=${ADMIN_IAM_ROLE}
+
 verify_account_info
 if [[ -z "${ACCOUNT_ALIAS}" ]] && [[ -z "${TODO-}" ]] ; then
   echo_red "Account alias for '${TF_ACCT}' not found via 'list-account-aliases'."

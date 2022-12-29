@@ -36,5 +36,5 @@ resource "aws_lambda_function" "config_access_key_rotation_lambda" {
 #  function_name = aws_lambda_function.config_access_key_rotation_lambda.function_name
 #  action        = "lambda:InvokeFunction"
 #  principal     = "sns.amazonaws.com"
-#  source_arn    = data.aws_sns_topic.config_access_key_rotation_topic.arn
+#  source_arn    = "arn:aws:sns:${var.region}:${data.aws_caller_identity.current.account_id}:${var.slack_events_sns_topic}"
 #}
