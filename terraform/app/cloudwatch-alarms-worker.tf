@@ -20,6 +20,50 @@ EOM
   alarm_actions             = local.high_priority_alarm_actions
 }
 
+resource "aws_cloudwatch_metric_alarm" "idp_usps_proofing_results_worker_alive_alarm" {
+  count = var.idp_worker_alarms_enabled
+
+  alarm_name                = "${var.env_name}-IDPUSPSProofingWorker-Alive"
+  comparison_operator       = "LessThanThreshold"
+  evaluation_periods        = "3"
+  datapoints_to_alarm       = "3"
+  metric_name               = "usps-perform-success"
+  namespace                 = "${var.env_name}/idp-worker"
+  period                    = "1200" # 20 minute period, if this job doesn't run within an hour, we have an alarm state
+  statistic                 = "Sum"
+  threshold                 = "1"
+  alarm_description         = <<EOM
+This alarm is executed when USPS get proofing results job has not run for 60 minutes
+
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms
+EOM
+  treat_missing_data        = "breaching"
+  insufficient_data_actions = []
+  alarm_actions             = local.low_priority_alarm_actions
+}
+
+resource "aws_cloudwatch_metric_alarm" "idp_usps_proofing_results_worker_low_transaction_frequency_alarm" {
+  count = var.idp_worker_alarms_enabled
+
+  alarm_name                = "${var.env_name}-IDPUSPSProofingWorker-LowTransactionFrequency"
+  comparison_operator       = "LessThanThreshold"
+  evaluation_periods        = "1"
+  datapoints_to_alarm       = "1"
+  metric_name               = "usps-perform-success"
+  namespace                 = "${var.env_name}/idp-worker"
+  period                    = "3600" # 1 hour
+  statistic                 = "Sum"
+  threshold                 = "3"
+  alarm_description         = <<EOM
+This alarm is executed when USPS get proofing results job has not run at least 3 times within 60 minutes
+
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms
+EOM
+  treat_missing_data        = "breaching"
+  insufficient_data_actions = []
+  alarm_actions             = local.low_priority_alarm_actions
+}
+
 # There should be no failures, so alert on any failure
 resource "aws_cloudwatch_metric_alarm" "idp_worker_failure_alarm" {
   count = var.idp_worker_alarms_enabled

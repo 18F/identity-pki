@@ -260,6 +260,11 @@ locals {
       pattern      = "{ $.name = \"perform.active_job\" && $.exception_message NOT EXISTS && $.queue_name = \"*GoodJob*\" }"
       metric_value = 1
     },
+    idp_usps_proofing_results_worker_perform_success = {
+      name         = "usps-perform-success"
+      pattern      = "{ $.name = \"perform.active_job\" && $.exception_message NOT EXISTS && $.queue_name = \"*GoodJob*\" && $.job_class = \"GetUspsProofingResultsJob\" }"
+      metric_value = 1
+    },
     idp_worker_perform_failure = {
       name         = "perform-failure"
       pattern      = "{ $.name = \"perform.active_job\" && $.exception_message = * && $.queue_name = \"*GoodJob*\" && $.queue_name != \"*long_running*\" }"
