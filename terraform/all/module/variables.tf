@@ -12,6 +12,7 @@ locals {
     iam_reports_enabled        = false
     iam_kmsadmin_enabled       = false
     iam_supporteng_enabled     = false
+    iam_fraudops_enabled       = false
   }
 
   ssm_cmd_map = {

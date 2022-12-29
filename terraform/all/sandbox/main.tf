@@ -22,6 +22,7 @@ module "main" {
     iam_kmsadmin_enabled   = true
     iam_analytics_enabled  = true
     iam_supporteng_enabled = true
+    iam_fraudops_enabled   = true
   }
 
   # TODO: Remove this as soon as service provider logos no longer
@@ -149,5 +150,6 @@ module "main" {
     "SOCAdministrator"  = [{ "*" = ["*"] }],
     "SupportEngineer"   = [{ "*" = ["uuid-lookup"] }],
     "Terraform"         = [{ "*" = ["*"] }],
+    "FraudOps"          = [{ "*" = ["uuid-lookup"] }],
   }
 }

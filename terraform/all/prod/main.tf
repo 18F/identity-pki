@@ -23,6 +23,7 @@ module "main" {
     iam_analytics_enabled      = true
     iam_auto_terraform_enabled = false
     iam_supporteng_enabled     = true
+    iam_fraudops_enabled       = true
   }
 
   legacy_bucket_list = [
@@ -107,5 +108,6 @@ module "main" {
     "SOCAdministrator"  = [{ "*" = ["*"] }],
     "SupportEngineer"   = [{ "*" = ["uuid-lookup"] }],
     "Terraform"         = [{ "*" = ["*"] }],
+    "FraudOps"          = [{ "*" = ["uuid-lookup"] }],
   }
 }

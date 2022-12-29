@@ -81,6 +81,10 @@ module "main" {
       { "BillingReadOnly" = ["Sandbox", "Organization", "Prod"] },
       { "ReportsReadOnly" = ["Sandbox", "Prod"] }
     ],
+    "fraudops" = [
+      { "Analytics" = ["Sandbox", "Prod"] },
+      { "FraudOps" = ["Sandbox", "Prod"] }
+    ],
     "orgadmin" = [
       { "Analytics" = ["Organization"] },
       { "BillingReadOnly" = ["Organization"] }, # For troubleshooting/assisting finops
@@ -131,6 +135,7 @@ module "main" {
     "KMSAdministrator",
     "SOCAdministrator",
     "SupportEngineer",
+    "FraudOps",
   ]
 
   # User to group mappings - Groups defined in ../module/iam_groups.tf
