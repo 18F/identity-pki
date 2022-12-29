@@ -119,6 +119,11 @@ users:
     - lizzieamanning
     email:
     - elizabeth.manning@gsa.gov
+  eric.evans:
+    aws_groups:
+    - secopsnonprod
+    gitlab_groups:
+    - devops
   eric.gade:
     aws_groups:
     - appdev
@@ -160,6 +165,9 @@ users:
     - analytics
     gitlab_groups:
     - pm
+  jeffrey.mcmillan:
+    aws_groups:
+    - analytics
   jenna.hansen:
     aws_groups:
     - analytics
@@ -242,10 +250,14 @@ users:
   justin.grevich:
     aws_groups:
     - devops
+    - orgadmin
     ec2_username:
     - jgrevich
     gitlab_groups:
     - devops
+  keith.wertsching:
+    aws_groups:
+    - analytics
   ken.kato:
     aws_groups:
     - devopsnonprod
@@ -356,6 +368,7 @@ users:
     - devops
     - secops
     - keymasters
+    - orgadmin
     - socreadonly
     ec2_username:
     - mzia
@@ -407,6 +420,7 @@ users:
   paul.hirsch:
     aws_groups:
     - devops
+    - orgadmin
     ec2_username:
     - pauldoom
     gitlab_groups:

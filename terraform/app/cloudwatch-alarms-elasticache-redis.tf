@@ -288,129 +288,22 @@ EOM
   }
 }
 
-resource "aws_cloudwatch_metric_alarm" "elasticache_alarm_idp_attempts_network" {
-  for_each            = toset(local.idp_attempts_redis_clusters)
-  alarm_name          = "${each.key}-Redis-NetworkUsage-High"
-  comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = "1"
-  threshold           = local.idp_attempts_network * 0.7
-  alarm_description   = <<EOM
-Redis ${each.key} has exceeded ${format("%.1f", 0.7 * 100)}% network utilization for over 60 seconds. Please address this to avoid session lock-up or failure.
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Redis-alerts
-EOM
-  alarm_actions       = local.low_priority_alarm_actions
-
-  metric_query {
-    id          = "e1"
-    expression  = "SUM(METRICS())/1000000000"
-    label       = "Total Network Throughput"
-    return_data = "true"
-  }
-
-  metric_query {
-    id = "m1"
-
-    metric {
-      metric_name = "NetworkBytesIn"
-      namespace   = "AWS/ElastiCache"
-      period      = "60"
-      stat        = "Average"
-
-      dimensions = {
-        CacheClusterId = each.key
-      }
-    }
-  }
-  metric_query {
-    id = "m2"
-
-    metric {
-      metric_name = "NetworkBytesOut"
-      namespace   = "AWS/ElastiCache"
-      period      = "60"
-      stat        = "Average"
-
-      dimensions = {
-        CacheClusterId = each.key
-      }
-    }
-  }
-  depends_on = [aws_elasticache_replication_group.idp_attempts]
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-resource "aws_cloudwatch_metric_alarm" "elasticache_alarm_idp_network" {
-  for_each            = toset(local.idp_redis_clusters)
-  alarm_name          = "${each.key}-Redis-NetworkUsage-High"
-  comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = "1"
-  threshold           = local.idp_network * 0.7
-  alarm_description   = <<EOM
-Redis ${each.key} has exceeded ${format("%.1f", 100 * 0.7)}% network utilization for over 60 seconds. Please address this to avoid session lock-up or failure.
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Redis-alerts
-EOM
-  alarm_actions       = local.low_priority_alarm_actions
-
-  metric_query {
-    id          = "e1"
-    expression  = "SUM(METRICS())/1000000000"
-    label       = "Total Network Throughput"
-    return_data = "true"
-  }
-
-  metric_query {
-    id = "m1"
-
-    metric {
-      metric_name = "NetworkBytesIn"
-      namespace   = "AWS/ElastiCache"
-      period      = "60"
-      stat        = "Average"
-
-      dimensions = {
-        CacheClusterId = each.key
-      }
-    }
-  }
-  metric_query {
-    id = "m2"
-
-    metric {
-      metric_name = "NetworkBytesOut"
-      namespace   = "AWS/ElastiCache"
-      period      = "60"
-      stat        = "Average"
-
-      dimensions = {
-        CacheClusterId = each.key
-      }
-    }
-  }
-  depends_on = [aws_elasticache_replication_group.idp]
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
 resource "aws_cloudwatch_metric_alarm" "elasticache_alarm_critical_idp_attempts_network" {
   for_each            = toset(local.idp_attempts_redis_clusters)
   alarm_name          = "${each.key}-Redis-NetworkUsage-Critical"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
-  threshold           = local.idp_attempts_network * 0.9
-  alarm_description   = <<EOM
-Redis ${each.key} has exceeded ${format("%.1f", 0.9 * 100)}% network utilization for over 60 seconds. Please address this to avoid session lock-up or failure.
+  # NetworkBytesIn and NetworkBytesOut are in GB/minute - Hence the conversion
+  threshold         = local.idp_attempts_network * 60 * 0.01 * var.elasticache_redis_alarm_threshold_network
+  alarm_description = <<EOM
+Redis ${each.key} has exceeded ${var.elasticache_redis_alarm_threshold_network}% network utilization for over 60 seconds. Please address this to avoid session lock-up or failure.
 Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Redis-alerts
 EOM
-  alarm_actions       = local.high_priority_alarm_actions
+  alarm_actions     = local.high_priority_alarm_actions
 
   metric_query {
     id          = "e1"
-    expression  = "SUM(METRICS())/1000000000"
+    expression  = "SUM(METRICS())/1073741824" # Conversion of bytes to GB/minute
     label       = "Total Network Throughput"
     return_data = "true"
   }
@@ -455,16 +348,17 @@ resource "aws_cloudwatch_metric_alarm" "elasticache_alarm_critical_idp_network" 
   alarm_name          = "${each.key}-Redis-NetworkUsage-Critical"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
-  threshold           = local.idp_network * 0.9
-  alarm_description   = <<EOM
-Redis ${each.key} has exceeded ${format("%.1f", 0.9 * 100)}% network utilization for over 60 seconds. Please address this to avoid session lock-up or failure.
+  # NetworkBytesIn and NetworkBytesOut are in GB/minute - Hence the conversion
+  threshold         = local.idp_network * 60 * 0.01 * var.elasticache_redis_alarm_threshold_network
+  alarm_description = <<EOM
+Redis ${each.key} has exceeded ${var.elasticache_redis_alarm_threshold_network}% network utilization for over 60 seconds. Please address this to avoid session lock-up or failure.
 Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Redis-alerts
 EOM
-  alarm_actions       = local.high_priority_alarm_actions
+  alarm_actions     = local.high_priority_alarm_actions
 
   metric_query {
     id          = "e1"
-    expression  = "SUM(METRICS())/1000000000"
+    expression  = "SUM(METRICS())/1073741824" # Conversion of bytes to GB/minute
     label       = "Total Network Throughput"
     return_data = "true"
   }

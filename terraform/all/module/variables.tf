@@ -364,7 +364,7 @@ variable "soc_logs_enabled" {
   default     = true
   description = <<EOM
 Enables creation of log_ship_to_soc module, allowing shipping of CloudWatch logs to
-SOC core account. Must be set to 0 for new accounts until the SOCaaS team has
+SOC core account. Must be set to false for new accounts until the SOCaaS team has
 approved and confirmed access to the destination CloudWatch log group. More info:
 https://github.com/18F/identity-devops/wiki/Runbook:-GSA-SOC-as-a-Service-(SOCaaS)#cloudwatch-shipping-important-note
 EOM

@@ -23,6 +23,9 @@ module "main" {
     "Master" = [
       "340731855345" # login-master
     ],
+    "Organization" = [
+      "121998818467", # login-org-management - Billing org account
+    ],
     "Prod" = [
       "555546682965", # login-prod
       "472911866628", # login-sms-prod
@@ -74,13 +77,18 @@ module "main" {
       { "EscrowRead" = ["Sandbox"] }
     ]
     "finops" = [
-      { "Analytics" = ["Sandbox", "Prod"] },
-      { "BillingReadOnly" = ["Sandbox", "Prod"] },
+      { "Analytics" = ["Sandbox", "Organization", "Prod"] },
+      { "BillingReadOnly" = ["Sandbox", "Organization", "Prod"] },
       { "ReportsReadOnly" = ["Sandbox", "Prod"] }
     ],
     "fraudops" = [
       { "Analytics" = ["Sandbox", "Prod"] },
       { "FraudOps" = ["Sandbox", "Prod"] }
+    ],
+    "orgadmin" = [
+      { "Analytics" = ["Organization"] },
+      { "BillingReadOnly" = ["Organization"] }, # For troubleshooting/assisting finops
+      { "FullAdministrator" = ["Organization"] }
     ],
     "secops" = [
       { "Analytics" = ["Sandbox", "Prod"] },
