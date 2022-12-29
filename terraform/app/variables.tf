@@ -661,6 +661,12 @@ variable "alb_http_port_80_enabled" {
   description = "Whether to have ALB listen on HTTP port 80 (not just HTTPS 443)"
 }
 
+variable "idp_health_uri" {
+  description = "Path used for load balancer health checking on the IDP - Must respond with 200 when healthy and non-200 when sick"
+  type        = string
+  default     = "/api/health"
+}
+
 # This is needed so the application can download its secrets
 
 variable "app_secrets_bucket_name_prefix" {
@@ -1161,6 +1167,7 @@ variable "cloudfront_http_version" {
 variable "sli_uninteresting_uris" {
   description = "Uninteresting URIs that may dilute an SLI due to their high frequency and relatively cheap cost."
   default = [
+    "/api/health",
     "/apple-touch-icon.png",
     "/es",
     "/favicon-16x16.png",

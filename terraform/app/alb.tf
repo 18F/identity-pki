@@ -123,10 +123,9 @@ resource "aws_alb_target_group" "idp-ssl" {
   depends_on = [aws_alb.idp]
 
   health_check {
-    # we have HTTP basic auth enabled in nonprod envs in the prod AWS account
-    matcher  = "200"
-    protocol = "HTTPS"
-
+    matcher             = "200"
+    protocol            = "HTTPS"
+    path                = var.idp_health_uri
     interval            = 10
     timeout             = 5
     healthy_threshold   = 9 # up for 90 seconds
