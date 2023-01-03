@@ -243,6 +243,7 @@ func TestGitlabAPI(t *testing.T) {
 	var jsonresult map[string]interface{}
 	json.Unmarshal([]byte(*result.StandardOutputContent), &jsonresult)
 	projectid := fmt.Sprintf("%.0f", jsonresult["id"])
+	require.NotNil(t, jsonresult["id"], "projectid is nil.  Project creation said: "+*result.StandardOutputContent)
 
 	// delete project after we are done
 	deletecmd := "curl -s -X DELETE --header 'PRIVATE-TOKEN: " + token + "' 'http://localhost:8080/api/v4/projects/" + projectid + "'"
@@ -257,8 +258,9 @@ func TestGitlabAPI(t *testing.T) {
 	cmd = "curl -s --header 'Content-Type: application/json' --header 'PRIVATE-TOKEN: " + token +
 		"' --data '{ \"name\": \"New release\", \"tag_name\": \"v0.3\", \"description\": \"Super nice release\", \"ref\": \"main\" }'" +
 		" --request POST http://localhost:8080/api/v4/projects/" + projectid + "/releases"
+
 	result = RunCommandOnInstance(t, firstinstance, cmd)
-	require.Equal(t, int64(0), *result.ResponseCode, "could not create a release with "+cmd)
+	require.Equal(t, int64(0), *result.ResponseCode, "could not create a release with "+strings.ReplaceAll(cmd, token, "XXX"))
 	require.NotContains(t, *result.StandardOutputContent, "Bad Request", "could not create a release with "+cmd)
 
 	// watch /projects/:id/jobs with project ID to see when job completes
@@ -335,11 +337,11 @@ func TestDockerWorking(t *testing.T) {
 		return
 	}
 
-	// make sure we can pull an image
+	// make sure docker is running
 	instances := aws.GetInstanceIdsForAsg(t, runner_asg, region)
 	require.NotEmpty(t, instances)
 	firstinstance := instances[0]
-	cmd := "docker pull alpine:latest"
+	cmd := "docker info"
 	result := RunCommandOnInstance(t, firstinstance, cmd)
 	require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed: "+*result.StandardOutputContent)
 }
