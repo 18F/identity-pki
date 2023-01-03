@@ -508,6 +508,11 @@ users:
   sierra.toler:
     aws_groups:
     - bizops
+  sonia.connolly:
+    aws_groups:
+    - appdev
+    gitlab_groups:
+    - appdev
   stephen.shelton:
     aws_groups:
     - devops
