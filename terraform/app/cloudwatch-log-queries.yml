@@ -66,7 +66,7 @@ outboundproxy/blocked-requests-by-destination:
   query: |
     ## Count blocked outbound requests by destionation FQDN
     filter @message like "TCP_DENIED"
-    | parse @message /TCP_DENIED\/403 \d+ CONNECT (?<destination>.+:\d+) /
+    | parse @message /TCP_DENIED\/403 \d+ (CONNECT|GET|POST|PUT|HEAD) (?<destination>.+?) -/
     | stats count() as count by destination
     | sort count desc
 
