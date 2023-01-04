@@ -33,6 +33,7 @@ gitlab_qa_api_token = shell_out('openssl rand -base64 32 | sha256sum | head -c20
 gitlab_qa_password = shell_out('openssl rand -base64 32 | sha256sum | head -c20').stdout
 gitlab_real_device = '/dev/nvme3n1'
 gitlab_root_api_token = shell_out('openssl rand -base64 32 | sha256sum | head -c20').stdout
+gitlab_version = '15.6.1-ee.0' # https://packages.gitlab.com/gitlab/gitlab-ee
 local_url = 'https://localhost:443'
 postgres_version = '13'
 redis_host = ConfigLoader.load_config(node, 'gitlab_redis_endpoint', common: false).chomp
@@ -182,9 +183,8 @@ file 'gitlab_ee_license_file' do
   sensitive true
 end
 
-# https://packages.gitlab.com/gitlab/gitlab-ee
 package 'gitlab-ee' do
-  version '15.6.1-ee.0'
+  version gitlab_version
 end
 
 execute 'restore_ssh_keys' do
@@ -219,32 +219,45 @@ end
 file '/etc/gitlab/backup.sh' do
   content <<-EOF
 #!/bin/bash
-DATE="$(date +%Y%m%d%H%M)"
-SNS_TOPIC_ARN="$(cat "/etc/login.gov/info/sns_topic_arn")"
-AWS_REGION="#{aws_region}"
+DATE=$(date +%Y%m%d%H%M)
+BACKUP_FILENAME=${DATE}_ee_gitlab_#{gitlab_version}
+CONFIG_FILENAME=${DATE}_config_backup.tar.gz
+SNS_TOPIC_ARN=$(cat "/etc/login.gov/info/sns_topic_arn")
+AWS_REGION=#{aws_region}
 
 failure() {
   STATUS="FAILED"
-  MESSAGE="gitlab backup $STATUS for #{node.chef_environment}:$DATE - $1"
-  echo "$MESSAGE" | logger
+  MESSAGE="gitlab backup ${STATUS} for #{node.chef_environment}:${DATE} - $1"
+  echo ${MESSAGE} | logger
   /usr/local/bin/aws sns publish \
-    --region "$AWS_REGION" \
-    --topic-arn "$SNS_TOPIC_ARN" \
-    --message "$MESSAGE"
+    --region ${AWS_REGION} \
+    --topic-arn ${SNS_TOPIC_ARN} \
+    --message ${MESSAGE}
 }
 
-# backup github environment
-gitlab-backup create || failure "gitlab-backup failed"
-/usr/local/bin/aws s3 cp /etc/gitlab/gitlab-secrets.json s3://#{backup_s3_bucket}/$DATE/gitlab-secrets.json || failure "gitlab-secrets.json copy to s3 failed"
-/usr/local/bin/aws s3 cp /etc/gitlab/gitlab.rb s3://#{backup_s3_bucket}/$DATE/gitlab.rb || failure "gitlab.rb copy to s3 failed"
-/usr/local/bin/aws s3 cp /etc/ssh/ s3://#{backup_s3_bucket}/$DATE/ssh --recursive --exclude "*" --include "ssh_host_*" || failure "ssh copy to s3 failed"
-/usr/local/bin/aws s3 cp /etc/gitlab/ssl s3://#{backup_s3_bucket}/$DATE/ssl --recursive || failure "ssl copy to s3 failed"
+# backup github
+gitlab-backup create BACKUP=${BACKUP_FILENAME} || failure "gitlab-backup failed"
 
-# make sure backups are not zero in size
-find /var/opt/gitlab/backups -type f -size 0 | xargs -r false || failure "zero length backup file detected"
+# backup config
+tar -czvf ${CONFIG_FILENAME} /etc/gitlab/gitlab-secrets.json /etc/gitlab/gitlab.rb /etc/gitlab/gitlab_root_api_token /etc/gitlab/login-gov.gitlab-license /etc/ssh/ /etc/gitlab/ssl
+/usr/local/bin/aws s3 cp ${CONFIG_FILENAME} s3://#{backup_s3_bucket}/${CONFIG_FILENAME} || failure "gitlab-secrets.json copy to s3 failed"
 
 # Delete tempoary files
 find /var/opt/gitlab/backups -type f -name '*.tar' -delete || failure "Some temporary backup files could not be deleted"
+find /etc/gitlab -type f -name '*.tar.gz' -delete || failure "Some temporary backup files could not be deleted"
+
+backup_size=$(/usr/local/bin/aws s3api head-object --bucket #{backup_s3_bucket} --key "${BACKUP_FILENAME}_gitlab_backup.tar" --query "ContentLength")
+config_size=$(/usr/local/bin/aws s3api head-object --bucket #{backup_s3_bucket} --key ${CONFIG_FILENAME} --query "ContentLength")
+
+if [ -z $backup_size ] || [ -z $config_size ]; then
+  failure "one or more variables are undefined"
+  exit 1
+fi
+
+if [ $backup_size -eq 0 ] || [ $config_size -eq 0 ]; then
+  failure "one or more file sizes are zero"
+  exit 1
+fi
 
   EOF
   owner 'root'
@@ -258,24 +271,23 @@ file '/etc/gitlab/restore.sh' do
 #!/bin/bash
 
 # define variables
-# export DATE=202206071934
-# export BACKUP_ARCHIVE_NAME=1655078426_2022_06_13_14.10.2-ee_gitlab_backup.tar
+# export BACKUP_ARCHIVE_NAME=202212202123_ee_gitlab_15.6.1-ee.0_gitlab_backup.tar
+# export CONFIG_ARCHIVE_NAME=202212202123_config_backup.tar.gz
 # export BACKUP_S3_BUCKET=#{backup_s3_bucket}
 
-if [ -z "$DATE" ] && [ -z "$BACKUP_ARCHIVE_NAME" ] && [ -z "$REGION" ] ; then
-  echo "please set the following environment variables DATE, BACKUP_ARCHIVE_NAME, and REGION"
+if [ -z "${BACKUP_ARCHIVE_NAME}" ] && [ -z "${CONFIG_ARCHIVE_NAME}" ] && [ -z "$REGION" ] ; then
+  echo "please set the following environment variables BACKUP_ARCHIVE_NAME, CONFIG_ARCHIVE_NAME and REGION"
   exit 1
 fi
 
 # restore github environment
-aws s3 cp s3://$BACKUP_S3_BUCKET/$DATE/gitlab-secrets.json /etc/gitlab/gitlab-secrets.json
-aws s3 cp s3://$BACKUP_S3_BUCKET/$DATE/gitlab.rb /etc/gitlab/gitlab.rb
-aws s3 cp s3://$BACKUP_S3_BUCKET/$DATE/ssh /etc/ssh/ --recursive --exclude "*" --include "ssh_host_*"
-aws s3 cp s3://$BACKUP_S3_BUCKET/$DATE/ssl /etc/gitlab/ssl --recursive
-aws s3 cp s3://$BACKUP_S3_BUCKET/$BACKUP_ARCHIVE_NAME /var/opt/gitlab/backups
+aws s3 cp s3://$BACKUP_S3_BUCKET/${BACKUP_ARCHIVE_NAME} /var/opt/gitlab/backups
+aws s3 cp s3://$BACKUP_S3_BUCKET/${CONFIG_ARCHIVE_NAME} /etc/gitlab/
+tar -zxvf /etc/gitlab/${CONFIG_ARCHIVE_NAME}
+
 export GITLAB_ASSUME_YES=1
 gitlab-backup restore
-  EOF
+EOF
   owner 'root'
   group 'root'
   mode '0755'
@@ -383,7 +395,6 @@ execute 'gitlab_rails_commands' do
   action :run
   sensitive true
 end
-
 
 execute 'add_ci_skeleton' do
   command <<-EOF

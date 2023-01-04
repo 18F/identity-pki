@@ -7,6 +7,9 @@ require 'aws-sdk-ec2'
 
 include_recipe 'filesystem'
 
+# https://packages.gitlab.com/runner/gitlab-runner
+gitlab_runner_version = '15.6.1'
+
 filesystem 'docker' do
   fstype 'ext4'
   device '/dev/nvme1n1'
@@ -19,9 +22,8 @@ packagecloud_repo 'runner/gitlab-runner' do
   base_url 'https://packages.gitlab.com/'
 end
 
-# https://packages.gitlab.com/runner/gitlab-runner
 package 'gitlab-runner' do
-  version '15.6.1'
+  version gitlab_runner_version
 end
 
 # install docker-credential-ecr-login so we can auth to ECR
