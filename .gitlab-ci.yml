@@ -142,6 +142,7 @@ build_idp_ci_container:
 env-tspencer:
   variables:
     ENV_NAME: tspencer
+  stage: deploy
   rules:
     - if: $CI_COMMIT_BRANCH == "stages/tspencer"
   trigger:
@@ -150,6 +151,7 @@ env-tspencer:
 env-pauldoom:
   variables:
     ENV_NAME: pauldoom
+  stage: deploy
   rules:
     - if: $CI_COMMIT_BRANCH == "stages/pauldoom"
   trigger:
@@ -158,6 +160,7 @@ env-pauldoom:
 env-ursula:
   variables:
     ENV_NAME: ursula
+  stage: deploy
   rules:
     - if: $CI_COMMIT_BRANCH == "stages/stable"
   trigger:
@@ -166,6 +169,7 @@ env-ursula:
 env-agnes:
   variables:
     ENV_NAME: agnes
+  stage: deploy
   rules:
     - if: $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE != "schedule"
   trigger:
@@ -174,6 +178,7 @@ env-agnes:
 env-joy:
   variables:
     ENV_NAME: joy
+  stage: deploy
   rules:
     - if: $CI_COMMIT_BRANCH == "stages/joy"
   trigger:
@@ -182,6 +187,7 @@ env-joy:
 env-dev:
   variables:
     ENV_NAME: dev
+  stage: deploy
   rules:
     - if: $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE != "schedule"
   trigger:
@@ -190,6 +196,7 @@ env-dev:
 env-henrydrich:
   variables:
     ENV_NAME: henrydrich
+  stage: deploy
   rules:
     - if: $CI_COMMIT_BRANCH == "stages/henrydrich"
   trigger:
@@ -198,6 +205,7 @@ env-henrydrich:
 env-akrito:
   variables:
     ENV_NAME: akrito
+  stage: deploy
   rules:
     - if: $CI_COMMIT_BRANCH == "stages/akrito"
   trigger:
@@ -206,6 +214,7 @@ env-akrito:
 env-ryandbrown:
   variables:
     ENV_NAME: ryandbrown
+  stage: deploy
   rules:
     - if: $CI_COMMIT_BRANCH == "stages/ryandbrown"
   trigger:
@@ -214,6 +223,7 @@ env-ryandbrown:
 env-zmargolis:
   variables:
     ENV_NAME: zmargolis
+  stage: deploy
   rules:
     - if: $CI_COMMIT_BRANCH == "stages/zmargolis"
   trigger:
@@ -222,6 +232,7 @@ env-zmargolis:
 env-jmdembe:
   variables:
     ENV_NAME: jmdembe
+  stage: deploy
   rules:
     - if: $CI_COMMIT_BRANCH == "stages/stable"
   trigger:
@@ -230,6 +241,7 @@ env-jmdembe:
 env-orenyk:
   variables:
     ENV_NAME: orenyk
+  stage: deploy
   rules:
     - if: $CI_COMMIT_BRANCH == "stages/stable"
   trigger:
@@ -238,6 +250,7 @@ env-orenyk:
 env-solipet:
   variables:
     ENV_NAME: solipet
+  stage: deploy
   rules:
     - if: $CI_COMMIT_BRANCH == "stages/stable"
   trigger:
