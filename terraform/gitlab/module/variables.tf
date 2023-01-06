@@ -64,9 +64,16 @@ variable "allowed_gitlab_cidr_blocks_v4" { # 159.142.0.0 - 159.142.255.255
     # GSA VPN IPs
     "159.142.0.0/16",
     # New Relic Synthetic IPs in Columbus, OH (US-East-2)
+    # https://s3.amazonaws.com/nr-synthetics-assets/nat-ip-dnsname/production/ip-ranges.json
+    "3.145.224.0/24",
+    "3.145.225.0/25",
+    "3.145.234.0/24",
     "18.217.88.49/32",
     "18.221.231.23/32",
     "18.217.159.174/32",
+    "3.130.159.252/32",
+    "3.13.7.11/32",
+    "3.130.155.242/32"
   ]
 }
 
