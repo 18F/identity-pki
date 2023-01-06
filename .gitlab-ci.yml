@@ -352,7 +352,7 @@ test_gitstaging:
       when: never
     - if: $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE == "push"
 
-deploygitlabproduction_gitstaging:
+deploygitlabproduction_trigger:
   stage: gitlabproduction_deploy
   resource_group: gitlabproduction
   needs: 
@@ -366,12 +366,76 @@ deploygitlabproduction_gitstaging:
     name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ecr-public/docker/library/alpine
   script:
     - apk --no-cache add curl
-    - |-
-      curl --request POST \
-        --form token="$GITSTAGING_PIPELINE_TRIGGER_TOKEN" \
-        --form ref=main \
-        --form "variables[ENV_NAME]=production" \
-        "https://gitlab.gitstaging.gitlab.login.gov/api/v4/projects/$GITSTAGING_DEPLOY_PROJECT_ID/trigger/pipeline"
+    - curl --request POST --form token="$GITSTAGING_PIPELINE_TRIGGER_TOKEN" --form ref=main --form "variables[ENV_NAME]=production" "https://gitlab.gitstaging.gitlab.login.gov/api/v4/projects/$GITSTAGING_DEPLOY_PROJECT_ID/trigger/pipeline" > /tmp/curl.out
+    - cat /tmp/curl.out
+    - if [ -s /tmp/curl.out ] ; then echo "pipeline trigger failed" ; exit 1 ; fi
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE == "push"
+
+# deploy gitlab production env here.
+# This only runs on gitstaging, and is triggered by the API call in deploygitlabproduction_trigger
+deploy_production:
+  environment:
+    name: production
+    url: https://gitlab.login.gov/
+    action: start
+  resource_group: production
+  variables:
+    env: production
+    url: https://gitlab.login.gov/
+    GIT_SUBMODULE_STRATEGY: normal
+    # XXX remove these once back on deploy image
+    ENV_NAME: production
+    DOMAIN: gitlab.login.gov
+  tags:
+    - production-env-runner
+  image:
+    # XXX switch back to deploy image once this is working
+    # name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/gitlab_deploy@$GITDEPLOY_IMAGE_DIGEST
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/gitlab_test@$GITTEST_IMAGE_DIGEST
+  stage: deploy
+  artifacts:
+    name: "$CI_ENVIRONMENT_NAME-$CI_COMMIT_SHA"
+    paths:
+      - terraform.plan
+      - plan.txt
+    expire_in: 5 year
+    reports:
+      terraform: plan.json
+  script:
+    - echo "Yay deploys!" ; exit 1
+  rules:
+    - if: $CI_SERVER_HOST == "gitlab.gitstaging.gitlab.login.gov"
+
+# test gitlab production env here.
+# This only runs on gitstaging, and is triggered by the API call in deploygitlabproduction_trigger
+test_production:
+  environment:
+    name: production
+    url: https://gitlab.login.gov/
+    action: verify
+  resource_group: production
+  variables:
+    ENV_NAME: production
+    DOMAIN: gitlab.login.gov
+  tags:
+    - production-env-runner
+  image:
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/gitlab_test@$GITTEST_IMAGE_DIGEST
+  stage: smoke_test
+  script:
+    - echo "Somebody set us up the deploy" ; exit 1
+  artifacts:
+    paths:
+      - gl-sast-report.json
+      - report.xml
+    reports:
+      sast: gl-sast-report.json
+      junit: report.xml
+  rules:
+    - if: $CI_SERVER_HOST == "gitlab.gitstaging.gitlab.login.gov"
 
 deploy_charlie:
   extends: .deploy_gitlab_template
