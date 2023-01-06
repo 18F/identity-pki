@@ -407,6 +407,8 @@ deploy_production:
   script:
     - echo "Yay deploys!" ; exit 1
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: $CI_SERVER_HOST == "gitlab.gitstaging.gitlab.login.gov"
 
 # test gitlab production env here.
@@ -435,6 +437,8 @@ test_production:
       sast: gl-sast-report.json
       junit: report.xml
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: $CI_SERVER_HOST == "gitlab.gitstaging.gitlab.login.gov"
 
 deploy_charlie:
