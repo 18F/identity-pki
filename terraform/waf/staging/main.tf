@@ -66,6 +66,10 @@ module "cloudfront-waf" {
   soc_destination_arn = "arn:aws:logs:us-east-1:752281881774:destination:elp-waf-lg"
   enforce_rate_limit  = true
 
+  # populate to define rules to COUNT (and BLOCK all others),
+  # or leave blank to skip applying the bot control ruleset
+  bot_control_exclusions = []
+
   # Uncomment to use header_block_regex filter
   #header_block_regex = yamldecode(file("header_block_regex.yml"))
 

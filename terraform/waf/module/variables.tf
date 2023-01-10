@@ -32,6 +32,34 @@ variable "enforce_rate_limit" {
   default     = false
 }
 
+# description of rules in bot control rule set: https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-bot.html
+variable "bot_control_exclusions" {
+  description = <<EOM
+List of rules to /exclude/ for AWSManagedRulesBotControlRuleSet.
+Populate to define rules to COUNT (and BLOCK all others),
+or leave blank to skip applying the bot control ruleset
+EOM
+  type        = list(string)
+  default = [
+    "CategoryAdvertising",
+    "CategoryArchiver",
+    "CategoryContentFetcher",
+    "CategoryEmailClient",
+    "CategoryHttpLibrary",
+    "CategoryLinkChecker",
+    "CategoryMiscellaneous",
+    "CategoryMonitoring",
+    "CategoryScrapingFramework",
+    "CategorySearchEngine",
+    "CategorySecurity",
+    "CategorySeo",
+    "CategorySocialMedia",
+    "SignalAutomatedBrowser",
+    "SignalKnownBotDataCenter",
+    "SignalNonBrowserUserAgent"
+  ]
+}
+
 # description of rules in each AWS managed ruleset 
 # https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-list.html
 variable "ip_reputation_ruleset_exclusions" {

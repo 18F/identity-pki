@@ -23,6 +23,41 @@ resource "aws_wafv2_web_acl" "alb" {
     allow {}
   }
 
+  # This rule is temporarily placed before the others to COUNT traffic from bots.
+  # Its priority may be changed later.
+  dynamic "rule" {
+    for_each = var.wafv2_web_acl_scope == "CLOUDFRONT" && length(var.bot_control_exclusions) > 1 ? [1] : []
+    content {
+      name     = "AWSManagedRulesBotControlRuleSet"
+      priority = 20
+
+      override_action {
+        none {}
+      }
+
+      statement {
+        managed_rule_group_statement {
+          name        = "AWSManagedRulesBotControlRuleSet"
+          vendor_name = "AWS"
+
+          dynamic "excluded_rule" {
+            for_each = toset(var.bot_control_exclusions)
+
+            content {
+              name = excluded_rule.value
+            }
+          }
+        }
+      }
+
+      visibility_config {
+        cloudwatch_metrics_enabled = true
+        metric_name                = "${local.web_acl_name}-AWSManagedRulesBotControlRuleSet-metric"
+        sampled_requests_enabled   = true
+      }
+    }
+  }
+
   # Only these first 2 rules have the 'allow' action, short-circuiting the other rules.
   dynamic "rule" {
     for_each = length(aws_wafv2_ip_set.privileged_ips) > 0 ? [1] : []
