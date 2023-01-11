@@ -1,11 +1,8 @@
 #!/bin/bash
 
-AWS_ACCOUNT_ID=$(aws sts get-caller-identity | jq -r .Account)
-MY_ENV=$(cat /etc/login.gov/info/env)
-S3="s3://login-gov.secrets.${AWS_ACCOUNT_ID}-us-west-2/${MY_ENV}"
+S3="s3://login-gov.secrets.<%= @aws_account_id %>-<%= @aws_region %>/<%= node.chef_environment %>"
 NAMESPACE=$(aws s3 cp "$S3/gitlab_metric_namespace" -)
 API_TOKEN=$(cat /etc/gitlab/gitlab_root_api_token)
-REGION=us-west-2
 
 # get project IDs for identity-idp and identity-devops
 curl --header "PRIVATE-TOKEN: $API_TOKEN" --request GET "http://localhost:8080/api/v4/projects" | jq -r '.[] | select(.path_with_namespace == "lg/identity-idp" or .path_with_namespace == "lg/identity-devops") | [.id, .path_with_namespace] | @tsv' | while read line ; do
@@ -20,6 +17,6 @@ curl --header "PRIVATE-TOKEN: $API_TOKEN" --request GET "http://localhost:8080/a
 			| jq length)
 	 
 	    METRIC="$projectname-$i-jobs"
-	    aws cloudwatch put-metric-data --region="$REGION" --namespace "$NAMESPACE" --metric-name "$METRIC" --value "$jobcount"
+	    aws cloudwatch put-metric-data --region=<%= @aws_region %> --namespace "$NAMESPACE" --metric-name "$METRIC" --value "$jobcount"
 	done
 done
