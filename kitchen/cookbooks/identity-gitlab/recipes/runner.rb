@@ -8,7 +8,7 @@ require 'aws-sdk-ec2'
 include_recipe 'filesystem'
 
 # https://packages.gitlab.com/runner/gitlab-runner
-gitlab_runner_version = '15.6.1'
+gitlab_runner_version = '15.7.1'
 
 filesystem 'docker' do
   fstype 'ext4'
