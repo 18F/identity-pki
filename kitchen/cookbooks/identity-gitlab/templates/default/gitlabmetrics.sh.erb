@@ -1,11 +1,11 @@
 #!/bin/bash
 
 S3="s3://login-gov.secrets.<%= @aws_account_id %>-<%= @aws_region %>/<%= node.chef_environment %>"
-NAMESPACE=$(aws s3 cp "$S3/gitlab_metric_namespace" -)
+NAMESPACE=$(/usr/local/bin/aws s3 cp "$S3/gitlab_metric_namespace" -)
 API_TOKEN=$(cat /etc/gitlab/gitlab_root_api_token)
 
 # get project IDs for identity-idp and identity-devops
-curl -s --header "PRIVATE-TOKEN: $API_TOKEN" --request GET "http://localhost:8080/api/v4/projects" | jq -r '.[] | select(.path_with_namespace == "lg/identity-idp" or .path_with_namespace == "lg/identity-devops") | [.id, .path_with_namespace] | @tsv' | while read line ; do
+curl -s --header "PRIVATE-TOKEN: $API_TOKEN" --request GET "http://localhost:8080/api/v4/projects" | /usr/bin/jq -r '.[] | select(.path_with_namespace == "lg/identity-idp" or .path_with_namespace == "lg/identity-devops") | [.id, .path_with_namespace] | @tsv' | while read line ; do
 	projectinfo=($line)
 	projectid=${projectinfo[0]}
 	projectname=${projectinfo[1]}
@@ -14,9 +14,9 @@ curl -s --header "PRIVATE-TOKEN: $API_TOKEN" --request GET "http://localhost:808
 	for i in pending running created waiting_for_resource ; do
 		jobcount=$(curl -s --globoff --header "PRIVATE-TOKEN: $API_TOKEN" \
 			"http://localhost:8080/api/v4/projects/$projectid/jobs?scope[]=$i" \
-			| jq length)
+			| /usr/bin/jq length)
 	 
 	    METRIC="$i-jobs"
-	    aws cloudwatch put-metric-data --region=<%= @aws_region %> --namespace "$NAMESPACE" --metric-name "$METRIC" --dimensions "Name=projectname,Value=$projectname" --value="$jobcount"
+	    /usr/local/bin/aws cloudwatch put-metric-data --region=<%= @aws_region %> --namespace "$NAMESPACE" --metric-name "$METRIC" --dimensions "Name=projectname,Value=$projectname" --value="$jobcount"
 	done
 done
