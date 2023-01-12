@@ -628,6 +628,6 @@ end
 cron_d 'gitlab_metrics' do
   action :create
   minute "*/5"
-  command 'etc/gitlab/gitlabmetrics.sh'
+  command '/etc/gitlab/gitlabmetrics.sh'
   user 'root'
 end
