@@ -148,8 +148,8 @@ module "main" {
     "KMSAdministrator"  = [{ "*" = ["*"] }],
     "PowerUser"         = [{ "*" = ["*"] }],
     "SOCAdministrator"  = [{ "*" = ["*"] }],
-    "SupportEngineer"   = [{ "*" = ["uuid-lookup"] }],
+    "SupportEngineer"   = [{ "*" = ["uuid-lookup", "review-pass", "review-reject"] }],
     "Terraform"         = [{ "*" = ["*"] }],
-    "FraudOps"          = [{ "*" = ["uuid-lookup"] }],
+    "FraudOps"          = [{ "*" = ["uuid-lookup", "review-pass", "review-reject"] }],
   }
 }
