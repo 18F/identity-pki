@@ -612,3 +612,22 @@ execute 'run_gitlab_db_reindex' do
   action :run
   ignore_failure true
 end
+
+# send metrics to cloudwatch
+template '/etc/gitlab/gitlabmetrics.sh' do
+  source 'gitlabmetrics.sh.erb'
+  owner 'root'
+  group 'root'
+  mode '0700'
+  variables({
+      aws_region: aws_region,
+      aws_account_id: aws_account_id,
+  })
+end
+
+cron_d 'gitlab_metrics' do
+  action :create
+  minute '*/5'
+  command '/etc/gitlab/gitlabmetrics.sh'
+  user 'root'
+end
