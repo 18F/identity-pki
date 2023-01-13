@@ -93,6 +93,7 @@ module "poweruser-assumerole" {
             "cloudfront:GetDistribution",
             "cloudfront:GetCloudFrontOriginAccessIdentity",
             "cloudfront:GetCloudFrontOriginAccessIdentityConfig",
+            "cloudfront:GetInvalidation",
             "cloudfront:ListDistributions",
             "cloudfront:ListFieldLevelEncryptionConfigs",
             "cloudfront:ListInvalidations",
