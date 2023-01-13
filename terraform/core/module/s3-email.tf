@@ -28,29 +28,7 @@ resource "aws_s3_bucket_policy" "email" {
           "aws:Referer": "${data.aws_caller_identity.current.account_id}"
         }
       }
-    },
-    {
-      "Sid": "AllowEmailList",
-      "Effect": "Allow",
-      "Principal": {
-        "AWS": "arn:aws:iam::894947205914:user/circle-ci-test-coverage"
-      },
-      "Action": "s3:ListBucket",
-      "Resource": "arn:aws:s3:::${aws_s3_bucket.email.id}"
-    },
-    {
-      "Sid": "AllowEmailDownload",
-      "Effect": "Allow",
-      "Principal": {
-        "AWS": "arn:aws:iam::894947205914:user/circle-ci-test-coverage"
-      },
-      "Action": [
-        "s3:DeleteObject",
-        "s3:DeleteObjectVersion",
-        "s3:GetObject"
-      ],
-      "Resource": "arn:aws:s3:::${aws_s3_bucket.email.id}/inbound/*"
-    }  
+    }
   ]
 }
 POLICY

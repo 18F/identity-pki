@@ -770,6 +770,8 @@ locals {
           "ses:CreateConfigurationSetEventDestination",
           "ses:CreateReceiptRule",
           "ses:DeleteConfigurationSet",
+          "ses:DeleteConfigurationSetEventDestination",
+          "ses:DeleteIdentity",
           "ses:DeleteReceiptRule",
           "ses:DescribeConfigurationSet",
           "ses:DescribeReceiptRule",
