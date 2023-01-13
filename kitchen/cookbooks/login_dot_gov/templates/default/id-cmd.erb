@@ -25,6 +25,12 @@ Runs the users_lookup rake task, which prompts for the email address of a
 Login.gov user, and returns their UUID. STDIN is hidden to prevent
 PII from being logged in CloudWatch/S3. A notification containing your username
 and the name of this host will be sent to the $CHANNEL channel in Slack.
+<%- elsif @rails_task == 'users:review:pass' %>
+Runs the users:review:pass rake task, which prompts for a uuid of a Login.gov
+user, and passes them if their threatmetrix status is in review. 
+<%- elsif @rails_task == 'users:review:reject' %>
+Runs the users:review:reject rake task, which prompts for a uuid of a Login.gov
+user, and rejects them if their threatmetrix status is in review. 
 <%- end %>
 The -l / --log flag can be used, along with a LEVEL, to change the
 value of LOGIN_TASK_LOG_LEVEL that is sent to the rake task;

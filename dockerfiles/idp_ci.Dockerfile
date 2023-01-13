@@ -1,4 +1,4 @@
-FROM ruby:3.0.4
+FROM ruby:3.2.0
 
 RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
 
@@ -23,6 +23,6 @@ RUN curl -Ss "https://chromedriver.storage.googleapis.com/$(curl -Ss "https://ch
     unzip /tmp/chromedriver.zip -d /tmp/chromedriver && \
     mv -f /tmp/chromedriver/chromedriver /usr/local/bin/chromedriver && \
     rm /tmp/chromedriver.zip && \
-    rmdir /tmp/chromedriver
+    rm -r /tmp/chromedriver
 
 RUN find / -perm /6000 -type f -exec chmod a-s {} \; || true

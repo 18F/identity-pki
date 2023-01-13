@@ -177,6 +177,12 @@ locals {
       metric_value = 1
       dimensions   = {}
     },
+    idp_usps_proofing_results_perform_exception = {
+      name         = "usps-proofing-unexpected-exception"
+      pattern      = "{ $.name = \"GetUspsProofingResultsJob: Exception raised\" }"
+      metric_value = 1
+      dimensions   = {}
+    },
   }
 
   idp_external_service_filters = {
@@ -275,7 +281,7 @@ locals {
       pattern      = "{ ($.name = \"ThreatMetrixJsVerification\") && ($.valid IS FALSE) }"
       metric_value = 1
       dimensions   = {}
-    }
+    },
   }
 
   idp_attempts_api_filters = {

@@ -22,6 +22,8 @@ locals {
     "rails-w"           = ["idp", "migration", "worker"]
     "tail-cw"           = ["*"]
     "uuid-lookup"       = ["idp", "migration", "worker"]
+    "review-pass"       = ["idp", "migration", "worker"]
+    "review-reject"     = ["idp", "migration", "worker"]
     "work-restart"      = ["worker"]
     "passenger-stat"    = ["idp", "worker"]
     "passenger-restart" = ["idp", "worker"]

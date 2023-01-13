@@ -576,22 +576,22 @@ variable "bootstrap_private_git_clone_url" {
 # though they will have different IDs. They should be updated here at the same
 # time, and then released to environments in sequence.
 variable "default_ami_id_sandbox" {
-  default     = "ami-0803add035ac40009" # 2023-01-04 Ubuntu 18.04
+  default     = "ami-02a9a6bc54fdad7a3" # 2023-01-11 Ubuntu 18.04
   description = "default AMI ID for environments in the sandbox account"
 }
 
 variable "default_ami_id_prod" {
-  default     = "ami-02285998f52dc2f5f" # 2023-01-04 Ubuntu 18.04
+  default     = "ami-0a480e2df2316c028" # 2023-01-11 Ubuntu 18.04
   description = "default AMI ID for environments in the prod account"
 }
 
 variable "rails_ami_id_sandbox" {
-  default     = "ami-0f74298991fcbcf9e" # 2023-01-04 Ubuntu 18.04
+  default     = "ami-02e615032ce7b8117" # 2023-01-11 Ubuntu 18.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the sandbox account"
 }
 
 variable "rails_ami_id_prod" {
-  default     = "ami-0c7208c055169e6bf" # 2023-01-04 Ubuntu 18.04
+  default     = "ami-07b6c819009845558" # 2023-01-11 Ubuntu 18.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the prod account"
 }
 
@@ -606,6 +606,14 @@ variable "high_priority_sns_hook_use1" {
 variable "page_devops" {
   default     = 0
   description = "Whether to page for high-priority Cloudwatch alarms"
+}
+
+variable "in_person_slack_alarms_sns_hook" {
+  default     = ""
+  description = <<EOM
+ARN of SNS topic for low to medium priority in-person proofing alarms.
+Falls back to slack_events_sns_hook_arn if not set.
+EOM
 }
 
 locals {
@@ -633,7 +641,7 @@ locals {
   account_rails_ami_id = local.acct_type == "prod" ? (
   var.rails_ami_id_prod) : var.rails_ami_id_sandbox
 
-  in_person_alarm_actions         = ["arn:aws:sns:${var.region}:${data.aws_caller_identity.current.account_id}:slack-in-person-proofing"]
+  in_person_alarm_actions         = [coalesce(var.in_person_slack_alarms_sns_hook, var.slack_events_sns_hook_arn)]
   low_priority_alarm_actions      = [var.slack_events_sns_hook_arn]
   low_priority_alarm_actions_use1 = [var.slack_events_sns_hook_arn_use1]
   high_priority_alarm_actions = var.page_devops == 1 ? [

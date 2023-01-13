@@ -96,6 +96,18 @@ module "ssm" {
       logging     = true
       use_root    = false
     }
+    "review-pass" = {
+      command     = "/usr/local/bin/id-users-review-pass"
+      description = "Run users:review:pass via id-users-review-pass"
+      logging     = true
+      use_root    = false
+    }
+    "review-reject" = {
+      command     = "/usr/local/bin/id-users-review-reject"
+      description = "Run users:review:reject via id-users-review-reject"
+      logging     = true
+      use_root    = false
+    }
   }
 
   ssm_cmd_doc_map = (

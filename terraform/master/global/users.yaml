@@ -33,6 +33,9 @@ users:
     - aduth
     gitlab_groups:
     - appdev
+  andrew.hsieh:
+    aws_groups:
+    - analytics
   anthony.barbara:
     aws_groups:
     - secopsnonprod

@@ -577,17 +577,6 @@ test_alpha:
       when: never
     - if: $CI_COMMIT_BRANCH == "stages/gitlabalpha"
 
-ping_cloudwatch:
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-  variables:
-    S3: "s3://login-gov.secrets.${AWS_ACCOUNT_ID}-${AWS_REGION}/${MY_ENV}"
-  script:
-    - apk add aws-cli
-    - NAMESPACE=$(aws s3 cp $S3/gitlab_metric_namespace -)
-    - METRIC=$(aws s3 cp $S3/gitlab_ci_ping_metric_name -)
-    - aws cloudwatch put-metric-data --region "$AWS_REGION" --namespace "$NAMESPACE" --metric-name "$METRIC" --value 1
-
 include:
   - local: .gitlab-ci-rules.yml
   - local: kitchen/cookbooks/identity-gitlab/.gitlab-ci.yml
