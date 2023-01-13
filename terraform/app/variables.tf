@@ -608,6 +608,14 @@ variable "page_devops" {
   description = "Whether to page for high-priority Cloudwatch alarms"
 }
 
+variable "in_person_slack_alarms_sns_hook" {
+  default     = ""
+  description = <<EOM
+ARN of SNS topic for low to medium priority in-person proofing alarms.
+Falls back to slack_events_sns_hook_arn if not set.
+EOM
+}
+
 locals {
   secrets_bucket = join(".", [
     "login-gov.secrets",
@@ -633,7 +641,7 @@ locals {
   account_rails_ami_id = local.acct_type == "prod" ? (
   var.rails_ami_id_prod) : var.rails_ami_id_sandbox
 
-  in_person_alarm_actions         = ["arn:aws:sns:${var.region}:${data.aws_caller_identity.current.account_id}:slack-in-person-proofing"]
+  in_person_alarm_actions         = [coalesce(var.in_person_slack_alarms_sns_hook, var.slack_events_sns_hook_arn)]
   low_priority_alarm_actions      = [var.slack_events_sns_hook_arn]
   low_priority_alarm_actions_use1 = [var.slack_events_sns_hook_arn_use1]
   high_priority_alarm_actions = var.page_devops == 1 ? [

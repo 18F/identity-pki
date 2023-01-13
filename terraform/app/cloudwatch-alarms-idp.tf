@@ -304,5 +304,5 @@ Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing
 EOM
   treat_missing_data        = "missing"
   insufficient_data_actions = []
-  alarm_actions             = local.low_priority_alarm_actions
+  alarm_actions             = local.in_person_alarm_actions
 }
