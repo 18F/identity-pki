@@ -17,6 +17,6 @@ curl -s --header "PRIVATE-TOKEN: $API_TOKEN" --request GET "http://localhost:808
 			| /usr/bin/jq length)
 	 
 	    METRIC="$i-jobs"
-	    /usr/local/bin/aws cloudwatch put-metric-data --region=<%= @aws_region %> --namespace "$NAMESPACE" --metric-name "$METRIC" --dimensions "Name=projectname,Value=$projectname" --value="$jobcount"
+	    /usr/local/bin/aws cloudwatch put-metric-data --region=<%= @aws_region %> --namespace "$NAMESPACE" --metric-name "$METRIC" --dimensions "projectname=$projectname" --value="$jobcount"
 	done
 done
