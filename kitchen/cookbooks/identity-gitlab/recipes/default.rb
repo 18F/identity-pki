@@ -631,3 +631,16 @@ cron_d 'gitlab_metrics' do
   command '/etc/gitlab/gitlabmetrics.sh'
   user 'root'
 end
+
+# set all resources in identity-devops to be oldest_first to ensure ordered deploys
+template '/etc/gitlab/oldest_first_resources.sh' do
+  source 'oldest_first_resources.sh.erb'
+  owner 'root'
+  group 'root'
+  mode '0700'
+end
+
+execute 'oldest_first' do
+  command '/etc/gitlab/oldest_first_resources.sh'
+  action :run
+end
