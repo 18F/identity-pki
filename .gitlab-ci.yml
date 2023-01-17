@@ -48,6 +48,8 @@ variables:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
   rules:
+    - if: $CI_SERVER_HOST == "gitlab.gitstaging.gitlab.login.gov"
+      when: never
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
     # Always run if it's on the main branch. This currently implies containers are
@@ -367,8 +369,7 @@ deploygitlabproduction_trigger:
   script:
     - apk --no-cache add curl
     - curl --request POST --form token="$GITSTAGING_PIPELINE_TRIGGER_TOKEN" --form ref=main --form "variables[ENV_NAME]=production" "https://gitlab.gitstaging.gitlab.login.gov/api/v4/projects/$GITSTAGING_DEPLOY_PROJECT_ID/trigger/pipeline" > /tmp/curl.out
-    - cat /tmp/curl.out
-    - if [ -s /tmp/curl.out ] ; then echo "pipeline trigger failed" ; exit 1 ; fi
+    - if [ "$(jq -r .status < /tmp/curl.out)" != "created" ] ; then echo "pipeline trigger failed" ; exit 1 ; fi
   rules:
     - if: $CI_SERVER_HOST != "gitlab.login.gov"
       when: never
