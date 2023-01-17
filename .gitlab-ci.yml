@@ -48,6 +48,8 @@ variables:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
   rules:
+    - if: $CI_SERVER_HOST == "gitlab.gitstaging.gitlab.login.gov"
+      when: never
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
     # Always run if it's on the main branch. This currently implies containers are
