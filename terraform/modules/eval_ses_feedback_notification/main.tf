@@ -1,5 +1,10 @@
-provider "aws" {
-  region = var.region
+terraform {
+  required_providers {
+    aws = {
+      source                = "hashicorp/aws"
+      configuration_aliases = [aws.instancemaker]
+    }
+  }
 }
 
 data "aws_caller_identity" "current" {}

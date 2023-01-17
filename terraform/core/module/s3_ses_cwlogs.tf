@@ -124,6 +124,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "bucket-config" {
 module "ses_feedback_notification" {
   source                = "../../modules/eval_ses_feedback_notification"
   ses_verified_identity = var.root_domain
+  providers = {
+    aws.instancemaker = aws.usw2
+  }
 }
 
 resource "aws_sns_topic_subscription" "ses_feedback_subscription_complaint" {
