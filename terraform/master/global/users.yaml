@@ -270,6 +270,11 @@ users:
     - kenk667
     email:
     - ken.kato@gsa.gov
+  kevin.peoples:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - antifraud
   kimball.bighorse:
     aws_groups:
     - appdev
