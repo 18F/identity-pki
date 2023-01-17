@@ -1,0 +1,23 @@
+#!/bin/sh
+#
+# This script sets all the resources in identity-devops to be run
+# oldest_first, so that changes are applied in order.
+#
+
+API_TOKEN=$(cat /etc/gitlab/gitlab_root_api_token)
+
+# get project ID for identity-devops
+ID=$(curl -s --header "PRIVATE-TOKEN: $API_TOKEN" --request GET "http://localhost:8080/api/v4/projects" | /usr/bin/jq -r '.[] | select(.path_with_namespace == "lg/identity-devops") | .id')
+
+# exit if there is no identity-devops project
+if [ -z "$ID" ] ; then
+     exit 0
+fi
+
+# get list of resources in it
+curl -s --header "PRIVATE-TOKEN: $API_TOKEN" --request GET "http://localhost:8080/api/v4/projects/$ID/resource_groups" | /usr/bin/jq -r '.[] | .key' | while read key ; do
+     # edit resources to be oldest_first
+     curl --request PUT --data "process_mode=oldest_first" \
+          --header "PRIVATE-TOKEN: $API_TOKEN" \
+          "http://localhost:8080/api/v4/projects/$ID/resource_groups/$key"
+done
