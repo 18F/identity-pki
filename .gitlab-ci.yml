@@ -321,12 +321,8 @@ env-solipet:
   script:
     - echo "Somebody set us up the deploy" ; exit 1
   artifacts:
-    paths:
-      - gl-sast-report.json
-      - report.xml
     reports:
-      sast: gl-sast-report.json
-      junit: report.xml
+      junit: testlogs/*.xml
     when: always
 
 # deploy jobs for gitstaging env here.
