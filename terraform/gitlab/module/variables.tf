@@ -453,3 +453,4 @@ variable "ci_ping_alert_minutes" {
   description = "Alert if Gitlab CI has not run succesfully in this many minutes."
   default     = 30
 }
+

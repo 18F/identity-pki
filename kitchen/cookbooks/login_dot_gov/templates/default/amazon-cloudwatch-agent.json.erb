@@ -269,6 +269,10 @@
                         "InstanceId": "${aws:InstanceId}",
                         "InstanceType": "${aws:InstanceType}"
                 },
+                "aggregation_dimensions": [
+                        ["AutoScalingGroupName"],
+                        ["AutoScalingGroupName", "path"]
+                ],
                 "metrics_collected": {
                         "cpu": {
                                 "measurement": [

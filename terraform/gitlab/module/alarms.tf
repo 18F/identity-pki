@@ -74,3 +74,37 @@ module "newrelic" {
   env_name       = var.env_name
   root_domain    = var.root_domain
 }
+
+locals {
+  alert_handle = var.env_type == "tooling-prod" ? "@login-devtools-oncall " : ""
+}
+
+module "gitlab_test_pool_resource_alerts" {
+  source = "../../modules/asg_instance_low_resource_alerts"
+
+  region        = var.region
+  asg_name      = module.test_pool.runner_asg_name
+  env_name      = var.env_name
+  alert_handle  = local.alert_handle
+  alarm_actions = [var.slack_events_sns_hook_arn]
+}
+
+module "gitlab_build_pool_resource_alerts" {
+  source = "../../modules/asg_instance_low_resource_alerts"
+
+  region        = var.region
+  asg_name      = module.build_pool.runner_asg_name
+  env_name      = var.env_name
+  alert_handle  = local.alert_handle
+  alarm_actions = [var.slack_events_sns_hook_arn]
+}
+
+module "gitlab_web_asg_resource_alerts" {
+  source = "../../modules/asg_instance_low_resource_alerts"
+
+  region        = var.region
+  asg_name      = aws_autoscaling_group.gitlab.name
+  env_name      = var.env_name
+  alert_handle  = local.alert_handle
+  alarm_actions = [var.slack_events_sns_hook_arn]
+}
