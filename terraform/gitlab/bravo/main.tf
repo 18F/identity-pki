@@ -12,7 +12,7 @@ terraform {
 module "main" {
   source = "../module"
 
-  bootstrap_main_git_ref_default = "main"
+  bootstrap_main_git_ref_default = "stages/gitlabbravo"
   dr_region                      = "us-east-2"
   env_name                       = "bravo"
   env_type                       = "tooling-sandbox"
