@@ -54,8 +54,10 @@ rm_files() {
 }
 
 1_promote_cluster() {
-  if [[ ! -z $(ave aws rds describe-db-clusters --db-cluster-identifier ${CLUSTER} |
-        jq -r '.DBClusters[].ReplicationSourceIdentifier|select (.!=null)') ]] ; then
+  CLUSTER_CHECK=$(ave aws rds describe-db-clusters --db-cluster-identifier ${CLUSTER} \
+    --query 'DBClusters.ReplicationSourceIdentifier' --output text) || \
+    raise "AuroraDB ${CLUSTER} not found; verify and try again!"
+  if [[ ! -z ${CLUSTER_CHECK} ]] ; then
     ave aws rds wait db-cluster-available --db-cluster-identifier "${CLUSTER}"
     ave aws rds promote-read-replica-db-cluster \
       --db-cluster-identifier "${CLUSTER}"
