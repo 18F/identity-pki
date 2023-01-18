@@ -146,6 +146,8 @@ env-tspencer:
     ENV_NAME: tspencer
   stage: deploy
   rules:
+    - if: $CI_SERVER_HOST != "gitlab.login.gov"
+      when: never
     - if: $CI_COMMIT_BRANCH == "stages/tspencer"
   trigger:
     include: .gitlab-ci-idp-env-jobs-template.yml
@@ -155,6 +157,8 @@ env-pauldoom:
     ENV_NAME: pauldoom
   stage: deploy
   rules:
+    - if: $CI_SERVER_HOST != "gitlab.login.gov"
+      when: never
     - if: $CI_COMMIT_BRANCH == "stages/pauldoom"
   trigger:
     include: .gitlab-ci-idp-env-jobs-template.yml
@@ -164,6 +168,8 @@ env-ursula:
     ENV_NAME: ursula
   stage: deploy
   rules:
+    - if: $CI_SERVER_HOST != "gitlab.login.gov"
+      when: never
     - if: $CI_COMMIT_BRANCH == "stages/stable"
   trigger:
     include: .gitlab-ci-idp-env-jobs-template.yml
@@ -173,6 +179,8 @@ env-agnes:
     ENV_NAME: agnes
   stage: deploy
   rules:
+    - if: $CI_SERVER_HOST != "gitlab.login.gov"
+      when: never
     - if: $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE != "schedule"
   trigger:
     include: .gitlab-ci-idp-env-jobs-template.yml
@@ -182,6 +190,8 @@ env-joy:
     ENV_NAME: joy
   stage: deploy
   rules:
+    - if: $CI_SERVER_HOST != "gitlab.login.gov"
+      when: never
     - if: $CI_COMMIT_BRANCH == "stages/joy"
   trigger:
     include: .gitlab-ci-idp-env-jobs-template.yml
@@ -191,6 +201,8 @@ env-dev:
     ENV_NAME: dev
   stage: deploy
   rules:
+    - if: $CI_SERVER_HOST != "gitlab.login.gov"
+      when: never
     - if: $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE != "schedule"
   trigger:
     include: .gitlab-ci-idp-env-jobs-template.yml
@@ -200,6 +212,8 @@ env-henrydrich:
     ENV_NAME: henrydrich
   stage: deploy
   rules:
+    - if: $CI_SERVER_HOST != "gitlab.login.gov"
+      when: never
     - if: $CI_COMMIT_BRANCH == "stages/henrydrich"
   trigger:
     include: .gitlab-ci-idp-env-jobs-template.yml
@@ -209,6 +223,8 @@ env-akrito:
     ENV_NAME: akrito
   stage: deploy
   rules:
+    - if: $CI_SERVER_HOST != "gitlab.login.gov"
+      when: never
     - if: $CI_COMMIT_BRANCH == "stages/akrito"
   trigger:
     include: .gitlab-ci-idp-env-jobs-template.yml
@@ -218,6 +234,8 @@ env-ryandbrown:
     ENV_NAME: ryandbrown
   stage: deploy
   rules:
+    - if: $CI_SERVER_HOST != "gitlab.login.gov"
+      when: never
     - if: $CI_COMMIT_BRANCH == "stages/ryandbrown"
   trigger:
     include: .gitlab-ci-idp-env-jobs-template.yml
@@ -227,6 +245,8 @@ env-zmargolis:
     ENV_NAME: zmargolis
   stage: deploy
   rules:
+    - if: $CI_SERVER_HOST != "gitlab.login.gov"
+      when: never
     - if: $CI_COMMIT_BRANCH == "stages/zmargolis"
   trigger:
     include: .gitlab-ci-idp-env-jobs-template.yml
@@ -236,6 +256,8 @@ env-jmdembe:
     ENV_NAME: jmdembe
   stage: deploy
   rules:
+    - if: $CI_SERVER_HOST != "gitlab.login.gov"
+      when: never
     - if: $CI_COMMIT_BRANCH == "stages/stable"
   trigger:
     include: .gitlab-ci-idp-env-jobs-template.yml
@@ -245,6 +267,8 @@ env-orenyk:
     ENV_NAME: orenyk
   stage: deploy
   rules:
+    - if: $CI_SERVER_HOST != "gitlab.login.gov"
+      when: never
     - if: $CI_COMMIT_BRANCH == "stages/stable"
   trigger:
     include: .gitlab-ci-idp-env-jobs-template.yml
@@ -254,6 +278,8 @@ env-solipet:
     ENV_NAME: solipet
   stage: deploy
   rules:
+    - if: $CI_SERVER_HOST != "gitlab.login.gov"
+      when: never
     - if: $CI_COMMIT_BRANCH == "stages/stable"
   trigger:
     include: .gitlab-ci-idp-env-jobs-template.yml
