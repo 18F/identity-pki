@@ -389,7 +389,7 @@ deploygitlabproduction_trigger:
   image:
     name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ecr-public/docker/library/alpine
   script:
-    - apk --no-cache add curl
+    - apk --no-cache add curl jq
     - curl --request POST --form token="$GITSTAGING_PIPELINE_TRIGGER_TOKEN" --form ref=main --form "variables[ENV_NAME]=production" "https://gitlab.gitstaging.gitlab.login.gov/api/v4/projects/$GITSTAGING_DEPLOY_PROJECT_ID/trigger/pipeline" > /tmp/curl.out
     - if [ "$(jq -r .status < /tmp/curl.out)" != "created" ] ; then echo "pipeline trigger failed" ; exit 1 ; fi
   rules:
