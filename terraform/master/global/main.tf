@@ -89,6 +89,10 @@ module "main" {
       { "Analytics" = ["Sandbox", "Prod"] },
       { "FraudOps" = ["Sandbox", "Prod"] }
     ],
+    "fraudopsnonprod" = [
+      { "Analytics" = ["Sandbox"] },
+      { "FraudOps" = ["Sandbox"] }
+    ],
     "orgadmin" = [
       { "Analytics" = ["Organization"] },
       { "BillingReadOnly" = ["Organization"] }, # For troubleshooting/assisting finops
