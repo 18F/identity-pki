@@ -495,7 +495,7 @@ deploy_bravo:
       when: never
     - if: $CI_SERVER_HOST != "gitlab.login.gov"
       when: never
-    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "stages/gitlabbravo"
 
 recycle_runner_bravo:
   extends: .deploy_gitlab_template
@@ -514,7 +514,7 @@ recycle_runner_bravo:
   rules:
     - if: $CI_SERVER_HOST != "gitlab.login.gov"
       when: never
-    - if: $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE == "push"
+    - if: $CI_COMMIT_BRANCH == "stages/gitlabbravo" && $CI_PIPELINE_SOURCE == "push"
 
 test_bravo:
   # Allow failure so the pipeline continues with other envs
@@ -530,7 +530,7 @@ test_bravo:
   rules:
     - if: $CI_SERVER_HOST != "gitlab.login.gov"
       when: never
-    - if: $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE == "push"
+    - if: $CI_COMMIT_BRANCH == "stages/gitlabbravo" && $CI_PIPELINE_SOURCE == "push"
 
 badtest_bravo:
   when: manual
@@ -545,7 +545,7 @@ badtest_bravo:
   rules:
     - if: $CI_SERVER_HOST != "gitlab.login.gov"
       when: never
-    - if: $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE == "push"
+    - if: $CI_COMMIT_BRANCH == "stages/gitlabbravo" && $CI_PIPELINE_SOURCE == "push"
   script:
     - echo "You have no chance to survive make your test." ; exit 1
 
