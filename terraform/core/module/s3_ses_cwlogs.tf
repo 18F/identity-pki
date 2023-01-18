@@ -120,23 +120,6 @@ resource "aws_s3_bucket_lifecycle_configuration" "bucket-config" {
   }
 }
 
-### SES feedback notification evaluation
-module "ses_feedback_notification" {
-  source                = "../../modules/eval_ses_feedback_notification"
-  ses_verified_identity = var.root_domain
-  providers = {
-    aws.instancemaker = aws.usw2
-  }
-}
-
-resource "aws_sns_topic_subscription" "ses_feedback_subscription_complaint" {
-  count = var.root_domain == "login.gov" ? 1 : 0 # only create in prod
-
-  topic_arn = module.ses_feedback_notification.sns_for_ses_compliant_notifications
-  protocol  = "email"
-  endpoint  = "email-complaints@${var.root_domain}"
-}
-
 ### Exporting SES logs to S3
 module "export_to_s3" {
   source = "../../modules/export_cwlogs_to_s3"
