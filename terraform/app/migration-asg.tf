@@ -117,8 +117,8 @@ module "migration_recycle" {
   #source = "../../../identity-terraform/asg_recycle"
 
   asg_name       = aws_autoscaling_group.migration.name
-  normal_min     = 0
-  normal_max     = 1
+  normal_min     = var.asg_migration_min
+  normal_max     = var.asg_migration_max
   normal_desired = 1
   time_zone      = var.autoscaling_time_zone
 
