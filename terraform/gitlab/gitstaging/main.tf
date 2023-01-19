@@ -12,7 +12,7 @@ terraform {
 module "main" {
   source = "../module"
 
-  bootstrap_main_git_ref_default  = "stages/gitstaging"
+  bootstrap_main_git_ref_default  = "main"
   dr_region                       = "us-east-2"
   env_name                        = "gitstaging"
   env_type                        = "tooling-staging"
