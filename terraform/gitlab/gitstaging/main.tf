@@ -18,7 +18,7 @@ module "main" {
   env_type                        = "tooling-staging"
   region                          = "us-west-2"
   root_domain                     = "gitlab.login.gov"
-  slack_events_sns_hook_arn       = "arn:aws:sns:us-west-2:034795980528:slack-events"
+  slack_events_sns_hook_arn       = "arn:aws:sns:us-west-2:217680906704:slack-events"
   default_ami_id_tooling          = "ami-070b3100d47da32be" # 2023-01-17 Ubuntu 18.04
   route53_id                      = "Z07730471OKZ5T4V8NB2M"
   asg_gitlab_test_runner_desired  = 2
