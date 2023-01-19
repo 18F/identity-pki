@@ -209,6 +209,11 @@ users:
   jillian.harrigan:
     gitlab_groups:
     - antifraud
+  jim.pham:
+    aws_groups:
+    - fraudopsnonprod
+    gitlab_groups:
+    - antifraud
   john.maxwell:
     aws_groups:
     - appdev
@@ -290,6 +295,11 @@ users:
     - analytics
     gitlab_groups:
     - pm
+  louise.hoffman:
+    aws_groups:
+    - fraudopsnonprod
+    gitlab_groups:
+    - antifraud
   luis.matos:
     aws_groups:
     - appdev
@@ -469,6 +479,11 @@ users:
     - analytics
     gitlab_groups:
     - appdev
+  rebecca.wright:
+    aws_groups:
+    - fraudopsnonprod
+    gitlab_groups:
+    - antifraud
   richard.wolfe:
     aws_groups:
     - appdev
