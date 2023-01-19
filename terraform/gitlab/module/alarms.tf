@@ -68,11 +68,12 @@ provider "newrelic" {
 module "newrelic" {
   source = "../../modules/newrelic/"
 
-  enabled        = 1
-  gitlab_enabled = 1
-  region         = var.region
-  env_name       = var.env_name
-  root_domain    = var.root_domain
+  enabled              = 1
+  gitlab_enabled       = 1
+  region               = var.region
+  env_name             = var.env_name
+  root_domain          = var.root_domain
+  pager_alerts_enabled = var.newrelic_pager_alerts_enabled
 }
 
 locals {

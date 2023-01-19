@@ -132,3 +132,13 @@ variable "low_memory_alert_enabled" {
   description = "set this to one if you want to be alerted on low memory"
   default     = 0
 }
+
+variable "alert_slack_channel_low" {
+  description = "the default slack channel for low level alerts"
+  default     = "#login-otherevents"
+}
+
+variable "alert_slack_channel_high" {
+  description = "the default slack channel for high level alerts"
+  default     = "#login-events"
+}

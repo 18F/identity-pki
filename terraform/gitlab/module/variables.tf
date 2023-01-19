@@ -454,3 +454,8 @@ variable "ci_ping_alert_minutes" {
   default     = 30
 }
 
+variable "newrelic_pager_alerts_enabled" {
+  type        = number
+  description = "Enables paging for newrelic alerts"
+  default     = 0
+}

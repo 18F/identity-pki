@@ -26,7 +26,7 @@ resource "newrelic_alert_policy_channel" "low" {
   count     = var.enabled
   policy_id = newrelic_alert_policy.low[0].id
   channel_ids = [
-    newrelic_alert_channel.slack[0].id
+    newrelic_alert_channel.slack_low[0].id
   ]
 }
 
@@ -35,8 +35,8 @@ resource "newrelic_alert_policy_channel" "high" {
   policy_id = newrelic_alert_policy.high[0].id
   channel_ids = var.pager_alerts_enabled > 0 ? [
     newrelic_alert_channel.opsgenie[0].id,
-    newrelic_alert_channel.slack[0].id
-  ] : [newrelic_alert_channel.slack[0].id]
+    newrelic_alert_channel.slack_high[0].id
+  ] : [newrelic_alert_channel.slack_low[0].id]
 }
 
 resource "newrelic_alert_policy_channel" "enduser" {
@@ -44,8 +44,8 @@ resource "newrelic_alert_policy_channel" "enduser" {
   policy_id = newrelic_alert_policy.enduser[0].id
   channel_ids = var.pager_alerts_enabled > 0 ? [
     newrelic_alert_channel.opsgenie[0].id,
-    newrelic_alert_channel.slack[0].id
-  ] : [newrelic_alert_channel.slack[0].id]
+    newrelic_alert_channel.slack_high[0].id
+  ] : [newrelic_alert_channel.slack_low[0].id]
 }
 
 # Creates an opsgenie alert channel.
@@ -99,9 +99,19 @@ resource "newrelic_alert_channel" "opsgenie_enduser" {
   }
 }
 
-resource "newrelic_alert_channel" "slack" {
+resource "newrelic_alert_channel" "slack_low" {
   count = var.enabled
-  name  = "slack-channel-${var.env_name}"
+  name  = var.alert_slack_channel_low
+  type  = "slack"
+
+  config {
+    url = data.aws_ssm_parameter.slackwebhook.value
+  }
+}
+
+resource "newrelic_alert_channel" "slack_high" {
+  count = var.enabled
+  name  = var.alert_slack_channel_high
   type  = "slack"
 
   config {
