@@ -61,6 +61,68 @@ resource "aws_cloudwatch_log_group" "pinpoint_event_logger" {
   retention_in_days = 365
 }
 
+resource "aws_cloudwatch_log_metric_filter" "send_by_country" {
+  name           = "SendByCountry"
+  pattern        = "{ $.event_type = \"_SMS.SUCCESS\"}"
+  log_group_name = aws_cloudwatch_log_group.pinpoint_event_logger.name
+
+  metric_transformation {
+    name      = "Country"
+    namespace = "PinpointMetrics"
+    value     = 1
+
+    dimensions = {
+      iso_country_code = "$.attributes.iso_country_code",
+    }
+
+    unit = "Count"
+  }
+}
+
+data "external" "country_codes" {
+  program = [
+    "aws", "route53", "list-geo-locations",
+    "--query", "{\"country_codes\":to_string(GeoLocationDetailsList[?not_null(CountryCode)] | [?length(CountryCode) == `2`].CountryCode)}"
+  ]
+}
+
+locals {
+  country_codes = toset(jsondecode(data.external.country_codes.result.country_codes))
+}
+
+resource "aws_cloudwatch_metric_alarm" "send_by_country" {
+  for_each            = local.country_codes
+  alarm_name          = "sms-${each.key}-country-anomaly"
+  evaluation_periods  = "2"
+  threshold_metric_id = "e1"
+
+  comparison_operator = "GreaterThanUpperThreshold"
+
+  metric_query {
+    id          = "e1"
+    expression  = "ANOMALY_DETECTION_BAND(m1,30)"
+    label       = "Sent (Expected)"
+    return_data = true
+  }
+
+  metric_query {
+    id          = "m1"
+    return_data = "true"
+
+    metric {
+      metric_name = "Country"
+      namespace   = "PinpointMetrics"
+      period      = "360"
+      stat        = "Sum"
+      unit        = "Count"
+
+      dimensions = {
+        iso_country_code = each.key
+      }
+    }
+  }
+}
+
 module "lambda_zip" {
   source = "github.com/18F/identity-terraform//null_archive?ref=e7ad5ef38f724b31911248a74173e9fee3bbf045"
 

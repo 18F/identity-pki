@@ -23,3 +23,10 @@ pinpoint-events/spend-by-country:
     | stats sum(metrics.price_in_millicents_usd) * 0.00001 as USD by attributes.iso_country_code as iso_country_code
     | sort USD desc
 
+pinpoint-events/send-by-country:
+  logs:
+    - /aws/lambda/pinpoint_event_logger
+  query: |
+    filter ispresent(attributes.iso_country_code)
+    | stats count() as SENT by attributes.iso_country_code as iso_country_code
+    | sort SENT desc
