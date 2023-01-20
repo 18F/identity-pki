@@ -48,6 +48,7 @@ switch_creds() {
 
 get_secrets_bucket() {
   switch_creds ${1}
-  SECRETS_BUCKET=$(bin/awsv -x ${AV_PROFILE} aws s3 ls |
+  local S3_REGION=${2:='us-west-2'}
+  SECRETS_BUCKET=$(bin/awsv -x ${AV_PROFILE} aws s3 ls --region ${S3_REGION} |
   grep '\.secrets\.' | awk '{print $NF}')
 }

@@ -998,6 +998,25 @@ locals {
         resources = [
           "*",
         ]
+      },
+      {
+        sid    = "GuardDuty"
+        effect = "Allow"
+        actions = [
+          "guardduty:CreateDetector",
+          "guardduty:CreatePublishingDestination",
+          "guardduty:DeleteDetector",
+          "guardduty:DeletePublishingDestination",
+          "guardduty:DescribePublishingDestination",
+          "guardduty:GetDetector",
+          "guardduty:ListDetectors",
+          "guardduty:ListPublishingDestinations",
+          "guardduty:UpdateDetector",
+          "guardduty:UpdatePublishingDestination",
+        ]
+        resources = [
+          "*",
+        ]
       }
     ]
   ]

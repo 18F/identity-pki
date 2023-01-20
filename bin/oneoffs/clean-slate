@@ -26,11 +26,11 @@ identified in ~/.aws/config as \`IAM_USER_PROFILE_NAME\` (required argument).
 
 The tasks in this script can also be individually executed as follows:
 
-  -s, -1 : Removes all objects + versions from the account's 'secrets' S3 bucket,
-           allowing Terraform to delete the bucket when the 'destroy' operation runs.
-           (Step: 1_empty_secrets_bucket)
-  -m, -2 : Removes the entire 'tf-state' module from state, as many of them have
-           prevent_destroy = true and will be deleted later in the script anyway.
+  -s, -1 : Removes all objects + versions from the account's 'secrets' S3 buckets,
+           allowing Terraform to delete the buckets when the 'destroy' operation runs.
+           (Step: 1_empty_secrets_buckets)
+  -m, -2 : Removes both 'tf-state' modules from state, as many of their resources
+           have prevent_destroy = true and will be deleted later in the script anyway.
            (Step: 2_rm_state_module)
   -x, -3 : Runs 'terraform destroy' to delete all other resources that are defined
            in the terraform/all directory.
@@ -46,14 +46,18 @@ EOM
 }
 
 # empty the secrets bucket so that Terraform can actually destroy it
-1_empty_secrets_bucket() {
-  empty_bucket_with_versions $(aws s3 ls | grep '\.secrets\.' | awk '{print $NF}')
+1_empty_secrets_buckets() {
+  for REGION in 'us-west-2' 'us-east-1' ; do
+    empty_bucket_with_versions \
+      $(aws s3 ls | grep '\.secrets\.' | grep ${REGION} | awk '{print $NF}') ${REGION}
+  done
 }
 
-# remove tf-state module from Terraform; buckets and table are emptied
+# remove tf-state modules from Terraform; buckets and table are emptied
 # and deleted in 5_delete_tf_locks_table below
 2_rm_state_module() {
   bin/tf-deploy -t "all/${TF_ACCT}" state rm 'module.main.module.tf-state'
+  bin/tf-deploy -t "all/${TF_ACCT}" state rm 'module.main.module.tf-state-ue1'
 }
 
 3_tf_destroy_all() {
@@ -89,7 +93,7 @@ declare {TF_ACCT,ACCT_ID,SECRETS_BUCKET,ACCOUNT_ALIAS,ADMIN_IAM_ROLE}=
 verify_root_repo
 
 TASKS=(
-  "1_empty_secrets_bucket"
+  "1_empty_secrets_buckets"
   "2_rm_state_module"
   "3_tf_destroy_all"
   "4_rm_remaining_buckets"

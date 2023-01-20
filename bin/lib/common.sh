@@ -634,9 +634,10 @@ run_tasks() {
 #### empty bucket including all versions of all objects
 empty_bucket_with_versions() {
   local BUCKET_TO_EMPTY=${1}
-  ave aws s3 rm s3://${BUCKET_TO_EMPTY} --recursive
+  local S3_REGION=${2:='us-west-2'}
+  ave aws s3 rm s3://${BUCKET_TO_EMPTY} --recursive --region ${S3_REGION}
   ave python -c "import boto3 ;\
-    session = boto3.Session() ;\
+    session = boto3.Session(region_name='${S3_REGION}') ;\
     s3 = session.resource(service_name='s3') ;\
     bucket = s3.Bucket('${BUCKET_TO_EMPTY}') ;\
     bucket.object_versions.delete()"

@@ -1,3 +1,10 @@
+locals {
+  inventory_bucket_arn = join(".", [
+    "arn:aws:s3:::${var.bucket_name_prefix}.s3-inventory",
+    "${data.aws_caller_identity.current.account_id}-${var.region}"
+  ])
+}
+
 variable "region" {
   description = "Region to create the secrets bucket in"
   default     = "us-west-2"

@@ -34,7 +34,7 @@ The tasks in this script can also be individually executed as follows:
            which are attached to all assumable IAM roles and required for
            subsequent 'terraform apply' operations to work properly,
            and the login-secrets S3 bucket for the account.
-           (Step: 1_policies_secrets_bucket)
+           (Step: 1_policies_secrets_buckets)
   -o, -2 : Copies the 'common/opsgenie_sns_apikey' S3 object from the login-SRC_ACCT
            account into this account's 'secrets' bucket, required for the SNS topics
            for alerting to be properly created.
@@ -53,26 +53,31 @@ The tasks in this script can also be individually executed as follows:
 EOM
 }
 
-# targeted deploy to create the custom policies and secrets bucket
-# (both are needed for the second run to work properly)
-1_policies_secrets_bucket() {
+# targeted deploy to create the custom policies and secrets buckets
+# (all are needed for the second 'apply' to work properly)
+1_policies_secrets_buckets() {
   bin/tf-deploy -t "all/${TF_ACCT}" apply -auto-approve \
     -target='module.main.aws_iam_policy.rds_delete_prevent' \
     -target='module.main.aws_iam_policy.region_restriction' \
-    -target='module.main.module.main_secrets_bucket.aws_s3_bucket.secrets'
+    -target='module.main.module.main_secrets_bucket.aws_s3_bucket.secrets' \
+    -target='module.main.module.main_secrets_bucket_ue1.aws_s3_bucket.secrets'
 }
 
-# get opsgenie key from $SRC_ACCT and put it in the new secrets bucket
+# get opsgenie key from $SRC_ACCT and put it in the new secrets buckets
 2_copy_opsgenie_key() {
-  get_secrets_bucket source
-  OPSGENIE_KEY=$(bin/awsv -x ${AV_PROFILE} \
-    aws s3 cp "s3://${SECRETS_BUCKET}/common/opsgenie_sns_apikey" -)
-  get_secrets_bucket dest
-  printf "${OPSGENIE_KEY}" | bin/awsv -x ${AV_PROFILE} \
-    aws s3 cp - "s3://${SECRETS_BUCKET}/common/opsgenie_sns_apikey" \
-      --no-guess-mime-type \
-      --content-type="text/plain" \
-      --metadata-directive="REPLACE"
+  for REGION in 'us-west-2' 'us-east-1' ; do
+    get_secrets_bucket source ${REGION}
+    OPSGENIE_KEY=$(bin/awsv -x ${AV_PROFILE} \
+      aws s3 cp "s3://${SECRETS_BUCKET}/common/opsgenie_sns_apikey" - \
+        --region "${REGION}")
+    get_secrets_bucket dest ${REGION}
+    printf "${OPSGENIE_KEY}" | bin/awsv -x ${AV_PROFILE} \
+      aws s3 cp - "s3://${SECRETS_BUCKET}/common/opsgenie_sns_apikey" \
+        --region "${REGION}" \
+        --no-guess-mime-type \
+        --content-type="text/plain" \
+        --metadata-directive="REPLACE"
+  done
 }
 
 # since configure_state_bucket.sh creates the DynamoDB table if it doesn't exist,
@@ -106,7 +111,6 @@ EOM
       --type SecureString \
       --description 'Slack webhook url for notifications' --overwrite
   done
-
 }
 
 declare {TF_ACCT,ACCT_ID,SECRETS_BUCKET,ADMIN_IAM_ROLE}=
@@ -114,7 +118,7 @@ SRC_ACCT='sandbox'
 verify_root_repo
 
 TASKS=(
-  "1_policies_secrets_bucket"
+  "1_policies_secrets_buckets"
   "2_copy_opsgenie_key"
   "3_import_lock_table"
   "4_build_acct"

@@ -1,9 +1,12 @@
-data "aws_caller_identity" "current" {
+terraform {
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+    }
+  }
 }
 
-locals {
-  inventory_bucket_arn = "arn:aws:s3:::${var.bucket_name_prefix}.s3-inventory.${data.aws_caller_identity.current.account_id}-${var.region}"
-}
+data "aws_caller_identity" "current" {}
 
 resource "aws_s3_bucket" "secrets" {
   bucket        = var.bucket_name
