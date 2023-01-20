@@ -36,6 +36,8 @@ users:
   andrew.hsieh:
     aws_groups:
     - analytics
+    gitlab_groups:
+    - pm
   anthony.barbara:
     aws_groups:
     - secopsnonprod
@@ -55,6 +57,8 @@ users:
   carrie.mcgrath:
     aws_groups:
     - analytics
+    gitlab_groups:
+    - pm
   chris.manger:
     aws_groups:
     - finops
