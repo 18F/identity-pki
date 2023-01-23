@@ -94,6 +94,7 @@ resource "aws_lb_listener" "gitlab-waf-to-instances" {
   load_balancer_arn = aws_lb.gitlab-waf.arn
   port              = 443
   protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-FS-1-2-Res-2020-10"
   certificate_arn   = aws_acm_certificate.gitlab.arn
 
   default_action {
