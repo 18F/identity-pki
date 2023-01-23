@@ -771,6 +771,11 @@ variable "new_relic_pager_alerts_enabled" {
   default     = 0
   type        = number
   description = "Enables OpsGenie alerts for NewRelic alarms"
+
+}
+variable "idp_in_person_newrelic_alerts_enabled" {
+  description = "set this to 1 if you want to alert on in-person proofing idp problems"
+  default     = 0
 }
 
 variable "idp_enduser_newrelic_alerts_enabled" {

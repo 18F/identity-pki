@@ -23,6 +23,11 @@ variable "enduser_enabled" {
   default     = 0
 }
 
+variable "in_person_enabled" {
+  description = "set this to 1 if you want to enable in-person proofing alerting"
+  default     = 0
+}
+
 variable "dashboard_enabled" {
   description = "set this to 1 if you want to alert during business hours on dashboard problems"
   default     = 0
@@ -131,6 +136,11 @@ variable "memory_free_threshold_byte" {
 variable "low_memory_alert_enabled" {
   description = "set this to one if you want to be alerted on low memory"
   default     = 0
+}
+
+variable "alert_slack_channel_in_person" {
+  description = "the default slack channel for in-person proofing alerts"
+  default     = "#login-in-person-proofing-events"
 }
 
 variable "alert_slack_channel_low" {

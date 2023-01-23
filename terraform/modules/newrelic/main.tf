@@ -17,9 +17,22 @@ resource "newrelic_alert_policy" "low" {
   name  = "alert-low-${var.env_name}"
 }
 
+resource "newrelic_alert_policy" "in_person" {
+  count = var.in_person_enabled
+  name  = "alert-in-person-${var.env_name}"
+}
+
 resource "newrelic_alert_policy" "enduser" {
   count = var.enduser_enabled
   name  = "alert-enduser-${var.env_name}"
+}
+
+resource "newrelic_alert_policy_channel" "slack_in_person" {
+  count     = var.in_person_enabled
+  policy_id = newrelic_alert_policy.in_person[0].id
+  channel_ids = [
+    newrelic_alert_channel.slack_in_person[0].id
+  ]
 }
 
 resource "newrelic_alert_policy_channel" "low" {
@@ -96,6 +109,17 @@ resource "newrelic_alert_channel" "opsgenie_enduser" {
     api_key = data.aws_s3_object.opsgenie_enduser_apikey.body
     tags    = "${var.env_name} environment"
     region  = "US"
+  }
+}
+
+resource "newrelic_alert_channel" "slack_in_person" {
+  count = var.in_person_enabled
+  name  = var.alert_slack_channel_in_person
+  type  = "slack"
+
+  config {
+    url     = data.aws_ssm_parameter.slackwebhook.value
+    channel = trimprefix(var.alert_slack_channel_in_person, "#")
   }
 }
 
