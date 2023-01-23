@@ -75,13 +75,8 @@ test:
     name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_test@$TEST_IMAGE_DIGEST
   stage: smoke_test
   artifacts:
-    paths:
-      - gl-sast-report.json
-      - report.xml
     reports:
-      sast: gl-sast-report.json
-      junit: report.xml
-    when: always
+      junit: testlogs/*.xml
   script:
     - echo "Tests for great justice" ; exit 1
 
