@@ -19,7 +19,7 @@ pinpoint-events/spend-by-country:
   logs:
     - /aws/lambda/pinpoint_event_logger
   query: |
-    filter ispresent(event_type)
+    filter ispresent(event_type) and ispresent(metrics.price_in_millicents_usd) and event_type != '_SMS.BUFFERED'
     | stats sum(metrics.price_in_millicents_usd) * 0.00001 as USD by attributes.iso_country_code as iso_country_code
     | sort USD desc
 
