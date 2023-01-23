@@ -141,7 +141,7 @@ else
 fi
 
 if [[ ${TF_CMD} == 'tfplan' ]] ; then
-  run aws-vault exec ${AV_PROFILE} -- $(dirname "$0")/${TF_CMD} ${ARGS} ${TF_DIR} ${TF_ENV}
+  ave $(dirname "$0")/${TF_CMD} ${ARGS} ${TF_DIR} ${TF_ENV}
 else  
-  run aws-vault exec ${AV_PROFILE} -- $(dirname "$0")/tf-deploy ${RUN_FLAG} ${TF_PATH} ${TF_CMD} ${ARGS}
+  ave $(dirname "$0")/tf-deploy ${RUN_FLAG} ${TF_PATH} ${TF_CMD} ${ARGS}
 fi
