@@ -6,8 +6,9 @@
 
 set -euo pipefail
 
-. "$(dirname "$0")/../lib/common.sh"
-. "$(dirname "$0")/../lib/acct-lib.sh"
+BASEPATH="$(dirname "$0")/.."
+. "${BASEPATH}/lib/common.sh"
+. "${BASEPATH}/lib/sandbox-lib.sh"
 
 howto() { echo "Usage: ${0} [-potbs12345] [-a SRC_ACCT] IAM_USER_PROFILE_NAME" ; }
 usage() { echo -e "\n$(howto)\nUse -h for more info!\n" ; }
@@ -39,7 +40,7 @@ The tasks in this script can also be individually executed as follows:
            account into this account's 'secrets' bucket, required for the SNS topics
            for alerting to be properly created.
            (Step: 2_copy_opsgenie_key)
-  -t, -3 : Import the 'terraform_locks' DynamoDB table -- created by bin/tf-deploy
+  -t, -3 : Import the 'terraform_locks' DynamoDB table -- created by ${BASEPATH}/tf-deploy
            during its first run -- into Terraform state, so that it can be managed
            directly in code.
            (Step: 3_import_lock_table)
@@ -56,7 +57,7 @@ EOM
 # targeted deploy to create the custom policies and secrets buckets
 # (all are needed for the second 'apply' to work properly)
 1_policies_secrets_buckets() {
-  bin/tf-deploy -t "all/${TF_ACCT}" apply -auto-approve \
+  ${BASEPATH}/tf-deploy -t "all/${TF_ACCT}" apply -auto-approve \
     -target='module.main.aws_iam_policy.rds_delete_prevent' \
     -target='module.main.aws_iam_policy.region_restriction' \
     -target='module.main.module.main_secrets_bucket.aws_s3_bucket.secrets' \
@@ -67,11 +68,11 @@ EOM
 2_copy_opsgenie_key() {
   for REGION in 'us-west-2' 'us-east-1' ; do
     get_secrets_bucket source ${REGION}
-    OPSGENIE_KEY=$(bin/awsv -x ${AV_PROFILE} \
+    OPSGENIE_KEY=$(${BASEPATH}/awsv -x ${AV_PROFILE} \
       aws s3 cp "s3://${SECRETS_BUCKET}/common/opsgenie_sns_apikey" - \
         --region "${REGION}")
     get_secrets_bucket dest ${REGION}
-    printf "${OPSGENIE_KEY}" | bin/awsv -x ${AV_PROFILE} \
+    printf "${OPSGENIE_KEY}" | ${BASEPATH}/awsv -x ${AV_PROFILE} \
       aws s3 cp - "s3://${SECRETS_BUCKET}/common/opsgenie_sns_apikey" \
         --region "${REGION}" \
         --no-guess-mime-type \
@@ -84,14 +85,14 @@ EOM
 # import it into state so it can be managed within Terraform in subsequent runs
 3_import_lock_table() {
   export AWS_PROFILE=${ADMIN_IAM_ROLE}
-  bin/tf-deploy -t "all/${TF_ACCT}" import \
+  ${BASEPATH}/tf-deploy -t "all/${TF_ACCT}" import \
     'module.main.module.tf-state.aws_dynamodb_table.tf-lock-table[0]' 'terraform_locks'
 }
 
 # build the rest of terraform/all infra
 4_build_acct() {
   export AWS_PROFILE=${ADMIN_IAM_ROLE}
-  bin/tf-deploy -t "all/${TF_ACCT}" apply -auto-approve
+  ${BASEPATH}/tf-deploy -t "all/${TF_ACCT}" apply -auto-approve
 }
 
 # update the SSM slackwebhook parameters
@@ -99,12 +100,12 @@ EOM
   local WEBHOOK_URL
   for REGION in 'us-west-2' 'us-east-1' ; do
     switch_creds source
-    WEBHOOK_URL=$(printf "$(bin/awsv -x ${AV_PROFILE} aws ssm get-parameters \
+    WEBHOOK_URL=$(printf "$(${BASEPATH}/awsv -x ${AV_PROFILE} aws ssm get-parameters \
                   --names '/account/slack/webhook/url' \
                   --region "${REGION}" \
                   --with-decryption | jq -r '.Parameters[].Value')")
     switch_creds dest
-    bin/awsv -x ${AV_PROFILE} aws ssm put-parameter \
+    ${BASEPATH}/awsv -x ${AV_PROFILE} aws ssm put-parameter \
       --name '/account/slack/webhook/url' \
       --value "${WEBHOOK_URL}" \
       --region "${REGION}" \

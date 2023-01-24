@@ -6,8 +6,9 @@
 
 set -euo pipefail
 
-. "$(dirname "$0")/../lib/common.sh"
-. "$(dirname "$0")/../lib/acct-lib.sh"
+BASEPATH="$(dirname "$0")/.."
+. "${BASEPATH}/lib/common.sh"
+. "${BASEPATH}/lib/sandbox-lib.sh"
 
 howto() { echo "Usage: ${0} [-tprob12345h] IAM_USER_PROFILE_NAME" ; }
 usage() { echo -e "\n$(howto)\nUse -h for more info!\n" ; }
@@ -56,12 +57,12 @@ EOM
 # remove tf-state modules from Terraform; buckets and table are emptied
 # and deleted in 5_delete_tf_locks_table below
 2_rm_state_module() {
-  bin/tf-deploy -t "all/${TF_ACCT}" state rm 'module.main.module.tf-state'
-  bin/tf-deploy -t "all/${TF_ACCT}" state rm 'module.main.module.tf-state-ue1'
+  ${BASEPATH}/tf-deploy -t "all/${TF_ACCT}" state rm 'module.main.module.tf-state'
+  ${BASEPATH}/tf-deploy -t "all/${TF_ACCT}" state rm 'module.main.module.tf-state-ue1'
 }
 
 3_tf_destroy_all() {
-  bin/tf-deploy -t "all/${TF_ACCT}" destroy -auto-approve -var 'opsgenie_key_ready=false'
+  ${BASEPATH}/tf-deploy -t "all/${TF_ACCT}" destroy -auto-approve -var 'opsgenie_key_ready=false'
 }
 
 # empty + delete buckets not destroyed by Terraform (e.g. s3-access-logs, tf-state);
