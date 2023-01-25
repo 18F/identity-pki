@@ -148,11 +148,13 @@ module "main" {
   static_cloudfront_name       = "db1mat7gaslfp.cloudfront.net"
   design_cloudfront_name       = "d28khhcfeuwd3y.cloudfront.net"
   developers_cloudfront_name   = "d26qb7on2m22yd.cloudfront.net"
-  google_site_verification_txt = "XpAHhjdX8tbSoncavYqzKuquO0ystD12VzLmXR10CK0" # associated with zachary.margolis@gsa.gov
-  mx_provider                  = "google-g-suite"
-  mta_sts_report_mailboxes     = ["tls.reports@gsa.gov", "tls-reports@login.gov"]
-  mta_sts_mode                 = "enforce"
-  lambda_audit_github_debug    = 0
+  google_site_verification_txt = "BFBgpQv37mEYU_cLzUJpctEHAqOeEBw5Drd_V9FLwn0" # associated with peter.chen@gsa.gov
+  #google_site_verification_txt = "XpAHhjdX8tbSoncavYqzKuquO0ystD12VzLmXR10CK0" # associated with zachary.margolis@gsa.gov
+
+  mx_provider               = "google-g-suite"
+  mta_sts_report_mailboxes  = ["tls.reports@gsa.gov", "tls-reports@login.gov"]
+  mta_sts_mode              = "enforce"
+  lambda_audit_github_debug = 0
 
   slack_events_sns_hook_arn = "arn:aws:sns:us-west-2:555546682965:slack-events"
 }
