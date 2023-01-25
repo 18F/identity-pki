@@ -64,6 +64,12 @@ data "aws_iam_policy_document" "autotf_assumerole" {
   }
 }
 
+data "aws_iam_policy" "permission_boundary_policy" {
+  count = var.permission_boundary_policy_name != "" ? 1 : 0
+
+  name = var.permission_boundary_policy_name
+}
+
 # get DNSSEC prevent-delete policy if dnssec_zone_exists = true
 data "aws_iam_policy" "dnssec_disable_prevent" {
   count = var.dnssec_zone_exists ? 1 : 0

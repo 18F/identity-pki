@@ -376,3 +376,12 @@ variable "ses_email_limit" {
   default     = 21600
   description = "This is the limit of emails per 6 hour period. Default is 1 per second, only prod should override."
 }
+
+variable "permission_boundary_policy_name" {
+  type        = string
+  description = <<EOM
+The name of the permission boundary IAM policy (created in terraform/guardrail) to be attached to assumable roles. 
+Will not create permission boundary if left blank. 
+EOM
+  default     = ""
+}
