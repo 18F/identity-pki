@@ -76,6 +76,11 @@ users:
     - ConnorPMcCarthy
     ec2_username:
     - cmccarthy
+  daniel.g.lopez:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - pm
   david.dsilva:
     aws_groups:
     - analytics
@@ -146,6 +151,9 @@ users:
     - analytics
     gitlab_groups:
     - pm
+  fred.agyepongyeboah:
+    aws_groups:
+    - soc
   goutham.kommanaboyina:
     aws_groups:
     - analytics
