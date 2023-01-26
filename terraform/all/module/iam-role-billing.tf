@@ -21,7 +21,7 @@ module "billing-assumerole" {
       policy_description = "Policy for reporting group read-only access to Billing ui"
       policy_document = [
         {
-          sid    = "BillingReadOnlyProvideAccessUntilMigration" 
+          sid    = "BillingReadOnlyProvideAccessUntilMigration"
           effect = "Allow"
           actions = [
             "aws-portal:ViewBilling",
@@ -31,7 +31,7 @@ module "billing-assumerole" {
           ]
         },
         {
-          sid = "BillingReadOnlyProvideAccessAfterMigration"
+          sid    = "BillingReadOnlyProvideAccessAfterMigration"
           effect = "Allow"
           actions = [
             "ce:Get*",
