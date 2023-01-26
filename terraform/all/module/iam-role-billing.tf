@@ -51,7 +51,7 @@ module "billing-assumerole" {
             "cur:Validate*",
             "freetier:Get*",
           ]
-          resrouces = [
+          resources = [
             "*",
           ]
         },
