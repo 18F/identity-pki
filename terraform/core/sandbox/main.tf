@@ -27,7 +27,7 @@ module "main" {
   static_cloudfront_name       = "db1mat7gaslfp.cloudfront.net"
   design_cloudfront_name       = "d28khhcfeuwd3y.cloudfront.net"
   developers_cloudfront_name   = "d26qb7on2m22yd.cloudfront.net"
-  google_site_verification_txt = "BFBgpQv37mEYU_cLzUJpctEHAqOeEBw5Drd_V9FLwn0" # associated with peter.chen@gsa.gov
+  google_site_verification_txt = "04tWvC2fxF-q9hhizYUTD5vR_DqnpgpeRdN-Sy5hifo" # associated with peter.chen@gsa.gov
   prod_records = [
     {
       type = "NS",
