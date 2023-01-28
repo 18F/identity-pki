@@ -1,6 +1,17 @@
+# Clean up once Redis 7 is deployed
 resource "aws_elasticache_parameter_group" "idp" {
   name   = "${var.env_name}-idp-params"
   family = "redis6.x"
+
+  parameter {
+    name  = "maxmemory-policy"
+    value = "noeviction"
+  }
+}
+
+resource "aws_elasticache_parameter_group" "idp_redis_7" {
+  name   = "${var.env_name}-idp-params-redis7"
+  family = "redis7"
 
   parameter {
     name  = "maxmemory-policy"
@@ -16,7 +27,7 @@ resource "aws_elasticache_replication_group" "idp" {
   engine_version       = var.elasticache_redis_engine_version
   node_type            = var.elasticache_redis_node_type
   num_cache_clusters   = var.elasticache_redis_num_cache_clusters
-  parameter_group_name = aws_elasticache_parameter_group.idp.name
+  parameter_group_name = aws_elasticache_parameter_group.idp_redis_7.name
   security_group_ids   = [aws_security_group.cache.id]
   subnet_group_name    = aws_elasticache_subnet_group.idp.name
   port                 = 6379
@@ -45,7 +56,7 @@ resource "aws_elasticache_replication_group" "idp_attempts" {
   engine_version       = var.elasticache_redis_engine_version
   node_type            = var.elasticache_redis_attempts_api_node_type
   num_cache_clusters   = 2
-  parameter_group_name = aws_elasticache_parameter_group.idp.name
+  parameter_group_name = aws_elasticache_parameter_group.idp_redis_7.name
   security_group_ids   = [aws_security_group.cache.id]
   subnet_group_name    = aws_elasticache_subnet_group.idp.name
   apply_immediately    = true

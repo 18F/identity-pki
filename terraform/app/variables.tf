@@ -116,7 +116,7 @@ variable "elasticache_redis_num_cache_clusters" {
 variable "elasticache_redis_engine_version" {
   type        = string
   description = "Engine version used for redis elasticache. Changes may incur downtime."
-  default     = "6.2"
+  default     = "7.0"
 }
 
 variable "elasticache_redis_encrypt_at_rest" {
