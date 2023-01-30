@@ -21,10 +21,35 @@ module "billing-assumerole" {
       policy_description = "Policy for reporting group read-only access to Billing ui"
       policy_document = [
         {
-          sid    = "BillingReadOnly"
+          sid    = "BillingReadOnlyProvideAccessUntilMigration"
           effect = "Allow"
           actions = [
             "aws-portal:ViewBilling",
+          ]
+          resources = [
+            "*",
+          ]
+        },
+        {
+          sid    = "BillingReadOnlyProvideAccessAfterMigration"
+          effect = "Allow"
+          actions = [
+            "ce:Get*",
+            "ce:Describe*",
+            "ce:List*",
+            "account:GetAccountInformation",
+            "billing:Get*",
+            "payments:List*",
+            "payments:Get*",
+            "tax:List*",
+            "tax:Get*",
+            "consolidatedbilling:Get*",
+            "consolidatedbilling:List*",
+            "invoicing:List*",
+            "invoicing:Get*",
+            "cur:Get*",
+            "cur:Validate*",
+            "freetier:Get*",
           ]
           resources = [
             "*",
