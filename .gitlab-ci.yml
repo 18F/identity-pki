@@ -409,15 +409,10 @@ deploy_production:
     env: production
     url: https://gitlab.login.gov/
     GIT_SUBMODULE_STRATEGY: normal
-    # XXX remove these once back on deploy image
-    ENV_NAME: production
-    DOMAIN: gitlab.login.gov
   tags:
     - production-env-runner
   image:
-    # XXX switch back to deploy image once this is working
-    # name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/gitlab_deploy@$GITDEPLOY_IMAGE_DIGEST
-    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/gitlab_test@$GITTEST_IMAGE_DIGEST
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/gitlab_deploy@$GITDEPLOY_IMAGE_DIGEST
   stage: deploy
   artifacts:
     name: "$CI_ENVIRONMENT_NAME-$CI_COMMIT_SHA"
