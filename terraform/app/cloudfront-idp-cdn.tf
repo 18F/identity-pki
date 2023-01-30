@@ -13,7 +13,8 @@ data "aws_cloudfront_origin_request_policy" "idp_origin" {
 data "aws_wafv2_web_acl" "cloudfront_web_acl" {
   provider = aws.use1
   count    = var.idp_cloudfront_waf_enabled ? 1 : 0
-  name     = "${var.env_name}-idp-waf"
+#  name     = "${var.env_name}-idp-waf"
+  name     = "dev-idp-waf"
   scope    = "CLOUDFRONT"
 }
 
@@ -183,6 +184,12 @@ resource "aws_route53_record" "c_cloudfront_idp" {
   ttl     = "300"
   type    = "CNAME"
   zone_id = var.route53_id
+}
+
+resource "aws_shield_protection" "cloudfront_shield" {
+  count        = var.idp_cloudfront_waf_enabled ? 1 : 0
+  name         = "distribution1-${aws_cloudfront_distribution.idp_static_cdn[0].id}" 
+  resource_arn = aws_cloudfront_distribution.idp_static_cdn[0].arn
 }
 
 module "cloudfront_idp_cdn_alarms" {
