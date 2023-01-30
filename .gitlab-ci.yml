@@ -429,6 +429,27 @@ deploy_production:
       when: never
     - if: $CI_SERVER_HOST == "gitlab.gitstaging.gitlab.login.gov"
 
+# recycle gitlab production env runner here.
+# This only runs on gitstaging, and is triggered by the API call in deploygitlabproduction_trigger
+recycle_runner_production:
+  extends: .deploy_gitlab_template
+  environment:
+    name: production
+    url: https://gitlab.login.gov/
+    action: access
+  resource_group: production
+  variables:
+    env: production
+    url: https://gitlab.login.gov/
+    GIT_SUBMODULE_STRATEGY: normal
+    RECYCLE_ENV_RUNNERS_ONLY: "true"
+  stage: post_deploy
+  allow_failure: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_SERVER_HOST == "gitlab.gitstaging.gitlab.login.gov"
+
 # test gitlab production env here.
 # This only runs on gitstaging, and is triggered by the API call in deploygitlabproduction_trigger
 test_production:
