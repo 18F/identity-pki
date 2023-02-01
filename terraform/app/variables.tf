@@ -1198,6 +1198,12 @@ variable "escrow_content_expiration" {
   default     = 90
 }
 
+variable "worker_sg_ingress_permitted_ips" {
+  description = "IP addresses permitted access to HTTP(s) health checks for worker instances"
+  type        = list(string)
+  default     = ["159.142.0.0/16"]
+}
+
 variable "attempts_api_low_success_alarm_threshold" {
   description = "Minimum number of IRS Attempts API Event calls per 90 minutes"
   type        = number

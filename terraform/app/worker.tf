@@ -228,9 +228,14 @@ resource "aws_autoscaling_group" "worker" {
     create_before_destroy = true
   }
 
+  target_group_arns = [
+    aws_alb_target_group.worker.arn,
+    aws_alb_target_group.worker_ssl.arn,
+  ]
+
   vpc_zone_identifier = [for subnet in aws_subnet.app : subnet.id]
 
-  health_check_type         = "EC2"
+  health_check_type         = "ELB"
   health_check_grace_period = 1
 
   termination_policies = ["OldestInstance"]
