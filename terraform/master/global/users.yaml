@@ -178,6 +178,18 @@ users:
     - jcody
     gitlab_groups:
     - appdev
+  jack.ryan:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - jryan
+    gitlab_groups:
+    - appdev
+  jeff.bordogna:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - pm
   jeffrey.holden:
     aws_groups:
     - analytics
