@@ -25,4 +25,5 @@ module "main" {
   region                         = "us-west-2"
   route53_id                     = "Z096400532ZFM348WWIAA"
   slack_events_sns_hook_arn      = "arn:aws:sns:us-west-2:034795980528:slack-otherevents"
+  rds_engine_version             = "13.7"
 }

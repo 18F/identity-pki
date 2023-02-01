@@ -22,5 +22,6 @@ module "main" {
   route53_id                     = "Z096400532ZFM348WWIAA"
   destination_artifact_accounts  = ["894947205914"] # login-sandbox
   # These are the account IDs who can access this cluster's gitlab service.
-  accountids = ["894947205914", "034795980528", "217680906704"]
+  accountids         = ["894947205914", "034795980528", "217680906704"]
+  rds_engine_version = "13.7"
 }

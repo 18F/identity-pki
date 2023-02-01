@@ -23,4 +23,5 @@ module "main" {
   route53_id                     = "Z096400532ZFM348WWIAA"
   accountids                     = ["894947205914", "034795980528", "217680906704"]
   no_proxy_hosts                 = "localhost,127.0.0.1,169.254.169.254,169.254.169.123,.login.gov.internal,.us-east-2.amazonaws.com"
+  rds_engine_version             = "13.7"
 }

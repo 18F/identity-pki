@@ -77,7 +77,7 @@ variable "rds_engine_version" {
 }
 
 variable "rds_engine_version_aurora" {
-  default = "13.5"
+  default = "13.9"
 }
 
 variable "rds_instance_class" {
@@ -324,7 +324,7 @@ variable "rds_engine_version_worker_jobs" {
 }
 
 variable "rds_engine_version_worker_jobs_aurora" {
-  default = "13.5"
+  default = "13.9"
 }
 
 variable "rds_instance_class_worker_jobs" {

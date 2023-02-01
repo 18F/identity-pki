@@ -22,4 +22,5 @@ module "main" {
   route53_id                     = "Z096400532ZFM348WWIAA"
   accountids                     = ["894947205914", "034795980528", "217680906704"]
   destination_artifact_accounts  = ["894947205914"] # login-sandbox
+  rds_engine_version             = "13.7"
 }

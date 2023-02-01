@@ -35,4 +35,5 @@ module "main" {
   env_runner_gitlab_hostname      = "gitlab.login.gov"
   env_runner_config_bucket        = "login-gov-production-gitlabconfig-217680906704-us-west-2"
   gitlab_servicename              = "com.amazonaws.vpce.us-west-2.vpce-svc-0270024908d73003b"
+  rds_engine_version              = "13.7"
 }
