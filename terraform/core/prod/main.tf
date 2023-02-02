@@ -118,17 +118,17 @@ module "main" {
         },
         {
           "name"    = "4dzum6joskrvpbtd732kzkupwglku7qp._domainkey.humans.",
-          "records" = ["4dzum6joskrvpbtd732kzkupwglku7qp.dkim.amazonses.com."],
+          "records" = ["4dzum6joskrvpbtd732kzkupwglku7qp.dkim.amazonses.com"],
           "ttl"     = "900",
         },
         {
           "name"    = "xh2g2qk2s7vr7fjd3a5wvlpg3v6k5wap._domainkey.humans.",
-          "records" = ["xh2g2qk2s7vr7fjd3a5wvlpg3v6k5wap.dkim.amazonses.com."],
+          "records" = ["xh2g2qk2s7vr7fjd3a5wvlpg3v6k5wap.dkim.amazonses.com"],
           "ttl"     = "900",
         },
         {
           "name"    = "n7iwermqeuquwu5g5fqiri6qoiicsqss._domainkey.humans.",
-          "records" = ["n7iwermqeuquwu5g5fqiri6qoiicsqss.dkim.amazonses.com."],
+          "records" = ["n7iwermqeuquwu5g5fqiri6qoiicsqss.dkim.amazonses.com"],
           "ttl"     = "900",
         }
       ]
