@@ -208,3 +208,11 @@ module "cloudfront_idp_cdn_alarms" {
   distribution_name = "IDP Static Assets"
   env_name          = var.env_name
 }
+
+module "shield_ddos" {
+  count = var.idp_cloudfront_waf_enabled ? 1 : 0
+  source = "../modules/shield_ddos"
+
+  resource_arn = aws_cloudfront_distribution.idp_static_cdn[0].arn
+  action = "Count"
+}
