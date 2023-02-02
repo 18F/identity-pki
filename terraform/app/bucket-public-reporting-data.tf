@@ -70,7 +70,7 @@ resource "aws_s3_bucket_cors_configuration" "public_reporting_data" {
   cors_rule {
     allowed_headers = ["*"]
     allowed_methods = ["GET"]
-    allowed_origins = ["https://data.login.gov", "https://*.app.cloud.gov", "http://localhost:3000"]
+    allowed_origins = ["https://data.login.gov", "https://*.pages.cloud.gov", "http://localhost:3000"]
     expose_headers  = ["ETag"]
   }
 }
