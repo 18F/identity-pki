@@ -178,6 +178,18 @@ users:
     - jcody
     gitlab_groups:
     - appdev
+  jack.ryan:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - jryan
+    gitlab_groups:
+    - appdev
+  jeff.bordogna:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - pm
   jeffrey.holden:
     aws_groups:
     - analytics
@@ -534,7 +546,7 @@ users:
     - appdev
   sheldon.bachstein:
     aws_groups:
-    - appdev
+    - apponcall
     gitlab_groups:
     - appdev
     git_username:
@@ -591,7 +603,7 @@ users:
     - pm
   timothy.bradley:
     aws_groups:
-    - appdev
+    - apponcall
     ec2_username:
     - tbradley
     gitlab_groups:

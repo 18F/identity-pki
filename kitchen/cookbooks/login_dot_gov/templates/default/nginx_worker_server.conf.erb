@@ -1,0 +1,53 @@
+server {
+    listen 80;
+    server_name  _;
+    return       301  https://<%= @server_name %>$request_uri;
+}
+
+# Set HSTS header only if not already set by app. Some clients get unhappy if
+# you set multiple Strict-Transport-Security headers.
+# https://serverfault.com/a/598106
+map $upstream_http_strict_transport_security $sts_value {
+    '' "max-age=31536000; includeSubdomains; preload";
+}
+
+server {
+    listen       443 ssl;
+    server_name  <%= @server_name or raise 'no @server_name' %> <%= @server_aliases -%> localhost "~^\d+\.\d+\.\d+\.\d+$";
+
+    # Use the certificate and key placed by the instance_certificate cookbook
+    # TODO: pull this from a template variable via
+    # node.fetch('instance_certificate').fetch('key_path')
+    ssl_certificate /etc/ssl/certs/server.crt;
+    ssl_certificate_key /etc/ssl/private/server.key;
+
+    ssl_ciphers 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH';
+    ssl_dhparam /etc/ssl/certs/dhparam.pem;
+    ssl_prefer_server_ciphers on;
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 5m;
+    ssl_stapling on;
+    ssl_stapling_verify on;
+
+    resolver_timeout 5s;
+
+    # Allow specific HTTP methods
+    if ($request_method !~ ^(GET)$ ) {
+       return 405;
+    }
+
+    location ~ / {
+        # Avoid ssl stripping attack
+        add_header Strict-Transport-Security $sts_value;
+
+        proxy_pass http://127.0.0.1:7001;
+    }
+
+}
+
+server {
+    listen 443 ssl;
+    server_name  "~.";
+    return       301  https://<%= @server_name %>$request_uri;
+}

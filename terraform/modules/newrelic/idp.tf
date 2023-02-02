@@ -267,6 +267,36 @@ resource "newrelic_alert_condition" "enduser_error_percentage" {
   }
 }
 
+resource "newrelic_nrql_alert_condition" "proofing_pageview_duration" {
+  count       = var.in_person_enabled
+  policy_id   = newrelic_alert_policy.in_person[0].id
+  type        = "static"
+  name        = "Identity Proofing Slow Backend Response Time"
+  description = <<EOT
+  Users are experiencing slow response times from pages associated with the identity proofing process.
+  EOT
+
+  runbook_url                  = "https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms"
+  enabled                      = true
+  violation_time_limit_seconds = 604800
+
+  nrql {
+    query = "SELECT percentile(backendDuration,95) from PageView WHERE capture(pageUrl, r'^https://[^/]+/(?P<slugPrefix>[^/]+)(/.*)?$') = 'verify' AND appName = '${var.env_name}.${var.root_domain}'"
+  }
+
+  critical {
+    operator              = "above"
+    threshold             = 5
+    threshold_duration    = 60
+    threshold_occurrences = "at_least_once"
+  }
+  fill_option        = "static"
+  fill_value         = 0
+  aggregation_window = 60
+  aggregation_method = "event_flow"
+  aggregation_delay  = 120
+}
+
 resource "newrelic_nrql_alert_condition" "proofing_javascript_errors" {
   count       = var.in_person_enabled
   policy_id   = newrelic_alert_policy.in_person[0].id

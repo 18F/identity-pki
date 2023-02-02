@@ -43,7 +43,7 @@ shared_dirs = [
   'tmp',
   'public/assets',
   'public/system',
-  'vendor/bundle'
+  'vendor/bundle',
 ]
 
 shared_dirs.each do |dir|
@@ -83,7 +83,7 @@ end
 
 # worker
 execute 'config idp bundler' do
-  command "rbenv exec bundle config build.nokogiri --use-system-libraries"
+  command 'rbenv exec bundle config build.nokogiri --use-system-libraries'
   cwd release_path
 end
 
@@ -104,7 +104,7 @@ execute 'deploy activate step' do
   # https://github.com/chef/chef/issues/6162
   command [
     'sudo', '-H', '-u', node.fetch('login_dot_gov').fetch('system_user'),
-    './deploy/activate'
+    './deploy/activate',
   ]
   user 'root'
 end
@@ -115,7 +115,7 @@ execute 'deploy build-post-config step' do
   cwd '/srv/idp/releases/chef'
   command [
     'sudo', '-H', '-u', node.fetch('login_dot_gov').fetch('system_user'),
-    './deploy/build-post-config'
+    './deploy/build-post-config',
   ]
   user 'root'
 end
@@ -139,7 +139,7 @@ end
     recursive true
   end
 end
-(shared_dirs-['bin', 'certs', 'config', 'keys']).each do |dir|
+(shared_dirs - ['bin', 'certs', 'config', 'keys']).each do |dir|
   execute "ln -fns /srv/idp/shared/#{dir} /srv/idp/releases/chef/#{dir}" unless node['login_dot_gov']['setup_only']
 end
 
@@ -164,7 +164,7 @@ Description=IDP Worker Runner Service (idp-worker) - %i
 PartOf=idp-workers.target
 
 [Service]
-ExecStart=/bin/bash -c 'bundle exec good_job start'
+ExecStart=/bin/bash -c 'bundle exec good_job start --probe-port=7001'
 EnvironmentFile=/etc/environment
 WorkingDirectory=#{release_path}
 User=#{system_user}
@@ -193,22 +193,91 @@ template '/etc/systemd/system/idp-workers.target' do
 end
 
 execute 'reload daemon to pickup the target file' do
-  command "systemctl daemon-reload"
+  command 'systemctl daemon-reload'
 end
 
 execute 'enable worker target' do
-  command "systemctl enable idp-workers.target"
+  command 'systemctl enable idp-workers.target'
 end
 
 execute 'start worker target' do
-  command "systemctl start idp-workers.target"
+  command 'systemctl start idp-workers.target'
+end
+
+# create a self-signed certificate for alb to talk to. alb does not verify
+# hostnames or care about certificate expiration.
+key_path = "/etc/ssl/private/#{app_name}-key.pem"
+cert_path = "/etc/ssl/certs/#{app_name}-cert.pem"
+
+
+link key_path do
+  to node.fetch('instance_certificate').fetch('key_path')
+end
+link cert_path do
+  to node.fetch('instance_certificate').fetch('cert_path')
 end
 
 # disable passenger service for workers
 execute 'stop passenger' do
-  command "systemctl stop passenger.service"
+  command 'systemctl stop passenger.service'
 end
 
 execute 'disable passenger' do
-  command "chmod -x /etc/init.d/passenger"
+  command 'chmod -x /etc/init.d/passenger'
+end
+
+
+# configure nginx for health checks via reverse proxy
+domain_name = node.fetch('login_dot_gov').fetch('domain_name')
+
+if node.chef_environment == 'prod'
+  server_name = 'worker.login.gov'
+else
+  server_name = "worker.#{node.chef_environment}.#{domain_name}"
+end
+
+template '/opt/nginx/conf/sites.d/idp_worker.conf' do
+  source 'nginx_worker_server.conf.erb'
+  variables({
+    app: app_name,
+    server_name: server_name,
+  })
+end
+
+systemd_unit 'nginx.service' do
+  action [:create]
+
+  content <<-EOM
+# Dropped off by Chef
+# systemd unit for nginx without passenger
+
+[Unit]
+Description=idp worker nginx service
+After=syslog.target network-online.target remote-fs.target nss-lookup.target
+Wants=network-online.target
+
+[Service]
+Type=forking
+PIDFile=/var/run/nginx.pid
+ExecStartPre=/opt/nginx/sbin/nginx -t
+ExecStart=/opt/nginx/sbin/nginx
+ExecReload=/opt/nginx/sbin/nginx -s reload
+ExecStop=/bin/kill -s QUIT $MAINPID
+PrivateTmp=true
+User=root
+Group=root
+
+[install]
+Wantedby=multi-user.target
+  EOM
+end
+
+include_recipe 'login_dot_gov::dhparam'
+
+execute 'enable nginx service' do
+  command 'systemctl enable nginx.service'
+end
+
+execute 'start nginx service' do
+  command 'systemctl start nginx.service'
 end

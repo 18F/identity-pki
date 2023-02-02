@@ -633,6 +633,48 @@ resource "aws_security_group" "app-alb" {
   }
 }
 
+resource "aws_security_group" "worker-alb" {
+  description = "Worker ALB group allowing monitoring from authorized ip addresses"
+  vpc_id      = aws_vpc.default.id
+
+  egress {
+    description = "Permit HTTP to public subnets for app"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = [for subnet in aws_subnet.app : subnet.cidr_block]
+  }
+  egress {
+    description = "Permit HTTPS to public subnets for app"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [for subnet in aws_subnet.app : subnet.cidr_block]
+  }
+
+  ingress {
+    description = "Permit HTTP to workers for health checks"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = concat([aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block], var.worker_sg_ingress_permitted_ips)
+  }
+
+  ingress {
+    description = "Permit HTTPS to workers for health checks"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = concat([aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block], var.worker_sg_ingress_permitted_ips)
+  }
+
+  name = "${var.env_name}-worker-alb"
+
+  tags = {
+    Name = "${var.env_name}-worker-alb"
+  }
+}
+
 resource "aws_subnet" "db1" {
   availability_zone       = "${var.region}a"
   cidr_block              = var.db1_subnet_cidr_block
@@ -873,6 +915,28 @@ resource "aws_security_group" "worker" {
     to_port     = 8834
     protocol    = "tcp"
     cidr_blocks = [var.nessusserver_ip]
+  }
+
+
+  # Allow Health Checks from ALBs
+  ingress {
+    description = "Permit HTTP to workers for health checks"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    security_groups = [
+      aws_security_group.worker-alb.id,
+    ]
+  }
+
+  ingress {
+    description = "Permit HTTPS to workers for health checks"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    security_groups = [
+      aws_security_group.worker-alb.id,
+    ]
   }
 
   name = "${var.name}-worker-${var.env_name}"

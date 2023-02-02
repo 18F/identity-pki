@@ -258,7 +258,7 @@ locals {
     },
     idp_worker_queue_time = {
       name         = "queue-time-milliseconds"
-      pattern      = "{ $.name = \"perform_start.active_job\" && $.queue_name = \"*GoodJob*\" && $.queue_name != \"*long_running*\" }"
+      pattern      = "{ $.name = \"perform_start.active_job\" && $.queue_name = \"*GoodJob*\" && $.queue_name != \"*long_running*\" && $.queue_name != \"*intentionally_delayed*\" }"
       metric_value = "$.queued_duration_ms"
     },
     idp_worker_perform_success = {

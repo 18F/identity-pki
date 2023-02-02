@@ -581,7 +581,7 @@ variable "default_ami_id_sandbox" {
 }
 
 variable "default_ami_id_prod" {
-  default     = "ami-05dad87c947acac06" # 2023-01-23 Ubuntu 18.04
+  default     = "ami-034d05eb625bc669b" # 2023-01-31 Ubuntu 18.04
   description = "default AMI ID for environments in the prod account"
 }
 
@@ -591,7 +591,7 @@ variable "rails_ami_id_sandbox" {
 }
 
 variable "rails_ami_id_prod" {
-  default     = "ami-0a9ec0d0d16c95675" # 2023-01-23 Ubuntu 18.04
+  default     = "ami-0cda3a289d5b48eeb" # 2023-01-31 Ubuntu 18.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the prod account"
 }
 
@@ -1196,6 +1196,12 @@ variable "escrow_content_expiration" {
   description = "Expiration of documents that are pushed to the escrow s3 bucket in days"
   type        = string
   default     = 90
+}
+
+variable "worker_sg_ingress_permitted_ips" {
+  description = "IP addresses permitted access to HTTP(s) health checks for worker instances"
+  type        = list(string)
+  default     = ["159.142.0.0/16"]
 }
 
 variable "attempts_api_low_success_alarm_threshold" {

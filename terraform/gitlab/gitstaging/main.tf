@@ -19,7 +19,7 @@ module "main" {
   region                          = "us-west-2"
   root_domain                     = "gitlab.login.gov"
   slack_events_sns_hook_arn       = "arn:aws:sns:us-west-2:217680906704:slack-events"
-  default_ami_id_tooling          = "ami-0d8c3585d26e49d22" # 2023-01-23 Ubuntu 18.04
+  default_ami_id_tooling          = "ami-0a5823d3b41ce7b36" # 2023-01-31 Ubuntu 18.04
   route53_id                      = "Z07730471OKZ5T4V8NB2M"
   asg_gitlab_test_runner_desired  = 2
   asg_gitlab_build_runner_desired = 2
@@ -34,6 +34,7 @@ module "main" {
   env_runner_gitlab_hostname      = "gitlab.login.gov"
   env_runner_config_bucket        = "login-gov-production-gitlabconfig-217680906704-us-west-2"
   gitlab_servicename              = "com.amazonaws.vpce.us-west-2.vpce-svc-0270024908d73003b"
+  rds_engine_version              = "13.7"
 }
 
 output "gitlab_db_host" {
