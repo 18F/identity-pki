@@ -224,15 +224,24 @@ BACKUP_FILENAME=${DATE}_ee_gitlab_#{gitlab_version}
 CONFIG_FILENAME=${DATE}_config_backup.tar.gz
 SNS_TOPIC_ARN=$(cat "/etc/login.gov/info/sns_topic_arn")
 AWS_REGION=#{aws_region}
+ENVIRONMENT=#{node.chef_environment}
+SLACK_HANDLE=\<\!subteam\^SUY1QMZE3\>
+BACKUP_S3_BUCKET=#{backup_s3_bucket}
 
 failure() {
   STATUS="FAILED"
-  MESSAGE="gitlab backup ${STATUS} for #{node.chef_environment}:${DATE} - $1"
-  echo ${MESSAGE} | logger
+
+  if [ ${ENVIRONMENT} = "production" ]; then
+    echo "gitlab backup ${STATUS} for ${ENVIRONMENT}:${DATE} - $1 ${SLACK_HANDLE} https://github.com/18F/identity-devops/wiki/Disaster-Recovery:-Gitlab-Backup-and-Restore" > .message
+  else
+    echo "gitlab backup ${STATUS} for ${ENVIRONMENT}:${DATE} - $1" > .message
+  fi
+
+  cat .message | logger
   /usr/local/bin/aws sns publish \
     --region ${AWS_REGION} \
     --topic-arn ${SNS_TOPIC_ARN} \
-    --message ${MESSAGE}
+    --message file://.message
 }
 
 # backup github
@@ -240,14 +249,14 @@ gitlab-backup create BACKUP=${BACKUP_FILENAME} || failure "gitlab-backup failed"
 
 # backup config
 tar -czvf ${CONFIG_FILENAME} /etc/gitlab/gitlab-secrets.json /etc/gitlab/gitlab.rb /etc/gitlab/gitlab_root_api_token /etc/gitlab/login-gov.gitlab-license /etc/ssh/ /etc/gitlab/ssl
-/usr/local/bin/aws s3 cp ${CONFIG_FILENAME} s3://#{backup_s3_bucket}/${CONFIG_FILENAME} || failure "gitlab-secrets.json copy to s3 failed"
+/usr/local/bin/aws s3 cp ${CONFIG_FILENAME} s3://${BACKUP_S3_BUCKET}/${CONFIG_FILENAME} || failure "gitlab-secrets.json copy to s3 failed"
 
 # Delete tempoary files
 find /var/opt/gitlab/backups -type f -name '*.tar' -delete || failure "Some temporary backup files could not be deleted"
 find /etc/gitlab -type f -name '*.tar.gz' -delete || failure "Some temporary backup files could not be deleted"
 
-backup_size=$(/usr/local/bin/aws s3api head-object --bucket #{backup_s3_bucket} --key "${BACKUP_FILENAME}_gitlab_backup.tar" --query "ContentLength")
-config_size=$(/usr/local/bin/aws s3api head-object --bucket #{backup_s3_bucket} --key ${CONFIG_FILENAME} --query "ContentLength")
+backup_size=$(/usr/local/bin/aws s3api head-object --bucket ${BACKUP_S3_BUCKET} --key "${BACKUP_FILENAME}_gitlab_backup.tar" --query "ContentLength")
+config_size=$(/usr/local/bin/aws s3api head-object --bucket ${BACKUP_S3_BUCKET} --key ${CONFIG_FILENAME} --query "ContentLength")
 
 if [ -z $backup_size ] || [ -z $config_size ]; then
   failure "one or more variables are undefined"
@@ -280,10 +289,12 @@ if [ -z "${BACKUP_ARCHIVE_NAME}" ] && [ -z "${CONFIG_ARCHIVE_NAME}" ] && [ -z "$
   exit 1
 fi
 
-# restore github environment
+# copy down github backup files
 aws s3 cp s3://$BACKUP_S3_BUCKET/${BACKUP_ARCHIVE_NAME} /var/opt/gitlab/backups
 aws s3 cp s3://$BACKUP_S3_BUCKET/${CONFIG_ARCHIVE_NAME} /etc/gitlab/
-tar -zxvf /etc/gitlab/${CONFIG_ARCHIVE_NAME}
+
+# The Config Archive will need to be restored by hand and should contain the following directories and files
+# /etc/gitlab/gitlab-secrets.json /etc/gitlab/gitlab.rb /etc/gitlab/gitlab_root_api_token /etc/gitlab/login-gov.gitlab-license /etc/ssh/ /etc/gitlab/ssl
 
 export GITLAB_ASSUME_YES=1
 gitlab-backup restore
