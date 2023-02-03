@@ -518,7 +518,7 @@ func TestSThreeFive(t *testing.T) {
 	instances := aws.GetInstanceIdsForAsg(t, runner_asg, region)
 	require.NotEmpty(t, instances)
 	firstinstance := instances[0]
-	cmd := "ls -ld /etc/docker"
+	cmd := "ls -ld /etc/docker 2>&1"
 	result := RunCommandOnInstance(t, firstinstance, cmd)
 	if *result.ResponseCode != int64(0) {
 		// If /etc/docker doesn't exist, that's cool.  Otherwise, unknown error.
