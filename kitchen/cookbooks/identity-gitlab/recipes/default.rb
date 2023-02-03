@@ -225,7 +225,7 @@ CONFIG_FILENAME=${DATE}_config_backup.tar.gz
 SNS_TOPIC_ARN=$(cat "/etc/login.gov/info/sns_topic_arn")
 AWS_REGION=#{aws_region}
 ENVIRONMENT=#{node.chef_environment}
-SLACK_HANDLE=\<\!subteam\^SUY1QMZE3\>
+SLACK_HANDLE=\\<\\!subteam\\^SUY1QMZE3\\>
 BACKUP_S3_BUCKET=#{backup_s3_bucket}
 
 failure() {
@@ -251,10 +251,6 @@ gitlab-backup create BACKUP=${BACKUP_FILENAME} || failure "gitlab-backup failed"
 tar -czvf ${CONFIG_FILENAME} /etc/gitlab/gitlab-secrets.json /etc/gitlab/gitlab.rb /etc/gitlab/gitlab_root_api_token /etc/gitlab/login-gov.gitlab-license /etc/ssh/ /etc/gitlab/ssl
 /usr/local/bin/aws s3 cp ${CONFIG_FILENAME} s3://${BACKUP_S3_BUCKET}/${CONFIG_FILENAME} || failure "gitlab-secrets.json copy to s3 failed"
 
-# Delete tempoary files
-find /var/opt/gitlab/backups -type f -name '*.tar' -delete || failure "Some temporary backup files could not be deleted"
-find /etc/gitlab -type f -name '*.tar.gz' -delete || failure "Some temporary backup files could not be deleted"
-
 backup_size=$(/usr/local/bin/aws s3api head-object --bucket ${BACKUP_S3_BUCKET} --key "${BACKUP_FILENAME}_gitlab_backup.tar" --query "ContentLength")
 config_size=$(/usr/local/bin/aws s3api head-object --bucket ${BACKUP_S3_BUCKET} --key ${CONFIG_FILENAME} --query "ContentLength")
 
@@ -267,6 +263,20 @@ if [ $backup_size -eq 0 ] || [ $config_size -eq 0 ]; then
   failure "one or more file sizes are zero"
   exit 1
 fi
+
+sleep 30 # Allow s3 time to report correct file information
+
+config_hash=($(md5sum ${CONFIG_FILENAME}))
+s3_config_hash=$(/usr/local/bin/aws s3api head-object --bucket #{backup_s3_bucket} --key ${CONFIG_FILENAME} --query ETag --output text | tr -d '"')
+
+if [[ $config_hash != $s3_config_hash ]]; then
+  failure "config sha ${config_hash} does not match for s3 config sha ${s3_config_hash}"
+  exit 1
+fi
+
+# Delete tempoary files
+find /var/opt/gitlab/backups -type f -name '*.tar' -delete || failure "Some temporary backup files could not be deleted"
+find /etc/gitlab -type f -name '*.tar.gz' -delete || failure "Some temporary backup files could not be deleted"
 
   EOF
   owner 'root'
