@@ -32,6 +32,7 @@ default['login_dot_gov']['idp_run_recurring_jobs']                    = true
 default['login_dot_gov']['idp_artifacts']                             = true
 default['login_dot_gov']['idp_sync_static']                           = false
 default['login_dot_gov']['idp_sync_static_ignore_failure']            = false
+default['login_dot_gov']['idp_ruby_yjit_enabled']                     = false
 
 # User for installing various application data
 default['login_dot_gov']['system_user']                               = 'appinstall'
