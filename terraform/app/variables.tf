@@ -1209,3 +1209,9 @@ variable "attempts_api_low_success_alarm_threshold" {
   type        = number
   default     = 0
 }
+
+variable "minutes_since_ipp_enrollment_established_alarm_threshold" {
+  description = "Maximum number of minutes after which an established USPS IPP enrollment is expected to expire"
+  type        = number
+  default     = 43560 # 30 days + 6 hours
+}

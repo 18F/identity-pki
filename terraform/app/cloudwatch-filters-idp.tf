@@ -183,6 +183,14 @@ locals {
       metric_value = 1
       dimensions   = {}
     },
+    idp_usps_proofing_results_minutes_since_enrollment_established = {
+      name         = "usps-proofing-minutes-since-enrollment-established"
+      pattern      = "{ ($.name = \"GetUspsProofingResultsJob:*\") && ($.properties.event_properties.enrollment_id > 0) && ($.properties.event_properties.minutes_since_established > -1) }"
+      metric_value = "$.properties.event_properties.minutes_since_established"
+      dimensions = {
+        name = "$.name"
+      }
+    }
   }
 
   idp_external_service_filters = {
