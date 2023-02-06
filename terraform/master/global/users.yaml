@@ -234,8 +234,6 @@ users:
     gitlab_groups:
     - antifraud
   jim.pham:
-    aws_groups:
-    - fraudopsnonprod
     gitlab_groups:
     - antifraud
   john.maxwell:
