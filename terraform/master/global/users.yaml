@@ -558,7 +558,7 @@ users:
     - bizops
   sonia.connolly:
     aws_groups:
-    - appdev
+    - apponcall
     gitlab_groups:
     - appdev
   stephen.shelton:
