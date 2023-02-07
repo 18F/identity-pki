@@ -45,4 +45,7 @@ Here are some of the options, and their pro/cons:
 * *Minigrammer:*  Code is nice and python-y, pretty icons.  TERRIBLE layout.
   ![Minigrammer Diagram](images/minigrammer.png)
 * *Structurizr:*  Looks pretty, is not authorized.
-* *Lucid Charts:*  People like this, but it is not authorized.
+* *Lucid Charts:*  People like this.  It is not authorized in GEAR, but
+  it may be fedramped, so we might be able to procure it.
+* *Figma Design:*  This is nifty, but you cannot connect arrows and have them move
+  around when the objects move around.  Cannot save document to file to put in git.
