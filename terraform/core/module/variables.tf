@@ -143,28 +143,6 @@ variable "slack_events_sns_hook_arn" {
   type        = string
 }
 
-variable "guardduty_threat_feed_name" {
-  description = "Name of the GuardDuty threat feed, used to name other resources"
-  type        = string
-  default     = "gd-threat-feed"
-}
-
-variable "guardduty_days_requested" {
-  type    = number
-  default = 7
-}
-
-variable "guardduty_frequency" {
-  type    = number
-  default = 6
-}
-
-variable "guardduty_threat_feed_code" {
-  type        = string
-  description = "Path of the compressed lambda source code."
-  default     = "src/guard-duty-threat-feed.zip"
-}
-
 variable "cross_account_archive_bucket_access" {
   description = "Source roles from other accounts allowed access to a list of buckets"
   type        = map(list(string))

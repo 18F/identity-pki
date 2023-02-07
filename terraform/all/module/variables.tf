@@ -371,6 +371,7 @@ approved and confirmed access to the destination CloudWatch log group. More info
 https://github.com/18F/identity-devops/wiki/Runbook:-GSA-SOC-as-a-Service-(SOCaaS)#cloudwatch-shipping-important-note
 EOM
 }
+
 variable "ses_email_limit" {
   type        = number
   default     = 21600
@@ -384,4 +385,60 @@ The name of the permission boundary IAM policy (created in terraform/guardrail) 
 Will not create permission boundary if left blank. 
 EOM
   default     = ""
+}
+
+variable "guardduty_log_group_id" {
+  type        = string
+  description = "Name of the CloudWatch Log Group to log GuardDuty findings."
+  default     = "/aws/events/gdfindings"
+}
+
+variable "guardduty_finding_freq" {
+  type        = string
+  description = "Frequency of notifications for GuardDuty findings."
+  default     = "SIX_HOURS"
+}
+
+variable "guardduty_s3_enable" {
+  type        = bool
+  description = "Whether or not to enable S3 protection in GuardDuty"
+  default     = false
+}
+
+variable "guardduty_k8s_audit_enable" {
+  type        = bool
+  description = <<EOM
+Whether or not to enable Kubernetes audit logs as a data source
+for Kubernetes protection (via GuardDuty).
+EOM
+  default     = false
+}
+
+variable "guardduty_ec2_ebs_enable" {
+  type        = bool
+  description = <<EOM
+Whether or not to enable Malware Protection (via scanning EBS volumes)
+as a data source for EC2 instances (via GuardDuty).
+EOM
+  default     = false
+}
+
+variable "guardduty_usw2_soc_enabled" {
+  type        = bool
+  description = <<EOM
+Whether or not to create the CloudWatch Subscription Filter that sends
+GuardDuty logs to SOC. Must be set to 'false' until the SOCaaS team
+confirms the elp-guardduty-lg destination for us-west-2.
+EOM
+  default     = false
+}
+
+variable "guardduty_use1_soc_enabled" {
+  type        = bool
+  description = <<EOM
+Whether or not to create the CloudWatch Subscription Filter that sends
+GuardDuty logs to SOC. Must be set to 'false' until the SOCaaS team
+confirms the elp-guardduty-lg destination for us-east-1.
+EOM
+  default     = false
 }

@@ -112,23 +112,6 @@ module "main" {
   slack_events_sns_hook_arn = "arn:aws:sns:us-west-2:894947205914:slack-otherevents"
 }
 
-module "gd-events-to-logs" {
-  source = "../../modules/gd_findings_to_events"
-}
-
-module "gd-log-sub-filter-sandbox" {
-  depends_on                          = [module.gd-events-to-logs]
-  source                              = "../../modules/log_ship_to_soc"
-  region                              = "us-west-2"
-  cloudwatch_subscription_filter_name = "gd-log-ship-to-soc"
-  cloudwatch_log_group_name = {
-    "/aws/events/gdfindings" = ""
-  }
-  env_name            = "sandbox-gd"
-  soc_destination_arn = "arn:aws:logs:us-west-2:752281881774:destination:elp-guardduty-lg"
-
-}
-
 module "macie-bucket-scans-sandbox" {
   source = "../../modules/macie_v2"
   macie_scan_buckets = [
