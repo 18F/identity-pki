@@ -15,11 +15,6 @@ variable "config_password_rotation_code" {
   default     = "lambda/config-password-rotation.zip"
 }
 
-variable "slack_events_sns_topic" {
-  type        = string
-  description = "Name of the SNS topic for pushing notification from lambda."
-}
-
 variable "lambda_timeout" {
   type        = number
   default     = "180"

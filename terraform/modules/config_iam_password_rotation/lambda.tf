@@ -1,9 +1,5 @@
 data "aws_caller_identity" "current" {}
 
-data "aws_sns_topic" "notify_slack" {
-  name = var.slack_events_sns_topic
-}
-
 module "config_password_rotation_code" {
   source = "github.com/18F/identity-terraform//null_archive?ref=e7ad5ef38f724b31911248a74173e9fee3bbf045"
 
@@ -26,7 +22,7 @@ resource "aws_lambda_function" "password_rotation_lambda" {
 
   environment {
     variables = {
-      notification_topic = "${data.aws_sns_topic.notify_slack.arn}"
+      temp_role_arn = "${aws_iam_role.assumeRole_lambda.arn}"
     }
   }
 
@@ -56,11 +52,25 @@ resource "aws_iam_policy" "password_update_lambda_policy" {
     Version = "2012-10-17"
     Statement = [
       {
+        Sid    = "AllowSendingEmailViaSES"
+        Effect = "Allow"
         Action = [
-          "sns:Publish"
+          "ses:SendEmail",
+          "ses:SendRawEmail"
         ]
-        Effect   = "Allow"
-        Resource = "${data.aws_sns_topic.notify_slack.arn}"
+        Resource = [
+          "*"
+        ]
+      },
+      {
+        Sid    = "AllowAccessToIAMLoginProfile"
+        Effect = "Allow"
+        Action = [
+          "sts:AssumeRole"
+        ]
+        Resource = [
+          "${aws_iam_role.assumeRole_lambda.arn}"
+        ]
       },
       {
         Action = [
@@ -69,15 +79,6 @@ resource "aws_iam_policy" "password_update_lambda_policy" {
         ]
         Effect   = "Allow"
         Resource = "${aws_cloudwatch_log_group.password_lambda_cw_logs.arn}:*"
-      },
-      {
-        Action = [
-          "iam:GetCredentialReport",
-          "iam:GenerateCredentialReport",
-          "iam:DeleteLoginProfile"
-        ]
-        Effect   = "Allow"
-        Resource = "*"
       }
     ]
   })
@@ -92,4 +93,42 @@ resource "aws_iam_role_policy_attachment" "password_lambda_logs" {
 resource "aws_cloudwatch_log_group" "password_lambda_cw_logs" {
   name              = "/aws/lambda/${var.config_password_rotation_name}-lambda"
   retention_in_days = 365
+}
+
+### Additional IAM Role, Lambda can assume with limited permissions to take IAM actions against specific IAM user. Lambda should have permission that is overlap with this policy and the policy that it uses when assuming this role. Goal here is to ensure, lambda while assuming this role can take IAM action against only the specific IAM user. ###
+data "aws_iam_policy_document" "trust_policy_allowing_lambda_assumeRole" {
+  statement {
+    sid    = "assume"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole"
+    ]
+    principals {
+      type        = "AWS"
+      identifiers = [ aws_iam_role.password_update_lambda_role.arn ]
+    }
+  }
+}
+
+data "aws_iam_policy_document" "identity_policy_allowing_lambda_assumeRole" {
+  statement {
+    sid    = "AllowAccessToIAMLoginProfile"
+    effect = "Allow"
+    actions = [
+      "iam:DeleteLoginProfile",
+      "iam:GetLoginProfile"
+    ]
+    resources = [
+      "*"
+    ]
+  }
+}
+
+resource "aws_iam_role" "assumeRole_lambda" {
+  assume_role_policy = data.aws_iam_policy_document.trust_policy_allowing_lambda_assumeRole.json
+}
+
+resource "aws_iam_role_policy" "assumeRole_lambda" {
+  role   = aws_iam_role.assumeRole_lambda.id
+  policy = data.aws_iam_policy_document.identity_policy_allowing_lambda_assumeRole.json
 }

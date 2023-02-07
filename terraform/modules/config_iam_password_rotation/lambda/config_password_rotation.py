@@ -8,16 +8,19 @@ from time import sleep
 import datetime
 from dateutil import parser
 import sys
+from datetime import timedelta
+from datetime import date
 
-iam = boto3.client('iam')
-sns = boto3.client('sns')
+iam = boto3.client('iam',region_name='us-east-1')
+ses = boto3.client('ses')
 
 account_id = boto3.client("sts").get_caller_identity()["Account"]
 
 def lambda_handler(event, context):
-  print(event)
+  #print(event)
   credential_report = get_credential_report()
   print(credential_report)
+ 
 
   #if(check_password_enabled == "true"): 
   for value in credential_report.items():
@@ -28,7 +31,7 @@ def lambda_handler(event, context):
         if(check == "true"):
            user_name               = test1["user"]
            if((test1["password_last_used"] == "no_information")):
-               print("User never logged in the AWS Console. This should be an user who has not onboarded yet")
+               print("User " + user_name + " has never logged into the AWS Console. This should be an user who has not onboarded yet")
                continue
            else:
             password_last_used_date = test1["password_last_used"]
@@ -41,7 +44,7 @@ def lambda_handler(event, context):
             changed_date = parser.parse(password_last_changed_date)
             last_changed_date = changed_date.date()
             print(user_name, "last changed their password at", last_changed_date)
-              
+  
             #action to take by comparing date
             action = compare_time(user_name, last_changed_date, last_used_date, account_id)
             #print("Returned value from function compare_time()", action)
@@ -56,50 +59,96 @@ def compare_time(user_name, lastchanged, lastlogin, account_id):
 
   print(user_name, "user's password age is", password_age, "days old & was used for the most recent login ",recent_password_used_age, "days ago" )
 
+### SES email template settings ###
+  CHARSET = "UTF-8"
+  BODY_HTML = """<html>
+    </html>
+                """  
+  
+  sender_email = "noreply@humans.login.gov"
+  realemail = user_name + "@gsa.gov"
+  recipient_email = "sujana.gurung" + "@gsa.gov"
+  print("real recipient_email", realemail)
+
   if(recent_password_used_age < 120):
     if(90 <= password_age <= 100):
+        expire_in = 100 - password_age
+        expiration_date = ((datetime.datetime.now()).date() + timedelta(days=expire_in))
+        print("Expire_in days", expire_in , "days")
+        check = expiration_date.strftime('%m/%d/%Y')
         print("Password age between 90-100 days so sending warning notification for user", user_name)
-        push_notification(user_name, lastchanged, account_id, password_age)
+        SUBJECT = ("Your AWS console password is going to expire in " + str(expire_in) + "day(s)")
+        BODY_HTML = """<html>
+                <head> Dear {user_name}, </head>
+                <body>
+                <p>Your AWS Console login access is going to be disabled at {check}. Console access is disabled, if there is missing login activity for more than 120 days or if password is not rotated in every 100 days with active login activity. Please go to <a href='https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#settingupdating-your-console-password'>
+                 Runbook</a> for directions on rotating the password. </p>
+
+                <p> If you allow your password to expire, you will loose access to the AWS accounts via console. However, this rule does not check or modify your ability to access AWS Accounts using AWS Access Keys. </p>
+                <p> If you have any questions, feel free to ping @login-platform-help in slack. </p><br>
+                Thank you!<br>
+                
+                <p> Helpful links: <br>
+                <a href='https://aws.amazon.com/sdk-for-python/'>
+                 Runbook</a><br>
+                 Slack: @login-platform-help <br></p>
+                </body>
+                </html>
+                        """.format(user_name=user_name, check=check) 
+        send_notification(recipient_email, sender_email, SUBJECT, BODY_HTML, CHARSET)
+
     elif(password_age > 100):
-        print("Password age older than 100 days so disabling it for user", user_name)
-        disable_access(user_name, lastchanged, account_id)
+        print("Password age older than 100 days so disabling it for user ", user_name)
+        action1 = invoke_console_access(user_name)
+        if action1 == "Success":
+            SUBJECT = ("Your AWS console password is expired.")
+            BODY_HTML = """<html>
+                    <head> Dear {user_name}, </head>
+                    <body>
+                    <p>Your AWS Console Access has been disabled. </p>
+                 
+                    <p>**If you do not need access to the AWS Console, feel free to ignore this email.**</p>
+                    
+                    <p>However, if you wish to regain the access please ping @login-platform-help in Slack.</p>
+                    
+                    <p>Thank you for your understanding!</p><br>
+               
+                    <p> Helpful links: <br>
+                    <a href='https://aws.amazon.com/sdk-for-python/'>
+                    Runbook</a><br>
+                    Slack: @login-platform-help <br></p>
+                    </body>
+                    </html>
+                            """.format(user_name=user_name) 
+            send_notification(recipient_email, sender_email, SUBJECT, BODY_HTML, CHARSET)
+        else: 
+            print("Failed to update user's login profile")
   else:
-    disable_access(user_name, lastlogin, account_id)
-
-#Send notification to user before disabling the console access
-def push_notification(user_name, time, account_id, password_age):
-  notification = "\"" +  user_name + "\"" + " - AWS console password in " + "\"" + account_id + "\"" + " is " + "\"" + str(password_age) + "\"" + " days old. " + " Rotate password before reaching 100 days for continued access to AWS console. Instructions to rotate password - Runbook: https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#settingupdating-your-console-password"
-  response = sns.publish (
-             TargetArn = os.environ['notification_topic'],
-             Message = json.dumps({'default': notification}),
-             MessageStructure = 'json'
-      )
-  print("Notification sent", notification)
-
-
-#Send notification to user after disabling the console access
-def push_notification_after(user_name, time, account_id):
-  notification = "Login disabled for " + "\"" + user_name + "\"" + " in AWS Account " + "\"" + account_id + "\"" + " at " + (datetime.datetime.now()).date().strftime('%Y-%m-%d') + ". For assitance refer - " + " Runbook: https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#settingupdating-your-console-password "
-  response = sns.publish (
-             TargetArn = os.environ['notification_topic'],
-             Message = json.dumps({'default': notification}),
-             MessageStructure = 'json'
-      )
-  print("Notification sent", notification)
-
-#Disable console access
-def disable_access(user_name, time, account_id):
-    try:
-        print(" Disabling Console login for " + "\"" +  user_name + "\"" + " in AWS Account" + "\"" + account_id + "\"" + " ." )
-        iam.delete_login_profile(UserName=user_name)
-        push_notification_after(user_name, time, account_id)
-        print("Login disabled for user " + user_name + " at " + (datetime.datetime.now()).date().strftime('%Y-%m-%d'))
+     action = invoke_console_access(user_name)
+     if action == "Success":
+        SUBJECT = ("Your AWS console password is expired." )
+        BODY_HTML = """<html>
+                <head> Dear {user_name}, </head>
+                <body>
+                <p>Your AWS Console Access has been disabled.</p>
+         
+                <p><p>**If you do not need access to the AWS Console, feel free to ignore this email.**</p>
+                
+                <p> However, if you wish to regain the access please ping @login-platform-help in Slack to get the back console access.</p>
+                
+                <p>Thank you for your understanding!</p><br>
+              
+                <p> Helpful links: <br>
+                <a href='https://aws.amazon.com/sdk-for-python/'>
+                 Runbook</a><br>
+                 Slack: @login-platform-help <br></p>
+                </body>
+                </html>
+                        """.format(user_name=user_name)
+        send_notification(recipient_email, sender_email, SUBJECT, BODY_HTML, CHARSET)
+     else:
+        print("Failed to update user's login profile")
     
-    except ClientError as e:
-            if e.response['Error']['Code'] == 'NoSuchEntity':
-                print("After a credential report is created, it is stored for up to four hours. Might be stale data")
-            else:
-                print("Failed to disable the console login", e.response)
 
 # Request the credential report, download and parse the CSV.
 def get_credential_report():
@@ -113,7 +162,125 @@ def get_credential_report():
             response_dict = dict(enumerate(list(response_reader)))
             return response_dict
         except ClientError as e:
-            print("Unknown error getting Report: " + e.message)
+            print("Unknown error getting Report: " )
     else:
         sleep(2)
         return get_credential_report()
+
+
+
+### SES function to send notification ###
+
+def send_notification(recipient_email, sender_email, SUBJECT, BODY_HTML, CHARSET):
+    try:
+        response = ses.send_email(
+            Destination={
+                'ToAddresses': [
+                    recipient_email,
+                ],
+            },
+            Message={
+                'Body': {
+                    'Html': {
+                        'Charset': CHARSET,
+                        'Data': BODY_HTML
+                    }
+                },
+                'Subject': {
+                    'Charset': CHARSET,
+                    'Data': SUBJECT
+                },
+            },
+            Source=sender_email,
+        )
+    
+    except ClientError as e:
+        print(e.response['Error']['Message'])
+    else:
+        print(response['MessageId'])
+
+
+### Generate temporary role credentials ###
+def invoke_console_access(user_name):
+    temp_credentials = generate_temp_credentials(user_name)
+    print("Here are the credentials", temp_credentials)
+    action = disable_console_access(temp_credentials, user_name)
+    print("Console Access for" + user_name + "disabled")
+    return action
+
+### Assumed role will have permissions that overlap with the policy below and associated with temp_role_arn
+def generate_temp_credentials(user_name):
+    sts      = boto3.client('sts')
+    temp_role_arn = os.environ['temp_role_arn']
+    
+    policy = {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Action": [
+                    "iam:DeleteLoginProfile",
+                    "iam:GetLoginProfile"
+                    ],
+                "Resource": [
+                 "arn:aws:iam::*:user/" + user_name
+                ]
+            }
+        ]
+    }
+    
+    policy_document = json.dumps(policy)
+    print("policy_document", policy_document)
+
+    role_session_name = "additionalpolicyfor" + user_name
+    print("role_session_name", role_session_name)
+    
+    session_duration = 3600
+
+    try:
+        assumed_role_creds = sts.assume_role(RoleArn=temp_role_arn,
+                                                    Policy=policy_document,
+                                                    RoleSessionName=role_session_name,
+                                                    DurationSeconds=session_duration)
+        return assumed_role_creds
+    except ClientError as err:
+        print(err.response['Error']['Message'])
+        return err
+    except Exception as err:
+        print(err)
+        return err
+
+def disable_console_access(temp_credentials, user_name):
+    try:
+        # Format resulting temporary credentials into JSON
+        ACCESS_KEY = temp_credentials["Credentials"]["AccessKeyId"]
+        SECRET_KEY = temp_credentials["Credentials"]["SecretAccessKey"]
+        SESSION_TOKEN = temp_credentials["Credentials"]["SessionToken"]
+        
+        iam = boto3.client(
+                'iam',
+                aws_access_key_id=ACCESS_KEY,
+                aws_secret_access_key=SECRET_KEY,
+                aws_session_token=SESSION_TOKEN
+                )
+
+        profile = iam.get_login_profile(
+            UserName=user_name
+        )
+
+        print("Here is the user's login profile", profile)
+
+        #response = iam.delete_login_profile(
+        #      UserName=user_name
+        #)
+
+        print("Console access disabled for the user", user_name)
+
+        return "Success"
+
+    except ClientError as err:
+        print(err.response['Error']['Message'])
+        return err
+    except Exception as err:
+        print(err)
+        return err
