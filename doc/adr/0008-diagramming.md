@@ -49,3 +49,4 @@ Here are some of the options, and their pro/cons:
   it may be fedramped, so we might be able to procure it.
 * *Figma Design:*  This is nifty, but you cannot connect arrows and have them move
   around when the objects move around.  Cannot save document to file to put in git.
+* *Visio:*  This only runs on windows, which basically nobody has in our group.
