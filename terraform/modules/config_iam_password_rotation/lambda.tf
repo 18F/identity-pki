@@ -74,6 +74,14 @@ resource "aws_iam_policy" "password_update_lambda_policy" {
       },
       {
         Action = [
+          "iam:GetCredentialReport",
+          "iam:GenerateCredentialReport"
+        ]
+        Effect   = "Allow"
+        Resource = "*"
+      },
+      {
+        Action = [
           "logs:CreateLogStream",
           "logs:PutLogEvents"
         ]
@@ -105,7 +113,7 @@ data "aws_iam_policy_document" "trust_policy_allowing_lambda_assumeRole" {
     ]
     principals {
       type        = "AWS"
-      identifiers = [ aws_iam_role.password_update_lambda_role.arn ]
+      identifiers = [aws_iam_role.password_update_lambda_role.arn]
     }
   }
 }

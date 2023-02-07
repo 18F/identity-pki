@@ -21,6 +21,6 @@ It creates the following AWS Resources:
    - If the user has not logged in for more than 120 days(with console login being enabled)
    - Or if password age is more than 100days for users with active login activity
 - As of now, users that have never logged in to AWS console are not processed, as they could be users that are still on their onboarding phase
-
 - Users are notified everyday from 90th-100th day to rotate their password via email with sender email address as "noreply@humans.login.gov"
 - Further, Lambda is configured to send notification email after the console access is disabled as well
+- Lambda when disabling the users' console access, will run the api "iam:DeleteLoginProfile". For this specific action it will use a temporary role with ability to delete login profile just for that specific user. While assuming the temporary role, lambda should only have permissions that is overlap of the temporary role and the  policy it uses during assuming this role.
