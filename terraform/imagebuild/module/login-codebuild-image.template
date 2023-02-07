@@ -706,7 +706,7 @@
                 },
                 "ServiceRole": { "Ref": "CodeBuildRole" },
                 "Tags": [],
-                "TimeoutInMinutes": "60",
+                "TimeoutInMinutes": "90",
                 "VpcConfig": {
                     "VpcId": {"Fn::ImportValue": {"Fn::Sub": "${NetworkStackName}-VPCID"}},
                     "Subnets": [
