@@ -46,8 +46,10 @@ Here are some of the options, and their pro/cons:
   ![Minigrammer Diagram](images/minigrammer.png)
 * *Structurizr:*  Looks pretty, is not authorized.
 * *Lucid Charts:*  This looks pretty nice.  Their support for AWS icons is really
-  good.  It is not authorized in GEAR, but they are in-process for getting an agency ATO.
+  good.  It is not authorized in GEAR, but they are in-process for getting an
+  agency ATO.  Seems to be the best option for online systems.
+  Cannot save document to file to put in git.
   ![Lucid Chart Diagram](images/lucidchart.png)
-* *Figma Design:*  This is nifty, but you cannot connect arrows and have them move
+* *Figma:*  This is nifty, but you cannot connect arrows and have them move
   around when the objects move around.  Cannot save document to file to put in git.
 * *Visio:*  This only runs on windows, which basically nobody has in our group.
