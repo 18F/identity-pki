@@ -127,6 +127,11 @@ resource "aws_s3_bucket" "escrow" {
   }
 }
 
+resource "aws_s3_bucket_metric" "escrow-bucket-metrics" {
+  bucket = aws_s3_bucket.escrow.bucket
+  name   = "${var.env_name}EntireBucket"
+}
+
 resource "aws_s3_bucket_logging" "escrow" {
   bucket = aws_s3_bucket.escrow.id
 

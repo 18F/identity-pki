@@ -29,6 +29,8 @@ func GetCluster(t *testing.T, cluster_name string) *elasticache.DescribeCacheClu
 
 // Ensure IDP instance can still access the Redis cluster endpoint
 func TestRedisAccessIdpInstances(t *testing.T) {
+	// Can t.Parallel() this since it isn't writing to Redis
+	t.Parallel()
 	// Get an instance from the ASG
 	instances := aws.GetInstanceIdsForAsg(t, idp_asg, region)
 	require.NotEmpty(t, instances)
@@ -50,6 +52,8 @@ func TestRedisAccessIdpInstances(t *testing.T) {
 
 // Ensure app instance cannot access the Redis cluster endpoint
 func TestRedisAccessAppInstances(t *testing.T) {
+	// Can t.Parallel() this since it isn't writing to Redis
+	t.Parallel()
 	// Get an instance from the ASG
 	instances := aws.GetInstanceIdsForAsg(t, app_asg, region)
 	require.NotEmpty(t, instances)
