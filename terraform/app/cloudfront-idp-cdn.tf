@@ -148,7 +148,7 @@ resource "aws_cloudfront_distribution" "idp_static_cdn" {
       error_caching_min_ttl = custom_error_response.value.ttl
       error_code            = custom_error_response.value.error_code
       response_code         = custom_error_response.value.response_code
-      response_page_path    = custom_error_response.value.response_page_path
+      response_page_path    = var.enable_cloudfront_maintenance_page ? "/maintenance/maintenance.html" : custom_error_response.value.response_page_path
     }
   }
 

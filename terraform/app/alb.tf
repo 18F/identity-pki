@@ -70,6 +70,32 @@ resource "aws_alb_listener" "idp-ssl" {
   }
 }
 
+resource "aws_lb_listener_rule" "idp_ssl_maintenance" {
+  count        = var.enable_cloudfront_maintenance_page ? 1 : 0
+  listener_arn = aws_alb_listener.idp-ssl.arn
+  priority     = 99
+
+  action {
+    type = "fixed-response"
+
+    fixed_response {
+      content_type = "text/plain"
+      message_body = "Temporarily Down for Maintenance"
+      status_code  = "503"
+    }
+  }
+
+  condition {
+    dynamic "http_header" {
+      for_each = local.http_header_enabled
+      content {
+        http_header_name = local.cloudfront_security_header.name
+        values           = local.cloudfront_security_header.value
+      }
+    }
+  }
+}
+
 # Either allows traffic to IDP based on new Cloudfront header if Cloudfront is
 # enabled. Otherwise it allows traffic to idp servers based on hostname if
 # Cloudfront is disabled to prevent a collision between two aws_lb_listner_rule
