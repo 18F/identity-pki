@@ -1,0 +1,39 @@
+#!/bin/bash
+  
+#### Restart passenger in a safer way ####
+
+set -euo pipefail
+
+restart_passenger() {
+  PASS_ATTEMPT=1
+  while [ ${PASS_ATTEMPT} -le 3 ]  ; do
+    echo "Attempting to restart passenger"
+    passenger-config restart-app /srv/idp/current
+    [[ $? == 0 ]] && break
+    sleep 1
+    ((PASS_ATTEMPT++))
+  done
+
+  echo "Connecting to application..."
+  curl --retry 3 --retry-delay 2 -sk --fail --show-error https://localhost/api/health
+  [[ $? == 0 ]] && return 0
+  return 1
+}
+
+# 30% of restart failures were due to the "/srv/idp/current" directory not existing on new instances
+# still provisioning. If the "/srv/idp/current" directory doesn't exist, assume that the server is starting up 
+# and will pull the correct config when passenger starts.  If there is another reason that the directory doesn't exist
+# failing health checks will terminate the instance
+[ -d "/srv/idp/current" ] || exit 0
+
+RESTART_ATTEMPT=1
+ while [ ${RESTART_ATTEMPT} -le 3 ]  ; do
+  restart_passenger && exit 0
+  sleep 2
+  ((RESTART_ATTEMPT++))
+ done
+
+echo "Passenger did not restart"
+exit 1
+
+

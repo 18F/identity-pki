@@ -62,4 +62,12 @@ if primary_role != 'worker'
     group 'root'
     mode '0644'
   end
+
+  template '/usr/local/bin/id-passenger-restart' do
+    source 'id-passenger-restart.erb'
+    owner 'root'
+    group 'root'
+    mode '0755'
+  end
+
 end

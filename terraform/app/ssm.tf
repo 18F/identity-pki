@@ -11,11 +11,9 @@ locals {
     }
     "passenger-restart" = {
       command = [
-        "systemctl restart passenger || exit 1",
-        "systemctl status passenger| grep Active",
-        "curl -sk --fail --show-error https://localhost/api/health"
+        "id-passenger-restart",
       ]
-      description = "Restart passenger service via systemctl"
+      description = "Restart passenger service via id-passenger-restart script"
       logging     = false
       use_root    = true
       parameters  = []
