@@ -13,7 +13,7 @@ var dns_test_host = "www.dnssec-failed.org"
 
 // Ensure DNSSec validation is enabled on IDP instances
 func TestDNSSecIdpInstances(t *testing.T) {
-
+	t.Parallel()
 	// Get an instance from the ASG
 	instances := aws.GetInstanceIdsForAsg(t, idp_asg, region)
 	require.NotEmpty(t, instances)

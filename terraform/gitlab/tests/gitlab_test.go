@@ -518,10 +518,15 @@ func TestSThreeFive(t *testing.T) {
 	instances := aws.GetInstanceIdsForAsg(t, runner_asg, region)
 	require.NotEmpty(t, instances)
 	firstinstance := instances[0]
-	cmd := "ls -ld /etc/docker"
+	cmd := "ls -ld /etc/docker 2>&1"
 	result := RunCommandOnInstance(t, firstinstance, cmd)
-	require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed: "+*result.StandardOutputContent)
-	require.Contains(t, *result.StandardOutputContent, "drwxr-xr-x 2 root root", "According to compliance control s3.5, the docker dir should have these perms")
+	if *result.ResponseCode != int64(0) {
+		// If /etc/docker doesn't exist, that's cool.  Otherwise, unknown error.
+		require.Contains(t, *result.StandardOutputContent, "cannot access '/etc/docker': No such file or directory", "There was an unknown error when looking at /etc/docker permissions: "+*result.StandardOutputContent)
+	} else {
+		// /etc/docker perms are proper.
+		require.Contains(t, *result.StandardOutputContent, "drwxr-xr-x 2 root root", "According to compliance control s3.5, the docker dir should have these perms")
+	}
 }
 
 // This tests whether we are still fulfilling the s3.7 control.

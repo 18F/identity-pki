@@ -26,6 +26,9 @@ module "main" {
     iam_fraudops_enabled       = true
   }
 
+  guardduty_usw2_soc_enabled = true  # previously created in terraform/core
+  guardduty_use1_soc_enabled = false # confirm destination exists before enabling
+
   legacy_bucket_list = [
     "login-gov-logs-prod.555546682965-us-west-2",
     "login-gov-logs-staging.555546682965-us-west-2",

@@ -64,6 +64,91 @@ EOM
   alarm_actions             = local.in_person_alarm_actions
 }
 
+resource "aws_cloudwatch_metric_alarm" "idp_usps_proofing_results_worker_minutes_since_enrollment_established" {
+  count = var.idp_worker_alarms_enabled
+
+  metric_query {
+    id          = "e1"
+    label       = "Minutes Since USPS IPP Enrollment Established (Maximum)"
+    expression  = "FIRST(SORT(METRICS(), MAX, DESC))"
+    return_data = "true"
+  }
+
+  metric_query {
+    id    = "m1"
+    label = "(Exception raised) Max Minutes Since USPS IPP Enrollment Established"
+
+    metric {
+      metric_name = "usps-proofing-minutes-since-enrollment-established"
+      namespace   = "${var.env_name}/idp-in-person-proofing"
+      period      = "3600" # 1 hour
+      stat        = "Maximum"
+      dimensions = {
+        name = "GetUspsProofingResultsJob: Exception raised"
+      }
+    }
+  }
+
+  metric_query {
+    id    = "m2"
+    label = "(Enrollment status updated) Max Minutes Since USPS IPP Enrollment Established"
+
+    metric {
+      metric_name = "usps-proofing-minutes-since-enrollment-established"
+      namespace   = "${var.env_name}/idp-in-person-proofing"
+      period      = "3600" # 1 hour
+      stat        = "Maximum"
+      dimensions = {
+        name = "GetUspsProofingResultsJob: Enrollment status updated"
+      }
+    }
+  }
+
+  metric_query {
+    id    = "m3"
+    label = "(Enrollment incomplete) Max Minutes Since USPS IPP Enrollment Established"
+
+    metric {
+      metric_name = "usps-proofing-minutes-since-enrollment-established"
+      namespace   = "${var.env_name}/idp-in-person-proofing"
+      period      = "3600" # 1 hour
+      stat        = "Maximum"
+      dimensions = {
+        name = "GetUspsProofingResultsJob: Enrollment incomplete"
+      }
+    }
+  }
+
+  metric_query {
+    id    = "m4"
+    label = "(Unexpected response received) Max Minutes Since USPS IPP Enrollment Established"
+
+    metric {
+      metric_name = "usps-proofing-minutes-since-enrollment-established"
+      namespace   = "${var.env_name}/idp-in-person-proofing"
+      period      = "3600" # 1 hour
+      stat        = "Maximum"
+      dimensions = {
+        name = "GetUspsProofingResultsJob: Unexpected response received"
+      }
+    }
+  }
+
+  alarm_name                = "${var.env_name}-IDPUSPSProofingWorker-MinutesSinceEnrollmentEstablished"
+  comparison_operator       = "GreaterThanThreshold"
+  evaluation_periods        = "1"
+  datapoints_to_alarm       = "1"
+  threshold                 = var.minutes_since_ipp_enrollment_established_alarm_threshold
+  alarm_description         = <<EOM
+This alarm is executed when USPS get proofing results job processes an enrollment that exceeds the expected timeframe for enrollment expiration
+
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms
+EOM
+  treat_missing_data        = "notBreaching"
+  insufficient_data_actions = []
+  alarm_actions             = local.in_person_alarm_actions
+}
+
 # There should be no failures, so alert on any failure
 resource "aws_cloudwatch_metric_alarm" "idp_worker_failure_alarm" {
   count = var.idp_worker_alarms_enabled

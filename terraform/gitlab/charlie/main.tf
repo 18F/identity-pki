@@ -14,7 +14,7 @@ module "main" {
 
   accountids                     = ["894947205914", "034795980528", "217680906704"]
   bootstrap_main_git_ref_default = "stages/gitlabcharlie"
-  default_ami_id_tooling         = "ami-076b80863ee98bd85" # 2023-01-31 Ubuntu 18.04
+  default_ami_id_tooling         = "ami-0162a01b31c55a1bd" # 2023-02-07 Ubuntu 18.04
   dr_region                      = "us-east-2"
   env_name                       = "charlie"
   env_runner_config_bucket       = "login-gov-production-gitlabconfig-217680906704-us-west-2"

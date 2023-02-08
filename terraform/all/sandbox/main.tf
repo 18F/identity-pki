@@ -25,6 +25,9 @@ module "main" {
     iam_fraudops_enabled   = true
   }
 
+  guardduty_usw2_soc_enabled = true  # previously created in terraform/core
+  guardduty_use1_soc_enabled = false # confirm destination exists before enabling
+
   # TODO: Remove this as soon as service provider logos no longer
   # require a public bucket
   s3_block_all_public_access = false

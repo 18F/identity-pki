@@ -417,6 +417,7 @@ locals {
           "logs:DeleteRetentionPolicy",
           "logs:DeleteSubscriptionFilter",
           "logs:DeleteQueryDefinition",
+          "logs:DeleteResourcePolicy",
           "logs:DescribeDestinations",
           "logs:DescribeLogGroups",
           "logs:DescribeLogStreams",

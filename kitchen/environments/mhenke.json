@@ -9,7 +9,8 @@
       "allow_unsafe_migrations": true,
       "idp_sync_static": true,
       "idp_artifacts": true,
-      "deploy_branch_default": "main"
+      "deploy_branch_default": "main",
+      "idp_ruby_yjit_enabled": true
     }
   },
   "override_attributes": {

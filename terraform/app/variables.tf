@@ -581,7 +581,7 @@ variable "default_ami_id_sandbox" {
 }
 
 variable "default_ami_id_prod" {
-  default     = "ami-034d05eb625bc669b" # 2023-01-31 Ubuntu 18.04
+  default     = "ami-02ce0ca6aa9671571" # 2023-02-07 Ubuntu 18.04
   description = "default AMI ID for environments in the prod account"
 }
 
@@ -591,7 +591,7 @@ variable "rails_ami_id_sandbox" {
 }
 
 variable "rails_ami_id_prod" {
-  default     = "ami-0cda3a289d5b48eeb" # 2023-01-31 Ubuntu 18.04
+  default     = "ami-027f95cee179b8102" # 2023-02-07 Ubuntu 18.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the prod account"
 }
 
@@ -1208,4 +1208,10 @@ variable "attempts_api_low_success_alarm_threshold" {
   description = "Minimum number of IRS Attempts API Event calls per 90 minutes"
   type        = number
   default     = 0
+}
+
+variable "minutes_since_ipp_enrollment_established_alarm_threshold" {
+  description = "Maximum number of minutes after which an established USPS IPP enrollment is expected to expire"
+  type        = number
+  default     = 43560 # 30 days + 6 hours
 }

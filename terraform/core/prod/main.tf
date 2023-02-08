@@ -118,17 +118,17 @@ module "main" {
         },
         {
           "name"    = "4dzum6joskrvpbtd732kzkupwglku7qp._domainkey.humans.",
-          "records" = ["4dzum6joskrvpbtd732kzkupwglku7qp.dkim.amazonses.com."],
+          "records" = ["4dzum6joskrvpbtd732kzkupwglku7qp.dkim.amazonses.com"],
           "ttl"     = "900",
         },
         {
           "name"    = "xh2g2qk2s7vr7fjd3a5wvlpg3v6k5wap._domainkey.humans.",
-          "records" = ["xh2g2qk2s7vr7fjd3a5wvlpg3v6k5wap.dkim.amazonses.com."],
+          "records" = ["xh2g2qk2s7vr7fjd3a5wvlpg3v6k5wap.dkim.amazonses.com"],
           "ttl"     = "900",
         },
         {
           "name"    = "n7iwermqeuquwu5g5fqiri6qoiicsqss._domainkey.humans.",
-          "records" = ["n7iwermqeuquwu5g5fqiri6qoiicsqss.dkim.amazonses.com."],
+          "records" = ["n7iwermqeuquwu5g5fqiri6qoiicsqss.dkim.amazonses.com"],
           "ttl"     = "900",
         }
       ]
@@ -172,23 +172,6 @@ module "main" {
   lambda_audit_github_debug = 0
 
   slack_events_sns_hook_arn = "arn:aws:sns:us-west-2:555546682965:slack-events"
-}
-
-module "gd-events-to-logs-prod" {
-  source = "../../modules/gd_findings_to_events"
-}
-
-module "gd-log-sub-filter-prod" {
-  depends_on                          = [module.gd-events-to-logs-prod]
-  source                              = "../../modules/log_ship_to_soc"
-  region                              = "us-west-2"
-  cloudwatch_subscription_filter_name = "gd-log-ship-to-soc"
-  cloudwatch_log_group_name = {
-    "/aws/events/gdfindings" = ""
-  }
-  env_name            = "prod-gd"
-  soc_destination_arn = "arn:aws:logs:us-west-2:752281881774:destination:elp-guardduty-lg"
-
 }
 
 module "macie-bucket-scans-prod" {
