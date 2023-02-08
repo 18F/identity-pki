@@ -724,7 +724,11 @@ locals {
           "shield:DescribeProtection",
           "shield:TagResource",
           "shield:CreateProtection",
-          "shield:DeleteProtection"
+          "shield:DeleteProtection",
+          "shield:ListProtections",
+          "shield:DisableApplicationLayerAutomaticResponse",
+          "shield:EnableApplicationLayerAutomaticResponse",
+          "shield:UpdateApplicationLayerAutomaticResponse",
         ]
         resources = [
           "*",

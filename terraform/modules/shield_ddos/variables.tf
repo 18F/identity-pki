@@ -11,3 +11,12 @@ variable "action" {
     error_message = "shield_ddos action is not valid. Valid options are \"Disable\", \"Block\", or \"Count\"" 
   }
 }
+
+variable "action_command" {
+  description = "List of string values that can be appended to the executed AWS command based on the action being taken"
+  default = {
+    "Disable" = "",
+    "Count" = " --action \"Count={}\""
+    "Block" = " --action \"Block={}\""
+  }
+}

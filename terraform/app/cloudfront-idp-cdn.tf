@@ -214,5 +214,5 @@ module "shield_ddos" {
   source = "../modules/shield_ddos"
 
   resource_arn = aws_cloudfront_distribution.idp_static_cdn[0].arn
-  action = "Count"
+  action = "Disable"
 }
