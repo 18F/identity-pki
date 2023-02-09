@@ -171,6 +171,13 @@ users:
     - henrydrich
     gitlab_groups:
     - devops
+  ifeoma.elekwachi:
+    aws_groups:
+    - fraudopsnonprod
+    ec2_username:
+    - ifeoma.elekwachi
+    gitlab_groups:
+    - antifraud
   jack.cody:
     aws_groups:
     - apponcall
