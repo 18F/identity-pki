@@ -1503,7 +1503,7 @@ nginx['custom_gitlab_server_config'] = "location /-/plantuml { \n rewrite ^/-/(p
 # }
 # nginx['proxy_cache_path'] = 'proxy_cache keys_zone=gitlab:10m max_size=1g levels=1:2'
 # nginx['proxy_cache'] = 'gitlab'
-# nginx['proxy_custom_buffer_size'] = '4k'
+nginx['proxy_custom_buffer_size'] = '5k'
 # nginx['http2_enabled'] = true
 # nginx['real_ip_trusted_addresses'] = []
 # nginx['real_ip_header'] = nil
