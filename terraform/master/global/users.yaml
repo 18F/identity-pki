@@ -270,6 +270,13 @@ users:
     - devops
     git_username:
     - bleachbyte
+  jude.uwazie:
+    aws_groups:
+    - fraudopsnonprod
+    ec2_username:
+    - jude.uwazie
+    gitlab_groups:
+    - antifraud
   julia.elman:
     gitlab_groups:
     - appdev
