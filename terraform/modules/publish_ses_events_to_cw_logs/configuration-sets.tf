@@ -6,7 +6,7 @@ resource "aws_ses_configuration_set" "all_events" {
   name = "${local.verified_identity_alnum}-configset"
 
   delivery_options {
-    tls_policy = "Require"
+    tls_policy = var.tls_policy_requirement
   }
 }
 

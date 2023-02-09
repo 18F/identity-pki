@@ -39,3 +39,9 @@ variable "ses_verified_identity" {
   description = "SES Verified Domain/Email Address"
   default     = "identitysandbox.gov"
 }
+
+variable "tls_policy_requirement" {
+  type        = string
+  description = "Policy for Messages that use the configuration set for using Transport Layer Security (TLS)"
+  default     = "Optional"
+}
