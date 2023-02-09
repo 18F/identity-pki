@@ -92,9 +92,6 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
                 "metrics": [
                     [ "AWS/EC2", "CPUUtilization", "AutoScalingGroupName", "${aws_autoscaling_group.idp.name}", { "label": "IdP Instances" } ],
                     [ "...", "${aws_autoscaling_group.worker.name}", { "label": "Worker Instances" } ],
-                    %{if var.idp_use_rds~}
-                    [ "AWS/RDS", ".", "DBInstanceIdentifier", "${aws_db_instance.idp[0].id}", { "label": "Database (RDS)" } ],
-                    %{endif~}
                     %{if var.idp_aurora_enabled~}
                     [ "AWS/RDS", ".", "DBInstanceIdentifier", "${module.idp_aurora_from_rds[0].writer_instance}", { "label": "AuroraDB (Writer Instance)" } ],
                     %{for id in module.idp_aurora_from_rds[0].reader_instances~}
@@ -184,9 +181,6 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
             "height": 6,
             "properties": {
                 "metrics": [
-                    %{if var.idp_use_rds~}
-                    [ "AWS/RDS", "DatabaseConnections", "DBInstanceIdentifier", "${aws_db_instance.idp[0].id}", { "label": "Database (RDS)" } ],
-                    %{endif~}
                     %{if var.idp_aurora_enabled~}
                     [ "AWS/RDS", "DatabaseConnections", "DBInstanceIdentifier", "${module.idp_aurora_from_rds[0].writer_instance}", { "label": "AuroraDB (Writer Instance)" } ],
                     %{for id in module.idp_aurora_from_rds[0].reader_instances~}
@@ -210,45 +204,6 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
                 }
             }
         },
-        %{if var.idp_use_rds~}
-        {
-            "type": "metric",
-            "x": 12,
-            "y": 26,
-            "width": 12,
-            "height": 6,
-            "properties": {
-                "metrics": [
-                    [ "AWS/RDS", "WriteIOPS", "DBInstanceIdentifier", "${aws_db_instance.idp[0].id}", { "label": "Write" } ],
-                    [ ".", "ReadIOPS", ".", ".", { "label": "Read" } ]
-                ],
-                "view": "timeSeries",
-                "stacked": false,
-                "title": "${var.env_name} IdP - RDS Database IOPS",
-                "region": "${var.region}",
-                "period": 60,
-                "stat": "Maximum",
-                "yAxis": {
-                    "left": {
-                        "label": "IOPS (max)",
-                        "showUnits": false
-                    },
-                    "right": {
-                        "showUnits": false
-                    }
-                },
-                "annotations": {
-                    "horizontal": [
-                        {
-                            "label": "Provisioned IOPS",
-                            "value": ${var.rds_iops_idp},
-                            "fill": "above"
-                        }
-                    ]
-                }
-            }
-        },
-        %{endif~}
         %{if var.idp_aurora_enabled~}
         {
             "type": "metric",
@@ -625,9 +580,6 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
             "height": 6,
             "properties": {
                 "metrics": [
-                    %{if var.idp_use_rds~}
-                    [ "AWS/RDS", "DiskQueueDepth", "DBInstanceIdentifier", "${aws_db_instance.idp[0].id}", { "label": "Database (RDS)" } ],
-                    %{endif~}
                     %{if var.idp_aurora_enabled && var.idp_cluster_instances >= 2~}
                     [ "AWS/RDS", "DiskQueueDepth", "DBInstanceIdentifier", "${module.idp_aurora_from_rds[0].writer_instance}", { "label": "AuroraDB (Writer Instance)" } ],
                     %{for id in module.idp_aurora_from_rds[0].reader_instances~}
@@ -661,9 +613,6 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
             "height": 6,
             "properties": {
                 "metrics": [
-                    %{if var.idp_use_rds~}
-                    [ "AWS/RDS", "FreeableMemory", "DBInstanceIdentifier", "${aws_db_instance.idp[0].id}", { "label": "Database (RDS)" } ],
-                    %{endif~}
                     %{if var.idp_aurora_enabled && var.idp_cluster_instances >= 2~}
                     [ "AWS/RDS", "FreeableMemory", "DBInstanceIdentifier", "${module.idp_aurora_from_rds[0].writer_instance}", { "label": "AuroraDB (Writer Instance)" } ],
                     %{for id in module.idp_aurora_from_rds[0].reader_instances~}
@@ -697,9 +646,6 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
                 "height": 6,
                 "properties": {
                     "metrics": [
-                        %{if var.idp_use_rds~}
-                        [ "AWS/RDS", "ReadLatency", "DBInstanceIdentifier", "${aws_db_instance.idp[0].id}", { "label": "Database (RDS)" } ],
-                        %{endif~}
                         %{if var.idp_aurora_enabled && var.idp_cluster_instances >= 2~}
                         [ "AWS/RDS", "ReadLatency", "DBInstanceIdentifier", "${module.idp_aurora_from_rds[0].writer_instance}", { "label": "AuroraDB (Writer Instance)" } ],
                         %{for id in module.idp_aurora_from_rds[0].reader_instances~}
@@ -733,9 +679,6 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
             "height": 6,
             "properties": {
                 "metrics": [
-                    %{if var.idp_use_rds~}
-                    [ "AWS/RDS", "NetworkTransmitThroughput", "DBInstanceIdentifier", "${aws_db_instance.idp[0].id}", { "label": "Database (RDS)" } ],
-                    %{endif~}
                     %{if var.idp_aurora_enabled && var.idp_cluster_instances >= 2~}
                     [ "AWS/RDS", "NetworkTransmitThroughput", "DBInstanceIdentifier", "${module.idp_aurora_from_rds[0].writer_instance}", { "label": "AuroraDB (Writer Instance)" } ],
                     %{for id in module.idp_aurora_from_rds[0].reader_instances~}
