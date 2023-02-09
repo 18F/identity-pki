@@ -575,6 +575,8 @@ users:
     - apponcall
     gitlab_groups:
     - appdev
+    ec2_username:
+    - sconnolly
   stacey.mainero:
     aws_groups:
     - fraudopsnonprod
