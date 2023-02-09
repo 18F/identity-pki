@@ -575,6 +575,13 @@ users:
     - apponcall
     gitlab_groups:
     - appdev
+  stacey.mainero:
+    aws_groups:
+    - fraudopsnonprod
+    ec2_username:
+    - stacey.mainero
+    gitlab_groups:
+    - antifraud
   stephen.shelton:
     aws_groups:
     - devops
