@@ -17,7 +17,10 @@ Our requirements are:
 * It should be able to use the AWS icon set if we want to
 
 ## Decision
-We will use OmniGraffle for diagrams.
+
+We will use OmniGraffle by default for diagrams including architectural, network, and data flow diagrams.
+
+Sequence diagrams, ERD, and class diagrams (traditionally the domain of UML) may use PlantUML.
 
 ## Consequences
 
