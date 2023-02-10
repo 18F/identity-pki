@@ -13,8 +13,7 @@ data "aws_cloudfront_origin_request_policy" "idp_origin" {
 data "aws_wafv2_web_acl" "cloudfront_web_acl" {
   provider = aws.use1
   count    = var.idp_cloudfront_waf_enabled ? 1 : 0
-#  name     = "${var.env_name}-idp-waf"
-  name = "dev-idp-waf"
+  name     = "${var.env_name}-idp-waf"
   scope    = "CLOUDFRONT"
 }
 

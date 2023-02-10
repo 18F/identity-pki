@@ -3,11 +3,11 @@ data "aws_arn" "resource" {
 }
 
 locals {
-  resource_name_split = split("/",data.aws_arn.resource.resource)
+  resource_name_split        = split("/", data.aws_arn.resource.resource)
   resource_name_split_length = length(local.resource_name_split)
-  resource_name = element(local.resource_name_split,local.resource_name_split_length - 1)
-  status_file_name = ".aws_shield_${local.resource_name}_status.txt"
-  waf_file_name = ".aws_webaclid_${local.resource_name}.txt"
+  resource_name              = element(local.resource_name_split, local.resource_name_split_length - 1)
+  status_file_name           = ".aws_shield_${local.resource_name}_status.txt"
+  waf_file_name              = ".aws_webaclid_${local.resource_name}.txt"
 }
 
 # Null resource to determine current state of AWS Shield Automatic DDOS Protection of the passed ARN. Result is stored in hidden file to be used later.
@@ -62,7 +62,7 @@ data "local_file" "web_acl_id" {
 #   update-application-layer-automatic-response
 # The Enable and Update commands will also be appended with the applicable command suffix to set the automated DDOS protection action to either Block or Count.
 resource "null_resource" "update_shield_autoddos" {
-  depends_on = [ 
+  depends_on = [
     data.local_file.current_action,
     data.local_file.web_acl_id
   ]
@@ -70,7 +70,7 @@ resource "null_resource" "update_shield_autoddos" {
     always_run = "${timestamp()}"
   }
   provisioner "local-exec" {
-    
+
     command = <<EOT
       if [ "${var.action}" != "${chomp(data.local_file.current_action.content)}" ] && [ "${chomp(data.local_file.web_acl_id.content)}" != ""  ]; then aws shield ${var.action == "Disable" ? "disable" : (chomp(data.local_file.current_action.content) == "Disable" ? "enable" : "update")}-application-layer-automatic-response --resource-arn "${var.resource_arn}"${var.action_command[var.action]}; else echo "No action necessary"; fi
     EOT

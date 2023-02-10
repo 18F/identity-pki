@@ -36,10 +36,10 @@ resource "aws_shield_protection" "resources" {
 }
 
 module "shield_ddos_toggle" {
-  source = "../../modules/shield_ddos"
-  depends_on = [ aws_shield_protection.resources ]
-  for_each = toset(var.aws_shield_resources["cloudfront"])
-  
+  source     = "../../modules/shield_ddos"
+  depends_on = [aws_shield_protection.resources]
+  for_each   = toset(var.aws_shield_resources["cloudfront"])
+
   resource_arn = each.value
-  action = var.automated_ddos_protection_action 
+  action       = var.automated_ddos_protection_action
 }
