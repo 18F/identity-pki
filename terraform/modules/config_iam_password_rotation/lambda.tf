@@ -103,7 +103,11 @@ resource "aws_cloudwatch_log_group" "password_lambda_cw_logs" {
   retention_in_days = 365
 }
 
-### Additional IAM Role, Lambda can assume with limited permissions to take IAM actions against specific IAM user. Lambda should have permission that is overlap with this policy and the policy that it uses when assuming this role. Goal here is to ensure, lambda while assuming this role can take IAM action against only the specific IAM user. ###
+# This is an additional IAM role the Lambda can assume, with limited permissions
+# to take IAM actions against a specific IAM user. The function should have
+# permissions that overlap with this policy and the policy that it uses
+# when assuming this role. The goal here is to ensure that while the Lambda is
+# assuming this role, it can only take IAM action against the specific IAM user.
 data "aws_iam_policy_document" "trust_policy_allowing_lambda_assumeRole" {
   statement {
     sid    = "assume"
