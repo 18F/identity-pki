@@ -11,7 +11,7 @@ import sys
 from datetime import timedelta
 from datetime import date
 
-iam = boto3.client('iam',region_name='us-east-1')
+iam = boto3.client('iam')
 ses = boto3.client('ses')
 
 account_id = boto3.client("sts").get_caller_identity()["Account"]
@@ -67,7 +67,7 @@ def compare_time(user_name, lastchanged, lastlogin, account_id):
   
   sender_email = "noreply@humans.login.gov"
   realemail = user_name + "@gsa.gov"
-  recipient_email = "sujana.gurung" + "@gsa.gov"
+  recipient_email = "paul.hirsch" + "@gsa.gov"
   print("real recipient_email", realemail)
 
   if(recent_password_used_age < 120):
