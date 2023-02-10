@@ -227,7 +227,7 @@ users:
     - appdev
   jessica.fortier:
     aws_groups:
-    - appdev
+    - apponcall
     ec2_username:
     - jfortier
     gitlab_groups:
