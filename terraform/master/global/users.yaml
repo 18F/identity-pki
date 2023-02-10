@@ -62,11 +62,6 @@ users:
   chris.manger:
     aws_groups:
     - finops
-  cody.reinold:
-    aws_groups:
-    - analytics
-    gitlab_groups:
-    - pm
   connor.mccarthy:
     aws_groups:
     - devops
@@ -393,13 +388,6 @@ users:
   michael.fay:
     aws_groups:
     - finops
-  michael.ogren:
-    aws_groups:
-    - appdev
-    gitlab_groups:
-    - appdev
-    ec2_username:
-    - mogren
   michael.w.ward:
     aws_groups:
     - devops
@@ -637,13 +625,6 @@ users:
     - tspencer
     gitlab_groups:
     - devops
-  travis.newby:
-    aws_groups:
-    - appdev
-    gitlab_groups:
-    - appdev
-    ec2_username:
-    - tnewby
   vivek.chugh:
     aws_groups:
     - devops
