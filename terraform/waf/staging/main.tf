@@ -54,6 +54,7 @@ module "main" {
     ],
     elastic_ip_address = []
   }
+  automated_ddos_protection_action = "Block"
 }
 
 module "cloudfront-waf" {

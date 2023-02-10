@@ -6,6 +6,7 @@ variable "resource_arn" {
 variable "action" {
   description = "Value for the Automated Application Layer DDOS Mitigation setting for AWS Shield. Valid values are Disable, Block, or Count"
   type = string
+  default = "Disable"
   validation {
     condition = contains(["Disable","Block","Count"], var.action)
     error_message = "shield_ddos action is not valid. Valid options are \"Disable\", \"Block\", or \"Count\"" 

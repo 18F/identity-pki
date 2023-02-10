@@ -14,7 +14,7 @@ data "aws_wafv2_web_acl" "cloudfront_web_acl" {
   provider = aws.use1
   count    = var.idp_cloudfront_waf_enabled ? 1 : 0
 #  name     = "${var.env_name}-idp-waf"
-  name     = "dev-idp-waf"
+  name = "dev-idp-waf"
   scope    = "CLOUDFRONT"
 }
 
@@ -186,12 +186,6 @@ resource "aws_route53_record" "c_cloudfront_idp" {
   zone_id = var.route53_id
 }
 
-resource "aws_shield_protection" "cloudfront_shield" {
-  count        = var.idp_cloudfront_waf_enabled ? 1 : 0
-  name         = "distribution1-${aws_cloudfront_distribution.idp_static_cdn[0].id}" 
-  resource_arn = aws_cloudfront_distribution.idp_static_cdn[0].arn
-}
-
 module "cloudfront_idp_cdn_alarms" {
   count  = var.cdn_idp_static_assets_cloudwatch_alarms_enabled
   source = "../modules/cloudfront_cdn_alarms"
@@ -207,12 +201,4 @@ module "cloudfront_idp_cdn_alarms" {
   threshold         = var.cdn_idp_static_assets_alert_threshold
   distribution_name = "IDP Static Assets"
   env_name          = var.env_name
-}
-
-module "shield_ddos" {
-  count = var.idp_cloudfront_waf_enabled ? 1 : 0
-  source = "../modules/shield_ddos"
-
-  resource_arn = aws_cloudfront_distribution.idp_static_cdn[0].arn
-  action = "Disable"
 }
