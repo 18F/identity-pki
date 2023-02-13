@@ -6,7 +6,7 @@ This module monitors the IAM User's password used for Console Login. It performs
 
 ## Architecture Diagram: IAM Password Rotation Diagram
 
-![Iam Password Rotation](./diagrams/password_rotation_ses.png)
+![Iam Password Rotation](./diagrams/password_rotation_lambda_ses.png)
 
 ## AWS Resources 
 It creates the following AWS Resources:
