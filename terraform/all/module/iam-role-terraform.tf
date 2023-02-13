@@ -254,6 +254,7 @@ locals {
           "ec2:DescribeAvailabilityZones",
           "ec2:DescribeFlowLogs",
           "ec2:DescribeInstances",
+          "ec2:DescribeInstanceTypes",
           "ec2:DescribeInternetGateways",
           "ec2:DescribeLaunchTemplates",
           "ec2:DescribeLaunchTemplateVersions",

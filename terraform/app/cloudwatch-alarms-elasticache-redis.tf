@@ -13,61 +13,19 @@ locals {
   ) : format("%s-%03d", "${var.env_name}-idp", i)]
 
   redis_clusters = setunion(local.idp_attempts_redis_clusters, local.idp_redis_clusters)
+}
 
-  # Terraform can't determine the network capablity of each node type.
-  # This is a map of nodes types to GB/s.
-  elasticache_network_performace = {
-    "cache.t4g.micro"     = 0.625
-    "cache.t4g.small"     = 0.625
-    "cache.t4g.medium"    = 0.625
-    "cache.t3.micro"      = 0.625
-    "cache.t3.small"      = 0.625
-    "cache.t3.medium"     = 0.625
-    "cache.m6g.large"     = 1.25
-    "cache.m6g.xlarge"    = 1.25
-    "cache.m6g.2xlarge"   = 1.25
-    "cache.m6g.4xlarge"   = 1.25
-    "cache.m6g.8xlarge"   = 1.5
-    "cache.m6g.12xlarge"  = 2.5
-    "cache.m6g.16xlarge"  = 3.125
-    "cache.m5.large"      = 1.25
-    "cache.m5.xlarge"     = 1.25
-    "cache.m5.2xlarge"    = 1.25
-    "cache.m5.4xlarge"    = 1.25
-    "cache.m5.12xlarge"   = 1.25
-    "cache.m5.24xlarge"   = 3.125
-    "cache.m4.10xlarge"   = 1.25
-    "cache.r6g.large"     = 1.25
-    "cache.r6g.xlarge"    = 1.25
-    "cache.r6g.2xlarge"   = 1.25
-    "cache.r6g.4xlarge"   = 1.25
-    "cache.r6g.8xlarge"   = 1.5
-    "cache.r6g.12xlarge"  = 2.5
-    "cache.r6g.16xlarge"  = 3.125
-    "cache.r5.large"      = 1.25
-    "cache.r5.xlarge"     = 1.25
-    "cache.r5.2xlarge"    = 1.25
-    "cache.r5.4xlarge"    = 1.25
-    "cache.r5.12xlarge"   = 1.25
-    "cache.r5.24xlarge"   = 3.125
-    "cache.r4.large"      = 1.25
-    "cache.r4.xlarge"     = 1.25
-    "cache.r4.2xlarge"    = 1.25
-    "cache.r4.4xlarge"    = 1.25
-    "cache.r4.8xlarge"    = 1.25
-    "cache.r4.16xlarge"   = 3.125
-    "cache.r6gd.xlarge"   = 1.25
-    "cache.r6gd.2xlarge"  = 1.25
-    "cache.r6gd.4xlarge"  = 1.25
-    "cache.r6gd.8xlarge"  = 1.5
-    "cache.r6gd.12xlarge" = 2.5
-    "cache.r6gd.16xlarge" = 3.125
-  }
+# Extract network performance info using an aws_ec2_instance_type data source.
+# Each of these MUST point to a node type that has a NetworkPerformance value
+# of 'Up to 5 Gigabit' or higher, or the threshold calculations for the
+# elasticache_alarm_critical resources cannot be set properly!
 
-  idp_attempts_network = local.elasticache_network_performace[var.elasticache_redis_attempts_api_node_type]
+data "aws_ec2_instance_type" "idp_network" {
+  instance_type = trimprefix(var.elasticache_redis_node_type, "cache.")
+}
 
-  idp_network = local.elasticache_network_performace[var.elasticache_redis_node_type]
-
+data "aws_ec2_instance_type" "idp_attempts_network" {
+  instance_type = trimprefix(var.elasticache_redis_attempts_api_node_type, "cache.")
 }
 
 # first alert
@@ -293,8 +251,15 @@ resource "aws_cloudwatch_metric_alarm" "elasticache_alarm_critical_idp_attempts_
   alarm_name          = "${each.key}-Redis-NetworkUsage-Critical"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
+
   # NetworkBytesIn and NetworkBytesOut are in GB/minute - Hence the conversion
-  threshold         = local.idp_attempts_network * 60 * 0.01 * var.elasticache_redis_alarm_threshold_network
+  # pass network_performance from instance type into calculation
+  threshold = tonumber(
+    regex(
+      "[0-9]+",
+      data.aws_ec2_instance_type.idp_attempts_network.network_performance
+  )) * 0.075 * var.elasticache_redis_alarm_threshold_network
+
   alarm_description = <<EOM
 Redis ${each.key} has exceeded ${var.elasticache_redis_alarm_threshold_network}% network utilization for over 60 seconds. Please address this to avoid session lock-up or failure.
 Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Redis-alerts
@@ -348,8 +313,15 @@ resource "aws_cloudwatch_metric_alarm" "elasticache_alarm_critical_idp_network" 
   alarm_name          = "${each.key}-Redis-NetworkUsage-Critical"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
+
   # NetworkBytesIn and NetworkBytesOut are in GB/minute - Hence the conversion
-  threshold         = local.idp_network * 60 * 0.01 * var.elasticache_redis_alarm_threshold_network
+  # pass network_performance from instance type into calculation
+  threshold = tonumber(
+    regex(
+      "[0-9]+",
+      data.aws_ec2_instance_type.idp_network.network_performance
+  )) * 0.075 * var.elasticache_redis_alarm_threshold_network
+
   alarm_description = <<EOM
 Redis ${each.key} has exceeded ${var.elasticache_redis_alarm_threshold_network}% network utilization for over 60 seconds. Please address this to avoid session lock-up or failure.
 Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Redis-alerts

@@ -93,18 +93,21 @@ variable "apps_enabled" {
   default     = 1
 }
 
+# Each of these variables MUST be a node type that has a NetworkPerformance value
+# of 'Up to 5 Gigabit' or higher, or the threshold calculations for the
+# elasticache_alarm_critical CloudWatch alarms cannot be set properly!
+# Reference: https://aws.amazon.com/ec2/instance-types/
+
 variable "elasticache_redis_node_type" {
   type        = string
   description = "Instance type used for redis elasticache. Changes incur downtime."
-  # allowed values: t2.micro-medium, m3.medium-2xlarge, m4|r3|r4.large-
-  default = "cache.t3.micro"
+  default     = "cache.t3.micro"
 }
 
 variable "elasticache_redis_attempts_api_node_type" {
   type        = string
   description = "Instance type used for redis attempts api elasticache. Changes incur downtime."
-  ## allowed values: t2.micro-medium, m3.medium-2xlarge, m4|r3|r4.large-
-  default = "cache.t3.micro"
+  default     = "cache.t3.micro"
 }
 
 variable "elasticache_redis_num_cache_clusters" {
