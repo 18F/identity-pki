@@ -35,6 +35,10 @@ variable "alarm_actions" {
   type = list(string)
 }
 
+variable "treat_missing_data" {
+  type    = string
+  default = "missing"
+}
 
 # High memory usage. Excludes OS cache and buffers.
 resource "aws_cloudwatch_metric_alarm" "memory_used" {
@@ -50,6 +54,7 @@ resource "aws_cloudwatch_metric_alarm" "memory_used" {
 ${var.alert_handle} An instance in ASG ${var.asg_name} has exceeded ${var.high_mem_threshold}% memory utilization for over 60 seconds. This is a critical alert. Dashboard: https://${var.region}.console.aws.amazon.com/cloudwatch/home?region=${var.region}#dashboards:name=${var.asg_name}-instance-resource-use Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-High-Memory-and-Disk-Usage
 EOM
   alarm_actions       = var.alarm_actions
+  treat_missing_data  = var.treat_missing_data
 
   dimensions = {
     AutoScalingGroupName = var.asg_name
@@ -71,6 +76,7 @@ resource "aws_cloudwatch_metric_alarm" "disk_used" {
 ${var.alert_handle} An instance in ASG ${var.asg_name} has exceeded ${var.high_disk_threshold}% disk space utilization for over 60 seconds. This is a critical alert. Dashboard: https://${var.region}.console.aws.amazon.com/cloudwatch/home?region=${var.region}#dashboards:name=${var.asg_name}-instance-resource-use Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-High-Memory-and-Disk-Usage
 EOM
   alarm_actions       = var.alarm_actions
+  treat_missing_data  = var.treat_missing_data
 
   dimensions = {
     AutoScalingGroupName = var.asg_name

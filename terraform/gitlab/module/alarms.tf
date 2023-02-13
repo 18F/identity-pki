@@ -1,33 +1,33 @@
 module "gitlab_insufficent_instances_alerts" {
   source = "../../modules/asg_insufficent_instances_alerts"
 
-  asg_name = aws_autoscaling_group.gitlab.name
-
-  alarm_actions = [var.slack_events_sns_hook_arn]
+  asg_name           = aws_autoscaling_group.gitlab.name
+  alarm_actions      = [var.slack_events_sns_hook_arn]
+  treat_missing_data = var.cloudwatch_treat_missing_data
 }
 
 module "gitlab_outboundproxy_insufficent_instances_alerts" {
   source = "../../modules/asg_insufficent_instances_alerts"
 
-  asg_name = module.outbound_proxy.proxy_asg_name
-
-  alarm_actions = [var.slack_events_sns_hook_arn]
+  asg_name           = module.outbound_proxy.proxy_asg_name
+  alarm_actions      = [var.slack_events_sns_hook_arn]
+  treat_missing_data = var.cloudwatch_treat_missing_data
 }
 
 module "gitlab_build_pool_insufficent_instances_alerts" {
   source = "../../modules/asg_insufficent_instances_alerts"
 
-  asg_name = module.build_pool.runner_asg_name
-
-  alarm_actions = [var.slack_events_sns_hook_arn]
+  asg_name           = module.build_pool.runner_asg_name
+  alarm_actions      = [var.slack_events_sns_hook_arn]
+  treat_missing_data = var.cloudwatch_treat_missing_data
 }
 
 module "gitlab_test_pool_insufficent_instances_alerts" {
   source = "../../modules/asg_insufficent_instances_alerts"
 
-  asg_name = module.test_pool.runner_asg_name
-
-  alarm_actions = [var.slack_events_sns_hook_arn]
+  asg_name           = module.test_pool.runner_asg_name
+  alarm_actions      = [var.slack_events_sns_hook_arn]
+  treat_missing_data = var.cloudwatch_treat_missing_data
 }
 
 resource "aws_cloudwatch_metric_alarm" "generic_alarm" {
@@ -42,6 +42,7 @@ resource "aws_cloudwatch_metric_alarm" "generic_alarm" {
   period              = 60
   statistic           = "Sum"
   threshold           = 1
+  treat_missing_data  = var.cloudwatch_treat_missing_data
 
   dimensions = {
     TargetGroup  = aws_lb_target_group.gitlab.arn_suffix
@@ -83,29 +84,32 @@ locals {
 module "gitlab_test_pool_resource_alerts" {
   source = "../../modules/asg_instance_low_resource_alerts"
 
-  region        = var.region
-  asg_name      = module.test_pool.runner_asg_name
-  env_name      = var.env_name
-  alert_handle  = local.alert_handle
-  alarm_actions = [var.slack_events_sns_hook_arn]
+  region             = var.region
+  asg_name           = module.test_pool.runner_asg_name
+  env_name           = var.env_name
+  alert_handle       = local.alert_handle
+  alarm_actions      = [var.slack_events_sns_hook_arn]
+  treat_missing_data = var.cloudwatch_treat_missing_data
 }
 
 module "gitlab_build_pool_resource_alerts" {
   source = "../../modules/asg_instance_low_resource_alerts"
 
-  region        = var.region
-  asg_name      = module.build_pool.runner_asg_name
-  env_name      = var.env_name
-  alert_handle  = local.alert_handle
-  alarm_actions = [var.slack_events_sns_hook_arn]
+  region             = var.region
+  asg_name           = module.build_pool.runner_asg_name
+  env_name           = var.env_name
+  alert_handle       = local.alert_handle
+  alarm_actions      = [var.slack_events_sns_hook_arn]
+  treat_missing_data = var.cloudwatch_treat_missing_data
 }
 
 module "gitlab_web_asg_resource_alerts" {
   source = "../../modules/asg_instance_low_resource_alerts"
 
-  region        = var.region
-  asg_name      = aws_autoscaling_group.gitlab.name
-  env_name      = var.env_name
-  alert_handle  = local.alert_handle
-  alarm_actions = [var.slack_events_sns_hook_arn]
+  region             = var.region
+  asg_name           = aws_autoscaling_group.gitlab.name
+  env_name           = var.env_name
+  alert_handle       = local.alert_handle
+  alarm_actions      = [var.slack_events_sns_hook_arn]
+  treat_missing_data = var.cloudwatch_treat_missing_data
 }

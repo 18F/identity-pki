@@ -26,4 +26,5 @@ module "outbound_proxy" {
   asg_outboundproxy_min            = var.asg_outboundproxy_min
   ssm_access_policy                = var.ssm_access_policy
   vpc_cidr_block                   = var.vpc_cidr_block
+  cloudwatch_treat_missing_data    = var.cloudwatch_treat_missing_data
 }

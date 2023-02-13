@@ -102,7 +102,7 @@ resource "aws_cloudwatch_metric_alarm" "gitlab_backup_failures" {
   statistic                 = "Sum"
   threshold                 = "1"
   alarm_description         = "Gitlab ${var.env_name} had backups fail!"
-  treat_missing_data        = "notBreaching"
+  treat_missing_data        = var.cloudwatch_treat_missing_data
   insufficient_data_actions = []
   alarm_actions             = [var.slack_events_sns_hook_arn]
 }
@@ -144,7 +144,7 @@ resource "aws_cloudwatch_metric_alarm" "gitlab_user_sync_failures" {
   statistic                 = "Sum"
   threshold                 = "1"
   alarm_description         = "This Alarm is executed if the user sync script has NOT completed successfully in the last 3 hours. Investigate the logs at https://${var.region}.console.aws.amazon.com/cloudwatch/home?region=${var.region}#dashboards:name=${local.gitlab_user_sync_dashboard_name}"
-  treat_missing_data        = "breaching"
+  treat_missing_data        = var.cloudwatch_treat_missing_data
   insufficient_data_actions = []
   alarm_actions = [
     "arn:aws:sns:${var.region}:${data.aws_caller_identity.current.account_id}:${local.alert_topic}",
@@ -161,7 +161,7 @@ resource "aws_cloudwatch_metric_alarm" "gitlab_ci_ping_failures" {
   statistic                 = "Sum"
   threshold                 = "1"
   alarm_description         = "${local.gitlab_ci_ping_alert_handle}This Alarm is executed if Gitlab's CI has NOT completed successfully in the ${var.ci_ping_alert_minutes} minutes. Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Gitlab-CI-Troubleshooting"
-  treat_missing_data        = "breaching"
+  treat_missing_data        = var.cloudwatch_treat_missing_data
   insufficient_data_actions = []
   alarm_actions = [
     "arn:aws:sns:${var.region}:${data.aws_caller_identity.current.account_id}:${local.alert_topic}",

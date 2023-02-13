@@ -8,6 +8,11 @@ variable "alarm_actions" {
   description = "A list of ARNs to notify when the alarms fire"
 }
 
+variable "treat_missing_data" {
+  type    = string
+  default = "notBreaching"
+}
+
 resource "aws_cloudwatch_metric_alarm" "insufficient-instances" {
   alarm_name        = "${var.asg_name}-insufficient-instances"
   alarm_description = "The number of healthy instances has fallen two or more instances under the minimum number for the autoscaling group"
@@ -52,8 +57,7 @@ resource "aws_cloudwatch_metric_alarm" "insufficient-instances" {
   # Allow a dip of one under minimum
   threshold          = 1
   evaluation_periods = 1
-  treat_missing_data = "notBreaching"
-
-  alarm_actions = var.alarm_actions
-  ok_actions    = var.alarm_actions
+  treat_missing_data = var.treat_missing_data
+  alarm_actions      = var.alarm_actions
+  ok_actions         = var.alarm_actions
 }

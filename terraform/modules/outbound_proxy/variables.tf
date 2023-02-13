@@ -232,3 +232,8 @@ variable "ssm_access_policy" {
   type        = string
   description = "JSON-formatted IAM policy providing access to SSM resources."
 }
+
+variable "cloudwatch_treat_missing_data" {
+  type    = string
+  default = "missing"
+}

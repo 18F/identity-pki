@@ -23,4 +23,5 @@ module "outbound_proxy" {
   asg_outboundproxy_max            = var.asg_outboundproxy_max
   asg_outboundproxy_min            = var.asg_outboundproxy_min
   vpc_cidr_block                   = aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block
+  cloudwatch_treat_missing_data    = var.cloudwatch_treat_missing_data
 }

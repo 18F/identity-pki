@@ -459,3 +459,8 @@ variable "newrelic_pager_alerts_enabled" {
   description = "Enables paging for newrelic alerts"
   default     = 0
 }
+
+variable "cloudwatch_treat_missing_data" {
+  type    = string
+  default = "notBreaching"
+}

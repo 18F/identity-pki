@@ -322,3 +322,8 @@ variable "runner_gitlab_hostname" {
   description = "hostname of gitlab server to register with"
   type        = string
 }
+
+variable "cloudwatch_treat_missing_data" {
+  type    = string
+  default = "missing"
+}

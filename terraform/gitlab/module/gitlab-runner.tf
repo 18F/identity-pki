@@ -34,6 +34,7 @@ module "build_pool" {
   runner_gitlab_hostname           = "gitlab.${var.env_name}.${var.root_domain}"
   gitlab_configbucket              = local.runner_config_bucket
   vpc_cidr_block                   = aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block
+  cloudwatch_treat_missing_data    = var.cloudwatch_treat_missing_data
 }
 
 # A pool for testing infrastructure
@@ -70,6 +71,7 @@ module "test_pool" {
   runner_gitlab_hostname           = "gitlab.${var.env_name}.${var.root_domain}"
   gitlab_configbucket              = local.runner_config_bucket
   vpc_cidr_block                   = aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block
+  cloudwatch_treat_missing_data    = var.cloudwatch_treat_missing_data
 }
 
 # A runner that can deploy stuff to this environment
@@ -109,6 +111,7 @@ module "env-runner" {
   runner_gitlab_hostname           = local.env_runner_gitlab_hostname
   gitlab_configbucket              = local.env_runner_config_bucket
   vpc_cidr_block                   = aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block
+  cloudwatch_treat_missing_data    = var.cloudwatch_treat_missing_data
 }
 
 # This enables the gitlab privatelink endpoint in the VPC for

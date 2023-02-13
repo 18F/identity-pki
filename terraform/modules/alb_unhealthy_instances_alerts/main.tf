@@ -18,6 +18,11 @@ variable "alarm_actions" {
   description = "A list of ARNs to notify when the alarms fire"
 }
 
+variable "treat_missing_data" {
+  type    = string
+  default = "notBreaching"
+}
+
 resource "aws_cloudwatch_metric_alarm" "unhealthy-instances-alb" {
   # Named by ASG even though we get the info through LB metrics
   alarm_name        = "${var.asg_name}-unhealthy-instances"
@@ -35,10 +40,8 @@ resource "aws_cloudwatch_metric_alarm" "unhealthy-instances-alb" {
   threshold           = 0
   period              = 300
   evaluation_periods  = 1
-
-  treat_missing_data = "notBreaching"
-
-  alarm_actions = var.alarm_actions
-  ok_actions    = var.alarm_actions
+  treat_missing_data  = var.treat_missing_data
+  alarm_actions       = var.alarm_actions
+  ok_actions          = var.alarm_actions
 }
 
