@@ -976,8 +976,15 @@ variable "performance_insights_enabled" {
 }
 
 variable "enable_cloudwatch_slos" {
-  type    = bool
-  default = true
+  description = "Enable CloudWatch SLO measurement and publishing for environment"
+  type        = bool
+  default     = true
+}
+
+variable "sli_interesting_latency_threshold" {
+  description = "Threshold in seconds for latency on interesting paths"
+  type        = number
+  default     = 0.1
 }
 
 variable "low_memory_alert_enabled" {
