@@ -15,6 +15,8 @@ module "idp_aurora_from_rds" {
   env_name      = var.env_name
   db_identifier = "idp-aurora"
 
+  db_publicly_accessible = local.nessus_public_access_mode
+
   # This pattern is in place for current idp Aurora clusters. The new default
   # (to be used with the final DMS-migrated idp Aurora cluster) should
   # be env_name-db_identifier, e.g. prod-idp, since the region name will still

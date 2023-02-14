@@ -128,6 +128,12 @@ variable "db_instance_class" {
   default     = "db.r5.large"
 }
 
+variable "db_publicly_accessible" {
+  type        = bool
+  description = "Bool to control if instance is publicly accessible"
+  default     = false
+}
+
 variable "serverlessv2_config" {
   type = list(object({
     max = number

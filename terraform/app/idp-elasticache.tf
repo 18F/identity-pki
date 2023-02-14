@@ -1,3 +1,12 @@
+locals {
+
+  replication_group_clusters = tomap({
+    idp      = local.idp_redis_clusters
+    attempts = local.idp_attempts_redis_clusters
+  })
+
+}
+
 # Clean up once Redis 7 is deployed
 resource "aws_elasticache_parameter_group" "idp" {
   name   = "${var.env_name}-idp-params"
@@ -77,4 +86,20 @@ resource "aws_elasticache_replication_group" "idp_attempts" {
     log_format       = "text"
     log_type         = "engine-log"
   }
+}
+
+module "elasticache_external_access" {
+  for_each = local.nessus_public_access_mode ? local.replication_group_clusters : tomap({})
+  source   = "../modules/external_elasticache_access/"
+
+  name     = var.name
+  env_name = var.env_name
+  vpc_id   = aws_vpc.default.id
+
+  cluster_name = each.key
+  clusters     = each.value
+
+  public_subnet_ids = [for subnet in aws_subnet.public-ingress : subnet.id]
+  data_subnet_ids   = [for subnet in aws_subnet.data-services : subnet.id]
+
 }

@@ -284,6 +284,17 @@ env-solipet:
   trigger:
     include: .gitlab-ci-idp-env-jobs-template.yml
 
+env-scanners:
+  variables:
+    ENV_NAME: scanners
+  stage: deploy
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "stages/stable"
+  trigger:
+    include: .gitlab-ci-idp-env-jobs-template.yml
+
 # deploy job template for gitlab envs
 .deploy_gitlab_template:
   tags:

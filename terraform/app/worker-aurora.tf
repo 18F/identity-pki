@@ -7,6 +7,8 @@ module "worker_aurora_uw2" {
   env_name      = var.env_name
   db_identifier = "worker"
 
+  db_publicly_accessible = local.nessus_public_access_mode
+
   # The rds_db_arn attribute should only be used when replicating from
   # the source RDS database (aws_db_instance.idp-worker-jobs).
   # Once the cluster has been promoted to standalone, this attribute can be removed,

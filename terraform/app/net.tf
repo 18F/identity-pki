@@ -9,7 +9,8 @@ locals {
   github_ipv4 = compact([
     for ip in data.github_ip_ranges.ips.git : try(regex(local.ip_regex, ip), "")
   ])
-  network_layout = module.network_layout.network_layout
+  network_layout            = module.network_layout.network_layout
+  nessus_public_access_mode = var.root_domain == "identitysandbox.gov" && var.allow_nessus_external_scanning ? true : false
 }
 
 module "network_layout" {
@@ -185,6 +186,16 @@ resource "aws_security_group" "cache" {
     ]
   }
 
+  dynamic "ingress" {
+    for_each = local.nessus_public_access_mode ? [1] : []
+    content {
+      from_port   = 6379
+      to_port     = 6379
+      protocol    = "tcp"
+      cidr_blocks = [for subnet in aws_subnet.public-ingress : subnet.cidr_block]
+    }
+  }
+
   name = "${var.name}-cache-${var.env_name}"
 
   tags = {
@@ -210,6 +221,17 @@ resource "aws_security_group" "db" {
       aws_security_group.worker.id,
       var.apps_enabled == 1 ? aws_security_group.app[0].id : ""
     ])
+  }
+
+  dynamic "ingress" {
+    for_each = local.nessus_public_access_mode ? [1] : []
+    content {
+      description = "Inbound Nessus Scanning"
+      from_port   = var.rds_db_port
+      to_port     = var.rds_db_port
+      protocol    = "tcp"
+      cidr_blocks = [var.nessusserver_ip]
+    }
   }
 
   name = "${var.name}-db-${var.env_name}"

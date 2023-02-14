@@ -1226,9 +1226,14 @@ variable "minutes_since_ipp_enrollment_established_alarm_threshold" {
   default     = 43560 # 30 days + 6 hours
 }
 
+variable "allow_nessus_external_scanning" {
+  description = "Enables Nessus to externally scan data-services subnet resources"
+  type        = bool
+  default     = false
+}
+
 variable "enable_dms_migration" {
   type        = bool
   description = "Enables resources necessary for migrating idp databases from integer columns to bigint columns"
   default     = false
 }
-

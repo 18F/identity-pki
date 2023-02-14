@@ -285,6 +285,7 @@ resource "aws_rds_cluster_instance" "aurora" {
   engine_version       = var.db_engine_version
   db_subnet_group_name = var.db_subnet_group
   instance_class       = var.db_instance_class
+  publicly_accessible  = var.db_publicly_accessible
 
   db_parameter_group_name = (
     var.custom_apg_db_pgroup == "" && var.major_upgrades ? (

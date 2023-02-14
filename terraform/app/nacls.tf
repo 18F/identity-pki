@@ -59,6 +59,18 @@ resource "aws_network_acl_rule" "db-egress-s-ephemeral" {
   cidr_block     = aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block
 }
 
+resource "aws_network_acl_rule" "db-egress-nessus-ephemeral" {
+  count          = local.nessus_public_access_mode ? 1 : 0
+  network_acl_id = aws_network_acl.db.id
+  egress         = true
+  from_port      = 32768
+  to_port        = 61000
+  protocol       = "tcp"
+  rule_number    = 7
+  rule_action    = "allow"
+  cidr_block     = var.nessusserver_ip
+}
+
 # let redis in
 resource "aws_network_acl_rule" "db-ingress-redis" {
   network_acl_id = aws_network_acl.db.id
@@ -103,6 +115,30 @@ resource "aws_network_acl_rule" "db-ingress-s-postgres" {
   rule_number    = 16
   rule_action    = "allow"
   cidr_block     = aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block
+}
+
+resource "aws_network_acl_rule" "db-ingress-nessus-redis" {
+  count          = local.nessus_public_access_mode ? 1 : 0
+  network_acl_id = aws_network_acl.db.id
+  egress         = false
+  from_port      = 6379
+  to_port        = 6379
+  protocol       = "tcp"
+  rule_number    = 17
+  rule_action    = "allow"
+  cidr_block     = var.nessusserver_ip
+}
+
+resource "aws_network_acl_rule" "db-ingress-nessus-postgres" {
+  count          = local.nessus_public_access_mode ? 1 : 0
+  network_acl_id = aws_network_acl.db.id
+  egress         = false
+  from_port      = var.rds_db_port
+  to_port        = var.rds_db_port
+  protocol       = "tcp"
+  rule_number    = 18
+  rule_action    = "allow"
+  cidr_block     = var.nessusserver_ip
 }
 
 # ---------------- end db rules ---------------
@@ -267,5 +303,17 @@ resource "aws_network_acl_rule" "alb-ingress-tcp-https" {
   rule_number    = 40
   rule_action    = "allow"
   cidr_block     = "0.0.0.0/0"
+}
+
+resource "aws_network_acl_rule" "alb-ingress-tcp-redis" {
+  count          = local.nessus_public_access_mode ? 1 : 0
+  network_acl_id = aws_network_acl.alb.id
+  egress         = false
+  from_port      = 6379
+  to_port        = 6379
+  protocol       = "tcp"
+  rule_number    = 50
+  rule_action    = "allow"
+  cidr_block     = var.nessusserver_ip
 }
 
