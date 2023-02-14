@@ -18,11 +18,9 @@ resource "aws_s3_object" "tfslackchannel" {
 resource "aws_s3_object" "db_host_app" {
   count = var.apps_enabled
 
-  bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
-  key    = "${var.env_name}/db_host_app"
-  content = var.dashboard_use_rds ? (
-    aws_db_instance.default[count.index].address
-  ) : module.dashboard_aurora_uw2[count.index].writer_endpoint
+  bucket       = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
+  key          = "${var.env_name}/db_host_app"
+  content      = module.dashboard_aurora_uw2[count.index].writer_endpoint
   content_type = "text/plain"
 }
 

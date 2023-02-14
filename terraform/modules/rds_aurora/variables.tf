@@ -3,14 +3,6 @@
 locals {
   db_name = var.db_name_override == "" ? (
   "${var.env_name}-${var.db_identifier}") : var.db_name_override
-  pgroup_family = join("", [
-    var.db_engine,
-    can(regex(
-      "postgresql", var.db_engine
-    )) ? split(".", var.db_engine_version)[0] : regex("\\d+\\.\\d+", var.db_engine_version)
-  ])
-  subnet_group_name = var.db_subnet_group == "" ? join("-", [
-  var.name_prefix, var.env_name, "db"]) : var.db_subnet_group
 }
 
 # Identifiers
@@ -19,12 +11,6 @@ variable "region" {
   type        = string
   description = "Primary AWS Region"
   default     = "us-west-2"
-}
-
-variable "name_prefix" {
-  type        = string
-  description = "Prefix for resource names"
-  default     = "login"
 }
 
 variable "env_name" {
@@ -66,7 +52,7 @@ variable "db_engine" {
 variable "db_engine_version" {
   type        = string
   description = "Version number (e.g. ##.#) of db_engine to use"
-  default     = "13.5"
+  default     = "13.9"
 }
 
 variable "db_port" {
@@ -75,40 +61,18 @@ variable "db_port" {
   default     = 5432
 }
 
-variable "custom_apg_db_pgroup" {
+variable "apg_db_pgroup" {
   type        = string
   description = <<EOM
-(OPTIONAL) Name of an existing parameter group to use for the DB cluster instance(s);
-leave blank to create the aws_db_parameter_group.aurora resource
+(REQUIRED) Name of an existing parameter group to use for the DB cluster instance(s).
 EOM
-  default     = ""
 }
 
-variable "apg_db_pgroup_params" {
-  type        = list(any)
-  description = <<EOM
-List of parameters to configure for the AuroraDB instance parameter group.
-Include name, value, and apply method (will default to 'immediate' if not set).
-EOM
-  default     = []
-}
-
-variable "custom_apg_cluster_pgroup" {
+variable "apg_cluster_pgroup" {
   type        = string
   description = <<EOM
-(OPTIONAL) Name of an existing parameter group to use for the DB cluster;
-leave blank to create the aws_db_parameter_group.aurora resource
+(REQUIRED) Name of an existing parameter group to use for the DB cluster.
 EOM
-  default     = ""
-}
-
-variable "apg_cluster_pgroup_params" {
-  type        = list(any)
-  description = <<EOM
-List of parameters to configure for the AuroraDB cluster parameter group.
-Include name, value, and apply method (will default to 'immediate' if not set).
-EOM
-  default     = []
 }
 
 # Engine Mode/Instance Class
@@ -125,7 +89,7 @@ EOM
 variable "db_instance_class" {
   type        = string
   description = "Instance class to use in AuroraDB cluster"
-  default     = "db.r5.large"
+  default     = "db.t3.medium"
 }
 
 variable "db_publicly_accessible" {
@@ -288,14 +252,12 @@ variable "maintenance_window" {
 
 variable "db_security_group" {
   type        = string
-  description = "VPC Security Group ID used by the AuroraDB cluster"
-  default     = ""
+  description = "(REQUIRED) VPC Security Group ID used by the AuroraDB cluster"
 }
 
 variable "db_subnet_group" {
   type        = string
   description = "(REQUIRED) Name of DB subnet group used by the AuroraDB cluster"
-  default     = ""
 }
 
 # Security/KMS
@@ -338,8 +300,7 @@ variable "rds_username" {
 
 variable "internal_zone_id" {
   type        = string
-  description = "ID of the Route53 hosted zone to create records in"
-  default     = ""
+  description = "(REQUIRED) ID of the Route53 hosted zone to create records in"
 }
 
 variable "route53_ttl" {

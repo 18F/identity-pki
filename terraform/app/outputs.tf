@@ -31,26 +31,6 @@ output "idp_cloudfront" {
 
 # RDS / ElastiCache
 
-output "idp_rds" {
-  value = var.idp_use_rds ? {
-    rds_fqdn    = aws_route53_record.idp-postgres[0].fqdn
-    db_endpoint = aws_db_instance.idp[0].endpoint
-    db_endpoint_replica = var.enable_rds_idp_read_replica ? (
-    aws_db_instance.idp-read-replica[0].endpoint) : null
-  } : null
-}
-
-output "app_rds" {
-  value = var.dashboard_use_rds && var.apps_enabled == 1 ? {
-    rds_fqdn     = aws_route53_record.postgres[0].fqdn
-    rds_endpoint = aws_db_instance.default[0].endpoint
-  } : null
-}
-
-output "worker_rds" {
-  value = var.worker_use_rds ? aws_db_instance.idp-worker-jobs[0].endpoint : null
-}
-
 output "elasticache" {
   value = {
     cluster_address          = aws_elasticache_replication_group.idp.primary_endpoint_address
@@ -71,7 +51,7 @@ output "idp_aurora_from_rds" {
 }
 
 output "dashboard_aurora_uw2" {
-  value = var.dashboard_aurora_enabled ? {
+  value = var.apps_enabled == 1 ? {
     endpoint_reader          = module.dashboard_aurora_uw2[0].reader_endpoint
     endpoint_writer          = module.dashboard_aurora_uw2[0].writer_endpoint
     endpoint_writer_instance = module.dashboard_aurora_uw2[0].writer_instance_endpoint
@@ -81,13 +61,13 @@ output "dashboard_aurora_uw2" {
 }
 
 output "worker_aurora_uw2" {
-  value = var.worker_aurora_enabled ? {
-    endpoint_reader          = module.worker_aurora_uw2[0].reader_endpoint
-    endpoint_writer          = module.worker_aurora_uw2[0].writer_endpoint
-    endpoint_writer_instance = module.worker_aurora_uw2[0].writer_instance_endpoint
-    fqdn_reader              = module.worker_aurora_uw2[0].reader_fqdn
-    fqdn_writer              = module.worker_aurora_uw2[0].writer_fqdn
-  } : null
+  value = {
+    endpoint_reader          = module.worker_aurora_uw2.reader_endpoint
+    endpoint_writer          = module.worker_aurora_uw2.writer_endpoint
+    endpoint_writer_instance = module.worker_aurora_uw2.writer_instance_endpoint
+    fqdn_reader              = module.worker_aurora_uw2.reader_fqdn
+    fqdn_writer              = module.worker_aurora_uw2.writer_fqdn
+  }
 }
 
 #### misc / other

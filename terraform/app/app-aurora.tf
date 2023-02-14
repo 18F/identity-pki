@@ -1,23 +1,12 @@
 module "dashboard_aurora_uw2" {
-  count = var.apps_enabled == 1 && (
-  var.dashboard_aurora_enabled && var.idp_aurora_enabled) ? 1 : 0
+  count  = var.apps_enabled
   source = "../modules/rds_aurora"
 
-  name_prefix   = var.name
-  region        = "us-west-2"
-  env_name      = var.env_name
-  db_identifier = "dashboard"
-
-  db_publicly_accessible = local.nessus_public_access_mode
-
-  # The rds_db_arn attribute should only be used when replicating from
-  # the source RDS database (aws_db_instance.idp[0]). Once the cluster has been
-  # promoted to standalone, this attribute can be removed, and the
-  # rds_password and rds_username attributes should be used instead.
-  rds_db_arn   = var.dashboard_use_rds ? aws_db_instance.default[count.index].arn : ""
-  rds_password = var.rds_password # ignored when creating replica
-  rds_username = var.rds_username # ignored when creating replica
-
+  region            = "us-west-2"
+  env_name          = var.env_name
+  db_identifier     = "dashboard"
+  rds_password      = var.rds_password
+  rds_username      = var.rds_username
   db_instance_class = var.rds_instance_class_dashboard_aurora
   db_engine         = var.rds_engine_aurora
   db_engine_mode    = var.rds_engine_mode_aurora
@@ -25,11 +14,12 @@ module "dashboard_aurora_uw2" {
   db_port           = var.rds_db_port
 
   # use default parameter groups, as per original apps db
-  custom_apg_cluster_pgroup = var.dashboard_aurora_pgroup
-  custom_apg_db_pgroup      = var.dashboard_aurora_pgroup
+  apg_cluster_pgroup = var.dashboard_aurora_pgroup
+  apg_db_pgroup      = var.dashboard_aurora_pgroup
 
-  db_subnet_group   = aws_db_subnet_group.aurora[count.index].id
-  db_security_group = aws_security_group.db.id
+  db_subnet_group        = aws_db_subnet_group.aurora.id
+  db_security_group      = aws_security_group.db.id
+  db_publicly_accessible = local.nessus_public_access_mode
 
   retention_period    = var.rds_backup_retention_period
   backup_window       = var.rds_backup_window
@@ -72,7 +62,7 @@ module "dashboard_aurora_uw2" {
 }
 
 module "dashboard_aurora_uw2_cloudwatch" {
-  count  = var.dashboard_aurora_enabled ? 1 : 0
+  count  = var.apps_enabled
   source = "../modules/cloudwatch_rds/"
 
   type                          = "aurora"

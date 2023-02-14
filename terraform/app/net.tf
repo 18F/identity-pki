@@ -33,6 +33,12 @@ resource "aws_elasticache_subnet_group" "idp" {
   subnet_ids  = [for subnet in aws_subnet.data-services : subnet.id]
 }
 
+resource "aws_db_subnet_group" "aurora" {
+  name        = "${var.name}-rds-${var.env_name}"
+  description = "RDS Aurora Subnet Group for ${var.env_name} environment"
+  subnet_ids  = [for subnet in aws_subnet.data-services : subnet.id]
+}
+
 resource "aws_internet_gateway" "default" {
   tags = {
     Name = "${var.name}-gateway-${var.env_name}"

@@ -14,24 +14,46 @@ data "aws_iam_policy_document" "dms_assume_role" {
   }
 }
 
-resource "aws_iam_role" "data_migration_service" {
+data "aws_iam_policy_document" "dms_kms" {
+  statement {
+    sid    = "AllowDecryptFromKMS"
+    effect = "Allow"
+    actions = [
+      "kms:Decrypt",
+      "kms:Encrypt",
+      "kms:GenerateDataKey",
+      "kms:DescribeKey"
+    ]
+    resources = [
+      "*"
+    ]
+  }
+}
+
+resource "aws_iam_role" "dms_bigint" {
+  name               = "${var.env_name}-dms-bigint"
   assume_role_policy = data.aws_iam_policy_document.dms_assume_role.json
-  name               = "${var.env_name}-dms-access-for-endpoint"
 }
 
-resource "aws_iam_role_policy_attachment" "dms-access-for-endpoint-AmazonDMSRedshiftS3Role" {
+resource "aws_iam_role_policy" "dms_kms" {
+  name   = "${var.env_name}-dms-kms"
+  role   = aws_iam_role.dms_bigint.id
+  policy = data.aws_iam_policy_document.dms_kms.json
+}
+
+resource "aws_iam_role_policy_attachment" "dms_redshift_s3" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonDMSRedshiftS3Role"
-  role       = aws_iam_role.data_migration_service.name
+  role       = aws_iam_role.dms_bigint.name
 }
 
-resource "aws_iam_role_policy_attachment" "dms-cloudwatch-logs-role-AmazonDMSCloudWatchLogsRole" {
+resource "aws_iam_role_policy_attachment" "dms_cloudwatch_logs" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonDMSCloudWatchLogsRole"
-  role       = aws_iam_role.data_migration_service.name
+  role       = aws_iam_role.dms_bigint.name
 }
 
-resource "aws_iam_role_policy_attachment" "dms-vpc-role-AmazonDMSVPCManagementRole" {
+resource "aws_iam_role_policy_attachment" "dms_vpc_management" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonDMSVPCManagementRole"
-  role       = aws_iam_role.data_migration_service.name
+  role       = aws_iam_role.dms_bigint.name
 }
 
 resource "aws_cloudwatch_log_group" "bigint" {
@@ -50,7 +72,7 @@ resource "aws_dms_certificate" "bigint" {
   }
 }
 
-resource "aws_dms_endpoint" "bigint_source_endpoint" {
+resource "aws_dms_endpoint" "bigint_source" {
   certificate_arn             = aws_dms_certificate.bigint.certificate_arn
   database_name               = "idp"
   endpoint_id                 = "${var.env_name}-bigint-source"
@@ -65,7 +87,7 @@ resource "aws_dms_endpoint" "bigint_source_endpoint" {
   username                    = var.rds_username
 }
 
-resource "aws_dms_endpoint" "bigint_target_endpoint" {
+resource "aws_dms_endpoint" "bigint_target" {
   certificate_arn             = aws_dms_certificate.bigint.certificate_arn
   database_name               = "idp"
   endpoint_id                 = "${var.env_name}-bigint-target"
@@ -81,8 +103,8 @@ resource "aws_dms_endpoint" "bigint_target_endpoint" {
 }
 
 resource "aws_dms_replication_subnet_group" "bigint" {
-  replication_subnet_group_description = "${var.env_name} bigint replication subnet group"
-  replication_subnet_group_id          = "${var.env_name}-bigint-subnet-group"
+  replication_subnet_group_description = "${var.env_name} BigInt replication subnet group"
+  replication_subnet_group_id          = "${var.env_name}-dms-bigint"
 
   subnet_ids = var.subnet_ids
 }
@@ -109,8 +131,8 @@ resource "aws_dms_replication_task" "bigint" {
   migration_type           = "full-load-and-cdc"
   replication_instance_arn = aws_dms_replication_instance.bigint.replication_instance_arn
   replication_task_id      = "${var.env_name}-bigint-replication-task"
-  source_endpoint_arn      = aws_dms_endpoint.bigint_source_endpoint.endpoint_arn
-  target_endpoint_arn      = aws_dms_endpoint.bigint_target_endpoint.endpoint_arn
+  source_endpoint_arn      = aws_dms_endpoint.bigint_source.endpoint_arn
+  target_endpoint_arn      = aws_dms_endpoint.bigint_target.endpoint_arn
   replication_task_settings = jsonencode(
     {
       "Logging" : {

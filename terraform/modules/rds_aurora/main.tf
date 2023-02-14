@@ -134,6 +134,10 @@ resource "aws_route53_record" "writer_endpoint" {
   type    = "CNAME"
   ttl     = var.route53_ttl
   records = [replace(aws_rds_cluster.aurora.endpoint, ":${var.db_port}", "")]
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_route53_record" "reader_endpoint" {
@@ -143,6 +147,10 @@ resource "aws_route53_record" "reader_endpoint" {
   type    = "CNAME"
   ttl     = var.route53_ttl
   records = [replace(aws_rds_cluster.aurora.reader_endpoint, ":${var.db_port}", "")]
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 # KMS (if not importing)
@@ -204,17 +212,11 @@ resource "aws_rds_cluster" "aurora" {
   availability_zones = [
     for i in range(0, 3) : data.aws_availability_zones.region.names[i]
   ]
-  db_subnet_group_name = var.db_subnet_group
 
-  vpc_security_group_ids = [var.db_security_group]
-  db_cluster_parameter_group_name = (
-    var.custom_apg_cluster_pgroup == "" ? (
-    aws_rds_cluster_parameter_group.aurora[0].name) : var.custom_apg_cluster_pgroup
-  )
-  db_instance_parameter_group_name = (
-    var.custom_apg_db_pgroup == "" && var.major_upgrades ? (
-    aws_db_parameter_group.aurora[0].name) : var.custom_apg_db_pgroup
-  )
+  db_subnet_group_name             = var.db_subnet_group
+  vpc_security_group_ids           = [var.db_security_group]
+  db_cluster_parameter_group_name  = var.apg_cluster_pgroup
+  db_instance_parameter_group_name = var.apg_db_pgroup
 
   backup_retention_period      = var.retention_period
   preferred_backup_window      = var.backup_window
@@ -287,10 +289,7 @@ resource "aws_rds_cluster_instance" "aurora" {
   instance_class       = var.db_instance_class
   publicly_accessible  = var.db_publicly_accessible
 
-  db_parameter_group_name = (
-    var.custom_apg_db_pgroup == "" && var.major_upgrades ? (
-    aws_db_parameter_group.aurora[0].id) : null
-  )
+  db_parameter_group_name = var.apg_db_pgroup
 
   tags = {
     Name = local.db_name
@@ -342,49 +341,5 @@ resource "aws_appautoscaling_policy" "db" {
     }
 
     target_value = var.autoscaling_metric_value
-  }
-}
-
-# Parameter Groups
-
-resource "aws_rds_cluster_parameter_group" "aurora" {
-  count       = var.custom_apg_cluster_pgroup == "" ? 1 : 0
-  name        = "${local.db_name}-${replace(local.pgroup_family, ".", "")}-cluster"
-  family      = local.pgroup_family
-  description = "${local.pgroup_family} parameter group for ${local.db_name} cluster"
-
-  dynamic "parameter" {
-    for_each = var.apg_cluster_pgroup_params
-    iterator = pblock
-
-    content {
-      name         = pblock.value.name
-      value        = pblock.value.value
-      apply_method = lookup(pblock.value, "method", "immediate")
-    }
-  }
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-resource "aws_db_parameter_group" "aurora" {
-  count       = var.custom_apg_db_pgroup == "" ? 1 : 0
-  name        = "${local.db_name}-${replace(local.pgroup_family, ".", "")}-db"
-  family      = local.pgroup_family
-  description = "${local.pgroup_family} parameter group for ${local.db_name} instances"
-
-  dynamic "parameter" {
-    for_each = var.apg_db_pgroup_params
-    iterator = pblock
-
-    content {
-      name         = pblock.value.name
-      value        = pblock.value.value
-      apply_method = lookup(pblock.value, "method", "immediate")
-    }
-  }
-  lifecycle {
-    create_before_destroy = true
   }
 }

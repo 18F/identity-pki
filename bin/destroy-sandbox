@@ -13,15 +13,14 @@ trap replace_db_files EXIT
 usage() {
   cat >&2 << EOM
 
-Usage: ${0} [-dcpbxk123456[a]h] [TF_ENV] (will use \$GSA_USERNAME if not specified)
+Usage: ${0} [-dpbxk12345[a]h] [TF_ENV] (will use \$GSA_USERNAME if not specified)
 
 Flags (will run all if no flags specified):
   -d / -1 : Remove deletion protection from RDS + zero out ASGs via targeted apply
-  -c / -2 : Promote any replica AuroraDB clusters to standalone clusters
-  -p / -3 : Delete the DS record for the pivcac.ENV.identitysandbox.gov hosted zone
-  -b / -4 : Empties all S3 buckets with ENV in the bucket name
-  -x / -5 : terraform-destroy + reset db .tf files
-  -k / -6 : Delete all ENV-named S3 keys in secrets/app-secrets buckets
+  -p / -2 : Delete the DS record for the pivcac.ENV.identitysandbox.gov hosted zone
+  -b / -3 : Empties all S3 buckets with ENV in the bucket name
+  -x / -4 : terraform-destroy + reset db .tf files
+  -k / -5 : Delete all ENV-named S3 keys in secrets/app-secrets buckets
        -a : Same as -d, but do full (non-targeted) apply (not run by default)
        -h : Detailed help
 
@@ -41,21 +40,18 @@ The tasks in this script can also be individually executed as follows:
   -d / -1 : Remove protection/prevent_destroy/final_snapshot from RDS databases, and
             zero out Auto Scaling Groups, via a targeted \`tf-deploy\` operation.
             (Step: 1_allow_db_destroy)
-  -c / -2 : Find any/all replica AuroraDB clusters within the environment and promote
-            each one to a standalone instance (to allow deletion by Terraform)
-            (Step: 2_promote_aurora_cluster)
-  -p / -3 : Delete the DS record from identitysandbox.gov that enables DNSSEC for the
+  -p / -2 : Delete the DS record from identitysandbox.gov that enables DNSSEC for the
             pivcac.\${TF_ENV}.identitysandbox.gov (necessary before disabling DNSSEC)
-            (Step: 3_destroy_pivcac_ds_records)
-  -b / -4 : Empties all S3 buckets with \${TF_ENV} in the bucket name,
+            (Step: 2_destroy_pivcac_ds_records)
+  -b / -3 : Empties all S3 buckets with \${TF_ENV} in the bucket name,
             and deletes all object versions as well
-            (Step: 4_empty_buckets)
-  -x / -5 : Run \`terraform destroy -auto-approve\` against the
+            (Step: 3_empty_buckets)
+  -x / -4 : Run \`terraform destroy -auto-approve\` against the
             environment, skipping the attempt to send a message to Slack
-            (Step: 5_tf_destroy)
-  -k / -6 : Delete all S3 keys in the secrets/app-secrets buckets that
+            (Step: 4_tf_destroy)
+  -k / -5 : Delete all S3 keys in the secrets/app-secrets buckets that
             have \${TF_ENV} in their name
-            (Step: 6_delete_env_keys)
+            (Step: 5_delete_env_keys)
        -a : Same as -d but do a full \`apply\` without specifically targeting the
             RDS databases/ASGs (use in case the targeted \`apply\` is failing).
        -h : Displays this help
@@ -79,18 +75,7 @@ EOM
   ave ${BASEPATH}/tf-deploy -z -t ${TF_ENV} app apply -auto-approve "${TF_ARGS[@]:-}"
 }
 
-2_promote_aurora_cluster() {
-  for CLUSTER in $(ave aws rds describe-db-clusters |
-      jq --arg TFE "${TF_ENV}" -r '.DBClusters[]|select((.DBClusterIdentifier|
-      contains($TFE)) and .ReplicationSourceIdentifier != null).DBClusterIdentifier') ; do
-    ave aws rds promote-read-replica-db-cluster \
-      --db-cluster-identifier "${CLUSTER}"
-    sleep 1
-    ave aws rds wait db-cluster-available --db-cluster-identifier "${CLUSTER}"
-  done
-}
-
-3_destroy_pivcac_ds_records() {
+2_destroy_pivcac_ds_records() {
   local ZONE_ID=$(ave aws route53 list-hosted-zones-by-name |
               jq -r '.HostedZones[]|select(.Name == "identitysandbox.gov.").Id' |
               awk -F/ '{print $NF}')
@@ -108,50 +93,49 @@ EOM
   fi
 }
 
-4_empty_buckets() {
+3_empty_buckets() {
   for BUCKET in $(ave aws s3 ls | grep ${TF_ENV} | awk '{print $NF}' | sort -r); do
     empty_bucket_with_versions ${BUCKET}
   done
 }
 
-5_tf_destroy() {
+4_tf_destroy() {
   ave ${BASEPATH}/tf-deploy -t ${TF_ENV} app destroy -auto-approve
   replace_db_files
 }
 
-6_delete_env_keys() {
+5_delete_env_keys() {
+  local OBJECTS
   for BUCKET in $(ave aws s3 ls | grep 'secrets.' | awk '{print $NF}') ; do
-    ave aws s3api delete-objects \
-        --bucket ${BUCKET} \
-        --delete "$(ave aws s3api list-object-versions \
-        --bucket ${BUCKET} \
-        --output=json \
-        --query='{Objects: Versions[].{Key:Key,VersionId:VersionId}}' |
-    jq --arg name "${TF_ENV}" '{Objects:[.[][]|
-      select(.Key|contains($name))|{Key, VersionId}],Quiet: false}')"
+    OBJECTS=$(ave aws s3api list-object-versions --bucket ${BUCKET} \
+        --output=json --query='{Objects: Versions[].{Key:Key,VersionId:VersionId}}' |
+        jq --arg name "${TF_ENV}" '{Objects:[.[][]|
+        select(.Key|contains($name))|{Key, VersionId}],Quiet: false}')
+    if [[ ! -z $(echo "${OBJECTS}" | jq -r '.Objects[]') ]] ; then
+      ave aws s3api delete-objects --bucket ${BUCKET} \
+          --delete "$(echo "${OBJECTS}" | jq)"
+    fi
   done
 }
 
 TASKS=(
   "1_allow_db_destroy"
-  "2_promote_aurora_cluster"
-  "3_destroy_pivcac_ds_records"
-  "4_empty_buckets"
-  "5_tf_destroy"
-  "6_delete_env_keys"
+  "2_destroy_pivcac_ds_records"
+  "3_empty_buckets"
+  "4_tf_destroy"
+  "5_delete_env_keys"
 )
 
 TODO=()
 APPLY_ALL=false
-while getopts d1c2p3b4x5k6ah opt
+while getopts d1p2b3x4k5ah opt
 do
   case $opt in
     d|1) TODO+=("${TASKS[0]}") ;;
-    c|2) TODO+=("${TASKS[1]}") ;;
-    p|3) TODO+=("${TASKS[2]}") ;;
-    b|4) TODO+=("${TASKS[3]}") ;;
-    x|5) TODO+=("${TASKS[4]}") ;;
-    k|6) TODO+=("${TASKS[5]}") ;;
+    p|2) TODO+=("${TASKS[1]}") ;;
+    b|3) TODO+=("${TASKS[2]}") ;;
+    x|4) TODO+=("${TASKS[3]}") ;;
+    k|5) TODO+=("${TASKS[4]}") ;;
     a) APPLY_ALL=true          ;;
     h) help_me                 ;;
     *) usage && exit 1         ;;

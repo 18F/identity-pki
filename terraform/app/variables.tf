@@ -970,15 +970,9 @@ variable "send_cw_to_soc" {
   default = "0"
 }
 
-variable "performance_insights_enabled" {
-  default     = "true"
-  description = "Enables Performance Insights on RDS"
-}
-
 variable "enable_cloudwatch_slos" {
-  description = "Enable CloudWatch SLO measurement and publishing for environment"
-  type        = bool
-  default     = true
+  type    = bool
+  default = true
 }
 
 variable "sli_interesting_latency_threshold" {
@@ -997,12 +991,6 @@ variable "memory_free_threshold_byte" {
   default     = "524288000" #500 MB
 }
 
-variable "unvacummed_transactions_count" {
-  description = "The maximum transaction IDs(in count) that have been used by PostgreSQL."
-  type        = string
-  default     = "1000000000"
-}
-
 variable "ssm_session_timeout" {
   description = <<EOM
 REQUIRED. Amount of time (in minutes) of inactivity to allow before an
@@ -1010,6 +998,14 @@ SSM session ends. Defaults to 15 minutes.
 EOM
   type        = number
   default     = 15
+}
+
+variable "enable_usps_status_updates" {
+  type        = bool
+  description = <<EOM
+Enables recieving emails from USPS for notification updates on in-person proofing.
+EOM
+  default     = false
 }
 
 variable "privatedir" {
@@ -1220,12 +1216,6 @@ variable "attempts_api_low_success_alarm_threshold" {
   default     = 0
 }
 
-variable "enable_usps_status_updates" {
-  description = "Enables recieving emails from USPS for notification updates on in-person proofing"
-  type        = bool
-  default     = false
-}
-
 variable "minutes_since_ipp_enrollment_established_alarm_threshold" {
   description = "Maximum number of minutes after which an established USPS IPP enrollment is expected to expire"
   type        = number
@@ -1235,11 +1225,5 @@ variable "minutes_since_ipp_enrollment_established_alarm_threshold" {
 variable "allow_nessus_external_scanning" {
   description = "Enables Nessus to externally scan data-services subnet resources"
   type        = bool
-  default     = false
-}
-
-variable "enable_dms_migration" {
-  type        = bool
-  description = "Enables resources necessary for migrating idp databases from integer columns to bigint columns"
   default     = false
 }

@@ -1,49 +1,37 @@
-resource "aws_db_subnet_group" "aurora" {
-  count = var.idp_aurora_enabled ? 1 : 0
-
-  name        = "${var.name}-rds-${var.env_name}"
-  description = "RDS Aurora Subnet Group for ${var.env_name} environment"
-  subnet_ids  = [for subnet in aws_subnet.data-services : subnet.id]
-}
-
-module "idp_aurora_from_rds" {
-  count  = var.idp_aurora_enabled ? 1 : 0
-  source = "../modules/rds_aurora"
-
-  name_prefix   = var.name
-  region        = "us-west-2"
-  env_name      = var.env_name
-  db_identifier = "idp-aurora"
-
-  db_publicly_accessible = local.nessus_public_access_mode
-
+locals {
   # This pattern is in place for current idp Aurora clusters. The new default
   # (to be used with the final DMS-migrated idp Aurora cluster) should
   # be env_name-db_identifier, e.g. prod-idp, since the region name will still
   # be included in the full endpoint address.
-  db_name_override = "${var.name}-${var.env_name}-idp-aurora-${var.region}"
+  idp_aurora_name = "${var.name}-${var.env_name}-idp-aurora-${var.region}"
+}
 
-  # The rds_db_arn attribute should only be used when replicating from
-  # the source RDS database (aws_db_instance.idp). Once the cluster has been
-  # promoted to standalone, this attribute can be removed, and the
-  # rds_password and rds_username attributes should be used instead.
-  rds_db_arn   = var.idp_use_rds ? aws_db_instance.idp[0].arn : ""
-  rds_password = var.rds_password # ignored when creating replica
-  rds_username = var.rds_username # ignored when creating replica
+module "idp_aurora_from_rds" {
+  count  = var.idp_aurora_enabled ? 1 : 0 # keep until BigInt migration is done
+  source = "../modules/rds_aurora"
 
-  db_instance_class    = var.rds_instance_class_aurora
-  db_engine            = var.rds_engine_aurora
-  db_engine_mode       = var.rds_engine_mode_aurora
-  db_engine_version    = var.rds_engine_version_aurora
-  db_port              = var.rds_db_port
-  apg_db_pgroup_params = local.apg_db_pgroup_params
-  apg_cluster_pgroup_params = flatten([
-    local.apg_cluster_pgroup_params,
-    local.apg_param_max_standby_streaming_delay
-  ])
+  region   = "us-west-2"
+  env_name = var.env_name
 
-  db_subnet_group   = aws_db_subnet_group.aurora[count.index].id
-  db_security_group = aws_security_group.db.id
+  # switch once BigInt migration is done + remove db_name_override
+  #db_identifier = "idp"
+  db_identifier    = "idp-aurora"
+  db_name_override = local.idp_aurora_name
+
+  rds_password = var.rds_password
+  rds_username = var.rds_username
+
+  db_instance_class  = var.rds_instance_class_aurora
+  db_engine          = var.rds_engine_aurora
+  db_engine_mode     = var.rds_engine_mode_aurora
+  db_engine_version  = var.rds_engine_version_aurora
+  db_port            = var.rds_db_port
+  apg_db_pgroup      = module.idp_rds_usw2.aurora_db_pgroup
+  apg_cluster_pgroup = module.idp_rds_usw2.aurora_cluster_pgroup
+
+  db_subnet_group        = aws_db_subnet_group.aurora.id
+  db_security_group      = aws_security_group.db.id
+  db_publicly_accessible = local.nessus_public_access_mode
 
   retention_period    = var.rds_backup_retention_period
   backup_window       = var.rds_backup_window
@@ -83,6 +71,35 @@ module "idp_aurora_from_rds" {
   #### and var.rds_engine_mode_aurora must be 'provisioned'
 
   serverlessv2_config = var.idp_aurora_serverlessv2_config
+}
+
+# set up Aurora instance/cluster parameter groups + idp-rds KMS CMK
+
+module "idp_rds_usw2" {
+  source = "../modules/idp_rds"
+  providers = {
+    aws = aws.usw2
+  }
+  env_name              = var.env_name
+  db_name_override      = local.idp_aurora_name
+  db_engine             = var.rds_engine_aurora
+  db_engine_version     = var.rds_engine_version_aurora
+  cluster_pgroup_params = local.apg_cluster_pgroup_params
+  db_pgroup_params      = local.apg_db_pgroup_params
+}
+
+module "idp_rds_use1" {
+  count  = var.rds_recover_to_ue1 ? 1 : 0
+  source = "../modules/idp_rds"
+  providers = {
+    aws = aws.use1
+  }
+  env_name              = var.env_name
+  db_name_override      = local.idp_aurora_name
+  db_engine             = var.rds_engine_aurora
+  db_engine_version     = var.rds_engine_version_aurora
+  cluster_pgroup_params = local.apg_cluster_pgroup_params
+  db_pgroup_params      = local.apg_db_pgroup_params
 }
 
 module "idp_aurora_cloudwatch" {

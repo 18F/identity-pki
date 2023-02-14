@@ -15,18 +15,18 @@ variable "db_instance_class" {
 }
 
 variable "rds_storage_threshold" {
+  type        = number
   description = <<EOM
 DB instance storage (in bytes) to stay above before alerting.
 Corresponds to FreeStorageSpace (for RDS) or FreeLocalStorage (for AuroraDB).
 EOM
-  type        = string
-  default     = "100000000"
+  default     = 100000000
 }
 
 variable "unvacummed_transactions_count" {
+  type        = number
   description = "Maximum transaction IDs (count) that have been used by PostgreSQL."
-  type        = string
-  default     = "1000000000"
+  default     = 1000000000
 }
 
 variable "type" {

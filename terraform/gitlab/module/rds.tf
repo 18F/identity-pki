@@ -23,7 +23,7 @@ resource "aws_db_instance" "gitlab" {
   identifier              = "${var.name}-${var.env_name}-gitlab"
   maintenance_window      = var.rds_maintenance_window
   multi_az                = true
-  parameter_group_name    = module.gitlab_rds_usw2.rds_parameter_group_name
+  parameter_group_name    = module.gitlab_rds_usw2.rds_parameter_group
   password                = random_password.rds_inital_password.result
   username                = var.rds_username
   storage_encrypted       = true
@@ -73,11 +73,11 @@ module "gitlab_rds_usw2" {
   providers = {
     aws = aws.usw2
   }
-  env_name           = var.env_name
-  name               = var.name
-  rds_engine         = var.rds_engine
-  rds_engine_version = var.rds_engine_version
-  pgroup_params      = var.pgroup_params
+  env_name          = var.env_name
+  name              = var.name
+  db_engine         = var.rds_engine
+  db_engine_version = var.rds_engine_version
+  pgroup_params     = var.pgroup_params
 }
 
 resource "aws_db_subnet_group" "gitlab" {

@@ -174,6 +174,41 @@ EOM
 
 }
 
+resource "aws_iam_role_policy" "app-s3-logos-access" {
+  count  = var.apps_enabled
+  name   = "${var.env_name}-app-s3-logos-access"
+  role   = aws_iam_role.app[count.index].id
+  policy = <<EOM
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:PutObject",
+                "s3:AbortMultipartUpload",
+                "s3:GetObject",
+                "s3:ListObject",
+                "s3:DeleteObject"
+            ],
+            "Resource": [
+                "arn:aws:s3:::login-gov-partner-logos-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}",
+                "arn:aws:s3:::login-gov-partner-logos-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}/*"
+            ]
+        }
+    ]
+}
+EOM
+}
+
+# Allow publishing traces to X-Ray
+resource "aws_iam_role_policy" "app-xray-publish" {
+  count  = var.apps_enabled
+  name   = "${var.env_name}-app-xray-publish"
+  role   = aws_iam_role.app[count.index].id
+  policy = data.aws_iam_policy_document.xray-publish-policy.json
+}
+
 # These policies are all duplicated from base-permissions
 
 resource "aws_iam_role_policy" "app-secrets" {

@@ -23,6 +23,12 @@ locals {
       name   = "rds.logical_replication"
       value  = var.enable_dms_migration ? "1" : "0",
       method = "pending-reboot"
+    },
+    # Aurora maxes out at 30000 ms
+    # https://aws.amazon.com/blogs/database/best-practices-for-amazon-rds-postgresql-replication/
+    {
+      name  = "max_standby_streaming_delay"
+      value = "30000"
     }
   ]
 
@@ -43,55 +49,46 @@ locals {
       value = "1"
     }
   ]
-
-  # Set to 1800000 ms (30 min) for RDS; Aurora maxes out at 30000 ms
-  # https://aws.amazon.com/blogs/database/best-practices-for-amazon-rds-postgresql-replication/
-  apg_param_max_standby_streaming_delay = {
-    name  = "max_standby_streaming_delay"
-    value = "30000"
-  }
-  rds_param_max_standby_streaming_delay = {
-    name  = "max_standby_streaming_delay"
-    value = "1800000"
-  }
 }
 
 # General / All DBs
 
 variable "rds_backup_retention_period" {
-  default = "34"
+  type        = number
+  description = "Number of days to retain backups for"
+  default     = 34
 }
 
 variable "rds_backup_window" {
-  default = "08:00-08:34"
+  type        = string
+  description = "Daily time range (in UTC) for automated backups"
+  default     = "08:00-08:34"
 }
 
 variable "rds_db_port" {
-  default = 5432
-}
-
-variable "rds_engine" {
-  default = "postgres"
+  type        = number
+  description = "Database port number"
+  default     = 5432
 }
 
 variable "rds_engine_aurora" {
-  default = "aurora-postgresql"
-}
-
-variable "rds_engine_version" {
-  default = "13.5"
+  type        = string
+  description = "AuroraDB engine name (aurora / aurora-mysql / aurora-postgresql)"
+  default     = "aurora-postgresql"
 }
 
 variable "rds_engine_version_aurora" {
-  default = "13.9"
-}
-
-variable "rds_instance_class" {
-  default = "db.t3.micro"
+  type        = string
+  description = "Version number (e.g. ##.#) of db_engine to use"
+  default     = "13.9"
 }
 
 variable "rds_instance_class_aurora" {
-  default = "db.t3.medium"
+  type        = string
+  description = <<EOM
+Instance class to use for the 'login-ENV-idp-aurora-us-west-2' AuroraDB cluster.
+EOM
+  default     = "db.t3.medium"
 }
 
 variable "rds_password" { # set manually after creation
@@ -101,35 +98,39 @@ variable "rds_username" { # set manually after creation
 }
 
 variable "rds_maintenance_window" {
-  default = "Sun:08:34-Sun:09:08"
+  type        = string
+  description = "Weekly time range (in UTC) for scheduled/system maintenance"
+  default     = "Sun:08:34-Sun:09:08"
 }
 
 variable "rds_enhanced_monitoring_interval" {
-  description = "How many seconds to wait before each metric sample collection - Set to 0 to disable"
   type        = number
+  description = <<EOM
+Time (in seconds) to wait before each metric sample collection.
+Disabled if set to 0.
+EOM
   default     = 60
 }
 
 variable "rds_monitoring_role_name" {
-  default = "rds-monitoring-role"
-}
-
-variable "rds_dashboard_idp_vertical_annotations" {
-  description = "A raw JSON array of vertical annotations to add to all cloudwatch dashboard widgets"
-  default     = "[]"
+  type        = string
+  description = "IAM role with the AmazonRDSEnhancedMonitoringRole policy attached."
+  default     = "rds-monitoring-role"
 }
 
 variable "rds_storage_threshold" {
+  type        = number
   description = "RDS instance free storage (in bytes) to stay above before alerting"
-  default     = "100000000"
+  default     = 100000000
 }
 
 variable "rds_recover_to_ue1" {
+  type        = bool
   description = <<EOM
-Whether or not to create a DB parameter group in us-east-1 via the idp_rds_use1 module.
+Whether or not to create DB parameter groups/KMS CMKs
+in us-east-1 via the idp_rds_use1 module.
 Defaults to false ; should be manually set to true in upper environments.
 EOM
-  type        = bool
   default     = false
 }
 
@@ -139,45 +140,41 @@ variable "rds_engine_mode_aurora" {
   default     = "provisioned"
 }
 
-# idp
-
-variable "idp_use_rds" {
-  description = <<EOM
-Whether or not to build/use an AWS RDS instance (vs. AuroraDB) for the IdP DB.
-Set to false if wanting to spin down and/or not create the RDS DB.
-EOM
+variable "enable_dms_migration" {
   type        = bool
-  default     = true
+  description = <<EOM
+Enables creation of resources necessary for migrating idp databases
+from integer columns to BigInt columns.
+EOM
+  default     = false
 }
 
-variable "rds_storage_type_idp" {
-  # possible storage types:
-  # standard (magnetic)
-  # gp2 (general SSD)
-  # io1 (provisioned IOPS SSD)
-  description = "EBS storage type (magnetic, SSD, PIOPS) used by the idp RDS database"
-  default     = "standard"
+variable "unvacummed_transactions_count" {
+  type        = string
+  description = "Maximum transaction IDs (in count) used by PostgreSQL."
+  default     = 1000000000
 }
 
-variable "rds_iops_idp" {
-  description = "If PIOPS storage is used, the number of IOPS provisioned"
-  default     = 0
+variable "performance_insights_enabled" {
+  default     = "true"
+  description = "Enables Performance Insights on RDS"
 }
 
-variable "rds_storage_idp" {
-  default = "26"
-}
+# idp
 
 variable "idp_aurora_enabled" {
   type        = bool
-  description = "Enable/disable creating idp AuroraDB cluster"
+  description = <<EOM
+Enable/disable creation of the 'login-ENV-idp-aurora-us-west-2' AuroraDB cluster.
+Set to FALSE once new ENV-idp cluster (w/BigInt changes) has replaced it.
+EOM
   default     = true
 }
 
 variable "idp_cluster_instances" {
   type        = number
   description = <<EOM
-Number of instances to create for the idp AuroraDB cluster. MUST be Set to 1
+Number of instances to create for the idp AuroraDB cluster(s). MUST be Set to 1
 if creating cluster as a read replica, then should be set to 2+ thereafter.
 EOM
   default     = 1
@@ -191,8 +188,8 @@ EOM
 }
 
 variable "idp_aurora_autoscaling" {
-  description = "Enable/disable Auto Scaling for the idp Aurora DB cluster"
   type        = bool
+  description = "Enable/disable Auto Scaling for the idp Aurora DB cluster(s)"
   default     = false
 }
 
@@ -208,67 +205,12 @@ EOM
   default     = []
 }
 
-# idp-replica
-
-variable "enable_rds_idp_read_replica" {
-  description = "Whether to create an RDS read replica of the idp RDS database"
-  default     = false
-  type        = bool
-}
-
-variable "rds_engine_version_replica" {
-  default     = "13.5"
-  description = <<EOM
-rds_engine_version for idp-replica RDS database.
-RDS requires that replicas be upgraded *before* primaries
-EOM
-}
-
-variable "rds_instance_class_replica" {
-  default = "db.t3.micro"
-}
-
-variable "rds_storage_type_idp_replica" {
-  description = <<EOM
-EBS storage type (magnetic, SSD, PIOPS) used by idp-replica RDS database
-EOM
-  default     = "standard"
-}
-
-variable "rds_iops_idp_replica" {
-  description = <<EOM
-If PIOPS storage is used, number of IOPS provisioned for idp-replica RDS database
-EOM
-  default     = 0
-}
-
-variable "rds_storage_idp_replica" {
-  default = "26"
-}
-
 # dashboard (app)
 
-variable "dashboard_use_rds" {
-  description = <<EOM
-Whether or not to build/use an AWS RDS instance (vs. AuroraDB) for the dashboard DB.
-Set to false if wanting to spin down and/or not create the RDS DB.
-EOM
-  type        = bool
-  default     = true
-}
-
 variable "rds_instance_class_dashboard_aurora" {
-  default = "db.t3.medium"
-}
-
-variable "rds_storage_app" {
-  default = "8"
-}
-
-variable "dashboard_aurora_enabled" {
-  type        = bool
-  description = "Enable/disable creating dashboard AuroraDB cluster"
-  default     = false
+  type        = string
+  description = "Instance class for dashboard Aurora DB cluster"
+  default     = "db.t3.medium"
 }
 
 variable "dashboard_aurora_pgroup" {
@@ -282,10 +224,7 @@ EOM
 
 variable "dashboard_cluster_instances" {
   type        = number
-  description = <<EOM
-Number of instances to create for the dashboard AuroraDB cluster. MUST be Set to 1
-if creating cluster as a read replica, then should be set to 2+ thereafter.
-EOM
+  description = "Number of instances in the dashboard Aurora DB cluster."
   default     = 1
   validation {
     condition = (
@@ -314,69 +253,29 @@ EOM
   default     = []
 }
 
-# worker (idp-worker-jobs)
-
-variable "worker_use_rds" {
-  description = <<EOM
-Whether or not to build/use an AWS RDS instance (vs. AuroraDB) for the worker-jobs DB.
-Set to false if wanting to spin down and/or not create the RDS DB.
-EOM
-  type        = bool
-  default     = true
-}
-
-variable "rds_engine_version_worker_jobs" {
-  default = "13.5"
-}
+# worker
 
 variable "rds_engine_version_worker_jobs_aurora" {
-  default = "13.9"
-}
-
-variable "rds_instance_class_worker_jobs" {
-  default = "db.t3.micro"
+  type        = string
+  description = "db_engine to use for worker Aurora DB cluster"
+  default     = "13.9"
 }
 
 variable "rds_instance_class_worker_jobs_aurora" {
-  default = "db.t3.medium"
-}
-
-variable "rds_storage_type_idp_worker_jobs" {
-  description = <<EOM
-EBS storage type (magnetic, SSD, PIOPS) used by idp-worker-jobs RDS database
-EOM
-  default     = "gp2"
-}
-
-variable "rds_iops_idp_worker_jobs" {
-  description = <<EOM
-If PIOPS storage is used, number of IOPS provisioned for idp-worker-jobs RDS database
-EOM
-  default     = 0
+  type        = string
+  description = "Instance class for worker Aurora DB cluster"
+  default     = "db.t3.medium"
 }
 
 variable "rds_password_worker_jobs" {
 }
 
-variable "rds_storage_idp_worker_jobs" {
-  default = "8"
-}
-
 variable "rds_username_worker_jobs" {
-}
-
-variable "worker_aurora_enabled" {
-  type        = bool
-  description = "Enable/disable creating idp-worker-jobs AuroraDB cluster"
-  default     = false
 }
 
 variable "worker_cluster_instances" {
   type        = number
-  description = <<EOM
-Number of instances to create for the worker AuroraDB cluster. MUST be Set to 1
-if creating cluster as a read replica, then should be set to 2+ thereafter.
-EOM
+  description = "Number of instances in the worker Aurora DB cluster."
   default     = 1
   validation {
     condition = (
@@ -400,7 +299,7 @@ variable "worker_jobs_aurora_serverlessv2_config" {
   }))
   description = <<EOM
 Scaling configuration (maximum/minimum capacity) to use,
-if setting/upgrading worker_jobs DB cluster to Aurora Serverless v2
+if setting/upgrading worker DB cluster to Aurora Serverless v2
 EOM
   default     = []
 }

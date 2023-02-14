@@ -62,35 +62,21 @@ initialize() {
     grep -m 1 TERRAFORM_STATE_BUCKET_REGION | awk -F'"' '{print $2}')
 }
 
-# list variable used with DB functions below to remove protection from DBs
-DBS_TO_REMOVE=(
-  'app/idp'
-  'app/app'
-  'app/worker'
-  'modules/rds_aurora/main'
-)
-
-# disable prevent_destroy and deletion_protection configs
-# for RDS databases by changing the strings/comments
-# in individual .tf files + creating .bak versions of each file.
+# disable prevent_destroy and deletion_protection configs for Aurora databases
+# by changing the strings/comments in module's main.tf file + creating .bak version
 remove_db_protection_in_state() {
-  for TF_FILE in "${DBS_TO_REMOVE[@]}" ; do
-    FILE="$(git rev-parse --show-toplevel)/terraform/${TF_FILE}.tf"
-    cp "${FILE}" "${FILE}.bak"
-    for TASK in prevent_destroy deletion_protection ; do
-      sed -i '' -E "s/(${TASK} = )true/\1false/g" "${FILE}"
-    done
-    sed -i '' -E 's/#(skip_final_snapshot = true)/\1/g' "${FILE}"
+  local FILE="$(git rev-parse --show-toplevel)/terraform/modules/rds_aurora/main.tf"
+  cp "${FILE}" "${FILE}.bak"
+  for TASK in prevent_destroy deletion_protection ; do
+    sed -i '' -E "s/(${TASK} = )true/\1false/g" "${FILE}"
   done
+  sed -i '' -E 's/#(skip_final_snapshot = true)/\1/g' "${FILE}"
 }
 
-# if .bak versions of .tf files (from remove_db_protection_in_state) exist;
-# revert them back to the originals
+# if .bak version of rds_aurora/main.tf file exists, revert back to the original
 replace_db_files() {
-  for TF_FILE in "${DBS_TO_REMOVE[@]}" ; do
-    FILE="$(git rev-parse --show-toplevel)/terraform/${TF_FILE}.tf"
-    if [[ -f "${FILE}.bak" ]] ; then
-      mv ${FILE}.bak ${FILE}
-    fi
-  done
+  local FILE="$(git rev-parse --show-toplevel)/terraform/modules/rds_aurora/main.tf"
+  if [[ -f "${FILE}.bak" ]] ; then
+    mv ${FILE}.bak ${FILE}
+  fi
 }

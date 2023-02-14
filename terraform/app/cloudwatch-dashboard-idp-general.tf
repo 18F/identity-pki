@@ -25,14 +25,3 @@ module "idp_dashboard" {
 EOM
 
 }
-
-module "rds_dashboard_idp" {
-  count  = var.idp_use_rds ? 1 : 0
-  source = "github.com/18F/identity-terraform//cloudwatch_dashboard_rds?ref=e7ad5ef38f724b31911248a74173e9fee3bbf045"
-
-  dashboard_name         = "${var.env_name}-RDS-idp"
-  region                 = var.region
-  db_instance_identifier = aws_db_instance.idp[count.index].id
-  iops                   = var.rds_iops_idp
-  vertical_annotations   = var.rds_dashboard_idp_vertical_annotations
-}

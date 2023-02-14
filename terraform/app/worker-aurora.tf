@@ -1,21 +1,12 @@
 module "worker_aurora_uw2" {
-  count  = var.worker_aurora_enabled && var.idp_aurora_enabled ? 1 : 0
   source = "../modules/rds_aurora"
 
-  name_prefix   = var.name
   region        = "us-west-2"
   env_name      = var.env_name
   db_identifier = "worker"
 
-  db_publicly_accessible = local.nessus_public_access_mode
-
-  # The rds_db_arn attribute should only be used when replicating from
-  # the source RDS database (aws_db_instance.idp-worker-jobs).
-  # Once the cluster has been promoted to standalone, this attribute can be removed,
-  # and the rds_password and rds_username attributes should be used instead.
-  rds_db_arn   = var.worker_use_rds ? aws_db_instance.idp-worker-jobs[count.index].arn : ""
-  rds_password = var.rds_password_worker_jobs # ignored when creating replica
-  rds_username = var.rds_username_worker_jobs # ignored when creating replica
+  rds_password = var.rds_password_worker_jobs
+  rds_username = var.rds_username_worker_jobs
 
   db_instance_class = var.rds_instance_class_worker_jobs_aurora
   db_engine         = var.rds_engine_aurora
@@ -23,12 +14,12 @@ module "worker_aurora_uw2" {
   db_engine_version = var.rds_engine_version_worker_jobs_aurora
   db_port           = var.rds_db_port
 
-  # use pgroups from idp aurora cluster
-  custom_apg_cluster_pgroup = module.idp_aurora_from_rds[count.index].cluster_pgroup
-  custom_apg_db_pgroup      = module.idp_aurora_from_rds[count.index].instance_pgroup
+  apg_db_pgroup      = module.idp_rds_usw2.aurora_db_pgroup
+  apg_cluster_pgroup = module.idp_rds_usw2.aurora_cluster_pgroup
 
-  db_subnet_group   = aws_db_subnet_group.aurora[count.index].id
-  db_security_group = aws_security_group.db.id
+  db_subnet_group        = aws_db_subnet_group.aurora.id
+  db_security_group      = aws_security_group.db.id
+  db_publicly_accessible = local.nessus_public_access_mode
 
   retention_period    = var.rds_backup_retention_period
   backup_window       = var.rds_backup_window
@@ -70,13 +61,37 @@ module "worker_aurora_uw2" {
   serverlessv2_config = var.worker_jobs_aurora_serverlessv2_config
 }
 
+module "idp_worker_jobs_rds_usw2" {
+  source = "../modules/idp_rds"
+  providers = {
+    aws = aws.usw2
+  }
+  env_name          = var.env_name
+  name              = var.name
+  db_identifier     = "idp-worker-jobs"
+  db_engine         = var.rds_engine_aurora
+  db_engine_version = var.rds_engine_version_worker_jobs_aurora
+}
+
+module "idp_worker_jobs_rds_use1" {
+  count  = var.rds_recover_to_ue1 ? 1 : 0
+  source = "../modules/idp_rds"
+  providers = {
+    aws = aws.use1
+  }
+  env_name          = var.env_name
+  name              = var.name
+  db_identifier     = "idp-worker-jobs"
+  db_engine         = var.rds_engine_aurora
+  db_engine_version = var.rds_engine_version_worker_jobs_aurora
+}
+
 module "worker_aurora_uw2_cloudwatch" {
-  count  = var.worker_aurora_enabled && var.idp_aurora_enabled ? 1 : 0
   source = "../modules/cloudwatch_rds/"
 
   type                          = "aurora"
   rds_storage_threshold         = var.rds_storage_threshold
-  rds_db                        = module.worker_aurora_uw2[count.index].writer_instance
+  rds_db                        = module.worker_aurora_uw2.writer_instance
   alarm_actions                 = local.low_priority_alarm_actions
   unvacummed_transactions_count = var.unvacummed_transactions_count
   db_instance_class             = var.rds_instance_class_worker_jobs_aurora

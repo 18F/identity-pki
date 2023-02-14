@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Delete the old login-dm RDS instances and replace them with ones built
-# from login-prod snapshots.
+# Delete the old login-dm Aurora clusters/instances,
+# and replace them with ones built from login-prod snapshots.
 
 set -euo pipefail
 
@@ -12,142 +12,172 @@ BASEPATH="$(dirname "$0")/.."
 wait_for_db() {
   local DB_TO_WAIT=${1}
   local WAIT_ACT=${2}
-  echo_green "Waiting for ${DB_TO_WAIT} to be ${WAIT_ACT}..."
-  sleep 15
-  ave -r aws rds wait "db-instance-${WAIT_ACT}" \
-      --db-instance-identifier "${DB_TO_WAIT}"
+  local SCOPE=${3:-"cluster"}
+  local DB_READY=0
+
+  echo && echo_green "Waiting for ${DB_TO_WAIT} to be ${WAIT_ACT}..."
+  DB_READY=0
+  while [[ ${DB_READY} == 0 ]] ; do
+    sleep 5
+    ave -r aws rds wait "db-${SCOPE}-${WAIT_ACT}" \
+        --db-${SCOPE}-identifier "${DB_TO_WAIT}"
+    [[ $? == 0 ]] && DB_READY=1
+  done
+}
+
+confirm_or_exit() {
+  if ! prompt_yn "Continue?" ; then
+    echo_yellow "Stopping."
+    echo && exit 0
+  fi
 }
 
 get_iam 'app' 'prod' 'FullAdministrator'
+DEPLOY_WEIRD_BRANCH=1
 
-DB_IDS=($(ave aws rds describe-db-instances \
-        --query 'DBInstances[].DBInstanceIdentifier' |
-        jq -r '.[]' | grep dm)) || DB_IDS=()
+echo && echo_green "Getting status of \`dm\` Aurora clusters..."
+DB_IDS=($(ave aws rds describe-db-clusters \
+            --query 'DBClusters[].DBClusterIdentifier' |
+            jq -r '.[]' | grep dm)) || DB_IDS=()
+DBS_TO_UPDATE=($(ave aws rds describe-db-clusters \
+                   --query 'DBClusters[].DBClusterIdentifier' | jq -r '.[]' |
+                   grep prod | sed 's/prod/dm/'))
 if [[ -z "${DB_IDS[@]:-}" ]] ; then
   echo_yellow "No DBs found for \`dm\`; building list from \`prod\` DBs."
-  DBS_TO_UPDATE=($(ave prod aws rds describe-db-instances \
-        --query 'DBInstances[].DBInstanceIdentifier' | jq -r '.[]' |
-        grep prod | grep -v -E '(\-[0-9])|(replica)' | sed 's/prod/dm/'))
-  echo && echo_cyan "This will build new \`dm\` RDS DBs,"
-  echo_cyan "based on their equivalent \`prod\` instances' snapshots:"
-  echo -e "\n${DBS_TO_UPDATE[@]}" | sed -E 's/ /\n- /g' | grep -v replica
+  echo && echo_cyan "This will build new \`dm\` Aurora clusters,"
+  echo_cyan "based on their equivalent \`prod\` clusters' snapshots:"
+  echo -e " ${DBS_TO_UPDATE[@]}" | sed -E 's/ /\n- /g'
   echo
-  if ! prompt_yn "Continue?" ; then
-    echo_yellow "Stopping."
-    echo && exit 0
-  fi
+  confirm_or_exit
 else
-  DBS_TO_UPDATE=()
-  
-  echo && echo_cyan "This will destroy the following RDS instances in \`dm\`,"
-  echo_cyan "and build new ones based on their equivalent \`prod\` instances' snapshots:"
-  echo -e "\n${DB_IDS[@]}" | sed -E 's/ /\n- /g' | grep -v replica
+  echo && echo_cyan "This will destroy the following Aurora clusters in \`dm\`,"
+  echo_cyan "and build new ones based on their equivalent \`prod\` clusters' snapshots:"
+  echo -e " ${DB_IDS[@]}" | sed -E 's/ /\n- /g'
   echo
-  if ! prompt_yn "Continue?" ; then
-    echo_yellow "Stopping."
-    echo && exit 0
-  fi
-  
-  # remove deletion protection from old DBs
-  for DB_ID in "${DB_IDS[@]}" ; do
-    echo_green "Ready to remove deletion protection from ${DB_ID}."
-    if prompt_yn "Continue?" ; then
-      ave aws rds modify-db-instance \
-        --db-instance-identifier ${DB_ID} \
-        --no-deletion-protection --apply-immediately
-      wait_for_db "${DB_ID}" 'available'
-    fi
-  done
-  
+  confirm_or_exit
+
   # delete old DBs
   SNAP='--skip-final-snapshot'
   OLD_DB_SNAP=$(date -uj '+%Y-%m-%d') 
   for DB_ID in "${DB_IDS[@]}" ; do
-    if [[ ! ${DB_ID} =~ 'replica' ]] ; then
-      DBS_TO_UPDATE+=("${DB_ID}")
+    echo && echo_green "Ready to delete ${DB_ID} Aurora cluster."
+    confirm_or_exit
+    echo && echo_green "Removing deletion protection from ${DB_ID}..."
+    ave aws rds modify-db-cluster \
+      --db-cluster-identifier ${DB_ID} \
+      --no-deletion-protection --apply-immediately
+    wait_for_db "${DB_ID}" 'available'
+
+    if prompt_yn "Take final snapshot before deleting ${DB_ID}?" ; then
+      ave aws rds create-db-cluster-snapshot --db-cluster-identifier ${DB_ID} \
+        --db-cluster-snapshot-identifier "${DB_ID}-${OLD_DB_SNAP}-final"
+      wait_for_db "${DB_ID}-${OLD_DB_SNAP}-final" 'available' 'cluster-snapshot'
     fi
-    echo_green "Ready to delete ${DB_ID}."
-    if prompt_yn "Continue?" ; then
-      if [[ ! ${DB_ID} =~ 'replica' ]] && prompt_yn "Take final snapshot before deleting ${DB_ID}?" ; then
-        ave aws rds delete-db-instance --db-instance-identifier ${DB_ID} \
-          --no-skip-final-snapshot \
-          --final-db-snapshot-identifier "${DB_ID}-${OLD_DB_SNAP}-final"
-      else
-        ave aws rds delete-db-instance --db-instance-identifier ${DB_ID} \
-          --skip-final-snapshot
-      fi
-      wait_for_db "${DB_ID}" 'deleted'
+    echo && echo_green "Finding instances to delete in ${DB_ID} cluster..."
+    DB_INSTANCES=($(ave aws rds describe-db-clusters \
+          --db-cluster-identifier ${DB_ID} \
+          --query 'DBClusters[].DBClusterMembers[*].DBInstanceIdentifier' --output text))
+    if [[ -z "${DB_INSTANCES[@]:-}" ]] ; then
+      echo_yellow "No instances found in ${DB_ID} cluster; skipping."
+    else
+      for DB_INSTANCE in "${DB_INSTANCES[@]}" ; do
+        echo && echo_green "Deleting instance ${DB_INSTANCE}..."
+        ave aws rds delete-db-instance \
+          --db-instance-identifier ${DB_INSTANCE} --skip-final-snapshot
+        wait_for_db "${DB_INSTANCE}" 'deleted' 'instance'
+      done
     fi
+    echo && echo_green "Deleting ${DB_ID} cluster..."
+    ave aws rds delete-db-cluster --db-cluster-identifier ${DB_ID} \
+      --skip-final-snapshot
+    wait_for_db "${DB_ID}" 'deleted'
   done
 fi
 
 # get configs for login-db-dm subnet
 DB_SUBNET=$(ave -r aws rds describe-db-subnet-groups --query 'DBSubnetGroups' |
-        jq -r '.[]|select(.DBSubnetGroupName|contains("dm")).DBSubnetGroupName')
-echo_green "Getting VPC/Security Group info for ${DB_SUBNET} subnet..."
+        jq -r '.[]|select(.DBSubnetGroupName|contains("rds-dm")).DBSubnetGroupName')
+echo && echo_green "Getting configuration info for new Aurora cluster..."
 DB_VPC=$(ave -r aws rds describe-db-subnet-groups \
                 --db-subnet-group-name "${DB_SUBNET}" \
                 --query 'DBSubnetGroups[].VpcId' --output text)
 DB_SG=$(ave -r aws ec2 describe-security-groups \
-          --filters "Name=group-name,Values=${DB_SUBNET}" \
+          --filters "Name=group-name,Values=login-db-dm" \
                     "Name=vpc-id,Values=${DB_VPC}" \
           --query 'SecurityGroups[].GroupId' --output text)
 
 for DB_ID in "${DBS_TO_UPDATE[@]}" ; do
-  # get most recent snapshot of s/dm/prod db
+  # get most recent snapshot of s/dm/prod db + parameter group used by prod instance
   SRC_DB_ID=$(echo "${DB_ID}" | sed 's/dm/prod/')
   SRC_DB_SNAP=$(date -uj -v-1d '+%Y-%m-%d')
-  echo_green "Getting most recent snapshot of ${SRC_DB_ID} RDS instance..."
-  SNAPSHOT_ID=$(ave aws rds describe-db-snapshots \
-                  --db-instance-identifier "${SRC_DB_ID}" --query \
-                  "DBSnapshots[?SnapshotCreateTime>=\`${SRC_DB_SNAP}\`]" |
-                  jq -r '.[-1].DBSnapshotIdentifier')
-  
-  # build instance from snapshot  
-  echo_green "Ready to build ${DB_ID} RDS instance from snapshot ID ${SNAPSHOT_ID}."
-  if prompt_yn "Continue?" ; then
-    ave aws rds restore-db-instance-from-db-snapshot \
-      --db-instance-identifier "${DB_ID}" --db-snapshot-identifier "${SNAPSHOT_ID}" \
-      --db-subnet-group-name "${DB_SUBNET}" --vpc-security-group-ids "${DB_SG}" \
-      --enable-cloudwatch-logs-exports '["postgresql","upgrade"]' \
-      --multi-az --no-publicly-accessible
-    wait_for_db "${DB_ID}" 'available'
-  
-    if [[ ${DB_ID} =~ 'worker' ]] ; then
-      DB_PASSWORD_KEY='database_worker_jobs_password'
-    else
-      DB_PASSWORD_KEY='database_password'
-    fi
+  echo && echo_green "Getting most recent snapshot of ${SRC_DB_ID} Aurora cluster..."
+  SNAPSHOT_DATA=$(ave aws rds describe-db-cluster-snapshots \
+                  --db-cluster-identifier "${SRC_DB_ID}" --query \
+                  "DBClusterSnapshots[?SnapshotCreateTime>=\`${SRC_DB_SNAP}\`]" |
+                  jq -r '.[-1]')
+  SNAPSHOT_ID=$(echo $SNAPSHOT_DATA| jq -r '.DBClusterSnapshotIdentifier')
+  SNAPSHOT_ENGINE=$(echo $SNAPSHOT_DATA| jq -r '.Engine')
+  PARAM_GROUP=$(ave aws rds describe-db-clusters \
+                  --db-cluster-identifier "${SRC_DB_ID}" \
+                  --query 'DBClusters[].DBClusterParameterGroup' \
+                  --output text | sed 's/prod/dm/')
 
-    echo_green "Updating configurations for new ${DB_ID} RDS instance"
-    echo_green "(master password, performance insights)..."
-    ave aws rds modify-db-instance \
-      --db-instance-identifier "${DB_ID}" \
-      --master-user-password \
-        $(ave -r ${BASEPATH}/app-s3-secret --env dm --app idp |
-          grep "${DB_PASSWORD_KEY}" | sed "s/\'//g" | awk '{print $2}' ) \
-      --enable-performance-insights \
-      --performance-insights-kms-key-id alias/aws/rds \
-      --performance-insights-retention-period 7 \
-      --apply-immediately
-    
-    echo_cyan "Configuration updates complete!"
-    wait_for_db "${DB_ID}" 'available'
+  # build cluster from snapshot  
+  echo && echo_green "Ready to build ${DB_ID} Aurora cluster:" && echo
+  echo -n "- Snapshot ID: " && echo_cyan "${SNAPSHOT_ID}"
+  echo -n "- Engine: " && echo_cyan "${SNAPSHOT_ENGINE}"
+  echo -n "- Subnet Group: " && echo_cyan "${DB_SUBNET}"
+  echo -n "- Security Group: " && echo_cyan "${DB_SG}"
+  echo -n "- Parameter Group: " && echo_cyan "${PARAM_GROUP}"
+  echo
+  confirm_or_exit
+  ave aws rds restore-db-cluster-from-snapshot --db-cluster-identifier "${DB_ID}" \
+    --snapshot-identifier "${SNAPSHOT_ID}" --engine "${SNAPSHOT_ENGINE}" \
+    --db-subnet-group-name "${DB_SUBNET}" --vpc-security-group-ids "${DB_SG}" \
+    --enable-cloudwatch-logs-exports '["postgresql"]' --no-publicly-accessible \
+    --deletion-protection --db-cluster-parameter-group-name "${PARAM_GROUP}"
+  wait_for_db "${DB_ID}" 'available'
+  
+  if [[ ${DB_ID} =~ 'worker' ]] ; then
+    DB_PASSWORD_KEY='database_worker_jobs_password'
+  else
+    DB_PASSWORD_KEY='database_password'
   fi
 
-  echo_green "Ready to update ${DB_ID} in Terraform state."
-  if prompt_yn "Continue?" ; then
-    DB_TF_ID="aws_db_instance.$(echo ${DB_ID} | sed -E 's/(login-)?dm-//')[0]"
+  echo && echo_green "Updating configurations for new ${DB_ID} Aurora cluster"
+  echo_green "(master password, performance insights)..."
+  ave aws rds modify-db-cluster \
+    --db-cluster-identifier "${DB_ID}" \
+    --master-user-password \
+      $(ave -r ${BASEPATH}/app-s3-secret --env dm --app idp |
+        grep "${DB_PASSWORD_KEY}" | sed "s/\'//g" | awk '{print $2}' ) \
+    --apply-immediately
+  
+  echo && echo_cyan "Configuration updates complete!"
+  wait_for_db "${DB_ID}" 'available'
+done
+
+TF_DBS=($(${BASEPATH}/td -e prod -s list | grep 'cluster\.'))
+STATE_DBS=$(${BASEPATH}/td -e dm -s list)
+TF_ARGS=()
+
+for DB_ID in "${DBS_TO_UPDATE[@]}" ; do
+  echo && echo_green "Ready to update ${DB_ID} in Terraform state."
+  confirm_or_exit
+  if [[ ${DB_ID} =~ 'worker' ]] ; then
+    DB_TF='worker'
+  else
+    DB_TF='idp'
+  fi
+  DB_TF_ID=$(echo "${TF_DBS[@]}" | tr ' ' '\n' | grep ${DB_TF})
+  if [[ $(echo ${STATE_DBS} | grep -F "${DB_TF_ID}") ]] ; then
     ${BASEPATH}/td -e dm -s rm "${DB_TF_ID}"
-    ${BASEPATH}/td -e dm -i "${DB_TF_ID}" "${DB_ID}"
   fi
+  ${BASEPATH}/td -e dm -i "${DB_TF_ID}" "${DB_ID}"
+  TF_ARGS+=($(echo "${DB_TF_ID%%\[*}" | sed -E 's/^/\-target=/'))
 done
 
 # remove old db and replica from state, add the new ones, and apply
-echo_green "Ready to update state and run \`terraform apply\`."
-if prompt_yn "Continue?" ; then
-  ${BASEPATH}/td -e dm -s rm 'aws_db_instance.idp-read-replica[0]'
-  ${BASEPATH}/td -e dm -at target='aws_db_instance.idp[0]' \
-                           target='aws_db_instance.idp-read-replica[0]' \
-                           target='aws_db_instance.idp-worker-jobs[0]'
-fi
+echo && echo_green "Ready to update state and run \`terraform apply\`."
+confirm_or_exit
+ave ${BASEPATH}/tf-deploy -t dm app apply "${TF_ARGS[@]:-}"
