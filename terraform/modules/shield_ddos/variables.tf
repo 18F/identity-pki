@@ -15,6 +15,7 @@ variable "action" {
 
 variable "action_command" {
   description = "List of string values that can be appended to the executed AWS command based on the action being taken"
+  type        = map(string)
   default = {
     "Disable" = "",
     "Count"   = " --action \"Count={}\""
