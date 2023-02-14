@@ -25,3 +25,8 @@ variable "email_users" {
   type        = list(string)
   default     = []
 }
+
+variable "usps_envs" {
+  type    = list(string)
+  default = []
+}

@@ -36,4 +36,5 @@ module "sandbox_ses" {
   enabled      = var.sandbox_ses_inbound_enabled
   email_users  = var.sandbox_ses_email_users
   email_bucket = aws_s3_bucket.email.id
+  usps_envs    = var.sandbox_ses_usps_enabled_envs
 }

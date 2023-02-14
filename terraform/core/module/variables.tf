@@ -148,3 +148,9 @@ variable "cross_account_archive_bucket_access" {
   type        = map(list(string))
   default     = {}
 }
+
+variable "sandbox_ses_usps_enabled_envs" {
+  description = "List of usps status update enabled environments"
+  type        = list(string)
+  default     = []
+}

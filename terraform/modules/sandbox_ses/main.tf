@@ -50,6 +50,34 @@ resource "aws_ses_receipt_rule" "drop-no-reply" {
   }
 }
 
+data "aws_sns_topic" "usps_topics" {
+  count = var.enabled == 1 ? length(var.usps_envs) : 0
+
+  name = "usps-${var.usps_envs[count.index]}-topic"
+}
+
+resource "aws_ses_receipt_rule" "usps_per_env" {
+  count = var.enabled == 1 ? length(var.usps_envs) : 0
+
+  name          = "usps-${var.usps_envs[count.index]}-rule"
+  rule_set_name = var.rule_set_name
+  recipients    = ["registration@usps.${var.usps_envs[count.index]}.${var.domain}"]
+  enabled       = true
+  scan_enabled  = true
+  # after = count.index == 0 ? "drop-no-reply" : aws_ses_receipt_rule.usps_per_env[count.index - 1].name
+
+  sns_action {
+    topic_arn = data.aws_sns_topic.usps_topics[count.index].arn
+    position  = 1
+  }
+
+  stop_action {
+    position = 2
+    scope    = "RuleSet"
+  }
+
+}
+
 
 resource "aws_ses_receipt_rule" "email_users" {
   for_each = {
@@ -79,7 +107,7 @@ resource "aws_ses_receipt_rule" "bounce-unknown" {
 
   name          = "bounce-unknown_mailboxes"
   rule_set_name = var.rule_set_name
-  after         = aws_ses_receipt_rule.drop-no-reply[count.index].name
+  after         = length(var.usps_envs) > 0 ? aws_ses_receipt_rule.usps_per_env[length(var.usps_envs) - 1].name : aws_ses_receipt_rule.drop-no-reply[count.index].name
 
   # no recipients, so this is a catchall
 

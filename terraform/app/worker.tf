@@ -103,6 +103,14 @@ resource "aws_iam_role_policy" "worker-transfer-utility" {
   policy = data.aws_iam_policy_document.transfer_utility_policy.json
 }
 
+resource "aws_iam_role_policy" "worker-usps-queue" {
+  count  = var.enable_usps_status_updates ? 1 : 0
+  name   = "${var.env_name}-worker-usps-queue"
+  role   = aws_iam_role.worker.id
+  policy = data.aws_iam_policy_document.usps_queue_policy[0].json
+}
+
+
 # Allow assuming cross-account role for Pinpoint APIs. This is in a separate
 # account for accounting purposes since it's on a separate contract.
 resource "aws_iam_role_policy" "worker-pinpoint-assumerole" {

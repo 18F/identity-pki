@@ -1220,6 +1220,12 @@ variable "attempts_api_low_success_alarm_threshold" {
   default     = 0
 }
 
+variable "enable_usps_status_updates" {
+  description = "Enables recieving emails from USPS for notification updates on in-person proofing"
+  type        = bool
+  default     = false
+}
+
 variable "minutes_since_ipp_enrollment_established_alarm_threshold" {
   description = "Maximum number of minutes after which an established USPS IPP enrollment is expected to expire"
   type        = number
