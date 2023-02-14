@@ -1,5 +1,5 @@
 {
-  "name": "scanner",
+  "name": "scanners",
   "description": "",
   "json_class": "Chef::Environment",
   "chef_type": "environment",
