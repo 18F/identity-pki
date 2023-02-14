@@ -252,8 +252,17 @@ resource "aws_cloudwatch_metric_alarm" "elasticache_alarm_critical_idp_attempts_
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
 
-  # NetworkBytesIn and NetworkBytesOut are in GB/minute - Hence the conversion
-  # pass network_performance from instance type into calculation
+  # NetworkBytesIn / NetworkBytesOut are in GB/min, while the network_performance
+  # attribute of aws_ec2_instance_type is in Gbps. Conversion is done thusly:
+  #
+  #  threshold GB/minute = Gbps * 1/8 * 60 * 0.01 * threshold_percentage
+  #  (or, simplified:)
+  #  threshold GB/minute = Gbps * 0.075 * threshold_percentage
+  #
+  # where:
+  #   1/8  =  bytes  -> bits
+  #    60  =   sec   -> min
+  #   0.01 = percent -> factor
   threshold = tonumber(
     regex(
       "[0-9]+",
