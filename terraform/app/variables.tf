@@ -1218,3 +1218,10 @@ variable "minutes_since_ipp_enrollment_established_alarm_threshold" {
   type        = number
   default     = 43560 # 30 days + 6 hours
 }
+
+variable "enable_dms_migration" {
+  type        = bool
+  description = "Enables resources necessary for migrating idp databases from integer columns to bigint columns"
+  default     = false
+}
+

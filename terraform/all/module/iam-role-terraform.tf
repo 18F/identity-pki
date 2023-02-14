@@ -185,6 +185,16 @@ locals {
         ]
       },
       {
+        sid    = "DMS"
+        effect = "Allow"
+        actions = [
+          "dms:*",
+        ]
+        resources = [
+          "*",
+        ]
+      },
+      {
         sid    = "Dynamodb"
         effect = "Allow"
         actions = [

@@ -17,6 +17,12 @@ locals {
     {
       name  = "log_autovacuum_min_duration"
       value = 1000
+    },
+    # BigInt: Set logical replication for change data capture (cdc)
+    {
+      name   = "rds.logical_replication"
+      value  = var.enable_dms_migration ? "1" : "0",
+      method = "pending-reboot"
     }
   ]
 
