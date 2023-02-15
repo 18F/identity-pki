@@ -35,12 +35,12 @@ module Cloudlib
       ).upload(source: source)
     end
 
-    def edit
+    def edit(validate_file:)
       UploadDownloadEdit.new(
         bucket: bucket,
         prefix: app_secret_path,
-        dry_run: dry_run?
-      ).edit
+        dry_run: dry_run?,
+      ).edit(validate_file: validate_file)
     end
 
     def log
@@ -58,11 +58,11 @@ module Cloudlib
       )
     end
 
-    private
-
     def dry_run?
       !!@dry_run
     end
+
+    private
 
     # @return [String,nil]
     def bucket
@@ -126,7 +126,7 @@ module Cloudlib
         ) if !dry_run?
       end
 
-      def edit
+      def edit(validate_file:)
         file = prefix
         ext = File.extname(file)
         base = File.basename(file, ext)
@@ -149,8 +149,21 @@ module Cloudlib
           exit 0
         end
 
+
         STDOUT.puts "#{basename}: Here's a preview of your changes:"
         system(differ, tempfile_copy.path, tempfile.path)
+
+        valid, error = check_file(File.read(tempfile.path))
+        if !valid
+          if validate_file
+            STDERR.puts "#{basename}: Invalid file (to override this check use --skip-validation)"
+            STDERR.puts error.inspect
+            exit 1
+          else
+            STDERR.puts "#{basename}: warning, changes did not validate"
+            STDERR.puts error.inspect
+          end
+        end
 
         STDOUT.puts "#{basename}: Upload changes to S3? (y/n)"
         fd = IO.sysopen("/dev/tty", "r")
@@ -191,6 +204,25 @@ module Cloudlib
 
       def s3_client
         @s3_client ||= Aws::S3::Client.new
+      end
+
+      # @return [true, Array(false, Error)]
+      def check_file(content)
+        extension = File.extname(prefix)
+        case extension.downcase
+        when '.yml', '.yaml'
+          require 'yaml'
+          YAML.parse(content)
+          true
+        when '.json'
+          require 'json'
+          JSON.parse(content)
+          true
+        else
+          true
+        end
+      rescue => err
+        [false, err]
       end
     end
 
@@ -265,7 +297,7 @@ module Cloudlib
             out.puts "Comparing: #{newer.last_modified} (#{newer.version_id})"
             out.puts "       to: #{older.last_modified} (#{older.version_id})"
 
-            success = system(differ, older_file.path, newer_file.path, out: STDOUT)
+            success = system(differ, older_file.path, newer_file.path, out: out)
 
             out.puts "(no diff)" if no_diff
 
