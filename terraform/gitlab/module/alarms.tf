@@ -113,3 +113,27 @@ module "gitlab_web_asg_resource_alerts" {
   alarm_actions      = [var.slack_events_sns_hook_arn]
   treat_missing_data = var.cloudwatch_treat_missing_data
 }
+
+locals {
+  projects = yamldecode(file("${path.module}/../../master/global/users.yaml")).projects
+}
+
+resource "aws_cloudwatch_metric_alarm" "queue_depth" {
+  for_each = local.projects
+
+  actions_enabled     = true
+  alarm_actions       = [var.slack_events_sns_hook_arn]
+  alarm_description   = "${local.alert_handle}Alarms when there are too many pending Gitlab CI/CD jobs. Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Gitlab-CI-Troubleshooting"
+  alarm_name          = "GitLab-${var.env_name}-${each.key}-Job-Queue-Depth"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = 2
+  metric_name         = "pending-jobs"
+  namespace           = "Gitlab/${var.env_name}"
+  period              = 60
+  statistic           = "Sum"
+  threshold           = var.job_queue_depth_alert_threshold
+
+  dimensions = {
+    projectname = each.key
+  }
+}

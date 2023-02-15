@@ -464,3 +464,9 @@ variable "cloudwatch_treat_missing_data" {
   type    = string
   default = "notBreaching"
 }
+
+variable "job_queue_depth_alert_threshold" {
+  type        = number
+  description = "The depth of a Gitlab project's job queue at which to alert."
+  default     = 20
+}
