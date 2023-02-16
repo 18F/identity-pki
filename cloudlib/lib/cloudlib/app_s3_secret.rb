@@ -35,12 +35,12 @@ module Cloudlib
       ).upload(source: source)
     end
 
-    def edit(validate_file:)
+    def edit(validate_file:, autoconfirm:)
       UploadDownloadEdit.new(
         bucket: bucket,
         prefix: app_secret_path,
         dry_run: dry_run?,
-      ).edit(validate_file: validate_file)
+      ).edit(validate_file: validate_file, autoconfirm: autoconfirm)
     end
 
     def log
@@ -126,7 +126,7 @@ module Cloudlib
         ) if !dry_run?
       end
 
-      def edit(validate_file:)
+      def edit(validate_file:, autoconfirm:)
         file = prefix
         ext = File.extname(file)
         base = File.basename(file, ext)
@@ -149,7 +149,6 @@ module Cloudlib
           exit 0
         end
 
-
         STDOUT.puts "#{basename}: Here's a preview of your changes:"
         system(differ, tempfile_copy.path, tempfile.path)
 
@@ -165,15 +164,17 @@ module Cloudlib
           end
         end
 
-        STDOUT.puts "#{basename}: Upload changes to S3? (y/n)"
-        fd = IO.sysopen("/dev/tty", "r")
-        tty_in = IO.new(fd,"r")
+        if !autoconfirm
+          STDOUT.puts "#{basename}: Upload changes to S3? (y/n)"
+          fd = IO.sysopen("/dev/tty", "r")
+          tty_in = IO.new(fd,"r")
 
-        input = tty_in.read(1)
-        if input == 'y'
-          upload(source: tempfile.path) if !dry_run?
-        else
-          STDERR.puts "#{basename}: diff not approved, not uploading to S3"
+          input = tty_in.read(1)
+          if input == 'y'
+            upload(source: tempfile.path) if !dry_run?
+          else
+            STDERR.puts "#{basename}: diff not approved, not uploading to S3"
+          end
         end
       ensure
         tempfile.unlink
