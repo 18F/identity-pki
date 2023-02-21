@@ -7,3 +7,58 @@ cloudtrail/limit-exceeded:
     filter errorCode like "LimitExceeded"
     ## Comment out the following line to see the full events
     | stats count() as events by awsRegion,eventSource,eventName,userIdentity.arn | sort events desc
+    
+cloudtrail/event-count-by-user:
+  logs:
+    - CloudTrail/DefaultLogGroup
+  query: |
+    # Get CloudTrail events by user
+    filter userIdentity.principalId like '.' AND userIdentity.principalId not like /-/ 
+    # Uncomment to limit events to creating, updating, or deleting
+    #| filter eventName like /(?i)Create|New|Register|Modify|Update|Delete|Deregister|Destroy|Disable/
+    | stats count() as eventCount by userIdentity.principalId, eventName, eventSource, awsRegion
+    | sort eventCount desc   
+
+cloudtrail/event-count-by-user-in-env:
+  logs:
+    - CloudTrail/DefaultLogGroup
+  query: |
+    # Filtering @message by the ENV name.  Replace {ENV} with the desired environment
+    # NOTE: Not all resources have the ENV listed in the resource name
+    filter @message like '{ENV}'
+    # Get CloudTrail events by user
+    | filter userIdentity.principalId like '.' AND userIdentity.principalId not like /-/ 
+    # Uncomment to limit events to creating, updating, or deleting
+    #| filter eventName like /(?i)Create|New|Register|Modify|Update|Delete|Deregister|Destroy|Disable/
+    | stats count() as eventCount by userIdentity.principalId, eventName, eventSource, awsRegion
+    | sort eventCount desc   
+
+cloudtrail/event-details-for-user:
+  logs:
+    - CloudTrail/DefaultLogGroup
+  query: |
+    # Replace {USER} with the desired username
+    fields @timestamp, userIdentity.principalId, eventName, eventSource, awsRegion, userAgent, @message
+    # Find all Cloudtrail Events from the specified user
+    | filter userIdentity.principalId like '{USER}'
+    # Uncomment to limit events to creating, updating, or deleting
+    #| filter eventName like /(?i)Create|New|Register|Modify|Update|Delete|Deregister|Destroy|Disable/
+
+cloudtrail/event-details-for-user-in-env:
+  logs:
+    - CloudTrail/DefaultLogGroup
+  query: |
+    # Find all Cloudtrail Events from a user in the specified env
+    fields @timestamp, userIdentity.principalId, eventName, eventSource, awsRegion, userAgent, @message
+    # Filtering @message by the ENV name.  Replace {ENV} with the desired environment
+    # NOTE: Not all resources have the ENV listed in the resource name
+    | filter @message like '{ENV}'
+    # Replace {USER} with the desired username
+    | filter userIdentity.principalId like '{USER}'
+    # Uncomment to limit events to creating, updating, or deleting
+    #| filter eventName like /(?i)Create|New|Register|Modify|Update|Delete|Deregister|Destroy|Disable/
+
+
+
+
+
