@@ -7,10 +7,10 @@ dhparam
 newrelic_license_key
 oidc.key
 oidc.pub
-saml2021.crt
-saml2021.key.enc
 saml2022.crt
 saml2022.key.enc
+saml2023.crt
+saml2023.key.enc
 secret_key_base_dashboard
 secret_key_base_rails
 slackchannel

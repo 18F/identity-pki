@@ -1,20 +1,5 @@
 #!/bin/bash
 
-# locate identity-devops-private directory, either from parent directory
-# of current repo or via manually-passed-in value
-verify_private_repo() {
-  PRIVATE_REPO=${ID_PRIVATE_DIR-}
-  if [[ -z ${PRIVATE_REPO} ]] ; then
-    BASENAME="$(basename "$GIT_DIR")"
-    PRIVATE_REPO="$(dirname "$GIT_DIR")/$BASENAME-private"
-  fi
-  if [[ ! -d ${PRIVATE_REPO} ]] ; then
-    raise "${PRIVATE_REPO} not found; \
-           set \$ID_PRIVATE_DIR env var with correct path"
-  fi
-  echo_cyan "identity-devops-private dir located."
-}
-
 # ensure that all required TF_ENV files (Chef/tfvars/etc.) exist
 verify_env_files() {
   for FILE in "${GIT_DIR}/kitchen/environments/${TF_ENV}.json" \

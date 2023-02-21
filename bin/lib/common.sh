@@ -30,7 +30,13 @@ ave() {
 
 # echo full command before executing, then do it anyway
 run() {
-  run_me=("$@")
+  local ECHO_RUN=true
+  if [[ ${1} == '-r' ]] ; then
+    ECHO_RUN=false
+    shift 1
+  fi
+  local run_me=("$@")
+  if [[ ${ECHO_RUN} == true ]] ; then
     if [ -t 1 ]; then
       echo -ne "\\033[1;36m"
     fi
@@ -40,6 +46,7 @@ run() {
     if [ -t 1 ]; then
       echo -ne '\033[m'
     fi
+  fi
   "${run_me[@]}"
 }
 
@@ -124,6 +131,21 @@ verify_root_repo() {
   if [[ "${GIT_DIR_SHORT}" != 'identity-devops' ]] ; then
     raise "Must be run from the identity-devops repo"
   fi
+}
+
+# locate identity-devops-private directory, either from parent directory
+# of current repo or via manually-passed-in value
+verify_private_repo() {
+  PRIVATE_REPO=${ID_PRIVATE_DIR-}
+  if [[ -z ${PRIVATE_REPO} ]] ; then
+    BASENAME="$(basename "$GIT_DIR")"
+    PRIVATE_REPO="$(dirname "$GIT_DIR")/$BASENAME-private"
+  fi
+  if [[ ! -d ${PRIVATE_REPO} ]] ; then
+    raise "${PRIVATE_REPO} not found; \
+           set \$ID_PRIVATE_DIR env var with correct path"
+  fi
+  echo_cyan "identity-devops-private dir located."
 }
 
 # send a notification in Slack, pulling appropriate key(s) from bucket to do so

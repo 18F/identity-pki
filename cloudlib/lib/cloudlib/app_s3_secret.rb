@@ -164,14 +164,16 @@ module Cloudlib
           end
         end
 
-        if !autoconfirm
+        if autoconfirm
+          upload(source: tempfile.path) if !dry_run?
+        else
           STDOUT.puts "#{basename}: Upload changes to S3? (y/n)"
           fd = IO.sysopen("/dev/tty", "r")
           tty_in = IO.new(fd,"r")
 
           input = tty_in.read(1)
           if input == 'y'
-            upload(source: tempfile.path) if !dry_run?
+            
           else
             STDERR.puts "#{basename}: diff not approved, not uploading to S3"
           end

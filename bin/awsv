@@ -9,7 +9,7 @@ set -euo pipefail
 usage() {
   cat >&2 <<EOM
 
-Usage: ${0} ACCOUNT|[-x PROFILE] CMD|[-v DUR]|[-[i]l|c SERVICE]
+Usage: ${0} ACCOUNT|[-x PROFILE] CMD|[-v DUR]|[-[i]l|c SERVICE] [-r]
   - Will prompt to set \$LOGIN_IAM_PROFILE in env, if not already configured
   - Uses Google Chrome for \`login\` commands
 
@@ -19,6 +19,7 @@ Flags:
   -i         : Opens an incognito window when used with -l / -c (e.g. -il / -ic SERVICE)
   -l         : \`login\` instead of \`exec\`
   -c SERVICE : -l but redirects to https://console.aws.amazon.com/\${SERVICE}
+  -r         : Don't print full command to console, just run it
   -h         : Display help
 
 EOM
@@ -56,13 +57,13 @@ if [[ -z $(aws-vault list --sessions) ]] || [[ $(aws-vault list --sessions |
   fi
 fi
 
-declare {AV_ROLE,SET_ROLE,SERVICE,INCOGNITO}=
+declare {AV_ROLE,SET_ROLE,SERVICE,INCOGNITO,RUN_FLAG}=
 DUR=1
 VAULT_CMD='exec'
 
 [ $# -eq 0 ] && raise 'Cannot be run without arguments!'
 
-while getopts x:lc:v:ih opt
+while getopts x:lc:v:irh opt
 do
   case "${opt}" in
     x) SET_ROLE="${OPTARG}"                     ;;
@@ -70,6 +71,7 @@ do
     c) VAULT_CMD="login" && SERVICE="${OPTARG}" ;;
     v) VAULT_CMD="session" && DUR="${OPTARG}"   ;;
     i) INCOGNITO="-incognito"                   ;;
+    r) RUN_FLAG="-r"                            ;;
     h) help_me                                  ;;
     *) usage && exit 1                          ;;
   esac
@@ -86,14 +88,14 @@ verify_profile "${SET_ROLE}"
 
 case "${VAULT_CMD}" in
   exec)
-    run aws-vault exec ${AV_ROLE} -- "$@"
+    run ${RUN_FLAG} aws-vault exec ${AV_ROLE} -- "$@"
   ;;
   login)
-    run aws-vault login ${AV_ROLE} --stdout |
+    run ${RUN_FLAG} aws-vault login ${AV_ROLE} --stdout |
         sed -E "s/%2Fconsole%2F/%2F${SERVICE}%2F/" |
         xargs -t /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome ${INCOGNITO} 2>/dev/null
   ;;
   session)
-    run aws-vault exec ${AV_ROLE} --no-session --duration ${DUR}h
+    run ${RUN_FLAG} aws-vault exec ${AV_ROLE} --no-session --duration ${DUR}h
   ;;
 esac
