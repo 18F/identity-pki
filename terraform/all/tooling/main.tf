@@ -25,7 +25,6 @@ module "main" {
   ssm_access_map = {
     "FullAdministrator" = [{ "*" = ["*"] }],
     "PowerUser"         = [{ "*" = ["*"] }],
-    "SOCAdministrator"  = [{ "*" = ["*"] }],
     "Terraform"         = [{ "*" = ["*"] }],
   }
 }

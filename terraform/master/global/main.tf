@@ -130,6 +130,7 @@ module "main" {
     ]
   }
 
+  # See https://github.com/18F/identity-devops/wiki/AWS-Account-and-IAM-Configurations#aws-roles
   role_list = [
     "Analytics",
     "Auditor",

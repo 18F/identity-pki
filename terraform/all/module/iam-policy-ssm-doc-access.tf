@@ -60,7 +60,7 @@ data "aws_iam_policy_document" "ssm_command_access" {
       # in specific environment(s), as mapped out in local.ssm_cmd_map
       test     = "StringLike"
       variable = "aws:ResourceTag/Name"
-      values = flatten([
+      values = distinct(flatten([
         for env in flatten([
           for arn in each.value : element(split(
             "-", element(split("/", arn), 1)
@@ -72,7 +72,7 @@ data "aws_iam_policy_document" "ssm_command_access" {
             ]) : lookup(local.ssm_cmd_map, cmd, "*")
           ])
         )
-      ])
+      ]))
     }
   }
 

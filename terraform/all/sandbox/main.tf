@@ -148,10 +148,8 @@ module "main" {
 
   ssm_access_map = {
     "FullAdministrator" = [{ "*" = ["*"] }],
-    "KMSAdministrator"  = [{ "*" = ["*"] }],
     "PowerUser"         = [{ "*" = ["*"] }],
-    "SOCAdministrator"  = [{ "*" = ["*"] }],
-    "SupportEngineer"   = [{ "*" = ["uuid-lookup", "review-pass", "review-reject"] }],
+    "SupportEngineer"   = [{ "*" = ["uuid-lookup"] }],
     "Terraform"         = [{ "*" = ["*"] }],
     "FraudOps"          = [{ "*" = ["uuid-lookup", "review-pass", "review-reject"] }],
   }

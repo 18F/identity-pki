@@ -106,11 +106,9 @@ module "main" {
 
   ssm_access_map = {
     "FullAdministrator" = [{ "*" = ["*"] }],
-    "KMSAdministrator"  = [{ "*" = ["*"] }],
     "PowerUser"         = [{ "*" = ["*"] }],
-    "SOCAdministrator"  = [{ "*" = ["*"] }],
-    "SupportEngineer"   = [{ "*" = ["uuid-lookup", "review-pass", "review-reject"] }],
-    "Terraform"         = [{ "*" = ["*"] }],
-    "FraudOps"          = [{ "*" = ["uuid-lookup", "review-pass", "review-reject"] }],
+    "SupportEngineer"   = [{ "*" = ["uuid-lookup"] }],
+    # "Terraform"         = [{ "*" = ["*"] }], This will need to be specific before enabling
+    "FraudOps" = [{ "*" = ["uuid-lookup", "review-pass", "review-reject"] }],
   }
 }
