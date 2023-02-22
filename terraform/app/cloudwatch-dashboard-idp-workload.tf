@@ -540,6 +540,106 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
         {
             "type": "metric",
             "x": 0,
+            "y": 8,
+            "width": 12,
+            "height": 6,
+            "properties": {
+                "metrics": [
+                    [ "${var.env_name}/idp-worker", "queue-time-milliseconds", { "color": "#2ca02c", "label": "queue time p99", "stat": "p99" } ],
+                    [ "${var.env_name}/idp-worker", "queue-time-milliseconds", { "color": "#1f77b4", "label": "queue time p90", "stat": "p90" } ],
+                    [ "${var.env_name}/idp-worker", "queue-time-milliseconds", { "color": "#d62728", "label": "queue time p50", "stat": "p50" } ]
+                ],
+                "view": "timeSeries",
+                "stacked": true,
+                "region": "${var.region}",
+                "title": "${var.env_name} Worker - Background Job queue time",
+                "period": 60,
+                "yAxis": {
+                    "left": {
+                        "min": 0,
+                        "showUnits": false,
+                        "label": "Queue Time (ms)"
+                    }
+                }
+            }
+        },
+        {
+            "type": "metric",
+            "x": 0,
+            "y": 8,
+            "width": 12,
+            "height": 6,
+            "properties": {
+                "metrics": [
+                  [ "AWS/ElastiCache", "EngineCPUUtilization", "CacheClusterId", "${aws_elasticache_replication_group.idp.id}-001", "CacheNodeId", "0001", { "color": "#2ca02c", "label": "${aws_elasticache_replication_group.idp.id}-001" } ],
+                  [ "AWS/ElastiCache", "EngineCPUUtilization", "CacheClusterId", "${aws_elasticache_replication_group.idp.id}-002", "CacheNodeId", "0001", { "color": "#ff7f0e", "label": "${aws_elasticache_replication_group.idp.id}-002" } ]
+                ],
+                "view": "timeSeries",
+                "stacked": true,
+                "region": "${var.region}",
+                "title": "${var.env_name} Redis - Engine CPU Utilization (Average)",
+                "period": 60,
+                "yAxis": {
+                    "left": {
+                        "min": 0,
+                        "showUnits": false,
+                        "label": "CPU Utilization (%)"
+                    }
+                },
+                "stat": "Average"
+            }
+        },
+        {
+            "type": "metric",
+            "x": 12,
+            "y": 32,
+            "width": 12,
+            "height": 6,
+            "properties": {
+                "metrics": [
+                    [ "AWS/RDS", "DatabaseConnections", "DBInstanceIdentifier", "${module.worker_aurora_uw2.writer_instance}", { "label": "AuroraDB (Writer Instance)" } ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${var.region}",
+                "title": "${var.env_name} Worker - Database Connections",
+                "stat": "Maximum",
+                "period": 60,
+                "yAxis": {
+                    "left": {
+                        "label": "Connections",
+                        "showUnits": false
+                    }
+                }
+            }
+        },
+        {
+            "type": "metric",
+            "x": 12,
+            "y": 32,
+            "width": 12,
+            "height": 6,
+            "properties": {
+                "metrics": [
+                    [ "AWS/RDS", "CPUUtilization", "DBInstanceIdentifier", "${module.worker_aurora_uw2.writer_instance}", { "label": "AuroraDB (Writer Instance)" } ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${var.region}",
+                "title": "${var.env_name} Worker - CPU Utilization (Average)",
+                "stat": "Average",
+                "period": 60,
+                "yAxis": {
+                    "left": {
+                        "label": "CPU Utilization (%)",
+                        "showUnits": false
+                    }
+                }
+            }
+        },
+        {
+            "type": "metric",
+            "x": 0,
             "y": 52,
             "width": 12,
             "height": 6,
