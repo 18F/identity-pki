@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 
-  # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-  #
-  # Licensed under the Apache License, Version 2.0 (the "License").
-  # You may not use this file except in compliance with the License.
-  # A copy of the License is located at
-  #
-  #     http://www.apache.org/licenses/LICENSE-2.0
-  #
-  # or in the "license" file accompanying this file. This file is distributed
-  # on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
-  # express or implied. See the License for the specific language governing
-  # permissions and limitations under the License.
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License").
+# You may not use this file except in compliance with the License.
+# A copy of the License is located at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# or in the "license" file accompanying this file. This file is distributed
+# on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+# express or implied. See the License for the specific language governing
+# permissions and limitations under the License.
 
 
 import boto3
@@ -25,14 +25,15 @@ import string
 import time
 import argparse
 
-###### Creating global variables
+# Creating global variables
 # OSLevelCommands are the commands which will be attempted on the host OS of the instance in the event that SSM is configured and functional.
-OSLevelCommands = ["netstat -ap","lsof"]
-#SSM Drain time is the time after a successful SSM message send to wait before quarantining the instance. This may need to eb increased if OS commands above are lengthy
+OSLevelCommands = ["netstat -ap", "lsof"]
+# SSM Drain time is the time after a successful SSM message send to wait before quarantining the instance. This may need to eb increased if OS commands above are lengthy
 SSM_DRAIN_TIME = 10
 # Simple, likely unique identifier for this particular script run as a prefix for files in S3.
 RUNIDPREFIX = str(datetime.datetime.utcnow().timestamp())+"/"
-
+# KMS Alias of the quarantine bucket's KMS key
+QUARANTINE_KEY_ALIAS = 'alias/quarantine-ec2'
 
 
 def _random_string():
@@ -135,7 +136,7 @@ def snapshot(ec2Client, instance_id):
         except ValueError as e:
             message = 'Failed to start snapshot for '+volume_id+". Error: "+ str(e['ErrorMessage'])+'\n'
 
-    #we have all the metadata here, so let's capture the VPC_ID for later use as a global
+    # we have all the metadata here, so let's capture the VPC_ID for later use as a global
     VPC_ID = instance_describe_metadata['Reservations'][0]['Instances'][0]['VpcId']
     if SNS_TOPIC:
         send_sns_message(message)
@@ -171,7 +172,7 @@ def isolate_instance(ec2Client, instance_id, VPC_ID, isolateSG):
         )
         message = "Isolation successful -- " + str(response)
     except ValueError as e:
-        message ='Unable to isolate instance! -- ' + str(e['ErrorMessage'])
+        message = 'Unable to isolate instance! -- ' + str(e['ErrorMessage'])
 
     print(message)
 
@@ -247,16 +248,16 @@ def send_sns_message(message):
     print(message)
 
 
-#Test to see if SSM has the instance in its managed instance list:
+# Test to see if SSM has the instance in its managed instance list:
 def is_instance_managed_by_SSM(ssm, instance_id):
-    #first, we'll determine if the instance is under the influence of SSM to begin:
-    #This can be optimized by converting this list of dicts into a more expected dict of instance IDs and then simply finding the key. Requires pandas likely.
+    # first, we'll determine if the instance is under the influence of SSM to begin:
+    # This can be optimized by converting this list of dicts into a more expected dict of instance IDs and then simply finding the key. Requires pandas likely.
     ssmInstanceInformation = ssm.describe_instance_information()
     for thisInstanceInfo in ssmInstanceInformation['InstanceInformationList']:
         if thisInstanceInfo['InstanceId'] == instance_id:
             print("Found instance " + instance_id + " is managed by SSM")
             return True
-    #If we can't find this instance in the list that SSM knows about, then don't execute the send commands portion.
+    # If we can't find this instance in the list that SSM knows about, then don't execute the send commands portion.
     print("Instance " + instance_id + " not found to be controlled by SSM.")
     return False
 
@@ -264,7 +265,7 @@ def is_instance_managed_by_SSM(ssm, instance_id):
 # Sending SSM Run Command to the instance
 def ssm_send_commands(ssm, instance_id):
     try:
-        #Add a pause here for a few seconds to allow the instance profile change to iron itself out, or the S3 upload can fail:
+        # Add a pause here for a few seconds to allow the instance profile change to iron itself out, or the S3 upload can fail:
         time.sleep(5)
 
         ACCOUNT_ID = boto3.client('sts').get_caller_identity().get('Account')
@@ -276,9 +277,9 @@ def ssm_send_commands(ssm, instance_id):
             TimeoutSeconds=240,
 
             Parameters={
-                'commands':OSLevelCommands,
-                'executionTimeout':['3600'],
-                'workingDirectory':['/tmp']
+                'commands': OSLevelCommands,
+                'executionTimeout': ['3600'],
+                'workingDirectory': ['/tmp']
             },
             OutputS3BucketName=BUCKET_NAME,
             OutputS3KeyPrefix=RUNIDPREFIX+'ssm-output-file',
@@ -305,7 +306,7 @@ def ssm_send_commands(ssm, instance_id):
             count += 1
         else:
             break
-    #Allow SSM_DRAIN_TIME seconds for SSM to complete commands after a "Success" status has processed
+    # Allow SSM_DRAIN_TIME seconds for SSM to complete commands after a "Success" status has processed
     if status == 'Success':
         message = "Successfully sent SSM Run Command to instance " + instance_id
 
@@ -318,9 +319,10 @@ def ssm_send_commands(ssm, instance_id):
     if SNS_TOPIC:
         send_sns_message(message)
 
-#remove an EC2 instance profile if it is attached, otherwise just continue on
-#Note that this is running under the assumption at writing that only one instance profile can be attached at a time
+
 def remove_EC2_IAM_role(ec2Client, instance_id):
+    # remove an EC2 instance profile if it is attached, otherwise just continue on
+    # Note that this is running under the assumption at writing that only one instance profile can be attached at a time
     try:
         thisIAMAssociationIDInfo = ec2Client.describe_iam_instance_profile_associations(Filters=[{'Name': 'instance-id', 'Values': [instance_id]}])
 
@@ -335,6 +337,7 @@ def remove_EC2_IAM_role(ec2Client, instance_id):
 
     print(message)
 
+
 def attach_EC2_SSM_execution_IAM_role(ec2Client, instance_id):
     try:
         ec2Client.associate_iam_instance_profile(InstanceId=instance_id, IamInstanceProfile={'Arn': SSMEC2IAMPROFILE , 'Name': 'SecurityResponseEC2InstanceRoleProfile'})
@@ -342,7 +345,6 @@ def attach_EC2_SSM_execution_IAM_role(ec2Client, instance_id):
     except ValueError as e:
         message = "Unable to attach IAM role correctly --  " + instance_id + str(e['ErrorMessage'])
     print(message)
-
 
 
 if __name__ == "__main__":
@@ -362,9 +364,7 @@ if __name__ == "__main__":
 
     AREGION = 'us-west-2'
     if args.region:
-        AREGION=args.region
-
-    
+        AREGION = args.region
 
     instance_id = args.iid
     instanceid_is_valid(instance_id)
@@ -372,22 +372,10 @@ if __name__ == "__main__":
     ec2Client = boto3.client('ec2', region_name=AREGION)
     asgClient = boto3.client('autoscaling', region_name=AREGION)
     ssmClient = boto3.client('ssm', region_name=AREGION)
-    kmsClient = boto3.client('kms',region_name=AREGION)
+    kmsClient = boto3.client('kms', region_name=AREGION)
 
-    
-    kmskeys = kmsClient.list_keys()
-
-    for cmk in kmskeys["Keys"]:
-        #print(cmk)
-        key_info = kmsClient.describe_key(KeyId=cmk["KeyId"])
-        #print(key_info)
-        if key_info["KeyMetadata"]["Description"] == 'KMS Key for the quarantine S3 bucket':
-            KEYID = cmk["KeyId"]
-            #print(KEYID)
-            break
-
-    
-    #KEYID = args.keyid
+    key_alias = kmsClient.describe_key(KeyId=QUARANTINE_KEY_ALIAS)
+    KEYID = key_alias['KeyMetadata']['KeyId']
 
     BUCKET_NAME = "login-gov.quarantine-ec2."+account_id+"-"+AREGION
     if args.bucket:
@@ -397,7 +385,6 @@ if __name__ == "__main__":
     if args.topic:
         SNS_TOPIC = args.topic
 
-    
     try:
         instance_describe_metadata = ec2Client.describe_instances(
             InstanceIds=[
@@ -407,12 +394,10 @@ if __name__ == "__main__":
     except ValueError as e:
         message = 'Unable to get instance metadata' + str(e['ErrorMessage'])
     VPC_ID = instance_describe_metadata['Reservations'][0]['Instances'][0]['VpcId']
-   
-
 
     isolateSG = args.sgid
 
-    #print(isolateSG)
+    # print(isolateSG)
     isolate_instance(ec2Client, instance_id, VPC_ID, isolateSG)
 
     console_screenshot(ec2Client, instance_id)
@@ -424,7 +409,6 @@ if __name__ == "__main__":
     except:
         pass
 
-    
     set_tags(ec2Client, instance_id)
 
     message = 'Security Response mechanism complete for instance: ' + instance_id
