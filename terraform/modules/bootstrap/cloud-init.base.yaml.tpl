@@ -11,6 +11,11 @@ ssh_genkeytypes: ['rsa', 'ecdsa']
 
 bootcmd:
  - aws configure set region ${region} --profile default
+ - mkdir -vp /etc/auto-hostname
+ - 'echo "${hostname_prefix}" > /etc/auto-hostname/prefix'
+ - 'echo "{$var.env}.${domain}" > /etc/auto-hostname/domain'
+
+preserve_hostname: true
 
 write_files:
  - path: /etc/login.gov/info/env
@@ -60,5 +65,10 @@ ${apt_proxy_stanza}
      # https://help.github.com/articles/github-s-ssh-key-fingerprints/
      github.com ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==
 
-# merge multipart cloud-init files in a sane way
-merge_type: 'list(append)+dict(recurse_array)+str()'
+runcmd:
+- /var/lib/cloud/instance/scripts/provision.sh --asg-name "${asg_name}" --lifecycle-hook-name "${private_lifecycle_hook_name}" --git-ref "${private_git_ref}" "${private_s3_ssh_key_url}" "${private_git_clone_url}"
+- touch "/run/private-provisioning"
+- /var/lib/cloud/instance/scripts/provision.sh --kitchen-subdir kitchen --berksfile-toplevel --asg-name "${asg_name}" --lifecycle-hook-name "${main_lifecycle_hook_name}" --git-ref "${main_git_ref}" "${main_s3_ssh_key_url}" "${main_git_clone_url}"
+- touch "/run/main-provisioning"
+- "apt remove -y ubuntu-advantage-pro ubuntu-advantage-tools"
+- "aideinit --force --yes && touch /var/tmp/ran-aideinit"

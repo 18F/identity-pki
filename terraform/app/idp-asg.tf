@@ -198,10 +198,11 @@ resource "aws_iam_role_policy" "idp-xray-publish" {
 module "idp_user_data" {
   source = "../modules/bootstrap/"
 
-  role          = "idp"
-  env           = var.env_name
-  domain        = var.root_domain
-  sns_topic_arn = var.slack_events_sns_hook_arn
+  role                   = "idp"
+  env                    = var.env_name
+  domain                 = var.root_domain
+  s3_secrets_bucket_name = data.aws_s3_bucket.secrets.bucket
+  sns_topic_arn          = var.slack_events_sns_hook_arn
 
   chef_download_url    = var.chef_download_url
   chef_download_sha256 = var.chef_download_sha256

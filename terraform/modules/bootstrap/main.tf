@@ -1,103 +1,34 @@
-data "aws_caller_identity" "current" {}
-
-data "aws_region" "current" {}
-
-variable "env" {
-  description = "Environment (prod/int/dev)"
-}
-
-variable "role" {
-  description = "Host role (idp/jumphost/etc)"
-}
-
-variable "domain" {
-  description = "Second level domain, e.g. login.gov"
-}
-
-variable "chef_download_url" {
-  description = "URL to download chef debian package. If set to empty string, skip chef download."
-  default     = ""
-}
-
-variable "chef_download_sha256" {
-  description = "Expected SHA256 checksum of chef debian package"
-  default     = ""
-}
-
-variable "private_s3_ssh_key_url" {
-  description = "S3 URL to use to download SSH key used to clone the private_git_clone_url"
-}
-
-variable "private_git_clone_url" {
-  description = "Git SSH URL used to clone identity-devops-private"
-}
-
-variable "private_git_ref" {
-  description = "Git ref to check out after cloning private_git_clone_url"
-  default     = "HEAD"
-}
-
-variable "private_lifecycle_hook_name" {
-  description = "Name of the ASG lifecycle hook to notify upon private provision.sh completion"
-  default     = "provision-private"
-}
-
-variable "main_s3_ssh_key_url" {
-  description = "S3 URL to use to download SSH key used to clone the main_git_clone_url"
-}
-
-variable "main_git_clone_url" {
-  description = "Git SSH URL used to clone identity-devops"
-}
-
-variable "main_git_ref_map" {
-  description = "Mapping from role to the git ref to check out after cloning main_git_clone_url"
-  type        = map(string)
-  default     = {}
-}
-
-variable "main_git_ref_default" {
-  description = "Default git ref to check out after cloning main_git_clone_url if no value set for role in main_git_ref_map"
-  default     = "HEAD"
-}
-
-variable "proxy_server" {
-  description = "URL to outbound proxy server"
-}
-
-variable "proxy_port" {
-  description = "Port for outbound proxy server"
-}
-
-variable "no_proxy_hosts" {
-  description = "Comma delimited list of hostnames, ip's and domains that should not use outbound proxy"
-}
-
-variable "proxy_enabled_roles" {
-  description = "Mapping from role names to integer {0,1} for whether the outbound proxy server is enabled during bootstrapping."
-  type        = map(number)
-}
-
-variable "main_lifecycle_hook_name" {
-  description = "Name of the ASG lifecycle hook to notify upon main provision.sh completion"
-  default     = "provision-main"
-}
-
-variable "override_asg_name" {
-  description = "Auto scaling group name. If not set, defaults to $env-$role"
-  default     = ""
-}
-
-variable "sns_topic_arn" {
-  description = "ARN to send alerts alerts to, ultimately triggering Slack or other message"
-  default     = ""
-}
-
 locals {
-  asg_name = var.override_asg_name != "" ? var.override_asg_name : "${var.env}-${var.role}"
-}
+  asg_name     = var.override_asg_name != "" ? var.override_asg_name : "${var.env}-${var.role}"
+  provision_sh = file("${path.module}/provision.sh")
 
-locals {
+  base_yaml = templatefile("${path.module}/cloud-init.base.yaml.tpl",
+    {
+      apt_proxy_stanza            = local.apt_proxy_stanza,
+      asg_name                    = local.asg_name,
+      chef_download_sha256        = var.chef_download_sha256,
+      chef_download_url           = var.chef_download_url,
+      domain                      = var.domain,
+      env                         = var.env,
+      hostname_prefix             = var.role,
+      main_git_clone_url          = var.main_git_clone_url,
+      main_lifecycle_hook_name    = var.main_lifecycle_hook_name,
+      main_git_ref                = local.main_git_ref,
+      main_s3_ssh_key_url         = var.main_s3_ssh_key_url,
+      no_proxy_hosts              = local.no_proxy_hosts,
+      private_git_clone_url       = var.private_git_clone_url,
+      private_lifecycle_hook_name = var.private_lifecycle_hook_name,
+      private_git_ref             = var.private_git_ref,
+      private_s3_ssh_key_url      = var.private_s3_ssh_key_url,
+      proxy_port                  = local.proxy_port,
+      proxy_server                = local.proxy_server,
+      proxy_url                   = local.proxy_url,
+      region                      = data.aws_region.current.name,
+      role                        = var.role,
+      sns_topic_arn               = var.sns_topic_arn
+    }
+  )
+
   main_git_ref = lookup(var.main_git_ref_map, var.role, var.main_git_ref_default)
 
   # set proxy locals to "" unless there is a 1 for our role (or default unknown) in proxy_enabled_roles
@@ -135,14 +66,6 @@ EOF
   ) == 1 ? local.apt_proxy_data : ""
 }
 
-output "main_git_ref" {
-  value = local.main_git_ref
-}
-
-output "private_git_ref" {
-  value = var.private_git_ref
-}
-
 # Ideally this module would have contained the aws_launch_configuration since
 # it looks pretty much the same across auto scaling groups.
 # But this was not possible due to a terraform bug:
@@ -152,9 +75,6 @@ output "private_git_ref" {
 
 # The output of this module is a rendered cloud-init user data script,
 # appropriate for including in an aws_launch_configuration resource.
-output "rendered_cloudinit_config" {
-  value = data.cloudinit_config.bootstrap.rendered
-}
 
 # These templates create cloud-init configuration that runs provision.sh with
 # the specified arguments.
@@ -175,90 +95,39 @@ output "rendered_cloudinit_config" {
 # Currently we run identity-devops-private first. Because the identity-devops
 # cookbooks are so complicated and take so long to run, it's useful to have
 # unix accounts set up early so we can SSH in to diagnose failures.
+
+data "aws_caller_identity" "current" {}
+
+data "aws_region" "current" {}
+
 data "cloudinit_config" "bootstrap" {
   # may need to change these to true if we hit 16K in size
   gzip          = true
   base64_encode = true
 
   part {
-    filename     = "set-hostname.yaml"
-    content_type = "text/cloud-config"
-    content = templatefile("${path.module}/cloud-init.hostname.yaml.tpl",
-      {
-        hostname_prefix = var.role,
-        domain          = "${var.env}.${var.domain}"
-      }
-    )
-  }
-
-  part {
     filename     = "provision.sh"
     content_type = "text/x-shellscript"
-    content      = file("${path.module}/provision.sh")
+    content      = local.provision_sh
   }
 
   part {
     filename     = "base.yaml"
     content_type = "text/cloud-config"
-    content = templatefile("${path.module}/cloud-init.base.yaml.tpl",
-      {
-        apt_proxy_stanza = local.apt_proxy_stanza,
-        domain           = var.domain,
-        env              = var.env,
-        no_proxy_hosts   = local.no_proxy_hosts,
-        proxy_port       = local.proxy_port,
-        proxy_server     = local.proxy_server,
-        proxy_url        = local.proxy_url,
-        region           = data.aws_region.current.name,
-        role             = var.role,
-        sns_topic_arn    = var.sns_topic_arn
-      }
-    )
+    content      = local.base_yaml
   }
+}
 
-  part {
-    filename     = "provision-private.yaml"
-    content_type = "text/cloud-config"
-    content = templatefile("${path.module}/cloud-init.provision.yaml.tpl",
-      {
-        # This will cause /run/<provision_phase_name> to be created if this
-        # completes successfully.
-        provision_phase_name = "private-provisioning",
-        kitchen_subdir       = "",
-        berksfile_toplevel   = "",
-        chef_download_sha256 = var.chef_download_sha256,
-        chef_download_url    = var.chef_download_url,
-        git_clone_url        = var.private_git_clone_url,
-        git_ref              = var.private_git_ref,
-        s3_ssh_key_url       = var.private_s3_ssh_key_url,
-        asg_name             = local.asg_name,
-        lifecycle_hook_name  = var.private_lifecycle_hook_name,
-        run_remove_advantage = "echo not removing advantage client yet",
-        run_aide             = "echo not running aideinit"
-      }
-    )
-  }
+resource "aws_s3_object" "provision_sh" {
+  bucket       = var.s3_secrets_bucket_name
+  key          = "${var.env}/user-data/${var.role}/provision.sh"
+  content      = local.provision_sh
+  content_type = "text/plain"
+}
 
-  part {
-    filename     = "provision-main.yaml"
-    content_type = "text/cloud-config"
-    content = templatefile("${path.module}/cloud-init.provision.yaml.tpl",
-      {
-        # This will cause /run/<provision_phase_name> to be created if this
-        # completes successfully.
-        provision_phase_name = "main-provisioning",
-        kitchen_subdir       = "--kitchen-subdir kitchen",
-        berksfile_toplevel   = "--berksfile-toplevel",
-        chef_download_sha256 = var.chef_download_sha256,
-        chef_download_url    = var.chef_download_url,
-        git_clone_url        = var.main_git_clone_url,
-        git_ref              = local.main_git_ref,
-        s3_ssh_key_url       = var.main_s3_ssh_key_url,
-        asg_name             = local.asg_name,
-        lifecycle_hook_name  = var.main_lifecycle_hook_name,
-        run_remove_advantage = "apt remove -y ubuntu-advantage-pro ubuntu-advantage-tools",
-        run_aide             = "aideinit --force --yes && touch /var/tmp/ran-aideinit"
-      }
-    )
-  }
+resource "aws_s3_object" "base_yaml" {
+  bucket       = var.s3_secrets_bucket_name
+  key          = "${var.env}/user-data/${var.role}/base.yaml"
+  content      = local.base_yaml
+  content_type = "text/plain"
 }

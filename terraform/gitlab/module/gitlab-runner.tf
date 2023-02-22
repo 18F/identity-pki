@@ -28,6 +28,7 @@ module "build_pool" {
   route53_internal_zone_id         = aws_route53_zone.internal.zone_id
   runner_subnet_ids                = [for zone in local.network_zones : aws_subnet.apps[zone].id]
   s3_prefix_list_id                = aws_vpc_endpoint.private-s3.prefix_list_id
+  s3_secrets_bucket_name           = data.aws_s3_bucket.secrets.bucket
   slack_events_sns_hook_arn        = var.slack_events_sns_hook_arn
   endpoint_security_groups         = local.default_endpoint_security_group_ids
   ssm_access_policy                = module.ssm.ssm_access_role_policy
@@ -64,6 +65,7 @@ module "test_pool" {
   route53_id                       = var.route53_id
   route53_internal_zone_id         = aws_route53_zone.internal.zone_id
   runner_subnet_ids                = [for zone in local.network_zones : aws_subnet.apps[zone].id]
+  s3_secrets_bucket_name           = data.aws_s3_bucket.secrets.bucket
   s3_prefix_list_id                = aws_vpc_endpoint.private-s3.prefix_list_id
   slack_events_sns_hook_arn        = var.slack_events_sns_hook_arn
   endpoint_security_groups         = local.default_endpoint_security_group_ids
@@ -101,6 +103,7 @@ module "env-runner" {
   route53_id                       = var.route53_id
   route53_internal_zone_id         = aws_route53_zone.internal.zone_id
   runner_subnet_ids                = [for zone in local.network_zones : aws_subnet.apps[zone].id]
+  s3_secrets_bucket_name           = data.aws_s3_bucket.secrets.bucket
   s3_prefix_list_id                = aws_vpc_endpoint.private-s3.prefix_list_id
   slack_events_sns_hook_arn        = var.slack_events_sns_hook_arn
   endpoint_security_groups         = local.default_endpoint_security_group_ids

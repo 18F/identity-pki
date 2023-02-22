@@ -237,3 +237,8 @@ variable "cloudwatch_treat_missing_data" {
   type    = string
   default = "missing"
 }
+
+variable "s3_secrets_bucket_name" {
+  description = "Name of bucket used to track user_data"
+  default     = ""
+}

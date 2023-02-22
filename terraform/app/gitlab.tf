@@ -60,6 +60,7 @@ module "env-runner" {
   route53_internal_zone_id         = aws_route53_zone.internal.zone_id
   runner_subnet_ids                = [for subnet in aws_subnet.app : subnet.id]
   s3_prefix_list_id                = aws_vpc_endpoint.private-s3.prefix_list_id
+  s3_secrets_bucket_name           = data.aws_s3_bucket.secrets.bucket
   slack_events_sns_hook_arn        = var.slack_events_sns_hook_arn
   endpoint_security_groups = [
     aws_security_group.kms_endpoint.id,

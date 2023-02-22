@@ -1,10 +1,11 @@
 module "gitlab_runner_user_data" {
   source = "../bootstrap/"
 
-  role          = "gitlab_runner"
-  env           = var.env_name
-  domain        = var.root_domain
-  sns_topic_arn = var.slack_events_sns_hook_arn
+  role                   = "gitlab_runner"
+  env                    = var.env_name
+  domain                 = var.root_domain
+  sns_topic_arn          = var.slack_events_sns_hook_arn
+  s3_secrets_bucket_name = var.s3_secrets_bucket_name
 
   chef_download_url    = var.chef_download_url
   chef_download_sha256 = var.chef_download_sha256

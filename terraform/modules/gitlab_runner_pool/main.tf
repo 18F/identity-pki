@@ -18,6 +18,7 @@ module "outbound_proxy" {
   proxy_subnet_ids                 = var.runner_subnet_ids
   root_domain                      = var.root_domain
   route53_internal_zone_id         = var.route53_internal_zone_id
+  s3_secrets_bucket_name           = var.s3_secrets_bucket_name
   s3_prefix_list_id                = var.s3_prefix_list_id
   slack_events_sns_hook_arn        = var.slack_events_sns_hook_arn
   vpc_id                           = var.aws_vpc

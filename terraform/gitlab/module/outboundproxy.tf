@@ -11,6 +11,7 @@ module "outbound_proxy" {
   env_name                         = var.env_name
   proxy_subnet_ids                 = [for zone in local.network_zones : aws_subnet.apps[zone].id]
   route53_internal_zone_id         = aws_route53_zone.internal.zone_id
+  s3_secrets_bucket_name           = data.aws_s3_bucket.secrets.bucket
   s3_prefix_list_id                = aws_vpc_endpoint.private-s3.prefix_list_id
   slack_events_sns_hook_arn        = var.slack_events_sns_hook_arn
   vpc_id                           = aws_vpc.default.id
