@@ -173,7 +173,7 @@ module Cloudlib
 
           input = tty_in.read(1)
           if input == 'y'
-            
+            upload(source: tempfile.path) if !dry_run?
           else
             STDERR.puts "#{basename}: diff not approved, not uploading to S3"
           end
