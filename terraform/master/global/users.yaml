@@ -149,6 +149,13 @@ users:
   fred.agyepongyeboah:
     aws_groups:
     - soc
+  gina.yamada:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - gyamada
+    gitlab_groups:
+    - appdev
   goutham.kommanaboyina:
     aws_groups:
     - analytics
@@ -170,7 +177,7 @@ users:
     aws_groups:
     - fraudopsnonprod
     ec2_username:
-    - ifeoma.elekwachi
+    - ielekwachi
     gitlab_groups:
     - antifraud
   jack.cody:
@@ -276,7 +283,7 @@ users:
     aws_groups:
     - fraudopsnonprod
     ec2_username:
-    - jude.uwazie
+    - juwazie
     gitlab_groups:
     - antifraud
   julia.elman:
@@ -328,7 +335,9 @@ users:
     - pm
   louise.hoffman:
     aws_groups:
-    - fraudopsnonprod
+    - fraudops
+    ec2_username:
+    - lhoffman
     gitlab_groups:
     - antifraud
   luis.matos:
@@ -505,7 +514,9 @@ users:
     - appdev
   rebecca.wright:
     aws_groups:
-    - fraudopsnonprod
+    - fraudops
+    ec2_username:
+    - rwright
     gitlab_groups:
     - antifraud
   richard.wolfe:
@@ -532,6 +543,8 @@ users:
   ryan.orear:
     aws_groups:
     - fraudops
+    ec2_username:
+    - rorear
     gitlab_groups:
     - antifraud
   sean.porter:
@@ -569,7 +582,7 @@ users:
     aws_groups:
     - fraudopsnonprod
     ec2_username:
-    - stacey.mainero
+    - smainero
     gitlab_groups:
     - antifraud
   stephen.shelton:
