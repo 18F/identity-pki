@@ -116,6 +116,81 @@ resource "aws_wafv2_web_acl" "alb" {
     }
   }
 
+  dynamic "rule" {
+    for_each = length(var.restricted_paths.paths) > 0 ? [1] : []
+    content {
+      name     = "IdpBlockPaths"
+      priority = 55
+      action {
+        dynamic "block" {
+          for_each = var.restricted_paths_enforce ? [1] : []
+          content {}
+        }
+
+        dynamic "count" {
+          for_each = var.restricted_paths_enforce ? [] : [1]
+          content {}
+        }
+      }
+      statement {
+        dynamic "and_statement" {
+          # Only combine the resticted path AND the exclusion path patterns if both
+          # are present
+          for_each = length(var.restricted_paths.exclusions) > 0 ? [1] : []
+          content {
+            statement {
+              not_statement {
+                statement {
+                  regex_pattern_set_reference_statement {
+                    arn = aws_wafv2_regex_pattern_set.restricted_paths_exclusions[0].arn
+                    field_to_match {
+                      uri_path {}
+                    }
+                    text_transformation {
+                      priority = 0
+                      type     = "LOWERCASE"
+                    }
+                  }
+                }
+              }
+            }
+            statement {
+              regex_pattern_set_reference_statement {
+                arn = aws_wafv2_regex_pattern_set.restricted_paths[0].arn
+                field_to_match {
+                  uri_path {}
+                }
+                text_transformation {
+                  priority = 0
+                  type     = "LOWERCASE"
+                }
+              }
+            }
+          }
+        }
+        dynamic "regex_pattern_set_reference_statement" {
+          # No AND needed if only a restricted path pattern is set
+          for_each = length(var.restricted_paths.exclusions) > 0 ? [] : [1]
+          content {
+            arn = aws_wafv2_regex_pattern_set.restricted_paths[0].arn
+            field_to_match {
+              uri_path {}
+            }
+            text_transformation {
+              priority = 0
+              type     = "LOWERCASE"
+            }
+          }
+        }
+      }
+      visibility_config {
+        cloudwatch_metrics_enabled = true
+        metric_name                = "${var.env}-restricted-paths-BlockPaths-metric"
+        sampled_requests_enabled   = true
+      }
+    }
+  }
+
   rule {
     name     = "AllowTrafficToPaths"
     priority = 60
@@ -597,81 +672,6 @@ resource "aws_wafv2_web_acl" "alb" {
       visibility_config {
         cloudwatch_metrics_enabled = true
         metric_name                = "${local.web_acl_name}-GeoBlockRegion-metric"
-        sampled_requests_enabled   = true
-      }
-    }
-  }
-
-  dynamic "rule" {
-    for_each = length(var.restricted_paths.paths) > 0 ? [1] : []
-    content {
-      name     = "IdpBlockPaths"
-      priority = 1100
-      action {
-        dynamic "block" {
-          for_each = var.restricted_paths_enforce ? [1] : []
-          content {}
-        }
-
-        dynamic "count" {
-          for_each = var.restricted_paths_enforce ? [] : [1]
-          content {}
-        }
-      }
-      statement {
-        dynamic "and_statement" {
-          # Only combine the resticted path AND the exclusion path patterns if both
-          # are present
-          for_each = length(var.restricted_paths.exclusions) > 0 ? [1] : []
-          content {
-            statement {
-              not_statement {
-                statement {
-                  regex_pattern_set_reference_statement {
-                    arn = aws_wafv2_regex_pattern_set.restricted_paths_exclusions[0].arn
-                    field_to_match {
-                      uri_path {}
-                    }
-                    text_transformation {
-                      priority = 0
-                      type     = "LOWERCASE"
-                    }
-                  }
-                }
-              }
-            }
-            statement {
-              regex_pattern_set_reference_statement {
-                arn = aws_wafv2_regex_pattern_set.restricted_paths[0].arn
-                field_to_match {
-                  uri_path {}
-                }
-                text_transformation {
-                  priority = 0
-                  type     = "LOWERCASE"
-                }
-              }
-            }
-          }
-        }
-        dynamic "regex_pattern_set_reference_statement" {
-          # No AND needed if only a restricted path pattern is set
-          for_each = length(var.restricted_paths.exclusions) > 0 ? [] : [1]
-          content {
-            arn = aws_wafv2_regex_pattern_set.restricted_paths[0].arn
-            field_to_match {
-              uri_path {}
-            }
-            text_transformation {
-              priority = 0
-              type     = "LOWERCASE"
-            }
-          }
-        }
-      }
-      visibility_config {
-        cloudwatch_metrics_enabled = true
-        metric_name                = "${var.env}-restricted-paths-BlockPaths-metric"
         sampled_requests_enabled   = true
       }
     }
