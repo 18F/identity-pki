@@ -306,3 +306,26 @@ EOM
   insufficient_data_actions = []
   alarm_actions             = local.in_person_alarm_actions
 }
+
+resource "aws_cloudwatch_metric_alarm" "low-sp-oidc-token-success" {
+  for_each            = var.low_sp_oidc_token_enabled_sps
+  alarm_name          = "${var.env_name}-${each.key}-low-sp-oidc-token-success"
+  comparison_operator = "LessThanThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "sp-oidc-token-success"
+  namespace           = "${var.env_name}/idp-authentication"
+  dimensions = {
+    service_provider = "${each.value.client_id}"
+  }
+  period             = "300"
+  statistic          = "Sum"
+  threshold          = each.value.threshold
+  treat_missing_data = "breaching"
+  alarm_actions      = local.high_priority_alarm_actions
+  alarm_description  = <<EOM
+${var.env_name}: Low OpenID Connect Token success - ${each.value.sp_name} (${each.value.client_id})
+
+Less than ${each.value.threshold} successful server to server calls to /api/openid_connect/token in the last 5 minutes. 
+See https://github.com/18F/identity-devops/wiki/Runbook:-OIDC-Connect-Token-Low-Success-Rate
+EOM
+}

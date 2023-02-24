@@ -98,6 +98,16 @@ locals {
         multi_factor_auth_method = "$.properties.event_properties.multi_factor_auth_method"
       },
     },
+
+    # Server to server check after SP redirect
+    sp_oidc_token_success = {
+      name         = "sp-oidc-token-success"
+      pattern      = "{ $.name = \"OpenID Connect: token\" && $.properties.event_properties.success is true }"
+      metric_value = 1
+      dimensions = {
+        service_provider = "$.properties.event_properties.client_id",
+      }
+    },
   }
 
   idp_events_ialx_filters = {
@@ -105,6 +115,15 @@ locals {
       name         = "idv-review-complete-success"
       pattern      = "{ ($.name = \"IdV: review complete\") }"
       metric_value = 1
+    },
+    # Per-SP to allow a breakdown of IdV
+    sp_idv_final_resolution_success = {
+      name         = "idv-final-resolution-success"
+      pattern      = "{ $.name = \"IdV: final resolution\" && $.properties.event_properties.success is true }"
+      metric_value = 1
+      dimensions = {
+        service_provider = "$.properties.service_provider",
+      }
     },
     doc_auth_submitted_success = {
       name         = "doc-auth-submitted-success"

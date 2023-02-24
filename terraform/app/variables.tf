@@ -1222,6 +1222,16 @@ variable "minutes_since_ipp_enrollment_established_alarm_threshold" {
   default     = 43560 # 30 days + 6 hours
 }
 
+variable "low_sp_oidc_token_enabled_sps" {
+  description = "A mapping of client IDs and thresholds for OIDC token success per hour."
+  type = map(object({
+    sp_name   = string # Name of the Service Provider / Application
+    client_id = string # URN for the Service Provider
+    threshold = number # Minimum successful calls per/window (5 minutes)
+  }))
+  default = {}
+}
+
 variable "allow_nessus_external_scanning" {
   description = "Enables Nessus to externally scan data-services subnet resources"
   type        = bool
