@@ -12,7 +12,7 @@ data "aws_sns_topic" "events" {
 }
 
 module "dnssec" {
-  source = "github.com/18F/identity-terraform//dnssec?ref=e7ad5ef38f724b31911248a74173e9fee3bbf045"
+  source = "github.com/18F/identity-terraform//dnssec?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
   #source = "../../../identity-terraform/dnssec"
 
   dnssec_ksks_action_req_alarm_desc = "${local.dnssec_runbook_prefix}_ksks_action_req"

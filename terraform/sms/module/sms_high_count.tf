@@ -1,5 +1,6 @@
 module "sms_high_count_check_code" {
-  source = "github.com/18F/identity-terraform//null_archive?ref=e7ad5ef38f724b31911248a74173e9fee3bbf045"
+  source = "github.com/18F/identity-terraform//null_archive?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
+  #source = "../../../../identity-terraform/null_archive"
 
   source_code_filename = "sms_high_count.py"
   source_dir           = "${path.module}/src/"

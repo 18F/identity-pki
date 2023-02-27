@@ -29,7 +29,7 @@ module "pivcac_user_data" {
 }
 
 module "pivcac_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=e7ad5ef38f724b31911248a74173e9fee3bbf045"
+  source = "github.com/18F/identity-terraform//launch_template?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
   #source = "../../../identity-terraform/launch_template"
   role           = "pivcac"
   env            = var.env_name
@@ -50,12 +50,13 @@ module "pivcac_launch_template" {
 }
 
 module "pivcac_lifecycle_hooks" {
-  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=e7ad5ef38f724b31911248a74173e9fee3bbf045"
+  source = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
+  #source = "../../../identity-terraform/asg_lifecycle_notifications"
   asg_name = aws_autoscaling_group.pivcac.name
 }
 
 module "pivcac_recycle" {
-  source = "github.com/18F/identity-terraform//asg_recycle?ref=e7ad5ef38f724b31911248a74173e9fee3bbf045"
+  source = "github.com/18F/identity-terraform//asg_recycle?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
   #source = "../../../identity-terraform/asg_recycle"
 
   asg_name       = aws_autoscaling_group.pivcac.name
@@ -295,7 +296,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "pivcac_public_cert_bucket" {
 }
 
 module "pivcac_cert_bucket_config" {
-  source = "github.com/18F/identity-terraform//s3_config?ref=e7ad5ef38f724b31911248a74173e9fee3bbf045"
+  source = "github.com/18F/identity-terraform//s3_config?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
   #source = "../../../identity-terraform/s3_config"
   depends_on = [aws_s3_bucket.pivcac_cert_bucket]
 
@@ -306,7 +307,7 @@ module "pivcac_cert_bucket_config" {
 
 
 module "pivcac_public_cert_bucket_config" {
-  source = "github.com/18F/identity-terraform//s3_config?ref=e7ad5ef38f724b31911248a74173e9fee3bbf045"
+  source = "github.com/18F/identity-terraform//s3_config?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
   #source = "../../../identity-terraform/s3_config"
   depends_on = [aws_s3_bucket.pivcac_public_cert_bucket]
 

@@ -1,0 +1,141 @@
+#!/bin/bash
+
+# To use if access to GitHub is blocked, pending repos existing in CodeCommit/GitLab.
+
+set -euo pipefail
+
+BASEPATH="$(dirname "$0")/.."
+. "${BASEPATH}/lib/common.sh"
+
+usage() {
+  cat >&2 << EOM
+
+Usage: ${0} -l|-g [-v[v]]
+
+Switches the 'source' lines in all 'module' resources in the terraform/ directory,
+as well as your local clone of the identity-terraform repo (in same parent dir).
+
+Flags:
+
+   -l : use local/relative paths instead of gitrefs
+   -g : use gitrefs instead of local/relative paths
+   -v : verbose 1 (print names of changed files)
+  -vv : verbose 2 (print filenames and changed lines)
+
+EOM
+}
+
+print_file_and_sed() {
+  local SED_STRING=${1}
+  local SED_FILE=${2}
+  local SED_SRC=${3}
+  local SED_DEST=${4}
+  local SHOW_FILE=${5:-}
+  local PRINT_FILE=$(echo "${SED_FILE}" | sed -E 's/.+(terraform)/\1/')
+
+  RUN_SED=$(sed -i '' -E "s/^${SED_SRC}(${SED_STRING})/\1${SED_DEST}/g w /dev/stdout" $SED_FILE)
+  if [[ ! -z "${RUN_SED[@]}" ]] ; then
+    if [[ ${FILE} =~ $GIT_DIR ]] ; then
+      ((REPO_LINES++))
+    elif [[ ${FILE} =~ $TF_REPO ]] ; then
+      ((TF_REPO_LINES++))
+    fi
+    if [[ ${SHOW_FILE} == 'show' ]] ; then
+      if [[ ${VERBOSE} == 1 ]] ; then
+        echo_cyan "- ${PRINT_FILE}"
+      elif [[ ${VERBOSE} == 2 ]] ; then
+        echo && echo "${PRINT_FILE} : "
+      fi
+    fi
+    if [[ ${VERBOSE} == 2 ]] ; then
+      echo_cyan "${RUN_SED}"
+    fi
+  fi
+}
+
+SED_GITREF='source += +\"github.com\/18F\/identity-terraform'
+SED_LOCALPATH='source += +\"(\.\.\/)+identity-terraform'
+SED_TFPATH='source += +\"(\.\.\/)+'
+SUPPRESS_OUTPUT=false
+TF_SRCS=
+declare -a SED_GIT SED_LOCAL FOUND_FILES BAD_FILES
+declare {VERBOSE,SED_LINES,REPO_FILES,TF_REPO_FILES,REPO_LINES,TF_REPO_LINES}=0
+
+# verify identity-terraform dir is reachable
+echo
+verify_root_repo
+TF_REPO="$(dirname "$GIT_DIR")/identity-terraform"
+if [[ ! -d ${TF_REPO} ]] ; then
+  raise "${TF_REPO} not found in same parent directory ($(dirname ${GIT_DIR}))!"
+fi
+which ag >/dev/null || raise 'Silver Searcher (ag) not found; install with Homebrew!'
+
+# verify that 'module' blocks have two 'sources' (identity-terraform + local),
+# and error out if so (printing out all files missing the local paths) 
+for REPO_DIR in ${GIT_DIR} ${TF_REPO} ; do
+  for FILE in $(ag -l -G '.tf' "${SED_GITREF}" "${REPO_DIR}") ; do
+    if [[ ${FILE} =~ $GIT_DIR ]] && [[ ! $(ag "${SED_LOCALPATH}" ${FILE}) ]] ; then
+      BAD_FILES+=(${FILE})
+    elif [[ ${FILE} =~ $TF_REPO ]] && [[ ! $(ag "${SED_TFPATH}" ${FILE}) ]] ; then
+      BAD_FILES+=(${FILE})
+    else
+      FOUND_FILES+=(${FILE})
+    fi
+  done
+done
+
+if [[ ! -z ${BAD_FILES:-} ]] ; then
+  echo_red "The following files have modules with identity-terraform gitrefs,"
+  echo_red "which do NOT also have local-path 'source' lines:"
+  echo_yellow "${BAD_FILES[@]/#/$'\n'}" && echo
+  echo_red "Update the modules in these files and try again"
+fi
+
+while getopts lgvh opt
+do
+  case $opt in
+    l)
+      TF_SRCS='local/relative paths'
+      SED_GIT=("( +)" "\#\2")
+      SED_LOCAL=("( +)\#" "\2")
+    ;;
+    g)
+      TF_SRCS='GitHub refs/SHAs'
+      SED_GIT=("( +)\#" "\2")
+      SED_LOCAL=("( +)" "\#\2")
+    ;;
+    v) ((VERBOSE++))   ;;
+    h) usage           ;;
+    *) usage && exit 1 ;;
+  esac
+done
+
+if [[ ${VERBOSE} == 1 ]] ; then
+  echo_cyan "-v set; will print names of changed files."
+elif [[ ${VERBOSE} -ge 2 ]] ; then
+  echo_cyan "-vv set; will print names and lines of changed files."
+  VERBOSE=2
+fi
+
+if prompt_yn "Switch all modules to use ${TF_SRCS} as sources?" ; then
+  if [[ ${VERBOSE} == 1 ]] ; then
+    echo && echo_green "Files changed:"
+  elif [[ ${VERBOSE} == 2 ]] ; then
+    echo && echo_green "Files/contents changed:"
+  fi
+  for FILE in "${FOUND_FILES[@]:-}" ; do
+    print_file_and_sed "${SED_GITREF}" $FILE "${SED_GIT[0]}" "${SED_GIT[1]}" 'show'
+    if [[ ${FILE} =~ $GIT_DIR ]] ; then
+      ((REPO_FILES++))
+      print_file_and_sed "${SED_LOCALPATH}" $FILE "${SED_LOCAL[0]}" "${SED_LOCAL[1]}"
+    elif [[ ${FILE} =~ $TF_REPO ]] ; then
+      ((TF_REPO_FILES++))
+      print_file_and_sed "${SED_TFPATH}" $FILE "${SED_LOCAL[0]}" "${SED_LOCAL[1]}"
+    fi
+  done
+  echo
+fi
+echo_green "Done:"
+echo_green "- ${GIT_DIR##*/}: ${REPO_LINES} line(s) changed in ${REPO_FILES} file(s)."
+echo_green "- ${TF_REPO##*/}: ${TF_REPO_LINES} line(s) changed in ${TF_REPO_FILES} file(s)."
+echo

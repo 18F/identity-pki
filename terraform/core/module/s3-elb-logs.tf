@@ -2,8 +2,8 @@
 # The bucket name will be like this:
 #   login-gov.elb-logs.<ACCOUNT_ID>-<AWS_REGION>
 module "elb-logs" {
-  # can't use variable for ref -- see https://github.com/hashicorp/terraform/issues/17994
-  source = "github.com/18F/identity-terraform//elb_access_logs_bucket?ref=e7ad5ef38f724b31911248a74173e9fee3bbf045"
+  source = "github.com/18F/identity-terraform//elb_access_logs_bucket?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
+  #source = "../../../../identity-terraform/elb_access_logs_bucket"
 
   region                     = var.region
   bucket_name_prefix         = local.bucket_name_prefix

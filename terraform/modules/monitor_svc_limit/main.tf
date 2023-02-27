@@ -39,7 +39,8 @@ data "aws_iam_policy_document" "ta_refresher_lambda_policy" {
 }
 
 module "ta_refresher_function_code" {
-  source = "github.com/18F/identity-terraform//null_archive?ref=e7ad5ef38f724b31911248a74173e9fee3bbf045"
+  source = "github.com/18F/identity-terraform//null_archive?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
+  #source = "../../../../identity-terraform/null_archive"
 
   source_code_filename = "ta_refresher.py"
   source_dir           = "${path.module}/ta_refresher/"
@@ -93,7 +94,8 @@ data "aws_iam_policy_document" "ta_monitor_lambda_policy" {
 }
 
 module "ta_monitor_function_code" {
-  source = "github.com/18F/identity-terraform//null_archive?ref=e7ad5ef38f724b31911248a74173e9fee3bbf045"
+  source = "github.com/18F/identity-terraform//null_archive?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
+  #source = "../../../../identity-terraform/null_archive"
 
   source_code_filename = "ta_monitor.py"
   source_dir           = "${path.module}/ta_monitor/"

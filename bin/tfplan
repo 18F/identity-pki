@@ -58,7 +58,7 @@ EOM
 full_plan () {
   echo
   echo "${PLAN}" | awk 'FNR <= 1'
-  echo "${PLAN}" | grep -E '^ *[-\+\~\#]' --color=never | grep -v 'unchanged' |
+  echo "${PLAN}" | grep -E '^( *[-\+\~]|  \#)' --color=never | grep -v 'unchanged' |
   sed -E 's/^( +\# )/\n\1/;s/ +\= +/ \= /;s/ {2}/ /g'
   echo
   echo "${PLAN}" | tail -n1
@@ -70,7 +70,7 @@ print_plan () {
   echo -e "##### ${TF_DIR}/${TF_ENV} | ${COMMIT_ID} | ${REPO_VER} #####"
   if [[ "${MODULES_ONLY}" == true ]] ; then
     echo -e "\nPLAN SUMMARY:\n"
-    echo "${PLAN}" | grep -E '^ +# [a-z]' --color=never
+    echo "${PLAN}" | grep -E '^  # [a-z]' --color=never
     if [[ "${DUAL_OUTPUT}" == true ]] ; then
       echo
       echo "------------------------------------------------------------"

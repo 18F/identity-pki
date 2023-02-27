@@ -1,6 +1,7 @@
 # cloudwatch dashboard for IDP
 module "idp_dashboard" {
-  source = "github.com/18F/identity-terraform//cloudwatch_dashboard_alb?ref=e7ad5ef38f724b31911248a74173e9fee3bbf045"
+  source = "github.com/18F/identity-terraform//cloudwatch_dashboard_alb?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
+  #source = "../../../identity-terraform/cloudwatch_dashboard_alb"
 
   dashboard_name          = "${var.env_name}-idp"
   alb_arn_suffix          = aws_alb.idp.arn_suffix

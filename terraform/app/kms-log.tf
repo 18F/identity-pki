@@ -4,7 +4,7 @@ locals {
 
 module "kms_logging" {
 
-  source = "github.com/18F/identity-terraform//kms_log?ref=77212f13fea5399bbe91c673f0e27cadd77e66b6"
+  source = "github.com/18F/identity-terraform//kms_log?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
   #source = "../../../identity-terraform/kms_log"
 
   env_name                                = var.env_name
@@ -20,7 +20,7 @@ module "kms_logging" {
 }
 
 module "kms_keymaker_uw2" {
-  source = "github.com/18F/identity-terraform//kms_keymaker?ref=bae596ff81e9617f480acad64a31740c573cc9ba"
+  source = "github.com/18F/identity-terraform//kms_keymaker?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
   #source = "../../../identity-terraform/kms_keymaker"
 
   env_name      = var.env_name
@@ -29,7 +29,7 @@ module "kms_keymaker_uw2" {
 }
 
 module "kms_keymaker_ue1" {
-  source = "github.com/18F/identity-terraform//kms_keymaker?ref=bae596ff81e9617f480acad64a31740c573cc9ba"
+  source = "github.com/18F/identity-terraform//kms_keymaker?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
   #source = "../../../identity-terraform/kms_keymaker"
   providers = {
     aws = aws.use1

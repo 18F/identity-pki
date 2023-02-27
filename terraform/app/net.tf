@@ -978,7 +978,8 @@ resource "aws_security_group" "worker" {
 }
 
 module "vpc_flow_cloudwatch_filters" {
-  source     = "github.com/18F/identity-terraform//vpc_flow_cloudwatch_filters?ref=e7ad5ef38f724b31911248a74173e9fee3bbf045"
+  source = "github.com/18F/identity-terraform//vpc_flow_cloudwatch_filters?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
+  #source = "../../../identity-terraform/vpc_flow_cloudwatch_filters"
   depends_on = [aws_cloudwatch_log_group.flow_log_group]
 
   env_name      = var.env_name

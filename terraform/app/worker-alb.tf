@@ -33,7 +33,7 @@ resource "aws_alb_listener" "worker" {
 
 # Create a TLS certificate with ACM
 module "acm-cert-worker" {
-  source = "github.com/18F/identity-terraform//acm_certificate?ref=e7ad5ef38f724b31911248a74173e9fee3bbf045"
+  source = "github.com/18F/identity-terraform//acm_certificate?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
   #source = "../../../identity-terraform/acm_certificate"
 
   domain_name = "worker.${var.env_name}.${var.root_domain}"

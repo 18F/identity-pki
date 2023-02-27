@@ -179,8 +179,8 @@ resource "aws_cloudwatch_log_metric_filter" "idp_interesting_uris_success_latenc
 }
 
 module "cloudwatch_sli" {
-  source = "github.com/18F/identity-terraform//slo_lambda?ref=b38d110e028926ad3fd90b4dcb03cc5001e65af1"
-  # source = "../../../identity-terraform/slo_lambda"
+  source = "github.com/18F/identity-terraform//slo_lambda?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
+  #source = "../../../identity-terraform/slo_lambda"
 
   env_name          = var.env_name
   load_balancer_arn = aws_alb.idp.arn

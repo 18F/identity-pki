@@ -11,7 +11,7 @@
 ## us-west-2
 
 module "guardduty_usw2" {
-  source = "github.com/18F/identity-terraform//guardduty?ref=a84ed66e9471d6299984d03fd4184fc93b20293f"
+  source = "github.com/18F/identity-terraform//guardduty?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
   #source = "../../../../identity-terraform/guardduty"
   providers = {
     aws = aws.usw2
@@ -46,7 +46,7 @@ module "guardduty_logs_to_soc_usw2" {
 ## us-east-1
 
 module "guardduty_use1" {
-  source = "github.com/18F/identity-terraform//guardduty?ref=a84ed66e9471d6299984d03fd4184fc93b20293f"
+  source = "github.com/18F/identity-terraform//guardduty?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
   #source = "../../../../identity-terraform/guardduty"
   providers = {
     aws = aws.use1

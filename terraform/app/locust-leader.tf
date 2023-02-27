@@ -1,12 +1,13 @@
 module "locust_leader_lifecycle_hooks" {
-  count    = var.enable_loadtesting ? 1 : 0
-  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=e7ad5ef38f724b31911248a74173e9fee3bbf045"
+  count  = var.enable_loadtesting ? 1 : 0
+  source = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
+  #source = "../../../identity-terraform/asg_lifecycle_notifications"
   asg_name = aws_autoscaling_group.locust_leader[0].name
 }
 
 module "locust_leader_launch_template" {
   count  = var.enable_loadtesting ? 1 : 0
-  source = "github.com/18F/identity-terraform//launch_template?ref=e7ad5ef38f724b31911248a74173e9fee3bbf045"
+  source = "github.com/18F/identity-terraform//launch_template?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
   #source = "../../../identity-terraform/launch_template"
   role           = "locust-leader"
   env            = var.env_name

@@ -29,7 +29,8 @@ module "gitlab_runner_user_data" {
 }
 
 module "gitlab_runner_lifecycle_hooks" {
-  source   = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=e7ad5ef38f724b31911248a74173e9fee3bbf045"
+  source = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
+  #source = "../../../../identity-terraform/asg_lifecycle_notifications"
   asg_name = aws_autoscaling_group.gitlab_runner.name
 }
 
@@ -38,8 +39,8 @@ locals {
 }
 
 module "gitlab_runner_launch_template" {
-  source = "github.com/18F/identity-terraform//launch_template?ref=e7ad5ef38f724b31911248a74173e9fee3bbf045"
-  #source = "../../../identity-terraform/launch_template"
+  source = "github.com/18F/identity-terraform//launch_template?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
+  #source = "../../../../identity-terraform/launch_template"
   role           = "gitlab-${var.gitlab_runner_pool_name}"
   env            = var.env_name
   root_domain    = var.root_domain
