@@ -3,34 +3,36 @@
 locals {
   # DB parameter groups are defined here and divided into instance-only parameters,
   # cluster-only parameters, or both, for Aurora support
-  apg_cluster_pgroup_params = [
-    {
-      name   = "rds.force_ssl"
-      value  = "1"
-      method = "pending-reboot"
-    },
-    # Log autovacuum tasks that take more than 1 sec
-    {
-      name  = "rds.force_autovacuum_logging_level"
-      value = "log"
-    },
-    {
-      name  = "log_autovacuum_min_duration"
-      value = 1000
-    },
+  apg_cluster_pgroup_params = flatten([
+    [
+      {
+        name   = "rds.force_ssl",
+        value  = "1",
+        method = "pending-reboot"
+      },
+      # Log autovacuum tasks that take more than 1 sec
+      {
+        name  = "rds.force_autovacuum_logging_level",
+        value = "log"
+      },
+      {
+        name  = "log_autovacuum_min_duration",
+        value = 1000
+      },
+      # Aurora maxes out at 30000 ms
+      # https://aws.amazon.com/blogs/database/best-practices-for-amazon-rds-postgresql-replication/
+      {
+        name  = "max_standby_streaming_delay",
+        value = "30000"
+      },
+    ],
     # BigInt: Set logical replication for change data capture (cdc)
-    {
-      name   = "rds.logical_replication"
-      value  = var.enable_dms_migration ? "1" : "0",
+    var.enable_dms_migration ? [{
+      name   = "rds.logical_replication",
+      value  = "1",
       method = "pending-reboot"
-    },
-    # Aurora maxes out at 30000 ms
-    # https://aws.amazon.com/blogs/database/best-practices-for-amazon-rds-postgresql-replication/
-    {
-      name  = "max_standby_streaming_delay"
-      value = "30000"
-    }
-  ]
+    }] : []
+  ])
 
   apg_db_pgroup_params = [
     # Log all Data Definition Layer changes (ALTER, CREATE, etc.)

@@ -505,6 +505,7 @@ locals {
           "rds:PromoteReadReplicaDBCluster",
           "rds:RebootDBInstance",
           "rds:RemoveTagsFromResource",
+          "rds:ResetDBClusterParameterGroup",
         ]
         resources = [
           "*",
