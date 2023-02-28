@@ -13,7 +13,7 @@ bootcmd:
  - aws configure set region ${region} --profile default
  - mkdir -vp /etc/auto-hostname
  - 'echo "${hostname_prefix}" > /etc/auto-hostname/prefix'
- - 'echo "{$var.env}.${domain}" > /etc/auto-hostname/domain'
+ - 'echo "${env}.${domain}" > /etc/auto-hostname/domain'
 
 preserve_hostname: true
 
