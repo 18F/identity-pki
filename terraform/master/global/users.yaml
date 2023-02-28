@@ -26,6 +26,13 @@ users:
     - appdev
     ec2_username:
     - theabrad
+  amy.walraven:
+    aws_groups:
+    - fraudops
+    ec2_username:
+    - awalraven
+    gitlab_groups:
+    - antifraud
   andrew.duthie:
     aws_groups:
     - apponcall
@@ -85,6 +92,13 @@ users:
     - daviddsilvanava
     email:
     - david.dsilva@gsa.gov
+  davida.marion:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - sgtpluck
+    gitlab_groups:
+    - appdev
   devin.fensterheim:
     aws_groups:
     - analytics
@@ -174,10 +188,6 @@ users:
     gitlab_groups:
     - devops
   ifeoma.elekwachi:
-    aws_groups:
-    - fraudopsnonprod
-    ec2_username:
-    - ielekwachi
     gitlab_groups:
     - antifraud
   jack.cody:
@@ -280,10 +290,6 @@ users:
     git_username:
     - bleachbyte
   jude.uwazie:
-    aws_groups:
-    - fraudopsnonprod
-    ec2_username:
-    - juwazie
     gitlab_groups:
     - antifraud
   julia.elman:
@@ -363,7 +369,7 @@ users:
     - mgardner
   matt.hinz:
     aws_groups:
-    - appdev
+    - apponcall
     ec2_username:
     - mhinz
     gitlab_groups:
@@ -519,13 +525,6 @@ users:
     - rwright
     gitlab_groups:
     - antifraud
-  richard.wolfe:
-    aws_groups:
-    - appdev
-    ec2_username:
-    - rwolfe
-    gitlab_groups:
-    - appdev
   russel.ngamboassongmo:
     aws_groups:
     - supporteng
