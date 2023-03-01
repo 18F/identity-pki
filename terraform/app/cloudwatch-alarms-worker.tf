@@ -149,6 +149,33 @@ EOM
   alarm_actions             = local.in_person_alarm_actions
 }
 
+resource "aws_cloudwatch_metric_alarm" "idp_usps_proofing_results_worker_large_number_of_enrollments_set_to_expire" {
+  count = var.idp_worker_alarms_enabled
+
+  alarm_name          = "${var.env_name}-IDPUSPSProofingWorker-LargeNumberOfEnrollmentsSetToExpire"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  datapoints_to_alarm = "1"
+  metric_name         = "usps-proofing-minutes-since-enrollment-established"
+  namespace           = "${var.env_name}/idp-in-person-proofing"
+  period              = "21600" # 6 hours
+  extended_statistic  = "p75"   # May want to revisit after IRS IPP launch
+  dimensions = {
+    name = "GetUspsProofingResultsJob: Enrollment incomplete"
+  }
+  threshold = var.enrollments_expiration_alarm_threshold
+
+  alarm_description = <<EOM
+25% of USPS get proofing results jobs are set to expire within about 7 days.
+
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms
+EOM
+
+  treat_missing_data        = "notBreaching"
+  insufficient_data_actions = []
+  alarm_actions             = local.in_person_alarm_actions
+}
+
 # There should be no failures, so alert on any failure
 resource "aws_cloudwatch_metric_alarm" "idp_worker_failure_alarm" {
   count = var.idp_worker_alarms_enabled

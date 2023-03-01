@@ -1222,6 +1222,12 @@ variable "minutes_since_ipp_enrollment_established_alarm_threshold" {
   default     = 43560 # 30 days + 6 hours
 }
 
+variable "enrollments_expiration_alarm_threshold" {
+  description = "Large number of pending enrollments are set to expire"
+  type        = number
+  default     = 33120 # 23 days (expected expiration ~30 days)
+}
+
 variable "low_sp_oidc_token_enabled_sps" {
   description = "A mapping of client IDs and thresholds for OIDC token success per hour."
   type = map(object({
