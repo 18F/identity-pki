@@ -23,19 +23,35 @@ resource "aws_lambda_function" "config_access_key_rotation_lambda" {
 
   environment {
     variables = {
-      RotationPeriod  = 90,
-      InactivePeriod  = 95,
-      RetentionPeriod = 100
+      RotationPeriod   = 80,
+      InactivePeriod   = 90,
+      RetentionPeriod  = 100,
+      lambda_temp_role = "${aws_iam_role.assumeRole_lambda.arn}"
     }
   }
 
   depends_on = [module.config_access_key_rotation_code.resource_check]
 }
 
-#resource "aws_lambda_permission" "config_access_key_rotation_lambda_permission" {
-#  statement_id  = "${var.config_access_key_rotation_name}-lambda-permission"
-#  function_name = aws_lambda_function.config_access_key_rotation_lambda.function_name
-#  action        = "lambda:InvokeFunction"
-#  principal     = "sns.amazonaws.com"
-#  source_arn    = "arn:aws:sns:${var.region}:${data.aws_caller_identity.current.account_id}:${var.slack_events_sns_topic}"
-#}
+resource "aws_sns_topic" "ssm_to_lambda_notification_topic" {
+  name = "${var.config_access_key_rotation_name}-topic"
+}
+
+data "aws_sns_topic" "config_access_key_rotation_topic" {
+  name = aws_sns_topic.ssm_to_lambda_notification_topic.name
+}
+
+resource "aws_lambda_permission" "config_access_key_rotation_lambda_permission" {
+  statement_id  = "${var.config_access_key_rotation_name}-lambda-permission"
+  function_name = aws_lambda_function.config_access_key_rotation_lambda.function_name
+  action        = "lambda:InvokeFunction"
+  principal     = "sns.amazonaws.com"
+  source_arn    = data.aws_sns_topic.config_access_key_rotation_topic.arn
+}
+
+resource "aws_sns_topic_subscription" "config_access_key_rotation_lambda_target" {
+  topic_arn = data.aws_sns_topic.config_access_key_rotation_topic.arn
+  protocol  = "lambda"
+  endpoint  = aws_lambda_function.config_access_key_rotation_lambda.arn
+}
+
