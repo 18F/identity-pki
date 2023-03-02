@@ -40,11 +40,14 @@ resource "aws_wafv2_web_acl" "alb" {
           name        = "AWSManagedRulesBotControlRuleSet"
           vendor_name = "AWS"
 
-          dynamic "excluded_rule" {
+          dynamic "rule_action_override" {
             for_each = toset(var.bot_control_exclusions)
 
             content {
-              name = excluded_rule.value
+              action_to_use {
+                count {}
+              }
+              name = rule_action_override.value
             }
           }
         }
@@ -306,11 +309,14 @@ resource "aws_wafv2_web_acl" "alb" {
         name        = "AWSManagedRulesAmazonIpReputationList"
         vendor_name = "AWS"
 
-        dynamic "excluded_rule" {
+        dynamic "rule_action_override" {
           for_each = var.ip_reputation_ruleset_exclusions
 
           content {
-            name = excluded_rule.value
+            action_to_use {
+              count {}
+            }
+            name = rule_action_override.value
           }
         }
       }
@@ -344,11 +350,14 @@ resource "aws_wafv2_web_acl" "alb" {
         name        = "AWSManagedRulesCommonRuleSet"
         vendor_name = "AWS"
 
-        dynamic "excluded_rule" {
+        dynamic "rule_action_override" {
           for_each = var.common_ruleset_exclusions
 
           content {
-            name = excluded_rule.value
+            action_to_use {
+              count {}
+            }
+            name = rule_action_override.value
           }
         }
       }
@@ -382,11 +391,14 @@ resource "aws_wafv2_web_acl" "alb" {
         name        = "AWSManagedRulesKnownBadInputsRuleSet"
         vendor_name = "AWS"
 
-        dynamic "excluded_rule" {
+        dynamic "rule_action_override" {
           for_each = var.known_bad_input_ruleset_exclusions
 
           content {
-            name = excluded_rule.value
+            action_to_use {
+              count {}
+            }
+            name = rule_action_override.value
           }
         }
       }
@@ -420,11 +432,14 @@ resource "aws_wafv2_web_acl" "alb" {
         name        = "AWSManagedRulesLinuxRuleSet"
         vendor_name = "AWS"
 
-        dynamic "excluded_rule" {
+        dynamic "rule_action_override" {
           for_each = var.linux_ruleset_exclusions
 
           content {
-            name = excluded_rule.value
+            action_to_use {
+              count {}
+            }
+            name = rule_action_override.value
           }
         }
       }
@@ -478,11 +493,14 @@ resource "aws_wafv2_web_acl" "alb" {
           }
         }
 
-        dynamic "excluded_rule" {
+        dynamic "rule_action_override" {
           for_each = var.sql_injection_ruleset_exclusions
 
           content {
-            name = excluded_rule.value
+            action_to_use {
+              count {}
+            }
+            name = rule_action_override.value
           }
         }
       }
