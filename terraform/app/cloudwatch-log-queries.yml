@@ -43,6 +43,22 @@ nginx/requests-by-ip-path:
     | stats count() as count by src, uri_path
     #
     | sort count desc
+nginx/requests-by-ip:
+  logs:
+    - ${env}_/var/log/nginx/access.log
+  query: |
+    ## Find requests in NGINX webserver logs for idp instances
+    fields @timestamp, @message
+    #
+    ## Only look in idp logs
+    | filter @logStream like /^idp/
+    ## Only look in pivcac logs
+    # | filter @logStream like /^pivcac/
+    #
+    ## Group by source IP and path (status may also be helpful)
+    | stats count() as count by src
+    #
+    | sort count desc
 
 outboundproxy/allowed-requests-by-destination:
   logs:
