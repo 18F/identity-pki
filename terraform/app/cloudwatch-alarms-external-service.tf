@@ -14,7 +14,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_lexis_nexis_instant_verify_response_
   }
   threshold                 = "10"
   alarm_description         = <<EOM
-LN Instant Verify 90th pecentile response time in ${var.env_name} has been greater than 10 seconds for 3 minutes
+LN Instant Verify 90th percentile response time in ${var.env_name} has been greater than 10 seconds for 3 minutes
 
 Runbook: https://handbook.login.gov/articles/vendor-outage-response-process.html
 EOM
@@ -39,7 +39,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_lexis_nexis_phone_finder_response_ti
   }
   threshold                 = "10"
   alarm_description         = <<EOM
-LN Phone Finder 90th pecentile response time in ${var.env_name} has been greater than 10 seconds for 3 minutes
+LN Phone Finder 90th percentile response time in ${var.env_name} has been greater than 10 seconds for 3 minutes
 
 Runbook: https://handbook.login.gov/articles/vendor-outage-response-process.html
 EOM
@@ -64,7 +64,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_acuant_create_document_response_time
   }
   threshold                 = "5"
   alarm_description         = <<EOM
-Acuant Create Document 50th pecentile response time in ${var.env_name} has been greater than 5 seconds for 3 minutes
+Acuant Create Document 50th percentile response time in ${var.env_name} has been greater than 5 seconds for 3 minutes
 
 Runbook: https://handbook.login.gov/articles/vendor-outage-response-process.html
 EOM
