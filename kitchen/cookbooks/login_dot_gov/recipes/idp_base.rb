@@ -123,6 +123,7 @@ end
 execute 'tag instance from artifact sha' do
   command "aws ec2 create-tags --region #{node['ec2']['region']} --resources #{node['ec2']['instance_id']} --tags Key=gitsha:idp,Value=#{git_sha}"
   only_if { artifacts_unzipped.call }
+  ignore_failure true
 end
 
 git release_path do
@@ -136,6 +137,7 @@ end
 execute 'tag instance from git repo sha' do
   command "aws ec2 create-tags --region #{node['ec2']['region']} --resources #{node['ec2']['instance_id']} --tags Key=gitsha:idp,Value=$(cd #{release_path} && git rev-parse HEAD)"
   only_if { idp_artifacts_enabled && !artifacts_unzipped.call }
+  ignore_failure true
 end
 
 # TODO: figure out why this hack is needed and remove it.
