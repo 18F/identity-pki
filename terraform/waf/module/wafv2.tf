@@ -40,14 +40,11 @@ resource "aws_wafv2_web_acl" "alb" {
           name        = "AWSManagedRulesBotControlRuleSet"
           vendor_name = "AWS"
 
-          dynamic "rule_action_override" {
+          dynamic "excluded_rule" {
             for_each = toset(var.bot_control_exclusions)
 
             content {
-              action_to_use {
-                count {}
-              }
-              name = rule_action_override.value
+              name = excluded_rule.value
             }
           }
         }
@@ -309,14 +306,11 @@ resource "aws_wafv2_web_acl" "alb" {
         name        = "AWSManagedRulesAmazonIpReputationList"
         vendor_name = "AWS"
 
-        dynamic "rule_action_override" {
+        dynamic "excluded_rule" {
           for_each = var.ip_reputation_ruleset_exclusions
 
           content {
-            action_to_use {
-              count {}
-            }
-            name = rule_action_override.value
+            name = excluded_rule.value
           }
         }
       }
@@ -350,14 +344,11 @@ resource "aws_wafv2_web_acl" "alb" {
         name        = "AWSManagedRulesCommonRuleSet"
         vendor_name = "AWS"
 
-        dynamic "rule_action_override" {
+        dynamic "excluded_rule" {
           for_each = var.common_ruleset_exclusions
 
           content {
-            action_to_use {
-              count {}
-            }
-            name = rule_action_override.value
+            name = excluded_rule.value
           }
         }
       }
@@ -391,14 +382,11 @@ resource "aws_wafv2_web_acl" "alb" {
         name        = "AWSManagedRulesKnownBadInputsRuleSet"
         vendor_name = "AWS"
 
-        dynamic "rule_action_override" {
+        dynamic "excluded_rule" {
           for_each = var.known_bad_input_ruleset_exclusions
 
           content {
-            action_to_use {
-              count {}
-            }
-            name = rule_action_override.value
+            name = excluded_rule.value
           }
         }
       }
@@ -432,14 +420,11 @@ resource "aws_wafv2_web_acl" "alb" {
         name        = "AWSManagedRulesLinuxRuleSet"
         vendor_name = "AWS"
 
-        dynamic "rule_action_override" {
+        dynamic "excluded_rule" {
           for_each = var.linux_ruleset_exclusions
 
           content {
-            action_to_use {
-              count {}
-            }
-            name = rule_action_override.value
+            name = excluded_rule.value
           }
         }
       }
@@ -493,14 +478,11 @@ resource "aws_wafv2_web_acl" "alb" {
           }
         }
 
-        dynamic "rule_action_override" {
+        dynamic "excluded_rule" {
           for_each = var.sql_injection_ruleset_exclusions
 
           content {
-            action_to_use {
-              count {}
-            }
-            name = rule_action_override.value
+            name = excluded_rule.value
           }
         }
       }
@@ -773,6 +755,102 @@ resource "aws_wafv2_web_acl" "alb" {
       visibility_config {
         cloudwatch_metrics_enabled = true
         metric_name                = "${local.web_acl_name}-RateLimitByHeaderIP-metric"
+        sampled_requests_enabled   = true
+      }
+    }
+  }
+
+  # WIP not ready for prod deployment
+  dynamic "rule" {
+    for_each = var.enforce_waf_captcha == true ? [1] : []
+    content {
+      name     = "EnforceCaptcha"
+      priority = 1500
+
+      action {
+        captcha {}
+      }
+
+      statement {
+        and_statement {
+          statement {
+            byte_match_statement {
+              field_to_match {
+                uri_path {}
+              }
+
+              positional_constraint = "EXACTLY"
+              search_string         = "/"
+              text_transformation {
+                priority = 0
+                type     = "NONE"
+              }
+            }
+          }
+
+          statement {
+            not_statement {
+              statement {
+                geo_match_statement {
+                  country_codes = var.geo_us_regions
+                }
+              }
+            }
+          }
+        }
+      }
+
+      visibility_config {
+        cloudwatch_metrics_enabled = true
+        metric_name                = "${local.web_acl_name}-CaptchaEnabled-metric"
+        sampled_requests_enabled   = true
+      }
+    }
+  }
+
+  # WIP not ready for prod deployment
+  dynamic "rule" {
+    for_each = var.enforce_waf_challenge == true ? [1] : []
+    content {
+      name     = "EnforceChallenge"
+      priority = 1600
+
+      action {
+        challenge {}
+      }
+
+      statement {
+        and_statement {
+          statement {
+            byte_match_statement {
+              field_to_match {
+                uri_path {}
+              }
+
+              positional_constraint = "EXACTLY"
+              search_string         = "/"
+              text_transformation {
+                priority = 0
+                type     = "NONE"
+              }
+            }
+          }
+
+          statement {
+            not_statement {
+              statement {
+                geo_match_statement {
+                  country_codes = var.geo_us_regions
+                }
+              }
+            }
+          }
+        }
+      }
+
+      visibility_config {
+        cloudwatch_metrics_enabled = true
+        metric_name                = "${local.web_acl_name}-ChallengeEnabled-metric"
         sampled_requests_enabled   = true
       }
     }

@@ -1,0 +1,11 @@
+---
+# You must enable this in main.tf to use!
+#
+# Add one object per header that you wish to filter a set of regex patterns on.
+# Requires a minimum of two headers to function properly
+- field_name: User-Agent
+  patterns:
+    - "BadAgent"
+- field_name: Accept-Language
+  patterns:
+    - "ForgottenLanguage"

@@ -32,6 +32,20 @@ variable "enforce_rate_limit" {
   default     = false
 }
 
+# WIP not ready for prod deployment
+variable "enforce_waf_captcha" {
+  description = "Set to true to enforce captcha before login page"
+  type        = bool
+  default     = false
+}
+
+# WIP not ready for prod deployment
+variable "enforce_waf_challenge" {
+  description = "Set to true to enforce challenge before login page"
+  type        = bool
+  default     = false
+}
+
 # description of rules in bot control rule set: https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-bot.html
 variable "bot_control_exclusions" {
   description = <<EOM
@@ -157,6 +171,12 @@ variable "geo_block_list" {
   description = "Geographic Regions to block"
   type        = list(string)
   default     = []
+}
+
+variable "geo_us_regions" {
+  description = "Geographic Regions to block"
+  type        = list(string)
+  default     = ["US", "AS", "GU", "MP", "PR", "UM", "VI"]
 }
 
 variable "relaxed_uri_paths" {
