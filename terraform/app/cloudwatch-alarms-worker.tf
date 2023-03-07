@@ -51,11 +51,11 @@ resource "aws_cloudwatch_metric_alarm" "idp_usps_proofing_results_worker_low_tra
   datapoints_to_alarm       = "1"
   metric_name               = "usps-perform-success"
   namespace                 = "${var.env_name}/idp-worker"
-  period                    = "3600" # 1 hour
+  period                    = "10800" # 3 hours
   statistic                 = "Sum"
   threshold                 = "3"
   alarm_description         = <<EOM
-This alarm is executed when USPS get proofing results job has not run at least 3 times within 60 minutes
+This alarm is executed when USPS get proofing results job has not run at least 3 times within 3 hours
 
 Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms
 EOM
