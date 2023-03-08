@@ -249,6 +249,11 @@ users:
     - jfortier
     gitlab_groups:
     - appdev
+  jia.gu:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - pm
   jillian.harrigan:
     gitlab_groups:
     - antifraud
