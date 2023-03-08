@@ -111,8 +111,11 @@ data "aws_iam_policy_document" "opsgenie_sns_topic_policy_usw2" {
     actions = ["SNS:Publish"]
 
     principals {
-      type        = "Service"
-      identifiers = ["events.amazonaws.com"]
+      type = "Service"
+      identifiers = [
+        "events.amazonaws.com",
+        "cloudwatch.amazonaws.com"
+      ]
     }
 
     resources = [aws_sns_topic.opsgenie_alert_usw2.arn]
@@ -148,8 +151,11 @@ data "aws_iam_policy_document" "opsgenie_sns_topic_policy_use1" {
     actions = ["SNS:Publish"]
 
     principals {
-      type        = "Service"
-      identifiers = ["events.amazonaws.com"]
+      type = "Service"
+      identifiers = [
+        "events.amazonaws.com",
+        "cloudwatch.amazonaws.com"
+      ]
     }
 
     resources = [aws_sns_topic.opsgenie_alert_use1.arn]
