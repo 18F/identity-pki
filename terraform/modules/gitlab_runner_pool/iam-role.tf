@@ -152,7 +152,8 @@ resource "aws_iam_role_policy" "gitlab-runner-cloudwatch-logs" {
                       "logs:DescribeLogStreams",
                       "logs:DescribeLogGroups",
                       "logs:CreateLogStream",
-                      "logs:CreateLogGroup"
+                      "logs:CreateLogGroup",
+                      "logs:ListTagsForResource"
                   ],
                   "Resource": "arn:aws:logs:*:*:*"
               }
