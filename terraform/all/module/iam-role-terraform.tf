@@ -441,6 +441,7 @@ locals {
           "logs:GetLogDelivery",
           "logs:ListTagsLogGroup",
           "logs:ListLogDeliveries",
+          "logs:ListTagsForResource",
           "logs:PutDestination",
           "logs:PutDestinationPolicy",
           "logs:PutLogEvents",
