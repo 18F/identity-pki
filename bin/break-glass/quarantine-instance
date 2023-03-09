@@ -347,6 +347,16 @@ def attach_EC2_SSM_execution_IAM_role(ec2Client, instance_id):
     print(message)
 
 
+def find_quarantine_sg_for_instance(instance_id):
+    ec2 = boto3.resource('ec2')
+    vpc = ec2.Vpc(ec2.Instance(instance_id).vpc_id)
+
+    for sg in vpc.security_groups.all():
+        if sg.tags is not None and len([t for t in sg.tags if t.get('Key') == 'Name' and t.get('Value').endswith('-quarantine')]) > 0:
+            return sg.group_id
+    raise RuntimeError("Could not find an appropriate quarantine security group")
+
+
 if __name__ == "__main__":
 
     account_id = boto3.client('sts').get_caller_identity().get('Account')
@@ -354,7 +364,7 @@ if __name__ == "__main__":
     # Define Argument Parser
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--iid', required=True, help='instance id')
-    parser.add_argument('-g', '--sgid', required=True, help='security group id')
+    parser.add_argument('-g', '--sgid', required=False, help='quarantine security group id')
     parser.add_argument('-r', '--region', required=False, help='region')
     parser.add_argument('-b', '--bucket', required=False, help='bucket')
     parser.add_argument('-t', '--topic', required=False, help='topic')
@@ -396,6 +406,9 @@ if __name__ == "__main__":
     VPC_ID = instance_describe_metadata['Reservations'][0]['Instances'][0]['VpcId']
 
     isolateSG = args.sgid
+    if isolateSG is None:
+        isolateSG = find_quarantine_sg_for_instance(instance_id)
+
 
     # print(isolateSG)
     isolate_instance(ec2Client, instance_id, VPC_ID, isolateSG)
