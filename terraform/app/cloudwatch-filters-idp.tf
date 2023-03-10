@@ -115,6 +115,7 @@ locals {
       name         = "idv-review-complete-success"
       pattern      = "{ ($.name = \"IdV: review complete\") }"
       metric_value = 1
+      dimensions   = {}
     },
     # Per-SP to allow a breakdown of IdV
     sp_idv_final_resolution_success = {
@@ -129,6 +130,7 @@ locals {
       name         = "doc-auth-submitted-success"
       pattern      = "{ ($.name = \"IdV: final resolution\") && ($.properties.event_properties.success is true) }"
       metric_value = 1
+      dimensions   = {}
     },
   }
 
@@ -369,9 +371,10 @@ resource "aws_cloudwatch_log_metric_filter" "idp_events_ialx" {
   pattern        = each.value["pattern"]
   log_group_name = aws_cloudwatch_log_group.idp_events.name
   metric_transformation {
-    name      = each.value["name"]
-    namespace = "${var.env_name}/idp-ialx"
-    value     = each.value["metric_value"]
+    name       = each.value["name"]
+    namespace  = "${var.env_name}/idp-ialx"
+    value      = each.value["metric_value"]
+    dimensions = each.value["dimensions"]
   }
 }
 
