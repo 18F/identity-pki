@@ -110,9 +110,33 @@ variable "elasticache_redis_attempts_api_node_type" {
   default     = "cache.t3.micro"
 }
 
+variable "elasticache_redis_cache_node_type" {
+  type        = string
+  description = "Instance type used for redis elasticache. Changes incur downtime."
+  # allowed values: t2.micro-medium, m3.medium-2xlarge, m4|r3|r4.large-
+  default = "cache.t3.micro"
+}
+
+variable "elasticache_redis_ratelimit_node_type" {
+  type        = string
+  description = "Instance type used for redis elasticache rate limiting. Changes incur downtime."
+  # allowed values: t2.micro-medium, m3.medium-2xlarge, m4|r3|r4.large-
+  default = "cache.t3.micro"
+}
+
 variable "elasticache_redis_num_cache_clusters" {
   type        = number
   description = "Number of Redis cache clusters."
+  default     = 2
+}
+variable "elasticache_redis_cache_num_cache_clusters" {
+  type        = number
+  description = "Number of Redis cache clusters for IDP Cache."
+  default     = 2
+}
+variable "elasticache_redis_ratelimit_num_cache_clusters" {
+  type        = number
+  description = "Number of Redis cache clusters for ratelimiting."
   default     = 2
 }
 
@@ -1240,6 +1264,18 @@ variable "low_sp_oidc_token_enabled_sps" {
 
 variable "allow_nessus_external_scanning" {
   description = "Enables Nessus to externally scan data-services subnet resources"
+  type        = bool
+  default     = false
+}
+
+variable "enable_redis_cache_instance" {
+  description = "Enables the creation and monitoring of redis cache instance"
+  type        = bool
+  default     = false
+}
+
+variable "enable_redis_ratelimit_instance" {
+  description = "Enables the creation and monitoring of redis ratelimit instance"
   type        = bool
   default     = false
 }

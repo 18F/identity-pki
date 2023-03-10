@@ -33,8 +33,10 @@ output "idp_cloudfront" {
 
 output "elasticache" {
   value = {
-    cluster_address          = aws_elasticache_replication_group.idp.primary_endpoint_address
-    cluster_attempts_address = aws_elasticache_replication_group.idp_attempts.primary_endpoint_address
+    cluster_address           = aws_elasticache_replication_group.idp.primary_endpoint_address
+    cluster_attempts_address  = aws_elasticache_replication_group.idp_attempts.primary_endpoint_address
+    cluster_cache_address     = var.enable_redis_cache_instance ? aws_elasticache_replication_group.cache[0].primary_endpoint_address : aws_elasticache_replication_group.idp.primary_endpoint_address
+    cluster_ratelimit_address = var.enable_redis_ratelimit_instance ? aws_elasticache_replication_group.ratelimit[0].primary_endpoint_address : aws_elasticache_replication_group.idp.primary_endpoint_address
   }
 }
 
