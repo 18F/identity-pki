@@ -222,6 +222,12 @@ variable "waf_alert_actions" {
   default     = []
 }
 
+variable "ddos_alert_actions" {
+  description = "List of SNS ARNs to deliver messages to upon DDOS alert"
+  type        = list(string)
+  default     = []
+}
+
 variable "soc_destination_arn" {
   description = "SOC destination ARN for WAF Logs"
   default     = "arn:aws:logs:us-west-2:752281881774:destination:elp-waf-lg"

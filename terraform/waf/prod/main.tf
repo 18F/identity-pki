@@ -32,6 +32,7 @@ module "main" {
 
   waf_alert_blocked_threshold = "1500"
   waf_alert_actions           = ["arn:aws:sns:us-west-2:555546682965:slack-events"]
+  ddos_alert_actions          = ["arn:aws:sns:us-west-2:555546682965:slack-events"]
 
   restricted_paths    = module.waf_data.restricted_paths
   privileged_cidrs_v4 = module.waf_data.privileged_cidrs_v4

@@ -30,7 +30,8 @@ module "main" {
   # per-account per-region regex pattern sets
   #query_block_regex  = ["ExampleStringToBlock"]
 
-  waf_alert_actions = ["arn:aws:sns:us-west-2:555546682965:slack-otherevents"]
+  waf_alert_actions  = ["arn:aws:sns:us-west-2:555546682965:slack-otherevents"]
+  ddos_alert_actions = ["arn:aws:sns:us-west-2:555546682965:slack-events"]
 
   restricted_paths    = module.waf_data.restricted_paths
   privileged_cidrs_v4 = module.waf_data.privileged_cidrs_v4
