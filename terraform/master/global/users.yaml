@@ -129,7 +129,7 @@ users:
     - appdev
   eileen.mcfarland:
     aws_groups:
-    - appdev
+    - apponcall
     ec2_username:
     - emcfarland
     gitlab_groups:
