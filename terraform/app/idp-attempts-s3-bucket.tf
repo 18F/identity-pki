@@ -70,7 +70,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "attempts_api" {
   rule {
     id = "ExpireObjects"
     expiration {
-      days = 3
+      days = 7
     }
     status = "Enabled"
   }
