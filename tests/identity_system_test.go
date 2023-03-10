@@ -136,7 +136,7 @@ func TestMetricFilters(t *testing.T) {
 		LogGroupName:     aws_sdk.String(env_name + "_/var/log/nginx/access.log"),
 	})
 	require.NoError(t, err)
-	require.Len(t, filters.MetricFilters, 1)
+	require.Len(t, filters.MetricFilters, 2)
 	pattern := filters.MetricFilters[0].FilterPattern
 
 	// This log has a couple interesting events, and a few that should get filtered out
