@@ -40,11 +40,27 @@ locals {
       metric_value = 1
       dimensions   = {}
     },
+    user_marked_authenticated_sp = {
+      name         = "user-marked-authenticated-sp"
+      pattern      = "{ ($.name = \"User marked authenticated\") }"
+      metric_value = 1
+      dimensions = {
+        service_provider = "$.properties.service_provider",
+      }
+    },
     user_registration_complete = {
       name         = "user-registration-complete"
       pattern      = "{ ($.name = \"User Registration: User Fully Registered\") }"
       metric_value = 1
       dimensions   = {}
+    },
+    user_registration_complete_sp = {
+      name         = "user-registration-complete-sp"
+      pattern      = "{ ($.name = \"User Registration: User Fully Registered\") }"
+      metric_value = 1
+      dimensions = {
+        service_provider = "$.properties.service_provider",
+      }
     },
     multi_factor_authentication_setup_success = {
       name         = "multi-factor-authentication-setup-success"
