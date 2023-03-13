@@ -43,7 +43,7 @@ data "aws_iam_policy_document" "config_access_key_rotation_ssm_access" {
     sid       = "${local.accesskeyrotation_name_iam}SNSAccess"
     effect    = "Allow"
     actions   = ["sns:Publish"]
-    resources = ["arn:aws:sns:${var.region}:${data.aws_caller_identity.current.account_id}:${var.slack_events_sns_topic}"]
+    resources = ["${data.aws_sns_topic.config_access_key_rotation_topic.arn}"]
   }
 }
 
@@ -81,6 +81,28 @@ resource "aws_iam_policy" "config_access_key_rotation_lambda_iam_access" {
         ]
         Effect   = "Allow"
         Resource = "arn:aws:logs:${var.region}:${data.aws_caller_identity.current.account_id}:*"
+      },
+      {
+        Action = [
+          "ses:SendEmail",
+          "ses:SendRawEmail"
+        ]
+        Effect   = "Allow"
+        Resource = "*"
+      },
+      {
+        Action = [
+          "sts:AssumeRole"
+        ]
+        Effect   = "Allow"
+        Resource = "${aws_iam_role.assumeRole_lambda.arn}"
+      },
+      {
+        Action = [
+          "iam:ListAccessKeys"
+        ]
+        Effect   = "Allow"
+        Resource = "*"
       }
     ]
   })
@@ -89,4 +111,46 @@ resource "aws_iam_policy" "config_access_key_rotation_lambda_iam_access" {
 resource "aws_iam_role_policy_attachment" "config_access_key_rotation_lambda_iam_access" {
   role       = aws_iam_role.config_access_key_rotation_lambda_role.name
   policy_arn = aws_iam_policy.config_access_key_rotation_lambda_iam_access.arn
+}
+
+# This is an additional role which Lambda can assume, with limited permissions
+# to take IAM actions against a specific IAM user. The function should have
+# permissions that overlap with this role's policy and the policy that it uses
+# when assuming this role. The goal here is to ensure that while Lambda
+# assumes this role, it can only take IAM action against the specific IAM user.
+data "aws_iam_policy_document" "trust_policy_allowing_lambda_assumeRole" {
+  statement {
+    sid    = "assume"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole"
+    ]
+    principals {
+      type        = "AWS"
+      identifiers = [aws_iam_role.config_access_key_rotation_lambda_role.arn]
+    }
+  }
+}
+
+data "aws_iam_policy_document" "identity_policy_allowing_lambda_assumeRole" {
+  statement {
+    sid    = "AllowAccessToIAMAccessKey"
+    effect = "Allow"
+    actions = [
+      "iam:UpdateAccessKey",
+      "iam:ListAccessKeys"
+    ]
+    resources = [
+      "*"
+    ]
+  }
+}
+
+resource "aws_iam_role" "assumeRole_lambda" {
+  assume_role_policy = data.aws_iam_policy_document.trust_policy_allowing_lambda_assumeRole.json
+}
+
+resource "aws_iam_role_policy" "assumeRole_lambda" {
+  role   = aws_iam_role.assumeRole_lambda.id
+  policy = data.aws_iam_policy_document.identity_policy_allowing_lambda_assumeRole.json
 }
