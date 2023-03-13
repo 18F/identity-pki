@@ -1,9 +1,5 @@
 data "aws_caller_identity" "current" {}
 
-data "aws_sns_topic" "notify_slack" {
-  name = var.slack_events_sns_topic
-}
-
 module "config_password_rotation_code" {
   source = "github.com/18F/identity-terraform//null_archive?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
   #source = "../../../../identity-terraform/null_archive"
@@ -27,7 +23,7 @@ resource "aws_lambda_function" "password_rotation_lambda" {
 
   environment {
     variables = {
-      notification_topic = "${data.aws_sns_topic.notify_slack.arn}"
+      temp_role_arn = "${aws_iam_role.assumeRole_lambda.arn}"
     }
   }
 
@@ -57,11 +53,33 @@ resource "aws_iam_policy" "password_update_lambda_policy" {
     Version = "2012-10-17"
     Statement = [
       {
+        Sid    = "AllowSendingEmailViaSES"
+        Effect = "Allow"
         Action = [
-          "sns:Publish"
+          "ses:SendEmail",
+          "ses:SendRawEmail"
+        ]
+        Resource = [
+          "*"
+        ]
+      },
+      {
+        Sid    = "AllowAccessToIAMLoginProfile"
+        Effect = "Allow"
+        Action = [
+          "sts:AssumeRole"
+        ]
+        Resource = [
+          "${aws_iam_role.assumeRole_lambda.arn}"
+        ]
+      },
+      {
+        Action = [
+          "iam:GetCredentialReport",
+          "iam:GenerateCredentialReport"
         ]
         Effect   = "Allow"
-        Resource = "${data.aws_sns_topic.notify_slack.arn}"
+        Resource = "*"
       },
       {
         Action = [
@@ -70,15 +88,6 @@ resource "aws_iam_policy" "password_update_lambda_policy" {
         ]
         Effect   = "Allow"
         Resource = "${aws_cloudwatch_log_group.password_lambda_cw_logs.arn}:*"
-      },
-      {
-        Action = [
-          "iam:GetCredentialReport",
-          "iam:GenerateCredentialReport",
-          "iam:DeleteLoginProfile"
-        ]
-        Effect   = "Allow"
-        Resource = "*"
       }
     ]
   })
@@ -93,4 +102,46 @@ resource "aws_iam_role_policy_attachment" "password_lambda_logs" {
 resource "aws_cloudwatch_log_group" "password_lambda_cw_logs" {
   name              = "/aws/lambda/${var.config_password_rotation_name}-lambda"
   retention_in_days = 365
+}
+
+# This is an additional IAM role the Lambda can assume, with limited permissions
+# to take IAM actions against a specific IAM user. The function should have
+# permissions that overlap with this policy and the policy that it uses
+# when assuming this role. The goal here is to ensure that while the Lambda is
+# assuming this role, it can only take IAM action against the specific IAM user.
+data "aws_iam_policy_document" "trust_policy_allowing_lambda_assumeRole" {
+  statement {
+    sid    = "assume"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole"
+    ]
+    principals {
+      type        = "AWS"
+      identifiers = [aws_iam_role.password_update_lambda_role.arn]
+    }
+  }
+}
+
+data "aws_iam_policy_document" "identity_policy_allowing_lambda_assumeRole" {
+  statement {
+    sid    = "AllowAccessToIAMLoginProfile"
+    effect = "Allow"
+    actions = [
+      "iam:DeleteLoginProfile",
+      "iam:GetLoginProfile"
+    ]
+    resources = [
+      "*"
+    ]
+  }
+}
+
+resource "aws_iam_role" "assumeRole_lambda" {
+  assume_role_policy = data.aws_iam_policy_document.trust_policy_allowing_lambda_assumeRole.json
+}
+
+resource "aws_iam_role_policy" "assumeRole_lambda" {
+  role   = aws_iam_role.assumeRole_lambda.id
+  policy = data.aws_iam_policy_document.identity_policy_allowing_lambda_assumeRole.json
 }
