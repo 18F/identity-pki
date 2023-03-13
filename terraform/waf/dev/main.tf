@@ -27,7 +27,8 @@ module "main" {
 
   #query_block_regex  = ["ExampleStringToBlock"]
 
-  waf_alert_actions = ["arn:aws:sns:us-west-2:894947205914:slack-otherevents"]
+  waf_alert_actions  = ["arn:aws:sns:us-west-2:894947205914:slack-otherevents"]
+  ddos_alert_actions = ["arn:aws:sns:us-west-2:894947205914:slack-otherevents"]
 
   restricted_paths         = module.waf_data.restricted_paths
   restricted_paths_enforce = false # Count only in Dev

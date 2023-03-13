@@ -51,3 +51,35 @@ EOM
     WebACL = "${var.env}-idp-waf"
   }
 }
+
+resource "aws_cloudwatch_metric_alarm" "ddos_alert" {
+  for_each = toset(
+    concat(
+      var.aws_shield_resources["application_loadbalancer"],
+      var.aws_shield_resources["classic_loadbalancer"],
+      var.aws_shield_resources["elastic_ip_address"]
+    )
+  )
+  alarm_name          = "DDoS-Alert-${replace(data.aws_arn.resources[each.value].resource, "/", "-")}"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "DDoSDetected"
+  namespace           = "AWS/DDoSProtection"
+  period              = "300"
+  statistic           = "Minimum"
+  threshold           = "1"
+  treat_missing_data  = "notBreaching"
+  alarm_description   = <<EOM
+AWS Shield has detected a possible Distributed Denial of Service (DDoS) attack
+Resource: ${data.aws_arn.resources[each.value].resource}
+Service: ${data.aws_arn.resources[each.value].service}
+Account: ${data.aws_arn.resources[each.value].account}
+Region: ${data.aws_arn.resources[each.value].region}
+
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Denial-of-Service#aws-shield
+EOM
+  alarm_actions       = var.ddos_alert_actions
+  dimensions = {
+    ResourceArn = "${each.value}"
+  }
+}
