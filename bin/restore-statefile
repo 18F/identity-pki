@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+
+trap rm_statefile EXIT
+
+set -euo pipefail
+
+. "$(dirname "$0")/lib/common.sh"
+
+usage() {
+    cat >&2 <<EOM
+
+Usage: ${0} [-d TF_DIR|-e TF_ENV] [-r TF_REGION]
+  - Must be prepended with aws-vault in order to be able to run
+  - Must use a role that can update terraform_locks in DynamoDB (e.g. sandbox-admin).
+
+Directory/environment flags (optional):
+  -d TF_DIR : Directory in terraform/ to use (defaults to 'app' if not specified)
+  -e TF_ENV : Environment to use (defaults to \$GSA_USERNAME if not specified,
+              or 'sandbox' if TF_DIR has been set differently by -d)
+
+Flags:
+  -r TF_REGION : Region of the tf-state S3 bucket (defaults to us-west-2)
+  -h           : Display help
+
+EOM
+}
+
+help_me() {
+    cat >&2 << EOM
+
+Given a TF_DIR/TF_ENV combination:
+1. Finds the corresponding Terraform state file in the account's tf-state S3 bucket
+2. Lists the 5 most recent versions of said file, with timestamps and version IDs
+
+Upon selecting a version ID, and confirming when prompted, will reset the
+.tfstate file to the specified version ID, and will update the remote state's
+corresponding MD5 digest in the terraform_locks DynamoDB table for the account.
+
+Example:  
+  aws-vault exec sandbox-admin -- ${0} -e dev -d app
+
+EOM
+  usage
+  exit 0
+}
+
+rm_statefile() {
+  if [[ ! -z "${TF_STATE_FILE:-}" ]] && [[ -f "${TF_STATE_FILE}" ]] ; then
+    run rm "${TF_STATE_FILE}"
+  fi
+}
+
+declare {TF_ENV,TF_DIR}=
+TF_REGION='us-west-2'
+verify_root_repo
+while getopts e:d:r:h opt
+do
+  case $opt in
+    e) TF_ENV="${OPTARG}"     ;;
+    d) TF_DIR="${OPTARG}"     ;;
+    r) TF_REGION="${OPTARG}"  ;;
+    h) help_me                ;;
+    *) raise 'Invalid option' ;;
+  esac
+done
+shift $((OPTIND-1))
+
+verify_tf_dir_and_env
+
+TF_ACCT=$(aws sts get-caller-identity --query Account --output text)
+TF_STATE_BUCKET="login-gov.tf-state.${TF_ACCT}-${TF_REGION}"
+TF_STATE_FILE="terraform-${TF_DIR}-${TF_ENV}.tfstate"
+TF_STATE_S3_KEY="terraform-${TF_DIR}/terraform-${TF_ENV}.tfstate"
+
+echo_cyan "Getting 5 most recent versions of '${TF_STATE_S3_KEY}' file..." && echo
+ave aws s3api list-object-versions \
+  --bucket ${TF_STATE_BUCKET} --prefix ${TF_STATE_S3_KEY} --max-items 5 \
+  --query 'Versions[*].{VersionId:VersionId,LastModified:LastModified}' | jq '.[]'
+
+read -r -p "Enter the desired 'VersionId' from the list above: " VERSION_ID
+echo
+
+echo_cyan "Getting version ${VERSION_ID} of '${TF_STATE_S3_KEY}' file..." && echo
+ave aws s3api get-object \
+  --bucket ${TF_STATE_BUCKET} --key ${TF_STATE_S3_KEY} \
+  --version-id ${VERSION_ID} "${TF_STATE_FILE}"
+
+echo 
+
+echo_green "Ready to update ${TF_STATE_S3_KEY} to version ID ${VERSION_ID}, and then"
+echo_green "update corresponding MD5 Digest in the DynamoDB terraform_locks table."
+
+if ! prompt_yn "Continue?" ; then
+  echo_yellow "Stopping."
+  exit 0
+fi
+
+echo
+ave aws s3 cp "${TF_STATE_FILE}" "s3://${TF_STATE_BUCKET}/${TF_STATE_S3_KEY}"
+echo
+
+echo_cyan "Calculating MD5 digest of ${TF_STATE_FILE} file..." && echo
+DIGEST=($(md5sum ./${TF_STATE_FILE}))
+
+echo_cyan "Updating ${TF_STATE_FILE} to MD5 digest '${DIGEST}' in terraform_locks..."
+echo
+ave aws dynamodb update-item \
+  --table-name terraform_locks \
+  --key '{"LockID": {"S": "'${TF_STATE_BUCKET}/${TF_STATE_S3_KEY}-md5'" }}' \
+  --update-expression "SET Digest = :d" \
+  --expression-attribute-values '{":d": { "S": "'$DIGEST'" }}'
+
+echo
+
+echo_cyan "Removing local copy of ${TF_STATE_FILE} file..." && echo
+rm_statefile
+
+echo_green "Success! Re-run your previous Terraform / tf-deploy / td command"
+echo_green "to complete the repair of your remote Terraform state."
+echo

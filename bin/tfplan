@@ -99,12 +99,9 @@ shift $((OPTIND-1))
 
 [ $# -gt 2 ] && raise 'Must provide <2 arguments'
 
-TF_DIR="${1:-app}"
-TF_ENV="${2:-$(echo ${GSA_USERNAME})}"
-
-if [[ ! "${TF_DIR}" == 'app' ]] && [[ -z ${2} ]] ; then
-  TF_ENV='sandbox'
-fi
+TF_DIR="${1:-}"
+TF_ENV="${2:-}"
+verify_tf_dir_and_env
 
 TF_PATH="${TF_DIR}/${TF_ENV}"
 [[ "${TF_DIR}" == 'app' ]] && TF_PATH="${TF_ENV} ${TF_DIR}"

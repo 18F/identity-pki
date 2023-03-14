@@ -171,6 +171,32 @@ verify_private_repo() {
   echo_cyan "identity-devops-private dir located."
 }
 
+# make sure that TF_DIR / TF_ENV (in parent script) in are both valid
+verify_tf_dir_and_env() {
+  # default to 'app' if left blank
+  if [[ -z ${TF_DIR} ]] ; then
+    TF_DIR='app' 
+  elif [[ ! -d ${GIT_DIR}/terraform/${TF_DIR} ]] ; then
+    raise "terraform/${TF_DIR} not found"
+  fi
+
+  # default TF_ENV, if left blank
+  if [[ -z ${TF_ENV} ]] ; then
+    case ${TF_DIR} in
+      app)     TF_ENV=${GSA_USERNAME} ;;
+      gitlab)  TF_ENV='alpha'         ;;
+      master)  TF_ENV='global'        ;;
+      tooling) TF_ENV='tooling'       ;;
+      waf)     TF_ENV='dev'           ;;
+      *)       TF_ENV='sandbox'       ;;
+    esac
+  fi
+  
+  if [[ ! -d ${GIT_DIR}/terraform/${TF_DIR}/${TF_ENV} ]] ; then
+    [[ ${TF_DIR} == "app" ]] || raise "terraform/${TF_DIR}/${TF_ENV} not found"
+  fi
+}
+
 # send a notification in Slack, pulling appropriate key(s) from bucket to do so
 slack_notify() {
   local AWS_ACCT_NUM TF_ENV AWS_REGION COLOR SLACK_USER SLACK_EMOJI PRE_TEXT TEXT KEYS
