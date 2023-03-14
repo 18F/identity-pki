@@ -6,7 +6,6 @@ locals {
       command     = ["sudo systemctl restart idp-workers.target"]
       description = "Restart idp-worker service via systemctl"
       logging     = false
-      use_root    = true
       parameters  = []
     }
     "passenger-restart" = {
@@ -15,7 +14,6 @@ locals {
       ]
       description = "Restart passenger service via id-passenger-restart script"
       logging     = false
-      use_root    = true
       parameters  = []
     }
     "scp-s3-cp" = {
@@ -34,8 +32,7 @@ locals {
           description = "destination file to copy to"
         },
       ]
-      logging  = false
-      use_root = false
+      logging = false
       command = [
         "aws s3 cp {{ sourcefile }} {{ destfile }}"
       ]
@@ -44,7 +41,7 @@ locals {
 }
 
 module "ssm" {
-  source = "github.com/18F/identity-terraform//ssm?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
+  source = "github.com/18F/identity-terraform//ssm?ref=fc29b26f07684a901fb0c2a54441677ee25f448c"
   #source = "../../../identity-terraform/ssm"
 
   bucket_name_prefix = "login-gov"
@@ -56,61 +53,63 @@ module "ssm" {
       command     = "/etc/update-motd.d/00-header ; cd ; /bin/bash"
       description = "Default shell to login as GSA_USERNAME"
       logging     = false
-      use_root    = false
     },
     "sudo" = {
       command     = "sudo su -"
       description = "Login and change to root user"
       logging     = false
-      use_root    = false
-    },
-    "tail-cw" = {
-      command     = "sudo tail -f /var/log/cloud-init-output.log"
-      description = "Tail the cloud-init-output logs"
-      logging     = false
-      use_root    = true
     },
     "rails-c" = {
       command     = "/usr/local/bin/id-rails-console"
       description = "Run id-rails-console"
       logging     = false
-      use_root    = false
     }
     "rails-w" = {
       command     = "/usr/local/bin/id-rails-console --write"
       description = "Run id-rails-console with --write set"
       logging     = false
-      use_root    = false
     }
     "uuid-lookup" = {
       command     = "/usr/local/bin/id-uuid-lookup"
       description = "Run users:lookup_by_email via id-uuid-lookup"
       logging     = true
-      use_root    = false
     }
     "passenger-stat" = {
       command     = "sudo systemctl status passenger.service| grep Active"
       description = "Check status of passenger via systemctl, report Active line"
       logging     = true
-      use_root    = false
     }
     "review-pass" = {
       command     = "/usr/local/bin/id-users-review-pass"
       description = "Run users:review:pass via id-users-review-pass"
       logging     = true
-      use_root    = false
     }
     "review-reject" = {
       command     = "/usr/local/bin/id-users-review-reject"
       description = "Run users:review:reject via id-users-review-reject"
       logging     = true
-      use_root    = false
     }
   }
 
   ssm_cmd_doc_map = (
     var.enable_loadtesting ? merge(local.locust_cmds, local.ssm_cmds) : local.ssm_cmds
   )
+
+  ssm_interactive_cmd_map = {
+    "tail-cw" = {
+      description = "Tail the cloud-init-output logs"
+      parameters = [
+        {
+          name        = "logpath"
+          type        = "String"
+          default     = "/var/log/cloud-init-output.log"
+          description = "log file to tail/read"
+          pattern     = "^[a-zA-Z0-9-_/]+(.log)$"
+        }
+      ]
+      command = ["tail -f {{ logpath }}"]
+    }
+  }
 }
 
 # Base role required for all instances

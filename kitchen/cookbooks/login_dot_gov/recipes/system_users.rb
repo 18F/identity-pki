@@ -17,22 +17,3 @@
     group service_user
   end
 end
-
-# explicitly set up ssm-user up front instead of relying on ssm magic
-user 'ssm-user' do
-  shell  '/bin/sh'
-  gid    'users'
-  home   '/home/ssm-user'
-end
-
-sudo 'ssm-user' do
-  users 'ssm-user'
-  nopasswd true
-end
-
-# change permissions on ssm homedir to satisfy CIS benchmark
-directory "/home/ssm-user" do
-  mode '750'
-  owner 'ssm-user'
-  group 'users'
-end
