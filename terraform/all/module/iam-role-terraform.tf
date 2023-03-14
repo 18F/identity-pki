@@ -451,6 +451,7 @@ locals {
           "logs:PutRetentionPolicy",
           "logs:PutSubscriptionFilter",
           "logs:TagLogGroup",
+          "logs:TagResource",
           "logs:TestMetricFilter",
           "logs:UntagLogGroup",
           "logs:UpdateLogDelivery",

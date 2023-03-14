@@ -597,7 +597,15 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
             "height": 6,
             "properties": {
                 "metrics": [
+                    %{if var.worker_cluster_instances >= 2~}
+                    [ "AWS/RDS", "DatabaseConnections", "DBInstanceIdentifier", "${module.worker_aurora_uw2.writer_instance}", { "label": "AuroraDB (Writer Instance)" } ],
+                    %{for id in module.worker_aurora_uw2.reader_instances~}
+                    [ "...", "${id}", { "label": "AuroraDB (Replica ${index(module.worker_aurora_uw2.reader_instances, id) + 1})" } ]
+                    %{endfor~}
+                    %{endif~}
+                    %{if var.worker_cluster_instances == 1~}
                     [ "AWS/RDS", "DatabaseConnections", "DBInstanceIdentifier", "${module.worker_aurora_uw2.writer_instance}", { "label": "AuroraDB (Writer Instance)" } ]
+                    %{endif~}
                 ],
                 "view": "timeSeries",
                 "stacked": false,
@@ -621,7 +629,15 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
             "height": 6,
             "properties": {
                 "metrics": [
+                    %{if var.worker_cluster_instances >= 2~}
+                    [ "AWS/RDS", "CPUUtilization", "DBInstanceIdentifier", "${module.worker_aurora_uw2.writer_instance}", { "label": "AuroraDB (Writer Instance)" } ],
+                    %{for id in module.worker_aurora_uw2.reader_instances~}
+                    [ "...", "${id}", { "label": "AuroraDB (Replica ${index(module.worker_aurora_uw2.reader_instances, id) + 1})" } ]
+                    %{endfor~}
+                    %{endif~}
+                    %{if var.worker_cluster_instances == 1~}
                     [ "AWS/RDS", "CPUUtilization", "DBInstanceIdentifier", "${module.worker_aurora_uw2.writer_instance}", { "label": "AuroraDB (Writer Instance)" } ]
+                    %{endif~}
                 ],
                 "view": "timeSeries",
                 "stacked": false,
