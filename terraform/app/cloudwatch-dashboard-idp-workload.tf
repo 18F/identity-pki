@@ -671,6 +671,138 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
                     ]
                 }
             }
+        },
+        {
+            "type": "metric",
+            "x": 0,
+            "y": 20,
+            "width": 12,
+            "height": 6,
+            "properties": {
+                "metrics": [
+                    %{if var.idp_aurora_enabled && var.idp_cluster_instances >= 2~}
+                    [ "AWS/RDS", "DiskQueueDepth", "DBInstanceIdentifier", "${module.idp_aurora_from_rds[0].writer_instance}", { "label": "AuroraDB (Writer Instance)" } ],
+                    %{for id in module.idp_aurora_from_rds[0].reader_instances~}
+                    [ "...", "${id}", { "label": "AuroraDB (Replica ${index(module.idp_aurora_from_rds[0].reader_instances, id) + 1})" } ]
+                    %{endfor~}
+                    %{endif~}
+                    %{if var.idp_aurora_enabled && var.idp_cluster_instances == 1~}
+                    [ "AWS/RDS", "DiskQueueDepth", "DBInstanceIdentifier", "${module.idp_aurora_from_rds[0].writer_instance}", { "label": "AuroraDB (Writer Instance)" } ]
+                    %{endif~}
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${var.region}",
+                "title": "${var.env_name} IdP - DiskQueueDepth",
+                "period": 60,
+                "yAxis": {
+                    "left": {
+                        "min": 0,
+                        "label": "Queue Depth (Count)",
+                        "showUnits": false
+                    }
+                },
+                "stat": "Average"
+            }
+        },
+        {
+            "type": "metric",
+            "x": 0,
+            "y": 20,
+            "width": 12,
+            "height": 6,
+            "properties": {
+                "metrics": [
+                    %{if var.idp_aurora_enabled && var.idp_cluster_instances >= 2~}
+                    [ "AWS/RDS", "FreeableMemory", "DBInstanceIdentifier", "${module.idp_aurora_from_rds[0].writer_instance}", { "label": "AuroraDB (Writer Instance)" } ],
+                    %{for id in module.idp_aurora_from_rds[0].reader_instances~}
+                    [ "...", "${id}", { "label": "AuroraDB (Replica ${index(module.idp_aurora_from_rds[0].reader_instances, id) + 1})" } ]
+                    %{endfor~}
+                    %{endif~}
+                    %{if var.idp_aurora_enabled && var.idp_cluster_instances == 1~}
+                    [ "AWS/RDS", "FreeableMemory", "DBInstanceIdentifier", "${module.idp_aurora_from_rds[0].writer_instance}", { "label": "AuroraDB (Writer Instance)" } ]
+                    %{endif~}
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${var.region}",
+                "title": "${var.env_name} IdP - FreeableMemory",
+                "period": 60,
+                "yAxis": {
+                    "left": {
+                        "min": 0,
+                        "label": "Freeable Memory (Bytes)",
+                        "showUnits": false
+                    }
+                },
+                "stat": "Average"
+            }
+        },
+        {
+                "type": "metric",
+                "x": 0,
+                "y": 20,
+                "width": 12,
+                "height": 6,
+                "properties": {
+                    "metrics": [
+                        %{if var.idp_aurora_enabled && var.idp_cluster_instances >= 2~}
+                        [ "AWS/RDS", "ReadLatency", "DBInstanceIdentifier", "${module.idp_aurora_from_rds[0].writer_instance}", { "label": "AuroraDB (Writer Instance)" } ],
+                        %{for id in module.idp_aurora_from_rds[0].reader_instances~}
+                        [ "...", "${id}", { "label": "AuroraDB (Replica ${index(module.idp_aurora_from_rds[0].reader_instances, id) + 1})" } ]
+                        %{endfor~}
+                        %{endif~}
+                        %{if var.idp_aurora_enabled && var.idp_cluster_instances == 1~}
+                        [ "AWS/RDS", "ReadLatency", "DBInstanceIdentifier", "${module.idp_aurora_from_rds[0].writer_instance}", { "label": "AuroraDB (Writer Instance)" } ]
+                        %{endif~}
+                    ],
+                    "view": "timeSeries",
+                    "stacked": false,
+                    "region": "${var.region}",
+                    "title": "${var.env_name} IdP - ReadLatency",
+                    "period": 60,
+                    "yAxis": {
+                        "left": {
+                            "min": 0,
+                            "label": "Read Latency (Milliseconds)",
+                            "showUnits": false
+                        }
+                    },
+                    "stat": "Average"
+                }
+        },
+        {
+            "type": "metric",
+            "x": 0,
+            "y": 20,
+            "width": 12,
+            "height": 6,
+            "properties": {
+                "metrics": [
+                    %{if var.idp_aurora_enabled && var.idp_cluster_instances >= 2~}
+                    [ "AWS/RDS", "NetworkTransmitThroughput", "DBInstanceIdentifier", "${module.idp_aurora_from_rds[0].writer_instance}", { "label": "AuroraDB (Writer Instance)" } ],
+                    %{for id in module.idp_aurora_from_rds[0].reader_instances~}
+                    [ "...", "${id}", { "label": "AuroraDB (Replica ${index(module.idp_aurora_from_rds[0].reader_instances, id) + 1})" } ]
+                    %{endfor~}
+                    %{endif~}
+                    %{if var.idp_aurora_enabled && var.idp_cluster_instances == 1~}
+                    [ "AWS/RDS", "NetworkTransmitThroughput", "DBInstanceIdentifier", "${module.idp_aurora_from_rds[0].writer_instance}", { "label": "AuroraDB (Writer Instance)" } ]
+                    %{endif~}
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${var.region}",
+                "title": "${var.env_name} IdP - NetworkTransmitThroughput",
+                "period": 60,
+                "yAxis": {
+                    "left": {
+                        "min": 0,
+                        "label": "Network Transmit Throughput (MB/Second)",
+                        "showUnits": false
+                    }
+                },
+                "stat": "Average"
+            }
         }
     ]
 }
