@@ -15,11 +15,19 @@ resource "newrelic_synthetics_monitor" "gitlab_health" {
   verify_ssl        = true
 }
 
-resource "newrelic_synthetics_alert_condition" "gitlab_health" {
+resource "newrelic_synthetics_alert_condition" "gitlab_health_low" {
   count     = (var.enabled + var.gitlab_enabled) >= 2 ? 1 : 0
   policy_id = newrelic_alert_policy.low[0].id
 
-  name       = "${var.env_name} gitlab health failure"
+  name       = "${var.env_name} gitlab health low"
+  monitor_id = newrelic_synthetics_monitor.gitlab_health[0].id
+}
+
+resource "newrelic_synthetics_alert_condition" "gitlab_health_high" {
+  count     = (var.enabled + var.gitlab_enabled + var.pager_alerts_enabled) >= 3 ? 1 : 0
+  policy_id = newrelic_alert_policy.high[0].id
+
+  name       = "${var.env_name} gitlab health high"
   monitor_id = newrelic_synthetics_monitor.gitlab_health[0].id
 }
 
