@@ -72,7 +72,7 @@ update_build_branch() {
           --stack-name ${STACK} \
           --use-previous-template \
           --capabilities CAPABILITY_IAM \
-          --parameters ${PARAM_ARG} --output text
+          --parameters ${PARAM_ARG} --output text || true
       done
       echo -e "\nWaiting for stack updates to complete..."
       for STACK in ${STACKS} ; do
