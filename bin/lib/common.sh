@@ -102,6 +102,29 @@ get_iam() {
   fi
 }
 
+# Get an IAM Role by Account Number and Name
+get_iam_by_account_num() {
+
+    ACCT_NUM=${1}
+    ID_ROLE=${2}
+
+    verify_root_repo
+
+    local CONFIG_LINE=$(tail -r ~/.aws/config |
+      grep -n "$ACCT_NUM.*$ID_ROLE" | awk -F: '{print $1}') || true
+    if [[ ! -z "${CONFIG_LINE}" ]] ; then
+        AV_PROFILE=$(tail -r ~/.aws/config | tail -n +${CONFIG_LINE} |
+                     grep -m 1 '\[profile' |
+                     sed -E 's/\[profile ([a-z-]+)\]/\1/')
+    else
+      echo
+      echo_red "Role ARN not found in ~/.aws/config:"
+      echo_yellow "arn:aws:iam::${ACCT_NUM}:role/${ID_ROLE}"
+      raise "Verify role, profile, and ARN, and try again!"
+    fi
+
+}
+
 verify_profile () {
   AV_ROLE="${1}"
   if [[ ! $(grep "profile ${AV_ROLE}" ~/.aws/config) ]] ; then
