@@ -34,12 +34,12 @@ if primary_role != 'worker'
   end
 
   execute 'scale passenger pool size with instance cpu count' do
-    command "sed -i -e 's/passenger_max_pool_size.*/passenger_max_pool_size #{cpu_count * 2};/' #{nginx_conf}"
+    command "sed -i -e 's/passenger_max_pool_size.*/passenger_max_pool_size #{(cpu_count * 4).round};/' #{nginx_conf}"
     notifies :restart, 'service[passenger]'
   end
 
   execute 'scale passenger pool size with instance cpu count' do
-    command "sed -i -e 's/passenger_min_instances.*/passenger_min_instances #{cpu_count * 2};/' #{nginx_conf}"
+    command "sed -i -e 's/passenger_min_instances.*/passenger_min_instances #{(cpu_count * 4).round};/' #{nginx_conf}"
     notifies :restart, 'service[passenger]'
   end
 
