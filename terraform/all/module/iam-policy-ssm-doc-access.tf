@@ -24,6 +24,7 @@ data "aws_iam_policy_document" "ssm_command_access" {
     effect = "Allow"
     actions = [
       "ssm:StartSession",
+      "ssm:TerminateSession",
     ]
     resources = [for arn in each.value : arn]
     condition {
@@ -40,6 +41,7 @@ data "aws_iam_policy_document" "ssm_command_access" {
     effect = "Allow"
     actions = [
       "ssm:StartSession",
+      "ssm:TerminateSession",
     ]
     resources = [
       join(":", [
