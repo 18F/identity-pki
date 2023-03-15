@@ -461,14 +461,6 @@ users:
     - analytics
     gitlab_groups:
     - pm
-  oren.kanner:
-    aws_groups:
-    - apponcall
-    - bizops
-    ec2_username:
-    - orenyk
-    gitlab_groups:
-    - appdev
   osman.latif:
     aws_groups:
     - appdev
