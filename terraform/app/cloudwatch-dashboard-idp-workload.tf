@@ -550,7 +550,7 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
                     [ "${var.env_name}/idp-worker", "queue-time-milliseconds", { "color": "#d62728", "label": "queue time p50", "stat": "p50" } ]
                 ],
                 "view": "timeSeries",
-                "stacked": true,
+                "stacked": false,
                 "region": "${var.region}",
                 "title": "${var.env_name} Worker - Background Job queue time",
                 "period": 60,
@@ -575,7 +575,7 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
                   [ "AWS/ElastiCache", "EngineCPUUtilization", "CacheClusterId", "${aws_elasticache_replication_group.idp.id}-002", "CacheNodeId", "0001", { "color": "#ff7f0e", "label": "${aws_elasticache_replication_group.idp.id}-002" } ]
                 ],
                 "view": "timeSeries",
-                "stacked": true,
+                "stacked": false,
                 "region": "${var.region}",
                 "title": "${var.env_name} Redis - Engine CPU Utilization (Average)",
                 "period": 60,
