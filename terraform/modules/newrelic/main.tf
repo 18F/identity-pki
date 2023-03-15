@@ -141,12 +141,12 @@ resource "newrelic_alert_policy" "high" {
 }
 
 resource "newrelic_alert_policy" "in_person" {
-  count = (var.enabled + var.pager_alerts_enabled) >= 2 ? 1 : 0
+  count = (var.enabled + var.in_person_enabled) >= 2 ? 1 : 0
   name  = "alert-in-person-${var.env_name}"
 }
 
 resource "newrelic_alert_policy" "enduser" {
-  count = (var.enabled + var.pager_alerts_enabled) >= 2 ? 1 : 0
+  count = (var.enabled + var.enduser_enabled) >= 2 ? 1 : 0
   name  = "alert-enduser-${var.env_name}"
 }
 
