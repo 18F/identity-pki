@@ -19,19 +19,22 @@ terraform {
       source  = "hashicorp/archive"
       version = "2.2.0"
     }
+    cloudinit = {
+      source  = "hashicorp/cloudinit"
+      version = "2.2.0"
+    }
     external = {
       source  = "hashicorp/external"
-      version = "2.1.0"
+      version = "2.2.3"
     }
     github = {
       source  = "integrations/github"
-      version = "4.13.0"
+      version = "5.9.1"
     }
     newrelic = {
       source  = "newrelic/newrelic"
-      version = "2.41.1"
+      version = "3.7.1"
     }
   }
   required_version = "1.3.5"
 }
-

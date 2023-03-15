@@ -10,19 +10,19 @@ terraform {
     }
     archive = {
       source  = "hashicorp/archive"
-      version = "2.2.0"
+      version = "2.3.0"
     }
     cloudinit = {
       source  = "hashicorp/cloudinit"
-      version = "2.2.0"
+      version = "2.3.2"
     }
     external = {
       source  = "hashicorp/external"
-      version = "2.2.3"
+      version = "2.3.1"
     }
     github = {
       source  = "integrations/github"
-      version = "5.9.1"
+      version = "5.18.3"
     }
     null = {
       source  = "hashicorp/null"
@@ -30,7 +30,7 @@ terraform {
     }
     newrelic = {
       source  = "newrelic/newrelic"
-      version = "3.7.1"
+      version = "3.16.0"
     }
     random = {
       source  = "hashicorp/random"
