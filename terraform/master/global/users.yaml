@@ -250,6 +250,8 @@ users:
   jillian.harrigan:
     gitlab_groups:
     - antifraud
+    aws_groups:
+    - fraudops
   jim.pham:
     gitlab_groups:
     - antifraud
