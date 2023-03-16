@@ -248,3 +248,21 @@ workers/failed_jobs:
     ## Shows jobs that raised an exception while running
     fields @timestamp, @message
     | filter ispresent(exception_class) and name = 'perform.active_job'
+
+ssm/aws-ssm-commands:
+  logs:
+    - aws-ssm-cmds-${env}
+  query: |
+    ## Shows ssm sessions started in an environment
+    filter detail.eventName = "StartSession"
+    | fields @timestamp, detail.responseElements.sessionId as sessionId, detail.requestParameters.documentName as documentName, detail.sourceIPAddress as sourceIPAddress, detail.userIdentity.arn as userIdentityArn, detail.userIdentity.accessKeyId as accessKeyId
+    ## Uncomment to search for activity by a specific user
+    # | filter userIdentity like /paul.doom/
+    ## Uncomment to search for activity by a specific ssm document name
+    # | filter documentName like /ssm-document-review-pass/
+    ## Uncomment to search for activity by a specific source address
+    # | filter sourceIPAddress like /8.8.8.8/
+    ## Uncomment to search for activity by a specific sessionId
+    # | filter sessionId like /paul.doom-06e40423815d036e1/
+    ## Uncomment to search for activity by a specific accessKeyId
+    # | filter accessKeyId like /ASIA5AXYIREUFHDAQF12/

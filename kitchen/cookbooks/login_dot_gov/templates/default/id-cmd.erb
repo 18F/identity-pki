@@ -1,5 +1,10 @@
 #!/bin/bash
-trap "exit 0" INT TERM
+
+# Enable the 'monitor' shell option, which allows background jobs to be monitored by the shell.
+# Setup an empty trap for common signals (SIGHUP, SIGINT, SIGQUIT, SIGTERM, SIGSTOP, and SIGTSTP) 
+# to prevent being able to drop into a shell from the ssm document
+set -o monitor
+trap '' 1 2 3 15 19 20
 
 set -eu
 
@@ -29,10 +34,10 @@ PII from being logged in CloudWatch/S3. A notification containing your username
 and the name of this host will be sent to the $CHANNEL channel in Slack.
 <%- elsif @rails_task == 'users:review:pass' %>
 Runs the users:review:pass rake task, which prompts for a uuid of a Login.gov
-user, and passes them if their threatmetrix status is in review. 
+user, and passes them if their threatmetrix status is in review.
 <%- elsif @rails_task == 'users:review:reject' %>
 Runs the users:review:reject rake task, which prompts for a uuid of a Login.gov
-user, and rejects them if their threatmetrix status is in review. 
+user, and rejects them if their threatmetrix status is in review.
 <%- end %>
 The -l / --log flag can be used, along with a LEVEL, to change the
 value of LOGIN_TASK_LOG_LEVEL that is sent to the rake task;
@@ -50,7 +55,15 @@ EOM
 }
 
 MISSING_KEYS=0
-CHANNEL=$(cat /etc/login.gov/keys/slackchannel) || ((MISSING_KEYS++))
+CHANNEL_FILES=(
+  /etc/login.gov/keys/slackchannel
+)
+
+# Check for missing slack settings
+for file in "${CHANNEL_FILES[@]}"
+do
+  CHANNEL_FILE=$(cat "$file") || ((MISSING_KEYS++))
+done                             
 WEBHOOK=$(cat /etc/login.gov/keys/slackwebhook) || ((MISSING_KEYS++))
 if [ ${MISSING_KEYS} -gt 0 ]; then
   echo 'Slack channel/webhook missing! Verify files and run Chef to repopulate.'
@@ -122,10 +135,25 @@ if [[ ! "${LOGIN_TASK_LOG_LEVEL}" =~ ^(debug|info|warn|error|fatal|unknown)$ ]] 
 fi
 ENV_VARS+=("LOGIN_TASK_LOG_LEVEL=$LOGIN_TASK_LOG_LEVEL")
 
-TEXT=':rails: _<%= @rails_task %>_ :rails: for `'"${ID_USER}"'` on `'"$(hostname)"'` '"${CONSOLE_INFO[@]:-}"''
-PAYLOAD='payload={"channel": "'"${CHANNEL}"'", "username": "<%= @script_name %>", "text": "'"${TEXT}"'", "icon_emoji": ":<%= @slack_icon %>:"}'
-curl -X POST --data-urlencode "${PAYLOAD}" $WEBHOOK
-
 set -x
 
-exec sudo -H -u "$APP_USER" env "${ENV_VARS[@]}" sh -euxc "trap '' 1 2 3 15 19 20 ; cd '/srv/$app/current'; bundle exec rails <%= @rails_task %>"
+# Execute command as $APP_USER with env vars, capture output in CMD_OUTPUT and console.
+# Use process substitution to avoid subshell and preserve file descriptors with tee and fd3.      
+{ CMD_OUTPUT=$(exec sudo -H -u "$APP_USER" env "${ENV_VARS[@]}" sh -euxc "cd '/srv/$app/current'; bundle exec rails <%= @rails_task %>" 2>&1 | tee >(cat >&3)); } 3>&1      
+
+set +x
+
+# Grab the investigator name, reason, uuid out of the rails task output
+investigator_name=$(echo $CMD_OUTPUT | grep -oP 'investigator name: \K.*' | awk -F 'investigation reason:' '{print $1}' | xargs)
+investigation_reason=$(echo $CMD_OUTPUT | grep -oP 'investigation reason: \K.*' | awk -F 'uuid:' '{print $1}' | xargs)
+uuid=$(echo $CMD_OUTPUT | grep -oP 'uuid: \K\S*')
+      
+TEXT=':rails: _<%= @rails_task %>_ :rails: for `'"${ID_USER}"'` on `'"$(hostname)"'`'"${CONSOLE_INFO[@]:-}"' Investigator: `'"${investigator_name}"'` Reason: `'"${investigation_reason}"'` UUID: `'"${uuid}"'`'
+
+# Loop over channel files and send message to each designated channel
+for file in "${CHANNEL_FILES[@]}"
+do
+  CHANNEL=$(cat "$file")
+  PAYLOAD='payload={"channel": "'"${CHANNEL}"'", "username": "<%= @script_name %>", "text": "'"${TEXT}"'", "icon_emoji": ":<%= @slack_icon %>:"}'
+  curl -X POST --data-urlencode "${PAYLOAD}" $WEBHOOK
+done
