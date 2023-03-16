@@ -242,13 +242,6 @@ users:
     - jmdembe
     gitlab_groups:
     - appdev
-  jessica.fortier:
-    aws_groups:
-    - apponcall
-    ec2_username:
-    - jfortier
-    gitlab_groups:
-    - appdev
   jia.gu:
     aws_groups:
     - analytics
