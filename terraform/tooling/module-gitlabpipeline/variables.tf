@@ -68,7 +68,7 @@ data "aws_s3_object" "identity_devops_oauthkey" {
 # this bundle is updated with bin/terraform-bundle.sh
 variable "tfbundle" {
   description = "name of the tfbundle that you want the system to deploy with in the auto_tf_bucket"
-  default     = "terraform_v1.3.5-bundle2023031418_linux_amd64.zip"
+  default     = "terraform_v1.3.5-bundle2023031600_linux_amd64.zip"
 }
 
 variable "events_sns_topic" {
