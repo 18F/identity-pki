@@ -40,7 +40,7 @@ Vagrantfile
 **/__pycache__/
 **.dist-info/
 
-# Relase state
+# release.sh temp files
 terraform/*/*.apply
 terraform/*/*.branch
 terraform/*/*.plan
@@ -49,3 +49,7 @@ terraform/*/*.recycle
 terraform/*/*.recycle-verify
 terraform/*/*.release_version
 terraform/*/*.scale-in
+
+# shield_ddos temp files
+terraform/modules/shield_ddos/.aws_shield_*.txt
+terraform/modules/shield_ddos/.aws_webaclid_*.txt
