@@ -977,6 +977,16 @@ variable "idp_ial2_sp_dashboards" {
   default     = {}
 }
 
+variable "idp_sp_dashboards" {
+  type = map(object({
+    name   = string
+    issuer = string
+    agency = string
+  }))
+  description = "Map of values for widgets on SP dashboard"
+  default     = {}
+}
+
 variable "soc_destination_arn" {
   type    = string
   default = "arn:aws:logs:us-west-2:752281881774:destination:elp-os-lg" #Pointing to  SOC arn. Please check before deploying
