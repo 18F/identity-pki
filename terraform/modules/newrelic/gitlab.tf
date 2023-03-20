@@ -19,7 +19,7 @@ resource "newrelic_nrql_alert_condition" "gitlab_health" {
   count                        = (var.enabled + var.gitlab_enabled) >= 2 ? 1 : 0
   policy_id                    = newrelic_alert_policy.low[0].id
   name                         = "${var.env_name} gitlab health failure: @login-devtools-oncall please check to see what broke the deployment"
-  violation_time_limit_seconds = 10800
+  violation_time_limit_seconds = 43200
   aggregation_window           = 60
   aggregation_method           = "cadence"
   aggregation_delay            = 120
@@ -31,7 +31,7 @@ resource "newrelic_nrql_alert_condition" "gitlab_health" {
   critical {
     operator              = "above"
     threshold             = 1
-    threshold_duration    = 300
+    threshold_duration    = 10800
     threshold_occurrences = "ALL"
   }
 }
