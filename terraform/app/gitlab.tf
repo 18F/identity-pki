@@ -49,7 +49,7 @@ module "env-runner" {
   bootstrap_main_git_ref_map       = var.bootstrap_main_git_ref_map
   bootstrap_main_s3_ssh_key_url    = local.bootstrap_main_s3_ssh_key_url
   bootstrap_private_s3_ssh_key_url = local.bootstrap_private_s3_ssh_key_url
-  default_ami_id_tooling           = local.account_default_ami_id
+  default_ami_id                   = local.account_default_ami_id
   env_name                         = var.env_name
   github_ipv4_cidr_blocks          = local.github_ipv4
   gitlab_lb_interface_cidr_blocks  = [var.gitlab_subnet_cidr_block]

@@ -14,7 +14,6 @@ module "main" {
 
   accountids                     = ["894947205914", "034795980528", "217680906704"]
   bootstrap_main_git_ref_default = "stages/gitlabcharlie"
-  default_ami_id_tooling         = "ami-04114b054faf21e6a" # 2023-03-21 Ubuntu 18.04
   dr_region                      = "us-east-2"
   env_name                       = "charlie"
   env_runner_config_bucket       = "login-gov-production-gitlabconfig-217680906704-us-west-2"
@@ -26,4 +25,24 @@ module "main" {
   route53_id                     = "Z096400532ZFM348WWIAA"
   slack_events_sns_hook_arn      = "arn:aws:sns:us-west-2:034795980528:slack-otherevents"
   rds_engine_version             = "13.7"
+}
+
+output "env_name" {
+  value = module.main.env_name
+}
+
+output "region" {
+  value = module.main.region
+}
+
+output "latest_available_ami_id" {
+  value = module.main.latest_available_ami_id
+}
+
+output "default_ami_id" {
+  value = module.main.default_ami_id
+}
+
+output "ami_id_map" {
+  value = module.main.ami_id_map
 }

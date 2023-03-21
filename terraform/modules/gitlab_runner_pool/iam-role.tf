@@ -128,6 +128,7 @@ resource "aws_iam_role_policy" "gitlab-runner-cloudwatch-agent" {
                   "Action": [
                       "ec2:DescribeVolumes",
                       "ec2:DescribeTags",
+                      "ec2:DescribeImages",
                       "cloudwatch:PutMetricData"
                   ],
                   "Resource": "*"

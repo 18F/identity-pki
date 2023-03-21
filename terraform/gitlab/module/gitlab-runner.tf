@@ -14,7 +14,7 @@ module "build_pool" {
   bootstrap_main_git_ref_map       = var.bootstrap_main_git_ref_map
   bootstrap_main_s3_ssh_key_url    = local.bootstrap_main_s3_ssh_key_url
   bootstrap_private_s3_ssh_key_url = local.bootstrap_private_s3_ssh_key_url
-  default_ami_id_tooling           = var.default_ami_id_tooling
+  default_ami_id                   = local.default_base_ami_id
   destination_artifact_accounts    = var.destination_artifact_accounts
   destination_idp_static_accounts  = var.destination_idp_static_accounts
   enable_ecr_write                 = true
@@ -54,7 +54,7 @@ module "test_pool" {
   bootstrap_main_git_ref_map       = var.bootstrap_main_git_ref_map
   bootstrap_main_s3_ssh_key_url    = local.bootstrap_main_s3_ssh_key_url
   bootstrap_private_s3_ssh_key_url = local.bootstrap_private_s3_ssh_key_url
-  default_ami_id_tooling           = var.default_ami_id_tooling
+  default_ami_id                   = local.default_base_ami_id
   enable_ecr_write                 = false
   env_name                         = var.env_name
   github_ipv4_cidr_blocks          = local.github_ipv4_cidr_blocks
@@ -93,7 +93,7 @@ module "env-runner" {
   bootstrap_main_git_ref_map       = var.bootstrap_main_git_ref_map
   bootstrap_main_s3_ssh_key_url    = local.bootstrap_main_s3_ssh_key_url
   bootstrap_private_s3_ssh_key_url = local.bootstrap_private_s3_ssh_key_url
-  default_ami_id_tooling           = local.account_default_ami_id
+  default_ami_id                   = local.default_base_ami_id
   env_name                         = var.env_name
   github_ipv4_cidr_blocks          = local.github_ipv4_cidr_blocks
   gitlab_lb_interface_cidr_blocks  = local.gitlab_lb_interface_cidr_blocks

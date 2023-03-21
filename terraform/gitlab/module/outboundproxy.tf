@@ -1,7 +1,7 @@
 module "outbound_proxy" {
   source = "../../modules/outbound_proxy"
 
-  account_default_ami_id           = var.default_ami_id_tooling
+  default_ami_id                   = local.default_base_ami_id
   ami_id_map                       = var.ami_id_map
   base_security_group_id           = aws_security_group.base.id
   bootstrap_main_git_ref_default   = local.bootstrap_main_git_ref_default

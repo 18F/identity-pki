@@ -16,7 +16,7 @@ locals {
   bootstrap_main_git_ref_default = var.bootstrap_main_git_ref_default != "" ? (
   var.bootstrap_main_git_ref_default) : "stages/gitlab${var.env_name}"
 
-  account_default_ami_id = var.default_ami_id_tooling
+  account_default_ami_id = var.default_ami_id
 }
 
 module "outboundproxy_user_data" {
@@ -56,7 +56,7 @@ module "outboundproxy_launch_template" {
   env            = var.env_name
   root_domain    = var.root_domain
   ami_id_map     = var.ami_id_map
-  default_ami_id = var.account_default_ami_id
+  default_ami_id = var.default_ami_id
 
   instance_type             = var.instance_type_outboundproxy
   use_spot_instances        = var.use_spot_instances

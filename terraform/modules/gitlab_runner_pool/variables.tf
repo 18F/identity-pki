@@ -16,7 +16,6 @@ locals {
   bootstrap_main_git_ref_default = var.bootstrap_main_git_ref_default != "" ? (
   var.bootstrap_main_git_ref_default) : "stages/${var.env_name}"
 
-  account_default_ami_id = var.default_ami_id_tooling
   no_proxy_hosts = join(",", concat([
     "localhost",
     "127.0.0.1",
@@ -124,7 +123,7 @@ variable "bootstrap_private_git_clone_url" {
 # The following two AMIs should be built at the same time and identical, even
 # though they will have different IDs. They should be updated here at the same
 # time, and then released to environments in sequence.
-variable "default_ami_id_tooling" {
+variable "default_ami_id" {
   description = "default AMI ID for environments in the tooling account"
 }
 
