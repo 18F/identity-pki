@@ -1,4 +1,4 @@
-# Architecture Decision Record: Using Login.gov as Primary Gitlab Auth
+# Architecture Decision Record 2: Using Login.gov as Primary Gitlab Auth
 
 > Use Login for authenticating users on our CI/CD tooling.
 

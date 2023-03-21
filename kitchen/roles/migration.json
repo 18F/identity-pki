@@ -13,6 +13,7 @@
   "chef_type": "role",
   "run_list": [
     "role[base]",
+    "recipe[login_dot_gov::pgbouncer_autoconfig]",
     "recipe[login_dot_gov::idp_base]",
     "recipe[login_dot_gov::idp_migration]",
     "recipe[login_dot_gov::common_scripts]"

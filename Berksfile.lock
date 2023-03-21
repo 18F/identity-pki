@@ -2,7 +2,7 @@ DEPENDENCIES
   apt (~> 7.0)
   aws_metadata
     git: https://github.com/18F/identity-cookbooks
-    revision: 082f27d5b4e038557d7a75386a0f82509c459d51
+    revision: 0d6457afb531674687e8cfee53fd275bcaf6fd9c
     ref: 082f27d
     rel: aws_metadata
   aws_s3
@@ -15,7 +15,7 @@ DEPENDENCIES
     path: kitchen/cookbooks/chef_proxy_env
   config_loader
     git: https://github.com/18F/identity-cookbooks
-    revision: 082f27d5b4e038557d7a75386a0f82509c459d51
+    revision: 0d6457afb531674687e8cfee53fd275bcaf6fd9c
     ref: 082f27d
     rel: config_loader
   deploy_resource (~> 1.0)
@@ -36,12 +36,12 @@ DEPENDENCIES
     path: kitchen/cookbooks/identity-pivcac
   identity_base_config
     git: https://github.com/18F/identity-cookbooks
-    revision: 082f27d5b4e038557d7a75386a0f82509c459d51
+    revision: 0d6457afb531674687e8cfee53fd275bcaf6fd9c
     ref: 082f27d
     rel: identity_base_config
   identity_shared_attributes
     git: https://github.com/18F/identity-cookbooks
-    revision: 082f27d5b4e038557d7a75386a0f82509c459d51
+    revision: 0d6457afb531674687e8cfee53fd275bcaf6fd9c
     ref: 082f27d
     rel: identity_shared_attributes
   instance_certificate
@@ -57,7 +57,7 @@ DEPENDENCIES
   ssh-keys
   static_eip
     git: https://github.com/18F/identity-cookbooks
-    revision: 082f27d5b4e038557d7a75386a0f82509c459d51
+    revision: 0d6457afb531674687e8cfee53fd275bcaf6fd9c
     ref: 082f27d
     rel: static_eip
   sudo

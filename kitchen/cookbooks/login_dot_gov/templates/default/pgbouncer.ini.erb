@@ -1,0 +1,207 @@
+[pgbouncer]
+
+logfile = /var/log/postgresql/pgbouncer.log
+pidfile = /var/run/postgresql/pgbouncer.pid
+
+;;;
+;;; Front end (client side) connectivity
+;;;
+
+; Use default PostgreSQL listener port number
+listen_port = 5432
+
+; Only listen on a UNIX socket
+unix_socket_dir = /var/run/postgresql
+
+;;;
+;;; Back end (server side) connectivity
+;;;
+
+;; Validate TLS certificate and FQDN
+server_tls_sslmode = verify-full
+
+;; Path to that contains trusted CA certs
+server_tls_ca_file = /usr/local/share/aws/rds-combined-ca-bundle.pem
+
+;; all, secure, tlsv1.0, tlsv1.1, tlsv1.2
+server_tls_protocols = tlsv1.2
+
+;; fast, normal, secure, legacy, <ciphersuite string>
+server_tls_ciphers = fast
+
+;;;
+;;; Authentication settings
+;;;
+
+; any, trust, plain, crypt, md5, cert, hba, pam
+auth_type = <%= @auth_type %>
+auth_file = /etc/pgbouncer/userlist.txt
+
+;;;
+;;; Users allowed into database 'pgbouncer'
+;;;
+
+; comma-separated list of users who are just allowed to use SHOW command
+stats_users = websrv, root
+
+;;;
+;;; Pooler personality questions
+;;;
+
+; When server connection is released back to pool:
+;   session      - after client disconnects
+;   transaction  - after transaction finishes
+;   statement    - after statement finishes
+; Rails note - transaction mode requires disabling prepared statements and advisory locks!
+; See https://edgeguides.rubyonrails.org/configuring.html#configuring-a-postgresql-database
+pool_mode = <%= @pool_mode %>
+
+; Query for cleaning connection immediately after releasing from client.
+; No need to put ROLLBACK here, pgbouncer does not reuse connections
+; where transaction is left open.
+server_reset_query = <%= @server_reset_query %>
+
+; When taking idle server into use, this query is ran first.
+;   SELECT 1
+;
+;server_check_query = select 1
+
+; If server was used more recently that this many seconds ago,
+; skip the check query.  Value 0 may or may not run in immediately.
+server_check_delay = <%= @server_check_delay %>
+
+;;;
+;;; Connection limits
+;;;
+
+; total number of clients that can connect
+max_client_conn = <%= @max_client_conn %>
+
+; default pool size.  20 is good number when transaction pooling
+; is in use, in session pooling it needs to be the number of
+; max clients you want to handle at any moment
+default_pool_size = <%= @default_pool_size %>
+
+;; Minimum number of server connections to keep in pool.
+min_pool_size = <%= @min_pool_size %>
+
+; how many additional connection to allow in case of trouble
+reserve_pool_size = <%= @reserve_pool_size %>
+
+; if a clients needs to wait more than this many seconds, use reserve pool
+reserve_pool_timeout = <%= @reserve_pool_timeout %>
+
+; how many total connections to a single database to allow from all pools
+max_db_connections = <%= @max_db_connections %>
+max_user_connections = <%= @max_user_connections %>
+
+; If off, then server connections are reused in LIFO manner
+;server_round_robin = 0
+
+;;;
+;;; Timeouts
+;;;
+
+;; Close server connection if its been connected longer.
+;server_lifetime = 3600
+
+;; Close server connection if its not been used in this time.
+;; Allows to clean unnecessary connections from pool after peak.
+;server_idle_timeout = 600
+
+;; Cancel connection attempt if server does not answer takes longer.
+;server_connect_timeout = 15
+
+;; If server login failed (server_connect_timeout or auth failure)
+;; then wait this many second.
+;server_login_retry = 15
+
+;; Dangerous.  Server connection is closed if query does not return
+;; in this time.  Should be used to survive network problems,
+;; _not_ as statement_timeout. (default: 0)
+;query_timeout = 0
+
+;; Dangerous.  Client connection is closed if the query is not assigned
+;; to a server in this time.  Should be used to limit the number of queued
+;; queries in case of a database or network failure. (default: 120)
+;query_wait_timeout = 120
+
+;; Dangerous.  Client connection is closed if no activity in this time.
+;; Should be used to survive network problems. (default: 0)
+;client_idle_timeout = 0
+
+;; Disconnect clients who have not managed to log in after connecting
+;; in this many seconds.
+;client_login_timeout = 60
+
+;; Clean automatically created database entries (via "*") if they
+;; stay unused in this many seconds.
+; autodb_idle_timeout = 3600
+
+;; How long SUSPEND/-R waits for buffer flush before closing connection.
+;suspend_timeout = 10
+
+;; Close connections which are in "IDLE in transaction" state longer than
+;; this many seconds.
+;idle_transaction_timeout = 0
+
+;;;
+;;; Low-level tuning options
+;;;
+
+;; buffer for streaming packets
+;pkt_buf = 4096
+
+;; man 2 listen
+;listen_backlog = 128
+
+;; Max number pkt_buf to process in one event loop.
+;sbuf_loopcnt = 5
+
+;; Maximum PostgreSQL protocol packet size.
+;max_packet_size = 2147483647
+
+;; networking options, for info: man 7 tcp
+
+;; Linux: notify program about new connection only if there
+;; is also data received.  (Seconds to wait.)
+;; On Linux the default is 45, on other OS'es 0.
+;tcp_defer_accept = 0
+
+;; In-kernel buffer size (Linux default: 4096)
+;tcp_socket_buffer = 0
+
+;; whether tcp keepalive should be turned on (0/1)
+;tcp_keepalive = 1
+
+;; The following options are Linux-specific.
+;; They also require tcp_keepalive=1.
+
+;; count of keepalive packets
+;tcp_keepcnt = 0
+
+;; how long the connection can be idle,
+;; before sending keepalive packets
+;tcp_keepidle = 0
+
+;; The time between individual keepalive probes.
+;tcp_keepintvl = 0
+
+;; DNS lookup caching time
+;dns_max_ttl = 15
+
+;; DNS zone SOA lookup period
+;dns_zone_check_period = 0
+
+;; DNS negative result caching time
+;dns_nxdomain_ttl = 15
+
+;;;
+;;; Random stuff
+;;;
+
+;; Hackish security feature.  Helps against SQL-injection - when PQexec is disabled,
+;; multi-statement cannot be made.
+;disable_pqexec = 0
+
+%include /etc/pgbouncer/pgbouncer-dbs.ini

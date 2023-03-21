@@ -1,4 +1,4 @@
-# ADR 8: Diagrams
+# Architecture Decision Record 8: Diagrams
 
 > Use OmniGraffle for producing diagrams for platform-related documentation with
   PlantUML as an alternate for sequence diagrams.

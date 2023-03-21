@@ -1,4 +1,4 @@
-# Architecture Decision Record: AWS Region Use For Login.gov
+# Architecture Decision Record 4: AWS Region Use For Login.gov
 
 > Use US-West-2 (Oregon) as our primary region and US-East-1 (Virginia) as our alternate/disaster recovery region.
 

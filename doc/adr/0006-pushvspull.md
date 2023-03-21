@@ -1,4 +1,4 @@
-# Push vs. Pull deployment architecture
+# Architecture Decision Record 6: Push vs. Pull deployment architecture
 
 > Whenever possible, login.gov should decentralize the power to change environments
 > by using a pull model for managing changes.

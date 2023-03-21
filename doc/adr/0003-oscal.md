@@ -1,4 +1,4 @@
-# Architecture Decision Record: Using OSCAL for compliance authoring
+# Architecture Decision Record 3: Using OSCAL for compliance authoring
 
 > Use [NIST OSCAL](https://pages.nist.gov/OSCAL/) for authoring compliance documentation.
 

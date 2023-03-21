@@ -1,4 +1,4 @@
-# ADR 7: Egress Filtering with Large Autoscaling Groups
+# Architecture Decision Record 7: Egress Filtering with Large Autoscaling Groups
 
 > Egress filtering and efficient public IPv4 address use reduction for wider scale.
 
