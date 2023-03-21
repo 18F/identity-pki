@@ -55,9 +55,17 @@ EOM
 }
 
 MISSING_KEYS=0
+<%- if @rails_console %>
 CHANNEL_FILES=(
   /etc/login.gov/keys/slackchannel
 )
+<%- end %>
+
+<%- unless @rails_console %>                               
+CHANNEL_FILES=(
+  /etc/login.gov/keys/slackchannel
+)
+<%- end %>
 
 # Check for missing slack settings
 for file in "${CHANNEL_FILES[@]}"
@@ -135,21 +143,34 @@ if [[ ! "${LOGIN_TASK_LOG_LEVEL}" =~ ^(debug|info|warn|error|fatal|unknown)$ ]] 
 fi
 ENV_VARS+=("LOGIN_TASK_LOG_LEVEL=$LOGIN_TASK_LOG_LEVEL")
 
-set -x
+<%- if @rails_console %>
+# Send message to slack first since we dont need console output        
+TEXT=':rails: _<%= @rails_task %>_ :rails: for `'"${ID_USER}"'` on `'"$(hostname)"'` '"${CONSOLE_INFO[@]:-}"''
+      
+# Loop over channel files and send message to each designated channel
+for FILE in "${CHANNEL_FILES[@]}"
+do
+  CHANNEL=$(cat "${FILE}")
+  PAYLOAD='payload={"channel": "'"${CHANNEL}"'", "username": "<%= @script_name %>", "text": "'"${TEXT}"'", "icon_emoji": ":<%= @slack_icon %>:"}'
+  curl -X POST --data-urlencode "${PAYLOAD}" $WEBHOOK
+done
 
+# Execute console command
+exec sudo -H -u "$APP_USER" env "${ENV_VARS[@]}" sh -euxc "trap '' 1 2 3 15 19 20 ; cd '/srv/$app/current'; bundle exec rails <%= @rails_task %>"
+<%- end %>
+
+<%- unless @rails_console %>
 # Execute command as $APP_USER with env vars, capture output in CMD_OUTPUT and console.
 # Use process substitution to avoid subshell and preserve file descriptors with tee and fd3.      
 { CMD_OUTPUT=$(exec sudo -H -u "$APP_USER" env "${ENV_VARS[@]}" sh -euxc "cd '/srv/$app/current'; bundle exec rails <%= @rails_task %>" 2>&1 | tee >(cat >&3)); } 3>&1      
 
-set +x
-
 # Grab the investigator name, reason, uuid out of the rails task output
 investigator_name=$(echo $CMD_OUTPUT | grep -oP 'investigator name: \K.*' | awk -F 'investigation reason:' '{print $1}' | xargs)
 investigation_reason=$(echo $CMD_OUTPUT | grep -oP 'investigation reason: \K.*' | awk -F 'uuid:' '{print $1}' | xargs)
-uuid=$(echo $CMD_OUTPUT | grep -oP 'uuid: \K\S*')
-      
-TEXT=':rails: _<%= @rails_task %>_ :rails: for `'"${ID_USER}"'` on `'"$(hostname)"'`'"${CONSOLE_INFO[@]:-}"' Investigator: `'"${investigator_name}"'` Reason: `'"${investigation_reason}"'` UUID: `'"${uuid}"'`'
+uuid=$(echo $CMD_OUTPUT | grep -oP 'uuid: \K\S+.*' | sed 's/uuid: //')
 
+# Construct and send message to slack
+TEXT=':rails: _<%= @rails_task %>_ :rails: for `'"${ID_USER}"'` on `'"$(hostname)"'`'"${CONSOLE_INFO[@]:-}"' Investigator: `'"${investigator_name}"'` Reason: `'"${investigation_reason}"'` UUID: `'"${uuid}"'`'
 # Loop over channel files and send message to each designated channel
 for file in "${CHANNEL_FILES[@]}"
 do
@@ -157,3 +178,4 @@ do
   PAYLOAD='payload={"channel": "'"${CHANNEL}"'", "username": "<%= @script_name %>", "text": "'"${TEXT}"'", "icon_emoji": ":<%= @slack_icon %>:"}'
   curl -X POST --data-urlencode "${PAYLOAD}" $WEBHOOK
 done
+<%- end %>
