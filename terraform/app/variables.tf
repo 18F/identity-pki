@@ -28,18 +28,6 @@ variable "idp_static_bucket_cross_account_access" {
   default     = []
 }
 
-variable "db1_subnet_cidr_block" { # 172.16.33.32 - 172.16.33.47
-  default = "172.16.33.32/28"
-}
-
-variable "db2_subnet_cidr_block" { # 172.16.33.48 - 172.16.33.63
-  default = "172.16.33.48/28"
-}
-
-variable "db3_subnet_cidr_block" { # 172.16.33.64 - 172.16.33.79
-  default = "172.16.33.64/28"
-}
-
 variable "gitlab_subnet_cidr_block" { # 172.16.35.192 - 172.16.35.223
   default = "172.16.35.192/27"
 }
