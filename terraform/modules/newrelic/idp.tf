@@ -143,6 +143,7 @@ resource "newrelic_alert_condition" "enduser_datastore_slow_queries" {
   entities                    = [data.newrelic_entity.idp[0].application_id]
   user_defined_metric         = "Datastore/allWeb"
   user_defined_value_function = "max"
+  runbook_url                 = "https://github.com/18F/identity-devops/wiki/Runbook%5BAlerts%5D%5BNew-Relic%5D:-ENV:-Web-datastores-slow-queries"
 
   term {
     duration      = 10
