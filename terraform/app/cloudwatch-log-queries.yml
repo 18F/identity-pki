@@ -266,3 +266,17 @@ ssm/aws-ssm-commands:
     # | filter sessionId like /paul.doom-06e40423815d036e1/
     ## Uncomment to search for activity by a specific accessKeyId
     # | filter accessKeyId like /ASIA5AXYIREUFHDAQF12/
+ssm/aws-ssm-output:
+  logs:
+    - aws-ssm-sessions-${env}
+  query: |
+    ## Shows ssm command output in an environment
+    fields @timestamp, sessionId, target.id as instance, runAsUser
+    | parse @message /"sessionData":\[(?<ssmOutput>.*?)\]/
+    | display @timestamp, sessionId, target.id as instance, runAsUser, ssmOutput
+    ## Uncomment to search for activity by a specific user
+    # | filter runAsUser like /paul.doom/
+    ## Uncomment to search for activity by a specific sessionId
+    # | filter sessionId like /paul.doom-123456789asdfghjk/
+    ## Uncomment to search for activity from a specific instance
+    # | filter instance like /i-123456789asdfghjk/
