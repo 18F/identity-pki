@@ -148,6 +148,136 @@ locals {
       metric_value = 1
       dimensions   = {}
     },
+    # Vendor error rates: divide exception metrics by overall metrics to calculate
+    doc_auth_vendor_exception_aamva = {
+      name         = "doc-auth-vendor-exception-aamva"
+      metric_value = 1
+      dimensions   = {}
+      pattern      = <<EOT
+        {
+          $.name="IdV: doc auth optional verify_wait submitted" &&
+          $.properties.event_properties.proofing_results.context.stages.state_id.exception = "*" &&
+          $.properties.event_properties.proofing_results.context.stages.state_id.vendor_name = "aamva:state_id"
+        }
+      EOT
+    },
+    doc_auth_vendor_exception_acuant = {
+      name         = "doc-auth-vendor-exception-acuant"
+      metric_value = 1
+      dimensions   = {}
+      # These status codes are a normal part of Acuant, not a down indicator:
+      # 438: "Document image load failure"
+      # 439: "Invalid or unsupported document image pixel depth."
+      # 440: "Document image size is outside the acceptable range."
+      # 441: "Document image resolution is outside the acceptable range."
+      # 442: "Document image resolution difference between each axis is outside the acceptable range."
+      pattern = <<EOT
+        {
+          $.name="IdV: doc auth image upload vendor submitted" && 
+          $.properties.event_properties.vendor = "Acuant" &&
+          $.properties.event_properties.exception != "DocAuth::Acuant::Requests::UploadImageRequest Unexpected HTTP response 438" &&
+          $.properties.event_properties.exception != "DocAuth::Acuant::Requests::UploadImageRequest Unexpected HTTP response 439" &&
+          $.properties.event_properties.exception != "DocAuth::Acuant::Requests::UploadImageRequest Unexpected HTTP response 440" &&
+          $.properties.event_properties.exception != "DocAuth::Acuant::Requests::UploadImageRequest Unexpected HTTP response 441" &&
+          $.properties.event_properties.exception != "DocAuth::Acuant::Requests::UploadImageRequest Unexpected HTTP response 442"
+        }
+      EOT
+    },
+    doc_auth_vendor_exception_iv = {
+      name         = "doc-auth-vendor-exception-iv"
+      metric_value = 1
+      dimensions   = {}
+      pattern      = <<EOT
+        {
+          $.name="IdV: doc auth optional verify_wait submitted" &&
+          $.properties.event_properties.proofing_results.context.stages.resolution.exception = "*" &&
+          $.properties.event_properties.proofing_results.context.stages.resolution.vendor_name = "lexisnexis:instant_verify"
+        }
+      EOT
+    },
+    doc_auth_vendor_exception_pinpoint = {
+      name         = "doc-auth-vendor-exception-pinpoint"
+      metric_value = 1
+      dimensions   = {}
+      # An undocumented quirk of AWS CloudWatch Metric Filter pattern syntax:
+      # Checking `!=` to a string restricts results to non-null values, just as `="*"` does, hence
+      # the final line of this pattern matches any event with a delivery_status other than null or 400
+      pattern = <<EOT
+        {
+          $.name="IdV: doc auth send_link submitted" &&
+          $.properties.event_properties.telephony_response.error = "*" &&
+          $.properties.event_properties.telephony_response.delivery_status != "Pinpoint Error: PERMANENT_FAILURE - 400"
+        }
+      EOT
+    },
+    doc_auth_vendor_exception_trueid = {
+      name         = "doc-auth-vendor-exception-trueid"
+      metric_value = 1
+      dimensions   = {}
+      pattern      = <<EOT
+        {
+          $.name="IdV: doc auth image upload vendor submitted" &&
+          $.properties.event_properties.exception = "*" &&
+          $.properties.event_properties.vendor = "TrueID"
+        }
+      EOT
+    },
+    doc_auth_vendor_overall_aamva = {
+      name         = "doc-auth-vendor-overall-aamva"
+      metric_value = 1
+      dimensions   = {}
+      pattern      = <<EOT
+        {
+          $.name="IdV: doc auth optional verify_wait submitted" &&
+          $.properties.event_properties.proofing_results.context.stages.state_id.vendor_name = "aamva:state_id"
+        }
+      EOT
+    },
+    doc_auth_vendor_overall_acuant = {
+      name         = "doc-auth-vendor-overall-acuant"
+      metric_value = 1
+      dimensions   = {}
+      pattern      = <<EOT
+        {
+          $.name="IdV: doc auth image upload vendor submitted" &&
+          $.properties.event_properties.vendor = "Acuant"
+        }
+      EOT
+    },
+    doc_auth_vendor_overall_iv = {
+      name         = "doc-auth-vendor-overall-iv"
+      metric_value = 1
+      dimensions   = {}
+      pattern      = <<EOT
+        {
+          $.name="IdV: doc auth optional verify_wait submitted" &&
+          $.properties.event_properties.proofing_results.context.stages.resolution.vendor_name = "lexisnexis:instant_verify"
+        }
+      EOT
+    },
+    doc_auth_vendor_overall_pinpoint = {
+      name         = "doc-auth-vendor-overall-pinpoint"
+      metric_value = 1
+      dimensions   = {}
+      pattern      = <<EOT
+        {
+          $.name="IdV: doc auth send_link submitted" &&
+          $.properties.event_properties.telephony_response.delivery_status = "*"
+        }
+      EOT
+    },
+    doc_auth_vendor_overall_trueid = {
+      name         = "doc-auth-vendor-overall-trueid"
+      metric_value = 1
+      dimensions   = {}
+      pattern      = <<EOT
+        {
+          $.name="IdV: doc auth image upload vendor submitted" &&
+          $.properties.event_properties.vendor = "TrueID"
+        }
+      EOT
+    }
+
   }
 
   idp_kms_auth_filters = {

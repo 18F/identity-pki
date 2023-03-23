@@ -673,6 +673,17 @@ locals {
   dnssec_runbook_prefix = " - https://github.com/18F/identity-devops/wiki/Runbook:-DNS#dnssec"
 }
 
+# Locals used by cloudwatch-alarms-idp.tf to create alarms on vendor exception rates:
+locals {
+  doc_auth_vendors = {
+    "aamva"    = "AAMVA",
+    "acuant"   = "Acuant",
+    "iv"       = "Instant Verify",
+    "pinpoint" = "Pinpoint",
+    "trueid"   = "TrueID",
+  }
+}
+
 # These variables are used to toggle whether certain services are enabled.
 #
 # NOTE: These must be numbers, as terraform does not support boolean values,
