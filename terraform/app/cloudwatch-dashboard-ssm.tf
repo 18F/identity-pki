@@ -93,7 +93,7 @@ resource "aws_cloudwatch_dashboard" "ssm_dashboard" {
         "x" : 0,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE 'aws-ssm-sessions-${var.env_name}' | fields @timestamp as Time, sessionId, target.id, concat(sessionData.0,sessionData.1,sessionData.2,sessionData.3,sessionData.4) as sessionData\n| sort @timestamp desc\n| limit 100",
+          "query" : "SOURCE 'aws-ssm-sessions-${var.env_name}' | fields @timestamp as Time, sessionId, target.id, sessionData\n| sort @timestamp desc\n| limit 100",
           "region" : "us-west-2",
           "stacked" : false,
           "view" : "table",
