@@ -1,0 +1,114 @@
+---
+
+# deploy job template for gitlab envs
+.apply_terraform_template:
+  image:
+    # these are hardcoded to make this deploy process more secure.
+    # If you want to update this image, you will need to edit it here, and in
+    # s3://login-gov.secrets.<account>-us-west-2/<env>/gitlab_env_runner_allowed_images,
+    # or s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images.
+    # If you are doing development work, you can override them for your env.
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/terraform_apply@$TERRAFORM_APPLY_IMAGE_DIGEST
+  stage: deploy
+  artifacts:
+    name: "$CI_ENVIRONMENT_NAME-$CI_COMMIT_SHA"
+    paths:
+      - terraform.plan
+      - plan.txt
+    expire_in: 1 year
+    reports:
+      terraform: plan.json
+  script:
+    - echo "Yay deploys!" ; exit 1
+
+# deploy job template for gitlab envs
+.plan_terraform_template:
+  image:
+    # these are hardcoded to make this deploy process more secure.
+    # If you want to update this image, you will need to edit it here, and in
+    # s3://login-gov.secrets.<account>-us-west-2/<env>/gitlab_env_runner_allowed_images,
+    # or s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images.
+    # If you are doing development work, you can override them for your env.
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/terraform_plan@$TERRAFORM_PLAN_IMAGE_DIGEST
+  stage: deploy
+  artifacts:
+    name: "$CI_ENVIRONMENT_NAME-$CI_COMMIT_SHA"
+    paths:
+      - terraform.plan
+      - plan.txt
+    expire_in: 1 year
+    reports:
+      terraform: plan.json
+  script:
+    - echo "Yay deploys!" ; exit 1
+  allow_failure: true
+
+# deploy jobs 
+waf_paudoom_deploy:
+  tags:
+    - pauldoom-env-runner
+  extends: .apply_terraform_template
+  environment:
+    name: pauldoom
+  resource_group: pauldoom
+  variables:
+    ENV_NAME: pauldoom
+    TERRAFORM_DIR: waf
+    PRIVATE_REPO_REF: main
+    GIT_SUBMODULE_STRATEGY: normal
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: never
+    - if: $CI_COMMIT_BRANCH == "stages/pauldoom"
+      when: always
+    - if: $CI_SERVER_HOST != "gitlab.login.gov"
+      when: never
+
+# plan jobs 
+ecr_tooling_sandbox_plan:
+  tags:
+    - build-pool
+  extends: .plan_terraform_template
+  environment:
+    name: ecr_tooling
+  resource_group: ecr_tooling
+  variables:
+    ENV_NAME: tooling
+    TERRAFORM_DIR: ecr
+    PRIVATE_REPO_REF: main
+    GIT_SUBMODULE_STRATEGY: normal
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: never
+    - if: $CI_COMMIT_BRANCH != "main"
+      when: never
+    - if: $CI_SERVER_HOST != "gitlab.login.gov"
+      when: never
+    - changes:
+        - terraform/ecr/module*
+        - terraform/ecr/tooling/*
+
+# plan jobs 
+tooling_tooling_sandbox_plan:
+  tags:
+    - build-pool
+  extends: .plan_terraform_template
+  environment:
+    name: tooling_tooling
+  resource_group: tooling_tooling
+  variables:
+    ENV_NAME: tooling
+    TERRAFORM_DIR: tooling
+    PRIVATE_REPO_REF: main
+    GIT_SUBMODULE_STRATEGY: normal
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: never
+    - if: $CI_COMMIT_BRANCH != "main"
+      when: never
+    - if: $CI_SERVER_HOST != "gitlab.login.gov"
+      when: never
+    - changes:
+        - terraform/tooling/module*
+        - terraform/tooling/tooling/*
+    

@@ -37,6 +37,8 @@ variables:
   GITDEPLOY_IMAGE_DIGEST: "sha256:56a33473a89a41d77aa3b2b5673f15ca089230a234cec33c01ffb2aed73a2431"
   GITTEST_IMAGE_DIGEST: "sha256:06407286bfce20c55cd574a887e50a3b57431df760d40347135e5b321b6306b2"
   STOP_IMAGE_DIGEST: "sha256:0e7bc152621894f278a4dacef4b5d6e53527cb0d17c419129fee5997e69e7527"
+  TERRAFORM_APPLY_IMAGE_DIGEST: "sha256:6b9869b4c03b932a0abeb0e2666e4c9aa3d1f54293acecca735b768b4b9f3dc2"
+  TERRAFORM_PLAN_IMAGE_DIGEST: "sha256:c76e19bd23398b50b3bc59d6db82cac3017b33e9dd565bc9df9bcc87c14abd72"
 
 # TODO(LG-6069): Use an image from ECR
 .build_template:
@@ -95,6 +97,7 @@ build_gitlab_test_container:
     - !reference [.build_template, rules]
     - changes:
         - dockerfiles/gitlab_test*
+        - versions.tf
   variables:
     dockerfile: gitlab_test.Dockerfile
     ecr_repo: cd/gitlab_test
@@ -116,6 +119,7 @@ build_env_stop_container:
     - !reference [.build_template, rules]
     - changes:
         - dockerfiles/env_stop*
+        - versions.tf
   variables:
     dockerfile: env_stop.Dockerfile
     ecr_repo: cd/env_stop
@@ -126,6 +130,7 @@ build_env_test_container:
     - !reference [.build_template, rules]
     - changes:
         - dockerfiles/env_test*
+        - versions.tf
   variables:
     dockerfile: env_test.Dockerfile
     ecr_repo: cd/env_test
@@ -136,9 +141,32 @@ build_idp_ci_container:
     - !reference [.build_template, rules]
     - changes:
         - dockerfiles/idp_ci*
+        - versions.tf
   variables:
     dockerfile: idp_ci.Dockerfile
     ecr_repo: idp/ci
+
+build_terraform_apply_container:
+  extends: .build_template
+  rules:
+    - !reference [.build_template, rules]
+    - changes:
+        - dockerfiles/terraform_apply*
+        - versions.tf
+  variables:
+    dockerfile: terraform_apply.Dockerfile
+    ecr_repo: cd/terraform_apply
+
+build_terraform_plan_container:
+  extends: .build_template
+  rules:
+    - !reference [.build_template, rules]
+    - changes:
+        - dockerfiles/terraform_plan*
+        - versions.tf
+  variables:
+    dockerfile: terraform_plan.Dockerfile
+    ecr_repo: cd/terraform_plan
 
 # IDP environments and their jobs
 env-tspencer:
@@ -625,6 +653,7 @@ test_alpha:
 
 include:
   - local: .gitlab-ci-rules.yml
+  - local: gitlab-ci/terraform-jobs.yml
   - local: kitchen/cookbooks/identity-gitlab/.gitlab-ci.yml
   - local: terraform/.gitlab-ci.yml
   - local: cloudlib/.gitlab-ci.yml

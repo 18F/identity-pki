@@ -26,7 +26,6 @@ if [ "$(env | grep -Ec '^MY_ENV_')" -gt 1 ] ; then
 	exit 4
 fi
 
-
 # set up variables
 AWS_REGION="${AWS_REGION:-us-west-2}"
 export AWS_REGION
