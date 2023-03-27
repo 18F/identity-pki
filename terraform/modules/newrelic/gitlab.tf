@@ -18,11 +18,8 @@ resource "newrelic_synthetics_monitor" "gitlab_health" {
 resource "newrelic_nrql_alert_condition" "gitlab_health" {
   count                        = (var.enabled + var.gitlab_enabled) >= 2 ? 1 : 0
   policy_id                    = newrelic_alert_policy.low[0].id
-  name                         = "${var.env_name} gitlab health failure: @login-devtools-oncall please check to see what broke the deployment"
+  name                         = "${var.env_name} gitlab health failure for over 3 hours: Please check to see what broke the deployment, @login-devtools-oncall"
   violation_time_limit_seconds = 43200
-  aggregation_window           = 60
-  aggregation_method           = "cadence"
-  aggregation_delay            = 120
 
   nrql {
     query = "SELECT count(*) FROM SyntheticCheck WHERE monitorName = '${var.env_name} gitlab check' AND result = 'FAILED'"
