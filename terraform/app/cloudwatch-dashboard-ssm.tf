@@ -93,7 +93,7 @@ resource "aws_cloudwatch_dashboard" "ssm_dashboard" {
         "x" : 0,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE 'aws-ssm-sessions-${var.env_name}' | fields @timestamp as Time, sessionId, target.id as instance, runAsUser \n| parse @message /\\\"sessionData\\\":\\\\[(?<ssmOutput>.*?)\\\\]/ \n| display @timestamp as Time, sessionId, target.id as instance, runAsUser, ssmOutput\n| sort @timestamp desc\n| limit 100",
+          "query" : "SOURCE 'aws-ssm-sessions-${var.env_name}' | fields @timestamp, sessionId, target.id as instance, runAsUser \n| parse @message /\"sessionData\":\\[(?<ssmOutput>.*?)\\]/ \n| display @timestamp, sessionId, target.id as instance, runAsUser, ssmOutput \n|sort @timestamp desc \n| limit 100",
           "region" : "us-west-2",
           "stacked" : false,
           "view" : "table",
