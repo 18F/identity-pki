@@ -20,6 +20,11 @@ resource "newrelic_nrql_alert_condition" "gitlab_health" {
   policy_id                    = newrelic_alert_policy.low[0].id
   name                         = "${var.env_name} gitlab health failure for over 3 hours: Please check to see what broke the deployment, @login-devtools-oncall"
   violation_time_limit_seconds = 43200
+  fill_option                  = "none"
+  aggregation_window           = 900
+  aggregation_method           = "event_flow"
+  aggregation_delay            = 120
+  slide_by                     = 30
 
   nrql {
     query = "SELECT count(*) FROM SyntheticCheck WHERE monitorName = '${var.env_name} gitlab check' AND result = 'FAILED'"
