@@ -1261,6 +1261,12 @@ variable "enrollments_expiration_alarm_threshold" {
   default     = 33120 # 23 days (expected expiration ~30 days)
 }
 
+variable "long_usps_proofing_job_threshold" {
+  description = "Maximum expected runtime in seconds for the USPS proofing job"
+  type        = number
+  default     = 1200 # 20 minutes
+}
+
 variable "low_sp_oidc_token_enabled_sps" {
   description = "A mapping of client IDs and thresholds for OIDC token success per hour."
   type = map(object({

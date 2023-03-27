@@ -357,7 +357,13 @@ locals {
       dimensions = {
         name = "$.name"
       }
-    }
+    },
+    idp_usps_proofing_results_job_completed = {
+      name         = "usps-proofing-job-completed-duration"
+      pattern      = "{ ($.name = \"GetUspsProofingResultsJob: Job completed\") }"
+      metric_value = "$.properties.event_properties.duration_seconds"
+      dimensions   = {}
+    },
   }
 
   idp_external_service_filters = {

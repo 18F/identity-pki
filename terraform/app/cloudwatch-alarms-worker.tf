@@ -176,6 +176,31 @@ EOM
   alarm_actions             = local.in_person_alarm_actions
 }
 
+# Send a slack notification if polling job takes >20 minutes to complete
+resource "aws_cloudwatch_metric_alarm" "idp_usps_proofing_results_job_completed_long_duration" {
+  count = var.idp_worker_alarms_enabled
+
+  alarm_name          = "${var.env_name}-IDPUSPSProofingWorker-VeryLongJobCompletionTime"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  datapoints_to_alarm = "1"
+  metric_name         = "usps-proofing-job-completed-duration"
+  namespace           = "${var.env_name}/idp-in-person-proofing"
+  period              = "900" # Every 15 minutes
+  statistic           = "Maximum"
+  threshold           = var.long_usps_proofing_job_threshold
+
+  alarm_description = <<EOM
+USPS Proofing Job took more than 20 minutes to complete.
+
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms
+EOM
+
+  treat_missing_data        = "notBreaching"
+  insufficient_data_actions = []
+  alarm_actions             = local.in_person_alarm_actions
+}
+
 # There should be no failures, so alert on any failure
 resource "aws_cloudwatch_metric_alarm" "idp_worker_failure_alarm" {
   count = var.idp_worker_alarms_enabled
