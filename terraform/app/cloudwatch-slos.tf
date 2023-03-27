@@ -74,6 +74,7 @@ locals {
       ]
     }
     interesting_availability = {
+      description = "Ratio of successful vs. total \"interesting\" requests"
       numerator = [{
         # Represents the sum of a single Cloudwatch metric.
         # Supported:
@@ -102,6 +103,7 @@ locals {
       }]
     }
     interesting_latency = {
+      description = "Ratio of responses with latency < ${var.sli_interesting_latency_threshold}s vs. total"
       window_days = 30
       numerator = [{
         # Threshold count is the number of data points under a threshold.
@@ -179,8 +181,8 @@ resource "aws_cloudwatch_log_metric_filter" "idp_interesting_uris_success_latenc
 }
 
 module "cloudwatch_sli" {
-  source = "github.com/18F/identity-terraform//slo_lambda?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
-  #source = "../../../identity-terraform/slo_lambda"
+  source = "github.com/18F/identity-terraform//slo_lambda?ref=bcadc2a6d926babccbfdb7bf4d93fbc312e92227"
+  # source = "../../../identity-terraform/slo_lambda"
 
   env_name          = var.env_name
   load_balancer_arn = aws_alb.idp.arn
